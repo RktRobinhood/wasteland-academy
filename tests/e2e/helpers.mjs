@@ -71,16 +71,36 @@ export async function startNode(page, nodeName) {
 export function currentQuestion(page) {
   return page.evaluate(() => {
     const q = Combat._run?._currentQuestion;
-    return q ? { id: q.id, type: q.type, correctIndex: q.correctIndex, answer: q.answer } : null;
+    if (!q) return null;
+    return {
+      id: q.id, type: q.type, difficulty: q.difficulty, isWanted: !!q._isWanted,
+      correctIndex: q.correctIndex, answer: q.answer,
+      parts: q.parts?.map(p => ({ type: p.type, correctIndex: p.correctIndex, answer: p.answer })),
+      enemyTier: Combat._run._currentEnemy.difficulty,
+    };
   });
 }
 
-export async function typeValue(page, value) {
+// Types a number on a numpad: the main one, or a multi-part question's own
+export async function typeValue(page, value, scope = '#value-area') {
   const s = String(value);
   for (const ch of s.replace(/^-/, '')) {
-    await page.locator('#value-area .numpad-key').filter({ hasText: new RegExp(`^${ch.replace('.', '\\.')}$`) }).click();
+    await page.locator(`${scope} .numpad-key`).filter({ hasText: new RegExp(`^${ch.replace('.', '\\.')}$`) }).click();
   }
-  if (s.startsWith('-')) await page.locator('#value-area .numpad-key', { hasText: '±' }).click();
+  if (s.startsWith('-')) await page.locator(`${scope} .numpad-key`, { hasText: '±' }).click();
+}
+
+// Answers the current part of a multi-part question and confirms it
+export async function answerPart(page, part, right) {
+  if (part.type === 'mcq') {
+    const idx = right ? part.correctIndex : (part.correctIndex + 1) % 4;
+    await page.click(`#mp-answer-area .mcq-btn[data-idx="${idx}"]`);
+  } else {
+    const v = right ? part.answer : Number(part.answer) + 1000;
+    await typeValue(page, v, '#mp-answer-area');
+    await expect(page.locator('#mp-numpad-display')).toHaveText(String(v));
+  }
+  await page.click('#multipart-area .multipart-nav .btn');
 }
 
 // Taps an answer. `right` picks the correct one, otherwise a wrong one.
@@ -96,8 +116,10 @@ export async function answer(page, q, right) {
   } else if (q.type === 'value') {
     await typeValue(page, right ? q.answer : Number(q.answer) + 1000);
     await page.click('#value-area .numpad-submit');
+  } else if (q.parts) {
+    for (const part of q.parts) await answerPart(page, part, right);
   } else {
-    throw new Error(`smoke test can't answer a ${q.type} question (${q.id})`);
+    throw new Error(`can't answer a ${q.type} question (${q.id})`);
   }
 }
 

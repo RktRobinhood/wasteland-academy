@@ -104,43 +104,47 @@ const Combat = {
     const diff = this._run._currentEnemy.difficulty;
     let pool = this._buildPool();
 
-    // SR: check for WANTED questions
-    let { question, isWanted } = SR.selectNext(pool, this._run.subtopicId ? [this._run.subtopicId] : null);
+    // Matches the enemy's tier, never repeats the last question, and brings
+    // WANTED questions back when they're due (SR.selectNext)
+    let question = null, isWanted = false;
+    while (pool.length > 0 && !question) {
+      const pick = SR.selectNext(pool, { tier: diff, excludeId: this._run._lastQuestionId });
+      question = this._instantiate(pick.question);
+      isWanted = pick.isWanted;
+      if (!question) pool = pool.filter(q => q !== pick.question);
+    }
     if (!question) {
       Toast.show('No questions available!', 'error');
       this._endRun('no-questions');
       return;
     }
 
-    // For D1-D2, multi-part not allowed; for D3-D5 allow if present
-    if (question.type === 'multipart' && diff < 3) {
-      // Re-pick a non-multipart question
-      const fallback = pool.find(q => q.type !== 'multipart' && q.difficulty === diff);
-      if (fallback) { question = fallback; isWanted = SR.isWanted(fallback.id); }
-    }
-
     question._isWanted = isWanted;
     this._run._currentQuestion = question;
+    this._run._lastQuestionId = question.id;
     this._run._answered = false;
 
     this._renderQuestion(question);
     this._startTimer(diff);
   },
 
+  // A playable copy of a library entry: generated questions are expanded
+  // (keeping the template's id), the rest are copied so the library isn't changed
+  _instantiate(q) {
+    if (!q) return null;
+    if (q.type === 'parametric') return QGen.expand(q);
+    return { ...q };
+  },
+
+  _isMultipart(q) {
+    return q?.type === 'multipart' || q?.type === 'boss';
+  },
+
   _buildPool() {
     const run = this._run;
-    let pool = [];
-
-    if (run.subtopicId) {
-      pool = WA.getQuestionsForSubtopic(run.subtopicId);
-    } else if (run.topicIds?.length > 0) {
-      pool = WA.getQuestionsForTopics(run.topicIds);
-    } else {
-      pool = [...WA.library];
-    }
-
-    // Filter out recently answered (SR breathing room)
-    return SR.tick(), pool.filter(q => !SR.isWanted(q.id) || SR.getDue().includes(q));
+    if (run.subtopicId) return WA.getQuestionsForSubtopic(run.subtopicId);
+    if (run.topicIds?.length > 0) return WA.getQuestionsForTopics(run.topicIds);
+    return [...WA.library];
   },
 
   // ── Timer ─────────────────────────────────────────────────────
@@ -164,7 +168,8 @@ const Combat = {
 
       if (seconds <= 0) {
         clearInterval(this._run._timerInterval);
-        this._resolveAnswer(null, 'timeout');
+        if (this._isMultipart(this._run._currentQuestion)) this._resolvePart(false, true);
+        else this._resolveAnswer(null, 'timeout');
       }
     }, 1000);
   },
@@ -207,12 +212,14 @@ const Combat = {
     this._resolveAnswer(raw, correct ? 'correct' : 'wrong');
   },
 
+  // `tolerance` is absolute: 0.05 accepts answer ± 0.05. The tiny extra
+  // allows for floating-point error only.
   _checkValueAnswer(raw, q) {
-    const tolerance = q.tolerance ?? 0.01;
+    const tolerance = q.tolerance ?? 0;
     const student = this._parseValue(raw);
     const expected = this._parseValue(String(q.answer));
     if (student === null || expected === null) return false;
-    return Math.abs(student - expected) <= Math.abs(expected) * tolerance + 0.001;
+    return Math.abs(student - expected) <= tolerance + 1e-9 * Math.max(1, Math.abs(expected));
   },
 
   _parseValue(str) {
@@ -225,35 +232,56 @@ const Combat = {
     return isNaN(n) ? null : n;
   },
 
+  // One answer's effect, by outcome (SPEC §5.1). A multi-part question adds
+  // these up over its parts (SPEC §5.4).
+  _effect(outcome) {
+    const enemy = this._run._currentEnemy;
+    const diff  = enemy.difficulty;
+    const scrap = this.SCRAP_REWARDS[diff];
+    switch (outcome) {
+      case 'correct':      return { hits: 1, dmg: 0, scrap, score: diff * 10 };
+      // Right but late: chip damage, 60% Scrap, no score
+      case 'complication': return { hits: 1, dmg: Math.round(enemy.dmg * 0.25), scrap: Math.round(scrap * 0.6), score: 0 };
+      case 'timeout':      return { hits: 0, dmg: enemy.dmg + 10, scrap: 0, score: 0 };
+      default:             return { hits: 0, dmg: enemy.dmg, scrap: 0, score: 0 };
+    }
+  },
+
+  // A right answer in the last 20% of the time is a success with complication
+  _outcomeFor(correct, timedOut = false) {
+    if (timedOut) return 'timeout';
+    if (!correct) return 'wrong';
+    return this._run._timeLeft / this._run._timerTotal < 0.2 ? 'complication' : 'correct';
+  },
+
   _resolveAnswer(submittedValue, outcome) {
     if (!this._run?.active || this._run._answered) return;
     this._run._answered = true;
     this._stopTimer();
 
+    if (outcome === 'correct') outcome = this._outcomeFor(true);
     const q = this._run._currentQuestion;
-    const diff = this._run._currentEnemy.difficulty;
-    const timeLeft = this._run._timeLeft;
-    const timerTotal = this._run._timerTotal;
-    const isLate = timeLeft / timerTotal < 0.2;  // last 20% of time
+    const total = this._applyOutcomes(q, [outcome]);
+    this._showOutcome(outcome, q, total.dmg, total.scrap);
+  },
 
-    let isCorrect = (outcome === 'correct');
-    let resultType = outcome;  // 'correct' | 'complication' | 'wrong' | 'timeout'
+  // Applies the outcomes of one question (one per part for a multi-part
+  // question), then moves the fight on. Returns the totals.
+  _applyOutcomes(q, outcomes) {
+    const run  = this._run;
+    const diff = run._currentEnemy.difficulty;
+    const total = { hits: 0, dmg: 0, scrap: 0, score: 0 };
+    outcomes.forEach(o => {
+      const e = this._effect(o);
+      for (const k in total) total[k] += e[k];
+    });
+    const failed = outcomes.some(o => o === 'wrong' || o === 'timeout');
 
-    if (isCorrect && isLate && outcome !== 'timeout') {
-      resultType = 'complication';  // Success with complication — chip damage
-    }
-    if (outcome === 'timeout') {
-      isCorrect = false;
-      resultType = 'timeout';
-    }
-
-    // Record in SR
-    if (!isCorrect) {
-      SR.flag(q.id, q._subtopic || q.subtopic);
-    } else {
-      SR.clear(q.id);
-    }
+    // WANTED: flagged on a failure, cleared by a right answer. Tick first, so
+    // the gap before it returns counts only the questions after this one.
     SR.tick();
+    if (failed) SR.flag(q.id, q._subtopic || q.subtopic);
+    else SR.clear(q.id);
 
     // Stats
     const topicId = q._packId || q._topicId;
@@ -262,56 +290,34 @@ const Combat = {
       subtopic:   q._subtopic || q.subtopic,
       topicId,
       difficulty: diff,
-      correct:    isCorrect,
+      correct:    !failed,
       isWanted:   q._isWanted
     });
 
     // Track per-topic breakdown for run
-    if (!this._run.runTopicBreakdown[topicId])
-      this._run.runTopicBreakdown[topicId] = { correct: 0, total: 0 };
-    this._run.runTopicBreakdown[topicId].total++;
-    if (isCorrect) this._run.runTopicBreakdown[topicId].correct++;
+    if (!run.runTopicBreakdown[topicId])
+      run.runTopicBreakdown[topicId] = { correct: 0, total: 0 };
+    run.runTopicBreakdown[topicId].total++;
+    if (!failed) run.runTopicBreakdown[topicId].correct++;
 
     // History entry
-    this._run.questionHistory.push({ questionId: q.id, topicId, correct: isCorrect });
+    run.questionHistory.push({ questionId: q.id, topicId, correct: !failed });
 
     // Apply outcome effects
-    if (isCorrect || resultType === 'complication') {
-      // Hit the enemy
-      this._run._currentEnemy.currentHp--;
-      const scrap = Math.round(this.SCRAP_REWARDS[diff] * (resultType === 'complication' ? 0.6 : 1));
-      WA.addScrap(scrap);
-
-      if (resultType === 'complication') {
-        // Chip damage for late answer
-        const chipDmg = Math.round(this._run._currentEnemy.dmg * 0.25);
-        this._run.hp = Math.max(0, this._run.hp - chipDmg);
-        this._showOutcome('complication', q, chipDmg, scrap);
-      } else {
-        this._run.score += diff * 10;
-        this._showOutcome('correct', q, 0, scrap);
-      }
-
-      if (this._run._currentEnemy.currentHp <= 0) {
-        // Enemy defeated
-        setTimeout(() => this._onEnemyDefeated(), 1800);
-      } else {
-        setTimeout(() => this._nextQuestion(), 1800);
-      }
-    } else {
-      // Wrong / timeout → take damage
-      const dmg = this._run._currentEnemy.dmg + (outcome === 'timeout' ? 10 : 0);
-      this._run.hp = Math.max(0, this._run.hp - dmg);
-      this._showOutcome(resultType, q, dmg, 0);
-
-      if (this._run.hp <= 0) {
-        setTimeout(() => this._endRun('dead'), 1800);
-      } else {
-        setTimeout(() => this._nextQuestion(), 2000);
-      }
-    }
-
+    run._currentEnemy.currentHp = Math.max(0, run._currentEnemy.currentHp - total.hits);
+    run.hp = Math.max(0, run.hp - total.dmg);
+    run.score += total.score;
+    if (total.scrap > 0) WA.addScrap(total.scrap);
     this._updateHPBars();
+
+    if (run.hp <= 0) {
+      setTimeout(() => this._endRun('dead'), 1800);
+    } else if (run._currentEnemy.currentHp <= 0) {
+      setTimeout(() => this._onEnemyDefeated(), 1800);
+    } else {
+      setTimeout(() => this._nextQuestion(), failed ? 2000 : 1800);
+    }
+    return total;
   },
 
   _onEnemyDefeated() {
@@ -396,10 +402,12 @@ const Combat = {
   useHint() {
     if (!this._run?.active) return;
     const q = this._run._currentQuestion;
-    if (!q?.hint) return Toast.show('No hint available', 'warn');
+    const mp = this._isMultipart(q) ? this._run._multipartState : null;
+    const hint = mp?.parts[mp.currentPart]?.hint || q?.hint;
+    if (!hint) return Toast.show('No hint available', 'warn');
     if (!this._run.lifelines.hint && !this._run.perkHintFree) return Toast.show('Hint used up', 'warn');
 
-    this._showHintModal(q.hint, q.spark_mood || 'thinking');
+    this._showHintModal(hint, q.spark_mood || 'thinking');
     this._run.lifelines.hint = 0;
     this._updateLifelineButtons();
     if (!this._run.perkHintFree) {
@@ -426,8 +434,10 @@ const Combat = {
   },
 
   // ── Numpad ────────────────────────────────────────────────────
-  numpadPress(val) {
-    const display = document.getElementById('numpad-display');
+  // `displayId` is the display the keys belong to: the main one, or a
+  // multi-part question's own (mp-numpad-display)
+  numpadPress(val, displayId = 'numpad-display') {
+    const display = document.getElementById(displayId);
     if (!display) return;
     let current = display.textContent || '';
 
@@ -445,8 +455,8 @@ const Combat = {
     }
   },
 
-  numpadClear() {
-    const display = document.getElementById('numpad-display');
+  numpadClear(displayId = 'numpad-display') {
+    const display = document.getElementById(displayId);
     if (display) display.textContent = '';
   },
 
@@ -542,10 +552,13 @@ const Combat = {
       diffBadge.className = `diff-badge diff-d${q.difficulty}`;
     }
 
-    // Question text
+    // Question text. A multi-part question shows its stem here; a boss shows
+    // its title and intro.
     const qText = document.getElementById('question-text');
     if (qText) {
-      qText.innerHTML = q.question || '';
+      qText.innerHTML = q.type === 'boss'
+        ? `<div class="boss-title">${q.title || 'Boss'}</div>${q.stem || q.intro || ''}`
+        : (q.stem || q.question || '');
       KR.render(qText);
     }
 
@@ -573,11 +586,13 @@ const Combat = {
       // Disable 50-50 for value questions
       const fiftyBtn = document.getElementById('lifeline-fifty');
       if (fiftyBtn) { fiftyBtn.disabled = true; fiftyBtn.title = 'N/A for value questions'; }
-    } else if (q.type === 'multipart') {
+    } else if (this._isMultipart(q)) {
       if (multiArea) {
         multiArea.classList.remove('hidden');
         this._renderMultipart(q, multiArea);
       }
+      const fiftyBtn = document.getElementById('lifeline-fifty');
+      if (fiftyBtn) fiftyBtn.disabled = true;
     }
   },
 
@@ -594,25 +609,41 @@ const Combat = {
     grid.querySelectorAll('.mcq-text').forEach(el => KR.render(el));
   },
 
+  // ── Multi-part questions (SPEC §5.4) ─────────────────────────
+  // Parts come one at a time, each with its own timer, and every part is
+  // attempted. Each part is resolved with the three outcomes; the damage and
+  // Scrap are totalled once the last part is answered.
   _renderMultipart(q, container) {
     const partsEl = container.querySelector('.multipart-parts');
     if (!partsEl) return;
-    partsEl.innerHTML = '';
-    this._run._multipartState = { parts: q.parts, currentPart: 0, answers: [] };
-    this._renderMultipartPart(0, q.parts[0], partsEl);
+    this._run._multipartState = { parts: q.parts, currentPart: 0, outcomes: [] };
+    this._renderMultipartPart(partsEl);
   },
 
-  _renderMultipartPart(idx, part, container) {
+  _renderMultipartPart(container) {
+    const state = this._run._multipartState;
+    const idx   = state.currentPart;
+    const part  = state.parts[idx];
+    const label = i => String.fromCharCode(97 + i);
+    state.currentAnswer = undefined;
+
+    // Parts already answered stay on screen, since later parts build on them
+    const done = state.outcomes.map((o, i) => `
+      <div class="multipart-done-item part-${o}">
+        <span class="multipart-done-mark">${this.PART_MARKS[o]}</span>
+        <span class="math-text">(${label(i)}) ${state.parts[i].question}</span>
+      </div>`).join('');
+
     container.innerHTML = `
-      <div class="multipart-part-label text-xs text-dim">Part (${String.fromCharCode(97+idx)})</div>
-      <div class="multipart-question-text" id="mp-question-text">${part.question}</div>
+      ${done ? `<div class="multipart-done">${done}</div>` : ''}
+      <div class="multipart-part-label text-xs text-dim">Part (${label(idx)}) of ${state.parts.length}</div>
+      <div class="multipart-question-text math-text" id="mp-question-text">${part.question}</div>
       <div id="mp-answer-area"></div>
       <div class="multipart-nav">
         <button class="btn btn-primary" onclick="Combat.submitMultipartPart()">CONFIRM</button>
       </div>
     `;
-    const qEl = container.querySelector('#mp-question-text');
-    if (qEl) KR.render(qEl);
+    container.querySelectorAll('.math-text').forEach(el => KR.render(el));
 
     const ansArea = container.querySelector('#mp-answer-area');
     if (part.type === 'mcq') {
@@ -626,14 +657,16 @@ const Combat = {
       ansArea.querySelectorAll('.mcq-text').forEach(el => KR.render(el));
     } else {
       ansArea.innerHTML = `<div class="numpad-display" id="mp-numpad-display"></div>
-        <div class="numpad-grid">` + this._numpadHTML('mp') + `</div>`;
+        <div class="numpad-grid">` + this._numpadHTML('mp-numpad-display') + `</div>`;
     }
   },
 
-  _numpadHTML(prefix = '') {
+  PART_MARKS: { correct: '✓', complication: '⚡', wrong: '✗', timeout: '⏱' },
+
+  _numpadHTML(displayId) {
     const keys = ['7','8','9','4','5','6','1','2','3','±','0','.','/',String.fromCharCode(0x232B),''];
-    return keys.map((k,i) => k
-      ? `<button class="numpad-key" onclick="Combat.numpadPress('${k}')">${k}</button>`
+    return keys.map(k => k
+      ? `<button class="numpad-key" onclick="Combat.numpadPress('${k}', '${displayId}')">${k}</button>`
       : ''
     ).join('');
   },
@@ -643,32 +676,61 @@ const Combat = {
     if (!state || this._run._answered) return;
     const part = state.parts[state.currentPart];
 
-    let answer;
+    let correct;
     if (part.type === 'mcq') {
-      answer = state.currentAnswer;
-      if (answer === undefined) return Toast.show('Select an option', 'warn');
+      if (state.currentAnswer === undefined) return Toast.show('Select an option', 'warn');
+      correct = state.currentAnswer === part.correctIndex;
     } else {
       const el = document.getElementById('mp-numpad-display');
-      answer = el ? el.textContent.trim() : '';
-      if (!answer) return Toast.show('Enter a value', 'warn');
+      const raw = el ? el.textContent.trim() : '';
+      if (!raw) return Toast.show('Enter a value', 'warn');
+      correct = this._checkValueAnswer(raw, part);
     }
+    this._resolvePart(correct);
+  },
 
-    const correct = (part.type === 'mcq')
-      ? answer === part.correctIndex
-      : this._checkValueAnswer(String(answer), part);
-
-    state.answers.push({ answer, correct });
+  _resolvePart(correct, timedOut = false) {
+    const state = this._run?._multipartState;
+    if (!state || !this._run.active || this._run._answered) return;
+    this._stopTimer();
+    state.outcomes.push(this._outcomeFor(correct, timedOut));
     state.currentPart++;
 
-    if (state.currentPart >= state.parts.length) {
-      // All parts done
-      const allCorrect = state.answers.every(a => a.correct);
-      const anyCorrect = state.answers.some(a => a.correct);
-      this._resolveAnswer(null, allCorrect ? 'correct' : anyCorrect ? 'complication' : 'wrong');
-    } else {
-      const partsEl = document.querySelector('.multipart-parts');
-      if (partsEl) this._renderMultipartPart(state.currentPart, state.parts[state.currentPart], partsEl);
+    if (state.currentPart < state.parts.length) {
+      const partsEl = document.querySelector('#multipart-area .multipart-parts');
+      if (partsEl) this._renderMultipartPart(partsEl);
+      this._startTimer(this._run._currentEnemy.difficulty);
+      return;
     }
+
+    // Every part answered: total the damage and Scrap
+    this._run._answered = true;
+    const q = this._run._currentQuestion;
+    const outcomes = state.outcomes;
+    const total = this._applyOutcomes(q, outcomes);
+    const failedParts = outcomes.map((o, i) => (o === 'wrong' || o === 'timeout') ? i : -1).filter(i => i >= 0);
+    const right = outcomes.length - failedParts.length;
+
+    const type = failedParts.length === 0
+      ? (outcomes.includes('complication') ? 'complication' : 'correct')
+      : (right === 0 ? 'wrong' : 'complication');
+    const msg = failedParts.length === 0
+      ? (type === 'correct' ? 'CORRECT!' : 'SLOW RESPONSE')
+      : (right === 0 ? 'WRONG' : 'PARTLY RIGHT');
+    const sub = [
+      `${right}/${outcomes.length} parts`,
+      total.dmg   ? `−${total.dmg} HP` : '',
+      total.scrap ? `+${total.scrap} Scrap` : '',
+      failedParts.length ? 'Bounty placed' : '',
+    ].filter(Boolean).join(' · ');
+
+    // Worked solutions for the parts that failed, or the question's own
+    const partSolutions = failedParts
+      .filter(i => q.parts[i].worked_solution)
+      .map(i => `<p>(${String.fromCharCode(97 + i)}) ${q.parts[i].worked_solution}</p>`).join('');
+    const solution = failedParts.length ? (partSolutions || q.worked_solution || '') : '';
+
+    this._showOutcome(type, q, total.dmg, total.scrap, { msg, sub, solution });
   },
 
   _hideOutcome() {
@@ -676,7 +738,8 @@ const Combat = {
     if (overlay) overlay.classList.add('hidden');
   },
 
-  _showOutcome(type, q, damage, scrap) {
+  // `extra` overrides the message, sub-line and solution (multi-part totals)
+  _showOutcome(type, q, damage, scrap, extra = {}) {
     const overlay = document.getElementById('outcome-overlay');
     const icon    = document.getElementById('outcome-icon');
     const msg     = document.getElementById('outcome-msg');
@@ -711,10 +774,15 @@ const Combat = {
       if (sparkEl) sparkEl.src   = 'assets/avatars/spark-surprised.png';
     }
 
+    if (extra.msg && msg) msg.textContent = extra.msg;
+    if (extra.sub && sub) sub.textContent = extra.sub;
+
     // Show worked solution if available
     if (sol) {
-      if (q?.worked_solution && (type === 'wrong' || type === 'timeout')) {
-        sol.innerHTML = q.worked_solution;
+      const solution = 'solution' in extra ? extra.solution
+        : (type === 'wrong' || type === 'timeout') ? q?.worked_solution : null;
+      if (solution) {
+        sol.innerHTML = solution;
         KR.render(sol);
         sol.classList.remove('hidden');
       } else {

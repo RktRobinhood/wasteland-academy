@@ -18,32 +18,34 @@ WA.registerPack({
             const a = QGen.nonzero(-5,5), b = QGen.int(-6,6), x = QGen.int(-4,4);
             return { a, b, x, ans: a*x + b };
           },
-          question: p => `Given $f(x) = ${p.a}x + ${p.b < 0 ? '(' + p.b + ')' : p.b}$, find $f(${p.x})$.`,
+          question: p => `Given $f(x) = ${QGen.poly([[p.a,'x'],[p.b,'']])}$, find $f(${p.x})$.`,
           answer:   p => p.ans,
           tolerance: 0,
-          hint:  p => `Substitute $x = ${p.x}$ directly: $f(${p.x}) = ${p.a}(${p.x}) + ${p.b}$.`,
-          worked_solution: p => `$f(${p.x}) = ${p.a}(${p.x}) + ${p.b} = ${p.a*p.x} + ${p.b} = ${p.ans}$`,
+          hint:  p => `Substitute $x = ${p.x}$ directly: $f(${p.x}) = ${p.a}(${p.x})${QGen.signed(p.b)}$.`,
+          worked_solution: p => `$${QGen.chain(`f(${p.x})`, `${p.a}(${p.x})${QGen.signed(p.b)}`, `${p.a*p.x}${QGen.signed(p.b)}`, p.ans)}$`,
         },
         {
           id: 'sl2-2-inverse', type: 'parametric',
           difficulty: 2, spark_mood: 'thinking',
           params() {
-            const a = QGen.nonzero(-4,4), b = QGen.int(-8,8);
-            return { a, b };
+            // |a| >= 2 and b != 0, so no wrong option simplifies to the answer
+            const a = QGen.pick([-4,-3,-2,2,3,4]), b = QGen.nonzero(-8,8);
+            const over = (num, d) => d < 0 ? `-\\dfrac{${num}}{${-d}}` : `\\dfrac{${num}}{${d}}`;
+            return { a, b, f: QGen.poly([[a,'x'],[b,'']]), inv: over(`x${QGen.signed(-b)}`, a), over };
           },
-          question: p => `Find $f^{-1}(x)$ where $f(x) = ${p.a}x ${p.b >= 0 ? '+' : ''} ${p.b}$.`,
+          question: p => `Find $f^{-1}(x)$ where $f(x) = ${p.f}$.`,
           outputType: 'mcq',
-          mcqDistractors(params) {
-            const { a, b } = params;
+          mcqDistractors(p) {
             return [
-              `\\dfrac{x - ${b}}{${a}}`,
-              `${a}x - ${b}`,
-              `\\dfrac{x + ${b}}{${a}}`,
-            ].slice(0, 3);
+              p.over(`x${QGen.signed(p.b)}`, p.a),                 // sign slip
+              `${QGen.frac(1, p.a, 'x')}${QGen.signed(-p.b)}`,     // divided only the x term by a
+              QGen.poly([[p.a,'x'],[-p.b,'']]),                    // multiplied instead of dividing
+              `\\dfrac{1}{${p.f}}`,                               // reciprocal, not inverse
+            ];
           },
-          answer: p => `\\dfrac{x - ${p.b}}{${p.a}}`,
-          hint: p => `Let $y = ${p.a}x + ${p.b}$. Swap $x$ and $y$, then solve for $y$.`,
-          worked_solution: p => `$y = ${p.a}x + ${p.b}$ → swap: $x = ${p.a}y + ${p.b}$ → $y = \\dfrac{x - ${p.b}}{${p.a}}$`,
+          answer: p => p.inv,
+          hint: p => `Let $y = ${p.f}$. Swap $x$ and $y$, then solve for $y$.`,
+          worked_solution: p => `$y = ${p.f}$ → swap: $x = ${QGen.poly([[p.a,'y'],[p.b,'']])}$ → $${p.a}y = x${QGen.signed(-p.b)}$ → $y = ${p.inv}$`,
         },
         {
           id: 'sl2-2-composite', type: 'parametric',
@@ -56,11 +58,11 @@ WA.registerPack({
             const ans = a*(gx) + b;
             return { a, b, c, d, x, gx, ans };
           },
-          question: p => `$f(x) = ${p.a}x + ${p.b}$ and $g(x) = ${p.c}x + ${p.d}$. Find $(f \\circ g)(${p.x})$.`,
+          question: p => `$f(x) = ${QGen.poly([[p.a,'x'],[p.b,'']])}$ and $g(x) = ${QGen.poly([[p.c,'x'],[p.d,'']])}$. Find $(f \\circ g)(${p.x})$.`,
           answer: p => p.ans,
           tolerance: 0,
           hint: p => `$(f \\circ g)(x) = f(g(x))$. First compute $g(${p.x}) = ${p.gx}$, then apply $f$.`,
-          worked_solution: p => `$g(${p.x}) = ${p.c}(${p.x}) + ${p.d} = ${p.gx}$. Then $f(${p.gx}) = ${p.a}(${p.gx}) + ${p.b} = ${p.ans}$.`,
+          worked_solution: p => `$${QGen.chain(`g(${p.x})`, `${p.c}(${p.x})${QGen.signed(p.d)}`, p.gx)}$. Then $${QGen.chain(`f(${p.gx})`, `${p.a}(${p.gx})${QGen.signed(p.b)}`, p.ans)}$.`,
         },
         {
           id: 'sl2-2-domain', type: 'mcq', difficulty: 2,
@@ -84,13 +86,15 @@ WA.registerPack({
           difficulty: 2, spark_mood: 'thinking',
           params() {
             const h = QGen.int(-5,5), k = QGen.int(-8,8), a = QGen.nonzero(-3,3);
-            return { h, k, a };
+            const sq = h === 0 ? 'x^2' : `(x${QGen.signed(-h)})^2`;
+            const f = `${a === 1 ? '' : a === -1 ? '-' : a}${sq}${QGen.signed(k)}`;
+            return { h, k, a, f };
           },
-          question: p => `Write $f(x) = ${p.a}(x - ${p.h})^2 + ${p.k}$ in expanded form $ax^2 + bx + c$. What is the $x$-coordinate of the vertex?`,
+          question: p => `The graph of $f(x) = ${p.f}$ is a parabola. What is the $x$-coordinate of its vertex?`,
           answer: p => p.h,
           tolerance: 0,
-          hint: p => `The vertex form $a(x-h)^2 + k$ directly gives vertex at $(h, k) = (${p.h}, ${p.k})$.`,
-          worked_solution: p => `Vertex form: $${p.a}(x-(${p.h}))^2 + ${p.k}$. Vertex $x$-coordinate $= ${p.h}$.`,
+          hint: p => `The vertex form $a(x-h)^2 + k$ has its vertex at $(h, k)$. Watch the sign inside the bracket.`,
+          worked_solution: p => `$f(x) = ${p.f}$ is in the form $a(x-h)^2 + k$ with $h = ${p.h}$ and $k = ${p.k}$. The vertex is $(${p.h}, ${p.k})$, so its $x$-coordinate is $${p.h}$.`,
         },
         {
           id: 'sl2-4-discrim', type: 'parametric',
@@ -103,11 +107,11 @@ WA.registerPack({
             const disc = b*b - 4*a*c;
             return { a, b, c, disc };
           },
-          question: p => `For $f(x) = ${p.a}x^2 + ${p.b}x + ${p.c}$, calculate the discriminant $\\Delta = b^2 - 4ac$.`,
+          question: p => `For $f(x) = ${QGen.poly([[p.a,'x^2'],[p.b,'x'],[p.c,'']])}$, calculate the discriminant $\\Delta = b^2 - 4ac$.`,
           answer: p => p.disc,
           tolerance: 0,
-          hint: p => `$\\Delta = (${p.b})^2 - 4(${p.a})(${p.c}) = ${p.b*p.b} - ${4*p.a*p.c}$`,
-          worked_solution: p => `$\\Delta = ${p.b}^2 - 4(${p.a})(${p.c}) = ${p.b*p.b} - ${4*p.a*p.c} = ${p.disc}$`,
+          hint: p => `Here $a = ${p.a}$, $b = ${p.b}$, $c = ${p.c}$. $\\Delta = ${QGen.tex(p.b)}^2 - 4(${p.a})(${p.c})$`,
+          worked_solution: p => `$${QGen.chain('\\Delta', `${QGen.tex(p.b)}^2 - 4(${p.a})(${p.c})`, `${p.b*p.b}${QGen.signed(-4*p.a*p.c)}`, p.disc)}$`,
         },
         {
           id: 'sl2-4-roots', type: 'mcq', difficulty: 2,
@@ -129,11 +133,11 @@ WA.registerPack({
             const bNice = 2*a*n;
             return { a, b: bNice, c, axis: -n };
           },
-          question: p => `Find the axis of symmetry of $f(x) = ${p.a}x^2 + ${p.b}x + ${p.c}$.`,
+          question: p => `Find the axis of symmetry of $f(x) = ${QGen.poly([[p.a,'x^2'],[p.b,'x'],[p.c,'']])}$. Enter the value of $x$.`,
           answer: p => p.axis,
           tolerance: 0.01,
           hint: p => `Axis of symmetry: $x = -\\dfrac{b}{2a} = -\\dfrac{${p.b}}{2(${p.a})}$`,
-          worked_solution: p => `$x = -\\dfrac{${p.b}}{2 \\times ${p.a}} = -\\dfrac{${p.b}}{${2*p.a}} = ${p.axis}$`,
+          worked_solution: p => `$x = -\\dfrac{b}{2a} = -\\dfrac{${p.b}}{2(${p.a})} = ${p.axis}$`,
         },
       ],
     },
@@ -177,10 +181,10 @@ WA.registerPack({
         {
           id: 'sl2-5-natlog', type: 'mcq', difficulty: 3,
           question: 'Solve $e^{2x} = 7$ for $x$. Give your answer in exact form.',
-          options: ['$x = \\dfrac{\\ln 7}{2}$', '$x = \\dfrac{7}{2e}$', '$x = 2\\ln 7$', '$x = \\ln\\sqrt{7}$'],
+          options: ['$x = \\dfrac{\\ln 7}{2}$', '$x = \\dfrac{7}{2e}$', '$x = 2\\ln 7$', '$x = \\ln\\dfrac{7}{2}$'],
           correctIndex: 0,
           hint: 'Take $\\ln$ of both sides: $2x = \\ln 7$.',
-          worked_solution: '$\\ln(e^{2x}) = \\ln 7 \\Rightarrow 2x = \\ln 7 \\Rightarrow x = \\dfrac{\\ln 7}{2}$. Note: $\\dfrac{\\ln 7}{2} = \\ln\\sqrt{7}$ is also correct — but $\\dfrac{\\ln7}{2}$ is the standard form.',
+          worked_solution: '$\\ln(e^{2x}) = \\ln 7 \\Rightarrow 2x = \\ln 7 \\Rightarrow x = \\dfrac{\\ln 7}{2}$. Careful: $\\ln\\dfrac{7}{2} = \\ln 7 - \\ln 2$, which is not the same.',
           spark_mood: 'thinking',
         },
       ],
@@ -238,7 +242,7 @@ WA.registerPack({
           parts: [
             {
               type: 'value',
-              question: 'Let $f(x) = 2x^2 - 8x + 6$. Find the $x$-coordinates of the zeros.',
+              question: 'Let $f(x) = 2x^2 - 8x + 6$. Find the zeros of $f$. Enter the smaller one.',
               answer: 1,  // smaller root
               tolerance: 0,
               hint: 'Factorise or use the quadratic formula. $2(x^2-4x+3) = 2(x-1)(x-3)$.',

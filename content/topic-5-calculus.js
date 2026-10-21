@@ -18,15 +18,20 @@ WA.registerPack({
             const n = QGen.int(2,6), a = QGen.nonzero(-5,5);
             return { n, a, coeff: a*n, pow: n-1 };
           },
-          question: p => `Differentiate $f(x) = ${p.a}x^{${p.n}}$.`,
+          question: p => `Differentiate $f(x) = ${QGen.poly([[p.a, QGen.pow('x', p.n)]])}$.`,
           outputType: 'mcq',
-          mcqDistractors(params) {
-            const { a, n } = params;
-            return [`${a*(n+1)}x^{${n}}`, `${a}x^{${n+1}}`, `${a*(n-1)}x^{${n-2}}`];
+          mcqDistractors(p) {
+            const { a, n } = p;
+            return [
+              QGen.poly([[a*n, QGen.pow('x', n)]]),        // didn't lower the power
+              QGen.poly([[a, QGen.pow('x', n+1)]]),        // raised the power
+              QGen.poly([[a*(n+1), QGen.pow('x', n)]]),
+              QGen.poly([[a*(n-1), QGen.pow('x', n-2)]]),
+            ];
           },
-          answer: p => `${p.coeff}x^{${p.pow}}`,
+          answer: p => QGen.poly([[p.coeff, QGen.pow('x', p.pow)]]),
           hint: p => `Power rule: $\\dfrac{d}{dx}[ax^n] = anx^{n-1}$. Here $a=${p.a}$, $n=${p.n}$.`,
-          worked_solution: p => `$f'(x) = ${p.a} \\times ${p.n} \\cdot x^{${p.n}-1} = ${p.coeff}x^{${p.pow}}$`,
+          worked_solution: p => `$f'(x) = ${QGen.tex(p.a)} \\times ${p.n}x^{${p.n}-1} = ${QGen.poly([[p.coeff, QGen.pow('x', p.pow)]])}$`,
         },
         {
           id: 'sl5-2-poly', type: 'parametric',
@@ -37,11 +42,11 @@ WA.registerPack({
             const dyDx = 3*a*x*x + 2*b*x + c;
             return { a, b, c, x, dyDx };
           },
-          question: p => `Find $f'(${p.x})$ where $f(x) = ${p.a}x^3 + ${p.b}x^2 + ${p.c}x$.`,
+          question: p => `Find $f'(${p.x})$ where $f(x) = ${QGen.poly([[p.a,'x^3'],[p.b,'x^2'],[p.c,'x']])}$.`,
           answer: p => p.dyDx,
           tolerance: 0,
-          hint: p => `First differentiate: $f'(x) = ${3*p.a}x^2 + ${2*p.b}x + ${p.c}$. Then substitute $x = ${p.x}$.`,
-          worked_solution: p => `$f'(x) = ${3*p.a}x^2 + ${2*p.b}x + ${p.c}$. $f'(${p.x}) = ${3*p.a}(${p.x})^2 + ${2*p.b}(${p.x}) + ${p.c} = ${p.dyDx}$`,
+          hint: p => `First differentiate: $f'(x) = ${QGen.poly([[3*p.a,'x^2'],[2*p.b,'x'],[p.c,'']])}$. Then substitute $x = ${p.x}$.`,
+          worked_solution: p => `$f'(x) = ${QGen.poly([[3*p.a,'x^2'],[2*p.b,'x'],[p.c,'']])}$. $f'(${p.x}) = ${QGen.poly([[3*p.a,`(${p.x})^2`],[2*p.b,`(${p.x})`],[p.c,'']])} = ${p.dyDx}$`,
         },
         {
           id: 'sl5-2-chain', type: 'mcq', difficulty: 3,
@@ -80,15 +85,24 @@ WA.registerPack({
             const c = y0 - m*x0;
             return { a, b, x0, y0, m, c };
           },
-          question: p => `Find the equation of the tangent to $y = ${p.a}x^2 + ${p.b}$ at $x = ${p.x0}$.`,
+          question: p => `Find the equation of the tangent to $y = ${QGen.poly([[p.a,'x^2'],[p.b,'']])}$ at $x = ${p.x0}$.`,
           outputType: 'mcq',
-          mcqDistractors(params) {
-            const { m, c } = params;
-            return [`y = ${m}x + ${c+2}`, `y = ${m+2}x + ${c}`, `y = ${-m}x + ${c}`];
+          mcqDistractors(p) {
+            const { a, m, c, x0, y0 } = p;
+            const line = (g, k) => `y = ${QGen.poly([[g,'x'],[k,'']])}`;
+            return [
+              line(m, y0),              // used y1 as the intercept
+              line(-m, c),              // gradient sign slip
+              line(m, y0 + m*x0),       // y - y1 = m(x + x1)
+              line(2*a, c),             // gradient function, not its value at x0
+              line(a*x0, y0 - a*x0*x0), // dropped the 2 from the derivative
+              line(m, c + 1),
+              line(m, c - 1),
+            ];
           },
-          answer: p => `y = ${p.m}x + ${p.c}`,
+          answer: p => `y = ${QGen.poly([[p.m,'x'],[p.c,'']])}`,
           hint: p => `Gradient $= f'(${p.x0}) = 2(${p.a})(${p.x0}) = ${p.m}$. Point: $(${p.x0}, ${p.y0})$. Use $y - y_1 = m(x - x_1)$.`,
-          worked_solution: p => `$f'(x) = ${2*p.a}x$; $m = ${p.m}$ at $x=${p.x0}$. Tangent: $y - ${p.y0} = ${p.m}(x - ${p.x0})$, so $y = ${p.m}x + ${p.c}$.`,
+          worked_solution: p => `$f'(x) = ${QGen.poly([[2*p.a,'x']])}$; $m = ${p.m}$ at $x=${p.x0}$. Tangent: $y${QGen.signed(-p.y0)} = ${p.m}(${QGen.poly([[1,'x'],[-p.x0,'']])})$, so $y = ${QGen.poly([[p.m,'x'],[p.c,'']])}$.`,
         },
         {
           id: 'sl5-4-stationary', type: 'parametric',
@@ -100,14 +114,13 @@ WA.registerPack({
             const k = QGen.int(-10,10);
             // f(x) = ax^3 - 3ah^2 x + k
             const b = -3*a*h*h;
-            const xMin = h * Math.sign(a) > 0 ? h : -h;  // stationary point
             return { a, h, k, b, xStat: h };
           },
-          question: p => `Find the $x$-coordinates of the stationary points of $f(x) = ${p.a}x^3 + ${p.b}x + ${p.k}$.`,
+          question: p => `$f(x) = ${QGen.poly([[p.a,'x^3'],[p.b,'x'],[p.k,'']])}$ has two stationary points. Find their $x$-coordinates and enter the positive one.`,
           answer: p => p.xStat,
           tolerance: 0,
-          hint: p => `Set $f'(x) = 0$: $f'(x) = ${3*p.a}x^2 + ${p.b} = 0$.`,
-          worked_solution: p => `$f'(x) = ${3*p.a}x^2 + ${p.b} = 0 \\Rightarrow x^2 = ${p.h*p.h} \\Rightarrow x = \\pm ${p.h}$. Enter the positive root.`,
+          hint: p => `Set $f'(x) = 0$: $f'(x) = ${QGen.poly([[3*p.a,'x^2'],[p.b,'']])} = 0$.`,
+          worked_solution: p => `$f'(x) = ${QGen.poly([[3*p.a,'x^2'],[p.b,'']])} = 0 \\Rightarrow x^2 = ${p.h*p.h} \\Rightarrow x = \\pm ${p.h}$. The positive one is $${p.h}$.`,
         },
         {
           id: 'sl5-4-incr', type: 'mcq', difficulty: 2,
@@ -131,23 +144,22 @@ WA.registerPack({
           difficulty: 2, spark_mood: 'happy',
           params() {
             const n = QGen.int(2,5), a = QGen.nonzero(-4,4);
-            const num = a, den = n+1;
-            const g = (x,y) => { let r=1; for(let d=2;d<=Math.min(x,y);d++) if(x%d===0&&y%d===0){r=d;} return r; };
-            const gc = g(Math.abs(num),Math.abs(den));
-            return { n, a, num: num/gc, den: den/gc };
+            return { n, a };
           },
-          question: p => `Find $\\displaystyle\\int ${p.a}x^{${p.n}}\\,dx$.`,
+          question: p => `Find $\\displaystyle\\int ${QGen.poly([[p.a, QGen.pow('x', p.n)]])}\\,dx$.`,
           outputType: 'mcq',
-          mcqDistractors(params) {
-            const { a, n } = params;
-            const g = (x,y) => { let r=1; for(let d=2;d<=Math.min(Math.abs(x),Math.abs(y));d++) if(x%d===0&&y%d===0){r=d;} return r; };
-            const gc1 = g(Math.abs(a), n+2);
-            const gc2 = g(Math.abs(a), n);
-            return [`\\dfrac{${a/gc1}}{${(n+2)/gc1}}x^{${n+2}} + C`, `${a*(n+1)}x^{${n+2}} + C`, `${a/g(Math.abs(a),n)}x^{${n-1}} + C`];
+          mcqDistractors(p) {
+            const { a, n } = p;
+            return [
+              `${QGen.frac(a, n, QGen.pow('x', n+1))} + C`,          // divided by the old power
+              `${QGen.poly([[a*n, QGen.pow('x', n-1)]])} + C`,       // differentiated instead
+              `${QGen.poly([[a*(n+1), QGen.pow('x', n+1)]])} + C`,   // multiplied instead of dividing
+              `${QGen.frac(a, n+2, QGen.pow('x', n+2))} + C`,
+            ];
           },
-          answer: p => `\\dfrac{${p.num}}{${p.den}}x^{${p.n+1}} + C`,
+          answer: p => `${QGen.frac(p.a, p.n+1, QGen.pow('x', p.n+1))} + C`,
           hint: p => `Power rule: $\\int ax^n dx = \\dfrac{a}{n+1}x^{n+1} + C$.`,
-          worked_solution: p => `$\\int ${p.a}x^{${p.n}}dx = \\dfrac{${p.a}}{${p.n+1}}x^{${p.n+1}} + C = \\dfrac{${p.num}}{${p.den}}x^{${p.n+1}} + C$`,
+          worked_solution: p => `$${QGen.chain(`\\int ${QGen.poly([[p.a, QGen.pow('x', p.n)]])}\\,dx`, `\\dfrac{${p.a}}{${p.n+1}}x^{${p.n+1}} + C`, `${QGen.frac(p.a, p.n+1, QGen.pow('x', p.n+1))} + C`)}$`,
         },
         {
           id: 'sl5-6-definite', type: 'parametric',
@@ -174,10 +186,10 @@ WA.registerPack({
             const area = parseFloat((a*Math.pow(c,3)/3).toFixed(2));
             return { a, c, area };
           },
-          question: p => `Find the area enclosed between $y = ${p.a}x^2$, the $x$-axis and the line $x = ${p.c}$.`,
+          question: p => `Find the area enclosed between $y = ${QGen.poly([[p.a,'x^2']])}$, the $x$-axis and the line $x = ${p.c}$.`,
           answer: p => p.area,
           tolerance: 0.05,
-          hint: p => `Area $= \\displaystyle\\int_0^{${p.c}} ${p.a}x^2\\,dx = \\left[\\dfrac{${p.a}}{3}x^3\\right]_0^{${p.c}}$`,
+          hint: p => `Area $= \\displaystyle\\int_0^{${p.c}} ${QGen.poly([[p.a,'x^2']])}\\,dx = \\left[${QGen.frac(p.a, 3, 'x^3')}\\right]_0^{${p.c}}$`,
           worked_solution: p => `$\\dfrac{${p.a}}{3}(${p.c})^3 - 0 = \\dfrac{${p.a} \\times ${p.c**3}}{3} = ${p.area}$`,
         },
       ],
@@ -197,11 +209,11 @@ WA.registerPack({
             const v = 3*a*t*t + 2*b*t + c;
             return { a, b, c, t, v };
           },
-          question: p => `A particle moves so its displacement is $s = ${p.a}t^3 + ${p.b}t^2 + ${p.c}t$ metres at time $t$ seconds. Find the velocity at $t = ${p.t}$ s.`,
+          question: p => `A particle moves so its displacement is $s = ${QGen.poly([[p.a,'t^3'],[p.b,'t^2'],[p.c,'t']])}$ metres at time $t$ seconds. Find the velocity at $t = ${p.t}$ s.`,
           answer: p => p.v,
           tolerance: 0,
-          hint: p => `Velocity $v = \\dfrac{ds}{dt} = ${3*p.a}t^2 + ${2*p.b}t + ${p.c}$. Substitute $t = ${p.t}$.`,
-          worked_solution: p => `$v = ${3*p.a}t^2 + ${2*p.b}t + ${p.c}$. At $t=${p.t}$: $v = ${3*p.a}(${p.t})^2 + ${2*p.b}(${p.t}) + ${p.c} = ${p.v}$ m/s`,
+          hint: p => `Velocity $v = \\dfrac{ds}{dt} = ${QGen.poly([[3*p.a,'t^2'],[2*p.b,'t'],[p.c,'']])}$. Substitute $t = ${p.t}$.`,
+          worked_solution: p => `$v = ${QGen.poly([[3*p.a,'t^2'],[2*p.b,'t'],[p.c,'']])}$. At $t=${p.t}$: $v = ${QGen.poly([[3*p.a,`(${p.t})^2`],[2*p.b,`(${p.t})`],[p.c,'']])} = ${p.v}$ m/s`,
         },
         {
           id: 'sl5-8-accel', type: 'parametric',
@@ -209,14 +221,14 @@ WA.registerPack({
           params() {
             const a = QGen.nonzero(-3,4), b = QGen.int(-8,8);
             const t = QGen.int(1,5);
-            const acc = 2*a;  // constant for at^2 + bt
+            const acc = 2*a;  // dv/dt = 2at
             return { a, b, t, acc };
           },
-          question: p => `Velocity of a particle: $v = ${p.a}t^2 + ${p.b}$. Find the acceleration.`,
-          answer: p => p.acc * p.t,  // at t
+          question: p => `A particle has velocity $v = ${QGen.poly([[p.a,'t^2'],[p.b,'']])}$ m/s at time $t$ seconds. Find its acceleration at $t = ${p.t}$ s.`,
+          answer: p => p.acc * p.t,
           tolerance: 0,
-          hint: p => `Acceleration $a = \\dfrac{dv}{dt}$. Differentiate $v = ${p.a}t^2 + ${p.b}$.`,
-          worked_solution: p => `$a = \\dfrac{dv}{dt} = ${2*p.a}t$. The acceleration is ${2*p.a}t (not constant).`,
+          hint: p => `Acceleration $a = \\dfrac{dv}{dt}$. Differentiate $v = ${QGen.poly([[p.a,'t^2'],[p.b,'']])}$, then substitute $t = ${p.t}$.`,
+          worked_solution: p => `$a = \\dfrac{dv}{dt} = ${QGen.poly([[2*p.a,'t']])}$. At $t = ${p.t}$: $a = ${2*p.a}(${p.t}) = ${p.acc * p.t}$ m/s².`,
         },
         {
           id: 'sl5-8-rest', type: 'mcq', difficulty: 3,
@@ -280,7 +292,7 @@ WA.registerPack({
               ).toFixed(2)),
               tolerance: 0.1,
               hint: 'Area $= \\left|\\displaystyle\\int_1^3 f(x)\\,dx\\right|$. Antiderivative: $\\dfrac{x^4}{4} - 2x^3 + \\dfrac{9x^2}{2} + 2x$.',
-              worked_solution: '$\\left[\\dfrac{x^4}{4} - 2x^3 + \\dfrac{9x^2}{2} + 2x\\right]_1^3 = (\\tfrac{81}{4}-54+\\tfrac{81}{2}+6)-(\\tfrac{1}{4}-2+\\tfrac{9}{2}+2) = 4$ square units.',
+              worked_solution: '$\\left[\\dfrac{x^4}{4} - 2x^3 + \\dfrac{9x^2}{2} + 2x\\right]_1^3 = (\\tfrac{81}{4}-54+\\tfrac{81}{2}+6)-(\\tfrac{1}{4}-2+\\tfrac{9}{2}+2) = 12.75 - 4.75 = 8$ square units. ($f > 0$ on $[1, 3]$, so this is the area.)',
               marks: 3, followThrough: true,
             },
           ],

@@ -15,6 +15,7 @@ const PRECACHE_LOCAL = [
   './css/combat.css',
   './js/katex-render.js',
   './js/spaced-rep.js',
+  './js/question-gen.js',
   './js/stats.js',
   './js/engine.js',
   './js/router.js',

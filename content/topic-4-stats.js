@@ -78,7 +78,7 @@ WA.registerPack({
           answer: p => p.num,
           tolerance: 0,
           hint: p => `$P(\\text{red}) = \\dfrac{\\text{favourable outcomes}}{\\text{total outcomes}} = \\dfrac{${p.fav}}{${p.total}}$`,
-          worked_solution: p => `$P(\\text{red}) = \\dfrac{${p.fav}}{${p.total}} = \\dfrac{${p.num}}{${p.den}}$. Numerator $= ${p.num}$.`,
+          worked_solution: p => `$${QGen.chain('P(\\text{red})', `\\dfrac{${p.fav}}{${p.total}}`, `\\dfrac{${p.num}}{${p.den}}`)}$. Numerator $= ${p.num}$.`,
         },
         {
           id: 'sl4-5-complement', type: 'parametric',
