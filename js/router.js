@@ -69,47 +69,108 @@ const ProfileScreen = {
 };
 
 // ── World Map Screen ──────────────────────────────────────────
+// The overworld (assets/map/overworld.png) with a button over each painted
+// zone. Without the art, the same islands show as a card grid.
 const WorldScreen = {
+  // `zone` is where the island sits on the overworld art, in % of the map: the
+  // centre (x, y) and the size (w, h) of its button, measured from the art
   ISLANDS: [
-    { id: 'topic-1-algebra',   name: 'Scrap Fields',    topic: 'Numbers & Algebra',       icon: '⚙️',  art: 'scrap-fields',  pos: { top: '20%', left: '12%' } },
-    { id: 'topic-2-functions', name: 'Signal Tower',    topic: 'Functions',                icon: '📡', art: 'signal-tower',  pos: { top: '15%', right: '12%' } },
-    { id: 'topic-3-geometry',  name: 'Dry Flats',       topic: 'Geometry & Trig',         icon: '📐', art: 'dry-flats',     pos: { top: '50%', left: '8%' } },
-    { id: 'topic-4-stats',     name: 'Radio Spires',    topic: 'Stats & Probability',     icon: '📊', art: 'radio-spires',  pos: { top: '50%', right: '8%' } },
-    { id: 'topic-5-calculus',  name: 'Engine Core',     topic: 'Calculus',                icon: '⚡', art: 'engine-core',   pos: { bottom: '20%', left: '50%', transform: 'translateX(-50%)' } },
+    { id: 'topic-1-algebra',   name: 'Scrap Fields',    topic: 'Numbers & Algebra',       icon: '⚙️',  art: 'scrap-fields',  zone: { x: 30, y: 18, w: 52, h: 24 } },
+    { id: 'topic-2-functions', name: 'Signal Tower',    topic: 'Functions',                icon: '📡', art: 'signal-tower',  zone: { x: 80, y: 18, w: 26, h: 26 } },
+    { id: 'topic-3-geometry',  name: 'Dry Flats',       topic: 'Geometry & Trig',         icon: '📐', art: 'dry-flats',     zone: { x: 15, y: 49, w: 28, h: 30 } },
+    { id: 'topic-4-stats',     name: 'Radio Spires',    topic: 'Stats & Probability',     icon: '📊', art: 'radio-spires',  zone: { x: 85, y: 51, w: 26, h: 26 } },
+    { id: 'topic-5-calculus',  name: 'Engine Core',     topic: 'Calculus',                icon: '⚡', art: 'engine-core',   zone: { x: 50, y: 78, w: 60, h: 24 } },
   ],
+  THUNDERDOME_ZONE: { x: 50, y: 46, w: 38, h: 18 },
+  MAP_ART: 'assets/map/overworld.png',
 
   render() {
     UI.updateScrapDisplay();
-    const grid = document.getElementById('world-islands');
-    if (!grid) return;
-    grid.innerHTML = '';
-
-    this.ISLANDS.forEach(island => {
+    const islands = this.ISLANDS.map(island => {
       const pack = WA.packs.find(p => p.id === island.id);
-      const cleared = this._isCleared(island.id, pack);
-      const hasQuestions = pack && pack.subtopics.some(s => (s.questions||[]).length > 0);
-
-      const el = document.createElement('button');
-      el.className = `island-node ${cleared ? 'cleared' : ''} ${!hasQuestions ? 'locked' : ''}`;
-      el.innerHTML = `
-        <img class="island-art hidden" data-art="assets/map/island-${island.art}.png" alt="">
-        <div class="island-icon art-fallback">${island.icon}</div>
-        <div class="island-name">${island.name}</div>
-        <div class="island-topic">${island.topic}</div>
-        ${cleared ? '<div class="island-cleared-badge">✓ CLEARED</div>' : ''}
-        ${!hasQuestions ? '<div class="island-locked-badge">NO DATA</div>' : ''}
-      `;
-      if (hasQuestions) el.onclick = () => Router.go('island', { islandId: island.id, island });
-      grid.appendChild(el);
+      return {
+        island,
+        cleared: this._isCleared(island.id, pack),
+        locked: !(pack && pack.subtopics.some(s => (s.questions||[]).length > 0)),
+      };
     });
-    Art.scan(grid);
-    Art.scan(document.querySelector('.thunderdome-btn'));
+    this._renderMap(islands);
+    this._renderGrid(islands);
+
+    // The map shows once its art has loaded; until then, and without it, the grid
+    Art.show(document.getElementById('world-map-art'), this.MAP_ART, document.getElementById('world-grid'));
 
     const nameEl = document.getElementById('world-player-name');
     if (nameEl) nameEl.textContent = WA.state.profile.name;
 
     const av = WA.state.profile.avatar || 'female';
     Art.show(document.getElementById('world-player-avatar'), `assets/avatars/avatar-${av}.png`);
+  },
+
+  _open(island) {
+    Router.go('island', { islandId: island.id, island });
+  },
+
+  _renderMap(islands) {
+    const zones = document.getElementById('world-zones');
+    if (!zones) return;
+    zones.innerHTML = '';
+    const place = (el, { x, y, w, h }) => Object.assign(el.style, {
+      left: `${x - w / 2}%`, top: `${y - h / 2}%`, width: `${w}%`, height: `${h}%`,
+    });
+
+    islands.forEach(({ island, cleared, locked }) => {
+      const el = document.createElement('button');
+      el.className = `zone zone-island${cleared ? ' cleared' : ''}${locked ? ' locked' : ''}`;
+      el.dataset.island = island.id;
+      place(el, island.zone);
+      el.innerHTML = `
+        <span class="zone-label">
+          ${cleared ? '<svg class="zone-crown" viewBox="0 0 24 16" aria-hidden="true"><path d="M2 14.5 1 3l6 5 5-7 5 7 6-5-1 11.5z"/></svg>' : ''}
+          <span class="zone-name">${island.name}</span>
+          <span class="sr-only">, ${island.topic}${cleared ? ', cleared' : ''}${locked ? ', locked' : ''}</span>
+          ${locked ? '<span class="zone-state" aria-hidden="true">LOCKED</span>' : ''}
+        </span>
+      `;
+      if (locked) el.setAttribute('aria-disabled', 'true');
+      else el.onclick = () => this._open(island);
+      zones.appendChild(el);
+    });
+
+    const td = document.createElement('button');
+    td.className = 'zone zone-thunderdome';
+    place(td, this.THUNDERDOME_ZONE);
+    td.innerHTML = `
+      <span class="zone-label">
+        <span class="zone-name">Thunderdome</span>
+        <span class="sr-only">, all topics: Endurance or Gauntlet</span>
+      </span>
+    `;
+    td.onclick = () => Router.go('td-config');
+    zones.appendChild(td);
+  },
+
+  _renderGrid(islands) {
+    const grid = document.getElementById('world-islands');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    islands.forEach(({ island, cleared, locked }) => {
+      const el = document.createElement('button');
+      el.className = `island-node ${cleared ? 'cleared' : ''} ${locked ? 'locked' : ''}`;
+      el.innerHTML = `
+        <img class="island-art hidden" data-art="assets/map/island-${island.art}.png" alt="">
+        <div class="island-icon art-fallback">${island.icon}</div>
+        <div class="island-name">${island.name}</div>
+        <div class="island-topic">${island.topic}</div>
+        ${cleared ? '<div class="island-cleared-badge">✓ CLEARED</div>' : ''}
+        ${locked ? '<div class="island-locked-badge">NO DATA</div>' : ''}
+      `;
+      if (!locked) el.onclick = () => this._open(island);
+      grid.appendChild(el);
+    });
+    Art.scan(grid);
+    Art.scan(document.querySelector('.thunderdome-btn'));
   },
 
   _isCleared(islandId, pack) {

@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 import { startServer, BASE_PATH } from './server.mjs';
 import { standin, STANDIN_SIZES } from './standins.mjs';
 import {
-  routeCdn, seedRandom, trackPageErrors, createProfile, openIsland, startNode,
+  routeCdn, seedRandom, trackPageErrors, createProfile, openIsland, openThunderdome, startNode,
   currentQuestion, answer, waitForNext,
 } from './helpers.mjs';
 
@@ -23,13 +23,14 @@ const ASSETS = BASE_PATH + 'assets/';
 // Answers every request under assets/: a stand-in when `art.mode` is
 // 'served', a 404 when it's 'missing'. Routing also turns off the HTTP cache,
 // so switching the mode mid-test takes effect on the next request.
+// Files in `art.missing` 404 whatever the mode.
 async function routeArt(context, mode) {
-  const art = { mode, requested: new Set(), unknown: new Set() };
+  const art = { mode, missing: new Set(), requested: new Set(), unknown: new Set() };
   await context.route(url => url.pathname.startsWith(ASSETS), route => {
     const rel = new URL(route.request().url()).pathname.slice(ASSETS.length);
     art.requested.add(rel);
-    const body = art.mode === 'served' ? standin(rel) : null;
-    if (art.mode === 'served' && !body) art.unknown.add(rel);
+    const body = art.mode === 'served' && !art.missing.has(rel) ? standin(rel) : null;
+    if (art.mode === 'served' && !art.missing.has(rel) && !body) art.unknown.add(rel);
     return body
       ? route.fulfill({ status: 200, contentType: 'image/png', body })
       : route.fulfill({ status: 404, contentType: 'text/plain', body: 'not found' });
@@ -66,6 +67,27 @@ async function expectCleanImages(page) {
   expect(visibleWithoutSrc, 'visible images with no src').toBe(0);
 }
 
+const ISLANDS = {
+  'Scrap Fields': 'scrap-fields', 'Signal Tower': 'signal-tower', 'Dry Flats': 'dry-flats',
+  'Radio Spires': 'radio-spires', 'Engine Core': 'engine-core',
+};
+const ISLAND_NAMES = Object.keys(ISLANDS);
+
+// The world screen's card grid (no overworld art): each card's art or icon
+async function expectWorldGrid(mode, page) {
+  for (const [name, file] of Object.entries(ISLANDS)) {
+    const card = page.locator('#world-islands .island-node', { hasText: name });
+    await expectArt(mode, card.locator('.island-art'), `map/island-${file}.png`, card.locator('.island-icon'));
+    await expect(card.locator('.island-name')).toBeVisible();
+  }
+  await expectArt(mode, page.locator('.thunderdome-btn .thunderdome-art'), 'map/thunderdome.png');
+  await expect(page.locator('.thunderdome-name')).toBeVisible();
+  // The taller island cards don't squash the button and clip its text
+  const [btnBox, subBox] = await Promise.all(
+    ['.thunderdome-btn', '.thunderdome-sub'].map(s => page.locator(s).boundingBox()));
+  expect(subBox.y + subBox.height, 'Thunderdome subtitle inside its button').toBeLessThanOrEqual(btnBox.y + btnBox.height);
+}
+
 for (const mode of ['missing', 'served']) {
   test.describe(`art ${mode}`, () => {
     let art;
@@ -93,21 +115,14 @@ for (const mode of ['missing', 'served']) {
 
       await createProfile(page);
       await expectArt(mode, page.locator('#world-player-avatar'), 'avatars/avatar-male.png');
-      const islands = {
-        'Scrap Fields': 'scrap-fields', 'Signal Tower': 'signal-tower', 'Dry Flats': 'dry-flats',
-        'Radio Spires': 'radio-spires', 'Engine Core': 'engine-core',
-      };
-      for (const [name, file] of Object.entries(islands)) {
-        const card = page.locator('#world-islands .island-node', { hasText: name });
-        await expectArt(mode, card.locator('.island-art'), `map/island-${file}.png`, card.locator('.island-icon'));
-        await expect(card.locator('.island-name')).toBeVisible();
+      // The overworld when it's there, and the card grid when it isn't
+      await expectArt(mode, page.locator('#world-map-art'), 'map/overworld.png', page.locator('#world-grid'));
+      if (mode === 'served') {
+        await expect(page.locator('#world-zones .zone')).toHaveCount(6);
+        for (const name of ISLAND_NAMES) await expect(page.locator('#world-zones .zone', { hasText: name })).toBeVisible();
+      } else {
+        await expectWorldGrid(mode, page);
       }
-      await expectArt(mode, page.locator('.thunderdome-btn .thunderdome-art'), 'map/thunderdome.png');
-      await expect(page.locator('.thunderdome-name')).toBeVisible();
-      // The taller island cards don't squash the button and clip its text
-      const [btnBox, subBox] = await Promise.all(
-        ['.thunderdome-btn', '.thunderdome-sub'].map(s => page.locator(s).boundingBox()));
-      expect(subBox.y + subBox.height, 'Thunderdome subtitle inside its button').toBeLessThanOrEqual(btnBox.y + btnBox.height);
       await expectCleanImages(page);
       await page.screenshot({ path: `${SHOTS}/art-${mode}-02-world.png` });
 
@@ -244,7 +259,7 @@ for (const mode of ['missing', 'served']) {
       const pageErrors = trackPageErrors(page);
       await page.goto(server.url);
       await createProfile(page);
-      await page.click('.thunderdome-btn');
+      await openThunderdome(page);
       await page.click('#screen-td-config .btn-primary');
       await expect(page.locator('#screen-combat')).toBeVisible();
       await page.evaluate(() => Combat._stopTimer());
@@ -306,6 +321,25 @@ test.describe('art served on a small phone', () => {
   });
 });
 
+test('without the overworld, the card grid shows the island art', async ({ page, context }) => {
+  await routeCdn(context);
+  await seedRandom(context);
+  const art = await routeArt(context, 'served');
+  art.missing.add('map/overworld.png');
+  const pageErrors = trackPageErrors(page);
+  await page.goto(server.url);
+  await createProfile(page);
+  await expectArt('missing', page.locator('#world-map-art'), 'map/overworld.png', page.locator('#world-grid'));
+  await expect(page.locator('.world-map')).toBeHidden();
+  await expectWorldGrid('served', page);
+  await expectCleanImages(page);
+  await page.screenshot({ path: `${SHOTS}/art-served-12-world-grid-no-overworld.png` });
+  await openIsland(page, 'Signal Tower');
+  await expect(page.locator('#island-title')).toHaveText('Signal Tower');
+  expect([...art.unknown]).toEqual([]);
+  pageErrors.expectNone();
+});
+
 test('art that turns up mid-session shows without a reload', async ({ page, context }) => {
   await routeCdn(context);
   await seedRandom(context);
@@ -315,14 +349,14 @@ test('art that turns up mid-session shows without a reload', async ({ page, cont
   await createProfile(page);
   const scrapFields = page.locator('#world-islands .island-node', { hasText: 'Scrap Fields' });
   await expectArt('missing', scrapFields.locator('.island-art'), 'map/island-scrap-fields.png', scrapFields.locator('.island-icon'));
+  await expectArt('missing', page.locator('#world-map-art'), 'map/overworld.png', page.locator('#world-grid'));
 
   // The art lands; the next time each screen draws, it shows
   art.mode = 'served';
   await page.click('.world-footer .btn:has-text("STATS")');
   await page.click('#screen-stats .back-btn');
-  await expectArt('served', scrapFields.locator('.island-art'), 'map/island-scrap-fields.png', scrapFields.locator('.island-icon'));
+  await expectArt('served', page.locator('#world-map-art'), 'map/overworld.png', page.locator('#world-grid'));
   await expectArt('served', page.locator('#world-player-avatar'), 'avatars/avatar-male.png');
-  await expectArt('served', page.locator('.thunderdome-btn .thunderdome-art'), 'map/thunderdome.png');
 
   await openIsland(page, 'Scrap Fields');
   await startNode(page, 'Standard Form');

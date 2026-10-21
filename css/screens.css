@@ -137,7 +137,9 @@
   align-items: center;
   gap: var(--space-2);
 }
+/* The avatar shows at 36 px, inside its ring */
 .world-avatar-mini {
+  box-sizing: content-box;
   width: 36px; height: 36px;
   border-radius: 50%;
   background: var(--col-border);
@@ -149,12 +151,117 @@
 .world-scrap { font-size: var(--text-sm); color: var(--col-dust); }
 .world-body {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  container-type: size;
+}
+.world-grid {
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
+
+/* ── Overworld: the 9:16 map, as large as fits between header and footer ── */
+.world-map {
+  position: relative;
+  flex-shrink: 0;
+  width: min(100cqw, 100cqh * 9 / 16);
+  aspect-ratio: 9 / 16;
+  margin: auto;
+  box-shadow: 0 0 24px rgba(0,0,0,0.6);
+}
+.world-map:has(> .world-map-art.hidden) { display: none; }
+/* While the map is still loading, hold the grid back too, so it doesn't flash up first */
+.world-body:has(.world-map-art[data-art-state="loading"]) > .world-grid { visibility: hidden; }
+.world-map-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.world-zones { position: absolute; inset: 0; }
+
+/* A zone's button covers its painted area; the name plate sits at its foot */
+.zone {
+  position: absolute;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+}
+.zone-thunderdome { align-items: center; }
+.zone-label {
+  position: relative;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px var(--space-2);
+  background: rgba(17,24,39,0.85);
+  border: 1px solid var(--col-border-2);
+  border-radius: var(--radius-md);
+  transition: var(--transition-fast);
+}
+.zone-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  line-height: 1.1;
+  letter-spacing: 0.05em;
+  color: var(--col-text);
+  text-align: center;
+}
+.zone-state {
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  color: var(--col-text-dim);
+}
+.zone:active .zone-label { transform: scale(0.95); }
+.zone:focus-visible { outline: none; }
+.zone:focus-visible .zone-label { border-color: var(--col-teal); box-shadow: var(--glow-teal); }
+@media (hover: hover) {
+  .zone:not(.locked):hover .zone-label { border-color: var(--col-teal); box-shadow: var(--glow-teal); }
+}
+.zone-thunderdome .zone-label { border-color: var(--col-magenta); box-shadow: var(--glow-magenta); }
+.zone-thunderdome .zone-name { color: var(--col-magenta); font-size: var(--text-xl); }
+
+.zone.cleared .zone-label { border-color: var(--col-dust); }
+.zone-crown {
+  position: absolute;
+  top: -14px;
+  width: 22px;
+  height: 15px;
+  fill: var(--col-dust);
+  stroke: var(--col-surface);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgba(234,203,116,0.6));
+}
+
+/* A locked zone sits under a grey haze */
+.zone.locked { cursor: not-allowed; }
+.zone.locked::before {
+  content: '';
+  position: absolute;
+  inset: -4%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(156,163,175,0.4), rgba(156,163,175,0.25) 70%, transparent);
+  -webkit-backdrop-filter: grayscale(1) brightness(0.85) blur(1px);
+  backdrop-filter: grayscale(1) brightness(0.85) blur(1px);
+  -webkit-mask-image: radial-gradient(closest-side, #000 65%, transparent);
+  mask-image: radial-gradient(closest-side, #000 65%, transparent);
+  pointer-events: none;
+}
+.zone.locked .zone-name { color: var(--col-text-dim); }
+
 .world-section-title {
   font-family: var(--font-display);
   font-size: var(--text-2xl);
@@ -209,7 +316,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(17,24,39,0.9), rgba(17,24,39,0.2) 70%);
+  background: linear-gradient(to top, rgba(17,24,39,0.95), rgba(17,24,39,0.75) 55%, rgba(17,24,39,0.3));
 }
 .island-name  { font-family: var(--font-display); font-size: var(--text-lg); color: var(--col-text); letter-spacing: 0.04em; }
 .island-topic { font-size: var(--text-xs); color: var(--col-text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
@@ -233,7 +340,8 @@
 .thunderdome-btn:active { transform: scale(0.98); }
 .thunderdome-name {
   font-family: var(--font-display);
-  font-size: var(--text-3xl);
+  /* Shrinks on narrow phones so "⚡ THUNDERDOME ⚡" stays on one line */
+  font-size: min(var(--text-3xl), calc((100vw - 72px) / 10));
   color: var(--col-magenta);
   text-shadow: var(--glow-magenta);
   letter-spacing: 0.1em;

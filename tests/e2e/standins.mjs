@@ -104,6 +104,7 @@ const SPECS = {
   'map/island-engine-core.png': [200, 150, () => picture(200, 150, GREY)],
   'map/thunderdome.png': [200, 150, () => picture(200, 150, MAGENTA)],
   'map/arena-bg.png': [1080, 600, () => picture(1080, 600, METAL)],
+  'map/overworld.png': [1080, 1920, () => picture(1080, 1920, DUST)],
 };
 
 export const STANDIN_SIZES = Object.fromEntries(Object.entries(SPECS).map(([p, [w, h]]) => [p, [w, h]]));

@@ -7,7 +7,8 @@ const KATEX_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/';
 const KATEX_DIST = path.join(REPO, 'node_modules/katex/dist/');
 
 // Serve the KaTeX CDN from node_modules and stub Google Fonts, so the tests
-// don't depend on third-party hosts.
+// don't depend on third-party hosts. WA_REAL_FONTS=1 lets the fonts load, for
+// screenshots that show the game as players see it.
 export async function routeCdn(context) {
   await context.route(KATEX_CDN + '**', route => {
     const rel = new URL(route.request().url()).pathname.split('/KaTeX/0.16.9/')[1];
@@ -19,6 +20,7 @@ export async function routeCdn(context) {
       contentType: fp.endsWith('.css') ? 'text/css' : fp.endsWith('.js') ? 'text/javascript' : 'font/woff2',
     });
   });
+  if (process.env.WA_REAL_FONTS) return;
   await context.route(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//, route =>
     route.fulfill({ status: 200, contentType: 'text/css', body: '', headers: { 'access-control-allow-origin': '*' } }));
 }
@@ -55,9 +57,18 @@ export async function createProfile(page, name = 'VIPER') {
   await expect(page.locator('#screen-world')).toBeVisible();
 }
 
+// Taps an island on the world screen: its zone on the overworld, or its card
+// when the map art is missing
 export async function openIsland(page, name) {
-  await page.locator('#world-islands > *', { hasText: name }).click();
+  await page.locator('#world-zones .zone, #world-islands .island-node')
+    .filter({ hasText: name, visible: true }).click();
   await expect(page.locator('#screen-island')).toBeVisible();
+}
+
+// Taps the Thunderdome on the world screen, on the map or in the card grid
+export async function openThunderdome(page) {
+  await page.locator('#world-zones .zone-thunderdome, .thunderdome-btn').filter({ visible: true }).click();
+  await expect(page.locator('#screen-td-config')).toBeVisible();
 }
 
 export async function startNode(page, nodeName) {

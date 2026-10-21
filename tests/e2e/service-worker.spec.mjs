@@ -4,6 +4,7 @@
 import { test, expect } from '@playwright/test';
 import { startServer } from './server.mjs';
 import { routeCdn, trackPageErrors } from './helpers.mjs';
+import { standin } from './standins.mjs';
 
 let server;
 test.beforeEach(async ({ context }) => {
@@ -70,5 +71,40 @@ test('a returning online player runs the newest code on the next reload', async 
   expect(await page.evaluate(() => !!navigator.serviceWorker.controller), 'still served via the worker').toBe(true);
   expect(await page.evaluate(() => window.__deployMarker)).toBe('v2');
   expect(await page.evaluate(() => getComputedStyle(document.body).getPropertyValue('--deploy-marker').trim())).toBe('v2');
+  pageErrors.expectNone();
+});
+
+// The colour of one pixel of a loaded <img>, as the page decoded it
+const pixel = (page, sel) => page.locator(sel).evaluate(img => {
+  const c = document.createElement('canvas');
+  c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+  return [...ctx.getImageData(1, 1, 1, 1).data.slice(0, 3)];
+});
+
+test('a returning online player sees art re-delivered under the same name', async ({ page }) => {
+  const pageErrors = trackPageErrors(page);
+  await firstVisit(page);
+  await page.fill('#profile-name', 'VIPER');
+  await page.click('#screen-profile .btn-primary');
+  await expect(page.locator('#world-map-art')).toBeVisible();
+  const before = await pixel(page, '#world-map-art');
+
+  // Reload once under the worker: the same art, now in its cache too
+  await page.reload();
+  await expect(page.locator('#world-map-art')).toBeVisible();
+  expect(await page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  expect(await pixel(page, '#world-map-art')).toEqual(before);
+
+  // The Artist re-delivers the overworld under the same file name
+  server.state.overrides.set('assets/map/overworld.png', () => standin('map/overworld.png'));
+  const replacement = [17, 24, 39];  // the stand-in's dark outline, at (1, 1)
+  expect(before).not.toEqual(replacement);
+
+  await page.reload();
+  await expect(page.locator('#world-map-art')).toBeVisible();
+  expect(await page.evaluate(() => !!navigator.serviceWorker.controller), 'still served via the worker').toBe(true);
+  expect(await pixel(page, '#world-map-art')).toEqual(replacement);
   pageErrors.expectNone();
 });

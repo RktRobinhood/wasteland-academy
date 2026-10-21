@@ -192,6 +192,15 @@ p { line-height: 1.55; }
 
 /* ── Utility ── */
 .hidden { display: none !important; }
+/* Read by screen readers, not shown */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .flex   { display: flex; }
 .flex-col { display: flex; flex-direction: column; }
 .flex-center { display: flex; align-items: center; justify-content: center; }
