@@ -46,7 +46,7 @@ export function splitMath(text) {
 }
 
 // The player-visible strings on an item. Parametric templates hold functions
-// here; those are generated content and out of scope for this validator.
+// here instead; the validator checks their expanded output (loadGenerated).
 const TEXT_FIELDS = ['question', 'stem', 'title', 'intro', 'hint', 'worked_solution'];
 
 export function textsOf(q) {
@@ -82,12 +82,13 @@ export const CHECKS = {
     return problems;
   },
 
+  // Tolerance is absolute (answer ± tolerance) and must be stated
   'value-answer'(item) {
     const q = item.q;
     if (q.type !== 'value') return [];
     const problems = [];
     if (typeof q.answer !== 'number' || !Number.isFinite(q.answer)) problems.push(`answer ${JSON.stringify(q.answer)} is not a finite number`);
-    if (q.tolerance !== undefined && !(typeof q.tolerance === 'number' && q.tolerance >= 0)) problems.push(`tolerance ${JSON.stringify(q.tolerance)} is not a number >= 0`);
+    if (!(typeof q.tolerance === 'number' && q.tolerance >= 0)) problems.push(`tolerance ${JSON.stringify(q.tolerance)} is not a number >= 0`);
     return problems;
   },
 
@@ -108,6 +109,31 @@ export const CHECKS = {
         } catch (e) {
           problems.push(`${field}: $${seg.text}$ — ${e.message.split('\n')[0]}`);
         }
+      }
+    }
+    return problems;
+  },
+
+  // Nothing broken leaks into what the player sees
+  'no-broken-values'(item) {
+    return textsOf(item.q)
+      .filter(([, text]) => /\bNaN\b|\bundefined\b|Infinity|\[object Object\]|=>/.test(text))
+      .map(([field, text]) => `${field}: ${JSON.stringify(text)}`);
+  },
+
+  // Signs and coefficients as a teacher writes them: no "+ -5", "x - -2",
+  // "1x", "0x" or "x^{1}"
+  'clean-signs'(item) {
+    const BAD = [
+      [/[+-]\s*-\s*\d/, 'double sign'],
+      [/(?<![\w.\\}{^])[01][a-z](?![a-z])/, 'coefficient 0 or 1'],
+      [/[xt]\^\{?[01]\}?(?!\d)/, 'power 0 or 1'],
+    ];
+    const problems = [];
+    for (const [field, text] of textsOf(item.q)) {
+      for (const seg of splitMath(text)) {
+        if (!seg.math) continue;
+        for (const [re, what] of BAD) if (re.test(seg.text)) problems.push(`${field}: ${what} in $${seg.text}$`);
       }
     }
     return problems;

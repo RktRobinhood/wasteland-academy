@@ -138,10 +138,10 @@ WA.registerPack({
         {
           id: 'sl1-4-a', type: 'mcq', difficulty: 1,
           question: '$\\$1200$ is invested at $5\\%$ per annum compound interest. What is the value after $3$ years?',
-          options: ['\\$1380.00', '\\$1386.45', '\\$1389.00', '\\$1260.00'],
+          options: ['$\\$1380.00$', '$\\$1389.15$', '$\\$1323.00$', '$\\$1260.00$'],
           correctIndex: 1,
           hint: 'Use $FV = PV \\times \\left(1 + \\dfrac{r}{100}\\right)^n$.',
-          worked_solution: '$FV = 1200 \\times 1.05^3 = 1200 \\times 1.157625 = \\$1386.45$',
+          worked_solution: '$FV = 1200 \\times 1.05^3 = 1200 \\times 1.157625 = \\$1389.15$',
           spark_mood: 'happy'
         },
         {
@@ -207,9 +207,9 @@ WA.registerPack({
           id: 'sl1-5-d', type: 'mcq', difficulty: 3,
           question: 'Solve $3^{x+1} = 5^x$. Give the answer to $3$ significant figures.',
           options: ['$x \\approx 2.15$', '$x \\approx 3.15$', '$x \\approx 1.87$', '$x \\approx 4.50$'],
-          correctIndex: 1,
+          correctIndex: 0,
           hint: 'Take $\\ln$ of both sides: $(x+1)\\ln 3 = x \\ln 5$. Expand and collect $x$ terms.',
-          worked_solution: '$(x+1)\\ln 3 = x \\ln 5 \\Rightarrow x\\ln 3 + \\ln 3 = x\\ln 5 \\Rightarrow \\ln 3 = x(\\ln 5 - \\ln 3) \\Rightarrow x = \\dfrac{\\ln 3}{\\ln 5 - \\ln 3} \\approx 3.15$',
+          worked_solution: '$(x+1)\\ln 3 = x \\ln 5 \\Rightarrow x\\ln 3 + \\ln 3 = x\\ln 5 \\Rightarrow \\ln 3 = x(\\ln 5 - \\ln 3) \\Rightarrow x = \\dfrac{\\ln 3}{\\ln 5 - \\ln 3} = \\dfrac{1.0986}{0.5108} \\approx 2.15$',
           spark_mood: 'thinking'
         },
         {
@@ -391,7 +391,7 @@ WA.registerPack({
         {
           id: 'sl1-9-d', type: 'mcq', difficulty: 5,
           question: 'In the expansion of $(1 + kx)^8$, the coefficient of $x^2$ is $112$. Find $k$.',
-          options: ['$k = \\pm\\sqrt{4}$', '$k = \\pm 2$', '$k = \\pm 3$', '$k = 4$'],
+          options: ['$k = \\pm\\sqrt{2}$', '$k = \\pm 2$', '$k = \\pm 3$', '$k = 4$'],
           correctIndex: 1,
           hint: 'The $x^2$ term is $\\binom{8}{2}(kx)^2 = 28k^2x^2$. Set $28k^2 = 112$.',
           worked_solution: '$28k^2 = 112 \\Rightarrow k^2 = 4 \\Rightarrow k = \\pm 2$.',

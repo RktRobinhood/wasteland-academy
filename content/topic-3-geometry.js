@@ -156,16 +156,18 @@ WA.registerPack({
           id: 'sl3-4-rad-deg', type: 'parametric',
           difficulty: 1, spark_mood: 'happy',
           params() {
+            // The numpad has no π key, so the player enters k where the angle is kπ
             const degs = [30,45,60,90,120,135,150,180,270,360];
             const deg = QGen.pick(degs);
-            const rad = parseFloat((deg * Math.PI / 180).toFixed(4));
-            return { deg, rad };
+            const g = QGen._gcd(deg, 180);
+            const num = deg / g, den = 180 / g;
+            return { deg, num, den, k: num / den, kTex: QGen.frac(num, den, '\\pi') };
           },
-          question: p => `Convert $${p.deg}°$ to radians. Give your answer as a multiple of $\\pi$ or to 4 d.p.`,
-          answer: p => p.rad,
-          tolerance: 0.0005,
-          hint: p => `Multiply by $\\dfrac{\\pi}{180}$: $${p.deg}° \\times \\dfrac{\\pi}{180}$`,
-          worked_solution: p => `$${p.deg} \\times \\dfrac{\\pi}{180} = ${p.rad}$ rad`,
+          question: p => `Convert $${p.deg}°$ to radians, as a multiple of $\\pi$. Enter $k$, where the angle is $k\\pi$ (a fraction such as 3/4 is fine).`,
+          answer: p => p.k,
+          tolerance: 0.005,
+          hint: p => `Multiply by $\\dfrac{\\pi}{180}$: $${p.deg}° \\times \\dfrac{\\pi}{180}$, then simplify the fraction.`,
+          worked_solution: p => `$${p.deg} \\times \\dfrac{\\pi}{180} = \\dfrac{${p.deg}}{180}\\pi = ${p.kTex}$, so $k = ${QGen.frac(p.num, p.den)}$${p.den === 1 ? '' : ` (about $${p.k.toFixed(4).replace(/0+$/, '')}$)`}.`,
         },
       ],
     },
