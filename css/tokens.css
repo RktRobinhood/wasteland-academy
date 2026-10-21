@@ -1,0 +1,91 @@
+:root {
+  /* ── Colour: Base ── */
+  --col-bg:        #1F2937;
+  --col-surface:   #111827;
+  --col-surface-2: #1a2332;
+  --col-border:    #374151;
+  --col-border-2:  #4B5563;
+
+  /* ── Colour: Neon Accents ── */
+  --col-magenta:   #FF3DA7;
+  --col-magenta-dim: #7a1a4f;
+  --col-teal:      #22D3C5;
+  --col-teal-dim:  #0e6b64;
+  --col-mint:      #9FF0E6;
+
+  /* ── Colour: Warm Accents ── */
+  --col-rust:      #FAA261;
+  --col-rust-dim:  #7a4d2d;
+  --col-dust:      #EACB74;
+  --col-dust-dim:  #7a6a35;
+  --col-concrete:  #9CA3AF;
+  --col-muted:     #6B7280;
+
+  /* ── Colour: Semantic ── */
+  --col-success:   #22D3C5;
+  --col-danger:    #FF3DA7;
+  --col-warning:   #FAA261;
+  --col-scrap:     #EACB74;
+  --col-math:      #9FF0E6;
+  --col-text:      #E5E7EB;
+  --col-text-dim:  #9CA3AF;
+
+  /* ── Colour: HP Bars ── */
+  --col-hp-player: #22D3C5;
+  --col-hp-enemy:  #FF3DA7;
+  --col-hp-bg:     #374151;
+
+  /* ── Typography ── */
+  --font-display: 'Bangers', cursive;
+  --font-body:    'Share Tech Mono', monospace;
+
+  --text-xs:   0.7rem;
+  --text-sm:   0.85rem;
+  --text-base: 1rem;
+  --text-lg:   1.15rem;
+  --text-xl:   1.4rem;
+  --text-2xl:  1.8rem;
+  --text-3xl:  2.4rem;
+  --text-4xl:  3rem;
+
+  /* ── Spacing ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Radii ── */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-full: 9999px;
+
+  /* ── Borders ── */
+  --border-1: 1px solid var(--col-border);
+  --border-2: 2px solid var(--col-border-2);
+
+  /* ── Shadows / Glows ── */
+  --glow-teal:    0 0 12px rgba(34, 211, 197, 0.4);
+  --glow-magenta: 0 0 12px rgba(255, 61, 167, 0.4);
+  --glow-dust:    0 0 12px rgba(234, 203, 116, 0.4);
+  --glow-rust:    0 0 8px  rgba(250, 162, 97, 0.35);
+
+  /* ── Transitions ── */
+  --transition-fast: 120ms ease;
+  --transition-base: 220ms ease;
+
+  /* ── Tap target ── */
+  --tap-min: 48px;
+
+  /* ── Safe areas ── */
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left:   env(safe-area-inset-left, 0px);
+  --safe-right:  env(safe-area-inset-right, 0px);
+}

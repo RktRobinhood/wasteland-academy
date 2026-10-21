@@ -1,0 +1,28 @@
+{
+  "name": "Wasteland Academy",
+  "short_name": "WA",
+  "description": "IB Math AA SL review — roguelite combat, spaced repetition, post-apocalyptic Salvage Neon Bazaar aesthetic",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1F2937",
+  "theme_color": "#1F2937",
+  "scope": "./",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "games"],
+  "screenshots": []
+}

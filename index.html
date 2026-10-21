@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Wasteland Academy">
+  <meta name="theme-color" content="#1F2937">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <title>Wasteland Academy</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/screens.css">
+  <link rel="stylesheet" href="css/combat.css">
+</head>
+<body>
+
+<!-- ── TOAST CONTAINER ─────────────────────────────────── -->
+<div id="toast-container" aria-live="polite"></div>
+
+<!-- ── PWA INSTALL BANNER ──────────────────────────────── -->
+<div id="install-banner" class="install-banner hidden">
+  <span class="install-banner-text">Add to Home Screen for the full experience</span>
+  <button class="btn btn-scrap install-banner-btn" onclick="PWA.install()">INSTALL</button>
+  <button class="install-banner-dismiss" onclick="document.getElementById('install-banner').classList.add('hidden')">✕</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN: LOADER
+═══════════════════════════════════════════════════════ -->
+<div id="screen-loader" class="screen">
+  <div class="loader-logo">WASTELAND<br>ACADEMY</div>
+  <div class="loader-sub">MATH · SURVIVAL · REVIEW</div>
+  <div class="loader-bar-track">
+    <div id="loader-bar" class="loader-bar-fill"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN: PROFILE SETUP
+═══════════════════════════════════════════════════════ -->
+<div id="screen-profile" class="screen hidden">
+  <div class="profile-title">CHOOSE YOUR<br>CALLSIGN</div>
+  <div class="profile-label">NAME / CALLSIGN</div>
+  <input id="profile-name" class="profile-input" type="text" maxlength="20"
+    placeholder="e.g. VIPER" autocomplete="off" autocorrect="off" spellcheck="false">
+
+  <div class="profile-label">AVATAR</div>
+  <div class="avatar-grid">
+    <button class="avatar-choice" data-avatar="female" onclick="ProfileScreen.selectAvatar('female')">
+      <img src="assets/avatars/avatar-female.png"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+           alt="Female avatar">
+      <div class="avatar-placeholder" style="display:none">🧑</div>
+      <span class="avatar-choice-name">Scout</span>
+    </button>
+    <button class="avatar-choice" data-avatar="male" onclick="ProfileScreen.selectAvatar('male')">
+      <img src="assets/avatars/avatar-male.png"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+           alt="Male avatar">
+      <div class="avatar-placeholder" style="display:none">🧑</div>
+      <span class="avatar-choice-name">Ranger</span>
+    </button>
+    <button class="avatar-choice" data-avatar="spark" onclick="ProfileScreen.selectAvatar('spark')">
+      <img src="assets/avatars/avatar-spark.png"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+           alt="Spark robot avatar">
+      <div class="avatar-placeholder" style="display:none">🤖</div>
+      <span class="avatar-choice-name">SPARK</span>
+    </button>
+  </div>
+
+  <button class="btn btn-primary" style="margin-top: var(--space-6)" onclick="ProfileScreen.confirm()">
+    ENTER THE WASTELAND
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN: WORLD MAP
+═══════════════════════════════════════════════════════ -->
+<div id="screen-world" class="screen hidden">
+  <div class="world-header">
+    <div class="world-logo">WASTELAND ACADEMY</div>
+    <div class="world-player-info">
+      <div class="world-avatar-mini" id="world-player-avatar"></div>
+      <div>
+        <div class="text-sm" id="world-player-name">—</div>
+        <div class="world-scrap">⚙ <span class="scrap-display">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="world-body">
+    <!-- Islands -->
+    <div class="world-section-title">TERRITORIES</div>
+    <div id="world-islands" class="world-islands"></div>
+
+    <!-- Thunderdome -->
+    <button class="thunderdome-btn" onclick="Router.go('td-config')">
+      <div class="thunderdome-name">⚡ THUNDERDOME ⚡</div>
+      <div class="thunderdome-sub">All topics · Endurance · Gauntlet</div>
+    </button>
+  </div>
+
+  <div class="world-footer">
+    <button class="btn btn-ghost" style="flex:1" onclick="Router.go('stats')">STATS</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="Router.go('bazaar')">BAZAAR</button>
+    <button class="btn btn-ghost" style="flex:1" onclick="ProfileScreen.render(); Router.go('profile')">PROFILE</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN: ISLAND MAP
+═══════════════════════════════════════════════════════ -->
+<div id="screen-island" class="screen hidden">
+  <div class="island-header">
+    <div class="island-header-top">
+      <button class="back-btn" onclick="Router.back()">← BACK</button>
+      <div>
+        <h2 id="island-title" class="font-display"></h2>
+        <div id="island-topic" class="island-header-topic"></div>
+      </div>
+    </div>
+  </div>
+  <div id="island-nodes" class="island-nodes"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN: THUNDERDOME CONFIG
+═══════════════════════════════════════════════════════ -->
+<div id="screen-td-config" class="screen hidden">
+  <button class="back-btn" style="margin: max(var(--space-3),var(--safe-top)) var(--space-4) 0" onclick="Router.back()">← BACK</button>
+  <div class="td-title">THUNDERDOME</div>
+
+  <div class="td-section-label">MODE</div>
+  <div class="mode-buttons">
+    <button class="mode-btn active" data-mode="endurance" onclick="TDConfigScreen.selectMode('endurance')">
+      <div class="mode-btn-name">ENDURANCE</div>
+      <div class="mode-btn-desc">Survive as long as possible</div>
+    </button>
+    <button class="mode-btn" data-mode="gauntlet" onclick="TDConfigScreen.selectMode('gauntlet')">
+      <div class="mode-btn-name">GAUNTLET</div>
+      <div class="mode-btn-desc">Escalating wave challenge</div>
+    </button>
+  </div>
+
+  <div class="td-section-label" style="margin-top: var(--space-4)">TOPICS</div>
+  <div id="td-topic-toggles" class="topic-toggles"></div>
+
+  <div id="td-high-scores" class="td-high-scores" style="margin-top: var(--space-3)"></div>
+
+  <button class="btn btn-primary" style="margin-top: var(--space-5)" onclick="TDConfigScreen.start()">
+    ENTER THE DOME
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN: COMBAT
+═══════════════════════════════════════════════════════ -->
+<div id="screen-combat" class="screen hidden">
+
+  <!-- Header -->
+  <div class="combat-header">
+    <div class="combat-wave" id="combat-wave">WAVE 1</div>
+    <div>
+      <span class="text-dim text-xs">SCORE </span>
+      <span class="combat-score" id="combat-score">0</span>
+    </div>
+    <div class="combat-scrap">⚙ <span class="scrap-display">0</span></div>
+  </div>
+
+  <!-- HP bars -->
+  <div class="combat-hp-row">
+    <div class="hp-block player">
+      <div class="hp-label">YOU</div>
+      <div class="hp-track"><div id="hp-player-fill" class="hp-fill player" style="width:100%"></div></div>
+      <div id="hp-player-text" class="hp-text">100/100</div>
+    </div>
+    <div style="font-size:var(--text-xl); color:var(--col-concrete); flex-shrink:0">⚔</div>
+    <div class="hp-block enemy">
+      <div class="hp-label">ENEMY</div>
+      <div class="hp-track"><div id="hp-enemy-fill" class="hp-fill enemy" style="width:100%"></div></div>
+      <div id="hp-enemy-text" class="hp-text">3/3</div>
+    </div>
+  </div>
+
+  <!-- Enemy -->
+  <div class="enemy-section">
+    <div class="enemy-sprite-wrap">
+      <img id="enemy-sprite" src="" alt="Enemy"
+           onerror="this.style.display='none'; document.getElementById('enemy-sprite-fallback').style.display='flex'">
+      <div id="enemy-sprite-fallback" class="enemy-sprite-placeholder" style="display:none">💀</div>
+    </div>
+    <div id="enemy-name" class="enemy-name">SCAVENGER</div>
+    <div id="enemy-rank" class="enemy-rank">RECRUIT</div>
+    <div id="incoming-damage" class="incoming-damage hidden"></div>
+  </div>
+
+  <!-- Timer -->
+  <div class="timer-row">
+    <div class="timer-track"><div id="timer-bar" class="timer-fill" style="width:100%"></div></div>
+    <div id="timer-text" class="timer-text">60</div>
+  </div>
+
+  <!-- Question card + answers -->
+  <div class="question-card-wrap">
+    <div class="question-card" id="question-card">
+      <div class="question-card-header">
+        <span id="question-wanted-badge" class="wanted-badge-inline hidden">⚠ WANTED</span>
+        <span id="question-diff-badge" class="diff-badge diff-d1">D1 · RECRUIT</span>
+      </div>
+      <div id="question-text" class="math-text"></div>
+    </div>
+
+    <!-- MCQ -->
+    <div id="mcq-area" class="hidden">
+      <div class="mcq-grid"></div>
+    </div>
+
+    <!-- Value / numpad -->
+    <div id="value-area" class="hidden">
+      <div id="numpad-display" class="numpad-display"></div>
+      <div class="numpad-grid">
+        <button class="numpad-key" onclick="Combat.numpadPress('7')">7</button>
+        <button class="numpad-key" onclick="Combat.numpadPress('8')">8</button>
+        <button class="numpad-key" onclick="Combat.numpadPress('9')">9</button>
+        <button class="numpad-key op" onclick="Combat.numpadPress('/')">／</button>
+        <button class="numpad-key" onclick="Combat.numpadPress('4')">4</button>
+        <button class="numpad-key" onclick="Combat.numpadPress('5')">5</button>
+        <button class="numpad-key" onclick="Combat.numpadPress('6')">6</button>
+        <button class="numpad-key op" onclick="Combat.numpadPress('×')">×</button>
+        <button class="numpad-key" onclick="Combat.numpadPress('1')">1</button>
+        <button class="numpad-key" onclick="Combat.numpadPress('2')">2</button>
+        <button class="numpad-key" onclick="Combat.numpadPress('3')">3</button>
+        <button class="numpad-key op" onclick="Combat.numpadPress('.')">.</button>
+        <button class="numpad-key op" onclick="Combat.numpadPress('±')">±</button>
+        <button class="numpad-key" onclick="Combat.numpadPress('0')">0</button>
+        <button class="numpad-key del" onclick="Combat.numpadPress('⌫')">⌫</button>
+        <button class="numpad-key del" onclick="Combat.numpadClear()">C</button>
+      </div>
+      <button class="btn btn-primary numpad-submit" onclick="Combat.submitValue()">SUBMIT ANSWER</button>
+    </div>
+
+    <!-- Multi-part -->
+    <div id="multipart-area" class="hidden">
+      <div class="multipart-parts"></div>
+    </div>
+  </div>
+
+  <!-- Lifelines -->
+  <div class="lifeline-row">
+    <button id="lifeline-fifty" class="lifeline-btn" onclick="Combat.useFiftyFifty()" title="50-50: remove two wrong answers">
+      <img src="assets/ui/lifeline-fifty-on.png"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+           alt="50-50">
+      <span class="lifeline-icon-fallback" style="display:none">½</span>
+      <span class="lifeline-label">50-50</span>
+    </button>
+    <button id="lifeline-freeze" class="lifeline-btn" onclick="Combat.useFreeze()" title="Freeze timer for 15 seconds">
+      <img src="assets/ui/lifeline-freeze-on.png"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+           alt="Freeze">
+      <span class="lifeline-icon-fallback" style="display:none">⏸</span>
+      <span class="lifeline-label">FREEZE</span>
+    </button>
+    <button id="lifeline-hint" class="lifeline-btn" onclick="Combat.useHint()" title="Get a hint from SPARK">
+      <img src="assets/ui/lifeline-hint-on.png"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+           alt="Hint">
+      <span class="lifeline-icon-fallback" style="display:none">💡</span>
+      <span class="lifeline-label">HINT</span>
+    </button>
+  </div>
+
+  <!-- Outcome overlay -->
+  <div id="outcome-overlay" class="hidden">
+    <img id="outcome-spark" src="" alt="SPARK"
+         onerror="this.style.display='none'">
+    <div id="outcome-icon">✓</div>
+    <div id="outcome-msg">CORRECT!</div>
+    <div id="outcome-sub"></div>
+    <div id="outcome-solution" class="hidden math-text"></div>
+  </div>
+
+  <!-- Hint modal -->
+  <div id="hint-modal" class="hidden">
+    <div class="hint-modal-card">
+      <div class="hint-modal-header">
+        <img id="hint-spark" src="assets/avatars/spark-thinking.png"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+             alt="SPARK">
+        <div class="hint-spark-placeholder" style="display:none">🤖</div>
+        <div class="hint-label">SPARK SAYS...</div>
+      </div>
+      <div id="hint-text" class="math-text"></div>
+    </div>
+    <button class="btn btn-ghost" onclick="Combat.closeHint()">CLOSE</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN: DEBRIEF
+═══════════════════════════════════════════════════════ -->
+<div id="screen-debrief" class="screen hidden">
+  <div class="debrief-score-block">
+    <div class="debrief-score-label">FINAL SCORE</div>
+    <div class="debrief-score-value" id="debrief-score">0</div>
+    <div class="debrief-mode" id="debrief-mode">ENDURANCE</div>
+  </div>
+
+  <!-- Spider diagram -->
+  <div>
+    <div class="spider-header">
+      <div class="text-sm text-dim" style="text-transform:uppercase;letter-spacing:0.1em">PERFORMANCE</div>
+      <button id="debrief-spider-toggle" class="spider-toggle-btn" data-view="run" onclick="DebriefScreen.toggleSpider()">THIS RUN</button>
+    </div>
+    <canvas id="debrief-spider" width="320" height="260"></canvas>
+  </div>
+
+  <!-- Improvements -->
+  <div id="debrief-trend"></div>
+
+  <!-- Wanted board -->
+  <div>
+    <div class="text-xs text-dim" style="text-transform:uppercase;letter-spacing:0.12em;margin-bottom:var(--space-2)">WANTED BOUNTIES</div>
+    <div id="debrief-wanted"></div>
+  </div>
+
+  <div style="display:flex; gap:var(--space-3); padding-bottom:max(var(--space-4),var(--safe-bottom))">
+    <button class="btn btn-ghost" style="flex:1" onclick="Router.go('world')">WORLD MAP</button>
+    <button class="btn btn-primary" style="flex:1" onclick="Router.go('stats')">FULL STATS</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN: STATS
+═══════════════════════════════════════════════════════ -->
+<div id="screen-stats" class="screen hidden">
+  <div style="display:flex; align-items:center; gap:var(--space-3); padding: max(var(--space-4),var(--safe-top)) var(--space-4) 0">
+    <button class="back-btn" onclick="Router.back()">← BACK</button>
+    <span class="font-display" style="font-size:var(--text-2xl); color:var(--col-teal)">STATS</span>
+  </div>
+
+  <div class="text-xs text-dim" style="text-transform:uppercase;letter-spacing:0.12em;margin:var(--space-4) var(--space-4) var(--space-2)">TOPIC MASTERY</div>
+  <canvas id="stats-spider" width="320" height="260" style="display:block;width:100%;max-width:320px;height:260px;margin:0 auto"></canvas>
+
+  <div style="padding: var(--space-4)">
+    <div class="text-xs text-dim" style="text-transform:uppercase;letter-spacing:0.12em;margin-bottom:var(--space-2)">WANTED BOUNTIES</div>
+    <div id="stats-wanted"></div>
+
+    <div class="text-xs text-dim" style="text-transform:uppercase;letter-spacing:0.12em;margin:var(--space-4) 0 var(--space-2)">RECENT RUNS</div>
+    <div id="stats-runs"></div>
+
+    <div style="display:flex; gap:var(--space-3); margin-top:var(--space-5); padding-bottom:max(var(--space-4),var(--safe-bottom))">
+      <button class="btn btn-ghost" style="flex:1" onclick="WA.exportSave()">EXPORT SAVE</button>
+      <button class="btn btn-danger" style="flex:1" onclick="WA.reset()">RESET ALL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN: BAZAAR
+═══════════════════════════════════════════════════════ -->
+<div id="screen-bazaar" class="screen hidden">
+  <div style="display:flex; align-items:center; gap:var(--space-3); padding: max(var(--space-4),var(--safe-top)) var(--space-4) 0">
+    <button class="back-btn" onclick="Router.back()">← BACK</button>
+    <span class="bazaar-title">SALVAGE BAZAAR</span>
+  </div>
+  <div style="padding: var(--space-2) var(--space-4)">
+    <div class="bazaar-scrap-display">⚙ <span class="scrap-display bazaar-scrap">0</span> Scrap</div>
+  </div>
+  <div id="bazaar-grid" class="bazaar-grid" style="padding: 0 var(--space-4) max(var(--space-6),var(--safe-bottom))"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCRIPTS — order matters
+═══════════════════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+<script src="js/katex-render.js"></script>
+<script src="js/spaced-rep.js"></script>
+<script src="js/stats.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/router.js"></script>
+<script src="js/combat.js"></script>
+<script src="js/pwa.js"></script>
+
+<!-- Content packs (register before WA.init) -->
+<script src="content/topic-1-algebra.js"></script>
+<script src="content/topic-2-functions.js" onerror="console.warn('[WA] topic-2-functions not yet available')"></script>
+<script src="content/topic-3-geometry.js"  onerror="console.warn('[WA] topic-3-geometry not yet available')"></script>
+<script src="content/topic-4-stats.js"     onerror="console.warn('[WA] topic-4-stats not yet available')"></script>
+<script src="content/topic-5-calculus.js"  onerror="console.warn('[WA] topic-5-calculus not yet available')"></script>
+
+<script>
+  // Boot after all packs have had a tick to register
+  document.addEventListener('DOMContentLoaded', () => {
+    KR.init().then(() => WA.init());
+  });
+</script>
+</body>
+</html>
