@@ -1,6 +1,6 @@
 /* ── COMBAT SCREEN ──────────────────────────────────────────── */
 #screen-combat {
-  position: relative;
+  /* Keeps .screen's fixed, full-height box: only the question area scrolls */
   overflow: hidden;
   background: var(--col-surface);
 }
@@ -121,7 +121,10 @@
 /* ── QUESTION CARD ──────────────────────────────────────────── */
 .question-card-wrap {
   flex: 1;
+  min-height: 0;  /* let the flex item shrink so it scrolls instead of pushing the lifelines off-screen */
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: var(--space-3) var(--space-3) 0;
   display: flex;
   flex-direction: column;
@@ -246,6 +249,11 @@
 .numpad-submit {
   width: 100%;
   margin-top: var(--space-2);
+  /* Stays on screen at the bottom of the scrolling question area, however tall the question is */
+  position: sticky;
+  bottom: var(--space-2);
+  z-index: 1;
+  box-shadow: 0 0 0 var(--space-2) var(--col-surface);
 }
 
 /* ── MULTIPART ──────────────────────────────────────────────── */
@@ -346,6 +354,18 @@
   color: var(--col-text-dim);
   line-height: 1.6;
   width: 100%;
+}
+
+/* ── SHORT SCREENS (e.g. 375×667) ───────────────────────────── */
+@media (max-height: 740px) {
+  .enemy-section { min-height: 0; padding-top: var(--space-1); padding-bottom: var(--space-1); }
+  .enemy-sprite-wrap, #enemy-sprite { width: 56px; height: 56px; }
+  .enemy-sprite-placeholder { width: 52px; height: 52px; font-size: 1.6rem; }
+  .enemy-name { font-size: var(--text-xl); }
+  .question-card { padding: var(--space-3); }
+  .numpad-display { min-height: 48px; padding: var(--space-2) var(--space-3); margin-bottom: var(--space-2); }
+  .numpad-key { height: var(--tap-min); }
+  .lifeline-row { padding-top: var(--space-2); padding-bottom: max(var(--space-2), var(--safe-bottom)); }
 }
 
 /* ── HINT MODAL ─────────────────────────────────────────────── */

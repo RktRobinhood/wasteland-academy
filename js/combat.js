@@ -105,24 +105,25 @@ const Combat = {
     let pool = this._buildPool();
 
     // SR: check for WANTED questions
-    const question = SR.selectNext(pool, this._run.subtopicId ? [this._run.subtopicId] : null);
+    let { question, isWanted } = SR.selectNext(pool, this._run.subtopicId ? [this._run.subtopicId] : null);
     if (!question) {
       Toast.show('No questions available!', 'error');
       this._endRun('no-questions');
       return;
     }
 
-    this._run._currentQuestion = question;
-    this._run._currentQuestion._isWanted = SR.isWanted(question.id);
-
     // For D1-D2, multi-part not allowed; for D3-D5 allow if present
     if (question.type === 'multipart' && diff < 3) {
       // Re-pick a non-multipart question
       const fallback = pool.find(q => q.type !== 'multipart' && q.difficulty === diff);
-      if (fallback) this._run._currentQuestion = fallback;
+      if (fallback) { question = fallback; isWanted = SR.isWanted(fallback.id); }
     }
 
-    this._renderQuestion(this._run._currentQuestion);
+    question._isWanted = isWanted;
+    this._run._currentQuestion = question;
+    this._run._answered = false;
+
+    this._renderQuestion(question);
     this._startTimer(diff);
   },
 
@@ -188,7 +189,7 @@ const Combat = {
 
   // ── Answer submission ─────────────────────────────────────────
   submitMCQ(optionIndex) {
-    if (!this._run?._currentQuestion) return;
+    if (!this._run?._currentQuestion || this._run._answered) return;
     const q = this._run._currentQuestion;
     if (q.type !== 'mcq') return;
     const correct = optionIndex === q.correctIndex;
@@ -197,7 +198,7 @@ const Combat = {
 
   submitValue() {
     const input = document.getElementById('numpad-display');
-    if (!input || !this._run?._currentQuestion) return;
+    if (!input || !this._run?._currentQuestion || this._run._answered) return;
     const raw = input.textContent.trim();
     if (!raw) return Toast.show('Enter a value', 'warn');
 
@@ -225,7 +226,8 @@ const Combat = {
   },
 
   _resolveAnswer(submittedValue, outcome) {
-    if (!this._run?.active) return;
+    if (!this._run?.active || this._run._answered) return;
+    this._run._answered = true;
     this._stopTimer();
 
     const q = this._run._currentQuestion;
@@ -526,6 +528,8 @@ const Combat = {
     const card = document.getElementById('question-card');
     if (!card) return;
 
+    this._hideOutcome();
+
     // Wanted badge
     const wantedBadge = document.getElementById('question-wanted-badge');
     if (wantedBadge) wantedBadge.classList.toggle('hidden', !q._isWanted);
@@ -636,7 +640,7 @@ const Combat = {
 
   submitMultipartPart() {
     const state = this._run?._multipartState;
-    if (!state) return;
+    if (!state || this._run._answered) return;
     const part = state.parts[state.currentPart];
 
     let answer;
@@ -665,6 +669,11 @@ const Combat = {
       const partsEl = document.querySelector('.multipart-parts');
       if (partsEl) this._renderMultipartPart(state.currentPart, state.parts[state.currentPart], partsEl);
     }
+  },
+
+  _hideOutcome() {
+    const overlay = document.getElementById('outcome-overlay');
+    if (overlay) overlay.classList.add('hidden');
   },
 
   _showOutcome(type, q, damage, scrap) {
