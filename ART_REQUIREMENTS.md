@@ -14,7 +14,8 @@ The engine references assets by these exact paths. Drop files here with these ex
 assets/
 ├── icons/
 │   ├── icon-192.png          ← PWA app icon 192×192
-│   └── icon-512.png          ← PWA app icon 512×512
+│   ├── icon-512.png          ← PWA app icon 512×512
+│   └── favicon-32.png        ← Browser tab icon 32×32, made from icon-512.png
 │
 ├── avatars/
 │   ├── avatar-female.png     ← Female Learner sprite 256×256
@@ -40,7 +41,9 @@ assets/
 │   ├── lifeline-hint-on.png     ← Hint enabled 128×128
 │   ├── lifeline-hint-off.png    ← Hint disabled 128×128
 │   ├── wanted-badge.png         ← WANTED poster badge 96×64
-│   └── question-card.png        ← Question card frame 360×400
+│   ├── question-card.png        ← Question card frame 360×400
+│   ├── hp-frame-player.png      ← Player HP bar frame 320×48
+│   └── hp-frame-enemy.png       ← Enemy HP bar frame 320×48
 │
 └── map/
     ├── overworld.png                 ← Full world map background 1080×1920
@@ -49,7 +52,8 @@ assets/
     ├── island-dry-flats.png          ← Island thumbnail 200×150
     ├── island-radio-spires.png       ← Island thumbnail 200×150
     ├── island-engine-core.png        ← Island thumbnail 200×150
-    └── thunderdome.png               ← Thunderdome thumbnail 200×150
+    ├── thunderdome.png               ← Thunderdome thumbnail 200×150
+    └── arena-bg.png                  ← Thunderdome arena background 1080×600
 ```
 
 The engine gracefully degrades if any asset is missing — placeholder CSS fills in until the real art arrives. Priority order for generation: **icons first** (needed for PWA install), then **enemies + avatars** (seen every run), then **map assets**, then **UI chrome**.

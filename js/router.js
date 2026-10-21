@@ -47,6 +47,7 @@ const ProfileScreen = {
     const nameInput = document.getElementById('profile-name');
     if (nameInput) nameInput.value = WA.state.profile.name || '';
     this._selectAvatar(WA.state.profile.avatar || 'female');
+    Art.scan(document.querySelector('.avatar-grid'));
   },
 
   _selectAvatar(id) {
@@ -70,11 +71,11 @@ const ProfileScreen = {
 // ── World Map Screen ──────────────────────────────────────────
 const WorldScreen = {
   ISLANDS: [
-    { id: 'topic-1-algebra',   name: 'Scrap Fields',    topic: 'Numbers & Algebra',       icon: '⚙️',  pos: { top: '20%', left: '12%' } },
-    { id: 'topic-2-functions', name: 'Signal Tower',    topic: 'Functions',                icon: '📡', pos: { top: '15%', right: '12%' } },
-    { id: 'topic-3-geometry',  name: 'Dry Flats',       topic: 'Geometry & Trig',         icon: '📐', pos: { top: '50%', left: '8%' } },
-    { id: 'topic-4-stats',     name: 'Radio Spires',    topic: 'Stats & Probability',     icon: '📊', pos: { top: '50%', right: '8%' } },
-    { id: 'topic-5-calculus',  name: 'Engine Core',     topic: 'Calculus',                icon: '⚡', pos: { bottom: '20%', left: '50%', transform: 'translateX(-50%)' } },
+    { id: 'topic-1-algebra',   name: 'Scrap Fields',    topic: 'Numbers & Algebra',       icon: '⚙️',  art: 'scrap-fields',  pos: { top: '20%', left: '12%' } },
+    { id: 'topic-2-functions', name: 'Signal Tower',    topic: 'Functions',                icon: '📡', art: 'signal-tower',  pos: { top: '15%', right: '12%' } },
+    { id: 'topic-3-geometry',  name: 'Dry Flats',       topic: 'Geometry & Trig',         icon: '📐', art: 'dry-flats',     pos: { top: '50%', left: '8%' } },
+    { id: 'topic-4-stats',     name: 'Radio Spires',    topic: 'Stats & Probability',     icon: '📊', art: 'radio-spires',  pos: { top: '50%', right: '8%' } },
+    { id: 'topic-5-calculus',  name: 'Engine Core',     topic: 'Calculus',                icon: '⚡', art: 'engine-core',   pos: { bottom: '20%', left: '50%', transform: 'translateX(-50%)' } },
   ],
 
   render() {
@@ -91,7 +92,8 @@ const WorldScreen = {
       const el = document.createElement('button');
       el.className = `island-node ${cleared ? 'cleared' : ''} ${!hasQuestions ? 'locked' : ''}`;
       el.innerHTML = `
-        <div class="island-icon">${island.icon}</div>
+        <img class="island-art hidden" data-art="assets/map/island-${island.art}.png" alt="">
+        <div class="island-icon art-fallback">${island.icon}</div>
         <div class="island-name">${island.name}</div>
         <div class="island-topic">${island.topic}</div>
         ${cleared ? '<div class="island-cleared-badge">✓ CLEARED</div>' : ''}
@@ -100,15 +102,14 @@ const WorldScreen = {
       if (hasQuestions) el.onclick = () => Router.go('island', { islandId: island.id, island });
       grid.appendChild(el);
     });
+    Art.scan(grid);
+    Art.scan(document.querySelector('.thunderdome-btn'));
 
     const nameEl = document.getElementById('world-player-name');
     if (nameEl) nameEl.textContent = WA.state.profile.name;
 
-    const avatarEl = document.getElementById('world-player-avatar');
-    if (avatarEl) {
-      const av = WA.state.profile.avatar || 'female';
-      avatarEl.style.backgroundImage = `url(assets/avatars/avatar-${av}.png)`;
-    }
+    const av = WA.state.profile.avatar || 'female';
+    Art.show(document.getElementById('world-player-avatar'), `assets/avatars/avatar-${av}.png`);
   },
 
   _isCleared(islandId, pack) {
@@ -237,6 +238,10 @@ const TDConfigScreen = {
   }
 };
 
+// A WANTED board entry's badge: the art, or a text badge without it
+const WANTED_BADGE = `<img class="wanted-badge-img hidden" data-art="assets/ui/wanted-badge.png" alt="WANTED">`
+  + `<span class="badge badge-rust art-fallback">WANTED</span>`;
+
 // ── Debrief Screen ────────────────────────────────────────────
 const DebriefScreen = {
   render(data = {}) {
@@ -301,11 +306,12 @@ const DebriefScreen = {
     if (wanted.length === 0) { el.innerHTML = '<p class="text-dim text-sm">No bounties active</p>'; return; }
     el.innerHTML = wanted.slice(0, 8).map(w => `
       <div class="wanted-item">
-        <span class="badge badge-rust">WANTED</span>
+        ${WANTED_BADGE}
         <span class="wanted-subtopic text-sm">${w.subtopic}</span>
         <span class="text-dim text-xs">${w.attempts} attempt${w.attempts !== 1 ? 's' : ''}</span>
       </div>
     `).join('') + (wanted.length > 8 ? `<p class="text-dim text-xs">+${wanted.length - 8} more</p>` : '');
+    Art.scan(el);
   },
 
   _renderTrend() {
@@ -354,11 +360,12 @@ const StatsScreen = {
         ? '<p class="text-dim text-sm">No active bounties — you\'re clean, Scavenger.</p>'
         : wanted.map(w => `
           <div class="wanted-item">
-            <span class="badge badge-rust">WANTED</span>
+            ${WANTED_BADGE}
             <span class="wanted-subtopic">${w.subtopic}</span>
             <span class="text-dim text-xs">${w.attempts} miss${w.attempts !== 1 ? 'es' : ''}</span>
           </div>
         `).join('');
+      Art.scan(wantedEl);
     }
 
     const runsEl = document.getElementById('stats-runs');
