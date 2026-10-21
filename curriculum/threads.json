@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "about": "Concept threads: big ideas that recur across the five islands. Which skills belong to a thread is set by the `threads` tags on skills in aa-sl.json; this file holds each thread's name, big idea and link-question blueprints. Blueprints are seeds for concept-link questions (content schema v2, `threads: [...]`).",
+  "threads": [
+    {
+      "id": "transformations",
+      "name": "Moving and stretching graphs",
+      "bigIdea": "Replacing x with x − a, or adding b to the output, moves every point by the same vector (a, b); multiplying stretches. The same rule is hiding in vertex form, a·sin(b(x + c)) + d, (ax + b)/(cx + d), the + C of integration and standardising z = (x − μ)/σ.",
+      "blueprints": [
+        { "format": "match", "prompt": "Four parents (x², sin x, 1/x, eˣ) are each translated by the vector (3, 2). Match each new equation to its moved key feature: vertex (3, 2), asymptotes x = 3 and y = 2, maximum at (3 + π/2, 3), horizontal asymptote y = 2." },
+        { "format": "mcq", "prompt": "F(x) = x³ + 4 and G(x) = x³ − 1 are both antiderivatives of 3x². Which transformation maps the graph of F onto G? (Translation by the vector (0, −5): every antiderivative is a vertical translation of another.)" },
+        { "format": "true-false-reason", "prompt": "Standardising X ~ N(70, 5²) translates the curve by (−70, 0) and then stretches it horizontally by a factor 1/5. True or false, and which property explains why probabilities do not change?" },
+        { "format": "mcq", "prompt": "Every test score is increased by 5. Which statement about the histogram and the summary statistics is true? (The graph is translated right by 5: mean and median +5, standard deviation and IQR unchanged.)" },
+        { "format": "value", "prompt": "The area under y = x² from x = 0 to x = 2 is 8/3. Without integrating, find the area under y = (x − 5)² from x = 5 to x = 7." }
+      ]
+    },
+    {
+      "id": "vectors",
+      "name": "Movement as a vector",
+      "bigIdea": "A vector says how far to move across and how far up. The translation vector of a graph, rise over run of a gradient, the shift in a·sin(b(x + c)) + d, displacement in kinematics and the step between two points in 3D are all the same object.",
+      "blueprints": [
+        { "format": "match", "prompt": "The graph of y = f(x) is translated by the vector (−2, 5). Match: the new equation y = f(x + 2) + 5; where the point (1, 0) lands, (−1, 5); and the vector that undoes the move, (2, −5)." },
+        { "format": "error-spot", "prompt": "A student translates y = x² by the vector (2, 5) and writes y = (x + 2)² + 5. Which line of the working is wrong, and why does a positive horizontal component give (x − 2)?" },
+        { "format": "mcq", "prompt": "A line has gradient 3/4. Which vector points along the line? ((4, 3): 4 across, 3 up is the same as gradient 3/4.)" },
+        { "format": "mcq", "prompt": "y = 2(x − 1)² − 8 is y = 2x² moved by which vector? Link vertex form to the translation vector (1, −8)." },
+        { "format": "mcq", "prompt": "Particle A is at displacement s = 3 and moves with constant velocity 2 m/s. Particle B's displacement graph is A's translated by (4, 0). What does the vector say about B? (s_B(t) = s_A(t − 4): B reaches every position 4 seconds after A does.)" }
+      ]
+    },
+    {
+      "id": "rate-of-change",
+      "name": "How fast? Gradients and rates",
+      "bigIdea": "The common difference of an arithmetic sequence, the gradient of a line, the slope of a regression line, the derivative and velocity all answer the same question: how much does the output change when the input goes up by one?",
+      "blueprints": [
+        { "format": "match", "prompt": "Match u_n = 5 + 3(n − 1), the line y = 3x + 2, the regression line y = 3x + 2.1 and f′(x) = 3 to the statement 'goes up by 3 for every 1 across'. Which one is an exact rule, which a model, which an instantaneous rate?" },
+        { "format": "mcq", "prompt": "The regression line of fuel used (litres) on distance (km) is y = 0.072x + 1.3. Interpret 0.072 in context." },
+        { "format": "method-pick", "prompt": "Find the gradient of the tangent to y = x² at x = 3: chord gradients approaching a limit, the power rule, or the GDC derivative at a point. Which give the exact answer?" }
+      ]
+    },
+    {
+      "id": "multiplicative-growth",
+      "name": "Repeated multiplication",
+      "bigIdea": "Multiplying by the same factor again and again gives geometric sequences, compound interest, depreciation, exponential functions and e^x. One idea, four notations.",
+      "blueprints": [
+        { "format": "match", "prompt": "€1000 at 5% compound interest: match u_n = 1000 × 1.05^(n − 1), A(t) = 1000 × 1.05^t and the GDC TVM solver to the question each answers most directly." },
+        { "format": "method-pick", "prompt": "When does 200 × 0.85^n first drop below 50? Choose the methods that work: logarithms, a GDC table, graph intersection, trial and improvement. All four do; which gives a whole-number answer fastest?" },
+        { "format": "true-false-reason", "prompt": "A geometric series with r = 1.05 has a sum to infinity. True or false, and what does |r| < 1 mean for repeated multiplication?" }
+      ]
+    },
+    {
+      "id": "inverses",
+      "name": "Undoing a process",
+      "bigIdea": "An inverse undoes a process: f⁻¹ undoes f, logarithms undo exponentials, arcsin undoes sin (but only gives one answer), integration undoes differentiation, inverse normal turns an area back into a value.",
+      "blueprints": [
+        { "format": "match", "prompt": "Match each 'undo' to its process: log₂ x ↔ 2^x, √x (x ≥ 0) ↔ x², ∫ f(x) dx ↔ d/dx, invNorm ↔ normalcdf." },
+        { "format": "true-false-reason", "prompt": "sin x = 0.5 has exactly one solution because arcsin 0.5 = π/6. True or false? Link to why x² needs the domain x ≥ 0 before it has an inverse." },
+        { "format": "mcq", "prompt": "The graph of y = ln x is the reflection of y = eˣ in which line, and where does the point (0, 1) go?" }
+      ]
+    },
+    {
+      "id": "accumulation",
+      "name": "Adding up many small pieces",
+      "bigIdea": "Sums of series, the area of a sector, the definite integral, probability as the area under a curve and distance from a velocity graph are all 'add up the pieces'.",
+      "blueprints": [
+        { "format": "mcq", "prompt": "Why is P(a < X < b) for a normal variable the area under the curve between a and b? Link to the definite integral." },
+        { "format": "value", "prompt": "A particle's velocity is v = 6 − 2t for 0 ≤ t ≤ 5. Find the total distance travelled. Two methods: integrate |v| on the GDC, or split at t = 3 and add two triangle areas." },
+        { "format": "match", "prompt": "1 + 2 + … + 100 drawn as a staircase of bars: match it to the trapezium-area formula and to the arithmetic series formula S_n = n(u₁ + u_n)/2." }
+      ]
+    },
+    {
+      "id": "symmetry",
+      "name": "Symmetry halves the work",
+      "bigIdea": "The axis of a parabola, related angles on the unit circle, the normal curve around its mean, nCr = nC(n − r) and even or odd functions all let you get one answer from another for free.",
+      "blueprints": [
+        { "format": "mcq", "prompt": "Which uses the same idea as 'the vertex is halfway between the roots'? P(X < μ − a) = P(X > μ + a); sin(π − x) = sin x; 10C3 = 10C7; all three." },
+        { "format": "value", "prompt": "X ~ N(50, σ²) and P(X > 58) = 0.2. Find P(42 < X < 58) without the GDC." }
+      ]
+    },
+    {
+      "id": "equivalent-forms",
+      "name": "Same object, different forms",
+      "bigIdea": "Rewriting something without changing it shows a different feature: the three forms of a quadratic, the forms of a line, the log laws, the three versions of cos 2x, and LHS-to-RHS proof.",
+      "blueprints": [
+        { "format": "match", "prompt": "y = 2x² − 4x − 6, y = 2(x − 3)(x + 1), y = 2(x − 1)² − 8: match each form to the feature you can read off directly (y-intercept, roots, vertex)." },
+        { "format": "true-false-reason", "prompt": "log(a + b) = log a + log b. True or false? Choose the reason, and the law that is actually true." },
+        { "format": "method-pick", "prompt": "To solve cos 2x = cos x, which form of cos 2x turns it into a quadratic in cos x?" }
+      ]
+    },
+    {
+      "id": "extremes",
+      "name": "Biggest and smallest",
+      "bigIdea": "Maxima and minima come from the vertex of a parabola, from f′(x) = 0, from the amplitude of a sinusoid, and from the discriminant when a line just touches a curve.",
+      "blueprints": [
+        { "format": "method-pick", "prompt": "Find the maximum height of h(t) = −5t² + 20t + 2. Pick every method that works: complete the square, t = −b/2a, solve h′(t) = 0, GDC maximum, midpoint of the roots." },
+        { "format": "mcq", "prompt": "What is the maximum of y = 3 sin(2x) + 5, and which transformation tells you without calculus?" },
+        { "format": "mcq", "prompt": "The line y = mx + 1 is tangent to y = x² + 2. Why does 'tangent' mean the discriminant of x² − mx + 1 = 0 is zero?" }
+      ]
+    },
+    {
+      "id": "graph-vs-algebra",
+      "name": "Solve it by algebra, by graph, or by GDC",
+      "bigIdea": "Every equation f(x) = g(x) is an intersection of two graphs. Solve it algebraically when you can, graphically or on the GDC when you cannot, and use one to check the other.",
+      "blueprints": [
+        { "format": "method-pick", "prompt": "Solve eˣ = x + 2. Which method works? (There is no algebraic method; use a graph or GDC intersection.)" },
+        { "format": "mcq", "prompt": "How many solutions does 2 sin x = 1 have for 0 ≤ x ≤ 4π? Count intersections of y = sin x with y = 1/2." },
+        { "format": "mcq", "prompt": "Before finding the area between y = x² and y = x + 2, what must you find first, and how many ways can you find it?" }
+      ]
+    },
+    {
+      "id": "binomial",
+      "name": "The nCr pattern",
+      "bigIdea": "The same binomial coefficients build Pascal's triangle, expand (a + b)^n and give the probabilities of the binomial distribution.",
+      "blueprints": [
+        { "format": "true-false-reason", "prompt": "The coefficient of x² in (0.3 + 0.7x)⁵ equals P(X = 2) for X ~ B(5, 0.7). True or false, and why?" },
+        { "format": "mcq", "prompt": "Row 4 of Pascal's triangle is 1, 4, 6, 4, 1. For X ~ B(4, 0.5), which probability equals 6/16?" }
+      ]
+    }
+  ]
+}

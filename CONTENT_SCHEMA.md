@@ -194,6 +194,8 @@ Do not copy questions from it — use it to judge what difficulty "feels like" a
 
 ## SUBTOPIC MAP
 
+> **Superseded (FAL-207).** This table does not follow IB guide numbering. The authoritative map is [`curriculum/aa-sl.json`](curriculum/aa-sl.json): all 51 AA SL subtopics in guide numbering, each broken into skills with methods and concept threads. See [`curriculum/README.md`](curriculum/README.md).
+
 Full list of subtopic IDs and their names, for use in the `subtopic` field and island node maps.
 
 ### Topic 1 — Numbers & Algebra (Island: Scrap Fields)
