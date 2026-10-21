@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="Wasteland Academy">
   <meta name="theme-color" content="#1F2937">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
   <title>Wasteland Academy</title>
 
@@ -61,24 +62,18 @@
   <div class="profile-label">AVATAR</div>
   <div class="avatar-grid">
     <button class="avatar-choice" data-avatar="female" onclick="ProfileScreen.selectAvatar('female')">
-      <img src="assets/avatars/avatar-female.png"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
-           alt="Female avatar">
-      <div class="avatar-placeholder" style="display:none">🧑</div>
+      <img data-art="assets/avatars/avatar-female.png" class="hidden" alt="Female avatar">
+      <div class="avatar-placeholder art-fallback">🧑</div>
       <span class="avatar-choice-name">Scout</span>
     </button>
     <button class="avatar-choice" data-avatar="male" onclick="ProfileScreen.selectAvatar('male')">
-      <img src="assets/avatars/avatar-male.png"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
-           alt="Male avatar">
-      <div class="avatar-placeholder" style="display:none">🧑</div>
+      <img data-art="assets/avatars/avatar-male.png" class="hidden" alt="Male avatar">
+      <div class="avatar-placeholder art-fallback">🧑</div>
       <span class="avatar-choice-name">Ranger</span>
     </button>
     <button class="avatar-choice" data-avatar="spark" onclick="ProfileScreen.selectAvatar('spark')">
-      <img src="assets/avatars/avatar-spark.png"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
-           alt="Spark robot avatar">
-      <div class="avatar-placeholder" style="display:none">🤖</div>
+      <img data-art="assets/avatars/avatar-spark.png" class="hidden" alt="Spark robot avatar">
+      <div class="avatar-placeholder art-fallback">🤖</div>
       <span class="avatar-choice-name">SPARK</span>
     </button>
   </div>
@@ -95,7 +90,7 @@
   <div class="world-header">
     <div class="world-logo">WASTELAND ACADEMY</div>
     <div class="world-player-info">
-      <div class="world-avatar-mini" id="world-player-avatar"></div>
+      <div class="world-avatar-mini"><img id="world-player-avatar" class="hidden" alt=""></div>
       <div>
         <div class="text-sm" id="world-player-name">—</div>
         <div class="world-scrap">⚙ <span class="scrap-display">0</span></div>
@@ -110,6 +105,7 @@
 
     <!-- Thunderdome -->
     <button class="thunderdome-btn" onclick="Router.go('td-config')">
+      <img data-art="assets/map/thunderdome.png" class="thunderdome-art hidden" alt="">
       <div class="thunderdome-name">⚡ THUNDERDOME ⚡</div>
       <div class="thunderdome-sub">All topics · Endurance · Gauntlet</div>
     </button>
@@ -199,10 +195,10 @@
 
   <!-- Enemy -->
   <div class="enemy-section">
+    <img id="arena-bg" class="arena-bg hidden" alt="">
     <div class="enemy-sprite-wrap">
-      <img id="enemy-sprite" src="" alt="Enemy"
-           onerror="this.style.display='none'; document.getElementById('enemy-sprite-fallback').style.display='flex'">
-      <div id="enemy-sprite-fallback" class="enemy-sprite-placeholder" style="display:none">💀</div>
+      <img id="enemy-sprite" class="hidden" alt="Enemy">
+      <div id="enemy-sprite-fallback" class="enemy-sprite-placeholder">💀</div>
     </div>
     <div id="enemy-name" class="enemy-name">SCAVENGER</div>
     <div id="enemy-rank" class="enemy-rank">RECRUIT</div>
@@ -219,7 +215,10 @@
   <div class="question-card-wrap">
     <div class="question-card" id="question-card">
       <div class="question-card-header">
-        <span id="question-wanted-badge" class="wanted-badge-inline hidden">⚠ BOUNTY</span>
+        <span id="question-wanted-badge" class="question-wanted hidden">
+          <img data-art="assets/ui/wanted-badge.png" class="wanted-badge-img hidden" alt="BOUNTY">
+          <span class="wanted-badge-inline art-fallback">⚠ BOUNTY</span>
+        </span>
         <span id="question-diff-badge" class="diff-badge diff-d1">D1 · RECRUIT</span>
       </div>
       <div id="question-text" class="math-text"></div>
@@ -263,32 +262,26 @@
   <!-- Lifelines -->
   <div class="lifeline-row">
     <button id="lifeline-fifty" class="lifeline-btn" onclick="Combat.useFiftyFifty()" title="50-50: remove two wrong answers">
-      <img src="assets/ui/lifeline-fifty-on.png"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
-           alt="50-50">
-      <span class="lifeline-icon-fallback" style="display:none">½</span>
+      <img class="lifeline-img hidden" alt="50-50">
+      <span class="lifeline-icon-fallback art-fallback">½</span>
       <span class="lifeline-label">50-50</span>
     </button>
     <button id="lifeline-freeze" class="lifeline-btn" onclick="Combat.useFreeze()" title="Freeze timer for 15 seconds">
-      <img src="assets/ui/lifeline-freeze-on.png"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
-           alt="Freeze">
-      <span class="lifeline-icon-fallback" style="display:none">⏸</span>
+      <img class="lifeline-img hidden" alt="Freeze">
+      <span class="lifeline-icon-fallback art-fallback">⏸</span>
       <span class="lifeline-label">FREEZE</span>
     </button>
     <button id="lifeline-hint" class="lifeline-btn" onclick="Combat.useHint()" title="Get a hint from SPARK">
-      <img src="assets/ui/lifeline-hint-on.png"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
-           alt="Hint">
-      <span class="lifeline-icon-fallback" style="display:none">💡</span>
+      <img class="lifeline-img hidden" alt="Hint">
+      <span class="lifeline-icon-fallback art-fallback">💡</span>
       <span class="lifeline-label">HINT</span>
     </button>
   </div>
 
   <!-- Outcome overlay -->
   <div id="outcome-overlay" class="hidden">
-    <img id="outcome-spark" src="" alt="SPARK"
-         onerror="this.style.display='none'">
+    <img id="outcome-spark" class="hidden" alt="SPARK">
+    <div id="outcome-spark-fallback" class="outcome-spark-placeholder">🤖</div>
     <div id="outcome-icon">✓</div>
     <div id="outcome-msg">CORRECT!</div>
     <div id="outcome-sub"></div>
@@ -299,10 +292,8 @@
   <div id="hint-modal" class="hidden">
     <div class="hint-modal-card">
       <div class="hint-modal-header">
-        <img id="hint-spark" src="assets/avatars/spark-thinking.png"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
-             alt="SPARK">
-        <div class="hint-spark-placeholder" style="display:none">🤖</div>
+        <img id="hint-spark" data-art="assets/avatars/spark-thinking.png" class="hidden" alt="SPARK">
+        <div class="hint-spark-placeholder art-fallback">🤖</div>
         <div class="hint-label">SPARK SAYS...</div>
       </div>
       <div id="hint-text" class="math-text"></div>
@@ -391,6 +382,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 
+<script src="js/art.js"></script>
 <script src="js/katex-render.js"></script>
 <script src="js/spaced-rep.js"></script>
 <script src="js/question-gen.js"></script>
@@ -412,6 +404,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     // Register the service worker first, so a boot error can't stop it
     PWA.init();
+    Art.init();
     KR.init().then(() => WA.init());
   });
 </script>

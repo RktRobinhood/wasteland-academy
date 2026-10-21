@@ -407,7 +407,7 @@ const Combat = {
     if (!hint) return Toast.show('No hint available', 'warn');
     if (!this._run.lifelines.hint && !this._run.perkHintFree) return Toast.show('Hint used up', 'warn');
 
-    this._showHintModal(hint, q.spark_mood || 'thinking');
+    this._showHintModal(hint);
     this._run.lifelines.hint = 0;
     this._updateLifelineButtons();
     if (!this._run.perkHintFree) {
@@ -416,7 +416,8 @@ const Combat = {
     }
   },
 
-  _showHintModal(hintText, sparkMood) {
+  // Spark always gives hints thinking
+  _showHintModal(hintText) {
     const modal = document.getElementById('hint-modal');
     const hintEl = document.getElementById('hint-text');
     const sparkEl = document.getElementById('hint-spark');
@@ -425,7 +426,7 @@ const Combat = {
       hintEl.innerHTML = hintText;
       KR.render(hintEl);
     }
-    if (sparkEl) sparkEl.src = `assets/avatars/spark-${sparkMood}.png`;
+    Art.show(sparkEl, 'assets/avatars/spark-thinking.png', sparkEl?.nextElementSibling);
   },
 
   closeHint() {
@@ -471,12 +472,11 @@ const Combat = {
     if (nameEl) nameEl.textContent = enemy.name;
     if (rankEl) rankEl.textContent = enemy.rank;
 
-    // Enemy sprite
-    const sprite = document.getElementById('enemy-sprite');
-    if (sprite) {
-      sprite.src = `assets/enemies/${enemy.img}`;
-      sprite.onerror = () => { sprite.style.display = 'none'; };
-    }
+    // Enemy sprite, and the arena behind it in Thunderdome fights
+    Art.show(document.getElementById('enemy-sprite'), `assets/enemies/${enemy.img}`,
+      document.getElementById('enemy-sprite-fallback'));
+    Art.show(document.getElementById('arena-bg'), run.mode === 'island' ? [] : 'assets/map/arena-bg.png');
+    Art.checkFrames();
 
     // Wave / score
     const waveEl  = document.getElementById('combat-wave');
@@ -529,9 +529,20 @@ const Combat = {
     ].forEach(([id, active]) => {
       const btn = document.getElementById(id);
       if (!btn) return;
-      btn.disabled = !active;
       btn.classList.toggle('depleted', !active);
+      this._setLifeline(btn, active);
     });
+  },
+
+  // Enables or disables a lifeline button, with its -on or -off icon. With
+  // no -off icon, a disabled lifeline shows its -on icon (dimmed by CSS).
+  _setLifeline(btn, enabled) {
+    if (!btn) return;
+    btn.disabled = !enabled;
+    const name = btn.id.replace('lifeline-', '');
+    const on = `assets/ui/lifeline-${name}-on.png`;
+    const img = btn.querySelector('.lifeline-img');
+    Art.show(img, enabled ? on : [`assets/ui/lifeline-${name}-off.png`, on], img?.nextElementSibling);
   },
 
   _renderQuestion(q) {
@@ -543,6 +554,7 @@ const Combat = {
     // Wanted badge
     const wantedBadge = document.getElementById('question-wanted-badge');
     if (wantedBadge) wantedBadge.classList.toggle('hidden', !q._isWanted);
+    if (q._isWanted) Art.scan(wantedBadge);
 
     // Difficulty badge
     const diffBadge = document.getElementById('question-diff-badge');
@@ -577,22 +589,21 @@ const Combat = {
         this._renderMCQ(q, mcqArea);
       }
       // Hide 50-50 only for MCQ
-      const fiftyBtn = document.getElementById('lifeline-fifty');
-      if (fiftyBtn) fiftyBtn.disabled = !this._run.lifelines.fifty;
+      this._setLifeline(document.getElementById('lifeline-fifty'), this._run.lifelines.fifty);
     } else if (q.type === 'value') {
       if (valueArea) valueArea.classList.remove('hidden');
       const display = document.getElementById('numpad-display');
       if (display) display.textContent = '';
       // Disable 50-50 for value questions
       const fiftyBtn = document.getElementById('lifeline-fifty');
-      if (fiftyBtn) { fiftyBtn.disabled = true; fiftyBtn.title = 'N/A for value questions'; }
+      this._setLifeline(fiftyBtn, false);
+      if (fiftyBtn) fiftyBtn.title = 'N/A for value questions';
     } else if (this._isMultipart(q)) {
       if (multiArea) {
         multiArea.classList.remove('hidden');
         this._renderMultipart(q, multiArea);
       }
-      const fiftyBtn = document.getElementById('lifeline-fifty');
-      if (fiftyBtn) fiftyBtn.disabled = true;
+      this._setLifeline(document.getElementById('lifeline-fifty'), false);
     }
   },
 
@@ -750,29 +761,31 @@ const Combat = {
     overlay.classList.remove('hidden', 'outcome-correct', 'outcome-complication', 'outcome-wrong');
     overlay.classList.add(`outcome-${type}`);
 
-    const sparkEl = document.getElementById('outcome-spark');
+    let mood;
 
     if (type === 'correct') {
       if (icon) icon.textContent = '✓';
       if (msg)  msg.textContent  = 'CORRECT!';
       if (sub)  sub.textContent  = scrap > 0 ? `+${scrap} Scrap` : '';
-      if (sparkEl) sparkEl.src   = 'assets/avatars/spark-happy.png';
+      mood = 'happy';
     } else if (type === 'complication') {
       if (icon) icon.textContent = '⚡';
       if (msg)  msg.textContent  = 'SLOW RESPONSE';
       if (sub)  sub.textContent  = `Correct but late — −${damage} HP`;
-      if (sparkEl) sparkEl.src   = 'assets/avatars/spark-surprised.png';
+      mood = 'surprised';
     } else if (type === 'wrong') {
       if (icon) icon.textContent = '✗';
       if (msg)  msg.textContent  = 'WRONG';
       if (sub)  sub.textContent  = `−${damage} HP · Bounty placed`;
-      if (sparkEl) sparkEl.src   = 'assets/avatars/spark-sarcastic.png';
+      mood = 'sarcastic';
     } else if (type === 'timeout') {
       if (icon) icon.textContent = '⏱';
       if (msg)  msg.textContent  = 'TIME\'S UP';
       if (sub)  sub.textContent  = `−${damage} HP`;
-      if (sparkEl) sparkEl.src   = 'assets/avatars/spark-surprised.png';
+      mood = 'surprised';
     }
+    Art.show(document.getElementById('outcome-spark'), mood ? `assets/avatars/spark-${mood}.png` : [],
+      document.getElementById('outcome-spark-fallback'));
 
     if (extra.msg && msg) msg.textContent = extra.msg;
     if (extra.sub && sub) sub.textContent = extra.sub;

@@ -140,10 +140,12 @@
 .world-avatar-mini {
   width: 36px; height: 36px;
   border-radius: 50%;
-  background: var(--col-border) url('') center/cover;
+  background: var(--col-border);
   border: 2px solid var(--col-teal);
   flex-shrink: 0;
+  overflow: hidden;
 }
+.world-avatar-mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .world-scrap { font-size: var(--text-sm); color: var(--col-dust); }
 .world-body {
   flex: 1;
@@ -189,6 +191,26 @@
 .island-node.cleared { border-color: var(--col-teal); background: rgba(34,211,197,0.05); }
 .island-node.locked  { opacity: 0.45; pointer-events: none; }
 .island-icon  { font-size: 1.6rem; }
+
+/* Island art (assets/map/island-*.png, 200×150) fills the card behind the
+   text, and the card takes its 4:3 shape */
+.island-art, .thunderdome-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.island-node, .thunderdome-btn { isolation: isolate; }
+.island-node > :not(.island-art), .thunderdome-btn > :not(.thunderdome-art) { position: relative; z-index: 1; }
+.island-node:has(> .island-art:not(.hidden)) { aspect-ratio: 4 / 3; justify-content: flex-end; }
+.island-node:has(> .island-art:not(.hidden))::after,
+.thunderdome-btn:has(> .thunderdome-art:not(.hidden))::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(17,24,39,0.9), rgba(17,24,39,0.2) 70%);
+}
 .island-name  { font-family: var(--font-display); font-size: var(--text-lg); color: var(--col-text); letter-spacing: 0.04em; }
 .island-topic { font-size: var(--text-xs); color: var(--col-text-dim); text-transform: uppercase; letter-spacing: 0.08em; }
 .island-cleared-badge { font-size: var(--text-xs); color: var(--col-teal); margin-top: var(--space-1); }
@@ -204,6 +226,9 @@
   transition: var(--transition-base);
   box-shadow: var(--glow-magenta);
   width: 100%;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;  /* overflow: hidden would let .world-body squash it */
 }
 .thunderdome-btn:active { transform: scale(0.98); }
 .thunderdome-name {
