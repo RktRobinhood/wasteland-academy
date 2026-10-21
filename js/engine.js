@@ -182,7 +182,6 @@ const WA = {
     await new Promise(r => setTimeout(r, 100));  // allow packs to register
 
     this.unlockStartingNodes();
-    PWA.init();
 
     const loaderBar = document.getElementById('loader-bar');
     let progress = 0;

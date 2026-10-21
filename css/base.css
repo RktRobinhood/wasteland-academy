@@ -30,6 +30,10 @@ body {
   overflow: hidden;
   z-index: 10;
   background: var(--col-bg);
+  /* SPEC §3: fluid up to 600px, then centred */
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 .screen.hidden { display: none !important; }
 

@@ -1,12 +1,11 @@
 const KR = {
   ready: false,
 
+  // Never blocks boot. render() checks for KaTeX on every call, so maths
+  // shows as plain text if the CDN script hasn't loaded (or never does).
   init() {
-    if (typeof katex !== 'undefined') {
-      this.ready = true;
-      return;
-    }
-    document.addEventListener('katex-loaded', () => { this.ready = true; });
+    this.ready = typeof katex !== 'undefined';
+    return Promise.resolve();
   },
 
   render(el) {

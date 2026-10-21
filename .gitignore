@@ -8,3 +8,13 @@ Thumbs.db
 
 # Local notes
 *.local.*
+
+# Scratch work
+_scratch/
+
+# Test tooling (npm test)
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

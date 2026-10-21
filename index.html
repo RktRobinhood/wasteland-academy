@@ -409,6 +409,8 @@
 <script>
   // Boot after all packs have had a tick to register
   document.addEventListener('DOMContentLoaded', () => {
+    // Register the service worker first, so a boot error can't stop it
+    PWA.init();
     KR.init().then(() => WA.init());
   });
 </script>
