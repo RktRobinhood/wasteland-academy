@@ -13,13 +13,9 @@
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
   <title>Wasteland Academy</title>
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
-  <!-- KaTeX -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <!-- Fonts and KaTeX are vendored (vendor/LICENSES.md): nothing loads from another host -->
+  <link rel="stylesheet" href="vendor/fonts/fonts.css">
+  <link rel="stylesheet" href="vendor/katex/katex.min.css">
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/tokens.css">
@@ -31,13 +27,6 @@
 
 <!-- ── TOAST CONTAINER ─────────────────────────────────── -->
 <div id="toast-container" aria-live="polite"></div>
-
-<!-- ── PWA INSTALL BANNER ──────────────────────────────── -->
-<div id="install-banner" class="install-banner hidden">
-  <span class="install-banner-text">Add to Home Screen for the full experience</span>
-  <button class="btn btn-scrap install-banner-btn" onclick="PWA.install()">INSTALL</button>
-  <button class="install-banner-dismiss" onclick="document.getElementById('install-banner').classList.add('hidden')">✕</button>
-</div>
 
 <!-- ══════════════════════════════════════════════════════
      SCREEN: LOADER
@@ -99,6 +88,16 @@
   </div>
 
   <div class="world-body">
+    <!-- Install: the button shows only when the browser offers to install (pwa.js) -->
+    <button id="install-btn" class="btn btn-scrap install-btn hidden" onclick="PWA.install()">⬇ INSTALL APP</button>
+    <div id="ios-install-tip" class="ios-install-tip hidden" role="note">
+      <div class="ios-install-tip-text">
+        <strong>Play it like an app:</strong> tap <span class="ios-share-glyph" aria-label="Share">Share</span>
+        then <strong>Add to Home Screen</strong>. It works offline after that.
+      </div>
+      <button class="ios-install-tip-close" onclick="PWA.dismissIOSTip()" aria-label="Close tip">✕</button>
+    </div>
+
     <!-- Islands -->
     <div class="world-section-title">TERRITORIES</div>
     <div id="world-islands" class="world-islands"></div>
@@ -355,8 +354,11 @@
     <div class="text-xs text-dim" style="text-transform:uppercase;letter-spacing:0.12em;margin:var(--space-4) 0 var(--space-2)">RECENT RUNS</div>
     <div id="stats-runs"></div>
 
-    <div style="display:flex; gap:var(--space-3); margin-top:var(--space-5); padding-bottom:max(var(--space-4),var(--safe-bottom))">
+    <div style="display:flex; gap:var(--space-3); margin-top:var(--space-5)">
       <button class="btn btn-ghost" style="flex:1" onclick="WA.exportSave()">EXPORT SAVE</button>
+      <button id="import-save-btn" class="btn btn-ghost" style="flex:1" onclick="WA.importSave()">IMPORT SAVE</button>
+    </div>
+    <div style="display:flex; margin-top:var(--space-3); padding-bottom:max(var(--space-4),var(--safe-bottom))">
       <button class="btn btn-danger" style="flex:1" onclick="WA.reset()">RESET ALL</button>
     </div>
   </div>
@@ -379,9 +381,10 @@
 <!-- ══════════════════════════════════════════════════════
      SCRIPTS — order matters
 ═══════════════════════════════════════════════════════ -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="vendor/katex/katex.min.js"></script>
+<script src="vendor/katex/contrib/auto-render.min.js"></script>
 
+<script src="js/platform.js"></script>
 <script src="js/art.js"></script>
 <script src="js/katex-render.js"></script>
 <script src="js/spaced-rep.js"></script>
