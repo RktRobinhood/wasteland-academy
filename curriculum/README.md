@@ -8,12 +8,15 @@ The single source of truth for what Wasteland Academy covers: the full **IB Math
 | `threads.json` | The concept threads: big ideas that recur across islands (transformations, vectors, rates of change, inverses and so on), with link-question blueprints. |
 | `COVERAGE.md` | Generated. How much of the map the content packs cover, subtopic by subtopic. |
 | `THREADS.md` | Generated. Every place each thread appears, in student-facing language. |
+| `question-types.json` | Every part of the AA SL past-paper bank ([Math-AA question bank](https://github.com/RktRobinhood/Math-AA---Question-Bank)) assigned to an exam **question type**, the pattern a recipe generates numbers for. Functions types carry the full recipe brief; other topics are catalogue level for now. |
+| `QUESTION_TYPES.md` | Generated from `question-types.json`. Readable summary, Section A versus B, and coverage per syllabus statement. |
 
 Regenerate the reports after changing the map or any content pack:
 
 ```sh
 node tools/coverage.mjs --check   # validate the map only
 node tools/coverage.mjs --write   # rewrite COVERAGE.md and THREADS.md
+node tools/question-types.mjs --bank ../Math-AA---Question-Bank --write   # check the type catalogue, rewrite QUESTION_TYPES.md
 ```
 
 ## How the pieces fit
