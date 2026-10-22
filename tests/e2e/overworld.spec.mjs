@@ -3,7 +3,7 @@
 // crown, at both phone sizes.
 import { test, expect } from '@playwright/test';
 import { startServer } from './server.mjs';
-import { routeCdn, seedRandom, trackPageErrors, createProfile } from './helpers.mjs';
+import { blockRemote, seedRandom, trackPageErrors, createProfile } from './helpers.mjs';
 
 test.use({ serviceWorkers: 'block' });
 
@@ -12,7 +12,7 @@ test.beforeAll(async () => { server = await startServer(); });
 test.afterAll(async () => { await server?.close(); });
 
 test.beforeEach(async ({ context }) => {
-  await routeCdn(context);
+  await blockRemote(context, server.origin);
   await seedRandom(context);
 });
 

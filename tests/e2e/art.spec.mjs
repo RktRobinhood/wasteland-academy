@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 import { startServer, BASE_PATH } from './server.mjs';
 import { standin, STANDIN_SIZES } from './standins.mjs';
 import {
-  routeCdn, seedRandom, trackPageErrors, createProfile, openIsland, openThunderdome, startNode,
+  blockRemote, seedRandom, trackPageErrors, createProfile, openIsland, openThunderdome, startNode,
   currentQuestion, answer, waitForNext,
 } from './helpers.mjs';
 
@@ -92,7 +92,7 @@ for (const mode of ['missing', 'served']) {
   test.describe(`art ${mode}`, () => {
     let art;
     test.beforeEach(async ({ context }) => {
-      await routeCdn(context);
+      await blockRemote(context, server.origin);
       await seedRandom(context);
       art = await routeArt(context, mode);
     });
@@ -284,7 +284,7 @@ test.describe('art served on a small phone', () => {
   test.use({ viewport: { width: 375, height: 667 } });
 
   test('375×667: with the frames on, SUBMIT and lifelines stay on screen', async ({ page, context }) => {
-    await routeCdn(context);
+    await blockRemote(context, server.origin);
     await seedRandom(context);
     const art = await routeArt(context, 'served');
     const pageErrors = trackPageErrors(page);
@@ -322,7 +322,7 @@ test.describe('art served on a small phone', () => {
 });
 
 test('without the overworld, the card grid shows the island art', async ({ page, context }) => {
-  await routeCdn(context);
+  await blockRemote(context, server.origin);
   await seedRandom(context);
   const art = await routeArt(context, 'served');
   art.missing.add('map/overworld.png');
@@ -341,7 +341,7 @@ test('without the overworld, the card grid shows the island art', async ({ page,
 });
 
 test('art that turns up mid-session shows without a reload', async ({ page, context }) => {
-  await routeCdn(context);
+  await blockRemote(context, server.origin);
   await seedRandom(context);
   const art = await routeArt(context, 'missing');
   const pageErrors = trackPageErrors(page);

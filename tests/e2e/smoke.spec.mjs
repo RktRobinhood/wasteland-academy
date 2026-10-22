@@ -4,7 +4,7 @@
 import { test, expect } from '@playwright/test';
 import { startServer } from './server.mjs';
 import {
-  routeCdn, seedRandom, trackPageErrors, createProfile, openIsland, startNode,
+  blockRemote, seedRandom, trackPageErrors, createProfile, openIsland, startNode,
   currentQuestion, answer, waitForNext,
 } from './helpers.mjs';
 
@@ -17,7 +17,7 @@ test.beforeAll(async () => { server = await startServer(); });
 test.afterAll(async () => { await server?.close(); });
 
 test.beforeEach(async ({ context }) => {
-  await routeCdn(context);
+  await blockRemote(context, server.origin);
   await seedRandom(context);
 });
 

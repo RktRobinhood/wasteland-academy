@@ -3,13 +3,18 @@
 // GitHub Pages' `cache-control: max-age=600`, so (b) also covers the HTTP cache.
 import { test, expect } from '@playwright/test';
 import { startServer } from './server.mjs';
-import { routeCdn, trackPageErrors } from './helpers.mjs';
 import { standin } from './standins.mjs';
+import {
+  blockRemote, trackPageErrors, createProfile, openIsland, startNode, clearNode,
+} from './helpers.mjs';
+
+const SHOTS = 'test-results/screenshots';
 
 let server;
+let remote;
 test.beforeEach(async ({ context }) => {
   server = await startServer();
-  await routeCdn(context);
+  remote = await blockRemote(context, server.origin);
 });
 test.afterEach(async () => { await server?.close(); });
 
@@ -49,6 +54,46 @@ test('after one online visit, the game boots offline', async ({ page, context })
   await page.fill('#profile-name', 'OFFLINE');
   await page.click('#screen-profile .btn-primary');
   await expect(page.locator('#screen-world')).toBeVisible();
+  remote.expectNone();
+  pageErrors.expectNone();
+});
+
+test('after one online visit, a full island fight plays offline with the network off', async ({ page, context }) => {
+  const pageErrors = trackPageErrors(page);
+  await firstVisit(page);
+
+  // Network fully off: the server drops every connection and the browser is offline
+  server.setOffline(true);
+  await context.setOffline(true);
+  await page.reload();
+  expect(await page.evaluate(() => navigator.onLine)).toBe(false);
+  expect(await page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+
+  await createProfile(page, 'OFFLINE');
+  await openIsland(page, 'Scrap Fields');
+  await startNode(page, 'Standard Form');
+
+  // Maths is typeset by the vendored KaTeX, in its own fonts, and the game
+  // fonts are the vendored ones. All of it came from the worker's cache.
+  await expect(page.locator('#question-text .katex').first()).toBeVisible();
+  const fonts = await page.evaluate(async () => {
+    await document.fonts.ready;
+    return [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family.replace(/"/g, ''));
+  });
+  expect(fonts).toEqual(expect.arrayContaining(['Bangers', 'Share Tech Mono', 'KaTeX_Main']));
+  await page.screenshot({ path: `${SHOTS}/offline-01-question-390x844.png` });
+
+  await clearNode(page);
+  await expect(page.locator('#debrief-mode')).toHaveText('ISLAND');
+  await page.screenshot({ path: `${SHOTS}/offline-02-debrief-390x844.png` });
+
+  // The cleared node was saved, and shows on the map
+  await page.click('#screen-debrief .btn-ghost');
+  await openIsland(page, 'Scrap Fields');
+  await expect(page.locator('#island-nodes .node-btn', { hasText: 'Standard Form' })).toHaveClass(/node-cleared/);
+
+  // Nothing was ever requested from another host, online or off
+  remote.expectNone();
   pageErrors.expectNone();
 });
 
