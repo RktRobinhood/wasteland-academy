@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "profile": {
+    "name": "FIXTURE",
+    "avatar": "male",
+    "scrap": 620,
+    "lifelines": {
+      "fifty": 1,
+      "freeze": 1,
+      "hint": 1
+    },
+    "perks": [],
+    "equipped": {}
+  },
+  "progress": {
+    "islands": {
+      "topic-1-algebra": {
+        "sl1-1-standard-form": "cleared",
+        "sl1-2-arithmetic": "available",
+        "sl1-4-financial": "available"
+      },
+      "topic-2-functions": {
+        "sl2-2-functions": "available",
+        "sl2-4-quadratic": "available",
+        "sl2-5-explog": "available",
+        "sl2-8-transformations": "available",
+        "sl2-boss": "available"
+      },
+      "topic-3-geometry": {
+        "sl3-2-right-trig": "available",
+        "sl3-3-nrt": "available",
+        "sl3-4-radians": "available",
+        "sl3-boss": "available"
+      },
+      "topic-4-stats": {
+        "sl4-2-descriptive": "available",
+        "sl4-5-probability": "available",
+        "sl4-4-binomial": "available",
+        "sl4-3-normal": "available",
+        "sl4-boss": "available"
+      },
+      "topic-5-calculus": {
+        "sl5-2-differentiation": "available",
+        "sl5-4-applications": "available",
+        "sl5-6-integration": "available",
+        "sl5-8-kinematics": "available",
+        "sl5-boss": "available"
+      }
+    }
+  },
+  "stats": {
+    "runs": [
+      {
+        "ts": 1792618323527,
+        "mode": "island",
+        "config": {
+          "topicIds": [
+            "topic-1-algebra"
+          ],
+          "subtopicId": "sl1-1-standard-form"
+        },
+        "score": 30,
+        "topicBreakdown": {
+          "topic-1-algebra": {
+            "correct": 3,
+            "total": 4
+          }
+        },
+        "duration": 8
+      }
+    ],
+    "topicAccuracy": {
+      "topic-1-algebra": {
+        "correct": 3,
+        "total": 4
+      }
+    },
+    "subtopicAccuracy": {
+      "sl1-1-standard-form": {
+        "correct": 3,
+        "total": 4
+      }
+    },
+    "highScores": {
+      "endurance": 0,
+      "gauntlet": 0
+    }
+  },
+  "spaced": {
+    "wanted": [
+      {
+        "id": "sl1-1-a",
+        "subtopic": "sl1-1-standard-form",
+        "nextAfter": 5,
+        "attempts": 1,
+        "flaggedAt": 1792618315926
+      }
+    ],
+    "answered": 4
+  }
+}

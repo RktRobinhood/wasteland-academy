@@ -22,17 +22,18 @@ A roguelite math review game for IB Mathematics: Analysis and Approaches SL. Stu
 
 ### PWA Requirements
 - `manifest.json` — app name, icons, theme colour (#1F2937), display: standalone, orientation: portrait-primary
-- `service-worker.js` — caches all HTML/CSS/JS/fonts/KaTeX assets on first load; works fully offline after
+- `service-worker.js` — caches all HTML/CSS/JS/fonts/KaTeX assets on first load; works fully offline after one visit
 - App icons: 192×192 and 512×512 PNG (see ART_REQUIREMENTS.md)
 - "Add to Home Screen" prompt on first visit
 
 ### Tech Stack
 - **Vanilla JS (ES Modules)** — no framework, no bundler, no build step
 - **CSS Custom Properties** — full design token system, all colours/spacing as variables
-- **KaTeX** (CDN, cached by Service Worker) — math rendering
-- **Google Fonts**: Bangers (display/headings) + Share Tech Mono (body/UI) — cached by Service Worker
-- **localStorage** — all save data, player stats, spaced repetition state
-- Export/Import save as JSON file (manual backup)
+- **KaTeX** 0.16.9 (vendored in `vendor/katex/`, precached by Service Worker) — math rendering
+- **Fonts**: Bangers (display/headings) + Share Tech Mono (body/UI), from Google Fonts, vendored in `vendor/fonts/` (OFL)
+- No CDN and no remote URLs: every file is in the repo, by relative path, so the same files can ship in a store app
+- **localStorage**, through `js/platform.js` — all save data, player stats, spaced repetition state. Saves carry a format version and are migrated, never wiped
+- Export/Import save as JSON file (manual backup, and moving progress to another device or an app build)
 
 ### Module System
 Each content file registers itself via a global `WA.registerPack(pack)` call. The engine discovers packs dynamically — no hardcoded imports needed. New topic packs can be added by dropping a JS file in `/content/` and adding a `<script>` tag to `index.html`.
@@ -62,7 +63,10 @@ Each content file registers itself via a global `WA.registerPack(pack)` call. Th
 │   ├── spaced-rep.js       ← Spaced repetition engine
 │   ├── stats.js            ← Performance tracking, spider diagram
 │   ├── pwa.js              ← Service worker registration, install prompt
+│   ├── platform.js         ← The only file touching browser storage, links, files
 │   └── katex-render.js     ← Math rendering wrapper
+│
+├── vendor/                 ← KaTeX + fonts, copied in (vendor/LICENSES.md)
 │
 ├── content/
 │   ├── topic-1-algebra.js
@@ -115,8 +119,7 @@ Post-apocalyptic wasteland world. Dark, desolate base punctuated by vibrant hand
 
 ### Typography
 ```css
-/* Google Fonts — loaded in index.html, cached by SW */
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Share+Tech+Mono&display=swap');
+/* Vendored fonts — vendor/fonts/fonts.css, linked once in index.html, precached by SW */
 
 --font-display: 'Bangers', cursive;        /* Headings, boss names, alerts */
 --font-body:    'Share Tech Mono', monospace; /* All UI text, questions, stats */

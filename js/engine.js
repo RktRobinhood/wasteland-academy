@@ -1,5 +1,5 @@
 const WA = {
-  VERSION: 1,
+  VERSION: 1,   // save format version; see MIGRATIONS
 
   // ── Registered content packs ──────────────────────────────────
   packs: [],
@@ -49,55 +49,120 @@ const WA = {
     };
   },
 
+  // ── Saves ──────────────────────────────────────────────────────
+  // The save is one JSON string under SAVE_KEY, read and written through
+  // Platform.storage. A save is never wiped because its format changed: it's
+  // brought up to VERSION by MIGRATIONS instead.
+  SAVE_KEY: 'wa_save',
+
+  // MIGRATIONS[n] turns a version-n save into a version-(n + 1) save. To change
+  // the save format: add the step here, then bump VERSION. Never remove a step,
+  // so a save from any older version can still be brought up to date.
+  MIGRATIONS: {},
+
+  // Brings a parsed save up to VERSION and fills in any field it lacks.
+  // Returns a new object and never changes `data`. Throws an Error whose
+  // message can be shown to the player if `data` isn't a save it can use.
+  migrate(data) {
+    const fail = msg => { throw Object.assign(new Error(msg), { forPlayer: true }); };
+    const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+    if (!isObj(data) || !Number.isInteger(data.version) || data.version < 1)
+      fail("That file isn't a Wasteland Academy save. Nothing was changed.");
+    if (data.version > this.VERSION)
+      fail('That save is from a newer version of the game. Update the game, then try again. Nothing was changed.');
+
+    let s = JSON.parse(JSON.stringify(data));
+    for (let n = s.version; n < this.VERSION; n++) {
+      const step = this.MIGRATIONS[n];
+      if (!step) throw new Error(`[WA] No save migration from version ${n}`);
+      s = step(s);
+      s.version = n + 1;
+    }
+
+    const ok = isObj(s.profile) && isObj(s.progress) && isObj(s.progress.islands) &&
+      isObj(s.stats) && Array.isArray(s.stats.runs) &&
+      isObj(s.spaced) && Array.isArray(s.spaced.wanted);
+    if (!ok) fail('That save file is damaged, so it was not loaded. Nothing was changed.');
+    return this._fillDefaults(s, this._defaultState());
+  },
+
+  // Adds any key `defaults` has and `s` lacks, at any depth. Never overwrites.
+  _fillDefaults(s, defaults) {
+    for (const [k, d] of Object.entries(defaults)) {
+      if (s[k] === undefined) s[k] = d;
+      else if (d && typeof d === 'object' && !Array.isArray(d) &&
+               s[k] && typeof s[k] === 'object' && !Array.isArray(s[k])) this._fillDefaults(s[k], d);
+    }
+    return s;
+  },
+
+  // Turns a save file's text into a state, or throws an Error for the player
+  parseSave(text) {
+    let data;
+    try { data = JSON.parse(text); }
+    catch { data = null; }
+    try { return this.migrate(data); }
+    catch (e) {
+      if (e.forPlayer) throw e;
+      console.warn('[WA] Save migration failed', e);
+      throw Object.assign(new Error('That save file is damaged, so it was not loaded. Nothing was changed.'), { forPlayer: true });
+    }
+  },
+
   load() {
+    const raw = Platform.storage.get(this.SAVE_KEY);
+    if (!raw) { this.state = this._defaultState(); return; }
     try {
-      const raw = localStorage.getItem('wa_save');
-      if (!raw) { this.state = this._defaultState(); return; }
-      const parsed = JSON.parse(raw);
-      if (parsed.version !== this.VERSION) {
-        console.warn('[WA] Save version mismatch — resetting');
-        this.state = this._defaultState();
-        return;
-      }
-      this.state = parsed;
-    } catch(e) {
-      console.warn('[WA] Load failed', e);
+      this.state = this.parseSave(raw);
+    } catch (e) {
+      // Never overwrite a save that can't be read: set it aside, then start fresh
+      console.warn('[WA] Load failed, starting a new save', e);
+      try { Platform.storage.set(`${this.SAVE_KEY}_unreadable_${Date.now()}`, raw); }
+      catch (e2) { console.warn('[WA] Could not set the unreadable save aside', e2); }
       this.state = this._defaultState();
+      this._loadProblem = true;
     }
   },
 
   save() {
-    try { localStorage.setItem('wa_save', JSON.stringify(this.state)); }
+    try { Platform.storage.set(this.SAVE_KEY, JSON.stringify(this.state)); }
     catch(e) { console.warn('[WA] Save failed', e); }
   },
 
   reset() {
     if (!confirm('WIPE ALL DATA? This cannot be undone.')) return;
-    localStorage.removeItem('wa_save');
+    Platform.storage.remove(this.SAVE_KEY);
     location.reload();
   },
 
   exportSave() {
-    const blob = new Blob([JSON.stringify(this.state, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `wasteland-academy-save-${Date.now()}.json`;
-    a.click();
+    const date = new Date().toISOString().slice(0, 10);
+    Platform.saveFile(`wasteland-academy-save-${date}.json`, JSON.stringify(this.state, null, 2));
   },
 
-  importSave(file) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      try {
-        const data = JSON.parse(e.target.result);
-        if (data.version !== this.VERSION) return Toast.show('Incompatible save file', 'error');
-        this.state = data;
-        this.save();
-        Toast.show('Save loaded!', 'success');
-        Router.go('world');
-      } catch { Toast.show('Invalid save file', 'error'); }
-    };
-    reader.readAsText(file);
+  // Replaces the current save with one from a file. A file that can't be used
+  // changes nothing: the new state is only swapped in once it's fully read,
+  // migrated and stored.
+  async importSave() {
+    let text;
+    try { text = await Platform.loadFile(); }
+    catch (e) { return Toast.show("Couldn't read that file. Nothing was changed.", 'error', 4000); }
+    if (text == null) return;
+
+    let next;
+    try { next = this.parseSave(text); }
+    catch (e) { return Toast.show(e.message, 'error', 4000); }
+
+    try { Platform.storage.set(this.SAVE_KEY, JSON.stringify(next)); }
+    catch (e) { return Toast.show("Couldn't store the save on this device. Nothing was changed.", 'error', 4000); }
+
+    this.state = next;
+    SR.init(next);
+    Stats.init(next);
+    this.unlockStartingNodes();
+    UI.updateScrapDisplay();
+    Toast.show('Save loaded!', 'success');
+    Router.go(next.profile.name && next.profile.avatar ? 'world' : 'profile');
   },
 
   // ── Island progress helpers ───────────────────────────────────
@@ -200,6 +265,7 @@ const WA = {
     } else {
       Router.go('world');
     }
+    if (this._loadProblem) Toast.show("Your old save couldn't be read, so a new one was started. The old one is kept on this device.", 'warn', 6000);
   }
 };
 
@@ -211,6 +277,8 @@ const Toast = {
     const el = document.createElement('div');
     el.className = `toast ${type}`;
     el.textContent = msg;
+    // The CSS fade-out starts at 1.7 s; move it so a longer toast stays readable
+    el.style.animationDelay = `0s, ${Math.max(0, duration - 300) / 1000}s`;
     container.appendChild(el);
     setTimeout(() => el.remove(), duration + 100);
   }

@@ -1,26 +1,18 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { expect } from '@playwright/test';
-import { REPO } from './server.mjs';
 
-const KATEX_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/';
-const KATEX_DIST = path.join(REPO, 'node_modules/katex/dist/');
-
-// Serve the KaTeX CDN from node_modules and stub Google Fonts, so the tests
-// don't depend on third-party hosts.
-export async function routeCdn(context) {
-  await context.route(KATEX_CDN + '**', route => {
-    const rel = new URL(route.request().url()).pathname.split('/KaTeX/0.16.9/')[1];
-    const fp = path.join(KATEX_DIST, rel);
-    if (!fp.startsWith(KATEX_DIST) || !fs.existsSync(fp)) return route.fulfill({ status: 404 });
-    return route.fulfill({
-      path: fp,
-      headers: { 'access-control-allow-origin': '*' },
-      contentType: fp.endsWith('.css') ? 'text/css' : fp.endsWith('.js') ? 'text/javascript' : 'font/woff2',
-    });
+// Everything the game needs is served by the test server, so any request to
+// another host is a bug (a CDN link crept back in). This aborts such requests
+// and records them; call expectNone() at the end of a test.
+export async function blockRemote(context, origin) {
+  const hits = [];
+  await context.route(url => url.origin !== origin, route => {
+    hits.push(route.request().url());
+    return route.abort();
   });
-  await context.route(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//, route =>
-    route.fulfill({ status: 200, contentType: 'text/css', body: '', headers: { 'access-control-allow-origin': '*' } }));
+  return {
+    hits,
+    expectNone() { expect(hits, 'requests to other hosts').toEqual([]); },
+  };
 }
 
 // A seeded Math.random, so question order is the same on every run
@@ -121,6 +113,19 @@ export async function answer(page, q, right) {
   } else {
     throw new Error(`can't answer a ${q.type} question (${q.id})`);
   }
+}
+
+// Answers right until the node is cleared and the debrief shows
+export async function clearNode(page, maxTurns = 30) {
+  for (let turn = 0; turn < maxTurns; turn++) {
+    if (await page.locator('#screen-debrief').isVisible()) return;
+    const q = await currentQuestion(page);
+    expect(q, 'a question is showing').not.toBeNull();
+    await answer(page, q, true);
+    await expect(page.locator('#outcome-msg')).toHaveText('CORRECT!');
+    await waitForNext(page);
+  }
+  await expect(page.locator('#screen-debrief')).toBeVisible();
 }
 
 // After an answer: the outcome shows, then either the next question or the debrief
