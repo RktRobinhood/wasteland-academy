@@ -47,9 +47,18 @@ export async function createProfile(page, name = 'VIPER') {
   await expect(page.locator('#screen-world')).toBeVisible();
 }
 
+// Taps an island on the world screen: its zone on the overworld, or its card
+// when the map art is missing
 export async function openIsland(page, name) {
-  await page.locator('#world-islands > *', { hasText: name }).click();
+  await page.locator('#world-zones .zone, #world-islands .island-node')
+    .filter({ hasText: name, visible: true }).click();
   await expect(page.locator('#screen-island')).toBeVisible();
+}
+
+// Taps the Thunderdome on the world screen, on the map or in the card grid
+export async function openThunderdome(page) {
+  await page.locator('#world-zones .zone-thunderdome, .thunderdome-btn').filter({ visible: true }).click();
+  await expect(page.locator('#screen-td-config')).toBeVisible();
 }
 
 export async function startNode(page, nodeName) {

@@ -98,16 +98,24 @@
       <button class="ios-install-tip-close" onclick="PWA.dismissIOSTip()" aria-label="Close tip">✕</button>
     </div>
 
-    <!-- Islands -->
-    <div class="world-section-title">TERRITORIES</div>
-    <div id="world-islands" class="world-islands"></div>
+    <!-- The overworld: the painted map with a button over each zone -->
+    <div class="world-map">
+      <img id="world-map-art" class="world-map-art hidden" alt="">
+      <div id="world-zones" class="world-zones"></div>
+    </div>
 
-    <!-- Thunderdome -->
-    <button class="thunderdome-btn" onclick="Router.go('td-config')">
-      <img data-art="assets/map/thunderdome.png" class="thunderdome-art hidden" alt="">
-      <div class="thunderdome-name">⚡ THUNDERDOME ⚡</div>
-      <div class="thunderdome-sub">All topics · Endurance · Gauntlet</div>
-    </button>
+    <!-- Without the map art: a card grid -->
+    <div id="world-grid" class="world-grid">
+      <div class="world-section-title">TERRITORIES</div>
+      <div id="world-islands" class="world-islands"></div>
+
+      <!-- Thunderdome -->
+      <button class="thunderdome-btn" onclick="Router.go('td-config')">
+        <img data-art="assets/map/thunderdome.png" class="thunderdome-art hidden" alt="">
+        <div class="thunderdome-name">⚡ THUNDERDOME ⚡</div>
+        <div class="thunderdome-sub">All topics · Endurance · Gauntlet</div>
+      </button>
+    </div>
   </div>
 
   <div class="world-footer">

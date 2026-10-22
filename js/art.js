@@ -2,6 +2,8 @@
 // Every game image goes through here, so the game looks the same with or
 // without the art files: an image shows once it has loaded, its fallback
 // shows until then and whenever it fails, and a later load brings it back.
+// Each image's `data-art-state` is 'loading', 'loaded' or 'failed', for CSS
+// that needs to tell waiting apart from missing.
 const Art = {
   // Points `img` at the first of `srcs` that loads. `srcs` is a path or a
   // list to try in order; an empty list hides the image. `fallback` is the
@@ -14,7 +16,7 @@ const Art = {
     state.srcs = srcs;
     state.next = 0;
     this._toggle(img, false);
-    if (srcs.length === 0) { img.removeAttribute('src'); return; }
+    if (srcs.length === 0) { img.removeAttribute('src'); img.dataset.artState = 'failed'; return; }
     this._try(img);
   },
 
@@ -69,13 +71,15 @@ const Art = {
 
   _try(img) {
     const state = img._art;
-    if (state.next >= state.srcs.length) return;
+    if (state.next >= state.srcs.length) { img.dataset.artState = 'failed'; return; }
+    img.dataset.artState = 'loading';
     img.setAttribute('src', state.srcs[state.next++]);
     // An image already in memory is ready now, so it shows with no flicker
     if (img.complete && img.naturalWidth > 0) this._toggle(img, true);
   },
 
   _toggle(img, loaded) {
+    if (loaded) img.dataset.artState = 'loaded';
     img.classList.toggle('hidden', !loaded);
     img._art.fallback?.classList.toggle('hidden', loaded);
   },
