@@ -1,0 +1,6406 @@
+{
+ "about": "Catalogue of IB AA SL exam question types, built from the per-part tags of the Math-AA question bank (RktRobinhood/Math-AA---Question-Bank). Structures are described in our own words; no IB text, numbers or images. See curriculum/QUESTION_TYPES.md. Check and regenerate with node tools/question-types.mjs.",
+ "bank": {
+  "repo": "RktRobinhood/Math-AA---Question-Bank",
+  "papers": "34 papers, May 2021 to May 2025",
+  "questions": 306,
+  "parts": 869
+ },
+ "partIds": "A part ID is the bank question ID plus \".\" and the part letter (aa-sl-2021-may-tz1-p1-q01.a). Questions with no lettered parts use the bare question ID.",
+ "types": [
+  {
+   "id": "fn-line-from-conditions",
+   "topic": 2,
+   "detail": "full",
+   "name": "Straight line from conditions, then use it",
+   "summary": "Build a line from two points, a point and a gradient, a parallel or perpendicular condition, or its two intercepts; then use the line to find an unknown coordinate or an area.",
+   "syllabus": [
+    "2.1"
+   ],
+   "skills": [
+    "SL2.1.gradient",
+    "SL2.1.equation-of-line",
+    "SL2.1.intercepts",
+    "SL2.1.parallel-perpendicular"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "midpoint of a segment (sometimes)",
+    "gradient of the segment",
+    "parallel or perpendicular gradient",
+    "equation of the new line through a given point",
+    "substitute a point to find an unknown coordinate, or use the line to find an area"
+   ],
+   "given": [
+    "coordinates",
+    "equation in y = mx + c or general form",
+    "words"
+   ],
+   "asked": "A gradient, an equation in a stated form, or a coordinate found from the line.",
+   "answerForms": [
+    "exact",
+    "stated form (y = mx + c or ax + by + d = 0 with integer coefficients)"
+   ],
+   "randomise": [
+    "two integer points, or a point and a gradient p/q",
+    "parallel or perpendicular",
+    "the point the new line passes through",
+    "the form the answer must take",
+    "which coordinate is unknown in the follow-on part"
+   ],
+   "constraints": [
+    "integer points and gradients with denominator at most 5",
+    "the given gradient is non-zero so the perpendicular gradient exists",
+    "when ax + by + d = 0 is asked, scale to integers with a > 0",
+    "intercepts must be non-zero when the line is built from its intercepts"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot",
+    "match",
+    "method-pick",
+    "order-steps"
+   ],
+   "parts": [
+    "aa-sl-2022-may-tz1-p1-q01.a",
+    "aa-sl-2022-may-tz1-p1-q01.b",
+    "aa-sl-2022-nov-tz0-p1-q01.a",
+    "aa-sl-2022-nov-tz0-p1-q01.b",
+    "aa-sl-2023-may-tz1-p1-q01.a",
+    "aa-sl-2023-may-tz1-p1-q01.b",
+    "aa-sl-2023-may-tz1-p1-q01.c",
+    "aa-sl-2024-may-tz2-p1-q04.a",
+    "aa-sl-2024-may-tz2-p1-q04.b",
+    "aa-sl-2024-nov-tz1-p1-q07.a",
+    "aa-sl-2024-nov-tz2-p1-q07.a",
+    "aa-sl-2025-may-tz3-p2-q07.c"
+   ],
+   "alsoSeenIn": [
+    "aa-sl-2025-may-tz3-p2-q07.d"
+   ],
+   "stats": {
+    "parts": 12,
+    "paper": {
+     "p1": 11,
+     "p2": 1
+    },
+    "section": {
+     "A": 9,
+     "B": 3
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "2.1": 12
+    }
+   }
+  },
+  {
+   "id": "fn-graph-table-composite-inverse",
+   "topic": 2,
+   "detail": "full",
+   "name": "Values, composites and inverse values read from a graph or a table",
+   "summary": "A graph of f (or a table of f and g) is given; read a value, evaluate a composite, read an inverse value backwards, then solve an equation involving the inverse.",
+   "syllabus": [
+    "2.2",
+    "2.5",
+    "2.3"
+   ],
+   "skills": [
+    "SL2.2.evaluate-notation",
+    "SL2.3.read-graph",
+    "SL2.5.composite-value",
+    "SL2.2.inverse-undo",
+    "SL2.5.inverse-domain-range"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read f(a) from the graph or table",
+    "evaluate (f o f)(a) or (f o g)(a) by reading twice",
+    "read f^-1(b) by going from the y-axis back to x",
+    "domain of f^-1 is the range of f",
+    "solve f^-1(linear expression) = c by applying f to both sides"
+   ],
+   "given": [
+    "graph on a grid",
+    "table of values"
+   ],
+   "asked": "Single values; one short equation solved by undoing f.",
+   "answerForms": [
+    "exact"
+   ],
+   "randomise": [
+    "a piecewise-linear or simple one-to-one graph through grid points",
+    "a table of four to six x values with f(x) and g(x)",
+    "which inputs are queried",
+    "the linear expression inside f^-1 in the last part"
+   ],
+   "constraints": [
+    "every queried value lands on a grid point or a table entry",
+    "the inner output of a composite is itself an input the graph or table shows",
+    "f is one-to-one on the shown domain whenever an inverse is asked",
+    "the final equation's solution is an integer"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "match",
+    "error-spot"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q01.a",
+    "aa-sl-2022-may-tz2-p1-q01.a",
+    "aa-sl-2022-may-tz2-p1-q01.b",
+    "aa-sl-2022-may-tz2-p1-q01.c",
+    "aa-sl-2024-may-tz2-p1-q01.a",
+    "aa-sl-2025-may-tz3-p1-q03.a",
+    "aa-sl-2025-may-tz3-p1-q03.b",
+    "aa-sl-2025-may-tz3-p1-q03.c"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 8,
+    "paper": {
+     "p1": 8,
+     "p2": 0
+    },
+    "section": {
+     "A": 8,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "2.5": 2,
+     "2.2": 6
+    }
+   }
+  },
+  {
+   "id": "fn-inverse-reflection",
+   "topic": 2,
+   "detail": "full",
+   "name": "Inverse as a reflection in y = x",
+   "summary": "Sketch the inverse by reflecting the given graph in y = x, or use that symmetry to shortcut a calculation (equal areas, points on y = x).",
+   "syllabus": [
+    "2.2"
+   ],
+   "skills": [
+    "SL2.2.inverse-undo",
+    "SL2.4.symmetry"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "sketch f^-1 on the same axes by swapping key points",
+    "use the symmetry: intersections of f and f^-1 that lie on y = x, or an area doubled by symmetry"
+   ],
+   "given": [
+    "graph",
+    "equation"
+   ],
+   "asked": "A sketch of the inverse, or a value found by using the y = x symmetry.",
+   "answerForms": [
+    "sketch",
+    "exact",
+    "3 s.f."
+   ],
+   "randomise": [
+    "the graph's endpoints and intercepts, which swap to (b, a)",
+    "whether the follow-on uses the symmetry for an area or a distance"
+   ],
+   "constraints": [
+    "f is one-to-one on its domain",
+    "key points on grid points so the swapped points are easy to check"
+   ],
+   "formats": [
+    "graph-pick",
+    "mcq",
+    "match",
+    "true-false-reason"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q09.e",
+    "aa-sl-2024-may-tz2-p1-q01.b"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 2,
+    "paper": {
+     "p1": 1,
+     "p2": 1
+    },
+    "section": {
+     "A": 1,
+     "B": 1
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 2
+    },
+    "mainTags": {
+     "2.2": 2
+    }
+   }
+  },
+  {
+   "id": "fn-evaluate-function",
+   "topic": 2,
+   "detail": "full",
+   "name": "Evaluate a function or model at a given input",
+   "summary": "Substitute into a given rule, usually a model in context: the value at time zero, at a stated input, or the y-intercept. Often the first part of a longer question.",
+   "syllabus": [
+    "2.2",
+    "2.4"
+   ],
+   "skills": [
+    "SL2.2.evaluate-notation",
+    "SL2.2.function-model",
+    "SL2.4.zeros-intercepts"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "evaluate at zero or at a stated input",
+    "interpret the value in context",
+    "later parts solve an equation or optimise with the same model"
+   ],
+   "given": [
+    "equation",
+    "words"
+   ],
+   "asked": "One value, sometimes compared with a point to say if it lies above or below the graph.",
+   "answerForms": [
+    "exact",
+    "3 s.f."
+   ],
+   "randomise": [
+    "the model family (polynomial, root, rational, exponential)",
+    "coefficients",
+    "the input value",
+    "the context"
+   ],
+   "constraints": [
+    "Paper 1 inputs give integers or simple fractions",
+    "the input lies inside the stated domain",
+    "Paper 2 values are given to 3 s.f."
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot",
+    "match"
+   ],
+   "parts": [
+    "aa-sl-2022-may-tz2-p2-q08.a",
+    "aa-sl-2023-may-tz1-p1-q07.a",
+    "aa-sl-2023-may-tz1-p2-q04.a",
+    "aa-sl-2024-may-tz2-p2-q09.f",
+    "aa-sl-2024-nov-tz1-p2-q01.a",
+    "aa-sl-2024-nov-tz2-p2-q01.a",
+    "aa-sl-2025-may-tz3-p2-q07.b"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 1,
+     "p2": 6
+    },
+    "section": {
+     "A": 3,
+     "B": 4
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "2.2": 6,
+     "2.4": 1
+    }
+   }
+  },
+  {
+   "id": "fn-domain-range",
+   "topic": 2,
+   "detail": "full",
+   "name": "Domain and range, including restricted and transformed functions",
+   "summary": "State a range from a vertex, an asymptote or endpoint values, including after a reflection or on a restricted domain; use a range to decide when a composite is defined.",
+   "syllabus": [
+    "2.2",
+    "2.5",
+    "2.6",
+    "2.8",
+    "2.11"
+   ],
+   "skills": [
+    "SL2.2.domain",
+    "SL2.2.range",
+    "SL2.5.inverse-domain-range"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "find the vertex, asymptote or endpoint values",
+    "state the range",
+    "use it: the range of a transformed function, or the condition for g(f(x)) to exist"
+   ],
+   "given": [
+    "equation",
+    "equation with a restricted domain",
+    "graph"
+   ],
+   "asked": "A range or domain, or a bound on a constant.",
+   "answerForms": [
+    "interval or inequality"
+   ],
+   "randomise": [
+    "quadratic vertex",
+    "rational horizontal asymptote",
+    "restricted-domain endpoints",
+    "the transformation applied (reflection, translation)"
+   ],
+   "constraints": [
+    "endpoints are integers or simple fractions",
+    "decide deliberately whether each endpoint is included (the usual error)",
+    "for composites, the range of the inner function must meet the domain of the outer one"
+   ],
+   "formats": [
+    "mcq",
+    "true-false-reason",
+    "error-spot",
+    "match"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q05.a",
+    "aa-sl-2021-may-tz2-p2-q05.b",
+    "aa-sl-2024-may-tz1-p1-q08.b",
+    "aa-sl-2025-may-tz2-p1-q03.c"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 2,
+     "p2": 2
+    },
+    "section": {
+     "A": 3,
+     "B": 1
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "2.6": 1,
+     "2.5": 1,
+     "2.2": 2
+    }
+   }
+  },
+  {
+   "id": "fn-sketch-gdc",
+   "topic": 2,
+   "detail": "full",
+   "name": "Sketch a graph from the GDC on a given domain",
+   "summary": "Draw the graph of a given function on a stated domain from technology, labelling intercepts, turning points and endpoints.",
+   "syllabus": [
+    "2.3",
+    "2.4"
+   ],
+   "skills": [
+    "SL2.3.sketch-from-equation",
+    "SL2.4.zeros-intercepts",
+    "SL2.4.max-min"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "sketch with features labelled",
+    "write down the zeros or the maximum",
+    "use the graph to solve an equation or inequality, or count solutions"
+   ],
+   "given": [
+    "equation with a domain"
+   ],
+   "asked": "A sketch showing the requested features.",
+   "answerForms": [
+    "sketch",
+    "3 s.f. coordinates on the sketch"
+   ],
+   "randomise": [
+    "the function family (exponential plus linear, polynomial, bell curve, composite with trig)",
+    "coefficients",
+    "domain endpoints"
+   ],
+   "constraints": [
+    "one or two turning points and one to three zeros inside the domain",
+    "features far enough apart to tell apart on a sketch",
+    "the whole graph fits a sensible window"
+   ],
+   "formats": [
+    "graph-pick",
+    "mcq",
+    "true-false-reason"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q02.a",
+    "aa-sl-2021-nov-tz0-p2-q02.b",
+    "aa-sl-2023-may-tz1-p2-q03.b",
+    "aa-sl-2023-nov-tz1-p2-q03.a",
+    "aa-sl-2023-nov-tz2-p2-q03.a",
+    "aa-sl-2024-nov-tz1-p2-q01.c",
+    "aa-sl-2024-nov-tz2-p2-q01.c"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 0,
+     "p2": 7
+    },
+    "section": {
+     "A": 7,
+     "B": 0
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 3
+    },
+    "mainTags": {
+     "2.3": 7
+    }
+   }
+  },
+  {
+   "id": "fn-sketch-from-features",
+   "topic": 2,
+   "detail": "full",
+   "name": "Sketch from features found in earlier parts",
+   "summary": "Without a calculator, draw a graph using intercepts, a vertex, stationary points or end behaviour that earlier parts found.",
+   "syllabus": [
+    "2.3",
+    "2.4",
+    "2.6"
+   ],
+   "skills": [
+    "SL2.3.sketch-from-info",
+    "SL2.6.sketch"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "earlier parts find intercepts, vertex or stationary points",
+    "sketch showing those features and the domain"
+   ],
+   "given": [
+    "equation",
+    "results of earlier parts"
+   ],
+   "asked": "A sketch with specified features labelled.",
+   "answerForms": [
+    "sketch"
+   ],
+   "randomise": [
+    "quadratic roots and vertex",
+    "the domain shown",
+    "for other families, the features that earlier parts produce"
+   ],
+   "constraints": [
+    "features at integers or simple fractions",
+    "the domain includes every feature the sketch must show"
+   ],
+   "formats": [
+    "graph-pick",
+    "match",
+    "true-false-reason"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q08.e",
+    "aa-sl-2021-nov-tz0-p1-q07.b",
+    "aa-sl-2022-nov-tz0-p1-q09.c",
+    "aa-sl-2025-may-tz1-p1-q08.b"
+   ],
+   "alsoSeenIn": [
+    "aa-sl-2022-may-tz1-p1-q07.d",
+    "aa-sl-2025-may-tz2-p1-q08.b"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 4,
+     "p2": 0
+    },
+    "section": {
+     "A": 0,
+     "B": 4
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "2.3": 4
+    }
+   }
+  },
+  {
+   "id": "fn-gdc-features",
+   "topic": 2,
+   "detail": "full",
+   "name": "Zeros and turning points with the GDC",
+   "summary": "Find the zeros, a maximum or a minimum of a given function with technology.",
+   "syllabus": [
+    "2.4",
+    "2.10"
+   ],
+   "skills": [
+    "SL2.4.zeros-intercepts",
+    "SL2.4.max-min",
+    "SL2.10.solve-gdc"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "often follows a GDC sketch",
+    "the values feed later parts (an interval, a distance, an area)"
+   ],
+   "given": [
+    "equation with a domain"
+   ],
+   "asked": "Coordinates of zeros or turning points.",
+   "answerForms": [
+    "3 s.f."
+   ],
+   "randomise": [
+    "function family and coefficients",
+    "domain"
+   ],
+   "constraints": [
+    "features are not at simple values, so technology is the intended route",
+    "features are well separated",
+    "state 3 s.f. and use stored values in later parts"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "method-pick"
+   ],
+   "parts": [
+    "aa-sl-2021-nov-tz0-p2-q02.a",
+    "aa-sl-2022-nov-tz0-p2-q03.a",
+    "aa-sl-2022-nov-tz0-p2-q03.b",
+    "aa-sl-2024-nov-tz1-p2-q01.b",
+    "aa-sl-2024-nov-tz2-p2-q01.b"
+   ],
+   "alsoSeenIn": [
+    "aa-sl-2021-may-tz2-p2-q02.b",
+    "aa-sl-2021-nov-tz0-p2-q07.b",
+    "aa-sl-2021-nov-tz0-p2-q07.c",
+    "aa-sl-2022-may-tz2-p2-q06.c",
+    "aa-sl-2023-may-tz2-p2-q06.b",
+    "aa-sl-2024-may-tz1-p2-q08.a",
+    "aa-sl-2024-nov-tz1-p2-q09.b",
+    "aa-sl-2024-nov-tz2-p2-q09.b",
+    "aa-sl-2025-may-tz1-p1-q07.a",
+    "aa-sl-2025-may-tz2-p2-q05.a"
+   ],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 0,
+     "p2": 5
+    },
+    "section": {
+     "A": 5,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 2
+    },
+    "mainTags": {
+     "2.10": 1,
+     "2.4": 4
+    }
+   }
+  },
+  {
+   "id": "fn-gdc-intersection",
+   "topic": 2,
+   "detail": "full",
+   "name": "Intersection of two curves with the GDC",
+   "summary": "Find where two curves meet with technology: two models, a curve and a line, or a function and its inverse; then use the points.",
+   "syllabus": [
+    "2.4",
+    "2.10"
+   ],
+   "skills": [
+    "SL2.4.intersection",
+    "SL2.10.solve-gdc"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "find the intersection points",
+    "use them: a distance between points, the limits of an area (5.11), or a time interval in context"
+   ],
+   "given": [
+    "two equations",
+    "equation and its inverse",
+    "two models in words"
+   ],
+   "asked": "Coordinates of the intersections, or the time when two models are equal.",
+   "answerForms": [
+    "3 s.f."
+   ],
+   "randomise": [
+    "the two functions and coefficients",
+    "the domain or context"
+   ],
+   "constraints": [
+    "one to three clean crossings in the window",
+    "no near-tangent crossings that are hard to see"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "method-pick",
+    "graph-pick"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q09.a",
+    "aa-sl-2022-may-tz2-p2-q08.b",
+    "aa-sl-2023-may-tz2-p2-q07.b",
+    "aa-sl-2024-may-tz1-p2-q07.b",
+    "aa-sl-2024-may-tz1-p2-q08.e",
+    "aa-sl-2024-may-tz2-p2-q02.a",
+    "aa-sl-2025-may-tz3-p2-q07.e"
+   ],
+   "alsoSeenIn": [
+    "aa-sl-2022-may-tz1-p2-q08.c",
+    "aa-sl-2023-nov-tz1-p2-q01.c",
+    "aa-sl-2023-nov-tz2-p2-q01.c"
+   ],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 0,
+     "p2": 7
+    },
+    "section": {
+     "A": 1,
+     "B": 6
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 3
+    },
+    "mainTags": {
+     "2.4": 6,
+     "2.10": 1
+    }
+   }
+  },
+  {
+   "id": "fn-gdc-optimise-combined",
+   "topic": 2,
+   "detail": "full",
+   "name": "Build a new function from given ones and optimise it with the GDC",
+   "summary": "Form the difference of two models, or the distance from a point to a curve, then find its maximum, minimum or zero with technology.",
+   "syllabus": [
+    "2.4",
+    "2.10",
+    "2.3"
+   ],
+   "skills": [
+    "SL2.4.max-min",
+    "SL2.3.sum-difference",
+    "SL2.10.context-apply"
+   ],
+   "skillFit": "partial",
+   "skillGap": "No curriculum skill names forming a distance or difference function and optimising it; SL2.3.sum-difference covers only the graphing half.",
+   "chain": [
+    "earlier parts set up two models",
+    "form the difference or distance function",
+    "find its maximum, minimum or zero and interpret"
+   ],
+   "given": [
+    "two equations",
+    "context in words"
+   ],
+   "asked": "The greatest or least value, or when the difference is zero.",
+   "answerForms": [
+    "3 s.f."
+   ],
+   "randomise": [
+    "the two models",
+    "which extreme is asked"
+   ],
+   "constraints": [
+    "the extreme lies inside the domain, not at an endpoint, unless that is the point",
+    "the answer is interpretable in context"
+   ],
+   "formats": [
+    "value",
+    "method-pick",
+    "mcq"
+   ],
+   "parts": [
+    "aa-sl-2024-may-tz2-p2-q09.g",
+    "aa-sl-2024-nov-tz1-p2-q08.e",
+    "aa-sl-2024-nov-tz2-p2-q08.e",
+    "aa-sl-2025-may-tz1-p2-q09.b"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 0,
+     "p2": 4
+    },
+    "section": {
+     "A": 0,
+     "B": 4
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "2.10": 1,
+     "2.4": 3
+    }
+   }
+  },
+  {
+   "id": "fn-gdc-solve-equation",
+   "topic": 2,
+   "detail": "full",
+   "name": "Solve an equation that needs technology",
+   "summary": "An earlier part derives an equation that mixes families (angle and sine, exponential and polynomial); solve it with the GDC and keep the root that makes sense.",
+   "syllabus": [
+    "2.10"
+   ],
+   "skills": [
+    "SL2.10.solve-gdc",
+    "SL2.10.context-apply"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "show or form the equation from geometry or a model",
+    "solve with the GDC",
+    "reject roots outside the context's domain"
+   ],
+   "given": [
+    "equation",
+    "diagram",
+    "words"
+   ],
+   "asked": "The solution in context.",
+   "answerForms": [
+    "3 s.f."
+   ],
+   "randomise": [
+    "the constants in the equation",
+    "the interval of interest"
+   ],
+   "constraints": [
+    "exactly one root in the context interval, or say which one is wanted",
+    "no simple exact root, so technology is genuinely needed"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "method-pick"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q08.c",
+    "aa-sl-2021-nov-tz0-p2-q05.b",
+    "aa-sl-2022-nov-tz0-p2-q08.c",
+    "aa-sl-2024-may-tz1-p2-q09.c"
+   ],
+   "alsoSeenIn": [
+    "aa-sl-2021-may-tz1-p2-q05.a",
+    "aa-sl-2022-may-tz1-p2-q03.b",
+    "aa-sl-2022-may-tz1-p2-q05.a",
+    "aa-sl-2023-may-tz1-p2-q06",
+    "aa-sl-2023-may-tz2-p2-q07.e",
+    "aa-sl-2023-nov-tz1-p2-q06",
+    "aa-sl-2023-nov-tz1-p2-q08.c",
+    "aa-sl-2023-nov-tz2-p2-q06",
+    "aa-sl-2023-nov-tz2-p2-q08.c",
+    "aa-sl-2024-may-tz1-p2-q05.a",
+    "aa-sl-2025-may-tz2-p2-q03.a",
+    "aa-sl-2025-may-tz2-p2-q06",
+    "aa-sl-2025-may-tz3-p2-q06.b",
+    "aa-sl-2025-may-tz3-p2-q09.a"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 0,
+     "p2": 4
+    },
+    "section": {
+     "A": 1,
+     "B": 3
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "2.10": 4
+    }
+   }
+  },
+  {
+   "id": "fn-composite",
+   "topic": 2,
+   "detail": "full",
+   "name": "Form a composite, evaluate it, solve for a parameter",
+   "summary": "Write (g o f)(x) for two given rules, evaluate it, or set it equal to a value and solve for an unknown constant.",
+   "syllabus": [
+    "2.5"
+   ],
+   "skills": [
+    "SL2.5.composite-value",
+    "SL2.5.composite-expression"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "write the composite expression",
+    "evaluate it at a value or set it equal to a given value",
+    "solve for the parameter (often two answers from a square)",
+    "or equate coefficients with a given form and solve the resulting quadratic"
+   ],
+   "given": [
+    "equations"
+   ],
+   "asked": "An expression, a value, or the parameter.",
+   "answerForms": [
+    "simplified expression",
+    "exact"
+   ],
+   "randomise": [
+    "inner linear rule ax + b",
+    "outer rule: linear, quadratic, cubic or trig",
+    "the parameter k",
+    "the target value"
+   ],
+   "constraints": [
+    "the order of composition is stated clearly (f o g versus g o f is the classic error)",
+    "solving gives integers, often a +/- pair",
+    "Paper 2 versions may compose with a trig function"
+   ],
+   "formats": [
+    "mcq",
+    "value",
+    "error-spot",
+    "order-steps",
+    "match",
+    "method-pick"
+   ],
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q05.c",
+    "aa-sl-2022-may-tz1-p1-q04.a",
+    "aa-sl-2022-nov-tz0-p1-q01.c",
+    "aa-sl-2023-may-tz1-p2-q03.a",
+    "aa-sl-2023-may-tz2-p1-q06",
+    "aa-sl-2023-nov-tz1-p1-q02.a",
+    "aa-sl-2023-nov-tz1-p1-q02.b",
+    "aa-sl-2023-nov-tz2-p1-q02.a",
+    "aa-sl-2023-nov-tz2-p1-q02.b"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 9,
+    "paper": {
+     "p1": 8,
+     "p2": 1
+    },
+    "section": {
+     "A": 9,
+     "B": 0
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 7
+    },
+    "mainTags": {
+     "2.5": 9
+    }
+   }
+  },
+  {
+   "id": "fn-inverse-algebraic",
+   "topic": 2,
+   "detail": "full",
+   "name": "Find an inverse algebraically, with its domain; self-inverse functions",
+   "summary": "Swap and rearrange to find f^-1 for a linear, rational or root function, state its domain and range, show a function is its own inverse, or find a constant that makes it so.",
+   "syllabus": [
+    "2.5",
+    "2.8",
+    "2.2",
+    "2.11"
+   ],
+   "skills": [
+    "SL2.5.find-inverse",
+    "SL2.5.inverse-domain-range",
+    "SL2.8.rational-inverse",
+    "SL2.5.identity"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "(asymptotes of a rational function)",
+    "find f^-1(x)",
+    "state its domain and range",
+    "show f is self-inverse, or use that to find a constant",
+    "(link to reflections in the axes)"
+   ],
+   "given": [
+    "equation with a domain"
+   ],
+   "asked": "The inverse expression, its domain or range, or a show-that.",
+   "answerForms": [
+    "exact expression",
+    "show that",
+    "interval"
+   ],
+   "randomise": [
+    "f(x) = (ax + b)/(cx + d)",
+    "f(x) = square root of (px + q)",
+    "linear f",
+    "the restricted domain"
+   ],
+   "constraints": [
+    "ad - bc is non-zero",
+    "a rational function is self-inverse exactly when d = -a",
+    "root functions need a stated domain so the inverse's domain is the original range"
+   ],
+   "formats": [
+    "mcq",
+    "error-spot",
+    "order-steps",
+    "method-pick",
+    "match"
+   ],
+   "parts": [
+    "aa-sl-2022-may-tz1-p2-q08.b",
+    "aa-sl-2023-may-tz1-p1-q02.c",
+    "aa-sl-2023-may-tz2-p2-q07.a",
+    "aa-sl-2025-may-tz1-p2-q09.a",
+    "aa-sl-2025-may-tz1-p2-q09.d"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 1,
+     "p2": 4
+    },
+    "section": {
+     "A": 1,
+     "B": 4
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 8
+    },
+    "mainTags": {
+     "2.5": 5
+    }
+   }
+  },
+  {
+   "id": "fn-exp-log-inverse-composite",
+   "topic": 2,
+   "detail": "full",
+   "name": "Exponential and log functions as inverses and composites",
+   "summary": "Evaluate an exponential or log function, find its inverse by switching form, evaluate the inverse, simplify a composite of exp and log with log laws, and relate their graphs by transformations.",
+   "syllabus": [
+    "2.5",
+    "2.9",
+    "1.5",
+    "1.7",
+    "2.11"
+   ],
+   "skills": [
+    "SL2.5.find-inverse",
+    "SL2.9.exp-log-inverse",
+    "SL1.5.exp-log-form",
+    "SL2.5.composite-expression",
+    "SL1.7.change-of-base"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "evaluate f at chosen points",
+    "find f^-1 by converting between log and exponential form",
+    "evaluate f^-1 at a point",
+    "simplify a composite such as f(g(x)) with log laws",
+    "describe the transformations linking two exponential or log graphs",
+    "(solve an inequality in the composite)"
+   ],
+   "given": [
+    "equation"
+   ],
+   "asked": "Values, the inverse rule, a simplified composite.",
+   "answerForms": [
+    "exact",
+    "simplified expression"
+   ],
+   "randomise": [
+    "base (2, 3, 4, 8, e, 10)",
+    "a linear shift inside the function",
+    "a constant added outside",
+    "the evaluation points"
+   ],
+   "constraints": [
+    "evaluation points give integer powers",
+    "bases chosen from one family (2, 4, 8) when change of base is the point",
+    "the inverse's domain follows from the original range"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot",
+    "match",
+    "method-pick"
+   ],
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q08.b",
+    "aa-sl-2024-may-tz1-p2-q07.a",
+    "aa-sl-2024-nov-tz1-p1-q08.a",
+    "aa-sl-2024-nov-tz1-p1-q08.b",
+    "aa-sl-2024-nov-tz1-p1-q08.c",
+    "aa-sl-2024-nov-tz2-p1-q08.a",
+    "aa-sl-2024-nov-tz2-p1-q08.b",
+    "aa-sl-2024-nov-tz2-p1-q08.c",
+    "aa-sl-2025-may-tz1-p1-q08.d",
+    "aa-sl-2025-may-tz2-p1-q09.a",
+    "aa-sl-2025-may-tz2-p1-q09.b",
+    "aa-sl-2025-may-tz2-p1-q09.c"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 12,
+    "paper": {
+     "p1": 11,
+     "p2": 1
+    },
+    "section": {
+     "A": 0,
+     "B": 12
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "2.5": 9,
+     "1.5": 2,
+     "1.7": 1
+    }
+   }
+  },
+  {
+   "id": "fn-quadratic-features",
+   "topic": 2,
+   "detail": "full",
+   "name": "Read and convert quadratic forms",
+   "summary": "From a quadratic in factorised, vertex or general form, state the intercepts, axis of symmetry and vertex, or convert to another form.",
+   "syllabus": [
+    "2.6",
+    "2.4"
+   ],
+   "skills": [
+    "SL2.6.axis-symmetry",
+    "SL2.6.vertex",
+    "SL2.6.complete-square",
+    "SL2.6.factorised-form"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "intercepts from factorised form",
+    "axis of symmetry as the midpoint of the roots",
+    "vertex",
+    "vertex form a(x - h)^2 + k",
+    "second root from the axis",
+    "y-intercept",
+    "then a sketch, an inequality or a tangent"
+   ],
+   "given": [
+    "equation",
+    "graph with marked points"
+   ],
+   "asked": "Intercepts, the axis, the vertex, or the quadratic in another form.",
+   "answerForms": [
+    "exact",
+    "stated form"
+   ],
+   "randomise": [
+    "a in {+/-1, +/-2, +/-1/2}",
+    "integer roots p and q, or integer h and k",
+    "which form is given and which is asked"
+   ],
+   "constraints": [
+    "p + q even so the axis and vertex are integers",
+    "a is non-zero",
+    "Paper 1 only, so every value is exact"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "method-pick",
+    "error-spot",
+    "match"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q07.b",
+    "aa-sl-2021-may-tz1-p1-q07.c",
+    "aa-sl-2021-nov-tz0-p1-q01.a",
+    "aa-sl-2022-may-tz1-p1-q07.a",
+    "aa-sl-2022-may-tz2-p1-q07.a",
+    "aa-sl-2023-may-tz2-p1-q07.a",
+    "aa-sl-2023-may-tz2-p1-q07.b",
+    "aa-sl-2023-may-tz2-p1-q07.c",
+    "aa-sl-2024-may-tz1-p1-q08.c",
+    "aa-sl-2024-may-tz1-p1-q08.e",
+    "aa-sl-2025-may-tz1-p1-q08.a"
+   ],
+   "alsoSeenIn": [
+    "aa-sl-2021-may-tz1-p1-q07.d",
+    "aa-sl-2022-may-tz2-p1-q07.d"
+   ],
+   "stats": {
+    "parts": 11,
+    "paper": {
+     "p1": 11,
+     "p2": 0
+    },
+    "section": {
+     "A": 1,
+     "B": 10
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 5
+    },
+    "mainTags": {
+     "2.6": 11
+    }
+   }
+  },
+  {
+   "id": "fn-quadratic-from-conditions",
+   "topic": 2,
+   "detail": "full",
+   "name": "Find a quadratic from its roots, vertex or points",
+   "summary": "Work out the coefficients of a quadratic from a vertex and a point, the two roots, the axis of symmetry, or two points it passes through.",
+   "syllabus": [
+    "2.6",
+    "2.2"
+   ],
+   "skills": [
+    "SL2.6.find-equation",
+    "SL2.6.factorised-form"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "write it in vertex or factorised form",
+    "use a further point to find a",
+    "expand if a general form is asked",
+    "state the range from the vertex"
+   ],
+   "given": [
+    "words",
+    "graph with marked points"
+   ],
+   "asked": "The coefficients, or the equation in a stated form.",
+   "answerForms": [
+    "exact",
+    "show that"
+   ],
+   "randomise": [
+    "integer roots or vertex",
+    "the extra point",
+    "the form asked for"
+   ],
+   "constraints": [
+    "a is a non-zero integer or a simple fraction",
+    "the extra point is not the vertex or a root",
+    "with two points and a known axis, the system has a unique solution"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "multipart",
+    "error-spot",
+    "method-pick"
+   ],
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q01.b",
+    "aa-sl-2022-may-tz2-p1-q07.b",
+    "aa-sl-2022-nov-tz0-p1-q07.a",
+    "aa-sl-2022-nov-tz0-p1-q07.b",
+    "aa-sl-2024-may-tz1-p1-q08.d",
+    "aa-sl-2024-nov-tz1-p1-q07.b",
+    "aa-sl-2024-nov-tz2-p1-q07.b"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 7,
+     "p2": 0
+    },
+    "section": {
+     "A": 1,
+     "B": 6
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 7
+    },
+    "mainTags": {
+     "2.6": 7
+    }
+   }
+  },
+  {
+   "id": "fn-solve-quadratic",
+   "topic": 2,
+   "detail": "full",
+   "name": "Solve a quadratic exactly, in context or in disguise",
+   "summary": "Solve a quadratic by factorising or the formula, reject a root the context rules out, or solve a disguised quadratic by substitution.",
+   "syllabus": [
+    "2.7",
+    "1.5"
+   ],
+   "skills": [
+    "SL2.7.solve-equation",
+    "SL2.7.hidden-quadratic"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "form the quadratic from the context (probabilities summing to 1, a sector's area and perimeter)",
+    "solve it",
+    "reject the root that breaks the context (negative length, probability above 1)",
+    "or: solve a quadratic, then reuse it with u = a^x"
+   ],
+   "given": [
+    "equation",
+    "words"
+   ],
+   "asked": "The valid root or roots.",
+   "answerForms": [
+    "exact"
+   ],
+   "randomise": [
+    "two rational roots",
+    "the substitution base",
+    "which root is invalid"
+   ],
+   "constraints": [
+    "roots factor nicely on Paper 1",
+    "with u = a^x, one root of u is negative so it must be rejected",
+    "the context makes exactly one root invalid"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot",
+    "method-pick",
+    "order-steps"
+   ],
+   "parts": [
+    "aa-sl-2022-may-tz1-p2-q04.b",
+    "aa-sl-2024-may-tz1-p1-q04.b",
+    "aa-sl-2024-may-tz2-p1-q03.a",
+    "aa-sl-2024-may-tz2-p1-q03.b"
+   ],
+   "alsoSeenIn": [
+    "aa-sl-2021-may-tz2-p1-q03.b",
+    "aa-sl-2021-may-tz2-p1-q05.b",
+    "aa-sl-2021-may-tz2-p1-q09.a",
+    "aa-sl-2021-nov-tz0-p1-q06.b",
+    "aa-sl-2022-may-tz1-p1-q08.b",
+    "aa-sl-2022-may-tz2-p1-q06.b",
+    "aa-sl-2022-may-tz2-p2-q04",
+    "aa-sl-2023-may-tz1-p1-q04.b",
+    "aa-sl-2023-may-tz1-p1-q09.c",
+    "aa-sl-2023-may-tz2-p1-q09.d",
+    "aa-sl-2023-nov-tz1-p1-q06",
+    "aa-sl-2023-nov-tz2-p1-q06",
+    "aa-sl-2024-may-tz1-p1-q09.g",
+    "aa-sl-2025-may-tz2-p1-q07.a",
+    "aa-sl-2025-may-tz3-p1-q08.c"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 3,
+     "p2": 1
+    },
+    "section": {
+     "A": 4,
+     "B": 0
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "2.7": 4
+    }
+   }
+  },
+  {
+   "id": "fn-discriminant",
+   "topic": 2,
+   "detail": "full",
+   "name": "Discriminant conditions on a parameter",
+   "summary": "Use the discriminant to find the values of a constant that give a tangent, two intersections, no roots, or an expression that is always positive.",
+   "syllabus": [
+    "2.7",
+    "1.7",
+    "2.8",
+    "2.9",
+    "5.4"
+   ],
+   "skills": [
+    "SL2.7.discriminant",
+    "SL2.7.discriminant-parameter",
+    "SL2.7.inequality"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "equate a line and a curve (or combine logs) to show a quadratic",
+    "set the discriminant = 0, > 0 or < 0",
+    "solve the resulting equation or quadratic inequality in the parameter",
+    "combine with an extra condition (same-sign roots, positive constant)"
+   ],
+   "given": [
+    "equations",
+    "words"
+   ],
+   "asked": "A show-that, then the parameter value or interval.",
+   "answerForms": [
+    "show that",
+    "exact",
+    "interval or inequality"
+   ],
+   "randomise": [
+    "coefficients with the parameter in b or c",
+    "which condition (tangent, two points, none, always positive)",
+    "the extra condition"
+   ],
+   "constraints": [
+    "the discriminant is a quadratic in the parameter with integer roots",
+    "say whether the inequality is strict",
+    "Paper 2 versions are the same algebra, with a log argument that must stay positive"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "multipart",
+    "error-spot",
+    "order-steps",
+    "method-pick",
+    "true-false-reason"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q07.a",
+    "aa-sl-2022-may-tz1-p1-q07.b",
+    "aa-sl-2022-nov-tz0-p1-q07.c",
+    "aa-sl-2023-may-tz1-p1-q05",
+    "aa-sl-2023-nov-tz1-p1-q08.b",
+    "aa-sl-2023-nov-tz2-p1-q08.b",
+    "aa-sl-2024-may-tz2-p1-q06.b",
+    "aa-sl-2024-may-tz2-p1-q08.a",
+    "aa-sl-2024-nov-tz1-p2-q06",
+    "aa-sl-2024-nov-tz2-p2-q06",
+    "aa-sl-2025-may-tz2-p1-q05.a",
+    "aa-sl-2025-may-tz2-p1-q05.b",
+    "aa-sl-2025-may-tz3-p1-q05.b"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 13,
+    "paper": {
+     "p1": 11,
+     "p2": 2
+    },
+    "section": {
+     "A": 7,
+     "B": 6
+    },
+    "marks": {
+     "min": 2,
+     "median": 5,
+     "max": 9
+    },
+    "mainTags": {
+     "2.7": 12,
+     "1.7": 1
+    }
+   }
+  },
+  {
+   "id": "fn-curve-intersection-quadratic",
+   "topic": 2,
+   "detail": "full",
+   "name": "Intersect a curve and a line exactly, then use the points",
+   "summary": "Equate a curve (quadratic, rational or log) with a line or a normal, solve the quadratic exactly, then find the points or the distance between them.",
+   "syllabus": [
+    "2.7",
+    "2.10",
+    "2.8",
+    "5.4"
+   ],
+   "skills": [
+    "SL2.4.intersection",
+    "SL2.7.solve-equation",
+    "SL2.10.solve-analytic"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "equate and rearrange to a quadratic",
+    "solve exactly",
+    "find the coordinates",
+    "find a distance or a difference, often as a surd"
+   ],
+   "given": [
+    "equations",
+    "graph"
+   ],
+   "asked": "The points, or a distance in a stated surd form.",
+   "answerForms": [
+    "exact",
+    "surd form a times root b"
+   ],
+   "randomise": [
+    "curve and line coefficients",
+    "the stated form of the final answer"
+   ],
+   "constraints": [
+    "roots are integers or surds with a small radicand",
+    "the final surd simplifies"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot",
+    "order-steps",
+    "method-pick"
+   ],
+   "parts": [
+    "aa-sl-2022-may-tz2-p1-q08.a",
+    "aa-sl-2023-may-tz2-p1-q07.e",
+    "aa-sl-2023-nov-tz1-p1-q08.c",
+    "aa-sl-2023-nov-tz2-p1-q08.c",
+    "aa-sl-2025-may-tz3-p1-q05.a"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 5,
+     "p2": 0
+    },
+    "section": {
+     "A": 1,
+     "B": 4
+    },
+    "marks": {
+     "min": 2,
+     "median": 5,
+     "max": 8
+    },
+    "mainTags": {
+     "2.7": 4,
+     "2.10": 1
+    }
+   }
+  },
+  {
+   "id": "fn-quadratic-inequality",
+   "topic": 2,
+   "detail": "full",
+   "name": "Solve a quadratic inequality",
+   "summary": "Solve a quadratic inequality from its roots and the shape of the graph, including the largest integer that satisfies a context condition.",
+   "syllabus": [
+    "2.7"
+   ],
+   "skills": [
+    "SL2.7.inequality"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "rearrange to (quadratic) compared with 0",
+    "find the roots",
+    "choose the region from the parabola's shape",
+    "in context: the largest whole number allowed"
+   ],
+   "given": [
+    "equation",
+    "words"
+   ],
+   "asked": "An interval, or an integer from it.",
+   "answerForms": [
+    "interval or inequality",
+    "integer"
+   ],
+   "randomise": [
+    "integer roots",
+    "direction of the inequality",
+    "the sign of a"
+   ],
+   "constraints": [
+    "roots factor on Paper 1",
+    "Paper 2 contexts round to a whole number the right way"
+   ],
+   "formats": [
+    "mcq",
+    "error-spot",
+    "graph-pick",
+    "method-pick",
+    "true-false-reason"
+   ],
+   "parts": [
+    "aa-sl-2025-may-tz1-p1-q08.c",
+    "aa-sl-2025-may-tz1-p2-q08.d"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 2,
+    "paper": {
+     "p1": 1,
+     "p2": 1
+    },
+    "section": {
+     "A": 0,
+     "B": 2
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "2.7": 2
+    }
+   }
+  },
+  {
+   "id": "fn-log-of-quadratic",
+   "topic": 2,
+   "detail": "full",
+   "name": "Log of a quadratic: domain, asymptotes, zeros and maximum",
+   "summary": "For a log whose argument is a downward quadratic: the domain comes from a quadratic inequality, the vertical asymptotes sit at its roots, the zeros come from setting the argument to 1, and the maximum comes from the vertex.",
+   "syllabus": [
+    "2.7",
+    "2.9",
+    "2.6",
+    "2.4",
+    "1.5"
+   ],
+   "skills": [
+    "SL2.7.inequality",
+    "SL2.9.log-graph",
+    "SL2.4.asymptotes",
+    "SL2.6.vertex",
+    "SL1.5.exp-log-form"
+   ],
+   "skillFit": "partial",
+   "skillGap": "No single skill covers a log whose argument is a quadratic; the parts map to four separate skills.",
+   "chain": [
+    "solve the quadratic and the matching inequality",
+    "write down the asymptotes at the roots",
+    "zeros: argument = 1, solved exactly",
+    "use the vertex to get the maximum, then find the base"
+   ],
+   "given": [
+    "equation",
+    "graph"
+   ],
+   "asked": "Interval, asymptotes, exact zeros, the unknown base.",
+   "answerForms": [
+    "interval",
+    "exact",
+    "surd"
+   ],
+   "randomise": [
+    "the quadratic's roots and vertex",
+    "the base k"
+   ],
+   "constraints": [
+    "the vertex value is an integer power of the base",
+    "argument = 1 gives surd roots with a small radicand"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "multipart",
+    "true-false-reason"
+   ],
+   "parts": [
+    "aa-sl-2025-may-tz3-p1-q09.a",
+    "aa-sl-2025-may-tz3-p1-q09.b",
+    "aa-sl-2025-may-tz3-p1-q09.c",
+    "aa-sl-2025-may-tz3-p1-q09.d"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 4,
+     "p2": 0
+    },
+    "section": {
+     "A": 0,
+     "B": 4
+    },
+    "marks": {
+     "min": 2,
+     "median": 4,
+     "max": 6
+    },
+    "mainTags": {
+     "2.7": 2,
+     "2.9": 1,
+     "2.6": 1
+    }
+   }
+  },
+  {
+   "id": "fn-rational-asymptotes-intercepts",
+   "topic": 2,
+   "detail": "full",
+   "name": "Asymptotes and intercepts of (ax + b)/(cx + d)",
+   "summary": "Write down the vertical and horizontal asymptotes and find the axis intercepts of a linear-over-linear function.",
+   "syllabus": [
+    "2.8",
+    "2.4",
+    "2.2"
+   ],
+   "skills": [
+    "SL2.8.asymptotes",
+    "SL2.4.asymptotes",
+    "SL2.4.zeros-intercepts"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "vertical asymptote where cx + d = 0",
+    "horizontal asymptote y = a/c",
+    "x-intercept and y-intercept",
+    "then a sketch, the range, or the inverse"
+   ],
+   "given": [
+    "equation"
+   ],
+   "asked": "Asymptote equations and intercept coordinates.",
+   "answerForms": [
+    "exact",
+    "equation of a line"
+   ],
+   "randomise": [
+    "integers a, b, c, d",
+    "whether constants are letters to find from a given asymptote"
+   ],
+   "constraints": [
+    "ad - bc is non-zero",
+    "c is non-zero",
+    "intercepts are integers or simple fractions"
+   ],
+   "formats": [
+    "mcq",
+    "value",
+    "match",
+    "error-spot"
+   ],
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q03.a",
+    "aa-sl-2021-nov-tz0-p1-q03.b",
+    "aa-sl-2022-may-tz1-p2-q08.a",
+    "aa-sl-2022-may-tz2-p1-q04.a",
+    "aa-sl-2023-may-tz1-p1-q02.a",
+    "aa-sl-2023-may-tz1-p1-q02.b",
+    "aa-sl-2023-may-tz2-p1-q03.a",
+    "aa-sl-2023-may-tz2-p1-q03.b",
+    "aa-sl-2024-may-tz2-p1-q06.a",
+    "aa-sl-2025-may-tz1-p2-q09.c",
+    "aa-sl-2025-may-tz2-p1-q03.a",
+    "aa-sl-2025-may-tz2-p1-q03.b"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 12,
+    "paper": {
+     "p1": 10,
+     "p2": 2
+    },
+    "section": {
+     "A": 10,
+     "B": 2
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "2.8": 9,
+     "2.4": 2,
+     "2.2": 1
+    }
+   }
+  },
+  {
+   "id": "fn-rational-sketch",
+   "topic": 2,
+   "detail": "full",
+   "name": "Sketch a rational function and use the sketch",
+   "summary": "Sketch a rational function with labelled asymptotes and intercepts, then use the sketch: an inequality, the number of solutions with another curve, or the graph of its reciprocal.",
+   "syllabus": [
+    "2.8",
+    "2.3",
+    "2.4"
+   ],
+   "skills": [
+    "SL2.8.sketch-rational",
+    "SL2.10.number-of-solutions",
+    "SL2.8.reciprocal"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "asymptotes and intercepts",
+    "sketch with both branches",
+    "use it: an inequality, the range, the number of intersections with another curve",
+    "or sketch the reciprocal of the function"
+   ],
+   "given": [
+    "equation"
+   ],
+   "asked": "A sketch, an interval, or a count.",
+   "answerForms": [
+    "sketch",
+    "interval or inequality",
+    "integer count"
+   ],
+   "randomise": [
+    "a, b, c, d",
+    "the second curve for the counting part"
+   ],
+   "constraints": [
+    "ad - bc is non-zero",
+    "intercepts on grid points or simple fractions",
+    "the second curve crosses each branch a clear number of times"
+   ],
+   "formats": [
+    "graph-pick",
+    "mcq",
+    "match",
+    "true-false-reason"
+   ],
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q03.c",
+    "aa-sl-2022-may-tz2-p1-q04.b",
+    "aa-sl-2022-may-tz2-p1-q04.c",
+    "aa-sl-2023-may-tz2-p1-q03.c",
+    "aa-sl-2024-may-tz1-p1-q08.a",
+    "aa-sl-2024-may-tz1-p1-q08.f",
+    "aa-sl-2025-may-tz1-p2-q09.e"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 6,
+     "p2": 1
+    },
+    "section": {
+     "A": 4,
+     "B": 3
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 5
+    },
+    "mainTags": {
+     "2.8": 4,
+     "2.3": 2,
+     "2.4": 1
+    }
+   }
+  },
+  {
+   "id": "fn-exponential-model",
+   "topic": 2,
+   "detail": "full",
+   "name": "Exponential growth, decay and limited-growth models",
+   "summary": "For a model like A e^(kt) or C + A e^(-kt): the initial value, k from a data point or half-life, a prediction, the time to reach a level, the long-run value, and the meaning of the growth factor.",
+   "syllabus": [
+    "2.9",
+    "1.7",
+    "2.10"
+   ],
+   "skills": [
+    "SL2.9.exp-model",
+    "SL2.9.find-parameters",
+    "SL1.7.solve-with-logs"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "initial value at t = 0",
+    "find k from a second data point (show the exact form)",
+    "predict at a later time",
+    "solve for the time to reach a level, or an inequality for whole time units",
+    "long-run value from the horizontal asymptote",
+    "interpret the growth factor or rate"
+   ],
+   "given": [
+    "equation",
+    "words",
+    "data point"
+   ],
+   "asked": "Values, k, times, the long-run value, an interpretation.",
+   "answerForms": [
+    "3 s.f.",
+    "show that (exact k)",
+    "words"
+   ],
+   "randomise": [
+    "initial value",
+    "k or the half-life",
+    "the limit C",
+    "the threshold level"
+   ],
+   "constraints": [
+    "the threshold sits between the initial value and the limit",
+    "times come out positive",
+    "the base e or a growth factor (like 1.0x) as the context suggests"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "multipart",
+    "true-false-reason",
+    "method-pick"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q06.a",
+    "aa-sl-2021-may-tz2-p2-q06.b",
+    "aa-sl-2021-may-tz2-p2-q06.c",
+    "aa-sl-2022-nov-tz0-p2-q05",
+    "aa-sl-2023-may-tz1-p2-q07.a",
+    "aa-sl-2023-may-tz1-p2-q07.d",
+    "aa-sl-2023-may-tz1-p2-q07.e",
+    "aa-sl-2023-may-tz2-p2-q03.a",
+    "aa-sl-2023-may-tz2-p2-q03.b",
+    "aa-sl-2023-may-tz2-p2-q03.c",
+    "aa-sl-2024-nov-tz1-p2-q08.c",
+    "aa-sl-2024-nov-tz1-p2-q08.d",
+    "aa-sl-2024-nov-tz2-p2-q08.c",
+    "aa-sl-2024-nov-tz2-p2-q08.d"
+   ],
+   "alsoSeenIn": [
+    "aa-sl-2024-may-tz2-p2-q04.b",
+    "aa-sl-2024-may-tz2-p2-q04.c"
+   ],
+   "stats": {
+    "parts": 14,
+    "paper": {
+     "p1": 0,
+     "p2": 14
+    },
+    "section": {
+     "A": 7,
+     "B": 7
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 7
+    },
+    "mainTags": {
+     "2.9": 9,
+     "1.7": 5
+    }
+   }
+  },
+  {
+   "id": "fn-log-function-features",
+   "topic": 2,
+   "detail": "full",
+   "name": "Log function features: asymptote, domain and sign",
+   "summary": "State the vertical asymptote or domain of a transformed log function, or use where ln x is positive or negative.",
+   "syllabus": [
+    "2.9",
+    "2.4"
+   ],
+   "skills": [
+    "SL2.9.log-graph",
+    "SL2.4.asymptotes",
+    "SL2.2.domain"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "usually the 1-mark opener of a Section B log question",
+    "later parts combine logs into a quadratic or an inequality"
+   ],
+   "given": [
+    "equation"
+   ],
+   "asked": "An asymptote equation, a domain, or where an expression is positive.",
+   "answerForms": [
+    "equation of a line",
+    "interval or inequality"
+   ],
+   "randomise": [
+    "the inner linear expression",
+    "coefficient and base"
+   ],
+   "constraints": [
+    "the argument's zero is a simple fraction"
+   ],
+   "formats": [
+    "mcq",
+    "match",
+    "true-false-reason"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q08.d",
+    "aa-sl-2023-nov-tz1-p1-q08.a",
+    "aa-sl-2023-nov-tz2-p1-q08.a"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 3,
+    "paper": {
+     "p1": 3,
+     "p2": 0
+    },
+    "section": {
+     "A": 0,
+     "B": 3
+    },
+    "marks": {
+     "min": 1,
+     "median": 1,
+     "max": 2
+    },
+    "mainTags": {
+     "2.9": 3
+    }
+   }
+  },
+  {
+   "id": "fn-transform-describe",
+   "topic": 2,
+   "detail": "full",
+   "name": "Describe the transformations between two graphs",
+   "summary": "Say which stretches, reflections and translations map one graph onto another, or find the parameter values; includes using log laws to rewrite a log graph as a transformed one.",
+   "syllabus": [
+    "2.11",
+    "3.7",
+    "1.7"
+   ],
+   "skills": [
+    "SL2.11.describe",
+    "SL2.11.stretch",
+    "SL2.11.translate"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "(rewrite the new function with log laws or by factoring)",
+    "name each transformation with its scale factor or vector",
+    "state the order where it matters"
+   ],
+   "given": [
+    "two equations",
+    "equation and graph"
+   ],
+   "asked": "A description in words, or the parameter values.",
+   "answerForms": [
+    "words",
+    "exact"
+   ],
+   "randomise": [
+    "stretch factors",
+    "translation vector",
+    "reflection or not",
+    "base function (sine, log, polynomial)"
+   ],
+   "constraints": [
+    "at most three transformations",
+    "when the order matters, the question says so",
+    "log-law versions use bases where the stretch factor is an integer"
+   ],
+   "formats": [
+    "mcq",
+    "match",
+    "error-spot",
+    "true-false-reason",
+    "method-pick"
+   ],
+   "parts": [
+    "aa-sl-2022-may-tz1-p1-q06.a",
+    "aa-sl-2023-nov-tz1-p2-q03.b",
+    "aa-sl-2023-nov-tz2-p2-q03.b",
+    "aa-sl-2024-may-tz2-p1-q07.d",
+    "aa-sl-2024-nov-tz1-p1-q08.d",
+    "aa-sl-2024-nov-tz2-p1-q08.d"
+   ],
+   "alsoSeenIn": [
+    "aa-sl-2021-nov-tz0-p2-q08.d",
+    "aa-sl-2023-may-tz1-p1-q06.b"
+   ],
+   "stats": {
+    "parts": 6,
+    "paper": {
+     "p1": 4,
+     "p2": 2
+    },
+    "section": {
+     "A": 3,
+     "B": 3
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 6
+    },
+    "mainTags": {
+     "2.11": 5,
+     "1.7": 1
+    }
+   }
+  },
+  {
+   "id": "fn-transform-apply",
+   "topic": 2,
+   "detail": "full",
+   "name": "Apply transformations to a graph",
+   "summary": "Sketch the transformed graph from the graph of f, or write the new function and state its domain.",
+   "syllabus": [
+    "2.11",
+    "2.3",
+    "2.2"
+   ],
+   "skills": [
+    "SL2.11.sketch-transformed",
+    "SL2.11.composite-transform",
+    "SL2.11.image-point",
+    "SL2.11.reflect"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "apply the transformations to key points",
+    "sketch, or write g(x)",
+    "state the new domain or range"
+   ],
+   "given": [
+    "graph",
+    "equation",
+    "words"
+   ],
+   "asked": "A sketch, a rule for g, or its domain.",
+   "answerForms": [
+    "sketch",
+    "expression",
+    "interval"
+   ],
+   "randomise": [
+    "the base graph's key points",
+    "the stretch, reflection and translation"
+   ],
+   "constraints": [
+    "image points land on grid points",
+    "at most two transformations on Paper 1"
+   ],
+   "formats": [
+    "graph-pick",
+    "mcq",
+    "match",
+    "value"
+   ],
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q01.b",
+    "aa-sl-2024-may-tz1-p2-q07.c"
+   ],
+   "alsoSeenIn": [],
+   "stats": {
+    "parts": 2,
+    "paper": {
+     "p1": 1,
+     "p2": 1
+    },
+    "section": {
+     "A": 1,
+     "B": 1
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 3
+    },
+    "mainTags": {
+     "2.11": 2
+    }
+   }
+  },
+  {
+   "id": "t1-standard-form",
+   "topic": 1,
+   "name": "Calculate with numbers in standard form",
+   "syllabus": [
+    "1.1"
+   ],
+   "skills": [
+    "SL1.1.convert",
+    "SL1.1.multiply-divide",
+    "SL1.1.context"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q02.a",
+    "aa-sl-2021-may-tz1-p1-q02.b",
+    "aa-sl-2024-may-tz2-p2-q04.a"
+   ],
+   "stats": {
+    "parts": 3,
+    "paper": {
+     "p1": 2,
+     "p2": 1
+    },
+    "section": {
+     "A": 3,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 1,
+     "max": 3
+    },
+    "mainTags": {
+     "1.1": 3
+    }
+   }
+  },
+  {
+   "id": "t1-sequence-proof",
+   "topic": 1,
+   "name": "Prove a property linking arithmetic and geometric terms",
+   "syllabus": [
+    "1.2",
+    "1.3",
+    "1.6"
+   ],
+   "skills": [
+    "SL1.6.series-proof"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2024-may-tz2-p1-q09.a",
+    "aa-sl-2024-may-tz2-p1-q09.b",
+    "aa-sl-2024-may-tz2-p1-q09.c",
+    "aa-sl-2025-may-tz3-p1-q08.b"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 4,
+     "p2": 0
+    },
+    "section": {
+     "A": 0,
+     "B": 4
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "1.2": 2,
+     "1.3": 2
+    }
+   }
+  },
+  {
+   "id": "t1-arithmetic-in-context",
+   "topic": 1,
+   "name": "Arithmetic sequence or series modelling a pattern or context",
+   "syllabus": [
+    "1.2"
+   ],
+   "skills": [
+    "SL1.2.model",
+    "SL1.2.find-n"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q03.a",
+    "aa-sl-2021-may-tz2-p2-q03.b",
+    "aa-sl-2025-may-tz1-p2-q08.a",
+    "aa-sl-2025-may-tz1-p2-q08.b",
+    "aa-sl-2025-may-tz1-p2-q08.e",
+    "aa-sl-2025-may-tz2-p2-q09.e"
+   ],
+   "stats": {
+    "parts": 6,
+    "paper": {
+     "p1": 0,
+     "p2": 6
+    },
+    "section": {
+     "A": 2,
+     "B": 4
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "1.2": 6
+    }
+   }
+  },
+  {
+   "id": "t1-arithmetic-sequence",
+   "topic": 1,
+   "name": "Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums",
+   "syllabus": [
+    "1.2"
+   ],
+   "skills": [
+    "SL1.2.nth-term",
+    "SL1.2.find-u1-d",
+    "SL1.2.find-n",
+    "SL1.2.sum",
+    "SL1.2.sum-unknown"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q03",
+    "aa-sl-2022-may-tz1-p1-q08.b",
+    "aa-sl-2022-may-tz2-p1-q02.a",
+    "aa-sl-2022-may-tz2-p1-q02.b",
+    "aa-sl-2022-may-tz2-p1-q02.c",
+    "aa-sl-2023-may-tz1-p1-q08.a",
+    "aa-sl-2023-may-tz1-p1-q08.b",
+    "aa-sl-2023-may-tz1-p1-q08.c",
+    "aa-sl-2023-may-tz2-p1-q02.a",
+    "aa-sl-2023-nov-tz1-p1-q04.a",
+    "aa-sl-2023-nov-tz1-p1-q04.b",
+    "aa-sl-2023-nov-tz2-p1-q04.a",
+    "aa-sl-2023-nov-tz2-p1-q04.b",
+    "aa-sl-2024-may-tz1-p1-q01.a",
+    "aa-sl-2024-may-tz1-p1-q01.b",
+    "aa-sl-2024-may-tz2-p1-q09.d",
+    "aa-sl-2024-may-tz2-p1-q09.e",
+    "aa-sl-2024-nov-tz1-p1-q06",
+    "aa-sl-2024-nov-tz2-p1-q06",
+    "aa-sl-2025-may-tz1-p2-q08.c",
+    "aa-sl-2025-may-tz3-p1-q08.a"
+   ],
+   "stats": {
+    "parts": 21,
+    "paper": {
+     "p1": 20,
+     "p2": 1
+    },
+    "section": {
+     "A": 13,
+     "B": 8
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 10
+    },
+    "mainTags": {
+     "1.2": 21
+    }
+   }
+  },
+  {
+   "id": "t1-geometric-in-context",
+   "topic": 1,
+   "name": "Geometric sequence or series modelling a context",
+   "syllabus": [
+    "1.3"
+   ],
+   "skills": [
+    "SL1.3.model",
+    "SL1.3.find-n"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q09.c",
+    "aa-sl-2021-nov-tz0-p2-q06.c",
+    "aa-sl-2022-nov-tz0-p2-q04",
+    "aa-sl-2023-nov-tz2-p2-q08.a",
+    "aa-sl-2025-may-tz1-p1-q06.a",
+    "aa-sl-2025-may-tz2-p2-q09.a"
+   ],
+   "stats": {
+    "parts": 6,
+    "paper": {
+     "p1": 1,
+     "p2": 5
+    },
+    "section": {
+     "A": 3,
+     "B": 3
+    },
+    "marks": {
+     "min": 2,
+     "median": 4,
+     "max": 5
+    },
+    "mainTags": {
+     "1.3": 6
+    }
+   }
+  },
+  {
+   "id": "t1-geometric-sequence",
+   "topic": 1,
+   "name": "Geometric sequence: find r, u1, a term or S_n",
+   "syllabus": [
+    "1.3"
+   ],
+   "skills": [
+    "SL1.3.nth-term",
+    "SL1.3.find-r-u1",
+    "SL1.3.sum",
+    "SL1.3.sigma"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q08.d",
+    "aa-sl-2021-nov-tz0-p2-q06.a",
+    "aa-sl-2023-may-tz1-p1-q08.d",
+    "aa-sl-2023-may-tz1-p1-q08.e",
+    "aa-sl-2023-may-tz2-p2-q05.b",
+    "aa-sl-2024-may-tz1-p1-q06.a",
+    "aa-sl-2024-may-tz1-p1-q06.b",
+    "aa-sl-2025-may-tz2-p2-q09.b",
+    "aa-sl-2025-may-tz3-p1-q08.c"
+   ],
+   "stats": {
+    "parts": 9,
+    "paper": {
+     "p1": 6,
+     "p2": 3
+    },
+    "section": {
+     "A": 4,
+     "B": 5
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 9
+    },
+    "mainTags": {
+     "1.3": 9
+    }
+   }
+  },
+  {
+   "id": "t1-depreciation",
+   "topic": 1,
+   "name": "Depreciation as repeated percentage decrease",
+   "syllabus": [
+    "1.4"
+   ],
+   "skills": [
+    "SL1.4.depreciation",
+    "SL1.4.find-time"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2023-may-tz1-p2-q02.a",
+    "aa-sl-2023-may-tz1-p2-q02.b",
+    "aa-sl-2024-may-tz1-p2-q02.a",
+    "aa-sl-2024-may-tz1-p2-q02.b",
+    "aa-sl-2024-may-tz1-p2-q02.c"
+   ],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 0,
+     "p2": 5
+    },
+    "section": {
+     "A": 5,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "1.4": 5
+    }
+   }
+  },
+  {
+   "id": "t1-compound-interest",
+   "topic": 1,
+   "name": "Compound interest: value, rate or time, with different compounding periods",
+   "syllabus": [
+    "1.4"
+   ],
+   "skills": [
+    "SL1.4.future-value",
+    "SL1.4.find-rate-or-pv",
+    "SL1.4.find-time",
+    "SL1.4.compare-options"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q07.a",
+    "aa-sl-2021-may-tz1-p2-q07.b",
+    "aa-sl-2022-may-tz1-p2-q01.a",
+    "aa-sl-2022-may-tz1-p2-q01.b",
+    "aa-sl-2022-may-tz1-p2-q01.c",
+    "aa-sl-2022-may-tz2-p2-q03.a",
+    "aa-sl-2023-may-tz1-p2-q02.c",
+    "aa-sl-2023-nov-tz1-p2-q08.a",
+    "aa-sl-2023-nov-tz1-p2-q08.b",
+    "aa-sl-2023-nov-tz1-p2-q08.c",
+    "aa-sl-2023-nov-tz1-p2-q08.d",
+    "aa-sl-2023-nov-tz2-p2-q08.b",
+    "aa-sl-2023-nov-tz2-p2-q08.c",
+    "aa-sl-2023-nov-tz2-p2-q08.d",
+    "aa-sl-2025-may-tz1-p1-q03.a",
+    "aa-sl-2025-may-tz1-p1-q03.c"
+   ],
+   "stats": {
+    "parts": 16,
+    "paper": {
+     "p1": 2,
+     "p2": 14
+    },
+    "section": {
+     "A": 7,
+     "B": 9
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 6
+    },
+    "mainTags": {
+     "1.4": 16
+    }
+   }
+  },
+  {
+   "id": "t1-log-exp-form",
+   "topic": 1,
+   "name": "Switch between log and exponential form to evaluate or solve, including log models",
+   "syllabus": [
+    "1.5"
+   ],
+   "skills": [
+    "SL1.5.exp-log-form",
+    "SL1.5.log-context"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p1-q05.a",
+    "aa-sl-2024-may-tz2-p2-q04.b",
+    "aa-sl-2024-may-tz2-p2-q04.c"
+   ],
+   "stats": {
+    "parts": 3,
+    "paper": {
+     "p1": 1,
+     "p2": 2
+    },
+    "section": {
+     "A": 3,
+     "B": 0
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 3
+    },
+    "mainTags": {
+     "1.5": 3
+    }
+   }
+  },
+  {
+   "id": "t1-algebraic-proof",
+   "topic": 1,
+   "name": "Prove an algebraic identity or a divisibility result",
+   "syllabus": [
+    "1.6"
+   ],
+   "skills": [
+    "SL1.6.identity-lhs-rhs",
+    "SL1.6.integer-proof"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p1-q02",
+    "aa-sl-2021-nov-tz0-p1-q06.a",
+    "aa-sl-2022-may-tz2-p1-q03.a",
+    "aa-sl-2022-may-tz2-p1-q03.b",
+    "aa-sl-2022-nov-tz0-p1-q04.a",
+    "aa-sl-2024-nov-tz1-p1-q04",
+    "aa-sl-2024-nov-tz2-p1-q04",
+    "aa-sl-2025-may-tz1-p2-q01.a"
+   ],
+   "stats": {
+    "parts": 8,
+    "paper": {
+     "p1": 7,
+     "p2": 1
+    },
+    "section": {
+     "A": 8,
+     "B": 0
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "1.6": 8
+    }
+   }
+  },
+  {
+   "id": "t1-rational-exponents",
+   "topic": 1,
+   "name": "Rational and negative exponents",
+   "syllabus": [
+    "1.7"
+   ],
+   "skills": [
+    "SL1.7.rational-exponents"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q08.a",
+    "aa-sl-2022-may-tz1-p1-q02.a"
+   ],
+   "stats": {
+    "parts": 2,
+    "paper": {
+     "p1": 2,
+     "p2": 0
+    },
+    "section": {
+     "A": 1,
+     "B": 1
+    },
+    "marks": {
+     "min": 1,
+     "median": 1,
+     "max": 2
+    },
+    "mainTags": {
+     "1.7": 2
+    }
+   }
+  },
+  {
+   "id": "t1-solve-exponential",
+   "topic": 1,
+   "name": "Solve an exponential equation exactly with logarithms",
+   "syllabus": [
+    "1.7"
+   ],
+   "skills": [
+    "SL1.7.solve-with-logs"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2024-may-tz1-p2-q07.d"
+   ],
+   "stats": {
+    "parts": 1,
+    "paper": {
+     "p1": 0,
+     "p2": 1
+    },
+    "section": {
+     "A": 0,
+     "B": 1
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 3
+    },
+    "mainTags": {
+     "1.7": 1
+    }
+   }
+  },
+  {
+   "id": "t1-log-laws",
+   "topic": 1,
+   "name": "Log laws and change of base to evaluate or rewrite logarithms",
+   "syllabus": [
+    "1.7",
+    "1.5"
+   ],
+   "skills": [
+    "SL1.7.log-laws",
+    "SL1.7.change-of-base"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q08.c",
+    "aa-sl-2022-nov-tz0-p1-q08.a",
+    "aa-sl-2022-nov-tz0-p1-q08.b",
+    "aa-sl-2024-may-tz1-p1-q03.a",
+    "aa-sl-2024-may-tz1-p1-q03.b",
+    "aa-sl-2025-may-tz1-p1-q01.a",
+    "aa-sl-2025-may-tz1-p1-q01.b",
+    "aa-sl-2025-may-tz1-p1-q01.c",
+    "aa-sl-2025-may-tz3-p1-q02.a",
+    "aa-sl-2025-may-tz3-p1-q02.b"
+   ],
+   "stats": {
+    "parts": 10,
+    "paper": {
+     "p1": 10,
+     "p2": 0
+    },
+    "section": {
+     "A": 7,
+     "B": 3
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 8
+    },
+    "mainTags": {
+     "1.7": 10
+    }
+   }
+  },
+  {
+   "id": "t1-sum-to-infinity",
+   "topic": 1,
+   "name": "Sum to infinity: convergence, value, or an unknown from it",
+   "syllabus": [
+    "1.8"
+   ],
+   "skills": [
+    "SL1.8.convergence",
+    "SL1.8.sum-to-infinity",
+    "SL1.8.find-unknown",
+    "SL1.8.applications"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q07.c",
+    "aa-sl-2021-nov-tz0-p2-q06.b",
+    "aa-sl-2022-may-tz1-p1-q08.a",
+    "aa-sl-2025-may-tz2-p2-q09.c",
+    "aa-sl-2025-may-tz2-p2-q09.d"
+   ],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 1,
+     "p2": 4
+    },
+    "section": {
+     "A": 1,
+     "B": 4
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 8
+    },
+    "mainTags": {
+     "1.8": 5
+    }
+   }
+  },
+  {
+   "id": "t1-binomial-find-unknown",
+   "topic": 1,
+   "name": "Binomial expansion: find an unknown from a given coefficient",
+   "syllabus": [
+    "1.9"
+   ],
+   "skills": [
+    "SL1.9.find-unknown"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q06",
+    "aa-sl-2021-may-tz2-p1-q04",
+    "aa-sl-2022-may-tz2-p1-q06.b",
+    "aa-sl-2022-nov-tz0-p2-q06",
+    "aa-sl-2023-may-tz1-p2-q06",
+    "aa-sl-2023-nov-tz1-p1-q06",
+    "aa-sl-2023-nov-tz2-p1-q06",
+    "aa-sl-2025-may-tz2-p2-q04",
+    "aa-sl-2025-may-tz3-p2-q03.b"
+   ],
+   "stats": {
+    "parts": 9,
+    "paper": {
+     "p1": 4,
+     "p2": 5
+    },
+    "section": {
+     "A": 9,
+     "B": 0
+    },
+    "marks": {
+     "min": 4,
+     "median": 5,
+     "max": 7
+    },
+    "mainTags": {
+     "1.9": 9
+    }
+   }
+  },
+  {
+   "id": "t1-binomial-term",
+   "topic": 1,
+   "name": "Binomial expansion: a coefficient, a term or the full expansion",
+   "syllabus": [
+    "1.9"
+   ],
+   "skills": [
+    "SL1.9.ncr-pascal",
+    "SL1.9.full-expansion",
+    "SL1.9.specific-term"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2022-may-tz2-p1-q06.a",
+    "aa-sl-2023-may-tz2-p2-q05.a",
+    "aa-sl-2024-nov-tz1-p2-q02",
+    "aa-sl-2024-nov-tz2-p2-q02",
+    "aa-sl-2025-may-tz1-p1-q03.b",
+    "aa-sl-2025-may-tz3-p2-q03.a"
+   ],
+   "stats": {
+    "parts": 6,
+    "paper": {
+     "p1": 2,
+     "p2": 4
+    },
+    "section": {
+     "A": 6,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "1.9": 6
+    }
+   }
+  },
+  {
+   "id": "t3-3d-angle",
+   "topic": 3,
+   "name": "Angle in a 3D solid",
+   "syllabus": [
+    "3.1",
+    "3.2"
+   ],
+   "skills": [
+    "SL3.1.angle-line-plane",
+    "SL3.1.angle-two-lines"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2025-may-tz2-p2-q02.c"
+   ],
+   "stats": {
+    "parts": 1,
+    "paper": {
+     "p1": 0,
+     "p2": 1
+    },
+    "section": {
+     "A": 1,
+     "B": 0
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 2
+    },
+    "mainTags": {
+     "3.1": 1
+    }
+   }
+  },
+  {
+   "id": "t3-distance-midpoint",
+   "topic": 3,
+   "name": "Distance and midpoint in 2D or 3D",
+   "syllabus": [
+    "3.1"
+   ],
+   "skills": [
+    "SL3.1.distance-3d",
+    "SL3.1.midpoint-3d"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2022-may-tz1-p2-q07.a",
+    "aa-sl-2022-nov-tz0-p1-q03.a",
+    "aa-sl-2022-nov-tz0-p1-q03.b",
+    "aa-sl-2023-nov-tz1-p2-q02.a",
+    "aa-sl-2023-nov-tz2-p2-q02.a",
+    "aa-sl-2025-may-tz2-p1-q06.a",
+    "aa-sl-2025-may-tz2-p2-q02.a",
+    "aa-sl-2025-may-tz2-p2-q02.b",
+    "aa-sl-2025-may-tz3-p2-q01.a"
+   ],
+   "stats": {
+    "parts": 9,
+    "paper": {
+     "p1": 3,
+     "p2": 6
+    },
+    "section": {
+     "A": 8,
+     "B": 1
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "3.1": 9
+    }
+   }
+  },
+  {
+   "id": "t3-solid-volume-area",
+   "topic": 3,
+   "name": "Volume and surface area of solids, including in terms of a variable",
+   "syllabus": [
+    "3.1"
+   ],
+   "skills": [
+    "SL3.1.volume-solids",
+    "SL3.1.surface-area"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p1-q08.c",
+    "aa-sl-2021-may-tz2-p1-q08.d",
+    "aa-sl-2022-may-tz1-p2-q07.c",
+    "aa-sl-2023-nov-tz1-p2-q07.a",
+    "aa-sl-2023-nov-tz2-p2-q07.a",
+    "aa-sl-2024-may-tz1-p2-q03.b",
+    "aa-sl-2024-nov-tz1-p1-q09.a",
+    "aa-sl-2024-nov-tz1-p1-q09.b",
+    "aa-sl-2024-nov-tz2-p1-q09.a",
+    "aa-sl-2024-nov-tz2-p1-q09.b",
+    "aa-sl-2025-may-tz1-p1-q09.b",
+    "aa-sl-2025-may-tz1-p1-q09.d",
+    "aa-sl-2025-may-tz3-p2-q01.b"
+   ],
+   "stats": {
+    "parts": 13,
+    "paper": {
+     "p1": 8,
+     "p2": 5
+    },
+    "section": {
+     "A": 2,
+     "B": 11
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 6
+    },
+    "mainTags": {
+     "3.1": 13
+    }
+   }
+  },
+  {
+   "id": "t3-ambiguous-case",
+   "topic": 3,
+   "name": "Sine rule ambiguous case",
+   "syllabus": [
+    "3.2",
+    "3.5"
+   ],
+   "skills": [
+    "SL3.5.ambiguous-case",
+    "SL3.2.sine-rule"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-nov-tz0-p2-q03",
+    "aa-sl-2024-may-tz1-p2-q09.a"
+   ],
+   "stats": {
+    "parts": 2,
+    "paper": {
+     "p1": 0,
+     "p2": 2
+    },
+    "section": {
+     "A": 1,
+     "B": 1
+    },
+    "marks": {
+     "min": 5,
+     "median": 5,
+     "max": 8
+    },
+    "mainTags": {
+     "3.2": 2
+    }
+   }
+  },
+  {
+   "id": "t3-triangle-area",
+   "topic": 3,
+   "name": "Triangle area with 1/2 ab sin C, forwards or backwards",
+   "syllabus": [
+    "3.2"
+   ],
+   "skills": [
+    "SL3.2.area-sine"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p1-q06",
+    "aa-sl-2022-may-tz2-p2-q07.b",
+    "aa-sl-2022-may-tz2-p2-q07.d",
+    "aa-sl-2022-nov-tz0-p1-q04.b",
+    "aa-sl-2022-nov-tz0-p2-q08.a",
+    "aa-sl-2023-may-tz2-p1-q08.d",
+    "aa-sl-2023-nov-tz1-p1-q05",
+    "aa-sl-2023-nov-tz2-p1-q05",
+    "aa-sl-2024-may-tz1-p2-q09.b",
+    "aa-sl-2025-may-tz2-p1-q04.c",
+    "aa-sl-2025-may-tz3-p2-q05"
+   ],
+   "stats": {
+    "parts": 11,
+    "paper": {
+     "p1": 6,
+     "p2": 5
+    },
+    "section": {
+     "A": 6,
+     "B": 5
+    },
+    "marks": {
+     "min": 2,
+     "median": 5,
+     "max": 7
+    },
+    "mainTags": {
+     "3.2": 11
+    }
+   }
+  },
+  {
+   "id": "t3-right-angle-trig",
+   "topic": 3,
+   "name": "Right-angled trigonometry, including elevation and gradients",
+   "syllabus": [
+    "3.2",
+    "3.3"
+   ],
+   "skills": [
+    "SL3.2.right-ratio",
+    "SL3.2.right-side",
+    "SL3.2.right-angle",
+    "SL3.3.elevation-depression"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q07.a",
+    "aa-sl-2021-may-tz2-p2-q07.b",
+    "aa-sl-2023-may-tz2-p2-q02.b",
+    "aa-sl-2024-may-tz1-p2-q03.a",
+    "aa-sl-2024-may-tz2-p2-q09.a",
+    "aa-sl-2024-nov-tz1-p2-q05.a",
+    "aa-sl-2024-nov-tz1-p2-q05.b",
+    "aa-sl-2024-nov-tz2-p2-q05.a",
+    "aa-sl-2024-nov-tz2-p2-q05.b",
+    "aa-sl-2025-may-tz1-p1-q09.a"
+   ],
+   "stats": {
+    "parts": 10,
+    "paper": {
+     "p1": 1,
+     "p2": 9
+    },
+    "section": {
+     "A": 6,
+     "B": 4
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 5
+    },
+    "mainTags": {
+     "3.2": 10
+    }
+   }
+  },
+  {
+   "id": "t3-sine-cosine-rule",
+   "topic": 3,
+   "name": "Sine rule and cosine rule for a side or an angle",
+   "syllabus": [
+    "3.2"
+   ],
+   "skills": [
+    "SL3.2.sine-rule",
+    "SL3.2.cosine-rule-side",
+    "SL3.2.cosine-rule-angle"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2022-may-tz1-p2-q07.b",
+    "aa-sl-2022-may-tz2-p2-q01.a",
+    "aa-sl-2022-may-tz2-p2-q07.a",
+    "aa-sl-2022-may-tz2-p2-q07.c",
+    "aa-sl-2022-nov-tz0-p2-q02.a",
+    "aa-sl-2022-nov-tz0-p2-q02.b",
+    "aa-sl-2023-may-tz1-p2-q01.b",
+    "aa-sl-2023-may-tz2-p1-q08.b",
+    "aa-sl-2023-may-tz2-p2-q02.a",
+    "aa-sl-2023-nov-tz1-p2-q02.b",
+    "aa-sl-2023-nov-tz2-p2-q02.b",
+    "aa-sl-2024-may-tz2-p2-q09.e",
+    "aa-sl-2024-nov-tz2-p1-q05",
+    "aa-sl-2025-may-tz1-p2-q08.f",
+    "aa-sl-2025-may-tz2-p1-q04.a",
+    "aa-sl-2025-may-tz2-p2-q07.a",
+    "aa-sl-2025-may-tz2-p2-q07.e",
+    "aa-sl-2025-may-tz3-p2-q02.a",
+    "aa-sl-2025-may-tz3-p2-q02.b"
+   ],
+   "stats": {
+    "parts": 19,
+    "paper": {
+     "p1": 3,
+     "p2": 16
+    },
+    "section": {
+     "A": 11,
+     "B": 8
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 6
+    },
+    "mainTags": {
+     "3.2": 19
+    }
+   }
+  },
+  {
+   "id": "t3-bearings-elevation",
+   "topic": 3,
+   "name": "Bearings, elevation and depression in context",
+   "syllabus": [
+    "3.3"
+   ],
+   "skills": [
+    "SL3.3.bearings",
+    "SL3.3.elevation-depression",
+    "SL3.3.multi-triangle"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q08.e",
+    "aa-sl-2021-may-tz2-p2-q07.c",
+    "aa-sl-2021-nov-tz0-p2-q07.a",
+    "aa-sl-2023-may-tz1-p2-q01.a",
+    "aa-sl-2025-may-tz2-p2-q07.b",
+    "aa-sl-2025-may-tz2-p2-q07.c",
+    "aa-sl-2025-may-tz2-p2-q07.d"
+   ],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 0,
+     "p2": 7
+    },
+    "section": {
+     "A": 1,
+     "B": 6
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 5
+    },
+    "mainTags": {
+     "3.3": 7
+    }
+   }
+  },
+  {
+   "id": "t3-circular-motion",
+   "topic": 3,
+   "name": "Angle in radians as a function of time for rotating objects",
+   "syllabus": [
+    "3.4"
+   ],
+   "skills": [
+    "SL3.4.convert"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2024-may-tz2-p2-q09.b",
+    "aa-sl-2024-may-tz2-p2-q09.c",
+    "aa-sl-2024-may-tz2-p2-q09.d"
+   ],
+   "stats": {
+    "parts": 3,
+    "paper": {
+     "p1": 0,
+     "p2": 3
+    },
+    "section": {
+     "A": 0,
+     "B": 3
+    },
+    "marks": {
+     "min": 1,
+     "median": 1,
+     "max": 4
+    },
+    "mainTags": {
+     "3.4": 3
+    }
+   }
+  },
+  {
+   "id": "t3-composite-circular-region",
+   "topic": 3,
+   "name": "Segments and composite regions built from sectors, triangles and rectangles",
+   "syllabus": [
+    "3.4",
+    "3.2"
+   ],
+   "skills": [
+    "SL3.4.segment-shaded",
+    "SL3.4.sector-two-conditions"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q08.b",
+    "aa-sl-2021-may-tz1-p2-q08.d",
+    "aa-sl-2021-nov-tz0-p2-q05.a",
+    "aa-sl-2022-may-tz1-p2-q03.a",
+    "aa-sl-2022-nov-tz0-p2-q08.b",
+    "aa-sl-2023-may-tz1-p2-q09.b",
+    "aa-sl-2023-nov-tz1-p2-q04.a",
+    "aa-sl-2023-nov-tz2-p2-q04.a",
+    "aa-sl-2024-may-tz1-p1-q04.a",
+    "aa-sl-2024-may-tz2-p2-q08.a",
+    "aa-sl-2024-may-tz2-p2-q08.b",
+    "aa-sl-2025-may-tz1-p2-q02.b",
+    "aa-sl-2025-may-tz2-p2-q06"
+   ],
+   "stats": {
+    "parts": 13,
+    "paper": {
+     "p1": 1,
+     "p2": 12
+    },
+    "section": {
+     "A": 7,
+     "B": 6
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 7
+    },
+    "mainTags": {
+     "3.4": 13
+    }
+   }
+  },
+  {
+   "id": "t3-arc-sector",
+   "topic": 3,
+   "name": "Arc length, sector area and perimeter, forwards or backwards",
+   "syllabus": [
+    "3.4"
+   ],
+   "skills": [
+    "SL3.4.arc-length",
+    "SL3.4.sector-area",
+    "SL3.4.convert"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q08.a",
+    "aa-sl-2021-may-tz2-p1-q01.a",
+    "aa-sl-2021-may-tz2-p1-q01.b",
+    "aa-sl-2022-may-tz1-p2-q03.b",
+    "aa-sl-2022-may-tz2-p2-q01.b",
+    "aa-sl-2023-may-tz1-p2-q09.a",
+    "aa-sl-2023-may-tz2-p1-q01.a",
+    "aa-sl-2023-may-tz2-p1-q01.b",
+    "aa-sl-2023-may-tz2-p1-q01.c",
+    "aa-sl-2023-nov-tz1-p2-q04.b",
+    "aa-sl-2023-nov-tz2-p2-q04.b",
+    "aa-sl-2024-nov-tz1-p1-q02.a",
+    "aa-sl-2024-nov-tz1-p1-q02.b",
+    "aa-sl-2024-nov-tz2-p1-q02.a",
+    "aa-sl-2024-nov-tz2-p1-q02.b",
+    "aa-sl-2025-may-tz1-p2-q02.a"
+   ],
+   "stats": {
+    "parts": 16,
+    "paper": {
+     "p1": 9,
+     "p2": 7
+    },
+    "section": {
+     "A": 14,
+     "B": 2
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 5
+    },
+    "mainTags": {
+     "3.4": 16
+    }
+   }
+  },
+  {
+   "id": "t3-exact-values",
+   "topic": 3,
+   "name": "Exact trig values and related angles",
+   "syllabus": [
+    "3.5"
+   ],
+   "skills": [
+    "SL3.5.exact-special",
+    "SL3.5.related-angles",
+    "SL3.5.unit-circle"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2023-may-tz2-p1-q08.c",
+    "aa-sl-2023-nov-tz1-p1-q01.c",
+    "aa-sl-2023-nov-tz2-p1-q01.c"
+   ],
+   "stats": {
+    "parts": 3,
+    "paper": {
+     "p1": 3,
+     "p2": 0
+    },
+    "section": {
+     "A": 2,
+     "B": 1
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 3
+    },
+    "mainTags": {
+     "3.5": 3
+    }
+   }
+  },
+  {
+   "id": "t3-prove-identity",
+   "topic": 3,
+   "name": "Prove a trig identity",
+   "syllabus": [
+    "3.6",
+    "1.6"
+   ],
+   "skills": [
+    "SL3.6.prove-identity"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q06.a",
+    "aa-sl-2022-may-tz1-p1-q09.a",
+    "aa-sl-2025-may-tz3-p1-q04.a"
+   ],
+   "stats": {
+    "parts": 3,
+    "paper": {
+     "p1": 3,
+     "p2": 0
+    },
+    "section": {
+     "A": 2,
+     "B": 1
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 6
+    },
+    "mainTags": {
+     "3.6": 3
+    }
+   }
+  },
+  {
+   "id": "t3-identity-values",
+   "topic": 3,
+   "name": "Use Pythagorean and double-angle identities to find exact values or rewrite",
+   "syllabus": [
+    "3.6"
+   ],
+   "skills": [
+    "SL3.6.ratio-from-ratio",
+    "SL3.6.double-angle-values",
+    "SL3.6.simplify"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p1-q03.a",
+    "aa-sl-2023-may-tz1-p1-q04.a",
+    "aa-sl-2023-may-tz2-p1-q08.a",
+    "aa-sl-2024-nov-tz1-p1-q05",
+    "aa-sl-2025-may-tz2-p1-q04.b"
+   ],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 5,
+     "p2": 0
+    },
+    "section": {
+     "A": 4,
+     "B": 1
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 6
+    },
+    "mainTags": {
+     "3.6": 5
+    }
+   }
+  },
+  {
+   "id": "t3-trig-sketch",
+   "topic": 3,
+   "name": "Sketch a trig graph from its parameters",
+   "syllabus": [
+    "3.7",
+    "2.3",
+    "2.11"
+   ],
+   "skills": [
+    "SL3.7.sketch"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2023-may-tz1-p1-q06.b",
+    "aa-sl-2025-may-tz2-p1-q08.b"
+   ],
+   "stats": {
+    "parts": 2,
+    "paper": {
+     "p1": 2,
+     "p2": 0
+    },
+    "section": {
+     "A": 1,
+     "B": 1
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "3.7": 2
+    }
+   }
+  },
+  {
+   "id": "t3-trig-model-use",
+   "topic": 3,
+   "name": "Evaluate or use a trig model: times, counts, durations",
+   "syllabus": [
+    "3.7"
+   ],
+   "skills": [
+    "SL3.7.model-context"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q07.e",
+    "aa-sl-2021-nov-tz0-p2-q08.e",
+    "aa-sl-2023-may-tz2-p2-q08.c",
+    "aa-sl-2024-may-tz1-p2-q08.a",
+    "aa-sl-2024-may-tz2-p1-q07.c",
+    "aa-sl-2024-nov-tz1-p2-q09.c",
+    "aa-sl-2024-nov-tz1-p2-q09.d",
+    "aa-sl-2024-nov-tz2-p2-q09.c",
+    "aa-sl-2024-nov-tz2-p2-q09.d"
+   ],
+   "stats": {
+    "parts": 9,
+    "paper": {
+     "p1": 1,
+     "p2": 8
+    },
+    "section": {
+     "A": 0,
+     "B": 9
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 6
+    },
+    "mainTags": {
+     "3.7": 9
+    }
+   }
+  },
+  {
+   "id": "t3-trig-read-features",
+   "topic": 3,
+   "name": "Read amplitude, period and principal axis from a graph or equation",
+   "syllabus": [
+    "3.7"
+   ],
+   "skills": [
+    "SL3.7.read-features"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q07.d",
+    "aa-sl-2021-nov-tz0-p2-q08.a",
+    "aa-sl-2021-nov-tz0-p2-q08.b",
+    "aa-sl-2021-nov-tz0-p2-q08.c",
+    "aa-sl-2023-may-tz1-p1-q06.a",
+    "aa-sl-2023-may-tz2-p2-q08.a",
+    "aa-sl-2023-may-tz2-p2-q08.b",
+    "aa-sl-2023-nov-tz1-p1-q01.a",
+    "aa-sl-2023-nov-tz1-p1-q01.b",
+    "aa-sl-2023-nov-tz2-p1-q01.a",
+    "aa-sl-2023-nov-tz2-p1-q01.b",
+    "aa-sl-2024-may-tz2-p1-q07.a",
+    "aa-sl-2024-may-tz2-p1-q07.b",
+    "aa-sl-2024-nov-tz1-p2-q09.a",
+    "aa-sl-2024-nov-tz2-p2-q09.a",
+    "aa-sl-2025-may-tz1-p2-q03.a",
+    "aa-sl-2025-may-tz2-p1-q08.a",
+    "aa-sl-2025-may-tz3-p2-q07.a"
+   ],
+   "stats": {
+    "parts": 18,
+    "paper": {
+     "p1": 8,
+     "p2": 10
+    },
+    "section": {
+     "A": 6,
+     "B": 12
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "3.7": 18
+    }
+   }
+  },
+  {
+   "id": "t3-trig-model-parameters",
+   "topic": 3,
+   "name": "Find the parameters of a trig model from a graph, data or context",
+   "syllabus": [
+    "3.7",
+    "2.11"
+   ],
+   "skills": [
+    "SL3.7.equation-from-graph",
+    "SL3.7.transformations",
+    "SL3.7.model-context"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q04",
+    "aa-sl-2021-nov-tz0-p2-q08.d",
+    "aa-sl-2022-may-tz1-p1-q06.b",
+    "aa-sl-2024-may-tz1-p2-q08.d",
+    "aa-sl-2024-nov-tz1-p2-q09.b",
+    "aa-sl-2024-nov-tz2-p2-q09.b",
+    "aa-sl-2025-may-tz1-p2-q03.b"
+   ],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 1,
+     "p2": 6
+    },
+    "section": {
+     "A": 3,
+     "B": 4
+    },
+    "marks": {
+     "min": 3,
+     "median": 4,
+     "max": 7
+    },
+    "mainTags": {
+     "3.7": 7
+    }
+   }
+  },
+  {
+   "id": "t3-trig-quadratic",
+   "topic": 3,
+   "name": "Trig equation that is a quadratic in sin or cos",
+   "syllabus": [
+    "3.8",
+    "2.7"
+   ],
+   "skills": [
+    "SL3.8.quadratic-in-trig"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p1-q03.b",
+    "aa-sl-2021-nov-tz0-p1-q06.b",
+    "aa-sl-2023-may-tz1-p1-q04.b"
+   ],
+   "stats": {
+    "parts": 3,
+    "paper": {
+     "p1": 3,
+     "p2": 0
+    },
+    "section": {
+     "A": 3,
+     "B": 0
+    },
+    "marks": {
+     "min": 5,
+     "median": 5,
+     "max": 5
+    },
+    "mainTags": {
+     "3.8": 3
+    }
+   }
+  },
+  {
+   "id": "t3-trig-model-equation",
+   "topic": 3,
+   "name": "Solve a trig model equation or inequality for times",
+   "syllabus": [
+    "3.8",
+    "2.10"
+   ],
+   "skills": [
+    "SL3.8.graphical"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-nov-tz0-p2-q08.f",
+    "aa-sl-2023-may-tz2-p2-q08.d",
+    "aa-sl-2023-may-tz2-p2-q08.e",
+    "aa-sl-2024-may-tz1-p2-q08.b",
+    "aa-sl-2025-may-tz2-p1-q08.c"
+   ],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 1,
+     "p2": 4
+    },
+    "section": {
+     "A": 0,
+     "B": 5
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 5
+    },
+    "mainTags": {
+     "3.8": 5
+    }
+   }
+  },
+  {
+   "id": "t3-trig-equation",
+   "topic": 3,
+   "name": "Solve a trig equation exactly in an interval",
+   "syllabus": [
+    "3.8"
+   ],
+   "skills": [
+    "SL3.8.solve-basic",
+    "SL3.8.compound-angle",
+    "SL3.8.factorise-not-divide"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q06.b",
+    "aa-sl-2021-may-tz2-p1-q08.a",
+    "aa-sl-2022-may-tz1-p1-q04.b",
+    "aa-sl-2022-may-tz2-p1-q05",
+    "aa-sl-2022-nov-tz0-p1-q09.a",
+    "aa-sl-2024-may-tz1-p1-q05.a",
+    "aa-sl-2024-may-tz2-p1-q02",
+    "aa-sl-2025-may-tz1-p1-q09.c"
+   ],
+   "stats": {
+    "parts": 8,
+    "paper": {
+     "p1": 8,
+     "p2": 0
+    },
+    "section": {
+     "A": 5,
+     "B": 3
+    },
+    "marks": {
+     "min": 3,
+     "median": 4,
+     "max": 6
+    },
+    "mainTags": {
+     "3.8": 8
+    }
+   }
+  },
+  {
+   "id": "t4-sampling",
+   "topic": 4,
+   "name": "Sampling methods and bias",
+   "syllabus": [
+    "4.1"
+   ],
+   "skills": [
+    "SL4.1.sampling-technique",
+    "SL4.1.bias-reliability"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p1-q07.e",
+    "aa-sl-2023-nov-tz1-p1-q07.c",
+    "aa-sl-2023-nov-tz2-p1-q07.c",
+    "aa-sl-2025-may-tz3-p2-q04.c"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 3,
+     "p2": 1
+    },
+    "section": {
+     "A": 1,
+     "B": 3
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "4.1": 4
+    }
+   }
+  },
+  {
+   "id": "t4-outlier-rule",
+   "topic": 4,
+   "name": "The 1.5 x IQR outlier rule",
+   "syllabus": [
+    "4.1",
+    "4.2",
+    "4.3"
+   ],
+   "skills": [
+    "SL4.1.outlier-decision",
+    "SL4.2.outlier-test"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q04.a",
+    "aa-sl-2022-may-tz1-p1-q03.a",
+    "aa-sl-2022-may-tz2-p2-q05.b",
+    "aa-sl-2024-may-tz2-p2-q01.b"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 2,
+     "p2": 2
+    },
+    "section": {
+     "A": 4,
+     "B": 0
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 3
+    },
+    "mainTags": {
+     "4.1": 4
+    }
+   }
+  },
+  {
+   "id": "t4-cumulative-frequency",
+   "topic": 4,
+   "name": "Read and use a cumulative frequency graph",
+   "syllabus": [
+    "4.2"
+   ],
+   "skills": [
+    "SL4.2.cumfreq-quartiles",
+    "SL4.2.cumfreq-count",
+    "SL4.2.cumfreq-build"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p1-q07.a",
+    "aa-sl-2021-may-tz2-p1-q07.b",
+    "aa-sl-2021-may-tz2-p1-q07.c",
+    "aa-sl-2021-may-tz2-p1-q07.d",
+    "aa-sl-2023-nov-tz1-p1-q07.b",
+    "aa-sl-2023-nov-tz2-p1-q07.b"
+   ],
+   "stats": {
+    "parts": 6,
+    "paper": {
+     "p1": 6,
+     "p2": 0
+    },
+    "section": {
+     "A": 0,
+     "B": 6
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "4.2": 6
+    }
+   }
+  },
+  {
+   "id": "t4-box-plot",
+   "topic": 4,
+   "name": "Read, interpret and compare box plots",
+   "syllabus": [
+    "4.2",
+    "4.3"
+   ],
+   "skills": [
+    "SL4.2.box-plot",
+    "SL4.2.compare-distributions"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2022-may-tz2-p2-q05.a",
+    "aa-sl-2022-may-tz2-p2-q05.c",
+    "aa-sl-2022-may-tz2-p2-q05.d",
+    "aa-sl-2023-nov-tz1-p1-q07.d",
+    "aa-sl-2023-nov-tz2-p1-q07.d",
+    "aa-sl-2024-may-tz1-p2-q01.a",
+    "aa-sl-2025-may-tz3-p1-q01.b"
+   ],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 3,
+     "p2": 4
+    },
+    "section": {
+     "A": 5,
+     "B": 2
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "4.2": 7
+    }
+   }
+  },
+  {
+   "id": "t4-constant-changes",
+   "topic": 4,
+   "name": "Effect of adding or multiplying a constant on summary statistics",
+   "syllabus": [
+    "4.3"
+   ],
+   "skills": [
+    "SL4.3.constant-changes"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2023-nov-tz1-p1-q07.e",
+    "aa-sl-2023-nov-tz2-p1-q07.e",
+    "aa-sl-2024-may-tz1-p1-q02.b"
+   ],
+   "stats": {
+    "parts": 3,
+    "paper": {
+     "p1": 3,
+     "p2": 0
+    },
+    "section": {
+     "A": 1,
+     "B": 2
+    },
+    "marks": {
+     "min": 1,
+     "median": 4,
+     "max": 4
+    },
+    "mainTags": {
+     "4.3": 3
+    }
+   }
+  },
+  {
+   "id": "t4-grouped-data",
+   "topic": 4,
+   "name": "Grouped and frequency-table data: missing frequency, modal class, estimates",
+   "syllabus": [
+    "4.3"
+   ],
+   "skills": [
+    "SL4.3.grouped-mean",
+    "SL4.3.sd-variance",
+    "SL4.3.mean-totals"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2022-may-tz1-p2-q02.a",
+    "aa-sl-2022-may-tz1-p2-q02.b",
+    "aa-sl-2023-nov-tz1-p1-q07.a",
+    "aa-sl-2023-nov-tz2-p1-q07.a",
+    "aa-sl-2024-may-tz1-p1-q02.a",
+    "aa-sl-2024-nov-tz1-p2-q07.d",
+    "aa-sl-2024-nov-tz1-p2-q07.e",
+    "aa-sl-2024-nov-tz2-p2-q07.d",
+    "aa-sl-2024-nov-tz2-p2-q07.e"
+   ],
+   "stats": {
+    "parts": 9,
+    "paper": {
+     "p1": 3,
+     "p2": 6
+    },
+    "section": {
+     "A": 3,
+     "B": 6
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 5
+    },
+    "mainTags": {
+     "4.3": 9
+    }
+   }
+  },
+  {
+   "id": "t4-summary-statistics",
+   "topic": 4,
+   "name": "Mean, median, mode, quartiles and spread of a data set",
+   "syllabus": [
+    "4.3"
+   ],
+   "skills": [
+    "SL4.3.mean-median-mode",
+    "SL4.3.quartiles-discrete",
+    "SL4.3.choose-measure",
+    "SL4.3.mean-totals"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q04.b",
+    "aa-sl-2021-may-tz1-p2-q02.c",
+    "aa-sl-2024-may-tz1-p2-q01.b",
+    "aa-sl-2024-may-tz2-p2-q01.a",
+    "aa-sl-2024-may-tz2-p2-q03.b",
+    "aa-sl-2024-nov-tz1-p1-q01.a",
+    "aa-sl-2024-nov-tz1-p1-q01.b",
+    "aa-sl-2024-nov-tz2-p1-q01.a",
+    "aa-sl-2024-nov-tz2-p1-q01.b",
+    "aa-sl-2025-may-tz1-p1-q06.b",
+    "aa-sl-2025-may-tz3-p1-q01.a"
+   ],
+   "stats": {
+    "parts": 11,
+    "paper": {
+     "p1": 7,
+     "p2": 4
+    },
+    "section": {
+     "A": 11,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "4.3": 11
+    }
+   }
+  },
+  {
+   "id": "t4-regression-interpret",
+   "topic": 4,
+   "name": "Interpret a regression gradient or judge a prediction",
+   "syllabus": [
+    "4.4"
+   ],
+   "skills": [
+    "SL4.4.interpret-ab"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q01.b",
+    "aa-sl-2021-nov-tz0-p2-q01.c",
+    "aa-sl-2024-may-tz1-p2-q06.b",
+    "aa-sl-2024-nov-tz1-p2-q08.a",
+    "aa-sl-2024-nov-tz1-p2-q08.b",
+    "aa-sl-2024-nov-tz2-p2-q08.a",
+    "aa-sl-2024-nov-tz2-p2-q08.b"
+   ],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 0,
+     "p2": 7
+    },
+    "section": {
+     "A": 3,
+     "B": 4
+    },
+    "marks": {
+     "min": 1,
+     "median": 1,
+     "max": 3
+    },
+    "mainTags": {
+     "4.4": 7
+    }
+   }
+  },
+  {
+   "id": "t4-regression-gdc",
+   "topic": 4,
+   "name": "Regression line and Pearson r on the GDC, then predict",
+   "syllabus": [
+    "4.4"
+   ],
+   "skills": [
+    "SL4.4.regression-y-on-x",
+    "SL4.4.pearson-r",
+    "SL4.4.predict",
+    "SL4.4.mean-point"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q02.a",
+    "aa-sl-2021-may-tz1-p2-q02.b",
+    "aa-sl-2021-may-tz1-p2-q02.d",
+    "aa-sl-2021-may-tz2-p2-q01.a",
+    "aa-sl-2021-may-tz2-p2-q01.c",
+    "aa-sl-2021-nov-tz0-p2-q01.a",
+    "aa-sl-2021-nov-tz0-p2-q01.b",
+    "aa-sl-2022-may-tz2-p2-q03.b",
+    "aa-sl-2022-nov-tz0-p2-q01.a",
+    "aa-sl-2022-nov-tz0-p2-q01.b",
+    "aa-sl-2022-nov-tz0-p2-q01.c",
+    "aa-sl-2023-may-tz2-p2-q01.a",
+    "aa-sl-2023-may-tz2-p2-q01.b",
+    "aa-sl-2023-may-tz2-p2-q01.c",
+    "aa-sl-2024-may-tz1-p2-q06.a",
+    "aa-sl-2024-may-tz2-p2-q03.a",
+    "aa-sl-2025-may-tz1-p2-q05.b",
+    "aa-sl-2025-may-tz2-p2-q01.a",
+    "aa-sl-2025-may-tz2-p2-q01.b"
+   ],
+   "stats": {
+    "parts": 19,
+    "paper": {
+     "p1": 0,
+     "p2": 19
+    },
+    "section": {
+     "A": 19,
+     "B": 0
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "4.4": 19
+    }
+   }
+  },
+  {
+   "id": "t4-expected-occurrences",
+   "topic": 4,
+   "name": "Expected number of occurrences, n x p",
+   "syllabus": [
+    "4.5"
+   ],
+   "skills": [
+    "SL4.5.expected-occurrences"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q03.b",
+    "aa-sl-2023-may-tz1-p1-q03.a",
+    "aa-sl-2023-may-tz1-p1-q03.b",
+    "aa-sl-2025-may-tz3-p2-q08.b"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 2,
+     "p2": 2
+    },
+    "section": {
+     "A": 3,
+     "B": 1
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "4.5": 4
+    }
+   }
+  },
+  {
+   "id": "t4-probability-basic",
+   "topic": 4,
+   "name": "Probability from a table, a count or the complement",
+   "syllabus": [
+    "4.5"
+   ],
+   "skills": [
+    "SL4.5.relative-frequency",
+    "SL4.5.equally-likely",
+    "SL4.5.complement"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2024-may-tz1-p1-q09.f",
+    "aa-sl-2024-nov-tz1-p2-q07.a",
+    "aa-sl-2024-nov-tz2-p2-q07.a",
+    "aa-sl-2025-may-tz1-p2-q07.b"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 1,
+     "p2": 3
+    },
+    "section": {
+     "A": 0,
+     "B": 4
+    },
+    "marks": {
+     "min": 1,
+     "median": 1,
+     "max": 2
+    },
+    "mainTags": {
+     "4.5": 4
+    }
+   }
+  },
+  {
+   "id": "t4-tree-diagram",
+   "topic": 4,
+   "name": "Tree diagrams and selection without replacement",
+   "syllabus": [
+    "4.6"
+   ],
+   "skills": [
+    "SL4.6.tree"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q04.a",
+    "aa-sl-2022-may-tz1-p2-q09.c",
+    "aa-sl-2022-nov-tz0-p2-q09.b",
+    "aa-sl-2023-may-tz1-p2-q08.b",
+    "aa-sl-2023-may-tz2-p2-q09.a",
+    "aa-sl-2023-may-tz2-p2-q09.b",
+    "aa-sl-2023-may-tz2-p2-q09.c",
+    "aa-sl-2023-may-tz2-p2-q09.d",
+    "aa-sl-2024-may-tz1-p1-q09.a",
+    "aa-sl-2024-may-tz1-p1-q09.b",
+    "aa-sl-2024-may-tz1-p1-q09.g",
+    "aa-sl-2024-may-tz2-p1-q05.a",
+    "aa-sl-2024-may-tz2-p1-q05.b",
+    "aa-sl-2025-may-tz1-p2-q07.e"
+   ],
+   "stats": {
+    "parts": 14,
+    "paper": {
+     "p1": 6,
+     "p2": 8
+    },
+    "section": {
+     "A": 3,
+     "B": 11
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 7
+    },
+    "mainTags": {
+     "4.6": 14
+    }
+   }
+  },
+  {
+   "id": "t4-sample-space",
+   "topic": 4,
+   "name": "Sample space diagrams for dice and spinners",
+   "syllabus": [
+    "4.6"
+   ],
+   "skills": [
+    "SL4.6.sample-space-grid"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q09.e",
+    "aa-sl-2022-may-tz2-p1-q09.c",
+    "aa-sl-2022-may-tz2-p1-q09.d",
+    "aa-sl-2022-may-tz2-p1-q09.e",
+    "aa-sl-2025-may-tz1-p2-q07.a"
+   ],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 4,
+     "p2": 1
+    },
+    "section": {
+     "A": 0,
+     "B": 5
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 6
+    },
+    "mainTags": {
+     "4.6": 5
+    }
+   }
+  },
+  {
+   "id": "t4-venn-addition-rule",
+   "topic": 4,
+   "name": "Venn diagrams, two-way tables and the addition rule",
+   "syllabus": [
+    "4.6"
+   ],
+   "skills": [
+    "SL4.6.union",
+    "SL4.6.venn"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q04.a",
+    "aa-sl-2021-may-tz2-p2-q04.b",
+    "aa-sl-2022-nov-tz0-p1-q06.b",
+    "aa-sl-2022-nov-tz0-p1-q06.c",
+    "aa-sl-2023-may-tz1-p2-q08.a",
+    "aa-sl-2023-nov-tz1-p1-q03.a",
+    "aa-sl-2023-nov-tz1-p1-q03.b",
+    "aa-sl-2023-nov-tz2-p1-q03.a",
+    "aa-sl-2023-nov-tz2-p1-q03.b",
+    "aa-sl-2024-nov-tz1-p1-q03.a",
+    "aa-sl-2024-nov-tz2-p1-q03.a"
+   ],
+   "stats": {
+    "parts": 11,
+    "paper": {
+     "p1": 8,
+     "p2": 3
+    },
+    "section": {
+     "A": 10,
+     "B": 1
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "4.6": 11
+    }
+   }
+  },
+  {
+   "id": "t4-expected-value",
+   "topic": 4,
+   "name": "Expected value of a discrete random variable, fair games",
+   "syllabus": [
+    "4.7"
+   ],
+   "skills": [
+    "SL4.7.expected-value",
+    "SL4.7.fair-game",
+    "SL4.7.unknowns-from-mean"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q09.b",
+    "aa-sl-2021-may-tz1-p1-q09.d",
+    "aa-sl-2021-may-tz2-p2-q09.b",
+    "aa-sl-2021-may-tz2-p2-q09.d",
+    "aa-sl-2021-nov-tz0-p2-q09.d",
+    "aa-sl-2022-may-tz1-p2-q04.c",
+    "aa-sl-2022-may-tz2-p1-q09.a",
+    "aa-sl-2023-may-tz2-p2-q09.e",
+    "aa-sl-2023-nov-tz1-p2-q06",
+    "aa-sl-2023-nov-tz2-p2-q06",
+    "aa-sl-2024-may-tz1-p1-q09.e",
+    "aa-sl-2024-nov-tz1-p2-q04.b",
+    "aa-sl-2024-nov-tz2-p2-q04.b",
+    "aa-sl-2025-may-tz1-p2-q07.c",
+    "aa-sl-2025-may-tz1-p2-q07.d",
+    "aa-sl-2025-may-tz2-p1-q07.d",
+    "aa-sl-2025-may-tz3-p2-q04.b"
+   ],
+   "stats": {
+    "parts": 17,
+    "paper": {
+     "p1": 5,
+     "p2": 12
+    },
+    "section": {
+     "A": 6,
+     "B": 11
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 7
+    },
+    "mainTags": {
+     "4.7": 17
+    }
+   }
+  },
+  {
+   "id": "t4-discrete-distribution",
+   "topic": 4,
+   "name": "Discrete distribution: probabilities sum to 1, find k, read probabilities",
+   "syllabus": [
+    "4.7"
+   ],
+   "skills": [
+    "SL4.7.find-k",
+    "SL4.7.table-probabilities",
+    "SL4.7.build-distribution"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q09.a",
+    "aa-sl-2021-may-tz1-p1-q09.c",
+    "aa-sl-2021-may-tz2-p2-q09.a",
+    "aa-sl-2022-may-tz1-p2-q04.a",
+    "aa-sl-2022-may-tz2-p1-q09.b",
+    "aa-sl-2023-may-tz2-p1-q02.b",
+    "aa-sl-2024-may-tz1-p1-q09.d",
+    "aa-sl-2024-nov-tz1-p2-q04.a",
+    "aa-sl-2024-nov-tz2-p2-q04.a",
+    "aa-sl-2025-may-tz2-p1-q07.a",
+    "aa-sl-2025-may-tz2-p1-q07.b",
+    "aa-sl-2025-may-tz3-p2-q04.a"
+   ],
+   "stats": {
+    "parts": 12,
+    "paper": {
+     "p1": 7,
+     "p2": 5
+    },
+    "section": {
+     "A": 5,
+     "B": 7
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 5
+    },
+    "mainTags": {
+     "4.7": 12
+    }
+   }
+  },
+  {
+   "id": "t4-binomial",
+   "topic": 4,
+   "name": "Binomial probabilities, mean, and finding n",
+   "syllabus": [
+    "4.8"
+   ],
+   "skills": [
+    "SL4.8.identify",
+    "SL4.8.exact-probability",
+    "SL4.8.cumulative-probability",
+    "SL4.8.mean-variance",
+    "SL4.8.find-n-or-p",
+    "SL4.8.binomial-in-context"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q08.d",
+    "aa-sl-2021-may-tz2-p2-q08.e",
+    "aa-sl-2021-nov-tz0-p2-q04.a",
+    "aa-sl-2022-may-tz1-p2-q09.b",
+    "aa-sl-2022-may-tz2-p2-q09.c",
+    "aa-sl-2022-may-tz2-p2-q09.e",
+    "aa-sl-2023-may-tz1-p2-q08.e",
+    "aa-sl-2023-may-tz2-p2-q04.d",
+    "aa-sl-2023-nov-tz1-p2-q09.c",
+    "aa-sl-2023-nov-tz2-p2-q09.c",
+    "aa-sl-2024-may-tz2-p2-q06",
+    "aa-sl-2024-nov-tz1-p2-q07.b",
+    "aa-sl-2024-nov-tz2-p2-q07.b",
+    "aa-sl-2025-may-tz2-p2-q08.d",
+    "aa-sl-2025-may-tz2-p2-q08.e",
+    "aa-sl-2025-may-tz3-p2-q08.a",
+    "aa-sl-2025-may-tz3-p2-q08.c",
+    "aa-sl-2025-may-tz3-p2-q08.f"
+   ],
+   "stats": {
+    "parts": 18,
+    "paper": {
+     "p1": 0,
+     "p2": 18
+    },
+    "section": {
+     "A": 3,
+     "B": 15
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 6
+    },
+    "mainTags": {
+     "4.8": 18
+    }
+   }
+  },
+  {
+   "id": "t4-inverse-normal",
+   "topic": 4,
+   "name": "Inverse normal: value for a given probability",
+   "syllabus": [
+    "4.9"
+   ],
+   "skills": [
+    "SL4.9.inverse-normal"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2022-nov-tz0-p2-q09.d",
+    "aa-sl-2023-may-tz2-p2-q04.c",
+    "aa-sl-2024-may-tz2-p2-q07.c",
+    "aa-sl-2025-may-tz2-p2-q08.b",
+    "aa-sl-2025-may-tz3-p1-q06.a"
+   ],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 1,
+     "p2": 4
+    },
+    "section": {
+     "A": 2,
+     "B": 3
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 4
+    },
+    "mainTags": {
+     "4.9": 5
+    }
+   }
+  },
+  {
+   "id": "t4-normal-properties",
+   "topic": 4,
+   "name": "Normal curve properties: symmetry, sigma intervals, matching curves",
+   "syllabus": [
+    "4.9"
+   ],
+   "skills": [
+    "SL4.9.properties",
+    "SL4.9.symmetry-probability",
+    "SL4.9.central-interval"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2023-may-tz2-p2-q04.b",
+    "aa-sl-2023-nov-tz2-p2-q09.a",
+    "aa-sl-2024-may-tz1-p2-q04.a",
+    "aa-sl-2024-may-tz2-p2-q07.a",
+    "aa-sl-2024-nov-tz1-p2-q07.f",
+    "aa-sl-2024-nov-tz2-p2-q07.f",
+    "aa-sl-2025-may-tz3-p1-q06.b",
+    "aa-sl-2025-may-tz3-p1-q06.c"
+   ],
+   "stats": {
+    "parts": 8,
+    "paper": {
+     "p1": 2,
+     "p2": 6
+    },
+    "section": {
+     "A": 4,
+     "B": 4
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "4.9": 7,
+     "4.3": 1
+    }
+   }
+  },
+  {
+   "id": "t4-normal-probability",
+   "topic": 4,
+   "name": "Normal probability for an interval on the GDC",
+   "syllabus": [
+    "4.9"
+   ],
+   "skills": [
+    "SL4.9.normal-probability"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q03.a",
+    "aa-sl-2021-may-tz2-p2-q08.b",
+    "aa-sl-2022-may-tz1-p2-q09.a",
+    "aa-sl-2022-may-tz2-p2-q09.b",
+    "aa-sl-2022-nov-tz0-p2-q09.a",
+    "aa-sl-2023-may-tz2-p2-q04.a",
+    "aa-sl-2023-nov-tz1-p2-q09.a",
+    "aa-sl-2024-may-tz2-p2-q07.b",
+    "aa-sl-2024-may-tz2-p2-q07.d",
+    "aa-sl-2024-may-tz2-p2-q07.e",
+    "aa-sl-2025-may-tz2-p2-q08.a",
+    "aa-sl-2025-may-tz2-p2-q08.c"
+   ],
+   "stats": {
+    "parts": 12,
+    "paper": {
+     "p1": 0,
+     "p2": 12
+    },
+    "section": {
+     "A": 2,
+     "B": 10
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 5
+    },
+    "mainTags": {
+     "4.9": 12
+    }
+   }
+  },
+  {
+   "id": "t4-regression-x-on-y",
+   "topic": 4,
+   "name": "Choose the right regression line; x on y; mean point on both",
+   "syllabus": [
+    "4.10"
+   ],
+   "skills": [
+    "SL4.10.x-on-y-line",
+    "SL4.10.choose-line",
+    "SL4.10.predict-x",
+    "SL4.10.mean-point-intersection"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2022-may-tz1-p1-q03.b",
+    "aa-sl-2023-may-tz1-p2-q04.b",
+    "aa-sl-2023-may-tz1-p2-q04.c",
+    "aa-sl-2024-may-tz1-p2-q06.c",
+    "aa-sl-2025-may-tz1-p2-q05.a"
+   ],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 1,
+     "p2": 4
+    },
+    "section": {
+     "A": 5,
+     "B": 0
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "4.10": 5
+    }
+   }
+  },
+  {
+   "id": "t4-independence",
+   "topic": 4,
+   "name": "Use or test independence of events",
+   "syllabus": [
+    "4.11",
+    "4.6"
+   ],
+   "skills": [
+    "SL4.11.test-independence",
+    "SL4.11.independence-unknown",
+    "SL4.6.independent"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q04.d",
+    "aa-sl-2021-nov-tz0-p1-q04.b",
+    "aa-sl-2022-may-tz1-p2-q06.a",
+    "aa-sl-2022-may-tz1-p2-q06.b",
+    "aa-sl-2022-may-tz2-p2-q04",
+    "aa-sl-2022-nov-tz0-p1-q06.a",
+    "aa-sl-2023-may-tz1-p2-q08.d",
+    "aa-sl-2025-may-tz1-p1-q05.b",
+    "aa-sl-2025-may-tz3-p2-q08.e"
+   ],
+   "stats": {
+    "parts": 9,
+    "paper": {
+     "p1": 3,
+     "p2": 6
+    },
+    "section": {
+     "A": 7,
+     "B": 2
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 6
+    },
+    "mainTags": {
+     "4.11": 9
+    }
+   }
+  },
+  {
+   "id": "t4-conditional-probability",
+   "topic": 4,
+   "name": "Conditional probability from formula, table, tree or distribution",
+   "syllabus": [
+    "4.11"
+   ],
+   "skills": [
+    "SL4.11.conditional-formula",
+    "SL4.11.reverse-conditional",
+    "SL4.11.conditional-distributions",
+    "SL4.11.multiplication-rule"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q03.c",
+    "aa-sl-2021-may-tz2-p2-q04.c",
+    "aa-sl-2021-may-tz2-p2-q08.c",
+    "aa-sl-2021-nov-tz0-p2-q04.b",
+    "aa-sl-2021-nov-tz0-p2-q09.c",
+    "aa-sl-2022-may-tz2-p2-q09.d",
+    "aa-sl-2022-nov-tz0-p2-q09.c",
+    "aa-sl-2023-may-tz1-p2-q08.c",
+    "aa-sl-2023-may-tz2-p1-q04",
+    "aa-sl-2024-may-tz1-p1-q09.c",
+    "aa-sl-2024-nov-tz1-p1-q03.b",
+    "aa-sl-2024-nov-tz1-p2-q07.c",
+    "aa-sl-2024-nov-tz2-p1-q03.b",
+    "aa-sl-2024-nov-tz2-p2-q07.c",
+    "aa-sl-2025-may-tz1-p1-q05.a",
+    "aa-sl-2025-may-tz2-p1-q07.c",
+    "aa-sl-2025-may-tz3-p2-q08.d"
+   ],
+   "stats": {
+    "parts": 17,
+    "paper": {
+     "p1": 6,
+     "p2": 11
+    },
+    "section": {
+     "A": 7,
+     "B": 10
+    },
+    "marks": {
+     "min": 2,
+     "median": 4,
+     "max": 7
+    },
+    "mainTags": {
+     "4.11": 15,
+     "4.6": 2
+    }
+   }
+  },
+  {
+   "id": "t4-normal-unknown-parameter",
+   "topic": 4,
+   "name": "Find an unknown mean or standard deviation with z-scores",
+   "syllabus": [
+    "4.12"
+   ],
+   "skills": [
+    "SL4.12.unknown-mean-or-sd",
+    "SL4.12.unknown-mean-and-sd",
+    "SL4.12.standardise"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p2-q08.a",
+    "aa-sl-2021-nov-tz0-p2-q09.a",
+    "aa-sl-2021-nov-tz0-p2-q09.b",
+    "aa-sl-2022-may-tz1-p2-q09.d",
+    "aa-sl-2022-may-tz2-p2-q09.a",
+    "aa-sl-2023-may-tz1-p2-q05",
+    "aa-sl-2023-nov-tz1-p2-q09.b",
+    "aa-sl-2023-nov-tz1-p2-q09.d",
+    "aa-sl-2023-nov-tz2-p2-q09.b",
+    "aa-sl-2023-nov-tz2-p2-q09.d",
+    "aa-sl-2024-may-tz1-p2-q04.b",
+    "aa-sl-2025-may-tz1-p2-q05.c",
+    "aa-sl-2025-may-tz2-p2-q08.f"
+   ],
+   "stats": {
+    "parts": 13,
+    "paper": {
+     "p1": 0,
+     "p2": 13
+    },
+    "section": {
+     "A": 3,
+     "B": 10
+    },
+    "marks": {
+     "min": 2,
+     "median": 4,
+     "max": 6
+    },
+    "mainTags": {
+     "4.12": 13
+    }
+   }
+  },
+  {
+   "id": "t5-derivative-meaning",
+   "topic": 5,
+   "name": "Interpret a derivative as a rate, or its limit",
+   "syllabus": [
+    "5.1"
+   ],
+   "skills": [
+    "SL5.1.interpret-derivative",
+    "SL5.1.estimate-limit"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2023-may-tz1-p2-q07.c",
+    "aa-sl-2023-may-tz1-p2-q07.f",
+    "aa-sl-2024-may-tz1-p2-q08.c",
+    "aa-sl-2024-nov-tz1-p2-q08.g",
+    "aa-sl-2024-nov-tz2-p2-q08.g",
+    "aa-sl-2025-may-tz3-p2-q09.c"
+   ],
+   "stats": {
+    "parts": 6,
+    "paper": {
+     "p1": 0,
+     "p2": 6
+    },
+    "section": {
+     "A": 0,
+     "B": 6
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "5.1": 6
+    }
+   }
+  },
+  {
+   "id": "t5-increasing-decreasing",
+   "topic": 5,
+   "name": "Where a function is increasing or decreasing",
+   "syllabus": [
+    "5.2"
+   ],
+   "skills": [
+    "SL5.2.increasing-decreasing-intervals",
+    "SL5.2.sign-from-graph",
+    "SL5.2.parameter-for-monotonic"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q07.d",
+    "aa-sl-2021-nov-tz0-p1-q09.a",
+    "aa-sl-2022-may-tz2-p1-q07.d",
+    "aa-sl-2025-may-tz2-p2-q03.a"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 3,
+     "p2": 1
+    },
+    "section": {
+     "A": 1,
+     "B": 3
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 3
+    },
+    "mainTags": {
+     "5.2": 4
+    }
+   }
+  },
+  {
+   "id": "t5-differentiate-polynomial",
+   "topic": 5,
+   "name": "Differentiate a polynomial or negative power and evaluate",
+   "syllabus": [
+    "5.3"
+   ],
+   "skills": [
+    "SL5.3.power-rule",
+    "SL5.3.negative-powers",
+    "SL5.3.gradient-at-point"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q05.a",
+    "aa-sl-2024-may-tz1-p1-q07.a",
+    "aa-sl-2024-nov-tz1-p1-q09.c",
+    "aa-sl-2024-nov-tz2-p1-q09.c",
+    "aa-sl-2025-may-tz2-p1-q01.a",
+    "aa-sl-2025-may-tz3-p1-q07.c"
+   ],
+   "stats": {
+    "parts": 6,
+    "paper": {
+     "p1": 6,
+     "p2": 0
+    },
+    "section": {
+     "A": 2,
+     "B": 4
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 3
+    },
+    "mainTags": {
+     "5.3": 6
+    }
+   }
+  },
+  {
+   "id": "t5-normal-meets-curve",
+   "topic": 5,
+   "name": "Where a tangent or normal meets the curve again",
+   "syllabus": [
+    "5.4",
+    "2.4",
+    "2.7"
+   ],
+   "skills": [
+    "SL5.4.tangent-meets-axes-or-curve"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2023-nov-tz1-p2-q01.c",
+    "aa-sl-2023-nov-tz2-p2-q01.c"
+   ],
+   "stats": {
+    "parts": 2,
+    "paper": {
+     "p1": 0,
+     "p2": 2
+    },
+    "section": {
+     "A": 2,
+     "B": 0
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 3
+    },
+    "mainTags": {
+     "5.4": 2
+    }
+   }
+  },
+  {
+   "id": "t5-tangent-condition",
+   "topic": 5,
+   "name": "Find a point or parameter from a tangent condition (given gradient, parallel, common tangent)",
+   "syllabus": [
+    "5.4",
+    "5.6"
+   ],
+   "skills": [
+    "SL5.4.parallel-or-perpendicular",
+    "SL5.4.tangency-condition",
+    "SL5.3.point-with-given-gradient"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q05.b",
+    "aa-sl-2021-may-tz1-p1-q05.c",
+    "aa-sl-2021-may-tz1-p2-q09.b",
+    "aa-sl-2021-may-tz2-p1-q05.b",
+    "aa-sl-2022-may-tz1-p1-q05",
+    "aa-sl-2023-may-tz2-p2-q07.e",
+    "aa-sl-2024-nov-tz1-p1-q07.e",
+    "aa-sl-2024-nov-tz2-p1-q07.e",
+    "aa-sl-2025-may-tz1-p2-q06.a",
+    "aa-sl-2025-may-tz1-p2-q06.b",
+    "aa-sl-2025-may-tz3-p2-q06.b"
+   ],
+   "stats": {
+    "parts": 11,
+    "paper": {
+     "p1": 6,
+     "p2": 5
+    },
+    "section": {
+     "A": 7,
+     "B": 4
+    },
+    "marks": {
+     "min": 3,
+     "median": 4,
+     "max": 6
+    },
+    "mainTags": {
+     "5.4": 7,
+     "5.6": 4
+    }
+   }
+  },
+  {
+   "id": "t5-tangent-normal-equation",
+   "topic": 5,
+   "name": "Equation of a tangent or normal, or values read from a given tangent",
+   "syllabus": [
+    "5.4"
+   ],
+   "skills": [
+    "SL5.4.tangent-equation",
+    "SL5.4.normal-equation",
+    "SL5.4.read-from-tangent"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q09.c",
+    "aa-sl-2021-nov-tz0-p1-q05.a",
+    "aa-sl-2021-nov-tz0-p1-q05.b",
+    "aa-sl-2021-nov-tz0-p1-q05.d",
+    "aa-sl-2022-may-tz2-p1-q07.c",
+    "aa-sl-2023-may-tz2-p1-q07.d",
+    "aa-sl-2023-nov-tz1-p2-q01.a",
+    "aa-sl-2023-nov-tz1-p2-q01.b",
+    "aa-sl-2023-nov-tz2-p2-q01.a",
+    "aa-sl-2023-nov-tz2-p2-q01.b",
+    "aa-sl-2024-may-tz1-p1-q07.d",
+    "aa-sl-2024-may-tz2-p1-q08.d",
+    "aa-sl-2025-may-tz2-p1-q01.b",
+    "aa-sl-2025-may-tz3-p2-q07.d"
+   ],
+   "stats": {
+    "parts": 14,
+    "paper": {
+     "p1": 8,
+     "p2": 6
+    },
+    "section": {
+     "A": 8,
+     "B": 6
+    },
+    "marks": {
+     "min": 1,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "5.4": 13,
+     "5.6": 1
+    }
+   }
+  },
+  {
+   "id": "t5-derivative-graph",
+   "topic": 5,
+   "name": "Read f from the graph of f' (or f'')",
+   "syllabus": [
+    "5.8",
+    "5.2",
+    "5.7"
+   ],
+   "skills": [
+    "SL5.7.f-from-derivative-graph",
+    "SL5.2.sign-from-graph"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-nov-tz0-p1-q09.b",
+    "aa-sl-2021-nov-tz0-p1-q09.c"
+   ],
+   "stats": {
+    "parts": 2,
+    "paper": {
+     "p1": 2,
+     "p2": 0
+    },
+    "section": {
+     "A": 0,
+     "B": 2
+    },
+    "marks": {
+     "min": 1,
+     "median": 1,
+     "max": 5
+    },
+    "mainTags": {
+     "5.8": 2
+    }
+   }
+  },
+  {
+   "id": "t5-stationary-points",
+   "topic": 5,
+   "name": "Stationary points and inflexion: find, classify, justify",
+   "syllabus": [
+    "5.8",
+    "5.7",
+    "5.6"
+   ],
+   "skills": [
+    "SL5.8.find-stationary-points",
+    "SL5.8.classify-stationary-points",
+    "SL5.8.points-of-inflexion",
+    "SL5.8.optimise-given-function"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q08.b",
+    "aa-sl-2021-may-tz1-p1-q08.c",
+    "aa-sl-2021-may-tz2-p2-q02.b",
+    "aa-sl-2022-may-tz1-p1-q07.e",
+    "aa-sl-2022-nov-tz0-p1-q09.b",
+    "aa-sl-2023-may-tz1-p1-q07.c",
+    "aa-sl-2023-nov-tz1-p2-q07.c",
+    "aa-sl-2023-nov-tz2-p2-q07.c",
+    "aa-sl-2024-may-tz1-p1-q07.b",
+    "aa-sl-2024-may-tz1-p1-q07.c",
+    "aa-sl-2024-may-tz2-p1-q08.b",
+    "aa-sl-2025-may-tz1-p1-q02",
+    "aa-sl-2025-may-tz2-p1-q08.d",
+    "aa-sl-2025-may-tz3-p1-q07.e"
+   ],
+   "stats": {
+    "parts": 14,
+    "paper": {
+     "p1": 11,
+     "p2": 3
+    },
+    "section": {
+     "A": 2,
+     "B": 12
+    },
+    "marks": {
+     "min": 2,
+     "median": 5,
+     "max": 7
+    },
+    "mainTags": {
+     "5.8": 8,
+     "5.6": 3,
+     "5.7": 3
+    }
+   }
+  },
+  {
+   "id": "t5-optimisation-modelling",
+   "topic": 5,
+   "name": "Optimisation: build a function from a constraint, then maximise or minimise",
+   "syllabus": [
+    "5.8",
+    "3.1"
+   ],
+   "skills": [
+    "SL5.8.optimisation-modelling"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-nov-tz0-p2-q07.b",
+    "aa-sl-2021-nov-tz0-p2-q07.c",
+    "aa-sl-2022-may-tz1-p2-q07.d",
+    "aa-sl-2023-may-tz2-p1-q09.a",
+    "aa-sl-2023-may-tz2-p1-q09.b",
+    "aa-sl-2023-may-tz2-p1-q09.d",
+    "aa-sl-2023-nov-tz1-p2-q07.b",
+    "aa-sl-2023-nov-tz2-p2-q07.b",
+    "aa-sl-2024-may-tz2-p2-q08.c",
+    "aa-sl-2024-may-tz2-p2-q08.d",
+    "aa-sl-2024-nov-tz1-p1-q09.d",
+    "aa-sl-2024-nov-tz1-p1-q09.e",
+    "aa-sl-2024-nov-tz2-p1-q09.d",
+    "aa-sl-2024-nov-tz2-p1-q09.e",
+    "aa-sl-2025-may-tz2-p1-q06.b",
+    "aa-sl-2025-may-tz3-p1-q07.a",
+    "aa-sl-2025-may-tz3-p1-q07.b",
+    "aa-sl-2025-may-tz3-p1-q07.d"
+   ],
+   "stats": {
+    "parts": 18,
+    "paper": {
+     "p1": 11,
+     "p2": 7
+    },
+    "section": {
+     "A": 1,
+     "B": 17
+    },
+    "marks": {
+     "min": 1,
+     "median": 4,
+     "max": 7
+    },
+    "mainTags": {
+     "5.8": 17,
+     "2.10": 1
+    }
+   }
+  },
+  {
+   "id": "t5-kinematics-distance",
+   "topic": 5,
+   "name": "Kinematics: displacement and distance by integrating velocity",
+   "syllabus": [
+    "5.9",
+    "5.11",
+    "5.5"
+   ],
+   "skills": [
+    "SL5.9.displacement-from-velocity",
+    "SL5.9.total-distance"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q05.b",
+    "aa-sl-2021-may-tz2-p1-q09.b",
+    "aa-sl-2021-may-tz2-p1-q09.c",
+    "aa-sl-2021-may-tz2-p1-q09.d",
+    "aa-sl-2021-may-tz2-p1-q09.e",
+    "aa-sl-2021-nov-tz0-p1-q07.a",
+    "aa-sl-2021-nov-tz0-p1-q07.c",
+    "aa-sl-2022-may-tz1-p2-q05.c",
+    "aa-sl-2022-nov-tz0-p2-q07.a",
+    "aa-sl-2022-nov-tz0-p2-q07.e",
+    "aa-sl-2023-may-tz1-p1-q09.a",
+    "aa-sl-2023-may-tz1-p1-q09.e",
+    "aa-sl-2023-may-tz2-p2-q06.c",
+    "aa-sl-2023-nov-tz1-p2-q05.b",
+    "aa-sl-2023-nov-tz2-p2-q05.b",
+    "aa-sl-2024-may-tz1-p2-q05.b",
+    "aa-sl-2024-may-tz1-p2-q05.c",
+    "aa-sl-2024-nov-tz1-p2-q09.f",
+    "aa-sl-2024-nov-tz2-p2-q09.f",
+    "aa-sl-2025-may-tz1-p1-q07.b",
+    "aa-sl-2025-may-tz1-p1-q07.c",
+    "aa-sl-2025-may-tz2-p2-q05.b",
+    "aa-sl-2025-may-tz3-p2-q09.d"
+   ],
+   "stats": {
+    "parts": 23,
+    "paper": {
+     "p1": 10,
+     "p2": 13
+    },
+    "section": {
+     "A": 8,
+     "B": 15
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 7
+    },
+    "mainTags": {
+     "5.9": 23
+    }
+   }
+  },
+  {
+   "id": "t5-kinematics-motion",
+   "topic": 5,
+   "name": "Kinematics: rest, direction change, acceleration, maximum speed",
+   "syllabus": [
+    "5.9"
+   ],
+   "skills": [
+    "SL5.9.velocity-acceleration",
+    "SL5.9.rest-and-direction",
+    "SL5.9.max-speed",
+    "SL5.9.motion-graphs"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q05.a",
+    "aa-sl-2021-may-tz1-p2-q05.c",
+    "aa-sl-2021-may-tz2-p1-q09.a",
+    "aa-sl-2022-may-tz1-p2-q05.a",
+    "aa-sl-2022-may-tz1-p2-q05.b",
+    "aa-sl-2022-may-tz2-p2-q06.a",
+    "aa-sl-2022-may-tz2-p2-q06.b",
+    "aa-sl-2022-may-tz2-p2-q06.c",
+    "aa-sl-2022-nov-tz0-p2-q07.b",
+    "aa-sl-2022-nov-tz0-p2-q07.c",
+    "aa-sl-2022-nov-tz0-p2-q07.d",
+    "aa-sl-2023-may-tz1-p1-q09.b",
+    "aa-sl-2023-may-tz1-p1-q09.c",
+    "aa-sl-2023-may-tz1-p1-q09.d",
+    "aa-sl-2023-may-tz2-p2-q06.a",
+    "aa-sl-2023-may-tz2-p2-q06.b",
+    "aa-sl-2023-nov-tz1-p2-q05.a",
+    "aa-sl-2023-nov-tz2-p2-q05.a",
+    "aa-sl-2024-may-tz1-p2-q05.a",
+    "aa-sl-2024-may-tz2-p2-q05.a",
+    "aa-sl-2024-may-tz2-p2-q05.b",
+    "aa-sl-2024-may-tz2-p2-q05.c",
+    "aa-sl-2024-nov-tz1-p2-q09.e",
+    "aa-sl-2024-nov-tz2-p2-q09.e",
+    "aa-sl-2025-may-tz1-p1-q07.a",
+    "aa-sl-2025-may-tz2-p2-q05.a",
+    "aa-sl-2025-may-tz2-p2-q05.c",
+    "aa-sl-2025-may-tz3-p2-q09.a",
+    "aa-sl-2025-may-tz3-p2-q09.b"
+   ],
+   "stats": {
+    "parts": 29,
+    "paper": {
+     "p1": 5,
+     "p2": 24
+    },
+    "section": {
+     "A": 17,
+     "B": 12
+    },
+    "marks": {
+     "min": 1,
+     "median": 2,
+     "max": 5
+    },
+    "mainTags": {
+     "5.9": 27,
+     "5.6": 2
+    }
+   }
+  },
+  {
+   "id": "t5-derivative-model-gdc",
+   "topic": 5,
+   "name": "Derivative of a model at a point with technology",
+   "syllabus": [
+    "5.6",
+    "5.1"
+   ],
+   "skills": [
+    "SL5.6.rules-with-values",
+    "SL5.1.interpret-derivative"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2022-may-tz2-p2-q08.c",
+    "aa-sl-2023-may-tz1-p2-q07.b",
+    "aa-sl-2024-nov-tz1-p2-q08.f",
+    "aa-sl-2024-nov-tz2-p2-q08.f"
+   ],
+   "stats": {
+    "parts": 4,
+    "paper": {
+     "p1": 0,
+     "p2": 4
+    },
+    "section": {
+     "A": 0,
+     "B": 4
+    },
+    "marks": {
+     "min": 2,
+     "median": 2,
+     "max": 6
+    },
+    "mainTags": {
+     "5.6": 4
+    }
+   }
+  },
+  {
+   "id": "t5-differentiation-rules",
+   "topic": 5,
+   "name": "Chain, product and quotient rules",
+   "syllabus": [
+    "5.6"
+   ],
+   "skills": [
+    "SL5.6.chain-rule",
+    "SL5.6.product-rule",
+    "SL5.6.quotient-rule",
+    "SL5.6.standard-derivatives",
+    "SL5.6.show-derivative-form"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p1-q08.a",
+    "aa-sl-2022-nov-tz0-p1-q02",
+    "aa-sl-2023-may-tz1-p1-q07.b",
+    "aa-sl-2023-may-tz2-p1-q09.c",
+    "aa-sl-2023-may-tz2-p2-q07.d",
+    "aa-sl-2023-nov-tz1-p1-q09.a",
+    "aa-sl-2023-nov-tz2-p1-q09.a",
+    "aa-sl-2025-may-tz3-p2-q06.a"
+   ],
+   "stats": {
+    "parts": 8,
+    "paper": {
+     "p1": 6,
+     "p2": 2
+    },
+    "section": {
+     "A": 2,
+     "B": 6
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "5.6": 8
+    }
+   }
+  },
+  {
+   "id": "t5-concavity",
+   "topic": 5,
+   "name": "Second derivative and concavity",
+   "syllabus": [
+    "5.7"
+   ],
+   "skills": [
+    "SL5.7.find-second-derivative",
+    "SL5.7.concavity",
+    "SL5.7.sketch-match-graphs"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2022-may-tz1-p1-q07.c",
+    "aa-sl-2022-may-tz1-p1-q07.d",
+    "aa-sl-2022-may-tz2-p1-q07.e",
+    "aa-sl-2023-may-tz1-p1-q07.d",
+    "aa-sl-2025-may-tz2-p2-q03.b"
+   ],
+   "stats": {
+    "parts": 5,
+    "paper": {
+     "p1": 4,
+     "p2": 1
+    },
+    "section": {
+     "A": 1,
+     "B": 4
+    },
+    "marks": {
+     "min": 2,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "5.7": 5
+    }
+   }
+  },
+  {
+   "id": "t5-antiderivative-condition",
+   "topic": 5,
+   "name": "Integrate, then find the constant from a point or initial value",
+   "syllabus": [
+    "5.5",
+    "5.10"
+   ],
+   "skills": [
+    "SL5.5.boundary-condition",
+    "SL5.10.find-function-from-derivative"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q01.b",
+    "aa-sl-2021-nov-tz0-p1-q02",
+    "aa-sl-2022-may-tz2-p2-q02",
+    "aa-sl-2022-nov-tz0-p1-q05",
+    "aa-sl-2024-may-tz2-p1-q08.c",
+    "aa-sl-2024-nov-tz1-p2-q03.b",
+    "aa-sl-2024-nov-tz2-p2-q03.b",
+    "aa-sl-2025-may-tz1-p2-q04",
+    "aa-sl-2025-may-tz2-p1-q02"
+   ],
+   "stats": {
+    "parts": 9,
+    "paper": {
+     "p1": 4,
+     "p2": 5
+    },
+    "section": {
+     "A": 8,
+     "B": 1
+    },
+    "marks": {
+     "min": 3,
+     "median": 4,
+     "max": 6
+    },
+    "mainTags": {
+     "5.5": 4,
+     "5.10": 5
+    }
+   }
+  },
+  {
+   "id": "t5-definite-integral-area",
+   "topic": 5,
+   "name": "Definite integrals and areas, including regions below the axis and unknown limits",
+   "syllabus": [
+    "5.11",
+    "5.10"
+   ],
+   "skills": [
+    "SL5.11.evaluate-definite",
+    "SL5.11.area-with-negative-regions",
+    "SL5.11.unknown-limit-or-parameter",
+    "SL5.11.composite-region-area",
+    "SL5.5.total-change-from-rate"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz2-p1-q08.b",
+    "aa-sl-2022-may-tz1-p1-q02.b",
+    "aa-sl-2022-may-tz1-p1-q09.b",
+    "aa-sl-2022-may-tz2-p1-q08.b",
+    "aa-sl-2022-nov-tz0-p2-q03.c",
+    "aa-sl-2023-may-tz1-p2-q09.c",
+    "aa-sl-2023-may-tz2-p1-q05",
+    "aa-sl-2024-nov-tz1-p1-q07.d",
+    "aa-sl-2025-may-tz2-p1-q09.d"
+   ],
+   "stats": {
+    "parts": 9,
+    "paper": {
+     "p1": 7,
+     "p2": 2
+    },
+    "section": {
+     "A": 3,
+     "B": 6
+    },
+    "marks": {
+     "min": 3,
+     "median": 5,
+     "max": 10
+    },
+    "mainTags": {
+     "5.11": 5,
+     "5.10": 3,
+     "5.5": 1
+    }
+   }
+  },
+  {
+   "id": "t5-indefinite-integral",
+   "topic": 5,
+   "name": "Integrate standard functions and linear composites",
+   "syllabus": [
+    "5.5",
+    "5.10"
+   ],
+   "skills": [
+    "SL5.5.antidiff-power",
+    "SL5.10.standard-integrals",
+    "SL5.10.linear-composites",
+    "SL5.10.inspection-substitution",
+    "SL5.10.rewrite-before-integrating"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q01.a",
+    "aa-sl-2023-nov-tz1-p1-q09.b",
+    "aa-sl-2023-nov-tz2-p1-q09.b",
+    "aa-sl-2024-nov-tz1-p2-q03.a",
+    "aa-sl-2024-nov-tz2-p2-q03.a",
+    "aa-sl-2025-may-tz1-p2-q01.b",
+    "aa-sl-2025-may-tz3-p1-q04.b"
+   ],
+   "stats": {
+    "parts": 7,
+    "paper": {
+     "p1": 3,
+     "p2": 4
+    },
+    "section": {
+     "A": 5,
+     "B": 2
+    },
+    "marks": {
+     "min": 3,
+     "median": 3,
+     "max": 4
+    },
+    "mainTags": {
+     "5.5": 1,
+     "5.10": 6
+    }
+   }
+  },
+  {
+   "id": "t5-area-between-curves",
+   "topic": 5,
+   "name": "Area between two curves",
+   "syllabus": [
+    "5.11"
+   ],
+   "skills": [
+    "SL5.11.area-between-curves"
+   ],
+   "detail": "catalogue",
+   "parts": [
+    "aa-sl-2021-may-tz1-p2-q09.d",
+    "aa-sl-2021-nov-tz0-p1-q09.d",
+    "aa-sl-2022-may-tz1-p2-q08.c",
+    "aa-sl-2023-may-tz2-p2-q07.c",
+    "aa-sl-2023-nov-tz1-p1-q09.c",
+    "aa-sl-2023-nov-tz2-p1-q09.c",
+    "aa-sl-2024-may-tz1-p1-q05.b",
+    "aa-sl-2024-may-tz2-p2-q02.b",
+    "aa-sl-2024-nov-tz1-p1-q07.c",
+    "aa-sl-2024-nov-tz2-p1-q07.c",
+    "aa-sl-2024-nov-tz2-p1-q07.d",
+    "aa-sl-2025-may-tz1-p1-q04",
+    "aa-sl-2025-may-tz3-p2-q07.f"
+   ],
+   "stats": {
+    "parts": 13,
+    "paper": {
+     "p1": 8,
+     "p2": 5
+    },
+    "section": {
+     "A": 3,
+     "B": 10
+    },
+    "marks": {
+     "min": 2,
+     "median": 4,
+     "max": 6
+    },
+    "mainTags": {
+     "5.11": 13
+    }
+   }
+  }
+ ],
+ "unclassified": [],
+ "coverage": [
+  {
+   "statement": "1.1",
+   "title": "Scientific notation",
+   "partsTagged": 3,
+   "partsMain": 3,
+   "types": [
+    "t1-standard-form"
+   ],
+   "skillsWithoutType": [
+    "SL1.1.add-subtract",
+    "SL1.1.powers-roots"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "1.2",
+   "title": "Arithmetic sequences and series",
+   "partsTagged": 32,
+   "partsMain": 29,
+   "types": [
+    "t1-sequence-proof",
+    "t1-arithmetic-in-context",
+    "t1-arithmetic-sequence"
+   ],
+   "skillsWithoutType": [
+    "SL1.2.sigma"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "1.3",
+   "title": "Geometric sequences and series",
+   "partsTagged": 26,
+   "partsMain": 17,
+   "types": [
+    "t1-sequence-proof",
+    "t1-geometric-in-context",
+    "t1-geometric-sequence"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "1.4",
+   "title": "Financial applications of geometric sequences and series",
+   "partsTagged": 22,
+   "partsMain": 21,
+   "types": [
+    "t1-depreciation",
+    "t1-compound-interest"
+   ],
+   "skillsWithoutType": [
+    "SL1.4.real-value"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "1.5",
+   "title": "Laws of exponents with integer exponents and introduction to logarithms",
+   "partsTagged": 16,
+   "partsMain": 5,
+   "types": [
+    "fn-exp-log-inverse-composite",
+    "fn-solve-quadratic",
+    "fn-log-of-quadratic",
+    "t1-log-exp-form",
+    "t1-log-laws"
+   ],
+   "skillsWithoutType": [
+    "SL1.5.integer-exponent-laws",
+    "SL1.5.zero-negative",
+    "SL1.5.evaluate-tech"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "1.6",
+   "title": "Simple deductive proof",
+   "partsTagged": 14,
+   "partsMain": 8,
+   "types": [
+    "t1-sequence-proof",
+    "t1-algebraic-proof",
+    "t3-prove-identity"
+   ],
+   "skillsWithoutType": [
+    "SL1.6.identity-constants",
+    "SL1.6.numerical-show-that"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "1.7",
+   "title": "Laws of exponents and logarithms",
+   "partsTagged": 31,
+   "partsMain": 21,
+   "types": [
+    "fn-exp-log-inverse-composite",
+    "fn-discriminant",
+    "fn-exponential-model",
+    "fn-transform-describe",
+    "t1-rational-exponents",
+    "t1-solve-exponential",
+    "t1-log-laws"
+   ],
+   "skillsWithoutType": [
+    "SL1.7.common-base",
+    "SL1.7.log-equations",
+    "SL1.7.hidden-quadratic"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "1.8",
+   "title": "Sum of infinite geometric sequences",
+   "partsTagged": 7,
+   "partsMain": 5,
+   "types": [
+    "t1-sum-to-infinity"
+   ],
+   "skillsWithoutType": [
+    "SL1.8.sn-vs-sinf"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "1.9",
+   "title": "Binomial theorem",
+   "partsTagged": 18,
+   "partsMain": 15,
+   "types": [
+    "t1-binomial-find-unknown",
+    "t1-binomial-term"
+   ],
+   "skillsWithoutType": [
+    "SL1.9.constant-term",
+    "SL1.9.product-expansion"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "2.1",
+   "title": "Equations of straight lines, parallel and perpendicular",
+   "partsTagged": 13,
+   "partsMain": 12,
+   "types": [
+    "fn-line-from-conditions"
+   ],
+   "skillsWithoutType": [
+    "SL2.1.intersection-lines",
+    "SL2.1.line-model"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "2.2",
+   "title": "Functions, notation, domain, range and inverse as reflection",
+   "partsTagged": 28,
+   "partsMain": 17,
+   "types": [
+    "fn-graph-table-composite-inverse",
+    "fn-inverse-reflection",
+    "fn-evaluate-function",
+    "fn-domain-range",
+    "fn-inverse-algebraic",
+    "fn-quadratic-from-conditions",
+    "fn-rational-asymptotes-intercepts",
+    "fn-transform-apply"
+   ],
+   "skillsWithoutType": [
+    "SL2.2.is-function"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "2.3",
+   "title": "Graphs of functions",
+   "partsTagged": 25,
+   "partsMain": 13,
+   "types": [
+    "fn-graph-table-composite-inverse",
+    "fn-sketch-gdc",
+    "fn-sketch-from-features",
+    "fn-gdc-optimise-combined",
+    "fn-rational-sketch",
+    "fn-transform-apply",
+    "t3-trig-sketch"
+   ],
+   "skillsWithoutType": [
+    "SL2.3.match-graph"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "2.4",
+   "title": "Key features of graphs",
+   "partsTagged": 44,
+   "partsMain": 17,
+   "types": [
+    "fn-evaluate-function",
+    "fn-sketch-gdc",
+    "fn-sketch-from-features",
+    "fn-gdc-features",
+    "fn-gdc-intersection",
+    "fn-gdc-optimise-combined",
+    "fn-quadratic-features",
+    "fn-log-of-quadratic",
+    "fn-rational-asymptotes-intercepts",
+    "fn-rational-sketch",
+    "fn-log-function-features",
+    "t5-normal-meets-curve"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": [
+    "fn-gdc-optimise-combined"
+   ]
+  },
+  {
+   "statement": "2.5",
+   "title": "Composite functions, identity and finding inverse",
+   "partsTagged": 29,
+   "partsMain": 26,
+   "types": [
+    "fn-graph-table-composite-inverse",
+    "fn-domain-range",
+    "fn-composite",
+    "fn-inverse-algebraic",
+    "fn-exp-log-inverse-composite"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "2.6",
+   "title": "Quadratic function",
+   "partsTagged": 24,
+   "partsMain": 20,
+   "types": [
+    "fn-domain-range",
+    "fn-sketch-from-features",
+    "fn-quadratic-features",
+    "fn-quadratic-from-conditions",
+    "fn-log-of-quadratic"
+   ],
+   "skillsWithoutType": [
+    "SL2.6.model"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "2.7",
+   "title": "Solutions of quadratic equations and inequalities, discriminant and nature of roots",
+   "partsTagged": 42,
+   "partsMain": 24,
+   "types": [
+    "fn-solve-quadratic",
+    "fn-discriminant",
+    "fn-curve-intersection-quadratic",
+    "fn-quadratic-inequality",
+    "fn-log-of-quadratic",
+    "t3-trig-quadratic",
+    "t5-normal-meets-curve"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": [
+    "fn-log-of-quadratic"
+   ]
+  },
+  {
+   "statement": "2.8",
+   "title": "Reciprocal and simple rational functions, equations of asymptotes",
+   "partsTagged": 22,
+   "partsMain": 13,
+   "types": [
+    "fn-domain-range",
+    "fn-inverse-algebraic",
+    "fn-discriminant",
+    "fn-curve-intersection-quadratic",
+    "fn-rational-asymptotes-intercepts",
+    "fn-rational-sketch"
+   ],
+   "skillsWithoutType": [
+    "SL2.8.transformed-reciprocal",
+    "SL2.8.rational-model"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "2.9",
+   "title": "Exponential and logarithmic functions",
+   "partsTagged": 22,
+   "partsMain": 13,
+   "types": [
+    "fn-exp-log-inverse-composite",
+    "fn-discriminant",
+    "fn-log-of-quadratic",
+    "fn-exponential-model",
+    "fn-log-function-features"
+   ],
+   "skillsWithoutType": [
+    "SL2.9.exp-graph"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "2.10",
+   "title": "Solving equations graphically and analytically",
+   "partsTagged": 25,
+   "partsMain": 9,
+   "types": [
+    "fn-gdc-features",
+    "fn-gdc-intersection",
+    "fn-gdc-optimise-combined",
+    "fn-gdc-solve-equation",
+    "fn-curve-intersection-quadratic",
+    "fn-exponential-model",
+    "t3-trig-model-equation"
+   ],
+   "skillsWithoutType": [
+    "SL2.10.inequality-graphical"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "2.11",
+   "title": "Transformations of graphs",
+   "partsTagged": 13,
+   "partsMain": 7,
+   "types": [
+    "fn-domain-range",
+    "fn-inverse-algebraic",
+    "fn-exp-log-inverse-composite",
+    "fn-transform-describe",
+    "fn-transform-apply",
+    "t3-trig-sketch",
+    "t3-trig-model-parameters"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "3.1",
+   "title": "3D space, volume, angles, distance and midpoints",
+   "partsTagged": 29,
+   "partsMain": 23,
+   "types": [
+    "t3-3d-angle",
+    "t3-distance-midpoint",
+    "t3-solid-volume-area",
+    "t5-optimisation-modelling"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "3.2",
+   "title": "2D and 3D trigonometry, sine rule, cosine rule and area",
+   "partsTagged": 54,
+   "partsMain": 42,
+   "types": [
+    "t3-3d-angle",
+    "t3-ambiguous-case",
+    "t3-triangle-area",
+    "t3-right-angle-trig",
+    "t3-sine-cosine-rule",
+    "t3-composite-circular-region"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "3.3",
+   "title": "Applications of trigonometry",
+   "partsTagged": 18,
+   "partsMain": 7,
+   "types": [
+    "t3-right-angle-trig",
+    "t3-bearings-elevation"
+   ],
+   "skillsWithoutType": [
+    "SL3.3.two-observations"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "3.4",
+   "title": "Circle: radians, arcs and sectors",
+   "partsTagged": 34,
+   "partsMain": 32,
+   "types": [
+    "t3-circular-motion",
+    "t3-composite-circular-region",
+    "t3-arc-sector"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "3.5",
+   "title": "Unit circle definitions, exact trig ratios and ambiguous case of sine rule",
+   "partsTagged": 14,
+   "partsMain": 3,
+   "types": [
+    "t3-ambiguous-case",
+    "t3-exact-values"
+   ],
+   "skillsWithoutType": [
+    "SL3.5.exact-triangle"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "3.6",
+   "title": "Pythagorean identity and double angles",
+   "partsTagged": 18,
+   "partsMain": 8,
+   "types": [
+    "t3-prove-identity",
+    "t3-identity-values"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "3.7",
+   "title": "Circular functions: graphs, composites and transformations",
+   "partsTagged": 41,
+   "partsMain": 36,
+   "types": [
+    "fn-transform-describe",
+    "t3-trig-sketch",
+    "t3-trig-model-use",
+    "t3-trig-read-features",
+    "t3-trig-model-parameters"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "3.8",
+   "title": "Solving trigonometric equations",
+   "partsTagged": 23,
+   "partsMain": 16,
+   "types": [
+    "t3-trig-quadratic",
+    "t3-trig-model-equation",
+    "t3-trig-equation"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.1",
+   "title": "Concepts, reliability and sampling techniques",
+   "partsTagged": 8,
+   "partsMain": 8,
+   "types": [
+    "t4-sampling",
+    "t4-outlier-rule"
+   ],
+   "skillsWithoutType": [
+    "SL4.1.population-sample",
+    "SL4.1.data-type",
+    "SL4.1.stratified-numbers"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.2",
+   "title": "Histograms, cumulative frequency graphs and box plots",
+   "partsTagged": 16,
+   "partsMain": 13,
+   "types": [
+    "t4-outlier-rule",
+    "t4-cumulative-frequency",
+    "t4-box-plot"
+   ],
+   "skillsWithoutType": [
+    "SL4.2.frequency-histogram"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.3",
+   "title": "Mean, median, mode, grouped mean, standard deviation, quartiles and IQR",
+   "partsTagged": 35,
+   "partsMain": 24,
+   "types": [
+    "t4-outlier-rule",
+    "t4-box-plot",
+    "t4-constant-changes",
+    "t4-grouped-data",
+    "t4-summary-statistics"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.4",
+   "title": "Pearson's, scatter diagrams and equation of y on x",
+   "partsTagged": 30,
+   "partsMain": 26,
+   "types": [
+    "t4-regression-interpret",
+    "t4-regression-gdc"
+   ],
+   "skillsWithoutType": [
+    "SL4.4.describe-correlation"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.5",
+   "title": "Probability concepts and expected numbers",
+   "partsTagged": 19,
+   "partsMain": 8,
+   "types": [
+    "t4-expected-occurrences",
+    "t4-probability-basic"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.6",
+   "title": "Combined, mutually exclusive, conditional, independence and probability diagrams",
+   "partsTagged": 51,
+   "partsMain": 32,
+   "types": [
+    "t4-tree-diagram",
+    "t4-sample-space",
+    "t4-venn-addition-rule",
+    "t4-independence"
+   ],
+   "skillsWithoutType": [
+    "SL4.6.mutually-exclusive",
+    "SL4.6.conditional-diagram"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.7",
+   "title": "Discrete random variables",
+   "partsTagged": 35,
+   "partsMain": 29,
+   "types": [
+    "t4-expected-value",
+    "t4-discrete-distribution"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.8",
+   "title": "Binomial distribution",
+   "partsTagged": 23,
+   "partsMain": 18,
+   "types": [
+    "t4-binomial"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.9",
+   "title": "Normal distribution and calculations",
+   "partsTagged": 35,
+   "partsMain": 24,
+   "types": [
+    "t4-inverse-normal",
+    "t4-normal-properties",
+    "t4-normal-probability"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.10",
+   "title": "Regression line of x on y",
+   "partsTagged": 6,
+   "partsMain": 5,
+   "types": [
+    "t4-regression-x-on-y"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.11",
+   "title": "Formal conditional probability and independence",
+   "partsTagged": 30,
+   "partsMain": 24,
+   "types": [
+    "t4-independence",
+    "t4-conditional-probability"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "4.12",
+   "title": "Standardization of normal variables",
+   "partsTagged": 13,
+   "partsMain": 13,
+   "types": [
+    "t4-normal-unknown-parameter"
+   ],
+   "skillsWithoutType": [
+    "SL4.12.z-score",
+    "SL4.12.compare-z"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.1",
+   "title": "Introduction to calculus",
+   "partsTagged": 9,
+   "partsMain": 6,
+   "types": [
+    "t5-derivative-meaning",
+    "t5-derivative-model-gdc"
+   ],
+   "skillsWithoutType": [
+    "SL5.1.chord-to-tangent",
+    "SL5.1.gradient-from-graph"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.2",
+   "title": "Increasing and decreasing functions",
+   "partsTagged": 8,
+   "partsMain": 4,
+   "types": [
+    "t5-increasing-decreasing",
+    "t5-derivative-graph"
+   ],
+   "skillsWithoutType": [
+    "SL5.2.sign-at-point",
+    "SL5.2.show-always-increasing"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.3",
+   "title": "Differentiating polynomials, n in Z",
+   "partsTagged": 19,
+   "partsMain": 6,
+   "types": [
+    "t5-differentiate-polynomial"
+   ],
+   "skillsWithoutType": [
+    "SL5.3.unknown-coefficients"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.4",
+   "title": "Tangents and normals",
+   "partsTagged": 28,
+   "partsMain": 22,
+   "types": [
+    "fn-discriminant",
+    "fn-curve-intersection-quadratic",
+    "t5-normal-meets-curve",
+    "t5-tangent-condition",
+    "t5-tangent-normal-equation"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.5",
+   "title": "Integration introduction, areas between curve and x-axis",
+   "partsTagged": 19,
+   "partsMain": 6,
+   "types": [
+    "t5-kinematics-distance",
+    "t5-antiderivative-condition",
+    "t5-indefinite-integral"
+   ],
+   "skillsWithoutType": [
+    "SL5.5.definite-integral-gdc",
+    "SL5.5.area-expression",
+    "SL5.5.area-positive"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.6",
+   "title": "Differentiating polynomials n in Q, chain, product and quotient rules",
+   "partsTagged": 34,
+   "partsMain": 22,
+   "types": [
+    "t5-tangent-condition",
+    "t5-stationary-points",
+    "t5-derivative-model-gdc",
+    "t5-differentiation-rules"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.7",
+   "title": "The second derivative",
+   "partsTagged": 17,
+   "partsMain": 8,
+   "types": [
+    "t5-derivative-graph",
+    "t5-stationary-points",
+    "t5-concavity"
+   ],
+   "skillsWithoutType": [
+    "SL5.7.interpret-second-derivative"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.8",
+   "title": "Optimization, local extrema and points of inflexion",
+   "partsTagged": 38,
+   "partsMain": 27,
+   "types": [
+    "t5-derivative-graph",
+    "t5-stationary-points",
+    "t5-optimisation-modelling"
+   ],
+   "skillsWithoutType": [
+    "SL5.8.closed-interval-extremes",
+    "SL5.8.stationary-point-conditions"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.9",
+   "title": "Kinematics problems",
+   "partsTagged": 57,
+   "partsMain": 50,
+   "types": [
+    "t5-kinematics-distance",
+    "t5-kinematics-motion"
+   ],
+   "skillsWithoutType": [],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.10",
+   "title": "Indefinite integration, reverse chain and substitution",
+   "partsTagged": 22,
+   "partsMain": 14,
+   "types": [
+    "t5-antiderivative-condition",
+    "t5-definite-integral-area",
+    "t5-indefinite-integral"
+   ],
+   "skillsWithoutType": [
+    "SL5.10.hence-from-derivative"
+   ],
+   "typesWithoutSkill": []
+  },
+  {
+   "statement": "5.11",
+   "title": "Definite integrals, areas under curve onto x-axis and areas between curves",
+   "partsTagged": 35,
+   "partsMain": 18,
+   "types": [
+    "t5-kinematics-distance",
+    "t5-definite-integral-area",
+    "t5-area-between-curves"
+   ],
+   "skillsWithoutType": [
+    "SL5.11.integral-properties"
+   ],
+   "typesWithoutSkill": []
+  }
+ ]
+}
