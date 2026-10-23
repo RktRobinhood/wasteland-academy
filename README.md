@@ -19,6 +19,7 @@ IB Math AA SL gamified review tool. Post-apocalyptic roguelite. Static GitHub Pa
 ├── js/                 ← Game engine modules (js/platform.js is the only file that touches browser storage, links and files)
 ├── content/            ← Question packs (one file per topic)
 ├── vendor/             ← KaTeX and the two fonts, copied in (see vendor/LICENSES.md)
+├── game/               ← Godot 4.7.2 version, published at /next/ (see game/README.md)
 └── assets/             ← Art assets (avatars, enemies, UI, maps)
 ```
 
@@ -44,7 +45,7 @@ Players can export and import their save from the Stats screen.
 
 ## Tests
 
-The site has no build step: Pages serves the files as they are. `package.json` holds test tooling only.
+The HTML game has no build step: Pages publishes its files as they are. `package.json` holds test tooling only.
 
 ```
 npm ci
@@ -57,6 +58,15 @@ npm test
 - `tests/e2e/`: Playwright. A full island fight on a phone screen, a small-phone layout check, service-worker checks (a full fight with the network off, and updates), save export/import, and the install button and iOS tip.
 
 GitHub Actions runs `npm test` on every PR and on pushes to `main`.
+`tests/unit/service-worker.test.mjs` checks the service worker leaves `next/` and
+`classic/` alone.
+
+## Godot version (`game/`)
+
+The Godot 4.7.2 rebuild lives in `game/` and is published at `/next/`, beside this
+HTML game. See [`game/README.md`](game/README.md) for how to run, test, export,
+screenshot it and use the Godot MCP. In short: `./test.sh`, `./export.sh`, `./run.sh`.
+`.github/workflows/pages.yml` publishes the site and the export on every push to `main`.
 
 ## Status
 

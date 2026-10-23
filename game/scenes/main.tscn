@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://ch3j4brfai66g"]
+
+[ext_resource type="Texture2D" uid="uid://d3r4nnnvc40cf" path="res://assets/avatars/avatar-spark.png" id="1_sugp2"]
+[ext_resource type="FontFile" uid="uid://dpuu14kbha8pr" path="res://assets/fonts/bangers-latin.woff2" id="2_jyhfs"]
+[ext_resource type="FontFile" uid="uid://4lw71pgx0tol" path="res://assets/fonts/share-tech-mono-latin.woff2" id="3_tbgi4"]
+
+[node name="Main" type="Control" unique_id=1220707687]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Background" type="ColorRect" parent="." unique_id=590850024]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.121569, 0.160784, 0.215686, 1)
+
+[node name="Center" type="CenterContainer" parent="." unique_id=1656182898]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Column" type="VBoxContainer" parent="Center" unique_id=1872720260]
+layout_mode = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="Spark" type="TextureRect" parent="Center/Column" unique_id=823370503]
+custom_minimum_size = Vector2(420, 420)
+layout_mode = 2
+texture = ExtResource("1_sugp2")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Center/Column" unique_id=212746666]
+custom_minimum_size = Vector2(900, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.133333, 0.827451, 0.772549, 1)
+theme_override_colors/font_shadow_color = Color(1, 0.239216, 0.654902, 1)
+theme_override_colors/font_outline_color = Color(0.066667, 0.094118, 0.152941, 1)
+theme_override_constants/line_spacing = -24
+theme_override_constants/shadow_offset_x = 8
+theme_override_constants/shadow_offset_y = 8
+theme_override_constants/outline_size = 18
+theme_override_fonts/font = ExtResource("2_jyhfs")
+theme_override_font_sizes/font_size = 176
+text = "Wasteland Academy"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Tagline" type="Label" parent="Center/Column" unique_id=679297471]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.917647, 0.796078, 0.454902, 1)
+theme_override_fonts/font = ExtResource("3_tbgi4")
+theme_override_font_sizes/font_size = 48
+text = "Same math. Different world."
+horizontal_alignment = 1
+
+[node name="Status" type="Label" parent="Center/Column" unique_id=347286547]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.611765, 0.639216, 0.686275, 1)
+theme_override_fonts/font = ExtResource("3_tbgi4")
+theme_override_font_sizes/font_size = 34
+text = "Godot build: work in progress"
+horizontal_alignment = 1
