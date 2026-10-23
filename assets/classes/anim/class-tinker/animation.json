@@ -1,0 +1,15 @@
+{
+ "name": "class-tinker",
+ "method": "cpu-light",
+ "still": "class-tinker.png",
+ "fps": 10,
+ "frames": 16,
+ "loop": true,
+ "frame_width": 256,
+ "frame_height": 256,
+ "columns": 4,
+ "rows": 4,
+ "sprite_sheet": "sprite_sheet.png",
+ "frame_pattern": "frames/frame_%02d.png",
+ "duration_s": 1.6
+}

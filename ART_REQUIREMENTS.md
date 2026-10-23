@@ -205,6 +205,26 @@ Class plan: FAL-291. Made on FAL-307 in the lifeline style. The game draws every
 | `skill-overwatch-on.png`, `skill-overwatch-off.png` | Overwatch (Ranger): blocks the damage from one wrong answer | Scrap Teal | a scrap-metal shield with a reticle |
 | `skill-scan-on.png`, `skill-scan-off.png` | Scan (Tinker): shows the first step of the solution | Dust Yellow | a scan beam sweeping across a page |
 
+### Icon loops (FAL-323)
+Short "ready" loops for the 3 class badges, the 3 skill **on** icons and the 3 lifeline **on** icons. The **off** states stay still. The still PNG is unchanged, and it is the fallback for the calm-motion setting.
+
+- Folders: `assets/classes/anim/<name>/` and `assets/ui/anim/<name>/`, where `<name>` is the still's file name (for example `class-scout`, `lifeline-hint-on`). Each folder has `frames/frame_NN.png`, `sprite_sheet.png` (4 columns, 256-colour PNG with alpha, under 300 KB), `animation.json` (`fps`, `frames`, `loop`, frame size, columns, duration) and `preview.gif` (on the HUD colour #1F2937).
+- 16 frames each, seamless: 10 fps (1.6 s) or 8 fps (2.0 s) for Ranger, Overwatch and Freeze.
+- Method: light only, made on the CPU from the shipped pixels. Every frame keeps the still's alpha (the silhouette is identical), and only the glow inside the icon moves. sprite-animator (H3 image-to-video) was tried on Scout, Second Look and Hint. It rendered the icon at a quarter to half of its size, drifted from the shipped shape, and can't key the 50-50's magenta.
+- Calm at 48 px: nothing flashes (the Hint bulb's flicker is the biggest change, 0.6 swings a second).
+
+| Loop | Motion |
+|---|---|
+| `class-scout` | a neon pulse runs forward through the chevrons |
+| `class-ranger` | the cyan ring breathes |
+| `class-tinker` | the blue eye swells and a glint runs along the struts (the wrench doesn't rock: that would redraw its shape) |
+| `skill-second-look-on` | light runs once round the arrow ring, and the iris glows |
+| `skill-overwatch-on` | the reticle pulses |
+| `skill-scan-on` | a scan line of light sweeps down the page, and the beam lights up as it passes |
+| `lifeline-fifty-on` | the magenta X marks dip and glow twice |
+| `lifeline-freeze-on` | a light "second hand" ticks round the clock face (8 ticks); the weakest at 48 px |
+| `lifeline-hint-on` | the bulb flickers on, holds, and fades |
+
 ---
 
 ## PWA APP ICON
