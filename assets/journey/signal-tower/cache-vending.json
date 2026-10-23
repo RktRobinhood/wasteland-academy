@@ -1,0 +1,31 @@
+{
+ "name": "cache-vending",
+ "image": "cache-vending.webp",
+ "facing": "none",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 233,
+ "frames": [
+  {
+   "id": "closed",
+   "ox": -58,
+   "oy": -232,
+   "x": 0,
+   "y": 0,
+   "w": 117,
+   "h": 233
+  },
+  {
+   "id": "open",
+   "ox": -74,
+   "oy": -232,
+   "x": 119,
+   "y": 0,
+   "w": 147,
+   "h": 233
+  }
+ ],
+ "anims": {}
+}

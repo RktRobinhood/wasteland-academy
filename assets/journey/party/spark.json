@@ -1,0 +1,78 @@
+{
+ "name": "spark",
+ "image": "spark.webp",
+ "facing": "right",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 225,
+ "frames": [
+  {
+   "id": "idle",
+   "ox": -57,
+   "oy": -224,
+   "x": 0,
+   "y": 0,
+   "w": 128,
+   "h": 225
+  },
+  {
+   "id": "zap",
+   "ox": -65,
+   "oy": -211,
+   "x": 130,
+   "y": 0,
+   "w": 202,
+   "h": 211
+  },
+  {
+   "id": "hurt",
+   "ox": -87,
+   "oy": -184,
+   "x": 334,
+   "y": 0,
+   "w": 189,
+   "h": 185
+  },
+  {
+   "id": "happy",
+   "ox": -58,
+   "oy": -211,
+   "x": 525,
+   "y": 0,
+   "w": 157,
+   "h": 212
+  }
+ ],
+ "anims": {
+  "idle": {
+   "frames": [
+    0
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "attack": {
+   "frames": [
+    1
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "hurt": {
+   "frames": [
+    2
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "victory": {
+   "frames": [
+    3
+   ],
+   "fps": 1,
+   "loop": false
+  }
+ }
+}
