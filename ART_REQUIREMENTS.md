@@ -54,6 +54,17 @@ assets/
     ├── island-engine-core.png        ← Island thumbnail 200×150
     ├── thunderdome.png               ← Thunderdome thumbnail 200×150
     └── arena-bg.png                  ← Thunderdome arena background 1080×600
+
+assets/classes/                            ← Godot game only (the HTML game doesn't use these)
+├── class-scout.png                   ← Scout class badge 256×256
+├── class-ranger.png                  ← Ranger class badge 256×256
+├── class-tinker.png                  ← Tinker class badge 256×256
+├── skill-second-look-on.png          ← Second Look ready 128×128
+├── skill-second-look-off.png         ← Second Look recharging 128×128
+├── skill-overwatch-on.png            ← Overwatch ready 128×128
+├── skill-overwatch-off.png           ← Overwatch recharging 128×128
+├── skill-scan-on.png                 ← Scan ready 128×128
+└── skill-scan-off.png                ← Scan recharging 128×128
 ```
 
 The engine gracefully degrades if any asset is missing — placeholder CSS fills in until the real art arrives. Priority order for generation: **icons first** (needed for PWA install), then **enemies + avatars** (seen every run), then **map assets**, then **UI chrome**.
@@ -167,6 +178,32 @@ The engine gracefully degrades if any asset is missing — placeholder CSS fills
 - Visual concept: SPARK's glowing eye / a lightbulb made from scrap with a neon filament
 - Active colour: Dust Yellow #EACB74
 - Label underneath: "HINT"
+
+---
+
+## CLASS BADGES AND ACTION SKILL ICONS (Godot game)
+
+Class plan: FAL-291. Made on FAL-307 in the lifeline style. The game draws every name, so no image has text.
+
+### Spec
+- Format: PNG with transparent background
+- Class badges: 256×256px. Shown large on the class-pick screen and at 48px in the HUD
+- Skill icons: 128×128px, two states each like the lifelines: **on** (full colour, glowing) and **off** (greyscale, dimmed, shown while the skill recharges)
+- The three classes differ in silhouette, not only colour, so colour-blind students can tell them apart
+
+### Class badges
+| File | Class | Colour | Shape |
+|---|---|---|---|
+| `class-scout.png` | Scout (streaks and pace) | Rust Orange #FAA261 | stacked speed chevrons, an arrowhead |
+| `class-ranger.png` | Ranger (precise typed answers) | Scrap Teal #22D3C5 | a round scrap scope reticle |
+| `class-tinker.png` | Tinker (learning from mistakes) | Dust Yellow #EACB74 | a wrench crossed with a circuit trace, SPARK's blue eye at the centre |
+
+### Action skill icons
+| Files | Skill | Colour | Shape |
+|---|---|---|---|
+| `skill-second-look-on.png`, `skill-second-look-off.png` | Second Look (Scout): one retry after a wrong answer | Rust Orange | an eye inside a circular back-arrow |
+| `skill-overwatch-on.png`, `skill-overwatch-off.png` | Overwatch (Ranger): blocks the damage from one wrong answer | Scrap Teal | a scrap-metal shield with a reticle |
+| `skill-scan-on.png`, `skill-scan-off.png` | Scan (Tinker): shows the first step of the solution | Dust Yellow | a scan beam sweeping across a page |
 
 ---
 
