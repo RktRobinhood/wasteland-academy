@@ -8,10 +8,10 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 106 exam and 6 extension (1 skill, 4 prior-learning, 1 concept, 0 link).
-- **Skills with a type:** 239 of 286.
-- **Functions:** 37 unknowns the exam asks and 61 it doesn't; 76 angles, 32 of them with a weak spot for method-pick questions; 26 concept probes; 39 of 186 misconceptions used as wrong options or error-spots.
-- **Coverage cells** (one unknown in one representation by one method): 292 in Functions, of which 126 are reachable with "Exam-style only" on.
+- **Types:** 106 exam and 75 extension (45 skill, 11 prior-learning, 8 concept, 11 link).
+- **Skills with a type:** 286 of 286.
+- **Functions:** 141 unknowns the exam asks and 434 it doesn't; 589 angles, 203 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
+- **Coverage cells** (one unknown in one representation by one method): 2144 in Functions, of which 531 are reachable with "Exam-style only" on.
 
 ## Levels
 
@@ -26,15 +26,22 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 | Region | Exam types | Extension types | Unknowns (exam + new) | Representations (new) | Angles (weak) | Concepts | Cells (exam-only) |
 |---|---|---|---|---|---|---|---|
-| Quadratics | 6 | 6 | 37 + 61 | 35 (23) | 76 (32) | 26 | 292 (126) |
+| Quadratics | 6 | 8 | 37 + 76 | 42 (30) | 103 (36) | 32 | 359 (126) |
+| Exponentials and logs | 4 | 4 | 26 + 59 | 28 (22) | 97 (31) | 20 | 355 (122) |
+| Graphs and key features | 6 | 6 | 25 + 71 | 40 (30) | 118 (47) | 32 | 340 (78) |
+| Composite and inverse | 3 | 3 | 18 + 48 | 17 (13) | 66 (20) | 16 | 248 (66) |
+| Rational functions | 2 | 4 | 9 + 40 | 21 (18) | 43 (15) | 15 | 144 (30) |
+| Function basics | 3 | 3 | 10 + 43 | 21 (15) | 40 (17) | 15 | 188 (36) |
+| Lines | 1 | 6 | 10 + 50 | 23 (21) | 57 (18) | 15 | 253 (45) |
+| Transformations | 2 | 3 | 6 + 47 | 17 (13) | 65 (19) | 15 | 257 (28) |
 
 ### 1. Quadratics (syllabus 2.6, 2.7)
 
-6 exam types, 6 extension types; 37 exam unknowns and 61 new ones; 292 coverage cells (126 with "Exam-style only" on).
+6 exam types, 8 extension types; 37 exam unknowns and 76 new ones; 359 coverage cells (126 with "Exam-style only" on).
 
 #### Read and convert quadratic forms (`fn-quadratic-features`, exam, 11 bank parts)
 
-- **Situation:** One parabola in all its forms, shared with `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-concept-quadratic-forms`.
+- **Situation:** One parabola in all its forms, shared with `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-log-of-quadratic`, `fn-concept-quadratic-forms`.
 - **Representations:** **equation**, **graph**, table, words (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given factorised form → the x-intercepts
@@ -73,7 +80,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Find a quadratic from its roots, vertex or points (`fn-quadratic-from-conditions`, exam, 7 bank parts)
 
-- **Situation:** One parabola in all its forms, shared with `fn-quadratic-features`, `fn-solve-quadratic`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-concept-quadratic-forms`.
+- **Situation:** One parabola in all its forms, shared with `fn-quadratic-features`, `fn-solve-quadratic`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-log-of-quadratic`, `fn-concept-quadratic-forms`.
 - **Representations:** equation, **graph**, table, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given the vertex; a → the equation in vertex form
@@ -98,7 +105,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Solve a quadratic exactly, in context or in disguise (`fn-solve-quadratic`, exam, 4 bank parts)
 
-- **Situation:** A quadratic equation, in context or in disguise, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-concept-quadratic-forms`.
+- **Situation:** A quadratic equation, in context or in disguise, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-log-of-quadratic`, `fn-concept-quadratic-forms`.
 - **Representations:** **equation**, **words**, graph (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given a quadratic equation that factorises → both roots
@@ -125,7 +132,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Discriminant conditions on a parameter (`fn-discriminant`, exam, 13 bank parts)
 
-- **Situation:** A quadratic with a parameter in it, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-quadratic-inequality`, `fn-concept-quadratic-forms`.
+- **Situation:** A quadratic with a parameter in it, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-quadratic-inequality`, `fn-log-of-quadratic`, `fn-concept-quadratic-forms`.
 - **Representations:** **equation**, **words**, graph (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given a quadratic with numbers → the number of real roots, or a show-that it has none
@@ -175,7 +182,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Solve a quadratic inequality (`fn-quadratic-inequality`, exam, 2 bank parts)
 
-- **Situation:** A quadratic compared with a number, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-discriminant`, `fn-concept-quadratic-forms`.
+- **Situation:** A quadratic compared with a number, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-discriminant`, `fn-log-of-quadratic`, `fn-concept-quadratic-forms`.
 - **Representations:** **equation**, **words**, graph (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L2: given f(x) compared with 0 → the solution set
@@ -220,7 +227,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 *Gap:* The exam converts between forms but never asks why each form exists or which to reach for.
 
-- **Situation:** One parabola in all its forms, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-discriminant`, `fn-quadratic-inequality`.
+- **Situation:** One parabola in all its forms, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-log-of-quadratic`.
 - **Representations:** equation, graph, words (bold: the exam uses it)
 - **Unknowns:**
   - new L3: given a graph and several equations → the three equations that describe the same parabola
@@ -312,38 +319,1431 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): From −2x > 6 you get x > −3. — False: dividing by −2 reverses the sign, so x < −3. Test x = 0: −2(0) > 6 is false, and 0 > −3.
 - **Misconceptions used:** 3. Keeps the sign when dividing by a negative; Confuses open and closed circles, so < and ≤ swap; In a two-sided inequality, applies the step to the middle part only.
 
-### Functions types not yet catalogued
+#### Symmetry halves the work (`fn-link-symmetry`, link, level 3–4)
 
-`fn-line-from-conditions`, `fn-graph-table-composite-inverse`, `fn-inverse-reflection`, `fn-evaluate-function`, `fn-domain-range`, `fn-sketch-gdc`, `fn-sketch-from-features`, `fn-gdc-features`, `fn-gdc-intersection`, `fn-gdc-optimise-combined`, `fn-gdc-solve-equation`, `fn-composite`, `fn-inverse-algebraic`, `fn-exp-log-inverse-composite`, `fn-log-of-quadratic`, `fn-rational-asymptotes-intercepts`, `fn-rational-sketch`, `fn-exponential-model`, `fn-log-function-features`, `fn-transform-describe`, `fn-transform-apply`
+*Gap:* The exam uses each symmetry inside its own topic; no question asks a student to see that the axis of a parabola, the normal mean and nCr = nC(n − r) are the same idea.
+
+- **Situation:** A mirror and a pair of matching points.
+- **Representations:** equation, graph, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given the fact "the vertex is halfway between the roots" and several facts from other topics → which of them use the same mirror idea
+  - new L3: given the axis x = h; a point (h − d, y) → the matching point on the other side *(axis x = 2 and (−1, 5) give (5, 5))*
+  - new L3: given two inputs with the same output: x-values, normal bounds with equal tails, or r-values with equal nCr → the line of symmetry (axis, mean, or n) *(reversed: 12C3 = 12Cr with r ≠ 3 gives r = 9)*
+  - new L3: given X ~ N(μ, σ²); P(X > μ + a) = p → P(μ − a < X < μ + a) *(N(120, σ²) with P(X > 135) = 0.15 gives 0.7)*
+  - new L3: given X ~ N(μ, σ²); P(X < μ − a) = p → P(X > μ + a) and P(X < μ + a)
+  - new L4: given X ~ N(μ, σ²); a central probability q → the interval symmetric about μ, from two equal tails of (1 − q)/2 *(N(120, 10²), q = 0.9: 120 ± 16.45, so 103.55 < x < 136.45)*
+  - new L3: given sin θ or cos θ for a first-quadrant angle → the other angle in [0, 2π] with the same value, and the angles with the opposite sign *(sin(π/3) = sin(2π/3) = √3/2; sin(4π/3) = sin(5π/3) = −√3/2)*
+  - new L3: given nCr → the other r with the same value, and why *(9C2 = 9C7 = 36)*
+- **Angles:** Midpoint of the x-intercepts; Reflect a known point in the line of symmetry; Average the x-values of two points at the same height; Reflect on the unit circle; Symmetry of the graph; Mirror the tail; Total area 1, each half 0.5; Sketch and shade; Split what is left into two equal tails; GDC centre-tail inverse normal; Use nCr = nC(n − r); Use nCr = n!/(r!(n − r)!).
+  - *Slow:* Use nCr = n!/(r!(n − r)!): working out both values to compare when the mirror gives the answer at once.
+- **Concept probes:**
+  - *always-sometimes-never* (L4): If f(m − d) = f(m + d) for one value of d, the graph of f is symmetric about x = m. — Sometimes. For a parabola any two equal outputs sit either side of the axis. But f(x) = x³ − x has f(−1) = f(1) = 0 and is not symmetric about x = 0: f(−2) = −6 while f(2) = 6.
+  - *true-false-reason* (L3): X ~ N(120, σ²) and P(X > 135) = 0.15, so P(105 < X < 135) = 0.3. — False. 105 and 135 are both 15 from the mean, so each tail is 0.15. 0.3 is the two tails together; the middle is 1 − 0.3 = 0.7.
+  - *predict-check* (L3): Predict the other value of r with 9Cr = 9C2, then check. — r = 7. Choosing 2 items to take is the same as choosing 7 to leave behind, so 9C2 = 9C7 = 36.
+- **Misconceptions used:** 12. Writes the axis as y = h, or just the number h, instead of x = h; Thinks the line of symmetry passes through the y-intercept; Reflects a point the wrong distance or to the wrong side; Assumes every curve with a turning point is symmetric (e.g. a cubic); Correct size but wrong sign for the quadrant, e.g. cos(2π/3) = 1/2; Measuring the reference angle from the y-axis, e.g. using π/3 for 5π/6; P(7 < X < 13) = 0.2 + 0.2 (adding the tails instead of subtracting them from 1); Forgetting that P(X < μ) = 0.5; Applying symmetry about 0 instead of about μ; Using invNorm(0.9) for the upper endpoint instead of invNorm(0.95); Giving the endpoint μ + k when k is asked for; Using n!/r! and forgetting the (n − r)! factor.
+
+#### Same object, different forms (`fn-link-equivalent-forms`, link, level 3–4)
+
+*Gap:* The exam asks students to rewrite in many places but never asks them to choose between equivalent forms across topics or to judge whether two forms are equivalent.
+
+- **Situation:** One object written several ways.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given one quadratic in its three forms → the feature each form shows at a glance (y-intercept, roots, vertex) *(3x² − 6x − 24: y-intercept −24; 3(x − 4)(x + 2): roots 4, −2; 3(x − 1)² − 27: vertex (1, −27))*
+  - new L3: given x² + bx + c ≡ (x + p)² + q → p and q, and why ≡ lets you compare coefficients
+  - new L3: given two expressions, such as ln 12 − ln 3 and ln 4, or ln 12/ln 3 and ln 4 → whether they are the same object, checked with a value and with algebra
+  - new L3: given a claimed log law → true or false, and the law that is actually true
+  - new L4: given an equation with cos 2x and sin x, such as cos 2x + 3 sin x − 2 = 0 → the form of cos 2x that gives a quadratic in one function, then the solutions in [0, 2π] *(1 − 2sin²x gives 2sin²x − 3 sin x + 1 = 0, so sin x = 1/2 or 1: x = π/6, π/2, 5π/6)*
+  - new L3: given a function with terms like 3/x² or 1/(4x³) → the function as a sum of axⁿ, then its derivative
+  - new L4: given vertex form with −k/a a square → the factorised form and the roots *(reversed)*
+- **Angles:** Complete the square; Expand a(x − h)² + k and compare coefficients; Find the vertex, then write the form; Factorise ax² + bx + c; Find the roots, then write the factors; Expand and compare coefficients; Substitute convenient values of x; Combine into a single logarithm; Check numerically on the GDC; Identity, substitute u, factorise; Graph the whole equation; Pick the cos 2θ form that fits; Use a^−n = 1/a^n; Write each term as axⁿ; Quotient rule.
+  - *Fails:* Substitute convenient values of x: one value that agrees cannot prove two forms are equal; it can only show they differ.
+  - *Fails:* Graph the whole equation: gives 0.524, 1.571 and 2.618, not the exact π/6, π/2, 5π/6.
+  - *Slow:* Quotient rule: a quotient rule for 3/x² when 3x⁻² differentiates in one line.
+- **Concept probes:**
+  - *true-false-reason* (L3): ln 12 − ln 3, ln 4 and 2 ln 2 are three forms of one number. — True. ln 12 − ln 3 = ln(12/3) = ln 4, and ln 4 = ln 2² = 2 ln 2. Each form is useful somewhere: the last shows it is a multiple of ln 2.
+  - *always-sometimes-never* (L3): An equation that is true for x = 1 and for x = 2 is an identity. — Sometimes. x² = 3x − 2 is true at x = 1 and x = 2 but not at x = 0 (0 ≠ −2), so it is only an equation. An identity must hold for every x.
+  - *predict-check* (L4): Predict which form of cos 2x turns cos 2x + 3 sin x − 2 = 0 into a quadratic in one function, then solve for 0 ≤ x ≤ 2π. — 1 − 2sin²x, because the rest of the equation is in sin x. Then 2sin²x − 3 sin x + 1 = 0, so (2 sin x − 1)(sin x − 1) = 0 and x = π/6, π/2 or 5π/6.
+- **Misconceptions used:** 15. Forgets to subtract the square of half the coefficient, writing x² − 8x + 11 = (x − 4)² + 11; When a ≠ 1, does not multiply the correction term by a; Gets the sign of h wrong, writing (x + 4)² for x² − 8x + …; From (x + 1)(x − 4) gives the intercepts 1 and −4; Thinks the y-intercept is pq rather than apq; Calling an equation that is true for one value of x an identity; Comparing coefficients in an equation (not an identity) to 'solve' it; Splitting the log of a sum: log(a + b) = log a + log b; Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b); Confusing (log x)² with 2 log x = log x²; Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions; cos 2θ = 2 cos θ, or cos 2θ = 1 − sin²θ; Moving only the variable: writing 1/(4x^3) as 4x^−3 instead of (1/4)x^−3; Differentiating the denominator: d/dx(1/x²) = 1/(2x); Getting the new power wrong: x⁻² → −2x⁻¹ instead of −2x⁻³.
+
+### 2. Exponentials and logs (syllabus 2.9)
+
+4 exam types, 4 extension types; 26 exam unknowns and 59 new ones; 355 coverage cells (122 with "Exam-style only" on).
+
+#### Exponential and log functions as inverses and composites (`fn-exp-log-inverse-composite`, exam, 12 bank parts)
+
+- **Situation:** An exponential function and its log inverse, shared with `fn-log-function-features`, `fn-ext-exp-graph`.
+- **Representations:** **equation**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a log function and inputs that give whole powers → the values
+  - new L2: given a log function and an input where the inside is 0 or negative → that the value does not exist, and why
+  - **exam** L2: given an exponential function → its inverse, written as a log
+  - **exam** L2: given a log function log_b(x − h) + c → its inverse, written as a power
+  - **exam** L2: given f; a value a → f⁻¹(a), exact
+  - **exam** L2: given an exponential in base 4 or 8; a value that is a power of 2 → the inverse at that value, as a fraction
+  - **exam** L3: given an exponential and a log in related bases → f(g(x)) simplified
+  - **exam** L3: given a composite such as f(ln x) compared with a number → the values of x, by turning the log into a power
+  - **exam** L3: given two exponentials such as 3^(x + 2) and 9ˣ → the transformations that map one graph onto the other
+  - new L1: given a power statement bʸ = x → the same statement as a log
+  - new L2: given b^(mx) + c = d → x, exact
+  - new L2: given log_b(x − h) + c = d → x, exact
+  - new L3: given two functions f and g → f(g(x)) and g(f(x)), and whether they are equal
+  - new L2: given the graph of the exponential → the graph of the inverse, with its asymptote and intercept
+  - new L3: given log_b(x²) or ln((x − h)²) on a domain x > h → the inverse, choosing the right sign
+  - new L2: given f⁻¹ as a log, such as log₂(x − 1) + 3 → f itself *(reversed)*
+- **Angles:** Swap x and y, then make y the subject; Undo the operations in reverse order; Check the reflection on the GDC; Use log_a x = y ⇔ a^y = x; Take ln of both sides; Write x = log_a b and evaluate as ln b / ln a; Intersect y = e^(2x) with y = 7; Ask 'what power of the base gives this number?'; Rewrite as an exponential equation; Use log_a(a^x) = x and a^(log_a x) = x; Replace every x in f with g(x); Check with a test value; Write both numbers as powers of a common base; Apply log_a b = log_c b / log_c a; Use the GDC log-base template; Rewrite g in terms of f and read each change; Compare where key points and asymptotes moved; Apply inverse operations to both sides.
+  - *Slow:* Undo the operations in reverse order: squaring is not one step to undo: the ± has to be settled by the domain.
+  - *Fails:* Check the reflection on the GDC: a graph checks the inverse but cannot write its rule.
+  - *Fails:* Intersect y = e^(2x) with y = 7: Paper 1 wants the exact value, not a decimal.
+  - *Fails:* Check with a test value: one test value checks a point, not the whole set of solutions.
+  - *Slow:* Apply log_a b = log_c b / log_c a: ln 8/ln 4 still has to be simplified; writing both as powers of 2 gives 3/2 at once.
+  - *Fails:* Use the GDC log-base template: gives 1.5 but cannot show why on a no-calculator paper.
+- **Concept probes:**
+  - *true-false-reason* (L3): log₂ x and log₄ x have the same graph. — False. log₄ x = (log₂ x)/2, so it is log₂ x squashed to half the height. They share only the point (1, 0) and the asymptote x = 0.
+  - *always-sometimes-never* (L4): If f(x) = eˣ and g(x) = ln x, then f(g(x)) = g(f(x)). — Sometimes. Both simplify to x, but f(g(x)) only exists for x > 0, while g(f(x)) = x for every x. They agree only for x > 0.
+  - *predict-check* (L3): Predict whether log₄ 8 is more or less than 2. Then find it exactly. — Less than 2, because 4² = 16 is already bigger than 8. With 4 = 2² and 8 = 2³, 4^(3/2) = 2³ = 8, so log₄ 8 = 3/2.
+- **Misconceptions used:** 19. Writes f⁻¹(x) = 1/f(x); Undoes the operations in the original order, e.g. for 2x + 1 gives x/2 − 1; For a quadratic on a restricted domain keeps the ± instead of choosing the sign that matches the domain; Solves e^(2x) = 7 as x = 2 ln 7 or x = ln 7 − 2 instead of x = (ln 7)/2; Converts log₂ x = 5 to x = 5² instead of 2⁵; Writes x = 7/(2e), treating e as a coefficient to divide by; Dividing instead of finding the power: log_2 32 = 16; Mixing up base and exponent: reading log_a b = x as x^a = b; Believing log 0 or the log of a negative number has a real value; Computes g(f(x)) when f(g(x)) is asked for; Replaces only one of the x's in f with g(x); Assumes f ∘ g = g ∘ f; Inverting the formula: log_5 8 = log 5/log 8; Simplifying log 8/log 5 to log(8/5) or log 8 − log 5; Thinking log_9 x = (1/9) log_3 x instead of (1/2) log_3 x; Applies ln term by term, writing ln(a + b) = ln a + ln b; Describes f(x + 2) as a translation 2 to the right, or gives the vector (2, 0); Says 'moved' or 'shifted' without direction and size, or 'enlarged' instead of 'stretched'; Gives a stretch without saying parallel to which axis.
+
+#### Log of a quadratic: domain, asymptotes, zeros and maximum (`fn-log-of-quadratic`, exam, 4 bank parts)
+
+- **Situation:** The log of a downward quadratic, shared with `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-solve-quadratic`, `fn-discriminant`, `fn-quadratic-inequality`, `fn-concept-quadratic-forms`.
+- **Representations:** **equation**, **graph**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the quadratic inside the log → its roots
+  - **exam** L2: given the quadratic inside the log → where g(x) > 0: the domain of f
+  - **exam** L1: given f, or its domain → the equations of the vertical asymptotes
+  - **exam** L3: given f → the exact zeros, from g(x) = 1
+  - **exam** L2: given f; the base → the maximum value of f and where it happens
+  - **exam** L2: given the quadratic; the maximum value of f → the base k *(reversed: the maximum is given and the base is asked)*
+  - new L3: given f; the base → the range of f
+  - new L2: given f or its graph → the line of symmetry of the graph of f
+  - new L2: given f with p < 0 < q → where the graph meets the y-axis
+  - new L3: given f → where f(x) > 0 and where f(x) < 0
+  - new L4: given the two asymptotes; the maximum value; the base → the quadratic inside the log *(reversed)*
+- **Angles:** Factorise and use the zero-product rule; Quadratic formula; Complete the square and square-root; Find the roots and sketch the parabola; Sign table of the factors; Test a point in each interval; Graph on the GDC and read the interval; Find where the function is undefined; Move the parent's asymptote; Check with a GDC table; Use (1, 0), (a, 1) and the asymptote x = 0; Graph on the GDC and copy; Midpoint of the roots, then substitute; x = −b/(2a), then substitute for y; Complete the square; Read (h, k) as the translation of y = ax²; Set f′(x) = 0; Average the x-values of two points at the same height; Read the line of symmetry from the equation; Rewrite as an exponential equation; Ask 'what power of the base gives this number?'; Use the vertex or asymptote; Apply the three restrictions.
+  - *Fails:* Factorise and use the zero-product rule: g(x) − 1 = 0 has surd roots, so it does not factorise.
+  - *Fails:* Graph on the GDC and read the interval: Paper 1: the zeros are surds, and decimals are not accepted.
+  - *Fails:* Move the parent's asymptote: the inside is not linear, so the graph is not a moved ln x: there are two asymptotes, at the roots of g.
+  - *Slow:* Check with a GDC table: a table only hints at where f stops; solving g(x) = 0 is exact and quicker.
+  - *Fails:* Graph on the GDC and copy: the base is the unknown, so there is nothing to graph yet.
+  - *Slow:* Complete the square: the roots are already known, so their midpoint gives h in one line.
+- **Concept probes:**
+  - *true-false-reason* (L4): The maximum of log_k(g(x)) is at the same x as the maximum of g(x), when k > 1. — True. For k > 1, log_k is increasing, so the biggest input gives the biggest output. The maximum of f is log_k of the vertex height, at the same x.
+  - *predict-check* (L3): Predict how many zeros f(x) = log₂(−x² + 6x − 5) has. Then find them. — Two. The inside has vertex height 4, which is above 1, so g(x) = 1 happens twice. −x² + 6x − 5 = 1 gives x² − 6x + 6 = 0, so x = 3 ± √3.
+  - *interpret-parameter* (L4): In f(x) = log_k(g(x)), the base k is changed (k > 1). What changes on the graph and what stays fixed? — The domain, the asymptotes and the zeros stay fixed, because log_k 1 = 0 for every base. Only the heights change: the maximum log_k G gets smaller as k grows.
+- **Misconceptions used:** 16. Solves x² > 9 as x > ±3, or as x > 3 only; Writes x < −2 or x > 3 as the single interval −2 < x < 3; Divides by a negative leading coefficient without reversing the inequality; Writes an asymptote as a number (2) instead of an equation (y = 2); Swaps vertical and horizontal, writing x = 2 for a horizontal asymptote; Gives ln(x − 4) the vertical asymptote x = −4; Draws the log graph with a horizontal asymptote; From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4); Finds the x-coordinate of the vertex but not the y-coordinate; Calls the vertex a minimum when a < 0; Dividing instead of finding the power: log_2 32 = 16; Mixing up base and exponent: reading log_a b = x as x^a = b; Believing log 0 or the log of a negative number has a real value; Forgets the ± when square-rooting, so x² = 9 gives only x = 3; Thinks the line of symmetry passes through the y-intercept; Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x).
+
+#### Exponential growth, decay and limited-growth models (`fn-exponential-model`, exam, 14 bank parts)
+
+- **Situation:** An exponential model in context, shared with `fn-concept-growth-patterns`.
+- **Representations:** **equation**, **words**, table, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the model → the value at t = 0
+  - **exam** L1: given the full model and a time → the value at that time
+  - **exam** L1: given a model P₀·aᵗ → what a means, as a percentage change per unit time
+  - **exam** L1: given the limited model C + A·e^(−kt) → the value it settles towards
+  - **exam** L3: given the form A·e^(kt); the half-life or doubling time → the exact value of k (often a show-that)
+  - **exam** L3: given the model with k unknown; one later value → k, exact or to 3 s.f.
+  - **exam** L4: given the start value; one later value → k, then a prediction at a later time
+  - **exam** L3: given the full model; a level → the time when the model reaches the level
+  - **exam** L4: given the full model; a level → the first whole number of time units when the model is past the level
+  - **exam** L3: given a base-10 log model; an output reading → the input, by turning the log back into a power
+  - new L1: given a start value and a percentage change per unit time, in words → the model P₀·aᵗ
+  - new L2: given a table with a constant ratio → the start value and growth factor
+  - new L3: given a graph with the start value, the asymptote and one more point → C, A and k of the limited model
+  - new L2: given k or a; one later value → the start value *(reversed: divide by the growth, do not multiply)*
+  - new L3: given a decay model A·e^(−kt) with k given → the half-life *(reversed)*
+  - new L1: given a graph of the model; a level → the time it reaches the level, read from the graph
+  - new L2: given a growth factor per year → the percentage change over several years
+  - new L4: given two exponential models with different starts and rates → when they are equal
+- **Angles:** Substitute into P = P₀a^t or P = Ae^(kt); Use logs to find an unknown exponent or rate; Graph the model and the target value; Multiply by the growth factor step by step; Read the vertical shift from the asymptote; Substitute points and solve; Exponential regression for data; Isolate the exponential, then convert to log form; Take ln of both sides and bring the exponents down; Use the numerical solver; Scan a GDC table for the first value that works; Rearrange and solve analytically.
+  - *Fails:* Graph the model and the target value: a show-that needs the exact ln 2/T, and a graph only gives a decimal.
+  - *Slow:* Multiply by the growth factor step by step: fine for a few steps, but tedious when the answer is 20 or more units; it also fails for e^(kt) at non-whole times.
+  - *Fails:* Exponential regression for data: regression estimates from noisy data; with one exact point it gives a decimal, not the exact log asked for.
+  - *Slow:* Take ln of both sides and bring the exponents down: taking logs of A·e^(kt) before dividing by A adds a ln A term to carry.
+  - *Fails:* Use the numerical solver: gives a decimal k, not the exact form.
+- **Concept probes:**
+  - *true-false-reason* (L3): A price that rises 10% a year for two years has risen 20% in total. — False. Each year multiplies by 1.1, so two years multiply by 1.1² = 1.21: a 21% rise. The second 10% is taken of a bigger amount.
+  - *always-sometimes-never* (L3): A cup of tea cooling as T = 20 + 60e^(−0.1t) eventually drops below 20 °C. — Never. 60e^(−0.1t) is always positive, so T is always above 20; 20 °C is the long-run value the model only approaches.
+  - *interpret-parameter* (L3): In V = 800(0.85)ᵗ, what do 800 and 0.85 mean? — V is 800 at t = 0. Each unit of time V is multiplied by 0.85, so it keeps 85% and loses 15% of its value.
+- **Misconceptions used:** 13. Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth); Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the initial value as P(1) instead of P(0), so the exponent is off by one; Reads the y-intercept of a·b^x + c as a instead of a + c; Uses the asymptote value as the y-intercept; Takes ln of a sum term by term, e.g. ln(a·b^x + c) = ln a + x ln b + ln c; Losing brackets: writing ln 3^(x + 1) as x + 1 ln 3; Taking logs before isolating: ln(5e^(2x)) = 5 × 2x; Rounding ln 3 and ln 5 early so the 3 s.f. answer is wrong; Rounds the wrong way for the context (e.g. 4.2 years becomes 4 when 5 complete years are needed); Keeps a solution outside the model's domain, such as a negative time; Answers 'how much' when the question asks 'when'; Mixing up base and exponent: reading log_a b = x as x^a = b.
+
+#### Log function features: asymptote, domain and sign (`fn-log-function-features`, exam, 3 bank parts)
+
+- **Situation:** A transformed log function, shared with `fn-exp-log-inverse-composite`, `fn-ext-exp-graph`.
+- **Representations:** **equation**, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the function → the equation of the vertical asymptote
+  - **exam** L3: given ln x divided by a positive power of x, or a similar product → where the expression is positive, negative or zero
+  - new L1: given the function → its largest possible domain
+  - new L1: given the graph → the domain
+  - new L1: given the graph → the equation of the asymptote
+  - new L2: given the function → where the graph crosses the x-axis
+  - new L2: given the function → which sketch it is
+  - new L2: given the graph of bˣ → the graph of log_b x, with its key points and asymptote
+  - new L1: given y = log_b(x − n) + c with n unknown; the asymptote → n *(reversed)*
+  - new L3: given log_b(mx + n) compared with 0 or with a constant → the values of x, within the domain
+- **Angles:** Use (1, 0), (a, 1) and the asymptote x = 0; Reflect y = a^x in y = x; Translate ln x by its vector; Graph on the GDC and copy; Find where the function is undefined; Move the parent's asymptote; Check with a GDC table; Apply the three restrictions; Read the horizontal extent of the graph; Read the vertical shift from the asymptote.
+  - *Fails:* Translate ln x by its vector: with a stretch inside, as in ln(2x − 6), the bracket does not show the shift: factor to 2(x − 3) first.
+  - *Slow:* Graph on the GDC and copy: the GDC draws the steep drop poorly, so the asymptote is hard to place.
+  - *Slow:* Check with a GDC table: scanning a table for where values stop is slower than solving mx + n = 0.
+- **Concept probes:**
+  - *true-false-reason* (L3): y = ln(2x) has the same vertical asymptote as y = ln x. — True. 2x = 0 only when x = 0. In fact ln(2x) = ln 2 + ln x, so it is ln x moved up by ln 2, and moving up does not move a vertical asymptote.
+  - *always-sometimes-never* (L3): For x < 1, ln x is negative. — Sometimes. It is negative for 0 < x < 1, but for x ≤ 0 ln x does not exist at all.
+  - *predict-check* (L3): Predict the vertical asymptote of y = 3 ln(2x − 6) + 1. Then check. — x = 3: the 3 in front and the +1 stretch and lift the graph but do not change where the inside is zero. 2x − 6 = 0 gives x = 3.
+- **Misconceptions used:** 8. Draws the log graph with a horizontal asymptote; Gives the vertical asymptote of ln(x − 2) as x = −2; Thinks ln 0 = 0, so the graph starts at the origin; Writes an asymptote as a number (2) instead of an equation (y = 2); Swaps vertical and horizontal, writing x = 2 for a horizontal asymptote; Gives ln(x − 4) the vertical asymptote x = −4; Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift; Describes the y-values (range) when the domain is asked for.
+
+#### Sketch and describe exponential graphs (`fn-ext-exp-graph`, skill, level 1–3)
+
+*Gap:* SL2.9.exp-graph is in the syllabus, but no exam part since 2021 asks for it on its own; it only appears inside model or inverse questions.
+
+- **Situation:** An exponential function and its log inverse, shared with `fn-exp-log-inverse-composite`, `fn-log-function-features`.
+- **Representations:** equation, graph, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given A·b^(x − h) + c → the y-intercept
+  - new L1: given A·b^(x − h) + c → the horizontal asymptote
+  - new L2: given A·b^(x − h) + c → the range
+  - new L1: given the base, or b^(−x) → whether the graph rises or falls, and why
+  - new L2: given the equation → which sketch it is
+  - new L2: given A·b^(x − h) + c → the moves from bˣ, and where (0, 1) and y = 0 go
+  - new L3: given a graph with the asymptote, the y-intercept and one more point → c, A and b *(reversed)*
+  - new L2: given bˣ and (1/b)ˣ on the same axes → how the two graphs are related
+- **Angles:** Plot the intercept, asymptote and a couple of points; Move e^x or a^x by its transformations; Use the base to decide growth or decay; Graph on the GDC and copy the key features; Read the vertical shift from the asymptote; Use the vertex or asymptote.
+  - *Slow:* Move e^x or a^x by its transformations: moving (0, 1) does not give the y-intercept when h ≠ 0; substituting x = 0 is quicker.
+  - *Fails:* Graph on the GDC and copy the key features: the equation is the unknown, so there is nothing to type in.
+- **Concept probes:**
+  - *true-false-reason* (L3): y = 2^(−x) and y = (1/2)ˣ are the same graph. — True. 2^(−x) = 1/2ˣ = (1/2)ˣ. Both are 2ˣ reflected in the y-axis.
+  - *always-sometimes-never* (L3): The graph of y = A·bˣ + c crosses its asymptote y = c. — Never, when A ≠ 0. A·bˣ is never 0, so y never equals c; it only gets closer and closer.
+- **Misconceptions used:** 4. Puts the y-intercept of e^(x − 1) + 2 at (0, 3), ignoring the horizontal shift; Gives the asymptote of e^x + b as y = 0; Thinks (1/2)^x is the reflection of 2^x in the x-axis rather than the y-axis; Includes the asymptote value, e.g. gives the range of e^x + 2 as y ≥ 2 instead of y > 2.
+
+#### Adding the same or multiplying by the same (`fn-concept-growth-patterns`, concept, level 3–4)
+
+*Gap:* The exam gives the model; it never asks students to recognise which kind of growth a table or a description shows.
+
+- **Situation:** Linear and exponential growth side by side, shared with `fn-exponential-model`.
+- **Representations:** table, graph, words, equation (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a table at equal steps → linear, exponential or neither, with the reason
+  - new L3: given a description of a change → whether it is linear or exponential, and its model
+  - new L3: given a graph → whether it is linear or exponential, and why
+  - new L3: given the first few table values → the next values under each kind of growth
+  - new L3: given the two models → what d and a each mean per step
+  - new L4: given the two models → when the exponential passes the linear one for good
+- **Angles:** Use constant differences in a table; Read the rate and the starting value from the words; Multiply by the growth factor step by step; Graph the model and the target value; Use logs to find an unknown exponent or rate; Use the base to decide growth or decay.
+  - *Fails:* Graph the model and the target value: a graph of the data looks curved or straight but does not prove a constant ratio.
+  - *Fails:* Use logs to find an unknown exponent or rate: P₀·aⁿ = P₀ + dn mixes a power and a linear term, so logs cannot isolate n; use a table.
+- **Concept probes:**
+  - *true-false-reason* (L3): Starting at 100, a quantity that grows by 5 each step always stays ahead of one that grows by 5% each step. — False. After one step both are 105. After two steps the linear one is 110 but the exponential one is 100 × 1.05² = 110.25, and from then on it pulls further ahead.
+  - *always-sometimes-never* (L3): If the differences in a table are not constant, the pattern is exponential. — Sometimes. It could be exponential (check that the ratios are constant), but it could be quadratic (constant second differences) or neither.
+- **Misconceptions used:** 5. Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth); Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Interprets the gradient as a total amount rather than an amount per unit; Swaps the roles of the fixed charge and the rate; Uses the model far outside its sensible domain, e.g. negative time.
+
+#### Percentage change as a multiplier (`fn-pre-percent-multiplier`, prior-learning, level 0–0)
+
+*Gap:* Prior learning the IB assumes. Growth factors in exponential models, compound interest and depreciation all start here.
+
+- **Situation:** An amount changed by a percentage.
+- **Supports:** `exp-model`, `model`, `future-value`, `depreciation`, `find-rate-or-pv`
+- **Representations:** equation, words, table (bold: the exam uses it)
+- **Unknowns:**
+  - new L0: given a percentage increase → the multiplier
+  - new L0: given a percentage decrease → the multiplier
+  - new L0: given an amount; a percentage change → the new amount
+  - new L0: given a multiplier such as 0.92 or 1.035 → the percentage change it stands for *(reversed)*
+  - new L0: given the amount after a change; the percentage change → the original amount *(reversed)*
+  - new L0: given an amount; two or more changes in a row → the overall multiplier and the overall percentage change
+  - new L0: given an amount before; the amount after → the percentage change
+- **Angles:** Use one multiplier; Find the percentage, then add or subtract it; Divide by the multiplier to go back; Find 1% first.
+  - *Slow:* Find the percentage, then add or subtract it: each change needs two steps; with multipliers the whole chain is one product.
+  - *Fails:* Find 1% first: the "100%" changes after every step, so there is no single amount to scale from.
+- **Concept probes:**
+  - *true-false-reason* (L3): A 10% rise followed by a 10% fall brings you back to where you started. — False. The multipliers are 1.1 and 0.9, and 1.1 × 0.9 = 0.99, so you end 1% lower. The fall is taken from the bigger amount.
+- **Misconceptions used:** 4. Uses the percentage as the multiplier for a decrease: −15% gives × 0.15; Writes 5% growth as × 1.5; Reverses a change by taking the percentage of the new amount: after a 20% rise to 360, gives 360 − 72 = 288; Adds percentages for changes in a row: +10% then −10% is no change.
+
+#### Repeated multiplication (`fn-link-multiplicative-growth`, link, level 3–4)
+
+*Gap:* The exam asks sequences, finance and exponential models in separate topics; no question asks a student to match the notations or to explain why |r| < 1 matters in both.
+
+- **Situation:** One factor, applied again and again.
+- **Representations:** equation, graph, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a percentage rise or fall per period → the factor r, and whether the graph rises or falls
+  - new L3: given a start value; a growth rate → the term u_n and the function value A(t) that give the value after the same number of periods, and why the exponents differ by one
+  - new L4: given a start value; a decay factor; a threshold → the first whole period below the threshold *(400 × 0.8ⁿ: 104.86 at n = 6, 83.89 at n = 7, so n = 7)*
+  - new L4: given the value at two times → the factor per period and the percentage rate *(reversed: 500 rising to 720 in 2 years gives r² = 1.44, r = 1.2, 20%)*
+  - new L3: given P₀; r → which graph fits: y-intercept, rising or falling, and the asymptote
+  - new L3: given a geometric series with ratio r → whether it has a sum to infinity, tied to whether rⁿ dies away
+  - new L3: given a price; a yearly loss rate; a number of years → the value after that many years, as a sequence term and as a function value
+  - new L4: given P = P₀e^(kt) → the factor per unit of time and the equivalent percentage rate *(k = 0.1: e^0.1 ≈ 1.105, about 10.5% per unit)*
+  - new L4: given an annual rate; the number of compounding periods a year → the factor per period and the factor per year *(6% monthly: 1.005 a month, 1.005¹² ≈ 1.0617 a year)*
+- **Angles:** Convert the percentage change to a multiplier r; Build a year-by-year table; Tabulate competing models side by side; Graph both models and find where they cross; Use logs to find an unknown exponent or rate; Graph the model and the target value; Substitute into P = P₀a^t or P = Ae^(kt); Multiply by the growth factor step by step; Substitute into u_n = u_1 r^(n − 1); Rewrite as u_n = (u_1/r) × r^n; Use FV = PV(1 + r/(100k))^(kn); Use the GDC TVM finance solver; Use V = V_0(1 − r/100)^n; Calculate year by year; Use the base to decide growth or decay; Plot the intercept, asymptote and a couple of points; Find r and check |r| < 1; Watch the partial sums on the GDC.
+  - *Slow:* Build a year-by-year table: seven rows by hand when one log step gives n.
+  - *Slow:* Graph the model and the target value: the crossing at n ≈ 6.21 still has to be rounded up to a whole period; a table gives the period directly.
+  - *Fails:* Use the GDC TVM finance solver: the solver gives the final value but never shows the factor per period.
+  - *Slow:* Calculate year by year: one multiplication per year instead of one power.
+  - *Fails:* Watch the partial sums on the GDC: with r = 1.01 the partial sums grow slowly and can look as if they settle; a table never proves convergence.
+- **Concept probes:**
+  - *true-false-reason* (L3): A geometric series with ratio 0.9 has a sum to infinity, but one with ratio 1.1 does not. — True. Multiplying by 0.9 again and again drives the terms to 0, like exponential decay, so the sum settles at u₁/(1 − 0.9) = 10u₁. Multiplying by 1.1 makes the terms grow, so the sum grows without limit.
+  - *interpret-parameter* (L3): In A(t) = 2000 × 0.85^t, what do 2000 and 0.85 mean, and what is the yearly percentage change? — 2000 is the value at t = 0. 0.85 is the factor each year: the value keeps 85%, so it falls by 15% a year.
+  - *predict-check* (L3): Predict which is worth more after 10 years: 1000 growing by 5% a year, or 1000 growing by 50 a year. Then check. — The 5% one. 1000 × 1.05¹⁰ ≈ 1628.89, while 1000 + 10 × 50 = 1500. Both add 50 in year one, but the percentage is taken of a growing amount.
+- **Misconceptions used:** 13. Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth); Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the initial value as P(1) instead of P(0), so the exponent is off by one; Thinks (1/2)^x is the reflection of 2^x in the x-axis rather than the y-axis; Using r^n instead of r^(n − 1); Using 1.3 for a 30% decrease, or subtracting 30% of the original each year (linear thinking); Off-by-one: the value 'after 10 years' needs 10 multiplications, not u_10 = u_1 r^9 with u_1 as the starting value; Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Using 1.15 or 0.15 as the multiplier instead of 0.85; Treating depreciation as linear: subtracting 15% of the original price each year; Thinking r < 1 is enough, so a series with r = −2 'converges'; Including the endpoints: thinking r = 1 or r = −1 gives a sum to infinity.
+
+### 3. Graphs and key features (syllabus 2.3, 2.4, 2.10)
+
+6 exam types, 6 extension types; 25 exam unknowns and 71 new ones; 340 coverage cells (78 with "Exam-style only" on).
+
+#### Sketch a graph from the GDC on a given domain (`fn-sketch-gdc`, exam, 7 bank parts)
+
+- **Situation:** One awkward curve on a closed domain, shared with `fn-gdc-features`.
+- **Representations:** **equation**, graph, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L4: given the equation and the domain → the sketch with zeros, turning points and endpoints labelled (pick the graph from four)
+  - **exam** L2: given the equation and the domain → the coordinates of both endpoints, to 3 s.f. *(a labelled feature on the exam sketch)*
+  - **exam** L2: given the equation and the domain → the x-intercepts to label, to 3 s.f. *(a labelled feature on the exam sketch)*
+  - **exam** L1: given the equation → the y-intercept to label
+  - **exam** L2: given the equation and the domain → the coordinates of the maximum or minimum to label, to 3 s.f. *(a labelled feature on the exam sketch)*
+  - new L4: given the equation and the domain → the greatest (or least) value of f on the domain, which may be at an endpoint
+  - new L4: given an equation with a log or rational term, and the domain → the sketch, with the asymptote respected (pick the graph) *(asymptote mode)*
+  - new L2: given the equation and the domain → a GDC window that shows every feature without squashing it
+  - new L4: given the equation and the domain; a sketch with labels → which label or part of the sketch is wrong *(error-spot)*
+  - new L2: given a GDC table of f across the domain → which sketch fits, and between which rows each zero lies
+  - new L2: given the sketch; a value k → how many solutions f(x) = k has on the domain *(the exam chain uses the sketch this way in a later part)*
+  - new L4: given the sketch with its turning values and endpoints → the values of k for which f(x) = k has exactly two solutions
+- **Angles:** Graph on the GDC and copy the key features; Find key features by hand, then join; Transform a known parent graph; Plot from a table of values; GDC zero/root function; Solve f(x) = 0 and evaluate f(0); Read zeros from factorised form; Read crossings from a given graph; GDC maximum/minimum; Solve f′(x) = 0; Read the turning point from the equation's form; Read from the graph; Evaluate at endpoints and turning points; Find where the function is undefined; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries; Graph and count on the GDC.
+  - *Fails:* Find key features by hand, then join: a mixed equation such as eˣ = 3x + 2 has no algebraic solution, so the zeros cannot be found by hand.
+  - *Fails:* Transform a known parent graph: an exponential plus a line, or a product with e^(−x), is not a shifted or stretched parent graph.
+  - *Slow:* Plot from a table of values: gives the shape, but each zero and turning point still needs refining to 3 s.f..
+  - *Fails:* Solve f(x) = 0 and evaluate f(0): f(x) = 0 mixes families (e.g. e^(x/2) − x − 2 = 0), so it cannot be rearranged; f(0) still works for the y-intercept.
+  - *Fails:* Read zeros from factorised form: only works in factorised-product mode; in the default mode there are no factors to read.
+  - *Fails:* Read crossings from a given graph: reading a sketch gives about 1 s.f., not the 3 s.f. the label needs.
+  - *Slow:* Solve f′(x) = 0: needs Topic 5, and for a bell curve or a product with e^(−x) the equation f′(x) = 0 still needs the GDC.
+  - *Fails:* Read the turning point from the equation's form: only works for a transformed parent such as a(x − h)² + k; these functions do not have that form.
+  - *Slow:* Evaluate at endpoints and turning points: you still need the turning value from the GDC; the GDC maximum on the whole domain window gives both at once.
+  - *Fails:* Graph and count on the GDC: trying values of k one at a time cannot find the exact boundary values.
+- **Concept probes:**
+  - *true-false-reason* (L3): On −2 ≤ x ≤ 3, the greatest value of f(x) = x³ − 3x is at its local maximum. — False. The local maximum is (−1, 2), but the endpoint gives f(3) = 27 − 9 = 18. On a closed domain, check the endpoints as well as the turning points.
+  - *predict-check* (L4): Before graphing f(x) = ln(x + 1) − x/2 on 0 ≤ x ≤ 6, predict how many zeros it has. Then check with the GDC. — Two. f(0) = 0. Near 0 the log climbs faster than x/2 (slope 1 against 1/2), but in the end x/2 wins: f(6) = ln 7 − 3 ≈ −1.05. So the curve rises, turns at (1, 0.193) and comes back down through a second zero at x ≈ 2.51.
+  - *always-sometimes-never* (L4): If a graph crosses the x-axis twice, it has a turning point between the two zeros. — Sometimes. If the curve is unbroken between the zeros, it must turn to come back to the axis. Across a vertical asymptote it need not: y = x − 1/x has zeros −1 and 1, a break at x = 0, and no turning point at all.
+- **Misconceptions used:** 11. Draws the curve crossing or bending away from a vertical asymptote; Ignores the given domain, drawing past the endpoints or omitting endpoint coordinates; Copies a distorted GDC window so turning points appear in the wrong place relative to the axes; Confuses the zeros (x where f(x) = 0) with the y-intercept f(0); From f(x) = (x + 2)(x − 5) gives zeros −5 and 2 (wrong signs); Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa; On a restricted domain, misses an endpoint that is higher than the local maximum; Gives GDC answers to fewer than 3 significant figures; Counts two solutions when y = k only touches the graph at a turning point (one solution); Counts intersections outside the given domain; Counts an asymptote value as giving a solution.
+
+#### Sketch from features found in earlier parts (`fn-sketch-from-features`, exam, 4 bank parts)
+
+- **Situation:** A graph from features already found.
+- **Representations:** **equation**, **words**, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the quadratic; its intercepts and vertex → the sketch showing them (pick the graph)
+  - **exam** L3: given the equation; its features; a closed domain such as 0 ≤ t ≤ 6 → the sketch with the endpoints shown (pick the graph)
+  - **exam** L3: given a zero, a maximum and the long-run level → the sketch showing them (pick the graph)
+  - **exam** L3: given a sine or cosine graph; its intercepts, minimum and endpoints → the sketch showing them (pick the graph)
+  - new L1: given a few facts in words: a point, a zero, increasing or decreasing → a graph that fits them all
+  - new L2: given a context in words, such as a cooling drink → the graph that fits the story
+  - new L1: given a sketch of a parabola with points labelled → the vertex, intercepts and which way it opens *(reversed)*
+  - new L3: given the equation; a sketch → what is wrong with the sketch *(error-spot)*
+- **Angles:** Plot the intercepts, vertex and axis, then join; Transform y = x²; Graph on the GDC and transfer; Midpoint of the roots, then substitute; Plot the given facts first; Reason from the context; Pick a function family with the right features.
+  - *Slow:* Transform y = x²: the equation is given factorised, so the vertex form has to be built first.
+  - *Fails:* Graph on the GDC and transfer: these are Paper 1 parts: no calculator.
+  - *Slow:* Pick a function family with the right features: the family is already known; plotting the given points is quicker.
+- **Concept probes:**
+  - *predict-check* (L3): v(t) = (t − 1)(t − 5) for 0 ≤ t ≤ 6. Predict the values at both ends and the lowest point before sketching. — Both ends give 5: v(0) = (−1)(−5) = 5 and v(6) = (5)(1) = 5. They match because 0 and 6 are the same distance from the axis t = 3. The lowest point is the vertex (3, −4).
+  - *true-false-reason* (L3): y = 2 + 3e^(−x) for x ≥ 0 has a minimum value of 2. — False. The curve falls towards y = 2 for ever but never reaches it, so there is no minimum value; the range is 2 < y ≤ 5. The level 2 is an asymptote, not a turning point.
+  - *always-sometimes-never* (L3): A parabola's vertex is the same point as its y-intercept. — Sometimes: only when the axis of symmetry is x = 0, as for y = x² − 4. For y = (x − 1)(x − 5) the vertex is (3, −4) but the y-intercept is (0, 5).
+- **Misconceptions used:** 6. Draws the parabola opening upwards when a < 0; Draws a pointed V-shaped vertex instead of a smooth curve; Puts the vertex at the y-intercept; Draws a curve that fails the vertical line test; Lets a quantity that cannot be negative (time, population, temperature above room level) go below its limit; Shows a long-run level as a turning point instead of an asymptote.
+
+#### Zeros and turning points with the GDC (`fn-gdc-features`, exam, 5 bank parts)
+
+- **Situation:** One awkward curve on a closed domain, shared with `fn-sketch-gdc`.
+- **Representations:** **equation**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the equation and the domain → every zero, to 3 s.f.
+  - **exam** L2: given an equation f(x) = 0 or f(x) = k with no algebraic route → its solutions, to 3 s.f.
+  - **exam** L2: given the equation and the domain → the coordinates of the local maximum or minimum, to 3 s.f.
+  - new L2: given the equation and the domain → the maximum (or minimum) value of f, a y-value only
+  - new L4: given the equation and a domain with a high endpoint → the greatest value of f on the domain *(endpoint-extreme mode)*
+  - new L1: given the equation → the y-intercept
+  - new L2: given f(x) = x·g(x), such as x³ − 5x → all the zeros, including x = 0 *(x-factor mode)*
+  - new L2: given the equation and the domain → how many zeros f has on the domain
+  - new L2: given a table of f at a fixed step → the interval holding a zero, then the zero to 3 s.f.
+  - new L4: given two zeros found earlier → the distance between them, or the interval where f > 0 *(the exam chain feeds the values into later parts)*
+  - new L4: given f with one unknown constant c added, such as x·e^(−x/2) + c; the maximum value → c *(reversed)*
+- **Angles:** GDC zero/root function; Solve f(x) = 0 and evaluate f(0); Read zeros from factorised form; Read crossings from a given graph; GDC maximum/minimum; Solve f′(x) = 0; Read the turning point from the equation's form; Read from the graph; Rearrange to h(x) = 0 and find the zeros; Graph each side and use intersect; Find a sign change in a table, then refine.
+  - *Fails:* Solve f(x) = 0 and evaluate f(0): the function mixes families, so f(x) = 0 cannot be rearranged to x = ….
+  - *Slow:* Read zeros from factorised form: x(x² − 5) gives 0 at sight, but ±√5 still has to be turned into ±2.24.
+  - *Fails:* Read crossings from a given graph: a graph gives about one decimal place, not 3 s.f..
+  - *Slow:* Solve f′(x) = 0: Topic 5 calculus for a 2-mark GDC answer; for a bell curve plus a line, f′(x) = 0 is no easier than the original.
+  - *Fails:* Read the turning point from the equation's form: a mixed function has no vertex form to read from.
+  - *Fails:* Read from the graph: only an estimate; the answer needs 3 s.f..
+  - *Slow:* Graph each side and use intersect: when the right side is already 0 there is no second graph to draw; the zero tool is one step.
+  - *Slow:* Find a sign change in a table, then refine: several rounds of shrinking the step to reach 3 s.f.; the zero tool does it at once.
+- **Concept probes:**
+  - *predict-check* (L4): Before using the GDC on f(x) = x·e^(−x/2) for 0 ≤ x ≤ 8, predict the rough shape and where the maximum is. Then find it. — It starts at 0, rises, then sinks back towards 0 as the exponential wins (f(8) ≈ 0.147). The maximum is (2, 0.736): f′(x) = e^(−x/2)(1 − x/2) is zero at x = 2, and f(2) = 2/e.
+  - *always-sometimes-never* (L3): The y-intercept of a graph is also one of its zeros. — Sometimes: only when f(0) = 0, so the graph passes through the origin, as y = x³ − 5x does. Usually they are different points: zeros are on the x-axis, the y-intercept on the y-axis.
+  - *true-false-reason* (L3): The GDC gives a minimum at x = 1.4972. Writing x = 1.5 is correct to 3 significant figures. — False. To 3 s.f. it is 1.50: the digits are 1, 4, 9 and the next digit, 7, rounds the 9 up. 1.5 shows only 2 significant figures.
+- **Misconceptions used:** 7. Confuses the zeros (x where f(x) = 0) with the y-intercept f(0); Divides by x when solving x³ = 4x and loses the zero x = 0; Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa; On a restricted domain, misses an endpoint that is higher than the local maximum; Gives GDC answers to fewer than 3 significant figures; Misses a solution outside the default GDC window; Rounds intermediate values or gives answers to fewer than 3 s.f..
+
+#### Intersection of two curves with the GDC (`fn-gdc-intersection`, exam, 7 bank parts)
+
+- **Situation:** Two curves that meet, shared with `fn-gdc-optimise-combined`, `fn-ext-inequality-graphical`, `fn-concept-solutions-as-intersections`.
+- **Representations:** **equation**, **words**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the two equations → the coordinates of every meeting point, to 3 s.f.
+  - **exam** L2: given the two equations → the solutions of f(x) = g(x)
+  - **exam** L4: given two models in words → the time (or value) when they are equal, inside the context interval
+  - **exam** L2: given f; f⁻¹ or its graph → the meeting points of f and f⁻¹
+  - **exam** L4: given the two equations → the distance between two meeting points *(uses the stored coordinates)*
+  - new L2: given the two equations → how many times the graphs meet
+  - new L2: given the two equations; an interval → the meeting point inside the interval
+  - new L2: given a table of f and g → the interval holding each crossing, then its x to 3 s.f.
+  - new L4: given f; g with one unknown constant; one meeting x-value → the constant, then the other meeting point *(reversed)*
+- **Angles:** GDC intersect; Set f(x) = g(x) and solve; Zeros of f(x) − g(x); Sketch both graphs to count and locate crossings; Graph each side and use intersect; Rearrange to h(x) = 0 and find the zeros; Find a sign change in a table, then refine; Reflect the graph in y = x; Graph the model and the target, and intersect.
+  - *Fails:* Set f(x) = g(x) and solve: an exponential equal to a quadratic, or a curve equal to a line, has no algebraic solution here.
+  - *Fails:* Sketch both graphs to count and locate crossings: shows how many and roughly where, not 3 s.f..
+  - *Slow:* Rearrange to h(x) = 0 and find the zeros: gives the x-values only; each y must then be worked out from f.
+  - *Slow:* Find a sign change in a table, then refine: many rounds of refining the step to reach 3 s.f..
+  - *Fails:* Reflect the graph in y = x: for a decreasing f the graphs can also meet off y = x, so intersecting f with y = x alone misses points.
+- **Concept probes:**
+  - *true-false-reason* (L4): The graphs of f and f⁻¹ can only meet on the line y = x. — False. f(x) = −x³ has inverse f⁻¹(x) = −∛x, and both pass through (1, −1) and (−1, 1) as well as (0, 0). For an increasing f, though, every meeting point is on y = x.
+  - *interpret-parameter* (L4): y = eˣ and y = 4 − x meet at x ≈ 1.0737. A student rounds x to 1.07 and works out y = e^1.07. Why is y wrong to 3 s.f., and how do you avoid it? — The curves are steep there, so a small error in x moves y: e^1.07 ≈ 2.92, but the true y is 4 − 1.0737… ≈ 2.93. Keep the unrounded x stored (or read y straight from the intersect tool) and round only at the end.
+  - *predict-check* (L4): Predict how many times y = 2ˣ and y = x² meet. Then check with the GDC. — Three. They meet at x = 2 and at x = 4 (2⁴ = 16 = 4²), and once for a negative x, near −0.767, where x² is growing to the left and 2ˣ is shrinking. A window with y only up to 10 hides the crossing at (4, 16).
+- **Misconceptions used:** 6. Gives only the x-coordinate when coordinates are asked for; Finds one intersection and misses others hidden outside the GDC window; Rounds x early and substitutes, giving an inaccurate y-coordinate; Misses a solution outside the default GDC window; Rounds intermediate values or gives answers to fewer than 3 s.f.; Takes ln of both sides of e^x = x + 3 and writes x = ln x + ln 3.
+
+#### Build a new function from given ones and optimise it with the GDC (`fn-gdc-optimise-combined`, exam, 4 bank parts)
+
+- **Situation:** A new function built from two given ones, shared with `fn-gdc-intersection`, `fn-ext-inequality-graphical`, `fn-concept-solutions-as-intersections`.
+- **Representations:** **equation**, **words**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the two models → the difference function D(t), the right way round for the question
+  - **exam** L4: given the two models and the domain → the greatest difference, and when it happens
+  - **exam** L4: given the two models and the domain → when the difference is zero, keeping only times in the domain
+  - **exam** L4: given a curve; a point such as the origin → the least distance from the point to the curve
+  - new L4: given a curve; a point → the point on the curve closest to it
+  - new L2: given the graphs of f and g → the graph of f + g (pick the graph)
+  - new L2: given f; g → the zeros of f + g
+  - new L2: given the context; the maximum point of D → what its two coordinates mean in context
+  - new L4: given the two models in context → the first whole day on which one model is ahead
+- **Angles:** Define Y3 = Y1 + Y2 on the GDC; Combine the formulas first; Add heights point by point; GDC maximum/minimum; Solve f′(x) = 0; Read from the graph; Graph the model and the target, and intersect; Rearrange and solve analytically; Scan a GDC table for the first value that works.
+  - *Fails:* Combine the formulas first: a difference such as 40e^(−0.2t) − (3t + 5) does not simplify into a form whose maximum can be read.
+  - *Fails:* Add heights point by point: adding heights read off graphs cannot give 3 s.f..
+  - *Slow:* Solve f′(x) = 0: differentiating a square root of a sum is long, and the result still needs the GDC to solve.
+  - *Fails:* Rearrange and solve analytically: an exponential equal to a line cannot be rearranged with logs.
+  - *Slow:* Scan a GDC table for the first value that works: a table at whole days gives the day but not the exact time to 3 s.f..
+- **Concept probes:**
+  - *true-false-reason* (L4): The gap f(x) − g(x) between two models is greatest where f is at its maximum. — False. The gap is greatest where both graphs have the same slope. With f(x) = 4x − x² and g(x) = x, f peaks at x = 2 (gap 2), but the gap 3x − x² peaks at x = 1.5 (gap 2.25).
+  - *true-false-reason* (L4): To find the point on a curve closest to P, you can minimise d² instead of d. — True. Distances are never negative, and for non-negative numbers a smaller d always means a smaller d², so both are least at the same x. d² has no square root, so it is easier to graph or differentiate; take the square root at the end.
+  - *interpret-parameter* (L3): D(t) = A(t) − B(t) compares the water heights in two tanks. What does D(t) < 0 mean, and what does the minimum of D tell you? — D(t) < 0 means tank B is higher at time t. The minimum of D is the moment B is furthest ahead, and B's lead then is −D at that point.
+- **Misconceptions used:** 9. Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa; On a restricted domain, misses an endpoint that is higher than the local maximum; Gives GDC answers to fewer than 3 significant figures; Adds the x-values instead of the y-values; Thinks the zeros of f + g are the zeros of f together with the zeros of g; Assumes the maximum of f + g occurs where f or g has its own maximum; Rounds the wrong way for the context (e.g. 4.2 years becomes 4 when 5 complete years are needed); Keeps a solution outside the model's domain, such as a negative time; Answers 'how much' when the question asks 'when'.
+
+#### Solve an equation that needs technology (`fn-gdc-solve-equation`, exam, 4 bank parts)
+
+- **Situation:** An equation from a context that only the GDC can solve.
+- **Representations:** **equation**, **words**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given an equation mixing families, such as x = 3 sin x → the non-zero (or the positive) solution, to 3 s.f.
+  - **exam** L4: given a context in words, such as a segment of given area → the equation, then its solution in context
+  - **exam** L4: given the equation; the interval the context allows → the one solution in the interval
+  - **exam** L4: given two non-linear equations in two unknowns → the value of the unknown asked for
+  - new L2: given a velocity or rate model → the first time it is zero (or equals a value)
+  - new L2: given the equation; an interval → how many solutions it has there
+  - new L2: given the equation with one constant unknown; one root → the constant *(reversed: x = k sin x with root 1.5 gives k = 1.5/sin 1.5 ≈ 1.50)*
+  - new L4: given a growth or savings model and a target → the smallest whole number of years or items that reaches it
+  - new L2: given the equation; the GDC roots; the context → which root is the answer, and why the others are not
+- **Angles:** Graph each side and use intersect; Rearrange to h(x) = 0 and find the zeros; Find a sign change in a table, then refine; Graph the model and the target, and intersect; Rearrange and solve analytically; Scan a GDC table for the first value that works; Apply inverse operations to both sides; Sketch or graph both sides to check.
+  - *Slow:* Find a sign change in a table, then refine: several refinements to reach 3 s.f.; intersect does it at once.
+  - *Fails:* Rearrange and solve analytically: an angle and its sine (θ − sin θ = 0.8) cannot be separated by any rearrangement.
+  - *Fails:* Apply inverse operations to both sides: taking arcsin of x = 3 sin x leaves x on both sides.
+- **Concept probes:**
+  - *predict-check* (L4): Predict how many solutions x = 3 sin x has. Then find the positive one with the GDC. — Three. Any solution has |x| ≤ 3, since sin x is between −1 and 1. The line y = x meets y = 3 sin x at 0 and cuts the hump once on each side, so the solutions are 0 and ±2.28 (x ≈ 2.2789).
+  - *true-false-reason* (L3): Taking ln of both sides of eˣ = x + 3 gives x = ln x + ln 3. — False. ln(x + 3) is not ln x + ln 3 (that is ln 3x). The correct step gives x = ln(x + 3), which still cannot be solved by hand. The GDC gives x ≈ −2.95 and x ≈ 1.51.
+  - *true-false-reason* (L3): If the GDC finds a root of an equation from a model, that root answers the question. — False. The model only makes sense on its domain: a negative time, an angle of a triangle above π, or a negative length must be rejected, and for "the first time" only the smallest valid root counts.
+- **Misconceptions used:** 6. Misses a solution outside the default GDC window; Rounds intermediate values or gives answers to fewer than 3 s.f.; Takes ln of both sides of e^x = x + 3 and writes x = ln x + ln 3; Rounds the wrong way for the context (e.g. 4.2 years becomes 4 when 5 complete years are needed); Keeps a solution outside the model's domain, such as a negative time; Answers 'how much' when the question asks 'when'.
+
+#### Match equations to graphs (`fn-ext-match-graph`, skill, level 1–3)
+
+*Gap:* SL2.3.match-graph is in the syllabus, but no exam part since 2021 asks for it as its own question.
+
+- **Situation:** One equation and four graphs.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given an equation → the matching graph out of four
+  - new L2: given a graph → the matching equation out of four *(reversed)*
+  - new L2: given four equations and four graphs → which goes with which
+  - new L3: given an equation; a graph that does not fit → a reason the graph cannot be the equation
+  - new L2: given a graph of y = a·bˣ + c or a parabola → the signs of the parameters (a > 0? b > 1?)
+  - new L1: given the facts in words → the graph that has them all
+- **Angles:** Check intercepts; Check shape, sign and asymptotes; Substitute a convenient point; Plot on the GDC and compare.
+  - *Slow:* Substitute a convenient point: one point per graph per equation is many checks; intercepts and shape sort them faster.
+  - *Fails:* Plot on the GDC and compare: a GDC picture is not a reason, and Paper 1 has no calculator.
+- **Concept probes:**
+  - *true-false-reason* (L3): y = 2^(−x) and y = (1/2)ˣ have the same graph. — True. 2^(−x) = (2⁻¹)ˣ = (1/2)ˣ, so both pass through (0, 1) and decay towards y = 0 as x grows.
+  - *predict-check* (L3): Without plotting, decide where y = −(x − 1)(x + 3) crosses the y-axis and which way it opens. Then check against a graph. — It crosses at (0, 3), since −(−1)(3) = 3, and it opens downwards, because expanding gives −x² − 2x + 3.
+- **Misconceptions used:** 3. Picks a graph with the right shape but the wrong y-intercept; Confuses a^x with a > 1 (growth) and 0 < a < 1 (decay); Ignores the sign of the leading coefficient and picks a parabola opening the wrong way.
+
+#### Solve inequalities with graphs (`fn-ext-inequality-graphical`, skill, level 2–4)
+
+*Gap:* SL2.10.inequality-graphical is in the syllabus, but no exam part since 2021 asks for it as its own question.
+
+- **Situation:** Two curves compared, shared with `fn-gdc-intersection`, `fn-gdc-optimise-combined`, `fn-concept-solutions-as-intersections`.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L4: given f(x) > g(x) with two mixed functions → the solution set, to 3 s.f.
+  - new L2: given both graphs with the crossings marked → where f is above (or below) g
+  - new L4: given an inequality whose solution has two parts → both parts of the solution set
+  - new L4: given a model and a level in words → the times when the model is above the level
+  - new L2: given the graphs of f and g; a shaded interval → the inequality the interval solves *(reversed)*
+- **Angles:** Find the intersections, then read which graph is above; Graph f(x) − g(x) and find where it is positive; Solve the equality, then test the intervals.
+  - *Fails:* Solve the equality, then test the intervals: eˣ = 3x has no algebraic solution, so the boundaries cannot be found by hand.
+- **Concept probes:**
+  - *always-sometimes-never* (L4): The solution of f(x) > g(x) is a single interval. — Sometimes. eˣ > 3x holds for x < 0.619 and for x > 1.51: two pieces, because the line is above the curve only between the two crossings.
+  - *true-false-reason* (L3): f(x) > g(x) has the same solutions as f(x) − g(x) > 0. — True: taking g(x) from both sides keeps the inequality. So you can graph the difference and read where it is above the x-axis.
+- **Misconceptions used:** 3. Gives the intersection points instead of an interval; Chooses the interval where f is below g; Misses that the solution set can be in two separate pieces.
+
+#### Solutions are where graphs meet (`fn-concept-solutions-as-intersections`, concept, level 3–5)
+
+*Gap:* The exam asks for intersections and GDC solutions but never asks why they are the same thing, or how many to expect.
+
+- **Situation:** Two curves that meet, shared with `fn-gdc-intersection`, `fn-gdc-optimise-combined`, `fn-ext-inequality-graphical`.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given an equation such as eˣ = 4 − x² → which two graphs to draw, and what to read off them
+  - new L3: given a sketch of both sides → the number of solutions
+  - new L3: given a sketch of both sides; the meeting points → which numbers are the solutions: the x-values, not the y-values
+  - new L4: given the graphs of f and g; three graphs of possible f − g → the graph of f − g, whose zeros are the meeting x-values
+  - new L4: given two arrangements of one equation → whether both give the same solutions, and why
+  - new L4: given a sketch with turning values → the values of k for which f(x) = k has a given number of solutions
+- **Angles:** Sketch both graphs to count and locate crossings; Zeros of f(x) − g(x); Graph each side and use intersect; Rearrange to h(x) = 0 and find the zeros; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries; Graph and count on the GDC.
+  - *Fails:* Graph and count on the GDC: trying values of k cannot pin down the boundary values.
+- **Concept probes:**
+  - *true-false-reason* (L3): The solutions of eˣ = 4 − x² are the y-values where the two graphs meet. — False. The solutions are the x-values, x ≈ −1.96 and x ≈ 1.06. The y-value at each meeting point is the common output of both sides.
+  - *always-sometimes-never* (L4): Rearranging an equation before graphing it changes its solutions. — Sometimes. Adding or subtracting a term on both sides changes the pictures but not the meeting x-values: eˣ = x + 3 and eˣ − x = 3 both give x ≈ −2.95 and 1.51. Dividing both sides by x can lose the solution x = 0.
+  - *predict-check* (L4): Use the sketch of y = x³ − 3x, with turning points (−1, 2) and (1, −2), to predict how many solutions x³ − 3x = k has for k = 1 and for k = 2. — For k = 1, three: y = 1 lies between the turning values −2 and 2, so it crosses all three parts of the curve. For k = 2, two: y = 2 touches the maximum at x = −1 and crosses once more at x = 2, since x³ − 3x − 2 = (x + 1)²(x − 2).
+- **Misconceptions used:** 3. Gives only the x-coordinate when coordinates are asked for; Counts two solutions when y = k only touches the graph at a turning point (one solution); Misses a solution outside the default GDC window.
+
+#### Read graphs and round answers (`fn-pre-graph-reading`, prior-learning, level 0–0)
+
+*Gap:* Prior learning the IB assumes. Every Paper 2 answer is given to 3 s.f., and every sketch and graph-reading step needs the scale read correctly.
+
+- **Situation:** A graph, a table and some decimals.
+- **Supports:** `read-graph`, `sketch-from-equation`, `zeros-intercepts`, `max-min`, `intersection`, `solve-gdc`
+- **Representations:** graph, table, equation (bold: the exam uses it)
+- **Unknowns:**
+  - new L0: given a graph with a marked point → its coordinates
+  - new L0: given a graph whose axes are not 1 unit per square → the value at a marked point
+  - new L0: given a table of points → the graph that shows them
+  - new L0: given a calculator value such as 1.4972 or 13.96 → the value to 3 s.f.
+  - new L0: given a small value such as 0.004567 → the value to 3 s.f.
+  - new L0: given a calculator value → the value to 1 or 2 decimal places
+  - new L0: given a 3 s.f. answer such as 2.35 → the interval of values that round to it, 2.345 ≤ x < 2.355 *(reversed)*
+- **Angles:** Work out the scale, then count; Plot across, then up; Start counting at the first non-zero digit; Count places after the point; Round once, from the full value; Half a unit either side.
+  - *Fails:* Count places after the point: 0.004567 to 3 d.p. is 0.005, which has only 1 significant figure.
+- **Concept probes:**
+  - *true-false-reason* (L3): 0.04060 written to 3 significant figures is 0.0406. — True. Leading zeros only place the decimal point, so the significant figures start at the 4: they are 4, 0 and 6. The next digit is 0, so nothing rounds up.
+- **Misconceptions used:** 5. Counts squares as units when one square is worth 2, 5 or 0.1; Plots (x, y) as (y, x); Mixes up significant figures and decimal places: 0.004567 to 3 s.f. becomes 0.005; Rounds in two steps: 2.0449 becomes 2.045, then 2.05; Drops a needed final zero: 1.4972 to 3 s.f. written as 1.5.
+
+#### Biggest and smallest (`fn-link-extremes`, link, level 3–4)
+
+*Gap:* The exam asks for extremes in quadratics, trigonometry and calculus separately; no question asks a student to compare the methods or to see tangency as an extreme case.
+
+- **Situation:** An extreme value found several ways.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a height model h(t) = at² + bt + c → the greatest height and when it happens, choosing between the vertex, −b/(2a), h′(t) = 0, the GDC and the midpoint of the roots *(−5t² + 30t + 8: 53 at t = 3)*
+  - new L3: given y = A sin(Bx) + D → the maximum and minimum values and the range, without calculus *(4 sin(3x) − 1: max 3, min −5)*
+  - new L4: given y = A sin(Bx) + D → the first positive x where the maximum happens *(4 sin(3x) − 1: x = π/6)*
+  - new L4: given the range of a wave, such as −5 ≤ y ≤ 3 → the amplitude and the principal axis *(reversed: amplitude 4, axis y = −1)*
+  - new L4: given a line y = mx + n with m unknown; a parabola → m for the line to be a tangent, and the point of contact *(y = mx − 1 and y = x² + 3: x² − mx + 4 = 0, m² = 16, m = ±4, contact (±2, 7))*
+  - new L4: given a function on a closed interval → the greatest and least values, and the range *(x² − 4x + 1 on [0, 5]: least −3 at x = 2, greatest 6 at x = 5)*
+  - new L4: given a cubic → its turning points, where the vertex methods no longer apply *(x³ − 3x² − 9x + 2: (−1, 7) and (3, −25))*
+- **Angles:** Complete the square; x = −b/(2a), then substitute for y; Midpoint of the roots, then substitute; GDC maximum/minimum; Solve f′(x) = 0; Read the turning point from the equation's form; Read from the graph; Evaluate at endpoints and turning points; Use the vertex or asymptote; Read the parameters; Transform the base graph's features; Solve f′(x) = 0; Vertex of a quadratic; Set Δ = 0, Δ > 0 or Δ < 0 and solve for k; Discriminant = 0; Match gradients to find the point of contact; Compare stationary values and endpoints; No turning points means endpoints.
+  - *Slow:* Complete the square: a = −5 brings fractions in early.
+  - *Slow:* Midpoint of the roots, then substitute: the roots of −5t² + 30t + 8 are 3 ± √10.6; their midpoint is 3, but finding them is long.
+  - *Fails:* Use the vertex or asymptote: the vertex gives the least value, but the greatest is at the endpoint x = 5.
+  - *Fails:* Vertex of a quadratic: a cubic has no vertex form.
+  - *Fails:* No turning points means endpoints: there is a turning point inside [0, 5], so the endpoints alone miss the least value.
+- **Concept probes:**
+  - *true-false-reason* (L3): The greatest value of a function on a closed interval is always at a stationary point. — False. It can be at an endpoint. On 0 ≤ x ≤ 5, f(x) = x² − 4x + 1 has its only stationary point at (2, −3), a minimum; the greatest value is f(5) = 6.
+  - *interpret-parameter* (L4): Why does "the line is a tangent to the parabola" mean the discriminant is zero? — Equating the line and the curve gives a quadratic whose roots are the x-values where they meet. A tangent meets the curve at exactly one point, so there is one repeated root, and that happens when Δ = 0. Δ > 0 means two meeting points; Δ < 0 means none.
+  - *predict-check* (L3): Predict the greatest and least values of y = 4 sin(3x) − 1 without calculus. Then check with dy/dx = 0. — 3 and −5: sin is between −1 and 1, so 4 sin(3x) is between −4 and 4, then subtract 1. dy/dx = 12 cos(3x) = 0 where sin(3x) = ±1, giving the same values.
+- **Misconceptions used:** 14. Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa; On a restricted domain, misses an endpoint that is higher than the local maximum; Finds the x-coordinate of the vertex but not the y-coordinate; Calls the vertex a minimum when a < 0; Uses only the endpoints of a restricted domain and misses a turning point inside it; Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x); Reads a, b, c before rearranging to '= 0', e.g. keeps the line's terms on the other side; Period = b instead of 2π/b; Amplitude = a + d, or a negative amplitude when a < 0; Solving f(x) = 0 instead of f′(x) = 0; Substituting the x-value into f′ instead of f to get the y-coordinate; Using b² − 4ac > 0 instead of = 0; Matching gradients but forgetting the line must also pass through the point on the curve; Ignoring the endpoints and quoting only the local maximum and minimum.
+
+#### Solve it by algebra, by graph or by GDC (`fn-link-graph-vs-algebra`, link, level 3–4)
+
+*Gap:* The exam tells the student which method to use (or gives a GDC paper); no question asks them to decide whether algebra can work or to check one method with another.
+
+- **Situation:** An equation as two graphs that meet.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given an equation such as e^(2x) = 5 or eˣ = 4 − x → whether algebra can solve it, and a method that works *(e^(2x) = 5: x = (ln 5)/2 ≈ 0.805; eˣ = 4 − x: GDC only, x ≈ 1.07)*
+  - new L4: given an equation with no algebraic method → every solution to 3 s.f., as meeting points
+  - new L3: given an equation such as 2 cos x = 1; an interval → how many solutions, counted as crossings with a horizontal line, then the solutions *(0 ≤ x ≤ 3π: three solutions, π/3, 5π/3, 7π/3)*
+  - new L4: given a curve; a horizontal line y = k → the values of k that give 1, 2 or 3 solutions, from the turning values *(x³ − 3x: three solutions for −2 < k < 2)*
+  - new L4: given two curves that enclose a region → the meeting x-values (the limits), found two ways, then the area *(y = x² and y = 2x + 3 meet at x = −1 and 3; area 32/3)*
+  - new L4: given a log equation such as ln x + ln(x + 3) = ln 10 → the solution, and the graph that shows why one algebraic root is rejected *(x² + 3x − 10 = 0 gives 2 and −5; only x = 2)*
+  - new L3: given an equation such as eˣ = 20 → x exactly with logs and to 3 s.f. with the GDC, and that the two agree *(ln 20 ≈ 3.00)*
+- **Angles:** Graph each side and use intersect; Rearrange to h(x) = 0 and find the zeros; Find a sign change in a table, then refine; Apply inverse operations to both sides; Combine and rearrange into a polynomial; Sketch or graph both sides to check; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries; Graph and count on the GDC; Set f(x) = g(x) and solve; GDC intersect; Sketch and count crossings; GDC intersect; Integrate top minus bottom; GDC with |f − g|; Combine into one log, then rewrite in exponential form; Graph both sides and intersect; Rewrite in log form and use the log or ln key; Graph both sides and find the intersection.
+  - *Slow:* Find a sign change in a table, then refine: refining a sign change to 3 s.f. takes many rows.
+  - *Fails:* Apply inverse operations to both sides: in eˣ = 4 − x, x is both in the exponent and outside it, so no inverse isolates it.
+  - *Fails:* Graph and count on the GDC: a graph for one k gives one count; the boundary values need the turning points.
+- **Concept probes:**
+  - *true-false-reason* (L3): eˣ = 4 − x can be solved exactly by taking ln of both sides: x = ln(4 − x). — False. x is still on both sides, so nothing has been solved. There is no algebraic method; the graphs of y = eˣ and y = 4 − x meet once, at x ≈ 1.07.
+  - *predict-check* (L3): Sketch y = cos x and y = 1/2 for 0 ≤ x ≤ 3π and predict how many solutions 2 cos x = 1 has. Then list them. — Three: π/3, 5π/3 and 7π/3. The next one, 11π/3, is beyond 3π.
+  - *always-sometimes-never* (L3): Every root that algebra gives for a log equation is a solution. — Sometimes. ln x + ln(x + 3) = ln 10 leads to x² + 3x − 10 = 0, so x = 2 or x = −5, but ln(−5) is undefined. The graphs meet only once, at x = 2.
+- **Misconceptions used:** 15. Misses a solution outside the default GDC window; Rounds intermediate values or gives answers to fewer than 3 s.f.; Takes ln of both sides of e^x = x + 3 and writes x = ln x + ln 3; Keeps a solution that makes a log argument negative or a denominator zero; Applies ln term by term, writing ln(a + b) = ln a + ln b; Counts two solutions when y = k only touches the graph at a turning point (one solution); Counts intersections outside the given domain; Finds one intersection and misses others hidden outside the GDC window; Using a GDC window that cuts off part of the interval and missing solutions; Leaving the GDC in degree mode; Integrating lower − upper and reporting a negative area; Using the x-intercepts of one curve as limits instead of the intersection points; Keeping a solution that makes an argument zero or negative (x = −2); Combining log a + log b as log(a + b); Using ln when the question means log base 10, or the reverse.
+
+### 4. Composite and inverse (syllabus 2.5)
+
+3 exam types, 3 extension types; 18 exam unknowns and 48 new ones; 248 coverage cells (66 with "Exam-style only" on).
+
+#### Values, composites and inverse values read from a graph or a table (`fn-graph-table-composite-inverse`, exam, 8 bank parts)
+
+- **Situation:** A function read from a graph or a table.
+- **Representations:** **graph**, **table**, equation, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the graph or table of f → f(a)
+  - new L1: given the rule of f beside its graph; an input → f(a), checked against the graph
+  - **exam** L1: given the graph or table of f → (f∘f)(a), by reading twice
+  - **exam** L1: given a table of f and g → (f∘g)(a) or (g∘f)(a) *(graph version: two graphs on one grid)*
+  - **exam** L1: given the graph or table of f; an output k → the x with f(x) = k
+  - **exam** L1: given the graph or table of f → f⁻¹(b), read from the output back to the input
+  - **exam** L2: given the graph of f on a stated domain → the domain of f⁻¹, which is the range of f
+  - new L1: given the graph of f on a stated domain → the range of f⁻¹, which is the domain of f
+  - **exam** L2: given the graph of f; an equation f⁻¹(px + q) = c → x
+  - new L2: given the graph or table of f; a number k fixed by a reading, such as f(k) = 0 → f(k + 1)
+  - new L2: given a table of f and g → (f∘g⁻¹)(b) or f⁻¹(f⁻¹(b))
+  - new L3: given a table of f and g with one g entry blank; the value of (f∘g)(a) → the blank entry g(a) *(reversed: the composite is given and the inner value asked)*
+  - new L2: given the graph of f with labelled points → the matching points on f⁻¹, or a sketch of f⁻¹
+  - new L2: given a graph of f that turns back; a value k → every solution of f(x) = k
+  - new L2: given a graph of f that turns back → why f has no inverse on the shown domain
+  - new L2: given a graph of f that turns back → the largest k for which f on x ≤ k has an inverse
+- **Angles:** Read the output from a graph or table; Substitute the input in brackets; For f(a) = k, solve for the input; Up from x, across to y; Draw y = k and read off x; GDC trace, value or intersect; Chain two readings from graphs or tables; Work from the inside out; Find f(g(x)) first, then substitute; Swap the coordinates; Solve f(x) = a; Reflect the graph in y = x; Domain of f⁻¹ = range of f, and vice versa; Horizontal line test on the graph; Use f(f⁻¹(x)) = x directly; Horizontal line test for one-to-one.
+  - *Fails:* Substitute the input in brackets: only a graph or table is given, so there is no rule to substitute into.
+  - *Fails:* Up from x, across to y: going up from x = b finds f(b); f⁻¹(b) needs the reading that starts on the y-axis.
+  - *Fails:* GDC trace, value or intersect: no equation is given, so there is nothing to enter.
+  - *Fails:* Find f(g(x)) first, then substitute: a table has no rule to build an expression from.
+  - *Slow:* Reflect the graph in y = x: sketching the whole reflected graph to read one value.
+- **Concept probes:**
+  - *true-false-reason* (L3): If f(2) = 5 and f has an inverse, then f⁻¹(5) = 2. — True. The point (2, 5) is on f, so (5, 2) is on f⁻¹: the inverse sends each output back to the input that made it.
+  - *predict-check* (L3): A table shows f(1) = 4, f(4) = 2 and f(2) = 7. Predict whether (f∘f)(1) equals f(1) × f(1). Then work it out. — No. (f∘f)(1) = f(f(1)) = f(4) = 2, while f(1) × f(1) = 16. Composing feeds one output in as the next input; it does not multiply.
+  - *interpret-parameter* (L3): The graph of f rises steadily from (−2, 1) to (4, 7). State the domain and range of f⁻¹ and say why. — Domain 1 ≤ x ≤ 7 and range −2 ≤ y ≤ 4. Every point (p, q) on f becomes (q, p) on f⁻¹, so the x-values and y-values swap roles.
+- **Misconceptions used:** 16. Treats f(x) as f × x, e.g. writes f(2) = 2f; Evaluates −x² at x = −3 as 9 instead of −9 (no brackets); Writes f(x + 1) as f(x) + 1; Reads 'solve f(x) = 1' as 'find f(1)'; Gives only one solution when y = k crosses the curve several times; Misreads the scale when the axes are not 1 unit per square; Applies f first for (f ∘ g)(x), evaluating g(f(x)) instead; Multiplies f(2) × g(2) instead of composing; Applies the same function twice; Reads f⁻¹(x) as 1/f(x); Reflects in the x-axis or y-axis instead of in the line y = x; Computes f(a) when f⁻¹(a) is asked for; Solves f⁻¹(x) = 3 by writing x = f⁻¹(3) instead of x = f(3); States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse.
+
+#### Form a composite, evaluate it, solve for a parameter (`fn-composite`, exam, 9 bank parts)
+
+- **Situation:** Two rules chained together, shared with `fn-concept-order-and-undo`.
+- **Representations:** **equation**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given f; g; an input → the value of (f∘g)(x₀)
+  - **exam** L2: given f; g → the composite (f∘g)(x) or (g∘f)(x), simplified *(the outer rule may be a cubic or trig function on Paper 2)*
+  - **exam** L2: given f and g with a constant k; the value of the composite at one input → k, often a ± pair *(reversed: the value is given and a constant is asked)*
+  - **exam** L3: given f and g with an unknown constant; a stated form of the composite → the constant, by equating coefficients and solving a quadratic
+  - new L2: given f; g; a target → every x with (f∘g)(x) equal to the target
+  - new L2: given f → (f∘f)(x), or its value at an input
+  - new L2: given f; g → both f∘g and g∘f, and whether they are equal
+  - new L2: given a chain of steps in words: "subtract 1, then square, then double" → the composite as one expression, and the rules it is made of
+  - new L3: given one rule such as (3x − 1)² + 4 → two simpler rules f and g with the rule equal to f∘g *(reversed: the composite is given, the parts asked)*
+  - new L3: given f; f∘g → g *(reversed: undo the outer rule)*
+  - new L4: given g; f∘g → f *(reversed: write the composite in terms of u = g(x))*
+- **Angles:** Work from the inside out; Find f(g(x)) first, then substitute; Replace every x in f with g(x); Follow a flow diagram; Check with a test value; Undo the operations in reverse order; Swap x and y, then make y the subject.
+  - *Fails:* Work from the inside out: the number given is an output, so there is no input to start from.
+  - *Slow:* Find f(g(x)) first, then substitute: expanding a cubic or trig composite just to put in one number is wasted work.
+  - *Fails:* Follow a flow diagram: a diagram gives the order of the steps, not the expanded coefficients to equate.
+  - *Fails:* Check with a test value: a test value checks a rule but cannot find one.
+  - *Slow:* Swap x and y, then make y the subject: finding f⁻¹ as a rule first is longer than undoing f's two steps in place.
+- **Concept probes:**
+  - *true-false-reason* (L3): For any two functions, (f∘g)(x) = (g∘f)(x). — False. With f(x) = x + 1 and g(x) = 2x, f(g(x)) = 2x + 1 but g(f(x)) = 2x + 2. The order says which rule acts first.
+  - *always-sometimes-never* (L3): If f and g are both linear, then f∘g is linear. — Always. f(g(x)) = a(cx + d) + b = (ac)x + (ad + b): the gradients multiply, and the result is still a straight line.
+  - *predict-check* (L3): Predict how many solutions (f∘g)(x) = 25 has when f(x) = x² and g(x) = 2x − 1. Then solve. — Two, because a square equals 25 for two inputs. (2x − 1)² = 25 gives 2x − 1 = 5 or −5, so x = 3 or x = −2.
+- **Misconceptions used:** 8. Applies f first for (f ∘ g)(x), evaluating g(f(x)) instead; Multiplies f(2) × g(2) instead of composing; Applies the same function twice; Computes g(f(x)) when f(g(x)) is asked for; Replaces only one of the x's in f with g(x); Assumes f ∘ g = g ∘ f; Undoes the operations in the original order, e.g. for 2x + 1 gives x/2 − 1; Forgets the ± when square-rooting, so x² = 9 gives only x = 3.
+
+#### Find an inverse algebraically, with its domain; self-inverse functions (`fn-inverse-algebraic`, exam, 5 bank parts)
+
+- **Situation:** A one-to-one function and its inverse.
+- **Representations:** **equation**, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given f(x) = ax + b → f⁻¹(x)
+  - **exam** L2: given f(x) = (ax + b)/(cx + d) → f⁻¹(x)
+  - **exam** L3: given f(x) = √(px + q) + r with its domain → f⁻¹(x) with its domain and range
+  - new L3: given f(x) = (x − h)² + k on x ≥ h or x ≤ h → f⁻¹(x), with the sign that matches the domain
+  - new L3: given f(x) = e^(px) + q → f⁻¹(x) and its domain
+  - **exam** L1: given f; its domain → the domain of f⁻¹
+  - **exam** L1: given f; its domain → the range of f⁻¹
+  - new L2: given a rational f → the domain and range of f⁻¹, from the asymptotes
+  - new L2: given a quadratic on all real x → the largest domain x ≥ k (or x ≤ k) on which f has an inverse
+  - **exam** L2: given a rational f with d = −a → a show-that f is its own inverse
+  - **exam** L3: given a rational f with one unknown constant → the constant that makes f its own inverse *(reversed: the property is given, the rule asked)*
+  - **exam** L4: given f → f⁻¹, then a show-that it is f reflected in the y-axis and then the x-axis
+  - new L2: given f; g → a show-that (f∘g)(x) = x, and what that says about f and g
+  - new L1: given f → (f∘f⁻¹)(a), without finding f⁻¹
+  - new L1: given f; f⁻¹(x) = c → x
+  - new L2: given f⁻¹(x) → f(x) *(reversed: the inverse is given)*
+  - new L2: given a rational f → the asymptotes of f⁻¹, without finding f⁻¹
+- **Angles:** Swap x and y, then make y the subject; Make x the subject, then rename; Undo the operations in reverse order; Check the reflection on the GDC; Swap x and y, multiply out, collect the y-terms; Reflect the asymptotes in y = x; Use the pattern (ax + b)/(cx + d) ↦ (−dx + b)/(cx − a); Domain of f⁻¹ = range of f, and vice versa; Cut the domain at the turning point; Horizontal line test on the graph; Compose and simplify to x; Use f(f⁻¹(x)) = x directly; Check the graphs are reflections in y = x; Negate the whole function or replace x with −x.
+  - *Fails:* Undo the operations in reverse order: x is in both the top and the bottom, so there is no single chain of steps to undo.
+  - *Fails:* Check the reflection on the GDC: a graph that looks symmetric in y = x is not a proof.
+  - *Fails:* Use the pattern (ax + b)/(cx + d) ↦ (−dx + b)/(cx − a): the pattern only works for (ax + b)/(cx + d).
+  - *Slow:* Compose and simplify to x: f(f(x)) for a rational f puts a fraction inside a fraction; finding f⁻¹ is shorter.
+  - *Fails:* Check the graphs are reflections in y = x: a sketch suggests f and g undo each other but cannot show it.
+- **Concept probes:**
+  - *true-false-reason* (L3): f(x) = (3x + 1)/(x − 3) is its own inverse. — True. Swap x and y: x(y − 3) = 3y + 1, so xy − 3x = 3y + 1, y(x − 3) = 3x + 1 and y = (3x + 1)/(x − 3), the same rule.
+  - *always-sometimes-never* (L3): The domain of f⁻¹ is the same as the domain of f. — Sometimes. The domain of f⁻¹ is always the range of f. They match only when f's domain and range are the same set, as for 1/x; for √x + 2 on x ≥ 0 the inverse has domain x ≥ 2.
+  - *interpret-parameter* (L4): For f(x) = (ax + b)/(cx + d) with c ≠ 0, why is f its own inverse exactly when d = −a? — The inverse is (−dx + b)/(cx − a). It matches f term by term only when −d = a. On the graph, the asymptotes x = −d/c and y = a/c then cross on y = x, so the curve is symmetric in that line.
+- **Misconceptions used:** 13. Writes f⁻¹(x) = 1/f(x); Undoes the operations in the original order, e.g. for 2x + 1 gives x/2 − 1; For a quadratic on a restricted domain keeps the ± instead of choosing the sign that matches the domain; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse; Cannot collect the y-terms after cross-multiplying and leaves y on both sides; Gives the domain of f⁻¹ as x ≠ −d/c (f's excluded value) instead of x ≠ a/c; Thinks only 1/x can be self-inverse; Thinks (f ∘ f⁻¹)(x) = 1 rather than x; Solves f⁻¹(x) = 3 by writing x = f⁻¹(3) instead of x = f(3); Believes (f ∘ f)(x) = x for any function; Confuses −f(x) (x-axis) with f(−x) (y-axis).
+
+#### Order, undoing and one-to-one (`fn-concept-order-and-undo`, concept, level 3–4)
+
+*Gap:* The exam asks students to compose and invert but never asks why the order matters or why a domain must be restricted.
+
+- **Situation:** Chaining, undoing and cutting a domain, shared with `fn-composite`.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given f; g → f∘g and g∘f, and an input where they give different outputs
+  - new L4: given several pairs of rules → the pairs with f∘g = g∘f, and why
+  - new L4: given f; g → (f∘g)⁻¹, and why it is g⁻¹∘f⁻¹
+  - new L3: given a rule that is not one-to-one, such as (x − 2)² on all x → why it has no inverse, with two inputs that share an output
+  - new L3: given a quadratic in vertex form → a domain that makes it one-to-one, and the inverse that goes with it
+  - new L4: given f on one side of its vertex; f⁻¹ → whether f⁻¹(f(x)) = x and f(f⁻¹(x)) = x hold, and for which x
+  - new L4: given a graph or a rule → whether f is its own inverse, from symmetry in y = x
+- **Angles:** Replace every x in f with g(x); Check with a test value; Undo the operations in reverse order; Cut the domain at the turning point; Horizontal line test on the graph; Compose and simplify to x; Check the graphs are reflections in y = x; Horizontal line test for one-to-one.
+  - *Fails:* Check with a test value: one input where the orders agree does not prove they always agree.
+- **Concept probes:**
+  - *true-false-reason* (L3): √(x²) = x for every real x. — False. √((−3)²) = √9 = 3, not −3; in fact √(x²) = |x|. Squaring sends 3 and −3 to the same output, so √ can only undo it on x ≥ 0. That is why x² must be cut to x ≥ 0 before √x is its inverse.
+  - *always-sometimes-never* (L4): (f∘g)⁻¹ = f⁻¹∘g⁻¹. — Sometimes, but not in general. To undo "g then f" you undo f first, so (f∘g)⁻¹ = g⁻¹∘f⁻¹. With f(x) = x + 1 and g(x) = 2x, (f∘g)⁻¹(x) = (x − 1)/2, but f⁻¹(g⁻¹(x)) = x/2 − 1.
+  - *interpret-parameter* (L3): f(x) = (x − 2)² + 1 is given the domain x ≥ 2. Why that domain, and what are f⁻¹ and its range? — x = 2 is the vertex; on x ≥ 2 the graph only rises, so each output comes from one input. f⁻¹(x) = 2 + √(x − 1) for x ≥ 1, with range y ≥ 2, the domain of f.
+- **Misconceptions used:** 6. Assumes f ∘ g = g ∘ f; Thinks every function has an inverse; Restricts the domain at the y-intercept instead of at the turning point; Undoes the operations in the original order, e.g. for 2x + 1 gives x/2 − 1; For a quadratic on a restricted domain keeps the ± instead of choosing the sign that matches the domain; Believes (f ∘ f)(x) = x for any function.
+
+#### Change the subject of a formula (`fn-pre-rearrange`, prior-learning, level 0–0)
+
+*Gap:* Prior learning the IB assumes. Finding an inverse is a rearrangement, and it fails here first.
+
+- **Situation:** A formula with a known rearrangement.
+- **Supports:** `find-inverse`, `rational-inverse`, `composite-expression`, `gradient`, `equation-of-line`, `exp-log-inverse`
+- **Representations:** equation, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L0: given v = u + at → a
+  - new L0: given y = 3x − 5 → x
+  - new L0: given y = x² + 9 or y = √(x + 4) → x, with the ± where it belongs
+  - new L0: given y = 3/(x − 2) → x
+  - new L0: given y = (2x + 1)/(x − 3) → x
+  - new L0: given kx + 3 = 2x + m → x
+  - new L0: given a rearranged formula → the formula it came from *(reversed)*
+- **Angles:** Undo each step in reverse order; Clear the denominator first; Collect the subject terms and factor it out; Check with numbers.
+  - *Fails:* Undo each step in reverse order: the subject appears twice, so there is no single chain of steps to undo.
+  - *Slow:* Collect the subject terms and factor it out: there is only one subject term, so nothing to collect.
+  - *Fails:* Check with numbers: it checks an answer but cannot find one.
+- **Concept probes:**
+  - *true-false-reason* (L3): To make x the subject of y = (x + 1)/(x − 1), undo each step in reverse order. — False. x appears twice, so there is no single chain to undo. Multiply out: y(x − 1) = x + 1, so yx − x = y + 1, x(y − 1) = y + 1 and x = (y + 1)/(y − 1).
+- **Misconceptions used:** 5. Undoes the steps in the original order: y = 3x − 5 gives x = y/3 + 5; Takes the square root term by term: y = x² + 9 gives x = √y − 3; Flips one side only: from y = 3/(x − 2), writes x − 2 = y/3; Stops with the subject on both sides: x = (2x + 1 + 3y)/y; Drops the ± when taking a square root.
+
+#### Undoing a process (`fn-link-inverses`, link, level 3–4)
+
+*Gap:* The exam finds inverses inside each topic but never asks a student to compare them, or to explain why some undos give only one answer.
+
+- **Situation:** A process and the process that undoes it.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a list of processes → the process that undoes each
+  - new L3: given a point on y = eˣ (or y = 2ˣ) → the matching point on y = ln x (or log₂ x), and the mirror line
+  - new L3: given y = e^(2x) → the inverse function, by undoing the steps in reverse order *(f⁻¹(x) = (ln x)/2)*
+  - new L3: given expressions such as e^(ln 5), log₂(2⁷), log₂ 32, or the equation log₂ x = 5 → their exact values
+  - new L3: given f(x) = (x − h)² + k on all real x → the domain x ≥ h that makes f⁻¹ exist, and the domain and range of f⁻¹
+  - new L3: given cos x = k; an interval such as 0 ≤ x ≤ 2π → every solution, and why the calculator gives only one *(cos x = −1/2: 2π/3 and 4π/3; arccos gives only 2π/3)*
+  - new L4: given X ~ N(μ, σ²); a probability p → the value x with P(X < x) = p, checked by putting x back through the probability
+  - new L3: given f′(x) → f(x), and why the undo gives a family f(x) + C rather than one function
+- **Angles:** Reverse the flow diagram; Swap the coordinates; Reflect the graph in y = x; Cut the domain at the turning point; Domain of f⁻¹ = range of f, and vice versa; Horizontal line test on the graph; Use log_a x = y ⇔ a^y = x; Take ln of both sides; Use log_a(a^x) = x and a^(log_a x) = x; Ask 'what power of the base gives this number?'; Reference angle in every valid quadrant; Symmetry of the graph; Intersect on the GDC; invNorm with the left-tail area; Find z, then x = μ + zσ; Reverse power rule; Guess, differentiate, adjust.
+  - *Slow:* Intersect on the GDC: decimals that must then be recognised as 2π/3 and 4π/3.
+- **Concept probes:**
+  - *true-false-reason* (L3): cos x = −1/2 has only one solution between 0 and 2π, because arccos(−1/2) = 2π/3. — False. 4π/3 works too. arccos can only return one value, in [0, π], because cos had to be cut down to that interval before it could be undone, just as √ only returns the root that is ≥ 0.
+  - *always-sometimes-never* (L4): Squaring and then taking the square root gets you back to where you started: √(x²) = x. — Sometimes. True for x ≥ 0, but √((−3)²) = 3. √ only undoes x² on the restricted domain x ≥ 0.
+  - *interpret-parameter* (L3): The point (2, e²) is on y = eˣ. Where is the matching point on y = ln x, and why? — (e², 2). An inverse swaps input and output, which is a reflection in the line y = x.
+- **Misconceptions used:** 15. Reads f⁻¹(x) as 1/f(x); Reflects in the x-axis or y-axis instead of in the line y = x; Computes f(a) when f⁻¹(a) is asked for; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse; Solves e^(2x) = 7 as x = 2 ln 7 or x = ln 7 − 2 instead of x = (ln 7)/2; Converts log₂ x = 5 to x = 5² instead of 2⁵; Dividing instead of finding the power: log_2 32 = 16; Stopping at the calculator's principal value; Using 180° − α for cos instead of 360° − α; Entering 0.10 for the top 10% without converting to the left-tail area 0.90; Using normalcdf when a value of x is wanted; Dividing by the old power n instead of n + 1; Forgetting + C.
+
+### 5. Rational functions (syllabus 2.8)
+
+2 exam types, 4 extension types; 9 exam unknowns and 40 new ones; 144 coverage cells (30 with "Exam-style only" on).
+
+#### Asymptotes and intercepts of (ax + b)/(cx + d) (`fn-rational-asymptotes-intercepts`, exam, 12 bank parts)
+
+- **Situation:** One linear-over-linear function in all its forms, shared with `fn-rational-sketch`, `fn-ext-transformed-reciprocal`.
+- **Representations:** **equation**, graph, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the equation → the vertical asymptote
+  - **exam** L1: given the equation → the horizontal asymptote
+  - **exam** L2: given the equation with c and d (or a) left as letters → both asymptotes in terms of the letters
+  - **exam** L1: given the equation → the x-intercept (the zero of f)
+  - **exam** L1: given the equation → the y-intercept, f(0)
+  - new L1: given a graph → the asymptote equations and the intercepts
+  - new L2: given a table of values near x = h and at large x → both asymptotes
+  - new L2: given the equation with two unknown constants; both asymptotes → the constants *(reversed)*
+  - new L2: given the equation with one unknown constant; one intercept → the constant *(reversed)*
+  - new L3: given both asymptotes; one intercept → the equation as (ax + b)/(x + d) *(reversed: B comes from the intercept)*
+  - new L2: given the equation or the graph → the domain and the range *(the exam asks this in fn-domain-range)*
+- **Angles:** x = −d/c and y = a/c; Rewrite as a/c + k/(cx + d); Divide top and bottom by x and let x grow; Check with a GDC table; Find where the function is undefined; Look at large |x|; Move the parent's asymptote; Check with a GDC table; Solve f(x) = 0 and evaluate f(0); Read crossings from a given graph; GDC zero/root function; Use the vertex or asymptote; Read the vertical extent of the graph.
+  - *Slow:* Rewrite as a/c + k/(cx + d): splitting the numerator takes several lines when y = a/c can be read off at once.
+  - *Fails:* Divide top and bottom by x and let x grow: large x says where the curve levels off, not where it blows up.
+  - *Fails:* Check with a GDC table: a table needs numbers; with letters in the equation there is nothing to tabulate.
+  - *Slow:* Move the parent's asymptote: the function has to be rewritten as A + B/(x − h) before the moved asymptotes can be read.
+  - *Fails:* GDC zero/root function: with a letter still in the equation there is no graph to draw.
+- **Concept probes:**
+  - *true-false-reason* (L3): The graph of y = (3x − 1)/(x − 2) crosses its horizontal asymptote somewhere. — False. 3x − 1 = 3(x − 2) + 5, so y = 3 + 5/(x − 2). The fraction 5/(x − 2) is never 0, so y is never 3.
+  - *interpret-parameter* (L3): In y = (ax + b)/(cx + d), only b changes. What happens to the asymptotes, and to the curve? — Neither asymptote moves: x = −d/c and y = a/c do not use b. The branches move nearer to or further from the asymptotes, and they swap corners if bc − ad changes sign.
+  - *always-sometimes-never* (L3): The y-intercept of y = (ax + b)/(cx + d) is (0, b/d). — Sometimes: whenever d ≠ 0. If d = 0 the vertical asymptote is x = 0, the y-axis itself, so the curve never meets it.
+- **Misconceptions used:** 9. Gives the vertical asymptote as x = d/c (sign error); Gives the horizontal asymptote as y = b/d (the ratio of constants) instead of y = a/c; Thinks there is no horizontal asymptote because the numerator is not a constant; Writes an asymptote as a number (2) instead of an equation (y = 2); Swaps vertical and horizontal, writing x = 2 for a horizontal asymptote; Confuses the zeros (x where f(x) = 0) with the y-intercept f(0); From f(x) = (x + 2)(x − 5) gives zeros −5 and 2 (wrong signs); Includes the asymptote value, e.g. gives the range of e^x + 2 as y ≥ 2 instead of y > 2; Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x).
+
+#### Sketch a rational function and use the sketch (`fn-rational-sketch`, exam, 7 bank parts)
+
+- **Situation:** One linear-over-linear function in all its forms, shared with `fn-rational-asymptotes-intercepts`, `fn-ext-transformed-reciprocal`.
+- **Representations:** **equation**, **graph**, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the equation → which of four graphs is y = f(x) *(pick-the-graph; the exam asks for a sketch with the asymptotes and intercepts labelled)*
+  - new L2: given f written as A + B/(x − h) → which graph it is
+  - new L2: given the asymptotes and the intercepts, in words or as a table → which graph fits
+  - new L2: given the asymptotes; the equation or one point → which pair of opposite corners the branches sit in
+  - new L3: given a sketch with the asymptotes and one intercept labelled → which equation it shows *(reversed)*
+  - **exam** L3: given the equation; its sketch → the x-values where f(x) > 0, f(x) ≤ 0 or f(x) > k
+  - new L2: given the sketch; a line y = k → the number of solutions of f(x) = k
+  - new L3: given the equation or the sketch → the value of k for which f(x) = k has no solution
+  - new L3: given the equation; a line y = mx + n → the number of meeting points
+  - **exam** L3: given the equation; a parabola or other curve; sometimes a restricted domain → the number of meeting points
+  - **exam** L4: given the equation or graph of a rational f → which graph is y = 1/f(x), with its asymptotes and intercepts *(Paper 2 in the bank)*
+  - new L1: given y = 1/x or y = k/x → which graph it is, and its asymptotes
+  - new L2: given y = k/x → its inverse, and why
+- **Angles:** Draw the asymptotes, mark the intercepts, add the branches; Transform y = 1/x; Graph on the GDC and transfer; Find the intersections, then read which graph is above; Solve the equality, then test the intervals; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries; Use the discriminant for a quadratic; Graph and count on the GDC; Plot a table including fractions and negatives; Use symmetry about y = x; Find the inverse algebraically.
+  - *Slow:* Transform y = 1/x: f must first be split into A + B/(x − h), which takes longer than finding two intercepts.
+  - *Fails:* Graph on the GDC and transfer: Paper 1 has no calculator, and a GDC can join the two branches with a steep line that looks like part of the curve.
+  - *Slow:* Solve the equality, then test the intervals: the asymptote x = h is a boundary that solving f(x) = k does not find; it must be added by hand.
+  - *Fails:* Use the discriminant for a quadratic: clearing the denominator against a parabola gives a cubic, which has no discriminant at this level.
+- **Concept probes:**
+  - *predict-check* (L3): Before sketching y = (x − 3)/(x + 1), predict which pair of corners, around the asymptotes, the branches sit in. Then check. — x − 3 = (x + 1) − 4, so y = 1 − 4/(x + 1). B = −4 is negative, so the branches are top-left and bottom-right, like y = −1/x. Check: f(0) = −3, which is right of x = −1 and below y = 1.
+  - *true-false-reason* (L4): For f(x) = (2x − 1)/(x + 3), the equation f(x) = k has exactly one solution for every real k. — False. 2x − 1 = k(x + 3) gives x = (3k + 1)/(2 − k), one solution for each k except k = 2, the horizontal asymptote, where there is none.
+  - *interpret-parameter* (L4): f(x) = (2x − 2)/(x + 4). What do the zero and the asymptotes of f become on the graph of y = 1/f(x)? — 1/f(x) = (x + 4)/(2x − 2). The zero x = 1 of f becomes the vertical asymptote, the asymptote x = −4 becomes the zero, and y = 2 becomes y = 1/2.
+- **Misconceptions used:** 12. Puts the branches in the wrong pair of quadrants relative to the asymptotes; Finds the x-intercept by setting the denominator to zero; Draws the curve crossing the vertical asymptote; Gives the intersection points instead of an interval; Chooses the interval where f is below g; Misses that the solution set can be in two separate pieces; Counts two solutions when y = k only touches the graph at a turning point (one solution); Counts intersections outside the given domain; Counts an asymptote value as giving a solution; Thinks self-inverse means f(x) × f⁻¹(x) = 1; Draws y = 1/x touching or crossing the axes; Draws the branches in the second and fourth quadrants (that is y = −1/x).
+
+#### Write a rational function as a transformed 1/x (`fn-ext-transformed-reciprocal`, skill, level 2–3)
+
+*Gap:* SL2.8.transformed-reciprocal is in the syllabus, but no exam part since 2021 asks for it.
+
+- **Situation:** One linear-over-linear function in all its forms, shared with `fn-rational-asymptotes-intercepts`, `fn-rational-sketch`.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L2: given (ax + b)/(x − h) → A and B in A + B/(x − h)
+  - new L3: given (ax + b)/(cx + d) with c = 2 or 3 → A + k/(cx + d)
+  - new L2: given A + B/(x − h) → the translation that maps y = B/x onto f
+  - new L3: given f as one fraction → a stretch and a translation, in order, that map y = 1/x onto f
+  - new L2: given A + B/(x − h) → the single fraction (ax + b)/(x − h) *(reversed)*
+  - new L3: given a graph with both asymptotes and one point → A, B and h *(reversed)*
+  - new L3: given y = 1/x stretched by B and translated by (h, A), in words → f as one fraction *(reversed)*
+- **Angles:** Split the numerator; Combine A + B/(x − 3) and compare; Read A and the shift from the asymptotes.
+  - *Slow:* Read A and the shift from the asymptotes: A and h read straight off, but B still needs a point such as f(0), so it is a step longer than splitting.
+- **Concept probes:**
+  - *true-false-reason* (L3): Every function (ax + b)/(cx + d) is a translation of y = 1/x. — False. In general there is a stretch as well. (x + 1)/(x − 1) = 1 + 2/(x − 1), which is 1/x stretched by 2, then translated.
+  - *interpret-parameter* (L3): In f(x) = 3 + 5/(x − 2), what does each of 3, 5 and 2 do to y = 1/x? — 5 stretches it vertically by 5, 2 moves it right 2 (asymptote x = 2), and 3 moves it up 3 (asymptote y = 3). The point (1, 1) goes to (1, 5), then to (3, 8), and f(3) = 8.
+- **Misconceptions used:** 3. Gives the translation vector as (−3, 2) because of the '− 3' in x − 3; Forgets the vertical stretch B and treats every rational function as a translated 1/x; Splits the numerator wrongly, e.g. 2x + 1 = 2(x − 3) + 1.
+
+#### Use a rational function as a model (`fn-ext-rational-model`, skill, level 2–4)
+
+*Gap:* SL2.8.rational-model is in the syllabus, but no exam part since 2021 asks for it.
+
+- **Situation:** A linear-over-linear model in context.
+- **Representations:** words, equation, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - new L2: given the model; an input → the value, with units
+  - new L2: given the model → the horizontal asymptote and what it means
+  - new L3: given the model; a target → the least whole number of items that passes it
+  - new L3: given the model; an output → the input that gives it
+  - new L3: given a fixed cost and a cost per item, in words → the average cost model A(n)
+  - new L3: given the model and its graph → why the vertical asymptote is outside the sensible domain
+  - new L4: given the long-run value; one data point → the constants in the model *(reversed)*
+- **Angles:** Read the horizontal asymptote as the long-run value; Set the model equal to the target and solve; Graph the model and the target line; Substitute and attach units; Substitute the input in brackets.
+  - *Fails:* Graph the model and the target line: a graph or table only suggests the level the curve settles at; it cannot show it is never reached.
+- **Concept probes:**
+  - *interpret-parameter* (L3): The average cost of making n items is A(n) = 4 + 500/n dollars. What do 4 and 500 mean? — 500 is the fixed cost in dollars, shared over n items, and 4 is the cost of each extra item. As n grows the fixed cost is spread thinner, so A(n) falls towards 4.
+  - *true-false-reason* (L3): If A(n) = 4 + 500/n, enough items will bring the average cost down to exactly $4. — False. 500/n is positive for every n, so A(n) > 4 always. It gets as close as you like to 4 but never reaches it.
+  - *predict-check* (L4): For A(n) = 4 + 500/n, predict whether 166 items are enough to bring the average cost below $7. Then check. — No. 500/n < 3 needs n > 166.7, so the least number is 167. Check: A(166) ≈ 7.01 and A(167) ≈ 6.99.
+- **Misconceptions used:** 4. Thinks the model eventually reaches its horizontal asymptote value; Rounds a number of items down when the condition needs rounding up; Interprets the vertical asymptote as a real value of the quantity in context; Answers with the output when the input is asked for (e.g. a height when a time is asked).
+
+#### What an asymptote means (`fn-concept-asymptote-meaning`, concept, level 3–5)
+
+*Gap:* The exam asks for asymptote equations but never what they mean or whether a curve may cross one.
+
+- **Situation:** Curves with asymptotes, side by side.
+- **Representations:** equation, graph, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a rational function → why there is a vertical asymptote at x = h, and what happens to y on each side
+  - new L3: given a rational function → why y gets close to a/c for large x
+  - new L4: given a curve and its horizontal asymptote → whether the curve crosses it, and where
+  - new L3: given a claim about a graph crossing its vertical asymptote → whether it can, with a reason
+  - new L4: given (ax + b)/(cx + d) with ad = bc → why there is no asymptote, only a gap
+  - new L4: given a model that settles → what the horizontal asymptote means, and why it is not reached
+- **Angles:** Divide top and bottom by x and let x grow; Rewrite as a/c + k/(cx + d); Find where the function is undefined; Check with a GDC table; Read the horizontal asymptote as the long-run value.
+  - *Fails:* Find where the function is undefined: the denominator is zero at x = h, but so is the numerator, so there is a gap, not an asymptote.
+  - *Fails:* Check with a GDC table: a table shows values near the asymptote but cannot rule out a crossing between the rows.
+- **Concept probes:**
+  - *always-sometimes-never* (L4): A graph can cross its horizontal asymptote. — Sometimes. y = x/(x² + 1) has asymptote y = 0 and passes through (0, 0). But y = A + B/(x − h) never does, because B/(x − h) is never 0.
+  - *true-false-reason* (L3): A graph can cross its vertical asymptote. — False for every function in this course. At x = h the function is not defined, so no point of the graph is on that line, and close to it y grows without limit.
+  - *interpret-parameter* (L4): The fish in a pond are modelled by P(t) = (800t + 200)/(t + 4), t in years. What does the horizontal asymptote mean? — P(t) = 800 − 3000/(t + 4), so the asymptote is P = 800. The population starts at 50, grows, and settles towards 800, the most the pond holds, without reaching it.
+- **Misconceptions used:** 3. Thinks the model eventually reaches its horizontal asymptote value; Thinks there is no horizontal asymptote because the numerator is not a constant; Swaps vertical and horizontal, writing x = 2 for a horizontal asymptote.
+
+#### Work with algebraic fractions (`fn-pre-algebraic-fractions`, prior-learning, level 0–0)
+
+*Gap:* Prior learning the IB assumes. Asymptotes, the transformed 1/x form, rational inverses and rational equations all fail here first.
+
+- **Situation:** Fractions with x in them.
+- **Supports:** `asymptotes`, `transformed-reciprocal`, `rational-inverse`, `rational-model`, `solve-analytic`, `domain`
+- **Representations:** equation, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L0: given a fraction with x in the denominator → the value of x it cannot take, and why
+  - new L0: given a fraction such as (x² − 9)/(x + 3) → its simplest form, with the excluded value
+  - new L0: given a sum such as 1/(x + 1) + 2/(x − 1) → one fraction
+  - new L0: given an equation such as 4 + 6/(x − 2) = 7 → x
+  - new L0: given a + k/(x − h) written as (□)/(x − h) → the numerator *(reversed)*
+- **Angles:** Factorise, then cancel factors; Use a common denominator; Multiply every term by the denominator; Get the fraction alone first; Check with a number.
+  - *Slow:* Multiply every term by the denominator: with a whole number on each side, getting the fraction alone first is shorter.
+  - *Fails:* Check with a number: checks a solution but does not find one.
+- **Concept probes:**
+  - *true-false-reason* (L3): (x² − 4)/(x − 2) and x + 2 are the same function. — False. They agree for every x except x = 2. There the first one means dividing by zero, so it is not defined, while x + 2 gives 4.
+- **Misconceptions used:** 4. Cancels terms, not factors: (x + 6)/(x + 3) = 2; Adds tops and bottoms: 1/(x + 1) + 2/(x − 1) = 3/(2x); Multiplies only the fraction term by the denominator, not the whole-number terms; Thinks dividing by zero gives zero, so no value is excluded.
+
+### 6. Function basics (syllabus 2.2)
+
+3 exam types, 3 extension types; 10 exam unknowns and 43 new ones; 188 coverage cells (36 with "Exam-style only" on).
+
+#### Inverse as a reflection in y = x (`fn-inverse-reflection`, exam, 2 bank parts)
+
+- **Situation:** A one-to-one function and its inverse, shared with `fn-evaluate-function`, `fn-domain-range`, `fn-concept-function-notation`.
+- **Representations:** **graph**, **equation**, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the graph of f → the graph of f⁻¹ on the same axes
+  - **exam** L5: given f and f⁻¹, meeting on y = x; the area between f and y = x, or a way to find it → the area between f and f⁻¹ *(synoptic with 5.11)*
+  - new L1: given a point (p, q) on f → the matching point on f⁻¹
+  - new L1: given a point on f⁻¹ → the matching point on f *(reversed)*
+  - new L1: given a table of f; a value a → f⁻¹(a)
+  - new L1: given the graph of f; a value a → f⁻¹(a)
+  - new L2: given the rule of f; a value a → f⁻¹(a), without finding f⁻¹(x)
+  - new L1: given the intercepts of f → the intercepts of f⁻¹
+  - new L2: given the asymptotes of f → the asymptotes of f⁻¹
+  - new L3: given an increasing f → where f and f⁻¹ meet
+  - new L3: given a graph or rule → whether f is its own inverse, and why
+- **Angles:** Swap the coordinates; Reflect the graph in y = x; Solve f(x) = a; Reverse the flow diagram; Reflect a known point in the line of symmetry; Average the x-values of two points at the same height.
+  - *Fails:* Reflect the graph in y = x: a sketch gives an estimate, not the exact value.
+  - *Slow:* Solve f(x) = a: solving for many points one at a time is slower than swapping the coordinates of the key points.
+  - *Fails:* Reverse the flow diagram: undoing f gives values of f⁻¹, not where the two graphs meet.
+  - *Slow:* Average the x-values of two points at the same height: checking that the midpoint of (p, q) and (q, p) is on y = x confirms an image but swapping is quicker.
+- **Concept probes:**
+  - *true-false-reason* (L4): A function and its inverse can only meet on the line y = x. — False. f(x) = 2 − x is its own inverse, so its graph meets f⁻¹ at every point, and only (1, 1) is on y = x. For an increasing f, though, every meeting point is on y = x.
+  - *always-sometimes-never* (L4): The inverse of an increasing function is increasing. — Always. If a < b then f(a) < f(b). f⁻¹ sends f(a) back to a and f(b) back to b, so a bigger input to f⁻¹ still gives a bigger output.
+  - *predict-check* (L3): f(x) = 2x − 3. Predict where the graphs of f and f⁻¹ meet. Then check. — f is increasing, so they meet on y = x: 2x − 3 = x gives (3, 3). Check: f⁻¹(x) = (x + 3)/2 and f⁻¹(3) = 3.
+- **Misconceptions used:** 6. Reads f⁻¹(x) as 1/f(x); Reflects in the x-axis or y-axis instead of in the line y = x; Computes f(a) when f⁻¹(a) is asked for; Thinks the line of symmetry passes through the y-intercept; Reflects a point the wrong distance or to the wrong side; Assumes every curve with a turning point is symmetric (e.g. a cubic).
+
+#### Evaluate a function or model at a given input (`fn-evaluate-function`, exam, 7 bank parts)
+
+- **Situation:** One function, its inputs and its outputs, shared with `fn-inverse-reflection`, `fn-domain-range`, `fn-concept-function-notation`.
+- **Representations:** **equation**, **words**, table, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a model → the value at t = 0, and what it means
+  - **exam** L1: given the rule; an input → the output
+  - **exam** L1: given the rule → the y-intercept of the graph
+  - **exam** L2: given the rule; a point → whether the point is above, below or on the graph
+  - new L1: given a table; an input → the output
+  - new L1: given a graph; an input → the output
+  - new L1: given a model and a statement such as h(3) = 12 → what it means in the context, with units
+  - new L2: given the rule; an output → the input or inputs that give it *(reversed)*
+  - new L2: given the rule → an expression for f(x + 1), f(2x) or f(−x)
+  - new L2: given the rule → the x-intercepts
+  - new L3: given a model; a target value → the input when the model reaches the target, rejecting any input the context rules out *(reversed)*
+  - new L2: given a model in context → a sensible domain
+- **Angles:** Substitute the input in brackets; Read the output from a graph or table; GDC value or table; For f(a) = k, solve for the input; Substitute and attach units; GDC table or graph; Solve model = target; Use the context; Solve f(x) = 0 and evaluate f(0); Read zeros from factorised form; GDC zero/root function; Read crossings from a given graph.
+  - *Fails:* Read the output from a graph or table: the point is chosen close to the curve, so reading the graph cannot tell above from below.
+  - *Fails:* GDC value or table: a GDC gives numbers, not an expression in x.
+  - *Slow:* GDC table or graph: the start value is one substitution; a table is extra work.
+  - *Fails:* Read zeros from factorised form: only works when the rule is already in factorised form.
+- **Concept probes:**
+  - *true-false-reason* (L3): If f(2) = 5, then the point (5, 2) is on the graph of y = f(x). — False. The input is the x-coordinate, so the point is (2, 5). The point (5, 2) is on the graph of the inverse.
+  - *interpret-parameter* (L3): A ball's height is h(t) = 2 + 15t − 5t² metres after t seconds. What does h(0) = 2 tell you? — The ball starts 2 m above the ground at the moment it is thrown. h(0) is the height at time 0, not a time or a speed.
+  - *predict-check* (L3): Predict whether the point (1.5, 7) is above or below the graph of y = x³ + 2x. Then check. — f(1.5) = 3.375 + 3 = 6.375, which is less than 7, so the point is above the graph.
+- **Misconceptions used:** 10. Treats f(x) as f × x, e.g. writes f(2) = 2f; Evaluates −x² at x = −3 as 9 instead of −9 (no brackets); Writes f(x + 1) as f(x) + 1; Interprets P(0) as 'zero population' instead of the initial value; Keeps a negative or non-integer input that the context forbids; Answers with the output when the input is asked for (e.g. a height when a time is asked); Confuses the zeros (x where f(x) = 0) with the y-intercept f(0); From f(x) = (x + 2)(x − 5) gives zeros −5 and 2 (wrong signs); Divides by x when solving x³ = 4x and loses the zero x = 0; Describes the y-values (range) when the domain is asked for.
+
+#### Domain and range, including restricted and transformed functions (`fn-domain-range`, exam, 4 bank parts)
+
+- **Situation:** A function on a restricted domain, or a changed one, shared with `fn-inverse-reflection`, `fn-evaluate-function`, `fn-concept-function-notation`.
+- **Representations:** **equation**, **graph**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a quadratic → its range, from the vertex
+  - **exam** L2: given a rational function (ax + b)/(cx + d) → its range, from the horizontal asymptote
+  - **exam** L3: given f on a restricted domain; g = −f → the range of g
+  - **exam** L4: given f and its range; g(x) = √(x − c) or ln(x − c) → the values of c for which g(f(x)) is defined for every x
+  - new L3: given f on a stated domain, with a turning point inside → the range
+  - new L1: given an exponential such as eˣ + 2 → its range
+  - new L1: given a graph → the range
+  - new L1: given a square root function → its largest possible domain
+  - new L1: given a log or a fraction → its largest possible domain
+  - new L1: given a graph → the domain
+  - new L2: given a linear f; its range on a restricted domain → the domain *(reversed)*
+  - new L2: given a one-to-one f with its domain → the domain and range of f⁻¹
+  - new L3: given a quadratic → the largest domain containing a given point on which f has an inverse
+- **Angles:** Read the vertical extent of the graph; Use the vertex or asymptote; Evaluate at endpoints and turning points; GDC maximum, minimum and table; Apply the three restrictions; Read the horizontal extent of the graph; Domain of f⁻¹ = range of f, and vice versa; Cut the domain at the turning point; Horizontal line test on the graph; Locate the turning point on the GDC.
+  - *Fails:* Use the vertex or asymptote: on a restricted domain the vertex may be inside or outside it, and the end values matter too.
+  - *Fails:* Evaluate at endpoints and turning points: there are no endpoints; the asymptote is the boundary.
+  - *Fails:* GDC maximum, minimum and table: the GDC shows no maximum or minimum, and cannot tell you the asymptote value is never reached.
+  - *Slow:* Locate the turning point on the GDC: for a quadratic, −b/(2a) gives the turning point in one line.
+- **Concept probes:**
+  - *true-false-reason* (L3): The range of f(x) = x² on −1 ≤ x ≤ 3 is 1 ≤ y ≤ 9. — False. Those are only the end values. The vertex at x = 0 is inside the domain, so the smallest value is 0 and the range is 0 ≤ y ≤ 9.
+  - *always-sometimes-never* (L3): Reflecting a graph in the x-axis leaves its range unchanged. — Sometimes. Every output changes sign, so y ≥ 1 becomes y ≤ −1. The range stays the same only when it is balanced about 0, such as −2 ≤ y ≤ 2.
+  - *interpret-parameter* (L3): f(x) = 3 + 2/(x − 1). Why is 3 not in the range? — 2/(x − 1) is never 0, because a fraction with a non-zero top is never 0. So f(x) can never equal 3: y = 3 is the horizontal asymptote.
+- **Misconceptions used:** 9. Uses only the endpoints of a restricted domain and misses a turning point inside it; Includes the asymptote value, e.g. gives the range of e^x + 2 as y ≥ 2 instead of y > 2; Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x); Writes x > 3 instead of x ≥ 3 for √(x − 3), excluding a valid endpoint; Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift; Describes the y-values (range) when the domain is asked for; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse.
+
+#### Is it a function? Is it one-to-one? (`fn-ext-is-function`, skill, level 1–2)
+
+*Gap:* SL2.2.is-function is in the syllabus, but no exam part since 2021 asks for it on its own.
+
+- **Situation:** A relation that may or may not be a function.
+- **Representations:** graph, table, equation, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given a graph → whether it is a function, with a reason
+  - new L1: given a table of pairs or a mapping → whether it is a function, naming any input with two outputs
+  - new L2: given an equation such as x² + y² = 9 or y² = x → whether y is a function of x, with a value that shows it
+  - new L2: given a function → whether it is one-to-one, so it has an inverse
+  - new L1: given a vertical line x = a, or a horizontal line y = b → whether each is a function
+  - new L2: given a relation that is not a function → a restriction that makes it one *(reversed)*
+- **Angles:** Vertical line test; Check each input has exactly one output; Solve for y and look for ±; Horizontal line test for one-to-one.
+  - *Slow:* Check each input has exactly one output: listing pairs from a curve is slower than one vertical line.
+  - *Fails:* Solve for y and look for ±: a graph with no equation has nothing to rearrange.
+  - *Fails:* Horizontal line test for one-to-one: it tests one-to-one, not whether the relation is a function.
+- **Concept probes:**
+  - *true-false-reason* (L3): y = x² is not a function, because 2 and −2 both give 4. — False. A function only needs one output for each input, and each x gives one y. Two inputs sharing an output means it is not one-to-one, not that it is not a function.
+  - *always-sometimes-never* (L3): A one-to-one function has an inverse function. — Always. Each output comes from exactly one input, so undoing f gives one answer for every output.
+- **Misconceptions used:** 3. Thinks a many-to-one function such as y = x² is not a function; Uses the horizontal line test to decide whether something is a function (it tests one-to-one); Believes a vertical line such as x = 3 is a function.
+
+#### What the brackets in f( ) mean (`fn-concept-function-notation`, concept, level 3–4)
+
+*Gap:* The exam uses this notation everywhere but never asks students to tell the look-alike expressions apart.
+
+- **Situation:** One function, its inputs and its outputs, shared with `fn-inverse-reflection`, `fn-evaluate-function`, `fn-domain-range`.
+- **Representations:** equation, table, graph (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given f and a value of x → f(x + 1) and f(x) + 1, and whether they are equal
+  - new L3: given f and a value of x → f(2x) and 2f(x), and whether they are equal
+  - new L3: given f and a value a → f⁻¹(a) and 1/f(a)
+  - new L3: given several look-alike expressions and their values or graphs → which value or graph goes with which expression
+  - new L4: given a family such as f(x) = mx + c → when f(x + 1) = f(x) + 1 for every x
+- **Angles:** Substitute the input in brackets; Read the output from a graph or table; Solve f(x) = a; Swap the coordinates.
+  - *Fails:* Read the output from a graph or table: a table checks some values, not every x.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): f(x + 1) = f(x) + 1. — Sometimes. For f(x) = x + 5 it holds for every x. For f(x) = x², f(x + 1) = x² + 2x + 1 but f(x) + 1 = x² + 1, so they agree only at x = 0.
+  - *predict-check* (L3): f(x) = 3x − 2. Predict which is bigger, f(2x) or 2f(x). Then check. — f(2x) = 6x − 2 and 2f(x) = 6x − 4, so f(2x) is always 2 more. Doubling the input doubles only the 3x part; doubling the output doubles the −2 as well.
+  - *true-false-reason* (L3): For f(x) = 2x, f⁻¹(4) = 1/f(4). — False. f⁻¹(4) is the input that gives 4, which is 2. 1/f(4) = 1/8. The −1 means "undo", not "one over".
+- **Misconceptions used:** 3. Writes f(x + 1) as f(x) + 1; Treats f(x) as f × x, e.g. writes f(2) = 2f; Reads f⁻¹(x) as 1/f(x).
+
+#### Substitute into an expression (`fn-pre-substitute`, prior-learning, level 0–0)
+
+*Gap:* Prior learning the IB assumes. Function values, model values, y-intercepts and range endpoints all go wrong here first.
+
+- **Situation:** An expression and a value to put in.
+- **Supports:** `evaluate-notation`, `function-model`, `zeros-intercepts`, `composite-value`, `range`
+- **Representations:** equation, words, table (bold: the exam uses it)
+- **Unknowns:**
+  - new L0: given an expression with x² and a negative input → the value
+  - new L0: given 3 − 2x and a negative input → the value
+  - new L0: given 2x² or −x² and an input → the value
+  - new L0: given an expression and a fraction input → the value
+  - new L0: given (x + 1)/(x − 1) and an input → the value
+  - new L0: given an expression such as 2x + 7 and its value → the input *(reversed)*
+- **Angles:** Put the input in brackets; Powers, then multiply and divide, then add and subtract; Work out the top and the bottom of a fraction separately; Check the sign and size.
+  - *Fails:* Check the sign and size: checks an answer but does not find the input.
+- **Concept probes:**
+  - *true-false-reason* (L3): −3² and (−3)² are the same number. — False. −3² means −(3²) = −9, because the power comes before the minus sign. (−3)² = (−3) × (−3) = 9.
+- **Misconceptions used:** 4. Squares without brackets: −x² at x = −3 gives 9; Multiplies before squaring: 2x² at x = 3 gives (2 × 3)² = 36; Drops the sign of the input: 3 − 2x at x = −2 gives 3 − 4 = −1; Works left to right ignoring the order of operations: 2 + 3 × 4 = 20.
+
+### 7. Lines (syllabus 2.1)
+
+1 exam types, 6 extension types; 10 exam unknowns and 50 new ones; 253 coverage cells (45 with "Exam-style only" on).
+
+#### Straight line from conditions, then use it (`fn-line-from-conditions`, exam, 12 bank parts)
+
+- **Situation:** A segment and a line built from it, shared with `fn-concept-gradient-meaning`.
+- **Representations:** **equation**, **words**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given two points → the gradient
+  - **exam** L1: given ax + by + d = 0 → the gradient
+  - new L1: given a line on a grid → the gradient
+  - new L2: given one point; the gradient; one coordinate of a second point → the other coordinate *(reversed)*
+  - **exam** L1: given two points, or a line → the gradient of a line perpendicular to it
+  - **exam** L1: given a point; a gradient → the equation in the stated form
+  - **exam** L2: given two points → the equation of the line through them
+  - **exam** L2: given two points → the midpoint, then the line through it and another point (often the origin)
+  - **exam** L2: given the two intercepts → the equation of the line
+  - **exam** L2: given a line; a point → the parallel line through the point
+  - **exam** L2: given a line or a segment; a point → the perpendicular line through the point
+  - new L3: given two points → the perpendicular bisector of the segment *(the exam splits it into midpoint, gradient and line)*
+  - **exam** L1: given the line; a point on it with one coordinate unknown → the unknown coordinate *(often followed by an area)*
+  - new L1: given y = mx + c with a fractional m, or a point and gradient → ax + by + d = 0 with integer coefficients
+  - new L1: given the line → the x- and y-intercepts
+  - new L2: given the line → the area of the triangle it makes with the axes
+  - new L1: given two lines → whether they are parallel, perpendicular or neither, with a reason
+  - new L2: given two lines, one with a constant k → k so that they are perpendicular (or parallel) *(reversed)*
+- **Angles:** m = (y₂ − y₁)/(x₂ − x₁); Rearrange to y = mx + c and read off m; Use m = −a/b for ax + by + d = 0; Count rise over run on the graph; Point-gradient form y − y₁ = m(x − x₁); Substitute the point into y = mx + c to find c; Translate y = mx by the vector (x₁, y₁); Linear regression through the two points; Set x = 0 for the y-intercept, y = 0 for the x-intercept; Read c from y = mx + c; Cover-up method for ax + by = k; Read the crossing points from the graph; Use m₁ × m₂ = −1; Flip and change the sign; Rotate the direction vector by 90°; Keep a and b for parallel, swap them for perpendicular; Average each coordinate.
+  - *Slow:* Count rise over run on the graph: two points must be worked out from the equation before there is anything to count.
+  - *Fails:* Linear regression through the two points: it needs two points; the perpendicular line is known only by one point and a gradient.
+  - *Slow:* Read c from y = mx + c: only quick when the line is already y = mx + c; from ax + by + d = 0 it needs rearranging first.
+  - *Fails:* Read the crossing points from the graph: a fractional intercept such as 7/3 cannot be read exactly from a sketch.
+  - *Slow:* Keep a and b for parallel, swap them for perpendicular: the segment is given by two points, not as ax + by + d = 0, so there are no coefficients to keep or swap until the line is written.
+- **Concept probes:**
+  - *true-false-reason* (L3): The lines 2x + 3y = 6 and 3x − 2y = 1 are perpendicular. — True. The gradients are −2/3 and 3/2, and (−2/3) × (3/2) = −1.
+  - *always-sometimes-never* (L3): A straight line meets both axes. — Sometimes. A horizontal line such as y = 3 never meets the x-axis, and a vertical line such as x = 2 never meets the y-axis. Every other line meets both (at the same point if it passes through the origin).
+  - *interpret-parameter* (L3): In ax + by + d = 0, d changes while a and b stay the same. What happens to the line? — It slides without turning: the gradient −a/b does not change, so the new line is parallel to the old one. The intercepts −d/a and −d/b grow or shrink in step with d.
+- **Misconceptions used:** 13. Computes run over rise, (x₂ − x₁)/(y₂ − y₁), giving the reciprocal of the gradient; Subtracts the coordinates in inconsistent order, (y₂ − y₁)/(x₁ − x₂), and gets the wrong sign; Reads the gradient of 3x − 2y + 6 = 0 as 3 or −3 instead of 3/2; Writes y − y₁ = m(x + x₁), which puts the line through (−x₁, y₁); Leaves fractions, or drops the '= 0', when integer coefficients in ax + by + d = 0 are required; Uses the gradient of the wrong line (e.g. the original line instead of the perpendicular one); Writes the y-intercept as (c, 0) instead of (0, c); Sets y = 0 to find the y-intercept (swaps the two conditions); For ax + by + d = 0 gives the y-intercept as d instead of −d/b; Takes the perpendicular gradient as −m or 1/m instead of −1/m; Thinks perpendicular gradients multiply to 1; For a perpendicular bisector, uses the gradient of AB itself or forgets that the line must pass through the midpoint; Subtracting instead of adding: M = ((x₂ − x₁)/2, ...).
+
+#### Find where two lines meet (`fn-ext-intersection-lines`, skill, level 1–3)
+
+*Gap:* SL2.1.intersection-lines is in the syllabus, but no exam part since 2021 asks for it.
+
+- **Situation:** Two lines and where they meet.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given two lines as y = mx + c → the meeting point
+  - new L2: given two lines as ax + by = k → the meeting point
+  - new L1: given two lines; a point → a check that the point lies on both
+  - new L2: given two lines → whether they meet, with a reason
+  - new L1: given two lines drawn on a grid → the meeting point, confirmed by algebra
+  - new L3: given two lines; a gradient or a second point → the line through their meeting point
+  - new L3: given two lines, one with an unknown constant; the x-coordinate where they meet → the constant *(reversed)*
+- **Angles:** Substitute one equation into the other; Equate the two expressions for y; Eliminate a variable; GDC intersect or simultaneous-equation solver; Use m = −a/b for ax + by + d = 0.
+  - *Slow:* Equate the two expressions for y: both lines must first be rearranged to y = …, which often brings in fractions.
+  - *Slow:* Eliminate a variable: with both lines already as y = …, setting them equal is one line.
+  - *Fails:* GDC intersect or simultaneous-equation solver: parallel lines show no meeting point on the screen, but a window cannot prove they never meet; equal gradients do.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): Two different straight lines meet at exactly one point. — Sometimes. They meet once unless they have the same gradient; then, being different lines, they are parallel and never meet.
+  - *predict-check* (L3): Predict whether y = 2x + 1 and 4x − 2y = 5 meet. Then check. — They do not. 4x − 2y = 5 rearranges to y = 2x − 5/2: the same gradient 2 but a different intercept, so the lines are parallel.
+- **Misconceptions used:** 3. Finds x but stops, giving only one coordinate of the intersection; Makes a sign error when subtracting one equation from the other; Assumes two lines with equal gradients still meet somewhere.
+
+#### Model with a straight line (`fn-ext-line-model`, skill, level 1–4)
+
+*Gap:* SL2.1.line-model is in the syllabus, but no exam part since 2021 asks for it.
+
+- **Situation:** A straight-line model in context.
+- **Representations:** words, equation, table, graph (bold: the exam uses it)
+- **Unknowns:**
+  - new L2: given a fixed amount and a rate, in words → the model
+  - new L2: given two (input, output) pairs → the model
+  - new L2: given the model → what the gradient means, with units
+  - new L2: given the model → what the intercept means
+  - new L1: given the model; an input → the output
+  - new L2: given the model; an output → the input that gives it *(reversed)*
+  - new L2: given a table of values → whether a line fits, and its rate
+  - new L3: given the model; a prediction → whether the prediction makes sense, and the sensible domain
+  - new L4: given two models in words or equations → when they cost the same, and which is cheaper after that
+- **Angles:** Build the line from two data points; Read the rate and the starting value from the words; Use constant differences in a table; Equate the two expressions for y; Substitute and attach units; Solve model = target.
+  - *Fails:* Read the rate and the starting value from the words: the words give two totals, not the fixed amount and the rate, so neither can be read off.
+  - *Slow:* Use constant differences in a table: only two data points means no table of equal steps; the gradient formula is direct.
+- **Concept probes:**
+  - *interpret-parameter* (L3): A taxi fare is C = 1.8d + 4 dollars for a trip of d km. What do 1.8 and 4 mean? — 4 is the fixed charge in dollars, paid even for a trip of 0 km. 1.8 is the extra cost in dollars for each kilometre.
+  - *true-false-reason* (L3): A straight-line model gives C(10) = 22 and C(20) = 40. Then C(40) = 80. — False. The gradient is (40 − 22)/10 = 1.8, so C = 1.8d + 4 and C(40) = 76. Doubling the input doubles the output only when the line goes through the origin.
+- **Misconceptions used:** 4. Interprets the gradient as a total amount rather than an amount per unit; Swaps the roles of the fixed charge and the rate; Uses the model far outside its sensible domain, e.g. negative time; Answers with the output when the input is asked for (e.g. a height when a time is asked).
+
+#### What a gradient means (`fn-concept-gradient-meaning`, concept, level 3–4)
+
+*Gap:* The exam uses m₁m₂ = −1 and "parallel means equal gradients" but never asks why, or what a gradient measures.
+
+- **Situation:** A segment and a line built from it, shared with `fn-line-from-conditions`.
+- **Representations:** graph, equation, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a line in a context or a table → what the gradient measures, with units
+  - new L3: given several lines → which is steepest, and what the sign of each gradient says
+  - new L3: given two lines with equal gradients → why they never meet (or are the same line)
+  - new L4: given a line and its quarter-turn → why the gradients multiply to −1
+  - new L4: given a horizontal and a vertical line → why m₁m₂ = −1 cannot be used, though they are perpendicular
+- **Angles:** Count rise over run on the graph; Use constant differences in a table; Rotate the direction vector by 90°; Use m₁ × m₂ = −1; Flip and change the sign.
+  - *Fails:* Use m₁ × m₂ = −1: a vertical line has no gradient, so there is nothing to multiply.
+- **Concept probes:**
+  - *true-false-reason* (L4): If two lines are perpendicular, their gradients multiply to −1. — False as stated. It holds for every perpendicular pair except a horizontal line and a vertical one: the vertical line has no gradient, so there is no product.
+  - *predict-check* (L3): Predict the gradient of a line perpendicular to y = 3x. Then check it by turning the step "right 1, up 3" through a quarter-turn. — −1/3. A quarter-turn anticlockwise sends the step (1, 3) to (−3, 1): left 3, up 1, a gradient of 1/(−3) = −1/3. And 3 × (−1/3) = −1.
+  - *always-sometimes-never* (L3): Two lines with the same gradient never meet. — Sometimes. If their y-intercepts differ they are parallel and never meet. If the intercepts are equal they are the same line and share every point.
+- **Misconceptions used:** 3. Computes run over rise, (x₂ − x₁)/(y₂ − y₁), giving the reciprocal of the gradient; Thinks perpendicular gradients multiply to 1; Interprets the gradient as a total amount rather than an amount per unit.
+
+#### Solve linear equations (`fn-pre-linear-equations`, prior-learning, level 0–0)
+
+*Gap:* Prior learning the IB assumes. Finding c, an intercept, a missing coordinate or a meeting point all end in one.
+
+- **Situation:** A linear equation with a known solution.
+- **Supports:** `equation-of-line`, `intercepts`, `intersection-lines`, `line-model`, `find-inverse`
+- **Representations:** equation, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L0: given ax + b = c → x
+  - new L0: given ax + b = cx + d → x
+  - new L0: given p(x + q) = r(x + s) → x
+  - new L0: given x/p + x/q = r, or (x + a)/p = (x − b)/q → x
+  - new L0: given ax + by = k → y = mx + c
+  - new L0: given an equation with one number blank; its solution → the missing number *(reversed)*
+- **Angles:** Undo each operation on both sides; Collect x on one side; Expand the brackets first; Multiply every term by the common denominator; Check by substituting.
+  - *Slow:* Expand the brackets first: when one side is a single bracket, dividing by the number in front first is quicker.
+  - *Fails:* Check by substituting: checks an answer but does not find the missing number.
+- **Concept probes:**
+  - *true-false-reason* (L3): Multiplying both sides of x/2 + 3 = 5 by 2 gives x + 3 = 10. — False. Every term is multiplied, so it gives x + 6 = 10 and x = 4. Check: 4/2 + 3 = 5.
+- **Misconceptions used:** 4. Multiplies only the first term in a bracket: 3(x + 2) = 3x + 2; Moves a term to the other side without changing its sign; Multiplies only the fraction terms by the common denominator; Divides only one term when making y the subject: 2y = 3x − 6 gives y = 3x/2 − 6.
+
+#### Solve simultaneous linear equations (`fn-pre-simultaneous`, prior-learning, level 0–0)
+
+*Gap:* Prior learning the IB assumes. Meeting points of lines and finding constants from two conditions both need it.
+
+- **Situation:** Two equations with a known solution.
+- **Supports:** `intersection-lines`, `equation-of-line`, `find-equation`, `find-parameters`
+- **Representations:** equation, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L0: given x + y = 7 and x − y = 1 style → (x, y)
+  - new L0: given one equation to scale, e.g. 2x + 3y = 12 and x − y = 1 → (x, y)
+  - new L0: given both to scale, e.g. 3x + 2y = 7 and 2x − 5y = 11 → (x, y)
+  - new L0: given a context with two unknowns → the two values
+  - new L0: given a pair with no solution or infinitely many → which, and why
+  - new L0: given a pair with one unknown coefficient; the solution → the coefficient *(reversed)*
+- **Angles:** Eliminate a variable; Substitute; Set the two expressions equal; Check in both equations.
+  - *Slow:* Substitute: no variable has coefficient 1, so making one the subject brings in fractions.
+  - *Slow:* Set the two expressions equal: both equations must be rearranged to y = … first.
+  - *Fails:* Check in both equations: there is no single pair to check.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): Two linear equations in x and y have exactly one solution. — Sometimes. x + y = 2 and x + y = 5 have none (parallel lines). x + y = 2 and 2x + 2y = 4 have infinitely many (the same line).
+- **Misconceptions used:** 4. Adds the equations when the matching coefficients have the same sign; Multiplies only one side of an equation when scaling it; Finds one variable and stops; Checks the answer only in the equation used to find the second variable.
+
+#### How fast? One rate, four disguises (`fn-link-rate-of-change`, link, level 3–4)
+
+*Gap:* The exam asks for gradients, common differences, regression slopes and derivatives in four topics but never asks how they are the same idea.
+
+- **Situation:** A rate of change in four forms.
+- **Representations:** equation, graph, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given an arithmetic sequence (first terms or u_n) → the line through the points (n, u_n): its gradient and y-intercept *(u_n = 7 + 4(n − 1) lies on y = 4x + 3)*
+  - new L3: given a line y = mx + c → the arithmetic sequence whose terms sit on it at x = 1, 2, 3, …: u₁ and d *(reversed)*
+  - new L3: given two terms u_p and u_q → d, as the gradient between (p, u_p) and (q, u_q), then u₁ *(u₄ = 19 and u₁₀ = 43 give d = 24/6 = 4 and u₁ = 7)*
+  - new L3: given a sequence rule, a line, a regression line and a derivative that all go up by m per step → which is an exact rule for whole steps, an exact rule for all x, a fitted model, and a rate at one instant
+  - new L3: given a regression line in context → what the gradient means, with units, and why it is an average
+  - new L3: given f′(a) = k in context → what it means, with units and sign, and how it differs from the gradient of a line
+  - new L3: given a curve such as y = 2x²; a point x = a → chord gradients for shrinking h, then the tangent gradient *(y = 2x² at x = 1: chord gradient 4 + 2h, so 4.2, 4.02, … → 4)*
+  - new L3: given a curve; x = a → the gradient of the tangent, choosing between chords, the power rule and the GDC
+  - new L4: given f′(x) = m for every x; one point on the graph → f, which must be a straight line *(reversed)*
+- **Angles:** m = (y₂ − y₁)/(x₂ − x₁); Count rise over run on the graph; Read the rate and the starting value from the words; Use constant differences in a table; Treat u_n as a linear function of n; Substitute into u_n = u_1 + (n − 1)d; Divide the change in value by the number of steps; Set up and solve simultaneous equations; 'For each extra unit of x, y changes by a'; Read dy/dx as 'units of y per unit of x'; Use the sign for direction; Shrink the chord numerically; Simplify (f(a + h) − f(a))/h; Differentiate, then substitute; GDC dy/dx at the point.
+  - *Slow:* Set up and solve simultaneous equations: two equations in u₁ and d when one division by the number of gaps gives d.
+  - *Fails:* Shrink the chord numerically: a table of chords points to 4 but never reaches it; the exact value needs the limit or the power rule.
+- **Concept probes:**
+  - *true-false-reason* (L3): The regression line y = 0.6x + 12 says that y goes up by exactly 0.6 every time x goes up by 1. — False. It is a model fitted to scattered data: the predicted y goes up by 0.6 per unit of x, and real points sit above and below the line. A sequence rule or f′ = 0.6 would be exact.
+  - *interpret-parameter* (L3): u_n = 7 + 4(n − 1). Plot the points (n, u_n). What are the gradient and y-intercept of the line through them, and why is the intercept not 7? — Gradient 4, the common difference; intercept 3. The line is y = 4x + 3, and 3 is the value at n = 0, one step before the first term (7 − 4).
+  - *predict-check* (L3): For y = 2x², predict the gradient of the chord from x = 1 to x = 1.1, then the gradient of the tangent at x = 1. — Chord: (2(1.21) − 2)/0.1 = 4.2. In general the chord gradient is 4 + 2h, which tends to 4 as h shrinks, and the power rule gives 4x = 4 at x = 1.
+- **Misconceptions used:** 13. Computes run over rise, (x₂ − x₁)/(y₂ − y₁), giving the reciprocal of the gradient; Subtracts the coordinates in inconsistent order, (y₂ − y₁)/(x₁ − x₂), and gets the wrong sign; Interprets the gradient as a total amount rather than an amount per unit; Swaps the roles of the fixed charge and the rate; Using u_1 + nd, which gives u_11 instead of u_10; Dividing by the number of terms instead of the number of gaps: d = 16/5; Interpreting b as the rate of change and a as the starting value; Saying 'a is the gradient' without any reference to the context or units; Ignoring the negative sign, so dV/dt = −3 is read as increasing by 3; Giving the units of y only (cm²) instead of y per unit x (cm² per second); Putting h = 0 before cancelling, giving 0/0; Taking one chord gradient as the exact gradient of the tangent; Substituting into f(x) instead of f′(x).
+
+### 8. Transformations (syllabus 2.11)
+
+2 exam types, 3 extension types; 6 exam unknowns and 47 new ones; 257 coverage cells (28 with "Exam-style only" on).
+
+#### Describe the transformations between two graphs (`fn-transform-describe`, exam, 6 bank parts)
+
+- **Situation:** A base graph and a chain of moves, shared with `fn-transform-apply`, `fn-concept-transform-order`.
+- **Representations:** **equation**, **graph**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given f; g = f(x − c) + d → the translation, as a vector or in words
+  - new L1: given f; g = a·f(x) or f(bx) → the stretch: its direction and scale factor
+  - **exam** L2: given f; g with an unknown stretch factor and shift, as an equation or a graph → the horizontal stretch factor and the vertical translation
+  - **exam** L3: given two models of the same shape, such as two sine curves → the vertical stretch and translation that map one onto the other, in order
+  - **exam** L3: given log_b x; a log such as log_b(bⁿx) or log_b(xⁿ) → the rewritten form, and the translation or stretch it shows
+  - new L2: given graphs of f and g with key points → the transformations, from how the points moved
+  - new L2: given f; g with a reflection and one other move → both transformations
+  - new L2: given y = x²; y = x² + px + q → the translation vector, after writing it as (x − h)² + k
+  - new L3: given f; g = f(bx − e) → the stretch and the translation, after taking b out of the bracket
+  - new L1: given a curve with a marked key point; the same point after the move → the translation vector
+  - new L3: given f; g; the moves from f to g → the moves that map g back onto f, in order *(reversed: undo each move, last one first)*
+- **Angles:** Rewrite g in terms of f and read each change; Compare where key points and asymptotes moved; Compare the two graphs directly; p f(x) scales y by p; f(qx) scales x by 1/q; Scale key points; Use invariant points to check; Replace x with x − a, then add b; Shift the vertex, centre or asymptotes; Move key points by the vector; Graph both on the GDC and compare; Complete the square.
+  - *Fails:* Rewrite g in terms of f and read each change: only graphs are given, so there is no equation to rewrite.
+  - *Slow:* Compare where key points and asymptotes moved: a log graph has few clean points, and one curve can be read as a stretch or as a translation.
+  - *Slow:* Compare the two graphs directly: a stretch factor is hard to judge by eye; measured points are needed.
+  - *Fails:* Use invariant points to check: once a translation is added, the intercepts move too, so nothing stays fixed to check against.
+  - *Fails:* Graph both on the GDC and compare: log-law versions are Paper 1, and the rewrite has to be shown.
+- **Concept probes:**
+  - *true-false-reason* (L3): The graph of y = f(x + 2) is the graph of f moved 2 to the right. — False. It moves 2 to the left. The new graph reaches f(0) when x + 2 = 0, that is at x = −2, so every point arrives 2 units earlier.
+  - *interpret-parameter* (L4): log₂(8x) = log₂ x + 3. Name two different single transformations that map y = log₂ x onto y = log₂(8x). — A translation by the vector (0, 3), read from log₂ x + 3, or a horizontal stretch with scale factor 1/8, read from the 8x inside. Both give the same curve.
+  - *always-sometimes-never* (L4): A horizontal stretch with scale factor 1/2 gives the same graph as a vertical stretch with scale factor 2. — Sometimes. For f(x) = 3x, f(2x) = 6x = 2f(x), so they match. For f(x) = x², f(2x) = 4x² but 2f(x) = 2x², so they do not.
+- **Misconceptions used:** 6. Describes f(x + 2) as a translation 2 to the right, or gives the vector (2, 0); Says 'moved' or 'shifted' without direction and size, or 'enlarged' instead of 'stretched'; Gives a stretch without saying parallel to which axis; Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2); Describes a stretch without its direction or scale factor; Confuses −f(x) (x-axis) with f(−x) (y-axis).
+
+#### Apply transformations to a graph (`fn-transform-apply`, exam, 2 bank parts)
+
+- **Situation:** A base graph and a chain of moves, shared with `fn-transform-describe`, `fn-concept-transform-order`.
+- **Representations:** **graph**, **equation**, words, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the graph of f with labelled points; a vertical stretch and a vertical translation → a sketch of g = a·f(x) + d through the image points
+  - **exam** L3: given f with its domain; a reflection and a translation, in order → g(x) and the domain of g
+  - new L2: given f; up to three moves, in order → g(x)
+  - new L1: given f; a vector (c, d) → g(x)
+  - new L1: given f; a reflection in one axis → −f(x) or f(−x), simplified
+  - new L1: given the graph of f with labelled points; a reflection → a sketch of −f(x) or f(−x) showing the images
+  - new L2: given the graph of f with labelled points; f(x − c) or f(bx) → a sketch of the new graph
+  - new L2: given a point on f; g = a·f(b(x − c)) + d → the image of the point on g
+  - new L3: given a point on g; the moves from f to g → the point on f it came from *(reversed)*
+  - new L1: given f with its asymptotes; the moves → the asymptotes of g
+  - new L2: given f with its domain and range; the moves → the domain and range of g
+  - new L3: given g; the moves that made it from f → f(x), by undoing the moves in reverse order *(reversed)*
+  - new L3: given f; two moves; both orders → g for each order, and whether they differ
+- **Angles:** Transform the labelled points and asymptotes, then redraw; Sketch each intermediate graph; Check on the GDC when f is known; Apply one change at a time to the equation; Follow one point through every step; Read a·f(b(x + c)) + d as stretches then one translation; Check with a GDC overlay; Use (x, y) ↦ (x/b − c, ay + d); Move the point one transformation at a time; Set the inside equal to the original x; Negate the whole function or replace x with −x; Flip key points; Graph both on the GDC and compare; Shift the vertex, centre or asymptotes; Replace x with x − a, then add b; Read the horizontal extent of the graph.
+  - *Slow:* Sketch each intermediate graph: one move needs no in-between sketch.
+  - *Fails:* Check on the GDC when f is known: f is given only as a graph, so there is no rule to enter.
+  - *Slow:* Read a·f(b(x + c)) + d as stretches then one translation: when the translation comes before a horizontal stretch, the shift inside the bracket is divided by b, so the form must be rebuilt.
+  - *Slow:* Use (x, y) ↦ (x/b − c, ay + d): the rule has to be run backwards: x₀ = b(x − c) and y₀ = (y − d)/a.
+- **Concept probes:**
+  - *predict-check* (L3): The point (2, 5) lies on y = f(x). Predict where it goes on y = f(2x) − 1. Then check. — (1, 4). The 2x halves the x-coordinate, because x = 1 now does what x = 2 did, and the −1 moves the point down 1. Check: at x = 1, f(2·1) − 1 = f(2) − 1 = 4.
+  - *true-false-reason* (L3): A vertical stretch never moves the x-intercepts. — True. At an x-intercept f(x) = 0, and a·0 = 0, so the point stays on the x-axis whatever a is.
+  - *always-sometimes-never* (L3): Reflecting a graph in the y-axis changes its equation. — Sometimes. y = x³ + x becomes y = −x³ − x, a new rule. But for y = x² + 1, (−x)² + 1 = x² + 1: a graph that is symmetric about the y-axis is unchanged.
+- **Misconceptions used:** 19. Moves the curve but leaves the asymptote in its original place; Stretches away from the wrong axis, e.g. moves points vertically for f(2x); Sketches f(x − 2) shifted to the left; Writes f(2x − 3) for 'horizontal stretch by 1/2, then translate 3 right' (it is f(2(x − 3))); Writes 2(f(x) + 3) for 'vertical stretch by 2, then translate up 3' (it is 2f(x) + 3); Assumes the order of transformations never matters; Moves the point the wrong way horizontally: (2, 5) on f becomes (1, 5) on f(x − 1); Applies the vertical translation before the vertical stretch; Doubles the x-coordinate for f(2x) instead of halving it; Reflects y = x² + 1 in the x-axis as y = −x² + 1, negating only one term; Confuses −f(x) (x-axis) with f(−x) (y-axis); Writes (−x)² + 1 for a reflection in the x-axis, not noticing it gives the same graph; Writes f(x + 3) − 2 for a translation by (3, −2), getting the horizontal sign wrong; Puts the vertical component inside the bracket, writing f(x − 3 − 2); Moves the curve's points but leaves the asymptote where it was; Thinks 2f(x) moves the x-intercepts; Writes x > 3 instead of x ≥ 3 for √(x − 3), excluding a valid endpoint; Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift; Describes the y-values (range) when the domain is asked for.
+
+#### Order of moves, inside and outside (`fn-concept-transform-order`, concept, level 3–4)
+
+*Gap:* The exam states the order when it matters but never asks students to explain why, or why f(x + 2) moves left.
+
+- **Situation:** A base graph and a chain of moves, shared with `fn-transform-describe`, `fn-transform-apply`.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given f; a stretch and a translation in the same direction → g for each order, and a point where they differ
+  - new L4: given pairs of moves → the pairs whose order does not matter, with a reason
+  - new L3: given f; g = f(x + c) or f(bx) → which way the graph moves, and why it is the opposite of the sign or factor
+  - new L3: given f; the same change made inside and outside the bracket → the two graphs, and which axis each change acts on
+  - new L3: given g = f(bx − e) or a(f(x) + d) → an order of moves that gives g, and the size of each
+  - new L3: given a point on f; two moves; both orders → the image under each order
+  - new L4: given the moves from f to g → the moves from g back to f, in order
+- **Angles:** Apply one change at a time to the equation; Follow one point through every step; Read a·f(b(x + c)) + d as stretches then one translation; Move the point one transformation at a time; Move key points by the vector; p f(x) scales y by p; f(qx) scales x by 1/q; Rewrite g in terms of f and read each change.
+  - *Fails:* Follow one point through every step: one point landing in the same place both ways does not prove the orders always agree.
+  - *Slow:* Read a·f(b(x + c)) + d as stretches then one translation: the form puts stretches first, so the other order has to be converted.
+- **Concept probes:**
+  - *true-false-reason* (L3): Translating f 3 to the right and then stretching it horizontally by scale factor 2 gives the same graph as doing the stretch first. — False. Translate then stretch gives f(x/2 − 3); stretch then translate gives f((x − 3)/2). Follow the point at x = 0: the first order sends it to x = 6, the second to x = 3.
+  - *always-sometimes-never* (L4): Two transformations can be done in either order. — Sometimes. A vertical move and a horizontal move never interfere, and two translations can swap. A stretch and a translation in the same direction usually cannot: stretching then moving up 3 gives 2f(x) + 3, moving up then stretching gives 2f(x) + 6.
+  - *predict-check* (L3): Predict which way y = (x + 4)² sits compared with y = x². Then check with the vertex. — 4 to the left. The bracket is 0 when x = −4, so the vertex is (−4, 0). Inside the bracket, x needs to be 4 less to give the same value, so the graph moves the opposite way to the sign.
+- **Misconceptions used:** 5. Writes f(2x − 3) for 'horizontal stretch by 1/2, then translate 3 right' (it is f(2(x − 3))); Assumes the order of transformations never matters; Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2); Describes f(x + 2) as a translation 2 to the right, or gives the vector (2, 0); Applies the vertical translation before the vertical stretch.
+
+#### One move, many places (`fn-link-transformations`, link, level 3–5)
+
+*Gap:* The exam tests each move inside its own topic (graphs, statistics, calculus) and never asks a student to see that they are the same move.
+
+- **Situation:** One translation and stretch in several settings.
+- **Representations:** equation, graph, table, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a parent graph (x², 1/x, eˣ or sin x); a translation vector (a, b) → where its key feature lands: vertex, asymptotes or a maximum point *(by (−1, 4): vertex (−1, 4); asymptotes x = −1 and y = 4; asymptote y = 4; maximum (π/2 − 1, 5))*
+  - new L3: given two antiderivatives of the same function, such as x³ + 4 and x³ − 3 → the translation vector that maps one graph onto the other *((0, −7))*
+  - new L3: given f′(x); a point the curve passes through → which member of the family F(x) + C it is, as the vertical move from F
+  - new L3: given summary statistics of a data set; every value increased by k → the new mean, median, standard deviation and IQR
+  - new L4: given the mean and standard deviation; every value multiplied by m, then increased by k → the new mean, standard deviation and variance *(mean 20 and SD 3, then × 2 + 5: mean 45, SD 6, variance 36)*
+  - new L4: given summary statistics before and after a change → the constant added, or the factor, that was applied *(reversed)*
+  - new L4: given X ~ N(μ, σ²) → the translation and the stretch that turn its curve into N(0, 1), and why the probability does not change
+  - new L3: given X ~ N(μ, σ²); a probability such as P(X < x₁) → the same probability written for Z
+  - new L3: given the area under y = f(x) from p to q → the area under y = f(x − a) from p + a to q + a, without integrating *(∫₀² x³ dx = 4, so ∫₃⁵ (x − 3)³ dx = 4)*
+  - new L4: given ∫ from p to q of f(x) dx → ∫ from p to q of (f(x) + b) dx and of m·f(x) dx *(∫₀³ f = 5 gives ∫₀³ (f + 2) = 11 and ∫₀³ 3f = 15)*
+- **Angles:** Replace x with x − a, then add b; Move key points by the vector; Shift the vertex, centre or asymptotes; p f(x) scales y by p; f(qx) scales x by 1/q; Read the translation vector; Location shifts, spread scales; Picture the whole data set moving; Test on a tiny data set; Standardise each bound; Check both sides on the GDC; Choose the right vertical shift; Integrate, then substitute the point; Picture the areas; Apply the rules.
+  - *Fails:* Picture the whole data set moving: a picture shows the spread grows but not that the variance grows by m², not m.
+  - *Slow:* Test on a tiny data set: a standard deviation by hand, twice, to confirm a one-line rule.
+  - *Fails:* Check both sides on the GDC: equal GDC answers confirm the probabilities match but do not say which moves made them match.
+  - *Fails:* Apply the rules: linearity says nothing about moving the limits; that is a fact about translations.
+- **Concept probes:**
+  - *true-false-reason* (L3): Every score in a test is increased by 4, so the standard deviation goes up by 4. — False. Adding 4 slides the whole histogram right by 4, like y = f(x) + 4 moves a graph. The mean and median go up by 4, but the gaps between scores, and so the standard deviation and IQR, do not change.
+  - *predict-check* (L3): The area under y = x³ from x = 0 to x = 2 is 4. Predict the area under y = (x − 3)³ from x = 3 to x = 5, then check by integrating. — 4. The curve is moved 3 right and the limits move with it, so the region is the same shape. Check: [(x − 3)⁴/4] from 3 to 5 is 16/4 = 4.
+  - *interpret-parameter* (L4): In z = (x − μ)/σ, what does subtracting μ do to the normal curve, and what does dividing by σ do? — Subtracting μ translates the curve by (−μ, 0) so it is centred on 0. Dividing by σ stretches it horizontally by a factor 1/σ so its spread is 1. Each x goes to its own z, so the share of the population between two x-values is the share between the matching z-values: the probability is unchanged.
+- **Misconceptions used:** 14. Writes f(x + 3) − 2 for a translation by (3, −2), getting the horizontal sign wrong; Puts the vertical component inside the bracket, writing f(x − 3 − 2); Moves the curve's points but leaves the asymptote where it was; Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2); Describes a stretch without its direction or scale factor; Translating right for a +c inside the bracket; Adding a constant changes the standard deviation; Multiplying by k multiplies the variance by k (it is k²); Adding k to every value adds k to the IQR; Reversing the inequality sign when standardising; Standardising with the variance instead of the standard deviation; Substituting the point into f′(x) instead of f(x); Leaving + C in the final answer, or setting C = 0; ∫ from 1 to 4 of (f(x) + 2) dx = 7 + 2 instead of 7 + 2 × 3.
+
+#### Movement as a vector (`fn-link-vectors`, link, level 3–4)
+
+*Gap:* The exam uses translation vectors, gradients and 3D steps in separate topics and never asks a student to treat them as one object.
+
+- **Situation:** One displacement in several settings.
+- **Representations:** equation, graph, words (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given y = f(x); a translation vector (a, b) → the equation y = f(x − a) + b
+  - new L3: given a point on y = f(x); a translation vector → its image, and the vector that moves it back
+  - new L3: given a point on y = f(x); the new equation y = f(x − a) + b → the image of the point
+  - new L3: given a point and its image under a translation → the vector, then the new equation *(reversed)*
+  - new L3: given y = k(x − h)² + c → the vector that carries y = kx² onto it *(y = 3(x + 1)² − 7 is y = 3x² moved by (−1, −7))*
+  - new L3: given y = kx²; a translation vector → the vertex form and the vertex *(reversed)*
+  - new L3: given the gradient p/q of a line → a vector that points along the line *(gradient −2/5 gives (5, −2))*
+  - new L3: given a direction vector (q, p), or two points on the line → the gradient, and the line through a given point *(reversed)*
+  - new L4: given y = A sin(Bx + E) + D → the translation part as a vector (−E/B, D) *(y = 2 sin(3x + π/2) + 1 is moved by (−π/6, 1))*
+  - new L4: given two points A and B in 3D → the step from A to B, the midpoint (half the step) and the distance (the length of the step) *(A(1, −2, 3), B(3, 2, 7): step (2, 4, 4), midpoint (2, 0, 5), distance 6)*
+  - new L3: given A; the midpoint M → B, by taking the step from A to M again *(reversed)*
+  - new L4: given a displacement graph s_A(t); B's graph is A's moved by (d, 0) → s_B(t), and what the vector means for B *(s_B(t) = s_A(t − d): B reaches each position d seconds after A)*
+- **Angles:** Replace x with x − a, then add b; Move key points by the vector; Shift the vertex, centre or asymptotes; Use (x, y) ↦ (x/b − c, ay + d); Set the inside equal to the original x; Read (h, k) as the translation of y = ax²; x = −b/(2a), then substitute for y; Count rise over run on the graph; m = (y₂ − y₁)/(x₂ − x₁); Factor b out of the bracket; Read the translation vector; Track key points; Half the journey, or the same step again; Average each coordinate; Solve one equation per coordinate; 3D distance formula; Pythagoras twice.
+  - *Slow:* Set the inside equal to the original x: solving for the input is not needed when the vector is given: just add it.
+  - *Slow:* x = −b/(2a), then substitute for y: expanding to use −b/(2a) undoes the form that already shows the vector.
+  - *Slow:* Track key points: finding where a maximum moves takes longer than factorising B out of the bracket.
+  - *Fails:* Average each coordinate: averaging gives a midpoint, not the far end; the step must be repeated or each coordinate solved.
+- **Concept probes:**
+  - *true-false-reason* (L3): Translating y = x² by the vector (2, 5) gives y = (x + 2)² + 5. — False. The new graph must reach each height 2 units later, so x has to be reduced by 2 before squaring: y = (x − 2)² + 5, with vertex (2, 5).
+  - *interpret-parameter* (L3): y = 3(x + 1)² − 7 is y = 3x² moved by a vector. What is the vector, and where does the point (1, 3) on y = 3x² go? — The vector is (−1, −7), which is also the vertex. (1, 3) goes to (0, −4); check: 3(0 + 1)² − 7 = −4.
+  - *predict-check* (L3): A line has gradient −2/5. Predict a vector along it, then check by moving from (1, 4) by your vector. — (5, −2): 5 across and 2 down. From (1, 4) you reach (6, 2), and (2 − 4)/(6 − 1) = −2/5.
+- **Misconceptions used:** 12. Writes f(x + 3) − 2 for a translation by (3, −2), getting the horizontal sign wrong; Puts the vertical component inside the bracket, writing f(x − 3 − 2); Moves the point the wrong way horizontally: (2, 5) on f becomes (1, 5) on f(x − 1); From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4); Computes run over rise, (x₂ − x₁)/(y₂ − y₁), giving the reciprocal of the gradient; Subtracts the coordinates in inconsistent order, (y₂ − y₁)/(x₁ − x₂), and gets the wrong sign; Reading sin(2x + π/3) as a shift of π/3 left instead of π/6; Translating right for a +c inside the bracket; Finding the endpoint by averaging A and M instead of extending past M; Halving the midpoint coordinates to get the endpoint; Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²; Mishandling a negative coordinate, e.g. taking 4 − (−2) as 2.
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 0 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+
+| Type | Kind | Skills | Level | Gap | What it asks |
+|---|---|---|---|---|---|
+| `t1-link-binomial` The nCr pattern | link (binomial) | ncr-pascal, specific-term, exact-probability | 3–4 | The exam asks binomial expansions (topic 1) and binomial probabilities (topic 4) separately and never asks a student to see the same coefficients in both. | Match a row of Pascal's triangle, a term of a binomial expansion and a binomial probability built from the same nCr. |
+| `t1-ext-standard-form-add` Add and subtract in standard form | skill | add-subtract | 1–2 | The bank's standard-form parts (t1-standard-form) convert, multiply and divide; none adds or subtracts. | Add or subtract two numbers in standard form with different powers of ten, and give the answer in standard form. |
+| `t1-ext-standard-form-powers` Powers and roots in standard form | skill | powers-roots | 2–3 | The bank's standard-form parts (t1-standard-form) never raise a number in standard form to a power or take its root. | Square, cube or take a root of a number in standard form, adjusting the power of ten so that the root comes out whole. |
+| `t1-ext-sigma-arithmetic` Sigma notation for arithmetic series | skill | sigma | 2–3 | In the bank, sigma notation appears only with geometric series (t1-geometric-sequence); no part uses it with an arithmetic series. | Read a sigma sum: count its terms, evaluate it as an arithmetic series, write a series in sigma form, or find the upper limit from the total. |
+| `t1-ext-real-value` Real value after inflation | skill | real-value | 3–4 | None of the 16 compound-interest parts in the bank (t1-compound-interest) adjusts for inflation. | Find the real value of an investment by using the interest rate minus the inflation rate, and decide whether it keeps up with prices. |
+| `t1-ext-exponent-laws` Integer exponent laws | skill | integer-exponent-laws, zero-negative | 1–3 | Index laws are used as steps inside calculus and log questions; no bank part tests them on their own. | Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/xⁿ as ax⁻ⁿ. |
+| `t1-ext-logs-with-technology` Logs and exponential equations on the GDC | skill | evaluate-tech | 1–2 | The bank uses the GDC for logs only as a step inside model and finance questions; no part asks for it on its own. | Evaluate log and ln values on the GDC and solve aˣ = b to 3 significant figures, choosing the right log key. |
+| `t1-ext-identity-constants` Identities and unknown constants | skill | identity-constants | 1–3 | Bank proofs (t1-algebraic-proof) go from one side to the other; none asks for unknown constants in an identity or what ≡ means. | Tell an identity from an equation, and find the constants that make two expressions identical by comparing coefficients or substituting values. |
+| `t1-ext-numerical-show-that` Numerical "show that" | skill | numerical-show-that | 1–3 | Show-that lines occur across the bank but are tagged with the skill they show; writing one is never a type of its own. | Complete a "show that" with a given number, setting out each step so that the given answer is reached rather than assumed. |
+| `t1-ext-common-base` Exponential equations with a common base | skill | common-base | 1–3 | The bank's exponential equations are solved with logarithms (t1-solve-exponential); none is set up for a common base. | Solve an exponential equation exactly by writing both sides as powers of the same base and equating the exponents. |
+| `t1-ext-log-equations` Solve log equations and reject roots | skill | log-equations | 2–4 | Log equations in the bank sit inside Functions types (a log of a quadratic, a hidden quadratic) and carry Functions skills; no topic-1 type covers solving them. | Combine logs into one, rewrite in exponential form, solve, and reject any root that makes a log argument zero or negative. |
+| `t1-ext-hidden-quadratic` Exponential equations that are quadratics | skill | hidden-quadratic | 3–4 | The bank's disguised quadratics are catalogued once, under fn-solve-quadratic with SL2.7.hidden-quadratic, so this topic-1 skill has no type of its own. | Spot that an equation in b²ˣ and bˣ is a quadratic in u = bˣ, solve it, and reject any u that is zero or negative. |
+| `t1-ext-partial-vs-infinite` Partial sums against the sum to infinity | skill | sn-vs-sinf | 3–4 | Bank sum-to-infinity parts (t1-sum-to-infinity) find S∞, test convergence or find an unknown; none compares a partial sum with S∞. | Compare S_n with S∞: find the least n that brings S_n within a given gap of S∞, or the share of S∞ that the first few terms give. |
+| `t1-ext-binomial-constant-term` Constant term when both terms contain x | skill | constant-term | 3–4 | Bank binomial parts (t1-binomial-term, t1-binomial-find-unknown) have x in one term only; none needs the powers of x from both terms balanced. | In an expansion such as (x² + 3/x)ⁿ, write the general term, find the r that makes the power of x zero (or a given power), and find that term. |
+| `t1-ext-binomial-product` A coefficient in a bracket times an expansion | skill | product-expansion | 3–4 | No bank binomial part multiplies the expansion by another bracket. | Find one coefficient in (p + qx)(a + bx)ⁿ by pairing each term of the first bracket with the matching term of the expansion and adding. |
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 0 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+
+| Type | Kind | Skills | Level | Gap | What it asks |
+|---|---|---|---|---|---|
+| `t3-ext-two-observations` A height from two angles of elevation | skill | two-observations | 3–5 | Bank elevation parts (t3-right-angle-trig, t3-bearings-elevation) use one observation point; none needs two. | Find a height from two angles of elevation taken a known distance apart, with two right-angled triangles or with the sine rule in the triangle between them. |
+| `t3-ext-exact-triangle` Exact lengths and areas in triangles | skill | exact-triangle | 2–3 | Bank triangle parts (t3-sine-cosine-rule, t3-triangle-area) give decimal answers; none asks for an exact surd from exact trig values. | Use exact values such as sin 60° = √3/2 in the cosine rule or ½ab sin C to give a side or an area as an exact surd. |
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 0 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+
+| Type | Kind | Skills | Level | Gap | What it asks |
+|---|---|---|---|---|---|
+| `t4-ext-population-sample` Population, sample and randomness | skill | population-sample | 1–2 | Bank sampling parts (t4-sampling) ask for the technique or for bias; none asks to name the population and the sample. | Name the population and the sample in a study, and decide with a reason whether the sample is random. |
+| `t4-ext-data-type` Discrete or continuous | skill | data-type | 1–1 | No bank part asks for it; it is assumed whenever a chart or a distribution is chosen. | Classify a variable as discrete or continuous. |
+| `t4-ext-stratified-numbers` Numbers in a stratified sample | skill | stratified-numbers | 1–2 | Bank sampling parts (t4-sampling) name the technique; none works out the numbers for each stratum. | Find how many to select from each group in a stratified sample, as the group's share of the population times the sample size. |
+| `t4-ext-frequency-histogram` Frequency tables and histograms | skill | frequency-histogram | 1–2 | Bank data-presentation parts use cumulative frequency graphs and box plots (t4-cumulative-frequency, t4-box-plot); none uses a histogram. | Read and complete a frequency table and an equal-width histogram: a missing frequency, a bar height, or how many values fall in a range. |
+| `t4-ext-describe-correlation` Describe correlation | skill | describe-correlation | 1–2 | Bank regression parts compute r on the GDC (t4-regression-gdc) or interpret the line; describing correlation in words is not catalogued as a type. | Describe the correlation in a scatter diagram or from a value of r (direction and strength), and say why correlation does not show cause. |
+| `t4-ext-mutually-exclusive` Mutually exclusive events | skill | mutually-exclusive | 1–2 | Bank Venn parts (t4-venn-addition-rule) use the general addition rule; none asks whether events are mutually exclusive. | Decide with a reason whether two events are mutually exclusive, and use P(A ∪ B) = P(A) + P(B) when they are. |
+| `t4-ext-conditional-diagram` Conditional probability from a diagram | skill | conditional-diagram | 2–3 | Bank conditional parts are catalogued under t4-conditional-probability with the 4.11 formula skills; reading the condition off a diagram is not a type of its own. | Read a conditional probability straight from a two-way table, Venn diagram or tree by keeping only the given group. |
+| `t4-ext-z-scores` Find, interpret and compare z-scores | skill | z-score, compare-z | 1–3 | Bank parts use z only as a step to an unknown mean or standard deviation (t4-normal-unknown-parameter); none asks what a z-value means or compares two. | Find a z-value and say what it means, turn a z-value back into x, and compare results from two different normal distributions using z. |
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 0 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+
+| Type | Kind | Skills | Level | Gap | What it asks |
+|---|---|---|---|---|---|
+| `t5-link-accumulation` Adding up many small pieces | link (accumulation) | area-positive, total-distance, area-with-negative-regions, normal-probability, sum | 3–5 | The exam asks for each total in its own topic; no question asks why a probability is an area or why a series and a trapezium give the same total. | Link an area under a curve, a distance from a velocity graph, a normal probability and an arithmetic series as one act of adding up pieces. |
+| `t5-ext-chord-to-tangent` From chords to the tangent | skill | chord-to-tangent | 1–3 | Bank derivative parts (t5-derivative-meaning) interpret a derivative or estimate a limit; none builds the gradient from chords. | Find the gradients of chords from a point to nearby points, see them approach a limit, and give that limit as the gradient of the tangent. |
+| `t5-ext-gradient-from-graph` Estimate a gradient from a graph | skill | gradient-from-graph | 1–2 | Bank gradients come from differentiating a formula; none asks for an estimate from a graph. | Estimate the gradient of a curve at a point from a drawn tangent or with the GDC, and compare the gradients at two points. |
+| `t5-ext-sign-at-point` Increasing or decreasing at a point | skill | sign-at-point | 1–2 | Bank parts ask for the intervals where f increases or decreases (t5-increasing-decreasing); none asks about a single point. | Decide whether a function is increasing or decreasing at one point from the sign of f′ there, and give the reason. |
+| `t5-ext-always-increasing` Show a function always increases | skill | show-always-increasing | 2–3 | No catalogued bank part asks for this proof on its own. | Show that f′(x) > 0 (or < 0) for every x in the domain, for example because f′ is a square plus a positive number or a positive exponential. |
+| `t5-ext-unknown-coefficients` Coefficients from gradient and point conditions | skill | unknown-coefficients | 2–3 | Bank tangent-condition parts (t5-tangent-condition) find a point or a line's parameter; none solves for the curve's own coefficients from values of f and f′. | Find unknown coefficients in a polynomial from a gradient condition f′(a) = m and a point on the curve, by forming and solving equations. |
+| `t5-ext-integral-gdc` A definite integral on the GDC | skill | definite-integral-gdc | 1–2 | The bank uses the GDC integral only inside area and kinematics questions; no part asks for the value on its own. | Evaluate a definite integral on the GDC to 3 significant figures, with the function and the limits entered correctly. |
+| `t5-ext-area-under-curve` Area under a curve above the x-axis | skill | area-expression, area-positive | 1–4 | Bank area parts (t5-definite-integral-area, t5-area-between-curves) involve regions below the axis or between two curves; the basic area above the axis is not a type of its own. | Write the integral for a shaded area above the x-axis (its limits and integrand), then evaluate it. |
+| `t5-ext-interpret-second-derivative` The second derivative in context | skill | interpret-second-derivative | 1–2 | Bank concavity parts (t5-concavity) compute f″ or match graphs; none interprets it in context. | Say what the sign of the second derivative means in context, such as "the temperature is rising, but more and more slowly". |
+| `t5-ext-closed-interval-extremes` Greatest and least values on an interval | skill | closed-interval-extremes | 2–4 | Endpoints appear in GDC sketches and once inside a kinematics chain (comparing an endpoint with a local maximum), but no exam type is built on finding the greatest and least values of f on an interval. | Find the greatest and least values of f on a closed interval by comparing the stationary values with the values at the endpoints, and state the range. |
+| `t5-ext-stationary-conditions` Constants from a stationary point | skill | stationary-point-conditions | 2–3 | Bank stationary-point parts start from a known function; none works backwards to its constants. | Find unknown constants in f given a stationary point or a point of inflexion, using f′ = 0 (or f″ = 0) together with the point itself. |
+| `t5-ext-hence-integral` Integrate using a derivative ("hence") | skill | hence-from-derivative | 2–3 | Bank integration parts (t5-indefinite-integral) use standard results or inspection; none links back to a derivative found just before. | Differentiate a given expression, then use the result to integrate a related function, adjusting the constant factor. |
+| `t5-ext-integral-properties` Properties of definite integrals | skill | integral-properties | 2–3 | Bank definite-integral parts (t5-definite-integral-area) evaluate integrals of known functions; none uses the properties on an unknown f. | Use the rules for definite integrals of an unknown f: reverse the limits, split the interval, take out a constant factor, and add a constant to the integrand. |
 
 ## Concept threads and their link types
 
 | Thread | Link type | Level | Blueprints used |
 |---|---|---|---|
-| Moving and stretching graphs (`transformations`) | **none** | – | – of 5 |
-| Movement as a vector (`vectors`) | **none** | – | – of 5 |
-| How fast? Gradients and rates (`rate-of-change`) | **none** | – | – of 3 |
-| Repeated multiplication (`multiplicative-growth`) | **none** | – | – of 3 |
-| Undoing a process (`inverses`) | **none** | – | – of 3 |
-| Adding up many small pieces (`accumulation`) | **none** | – | – of 3 |
-| Symmetry halves the work (`symmetry`) | **none** | – | – of 2 |
-| Same object, different forms (`equivalent-forms`) | **none** | – | – of 3 |
-| Biggest and smallest (`extremes`) | **none** | – | – of 3 |
-| Solve it by algebra, by graph, or by GDC (`graph-vs-algebra`) | **none** | – | – of 3 |
-| The nCr pattern (`binomial`) | **none** | – | – of 2 |
+| Moving and stretching graphs (`transformations`) | `fn-link-transformations` | 3–5 | 5 of 5 |
+| Movement as a vector (`vectors`) | `fn-link-vectors` | 3–4 | 5 of 5 |
+| How fast? Gradients and rates (`rate-of-change`) | `fn-link-rate-of-change` | 3–4 | 3 of 3 |
+| Repeated multiplication (`multiplicative-growth`) | `fn-link-multiplicative-growth` | 3–4 | 3 of 3 |
+| Undoing a process (`inverses`) | `fn-link-inverses` | 3–4 | 3 of 3 |
+| Adding up many small pieces (`accumulation`) | `t5-link-accumulation` | 3–5 | 3 of 3 |
+| Symmetry halves the work (`symmetry`) | `fn-link-symmetry` | 3–4 | 2 of 2 |
+| Same object, different forms (`equivalent-forms`) | `fn-link-equivalent-forms` | 3–4 | 3 of 3 |
+| Biggest and smallest (`extremes`) | `fn-link-extremes` | 3–4 | 3 of 3 |
+| Solve it by algebra, by graph, or by GDC (`graph-vs-algebra`) | `fn-link-graph-vs-algebra` | 3–4 | 3 of 3 |
+| The nCr pattern (`binomial`) | `t1-link-binomial` | 3–4 | 2 of 2 |

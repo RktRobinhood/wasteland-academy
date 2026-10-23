@@ -194,7 +194,7 @@ export function countAll(doc, skills, used) {
   return {
     regions,
     skills: skills.size, skillsTyped: new Set(doc.types.flatMap(t => t.skills || [])).size,
-    fnMisconceptions: fnMis, fnMisconceptionsUsed: used.size,
+    fnMisconceptions: fnMis, fnMisconceptionsUsed: [...used].filter(r => skills.get(r.split('#')[0])?.topic === 2).length,
   };
 }
 
