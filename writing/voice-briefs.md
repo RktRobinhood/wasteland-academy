@@ -72,7 +72,7 @@ The FAL-330 round used one neutral line per character, with no contractions ("Le
 3. Correction: "You've swapped them. The first number walks you east. The second takes you north."
 4. Tense: "The relay went quiet three nights ago. An unmarked thing doesn't stay unmarked long out there."
 5. Joke: "This square was the Okafor sisters' ridge. Forty goats and one very bad fence. The goats won."
-6. Patience: "Read it again, slowly. I'll wait. I've got nowhere to be."
+6. Patience, in a correction: "That camp's west of us, so the first number goes negative. Read it again, slowly. I'll wait."
 
 ---
 

@@ -156,7 +156,7 @@ Canon: Map-Keeper NPC. Wise, remembers stories, sees the big picture, guides exp
 | "Halfway between the two camps: you averaged the eastings and the northings. Good." | "You added them and stopped. Halfway means you share it out. Divide by two." |
 | "Clockwise from north. Most people forget the clockwise." | "That's the bearing from the camp to the tower. I asked from the tower to the camp." |
 | "Five across, twelve up, thirteen straight. You walked it in your head." | "Your slope's upside down. Rise over run, not run over rise." |
-| "Downhill, so the gradient's negative. You kept the sign." | "Read it again, slowly. I'll wait. I've got nowhere to be." |
+| "Downhill, so the gradient's negative. You kept the sign." | "That camp's west of us, so the first number goes negative. Read it again, slowly. I'll wait." |
 
 **Samples:**
 
