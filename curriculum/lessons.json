@@ -1,0 +1,1911 @@
+{
+  "version": 1,
+  "about": "Design-down map of Relic lessons (GitHub issue #13, FAL-327). Each lesson teaches one idea that one or more exam question types in question-types.json depend on. Check and regenerate LESSONS.md with node tools/lessons.mjs --write.",
+  "pilot": "lesson.fn.translation",
+  "second": "lesson.fn.composite",
+  "interactions": [
+    { "id": "drag-position", "name": "Drag and position" },
+    { "id": "slider-dial", "name": "Sliders and dials" },
+    { "id": "button-switch", "name": "Buttons and switches" },
+    { "id": "graph-manipulation", "name": "Graph manipulation" },
+    { "id": "sort-match", "name": "Sorting and matching" },
+    { "id": "build-expression", "name": "Building or balancing expressions" },
+    { "id": "place-geometry", "name": "Placing geometric objects" },
+    { "id": "predict-simulate", "name": "Predict, then simulate" }
+  ],
+  "sources": {
+    "ccss": {
+      "name": "Common Core State Standards for Mathematics",
+      "url": "https://www.thecorestandards.org/Math/Content/",
+      "note": "Codes are the site's CCSS.Math.Content codes without that prefix. (+) marks a standard for students taking further courses. Checked on 2026-10-23.",
+      "codes": {
+        "HSF.IF.A.1": "A function assigns each element of the domain exactly one element of the range",
+        "HSF.IF.A.2": "Use function notation, evaluate functions, interpret statements in context",
+        "HSF.IF.B.4": "Interpret key features of graphs and tables in context; sketch from a description",
+        "HSF.IF.B.5": "Relate the domain of a function to its graph and its context",
+        "HSF.IF.B.6": "Calculate and interpret the average rate of change",
+        "HSF.IF.C.7": "Graph functions and show key features, by hand and with technology",
+        "HSF.IF.C.7.a": "Graph linear and quadratic functions: intercepts, maxima and minima",
+        "HSF.IF.C.7.d": "(+) Graph rational functions: zeros, asymptotes, end behaviour",
+        "HSF.IF.C.7.e": "Graph exponential and logarithmic functions: intercepts and end behaviour",
+        "HSF.IF.C.8.a": "Factor and complete the square to show zeros, extreme values and symmetry",
+        "HSF.IF.C.8.b": "Use the properties of exponents to interpret exponential functions",
+        "HSF.BF.A.1.b": "Combine standard function types using arithmetic operations",
+        "HSF.BF.A.1.c": "(+) Compose functions",
+        "HSF.BF.B.3": "Effect of f(x) + k, k f(x), f(kx) and f(x + k) on the graph; find k from graphs",
+        "HSF.BF.B.4.a": "Solve f(x) = c and write an expression for the inverse",
+        "HSF.BF.B.4.b": "(+) Verify by composition that one function is the inverse of another",
+        "HSF.BF.B.4.c": "(+) Read values of an inverse function from a graph or a table",
+        "HSF.BF.B.4.d": "(+) Make an invertible function by restricting the domain",
+        "HSF.BF.B.5": "(+) The inverse relationship between exponents and logarithms",
+        "HSF.LE.A.1.a": "Linear functions grow by equal differences, exponential by equal factors",
+        "HSF.LE.A.1.b": "Recognise a constant rate of change per unit interval",
+        "HSF.LE.A.1.c": "Recognise a constant percent rate per unit interval",
+        "HSF.LE.A.4": "Express the solution of ab^(ct) = d as a logarithm; evaluate with technology",
+        "HSF.LE.B.5": "Interpret the parameters of a linear or exponential function in context",
+        "HSA.SSE.A.2": "Use the structure of an expression to rewrite it",
+        "HSA.SSE.B.3.a": "Factor a quadratic expression to reveal its zeros",
+        "HSA.SSE.B.3.b": "Complete the square to reveal the maximum or minimum value",
+        "HSA.REI.B.3": "Solve linear equations and inequalities in one variable",
+        "HSA.REI.B.4.a": "Complete the square to get (x − p)² = q; derive the quadratic formula",
+        "HSA.REI.B.4.b": "Solve quadratics by inspection, square roots, completing the square, the formula and factoring",
+        "HSA.REI.C.6": "Solve systems of linear equations exactly and approximately",
+        "HSA.REI.C.7": "Solve a system of a linear and a quadratic equation algebraically and graphically",
+        "HSA.REI.D.11": "The x-coordinates where y = f(x) and y = g(x) meet solve f(x) = g(x); approximate with technology",
+        "HSA.CED.A.1": "Create equations and inequalities in one variable and use them to solve problems",
+        "HSA.CED.A.2": "Create equations in two or more variables; graph them",
+        "HSA.CED.A.4": "Rearrange formulas to highlight a quantity of interest",
+        "HSA.APR.D.6": "Rewrite a(x)/b(x) as q(x) + r(x)/b(x)",
+        "HSG.GPE.B.5": "Prove the slope criteria for parallel and perpendicular lines and use them",
+        "HSN.RN.A.2": "Rewrite expressions with radicals and rational exponents",
+        "HSN.Q.A.3": "Choose a level of accuracy appropriate to the limitations of measurement",
+        "8.F.B.4": "Construct a linear model; find and interpret its rate of change and initial value",
+        "8.EE.B.6": "Slope is the same between any two points on a line; derive y = mx + b",
+        "8.EE.C.7": "Solve linear equations in one variable",
+        "8.EE.C.8.b": "Solve two linear equations in two variables algebraically and by graphing"
+      }
+    },
+    "apPrecalc": {
+      "name": "AP Precalculus Course and Exam Description",
+      "url": "https://apcentral.collegeboard.org/media/pdf/ap-precalculus-course-and-exam-description.pdf",
+      "note": "Topic numbers from the edition effective fall 2026, checked on 2026-10-23.",
+      "codes": {
+        "1.7": "Rational Functions and End Behavior",
+        "1.9": "Rational Functions and Vertical Asymptotes",
+        "1.11": "Equivalent Representations of Polynomial and Rational Expressions",
+        "1.12": "Transformations of Functions",
+        "2.2": "Change in Linear and Exponential Functions",
+        "2.3": "Exponential Functions",
+        "2.7": "Composition of Functions",
+        "2.8": "Inverse Functions",
+        "2.9": "Logarithmic Expressions",
+        "2.10": "Inverses of Exponential Functions",
+        "2.11": "Logarithmic Functions",
+        "2.13": "Exponential and Logarithmic Equations and Inequalities"
+      }
+    },
+    "gcse": {
+      "name": "DfE GCSE mathematics subject content (DFE-00233-2013)",
+      "url": "https://assets.publishing.service.gov.uk/media/5a7cb5b040f0b6629523b52c/GCSE_mathematics_subject_content_and_assessment_objectives.pdf",
+      "note": "The document numbers its statements within each heading, so Algebra 13 is statement 13 under Algebra. Higher marks content in bold (Higher tier only). Checked on 2026-10-23.",
+      "codes": {
+        "Number 8": "Calculate exactly with fractions, surds and multiples of π; simplify surds (Higher)",
+        "Algebra 2": "Substitute numerical values into formulae and expressions",
+        "Algebra 4": "Simplify and manipulate expressions by expanding and factorising; algebraic fractions (Higher)",
+        "Algebra 5": "Rearrange formulae to change the subject",
+        "Algebra 7": "Expressions as functions with inputs and outputs; inverse and composite functions (Higher)",
+        "Algebra 9": "Straight-line graphs; parallel lines; line through two points; perpendicular lines (Higher)",
+        "Algebra 10": "Identify and interpret gradients and intercepts of linear functions",
+        "Algebra 11": "Roots, intercepts and turning points of quadratics; completing the square (Higher)",
+        "Algebra 12": "Recognise and sketch linear, quadratic, reciprocal and exponential graphs (exponential Higher)",
+        "Algebra 13": "Sketch translations and reflections of a given function (Higher)",
+        "Algebra 17": "Solve linear equations in one unknown",
+        "Algebra 18": "Solve quadratic equations by factorising, completing the square and the formula (formula Higher)",
+        "Algebra 19": "Solve two simultaneous equations; linear and quadratic pairs (Higher)",
+        "Algebra 22": "Solve linear inequalities; quadratic inequalities (Higher)",
+        "Ratio 16": "Growth and decay problems, including compound interest"
+      }
+    },
+    "aLevel": {
+      "name": "DfE AS and A level mathematics subject content (DFE-00706-2014)",
+      "url": "https://assets.publishing.service.gov.uk/media/5a7f273a40f0b62305b85670/GCE_AS_and_A_level_subject_content_for_mathematics_with_appendices.pdf",
+      "note": "Codes as printed in the document. AS content is in bold square brackets; the rest is A level only. Checked on 2026-10-23.",
+      "codes": {
+        "B2": "Use and manipulate surds (AS)",
+        "B3": "Quadratic functions: discriminant, completing the square, solving including in a function of the unknown (AS)",
+        "B4": "Simultaneous equations, including one linear and one quadratic (AS)",
+        "B5": "Linear and quadratic inequalities, interpreted graphically (AS)",
+        "B6": "Manipulate polynomials; simplify rational expressions (A level)",
+        "B7": "Graphs of functions, y = a/x and asymptotes; solve equations from intersections (AS)",
+        "B8": "Composite functions; inverse functions and their graphs (A level)",
+        "B9": "Effect of af(x), f(x) + a, f(x + a), f(ax) on a graph (AS); combinations (A level)",
+        "B11": "Use functions in modelling, with limitations and refinements (A level)",
+        "C1": "Straight lines y − y₁ = m(x − x₁) and ax + by + c = 0; parallel and perpendicular gradients (AS)",
+        "F1": "The function aˣ and eˣ and their graphs (AS)",
+        "F3": "logₐ x as the inverse of aˣ; ln x and its graph (AS)",
+        "F5": "Solve equations of the form aˣ = b (AS)",
+        "F7": "Exponential growth and decay in modelling (AS)"
+      }
+    }
+  },
+  "lessons": [
+    {
+      "id": "lesson.fn.translation",
+      "title": "The Broken Conveyor",
+      "objective": "Move a graph left, right, up or down, and write the function for the moved graph.",
+      "idea": "Replacing x with x − a moves every point of a graph a units to the right, and adding b to the output moves it b units up, so y = f(x − a) + b is the graph of f translated by the vector (a, b).",
+      "region": "transformations",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.11.translate", "SL2.11.describe", "SL2.11.image-point", "SL2.11.sketch-transformed"],
+      "supports": [
+        "fn-transform-describe",
+        "fn-transform-apply",
+        "fn-quadratic-features",
+        "fn-exp-log-inverse-composite",
+        "fn-ext-exp-graph",
+        "fn-ext-transformed-reciprocal",
+        "fn-concept-function-notation",
+        "fn-concept-transform-order",
+        "fn-link-transformations",
+        "fn-link-vectors"
+      ],
+      "unknowns": {
+        "fn-transform-describe": ["describe-translation", "describe-log-rewrite", "vector-from-key-point"],
+        "fn-transform-apply": ["sketch-stretch-shift", "reflect-translate-rule", "rule-single-translation", "moved-asymptote"],
+        "fn-quadratic-features": ["h-k-from-vertex"],
+        "fn-exp-log-inverse-composite": ["transformations-between"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.function-machine"],
+      "misconceptions": [
+        "SL2.11.translate#0",
+        "SL2.11.translate#1",
+        "SL2.11.translate#2",
+        "SL2.11.describe#0",
+        "SL2.11.image-point#0",
+        "SL2.11.sketch-transformed#2"
+      ],
+      "interaction": "drag-position",
+      "scenario": "B0-LT's conveyor rail is bent out of line, so the delivery bot keeps dropping crates beside the bin. The player drags the rail sideways and then up, and the rail's equation updates as it moves; B0-LT reacts when the rail goes the wrong way or overshoots, and the crates land when the rail matches the target. The debrief shows that moving the rail 3 to the right turned f(x) into f(x − 3), and that y = f(x − a) + b is a move by the vector (a, b).",
+      "apply": { "type": "fn-transform-describe", "unknowns": ["describe-translation", "vector-from-key-point"], "reps": ["equation", "graph"] },
+      "alignment": { "ib": ["SL2.11"], "ccss": ["HSF.BF.B.3"], "apPrecalc": ["1.12"], "gcse": ["Algebra 13"], "aLevel": ["B9"] },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 2, Unit 5: Transformations of functions",
+          "url": "https://im.kendallhunt.com/HS/teachers/3/5/index.html",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "title": "OpenStax Precalculus (1st edition), 1.5 Transformation of Functions",
+          "url": "https://openstax.org/books/precalculus/pages/1-5-transformation-of-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 7.4, "rank": 11 }
+    },
+    {
+      "id": "lesson.fn.stretch",
+      "title": "The Spring Press",
+      "objective": "Stretch a graph from an axis and say which way it stretches and by what scale factor.",
+      "idea": "Multiplying the output by a stretches a graph vertically by scale factor a and leaves points on the x-axis where they are; multiplying the input by b stretches it horizontally by scale factor 1/b and leaves points on the y-axis where they are.",
+      "region": "transformations",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.11.stretch", "SL2.11.describe", "SL2.11.sketch-transformed"],
+      "assumes": ["SL1.7.log-laws"],
+      "supports": [
+        "fn-transform-describe",
+        "fn-transform-apply",
+        "fn-exp-log-inverse-composite",
+        "fn-ext-transformed-reciprocal",
+        "fn-concept-transform-order",
+        "fn-link-transformations"
+      ],
+      "unknowns": {
+        "fn-transform-describe": ["describe-stretch", "stretch-and-shift-parameters", "relate-two-models", "describe-log-rewrite"],
+        "fn-transform-apply": ["sketch-stretch-shift", "sketch-horizontal"],
+        "fn-exp-log-inverse-composite": ["transformations-between"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.translation"],
+      "misconceptions": [
+        "SL2.11.stretch#0",
+        "SL2.11.stretch#1",
+        "SL2.11.stretch#2",
+        "SL2.11.describe#2",
+        "SL2.11.image-point#2",
+        "SL2.11.sketch-transformed#1"
+      ],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT's spring press stamps out dish panels that come out too tall or too narrow. The player turns one dial that scales the output and one that scales the input, and watches the panel's outline stretch; B0-LT points out that setting the input dial to 2 made the panel half as wide, not twice as wide. The debrief writes the dials as y = a·f(x) and y = f(bx), with scale factors a and 1/b.",
+      "apply": { "type": "fn-transform-describe", "unknowns": ["describe-stretch", "stretch-and-shift-parameters"] },
+      "alignment": { "ib": ["SL2.11"], "ccss": ["HSF.BF.B.3"], "apPrecalc": ["1.12"], "aLevel": ["B9"] },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 2, Unit 5: Transformations of functions",
+          "url": "https://im.kendallhunt.com/HS/teachers/3/5/index.html",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "title": "OpenStax Precalculus (1st edition), 1.5 Transformation of Functions",
+          "url": "https://openstax.org/books/precalculus/pages/1-5-transformation-of-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 7, "rank": 12 }
+    },
+    {
+      "id": "lesson.fn.reflection",
+      "title": "Flip Switches",
+      "objective": "Reflect a graph in the x-axis or the y-axis and write the function for the reflected graph.",
+      "idea": "Negating the output, −f(x), flips every point over the x-axis; negating the input, f(−x), flips every point over the y-axis.",
+      "region": "transformations",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.11.reflect", "SL2.11.sketch-transformed"],
+      "supports": ["fn-transform-apply", "fn-transform-describe", "fn-inverse-algebraic", "fn-domain-range", "fn-ext-exp-graph"],
+      "unknowns": {
+        "fn-transform-apply": ["reflect-translate-rule", "reflect-rule", "sketch-reflection"],
+        "fn-transform-describe": ["describe-with-reflection"],
+        "fn-inverse-algebraic": ["inverse-as-reflections"],
+        "fn-domain-range": ["range-reflected"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.translation"],
+      "misconceptions": ["SL2.11.reflect#0", "SL2.11.reflect#1", "SL2.11.reflect#2", "SL2.9.exp-graph#2"],
+      "interaction": "button-switch",
+      "scenario": "B0-LT's sorting gate has two flip switches, and its guide track keeps coming out mirrored the wrong way. The player flips the output switch or the input switch, predicts where a marked bolt will land, and sees the track flip over the x-axis or the y-axis; B0-LT reacts when the player negates only one term of the rule. The debrief names the two switches −f(x) and f(−x).",
+      "apply": { "type": "fn-transform-apply", "unknowns": ["reflect-rule", "sketch-reflection"] },
+      "alignment": { "ib": ["SL2.11"], "ccss": ["HSF.BF.B.3"], "apPrecalc": ["1.12"], "gcse": ["Algebra 13"], "aLevel": ["B9"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 1.5 Transformation of Functions",
+          "url": "https://openstax.org/books/precalculus/pages/1-5-transformation-of-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 2.7, "rank": 33 }
+    },
+    {
+      "id": "lesson.fn.transform-order",
+      "title": "Moves in Order",
+      "objective": "Apply two or three transformations in order and find where a point ends up.",
+      "idea": "Transformations act one after another, so their order matters when a stretch and a translation act in the same direction: f(2x − 6) is f stretched horizontally by 1/2 and then moved 3 to the right, because 2x − 6 = 2(x − 3).",
+      "region": "transformations",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.11.composite-transform", "SL2.11.image-point", "SL2.11.describe"],
+      "supports": ["fn-transform-apply", "fn-transform-describe", "fn-concept-transform-order", "fn-link-transformations"],
+      "unknowns": {
+        "fn-transform-apply": ["sketch-stretch-shift", "reflect-translate-rule", "rule-from-moves", "image-point", "undo-moves", "order-changes-rule"],
+        "fn-transform-describe": ["relate-two-models", "describe-factor-inside", "describe-the-reverse"]
+      },
+      "levels": [2, 4],
+      "prerequisites": ["lesson.fn.stretch", "lesson.fn.reflection"],
+      "misconceptions": [
+        "SL2.11.composite-transform#0",
+        "SL2.11.composite-transform#1",
+        "SL2.11.composite-transform#2",
+        "SL2.11.image-point#1",
+        "SL2.11.describe#1"
+      ],
+      "interaction": "sort-match",
+      "scenario": "B0-LT queues repair moves for the crane arm on a punch card, but the arm keeps ending up in the wrong place. The player sorts the move cards into an order, predicts where the hook lands, and runs the card; when the order changed the result, B0-LT replays both orders side by side. The debrief follows one point through a·f(b(x − c)) + d one move at a time.",
+      "apply": { "type": "fn-transform-apply", "unknowns": ["rule-from-moves", "image-point", "order-changes-rule"] },
+      "alignment": { "ib": ["SL2.11"], "ccss": ["HSF.BF.B.3"], "apPrecalc": ["1.12"], "aLevel": ["B9"] },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 2, Unit 5: Transformations of functions",
+          "url": "https://im.kendallhunt.com/HS/teachers/3/5/index.html",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 3.5, "rank": 27 }
+    },
+    {
+      "id": "lesson.fn.function-machine",
+      "title": "One In, One Out",
+      "objective": "Use f(x) notation to find the output for an input, and the input for an output.",
+      "idea": "f(a) is the output when a goes in, while f(x) = k runs the other way and asks which inputs give k; so the y-intercept is f(0) and the zeros are the solutions of f(x) = 0.",
+      "region": "function-basics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.2.evaluate-notation", "SL2.2.function-model", "SL2.3.read-graph", "SL2.4.zeros-intercepts"],
+      "supports": [
+        "fn-evaluate-function",
+        "fn-graph-table-composite-inverse",
+        "fn-sketch-gdc",
+        "fn-gdc-features",
+        "fn-rational-asymptotes-intercepts",
+        "fn-quadratic-features",
+        "fn-concept-function-notation"
+      ],
+      "unknowns": {
+        "fn-evaluate-function": ["value-at-zero", "value-at-input", "y-intercept", "above-or-below", "input-from-output", "zeros"],
+        "fn-graph-table-composite-inverse": ["read-value", "solve-from-table"],
+        "fn-sketch-gdc": ["label-y-intercept", "label-zeros"],
+        "fn-gdc-features": ["zeros-gdc"],
+        "fn-rational-asymptotes-intercepts": ["x-intercept", "y-intercept"],
+        "fn-quadratic-features": ["y-intercept-from-vertex-form"]
+      },
+      "levels": [1, 2],
+      "prerequisites": ["lesson.fn.pre-substitute"],
+      "misconceptions": [
+        "SL2.2.evaluate-notation#0",
+        "SL2.2.evaluate-notation#1",
+        "SL2.3.read-graph#0",
+        "SL2.4.zeros-intercepts#0",
+        "SL2.2.function-model#0",
+        "SL2.2.function-model#2"
+      ],
+      "interaction": "drag-position",
+      "scenario": "B0-LT's stamping machine takes a numbered crate and prints a new number on it, and the order sheet mixes up what comes out of 3 with what has to go in to get 3. The player drags crates into the hopper to read outputs, then hunts for every crate that comes out as a target number; B0-LT reacts when the player treats f(3) as f times 3 or reads the chart the wrong way round. The debrief writes the readings as f(3) = 7 and f(x) = 7, and marks f(0) as the y-intercept and the solutions of f(x) = 0 as the zeros.",
+      "apply": { "type": "fn-evaluate-function", "unknowns": ["value-at-input", "value-at-zero", "input-from-output", "zeros"] },
+      "alignment": { "ib": ["SL2.2", "SL2.4"], "ccss": ["HSF.IF.A.1", "HSF.IF.A.2"], "gcse": ["Algebra 7"] },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 1, Unit 4: Functions",
+          "url": "https://im.kendallhunt.com/HS/teachers/1/4/index.html",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "title": "OpenStax College Algebra (1st edition), 3.1 Functions and Function Notation",
+          "url": "https://openstax.org/books/college-algebra/pages/3-1-functions-and-function-notation",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 19.5, "rank": 1 }
+    },
+    {
+      "id": "lesson.fn.is-function",
+      "title": "One Button, One Token",
+      "objective": "Decide whether a rule, table or graph is a function, and whether it is one-to-one.",
+      "idea": "A function gives each input exactly one output, so a vertical line meets its graph at most once; a function can be undone only if each output also comes from exactly one input, which a horizontal line tests.",
+      "region": "function-basics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.2.is-function"],
+      "supports": ["fn-ext-is-function", "fn-graph-table-composite-inverse", "fn-concept-order-and-undo"],
+      "unknowns": { "fn-graph-table-composite-inverse": ["why-no-inverse"] },
+      "levels": [1, 2],
+      "prerequisites": ["lesson.fn.function-machine"],
+      "misconceptions": ["SL2.2.is-function#0", "SL2.2.is-function#1", "SL2.2.is-function#2"],
+      "interaction": "sort-match",
+      "scenario": "B0-LT's token dispenser jams whenever one button gives out two different tokens. The player sorts dispensers, tables and graphs into functions and non-functions, then sorts the functions into one-to-one and many-to-one; B0-LT reacts when the player rejects y = x² because 2 and −2 share an output. The debrief names the vertical line test and the horizontal line test, and the question each one answers.",
+      "apply": { "type": "fn-ext-is-function", "unknowns": ["from-graph", "from-mapping", "one-to-one"] },
+      "alignment": { "ib": ["SL2.2"], "ccss": ["HSF.IF.A.1"] },
+      "materials": [
+        {
+          "title": "OpenStax College Algebra (1st edition), 3.1 Functions and Function Notation",
+          "url": "https://openstax.org/books/college-algebra/pages/3-1-functions-and-function-notation",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 0, "rank": 52 }
+    },
+    {
+      "id": "lesson.fn.domain-range",
+      "title": "What Goes In, What Comes Out",
+      "objective": "Find the inputs a function accepts and the outputs it can give.",
+      "idea": "The domain is every input the rule and the context allow (no square root of a negative, no log of zero or less, no division by zero); the range is every output those inputs make, fixed by a vertex, an asymptote or the endpoints.",
+      "region": "function-basics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.2.domain", "SL2.2.range"],
+      "supports": [
+        "fn-domain-range",
+        "fn-log-of-quadratic",
+        "fn-quadratic-from-conditions",
+        "fn-log-function-features",
+        "fn-rational-asymptotes-intercepts",
+        "fn-sketch-from-features"
+      ],
+      "unknowns": {
+        "fn-domain-range": ["range-quadratic", "range-rational", "range-reflected", "composite-condition", "domain-root", "domain-log-or-fraction"],
+        "fn-log-of-quadratic": ["domain-from-inequality"],
+        "fn-quadratic-from-conditions": ["range-after-finding"],
+        "fn-log-function-features": ["domain-from-equation"],
+        "fn-rational-asymptotes-intercepts": ["range-from-asymptote"],
+        "fn-sketch-from-features": ["sketch-on-interval"]
+      },
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.function-machine", "lesson.fn.pre-linear-inequalities"],
+      "misconceptions": ["SL2.2.domain#0", "SL2.2.domain#1", "SL2.2.domain#2", "SL2.2.range#0", "SL2.2.range#1", "SL2.2.range#2"],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT's filter machine rejects some inputs with a clank and only ever pumps out certain readings. The player sweeps the input dial along the number line, marks where the machine clanks, and watches each output land on a tally board beside the y-axis; B0-LT reacts when the player stops at the endpoints and misses a peak, or counts an asymptote value as an output. The debrief writes the clank-free inputs as the domain, in terms of x, and the tally board as the range, in terms of y.",
+      "apply": { "type": "fn-domain-range", "unknowns": ["domain-root", "domain-log-or-fraction", "range-quadratic", "range-rational"] },
+      "alignment": { "ib": ["SL2.2"], "ccss": ["HSF.IF.A.1", "HSF.IF.B.5"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 1.2 Domain and Range",
+          "url": "https://openstax.org/books/precalculus/pages/1-2-domain-and-range",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 6.5, "rank": 16 }
+    },
+    {
+      "id": "lesson.fn.inverse-reflection",
+      "title": "The Mirror Line",
+      "objective": "Draw the graph of an inverse by reflecting in y = x, and use that symmetry to find its points and asymptotes.",
+      "idea": "Undoing f swaps every input-output pair, so (a, b) on f becomes (b, a) on f⁻¹, and the graph of f⁻¹ is the mirror image of the graph of f in the line y = x.",
+      "region": "function-basics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.2.inverse-undo", "SL2.4.symmetry", "SL2.5.identity"],
+      "assumes": ["SL5.11.area-between-curves"],
+      "supports": [
+        "fn-inverse-reflection",
+        "fn-inverse-algebraic",
+        "fn-gdc-intersection",
+        "fn-log-function-features",
+        "fn-rational-sketch",
+        "fn-link-inverses",
+        "fn-link-symmetry"
+      ],
+      "unknowns": {
+        "fn-inverse-reflection": ["sketch-inverse", "area-by-symmetry", "image-point", "intercepts-of-inverse", "asymptotes-of-inverse", "is-self-inverse"],
+        "fn-inverse-algebraic": ["show-self-inverse", "self-inverse-constant", "inverse-asymptotes"],
+        "fn-gdc-intersection": ["function-and-inverse"],
+        "fn-log-function-features": ["reflect-exponential"],
+        "fn-rational-sketch": ["reciprocal-self-inverse"]
+      },
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.inverse-undo"],
+      "misconceptions": ["SL2.2.inverse-undo#1", "SL2.4.symmetry#1", "SL2.8.rational-inverse#2", "SL2.5.identity#2"],
+      "interaction": "place-geometry",
+      "scenario": "B0-LT finds a cracked holo-projector that should show a machine's undo track, but only half of the picture works. The player places a mirror strip on the screen and turns it until the marked bolts on f land on their swapped partners, and the undo track appears; B0-LT reacts when the player mirrors in an axis instead of y = x. The debrief writes the swap (a, b) → (b, a) and notes that a graph symmetric in y = x is its own inverse.",
+      "apply": { "type": "fn-inverse-reflection", "unknowns": ["image-point", "sketch-inverse", "intercepts-of-inverse", "is-self-inverse"] },
+      "alignment": { "ib": ["SL2.2", "SL2.5"], "ccss": ["HSF.BF.B.4.c"], "apPrecalc": ["2.8"], "aLevel": ["B8"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 1.7 Inverse Functions",
+          "url": "https://openstax.org/books/precalculus/pages/1-7-inverse-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 4.8, "rank": 22 }
+    },
+    {
+      "id": "lesson.fn.composite",
+      "title": "Two Machines in a Row",
+      "objective": "Feed one function's output into another and write the result as a single function.",
+      "idea": "(f ∘ g)(x) = f(g(x)) runs g first and feeds its output into f, so the whole of g(x) replaces every x in f, and swapping the order usually changes the result.",
+      "region": "composite-inverse",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.5.composite-value", "SL2.5.composite-expression"],
+      "assumes": ["SL1.7.log-laws", "SL1.7.change-of-base"],
+      "supports": ["fn-composite", "fn-graph-table-composite-inverse", "fn-exp-log-inverse-composite", "fn-domain-range", "fn-concept-order-and-undo"],
+      "unknowns": {
+        "fn-composite": ["value-inside-out", "expression", "parameter-from-value", "parameter-from-coefficients", "compare-orders", "self-composite"],
+        "fn-graph-table-composite-inverse": ["self-composite-read", "composite-from-table"],
+        "fn-exp-log-inverse-composite": ["simplify-composite", "composite-inequality"],
+        "fn-domain-range": ["composite-condition"]
+      },
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.function-machine"],
+      "misconceptions": [
+        "SL2.5.composite-value#0",
+        "SL2.5.composite-value#1",
+        "SL2.5.composite-value#2",
+        "SL2.5.composite-expression#1",
+        "SL2.5.composite-expression#2"
+      ],
+      "interaction": "build-expression",
+      "scenario": "B0-LT has two machines, a doubler-and-shifter and a squarer, and the pipe between them keeps being reconnected the wrong way round. The player connects the machines, feeds a crate through in each order, and builds the combined rule from the two machine plates; B0-LT reacts when the player multiplies the two outputs instead of chaining them, or puts g(x) into only one of the x's in f. The debrief writes the chain as (f ∘ g)(x) = f(g(x)) and shows that f ∘ g and g ∘ f give different crates.",
+      "apply": { "type": "fn-composite", "unknowns": ["value-inside-out", "expression", "compare-orders"] },
+      "alignment": { "ib": ["SL2.5"], "ccss": ["HSF.BF.A.1.c"], "apPrecalc": ["2.7"], "gcse": ["Algebra 7"], "aLevel": ["B8"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 1.4 Composition of Functions",
+          "url": "https://openstax.org/books/precalculus/pages/1-4-composition-of-functions",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "title": "Active Prelude to Calculus, Composite functions",
+          "url": "https://activecalculus.org/prelude/sec-changing-composite.html",
+          "licence": "CC BY-SA 4.0"
+        }
+      ],
+      "priority": { "parts": 15.3, "rank": 2 }
+    },
+    {
+      "id": "lesson.fn.inverse-undo",
+      "title": "Run It Backwards",
+      "objective": "Undo a function to find the input that gave an output.",
+      "idea": "f⁻¹ undoes f: f⁻¹(b) is the input that f sends to b, and undoing a chain of steps means doing the opposite steps in reverse order.",
+      "region": "composite-inverse",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.2.inverse-undo", "SL2.5.find-inverse", "SL2.5.identity"],
+      "supports": [
+        "fn-graph-table-composite-inverse",
+        "fn-exp-log-inverse-composite",
+        "fn-inverse-algebraic",
+        "fn-concept-function-notation",
+        "fn-link-inverses"
+      ],
+      "unknowns": {
+        "fn-graph-table-composite-inverse": ["inverse-value-read", "solve-inverse-equation", "mixed-inverse-composite"],
+        "fn-exp-log-inverse-composite": ["evaluate-inverse"],
+        "fn-inverse-algebraic": ["inverse-linear", "identity-value", "solve-inverse-equals"]
+      },
+      "levels": [1, 2],
+      "prerequisites": ["lesson.fn.function-machine"],
+      "misconceptions": ["SL2.2.inverse-undo#0", "SL2.2.inverse-undo#2", "SL2.5.find-inverse#0", "SL2.5.find-inverse#1", "SL2.5.identity#1"],
+      "interaction": "sort-match",
+      "scenario": "B0-LT's code wheel changes a number by multiplying by 3 and then adding 4, and the robot needs the number that came out as 19. The player lays the undo cards in order and runs the wheel backwards; B0-LT reacts when the undo steps run in the original order or the player answers with 1/f(19). The debrief writes the answer as f⁻¹(19) = 5 and checks it by running f forwards again.",
+      "apply": {
+        "type": "fn-graph-table-composite-inverse",
+        "unknowns": ["inverse-value-read", "solve-inverse-equation", "mixed-inverse-composite"]
+      },
+      "alignment": { "ib": ["SL2.2", "SL2.5"], "ccss": ["HSF.BF.B.4.a", "HSF.BF.B.4.c"], "apPrecalc": ["2.8"], "gcse": ["Algebra 7"], "aLevel": ["B8"] },
+      "materials": [
+        {
+          "title": "Active Prelude to Calculus, Inverse functions",
+          "url": "https://activecalculus.org/prelude/sec-changing-inverse.html",
+          "licence": "CC BY-SA 4.0"
+        }
+      ],
+      "priority": { "parts": 3.8, "rank": 24 }
+    },
+    {
+      "id": "lesson.fn.swap-and-solve",
+      "title": "Rewire the Machine",
+      "objective": "Find the rule for an inverse function by swapping x and y and making y the subject.",
+      "idea": "Writing y = f(x), swapping x and y, and making y the subject records the undo as a rule; when y appears twice, collect the y terms on one side and take y out as a factor.",
+      "region": "composite-inverse",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.5.find-inverse", "SL2.8.rational-inverse", "SL2.5.identity"],
+      "supports": ["fn-inverse-algebraic", "fn-exp-log-inverse-composite"],
+      "unknowns": {
+        "fn-inverse-algebraic": [
+          "inverse-rational",
+          "inverse-root",
+          "show-self-inverse",
+          "self-inverse-constant",
+          "inverse-as-reflections",
+          "inverse-linear",
+          "inverse-exponential"
+        ],
+        "fn-exp-log-inverse-composite": ["inverse-of-exponential", "inverse-of-log"]
+      },
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.inverse-undo", "lesson.fn.pre-change-subject"],
+      "misconceptions": ["SL2.8.rational-inverse#0", "SL2.5.find-inverse#2", "SL2.5.identity#0"],
+      "interaction": "build-expression",
+      "scenario": "B0-LT wants a spare machine that undoes the fraction stamper for every number, not one number at a time. The player swaps the input and output plugs, then rebuilds the rule by moving terms across a balance until y stands alone; B0-LT reacts when y is left on both sides or when a ± is kept that the domain rules out. The debrief writes the finished plate as f⁻¹(x) and checks that f(f⁻¹(x)) = x.",
+      "apply": { "type": "fn-inverse-algebraic", "unknowns": ["inverse-linear", "inverse-rational", "inverse-root"] },
+      "alignment": { "ib": ["SL2.5", "SL2.8"], "ccss": ["HSF.BF.B.4.a", "HSF.BF.B.4.b", "HSA.CED.A.4"], "apPrecalc": ["2.8"], "aLevel": ["B8"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 1.7 Inverse Functions",
+          "url": "https://openstax.org/books/precalculus/pages/1-7-inverse-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 6.6, "rank": 15 }
+    },
+    {
+      "id": "lesson.fn.inverse-domain",
+      "title": "Cut It to Undo It",
+      "objective": "Restrict a domain so a function can be undone, and state the domain and range of its inverse.",
+      "idea": "Only a one-to-one function can be undone, so a parabola has to be cut at its vertex; the inverse swaps the roles of input and output, so the domain of f⁻¹ is the range of f and the range of f⁻¹ is the domain of f.",
+      "region": "composite-inverse",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.5.inverse-domain-range"],
+      "supports": ["fn-inverse-algebraic", "fn-graph-table-composite-inverse", "fn-domain-range", "fn-concept-order-and-undo", "fn-ext-is-function"],
+      "unknowns": {
+        "fn-inverse-algebraic": ["inverse-domain", "inverse-range", "inverse-root", "restrict-for-inverse", "rational-inverse-domain"],
+        "fn-graph-table-composite-inverse": ["inverse-domain-read", "inverse-range-read", "restrict-from-graph"],
+        "fn-domain-range": ["inverse-domain", "restrict-for-inverse"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.inverse-undo", "lesson.fn.domain-range", "lesson.fn.is-function"],
+      "misconceptions": ["SL2.5.inverse-domain-range#0", "SL2.5.inverse-domain-range#1", "SL2.5.inverse-domain-range#2", "SL2.8.rational-inverse#1"],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT's ramp sends crates up and back down, so two different starting points end at the same height and the undo machine can't tell them apart. The player slides a cut-off gate along the ramp until every height comes from only one start, and B0-LT reacts when the gate is set at the y-intercept instead of the turning point. The debrief writes the gate as x ≥ h and swaps the domain and range of f to give those of f⁻¹.",
+      "apply": { "type": "fn-inverse-algebraic", "unknowns": ["inverse-domain", "inverse-range", "restrict-for-inverse"] },
+      "alignment": { "ib": ["SL2.5"], "ccss": ["HSF.BF.B.4.d"], "apPrecalc": ["2.8"], "aLevel": ["B8"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 1.7 Inverse Functions",
+          "url": "https://openstax.org/books/precalculus/pages/1-7-inverse-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 3.3, "rank": 28 }
+    },
+    {
+      "id": "lesson.fn.reciprocal",
+      "title": "Divide by Almost Nothing",
+      "objective": "Describe what y = 1/x does close to zero and far from zero.",
+      "idea": "As x gets close to 0, 1/x grows without limit, and as x grows, 1/x shrinks towards 0; so y = 1/x has the asymptotes x = 0 and y = 0 and never touches either axis.",
+      "region": "rational",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.8.reciprocal"],
+      "supports": ["fn-rational-sketch", "fn-concept-asymptote-meaning"],
+      "unknowns": { "fn-rational-sketch": ["reciprocal-of-f", "parent-reciprocal", "reciprocal-self-inverse"] },
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.pre-algebraic-fractions", "lesson.fn.function-machine"],
+      "misconceptions": ["SL2.8.reciprocal#0", "SL2.8.reciprocal#1", "SL2.8.reciprocal#2", "SL2.8.sketch-rational#2"],
+      "interaction": "drag-position",
+      "scenario": "B0-LT's pressure gauge shows 1 divided by the gap between two plates, and the needle goes wild as the plates close. The player drags the gap smaller and larger, on both sides of zero, while the needle traces y = 1/x; B0-LT reacts when the player expects the needle to reach zero or to touch the line of the plates. The debrief names x = 0 and y = 0 as asymptotes and shows that swapping x and y gives the same curve.",
+      "apply": { "type": "fn-rational-sketch", "unknowns": ["parent-reciprocal", "reciprocal-self-inverse", "reciprocal-of-f"] },
+      "alignment": { "ib": ["SL2.8"], "gcse": ["Algebra 12"], "aLevel": ["B7"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 3.7 Rational Functions",
+          "url": "https://openstax.org/books/precalculus/pages/3-7-rational-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 1.8, "rank": 38 }
+    },
+    {
+      "id": "lesson.fn.rational-asymptotes",
+      "title": "Find the Walls",
+      "objective": "Find the vertical and horizontal asymptotes of y = (ax + b)/(cx + d).",
+      "idea": "The vertical asymptote is where the denominator is zero, because the output blows up there; for large x the constants b and d stop mattering, so the output settles towards a/c.",
+      "region": "rational",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.8.asymptotes", "SL2.4.asymptotes"],
+      "supports": ["fn-rational-asymptotes-intercepts", "fn-rational-sketch", "fn-domain-range", "fn-inverse-algebraic", "fn-concept-asymptote-meaning"],
+      "unknowns": {
+        "fn-rational-asymptotes-intercepts": ["va-from-equation", "ha-from-equation", "asymptotes-with-letters", "x-intercept", "y-intercept", "constants-from-asymptotes"],
+        "fn-rational-sketch": ["sketch-from-equation"],
+        "fn-domain-range": ["range-rational"],
+        "fn-inverse-algebraic": ["rational-inverse-domain"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.reciprocal"],
+      "misconceptions": [
+        "SL2.8.asymptotes#0",
+        "SL2.8.asymptotes#1",
+        "SL2.8.asymptotes#2",
+        "SL2.4.asymptotes#0",
+        "SL2.4.asymptotes#1",
+        "SL2.8.sketch-rational#1"
+      ],
+      "interaction": "predict-simulate",
+      "scenario": "B0-LT's ratio gauge divides one drive belt's speed, ax + b, by another's, cx + d, and it shakes itself apart at one setting. The player predicts where the gauge will spike and what it will read for huge inputs, then feeds those inputs in and watches the readout; B0-LT reacts when the player uses b/d for the long-run reading or gets the sign of −d/c wrong. The debrief writes the two walls as the lines x = −d/c and y = a/c.",
+      "apply": { "type": "fn-rational-asymptotes-intercepts", "unknowns": ["va-from-equation", "ha-from-equation", "asymptotes-with-letters"] },
+      "alignment": { "ib": ["SL2.8", "SL2.4"], "ccss": ["HSF.IF.C.7.d"], "apPrecalc": ["1.7", "1.9"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 3.7 Rational Functions",
+          "url": "https://openstax.org/books/precalculus/pages/3-7-rational-functions",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "title": "Illustrative Mathematics Algebra 2, Unit 2: Polynomials and rational functions",
+          "url": "https://im.kendallhunt.com/HS/teachers/3/2/index.html",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 14.8, "rank": 3 }
+    },
+    {
+      "id": "lesson.fn.transformed-reciprocal",
+      "title": "1/x in Disguise",
+      "objective": "Write a rational function as a stretched and moved 1/x, and use that to sketch it.",
+      "idea": "(ax + b)/(x − h) splits into A + B/(x − h), which is y = 1/x stretched vertically by B and translated by the vector (h, A), so its asymptotes are x = h and y = A.",
+      "region": "rational",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.8.transformed-reciprocal", "SL2.8.sketch-rational"],
+      "supports": ["fn-rational-sketch", "fn-ext-transformed-reciprocal", "fn-transform-describe", "fn-link-transformations"],
+      "unknowns": {
+        "fn-rational-sketch": ["sketch-from-equation", "sketch-from-transformed", "branch-corners"],
+        "fn-transform-describe": ["describe-translation"]
+      },
+      "levels": [2, 3],
+      "prerequisites": ["lesson.fn.rational-asymptotes", "lesson.fn.translation", "lesson.fn.stretch"],
+      "misconceptions": ["SL2.8.transformed-reciprocal#0", "SL2.8.transformed-reciprocal#1", "SL2.8.transformed-reciprocal#2", "SL2.8.sketch-rational#0"],
+      "interaction": "graph-manipulation",
+      "scenario": "B0-LT's spare gauge has the same curve as the reciprocal gauge, but it is bolted in a different place and scaled up. The player drags the crosshair of asymptotes to the right spot and pulls a stretch handle until the curve passes through the marked points, while the rule rewrites itself as A + B/(x − h); B0-LT reacts when the crosshair goes to −h or the branches land in the wrong pair of corners. The debrief links the crosshair to the translation vector (h, A) from the conveyor lesson.",
+      "apply": { "type": "fn-rational-sketch", "unknowns": ["sketch-from-transformed", "sketch-from-equation", "branch-corners"] },
+      "alignment": { "ib": ["SL2.8", "SL2.11"], "ccss": ["HSA.APR.D.6", "HSF.BF.B.3"], "apPrecalc": ["1.11", "1.12"], "aLevel": ["B9"] },
+      "materials": [
+        {
+          "title": "Active Prelude to Calculus, Key features of rational functions",
+          "url": "https://activecalculus.org/prelude/sec-poly-rational-features.html",
+          "licence": "CC BY-SA 4.0"
+        }
+      ],
+      "priority": { "parts": 3.3, "rank": 29 }
+    },
+    {
+      "id": "lesson.fn.long-run-value",
+      "title": "The Level It Never Reaches",
+      "objective": "Explain what a horizontal asymptote means in a model, and why the model gets close to it but never reaches it.",
+      "idea": "A model with horizontal asymptote y = c gets as close to c as you like as the input grows but never equals it, so c is a long-run value, not a value the model actually takes.",
+      "region": "rational",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.8.rational-model", "SL2.4.asymptotes"],
+      "supports": ["fn-ext-rational-model", "fn-concept-asymptote-meaning", "fn-exponential-model", "fn-sketch-from-features"],
+      "unknowns": { "fn-exponential-model": ["long-run-value"], "fn-sketch-from-features": ["sketch-with-asymptote"] },
+      "levels": [2, 4],
+      "prerequisites": ["lesson.fn.rational-asymptotes"],
+      "misconceptions": ["SL2.8.rational-model#0", "SL2.8.rational-model#1", "SL2.8.rational-model#2", "SL2.3.sketch-from-info#2", "SL2.2.range#1"],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT's workshop makes scrap lanterns, and the average cost of a lantern is a fixed set-up cost shared over n lanterns, plus the parts for each one. The player slides n higher and watches the average cost creep towards the cost of the parts; B0-LT reacts when the player claims that enough lanterns make the average exactly that cost, or rounds the number of lanterns the wrong way. The debrief writes the model as A(n) = c + k/n and names y = c as its horizontal asymptote.",
+      "apply": { "type": "fn-ext-rational-model", "unknowns": ["long-run-value", "least-n-for-target", "interpret-vertical-asymptote"] },
+      "alignment": { "ib": ["SL2.8"], "apPrecalc": ["1.7"] },
+      "materials": [
+        {
+          "title": "Precalculus: An Investigation of Functions (Lippman and Rasmussen), Chapter 3: Polynomial and rational functions",
+          "url": "https://www.opentextbookstore.com/precalc/2.3/Chapter%203.pdf",
+          "licence": "CC BY-SA 4.0"
+        }
+      ],
+      "priority": { "parts": 2.4, "rank": 36 }
+    },
+    {
+      "id": "lesson.fn.gradient",
+      "title": "Rise per Step",
+      "objective": "Find a gradient as the change in y for each step of 1 in x.",
+      "idea": "A straight line has the same gradient everywhere: the rise divided by the run between any two of its points, taken in the same order, and its sign says whether the line goes up or down.",
+      "region": "lines",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.1.gradient"],
+      "supports": ["fn-line-from-conditions", "fn-concept-gradient-meaning", "fn-link-rate-of-change"],
+      "unknowns": {
+        "fn-line-from-conditions": ["gradient-from-two-points", "gradient-from-general", "gradient-from-graph", "missing-coordinate-from-gradient"]
+      },
+      "levels": [1, 2],
+      "prerequisites": [],
+      "misconceptions": ["SL2.1.gradient#0", "SL2.1.gradient#1", "SL2.1.gradient#2"],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT is building a ramp for the delivery bot out of identical steps, and the bot slips wherever the steps change. The player sets the rise of one step with a dial, then picks any two bolts on the ramp and checks that rise over run gives the same number; B0-LT reacts when the player divides the run by the rise or subtracts the coordinates in different orders. The debrief writes the gradient as m = (y₂ − y₁)/(x₂ − x₁).",
+      "apply": { "type": "fn-line-from-conditions", "unknowns": ["gradient-from-two-points", "gradient-from-graph", "gradient-from-general"] },
+      "alignment": { "ib": ["SL2.1"], "ccss": ["8.EE.B.6", "HSF.IF.B.6"], "gcse": ["Algebra 10"], "aLevel": ["C1"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 2.1 Linear Functions",
+          "url": "https://openstax.org/books/precalculus/pages/2-1-linear-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 2.4, "rank": 34 }
+    },
+    {
+      "id": "lesson.fn.line-equation",
+      "title": "Pin and Swing",
+      "objective": "Write the equation of a line from a point and a gradient, or from two points.",
+      "idea": "A point and a gradient fix exactly one line: y − y₁ = m(x − x₁) is the line y = mx moved to pass through (x₁, y₁), and every point on the line satisfies its equation.",
+      "region": "lines",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.1.equation-of-line", "SL2.1.intercepts"],
+      "assumes": ["SL3.1.midpoint-3d"],
+      "supports": ["fn-line-from-conditions", "fn-ext-line-model"],
+      "unknowns": {
+        "fn-line-from-conditions": [
+          "equation-point-gradient",
+          "equation-two-points",
+          "midpoint-then-line",
+          "equation-from-intercepts",
+          "unknown-coordinate",
+          "general-form",
+          "intercepts-from-equation"
+        ]
+      },
+      "levels": [1, 2],
+      "prerequisites": ["lesson.fn.gradient", "lesson.fn.pre-balance"],
+      "misconceptions": ["SL2.1.equation-of-line#0", "SL2.1.equation-of-line#1", "SL2.1.intercepts#0", "SL2.1.intercepts#1", "SL2.1.intercepts#2"],
+      "interaction": "drag-position",
+      "scenario": "B0-LT needs a straight guide wire through one fixed bolt at a set slope. The player pins the wire to the bolt and swings it to the slope, then checks other bolts against its equation; B0-LT reacts when the player writes x + x₁ and the wire jumps to the mirror-image bolt, or gives the y-intercept as (c, 0). The debrief writes the wire as y − y₁ = m(x − x₁), then as y = mx + c and as ax + by + d = 0.",
+      "apply": {
+        "type": "fn-line-from-conditions",
+        "unknowns": ["equation-point-gradient", "equation-two-points", "unknown-coordinate", "general-form"]
+      },
+      "alignment": { "ib": ["SL2.1"], "ccss": ["8.EE.B.6"], "gcse": ["Algebra 9"], "aLevel": ["C1"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 2.1 Linear Functions",
+          "url": "https://openstax.org/books/precalculus/pages/2-1-linear-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 6, "rank": 19 }
+    },
+    {
+      "id": "lesson.fn.perpendicular",
+      "title": "The Quarter Turn",
+      "objective": "Find the gradient of a parallel or a perpendicular line, and write its equation.",
+      "idea": "Parallel lines take the same step, so they share a gradient; turning a step of (1, m) through a quarter-turn gives (−m, 1), so a perpendicular line has gradient −1/m and the two gradients multiply to −1.",
+      "region": "lines",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.1.parallel-perpendicular"],
+      "supports": ["fn-line-from-conditions", "fn-concept-gradient-meaning", "fn-link-vectors"],
+      "unknowns": {
+        "fn-line-from-conditions": ["perpendicular-gradient", "parallel-through-point", "perpendicular-through-point", "perpendicular-bisector", "check-perpendicular"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.line-equation"],
+      "misconceptions": ["SL2.1.parallel-perpendicular#0", "SL2.1.parallel-perpendicular#1", "SL2.1.parallel-perpendicular#2", "SL2.1.equation-of-line#2"],
+      "interaction": "place-geometry",
+      "scenario": "B0-LT needs a brace bolted at right angles to a sloping beam. The player places a step triangle on the beam, turns it through a quarter-turn, and reads the new rise and run off the grid; B0-LT reacts when the player only changes the sign, or only flips the fraction. The debrief writes the turned step as the gradient −1/m and checks that m × (−1/m) = −1.",
+      "apply": { "type": "fn-line-from-conditions", "unknowns": ["perpendicular-gradient", "parallel-through-point", "perpendicular-through-point"] },
+      "alignment": { "ib": ["SL2.1"], "ccss": ["HSG.GPE.B.5"], "gcse": ["Algebra 9"], "aLevel": ["C1"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 2.2 Graphs of Linear Functions",
+          "url": "https://openstax.org/books/precalculus/pages/2-2-graphs-of-linear-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 3.6, "rank": 26 }
+    },
+    {
+      "id": "lesson.fn.line-model",
+      "title": "Start Plus Rate",
+      "objective": "Build a straight-line model and say what its gradient and intercept mean in context.",
+      "idea": "A quantity that changes by the same amount for each unit of input is linear: the intercept is the starting amount, the gradient is the rate per unit, and the model only makes sense on a sensible domain.",
+      "region": "lines",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.1.line-model"],
+      "supports": ["fn-ext-line-model", "fn-concept-growth-patterns", "fn-concept-gradient-meaning", "fn-link-rate-of-change"],
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.line-equation"],
+      "misconceptions": ["SL2.1.line-model#0", "SL2.1.line-model#1", "SL2.1.line-model#2"],
+      "interaction": "predict-simulate",
+      "scenario": "B0-LT rents out a hover cart for a fixed call-out fee plus a charge for each kilometre, and the fare chart has been smudged. The player predicts the fare for a few trips and then runs the meter to check; B0-LT reacts when the player swaps the fee and the rate or reads the rate as a total. The debrief writes the fare as C = md + c, with units for m and for c.",
+      "apply": { "type": "fn-ext-line-model", "unknowns": ["build-from-words", "interpret-gradient", "interpret-intercept", "input-for-output"] },
+      "alignment": { "ib": ["SL2.1"], "ccss": ["8.F.B.4", "HSF.LE.A.1.b", "HSF.LE.B.5"], "aLevel": ["C1"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 2.1 Linear Functions",
+          "url": "https://openstax.org/books/precalculus/pages/2-1-linear-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 0, "rank": 47 }
+    },
+    {
+      "id": "lesson.fn.zero-product",
+      "title": "Either Valve Shuts It",
+      "objective": "Solve a quadratic in factorised form by setting each factor equal to zero.",
+      "idea": "A product is zero exactly when one of its factors is zero, so a(x − p)(x − q) = 0 when x = p or x = q; dividing both sides by x can throw away the root x = 0.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.7.solve-equation", "SL2.6.factorised-form", "SL2.4.zeros-intercepts"],
+      "supports": [
+        "fn-solve-quadratic",
+        "fn-quadratic-features",
+        "fn-curve-intersection-quadratic",
+        "fn-log-of-quadratic",
+        "fn-quadratic-inequality",
+        "fn-gdc-features"
+      ],
+      "unknowns": {
+        "fn-solve-quadratic": ["solve-factorisable", "solve-in-context", "solve-no-constant"],
+        "fn-quadratic-features": ["roots-from-factorised", "factorised-from-general"],
+        "fn-curve-intersection-quadratic": ["meeting-x"],
+        "fn-log-of-quadratic": ["argument-roots"],
+        "fn-quadratic-inequality": ["solve-against-zero"],
+        "fn-gdc-features": ["zeros-with-x-factor"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.pre-factorise"],
+      "misconceptions": [
+        "SL2.6.factorised-form#0",
+        "SL2.7.solve-equation#0",
+        "SL2.7.solve-equation#1",
+        "SL2.4.zeros-intercepts#1",
+        "SL2.4.zeros-intercepts#2"
+      ],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT's coolant pipe has two valves in a row, and the flow is the product of their openings, (x − 3)(x + 2). The player turns the main dial to find every setting where the flow stops; B0-LT reacts when the player looks for the stop at x = −3 or forgets the second valve. The debrief writes the two settings as the roots x = 3 and x = −2.",
+      "apply": { "type": "fn-solve-quadratic", "unknowns": ["solve-factorisable", "solve-no-constant"] },
+      "alignment": { "ib": ["SL2.6", "SL2.7"], "ccss": ["HSA.SSE.B.3.a", "HSA.REI.B.4.b"], "gcse": ["Algebra 18"], "aLevel": ["B3"] },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 1, Unit 7: Quadratic equations",
+          "url": "https://im.kendallhunt.com/HS/teachers/1/7/index.html",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 6.8, "rank": 13 }
+    },
+    {
+      "id": "lesson.fn.parabola-symmetry",
+      "title": "The Fountain's Mirror",
+      "objective": "Use the symmetry of a parabola to find its axis, its vertex and a missing root.",
+      "idea": "A parabola is symmetric about the vertical line through its vertex, so points at the same height, such as the two roots, sit the same distance either side, and the axis is halfway between them.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.6.axis-symmetry", "SL2.4.symmetry", "SL2.6.vertex"],
+      "supports": ["fn-quadratic-features", "fn-quadratic-from-conditions", "fn-link-symmetry"],
+      "unknowns": {
+        "fn-quadratic-features": [
+          "axis-from-roots",
+          "axis-from-vertex",
+          "axis-from-general",
+          "second-root-from-axis",
+          "vertex-from-factorised",
+          "vertex-from-general",
+          "vertex-form-from-factorised",
+          "axis-from-equal-outputs"
+        ],
+        "fn-quadratic-from-conditions": ["equation-from-vertex-and-root", "coefficient-from-axis"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.zero-product"],
+      "misconceptions": ["SL2.6.axis-symmetry#0", "SL2.6.axis-symmetry#1", "SL2.4.symmetry#0", "SL2.4.symmetry#1", "SL2.4.symmetry#2"],
+      "interaction": "place-geometry",
+      "scenario": "B0-LT's fountain throws an arc of water that should land in two buckets the same distance from a central post, but the post is in the wrong place. The player places the post, and the arc's mirror image swings across it until the two halves match; B0-LT reacts when the post goes at the y-intercept or the axis is written as y = h. The debrief writes the axis as x = (p + q)/2, and as x = −b/(2a) for the general form.",
+      "apply": {
+        "type": "fn-quadratic-features",
+        "unknowns": ["axis-from-roots", "second-root-from-axis", "vertex-from-factorised", "axis-from-equal-outputs"]
+      },
+      "alignment": { "ib": ["SL2.6", "SL2.4"], "ccss": ["HSF.IF.C.8.a", "HSF.IF.B.4"] },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 1, Unit 6: Introduction to quadratic functions",
+          "url": "https://im.kendallhunt.com/HS/teachers/1/6/index.html",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 8.2, "rank": 10 }
+    },
+    {
+      "id": "lesson.fn.vertex-form",
+      "title": "The Crane Hook",
+      "objective": "Read the vertex, the axis and whether the vertex is a maximum or a minimum from y = a(x − h)² + k.",
+      "idea": "y = a(x − h)² + k is y = ax² translated by the vector (h, k), so its vertex is (h, k), its axis is x = h, and the sign of a decides whether the vertex is a minimum or a maximum.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.6.vertex", "SL2.6.sketch"],
+      "supports": [
+        "fn-quadratic-features",
+        "fn-quadratic-from-conditions",
+        "fn-domain-range",
+        "fn-log-of-quadratic",
+        "fn-sketch-from-features",
+        "fn-link-vectors",
+        "fn-link-extremes"
+      ],
+      "unknowns": {
+        "fn-quadratic-features": ["h-k-from-vertex", "axis-from-vertex", "y-intercept-from-vertex-form", "vertex-from-vertex-form", "max-or-min"],
+        "fn-quadratic-from-conditions": ["vertex-form-from-vertex-and-a"],
+        "fn-domain-range": ["range-quadratic"],
+        "fn-log-of-quadratic": ["max-value"],
+        "fn-sketch-from-features": ["sketch-quadratic"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.translation", "lesson.fn.parabola-symmetry"],
+      "misconceptions": ["SL2.6.vertex#0", "SL2.6.vertex#1", "SL2.6.vertex#2", "SL2.6.axis-symmetry#2", "SL2.6.sketch#0"],
+      "interaction": "graph-manipulation",
+      "scenario": "B0-LT's crane swings its hook along a parabola, and the lowest point keeps missing the loading bay. The player drags the turning point onto the bay and pulls a shape handle to widen, narrow or flip the arc, while the equation in vertex form updates; B0-LT reacts when the player reads (x + 3) as a move to the right or calls a highest point a minimum. The debrief links the drag to the conveyor's translation vector (h, k).",
+      "apply": {
+        "type": "fn-quadratic-features",
+        "unknowns": ["vertex-from-vertex-form", "h-k-from-vertex", "max-or-min", "y-intercept-from-vertex-form"]
+      },
+      "alignment": { "ib": ["SL2.6"], "ccss": ["HSF.IF.C.8.a", "HSF.BF.B.3"], "gcse": ["Algebra 11"], "aLevel": ["B3"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 3.2 Quadratic Functions",
+          "url": "https://openstax.org/books/precalculus/pages/3-2-quadratic-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 6.3, "rank": 18 }
+    },
+    {
+      "id": "lesson.fn.complete-square",
+      "title": "The Missing Corner",
+      "objective": "Complete the square to write a quadratic in vertex form.",
+      "idea": "x² + bx is a square of side x + b/2 with a corner of (b/2)² missing, so x² + bx + c = (x + b/2)² − (b/2)² + c; when there is a leading coefficient a, take a out first and multiply the correction by a.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.6.complete-square"],
+      "supports": ["fn-quadratic-features", "fn-transform-describe", "fn-concept-quadratic-forms", "fn-link-equivalent-forms"],
+      "unknowns": {
+        "fn-quadratic-features": ["vertex-from-general", "vertex-form-from-general", "general-from-vertex-form"],
+        "fn-transform-describe": ["describe-after-completing-square"]
+      },
+      "levels": [2, 3],
+      "prerequisites": ["lesson.fn.vertex-form", "lesson.fn.pre-expand"],
+      "misconceptions": ["SL2.6.complete-square#0", "SL2.6.complete-square#1", "SL2.6.complete-square#2"],
+      "interaction": "build-expression",
+      "scenario": "B0-LT is patching a square hatch from scrap tiles: one big square, some long strips and some unit tiles. The player arranges the tiles into a square, finds the corner that is missing, and balances it by borrowing from the unit tiles; B0-LT reacts when the player forgets to take the borrowed corner away again or lays the strips with the wrong sign. The debrief writes the finished hatch as (x + b/2)² − (b/2)² + c.",
+      "apply": { "type": "fn-quadratic-features", "unknowns": ["vertex-form-from-general", "vertex-from-general"] },
+      "alignment": { "ib": ["SL2.6"], "ccss": ["HSA.SSE.B.3.b", "HSA.REI.B.4.a"], "gcse": ["Algebra 11"], "aLevel": ["B3"] },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 1, Unit 7: Quadratic equations",
+          "url": "https://im.kendallhunt.com/HS/teachers/1/7/index.html",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 1.8, "rank": 39 }
+    },
+    {
+      "id": "lesson.fn.quadratic-from-clues",
+      "title": "One More Bolt",
+      "objective": "Find the equation of a quadratic from its roots or its vertex and one more point.",
+      "idea": "Choose the form that holds what you know, the roots in a(x − p)(x − q) or the vertex in a(x − h)² + k; every value of a fits those clues, and one more point picks out the only a that works.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.6.find-equation", "SL2.6.factorised-form"],
+      "supports": ["fn-quadratic-from-conditions", "fn-quadratic-features", "fn-concept-quadratic-forms"],
+      "unknowns": {
+        "fn-quadratic-from-conditions": [
+          "vertex-form-from-vertex-and-a",
+          "a-from-vertex-and-point",
+          "a-from-roots-and-point",
+          "coefficients-from-roots",
+          "coefficients-from-two-points-and-axis",
+          "coefficient-from-point"
+        ],
+        "fn-quadratic-features": ["vertex-form-from-factorised"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.vertex-form", "lesson.fn.zero-product", "lesson.fn.pre-simultaneous"],
+      "misconceptions": ["SL2.6.find-equation#0", "SL2.6.find-equation#1", "SL2.6.find-equation#2", "SL2.6.factorised-form#1", "SL2.6.factorised-form#2"],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT has to hang a cable from two fixed hooks so that it also passes a signal bolt below them. The player picks the form that uses the hooks, then turns a dial for a and watches a family of cables sag deeper or shallower until one passes the bolt; B0-LT reacts when the player assumes a = 1 or writes (x − 1) for a hook at −1. The debrief substitutes the bolt's coordinates to find a in one line.",
+      "apply": {
+        "type": "fn-quadratic-from-conditions",
+        "unknowns": ["a-from-roots-and-point", "a-from-vertex-and-point", "coefficient-from-point"]
+      },
+      "alignment": { "ib": ["SL2.6"], "ccss": ["HSF.IF.C.8.a", "HSA.CED.A.2"], "aLevel": ["B3"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 3.2 Quadratic Functions",
+          "url": "https://openstax.org/books/precalculus/pages/3-2-quadratic-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 5.3, "rank": 20 }
+    },
+    {
+      "id": "lesson.fn.discriminant",
+      "title": "Does It Reach the Floor?",
+      "objective": "Use the discriminant to say whether a quadratic has two, one or no real roots.",
+      "idea": "Δ = b² − 4ac is the part of the quadratic formula under the square root: Δ > 0 gives two real roots, Δ = 0 gives one repeated root where the vertex touches the x-axis, and Δ < 0 gives none.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.7.discriminant", "SL2.7.solve-equation"],
+      "supports": ["fn-discriminant", "fn-quadratic-inequality", "fn-solve-quadratic", "fn-concept-quadratic-forms"],
+      "unknowns": {
+        "fn-discriminant": ["nature-from-equation", "delta-sign-from-graph", "graph-from-delta"],
+        "fn-quadratic-inequality": ["no-real-roots-case"],
+        "fn-solve-quadratic": ["solve-surd"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.zero-product", "lesson.fn.vertex-form", "lesson.fn.pre-surds"],
+      "misconceptions": ["SL2.7.discriminant#0", "SL2.7.discriminant#1", "SL2.7.discriminant#2"],
+      "interaction": "predict-simulate",
+      "scenario": "B0-LT's ball launcher fires arcs over a trench, and the robot wants to know before each shot whether it will cross the trench floor twice, skim it or clear it. The player predicts the outcome from the shot's a, b and c, then fires; B0-LT reacts when the player says a negative Δ means two negative roots or slips on −4ac when c is negative. The debrief writes the three cases as Δ > 0, Δ = 0 and Δ < 0.",
+      "apply": { "type": "fn-discriminant", "unknowns": ["nature-from-equation", "delta-sign-from-graph", "graph-from-delta"] },
+      "alignment": { "ib": ["SL2.7"], "ccss": ["HSA.REI.B.4.b"], "aLevel": ["B3"] },
+      "materials": [
+        {
+          "title": "OpenStax College Algebra (1st edition), 2.5 Quadratic Equations",
+          "url": "https://openstax.org/books/college-algebra/pages/2-5-quadratic-equations",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 2.2, "rank": 37 }
+    },
+    {
+      "id": "lesson.fn.discriminant-parameter",
+      "title": "Tune k Until It Grazes",
+      "objective": "Find the values of a constant k that give a quadratic two, one or no real roots, or make a line touch a curve.",
+      "idea": "When a coefficient depends on k, Δ becomes an expression in k: Δ = 0 gives the k for a repeated root or a tangent line, and Δ > 0 or Δ < 0 becomes an inequality in k to solve.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.7.discriminant-parameter", "SL2.7.discriminant", "SL2.7.inequality"],
+      "supports": ["fn-discriminant", "fn-curve-intersection-quadratic", "fn-link-extremes"],
+      "unknowns": {
+        "fn-discriminant": ["delta-in-k", "k-for-equal-roots", "k-interval", "always-positive", "same-sign-roots", "roots-from-k", "tangent-contact-point"],
+        "fn-curve-intersection-quadratic": ["equate-to-quadratic"]
+      },
+      "levels": [2, 4],
+      "prerequisites": ["lesson.fn.discriminant", "lesson.fn.quadratic-inequality", "lesson.fn.meeting-points"],
+      "misconceptions": ["SL2.7.discriminant-parameter#0", "SL2.7.discriminant-parameter#1", "SL2.7.discriminant-parameter#2", "SL2.7.inequality#1"],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT's laser fence is a straight beam that must just graze a curved dome without cutting into it. The player turns the k dial to raise the beam and watches the two meeting points slide together and vanish, while a Δ meter shows a quadratic in k crossing zero; B0-LT reacts when the player reads off a, b and c before moving everything to one side, or writes k < ±6. The debrief solves Δ = 0 for the grazing value and turns Δ > 0 into an interval of k.",
+      "apply": { "type": "fn-discriminant", "unknowns": ["delta-in-k", "k-for-equal-roots", "k-interval"] },
+      "alignment": { "ib": ["SL2.7"], "ccss": ["HSA.REI.C.7"], "aLevel": ["B3", "B5"] },
+      "priority": { "parts": 11.8, "rank": 7 }
+    },
+    {
+      "id": "lesson.fn.quadratic-inequality",
+      "title": "Below the Waterline",
+      "objective": "Solve a quadratic inequality from its roots and the shape of its graph.",
+      "idea": "A quadratic can only change sign at its roots, so for a > 0 it is negative between the roots and positive outside them; the solution is either one interval or two separate pieces.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.7.inequality"],
+      "supports": ["fn-quadratic-inequality", "fn-discriminant", "fn-log-of-quadratic", "fn-ext-inequality-graphical"],
+      "unknowns": {
+        "fn-quadratic-inequality": ["solve-against-zero", "solve-against-constant", "largest-integer", "square-against-constant", "negative-a"],
+        "fn-discriminant": ["k-interval"],
+        "fn-log-of-quadratic": ["domain-from-inequality", "sign-of-f"]
+      },
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.zero-product", "lesson.fn.pre-linear-inequalities"],
+      "misconceptions": ["SL2.7.inequality#0", "SL2.7.inequality#1", "SL2.7.inequality#2"],
+      "interaction": "drag-position",
+      "scenario": "B0-LT's flood barrier follows a parabola, and the robot needs to know which stretches of road sit below the waterline. The player drags shutters along the road to cover every stretch where the barrier dips under the water; B0-LT reacts when the shutters join two separate stretches into one or cover the wrong side of the roots. The debrief writes the covered stretches as inequalities such as x < −2 or x > 3.",
+      "apply": { "type": "fn-quadratic-inequality", "unknowns": ["solve-against-zero", "negative-a", "solve-against-constant"] },
+      "alignment": { "ib": ["SL2.7"], "gcse": ["Algebra 22"], "aLevel": ["B5"] },
+      "priority": { "parts": 4.8, "rank": 21 }
+    },
+    {
+      "id": "lesson.fn.growth-factor",
+      "title": "Multiply, Don't Add",
+      "objective": "Tell exponential growth from linear growth, and turn a percentage change into a growth factor.",
+      "idea": "Exponential change multiplies by the same factor at every step while linear change adds the same amount, so a 5% rise is a factor of 1.05 and the value after t steps is P₀ × 1.05ᵗ.",
+      "region": "exp-log",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.9.exp-model"],
+      "supports": ["fn-exponential-model", "fn-concept-growth-patterns", "fn-link-multiplicative-growth"],
+      "unknowns": {
+        "fn-exponential-model": ["initial-value", "predict-value", "interpret-factor", "factor-from-percent", "model-from-table", "change-over-period"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.pre-percent-multiplier", "lesson.fn.line-model"],
+      "misconceptions": ["SL2.9.exp-model#0", "SL2.9.exp-model#1", "SL2.9.exp-model#2"],
+      "interaction": "predict-simulate",
+      "scenario": "B0-LT's two scrap heaps grow overnight, one by a fixed number of parts and one by a fixed percentage. The player predicts which heap is bigger after one, five and twenty nights, then runs the nights and watches the percentage heap fall behind and then overtake; B0-LT reacts when the player uses 0.05 for 5% growth or multiplies the start by the rate and the time. The debrief writes the two heaps as P₀ + dt and P₀ × aᵗ.",
+      "apply": { "type": "fn-exponential-model", "unknowns": ["interpret-factor", "factor-from-percent", "predict-value", "model-from-table"] },
+      "alignment": {
+        "ib": ["SL2.9"],
+        "ccss": ["HSF.LE.A.1.a", "HSF.LE.A.1.c", "HSF.IF.C.8.b", "HSF.LE.B.5"],
+        "apPrecalc": ["2.2"],
+        "gcse": ["Ratio 16"],
+        "aLevel": ["F7"]
+      },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 1, Unit 5: Introduction to exponential functions",
+          "url": "https://im.kendallhunt.com/HS/teachers/1/5/index.html",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "title": "Active Prelude to Calculus, Modeling exponential growth and decay",
+          "url": "https://activecalculus.org/prelude/sec-exp-growth.html",
+          "licence": "CC BY-SA 4.0"
+        }
+      ],
+      "priority": { "parts": 4.2, "rank": 23 }
+    },
+    {
+      "id": "lesson.fn.exp-graph",
+      "title": "The Curve That Never Lands",
+      "objective": "Read the y-intercept, the asymptote and the range of y = A·bˣ + c.",
+      "idea": "bˣ is always positive and passes through (0, 1), so A·bˣ + c crosses the y-axis at A + c and gets ever closer to its horizontal asymptote y = c without reaching it; b > 1 rises and 0 < b < 1 falls.",
+      "region": "exp-log",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.9.exp-graph", "SL2.9.find-parameters"],
+      "supports": ["fn-ext-exp-graph", "fn-exponential-model", "fn-ext-match-graph"],
+      "unknowns": { "fn-exponential-model": ["initial-value", "long-run-value", "model-from-graph"] },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.growth-factor", "lesson.fn.translation"],
+      "misconceptions": ["SL2.9.exp-graph#0", "SL2.9.exp-graph#1", "SL2.9.find-parameters#0", "SL2.9.find-parameters#1", "SL2.2.range#1"],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT's battery charges along an exponential curve, and its gauge needs the right markings. The player turns dials for A, b and c and watches where the curve starts, which way it goes and the level it hugs; B0-LT reacts when the player puts the start at A or leaves the asymptote at y = 0 after a vertical shift. The debrief writes the markings as the y-intercept A + c, the asymptote y = c and the range y > c.",
+      "apply": { "type": "fn-ext-exp-graph", "unknowns": ["y-intercept", "asymptote", "range", "growth-or-decay"] },
+      "alignment": { "ib": ["SL2.9"], "ccss": ["HSF.IF.C.7.e"], "apPrecalc": ["2.3"], "gcse": ["Algebra 12"], "aLevel": ["F1"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 4.2 Graphs of Exponential Functions",
+          "url": "https://openstax.org/books/precalculus/pages/4-2-graphs-of-exponential-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 2.8, "rank": 32 }
+    },
+    {
+      "id": "lesson.fn.log-undoes-power",
+      "title": "What Power?",
+      "objective": "Switch between log form and power form to evaluate logs and solve simple equations.",
+      "idea": "log_b x is the power you raise b to in order to get x, so log_b x = y and bʸ = x say the same thing, and log_b undoes the function bˣ.",
+      "region": "exp-log",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.9.exp-log-inverse", "SL1.5.exp-log-form"],
+      "assumes": ["SL1.7.change-of-base"],
+      "supports": ["fn-exp-log-inverse-composite", "fn-exponential-model", "fn-log-of-quadratic", "fn-link-inverses"],
+      "unknowns": {
+        "fn-exp-log-inverse-composite": [
+          "evaluate-log-function",
+          "inverse-of-exponential",
+          "inverse-of-log",
+          "evaluate-inverse",
+          "inverse-awkward-base",
+          "write-log-form",
+          "solve-log-equation",
+          "log-of-non-positive"
+        ],
+        "fn-exponential-model": ["log-model-solve"],
+        "fn-log-of-quadratic": ["zeros", "base-from-max"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.growth-factor", "lesson.fn.inverse-undo"],
+      "misconceptions": ["SL1.5.exp-log-form#0", "SL1.5.exp-log-form#1", "SL1.5.exp-log-form#2", "SL2.9.exp-log-inverse#1"],
+      "interaction": "build-expression",
+      "scenario": "B0-LT's lock opens when the right number of doubling gears is stacked to turn 1 into the code number. The player stacks gears until the counter reaches the code, then reads the number of gears as the log; B0-LT reacts when the player divides the code by the base or tries to stack gears to reach 0. The debrief writes the stack as 2⁵ = 32 and as log₂ 32 = 5.",
+      "apply": {
+        "type": "fn-exp-log-inverse-composite",
+        "unknowns": ["write-log-form", "evaluate-log-function", "solve-log-equation", "inverse-awkward-base"]
+      },
+      "alignment": { "ib": ["SL2.9", "SL1.5"], "ccss": ["HSF.BF.B.5"], "apPrecalc": ["2.9", "2.10"], "aLevel": ["F3"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 4.3 Logarithmic Functions",
+          "url": "https://openstax.org/books/precalculus/pages/4-3-logarithmic-functions",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "title": "Active Prelude to Calculus, What a logarithm is",
+          "url": "https://activecalculus.org/prelude/sec-exp-log.html",
+          "licence": "CC BY-SA 4.0"
+        }
+      ],
+      "priority": { "parts": 10.2, "rank": 8 }
+    },
+    {
+      "id": "lesson.fn.solve-with-logs",
+      "title": "Bring Down the Exponent",
+      "objective": "Solve for an unknown in an exponent by getting the power on its own and taking logs.",
+      "idea": "To free t from an exponent, first get the power on its own, then take logs of both sides: 5e^(kt) = 20 becomes e^(kt) = 4, so kt = ln 4.",
+      "region": "exp-log",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.9.exp-log-inverse", "SL2.9.find-parameters", "SL1.7.solve-with-logs"],
+      "supports": ["fn-exponential-model", "fn-exp-log-inverse-composite"],
+      "unknowns": {
+        "fn-exponential-model": [
+          "k-from-half-life",
+          "k-from-data-point",
+          "predict-from-data-point",
+          "time-to-level",
+          "whole-units-inequality",
+          "half-life-from-k",
+          "two-models-equal"
+        ],
+        "fn-exp-log-inverse-composite": ["composite-inequality", "solve-exp-equation"]
+      },
+      "levels": [2, 4],
+      "prerequisites": ["lesson.fn.log-undoes-power", "lesson.fn.pre-balance"],
+      "misconceptions": [
+        "SL1.7.solve-with-logs#0",
+        "SL1.7.solve-with-logs#1",
+        "SL1.7.solve-with-logs#2",
+        "SL2.9.exp-log-inverse#0",
+        "SL2.9.exp-log-inverse#2"
+      ],
+      "interaction": "button-switch",
+      "scenario": "B0-LT's algae tank grows exponentially, and the robot needs to know when it will pass the overflow line. The player presses operation buttons that act on both sides of a balance, dividing, taking logs and dividing again, and the tank's timer fills in once t stands alone; B0-LT reacts when the player takes logs before the power is on its own or loses the brackets around the exponent. The debrief writes the answer as t = (ln 4)/k and checks it on the calculator to 3 significant figures.",
+      "apply": { "type": "fn-exponential-model", "unknowns": ["time-to-level", "k-from-data-point", "k-from-half-life"] },
+      "alignment": { "ib": ["SL2.9", "SL1.7"], "ccss": ["HSF.LE.A.4"], "apPrecalc": ["2.13"], "aLevel": ["F5"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 4.6 Exponential and Logarithmic Equations",
+          "url": "https://openstax.org/books/precalculus/pages/4-6-exponential-and-logarithmic-equations",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "title": "OpenStax Precalculus (1st edition), 4.7 Exponential and Logarithmic Models",
+          "url": "https://openstax.org/books/precalculus/pages/4-7-exponential-and-logarithmic-models",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 8.5, "rank": 9 }
+    },
+    {
+      "id": "lesson.fn.log-graph",
+      "title": "The Mirrored Curve",
+      "objective": "Sketch a log graph and find its asymptote, its domain and where it crosses the x-axis.",
+      "idea": "y = log_b x is y = bˣ reflected in y = x, so the horizontal asymptote y = 0 becomes the vertical asymptote x = 0, the domain is x > 0 and the graph crosses the x-axis at x = 1; for a shifted log, the asymptote is where the inside of the log is zero.",
+      "region": "exp-log",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.9.log-graph", "SL2.4.asymptotes", "SL2.2.domain"],
+      "supports": ["fn-log-function-features", "fn-log-of-quadratic", "fn-exp-log-inverse-composite"],
+      "unknowns": {
+        "fn-log-function-features": ["asymptote-from-equation", "sign-of-log-expression", "domain-from-equation", "x-intercept", "reflect-exponential"],
+        "fn-log-of-quadratic": ["asymptotes"],
+        "fn-exp-log-inverse-composite": ["inverse-graph"]
+      },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.log-undoes-power", "lesson.fn.inverse-reflection", "lesson.fn.exp-graph"],
+      "misconceptions": ["SL2.9.log-graph#0", "SL2.9.log-graph#1", "SL2.9.log-graph#2", "SL2.4.asymptotes#2"],
+      "interaction": "place-geometry",
+      "scenario": "B0-LT's signal meter uses a log scale, but its holo-display only shows the exponential half. The player places the mirror line y = x and folds the exponential curve over it, then shifts the inside of the log and watches the vertical asymptote follow the point where it is zero; B0-LT reacts when the player draws a horizontal asymptote or starts the graph at the origin. The debrief writes the asymptote of log_b(x − h) as x = h and its domain as x > h.",
+      "apply": {
+        "type": "fn-log-function-features",
+        "unknowns": ["asymptote-from-equation", "domain-from-equation", "x-intercept", "reflect-exponential"]
+      },
+      "alignment": { "ib": ["SL2.9"], "ccss": ["HSF.IF.C.7.e"], "apPrecalc": ["2.11"], "aLevel": ["F3"] },
+      "materials": [
+        {
+          "title": "OpenStax Precalculus (1st edition), 4.4 Graphs of Logarithmic Functions",
+          "url": "https://openstax.org/books/precalculus/pages/4-4-graphs-of-logarithmic-functions",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 3.7, "rank": 25 }
+    },
+    {
+      "id": "lesson.fn.hidden-quadratic",
+      "title": "A Quadratic in Disguise",
+      "objective": "Spot an equation that is a quadratic in disguise, solve it, and reject the answer that cannot happen.",
+      "idea": "If an equation holds bˣ and b²ˣ = (bˣ)², the substitution u = bˣ turns it into a quadratic in u; solve for u, then undo the substitution and reject any u that bˣ can never equal, such as a negative number.",
+      "region": "exp-log",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.7.hidden-quadratic"],
+      "supports": ["fn-solve-quadratic", "fn-link-equivalent-forms"],
+      "unknowns": { "fn-solve-quadratic": ["solve-hidden-exponential", "choose-substitution", "solve-hidden-reciprocal", "solve-hidden-log"] },
+      "levels": [2, 3],
+      "prerequisites": ["lesson.fn.zero-product", "lesson.fn.log-undoes-power"],
+      "misconceptions": ["SL2.7.hidden-quadratic#0", "SL2.7.hidden-quadratic#1", "SL2.7.hidden-quadratic#2"],
+      "interaction": "predict-simulate",
+      "scenario": "B0-LT's combination lock asks for the x that solves 4ˣ − 2·2ˣ − 8 = 0, and the robot is stuck. The player predicts how many solutions there are, then relabels 2ˣ as u and watches the lock become u² − 2u − 8 = 0; B0-LT reacts when the player stops at u = 4 and u = −2, or keeps 2ˣ = −2. The debrief undoes u = 2ˣ to get the single solution x = 2.",
+      "apply": { "type": "fn-solve-quadratic", "unknowns": ["choose-substitution", "solve-hidden-exponential"] },
+      "alignment": { "ib": ["SL2.7", "SL2.9"], "aLevel": ["B3"] },
+      "priority": { "parts": 1.3, "rank": 40 }
+    },
+    {
+      "id": "lesson.fn.how-high-and-where",
+      "title": "How High, and Where?",
+      "objective": "Find a maximum or a minimum, giving both its value and where it happens, including at the ends of a domain.",
+      "idea": "A maximum has two parts, the greatest output (a y-value) and the input where it happens (an x-value); on a restricted domain the greatest value can sit at an endpoint rather than at a turning point.",
+      "region": "graphs-features",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.4.max-min", "SL2.6.model"],
+      "supports": ["fn-gdc-features", "fn-sketch-gdc", "fn-gdc-optimise-combined", "fn-ext-quadratic-model", "fn-domain-range", "fn-link-extremes"],
+      "unknowns": {
+        "fn-gdc-features": ["turning-point-coordinates", "extreme-value-only", "greatest-on-domain"],
+        "fn-sketch-gdc": ["label-turning-point", "endpoint-coordinates", "greatest-on-domain"],
+        "fn-gdc-optimise-combined": ["max-difference", "least-distance"],
+        "fn-domain-range": ["range-restricted"]
+      },
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.function-machine", "lesson.fn.pre-read-and-round"],
+      "misconceptions": ["SL2.4.max-min#0", "SL2.4.max-min#1", "SL2.4.max-min#2", "SL2.6.model#0", "SL2.2.range#0"],
+      "interaction": "drag-position",
+      "scenario": "B0-LT's test track for carts runs only between two fixed posts, and the robot needs the highest point a cart reaches. The player drags a probe cart along the track while two readouts show its position and its height; B0-LT reacts when the player reports where the peak is instead of how high it is, or misses that the track ends higher than the hump. The debrief writes the answer as a point (x, y) and, on a domain, compares the turning point with both endpoints.",
+      "apply": { "type": "fn-gdc-features", "unknowns": ["turning-point-coordinates", "extreme-value-only", "greatest-on-domain"] },
+      "alignment": { "ib": ["SL2.4", "SL2.6"], "ccss": ["HSF.IF.B.4", "HSF.IF.C.7.a"] },
+      "priority": { "parts": 6.5, "rank": 17 }
+    },
+    {
+      "id": "lesson.fn.meeting-points",
+      "title": "Where the Tracks Cross",
+      "objective": "Find where two graphs meet, and use the meeting points to solve f(x) = g(x).",
+      "idea": "A meeting point lies on both graphs, so its coordinates satisfy both equations, and the solutions of f(x) = g(x) are the x-coordinates of the points where the graphs of f and g meet.",
+      "region": "graphs-features",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.4.intersection", "SL2.1.intersection-lines", "SL2.10.solve-analytic"],
+      "assumes": ["SL5.4.normal-equation"],
+      "supports": [
+        "fn-gdc-intersection",
+        "fn-curve-intersection-quadratic",
+        "fn-gdc-solve-equation",
+        "fn-rational-sketch",
+        "fn-ext-intersection-lines",
+        "fn-concept-solutions-as-intersections",
+        "fn-link-graph-vs-algebra"
+      ],
+      "unknowns": {
+        "fn-gdc-intersection": ["intersection-points", "solve-f-equals-g", "function-and-inverse", "distance-between-crossings", "count-crossings"],
+        "fn-curve-intersection-quadratic": ["equate-to-quadratic", "meeting-x", "meeting-points", "chord-length", "normal-meets-again", "count-from-sketch"],
+        "fn-gdc-solve-equation": ["simultaneous-nonlinear"],
+        "fn-rational-sketch": ["count-with-curve", "count-with-line"]
+      },
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.function-machine", "lesson.fn.pre-simultaneous"],
+      "misconceptions": ["SL2.4.intersection#0", "SL2.4.intersection#1", "SL2.4.intersection#2", "SL2.1.intersection-lines#0", "SL2.1.intersection-lines#2"],
+      "interaction": "predict-simulate",
+      "scenario": "B0-LT runs two carts along two tracks and wants them to swap cargo wherever the tracks cross. The player predicts how many crossings there are and roughly where, then runs both carts and marks each crossing; B0-LT reacts when the player gives only the x-coordinate of a crossing or misses one off the edge of the screen. The debrief writes each crossing as a solution of f(x) = g(x), found exactly by setting the two rules equal or with the calculator's intersect tool.",
+      "apply": { "type": "fn-gdc-intersection", "unknowns": ["intersection-points", "solve-f-equals-g", "count-crossings"] },
+      "alignment": {
+        "ib": ["SL2.4", "SL2.10", "SL2.1"],
+        "ccss": ["HSA.REI.D.11", "HSA.REI.C.7", "8.EE.C.8.b"],
+        "gcse": ["Algebra 19"],
+        "aLevel": ["B4", "B7"]
+      },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 1, Unit 2: Linear equations, inequalities and systems",
+          "url": "https://im.kendallhunt.com/HS/teachers/1/2/index.html",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 13.4, "rank": 4 }
+    },
+    {
+      "id": "lesson.fn.count-solutions",
+      "title": "Sweep the Beam",
+      "objective": "Count the solutions of f(x) = k from a graph, and find the values of k that give a set number of solutions.",
+      "idea": "The solutions of f(x) = k are where the horizontal line y = k crosses the graph, so the number of solutions only changes as the line passes a turning value, an endpoint or an asymptote.",
+      "region": "graphs-features",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.10.number-of-solutions", "SL2.3.read-graph"],
+      "supports": ["fn-sketch-gdc", "fn-rational-sketch", "fn-graph-table-composite-inverse", "fn-concept-solutions-as-intersections"],
+      "unknowns": {
+        "fn-sketch-gdc": ["count-solutions-from-sketch", "k-for-count"],
+        "fn-rational-sketch": ["count-with-curve", "count-with-horizontal", "k-for-no-solution"],
+        "fn-graph-table-composite-inverse": ["solve-from-table", "count-solutions"]
+      },
+      "levels": [2, 4],
+      "prerequisites": ["lesson.fn.meeting-points", "lesson.fn.how-high-and-where"],
+      "misconceptions": ["SL2.10.number-of-solutions#0", "SL2.10.number-of-solutions#1", "SL2.10.number-of-solutions#2", "SL2.3.read-graph#1"],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT's searchlight sweeps a horizontal beam up and down across a jagged ridge, and the robot counts how many points of the ridge the beam lights. The player slides the beam's height and records the count at each level; B0-LT reacts when the player counts two where the beam only touches a peak, counts beyond the ends of the ridge, or counts the level of an asymptote. The debrief writes the levels where the count changes as the boundaries of the k intervals.",
+      "apply": { "type": "fn-sketch-gdc", "unknowns": ["count-solutions-from-sketch", "k-for-count"] },
+      "alignment": { "ib": ["SL2.10", "SL2.3"], "ccss": ["HSA.REI.D.11"], "aLevel": ["B7"] },
+      "priority": { "parts": 2.9, "rank": 31 }
+    },
+    {
+      "id": "lesson.fn.gdc-solve",
+      "title": "When Algebra Jams",
+      "objective": "Solve an equation with the calculator when algebra has no way in, and give each answer to 3 significant figures.",
+      "idea": "An equation that mixes families, such as eˣ = x + 3, has no algebraic route, but its solutions are still the meeting points of two graphs or the zeros of one, which technology finds; round only at the very end.",
+      "region": "graphs-features",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.10.solve-gdc", "SL2.4.zeros-intercepts"],
+      "supports": ["fn-gdc-solve-equation", "fn-gdc-features", "fn-gdc-intersection", "fn-sketch-gdc", "fn-link-graph-vs-algebra"],
+      "unknowns": {
+        "fn-gdc-solve-equation": ["solve-mixed-equation", "form-and-solve", "root-in-interval", "simultaneous-nonlinear", "count-roots"],
+        "fn-gdc-features": ["zeros-gdc", "solve-as-zeros"],
+        "fn-gdc-intersection": ["intersection-points", "solve-f-equals-g", "models-equal"],
+        "fn-sketch-gdc": ["label-zeros"]
+      },
+      "levels": [2, 4],
+      "prerequisites": ["lesson.fn.meeting-points", "lesson.fn.pre-read-and-round"],
+      "misconceptions": ["SL2.10.solve-gdc#0", "SL2.10.solve-gdc#1", "SL2.10.solve-gdc#2", "SL2.4.intersection#2"],
+      "interaction": "button-switch",
+      "scenario": "B0-LT's engine timing equation mixes an exponential with a straight line, and the robot's algebra module keeps taking logs and producing nonsense. The player graphs both sides on the field calculator, uses the intersect and zero tools, and changes the window to hunt for solutions it missed; B0-LT reacts when the player rounds early, gives 2 significant figures, or takes ln of both sides of eˣ = x + 3. The debrief writes each solution to 3 significant figures and says why algebra could not reach it.",
+      "apply": { "type": "fn-gdc-solve-equation", "unknowns": ["solve-mixed-equation", "root-in-interval", "count-roots"] },
+      "alignment": { "ib": ["SL2.10"], "ccss": ["HSA.REI.D.11"] },
+      "priority": { "parts": 12.9, "rank": 5 }
+    },
+    {
+      "id": "lesson.fn.sketch-features",
+      "title": "Spot the Impostor",
+      "objective": "Check a graph against its key features to choose or draw the right sketch.",
+      "idea": "A sketch is a set of promises, its intercepts, turning points, asymptotes, endpoints and the shape between them, so one broken promise is enough to rule a graph out.",
+      "region": "graphs-features",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.3.sketch-from-equation", "SL2.3.sketch-from-info", "SL2.3.match-graph", "SL2.6.sketch"],
+      "assumes": ["SL3.7.sketch"],
+      "supports": ["fn-sketch-gdc", "fn-sketch-from-features", "fn-rational-sketch", "fn-ext-match-graph"],
+      "unknowns": {
+        "fn-sketch-gdc": ["sketch-on-domain", "endpoint-coordinates", "label-zeros", "label-y-intercept", "label-turning-point", "judge-a-sketch"],
+        "fn-sketch-from-features": ["sketch-quadratic", "sketch-on-interval", "sketch-with-asymptote", "sketch-trig-on-interval", "judge-a-sketch"],
+        "fn-rational-sketch": ["sketch-from-equation"]
+      },
+      "levels": [1, 4],
+      "prerequisites": ["lesson.fn.how-high-and-where", "lesson.fn.domain-range"],
+      "misconceptions": [
+        "SL2.3.sketch-from-equation#0",
+        "SL2.3.sketch-from-equation#1",
+        "SL2.3.sketch-from-equation#2",
+        "SL2.3.match-graph#0",
+        "SL2.3.match-graph#2",
+        "SL2.6.sketch#2",
+        "SL2.3.sketch-from-info#0"
+      ],
+      "interaction": "sort-match",
+      "scenario": "B0-LT's archive holds four holo-plots for each machine's curve, and only one of them is genuine. The player checks each plot against the machine's equation one feature at a time, the y-intercept, the zeros, the turning point, the asymptote and the domain, and throws out every impostor; B0-LT reacts when the player keeps a plot that crosses a vertical asymptote, runs past the end of the domain, or opens the wrong way. The debrief lists the features every sketch has to label.",
+      "apply": { "type": "fn-sketch-gdc", "unknowns": ["sketch-on-domain", "endpoint-coordinates", "judge-a-sketch"] },
+      "alignment": { "ib": ["SL2.3"], "ccss": ["HSF.IF.C.7", "HSF.IF.B.4"], "aLevel": ["B7"] },
+      "priority": { "parts": 12.8, "rank": 6 }
+    },
+    {
+      "id": "lesson.fn.combine-functions",
+      "title": "Stack the Heights",
+      "objective": "Build the sum or the difference of two functions, and find its maximum or its zeros.",
+      "idea": "(f + g)(x) and (f − g)(x) combine the outputs at the same input, so the gap between two models is a new function whose zeros are where the models meet and whose maximum need not be at either model's own maximum.",
+      "region": "graphs-features",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.3.sum-difference"],
+      "supports": ["fn-gdc-optimise-combined", "fn-concept-solutions-as-intersections", "fn-ext-inequality-graphical"],
+      "unknowns": { "fn-gdc-optimise-combined": ["form-difference", "max-difference", "difference-zero", "sum-graph", "sum-zeros"] },
+      "levels": [2, 4],
+      "prerequisites": ["lesson.fn.function-machine", "lesson.fn.meeting-points"],
+      "misconceptions": ["SL2.3.sum-difference#0", "SL2.3.sum-difference#1", "SL2.3.sum-difference#2"],
+      "interaction": "graph-manipulation",
+      "scenario": "B0-LT's two water tanks fill and drain on different schedules, and the robot wants to know when the difference between them is largest. The player stacks one tank's height against the other's at the same moments and watches the difference graph build up bar by bar; B0-LT reacts when the player subtracts heights from different times or assumes the biggest gap comes when one tank is fullest. The debrief writes the gap as D(t) = A(t) − B(t) and finds its maximum and its zeros.",
+      "apply": { "type": "fn-gdc-optimise-combined", "unknowns": ["form-difference", "max-difference", "sum-zeros"] },
+      "alignment": { "ib": ["SL2.3"], "ccss": ["HSF.BF.A.1.b"] },
+      "priority": { "parts": 3, "rank": 30 }
+    },
+    {
+      "id": "lesson.fn.graph-inequality",
+      "title": "Above the Line",
+      "objective": "Solve f(x) > g(x) by finding where one graph is above the other.",
+      "idea": "f(x) > g(x) wherever the graph of f is above the graph of g, so the boundaries are the meeting points and the solution can come in more than one piece.",
+      "region": "graphs-features",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.10.inequality-graphical"],
+      "supports": ["fn-ext-inequality-graphical", "fn-rational-sketch", "fn-quadratic-inequality"],
+      "unknowns": { "fn-rational-sketch": ["inequality-from-sketch"], "fn-quadratic-inequality": ["solve-against-constant"] },
+      "levels": [2, 4],
+      "prerequisites": ["lesson.fn.meeting-points", "lesson.fn.quadratic-inequality"],
+      "misconceptions": ["SL2.10.inequality-graphical#0", "SL2.10.inequality-graphical#1", "SL2.10.inequality-graphical#2"],
+      "interaction": "drag-position",
+      "scenario": "B0-LT's two pipelines run side by side, and the hot pipe has to stay above the cold one for the heat exchanger to work. The player paints the stretches where the hot pipe is higher, starting and stopping at the crossings; B0-LT reacts when the player gives the crossing points instead of the stretches, paints where the hot pipe is lower, or misses the second stretch. The debrief writes the painted stretches as intervals.",
+      "apply": { "type": "fn-ext-inequality-graphical", "unknowns": ["read-from-graph", "two-piece-solution", "solve-with-gdc"] },
+      "alignment": { "ib": ["SL2.10"], "gcse": ["Algebra 22"], "aLevel": ["B5"] },
+      "priority": { "parts": 2.4, "rank": 35 }
+    },
+    {
+      "id": "lesson.fn.context-check",
+      "title": "Does It Make Sense?",
+      "objective": "Check an answer against its context by rejecting impossible roots, rounding the right way and answering the question asked.",
+      "idea": "An answer from algebra or a calculator only answers a model once it fits the context: times and lengths can't be negative, whole numbers of units round up or down depending on the condition, and when asks for an input, not an output.",
+      "region": "graphs-features",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.10.context-apply", "SL2.2.function-model"],
+      "supports": [
+        "fn-gdc-solve-equation",
+        "fn-exponential-model",
+        "fn-solve-quadratic",
+        "fn-quadratic-inequality",
+        "fn-gdc-intersection",
+        "fn-evaluate-function",
+        "fn-ext-quadratic-model",
+        "fn-ext-rational-model"
+      ],
+      "unknowns": {
+        "fn-gdc-solve-equation": ["form-and-solve", "root-in-interval", "reject-a-root", "smallest-whole-number"],
+        "fn-exponential-model": ["whole-units-inequality"],
+        "fn-solve-quadratic": ["solve-in-context"],
+        "fn-quadratic-inequality": ["largest-integer"],
+        "fn-gdc-intersection": ["models-equal"],
+        "fn-evaluate-function": ["time-for-target", "model-domain"]
+      },
+      "levels": [2, 4],
+      "prerequisites": ["lesson.fn.gdc-solve", "lesson.fn.domain-range"],
+      "misconceptions": ["SL2.10.context-apply#0", "SL2.10.context-apply#1", "SL2.10.context-apply#2", "SL2.2.function-model#1", "SL2.6.model#1"],
+      "interaction": "sort-match",
+      "scenario": "B0-LT's work orders come back from the calculator with answers like −2.4 hours and 4.2 crates. The player sorts each answer into use, round up, round down or reject for its work order; B0-LT reacts when a negative time is kept, or when 4.2 years becomes 4 although 5 full years are needed. The debrief writes each accepted answer in context, with its units.",
+      "apply": { "type": "fn-gdc-solve-equation", "unknowns": ["reject-a-root", "smallest-whole-number", "form-and-solve"] },
+      "alignment": { "ib": ["SL2.10", "SL2.2"], "ccss": ["HSA.CED.A.1", "HSN.Q.A.3"], "aLevel": ["B11"] },
+      "priority": { "parts": 6.8, "rank": 14 }
+    },
+    {
+      "id": "lesson.fn.pre-substitute",
+      "title": "Brackets Round Negatives",
+      "objective": "Substitute a number into an expression, keeping brackets round negatives and working out powers first.",
+      "idea": "A substituted value replaces the letter as one bracketed number, and powers act before multiplication, so −x² at x = −3 is −(−3)² = −9 and 2x² at x = 3 is 2 × 9 = 18.",
+      "region": "function-basics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-substitute"],
+      "levels": [0, 0],
+      "prerequisites": [],
+      "misconceptions": ["fn-pre-substitute#0", "fn-pre-substitute#1", "fn-pre-substitute#2", "fn-pre-substitute#3"],
+      "interaction": "predict-simulate",
+      "scenario": "B0-LT's calculating drum runs a number through a squaring gear and a sign gear, but it keeps losing the minus sign. The player predicts the drum's output for a negative input, then runs it and watches each gear act in turn; B0-LT reacts when the player squares without brackets or multiplies before squaring. The debrief writes the input in brackets every time, as in −(−3)² = −9.",
+      "apply": { "type": "fn-pre-substitute", "unknowns": ["negative-into-square", "negative-into-linear", "coefficient-and-power"] },
+      "alignment": { "ib": ["SL2.2"], "gcse": ["Algebra 2"] },
+      "priority": { "parts": 0, "rank": 41 }
+    },
+    {
+      "id": "lesson.fn.pre-balance",
+      "title": "Keep the Scales Level",
+      "objective": "Solve a linear equation by doing the same thing to both sides.",
+      "idea": "An equation is a balance: adding, subtracting, multiplying or dividing both sides by the same thing keeps it level, so each step can undo one operation until x stands alone.",
+      "region": "lines",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-linear-equations"],
+      "levels": [0, 0],
+      "prerequisites": ["lesson.fn.pre-substitute"],
+      "misconceptions": ["fn-pre-linear-equations#0", "fn-pre-linear-equations#1", "fn-pre-linear-equations#2", "fn-pre-linear-equations#3"],
+      "interaction": "build-expression",
+      "scenario": "B0-LT's weighing scale holds bags with an unknown number of bolts and some loose bolts on both pans. The player takes the same load off both pans, or splits both pans the same way, one move at a time, until a single bag balances a pile of bolts; B0-LT reacts when a move is made to one pan only or a bracket is multiplied into its first term only. The debrief writes each move as a line of algebra.",
+      "apply": { "type": "fn-pre-linear-equations", "unknowns": ["two-step", "both-sides", "brackets"] },
+      "alignment": { "ib": ["SL2.1"], "ccss": ["8.EE.C.7", "HSA.REI.B.3"], "gcse": ["Algebra 17"] },
+      "materials": [
+        {
+          "title": "OpenStax College Algebra (1st edition), 2.2 Linear Equations in One Variable",
+          "url": "https://openstax.org/books/college-algebra/pages/2-2-linear-equations-in-one-variable",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 0, "rank": 42 }
+    },
+    {
+      "id": "lesson.fn.pre-change-subject",
+      "title": "Make It the Subject",
+      "objective": "Rearrange a formula to make a different letter its subject.",
+      "idea": "Changing the subject is solving with letters: undo the operations around the new subject in reverse order, and when it appears twice, collect both terms on one side and take it out as a factor.",
+      "region": "composite-inverse",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-rearrange"],
+      "levels": [0, 0],
+      "prerequisites": ["lesson.fn.pre-balance"],
+      "misconceptions": ["fn-pre-rearrange#0", "fn-pre-rearrange#1", "fn-pre-rearrange#2", "fn-pre-rearrange#3", "fn-pre-rearrange#4"],
+      "interaction": "build-expression",
+      "scenario": "B0-LT's conversion plate turns gear size into speed, and the robot needs a plate that turns speed back into gear size. The player strips the operations off the gear-size letter one at a time, gathers its two copies onto one side and takes it out as a factor; B0-LT reacts when the steps are undone in the original order or the letter is left on both sides. The debrief writes the new plate as a formula with the new subject.",
+      "apply": { "type": "fn-pre-rearrange", "unknowns": ["two-step", "subject-in-denominator", "subject-twice"] },
+      "alignment": { "ib": ["SL2.5"], "ccss": ["HSA.CED.A.4"], "gcse": ["Algebra 5"] },
+      "priority": { "parts": 0, "rank": 53 }
+    },
+    {
+      "id": "lesson.fn.pre-expand",
+      "title": "Fill the Rectangle",
+      "objective": "Expand brackets by multiplying every term in one bracket by every term in the other.",
+      "idea": "(x + r)(x + s) is the area of a rectangle with sides x + r and x + s, so it splits into the four pieces x², rx, sx and rs, and (x + r)² has two middle strips, not none.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-expand"],
+      "levels": [0, 0],
+      "prerequisites": [],
+      "misconceptions": ["fn-pre-expand#0", "fn-pre-expand#1", "fn-pre-expand#2", "fn-pre-expand#3"],
+      "interaction": "build-expression",
+      "scenario": "B0-LT is tiling a workshop floor with an x by x slab, x by 1 strips and 1 by 1 tiles. The player drags tiles to fill a rectangle with the given side lengths and reads off its total area; B0-LT reacts when the player fills a square of side x + 4 with only x² and 16. The debrief writes the area as the expanded quadratic.",
+      "apply": { "type": "fn-pre-expand", "unknowns": ["double-bracket", "perfect-square", "vertex-form-expand"] },
+      "alignment": { "ib": ["SL2.6"], "gcse": ["Algebra 4"] },
+      "priority": { "parts": 0, "rank": 43 }
+    },
+    {
+      "id": "lesson.fn.pre-factorise",
+      "title": "Find the Sides",
+      "objective": "Factorise a quadratic expression into brackets.",
+      "idea": "Factorising runs expanding backwards: arrange the area x² + bx + c into a rectangle, and its sides are the factors, built from two numbers that multiply to c and add to b.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-factorise"],
+      "levels": [0, 0],
+      "prerequisites": ["lesson.fn.pre-expand"],
+      "misconceptions": ["fn-pre-factorise#0", "fn-pre-factorise#1", "fn-pre-factorise#2", "fn-pre-factorise#3"],
+      "interaction": "build-expression",
+      "scenario": "B0-LT has a pile of floor tiles and needs to know the sides of the rectangle they make. The player arranges the slab, the strips and the unit tiles into a single rectangle and reads off its sides; B0-LT reacts when the signs are swapped or the player tries to make a rectangle from x² + 9. The debrief writes the sides as the factorised form.",
+      "apply": { "type": "fn-pre-factorise", "unknowns": ["common-factor", "monic-trinomial", "difference-of-squares"] },
+      "alignment": { "ib": ["SL2.6", "SL2.7"], "ccss": ["HSA.SSE.A.2"], "gcse": ["Algebra 4"] },
+      "priority": { "parts": 0, "rank": 44 }
+    },
+    {
+      "id": "lesson.fn.pre-surds",
+      "title": "Roots That Split",
+      "objective": "Simplify a surd, and the fraction that an exact quadratic answer comes in.",
+      "idea": "√(ab) = √a × √b, so √48 = √16 × √3 = 4√3; but the root of a sum does not split, and in a fraction such as (4 + √12)/2 every term on top is divided.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-surds"],
+      "levels": [0, 0],
+      "prerequisites": [],
+      "misconceptions": ["fn-pre-surds#0", "fn-pre-surds#1", "fn-pre-surds#2"],
+      "interaction": "sort-match",
+      "scenario": "B0-LT's sorting chute takes crates labelled with roots like √48 and has to send each one out in its simplest form. The player sorts crates into the bins for their simplest forms, pulling out the biggest square factor first; B0-LT reacts when the player splits √(9 + 16) into √9 + √16 or divides only one term of a fraction. The debrief writes each sorted crate as a√b.",
+      "apply": { "type": "fn-pre-surds", "unknowns": ["simplify-root", "formula-fraction"] },
+      "alignment": { "ib": ["SL2.7"], "ccss": ["HSN.RN.A.2"], "gcse": ["Number 8"], "aLevel": ["B2"] },
+      "priority": { "parts": 0, "rank": 51 }
+    },
+    {
+      "id": "lesson.fn.pre-linear-inequalities",
+      "title": "The Tipping See-Saw",
+      "objective": "Solve a linear inequality and show its solution on a number line.",
+      "idea": "An inequality behaves like a tipped balance: adding or subtracting the same amount keeps the tilt, but multiplying or dividing both sides by a negative number reverses it.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-linear-inequalities"],
+      "levels": [0, 0],
+      "prerequisites": ["lesson.fn.pre-balance"],
+      "misconceptions": ["fn-pre-linear-inequalities#0", "fn-pre-linear-inequalities#1", "fn-pre-linear-inequalities#2"],
+      "interaction": "predict-simulate",
+      "scenario": "B0-LT's see-saw tips towards its heavier side, and the robot wants to know which loads keep it tipped. The player predicts what happens to the tilt when both sides are multiplied by −1, then tries it and watches the see-saw flip; B0-LT reacts when the inequality sign is kept after dividing by a negative. The debrief writes the solution as an inequality and on a number line with open or closed circles.",
+      "apply": { "type": "fn-pre-linear-inequalities", "unknowns": ["one-sided", "two-sided"] },
+      "alignment": { "ib": ["SL2.7"], "ccss": ["HSA.REI.B.3"], "gcse": ["Algebra 22"] },
+      "materials": [
+        {
+          "title": "OpenStax College Algebra (1st edition), 2.7 Linear Inequalities and Absolute Value Inequalities",
+          "url": "https://openstax.org/books/college-algebra/pages/2-7-linear-inequalities-and-absolute-value-inequalities",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 0, "rank": 46 }
+    },
+    {
+      "id": "lesson.fn.pre-percent-multiplier",
+      "title": "One Multiplication",
+      "objective": "Turn a percentage change into a single multiplier, and combine changes made one after another.",
+      "idea": "A rise of r% multiplies by 1 + r/100 and a fall of r% by 1 − r/100, so changes in a row multiply: a 10% rise and then a 10% fall is a factor of 1.1 × 0.9 = 0.99.",
+      "region": "exp-log",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-percent-multiplier"],
+      "levels": [0, 0],
+      "prerequisites": [],
+      "misconceptions": ["fn-pre-percent-multiplier#0", "fn-pre-percent-multiplier#1", "fn-pre-percent-multiplier#2", "fn-pre-percent-multiplier#3"],
+      "interaction": "slider-dial",
+      "scenario": "B0-LT's trading post changes its prices by a percentage every day, and the robot keeps adding the percentages up. The player turns a multiplier dial to match each day's change, then chains several days into one multiplier; B0-LT reacts when the player uses 0.15 for a 15% fall or expects a 10% rise and a 10% fall to cancel. The debrief writes the chain as one multiplier and as its percentage change.",
+      "apply": { "type": "fn-pre-percent-multiplier", "unknowns": ["increase-multiplier", "decrease-multiplier", "repeated-changes"] },
+      "alignment": { "ib": ["SL2.9"], "gcse": ["Ratio 16"] },
+      "priority": { "parts": 0, "rank": 48 }
+    },
+    {
+      "id": "lesson.fn.pre-read-and-round",
+      "title": "Read the Gauge",
+      "objective": "Read values off a graph with any scale, and round answers to 3 significant figures.",
+      "idea": "A reading is only as good as its scale and its precision: work out what one square is worth before reading, and round to 3 significant figures by counting from the first non-zero digit and keeping any zeros that are needed.",
+      "region": "graphs-features",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-graph-reading"],
+      "levels": [0, 0],
+      "prerequisites": [],
+      "misconceptions": ["fn-pre-graph-reading#0", "fn-pre-graph-reading#1", "fn-pre-graph-reading#2", "fn-pre-graph-reading#3", "fn-pre-graph-reading#4"],
+      "interaction": "drag-position",
+      "scenario": "B0-LT's pressure gauges all have different scales, and the robot's log book needs every reading to 3 significant figures. The player drags a reading cursor to each needle, works out the value from the scale and logs it at the right precision; B0-LT reacts when one square is counted as one unit or 0.004567 is logged as 0.005. The debrief writes each reading to 3 significant figures.",
+      "apply": { "type": "fn-pre-graph-reading", "unknowns": ["read-with-scale", "round-3sf", "round-small-3sf"] },
+      "alignment": { "ib": ["SL2.3"], "ccss": ["HSN.Q.A.3"] },
+      "priority": { "parts": 0, "rank": 49 }
+    },
+    {
+      "id": "lesson.fn.pre-algebraic-fractions",
+      "title": "Never Divide by Zero",
+      "objective": "Simplify and solve with fractions that have x in them, and find the value of x they can't take.",
+      "idea": "A fraction with x below the line breaks where the denominator is zero, and only common factors cancel, not terms: (x² − 9)/(x + 3) = x − 3, but (x + 6)/(x + 3) does not simplify.",
+      "region": "rational",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-algebraic-fractions"],
+      "levels": [0, 0],
+      "prerequisites": ["lesson.fn.pre-factorise"],
+      "misconceptions": ["fn-pre-algebraic-fractions#0", "fn-pre-algebraic-fractions#1", "fn-pre-algebraic-fractions#2", "fn-pre-algebraic-fractions#3"],
+      "interaction": "predict-simulate",
+      "scenario": "B0-LT's divider unit shares a load between a number of bays that depends on x, and it sparks at one setting. The player predicts whether a shortened version of the divider's rule gives the same output, then tests several values of x, including the one that makes the bottom zero; B0-LT reacts when the player cancels terms instead of factors or thinks that dividing by zero gives zero. The debrief writes the excluded value and the simplified rule.",
+      "apply": { "type": "fn-pre-algebraic-fractions", "unknowns": ["excluded-value", "simplify-by-cancelling", "clear-and-solve"] },
+      "alignment": { "ib": ["SL2.8"], "gcse": ["Algebra 4"], "aLevel": ["B6"] },
+      "priority": { "parts": 0, "rank": 50 }
+    },
+    {
+      "id": "lesson.fn.pre-simultaneous",
+      "title": "Two Lamps, One Point",
+      "objective": "Solve two linear equations in two unknowns at the same time.",
+      "idea": "Each equation on its own allows a whole line of pairs (x, y), so a solution of both is a point on both lines, found by eliminating one unknown or by substituting one equation into the other.",
+      "region": "lines",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": [],
+      "supports": ["fn-pre-simultaneous"],
+      "levels": [0, 0],
+      "prerequisites": ["lesson.fn.pre-balance"],
+      "misconceptions": ["fn-pre-simultaneous#0", "fn-pre-simultaneous#1", "fn-pre-simultaneous#2", "fn-pre-simultaneous#3"],
+      "interaction": "drag-position",
+      "scenario": "B0-LT's door has two warning lamps, each wired to one equation in x and y, and it only opens when both lamps are green. The player drags a marker around the grid and sees each lamp light along its own line, then uses elimination to land the marker exactly where both light; B0-LT reacts when the player stops after finding one unknown or adds two equations whose matching terms have the same sign. The debrief writes the solution as (x, y) and checks it in both equations.",
+      "apply": { "type": "fn-pre-simultaneous", "unknowns": ["matching-coefficient", "scale-one", "special-case"] },
+      "alignment": { "ib": ["SL2.1"], "ccss": ["8.EE.C.8.b", "HSA.REI.C.6"], "gcse": ["Algebra 19"], "aLevel": ["B4"] },
+      "materials": [
+        {
+          "title": "Illustrative Mathematics Algebra 1, Unit 2: Linear equations, inequalities and systems",
+          "url": "https://im.kendallhunt.com/HS/teachers/1/2/index.html",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 0, "rank": 45 }
+    }
+  ],
+  "gaps": [],
+  "outlook": [
+    {
+      "topic": 1,
+      "island": "The Scrap Fields (Number and algebra)",
+      "station": "traders-caravan",
+      "lessons": [20, 26],
+      "note": "16 exam types and 15 extension types. Most prior learning is shared with Functions.",
+      "bigIdeas": [
+        "Scale by powers of ten: standard form keeps very large and very small numbers comparable.",
+        "Add the same each step: arithmetic sequences and series (a sequence is a line sampled at whole numbers).",
+        "Multiply the same each step: geometric sequences, compound interest and depreciation.",
+        "Add up a pattern: sum formulas, sigma notation, and why a sum to infinity exists only when |r| < 1.",
+        "Powers follow laws: integer, negative and rational exponents.",
+        "A logarithm is a power: log laws, change of base and solving exponential equations.",
+        "True for every x: identities, proof, and finding unknown constants by comparing coefficients.",
+        "The nCr pattern: binomial expansion and its coefficients."
+      ]
+    },
+    {
+      "topic": 3,
+      "island": "The Dry Flats (Geometry and trigonometry)",
+      "station": "broken-observatory",
+      "lessons": [24, 30],
+      "note": "21 exam types and 2 extension types.",
+      "bigIdeas": [
+        "Measure space: distance, midpoint, volume and surface area in 3D.",
+        "An angle fixes a ratio: right-angled trigonometry from similar triangles.",
+        "Any triangle: the sine rule, the cosine rule, the ambiguous case and the area ½ab sin C.",
+        "Directions as angles: bearings, elevation and depression.",
+        "Radians measure angle by arc length: arcs, sectors and segments.",
+        "The unit circle: exact values, signs in each quadrant and related angles.",
+        "Identities rewrite trigonometric expressions: Pythagorean and double-angle identities.",
+        "Waves are transformed sine curves: amplitude, period and principal axis.",
+        "A trigonometric equation has many solutions: find all of them in an interval.",
+        "Periodic models: use and fit a·sin(b(x − c)) + d in context."
+      ]
+    },
+    {
+      "topic": 4,
+      "island": "Radio Spires (Statistics and probability)",
+      "station": "signal-bunker",
+      "lessons": [24, 30],
+      "note": "24 exam types and 8 extension types.",
+      "bigIdeas": [
+        "Who you ask matters: sampling, bias and types of data.",
+        "Centre and spread: summary statistics, and what adding to or scaling every value does to them.",
+        "Pictures of data: cumulative frequency, box plots, histograms and outliers.",
+        "Lines through data: correlation, regression, and when a prediction can be trusted.",
+        "Probability as long-run frequency: sample spaces, complements and expected counts.",
+        "Combining events: Venn diagrams, tree diagrams, the addition rule, conditional probability and independence.",
+        "Random variables: distributions that add up to 1, and expected value as a long-run average.",
+        "Counting successes: the binomial distribution.",
+        "The bell curve: normal probabilities, symmetry, standardising and the inverse normal."
+      ]
+    },
+    {
+      "topic": 5,
+      "island": "The Engine Core (Calculus)",
+      "station": "engine-graveyard",
+      "lessons": [24, 30],
+      "note": "18 exam types and 13 extension types. Differential calculus would sit in the Engine Graveyard and integral calculus in the Flooded Reservoir.",
+      "bigIdeas": [
+        "The derivative is a rate: from chord gradients to the gradient of the tangent.",
+        "Rules for rates: the power, chain, product and quotient rules.",
+        "Tangents and normals: the lines that meet a curve at a point at a known angle.",
+        "Where a graph rises, falls and turns: increasing and decreasing, stationary points and concavity.",
+        "The best value: optimisation from a constraint.",
+        "Motion: displacement, velocity and acceleration as one chain of rates.",
+        "Undo the derivative: antiderivatives, + C and boundary conditions.",
+        "Add up many small pieces: the definite integral as area, and the area between two curves.",
+        "Distance from velocity: integrate speed, not velocity, to find the total distance."
+      ]
+    }
+  ]
+}
