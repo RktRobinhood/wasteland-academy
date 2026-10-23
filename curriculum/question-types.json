@@ -7,10 +7,376 @@
   "parts": 869
  },
  "partIds": "A part ID is the bank question ID plus \".\" and the part letter (aa-sl-2021-may-tz1-p1-q01.a). Questions with no lettered parts use the bare question ID.",
+ "levels": {
+  "0": "Prior learning: algebra the IB assumes (factorising, rearranging, surds, fractions). Floor 1 warm-ups, and served when a dependent step is missed.",
+  "1": "Recall, 1 to 2 marks, one step. Floor 1.",
+  "2": "Procedure, 3 to 4 marks, one skill in a few steps. Floors 1 to 2.",
+  "3": "Paper 1 exam level, 5 to 6 marks, no calculator. Floors 2 to 3.",
+  "4": "Paper 2 exam level, 5 to 6 marks with a calculator, or a harder multi-condition Paper 1 item. Floor 3 and deeper.",
+  "5": "Synoptic: Section B chains, concept links and modelling. Bosses, floor 4 and deeper."
+ },
+ "regions": [
+  {
+   "id": "quadratics",
+   "name": "Quadratics",
+   "syllabus": [
+    "2.6",
+    "2.7"
+   ],
+   "order": 1
+  }
+ ],
+ "situations": {
+  "quadratic": {
+   "name": "One parabola in all its forms",
+   "summary": "Pick a and the two roots (or the vertex), then derive every linked quantity, so any of them can be hidden and any shown.",
+   "quantities": [
+    {
+     "name": "a",
+     "is": "leading coefficient: the stretch, and up (a > 0) or down (a < 0)",
+     "pick": "non-zero; ±1, ±2, ±1/2 on Paper 1, ±3 allowed when nothing is halved"
+    },
+    {
+     "name": "p, q",
+     "is": "the roots, so the x-intercepts are (p, 0) and (q, 0)",
+     "pick": "integers with p < q; p + q even whenever the axis or vertex is asked"
+    },
+    {
+     "name": "h",
+     "is": "axis of symmetry x = h, and the x-coordinate of the vertex",
+     "pick": "(p + q)/2"
+    },
+    {
+     "name": "k",
+     "is": "y-coordinate of the vertex: the minimum (a > 0) or maximum (a < 0) value",
+     "pick": "f(h) = −a(q − p)²/4"
+    },
+    {
+     "name": "b, c",
+     "is": "coefficients of the general form ax² + bx + c",
+     "pick": "b = −a(p + q), c = apq"
+    },
+    {
+     "name": "y-intercept",
+     "is": "the point (0, c)",
+     "pick": "c = apq = ah² + k"
+    },
+    {
+     "name": "Δ",
+     "is": "discriminant b² − 4ac",
+     "pick": "a²(q − p)²"
+    },
+    {
+     "name": "forms",
+     "is": "general ax² + bx + c, factorised a(x − p)(x − q), vertex a(x − h)² + k",
+     "pick": "all three written from a, p, q"
+    },
+    {
+     "name": "range",
+     "is": "y ≥ k when a > 0, y ≤ k when a < 0",
+     "pick": "from a and k"
+    },
+    {
+     "name": "extra point",
+     "is": "(x₁, f(x₁)) used to pin down a",
+     "pick": "small integer x₁, not a root and not h"
+    },
+    {
+     "name": "table",
+     "is": "f(x) at 5 to 7 consecutive integers",
+     "pick": "centred near h so a symmetric pair of equal outputs is visible"
+    }
+   ],
+   "modes": [
+    "rational roots (default): all three forms exist with integer p and q",
+    "surd roots: pick integers h, k with −k/a positive and not a square, so the roots are h ± √(−k/a) and there is no rational factorised form",
+    "no real roots: pick h, k with k/a > 0, so Δ < 0 and there is no factorised form over the reals"
+   ],
+   "clean": [
+    "Paper 1: every value exact; with q − p even, k is an integer or a half",
+    "the extra point has small integer coordinates",
+    "on a graph, roots, vertex and y-intercept sit on grid points",
+    "roots, vertex and y-intercept are distinct points unless a view needs them to coincide"
+   ]
+  },
+  "quadratic-equation": {
+   "extends": "quadratic",
+   "name": "A quadratic equation, in context or in disguise",
+   "summary": "The quadratic situation set equal to zero, wrapped in a context or a substitution that makes exactly one root unusable.",
+   "quantities": [
+    {
+     "name": "wrapper",
+     "is": "what the quadratic stands for",
+     "pick": "plain; context (lengths, a sector, probabilities that sum to 1); u = bˣ; x + c/x; a sum of logs"
+    },
+    {
+     "name": "u-roots",
+     "is": "the roots of the quadratic in u",
+     "pick": "integers, one of them ≤ 0 when u = bˣ so it must be rejected"
+    },
+    {
+     "name": "x-roots",
+     "is": "the solutions of the original equation",
+     "pick": "from the u-roots: x = log_b u; for logs, keep only roots with every argument positive"
+    },
+    {
+     "name": "invalid root",
+     "is": "the root the wrapper rules out",
+     "pick": "exactly one: a negative length, a probability outside [0, 1], bˣ ≤ 0 or a log of a non-positive number"
+    }
+   ],
+   "clean": [
+    "Paper 1: u-roots are integers and the valid x is an integer or log_b of an integer",
+    "Paper 2 context versions may need the formula and 3 s.f."
+   ]
+  },
+  "quadratic-parameter": {
+   "extends": "quadratic",
+   "name": "A quadratic with a parameter in it",
+   "summary": "A quadratic whose coefficients contain an unknown constant k (directly, or after equating a line and a curve), so its discriminant is an expression in k.",
+   "quantities": [
+    {
+     "name": "source",
+     "is": "where the quadratic comes from",
+     "pick": "given directly (x² + kx + 9); a line y = mx + n meeting a curve y = x² + px + r; a log or exponential equation that reduces to a quadratic"
+    },
+    {
+     "name": "k",
+     "is": "the parameter",
+     "pick": "in b, in c, or in both"
+    },
+    {
+     "name": "Δ(k)",
+     "is": "the discriminant as an expression in k",
+     "pick": "linear or quadratic in k; for a line meeting y = x² + px + r it is (p − m)² − 4(r − n)"
+    },
+    {
+     "name": "critical k",
+     "is": "the values where Δ(k) = 0",
+     "pick": "integers: for the line case pick r − n = s², so m = p ± 2s"
+    },
+    {
+     "name": "condition",
+     "is": "what the question wants",
+     "pick": "equal roots or tangent (Δ = 0), two points (Δ > 0), none (Δ < 0), real roots (Δ ≥ 0), always positive (a > 0 and Δ < 0)"
+    },
+    {
+     "name": "extra condition",
+     "is": "a second requirement on the roots or k",
+     "pick": "same-sign roots (c/a > 0), k positive, or the log argument staying positive"
+    },
+    {
+     "name": "contact point",
+     "is": "where a tangent line touches",
+     "pick": "x = −b/(2a) at the critical k"
+    }
+   ],
+   "clean": [
+    "critical k values are integers",
+    "the inequality in k factorises",
+    "say whether the boundary is included"
+   ]
+  },
+  "curve-and-line": {
+   "name": "A curve and a line that meet",
+   "summary": "Pick the two meeting x-values first, then build the curve as the line plus a multiple of (x − x₁)(x − x₂), so the equated quadratic is known in advance.",
+   "quantities": [
+    {
+     "name": "line",
+     "is": "y = mx + n, or the normal to the curve at a given point",
+     "pick": "small integer m and n; m ≠ 0"
+    },
+    {
+     "name": "x₁, x₂",
+     "is": "the x-coordinates where they meet",
+     "pick": "integers, or h ± √d with small d"
+    },
+    {
+     "name": "curve",
+     "is": "a quadratic y = mx + n + a(x − x₁)(x − x₂), or a rational y = c + e/(x − r) chosen to meet the line at x₁ and x₂",
+     "pick": "a non-zero integer; for the rational curve r is not x₁ or x₂"
+    },
+    {
+     "name": "equated quadratic",
+     "is": "what equating and rearranging gives",
+     "pick": "a(x − x₁)(x − x₂) = 0, expanded"
+    },
+    {
+     "name": "points",
+     "is": "(x₁, y₁) and (x₂, y₂) on the line",
+     "pick": "y = mx + n at each"
+    },
+    {
+     "name": "distance",
+     "is": "length of the chord between the points",
+     "pick": "|x₂ − x₁|·√(1 + m²)"
+    }
+   ],
+   "clean": [
+    "Paper 1: integer or simple surd x-values; choose m = 0, ±1, ±2 or ±3 so √(1 + m²) is small",
+    "the final surd simplifies to a√b"
+   ]
+  },
+  "quadratic-inequality": {
+   "extends": "quadratic",
+   "name": "A quadratic compared with a number",
+   "summary": "The quadratic situation with an inequality sign and, sometimes, a right-hand side to move across first.",
+   "quantities": [
+    {
+     "name": "sign",
+     "is": "which inequality",
+     "pick": "<, ≤, > or ≥"
+    },
+    {
+     "name": "right-hand side",
+     "is": "the value f(x) is compared with",
+     "pick": "0, or a constant d with f(x) − d still factorising"
+    },
+    {
+     "name": "solution set",
+     "is": "one interval between the roots, two rays outside them, all x, or no x",
+     "pick": "from the sign of a, the roots and the sign"
+    },
+    {
+     "name": "context bound",
+     "is": "the largest or smallest whole number allowed",
+     "pick": "Paper 2: non-integer roots, so the rounding direction matters"
+    }
+   ],
+   "clean": [
+    "Paper 1 roots are integers or simple fractions",
+    "Paper 2 roots are not integers, so the integer answer is a real decision"
+   ]
+  },
+  "quadratic-model": {
+   "name": "A quadratic model in context",
+   "summary": "A projectile height h(t) or an area A(x) under a fixed-length constraint, built from the vertex so the optimum is clean.",
+   "quantities": [
+    {
+     "name": "context",
+     "is": "what is modelled",
+     "pick": "height of a thrown object over time; area of a pen with a fixed length of fence (with or without a wall)"
+    },
+    {
+     "name": "peak",
+     "is": "time and height of the maximum, or the width and area of the best pen",
+     "pick": "vertex (T, H) with integer or half-integer T"
+    },
+    {
+     "name": "a",
+     "is": "how fast the curve bends",
+     "pick": "height: −5 or −4.9 (Paper 2); area: −1 or −2 from the constraint"
+    },
+    {
+     "name": "start value",
+     "is": "height at t = 0",
+     "pick": "h(0) = aT² + H"
+    },
+    {
+     "name": "landing time",
+     "is": "positive root of h(t) = 0",
+     "pick": "T + √(−H/a); the negative root is rejected"
+    },
+    {
+     "name": "constraint",
+     "is": "fixed perimeter L",
+     "pick": "pen against a wall: A(x) = x(L − 2x), best x = L/4; free pen: A(x) = x(L/2 − x), best x = L/4 (a square)"
+    }
+   ],
+   "clean": [
+    "Paper 1: integer vertex and an integer or surd landing time",
+    "Paper 2: a = −4.9 and answers to 3 s.f."
+   ]
+  },
+  "fn-pre-expand": {
+   "name": "Brackets to expand",
+   "summary": "Small integer coefficients in one or two brackets, sometimes with a factor in front and a constant after.",
+   "quantities": [
+    {
+     "name": "brackets",
+     "is": "the product to expand",
+     "pick": "k(x + r)(x + s) + d, or k(x + r)² + d, with small integers"
+    },
+    {
+     "name": "expanded",
+     "is": "the result kx² + … ",
+     "pick": "computed from the brackets"
+    }
+   ],
+   "clean": [
+    "coefficients between −9 and 9",
+    "answers have at most three terms"
+   ]
+  },
+  "fn-pre-factorise": {
+   "name": "An expression with known factors",
+   "summary": "Pick the factors first, then expand, so the answer is known.",
+   "quantities": [
+    {
+     "name": "factors",
+     "is": "the brackets",
+     "pick": "common factor kx; (x − r)(x − s); (mx + r)(x + s); (px − q)(px + q)"
+    },
+    {
+     "name": "expression",
+     "is": "the expanded form shown",
+     "pick": "computed from the factors"
+    }
+   ],
+   "clean": [
+    "r and s between −9 and 9",
+    "leading coefficient at most 6"
+   ]
+  },
+  "fn-pre-surds": {
+   "name": "Surds built from a square factor",
+   "summary": "Pick a and a square-free b, then show √(a²b) or sums of such surds.",
+   "quantities": [
+    {
+     "name": "a, b",
+     "is": "the simplest form a√b",
+     "pick": "a from 2 to 6, b square-free from 2, 3, 5, 6, 7"
+    },
+    {
+     "name": "shown",
+     "is": "the surd or expression given",
+     "pick": "√(a²b), sums, products, or (m ± √(a²b))/n with n dividing m and a"
+    }
+   ],
+   "clean": [
+    "every answer simplifies to integers and one surd"
+   ]
+  },
+  "fn-pre-linear-inequalities": {
+   "name": "A linear inequality with a known boundary",
+   "summary": "Pick the boundary and direction, then build ax + b compared with c.",
+   "quantities": [
+    {
+     "name": "boundary",
+     "is": "where the inequality switches",
+     "pick": "an integer or a simple fraction"
+    },
+    {
+     "name": "sign of a",
+     "is": "whether dividing reverses the sign",
+     "pick": "negative in about half the items"
+    },
+    {
+     "name": "form",
+     "is": "one-sided or two-sided",
+     "pick": "ax + b < c, or c₁ < ax + b ≤ c₂"
+    }
+   ],
+   "clean": [
+    "integer boundaries on Paper 1 style items"
+   ]
+  }
+ },
  "types": [
   {
    "id": "fn-line-from-conditions",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Straight line from conditions, then use it",
    "summary": "Build a line from two points, a point and a gradient, a parallel or perpendicular condition, or its two intercepts; then use the line to find an unknown coordinate or an area.",
@@ -102,6 +468,7 @@
   {
    "id": "fn-graph-table-composite-inverse",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Values, composites and inverse values read from a graph or a table",
    "summary": "A graph of f (or a table of f and g) is given; read a value, evaluate a composite, read an inverse value backwards, then solve an equation involving the inverse.",
@@ -186,6 +553,7 @@
   {
    "id": "fn-inverse-reflection",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Inverse as a reflection in y = x",
    "summary": "Sketch the inverse by reflecting the given graph in y = x, or use that symmetry to shortcut a calculation (equal areas, points on y = x).",
@@ -253,6 +621,7 @@
   {
    "id": "fn-evaluate-function",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Evaluate a function or model at a given input",
    "summary": "Substitute into a given rule, usually a model in context: the value at time zero, at a stated input, or the y-intercept. Often the first part of a longer question.",
@@ -331,6 +700,7 @@
   {
    "id": "fn-domain-range",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Domain and range, including restricted and transformed functions",
    "summary": "State a range from a vertex, an asymptote or endpoint values, including after a reflection or on a restricted domain; use a range to decide when a composite is defined.",
@@ -410,6 +780,7 @@
   {
    "id": "fn-sketch-gdc",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Sketch a graph from the GDC on a given domain",
    "summary": "Draw the graph of a given function on a stated domain from technology, labelling intercepts, turning points and endpoints.",
@@ -484,6 +855,7 @@
   {
    "id": "fn-sketch-from-features",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Sketch from features found in earlier parts",
    "summary": "Without a calculator, draw a graph using intercepts, a vertex, stationary points or end behaviour that earlier parts found.",
@@ -556,6 +928,7 @@
   {
    "id": "fn-gdc-features",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Zeros and turning points with the GDC",
    "summary": "Find the zeros, a maximum or a minimum of a given function with technology.",
@@ -637,6 +1010,7 @@
   {
    "id": "fn-gdc-intersection",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Intersection of two curves with the GDC",
    "summary": "Find where two curves meet with technology: two models, a curve and a line, or a function and its inverse; then use the points.",
@@ -714,6 +1088,7 @@
   {
    "id": "fn-gdc-optimise-combined",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Build a new function from given ones and optimise it with the GDC",
    "summary": "Form the difference of two models, or the distance from a point to a curve, then find its maximum, minimum or zero with technology.",
@@ -786,6 +1161,7 @@
   {
    "id": "fn-gdc-solve-equation",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Solve an equation that needs technology",
    "summary": "An earlier part derives an equation that mixes families (angle and sine, exponential and polynomial); solve it with the GDC and keep the root that makes sense.",
@@ -869,6 +1245,7 @@
   {
    "id": "fn-composite",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Form a composite, evaluate it, solve for a parameter",
    "summary": "Write (g o f)(x) for two given rules, evaluate it, or set it equal to a value and solve for an unknown constant.",
@@ -948,6 +1325,7 @@
   {
    "id": "fn-inverse-algebraic",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Find an inverse algebraically, with its domain; self-inverse functions",
    "summary": "Swap and rearrange to find f^-1 for a linear, rational or root function, state its domain and range, show a function is its own inverse, or find a constant that makes it so.",
@@ -1029,6 +1407,7 @@
   {
    "id": "fn-exp-log-inverse-composite",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Exponential and log functions as inverses and composites",
    "summary": "Evaluate an exponential or log function, find its inverse by switching form, evaluate the inverse, simplify a composite of exp and log with log laws, and relate their graphs by transformations.",
@@ -1121,7 +1500,9 @@
   {
    "id": "fn-quadratic-features",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
+   "region": "quadratics",
    "name": "Read and convert quadratic forms",
    "summary": "From a quadratic in factorised, vertex or general form, state the intercepts, axis of symmetry and vertex, or convert to another form.",
    "syllabus": [
@@ -1170,6 +1551,652 @@
     "error-spot",
     "match"
    ],
+   "situation": "quadratic",
+   "sharesSituation": [
+    "fn-quadratic-from-conditions",
+    "fn-solve-quadratic",
+    "fn-discriminant",
+    "fn-quadratic-inequality",
+    "fn-concept-quadratic-forms"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "in one of the three forms"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "a sketch with the roots, vertex or y-intercept marked on grid points"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "values of f at consecutive integers, with a symmetric pair of equal outputs"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "described in words: \"a parabola with roots −1 and 5 through (0, −10)\""
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "roots-from-factorised",
+     "given": [
+      "factorised form"
+     ],
+     "asked": "the x-intercepts",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.factorised-form"
+     ]
+    },
+    {
+     "id": "y-intercept-from-factorised",
+     "given": [
+      "factorised form"
+     ],
+     "asked": "the y-intercept",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.factorised-form"
+     ]
+    },
+    {
+     "id": "y-intercept-from-vertex-form",
+     "given": [
+      "vertex form"
+     ],
+     "asked": "the y-intercept",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.vertex"
+     ]
+    },
+    {
+     "id": "axis-from-roots",
+     "given": [
+      "the two roots"
+     ],
+     "asked": "the axis of symmetry",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.axis-symmetry"
+     ]
+    },
+    {
+     "id": "axis-from-vertex",
+     "given": [
+      "the vertex or vertex form"
+     ],
+     "asked": "the axis of symmetry",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.axis-symmetry"
+     ]
+    },
+    {
+     "id": "axis-from-general",
+     "given": [
+      "general form"
+     ],
+     "asked": "the axis of symmetry",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.axis-symmetry"
+     ]
+    },
+    {
+     "id": "axis-from-equal-outputs",
+     "given": [
+      "two points with the same y-value"
+     ],
+     "asked": "the axis of symmetry",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL2.6.axis-symmetry"
+     ]
+    },
+    {
+     "id": "second-root-from-axis",
+     "given": [
+      "one root",
+      "the axis of symmetry"
+     ],
+     "asked": "the other root",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.axis-symmetry"
+     ],
+     "note": "reversed: the axis is given and a root is asked"
+    },
+    {
+     "id": "b-from-axis",
+     "given": [
+      "a",
+      "the axis of symmetry",
+      "c"
+     ],
+     "asked": "the coefficient b",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.axis-symmetry"
+     ],
+     "note": "reversed: b = −2ah"
+    },
+    {
+     "id": "vertex-from-vertex-form",
+     "given": [
+      "vertex form"
+     ],
+     "asked": "the vertex",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.vertex"
+     ]
+    },
+    {
+     "id": "vertex-from-factorised",
+     "given": [
+      "factorised form"
+     ],
+     "asked": "the vertex",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.6.vertex"
+     ]
+    },
+    {
+     "id": "vertex-from-general",
+     "given": [
+      "general form"
+     ],
+     "asked": "the vertex",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.vertex"
+     ]
+    },
+    {
+     "id": "vertex-from-table",
+     "given": [
+      "a table of values"
+     ],
+     "asked": "the vertex and whether it is a maximum or minimum",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL2.6.vertex"
+     ]
+    },
+    {
+     "id": "max-or-min",
+     "given": [
+      "any form"
+     ],
+     "asked": "whether the vertex is a maximum or a minimum, and that value",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.6.vertex"
+     ]
+    },
+    {
+     "id": "h-k-from-vertex",
+     "given": [
+      "the vertex",
+      "a"
+     ],
+     "asked": "h and k in a(x − h)² + k",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.complete-square"
+     ],
+     "note": "reversed: read the form from the point"
+    },
+    {
+     "id": "vertex-form-from-general",
+     "given": [
+      "general form"
+     ],
+     "asked": "vertex form a(x − h)² + k",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.complete-square"
+     ]
+    },
+    {
+     "id": "vertex-form-from-factorised",
+     "given": [
+      "factorised form"
+     ],
+     "asked": "vertex form a(x − h)² + k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.complete-square"
+     ]
+    },
+    {
+     "id": "general-from-vertex-form",
+     "given": [
+      "vertex form"
+     ],
+     "asked": "general form",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.complete-square"
+     ],
+     "note": "reversed conversion: expand"
+    },
+    {
+     "id": "factorised-from-general",
+     "given": [
+      "general form"
+     ],
+     "asked": "factorised form a(x − p)(x − q)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.factorised-form"
+     ]
+    },
+    {
+     "id": "factorised-from-vertex-form",
+     "given": [
+      "vertex form with −k/a a square"
+     ],
+     "asked": "factorised form",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.factorised-form",
+      "SL2.6.complete-square"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL2.6.axis-symmetry",
+     "method": "minus-b-over-2a",
+     "suits": [
+      "axis-from-general",
+      "b-from-axis"
+     ]
+    },
+    {
+     "skill": "SL2.6.axis-symmetry",
+     "method": "midpoint-of-roots",
+     "suits": [
+      "axis-from-roots",
+      "axis-from-equal-outputs",
+      "second-root-from-axis"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "axis-from-general"
+      ],
+      "why": "no real roots (Δ < 0) means there are no roots to average; with surd roots it works but is slow"
+     }
+    },
+    {
+     "skill": "SL2.6.axis-symmetry",
+     "method": "vertex-form-read",
+     "suits": [
+      "axis-from-vertex",
+      "axis-from-general"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "axis-from-general"
+      ],
+      "why": "completing the square just to read h takes longer than −b/(2a)"
+     }
+    },
+    {
+     "skill": "SL2.6.axis-symmetry",
+     "method": "derivative-zero",
+     "suits": [
+      "axis-from-general"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "axis-from-general"
+      ],
+      "why": "needs calculus (5.3) for a one-line formula result"
+     }
+    },
+    {
+     "skill": "SL2.6.vertex",
+     "method": "read-vertex-form",
+     "suits": [
+      "vertex-from-vertex-form",
+      "max-or-min",
+      "h-k-from-vertex"
+     ]
+    },
+    {
+     "skill": "SL2.6.vertex",
+     "method": "complete-square",
+     "suits": [
+      "vertex-from-general"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "vertex-from-general"
+      ],
+      "why": "odd b with a ≠ 1 brings fractions in early"
+     }
+    },
+    {
+     "skill": "SL2.6.vertex",
+     "method": "formula-then-substitute",
+     "suits": [
+      "vertex-from-general",
+      "vertex-from-factorised"
+     ]
+    },
+    {
+     "skill": "SL2.6.vertex",
+     "method": "midpoint-of-roots",
+     "suits": [
+      "vertex-from-factorised",
+      "vertex-from-table"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "vertex-from-general"
+      ],
+      "why": "in no-real-roots mode there is nothing to average"
+     }
+    },
+    {
+     "skill": "SL2.6.vertex",
+     "method": "derivative-zero",
+     "suits": [
+      "vertex-from-general"
+     ]
+    },
+    {
+     "skill": "SL2.6.complete-square",
+     "method": "complete-square",
+     "suits": [
+      "vertex-form-from-general",
+      "factorised-from-vertex-form"
+     ]
+    },
+    {
+     "skill": "SL2.6.complete-square",
+     "method": "compare-coefficients",
+     "suits": [
+      "vertex-form-from-general",
+      "general-from-vertex-form"
+     ]
+    },
+    {
+     "skill": "SL2.6.complete-square",
+     "method": "vertex-first",
+     "suits": [
+      "vertex-form-from-general",
+      "vertex-form-from-factorised"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "vertex-form-from-general"
+      ],
+      "why": "quick from factorised form (h is the midpoint of the roots); from general form it is the formula route in disguise"
+     }
+    },
+    {
+     "skill": "SL2.6.factorised-form",
+     "method": "factorise",
+     "suits": [
+      "factorised-from-general",
+      "roots-from-factorised"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "factorised-from-general"
+      ],
+      "why": "in surd-roots mode no integer factor pair exists"
+     }
+    },
+    {
+     "skill": "SL2.6.factorised-form",
+     "method": "roots-to-factors",
+     "suits": [
+      "factorised-from-general",
+      "factorised-from-vertex-form"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "interpret-parameter",
+     "prompt": "In y = a(x − h)² + k, k is increased while a and h stay the same. What happens to the vertex, the axis and the roots?",
+     "answer": "The vertex moves straight up, the axis does not move, and the roots move towards the axis (for a > 0) until they merge and then vanish.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The axis of symmetry of y = ax² + bx + c passes through the y-intercept.",
+     "answer": "Sometimes: only when b = 0, because the axis is x = −b/(2a) and the y-intercept is on x = 0.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "Two quadratics with the same roots have the same vertex.",
+     "answer": "False. They share the axis (the midpoint of the roots), but the vertex height k = −a(q − p)²/4 depends on a.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL2.6.axis-symmetry#0",
+     "text": "Uses x = b/(2a), dropping the minus sign",
+     "as": "distractor",
+     "in": [
+      "axis-from-general"
+     ],
+     "wrong": "x = b/(2a), the mirror image of the true axis"
+    },
+    {
+     "ref": "SL2.6.axis-symmetry#1",
+     "text": "Writes the axis as y = h, or just the number h, instead of x = h",
+     "as": "distractor",
+     "in": [
+      "axis-from-roots",
+      "axis-from-vertex"
+     ],
+     "wrong": "y = h, or the bare number h"
+    },
+    {
+     "ref": "SL2.6.axis-symmetry#2",
+     "text": "Reads h from a(x + 3)² as +3",
+     "as": "distractor",
+     "in": [
+      "axis-from-vertex"
+     ],
+     "wrong": "x = −h, read from (x + h) with the sign kept"
+    },
+    {
+     "ref": "SL2.6.vertex#0",
+     "text": "From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4)",
+     "as": "distractor",
+     "in": [
+      "vertex-from-vertex-form"
+     ],
+     "wrong": "(−h, k)"
+    },
+    {
+     "ref": "SL2.6.vertex#1",
+     "text": "Finds the x-coordinate of the vertex but not the y-coordinate",
+     "as": "error-spot",
+     "in": [
+      "vertex-from-factorised"
+     ],
+     "wrong": "working stops at x = h and gives the vertex as that number"
+    },
+    {
+     "ref": "SL2.6.vertex#2",
+     "text": "Calls the vertex a minimum when a < 0",
+     "as": "distractor",
+     "in": [
+      "max-or-min"
+     ],
+     "wrong": "\"minimum\" when a < 0, or \"maximum\" when a > 0"
+    },
+    {
+     "ref": "SL2.6.complete-square#0",
+     "text": "Forgets to subtract the square of half the coefficient, writing x² − 8x + 11 = (x − 4)² + 11",
+     "as": "distractor",
+     "in": [
+      "vertex-form-from-general"
+     ],
+     "wrong": "(x − h)² + c, so k = c"
+    },
+    {
+     "ref": "SL2.6.complete-square#1",
+     "text": "When a ≠ 1, does not multiply the correction term by a",
+     "as": "distractor",
+     "in": [
+      "vertex-form-from-general"
+     ],
+     "wrong": "a(x − h)² + c − h², the correction not multiplied by a"
+    },
+    {
+     "ref": "SL2.6.complete-square#2",
+     "text": "Gets the sign of h wrong, writing (x + 4)² for x² − 8x + …",
+     "as": "distractor",
+     "in": [
+      "vertex-form-from-general",
+      "vertex-form-from-factorised"
+     ],
+     "wrong": "a(x + h)² + k"
+    },
+    {
+     "ref": "SL2.6.factorised-form#0",
+     "text": "From (x + 1)(x − 4) gives the intercepts 1 and −4",
+     "as": "distractor",
+     "in": [
+      "roots-from-factorised"
+     ],
+     "wrong": "x-intercepts at −p and −q"
+    },
+    {
+     "ref": "SL2.6.factorised-form#1",
+     "text": "Leaves out the leading coefficient a when writing a(x − p)(x − q)",
+     "as": "distractor",
+     "in": [
+      "factorised-from-general"
+     ],
+     "wrong": "(x − p)(x − q) with a dropped"
+    },
+    {
+     "ref": "SL2.6.factorised-form#2",
+     "text": "Thinks the y-intercept is pq rather than apq",
+     "as": "distractor",
+     "in": [
+      "y-intercept-from-factorised"
+     ],
+     "wrong": "pq instead of apq"
+    }
+   ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q07.b",
     "aa-sl-2021-may-tz1-p1-q07.c",
@@ -1210,7 +2237,9 @@
   {
    "id": "fn-quadratic-from-conditions",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
+   "region": "quadratics",
    "name": "Find a quadratic from its roots, vertex or points",
    "summary": "Work out the coefficients of a quadratic from a vertex and a point, the two roots, the axis of symmetry, or two points it passes through.",
    "syllabus": [
@@ -1254,6 +2283,387 @@
     "error-spot",
     "method-pick"
    ],
+   "situation": "quadratic",
+   "sharesSituation": [
+    "fn-quadratic-features",
+    "fn-solve-quadratic",
+    "fn-discriminant",
+    "fn-quadratic-inequality",
+    "fn-concept-quadratic-forms"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "a partly known equation, such as y = x² + bx − 3"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "a sketch with the vertex, roots or another point marked"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "three or more points as a table"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the conditions stated in words"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "vertex-form-from-vertex-and-a",
+     "given": [
+      "the vertex",
+      "a"
+     ],
+     "asked": "the equation in vertex form",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.find-equation"
+     ]
+    },
+    {
+     "id": "a-from-vertex-and-point",
+     "given": [
+      "the vertex",
+      "one other point"
+     ],
+     "asked": "a, then the equation (vertex form or a, b and c)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL2.6.find-equation"
+     ]
+    },
+    {
+     "id": "equation-from-vertex-and-root",
+     "given": [
+      "the vertex",
+      "one root"
+     ],
+     "asked": "the other root and the equation",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.find-equation"
+     ]
+    },
+    {
+     "id": "a-from-roots-and-point",
+     "given": [
+      "the two roots",
+      "the y-intercept or another point"
+     ],
+     "asked": "a, then the equation",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL2.6.find-equation",
+      "SL2.6.factorised-form"
+     ]
+    },
+    {
+     "id": "coefficients-from-roots",
+     "given": [
+      "the two roots",
+      "a"
+     ],
+     "asked": "b and c",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.find-equation",
+      "SL2.6.factorised-form"
+     ]
+    },
+    {
+     "id": "coefficient-from-axis",
+     "given": [
+      "the axis of symmetry",
+      "a"
+     ],
+     "asked": "b",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.find-equation"
+     ]
+    },
+    {
+     "id": "coefficients-from-two-points-and-axis",
+     "given": [
+      "two points",
+      "the axis or a"
+     ],
+     "asked": "b and c by solving two equations",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "graph",
+      "table"
+     ],
+     "skills": [
+      "SL2.6.find-equation"
+     ]
+    },
+    {
+     "id": "range-after-finding",
+     "given": [
+      "the conditions, then the equation found from them"
+     ],
+     "asked": "the range of f",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.2.range"
+     ]
+    },
+    {
+     "id": "coefficients-from-three-points",
+     "given": [
+      "three points"
+     ],
+     "asked": "a, b and c",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.find-equation"
+     ],
+     "note": "level 4 as a Paper 2 version with a GDC solver and non-integer points"
+    },
+    {
+     "id": "coefficient-from-point",
+     "given": [
+      "the equation with one unknown coefficient",
+      "a point on the curve"
+     ],
+     "asked": "the unknown coefficient",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.find-equation"
+     ]
+    },
+    {
+     "id": "equation-from-table",
+     "given": [
+      "a table of values with a symmetric pair"
+     ],
+     "asked": "the equation in vertex form",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL2.6.find-equation"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL2.6.find-equation",
+     "method": "vertex-form-plus-point",
+     "suits": [
+      "vertex-form-from-vertex-and-a",
+      "a-from-vertex-and-point",
+      "equation-from-vertex-and-root",
+      "equation-from-table"
+     ]
+    },
+    {
+     "skill": "SL2.6.find-equation",
+     "method": "intercept-form-plus-point",
+     "suits": [
+      "a-from-roots-and-point",
+      "coefficients-from-roots",
+      "equation-from-vertex-and-root"
+     ]
+    },
+    {
+     "skill": "SL2.6.find-equation",
+     "method": "simultaneous-equations",
+     "suits": [
+      "coefficients-from-two-points-and-axis",
+      "coefficients-from-three-points",
+      "coefficient-from-point",
+      "a-from-vertex-and-point"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "a-from-vertex-and-point",
+       "a-from-roots-and-point"
+      ],
+      "why": "three equations in a, b, c when the vertex or roots already fix two of them"
+     }
+    },
+    {
+     "skill": "SL2.6.find-equation",
+     "method": "gdc-solve",
+     "suits": [
+      "coefficients-from-three-points"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "coefficients-from-three-points"
+      ],
+      "why": "Paper 1 versions have no calculator"
+     }
+    },
+    {
+     "skill": "SL2.6.factorised-form",
+     "method": "roots-to-factors",
+     "suits": [
+      "a-from-roots-and-point",
+      "coefficients-from-roots"
+     ]
+    },
+    {
+     "skill": "SL2.6.factorised-form",
+     "method": "read-graph-intercepts",
+     "suits": [
+      "a-from-roots-and-point",
+      "equation-from-vertex-and-root"
+     ]
+    },
+    {
+     "skill": "SL2.2.range",
+     "method": "vertex-or-asymptote",
+     "suits": [
+      "range-after-finding"
+     ]
+    },
+    {
+     "skill": "SL2.6.axis-symmetry",
+     "method": "minus-b-over-2a",
+     "suits": [
+      "coefficient-from-axis"
+     ]
+    },
+    {
+     "skill": "SL2.6.axis-symmetry",
+     "method": "midpoint-of-roots",
+     "suits": [
+      "equation-from-vertex-and-root",
+      "coefficients-from-roots"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "predict-check",
+     "prompt": "A parabola has vertex (2, −8) and passes through (0, 4). Predict the sign of a before finding it, then check.",
+     "answer": "Positive: the point is above the vertex, so the curve opens upwards. Check: 4 = a(0 − 2)² − 8 gives a = 3.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "Any three points lie on exactly one quadratic y = ax² + bx + c.",
+     "answer": "False. Three collinear points force a = 0 (a line), and two points with the same x but different y fit no function at all.",
+     "level": 4
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "Two parabolas both have roots 1 and 5. One passes through (0, 5), the other through (0, −10). What does a say about each?",
+     "answer": "y-intercept = 5a, so a = 1 for the first (opens up) and a = −2 for the second (opens down and is twice as steep).",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL2.6.find-equation#0",
+     "text": "Assumes a = 1 without checking against another point",
+     "as": "distractor",
+     "in": [
+      "a-from-roots-and-point",
+      "a-from-vertex-and-point"
+     ],
+     "wrong": "the equation with a = 1, which misses the given point"
+    },
+    {
+     "ref": "SL2.6.find-equation#1",
+     "text": "Writes (x − 1) for an intercept at x = −1",
+     "as": "distractor",
+     "in": [
+      "a-from-roots-and-point",
+      "coefficients-from-roots"
+     ],
+     "wrong": "(x − 1) written for a root at x = −1"
+    },
+    {
+     "ref": "SL2.6.find-equation#2",
+     "text": "Substitutes the vertex into ax² + bx + c as if it were just another point and forgets it is a turning point",
+     "as": "error-spot",
+     "in": [
+      "a-from-vertex-and-point"
+     ],
+     "wrong": "puts the vertex into ax² + bx + c as a plain point, leaving three unknowns and two equations"
+    },
+    {
+     "ref": "SL2.6.factorised-form#1",
+     "text": "Leaves out the leading coefficient a when writing a(x − p)(x − q)",
+     "as": "distractor",
+     "in": [
+      "coefficients-from-roots"
+     ],
+     "wrong": "b and c from (x − p)(x − q) with a ignored"
+    },
+    {
+     "ref": "SL2.2.range#2",
+     "text": "Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x)",
+     "as": "distractor",
+     "in": [
+      "range-after-finding"
+     ],
+     "wrong": "x ≥ k, the range written in x"
+    }
+   ],
    "parts": [
     "aa-sl-2021-nov-tz0-p1-q01.b",
     "aa-sl-2022-may-tz2-p1-q07.b",
@@ -1287,7 +2697,9 @@
   {
    "id": "fn-solve-quadratic",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
+   "region": "quadratics",
    "name": "Solve a quadratic exactly, in context or in disguise",
    "summary": "Solve a quadratic by factorising or the formula, reject a root the context rules out, or solve a disguised quadratic by substitution.",
    "syllabus": [
@@ -1329,6 +2741,363 @@
     "error-spot",
     "method-pick",
     "order-steps"
+   ],
+   "situation": "quadratic-equation",
+   "sharesSituation": [
+    "fn-quadratic-features",
+    "fn-quadratic-from-conditions",
+    "fn-discriminant",
+    "fn-quadratic-inequality",
+    "fn-concept-quadratic-forms"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the equation, plain or disguised"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a context that leads to the equation"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the graph of the quadratic, to read or check the roots"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "solve-factorisable",
+     "given": [
+      "a quadratic equation that factorises"
+     ],
+     "asked": "both roots",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.7.solve-equation"
+     ]
+    },
+    {
+     "id": "solve-no-constant",
+     "given": [
+      "ax² + bx = 0 or ax² = bx"
+     ],
+     "asked": "both roots, including 0",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.7.solve-equation"
+     ]
+    },
+    {
+     "id": "solve-surd",
+     "given": [
+      "a quadratic that does not factorise"
+     ],
+     "asked": "the exact roots",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.7.solve-equation"
+     ]
+    },
+    {
+     "id": "solve-in-context",
+     "given": [
+      "a context (lengths, probabilities, a sector)"
+     ],
+     "asked": "the valid root, rejecting the other",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL2.7.solve-equation"
+     ]
+    },
+    {
+     "id": "solve-hidden-exponential",
+     "given": [
+      "b²ˣ + p·bˣ + q = 0"
+     ],
+     "asked": "x, rejecting the impossible root",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.7.hidden-quadratic"
+     ]
+    },
+    {
+     "id": "choose-substitution",
+     "given": [
+      "an exponential equation with b²ˣ and bˣ"
+     ],
+     "asked": "the substitution and the quadratic it gives",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.7.hidden-quadratic"
+     ]
+    },
+    {
+     "id": "solve-hidden-reciprocal",
+     "given": [
+      "x + c/x = b"
+     ],
+     "asked": "both solutions",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.7.hidden-quadratic"
+     ]
+    },
+    {
+     "id": "solve-hidden-log",
+     "given": [
+      "ln x + ln(x + d) = ln c"
+     ],
+     "asked": "x, rejecting the root outside the domain",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.7.hidden-quadratic"
+     ]
+    },
+    {
+     "id": "equation-from-roots",
+     "given": [
+      "two roots, possibly h ± √d"
+     ],
+     "asked": "a quadratic equation with integer coefficients",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.7.solve-equation"
+     ],
+     "note": "reversed"
+    },
+    {
+     "id": "coefficient-from-root",
+     "given": [
+      "the equation with one unknown coefficient",
+      "one root"
+     ],
+     "asked": "the coefficient and the other root",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.7.solve-equation"
+     ],
+     "note": "reversed"
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL2.7.solve-equation",
+     "method": "factorise",
+     "suits": [
+      "solve-factorisable",
+      "solve-no-constant",
+      "solve-in-context",
+      "coefficient-from-root"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "solve-surd"
+      ],
+      "why": "Δ is not a perfect square, so there are no rational factors"
+     }
+    },
+    {
+     "skill": "SL2.7.solve-equation",
+     "method": "quadratic-formula",
+     "suits": [
+      "solve-surd",
+      "solve-in-context",
+      "solve-factorisable"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "solve-no-constant"
+      ],
+      "why": "taking out x is one line; the formula with c = 0 is several"
+     }
+    },
+    {
+     "skill": "SL2.7.solve-equation",
+     "method": "complete-square",
+     "suits": [
+      "solve-surd",
+      "equation-from-roots"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "solve-surd"
+      ],
+      "why": "odd b or a ≠ 1 brings fractions in"
+     }
+    },
+    {
+     "skill": "SL2.7.solve-equation",
+     "method": "gdc-solver",
+     "suits": [
+      "solve-in-context"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "solve-surd"
+      ],
+      "why": "gives decimals, not the exact form asked for"
+     }
+    },
+    {
+     "skill": "SL2.7.hidden-quadratic",
+     "method": "substitution",
+     "suits": [
+      "solve-hidden-exponential",
+      "choose-substitution"
+     ]
+    },
+    {
+     "skill": "SL2.7.hidden-quadratic",
+     "method": "clear-or-combine",
+     "suits": [
+      "solve-hidden-reciprocal",
+      "solve-hidden-log"
+     ]
+    },
+    {
+     "skill": "SL2.7.hidden-quadratic",
+     "method": "gdc-intersect",
+     "suits": [
+      "solve-hidden-log",
+      "solve-hidden-exponential"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "solve-hidden-exponential"
+      ],
+      "why": "shows one crossing but not the exact ln form; good for seeing why a root is rejected"
+     }
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If (x − 3)(x + 1) = 5, then x − 3 = 5 or x + 1 = 5.",
+     "answer": "False. The zero-product rule only works when the product is 0. Expand and rearrange: x² − 2x − 8 = 0, so x = 4 or x = −2.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Dividing both sides of an equation by x gives an equation with the same solutions.",
+     "answer": "Sometimes. It is safe only when x = 0 is not a solution; 3x² = 6x loses x = 0.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Before solving e²ˣ − eˣ − 6 = 0, predict how many solutions it has. Then solve.",
+     "answer": "One. With u = eˣ, u² − u − 6 = 0 gives u = 3 or u = −2, and eˣ = −2 is impossible, so x = ln 3 only.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL2.7.solve-equation#0",
+     "text": "Divides both sides of 3x² = 6x by x and loses the root x = 0",
+     "as": "error-spot",
+     "in": [
+      "solve-no-constant"
+     ],
+     "wrong": "divides by x and reports one root"
+    },
+    {
+     "ref": "SL2.7.solve-equation#1",
+     "text": "From (x − 2)(x − 3) = 0 gives x = −2 or x = −3",
+     "as": "distractor",
+     "in": [
+      "solve-factorisable",
+      "solve-in-context"
+     ],
+     "wrong": "roots with both signs flipped"
+    },
+    {
+     "ref": "SL2.7.solve-equation#2",
+     "text": "Forgets the ± when square-rooting, so x² = 9 gives only x = 3",
+     "as": "distractor",
+     "in": [
+      "solve-surd",
+      "equation-from-roots"
+     ],
+     "wrong": "only h + √d, the ± dropped"
+    },
+    {
+     "ref": "SL2.7.hidden-quadratic#0",
+     "text": "Stops at u = 2 or u = 3 instead of solving e^x = 2 and e^x = 3 for x",
+     "as": "distractor",
+     "in": [
+      "solve-hidden-exponential"
+     ],
+     "wrong": "the u-values given as the answers for x"
+    },
+    {
+     "ref": "SL2.7.hidden-quadratic#1",
+     "text": "Keeps an impossible solution such as 2^x = −1 or a negative x inside a log",
+     "as": "distractor",
+     "in": [
+      "solve-hidden-exponential",
+      "solve-hidden-log"
+     ],
+     "wrong": "keeps the root from bˣ = negative, or the root that makes a log argument negative"
+    },
+    {
+     "ref": "SL2.7.hidden-quadratic#2",
+     "text": "Writes 4^x as 2(2^x) instead of (2^x)²",
+     "as": "error-spot",
+     "in": [
+      "choose-substitution"
+     ],
+     "wrong": "rewrites 4ˣ as 2·2ˣ, so the \"quadratic\" is linear"
+    }
    ],
    "parts": [
     "aa-sl-2022-may-tz1-p2-q04.b",
@@ -1376,7 +3145,9 @@
   {
    "id": "fn-discriminant",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
+   "region": "quadratics",
    "name": "Discriminant conditions on a parameter",
    "summary": "Use the discriminant to find the values of a constant that give a tangent, two intersections, no roots, or an expression that is always positive.",
    "syllabus": [
@@ -1427,6 +3198,407 @@
     "method-pick",
     "true-false-reason"
    ],
+   "situation": "quadratic-parameter",
+   "sharesSituation": [
+    "fn-quadratic-features",
+    "fn-quadratic-from-conditions",
+    "fn-solve-quadratic",
+    "fn-quadratic-inequality",
+    "fn-concept-quadratic-forms"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the quadratic, or the line and curve to equate"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "\"the line is a tangent\", \"the graph never meets the x-axis\""
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "a sketch of the parabola, or of the line and curve, at the critical position"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "nature-from-equation",
+     "given": [
+      "a quadratic with numbers"
+     ],
+     "asked": "the number of real roots, or a show-that it has none",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.7.discriminant"
+     ]
+    },
+    {
+     "id": "delta-sign-from-graph",
+     "given": [
+      "a graph of the parabola"
+     ],
+     "asked": "the sign of Δ (and of a)",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL2.7.discriminant"
+     ]
+    },
+    {
+     "id": "graph-from-delta",
+     "given": [
+      "the sign of a",
+      "the sign of Δ"
+     ],
+     "asked": "which sketch fits",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL2.7.discriminant"
+     ],
+     "note": "pick-the-graph"
+    },
+    {
+     "id": "roots-from-k",
+     "given": [
+      "the quadratic in k",
+      "a value of k"
+     ],
+     "asked": "the number of real roots or intersections",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.7.discriminant-parameter"
+     ],
+     "note": "forward direction of the type"
+    },
+    {
+     "id": "delta-in-k",
+     "given": [
+      "the quadratic in k, or the line and curve"
+     ],
+     "asked": "Δ as an expression in k (often a show-that)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.7.discriminant-parameter"
+     ]
+    },
+    {
+     "id": "k-for-equal-roots",
+     "given": [
+      "the quadratic in k, or a line tangent to a curve"
+     ],
+     "asked": "the value or values of k",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL2.7.discriminant-parameter"
+     ]
+    },
+    {
+     "id": "k-interval",
+     "given": [
+      "the quadratic in k and a condition (two roots, none, real roots)"
+     ],
+     "asked": "the interval of k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.7.discriminant-parameter",
+      "SL2.7.inequality"
+     ]
+    },
+    {
+     "id": "always-positive",
+     "given": [
+      "a quadratic in x with a parameter, inside a log or a square root"
+     ],
+     "asked": "the values of k that keep it positive for all x",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.7.discriminant",
+      "SL2.7.discriminant-parameter"
+     ]
+    },
+    {
+     "id": "same-sign-roots",
+     "given": [
+      "the quadratic in k"
+     ],
+     "asked": "k for two distinct roots of the same sign",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL2.7.discriminant-parameter",
+      "SL2.7.inequality"
+     ]
+    },
+    {
+     "id": "tangent-contact-point",
+     "given": [
+      "the line and curve and the tangency condition"
+     ],
+     "asked": "k and the point of contact",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL2.7.discriminant-parameter"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL2.7.discriminant",
+     "method": "compute-delta",
+     "suits": [
+      "nature-from-equation",
+      "roots-from-k",
+      "always-positive"
+     ]
+    },
+    {
+     "skill": "SL2.7.discriminant",
+     "method": "vertex-position",
+     "suits": [
+      "delta-sign-from-graph",
+      "graph-from-delta",
+      "nature-from-equation"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "nature-from-equation"
+      ],
+      "why": "from general form the vertex has to be found first"
+     }
+    },
+    {
+     "skill": "SL2.7.discriminant",
+     "method": "gdc-graph",
+     "suits": [
+      "nature-from-equation"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "nature-from-equation"
+      ],
+      "why": "counting crossings is a check, not a proof, so it cannot answer a show-that"
+     }
+    },
+    {
+     "skill": "SL2.7.discriminant-parameter",
+     "method": "discriminant-condition",
+     "suits": [
+      "delta-in-k",
+      "k-for-equal-roots",
+      "k-interval",
+      "always-positive",
+      "same-sign-roots",
+      "tangent-contact-point"
+     ]
+    },
+    {
+     "skill": "SL2.7.discriminant-parameter",
+     "method": "complete-square-condition",
+     "suits": [
+      "k-for-equal-roots",
+      "always-positive"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "k-interval"
+      ],
+      "why": "awkward when k is in b, because h then depends on k"
+     }
+    },
+    {
+     "skill": "SL2.7.discriminant-parameter",
+     "method": "derivative-match",
+     "suits": [
+      "k-for-equal-roots",
+      "tangent-contact-point"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "k-interval"
+      ],
+      "why": "only finds the tangent case, not the intervals either side"
+     }
+    },
+    {
+     "skill": "SL2.7.discriminant-parameter",
+     "method": "gdc-slider",
+     "suits": [
+      "k-interval",
+      "roots-from-k"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "delta-in-k"
+      ],
+      "why": "shows the change but cannot give the exact boundary"
+     }
+    },
+    {
+     "skill": "SL2.7.inequality",
+     "method": "sketch-roots",
+     "suits": [
+      "k-interval",
+      "same-sign-roots"
+     ]
+    },
+    {
+     "skill": "SL2.7.inequality",
+     "method": "sign-table",
+     "suits": [
+      "k-interval"
+     ]
+    },
+    {
+     "skill": "SL2.7.inequality",
+     "method": "test-point",
+     "suits": [
+      "k-interval",
+      "same-sign-roots"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "When Δ = 0, the parabola touches the x-axis at its vertex.",
+     "answer": "True. The repeated root is x = −b/(2a), which is the axis of symmetry, so the touching point is the vertex.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "If a and c have opposite signs, ax² + bx + c = 0 has two distinct real roots.",
+     "answer": "Always. Then −4ac > 0, so Δ = b² − 4ac > 0 whatever b is.",
+     "level": 4
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "The line y = x + n slides upwards as n increases, past the parabola y = x². What happens to the number of meeting points, and what does Δ = 0 mark?",
+     "answer": "None while the line is low, one at n = −1/4, then two. Equating gives x² − x − n = 0 with Δ = 1 + 4n, and Δ = 0 is the boundary where the line is a tangent.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL2.7.discriminant#0",
+     "text": "Mishandles the sign of −4ac when c < 0, e.g. writes 25 − 4(1)(−6) = 1",
+     "as": "distractor",
+     "in": [
+      "nature-from-equation",
+      "delta-in-k"
+     ],
+     "wrong": "b² − 4a·|c| when c < 0, so the sign of Δ can flip"
+    },
+    {
+     "ref": "SL2.7.discriminant#1",
+     "text": "Thinks Δ < 0 means two negative roots rather than no real roots",
+     "as": "distractor",
+     "in": [
+      "nature-from-equation"
+     ],
+     "wrong": "\"two negative roots\" instead of \"no real roots\""
+    },
+    {
+     "ref": "SL2.7.discriminant#2",
+     "text": "Uses b² + 4ac or √(b² − 4ac) as the discriminant",
+     "as": "distractor",
+     "in": [
+      "nature-from-equation",
+      "delta-in-k"
+     ],
+     "wrong": "b² + 4ac, or √(b² − 4ac)"
+    },
+    {
+     "ref": "SL2.7.discriminant-parameter#0",
+     "text": "Reads a, b, c before rearranging to '= 0', e.g. keeps the line's terms on the other side",
+     "as": "error-spot",
+     "in": [
+      "k-for-equal-roots",
+      "tangent-contact-point"
+     ],
+     "wrong": "takes a, b, c from the curve alone, before moving the line's terms across"
+    },
+    {
+     "ref": "SL2.7.discriminant-parameter#1",
+     "text": "Solves k² − 36 < 0 as k < ±6 instead of −6 < k < 6",
+     "as": "distractor",
+     "in": [
+      "k-interval"
+     ],
+     "wrong": "k < ±s instead of −s < k < s"
+    },
+    {
+     "ref": "SL2.7.discriminant-parameter#2",
+     "text": "Uses Δ > 0 for 'real roots' and forgets the equal-roots case (Δ ≥ 0)",
+     "as": "distractor",
+     "in": [
+      "k-interval"
+     ],
+     "wrong": "Δ > 0 for \"real roots\", leaving out the equal-roots values"
+    },
+    {
+     "ref": "SL2.7.inequality#1",
+     "text": "Writes x < −2 or x > 3 as the single interval −2 < x < 3",
+     "as": "distractor",
+     "in": [
+      "k-interval"
+     ],
+     "wrong": "k < k₁ or k > k₂ written as k₁ > k > k₂, one interval"
+    }
+   ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q07.a",
     "aa-sl-2022-may-tz1-p1-q07.b",
@@ -1467,7 +3639,9 @@
   {
    "id": "fn-curve-intersection-quadratic",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
+   "region": "quadratics",
    "name": "Intersect a curve and a line exactly, then use the points",
    "summary": "Equate a curve (quadratic, rational or log) with a line or a normal, solve the quadratic exactly, then find the points or the distance between them.",
    "syllabus": [
@@ -1512,6 +3686,344 @@
     "order-steps",
     "method-pick"
    ],
+   "situation": "curve-and-line",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "both equations"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "a sketch of the curve and the line, with the meeting points labelled but not given"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "\"the line through … meets the curve again at Q\""
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "equate-to-quadratic",
+     "given": [
+      "the curve and the line"
+     ],
+     "asked": "the quadratic (often a show-that)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.4.intersection",
+      "SL2.10.solve-analytic"
+     ]
+    },
+    {
+     "id": "meeting-x",
+     "given": [
+      "the curve and the line"
+     ],
+     "asked": "the x-coordinates where they meet",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.4.intersection",
+      "SL2.7.solve-equation"
+     ]
+    },
+    {
+     "id": "meeting-points",
+     "given": [
+      "the curve and the line"
+     ],
+     "asked": "the coordinates of both points",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.4.intersection",
+      "SL2.7.solve-equation"
+     ]
+    },
+    {
+     "id": "chord-length",
+     "given": [
+      "the curve and the line"
+     ],
+     "asked": "the distance between the points, or the difference of the roots, in surd form",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL2.7.solve-equation"
+     ]
+    },
+    {
+     "id": "normal-meets-again",
+     "given": [
+      "the curve",
+      "a point P on it",
+      "the normal at P"
+     ],
+     "asked": "the second point Q, then PQ",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.4.intersection",
+      "SL2.7.solve-equation"
+     ],
+     "note": "level 5 when the student must also find the normal"
+    },
+    {
+     "id": "line-from-meeting-points",
+     "given": [
+      "the curve",
+      "the two x-values where a line meets it"
+     ],
+     "asked": "the equation of the line",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.4.intersection"
+     ],
+     "note": "reversed"
+    },
+    {
+     "id": "intercept-from-one-point",
+     "given": [
+      "the curve",
+      "y = mx + n with n unknown",
+      "one meeting x-value"
+     ],
+     "asked": "n, then the other meeting point",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.4.intersection",
+      "SL2.7.solve-equation"
+     ],
+     "note": "reversed"
+    },
+    {
+     "id": "count-from-sketch",
+     "given": [
+      "a sketch of the curve and the line"
+     ],
+     "asked": "how many meeting points, then confirm with algebra",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL2.4.intersection"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL2.4.intersection",
+     "method": "equate-and-solve",
+     "suits": [
+      "equate-to-quadratic",
+      "meeting-x",
+      "meeting-points",
+      "intercept-from-one-point",
+      "normal-meets-again"
+     ]
+    },
+    {
+     "skill": "SL2.4.intersection",
+     "method": "sketch-and-count",
+     "suits": [
+      "count-from-sketch",
+      "meeting-x"
+     ]
+    },
+    {
+     "skill": "SL2.4.intersection",
+     "method": "gdc-intersect",
+     "suits": [
+      "meeting-points"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "chord-length"
+      ],
+      "why": "decimals cannot give the surd form asked for"
+     }
+    },
+    {
+     "skill": "SL2.4.intersection",
+     "method": "zeros-of-difference",
+     "suits": [
+      "meeting-x"
+     ]
+    },
+    {
+     "skill": "SL2.7.solve-equation",
+     "method": "factorise",
+     "suits": [
+      "meeting-x",
+      "normal-meets-again"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "chord-length"
+      ],
+      "why": "surd roots do not factor"
+     }
+    },
+    {
+     "skill": "SL2.7.solve-equation",
+     "method": "quadratic-formula",
+     "suits": [
+      "meeting-x",
+      "chord-length"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "normal-meets-again"
+      ],
+      "why": "one root (P) is already known, so factorising out (x − x_P) is faster"
+     }
+    },
+    {
+     "skill": "SL2.7.solve-equation",
+     "method": "complete-square",
+     "suits": [
+      "chord-length"
+     ]
+    },
+    {
+     "skill": "SL2.10.solve-analytic",
+     "method": "reduce-to-polynomial",
+     "suits": [
+      "equate-to-quadratic"
+     ]
+    },
+    {
+     "skill": "SL2.10.solve-analytic",
+     "method": "graph-check",
+     "suits": [
+      "count-from-sketch",
+      "meeting-points"
+     ]
+    },
+    {
+     "skill": "SL2.1.gradient",
+     "method": "two-point-formula",
+     "suits": [
+      "line-from-meeting-points"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A straight line can meet a parabola y = ax² + bx + c at three points.",
+     "answer": "False. Equating gives a quadratic equation, which has at most two real roots.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Predict from a sketch how many times y = x² − 4 meets y = 2x − 6. Then check algebraically.",
+     "answer": "None: x² − 2x + 2 = 0 has Δ = 4 − 8 = −4 < 0, so the line passes below the parabola.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "The chord between the meeting points has length |x₂ − x₁|·√(1 + m²). Why does the line's gradient m appear?",
+     "answer": "The horizontal gap is |x₂ − x₁| and the rise is m times that, so by Pythagoras the length is the gap times √(1 + m²).",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL2.4.intersection#0",
+     "text": "Gives only the x-coordinate when coordinates are asked for",
+     "as": "distractor",
+     "in": [
+      "meeting-points"
+     ],
+     "wrong": "only the x-coordinates"
+    },
+    {
+     "ref": "SL2.4.intersection#1",
+     "text": "Finds one intersection and misses others hidden outside the GDC window",
+     "as": "distractor",
+     "in": [
+      "count-from-sketch"
+     ],
+     "wrong": "one meeting point, the second one off the visible window"
+    },
+    {
+     "ref": "SL2.4.intersection#2",
+     "text": "Rounds x early and substitutes, giving an inaccurate y-coordinate",
+     "as": "error-spot",
+     "in": [
+      "meeting-points"
+     ],
+     "wrong": "rounds x to 2 d.p., substitutes, and gets y wrong at 3 s.f. (Paper 2 version)"
+    },
+    {
+     "ref": "SL2.7.solve-equation#1",
+     "text": "From (x − 2)(x − 3) = 0 gives x = −2 or x = −3",
+     "as": "distractor",
+     "in": [
+      "meeting-x"
+     ],
+     "wrong": "roots with flipped signs"
+    },
+    {
+     "ref": "SL2.10.solve-analytic#0",
+     "text": "Keeps a solution that makes a log argument negative or a denominator zero",
+     "as": "distractor",
+     "in": [
+      "meeting-x"
+     ],
+     "wrong": "keeps the x that makes the rational curve's denominator zero"
+    },
+    {
+     "ref": "SL2.10.solve-analytic#2",
+     "text": "Multiplies only one side by the denominator when clearing fractions",
+     "as": "error-spot",
+     "in": [
+      "equate-to-quadratic"
+     ],
+     "wrong": "multiplies only the fraction side by (x − r) when clearing the denominator"
+    }
+   ],
    "parts": [
     "aa-sl-2022-may-tz2-p1-q08.a",
     "aa-sl-2023-may-tz2-p1-q07.e",
@@ -1544,7 +4056,9 @@
   {
    "id": "fn-quadratic-inequality",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
+   "region": "quadratics",
    "name": "Solve a quadratic inequality",
    "summary": "Solve a quadratic inequality from its roots and the shape of the graph, including the largest integer that satisfies a context condition.",
    "syllabus": [
@@ -1585,6 +4099,246 @@
     "method-pick",
     "true-false-reason"
    ],
+   "situation": "quadratic-inequality",
+   "sharesSituation": [
+    "fn-quadratic-features",
+    "fn-quadratic-from-conditions",
+    "fn-solve-quadratic",
+    "fn-discriminant",
+    "fn-concept-quadratic-forms"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the inequality"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a context: the largest number of rows, the times when a height exceeds a value"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "a graph of y = f(x), with the roots marked, to read where it is above or below the axis"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "solve-against-zero",
+     "given": [
+      "f(x) compared with 0"
+     ],
+     "asked": "the solution set",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.7.inequality"
+     ]
+    },
+    {
+     "id": "solve-against-constant",
+     "given": [
+      "f(x) compared with d ≠ 0"
+     ],
+     "asked": "the solution set, after rearranging",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.7.inequality"
+     ]
+    },
+    {
+     "id": "largest-integer",
+     "given": [
+      "a context with an inequality"
+     ],
+     "asked": "the largest (or smallest) whole number allowed",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL2.7.inequality"
+     ]
+    },
+    {
+     "id": "square-against-constant",
+     "given": [
+      "x² compared with n²"
+     ],
+     "asked": "the solution set",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.7.inequality"
+     ]
+    },
+    {
+     "id": "negative-a",
+     "given": [
+      "an inequality with a < 0"
+     ],
+     "asked": "the solution set",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.7.inequality"
+     ]
+    },
+    {
+     "id": "no-real-roots-case",
+     "given": [
+      "an inequality whose quadratic has Δ < 0"
+     ],
+     "asked": "all x, or no x",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.7.inequality",
+      "SL2.7.discriminant"
+     ]
+    },
+    {
+     "id": "inequality-from-solution",
+     "given": [
+      "a solution set such as −2 < x < 3"
+     ],
+     "asked": "a quadratic inequality with that solution",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL2.7.inequality"
+     ],
+     "note": "reversed"
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL2.7.inequality",
+     "method": "sketch-roots",
+     "suits": [
+      "solve-against-zero",
+      "solve-against-constant",
+      "negative-a",
+      "no-real-roots-case",
+      "inequality-from-solution",
+      "square-against-constant"
+     ]
+    },
+    {
+     "skill": "SL2.7.inequality",
+     "method": "sign-table",
+     "suits": [
+      "solve-against-zero",
+      "negative-a"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "no-real-roots-case"
+      ],
+      "why": "there are no factors to tabulate"
+     }
+    },
+    {
+     "skill": "SL2.7.inequality",
+     "method": "test-point",
+     "suits": [
+      "solve-against-zero",
+      "square-against-constant",
+      "largest-integer"
+     ]
+    },
+    {
+     "skill": "SL2.7.inequality",
+     "method": "gdc-graph",
+     "suits": [
+      "largest-integer"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "solve-against-zero"
+      ],
+      "why": "Paper 1 needs exact roots, not decimal zeros"
+     }
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "If x² > 9, then x > 3.",
+     "answer": "Sometimes. x = 4 fits, but x = −4 also has x² > 9 and is not greater than 3. The full answer is x < −3 or x > 3.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "For a > 0, why does the solution of ax² + bx + c > 0 come in two pieces, but ax² + bx + c < 0 in one?",
+     "answer": "An upward parabola is below the axis only between its roots and above it on both sides.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Predict the solution of (x − 1)² ≥ 0 without expanding. Then predict (x − 1)² < 0.",
+     "answer": "All real x; then no x at all. A square is never negative.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL2.7.inequality#0",
+     "text": "Solves x² > 9 as x > ±3, or as x > 3 only",
+     "as": "distractor",
+     "in": [
+      "square-against-constant"
+     ],
+     "wrong": "x > ±3, or x > 3 only"
+    },
+    {
+     "ref": "SL2.7.inequality#1",
+     "text": "Writes x < −2 or x > 3 as the single interval −2 < x < 3",
+     "as": "distractor",
+     "in": [
+      "solve-against-zero",
+      "solve-against-constant"
+     ],
+     "wrong": "the two rays written as one interval −2 < x < 3"
+    },
+    {
+     "ref": "SL2.7.inequality#2",
+     "text": "Divides by a negative leading coefficient without reversing the inequality",
+     "as": "error-spot",
+     "in": [
+      "negative-a"
+     ],
+     "wrong": "divides by −1 and keeps the sign, so the region is the wrong one"
+    }
+   ],
    "parts": [
     "aa-sl-2025-may-tz1-p1-q08.c",
     "aa-sl-2025-may-tz1-p2-q08.d"
@@ -1613,6 +4367,7 @@
   {
    "id": "fn-log-of-quadratic",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Log of a quadratic: domain, asymptotes, zeros and maximum",
    "summary": "For a log whose argument is a downward quadratic: the domain comes from a quadratic inequality, the vertical asymptotes sit at its roots, the zeros come from setting the argument to 1, and the maximum comes from the vertex.",
@@ -1694,6 +4449,7 @@
   {
    "id": "fn-rational-asymptotes-intercepts",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Asymptotes and intercepts of (ax + b)/(cx + d)",
    "summary": "Write down the vertical and horizontal asymptotes and find the axis intercepts of a linear-over-linear function.",
@@ -1777,6 +4533,7 @@
   {
    "id": "fn-rational-sketch",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Sketch a rational function and use the sketch",
    "summary": "Sketch a rational function with labelled asymptotes and intercepts, then use the sketch: an inequality, the number of solutions with another curve, or the graph of its reciprocal.",
@@ -1856,6 +4613,7 @@
   {
    "id": "fn-exponential-model",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Exponential growth, decay and limited-growth models",
    "summary": "For a model like A e^(kt) or C + A e^(-kt): the initial value, k from a data point or half-life, a prediction, the time to reach a level, the long-run value, and the meaning of the growth factor.",
@@ -1951,6 +4709,7 @@
   {
    "id": "fn-log-function-features",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Log function features: asymptote, domain and sign",
    "summary": "State the vertical asymptote or domain of a transformed log function, or use where ln x is positive or negative.",
@@ -2017,6 +4776,7 @@
   {
    "id": "fn-transform-describe",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Describe the transformations between two graphs",
    "summary": "Say which stretches, reflections and translations map one graph onto another, or find the parameter values; includes using log laws to rewrite a log graph as a transformed one.",
@@ -2099,6 +4859,7 @@
   {
    "id": "fn-transform-apply",
    "topic": 2,
+   "source": "exam",
    "detail": "full",
    "name": "Apply transformations to a graph",
    "summary": "Sketch the transformed graph from the graph of f, or write the new function and state its domain.",
@@ -2172,6 +4933,8 @@
   {
    "id": "t1-standard-form",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Calculate with numbers in standard form",
    "syllabus": [
     "1.1"
@@ -2181,7 +4944,6 @@
     "SL1.1.multiply-divide",
     "SL1.1.context"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q02.a",
     "aa-sl-2021-may-tz1-p1-q02.b",
@@ -2210,6 +4972,8 @@
   {
    "id": "t1-sequence-proof",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Prove a property linking arithmetic and geometric terms",
    "syllabus": [
     "1.2",
@@ -2219,7 +4983,6 @@
    "skills": [
     "SL1.6.series-proof"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2024-may-tz2-p1-q09.a",
     "aa-sl-2024-may-tz2-p1-q09.b",
@@ -2250,6 +5013,8 @@
   {
    "id": "t1-arithmetic-in-context",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Arithmetic sequence or series modelling a pattern or context",
    "syllabus": [
     "1.2"
@@ -2258,7 +5023,6 @@
     "SL1.2.model",
     "SL1.2.find-n"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q03.a",
     "aa-sl-2021-may-tz2-p2-q03.b",
@@ -2290,6 +5054,8 @@
   {
    "id": "t1-arithmetic-sequence",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums",
    "syllabus": [
     "1.2"
@@ -2301,7 +5067,6 @@
     "SL1.2.sum",
     "SL1.2.sum-unknown"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q03",
     "aa-sl-2022-may-tz1-p1-q08.b",
@@ -2348,6 +5113,8 @@
   {
    "id": "t1-geometric-in-context",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Geometric sequence or series modelling a context",
    "syllabus": [
     "1.3"
@@ -2356,7 +5123,6 @@
     "SL1.3.model",
     "SL1.3.find-n"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q09.c",
     "aa-sl-2021-nov-tz0-p2-q06.c",
@@ -2388,6 +5154,8 @@
   {
    "id": "t1-geometric-sequence",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Geometric sequence: find r, u1, a term or S_n",
    "syllabus": [
     "1.3"
@@ -2398,7 +5166,6 @@
     "SL1.3.sum",
     "SL1.3.sigma"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-nov-tz0-p1-q08.d",
     "aa-sl-2021-nov-tz0-p2-q06.a",
@@ -2433,6 +5200,8 @@
   {
    "id": "t1-depreciation",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Depreciation as repeated percentage decrease",
    "syllabus": [
     "1.4"
@@ -2441,7 +5210,6 @@
     "SL1.4.depreciation",
     "SL1.4.find-time"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2023-may-tz1-p2-q02.a",
     "aa-sl-2023-may-tz1-p2-q02.b",
@@ -2472,6 +5240,8 @@
   {
    "id": "t1-compound-interest",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Compound interest: value, rate or time, with different compounding periods",
    "syllabus": [
     "1.4"
@@ -2482,7 +5252,6 @@
     "SL1.4.find-time",
     "SL1.4.compare-options"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q07.a",
     "aa-sl-2021-may-tz1-p2-q07.b",
@@ -2524,6 +5293,8 @@
   {
    "id": "t1-log-exp-form",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Switch between log and exponential form to evaluate or solve, including log models",
    "syllabus": [
     "1.5"
@@ -2532,7 +5303,6 @@
     "SL1.5.exp-log-form",
     "SL1.5.log-context"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p1-q05.a",
     "aa-sl-2024-may-tz2-p2-q04.b",
@@ -2561,6 +5331,8 @@
   {
    "id": "t1-algebraic-proof",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Prove an algebraic identity or a divisibility result",
    "syllabus": [
     "1.6"
@@ -2569,7 +5341,6 @@
     "SL1.6.identity-lhs-rhs",
     "SL1.6.integer-proof"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p1-q02",
     "aa-sl-2021-nov-tz0-p1-q06.a",
@@ -2603,6 +5374,8 @@
   {
    "id": "t1-rational-exponents",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Rational and negative exponents",
    "syllabus": [
     "1.7"
@@ -2610,7 +5383,6 @@
    "skills": [
     "SL1.7.rational-exponents"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-nov-tz0-p1-q08.a",
     "aa-sl-2022-may-tz1-p1-q02.a"
@@ -2638,6 +5410,8 @@
   {
    "id": "t1-solve-exponential",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Solve an exponential equation exactly with logarithms",
    "syllabus": [
     "1.7"
@@ -2645,7 +5419,6 @@
    "skills": [
     "SL1.7.solve-with-logs"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2024-may-tz1-p2-q07.d"
    ],
@@ -2672,6 +5445,8 @@
   {
    "id": "t1-log-laws",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Log laws and change of base to evaluate or rewrite logarithms",
    "syllabus": [
     "1.7",
@@ -2681,7 +5456,6 @@
     "SL1.7.log-laws",
     "SL1.7.change-of-base"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-nov-tz0-p1-q08.c",
     "aa-sl-2022-nov-tz0-p1-q08.a",
@@ -2717,6 +5491,8 @@
   {
    "id": "t1-sum-to-infinity",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Sum to infinity: convergence, value, or an unknown from it",
    "syllabus": [
     "1.8"
@@ -2727,7 +5503,6 @@
     "SL1.8.find-unknown",
     "SL1.8.applications"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q07.c",
     "aa-sl-2021-nov-tz0-p2-q06.b",
@@ -2758,6 +5533,8 @@
   {
    "id": "t1-binomial-find-unknown",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Binomial expansion: find an unknown from a given coefficient",
    "syllabus": [
     "1.9"
@@ -2765,7 +5542,6 @@
    "skills": [
     "SL1.9.find-unknown"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q06",
     "aa-sl-2021-may-tz2-p1-q04",
@@ -2800,6 +5576,8 @@
   {
    "id": "t1-binomial-term",
    "topic": 1,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Binomial expansion: a coefficient, a term or the full expansion",
    "syllabus": [
     "1.9"
@@ -2809,7 +5587,6 @@
     "SL1.9.full-expansion",
     "SL1.9.specific-term"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2022-may-tz2-p1-q06.a",
     "aa-sl-2023-may-tz2-p2-q05.a",
@@ -2841,6 +5618,8 @@
   {
    "id": "t3-3d-angle",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Angle in a 3D solid",
    "syllabus": [
     "3.1",
@@ -2850,7 +5629,6 @@
     "SL3.1.angle-line-plane",
     "SL3.1.angle-two-lines"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2025-may-tz2-p2-q02.c"
    ],
@@ -2877,6 +5655,8 @@
   {
    "id": "t3-distance-midpoint",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Distance and midpoint in 2D or 3D",
    "syllabus": [
     "3.1"
@@ -2885,7 +5665,6 @@
     "SL3.1.distance-3d",
     "SL3.1.midpoint-3d"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2022-may-tz1-p2-q07.a",
     "aa-sl-2022-nov-tz0-p1-q03.a",
@@ -2920,6 +5699,8 @@
   {
    "id": "t3-solid-volume-area",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Volume and surface area of solids, including in terms of a variable",
    "syllabus": [
     "3.1"
@@ -2928,7 +5709,6 @@
     "SL3.1.volume-solids",
     "SL3.1.surface-area"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p1-q08.c",
     "aa-sl-2021-may-tz2-p1-q08.d",
@@ -2967,6 +5747,8 @@
   {
    "id": "t3-ambiguous-case",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Sine rule ambiguous case",
    "syllabus": [
     "3.2",
@@ -2976,7 +5758,6 @@
     "SL3.5.ambiguous-case",
     "SL3.2.sine-rule"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-nov-tz0-p2-q03",
     "aa-sl-2024-may-tz1-p2-q09.a"
@@ -3004,6 +5785,8 @@
   {
    "id": "t3-triangle-area",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Triangle area with 1/2 ab sin C, forwards or backwards",
    "syllabus": [
     "3.2"
@@ -3011,7 +5794,6 @@
    "skills": [
     "SL3.2.area-sine"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p1-q06",
     "aa-sl-2022-may-tz2-p2-q07.b",
@@ -3048,6 +5830,8 @@
   {
    "id": "t3-right-angle-trig",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Right-angled trigonometry, including elevation and gradients",
    "syllabus": [
     "3.2",
@@ -3059,7 +5843,6 @@
     "SL3.2.right-angle",
     "SL3.3.elevation-depression"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q07.a",
     "aa-sl-2021-may-tz2-p2-q07.b",
@@ -3095,6 +5878,8 @@
   {
    "id": "t3-sine-cosine-rule",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Sine rule and cosine rule for a side or an angle",
    "syllabus": [
     "3.2"
@@ -3104,7 +5889,6 @@
     "SL3.2.cosine-rule-side",
     "SL3.2.cosine-rule-angle"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2022-may-tz1-p2-q07.b",
     "aa-sl-2022-may-tz2-p2-q01.a",
@@ -3149,6 +5933,8 @@
   {
    "id": "t3-bearings-elevation",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Bearings, elevation and depression in context",
    "syllabus": [
     "3.3"
@@ -3158,7 +5944,6 @@
     "SL3.3.elevation-depression",
     "SL3.3.multi-triangle"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q08.e",
     "aa-sl-2021-may-tz2-p2-q07.c",
@@ -3191,6 +5976,8 @@
   {
    "id": "t3-circular-motion",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Angle in radians as a function of time for rotating objects",
    "syllabus": [
     "3.4"
@@ -3198,7 +5985,6 @@
    "skills": [
     "SL3.4.convert"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2024-may-tz2-p2-q09.b",
     "aa-sl-2024-may-tz2-p2-q09.c",
@@ -3227,6 +6013,8 @@
   {
    "id": "t3-composite-circular-region",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Segments and composite regions built from sectors, triangles and rectangles",
    "syllabus": [
     "3.4",
@@ -3236,7 +6024,6 @@
     "SL3.4.segment-shaded",
     "SL3.4.sector-two-conditions"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q08.b",
     "aa-sl-2021-may-tz1-p2-q08.d",
@@ -3275,6 +6062,8 @@
   {
    "id": "t3-arc-sector",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Arc length, sector area and perimeter, forwards or backwards",
    "syllabus": [
     "3.4"
@@ -3284,7 +6073,6 @@
     "SL3.4.sector-area",
     "SL3.4.convert"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q08.a",
     "aa-sl-2021-may-tz2-p1-q01.a",
@@ -3326,6 +6114,8 @@
   {
    "id": "t3-exact-values",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Exact trig values and related angles",
    "syllabus": [
     "3.5"
@@ -3335,7 +6125,6 @@
     "SL3.5.related-angles",
     "SL3.5.unit-circle"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2023-may-tz2-p1-q08.c",
     "aa-sl-2023-nov-tz1-p1-q01.c",
@@ -3364,6 +6153,8 @@
   {
    "id": "t3-prove-identity",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Prove a trig identity",
    "syllabus": [
     "3.6",
@@ -3372,7 +6163,6 @@
    "skills": [
     "SL3.6.prove-identity"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q06.a",
     "aa-sl-2022-may-tz1-p1-q09.a",
@@ -3401,6 +6191,8 @@
   {
    "id": "t3-identity-values",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Use Pythagorean and double-angle identities to find exact values or rewrite",
    "syllabus": [
     "3.6"
@@ -3410,7 +6202,6 @@
     "SL3.6.double-angle-values",
     "SL3.6.simplify"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p1-q03.a",
     "aa-sl-2023-may-tz1-p1-q04.a",
@@ -3441,6 +6232,8 @@
   {
    "id": "t3-trig-sketch",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Sketch a trig graph from its parameters",
    "syllabus": [
     "3.7",
@@ -3450,7 +6243,6 @@
    "skills": [
     "SL3.7.sketch"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2023-may-tz1-p1-q06.b",
     "aa-sl-2025-may-tz2-p1-q08.b"
@@ -3478,6 +6270,8 @@
   {
    "id": "t3-trig-model-use",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Evaluate or use a trig model: times, counts, durations",
    "syllabus": [
     "3.7"
@@ -3485,7 +6279,6 @@
    "skills": [
     "SL3.7.model-context"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q07.e",
     "aa-sl-2021-nov-tz0-p2-q08.e",
@@ -3520,6 +6313,8 @@
   {
    "id": "t3-trig-read-features",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Read amplitude, period and principal axis from a graph or equation",
    "syllabus": [
     "3.7"
@@ -3527,7 +6322,6 @@
    "skills": [
     "SL3.7.read-features"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q07.d",
     "aa-sl-2021-nov-tz0-p2-q08.a",
@@ -3571,6 +6365,8 @@
   {
    "id": "t3-trig-model-parameters",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Find the parameters of a trig model from a graph, data or context",
    "syllabus": [
     "3.7",
@@ -3581,7 +6377,6 @@
     "SL3.7.transformations",
     "SL3.7.model-context"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q04",
     "aa-sl-2021-nov-tz0-p2-q08.d",
@@ -3614,6 +6409,8 @@
   {
    "id": "t3-trig-quadratic",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Trig equation that is a quadratic in sin or cos",
    "syllabus": [
     "3.8",
@@ -3622,7 +6419,6 @@
    "skills": [
     "SL3.8.quadratic-in-trig"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p1-q03.b",
     "aa-sl-2021-nov-tz0-p1-q06.b",
@@ -3651,6 +6447,8 @@
   {
    "id": "t3-trig-model-equation",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Solve a trig model equation or inequality for times",
    "syllabus": [
     "3.8",
@@ -3659,7 +6457,6 @@
    "skills": [
     "SL3.8.graphical"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-nov-tz0-p2-q08.f",
     "aa-sl-2023-may-tz2-p2-q08.d",
@@ -3690,6 +6487,8 @@
   {
    "id": "t3-trig-equation",
    "topic": 3,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Solve a trig equation exactly in an interval",
    "syllabus": [
     "3.8"
@@ -3699,7 +6498,6 @@
     "SL3.8.compound-angle",
     "SL3.8.factorise-not-divide"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q06.b",
     "aa-sl-2021-may-tz2-p1-q08.a",
@@ -3733,6 +6531,8 @@
   {
    "id": "t4-sampling",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Sampling methods and bias",
    "syllabus": [
     "4.1"
@@ -3741,7 +6541,6 @@
     "SL4.1.sampling-technique",
     "SL4.1.bias-reliability"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p1-q07.e",
     "aa-sl-2023-nov-tz1-p1-q07.c",
@@ -3771,6 +6570,8 @@
   {
    "id": "t4-outlier-rule",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "The 1.5 x IQR outlier rule",
    "syllabus": [
     "4.1",
@@ -3781,7 +6582,6 @@
     "SL4.1.outlier-decision",
     "SL4.2.outlier-test"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q04.a",
     "aa-sl-2022-may-tz1-p1-q03.a",
@@ -3811,6 +6611,8 @@
   {
    "id": "t4-cumulative-frequency",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Read and use a cumulative frequency graph",
    "syllabus": [
     "4.2"
@@ -3820,7 +6622,6 @@
     "SL4.2.cumfreq-count",
     "SL4.2.cumfreq-build"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p1-q07.a",
     "aa-sl-2021-may-tz2-p1-q07.b",
@@ -3852,6 +6653,8 @@
   {
    "id": "t4-box-plot",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Read, interpret and compare box plots",
    "syllabus": [
     "4.2",
@@ -3861,7 +6664,6 @@
     "SL4.2.box-plot",
     "SL4.2.compare-distributions"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2022-may-tz2-p2-q05.a",
     "aa-sl-2022-may-tz2-p2-q05.c",
@@ -3894,6 +6696,8 @@
   {
    "id": "t4-constant-changes",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Effect of adding or multiplying a constant on summary statistics",
    "syllabus": [
     "4.3"
@@ -3901,7 +6705,6 @@
    "skills": [
     "SL4.3.constant-changes"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2023-nov-tz1-p1-q07.e",
     "aa-sl-2023-nov-tz2-p1-q07.e",
@@ -3930,6 +6733,8 @@
   {
    "id": "t4-grouped-data",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Grouped and frequency-table data: missing frequency, modal class, estimates",
    "syllabus": [
     "4.3"
@@ -3939,7 +6744,6 @@
     "SL4.3.sd-variance",
     "SL4.3.mean-totals"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2022-may-tz1-p2-q02.a",
     "aa-sl-2022-may-tz1-p2-q02.b",
@@ -3974,6 +6778,8 @@
   {
    "id": "t4-summary-statistics",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Mean, median, mode, quartiles and spread of a data set",
    "syllabus": [
     "4.3"
@@ -3984,7 +6790,6 @@
     "SL4.3.choose-measure",
     "SL4.3.mean-totals"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q04.b",
     "aa-sl-2021-may-tz1-p2-q02.c",
@@ -4021,6 +6826,8 @@
   {
    "id": "t4-regression-interpret",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Interpret a regression gradient or judge a prediction",
    "syllabus": [
     "4.4"
@@ -4028,7 +6835,6 @@
    "skills": [
     "SL4.4.interpret-ab"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q01.b",
     "aa-sl-2021-nov-tz0-p2-q01.c",
@@ -4061,6 +6867,8 @@
   {
    "id": "t4-regression-gdc",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Regression line and Pearson r on the GDC, then predict",
    "syllabus": [
     "4.4"
@@ -4071,7 +6879,6 @@
     "SL4.4.predict",
     "SL4.4.mean-point"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q02.a",
     "aa-sl-2021-may-tz1-p2-q02.b",
@@ -4116,6 +6923,8 @@
   {
    "id": "t4-expected-occurrences",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Expected number of occurrences, n x p",
    "syllabus": [
     "4.5"
@@ -4123,7 +6932,6 @@
    "skills": [
     "SL4.5.expected-occurrences"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q03.b",
     "aa-sl-2023-may-tz1-p1-q03.a",
@@ -4153,6 +6961,8 @@
   {
    "id": "t4-probability-basic",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Probability from a table, a count or the complement",
    "syllabus": [
     "4.5"
@@ -4162,7 +6972,6 @@
     "SL4.5.equally-likely",
     "SL4.5.complement"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2024-may-tz1-p1-q09.f",
     "aa-sl-2024-nov-tz1-p2-q07.a",
@@ -4192,6 +7001,8 @@
   {
    "id": "t4-tree-diagram",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Tree diagrams and selection without replacement",
    "syllabus": [
     "4.6"
@@ -4199,7 +7010,6 @@
    "skills": [
     "SL4.6.tree"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-nov-tz0-p1-q04.a",
     "aa-sl-2022-may-tz1-p2-q09.c",
@@ -4239,6 +7049,8 @@
   {
    "id": "t4-sample-space",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Sample space diagrams for dice and spinners",
    "syllabus": [
     "4.6"
@@ -4246,7 +7058,6 @@
    "skills": [
     "SL4.6.sample-space-grid"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q09.e",
     "aa-sl-2022-may-tz2-p1-q09.c",
@@ -4277,6 +7088,8 @@
   {
    "id": "t4-venn-addition-rule",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Venn diagrams, two-way tables and the addition rule",
    "syllabus": [
     "4.6"
@@ -4285,7 +7098,6 @@
     "SL4.6.union",
     "SL4.6.venn"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q04.a",
     "aa-sl-2021-may-tz2-p2-q04.b",
@@ -4322,6 +7134,8 @@
   {
    "id": "t4-expected-value",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Expected value of a discrete random variable, fair games",
    "syllabus": [
     "4.7"
@@ -4331,7 +7145,6 @@
     "SL4.7.fair-game",
     "SL4.7.unknowns-from-mean"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q09.b",
     "aa-sl-2021-may-tz1-p1-q09.d",
@@ -4374,6 +7187,8 @@
   {
    "id": "t4-discrete-distribution",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Discrete distribution: probabilities sum to 1, find k, read probabilities",
    "syllabus": [
     "4.7"
@@ -4383,7 +7198,6 @@
     "SL4.7.table-probabilities",
     "SL4.7.build-distribution"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q09.a",
     "aa-sl-2021-may-tz1-p1-q09.c",
@@ -4421,6 +7235,8 @@
   {
    "id": "t4-binomial",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Binomial probabilities, mean, and finding n",
    "syllabus": [
     "4.8"
@@ -4433,7 +7249,6 @@
     "SL4.8.find-n-or-p",
     "SL4.8.binomial-in-context"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q08.d",
     "aa-sl-2021-may-tz2-p2-q08.e",
@@ -4477,6 +7292,8 @@
   {
    "id": "t4-inverse-normal",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Inverse normal: value for a given probability",
    "syllabus": [
     "4.9"
@@ -4484,7 +7301,6 @@
    "skills": [
     "SL4.9.inverse-normal"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2022-nov-tz0-p2-q09.d",
     "aa-sl-2023-may-tz2-p2-q04.c",
@@ -4515,6 +7331,8 @@
   {
    "id": "t4-normal-properties",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Normal curve properties: symmetry, sigma intervals, matching curves",
    "syllabus": [
     "4.9"
@@ -4524,7 +7342,6 @@
     "SL4.9.symmetry-probability",
     "SL4.9.central-interval"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2023-may-tz2-p2-q04.b",
     "aa-sl-2023-nov-tz2-p2-q09.a",
@@ -4559,6 +7376,8 @@
   {
    "id": "t4-normal-probability",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Normal probability for an interval on the GDC",
    "syllabus": [
     "4.9"
@@ -4566,7 +7385,6 @@
    "skills": [
     "SL4.9.normal-probability"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q03.a",
     "aa-sl-2021-may-tz2-p2-q08.b",
@@ -4604,6 +7422,8 @@
   {
    "id": "t4-regression-x-on-y",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Choose the right regression line; x on y; mean point on both",
    "syllabus": [
     "4.10"
@@ -4614,7 +7434,6 @@
     "SL4.10.predict-x",
     "SL4.10.mean-point-intersection"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2022-may-tz1-p1-q03.b",
     "aa-sl-2023-may-tz1-p2-q04.b",
@@ -4645,6 +7464,8 @@
   {
    "id": "t4-independence",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Use or test independence of events",
    "syllabus": [
     "4.11",
@@ -4655,7 +7476,6 @@
     "SL4.11.independence-unknown",
     "SL4.6.independent"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q04.d",
     "aa-sl-2021-nov-tz0-p1-q04.b",
@@ -4690,6 +7510,8 @@
   {
    "id": "t4-conditional-probability",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Conditional probability from formula, table, tree or distribution",
    "syllabus": [
     "4.11"
@@ -4700,7 +7522,6 @@
     "SL4.11.conditional-distributions",
     "SL4.11.multiplication-rule"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q03.c",
     "aa-sl-2021-may-tz2-p2-q04.c",
@@ -4744,6 +7565,8 @@
   {
    "id": "t4-normal-unknown-parameter",
    "topic": 4,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Find an unknown mean or standard deviation with z-scores",
    "syllabus": [
     "4.12"
@@ -4753,7 +7576,6 @@
     "SL4.12.unknown-mean-and-sd",
     "SL4.12.standardise"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p2-q08.a",
     "aa-sl-2021-nov-tz0-p2-q09.a",
@@ -4792,6 +7614,8 @@
   {
    "id": "t5-derivative-meaning",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Interpret a derivative as a rate, or its limit",
    "syllabus": [
     "5.1"
@@ -4800,7 +7624,6 @@
     "SL5.1.interpret-derivative",
     "SL5.1.estimate-limit"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2023-may-tz1-p2-q07.c",
     "aa-sl-2023-may-tz1-p2-q07.f",
@@ -4832,6 +7655,8 @@
   {
    "id": "t5-increasing-decreasing",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Where a function is increasing or decreasing",
    "syllabus": [
     "5.2"
@@ -4841,7 +7666,6 @@
     "SL5.2.sign-from-graph",
     "SL5.2.parameter-for-monotonic"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q07.d",
     "aa-sl-2021-nov-tz0-p1-q09.a",
@@ -4871,6 +7695,8 @@
   {
    "id": "t5-differentiate-polynomial",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Differentiate a polynomial or negative power and evaluate",
    "syllabus": [
     "5.3"
@@ -4880,7 +7706,6 @@
     "SL5.3.negative-powers",
     "SL5.3.gradient-at-point"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q05.a",
     "aa-sl-2024-may-tz1-p1-q07.a",
@@ -4912,6 +7737,8 @@
   {
    "id": "t5-normal-meets-curve",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Where a tangent or normal meets the curve again",
    "syllabus": [
     "5.4",
@@ -4921,7 +7748,6 @@
    "skills": [
     "SL5.4.tangent-meets-axes-or-curve"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2023-nov-tz1-p2-q01.c",
     "aa-sl-2023-nov-tz2-p2-q01.c"
@@ -4949,6 +7775,8 @@
   {
    "id": "t5-tangent-condition",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Find a point or parameter from a tangent condition (given gradient, parallel, common tangent)",
    "syllabus": [
     "5.4",
@@ -4959,7 +7787,6 @@
     "SL5.4.tangency-condition",
     "SL5.3.point-with-given-gradient"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q05.b",
     "aa-sl-2021-may-tz1-p1-q05.c",
@@ -4997,6 +7824,8 @@
   {
    "id": "t5-tangent-normal-equation",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Equation of a tangent or normal, or values read from a given tangent",
    "syllabus": [
     "5.4"
@@ -5006,7 +7835,6 @@
     "SL5.4.normal-equation",
     "SL5.4.read-from-tangent"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q09.c",
     "aa-sl-2021-nov-tz0-p1-q05.a",
@@ -5047,6 +7875,8 @@
   {
    "id": "t5-derivative-graph",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Read f from the graph of f' (or f'')",
    "syllabus": [
     "5.8",
@@ -5057,7 +7887,6 @@
     "SL5.7.f-from-derivative-graph",
     "SL5.2.sign-from-graph"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-nov-tz0-p1-q09.b",
     "aa-sl-2021-nov-tz0-p1-q09.c"
@@ -5085,6 +7914,8 @@
   {
    "id": "t5-stationary-points",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Stationary points and inflexion: find, classify, justify",
    "syllabus": [
     "5.8",
@@ -5097,7 +7928,6 @@
     "SL5.8.points-of-inflexion",
     "SL5.8.optimise-given-function"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q08.b",
     "aa-sl-2021-may-tz1-p1-q08.c",
@@ -5139,6 +7969,8 @@
   {
    "id": "t5-optimisation-modelling",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Optimisation: build a function from a constraint, then maximise or minimise",
    "syllabus": [
     "5.8",
@@ -5147,7 +7979,6 @@
    "skills": [
     "SL5.8.optimisation-modelling"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-nov-tz0-p2-q07.b",
     "aa-sl-2021-nov-tz0-p2-q07.c",
@@ -5192,6 +8023,8 @@
   {
    "id": "t5-kinematics-distance",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Kinematics: displacement and distance by integrating velocity",
    "syllabus": [
     "5.9",
@@ -5202,7 +8035,6 @@
     "SL5.9.displacement-from-velocity",
     "SL5.9.total-distance"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q05.b",
     "aa-sl-2021-may-tz2-p1-q09.b",
@@ -5251,6 +8083,8 @@
   {
    "id": "t5-kinematics-motion",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Kinematics: rest, direction change, acceleration, maximum speed",
    "syllabus": [
     "5.9"
@@ -5261,7 +8095,6 @@
     "SL5.9.max-speed",
     "SL5.9.motion-graphs"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q05.a",
     "aa-sl-2021-may-tz1-p2-q05.c",
@@ -5317,6 +8150,8 @@
   {
    "id": "t5-derivative-model-gdc",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Derivative of a model at a point with technology",
    "syllabus": [
     "5.6",
@@ -5326,7 +8161,6 @@
     "SL5.6.rules-with-values",
     "SL5.1.interpret-derivative"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2022-may-tz2-p2-q08.c",
     "aa-sl-2023-may-tz1-p2-q07.b",
@@ -5356,6 +8190,8 @@
   {
    "id": "t5-differentiation-rules",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Chain, product and quotient rules",
    "syllabus": [
     "5.6"
@@ -5367,7 +8203,6 @@
     "SL5.6.standard-derivatives",
     "SL5.6.show-derivative-form"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p1-q08.a",
     "aa-sl-2022-nov-tz0-p1-q02",
@@ -5401,6 +8236,8 @@
   {
    "id": "t5-concavity",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Second derivative and concavity",
    "syllabus": [
     "5.7"
@@ -5410,7 +8247,6 @@
     "SL5.7.concavity",
     "SL5.7.sketch-match-graphs"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2022-may-tz1-p1-q07.c",
     "aa-sl-2022-may-tz1-p1-q07.d",
@@ -5441,6 +8277,8 @@
   {
    "id": "t5-antiderivative-condition",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Integrate, then find the constant from a point or initial value",
    "syllabus": [
     "5.5",
@@ -5450,7 +8288,6 @@
     "SL5.5.boundary-condition",
     "SL5.10.find-function-from-derivative"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q01.b",
     "aa-sl-2021-nov-tz0-p1-q02",
@@ -5486,6 +8323,8 @@
   {
    "id": "t5-definite-integral-area",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Definite integrals and areas, including regions below the axis and unknown limits",
    "syllabus": [
     "5.11",
@@ -5498,7 +8337,6 @@
     "SL5.11.composite-region-area",
     "SL5.5.total-change-from-rate"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz2-p1-q08.b",
     "aa-sl-2022-may-tz1-p1-q02.b",
@@ -5535,6 +8373,8 @@
   {
    "id": "t5-indefinite-integral",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Integrate standard functions and linear composites",
    "syllabus": [
     "5.5",
@@ -5547,7 +8387,6 @@
     "SL5.10.inspection-substitution",
     "SL5.10.rewrite-before-integrating"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q01.a",
     "aa-sl-2023-nov-tz1-p1-q09.b",
@@ -5581,6 +8420,8 @@
   {
    "id": "t5-area-between-curves",
    "topic": 5,
+   "source": "exam",
+   "detail": "catalogue",
    "name": "Area between two curves",
    "syllabus": [
     "5.11"
@@ -5588,7 +8429,6 @@
    "skills": [
     "SL5.11.area-between-curves"
    ],
-   "detail": "catalogue",
    "parts": [
     "aa-sl-2021-may-tz1-p2-q09.d",
     "aa-sl-2021-nov-tz0-p1-q09.d",
@@ -5623,6 +8463,1293 @@
      "5.11": 13
     }
    }
+  },
+  {
+   "id": "fn-ext-quadratic-model",
+   "topic": 2,
+   "source": "extension",
+   "kind": "skill",
+   "detail": "full",
+   "region": "quadratics",
+   "name": "Model and optimise with a quadratic",
+   "summary": "A projectile or a fenced area: find the best value, when it happens, and when the model hits zero.",
+   "gap": "SL2.6.model is in the syllabus, but no exam part since 2021 asks for it as its own question.",
+   "skills": [
+    "SL2.6.model"
+   ],
+   "level": [
+    2,
+    5
+   ],
+   "formats": [
+    "value",
+    "multipart",
+    "mcq",
+    "method-pick"
+   ],
+   "situation": "quadratic-model",
+   "representations": [
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the context in words"
+    },
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the model h(t) or A(x)"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the graph of the model"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "heights at a few times"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "max-value",
+     "given": [
+      "the model"
+     ],
+     "asked": "the maximum height or area",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.6.model"
+     ]
+    },
+    {
+     "id": "time-of-max",
+     "given": [
+      "the model"
+     ],
+     "asked": "when (or at what width) the maximum happens",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph",
+      "table"
+     ],
+     "skills": [
+      "SL2.6.model"
+     ]
+    },
+    {
+     "id": "zero-time",
+     "given": [
+      "the height model"
+     ],
+     "asked": "when the object lands, rejecting the negative root",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.model"
+     ]
+    },
+    {
+     "id": "form-area-model",
+     "given": [
+      "a fixed length of fence, with or without a wall"
+     ],
+     "asked": "A(x), then the best width and the largest area",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL2.6.model"
+     ]
+    },
+    {
+     "id": "interpret-vertex",
+     "given": [
+      "the model",
+      "its vertex"
+     ],
+     "asked": "what the vertex means in context",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL2.6.model"
+     ]
+    },
+    {
+     "id": "second-time-at-height",
+     "given": [
+      "the model or the peak time",
+      "one time at a given height"
+     ],
+     "asked": "the other time at that height",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL2.6.model"
+     ]
+    },
+    {
+     "id": "model-from-features",
+     "given": [
+      "start height",
+      "peak time",
+      "peak height"
+     ],
+     "asked": "the model h(t)",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL2.6.model"
+     ],
+     "note": "reversed"
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL2.6.model",
+     "method": "vertex-in-context",
+     "suits": [
+      "max-value",
+      "time-of-max",
+      "form-area-model",
+      "interpret-vertex",
+      "model-from-features"
+     ]
+    },
+    {
+     "skill": "SL2.6.model",
+     "method": "gdc-max",
+     "suits": [
+      "max-value",
+      "time-of-max"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "form-area-model"
+      ],
+      "why": "the GDC cannot write the model from the constraint"
+     }
+    },
+    {
+     "skill": "SL2.6.model",
+     "method": "derivative",
+     "suits": [
+      "max-value",
+      "time-of-max",
+      "form-area-model"
+     ]
+    },
+    {
+     "skill": "SL2.6.model",
+     "method": "symmetry-of-flight",
+     "suits": [
+      "second-time-at-height",
+      "time-of-max"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "max-value"
+      ],
+      "why": "gives the time, not the height"
+     }
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "interpret-parameter",
+     "prompt": "In h(t) = −5(t − 2)² + 22, what do the 2 and the 22 mean, and what is h(0)?",
+     "answer": "The ball is highest, 22 m, at 2 s; h(0) = −20 + 22 = 2 m is the launch height.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "A pen made from a fixed length of fence has its largest area when it is a square.",
+     "answer": "True for a free-standing rectangle (x = L/4 each way). False against a wall: then the best pen is twice as long as it is wide.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL2.6.model#0",
+     "text": "Gives the time of the maximum when the maximum height is asked for, or vice versa",
+     "as": "distractor",
+     "in": [
+      "max-value",
+      "time-of-max"
+     ],
+     "wrong": "gives the time of the maximum when the height is asked, or the reverse"
+    },
+    {
+     "ref": "SL2.6.model#1",
+     "text": "Keeps a negative time or length when solving h(t) = 0",
+     "as": "distractor",
+     "in": [
+      "zero-time"
+     ],
+     "wrong": "keeps the negative root as a landing time"
+    },
+    {
+     "ref": "SL2.6.model#2",
+     "text": "Writes area as a function of two variables without using the constraint (e.g. the fixed perimeter) to remove one",
+     "as": "error-spot",
+     "in": [
+      "form-area-model"
+     ],
+     "wrong": "writes A = xy and tries to maximise it without using the fence length"
+    }
+   ]
+  },
+  {
+   "id": "fn-concept-quadratic-forms",
+   "topic": 2,
+   "source": "extension",
+   "kind": "concept",
+   "detail": "full",
+   "region": "quadratics",
+   "name": "Which form shows what",
+   "summary": "One parabola, three equations: match each feature to the form that shows it at a glance, and say when a form does not exist.",
+   "gap": "The exam converts between forms but never asks why each form exists or which to reach for.",
+   "skills": [
+    "SL2.6.factorised-form",
+    "SL2.6.complete-square",
+    "SL2.6.vertex",
+    "SL2.7.solve-equation"
+   ],
+   "level": [
+    3,
+    4
+   ],
+   "formats": [
+    "match",
+    "mcq",
+    "method-pick",
+    "true-false-reason"
+   ],
+   "situation": "quadratic",
+   "sharesSituation": [
+    "fn-quadratic-features",
+    "fn-quadratic-from-conditions",
+    "fn-solve-quadratic",
+    "fn-discriminant",
+    "fn-quadratic-inequality"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the three forms"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the graph"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a task in words"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "match-three-forms",
+     "given": [
+      "a graph and several equations"
+     ],
+     "asked": "the three equations that describe the same parabola",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph",
+      "equation"
+     ],
+     "skills": [
+      "SL2.6.factorised-form",
+      "SL2.6.complete-square"
+     ]
+    },
+    {
+     "id": "form-for-feature",
+     "given": [
+      "a feature (vertex, roots, y-intercept)"
+     ],
+     "asked": "the form that shows it without working",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL2.6.vertex",
+      "SL2.6.factorised-form"
+     ]
+    },
+    {
+     "id": "form-for-task",
+     "given": [
+      "a task (solve f(x) = 0, find the range, find f(0))"
+     ],
+     "asked": "the best form to start from, and why",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL2.6.vertex",
+      "SL2.7.solve-equation"
+     ]
+    },
+    {
+     "id": "missing-form",
+     "given": [
+      "a quadratic with Δ < 0"
+     ],
+     "asked": "which form cannot be written, and why",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL2.6.factorised-form",
+      "SL2.6.complete-square"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL2.6.complete-square",
+     "method": "compare-coefficients",
+     "suits": [
+      "match-three-forms"
+     ]
+    },
+    {
+     "skill": "SL2.6.factorised-form",
+     "method": "roots-to-factors",
+     "suits": [
+      "match-three-forms",
+      "missing-form"
+     ]
+    },
+    {
+     "skill": "SL2.6.vertex",
+     "method": "read-vertex-form",
+     "suits": [
+      "form-for-feature",
+      "form-for-task"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Every quadratic can be written in all three forms.",
+     "answer": "False. With real numbers, a quadratic with no real roots has no factorised form a(x − p)(x − q).",
+     "level": 4
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The constant term of a quadratic is the y-intercept.",
+     "answer": "Sometimes: true in general form (c), false in the other two (apq and ah² + k).",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL2.6.factorised-form#2",
+     "text": "Thinks the y-intercept is pq rather than apq",
+     "as": "distractor",
+     "in": [
+      "form-for-feature"
+     ],
+     "wrong": "pq read as the y-intercept of a(x − p)(x − q)"
+    },
+    {
+     "ref": "SL2.6.vertex#0",
+     "text": "From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4)",
+     "as": "distractor",
+     "in": [
+      "match-three-forms"
+     ],
+     "wrong": "a vertex form with the sign of h flipped offered as the match"
+    }
+   ]
+  },
+  {
+   "id": "fn-pre-expand",
+   "topic": 2,
+   "source": "extension",
+   "kind": "prior-learning",
+   "detail": "full",
+   "region": "quadratics",
+   "name": "Expand brackets",
+   "summary": "Multiply out single and double brackets, squares of brackets and a constant times a product, as needed to turn one quadratic form into another.",
+   "gap": "Prior learning the IB assumes. Converting between quadratic forms fails here first.",
+   "skills": [],
+   "supports": [
+    "SL2.6.complete-square",
+    "SL2.6.find-equation",
+    "SL2.6.factorised-form",
+    "SL2.7.discriminant-parameter"
+   ],
+   "level": [
+    0,
+    0
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot"
+   ],
+   "situation": "fn-pre-expand",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the expression"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "an area grid for (x + r)(x + s)"
+    }
+   ],
+   "methods": [
+    {
+     "id": "distribute",
+     "name": "Multiply every term by every term",
+     "summary": "Each term of the first bracket times each term of the second, then collect like terms."
+    },
+    {
+     "id": "grid",
+     "name": "Area grid",
+     "summary": "Put the terms on the edges of a grid, fill in the products and add them."
+    },
+    {
+     "id": "square-pattern",
+     "name": "Use (x + r)² = x² + 2rx + r²",
+     "summary": "Double the product for the middle term and square the end term."
+    },
+    {
+     "id": "number-check",
+     "name": "Check with a number",
+     "summary": "Put x = 1 (or 2) into both sides; if they differ, the expansion is wrong."
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "single-bracket",
+     "given": [
+      "k·x(x + r)"
+     ],
+     "asked": "the expansion",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "double-bracket",
+     "given": [
+      "(x + r)(x + s)"
+     ],
+     "asked": "the expansion",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": []
+    },
+    {
+     "id": "perfect-square",
+     "given": [
+      "(x + r)²"
+     ],
+     "asked": "the expansion",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": []
+    },
+    {
+     "id": "scaled-product",
+     "given": [
+      "k(x + r)(x + s)"
+     ],
+     "asked": "the expansion",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "vertex-form-expand",
+     "given": [
+      "k(x + r)² + d"
+     ],
+     "asked": "the expansion",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "missing-term",
+     "given": [
+      "(x + r)² = x² + bx + c with r unknown and b given"
+     ],
+     "asked": "r and c",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [],
+     "note": "reversed"
+    }
+   ],
+   "angles": [
+    {
+     "method": "distribute",
+     "suits": [
+      "single-bracket",
+      "double-bracket",
+      "scaled-product",
+      "vertex-form-expand"
+     ]
+    },
+    {
+     "method": "grid",
+     "suits": [
+      "double-bracket",
+      "perfect-square"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "vertex-form-expand"
+      ],
+      "why": "the factor in front and the constant are extra steps outside the grid"
+     }
+    },
+    {
+     "method": "square-pattern",
+     "suits": [
+      "perfect-square",
+      "vertex-form-expand",
+      "missing-term"
+     ]
+    },
+    {
+     "method": "number-check",
+     "suits": [
+      "double-bracket",
+      "scaled-product",
+      "vertex-form-expand"
+     ],
+     "weak": {
+      "kind": "fails",
+      "unknowns": [
+       "missing-term"
+      ],
+      "why": "checks an answer but does not find one"
+     }
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "(x + 4)² = x² + 16.",
+     "answer": "False. (x + 4)(x + 4) has two middle products 4x + 4x, so it is x² + 8x + 16; try x = 1: 25, not 17.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "text": "Squares each term: (x + r)² = x² + r²",
+     "as": "distractor",
+     "in": [
+      "perfect-square",
+      "vertex-form-expand"
+     ],
+     "wrong": "x² + r², the 2rx term missing"
+    },
+    {
+     "text": "Multiplies the factor in front into only the first bracket term",
+     "as": "distractor",
+     "in": [
+      "scaled-product"
+     ],
+     "wrong": "kx² + (r + s)x + rs, only x² scaled"
+    },
+    {
+     "text": "Gets the sign of a product wrong: (x + 3)(x − 5) = x² + 2x − 15",
+     "as": "distractor",
+     "in": [
+      "double-bracket"
+     ],
+     "wrong": "middle term with the wrong sign"
+    },
+    {
+     "text": "In k(x + r)² + d, multiplies d by k as well",
+     "as": "error-spot",
+     "in": [
+      "vertex-form-expand"
+     ],
+     "wrong": "constant term k(r² + d)"
+    }
+   ]
+  },
+  {
+   "id": "fn-pre-factorise",
+   "topic": 2,
+   "source": "extension",
+   "kind": "prior-learning",
+   "detail": "full",
+   "region": "quadratics",
+   "name": "Factorise expressions",
+   "summary": "Take out common factors, factorise x² + bx + c and ax² + bx + c, and spot a difference of two squares.",
+   "gap": "Prior learning the IB assumes. Solving, finding roots and simplifying rational functions all need it.",
+   "skills": [],
+   "supports": [
+    "SL2.6.factorised-form",
+    "SL2.7.solve-equation",
+    "SL2.7.inequality",
+    "SL2.7.hidden-quadratic"
+   ],
+   "level": [
+    0,
+    0
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot",
+    "method-pick"
+   ],
+   "situation": "fn-pre-factorise",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the expression"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "an area grid with the total given and the edges missing"
+    }
+   ],
+   "methods": [
+    {
+     "id": "product-sum",
+     "name": "Two numbers with product ac and sum b",
+     "summary": "List factor pairs of ac and pick the pair that adds to b."
+    },
+    {
+     "id": "split-middle",
+     "name": "Split the middle term and group",
+     "summary": "Write bx as the sum of the two numbers times x, then take out a factor from each pair."
+    },
+    {
+     "id": "recognise-pattern",
+     "name": "Recognise a pattern",
+     "summary": "p²x² − q² is a difference of squares; x² + 2rx + r² is a perfect square."
+    },
+    {
+     "id": "roots-first",
+     "name": "Solve first, then write the factors",
+     "summary": "Find the roots with the formula and write a(x − r)(x − s)."
+    },
+    {
+     "id": "expand-check",
+     "name": "Expand to check",
+     "summary": "Multiply the brackets back out and compare with the original."
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "common-factor",
+     "given": [
+      "kx² + mx"
+     ],
+     "asked": "the factorised form",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "monic-trinomial",
+     "given": [
+      "x² + bx + c"
+     ],
+     "asked": "the factorised form",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": []
+    },
+    {
+     "id": "difference-of-squares",
+     "given": [
+      "p²x² − q²"
+     ],
+     "asked": "the factorised form",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "non-monic",
+     "given": [
+      "ax² + bx + c with a > 1"
+     ],
+     "asked": "the factorised form",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": []
+    },
+    {
+     "id": "factor-pair",
+     "given": [
+      "a product and a sum"
+     ],
+     "asked": "the two numbers",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "missing-bracket-term",
+     "given": [
+      "(x + r)(x + □) = x² + bx + c"
+     ],
+     "asked": "the missing number",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [],
+     "note": "reversed"
+    }
+   ],
+   "angles": [
+    {
+     "method": "product-sum",
+     "suits": [
+      "monic-trinomial",
+      "non-monic",
+      "factor-pair"
+     ]
+    },
+    {
+     "method": "split-middle",
+     "suits": [
+      "non-monic"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "monic-trinomial"
+      ],
+      "why": "grouping is unnecessary when a = 1"
+     }
+    },
+    {
+     "method": "recognise-pattern",
+     "suits": [
+      "difference-of-squares",
+      "common-factor"
+     ]
+    },
+    {
+     "method": "roots-first",
+     "suits": [
+      "non-monic"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "monic-trinomial"
+      ],
+      "why": "the formula is long for an easy factorisation"
+     }
+    },
+    {
+     "method": "expand-check",
+     "suits": [
+      "monic-trinomial",
+      "non-monic",
+      "missing-bracket-term"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "x² + k factorises over the integers.",
+     "answer": "Sometimes: only when k is the negative of a square (x² − 9 = (x − 3)(x + 3)). x² + 9 does not factorise.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "text": "Swaps the signs: x² − x − 6 = (x − 2)(x + 3)",
+     "as": "distractor",
+     "in": [
+      "monic-trinomial"
+     ],
+     "wrong": "the factor pair with signs swapped, giving +x"
+    },
+    {
+     "text": "Factorises a sum of squares: x² + 9 = (x + 3)(x − 3)",
+     "as": "distractor",
+     "in": [
+      "difference-of-squares"
+     ],
+     "wrong": "(x + 3)(x − 3) offered for x² + 9"
+    },
+    {
+     "text": "Divides only the first term by the common factor: 6x² − 9x = 3x(2x − 9)",
+     "as": "distractor",
+     "in": [
+      "common-factor"
+     ],
+     "wrong": "second term left undivided"
+    },
+    {
+     "text": "Ignores the leading coefficient: 2x² + 7x + 3 = (x + 1)(x + 3)",
+     "as": "error-spot",
+     "in": [
+      "non-monic"
+     ],
+     "wrong": "factor pair of c only"
+    }
+   ]
+  },
+  {
+   "id": "fn-pre-surds",
+   "topic": 2,
+   "source": "extension",
+   "kind": "prior-learning",
+   "detail": "full",
+   "region": "quadratics",
+   "name": "Simplify surds",
+   "summary": "Write √n as a√b, add like surds, and simplify a fraction like (4 ± √12)/2, the shapes exact quadratic answers take.",
+   "gap": "Prior learning the IB assumes. Exact roots and chord lengths are marked in simplest surd form.",
+   "skills": [],
+   "supports": [
+    "SL2.7.solve-equation",
+    "SL2.6.complete-square"
+   ],
+   "level": [
+    0,
+    0
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot"
+   ],
+   "situation": "fn-pre-surds",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the expression"
+    }
+   ],
+   "methods": [
+    {
+     "id": "largest-square-factor",
+     "name": "Take out the largest square factor",
+     "summary": "√48 = √(16 × 3) = 4√3."
+    },
+    {
+     "id": "prime-factorise",
+     "name": "Prime factorise and pair",
+     "summary": "Write the number as primes; each pair comes out of the root."
+    },
+    {
+     "id": "square-check",
+     "name": "Square to check",
+     "summary": "Square the answer: (4√3)² = 48."
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "simplify-root",
+     "given": [
+      "√n"
+     ],
+     "asked": "a√b",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "add-like-surds",
+     "given": [
+      "a sum of two unsimplified surds"
+     ],
+     "asked": "one simplified surd",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "multiply-surds",
+     "given": [
+      "√m × √n"
+     ],
+     "asked": "a√b",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "formula-fraction",
+     "given": [
+      "(m ± √n)/d"
+     ],
+     "asked": "its simplest form",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "surd-to-root",
+     "given": [
+      "a√b"
+     ],
+     "asked": "√n",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [],
+     "note": "reversed"
+    }
+   ],
+   "angles": [
+    {
+     "method": "largest-square-factor",
+     "suits": [
+      "simplify-root",
+      "add-like-surds",
+      "multiply-surds",
+      "formula-fraction"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "simplify-root"
+      ],
+      "why": "taking a smaller square first (√48 = 2√12) needs a second pass"
+     }
+    },
+    {
+     "method": "prime-factorise",
+     "suits": [
+      "simplify-root",
+      "multiply-surds"
+     ]
+    },
+    {
+     "method": "square-check",
+     "suits": [
+      "surd-to-root",
+      "simplify-root"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "√(9 + 16) = √9 + √16.",
+     "answer": "False: √25 = 5, but 3 + 4 = 7. Roots split over products, not sums.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "text": "Splits a root over a sum: √(a + b) = √a + √b",
+     "as": "distractor",
+     "in": [
+      "add-like-surds"
+     ],
+     "wrong": "adds the numbers under the roots, √12 + √27 = √39"
+    },
+    {
+     "text": "Divides only one term of the numerator: (4 + √12)/2 = 4 + √3",
+     "as": "distractor",
+     "in": [
+      "formula-fraction"
+     ],
+     "wrong": "only the surd halved"
+    },
+    {
+     "text": "Stops before the surd is fully simplified, e.g. √48 = 2√12",
+     "as": "error-spot",
+     "in": [
+      "simplify-root"
+     ],
+     "wrong": "a square factor left inside"
+    }
+   ]
+  },
+  {
+   "id": "fn-pre-linear-inequalities",
+   "topic": 2,
+   "source": "extension",
+   "kind": "prior-learning",
+   "detail": "full",
+   "region": "quadratics",
+   "name": "Solve linear inequalities",
+   "summary": "Solve one- and two-sided linear inequalities and read them on a number line.",
+   "gap": "Prior learning the IB assumes. Quadratic inequalities and discriminant conditions end in one.",
+   "skills": [],
+   "supports": [
+    "SL2.7.inequality",
+    "SL2.7.discriminant-parameter"
+   ],
+   "level": [
+    0,
+    0
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot",
+    "match"
+   ],
+   "situation": "fn-pre-linear-inequalities",
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the inequality"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "a number line with open or closed circles"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "in words: \"at least\", \"fewer than\""
+    }
+   ],
+   "methods": [
+    {
+     "id": "inverse-operations",
+     "name": "Undo each operation on both sides",
+     "summary": "Reverse the sign whenever both sides are multiplied or divided by a negative."
+    },
+    {
+     "id": "keep-x-positive",
+     "name": "Collect x on the side where its coefficient is positive",
+     "summary": "Move terms so you never divide by a negative."
+    },
+    {
+     "id": "test-value",
+     "name": "Test a value",
+     "summary": "Pick a number in the answer and one outside it, and check each in the original."
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "one-sided",
+     "given": [
+      "ax + b < c"
+     ],
+     "asked": "the solution",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": []
+    },
+    {
+     "id": "two-sided",
+     "given": [
+      "c₁ < ax + b ≤ c₂"
+     ],
+     "asked": "the solution",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": []
+    },
+    {
+     "id": "read-number-line",
+     "given": [
+      "a number line"
+     ],
+     "asked": "the inequality",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [],
+     "note": "reversed"
+    },
+    {
+     "id": "count-integers",
+     "given": [
+      "an inequality"
+     ],
+     "asked": "how many integers satisfy it",
+     "level": 0,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": []
+    }
+   ],
+   "angles": [
+    {
+     "method": "inverse-operations",
+     "suits": [
+      "one-sided",
+      "two-sided"
+     ]
+    },
+    {
+     "method": "keep-x-positive",
+     "suits": [
+      "one-sided"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "two-sided"
+      ],
+      "why": "with three parts, moving terms is clumsier than dividing and reversing"
+     }
+    },
+    {
+     "method": "test-value",
+     "suits": [
+      "one-sided",
+      "count-integers",
+      "read-number-line"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "From −2x > 6 you get x > −3.",
+     "answer": "False: dividing by −2 reverses the sign, so x < −3. Test x = 0: −2(0) > 6 is false, and 0 > −3.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "text": "Keeps the sign when dividing by a negative",
+     "as": "distractor",
+     "in": [
+      "one-sided",
+      "two-sided"
+     ],
+     "wrong": "the right boundary with the wrong direction"
+    },
+    {
+     "text": "Confuses open and closed circles, so < and ≤ swap",
+     "as": "distractor",
+     "in": [
+      "read-number-line"
+     ],
+     "wrong": "strict and non-strict swapped"
+    },
+    {
+     "text": "In a two-sided inequality, applies the step to the middle part only",
+     "as": "error-spot",
+     "in": [
+      "two-sided"
+     ],
+     "wrong": "the outer numbers left unchanged"
+    }
+   ]
   }
  ],
  "unclassified": [],

@@ -7,10 +7,17 @@ import fs from 'node:fs';
 
 const read = f => JSON.parse(fs.readFileSync(new URL(`../../${f}`, import.meta.url), 'utf8'));
 const doc = read('curriculum/question-types.json');
+// Extension types have no bank parts; tests/unit/pedagogy.test.mjs covers them.
+const exam = doc.types.filter(t => t.source === 'exam');
 const map = read('curriculum/aa-sl.json');
 const skillIds = new Set(map.topics.flatMap(t => t.subtopics.flatMap(st => st.skills.map(sk => sk.id))));
 const FORMATS = ['mcq', 'value', 'multipart', 'error-spot', 'method-pick', 'match',
                  'order-steps', 'graph-pick', 'true-false-reason'];
+
+test('every type says where it comes from', () => {
+  for (const t of doc.types) assert.ok(['exam', 'extension'].includes(t.source), `${t.id}: source`);
+  assert.equal(exam.length, exam.filter(t => t.parts?.length).length, 'every exam type has bank parts');
+});
 
 test('type IDs are unique', () => {
   const ids = doc.types.map(t => t.id);
@@ -18,14 +25,14 @@ test('type IDs are unique', () => {
 });
 
 test('every bank part is assigned once, or listed as unclassified with a reason', () => {
-  const all = [...doc.types.flatMap(t => t.parts), ...doc.unclassified.map(u => u.part)];
+  const all = [...exam.flatMap(t => t.parts), ...doc.unclassified.map(u => u.part)];
   assert.equal(new Set(all).size, all.length, 'a part appears twice');
   assert.equal(all.length, doc.bank.parts);
   for (const u of doc.unclassified) assert.ok(u.reason, u.part);
 });
 
 test('skills and formats exist in aa-sl.json', () => {
-  for (const t of doc.types) {
+  for (const t of exam) {
     assert.ok(t.skills.length, `${t.id} has no skills`);
     for (const s of t.skills) assert.ok(skillIds.has(s), `${t.id}: unknown skill ${s}`);
     for (const f of t.formats || []) assert.ok(FORMATS.includes(f), `${t.id}: bad format ${f}`);
@@ -33,7 +40,7 @@ test('skills and formats exist in aa-sl.json', () => {
 });
 
 test('Functions types carry every field a recipe needs', () => {
-  const full = doc.types.filter(t => t.detail === 'full');
+  const full = exam.filter(t => t.detail === 'full');
   assert.ok(full.length > 0);
   for (const t of full) {
     assert.equal(t.topic, 2, t.id);

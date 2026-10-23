@@ -9,6 +9,7 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Functions:** 232 parts carry a 2.x tag, 171 of them as the main tag.
 - A part normally goes to a type of its first (main) syllabus tag. A few parts follow the pattern instead: for example, twin-paper parts whose taggers listed the same two tags in opposite orders are kept together, and log-law steps inside an exponential model go with the model.
 - `alsoSeenIn` on a Functions type lists parts from other topics that use it as a step (a quadratic solved inside a probability question, a GDC intersection inside a kinematics question).
+- This file covers the exam types only. The 6 extension types, and the unknowns, representations and methods of every Functions type, are in `PEDAGOGY_GAPS.md`.
 
 ## Section A and Section B
 
