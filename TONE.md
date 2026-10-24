@@ -43,10 +43,13 @@ The trope for each of the nine class branches is worked out on [FAL-345](/FAL/is
 
 Still wanted: films, games, internet culture and the wasteland classics. Point at a reference, don't lift it. No borrowed character names, and no catchphrase or line quoted whole. The words stay ours, which keeps a paid release open.
 
-## Psychological damage
+## Damage flashes
 
-This is Matt's answer to how talking does damage. In a talking encounter, a miss can be someone turning you down, laughing at your offer or yelling at you. **PSYCHOLOGICAL DAMAGE** then flashes up with the hit. The HP lost is the same as for any miss, so only the flavour changes. Traps, shoves, scalding coffee, an ambush and the Cell's hunger stay ordinary damage.
+This is Matt's answer to how talking does damage. In an encounter, a miss can be someone turning you down, a form stamped in red or a spanner from above, and a label such as **EMOTIONAL DAMAGE** flashes up with the hit. The HP lost is the same as for any miss, so only the joke changes. The miss that busts a Deal or a Standoff puts CRITICAL in front. Fights and Ambush fights stay ordinary damage.
 
-- Each encounter says which kind its misses do: `"damage": "psychological"` or `"physical"`. The format is in `writing/encounters/README.md`, and the spec is on [FAL-347](/FAL/issues/FAL-347).
-- **Hit the character in the scene, never the student's maths.** Go after your haggling, your offer or your hat. A miss means a student just got a question wrong, so any line that sounds like "you're bad at this" is out, as the voice sheets already say.
-- **It's a comic beat.** Keep the line short and let the flash land the joke. It shows after the answer, with the hit, never while a question is open.
+- The types are listed in `writing/encounters/damage-types.json`: Matt's PSYCHOLOGICAL DAMAGE and EMOTIONAL DAMAGE, and the rest, each with a line on when to use it. Each encounter names one in its `damage` field, or `plain` for no flash, and the Cell names one for its hunger ticks. The format and the checks are in `writing/encounters/README.md`, and the spec is on [FAL-347](/FAL/issues/FAL-347).
+- The "X DAMAGE" form is a common phrase and fine to use, even though it nods at a meme. The rule against quoting a catchphrase whole still applies to lines.
+- **Hit the character in the scene, never the student's maths.** Go after your haggling, your paperwork, your dignity, your wallet or your eardrums. A miss means a student just got a question wrong, so no flash or line may sound like "you're bad at this", as the voice sheets already say. That rules out INTELLECTUAL DAMAGE and anything like it.
+- **No real injuries or medical conditions** (so no BRAIN DAMAGE), and nothing about bodies, looks or who someone is.
+- **Science jokes have to be right.** GRAVITATIONAL DAMAGE for a dropped spanner works. Check the science before a flash leans on it.
+- **It's a comic beat.** The line and the flash land as one joke, so keep the line short and let the flash finish it. It shows after the answer, with the hit, never while a question is open.
