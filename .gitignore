@@ -22,3 +22,7 @@ playwright/.cache/
 # Godot (game/)
 game/.godot/
 build/
+
+# SymPy answer checker (tools/check-answers)
+.venv/
+__pycache__/

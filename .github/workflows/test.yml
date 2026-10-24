@@ -44,6 +44,8 @@ jobs:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
       - run: ./test.sh
+      # The SymPy answer checker: pip installs requirements.txt into .venv first.
+      - run: tools/check-answers
       - run: ./export.sh
       # Boot the export in headless Chromium at phone and PC sizes
       - uses: actions/setup-node@v7
@@ -52,7 +54,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: node scripts/web-screenshot.mjs build/next web-shots
+      - run: >-
+          node scripts/web-screenshot.mjs build/next web-shots
+          'graph-solved=?view=fn-quadratic-features/vertex-from-factorised/graph/midpoint-of-roots/value&seed=3&autoplay=right'
+          'table-mcq-wrong=?view=fn-quadratic-from-conditions/a-from-roots-and-point/table/intercept-form-plus-point/mcq&seed=2&autoplay=wrong'
       - uses: actions/upload-artifact@v7
         if: always()
         with:
@@ -60,5 +65,6 @@ jobs:
           path: |
             web-shots/
             _scratch/*.log
+            _scratch/check-answers/report.txt
           if-no-files-found: ignore
           retention-days: 14

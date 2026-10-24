@@ -2,7 +2,11 @@
 // in headless Chromium at phone and PC sizes, and save a screenshot of each. Fails if
 // the engine doesn't start or the page logs an error.
 //
-//   node scripts/web-screenshot.mjs [export dir] [out dir]
+//   node scripts/web-screenshot.mjs [export dir] [out dir] [name=?query ...]
+//
+// Each name=?query after the out dir is also shot at both sizes, as <size>-<name>.png,
+// for example 'graph=?view=fn-quadratic-features/vertex-from-factorised/graph/midpoint-of-roots/value&seed=3'
+// (the practice screen's deep links: see game/ui/practice.gd).
 //
 // Defaults: build/next and _scratch/web-shots. Needs `npm ci` and
 // `npx playwright install chromium`. WebGL runs on SwiftShader, so no GPU is used.
@@ -35,27 +39,34 @@ const server = http.createServer((req, res) => {
 });
 await new Promise(r => server.listen(0, '127.0.0.1', r));
 const url = `http://127.0.0.1:${server.address().port}${BASE}`;
+const pages = [{ name: '', query: '' }, ...process.argv.slice(4).map(a => {
+  const i = a.indexOf('=');
+  return { name: a.slice(0, i), query: a.slice(i + 1) };
+})];
 
 fs.mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const problems = [];
 try {
-  for (const size of SIZES) {
-    const { name, ...options } = size;
-    const page = await browser.newPage(options);
-    page.on('pageerror', e => problems.push(`${name}: page error: ${e.message}`));
-    page.on('console', m => {
-      if (m.type() === 'error') problems.push(`${name}: console error: ${m.text()}`);
-      else if (m.type() === 'warning') console.log(`${name}: console warning: ${m.text()}`);
-    });
-    await page.goto(url);
-    // The Godot shell removes its #status overlay once the engine is running.
-    await page.waitForFunction(() => !document.getElementById('status'), null, { timeout: 90_000 });
-    await page.waitForTimeout(1500);
-    const file = path.join(out, `${name}.png`);
-    await page.screenshot({ path: file });
-    console.log(`ok   ${file}`);
-    await page.close();
+  for (const shot of pages) {
+    for (const size of SIZES) {
+      const { name: sizeName, ...options } = size;
+      const name = shot.name ? `${sizeName}-${shot.name}` : sizeName;
+      const page = await browser.newPage(options);
+      page.on('pageerror', e => problems.push(`${name}: page error: ${e.message}`));
+      page.on('console', m => {
+        if (m.type() === 'error') problems.push(`${name}: console error: ${m.text()}`);
+        else if (m.type() === 'warning') console.log(`${name}: console warning: ${m.text()}`);
+      });
+      await page.goto(url + shot.query);
+      // The Godot shell removes its #status overlay once the engine is running.
+      await page.waitForFunction(() => !document.getElementById('status'), null, { timeout: 90_000 });
+      await page.waitForTimeout(1500);
+      const file = path.join(out, `${name}.png`);
+      await page.screenshot({ path: file });
+      console.log(`ok   ${file}`);
+      await page.close();
+    }
   }
 } catch (e) {
   problems.push(String(e));
