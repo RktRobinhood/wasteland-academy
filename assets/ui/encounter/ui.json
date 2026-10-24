@@ -1,0 +1,104 @@
+{
+  "version": 1,
+  "format": "rgba_png",
+  "nine_slice": {
+    "bubble.png": {
+      "left": 12,
+      "top": 12,
+      "right": 12,
+      "bottom": 12
+    },
+    "bubble-spark.png": {
+      "left": 12,
+      "top": 12,
+      "right": 12,
+      "bottom": 12
+    },
+    "stakes-chip.png": {
+      "left": 10,
+      "top": 8,
+      "right": 10,
+      "bottom": 8
+    },
+    "field-notes-panel.png": {
+      "left": 30,
+      "top": 40,
+      "right": 16,
+      "bottom": 40
+    },
+    "field-note-card.png": {
+      "left": 12,
+      "top": 12,
+      "right": 12,
+      "bottom": 12
+    },
+    "field-note-unknown.png": {
+      "left": 12,
+      "top": 12,
+      "right": 12,
+      "bottom": 12
+    },
+    "dialogue-box.png": {
+      "left": 14,
+      "top": 14,
+      "right": 14,
+      "bottom": 14
+    }
+  },
+  "images": {
+    "bubble.png": {
+      "width": 96,
+      "height": 64
+    },
+    "bubble-spark.png": {
+      "width": 96,
+      "height": 64
+    },
+    "bubble-tail.png": {
+      "width": 24,
+      "height": 20
+    },
+    "stakes-chip.png": {
+      "width": 64,
+      "height": 24
+    },
+    "pip-on.png": {
+      "width": 24,
+      "height": 24
+    },
+    "pip-off.png": {
+      "width": 24,
+      "height": 24
+    },
+    "kind-meet.png": {
+      "width": 64,
+      "height": 64
+    },
+    "kind-deal.png": {
+      "width": 64,
+      "height": 64
+    },
+    "kind-standoff.png": {
+      "width": 64,
+      "height": 64
+    },
+    "field-notes-panel.png": {
+      "width": 256,
+      "height": 256
+    },
+    "field-note-card.png": {
+      "width": 160,
+      "height": 64
+    },
+    "field-note-unknown.png": {
+      "width": 160,
+      "height": 64
+    },
+    "dialogue-box.png": {
+      "width": 192,
+      "height": 96
+    }
+  },
+  "facing": "none",
+  "text_in_images": false
+}
