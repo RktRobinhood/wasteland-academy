@@ -36,3 +36,5 @@ func test_web_preset() -> void:
 	check_eq(cfg.get_value(opts, "variant/thread_support"), false, "thread_support")
 	# The HTML game's service worker already covers the whole site.
 	check_eq(cfg.get_value(opts, "progressive_web_app/enabled"), false, "progressive_web_app/enabled")
+	# The question engine reads res://data/catalogue.json with FileAccess.
+	check(str(cfg.get_value(section, "include_filter", "")).contains("data/*.json"), "include_filter packs data/*.json")
