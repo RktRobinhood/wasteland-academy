@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 function setup() {
   const sounds = [];
-  const document = { hidden: false, currentScript: { src: 'http://localhost/game/js/sfx.js' }, addEventListener() {}, getElementById() { return null; } };
+  const document = { hidden: false, currentScript: { src: 'http://localhost/game/js/sfx.js' }, addEventListener() {}, getElementById() { return null; }, querySelectorAll() { return []; } };
   class Audio {
     constructor(src) { this.src = src; this.paused = false; this.currentTime = 0; sounds.push(this); }
     addEventListener() {}

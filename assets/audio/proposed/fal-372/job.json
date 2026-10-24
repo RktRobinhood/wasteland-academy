@@ -159,10 +159,12 @@
   ],
   "prompts": [],
   "seeds": [],
-  "next_step": "Studio Manager technical review, then one Matt listening decision on this palette. Apply staged integration patch only after acceptance.",
+  "next_step": "Integration applied after Matt acceptance; hand off tested code to Studio Manager for normal code review.",
   "validation": {
     "unit_and_content": "95 passed",
     "browser": "7 WAVs decoded, toggle works, zero page errors",
-    "staged_patch": "git apply --check passed"
-  }
+    "staged_patch": "git apply --check passed",
+    "integration": "95 content/unit tests, 10 gameplay/offline browser tests; latest upstream service-worker routing preserved and 3 routing tests pass."
+  },
+  "approval": "Technical and palette accepted by local-board 2026-10-24; explicit follow-up says integrate now and tweak later."
 }

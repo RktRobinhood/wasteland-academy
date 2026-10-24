@@ -1,5 +1,9 @@
 # FAL-372 SFX technical review
 
+Accepted by Matt on 2026-10-24 (technical and palette cards, followed by explicit direction to integrate now and tweak later). Integration is applied: answer feedback, three lifelines, encounter start/clear, and successful Bazaar purchases. Sound starts off; quiet gain and synchronized header controls avoid covering gameplay. All seven files are precached for offline use. The staging patch below is a historical preparation artifact, already applied.
+
+Validation after integration: 95 content/unit tests and 10 gameplay/offline browser tests passed. These include real correct/wrong answers, freeze feedback, completion, mute, seven WAVs decoded offline, full offline battle, returning-player updates and 375px layout.
+
 Seven proposed Kenney CC0 effects for Salvage Neon Bazaar. Library-first round, zero GPU renders; no generation defect to justify GPU use. All 10 local pack categories searched; interface and casino packs supply the selected short mechanical/tonal gestures. Voice, weapons, explosions and error buzzers excluded. Wrong answer uses filtered `pluck_002.ogg`; whether this reads as a kind comic beat remains Matt’s listening decision. No claim of listening is made.
 
 | File | Seconds | LUFS-I¹ | dBTP | Edge silence ms start/end² | Energy >6kHz |
@@ -20,6 +24,8 @@ Recommendation: review this one cohesive palette as the first option. Retry is o
 
 ## Game integration and approval gate
 
-`js/sfx.js` provides opt-in, default-off, single-voice playback, quiet gain, hidden-tab stop and safe autoplay/missing-file handling. `audition.html` uses the actual controller. `runtime-integration.patch` is staged against the game: adds the script, an accessible sound toggle, offline caching, answer feedback, lifeline and clear cues. Reward and open are available for sparse future use; no sound on every keypad press or countdown. Activation awaits Studio Manager acceptance and Matt’s one palette decision, as required by the Audio Designer instructions. Normal game entry point is unchanged during review.
+`js/sfx.js` provides opt-in, default-off, single-voice playback, quiet gain, hidden-tab stop and safe autoplay/missing-file handling. `audition.html` uses the actual controller. `runtime-integration.patch` is staged against the game: adds the script, an accessible sound toggle, offline caching, answer feedback, lifeline and clear cues. Reward and open are available for sparse future use; no sound on every keypad press or countdown. The approved patch is now applied; subsequent improvements place the synchronized toggles inside the world/combat headers and connect all seven cues. Approval is complete.
 
 Source licences: [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds), [Kenney Casino Audio](https://kenney.nl/assets/casino-audio). Kenney credited for every export in `assets/audio/CREDITS.md`. Shared raw files stay outside the repo. Sonniss excluded because the game repo is public; Freesound API not used.
+
+Upstream compatibility: latest service-worker exclusions for `next/` and `classic/` preserved. Three upstream service-worker routing tests pass. No Godot content is changed; this integration targets the currently playable HTML game.

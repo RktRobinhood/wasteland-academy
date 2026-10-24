@@ -1,9 +1,9 @@
 # Proposed SFX provenance
 
 
-## FAL-372 — proposed free-library SFX palette
+## FAL-372 — accepted free-library SFX palette
 
-Pending Studio Manager review and Matt’s listening choice. No runtime activation yet. Downloaded shared library 2026-10-24; official source pages and packaged CC0 licences checked. No generation or AI input audio.
+Accepted by Matt on 2026-10-24; integrated with quiet opt-in playback. Downloaded shared library 2026-10-24; official source pages and packaged CC0 licences checked. No generation or AI input audio.
 
 ### assets/audio/proposed/fal-372/ui-confirm-01.wav
 

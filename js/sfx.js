@@ -1,4 +1,4 @@
-// Proposed FAL-372 palette. Loaded by the audition page only until acceptance.
+// Accepted Kenney CC0 palette (FAL-372). Quiet and off until the player opts in.
 const SFX = {
   enabled: false,
   current: null,
@@ -13,8 +13,10 @@ const SFX = {
   toggle() {
     this.enabled = !this.enabled;
     this.stop();
-    const button = document.getElementById('sfx-toggle');
-    if (button) { button.textContent = `Sound: ${this.enabled ? 'on' : 'off'}`; button.setAttribute('aria-pressed', String(this.enabled)); }
+    document.querySelectorAll('[data-sfx-toggle]').forEach(button => {
+      button.textContent = `Sound: ${this.enabled ? 'on' : 'off'}`;
+      button.setAttribute('aria-pressed', String(this.enabled));
+    });
     if (this.enabled) this.play('confirm');
   },
   play(cue) {
@@ -33,11 +35,17 @@ const SFX = {
   },
   mount() {
     if (document.getElementById('sfx-toggle')) return;
-    const button = document.createElement('button');
-    button.id = 'sfx-toggle'; button.type = 'button'; button.textContent = 'Sound: off';
-    button.setAttribute('aria-pressed', 'false');
-    Object.assign(button.style, { position: 'fixed', bottom: 'max(10px, env(safe-area-inset-bottom))', right: '10px', zIndex: '1000', minHeight: '48px', padding: '8px 14px', background: '#111827', color: '#9ff0e6', border: '1px solid #22d3c5', borderRadius: '8px' });
-    button.addEventListener('click', () => this.toggle()); document.body.append(button);
+    const headers = [...document.querySelectorAll('.world-header, .combat-header')];
+    // Keep the control in the layout so it never covers answer or navigation buttons.
+    (headers.length ? headers : [document.body]).forEach((header, i) => {
+      const button = document.createElement('button');
+      button.id = i === 0 ? 'sfx-toggle' : 'sfx-toggle-combat';
+      button.type = 'button'; button.textContent = 'Sound: off';
+      button.dataset.sfxToggle = '';
+      button.setAttribute('aria-pressed', 'false');
+      Object.assign(button.style, { flexShrink: '0', minHeight: '48px', padding: '8px', font: 'inherit', fontSize: '12px', background: '#111827', color: '#9ff0e6', border: '1px solid #22d3c5', borderRadius: '8px' });
+      button.addEventListener('click', () => this.toggle()); header.append(button);
+    });
     document.addEventListener('visibilitychange', () => { if (document.hidden) this.stop(); });
   },
 };

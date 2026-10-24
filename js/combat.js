@@ -62,6 +62,7 @@ const Combat = {
   _nextEnemy() {
     if (!this._run?.active) return;
     this._run.wave++;
+    SFX.play('open');
 
     const diff = this._chooseDifficulty();
     const enemy = { ...this.ENEMIES[diff], difficulty: diff, currentHp: this.ENEMIES[diff].hp, maxHp: this.ENEMIES[diff].hp };
@@ -336,6 +337,7 @@ const Combat = {
 
   _endRun(reason) {
     if (!this._run) return;
+    if (reason === 'cleared') SFX.play('clear');
     this._run.active = false;
     this._stopTimer();
 
@@ -370,6 +372,7 @@ const Combat = {
       const btn = document.querySelector(`.mcq-btn[data-idx="${idx}"]`);
       if (btn) { btn.disabled = true; btn.classList.add('eliminated'); }
     });
+    SFX.play('hint');
     this._run.lifelines.fifty = 0;
     this._updateLifelineButtons();
     if (!this._run.perkHintFree) {
@@ -383,6 +386,7 @@ const Combat = {
     if (this._run._frozenTime !== null) return;  // already frozen
     if (!this._run.lifelines.freeze) return Toast.show('Freeze used up', 'warn');
 
+    SFX.play('hint');
     this._run._frozenTime = this._run._timeLeft;
     this._run.lifelines.freeze = 0;
     this._updateLifelineButtons();
@@ -407,6 +411,7 @@ const Combat = {
     if (!hint) return Toast.show('No hint available', 'warn');
     if (!this._run.lifelines.hint && !this._run.perkHintFree) return Toast.show('Hint used up', 'warn');
 
+    SFX.play('hint');
     this._showHintModal(hint);
     this._run.lifelines.hint = 0;
     this._updateLifelineButtons();
@@ -751,6 +756,7 @@ const Combat = {
 
   // `extra` overrides the message, sub-line and solution (multi-part totals)
   _showOutcome(type, q, damage, scrap, extra = {}) {
+    SFX.play(type === 'correct' || type === 'complication' ? 'correct' : 'retry');
     const overlay = document.getElementById('outcome-overlay');
     const icon    = document.getElementById('outcome-icon');
     const msg     = document.getElementById('outcome-msg');
