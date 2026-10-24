@@ -398,6 +398,7 @@ See `ART_REQUIREMENTS.md` for full generation briefs.
 - Teacher dashboard
 - HL content
 - Procedurally generated questions
-- Music and sound effects (local voiced narration with subtitles is planned for L3; see ROADMAP.md)
 - Animated sprite movement
 - Cloud save / cross-device sync (localStorage only)
+
+Music, sound effects and voiced narration aren't out of scope. They're planned after November 15: narration in L3, and the soundtrack in S0 to S2. See ROADMAP.md.

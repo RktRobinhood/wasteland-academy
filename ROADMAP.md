@@ -2,7 +2,7 @@
 
 The order of work and the target dates. The Paperclip tasks named in each row hold the detail. Dates are targets, and each one is checked at the milestone before it.
 
-Last updated 2026-10-24 (FAL-347).
+Last updated 2026-10-24 (FAL-357).
 
 ## Now to November 15: the Functions island in Godot
 
@@ -21,7 +21,7 @@ Art runs alongside: icon animation loops (FAL-323) and a one-region slice of the
 
 ## After November 15
 
-Two tracks run side by side: the four remaining islands, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them. The island order and the split between the tracks are set at the November 13 decision.
+Two tracks run side by side: the four remaining islands, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them, and so does the soundtrack below. The island order and the split between the tracks are set at the November 13 decision.
 
 ### The Relic: playable lessons
 
@@ -67,3 +67,20 @@ The maths is much the same in the IB, A-level, GCSE and US high school courses (
 
 - **Question types and teaching ideas can come from any course.** Recipes write their own numbers and wording, so nothing is copied.
 - **Text, diagrams and videos are copied only when the licence allows a paid release,** such as CC BY. Non-commercial licences (CC BY-NC) are out, and so are exam board papers. This keeps a later Android, iOS or Steam release open.
+
+### Soundtrack and sound effects
+
+Matt's ask is FAL-357, and the plan there is approved. The game gets lo-fi study music with a techno layer that fades in when the scene's stakes rise, a toggle to turn it off, and sound effects. It's icing on the cake, so it ships at launch or just after. Nothing is built before November 15.
+
+| When | Step | Who |
+|---|---|---|
+| Nov 16–22 | **S0 Spike, about a day.** Install ACE-Step 1.5 in ComfyUI, render about 30 candidates for the Signal Tower set, cut the loops, build a listening page, and test three synced layers in a web build (FAL-364). | Codex, and Matt listens |
+| Dec 7–20 | **S1 Sound system, alongside L3,** which needs the same Voice bus and ducking. Audio buses, the Music, Sound effects and Voice toggles, `set_tension`, about 15 sound effects, and the Signal Tower set in the game. | Coder |
+| As each island ships | **S2 One music set per island,** plus a title theme and stingers. Ready by launch or just after. | Codex, and Matt listens |
+
+These rules hold for every step:
+
+- **One grid at 120 BPM.** The calm layers play half-time, so they feel like study music. The techno layer plays full-time on the same grid, so it can fade in at any moment.
+- **The music follows the scene, never a miss.** Bosses, encounters and timed questions raise it. A wrong answer or low HP never does (TONE.md).
+- **Music starts on at half volume** after the first tap. A speaker icon on the main screen turns it off, and the game remembers the choice on that device.
+- **Licences keep a paid release open.** ACE-Step 1.5 is MIT. MusicGen is out because its model files are CC BY-NC. Sound effects come mostly from CC0 packs and generated retro blips.
