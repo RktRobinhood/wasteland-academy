@@ -1,0 +1,53 @@
+--- a/index.html
++++ b/index.html
+@@ -401,6 +401,7 @@
+ <script src="js/engine.js"></script>
+ <script src="js/router.js"></script>
+ <script src="js/combat.js"></script>
++<script src="js/sfx.js"></script>
+ <script src="js/pwa.js"></script>
+ 
+ <!-- Content packs (register before WA.init) -->
+--- a/js/combat.js
++++ b/js/combat.js
+@@ -336,6 +336,7 @@
+ 
+   _endRun(reason) {
+     if (!this._run) return;
++    if (reason === 'cleared') SFX.play('clear');
+     this._run.active = false;
+     this._stopTimer();
+ 
+@@ -407,6 +408,7 @@
+     if (!hint) return Toast.show('No hint available', 'warn');
+     if (!this._run.lifelines.hint && !this._run.perkHintFree) return Toast.show('Hint used up', 'warn');
+ 
++    SFX.play('hint');
+     this._showHintModal(hint);
+     this._run.lifelines.hint = 0;
+     this._updateLifelineButtons();
+@@ -751,6 +753,7 @@
+ 
+   // `extra` overrides the message, sub-line and solution (multi-part totals)
+   _showOutcome(type, q, damage, scrap, extra = {}) {
++    SFX.play(type === 'correct' || type === 'complication' ? 'correct' : 'retry');
+     const overlay = document.getElementById('outcome-overlay');
+     const icon    = document.getElementById('outcome-icon');
+     const msg     = document.getElementById('outcome-msg');
+--- a/service-worker.js
++++ b/service-worker.js
+@@ -26,6 +26,14 @@
+   './js/engine.js',
+   './js/router.js',
+   './js/combat.js',
++  './js/sfx.js',
++  './assets/audio/proposed/fal-372/ui-confirm-01.wav',
++  './assets/audio/proposed/fal-372/answer-correct-01.wav',
++  './assets/audio/proposed/fal-372/answer-retry-01.wav',
++  './assets/audio/proposed/fal-372/hint-relay-01.wav',
++  './assets/audio/proposed/fal-372/scrap-reward-01.wav',
++  './assets/audio/proposed/fal-372/encounter-open-01.wav',
++  './assets/audio/proposed/fal-372/encounter-clear-01.wav',
+   './js/pwa.js',
+   './content/topic-1-algebra.js',
+   './content/topic-2-functions.js',
