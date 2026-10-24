@@ -1,0 +1,62 @@
+{
+  "name": "cell-bars",
+  "image": "bars.webp",
+  "facing": "none",
+  "origin": [
+    0,
+    0
+  ],
+  "figure_height": 256,
+  "frames": [
+    {
+      "id": "shut",
+      "x": 0,
+      "y": 0,
+      "w": 864,
+      "h": 256,
+      "ox": -432,
+      "oy": -256
+    },
+    {
+      "id": "loose",
+      "x": 864,
+      "y": 0,
+      "w": 864,
+      "h": 256,
+      "ox": -432,
+      "oy": -256
+    },
+    {
+      "id": "open",
+      "x": 1728,
+      "y": 0,
+      "w": 864,
+      "h": 256,
+      "ox": -432,
+      "oy": -256
+    }
+  ],
+  "anims": {
+    "shut": {
+      "frames": [
+        0
+      ],
+      "fps": 1,
+      "loop": false
+    },
+    "loose": {
+      "frames": [
+        1
+      ],
+      "fps": 1,
+      "loop": false
+    },
+    "open": {
+      "frames": [
+        2
+      ],
+      "fps": 1,
+      "loop": false
+    }
+  }
+}
