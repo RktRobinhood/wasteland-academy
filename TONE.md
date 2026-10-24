@@ -35,9 +35,22 @@ High school is the texture under the setting. The jock, the cheerleader, the cla
 
 - **Play them warm.** The jock is great at something. The cheerleader keeps the team going. Nobody is the butt of a joke about looks, body, gender or brains.
 - **Tropes go on subclasses and characters, never on the player.** Any player can pick any subclass, so the cheerleader branch isn't a girls' branch. Lines still never gender the player.
+- **No strong gender tropes.** Matt, on FAL-345: "the only one I want you to avoid is strong gender tropes." Tilly's and Banjo's tropes are ones nobody reads as a girls' thing or a boys' thing. The cheerleader and the jock sit on Spark's class, so they land on a robot.
 - **No classroom teachers.** Matt: teachers "don't really fit the wasteland". People who teach out here do it as wasteland people, the way Gear Mira teaches as a mechanic.
 
-The trope for each of the nine class branches is worked out on [FAL-345](/FAL/issues/FAL-345).
+### The player characters and their tropes
+
+Matt asked for Australian wasteland names for the two Learners on [FAL-345](/FAL/issues/FAL-345) (2026-10-24). They're **Tilly Redback** (the female Learner) and **Banjo Brumby** (the male Learner). Tilly and Banjo come from the same bush song, "Waltzing Matilda", which Banjo Paterson wrote. A redback is a small, tough Australian spider, and a brumby is a wild outback horse. The names show on the look picker. Lines still call the player `{callsign}`, never Tilly or Banjo.
+
+Each look starts in its own class, so each character has its own three tropes, one per branch. Any look can still take any class.
+
+| Look | Default class | Branch: trope |
+|---|---|---|
+| Tilly Redback | Scout | Sprint: the late kid. Streak: the drama kid. Scavenge: the locker trader |
+| Banjo Brumby | Ranger | Marksman: the yearbook photographer. Fortify: the drum major. Bounty Hunter: the hall monitor |
+| Spark | Tinker | Repair: the cheerleader. Overclock: the jock. Analyze: the mathlete |
+
+A trope shows in its branch's look nodes and as a subtitle on the Rewire bench, never in the branch's name or numbers. How each one shows is §5a of the [skill tree plan](/FAL/issues/FAL-345#document-plan).
 
 ## Cultural references
 
