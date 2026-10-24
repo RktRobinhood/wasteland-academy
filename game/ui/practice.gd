@@ -12,7 +12,7 @@ extends Control
 ## Column width in base units: phone (portrait) and PC (landscape).
 const COLUMN := 1000
 const COLUMN_WIDE := 1500
-const KEYS := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".", "/", "−", "⌫"]
+const KEYS := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".", "/", "−", "Del"]
 
 ## Where the save lives. Tests point this somewhere else.
 var save_path := SaveData.PATH
@@ -296,7 +296,7 @@ func _keypad() -> Control:
 func _on_key(k: String) -> void:
 	if answered or _focus == null:
 		return
-	if k == "⌫":
+	if k == "Del":
 		_focus.text = _focus.text.left(-1)
 	else:
 		_focus.text += "-" if k == "−" else k
