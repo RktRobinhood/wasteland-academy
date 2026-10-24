@@ -13,11 +13,12 @@
     },
     "prize": "heal",
     "bust": "none",
+    "damage": "physical",
     "take_label": "Buy a coffee",
     "lines": {
       "open": [
         "Kettle's on, love. Sit. Nobody walks past my cart without a cup.",
-        "It's real beans. Well. Real something. You've got a two-cup face."
+        "Real beans. Well, real something. That face hasn't slept since May."
       ],
       "walk_on": ["Suit yourself. It'll be cold when you come back, and so will I."],
       "right": [
@@ -48,6 +49,7 @@
     },
     "prize": "scrap",
     "bust": "none",
+    "damage": "physical",
     "take_label": "Talk them down",
     "lines": {
       "open": [
@@ -79,10 +81,11 @@
     "cast": {
       "name": "Registrar Pell",
       "look": "Side-on, a thin official in a uniform jacket two sizes too big, behind a fold-out desk with a rubber stamp and a tower of forms.",
-      "voice": "Wants one traveller who fills in the form properly; florid, long words, quotes regulations; says every stamp out loud. Would never admit nobody appointed them."
+      "voice": "Wants one traveller who fills in the form properly; florid, long words, quotes regulations; says every stamp out loud, and loves the red one. Would never admit nobody appointed them."
     },
     "prize": "lifeline",
     "bust": "lockup",
+    "damage": "psychological",
     "take_label": "Apply for passage",
     "lines": {
       "open": [
@@ -96,8 +99,8 @@
         "Countersigned. Stamp. Stamp. The second one was for pleasure."
       ],
       "miss": [
-        "Inadmissible. Corporal, a firm nudge, if you would.",
-        "Wrong box entirely. Corporal, remind them where the boxes are."
+        "Rejected. That's the red stamp. I so rarely get to use it.",
+        "Inadmissible. No proof of service. Corporal, a scornful laugh, please."
       ],
       "win": ["Approved! And a spare form, pre-stamped. For emergencies."],
       "bust": ["Application rejected. Corporal, file this one under Detained."],
@@ -114,18 +117,19 @@
     "cast": {
       "name": "Hush",
       "look": "Side-on, a hooded trader beside a handcart of dented jerrycans, scarf over the face, a tin whistle on a cord round the neck.",
-      "voice": "Wants your scrap and as few words as possible; one to four words a line; whistles to a crew hidden in the junk, once to sit, twice to come."
+      "voice": "Wants your scrap and as few words as possible; one to four words a line; turns you down with a flat No; whistles to a crew hidden in the junk, once to sit, twice to come."
     },
     "prize": "heal",
     "bust": "ambush",
+    "damage": "psychological",
     "take_label": "Haggle",
     "lines": {
       "open": ["Water. Clean.", "Talk well."],
       "walk_on": ["Thirsty road."],
       "right": ["Hm. Less, then.", "Less again. Careful.", "Cheaper than I like."],
-      "miss": ["One whistle. Two's next.", "Crew heard that."],
+      "miss": ["No. First whistle.", "Insulting offer."],
       "win": ["Deal. Drink.", "You talk well. Rare."],
-      "bust": ["Two whistles.", "Crew. Up."],
+      "bust": ["No. Two whistles.", "Crew. Up."],
       "spark": ["Count the shadows behind that junk. Now keep talking nicely."]
     }
   },
@@ -143,6 +147,7 @@
     },
     "prize": "scrap",
     "bust": "big_trap",
+    "damage": "physical",
     "lines": {
       "open": [
         "Stop there. Every wire round this hut's live. Mostly.",
@@ -179,6 +184,7 @@
     },
     "prize": "scrap",
     "bust": "none",
+    "damage": "physical",
     "take_label": "Listen in",
     "lines": {
       "open": [
@@ -192,7 +198,7 @@
         "Fifty-nine. Sixty-one. Sixty-seven. The hundred is close now."
       ],
       "miss": [
-        "Thirty-nine. No. Three thirteens. Disregard, listeners.",
+        "Forty-five. No. Nine fives. Forty-five is a myth, listeners.",
         "Fifty-one. No. Three seventeens. Disregard. Sorry for the squeal."
       ],
       "win": [

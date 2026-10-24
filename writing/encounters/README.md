@@ -26,6 +26,7 @@ New islands get their own `<island>.json` in the same format. A shared wasteland
   },
   "prize": "heal",
   "bust": "none",
+  "damage": "physical",
   "take_label": "Buy a coffee",
   "lines": {
     "open": ["At most 2 bubbles."],
@@ -43,6 +44,7 @@ New islands get their own `<island>.json` in the same format. A shared wasteland
 - `kind`: `meet`, `deal` or `standoff`.
 - `prize`: `heal` or `scrap` for a Meet; `heal`, `lifeline` or `scrap` for a Deal; `scrap` for a Standoff.
 - `bust`: `none` for a Meet; `lockup` or `ambush` for a Deal; `big_trap` for a Standoff.
+- `damage`: `psychological` or `physical`, for the hits from this encounter's misses, the one that busts included. A put-down, a refusal or a scoff is `psychological`, and the game flashes PSYCHOLOGICAL DAMAGE beside the hit. A trap, a shove or a burn is `physical`. It changes the flash, never the HP. Write the `miss` and `bust` lines to match. A put-down hits the character in the scene (the offer, the form, the hat), never the student's maths. An Ambush fight and the Cell's hunger always show as ordinary damage.
 - `rare: true` marks an easter egg. It shows as "???" in Field Notes until found.
 - `title`: at most 4 words. `note`: the Field Notes line, at most 20 words. A student reads it when looking back, so make it worth re-reading.
 - `take_label` (at most 3 words) and `walk_on`: Meet and Deal only. The other button always says "Walk on". A Standoff has one button, "Go on", and neither field.
@@ -59,6 +61,7 @@ New islands get their own `<island>.json` in the same format. A shared wasteland
 - **No numbers for stakes or prizes.** The game shows HP and Scrap in a chip. Lines don't promise "double" or "a lot".
 - **Every number in a line is checked**, and the checks go in the hand-off. Ask Curriculum Author when unsure.
 - Nobody calls a question easy, and no line genders the player (see `../voice-sheets.md`).
+- Check every line against `../../TONE.md` too. The IB-survivor undertone is subtext: no line says "IB", and an encounter gets one wink at most, and plenty get none.
 - Short text: draft with `game-dialogue`, then one `humanizer` pass.
 
 Check before a pull request:
