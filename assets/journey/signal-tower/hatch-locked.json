@@ -1,0 +1,36 @@
+{
+ "name": "hatch-locked",
+ "image": "hatch-locked.webp",
+ "facing": "none",
+ "beat": "explore",
+ "states": {
+  "start": "locked",
+  "cleared": "open"
+ },
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 159,
+ "frames": [
+  {
+   "id": "locked",
+   "ox": -106,
+   "oy": -159,
+   "x": 0,
+   "y": 0,
+   "w": 239,
+   "h": 159
+  },
+  {
+   "id": "open",
+   "ox": -93,
+   "oy": -174,
+   "x": 241,
+   "y": 0,
+   "w": 219,
+   "h": 175
+  }
+ ],
+ "anims": {}
+}
