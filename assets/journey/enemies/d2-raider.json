@@ -1,0 +1,115 @@
+{
+ "name": "d2-raider",
+ "image": "d2-raider.webp",
+ "facing": "left",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 244,
+ "frames": [
+  {
+   "id": "idle",
+   "ox": -69,
+   "oy": -244,
+   "x": 0,
+   "y": 0,
+   "w": 130,
+   "h": 244
+  },
+  {
+   "id": "step-a",
+   "ox": -80,
+   "oy": -240,
+   "x": 132,
+   "y": 0,
+   "w": 141,
+   "h": 241
+  },
+  {
+   "id": "step-b",
+   "ox": -70,
+   "oy": -244,
+   "x": 275,
+   "y": 0,
+   "w": 131,
+   "h": 245
+  },
+  {
+   "id": "step-c",
+   "ox": -70,
+   "oy": -241,
+   "x": 408,
+   "y": 0,
+   "w": 131,
+   "h": 242
+  },
+  {
+   "id": "attack",
+   "ox": -218,
+   "oy": -250,
+   "x": 541,
+   "y": 0,
+   "w": 276,
+   "h": 251
+  },
+  {
+   "id": "hurt",
+   "ox": -90,
+   "oy": -220,
+   "x": 819,
+   "y": 0,
+   "w": 151,
+   "h": 221
+  },
+  {
+   "id": "defeated",
+   "ox": -65,
+   "oy": -181,
+   "x": 972,
+   "y": 0,
+   "w": 228,
+   "h": 182
+  }
+ ],
+ "anims": {
+  "idle": {
+   "frames": [
+    0
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "walk": {
+   "frames": [
+    1,
+    2,
+    3,
+    0
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "attack": {
+   "frames": [
+    4
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "hurt": {
+   "frames": [
+    5
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "defeated": {
+   "frames": [
+    6
+   ],
+   "fps": 1,
+   "loop": false
+  }
+ }
+}

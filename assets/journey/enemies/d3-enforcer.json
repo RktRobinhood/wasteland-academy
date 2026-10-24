@@ -1,0 +1,157 @@
+{
+ "name": "d3-enforcer",
+ "image": "d3-enforcer.webp",
+ "facing": "left",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 240,
+ "frames": [
+  {
+   "id": "idle",
+   "ox": -105,
+   "oy": -239,
+   "x": 0,
+   "y": 0,
+   "w": 174,
+   "h": 240
+  },
+  {
+   "id": "step-a",
+   "ox": -105,
+   "oy": -238,
+   "x": 176,
+   "y": 0,
+   "w": 180,
+   "h": 238
+  },
+  {
+   "id": "step-b",
+   "ox": -105,
+   "oy": -238,
+   "x": 358,
+   "y": 0,
+   "w": 174,
+   "h": 239
+  },
+  {
+   "id": "step-c",
+   "ox": -106,
+   "oy": -239,
+   "x": 534,
+   "y": 0,
+   "w": 176,
+   "h": 239
+  },
+  {
+   "id": "attack",
+   "ox": -116,
+   "oy": -272,
+   "x": 712,
+   "y": 0,
+   "w": 178,
+   "h": 273
+  },
+  {
+   "id": "hurt",
+   "ox": -126,
+   "oy": -229,
+   "x": 892,
+   "y": 0,
+   "w": 221,
+   "h": 229
+  },
+  {
+   "id": "s2",
+   "ox": -105,
+   "oy": -238,
+   "x": 1115,
+   "y": 0,
+   "w": 174,
+   "h": 239
+  },
+  {
+   "id": "s2-attack",
+   "ox": -59,
+   "oy": -222,
+   "x": 1291,
+   "y": 0,
+   "w": 166,
+   "h": 223
+  },
+  {
+   "id": "defeated",
+   "ox": -99,
+   "oy": -209,
+   "x": 1459,
+   "y": 0,
+   "w": 198,
+   "h": 210
+  }
+ ],
+ "anims": {
+  "idle": {
+   "frames": [
+    0
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "walk": {
+   "frames": [
+    1,
+    2,
+    3,
+    0
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "attack": {
+   "frames": [
+    4
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "hurt": {
+   "frames": [
+    5
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "defeated": {
+   "frames": [
+    8
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "s2-idle": {
+   "frames": [
+    6
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "s2-attack": {
+   "frames": [
+    7
+   ],
+   "fps": 1,
+   "loop": false
+  }
+ },
+ "stages": [
+  {
+   "idle": "idle",
+   "attack": "attack"
+  },
+  {
+   "idle": "s2-idle",
+   "attack": "s2-attack"
+  }
+ ]
+}
