@@ -2,7 +2,7 @@
 
 The order of work and the target dates. The Paperclip tasks named in each row hold the detail. Dates are targets, and each one is checked at the milestone before it.
 
-Last updated 2026-10-23 (FAL-325).
+Last updated 2026-10-24 (FAL-347).
 
 ## Now to November 15: the Functions island in Godot
 
@@ -21,7 +21,7 @@ Art runs alongside: icon animation loops (FAL-323) and a one-region slice of the
 
 ## After November 15
 
-Two tracks run side by side: the four remaining islands, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3) and the journey scene (FAL-289) fit around them. The island order and the split between the tracks are set at the November 13 decision.
+Two tracks run side by side: the four remaining islands, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them. The island order and the split between the tracks are set at the November 13 decision.
 
 ### The Relic: playable lessons
 
