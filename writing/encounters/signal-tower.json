@@ -13,7 +13,7 @@
     },
     "prize": "heal",
     "bust": "none",
-    "damage": "physical",
+    "damage": "laundry",
     "take_label": "Buy a coffee",
     "lines": {
       "open": [
@@ -27,11 +27,11 @@
         "You've got colour back in your cheeks. Another, then?"
       ],
       "miss": [
-        "Careful! I said it's hot. I always say it's hot.",
+        "Careful, love! Not on the sleeve! Ooh, that'll never come out.",
         "Oh, it's gone down your front. Here, I've got a rag. Mostly clean."
       ],
       "win": ["Go on, then. Tell them up the road Tamsin's cart is still going."],
-      "bust": ["Right. Pot's empty, and so's my patience. Mind how you go."],
+      "bust": ["Last of the pot, love, and most of it's on you. Mind how you go."],
       "spark": ["My sensors can't identify that drink. I'd say it counts as warm."]
     }
   },
@@ -49,7 +49,7 @@
     },
     "prize": "scrap",
     "bust": "none",
-    "damage": "physical",
+    "damage": "gravitational",
     "take_label": "Talk them down",
     "lines": {
       "open": [
@@ -64,10 +64,10 @@
       ],
       "miss": [
         "Heads! Sorry! That was my spanner. And possibly my lunch.",
-        "Rope jerked! Still here! Still very much up here!"
+        "Rope jerked! Still here! My other boot isn't, though. Heads!"
       ],
       "win": ["Ground! Hello, ground! Here, I grabbed this off the top. Yours!"],
-      "bust": ["You know what? I'll wait for the wind to change. Off you go!"],
+      "bust": ["You know what? I'll wait for the wind to change. Mind the bucket!"],
       "spark": ["That rope has more knots than threads. I counted. Twice."]
     }
   },
@@ -85,7 +85,7 @@
     },
     "prize": "lifeline",
     "bust": "lockup",
-    "damage": "psychological",
+    "damage": "bureaucratic",
     "take_label": "Apply for passage",
     "lines": {
       "open": [
@@ -121,7 +121,7 @@
     },
     "prize": "heal",
     "bust": "ambush",
-    "damage": "psychological",
+    "damage": "emotional",
     "take_label": "Haggle",
     "lines": {
       "open": ["Water. Clean.", "Talk well."],
@@ -147,7 +147,7 @@
     },
     "prize": "scrap",
     "bust": "big_trap",
-    "damage": "physical",
+    "damage": "electrical",
     "lines": {
       "open": [
         "Stop there. Every wire round this hut's live. Mostly.",
@@ -184,7 +184,7 @@
     },
     "prize": "scrap",
     "bust": "none",
-    "damage": "physical",
+    "damage": "psychological",
     "take_label": "Listen in",
     "lines": {
       "open": [
@@ -199,7 +199,7 @@
       ],
       "miss": [
         "Forty-five. No. Nine fives. Forty-five is a myth, listeners.",
-        "Fifty-one. No. Three seventeens. Disregard. Sorry for the squeal."
+        "Fifty-one. No. Three seventeens. Disregard. You heard nothing."
       ],
       "win": [
         "On, and on, to ninety-seven. Nothing more before the hundred.",

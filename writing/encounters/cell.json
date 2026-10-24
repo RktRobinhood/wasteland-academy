@@ -1,4 +1,5 @@
 {
+  "damage": "culinary",
   "open": [
     "In you go. Soup's at noon. Soup is a strong word for it.",
     "Bars are older than me. Don't get ideas."
@@ -14,7 +15,7 @@
   ],
   "hunger": [
     "Soup. I found a bean in it. You can have the bean.",
-    "Your stomach's louder than my radio. Turn it down.",
+    "Stew today. Don't ask what's in it. I asked once.",
     "Bread ration. It's the heel. Everyone gets the heel.",
     "Dinner's the same as lunch. Lunch was yesterday's dinner."
   ],

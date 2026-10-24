@@ -2,7 +2,7 @@
 
 Words the players read and hear: dialogue, hints, quest cards, lore, and the voice briefs for local voice design. Owned by Writer. The maths in a line belongs to Curriculum Author, so check with them before a teaching line ships.
 
-Read [`../TONE.md`](../TONE.md) before you write anything. It says who we're writing for and what's underneath: IB survivors in the unknown after school, high school tropes and psychological damage.
+Read [`../TONE.md`](../TONE.md) before you write anything. It says who we're writing for and what's underneath: IB survivors in the unknown after school, high school tropes and the damage flashes.
 
 | File | What it is |
 |---|---|

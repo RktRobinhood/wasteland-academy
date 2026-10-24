@@ -1,0 +1,15 @@
+[
+  { "id": "psychological", "flash": "PSYCHOLOGICAL DAMAGE", "use": "Eerie or unsettling: mind games, a broadcast you wish you hadn't heard." },
+  { "id": "emotional", "flash": "EMOTIONAL DAMAGE", "use": "A cold refusal or a put-down." },
+  { "id": "bureaucratic", "flash": "BUREAUCRATIC DAMAGE", "use": "Paperwork goes against you: a form bounced or stamped in red." },
+  { "id": "financial", "flash": "FINANCIAL DAMAGE", "use": "Your wallet takes it: a lost haggle or a toll." },
+  { "id": "reputational", "flash": "REPUTATIONAL DAMAGE", "use": "Someone shows you up in public and the crowd enjoys it." },
+  { "id": "gravitational", "flash": "GRAVITATIONAL DAMAGE", "use": "Anything that falls on you from higher up." },
+  { "id": "electrical", "flash": "ELECTRICAL DAMAGE", "use": "A live wire, or a gadget that sparks when it shouldn't." },
+  { "id": "mechanical", "flash": "MECHANICAL DAMAGE", "use": "A trap springs shut, or a machine turns on whoever's fixing it." },
+  { "id": "meteorological", "flash": "METEOROLOGICAL DAMAGE", "use": "Whenever the weather turns on you." },
+  { "id": "culinary", "flash": "CULINARY DAMAGE", "use": "A meal nobody should have eaten, the Cell's soup included." },
+  { "id": "laundry", "flash": "LAUNDRY DAMAGE", "use": "A spill or splash that ruins what you're wearing." },
+  { "id": "musical", "flash": "MUSICAL DAMAGE", "use": "A terrible song, or a horn played by someone who can't." },
+  { "id": "olfactory", "flash": "OLFACTORY DAMAGE", "use": "A bad smell from a thing or a place, never a person." }
+]
