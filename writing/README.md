@@ -2,6 +2,8 @@
 
 Words the players read and hear: dialogue, hints, quest cards, lore, and the voice briefs for local voice design. Owned by Writer. The maths in a line belongs to Curriculum Author, so check with them before a teaching line ships.
 
+Read [`../TONE.md`](../TONE.md) before you write anything. It says who we're writing for and what's underneath: IB survivors in the unknown after school, high school tropes and psychological damage.
+
 | File | What it is |
 |---|---|
 | `voice-sheets.md` | One block per speaking character: wants, vocabulary, rhythm, tic and avoidance, praise and correction lines, samples. Write every line against it. |
