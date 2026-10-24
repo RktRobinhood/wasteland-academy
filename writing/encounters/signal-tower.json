@@ -127,7 +127,7 @@
       "open": ["Water. Clean.", "Talk well."],
       "walk_on": ["Thirsty road."],
       "right": ["Hm. Less, then.", "Less again. Careful.", "Cheaper than I like."],
-      "miss": ["No. First whistle.", "Insulting offer."],
+      "miss": ["No. First whistle.", "Insulting. One whistle."],
       "win": ["Deal. Drink.", "You talk well. Rare."],
       "bust": ["No. Two whistles.", "Crew. Up."],
       "spark": ["Count the shadows behind that junk. Now keep talking nicely."]
