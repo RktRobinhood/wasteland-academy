@@ -1,0 +1,206 @@
+[
+  {
+    "id": "st-coffee-cart",
+    "island": "signal-tower",
+    "kind": "meet",
+    "rare": false,
+    "title": "The Coffee Cart",
+    "note": "Tamsin brews something under the masts. She swears it's coffee. Nobody's brave enough to argue.",
+    "cast": {
+      "name": "Tamsin",
+      "look": "Side-on, older woman in a quilted apron and fingerless gloves, pushing a cart with a dented kettle on a coil of transmitter wire.",
+      "voice": "Wants someone to sit with her for one cup; warm, nosy, talks in run-ons and calls everyone love; measures everything in cups. Would never admit the beans are mostly roasted acorn."
+    },
+    "prize": "heal",
+    "bust": "none",
+    "take_label": "Buy a coffee",
+    "lines": {
+      "open": [
+        "Kettle's on, love. Sit. Nobody walks past my cart without a cup.",
+        "It's real beans. Well. Real something. You've got a two-cup face."
+      ],
+      "walk_on": ["Suit yourself. It'll be cold when you come back, and so will I."],
+      "right": [
+        "There you go. Sip it slow and tell me everything about the road.",
+        "Second cup's always better. Don't ask me why, it's the same pot.",
+        "You've got colour back in your cheeks. Another, then?"
+      ],
+      "miss": [
+        "Careful! I said it's hot. I always say it's hot.",
+        "Oh, it's gone down your front. Here, I've got a rag. Mostly clean."
+      ],
+      "win": ["Go on, then. Tell them up the road Tamsin's cart is still going."],
+      "bust": ["Right. Pot's empty, and so's my patience. Mind how you go."],
+      "spark": ["My sensors can't identify that drink. I'd say it counts as warm."]
+    }
+  },
+  {
+    "id": "st-mast-climber",
+    "island": "signal-tower",
+    "kind": "meet",
+    "rare": false,
+    "title": "Up the Mast",
+    "note": "Rook climbs masts for salvage. Getting down is a different skill, and Rook is still learning it.",
+    "cast": {
+      "name": "Rook",
+      "look": "Side-on, a lanky climber dangling on a snagged rope halfway up a radio mast: harness, tool belt, one boot missing.",
+      "voice": "Wants to get down without admitting they froze; sunny, loud, nearly every line an exclamation; keeps reporting the view to change the subject."
+    },
+    "prize": "scrap",
+    "bust": "none",
+    "take_label": "Talk them down",
+    "lines": {
+      "open": [
+        "Hey! Down there! Lovely day for it! For climbing! Which I'm doing!",
+        "Small thing. Rope's snagged. Hold the bottom while I come down?"
+      ],
+      "walk_on": ["No, that's fine! I'll live up here! Great view! Bye!"],
+      "right": [
+        "One rung down! Slow and steady. That's how professionals do it.",
+        "Getting there! I can see three dust storms and a goat from here.",
+        "Nearly down! Don't tell anyone I was stuck. I was resting."
+      ],
+      "miss": [
+        "Heads! Sorry! That was my spanner. And possibly my lunch.",
+        "Rope jerked! Still here! Still very much up here!"
+      ],
+      "win": ["Ground! Hello, ground! Here, I grabbed this off the top. Yours!"],
+      "bust": ["You know what? I'll wait for the wind to change. Off you go!"],
+      "spark": ["That rope has more knots than threads. I counted. Twice."]
+    }
+  },
+  {
+    "id": "st-permit-booth",
+    "island": "signal-tower",
+    "kind": "deal",
+    "rare": false,
+    "title": "The Permit Booth",
+    "note": "Pell runs the only permit booth on the tower road. Nobody knows who gave Pell the stamp.",
+    "cast": {
+      "name": "Registrar Pell",
+      "look": "Side-on, a thin official in a uniform jacket two sizes too big, behind a fold-out desk with a rubber stamp and a tower of forms.",
+      "voice": "Wants one traveller who fills in the form properly; florid, long words, quotes regulations; says every stamp out loud. Would never admit nobody appointed them."
+    },
+    "prize": "lifeline",
+    "bust": "lockup",
+    "take_label": "Apply for passage",
+    "lines": {
+      "open": [
+        "Halt. This road falls under the jurisdiction of the Mast Authority.",
+        "Passage requires a completed application. I am the Mast Authority."
+      ],
+      "walk_on": ["Unprocessed! Highly irregular! I'm noting this in the ledger."],
+      "right": [
+        "Section one, satisfactory. Stamp. I do love a stamp.",
+        "Section two, in order. You'd be astonished how few manage it.",
+        "Countersigned. Stamp. Stamp. The second one was for pleasure."
+      ],
+      "miss": [
+        "Inadmissible. Corporal, a firm nudge, if you would.",
+        "Wrong box entirely. Corporal, remind them where the boxes are."
+      ],
+      "win": ["Approved! And a spare form, pre-stamped. For emergencies."],
+      "bust": ["Application rejected. Corporal, file this one under Detained."],
+      "spark": ["I've scanned every frequency. No Mast Authority. Only Pell."]
+    }
+  },
+  {
+    "id": "st-hush-water",
+    "island": "signal-tower",
+    "kind": "deal",
+    "rare": false,
+    "title": "Hush's Water",
+    "note": "Hush sells clean water and says almost nothing. The crew in the junk says even less.",
+    "cast": {
+      "name": "Hush",
+      "look": "Side-on, a hooded trader beside a handcart of dented jerrycans, scarf over the face, a tin whistle on a cord round the neck.",
+      "voice": "Wants your scrap and as few words as possible; one to four words a line; whistles to a crew hidden in the junk, once to sit, twice to come."
+    },
+    "prize": "heal",
+    "bust": "ambush",
+    "take_label": "Haggle",
+    "lines": {
+      "open": ["Water. Clean.", "You talk. I listen. Talk well."],
+      "walk_on": ["Thirsty road."],
+      "right": ["Hm. Less, then.", "Hm. Less again. Don't push it.", "Cheaper than I like."],
+      "miss": ["No. One whistle. Next is two.", "Crew heard that."],
+      "win": ["Deal. Drink.", "You talk well. Rare."],
+      "bust": ["Two whistles.", "Crew. Up."],
+      "spark": ["Count the shadows behind that junk. Now keep talking nicely."]
+    }
+  },
+  {
+    "id": "st-live-wires",
+    "island": "signal-tower",
+    "kind": "standoff",
+    "rare": false,
+    "title": "The Live Wires",
+    "note": "Wynn guards a cache behind live wires and claims to know which are safe. Ask anyone with singed eyebrows.",
+    "cast": {
+      "name": "Wynn",
+      "look": "Side-on, an old lineman in rubber boots and a scorched coat, wire cutters in one hand, beside a hut wrapped in sparking cable.",
+      "voice": "Wants someone fit to take over the tower; gruff, dry, short sentences in wire talk; snips a wire and calls it live or dead. Would never admit they've forgotten which is which."
+    },
+    "prize": "scrap",
+    "bust": "big_trap",
+    "lines": {
+      "open": [
+        "Stop there. Every wire round this hut's live. Mostly.",
+        "Want the cache? Earn it. I'll cut them one at a time."
+      ],
+      "right": [
+        "Snip. That one's dead. Probably.",
+        "Snip. Dead. I'm getting good at this.",
+        "Snip. Smells dead. Smell's a big part of it."
+      ],
+      "miss": [
+        "Ah. That one wasn't dead. You'll get the feeling back.",
+        "Live! Sorry. I'd have sworn it was the green one."
+      ],
+      "win": ["Last one. Dead, I'm nearly sure. Go on in, the cache is yours."],
+      "bust": [
+        "Not that one. No, not that one either. Duck!",
+        "Well. That was the main line."
+      ],
+      "spark": ["My sensors are tingling. Sensors aren't meant to tingle."]
+    }
+  },
+  {
+    "id": "st-numbers-station",
+    "island": "signal-tower",
+    "kind": "meet",
+    "rare": true,
+    "title": "The Numbers Station",
+    "note": "A voice by the masts reads out numbers with exactly two factors. It always stops at ninety-seven.",
+    "cast": {
+      "name": "Two-Three-Five",
+      "look": "Side-on, a figure in a padded headset at a folding table, cranking a hand generator, a long antenna taped to the chair back.",
+      "voice": "Wants to finish the night's count without losing the place; flat broadcast monotone, numbers in words; reads the primes in order and never says the word."
+    },
+    "prize": "scrap",
+    "bust": "none",
+    "take_label": "Listen in",
+    "lines": {
+      "open": [
+        "...twenty-three. Twenty-nine. This is Two-Three-Five, counting.",
+        "Twenty-nine, and then... Static took it. Help me find my place?"
+      ],
+      "walk_on": ["Twenty-nine. Twenty-nine. Two-Three-Five, standing by."],
+      "right": [
+        "Thirty-one. There it is. Thirty-seven. Forty-one. Thank you.",
+        "Forty-three. Forty-seven. Fifty-three. The count holds.",
+        "Fifty-nine. Sixty-one. Sixty-seven. The hundred is close now."
+      ],
+      "miss": [
+        "Thirty-nine. No. Three thirteens. Disregard, listeners.",
+        "Fifty-one. No. Three seventeens. Disregard. Sorry for the squeal."
+      ],
+      "win": [
+        "On, and on, to ninety-seven. Nothing more before the hundred.",
+        "Two-Three-Five, signing off. Take the spare valves, listener."
+      ],
+      "bust": ["Too much static. Back to two, then. Two-Three-Five, going dark."],
+      "spark": ["There's a pattern in this. Give me a minute. Or a week."]
+    }
+  }
+]
