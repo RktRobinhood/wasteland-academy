@@ -6,6 +6,7 @@ IB Math AA SL gamified review tool. Post-apocalyptic roguelite. Static GitHub Pa
 
 - [`SPEC.md`](SPEC.md) — Full design specification
 - [`ROADMAP.md`](ROADMAP.md) — Order of work and target dates
+- [`TONE.md`](TONE.md) — Who the game is for, and the undertone under the writing and art
 - [`ART_REQUIREMENTS.md`](ART_REQUIREMENTS.md) — Asset generation briefs
 - [`CONTENT_SCHEMA.md`](CONTENT_SCHEMA.md) — Question format and subtopic map
 
