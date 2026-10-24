@@ -322,7 +322,7 @@ Examples:
 
 ### Profile Setup (first launch)
 1. Enter name/callsign
-2. Choose avatar: **Female Learner** / **Male Learner** / **SPARK** (robot)
+2. Choose avatar: **Tilly Redback** (Female Learner) / **Banjo Brumby** (Male Learner) / **SPARK** (robot)
 3. Profile saved to localStorage
 
 ### Avatar Sprites

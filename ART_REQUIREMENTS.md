@@ -92,7 +92,7 @@ The engine gracefully degrades if any asset is missing — placeholder CSS fills
 - Consistent lighting direction: top-left light source
 - All three avatars must feel like they belong to the same universe/art style
 
-### Avatar 1 — Female Learner
+### Avatar 1 — Tilly Redback (Female Learner)
 - Young woman, late teens
 - Dark hair pulled up with goggles resting on forehead
 - Worn utility jacket or vest over a hoodie, pink/magenta scarf
@@ -100,7 +100,7 @@ The engine gracefully degrades if any asset is missing — placeholder CSS fills
 - Expression: determined and curious
 - Crown motif somewhere subtle (patch on jacket, chalk mark)
 
-### Avatar 2 — Male Learner
+### Avatar 2 — Banjo Brumby (Male Learner)
 - Young man, late teens
 - Short hair, practical cap or bandana
 - Similar scavenger aesthetic — patched jacket, worn boots

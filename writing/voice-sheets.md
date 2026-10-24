@@ -18,6 +18,8 @@ Sources: `SPEC.md` §10 and §13, `assets/style-guide/README.md`, and the roster
 
 Canon: the player character. Curious, determined, hands-on, resourceful (style guide); also kind, "makes a difference" (roster sheet). Expressions: curious, excited, determined, thinking.
 
+Two looks share this voice: **Tilly Redback** (the female Learner) and **Banjo Brumby** (the male Learner), named on FAL-345 (2026-10-24). The names show on the look picker. Lines call the player `{callsign}`, never Tilly or Banjo, and never gender them.
+
 The Learner speaks mostly as dialogue options the player taps (three per prompt on the roster sheet's dialogue mockup). Keep each option under about eight words so it fits the button. Every option set includes one that asks for help and doesn't sound ashamed of it.
 
 **Wants:** to be someone the bazaar can count on when something breaks. Would never admit: they aren't sure they're good at maths.
@@ -178,7 +180,7 @@ The same idea, "you made a ratio mistake", in each voice:
 
 ## Where canon disagrees (raised on FAL-332)
 
-1. **Learner's gender.** SPEC §10 has the player choose Female Learner, Male Learner or SPARK at first launch. The style guide README calls the Learner "a resourceful female scavenger", and the roster sheet shows only one, a young woman. These sheets don't gender the Learner in any line, which works with either reading. Decision needed: is the male Learner avatar still in V1?
+1. **Learner's gender.** SPEC §10 has the player choose Female Learner, Male Learner or SPARK at first launch. The style guide README calls the Learner "a resourceful female scavenger", and the roster sheet shows only one, a young woman. These sheets don't gender the Learner in any line, which works with either reading. Decision needed: is the male Learner avatar still in V1? *Update 2026-10-24:* Matt's comments on FAL-345 count both, a girl and a guy, and ask for names. They're now Tilly Redback and Banjo Brumby. The card on FAL-332 is still where this is decided.
 2. **Spark as avatar and companion.** SPEC §10 lists SPARK as a player avatar and also as the companion who gives every hint. If a student plays as SPARK, the companion is talking to itself. These sheets assume the player is the human Learner and Spark is always the companion. Decision needed: drop SPARK from the avatar list, or tell me how the companion works when Spark is the avatar.
 3. **Spark's sarcasm.** SPEC §10 says "slightly sarcastic". The roster sheet's Spark tone line ("Math isn't just in books. It's in the world around us!") has none. The sheet follows SPEC, because SPEC sets Spark's tone; the roster line is treated as poster copy.
 4. **Voice versus scope.** SPEC §14 still puts "Sound / music" out of scope for V1. ROADMAP.md (L3, December) plans local narration with subtitles for the Relic lessons, and FAL-330 is already making voice auditions. ROADMAP is the newer plan, so the briefs assume voiced lines. SPEC §14 should be updated to match.
