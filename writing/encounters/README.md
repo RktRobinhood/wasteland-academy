@@ -49,7 +49,7 @@ New islands get their own `<island>.json` in the same format. A shared wasteland
 - `title`: at most 4 words. `note`: the Field Notes line, at most 20 words. A student reads it when looking back, so make it worth re-reading.
 - `take_label` (at most 3 words) and `walk_on`: Meet and Deal only. The other button always says "Walk on". A Standoff has one button, "Go on", and neither field.
 - `right` plays in order after each right answer except the one that gets you through, which plays `win`. Write at least 3. Misses can fall between them, so each `right` line has to make sense after a miss too.
-- `miss` plays after a miss that doesn't bust. Write at least 2. The miss that busts plays `bust`. A miss never undoes progress, so no miss line says it does.
+- `miss` plays after a miss that doesn't bust. Write at least 2. The miss that busts plays `bust`. A miss never undoes progress, so no miss line says it does. The game starts at a different `miss` line on each run, so they can come in any order, and a Deal or Standoff only plays one before the bust. Every `miss` line has to work as the first one, and has to set up the `bust` on its own.
 - `cast.voice` stands in for a full voice sheet for a one-off character. Gear Mira, Dax and Noma stay out of encounters. A `spark` line follows Spark's block in `../voice-sheets.md`.
 
 `cell.json` has `open`, `right` (a bar works loose; at least 2), `miss` (at least 2), `hunger` (said when a hunger tick lands; at least 3), `escape`, and `thrown_out` (the guard gives up after six questions). It is shared by every island, so it names nothing island-specific.
