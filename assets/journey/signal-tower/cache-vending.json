@@ -2,6 +2,13 @@
  "name": "cache-vending",
  "image": "cache-vending.webp",
  "facing": "none",
+ "beat": "explore",
+ "states": {
+  "start": "closed",
+  "cleared": "open",
+  "empty": "empty",
+  "mimic": "mimic"
+ },
  "origin": [
   0,
   0

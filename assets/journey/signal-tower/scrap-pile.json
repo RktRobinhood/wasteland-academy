@@ -1,0 +1,46 @@
+{
+ "name": "scrap-pile",
+ "image": "scrap-pile.webp",
+ "facing": "none",
+ "beat": "explore",
+ "states": {
+  "start": "heap",
+  "cleared": "dug",
+  "failed": "caved"
+ },
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 169,
+ "frames": [
+  {
+   "id": "heap",
+   "ox": -121,
+   "oy": -168,
+   "x": 0,
+   "y": 0,
+   "w": 255,
+   "h": 169
+  },
+  {
+   "id": "dug",
+   "ox": -121,
+   "oy": -168,
+   "x": 257,
+   "y": 0,
+   "w": 255,
+   "h": 169
+  },
+  {
+   "id": "caved",
+   "ox": -120,
+   "oy": -65,
+   "x": 514,
+   "y": 0,
+   "w": 254,
+   "h": 66
+  }
+ ],
+ "anims": {}
+}

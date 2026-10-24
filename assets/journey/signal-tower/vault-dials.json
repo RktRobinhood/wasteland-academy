@@ -1,0 +1,53 @@
+{
+ "name": "vault-dials",
+ "image": "vault-dials.webp",
+ "facing": "none",
+ "beat": "puzzle",
+ "states": {
+  "start": "shut",
+  "cleared": "open"
+ },
+ "dials": [
+  {
+   "x": -2.0,
+   "y": -110.2,
+   "r": 10.8
+  },
+  {
+   "x": 26.0,
+   "y": -110.2,
+   "r": 10.8
+  },
+  {
+   "x": 54.8,
+   "y": -110.2,
+   "r": 10.8
+  }
+ ],
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 228,
+ "frames": [
+  {
+   "id": "shut",
+   "ox": -114,
+   "oy": -228,
+   "x": 0,
+   "y": 0,
+   "w": 226,
+   "h": 228
+  },
+  {
+   "id": "open",
+   "ox": -115,
+   "oy": -228,
+   "x": 228,
+   "y": 0,
+   "w": 227,
+   "h": 229
+  }
+ ],
+ "anims": {}
+}
