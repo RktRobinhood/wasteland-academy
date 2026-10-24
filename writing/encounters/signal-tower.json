@@ -120,10 +120,10 @@
     "bust": "ambush",
     "take_label": "Haggle",
     "lines": {
-      "open": ["Water. Clean.", "You talk. I listen. Talk well."],
+      "open": ["Water. Clean.", "Talk well."],
       "walk_on": ["Thirsty road."],
-      "right": ["Hm. Less, then.", "Hm. Less again. Don't push it.", "Cheaper than I like."],
-      "miss": ["No. One whistle. Next is two.", "Crew heard that."],
+      "right": ["Hm. Less, then.", "Less again. Careful.", "Cheaper than I like."],
+      "miss": ["One whistle. Two's next.", "Crew heard that."],
       "win": ["Deal. Drink.", "You talk well. Rare."],
       "bust": ["Two whistles.", "Crew. Up."],
       "spark": ["Count the shadows behind that junk. Now keep talking nicely."]
