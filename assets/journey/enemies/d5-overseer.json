@@ -1,0 +1,193 @@
+{
+ "name": "d5-overseer",
+ "image": "d5-overseer.webp",
+ "facing": "left",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 236,
+ "frames": [
+  {
+   "id": "idle",
+   "ox": -96,
+   "oy": -236,
+   "x": 0,
+   "y": 0,
+   "w": 175,
+   "h": 236
+  },
+  {
+   "id": "step-a",
+   "ox": -90,
+   "oy": -238,
+   "x": 177,
+   "y": 0,
+   "w": 193,
+   "h": 239
+  },
+  {
+   "id": "step-b",
+   "ox": -96,
+   "oy": -237,
+   "x": 372,
+   "y": 0,
+   "w": 205,
+   "h": 238
+  },
+  {
+   "id": "step-c",
+   "ox": -96,
+   "oy": -237,
+   "x": 579,
+   "y": 0,
+   "w": 176,
+   "h": 238
+  },
+  {
+   "id": "attack",
+   "ox": -84,
+   "oy": -227,
+   "x": 757,
+   "y": 0,
+   "w": 230,
+   "h": 228
+  },
+  {
+   "id": "hurt",
+   "ox": -117,
+   "oy": -234,
+   "x": 989,
+   "y": 0,
+   "w": 193,
+   "h": 235
+  },
+  {
+   "id": "s2",
+   "ox": -96,
+   "oy": -227,
+   "x": 1184,
+   "y": 0,
+   "w": 169,
+   "h": 227
+  },
+  {
+   "id": "s2-attack",
+   "ox": -91,
+   "oy": -235,
+   "x": 1355,
+   "y": 0,
+   "w": 212,
+   "h": 235
+  },
+  {
+   "id": "s3",
+   "ox": -96,
+   "oy": -228,
+   "x": 1569,
+   "y": 0,
+   "w": 167,
+   "h": 226
+  },
+  {
+   "id": "s3-attack",
+   "ox": -92,
+   "oy": -224,
+   "x": 1738,
+   "y": 0,
+   "w": 218,
+   "h": 225
+  },
+  {
+   "id": "defeated",
+   "ox": -107,
+   "oy": -197,
+   "x": 0,
+   "y": 241,
+   "w": 209,
+   "h": 197
+  }
+ ],
+ "anims": {
+  "idle": {
+   "frames": [
+    0
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "walk": {
+   "frames": [
+    1,
+    2,
+    3,
+    0
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "attack": {
+   "frames": [
+    4
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "hurt": {
+   "frames": [
+    5
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "defeated": {
+   "frames": [
+    10
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "s2-idle": {
+   "frames": [
+    6
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "s2-attack": {
+   "frames": [
+    7
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "s3-idle": {
+   "frames": [
+    8
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "s3-attack": {
+   "frames": [
+    9
+   ],
+   "fps": 1,
+   "loop": false
+  }
+ },
+ "stages": [
+  {
+   "idle": "idle",
+   "attack": "attack"
+  },
+  {
+   "idle": "s2-idle",
+   "attack": "s2-attack"
+  },
+  {
+   "idle": "s3-idle",
+   "attack": "s3-attack"
+  }
+ ]
+}

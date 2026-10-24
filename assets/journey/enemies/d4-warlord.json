@@ -1,0 +1,157 @@
+{
+ "name": "d4-warlord",
+ "image": "d4-warlord.webp",
+ "facing": "left",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 241,
+ "frames": [
+  {
+   "id": "idle",
+   "ox": -102,
+   "oy": -240,
+   "x": 0,
+   "y": 0,
+   "w": 202,
+   "h": 241
+  },
+  {
+   "id": "step-a",
+   "ox": -102,
+   "oy": -239,
+   "x": 204,
+   "y": 0,
+   "w": 202,
+   "h": 240
+  },
+  {
+   "id": "step-b",
+   "ox": -102,
+   "oy": -235,
+   "x": 408,
+   "y": 0,
+   "w": 202,
+   "h": 235
+  },
+  {
+   "id": "step-c",
+   "ox": -102,
+   "oy": -240,
+   "x": 612,
+   "y": 0,
+   "w": 202,
+   "h": 241
+  },
+  {
+   "id": "attack",
+   "ox": -125,
+   "oy": -247,
+   "x": 816,
+   "y": 0,
+   "w": 223,
+   "h": 247
+  },
+  {
+   "id": "hurt",
+   "ox": -121,
+   "oy": -237,
+   "x": 1041,
+   "y": 0,
+   "w": 224,
+   "h": 237
+  },
+  {
+   "id": "s2",
+   "ox": -102,
+   "oy": -240,
+   "x": 1267,
+   "y": 0,
+   "w": 202,
+   "h": 241
+  },
+  {
+   "id": "s2-attack",
+   "ox": -130,
+   "oy": -221,
+   "x": 1471,
+   "y": 0,
+   "w": 243,
+   "h": 221
+  },
+  {
+   "id": "defeated",
+   "ox": -139,
+   "oy": -168,
+   "x": 1716,
+   "y": 0,
+   "w": 241,
+   "h": 169
+  }
+ ],
+ "anims": {
+  "idle": {
+   "frames": [
+    0
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "walk": {
+   "frames": [
+    1,
+    2,
+    3,
+    0
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "attack": {
+   "frames": [
+    4
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "hurt": {
+   "frames": [
+    5
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "defeated": {
+   "frames": [
+    8
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "s2-idle": {
+   "frames": [
+    6
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "s2-attack": {
+   "frames": [
+    7
+   ],
+   "fps": 1,
+   "loop": false
+  }
+ },
+ "stages": [
+  {
+   "idle": "idle",
+   "attack": "attack"
+  },
+  {
+   "idle": "s2-idle",
+   "attack": "s2-attack"
+  }
+ ]
+}

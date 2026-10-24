@@ -322,7 +322,7 @@ Examples:
 
 ### Profile Setup (first launch)
 1. Enter name/callsign
-2. Choose avatar: **Female Learner** / **Male Learner** / **SPARK** (robot)
+2. Choose avatar: **Tilly Redback** (Female Learner) / **Banjo Brumby** (Male Learner) / **SPARK** (robot)
 3. Profile saved to localStorage
 
 ### Avatar Sprites
@@ -398,6 +398,6 @@ See `ART_REQUIREMENTS.md` for full generation briefs.
 - Teacher dashboard
 - HL content
 - Procedurally generated questions
-- Sound / music
+- Music and sound effects (local voiced narration with subtitles is planned for L3; see ROADMAP.md)
 - Animated sprite movement
 - Cloud save / cross-device sync (localStorage only)

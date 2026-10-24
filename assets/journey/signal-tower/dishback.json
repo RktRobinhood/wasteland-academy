@@ -1,0 +1,106 @@
+{
+ "name": "dishback",
+ "image": "dishback.webp",
+ "facing": "left",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 194,
+ "frames": [
+  {
+   "id": "idle",
+   "ox": -114,
+   "oy": -193,
+   "x": 0,
+   "y": 0,
+   "w": 228,
+   "h": 194
+  },
+  {
+   "id": "step-a",
+   "ox": -115,
+   "oy": -191,
+   "x": 230,
+   "y": 0,
+   "w": 229,
+   "h": 191
+  },
+  {
+   "id": "step-b",
+   "ox": -113,
+   "oy": -194,
+   "x": 461,
+   "y": 0,
+   "w": 209,
+   "h": 195
+  },
+  {
+   "id": "attack",
+   "ox": -163,
+   "oy": -181,
+   "x": 672,
+   "y": 0,
+   "w": 259,
+   "h": 181
+  },
+  {
+   "id": "hurt",
+   "ox": -132,
+   "oy": -183,
+   "x": 933,
+   "y": 0,
+   "w": 243,
+   "h": 183
+  },
+  {
+   "id": "defeated",
+   "ox": -147,
+   "oy": -163,
+   "x": 1178,
+   "y": 0,
+   "w": 239,
+   "h": 163
+  }
+ ],
+ "anims": {
+  "idle": {
+   "frames": [
+    0
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "walk": {
+   "frames": [
+    1,
+    0,
+    2,
+    0
+   ],
+   "fps": 10,
+   "loop": true
+  },
+  "attack": {
+   "frames": [
+    3
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "hurt": {
+   "frames": [
+    4
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "defeated": {
+   "frames": [
+    5
+   ],
+   "fps": 1,
+   "loop": false
+  }
+ }
+}

@@ -1,0 +1,31 @@
+{
+ "name": "obstacle-livewire",
+ "image": "obstacle-livewire.webp",
+ "facing": "none",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 149,
+ "frames": [
+  {
+   "id": "armed",
+   "ox": -121,
+   "oy": -148,
+   "x": 0,
+   "y": 0,
+   "w": 241,
+   "h": 149
+  },
+  {
+   "id": "cleared",
+   "ox": -121,
+   "oy": -148,
+   "x": 243,
+   "y": 0,
+   "w": 241,
+   "h": 149
+  }
+ ],
+ "anims": {}
+}
