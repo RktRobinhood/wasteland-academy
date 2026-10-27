@@ -1,0 +1,49 @@
+{
+ "name": "cache-vending",
+ "image": "cache-vending.webp",
+ "facing": "none",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 233,
+ "frames": [
+  {
+   "id": "closed",
+   "ox": -66,
+   "oy": -232,
+   "x": 0,
+   "y": 0,
+   "w": 117,
+   "h": 233
+  },
+  {
+   "id": "open",
+   "ox": -96,
+   "oy": -232,
+   "x": 119,
+   "y": 0,
+   "w": 147,
+   "h": 233
+  },
+  {
+   "id": "empty",
+   "ox": -86,
+   "oy": -232,
+   "x": 268,
+   "y": 0,
+   "w": 137,
+   "h": 233
+  },
+  {
+   "id": "mimic",
+   "ox": -76,
+   "oy": -232,
+   "x": 407,
+   "y": 0,
+   "w": 127,
+   "h": 232
+  }
+ ],
+ "anims": {}
+}

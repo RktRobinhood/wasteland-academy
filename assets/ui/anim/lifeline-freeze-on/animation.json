@@ -1,0 +1,15 @@
+{
+ "name": "lifeline-freeze-on",
+ "method": "cpu-light",
+ "still": "lifeline-freeze-on.png",
+ "fps": 8,
+ "frames": 16,
+ "loop": true,
+ "frame_width": 128,
+ "frame_height": 128,
+ "columns": 4,
+ "rows": 4,
+ "sprite_sheet": "sprite_sheet.png",
+ "frame_pattern": "frames/frame_%02d.png",
+ "duration_s": 2.0
+}

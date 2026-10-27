@@ -26,6 +26,14 @@ const PRECACHE = [
   './js/engine.js',
   './js/router.js',
   './js/combat.js',
+  './js/sfx.js',
+  './assets/audio/proposed/fal-372/ui-confirm-01.wav',
+  './assets/audio/proposed/fal-372/answer-correct-01.wav',
+  './assets/audio/proposed/fal-372/answer-retry-01.wav',
+  './assets/audio/proposed/fal-372/hint-relay-01.wav',
+  './assets/audio/proposed/fal-372/scrap-reward-01.wav',
+  './assets/audio/proposed/fal-372/encounter-open-01.wav',
+  './assets/audio/proposed/fal-372/encounter-clear-01.wav',
   './js/pwa.js',
   './content/topic-1-algebra.js',
   './content/topic-2-functions.js',
@@ -93,9 +101,19 @@ self.addEventListener('fetch', event => {
   const url = new URL(request.url);
   if (!url.protocol.startsWith('http')) return;
 
-  if (url.origin === self.location.origin) event.respondWith(networkFirst(request));
+  if (url.origin === self.location.origin && !isSeparateApp(url)) event.respondWith(networkFirst(request));
   // Anything else goes straight to the network
 });
+
+// The Godot build at next/ (and classic/, kept free for the HTML game after a
+// takeover) is a separate app. Leave its requests alone, so its .wasm and .pck
+// never land in this cache and an offline visit never gets this game's index.html.
+function isSeparateApp(url) {
+  return ['next/', 'classic/'].some(dir => {
+    const root = new URL(dir, self.location).pathname;
+    return url.pathname === root.slice(0, -1) || url.pathname.startsWith(root);
+  });
+}
 
 async function networkFirst(request) {
   const cache = await caches.open(CACHE_NAME);

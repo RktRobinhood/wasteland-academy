@@ -1,0 +1,115 @@
+{
+ "name": "d1-scavenger",
+ "image": "d1-scavenger.webp",
+ "facing": "left",
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 230,
+ "frames": [
+  {
+   "id": "idle",
+   "ox": -91,
+   "oy": -229,
+   "x": 0,
+   "y": 0,
+   "w": 143,
+   "h": 230
+  },
+  {
+   "id": "step-a",
+   "ox": -101,
+   "oy": -225,
+   "x": 145,
+   "y": 0,
+   "w": 161,
+   "h": 225
+  },
+  {
+   "id": "step-b",
+   "ox": -91,
+   "oy": -228,
+   "x": 308,
+   "y": 0,
+   "w": 144,
+   "h": 229
+  },
+  {
+   "id": "step-c",
+   "ox": -102,
+   "oy": -227,
+   "x": 454,
+   "y": 0,
+   "w": 155,
+   "h": 228
+  },
+  {
+   "id": "attack",
+   "ox": -106,
+   "oy": -228,
+   "x": 611,
+   "y": 0,
+   "w": 212,
+   "h": 229
+  },
+  {
+   "id": "hurt",
+   "ox": -72,
+   "oy": -221,
+   "x": 825,
+   "y": 0,
+   "w": 126,
+   "h": 222
+  },
+  {
+   "id": "defeated",
+   "ox": -80,
+   "oy": -223,
+   "x": 953,
+   "y": 0,
+   "w": 161,
+   "h": 223
+  }
+ ],
+ "anims": {
+  "idle": {
+   "frames": [
+    0
+   ],
+   "fps": 1,
+   "loop": true
+  },
+  "walk": {
+   "frames": [
+    1,
+    2,
+    3,
+    0
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "attack": {
+   "frames": [
+    4
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "hurt": {
+   "frames": [
+    5
+   ],
+   "fps": 1,
+   "loop": false
+  },
+  "defeated": {
+   "frames": [
+    6
+   ],
+   "fps": 1,
+   "loop": false
+  }
+ }
+}

@@ -1,5 +1,5 @@
-# Runs the test net. Pages deployment is unchanged: GitHub Pages still serves
-# `main` as-is, with no build step.
+# Runs the test net: the HTML game's tests, and the Godot project's tests and web
+# export. Deployment is in pages.yml.
 name: test
 
 on:
@@ -34,5 +34,31 @@ jobs:
           path: |
             test-results/
             playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  godot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - run: scripts/ci-install-godot.sh
+      - run: ./test.sh
+      - run: ./export.sh
+      # Boot the export in headless Chromium at phone and PC sizes
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: node scripts/web-screenshot.mjs build/next web-shots
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: godot-web-shots
+          path: |
+            web-shots/
+            _scratch/*.log
           if-no-files-found: ignore
           retention-days: 14
