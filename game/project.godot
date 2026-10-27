@@ -19,6 +19,12 @@ config/icon="res://icon.png"
 [autoload]
 
 MCPRuntimeServer="*res://addons/godot_mcp_toolkit/runtime/mcp_runtime_server.gd"
+Audio="*res://audio/audio.gd"
+AudioHud="*res://scenes/audio_hud.tscn"
+
+[audio]
+
+buses/default_bus_layout="res://audio/bus_layout.tres"
 
 [display]
 

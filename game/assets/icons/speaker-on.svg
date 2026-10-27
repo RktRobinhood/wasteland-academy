@@ -1,0 +1,6 @@
+<!-- Sound on. Scrap Teal (#22D3C5) from the SPEC.md palette. FAL-385. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <path fill="#22D3C5" d="M11.4 3.3 6.5 7.5H3.3A1.3 1.3 0 0 0 2 8.8v6.4a1.3 1.3 0 0 0 1.3 1.3h3.2l4.9 4.2a.85.85 0 0 0 1.4-.65V3.95a.85.85 0 0 0-1.4-.65Z"/>
+  <path fill="none" stroke="#22D3C5" stroke-width="1.8" stroke-linecap="round" d="M15.9 8.7a4.6 4.6 0 0 1 0 6.6"/>
+  <path fill="none" stroke="#22D3C5" stroke-width="1.8" stroke-linecap="round" d="M18.7 5.9a8.4 8.4 0 0 1 0 12.2"/>
+</svg>

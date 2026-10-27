@@ -1,0 +1,6 @@
+<!-- Slider handle, big enough for a thumb. Scrap Teal (#22D3C5) ring on the
+     panel's own dark (#111827). FAL-385. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <circle cx="12" cy="12" r="10" fill="#111827"/>
+  <circle cx="12" cy="12" r="10" fill="none" stroke="#22D3C5" stroke-width="3"/>
+</svg>

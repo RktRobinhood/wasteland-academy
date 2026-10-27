@@ -17,6 +17,9 @@ game/
 ├── engine/              ← the question engine: situations, views, marking, planner, save
 ├── ui/                  ← screens and the graph view
 ├── data/catalogue.json  ← generated from curriculum/question-types.json (don't edit)
+├── scenes/audio_hud.tscn ← the AudioHud autoload: speaker icon, gear, settings screen
+├── scenes/settings.tscn ← the sound settings screen
+├── audio/               ← the Audio autoload, the cue tables, the bus layout, the UI theme
 ├── assets/              ← art and fonts copied from the repo's assets/ and vendor/fonts/
 ├── tests/               ← headless test runner and tests
 ├── tools/screenshot.gd  ← used by ../screenshot.sh
@@ -31,6 +34,34 @@ game/
 Art is imported with mipmaps on (`mipmaps/generate=true` in each `.import`) and drawn
 with linear mipmap filtering, so it stays smooth at phone and PC sizes. When you add
 art, set the same in its `.import` file.
+
+## Sound
+
+Two autoloads, added on FAL-385. `Audio` (`audio/audio.gd`) owns the music, the effects
+and the three settings; `AudioHud` (`scenes/audio_hud.tscn`) is the speaker icon and the
+gear that sit above every scene, with the settings screen behind the gear.
+
+```gdscript
+Audio.play_location("signal-tower")  # crossfade to that location's loop
+Audio.play_sfx("correct")            # one short effect
+Audio.sound_enabled = true           # what the speaker icon switches
+```
+
+- **Sound starts off**, on a fresh install and for every student in a classroom. Nothing
+  is decoded or played until the speaker is tapped, which also satisfies the browser rule
+  that audio needs a gesture first.
+- The three settings (`sound_enabled`, `music_volume`, `sfx_volume`) save to
+  `user://settings.cfg` the moment they change, and load at boot.
+- Buses: Master, with **Music** and **SFX** under it (`audio/bus_layout.tres`). Each
+  slider moves one bus; turning sound off mutes both and stops the players.
+- Which loop plays at which location, and the alternate seed waiting on Matt's listening
+  pass, is the one table in `audio/music_tracks.gd`. The effect cues mirror the HTML
+  game's `js/sfx.js` and live in `audio/sfx_cues.gd`.
+- Every file in `assets/audio/` has its licence entry in `../assets/audio/CREDITS.md`.
+  Nothing ships without one.
+- While the build has no map, the settings screen carries a location picker and a button
+  per effect, so a cue can be heard without gameplay. Both rows go when the overworld can
+  call `play_location()` itself.
 
 ## Scripts (run from the repo root)
 
@@ -122,6 +153,10 @@ script error happens while it runs. Run one file with
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save.
 - `test_practice.gd`: the practice screen plays every representation and format,
   records answers, and fits at 390x844 and 1280x800.
+- `test_audio.gd`: a loop per location at the length the review measured, only the
+  wired-in loops in `assets/audio/music/`, the effects mirrored from the HTML game, the
+  two buses, sound off on a fresh install, settings that survive a reload, and the
+  settings screen listing every location and effect.
 
 ## Web export and deploy
 
