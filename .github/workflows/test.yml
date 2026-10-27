@@ -68,3 +68,20 @@ jobs:
             _scratch/check-answers/report.txt
           if-no-files-found: ignore
           retention-days: 14
+
+  # The seed sweep: every cell with seeds 51 to 2250, past the checker's 1 to 50.
+  # Its own job so the godot job keeps its time. About 4 minutes.
+  stress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - run: scripts/ci-install-godot.sh
+      - run: tools/stress-questions
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: stress-questions
+          path: _scratch/stress-questions.log
+          if-no-files-found: ignore
+          retention-days: 14

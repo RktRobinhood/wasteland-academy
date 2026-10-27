@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# The seed sweep (FAL-322): makes every catalogue cell with seeds 51 to 2250 by
+# default, past the 1 to 50 that tools/check-answers exports, and checks each question
+# is made and marks its own answer right and its wrong options wrong. About 207,000
+# questions in roughly 4 minutes. Exits non-zero on any failure.
+#
+#   tools/stress-questions [--from=51] [--to=2250]
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT/scripts/godot-env.sh"
+
+import_project
+log="$ROOT/_scratch/stress-questions.log"
+mkdir -p "$(dirname "$log")"
+set +e
+timeout 1200 "$GODOT" --headless --path "$GAME" --script res://tools/stress_questions.gd -- "$@" 2>&1 \
+	| grep -v "^\[MCP" | tee "$log"
+status=${PIPESTATUS[0]}
+set -e
+# A failed assert prints a SCRIPT ERROR but the sweep carries on, so check the log too.
+if grep -q "SCRIPT ERROR" "$log"; then
+	echo "stress-questions: script errors in the sweep (see $log)" >&2
+	exit 1
+fi
+exit "$status"

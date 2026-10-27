@@ -21,6 +21,7 @@ game/
 ├── tests/               ← headless test runner and tests
 ├── tools/screenshot.gd  ← used by ../screenshot.sh
 ├── tools/export_questions.gd  ← used by ../tools/check-answers
+├── tools/stress_questions.gd  ← used by ../tools/stress-questions
 ├── addons/godot_mcp_toolkit/  ← editor plugin for the Godot MCP (see docs/MCP-NOTES.md)
 └── docs/MCP-NOTES.md
 ```
@@ -43,6 +44,7 @@ Godot is found on `PATH`, at `~/.local/bin/godot`, or from `GODOT=/path/to/godot
 | `./screenshot.sh [out.png] [scene]` | Renders a scene at 1080x1920 in a private Xvfb display |
 | `node scripts/web-screenshot.mjs [export dir] [out dir] [name=?query ...]` | Serves an export at `/wasteland-academy/next/` and screenshots it in headless Chromium at 390x844 and 1280x800, plus each named deep link. Fails if the page logs an error |
 | `tools/check-answers` | The SymPy answer checker (see below) |
+| `tools/stress-questions [--from=51] [--to=2250]` | The seed sweep (see below) |
 | `scripts/mcp-editor.sh start\|stop` | Headless editor on `game/` for the Godot MCP |
 | `python3 -I scripts/mcp_call.py <tool> '<json>' ...` | Calls Godot MCP tools through that editor |
 
@@ -91,6 +93,15 @@ that every worked solution ends at the answer, and that the equations shown pars
 the givens. It prints a table per type and per cell. SymPy is pinned in
 `requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it
 next to `./test.sh`.
+
+### The seed sweep
+
+The checker only exports seeds 1 to 50. `tools/stress-questions` makes every cell with
+seeds 51 to 2250 (about 207,000 questions, a few minutes) and checks that each question
+is made with four options, that its own answer typed exactly and to 3 s.f. is marked
+right, and that every wrong option typed in is marked wrong with its misconception. It
+fails on any script error, such as a failed assert in `Q`. CI runs it as its own
+`stress` job.
 
 ## Tests
 

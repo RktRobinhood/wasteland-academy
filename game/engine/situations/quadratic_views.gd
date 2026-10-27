@@ -975,6 +975,9 @@ func u_coefficients_from_two_points_and_axis(rep: String, s: Dictionary, rng: Se
 		x2 = Q.new(pts[j])
 		if not with_axis or not x1.add(x2).eq(s.h.mul(2)):
 			break
+	# Only a mirror pair fits (two points in range): the axis adds nothing, so give a instead.
+	if with_axis and x1.add(x2).eq(s.h.mul(2)):
+		with_axis = false
 	if x2.lt(x1):
 		var t := x1
 		x1 = x2

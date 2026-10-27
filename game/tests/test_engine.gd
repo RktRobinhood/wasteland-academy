@@ -39,6 +39,26 @@ func test_every_cell_makes_a_question() -> void:
 			check(q.prompt.contains(q.asked), c.key + ": prompt")
 
 
+func test_two_points_and_axis_never_gives_a_mirror_pair() -> void:
+	# Seeds 188 and 217 once fitted only a mirror pair on the graph, so with the axis
+	# given a, b and c had no single answer and the working divided by zero.
+	for seed in [188, 217]:
+		var q := QuestionEngine.make({"type": "fn-quadratic-from-conditions", "unknown": "coefficients-from-two-points-and-axis",
+			"rep": "graph", "angle": "simultaneous-equations", "seed": seed})
+		check(not q.is_empty() and not q.has("error"), "seed %d: no question" % seed)
+		if q.is_empty() or q.has("error"):
+			continue
+		var g: Dictionary = q.given
+		if g.has("axis"):
+			var sum := _key_q(g.points[0][0]).add(_key_q(g.points[1][0]))
+			check(not sum.eq(_key_q(g.axis).mul(2)), "seed %d: the points mirror each other in the axis" % seed)
+
+
+func _key_q(k: String) -> Q:
+	var p := k.split("/")
+	return Q.new(int(p[0]), int(p[1]) if p.size() > 1 else 1)
+
+
 func test_every_suited_method_has_working() -> void:
 	for c in QuestionEngine.cells():
 		var t := QuestionEngine.type_of(c.type)
