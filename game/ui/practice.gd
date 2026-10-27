@@ -28,6 +28,8 @@ var _choice_buttons: Array = []
 var _focus: LineEdit
 
 var margin: MarginContainer
+var head: HBoxContainer
+var title_label: Label
 var exam_toggle: Button
 var progress: Label
 var scroll: ScrollContainer
@@ -70,11 +72,12 @@ func _build() -> void:
 	col.add_theme_constant_override("separation", 18)
 	margin.add_child(col)
 
-	var head := HBoxContainer.new()
-	var title := UiTheme.label("Practice", 84, UiTheme.TEAL)
-	title.autowrap_mode = TextServer.AUTOWRAP_OFF
-	title.add_theme_font_override("font", UiTheme.TITLE_FONT)
-	head.add_child(title)
+	head = HBoxContainer.new()
+	head.name = "Head"
+	title_label = UiTheme.label("Practice", 84, UiTheme.TEAL)
+	title_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	title_label.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	head.add_child(title_label)
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(spacer)
@@ -127,17 +130,7 @@ func show_view(view: Dictionary) -> void:
 		question = QuestionEngine.probe(view.type, int(view.probe))
 	else:
 		question = QuestionEngine.make(view)
-	answered = false
-	_slots.clear()
-	_picks.clear()
-	_pick_buttons.clear()
-	_choice = -1
-	_choice_buttons.clear()
-	_focus = null
-	for c in card.get_children():
-		card.remove_child(c)
-		c.queue_free()
-	scroll.scroll_vertical = 0
+	_clear_card()
 	_update_progress()
 	if question.has("error"):
 		card.add_child(UiTheme.label("Can't make that question: " + question.error, UiTheme.BODY, UiTheme.PINK))
@@ -179,6 +172,21 @@ func show_view(view: Dictionary) -> void:
 	working.visible = false
 	card.add_child(working)
 	_add_next()
+
+
+## Empties the card and forgets the last question's inputs.
+func _clear_card() -> void:
+	answered = false
+	_slots.clear()
+	_picks.clear()
+	_pick_buttons.clear()
+	_choice = -1
+	_choice_buttons.clear()
+	_focus = null
+	for c in card.get_children():
+		card.remove_child(c)
+		c.queue_free()
+	scroll.scroll_vertical = 0
 
 
 func _add_next() -> void:
@@ -271,7 +279,13 @@ func _add_slots() -> void:
 	if not _slots.is_empty():
 		card.add_child(_keypad())
 		_focus = _slots.values()[0]
-		_focus.call_deferred("grab_focus")
+		# Deferred, so the card may have been replaced by then.
+		_grab.call_deferred(_focus)
+
+
+func _grab(e: Variant) -> void:
+	if is_instance_valid(e) and e.is_inside_tree():
+		e.grab_focus()
 
 
 ## Number keys, so a phone needs no system keyboard.
@@ -349,8 +363,7 @@ func check_answer() -> void:
 		feedback.add_theme_color_override("font_color", UiTheme.SAND)
 		return
 	answered = true
-	SaveData.record(save, question.cell, result.correct, now(), result.get("misconception", ""), question.format == "probe")
-	SaveData.store(save, save_path)
+	_record(result)
 	_show_feedback(result)
 	_update_progress()
 	check_button.visible = false
@@ -362,6 +375,12 @@ func check_answer() -> void:
 	for bs in _pick_buttons.values():
 		for b in bs:
 			b.disabled = true
+
+
+## Keeps the answer in the save, for the planner. The explorer screen keeps nothing.
+func _record(result: Dictionary) -> void:
+	SaveData.record(save, question.cell, result.correct, now(), result.get("misconception", ""), question.format == "probe")
+	SaveData.store(save, save_path)
 
 
 func _show_feedback(result: Dictionary) -> void:
@@ -488,20 +507,30 @@ func autoplay(right: bool) -> void:
 	check_answer()
 
 
-## A view asked for in the URL (web) or on the command line, or {}.
-static func deep_link() -> Dictionary:
+## The URL's query (web) and the command line's --key=value arguments. A bare key
+## (?explore, --explore) is there with the value "".
+static func url_args() -> Dictionary:
 	var args := {}
 	if OS.has_feature("web"):
 		var search = JavaScriptBridge.eval("window.location.search", true)
 		if search is String and search.length() > 1:
 			for part in search.substr(1).split("&"):
 				var kv: PackedStringArray = part.split("=", true, 1)
-				if kv.size() == 2:
-					args[kv[0].uri_decode()] = kv[1].uri_decode()
+				if kv[0] != "":
+					args[kv[0].uri_decode()] = kv[1].uri_decode() if kv.size() == 2 else ""
 	for a in OS.get_cmdline_user_args():
-		if a.begins_with("--") and a.contains("="):
+		if a.begins_with("--"):
 			var kv := a.substr(2).split("=", true, 1)
-			args[kv[0]] = kv[1]
+			args[kv[0]] = kv[1] if kv.size() == 2 else ""
+	return args
+
+
+## A view asked for in the URL (web) or on the command line, or {}.
+static func deep_link() -> Dictionary:
+	return view_from(url_args())
+
+
+static func view_from(args: Dictionary) -> Dictionary:
 	if not args.has("view"):
 		return {}
 	var p: PackedStringArray = args.view.split("/")

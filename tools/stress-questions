@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # The seed sweep (FAL-322): makes every catalogue cell with seeds 51 to 2250 by
 # default, past the 1 to 50 that tools/check-answers exports, and checks each question
-# is made and marks its own answer right and its wrong options wrong. About 207,000
-# questions in roughly 4 minutes. Exits non-zero on any failure.
+# is made and marks its own answer right and its wrong options wrong. Every fourth
+# seed is also made on its family's shared situation (the explorer's "Ask it another
+# way"). About 258,000 questions in roughly 3 to 5 minutes. Exits non-zero on any failure.
 #
 #   tools/stress-questions [--from=51] [--to=2250]
 set -euo pipefail

@@ -58,6 +58,10 @@ jobs:
           node scripts/web-screenshot.mjs build/next web-shots
           'graph-solved=?view=fn-quadratic-features/vertex-from-factorised/graph/midpoint-of-roots/value&seed=3&autoplay=right'
           'table-mcq-wrong=?view=fn-quadratic-from-conditions/a-from-roots-and-point/table/intercept-form-plus-point/mcq&seed=2&autoplay=wrong'
+          'explore=?explore'
+          'explore-first=?explore&view=fn-quadratic-features/vertex-from-factorised/equation/any/value&seed=7'
+          'explore-another-way=?explore&view=fn-quadratic-features/vertex-from-general/equation/any/value&seed=7&autoplay=right'
+          'explore-ten=?explore&view=fn-quadratic-from-conditions/a-from-vertex-and-point/graph/any/mcq&seed=12&ten=1'
       - uses: actions/upload-artifact@v7
         if: always()
         with:

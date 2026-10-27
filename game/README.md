@@ -12,11 +12,13 @@ The toolchain is copied from The Unruly Atlas.
 game/
 ├── project.godot        ← portrait 1080x1920 base, "expand" stretch, Compatibility renderer
 ├── export_presets.cfg   ← one preset, "Web": no threads, no PWA
-├── scenes/main.tscn     ← title screen (title, Spark, Practice)
+├── scenes/main.tscn     ← title screen (title, Spark, Practice, Engine)
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
+├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /next/?explore
 ├── engine/              ← the question engine: situations, views, marking, planner, save
 ├── ui/                  ← screens and the graph view
 ├── data/catalogue.json  ← generated from curriculum/question-types.json (don't edit)
+├── data/courses.json    ← the four IB courses and their status, if present (FAL-393)
 ├── assets/              ← art and fonts copied from the repo's assets/ and vendor/fonts/
 ├── tests/               ← headless test runner and tests
 ├── tools/screenshot.gd  ← used by ../screenshot.sh
@@ -52,7 +54,7 @@ Godot is found on `PATH`, at `~/.local/bin/godot`, or from `GODOT=/path/to/godot
 
 The maths engine plans from situations and views (FAL-310 plan), on the catalogue in
 `curriculum/question-types.json`. The game reads a generated copy,
-`data/catalogue.json`: rerun `node tools/game-catalogue.mjs --write` after changing the
+`data/catalogue.json`, with every type of all five topics and the topic names: rerun `node tools/game-catalogue.mjs --write` after changing the
 catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 
 - A **recipe** (`engine/situations/quadratic.gd`) generates a **situation**: a, the
@@ -67,6 +69,13 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 - `QuestionEngine.make(view)` (`engine/question_engine.gd`) returns the question, its
   marking and its working for any explicit view and seed. The same view and seed always
   give the same question. `QuestionEngine.cells()` lists the coverage cells.
+- **One situation, many questions**: each view sets its own `need`, so on its own each
+  unknown gets its own numbers. `QuestionEngine.families(type, rep)` splits the
+  unknowns that list a representation into families whose needs merge with no conflict
+  (`merge_need()`: booleans or-ed, `"any"` gives way to a set value). A view with
+  `"shared": true` is built on its family's situation, generated from the merged need,
+  so every unknown of the family has the same numbers for the same seed. A situation's
+  views can define their own `merge_need()` if the default doesn't suit them.
 - **Formats**: the layer names all eight from the plan. `value` (slot inputs such as
   a(x − □)² + □) and `mcq` are built, and the concept probes play as a verdict
   (true or false; always, sometimes or never; the sign) and then the reason.
@@ -83,6 +92,24 @@ question: `/next/?view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, or
 `<type>/probe/<n>` for a concept probe. Add `&autoplay=right` (or `wrong`) to answer it
 at once.
 
+### The engine explorer
+
+`/next/?explore`, or "Engine" on the title screen (FAL-391). Pick a course, a topic and
+a question class, then "Asked for", "Shown as", "Method" and the format, and play the
+question as on the practice screen. Nothing is saved. Question classes come from the
+catalogue: a type is live when its situation is built, so a new situation shows up
+with no change here, and the rest are listed greyed out. "New question" draws a random
+seed; "Ask it another way" keeps the seed and the family's situation and asks the next
+unknown of the family; "Show 10 versions" shows ten seeds with their answers. The class
+size line counts `QuestionEngine.cells()`. Courses come from `data/courses.json` when it
+is there, and from a built-in list (AA SL live, the rest "syllabus mapping in
+progress") when it isn't. Phones show the choices and the question one at a time;
+landscape shows them side by side.
+
+The URL follows the screen, so a state can be bookmarked:
+`/next/?explore&view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, plus
+`&ten=1` for ten versions or `&autoplay=right` (or `wrong`).
+
 ### The SymPy answer checker
 
 `tools/check-answers` exports questions from the engine with fixed seeds (at least 50
@@ -90,15 +117,15 @@ per coverage cell and 1,000 per type), then `tools/check_answers.py` solves each
 again with SymPy from its givens. It shares no code with the engine. It checks the
 answer, the clean limits, that every option but one is wrong and that all four differ,
 that every worked solution ends at the answer, and that the equations shown parse to
-the givens. It prints a table per type and per cell. SymPy is pinned in
+the givens. Each cell also gets 10 questions made on its family's shared situation. It prints a table per type and per cell. SymPy is pinned in
 `requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it
 next to `./test.sh`.
 
 ### The seed sweep
 
 The checker only exports seeds 1 to 50. `tools/stress-questions` makes every cell with
-seeds 51 to 2250 (about 207,000 questions, a few minutes) and checks that each question
-is made with four options, that its own answer typed exactly and to 3 s.f. is marked
+seeds 51 to 2250 (about 258,000 questions, a few minutes) and checks that each question
+is made with four options (every fourth seed also on its family's shared situation), that its own answer typed exactly and to 3 s.f. is marked
 right, and that every wrong option typed in is marked wrong with its misconception. It
 fails on any script error, such as a failed assert in `Q`. CI runs it as its own
 `stress` job.
@@ -122,6 +149,9 @@ script error happens while it runs. Run one file with
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save.
 - `test_practice.gd`: the practice screen plays every representation and format,
   records answers, and fits at 390x844 and 1280x800.
+- `test_explorer.gd`: the engine explorer opens on a live class with no errors, counts
+  the catalogue per topic, plays from its pickers, keeps the situation when it asks
+  another way, works without `data/courses.json`, and fits at 390x844 and 1280x800.
 
 ## Web export and deploy
 

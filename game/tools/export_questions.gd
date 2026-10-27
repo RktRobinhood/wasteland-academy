@@ -8,6 +8,8 @@ extends SceneTree
 ## Every coverage cell of every built type gets at least --per-cell questions, and
 ## every type at least --per-type. Seeds run 1, 2, 3, ...; odd seeds are multiple
 ## choice and even seeds typed values (the numbers don't depend on the format).
+## Each cell also gets --shared questions (default 10) made on its family's shared
+## situation (QuestionEngine.families(), the explorer's "Ask it another way").
 
 
 func _initialize() -> void:
@@ -15,13 +17,14 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var args := {"per-cell": "50", "per-type": "1000", "out": "user://questions.json"}
+	var args := {"per-cell": "50", "per-type": "1000", "shared": "10", "out": "user://questions.json"}
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--") and a.contains("="):
 			var kv := a.substr(2).split("=", true, 1)
 			args[kv[0]] = kv[1]
 	var per_cell := int(args["per-cell"])
 	var per_type := int(args["per-type"])
+	var shared := int(args["shared"])
 	var questions: Array = []
 	var errors: Array = []
 	var types: Array = []
@@ -30,9 +33,14 @@ func _run() -> void:
 		var n := maxi(per_cell, ceili(float(per_type) / cells.size()))
 		types.append({"type": id, "cells": cells.size(), "per_cell": n})
 		for c in cells:
+			var views: Array = []
 			for seed in range(1, n + 1):
-				var view := {"type": id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle,
-					"format": "mcq" if seed % 2 == 1 else "value", "seed": seed}
+				views.append({"type": id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle,
+					"format": "mcq" if seed % 2 == 1 else "value", "seed": seed})
+			for seed in range(1, shared + 1):
+				views.append({"type": id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle,
+					"format": "mcq" if seed % 2 == 1 else "value", "seed": seed, "shared": true})
+			for view in views:
 				var q := QuestionEngine.make(view)
 				if q.has("error"):
 					errors.append({"view": view, "error": q.error})

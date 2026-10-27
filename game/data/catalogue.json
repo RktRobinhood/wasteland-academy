@@ -8,6 +8,28 @@
 		"4": "Paper 2 exam level, 5 to 6 marks with a calculator, or a harder multi-condition Paper 1 item. Floor 3 and deeper.",
 		"5": "Synoptic: Section B chains, concept links and modelling. Bosses, floor 4 and deeper."
 	},
+	"topics": [
+		{
+			"n": 1,
+			"name": "Number and algebra"
+		},
+		{
+			"n": 2,
+			"name": "Functions"
+		},
+		{
+			"n": 3,
+			"name": "Geometry and trigonometry"
+		},
+		{
+			"n": 4,
+			"name": "Statistics and probability"
+		},
+		{
+			"n": 5,
+			"name": "Calculus"
+		}
+	],
 	"regions": [
 		{
 			"id": "quadratics",
@@ -15935,6 +15957,717 @@
 			"frequency": 2
 		},
 		{
+			"id": "t1-standard-form",
+			"topic": 1,
+			"source": "exam",
+			"name": "Calculate with numbers in standard form",
+			"frequency": 3,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-sequence-proof",
+			"topic": 1,
+			"source": "exam",
+			"name": "Prove a property linking arithmetic and geometric terms",
+			"frequency": 4,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-arithmetic-in-context",
+			"topic": 1,
+			"source": "exam",
+			"name": "Arithmetic sequence or series modelling a pattern or context",
+			"frequency": 6,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-arithmetic-sequence",
+			"topic": 1,
+			"source": "exam",
+			"name": "Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums",
+			"frequency": 21,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-geometric-in-context",
+			"topic": 1,
+			"source": "exam",
+			"name": "Geometric sequence or series modelling a context",
+			"frequency": 6,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-geometric-sequence",
+			"topic": 1,
+			"source": "exam",
+			"name": "Geometric sequence: find r, u1, a term or S_n",
+			"frequency": 9,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-depreciation",
+			"topic": 1,
+			"source": "exam",
+			"name": "Depreciation as repeated percentage decrease",
+			"frequency": 5,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-compound-interest",
+			"topic": 1,
+			"source": "exam",
+			"name": "Compound interest: value, rate or time, with different compounding periods",
+			"frequency": 16,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-log-exp-form",
+			"topic": 1,
+			"source": "exam",
+			"name": "Switch between log and exponential form to evaluate or solve, including log models",
+			"frequency": 3,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-algebraic-proof",
+			"topic": 1,
+			"source": "exam",
+			"name": "Prove an algebraic identity or a divisibility result",
+			"frequency": 8,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-rational-exponents",
+			"topic": 1,
+			"source": "exam",
+			"name": "Rational and negative exponents",
+			"frequency": 2,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-solve-exponential",
+			"topic": 1,
+			"source": "exam",
+			"name": "Solve an exponential equation exactly with logarithms",
+			"frequency": 1,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-log-laws",
+			"topic": 1,
+			"source": "exam",
+			"name": "Log laws and change of base to evaluate or rewrite logarithms",
+			"frequency": 10,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-sum-to-infinity",
+			"topic": 1,
+			"source": "exam",
+			"name": "Sum to infinity: convergence, value, or an unknown from it",
+			"frequency": 5,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-binomial-find-unknown",
+			"topic": 1,
+			"source": "exam",
+			"name": "Binomial expansion: find an unknown from a given coefficient",
+			"frequency": 9,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-binomial-term",
+			"topic": 1,
+			"source": "exam",
+			"name": "Binomial expansion: a coefficient, a term or the full expansion",
+			"frequency": 6,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-3d-angle",
+			"topic": 3,
+			"source": "exam",
+			"name": "Angle in a 3D solid",
+			"frequency": 1,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-distance-midpoint",
+			"topic": 3,
+			"source": "exam",
+			"name": "Distance and midpoint in 2D or 3D",
+			"frequency": 9,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-solid-volume-area",
+			"topic": 3,
+			"source": "exam",
+			"name": "Volume and surface area of solids, including in terms of a variable",
+			"frequency": 13,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-ambiguous-case",
+			"topic": 3,
+			"source": "exam",
+			"name": "Sine rule ambiguous case",
+			"frequency": 2,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-triangle-area",
+			"topic": 3,
+			"source": "exam",
+			"name": "Triangle area with 1/2 ab sin C, forwards or backwards",
+			"frequency": 11,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-right-angle-trig",
+			"topic": 3,
+			"source": "exam",
+			"name": "Right-angled trigonometry, including elevation and gradients",
+			"frequency": 10,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-sine-cosine-rule",
+			"topic": 3,
+			"source": "exam",
+			"name": "Sine rule and cosine rule for a side or an angle",
+			"frequency": 19,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-bearings-elevation",
+			"topic": 3,
+			"source": "exam",
+			"name": "Bearings, elevation and depression in context",
+			"frequency": 7,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-circular-motion",
+			"topic": 3,
+			"source": "exam",
+			"name": "Angle in radians as a function of time for rotating objects",
+			"frequency": 3,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-composite-circular-region",
+			"topic": 3,
+			"source": "exam",
+			"name": "Segments and composite regions built from sectors, triangles and rectangles",
+			"frequency": 13,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-arc-sector",
+			"topic": 3,
+			"source": "exam",
+			"name": "Arc length, sector area and perimeter, forwards or backwards",
+			"frequency": 16,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-exact-values",
+			"topic": 3,
+			"source": "exam",
+			"name": "Exact trig values and related angles",
+			"frequency": 3,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-prove-identity",
+			"topic": 3,
+			"source": "exam",
+			"name": "Prove a trig identity",
+			"frequency": 3,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-identity-values",
+			"topic": 3,
+			"source": "exam",
+			"name": "Use Pythagorean and double-angle identities to find exact values or rewrite",
+			"frequency": 5,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-trig-sketch",
+			"topic": 3,
+			"source": "exam",
+			"name": "Sketch a trig graph from its parameters",
+			"frequency": 2,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-trig-model-use",
+			"topic": 3,
+			"source": "exam",
+			"name": "Evaluate or use a trig model: times, counts, durations",
+			"frequency": 9,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-trig-read-features",
+			"topic": 3,
+			"source": "exam",
+			"name": "Read amplitude, period and principal axis from a graph or equation",
+			"frequency": 18,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-trig-model-parameters",
+			"topic": 3,
+			"source": "exam",
+			"name": "Find the parameters of a trig model from a graph, data or context",
+			"frequency": 7,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-trig-quadratic",
+			"topic": 3,
+			"source": "exam",
+			"name": "Trig equation that is a quadratic in sin or cos",
+			"frequency": 3,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-trig-model-equation",
+			"topic": 3,
+			"source": "exam",
+			"name": "Solve a trig model equation or inequality for times",
+			"frequency": 5,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-trig-equation",
+			"topic": 3,
+			"source": "exam",
+			"name": "Solve a trig equation exactly in an interval",
+			"frequency": 8,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-sampling",
+			"topic": 4,
+			"source": "exam",
+			"name": "Sampling methods and bias",
+			"frequency": 4,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-outlier-rule",
+			"topic": 4,
+			"source": "exam",
+			"name": "The 1.5 x IQR outlier rule",
+			"frequency": 4,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-cumulative-frequency",
+			"topic": 4,
+			"source": "exam",
+			"name": "Read and use a cumulative frequency graph",
+			"frequency": 6,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-box-plot",
+			"topic": 4,
+			"source": "exam",
+			"name": "Read, interpret and compare box plots",
+			"frequency": 7,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-constant-changes",
+			"topic": 4,
+			"source": "exam",
+			"name": "Effect of adding or multiplying a constant on summary statistics",
+			"frequency": 3,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-grouped-data",
+			"topic": 4,
+			"source": "exam",
+			"name": "Grouped and frequency-table data: missing frequency, modal class, estimates",
+			"frequency": 9,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-summary-statistics",
+			"topic": 4,
+			"source": "exam",
+			"name": "Mean, median, mode, quartiles and spread of a data set",
+			"frequency": 11,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-regression-interpret",
+			"topic": 4,
+			"source": "exam",
+			"name": "Interpret a regression gradient or judge a prediction",
+			"frequency": 7,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-regression-gdc",
+			"topic": 4,
+			"source": "exam",
+			"name": "Regression line and Pearson r on the GDC, then predict",
+			"frequency": 19,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-expected-occurrences",
+			"topic": 4,
+			"source": "exam",
+			"name": "Expected number of occurrences, n x p",
+			"frequency": 4,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-probability-basic",
+			"topic": 4,
+			"source": "exam",
+			"name": "Probability from a table, a count or the complement",
+			"frequency": 4,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-tree-diagram",
+			"topic": 4,
+			"source": "exam",
+			"name": "Tree diagrams and selection without replacement",
+			"frequency": 14,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-sample-space",
+			"topic": 4,
+			"source": "exam",
+			"name": "Sample space diagrams for dice and spinners",
+			"frequency": 5,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-venn-addition-rule",
+			"topic": 4,
+			"source": "exam",
+			"name": "Venn diagrams, two-way tables and the addition rule",
+			"frequency": 11,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-expected-value",
+			"topic": 4,
+			"source": "exam",
+			"name": "Expected value of a discrete random variable, fair games",
+			"frequency": 17,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-discrete-distribution",
+			"topic": 4,
+			"source": "exam",
+			"name": "Discrete distribution: probabilities sum to 1, find k, read probabilities",
+			"frequency": 12,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-binomial",
+			"topic": 4,
+			"source": "exam",
+			"name": "Binomial probabilities, mean, and finding n",
+			"frequency": 18,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-inverse-normal",
+			"topic": 4,
+			"source": "exam",
+			"name": "Inverse normal: value for a given probability",
+			"frequency": 5,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-normal-properties",
+			"topic": 4,
+			"source": "exam",
+			"name": "Normal curve properties: symmetry, sigma intervals, matching curves",
+			"frequency": 8,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-normal-probability",
+			"topic": 4,
+			"source": "exam",
+			"name": "Normal probability for an interval on the GDC",
+			"frequency": 12,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-regression-x-on-y",
+			"topic": 4,
+			"source": "exam",
+			"name": "Choose the right regression line; x on y; mean point on both",
+			"frequency": 5,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-independence",
+			"topic": 4,
+			"source": "exam",
+			"name": "Use or test independence of events",
+			"frequency": 9,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-conditional-probability",
+			"topic": 4,
+			"source": "exam",
+			"name": "Conditional probability from formula, table, tree or distribution",
+			"frequency": 17,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-normal-unknown-parameter",
+			"topic": 4,
+			"source": "exam",
+			"name": "Find an unknown mean or standard deviation with z-scores",
+			"frequency": 13,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-derivative-meaning",
+			"topic": 5,
+			"source": "exam",
+			"name": "Interpret a derivative as a rate, or its limit",
+			"frequency": 6,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-increasing-decreasing",
+			"topic": 5,
+			"source": "exam",
+			"name": "Where a function is increasing or decreasing",
+			"frequency": 4,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-differentiate-polynomial",
+			"topic": 5,
+			"source": "exam",
+			"name": "Differentiate a polynomial or negative power and evaluate",
+			"frequency": 6,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-normal-meets-curve",
+			"topic": 5,
+			"source": "exam",
+			"name": "Where a tangent or normal meets the curve again",
+			"frequency": 2,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-tangent-condition",
+			"topic": 5,
+			"source": "exam",
+			"name": "Find a point or parameter from a tangent condition (given gradient, parallel, common tangent)",
+			"frequency": 11,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-tangent-normal-equation",
+			"topic": 5,
+			"source": "exam",
+			"name": "Equation of a tangent or normal, or values read from a given tangent",
+			"frequency": 14,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-derivative-graph",
+			"topic": 5,
+			"source": "exam",
+			"name": "Read f from the graph of f' (or f'')",
+			"frequency": 2,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-stationary-points",
+			"topic": 5,
+			"source": "exam",
+			"name": "Stationary points and inflexion: find, classify, justify",
+			"frequency": 14,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-optimisation-modelling",
+			"topic": 5,
+			"source": "exam",
+			"name": "Optimisation: build a function from a constraint, then maximise or minimise",
+			"frequency": 18,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-kinematics-distance",
+			"topic": 5,
+			"source": "exam",
+			"name": "Kinematics: displacement and distance by integrating velocity",
+			"frequency": 23,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-kinematics-motion",
+			"topic": 5,
+			"source": "exam",
+			"name": "Kinematics: rest, direction change, acceleration, maximum speed",
+			"frequency": 29,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-derivative-model-gdc",
+			"topic": 5,
+			"source": "exam",
+			"name": "Derivative of a model at a point with technology",
+			"frequency": 4,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-differentiation-rules",
+			"topic": 5,
+			"source": "exam",
+			"name": "Chain, product and quotient rules",
+			"frequency": 8,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-concavity",
+			"topic": 5,
+			"source": "exam",
+			"name": "Second derivative and concavity",
+			"frequency": 5,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-antiderivative-condition",
+			"topic": 5,
+			"source": "exam",
+			"name": "Integrate, then find the constant from a point or initial value",
+			"frequency": 9,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-definite-integral-area",
+			"topic": 5,
+			"source": "exam",
+			"name": "Definite integrals and areas, including regions below the axis and unknown limits",
+			"frequency": 9,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-indefinite-integral",
+			"topic": 5,
+			"source": "exam",
+			"name": "Integrate standard functions and linear composites",
+			"frequency": 7,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-area-between-curves",
+			"topic": 5,
+			"source": "exam",
+			"name": "Area between two curves",
+			"frequency": 13,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
 			"id": "fn-ext-quadratic-model",
 			"topic": 2,
 			"source": "extension",
@@ -27626,6 +28359,806 @@
 				}
 			],
 			"frequency": 0
+		},
+		{
+			"id": "t5-link-accumulation",
+			"topic": 5,
+			"source": "extension",
+			"kind": "link",
+			"name": "Adding up many small pieces",
+			"summary": "Link an area under a curve, a distance from a velocity graph, a normal probability and an arithmetic series as one act of adding up pieces.",
+			"level": [
+				3,
+				5
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"match"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-link-binomial",
+			"topic": 1,
+			"source": "extension",
+			"kind": "link",
+			"name": "The nCr pattern",
+			"summary": "Match a row of Pascal's triangle, a term of a binomial expansion and a binomial probability built from the same nCr.",
+			"level": [
+				3,
+				4
+			],
+			"formats": [
+				"true-false-reason",
+				"mcq"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-standard-form-add",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Add and subtract in standard form",
+			"summary": "Add or subtract two numbers in standard form with different powers of ten, and give the answer in standard form.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-standard-form-powers",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Powers and roots in standard form",
+			"summary": "Square, cube or take a root of a number in standard form, adjusting the power of ten so that the root comes out whole.",
+			"level": [
+				2,
+				3
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-sigma-arithmetic",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Sigma notation for arithmetic series",
+			"summary": "Read a sigma sum: count its terms, evaluate it as an arithmetic series, write a series in sigma form, or find the upper limit from the total.",
+			"level": [
+				2,
+				3
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"match",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-real-value",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Real value after inflation",
+			"summary": "Find the real value of an investment by using the interest rate minus the inflation rate, and decide whether it keeps up with prices.",
+			"level": [
+				3,
+				4
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"method-pick",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-exponent-laws",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Integer exponent laws",
+			"summary": "Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/xⁿ as ax⁻ⁿ.",
+			"level": [
+				1,
+				3
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"match",
+				"error-spot",
+				"order-steps",
+				"true-false-reason"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-logs-with-technology",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Logs and exponential equations on the GDC",
+			"summary": "Evaluate log and ln values on the GDC and solve aˣ = b to 3 significant figures, choosing the right log key.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot",
+				"method-pick"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-identity-constants",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Identities and unknown constants",
+			"summary": "Tell an identity from an equation, and find the constants that make two expressions identical by comparing coefficients or substituting values.",
+			"level": [
+				1,
+				3
+			],
+			"formats": [
+				"mcq",
+				"true-false-reason",
+				"match",
+				"value",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-numerical-show-that",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Numerical \"show that\"",
+			"summary": "Complete a \"show that\" with a given number, setting out each step so that the given answer is reached rather than assumed.",
+			"level": [
+				1,
+				3
+			],
+			"formats": [
+				"order-steps",
+				"error-spot",
+				"true-false-reason",
+				"mcq"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-common-base",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Exponential equations with a common base",
+			"summary": "Solve an exponential equation exactly by writing both sides as powers of the same base and equating the exponents.",
+			"level": [
+				1,
+				3
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"error-spot",
+				"method-pick",
+				"order-steps"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-log-equations",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Solve log equations and reject roots",
+			"summary": "Combine logs into one, rewrite in exponential form, solve, and reject any root that makes a log argument zero or negative.",
+			"level": [
+				2,
+				4
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"error-spot",
+				"true-false-reason",
+				"order-steps"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-hidden-quadratic",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Exponential equations that are quadratics",
+			"summary": "Spot that an equation in b²ˣ and bˣ is a quadratic in u = bˣ, solve it, and reject any u that is zero or negative.",
+			"level": [
+				3,
+				4
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"method-pick",
+				"error-spot",
+				"order-steps",
+				"multipart"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-partial-vs-infinite",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Partial sums against the sum to infinity",
+			"summary": "Compare S_n with S∞: find the least n that brings S_n within a given gap of S∞, or the share of S∞ that the first few terms give.",
+			"level": [
+				3,
+				4
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"method-pick",
+				"error-spot",
+				"multipart"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-binomial-constant-term",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Constant term when both terms contain x",
+			"summary": "In an expansion such as (x² + 3/x)ⁿ, write the general term, find the r that makes the power of x zero (or a given power), and find that term.",
+			"level": [
+				3,
+				4
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"error-spot",
+				"order-steps",
+				"method-pick"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t1-ext-binomial-product",
+			"topic": 1,
+			"source": "extension",
+			"kind": "skill",
+			"name": "A coefficient in a bracket times an expansion",
+			"summary": "Find one coefficient in (p + qx)(a + bx)ⁿ by pairing each term of the first bracket with the matching term of the expansion and adding.",
+			"level": [
+				3,
+				4
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot",
+				"method-pick",
+				"multipart"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-ext-two-observations",
+			"topic": 3,
+			"source": "extension",
+			"kind": "skill",
+			"name": "A height from two angles of elevation",
+			"summary": "Find a height from two angles of elevation taken a known distance apart, with two right-angled triangles or with the sine rule in the triangle between them.",
+			"level": [
+				3,
+				5
+			],
+			"formats": [
+				"value",
+				"multipart",
+				"method-pick",
+				"order-steps"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t3-ext-exact-triangle",
+			"topic": 3,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Exact lengths and areas in triangles",
+			"summary": "Use exact values such as sin 60° = √3/2 in the cosine rule or ½ab sin C to give a side or an area as an exact surd.",
+			"level": [
+				2,
+				3
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"error-spot",
+				"order-steps"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-ext-population-sample",
+			"topic": 4,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Population, sample and randomness",
+			"summary": "Name the population and the sample in a study, and decide with a reason whether the sample is random.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"mcq",
+				"true-false-reason"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-ext-data-type",
+			"topic": 4,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Discrete or continuous",
+			"summary": "Classify a variable as discrete or continuous.",
+			"level": [
+				1,
+				1
+			],
+			"formats": [
+				"mcq",
+				"match",
+				"true-false-reason"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-ext-stratified-numbers",
+			"topic": 4,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Numbers in a stratified sample",
+			"summary": "Find how many to select from each group in a stratified sample, as the group's share of the population times the sample size.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-ext-frequency-histogram",
+			"topic": 4,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Frequency tables and histograms",
+			"summary": "Read and complete a frequency table and an equal-width histogram: a missing frequency, a bar height, or how many values fall in a range.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"match",
+				"graph-pick"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-ext-describe-correlation",
+			"topic": 4,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Describe correlation",
+			"summary": "Describe the correlation in a scatter diagram or from a value of r (direction and strength), and say why correlation does not show cause.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"mcq",
+				"match",
+				"graph-pick",
+				"true-false-reason"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-ext-mutually-exclusive",
+			"topic": 4,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Mutually exclusive events",
+			"summary": "Decide with a reason whether two events are mutually exclusive, and use P(A ∪ B) = P(A) + P(B) when they are.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"mcq",
+				"true-false-reason",
+				"value",
+				"match"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-ext-conditional-diagram",
+			"topic": 4,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Conditional probability from a diagram",
+			"summary": "Read a conditional probability straight from a two-way table, Venn diagram or tree by keeping only the given group.",
+			"level": [
+				2,
+				3
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"method-pick",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t4-ext-z-scores",
+			"topic": 4,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Find, interpret and compare z-scores",
+			"summary": "Find a z-value and say what it means, turn a z-value back into x, and compare results from two different normal distributions using z.",
+			"level": [
+				1,
+				3
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot",
+				"match",
+				"true-false-reason"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-chord-to-tangent",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "From chords to the tangent",
+			"summary": "Find the gradients of chords from a point to nearby points, see them approach a limit, and give that limit as the gradient of the tangent.",
+			"level": [
+				1,
+				3
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"order-steps",
+				"true-false-reason"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-gradient-from-graph",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Estimate a gradient from a graph",
+			"summary": "Estimate the gradient of a curve at a point from a drawn tangent or with the GDC, and compare the gradients at two points.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"mcq",
+				"value",
+				"graph-pick",
+				"true-false-reason"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-sign-at-point",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Increasing or decreasing at a point",
+			"summary": "Decide whether a function is increasing or decreasing at one point from the sign of f′ there, and give the reason.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"mcq",
+				"true-false-reason",
+				"value"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-always-increasing",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Show a function always increases",
+			"summary": "Show that f′(x) > 0 (or < 0) for every x in the domain, for example because f′ is a square plus a positive number or a positive exponential.",
+			"level": [
+				2,
+				3
+			],
+			"formats": [
+				"error-spot",
+				"method-pick",
+				"true-false-reason",
+				"mcq"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-unknown-coefficients",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Coefficients from gradient and point conditions",
+			"summary": "Find unknown coefficients in a polynomial from a gradient condition f′(a) = m and a point on the curve, by forming and solving equations.",
+			"level": [
+				2,
+				3
+			],
+			"formats": [
+				"value",
+				"multipart",
+				"order-steps",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-integral-gdc",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "A definite integral on the GDC",
+			"summary": "Evaluate a definite integral on the GDC to 3 significant figures, with the function and the limits entered correctly.",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-area-under-curve",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Area under a curve above the x-axis",
+			"summary": "Write the integral for a shaded area above the x-axis (its limits and integrand), then evaluate it.",
+			"level": [
+				1,
+				4
+			],
+			"formats": [
+				"mcq",
+				"match",
+				"graph-pick",
+				"true-false-reason",
+				"value",
+				"multipart",
+				"order-steps"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-interpret-second-derivative",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "The second derivative in context",
+			"summary": "Say what the sign of the second derivative means in context, such as \"the temperature is rising, but more and more slowly\".",
+			"level": [
+				1,
+				2
+			],
+			"formats": [
+				"mcq",
+				"true-false-reason",
+				"match"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-closed-interval-extremes",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Greatest and least values on an interval",
+			"summary": "Find the greatest and least values of f on a closed interval by comparing the stationary values with the values at the endpoints, and state the range.",
+			"level": [
+				2,
+				4
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"true-false-reason",
+				"graph-pick"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-stationary-conditions",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Constants from a stationary point",
+			"summary": "Find unknown constants in f given a stationary point or a point of inflexion, using f′ = 0 (or f″ = 0) together with the point itself.",
+			"level": [
+				2,
+				3
+			],
+			"formats": [
+				"value",
+				"multipart",
+				"order-steps",
+				"error-spot"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-hence-integral",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Integrate using a derivative (\"hence\")",
+			"summary": "Differentiate a given expression, then use the result to integrate a related function, adjusting the constant factor.",
+			"level": [
+				2,
+				3
+			],
+			"formats": [
+				"order-steps",
+				"method-pick",
+				"error-spot",
+				"mcq"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
+		},
+		{
+			"id": "t5-ext-integral-properties",
+			"topic": 5,
+			"source": "extension",
+			"kind": "skill",
+			"name": "Properties of definite integrals",
+			"summary": "Use the rules for definite integrals of an unknown f: reverse the limits, split the interval, take out a constant factor, and add a constant to the integrand.",
+			"level": [
+				2,
+				3
+			],
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot",
+				"true-false-reason"
+			],
+			"frequency": 0,
+			"angles": [],
+			"misconceptions": []
 		}
 	]
 }

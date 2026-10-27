@@ -2,6 +2,8 @@ extends SceneTree
 ## Seed sweep (FAL-322): makes every cell with many seeds beyond the checker's 1 to 50,
 ## and checks each question is made, has four options, marks its own answer right
 ## (exact and to 3 s.f.) and marks every wrong option wrong, naming its misconception.
+## Every fourth seed is also made on the cell's shared situation (the explorer's
+## "Ask it another way", QuestionEngine.families()).
 ## Used by tools/stress-questions. Exits non-zero on any failure.
 ##
 ##   godot --headless --path game --script res://tools/stress_questions.gd -- \
@@ -47,36 +49,42 @@ func _run() -> void:
 	var n := 0
 	var short_choices := 0
 	for c in QuestionEngine.cells():
+		var views: Array = []
 		for seed in range(lo, hi + 1):
-			var view := {"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed}
+			views.append({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed})
+			if seed % 4 == 0:
+				views.append({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed, "shared": true})
+		for view in views:
+			var seed: int = view.seed
+			var key: String = c.key + (" shared" if view.has("shared") else "")
 			var q = QuestionEngine.make(view)
 			n += 1
 			if typeof(q) != TYPE_DICTIONARY or q.is_empty():
-				fails.append("%s seed %d: make() returned %s" % [c.key, seed, q])
+				fails.append("%s seed %d: make() returned %s" % [key, seed, q])
 				continue
 			if q.has("error"):
-				fails.append("%s seed %d: %s" % [c.key, seed, q.error])
+				fails.append("%s seed %d: %s" % [key, seed, q.error])
 				continue
 			if q.choices.size() != 4:
 				short_choices += 1
-				fails.append("%s seed %d: %d choices" % [c.key, seed, q.choices.size()])
+				fails.append("%s seed %d: %d choices" % [key, seed, q.choices.size()])
 			var ans: Dictionary = q.answer
 			if ans.kind in Answer.MC_ONLY:
 				continue
 			var r := QuestionEngine.mark(q, _typed(ans, ans.values))
 			if not r.correct:
-				fails.append("%s seed %d: exact typed answer marked wrong: %s" % [c.key, seed, q.answer_text])
+				fails.append("%s seed %d: exact typed answer marked wrong: %s" % [key, seed, q.answer_text])
 			var rd := QuestionEngine.mark(q, _decimal_typed(ans, ans.values))
 			if not rd.correct:
-				fails.append("%s seed %d: decimal typed answer marked wrong: %s %s" % [c.key, seed, q.answer_text, _decimal_typed(ans, ans.values)])
+				fails.append("%s seed %d: decimal typed answer marked wrong: %s %s" % [key, seed, q.answer_text, _decimal_typed(ans, ans.values)])
 			for ch in q.choices:
 				if ch.correct:
 					continue
 				var rw := QuestionEngine.mark(q, _typed(ans, ch.values))
 				if rw.correct:
-					fails.append("%s seed %d: wrong option typed is marked right: %s vs %s" % [c.key, seed, ch.text, q.answer_text])
+					fails.append("%s seed %d: wrong option typed is marked right: %s vs %s" % [key, seed, ch.text, q.answer_text])
 				elif ch.ref != "" and rw.misconception != ch.ref:
-					fails.append("%s seed %d: misconception not detected: %s" % [c.key, seed, ch.ref])
+					fails.append("%s seed %d: misconception not detected: %s" % [key, seed, ch.ref])
 	print("STRESS %d questions, %d failures, %d short-choice" % [n, fails.size(), short_choices])
 	for f in fails.slice(0, 60):
 		print("FAIL " + f)
