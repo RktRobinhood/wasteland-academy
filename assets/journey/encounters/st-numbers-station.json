@@ -1,0 +1,48 @@
+{
+  "name": "st-numbers-station",
+  "image": "st-numbers-station.webp",
+  "facing": "left",
+  "origin": [
+    0,
+    0
+  ],
+  "figure_height": 209,
+  "frames": [
+    {
+      "id": "idle",
+      "x": 2,
+      "y": 2,
+      "w": 199,
+      "h": 248,
+      "ox": -100,
+      "oy": -248
+    },
+    {
+      "id": "talk",
+      "x": 205,
+      "y": 2,
+      "w": 199,
+      "h": 248,
+      "ox": -100,
+      "oy": -248
+    }
+  ],
+  "anims": {
+    "idle": {
+      "frames": [
+        0
+      ],
+      "fps": 1,
+      "loop": true
+    },
+    "talk": {
+      "frames": [
+        0,
+        1
+      ],
+      "fps": 4,
+      "loop": true
+    }
+  },
+  "encounter": "st-numbers-station"
+}
