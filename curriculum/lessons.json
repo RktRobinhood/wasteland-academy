@@ -182,7 +182,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 7.4, "rank": 11 }
+      "priority": { "parts": 7.4, "rank": 1 }
     },
     {
       "id": "lesson.fn.stretch",
@@ -233,7 +233,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 7, "rank": 12 }
+      "priority": { "parts": 7, "rank": 3 }
     },
     {
       "id": "lesson.fn.reflection",
@@ -265,7 +265,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 2.7, "rank": 33 }
+      "priority": { "parts": 2.7, "rank": 4 }
     },
     {
       "id": "lesson.fn.transform-order",
@@ -301,7 +301,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 3.5, "rank": 27 }
+      "priority": { "parts": 3.5, "rank": 5 }
     },
     {
       "id": "lesson.fn.function-machine",
@@ -355,7 +355,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 19.5, "rank": 1 }
+      "priority": { "parts": 19.5, "rank": 8 }
     },
     {
       "id": "lesson.fn.is-function",
@@ -382,7 +382,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 0, "rank": 52 }
+      "priority": { "parts": 0, "rank": 51 }
     },
     {
       "id": "lesson.fn.domain-range",
@@ -423,7 +423,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 6.5, "rank": 16 }
+      "priority": { "parts": 6.5, "rank": 25 }
     },
     {
       "id": "lesson.fn.inverse-reflection",
@@ -465,7 +465,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 4.8, "rank": 22 }
+      "priority": { "parts": 4.8, "rank": 10 }
     },
     {
       "id": "lesson.fn.composite",
@@ -549,7 +549,7 @@
           "licence": "CC BY-SA 4.0"
         }
       ],
-      "priority": { "parts": 3.8, "rank": 24 }
+      "priority": { "parts": 3.8, "rank": 9 }
     },
     {
       "id": "lesson.fn.swap-and-solve",
@@ -587,7 +587,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 6.6, "rank": 15 }
+      "priority": { "parts": 6.6, "rank": 54 }
     },
     {
       "id": "lesson.fn.inverse-domain",
@@ -618,7 +618,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 3.3, "rank": 28 }
+      "priority": { "parts": 3.3, "rank": 52 }
     },
     {
       "id": "lesson.fn.reciprocal",
@@ -645,7 +645,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 1.8, "rank": 38 }
+      "priority": { "parts": 1.8, "rank": 43 }
     },
     {
       "id": "lesson.fn.rational-asymptotes",
@@ -689,7 +689,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 14.8, "rank": 3 }
+      "priority": { "parts": 14.8, "rank": 44 }
     },
     {
       "id": "lesson.fn.transformed-reciprocal",
@@ -719,7 +719,7 @@
           "licence": "CC BY-SA 4.0"
         }
       ],
-      "priority": { "parts": 3.3, "rank": 29 }
+      "priority": { "parts": 3.3, "rank": 45 }
     },
     {
       "id": "lesson.fn.long-run-value",
@@ -746,7 +746,7 @@
           "licence": "CC BY-SA 4.0"
         }
       ],
-      "priority": { "parts": 2.4, "rank": 36 }
+      "priority": { "parts": 2.4, "rank": 46 }
     },
     {
       "id": "lesson.fn.gradient",
@@ -775,7 +775,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 2.4, "rank": 34 }
+      "priority": { "parts": 2.4, "rank": 6 }
     },
     {
       "id": "lesson.fn.line-equation",
@@ -816,7 +816,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 6, "rank": 19 }
+      "priority": { "parts": 6, "rank": 12 }
     },
     {
       "id": "lesson.fn.perpendicular",
@@ -845,7 +845,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 3.6, "rank": 26 }
+      "priority": { "parts": 3.6, "rank": 13 }
     },
     {
       "id": "lesson.fn.line-model",
@@ -871,7 +871,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 0, "rank": 47 }
+      "priority": { "parts": 0, "rank": 28 }
     },
     {
       "id": "lesson.fn.zero-product",
@@ -918,7 +918,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 6.8, "rank": 13 }
+      "priority": { "parts": 6.8, "rank": 16 }
     },
     {
       "id": "lesson.fn.parabola-symmetry",
@@ -960,7 +960,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 8.2, "rank": 10 }
+      "priority": { "parts": 8.2, "rank": 17 }
     },
     {
       "id": "lesson.fn.vertex-form",
@@ -1034,7 +1034,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 1.8, "rank": 39 }
+      "priority": { "parts": 1.8, "rank": 19 }
     },
     {
       "id": "lesson.fn.quadratic-from-clues",
@@ -1074,7 +1074,34 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 5.3, "rank": 20 }
+      "priority": { "parts": 5.3, "rank": 22 }
+    },
+    {
+      "id": "lesson.fn.quadratic-formula",
+      "title": "Two Clamps, One Centre",
+      "objective": "Solve a quadratic equation that will not factorise by using the quadratic formula, giving exact or rounded roots.",
+      "idea": "The quadratic formula x = (−b ± √(b² − 4ac))/(2a) solves every quadratic, whether it factorises or not: the roots are −b/(2a) plus and minus √(b² − 4ac)/(2a), equal steps either side of the axis x = −b/(2a), so the ± gives both of them, and leaving the root as a surd keeps the answers exact.",
+      "region": "quadratics",
+      "topic": 2,
+      "station": "scrapworks",
+      "skills": ["SL2.7.solve-equation"],
+      "supports": ["fn-solve-quadratic", "fn-curve-intersection-quadratic"],
+      "unknowns": { "fn-solve-quadratic": ["solve-surd", "solve-in-context"], "fn-curve-intersection-quadratic": ["meeting-x", "chord-length"] },
+      "levels": [1, 3],
+      "prerequisites": ["lesson.fn.zero-product", "lesson.fn.parabola-symmetry", "lesson.fn.pre-surds"],
+      "misconceptions": ["SL2.7.solve-equation#2", "SL2.7.discriminant#0", "fn-pre-surds#1"],
+      "interaction": "place-geometry",
+      "scenario": "B0-LT's crane has to clamp a curved girder at the two points where it meets the floor, and this girder's numbers will not split into brackets. The player places the crane's centre post at −b/(2a) and swings two clamps out the same distance, √(b² − 4ac)/(2a), either side; B0-LT reacts when only one clamp swings out, when the sign of −4ac slips because c is negative, or when only the root is divided by 2a. The debrief writes the two clamp positions as x = (−b ± √(b² − 4ac))/(2a).",
+      "apply": { "type": "fn-solve-quadratic", "unknowns": ["solve-surd", "solve-in-context"] },
+      "alignment": { "ib": ["SL2.7"], "ccss": ["HSA.REI.B.4.b"], "gcse": ["Algebra 18"], "aLevel": ["B3"] },
+      "materials": [
+        {
+          "title": "OpenStax College Algebra (1st edition), 2.5 Quadratic Equations",
+          "url": "https://openstax.org/books/college-algebra/pages/2-5-quadratic-equations",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "priority": { "parts": 3.3, "rank": 48 }
     },
     {
       "id": "lesson.fn.discriminant",
@@ -1092,7 +1119,7 @@
         "fn-solve-quadratic": ["solve-surd"]
       },
       "levels": [1, 3],
-      "prerequisites": ["lesson.fn.zero-product", "lesson.fn.vertex-form", "lesson.fn.pre-surds"],
+      "prerequisites": ["lesson.fn.zero-product", "lesson.fn.vertex-form", "lesson.fn.pre-surds", "lesson.fn.quadratic-formula"],
       "misconceptions": ["SL2.7.discriminant#0", "SL2.7.discriminant#1", "SL2.7.discriminant#2"],
       "interaction": "predict-simulate",
       "scenario": "B0-LT's ball launcher fires arcs over a trench, and the robot wants to know before each shot whether it will cross the trench floor twice, skim it or clear it. The player predicts the outcome from the shot's a, b and c, then fires; B0-LT reacts when the player says a negative Δ means two negative roots or slips on −4ac when c is negative. The debrief writes the three cases as Δ > 0, Δ = 0 and Δ < 0.",
@@ -1105,7 +1132,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 2.2, "rank": 37 }
+      "priority": { "parts": 2.2, "rank": 49 }
     },
     {
       "id": "lesson.fn.discriminant-parameter",
@@ -1128,7 +1155,7 @@
       "scenario": "B0-LT's laser fence is a straight beam that must just graze a curved dome without cutting into it. The player turns the k dial to raise the beam and watches the two meeting points slide together and vanish, while a Δ meter shows a quadratic in k crossing zero; B0-LT reacts when the player reads off a, b and c before moving everything to one side, or writes k < ±6. The debrief solves Δ = 0 for the grazing value and turns Δ > 0 into an interval of k.",
       "apply": { "type": "fn-discriminant", "unknowns": ["delta-in-k", "k-for-equal-roots", "k-interval"] },
       "alignment": { "ib": ["SL2.7"], "ccss": ["HSA.REI.C.7"], "aLevel": ["B3", "B5"] },
-      "priority": { "parts": 11.8, "rank": 7 }
+      "priority": { "parts": 11.8, "rank": 50 }
     },
     {
       "id": "lesson.fn.quadratic-inequality",
@@ -1146,13 +1173,13 @@
         "fn-log-of-quadratic": ["domain-from-inequality", "sign-of-f"]
       },
       "levels": [1, 4],
-      "prerequisites": ["lesson.fn.zero-product", "lesson.fn.pre-linear-inequalities"],
+      "prerequisites": ["lesson.fn.zero-product", "lesson.fn.pre-linear-inequalities", "lesson.fn.parabola-symmetry"],
       "misconceptions": ["SL2.7.inequality#0", "SL2.7.inequality#1", "SL2.7.inequality#2"],
       "interaction": "drag-position",
       "scenario": "B0-LT's flood barrier follows a parabola, and the robot needs to know which stretches of road sit below the waterline. The player drags shutters along the road to cover every stretch where the barrier dips under the water; B0-LT reacts when the shutters join two separate stretches into one or cover the wrong side of the roots. The debrief writes the covered stretches as inequalities such as x < −2 or x > 3.",
       "apply": { "type": "fn-quadratic-inequality", "unknowns": ["solve-against-zero", "negative-a", "solve-against-constant"] },
       "alignment": { "ib": ["SL2.7"], "gcse": ["Algebra 22"], "aLevel": ["B5"] },
-      "priority": { "parts": 4.8, "rank": 21 }
+      "priority": { "parts": 4.8, "rank": 26 }
     },
     {
       "id": "lesson.fn.growth-factor",
@@ -1192,7 +1219,7 @@
           "licence": "CC BY-SA 4.0"
         }
       ],
-      "priority": { "parts": 4.2, "rank": 23 }
+      "priority": { "parts": 4.2, "rank": 30 }
     },
     {
       "id": "lesson.fn.exp-graph",
@@ -1219,7 +1246,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 2.8, "rank": 32 }
+      "priority": { "parts": 2.8, "rank": 33 }
     },
     {
       "id": "lesson.fn.log-undoes-power",
@@ -1229,8 +1256,8 @@
       "region": "exp-log",
       "topic": 2,
       "station": "scrapworks",
-      "skills": ["SL2.9.exp-log-inverse", "SL1.5.exp-log-form"],
-      "assumes": ["SL1.7.change-of-base"],
+      "skills": ["SL2.9.exp-log-inverse"],
+      "assumes": ["SL1.7.change-of-base", "SL1.5.exp-log-form"],
       "supports": ["fn-exp-log-inverse-composite", "fn-exponential-model", "fn-log-of-quadratic", "fn-link-inverses"],
       "unknowns": {
         "fn-exp-log-inverse-composite": [
@@ -1268,7 +1295,7 @@
           "licence": "CC BY-SA 4.0"
         }
       ],
-      "priority": { "parts": 10.2, "rank": 8 }
+      "priority": { "parts": 10.2, "rank": 31 }
     },
     {
       "id": "lesson.fn.solve-with-logs",
@@ -1278,7 +1305,8 @@
       "region": "exp-log",
       "topic": 2,
       "station": "scrapworks",
-      "skills": ["SL2.9.exp-log-inverse", "SL2.9.find-parameters", "SL1.7.solve-with-logs"],
+      "skills": ["SL2.9.exp-log-inverse", "SL2.9.find-parameters"],
+      "assumes": ["SL1.7.solve-with-logs"],
       "supports": ["fn-exponential-model", "fn-exp-log-inverse-composite"],
       "unknowns": {
         "fn-exponential-model": [
@@ -1317,7 +1345,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 8.5, "rank": 9 }
+      "priority": { "parts": 8.5, "rank": 32 }
     },
     {
       "id": "lesson.fn.log-graph",
@@ -1351,7 +1379,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 3.7, "rank": 25 }
+      "priority": { "parts": 3.7, "rank": 34 }
     },
     {
       "id": "lesson.fn.hidden-quadratic",
@@ -1371,7 +1399,7 @@
       "scenario": "B0-LT's combination lock asks for the x that solves 4ˣ − 2·2ˣ − 8 = 0, and the robot is stuck. The player predicts how many solutions there are, then relabels 2ˣ as u and watches the lock become u² − 2u − 8 = 0; B0-LT reacts when the player stops at u = 4 and u = −2, or keeps 2ˣ = −2. The debrief undoes u = 2ˣ to get the single solution x = 2.",
       "apply": { "type": "fn-solve-quadratic", "unknowns": ["choose-substitution", "solve-hidden-exponential"] },
       "alignment": { "ib": ["SL2.7", "SL2.9"], "aLevel": ["B3"] },
-      "priority": { "parts": 1.3, "rank": 40 }
+      "priority": { "parts": 1.3, "rank": 35 }
     },
     {
       "id": "lesson.fn.how-high-and-where",
@@ -1396,7 +1424,7 @@
       "scenario": "B0-LT's test track for carts runs only between two fixed posts, and the robot needs the highest point a cart reaches. The player drags a probe cart along the track while two readouts show its position and its height; B0-LT reacts when the player reports where the peak is instead of how high it is, or misses that the track ends higher than the hump. The debrief writes the answer as a point (x, y) and, on a domain, compares the turning point with both endpoints.",
       "apply": { "type": "fn-gdc-features", "unknowns": ["turning-point-coordinates", "extreme-value-only", "greatest-on-domain"] },
       "alignment": { "ib": ["SL2.4", "SL2.6"], "ccss": ["HSF.IF.B.4", "HSF.IF.C.7.a"] },
-      "priority": { "parts": 6.5, "rank": 17 }
+      "priority": { "parts": 6.5, "rank": 39 }
     },
     {
       "id": "lesson.fn.meeting-points",
@@ -1442,7 +1470,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 13.4, "rank": 4 }
+      "priority": { "parts": 13.4, "rank": 21 }
     },
     {
       "id": "lesson.fn.count-solutions",
@@ -1466,7 +1494,7 @@
       "scenario": "B0-LT's searchlight sweeps a horizontal beam up and down across a jagged ridge, and the robot counts how many points of the ridge the beam lights. The player slides the beam's height and records the count at each level; B0-LT reacts when the player counts two where the beam only touches a peak, counts beyond the ends of the ridge, or counts the level of an asymptote. The debrief writes the levels where the count changes as the boundaries of the k intervals.",
       "apply": { "type": "fn-sketch-gdc", "unknowns": ["count-solutions-from-sketch", "k-for-count"] },
       "alignment": { "ib": ["SL2.10", "SL2.3"], "ccss": ["HSA.REI.D.11"], "aLevel": ["B7"] },
-      "priority": { "parts": 2.9, "rank": 31 }
+      "priority": { "parts": 2.9, "rank": 41 }
     },
     {
       "id": "lesson.fn.gdc-solve",
@@ -1491,7 +1519,7 @@
       "scenario": "B0-LT's engine timing equation mixes an exponential with a straight line, and the robot's algebra module keeps taking logs and producing nonsense. The player graphs both sides on the field calculator, uses the intersect and zero tools, and changes the window to hunt for solutions it missed; B0-LT reacts when the player rounds early, gives 2 significant figures, or takes ln of both sides of eˣ = x + 3. The debrief writes each solution to 3 significant figures and says why algebra could not reach it.",
       "apply": { "type": "fn-gdc-solve-equation", "unknowns": ["solve-mixed-equation", "root-in-interval", "count-roots"] },
       "alignment": { "ib": ["SL2.10"], "ccss": ["HSA.REI.D.11"] },
-      "priority": { "parts": 12.9, "rank": 5 }
+      "priority": { "parts": 12.9, "rank": 37 }
     },
     {
       "id": "lesson.fn.sketch-features",
@@ -1524,7 +1552,7 @@
       "scenario": "B0-LT's archive holds four holo-plots for each machine's curve, and only one of them is genuine. The player checks each plot against the machine's equation one feature at a time, the y-intercept, the zeros, the turning point, the asymptote and the domain, and throws out every impostor; B0-LT reacts when the player keeps a plot that crosses a vertical asymptote, runs past the end of the domain, or opens the wrong way. The debrief lists the features every sketch has to label.",
       "apply": { "type": "fn-sketch-gdc", "unknowns": ["sketch-on-domain", "endpoint-coordinates", "judge-a-sketch"] },
       "alignment": { "ib": ["SL2.3"], "ccss": ["HSF.IF.C.7", "HSF.IF.B.4"], "aLevel": ["B7"] },
-      "priority": { "parts": 12.8, "rank": 6 }
+      "priority": { "parts": 12.8, "rank": 40 }
     },
     {
       "id": "lesson.fn.combine-functions",
@@ -1544,7 +1572,7 @@
       "scenario": "B0-LT's two water tanks fill and drain on different schedules, and the robot wants to know when the difference between them is largest. The player stacks one tank's height against the other's at the same moments and watches the difference graph build up bar by bar; B0-LT reacts when the player subtracts heights from different times or assumes the biggest gap comes when one tank is fullest. The debrief writes the gap as D(t) = A(t) − B(t) and finds its maximum and its zeros.",
       "apply": { "type": "fn-gdc-optimise-combined", "unknowns": ["form-difference", "max-difference", "sum-zeros"] },
       "alignment": { "ib": ["SL2.3"], "ccss": ["HSF.BF.A.1.b"] },
-      "priority": { "parts": 3, "rank": 30 }
+      "priority": { "parts": 3, "rank": 23 }
     },
     {
       "id": "lesson.fn.graph-inequality",
@@ -1564,7 +1592,7 @@
       "scenario": "B0-LT's two pipelines run side by side, and the hot pipe has to stay above the cold one for the heat exchanger to work. The player paints the stretches where the hot pipe is higher, starting and stopping at the crossings; B0-LT reacts when the player gives the crossing points instead of the stretches, paints where the hot pipe is lower, or misses the second stretch. The debrief writes the painted stretches as intervals.",
       "apply": { "type": "fn-ext-inequality-graphical", "unknowns": ["read-from-graph", "two-piece-solution", "solve-with-gdc"] },
       "alignment": { "ib": ["SL2.10"], "gcse": ["Algebra 22"], "aLevel": ["B5"] },
-      "priority": { "parts": 2.4, "rank": 35 }
+      "priority": { "parts": 2.4, "rank": 27 }
     },
     {
       "id": "lesson.fn.context-check",
@@ -1600,7 +1628,7 @@
       "scenario": "B0-LT's work orders come back from the calculator with answers like −2.4 hours and 4.2 crates. The player sorts each answer into use, round up, round down or reject for its work order; B0-LT reacts when a negative time is kept, or when 4.2 years becomes 4 although 5 full years are needed. The debrief writes each accepted answer in context, with its units.",
       "apply": { "type": "fn-gdc-solve-equation", "unknowns": ["reject-a-root", "smallest-whole-number", "form-and-solve"] },
       "alignment": { "ib": ["SL2.10", "SL2.2"], "ccss": ["HSA.CED.A.1", "HSN.Q.A.3"], "aLevel": ["B11"] },
-      "priority": { "parts": 6.8, "rank": 14 }
+      "priority": { "parts": 6.8, "rank": 38 }
     },
     {
       "id": "lesson.fn.pre-substitute",
@@ -1619,7 +1647,7 @@
       "scenario": "B0-LT's calculating drum runs a number through a squaring gear and a sign gear, but it keeps losing the minus sign. The player predicts the drum's output for a negative input, then runs it and watches each gear act in turn; B0-LT reacts when the player squares without brackets or multiplies before squaring. The debrief writes the input in brackets every time, as in −(−3)² = −9.",
       "apply": { "type": "fn-pre-substitute", "unknowns": ["negative-into-square", "negative-into-linear", "coefficient-and-power"] },
       "alignment": { "ib": ["SL2.2"], "gcse": ["Algebra 2"] },
-      "priority": { "parts": 0, "rank": 41 }
+      "priority": { "parts": 0, "rank": 7 }
     },
     {
       "id": "lesson.fn.pre-balance",
@@ -1645,7 +1673,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 0, "rank": 42 }
+      "priority": { "parts": 0, "rank": 11 }
     },
     {
       "id": "lesson.fn.pre-change-subject",
@@ -1683,7 +1711,7 @@
       "scenario": "B0-LT is tiling a workshop floor with an x by x slab, x by 1 strips and 1 by 1 tiles. The player drags tiles to fill a rectangle with the given side lengths and reads off its total area; B0-LT reacts when the player fills a square of side x + 4 with only x² and 16. The debrief writes the area as the expanded quadratic.",
       "apply": { "type": "fn-pre-expand", "unknowns": ["double-bracket", "perfect-square", "vertex-form-expand"] },
       "alignment": { "ib": ["SL2.6"], "gcse": ["Algebra 4"] },
-      "priority": { "parts": 0, "rank": 43 }
+      "priority": { "parts": 0, "rank": 14 }
     },
     {
       "id": "lesson.fn.pre-factorise",
@@ -1702,7 +1730,7 @@
       "scenario": "B0-LT has a pile of floor tiles and needs to know the sides of the rectangle they make. The player arranges the slab, the strips and the unit tiles into a single rectangle and reads off its sides; B0-LT reacts when the signs are swapped or the player tries to make a rectangle from x² + 9. The debrief writes the sides as the factorised form.",
       "apply": { "type": "fn-pre-factorise", "unknowns": ["common-factor", "monic-trinomial", "difference-of-squares"] },
       "alignment": { "ib": ["SL2.6", "SL2.7"], "ccss": ["HSA.SSE.A.2"], "gcse": ["Algebra 4"] },
-      "priority": { "parts": 0, "rank": 44 }
+      "priority": { "parts": 0, "rank": 15 }
     },
     {
       "id": "lesson.fn.pre-surds",
@@ -1721,7 +1749,7 @@
       "scenario": "B0-LT's sorting chute takes crates labelled with roots like √48 and has to send each one out in its simplest form. The player sorts crates into the bins for their simplest forms, pulling out the biggest square factor first; B0-LT reacts when the player splits √(9 + 16) into √9 + √16 or divides only one term of a fraction. The debrief writes each sorted crate as a√b.",
       "apply": { "type": "fn-pre-surds", "unknowns": ["simplify-root", "formula-fraction"] },
       "alignment": { "ib": ["SL2.7"], "ccss": ["HSN.RN.A.2"], "gcse": ["Number 8"], "aLevel": ["B2"] },
-      "priority": { "parts": 0, "rank": 51 }
+      "priority": { "parts": 0, "rank": 47 }
     },
     {
       "id": "lesson.fn.pre-linear-inequalities",
@@ -1747,7 +1775,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 0, "rank": 46 }
+      "priority": { "parts": 0, "rank": 24 }
     },
     {
       "id": "lesson.fn.pre-percent-multiplier",
@@ -1766,7 +1794,7 @@
       "scenario": "B0-LT's trading post changes its prices by a percentage every day, and the robot keeps adding the percentages up. The player turns a multiplier dial to match each day's change, then chains several days into one multiplier; B0-LT reacts when the player uses 0.15 for a 15% fall or expects a 10% rise and a 10% fall to cancel. The debrief writes the chain as one multiplier and as its percentage change.",
       "apply": { "type": "fn-pre-percent-multiplier", "unknowns": ["increase-multiplier", "decrease-multiplier", "repeated-changes"] },
       "alignment": { "ib": ["SL2.9"], "gcse": ["Ratio 16"] },
-      "priority": { "parts": 0, "rank": 48 }
+      "priority": { "parts": 0, "rank": 29 }
     },
     {
       "id": "lesson.fn.pre-read-and-round",
@@ -1785,7 +1813,7 @@
       "scenario": "B0-LT's pressure gauges all have different scales, and the robot's log book needs every reading to 3 significant figures. The player drags a reading cursor to each needle, works out the value from the scale and logs it at the right precision; B0-LT reacts when one square is counted as one unit or 0.004567 is logged as 0.005. The debrief writes each reading to 3 significant figures.",
       "apply": { "type": "fn-pre-graph-reading", "unknowns": ["read-with-scale", "round-3sf", "round-small-3sf"] },
       "alignment": { "ib": ["SL2.3"], "ccss": ["HSN.Q.A.3"] },
-      "priority": { "parts": 0, "rank": 49 }
+      "priority": { "parts": 0, "rank": 36 }
     },
     {
       "id": "lesson.fn.pre-algebraic-fractions",
@@ -1804,7 +1832,7 @@
       "scenario": "B0-LT's divider unit shares a load between a number of bays that depends on x, and it sparks at one setting. The player predicts whether a shortened version of the divider's rule gives the same output, then tests several values of x, including the one that makes the bottom zero; B0-LT reacts when the player cancels terms instead of factors or thinks that dividing by zero gives zero. The debrief writes the excluded value and the simplified rule.",
       "apply": { "type": "fn-pre-algebraic-fractions", "unknowns": ["excluded-value", "simplify-by-cancelling", "clear-and-solve"] },
       "alignment": { "ib": ["SL2.8"], "gcse": ["Algebra 4"], "aLevel": ["B6"] },
-      "priority": { "parts": 0, "rank": 50 }
+      "priority": { "parts": 0, "rank": 42 }
     },
     {
       "id": "lesson.fn.pre-simultaneous",
@@ -1830,7 +1858,7 @@
           "licence": "CC BY 4.0"
         }
       ],
-      "priority": { "parts": 0, "rank": 45 }
+      "priority": { "parts": 0, "rank": 20 }
     }
   ],
   "gaps": [],
