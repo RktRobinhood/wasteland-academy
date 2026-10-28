@@ -59,7 +59,9 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   roots, the vertex, b, c, Δ, an extra point and a table, consistent and inside the
   catalogue's `clean` limits, in one of its `modes` (rational roots, surd roots, no real
   roots). Situations that extend `quadratic` call its `generate()` and add their own
-  quantities.
+  quantities. `engine/situations/cubic.gd` is the Topic 5 situation: a cubic built
+  from f′(x) = 3a(x − p)(x − q), so its stationary points are on whole numbers, with a
+  point x₀ for the gradient, tangent and normal (FAL-394).
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -118,6 +120,9 @@ script error happens while it runs. Run one file with
 - `test_engine.gd`: every catalogue cell of the three Quadratics types can be made,
   same seed same question, the format layer, wrong options, misconceptions, probes and
   the exam-only cells.
+- `test_calculus.gd`: the four Topic 5 types on the cubic: built, every misconception
+  appears as an option, two points in either order, nature as multiple choice, f′(x)
+  marked exactly, the normal to 3 s.f.
 - `test_answer.gd`: parsing and marking typed answers.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save.
 - `test_practice.gd`: the practice screen plays every representation and format,
