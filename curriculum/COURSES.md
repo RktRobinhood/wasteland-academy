@@ -92,37 +92,37 @@ Where an AI content statement matches the AA one, AI reuses the AA subtopic and 
 
 **Shared subtopics** (AI guide number → map ID):
 
-| AI guide | Map ID | Title | Courses |
-| --- | --- | --- | --- |
-| SL1.1 | SL1.1 | Operations with numbers in standard form | ai-sl, ai-hl |
-| SL1.2 | SL1.2 | Arithmetic sequences and series | ai-sl, ai-hl |
-| SL1.3 | SL1.3 | Geometric sequences and series | ai-sl, ai-hl |
-| SL1.4 | SL1.4 | Financial applications of geometric sequences | ai-sl, ai-hl |
-| SL1.5 | SL1.5 | Integer exponents and introduction to logarithms | ai-sl, ai-hl |
-| AHL1.11 | SL1.8 | Sum of an infinite convergent geometric series | ai-hl |
-| SL2.1 | SL2.1 | Equations of a straight line | ai-sl, ai-hl |
-| SL2.2 | SL2.2 | Functions: domain, range, graph, notation and informal inverse | ai-sl, ai-hl |
-| SL2.3 | SL2.3 | The graph of a function | ai-sl, ai-hl |
-| SL2.4 | SL2.4 | Key features of graphs and intersections | ai-sl, ai-hl |
-| AHL2.8 | SL2.11 | Transformations of graphs | ai-hl |
-| SL3.1 | SL3.1 | 3D distance and midpoint, volume and surface area of solids, angles in 3D | ai-sl, ai-hl |
-| SL3.2 | SL3.2 | Right-angled and non-right-angled triangle trigonometry | ai-sl, ai-hl |
-| SL3.3 | SL3.3 | Applications of right and non-right trigonometry | ai-sl, ai-hl |
-| SL4.1 | SL4.1 | Collecting data: populations, samples and sampling | ai-sl, ai-hl |
-| SL4.2 | SL4.2 | Presentation of data | ai-sl, ai-hl |
-| SL4.3 | SL4.3 | Measures of central tendency and dispersion | ai-sl, ai-hl |
-| SL4.4 | SL4.4 | Correlation and the regression line of y on x | ai-sl, ai-hl |
-| SL4.5 | SL4.5 | Basic probability | ai-sl, ai-hl |
-| SL4.6 | SL4.6 | Combined events: Venn, tree and sample space diagrams | ai-sl, ai-hl |
-| SL4.7 | SL4.7 | Discrete random variables | ai-sl, ai-hl |
-| SL4.8 | SL4.8 | The binomial distribution | ai-sl, ai-hl |
-| SL4.9 | SL4.9 | The normal distribution | ai-sl, ai-hl |
-| SL5.1 | SL5.1 | Limits and the derivative as a rate of change | ai-sl, ai-hl |
-| SL5.2 | SL5.2 | Increasing and decreasing functions | ai-sl, ai-hl |
-| SL5.3 | SL5.3 | Differentiating ax^n (n ∈ ℤ) | ai-sl, ai-hl |
-| SL5.4 | SL5.4 | Tangents and normals | ai-sl, ai-hl |
-| SL5.5 | SL5.5 | Introduction to integration | ai-sl, ai-hl |
-| AHL5.13 | SL5.9 | Kinematics | ai-hl |
+| AI guide | Map ID | Title | Courses | Note |
+| --- | --- | --- | --- | --- |
+| SL1.1 | SL1.1 | Operations with numbers in standard form | ai-sl, ai-hl |  |
+| SL1.2 | SL1.2 | Arithmetic sequences and series | ai-sl, ai-hl |  |
+| SL1.3 | SL1.3 | Geometric sequences and series | ai-sl, ai-hl |  |
+| SL1.4 | SL1.4 | Financial applications of geometric sequences | ai-sl, ai-hl |  |
+| SL1.5 | SL1.5 | Integer exponents and introduction to logarithms | ai-sl, ai-hl |  |
+| AHL1.11 | SL1.8 | Sum of an infinite convergent geometric series | ai-hl |  |
+| SL2.1 | SL2.1 | Equations of a straight line | ai-sl, ai-hl |  |
+| SL2.2 | SL2.2 | Functions: domain, range, graph, notation and informal inverse | ai-sl, ai-hl |  |
+| SL2.3 | SL2.3 | The graph of a function | ai-sl, ai-hl |  |
+| SL2.4 | SL2.4 | Key features of graphs and intersections | ai-sl, ai-hl |  |
+| AHL2.8 | SL2.11 | Transformations of graphs | ai-hl |  |
+| SL3.1 | SL3.1 | 3D distance and midpoint, volume and surface area of solids, angles in 3D | ai-sl, ai-hl |  |
+| SL3.2 | SL3.2 | Right-angled and non-right-angled triangle trigonometry | ai-sl, ai-hl |  |
+| SL3.3 | SL3.3 | Applications of right and non-right trigonometry | ai-sl, ai-hl |  |
+| SL4.1 | SL4.1 | Collecting data: populations, samples and sampling | ai-sl, ai-hl |  |
+| SL4.2 | SL4.2 | Presentation of data | ai-sl, ai-hl |  |
+| SL4.3 | SL4.3 | Measures of central tendency and dispersion | ai-sl, ai-hl |  |
+| SL4.4 | SL4.4 | Correlation and the regression line of y on x | ai-sl, ai-hl |  |
+| SL4.5 | SL4.5 | Basic probability | ai-sl, ai-hl |  |
+| SL4.6 | SL4.6 | Combined events: Venn, tree and sample space diagrams | ai-sl, ai-hl |  |
+| SL4.7 | SL4.7 | Discrete random variables | ai-sl, ai-hl |  |
+| SL4.8 | SL4.8 | The binomial distribution | ai-sl, ai-hl |  |
+| SL4.9 | SL4.9 | The normal distribution | ai-sl, ai-hl |  |
+| SL5.1 | SL5.1 | Limits and the derivative as a rate of change | ai-sl, ai-hl |  |
+| SL5.2 | SL5.2 | Increasing and decreasing functions | ai-sl, ai-hl |  |
+| SL5.3 | SL5.3 | Differentiating ax^n (n ∈ ℤ) | ai-sl, ai-hl |  |
+| SL5.4 | SL5.4 | Tangents and normals | ai-sl, ai-hl |  |
+| SL5.5 | SL5.5 | Introduction to integration | ai-sl, ai-hl |  |
+| AHL5.13 | SL5.9 | Kinematics | ai-hl | AI also lists a = v dv/ds and the dot notation for derivatives with respect to time; SL5.9 has no skill for these yet. |
 
 **AI-only subtopics that overlap AA in part:**
 

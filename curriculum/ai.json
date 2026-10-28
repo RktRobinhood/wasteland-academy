@@ -238,7 +238,8 @@
       "id": "SL5.9",
       "courses": [
         "ai-hl"
-      ]
+      ],
+      "note": "AI also lists a = v dv/ds and the dot notation for derivatives with respect to time; SL5.9 has no skill for these yet."
     }
   ],
   "topics": [
@@ -4689,7 +4690,7 @@
               ],
               "misconceptions": [
                 "Using the diameter as the radius when the context gives a width",
-                "Writing perimeter = arc only: 30 = (80/360) × 2πr gives r = 21.5 instead of 8.03",
+                "Writing perimeter = arc only: 30 = (80/360) × 2πr gives r = 21.5 instead of 8.83",
                 "Using the angle turned per second instead of the total angle"
               ],
               "threads": [
@@ -6200,7 +6201,7 @@
                 }
               ],
               "misconceptions": [
-                "Forgetting that b has a zero k-component and writing 2a − 3b = (1, −14, 3)",
+                "Scaling only the first component: 2a taken as (4, −1, 3), giving 2a − 3b = (1, −13, 3) instead of (1, −14, 6)",
                 "Drawing a − b from the tip of a to the tip of b in the wrong direction (giving b − a)",
                 "Adding magnitudes instead of vectors when finding a resultant"
               ],
@@ -6297,7 +6298,7 @@
               "misconceptions": [
                 "Computing a − b and giving (−3, 4, −4) for AB",
                 "Finding the midpoint as (b − a)/2 instead of (a + b)/2",
-                "Taking D = A + C − B with the wrong vertex order"
+                "Taking D = A + B − C, which uses the wrong diagonal of ABCD"
               ],
               "threads": [
                 {
@@ -6740,7 +6741,7 @@
                 "Determine whether the aircraft come within the 5 km safety limit"
               ],
               "difficulty": [
-                3,
+                4,
                 5
               ],
               "paper": "p2",
@@ -7623,7 +7624,7 @@
               "misconceptions": [
                 "Reading only A³ for 'length 3 or less': 3 instead of 5",
                 "Including A⁴ for 'fewer than 4'",
-                "Including the identity matrix as walks of length 0 between different vertices"
+                "Adding A⁰ = I, which wrongly adds 1 to the count of walks from a vertex back to itself"
               ],
               "threads": []
             },

@@ -3982,7 +3982,7 @@
               "misconceptions": [
                 "Ignoring the quadrant: sec θ = 5/4 when θ is in the third quadrant",
                 "Using 1 + tan²θ = cosec²θ, mixing up the two identities",
-                "Writing sec²θ − 1 = −tan²θ, i.e. tan²θ = 1 − sec²θ, which gives a negative square"
+                "Square-rooting term by term: sec θ = 1 + tan θ = 7/4"
               ],
               "threads": [
                 {
@@ -4051,7 +4051,7 @@
               "name": "Solve equations involving reciprocal ratios, often as a quadratic in tan or cot",
               "examTypes": [
                 "Solve sec²x + tan x = 3 for 0 ≤ x ≤ π",
-                "Solve 2 cosec x = 3 + ... rearranged to a quadratic in sin x, for 0 ≤ x ≤ 2π",
+                "Solve 2cot²x + 3 cosec x = 0 for 0 ≤ x ≤ 2π",
                 "Solve sec x = 2 for −π ≤ x ≤ π",
                 "Explain why sec x = 1/2 has no solutions"
               ],
@@ -4399,7 +4399,7 @@
               ],
               "misconceptions": [
                 "Writing tan 2θ = 2 tan θ/(1 + tan²θ), copying the sign from the numerator of tan(A + B)",
-                "Replacing sin²x by 1 + cos²x and getting cos 3x = −2cos³x − cos x... instead of 4cos³x − 3cos x",
+                "Using + in cos(2x + x) = cos 2x cos x + sin 2x sin x, which collapses to cos 3x = cos x",
                 "Assuming cos 3x = 3 cos x"
               ],
               "threads": [
@@ -4764,7 +4764,7 @@
               "misconceptions": [
                 "Saying cos x is sin x translated right by π/2; sin(x − π/2) = −cos x",
                 "Treating −sin(−x) as −sin x",
-                "Thinking tan(π/2 − x) = tan x − π/2 style rewrites, i.e. distributing tan over the subtraction"
+                "Thinking tan(π/2 − x) = −tan x by analogy with tan(π − x) = −tan x; it is cot x"
               ],
               "threads": [
                 {
@@ -4883,7 +4883,7 @@
               "misconceptions": [
                 "Scaling only the first component: 2(2, −1, 3) = (4, −1, 3)",
                 "Drawing a − b from the tip of a to the tip of b, which is b − a",
-                "Subtracting a negative component wrongly, e.g. −1 − 12 = −11 instead of −13"
+                "Sign slip in the second component of 2a − 3b: −2 − 12 = −10 instead of −14"
               ],
               "threads": [
                 {
@@ -4989,7 +4989,7 @@
               "misconceptions": [
                 "Concluding collinear from parallel vectors with no shared point",
                 "Using a different scalar for each component when testing for parallel",
-                "Taking ABCD in the wrong order and finding d = a + b − c, the fourth vertex of parallelogram ABDC... rather than ABCD"
+                "Ignoring the vertex order and taking d = b + c − a (the fourth vertex for ABDC) instead of d = a + c − b"
               ],
               "threads": [
                 {
@@ -5151,8 +5151,7 @@
                 "Giving a vector, e.g. (3, 0, −8), instead of a number",
                 "Using sin θ instead of cos θ",
                 "Taking cos(2π/3) = 1/2 and getting +10"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.13.angle",
@@ -5196,8 +5195,7 @@
                 "For angle ABC using AB and BC instead of BA and BC, which gives 180° minus the angle",
                 "Using position vectors OA and OC instead of displacement vectors from B",
                 "Forgetting to divide by both magnitudes, giving cos θ = 4"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.13.perpendicular-parallel",
@@ -5248,8 +5246,7 @@
                 "Setting the scalar product equal to 1 for perpendicular vectors",
                 "Thinking v · w = 0 means the vectors are parallel",
                 "Sign slip: 2 − 2k + 12 = 0 solved as k = −7"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.13.properties",
@@ -5462,8 +5459,7 @@
                 "Checking only one or two components before concluding the point is on the line",
                 "Allowing a different λ for each component",
                 "Setting z = 0 by putting λ = 0"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.14.angle-between-lines",
@@ -5506,8 +5502,7 @@
                 "Using the position vectors (1, 0, 2) and (3, 1, 0) instead of the directions",
                 "Giving the obtuse angle when the acute angle between lines is asked for",
                 "Thinking lines must intersect before an angle between them exists"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.14.kinematics",
@@ -5794,8 +5789,7 @@
                 "Showing only that the lines do not intersect and forgetting to show they are not parallel",
                 "Showing only that the directions are not parallel and concluding skew without checking for an intersection",
                 "Thinking skew lines can exist in 2D"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.15.parameter-condition",
@@ -5835,11 +5829,10 @@
                 }
               ],
               "misconceptions": [
-                "Solving with the k equation first and getting λ in terms of k that is never pinned down",
+                "Substituting λ and μ back into an equation already used, so every k seems to work",
                 "Requiring the direction vectors to be equal rather than multiples",
                 "Finding k for parallel directions and calling the lines coincident without checking a shared point"
-              ],
-              "threads": []
+              ]
             }
           ]
         },
@@ -5900,8 +5893,7 @@
                 "Forgetting the minus on the j term: (−3, −6, −3)",
                 "Multiplying component by component: (4, 10, 18)",
                 "Giving a number instead of a vector"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.16.perpendicular-vector",
@@ -5951,8 +5943,7 @@
                 "Dividing by the magnitude of one of the original vectors instead of the cross product's magnitude",
                 "Thinking there is only one perpendicular unit vector, forgetting its negative",
                 "Thinking i × j = −k"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.16.area",
@@ -5995,7 +5986,7 @@
               "misconceptions": [
                 "Forgetting the ½ for a triangle: 3√6 instead of 3√6/2",
                 "Using position vectors a × b instead of AB × AC",
-                "Taking AB × BC × CA style triple products, or using sides that do not share a vertex"
+                "Using ½|AB||AC| with no sine, as if the triangle were right-angled at A"
               ],
               "threads": [
                 {
@@ -6226,7 +6217,7 @@
               "misconceptions": [
                 "Reading the normal from ax + by + cz = d as (a, b, d)",
                 "Thinking the normal is one of the direction vectors in the vector form",
-                "Including d as a fourth component or thinking a plane has a unique vector form"
+                "Thinking a plane has only one vector form, so marking a correct alternative with different directions as wrong"
               ],
               "threads": [
                 {
@@ -6283,8 +6274,7 @@
                 "Keeping d = 5 for the parallel plane, which gives the same plane",
                 "Using the line direction as a vector in the plane instead of as its normal",
                 "Thinking planes with normals (2, −1, 3) and (4, −2, 6) are not parallel"
-              ],
-              "threads": []
+              ]
             }
           ]
         },
@@ -6394,7 +6384,7 @@
               ],
               "misconceptions": [
                 "Using n₁ + n₂ or one of the normals as the line's direction",
-                "Setting z = 0 when the line has z constant, so no point with z = 0 exists",
+                "Always setting z = 0 to find a point, even when the line's direction has zero z-component, so the two equations become inconsistent",
                 "Thinking two non-parallel planes can fail to meet"
               ],
               "threads": [
@@ -6466,7 +6456,7 @@
               "id": "AHL3.18.angle-line-plane",
               "name": "Find the angle between a line and a plane",
               "examTypes": [
-                "Find the acute angle between the line r = (1, 0, 2) + λ(2, 1, −2) and the plane x + 2y + 2z = 5",
+                "Find the acute angle between the line r = (1, 0, 2) + λ(2, 1, 2) and the plane x + 2y + 2z = 5",
                 "Find the angle between the line AB and the plane",
                 "Explain why the scalar product of direction and normal gives 90° minus the required angle"
               ],
@@ -6504,8 +6494,7 @@
                 "Giving the angle between the line and the normal instead of the plane",
                 "Using a direction vector lying in the plane in place of the normal",
                 "Leaving an obtuse answer without taking the acute angle"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.18.angle-two-planes",
@@ -6549,8 +6538,7 @@
                 "Using sin instead of cos, as for a line and a plane",
                 "Taking the angle between the constants or the position vectors of points on the planes",
                 "Giving 120° when the acute angle is asked for"
-              ],
-              "threads": []
+              ]
             },
             {
               "id": "AHL3.18.foot-reflection",

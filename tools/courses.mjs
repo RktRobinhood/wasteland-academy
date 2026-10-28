@@ -202,8 +202,8 @@ export function build() {
     md.push(row([`${n}. ${topicNames[n]}`, f('ai-sl'), f('ai-hl')]));
   }
   md.push('', '**Shared subtopics** (AI guide number → map ID):', '',
-    row(['AI guide', 'Map ID', 'Title', 'Courses']), row(['---', '---', '---', '---']),
-    ...shared.map(s => row([s.ai, s.id, subtopics.get(s.id)?.st.title ?? '?', s.courses.join(', ')])), '',
+    row(['AI guide', 'Map ID', 'Title', 'Courses', 'Note']), row(['---', '---', '---', '---', '---']),
+    ...shared.map(s => row([s.ai, s.id, subtopics.get(s.id)?.st.title ?? '?', s.courses.join(', '), s.note ?? ''])), '',
     '**AI-only subtopics that overlap AA in part:**', '',
     row(['AI subtopic', 'Title', 'Overlaps']), row(['---', '---', '---']),
     ...live.filter(x => x.st.overlaps?.length).map(x => row([x.st.id, x.st.title, x.st.overlaps.join(', ')])), '');

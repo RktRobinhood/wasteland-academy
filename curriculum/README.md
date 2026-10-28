@@ -58,7 +58,7 @@ The game serves four IB courses from this one map: AA SL (live), and AA HL, AI S
 
 ### How AI shares with AA
 
-A subtopic is shared only where the AI content statement says the same as the AA one. Then the AA subtopic adds the AI course to its `courses`, and `shared` in `ai.json` records the AI guide number it stands for. For example, `{"ai": "AHL1.11", "id": "SL1.8", "courses": ["ai-hl"]}` says that AI HL's 1.11 (infinite geometric series) is AA's SL1.8. AI SL shares 26 AA SL subtopics this way, and AI HL shares 3 more (SL1.8, SL2.11 and SL5.9).
+A subtopic is shared only where the AI content statement says the same as the AA one. Then the AA subtopic adds the AI course to its `courses`, and `shared` in `ai.json` records the AI guide number it stands for. For example, `{"ai": "AHL1.11", "id": "SL1.8", "courses": ["ai-hl"]}` says that AI HL's 1.11 (infinite geometric series) is AA's SL1.8. AI SL shares 26 AA SL subtopics this way, and AI HL shares 3 more (SL1.8, SL2.11 and SL5.9). Where the AI guidance adds a small extra to a shared statement, the entry carries a `note`. AI AHL5.13 kinematics, for example, also lists a = v dv/ds, which SL5.9 has no skill for yet.
 
 Where AI covers part of an AA statement, or covers it differently (AI SL3.4 is in degrees, for example, and AI AHL5.9 bundles derivatives that AA spreads over SL5.6 and AHL5.14), the AI subtopic gets its own `AI-` ID and an **`overlaps`** list naming the AA subtopics it touches. `overlaps` is information for authors (reuse a generator, or compare depth). It does not share skills.
 
