@@ -143,7 +143,8 @@ test('the map moves: tumbleweeds, dust, smoke, lights and a buzzard, none of whi
   await expect(ambient).toHaveCSS('pointer-events', 'none');
   const running = await ambientAnimations(page);
   for (const name of ['amb-weed-roll', 'amb-weed-spin', 'amb-weed-hop', 'amb-weed-puff', 'amb-dust', 'amb-gust',
-    'amb-devil', 'amb-devil-sway', 'amb-cloud', 'amb-puff', 'amb-blink', 'amb-beacon', 'amb-neon', 'amb-circle']) {
+    'amb-devil', 'amb-devil-sway', 'amb-cloud', 'amb-puff', 'amb-smoke-gust', 'amb-smoke-wisp',
+    'amb-blink', 'amb-beacon', 'amb-neon', 'amb-circle']) {
     expect(running, `${name} runs`).toContain(name);
   }
 
@@ -168,6 +169,49 @@ test('the map moves: tumbleweeds, dust, smoke, lights and a buzzard, none of whi
   await page.getByRole('button', { name: /^Engine Core/ }).click();
   await expect(page.locator('#screen-island')).toBeVisible();
   expect(await ambientAnimations(page)).toEqual([]);
+  pageErrors.expectNone();
+});
+
+test('the middle gust lays the Engine Core smoke over as it passes, then the smoke stands back up', async ({ page }) => {
+  const pageErrors = trackPageErrors(page);
+  await openWorld(page);
+
+  // Freeze the layer and step one gust from its start, 0.1s at a time. At each
+  // step, note whether a streak of the gust is over each chimney, and how far
+  // that chimney's plume leans downwind (the skew of its transform).
+  const steps = await page.evaluate(() => {
+    const anims = document.getAnimations().filter(a => a.effect?.target?.closest?.('.world-ambient'));
+    anims.forEach(a => a.pause());
+    const gust = document.querySelector('.amb-gust-2');
+    const streaks = [...gust.querySelectorAll('span:not(.amb-gust-cloud)')];
+    const { delay, duration } = anims.find(a => a.effect.target === gust).effect.getTiming();
+    const start = ((delay % duration) + duration) % duration;
+    const chimneys = ['tall', 'short'].map(k => {
+      const box = document.querySelector(`.amb-smoke-${k}`).getBoundingClientRect();
+      return { k, x: box.x + box.width / 2, plume: document.querySelector(`.amb-smoke-${k} .amb-smoke-plume`) };
+    });
+    const out = [];
+    for (let t = start; t < start + duration; t += 100) {
+      anims.forEach(a => { a.currentTime = t; });
+      const shown = +getComputedStyle(gust).opacity > 0.5;
+      out.push(Object.fromEntries(chimneys.map(c => [c.k, {
+        over: shown && streaks.some(s => { const r = s.getBoundingClientRect(); return r.left <= c.x && c.x <= r.right; }),
+        lean: -new DOMMatrix(getComputedStyle(c.plume).transform).c,
+      }])));
+    }
+    return out;
+  });
+
+  for (const k of ['tall', 'short']) {
+    const at = steps.map(s => s[k]);
+    const first = at.findIndex(s => s.over);
+    const last = at.findLastIndex(s => s.over);
+    expect(first, `the gust reaches the ${k} chimney`).toBeGreaterThanOrEqual(0);
+    expect(Math.max(...at.slice(0, first).map(s => s.lean)), `${k} smoke is still before the gust`).toBeLessThan(0.05);
+    const peak = Math.max(...at.slice(first, first + 15).map(s => s.lean));
+    expect(peak, `${k} smoke lays over within 1.5s of the gust`).toBeGreaterThan(0.5);
+    expect(Math.max(...at.slice(last + 50).map(s => s.lean)), `${k} smoke stands back up after the gust`).toBeLessThan(0.02);
+  }
   pageErrors.expectNone();
 });
 

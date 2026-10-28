@@ -195,6 +195,9 @@
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  /* The middle gust's clock, shared with the Engine Core smoke it blows through */
+  --gust2-period: 17s;
+  --gust2-delay: -11s;
 }
 .world-ambient * { position: absolute; }
 @media (prefers-reduced-motion: reduce) {
@@ -253,17 +256,17 @@
   top: var(--t);
   width: var(--w);
   height: 30%;
-  background: radial-gradient(closest-side, rgba(248,222,176,0.5), rgba(248,222,176,0.2) 55%, transparent);
+  background: radial-gradient(closest-side, rgba(248,222,176,0.3), rgba(248,222,176,0.11) 55%, transparent);
 }
 .amb-gust .amb-gust-cloud {
   left: -6%;
   top: -60%;
   width: 40%;
   height: 220%;
-  background: radial-gradient(closest-side, rgba(240,206,150,0.3), transparent);
+  background: radial-gradient(closest-side, rgba(240,206,150,0.18), transparent);
 }
 .amb-gust-1 { --y: 33%;   --period: 13s; --delay: -4s; }
-.amb-gust-2 { --y: 63.5%; --period: 17s; --delay: -11s; }
+.amb-gust-2 { --y: 63.5%; --period: var(--gust2-period); --delay: var(--gust2-delay); }
 .amb-gust-3 { --y: 95%;   --period: 11s; --delay: -8s; }
 @keyframes amb-gust {
   0%        { translate: -45% 0;  opacity: 0; }
@@ -387,10 +390,11 @@
 }
 
 /* Engine Core: smoke rises from two chimneys and bends downwind. Each has six
-   puffs (--i is 0 to 5), spaced evenly through --puff so the plume is unbroken. */
-.amb-smoke-tall  { --x: 57.3%; --y: 63.3%; --size: 6%;   --puff: 6s; }
-.amb-smoke-short { --x: 35.6%; --y: 69.6%; --size: 4.5%; --puff: 8s; }
-.amb-smoke span {
+   puffs (--i is 0 to 5), spaced evenly through --puff so the plume is unbroken.
+   --hit is when the middle gust's leading streak reaches the chimney. */
+.amb-smoke-tall  { --x: 57.3%; --y: 63.3%; --size: 6%;   --puff: 6s; --hit: 0.76s; }
+.amb-smoke-short { --x: 35.6%; --y: 69.6%; --size: 4.5%; --puff: 8s; --hit: 0.35s; }
+.amb-smoke-plume span {
   inset: 0;
   border-radius: 50%;
   background: radial-gradient(closest-side, rgba(96,88,82,0.75), rgba(96,88,82,0.35) 55%, transparent);
@@ -402,6 +406,36 @@
   6%   { opacity: 0.7; }
   45%  { translate: 25% -160%;  opacity: 0.35; }
   100% { translate: 170% -300%; scale: 3; opacity: 0; }
+}
+/* The middle gust blows through both chimneys. As it reaches each one, the
+   plume lays over flat downwind, then thins and stands back up as fresh smoke
+   rises, while a shred tears off and rides the gust away. Both run on the
+   gust's clock, offset by --hit, so they stay in step with it. The plume
+   leans from the chimney mouth, so the higher smoke goes further. */
+.amb-smoke-plume {
+  inset: 0;
+  animation: amb-smoke-gust var(--gust2-period) linear calc(var(--gust2-delay) + var(--hit)) infinite;
+}
+.amb-smoke-wisp {
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(96,88,82,0.6), rgba(96,88,82,0.25) 55%, transparent);
+  opacity: 0;
+  animation: amb-smoke-wisp var(--gust2-period) linear calc(var(--gust2-delay) + var(--hit)) infinite;
+}
+/* At the gust's 17s period, 1% is about 0.17s */
+@keyframes amb-smoke-gust {
+  0%, 100% { transform: skewX(0deg) scaleY(1);       opacity: 1;    animation-timing-function: ease-in; }
+  4%       { transform: skewX(-62deg) scaleY(0.45);  opacity: 1;    animation-timing-function: ease-in-out; }
+  7%       { transform: skewX(-55deg) scaleY(0.52);  opacity: 1;    animation-timing-function: ease-in-out; }
+  10%      { transform: skewX(-60deg) scaleY(0.47);  opacity: 0.8;  animation-timing-function: ease-out; }
+  24%      { transform: skewX(0deg) scaleY(1);       opacity: 1; }
+}
+@keyframes amb-smoke-wisp {
+  0%        { translate: 20% -100%; scale: 0.8 0.8; opacity: 0; }
+  3%        { translate: 120% -90%; scale: 1.6 0.7; opacity: 0.6; }
+  9%        { translate: 520% -70%; scale: 2.8 0.5; opacity: 0.35; }
+  14%, 100% { translate: 900% -60%; scale: 3.4 0.4; opacity: 0; }
 }
 
 /* Tumbleweeds. Each rolls across its lane in the first 30% of --period, then
