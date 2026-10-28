@@ -385,7 +385,9 @@ func _resolve(outcome: String, m: Dictionary) -> Dictionary:
 func _boss_down() -> int:
 	stats.minis += 1 if kind == "mini" else 0
 	stats.bosses += 1 if kind == "boss" else 0
-	var healed := heal(modifiers.apply("boss_heal", Tuning.BOSS_HEAL, _ctx()))
+	var c := _ctx()
+	c.boss = kind
+	var healed := heal(modifiers.apply("boss_heal", Tuning.BOSS_HEAL, c))
 	if kind == "boss" and records:
 		Dungeon.note_floor(save, region, floor_no, true)
 	boss_beaten.emit(floor_no, kind)
