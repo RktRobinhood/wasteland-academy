@@ -1,4 +1,4 @@
-# Journey strip assets (FAL-293, FAL-208, FAL-346, FAL-358)
+# Journey strip assets (FAL-293, FAL-208, FAL-346, FAL-358, FAL-360)
 
 The side-view journey strip above the question card: the party walks right through a parallax region, and each
 answer plays out as a beat: Explore, Puzzle or Fight (the FAL-289 plan). Art only gives poses and object states.
@@ -6,7 +6,8 @@ Code draws every movement and effect (tweens, lunges, slashes, impacts, zaps, sp
 in the FAL-218 spec. The Godot strip that draws them is FAL-331.
 
 Folders: `party/` (the Learners and Spark), `enemies/` (the D1-D5 ranks, which appear on every island),
-`weapons/`, `encounters/` (the rare road encounters and the shared, island-neutral Cell), and one folder per island
+`weapons/`, `cast/` (the recurring dialogue characters on the road), `encounters/` (the rare road encounters and the
+shared, island-neutral Cell), and one folder per island
 for its own creatures, obstacles, treasure and parallax (`signal-tower/`).
 
 ## How to draw a sheet
@@ -99,10 +100,18 @@ display. `figure_height` is the person's height, not counting tall set pieces su
 `.json` (the foreground alpha overlay: `shut`, `loose`, `open`) and `guard.webp` + `.json` (the left-facing idle/talk
 guard). The bars cover 864×256: draw them at feet (432, 256), so their top-left is (0, 0).
 
+**Cast (`cast/`, FAL-360).** Gear Mira, Dax, Noma and B0-LT on the road: each sheet faces left, with `idle` [idle]
+at 1 fps and `talk` [idle, talk] at 4 fps looping. The two frames share their lower-body pixels, so the feet never
+move. Their dialogue portraits are in `assets/portraits/` (see its README).
+
 ## Files
 
 | File | Frames (w×h shipped px) | Anims (fps) | Anchors | Bytes |
 |---|---|---|---|---|
+| `cast/b0-lt.webp` + `b0-lt.json` | idle 44×220, talk 44×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 12,004 |
+| `cast/dax.webp` + `dax.json` | idle 72×220, talk 72×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 12,258 |
+| `cast/gear-mira.webp` + `gear-mira.json` | idle 62×220, talk 62×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 13,492 |
+| `cast/noma.webp` + `noma.json` | idle 74×220, talk 74×220 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 14,582 |
 | `encounters/cell/backdrop.webp` | opaque 864×256 | static | strip origin (0, 0) | 25,926 |
 | `encounters/cell/bars.webp` + `.json` | shut 864×256, loose 864×256, open 864×256 | shut/loose/open, one frame each (1, once) | feet point | 360,974 |
 | `encounters/cell/guard.webp` + `.json` | idle 106×248, talk 106×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 15,540 |
@@ -136,7 +145,7 @@ guard). The bars cover 864×256: draw them at feet (432, 256), so their top-left
 | `weapons/neon-blade.png` + `neon-blade.json` | weapon 112×26 | – | grip (8, 12) | 4,547 |
 | `weapons/rebar.png` + `rebar.json` | weapon 104×9 | – | grip (10, 4) | 2,641 |
 
-Total: 2,290,642 bytes (2.18 MB) of the 4 MB budget.
+Total: 2,342,978 bytes (2.23 MB) of the 4 MB budget.
 
 ## Where it came from
 
@@ -164,3 +173,7 @@ FAL-358 added the six Signal Tower encounter sheets and the shared Cell: idle an
 reference-locked edits for the talk and bust poses, with local face and arm composites so the feet and set pieces
 never move. One bar of the Cell's `loose` state is bent geometrically in Pillow, so that state keeps every bar. 44
 local renders in four rounds. Prompts, rounds and counters are on FAL-358.
+
+FAL-360 added the four recurring dialogue characters (`cast/`) and their portraits: reference-locked edits of the
+canon roster, plus a new design for B0-LT (an angular factory frame with an amber monitor and a crown tag). 30 local
+renders in five rounds. Method and rounds are on FAL-360.

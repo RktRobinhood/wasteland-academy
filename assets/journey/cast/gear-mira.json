@@ -1,0 +1,47 @@
+{
+  "name": "gear-mira",
+  "image": "gear-mira.webp",
+  "facing": "left",
+  "origin": [
+    0,
+    0
+  ],
+  "figure_height": 220,
+  "frames": [
+    {
+      "id": "idle",
+      "x": 0,
+      "y": 0,
+      "w": 62,
+      "h": 220,
+      "ox": -33,
+      "oy": -219
+    },
+    {
+      "id": "talk",
+      "x": 64,
+      "y": 0,
+      "w": 62,
+      "h": 220,
+      "ox": -33,
+      "oy": -219
+    }
+  ],
+  "anims": {
+    "idle": {
+      "frames": [
+        0
+      ],
+      "fps": 1,
+      "loop": true
+    },
+    "talk": {
+      "frames": [
+        0,
+        1
+      ],
+      "fps": 4,
+      "loop": true
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "name": "dax",
+  "image": "dax.webp",
+  "facing": "left",
+  "origin": [
+    0,
+    0
+  ],
+  "figure_height": 220,
+  "frames": [
+    {
+      "id": "idle",
+      "x": 0,
+      "y": 0,
+      "w": 72,
+      "h": 220,
+      "ox": -42,
+      "oy": -219
+    },
+    {
+      "id": "talk",
+      "x": 74,
+      "y": 0,
+      "w": 72,
+      "h": 220,
+      "ox": -42,
+      "oy": -219
+    }
+  ],
+  "anims": {
+    "idle": {
+      "frames": [
+        0
+      ],
+      "fps": 1,
+      "loop": true
+    },
+    "talk": {
+      "frames": [
+        0,
+        1
+      ],
+      "fps": 4,
+      "loop": true
+    }
+  }
+}
