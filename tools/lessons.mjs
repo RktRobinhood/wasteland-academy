@@ -63,12 +63,25 @@ function dependents(lessons) {
   return out;
 }
 
-// Build order: weighted exam parts, then how many lessons need it, then ID.
-export function priorities(lessons, types) {
+// Build order. The pilot and the second lesson come first, where ROADMAP.md puts them (L2 and L4).
+// From L5 a lesson always comes after every lesson in its prerequisites; among the lessons whose
+// prerequisites are already placed, the next is the one with the most weighted exam parts, then the
+// one more lessons need, then the lower ID. Prerequisites set this order and the game's suggestions;
+// they never lock a lesson.
+export function priorities(lessons, types, fixed = []) {
   const deps = dependents(lessons);
+  const byId = new Map(lessons.map(l => [l.id, l]));
   const rows = lessons.map(l => ({ id: l.id, parts: weightedParts(l, types), unlocks: deps.get(l.id)?.size || 0 }));
   rows.sort((a, b) => b.parts - a.parts || b.unlocks - a.unlocks || a.id.localeCompare(b.id));
-  return new Map(rows.map((r, i) => [r.id, { parts: r.parts, rank: i + 1, unlocks: r.unlocks }]));
+  const order = fixed.map(id => rows.find(r => r.id === id)).filter(Boolean);
+  const placed = new Set(order.map(r => r.id));
+  let rest = rows.filter(r => !placed.has(r.id));
+  while (rest.length) {
+    // An unknown prerequisite or a cycle is reported by check(); the plain rule places the rest.
+    const next = rest.find(r => (byId.get(r.id).prerequisites || []).every(p => placed.has(p) || !byId.has(p))) || rest[0];
+    order.push(next); placed.add(next.id); rest = rest.filter(r => r !== next);
+  }
+  return new Map(order.map((r, i) => [r.id, { parts: r.parts, rank: i + 1, unlocks: r.unlocks }]));
 }
 
 export function check({ lessons: file, doc, map }) {
@@ -185,10 +198,18 @@ export function check({ lessons: file, doc, map }) {
   for (const l of lessons) walk(l.id, []);
 
   // priority must match what the map computes
-  const prio = priorities(lessons, types);
+  const prio = priorities(lessons, types, [file.pilot, file.second]);
   for (const l of lessons) {
     const p = prio.get(l.id);
     if (l.priority?.parts !== p.parts || l.priority?.rank !== p.rank) errors.push(`${l.id}: priority should be { parts: ${p.parts}, rank: ${p.rank} }; run node tools/lessons.mjs --write`);
+  }
+  // from L5, no lesson is built before one of its prerequisites (the pilot and the second lesson are exempt)
+  for (const l of lessons) {
+    if (l.id === file.pilot || l.id === file.second) continue;
+    for (const p of l.prerequisites || []) {
+      const r = byId.get(p)?.priority?.rank;
+      if (r != null && l.priority?.rank != null && r > l.priority.rank) errors.push(`${l.id}: rank ${l.priority.rank} comes before its prerequisite ${p} (rank ${r}) in the build order`);
+    }
   }
 
   // milestones from ROADMAP.md
@@ -276,12 +297,13 @@ export function render({ lessons: file, doc, map }, counts) {
   L.push('');
 
   L.push('## Build order', '');
-  L.push('Ranked by **weighted exam parts**: for each exam type a lesson supports, the type\'s parts in the bank (May 2021 to May 2025) times the share of its exam unknowns the lesson prepares for. Ties go to the lesson more other lessons depend on. The pilot and the second lesson are fixed by the roadmap (L2 and L4); this order applies from L5.', '');
+  L.push('The pilot and the second lesson come first, where the roadmap puts them (L2 and L4). They test the engine, and players can open any lesson, so they do not wait for their prerequisites. From L5, a lesson always comes after every lesson in its prerequisites. Among the lessons whose prerequisites are already placed, the next is the one with the most **weighted exam parts**: for each exam type a lesson supports, the type\'s parts in the bank (May 2021 to May 2025) times the share of its exam unknowns the lesson prepares for. Ties go to the lesson more other lessons depend on, then to the ID. Prerequisites set this order and the lessons the game suggests; they never lock a lesson.', '');
   L.push('| Rank | Lesson | Region | Interaction | Weighted parts | Lessons that need it | Exam types it supports |', '|---|---|---|---|---|---|---|');
   for (const l of [...lessons].sort((a, b) => P.get(a.id).rank - P.get(b.id).rank)) {
     const p = P.get(l.id);
     const ex = l.supports.filter(t => types.get(t)?.source === 'exam');
-    L.push(`| ${p.rank} | ${l.title} (\`${short(l.id)}\`) | ${doc.regions.find(r => r.id === l.region)?.name} | ${kindName.get(l.interaction)} | ${p.parts} | ${p.unlocks} | ${ex.length ? ex.map(t => `\`${t}\``).join(', ') : '–'} |`);
+    const milestone = l.id === file.pilot ? ' (pilot, L2)' : l.id === file.second ? ' (second, L4)' : '';
+    L.push(`| ${p.rank}${milestone} | ${l.title} (\`${short(l.id)}\`) | ${doc.regions.find(r => r.id === l.region)?.name} | ${kindName.get(l.interaction)} | ${p.parts} | ${p.unlocks} | ${ex.length ? ex.map(t => `\`${t}\``).join(', ') : '–'} |`);
   }
   L.push('');
 
@@ -373,7 +395,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (write) {
     // Refresh the computed priorities first, so a new or edited lesson only needs --write.
     const types = new Map(data.doc.types.map(t => [t.id, t]));
-    const prio = priorities(data.lessons.lessons, types);
+    const prio = priorities(data.lessons.lessons, types, [data.lessons.pilot, data.lessons.second]);
     for (const l of data.lessons.lessons) { const p = prio.get(l.id); l.priority = { parts: p.parts, rank: p.rank }; }
   }
   const { errors, warnings, counts } = check(data);

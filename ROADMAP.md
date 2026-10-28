@@ -29,7 +29,7 @@ Matt's spec is GitHub issue #13 (FAL-325). Players find salvaged CRT and VR mach
 
 | When | Step | Who |
 |---|---|---|
-| Now | **L0 Design down.** Work back from the exam question types to the ideas and prior skills students need, and group them into a lesson map. Functions first. | Curriculum Author |
+| Done for Functions | **L0 Design down.** Work back from the exam question types to the ideas and prior skills students need, and group them into a lesson map. Functions first. The Functions map: [`curriculum/LESSONS.md`](curriculum/LESSONS.md). | Curriculum Author |
 | Nov 16–22 | **L1 Architecture.** The lesson state machine (setup, demonstrate, interact, react, apply, complete), the lesson file format, the interaction parts, and lesson progress in the save. | Coder |
 | Nov 23 – Dec 6 | **L2 Pilot: The Broken Conveyor** (SL2.11, graph transformations), with placeholder art. | Coder |
 | Dec 7–20 | **L3 Presentation.** B0-LT as a cutout character, local narration with subtitles, and the CRT and salvaged-VR look. | Coder, Artist |
