@@ -7,12 +7,17 @@ extends RefCounted
 ##              vertex_form, vertex_form_a, general, general_a, factorised, maxmin,
 ##              vertex_kind, range, triple, claim; for the triangle situation also
 ##              measure (a length, angle or area, written to 3 s.f. with its unit); for
-##              the distribution situation also pq (two unknown probabilities p and q)
+##              the distribution situation also pq (two unknown probabilities p and q);
+##              for the Quadratics region (FAL-414) also choice, delta_nature, kvals,
+##              interval, bound, quad_in, kpoint, points2, surd, surd_roots, line,
+##              npoint, kroot and ineq_a
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
 ##   fixed      values shown as given, not asked (a in "2(x − □)² + □")
 ##   unordered  groups of slot ids that may come in any order (two roots)
+##   pairs      (optional) groups of slot-id lists that may swap as wholes: two points
+##              [["x1", "y1"], ["x2", "y2"]] can come in either order, each kept whole
 ##   unit       text after the number: " cm", "°" (measure only)
 ##   exact      (optional) true when only the exact value is right, not 3 s.f.: Paper 1
 ##              answers the IB wants exact, such as a whole-number sum (2345 is not 2350)
@@ -70,7 +75,86 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = [label, {"slot": "v"}, unit]
 		"pq":
 			t = ["p = ", {"slot": "p"}, ",  q = ", {"slot": "q"}]
-	return {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
+		# ── Quadratics region (FAL-414) ──
+		"choice":
+			t = [label, {"pick": "v", "options": fixed.options}]
+		"delta_nature":
+			t = ["Δ = ", {"slot": "d"}, ", so ", {"pick": "nature", "options": fixed.options}]
+		"kvals":
+			var v: String = fixed.get("var", "k")
+			t = [v + " = ", {"slot": "r1"}, " or %s = " % v, {"slot": "r2"}]
+			unordered = [["r1", "r2"]]
+		"interval":
+			t = [fixed.get("var", "k") + " is ", {"pick": "shape", "options": SHAPES}, " ", {"slot": "lo"}, " and ", {"slot": "hi"},
+				", with the ends ", {"pick": "ends", "options": ENDS}]
+		"bound":
+			t = [fixed.get("var", "k") + " ", {"pick": "rel", "options": RELS}, " ", {"slot": "v"}]
+		"quad_in":
+			var v: String = fixed.get("var", "x")
+			t = [label]
+			if fixed.has("A"):
+				if not Q.of(fixed.A).is_zero():
+					t.append(Fmt.lead(fixed.A) + v + "² + ")
+			else:
+				t.append_array([{"slot": "A"}, v + "² + "])
+			t.append_array([{"slot": "B"}, v + " + ", {"slot": "C"}, fixed.get("tail", "")])
+		"kpoint":
+			t = ["k = ", {"slot": "k"}, ", touching at (", {"slot": "x"}, ", ", {"slot": "y"}, ")"]
+		"points2":
+			t = ["(", {"slot": "x1"}, ", ", {"slot": "y1"}, ") and (", {"slot": "x2"}, ", ", {"slot": "y2"}, ")"]
+		"surd":
+			t = [label, {"slot": "m"}, "√", {"slot": "r"}, unit]
+		"surd_roots":
+			t = ["x = ", {"slot": "h"}, " ± √", {"slot": "d"}]
+		"line":
+			t = ["y = ", {"slot": "m"}, "x + ", {"slot": "n"}]
+		"npoint":
+			t = ["n = ", {"slot": "n"}, ", other point (", {"slot": "x"}, ", ", {"slot": "y"}, ")"]
+		"kroot":
+			t = ["k = ", {"slot": "k"}, ", other root x = ", {"slot": "r"}]
+		"ineq_a":
+			t = ["x² + ", {"slot": "b"}, "x + ", {"slot": "c"}, " ", {"pick": "rel", "options": RELS}, " 0"]
+	var out := {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
+	if kind == "points2":
+		out.pairs = [[["x1", "y1"], ["x2", "y2"]]]
+	return out
+
+
+## The interval kind: between the two numbers, or outside them, with the ends left out
+## (strict) or included. pm_lt, pm_gt, below and above are only ever wrong options
+## (k < ±6; k < 9 with the other condition forgotten), so they are not offered as picks.
+const SHAPES := ["between", "outside"]
+const ENDS := ["left out", "included"]
+const RELS := ["<", "≤", ">", "≥"]
+
+
+static func interval_text(v: String, shape: String, lo: Variant, hi: Variant, ends: String) -> String:
+	var inc := ends == "included"
+	var lt := "≤" if inc else "<"
+	var gt := "≥" if inc else ">"
+	match shape:
+		"between":
+			return "%s %s %s %s %s" % [Fmt.num(lo), lt, v, lt, Fmt.num(hi)]
+		"outside":
+			return "%s %s %s or %s %s %s" % [v, lt, Fmt.num(lo), v, gt, Fmt.num(hi)]
+		"pm_lt":
+			return "%s %s ±%s" % [v, lt, Fmt.num(hi)]
+		"pm_gt":
+			return "%s %s ±%s" % [v, gt, Fmt.num(hi)]
+		"below":
+			return "%s %s %s" % [v, lt, Fmt.num(hi)]
+		"above":
+			return "%s %s %s" % [v, gt, Fmt.num(lo)]
+	return "?"
+
+
+## m√r as written: "3√2", "√5", "4" when r = 1.
+static func surd_text(m: Variant, r: Variant) -> String:
+	var mq := Q.of(m)
+	var rq := Q.of(r)
+	if rq.eq(1):
+		return Fmt.num(mq)
+	return ("" if mq.eq(1) else Fmt.num(mq)) + "√" + Fmt.num(rq)
 
 
 ## The same answer shape with other values (for a wrong option).
@@ -132,6 +216,40 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return ans.label + Fmt.sf(v.v) + ans.unit
 		"pq":
 			return "p = %s, q = %s" % [shown(ans, v.p), shown(ans, v.q)]
+		"choice":
+			return ans.label + str(v.v)
+		"delta_nature":
+			return "Δ = %s, so %s" % [Fmt.num(v.d), v.nature]
+		"kvals":
+			var rs := _sorted([v.r1, v.r2])
+			var name: String = fx.get("var", "k")
+			return "%s = %s or %s = %s" % [name, Fmt.num(rs[0]), name, Fmt.num(rs[1])]
+		"interval":
+			return interval_text(fx.get("var", "k"), v.shape, v.lo, v.hi, v.ends)
+		"bound":
+			return "%s %s %s" % [fx.get("var", "k"), v.rel, Fmt.num(v.v)]
+		"quad_in":
+			var a: Variant = fx.A if fx.has("A") else v.A
+			return ans.label + Fmt.poly([a, v.B, v.C], fx.get("var", "x")) + fx.get("tail", "")
+		"kpoint":
+			return "k = %s, touching at %s" % [Fmt.num(v.k), Fmt.point(v.x, v.y)]
+		"points2":
+			var ps := [[Q.of(v.x1), Q.of(v.y1)], [Q.of(v.x2), Q.of(v.y2)]]
+			if ps[1][0].lt(ps[0][0]):
+				ps.reverse()
+			return "%s and %s" % [Fmt.point(ps[0][0], ps[0][1]), Fmt.point(ps[1][0], ps[1][1])]
+		"surd":
+			return ans.label + surd_text(v.m, v.r) + ans.unit
+		"surd_roots":
+			return "x = %s± √%s" % ["" if Q.of(v.h).is_zero() else Fmt.num(v.h) + " ", Fmt.num(v.d)]
+		"line":
+			return "y = " + Fmt.poly([v.m, v.n])
+		"npoint":
+			return "n = %s, other point %s" % [Fmt.num(v.n), Fmt.point(v.x, v.y)]
+		"kroot":
+			return "k = %s, other root x = %s" % [Fmt.num(v.k), Fmt.num(v.r)]
+		"ineq_a":
+			return "%s %s 0" % [Fmt.poly([1, v.b, v.c]), v.rel]
 	return "?"
 
 
@@ -155,6 +273,14 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind == "measure":
 		return "measure:" + Fmt.sf(values.v)
 	var v := values.duplicate()
+	for group in ans.get("pairs", []):
+		var a: Array = group[0]
+		var b: Array = group[1]
+		if Q.of(v[b[0]]).lt(v[a[0]]):
+			for i in a.size():
+				var t = v[a[i]]
+				v[a[i]] = v[b[i]]
+				v[b[i]] = t
 	for group in ans.unordered:
 		var sorted_vals := _sorted(group.map(func(id): return v[id]))
 		for i in group.size():
@@ -383,8 +509,24 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 
 
 ## Whether typed values match the answer, slot by slot, trying each order of an
-## unordered group. With glancing, a number with too few figures counts too.
+## unordered group. With glancing, a number with too few figures counts too. Two
+## points (pairs) may come either way round.
 static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
+	for group in ans.get("pairs", []):
+		# Two points either way round: try the typed values with the pair swapped.
+		if _values_right(ans, got, glancing):
+			return true
+		var swapped := got.duplicate()
+		var a: Array = group[0]
+		var b: Array = group[1]
+		for i in a.size():
+			swapped[a[i]] = got.get(b[i])
+			swapped[b[i]] = got.get(a[i])
+		return _values_right(ans, swapped, glancing)
+	return _values_right(ans, got, glancing)
+
+
+static func _values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
 	var want: Dictionary = ans.values
 	var exact: bool = ans.get("exact", false)
 	var free := {}

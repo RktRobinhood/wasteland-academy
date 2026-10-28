@@ -34,7 +34,7 @@ from sympy.parsing.sympy_parser import (implicit_multiplication_application, par
 
 ROOT = Path(__file__).resolve().parent.parent
 X = sp.Symbol("x")
-LETTERS = {n: sp.Symbol(n) for n in ["a", "b", "c"]}
+LETTERS = {n: sp.Symbol(n) for n in ["a", "b", "c", "k", "u"]}
 TRANSFORMS = standard_transformations + (implicit_multiplication_application,)
 
 MIN_PER_CELL = 50
@@ -73,7 +73,7 @@ def need(cond, msg):
 
 def parse(text, letters=()):
     """Parses an equation side the way the game writes it."""
-    s = text.replace("−", "-").replace("²", "**2").replace("½", "(1/2)").replace("×", "*")
+    s = text.replace("−", "-").replace("²", "**2").replace("½", "(1/2)").replace("×", "*").replace("kx", "k*x")
     local = {"x": X}
     for n in letters:
         local[n] = LETTERS[n]
@@ -1368,8 +1368,349 @@ def check_distribution(q):
     return None, None
 
 
+# ── Quadratics region (FAL-414) ──────────────────────────────
+# The four situations that finish the region: quadratic-parameter, curve-and-line,
+# quadratic-equation and quadratic-inequality. Each check reads what the student sees
+# back with SymPy, solves the unknown from it, and works out each tagged
+# misconception's wrong value itself. Answer and option texts are written again here
+# from their values (the checker's own copy of the game's writing rules) and must match
+# exactly.
+
+K = LETTERS["k"]
+U = LETTERS["u"]
+QR_STEPS = (2, 5)
+
+
+def qr_lead(v):
+    v = sp.Rational(v)
+    if v == 1:
+        return ""
+    if v == -1:
+        return "−"
+    if v == sp.Rational(1, 2):
+        return "½"
+    if v == sp.Rational(-1, 2):
+        return "−½"
+    if v.q == 1:
+        return frac_text(v)
+    return ("−" if v < 0 else "") + f"({frac_text(abs(v))})"
+
+
+def qr_poly(coeffs, letter="x"):
+    out = ""
+    power = len(coeffs) - 1
+    for c in coeffs:
+        c = sp.Rational(c)
+        if c != 0:
+            mag = abs(c)
+            var = "" if power == 0 else (letter if power == 1 else letter + "²")
+            body = frac_text(mag) if power == 0 else qr_lead(mag) + var
+            if out == "":
+                out = ("−" if c < 0 else "") + body
+            else:
+                out += (" − " if c < 0 else " + ") + body
+        power -= 1
+    return out or "0"
+
+
+def qr_point(x, y):
+    return f"({frac_text(x)}, {frac_text(y)})"
+
+
+def qr_set(kind, v):
+    """An inequality answer as the set it describes (None for a pm wrong option)."""
+    if kind == "bound":
+        x, rel = R(v["v"]), v["rel"]
+        return {"<": sp.Interval.open(-sp.oo, x), "≤": sp.Interval(-sp.oo, x), ">": sp.Interval.open(x, sp.oo),
+                "≥": sp.Interval(x, sp.oo)}[rel]
+    lo, hi, inc = R(v["lo"]), R(v["hi"]), v["ends"] == "included"
+    sh = v["shape"]
+    if sh == "between":
+        return sp.Interval(lo, hi, not inc, not inc)
+    if sh == "outside":
+        return sp.Union(sp.Interval(-sp.oo, lo, True, not inc), sp.Interval(hi, sp.oo, not inc, True))
+    if sh == "below":
+        return sp.Interval(-sp.oo, hi, True, not inc)
+    if sh == "above":
+        return sp.Interval(lo, sp.oo, not inc, True)
+    return None
+
+
+def qr_interval_text(var, v):
+    inc = v["ends"] == "included"
+    lt, gt = ("≤", "≥") if inc else ("<", ">")
+    lo, hi = frac_text(v["lo"]), frac_text(v["hi"])
+    return {"between": f"{lo} {lt} {var} {lt} {hi}", "outside": f"{var} {lt} {lo} or {var} {gt} {hi}",
+            "pm_lt": f"{var} {lt} ±{hi}", "pm_gt": f"{var} {gt} ±{hi}", "below": f"{var} {lt} {hi}",
+            "above": f"{var} {gt} {lo}"}[v["shape"]]
+
+
+def qr_surd(m, r):
+    m, r = R(m), R(r)
+    if r == 1:
+        return frac_text(m)
+    return ("" if m == 1 else frac_text(m)) + "√" + frac_text(r)
+
+
+def qr_text(ans, v):
+    kind, fx, label, unit = ans["kind"], ans.get("fixed") or {}, ans.get("label", ""), ans.get("unit", "")
+    var = fx.get("var", "k")
+    if kind == "number":
+        return label + frac_text(v["v"]) + unit
+    if kind == "choice":
+        return label + v["v"]
+    if kind == "delta_nature":
+        return f"Δ = {frac_text(v['d'])}, so {v['nature']}"
+    if kind in ("kvals", "roots"):
+        a, b = sorted([R(v["r1"]), R(v["r2"])])
+        var = "x" if kind == "roots" else var
+        return f"{var} = {frac_text(a)} {'and' if kind == 'roots' else 'or'} {var} = {frac_text(b)}"
+    if kind == "interval":
+        return qr_interval_text(var, v)
+    if kind == "bound":
+        return f"{var} {v['rel']} {frac_text(v['v'])}"
+    if kind == "quad_in":
+        a = fx["A"] if "A" in fx else v["A"]
+        return label + qr_poly([a, v["B"], v["C"]], fx.get("var", "x")) + fx.get("tail", "")
+    if kind == "kpoint":
+        return f"k = {frac_text(v['k'])}, touching at {qr_point(v['x'], v['y'])}"
+    if kind == "points2":
+        ps = sorted([(R(v["x1"]), R(v["y1"])), (R(v["x2"]), R(v["y2"]))])
+        return f"{qr_point(*ps[0])} and {qr_point(*ps[1])}"
+    if kind == "point":
+        return qr_point(v["x"], v["y"])
+    if kind == "surd":
+        return label + qr_surd(v["m"], v["r"]) + unit
+    if kind == "surd_roots":
+        h = R(v["h"])
+        return f"x = {'' if h == 0 else frac_text(h) + ' '}± √{frac_text(v['d'])}"
+    if kind == "line":
+        return "y = " + qr_poly([v["m"], v["n"]])
+    if kind == "npoint":
+        return f"n = {frac_text(v['n'])}, other point {qr_point(v['x'], v['y'])}"
+    if kind == "kroot":
+        return f"k = {frac_text(v['k'])}, other root x = {frac_text(v['r'])}"
+    if kind == "ineq_a":
+        return f"{qr_poly([1, v['b'], v['c']])} {v['rel']} 0"
+    if kind == "measure":
+        return label + sig3(R(v["v"])) + unit
+    raise Fail(f"the checker can't write answers of kind {kind}")
+
+
+def qr_norm(ans, v):
+    """A value equal for two answers exactly when they mean the same."""
+    kind, fx = ans["kind"], ans.get("fixed") or {}
+    if kind in ("interval", "bound"):
+        st = qr_set(kind, v)
+        return ("pm", v["shape"], R(v["hi"]), v["ends"]) if st is None else st
+    if kind in ("kvals", "roots"):
+        return tuple(sorted([R(v["r1"]), R(v["r2"])]))
+    if kind == "points2":
+        return tuple(sorted([(R(v["x1"]), R(v["y1"])), (R(v["x2"]), R(v["y2"]))]))
+    if kind == "quad_in":
+        return (R(fx["A"]) if "A" in fx else R(v["A"]), R(v["B"]), R(v["C"]))
+    if kind == "measure":
+        return sig3(R(v["v"]))
+    out = []
+    for key in sorted(v):
+        x = v[key]
+        out.append((key, x if not isinstance(x, str) or not re.fullmatch(r"-?\d+(/\d+)?", x) else R(x)))
+    return tuple(out)
+
+
+def qr_check_common(q, want, wrongs=None):
+    """want: the answer normalised (qr_norm). wrongs: ref -> set of normalised values
+    that misconception gives. Every tagged option must be one of its ref's values."""
+    wrongs = wrongs or {}
+    ans = q["answer"]
+    need(qr_norm(ans, ans["values"]) == want, f"engine answer {q['answer_text']!r} is wrong (expected {want})")
+    need(q["answer_text"] == qr_text(ans, ans["values"]), f"answer text {q['answer_text']!r}, expected {qr_text(ans, ans['values'])!r}")
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    seen, texts = [], set()
+    for o in ch:
+        n = qr_norm(ans, o["values"])
+        need(n not in seen, f"two options are the same: {o['text']!r}")
+        seen.append(n)
+        need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
+        texts.add(o["text"])
+        need(o["text"] == qr_text(ans, o["values"]), f"option text {o['text']!r} doesn't say its values")
+        need((n == want) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'} but is {'right' if n == want else 'wrong'}")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrongs, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(n in wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(qr_norm(ans, sol["result"]) == want, f"{sol['name']}: last step gives {sol['result']}, not the answer")
+        need(QR_STEPS[0] <= len(sol["steps"]) <= QR_STEPS[1], f"{sol['name']}: {len(sol['steps'])} steps, not 2 to 5")
+        need(q["answer_text"] in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+
+
+def qr_sign(d):
+    return 1 if d > 0 else (0 if d == 0 else -1)
+
+
+# ── quadratic-parameter ──
+
+QP_NAT = ["two distinct real roots", "one repeated root", "no real roots", "two negative roots"]
+QP_MEET = ["two points", "one point (a tangent)", "no points"]
+QP_SIGNS = ["a > 0 and Δ > 0", "a > 0 and Δ = 0", "a > 0 and Δ < 0", "a < 0 and Δ > 0", "a < 0 and Δ = 0", "a < 0 and Δ < 0"]
+QP_SKETCH = ["opens upwards and crosses the x-axis twice", "opens upwards and touches the x-axis once",
+             "opens upwards and never meets the x-axis", "opens downwards and crosses the x-axis twice",
+             "opens downwards and touches the x-axis once", "opens downwards and never meets the x-axis"]
+QP_BASE = {"nature-from-equation", "delta-sign-from-graph", "graph-from-delta"}
+QP_CRIT_MAX = 30
+
+
+def qp_nat(d, labels):
+    return labels[0] if d > 0 else (labels[1] if d == 0 else labels[2])
+
+
+def qp_family_poly(g):
+    """The quadratic in x with k the givens describe, and the curve and line if any."""
+    fam = g["family"]
+    f = sp.expand(R(g["a0"]) * X**2 + (R(g["b0"]) + R(g["b1"]) * K) * X + R(g["c0"]) + R(g["c1"]) * K)
+    curve = line = None
+    if fam in ("grad", "icpt"):
+        curve = X**2 + R(g["p"]) * X + R(g["r"])
+        line = K * X + R(g["n"]) if fam == "grad" else R(g["m"]) * X + K
+        need(sp.expand(curve - line - f) == 0, "the equated quadratic is not curve − line")
+    return f, curve, line
+
+
+LINE_SENTENCE = re.compile(r"^The line y = (.+?) (?:meets|is a tangent to|does not meet) the curve y = (.+?)(?: at two distinct points)?\.$")
+
+
+def qp_check_shown(q, f, curve, line):
+    """The equations shown are the givens: at least one line must say the quadratic."""
+    said = 0
+    for ln in q["lines"]:
+        m = LINE_SENTENCE.match(ln)
+        if m:
+            need(parse(m.group(1), ("k",)) == sp.expand(line) and parse(m.group(2)) == sp.expand(curve), f"{ln!r} is not the givens")
+            said += 1
+        elif ln.startswith("Curve: y = "):
+            need(parse(ln[11:]) == sp.expand(curve), f"{ln!r} is not the given curve")
+            said += 1
+        elif ln.startswith("Line: y = "):
+            need(parse(ln[10:], ("k",)) == sp.expand(line), f"{ln!r} is not the given line")
+            said += 1
+        elif ln.startswith("f(x) = "):
+            need(parse(ln[7:], ("k",)) == f, f"{ln!r} is not the given quadratic")
+            said += 1
+        else:
+            for pat in (r"^g\(x\) = ln\((.+)\)$", r"^The expression (.+) is positive for every real value of x\.$",
+                        r"^The equation (.+) = 0 has two distinct real roots, and they have the same sign\.$"):
+                m = re.match(pat, ln)
+                if m:
+                    need(parse(m.group(1), ("k",)) == f, f"{ln!r} is not the given quadratic")
+                    said += 1
+    need(said >= 1, "no line shows the quadratic")
+
+
+def check_qparam(q):
+    u = q["view"]["unknown"]
+    g = q["given"]
+    ans = q["answer"]
+    if u in QP_BASE:
+        a, b, c = R(g["a"]), R(g["b"]), R(g["c"])
+        need(a in A_ALLOWED and abs(b) <= B_MAX and abs(c) <= C_MAX and c != 0, "the parabola is outside the clean limits")
+        d = b**2 - 4 * a * c
+        f = a * X**2 + b * X + c
+        if u == "nature-from-equation":
+            need(parse(rhs(q["lines"][0])) == sp.expand(f), "the equation shown is not the givens")
+            want = qr_norm(ans, {"d": str(d), "nature": qp_nat(d, QP_NAT)})
+            d0 = b**2 - 4 * a * abs(c)
+            d2 = b**2 + 4 * a * c
+            wr = {"SL2.7.discriminant#0": {qr_norm(ans, {"d": str(d0), "nature": qp_nat(d0, QP_NAT)})},
+                  "SL2.7.discriminant#2": {qr_norm(ans, {"d": str(d2), "nature": qp_nat(d2, QP_NAT)})}}
+            if d < 0:
+                wr["SL2.7.discriminant#1"] = {qr_norm(ans, {"d": str(d), "nature": QP_NAT[3]})}
+            qr_check_common(q, want, wr)
+            return None, None
+        i = (0 if a > 0 else 3) + (0 if d > 0 else (1 if d == 0 else 2))
+        if u == "delta-sign-from-graph":
+            gr = q["graph"]
+            h, kk = -b / (2 * a), c - b**2 / (4 * a)
+            need(abs(gr["a"] - float(a)) < 1e-9 and abs(gr["h"] - float(h)) < 1e-9 and abs(gr["k"] - float(kk)) < 1e-9,
+                 "the graph is not the given parabola")
+            qr_check_common(q, qr_norm(ans, {"v": QP_SIGNS[i]}))
+        else:
+            need(g["signs"] == QP_SIGNS[i] and QP_SIGNS[i] in q["lines"][0], "the signs said are not this parabola's")
+            qr_check_common(q, qr_norm(ans, {"v": QP_SKETCH[i]}))
+        return None, None
+
+    f, curve, line = qp_family_poly(g)
+    qp_check_shown(q, f, curve, line)
+    A = R(g["a0"])
+    D = sp.expand(sp.discriminant(f, X))
+    crit = sorted(sp.solve(D, K))
+    need(1 <= len(crit) <= 2 and all(c.is_integer and abs(c) <= QP_CRIT_MAX for c in crit), f"critical k {crit} not whole numbers inside the limits")
+    lines_family = g["family"] in ("grad", "icpt")
+    if u == "roots-from-k":
+        kv = R(g["kv"])
+        d = D.subs(K, kv)
+        labels = QP_MEET if lines_family else QP_NAT
+        qr_check_common(q, qr_norm(ans, {"d": str(d), "nature": qp_nat(d, labels)}))
+    elif u == "delta-in-k":
+        co = sp.Poly(D, K).all_coeffs()
+        co = [0] * (3 - len(co)) + co
+        want = (R(co[0]), R(co[1]), R(co[2]))
+        b0, b1, c0, c1 = R(g["b0"]), R(g["b1"]), R(g["c0"]), R(g["c1"])
+        wr = {"SL2.7.discriminant#2": {(want[0], 2 * b0 * b1 + 4 * A * c1, b0**2 + 4 * A * c0)}}
+        if c1 == 0 and c0 < 0:
+            wr["SL2.7.discriminant#0"] = {(want[0], want[1], b0**2 - 4 * A * abs(c0))}
+        qr_check_common(q, want, wr)
+    elif u == "k-for-equal-roots":
+        want = qr_norm(ans, {"v": str(crit[0])}) if len(crit) == 1 else tuple(crit)
+        wr = {}
+        if g["family"] == "icpt":
+            p, r = R(g["p"]), R(g["r"])
+            kw = sp.solve(p**2 - 4 * (r - K), K)[0]   # b from the curve alone, c with the line's k
+            wr["SL2.7.discriminant-parameter#0"] = {qr_norm(ans, {"v": str(kw)})}
+        qr_check_common(q, want, wr)
+    elif u in ("k-interval", "always-positive", "same-sign-roots"):
+        cond = g["cond"]
+        if u == "always-positive":
+            need(A > 0 and cond == "none", "always positive needs a > 0 and Δ < 0")
+        rel = {"two": D > 0, "none": D < 0, "real": D >= 0, "same-sign": D > 0}[cond]
+        S = sp.solve_univariate_inequality(rel, K, relational=False)
+        if cond == "same-sign":
+            S = S.intersect(sp.solve_univariate_inequality((R(g["c0"]) + R(g["c1"]) * K) / A > 0, K, relational=False))
+        wr = {}
+        if u == "k-interval":
+            if cond == "real":
+                S2 = sp.solve_univariate_inequality(D > 0, K, relational=False)
+                wr["SL2.7.discriminant-parameter#2"] = {S2}
+            if len(crit) == 2:
+                inc = "included" if cond == "real" else "left out"
+                wr["SL2.7.inequality#1"] = {sp.Interval(crit[0], crit[1], inc != "included", inc != "included")}
+                if crit[0] == -crit[1]:
+                    wr["SL2.7.discriminant-parameter#1"] = {("pm", "pm_lt", crit[1], inc)}
+        qr_check_common(q, S, wr)
+    elif u == "tangent-contact-point":
+        need(len(crit) == 1, "a tangent needs one critical k")
+        k0 = crit[0]
+        fx = f.subs(K, k0)
+        x0 = sp.solve(sp.diff(fx, X), X)[0]
+        need(fx.subs(X, x0) == 0, "no repeated root")
+        y0 = sp.expand(line).subs({K: k0, X: x0})
+        want = qr_norm(ans, {"k": str(k0), "x": str(x0), "y": str(y0)})
+        p, r, m = R(g["p"]), R(g["r"]), R(g["m"])
+        kw = r - p**2 / 4
+        wr = {"SL2.7.discriminant-parameter#0": {qr_norm(ans, {"k": str(kw), "x": str(-p / 2), "y": str(m * (-p / 2) + kw)})}}
+        qr_check_common(q, want, wr)
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
-                    "distribution": check_distribution}
+                    "distribution": check_distribution, "quadratic-parameter": check_qparam}
 
 # ── Coverage from the catalogue itself ───────────────────────
 
