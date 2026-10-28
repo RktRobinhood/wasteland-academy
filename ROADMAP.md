@@ -2,7 +2,7 @@
 
 The order of work and the target dates. The Paperclip tasks named in each row hold the detail. Dates are targets, and each one is checked at the milestone before it.
 
-Last updated 2026-10-24 (FAL-365).
+Last updated 2026-10-28 (FAL-375).
 
 ## Now to November 15: the Functions island in Godot
 
@@ -19,9 +19,24 @@ Matt asked for the Godot rebuild after the student trial (GitHub issue #8, plann
 
 Art runs alongside: icon animation loops (FAL-323) and a one-region slice of the side-scrolling journey scene (FAL-289, FAL-293).
 
+Explainer prep also runs alongside, after Thursday's demo: the move list, Spark's lines and the voice recordings (see Explainers below). The only explainer code before November 15 is a small change on October 30 that lets a worked step carry a move tag.
+
 ## After November 15
 
-Two tracks run side by side: the four remaining islands, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them, and so does the soundtrack below. The island order and the split between the tracks are set at the November 13 decision. From November 16, Codex builds the Male Learner two ways, as a 3D model and as a 2D cut-out rig, and CEO compares them at strip size (FAL-368). The result decides how new characters are posed, including B0-LT's cutout in L3.
+The explainer player comes first, November 16–22. Then two tracks run side by side: the four remaining islands, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them, and so does the soundtrack below. The island order and the split between the tracks are set at the November 13 decision. After the explainer player, Coder builds the Male Learner two ways, as a 3D model and as a 2D cut-out rig, and CEO compares them at strip size (FAL-368). The result decides how new characters are posed, including B0-LT's cutout in L3.
+
+### Explainers: chalkboard "videos" that are really the engine
+
+Matt's idea is FAL-375, and the plan there is approved. An explainer looks like a YouTube video on a wasteland chalkboard, with play and pause, a chapter per step, captions and speed. It's really the question engine, so a student can change a number and watch the board redraw. Each worked step gets a general move, such as substitute or isolate x. Spark says each move once, with no numbers in the line, and the board writes the question's numbers. So one recording covers every question, and each new question class gets explainers when its steps carry move tags.
+
+| When | Step | Who |
+|---|---|---|
+| Oct 30 | **Step tags.** A worked step can carry a move. Plain text steps still work (FAL-426). | Coder |
+| Oct 30 – Nov 6 | **E0 Move list.** The shared moves, a plain line for each, and the share of today's worked steps they cover. The target is 9 in 10 (FAL-425). | Curriculum Author |
+| By Nov 9 | **Spark's lines** for every move (FAL-427). | Writer |
+| By Nov 13 | **Voices.** Two takes of every line, made with VoxCPM2 on the local GPU (FAL-428). | Audio Designer |
+| Nov 16–22 | **E1 Player** at `/next/?explain`, with "Watch it" on every worked solution and a "Your turn" question at the end (FAL-429). | Coder |
+| Ongoing | Each new question class ships with move tags. | Coder |
 
 ### The Relic: playable lessons
 
@@ -30,9 +45,9 @@ Matt's spec is GitHub issue #13 (FAL-325). Players find salvaged CRT and VR mach
 | When | Step | Who |
 |---|---|---|
 | Now | **L0 Design down.** Work back from the exam question types to the ideas and prior skills students need, and group them into a lesson map. Functions first. | Curriculum Author |
-| Nov 16–22 | **L1 Architecture.** The lesson state machine (setup, demonstrate, interact, react, apply, complete), the lesson file format, the interaction parts, and lesson progress in the save. | Coder |
-| Nov 23 – Dec 6 | **L2 Pilot: The Broken Conveyor** (SL2.11, graph transformations), with placeholder art. | Coder |
-| Dec 7–20 | **L3 Presentation.** B0-LT as a cutout character, local narration with subtitles, and the CRT and salvaged-VR look. | Coder, Artist |
+| Nov 23–29 | **L1 Architecture.** The lesson state machine (setup, demonstrate, interact, react, apply, complete), the lesson file format, the interaction parts, and lesson progress in the save. | Coder |
+| Nov 30 – Dec 13 | **L2 Pilot: The Broken Conveyor** (SL2.11, graph transformations), with placeholder art. Its demonstrate step uses the explainer player. | Coder |
+| Dec 14–20 | **L3 Presentation.** B0-LT as a cutout character and the CRT and salvaged-VR look. One week, because the explainer player already does narration and captions. | Coder, Artist |
 | Jan 4–17, 2027 | **L4 A second lesson that plays differently,** to prove the lesson engine isn't built around one lesson. Plus a first Relic Library terminal. | Coder |
 | From Jan 18, 2027 | **L5 Scale up** from the lesson map, island by island, in the order the islands ship. | Coder, Curriculum Author, Artist |
 
@@ -74,9 +89,9 @@ Matt's ask is FAL-357, and the plan there is approved. The game gets lo-fi study
 
 | When | Step | Who |
 |---|---|---|
-| Nov 16–22 | **S0 Spike, about a day.** Install ACE-Step 1.5 in ComfyUI, render about 30 candidates for the Signal Tower set, cut the loops, build a listening page, and test three synced layers in a web build (FAL-364). | Codex, and Matt listens |
-| Dec 7–20 | **S1 Sound system, alongside L3,** which needs the same Voice bus and ducking. Audio buses, the Music, Sound effects and Voice toggles, `set_tension`, about 15 sound effects, and the Signal Tower set in the game. | Coder |
-| As each island ships | **S2 One music set per island,** plus a title theme and stingers. Ready by launch or just after. | Codex, and Matt listens |
+| Nov 16–22 | **S0 Spike, about a day.** Install ACE-Step 1.5 in ComfyUI, render about 30 candidates for the Signal Tower set, cut the loops, build a listening page, and test three synced layers in a web build (FAL-364). | Audio Designer, and Matt listens |
+| Dec 7–20 | **S1 Sound system.** Audio buses, the Music and Sound effects toggles, `set_tension`, about 15 sound effects, and the Signal Tower set in the game. The Voice bus, its toggle and ducking come earlier, with the explainer player (FAL-429). | Coder |
+| As each island ships | **S2 One music set per island,** plus a title theme and stingers. Ready by launch or just after. | Audio Designer, and Matt listens |
 
 These rules hold for every step:
 
