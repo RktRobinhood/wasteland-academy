@@ -136,6 +136,36 @@ func test_paper_two_contexts_need_a_calculator() -> void:
 		check(q.answer.kind == "number", "a factorising method gets a Paper 1 context")
 
 
+## "Another way" (FAL-310) keeps the numbers: a same_angle view of every
+## fn-solve-quadratic unknown shows the situation the original angle made, whichever
+## angle it switches to, including a switch to factorising on Paper 2 numbers.
+func test_another_way_keeps_the_numbers() -> void:
+	var t := QuestionEngine.type_of("fn-solve-quadratic")
+	var p2_to_factorise := 0
+	for c in QuestionEngine.cells(false, ["fn-solve-quadratic"]):
+		var angles := QuestionEngine.angles_for(t, c.unknown)
+		for from in angles:
+			for to in angles:
+				if from == to:
+					continue
+				for seed in range(0, 40):
+					var a := _make("fn-solve-quadratic", c.unknown, c.rep, from, seed)
+					var b := QuestionEngine.make({"type": "fn-solve-quadratic", "unknown": c.unknown, "rep": c.rep,
+						"angle": to, "same_angle": from, "seed": seed})
+					var key := "%s %s→%s seed %d" % [c.key, from, to, seed]
+					check(not b.has("error"), "%s: %s" % [key, b.get("error")])
+					if b.has("error"):
+						return
+					check_eq(b.lines, a.lines, key)
+					check_eq(b.given, a.given, key)
+					check_eq(Answer.text(b.answer), Answer.text(a.answer), key)
+					check(b.solutions[0].angle == to, key + ": the view's own method comes first")
+					if to == "factorise" and a.answer.kind == "measure":
+						p2_to_factorise += 1
+						check("factorising fails" in " ".join(b.solutions[0].steps), key + ": says factorising fails")
+	check(p2_to_factorise > 0, "no Paper 2 context switched to factorising")
+
+
 func test_count_from_sketch_can_hide_a_point() -> void:
 	var hidden := false
 	for seed in range(1, 80):

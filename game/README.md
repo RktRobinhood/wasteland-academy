@@ -124,8 +124,10 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `points2` (two points, either order), `surd` (m√r), `surd_roots`, `line`, `npoint`,
   `kroot`, `ineq_a` and `choice`. The graph view also draws a line (`graph.line`). The
   Paper 2 context (a length to 3 s.f.) is one solve-in-context question in four, and never
-  for the factorising method: `QuestionEngine.make()` passes the method to the recipe as
-  `need.angle`. The seeded stream's first draw leans low, so these recipes spend it first.
+  for the factorising method: `QuestionEngine.make()` passes the method that made the
+  numbers to the recipe as `need.angle`. That is the `same_angle` method for "Another
+  way", so switching to factorising keeps a Paper 2 context, and the factorising working
+  says it fails there and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -294,7 +296,8 @@ script error happens while it runs. Run one file with
   worked solution, every distractor misconception as an option (three that no answer
   shape can carry yet are listed with the reason), two rays typed as one interval caught
   as SL2.7.inequality#1, two points in either order, a tangent's point on both graphs,
-  and Paper 2 contexts at about one in four.
+  Paper 2 contexts at about one in four, and "Another way" keeping the numbers for every
+  fn-solve-quadratic unknown and pair of methods.
 - `test_answer.gd`: parsing and marking typed answers.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.
