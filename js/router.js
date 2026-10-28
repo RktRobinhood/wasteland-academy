@@ -485,6 +485,7 @@ const BazaarScreen = {
     if (!item) return;
     if (!WA.spendScrap(item.cost)) return Toast.show('Not enough Scrap', 'error');
     item.action();
+    SFX.play('reward');
     this.render();
   }
 };

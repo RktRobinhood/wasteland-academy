@@ -1,0 +1,57 @@
+# Publishes the site to GitHub Pages on every push to main: the repo as it is, plus
+# the Godot web export at next/. Pull requests build the site but don't deploy it.
+#
+# The repo goes through actions/jekyll-build-pages, the same step Pages' "deploy
+# from a branch" runs, so every URL of the HTML game stays exactly as it was.
+# Needs Settings > Pages > Build and deployment > Source set to "GitHub Actions".
+name: pages
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      # Before the export, so Jekyll sees only the checkout
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - run: scripts/ci-install-godot.sh
+      - run: ./export.sh "$RUNNER_TEMP/next"
+      - name: Add the export at next/
+        run: |
+          if [ -e _site/next ]; then echo "the repo already publishes a next/ path" >&2; exit 1; fi
+          sudo cp -r "$RUNNER_TEMP/next" _site/next
+          ls -l _site/next
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
