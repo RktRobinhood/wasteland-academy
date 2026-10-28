@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# The SymPy answer checker (FAL-322): exports questions from the Godot engine with
+# fixed seeds, then solves each one again in Python and prints a table per type and
+# per cell. Exits non-zero on any failure.
+#
+#   tools/check-answers [--per-cell=50] [--per-type=1000]
+#
+# Needs SymPy from requirements.txt. Locally it is installed into a gitignored .venv/
+# on first use; set PYTHON to use another interpreter (CI uses its own pip install).
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT/scripts/godot-env.sh"
+
+if [ -z "${PYTHON:-}" ]; then
+	if [ ! -x "$ROOT/.venv/bin/python" ]; then
+		echo "== create .venv with SymPy =="
+		python3 -m venv "$ROOT/.venv"
+		"$ROOT/.venv/bin/pip" install -q -r "$ROOT/requirements.txt"
+	fi
+	PYTHON="$ROOT/.venv/bin/python"
+fi
+
+out="$ROOT/_scratch/check-answers"
+mkdir -p "$out"
+echo "== export questions =="
+import_project
+timeout 600 "$GODOT" --headless --path "$GAME" --script res://tools/export_questions.gd -- \
+	--out="$out/questions.json" "$@" 2>&1 | grep -v "^\[MCP"
+echo "== check with SymPy =="
+"$PYTHON" -I "$ROOT/tools/check_answers.py" "$out/questions.json" | tee "$out/report.txt"

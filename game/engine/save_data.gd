@@ -1,0 +1,105 @@
+class_name SaveData
+extends RefCounted
+## The save: a versioned Dictionary in user://save.json.
+##
+##   version    VERSION; older saves go through migrate() on load
+##   settings   {"exam_only": false}
+##   cells      coverage cell key -> {"seen", "right", "wrong", "last", "last_result",
+##              "misconceptions": {ref: times}, "last_misconception"}
+##   probes     concept probe key -> the same record, without misconceptions
+##   history    the last HISTORY cell keys asked, newest last (for spacing repeats)
+##   seed       the planner's counter, so a run of questions is reproducible
+##   class      the chosen class (FAL-308); "" until classes exist
+##   trees      skill trees (FAL-308); empty for now
+##   lessons    The Relic lessons (FAL-325); empty for now
+##
+## When a wrong answer matches a multiple-choice distractor, the distractor's
+## misconception ref is recorded on the cell, so lesson feedback and suggestions can
+## use it later.
+
+const VERSION := 1
+const PATH := "user://save.json"
+const HISTORY := 20
+
+
+static func blank() -> Dictionary:
+	return {"version": VERSION, "settings": {"exam_only": false}, "cells": {}, "probes": {}, "history": [],
+		"seed": 0, "class": "", "trees": {}, "lessons": {}}
+
+
+## Brings any older save up to VERSION, one step at a time, then fills in fields a
+## step didn't know about. A save from a newer game is kept as it is.
+static func migrate(data: Dictionary) -> Dictionary:
+	var out := data.duplicate(true)
+	var v := int(out.get("version", 0))
+	while v < VERSION:
+		out = call_step(v, out)
+		v += 1
+		out.version = v
+	var fresh := blank()
+	for key in fresh:
+		if not out.has(key):
+			out[key] = fresh[key]
+	for key in fresh.settings:
+		if not out.settings.has(key):
+			out.settings[key] = fresh.settings[key]
+	return out
+
+
+## The migration from version v to v + 1. Add a case for each new version.
+static func call_step(v: int, data: Dictionary) -> Dictionary:
+	match v:
+		0:
+			# Version 0: anything saved before saves had a version. Keep what can be
+			# read; blank() fills the rest.
+			var out := {}
+			for key in ["settings", "cells", "probes", "history", "seed"]:
+				if data.has(key):
+					out[key] = data[key]
+			return out
+	return data
+
+
+static func load_from(path: String = PATH) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return blank()
+	var f := FileAccess.open(path, FileAccess.READ)
+	var parsed = JSON.parse_string(f.get_as_text()) if f != null else null
+	if not parsed is Dictionary:
+		push_warning("SaveData: %s is not a save; starting fresh" % path)
+		return blank()
+	return migrate(parsed)
+
+
+static func store(data: Dictionary, path: String = PATH) -> bool:
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	if f == null:
+		push_warning("SaveData: can't write %s" % path)
+		return false
+	f.store_string(JSON.stringify(data, "\t"))
+	return true
+
+
+## Records one answer. key is a cell key (or a probe key with probe = true);
+## misconception is the ref of the wrong option the answer matched, or "".
+static func record(data: Dictionary, key: String, right: bool, now: int, misconception: String = "", probe: bool = false) -> void:
+	var book: Dictionary = data.probes if probe else data.cells
+	var r: Dictionary = book.get(key, {"seen": 0, "right": 0, "wrong": 0, "last": 0, "last_result": ""})
+	r.seen = int(r.seen) + 1
+	if right:
+		r.right = int(r.right) + 1
+	else:
+		r.wrong = int(r.wrong) + 1
+	r.last = now
+	r.last_result = "right" if right else "wrong"
+	if not probe:
+		var mis: Dictionary = r.get("misconceptions", {})
+		if misconception != "":
+			mis[misconception] = int(mis.get(misconception, 0)) + 1
+		r.misconceptions = mis
+		r.last_misconception = misconception
+	book[key] = r
+	var hist: Array = data.history
+	hist.append(key)
+	while hist.size() > HISTORY:
+		hist.pop_front()
