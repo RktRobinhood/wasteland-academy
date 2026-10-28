@@ -202,6 +202,17 @@ func test_a_perk_is_used_up_after_one_run() -> void:
 				_probe_values(func(k, v, c): return plain.apply(k, v, c)), "%s: the next run plays plain" % id)
 
 
+func test_a_run_that_records_nothing_keeps_the_perk() -> void:
+	var s := _rich()
+	Bazaar.buy(s, "scrap_armour")
+	var link := Run.new(s, "quadratics", 1, 7)
+	link.records = false
+	check_eq(Bazaar.equip(link, s).id, "scrap_armour", "the linked run plays with it")
+	check_eq(s.bazaar.perk.id, "scrap_armour", "and leaves it in the slot")
+	check_eq(Bazaar.equip(Run.new(s, "quadratics", 1, 7), s).id, "scrap_armour", "a real run gets it")
+	check(s.bazaar.perk.is_empty(), "and uses it up")
+
+
 func test_one_perk_slot() -> void:
 	var s := _rich()
 	check(Bazaar.buy(s, "field_watch").ok)

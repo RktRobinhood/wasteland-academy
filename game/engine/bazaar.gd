@@ -203,11 +203,13 @@ static func modifier(rec: Dictionary, perk: Dictionary) -> Callable:
 
 
 ## Gets a run ready before run.start(): adds the modifier for what was bought, and uses
-## the perk up, so the run after this one has none unless another is bought. Returns
-## the perk this run plays with ({} for none).
+## the perk up, so the run after this one has none unless another is bought. A run that
+## records nothing (run.records false, a link that jumps ahead) plays with the perk but
+## leaves it for the next run. Returns the perk this run plays with ({} for none).
 static func equip(run: Run, save: Dictionary) -> Dictionary:
 	var rec := record(save)
 	var perk: Dictionary = (rec.perk as Dictionary).duplicate()
-	rec.perk = {}
+	if run.records:
+		rec.perk = {}
 	run.modifiers.add(modifier(rec, perk))
 	return perk
