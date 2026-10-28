@@ -128,6 +128,51 @@ test('a locked zone is hazed and does nothing; a cleared one wears a crown', asy
   pageErrors.expectNone();
 });
 
+// The CSS animations running on the map's ambient layer, by keyframes name
+const ambientAnimations = page => page.evaluate(() => document.getAnimations()
+  .filter(a => a.effect?.target?.closest?.('.world-ambient') && a.playState === 'running')
+  .map(a => a.animationName));
+
+test('the map moves: tumbleweeds, smoke, lights and a buzzard, none of which takes a tap', async ({ page }) => {
+  const pageErrors = trackPageErrors(page);
+  await openWorld(page);
+
+  const ambient = page.locator('.world-ambient');
+  await expect(ambient).toBeVisible();
+  await expect(ambient).toHaveAttribute('aria-hidden', 'true');
+  await expect(ambient).toHaveCSS('pointer-events', 'none');
+  const running = await ambientAnimations(page);
+  for (const name of ['amb-weed-roll', 'amb-weed-spin', 'amb-weed-hop', 'amb-puff', 'amb-blink', 'amb-beacon', 'amb-neon', 'amb-circle']) {
+    expect(running, `${name} runs`).toContain(name);
+  }
+
+  // The near tumbleweed is on the map when it opens, and rolls on
+  const weed = page.locator('.amb-weed-near .amb-weed-body');
+  const map = await page.locator('.world-map').boundingBox();
+  const before = await weed.boundingBox();
+  expect(inside(before, map), 'tumbleweed on the map').toBe(true);
+  await page.waitForTimeout(800);
+  expect((await weed.boundingBox()).x, 'tumbleweed rolls downwind').toBeGreaterThan(before.x + 2);
+
+  // A tap on it lands on the map, not the tumbleweed
+  const hit = await page.evaluate(({ x, y }) => !!document.elementFromPoint(x, y)?.closest('.world-ambient'),
+    { x: before.x + before.width / 2, y: before.y + before.height / 2 });
+  expect(hit, 'tumbleweed takes the tap').toBe(false);
+
+  // It all stops once the map is off screen
+  await page.getByRole('button', { name: /^Engine Core/ }).click();
+  await expect(page.locator('#screen-island')).toBeVisible();
+  expect(await ambientAnimations(page)).toEqual([]);
+  pageErrors.expectNone();
+});
+
+test('with reduced motion, the map holds still', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await openWorld(page);
+  await expect(page.locator('.world-ambient')).toBeHidden();
+  expect(await ambientAnimations(page)).toEqual([]);
+});
+
 test('without the overworld file, the card grid shows and works', async ({ page, context }) => {
   await context.route(/\/assets\/map\/overworld\.png$/, route => route.fulfill({ status: 404, body: 'not found' }));
   const pageErrors = trackPageErrors(page);

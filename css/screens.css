@@ -184,6 +184,210 @@
 }
 .world-zones { position: absolute; inset: 0; }
 
+/* ── Ambient life on the overworld (FAL-373) ──
+   Tumbleweeds, blown dust, Engine Core smoke, the Signal Tower's mast light,
+   the Radio Spires' beacons, the Thunderdome's neon and a buzzard over the
+   sand. Positions are % of the overworld art, measured from it like
+   the zones: --x of the width, --y of the height, --size of the width. Only
+   transform and opacity move, and the wind blows left to right. */
+.world-ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.world-ambient * { position: absolute; }
+@media (prefers-reduced-motion: reduce) {
+  .world-ambient { display: none; }
+}
+
+/* A light or a chimney: a square of --size, centred on (--x, --y) */
+.amb-beacon, .amb-mast-light, .amb-smoke {
+  left: calc(var(--x) - var(--size) / 2);
+  top: calc(var(--y) - var(--size) * 9 / 32);
+  width: var(--size);
+  aspect-ratio: 1;
+}
+
+/* Sun haze in the top-left corner */
+.amb-glare {
+  left: -25%;
+  top: -14%;
+  width: 80%;
+  height: 40%;
+  background: radial-gradient(closest-side, rgba(255,226,160,0.5), rgba(255,210,140,0.14) 60%, transparent);
+  animation: amb-glare 9s ease-in-out infinite alternate;
+}
+@keyframes amb-glare { from { opacity: 0.35; } to { opacity: 0.9; } }
+
+/* Dust blowing across */
+.amb-dust {
+  left: 0;
+  width: 70%;
+  height: 7%;
+  background: radial-gradient(closest-side, rgba(244,212,160,0.4), transparent);
+  animation: amb-dust 21s linear infinite;
+}
+.amb-dust-1 { top: 23%; }
+.amb-dust-2 { top: 55%; height: 9%; animation-duration: 27s; animation-delay: -15s; }
+.amb-dust-3 { top: 85%; animation-duration: 18s; animation-delay: -6s; }
+@keyframes amb-dust {
+  from { translate: -100% 0; }
+  to   { translate: 145% 0; }
+}
+
+/* The Thunderdome's neon ring breathes, with the odd flicker */
+.amb-dome {
+  left: 31.4%;
+  top: 37.3%;
+  width: 37.6%;
+  height: 16.1%;
+  background: radial-gradient(closest-side, transparent 66%, rgba(255,61,167,0.2) 84%, transparent 98%);
+  animation: amb-neon 7s linear infinite;
+}
+@keyframes amb-neon {
+  0%, 100% { opacity: 0.3; }
+  45%      { opacity: 0.8; }
+  60%      { opacity: 0.7; }
+  61%      { opacity: 0.25; }
+  62%      { opacity: 0.7; }
+  64%      { opacity: 0.3; }
+  65%      { opacity: 0.65; }
+}
+
+/* Radio Spires: the painted teal beacons pulse */
+.amb-beacon {
+  --size: 6%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(159,240,230,0.95), rgba(34,211,197,0.5) 35%, transparent);
+  animation: amb-beacon 3.2s ease-in-out infinite;
+}
+.amb-beacon-1 { --x: 83.8%; --y: 39.2%; }
+.amb-beacon-2 { --x: 91.9%; --y: 43.1%; --size: 4.5%; animation-duration: 4.1s; animation-delay: -1.3s; }
+.amb-beacon-3 { --x: 92.2%; --y: 57.9%; --size: 5%; animation-duration: 2.7s; animation-delay: -0.6s; }
+@keyframes amb-beacon {
+  0%, 100% { opacity: 0.2; scale: 0.8; }
+  50%      { opacity: 1;   scale: 1.1; }
+}
+
+/* Signal Tower: a red light blinks on the mast */
+.amb-mast-light {
+  --x: 80.6%;
+  --y: 4.3%;
+  --size: 5%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #fff 0 12%, rgba(255,80,64,0.95) 24%, rgba(255,64,48,0.3) 50%, transparent);
+  animation: amb-blink 2.6s ease-in-out infinite;
+}
+@keyframes amb-blink {
+  0%, 18%, 100% { opacity: 0; }
+  5%            { opacity: 1; }
+}
+
+/* Engine Core: smoke rises from two chimneys and bends downwind. Each has six
+   puffs (--i is 0 to 5), spaced evenly through --puff so the plume is unbroken. */
+.amb-smoke-tall  { --x: 57.3%; --y: 63.3%; --size: 6%;   --puff: 6s; }
+.amb-smoke-short { --x: 35.6%; --y: 69.6%; --size: 4.5%; --puff: 8s; }
+.amb-smoke span {
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(96,88,82,0.75), rgba(96,88,82,0.35) 55%, transparent);
+  opacity: 0;
+  animation: amb-puff var(--puff) linear calc(var(--puff) * var(--i) / -6) infinite;
+}
+@keyframes amb-puff {
+  0%   { translate: 0 0;        scale: 0.6; opacity: 0; }
+  6%   { opacity: 0.7; }
+  45%  { translate: 25% -160%;  opacity: 0.35; }
+  100% { translate: 170% -300%; scale: 3; opacity: 0; }
+}
+
+/* Tumbleweeds. Each rolls across its lane in the first 45% of --period, then
+   waits off the map, so the three rarely line up. --lane is the top of the
+   weed, as % of the map height. --spin matches the roll to the speed (about
+   0.4 × size × period), and --hop is the bounce. */
+.amb-weed {
+  inset: 0;
+  animation: amb-weed-roll var(--period) linear var(--delay) infinite;
+}
+.amb-weed-body, .amb-weed-shadow {
+  left: 0;
+  width: var(--size);
+}
+.amb-weed-body {
+  top: var(--lane);
+  height: auto;
+  aspect-ratio: 1;
+  overflow: visible;
+  animation:
+    amb-weed-spin var(--spin) linear infinite,
+    amb-weed-hop var(--hop) infinite;
+}
+.amb-weed-shadow {
+  top: calc(var(--lane) + var(--size) * 9 / 16 * 0.78);
+  aspect-ratio: 3.2;
+  translate: 18% 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(60,38,18,0.5), transparent);
+  animation: amb-weed-shadow var(--hop) infinite;
+}
+.amb-weed-far  { --lane: 1.6%; --size: 3.2%; --period: 46s; --delay: -30s; --spin: 1.9s; --hop: 2.4s; }
+.amb-weed-mid  { --lane: 30.6%; --size: 4.6%; --period: 26s; --delay: -22s; --spin: 1.6s; --hop: 2.1s; }
+.amb-weed-near { --lane: 90.5%; --size: 7.5%; --period: 34s; --delay: -6s; --spin: 3.2s; --hop: 2.9s; }
+@keyframes amb-weed-roll {
+  0%        { translate: -8% 0; }
+  12%       { translate: 22% 0.5%; }
+  22%       { translate: 40% 0.3%; }
+  45%, 100% { translate: 104% 1.2%; }
+}
+@keyframes amb-weed-spin { to { rotate: 1turn; } }
+@keyframes amb-weed-hop {
+  0%        { translate: 0 0;    animation-timing-function: ease-out; }
+  16%       { translate: 0 -60%; animation-timing-function: ease-in; }
+  32%       { translate: 0 0;    animation-timing-function: ease-out; }
+  41%       { translate: 0 -22%; animation-timing-function: ease-in; }
+  50%, 100% { translate: 0 0; }
+}
+@keyframes amb-weed-shadow {
+  0%, 32%, 50%, 100% { scale: 1;    opacity: 1; }
+  16%                { scale: 0.65; opacity: 0.45; }
+  41%                { scale: 0.85; opacity: 0.75; }
+}
+
+/* A buzzard circles over the sand between the Scrap Fields and the Signal
+   Tower, its shadow below. The orbit is squashed to read as a circle seen at
+   an angle. */
+.amb-orbit {
+  left: 46%;
+  top: 4.25%;
+  width: 24%;
+  aspect-ratio: 1;
+  scale: 1 0.5;
+}
+.amb-orbit-shadow { translate: 10% 45%; opacity: 0.22; }
+.amb-orbit-arm {
+  inset: 0;
+  animation: amb-circle 17s linear infinite;
+}
+.amb-buzzard {
+  left: 100%;
+  top: 50%;
+  width: 22%;
+  height: auto;
+  aspect-ratio: 60 / 24;
+  overflow: visible;
+  translate: -50% -50%;
+  rotate: 180deg;   /* head along the way it flies (clockwise) */
+  fill: #2b1d14;
+  animation: amb-flap 6s ease-in-out infinite;
+}
+@keyframes amb-circle { to { rotate: 1turn; } }
+@keyframes amb-flap {
+  0%, 12%, 100% { scale: 1 1; }
+  3%, 9%        { scale: 0.7 1; }
+  6%            { scale: 1 1; }
+}
+
 /* A zone's button covers its painted area; the name plate sits at its foot */
 .zone {
   position: absolute;
