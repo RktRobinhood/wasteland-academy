@@ -1,0 +1,36 @@
+{
+ "name": "mud-stuck",
+ "image": "mud-stuck.webp",
+ "facing": "none",
+ "beat": "explore",
+ "states": {
+  "start": "stuck",
+  "cleared": "free"
+ },
+ "origin": [
+  0,
+  0
+ ],
+ "figure_height": 123,
+ "frames": [
+  {
+   "id": "stuck",
+   "ox": -125,
+   "oy": -122,
+   "x": 0,
+   "y": 0,
+   "w": 250,
+   "h": 123
+  },
+  {
+   "id": "free",
+   "ox": -123,
+   "oy": -107,
+   "x": 252,
+   "y": 0,
+   "w": 249,
+   "h": 108
+  }
+ ],
+ "anims": {}
+}
