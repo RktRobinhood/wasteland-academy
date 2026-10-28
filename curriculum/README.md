@@ -1,10 +1,13 @@
 # Curriculum
 
-The single source of truth for what Wasteland Academy covers: the full **IB Mathematics: Analysis and Approaches SL** syllabus (guide for first assessment 2021), in official guide numbering.
+The single source of truth for what Wasteland Academy covers: the four IB Mathematics courses (guides for first assessment 2021), in official guide numbering. **AA SL** is mapped in full and live. **AA HL**, **AI SL** and **AI HL** are mapped (FAL-393): every subtopic is in place, with skills ready for question generators.
 
 | File | What it is |
 |---|---|
 | `aa-sl.json` | Every subtopic (SL1.1 to SL5.11), broken into **skills**: the distinct question types IB examines. Each skill lists its difficulty range, paper (calculator or not), question formats, representations, **solution methods**, common misconceptions and **concept threads**. `legacyMap` ties the v1 question IDs to skills. |
+| `aa-hl.json` | The AA HL-only layer: every AHL subtopic (AHL1.10 to AHL5.19), with skills in the same shape as `aa-sl.json`. AA HL is `aa-sl.json` plus this file. |
+| `ai.json` | The AI layer: every AI SL and AI AHL subtopic whose content is not shared with AA (`AI-SL1.6`, `AI-AHL1.9` and so on), plus `shared`, the list of AA subtopics AI reuses. |
+| `COURSES.md` | Generated. Each course by topic (subtopics, skills, hours), what AA HL adds to AA SL, how much AI shares with AA, and how deep the map is. The same counts go to `game/data/courses.json` for the course picker. |
 | `threads.json` | The concept threads: big ideas that recur across islands (transformations, vectors, rates of change, inverses and so on), with link-question blueprints. |
 | `COVERAGE.md` | Generated. How much of the map the content packs cover, subtopic by subtopic. |
 | `THREADS.md` | Generated. Every place each thread appears, in student-facing language. |
@@ -19,6 +22,8 @@ Regenerate the reports after changing the map or any content pack:
 ```sh
 node tools/coverage.mjs --check   # validate the map only
 node tools/coverage.mjs --write   # rewrite COVERAGE.md and THREADS.md
+node tools/courses.mjs --check    # validate the three course layers; fails if the course index is stale
+node tools/courses.mjs --write    # rewrite game/data/courses.json and COURSES.md
 node tools/question-types.mjs --bank ../Math-AA---Question-Bank --write   # check the type catalogue, rewrite QUESTION_TYPES.md
 node tools/pedagogy.mjs --write   # check situations, views and extension types, rewrite PEDAGOGY_GAPS.md
 node tools/lessons.mjs --write    # check the lesson map, refresh its priorities, rewrite LESSONS.md
@@ -34,13 +39,37 @@ The subtopic table in `CONTENT_SCHEMA.md` predates this map and does not follow 
 
 ## Courses and IDs
 
-The game will serve four IB courses from this one map: AA SL now, AA HL next, then AI SL and AI HL as a stretch goal. A course is a filter over the shared skills, not a separate game. The five islands are the five syllabus topics, which all four courses share.
+The game serves four IB courses from this one map: AA SL (live), and AA HL, AI SL and AI HL (mapped). A course is a filter over the shared skills, not a separate game. The five islands are the five syllabus topics, which all four courses share.
 
 - **IDs are permanent once they are on `main`.** Saves, spaced repetition and student reports all point at them. Never rename or reuse a subtopic, skill, question or template ID. To drop one, mark it `"retired": true`.
-- **AA numbering is the base.** Subtopics use the AA guide's numbers: `SL1.1` to `SL5.11`, and the HL-only subtopics as the guide numbers them (`AHL1.10` and so on).
+- **AA numbering is the base.** Subtopics use the AA guide's numbers: `SL1.1` to `SL5.11`, and the HL-only subtopics as the guide numbers them (`AHL1.10` to `AHL5.19`).
 - **AI-only content takes an `AI-` prefix**, for example `AI-SL1.6` and `AI-AHL1.9`. Where an AI subtopic's guide text matches the AA one, AI reuses the AA ID instead of making a copy.
-- **Courses live on subtopics, not questions.** Each subtopic will list its `courses` (for example `["aa-sl", "aa-hl"]`), and a question's course follows from its skill. Until another course is mapped, every subtopic in `aa-sl.json` belongs to both `aa-sl` and `aa-hl`.
+- **Courses live on subtopics, not questions.** Each subtopic lists its `courses` (for example `["aa-sl", "aa-hl"]`), and a question's course follows from its skill.
 - **One file per added layer.** HL-only subtopics go in `aa-hl.json`, and AI-only ones in `ai.json`. That way `aa-sl.json` stays exactly the AA SL syllabus.
+
+### Which courses a subtopic lists
+
+| File | Subtopics | `courses` |
+|---|---|---|
+| `aa-sl.json` | `SL1.1` to `SL5.11` | always `aa-sl` and `aa-hl`; also `ai-sl` and/or `ai-hl` when AI shares it |
+| `aa-hl.json` | `AHL1.10` to `AHL5.19` | `aa-hl` |
+| `ai.json` | `AI-SL…` | `ai-sl` and `ai-hl` |
+| `ai.json` | `AI-AHL…` | `ai-hl` |
+
+### How AI shares with AA
+
+A subtopic is shared only where the AI content statement says the same as the AA one. Then the AA subtopic adds the AI course to its `courses`, and `shared` in `ai.json` records the AI guide number it stands for. For example, `{"ai": "AHL1.11", "id": "SL1.8", "courses": ["ai-hl"]}` says that AI HL's 1.11 (infinite geometric series) is AA's SL1.8. AI SL shares 26 AA SL subtopics this way, and AI HL shares 3 more (SL1.8, SL2.11 and SL5.9).
+
+Where AI covers part of an AA statement, or covers it differently (AI SL3.4 is in degrees, for example, and AI AHL5.9 bundles derivatives that AA spreads over SL5.6 and AHL5.14), the AI subtopic gets its own `AI-` ID and an **`overlaps`** list naming the AA subtopics it touches. `overlaps` is information for authors (reuse a generator, or compare depth). It does not share skills.
+
+A shared subtopic keeps its AA prerequisites, so a few point outside the AI course (SL5.9 kinematics needs SL5.6, which AI HL covers as AI-AHL5.9). `COURSES.md` lists them. Treat a prerequisite outside the student's course as met.
+
+### Other fields
+
+- **`hours`** on each topic are the guide's recommended teaching hours for that topic's content. In `aa-sl.json` they are the SL hours and in `aa-hl.json` the AHL hours, so AA HL is the sum. In `ai.json` they are `{"sl": …, "ahl": …}` for the whole AI topic, shared subtopics included. Totals: SL 120 and HL 210 for both AA and AI.
+- **`paper`** means calculator or not: `p1` no calculator, `p2` calculator, `either`. Every AI paper allows a GDC, so every AI skill is `p2`. AA HL Paper 3 allows a calculator.
+- **Thin skills.** A skill needs `id`, `name` and `paper`. One without `difficulty`, `formats`, `representations`, `methods` or `misconceptions` counts as thin, and `COURSES.md` lists it.
+- `tools/coverage.mjs` and `COVERAGE.md` still measure the content packs against AA SL only.
 
 ## Situations and views (question-types.json)
 

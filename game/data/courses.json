@@ -1,0 +1,176 @@
+{
+  "courses": [
+    {
+      "id": "aa-sl",
+      "short": "AA SL",
+      "name": "Analysis and Approaches SL",
+      "status": "live",
+      "topics": [
+        {
+          "n": 1,
+          "name": "Number and algebra",
+          "subtopics": 9,
+          "skills": 52,
+          "hours": 19
+        },
+        {
+          "n": 2,
+          "name": "Functions",
+          "subtopics": 11,
+          "skills": 62,
+          "hours": 21
+        },
+        {
+          "n": 3,
+          "name": "Geometry and trigonometry",
+          "subtopics": 8,
+          "skills": 41,
+          "hours": 25
+        },
+        {
+          "n": 4,
+          "name": "Statistics and probability",
+          "subtopics": 12,
+          "skills": 69,
+          "hours": 27
+        },
+        {
+          "n": 5,
+          "name": "Calculus",
+          "subtopics": 11,
+          "skills": 62,
+          "hours": 28
+        }
+      ]
+    },
+    {
+      "id": "aa-hl",
+      "short": "AA HL",
+      "name": "Analysis and Approaches HL",
+      "status": "mapped",
+      "topics": [
+        {
+          "n": 1,
+          "name": "Number and algebra",
+          "subtopics": 16,
+          "skills": 88,
+          "hours": 39
+        },
+        {
+          "n": 2,
+          "name": "Functions",
+          "subtopics": 16,
+          "skills": 89,
+          "hours": 32
+        },
+        {
+          "n": 3,
+          "name": "Geometry and trigonometry",
+          "subtopics": 18,
+          "skills": 90,
+          "hours": 51
+        },
+        {
+          "n": 4,
+          "name": "Statistics and probability",
+          "subtopics": 14,
+          "skills": 79,
+          "hours": 33
+        },
+        {
+          "n": 5,
+          "name": "Calculus",
+          "subtopics": 19,
+          "skills": 106,
+          "hours": 55
+        }
+      ]
+    },
+    {
+      "id": "ai-sl",
+      "short": "AI SL",
+      "name": "Applications and Interpretation SL",
+      "status": "mapped",
+      "topics": [
+        {
+          "n": 1,
+          "name": "Number and algebra",
+          "subtopics": 8,
+          "skills": 45,
+          "hours": 16
+        },
+        {
+          "n": 2,
+          "name": "Functions",
+          "subtopics": 6,
+          "skills": 33,
+          "hours": 31
+        },
+        {
+          "n": 3,
+          "name": "Geometry and trigonometry",
+          "subtopics": 6,
+          "skills": 31,
+          "hours": 18
+        },
+        {
+          "n": 4,
+          "name": "Statistics and probability",
+          "subtopics": 11,
+          "skills": 64,
+          "hours": 36
+        },
+        {
+          "n": 5,
+          "name": "Calculus",
+          "subtopics": 8,
+          "skills": 40,
+          "hours": 19
+        }
+      ]
+    },
+    {
+      "id": "ai-hl",
+      "short": "AI HL",
+      "name": "Applications and Interpretation HL",
+      "status": "mapped",
+      "topics": [
+        {
+          "n": 1,
+          "name": "Number and algebra",
+          "subtopics": 15,
+          "skills": 80,
+          "hours": 29
+        },
+        {
+          "n": 2,
+          "name": "Functions",
+          "subtopics": 10,
+          "skills": 55,
+          "hours": 42
+        },
+        {
+          "n": 3,
+          "name": "Geometry and trigonometry",
+          "subtopics": 16,
+          "skills": 83,
+          "hours": 46
+        },
+        {
+          "n": 4,
+          "name": "Statistics and probability",
+          "subtopics": 19,
+          "skills": 105,
+          "hours": 52
+        },
+        {
+          "n": 5,
+          "name": "Calculus",
+          "subtopics": 18,
+          "skills": 89,
+          "hours": 41
+        }
+      ]
+    }
+  ]
+}
