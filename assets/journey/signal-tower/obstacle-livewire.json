@@ -2,6 +2,11 @@
  "name": "obstacle-livewire",
  "image": "obstacle-livewire.webp",
  "facing": "none",
+ "beat": "puzzle",
+ "states": {
+  "start": "armed",
+  "cleared": "cleared"
+ },
  "origin": [
   0,
   0
