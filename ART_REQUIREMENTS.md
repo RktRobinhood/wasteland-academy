@@ -43,7 +43,8 @@ assets/
 │   ├── wanted-badge.png         ← WANTED poster badge 96×64
 │   ├── question-card.png        ← Question card frame 360×400
 │   ├── hp-frame-player.png      ← Player HP bar frame 320×48
-│   └── hp-frame-enemy.png       ← Enemy HP bar frame 320×48
+│   ├── hp-frame-enemy.png       ← Enemy HP bar frame 320×48
+│   └── encounter/               ← Encounter and Field Notes UI, see ENCOUNTER UI below (FAL-359)
 │
 └── map/
     ├── overworld.png                 ← Full world map background 1080×1920
@@ -304,6 +305,30 @@ Short "ready" loops for the 3 class badges, the 3 skill **on** icons and the 3 l
 - Text: "WANTED" in a distressed serif font
 - Colour: Rust Orange #FAA261 background, dark text
 - Used as a small badge overlaid on flagged question cards and in the stats WANTED Board
+
+---
+
+## ENCOUNTER UI (FAL-359)
+
+### Spec
+- Folder: `assets/ui/encounter/`. PNG with transparency, no words in any image: code draws all text.
+- `ui.json`: `images` gives each image's `width` and `height`; `nine_slice` gives each stretchable image its margins (`left`, `top`, `right`, `bottom`, in native px).
+- Nine-slice: keep the corners fixed and stretch only the edges and centre. The unknown card is nine-sliced too, so its corners survive.
+- The bubble tail is a separate image, placed over the speaker.
+- Calm rule: no animated UI while a question is open.
+
+| Files | Native size | Nine-slice L/T/R/B |
+|---|---|---|
+| bubble.png, bubble-spark.png | 96×64 | 12/12/12/12 |
+| bubble-tail.png | 24×20 | none |
+| stakes-chip.png | 64×24 | 10/8/10/8 |
+| pip-on.png, pip-off.png | 24×24 | none |
+| kind-meet.png, kind-deal.png, kind-standoff.png | 64×64 | none |
+| field-notes-panel.png | 256×256 | 30/40/16/40 |
+| field-note-card.png, field-note-unknown.png | 160×64 | 12/12/12/12 |
+| dialogue-box.png | 192×96 | 14/14/14/14 |
+
+Where it came from: local ComfyUI Qwen Image 2.1 int8 (text-to-image, 512², 25 steps Euler/simple, CFG 1, seed 35901) for the paper and metal textures and the three badge silhouettes. Pillow combined the textures with fixed frame geometry (frames, rivets, tails, pips) and resized the badges. Workflow, prompts and validation are on FAL-359.
 
 ---
 
