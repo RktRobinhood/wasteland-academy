@@ -1709,8 +1709,121 @@ def check_qparam(q):
     return None, None
 
 
+# ── curve-and-line ──
+
+CL_COEF_MAX = 24
+CL_SENT = [
+    (re.compile(r"^The line y = (.+) meets the curve y = (.+) at A and B\.$"), ("line", "curve")),
+    (re.compile(r"^The normal to the curve y = (.+) at P\((.+), (.+)\) is the line y = (.+)\.$"), ("curve", "px", "py", "line")),
+    (re.compile(r"^Normal at P\((.+), (.+)\): y = (.+)$"), ("px", "py", "line")),
+    (re.compile(r"^A line meets the curve y = (.+) at the points where x = (.+) and x = (.+)\.$"), ("curve", "xa", "xb")),
+    (re.compile(r"^A line meets the curve at x = (.+) and x = (.+)\.$"), ("xa", "xb")),
+    (re.compile(r"^The line y = (.+) meets the curve y = (.+) where x = (.+), and at one other point\.$"), ("lineN", "curve", "xg")),
+    (re.compile(r"^They meet where x = (.+)\.$"), ("xg",)),
+    (re.compile(r"^Curve: y = (.+)$"), ("curve",)),
+    (re.compile(r"^Line: y = (.+)$"), ("lineAny",)),
+]
+
+
+def RD(text):
+    """A number as the game displays it: −3/2."""
+    return R(text.replace("−", "-"))
+
+
+def cl_read(q):
+    """Everything the lines say: the curve, the line, P, the given x-values."""
+    seen = {}
+    for ln in q["lines"]:
+        for pat, names in CL_SENT:
+            m = pat.match(ln)
+            if m:
+                for name, val in zip(names, m.groups()):
+                    if name == "lineAny":
+                        name = "lineN" if val.endswith("+ n") else "line"
+                    seen[name] = val
+                break
+    return seen
+
+
+def check_curve_line(q):
+    u = q["view"]["unknown"]
+    g = q["given"]
+    ans = q["answer"]
+    curve = R(g["A"]) * X**2 + R(g["B"]) * X + R(g["C"])
+    m, n = R(g["m"]), R(g["n"])
+    line = m * X + n
+    need(abs(R(g["B"])) <= CL_COEF_MAX and abs(R(g["C"])) <= CL_COEF_MAX and m != 0, "outside the clean limits")
+    seen = cl_read(q)
+    need("curve" in seen, "no line shows the curve")
+    need(parse(seen["curve"]) == sp.expand(curve), "the curve shown is not the givens")
+    if "line" in seen:
+        need(parse(seen["line"]) == sp.expand(line), "the line shown is not the givens")
+    if "lineN" in seen:
+        need(parse(seen["lineN"].replace("+ n", "")) == m * X, "the line's gradient shown is not the givens")
+    diff = sp.expand(curve - line)
+    xs = sorted(sp.solveset(diff, X, domain=sp.S.Reals))
+    need(all(x.is_rational for x in xs), "meeting points are not rational")
+    if q.get("graph"):
+        gr = q["graph"]
+        need(abs(gr["line"]["m"] - float(m)) < 1e-9 and abs(gr["line"]["n"] - float(n)) < 1e-9, "the sketch's line is not the givens")
+        A, B, C = R(g["A"]), R(g["B"]), R(g["C"])
+        need(abs(gr["a"] - float(A)) < 1e-9 and abs(gr["h"] - float(-B / (2 * A))) < 1e-9, "the sketch's curve is not the givens")
+    if u == "equate-to-quadratic":
+        co = sp.Poly(diff, X).all_coeffs()
+        need(R(ans["fixed"]["A"]) == co[0], "the leading coefficient given is not the equated quadratic's")
+        qr_check_common(q, (co[0], co[1], co[2]))
+    elif u == "meeting-x":
+        need(len(xs) == 2, "not two meeting points")
+        qr_check_common(q, tuple(xs), {"SL2.7.solve-equation#1": {tuple(sorted([-xs[0], -xs[1]]))}})
+    elif u == "meeting-points":
+        qr_check_common(q, tuple(sorted((x, line.subs(X, x)) for x in xs)))
+    elif u == "chord-length":
+        need(len(xs) == 2, "not two meeting points")
+        L = sp.sqrt((xs[1] - xs[0])**2 + (line.subs(X, xs[1]) - line.subs(X, xs[0]))**2)
+        mv, rv = R(ans["values"]["m"]), R(ans["values"]["r"])
+        need(sp.simplify(mv * sp.sqrt(rv) - L) == 0, f"{q['answer_text']} is not AB = {L}")
+        need(rv == 1 or sp.factorint(int(rv)) and all(e == 1 for e in sp.factorint(int(rv)).values()), "the surd is not simplified")
+        want = qr_norm(ans, ans["values"])
+        for o in q["choices"]:
+            val = R(o["values"]["m"]) * sp.sqrt(R(o["values"]["r"]))
+            need((sp.simplify(val - L) == 0) == o["correct"], f"option {o['text']!r} is marked wrong/right wrongly")
+        qr_check_common(q, want)
+    elif u == "normal-meets-again":
+        px, py = RD(seen["px"]), RD(seen["py"])
+        need(curve.subs(X, px) == py, "P is not on the curve")
+        slope = sp.diff(curve, X).subs(X, px)
+        need(slope != 0 and m == -1 / slope and line.subs(X, px) == py, "the line is not the normal at P")
+        others = [x for x in xs if x != px]
+        need(len(others) == 1, "the normal doesn't meet the curve again once")
+        qr_check_common(q, qr_norm(ans, {"x": str(others[0]), "y": str(line.subs(X, others[0]))}))
+    elif u == "line-from-meeting-points":
+        xa, xb = RD(seen["xa"]), RD(seen["xb"])
+        ya, yb = curve.subs(X, xa), curve.subs(X, xb)
+        mm = (yb - ya) / (xb - xa)
+        qr_check_common(q, qr_norm(ans, {"m": str(mm), "n": str(ya - mm * xa)}))
+    elif u == "intercept-from-one-point":
+        xg = RD(seen["xg"])
+        nn = curve.subs(X, xg) - m * xg
+        need(nn == n, "n from the given point is not the givens'")
+        others = [x for x in sp.solve(curve - (m * X + nn), X) if x != xg]
+        need(len(others) == 1, "no single other point")
+        qr_check_common(q, qr_norm(ans, {"n": str(nn), "x": str(others[0]), "y": str(m * others[0] + nn)}))
+    elif u == "count-from-sketch":
+        cnt = len(set(xs)) if xs else 0
+        wr = {}
+        gr = q["graph"]
+        on_screen = [x for x in xs if gr["x0"] <= x <= gr["x1"]]
+        if len(on_screen) < cnt:
+            wr["SL2.4.intersection#1"] = {qr_norm(ans, {"v": str(len(on_screen))})}
+        qr_check_common(q, qr_norm(ans, {"v": str(cnt)}), wr)
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
-                    "distribution": check_distribution, "quadratic-parameter": check_qparam}
+                    "distribution": check_distribution, "quadratic-parameter": check_qparam,
+                    "curve-and-line": check_curve_line}
 
 # ── Coverage from the catalogue itself ───────────────────────
 
