@@ -9,22 +9,25 @@ extends RefCounted
 ##   probes     concept probe key -> the same record, without misconceptions
 ##   history    the last HISTORY cell keys asked, newest last (for spacing repeats)
 ##   seed       the planner's counter, so a run of questions is reproducible
-##   class      the chosen class (FAL-308); "" until classes exist
+##   class      the chosen class (FAL-308); null until classes exist
 ##   trees      skill trees (FAL-308); empty for now
 ##   lessons    The Relic lessons (FAL-325); empty for now
+##   scrap      Scrap banked from runs, for the Bazaar (G6)
+##   runs       {"played", "best_fights", "questions", "right"} over every run
 ##
 ## When a wrong answer matches a multiple-choice distractor, the distractor's
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can
 ## use it later.
 
-const VERSION := 1
+const VERSION := 2
 const PATH := "user://save.json"
 const HISTORY := 20
 
 
 static func blank() -> Dictionary:
 	return {"version": VERSION, "settings": {"exam_only": false}, "cells": {}, "probes": {}, "history": [],
-		"seed": 0, "class": "", "trees": {}, "lessons": {}}
+		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
+		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}}
 
 
 ## Brings any older save up to VERSION, one step at a time, then fills in fields a
@@ -56,6 +59,14 @@ static func call_step(v: int, data: Dictionary) -> Dictionary:
 			for key in ["settings", "cells", "probes", "history", "seed"]:
 				if data.has(key):
 					out[key] = data[key]
+			return out
+		1:
+			# Version 1 to 2 (FAL-413): class is null until one is chosen, not "". A
+			# save without class or trees gets them from blank(); Scrap and run
+			# totals start at 0.
+			var out := data.duplicate(true)
+			if out.get("class") == "":
+				out["class"] = null
 			return out
 	return data
 

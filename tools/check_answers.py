@@ -388,7 +388,7 @@ def text_value(kind, text, fixed):
     if kind == "claim":
         return None
     t = text.replace("−", "-")
-    nums = [R(n) for n in re.findall(r"-?\d+(?:/\d+)?", t)]
+    nums = [R(n) for n in re.findall(r"-?\d+(?:\.\d+)?(?:/\d+)?", t)]
     if kind == "roots":
         return ("roots", tuple(sorted(nums)))
     if kind in ("point",):

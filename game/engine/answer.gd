@@ -285,8 +285,80 @@ static func _rounded_to_own_figures(typed: Q, t: float, unit: float) -> bool:
 	return roundi(t * scale) == typed.n * (scale / typed.d)
 
 
+## Q7 on the FAL-274 plan: the right value written with too few significant figures
+## (2.3 for 2.347) is a glancing hit, not a miss. Only when the exact value needs
+## rounding at 3 s.f. (so 1 is not a glancing 1/2), and only when the typed number is
+## the value rounded to its own, coarser, places.
+static func number_glancing(typed: Q, exact: Q) -> bool:
+	if exact.is_zero() or typed.is_zero() or number_right(typed, exact) or not needs_rounding(exact):
+		return false
+	var t := exact.to_float()
+	var e := floori(log(absf(t)) / log(10.0) + 1e-12)
+	var unit := pow(10.0, e - 2)
+	var scale := 1
+	var places := 0
+	while scale % typed.d != 0:
+		scale *= 10
+		places += 1
+		if places > 9:
+			return false
+	if scale * unit >= 1.0 - 1e-9:
+		return false
+	return roundi(t * scale) == typed.n * (scale / typed.d)
+
+
+## Whether a value can't be written exactly in 3 significant figures (2/3, 2.347), so
+## a 3 s.f. answer is a rounded one.
+static func needs_rounding(v: Q) -> bool:
+	if v.is_zero():
+		return false
+	var r := parse_number(Fmt.sf(v).replace("−", "-"))
+	return not (r.ok and r.q.eq(v))
+
+
+## Kinds whose one typed number can be shown rounded, as a rounding trap.
+const TRAP_KINDS := ["number", "xval", "axis", "yint"]
+
+
+## The rounding trap for a multiple-choice question (Q7): the answer's value rounded to
+## 2 significant figures, a glancing hit if picked. {} where it doesn't fit: the answer
+## is exact-only, has more than one number, or its number needs no rounding. Every
+## situation's views offer it as `trap` (see game/README.md).
+static func rounding_trap(ans: Dictionary) -> Dictionary:
+	if ans.get("exact", false) or not ans.kind in TRAP_KINDS:
+		return {}
+	var nums := slots(ans).filter(func(item): return item.has("slot"))
+	if nums.size() != 1:
+		return {}
+	var id: String = nums[0].slot
+	var v: Variant = ans.values[id]
+	if not v is Q or not needs_rounding(v):
+		return {}
+	var r := parse_number(Fmt.sf(v, 2).replace("−", "-"))
+	if not r.ok or r.q.is_zero():
+		return {}
+	var out := (ans.values as Dictionary).duplicate()
+	out[id] = r.q
+	return out
+
+
+## A rounding trap written as a student would write it, as a decimal.
+static func trap_text(ans: Dictionary, values: Dictionary) -> String:
+	match ans.kind:
+		"number":
+			return ans.label + Fmt.dec(values.v) + ans.unit
+		"xval":
+			return "x = " + Fmt.dec(values.v)
+		"axis":
+			return "%s = %s" % [values["var"], Fmt.dec(values.h)]
+		"yint":
+			return "(0, %s)" % Fmt.dec(values.y)
+	return text(ans, values)
+
+
 ## Marks typed slot entries. response: slot id -> String (typed or picked).
-## Returns {"correct": bool, "complete": bool, "errors": {id: message}, "values": {...}}.
+## Returns {"correct": bool, "complete": bool, "glancing": bool, "errors": {id: message},
+## "values": {...}}. glancing: not right, but right with too few figures (Q7).
 static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 	var errors := {}
 	var got := {}
@@ -304,13 +376,15 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 			else:
 				got[id] = r.q
 	if not errors.is_empty():
-		return {"correct": false, "complete": false, "errors": errors, "values": got}
-	return {"correct": values_right(ans, got), "complete": true, "errors": {}, "values": got}
+		return {"correct": false, "complete": false, "glancing": false, "errors": errors, "values": got}
+	var right := values_right(ans, got)
+	return {"correct": right, "complete": true, "glancing": not right and values_right(ans, got, true),
+		"errors": {}, "values": got}
 
 
 ## Whether typed values match the answer, slot by slot, trying each order of an
-## unordered group.
-static func values_right(ans: Dictionary, got: Dictionary) -> bool:
+## unordered group. With glancing, a number with too few figures counts too.
+static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
 	var want: Dictionary = ans.values
 	var exact: bool = ans.get("exact", false)
 	var free := {}
@@ -321,14 +395,14 @@ static func values_right(ans: Dictionary, got: Dictionary) -> bool:
 		var id: String = item.get("slot", item.get("pick", ""))
 		if free.has(id):
 			continue
-		if not _slot_right(want[id], got.get(id), exact):
+		if not _slot_right(want[id], got.get(id), exact, glancing):
 			return false
 	for group in ans.unordered:
 		var ok := false
 		for perm in _perms(group):
 			var all := true
 			for i in group.size():
-				if not _slot_right(want[group[i]], got.get(perm[i]), exact):
+				if not _slot_right(want[group[i]], got.get(perm[i]), exact, glancing):
 					all = false
 					break
 			if all:
@@ -339,9 +413,13 @@ static func values_right(ans: Dictionary, got: Dictionary) -> bool:
 	return true
 
 
-static func _slot_right(want: Variant, got: Variant, exact: bool = false) -> bool:
+static func _slot_right(want: Variant, got: Variant, exact: bool = false, glancing: bool = false) -> bool:
 	if want is Q:
-		return got is Q and (got.eq(want) if exact else number_right(got, want))
+		if not got is Q:
+			return false
+		if exact:
+			return got.eq(want)
+		return number_right(got, want) or (glancing and number_glancing(got, want))
 	return str(want) == str(got)
 
 

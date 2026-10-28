@@ -3189,7 +3189,8 @@
 					"wrong": "half the differences of the coordinates, not half the sums"
 				}
 			],
-			"frequency": 12
+			"frequency": 12,
+			"marks": 2
 		},
 		{
 			"id": "fn-graph-table-composite-inverse",
@@ -3864,7 +3865,8 @@
 					"wrong": "\"it has one: reflect the graph in y = x\""
 				}
 			],
-			"frequency": 8
+			"frequency": 8,
+			"marks": 2
 		},
 		{
 			"id": "fn-inverse-reflection",
@@ -4262,7 +4264,8 @@
 					"wrong": "\"yes, it has a turning point on y = x so it must be symmetric\", without checking that swapped points lie on the curve"
 				}
 			],
-			"frequency": 2
+			"frequency": 2,
+			"marks": 2
 		},
 		{
 			"id": "fn-evaluate-function",
@@ -4768,7 +4771,8 @@
 					"wrong": "the possible output values (heights) given instead of the times"
 				}
 			],
-			"frequency": 7
+			"frequency": 7,
+			"marks": 2
 		},
 		{
 			"id": "fn-domain-range",
@@ -5250,7 +5254,8 @@
 					"wrong": "says f⁻¹ exists on the whole of ℝ, so no restriction is needed"
 				}
 			],
-			"frequency": 4
+			"frequency": 4,
+			"marks": 2
 		},
 		{
 			"id": "fn-sketch-gdc",
@@ -5846,7 +5851,8 @@
 					"wrong": "in asymptote mode, counts y = k at the level the curve approaches as a solution"
 				}
 			],
-			"frequency": 7
+			"frequency": 7,
+			"marks": 3
 		},
 		{
 			"id": "fn-sketch-from-features",
@@ -6192,7 +6198,8 @@
 					"wrong": "the curve reaching the long-run level, turning, and going back up"
 				}
 			],
-			"frequency": 4
+			"frequency": 4,
+			"marks": 3
 		},
 		{
 			"id": "fn-gdc-features",
@@ -6660,7 +6667,8 @@
 					"wrong": "a distance from zeros already rounded to 3 s.f., off in the third figure"
 				}
 			],
-			"frequency": 5
+			"frequency": 5,
+			"marks": 2
 		},
 		{
 			"id": "fn-gdc-intersection",
@@ -7060,7 +7068,8 @@
 					"wrong": "for eˣ = x + 3, writes x = ln x + ln 3 and tries to solve that"
 				}
 			],
-			"frequency": 7
+			"frequency": 7,
+			"marks": 3
 		},
 		{
 			"id": "fn-gdc-optimise-combined",
@@ -7476,7 +7485,8 @@
 					"wrong": "gives the size of the lead when the question asks when it happens"
 				}
 			],
-			"frequency": 4
+			"frequency": 4,
+			"marks": 3
 		},
 		{
 			"id": "fn-gdc-solve-equation",
@@ -7851,7 +7861,8 @@
 					"wrong": "the value of the model at that time instead of the time"
 				}
 			],
-			"frequency": 4
+			"frequency": 4,
+			"marks": 2
 		},
 		{
 			"id": "fn-composite",
@@ -8281,7 +8292,8 @@
 					"wrong": "only the positive k from k² = n²"
 				}
 			],
-			"frequency": 9
+			"frequency": 9,
+			"marks": 2
 		},
 		{
 			"id": "fn-inverse-algebraic",
@@ -8926,7 +8938,8 @@
 					"wrong": "f(−x) and −f(x) swapped, so the reflections are named in the wrong axes"
 				}
 			],
-			"frequency": 5
+			"frequency": 5,
+			"marks": 3
 		},
 		{
 			"id": "fn-exp-log-inverse-composite",
@@ -9642,7 +9655,8 @@
 					"wrong": "\"a stretch, scale factor 1/2\", with no axis named"
 				}
 			],
-			"frequency": 12
+			"frequency": 12,
+			"marks": 3
 		},
 		{
 			"id": "fn-quadratic-features",
@@ -10325,7 +10339,8 @@
 					"wrong": "pq instead of apq"
 				}
 			],
-			"frequency": 11
+			"frequency": 11,
+			"marks": 2
 		},
 		{
 			"id": "fn-quadratic-from-conditions",
@@ -10733,7 +10748,8 @@
 					"wrong": "x ≥ k, the range written in x"
 				}
 			],
-			"frequency": 7
+			"frequency": 7,
+			"marks": 3
 		},
 		{
 			"id": "fn-solve-quadratic",
@@ -11113,7 +11129,8 @@
 					"wrong": "rewrites 4ˣ as 2·2ˣ, so the \"quadratic\" is linear"
 				}
 			],
-			"frequency": 4
+			"frequency": 4,
+			"marks": 3
 		},
 		{
 			"id": "fn-discriminant",
@@ -11545,7 +11562,8 @@
 					"wrong": "k < k₁ or k > k₂ written as k₁ > k > k₂, one interval"
 				}
 			],
-			"frequency": 13
+			"frequency": 13,
+			"marks": 5
 		},
 		{
 			"id": "fn-curve-intersection-quadratic",
@@ -11919,7 +11937,8 @@
 					"wrong": "multiplies only the fraction side by (x − r) when clearing the denominator"
 				}
 			],
-			"frequency": 5
+			"frequency": 5,
+			"marks": 5
 		},
 		{
 			"id": "fn-quadratic-inequality",
@@ -12176,7 +12195,8 @@
 					"wrong": "divides by −1 and keeps the sign, so the region is the wrong one"
 				}
 			],
-			"frequency": 2
+			"frequency": 2,
+			"marks": 3
 		},
 		{
 			"id": "fn-log-of-quadratic",
@@ -12831,7 +12851,8 @@
 					"wrong": "x ≤ log_k G, the range written in x"
 				}
 			],
-			"frequency": 4
+			"frequency": 4,
+			"marks": 4
 		},
 		{
 			"id": "fn-rational-asymptotes-intercepts",
@@ -13329,7 +13350,8 @@
 					"wrong": "x ≠ A, the range written in x"
 				}
 			],
-			"frequency": 12
+			"frequency": 12,
+			"marks": 2
 		},
 		{
 			"id": "fn-rational-sketch",
@@ -13867,7 +13889,8 @@
 					"wrong": "the graph of y = −1/x, with branches in the second and fourth quadrants"
 				}
 			],
-			"frequency": 7
+			"frequency": 7,
+			"marks": 2
 		},
 		{
 			"id": "fn-exponential-model",
@@ -14533,7 +14556,8 @@
 					"wrong": "log₁₀ x = 3 turned into x = 3¹⁰ instead of 10³"
 				}
 			],
-			"frequency": 14
+			"frequency": 14,
+			"marks": 2
 		},
 		{
 			"id": "fn-log-function-features",
@@ -14950,7 +14974,8 @@
 					"wrong": "the set of y-values (all real numbers)"
 				}
 			],
-			"frequency": 3
+			"frequency": 3,
+			"marks": 1
 		},
 		{
 			"id": "fn-transform-describe",
@@ -15417,7 +15442,8 @@
 					"wrong": "g(x) = f(−x) described as a reflection in the x-axis"
 				}
 			],
-			"frequency": 6
+			"frequency": 6,
+			"marks": 2
 		},
 		{
 			"id": "fn-transform-apply",
@@ -16079,7 +16105,8 @@
 					"wrong": "the range of g given when its domain is asked"
 				}
 			],
-			"frequency": 2
+			"frequency": 2,
+			"marks": 3
 		},
 		{
 			"id": "t1-arithmetic-sequence",
@@ -16546,7 +16573,8 @@
 					"wrong": "the value of the sum given as n"
 				}
 			],
-			"frequency": 21
+			"frequency": 21,
+			"marks": 3
 		},
 		{
 			"id": "t3-triangle-area",
@@ -16706,7 +16734,8 @@
 					"wrong": "the area with the angle read as radians"
 				}
 			],
-			"frequency": 11
+			"frequency": 11,
+			"marks": 5
 		},
 		{
 			"id": "t3-sine-cosine-rule",
@@ -16958,7 +16987,8 @@
 					"wrong": "the side worked out with the angles read as radians"
 				}
 			],
-			"frequency": 19
+			"frequency": 19,
+			"marks": 3
 		},
 		{
 			"id": "t4-expected-occurrences",
@@ -17069,7 +17099,8 @@
 					"wrong": "P(event)"
 				}
 			],
-			"frequency": 4
+			"frequency": 4,
+			"marks": 2
 		},
 		{
 			"id": "t4-expected-value",
@@ -17270,7 +17301,8 @@
 					"wrong": "the stake from gains of the prize on a win and minus the stake on a loss: Σ prize × P(win) ÷ P(no prize), to the cent"
 				}
 			],
-			"frequency": 17
+			"frequency": 17,
+			"marks": 3
 		},
 		{
 			"id": "t4-discrete-distribution",
@@ -17438,7 +17470,8 @@
 					"wrong": "the event's probability with its strict end taken in"
 				}
 			],
-			"frequency": 12
+			"frequency": 12,
+			"marks": 2
 		},
 		{
 			"id": "fn-ext-quadratic-model",
