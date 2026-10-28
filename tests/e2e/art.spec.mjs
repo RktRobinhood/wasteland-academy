@@ -23,11 +23,14 @@ const ASSETS = BASE_PATH + 'assets/';
 // Answers every request under assets/: a stand-in when `art.mode` is
 // 'served', a 404 when it's 'missing'. Routing also turns off the HTTP cache,
 // so switching the mode mid-test takes effect on the next request.
-// Files in `art.missing` 404 whatever the mode.
+// Files in `art.missing` 404 whatever the mode. Files a script in tools/
+// draws aren't pipeline art, so the real one is always served.
+const GENERATED = new Set(['map/tumbleweed.svg']);
 async function routeArt(context, mode) {
   const art = { mode, missing: new Set(), requested: new Set(), unknown: new Set() };
   await context.route(url => url.pathname.startsWith(ASSETS), route => {
     const rel = new URL(route.request().url()).pathname.slice(ASSETS.length);
+    if (GENERATED.has(rel)) return route.fallback();
     art.requested.add(rel);
     const body = art.mode === 'served' && !art.missing.has(rel) ? standin(rel) : null;
     if (art.mode === 'served' && !art.missing.has(rel) && !body) art.unknown.add(rel);

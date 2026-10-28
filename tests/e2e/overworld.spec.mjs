@@ -146,6 +146,10 @@ test('the map moves: tumbleweeds, smoke, lights and a buzzard, none of which tak
     expect(running, `${name} runs`).toContain(name);
   }
 
+  // The tumbleweed's frames load
+  const frames = page.locator('.amb-weed-near .amb-weed-frames');
+  await expect.poll(() => frames.evaluate(img => img.complete && img.naturalWidth), 'tumbleweed frames load').toBeGreaterThan(0);
+
   // The near tumbleweed is on the map when it opens, and rolls on
   const weed = page.locator('.amb-weed-near .amb-weed-body');
   const map = await page.locator('.world-map').boundingBox();

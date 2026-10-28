@@ -304,8 +304,11 @@
 
 /* Tumbleweeds. Each rolls across its lane in the first 45% of --period, then
    waits off the map, so the three rarely line up. --lane is the top of the
-   weed, as % of the map height. --spin matches the roll to the speed (about
-   0.4 × size × period), and --hop is the bounce. */
+   weed, as % of the map height, and --hop is the bounce.
+   The weed is a tangle of twigs drawn in 3D (tools/tumbleweed.mjs makes
+   assets/map/tumbleweed.svg): 32 frames of one turn, side by side, stepped
+   through behind a one-frame window. --spin is one turn, matched to the roll
+   speed: the ball is 0.72 of --size across, so about 0.91 × size × period. */
 .amb-weed {
   inset: 0;
   animation: amb-weed-roll var(--period) linear var(--delay) infinite;
@@ -316,42 +319,57 @@
 }
 .amb-weed-body {
   top: var(--lane);
-  height: auto;
   aspect-ratio: 1;
-  overflow: visible;
-  animation:
-    amb-weed-spin var(--spin) linear infinite,
-    amb-weed-hop var(--hop) infinite;
+  overflow: hidden;
+  animation: amb-weed-hop var(--hop) infinite;
 }
+.amb-weed-frames {
+  inset: 0 auto auto 0;
+  width: 3200%;
+  max-width: none;
+  height: 100%;
+  animation: amb-weed-spin var(--spin) steps(32) infinite;
+}
+/* The ball meets the sand 79% of the way down its frame; the shadow falls
+   down and right of that, away from the sun, faint because light gets through */
 .amb-weed-shadow {
-  top: calc(var(--lane) + var(--size) * 9 / 16 * 0.78);
-  aspect-ratio: 3.2;
-  translate: 18% 0;
+  top: calc(var(--lane) + var(--size) * 9 / 16 * 0.66);
+  aspect-ratio: 3;
+  translate: 14% 0;
   border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(60,38,18,0.5), transparent);
+  background: radial-gradient(closest-side, rgba(60,38,18,0.38), transparent);
   animation: amb-weed-shadow var(--hop) infinite;
 }
-.amb-weed-far  { --lane: 1.6%; --size: 3.2%; --period: 46s; --delay: -30s; --spin: 1.9s; --hop: 2.4s; }
-.amb-weed-mid  { --lane: 30.6%; --size: 4.6%; --period: 26s; --delay: -22s; --spin: 1.6s; --hop: 2.1s; }
-.amb-weed-near { --lane: 90.5%; --size: 7.5%; --period: 34s; --delay: -6s; --spin: 3.2s; --hop: 2.9s; }
+.amb-weed-far  { --lane: 1.2%;  --size: 3.6%; --period: 46s; --delay: -30s; --spin: 1.51s; --hop: 3.8s; }
+.amb-weed-mid  { --lane: 30%;   --size: 5.2%; --period: 26s; --delay: -22s; --spin: 1.23s; --hop: 3.2s; }
+.amb-weed-near { --lane: 89.5%; --size: 8.5%; --period: 34s; --delay: -6s;  --spin: 2.63s; --hop: 4.4s; }
 @keyframes amb-weed-roll {
   0%        { translate: -8% 0; }
   12%       { translate: 22% 0.5%; }
   22%       { translate: 40% 0.3%; }
   45%, 100% { translate: 104% 1.2%; }
 }
-@keyframes amb-weed-spin { to { rotate: 1turn; } }
+@keyframes amb-weed-spin { to { translate: -100% 0; } }
+/* Uneven bounces off bumps in the sand: a big one with a small rebound, a
+   roll, a middling one with a skip, a roll, a little one. Each height goes
+   with its time in the air (height ∝ time²), and every arc is a parabola:
+   rising slows to the top, falling speeds to the ground. */
 @keyframes amb-weed-hop {
-  0%        { translate: 0 0;    animation-timing-function: ease-out; }
-  16%       { translate: 0 -60%; animation-timing-function: ease-in; }
-  32%       { translate: 0 0;    animation-timing-function: ease-out; }
-  41%       { translate: 0 -22%; animation-timing-function: ease-in; }
-  50%, 100% { translate: 0 0; }
+  0%, 14%, 46%, 57%, 78% { translate: 0 0;    animation-timing-function: cubic-bezier(0.33, 0.67, 0.67, 1); }
+  7%                     { translate: 0 -50%; animation-timing-function: cubic-bezier(0.33, 0, 0.67, 0.33); }
+  17%                    { translate: 0 -9%;  animation-timing-function: cubic-bezier(0.33, 0, 0.67, 0.33); }
+  51.5%                  { translate: 0 -31%; animation-timing-function: cubic-bezier(0.33, 0, 0.67, 0.33); }
+  59%                    { translate: 0 -4%;  animation-timing-function: cubic-bezier(0.33, 0, 0.67, 0.33); }
+  81.5%                  { translate: 0 -12%; animation-timing-function: cubic-bezier(0.33, 0, 0.67, 0.33); }
+  20%, 61%, 85%, 100%    { translate: 0 0; }
 }
 @keyframes amb-weed-shadow {
-  0%, 32%, 50%, 100% { scale: 1;    opacity: 1; }
-  16%                { scale: 0.65; opacity: 0.45; }
-  41%                { scale: 0.85; opacity: 0.75; }
+  0%, 14%, 20%, 46%, 57%, 61%, 78%, 85%, 100% { scale: 1; opacity: 1; }
+  7%    { scale: 0.7;  opacity: 0.45; }
+  17%   { scale: 0.95; opacity: 0.9; }
+  51.5% { scale: 0.8;  opacity: 0.65; }
+  59%   { scale: 1;    opacity: 0.95; }
+  81.5% { scale: 0.92; opacity: 0.85; }
 }
 
 /* A buzzard circles over the sand between the Scrap Fields and the Signal

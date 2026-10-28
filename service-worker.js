@@ -17,6 +17,7 @@ const PRECACHE = [
   './css/base.css',
   './css/screens.css',
   './css/combat.css',
+  './assets/map/tumbleweed.svg',
   './js/platform.js',
   './js/art.js',
   './js/katex-render.js',
