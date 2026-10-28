@@ -28,6 +28,7 @@ var _choice_buttons: Array = []
 var _focus: LineEdit
 
 var margin: MarginContainer
+var hud_gap: Control
 var exam_toggle: Button
 var progress: Label
 var scroll: ScrollContainer
@@ -85,6 +86,11 @@ func _build() -> void:
 	exam_toggle.add_theme_font_size_override("font_size", UiTheme.SMALL)
 	exam_toggle.toggled.connect(_on_exam_toggled)
 	head.add_child(exam_toggle)
+	# Keeps the toggle clear of the speaker and gear in the top-right corner.
+	hud_gap = Control.new()
+	hud_gap.name = "HudGap"
+	hud_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	head.add_child(hud_gap)
 	col.add_child(head)
 	progress = UiTheme.label("", UiTheme.SMALL, UiTheme.DIM)
 	progress.name = "Progress"
@@ -109,6 +115,7 @@ func _fit() -> void:
 	margin.add_theme_constant_override("margin_right", int(side))
 	margin.add_theme_constant_override("margin_top", 40)
 	margin.add_theme_constant_override("margin_bottom", 30)
+	hud_gap.custom_minimum_size.x = maxf(0.0, AudioHud.RESERVED_RIGHT - side)
 
 
 func now() -> int:

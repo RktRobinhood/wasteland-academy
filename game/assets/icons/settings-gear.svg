@@ -1,0 +1,22 @@
+<!-- Settings. Scrap Teal (#22D3C5) from the SPEC.md palette. FAL-385. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <circle cx="12" cy="12" r="6.1" fill="none" stroke="#22D3C5" stroke-width="3.1"/>
+  <g fill="#22D3C5">
+    <g>
+      <rect x="10.4" y="1.6" width="3.2" height="4.4" rx="1.1"/>
+      <rect x="10.4" y="18.0" width="3.2" height="4.4" rx="1.1"/>
+    </g>
+    <g transform="rotate(45 12 12)">
+      <rect x="10.4" y="1.6" width="3.2" height="4.4" rx="1.1"/>
+      <rect x="10.4" y="18.0" width="3.2" height="4.4" rx="1.1"/>
+    </g>
+    <g transform="rotate(90 12 12)">
+      <rect x="10.4" y="1.6" width="3.2" height="4.4" rx="1.1"/>
+      <rect x="10.4" y="18.0" width="3.2" height="4.4" rx="1.1"/>
+    </g>
+    <g transform="rotate(135 12 12)">
+      <rect x="10.4" y="1.6" width="3.2" height="4.4" rx="1.1"/>
+      <rect x="10.4" y="18.0" width="3.2" height="4.4" rx="1.1"/>
+    </g>
+  </g>
+</svg>
