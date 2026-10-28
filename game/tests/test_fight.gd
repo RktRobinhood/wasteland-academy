@@ -1,7 +1,8 @@
 extends "res://tests/test_case.gd"
-## The fight screen (FAL-413): plays a run with the card, the HP bars, the timer and the
-## lifelines, shows the worked solution after a miss and the summary at the end, and
-## fits a 360 px phone, a 390 px phone and a PC window.
+## The fight screen (FAL-413, FAL-415): plays a run with the card, the HP bars, the timer
+## and the lifelines, shows the worked solution after a miss and the summary at the end,
+## the floor select, and a boss's parts with the value carried on, and fits a 360 px
+## phone, a 390 px phone and a PC window.
 
 const FIGHT := "res://scenes/fight.tscn"
 const SAVE := "user://test_fight_save.json"
@@ -13,14 +14,18 @@ func _area(window: Vector2i) -> Vector2:
 	return Vector2(window) / scale
 
 
-func _screen(area: Vector2, seed_no: int = 3) -> Array:
+func _screen(area: Vector2, seed_no: int = 3, select := false, save: Dictionary = {}, fight := 1) -> Array:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+	if not save.is_empty():
+		SaveData.store(save, SAVE)
 	var frame := Control.new()
 	frame.size = area
 	tree.root.add_child(frame)
 	var f: Control = (load(FIGHT) as PackedScene).instantiate()
 	f.save_path = SAVE
 	f.run_seed = seed_no
+	f.select_first = select
+	f.first_fight = fight
 	frame.add_child(f)
 	await tree.process_frame
 	return [frame, f]
@@ -145,6 +150,93 @@ func _check_fits(window: Vector2i) -> void:
 		if stage != "summary":
 			check(scroll.size.y >= 500, "%s %s: room for the card (%s)" % [window, stage, scroll.size.y])
 	_done(made)
+
+
+# ── The dungeon (FAL-415) ────────────────────────────────────
+
+func test_the_floor_select_offers_beaten_floors() -> void:
+	var save := SaveData.blank()
+	var made: Array = await _screen(_area(Vector2i(390, 844)), 3, true, save)
+	var f: Control = made[1]
+	check(f.floor_box.visible and f.run == null, "it opens on the floor select")
+	check(not f.quit_button.visible, "nothing to quit yet")
+	var floors: Node = f.floor_box.get_node("Floors")
+	check(floors.get_node_or_null("Floor1") is Button, "floor 1")
+	check(floors.get_node_or_null("Floor2") == null, "floor 2 is locked")
+	check(floors.get_node("Locked").text.contains("Floor 2 · beat the floor 1 boss"), floors.get_node("Locked").text)
+	_done(made)
+	Dungeon.note_floor(save, "quadratics", 1, true)
+	Dungeon.note_floor(save, "quadratics", 2, true)
+	Dungeon.note_floor(save, "quadratics", 3, false)
+	made = await _screen(_area(Vector2i(390, 844)), 3, true, save)
+	f = made[1]
+	floors = f.floor_box.get_node("Floors")
+	for n in [1, 2, 3]:
+		check(floors.get_node_or_null("Floor%d" % n) is Button, "floor %d is open" % n)
+	check(floors.get_node_or_null("Floor4") == null, "floor 3's boss isn't beaten")
+	check(floors.get_node("Locked").text.contains("Floor 4 · beat the floor 3 boss"), floors.get_node("Locked").text)
+	(floors.get_node("Floor3") as Button).pressed.emit()
+	await tree.process_frame
+	check(f.run != null and f.run.start_floor == 3, "the run starts on floor 3")
+	check(not f.floor_box.visible and f.scroll.visible)
+	check(f.title.text.contains("Floor 3"), f.title.text)
+	_done(made)
+
+
+func test_a_boss_part_shows_the_value_carried_on() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)), 3, false, {}, 10)
+	var f: Control = made[1]
+	check_eq(f.run.kind, "boss")
+	check(f.card.get_node_or_null("BossPart") != null and f.card.get_node("BossPart").text.begins_with("Boss · part (a)"),
+		"the part shows")
+	check(f.card.get_node_or_null("Carried") == null, "part (a) carries nothing")
+	var a: Dictionary = f.run.question
+	f.autoplay(false)
+	check(f.feedback.text.contains("carries on from " + a.answer_text), f.feedback.text)
+	check_eq(f.next_button.text, "Next part")
+	f.next_question()
+	await tree.process_frame
+	var carried: Node = f.card.get_node_or_null("Carried")
+	check(carried != null, "part (b) shows the carried value")
+	check(carried.get_child(0).text.contains(a.answer_text), carried.get_child(0).text)
+	check(f.card.get_node("PartsDone").get_child(0).text.begins_with("(a) missed"), "part (a) is marked")
+	check(f.progress.text.contains("part (b)"), f.progress.text)
+	check_eq(f.enemy_hp.text, "%d/%d" % [f.run.boss.parts.size() - 1, f.run.boss.parts.size()], "parts left")
+	check(not f.run.records, "a jumped run records nothing")
+	_done(made)
+
+
+func test_the_boss_screens_fit() -> void:
+	for window in [Vector2i(360, 780), Vector2i(390, 844), Vector2i(1280, 800)]:
+		var area := _area(window)
+		var save := SaveData.blank()
+		Dungeon.note_floor(save, "quadratics", 1, true)
+		Dungeon.note_floor(save, "quadratics", 2, true)
+		var made: Array = await _screen(area, 3, true, save)
+		var f: Control = made[1]
+		for i in 3:
+			await tree.process_frame
+		_check_inside(f, area, "%s floor select" % window)
+		_done(made)
+		made = await _screen(area, 3, false, {}, 5)
+		f = made[1]
+		f.autoplay(false)
+		f.next_question()
+		for i in 3:
+			await tree.process_frame
+		_check_inside(f, area, "%s mini-boss part (b)" % window)
+		_done(made)
+
+
+func _check_inside(f: Control, area: Vector2, what: String) -> void:
+	var screen := Rect2(Vector2.ZERO, area)
+	var col := f.get_node("Margin/Column") as Control
+	check(screen.encloses(col.get_global_rect()), "%s: column %s outside %s" % [what, col.get_global_rect(), screen])
+	for c in col.find_children("*", "Control", true, false):
+		if c.is_visible_in_tree() and not c is ScrollBar:
+			var r: Rect2 = c.get_global_rect()
+			check(r.end.x <= col.get_global_rect().end.x + 1 and r.position.x >= col.get_global_rect().position.x - 1,
+					"%s: %s sticks out (%s)" % [what, c.name, r])
 
 
 func test_title_screen_has_play() -> void:

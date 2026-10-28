@@ -1,8 +1,15 @@
 class_name Run
 extends RefCounted
-## A run: fights in a row in one region until the player's HP reaches 0 or they quit,
-## then a summary that pays its Scrap into the save (FAL-413). It holds every rule and
-## no UI, so a test can play a whole run with fixed answers; ui/fight.gd draws it.
+## A run: a dungeon in one region (or Dungeon.ALL), floor after floor of fights, until
+## the player's HP reaches 0 or they quit, then a summary that pays its Scrap into the
+## save (FAL-413, FAL-415). It holds every rule and no UI, so a test can play a whole
+## run with fixed answers; ui/fight.gd draws it.
+##
+## A floor is Tuning.FIGHTS_PER_FLOOR fights. Fight 5 is a mini-boss and fight 10 the
+## boss: linked parts on one situation (Q9), see _open_boss(). Beating the boss opens
+## the next floor and records the floor in the save (Dungeon.note_floor), so a later
+## run can start on the next floor. Each floor serves its own cells (Dungeon.floor_cells), and
+## every type of the floor appears on it at least once (Q14).
 ##
 ##   var run := Run.new(save, "quadratics", 1, 42)
 ##   run.start()                       # opens fight 1's first question: run.question
@@ -13,7 +20,7 @@ extends RefCounted
 ## Every number comes from Tuning (engine/tuning.gd). Every damage, heal, Scrap and time
 ## value passes through `modifiers` (engine/modifiers.gd). Every outcome goes through
 ## resolve() with `stakes`, the table encounters change. slot_kind() says what each
-## fight slot is. G4 adds floors, mini-bosses and bosses on top.
+## fight slot is.
 ##
 ## The signals are for views only (the journey strip, FAL-331). Nothing in the run
 ## waits on them, so it plays the same with nothing connected.
@@ -22,6 +29,11 @@ signal run_started(region: String, avatar: String, seed: int)
 signal question_opened(fight: int, tier: int)
 signal answer_resolved(outcome: String)
 signal run_ended(summary: Dictionary)
+## A floor opens (the start floor, then each one after a boss falls).
+signal floor_started(on_floor: int)
+## The "boss beaten" event, after its heal has gone through the modifiers step.
+## kind is "mini" or "boss".
+signal boss_beaten(on_floor: int, kind: String)
 
 ## What a fight slot can be (FAL-347). Only "fight" is played until FAL-349.
 const SLOT_KINDS := ["fight", "encounter", "cell"]
@@ -31,6 +43,8 @@ const GLANCING_NOTE := "The IB needs 3 s.f."
 
 var save: Dictionary
 var region: String
+var start_floor: int
+## The floor being played, from start_floor down.
 var floor_no: int
 var run_seed: int
 var avatar: String
@@ -38,14 +52,30 @@ var modifiers := Modifiers.new()
 var stakes: Dictionary = Tuning.STAKES
 ## The clock for the planner's "got wrong recently" rule. Tests fix it.
 var clock: Callable = func() -> int: return int(Time.get_unix_time_from_system())
+## False for a run that jumped ahead (a screenshot link): it records no floors.
+var records := true
+## A screenshot link's jump: the first fight played is this one (1 = no jump).
+var first_fight := 1
 
 ## "question" while a question is open, "result" after it is answered, "ended".
 var state := ""
 var hp := 0
 var max_hp := 0
+## The fight on this floor, 1 to FIGHTS_PER_FLOOR, and fights played in the run.
 var fight := 0
+var fights := 0
 var slot := ""
+## "fight", "mini" or "boss" (Dungeon.fight_kind).
+var kind := "fight"
 var tier := 0
+## While a mini-boss or boss is on: {"kind", "type", "parts": [questions], "part",
+## "link"} (link: the last part is a link question). {} in a normal fight, and in a
+## boss fight whose region has no chain built yet (kind is still "mini" or "boss").
+var boss: Dictionary = {}
+## This floor's cells, and the types asked on it so far (Q14).
+var floor_cells: Array = []
+var floor_seen: Dictionary = {}
+var warmups_left := 0
 ## {"name", "rank", "art", "damage", "scrap", "hp", "max_hp"}
 var enemy: Dictionary = {}
 var question: Dictionary = {}
@@ -60,21 +90,27 @@ var lifelines: Dictionary = {}
 var removed: Array = []
 var hint := ""
 var stats := {"questions": 0, "right": 0, "glancing": 0, "late": 0, "wrong": 0, "timeout": 0,
-	"scrap": 0, "fights_won": 0, "another_way": 0}
+	"scrap": 0, "fights_won": 0, "another_way": 0, "minis": 0, "bosses": 0, "warmups": 0, "prior": 0}
 ## Skills missed, in the order they were first missed: "type name: what was asked".
 var missed: Array = []
-## One entry per answer: {"fight", "tier", "cell", "outcome", "enemy_damage",
-## "player_damage", "scrap"}. Tests compare runs by it.
+## One entry per answer: {"floor", "fight", "kind", "part", "tier", "cell", "rule",
+## "outcome", "enemy_damage", "player_damage", "scrap"}. Tests compare runs by it.
 var answers: Array = []
 var summary: Dictionary = {}
 
 var _followup: Dictionary = {}
+## The prior-learning type to serve next, after a miss on a step that needs it.
+var _prior := ""
+## How the open question was picked: the planner's rule, "warm-up", "prior", "boss",
+## "link" or "another-way".
+var rule := ""
 
 
-func _init(save_data: Dictionary, region_id: String, start_floor: int = 1, seed_no: int = 1, avatar_id: String = "learner") -> void:
+func _init(save_data: Dictionary, region_id: String, from_floor: int = 1, seed_no: int = 1, avatar_id: String = "learner") -> void:
 	save = save_data
 	region = region_id
-	floor_no = maxi(1, start_floor)
+	start_floor = maxi(1, from_floor)
+	floor_no = start_floor
 	run_seed = seed_no
 	avatar = avatar_id
 
@@ -84,6 +120,8 @@ func start() -> void:
 	hp = max_hp
 	lifelines = Tuning.LIFELINES.duplicate()
 	run_started.emit(region, avatar, run_seed)
+	_enter_floor(start_floor)
+	fight = clampi(first_fight, 1, Tuning.FIGHTS_PER_FLOOR) - 1
 	_next_fight()
 
 
@@ -92,14 +130,6 @@ func start() -> void:
 static func slot_kind(seed_no: int, on_floor: int, n: int) -> String:
 	var _rng := Seeded.new("slot|%d|%d|%d" % [seed_no, on_floor, n])
 	return "fight"
-
-
-## The enemy tier of fight n (Tuning.TIER_EVERY), the same for the same seed.
-static func tier_for(seed_no: int, on_floor: int, n: int) -> int:
-	for rule in Tuning.TIER_EVERY:
-		if n % int(rule.every) == 0:
-			return int(rule.tier)
-	return 1 if Seeded.new("tier|%d|%d|%d" % [seed_no, on_floor, n]).chance(Tuning.LOW_TIER_D1) else 2
 
 
 ## The one resolve step (FAL-347): what an outcome does to the enemy, the player and
@@ -121,33 +151,86 @@ static func resolve(outcome: String, foe: Dictionary, table: Dictionary = Tuning
 
 
 func _ctx() -> Dictionary:
-	return {"tier": tier, "floor": floor_no, "fight": fight}
+	var c := {"tier": tier, "floor": floor_no, "fight": fight}
+	if not boss.is_empty():
+		c.boss = boss.kind
+	return c
+
+
+func _enter_floor(f: int) -> void:
+	floor_no = f
+	fight = 0
+	floor_cells = Dungeon.floor_cells(region, f, _exam_only())
+	floor_seen = {}
+	warmups_left = Tuning.WARMUPS if f == 1 else 0
+	if records:
+		Dungeon.note_floor(save, region, f, false)
+	floor_started.emit(f)
+
+
+func _exam_only() -> bool:
+	return bool(save.get("settings", {}).get("exam_only", false))
 
 
 func _next_fight() -> void:
+	if fight >= Tuning.FIGHTS_PER_FLOOR:
+		_enter_floor(floor_no + 1)
 	fight += 1
+	fights += 1
 	slot = Run.slot_kind(run_seed, floor_no, fight)
-	tier = Run.tier_for(run_seed, floor_no, fight)
+	kind = Dungeon.fight_kind(fight)
+	tier = Dungeon.tier_for(run_seed, floor_no, fight)
 	var e: Dictionary = Tuning.ENEMIES[tier]
-	enemy = {"name": e.name, "rank": e.rank, "art": e.art, "damage": e.damage, "scrap": e.scrap,
-		"hp": int(e.hits) * Tuning.HIT, "max_hp": int(e.hits) * Tuning.HIT}
+	enemy = {"name": e.name, "rank": e.rank, "art": e.art, "damage": Tuning.damage_on(int(e.damage), floor_no),
+		"scrap": e.scrap, "hp": int(e.hits) * Tuning.HIT, "max_hp": int(e.hits) * Tuning.HIT}
+	boss = {}
+	if kind != "fight":
+		boss = _make_boss()
+		# With no chain built here yet, the boss is a normal fight at its tier; beating
+		# it still clears the floor.
+		if not boss.is_empty():
+			_followup = {}
+			enemy.hp = boss.parts.size() * Tuning.HIT
+			enemy.max_hp = enemy.hp
+			enemy.name = ("Mini-boss " if kind == "mini" else "Boss ") + enemy.name
 	_open_question()
+
+
+## The mini-boss or boss of this fight (Q9): the chain's parts made on one situation,
+## plus a link question to end a boss where the region has one. {} if none can be made.
+func _make_boss() -> Dictionary:
+	var plan := Dungeon.boss_plan(run_seed, region, floor_no, kind, floor_cells)
+	if plan.is_empty():
+		return {}
+	var chain := QuestionEngine.make_chain(plan.steps, plan.seed)
+	if chain.has("error"):
+		push_warning("Run: no %s on floor %d: %s" % [kind, floor_no, chain.error])
+		return {}
+	var parts: Array = chain.parts
+	var link := false
+	if not plan.link.is_empty():
+		var lq := QuestionEngine.make(plan.link)
+		if not lq.has("error"):
+			lq.part = parts.size()
+			parts.append(lq)
+			link = true
+	return {"kind": kind, "type": plan.type, "parts": parts, "part": 0, "link": link}
 
 
 func _open_question() -> void:
 	question_no += 1
-	var view: Dictionary
-	another_way = not _followup.is_empty()
-	if another_way:
-		view = _followup
-		_followup = {}
+	another_way = false
+	if not boss.is_empty():
+		question = boss.parts[boss.part]
+		rule = "link" if boss.link and boss.part == boss.parts.size() - 1 else "boss"
 	else:
-		view = Planner.next(save, clock.call(), {"region": region, "probes": false, "salt": "run|%d|%d" % [run_seed, question_no]})
-	question = QuestionEngine.make(view) if not view.has("error") else view
-	if question.has("error"):
-		push_error("Run: %s" % question.error)
-		_end("no-questions")
-		return
+		var view := _plan()
+		question = QuestionEngine.make(view) if not view.has("error") else view
+		if question.has("error"):
+			push_error("Run: %s" % question.error)
+			_end("no-questions")
+			return
+	floor_seen[question.view.type] = true
 	removed = []
 	hint = ""
 	var marks: int = question.marks if question.marks > 0 else Tuning.DEFAULT_MARKS
@@ -156,6 +239,43 @@ func _open_question() -> void:
 	frozen_left = 0.0
 	state = "question"
 	question_opened.emit(fight, tier)
+
+
+## The next normal question's view: an "Another way" follow-up, a warm-up, the prior
+## learning a miss called for, or the planner's pick from this floor's cells, types not
+## yet asked on the floor first.
+func _plan() -> Dictionary:
+	var salt := "run|%d|%d" % [run_seed, question_no]
+	if not _followup.is_empty():
+		var v := _followup
+		_followup = {}
+		another_way = true
+		rule = "another-way"
+		return v
+	var opts := {"probes": false, "salt": salt}
+	var why := ""
+	if warmups_left > 0:
+		warmups_left -= 1
+		opts.cells = Dungeon.prior_cells(region, _exam_only())
+		why = "warm-up"
+	elif _prior != "":
+		opts.cells = QuestionEngine.cells(_exam_only(), [_prior])
+		why = "prior"
+	_prior = ""
+	if opts.get("cells", []).is_empty():
+		why = ""
+		opts.cells = floor_cells
+		opts.prefer_types = Dungeon.floor_types(floor_cells).filter(func(t): return not floor_seen.has(t))
+	if opts.cells.is_empty():
+		opts.erase("cells")
+		opts.region = region
+	var view := Planner.next(save, clock.call(), opts)
+	rule = why if why != "" else view.get("rule", "")
+	if why == "warm-up":
+		stats.warmups += 1
+	elif why == "prior":
+		stats.prior += 1
+	return view
 
 
 ## The clock. Time Freeze holds it; when it runs out the question is a timeout.
@@ -206,6 +326,9 @@ func answer(response: Dictionary) -> Dictionary:
 func _resolve(outcome: String, m: Dictionary) -> Dictionary:
 	state = "result"
 	var fx := Run.resolve(outcome, enemy, stakes, modifiers, _ctx())
+	# A boss part is done whatever the answer: surviving every part beats the boss (Q9).
+	if not boss.is_empty():
+		fx.enemy_damage = Tuning.HIT
 	var bonus := 0
 	if another_way and outcome == "right":
 		bonus = maxi(0, roundi(modifiers.apply("scrap", Tuning.ANOTHER_WAY_BONUS * float(enemy.scrap), _ctx())))
@@ -223,20 +346,47 @@ func _resolve(outcome: String, m: Dictionary) -> Dictionary:
 		var skill := "%s: %s" % [question.type_name, asked]
 		if not missed.has(skill):
 			missed.append(skill)
-	answers.append({"fight": fight, "tier": tier, "cell": question.cell, "seed": int(question.view.seed), "outcome": outcome,
+	answers.append({"floor": floor_no, "fight": fight, "kind": kind, "part": int(question.get("part", -1)), "tier": tier,
+		"cell": question.cell, "seed": int(question.view.seed), "rule": rule, "outcome": outcome,
 		"enemy_damage": fx.enemy_damage, "player_damage": fx.player_damage, "scrap": fx.scrap + bonus})
-	var defeated: bool = enemy.hp <= 0
+	var defeated: bool = enemy.hp <= 0 and (boss.is_empty() or hp > 0)
+	var part := -1
+	var carry := ""
+	var healed := 0
+	_followup = {}
+	if not boss.is_empty():
+		part = boss.part
+		boss.part += 1
+		if not defeated and boss.part < boss.parts.size() and boss.parts[boss.part].has("carried"):
+			carry = boss.parts[boss.part].carried.text
+	elif outcome == "right" and hp > 0 and not another_way:
+		_followup = _another_way_view()
+	# A missed step that needs prior learning brings it next (after a boss, once it falls).
+	if not right and _prior == "":
+		_prior = Dungeon.prior_for(region, question.cell, "%d|%d" % [run_seed, question_no])
 	if defeated:
 		stats.fights_won += 1
-	_followup = {}
-	if outcome == "right" and hp > 0 and not another_way:
-		_followup = _another_way_view()
+		if kind != "fight":
+			healed = _boss_down()
 	answer_resolved.emit(outcome)
 	return {"complete": true, "outcome": outcome, "enemy_damage": fx.enemy_damage, "player_damage": fx.player_damage,
 		"scrap": fx.scrap, "bonus": bonus, "note": GLANCING_NOTE if outcome == "glancing" else "",
 		"solution": question.solutions[0] if outcome in ["wrong", "timeout"] else {},
 		"misconception": m.get("misconception", ""), "defeated": defeated, "dead": hp <= 0,
-		"another_way": not _followup.is_empty()}
+		"another_way": not _followup.is_empty(), "part": part, "carry": carry, "healed": healed,
+		"floor_cleared": defeated and kind == "boss"}
+
+
+## The "boss beaten" event: the heal goes through the modifiers step (Second Wind, G6),
+## then the save records the floor if it was the floor's boss. Returns the HP healed.
+func _boss_down() -> int:
+	stats.minis += 1 if kind == "mini" else 0
+	stats.bosses += 1 if kind == "boss" else 0
+	var healed := heal(modifiers.apply("boss_heal", Tuning.BOSS_HEAL, _ctx()))
+	if kind == "boss" and records:
+		Dungeon.note_floor(save, region, floor_no, true)
+	boss_beaten.emit(floor_no, kind)
+	return healed
 
 
 ## The "Another way" follow-up for the question just answered right (FAL-310 plan): the
@@ -337,10 +487,12 @@ func _end(reason: String) -> void:
 	var totals: Dictionary = save.get("runs", {})
 	totals.played = int(totals.get("played", 0)) + 1
 	totals.best_fights = maxi(int(totals.get("best_fights", 0)), int(stats.fights_won))
+	totals.best_floor = maxi(int(totals.get("best_floor", 0)), floor_no)
 	totals.questions = int(totals.get("questions", 0)) + int(stats.questions)
 	totals.right = int(totals.get("right", 0)) + int(stats.right) + int(stats.late) + int(stats.glancing)
 	save.runs = totals
-	summary = {"reason": reason, "region": region, "seed": run_seed, "floor": floor_no, "fights": fight,
+	summary = {"reason": reason, "region": region, "seed": run_seed, "start_floor": start_floor, "floor": floor_no,
+		"fight": fight, "fights": fights, "floors_cleared": stats.bosses, "bosses": stats.bosses, "minis": stats.minis,
 		"fights_won": stats.fights_won, "questions": stats.questions,
 		"right": int(stats.right) + int(stats.late) + int(stats.glancing),
 		"scrap": stats.scrap, "missed": missed.duplicate(), "stats": stats.duplicate(), "banked": save.scrap}

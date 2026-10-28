@@ -1,14 +1,16 @@
 class_name Tuning
 extends RefCounted
 ## Every number combat plays by, in one file: the timers (Q6 on the FAL-274 plan), the
-## enemy tiers, Scrap, the default stakes table, the lifelines and "Another way". The
-## dungeon (G4) and the Bazaar (G6) read and tune these too. Nothing else in the game
-## writes a combat number down.
+## enemy tiers, Scrap, the default stakes table, the lifelines, "Another way" and the
+## dungeon (G4: floors, levels, warm-ups, bosses and their chains). The Bazaar (G6)
+## reads and tunes these too. Nothing else in the game writes a combat number down.
 ##
 ## Ported from the HTML game's js/combat.js unless the plan changed it. The changes:
 ##   - enemy HP is counted in HP, not hits (HIT per right answer), so a glancing hit
 ##     can take half a hit (Q7). The hits to beat each tier are the HTML game's.
 ##   - the timer comes from the question's marks and the floor (Q6), not the tier.
+##   - the island rhythm (D3 every 3rd fight, D4 every 5th) is now a floor of 10: D1-D2,
+##     the mini-boss D3 at fight 5 and the boss D5 at fight 10, raised on deeper floors.
 
 # ── Player ───────────────────────────────────────────────────
 
@@ -30,9 +32,8 @@ const ENEMIES := {
 	5: {"name": "OVERSEER", "rank": "OVERSEER", "hits": 6, "damage": 45, "scrap": 10, "art": "d5-overseer.png"},
 }
 
-## The tier of fight n (js/combat.js island mode): the first rule whose `every` divides
-## n wins, else D1 with chance LOW_TIER_D1 and D2 otherwise. G4's floors replace this.
-const TIER_EVERY := [{"every": 10, "tier": 5}, {"every": 5, "tier": 4}, {"every": 3, "tier": 3}]
+## The tier of a normal fight: D1 with chance LOW_TIER_D1, else D2 (js/combat.js
+## island mode). The mini-boss and the boss have their own tiers; see the dungeon below.
 const LOW_TIER_D1 := 0.6
 
 # ── Timers (Q6) ──────────────────────────────────────────────
@@ -86,6 +87,99 @@ const ANOTHER_WAY_FLOOR := 2
 const ANOTHER_WAY_CHANCE := 0.25
 ## Bonus Scrap for getting the follow-up right, as a share of the tier's Scrap.
 const ANOTHER_WAY_BONUS := 0.5
+
+
+# ── The dungeon (G4, Q4 and Q9) ──────────────────────────────
+
+## A floor is FIGHTS_PER_FLOOR fights: the mini-boss at MINI_BOSS_AT, the boss at the end.
+const FIGHTS_PER_FLOOR := 10
+const MINI_BOSS_AT := 5
+## Tiers before the raise: a normal fight is D1-D2 (LOW_TIER_D1), the mini-boss D3 and
+## the boss D5 (js/combat.js: "D1-D2 normally, D3 mini-boss every 5th, D5 boss").
+const MINI_BOSS_TIER := 3
+const BOSS_TIER := 5
+## From RAISE_FROM_FLOOR, every tier goes up 1 each RAISE_EVERY floors, to D5 at most:
+## floors 4-5 +1, 6-7 +2, 8 and deeper +3 (normal fights D4-D5).
+const RAISE_FROM_FLOOR := 4
+const RAISE_EVERY := 2
+## Past the tiers' cap, deeper floors still get harder: from RAISE_FROM_FLOOR an enemy's
+## damage grows by DEEP_DAMAGE_STEP of itself per floor (floor 4 ×1.1, floor 8 ×1.5).
+const DEEP_DAMAGE_STEP := 0.1
+
+## The levels each floor serves (FAL-310 plan, "Levels"). Floor MIX_FROM_FLOOR and
+## deeper serve every level, 0 to 5, and every type of the region (Q14).
+const FLOOR_LEVELS := {1: [0, 2], 2: [2, 3], 3: [3, 4]}
+const MIX_FROM_FLOOR := 4
+## A link question (kind "link", the fn-link-* types) plays as level 5, synoptic,
+## whatever its unknowns' levels say: on bosses and from MIX_FROM_FLOOR only.
+const LINK_LEVEL := 5
+
+## Floor tables, where a region's levels alone don't give Q4's floors. Floor -> the
+## types it serves. A type serves its cells up to the floor's top level, and from the
+## floor's bottom level, except on the first floor the table lists it, where its easier
+## cells come along too (so floor 3's discriminant still starts at "how many roots").
+## Prior-learning types (kind "prior-learning", level 0) always join floor 1. A floor
+## with none of its types built falls back to the level rule, so nothing is empty while
+## a region is half built. Quadratics checked on FAL-415: by levels alone every one of
+## its exam types lands on floors 1, 2 and 3, so Q4 needs this table.
+const FLOOR_TYPES := {
+	"quadratics": {
+		1: ["fn-quadratic-features"],
+		2: ["fn-quadratic-features", "fn-quadratic-from-conditions", "fn-solve-quadratic", "fn-concept-quadratic-forms",
+			"fn-ext-quadratic-model"],
+		3: ["fn-discriminant", "fn-quadratic-inequality", "fn-curve-intersection-quadratic", "fn-ext-quadratic-model"],
+	},
+}
+
+## Level-0 warm-ups: the first fight of floor 1 opens with this many prior-learning
+## questions. After a missed question whose skills a prior-learning type `supports`,
+## the next question is one of that type's (FAL-310 plan).
+const WARMUPS := 2
+
+## Mini-bosses and bosses (Q9): one situation, parts in the order of the type's chain.
+## A mini-boss asks MINI_BOSS_PARTS parts, a boss BOSS_PARTS (one of them, by the run
+## seed). Each part has its own clock from its own marks. A wrong part costs HP, shows
+## the right value, and the next part carries on from it. Surviving every part beats it.
+const MINI_BOSS_PARTS := [2]
+const BOSS_PARTS := [3, 4]
+## A boss ends with one link question when its region has one built (Q9's level 5).
+const BOSS_LINK_PART := true
+## HP back when a boss falls, before the modifiers (Second Wind, G6, adds 20 there).
+const BOSS_HEAL := 0
+
+## Each type's `chain` (curriculum/question-types.json) as unknowns, in chain order.
+## A step is an unknown of the type, or "type:unknown" for a type on the same
+## situation (the chain's "expand to general form" is a features unknown). Parts are
+## consecutive steps, so each part carries on from the one before. A type with no
+## entry here (or whose steps' situations can't be one) has no boss.
+const CHAINS := {
+	# intercepts, the axis as their midpoint, the vertex, vertex form, the y-intercept
+	"fn-quadratic-features": ["roots-from-factorised", "axis-from-roots", "vertex-from-factorised",
+		"vertex-form-from-factorised", "y-intercept-from-vertex-form"],
+	# a from a further point, expand to general form, factorise, the range from the vertex
+	"fn-quadratic-from-conditions": ["a-from-vertex-and-point", "fn-quadratic-features:general-from-vertex-form",
+		"fn-quadratic-features:factorised-from-general", "range-after-finding"],
+	# equate and rearrange, solve, the coordinates, the distance between them
+	"fn-curve-intersection-quadratic": ["equate-to-quadratic", "meeting-x", "meeting-points", "chord-length"],
+	# Δ in k, then Δ = 0, then the interval of k
+	"fn-discriminant": ["delta-in-k", "k-for-equal-roots", "k-interval"],
+	# the substitution, then solve and reject the impossible root
+	"fn-solve-quadratic": ["choose-substitution", "solve-hidden-exponential"],
+}
+
+
+## How many tiers a floor raises every enemy by (before the D5 cap).
+static func raise_for(on_floor: int) -> int:
+	if on_floor < RAISE_FROM_FLOOR:
+		return 0
+	return 1 + floori(float(on_floor - RAISE_FROM_FLOOR) / RAISE_EVERY)
+
+
+## An enemy's damage on a floor: its tier's damage, grown on deep floors.
+static func damage_on(base: int, on_floor: int) -> int:
+	if on_floor < RAISE_FROM_FLOOR:
+		return base
+	return roundi(base * (1.0 + DEEP_DAMAGE_STEP * (on_floor - RAISE_FROM_FLOOR + 1)))
 
 
 ## Minutes per mark on a floor (Q6).

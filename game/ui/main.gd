@@ -1,5 +1,5 @@
 extends Control
-## The title screen. "Play" starts a Quadratics run (the map, G5, replaces it later),
+## The title screen. "Play" opens the Quadratics floor select (the map, G5, replaces it),
 ## "Practice" opens the practice screen and "Engine" the engine explorer. On the first
 ## load only, ?explore (see explorer.gd) goes to the explorer, and a deep link to a run
 ## (see fight.gd) or a question (see practice.gd) goes straight there.

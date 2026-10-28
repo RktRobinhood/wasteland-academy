@@ -3279,8 +3279,19 @@
 					"wrong": "half the differences of the coordinates, not half the sums"
 				}
 			],
+			"chain": [
+				"midpoint of a segment (sometimes)",
+				"gradient of the segment",
+				"parallel or perpendicular gradient",
+				"equation of the new line through a given point",
+				"substitute a point to find an unknown coordinate, or use the line to find an area"
+			],
 			"frequency": 12,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 9,
+				"B": 3
+			}
 		},
 		{
 			"id": "fn-graph-table-composite-inverse",
@@ -3955,8 +3966,19 @@
 					"wrong": "\"it has one: reflect the graph in y = x\""
 				}
 			],
+			"chain": [
+				"read f(a) from the graph or table",
+				"evaluate (f o f)(a) or (f o g)(a) by reading twice",
+				"read f^-1(b) by going from the y-axis back to x",
+				"domain of f^-1 is the range of f",
+				"solve f^-1(linear expression) = c by applying f to both sides"
+			],
 			"frequency": 8,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 8,
+				"B": 0
+			}
 		},
 		{
 			"id": "fn-inverse-reflection",
@@ -4354,8 +4376,16 @@
 					"wrong": "\"yes, it has a turning point on y = x so it must be symmetric\", without checking that swapped points lie on the curve"
 				}
 			],
+			"chain": [
+				"sketch f^-1 on the same axes by swapping key points",
+				"use the symmetry: intersections of f and f^-1 that lie on y = x, or an area doubled by symmetry"
+			],
 			"frequency": 2,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 1,
+				"B": 1
+			}
 		},
 		{
 			"id": "fn-evaluate-function",
@@ -4861,8 +4891,17 @@
 					"wrong": "the possible output values (heights) given instead of the times"
 				}
 			],
+			"chain": [
+				"evaluate at zero or at a stated input",
+				"interpret the value in context",
+				"later parts solve an equation or optimise with the same model"
+			],
 			"frequency": 7,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 3,
+				"B": 4
+			}
 		},
 		{
 			"id": "fn-domain-range",
@@ -5344,8 +5383,17 @@
 					"wrong": "says f⁻¹ exists on the whole of ℝ, so no restriction is needed"
 				}
 			],
+			"chain": [
+				"find the vertex, asymptote or endpoint values",
+				"state the range",
+				"use it: the range of a transformed function, or the condition for g(f(x)) to exist"
+			],
 			"frequency": 4,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 3,
+				"B": 1
+			}
 		},
 		{
 			"id": "fn-sketch-gdc",
@@ -5941,8 +5989,17 @@
 					"wrong": "in asymptote mode, counts y = k at the level the curve approaches as a solution"
 				}
 			],
+			"chain": [
+				"sketch with features labelled",
+				"write down the zeros or the maximum",
+				"use the graph to solve an equation or inequality, or count solutions"
+			],
 			"frequency": 7,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 7,
+				"B": 0
+			}
 		},
 		{
 			"id": "fn-sketch-from-features",
@@ -6288,8 +6345,16 @@
 					"wrong": "the curve reaching the long-run level, turning, and going back up"
 				}
 			],
+			"chain": [
+				"earlier parts find intercepts, vertex or stationary points",
+				"sketch showing those features and the domain"
+			],
 			"frequency": 4,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 4
+			}
 		},
 		{
 			"id": "fn-gdc-features",
@@ -6757,8 +6822,16 @@
 					"wrong": "a distance from zeros already rounded to 3 s.f., off in the third figure"
 				}
 			],
+			"chain": [
+				"often follows a GDC sketch",
+				"the values feed later parts (an interval, a distance, an area)"
+			],
 			"frequency": 5,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 5,
+				"B": 0
+			}
 		},
 		{
 			"id": "fn-gdc-intersection",
@@ -7158,8 +7231,16 @@
 					"wrong": "for eˣ = x + 3, writes x = ln x + ln 3 and tries to solve that"
 				}
 			],
+			"chain": [
+				"find the intersection points",
+				"use them: a distance between points, the limits of an area (5.11), or a time interval in context"
+			],
 			"frequency": 7,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 1,
+				"B": 6
+			}
 		},
 		{
 			"id": "fn-gdc-optimise-combined",
@@ -7575,8 +7656,17 @@
 					"wrong": "gives the size of the lead when the question asks when it happens"
 				}
 			],
+			"chain": [
+				"earlier parts set up two models",
+				"form the difference or distance function",
+				"find its maximum, minimum or zero and interpret"
+			],
 			"frequency": 4,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 4
+			}
 		},
 		{
 			"id": "fn-gdc-solve-equation",
@@ -7951,8 +8041,17 @@
 					"wrong": "the value of the model at that time instead of the time"
 				}
 			],
+			"chain": [
+				"show or form the equation from geometry or a model",
+				"solve with the GDC",
+				"reject roots outside the context's domain"
+			],
 			"frequency": 4,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 1,
+				"B": 3
+			}
 		},
 		{
 			"id": "fn-composite",
@@ -8382,8 +8481,18 @@
 					"wrong": "only the positive k from k² = n²"
 				}
 			],
+			"chain": [
+				"write the composite expression",
+				"evaluate it at a value or set it equal to a given value",
+				"solve for the parameter (often two answers from a square)",
+				"or equate coefficients with a given form and solve the resulting quadratic"
+			],
 			"frequency": 9,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 9,
+				"B": 0
+			}
 		},
 		{
 			"id": "fn-inverse-algebraic",
@@ -9028,8 +9137,19 @@
 					"wrong": "f(−x) and −f(x) swapped, so the reflections are named in the wrong axes"
 				}
 			],
+			"chain": [
+				"(asymptotes of a rational function)",
+				"find f^-1(x)",
+				"state its domain and range",
+				"show f is self-inverse, or use that to find a constant",
+				"(link to reflections in the axes)"
+			],
 			"frequency": 5,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 1,
+				"B": 4
+			}
 		},
 		{
 			"id": "fn-exp-log-inverse-composite",
@@ -9745,8 +9865,20 @@
 					"wrong": "\"a stretch, scale factor 1/2\", with no axis named"
 				}
 			],
+			"chain": [
+				"evaluate f at chosen points",
+				"find f^-1 by converting between log and exponential form",
+				"evaluate f^-1 at a point",
+				"simplify a composite such as f(g(x)) with log laws",
+				"describe the transformations linking two exponential or log graphs",
+				"(solve an inequality in the composite)"
+			],
 			"frequency": 12,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 12
+			}
 		},
 		{
 			"id": "fn-quadratic-features",
@@ -10429,8 +10561,21 @@
 					"wrong": "pq instead of apq"
 				}
 			],
+			"chain": [
+				"intercepts from factorised form",
+				"axis of symmetry as the midpoint of the roots",
+				"vertex",
+				"vertex form a(x - h)^2 + k",
+				"second root from the axis",
+				"y-intercept",
+				"then a sketch, an inequality or a tangent"
+			],
 			"frequency": 11,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 1,
+				"B": 10
+			}
 		},
 		{
 			"id": "fn-quadratic-from-conditions",
@@ -10838,8 +10983,18 @@
 					"wrong": "x ≥ k, the range written in x"
 				}
 			],
+			"chain": [
+				"write it in vertex or factorised form",
+				"use a further point to find a",
+				"expand if a general form is asked",
+				"state the range from the vertex"
+			],
 			"frequency": 7,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 1,
+				"B": 6
+			}
 		},
 		{
 			"id": "fn-solve-quadratic",
@@ -11219,8 +11374,18 @@
 					"wrong": "rewrites 4ˣ as 2·2ˣ, so the \"quadratic\" is linear"
 				}
 			],
+			"chain": [
+				"form the quadratic from the context (probabilities summing to 1, a sector's area and perimeter)",
+				"solve it",
+				"reject the root that breaks the context (negative length, probability above 1)",
+				"or: solve a quadratic, then reuse it with u = a^x"
+			],
 			"frequency": 4,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 4,
+				"B": 0
+			}
 		},
 		{
 			"id": "fn-discriminant",
@@ -11652,8 +11817,18 @@
 					"wrong": "k < k₁ or k > k₂ written as k₁ > k > k₂, one interval"
 				}
 			],
+			"chain": [
+				"equate a line and a curve (or combine logs) to show a quadratic",
+				"set the discriminant = 0, > 0 or < 0",
+				"solve the resulting equation or quadratic inequality in the parameter",
+				"combine with an extra condition (same-sign roots, positive constant)"
+			],
 			"frequency": 13,
-			"marks": 5
+			"marks": 5,
+			"section": {
+				"A": 7,
+				"B": 6
+			}
 		},
 		{
 			"id": "fn-curve-intersection-quadratic",
@@ -12027,8 +12202,18 @@
 					"wrong": "multiplies only the fraction side by (x − r) when clearing the denominator"
 				}
 			],
+			"chain": [
+				"equate and rearrange to a quadratic",
+				"solve exactly",
+				"find the coordinates",
+				"find a distance or a difference, often as a surd"
+			],
 			"frequency": 5,
-			"marks": 5
+			"marks": 5,
+			"section": {
+				"A": 1,
+				"B": 4
+			}
 		},
 		{
 			"id": "fn-quadratic-inequality",
@@ -12285,8 +12470,18 @@
 					"wrong": "divides by −1 and keeps the sign, so the region is the wrong one"
 				}
 			],
+			"chain": [
+				"rearrange to (quadratic) compared with 0",
+				"find the roots",
+				"choose the region from the parabola's shape",
+				"in context: the largest whole number allowed"
+			],
 			"frequency": 2,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 2
+			}
 		},
 		{
 			"id": "fn-log-of-quadratic",
@@ -12941,8 +13136,18 @@
 					"wrong": "x ≤ log_k G, the range written in x"
 				}
 			],
+			"chain": [
+				"solve the quadratic and the matching inequality",
+				"write down the asymptotes at the roots",
+				"zeros: argument = 1, solved exactly",
+				"use the vertex to get the maximum, then find the base"
+			],
 			"frequency": 4,
-			"marks": 4
+			"marks": 4,
+			"section": {
+				"A": 0,
+				"B": 4
+			}
 		},
 		{
 			"id": "fn-rational-asymptotes-intercepts",
@@ -13440,8 +13645,18 @@
 					"wrong": "x ≠ A, the range written in x"
 				}
 			],
+			"chain": [
+				"vertical asymptote where cx + d = 0",
+				"horizontal asymptote y = a/c",
+				"x-intercept and y-intercept",
+				"then a sketch, the range, or the inverse"
+			],
 			"frequency": 12,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 10,
+				"B": 2
+			}
 		},
 		{
 			"id": "fn-rational-sketch",
@@ -13979,8 +14194,18 @@
 					"wrong": "the graph of y = −1/x, with branches in the second and fourth quadrants"
 				}
 			],
+			"chain": [
+				"asymptotes and intercepts",
+				"sketch with both branches",
+				"use it: an inequality, the range, the number of intersections with another curve",
+				"or sketch the reciprocal of the function"
+			],
 			"frequency": 7,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 4,
+				"B": 3
+			}
 		},
 		{
 			"id": "fn-exponential-model",
@@ -14646,8 +14871,20 @@
 					"wrong": "log₁₀ x = 3 turned into x = 3¹⁰ instead of 10³"
 				}
 			],
+			"chain": [
+				"initial value at t = 0",
+				"find k from a second data point (show the exact form)",
+				"predict at a later time",
+				"solve for the time to reach a level, or an inequality for whole time units",
+				"long-run value from the horizontal asymptote",
+				"interpret the growth factor or rate"
+			],
 			"frequency": 14,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 7,
+				"B": 7
+			}
 		},
 		{
 			"id": "fn-log-function-features",
@@ -15064,8 +15301,16 @@
 					"wrong": "the set of y-values (all real numbers)"
 				}
 			],
+			"chain": [
+				"usually the 1-mark opener of a Section B log question",
+				"later parts combine logs into a quadratic or an inequality"
+			],
 			"frequency": 3,
-			"marks": 1
+			"marks": 1,
+			"section": {
+				"A": 0,
+				"B": 3
+			}
 		},
 		{
 			"id": "fn-transform-describe",
@@ -15532,8 +15777,17 @@
 					"wrong": "g(x) = f(−x) described as a reflection in the x-axis"
 				}
 			],
+			"chain": [
+				"(rewrite the new function with log laws or by factoring)",
+				"name each transformation with its scale factor or vector",
+				"state the order where it matters"
+			],
 			"frequency": 6,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 3,
+				"B": 3
+			}
 		},
 		{
 			"id": "fn-transform-apply",
@@ -16195,8 +16449,17 @@
 					"wrong": "the range of g given when its domain is asked"
 				}
 			],
+			"chain": [
+				"apply the transformations to key points",
+				"sketch, or write g(x)",
+				"state the new domain or range"
+			],
 			"frequency": 2,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 1,
+				"B": 1
+			}
 		},
 		{
 			"id": "t1-standard-form",
@@ -16205,6 +16468,10 @@
 			"name": "Calculate with numbers in standard form",
 			"frequency": 3,
 			"marks": 1,
+			"section": {
+				"A": 3,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16215,6 +16482,10 @@
 			"name": "Prove a property linking arithmetic and geometric terms",
 			"frequency": 4,
 			"marks": 2,
+			"section": {
+				"A": 0,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16225,6 +16496,10 @@
 			"name": "Arithmetic sequence or series modelling a pattern or context",
 			"frequency": 6,
 			"marks": 2,
+			"section": {
+				"A": 2,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16693,8 +16968,20 @@
 					"wrong": "the value of the sum given as n"
 				}
 			],
+			"chain": [
+				"d from the first terms or from two given terms",
+				"u₁",
+				"a later term uₙ",
+				"which term has a given value",
+				"Sₙ",
+				"n, u₁ or d from a given sum"
+			],
 			"frequency": 21,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 13,
+				"B": 8
+			}
 		},
 		{
 			"id": "t1-geometric-in-context",
@@ -16703,6 +16990,10 @@
 			"name": "Geometric sequence or series modelling a context",
 			"frequency": 6,
 			"marks": 4,
+			"section": {
+				"A": 3,
+				"B": 3
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16713,6 +17004,10 @@
 			"name": "Geometric sequence: find r, u1, a term or S_n",
 			"frequency": 9,
 			"marks": 3,
+			"section": {
+				"A": 4,
+				"B": 5
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16723,6 +17018,10 @@
 			"name": "Depreciation as repeated percentage decrease",
 			"frequency": 5,
 			"marks": 2,
+			"section": {
+				"A": 5,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16733,6 +17032,10 @@
 			"name": "Compound interest: value, rate or time, with different compounding periods",
 			"frequency": 16,
 			"marks": 3,
+			"section": {
+				"A": 7,
+				"B": 9
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16743,6 +17046,10 @@
 			"name": "Switch between log and exponential form to evaluate or solve, including log models",
 			"frequency": 3,
 			"marks": 3,
+			"section": {
+				"A": 3,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16753,6 +17060,10 @@
 			"name": "Prove an algebraic identity or a divisibility result",
 			"frequency": 8,
 			"marks": 3,
+			"section": {
+				"A": 8,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16763,6 +17074,10 @@
 			"name": "Rational and negative exponents",
 			"frequency": 2,
 			"marks": 1,
+			"section": {
+				"A": 1,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16773,6 +17088,10 @@
 			"name": "Solve an exponential equation exactly with logarithms",
 			"frequency": 1,
 			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16783,6 +17102,10 @@
 			"name": "Log laws and change of base to evaluate or rewrite logarithms",
 			"frequency": 10,
 			"marks": 2,
+			"section": {
+				"A": 7,
+				"B": 3
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16793,6 +17116,10 @@
 			"name": "Sum to infinity: convergence, value, or an unknown from it",
 			"frequency": 5,
 			"marks": 3,
+			"section": {
+				"A": 1,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16803,6 +17130,10 @@
 			"name": "Binomial expansion: find an unknown from a given coefficient",
 			"frequency": 9,
 			"marks": 5,
+			"section": {
+				"A": 9,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16813,6 +17144,10 @@
 			"name": "Binomial expansion: a coefficient, a term or the full expansion",
 			"frequency": 6,
 			"marks": 2,
+			"section": {
+				"A": 6,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16823,6 +17158,10 @@
 			"name": "Angle in a 3D solid",
 			"frequency": 1,
 			"marks": 2,
+			"section": {
+				"A": 1,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16833,6 +17172,10 @@
 			"name": "Distance and midpoint in 2D or 3D",
 			"frequency": 9,
 			"marks": 2,
+			"section": {
+				"A": 8,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16843,6 +17186,10 @@
 			"name": "Volume and surface area of solids, including in terms of a variable",
 			"frequency": 13,
 			"marks": 3,
+			"section": {
+				"A": 2,
+				"B": 11
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -16853,6 +17200,10 @@
 			"name": "Sine rule ambiguous case",
 			"frequency": 2,
 			"marks": 5,
+			"section": {
+				"A": 1,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17014,8 +17365,18 @@
 					"wrong": "the area with the angle read as radians"
 				}
 			],
+			"chain": [
+				"pick the two sides that meet at the given angle",
+				"Area = ½ab sin C",
+				"backwards: rearrange for the side, or for sin C and then C or 180° − C",
+				"give the answer to 3 s.f."
+			],
 			"frequency": 11,
-			"marks": 5
+			"marks": 5,
+			"section": {
+				"A": 6,
+				"B": 5
+			}
 		},
 		{
 			"id": "t3-right-angle-trig",
@@ -17024,6 +17385,10 @@
 			"name": "Right-angled trigonometry, including elevation and gradients",
 			"frequency": 10,
 			"marks": 3,
+			"section": {
+				"A": 6,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17277,8 +17642,18 @@
 					"wrong": "the side worked out with the angles read as radians"
 				}
 			],
+			"chain": [
+				"pair each side with the angle opposite it",
+				"choose the rule: two sides and the angle between them, or three sides, need the cosine rule; a side with its opposite angle allows the sine rule",
+				"substitute and solve for the side or the angle",
+				"give the answer to 3 s.f., in degrees for an angle"
+			],
 			"frequency": 19,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 11,
+				"B": 8
+			}
 		},
 		{
 			"id": "t3-bearings-elevation",
@@ -17287,6 +17662,10 @@
 			"name": "Bearings, elevation and depression in context",
 			"frequency": 7,
 			"marks": 2,
+			"section": {
+				"A": 1,
+				"B": 6
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17297,6 +17676,10 @@
 			"name": "Angle in radians as a function of time for rotating objects",
 			"frequency": 3,
 			"marks": 1,
+			"section": {
+				"A": 0,
+				"B": 3
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17307,6 +17690,10 @@
 			"name": "Segments and composite regions built from sectors, triangles and rectangles",
 			"frequency": 13,
 			"marks": 3,
+			"section": {
+				"A": 7,
+				"B": 6
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17317,6 +17704,10 @@
 			"name": "Arc length, sector area and perimeter, forwards or backwards",
 			"frequency": 16,
 			"marks": 3,
+			"section": {
+				"A": 14,
+				"B": 2
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17327,6 +17718,10 @@
 			"name": "Exact trig values and related angles",
 			"frequency": 3,
 			"marks": 3,
+			"section": {
+				"A": 2,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17337,6 +17732,10 @@
 			"name": "Prove a trig identity",
 			"frequency": 3,
 			"marks": 3,
+			"section": {
+				"A": 2,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17347,6 +17746,10 @@
 			"name": "Use Pythagorean and double-angle identities to find exact values or rewrite",
 			"frequency": 5,
 			"marks": 2,
+			"section": {
+				"A": 4,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17357,6 +17760,10 @@
 			"name": "Sketch a trig graph from its parameters",
 			"frequency": 2,
 			"marks": 2,
+			"section": {
+				"A": 1,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17367,6 +17774,10 @@
 			"name": "Evaluate or use a trig model: times, counts, durations",
 			"frequency": 9,
 			"marks": 2,
+			"section": {
+				"A": 0,
+				"B": 9
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17377,6 +17788,10 @@
 			"name": "Read amplitude, period and principal axis from a graph or equation",
 			"frequency": 18,
 			"marks": 2,
+			"section": {
+				"A": 6,
+				"B": 12
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17387,6 +17802,10 @@
 			"name": "Find the parameters of a trig model from a graph, data or context",
 			"frequency": 7,
 			"marks": 4,
+			"section": {
+				"A": 3,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17397,6 +17816,10 @@
 			"name": "Trig equation that is a quadratic in sin or cos",
 			"frequency": 3,
 			"marks": 5,
+			"section": {
+				"A": 3,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17407,6 +17830,10 @@
 			"name": "Solve a trig model equation or inequality for times",
 			"frequency": 5,
 			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 5
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17417,6 +17844,10 @@
 			"name": "Solve a trig equation exactly in an interval",
 			"frequency": 8,
 			"marks": 4,
+			"section": {
+				"A": 5,
+				"B": 3
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17427,6 +17858,10 @@
 			"name": "Sampling methods and bias",
 			"frequency": 4,
 			"marks": 2,
+			"section": {
+				"A": 1,
+				"B": 3
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17437,6 +17872,10 @@
 			"name": "The 1.5 x IQR outlier rule",
 			"frequency": 4,
 			"marks": 3,
+			"section": {
+				"A": 4,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17447,6 +17886,10 @@
 			"name": "Read and use a cumulative frequency graph",
 			"frequency": 6,
 			"marks": 3,
+			"section": {
+				"A": 0,
+				"B": 6
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17457,6 +17900,10 @@
 			"name": "Read, interpret and compare box plots",
 			"frequency": 7,
 			"marks": 2,
+			"section": {
+				"A": 5,
+				"B": 2
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17467,6 +17914,10 @@
 			"name": "Effect of adding or multiplying a constant on summary statistics",
 			"frequency": 3,
 			"marks": 4,
+			"section": {
+				"A": 1,
+				"B": 2
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17477,6 +17928,10 @@
 			"name": "Grouped and frequency-table data: missing frequency, modal class, estimates",
 			"frequency": 9,
 			"marks": 2,
+			"section": {
+				"A": 3,
+				"B": 6
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17487,6 +17942,10 @@
 			"name": "Mean, median, mode, quartiles and spread of a data set",
 			"frequency": 11,
 			"marks": 3,
+			"section": {
+				"A": 11,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17497,6 +17956,10 @@
 			"name": "Interpret a regression gradient or judge a prediction",
 			"frequency": 7,
 			"marks": 1,
+			"section": {
+				"A": 3,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17507,6 +17970,10 @@
 			"name": "Regression line and Pearson r on the GDC, then predict",
 			"frequency": 19,
 			"marks": 2,
+			"section": {
+				"A": 19,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17619,8 +18086,17 @@
 					"wrong": "P(event)"
 				}
 			],
+			"chain": [
+				"find the probability of the event on one trial from the distribution",
+				"expected number = n × P(event); it need not be a whole number",
+				"backwards: n = expected number ÷ P(event)"
+			],
 			"frequency": 4,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 3,
+				"B": 1
+			}
 		},
 		{
 			"id": "t4-probability-basic",
@@ -17629,6 +18105,10 @@
 			"name": "Probability from a table, a count or the complement",
 			"frequency": 4,
 			"marks": 1,
+			"section": {
+				"A": 0,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17639,6 +18119,10 @@
 			"name": "Tree diagrams and selection without replacement",
 			"frequency": 14,
 			"marks": 3,
+			"section": {
+				"A": 3,
+				"B": 11
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17649,6 +18133,10 @@
 			"name": "Sample space diagrams for dice and spinners",
 			"frequency": 5,
 			"marks": 2,
+			"section": {
+				"A": 0,
+				"B": 5
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17659,6 +18147,10 @@
 			"name": "Venn diagrams, two-way tables and the addition rule",
 			"frequency": 11,
 			"marks": 2,
+			"section": {
+				"A": 10,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -17861,8 +18353,17 @@
 					"wrong": "the stake from gains of the prize on a win and minus the stake on a loss: Σ prize × P(win) ÷ P(no prize), to the cent"
 				}
 			],
+			"chain": [
+				"multiply each value by its probability and add: E(X) = Σ x P(X = x)",
+				"backwards: write Σ P = 1 and Σ x P = E(X), and solve the two equations together",
+				"a game: the gain is the prize minus the stake, and the game is fair when E(gain) = 0, so the stake is the expected prize"
+			],
 			"frequency": 17,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 6,
+				"B": 11
+			}
 		},
 		{
 			"id": "t4-discrete-distribution",
@@ -18030,8 +18531,18 @@
 					"wrong": "the event's probability with its strict end taken in"
 				}
 			],
+			"chain": [
+				"list P(X = x) for every value, from the table or by putting each x into the formula",
+				"set the sum equal to 1 and solve for k or the missing probability",
+				"for an event, pick out exactly the values it takes in, minding strict and non-strict ends",
+				"add their probabilities, or take the others away from 1"
+			],
 			"frequency": 12,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 5,
+				"B": 7
+			}
 		},
 		{
 			"id": "t4-binomial",
@@ -18040,6 +18551,10 @@
 			"name": "Binomial probabilities, mean, and finding n",
 			"frequency": 18,
 			"marks": 3,
+			"section": {
+				"A": 3,
+				"B": 15
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18050,6 +18565,10 @@
 			"name": "Inverse normal: value for a given probability",
 			"frequency": 5,
 			"marks": 2,
+			"section": {
+				"A": 2,
+				"B": 3
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18060,6 +18579,10 @@
 			"name": "Normal curve properties: symmetry, sigma intervals, matching curves",
 			"frequency": 8,
 			"marks": 2,
+			"section": {
+				"A": 4,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18070,6 +18593,10 @@
 			"name": "Normal probability for an interval on the GDC",
 			"frequency": 12,
 			"marks": 2,
+			"section": {
+				"A": 2,
+				"B": 10
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18080,6 +18607,10 @@
 			"name": "Choose the right regression line; x on y; mean point on both",
 			"frequency": 5,
 			"marks": 3,
+			"section": {
+				"A": 5,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18090,6 +18621,10 @@
 			"name": "Use or test independence of events",
 			"frequency": 9,
 			"marks": 2,
+			"section": {
+				"A": 7,
+				"B": 2
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18100,6 +18635,10 @@
 			"name": "Conditional probability from formula, table, tree or distribution",
 			"frequency": 17,
 			"marks": 4,
+			"section": {
+				"A": 7,
+				"B": 10
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18110,6 +18649,10 @@
 			"name": "Find an unknown mean or standard deviation with z-scores",
 			"frequency": 13,
 			"marks": 4,
+			"section": {
+				"A": 3,
+				"B": 10
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18120,6 +18663,10 @@
 			"name": "Interpret a derivative as a rate, or its limit",
 			"frequency": 6,
 			"marks": 2,
+			"section": {
+				"A": 0,
+				"B": 6
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18130,6 +18677,10 @@
 			"name": "Where a function is increasing or decreasing",
 			"frequency": 4,
 			"marks": 3,
+			"section": {
+				"A": 1,
+				"B": 3
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18301,8 +18852,18 @@
 					"wrong": "for negative x₀, 3a(x₀)² worked out as −3a·x₀²"
 				}
 			],
+			"chain": [
+				"f(x) as a sum of powers of x",
+				"f′(x) by the power rule",
+				"f′(x₀), the gradient at x = x₀",
+				"then the tangent, the normal or the stationary points"
+			],
 			"frequency": 6,
-			"marks": 2
+			"marks": 2,
+			"section": {
+				"A": 2,
+				"B": 4
+			}
 		},
 		{
 			"id": "t5-normal-meets-curve",
@@ -18311,6 +18872,10 @@
 			"name": "Where a tangent or normal meets the curve again",
 			"frequency": 2,
 			"marks": 3,
+			"section": {
+				"A": 2,
+				"B": 0
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18424,8 +18989,18 @@
 					"wrong": "k from f(x₀) = g instead of f′(x₀) = g"
 				}
 			],
+			"chain": [
+				"f′(x)",
+				"f′(x) = g for a given gradient g",
+				"solve the quadratic for x",
+				"or put x = x₀ into f′ and solve for the unknown coefficient"
+			],
 			"frequency": 11,
-			"marks": 4
+			"marks": 4,
+			"section": {
+				"A": 7,
+				"B": 4
+			}
 		},
 		{
 			"id": "t5-tangent-normal-equation",
@@ -18615,8 +19190,19 @@
 					"wrong": "f′(x₀) = mx₀ + c and f(x₀) = m: the two swapped"
 				}
 			],
+			"chain": [
+				"f(x₀), the point of contact",
+				"f′(x₀), the tangent's gradient",
+				"the tangent y = mx + c",
+				"the normal's gradient −1/m",
+				"the normal y = mx + c"
+			],
 			"frequency": 14,
-			"marks": 3
+			"marks": 3,
+			"section": {
+				"A": 8,
+				"B": 6
+			}
 		},
 		{
 			"id": "t5-derivative-graph",
@@ -18625,6 +19211,10 @@
 			"name": "Read f from the graph of f' (or f'')",
 			"frequency": 2,
 			"marks": 1,
+			"section": {
+				"A": 0,
+				"B": 2
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18822,8 +19412,19 @@
 					"wrong": "the x-coordinate of the local maximum"
 				}
 			],
+			"chain": [
+				"f′(x)",
+				"f′(x) = 0 by factorising",
+				"the y-coordinates from f",
+				"f″ at each point for its nature",
+				"f″(x) = 0 for the point of inflexion"
+			],
 			"frequency": 14,
-			"marks": 5
+			"marks": 5,
+			"section": {
+				"A": 2,
+				"B": 12
+			}
 		},
 		{
 			"id": "t5-optimisation-modelling",
@@ -18832,6 +19433,10 @@
 			"name": "Optimisation: build a function from a constraint, then maximise or minimise",
 			"frequency": 18,
 			"marks": 4,
+			"section": {
+				"A": 1,
+				"B": 17
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18842,6 +19447,10 @@
 			"name": "Kinematics: displacement and distance by integrating velocity",
 			"frequency": 23,
 			"marks": 3,
+			"section": {
+				"A": 8,
+				"B": 15
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18852,6 +19461,10 @@
 			"name": "Kinematics: rest, direction change, acceleration, maximum speed",
 			"frequency": 29,
 			"marks": 2,
+			"section": {
+				"A": 17,
+				"B": 12
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18862,6 +19475,10 @@
 			"name": "Derivative of a model at a point with technology",
 			"frequency": 4,
 			"marks": 2,
+			"section": {
+				"A": 0,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18872,6 +19489,10 @@
 			"name": "Chain, product and quotient rules",
 			"frequency": 8,
 			"marks": 3,
+			"section": {
+				"A": 2,
+				"B": 6
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18882,6 +19503,10 @@
 			"name": "Second derivative and concavity",
 			"frequency": 5,
 			"marks": 3,
+			"section": {
+				"A": 1,
+				"B": 4
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18892,6 +19517,10 @@
 			"name": "Integrate, then find the constant from a point or initial value",
 			"frequency": 9,
 			"marks": 4,
+			"section": {
+				"A": 8,
+				"B": 1
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18902,6 +19531,10 @@
 			"name": "Definite integrals and areas, including regions below the axis and unknown limits",
 			"frequency": 9,
 			"marks": 5,
+			"section": {
+				"A": 3,
+				"B": 6
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18912,6 +19545,10 @@
 			"name": "Integrate standard functions and linear composites",
 			"frequency": 7,
 			"marks": 3,
+			"section": {
+				"A": 5,
+				"B": 2
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -18922,6 +19559,10 @@
 			"name": "Area between two curves",
 			"frequency": 13,
 			"marks": 4,
+			"section": {
+				"A": 3,
+				"B": 10
+			},
 			"angles": [],
 			"misconceptions": []
 		},
@@ -19595,6 +20236,12 @@
 					"summary": "Put x = 1 (or 2) into both sides; if they differ, the expansion is wrong."
 				}
 			],
+			"supports": [
+				"SL2.6.complete-square",
+				"SL2.6.find-equation",
+				"SL2.6.factorised-form",
+				"SL2.7.discriminant-parameter"
+			],
 			"frequency": 0
 		},
 		{
@@ -19841,6 +20488,12 @@
 					"summary": "Multiply the brackets back out and compare with the original."
 				}
 			],
+			"supports": [
+				"SL2.6.factorised-form",
+				"SL2.7.solve-equation",
+				"SL2.7.inequality",
+				"SL2.7.hidden-quadratic"
+			],
 			"frequency": 0
 		},
 		{
@@ -20025,6 +20678,10 @@
 					"summary": "Square the answer: (4√3)² = 48."
 				}
 			],
+			"supports": [
+				"SL2.7.solve-equation",
+				"SL2.6.complete-square"
+			],
 			"frequency": 0
 		},
 		{
@@ -20207,6 +20864,10 @@
 					"name": "Test a value",
 					"summary": "Pick a number in the answer and one outside it, and check each in the original."
 				}
+			],
+			"supports": [
+				"SL2.7.inequality",
+				"SL2.7.discriminant-parameter"
 			],
 			"frequency": 0
 		},
@@ -21056,6 +21717,13 @@
 					"name": "Find 1% first",
 					"summary": "Divide by the percentage the amount stands for to get 1%, then multiply up to 100%."
 				}
+			],
+			"supports": [
+				"SL2.9.exp-model",
+				"SL1.3.model",
+				"SL1.4.future-value",
+				"SL1.4.depreciation",
+				"SL1.4.find-rate-or-pv"
 			],
 			"frequency": 0
 		},
@@ -22043,6 +22711,14 @@
 					"summary": "A value rounded to the last digit shown lies within half a unit of that digit, either side."
 				}
 			],
+			"supports": [
+				"SL2.3.read-graph",
+				"SL2.3.sketch-from-equation",
+				"SL2.4.zeros-intercepts",
+				"SL2.4.max-min",
+				"SL2.4.intersection",
+				"SL2.10.solve-gdc"
+			],
 			"frequency": 0
 		},
 		{
@@ -22628,6 +23304,14 @@
 					"name": "Check with numbers",
 					"summary": "Pick a value, compute the other letter from the original, and check the new formula gives the value back."
 				}
+			],
+			"supports": [
+				"SL2.5.find-inverse",
+				"SL2.8.rational-inverse",
+				"SL2.5.composite-expression",
+				"SL2.1.gradient",
+				"SL2.1.equation-of-line",
+				"SL2.9.exp-log-inverse"
 			],
 			"frequency": 0
 		},
@@ -23633,6 +24317,14 @@
 					"summary": "Put a value such as x = 3 into the original and the answer; they must agree, and the answer must not divide by zero."
 				}
 			],
+			"supports": [
+				"SL2.8.asymptotes",
+				"SL2.8.transformed-reciprocal",
+				"SL2.8.rational-inverse",
+				"SL2.8.rational-model",
+				"SL2.10.solve-analytic",
+				"SL2.2.domain"
+			],
 			"frequency": 0
 		},
 		{
@@ -24338,6 +25030,13 @@
 					"name": "Check the sign and size",
 					"summary": "Ask whether the answer should be positive or negative and roughly how big before trusting it."
 				}
+			],
+			"supports": [
+				"SL2.2.evaluate-notation",
+				"SL2.2.function-model",
+				"SL2.4.zeros-intercepts",
+				"SL2.5.composite-value",
+				"SL2.2.range"
 			],
 			"frequency": 0
 		},
@@ -25415,6 +26114,13 @@
 					"summary": "Put the answer back into the original equation; both sides must be equal."
 				}
 			],
+			"supports": [
+				"SL2.1.equation-of-line",
+				"SL2.1.intercepts",
+				"SL2.1.intersection-lines",
+				"SL2.1.line-model",
+				"SL2.5.find-inverse"
+			],
 			"frequency": 0
 		},
 		{
@@ -25660,6 +26366,12 @@
 					"name": "Check in both equations",
 					"summary": "Put the pair into both original equations; it must fit both."
 				}
+			],
+			"supports": [
+				"SL2.1.intersection-lines",
+				"SL2.1.equation-of-line",
+				"SL2.6.find-equation",
+				"SL2.9.find-parameters"
 			],
 			"frequency": 0
 		},

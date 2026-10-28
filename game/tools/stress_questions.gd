@@ -3,11 +3,16 @@ extends SceneTree
 ## and checks each question is made, has four options, marks its own answer right
 ## (exact and to 3 s.f.) and marks every wrong option wrong, naming its misconception.
 ## Every fourth seed is also made on the cell's shared situation (the explorer's
-## "Ask it another way", QuestionEngine.families()).
-## Used by tools/stress-questions. Exits non-zero on any failure.
+## "Ask it another way", QuestionEngine.families()). Then the same for every boss chain
+## (Dungeon.chain_windows) with CHAIN_SEEDS of those seeds: each part made on one
+## situation, and each carried value the part before's answer. Used by
+## tools/stress-questions. Exits non-zero on any failure.
 ##
 ##   godot --headless --path game --script res://tools/stress_questions.gd -- \
 ##       [--from=51] [--to=2250]
+
+## Seeds per boss chain, from --from: there are a few dozen chains, each several parts.
+const CHAIN_SEEDS := 1000
 
 var fails: Array = []
 
@@ -65,27 +70,53 @@ func _run() -> void:
 			if q.has("error"):
 				fails.append("%s seed %d: %s" % [key, seed, q.error])
 				continue
-			if q.choices.size() != 4:
-				short_choices += 1
-				fails.append("%s seed %d: %d choices" % [key, seed, q.choices.size()])
-			var ans: Dictionary = q.answer
-			if ans.kind in Answer.MC_ONLY:
-				continue
-			var r := QuestionEngine.mark(q, _typed(ans, ans.values))
-			if not r.correct:
-				fails.append("%s seed %d: exact typed answer marked wrong: %s" % [key, seed, q.answer_text])
-			var rd := QuestionEngine.mark(q, _decimal_typed(ans, ans.values))
-			if not rd.correct:
-				fails.append("%s seed %d: decimal typed answer marked wrong: %s %s" % [key, seed, q.answer_text, _decimal_typed(ans, ans.values)])
-			for ch in q.choices:
-				if ch.correct:
+			short_choices += _check(q, "%s seed %d" % [key, seed])
+	var chains := 0
+	for id in QuestionEngine.built_types():
+		for steps in Dungeon.chain_windows(id):
+			var name := "chain %s" % "+".join(steps.map(func(st): return st.unknown))
+			for seed in range(lo, mini(hi, lo + CHAIN_SEEDS - 1) + 1):
+				var c := QuestionEngine.make_chain(steps.map(func(st): return st.merged({"format": "value"})), seed)
+				chains += 1
+				if c.has("error"):
+					fails.append("%s seed %d: %s" % [name, seed, c.error])
 					continue
-				var rw := QuestionEngine.mark(q, _typed(ans, ch.values))
-				if rw.correct:
-					fails.append("%s seed %d: wrong option typed is marked right: %s vs %s" % [key, seed, ch.text, q.answer_text])
-				elif ch.ref != "" and rw.misconception != ch.ref:
-					fails.append("%s seed %d: misconception not detected: %s" % [key, seed, ch.ref])
+				for i in c.parts.size():
+					var q: Dictionary = c.parts[i]
+					n += 1
+					short_choices += _check(q, "%s part %d seed %d" % [name, i, seed])
+					if q.situation != c.situation:
+						fails.append("%s part %d seed %d: another situation" % [name, i, seed])
+					if i > 0 and q.carried.values != c.parts[i - 1].answer.values:
+						fails.append("%s part %d seed %d: carries %s, not the answer %s" % [name, i, seed, q.carried.text, c.parts[i - 1].answer_text])
+	print("STRESS %d boss chains" % chains)
 	print("STRESS %d questions, %d failures, %d short-choice" % [n, fails.size(), short_choices])
 	for f in fails.slice(0, 60):
 		print("FAIL " + f)
 	quit(1 if fails.size() > 0 else 0)
+
+
+## Checks one made question; returns 1 if it has fewer than four options.
+func _check(q: Dictionary, name: String) -> int:
+	var short := 0
+	if q.choices.size() != 4:
+		short = 1
+		fails.append("%s: %d choices" % [name, q.choices.size()])
+	var ans: Dictionary = q.answer
+	if ans.kind in Answer.MC_ONLY:
+		return short
+	var r := QuestionEngine.mark(q, _typed(ans, ans.values))
+	if not r.correct:
+		fails.append("%s: exact typed answer marked wrong: %s" % [name, q.answer_text])
+	var rd := QuestionEngine.mark(q, _decimal_typed(ans, ans.values))
+	if not rd.correct:
+		fails.append("%s: decimal typed answer marked wrong: %s %s" % [name, q.answer_text, _decimal_typed(ans, ans.values)])
+	for ch in q.choices:
+		if ch.correct:
+			continue
+		var rw := QuestionEngine.mark(q, _typed(ans, ch.values))
+		if rw.correct:
+			fails.append("%s: wrong option typed is marked right: %s vs %s" % [name, ch.text, q.answer_text])
+		elif ch.ref != "" and rw.misconception != ch.ref:
+			fails.append("%s: misconception not detected: %s" % [name, ch.ref])
+	return short
