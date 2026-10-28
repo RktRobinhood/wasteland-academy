@@ -6,7 +6,8 @@ extends RefCounted
 ##   kind       how it is written (see text()): number, axis, xval, roots, point, yint,
 ##              vertex_form, vertex_form_a, general, general_a, factorised, maxmin,
 ##              vertex_kind, range, triple, claim; for the triangle situation also
-##              measure (a length, angle or area, written to 3 s.f. with its unit)
+##              measure (a length, angle or area, written to 3 s.f. with its unit); for
+##              the distribution situation also pq (two unknown probabilities p and q)
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
@@ -15,6 +16,8 @@ extends RefCounted
 ##   unit       text after the number: " cm", "°" (measure only)
 ##   exact      (optional) true when only the exact value is right, not 3 s.f.: Paper 1
 ##              answers the IB wants exact, such as a whole-number sum (2345 is not 2350)
+##   show       (optional) how a number is written: "dec" as a decimal when it ends
+##              (0.35, not 7/20), "money" with two decimal places (2.50); else a fraction
 ##
 ## Typed numbers go through parse_number(), which accepts whole numbers, decimals and
 ## fractions only. Nothing a student types is evaluated as an expression (Godot's
@@ -29,6 +32,8 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 	match kind:
 		"number":
 			t = [label, {"slot": "v"}]
+			if unit != "":
+				t.append(unit)
 		"xval":
 			t = ["x = ", {"slot": "v"}]
 		"axis":
@@ -63,6 +68,8 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = []
 		"measure":
 			t = [label, {"slot": "v"}, unit]
+		"pq":
+			t = ["p = ", {"slot": "p"}, ",  q = ", {"slot": "q"}]
 	return {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
 
 
@@ -87,7 +94,7 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 	var fx: Dictionary = ans.fixed
 	match ans.kind:
 		"number":
-			return ans.label + Fmt.num(v.v)
+			return ans.label + shown(ans, v.v) + ans.unit
 		"xval":
 			return "x = " + Fmt.num(v.v)
 		"axis":
@@ -123,7 +130,19 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return v.text
 		"measure":
 			return ans.label + Fmt.sf(v.v) + ans.unit
+		"pq":
+			return "p = %s, q = %s" % [shown(ans, v.p), shown(ans, v.q)]
 	return "?"
+
+
+## A typed number as the answer writes it: a fraction, a decimal or money (see show).
+static func shown(ans: Dictionary, v: Variant) -> String:
+	match ans.get("show", ""):
+		"dec":
+			return Fmt.dec(v)
+		"money":
+			return Fmt.money(v)
+	return Fmt.num(v)
 
 
 ## A key that is the same for two answers exactly when their values are, with

@@ -15,6 +15,9 @@ const VIEWS := [
 	{"type": "t3-triangle-area", "unknown": "angle-from-area", "rep": "words", "angle": "reverse-two-angles", "format": "mcq", "seed": 8},
 	{"type": "t1-arithmetic-sequence", "unknown": "sum-from-u1-d", "rep": "table", "angle": "formula-d", "format": "mcq", "seed": 7},
 	{"type": "t1-arithmetic-sequence", "unknown": "n-from-sum", "rep": "notation", "angle": "quadratic-in-n", "format": "value", "seed": 8},
+	{"type": "t4-discrete-distribution", "unknown": "k-from-sum", "rep": "table", "angle": "sum-to-one", "format": "value", "seed": 9},
+	{"type": "t4-expected-value", "unknown": "probabilities-from-mean", "rep": "table", "angle": "two-equations", "format": "value", "seed": 10},
+	{"type": "t4-expected-value", "unknown": "fair-stake", "rep": "words", "angle": "winnings-vs-cost", "format": "mcq", "seed": 11},
 	{"type": "fn-quadratic-features", "probe": 2, "format": "probe"},
 	{"type": "fn-quadratic-features", "probe": 0, "format": "probe"},
 ]
