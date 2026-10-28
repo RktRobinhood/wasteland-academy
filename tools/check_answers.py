@@ -1947,9 +1947,95 @@ def check_qeq(q):
     return None, None
 
 
+# ── quadratic-inequality ──
+
+QI_REL = {"<": lambda f: f < 0, "≤": lambda f: f <= 0, ">": lambda f: f > 0, "≥": lambda f: f >= 0}
+
+
+def qi_read(line):
+    """'2x² − 3x + 1 ≤ 5' -> (f, rel, rhs) with f = lhs − rhs."""
+    m = re.match(r"^(.+) (<|≤|>|≥) (−?[\d/]+)$", line)
+    need(m is not None, f"can't read {line!r}")
+    return sp.expand(parse(m.group(1)) - RD(m.group(3))), m.group(2), RD(m.group(3))
+
+
+def check_qineq(q):
+    u = q["view"]["unknown"]
+    g = q["given"]
+    ans = q["answer"]
+    L = q["lines"]
+    if u == "largest-integer":
+        m = re.match(r"^A mosaic has n rows of \(n \+ (\d+)\) tiles, and there are (\d+) tiles to use\.$", L[0])
+        need(m is not None, "can't read the context")
+        d, T = R(m.group(1)), R(m.group(2))
+        S = sp.solve_univariate_inequality(X * (X + d) <= T, X, relational=False).intersect(sp.Interval(0, sp.oo))
+        best = sp.floor(S.sup)
+        need(not S.sup.is_rational, "Paper 2: the boundary should need a calculator")
+        need(ans.get("exact"), "a whole-number count must be marked exactly")
+        qr_check_common(q, qr_norm(ans, {"v": str(best)}))
+        return None, None
+    if u == "inequality-from-solution":
+        p, qq = R(g["p"]), R(g["q"])
+        inc = g["ends"] == "included"
+        S = sp.Interval(p, qq, not inc, not inc) if g["shape"] == "between" else \
+            sp.Union(sp.Interval(-sp.oo, p, True, not inc), sp.Interval(qq, sp.oo, not inc, True))
+        if q["view"]["rep"] == "words":
+            said = qr_interval_text("x", {"shape": g["shape"], "lo": g["p"], "hi": g["q"], "ends": g["ends"]})
+            need(L[0] == f"The solution of a quadratic inequality is {said}.", "the solution shown is not the givens")
+        else:
+            side = "below" if g["shape"] == "between" else "above"
+            need(f"where it is {side} the x-axis" in L[0] and (", the roots included" in L[0]) == inc, "the solution said is not the givens")
+        if q.get("graph"):
+            gr = q["graph"]
+            need(sorted(pt["x"] for pt in gr["points"]) == [float(p), float(qq)], "the roots marked are not the givens")
+        want = None
+        for rel in QI_REL:
+            f = X**2 - (p + qq) * X + p * qq
+            if sp.solve_univariate_inequality(QI_REL[rel](f), X, relational=False) == S:
+                want = qr_norm(ans, {"b": str(-(p + qq)), "c": str(p * qq), "rel": rel})
+        need(want is not None, "no monic inequality has this solution")
+        qr_check_common(q, want)
+        return None, None
+    f, rel, rhs_ = qi_read(L[0])
+    need(sp.expand(f - (R(g["a"]) * X**2 + R(g["b"]) * X + R(g["c"]))) == 0 and rel == g["rel"], "the inequality shown is not the givens")
+    S = sp.solve_univariate_inequality(QI_REL[rel](f), X, relational=False)
+    if u == "no-real-roots-case":
+        need(sp.discriminant(f, X) < 0, "the quadratic has real roots")
+        h = -R(g["b"]) / (2 * R(g["a"]))
+        want = qr_norm(ans, {"v": "all real x" if S == sp.S.Reals else "no real x"})
+        need(S in (sp.S.Reals, sp.S.EmptySet), "the solution is not all x or no x")
+        need(ans["fixed"]["options"][2:] == [f"x = {frac_text(h)} only", f"every x except {frac_text(h)}"], "the options don't name the vertex")
+        qr_check_common(q, want)
+        return None, None
+    rs = sorted(sp.solveset(f, X, domain=sp.S.Reals))
+    need(len(rs) == 2 and all(r.is_rational for r in rs), "the roots are not two rational numbers")
+    if q.get("graph"):
+        gr = q["graph"]
+        need(sorted(pt["x"] for pt in gr["points"]) == [float(rs[0]), float(rs[1])], "the roots marked are not the roots")
+    wr = {}
+    inc = "left out" if rel in ("<", ">") else "included"
+    between = sp.Interval(rs[0], rs[1], inc == "left out", inc == "left out")
+    outside = sp.Union(sp.Interval(-sp.oo, rs[0], True, inc == "left out"), sp.Interval(rs[1], sp.oo, inc == "left out", True))
+    if S == outside:
+        wr["SL2.7.inequality#1"] = {between}
+    if u == "negative-a":
+        need(R(g["a"]) < 0, "a is not negative")
+        # Dividing by −1 but keeping the sign solves the opposite inequality.
+        wr["SL2.7.inequality#2"] = {sp.solve_univariate_inequality(QI_REL[rel](-f), X, relational=False)}
+    if u == "square-against-constant":
+        n = sp.sqrt(rhs_)
+        need(n.is_integer and f == X**2 - rhs_, "not x² against a square")
+        lt = rel in ("<", "≤")
+        wr["SL2.7.inequality#0"] = {("pm", "pm_lt" if lt else "pm_gt", n, inc),
+                                    qr_set("bound", {"rel": rel, "v": str(n)})}
+    qr_check_common(q, S, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "quadratic-parameter": check_qparam,
-                    "curve-and-line": check_curve_line, "quadratic-equation": check_qeq}
+                    "curve-and-line": check_curve_line, "quadratic-equation": check_qeq,
+                    "quadratic-inequality": check_qineq}
 
 # ── Coverage from the catalogue itself ───────────────────────
 

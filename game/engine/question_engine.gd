@@ -33,6 +33,7 @@ static var SITUATIONS := {
 	"quadratic-parameter": [QuadraticParameterSituation, QuadraticParameterViews],
 	"curve-and-line": [CurveLineSituation, CurveLineViews],
 	"quadratic-equation": [QuadraticEquationSituation, QuadraticEquationViews],
+	"quadratic-inequality": [QuadraticInequalitySituation, QuadraticInequalityViews],
 }
 
 static var _cat: Dictionary = {}
