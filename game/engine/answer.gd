@@ -7,7 +7,11 @@ extends RefCounted
 ##              vertex_form, vertex_form_a, general, general_a, factorised, maxmin,
 ##              vertex_kind, range, triple, claim; for the triangle situation also
 ##              measure (a length, angle or area, written to 3 s.f. with its unit); for
-##              the distribution situation also pq (two unknown probabilities p and q)
+##              the distribution situation also pq (two unknown probabilities p and q);
+##              for the cubic situation also deriv
+##              (f′(x) as a quadratic), line (y = mx + c), tangent_read (f′(x₀) and f(x₀)),
+##              points2 (two points, either order) and natures (maximum or minimum at
+##              each stationary point)
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
@@ -23,7 +27,8 @@ extends RefCounted
 ## fractions only. Nothing a student types is evaluated as an expression (Godot's
 ## Expression reads 2^3 as 1 and can call engine functions).
 
-const MC_ONLY := ["triple", "claim"]
+const MC_ONLY := ["triple", "claim", "natures"]
+const NATURES := ["local maximum", "local minimum"]
 
 
 static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label: String = "", unit: String = "") -> Dictionary:
@@ -70,6 +75,16 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = [label, {"slot": "v"}, unit]
 		"pq":
 			t = ["p = ", {"slot": "p"}, ",  q = ", {"slot": "q"}]
+		"deriv":
+			t = [label if label != "" else "f′(x) = ", {"slot": "u2"}, "x² + ", {"slot": "u1"}, "x + ", {"slot": "u0"}]
+		"line":
+			t = ["y = ", {"slot": "m"}, "x + ", {"slot": "c"}]
+		"tangent_read":
+			t = ["f′(%s) = " % Fmt.num(fixed.x0), {"slot": "m"}, ",  f(%s) = " % Fmt.num(fixed.x0), {"slot": "y"}]
+		"points2":
+			t = ["(", {"slot": "x1"}, ", ", {"slot": "y1"}, ") and (", {"slot": "x2"}, ", ", {"slot": "y2"}, ")"]
+		"natures":
+			t = ["x = %s: " % Fmt.num(fixed.p), {"pick": "k1", "options": NATURES}, ",  x = %s: " % Fmt.num(fixed.q), {"pick": "k2", "options": NATURES}]
 	return {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
 
 
@@ -132,6 +147,17 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return ans.label + Fmt.sf(v.v) + ans.unit
 		"pq":
 			return "p = %s, q = %s" % [shown(ans, v.p), shown(ans, v.q)]
+		"deriv":
+			return (ans.label if ans.label != "" else "f′(x) = ") + Fmt.poly([v.u2, v.u1, v.u0])
+		"line":
+			return "y = " + Fmt.poly([v.m, v.c])
+		"tangent_read":
+			return "f′(%s) = %s,  f(%s) = %s" % [Fmt.num(fx.x0), Fmt.num(v.m), Fmt.num(fx.x0), Fmt.num(v.y)]
+		"points2":
+			var ps := _pairs(v)
+			return "%s and %s" % [Fmt.point(ps[0][0], ps[0][1]), Fmt.point(ps[1][0], ps[1][1])]
+		"natures":
+			return "x = %s: %s,  x = %s: %s" % [Fmt.num(fx.p), v.k1, Fmt.num(fx.q), v.k2]
 	return "?"
 
 
@@ -155,6 +181,9 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind == "measure":
 		return "measure:" + Fmt.sf(values.v)
 	var v := values.duplicate()
+	if ans.kind == "points2":
+		var ps := _pairs(v)
+		v = {"x1": ps[0][0], "y1": ps[0][1], "x2": ps[1][0], "y2": ps[1][1]}
 	for group in ans.unordered:
 		var sorted_vals := _sorted(group.map(func(id): return v[id]))
 		for i in group.size():
@@ -179,6 +208,14 @@ static func export_values(values: Dictionary) -> Dictionary:
 		else:
 			out[key] = x
 	return out
+
+
+## The two points of a points2 answer, the one with the smaller x first.
+static func _pairs(v: Dictionary) -> Array:
+	var ps: Array = [[v.x1, v.y1], [v.x2, v.y2]]
+	if Q.of(ps[1][0]).lt(ps[0][0]) or (Q.of(ps[1][0]).eq(ps[0][0]) and Q.of(ps[1][1]).lt(ps[0][1])):
+		ps.reverse()
+	return ps
 
 
 static func _sorted(qs: Array) -> Array:
@@ -385,6 +422,11 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 ## Whether typed values match the answer, slot by slot, trying each order of an
 ## unordered group. With glancing, a number with too few figures counts too.
 static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
+	if ans.kind == "points2" and not got.is_empty():
+		var swapped := {"x1": got.get("x2"), "y1": got.get("y2"), "x2": got.get("x1"), "y2": got.get("y1")}
+		var plain := ans.duplicate()
+		plain.kind = "point_pair"
+		return values_right(plain, got, glancing) or values_right(plain, swapped, glancing)
 	var want: Dictionary = ans.values
 	var exact: bool = ans.get("exact", false)
 	var free := {}

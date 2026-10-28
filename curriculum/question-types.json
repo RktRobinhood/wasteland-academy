@@ -2481,6 +2481,74 @@
     "an expected number of occurrences is a whole number or ends in .5",
     "no answer or option is on a 3 s.f. rounding edge, and every wrong option differs from the answer to 3 s.f."
    ]
+  },
+  "cubic": {
+   "name": "One cubic with its gradient, tangents and turning points",
+   "summary": "Pick a and the stationary x-values p and q, build f′(x) = 3a(x − p)(x − q), add a constant d, then derive every linked quantity, at the turning points and at a chosen point x₀.",
+   "quantities": [
+    {
+     "name": "a",
+     "is": "leading coefficient of f(x) = ax³ + bx² + cx + d",
+     "pick": "±1 or ±2"
+    },
+    {
+     "name": "p, q",
+     "is": "the x-coordinates of the stationary points",
+     "pick": "integers with p < q and |p|, |q| ≤ 4; a(p + q) even so b is a whole number; p + q even when the point of inflexion is asked"
+    },
+    {
+     "name": "b, c, d",
+     "is": "the other coefficients",
+     "pick": "b = −3a(p + q)/2, c = 3apq, d a small integer"
+    },
+    {
+     "name": "f′(x)",
+     "is": "the gradient function 3ax² + 2bx + c",
+     "pick": "3a(x − p)(x − q)"
+    },
+    {
+     "name": "f″(x)",
+     "is": "the second derivative 6ax + 2b",
+     "pick": "f″(p) = −3a(q − p) and f″(q) = 3a(q − p), so the signs are opposite"
+    },
+    {
+     "name": "stationary points",
+     "is": "(p, f(p)) and (q, f(q)): a local maximum and a local minimum",
+     "pick": "from p and q; for a > 0 the left one is the maximum"
+    },
+    {
+     "name": "point of inflexion",
+     "is": "((p + q)/2, f((p + q)/2))",
+     "pick": "midway between the stationary points"
+    },
+    {
+     "name": "x₀",
+     "is": "the point where the gradient, the tangent and the normal are asked",
+     "pick": "small integer, not p or q, so f′(x₀) ≠ 0"
+    },
+    {
+     "name": "tangent and normal at x₀",
+     "is": "y = mx + c with m = f′(x₀) through (x₀, f(x₀)); the normal has gradient −1/m",
+     "pick": "from f(x₀) and f′(x₀)"
+    },
+    {
+     "name": "given gradient",
+     "is": "a gradient g reached at two whole-number x-values r and s",
+     "pick": "r + s = p + q and g = f′(r), with g ≠ 0"
+    },
+    {
+     "name": "hidden coefficient",
+     "is": "b or c written as k, found from the tangent's gradient at x₀",
+     "pick": "b only when x₀ ≠ 0"
+    }
+   ],
+   "clean": [
+    "Paper 1: every value exact, and a, b, c, d whole numbers",
+    "|b|, |c| ≤ 30, |d| ≤ 9, and |f| ≤ 60 at the stationary points and the point of inflexion",
+    "x₀ from −3 to 3 with |f(x₀)| ≤ 60 and 0 < |f′(x₀)| ≤ 40",
+    "the normal is asked only where |f′(x₀)| ≤ 6, so its gradient and c have denominators of 6 or less",
+    "the two x-values with a given gradient are distinct whole numbers from −5 to 5, and |g| ≤ 60"
+   ]
   }
  },
  "types": [
@@ -21582,8 +21650,9 @@
    "id": "t5-differentiate-polynomial",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Differentiate a polynomial or negative power and evaluate",
+   "summary": "Differentiate a cubic term by term (or a fraction over x after splitting it), and evaluate the derivative at a point.",
    "syllabus": [
     "5.3"
    ],
@@ -21591,6 +21660,193 @@
     "SL5.3.power-rule",
     "SL5.3.negative-powers",
     "SL5.3.gradient-at-point"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "f(x) as a sum of powers of x",
+    "f′(x) by the power rule",
+    "f′(x₀), the gradient at x = x₀",
+    "then the tangent, the normal or the stationary points"
+   ],
+   "given": [
+    "f(x) as a polynomial",
+    "f(x) as one fraction over x",
+    "a point x = x₀"
+   ],
+   "asked": "f′(x), or the gradient of the curve at a point.",
+   "answerForms": [
+    "exact",
+    "f′(x) as a polynomial"
+   ],
+   "randomise": [
+    "a in {±1, ±2}",
+    "whole-number stationary x-values p and q, and the constant d",
+    "x₀ from −3 to 3"
+   ],
+   "constraints": [
+    "coefficients are small whole numbers",
+    "Paper 1, so every value is exact"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "error-spot",
+    "match"
+   ],
+   "situation": "cubic",
+   "sharesSituation": [
+    "t5-stationary-points",
+    "t5-tangent-condition",
+    "t5-tangent-normal-equation"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "f(x) = ax³ + bx² + cx + d in function notation, asking for f′(x) or f′(x₀)"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the curve y = … described in words, asking for dy/dx or the gradient of the curve where x = x₀"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "derivative",
+     "given": [
+      "f(x) as a cubic"
+     ],
+     "asked": "f′(x)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.3.power-rule"
+     ]
+    },
+    {
+     "id": "derivative-from-fraction",
+     "given": [
+      "f(x) as one fraction over x"
+     ],
+     "asked": "f′(x)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.3.negative-powers"
+     ]
+    },
+    {
+     "id": "gradient-at-point",
+     "given": [
+      "f(x) as a cubic",
+      "x₀"
+     ],
+     "asked": "the gradient f′(x₀)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.3.gradient-at-point"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.3.power-rule",
+     "method": "power-rule",
+     "suits": [
+      "derivative"
+     ]
+    },
+    {
+     "skill": "SL5.3.negative-powers",
+     "method": "split-fraction",
+     "suits": [
+      "derivative-from-fraction"
+     ]
+    },
+    {
+     "skill": "SL5.3.gradient-at-point",
+     "method": "differentiate-substitute",
+     "suits": [
+      "gradient-at-point"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Two cubics that differ only in their constant term have the same derivative.",
+     "answer": "True: the constant term differentiates to 0, so one graph is the other moved up or down, with the same gradient at every x.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.3.power-rule#0",
+     "text": "Reducing the coefficient instead of multiplying: d/dx(5x³) = 4x² rather than 15x²",
+     "as": "distractor",
+     "in": [
+      "derivative"
+     ],
+     "wrong": "each coefficient reduced by 1 and each power by 1: (a − 1)x² + (b − 1)x + (c − 1)"
+    },
+    {
+     "ref": "SL5.3.power-rule#2",
+     "text": "Leaving a constant unchanged instead of making it 0, or writing d/dx(7x) = 7x",
+     "as": "distractor",
+     "in": [
+      "derivative"
+     ],
+     "wrong": "the constant d kept: 3ax² + 2bx + c + d"
+    },
+    {
+     "ref": "SL5.3.negative-powers#2",
+     "text": "Dividing only the first term of the numerator by x",
+     "as": "distractor",
+     "in": [
+      "derivative-from-fraction"
+     ],
+     "wrong": "only the first term divided by x, then differentiated: 3(a + b)x² + 2cx + d"
+    },
+    {
+     "ref": "SL5.3.gradient-at-point#0",
+     "text": "Substituting into f(x) instead of f′(x)",
+     "as": "distractor",
+     "in": [
+      "gradient-at-point"
+     ],
+     "wrong": "f(x₀) instead of f′(x₀)"
+    },
+    {
+     "ref": "SL5.3.gradient-at-point#1",
+     "text": "Substituting first and then differentiating the number f(a), giving 0",
+     "as": "distractor",
+     "in": [
+      "gradient-at-point"
+     ],
+     "wrong": "0, the derivative of the number f(x₀)"
+    },
+    {
+     "ref": "SL5.3.gradient-at-point#2",
+     "text": "Sign slips with negatives, e.g. 3(−2)² evaluated as −12",
+     "as": "distractor",
+     "in": [
+      "gradient-at-point"
+     ],
+     "wrong": "for negative x₀, 3a(x₀)² worked out as −3a·x₀²"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q05.a",
@@ -21662,8 +21918,9 @@
    "id": "t5-tangent-condition",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Find a point or parameter from a tangent condition (given gradient, parallel, common tangent)",
+   "summary": "Find where a cubic has a given gradient (or a tangent parallel to a given line), or find a coefficient from the gradient of a tangent.",
    "syllabus": [
     "5.4",
     "5.6"
@@ -21672,6 +21929,136 @@
     "SL5.4.parallel-or-perpendicular",
     "SL5.4.tangency-condition",
     "SL5.3.point-with-given-gradient"
+   ],
+   "skillFit": "partial",
+   "skillGap": "common tangents, and lines tangent to a curve found by the discriminant, are not built yet",
+   "chain": [
+    "f′(x)",
+    "f′(x) = g for a given gradient g",
+    "solve the quadratic for x",
+    "or put x = x₀ into f′ and solve for the unknown coefficient"
+   ],
+   "given": [
+    "f(x) as a polynomial and a gradient g",
+    "a line the tangent is parallel to",
+    "f(x) with one unknown coefficient and the gradient at x₀"
+   ],
+   "asked": "The x-values with a given gradient, or an unknown coefficient.",
+   "answerForms": [
+    "exact"
+   ],
+   "randomise": [
+    "a in {±1, ±2}",
+    "whole-number stationary x-values p and q, and the constant d",
+    "the two x-values r and s with r + s = p + q",
+    "which coefficient is hidden"
+   ],
+   "constraints": [
+    "f′(x) = g has two distinct whole-number solutions",
+    "Paper 1, so every value is exact"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "method-pick",
+    "multipart"
+   ],
+   "situation": "cubic",
+   "sharesSituation": [
+    "t5-differentiate-polynomial",
+    "t5-stationary-points",
+    "t5-tangent-normal-equation"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "f(x) in function notation with f′(x) = g, or \"the tangent at x = 1 has gradient 5\""
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the curve y = … with a tangent parallel to a given line"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "x-for-gradient",
+     "given": [
+      "f(x) as a cubic",
+      "a gradient g, or a line with gradient g"
+     ],
+     "asked": "the two x-values where the gradient is g",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.3.point-with-given-gradient",
+      "SL5.4.parallel-or-perpendicular"
+     ]
+    },
+    {
+     "id": "coefficient-from-tangent",
+     "given": [
+      "f(x) with one coefficient written as k",
+      "the gradient of the tangent at x₀"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.4.tangency-condition"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.3.point-with-given-gradient",
+     "method": "solve-f-prime",
+     "suits": [
+      "x-for-gradient"
+     ]
+    },
+    {
+     "skill": "SL5.4.parallel-or-perpendicular",
+     "method": "match-gradients",
+     "suits": [
+      "x-for-gradient"
+     ]
+    },
+    {
+     "skill": "SL5.3.unknown-coefficients",
+     "method": "form-equations",
+     "suits": [
+      "coefficient-from-tangent"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A cubic has a tangent with gradient g, whatever the number g.",
+     "answer": "Sometimes: f′ is a quadratic, so its values stop on one side. For a > 0 there is a least gradient, and no tangent is steeper downhill than that.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.3.point-with-given-gradient#0",
+     "text": "Solving f(x) = k instead of f′(x) = k",
+     "as": "distractor",
+     "in": [
+      "coefficient-from-tangent"
+     ],
+     "wrong": "k from f(x₀) = g instead of f′(x₀) = g"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q05.b",
@@ -21711,8 +22098,9 @@
    "id": "t5-tangent-normal-equation",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Equation of a tangent or normal, or values read from a given tangent",
+   "summary": "Find the tangent or the normal to a cubic at x = x₀ as y = mx + c, or read f(x₀) and f′(x₀) from a given tangent.",
    "syllabus": [
     "5.4"
    ],
@@ -21720,6 +22108,209 @@
     "SL5.4.tangent-equation",
     "SL5.4.normal-equation",
     "SL5.4.read-from-tangent"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "f(x₀), the point of contact",
+    "f′(x₀), the tangent's gradient",
+    "the tangent y = mx + c",
+    "the normal's gradient −1/m",
+    "the normal y = mx + c"
+   ],
+   "given": [
+    "f(x) as a polynomial and x = x₀",
+    "a tangent line and its point of contact"
+   ],
+   "asked": "The tangent or the normal at x₀ as y = mx + c, or f(x₀) and f′(x₀).",
+   "answerForms": [
+    "exact",
+    "y = mx + c"
+   ],
+   "randomise": [
+    "a in {±1, ±2}",
+    "whole-number stationary x-values p and q, and the constant d",
+    "x₀ from −3 to 3, not a stationary point"
+   ],
+   "constraints": [
+    "f′(x₀) ≠ 0, so the normal has a gradient",
+    "Paper 1, so every value is exact; the normal's gradient may be a fraction"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "order-steps",
+    "error-spot"
+   ],
+   "situation": "cubic",
+   "sharesSituation": [
+    "t5-differentiate-polynomial",
+    "t5-stationary-points",
+    "t5-tangent-condition"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "f(x) in function notation, or the tangent y = mx + c, with x = x₀"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the curve y = … in words: \"the tangent to the curve at the point where x = 2\""
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "tangent-at-point",
+     "given": [
+      "f(x) as a cubic",
+      "x₀"
+     ],
+     "asked": "the tangent at x₀ as y = mx + c",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.4.tangent-equation"
+     ]
+    },
+    {
+     "id": "normal-at-point",
+     "given": [
+      "f(x) as a cubic",
+      "x₀"
+     ],
+     "asked": "the normal at x₀ as y = mx + c",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.4.normal-equation"
+     ]
+    },
+    {
+     "id": "read-from-tangent",
+     "given": [
+      "the tangent at x₀ as y = mx + c"
+     ],
+     "asked": "f′(x₀) and f(x₀)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.4.read-from-tangent"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.4.tangent-equation",
+     "method": "point-gradient",
+     "suits": [
+      "tangent-at-point"
+     ]
+    },
+    {
+     "skill": "SL5.4.tangent-equation",
+     "method": "find-c",
+     "suits": [
+      "tangent-at-point"
+     ]
+    },
+    {
+     "skill": "SL5.4.normal-equation",
+     "method": "negative-reciprocal",
+     "suits": [
+      "normal-at-point"
+     ]
+    },
+    {
+     "skill": "SL5.4.normal-equation",
+     "method": "rearranged-form",
+     "suits": [
+      "normal-at-point"
+     ]
+    },
+    {
+     "skill": "SL5.4.read-from-tangent",
+     "method": "substitute-point",
+     "suits": [
+      "read-from-tangent"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The gradients of the tangent and the normal to a curve at the same point multiply to −1.",
+     "answer": "Sometimes: only when the tangent is not horizontal. At a stationary point the tangent is horizontal and the normal is the vertical line x = x₀, which has no gradient.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.4.tangent-equation#1",
+     "text": "Using f′(a) as the y-coordinate of the point",
+     "as": "distractor",
+     "in": [
+      "tangent-at-point"
+     ],
+     "wrong": "the line with gradient f′(x₀) through (x₀, f′(x₀))"
+    },
+    {
+     "ref": "SL5.4.tangent-equation#2",
+     "text": "Using the normal's gradient with the tangent's point (mixing the two lines)",
+     "as": "distractor",
+     "in": [
+      "tangent-at-point"
+     ],
+     "wrong": "the line with gradient −1/f′(x₀) through (x₀, f(x₀)), which is the normal"
+    },
+    {
+     "ref": "SL5.4.normal-equation#0",
+     "text": "Using −m or 1/m instead of −1/m for the normal's gradient",
+     "as": "distractor",
+     "in": [
+      "normal-at-point"
+     ],
+     "wrong": "gradient −m or 1/m through (x₀, f(x₀))"
+    },
+    {
+     "ref": "SL5.4.normal-equation#1",
+     "text": "Reusing the tangent's y-intercept c in the normal's equation",
+     "as": "distractor",
+     "in": [
+      "normal-at-point"
+     ],
+     "wrong": "gradient −1/m with the tangent's intercept c"
+    },
+    {
+     "ref": "SL5.4.read-from-tangent#0",
+     "text": "Taking f(a) to be the tangent's y-intercept c",
+     "as": "distractor",
+     "in": [
+      "read-from-tangent"
+     ],
+     "wrong": "f(x₀) = c, the tangent's y-intercept"
+    },
+    {
+     "ref": "SL5.4.read-from-tangent#1",
+     "text": "Thinking f′(a) is the y-coordinate of the point of contact",
+     "as": "distractor",
+     "in": [
+      "read-from-tangent"
+     ],
+     "wrong": "f′(x₀) = mx₀ + c and f(x₀) = m: the two swapped"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q09.c",
@@ -21801,8 +22392,9 @@
    "id": "t5-stationary-points",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Stationary points and inflexion: find, classify, justify",
+   "summary": "Find the stationary points of a cubic, decide which is the maximum and which the minimum, find the point of inflexion, or give the local maximum value.",
    "syllabus": [
     "5.8",
     "5.7",
@@ -21813,6 +22405,210 @@
     "SL5.8.classify-stationary-points",
     "SL5.8.points-of-inflexion",
     "SL5.8.optimise-given-function"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "f′(x)",
+    "f′(x) = 0 by factorising",
+    "the y-coordinates from f",
+    "f″ at each point for its nature",
+    "f″(x) = 0 for the point of inflexion"
+   ],
+   "given": [
+    "f(x) as a polynomial"
+   ],
+   "asked": "The coordinates of the stationary points, their nature, the point of inflexion, or the local maximum value.",
+   "answerForms": [
+    "exact",
+    "coordinates",
+    "maximum or minimum"
+   ],
+   "randomise": [
+    "a in {±1, ±2}",
+    "whole-number stationary x-values p and q, and the constant d"
+   ],
+   "constraints": [
+    "p + q even when the point of inflexion is asked",
+    "Paper 1, so every value is exact"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "method-pick",
+    "true-false-reason"
+   ],
+   "situation": "cubic",
+   "sharesSituation": [
+    "t5-differentiate-polynomial",
+    "t5-tangent-condition",
+    "t5-tangent-normal-equation"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "f(x) = ax³ + bx² + cx + d in function notation"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the curve y = … described in words"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "stationary-points",
+     "given": [
+      "f(x) as a cubic"
+     ],
+     "asked": "the coordinates of both stationary points",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.8.find-stationary-points"
+     ]
+    },
+    {
+     "id": "nature",
+     "given": [
+      "f(x) as a cubic",
+      "the x-values of its stationary points"
+     ],
+     "asked": "whether each stationary point is a local maximum or a local minimum",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.8.classify-stationary-points"
+     ]
+    },
+    {
+     "id": "inflexion-point",
+     "given": [
+      "f(x) as a cubic"
+     ],
+     "asked": "the coordinates of the point of inflexion",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.8.points-of-inflexion"
+     ]
+    },
+    {
+     "id": "max-value",
+     "given": [
+      "f(x) as a cubic"
+     ],
+     "asked": "the local maximum value",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.8.optimise-given-function"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.8.find-stationary-points",
+     "method": "solve-f-prime-zero",
+     "suits": [
+      "stationary-points"
+     ]
+    },
+    {
+     "skill": "SL5.8.classify-stationary-points",
+     "method": "second-derivative-test",
+     "suits": [
+      "nature"
+     ]
+    },
+    {
+     "skill": "SL5.8.classify-stationary-points",
+     "method": "first-derivative-sign-table",
+     "suits": [
+      "nature"
+     ]
+    },
+    {
+     "skill": "SL5.8.classify-stationary-points",
+     "method": "cubic-shape",
+     "suits": [
+      "nature"
+     ]
+    },
+    {
+     "skill": "SL5.8.points-of-inflexion",
+     "method": "second-derivative-sign-change",
+     "suits": [
+      "inflexion-point"
+     ]
+    },
+    {
+     "skill": "SL5.8.points-of-inflexion",
+     "method": "cubic-midpoint",
+     "suits": [
+      "inflexion-point"
+     ]
+    },
+    {
+     "skill": "SL5.8.optimise-given-function",
+     "method": "derivative-zero-and-test",
+     "suits": [
+      "max-value"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A point where f″(x) = 0 is a point of inflexion.",
+     "answer": "Sometimes: f″ must also change sign there. For f(x) = x⁴, f″(0) = 0 but (0, 0) is a minimum.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.8.find-stationary-points#2",
+     "text": "Substituting the x-value into f′ instead of f to get the y-coordinate",
+     "as": "distractor",
+     "in": [
+      "stationary-points"
+     ],
+     "wrong": "the y-coordinates from f′, which are both 0"
+    },
+    {
+     "ref": "SL5.8.classify-stationary-points#0",
+     "text": "f″ > 0 means a maximum (sign reversed)",
+     "as": "distractor",
+     "in": [
+      "nature"
+     ],
+     "wrong": "maximum and minimum swapped"
+    },
+    {
+     "ref": "SL5.8.optimise-given-function#0",
+     "text": "Giving the x-value when the maximum value is asked for (or the other way round)",
+     "as": "distractor",
+     "in": [
+      "max-value"
+     ],
+     "wrong": "the x-coordinate of the local maximum"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q08.b",
@@ -35431,7 +36227,9 @@
     "t5-tangent-normal-equation"
    ],
    "skillsWithoutType": [],
-   "typesWithoutSkill": []
+   "typesWithoutSkill": [
+    "t5-tangent-condition"
+   ]
   },
   {
    "statement": "5.5",

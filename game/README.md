@@ -111,6 +111,9 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   (`distribution_views.gd`) show it as a table, a formula or in words, and ask k, a
   missing probability, P(event), E(X), p and q from E(X), the fair stake, an expected
   number of occurrences or the number of trials.
+- `engine/situations/cubic.gd` is the Topic 5 situation: a cubic built
+  from f′(x) = 3a(x − p)(x − q), so its stationary points are on whole numbers, with a
+  point x₀ for the gradient, tangent and normal (FAL-394).
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -272,6 +275,9 @@ script error happens while it runs. Run one file with
   distribution adds to 1 inside its limits, k in a table, a formula and words, answers
   written as the question writes probabilities, exact or 3 s.f. marking, p and q as two
   slots, strict events, every misconception appears as an option.
+- `test_calculus.gd`: the four Topic 5 types on the cubic: built, every misconception
+  appears as an option, two points in either order, nature as multiple choice, f′(x)
+  marked exactly, the normal to 3 s.f.
 - `test_answer.gd`: parsing and marking typed answers.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.
