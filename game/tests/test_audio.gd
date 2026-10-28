@@ -205,6 +205,37 @@ func test_the_hud_is_autoloaded_with_the_speaker_and_the_gear() -> void:
 	check(hud.get_node_or_null("Overlay/Controls/SettingsButton") != null, "no settings button")
 
 
+## The practice screen's Exam-style toggle sits in the same top-right corner, so
+## the speaker and gear must leave it free to tap.
+func test_the_hud_never_covers_the_practice_header() -> void:
+	var hud := tree.root.get_node_or_null("AudioHud")
+	if hud == null:
+		fail("the AudioHud autoload is not in the tree")
+		return
+	var controls := hud.get_node("Overlay/Controls") as Control
+	# A phone, where the header runs the full width. Headless starts square.
+	var window_size := tree.root.size
+	tree.root.size = Vector2i(390, 844)
+	await tree.process_frame
+	var frame := Control.new()
+	frame.size = tree.root.get_visible_rect().size
+	tree.root.add_child(frame)
+	var p: Control = (load("res://scenes/practice.tscn") as PackedScene).instantiate()
+	p.save_path = "user://test_audio_practice_save.json"
+	frame.add_child(p)
+	for i in 3:
+		await tree.process_frame
+	var toggle := p.find_child("ExamOnly", true, false) as Control
+	check(toggle != null, "no Exam-style toggle on the practice screen")
+	if toggle != null:
+		check(not toggle.get_global_rect().intersects(controls.get_global_rect()),
+				"Exam-style toggle %s under the speaker and gear %s"
+				% [toggle.get_global_rect(), controls.get_global_rect()])
+	frame.free()
+	tree.root.size = window_size
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_audio_practice_save.json"))
+
+
 func test_the_settings_screen_shows_every_level_and_location() -> void:
 	var audio := _audio()
 	if audio == null:

@@ -10,6 +10,11 @@ extends CanvasLayer
 ## It parks in the top-right corner, 24px in, and ignores pointer events
 ## everywhere else, so it never covers an answer or a navigation button.
 
+## How far in from the screen's right edge the speaker and gear reach (24px inset,
+## two 112px buttons, a 16px gap), plus 16px of air. A screen with controls along
+## its top edge keeps this much clear so the icons never cover one.
+const RESERVED_RIGHT := 280.0
+
 const ICON_ON := preload("res://assets/icons/speaker-on.svg")
 const ICON_OFF := preload("res://assets/icons/speaker-off.svg")
 
