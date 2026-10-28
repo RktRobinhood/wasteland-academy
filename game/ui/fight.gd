@@ -1,6 +1,6 @@
 extends "res://ui/practice.gd"
 ## The fight screen (FAL-413, FAL-415): a run (engine/run.gd) drawn as fights. It opens
-## on the floor select (floor 1, and every floor whose boss is beaten). The enemy and
+## on the floor select (floor 1, and the floor after each beaten boss). The enemy and
 ## the player's HP, the draining timer, the lifelines and Scrap sit above the practice
 ## screen's question card, which this screen reuses. A wrong answer or a timeout shows
 ## the worked solution before the next question; the run ends in a summary. A mini-boss
@@ -114,8 +114,8 @@ func col_node(n: String) -> Control:
 	return margin.get_node("Column/" + n) as Control
 
 
-## The floor select (Q4): floor 1 and every floor whose boss the player has beaten, the
-## best floor so far, and what opens the next one.
+## The floor select (Q4): floor 1 and the floor after each floor whose boss the player
+## has beaten, the best floor so far, and what opens the next one.
 func show_floor_select() -> void:
 	run = null
 	scroll.visible = false
@@ -132,7 +132,7 @@ func show_floor_select() -> void:
 	head.name = "Heading"
 	head.add_theme_font_override("font", UiTheme.TITLE_FONT)
 	floor_box.add_child(head)
-	floor_box.add_child(UiTheme.label("A floor is %d fights: a mini-boss at fight %d and a boss at fight %d. Beat a boss and later runs can start on its floor." %
+	floor_box.add_child(UiTheme.label("A floor is %d fights: a mini-boss at fight %d and a boss at fight %d. Beat a floor's boss and later runs can start on the next floor." %
 		[Tuning.FIGHTS_PER_FLOOR, Tuning.MINI_BOSS_AT, Tuning.FIGHTS_PER_FLOOR], UiTheme.BODY, UiTheme.DIM))
 	var rec := Dungeon.record(save, region)
 	var floors := Dungeon.start_floors(save, region)

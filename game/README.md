@@ -259,8 +259,8 @@ dungeon part of `Tuning`. Q4, Q6, Q9 and Q14 are on the FAL-274 plan.
 - **The "boss beaten" event.** The heal `Tuning.BOSS_HEAL` (0) goes through
   `modifiers.apply("boss_heal", ...)` with `ctx.boss` "mini" or "boss", then through
   `heal`, then `boss_beaten(floor, kind)` fires. Second Wind (G6) adds 20 there.
-- **Start floor.** `Dungeon.start_floors(save, region)` is floor 1 and every floor whose
-  boss the player has beaten. The fight screen opens on a floor select with those floors.
+- **Start floor.** `Dungeon.start_floors(save, region)` is floor 1 and, for every floor
+  N whose boss the player has beaten, floor N + 1. The fight screen opens on a floor select with those floors.
   The save keeps `dungeon[region] = {"best", "beaten"}`.
 - **All regions.** Region `"all"` (`Dungeon.ALL`) mixes every built type of the island
   (every type with a region). The map (G5) links to `/next/?play=all`.

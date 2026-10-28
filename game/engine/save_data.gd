@@ -15,7 +15,8 @@ extends RefCounted
 ##   scrap      Scrap banked from runs, for the Bazaar (G6)
 ##   runs       {"played", "best_fights", "questions", "right"} over every run
 ##   dungeon    region id (or "all") -> {"best": deepest floor reached, "beaten":
-##              [floors whose boss fell]}; a run may start on floor 1 or any beaten one
+##              [floors whose boss fell]}; a run may start on floor 1 or on the floor
+##              after any beaten one
 ##
 ## When a wrong answer matches a multiple-choice distractor, the distractor's
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can

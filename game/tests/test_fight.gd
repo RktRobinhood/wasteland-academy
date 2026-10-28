@@ -163,7 +163,7 @@ func test_the_floor_select_offers_beaten_floors() -> void:
 	var floors: Node = f.floor_box.get_node("Floors")
 	check(floors.get_node_or_null("Floor1") is Button, "floor 1")
 	check(floors.get_node_or_null("Floor2") == null, "floor 2 is locked")
-	check(floors.get_node("Locked").text.contains("Floor 2"), floors.get_node("Locked").text)
+	check(floors.get_node("Locked").text.contains("Floor 2 · beat the floor 1 boss"), floors.get_node("Locked").text)
 	_done(made)
 	Dungeon.note_floor(save, "quadratics", 1, true)
 	Dungeon.note_floor(save, "quadratics", 2, true)
@@ -171,14 +171,15 @@ func test_the_floor_select_offers_beaten_floors() -> void:
 	made = await _screen(_area(Vector2i(390, 844)), 3, true, save)
 	f = made[1]
 	floors = f.floor_box.get_node("Floors")
-	for n in [1, 2]:
+	for n in [1, 2, 3]:
 		check(floors.get_node_or_null("Floor%d" % n) is Button, "floor %d is open" % n)
-	check(floors.get_node_or_null("Floor3") == null, "floor 3's boss isn't beaten")
-	(floors.get_node("Floor2") as Button).pressed.emit()
+	check(floors.get_node_or_null("Floor4") == null, "floor 3's boss isn't beaten")
+	check(floors.get_node("Locked").text.contains("Floor 4 · beat the floor 3 boss"), floors.get_node("Locked").text)
+	(floors.get_node("Floor3") as Button).pressed.emit()
 	await tree.process_frame
-	check(f.run != null and f.run.start_floor == 2, "the run starts on floor 2")
+	check(f.run != null and f.run.start_floor == 3, "the run starts on floor 3")
 	check(not f.floor_box.visible and f.scroll.visible)
-	check(f.title.text.contains("Floor 2"), f.title.text)
+	check(f.title.text.contains("Floor 3"), f.title.text)
 	_done(made)
 
 

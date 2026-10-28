@@ -8,7 +8,7 @@ extends RefCounted
 ## A floor is Tuning.FIGHTS_PER_FLOOR fights. Fight 5 is a mini-boss and fight 10 the
 ## boss: linked parts on one situation (Q9), see _open_boss(). Beating the boss opens
 ## the next floor and records the floor in the save (Dungeon.note_floor), so a later
-## run can start there. Each floor serves its own cells (Dungeon.floor_cells), and
+## run can start on the next floor. Each floor serves its own cells (Dungeon.floor_cells), and
 ## every type of the floor appears on it at least once (Q14).
 ##
 ##   var run := Run.new(save, "quadratics", 1, 42)

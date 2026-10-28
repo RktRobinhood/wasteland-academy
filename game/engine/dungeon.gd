@@ -8,7 +8,7 @@ extends RefCounted
 ##   Dungeon.floor_cells("quadratics", 1)      # the coverage cells floor 1 serves
 ##   Dungeon.tier_for(seed, floor, fight)      # D1-D5
 ##   Dungeon.boss_plan(seed, "quadratics", floor, "boss")  # the chain steps of fight 10
-##   Dungeon.start_floors(save, "quadratics")  # [1] plus every floor whose boss is beaten
+##   Dungeon.start_floors(save, "quadratics")  # [1] plus the floor after each beaten boss
 ##
 ## A region is a catalogue region id, or ALL for the all-regions dungeon: every built
 ## type of the island (the Functions types, which have a region).
@@ -235,13 +235,13 @@ static func _boss_type(ids: Array, n: int, rng: Seeded) -> String:
 
 # ── Start floors and the save ────────────────────────────────
 
-## The floors a run in this region may start on: floor 1, and every floor whose boss
-## the player has beaten (Q4).
+## The floors a run in this region may start on: floor 1, and floor N + 1 for every
+## floor N whose boss the player has beaten (Q4). Beating floor 1's boss opens floor 2.
 static func start_floors(save: Dictionary, region: String) -> Array:
 	var out: Array = [1]
 	for f in record(save, region).get("beaten", []):
-		if not out.has(int(f)):
-			out.append(int(f))
+		if not out.has(int(f) + 1):
+			out.append(int(f) + 1)
 	out.sort()
 	return out
 

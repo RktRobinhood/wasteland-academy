@@ -396,24 +396,33 @@ func test_the_start_floor_rule() -> void:
 	var r := _run(31, 1, save)
 	immortal(r)
 	sim(r, 1.0, 2)
-	check_eq(Dungeon.start_floors(save, REGION), [1, 2], "floors whose boss fell")
+	check_eq(Dungeon.record(save, REGION).beaten, [1, 2], "the bosses that fell")
+	check_eq(Dungeon.start_floors(save, REGION), [1, 2, 3], "beating floors 1 and 2 opens floors 2 and 3")
 	check_eq(Dungeon.record(save, REGION).best, 3, "the best floor reached")
 	check_eq(Dungeon.start_floors(save, "exp-log"), [1], "per region")
-	# Reaching a floor without beating its boss offers nothing more.
-	var r2 := _run(32, 2, save)
+	# Reaching a floor without beating its boss adds nothing.
+	var r2 := _run(32, 3, save)
 	r2.start()
 	while r2.state != "ended":
 		r2.answer(Combat.respond(r2.question, false))
 		r2.next()
-	check_eq(Dungeon.start_floors(save, REGION), [1, 2])
+	check_eq(Dungeon.start_floors(save, REGION), [1, 2, 3], "dying on floor 3 opens no floor")
+	Dungeon.note_floor(save, REGION, 5, false)
+	check_eq(Dungeon.record(save, REGION).best, 5)
+	check_eq(Dungeon.start_floors(save, REGION), [1, 2, 3], "reaching floor 5 opens nothing")
 	# It survives a store and load, with JSON's floats.
 	var path := "user://test_dungeon_save.json"
 	SaveData.store(save, path)
 	var back := SaveData.load_from(path)
-	check_eq(Dungeon.start_floors(back, REGION), [1, 2])
+	check_eq((Dungeon.record(back, REGION).beaten as Array).map(func(f): return int(f)), [1, 2])
+	check_eq(Dungeon.start_floors(back, REGION), [1, 2, 3])
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 	Dungeon.note_floor(back, REGION, 2, true)
 	check_eq(Dungeon.record(back, REGION).beaten, [1, 2], "no repeats")
+	check_eq(Dungeon.start_floors(back, REGION), [1, 2, 3])
+	# Beating a boss on a start floor opens the one after it.
+	Dungeon.note_floor(back, REGION, 3, true)
+	check_eq(Dungeon.start_floors(back, REGION), [1, 2, 3, 4])
 
 
 func test_a_jumped_run_records_nothing() -> void:
