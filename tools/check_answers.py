@@ -1821,9 +1821,135 @@ def check_curve_line(q):
     return None, None
 
 
+# ── quadratic-equation ──
+
+def sgn_num(sign, num):
+    v = R(num)
+    return -v if sign in ("−", "-") else v
+
+
+def qe_roots_poly(f):
+    return sorted(sp.solveset(f, X, domain=sp.S.Reals))
+
+
+def check_qeq(q):
+    u = q["view"]["unknown"]
+    g = q["given"]
+    ans = q["answer"]
+    L = q["lines"]
+    if u in ("solve-factorisable", "solve-surd"):
+        f = R(g["a"]) * X**2 + R(g["b"]) * X + R(g["c"])
+        need(L[0].endswith(" = 0") and parse(L[0][:-4]) == sp.expand(f), "the equation shown is not the givens")
+        need(R(g["a"]) in A_ALLOWED, "a outside the clean limits")
+        rs = qe_roots_poly(f)
+        need(len(rs) == 2, "not two roots")
+        if u == "solve-factorisable":
+            need(all(r.is_integer for r in rs), "the roots are not whole numbers")
+            qr_check_common(q, tuple(rs), {"SL2.7.solve-equation#1": {tuple(sorted([-rs[0], -rs[1]]))}})
+        else:
+            h = (rs[0] + rs[1]) / 2
+            d = sp.nsimplify(((rs[1] - rs[0]) / 2)**2)
+            need(h.is_integer and d.is_integer and int(d) in SURDS, "the surd roots are outside the clean limits")
+            qr_check_common(q, qr_norm(ans, {"h": str(h), "d": str(d)}))
+    elif u == "solve-no-constant":
+        lhs, rhs_ = L[0].split(" = ")
+        f = parse(lhs) - parse(rhs_)
+        need(sp.expand(f - (R(g["a"]) * X**2 + R(g["b"]) * X)) == 0, "the equation shown is not the givens")
+        rs = qe_roots_poly(f)
+        need(len(rs) == 2 and 0 in rs, "not two roots with 0 among them")
+        qr_check_common(q, tuple(rs))
+    elif u == "solve-in-context":
+        m = re.match(r"^A rectangular yard is x m wide and \(x \+ (\d+)\) m long\. Its area is (\d+) m²\.$", L[0])
+        if m:
+            f = X * (X + R(m.group(1))) - R(m.group(2))
+        else:
+            m = re.match(r"^A right-angled triangle has shorter sides x cm and \(x \+ (\d+)\) cm, and its hypotenuse is \(x \+ (\d+)\) cm\.$", L[0])
+            need(m is not None, "the context can't be read")
+            f = X**2 + (X + R(m.group(1)))**2 - (X + R(m.group(2)))**2
+        rs = qe_roots_poly(sp.expand(f))
+        pos = [r for r in rs if r > 0]
+        neg = [r for r in rs if r <= 0]
+        need(len(pos) == 1 and len(neg) == 1, "the context doesn't rule out exactly one root")
+        x = pos[0]
+        if g["paper"] == 1:
+            need(x.is_integer and ans.get("exact"), "Paper 1 answer is not an exact whole number")
+            want = qr_norm(ans, {"v": str(x)})
+            wr = {"SL2.7.solve-equation#1": {qr_norm(ans, {"v": str(-neg[0])})}}
+        else:
+            need(not x.is_rational, "Paper 2 root doesn't need a calculator")
+            need(not on_edge(x), "the answer is on a 3 s.f. rounding edge")
+            want = sig3(x)
+            wr = {"SL2.7.solve-equation#1": {sig3(-neg[0])}}
+        qr_check_common(q, want, wr)
+    elif u in ("solve-hidden-exponential", "choose-substitution"):
+        m = re.match(r"^(\d+)\^\(2x\)(?: ([+−]) (?:(\d+) × )?(\d+)\^x)? ([+−]) (\d+) = 0$", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        b = R(m.group(1))
+        B = sgn_num(m.group(2), m.group(3) or "1") if m.group(2) else 0
+        need(m.group(4) is None or R(m.group(4)) == b, "two different bases")
+        C = sgn_num(m.group(5), m.group(6))
+        need((b, B, C) == (R(g["base"]), R(g["B"]), R(g["C"])), "the equation shown is not the givens")
+        if u == "choose-substitution":
+            need(ans["label"] == f"With u = {frac_text(b)}^x: ", "the substitution is not u = b^x")
+            qr_check_common(q, (1, B, C))
+        else:
+            us = sorted(sp.solve(U**2 + B * U + C, U))
+            good = [w for w in us if w > 0]
+            bad = [w for w in us if w <= 0]
+            need(len(good) == 1 and len(bad) == 1, "not exactly one u-root to reject")
+            x = sp.log(good[0], b)
+            x = sp.nsimplify(x)
+            need(x.is_integer, "x is not a whole number")
+            wr = {"SL2.7.hidden-quadratic#0": {qr_norm(ans, {"v": str(good[0])})},
+                  "SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(-sp.nsimplify(sp.log(-bad[0], b)))})}}
+            qr_check_common(q, qr_norm(ans, {"v": str(x)}), wr)
+    elif u == "solve-hidden-reciprocal":
+        m = re.match(r"^x ([+−]) (\d+)/x = (−?\d+)$", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        c, t = sgn_num(m.group(1), m.group(2)), RD(m.group(3))
+        rs = qe_roots_poly(X**2 - t * X + c)
+        need(len(rs) == 2 and 0 not in rs, "not two non-zero solutions")
+        qr_check_common(q, tuple(rs))
+    elif u == "solve-hidden-log":
+        m = re.match(r"^ln x \+ ln\(x ([+−]) (\d+)\) = ln (\d+)$", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        d, c = sgn_num(m.group(1), m.group(2)), R(m.group(3))
+        rs = qe_roots_poly(X * (X + d) - c)
+        ok = [r for r in rs if r > 0 and r + d > 0]
+        bad = [r for r in rs if r not in ok]
+        need(len(ok) == 1 and len(bad) == 1, "not exactly one root to reject")
+        qr_check_common(q, qr_norm(ans, {"v": str(ok[0])}), {"SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(bad[0])})}})
+    elif u == "equation-from-roots":
+        m = re.match(r"^The roots of a quadratic equation are x = (.+)\.$", L[0]) or re.match(r"^A quadratic equation has roots (.+)\.$", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        txt = m.group(1).replace("−", "-").replace("√", "sqrt")
+        if "±" in txt:
+            h, d = txt.split(" ± ")
+            rs = [sp.sympify(h) + sp.sympify(d.replace("sqrt", "sqrt(") + ")"), sp.sympify(h) - sp.sympify(d.replace("sqrt", "sqrt(") + ")")]
+        else:
+            parts = txt.split(" and ")
+            rs = [sp.sympify(re.sub(r"sqrt(\d+)", r"sqrt(\1)", p)) for p in parts]
+        co = sp.Poly(sp.expand((X - rs[0]) * (X - rs[1])), X).all_coeffs()
+        need(all(sp.nsimplify(c).is_integer for c in co), "the coefficients are not integers")
+        qr_check_common(q, (1, sp.nsimplify(co[1]), sp.nsimplify(co[2])))
+    elif u == "coefficient-from-root":
+        txt = " ".join(L)
+        m = re.search(r"x² \+ kx ([+−]) (\d+) = 0", txt)
+        r = re.search(r"x = (−?\d+)", txt[m.end():])
+        need(m is not None and r is not None, "can't read the equation and its root")
+        c, r0 = sgn_num(m.group(1), m.group(2)), RD(r.group(1))
+        k = sp.solve(r0**2 + K * r0 + c, K)[0]
+        other = [x for x in sp.solve(X**2 + k * X + c, X) if x != r0]
+        need(len(other) == 1, "no other root")
+        qr_check_common(q, qr_norm(ans, {"k": str(k), "r": str(other[0])}))
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "quadratic-parameter": check_qparam,
-                    "curve-and-line": check_curve_line}
+                    "curve-and-line": check_curve_line, "quadratic-equation": check_qeq}
 
 # ── Coverage from the catalogue itself ───────────────────────
 

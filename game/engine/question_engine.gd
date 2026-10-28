@@ -32,6 +32,7 @@ static var SITUATIONS := {
 	"distribution": [DistributionSituation, DistributionViews],
 	"quadratic-parameter": [QuadraticParameterSituation, QuadraticParameterViews],
 	"curve-and-line": [CurveLineSituation, CurveLineViews],
+	"quadratic-equation": [QuadraticEquationSituation, QuadraticEquationViews],
 }
 
 static var _cat: Dictionary = {}
@@ -168,7 +169,11 @@ static func make(view: Dictionary) -> Dictionary:
 	var rng_angle: String = view.get("same_angle", angle)
 	var rng := Seeded.new("%s|%d" % [cell_key(t.id, u.id, rep, rng_angle), seed])
 	var recipe = SITUATIONS[t.situation][0]
-	var s: Dictionary = recipe.generate(rng, views.need(u.id, rep))
+	# The view's method rides along, for recipes whose numbers depend on it (a Paper 2
+	# context that a factorising method can't solve). Other recipes ignore it.
+	var nd: Dictionary = views.need(u.id, rep)
+	nd["angle"] = angle
+	var s: Dictionary = recipe.generate(rng, nd)
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % cell_key(t.id, u.id, rep, angle)}
 	var b: Dictionary = views.build(u.id, rep, s, rng)
