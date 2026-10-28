@@ -115,6 +115,20 @@ func _draw() -> void:
 			seg = PackedVector2Array()
 	if seg.size() > 1:
 		draw_polyline(seg, UiTheme.TEAL, 6.0, true)
+	# A straight line y = mx + n (a curve and a line that meet), clipped to the plot.
+	if spec.get("line") != null:
+		var m := float(spec.line.m)
+		var c := float(spec.line.n)
+		var ends := PackedVector2Array()
+		for i in 241:
+			var x := x0 + (x1 - x0) * float(i) / 240
+			var y := m * x + c
+			if y >= y0 and y <= y1:
+				ends.append(to_px(Vector2(x, y)))
+		if ends.size() > 1:
+			draw_line(ends[0], ends[ends.size() - 1], UiTheme.SAND, 5.0, true)
+		if spec.line.get("label", "") != "" and ends.size() > 1:
+			_text(font, spec.line.label, ends[ends.size() - 1] + Vector2(-150, -18), UiTheme.SAND, FONT_SIZE - 4, false, true)
 	# Marked points with their coordinates.
 	for p in spec.points:
 		var c := to_px(Vector2(p.x, p.y))

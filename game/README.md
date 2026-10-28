@@ -113,6 +113,23 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   (`distribution_views.gd`) show it as a table, a formula or in words, and ask k, a
   missing probability, P(event), E(X), p and q from E(X), the fair stake, an expected
   number of occurrences or the number of trials.
+- The rest of the Quadratics region (FAL-414) is four more situations. Three extend
+  `quadratic` by calling its `generate()`: `quadratic_parameter.gd` (a quadratic with a
+  constant k, given directly or as a line meeting a curve, for `fn-discriminant`),
+  `quadratic_equation.gd` (the quadratic = 0, plain or wrapped: a context, b^(2x), x + c/x,
+  a sum of logs, for `fn-solve-quadratic`) and `quadratic_inequality.gd` (the parabola
+  against a number, for `fn-quadratic-inequality`). `curve_line.gd` stands alone: it picks
+  the meeting x-values first and builds the curve as the line plus a(x − x₁)(x − x₂), for
+  `fn-curve-intersection-quadratic`. Their answers add kinds to `answer.gd`: `interval`
+  (k is between or outside two numbers, with the ends left out or included), `bound`
+  (k > 4), `kvals`, `delta_nature`, `quad_in` (Δ in k, or a quadratic in u), `kpoint`,
+  `points2` (two points, either order), `surd` (m√r), `surd_roots`, `line`, `npoint`,
+  `kroot`, `ineq_a` and `choice`. The graph view also draws a line (`graph.line`). The
+  Paper 2 context (a length to 3 s.f.) is one solve-in-context question in four, and never
+  for the factorising method: `QuestionEngine.make()` passes the method that made the
+  numbers to the recipe as `need.angle`. That is the `same_angle` method for "Another
+  way", so switching to factorising keeps a Paper 2 context, and the factorising working
+  says it fails there and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
 - `engine/situations/cubic.gd` is the Topic 5 situation: a cubic built
   from f′(x) = 3a(x − p)(x − q), so its stationary points are on whole numbers, with a
   point x₀ for the gradient, tangent and normal (FAL-394).
@@ -265,7 +282,10 @@ the givens. Each situation has its own checks (`SITUATION_CHECKS`, keyed by the
 `situation_id` every question exports); the answer, option and working checks are
 shared. For arithmetic sequences it reads u₁, d and n back from the notation line, the
 terms, the table, the words and the question text, solves them with SymPy, and checks
-they give the sequence in the givens. Each cell also gets 10 questions made on its family's shared situation. It prints a table per type and per cell. SymPy is pinned in
+they give the sequence in the givens. For the four FAL-414 situations it reads the
+equations, sentences and sketches back, solves the unknown (Δ in k, the meeting points,
+the valid root, the solution set) and works out each tagged misconception's wrong value
+itself, and every worked solution must be 2 to 5 steps. Each cell also gets 10 questions made on its family's shared situation. It prints a table per type and per cell. SymPy is pinned in
 `requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it
 next to `./test.sh`.
 
@@ -302,6 +322,12 @@ script error happens while it runs. Run one file with
   distribution adds to 1 inside its limits, k in a table, a formula and words, answers
   written as the question writes probabilities, exact or 3 s.f. marking, p and q as two
   slots, strict events, every misconception appears as an option.
+- `test_quadratics.gd`: the four FAL-414 types: built with every cell, 2 to 5 steps per
+  worked solution, every distractor misconception as an option (three that no answer
+  shape can carry yet are listed with the reason), two rays typed as one interval caught
+  as SL2.7.inequality#1, two points in either order, a tangent's point on both graphs,
+  Paper 2 contexts at about one in four, and "Another way" keeping the numbers for every
+  fn-solve-quadratic unknown and pair of methods.
 - `test_calculus.gd`: the four Topic 5 types on the cubic: built, every misconception
   appears as an option, two points in either order, nature as multiple choice, f′(x)
   marked exactly, the normal to 3 s.f.

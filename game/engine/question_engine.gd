@@ -30,6 +30,10 @@ static var SITUATIONS := {
 	"triangle": [TriangleSituation, TriangleViews],
 	"arithmetic-sequence": [ArithmeticSequenceSituation, ArithmeticSequenceViews],
 	"distribution": [DistributionSituation, DistributionViews],
+	"quadratic-parameter": [QuadraticParameterSituation, QuadraticParameterViews],
+	"curve-and-line": [CurveLineSituation, CurveLineViews],
+	"quadratic-equation": [QuadraticEquationSituation, QuadraticEquationViews],
+	"quadratic-inequality": [QuadraticInequalitySituation, QuadraticInequalityViews],
 	"cubic": [CubicSituation, CubicViews],
 }
 
@@ -243,12 +247,19 @@ static func make(view: Dictionary) -> Dictionary:
 	var shared: bool = view.get("shared", false)
 	var rng := Seeded.new("%s|%d" % [cell_key(t.id, u.id, rep, rng_angle), seed])
 	var recipe = SITUATIONS[t.situation][0]
+	# The method that made the numbers rides along, for recipes whose numbers depend on
+	# it (a Paper 2 context that a factorising method can't solve). It is the stream's
+	# angle, not this view's, so "Another way" keeps the numbers; the view's working then
+	# says where its method fails. A shared situation belongs to the family, not to a
+	# method, so it gets none. Other recipes ignore it.
 	var s: Dictionary
 	if shared:
 		var fam := family_of(t.id, u.id, rep)
 		s = recipe.generate(Seeded.new("%s|%s|%s|%d" % [t.id, rep, ",".join(fam.unknowns), seed]), fam.need)
 	else:
-		s = recipe.generate(rng, views.need(u.id, rep))
+		var nd: Dictionary = views.need(u.id, rep)
+		nd["angle"] = rng_angle
+		s = recipe.generate(rng, nd)
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % cell_key(t.id, u.id, rep, angle)}
 	var b: Dictionary = views.build(u.id, rep, s, rng)
