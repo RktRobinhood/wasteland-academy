@@ -119,5 +119,5 @@ func _check_fits(window: Vector2i) -> void:
 
 func test_title_screen_has_practice() -> void:
 	var main := (load("res://scenes/main.tscn") as PackedScene).instantiate()
-	check(main.get_node_or_null("Center/Column/Practice") is Button, "no Practice button")
+	check(main.get_node_or_null("Center/Column/Buttons/Practice") is Button, "no Practice button")
 	main.free()

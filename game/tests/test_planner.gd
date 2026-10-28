@@ -115,9 +115,31 @@ func test_blank_save() -> void:
 	check_eq(s.settings.exam_only, false, "exam-only is off by default")
 	for key in ["class", "trees", "lessons", "cells", "probes"]:
 		check(s.has(key), key)
-	check_eq(s["class"], "")
+	check_eq(s["class"], null)
 	check_eq(s.trees, {})
 	check_eq(s.lessons, {})
+	check_eq(s.scrap, 0)
+
+
+## FAL-413: a version 1 save without class and trees loads, and gets them (class null).
+func test_migrates_a_save_without_class_and_trees() -> void:
+	var path := "user://test_save_v1.json"
+	var v1 := {"version": 1, "settings": {"exam_only": true}, "cells": {"c1": {"seen": 1, "right": 1, "wrong": 0, "last": 5, "last_result": "right"}},
+		"probes": {}, "history": ["c1"], "seed": 7, "lessons": {}}
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_string(JSON.stringify(v1))
+	f.close()
+	var s := SaveData.load_from(path)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+	check_eq(s.version, SaveData.VERSION)
+	check_eq(s["class"], null)
+	check_eq(s.trees, {})
+	check_eq(s.scrap, 0)
+	check_eq(s.seed, 7.0 if s.seed is float else 7, "the rest is kept")
+	check_eq(s.cells.c1.right, 1.0 if s.cells.c1.right is float else 1)
+	check_eq(s.settings.exam_only, true)
+	# A version 1 save written while class was "" moves to null.
+	check_eq(SaveData.migrate({"version": 1, "class": ""})["class"], null)
 
 
 func test_migrates_an_unversioned_save() -> void:

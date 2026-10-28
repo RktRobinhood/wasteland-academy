@@ -161,7 +161,10 @@ static func make(view: Dictionary) -> Dictionary:
 	if not fmt in BUILT:
 		return {"error": "format %s is not built yet" % fmt}
 	var seed: int = int(view.get("seed", 0))
-	var rng := Seeded.new("%s|%d" % [cell_key(t.id, u.id, rep, angle), seed])
+	# "Another way" (FAL-310): a view with same_angle asks the question that angle made,
+	# the same numbers, but by this view's angle.
+	var rng_angle: String = view.get("same_angle", angle)
+	var rng := Seeded.new("%s|%d" % [cell_key(t.id, u.id, rep, rng_angle), seed])
 	var recipe = SITUATIONS[t.situation][0]
 	var s: Dictionary = recipe.generate(rng, views.need(u.id, rep))
 	if s.is_empty():
@@ -185,8 +188,12 @@ static func make(view: Dictionary) -> Dictionary:
 			solutions.append({"angle": a, "name": info.get("name", "Worked solution"), "steps": b.methods[a].steps,
 				"result": b.methods[a].result})
 	var choices := _choices(ans, b, rng)
+	var out_view := {"type": t.id, "unknown": u.id, "rep": rep, "angle": angle, "format": fmt, "seed": seed}
+	if rng_angle != angle:
+		out_view.same_angle = rng_angle
 	return {
-		"view": {"type": t.id, "unknown": u.id, "rep": rep, "angle": angle, "format": fmt, "seed": seed},
+		"view": out_view,
+		"marks": int(view.get("marks", t.get("marks", 0))),
 		"cell": cell_key(t.id, u.id, rep, angle),
 		"type_name": t.name, "level": int(u.level),
 		"exam": t.source == "exam" and bool(u.exam) and rep_is_exam(t, rep),
@@ -198,13 +205,15 @@ static func make(view: Dictionary) -> Dictionary:
 	}
 
 
-## Four options: the answer and three wrong ones. Misconception options come first,
-## each tagged with its ref; generic ones and, if still short, a nudged number fill
-## the rest. No two options are equal.
+## Four options: the answer and three wrong ones. The view's rounding trap (Q7) comes
+## first where it fits, then misconception options, each tagged with its ref; generic
+## ones and, if still short, a nudged number fill the rest. No two options are equal.
 static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	var seen := {Answer.canon(ans, ans.values): true}
 	var picked: Array = []
 	var pool: Array = []
+	if not b.get("trap", {}).is_empty():
+		pool.append({"values": b.trap, "ref": "", "trap": true})
 	for w in b.wrongs:
 		pool.append(w)
 	for g in b.generic:
@@ -223,7 +232,9 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 		picked.append(w)
 	var opts: Array = [{"text": Answer.text(ans), "values": ans.values, "correct": true, "ref": ""}]
 	for w in picked:
-		opts.append({"text": Answer.text(ans, w.values), "values": w.values, "correct": false, "ref": w.ref})
+		var trap: bool = w.get("trap", false)
+		opts.append({"text": Answer.trap_text(ans, w.values) if trap else Answer.text(ans, w.values), "values": w.values,
+			"correct": false, "ref": w.ref, "trap": trap})
 	return rng.shuffled(opts)
 
 
@@ -253,15 +264,16 @@ static func _nudges(ans: Dictionary) -> Array:
 
 
 ## Marks a response. For "mcq", response is {"choice": index}; for "value", it is
-## slot id -> typed text. Returns {"correct", "complete", "errors", "misconception"}:
-## misconception is the ref of the wrong option the answer matches, or "".
+## slot id -> typed text. Returns {"correct", "complete", "glancing", "errors",
+## "misconception"}: glancing is the right value with too few figures, or the rounding
+## trap picked (Q7); misconception is the ref of the wrong option the answer matches, or "".
 static func mark(question: Dictionary, response: Dictionary) -> Dictionary:
 	if question.format == "mcq":
 		var i := int(response.get("choice", -1))
 		if i < 0 or i >= question.choices.size():
-			return {"correct": false, "complete": false, "errors": {"choice": "Choose one."}, "misconception": ""}
+			return {"correct": false, "complete": false, "glancing": false, "errors": {"choice": "Choose one."}, "misconception": ""}
 		var c: Dictionary = question.choices[i]
-		return {"correct": c.correct, "complete": true, "errors": {}, "misconception": c.ref}
+		return {"correct": c.correct, "complete": true, "glancing": c.get("trap", false), "errors": {}, "misconception": c.ref}
 	var r := Answer.mark(question.answer, response)
 	r.misconception = ""
 	if r.complete and not r.correct:

@@ -12,9 +12,12 @@ The toolchain is copied from The Unruly Atlas.
 game/
 ├── project.godot        ← portrait 1080x1920 base, "expand" stretch, Compatibility renderer
 ├── export_presets.cfg   ← one preset, "Web": no threads, no PWA
-├── scenes/main.tscn     ← title screen (title, Spark, Practice)
+├── scenes/main.tscn     ← title screen (title, Spark, Play, Practice)
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
+├── scenes/fight.tscn    ← the fight screen (ui/fight.gd), on the practice screen's card
 ├── engine/              ← the question engine: situations, views, marking, planner, save
+├── engine/run.gd        ← a run: fights, outcomes, lifelines, the hooks (see "Combat")
+├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines
 ├── ui/                  ← screens and the graph view
 ├── data/catalogue.json  ← generated from curriculum/question-types.json (don't edit)
 ├── scenes/audio_hud.tscn ← the AudioHud autoload: speaker icon, gear, settings screen
@@ -119,20 +122,107 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a(x − □)² + □) and `mcq` are built, and the concept probes play as a verdict
   (true or false; always, sometimes or never; the sign) and then the reason.
 - **Marking** (`engine/answer.gd`): exact or right to 3 s.f. More figures are right too
-  when they are the value correctly rounded (12.35 for 12.3456). An answer's `show` writes
+  when they are the value correctly rounded (12.35 for 12.3456). The right value with
+  too few figures (2.3 for 2.347) is a **glancing hit** (Q7): `mark()` returns
+  `glancing`, and combat does half damage with the note "The IB needs 3 s.f.". Only a
+  value that needs rounding has one (1 is not a glancing ½), and an `exact` answer has none. An answer's `show` writes
   it as a decimal (0.35) or as money (2.50) instead of a fraction; probabilities are
   answered the way the question gives them. Typed numbers are parsed
   by hand (whole numbers, decimals, fractions); nothing is evaluated as an expression.
 - **Planner** (`engine/planner.gd`): never-seen cell, then a recently missed one, then
   exam frequency. "Exam-style only" (off by default) keeps exam cells only and follows
   exam frequency.
-- **Save** (`engine/save_data.gd`): versioned, with a migration step per version, and
-  empty `class`, `trees` and `lessons`.
+- **Rounding trap** (Q7), **a rule for every situation**: a view's builder returns
+  `trap`, from `Answer.rounding_trap(answer)`. Where the answer is one number that
+  needs rounding at 3 s.f., that is the number rounded to 2 s.f., and `_choices()`
+  makes it one of the four options (shown as a decimal, tagged `trap`), first in line
+  ahead of the misconceptions. Picking it is a glancing hit. Where it doesn't fit, it is
+  `{}`. The `quadratic` views set it; every quadratic answer is exact today, so none has
+  one yet. Situations whose answers are 3 s.f. measures (triangles, distributions) need
+  a checker rule for the 2 s.f. text before they offer it.
+- **Marks**: each question carries `marks`, the type's median marks in the exam bank
+  (`stats.marks.median`, copied into the catalogue as `marks`), unless the view sets its
+  own. The timer is built from it. Extension types have none and use `Tuning.DEFAULT_MARKS`.
+- **Save** (`engine/save_data.gd`): versioned, with a migration step per version.
+  Version 2 (FAL-413): `class` is null until classes exist, `trees` and `lessons` are
+  empty, `scrap` is the Scrap banked from runs and `runs` totals them. A save without
+  `class` or `trees` gets them on load.
+
+## Combat
+
+A run (`engine/run.gd`) takes a region, a start floor and a seed, and plays fights in
+a row until the player's HP reaches 0 or they quit. Each fight is an enemy of tier D1 to
+D5 (the HTML game's `js/combat.js` table). Each question is the planner's next cell in
+the region (`Planner.next(save, now, {"region", "probes": false, "salt"})`). At the end,
+the summary shows the questions right, the fights won, the Scrap earned and the skills
+missed, and the Scrap goes into the save. G4 adds floors, mini-bosses and bosses; until
+then every fight plays on the run's start floor (1 from the title screen) and the tier
+follows the HTML game's island rhythm (every 3rd fight D3, 5th D4, 10th D5).
+
+`Run` has no UI, so a test plays a whole run: `start()`, `tick(delta)`,
+`answer(response)`, `next()`, `quit()`, and the lifelines `use_fifty()`, `use_hint()`
+and `use_freeze()`. The fight screen (`ui/fight.gd`) extends the practice screen and
+draws the run: enemy and player HP, the timer bar, the lifelines, the card, and the
+summary. It keeps room above the card for the journey strip (FAL-331) and in the
+lifeline row for the Paper 1 or 2 badge (C1).
+
+- **One settings file.** Every number is in `engine/tuning.gd` (`Tuning`): HP, the
+  tiers, Scrap, the timers, the late zone, the stakes table, the lifelines and "Another
+  way". The dungeon (G4) and the Bazaar (G6) use it too.
+- **Timers (Q6).** Seconds = marks × minutes per mark × 60, plus 15 for a typed answer,
+  never under 45. Minutes per mark: 1.5 on floor 1, 1.25 on floor 2, 1.0 on floor 3,
+  then 0.1 less a floor down to 0.6. The bar drains green, orange (under half), red
+  (the last 20%, the late zone). Time Freeze stops it for 15 s.
+- **Outcomes.** right, glancing, late (right in the late zone), wrong and timeout. Each
+  goes through **one resolve step**, `Run.resolve(outcome, enemy, stakes, modifiers)`,
+  with a **stakes table**: hits off the enemy, the share of the enemy's damage the player
+  takes, flat extra damage, and the share of the tier's Scrap. `Tuning.STAKES` is today's
+  table; encounters (FAL-349) pass their own.
+
+  | Outcome | Enemy | You | Scrap |
+  |---|---|---|---|
+  | right | 1 hit (10 HP) | 0 | 100% |
+  | glancing | ½ hit | 0 | 50% |
+  | late | 1 hit | 25% of its damage | 60% |
+  | wrong | 0 | its damage | 0 |
+  | timeout | 0 | its damage + 10 | 0 |
+
+- **Worked solutions (Q5).** After a wrong answer or a timeout the card shows the worked
+  solution, with a tab per method, before the next question. Hint shows its first step.
+- **"Another way" (FAL-310).** After a right answer on floor 2 or deeper, one time in 4
+  (`Tuning.ANOTHER_WAY_CHANCE`), the next question is the same one (same numbers, made
+  with the view's `same_angle`) asked by the next angle the type lists for that unknown,
+  for bonus Scrap. Only where the unknown has more than one angle.
+- **Modifiers (class plan phase 0, FAL-291).** Every damage, heal, Scrap and time value,
+  and the starting HP, passes through `run.modifiers.apply(kind, value, ctx)`
+  (`engine/modifiers.gd`), which returns it unchanged until something is added. Bazaar
+  perks (G6) and classes (FAL-308) add a Callable.
+- **Fight slots (FAL-347).** `Run.slot_kind(seed, floor, fight)` says what a slot is:
+  "fight", "encounter" or "cell". It always says "fight" until FAL-349.
+
+### Journey strip events
+
+The run emits four signals for views such as the journey strip (FAL-331). They are view
+only: nothing in the run waits on them, and a run plays the same with none connected
+(`test_combat.gd` checks).
+
+| Signal | When |
+|---|---|
+| `run_started(region, avatar, seed)` | `start()`, before the first fight |
+| `question_opened(fight, tier)` | each question opens, fight number from 1 |
+| `answer_resolved(outcome)` | each answer or timeout: right, glancing, late, wrong or timeout |
+| `run_ended(summary)` | death or quit, after the Scrap is banked |
+
+The strip (FAL-331) isn't merged yet, so the fight screen keeps an empty
+`JourneyStrip` box above the card for it.
+
+### Deep links
 
 The practice screen takes deep links, for screenshots and for sending someone a
 question: `/next/?view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, or
 `<type>/probe/<n>` for a concept probe. Add `&autoplay=right` (or `wrong`) to answer it
-at once.
+at once. The fight screen takes `/next/?play=quadratics&seed=3&floor=1`, with
+`&autoplay=right`, `wrong`, or `lose` (wrong answers to the end, for the summary).
 
 ### The SymPy answer checker
 
@@ -183,7 +273,15 @@ script error happens while it runs. Run one file with
   written as the question writes probabilities, exact or 3 s.f. marking, p and q as two
   slots, strict events, every misconception appears as an option.
 - `test_answer.gd`: parsing and marking typed answers.
-- `test_planner.gd`: the planner's three rules, "Exam-style only", and the save.
+- `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
+  the migration of a save without `class` and `trees`.
+- `test_combat.gd`: a scripted run with a fixed seed and answers gives the same fights,
+  results and save; timers on every floor; each outcome's damage and Scrap by tier, with
+  and without Time Freeze; glancing hits and the rounding trap; lifelines; "Another
+  way" on floor 2 and never on floor 1; a modifier that doubles Scrap; the stakes table;
+  the slot picker; and the journey signals connected to nothing.
+- `test_fight.gd`: the fight screen plays a miss with its worked solution, a hit, a
+  timeout, the lifelines, quit and the summary, and fits at 360x780, 390x844 and 1280x800.
 - `test_practice.gd`: the practice screen plays every representation and format,
   records answers, and fits at 390x844 and 1280x800.
 - `test_audio.gd`: a loop per location at the length the review measured, only the

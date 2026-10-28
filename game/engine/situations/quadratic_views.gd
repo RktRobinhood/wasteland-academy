@@ -13,6 +13,7 @@ extends RefCounted
 ##   answer    an Answer (answer.gd)
 ##   wrongs    misconception distractors: [{"values": {...}, "ref": "SL2.6.vertex#0"}]
 ##   generic   other wrong options, used when the misconceptions don't give three
+##   trap      the rounding trap (Answer.rounding_trap), {} where it doesn't fit
 ##   methods   angle (method id) -> {"steps": [...], "result": values}. Each method
 ##             works the answer out again from the givens, and its last step states it.
 ##             "any" when no listed method suits the unknown.
@@ -79,6 +80,8 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	for key in ["lines", "graph", "table", "wrongs", "generic"]:
 		if not out.has(key):
 			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+	# Q7's rounding trap, where the answer needs rounding (see game/README.md).
+	out.trap = Answer.rounding_trap(out.answer)
 	return out
 
 

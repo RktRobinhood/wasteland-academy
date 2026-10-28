@@ -134,6 +134,11 @@ func show_view(view: Dictionary) -> void:
 		question = QuestionEngine.probe(view.type, int(view.probe))
 	else:
 		question = QuestionEngine.make(view)
+	render_question()
+
+
+## Draws `question` on the card: the fight screen (ui/fight.gd) uses this too.
+func render_question() -> void:
 	answered = false
 	_slots.clear()
 	_picks.clear()
@@ -405,8 +410,13 @@ func _show_feedback(result: Dictionary) -> void:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.TEAL)
 			elif i == _choice:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.PINK)
+	_show_working()
+
+
+## The worked solution, with a tab per method (or a probe's reveal).
+func _show_working() -> void:
 	working.visible = true
-	if probe:
+	if question.format == "probe":
 		working.add_child(UiTheme.label(question.reveal, UiTheme.BODY))
 		return
 	working.add_child(UiTheme.label("Worked solution", UiTheme.BIG, UiTheme.SAND))

@@ -35,6 +35,8 @@ export function build() {
     for (const f of TYPE_FIELDS) if (t[f] !== undefined) out[f] = t[f];
     // How often the IB asks this type: the planner's third rule and the exam-only mix.
     out.frequency = t.stats?.parts ?? 0;
+    // Marks a typical exam part of this type is worth: the timer's base (Q6 on FAL-274).
+    if (t.stats?.marks?.median !== undefined) out.marks = t.stats.marks.median;
     out.angles = (t.angles || []).map(a => {
       const m = a.skill ? skills.get(a.skill)?.methods.find(x => x.id === a.method) : t.methods?.find(x => x.id === a.method);
       return { ...a, name: m?.name ?? a.method, about: m?.summary ?? '' };
