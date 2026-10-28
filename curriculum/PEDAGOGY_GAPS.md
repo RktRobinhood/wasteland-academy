@@ -1751,7 +1751,47 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+
+#### Expected number of occurrences, n x p (`t4-expected-occurrences`, exam, 4 bank parts)
+
+- **Situation:** One discrete random variable with its probability distribution, shared with `t4-discrete-distribution`, `t4-expected-value`.
+- **Representations:** **table**, **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the distribution; the number of trials n; an event → the expected number of times the event happens
+  - new L2: given the distribution; an event; how many times it is expected to happen → the number of trials
+- **Angles:** Expected number = n × P(A).
+- **Concept probes:**
+  - *true-false-reason* (L3): An event with probability 0.3 is expected 7.5 times in 25 trials, so the expected number should be given as 8. — False: an expected number is a long-run average and need not be a whole number, so 7.5 is the answer.
+- **Misconceptions used:** 2. Rounding the expected number to a whole number (it does not have to be one); Giving the probability instead of the expected number.
+
+#### Expected value of a discrete random variable, fair games (`t4-expected-value`, exam, 17 bank parts)
+
+- **Situation:** One discrete random variable with its probability distribution, shared with `t4-discrete-distribution`, `t4-expected-occurrences`.
+- **Representations:** **table**, **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the whole distribution → E(X)
+  - **exam** L3: given a distribution with two unknown probabilities p and q; E(X) → p and q
+  - **exam** L2: given a game's prizes and their probabilities → the stake that makes the game fair
+- **Angles:** E(X) = Σ x P(X = x); GDC with probabilities as weights; ΣP = 1 and Σ x P = E(X); GDC simultaneous equation solver; Distribution of net gain, set E(X) = 0; Expected winnings equal the cost.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): E(X) is one of the values X can take. — Sometimes: E(X) is a long-run average, so it can fall between the values. The score on a fair die has E(X) = 3.5.
+  - *true-false-reason* (L3): A game is fair when the player is as likely to win as to lose. — False: a game is fair when the player's expected gain is 0. One rare big prize can balance many small losses.
+- **Misconceptions used:** 5. Taking the plain average of the x-values and ignoring the probabilities; Believing E(X) must be one of the possible values of X; Dividing Σ x P(X = x) by the number of values; Setting Σ x P(X = x) equal to 1 instead of to E(X); Using the prize as the gain without subtracting the stake.
+
+#### Discrete distribution: probabilities sum to 1, find k, read probabilities (`t4-discrete-distribution`, exam, 12 bank parts)
+
+- **Situation:** One discrete random variable with its probability distribution, shared with `t4-expected-occurrences`, `t4-expected-value`.
+- **Representations:** **table**, **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given each probability as a multiple of k, or P(X = x) = k f(x) → k
+  - **exam** L1: given every probability but one, as decimals → the missing probability
+  - **exam** L2: given the whole distribution; an event such as X > a or a < X ≤ b → the probability of the event
+- **Angles:** Set the sum of the probabilities to 1; Fill the last entry by subtraction; Add the relevant entries; 1 minus the rest.
+- **Concept probes:**
+  - *true-false-reason* (L3): The probabilities 0.2, 0.5, 0.4 and −0.1 make a valid probability distribution, because they add to 1. — False: every probability must also be from 0 to 1, and −0.1 is negative.
+  - *always-sometimes-never* (L3): P(X > 2) + P(X ≤ 2) = 1. — Always: every value of X is either more than 2 or at most 2, and never both, so the two events are complements.
+- **Misconceptions used:** 3. Adding the x-values (or the products x × P) instead of the probabilities; Treating every possible value of X as equally likely; Including the endpoint for a strict inequality, e.g. using X = 2 in P(X > 2).
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

@@ -2418,6 +2418,62 @@
 				"when n is found from Sₙ, the quadratic in n has one positive whole root and one negative whole root",
 				"two given terms are at least two steps apart, and neither is u₁ when u₁ is asked"
 			]
+		},
+		"distribution": {
+			"name": "One discrete random variable with its probability distribution",
+			"summary": "Pick 3 to 5 values of X and their probabilities, as multiples of k, as a formula P(X = x) = k f(x), or as decimals, so they add to 1. A game variant has prizes and a stake. Every probability, E(X), the probability of any event and the expected number of times it happens in n trials are then known, and any of them can be asked.",
+			"quantities": [
+				{
+					"name": "x",
+					"is": "the values X takes",
+					"pick": "3 to 5 whole numbers in a row, from 0 to 7; a game's prizes are $0 and two or three whole numbers of dollars from 1 to 20"
+				},
+				{
+					"name": "P(X = x)",
+					"is": "the probability of each value; they add to 1",
+					"pick": "whole multiples of k from 1k to 6k; or k f(x) from a formula (kx, k(x + 1), k(x + 2), kx², k(2x − 1), k(6 − x)); or decimals in steps of 0.05 or 0.1, each from 0.05 to 0.6"
+				},
+				{
+					"name": "k",
+					"is": "1 divided by the sum of the multiples of k",
+					"pick": "from 1/60 to 1/6"
+				},
+				{
+					"name": "E(X)",
+					"is": "Σ x P(X = x)",
+					"pick": "exact: a fraction, or a decimal that ends"
+				},
+				{
+					"name": "event",
+					"is": "X = a, X > a, X ≥ a, X < b, X ≤ b, a < X ≤ b or a ≤ X < b",
+					"pick": "takes in at least one value and leaves out at least one; a strict end is a value of X, so including it changes the answer"
+				},
+				{
+					"name": "p, q",
+					"is": "two unknown probabilities in the table, found from the sum and E(X)",
+					"pick": "different decimals from 0.05 to 0.6, with E(X) given exactly"
+				},
+				{
+					"name": "stake",
+					"is": "the cost to play a game; the game is fair when the expected gain is 0",
+					"pick": "the expected prize, a whole number of cents from $0.50 up"
+				},
+				{
+					"name": "n",
+					"is": "the number of trials (spins, days, games)",
+					"pick": "a whole number from 20 to 600, with n × P(event) a whole number or ending in .5"
+				}
+			],
+			"clean": [
+				"3 to 5 values of X, whole numbers in a row; a game has 3 or 4 prizes, one of them $0",
+				"every probability is from 0.05 to 0.6 as a decimal, or a multiple of k from 1/60 to 1/6, and they add to exactly 1",
+				"answers are exact, as a fraction or a decimal that ends, and are marked right exactly or to 3 s.f.",
+				"an asked event takes in at least one value and leaves out at least one",
+				"p and q found from E(X) are different and both from 0.05 to 0.6",
+				"a fair stake is a whole number of cents, at least $0.50",
+				"an expected number of occurrences is a whole number or ends in .5",
+				"no answer or option is on a 3 s.f. rounding edge, and every wrong option differs from the answer to 3 s.f."
+			]
 		}
 	},
 	"types": [
@@ -16903,6 +16959,486 @@
 				}
 			],
 			"frequency": 19
+		},
+		{
+			"id": "t4-expected-occurrences",
+			"topic": 4,
+			"source": "exam",
+			"name": "Expected number of occurrences, n x p",
+			"summary": "Find how many times an event is expected to happen in n trials as n × P(event), or work back from an expected number to the number of trials.",
+			"situation": "distribution",
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot",
+				"order-steps"
+			],
+			"representations": [
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a probability distribution table: a row of the values x and a row of P(X = x), as multiples of k or as decimals, with any unknown entry shown as k, p, q or ?"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "a formula, such as P(X = x) = k(x + 1) for x = 0, 1, 2, 3, or the same with k known"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "X in a context (the score on a spinner, a game's prize, a count), with each probability stated in a sentence"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "expected-count",
+					"given": [
+						"the distribution",
+						"the number of trials n",
+						"an event"
+					],
+					"asked": "the expected number of times the event happens",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.5.expected-occurrences"
+					]
+				},
+				{
+					"id": "trials-for-count",
+					"given": [
+						"the distribution",
+						"an event",
+						"how many times it is expected to happen"
+					],
+					"asked": "the number of trials",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.5.expected-occurrences"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.5.expected-occurrences",
+					"method": "n-times-p",
+					"suits": [
+						"expected-count",
+						"trials-for-count"
+					],
+					"name": "Expected number = n × P(A)",
+					"about": "Multiply the number of trials by the probability of the event on each trial."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "An event with probability 0.3 is expected 7.5 times in 25 trials, so the expected number should be given as 8.",
+					"answer": "False: an expected number is a long-run average and need not be a whole number, so 7.5 is the answer.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.5.expected-occurrences#0",
+					"text": "Rounding the expected number to a whole number (it does not have to be one)",
+					"as": "distractor",
+					"in": [
+						"expected-count"
+					],
+					"wrong": "n × P(event) rounded to a whole number, when it is not one"
+				},
+				{
+					"ref": "SL4.5.expected-occurrences#1",
+					"text": "Giving the probability instead of the expected number",
+					"as": "distractor",
+					"in": [
+						"expected-count"
+					],
+					"wrong": "P(event)"
+				}
+			],
+			"frequency": 4
+		},
+		{
+			"id": "t4-expected-value",
+			"topic": 4,
+			"source": "exam",
+			"name": "Expected value of a discrete random variable, fair games",
+			"summary": "Find E(X) from a distribution, work back from a given E(X) to two unknown probabilities, or find the stake that makes a game fair.",
+			"situation": "distribution",
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot",
+				"order-steps"
+			],
+			"representations": [
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a probability distribution table: a row of the values x and a row of P(X = x), as multiples of k or as decimals, with any unknown entry shown as k, p, q or ?"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "a formula, such as P(X = x) = k(x + 1) for x = 0, 1, 2, 3, or the same with k known"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "X in a context (the score on a spinner, a game's prize, a count), with each probability stated in a sentence"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "expected-value",
+					"given": [
+						"the whole distribution"
+					],
+					"asked": "E(X)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.7.expected-value"
+					]
+				},
+				{
+					"id": "probabilities-from-mean",
+					"given": [
+						"a distribution with two unknown probabilities p and q",
+						"E(X)"
+					],
+					"asked": "p and q",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.7.unknowns-from-mean"
+					]
+				},
+				{
+					"id": "fair-stake",
+					"given": [
+						"a game's prizes and their probabilities"
+					],
+					"asked": "the stake that makes the game fair",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.7.fair-game"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.7.expected-value",
+					"method": "sum-xp",
+					"suits": [
+						"expected-value"
+					],
+					"name": "E(X) = Σ x P(X = x)",
+					"about": "Multiply each value by its probability and add the products."
+				},
+				{
+					"skill": "SL4.7.expected-value",
+					"method": "gdc-weighted",
+					"suits": [
+						"expected-value"
+					],
+					"name": "GDC with probabilities as weights",
+					"about": "Put the x-values in L1 and the probabilities in L2 and run 1-Var Stats with L2 as the frequency list; x̄ is E(X)."
+				},
+				{
+					"skill": "SL4.7.unknowns-from-mean",
+					"method": "two-equations",
+					"suits": [
+						"probabilities-from-mean"
+					],
+					"name": "ΣP = 1 and Σ x P = E(X)",
+					"about": "Write one equation from the probabilities adding to 1 and one from the expected value, then solve simultaneously by elimination or substitution."
+				},
+				{
+					"skill": "SL4.7.unknowns-from-mean",
+					"method": "gdc-simultaneous",
+					"suits": [
+						"probabilities-from-mean"
+					],
+					"name": "GDC simultaneous equation solver",
+					"about": "Enter the two linear equations in p and q into the solver."
+				},
+				{
+					"skill": "SL4.7.fair-game",
+					"method": "net-gain-table",
+					"suits": [
+						"fair-stake"
+					],
+					"name": "Distribution of net gain, set E(X) = 0",
+					"about": "Let X be the player's gain (prize minus stake) for each outcome, build its distribution and solve E(X) = 0 for the unknown."
+				},
+				{
+					"skill": "SL4.7.fair-game",
+					"method": "winnings-vs-cost",
+					"suits": [
+						"fair-stake"
+					],
+					"name": "Expected winnings equal the cost",
+					"about": "Find the expected prize money per game; the game is fair exactly when this equals the cost to play."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "E(X) is one of the values X can take.",
+					"answer": "Sometimes: E(X) is a long-run average, so it can fall between the values. The score on a fair die has E(X) = 3.5.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "A game is fair when the player is as likely to win as to lose.",
+					"answer": "False: a game is fair when the player's expected gain is 0. One rare big prize can balance many small losses.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.7.expected-value#0",
+					"text": "Taking the plain average of the x-values and ignoring the probabilities",
+					"as": "distractor",
+					"in": [
+						"expected-value"
+					],
+					"wrong": "the mean of the values of X"
+				},
+				{
+					"ref": "SL4.7.expected-value#1",
+					"text": "Believing E(X) must be one of the possible values of X",
+					"as": "distractor",
+					"in": [
+						"expected-value"
+					],
+					"wrong": "the value of X nearest E(X), when E(X) is not a value"
+				},
+				{
+					"ref": "SL4.7.expected-value#2",
+					"text": "Dividing Σ x P(X = x) by the number of values",
+					"as": "distractor",
+					"in": [
+						"expected-value"
+					],
+					"wrong": "E(X) divided by the number of values"
+				},
+				{
+					"ref": "SL4.7.unknowns-from-mean#1",
+					"text": "Setting Σ x P(X = x) equal to 1 instead of to E(X)",
+					"as": "distractor",
+					"in": [
+						"probabilities-from-mean"
+					],
+					"wrong": "p and q solved with Σ x P = 1, when both come out from 0 to 1"
+				},
+				{
+					"ref": "SL4.7.fair-game#0",
+					"text": "Using the prize as the gain without subtracting the stake",
+					"as": "distractor",
+					"in": [
+						"fair-stake"
+					],
+					"wrong": "the stake from gains of the prize on a win and minus the stake on a loss: Σ prize × P(win) ÷ P(no prize), to the cent"
+				}
+			],
+			"frequency": 17
+		},
+		{
+			"id": "t4-discrete-distribution",
+			"topic": 4,
+			"source": "exam",
+			"name": "Discrete distribution: probabilities sum to 1, find k, read probabilities",
+			"summary": "Use the fact that a distribution's probabilities add to 1 to find k or a missing probability, then read the probability of an event such as X ≥ a or a < X ≤ b off the distribution.",
+			"situation": "distribution",
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot",
+				"order-steps"
+			],
+			"representations": [
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a probability distribution table: a row of the values x and a row of P(X = x), as multiples of k or as decimals, with any unknown entry shown as k, p, q or ?"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "a formula, such as P(X = x) = k(x + 1) for x = 0, 1, 2, 3, or the same with k known"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "X in a context (the score on a spinner, a game's prize, a count), with each probability stated in a sentence"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "k-from-sum",
+					"given": [
+						"each probability as a multiple of k, or P(X = x) = k f(x)"
+					],
+					"asked": "k",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.7.find-k"
+					]
+				},
+				{
+					"id": "missing-probability",
+					"given": [
+						"every probability but one, as decimals"
+					],
+					"asked": "the missing probability",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.7.build-distribution",
+						"SL4.7.find-k"
+					]
+				},
+				{
+					"id": "event-probability",
+					"given": [
+						"the whole distribution",
+						"an event such as X > a or a < X ≤ b"
+					],
+					"asked": "the probability of the event",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.7.table-probabilities"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.7.find-k",
+					"method": "sum-to-one",
+					"suits": [
+						"k-from-sum",
+						"missing-probability"
+					],
+					"name": "Set the sum of the probabilities to 1",
+					"about": "Add all the probabilities (in terms of k), set the total equal to 1, and solve."
+				},
+				{
+					"skill": "SL4.7.build-distribution",
+					"method": "last-by-subtraction",
+					"suits": [
+						"missing-probability"
+					],
+					"name": "Fill the last entry by subtraction",
+					"about": "Find the easier probabilities first and get the last one as 1 minus the rest, then check every entry lies between 0 and 1."
+				},
+				{
+					"skill": "SL4.7.table-probabilities",
+					"method": "add-entries",
+					"suits": [
+						"event-probability"
+					],
+					"name": "Add the relevant entries",
+					"about": "Pick out exactly the x-values that satisfy the inequality and add their probabilities."
+				},
+				{
+					"skill": "SL4.7.table-probabilities",
+					"method": "complement",
+					"suits": [
+						"event-probability"
+					],
+					"name": "1 minus the rest",
+					"about": "When most values qualify, subtract the probabilities of the few that do not from 1."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The probabilities 0.2, 0.5, 0.4 and −0.1 make a valid probability distribution, because they add to 1.",
+					"answer": "False: every probability must also be from 0 to 1, and −0.1 is negative.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "P(X > 2) + P(X ≤ 2) = 1.",
+					"answer": "Always: every value of X is either more than 2 or at most 2, and never both, so the two events are complements.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.7.find-k#0",
+					"text": "Adding the x-values (or the products x × P) instead of the probabilities",
+					"as": "distractor",
+					"in": [
+						"k-from-sum"
+					],
+					"wrong": "k from the x-values or the products x × (multiple of k) set to add to 1, when that differs"
+				},
+				{
+					"ref": "SL4.7.build-distribution#1",
+					"text": "Treating every possible value of X as equally likely",
+					"as": "distractor",
+					"in": [
+						"missing-probability"
+					],
+					"wrong": "1 divided by the number of values"
+				},
+				{
+					"ref": "SL4.7.table-probabilities#0",
+					"text": "Including the endpoint for a strict inequality, e.g. using X = 2 in P(X > 2)",
+					"as": "distractor",
+					"in": [
+						"event-probability"
+					],
+					"wrong": "the event's probability with its strict end taken in"
+				}
+			],
+			"frequency": 12
 		},
 		{
 			"id": "fn-ext-quadratic-model",
