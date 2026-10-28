@@ -11,12 +11,17 @@ extends RefCounted
 ##              for the cubic situation also deriv
 ##              (f′(x) as a quadratic), line (y = mx + c), tangent_read (f′(x₀) and f(x₀)),
 ##              points2 (two points, either order) and natures (maximum or minimum at
-##              each stationary point)
+##              each stationary point);
+##              for the Quadratics region (FAL-414) also choice, delta_nature, kvals,
+##              interval, bound, quad_in, kpoint, surd, surd_roots, npoint, kroot and
+##              ineq_a, with points2 and line as the cubic writes them
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
 ##   fixed      values shown as given, not asked (a in "2(x − □)² + □")
 ##   unordered  groups of slot ids that may come in any order (two roots)
+##   pairs      (optional) groups of slot-id lists that may swap as wholes: two points
+##              [["x1", "y1"], ["x2", "y2"]] can come in either order, each kept whole
 ##   unit       text after the number: " cm", "°" (measure only)
 ##   exact      (optional) true when only the exact value is right, not 3 s.f.: Paper 1
 ##              answers the IB wants exact, such as a whole-number sum (2345 is not 2350)
@@ -75,6 +80,41 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = [label, {"slot": "v"}, unit]
 		"pq":
 			t = ["p = ", {"slot": "p"}, ",  q = ", {"slot": "q"}]
+		# ── Quadratics region (FAL-414) ──
+		"choice":
+			t = [label, {"pick": "v", "options": fixed.options}]
+		"delta_nature":
+			t = ["Δ = ", {"slot": "d"}, ", so ", {"pick": "nature", "options": fixed.options}]
+		"kvals":
+			var v: String = fixed.get("var", "k")
+			t = [v + " = ", {"slot": "r1"}, " or %s = " % v, {"slot": "r2"}]
+			unordered = [["r1", "r2"]]
+		"interval":
+			t = [fixed.get("var", "k") + " is ", {"pick": "shape", "options": SHAPES}, " ", {"slot": "lo"}, " and ", {"slot": "hi"},
+				", with the ends ", {"pick": "ends", "options": ENDS}]
+		"bound":
+			t = [fixed.get("var", "k") + " ", {"pick": "rel", "options": RELS}, " ", {"slot": "v"}]
+		"quad_in":
+			var v: String = fixed.get("var", "x")
+			t = [label]
+			if fixed.has("A"):
+				if not Q.of(fixed.A).is_zero():
+					t.append(Fmt.lead(fixed.A) + v + "² + ")
+			else:
+				t.append_array([{"slot": "A"}, v + "² + "])
+			t.append_array([{"slot": "B"}, v + " + ", {"slot": "C"}, fixed.get("tail", "")])
+		"kpoint":
+			t = ["k = ", {"slot": "k"}, ", touching at (", {"slot": "x"}, ", ", {"slot": "y"}, ")"]
+		"surd":
+			t = [label, {"slot": "m"}, "√", {"slot": "r"}, unit]
+		"surd_roots":
+			t = ["x = ", {"slot": "h"}, " ± √", {"slot": "d"}]
+		"npoint":
+			t = ["n = ", {"slot": "n"}, ", other point (", {"slot": "x"}, ", ", {"slot": "y"}, ")"]
+		"kroot":
+			t = ["k = ", {"slot": "k"}, ", other root x = ", {"slot": "r"}]
+		"ineq_a":
+			t = ["x² + ", {"slot": "b"}, "x + ", {"slot": "c"}, " ", {"pick": "rel", "options": RELS}, " 0"]
 		"deriv":
 			t = [label if label != "" else "f′(x) = ", {"slot": "u2"}, "x² + ", {"slot": "u1"}, "x + ", {"slot": "u0"}]
 		"line":
@@ -86,6 +126,43 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 		"natures":
 			t = ["x = %s: " % Fmt.num(fixed.p), {"pick": "k1", "options": NATURES}, ",  x = %s: " % Fmt.num(fixed.q), {"pick": "k2", "options": NATURES}]
 	return {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
+
+
+## The interval kind: between the two numbers, or outside them, with the ends left out
+## (strict) or included. pm_lt, pm_gt, below and above are only ever wrong options
+## (k < ±6; k < 9 with the other condition forgotten), so they are not offered as picks.
+const SHAPES := ["between", "outside"]
+const ENDS := ["left out", "included"]
+const RELS := ["<", "≤", ">", "≥"]
+
+
+static func interval_text(v: String, shape: String, lo: Variant, hi: Variant, ends: String) -> String:
+	var inc := ends == "included"
+	var lt := "≤" if inc else "<"
+	var gt := "≥" if inc else ">"
+	match shape:
+		"between":
+			return "%s %s %s %s %s" % [Fmt.num(lo), lt, v, lt, Fmt.num(hi)]
+		"outside":
+			return "%s %s %s or %s %s %s" % [v, lt, Fmt.num(lo), v, gt, Fmt.num(hi)]
+		"pm_lt":
+			return "%s %s ±%s" % [v, lt, Fmt.num(hi)]
+		"pm_gt":
+			return "%s %s ±%s" % [v, gt, Fmt.num(hi)]
+		"below":
+			return "%s %s %s" % [v, lt, Fmt.num(hi)]
+		"above":
+			return "%s %s %s" % [v, gt, Fmt.num(lo)]
+	return "?"
+
+
+## m√r as written: "3√2", "√5", "4" when r = 1.
+static func surd_text(m: Variant, r: Variant) -> String:
+	var mq := Q.of(m)
+	var rq := Q.of(r)
+	if rq.eq(1):
+		return Fmt.num(mq)
+	return ("" if mq.eq(1) else Fmt.num(mq)) + "√" + Fmt.num(rq)
 
 
 ## The same answer shape with other values (for a wrong option).
@@ -147,6 +224,33 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return ans.label + Fmt.sf(v.v) + ans.unit
 		"pq":
 			return "p = %s, q = %s" % [shown(ans, v.p), shown(ans, v.q)]
+		"choice":
+			return ans.label + str(v.v)
+		"delta_nature":
+			return "Δ = %s, so %s" % [Fmt.num(v.d), v.nature]
+		"kvals":
+			var rs := _sorted([v.r1, v.r2])
+			var name: String = fx.get("var", "k")
+			return "%s = %s or %s = %s" % [name, Fmt.num(rs[0]), name, Fmt.num(rs[1])]
+		"interval":
+			return interval_text(fx.get("var", "k"), v.shape, v.lo, v.hi, v.ends)
+		"bound":
+			return "%s %s %s" % [fx.get("var", "k"), v.rel, Fmt.num(v.v)]
+		"quad_in":
+			var a: Variant = fx.A if fx.has("A") else v.A
+			return ans.label + Fmt.poly([a, v.B, v.C], fx.get("var", "x")) + fx.get("tail", "")
+		"kpoint":
+			return "k = %s, touching at %s" % [Fmt.num(v.k), Fmt.point(v.x, v.y)]
+		"surd":
+			return ans.label + surd_text(v.m, v.r) + ans.unit
+		"surd_roots":
+			return "x = %s± √%s" % ["" if Q.of(v.h).is_zero() else Fmt.num(v.h) + " ", Fmt.num(v.d)]
+		"npoint":
+			return "n = %s, other point %s" % [Fmt.num(v.n), Fmt.point(v.x, v.y)]
+		"kroot":
+			return "k = %s, other root x = %s" % [Fmt.num(v.k), Fmt.num(v.r)]
+		"ineq_a":
+			return "%s %s 0" % [Fmt.poly([1, v.b, v.c]), v.rel]
 		"deriv":
 			return (ans.label if ans.label != "" else "f′(x) = ") + Fmt.poly([v.u2, v.u1, v.u0])
 		"line":

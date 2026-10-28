@@ -71,10 +71,11 @@ static func lead(v: Variant) -> String:
 
 
 ## One term c·x^power, with its sign joined on: first term "−2x²", later terms " − 2x²".
-static func term(c: Q, power: int, first: bool) -> String:
+## letter is the variable: term(c, 2, true, "k") is "−2k²".
+static func term(c: Q, power: int, first: bool, letter: String = "x") -> String:
 	var mag := c.abs_q()
 	var body := ""
-	var v: String = ["", "x", "x²", "x³", "x⁴"][power]
+	var v: String = "" if power == 0 else letter + ["", "", "²", "³", "⁴"][power]
 	if power == 0:
 		body = mag.text()
 	else:
@@ -85,13 +86,13 @@ static func term(c: Q, power: int, first: bool) -> String:
 
 
 ## Polynomial from coefficients, highest power first, skipping zero terms.
-static func poly(coeffs: Array) -> String:
+static func poly(coeffs: Array, letter: String = "x") -> String:
 	var out := ""
 	var power := coeffs.size() - 1
 	for c in coeffs:
 		var q := Q.of(c)
 		if not q.is_zero():
-			out += term(q, power, out == "")
+			out += term(q, power, out == "", letter)
 		power -= 1
 	return out if out != "" else "0"
 
