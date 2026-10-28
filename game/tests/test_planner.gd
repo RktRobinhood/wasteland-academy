@@ -15,7 +15,8 @@ func _all_seen(save: Dictionary, right: bool) -> void:
 func test_never_seen_cells_come_first() -> void:
 	var save := SaveData.blank()
 	var seen := {}
-	for i in 200:
+	# Room for every cell plus the probes in between, however many classes are built.
+	for i in 2 * QuestionEngine.cells().size():
 		var v := Planner.next(save, NOW)
 		if v.rule == "probe":
 			SaveData.record(save, "%s|concept|%d" % [v.type, v.probe], true, NOW, "", true)
