@@ -2,7 +2,8 @@
 // ── GAME CATALOGUE COPY ──────────────────────────────────────
 // The Godot game can't read files outside game/, so it gets a generated copy of the
 // parts of curriculum/question-types.json the question engine plans from: the
-// situations, regions and levels, and every Functions type with its views. Method
+// situations, regions and levels, and every Functions type and every other type with
+// a situation, with its views. Method
 // names and summaries are filled in from curriculum/aa-sl.json, so a worked solution
 // can name its method.
 //
@@ -29,7 +30,7 @@ export function build() {
   const map = readJSON('curriculum/aa-sl.json');
   const skills = new Map();
   for (const t of map.topics) for (const st of t.subtopics) for (const s of st.skills) skills.set(s.id, s);
-  const types = doc.types.filter(t => t.topic === 2).map(t => {
+  const types = doc.types.filter(t => t.topic === 2 || t.situation).map(t => {
     const out = {};
     for (const f of TYPE_FIELDS) if (t[f] !== undefined) out[f] = t[f];
     // How often the IB asks this type: the planner's third rule and the exam-only mix.

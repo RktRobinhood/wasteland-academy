@@ -498,13 +498,26 @@ def check_lines(q, f_given):
 # ── One question ─────────────────────────────────────────────
 
 def check(q):
-    kind = q["answer"]["kind"]
-    fixed = q["answer"].get("fixed") or {}
+    """Routes a question to its situation's checks, then checks the answer, the
+    options and the worked solutions the same way for every situation."""
+    sit = q.get("situation_id", "quadratic")
+    need(sit in SITUATION_CHECKS, f"the checker has no checks for situation {sit}")
+    exp, f = SITUATION_CHECKS[sit](q)
+    check_common(q, exp, f)
+
+
+def check_quadratic(q):
     f_sit = check_situation(q)
     exp, f = solve(q)
     if f is not None:
         need(f == f_sit, "the givens describe another parabola than the situation")
     check_lines(q, f)
+    return exp, f
+
+
+def check_common(q, exp, f):
+    kind = q["answer"]["kind"]
+    fixed = q["answer"].get("fixed") or {}
     want = expected_norm(kind, exp, fixed)
     got = values_of(kind, q["answer"]["values"], fixed)
     if kind == "triple":

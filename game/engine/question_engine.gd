@@ -189,7 +189,7 @@ static func make(view: Dictionary) -> Dictionary:
 		"lines": b.lines, "graph": b.graph, "table": b.table,
 		"answer": ans, "answer_text": Answer.text(ans),
 		"choices": choices, "solutions": solutions,
-		"given": b.given, "situation": QuadraticSituation.export(s),
+		"given": b.given, "situation_id": t.situation, "situation": recipe.export(s),
 	}
 
 
