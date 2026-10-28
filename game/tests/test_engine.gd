@@ -200,3 +200,41 @@ func test_no_engine_script_uses_expression() -> void:
 			if f.ends_with(".gd"):
 				var src := FileAccess.get_file_as_string(dir.path_join(f))
 				check(not src.contains("Expression.new") and not src.contains("Expression)"), "%s/%s uses Expression" % [dir, f])
+
+
+func test_a_family_shares_one_situation() -> void:
+	# The explorer's "Ask it another way" (FAL-391): every unknown of a family, made
+	# with "shared", has the same numbers for the same seed, and a family's members all
+	# list its representation.
+	var families := 0
+	for id in QuestionEngine.built_types():
+		for rep in ["equation", "words", "graph", "table"]:
+			var all: Array = []
+			for fam in QuestionEngine.families(id, rep):
+				for u in fam.unknowns:
+					check(not u in all, "%s %s: %s is in two families" % [id, rep, u])
+					all.append(u)
+					check(rep in QuestionEngine.unknown_of(QuestionEngine.type_of(id), u).reps, "%s does not list %s" % [u, rep])
+				if fam.unknowns.size() < 2:
+					continue
+				families += 1
+				for seed in range(1, 21):
+					var sit = null
+					for u in fam.unknowns:
+						var q := QuestionEngine.make({"type": id, "unknown": u, "rep": rep, "seed": seed, "shared": true})
+						check(not q.has("error"), "%s %s seed %d: %s" % [id, u, seed, q.get("error")])
+						if q.has("error"):
+							continue
+						if sit == null:
+							sit = q.situation
+						check_eq(q.situation, sit, "%s %s %s seed %d" % [id, u, rep, seed])
+	check(families >= 8, "only %d families" % families)
+
+
+func test_merging_needs() -> void:
+	check_eq(QuestionEngine.merge_need({"mode": "any", "even": true}, {"mode": "rational", "point": true}),
+		{"mode": "rational", "even": true, "point": true})
+	check_eq(QuestionEngine.merge_need({"table": true}, {"table": "roots"}), {"table": "roots"})
+	check_eq(QuestionEngine.merge_need({"no_halves": false}, {"no_halves": true}), {"no_halves": true})
+	check_eq(QuestionEngine.merge_need({"mode": "rational"}, {"mode": "none"}), null)
+	check_eq(QuestionEngine.merge_need({"mode": "rational"}, {"mode": "any"}), {"mode": "rational"})

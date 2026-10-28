@@ -12,10 +12,12 @@ extends RefCounted
 ## u1, d, n, un (the term uₙ for the given n), sum (Sₙ), value (a term whose n is
 ## asked), and terms: [[k, u_k], ...].
 
+## n is written out even where it is the default ("sum"), so a shared situation (see
+## QuestionEngine.families) never gives a sum's unknown a term's n.
 const NEED := {
 	"term-from-u1-d": {"n": "term"},
-	"d-from-two-terms": {"two_terms": true},
-	"u1-from-two-terms": {"two_terms": true},
+	"d-from-two-terms": {"n": "sum", "two_terms": true},
+	"u1-from-two-terms": {"n": "sum", "two_terms": true},
 	"n-from-term": {"n": "term"},
 	"sum-from-u1-d": {"n": "sum"},
 	"sum-from-first-last": {"n": "sum"},

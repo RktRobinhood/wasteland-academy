@@ -2,9 +2,11 @@ extends SceneTree
 ## Seed sweep (FAL-322): makes every cell with many seeds beyond the checker's 1 to 50,
 ## and checks each question is made, has four options, marks its own answer right
 ## (exact and to 3 s.f.) and marks every wrong option wrong, naming its misconception.
-## Then the same for every boss chain (Dungeon.chain_windows) with CHAIN_SEEDS of
-## those seeds: each part made on one situation, and each carried value the part
-## before's answer. Used by tools/stress-questions. Exits non-zero on any failure.
+## Every fourth seed is also made on the cell's shared situation (the explorer's
+## "Ask it another way", QuestionEngine.families()). Then the same for every boss chain
+## (Dungeon.chain_windows) with CHAIN_SEEDS of those seeds: each part made on one
+## situation, and each carried value the part before's answer. Used by
+## tools/stress-questions. Exits non-zero on any failure.
 ##
 ##   godot --headless --path game --script res://tools/stress_questions.gd -- \
 ##       [--from=51] [--to=2250]
@@ -52,17 +54,23 @@ func _run() -> void:
 	var n := 0
 	var short_choices := 0
 	for c in QuestionEngine.cells():
+		var views: Array = []
 		for seed in range(lo, hi + 1):
-			var view := {"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed}
+			views.append({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed})
+			if seed % 4 == 0:
+				views.append({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed, "shared": true})
+		for view in views:
+			var seed: int = view.seed
+			var key: String = c.key + (" shared" if view.has("shared") else "")
 			var q = QuestionEngine.make(view)
 			n += 1
 			if typeof(q) != TYPE_DICTIONARY or q.is_empty():
-				fails.append("%s seed %d: make() returned %s" % [c.key, seed, q])
+				fails.append("%s seed %d: make() returned %s" % [key, seed, q])
 				continue
 			if q.has("error"):
-				fails.append("%s seed %d: %s" % [c.key, seed, q.error])
+				fails.append("%s seed %d: %s" % [key, seed, q.error])
 				continue
-			short_choices += _check(q, "%s seed %d" % [c.key, seed])
+			short_choices += _check(q, "%s seed %d" % [key, seed])
 	var chains := 0
 	for id in QuestionEngine.built_types():
 		for steps in Dungeon.chain_windows(id):

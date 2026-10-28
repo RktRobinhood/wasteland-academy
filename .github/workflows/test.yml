@@ -64,6 +64,10 @@ jobs:
           'floor-select=?play=quadratics&select=1'
           'mini-boss=?play=quadratics&seed=3&fight=5'
           'boss-carry=?play=quadratics&seed=3&fight=10&autoplay=carry'
+          'explore=?explore'
+          'explore-first=?explore&view=fn-quadratic-features/vertex-from-factorised/equation/any/value&seed=7'
+          'explore-another-way=?explore&view=fn-quadratic-features/vertex-from-general/equation/any/value&seed=7&autoplay=right'
+          'explore-ten=?explore&view=fn-quadratic-from-conditions/a-from-vertex-and-point/graph/any/mcq&seed=12&ten=1'
       - uses: actions/upload-artifact@v7
         if: always()
         with:

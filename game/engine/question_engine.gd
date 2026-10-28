@@ -138,6 +138,81 @@ static func cell_key(type: String, unknown: String, rep: String, angle: String) 
 	return "%s|%s|%s|%s" % [type, unknown, rep, angle]
 
 
+# ── One situation, many questions ────────────────────────────
+# Each view sets its own `need`, so on its own each unknown gets its own numbers. To
+# ask one situation from many unknowns, the unknowns of a type that list a
+# representation are split into families whose needs merge without a conflict. A
+# family's situation is generated from the merged need, which is at least as strict as
+# each member's own, so every member's view can be built on it. make() with
+# "shared": true does that: the same type, representation, family and seed give the
+# same numbers whichever unknown is asked. The explorer screen's "Ask it another way"
+# uses it.
+
+static var _families := {}
+
+
+## The families of a type in a representation, in catalogue order. Each is
+## {"unknowns": [ids], "need": merged need}. An unknown joins the first family its need
+## merges with, so the split doesn't depend on which unknown is asked first.
+static func families(type_id: String, rep: String) -> Array:
+	var key := "%s|%s" % [type_id, rep]
+	if _families.has(key):
+		return _families[key]
+	var out: Array = []
+	var t := type_of(type_id)
+	var views = views_for(t)
+	if views != null:
+		for u in t.get("unknowns", []):
+			if not rep in u.reps or not views.has(u.id):
+				continue
+			var own: Dictionary = views.need(u.id, rep)
+			var placed := false
+			for fam in out:
+				var merged = views.merge_need(fam.need, own) if views.has_method("merge_need") else merge_need(fam.need, own)
+				if merged != null:
+					fam.need = merged
+					fam.unknowns.append(u.id)
+					placed = true
+					break
+			if not placed:
+				out.append({"unknowns": [u.id], "need": own.duplicate()})
+	_families[key] = out
+	return out
+
+
+static func family_of(type_id: String, unknown: String, rep: String) -> Dictionary:
+	for fam in families(type_id, rep):
+		if unknown in fam.unknowns:
+			return fam
+	return {"unknowns": [unknown], "need": {}}
+
+
+## Two needs as one, or null if they conflict. A situation's views can define their own
+## merge_need(); this is the default. A missing key takes the other's value; booleans
+## are or-ed (they ask for more, never less); "any" gives way to a set value, and true
+## to a more particular one (table: true and table: "roots" make "roots"). Any other
+## difference is a conflict.
+static func merge_need(a: Dictionary, b: Dictionary) -> Variant:
+	var out := a.duplicate()
+	for k in b:
+		var y = b[k]
+		if not out.has(k):
+			out[k] = y
+			continue
+		var x = out[k]
+		if typeof(x) == typeof(y) and x == y:
+			continue
+		if x is bool and y is bool:
+			out[k] = x or y
+		elif (x is bool and not x) or (x is String and x == "any") or (x is bool and not (y is bool)):
+			out[k] = y
+		elif (y is bool and not y) or (y is String and y == "any") or (y is bool and not (x is bool)):
+			out[k] = x
+		else:
+			return null
+	return out
+
+
 ## Makes the question for a view. Returns {"error": "..."} if the view can't be made.
 static func make(view: Dictionary) -> Dictionary:
 	var v := _resolve(view)
@@ -146,17 +221,26 @@ static func make(view: Dictionary) -> Dictionary:
 	# "Another way" (FAL-310): a view with same_angle asks the question that angle made,
 	# the same numbers, but by this view's angle.
 	var rng_angle: String = view.get("same_angle", v.angle)
+	var shared: bool = view.get("shared", false)
 	var rng := Seeded.new("%s|%d" % [cell_key(v.t.id, v.u.id, v.rep, rng_angle), v.seed])
-	# The view's method rides along, for recipes whose numbers depend on it (a Paper 2
-	# context that a factorising method can't solve). Other recipes ignore it.
-	var nd: Dictionary = v.views.need(v.u.id, v.rep)
-	nd["angle"] = v.angle
-	var s: Dictionary = SITUATIONS[v.t.situation][0].generate(rng, nd)
+	var recipe = SITUATIONS[v.t.situation][0]
+	var s: Dictionary
+	if shared:
+		var fam := family_of(v.t.id, v.u.id, v.rep)
+		s = recipe.generate(Seeded.new("%s|%s|%s|%d" % [v.t.id, v.rep, ",".join(fam.unknowns), v.seed]), fam.need)
+	else:
+		# The view's method rides along, for recipes whose numbers depend on it (a Paper 2
+		# context that a factorising method can't solve). Other recipes ignore it.
+		var nd: Dictionary = v.views.need(v.u.id, v.rep)
+		nd["angle"] = v.angle
+		s = recipe.generate(rng, nd)
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % cell_key(v.t.id, v.u.id, v.rep, v.angle)}
 	var q := _build(v, s, rng)
 	if rng_angle != v.angle:
 		q.view.same_angle = rng_angle
+	if shared:
+		q.view.shared = true
 	return q
 
 
