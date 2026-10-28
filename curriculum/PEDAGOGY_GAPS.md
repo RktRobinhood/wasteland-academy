@@ -1668,7 +1668,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 1 exam type has them so far.
+
+#### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 21 bank parts)
+
+- **Situation:** One arithmetic sequence and its sums.
+- **Representations:** **notation**, **terms**, table, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given u₁; d; n → the term uₙ
+  - **exam** L2: given two terms u_p and u_q → the common difference d
+  - **exam** L2: given two terms u_p and u_q → the first term u₁
+  - **exam** L2: given u₁; d; the value of a term → the term number n *(reversed: "which term is 205?")*
+  - **exam** L2: given u₁; d; n → the sum Sₙ
+  - **exam** L1: given u₁; uₙ; n → the sum Sₙ
+  - **exam** L3: given u₁; d; Sₙ → the number of terms n *(reversed: a quadratic in n; keep the positive whole root)*
+  - **exam** L3: given u₁; n; Sₙ → the common difference d *(reversed: linear in d)*
+  - new L3: given d; n; Sₙ → the first term u₁ *(reversed: linear in u₁)*
+- **Angles:** Substitute into u_n = u_1 + (n − 1)d; Treat u_n as a linear function of n; Divide the change in value by the number of steps; Set up and solve simultaneous equations; Solve u_1 + (n − 1)d = value (or > value); Count steps of d, then add one; Use S_n = n/2(2u_1 + (n − 1)d); Use S_n = n/2(u_1 + u_n); Pair the first term with the last, the second with the second-last; Form and solve a quadratic in n; Form linear equations in u_1 and d.
+  - *Slow:* Set up and solve simultaneous equations: two equations to find d alone, when the change over the steps between the terms gives it in one line.
+  - *Slow:* Use S_n = n/2(u_1 + u_n): uₙ has to be found first when only u₁ and d are given.
+- **Concept probes:**
+  - *interpret-parameter* (L3): Plot the points (n, uₙ) of an arithmetic sequence. What shape do they make, and what do u₁ and d tell you about it? — They lie on a straight line with gradient d through (1, u₁): uₙ = dn + (u₁ − d) is a linear function of n.
+  - *true-false-reason* (L3): If the common difference d is negative, the sum Sₙ is negative for every large enough n. — True. Sₙ = n/2 (2u₁ + (n − 1)d), and the bracket keeps falling by d for each extra term, so it becomes negative and stays negative.
+  - *always-sometimes-never* (L3): For an arithmetic sequence of whole numbers, Sₙ is a multiple of n. — Sometimes: Sₙ = n × (u₁ + uₙ)/2, so it is a multiple of n exactly when u₁ + uₙ is even.
+- **Misconceptions used:** 12. Using u_1 + nd, which gives u_11 instead of u_10; Finding d as u_1 − u_2, so a decreasing sequence gets a positive d; Confusing the position n with the value u_n; Dividing by the number of terms instead of the number of gaps: d = 16/5; Treating the given term as u_1 when asked for the first term; Answering with n when the question asks for the term itself (or the reverse); Forgetting the + 1 when counting terms: (403 − 7)/4 = 99 terms; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Finding u_n when the question asks for S_n (or the reverse); Keeping the negative root of the quadratic as a number of terms; Answering with the value of the sum instead of the number of terms n.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
