@@ -1,0 +1,139 @@
+extends "res://tests/test_case.gd"
+## The question engine on the triangle situation (FAL-395): both Topic 3 types are
+## built, every triangle is well shaped, marking to 3 s.f. has no false failures, and
+## every misconception shows up as an option. The SymPy checker (tools/check-answers)
+## checks the maths.
+
+const TYPES := ["t3-sine-cosine-rule", "t3-triangle-area"]
+## Cells per type, counted as tools/pedagogy.mjs counts them.
+const CATALOGUE_CELLS := {"t3-sine-cosine-rule": 16, "t3-triangle-area": 14}
+
+
+func _make(unknown: String, rep: String, angle: String, seed: int, format: String = "value") -> Dictionary:
+	var type := "t3-triangle-area" if unknown.contains("area") else "t3-sine-cosine-rule"
+	return QuestionEngine.make({"type": type, "unknown": unknown, "rep": rep, "angle": angle, "seed": seed, "format": format})
+
+
+func test_both_types_are_built() -> void:
+	var built := QuestionEngine.built_types()
+	for t in TYPES:
+		check(t in built, "%s is not built" % t)
+		check_eq(QuestionEngine.cells(false, [t]).size(), CATALOGUE_CELLS[t], t)
+
+
+func test_every_triangle_is_well_shaped() -> void:
+	for c in QuestionEngine.cells(false, TYPES):
+		for seed in range(1, 21):
+			var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed})
+			if q.has("error"):
+				fail("%s seed %d: %s" % [c.key, seed, q.error])
+				return
+			var total := 0.0
+			for L in ["A", "B", "C"]:
+				var a := float(q.situation.angles[L])
+				total += a
+				check(a >= 20.0 and a <= 140.0, "%s seed %d: angle %s = %s" % [c.key, seed, L, a])
+			check(absf(total - 180.0) < 1e-6, "%s seed %d: angles add to %s" % [c.key, seed, total])
+			check(Answer.rounds_clearly(q.answer.values.v.to_float()), "%s seed %d: answer on a rounding edge" % [c.key, seed])
+
+
+func test_sine_rule_angle_has_one_triangle() -> void:
+	for seed in range(1, 41):
+		var q := _make("angle-sine-rule", "words", "sines-on-top", seed)
+		var g: Dictionary = q.given
+		var X: String = q.situation.X
+		var Y: String = q.situation.Y
+		check(int(g.sides[X.to_lower()]) > int(g.sides[Y.to_lower()]), "seed %d: the side opposite the given angle is not the longer one" % seed)
+		check(float(q.situation.angles[Y]) < 90.0, "seed %d: the asked angle is obtuse" % seed)
+
+
+func test_angle_from_area_says_acute_or_obtuse() -> void:
+	var kinds := {}
+	for seed in range(1, 41):
+		var q := _make("angle-from-area", "words", "reverse-two-angles", seed)
+		var obtuse: bool = q.given.obtuse
+		kinds[obtuse] = true
+		check(q.lines[0].contains("is obtuse" if obtuse else "is acute"), "seed %d: %s" % [seed, q.lines[0]])
+		var x: float = q.answer.values.v.to_float()
+		check(x > 100.0 if obtuse else x < 80.0, "seed %d: %s" % [seed, q.answer_text])
+	check_eq(kinds.size(), 2, "both acute and obtuse angles are asked")
+
+
+func test_words_and_diagram() -> void:
+	var w := _make("side-cosine-rule", "words", "cosine-rule", 3)
+	check(w.diagram == null, "words come without a diagram")
+	check(w.lines[0].begins_with("In triangle ABC, "), w.lines[0])
+	var d := _make("side-cosine-rule", "diagram", "cosine-rule", 3)
+	check(d.diagram != null, "a diagram question has a diagram")
+	var asked: Array = d.diagram.sides.filter(func(s): return s.label == "?")
+	check_eq(asked.size(), 1, "one side is asked")
+	check_eq(asked[0].side, d.given.ask)
+	var labelled: Array = d.diagram.sides.filter(func(s): return s.label.ends_with(" cm"))
+	check_eq(labelled.size(), 2, "two sides are given")
+
+
+func test_three_significant_figures_without_false_failures() -> void:
+	var q := _make("side-cosine-rule", "words", "cosine-rule", 5)
+	var v: float = q.answer.values.v.to_float()
+	var three := Fmt.sf(v)
+	var four := Fmt.sf(v, 4)
+	var five := Fmt.sf(v, 5)
+	for typed in [three, four, five, String.num(v, 6)]:
+		check(QuestionEngine.mark(q, {"v": typed}).correct, "%s for %s" % [typed, v])
+	check(not QuestionEngine.mark(q, {"v": Fmt.sf(v, 2)}).correct or Fmt.sf(v, 2) == three, "2 s.f. %s" % Fmt.sf(v, 2))
+	var unit := pow(10.0, floori(log(v) / log(10.0)) - 2)
+	check(not QuestionEngine.mark(q, {"v": Fmt.sf(v + unit)}).correct, "one more in the 3rd figure is wrong")
+	check(not QuestionEngine.mark(q, {"v": Fmt.sf(v - unit)}).correct, "one less in the 3rd figure is wrong")
+
+
+func test_more_figures_rounded_right_are_right() -> void:
+	# 12.35 is 12.3456 to 4 s.f.; it rounds to 12.4 itself, but it is right.
+	var exact := Q.new(123456, 10000)
+	check(Answer.number_right(Answer.parse_number("12.3").q, exact))
+	check(Answer.number_right(Answer.parse_number("12.35").q, exact))
+	check(Answer.number_right(Answer.parse_number("12.346").q, exact))
+	check(not Answer.number_right(Answer.parse_number("12.4").q, exact))
+	check(not Answer.number_right(Answer.parse_number("12.36").q, exact))
+	check(not Answer.number_right(Answer.parse_number("12").q, exact))
+
+
+func test_significant_figures_format() -> void:
+	var cases := {6.9993: "7.00", 1234.5: "1230", 0.012345: "0.0123", 999.7: "1000", 47.23: "47.2", 108.4: "108", 5.0: "5.00"}
+	for x in cases:
+		check_eq(Fmt.sf(x), cases[x], str(x))
+	check_eq(Fmt.sf(12.3456, 4), "12.35")
+
+
+func test_every_distractor_misconception_is_an_option() -> void:
+	for id in TYPES:
+		var t := QuestionEngine.type_of(id)
+		for m in t.misconceptions:
+			for u in m.in:
+				var found := false
+				for c in QuestionEngine.cells(false, [id]).filter(func(x): return x.unknown == u):
+					for seed in range(1, 40):
+						var q := QuestionEngine.make({"type": id, "unknown": u, "rep": c.rep, "angle": c.angle, "seed": seed, "format": "mcq"})
+						if q.choices.any(func(o): return o.ref == m.ref):
+							found = true
+							break
+					if found:
+						break
+				check(found, "%s: %s never appears on %s" % [id, m.ref, u])
+
+
+func test_a_typed_misconception_is_recognised() -> void:
+	# a² instead of a: typing the square of the side is named as forgetting the root.
+	var q := _make("side-cosine-rule", "words", "cosine-rule", 2)
+	var v: float = q.answer.values.v.to_float()
+	var r := QuestionEngine.mark(q, {"v": Fmt.sf(v * v, 5)})
+	check(not r.correct)
+	check_eq(r.misconception, "SL3.2.cosine-rule-side#1")
+
+
+func test_every_method_ends_at_the_answer() -> void:
+	for c in QuestionEngine.cells(false, TYPES):
+		var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": 7})
+		var want: float = q.answer.values.v.to_float()
+		for s in q.solutions:
+			check(absf(s.result.v.to_float() - want) < 1e-6 * want, "%s: %s gives %s" % [c.key, s.name, s.result.v.to_float()])
+			check(s.steps[-1].contains(q.answer_text), "%s: %s last step %s" % [c.key, s.name, s.steps[-1]])

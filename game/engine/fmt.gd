@@ -10,6 +10,20 @@ static func num(v: Variant) -> String:
 	return Q.of(v).text()
 
 
+## A number to n significant figures, with trailing zeros kept: sf(6.9993) is "7.00",
+## sf(1234.5) is "1230". Rounds half away from zero, as Answer.number_right does.
+static func sf(v: Variant, n: int = 3) -> String:
+	var x: float = v.to_float() if v is Q else float(v)
+	if x == 0.0:
+		return "0"
+	var e := floori(log(absf(x)) / log(10.0) + 1e-12)
+	var r := roundf(x / pow(10.0, e - n + 1)) * pow(10.0, e - n + 1)
+	if absf(r) >= pow(10.0, e + 1):
+		e += 1
+	var places := maxi(0, n - 1 - e)
+	return ("−" if r < 0.0 else "") + ("%.*f" % [places, absf(r)])
+
+
 static func point(x: Variant, y: Variant) -> String:
 	return "(%s, %s)" % [num(x), num(y)]
 

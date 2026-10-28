@@ -59,7 +59,11 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   roots, the vertex, b, c, Δ, an extra point and a table, consistent and inside the
   catalogue's `clean` limits, in one of its `modes` (rational roots, surd roots, no real
   roots). Situations that extend `quadratic` call its `generate()` and add their own
-  quantities.
+  quantities. `engine/situations/triangle.gd` is the Topic 3 situation: one triangle
+  ABC, with whole-number givens for the view (two sides and the angle between them,
+  three sides, two angles and a side, and so on), solved whole. Its views
+  (`triangle_views.gd`) show it in words or as a labelled drawing (`ui/triangle_view.gd`),
+  and every answer is a measure to 3 s.f. (FAL-395).
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -70,7 +74,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 - **Formats**: the layer names all eight from the plan. `value` (slot inputs such as
   a(x − □)² + □) and `mcq` are built, and the concept probes play as a verdict
   (true or false; always, sometimes or never; the sign) and then the reason.
-- **Marking** (`engine/answer.gd`): exact or right to 3 s.f. Typed numbers are parsed
+- **Marking** (`engine/answer.gd`): exact or right to 3 s.f. More figures are right too
+  when they are the value correctly rounded (12.35 for 12.3456). Typed numbers are parsed
   by hand (whole numbers, decimals, fractions); nothing is evaluated as an expression.
 - **Planner** (`engine/planner.gd`): never-seen cell, then a recently missed one, then
   exam frequency. "Exam-style only" (off by default) keeps exam cells only and follows
@@ -118,6 +123,9 @@ script error happens while it runs. Run one file with
 - `test_engine.gd`: every catalogue cell of the three Quadratics types can be made,
   same seed same question, the format layer, wrong options, misconceptions, probes and
   the exam-only cells.
+- `test_triangles.gd`: the two Topic 3 types on the triangle: built, every angle from
+  20° to 140°, one triangle for the sine rule's angle, acute or obtuse said, 3 s.f.
+  marking with no false failures, every misconception appears as an option.
 - `test_answer.gd`: parsing and marking typed answers.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save.
 - `test_practice.gd`: the practice screen plays every representation and format,

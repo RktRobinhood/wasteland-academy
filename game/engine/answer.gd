@@ -5,12 +5,14 @@ extends RefCounted
 ## An answer is a Dictionary:
 ##   kind       how it is written (see text()): number, axis, xval, roots, point, yint,
 ##              vertex_form, vertex_form_a, general, general_a, factorised, maxmin,
-##              vertex_kind, range, triple, claim
+##              vertex_kind, range, triple, claim; for the triangle situation also
+##              measure (a length, angle or area, written to 3 s.f. with its unit)
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
 ##   fixed      values shown as given, not asked (a in "2(x − □)² + □")
 ##   unordered  groups of slot ids that may come in any order (two roots)
+##   unit       text after the number: " cm", "°" (measure only)
 ##   exact      (optional) true when only the exact value is right, not 3 s.f.: Paper 1
 ##              answers the IB wants exact, such as a whole-number sum (2345 is not 2350)
 ##
@@ -21,7 +23,7 @@ extends RefCounted
 const MC_ONLY := ["triple", "claim"]
 
 
-static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label: String = "") -> Dictionary:
+static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label: String = "", unit: String = "") -> Dictionary:
 	var t: Array = []
 	var unordered: Array = []
 	match kind:
@@ -59,7 +61,9 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			unordered = [["fp", "fq"]]
 		"claim":
 			t = []
-	return {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label}
+		"measure":
+			t = [label, {"slot": "v"}, unit]
+	return {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
 
 
 ## The same answer shape with other values (for a wrong option).
@@ -117,6 +121,8 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return "%s,  %s,  %s" % [Fmt.general(v.ga, v.gb, v.gc), Fmt.factorised(v.fa, rs[0], rs[1]), Fmt.vertex(v.va, v.vh, v.vk)]
 		"claim":
 			return v.text
+		"measure":
+			return ans.label + Fmt.sf(v.v) + ans.unit
 	return "?"
 
 
@@ -126,6 +132,9 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind == "claim":
 		return "claim:" + str(values.form) + ":" + str(values.vals.map(func(e): return e.key() if e is Q else str(e)))
+	# A measure is told apart by what it shows: two values with the same 3 s.f. are one option.
+	if ans.kind == "measure":
+		return "measure:" + Fmt.sf(values.v)
 	var v := values.duplicate()
 	for group in ans.unordered:
 		var sorted_vals := _sorted(group.map(func(id): return v[id]))
@@ -217,7 +226,8 @@ static func _decimal(s: String) -> Q:
 
 
 ## IB style: right if exact, or if it rounds to the same 3 significant figures as the
-## exact value.
+## exact value, or if it is the exact value correctly rounded to the 3 or more figures
+## typed (12.35 for 12.3456 is right, though 12.35 itself rounds to 12.4).
 static func number_right(typed: Q, exact: Q) -> bool:
 	if typed.eq(exact):
 		return true
@@ -226,7 +236,34 @@ static func number_right(typed: Q, exact: Q) -> bool:
 	var t := exact.to_float()
 	var e := floori(log(absf(t)) / log(10.0) + 1e-12)
 	var unit := pow(10.0, e - 2)
-	return roundi(t / unit) == roundi(typed.to_float() / unit)
+	return roundi(t / unit) == roundi(typed.to_float() / unit) or _rounded_to_own_figures(typed, t)
+
+
+## Whether x is at least `edge` units of its 3rd significant figure away from a
+## rounding edge, so its 3 s.f. value does not hang on the last digits of a
+## calculation (32.55 can show as 32.5 or 32.6).
+static func rounds_clearly(x: float, edge: float = 0.02) -> bool:
+	if x == 0.0 or not is_finite(x):
+		return false
+	var e := floori(log(absf(x)) / log(10.0) + 1e-12)
+	var scaled := absf(x) / pow(10.0, e - 2)
+	return absf(scaled - floorf(scaled) - 0.5) >= edge
+
+
+## Whether a typed decimal with at least 3 significant figures is t rounded to as
+## many decimal places as it has.
+static func _rounded_to_own_figures(typed: Q, t: float) -> bool:
+	var scale := 1
+	var places := 0
+	while scale % typed.d != 0:
+		scale *= 10
+		places += 1
+		if places > 9:
+			return false
+	var digits := typed.n * (scale / typed.d)
+	if absi(digits) < 100:
+		return false
+	return roundi(t * scale) == digits
 
 
 ## Marks typed slot entries. response: slot id -> String (typed or picked).

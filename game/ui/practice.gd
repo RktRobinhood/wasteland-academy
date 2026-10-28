@@ -205,6 +205,11 @@ func _add_representation() -> void:
 		card.add_child(g)
 	if question.table != null:
 		card.add_child(_table(question.table))
+	if question.get("diagram") != null:
+		var d := TriangleView.new()
+		d.name = "Diagram"
+		d.set_spec(question.diagram)
+		card.add_child(d)
 
 
 func _table(t: Dictionary) -> Control:
@@ -480,7 +485,9 @@ func autoplay(right: bool) -> void:
 						if c.ref != "":
 							break
 			for id in _slots:
-				_slots[id].text = Answer.export_values({id: values[id]})[id]
+				# A measure is typed as a student would, to 3 s.f.
+				_slots[id].text = Fmt.sf(values[id]).replace("−", "-") if question.answer.kind == "measure" \
+					else Answer.export_values({id: values[id]})[id]
 			for id in _picks:
 				_picks[id] = values[id]
 				for b in _pick_buttons[id]:
