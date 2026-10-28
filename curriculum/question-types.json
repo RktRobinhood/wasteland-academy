@@ -2334,6 +2334,45 @@
     "GDC answers to 3 s.f.",
     "every solution inside the interval visible in a standard window"
    ]
+  },
+  "triangle": {
+   "name": "One triangle with its sides, angles and area",
+   "summary": "Pick clean givens for the view (two sides and the angle between them, three sides, two angles and a side, two sides and a non-included angle, or an area with two of the rest), then solve the whole triangle from them, so every side, every angle and the area are known and any of them can be asked.",
+   "quantities": [
+    {
+     "name": "A, B, C",
+     "is": "the angles at the vertices, in degrees",
+     "pick": "whole numbers of degrees when given; every angle of the triangle from 20° to 140°, and A + B + C = 180°"
+    },
+    {
+     "name": "a, b, c",
+     "is": "the sides, with side a opposite angle A, b opposite B and c opposite C",
+     "pick": "whole numbers from 3 to 20 when given; the rest solved from the givens"
+    },
+    {
+     "name": "area",
+     "is": "½ab sin C = ½bc sin A = ½ca sin B",
+     "pick": "a whole number when it is given (the backwards questions)"
+    },
+    {
+     "name": "labels",
+     "is": "which vertex plays which part",
+     "pick": "the roles are dealt to A, B and C at random, so the asked side or angle can be any of the three"
+    },
+    {
+     "name": "acute or obtuse",
+     "is": "said in the question when an angle is found from an area",
+     "pick": "from the angle; it is at least 10° away from 90°"
+    }
+   ],
+   "clean": [
+    "every angle of the triangle from 20° to 140°, so no triangle is a sliver",
+    "given sides are whole numbers from 3 to 20, and given angles whole numbers of degrees",
+    "the sine rule for an angle only when the side opposite the given angle is the longer of the two given sides, so exactly one triangle fits",
+    "an angle found from an area is at least 10° from 90°, so acute or obtuse is a real choice",
+    "the answer is worked out from the givens as shown, and is at least 0.02 of a unit in its third significant figure away from a rounding edge, so its 3 s.f. value is not in doubt",
+    "every wrong option differs from the answer to 3 s.f."
+   ]
   }
  },
  "types": [
@@ -18085,13 +18124,192 @@
    "id": "t3-triangle-area",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Triangle area with 1/2 ab sin C, forwards or backwards",
+   "summary": "Find the area of a triangle from two sides and the angle between them, or work backwards from the area to a side or to the angle between two sides.",
    "syllabus": [
     "3.2"
    ],
    "skills": [
     "SL3.2.area-sine"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "pick the two sides that meet at the given angle",
+    "Area = ½ab sin C",
+    "backwards: rearrange for the side, or for sin C and then C or 180° − C",
+    "give the answer to 3 s.f."
+   ],
+   "given": [
+    "two sides and the angle between them",
+    "the area with a side and an angle",
+    "the area with two sides"
+   ],
+   "asked": "The area, a side, or the angle between two sides, to 3 s.f.",
+   "answerForms": [
+    "3 s.f.",
+    "degrees"
+   ],
+   "randomise": [
+    "whole-number sides from 3 to 20",
+    "whole-number angles in degrees",
+    "a whole-number area when it is given",
+    "which vertex is A, B or C",
+    "whether the angle found from an area is acute or obtuse"
+   ],
+   "constraints": [
+    "every angle from 20° to 140°",
+    "an angle found from an area is at least 10° from 90°, and the question says whether it is acute or obtuse",
+    "Paper 2, so a calculator and 3 s.f."
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "method-pick",
+    "error-spot"
+   ],
+   "situation": "triangle",
+   "sharesSituation": [
+    "t3-sine-cosine-rule"
+   ],
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the triangle described in words with the standard labelling: side a is opposite angle A, and so on"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "a labelled triangle drawing, not to scale, with the given sides and angles marked and the asked one shown as ?"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "area-from-two-sides",
+     "given": [
+      "two sides",
+      "the angle between them"
+     ],
+     "asked": "the area",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.2.area-sine"
+     ]
+    },
+    {
+     "id": "side-from-area",
+     "given": [
+      "the area",
+      "one side",
+      "the angle between it and the asked side"
+     ],
+     "asked": "the other side next to the angle",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.2.area-sine"
+     ]
+    },
+    {
+     "id": "angle-from-area",
+     "given": [
+      "the area",
+      "two sides",
+      "whether the angle between them is acute or obtuse"
+     ],
+     "asked": "the angle between the two sides",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.2.area-sine"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.2.area-sine",
+     "method": "half-ab-sinc",
+     "suits": [
+      "area-from-two-sides",
+      "side-from-area",
+      "angle-from-area"
+     ]
+    },
+    {
+     "skill": "SL3.2.area-sine",
+     "method": "base-height",
+     "suits": [
+      "area-from-two-sides",
+      "side-from-area",
+      "angle-from-area"
+     ]
+    },
+    {
+     "skill": "SL3.2.area-sine",
+     "method": "reverse-two-angles",
+     "suits": [
+      "angle-from-area"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The area and two sides of a triangle fix the angle between them.",
+     "answer": "Sometimes: sin C = 2 × Area / (ab) has two solutions, C and 180° − C, and both give the same area. Only when sin C = 1 is there one angle, 90°.",
+     "level": 4
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "In Area = ½ab sin C, what length is b sin C?",
+     "answer": "The perpendicular height from A onto side a (the line BC): the side b is the hypotenuse of a right triangle with angle C, so the height opposite C is b sin C. Then the area is ½ × base a × height.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.2.area-sine#1",
+     "text": "Finding only the acute angle when working back from an area",
+     "as": "distractor",
+     "in": [
+      "angle-from-area"
+     ],
+     "wrong": "sin⁻¹ of the ratio, the acute angle, when the angle is obtuse"
+    },
+    {
+     "ref": "SL3.2.area-sine#2",
+     "text": "Forgetting the ½",
+     "as": "distractor",
+     "in": [
+      "area-from-two-sides",
+      "side-from-area",
+      "angle-from-area"
+     ],
+     "wrong": "ab sin C as the area, or a side or angle worked back from Area = ab sin C"
+    },
+    {
+     "ref": "SL3.2.right-side#2",
+     "text": "Calculator in radian mode when the angle is in degrees",
+     "as": "distractor",
+     "in": [
+      "area-from-two-sides"
+     ],
+     "wrong": "the area with the angle read as radians"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p1-q06",
@@ -18178,8 +18396,9 @@
    "id": "t3-sine-cosine-rule",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Sine rule and cosine rule for a side or an angle",
+   "summary": "Find a side or an angle of a triangle: the cosine rule from two sides and the angle between them or from three sides, the sine rule from two angles and a side or from two sides and a non-included angle when only one triangle fits.",
    "syllabus": [
     "3.2"
    ],
@@ -18187,6 +18406,267 @@
     "SL3.2.sine-rule",
     "SL3.2.cosine-rule-side",
     "SL3.2.cosine-rule-angle"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "pair each side with the angle opposite it",
+    "choose the rule: two sides and the angle between them, or three sides, need the cosine rule; a side with its opposite angle allows the sine rule",
+    "substitute and solve for the side or the angle",
+    "give the answer to 3 s.f., in degrees for an angle"
+   ],
+   "given": [
+    "two sides and the angle between them",
+    "three sides",
+    "two angles and a side",
+    "two sides and an angle opposite one of them"
+   ],
+   "asked": "A side length, or an angle in degrees, to 3 s.f.",
+   "answerForms": [
+    "3 s.f.",
+    "degrees"
+   ],
+   "randomise": [
+    "whole-number sides from 3 to 20",
+    "whole-number angles in degrees",
+    "which vertex is A, B or C, so any side or angle can be asked"
+   ],
+   "constraints": [
+    "every angle from 20° to 140°",
+    "the sine rule for an angle only when the side opposite the given angle is the longer one, so one triangle fits",
+    "Paper 2, so a calculator and 3 s.f."
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "method-pick",
+    "error-spot"
+   ],
+   "situation": "triangle",
+   "sharesSituation": [
+    "t3-triangle-area"
+   ],
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the triangle described in words with the standard labelling: side a is opposite angle A, and so on"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "a labelled triangle drawing, not to scale, with the given sides and angles marked and the asked one shown as ?"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "side-cosine-rule",
+     "given": [
+      "two sides",
+      "the angle between them"
+     ],
+     "asked": "the third side",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.2.cosine-rule-side"
+     ]
+    },
+    {
+     "id": "angle-cosine-rule",
+     "given": [
+      "three sides"
+     ],
+     "asked": "one of the angles",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.2.cosine-rule-angle"
+     ]
+    },
+    {
+     "id": "side-sine-rule",
+     "given": [
+      "two angles",
+      "one side"
+     ],
+     "asked": "another side",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.2.sine-rule"
+     ]
+    },
+    {
+     "id": "angle-sine-rule",
+     "given": [
+      "two sides",
+      "the angle opposite the longer of them"
+     ],
+     "asked": "the angle opposite the shorter side",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.2.sine-rule"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.2.cosine-rule-side",
+     "method": "cosine-rule",
+     "suits": [
+      "side-cosine-rule"
+     ]
+    },
+    {
+     "skill": "SL3.2.cosine-rule-side",
+     "method": "drop-perpendicular",
+     "suits": [
+      "side-cosine-rule"
+     ]
+    },
+    {
+     "skill": "SL3.2.cosine-rule-angle",
+     "method": "rearranged-formula",
+     "suits": [
+      "angle-cosine-rule"
+     ]
+    },
+    {
+     "skill": "SL3.2.cosine-rule-angle",
+     "method": "substitute-then-solve",
+     "suits": [
+      "angle-cosine-rule"
+     ]
+    },
+    {
+     "skill": "SL3.2.sine-rule",
+     "method": "sides-on-top",
+     "suits": [
+      "side-sine-rule"
+     ]
+    },
+    {
+     "skill": "SL3.2.sine-rule",
+     "method": "sines-on-top",
+     "suits": [
+      "angle-sine-rule"
+     ]
+    },
+    {
+     "skill": "SL3.2.sine-rule",
+     "method": "drop-altitude",
+     "suits": [
+      "side-sine-rule",
+      "angle-sine-rule"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "In triangle ABC, if b² + c² − a² is negative then angle A is obtuse.",
+     "answer": "True: cos A = (b² + c² − a²)/(2bc) has the sign of the top, and a negative cosine means an angle between 90° and 180°.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Two sides and an angle opposite one of them fix exactly one triangle.",
+     "answer": "Sometimes: if the side opposite the given angle is the longer one, only one triangle fits; if it is the shorter one but longer than the altitude, the angle from sin⁻¹ and 180° minus it can both work.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.2.cosine-rule-side#0",
+     "text": "Evaluating (b² + c² − 2bc) cos A instead of b² + c² − (2bc cos A)",
+     "as": "distractor",
+     "in": [
+      "side-cosine-rule"
+     ],
+     "wrong": "√((b² + c² − 2bc) cos A), when that is a real number"
+    },
+    {
+     "ref": "SL3.2.cosine-rule-side#1",
+     "text": "Forgetting to square-root a²",
+     "as": "distractor",
+     "in": [
+      "side-cosine-rule"
+     ],
+     "wrong": "a² instead of a"
+    },
+    {
+     "ref": "SL3.2.cosine-rule-angle#0",
+     "text": "Using (a² + b² − c²) / 2ab when the angle wanted is A",
+     "as": "distractor",
+     "in": [
+      "angle-cosine-rule"
+     ],
+     "wrong": "one of the other two angles"
+    },
+    {
+     "ref": "SL3.2.cosine-rule-angle#1",
+     "text": "Thinking a negative cosine is an error, when it just means the angle is obtuse",
+     "as": "distractor",
+     "in": [
+      "angle-cosine-rule"
+     ],
+     "wrong": "180° minus the obtuse angle, from the size of the cosine"
+    },
+    {
+     "ref": "SL3.2.sine-rule#0",
+     "text": "Pairing a side with an angle that is not opposite it",
+     "as": "distractor",
+     "in": [
+      "side-sine-rule",
+      "angle-sine-rule"
+     ],
+     "wrong": "the third side, or the angle from the two sides swapped round"
+    },
+    {
+     "ref": "SL3.2.sine-rule#1",
+     "text": "Rearranging b / sin 40° = 8 / sin 65° as b = 8 sin 65° / sin 40°",
+     "as": "distractor",
+     "in": [
+      "side-sine-rule"
+     ],
+     "wrong": "the known side times the wrong sine over the right one"
+    },
+    {
+     "ref": "SL3.5.ambiguous-case#1",
+     "text": "Keeping B₂ = 180° − B₁ even when the angle sum then exceeds 180°",
+     "as": "distractor",
+     "in": [
+      "angle-sine-rule"
+     ],
+     "wrong": "180° minus the angle, which leaves no room for the third angle"
+    },
+    {
+     "ref": "SL3.2.right-side#2",
+     "text": "Calculator in radian mode when the angle is in degrees",
+     "as": "distractor",
+     "in": [
+      "side-cosine-rule",
+      "side-sine-rule"
+     ],
+     "wrong": "the side worked out with the angles read as radians"
+    }
    ],
    "parts": [
     "aa-sl-2022-may-tz1-p2-q07.b",

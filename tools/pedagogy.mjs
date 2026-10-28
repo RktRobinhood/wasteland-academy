@@ -16,7 +16,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJSON = f => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 
-export const REPS = ['equation', 'graph', 'table', 'words'];
+// diagram is a labelled figure, such as a triangle with its sides and angles marked.
+export const REPS = ['equation', 'graph', 'table', 'words', 'diagram'];
 export const KINDS = ['skill', 'prior-learning', 'concept', 'link'];
 export const PROBES = ['true-false-reason', 'always-sometimes-never', 'interpret-parameter', 'predict-check'];
 const FULL = ['region', 'situation', 'representations', 'unknowns', 'angles', 'concepts', 'misconceptions'];
@@ -72,10 +73,13 @@ export function check({ doc, map, threads }, { region } = {}) {
       }
     }
     for (const s of t.skills || []) if (!skills.has(s)) errors.push(`${w}: unknown skill ${s}`);
-    if (t.topic !== 2) continue;
-
-    // ── Functions: the full view model ──
-    for (const f of FULL) { const v = t[f]; if (v == null || (Array.isArray(v) && !v.length)) errors.push(`${w}: missing ${f}`); }
+    // The full view model: every Functions type, and any other type with a situation.
+    // Regions are Functions islands, so only Functions types need one.
+    if (t.topic !== 2 && !t.situation) continue;
+    for (const f of FULL) {
+      if (f === 'region' && t.topic !== 2) continue;
+      const v = t[f]; if (v == null || (Array.isArray(v) && !v.length)) errors.push(`${w}: missing ${f}`);
+    }
     if (t.region && !regionIds.has(t.region)) errors.push(`${w}: unknown region ${t.region}`);
     if (t.situation && !sits[t.situation]) errors.push(`${w}: unknown situation ${t.situation}`);
     const share = all.filter(o => o !== t && o.situation && t.situation && root(o.situation) === root(t.situation)).map(o => o.id).sort();
@@ -257,8 +261,10 @@ export function render({ doc, map, threads }, counts) {
 
   for (const [n, name] of [[1, 'Number and algebra'], [3, 'Geometry and trigonometry'], [4, 'Statistics and probability'], [5, 'Calculus']]) {
     const ts = ext.filter(t => t.topic === n);
+    const built = exam.filter(t => t.topic === n && t.situation);
     L.push(`## Topic ${n}: ${name} (catalogue level)`, '');
-    L.push(`${exam.filter(t => t.topic === n).length} exam types (see \`QUESTION_TYPES.md\`) and ${ts.length} extension types. Unknowns and angles follow one topic at a time, as Functions did.`, '');
+    L.push(`${exam.filter(t => t.topic === n).length} exam types (see \`QUESTION_TYPES.md\`) and ${ts.length} extension types. Unknowns and angles follow one topic at a time, as Functions did${built.length ? `; ${built.length} exam type${built.length > 1 ? 's have' : ' has'} them so far` : ''}.`, '');
+    for (const t of built) typeBlock(t);
     if (ts.length) {
       L.push('| Type | Kind | Skills | Level | Gap | What it asks |', '|---|---|---|---|---|---|');
       for (const t of ts) L.push(`| \`${t.id}\` ${t.name} | ${t.kind}${t.thread ? ` (${t.thread})` : ''} | ${t.skills.map(short).join(', ')} | ${t.level.join('–')} | ${t.gap} | ${t.summary} |`);

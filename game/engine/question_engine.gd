@@ -25,7 +25,10 @@ const CHOICES := 4
 ## Situation id -> [recipe, views]. A situation that `extends` another one (say
 ## quadratic-inequality) gets its own entry: a recipe that calls the base recipe's
 ## generate() and adds its quantities, and views for its unknowns.
-static var SITUATIONS := {"quadratic": [QuadraticSituation, QuadraticViews]}
+static var SITUATIONS := {
+	"quadratic": [QuadraticSituation, QuadraticViews],
+	"triangle": [TriangleSituation, TriangleViews],
+}
 
 static var _cat: Dictionary = {}
 static var _views: Dictionary = {}
@@ -186,10 +189,10 @@ static func make(view: Dictionary) -> Dictionary:
 		"type_name": t.name, "level": int(u.level),
 		"exam": t.source == "exam" and bool(u.exam) and rep_is_exam(t, rep),
 		"format": fmt, "prompt": prompt, "asked": b.asked, "rep": rep,
-		"lines": b.lines, "graph": b.graph, "table": b.table,
+		"lines": b.lines, "graph": b.graph, "table": b.table, "diagram": b.get("diagram"),
 		"answer": ans, "answer_text": Answer.text(ans),
 		"choices": choices, "solutions": solutions,
-		"given": b.given, "situation": QuadraticSituation.export(s),
+		"given": b.given, "situation_id": t.situation, "situation": recipe.export(s),
 	}
 
 
@@ -222,8 +225,12 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	return rng.shuffled(opts)
 
 
-## A wrong option must still be a well-formed answer: no zero leading coefficient.
+## A wrong option must still be a well-formed answer: no zero leading coefficient, and
+## a measure (shown to 3 s.f.) that is positive and not on a rounding edge.
 static func _usable(ans: Dictionary, values: Dictionary) -> bool:
+	if ans.kind == "measure":
+		var x: float = Q.of(values.v).to_float()
+		return x > 0.0 and Answer.rounds_clearly(x)
 	for id in ["a", "ga", "fa", "va"]:
 		if values.has(id) and values[id] is Q and values[id].is_zero():
 			return false

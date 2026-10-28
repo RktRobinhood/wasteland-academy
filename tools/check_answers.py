@@ -25,6 +25,7 @@ import json
 import re
 import sys
 from collections import defaultdict
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
 import sympy as sp
@@ -498,13 +499,27 @@ def check_lines(q, f_given):
 # ── One question ─────────────────────────────────────────────
 
 def check(q):
-    kind = q["answer"]["kind"]
-    fixed = q["answer"].get("fixed") or {}
+    """Routes a question to its situation's checks, then checks the answer, the
+    options and the worked solutions the same way for every situation."""
+    sit = q.get("situation_id", "quadratic")
+    need(sit in SITUATION_CHECKS, f"the checker has no checks for situation {sit}")
+    exp, f = SITUATION_CHECKS[sit](q)
+    if exp is not None:  # the triangle checks are complete on their own
+        check_common(q, exp, f)
+
+
+def check_quadratic(q):
     f_sit = check_situation(q)
     exp, f = solve(q)
     if f is not None:
         need(f == f_sit, "the givens describe another parabola than the situation")
     check_lines(q, f)
+    return exp, f
+
+
+def check_common(q, exp, f):
+    kind = q["answer"]["kind"]
+    fixed = q["answer"].get("fixed") or {}
     want = expected_norm(kind, exp, fixed)
     got = values_of(kind, q["answer"]["values"], fixed)
     if kind == "triple":
@@ -552,6 +567,315 @@ def check(q):
     if q["view"]["angle"] != "any":
         need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
 
+
+# ── Triangles (FAL-395) ──────────────────────────────────────
+# The `triangle` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/triangle.gd. Every value is solved again from the givens with
+# SymPy and evaluated to 40 digits, so 3 s.f. rounding is decided on the true value.
+
+TRI_SIDE = (3, 20)
+TRI_ANGLE = (20, 140)
+TRI_RIGHT_GAP = 10
+TRI_EDGE = sp.Rational(2, 100)
+TRI_AREA_MIN = 3
+TRI_TOL = sp.Rational(1, 10**7)      # relative: the engine keeps nine decimal places
+DIGITS = 40
+LETTERS3 = ["A", "B", "C"]
+
+
+def deg_cos(d):
+    return sp.cos(sp.pi * d / 180)
+
+
+def deg_sin(d):
+    return sp.sin(sp.pi * d / 180)
+
+
+def to_deg(r):
+    return r * 180 / sp.pi
+
+
+def num(x):
+    return sp.Float(x, DIGITS) if isinstance(x, (int, float)) else sp.N(x, DIGITS)
+
+
+def close(a, b):
+    a, b = num(a), num(b)
+    return abs(a - b) <= TRI_TOL * max(abs(b), 1)
+
+
+def sig3(x, n=3):
+    """x to n significant figures, written as the game writes it ("7.00", "1000")."""
+    d = Decimal(str(num(x)))
+    e = d.copy_abs().adjusted()
+    r = d.scaleb(-(e - n + 1)).quantize(Decimal(1), rounding=ROUND_HALF_UP).scaleb(e - n + 1)
+    if r.copy_abs() >= Decimal(10) ** (e + 1):
+        e += 1
+    places = max(0, n - 1 - e)
+    return f"{r:.{places}f}"
+
+
+def on_edge(x):
+    v = num(x)
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) < TRI_EDGE
+
+
+def side_name(L):
+    a, b = [x for x in LETTERS3 if x != L]
+    return a + b
+
+
+def angle_name(L):
+    a, b = [x for x in LETTERS3 if x != L]
+    return f"angle {a}{L}{b}"
+
+
+def tri_roles(g):
+    """The vertex the question turns on (X) and the other two (Y, Z), from the givens."""
+    sides = {k.upper() for k in g["sides"]}
+    angles = set(g["angles"])
+    ask = g["ask"]
+    kind = g["givens"]
+    if kind in ("sas",):
+        X = next(iter(angles))
+    elif kind in ("sss", "area-angle"):
+        X = ask
+    else:  # aas, ssa, area-side: the given angle whose opposite side is given, or the only one
+        X = next(iter(angles & sides)) if kind in ("aas", "ssa") else next(iter(angles))
+    if kind in ("aas", "ssa"):
+        Y = ask.upper()
+    elif kind == "area-side":
+        Y = next(iter(sides))
+    else:
+        Y = sorted(set(LETTERS3) - {X})[0]
+    Z = (set(LETTERS3) - {X, Y}).pop()
+    return X, Y, Z
+
+
+def tri_solve(g):
+    """Every side, angle and the area, solved from the givens alone."""
+    kind = g["givens"]
+    X, Y, Z = tri_roles(g)
+    S = {k.upper(): R(v) for k, v in g["sides"].items()}
+    A = {k: R(v) for k, v in g["angles"].items()}
+    for v in list(S.values()):
+        need(v.q == 1 and TRI_SIDE[0] <= v <= TRI_SIDE[1], f"given side {v} is not a whole number from 3 to 20")
+    for v in A.values():
+        need(v.q == 1 and TRI_ANGLE[0] <= v <= TRI_ANGLE[1], f"given angle {v} is not a whole number of degrees from 20 to 140")
+    if kind == "sas":
+        need(set(S) == {Y, Z} and set(A) == {X}, "sas givens are not two sides and the angle between them")
+        S[X] = sp.sqrt(S[Y]**2 + S[Z]**2 - 2 * S[Y] * S[Z] * deg_cos(A[X]))
+        A[Y] = to_deg(sp.acos((S[X]**2 + S[Z]**2 - S[Y]**2) / (2 * S[X] * S[Z])))
+    elif kind == "sss":
+        need(set(S) == set(LETTERS3) and not A, "sss givens are not three sides")
+        for L, M, N in ((X, Y, Z), (Y, X, Z)):
+            c = (S[M]**2 + S[N]**2 - S[L]**2) / (2 * S[M] * S[N])
+            need(abs(c) < 1, "the three sides don't make a triangle")
+            A[L] = to_deg(sp.acos(c))
+    elif kind == "aas":
+        need(set(S) == {X} and len(A) == 2 and X in A, "aas givens are not two angles and a side opposite one of them")
+        if Y not in A:
+            A[Y] = 180 - A[X] - A[Z]
+        S[Y] = S[X] * deg_sin(A[Y]) / deg_sin(A[X])
+    elif kind == "ssa":
+        need(set(S) == {X, Y} and set(A) == {X}, "ssa givens are not two sides and the angle opposite one")
+        need(S[X] > S[Y], "the side opposite the given angle is not the longer one, so two triangles may fit")
+        A[Y] = to_deg(sp.asin(S[Y] * deg_sin(A[X]) / S[X]))
+        need(num(A[X] + 180 - A[Y]) >= 180, "the obtuse angle 180° − B would also fit")
+    elif kind == "area-side":
+        area = R(g["area"])
+        need(set(S) == {Y} and set(A) == {X}, "area-side givens are not the area, a side and an angle")
+        S[Z] = 2 * area / (S[Y] * deg_sin(A[X]))
+        S[X] = sp.sqrt(S[Y]**2 + S[Z]**2 - 2 * S[Y] * S[Z] * deg_cos(A[X]))
+        A[Y] = to_deg(sp.acos((S[X]**2 + S[Z]**2 - S[Y]**2) / (2 * S[X] * S[Z])))
+    elif kind == "area-angle":
+        area = R(g["area"])
+        need(set(S) == {Y, Z} and not A and g["obtuse"] in (True, False), "area-angle givens are not the area, two sides and acute or obtuse")
+        ratio = 2 * area / (S[Y] * S[Z])
+        need(ratio < 1, "no angle has that sine")
+        acute = to_deg(sp.asin(ratio))
+        A[X] = 180 - acute if g["obtuse"] else acute
+        need(abs(num(A[X]) - 90) >= TRI_RIGHT_GAP, "the angle is too near 90° for acute or obtuse to matter")
+        S[X] = sp.sqrt(S[Y]**2 + S[Z]**2 - 2 * S[Y] * S[Z] * deg_cos(A[X]))
+        A[Y] = to_deg(sp.acos((S[X]**2 + S[Z]**2 - S[Y]**2) / (2 * S[X] * S[Z])))
+    else:
+        raise Fail(f"unknown triangle givens {kind}")
+    # From here on every quantity is a 40-digit number, which keeps the checks fast.
+    S = {L: num(v) for L, v in S.items()}
+    A = {L: num(v) for L, v in A.items()}
+    missing = [L for L in LETTERS3 if L not in A]
+    need(len(missing) <= 1, "angles left unsolved")
+    for L in missing:
+        A[L] = 180 - sum(A[M] for M in LETTERS3 if M != L)
+    k = S[X] / deg_sin(A[X])
+    for L in LETTERS3:
+        if L not in S:
+            S[L] = k * deg_sin(A[L])
+    area = S[Y] * S[Z] * deg_sin(A[X]) / 2
+    if g.get("area") is not None:
+        need(close(area, R(g["area"])), "the given area is not this triangle's area")
+    for L in LETTERS3:
+        need(TRI_ANGLE[0] <= num(A[L]) <= TRI_ANGLE[1], f"angle {L} = {num(A[L]):.4} is outside 20° to 140°")
+    need(close(sum(A.values()), 180), "the angles don't add up to 180°")
+    for L in LETTERS3:  # the sine rule holds all round
+        need(close(S[L] / deg_sin(A[L]), k), "the sides and angles are not one triangle")
+    return {"X": X, "Y": Y, "Z": Z, "S": S, "A": A, "area": area}
+
+
+def tri_wrongs(u, g, t):
+    """Each misconception's wrong value, worked out independently of the engine."""
+    X, Y, Z, S, A = t["X"], t["Y"], t["Z"], t["S"], t["A"]
+    x, y, z = S[X], S[Y], S[Z]
+    if u == "side-cosine-rule":
+        return {"SL3.2.cosine-rule-side#0": [sp.sqrt((y**2 + z**2 - 2 * y * z) * deg_cos(A[X]))],
+                "SL3.2.cosine-rule-side#1": [x**2],
+                "SL3.2.right-side#2": [sp.sqrt(y**2 + z**2 - 2 * y * z * sp.cos(A[X]))]}
+    if u == "angle-cosine-rule":
+        return {"SL3.2.cosine-rule-angle#0": [A[Y], A[Z]], "SL3.2.cosine-rule-angle#1": [180 - A[X]]}
+    if u == "side-sine-rule":
+        return {"SL3.2.sine-rule#0": [x * deg_sin(A[Z]) / deg_sin(A[X])],
+                "SL3.2.sine-rule#1": [x * deg_sin(A[X]) / deg_sin(A[Y])],
+                "SL3.2.right-side#2": [x * sp.sin(A[Y]) / sp.sin(A[X])]}
+    if u == "angle-sine-rule":
+        return {"SL3.2.sine-rule#0": [to_deg(sp.asin(x * deg_sin(A[X]) / y))] if num(x * deg_sin(A[X]) / y) < 1 else [],
+                "SL3.5.ambiguous-case#1": [180 - A[Y]]}
+    area = t["area"]
+    if u == "area-from-two-sides":
+        return {"SL3.2.area-sine#2": [2 * area], "SL3.2.right-side#2": [y * z * sp.sin(A[X]) / 2]}
+    if u == "side-from-area":
+        return {"SL3.2.area-sine#2": [R(g["area"]) / (y * deg_sin(A[X]))]}
+    if u == "angle-from-area":
+        acute = to_deg(sp.asin(2 * R(g["area"]) / (y * z)))
+        half = to_deg(sp.asin(R(g["area"]) / (y * z)))
+        return {"SL3.2.area-sine#1": [acute], "SL3.2.area-sine#2": [180 - half if g["obtuse"] else half]}
+    raise Fail(f"no misconceptions known for {u}")
+
+
+def tri_shown(q, g):
+    """What the student sees says exactly the givens: the words line, or the diagram
+    and its caption."""
+    rep = q["view"]["rep"]
+    text = " ".join(q["lines"])
+    sides = {m[1]: m[2] for m in re.finditer(r"\b([ABC]{2}) = (\d+) cm", text)}
+    angles = {m[1][1]: m[2] for m in re.finditer(r"angle ([ABC]{3}) = (\d+)°", text)}
+    m = re.search(r"area (?:of|is) (\d+) cm²", text)
+    area = m[1] if m else None
+    m = re.search(r"Angle ([ABC]{3}) is (obtuse|acute)", text)
+    obtuse = (m[2] == "obtuse") if m else None
+    if m:
+        need(m[1] == angle_name(g["ask"])[6:], "the acute or obtuse angle is not the asked one")
+    if rep == "diagram":
+        need(not sides and not angles, "a diagram question also lists sides or angles in words")
+        dg = q["diagram"]
+        need(dg is not None, "no diagram")
+        for sd in dg["sides"]:
+            if sd["label"].endswith(" cm"):
+                sides[side_name(sd["side"].upper())] = sd["label"][:-3]
+            else:
+                need(sd["label"] in ("", "?"), f"side label {sd['label']!r}")
+                need((sd["label"] == "?") == (g["ask"] == sd["side"]), "the ? is not on the asked side")
+        for an in dg["angles"]:
+            if an["label"].endswith("°"):
+                angles[an["at"]] = an["label"][:-1]
+            else:
+                need(an["label"] in ("", "?"), f"angle label {an['label']!r}")
+                need((an["label"] == "?") == (g["ask"] == an["at"]), "the ? is not on the asked angle")
+    else:
+        need(q["diagram"] is None, "a words question has a diagram")
+        need(len(q["lines"]) == 1 and q["lines"][0].endswith("."), "the words are not one sentence or two")
+    want_sides = {side_name(k.upper()): v for k, v in g["sides"].items()}
+    need(sides == want_sides, f"shown sides {sides} are not the given {want_sides}")
+    need(angles == g["angles"], f"shown angles {angles} are not the given {g['angles']}")
+    need(area == g["area"], f"shown area {area} is not the given {g['area']}")
+    need(obtuse == g["obtuse"], "acute or obtuse is not as given")
+
+
+def tri_diagram(q, t):
+    """The drawing is this triangle, to scale."""
+    v = {L: sp.Matrix([sp.Float(c, DIGITS) for c in p]) for L, p in q["diagram"]["vertices"].items()}
+    for L in LETTERS3:
+        M, N = [x for x in LETTERS3 if x != L]
+        need(close(sp.sqrt(((v[M] - v[N]).T * (v[M] - v[N]))[0]), t["S"][L]), f"the drawn side {M}{N} is not to scale")
+
+
+def tri_measure(q, t):
+    """The asked quantity, its label and unit, solved from the givens."""
+    ask = q["given"]["ask"]
+    if ask == "area":
+        return t["area"], "Area = ", " cm²"
+    if ask in LETTERS3:
+        return t["A"][ask], angle_name(ask) + " = ", "°"
+    return t["S"][ask.upper()], side_name(ask.upper()) + " = ", " cm"
+
+
+def check_triangle(q):
+    g = q["given"]
+    u = q["view"]["unknown"]
+    want_givens = {"side-cosine-rule": ("sas", None), "angle-cosine-rule": ("sss", None), "side-sine-rule": ("aas", None),
+                   "angle-sine-rule": ("ssa", None), "area-from-two-sides": ("sas", "area"), "side-from-area": ("area-side", None),
+                   "angle-from-area": ("area-angle", None)}
+    need(u in want_givens, f"the checker has no solver for {u}")
+    need(g["givens"] == want_givens[u][0], f"{u} is asked from {g['givens']} givens")
+    need((g["ask"] == "area") == (want_givens[u][1] == "area"), "the area is asked on the wrong unknown")
+    t = tri_solve(g)
+    tri_shown(q, g)
+    if q["diagram"] is not None:
+        tri_diagram(q, t)
+    exp, label, unit = tri_measure(q, t)
+    need(not on_edge(exp), f"the answer {num(exp):.8} is on a 3 s.f. rounding edge")
+
+    # The situation the engine exported is the same triangle.
+    sit = q["situation"]
+    for L in LETTERS3:
+        need(close(R(sit["angles"][L]), t["A"][L]), f"situation angle {L} differs")
+        need(close(R(sit["sides"][L.lower()]), t["S"][L]), f"situation side {L.lower()} differs")
+    need(close(R(sit["area"]), t["area"]), "situation area differs")
+
+    # The answer: its value, and its text to 3 s.f. with the right label and unit.
+    ans = q["answer"]
+    need(ans["kind"] == "measure", f"answer kind {ans['kind']}")
+    need(ans["label"] == label and ans["unit"] == unit, f"answer label {ans['label']!r}{ans['unit']!r}, expected {label!r}{unit!r}")
+    got = R(ans["values"]["v"])
+    need(close(got, exp), f"engine answer {num(got):.8} is wrong (expected {num(exp):.8})")
+    need(q["answer_text"] == label + sig3(exp) + unit, f"answer text {q['answer_text']!r}, expected {label + sig3(exp) + unit!r}")
+
+    # Options: four, one right, the rest wrong at 3 s.f., all different, each saying
+    # its own value; a misconception's value is the one that slip gives.
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    wrongs = tri_wrongs(u, g, t)
+    texts = set()
+    for o in ch:
+        ov = R(o["values"]["v"])
+        need(ov > 0, f"option {o['text']!r} is not positive")
+        need(not on_edge(ov), f"option {o['text']!r} is on a 3 s.f. rounding edge ({num(ov):.8})")
+        need(o["text"] == label + sig3(ov) + unit, f"option text {o['text']!r} doesn't say its value {num(ov):.8}")
+        need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
+        texts.add(o["text"])
+        right = sig3(ov) == sig3(exp)
+        need(right == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'} but is {'right' if right else 'wrong'}")
+        if o["correct"]:
+            need(close(ov, exp), "the right option is not the answer")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrongs, f"{o['ref']} is not a misconception of {u}")
+            need(any(close(ov, w) for w in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+
+    # Worked solutions: each ends at the answer.
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(close(R(sol["result"]["v"]), exp), f"{sol['name']}: last step gives {num(R(sol['result']['v'])):.8}, not the answer")
+        last = sol["steps"][-1]
+        need(q["answer_text"] in last, f"{sol['name']}: last step {last!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+    return None, None
+
+
+SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle}
 
 # ── Coverage from the catalogue itself ───────────────────────
 
