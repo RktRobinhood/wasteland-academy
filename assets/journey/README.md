@@ -1,4 +1,4 @@
-# Journey strip assets (FAL-293, FAL-208, FAL-346)
+# Journey strip assets (FAL-293, FAL-208, FAL-346, FAL-358)
 
 The side-view journey strip above the question card: the party walks right through a parallax region, and each
 answer plays out as a beat: Explore, Puzzle or Fight (the FAL-289 plan). Art only gives poses and object states.
@@ -6,7 +6,8 @@ Code draws every movement and effect (tweens, lunges, slashes, impacts, zaps, sp
 in the FAL-218 spec. The Godot strip that draws them is FAL-331.
 
 Folders: `party/` (the Learners and Spark), `enemies/` (the D1-D5 ranks, which appear on every island),
-`weapons/`, and one folder per island for its own creatures, obstacles, treasure and parallax (`signal-tower/`).
+`weapons/`, `encounters/` (the rare road encounters and the shared, island-neutral Cell), and one folder per island
+for its own creatures, obstacles, treasure and parallax (`signal-tower/`).
 
 ## How to draw a sheet
 
@@ -89,10 +90,28 @@ Explore and Puzzle props) has two more fields, so code finds a new prop by its f
 Display heights used in the FAL-346 previews (Learner 92 px): scrap pile 64, cart 52, hatch 58, vault door 104, cache
 96, live wire 58. The grab point (cart handle, padlock, hatch lid edge) is on the left, where the party stands.
 
+**Encounters (`encounters/`, FAL-358).** Each encounter sheet has `"encounter": "<id>"`, matching the encounter's
+permanent writing ID. The sheets face left. `idle` [idle] plays at 1 fps, `talk` [idle, talk] at 4 fps looping, and
+the optional `bust` [bust] at 1 fps once. Play only `idle` while a question is open; `talk` belongs to the speech
+display. `figure_height` is the person's height, not counting tall set pieces such as Rook's mast.
+
+**The Cell** (`encounters/cell/`) has three images: `backdrop.webp` (the opaque strip background), `bars.webp` +
+`.json` (the foreground alpha overlay: `shut`, `loose`, `open`) and `guard.webp` + `.json` (the left-facing idle/talk
+guard). The bars cover 864×256: draw them at feet (432, 256), so their top-left is (0, 0).
+
 ## Files
 
 | File | Frames (w×h shipped px) | Anims (fps) | Anchors | Bytes |
 |---|---|---|---|---|
+| `encounters/cell/backdrop.webp` | opaque 864×256 | static | strip origin (0, 0) | 25,926 |
+| `encounters/cell/bars.webp` + `.json` | shut 864×256, loose 864×256, open 864×256 | shut/loose/open, one frame each (1, once) | feet point | 360,974 |
+| `encounters/cell/guard.webp` + `.json` | idle 106×248, talk 106×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 15,540 |
+| `encounters/st-coffee-cart.webp` + `.json` | idle 203×248, talk 203×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 24,468 |
+| `encounters/st-hush-water.webp` + `.json` | idle 174×248, talk 174×248, bust 174×248 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 30,292 |
+| `encounters/st-live-wires.webp` + `.json` | idle 316×248, talk 316×248, bust 316×248 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 47,693 |
+| `encounters/st-mast-climber.webp` + `.json` | idle 144×248, talk 144×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 27,899 |
+| `encounters/st-numbers-station.webp` + `.json` | idle 199×248, talk 199×248 | idle [idle] (1), talk [idle, talk] (4, loop) | feet point | 22,476 |
+| `encounters/st-permit-booth.webp` + `.json` | idle 173×248, talk 173×248, bust 173×248 | idle [idle] (1), talk [idle, talk] (4, loop), bust [bust] (1, once) | feet point | 25,456 |
 | `enemies/d1-scavenger.webp` + `d1-scavenger.json` | idle 143×230, step-a 161×225, step-b 144×229, step-c 155×228, attack 212×229, hurt 126×222, defeated 161×223 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once) | feet point | 113,653 |
 | `enemies/d2-raider.webp` + `d2-raider.json` | idle 130×244, step-a 141×241, step-b 131×245, step-c 131×242, attack 276×251, hurt 151×221, defeated 228×182 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once) | feet point | 105,533 |
 | `enemies/d3-enforcer.webp` + `d3-enforcer.json` | idle 174×240, step-a 180×238, step-b 174×239, step-c 176×239, attack 178×273, hurt 221×229, s2 174×239, s2-attack 166×223, defeated 198×210 | idle [idle] (1), walk [step-a, step-b, step-c, idle] (8), attack [attack] (1, once), hurt [hurt] (1, once), defeated [defeated] (1, once), s2-idle [s2] (1), s2-attack [s2-attack] (1, once) | feet point | 151,218 |
@@ -117,7 +136,7 @@ Display heights used in the FAL-346 previews (Learner 92 px): scrap pile 64, car
 | `weapons/neon-blade.png` + `neon-blade.json` | weapon 112×26 | – | grip (8, 12) | 4,547 |
 | `weapons/rebar.png` + `rebar.json` | weapon 104×9 | – | grip (10, 4) | 2,641 |
 
-Total: 1,709,918 bytes (1.63 MB) of the 4 MB budget.
+Total: 2,290,642 bytes (2.18 MB) of the 4 MB budget.
 
 ## Where it came from
 
@@ -140,3 +159,8 @@ frame index or anchor changed), the scrap pile, the cart in the mud, the locked 
 then in-place edits for the other states), and `beat` and `states` on every prop. The cart's `free` frame was
 lowered 40 px in Pillow so its wheels meet the puddle, and the scrap pile's clipped right edge is feathered. Method,
 rounds and render count are on FAL-346.
+
+FAL-358 added the six Signal Tower encounter sheets and the shared Cell: idle anchors from text-to-image, then
+reference-locked edits for the talk and bust poses, with local face and arm composites so the feet and set pieces
+never move. One bar of the Cell's `loose` state is bent geometrically in Pillow, so that state keeps every bar. 44
+local renders in four rounds. Prompts, rounds and counters are on FAL-358.
