@@ -1806,7 +1806,59 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 4 exam types have them so far.
+
+#### Differentiate a polynomial or negative power and evaluate (`t5-differentiate-polynomial`, exam, 6 bank parts)
+
+- **Situation:** One cubic with its gradient, tangents and turning points, shared with `t5-stationary-points`, `t5-tangent-condition`, `t5-tangent-normal-equation`.
+- **Representations:** **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given f(x) as a cubic → f′(x)
+  - **exam** L2: given f(x) as one fraction over x → f′(x)
+  - **exam** L1: given f(x) as a cubic; x₀ → the gradient f′(x₀)
+- **Angles:** Power rule term by term; Split the fraction first; Differentiate, then substitute.
+- **Concept probes:**
+  - *true-false-reason* (L3): Two cubics that differ only in their constant term have the same derivative. — True: the constant term differentiates to 0, so one graph is the other moved up or down, with the same gradient at every x.
+- **Misconceptions used:** 6. Reducing the coefficient instead of multiplying: d/dx(5x³) = 4x² rather than 15x²; Leaving a constant unchanged instead of making it 0, or writing d/dx(7x) = 7x; Dividing only the first term of the numerator by x; Substituting into f(x) instead of f′(x); Substituting first and then differentiating the number f(a), giving 0; Sign slips with negatives, e.g. 3(−2)² evaluated as −12.
+
+#### Find a point or parameter from a tangent condition (given gradient, parallel, common tangent) (`t5-tangent-condition`, exam, 11 bank parts)
+
+- **Situation:** One cubic with its gradient, tangents and turning points, shared with `t5-differentiate-polynomial`, `t5-stationary-points`, `t5-tangent-normal-equation`.
+- **Representations:** **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given f(x) as a cubic; a gradient g, or a line with gradient g → the two x-values where the gradient is g
+  - **exam** L3: given f(x) with one coefficient written as k; the gradient of the tangent at x₀ → k
+- **Angles:** Solve f′(x) = k; Turn the condition into a gradient; Match gradients to find the point of contact.
+- **Concept probes:**
+  - *always-sometimes-never* (L4): A cubic has a tangent with gradient g, whatever the number g. — Sometimes: f′ is a quadratic, so its values stop on one side. For a > 0 there is a least gradient, and no tangent is steeper downhill than that.
+- **Misconceptions used:** 1. Solving f(x) = k instead of f′(x) = k.
+
+#### Equation of a tangent or normal, or values read from a given tangent (`t5-tangent-normal-equation`, exam, 14 bank parts)
+
+- **Situation:** One cubic with its gradient, tangents and turning points, shared with `t5-differentiate-polynomial`, `t5-stationary-points`, `t5-tangent-condition`.
+- **Representations:** **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given f(x) as a cubic; x₀ → the tangent at x₀ as y = mx + c
+  - **exam** L2: given f(x) as a cubic; x₀ → the normal at x₀ as y = mx + c
+  - **exam** L1: given the tangent at x₀ as y = mx + c → f′(x₀) and f(x₀)
+- **Angles:** Point-gradient form; Substitute into y = mx + c; Negative reciprocal, then point-gradient form; Write (x − a) + m(y − f(a)) = 0 directly; The tangent touches the curve at x = a.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): The gradients of the tangent and the normal to a curve at the same point multiply to −1. — Sometimes: only when the tangent is not horizontal. At a stationary point the tangent is horizontal and the normal is the vertical line x = x₀, which has no gradient.
+- **Misconceptions used:** 6. Using f′(a) as the y-coordinate of the point; Using the normal's gradient with the tangent's point (mixing the two lines); Using −m or 1/m instead of −1/m for the normal's gradient; Reusing the tangent's y-intercept c in the normal's equation; Taking f(a) to be the tangent's y-intercept c; Thinking f′(a) is the y-coordinate of the point of contact.
+
+#### Stationary points and inflexion: find, classify, justify (`t5-stationary-points`, exam, 14 bank parts)
+
+- **Situation:** One cubic with its gradient, tangents and turning points, shared with `t5-differentiate-polynomial`, `t5-tangent-condition`, `t5-tangent-normal-equation`.
+- **Representations:** **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given f(x) as a cubic → the coordinates of both stationary points
+  - **exam** L2: given f(x) as a cubic; the x-values of its stationary points → whether each stationary point is a local maximum or a local minimum
+  - **exam** L3: given f(x) as a cubic → the coordinates of the point of inflexion
+  - **exam** L2: given f(x) as a cubic → the local maximum value
+- **Angles:** Solve f′(x) = 0; Second derivative test; First derivative sign table; Use the shape of the cubic; f″ = 0 with a sign change; Cubic symmetry point; Derivative = 0, then justify.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): A point where f″(x) = 0 is a point of inflexion. — Sometimes: f″ must also change sign there. For f(x) = x⁴, f″(0) = 0 but (0, 0) is a minimum.
+- **Misconceptions used:** 3. Substituting the x-value into f′ instead of f to get the y-coordinate; f″ > 0 means a maximum (sign reversed); Giving the x-value when the maximum value is asked for (or the other way round).
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
