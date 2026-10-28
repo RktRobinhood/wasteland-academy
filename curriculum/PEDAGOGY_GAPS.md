@@ -1690,7 +1690,36 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 2 exam types have them so far.
+
+#### Triangle area with 1/2 ab sin C, forwards or backwards (`t3-triangle-area`, exam, 11 bank parts)
+
+- **Situation:** One triangle with its sides, angles and area, shared with `t3-sine-cosine-rule`.
+- **Representations:** **words**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given two sides; the angle between them → the area
+  - **exam** L2: given the area; one side; the angle between it and the asked side → the other side next to the angle
+  - **exam** L3: given the area; two sides; whether the angle between them is acute or obtuse → the angle between the two sides
+- **Angles:** ½ab sin C; Base and perpendicular height; Reverse with two angles.
+- **Concept probes:**
+  - *always-sometimes-never* (L4): The area and two sides of a triangle fix the angle between them. — Sometimes: sin C = 2 × Area / (ab) has two solutions, C and 180° − C, and both give the same area. Only when sin C = 1 is there one angle, 90°.
+  - *interpret-parameter* (L3): In Area = ½ab sin C, what length is b sin C? — The perpendicular height from A onto side a (the line BC): the side b is the hypotenuse of a right triangle with angle C, so the height opposite C is b sin C. Then the area is ½ × base a × height.
+- **Misconceptions used:** 3. Finding only the acute angle when working back from an area; Forgetting the ½; Calculator in radian mode when the angle is in degrees.
+
+#### Sine rule and cosine rule for a side or an angle (`t3-sine-cosine-rule`, exam, 19 bank parts)
+
+- **Situation:** One triangle with its sides, angles and area, shared with `t3-triangle-area`.
+- **Representations:** **words**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given two sides; the angle between them → the third side
+  - **exam** L2: given three sides → one of the angles
+  - **exam** L2: given two angles; one side → another side
+  - **exam** L3: given two sides; the angle opposite the longer of them → the angle opposite the shorter side
+- **Angles:** Cosine rule; Two right triangles and Pythagoras; Rearranged cosine rule; Substitute, then solve for cos A; Sides on top for a side; Sines on top for an angle; Drop an altitude.
+- **Concept probes:**
+  - *true-false-reason* (L3): In triangle ABC, if b² + c² − a² is negative then angle A is obtuse. — True: cos A = (b² + c² − a²)/(2bc) has the sign of the top, and a negative cosine means an angle between 90° and 180°.
+  - *always-sometimes-never* (L4): Two sides and an angle opposite one of them fix exactly one triangle. — Sometimes: if the side opposite the given angle is the longer one, only one triangle fits; if it is the shorter one but longer than the altitude, the angle from sin⁻¹ and 180° minus it can both work.
+- **Misconceptions used:** 8. Evaluating (b² + c² − 2bc) cos A instead of b² + c² − (2bc cos A); Forgetting to square-root a²; Using (a² + b² − c²) / 2ab when the angle wanted is A; Thinking a negative cosine is an error, when it just means the angle is obtuse; Pairing a side with an angle that is not opposite it; Rearranging b / sin 40° = 8 / sin 65° as b = 8 sin 65° / sin 40°; Keeping B₂ = 180° − B₁ even when the angle sum then exceeds 180°; Calculator in radian mode when the angle is in degrees.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

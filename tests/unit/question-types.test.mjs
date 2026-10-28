@@ -39,11 +39,11 @@ test('skills and formats exist in aa-sl.json', () => {
   }
 });
 
-test('Functions types carry every field a recipe needs', () => {
+test('full-detail types carry every field a recipe needs', () => {
   const full = exam.filter(t => t.detail === 'full');
   assert.ok(full.length > 0);
   for (const t of full) {
-    assert.equal(t.topic, 2, t.id);
+    assert.ok(t.topic === 2 || t.situation, `${t.id}: a full type outside Functions needs a situation`);
     for (const f of ['name', 'summary', 'syllabus', 'skills', 'skillFit', 'chain', 'given', 'asked',
                      'answerForms', 'randomise', 'constraints', 'formats', 'parts', 'stats'])
       assert.ok(t[f] && (!Array.isArray(t[f]) || t[f].length), `${t.id}: missing ${f}`);

@@ -165,7 +165,7 @@ func test_a_typed_misconception_is_recognised() -> void:
 
 
 func test_probes() -> void:
-	var probes := QuestionEngine.probes()
+	var probes := QuestionEngine.probes().filter(func(x): return x.type in TYPES)
 	check_eq(probes.size(), 8)
 	check(QuestionEngine.probes(true).is_empty(), "exam-only leaves probes out")
 	var tfr := QuestionEngine.probe("fn-quadratic-features", 2)
