@@ -15,10 +15,17 @@
       "topic": 1,
       "name": "Number and algebra",
       "island": "topic-1-algebra",
+      "hours": 19,
       "subtopics": [
         {
           "id": "SL1.1",
           "title": "Operations with numbers in standard form",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Calculate with numbers in the form a × 10^k, where 1 ≤ a < 10 and k is an integer, with and without a calculator. Calculator notation such as 6.4E6 is not acceptable as a final answer.",
           "prereqs": [],
           "skills": [
@@ -278,6 +285,12 @@
         {
           "id": "SL1.2",
           "title": "Arithmetic sequences and series",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Use the formulae u_n = u_1 + (n − 1)d and S_n = n/2(2u_1 + (n − 1)d) = n/2(u_1 + u_n), and sigma notation, for arithmetic sequences and series. Apply them in context, and analyse, interpret and predict where a real-life model is not perfectly arithmetic.",
           "prereqs": [],
           "skills": [
@@ -743,6 +756,12 @@
         {
           "id": "SL1.3",
           "title": "Geometric sequences and series",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Use the formulae u_n = u_1 r^(n − 1) and S_n = u_1(r^n − 1)/(r − 1) = u_1(1 − r^n)/(1 − r), r ≠ 1, and sigma notation, for geometric sequences and series. Apply them in contexts such as population growth, spread of disease and salary increase or decrease.",
           "prereqs": [
             "SL1.2"
@@ -1127,6 +1146,12 @@
         {
           "id": "SL1.4",
           "title": "Financial applications of geometric sequences",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Apply geometric sequences and series to compound interest (compounded yearly, half-yearly, quarterly or monthly) and annual depreciation, by formula and with built-in financial packages such as the TVM solver. Includes the real value of an investment given an interest rate and an inflation rate.",
           "prereqs": [
             "SL1.3"
@@ -1489,6 +1514,12 @@
         {
           "id": "SL1.5",
           "title": "Integer exponents and introduction to logarithms",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Use the laws of exponents with integer exponents, including zero and negative exponents. Introduce logarithms with base 10 and e, with a^x = b equivalent to log_a b = x, and evaluate logarithms numerically with technology.",
           "prereqs": [
             "SL1.1"
@@ -1790,6 +1821,10 @@
         {
           "id": "SL1.6",
           "title": "Simple deductive proof",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Construct simple deductive proofs, both numerical and algebraic, laid out from the left-hand side to the right-hand side (LHS to RHS). Use the symbols for equality (=) and identity (≡) correctly.",
           "prereqs": [
             "SL1.2"
@@ -2086,6 +2121,10 @@
         {
           "id": "SL1.7",
           "title": "Rational exponents, laws of logarithms and exponential equations",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Use the laws of exponents with rational exponents and the laws of logarithms (log_a xy, log_a(x/y), log_a x^m), including change of base. Solve exponential equations, including by using logarithms.",
           "prereqs": [
             "SL1.5"
@@ -2544,6 +2583,11 @@
         {
           "id": "SL1.8",
           "title": "Sum of an infinite convergent geometric series",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-hl"
+          ],
           "guide": "Find the sum to infinity S∞ = u_1/(1 − r) of a geometric series, which exists only when |r| < 1. Includes finding conditions for convergence and applications.",
           "prereqs": [
             "SL1.3"
@@ -2878,6 +2922,10 @@
         {
           "id": "SL1.9",
           "title": "The binomial theorem",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Expand (a + b)^n for n ∈ ℕ using the binomial theorem, with coefficients from Pascal's triangle or nCr (technology is usually best for calculating nCr). Includes finding particular terms and coefficients.",
           "prereqs": [
             "SL1.5"
@@ -3232,10 +3280,17 @@
       "topic": 2,
       "name": "Functions",
       "island": "topic-2-functions",
+      "hours": 21,
       "subtopics": [
         {
           "id": "SL2.1",
           "title": "Equations of a straight line",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Equations of a straight line in the forms y = mx + c, ax + by + d = 0 and y − y₁ = m(x − x₁); gradient and intercepts; parallel lines (m₁ = m₂) and perpendicular lines (m₁ × m₂ = −1).",
           "prereqs": [],
           "skills": [
@@ -3638,6 +3693,12 @@
         {
           "id": "SL2.2",
           "title": "Functions: domain, range, graph, notation and informal inverse",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "The concept of a function as a mapping, with domain, range and graph; function notation such as f(x), v(t), C(n); the function as a mathematical model. The informal idea of an inverse as 'undoing' f, its graph as the reflection of y = f(x) in y = x, and the notation f⁻¹(x).",
           "prereqs": [
             "SL2.1"
@@ -4032,6 +4093,12 @@
         {
           "id": "SL2.3",
           "title": "The graph of a function",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Creating a sketch of y = f(x) from information given or from a context, including transferring a graph from screen to paper with key features labelled; using technology to graph the sum and difference of two functions.",
           "prereqs": [
             "SL2.2"
@@ -4331,6 +4398,12 @@
         {
           "id": "SL2.4",
           "title": "Key features of graphs and intersections",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Determining key features of graphs: maximum and minimum values, intercepts, symmetry, vertex, zeros of functions or roots of equations, and vertical and horizontal asymptotes, using technology where appropriate; finding points of intersection of two curves or lines using technology.",
           "prereqs": [
             "SL2.3"
@@ -4650,6 +4723,10 @@
         {
           "id": "SL2.5",
           "title": "Composite functions, identity and inverse functions",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Composite functions (f ∘ g)(x) = f(g(x)); the identity function and the property (f ∘ f⁻¹)(x) = (f⁻¹ ∘ f)(x) = x; finding the inverse function f⁻¹(x), including restricting the domain of f so that an inverse exists.",
           "prereqs": [
             "SL2.2"
@@ -4959,6 +5036,10 @@
         {
           "id": "SL2.6",
           "title": "Quadratic functions",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "The quadratic function f(x) = ax² + bx + c: its graph, y-intercept (0, c) and axis of symmetry; the form f(x) = a(x − p)(x − q) with x-intercepts (p, 0) and (q, 0); the form f(x) = a(x − h)² + k with vertex (h, k).",
           "prereqs": [
             "SL2.4"
@@ -5429,6 +5510,10 @@
         {
           "id": "SL2.7",
           "title": "Solving quadratic equations and inequalities; the discriminant",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Solving quadratic equations and inequalities, using factorisation, completing the square, the quadratic formula and technology; the discriminant Δ = b² − 4ac and the nature of the roots: two distinct real roots, two equal real roots, or no real roots.",
           "prereqs": [
             "SL2.6"
@@ -5760,6 +5845,10 @@
         {
           "id": "SL2.8",
           "title": "Reciprocal and rational functions",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "The reciprocal function f(x) = 1/x, x ≠ 0: its graph and self-inverse nature; rational functions of the form f(x) = (ax + b)/(cx + d) and their graphs; equations of vertical and horizontal asymptotes.",
           "prereqs": [
             "SL2.4",
@@ -6132,6 +6221,10 @@
         {
           "id": "SL2.9",
           "title": "Exponential and logarithmic functions",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Exponential functions f(x) = a^x (a > 0) and f(x) = e^x, and their graphs; logarithmic functions f(x) = log_a x and f(x) = ln x (x > 0), and their graphs; exponential and logarithmic functions as inverses of each other.",
           "prereqs": [
             "SL1.5",
@@ -6479,6 +6572,10 @@
         {
           "id": "SL2.10",
           "title": "Solving equations graphically and analytically",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Solving equations both graphically and analytically; using technology to solve a variety of equations, including those where there is no appropriate analytic approach; applications to real-life situations.",
           "prereqs": [
             "SL2.4",
@@ -6787,6 +6884,11 @@
         {
           "id": "SL2.11",
           "title": "Transformations of graphs",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-hl"
+          ],
           "guide": "Transformations of graphs: translations y = f(x) + b and y = f(x − a), including translation by the vector (a, b); reflections in the x-axis (y = −f(x)) and the y-axis (y = f(−x)); vertical stretch y = p f(x) with scale factor p; horizontal stretch y = f(qx) with scale factor 1/q; composite transformations.",
           "prereqs": [
             "SL2.3",
@@ -7256,10 +7358,17 @@
       "topic": 3,
       "name": "Geometry and trigonometry",
       "island": "topic-3-geometry",
+      "hours": 25,
       "subtopics": [
         {
           "id": "SL3.1",
           "title": "3D distance and midpoint, volume and surface area of solids, angles in 3D",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Distance between two points and the midpoint of a segment in three-dimensional space. Volume and surface area of right pyramids, right cones, spheres, hemispheres and their combinations; the angle between two intersecting lines or between a line and a plane.",
           "prereqs": [
             "SL3.2"
@@ -7621,6 +7730,12 @@
         {
           "id": "SL3.2",
           "title": "Right-angled and non-right-angled triangle trigonometry",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Use of the sine, cosine and tangent ratios to find sides and angles in right-angled triangles. The sine rule, the cosine rule and area of a triangle = ½ab sin C for any triangle (the ambiguous case is in SL3.5).",
           "prereqs": [],
           "skills": [
@@ -8023,6 +8138,12 @@
         {
           "id": "SL3.3",
           "title": "Applications of right and non-right trigonometry",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Applying Pythagoras, right-angled trigonometry, the sine rule and the cosine rule in context, including angles of elevation and depression and bearings, and constructing labelled diagrams from written statements.",
           "prereqs": [
             "SL3.2"
@@ -8255,6 +8376,10 @@
         {
           "id": "SL3.4",
           "title": "The circle: radians, arc length and sector area",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Radian measure of angles and conversion between degrees and radians. Length of an arc and area of a sector, l = rθ and A = ½r²θ with θ in radians.",
           "prereqs": [],
           "skills": [
@@ -8515,6 +8640,10 @@
         {
           "id": "SL3.5",
           "title": "The unit circle, exact values and the ambiguous case",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Definition of cos θ and sin θ in terms of the unit circle, and tan θ = sin θ / cos θ. Exact values of the trig ratios of 0, π/6, π/4, π/3, π/2 and their multiples; extension of the sine rule to the ambiguous case.",
           "prereqs": [
             "SL3.2",
@@ -8831,6 +8960,10 @@
         {
           "id": "SL3.6",
           "title": "Trigonometric identities and relationships between ratios",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "The Pythagorean identity cos²θ + sin²θ = 1 and the double angle identities for sine and cosine. Finding the value of one trig ratio given another, using the quadrant to decide the sign.",
           "prereqs": [
             "SL3.5",
@@ -9068,6 +9201,10 @@
         {
           "id": "SL3.7",
           "title": "Circular functions and their graphs",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "The circular functions sin x, cos x and tan x: amplitude, periodic nature and graphs. Composite functions of the form f(x) = a sin(b(x + c)) + d, transformations, and real-life periodic contexts.",
           "prereqs": [
             "SL3.4",
@@ -9401,6 +9538,10 @@
         {
           "id": "SL3.8",
           "title": "Solving trigonometric equations",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Solving trigonometric equations in a finite interval, both graphically and analytically. Equations leading to quadratic equations in sin x, cos x or tan x.",
           "prereqs": [
             "SL3.5",
@@ -9713,10 +9854,17 @@
       "topic": 4,
       "name": "Statistics and probability",
       "island": "topic-4-stats",
+      "hours": 27,
       "subtopics": [
         {
           "id": "SL4.1",
           "title": "Collecting data: populations, samples and sampling",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Population, sample and random sample; discrete and continuous data; reliability of data sources and bias in sampling; interpreting outliers; simple random, convenience, systematic, quota and stratified sampling and how effective each is.",
           "prereqs": [],
           "skills": [
@@ -9967,6 +10115,12 @@
         {
           "id": "SL4.2",
           "title": "Presentation of data",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Frequency tables with class intervals written as inequalities; frequency histograms with equal class widths; cumulative frequency tables and graphs used to find the median, quartiles, percentiles, range and IQR; drawing and interpreting box-and-whisker diagrams, marking outliers more than 1.5 × IQR from the nearest quartile, and comparing distributions.",
           "prereqs": [
             "SL4.1"
@@ -10307,6 +10461,12 @@
         {
           "id": "SL4.3",
           "title": "Measures of central tendency and dispersion",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Mean, median and mode; estimating the mean of grouped data and the modal class; IQR, standard deviation and variance (calculated with technology); the effect of adding or multiplying every value by a constant; quartiles of discrete data.",
           "prereqs": [
             "SL4.2"
@@ -10650,6 +10810,12 @@
         {
           "id": "SL4.4",
           "title": "Correlation and the regression line of y on x",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Scatter diagrams and linear correlation; Pearson's product-moment correlation coefficient r found with technology, and the difference between correlation and causation; lines of best fit by eye through the mean point; the regression line of y on x by technology, its use for prediction, and interpreting a and b in y = ax + b.",
           "prereqs": [
             "SL2.1",
@@ -10939,6 +11105,12 @@
         {
           "id": "SL4.5",
           "title": "Basic probability",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Trials, outcomes, equally likely outcomes, relative frequency, sample space U and events; P(A) = n(A)/n(U) for equally likely outcomes; complementary events A and A′; expected number of occurrences.",
           "prereqs": [],
           "skills": [
@@ -11125,6 +11297,12 @@
         {
           "id": "SL4.6",
           "title": "Combined events: Venn, tree and sample space diagrams",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Using Venn diagrams, tree diagrams, sample space diagrams and tables of outcomes to find probabilities, with and without replacement; combined events P(A ∪ B) = P(A) + P(B) − P(A ∩ B); mutually exclusive events; conditional probability; independent events with P(A ∩ B) = P(A)P(B).",
           "prereqs": [
             "SL4.5"
@@ -11513,6 +11691,12 @@
         {
           "id": "SL4.7",
           "title": "Discrete random variables",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Discrete random variables and their probability distributions, given as a table or as a function; probabilities add to 1; expected value E(X) = Σ x P(X = x); applications, including fair games, where E(X) = 0 for the player's gain.",
           "prereqs": [
             "SL4.5",
@@ -11808,6 +11992,12 @@
         {
           "id": "SL4.8",
           "title": "The binomial distribution",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Recognising when X ~ B(n, p) is a suitable model; finding binomial probabilities with technology; mean E(X) = np and variance Var(X) = np(1 − p).",
           "prereqs": [
             "SL1.9",
@@ -12133,6 +12323,12 @@
         {
           "id": "SL4.9",
           "title": "The normal distribution",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "The normal curve and its properties: symmetric about the mean, mean = median = mode, and approximately 68%, 95% and 99.7% of values within 1, 2 and 3 standard deviations; sketching and shading diagrams; normal probabilities and inverse normal values found with technology.",
           "prereqs": [
             "SL4.3",
@@ -12431,6 +12627,10 @@
         {
           "id": "SL4.10",
           "title": "The regression line of x on y",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Finding the regression line of x on y with technology and using it to predict x from a given y; knowing that y on x predicts y from x and x on y predicts x from y, and that both lines pass through the mean point.",
           "prereqs": [
             "SL4.4"
@@ -12615,6 +12815,10 @@
         {
           "id": "SL4.11",
           "title": "Conditional probability and independence (formal)",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Formal definition and use of P(A | B) = P(A ∩ B)/P(B); for independent events P(A | B) = P(A) = P(A | B′); testing whether events are independent.",
           "prereqs": [
             "SL4.6"
@@ -12934,6 +13138,10 @@
         {
           "id": "SL4.12",
           "title": "Standardisation and inverse normal with unknown parameters",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Standardising normal variables with z = (x − μ)/σ, where z is the number of standard deviations from the mean; using z-values from technology to find an unknown mean and/or standard deviation.",
           "prereqs": [
             "SL4.9"
@@ -13203,10 +13411,17 @@
       "topic": 5,
       "name": "Calculus",
       "island": "topic-5-calculus",
+      "hours": 28,
       "subtopics": [
         {
           "id": "SL5.1",
           "title": "Limits and the derivative as a rate of change",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "An informal idea of a limit, estimated from a table or a graph. The derivative is the gradient function of a curve (the limiting gradient of chords) and a rate of change, written dy/dx, f′(x), ds/dt and so on.",
           "prereqs": [
             "SL2.1",
@@ -13458,6 +13673,12 @@
         {
           "id": "SL5.2",
           "title": "Increasing and decreasing functions",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Increasing and decreasing functions, identified from the sign of the derivative. Graphical interpretation of f′(x) > 0, f′(x) = 0 and f′(x) < 0.",
           "prereqs": [
             "SL5.1",
@@ -13771,6 +13992,12 @@
         {
           "id": "SL5.3",
           "title": "Differentiating ax^n (n ∈ ℤ)",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "The derivative of f(x) = axⁿ is f′(x) = anxⁿ⁻¹ for integer n, including negative powers. Derivatives of sums of such terms, and gradients of curves at given points.",
           "prereqs": [
             "SL5.1",
@@ -14035,6 +14262,12 @@
         {
           "id": "SL5.4",
           "title": "Tangents and normals",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Equations of the tangent and the normal to a curve at a given point. The tangent's gradient is f′(a) and the normal's is the negative reciprocal.",
           "prereqs": [
             "SL5.3",
@@ -14371,6 +14604,12 @@
         {
           "id": "SL5.5",
           "title": "Introduction to integration",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-sl",
+            "ai-hl"
+          ],
           "guide": "Integration as anti-differentiation of sums of axⁿ (n ∈ ℤ, n ≠ −1), with a boundary condition to find the constant. Definite integrals using technology, and the area between a curve and the x-axis where f(x) > 0.",
           "prereqs": [
             "SL5.3",
@@ -14727,6 +14966,10 @@
         {
           "id": "SL5.6",
           "title": "Further differentiation: standard functions, chain, product and quotient rules",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Derivatives of xⁿ (n ∈ ℚ), sin x, cos x, eˣ and ln x, and of sums and multiples of these. Differentiation of composite functions (chain rule), products (product rule) and quotients (quotient rule).",
           "prereqs": [
             "SL5.3",
@@ -15055,6 +15298,10 @@
         {
           "id": "SL5.7",
           "title": "The second derivative",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "The second derivative f″(x), or d²y/dx², and concavity. The relationships between the graphs of f, f′ and f″.",
           "prereqs": [
             "SL5.2",
@@ -15348,6 +15595,10 @@
         {
           "id": "SL5.8",
           "title": "Stationary points, optimisation and points of inflexion",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Local maximum and minimum points, found from f′(x) = 0 and tested with the first or second derivative. Optimisation in context, and points of inflexion with zero and non-zero gradient.",
           "prereqs": [
             "SL5.2",
@@ -15778,6 +16029,11 @@
         {
           "id": "SL5.9",
           "title": "Kinematics",
+          "courses": [
+            "aa-sl",
+            "aa-hl",
+            "ai-hl"
+          ],
           "guide": "Motion in a straight line: displacement s, velocity v = ds/dt and acceleration a = dv/dt = d²s/dt². Displacement from velocity by integration, and total distance travelled as the integral of speed |v|.",
           "prereqs": [
             "SL5.1",
@@ -16149,6 +16405,10 @@
         {
           "id": "SL5.10",
           "title": "Further indefinite integration",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Indefinite integrals of xⁿ (n ∈ ℚ), sin x, cos x, 1/x and eˣ, and of their composites with ax + b. Integration by inspection (reverse chain rule) or substitution for integrals of the form ∫ k g′(x) f(g(x)) dx.",
           "prereqs": [
             "SL5.5",
@@ -16496,6 +16756,10 @@
         {
           "id": "SL5.11",
           "title": "Definite integrals and areas",
+          "courses": [
+            "aa-sl",
+            "aa-hl"
+          ],
           "guide": "Definite integrals evaluated analytically, including their properties. Areas between a curve and the x-axis where f(x) may be negative (without technology), and areas between two curves.",
           "prereqs": [
             "SL5.5",

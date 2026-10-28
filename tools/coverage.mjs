@@ -13,19 +13,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
+import { ENUMS } from './map-schema.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = new Set(process.argv.slice(2));
-
-const ENUMS = {
-  paper: ['p1', 'p2', 'either'],
-  formats: ['mcq', 'value', 'multipart', 'error-spot', 'method-pick', 'match',
-            'order-steps', 'graph-pick', 'true-false-reason'],
-  representations: ['symbolic', 'graph', 'table', 'words', 'context', 'diagram', 'vector'],
-  approach: ['algebraic', 'formula', 'graphical', 'gdc', 'numerical', 'geometric',
-             'calculus', 'symmetry', 'structural', 'transformation', 'diagram',
-             'counting', 'estimation', 'contextual', 'proof'],
-};
 
 const readJSON = f => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 const map     = readJSON('curriculum/aa-sl.json');
