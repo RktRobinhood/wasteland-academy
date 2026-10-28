@@ -51,6 +51,19 @@ func need(unknown: String, rep: String) -> Dictionary:
 	return n
 
 
+## Two needs as one, for a shared family (QuestionEngine.families). A need on a plain
+## quadratic (base) shares no keys with a need on k, so the default would merge them and
+## the k views would get a quadratic without k. They stay apart; base needs merge their
+## bases.
+func merge_need(a: Dictionary, b: Dictionary) -> Variant:
+	if a.has("base") != b.has("base"):
+		return null
+	if not a.has("base"):
+		return QuestionEngine.merge_need(a, b)
+	var base = QuestionEngine.merge_need(a.base, b.base)
+	return null if base == null else {"base": base}
+
+
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
 	for key in ["lines", "graph", "table", "wrongs", "generic"]:
