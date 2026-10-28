@@ -14,7 +14,7 @@ const NEED := {
 	"derivative-from-fraction": {},
 	"gradient-at-point": {"x0": true},
 	"tangent-at-point": {"x0": true},
-	"normal-at-point": {"x0": true},
+	"normal-at-point": {"x0": true, "normal": true},
 	"read-from-tangent": {"x0": true},
 	"x-for-gradient": {"gradient": true},
 	"coefficient-from-tangent": {"x0": true, "hide": true},
@@ -286,6 +286,8 @@ func u_normal_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	rf.append("%s + %s%s = 0" % [Fmt.factor(s.x0) if not s.x0.is_zero() else "x", P(m), yf])
 	rf.append("%s%s = %s" % [P(m), yf, Fmt.poly([-1, s.x0])])
 	rf.append("y%s = %s" % [Fmt.plus(s.y0.neg()) if not s.y0.is_zero() else "", Fmt.poly([mn, s.x0.div(m)])])
+	if not s.y0.is_zero():
+		rf.append("y = %s%s = %s" % [Fmt.poly([mn, s.x0.div(m)]), Fmt.plus(s.y0), Fmt.poly([mn, c])])
 	rf.append("So the normal is %s." % Answer.text(ans))
 	var ct: Q = s.y0.sub(m.mul(s.x0))
 	return {
@@ -441,7 +443,7 @@ func u_coefficient_from_tangent(rep: String, s: Dictionary, rng: Seeded) -> Dict
 	return {
 		"asked": asked, "lines": lines, "given": given_q, "answer": ans,
 		"wrongs": wrongs, "generic": generic,
-		"methods": {"gradient-match": {"steps": st, "result": ans.values}},
+		"methods": {"form-equations": {"steps": st, "result": ans.values}},
 	}
 
 

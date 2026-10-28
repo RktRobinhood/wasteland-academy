@@ -97,6 +97,14 @@ func test_the_normal_takes_three_significant_figures() -> void:
 	check(tried > 0, "no normal with a fractional gradient in 60 seeds")
 
 
+func test_the_normal_is_paper_1_friendly() -> void:
+	for seed in range(1, 101):
+		var q := _make("t5-tangent-normal-equation", "normal-at-point", "words", "rearranged-form", seed)
+		var v: Dictionary = q.answer.values
+		check(v.m.d <= CubicSituation.NORMAL_DEN_MAX and v.c.d <= CubicSituation.NORMAL_DEN_MAX,
+			"seed %d: y = %sx + %s" % [seed, v.m.key(), v.c.key()])
+
+
 func test_words_ask_for_dy_dx() -> void:
 	var q := _make("t5-differentiate-polynomial", "derivative", "words", "power-rule", 1)
 	check(q.asked.contains("dy/dx"), q.asked)
@@ -113,7 +121,7 @@ func test_another_way_is_worked_too() -> void:
 
 func test_the_tangent_condition_hides_a_coefficient() -> void:
 	for seed in range(1, 21):
-		var q := _make("t5-tangent-condition", "coefficient-from-tangent", "equation", "gradient-match", seed)
+		var q := _make("t5-tangent-condition", "coefficient-from-tangent", "equation", "form-equations", seed)
 		check(q.lines[0].contains("k"), q.lines[0])
 		check(q.answer.get("exact", false), "k is marked exactly")
 		var hid: String = q.situation.hidden

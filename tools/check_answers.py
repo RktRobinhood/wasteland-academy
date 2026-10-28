@@ -1415,6 +1415,7 @@ CUBIC_A = {1, -1, 2, -2}
 CUBIC_PQ_MAX, CUBIC_B_MAX, CUBIC_C_MAX, CUBIC_D_MAX = 4, 30, 30, 9
 CUBIC_Y_MAX, CUBIC_X0_MAX, CUBIC_M0_MAX = 60, 3, 40
 CUBIC_R_MAX, CUBIC_G_MAX = 5, 60
+CUBIC_NORMAL_DEN_MAX = 6
 CUBIC_EXACT = {"derivative", "derivative-from-fraction", "coefficient-from-tangent"}
 MAXMIN = ("local maximum", "local minimum")
 K = LETTERS["k"]
@@ -1514,6 +1515,8 @@ def check_cubic(q):
         m = f1.subs(X, x0)
         if u == "normal-at-point":
             m = -1 / m
+            need(m.q <= CUBIC_NORMAL_DEN_MAX and (f.subs(X, x0) - m * x0).q <= CUBIC_NORMAL_DEN_MAX,
+                 "the normal is not Paper 1 friendly (a denominator above 6)")
         return {"m": m, "c": f.subs(X, x0) - m * x0}, None
     if u == "read-from-tangent":
         m = re.fullmatch(r"(?:L: |.* has equation )(y = [^.]+)\.?", q["lines"][0])

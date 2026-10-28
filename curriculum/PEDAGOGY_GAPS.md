@@ -1828,7 +1828,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 - **Unknowns:**
   - **exam** L2: given f(x) as a cubic; a gradient g, or a line with gradient g → the two x-values where the gradient is g
   - **exam** L3: given f(x) with one coefficient written as k; the gradient of the tangent at x₀ → k
-- **Angles:** Solve f′(x) = k; Turn the condition into a gradient; Match gradients to find the point of contact.
+- **Angles:** Solve f′(x) = k; Turn the condition into a gradient; Turn each condition into an equation.
 - **Concept probes:**
   - *always-sometimes-never* (L4): A cubic has a tangent with gradient g, whatever the number g. — Sometimes: f′ is a quadratic, so its values stop on one side. For a > 0 there is a least gradient, and no tangent is steeper downhill than that.
 - **Misconceptions used:** 1. Solving f(x) = k instead of f′(x) = k.

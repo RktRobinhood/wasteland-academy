@@ -18,6 +18,8 @@ extends RefCounted
 ## need (all optional):
 ##   even       p + q even, so the point of inflexion is on whole numbers
 ##   x0         pick x0 (not 0, p or q, so f′(x0) ≠ 0)
+##   normal     with x0: a Paper 1 normal, its gradient −1/f′(x0) and c with
+##              denominators of NORMAL_DEN_MAX or less
 ##   gradient   pick r, s and g
 ##   hide       pick the hidden coefficient, b or c
 ##
@@ -32,6 +34,9 @@ const D_MAX := 9
 const Y_MAX := 60        ## |f| at the stationary points, the inflexion and x0
 const X0_MAX := 3
 const M0_MAX := 40       ## 0 < |f′(x0)| ≤ 40
+## f′ is 3a(x − p)(x − q), a multiple of 3, so the normal's gradient −1/f′(x0) has
+## denominator 3 or 6, and c = f(x0) + x0/f′(x0) a denominator dividing it.
+const NORMAL_DEN_MAX := 6
 const R_MAX := 5         ## the x-values with a given gradient
 const G_MAX := 60
 const TRIES := 4000
@@ -103,6 +108,8 @@ static func _pick_x0(rng: Seeded, s: Dictionary, need: Dictionary) -> bool:
 			continue
 		var y := f(s, x)
 		var m := f1(s, x)
+		if need.get("normal", false) and absi(m.n) > NORMAL_DEN_MAX:
+			continue
 		if absi(y.n) <= Y_MAX and absi(m.n) <= M0_MAX:
 			options.append(x)
 	if options.is_empty():

@@ -2539,6 +2539,7 @@
 				"Paper 1: every value exact, and a, b, c, d whole numbers",
 				"|b|, |c| ≤ 30, |d| ≤ 9, and |f| ≤ 60 at the stationary points and the point of inflexion",
 				"x₀ from −3 to 3 with |f(x₀)| ≤ 60 and 0 < |f′(x₀)| ≤ 40",
+				"the normal is asked only where |f′(x₀)| ≤ 6, so its gradient and c have denominators of 6 or less",
 				"the two x-values with a given gradient are distinct whole numbers from −5 to 5, and |g| ≤ 60"
 			]
 		}
@@ -17793,13 +17794,13 @@
 					"about": "Parallel means equal gradients, perpendicular means the negative reciprocal; set f′(x) equal to the required value and solve."
 				},
 				{
-					"skill": "SL5.4.tangency-condition",
-					"method": "gradient-match",
+					"skill": "SL5.3.unknown-coefficients",
+					"method": "form-equations",
 					"suits": [
 						"coefficient-from-tangent"
 					],
-					"name": "Match gradients to find the point of contact",
-					"about": "Set f′(x) equal to the line's gradient to find the point of contact, then substitute into both equations to find the constant."
+					"name": "Turn each condition into an equation",
+					"about": "Differentiate with the unknowns in place, write one equation per condition, and solve (simultaneously if needed)."
 				}
 			],
 			"concepts": [
