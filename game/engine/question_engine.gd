@@ -146,7 +146,11 @@ static func make(view: Dictionary) -> Dictionary:
 	# the same numbers, but by this view's angle.
 	var rng_angle: String = view.get("same_angle", v.angle)
 	var rng := Seeded.new("%s|%d" % [cell_key(v.t.id, v.u.id, v.rep, rng_angle), v.seed])
-	var s: Dictionary = SITUATIONS[v.t.situation][0].generate(rng, v.views.need(v.u.id, v.rep))
+	# The view's method rides along, for recipes whose numbers depend on it (a Paper 2
+	# context that a factorising method can't solve). Other recipes ignore it.
+	var nd: Dictionary = v.views.need(v.u.id, v.rep)
+	nd["angle"] = v.angle
+	var s: Dictionary = SITUATIONS[v.t.situation][0].generate(rng, nd)
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % cell_key(v.t.id, v.u.id, v.rep, v.angle)}
 	var q := _build(v, s, rng)
@@ -176,7 +180,11 @@ static func make_chain(steps: Array, seed: int) -> Dictionary:
 		if sit != "" and v.t.situation != sit:
 			return {"error": "%s is on %s, not %s" % [v.t.id, v.t.situation, sit]}
 		sit = v.t.situation
-		var merged := merge_needs(need, v.views.need(v.u.id, v.rep))
+		# The first part's method shapes the numbers, where a recipe reads it.
+		var nd: Dictionary = v.views.need(v.u.id, v.rep)
+		if not need.has("angle"):
+			nd["angle"] = v.angle
+		var merged := merge_needs(need, nd)
 		if merged.has("error"):
 			return {"error": "%s|%s: %s" % [v.t.id, v.u.id, merged.error]}
 		need = merged
