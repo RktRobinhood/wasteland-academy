@@ -312,7 +312,7 @@ Short "ready" loops for the 3 class badges, the 3 skill **on** icons and the 3 l
 
 ### Spec
 - Folder: `assets/ui/encounter/`. PNG with transparency, no words in any image: code draws all text.
-- `ui.json` gives each image's `width` and `height`, and each stretchable image its nine-slice margins (`left`, `top`, `right`, `bottom`, in native px).
+- `ui.json`: `images` gives each image's `width` and `height`; `nine_slice` gives each stretchable image its margins (`left`, `top`, `right`, `bottom`, in native px).
 - Nine-slice: keep the corners fixed and stretch only the edges and centre. The unknown card is nine-sliced too, so its corners survive.
 - The bubble tail is a separate image, placed over the speaker.
 - Calm rule: no animated UI while a question is open.
