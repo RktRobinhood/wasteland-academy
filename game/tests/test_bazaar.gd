@@ -163,6 +163,27 @@ func test_each_perk_in_a_run() -> void:
 			check_eq(r.time_total, plain.time_total, id)
 
 
+func test_second_wind_heals_after_the_boss_in_a_run() -> void:
+	var s := _rich()
+	Bazaar.buy(s, "second_wind")
+	var r := Run.new(s, "quadratics", 1, 8)
+	r.clock = func() -> int: return NOW
+	Bazaar.equip(r, s)
+	r.start()
+	var healed := {}
+	var guard := 0
+	while r.state != "ended" and guard < 300 and r.floor_no == 1:
+		if not r.boss.is_empty() and r.boss.part == r.boss.parts.size() - 1:
+			r.hp = 50
+		var res := r.answer(Combat.respond(r.question, true))
+		if res.defeated and res.part >= 0:
+			healed[r.kind] = res.healed
+			check_eq(r.hp, 50 + res.healed, r.kind)
+		r.next()
+		guard += 1
+	check_eq(healed, {"mini": 0, "boss": Tuning.PERK_SECOND_WIND_HP}, "after the boss, not the mini-boss")
+
+
 func test_a_perk_is_used_up_after_one_run() -> void:
 	for id in Bazaar.PERKS:
 		var s := _rich()
@@ -443,6 +464,7 @@ func test_the_fight_screen_wears_the_plate_and_shows_the_perk() -> void:
 	var f: Control = (load("res://scenes/fight.tscn") as PackedScene).instantiate()
 	f.save_path = path
 	f.run_seed = 3
+	f.select_first = false
 	frame.add_child(f)
 	await tree.process_frame
 	var plate := f.find_child("NamePlate", true, false) as PanelContainer
