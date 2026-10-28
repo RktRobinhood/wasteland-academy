@@ -22,7 +22,9 @@ game/
 ├── engine/dungeon.gd    ← floors by level, tiers, boss chains, start floors (see "The dungeon")
 ├── engine/map_link.gd   ← map links (#functions/quadratics), browser history, music by island
 ├── engine/progress.gd   ← a region's accuracy, best floor, coverage and weakest skills
-├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains
+├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains, Bazaar prices
+├── engine/bazaar.gd     ← the Bazaar's rules: upgrades, perks, cosmetics (see "The Bazaar")
+├── scenes/bazaar.tscn   ← the Bazaar screen (ui/bazaar.gd); ui/name_plate.gd draws the plate
 ├── ui/                  ← screens and the graph view
 ├── data/catalogue.json  ← generated from curriculum/question-types.json (don't edit)
 ├── scenes/audio_hud.tscn ← the AudioHud autoload: speaker icon, gear, settings screen
@@ -34,6 +36,7 @@ game/
 ├── tools/screenshot.gd  ← used by ../screenshot.sh
 ├── tools/export_questions.gd  ← used by ../tools/check-answers
 ├── tools/stress_questions.gd  ← used by ../tools/stress-questions
+├── tools/bazaar_sim.gd, bazaar_balance.gd  ← the Bazaar's balance check and price table
 ├── addons/godot_mcp_toolkit/  ← editor plugin for the Godot MCP (see docs/MCP-NOTES.md)
 └── docs/MCP-NOTES.md
 ```
@@ -208,7 +211,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Version 2 (FAL-413): `class` is null until classes exist, `trees` and `lessons` are
   empty, `scrap` is the Scrap banked from runs and `runs` totals them. A save without
   `class` or `trees` gets them on load. Version 3 (FAL-415): `dungeon` holds each
-  region's best floor and the floors whose boss fell.
+  region's best floor and the floors whose boss fell. Version 4 (FAL-416): `bazaar`,
+  what the Bazaar sold; an older save gets a blank one and keeps its Scrap to spend.
 
 ## Combat
 
@@ -255,9 +259,10 @@ lifeline row for the Paper 1 or 2 badge (C1).
   with the view's `same_angle`) asked by the next angle the type lists for that unknown,
   for bonus Scrap. Only where the unknown has more than one angle.
 - **Modifiers (class plan phase 0, FAL-291).** Every damage, heal, Scrap and time value,
-  and the starting HP, passes through `run.modifiers.apply(kind, value, ctx)`
-  (`engine/modifiers.gd`), which returns it unchanged until something is added. Bazaar
-  perks (G6) and classes (FAL-308) add a Callable.
+  the starting HP, each lifeline's starting charges and what one use costs, pass through
+  `run.modifiers.apply(kind, value, ctx)` (`engine/modifiers.gd`), which returns it
+  unchanged until something is added. The Bazaar (G6) and classes (FAL-308) add a
+  Callable.
 - **Fight slots (FAL-347).** `Run.slot_kind(seed, floor, fight)` says what a slot is:
   "fight", "encounter" or "cell". It always says "fight" until FAL-349. The run asks it
   for every slot, bosses too.
@@ -452,6 +457,37 @@ for the all-regions dungeon at the tower, or `relic` for the Relic device (only
 and centred, with the spot's name and progress line under it, so leave the bottom of
 the background clear below each spot.
 
+## The Bazaar
+
+Scrap banked from runs buys things at the Bazaar (G6, Q10). The title screen and a
+run's summary link to it until the map (G5) does. `engine/bazaar.gd` holds the rules and
+no UI; `ui/bazaar.gd` draws them. Every price, cap and perk value is in the Bazaar
+section of `engine/tuning.gd`.
+
+- **Upgrades, kept for good and capped:** Max HP +10, up to 3 times (100 to 130), and
+  +1 charge of a lifeline the player picks, up to 2 times in all.
+- **One perk slot, for the next run only:** Field Manual (a Hint spends no charge),
+  Scrap Armour (+20 HP), Lucky Find (+1 charge on a lifeline the player picks), Second
+  Wind (+20 on G4's boss heal, after a boss but not a mini-boss) and Field Watch (+10 s
+  on every question's clock, not Time Freeze). A second perk can't be bought while one
+  waits. The run uses it up as it starts.
+- **Cosmetics:** name-plate frames from the encounter UI art (Field Note, Signal Box,
+  Brass Chip) and colour tints from the Salvage Neon palette, for the plate over the
+  player's HP bar and the bar itself. Looks only.
+- **Through the modifiers only.** `Bazaar.equip(run, save)`, before `run.start()`, adds
+  one modifier built from what was bought and empties the perk slot. Nothing in the
+  Bazaar touches combat code.
+- **A failed purchase changes nothing**, and says why: not enough Scrap, at its cap,
+  owned already, the perk slot full, or no lifeline picked.
+- **Prices** come from the Scrap a player who answers 70% right banks in a run
+  (`Tuning.SCRAP_PER_RUN_70`): each upgrade level and cosmetic costs 2 to 3 runs of it,
+  and a perk under one. `tools/bazaar_sim.gd` plays real runs and shops after each;
+  `test_bazaar.gd` checks that such a player unlocks something every 2 or 3 runs. Print
+  the price table with
+  `godot --headless --path game --script res://tools/bazaar_balance.gd`.
+- Deep links: `/next/?bazaar` opens it, `/next/?bazaar=demo` opens it on a sample save
+  and stores nothing (screenshots).
+
 ## Tests
 
 `game/tests/run_tests.gd` is a small runner with no third-party framework. It loads
@@ -493,6 +529,11 @@ script error happens while it runs. Run one file with
   and without Time Freeze; glancing hits and the rounding trap; lifelines; "Another
   way" on floor 2 and never on floor 1; a modifier that doubles Scrap; the stakes table;
   the slot picker; and the journey signals connected to nothing.
+- `test_bazaar.gd`: each upgrade stops at its cap, each perk changes exactly its own
+  value through the modifiers and is used up after one run, one perk slot, Scrap never
+  goes negative and a failed purchase changes nothing, cosmetics, the save and its
+  migration, the 70% player's runs per unlock, the screen, and the plate and perk on
+  the fight screen.
 - `test_fight.gd`: the fight screen plays a miss with its worked solution, a hit, a
   timeout, the lifelines, quit and the summary, the floor select with beaten floors, a
   boss part with the value carried on, and fits at 360x780, 390x844 and 1280x800.
