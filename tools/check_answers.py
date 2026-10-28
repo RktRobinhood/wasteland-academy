@@ -1531,6 +1531,10 @@ def qr_check_common(q, want, wrongs=None):
     seen, texts = [], set()
     for o in ch:
         n = qr_norm(ans, o["values"])
+        if o.get("trap"):
+            # Q7's rounding trap: the answer to 2 s.f., a glancing hit, never the answer.
+            need(not o["correct"] and n != want and not o["ref"], f"rounding trap {o['text']!r} is wrong-tagged")
+            continue
         need(n not in seen, f"two options are the same: {o['text']!r}")
         seen.append(n)
         need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
