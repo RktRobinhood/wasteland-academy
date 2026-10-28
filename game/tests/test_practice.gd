@@ -11,6 +11,9 @@ const VIEWS := [
 	{"type": "fn-quadratic-features", "unknown": "vertex-from-table", "rep": "table", "angle": "midpoint-of-roots", "format": "value", "seed": 4},
 	{"type": "fn-quadratic-from-conditions", "unknown": "range-after-finding", "rep": "words", "angle": "vertex-or-asymptote", "format": "value", "seed": 5},
 	{"type": "fn-concept-quadratic-forms", "unknown": "match-three-forms", "rep": "graph", "angle": "compare-coefficients", "format": "mcq", "seed": 6},
+	{"type": "t5-stationary-points", "unknown": "stationary-points", "rep": "equation", "angle": "solve-f-prime-zero", "format": "value", "seed": 9},
+	{"type": "t5-stationary-points", "unknown": "nature", "rep": "words", "angle": "second-derivative-test", "format": "mcq", "seed": 10},
+	{"type": "t5-tangent-normal-equation", "unknown": "normal-at-point", "rep": "equation", "angle": "rearranged-form", "format": "value", "seed": 11},
 	{"type": "fn-quadratic-features", "probe": 2, "format": "probe"},
 	{"type": "fn-quadratic-features", "probe": 0, "format": "probe"},
 ]
