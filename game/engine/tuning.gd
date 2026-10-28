@@ -195,3 +195,42 @@ static func minutes_per_mark(on_floor: int) -> float:
 static func seconds_for(marks: int, on_floor: int, typed: bool) -> int:
 	var s := roundi(maxi(marks, 1) * minutes_per_mark(on_floor) * 60.0) + (TYPED_BONUS if typed else 0)
 	return maxi(MIN_SECONDS, s)
+
+
+# ── The Bazaar (G6, Q10) ─────────────────────────────────────
+#
+# Prices are set from the Scrap a typical student banks in a run: a simulated player
+# who answers 70% right earns about SCRAP_PER_RUN_70 (FAL-416; measured on G3's run
+# loop). A permanent unlock (an upgrade level or a cosmetic) costs 2 to 3 runs of that,
+# so they unlock something every 2 or 3 runs (test_bazaar.gd plays it). A perk costs
+# under one run, the HTML game's prices (175 to 250 at about 300 Scrap a run) scaled
+# to this game's Scrap. Q10: rebalance once there's play data.
+
+## Scrap a 70%-right player banks per run, the figure the prices below are set from.
+const SCRAP_PER_RUN_70 := 383
+
+## Permanent upgrades: one price per level, so the cap is the number of prices.
+##   max_hp    +MAX_HP_STEP max HP a level (100 to 130)
+##   lifeline  +1 charge of a lifeline the player picks when buying
+const UPGRADES := {
+	"max_hp": [850, 950, 1050],
+	"lifeline": [900, 1000],
+}
+const MAX_HP_STEP := 10
+
+## Perks: one slot, bought for the next run only, used up when it starts.
+const PERKS := {
+	"field_manual": 300,   # hints are free (a Hint spends no charge)
+	"scrap_armour": 250,   # +PERK_ARMOUR_HP HP
+	"lucky_find": 200,     # +1 charge on a lifeline the player picks
+	"second_wind": 275,    # heal PERK_SECOND_WIND_HP after each boss
+	"field_watch": 225,    # +PERK_WATCH_SECONDS on every question's clock
+}
+const PERK_ARMOUR_HP := 20
+const PERK_SECOND_WIND_HP := 20
+## The boss kinds Second Wind heals after ("mini" is the mini-boss at fight 5).
+const PERK_SECOND_WIND_AFTER := ["boss"]
+const PERK_WATCH_SECONDS := 10
+
+## Cosmetics: every name-plate frame and colour tint costs the same.
+const COSMETIC_PRICE := 800

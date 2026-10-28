@@ -73,20 +73,26 @@ horizontal_alignment = 1
 [node name="Buttons" type="HBoxContainer" parent="Center/Column"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/separation = 40
+theme_override_constants/separation = 30
 alignment = 1
 
 [node name="Play" type="Button" parent="Center/Column/Buttons"]
-custom_minimum_size = Vector2(400, 140)
+custom_minimum_size = Vector2(300, 140)
 layout_mode = 2
 theme_override_font_sizes/font_size = 64
 text = "Play"
 
 [node name="Practice" type="Button" parent="Center/Column/Buttons"]
-custom_minimum_size = Vector2(400, 140)
+custom_minimum_size = Vector2(300, 140)
 layout_mode = 2
 theme_override_font_sizes/font_size = 64
 text = "Practice"
+
+[node name="Bazaar" type="Button" parent="Center/Column/Buttons"]
+custom_minimum_size = Vector2(300, 140)
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "Bazaar"
 
 [node name="Engine" type="Button" parent="Center/Column"]
 custom_minimum_size = Vector2(560, 120)
