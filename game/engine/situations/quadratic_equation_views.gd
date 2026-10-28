@@ -161,6 +161,9 @@ func u_solve_in_context(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 			"wrongs": [wrong({"v": x.add(s.d)}, "SL2.7.solve-equation#1")],
 			"generic": [{"v": x.mul(2)}, {"v": x.add(1)}, {"v": Q.new(int(round(sqrt(float(s.area.n))) * SCALE_I), SCALE_I)}, {"v": x.div(2)}],
 			"methods": {
+				"factorise": {"result": res, "steps": [setup,
+					"Δ = %s is not a square number, so there are no whole-number factors: factorising fails here." % N(disc),
+					"Use the formula instead: x = (−%s ± √%s)/2 = %s or %s; a length can't be negative." % [N(s.B), N(disc), Fmt.sf(x), other], final]},
 				"quadratic-formula": {"result": res, "steps": [setup,
 					"x = (−%s ± √%s)/2" % [N(s.B), N(disc)],
 					"x = %s or x = %s; a length can't be negative." % [Fmt.sf(x), other], final]},
