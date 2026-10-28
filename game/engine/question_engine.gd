@@ -30,6 +30,7 @@ static var SITUATIONS := {
 	"triangle": [TriangleSituation, TriangleViews],
 	"arithmetic-sequence": [ArithmeticSequenceSituation, ArithmeticSequenceViews],
 	"distribution": [DistributionSituation, DistributionViews],
+	"cubic": [CubicSituation, CubicViews],
 }
 
 static var _cat: Dictionary = {}

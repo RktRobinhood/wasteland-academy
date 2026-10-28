@@ -18,6 +18,9 @@ const VIEWS := [
 	{"type": "t4-discrete-distribution", "unknown": "k-from-sum", "rep": "table", "angle": "sum-to-one", "format": "value", "seed": 9},
 	{"type": "t4-expected-value", "unknown": "probabilities-from-mean", "rep": "table", "angle": "two-equations", "format": "value", "seed": 10},
 	{"type": "t4-expected-value", "unknown": "fair-stake", "rep": "words", "angle": "winnings-vs-cost", "format": "mcq", "seed": 11},
+	{"type": "t5-stationary-points", "unknown": "stationary-points", "rep": "equation", "angle": "solve-f-prime-zero", "format": "value", "seed": 9},
+	{"type": "t5-stationary-points", "unknown": "nature", "rep": "words", "angle": "second-derivative-test", "format": "mcq", "seed": 10},
+	{"type": "t5-tangent-normal-equation", "unknown": "normal-at-point", "rep": "equation", "angle": "rearranged-form", "format": "value", "seed": 11},
 	{"type": "fn-quadratic-features", "probe": 2, "format": "probe"},
 	{"type": "fn-quadratic-features", "probe": 0, "format": "probe"},
 ]

@@ -34,7 +34,7 @@ from sympy.parsing.sympy_parser import (implicit_multiplication_application, par
 
 ROOT = Path(__file__).resolve().parent.parent
 X = sp.Symbol("x")
-LETTERS = {n: sp.Symbol(n) for n in ["a", "b", "c"]}
+LETTERS = {n: sp.Symbol(n) for n in ["a", "b", "c", "k"]}
 TRANSFORMS = standard_transformations + (implicit_multiplication_application,)
 
 MIN_PER_CELL = 50
@@ -55,7 +55,9 @@ TABLE_Y_MAX = 40
 NO_AXIS = {"roots-from-factorised", "y-intercept-from-factorised", "factorised-from-general",
            "a-from-roots-and-point", "coefficients-from-roots"}
 
-FORM_KINDS = {"vertex_form", "vertex_form_a", "general", "general_a", "factorised"}
+FORM_KINDS = {"vertex_form", "vertex_form_a", "general", "general_a", "factorised", "deriv", "line"}
+# Answer slots that hold a picked word, not a number.
+WORD_SLOTS = ("var", "rel", "kind", "k1", "k2")
 
 
 class Fail(Exception):
@@ -73,7 +75,7 @@ def need(cond, msg):
 
 def parse(text, letters=()):
     """Parses an equation side the way the game writes it."""
-    s = text.replace("−", "-").replace("²", "**2").replace("½", "(1/2)").replace("×", "*")
+    s = text.replace("−", "-").replace("²", "**2").replace("³", "**3").replace("⁴", "**4").replace("½", "(1/2)").replace("×", "*")
     local = {"x": X}
     for n in letters:
         local[n] = LETTERS[n]
@@ -322,7 +324,7 @@ def values_of(kind, vals, fixed):
     for k, v in vals.items():
         if k == "text":
             continue
-        out[k] = v if k in ("var", "rel", "kind") else R(v)
+        out[k] = v if k in WORD_SLOTS else R(v)
     for k, v in (fixed or {}).items():
         out.setdefault("fixed_" + k, R(v))
     return out
@@ -336,6 +338,10 @@ def poly_of(kind, v):
         return sp.expand(a * X**2 + v["b"] * X + v["c"])
     if kind == "factorised":
         return sp.expand(a * (X - v["p"]) * (X - v["q"]))
+    if kind == "deriv":
+        return sp.expand(v["u2"] * X**2 + v["u1"] * X + v["u0"])
+    if kind == "line":
+        return sp.expand(v["m"] * X + v["c"])
     raise Fail(kind)
 
 
@@ -348,6 +354,8 @@ def norm(kind, v):
                 sp.expand(v["fa"] * (X - v["fp"]) * (X - v["fq"])), sp.expand(v["va"] * (X - v["vh"])**2 + v["vk"]))
     if kind == "roots":
         return ("roots", tuple(sorted([v["r1"], v["r2"]])))
+    if kind == "points2":
+        return ("points", tuple(sorted([(v["x1"], v["y1"]), (v["x2"], v["y2"])])))
     if kind == "claim":
         return ("claim", v["form"], tuple(v["vals"]))
     return tuple(sorted((k, v[k]) for k in v if not k.startswith("fixed_")))
@@ -396,6 +404,16 @@ def text_value(kind, text, fixed):
     if kind == "yint":
         need(nums[0] == 0, "y-intercept text without x = 0")
         return (("y", nums[1]),)
+    if kind == "points2":
+        need(len(nums) == 4, f"two-point text {text!r}")
+        return ("points", tuple(sorted([(nums[0], nums[1]), (nums[2], nums[3])])))
+    if kind == "tangent_read":
+        need(len(nums) == 4 and nums[0] == nums[2] == R(fixed["x0"]), f"tangent-read text {text!r}")
+        return (("m", nums[1]), ("y", nums[3]))
+    if kind == "natures":
+        parts = [p.split(": ") for p in t.split(",  ")]
+        need(len(parts) == 2 and [R(p[0].split("= ")[1]) for p in parts] == [R(fixed["p"]), R(fixed["q"])], f"natures text {text!r}")
+        return (("k1", parts[0][1]), ("k2", parts[1][1]))
     if kind in ("number", "xval"):
         return (("v", nums[-1]),)
     if kind == "axis":
@@ -1368,9 +1386,6 @@ def check_distribution(q):
     return None, None
 
 
-SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
-                    "distribution": check_distribution}
-
 # ── Coverage from the catalogue itself ───────────────────────
 
 def catalogue_cells(type_ids):
@@ -1390,6 +1405,185 @@ def catalogue_cells(type_ids):
                     cells.append(f"{t['id']}|{u['id']}|{rep}|{m}")
         out[t["id"]] = cells
     return out
+
+
+# ── Cubic: tangents, normals and stationary points (FAL-394) ─
+# The `cubic` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/cubic.gd.
+
+CUBIC_A = {1, -1, 2, -2}
+CUBIC_PQ_MAX, CUBIC_B_MAX, CUBIC_C_MAX, CUBIC_D_MAX = 4, 30, 30, 9
+CUBIC_Y_MAX, CUBIC_X0_MAX, CUBIC_M0_MAX = 60, 3, 40
+CUBIC_R_MAX, CUBIC_G_MAX = 5, 60
+CUBIC_NORMAL_DEN_MAX = 6
+CUBIC_EXACT = {"derivative", "derivative-from-fraction", "coefficient-from-tangent"}
+MAXMIN = ("local maximum", "local minimum")
+K = LETTERS["k"]
+INT_ = r"(−?\d+)"
+
+
+def cubic_poly(co):
+    a, b, c, d = (R(v) for v in co)
+    return sp.expand(a * X**3 + b * X**2 + c * X + d)
+
+
+def shown_curve(q, letters=()):
+    """The curve as the first line shows it: f(x) = … , (…)/x, or "A curve has
+    equation y = …"."""
+    line = q["lines"][0]
+    if q["view"]["rep"] == "words":
+        m = re.fullmatch(r"A curve has equation y = (.+?)(?:, where k is a constant)?\.", line)
+        need(m, f"words line {line!r}")
+        return parse(m.group(1), letters)
+    need(line.startswith("f(x) = "), f"equation line {line!r}")
+    body = rhs(line)
+    if body.endswith(",  x ≠ 0"):
+        num = re.fullmatch(r"\((.+)\)/x,  x ≠ 0", body)
+        need(num, f"fraction line {line!r}")
+        top = parse(num.group(1))
+        need(sp.Poly(top, X).coeff_monomial(1) == 0, "the top has a constant term, so it isn't a cubic over x")
+        return sp.expand(sp.cancel(top / X))
+    return parse(body, letters)
+
+
+def shown_number(text, pattern):
+    m = re.search(pattern, text)
+    need(m, f"{pattern!r} not in {text!r}")
+    return R(m.group(1).replace("−", "-"))
+
+
+def shown_line_gradient(text):
+    """The gradient of the line y = mx + c named in the text."""
+    m = re.search(r"line (y = [^.]+?)\. ", text + " ")
+    need(m, f"no line in {text!r}")
+    p = sp.Poly(parse(rhs(m.group(1))), X)
+    need(p.degree() == 1, f"not a line: {m.group(1)}")
+    return p.coeff_monomial(X)
+
+
+def check_cubic(q):
+    u = q["view"]["unknown"]
+    s = q["situation"]
+    g = q["given"]
+    a, b, c, d, p, r = (R(s[n]) for n in ["a", "b", "c", "d", "p", "q"])
+    f = sp.expand(a * X**3 + b * X**2 + c * X + d)
+    f1 = sp.diff(f, X)
+    f2 = sp.diff(f, X, 2)
+    need(a in CUBIC_A, f"a = {a} is not a clean choice")
+    need(all(v.q == 1 for v in (b, c, d, p, r)), "a coefficient or a stationary x is not a whole number")
+    need(p < r and abs(p) <= CUBIC_PQ_MAX and abs(r) <= CUBIC_PQ_MAX, "p and q out of limits")
+    need(sp.expand(f1 - 3 * a * (X - p) * (X - r)) == 0, "f′ is not 3a(x − p)(x − q)")
+    need(abs(b) <= CUBIC_B_MAX and abs(c) <= CUBIC_C_MAX and abs(d) <= CUBIC_D_MAX, "b, c or d too big")
+    need(abs(f.subs(X, p)) <= CUBIC_Y_MAX and abs(f.subs(X, r)) <= CUBIC_Y_MAX, "a stationary point is too high")
+    need(R(s["fp"]) == f.subs(X, p) and R(s["fq"]) == f.subs(X, r), "f(p) or f(q) is wrong")
+    need(cubic_poly(g["f"]) == f, "the givens describe another cubic than the situation")
+    x0 = None
+    if "x0" in g:
+        x0 = R(g["x0"])
+        need(x0.q == 1 and x0 != 0 and abs(x0) <= CUBIC_X0_MAX, f"x0 = {x0} out of limits")
+        need(R(s["x0"]) == x0, "x0 differs from the situation")
+        need(f1.subs(X, x0) != 0 and abs(f1.subs(X, x0)) <= CUBIC_M0_MAX, "f′(x0) is 0 or too big")
+        need(abs(f.subs(X, x0)) <= CUBIC_Y_MAX, "f(x0) too big")
+    text = " ".join(q["lines"] + [q["asked"]])
+
+    # What the student sees is the given cubic (with k for the hidden coefficient).
+    if u == "coefficient-from-tangent":
+        hid = g["hidden"]
+        need(hid in ("b", "c") and s["hidden"] == hid, "hidden coefficient")
+        fk = sp.expand(f - (b * X**2 if hid == "b" else c * X) + (K * X**2 if hid == "b" else K * X))
+        need(shown_curve(q, ["k"]) == fk, "the curve shown with k is not the given one")
+    elif u != "read-from-tangent":
+        need(shown_curve(q) == f, "the curve shown is not the given one")
+    if u == "derivative-from-fraction":
+        need(g.get("fraction") is True and q["view"]["rep"] == "equation", "fraction form")
+
+    if u in CUBIC_EXACT:
+        need(q["answer"].get("exact") is True, "the answer is not marked exactly")
+
+    def coeffs2(e):
+        pl = sp.Poly(e, X)
+        return pl.coeff_monomial(X**2), pl.coeff_monomial(X), pl.coeff_monomial(1)
+
+    if u in ("derivative", "derivative-from-fraction"):
+        u2, u1, u0 = coeffs2(f1)
+        return {"u2": u2, "u1": u1, "u0": u0}, None
+    if u == "gradient-at-point":
+        need(shown_number(text, r"(?:f′\(|where x = )" + INT_) == x0, "the x shown is not x0")
+        return {"v": f1.subs(X, x0)}, None
+    if u in ("tangent-at-point", "normal-at-point"):
+        need(shown_number(q["asked"], r"x = " + INT_) == x0, "the x shown is not x0")
+        m = f1.subs(X, x0)
+        if u == "normal-at-point":
+            m = -1 / m
+            need(m.q <= CUBIC_NORMAL_DEN_MAX and (f.subs(X, x0) - m * x0).q <= CUBIC_NORMAL_DEN_MAX,
+                 "the normal is not Paper 1 friendly (a denominator above 6)")
+        return {"m": m, "c": f.subs(X, x0) - m * x0}, None
+    if u == "read-from-tangent":
+        m = re.fullmatch(r"(?:L: |.* has equation )(y = [^.]+)\.?", q["lines"][0])
+        need(m, "no tangent shown")
+        tl = parse(rhs(m.group(1)))
+        need(shown_number(text, r"x = " + INT_) == x0, "the x shown is not x0")
+        need(R(q["answer"]["fixed"]["x0"]) == x0, "the answer names another x")
+        tangent = sp.expand(f1.subs(X, x0) * (X - x0) + f.subs(X, x0))
+        need(tl == tangent, "the line shown is not the tangent to the situation's cubic at x0")
+        pl = sp.Poly(tl, X)
+        return {"m": pl.coeff_monomial(X), "y": tl.subs(X, x0)}, None
+    if u == "x-for-gradient":
+        gr = R(g["g"])
+        if q["view"]["rep"] == "words":
+            need(shown_line_gradient(q["asked"]) == gr, "the line shown has another gradient")
+        else:
+            need(shown_number(q["asked"], r"f′\(x\) = " + INT_) == gr, "the gradient shown is not g")
+        xs = sorted(sp.solve(sp.Eq(f1, gr), X))
+        need(len(xs) == 2 and all(v.is_integer and abs(v) <= CUBIC_R_MAX for v in xs), f"f′(x) = {gr} gives {xs}")
+        need(gr != 0 and abs(gr) <= CUBIC_G_MAX, "g out of limits")
+        return {"r1": xs[0], "r2": xs[1]}, None
+    if u == "coefficient-from-tangent":
+        gr = R(g["g"])
+        need(gr == f1.subs(X, x0), "the given gradient is not f′(x0)")
+        need(shown_number(q["asked"], r"x = " + INT_) == x0, "the x shown is not x0")
+        if q["view"]["rep"] == "words":
+            need(shown_line_gradient(q["asked"]) == gr, "the line shown has another gradient")
+            lm = re.search(r"line (y = [^.]+?)\. ", q["asked"] + " ")
+            need(parse(rhs(lm.group(1))) != sp.expand(gr * (X - x0) + f.subs(X, x0)), "the parallel line is the tangent itself")
+        else:
+            need(shown_number(q["asked"], r"has gradient " + INT_) == gr, "the gradient shown is not g")
+        sol = sp.solve(sp.Eq(sp.diff(fk, X).subs(X, x0), gr), K)
+        need(len(sol) == 1, "the gradient doesn't fix k")
+        need(sol[0] == (b if hid == "b" else c), "k is not the hidden coefficient")
+        return {"v": sol[0]}, None
+
+    xs = sorted(sp.solve(f1, X))
+    need(len(xs) == 2 and xs == [p, r], "the stationary points are not at p and q")
+    if u == "stationary-points":
+        return {"x1": xs[0], "y1": f.subs(X, xs[0]), "x2": xs[1], "y2": f.subs(X, xs[1])}, None
+    if u == "nature":
+        need([R(v) for v in g["xs"]] == xs, "the x-values given are not the stationary points")
+        need(shown_number(q["asked"], r"x = " + INT_ + r" and") == xs[0], "the first x shown")
+        need(shown_number(q["asked"], r"and x = " + INT_) == xs[1], "the second x shown")
+        need([R(q["answer"]["fixed"][k]) for k in ("p", "q")] == xs, "the answer names other x-values")
+        kinds = []
+        for x in xs:
+            v = f2.subs(X, x)
+            need(v != 0, "f″ = 0 at a stationary point")
+            kinds.append(MAXMIN[0] if v < 0 else MAXMIN[1])
+        return {"k1": kinds[0], "k2": kinds[1]}, None
+    if u == "inflexion-point":
+        xi = sp.solve(f2, X)
+        need(len(xi) == 1 and xi[0].is_integer, f"f″ = 0 at {xi}")
+        xi = xi[0]
+        need(f2.subs(X, xi - 1) * f2.subs(X, xi + 1) < 0, "f″ doesn't change sign")
+        need(abs(f.subs(X, xi)) <= CUBIC_Y_MAX, "the point of inflexion is too high")
+        return {"x": xi, "y": f.subs(X, xi)}, None
+    if u == "max-value":
+        mx = [x for x in xs if f2.subs(X, x) < 0]
+        need(len(mx) == 1, "not one local maximum")
+        return {"v": f.subs(X, mx[0])}, None
+    raise Fail(f"the checker has no solver for {u}")
+
+
+SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+                    "distribution": check_distribution, "cubic": check_cubic}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
