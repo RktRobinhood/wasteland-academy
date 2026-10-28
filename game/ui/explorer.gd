@@ -114,12 +114,6 @@ func _build() -> void:
 	super._build()
 	title_label.text = "Engine"
 	exam_toggle.text = "Exam-style only: off"
-	var back := Button.new()
-	back.name = "Back"
-	back.text = "Title"
-	back.add_theme_font_size_override("font_size", UiTheme.SMALL)
-	back.pressed.connect(_to_title)
-	head.add_child(back)
 	head.add_theme_constant_override("separation", 16)
 	progress.name = "ClassSize"
 	progress.add_theme_color_override("font_color", UiTheme.SAND)
@@ -177,6 +171,14 @@ func _build() -> void:
 	row1.add_child(another_button)
 	actions.add_child(row1)
 	var row2 := HBoxContainer.new()
+	row2.add_theme_constant_override("separation", 16)
+	# Down here, not in the head: on a phone the head is full up to the speaker and gear.
+	var back := Button.new()
+	back.name = "Back"
+	back.text = "Title"
+	back.add_theme_font_size_override("font_size", UiTheme.SMALL)
+	back.pressed.connect(_to_title)
+	row2.add_child(back)
 	seed_label = UiTheme.label("", UiTheme.SMALL, UiTheme.DIM)
 	seed_label.name = "Seed"
 	seed_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -211,6 +213,7 @@ func _fit() -> void:
 	margin.add_theme_constant_override("margin_right", int(side))
 	margin.add_theme_constant_override("margin_top", 40)
 	margin.add_theme_constant_override("margin_bottom", 30)
+	hud_gap.custom_minimum_size.x = maxf(0.0, AudioHud.RESERVED_RIGHT - side)
 	left.custom_minimum_size.x = LEFT if wide else 0
 	left.size_flags_horizontal = Control.SIZE_FILL if wide else Control.SIZE_EXPAND_FILL
 	tabs_row.visible = not wide
