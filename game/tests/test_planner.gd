@@ -74,16 +74,20 @@ func test_exam_only_follows_exam_frequency() -> void:
 		if failures.size() > 3:
 			return
 	check(not counts.has("fn-concept-quadratic-forms"))
-	# Each built exam type is picked in proportion to its bank parts: 11 for
-	# fn-quadratic-features, out of the total over every built exam type.
+	# Each built exam type is picked in proportion to its bank parts (frequency in the
+	# catalogue), out of the total over every built exam type, so a new class changes
+	# the expected shares without changing this test.
+	var exam: Array = []
 	var total := 0.0
 	for id in QuestionEngine.built_types():
 		var t := QuestionEngine.type_of(id)
 		if t.source == "exam":
+			exam.append(id)
 			total += float(t.frequency)
-	var want := 11.0 / total
-	var share := float(counts.get("fn-quadratic-features", 0)) / n
-	check(absf(share - want) < 0.04, "features share %.3f, expected about %.3f" % [share, want])
+	for id in exam:
+		var want := float(QuestionEngine.type_of(id).frequency) / total
+		var share := float(counts.get(id, 0)) / n
+		check(absf(share - want) < 0.04, "%s share %.3f, expected about %.3f" % [id, share, want])
 
 
 func test_planner_is_reproducible() -> void:

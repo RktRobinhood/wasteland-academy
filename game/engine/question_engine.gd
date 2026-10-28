@@ -28,6 +28,7 @@ const CHOICES := 4
 static var SITUATIONS := {
 	"quadratic": [QuadraticSituation, QuadraticViews],
 	"triangle": [TriangleSituation, TriangleViews],
+	"arithmetic-sequence": [ArithmeticSequenceSituation, ArithmeticSequenceViews],
 }
 
 static var _cat: Dictionary = {}

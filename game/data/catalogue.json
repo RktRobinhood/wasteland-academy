@@ -2366,6 +2366,58 @@
 				"the answer is worked out from the givens as shown, and is at least 0.02 of a unit in its third significant figure away from a rounding edge, so its 3 s.f. value is not in doubt",
 				"every wrong option differs from the answer to 3 s.f."
 			]
+		},
+		"arithmetic-sequence": {
+			"name": "One arithmetic sequence and its sums",
+			"summary": "Pick u₁, d and n, then derive uₙ, Sₙ, two later terms and the first few terms, so any of them can be hidden and any shown.",
+			"quantities": [
+				{
+					"name": "u₁",
+					"is": "the first term",
+					"pick": "a non-zero whole number, |u₁| ≤ 40, usually positive"
+				},
+				{
+					"name": "d",
+					"is": "the common difference: the sequence goes up (d > 0) or down (d < 0)",
+					"pick": "a non-zero whole number, |d| ≤ 12"
+				},
+				{
+					"name": "n",
+					"is": "a term number, or the number of terms in a sum",
+					"pick": "a whole number, 6 to 60 for a term and 5 to 30 for a sum"
+				},
+				{
+					"name": "uₙ",
+					"is": "the nth term",
+					"pick": "u₁ + (n − 1)d, with |uₙ| ≤ 400"
+				},
+				{
+					"name": "Sₙ",
+					"is": "the sum of the first n terms",
+					"pick": "n/2 (2u₁ + (n − 1)d) = n/2 (u₁ + uₙ), non-zero, with |Sₙ| ≤ 4000"
+				},
+				{
+					"name": "u_p, u_q",
+					"is": "two later terms, p < q, used to find u₁ and d",
+					"pick": "2 ≤ p < q ≤ 20 and q − p from 2 to 8"
+				},
+				{
+					"name": "first terms",
+					"is": "u₁, u₂, u₃, u₄ as a list or a table of n and uₙ",
+					"pick": "from u₁ and d"
+				},
+				{
+					"name": "other root",
+					"is": "the second root of dn² + (2u₁ − d)n − 2Sₙ = 0, when n is found from Sₙ",
+					"pick": "1 − 2u₁/d − n: a negative whole number, so d divides 2u₁"
+				}
+			],
+			"clean": [
+				"Paper 1: every value is a whole number and every answer is exact",
+				"d is never 0 and can be negative",
+				"when n is found from Sₙ, the quadratic in n has one positive whole root and one negative whole root",
+				"two given terms are at least two steps apart, and neither is u₁ when u₁ is asked"
+			]
 		}
 	},
 	"types": [
@@ -15972,6 +16024,473 @@
 				}
 			],
 			"frequency": 2
+		},
+		{
+			"id": "t1-arithmetic-sequence",
+			"topic": 1,
+			"source": "exam",
+			"name": "Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums",
+			"summary": "From u₁ and d, two terms, the first few terms or a sum, find a term, d, u₁, the term number n or a sum Sₙ.",
+			"situation": "arithmetic-sequence",
+			"formats": [
+				"value",
+				"mcq",
+				"method-pick",
+				"error-spot"
+			],
+			"representations": [
+				{
+					"rep": "notation",
+					"exam": true,
+					"how": "the quantities in sequence notation: u₁ = 7, d = 3, or u₅ = 23 and u₉ = 39"
+				},
+				{
+					"rep": "terms",
+					"exam": true,
+					"how": "the first four terms as a list: 7, 10, 13, 16, …"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "a table of n against uₙ"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "described in words: \"the 5th term is 23 and the 9th term is 39\""
+				}
+			],
+			"unknowns": [
+				{
+					"id": "term-from-u1-d",
+					"given": [
+						"u₁",
+						"d",
+						"n"
+					],
+					"asked": "the term uₙ",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL1.2.nth-term"
+					]
+				},
+				{
+					"id": "d-from-two-terms",
+					"given": [
+						"two terms u_p and u_q"
+					],
+					"asked": "the common difference d",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL1.2.find-u1-d"
+					]
+				},
+				{
+					"id": "u1-from-two-terms",
+					"given": [
+						"two terms u_p and u_q"
+					],
+					"asked": "the first term u₁",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL1.2.find-u1-d"
+					]
+				},
+				{
+					"id": "n-from-term",
+					"given": [
+						"u₁",
+						"d",
+						"the value of a term"
+					],
+					"asked": "the term number n",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL1.2.find-n"
+					],
+					"note": "reversed: \"which term is 205?\""
+				},
+				{
+					"id": "sum-from-u1-d",
+					"given": [
+						"u₁",
+						"d",
+						"n"
+					],
+					"asked": "the sum Sₙ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL1.2.sum"
+					]
+				},
+				{
+					"id": "sum-from-first-last",
+					"given": [
+						"u₁",
+						"uₙ",
+						"n"
+					],
+					"asked": "the sum Sₙ",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.2.sum"
+					]
+				},
+				{
+					"id": "n-from-sum",
+					"given": [
+						"u₁",
+						"d",
+						"Sₙ"
+					],
+					"asked": "the number of terms n",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"words"
+					],
+					"skills": [
+						"SL1.2.sum-unknown"
+					],
+					"note": "reversed: a quadratic in n; keep the positive whole root"
+				},
+				{
+					"id": "d-from-sum",
+					"given": [
+						"u₁",
+						"n",
+						"Sₙ"
+					],
+					"asked": "the common difference d",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.2.sum-unknown"
+					],
+					"note": "reversed: linear in d"
+				},
+				{
+					"id": "u1-from-sum",
+					"given": [
+						"d",
+						"n",
+						"Sₙ"
+					],
+					"asked": "the first term u₁",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.2.sum-unknown"
+					],
+					"note": "reversed: linear in u₁"
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.2.nth-term",
+					"method": "nth-formula",
+					"suits": [
+						"term-from-u1-d"
+					],
+					"name": "Substitute into u_n = u_1 + (n − 1)d",
+					"about": "Identify u_1 and d, then substitute; n − 1 counts the steps from the first term."
+				},
+				{
+					"skill": "SL1.2.nth-term",
+					"method": "linear-function",
+					"suits": [
+						"term-from-u1-d"
+					],
+					"name": "Treat u_n as a linear function of n",
+					"about": "Simplify to u_n = dn + (u_1 − d); the coefficient of n is d, and showing u_(n+1) − u_n is constant proves the sequence is arithmetic."
+				},
+				{
+					"skill": "SL1.2.find-u1-d",
+					"method": "gap-count",
+					"suits": [
+						"d-from-two-terms",
+						"u1-from-two-terms"
+					],
+					"name": "Divide the change in value by the number of steps",
+					"about": "From u_5 to u_9 is 4 steps, so d = (39 − 23)/(9 − 5) = 4; then step back four times from u_5 to reach u_1."
+				},
+				{
+					"skill": "SL1.2.find-u1-d",
+					"method": "simultaneous",
+					"suits": [
+						"d-from-two-terms",
+						"u1-from-two-terms"
+					],
+					"weak": {
+						"kind": "slow",
+						"unknowns": [
+							"d-from-two-terms"
+						],
+						"why": "two equations to find d alone, when the change over the steps between the terms gives it in one line"
+					},
+					"name": "Set up and solve simultaneous equations",
+					"about": "Write u_1 + 4d = 23 and u_1 + 8d = 39, subtract to get 4d = 16, then back-substitute for u_1."
+				},
+				{
+					"skill": "SL1.2.find-n",
+					"method": "solve-linear",
+					"suits": [
+						"n-from-term"
+					],
+					"name": "Solve u_1 + (n − 1)d = value (or > value)",
+					"about": "Solve the linear equation or inequality for n; n must be a positive integer, so round up for 'first term greater than'."
+				},
+				{
+					"skill": "SL1.2.find-n",
+					"method": "count-steps",
+					"suits": [
+						"n-from-term"
+					],
+					"name": "Count steps of d, then add one",
+					"about": "(403 − 7)/4 = 99 steps, so there are 99 + 1 = 100 terms, like counting fence posts rather than gaps."
+				},
+				{
+					"skill": "SL1.2.sum",
+					"method": "formula-d",
+					"suits": [
+						"sum-from-u1-d"
+					],
+					"name": "Use S_n = n/2(2u_1 + (n − 1)d)",
+					"about": "Best when u_1, d and n are known."
+				},
+				{
+					"skill": "SL1.2.sum",
+					"method": "formula-last",
+					"suits": [
+						"sum-from-u1-d",
+						"sum-from-first-last",
+						"d-from-sum",
+						"u1-from-sum"
+					],
+					"weak": {
+						"kind": "slow",
+						"unknowns": [
+							"sum-from-u1-d"
+						],
+						"why": "uₙ has to be found first when only u₁ and d are given"
+					},
+					"name": "Use S_n = n/2(u_1 + u_n)",
+					"about": "Best when the last term is known: number of terms times the average of the first and last terms."
+				},
+				{
+					"skill": "SL1.2.sum",
+					"method": "gauss-pairing",
+					"suits": [
+						"sum-from-first-last"
+					],
+					"name": "Pair the first term with the last, the second with the second-last",
+					"about": "Every pair has the same total u_1 + u_n and there are n/2 pairs, which is exactly where the formula comes from."
+				},
+				{
+					"skill": "SL1.2.sum-unknown",
+					"method": "quadratic-in-n",
+					"suits": [
+						"n-from-sum"
+					],
+					"name": "Form and solve a quadratic in n",
+					"about": "Substitute into the sum formula to get, for example, 3n² + 7n − 1340 = 0; solve and reject negative or non-integer n."
+				},
+				{
+					"skill": "SL1.2.sum-unknown",
+					"method": "linear-unknowns",
+					"suits": [
+						"d-from-sum",
+						"u1-from-sum"
+					],
+					"name": "Form linear equations in u_1 and d",
+					"about": "When n is known, each sum gives a linear equation in u_1 and d; solve them simultaneously."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "interpret-parameter",
+					"prompt": "Plot the points (n, uₙ) of an arithmetic sequence. What shape do they make, and what do u₁ and d tell you about it?",
+					"answer": "They lie on a straight line with gradient d through (1, u₁): uₙ = dn + (u₁ − d) is a linear function of n.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If the common difference d is negative, the sum Sₙ is negative for every large enough n.",
+					"answer": "True. Sₙ = n/2 (2u₁ + (n − 1)d), and the bracket keeps falling by d for each extra term, so it becomes negative and stays negative.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "For an arithmetic sequence of whole numbers, Sₙ is a multiple of n.",
+					"answer": "Sometimes: Sₙ = n × (u₁ + uₙ)/2, so it is a multiple of n exactly when u₁ + uₙ is even.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.2.nth-term#0",
+					"text": "Using u_1 + nd, which gives u_11 instead of u_10",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-d",
+						"u1-from-two-terms"
+					],
+					"wrong": "u₁ + nd, one step too many (and u₁ = u_p − pd going back)"
+				},
+				{
+					"ref": "SL1.2.nth-term#1",
+					"text": "Finding d as u_1 − u_2, so a decreasing sequence gets a positive d",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-d",
+						"d-from-two-terms"
+					],
+					"wrong": "the common difference with its sign flipped: −d"
+				},
+				{
+					"ref": "SL1.2.nth-term#2",
+					"text": "Confusing the position n with the value u_n",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-d"
+					],
+					"wrong": "the position n given as the term uₙ"
+				},
+				{
+					"ref": "SL1.2.find-u1-d#0",
+					"text": "Dividing by the number of terms instead of the number of gaps: d = 16/5",
+					"as": "distractor",
+					"in": [
+						"d-from-two-terms",
+						"u1-from-two-terms"
+					],
+					"wrong": "d = (u_q − u_p)/(q − p + 1), and u₁ worked back from that d"
+				},
+				{
+					"ref": "SL1.2.find-u1-d#1",
+					"text": "Treating the given term as u_1 when asked for the first term",
+					"as": "distractor",
+					"in": [
+						"u1-from-two-terms"
+					],
+					"wrong": "the first given term u_p as u₁"
+				},
+				{
+					"ref": "SL1.2.find-n#1",
+					"text": "Answering with n when the question asks for the term itself (or the reverse)",
+					"as": "distractor",
+					"in": [
+						"n-from-term"
+					],
+					"wrong": "the value of the term given as n"
+				},
+				{
+					"ref": "SL1.2.find-n#2",
+					"text": "Forgetting the + 1 when counting terms: (403 − 7)/4 = 99 terms",
+					"as": "distractor",
+					"in": [
+						"n-from-term"
+					],
+					"wrong": "n − 1: the number of steps, not the term number"
+				},
+				{
+					"ref": "SL1.2.sum#0",
+					"text": "Using n instead of n − 1 inside the formula: n/2(2u_1 + nd)",
+					"as": "distractor",
+					"in": [
+						"sum-from-u1-d",
+						"d-from-sum",
+						"u1-from-sum"
+					],
+					"wrong": "n/2 (2u₁ + nd), and d or u₁ solved from that"
+				},
+				{
+					"ref": "SL1.2.sum#1",
+					"text": "Using the wrong n, such as the last term's value or the number of gaps",
+					"as": "distractor",
+					"in": [
+						"sum-from-u1-d",
+						"sum-from-first-last"
+					],
+					"wrong": "the sum with n − 1 terms"
+				},
+				{
+					"ref": "SL1.2.sum#2",
+					"text": "Finding u_n when the question asks for S_n (or the reverse)",
+					"as": "distractor",
+					"in": [
+						"sum-from-u1-d"
+					],
+					"wrong": "the term uₙ given as the sum"
+				},
+				{
+					"ref": "SL1.2.sum-unknown#1",
+					"text": "Keeping the negative root of the quadratic as a number of terms",
+					"as": "distractor",
+					"in": [
+						"n-from-sum"
+					],
+					"wrong": "the negative root of the quadratic in n"
+				},
+				{
+					"ref": "SL1.2.sum-unknown#2",
+					"text": "Answering with the value of the sum instead of the number of terms n",
+					"as": "distractor",
+					"in": [
+						"n-from-sum"
+					],
+					"wrong": "the value of the sum given as n"
+				}
+			],
+			"frequency": 21
 		},
 		{
 			"id": "t3-triangle-area",
