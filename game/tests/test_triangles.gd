@@ -95,6 +95,10 @@ func test_more_figures_rounded_right_are_right() -> void:
 	check(not Answer.number_right(Answer.parse_number("12.4").q, exact))
 	check(not Answer.number_right(Answer.parse_number("12.36").q, exact))
 	check(not Answer.number_right(Answer.parse_number("12").q, exact))
+	# 100 has three digits, but for 99.94 it is coarser than 3 s.f. (stress seed 327).
+	check(not Answer.number_right(Q.new(100), Q.new(9994, 100)))
+	check(Answer.number_right(Answer.parse_number("99.94").q, Q.new(99939, 1000)))
+	check(Answer.number_right(Q.new(100), Q.new(99960, 1000)))
 
 
 func test_significant_figures_format() -> void:

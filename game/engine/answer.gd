@@ -236,7 +236,7 @@ static func number_right(typed: Q, exact: Q) -> bool:
 	var t := exact.to_float()
 	var e := floori(log(absf(t)) / log(10.0) + 1e-12)
 	var unit := pow(10.0, e - 2)
-	return roundi(t / unit) == roundi(typed.to_float() / unit) or _rounded_to_own_figures(typed, t)
+	return roundi(t / unit) == roundi(typed.to_float() / unit) or _rounded_to_own_figures(typed, t, unit)
 
 
 ## Whether x is at least `edge` units of its 3rd significant figure away from a
@@ -250,9 +250,10 @@ static func rounds_clearly(x: float, edge: float = 0.02) -> bool:
 	return absf(scaled - floorf(scaled) - 0.5) >= edge
 
 
-## Whether a typed decimal with at least 3 significant figures is t rounded to as
-## many decimal places as it has.
-static func _rounded_to_own_figures(typed: Q, t: float) -> bool:
+## Whether a typed decimal at least as fine as t's 3rd significant figure (unit) is t
+## rounded to as many decimal places as it has. 100 is not right for 99.94: it has
+## three digits, but it is coarser than 99.9.
+static func _rounded_to_own_figures(typed: Q, t: float, unit: float) -> bool:
 	var scale := 1
 	var places := 0
 	while scale % typed.d != 0:
@@ -260,10 +261,9 @@ static func _rounded_to_own_figures(typed: Q, t: float) -> bool:
 		places += 1
 		if places > 9:
 			return false
-	var digits := typed.n * (scale / typed.d)
-	if absi(digits) < 100:
+	if scale * unit < 1.0 - 1e-9:
 		return false
-	return roundi(t * scale) == digits
+	return roundi(t * scale) == typed.n * (scale / typed.d)
 
 
 ## Marks typed slot entries. response: slot id -> String (typed or picked).
