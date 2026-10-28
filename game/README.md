@@ -102,6 +102,12 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   and its answers are marked exactly (`exact` on the answer), because Paper 1 wants a
   whole-number sum such as 1807, not 1810. Any type with a `situation` gets a copy in
   `data/catalogue.json`, whatever its topic.
+- `engine/situations/distribution.gd` (FAL-396) is the Topic 4 situation: one
+  discrete random variable X with 3 to 5 values, its probabilities as multiples of k,
+  a formula P(X = x) = k f(x) or decimals, or a game with prizes and a stake. Its views
+  (`distribution_views.gd`) show it as a table, a formula or in words, and ask k, a
+  missing probability, P(event), E(X), p and q from E(X), the fair stake, an expected
+  number of occurrences or the number of trials.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -113,7 +119,9 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a(x − □)² + □) and `mcq` are built, and the concept probes play as a verdict
   (true or false; always, sometimes or never; the sign) and then the reason.
 - **Marking** (`engine/answer.gd`): exact or right to 3 s.f. More figures are right too
-  when they are the value correctly rounded (12.35 for 12.3456). Typed numbers are parsed
+  when they are the value correctly rounded (12.35 for 12.3456). An answer's `show` writes
+  it as a decimal (0.35) or as money (2.50) instead of a fraction; probabilities are
+  answered the way the question gives them. Typed numbers are parsed
   by hand (whole numbers, decimals, fractions); nothing is evaluated as an expression.
 - **Planner** (`engine/planner.gd`): never-seen cell, then a recently missed one, then
   exam frequency. "Exam-style only" (off by default) keeps exam cells only and follows
@@ -170,6 +178,10 @@ script error happens while it runs. Run one file with
 - `test_triangles.gd`: the two Topic 3 types on the triangle: built, every angle from
   20° to 140°, one triangle for the sine rule's angle, acute or obtuse said, 3 s.f.
   marking with no false failures, every misconception appears as an option.
+- `test_distributions.gd`: the three Topic 4 types on the distribution: built, every
+  distribution adds to 1 inside its limits, k in a table, a formula and words, answers
+  written as the question writes probabilities, exact or 3 s.f. marking, p and q as two
+  slots, strict events, every misconception appears as an option.
 - `test_answer.gd`: parsing and marking typed answers.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save.
 - `test_practice.gd`: the practice screen plays every representation and format,

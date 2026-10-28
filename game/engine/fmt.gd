@@ -24,6 +24,31 @@ static func sf(v: Variant, n: int = 3) -> String:
 	return ("−" if r < 0.0 else "") + ("%.*f" % [places, absf(r)])
 
 
+## A number as a decimal when it ends ("0.35", "−2.5", "3"), else as a fraction ("1/6").
+static func dec(v: Variant) -> String:
+	var q := Q.of(v)
+	var scale := 1
+	var places := 0
+	while scale % q.d != 0:
+		scale *= 10
+		places += 1
+		if places > 9:
+			return q.text()
+	var whole := absi(q.n) * (scale / q.d)
+	var digits := str(whole).lpad(places + 1, "0")
+	var body := digits if places == 0 else digits.left(digits.length() - places) + "." + digits.right(places)
+	return ("−" if q.n < 0 else "") + body
+
+
+## An amount of money: "3" for whole dollars, else two decimal places ("2.50").
+static func money(v: Variant) -> String:
+	var q := Q.of(v)
+	if q.is_int():
+		return q.text()
+	var cents := roundi(q.to_float() * 100.0)
+	return ("−" if cents < 0 else "") + "%d.%02d" % [absi(cents) / 100, absi(cents) % 100]
+
+
 static func point(x: Variant, y: Variant) -> String:
 	return "(%s, %s)" % [num(x), num(y)]
 

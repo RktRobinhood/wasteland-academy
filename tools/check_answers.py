@@ -504,7 +504,7 @@ def check(q):
     sit = q.get("situation_id", "quadratic")
     need(sit in SITUATION_CHECKS, f"the checker has no checks for situation {sit}")
     exp, f = SITUATION_CHECKS[sit](q)
-    if exp is not None:  # the triangle checks are complete on their own
+    if exp is not None:  # the triangle and distribution checks are complete on their own
         check_common(q, exp, f)
 
 
@@ -1014,8 +1014,362 @@ def check_arithmetic(q):
     return {"v": sp.nsimplify(v.subs(sol))}, None
 
 
-SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic}
+# ── Discrete distributions (FAL-396) ─────────────────────────
+# The `distribution` situation's clean limits, the checker's own copy: the engine's is
+# in game/engine/situations/distribution.gd. The distribution is read back from what
+# the student is shown (the table, the formula or the sentence), solved again with
+# SymPy in exact rationals, and every answer, option and worked solution is compared
+# with that.
 
+DIST_N = (3, 5)
+DIST_X = (0, 7)
+DIST_P = (sp.Rational(1, 20), sp.Rational(3, 5))
+DIST_K = (sp.Rational(1, 60), sp.Rational(1, 6))
+DIST_PRIZES = (3, 4)
+DIST_PRIZE_MAX = 20
+DIST_STAKE_MIN = sp.Rational(1, 2)
+DIST_TRIALS = (20, 600)
+KSYM, PSYM, QSYM, MSYM = sp.symbols("k p q m")
+# Asks whose options are probabilities, so between 0 and 1. k is not one: k = 21 from
+# 21k = 1 is a real slip.
+DIST_PROB_ASKS = {"missing-probability", "event-probability", "probabilities-from-mean"}
+
+
+def frac_text(v):
+    v = sp.Rational(v)
+    body = str(abs(v.p)) if v.q == 1 else f"{abs(v.p)}/{v.q}"
+    return ("−" if v < 0 else "") + body
+
+
+def dec_text(v):
+    """A decimal when it ends, else a fraction: 0.35, 3, 1/6."""
+    v = sp.Rational(v)
+    q = v.q
+    while q % 2 == 0:
+        q //= 2
+    while q % 5 == 0:
+        q //= 5
+    if q != 1:
+        return frac_text(v)
+    d = Decimal(v.p) / Decimal(v.q)
+    s = format(d.normalize(), "f")
+    return s.replace("-", "−")
+
+
+def money_text(v):
+    v = sp.Rational(v)
+    if v.q == 1:
+        return frac_text(v)
+    cents = v * 100
+    need(cents.q == 1, f"a stake of {v} is not a whole number of cents")
+    return f"{int(cents) // 100}.{int(cents) % 100:02d}"
+
+
+def entry_value(text):
+    """One probability as the question writes it: k, 3k, 0.35, 3/10, p, q or ?."""
+    t = text.strip()
+    if t == "?":
+        return MSYM
+    if t in ("p", "q"):
+        return {"p": PSYM, "q": QSYM}[t]
+    m = re.fullmatch(r"(\d*)k", t)
+    if m:
+        return (int(m[1]) if m[1] else 1) * KSYM
+    need(re.fullmatch(r"\d+(\.\d+)?(/\d+)?", t), f"probability {t!r} is not a number")
+    return sp.Rational(t)
+
+
+def formula_values(line):
+    """The values of x and P(X = x) from 'P(X = x) = k(x + 1), for x = 0, 1, 2.'"""
+    m = re.fullmatch(r"P\(X = x\) = (.+), for x = ([\d, ]+)\.", line)
+    need(m, f"formula line {line!r}")
+    rhs_text = re.sub(r"k(?=[x(])", "k*", m[1])
+    s = rhs_text.replace("−", "-").replace("²", "**2")
+    f = sp.sympify(parse_expr(s, local_dict={"x": X, "k": KSYM}, transformations=TRANSFORMS))
+    xs = [int(v) for v in m[2].split(",")]
+    return xs, [sp.nsimplify(f.subs(X, x)) for x in xs]
+
+
+def event_of(text):
+    """The event inside P( ) or a sentence: X > 2, 1 < X ≤ 3. Returns (op, a, b)."""
+    m = re.search(r"(\d+) ([<≤]) X ([<≤]) (\d+)", text)
+    if m:
+        return (m[2] + m[3], int(m[1]), int(m[4]))
+    m = re.search(r"X ([=<>≤≥]) (\d+)", text)
+    need(m, f"no event in {text!r}")
+    return (m[1], int(m[2]), int(m[2]))
+
+
+def event_holds(ev, x):
+    op, a, b = ev
+    return {"=": x == a, ">": x > a, "≥": x >= a, "<": x < b, "≤": x <= b,
+            "<≤": a < x <= b, "≤<": a <= x < b, "≤≤": a <= x <= b}[op]
+
+
+def same_event(given, ev):
+    op, a, b = ev
+    if given["op"] != op:
+        return False
+    if op in ("<", "≤"):
+        return given["b"] == b
+    if op in ("=", ">", "≥"):
+        return given["a"] == a
+    return (given["a"], given["b"]) == (a, b)
+
+
+def dist_read(q):
+    """The distribution as shown: values xs, probabilities (in k, p, q or m), and the
+    game's prizes. Checks the shown text says exactly the givens."""
+    g = q["given"]
+    rep = q["view"]["rep"]
+    lines = q["lines"]
+    out = {"game": g.get("game") is not None}
+    if out["game"]:
+        if rep == "words":
+            text = lines[0]
+            sectors = int(re.search(r"spinner with (\d+) equal sectors", text)[1])
+            wins = [(int(m[2]), int(m[1])) for m in re.finditer(r"(\d+) sectors? wins? \$(\d+)", text)]
+            other = int(re.search(r"the other (\d+) win nothing", text)[1])
+            need(g["game"]["sectors"] == sectors, "the spinner's sectors are not as given")
+            prizes = sorted([0] + [w[0] for w in wins])
+            counts = {0: other, **{w[0]: w[1] for w in wins}}
+            need(sum(counts.values()) == sectors, "the sectors don't add up")
+            out["xs"] = prizes
+            out["ps"] = [sp.Rational(counts[x], sectors) for x in prizes]
+        else:
+            rows = q["table"]["rows"]
+            need(rows[0][0] == "Prize ($)" and rows[1][0] == "Probability", "game table headings")
+            out["xs"] = [int(v) for v in rows[0][1]]
+            out["ps"] = [entry_value(v) for v in rows[1][1]]
+        need(out["xs"] == g["xs"], "shown prizes are not the given ones")
+        return out
+    if rep == "equation":
+        need(len(lines) >= 2, "no formula line")
+        xs, ps = formula_values(lines[1])
+        need(g["entries"] is None, "a formula question also lists entries")
+    elif rep == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "P(X = x)", "table headings")
+        xs = [int(v) for v in rows[0][1]]
+        need([str(e) for e in rows[1][1]] == g["entries"], "the table is not the given entries")
+        ps = [entry_value(v) for v in rows[1][1]]
+    else:
+        text = lines[0]
+        m = re.search(r"X takes the values ([\d, and]+), with", text)
+        need(m, "no values in the sentence")
+        xs = [int(v) for v in re.findall(r"\d+", m[1])]
+        stated = {int(m[1]): m[2] for m in re.finditer(r"P\(X = (\d+)\) = (\d*k|\d+(?:\.\d+)?(?:/\d+)?|p|q)(?=[,. ]|$)", text)}
+        ps = [entry_value(stated[x]) if x in stated else MSYM for x in xs]
+        want = {x: e for x, e in zip(g["xs"], g["entries"]) if e != "?"}
+        need(stated == want, f"the sentence states {stated}, not the given {want}")
+        need(sum(1 for x in xs if x not in stated) == g["entries"].count("?"), "a probability is left out")
+    need(xs == g["xs"], "shown values of X are not the given ones")
+    out["xs"] = xs
+    out["ps"] = ps
+    return out
+
+
+def dist_clean(u, d, style):
+    xs, ps = d["xs"], d["ps"]
+    if d["game"]:
+        need(len(xs) in DIST_PRIZES and xs[0] == 0, "a game has 3 or 4 prizes, one of them $0")
+        need(all(0 < b - a for a, b in zip(xs, xs[1:])) and xs[-1] <= DIST_PRIZE_MAX, "prizes are not different whole dollars up to 20")
+    else:
+        need(DIST_N[0] <= len(xs) <= DIST_N[1], f"{len(xs)} values of X")
+        need(all(b - a == 1 for a, b in zip(xs, xs[1:])), "the values of X are not in a row")
+        need(DIST_X[0] <= xs[0] and xs[-1] <= DIST_X[1], "a value of X is outside 0 to 7")
+    need(sum(ps) == 1, f"the probabilities add to {sum(ps)}, not 1")
+    for p in ps:
+        need(0 < p < 1, f"probability {p} is not between 0 and 1")
+        if style == "decimal":
+            need(DIST_P[0] <= p <= DIST_P[1] and (p * 20).q == 1, f"probability {p} is not a step of 0.05 from 0.05 to 0.6")
+
+
+def dist_event_prob(xs, ps, ev):
+    return sum((p for x, p in zip(xs, ps) if event_holds(ev, x)), sp.Integer(0))
+
+
+def dist_show(u, style):
+    if u == "k-from-sum":
+        return frac_text
+    if u == "fair-stake":
+        return money_text
+    if u in ("missing-probability", "probabilities-from-mean", "expected-count", "trials-for-count"):
+        return dec_text
+    return dec_text if style == "decimal" else frac_text
+
+
+def check_distribution(q):
+    g = q["given"]
+    u = q["view"]["unknown"]
+    rep = q["view"]["rep"]
+    style = g["style"]
+    asked = q["asked"]
+    d = dist_read(q)
+    xs, ps = d["xs"], d["ps"]
+    free = set().union(*[sp.sympify(p).free_symbols for p in ps])
+    ev = None
+    wrongs = {}
+    exp_pq = None
+
+    if u == "k-from-sum":
+        need(free == {KSYM}, f"k-from-sum shows unknowns {free}")
+        sol = sp.solve(sp.Eq(sum(ps), 1), KSYM)
+        need(len(sol) == 1, "the sum doesn't fix k")
+        exp = sol[0]
+        need(DIST_K[0] <= exp <= DIST_K[1], f"k = {exp} is outside 1/60 to 1/6")
+        coef = [sp.Poly(p, KSYM).coeff_monomial(KSYM) for p in ps]
+        sxc = sum(x * c for x, c in zip(xs, coef))
+        wrongs["SL4.7.find-k#0"] = [sp.Rational(1, v) for v in (sxc, sum(xs)) if v > 0]
+        ps = [p.subs(KSYM, exp) for p in ps]
+        label = "k = "
+    elif u == "missing-probability":
+        need(free == {MSYM} and ps.count(MSYM) == 1, "not one missing probability")
+        exp = 1 - sum(p for p in ps if p != MSYM)
+        mi = ps.index(MSYM)
+        ps = [exp if p == MSYM else p for p in ps]
+        need(asked == f"Find P(X = {xs[mi]}).", f"asked {asked!r}")
+        wrongs["SL4.7.build-distribution#1"] = [sp.Rational(1, len(xs))]
+        label = f"P(X = {xs[mi]}) = "
+    elif u == "probabilities-from-mean":
+        need(free == {PSYM, QSYM}, "p and q are not the unknowns")
+        m = re.fullmatch(r"E\(X\) = ([\d.]+)\.", q["lines"][-1])
+        need(m, "E(X) is not given")
+        mean = sp.Rational(m[1])
+        need(str(mean) == str(sp.Rational(g["mean"])), "the shown E(X) is not the given one")
+        sol = sp.solve([sp.Eq(sum(ps), 1), sp.Eq(sum(x * p for x, p in zip(xs, ps)), mean)], [PSYM, QSYM], dict=True)
+        need(len(sol) == 1, "the two equations don't fix p and q")
+        exp_pq = (sol[0][PSYM], sol[0][QSYM])
+        need(exp_pq[0] != exp_pq[1], "p and q are equal")
+        for v in exp_pq:
+            need(DIST_P[0] <= v <= DIST_P[1] and (v * 20).q == 1, f"{v} is not a step of 0.05 from 0.05 to 0.6")
+        bad = sp.solve([sp.Eq(sum(ps), 1), sp.Eq(sum(x * p for x, p in zip(xs, ps)), 1)], [PSYM, QSYM], dict=True)
+        wrongs["SL4.7.unknowns-from-mean#1"] = [(b[PSYM], b[QSYM]) for b in bad]
+        ps = [p.subs(sol[0]) for p in ps]
+        exp = None
+        label = None
+    else:
+        need(not free, f"{u} shows unknowns {free}")
+        if u == "fair-stake":
+            exp = sum(x * p for x, p in zip(xs, ps))
+            need((exp * 100).q == 1 and exp >= DIST_STAKE_MIN, f"the stake {exp} is not whole cents from $0.50")
+            win = sum(x * p for x, p in zip(xs, ps) if x > 0)
+            wrongs["SL4.7.fair-game#0"] = [sp.Rational(sp.floor(win / ps[0] * 100 + sp.Rational(1, 2)), 100)]
+            need(asked == "Find the stake that makes the game fair.", f"asked {asked!r}")
+            label = "Stake = $"
+        elif u == "expected-value":
+            exp = sum(x * p for x, p in zip(xs, ps))
+            wrongs["SL4.7.expected-value#0"] = [sp.Rational(sum(xs), len(xs))]
+            gaps = sorted((abs(x - exp), x) for x in xs)
+            wrongs["SL4.7.expected-value#1"] = [gaps[0][1]] if gaps[0][0] != 0 and gaps[0][0] != gaps[1][0] else []
+            wrongs["SL4.7.expected-value#2"] = [exp / len(xs)]
+            need(asked == "Find E(X).", f"asked {asked!r}")
+            label = "E(X) = "
+        else:
+            ev = event_of(asked)
+            need(g["event"] is not None and same_event(g["event"], ev), "the asked event is not the given one")
+            inside = [event_holds(ev, x) for x in xs]
+            need(any(inside) and not all(inside), "the event takes in every value or none")
+            pe = dist_event_prob(xs, ps, ev)
+            if u == "event-probability":
+                need(ev[0] != "=", "an event-probability question asks P(X = a)")
+                strict = {">": "≥", "<": "≤", "<≤": "≤≤", "≤<": "≤≤"}.get(ev[0])
+                if strict:
+                    for end in ([ev[1]] if ev[0] in (">", "<≤") else []) + ([ev[2]] if ev[0] in ("<", "≤<") else []):
+                        need(end in xs, f"the strict end {end} is not a value of X")
+                    wrongs["SL4.7.table-probabilities#0"] = [dist_event_prob(xs, ps, (strict, ev[1], ev[2]))]
+                exp = pe
+                shown_event = re.search(r"P\((.+)\)\.$", asked)
+                need(shown_event, f"asked {asked!r}")
+                label = f"P({shown_event[1]}) = "
+            elif u == "expected-count":
+                n = int(g["n"])
+                need(DIST_TRIALS[0] <= n <= DIST_TRIALS[1], f"{n} trials")
+                need(f" {n} " in " " + q["lines"][-1], "the number of trials is not shown")
+                exp = n * pe
+                need((exp * 2).q == 1 and exp >= 1, f"expected number {exp} is not whole or .5")
+                wrongs["SL4.5.expected-occurrences#0"] = [] if exp.q == 1 else [sp.floor(exp + sp.Rational(1, 2))]
+                wrongs["SL4.5.expected-occurrences#1"] = [pe]
+                label = "Expected number = "
+            elif u == "trials-for-count":
+                count = sp.Rational(g["count"])
+                m = re.search(r"is expected to happen ([\d.]+) times", asked)
+                need(m and sp.Rational(m[1]) == count, "the expected number is not shown")
+                exp = count / pe
+                need(exp.q == 1 and DIST_TRIALS[0] <= exp <= DIST_TRIALS[1], f"n = {exp}")
+                need((count * 2).q == 1 and count >= 1, f"expected number {count} is not whole or .5")
+                label = "n = "
+            else:
+                raise Fail(f"the checker has no solver for {u}")
+    dist_clean(u, {**d, "ps": ps}, style)
+    show = dist_show(u, style)
+    prob = u in DIST_PROB_ASKS
+
+    def value_text(v):
+        if exp_pq is not None:
+            return f"p = {show(v[0])}, q = {show(v[1])}"
+        return label + show(v)
+
+    def right(v):
+        if exp_pq is not None:
+            return all(sig3(a) == sig3(b) for a, b in zip(v, exp_pq))
+        return sig3(v) == sig3(exp)
+
+    def vals(values):
+        if exp_pq is not None:
+            return (sp.Rational(values["p"]), sp.Rational(values["q"]))
+        return sp.Rational(values["v"])
+
+    want = exp_pq if exp_pq is not None else exp
+    for v in (want if exp_pq is not None else [want]):
+        need(not on_edge(v), f"the answer {v} is on a 3 s.f. rounding edge")
+    ans = q["answer"]
+    need(ans["kind"] == ("pq" if exp_pq is not None else "number"), f"answer kind {ans['kind']}")
+    need(vals(ans["values"]) == want, f"engine answer {q['answer_text']!r} is wrong (expected {want})")
+    need(q["answer_text"] == value_text(want), f"answer text {q['answer_text']!r}, expected {value_text(want)!r}")
+
+    # Options: four, one right, the rest wrong at 3 s.f., all different, each saying its
+    # own value; a misconception's value is the one that slip gives.
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    keys = set()
+    for o in ch:
+        ov = vals(o["values"])
+        parts = ov if exp_pq is not None else (ov,)
+        for v in parts:
+            need(v > 0 and (not prob or v < 1), f"option {o['text']!r} is out of range")
+            need(not on_edge(v), f"option {o['text']!r} is on a 3 s.f. rounding edge")
+        need(o["text"] == value_text(ov), f"option text {o['text']!r} doesn't say its value {ov}")
+        key = tuple(sig3(v) for v in parts)
+        need(key not in keys, f"two options are the same to 3 s.f.: {o['text']!r}")
+        keys.add(key)
+        need(right(ov) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'} but is {'right' if right(ov) else 'wrong'}")
+        if o["correct"]:
+            need(ov == want, "the right option is not the answer")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrongs, f"{o['ref']} is not a misconception of {u}")
+            need(ov in wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+
+    # Worked solutions: each ends at the answer.
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(vals(sol["result"]) == want, f"{sol['name']}: last step gives {sol['result']}, not the answer")
+        last = sol["steps"][-1]
+        need(q["answer_text"] in last, f"{sol['name']}: last step {last!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+
+    # The situation the engine exported is this distribution.
+    sit = q["situation"]
+    need([int(x) for x in sit["xs"]] == xs, "situation values differ")
+    need([sp.Rational(p) for p in sit["ps"]] == ps, "situation probabilities differ")
+    return None, None
+
+
+SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+                    "distribution": check_distribution}
 
 # ── Coverage from the catalogue itself ───────────────────────
 

@@ -225,16 +225,19 @@ func _table(t: Dictionary) -> Control:
 	box.name = "Table"
 	box.add_theme_stylebox_override("panel", UiTheme.panel(Color(0.08, 0.1, 0.14)))
 	var grid := GridContainer.new()
-	grid.columns = t.xs.size() + 1
+	# A table is x against f(x) (or its own heads, such as n and uₙ); a distribution's
+	# comes as written rows.
+	var heads: Array = t.get("heads", ["x", "f(x)"])
+	var rows: Array = t.rows if t.has("rows") else [[heads[0], t.xs.map(func(v): return Fmt.num(v))], [heads[1], t.ys.map(func(v): return Fmt.num(v))]]
+	grid.columns = rows[0][1].size() + 1
 	grid.add_theme_constant_override("h_separation", 6)
 	grid.add_theme_constant_override("v_separation", 10)
-	var heads: Array = t.get("heads", ["x", "f(x)"])
-	for row in [[heads[0], t.xs], [heads[1], t.ys]]:
+	for row in rows:
 		var head := UiTheme.label(row[0], UiTheme.BODY, UiTheme.SAND)
 		head.autowrap_mode = TextServer.AUTOWRAP_OFF
 		grid.add_child(head)
 		for v in row[1]:
-			var cell := UiTheme.label(Fmt.num(v), UiTheme.BODY)
+			var cell := UiTheme.label(v, UiTheme.BODY)
 			cell.autowrap_mode = TextServer.AUTOWRAP_OFF
 			cell.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -494,9 +497,13 @@ func autoplay(right: bool) -> void:
 						if c.ref != "":
 							break
 			for id in _slots:
-				# A measure is typed as a student would, to 3 s.f.
-				_slots[id].text = Fmt.sf(values[id]).replace("−", "-") if question.answer.kind == "measure" \
-					else Answer.export_values({id: values[id]})[id]
+				# A measure is typed as a student would, to 3 s.f., and a decimal or money as written.
+				if question.answer.kind == "measure":
+					_slots[id].text = Fmt.sf(values[id]).replace("−", "-")
+				elif question.answer.get("show", "") != "":
+					_slots[id].text = Answer.shown(question.answer, values[id]).replace("−", "-")
+				else:
+					_slots[id].text = Answer.export_values({id: values[id]})[id]
 			for id in _picks:
 				_picks[id] = values[id]
 				for b in _pick_buttons[id]:
