@@ -11,6 +11,8 @@ extends RefCounted
 ##   values     slot id -> Q (typed number) or String (picked option)
 ##   fixed      values shown as given, not asked (a in "2(x − □)² + □")
 ##   unordered  groups of slot ids that may come in any order (two roots)
+##   exact      (optional) true when only the exact value is right, not 3 s.f.: Paper 1
+##              answers the IB wants exact, such as a whole-number sum (2345 is not 2350)
 ##
 ## Typed numbers go through parse_number(), which accepts whole numbers, decimals and
 ## fractions only. Nothing a student types is evaluated as an expression (Godot's
@@ -254,6 +256,7 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 ## unordered group.
 static func values_right(ans: Dictionary, got: Dictionary) -> bool:
 	var want: Dictionary = ans.values
+	var exact: bool = ans.get("exact", false)
 	var free := {}
 	for group in ans.unordered:
 		for id in group:
@@ -262,14 +265,14 @@ static func values_right(ans: Dictionary, got: Dictionary) -> bool:
 		var id: String = item.get("slot", item.get("pick", ""))
 		if free.has(id):
 			continue
-		if not _slot_right(want[id], got.get(id)):
+		if not _slot_right(want[id], got.get(id), exact):
 			return false
 	for group in ans.unordered:
 		var ok := false
 		for perm in _perms(group):
 			var all := true
 			for i in group.size():
-				if not _slot_right(want[group[i]], got.get(perm[i])):
+				if not _slot_right(want[group[i]], got.get(perm[i]), exact):
 					all = false
 					break
 			if all:
@@ -280,9 +283,9 @@ static func values_right(ans: Dictionary, got: Dictionary) -> bool:
 	return true
 
 
-static func _slot_right(want: Variant, got: Variant) -> bool:
+static func _slot_right(want: Variant, got: Variant, exact: bool = false) -> bool:
 	if want is Q:
-		return got is Q and number_right(got, want)
+		return got is Q and (got.eq(want) if exact else number_right(got, want))
 	return str(want) == str(got)
 
 

@@ -498,13 +498,26 @@ def check_lines(q, f_given):
 # ── One question ─────────────────────────────────────────────
 
 def check(q):
-    kind = q["answer"]["kind"]
-    fixed = q["answer"].get("fixed") or {}
+    """Routes a question to its situation's checks, then checks the answer, the
+    options and the worked solutions the same way for every situation."""
+    sit = q.get("situation_id", "quadratic")
+    need(sit in SITUATION_CHECKS, f"the checker has no checks for situation {sit}")
+    exp, f = SITUATION_CHECKS[sit](q)
+    check_common(q, exp, f)
+
+
+def check_quadratic(q):
     f_sit = check_situation(q)
     exp, f = solve(q)
     if f is not None:
         need(f == f_sit, "the givens describe another parabola than the situation")
     check_lines(q, f)
+    return exp, f
+
+
+def check_common(q, exp, f):
+    kind = q["answer"]["kind"]
+    fixed = q["answer"].get("fixed") or {}
     want = expected_norm(kind, exp, fixed)
     got = values_of(kind, q["answer"]["values"], fixed)
     if kind == "triple":
@@ -551,6 +564,148 @@ def check(q):
              f"{sol['name']}: last step {last!r} doesn't state the answer")
     if q["view"]["angle"] != "any":
         need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+
+
+# ── Arithmetic sequences (FAL-392) ───────────────────────────
+# The `arithmetic-sequence` situation's clean limits, the checker's own copy: the
+# engine's is in game/engine/situations/arithmetic_sequence.gd.
+
+U1, D, NN = sp.symbols("u1 d n")
+SEQ_U1_MAX, SEQ_D_MAX = 40, 12
+SEQ_N_TERM, SEQ_N_SUM = (6, 60), (5, 30)
+SEQ_UN_MAX, SEQ_SN_MAX = 400, 4000
+SEQ_P, SEQ_GAP, SEQ_Q_MAX = (2, 12), (2, 8), 20
+SEQ_TERM_UNKNOWNS = {"term-from-u1-d", "n-from-term"}
+SUBSCRIPTS = str.maketrans("₀₁₂₃₄₅₆₇₈₉ₙ", "0123456789n")
+INT = r"(-?\d+)"
+
+
+def seq_term(k):
+    return U1 + (k - 1) * D
+
+
+def seq_sum(k):
+    return k * (2 * U1 + (k - 1) * D) / 2
+
+
+def seq_given_eqs(g):
+    """Equations in u1, d and n from the givens."""
+    eqs = []
+    for key, sym in (("u1", U1), ("d", D), ("n", NN)):
+        if key in g:
+            eqs.append(sp.Eq(sym, R(g[key])))
+    for k, v in g.get("terms", []):
+        eqs.append(sp.Eq(seq_term(R(k)), R(v)))
+    for key in ("un", "value"):
+        if key in g:
+            eqs.append(sp.Eq(seq_term(NN), R(g[key])))
+    if "sum" in g:
+        eqs.append(sp.Eq(seq_sum(NN), R(g["sum"])))
+    return eqs
+
+
+def seq_shown_eqs(q):
+    """Equations in u1, d and n read back from what the student sees: the notation
+    line, the list of terms, the table, the words and the question itself."""
+    rep = q["view"]["rep"]
+    text = " ".join([q["asked"]] + q["lines"]).replace("−", "-").translate(SUBSCRIPTS)
+    eqs = []
+    if rep == "notation":
+        for part in q["lines"][0].replace("−", "-").translate(SUBSCRIPTS).split(",  "):
+            lhs, rhs_ = (x.strip() for x in part.split("="))
+            v = R(rhs_)
+            m = re.fullmatch(r"([uS])(\d+|n)", lhs)
+            if lhs == "d":
+                eqs.append(sp.Eq(D, v))
+            elif m:
+                k = NN if m.group(2) == "n" else R(m.group(2))
+                eqs.append(sp.Eq((seq_term if m.group(1) == "u" else seq_sum)(k), v))
+            else:
+                raise Fail(f"can't read {part!r} in the notation line")
+    elif rep == "terms":
+        line = q["lines"][0]
+        need(line.endswith(", …"), f"terms line {line!r}")
+        vals = [R(v) for v in line[:-3].replace("−", "-").split(", ")]
+        eqs += [sp.Eq(seq_term(i + 1), v) for i, v in enumerate(vals)]
+    elif rep == "table":
+        t = q["table"]
+        need(t.get("heads") == ["n", "uₙ"], "the table is not headed n and uₙ")
+        eqs += [sp.Eq(seq_term(R(k)), R(v)) for k, v in zip(t["xs"], t["ys"])]
+    elif rep != "words":
+        raise Fail(f"unknown representation {rep}")
+    for pat, make in [
+        (r"first term of an arithmetic sequence is " + INT, lambda m: [sp.Eq(U1, R(m[1]))]),
+        (r"common difference(?: of an arithmetic sequence)? is " + INT, lambda m: [sp.Eq(D, R(m[1]))]),
+        (r"(\d+)(?:st|nd|rd|th) term(?: of an arithmetic sequence)? is " + INT, lambda m: [sp.Eq(seq_term(R(m[1])), R(m[2]))]),
+        (r"sum of its first (\d+) terms is " + INT, lambda m: [sp.Eq(seq_sum(R(m[1])), R(m[2]))]),
+        (r"sum of (?:its|the) first n terms is " + INT, lambda m: [sp.Eq(seq_sum(NN), R(m[1]))]),
+        (r"(?:One of its terms|Which term of the sequence) is " + INT, lambda m: [sp.Eq(seq_term(NN), R(m[1]))]),
+        (r"Find ([uS])(\d+)\b", lambda m: [sp.Eq(NN, R(m[2]))]),
+        (r"Find the (\d+)(?:st|nd|rd|th) term", lambda m: [sp.Eq(NN, R(m[1]))]),
+        (r"first (\d+) terms", lambda m: [sp.Eq(NN, R(m[1]))]),
+    ]:
+        for m in re.finditer(pat, text):
+            eqs += make(m)
+    return eqs
+
+
+def seq_solve(eqs, what):
+    """The one solution with n a positive whole number (or n not involved), plus
+    every root SymPy found, so the rejected one can be checked."""
+    sols = sp.solve(eqs, [U1, D, NN], dict=True)
+    good = [s for s in sols if NN not in s or (s[NN].is_integer and s[NN] > 0)]
+    need(len(good) == 1, f"the {what} give {len(good)} sequences, not one: {sols}")
+    sol = good[0]
+    need(U1 in sol and D in sol, f"the {what} don't fix u1 and d")
+    return sol, sols
+
+
+def check_arithmetic(q):
+    u = q["view"]["unknown"]
+    s = {k: v for k, v in q["situation"].items()}
+    u1, d, n, un, sn = (R(s[k]) for k in ("u1", "d", "n", "un", "sn"))
+    need(all(v.q == 1 for v in (u1, d, n, un, sn)), "a value is not a whole number")
+    need(u1 != 0 and abs(u1) <= SEQ_U1_MAX, f"u1 = {u1} is out of limits")
+    need(d != 0 and abs(d) <= SEQ_D_MAX, f"d = {d} is out of limits")
+    lo, hi = SEQ_N_TERM if u in SEQ_TERM_UNKNOWNS else SEQ_N_SUM
+    need(lo <= n <= hi, f"n = {n} is outside {lo} to {hi}")
+    sit = {U1: u1, D: d, NN: n}
+    need(un == seq_term(n).subs(sit) and abs(un) <= SEQ_UN_MAX, "u_n is wrong or too big")
+    need(sn == seq_sum(n).subs(sit) and sn != 0 and abs(sn) <= SEQ_SN_MAX, "S_n is wrong, zero or too big")
+    need([R(v) for v in s["us"]] == [seq_term(k).subs(sit) for k in (1, 2, 3, 4)], "the first terms are wrong")
+    if s.get("p") is not None:
+        p, r = R(s["p"]), R(s["q"])
+        need(SEQ_P[0] <= p <= SEQ_P[1] and SEQ_GAP[0] <= r - p <= SEQ_GAP[1] and r <= SEQ_Q_MAX, "p and q are out of limits")
+        need(R(s["up"]) == seq_term(p).subs(sit) and R(s["uq"]) == seq_term(r).subs(sit), "u_p or u_q is wrong")
+        need(abs(R(s["up"])) <= SEQ_UN_MAX and abs(R(s["uq"])) <= SEQ_UN_MAX, "u_p or u_q is too big")
+
+    sol, roots = seq_solve(seq_given_eqs(q["given"]), "givens")
+    need(sol[U1] == u1 and sol[D] == d, "the givens describe another sequence than the situation")
+    if NN in sol:
+        need(sol[NN] == n, "the givens give another n than the situation")
+    shown, _ = seq_solve(seq_shown_eqs(q), "question as shown")
+    need(shown == sol, f"the question as shown gives {shown}, the givens {sol}")
+
+    if u == "n-from-sum":
+        rejected = [r[NN] for r in roots if r[NN] != n]
+        need(len(rejected) == 1 and rejected[0].is_integer and rejected[0] < 0, f"the other root is not a negative whole number: {roots}")
+        need(R(s["other"]) == rejected[0], "the situation's other root is wrong")
+        need(any(o["ref"] == "SL1.2.sum-unknown#1" and R(o["values"]["v"]) == rejected[0] for o in q["choices"]),
+             "the negative root is not a wrong option")
+
+    need(q["answer"].get("exact") is True, "the answer is not marked exactly")
+    m = re.match(r"([uS])(\d+|₁) = $", q["answer"]["label"].translate(SUBSCRIPTS))
+    if u in ("term-from-u1-d", "sum-from-u1-d", "sum-from-first-last"):
+        need(m and R(m.group(2)) == n, f"the answer label {q['answer']['label']!r} names another term")
+    v = {
+        "term-from-u1-d": seq_term(NN), "n-from-term": NN, "n-from-sum": NN,
+        "d-from-two-terms": D, "d-from-sum": D, "u1-from-two-terms": U1, "u1-from-sum": U1,
+        "sum-from-u1-d": seq_sum(NN), "sum-from-first-last": seq_sum(NN),
+    }[u]
+    return {"v": sp.nsimplify(v.subs(sol))}, None
+
+
+SITUATION_CHECKS = {"quadratic": check_quadratic, "arithmetic-sequence": check_arithmetic}
 
 
 # ── Coverage from the catalogue itself ───────────────────────

@@ -193,7 +193,8 @@ func _add_next() -> void:
 
 func _add_representation() -> void:
 	for line in question.lines:
-		var is_eq: bool = question.rep == "equation" and (line.begins_with("f(") or line.contains(" = "))
+		var is_eq: bool = (question.rep == "equation" and (line.begins_with("f(") or line.contains(" = "))) \
+			or question.rep in ["notation", "terms"]
 		var l := UiTheme.label(line, UiTheme.BIG if is_eq else UiTheme.BODY, UiTheme.SAND if is_eq else UiTheme.TEXT)
 		if is_eq:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -215,7 +216,8 @@ func _table(t: Dictionary) -> Control:
 	grid.columns = t.xs.size() + 1
 	grid.add_theme_constant_override("h_separation", 6)
 	grid.add_theme_constant_override("v_separation", 10)
-	for row in [["x", t.xs], ["f(x)", t.ys]]:
+	var heads: Array = t.get("heads", ["x", "f(x)"])
+	for row in [[heads[0], t.xs], [heads[1], t.ys]]:
 		var head := UiTheme.label(row[0], UiTheme.BODY, UiTheme.SAND)
 		head.autowrap_mode = TextServer.AUTOWRAP_OFF
 		grid.add_child(head)

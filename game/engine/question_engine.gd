@@ -25,7 +25,10 @@ const CHOICES := 4
 ## Situation id -> [recipe, views]. A situation that `extends` another one (say
 ## quadratic-inequality) gets its own entry: a recipe that calls the base recipe's
 ## generate() and adds its quantities, and views for its unknowns.
-static var SITUATIONS := {"quadratic": [QuadraticSituation, QuadraticViews]}
+static var SITUATIONS := {
+	"quadratic": [QuadraticSituation, QuadraticViews],
+	"arithmetic-sequence": [ArithmeticSequenceSituation, ArithmeticSequenceViews],
+}
 
 static var _cat: Dictionary = {}
 static var _views: Dictionary = {}
@@ -189,7 +192,7 @@ static func make(view: Dictionary) -> Dictionary:
 		"lines": b.lines, "graph": b.graph, "table": b.table,
 		"answer": ans, "answer_text": Answer.text(ans),
 		"choices": choices, "solutions": solutions,
-		"given": b.given, "situation": QuadraticSituation.export(s),
+		"given": b.given, "situation_id": t.situation, "situation": recipe.export(s),
 	}
 
 

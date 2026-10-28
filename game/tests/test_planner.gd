@@ -74,9 +74,18 @@ func test_exam_only_follows_exam_frequency() -> void:
 		if failures.size() > 3:
 			return
 	check(not counts.has("fn-concept-quadratic-forms"))
-	# fn-quadratic-features is asked in 11 bank parts, fn-quadratic-from-conditions in 7.
-	var share := float(counts.get("fn-quadratic-features", 0)) / n
-	check(absf(share - 11.0 / 18.0) < 0.04, "features share %.3f, expected about %.3f" % [share, 11.0 / 18.0])
+	# Each type's share follows its bank parts (frequency in the catalogue), so a new
+	# class changes the expected shares without changing this test.
+	var exam := {}
+	for c in QuestionEngine.cells(true):
+		exam[c.type] = true
+	var total := 0.0
+	for t in exam:
+		total += float(QuestionEngine.type_of(t).frequency)
+	for t in ["fn-quadratic-features", "t1-arithmetic-sequence"]:
+		var want := float(QuestionEngine.type_of(t).frequency) / total
+		var share := float(counts.get(t, 0)) / n
+		check(absf(share - want) < 0.04, "%s share %.3f, expected about %.3f" % [t, share, want])
 
 
 func test_planner_is_reproducible() -> void:

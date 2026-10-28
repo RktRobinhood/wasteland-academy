@@ -60,6 +60,13 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   catalogue's `clean` limits, in one of its `modes` (rational roots, surd roots, no real
   roots). Situations that extend `quadratic` call its `generate()` and add their own
   quantities.
+- `engine/situations/arithmetic_sequence.gd` (FAL-392) is the first situation outside
+  Functions: one arithmetic sequence with u₁, d, n, uₙ, Sₙ, two later terms and the
+  first four terms, for `t1-arithmetic-sequence`. Its representations are `notation`
+  (u₁ = 7,  d = 3), `terms` (7, 10, 13, 16, …), `table` (n against uₙ) and `words`,
+  and its answers are marked exactly (`exact` on the answer), because Paper 1 wants a
+  whole-number sum such as 1807, not 1810. Any type with a `situation` gets a copy in
+  `data/catalogue.json`, whatever its topic.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -90,7 +97,11 @@ per coverage cell and 1,000 per type), then `tools/check_answers.py` solves each
 again with SymPy from its givens. It shares no code with the engine. It checks the
 answer, the clean limits, that every option but one is wrong and that all four differ,
 that every worked solution ends at the answer, and that the equations shown parse to
-the givens. It prints a table per type and per cell. SymPy is pinned in
+the givens. Each situation has its own checks (`SITUATION_CHECKS`, keyed by the
+`situation_id` every question exports); the answer, option and working checks are
+shared. For arithmetic sequences it reads u₁, d and n back from the notation line, the
+terms, the table, the words and the question text, solves them with SymPy, and checks
+they give the sequence in the givens. It prints a table per type and per cell. SymPy is pinned in
 `requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it
 next to `./test.sh`.
 
@@ -115,6 +126,8 @@ script error happens while it runs. Run one file with
   and its column fits at 390x844 and 1280x800.
 - `test_project.gd`: the settings the plan depends on (own `user://` name, portrait
   base, Compatibility renderer, Web preset with threads and PWA off).
+- `test_sequences.gd`: every cell of `t1-arithmetic-sequence`, its misconceptions as
+  options, the negative root offered when n is found from Sₙ, and exact marking.
 - `test_engine.gd`: every catalogue cell of the three Quadratics types can be made,
   same seed same question, the format layer, wrong options, misconceptions, probes and
   the exam-only cells.
