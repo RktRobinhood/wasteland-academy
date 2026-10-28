@@ -8,9 +8,13 @@ extends RefCounted
 ##              vertex_kind, range, triple, claim; for the triangle situation also
 ##              measure (a length, angle or area, written to 3 s.f. with its unit); for
 ##              the distribution situation also pq (two unknown probabilities p and q);
+##              for the cubic situation also deriv
+##              (f′(x) as a quadratic), line (y = mx + c), tangent_read (f′(x₀) and f(x₀)),
+##              points2 (two points, either order) and natures (maximum or minimum at
+##              each stationary point);
 ##              for the Quadratics region (FAL-414) also choice, delta_nature, kvals,
-##              interval, bound, quad_in, kpoint, points2, surd, surd_roots, line,
-##              npoint, kroot and ineq_a
+##              interval, bound, quad_in, kpoint, surd, surd_roots, npoint, kroot and
+##              ineq_a, with points2 and line as the cubic writes them
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
@@ -28,7 +32,8 @@ extends RefCounted
 ## fractions only. Nothing a student types is evaluated as an expression (Godot's
 ## Expression reads 2^3 as 1 and can call engine functions).
 
-const MC_ONLY := ["triple", "claim"]
+const MC_ONLY := ["triple", "claim", "natures"]
+const NATURES := ["local maximum", "local minimum"]
 
 
 static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label: String = "", unit: String = "") -> Dictionary:
@@ -100,24 +105,27 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t.append_array([{"slot": "B"}, v + " + ", {"slot": "C"}, fixed.get("tail", "")])
 		"kpoint":
 			t = ["k = ", {"slot": "k"}, ", touching at (", {"slot": "x"}, ", ", {"slot": "y"}, ")"]
-		"points2":
-			t = ["(", {"slot": "x1"}, ", ", {"slot": "y1"}, ") and (", {"slot": "x2"}, ", ", {"slot": "y2"}, ")"]
 		"surd":
 			t = [label, {"slot": "m"}, "√", {"slot": "r"}, unit]
 		"surd_roots":
 			t = ["x = ", {"slot": "h"}, " ± √", {"slot": "d"}]
-		"line":
-			t = ["y = ", {"slot": "m"}, "x + ", {"slot": "n"}]
 		"npoint":
 			t = ["n = ", {"slot": "n"}, ", other point (", {"slot": "x"}, ", ", {"slot": "y"}, ")"]
 		"kroot":
 			t = ["k = ", {"slot": "k"}, ", other root x = ", {"slot": "r"}]
 		"ineq_a":
 			t = ["x² + ", {"slot": "b"}, "x + ", {"slot": "c"}, " ", {"pick": "rel", "options": RELS}, " 0"]
-	var out := {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
-	if kind == "points2":
-		out.pairs = [[["x1", "y1"], ["x2", "y2"]]]
-	return out
+		"deriv":
+			t = [label if label != "" else "f′(x) = ", {"slot": "u2"}, "x² + ", {"slot": "u1"}, "x + ", {"slot": "u0"}]
+		"line":
+			t = ["y = ", {"slot": "m"}, "x + ", {"slot": "c"}]
+		"tangent_read":
+			t = ["f′(%s) = " % Fmt.num(fixed.x0), {"slot": "m"}, ",  f(%s) = " % Fmt.num(fixed.x0), {"slot": "y"}]
+		"points2":
+			t = ["(", {"slot": "x1"}, ", ", {"slot": "y1"}, ") and (", {"slot": "x2"}, ", ", {"slot": "y2"}, ")"]
+		"natures":
+			t = ["x = %s: " % Fmt.num(fixed.p), {"pick": "k1", "options": NATURES}, ",  x = %s: " % Fmt.num(fixed.q), {"pick": "k2", "options": NATURES}]
+	return {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
 
 
 ## The interval kind: between the two numbers, or outside them, with the ends left out
@@ -233,23 +241,27 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return ans.label + Fmt.poly([a, v.B, v.C], fx.get("var", "x")) + fx.get("tail", "")
 		"kpoint":
 			return "k = %s, touching at %s" % [Fmt.num(v.k), Fmt.point(v.x, v.y)]
-		"points2":
-			var ps := [[Q.of(v.x1), Q.of(v.y1)], [Q.of(v.x2), Q.of(v.y2)]]
-			if ps[1][0].lt(ps[0][0]):
-				ps.reverse()
-			return "%s and %s" % [Fmt.point(ps[0][0], ps[0][1]), Fmt.point(ps[1][0], ps[1][1])]
 		"surd":
 			return ans.label + surd_text(v.m, v.r) + ans.unit
 		"surd_roots":
 			return "x = %s± √%s" % ["" if Q.of(v.h).is_zero() else Fmt.num(v.h) + " ", Fmt.num(v.d)]
-		"line":
-			return "y = " + Fmt.poly([v.m, v.n])
 		"npoint":
 			return "n = %s, other point %s" % [Fmt.num(v.n), Fmt.point(v.x, v.y)]
 		"kroot":
 			return "k = %s, other root x = %s" % [Fmt.num(v.k), Fmt.num(v.r)]
 		"ineq_a":
 			return "%s %s 0" % [Fmt.poly([1, v.b, v.c]), v.rel]
+		"deriv":
+			return (ans.label if ans.label != "" else "f′(x) = ") + Fmt.poly([v.u2, v.u1, v.u0])
+		"line":
+			return "y = " + Fmt.poly([v.m, v.c])
+		"tangent_read":
+			return "f′(%s) = %s,  f(%s) = %s" % [Fmt.num(fx.x0), Fmt.num(v.m), Fmt.num(fx.x0), Fmt.num(v.y)]
+		"points2":
+			var ps := _pairs(v)
+			return "%s and %s" % [Fmt.point(ps[0][0], ps[0][1]), Fmt.point(ps[1][0], ps[1][1])]
+		"natures":
+			return "x = %s: %s,  x = %s: %s" % [Fmt.num(fx.p), v.k1, Fmt.num(fx.q), v.k2]
 	return "?"
 
 
@@ -273,14 +285,9 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind == "measure":
 		return "measure:" + Fmt.sf(values.v)
 	var v := values.duplicate()
-	for group in ans.get("pairs", []):
-		var a: Array = group[0]
-		var b: Array = group[1]
-		if Q.of(v[b[0]]).lt(v[a[0]]):
-			for i in a.size():
-				var t = v[a[i]]
-				v[a[i]] = v[b[i]]
-				v[b[i]] = t
+	if ans.kind == "points2":
+		var ps := _pairs(v)
+		v = {"x1": ps[0][0], "y1": ps[0][1], "x2": ps[1][0], "y2": ps[1][1]}
 	for group in ans.unordered:
 		var sorted_vals := _sorted(group.map(func(id): return v[id]))
 		for i in group.size():
@@ -305,6 +312,14 @@ static func export_values(values: Dictionary) -> Dictionary:
 		else:
 			out[key] = x
 	return out
+
+
+## The two points of a points2 answer, the one with the smaller x first.
+static func _pairs(v: Dictionary) -> Array:
+	var ps: Array = [[v.x1, v.y1], [v.x2, v.y2]]
+	if Q.of(ps[1][0]).lt(ps[0][0]) or (Q.of(ps[1][0]).eq(ps[0][0]) and Q.of(ps[1][1]).lt(ps[0][1])):
+		ps.reverse()
+	return ps
 
 
 static func _sorted(qs: Array) -> Array:
@@ -509,24 +524,13 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 
 
 ## Whether typed values match the answer, slot by slot, trying each order of an
-## unordered group. With glancing, a number with too few figures counts too. Two
-## points (pairs) may come either way round.
+## unordered group. With glancing, a number with too few figures counts too.
 static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
-	for group in ans.get("pairs", []):
-		# Two points either way round: try the typed values with the pair swapped.
-		if _values_right(ans, got, glancing):
-			return true
-		var swapped := got.duplicate()
-		var a: Array = group[0]
-		var b: Array = group[1]
-		for i in a.size():
-			swapped[a[i]] = got.get(b[i])
-			swapped[b[i]] = got.get(a[i])
-		return _values_right(ans, swapped, glancing)
-	return _values_right(ans, got, glancing)
-
-
-static func _values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
+	if ans.kind == "points2" and not got.is_empty():
+		var swapped := {"x1": got.get("x2"), "y1": got.get("y2"), "x2": got.get("x1"), "y2": got.get("y1")}
+		var plain := ans.duplicate()
+		plain.kind = "point_pair"
+		return values_right(plain, got, glancing) or values_right(plain, swapped, glancing)
 	var want: Dictionary = ans.values
 	var exact: bool = ans.get("exact", false)
 	var free := {}

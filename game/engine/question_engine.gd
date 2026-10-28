@@ -34,6 +34,7 @@ static var SITUATIONS := {
 	"curve-and-line": [CurveLineSituation, CurveLineViews],
 	"quadratic-equation": [QuadraticEquationSituation, QuadraticEquationViews],
 	"quadratic-inequality": [QuadraticInequalitySituation, QuadraticInequalityViews],
+	"cubic": [CubicSituation, CubicViews],
 }
 
 static var _cat: Dictionary = {}

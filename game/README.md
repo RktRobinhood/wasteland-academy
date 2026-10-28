@@ -128,6 +128,9 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   numbers to the recipe as `need.angle`. That is the `same_angle` method for "Another
   way", so switching to factorising keeps a Paper 2 context, and the factorising working
   says it fails there and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
+- `engine/situations/cubic.gd` is the Topic 5 situation: a cubic built
+  from f′(x) = 3a(x − p)(x − q), so its stationary points are on whole numbers, with a
+  point x₀ for the gradient, tangent and normal (FAL-394).
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -298,6 +301,9 @@ script error happens while it runs. Run one file with
   as SL2.7.inequality#1, two points in either order, a tangent's point on both graphs,
   Paper 2 contexts at about one in four, and "Another way" keeping the numbers for every
   fn-solve-quadratic unknown and pair of methods.
+- `test_calculus.gd`: the four Topic 5 types on the cubic: built, every misconception
+  appears as an option, two points in either order, nature as multiple choice, f′(x)
+  marked exactly, the normal to 3 s.f.
 - `test_answer.gd`: parsing and marking typed answers.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.

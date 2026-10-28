@@ -242,15 +242,15 @@ func u_normal_meets_again(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 
 
 func u_line_from_meeting_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var ans := Answer.make("line", {"m": s.m, "n": s.n})
+	var ans := Answer.make("line", {"m": s.m, "c": s.n})
 	var final := "So the line is " + Answer.text(ans) + "."
 	var out := {"answer": ans, "given": given_of(s).merged({"xs": [s.x1.key(), s.x2.key()]}), "asked": "Find the equation of the line."}
 	if rep == "words":
 		out.lines = ["A line meets the curve y = %s at the points where x = %s and x = %s." % [curve_rhs(s), N(s.x1), N(s.x2)]]
 	else:
 		out.lines = ["Curve: y = " + curve_rhs(s), "A line meets the curve at x = %s and x = %s." % [N(s.x1), N(s.x2)]]
-	out.generic = [{"m": Q.new(1).div(s.m), "n": s.n}, {"m": s.m, "n": s.n.neg()}, {"m": s.m.neg(), "n": s.n}, {"m": s.m.neg(), "n": s.n.neg()},
-		{"m": s.m, "n": s.y1}]
+	out.generic = [{"m": Q.new(1).div(s.m), "c": s.n}, {"m": s.m, "c": s.n.neg()}, {"m": s.m.neg(), "c": s.n}, {"m": s.m.neg(), "c": s.n.neg()},
+		{"m": s.m, "c": s.y1}]
 	out.methods = {"two-point-formula": {"result": ans.values, "steps": [
 		"On the curve: at x = %s, y = %s; at x = %s, y = %s" % [N(s.x1), N(s.y1), N(s.x2), N(s.y2)],
 		"Gradient m = (%s − %s)/(%s − %s) = %s" % [N(s.y2), Fmt.paren(s.y1), N(s.x2), Fmt.paren(s.x1), N(s.m)],

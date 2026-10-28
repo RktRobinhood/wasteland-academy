@@ -1,7 +1,7 @@
 class_name Fmt
 extends RefCounted
 ## Writes numbers, points and the three quadratic forms as students see them: a true
-## minus sign, x², "½" for a half as a leading coefficient, and "(3/2)x" for any other
+## minus sign, x² (and x³, x⁴ for the cubic), "½" for a half as a leading coefficient, and "(3/2)x" for any other
 ## fraction in front of x. tools/check_answers.py parses these strings back with SymPy,
 ## so a formatting slip is caught as a wrong question.
 
@@ -75,7 +75,7 @@ static func lead(v: Variant) -> String:
 static func term(c: Q, power: int, first: bool, letter: String = "x") -> String:
 	var mag := c.abs_q()
 	var body := ""
-	var v := "" if power == 0 else (letter if power == 1 else letter + "²")
+	var v: String = "" if power == 0 else letter + ["", "", "²", "³", "⁴"][power]
 	if power == 0:
 		body = mag.text()
 	else:
