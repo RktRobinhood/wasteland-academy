@@ -133,7 +133,7 @@ const ambientAnimations = page => page.evaluate(() => document.getAnimations()
   .filter(a => a.effect?.target?.closest?.('.world-ambient') && a.playState === 'running')
   .map(a => a.animationName));
 
-test('the map moves: tumbleweeds, smoke, lights and a buzzard, none of which takes a tap', async ({ page }) => {
+test('the map moves: tumbleweeds, dust, smoke, lights and a buzzard, none of which takes a tap', async ({ page }) => {
   const pageErrors = trackPageErrors(page);
   await openWorld(page);
 
@@ -142,9 +142,14 @@ test('the map moves: tumbleweeds, smoke, lights and a buzzard, none of which tak
   await expect(ambient).toHaveAttribute('aria-hidden', 'true');
   await expect(ambient).toHaveCSS('pointer-events', 'none');
   const running = await ambientAnimations(page);
-  for (const name of ['amb-weed-roll', 'amb-weed-spin', 'amb-weed-hop', 'amb-puff', 'amb-blink', 'amb-beacon', 'amb-neon', 'amb-circle']) {
+  for (const name of ['amb-weed-roll', 'amb-weed-spin', 'amb-weed-hop', 'amb-weed-puff', 'amb-dust', 'amb-gust',
+    'amb-devil', 'amb-devil-sway', 'amb-cloud', 'amb-puff', 'amb-blink', 'amb-beacon', 'amb-neon', 'amb-circle']) {
     expect(running, `${name} runs`).toContain(name);
   }
+
+  // The tumbleweed's frames load
+  const frames = page.locator('.amb-weed-near .amb-weed-frames');
+  await expect.poll(() => frames.evaluate(img => img.complete && img.naturalWidth), 'tumbleweed frames load').toBeGreaterThan(0);
 
   // The near tumbleweed is on the map when it opens, and rolls on
   const weed = page.locator('.amb-weed-near .amb-weed-body');
