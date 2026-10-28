@@ -14,12 +14,14 @@ extends RefCounted
 ##   lessons    The Relic lessons (FAL-325); empty for now
 ##   scrap      Scrap banked from runs, for the Bazaar (G6)
 ##   runs       {"played", "best_fights", "questions", "right"} over every run
+##   dungeon    region id (or "all") -> {"best": deepest floor reached, "beaten":
+##              [floors whose boss fell]}; a run may start on floor 1 or any beaten one
 ##
 ## When a wrong answer matches a multiple-choice distractor, the distractor's
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can
 ## use it later.
 
-const VERSION := 2
+const VERSION := 3
 const PATH := "user://save.json"
 const HISTORY := 20
 
@@ -27,7 +29,7 @@ const HISTORY := 20
 static func blank() -> Dictionary:
 	return {"version": VERSION, "settings": {"exam_only": false}, "cells": {}, "probes": {}, "history": [],
 		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
-		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}}
+		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {}}
 
 
 ## Brings any older save up to VERSION, one step at a time, then fills in fields a
@@ -68,6 +70,10 @@ static func call_step(v: int, data: Dictionary) -> Dictionary:
 			if out.get("class") == "":
 				out["class"] = null
 			return out
+		2:
+			# Version 2 to 3 (FAL-415): the dungeon record per region. A save from
+			# before floors has beaten no boss, so blank() gives it an empty one.
+			return data.duplicate(true)
 	return data
 
 

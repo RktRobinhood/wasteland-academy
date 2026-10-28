@@ -6,7 +6,7 @@ extends RefCounted
 ##
 ## A modifier is a Callable (kind: String, value: float, ctx: Dictionary) -> float. It
 ## must return value unchanged for kinds it doesn't touch. ctx says where the value comes
-## from: {"outcome", "tier", "floor", "fight"} as far as they apply.
+## from: {"outcome", "tier", "floor", "fight", "boss"} as far as they apply.
 ##
 ##   var mods := Modifiers.new()
 ##   mods.add(func(kind, v, _ctx): return v * 2.0 if kind == "scrap" else v)
@@ -17,7 +17,10 @@ extends RefCounted
 ## scrap         Scrap earned
 ## time          seconds on a question's clock, and Time Freeze's length
 ## max_hp        the player's HP at the start of a run
-const KINDS := ["enemy_damage", "player_damage", "heal", "scrap", "time", "max_hp"]
+## boss_heal     HP back when a mini-boss or boss falls (the "boss beaten" event, G4);
+##               ctx.boss is "mini" or "boss". Second Wind (G6) adds 20 here. The
+##               amount then goes through heal like any other.
+const KINDS := ["enemy_damage", "player_damage", "heal", "scrap", "time", "max_hp", "boss_heal"]
 
 var _mods: Array[Callable] = []
 

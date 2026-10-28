@@ -1,8 +1,10 @@
 extends "res://ui/practice.gd"
-## The fight screen (FAL-413): a run (engine/run.gd) drawn as fights. The enemy and the
-## player's HP, the draining timer, the lifelines and Scrap sit above the practice
+## The fight screen (FAL-413, FAL-415): a run (engine/run.gd) drawn as fights. It opens
+## on the floor select (floor 1, and every floor whose boss is beaten). The enemy and
+## the player's HP, the draining timer, the lifelines and Scrap sit above the practice
 ## screen's question card, which this screen reuses. A wrong answer or a timeout shows
-## the worked solution before the next question; the run ends in a summary.
+## the worked solution before the next question; the run ends in a summary. A mini-boss
+## or boss shows its part, the parts done, and the value carried on from the part before.
 ##
 ## Room is kept for two later pieces: the journey strip (FAL-331) above the card, and
 ## the Paper 1 or 2 badge (C1, FAL-419) in the lifeline row.
@@ -10,8 +12,12 @@ extends "res://ui/practice.gd"
 ## Deep links, for screenshots and tests:
 ##   web:      /next/?play=quadratics&seed=3&floor=1&autoplay=wrong
 ##   desktop:  -- --play=quadratics --seed=3 --autoplay=wrong
-## autoplay=right or wrong answers the first question at once; autoplay=lose plays
-## wrong answers until the run ends, to show the summary.
+## play is a region id or "all" (the all-regions dungeon). floor must be one the save
+## may start on, else the run starts on floor 1. autoplay=right or wrong answers the
+## first question at once; autoplay=lose plays wrong answers until the run ends, to
+## show the summary; autoplay=carry answers a boss's first part wrong and opens the
+## next, to show the value carried on. fight=5 or fight=10 starts at the mini-boss or
+## the boss; such a run records no floors. select=1 shows the floor select.
 
 const MAIN := "res://scenes/main.tscn"
 const MONO := preload("res://assets/fonts/share-tech-mono-latin.woff2")
@@ -45,6 +51,11 @@ var lifeline_buttons := {}
 var badge: Control
 var hint_label: Label
 var summary_box: VBoxContainer
+var floor_box: VBoxContainer
+## The deep link's jump to a fight (1: none).
+var first_fight := 1
+## Open on the floor select (tests set false to start a run on start_floor at once).
+var select_first := true
 ## The rows that only mean something while a question is open.
 var _question_rows: Array = []
 
@@ -55,17 +66,29 @@ func _ready() -> void:
 	resized.connect(_fit)
 	_fit()
 	var deep := deep_link()
-	if not deep.is_empty():
-		region = deep.region
-		start_floor = deep.floor
-		run_seed = deep.seed
 	save = SaveData.load_from(save_path)
+	if deep.is_empty():
+		if select_first:
+			show_floor_select()
+		else:
+			start_run()
+		return
+	region = deep.region
+	if deep.select:
+		show_floor_select()
+		return
+	start_floor = deep.floor if Dungeon.start_floors(save, region).has(deep.floor) else 1
+	run_seed = deep.seed
+	first_fight = deep.fight
 	start_run()
 	match deep.get("autoplay", ""):
 		"right", "wrong":
 			autoplay(deep.autoplay == "right")
 		"lose":
 			lose()
+		"carry":
+			autoplay(false)
+			next_question()
 
 
 ## Starts a run with this screen's region, floor and seed (a fresh seed if 0).
@@ -73,13 +96,86 @@ func start_run() -> void:
 	if run_seed == 0:
 		run_seed = int(Time.get_unix_time_from_system()) % 1000000 + 1
 	run = Run.new(save, region, start_floor, run_seed)
+	if first_fight > 1:
+		run.first_fight = first_fight
+		run.records = false
 	run.question_opened.connect(func(_f, _t): _show_question())
 	run.run_ended.connect(_show_summary)
 	summary_box.visible = false
+	floor_box.visible = false
+	quit_button.visible = true
 	scroll.visible = true
-	for c in _question_rows:
+	for c in _question_rows + [col_node("Status"), strip]:
 		c.visible = true
 	run.start()
+
+
+func col_node(n: String) -> Control:
+	return margin.get_node("Column/" + n) as Control
+
+
+## The floor select (Q4): floor 1 and every floor whose boss the player has beaten, the
+## best floor so far, and what opens the next one.
+func show_floor_select() -> void:
+	run = null
+	scroll.visible = false
+	summary_box.visible = false
+	for c in _question_rows + [col_node("Status"), strip]:
+		c.visible = false
+	floor_box.visible = true
+	quit_button.visible = false
+	for c in floor_box.get_children():
+		floor_box.remove_child(c)
+		c.queue_free()
+	title.text = Dungeon.region_name(region)
+	var head := UiTheme.label("Choose a floor", 84, UiTheme.TEAL)
+	head.name = "Heading"
+	head.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	floor_box.add_child(head)
+	floor_box.add_child(UiTheme.label("A floor is %d fights: a mini-boss at fight %d and a boss at fight %d. Beat a boss and later runs can start on its floor." %
+		[Tuning.FIGHTS_PER_FLOOR, Tuning.MINI_BOSS_AT, Tuning.FIGHTS_PER_FLOOR], UiTheme.BODY, UiTheme.DIM))
+	var rec := Dungeon.record(save, region)
+	var floors := Dungeon.start_floors(save, region)
+	if int(rec.get("best", 0)) > 0:
+		floor_box.add_child(_mono("Best floor: %d · floor bosses beaten: %d" % [int(rec.best), (rec.get("beaten", []) as Array).size()],
+			UiTheme.BODY, UiTheme.SAND))
+	var list := VBoxContainer.new()
+	list.name = "Floors"
+	list.add_theme_constant_override("separation", 14)
+	floor_box.add_child(list)
+	for f in floors:
+		var b := Button.new()
+		b.name = "Floor%d" % f
+		b.text = "Floor %d · %s" % [f, _floor_about(f)]
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		b.add_theme_font_size_override("font_size", UiTheme.BIG)
+		b.custom_minimum_size.y = 120
+		b.pressed.connect(func():
+			start_floor = f
+			run_seed = 0
+			first_fight = 1
+			start_run())
+		list.add_child(b)
+	var next_locked: int = floors.max() + 1
+	var lock := UiTheme.label("Floor %d · beat the floor %d boss to start here" % [next_locked, next_locked - 1], UiTheme.BODY, UiTheme.DIM)
+	lock.name = "Locked"
+	list.add_child(lock)
+	var back := Button.new()
+	back.name = "Title"
+	back.text = "Back to the title"
+	back.add_theme_font_size_override("font_size", UiTheme.BIG)
+	back.pressed.connect(func(): get_tree().change_scene_to_file(MAIN))
+	floor_box.add_child(back)
+	(list.get_child(0) as Button).grab_focus.call_deferred()
+
+
+## What a floor asks, in a few words.
+func _floor_about(f: int) -> String:
+	if f >= Tuning.MIX_FROM_FLOOR:
+		return "everything mixed, harder each floor"
+	var band := Dungeon.floor_band(f)
+	return "levels %d to %d" % [band[0], band[1]]
 
 
 func _build() -> void:
@@ -152,6 +248,13 @@ func _build() -> void:
 	summary_box.add_theme_constant_override("separation", 22)
 	summary_box.visible = false
 	col.add_child(summary_box)
+
+	floor_box = VBoxContainer.new()
+	floor_box.name = "FloorSelect"
+	floor_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	floor_box.add_theme_constant_override("separation", 22)
+	floor_box.visible = false
+	col.add_child(floor_box)
 
 
 func _bar(color: Color, height: int) -> ProgressBar:
@@ -295,6 +398,8 @@ func _show_question() -> void:
 		tag.name = "AnotherWay"
 		card.add_child(tag)
 		card.move_child(tag, 0)
+	if not run.boss.is_empty():
+		_show_boss_part()
 	hint_label = UiTheme.label("", UiTheme.BODY, UiTheme.SAND)
 	hint_label.name = "Hint"
 	hint_label.visible = false
@@ -303,19 +408,65 @@ func _show_question() -> void:
 	_update_hud()
 
 
+## A boss part's head on the card: which part, the parts done with their answers, and
+## the value this part carries on from (Q9's follow-through).
+func _show_boss_part() -> void:
+	var b: Dictionary = run.boss
+	var n: int = b.parts.size()
+	var at := 0
+	var head := UiTheme.label("%s · part (%s) of %d" % ["Boss" if b.kind == "boss" else "Mini-boss",
+		QuestionEngine.part_letter(b.part), n] + (" · link question" if run.rule == "link" else ""), UiTheme.BODY, UiTheme.PINK)
+	head.name = "BossPart"
+	card.add_child(head)
+	card.move_child(head, at)
+	at += 1
+	if b.part > 0:
+		var done := VBoxContainer.new()
+		done.name = "PartsDone"
+		done.add_theme_constant_override("separation", 6)
+		var answers: Array = run.answers.slice(-b.part)
+		for i in b.part:
+			var right: bool = answers[i].outcome in ["right", "late", "glancing"]
+			var pv: Dictionary = b.parts[i].view
+			var asked: String = QuestionEngine.unknown_of(QuestionEngine.type_of(pv.type), pv.unknown).get("asked", "")
+			done.add_child(UiTheme.label("(%s) %s · %s: %s" % [QuestionEngine.part_letter(i), "right" if right else "missed",
+				asked, b.parts[i].answer_text], UiTheme.SMALL, UiTheme.TEAL if right else UiTheme.DIM))
+		card.add_child(done)
+		card.move_child(done, at)
+		at += 1
+	var q: Dictionary = run.question
+	if q.has("carried"):
+		var box := PanelContainer.new()
+		box.name = "Carried"
+		box.add_theme_stylebox_override("panel", UiTheme.panel())
+		var l := UiTheme.label("From part (%s): %s. Carry on from this." % [q.carried.part, q.carried.text], UiTheme.BODY, UiTheme.SAND)
+		box.add_child(l)
+		card.add_child(box)
+		card.move_child(box, at)
+
+
 func _update_progress() -> void:
 	if run == null or progress == null:
 		return
-	progress.text = "Fight %d · question %d · floor %d" % [run.fight, run.question_no, run.floor_no]
+	var what := "fight %d of %d" % [run.fight, Tuning.FIGHTS_PER_FLOOR]
+	if not run.boss.is_empty():
+		what += " · %s part (%s) of %d" % ["boss" if run.kind == "boss" else "mini-boss",
+			QuestionEngine.part_letter(mini(run.boss.part, run.boss.parts.size() - 1)), run.boss.parts.size()]
+	else:
+		what += " · question %d" % run.question_no
+	progress.text = "Floor %d · %s" % [run.floor_no, what]
 
 
 func _update_hud() -> void:
-	title.text = "%s · Fight %d" % [_region_name(), run.fight]
+	title.text = "%s · Floor %d" % [Dungeon.region_name(region), run.floor_no]
 	enemy_name.text = "%s · D%d" % [run.enemy.name, run.tier]
 	enemy_art.texture = load("res://assets/enemies/" + run.enemy.art)
 	enemy_bar.max_value = run.enemy.max_hp
 	enemy_bar.value = run.enemy.hp
-	enemy_hp.text = "%d/%d" % [run.enemy.hp, run.enemy.max_hp]
+	if run.boss.is_empty():
+		enemy_hp.text = "%d/%d" % [run.enemy.hp, run.enemy.max_hp]
+	else:
+		enemy_hp.text = "%d/%d" % [run.boss.parts.size() - mini(run.boss.part, run.boss.parts.size()), run.boss.parts.size()]
 	player_bar.max_value = run.max_hp
 	player_bar.value = run.hp
 	player_hp.text = "%d/%d" % [run.hp, run.max_hp]
@@ -337,13 +488,6 @@ func _update_timer() -> void:
 	timer_fill.bg_color = GREEN if share >= Tuning.BAR_ORANGE else (ORANGE if share >= Tuning.LATE_ZONE else RED)
 	timer_label.text = ("❚❚ " if run.frozen_left > 0.0 else "") + "%ds" % ceili(run.time_left)
 	timer_label.add_theme_color_override("font_color", UiTheme.TEAL if run.frozen_left > 0.0 else UiTheme.TEXT)
-
-
-func _region_name() -> String:
-	for r in QuestionEngine.catalogue().get("regions", []):
-		if r is Dictionary and r.get("id") == region:
-			return r.get("name", region)
-	return region.capitalize()
 
 
 func use_lifeline(id: String) -> void:
@@ -419,8 +563,14 @@ func _show_result(r: Dictionary) -> void:
 			if m.ref == ref:
 				feedback.text += "\nWatch out: " + m.text + "."
 				break
+	if r.get("carry", "") != "" and r.outcome in ["wrong", "timeout", "glancing"]:
+		feedback.text += "\nPart (%s) carries on from %s." % [QuestionEngine.part_letter(r.part + 1), r.carry]
 	if r.defeated:
 		feedback.text += "\nThe %s falls." % run.enemy.name
+		if r.get("healed", 0) > 0:
+			feedback.text += " +%d HP." % r.healed
+		if r.get("floor_cleared", false):
+			feedback.text += " Floor %d cleared: floor %d is next." % [run.floor_no, run.floor_no + 1]
 	feedback.add_theme_color_override("font_color", color)
 	if question.format == "mcq":
 		for i in _choice_buttons.size():
@@ -433,7 +583,14 @@ func _show_result(r: Dictionary) -> void:
 		_show_working()
 	check_button.visible = false
 	next_button.visible = true
-	next_button.text = "See the summary" if r.dead else ("Next fight" if r.defeated else "Next question")
+	if r.dead:
+		next_button.text = "See the summary"
+	elif r.get("floor_cleared", false):
+		next_button.text = "Next floor"
+	elif r.defeated:
+		next_button.text = "Next fight"
+	else:
+		next_button.text = "Next part" if not run.boss.is_empty() else "Next question"
 	for e in _slots.values():
 		e.editable = false
 	for b in _choice_buttons:
@@ -463,13 +620,15 @@ func _show_summary(s: Dictionary) -> void:
 	head.add_theme_font_override("font", UiTheme.TITLE_FONT)
 	summary_box.add_child(head)
 	var lines := [
-		"Questions right: %d of %d" % [s.right, s.questions],
-		"Fights won: %d" % s.fights_won,
+		"Floor %d reached · bosses beaten: %d" % [s.floor, s.bosses],
+		"Questions right: %d of %d · fights won: %d" % [s.right, s.questions, s.fights_won],
 		"Scrap earned: %d" % s.scrap,
 		"Scrap in the bank: %d" % s.banked,
 	]
 	for line in lines:
-		summary_box.add_child(_mono(line, UiTheme.BIG, UiTheme.SAND if line.begins_with("Scrap") else UiTheme.TEXT))
+		var l := _mono(line, UiTheme.BIG, UiTheme.SAND if line.begins_with("Scrap") else UiTheme.TEXT)
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		summary_box.add_child(l)
 	summary_box.add_child(UiTheme.label("Skills missed" if not s.missed.is_empty() else "No skills missed.", UiTheme.BIG, UiTheme.TEAL))
 	var list := VBoxContainer.new()
 	list.name = "Missed"
@@ -483,7 +642,8 @@ func _show_summary(s: Dictionary) -> void:
 	again.add_theme_font_size_override("font_size", UiTheme.BIG)
 	again.pressed.connect(func():
 		run_seed = 0
-		start_run())
+		first_fight = 1
+		show_floor_select())
 	summary_box.add_child(again)
 	var back := Button.new()
 	back.name = "Title"
@@ -520,4 +680,5 @@ static func deep_link() -> Dictionary:
 	if not args.has("play"):
 		return {}
 	return {"region": args.play, "seed": int(args.get("seed", "1")), "floor": maxi(1, int(args.get("floor", "1"))),
+		"fight": clampi(int(args.get("fight", "1")), 1, Tuning.FIGHTS_PER_FLOOR), "select": args.get("select", "") == "1",
 		"autoplay": args.get("autoplay", "")}

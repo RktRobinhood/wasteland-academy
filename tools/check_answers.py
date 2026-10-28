@@ -1392,6 +1392,25 @@ def catalogue_cells(type_ids):
     return out
 
 
+# ── Boss chains (FAL-415) ────────────────────────────────────
+
+def check_chain(parts):
+    """The parts of one mini-boss or boss: one situation, and each part carries the
+    part before's right answer (IB follow-through). Each part is also checked on its
+    own, so the carried value is the true value of the situation its givens describe."""
+    parts = sorted(parts, key=lambda q: q["part"])
+    need([q["part"] for q in parts] == list(range(len(parts))), "parts are not (a), (b), ... in order")
+    need(len(parts) >= 2, "a chain of one part")
+    for prev, q in zip(parts, parts[1:]):
+        need(q["situation"] == parts[0]["situation"], f"part {q['part']} is on another situation")
+        need(q["situation_id"] == parts[0]["situation_id"], f"part {q['part']} is on another kind of situation")
+        c = q.get("carried")
+        need(c is not None, f"part {q['part']} carries nothing on")
+        need(c["values"] == prev["answer"]["values"], f"part {q['part']} carries {c['values']}, not the answer {prev['answer']['values']}")
+        need(c["text"] == prev["answer_text"], f"part {q['part']} shows {c['text']!r}, not {prev['answer_text']!r}")
+        need(c["part"] == "abcdefgh"[prev["part"]], f"part {q['part']} names the wrong part")
+
+
 def main():
     path = Path(sys.argv[1] if len(sys.argv) > 1 else ROOT / "_scratch/check-answers/questions.json")
     data = json.loads(path.read_text())
@@ -1416,6 +1435,18 @@ def main():
         if not ok:
             by_cell[cell][1] += 1
             by_type[t][1] += 1
+
+    chains = defaultdict(list)
+    for q in qs:
+        if "chain" in q:
+            chains[q["chain"]].append(q)
+    chain_failures = []
+    for name, parts in chains.items():
+        try:
+            check_chain(parts)
+        except Fail as e:
+            chain_failures.append(f"{name}: {e}")
+    failures += [f"chain {m}" for m in chain_failures]
 
     types = sorted(by_type)
     cat = catalogue_cells(set(types) | {e["view"]["type"] for e in data.get("errors", [])})
@@ -1442,6 +1473,7 @@ def main():
         problems.append(f"{c}: not a catalogue cell")
     print()
     total = sum(v[0] for v in by_type.values())
+    print(f"Boss chains: {len(chains)}, {sum(len(v) for v in chains.values())} parts, {len(chain_failures)} failed")
     print(f"{total} questions, {len(failures)} failed, {sum(len(v) for v in cat.values())} catalogue cells")
     for msg in failures[:40]:
         print("FAIL " + msg)

@@ -139,6 +139,106 @@ static func cell_key(type: String, unknown: String, rep: String, angle: String) 
 
 ## Makes the question for a view. Returns {"error": "..."} if the view can't be made.
 static func make(view: Dictionary) -> Dictionary:
+	var v := _resolve(view)
+	if v.has("error"):
+		return v
+	# "Another way" (FAL-310): a view with same_angle asks the question that angle made,
+	# the same numbers, but by this view's angle.
+	var rng_angle: String = view.get("same_angle", v.angle)
+	var rng := Seeded.new("%s|%d" % [cell_key(v.t.id, v.u.id, v.rep, rng_angle), v.seed])
+	var s: Dictionary = SITUATIONS[v.t.situation][0].generate(rng, v.views.need(v.u.id, v.rep))
+	if s.is_empty():
+		return {"error": "no clean situation for %s" % cell_key(v.t.id, v.u.id, v.rep, v.angle)}
+	var q := _build(v, s, rng)
+	if rng_angle != v.angle:
+		q.view.same_angle = rng_angle
+	return q
+
+
+## Makes the linked parts of a mini-boss or boss (Q9): every part is asked on one
+## situation, generated once from the needs of all of them together. steps is
+## [{"type", "unknown", "rep"?, "angle"?, "format"?}], in chain order. Each part is a
+## question like make()'s, plus "part" (0, 1, ...) and, from the second part on,
+## "carried": the part before's right answer {"part", "asked", "values", "text"}, which
+## the next part carries on from whatever the player answered (IB follow-through).
+## Returns {"parts": [...], "situation"} or {"error"}.
+static func make_chain(steps: Array, seed: int) -> Dictionary:
+	if steps.is_empty():
+		return {"error": "a chain needs steps"}
+	var vs: Array = []
+	var need := {}
+	var sit := ""
+	var keys: Array = []
+	for step in steps:
+		var v := _resolve(step.merged({"seed": seed}))
+		if v.has("error"):
+			return v
+		if sit != "" and v.t.situation != sit:
+			return {"error": "%s is on %s, not %s" % [v.t.id, v.t.situation, sit]}
+		sit = v.t.situation
+		var merged := merge_needs(need, v.views.need(v.u.id, v.rep))
+		if merged.has("error"):
+			return {"error": "%s|%s: %s" % [v.t.id, v.u.id, merged.error]}
+		need = merged
+		vs.append(v)
+		keys.append("%s:%s" % [v.t.id, v.u.id])
+	var chain_key := "chain|%s|%d" % ["+".join(keys), seed]
+	var s: Dictionary = SITUATIONS[sit][0].generate(Seeded.new(chain_key), need)
+	if s.is_empty():
+		return {"error": "no clean situation for %s" % chain_key}
+	var parts: Array = []
+	for i in vs.size():
+		var q := _build(vs[i], s, Seeded.new("%s|part %d" % [chain_key, i]))
+		q.part = i
+		if i > 0:
+			var before: Dictionary = parts[i - 1]
+			q.carried = {"part": part_letter(i - 1), "asked": before.asked, "values": before.answer.values,
+				"text": before.answer_text}
+		parts.append(q)
+	return {"parts": parts, "situation": SITUATIONS[sit][0].export(s)}
+
+
+## (a), (b), ... for part i.
+static func part_letter(i: int) -> String:
+	return String.chr(97 + i)
+
+
+## Two views' situation needs as one, or {"error"} where they can't both hold. A flag
+## is needed if either needs it; a list (situation families) keeps what both allow; a
+## mode "any..." gives way to a named one; anything else must be equal.
+static func merge_needs(a: Dictionary, b: Dictionary) -> Dictionary:
+	var out := a.duplicate(true)
+	for key in b:
+		var x = b[key]
+		if not out.has(key):
+			out[key] = x
+			continue
+		var y = out[key]
+		if typeof(x) == TYPE_BOOL and typeof(y) == TYPE_BOOL:
+			out[key] = x or y
+		elif x is Array and y is Array:
+			var both: Array = y.filter(func(e): return e in x)
+			if both.is_empty():
+				return {"error": "%s %s and %s share nothing" % [key, y, x]}
+			out[key] = both
+		elif typeof(x) == TYPE_BOOL or typeof(y) == TYPE_BOOL:
+			# table: true and table: "roots" -> "roots"
+			out[key] = y if typeof(x) == TYPE_BOOL else x
+		elif x is String and y is String and x != y:
+			if x.begins_with("any"):
+				out[key] = y
+			elif y.begins_with("any"):
+				out[key] = x
+			else:
+				return {"error": "%s %s and %s clash" % [key, y, x]}
+		elif x != y:
+			return {"error": "%s %s and %s clash" % [key, y, x]}
+	return out
+
+
+## A view's type, unknown, representation, angle, format and seed, checked against the
+## catalogue, or {"error"}.
+static func _resolve(view: Dictionary) -> Dictionary:
 	var t := type_of(view.get("type", ""))
 	if t.is_empty():
 		return {"error": "unknown type %s" % view.get("type")}
@@ -160,16 +260,17 @@ static func make(view: Dictionary) -> Dictionary:
 		return {"error": "unknown format %s" % fmt}
 	if not fmt in BUILT:
 		return {"error": "format %s is not built yet" % fmt}
-	var seed: int = int(view.get("seed", 0))
-	# "Another way" (FAL-310): a view with same_angle asks the question that angle made,
-	# the same numbers, but by this view's angle.
-	var rng_angle: String = view.get("same_angle", angle)
-	var rng := Seeded.new("%s|%d" % [cell_key(t.id, u.id, rep, rng_angle), seed])
-	var recipe = SITUATIONS[t.situation][0]
-	var s: Dictionary = recipe.generate(rng, views.need(u.id, rep))
-	if s.is_empty():
-		return {"error": "no clean situation for %s" % cell_key(t.id, u.id, rep, angle)}
-	var b: Dictionary = views.build(u.id, rep, s, rng)
+	return {"t": t, "u": u, "views": views, "rep": rep, "angles": angles, "angle": angle, "format": fmt,
+		"seed": int(view.get("seed", 0)), "marks": int(view.get("marks", t.get("marks", 0)))}
+
+
+## The question for a resolved view on a situation.
+static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
+	var t: Dictionary = v.t
+	var u: Dictionary = v.u
+	var angle: String = v.angle
+	var fmt: String = v.format
+	var b: Dictionary = v.views.build(u.id, v.rep, s, rng)
 	var ans: Dictionary = b.answer
 	if ans.kind in Answer.MC_ONLY:
 		fmt = "mcq"
@@ -179,7 +280,7 @@ static func make(view: Dictionary) -> Dictionary:
 		prompt += "\nMethod: %s." % angle_info(t, u.id, angle).name
 	var solutions: Array = []
 	var order: Array = [angle] if angle != "any" else []
-	for a in angles:
+	for a in v.angles:
 		if not order.has(a):
 			order.append(a)
 	for a in order:
@@ -188,20 +289,18 @@ static func make(view: Dictionary) -> Dictionary:
 			solutions.append({"angle": a, "name": info.get("name", "Worked solution"), "steps": b.methods[a].steps,
 				"result": b.methods[a].result})
 	var choices := _choices(ans, b, rng)
-	var out_view := {"type": t.id, "unknown": u.id, "rep": rep, "angle": angle, "format": fmt, "seed": seed}
-	if rng_angle != angle:
-		out_view.same_angle = rng_angle
+	var out_view := {"type": t.id, "unknown": u.id, "rep": v.rep, "angle": angle, "format": fmt, "seed": v.seed}
 	return {
 		"view": out_view,
-		"marks": int(view.get("marks", t.get("marks", 0))),
-		"cell": cell_key(t.id, u.id, rep, angle),
+		"marks": v.marks,
+		"cell": cell_key(t.id, u.id, v.rep, angle),
 		"type_name": t.name, "level": int(u.level),
-		"exam": t.source == "exam" and bool(u.exam) and rep_is_exam(t, rep),
-		"format": fmt, "prompt": prompt, "asked": b.asked, "rep": rep,
+		"exam": t.source == "exam" and bool(u.exam) and rep_is_exam(t, v.rep),
+		"format": fmt, "prompt": prompt, "asked": b.asked, "rep": v.rep,
 		"lines": b.lines, "graph": b.graph, "table": b.table, "diagram": b.get("diagram"),
 		"answer": ans, "answer_text": Answer.text(ans),
 		"choices": choices, "solutions": solutions,
-		"given": b.given, "situation_id": t.situation, "situation": recipe.export(s),
+		"given": b.given, "situation_id": t.situation, "situation": SITUATIONS[t.situation][0].export(s),
 	}
 
 

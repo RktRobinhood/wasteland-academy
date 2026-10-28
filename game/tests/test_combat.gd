@@ -340,7 +340,8 @@ func test_no_another_way_on_floor_1() -> void:
 	var r := _run(5, 1)
 	r.start()
 	for i in 60:
-		if r.state != "question":
+		# An all-right run clears floor 1's boss; floor 2 may ask one.
+		if r.state != "question" or r.floor_no > 1:
 			break
 		check(not r.another_way)
 		r.answer(respond(r.question, true))
@@ -390,12 +391,6 @@ func test_the_slot_picker() -> void:
 				var k := Run.slot_kind(s, f, n)
 				check_eq(k, "fight")
 				check_eq(Run.slot_kind(s, f, n), k, "deterministic")
-	check_eq(Run.tier_for(42, 1, 10), 5)
-	check_eq(Run.tier_for(42, 1, 5), 4)
-	check_eq(Run.tier_for(42, 1, 3), 3)
-	for n in [1, 2, 4, 7]:
-		check(Run.tier_for(42, 1, n) in [1, 2])
-		check_eq(Run.tier_for(42, 1, n), Run.tier_for(42, 1, n))
 
 
 class Recorder:

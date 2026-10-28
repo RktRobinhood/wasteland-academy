@@ -8,6 +8,10 @@ extends SceneTree
 ## Every coverage cell of every built type gets at least --per-cell questions, and
 ## every type at least --per-type. Seeds run 1, 2, 3, ...; odd seeds are multiple
 ## choice and even seeds typed values (the numbers don't depend on the format).
+##
+## Then every mini-boss and boss chain (Dungeon.chain_windows) with --per-chain seeds:
+## each part is exported as a question too, with "chain" (the chain's id) and "part",
+## so the checker solves every boss part and checks the parts carry on from each other.
 
 
 func _initialize() -> void:
@@ -15,7 +19,7 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var args := {"per-cell": "50", "per-type": "1000", "out": "user://questions.json"}
+	var args := {"per-cell": "50", "per-type": "1000", "per-chain": "50", "out": "user://questions.json"}
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--") and a.contains("="):
 			var kv := a.substr(2).split("=", true, 1)
@@ -38,7 +42,22 @@ func _run() -> void:
 					errors.append({"view": view, "error": q.error})
 					continue
 				questions.append(plain(q))
-	var out := {"types": types, "questions": questions, "errors": errors, "cells": QuestionEngine.cells().map(func(c): return c.key)}
+	var chains := 0
+	for id in QuestionEngine.built_types():
+		for steps in Dungeon.chain_windows(id):
+			var name := "%s: %s" % [id, " > ".join(steps.map(func(st): return st.unknown))]
+			for seed in range(1, int(args["per-chain"]) + 1):
+				var c := QuestionEngine.make_chain(steps.map(func(st): return st.merged({"format": "mcq" if seed % 2 == 1 else "value"})), seed)
+				if c.has("error"):
+					errors.append({"view": {"type": id, "chain": name, "seed": seed}, "error": c.error})
+					continue
+				chains += 1
+				for q in c.parts:
+					var e: Dictionary = plain(q)
+					e.chain = "%s seed %d" % [name, seed]
+					questions.append(e)
+	var out := {"types": types, "questions": questions, "errors": errors, "chains": chains,
+		"cells": QuestionEngine.cells().map(func(c): return c.key)}
 	var f := FileAccess.open(args.out, FileAccess.WRITE)
 	if f == null:
 		printerr("export_questions: can't write %s" % args.out)
@@ -46,7 +65,7 @@ func _run() -> void:
 		return
 	f.store_string(JSON.stringify(out))
 	f.close()
-	print("export_questions: %d questions, %d errors -> %s" % [questions.size(), errors.size(), args.out])
+	print("export_questions: %d questions (%d boss chains), %d errors -> %s" % [questions.size(), chains, errors.size(), args.out])
 	for e in errors.slice(0, 20):
 		printerr("  %s: %s" % [e.view, e.error])
 	quit(1 if not errors.is_empty() or questions.is_empty() else 0)

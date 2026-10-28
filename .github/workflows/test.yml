@@ -61,6 +61,9 @@ jobs:
           'fight=?play=quadratics&seed=3'
           'fight-wrong=?play=quadratics&seed=3&autoplay=wrong'
           'fight-summary=?play=quadratics&seed=3&autoplay=lose'
+          'floor-select=?play=quadratics&select=1'
+          'mini-boss=?play=quadratics&seed=3&fight=5'
+          'boss-carry=?play=quadratics&seed=3&fight=10&autoplay=carry'
       - uses: actions/upload-artifact@v7
         if: always()
         with:

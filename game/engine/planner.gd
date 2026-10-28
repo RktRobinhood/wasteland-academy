@@ -23,6 +23,10 @@ const EXTENSION_WEIGHT := 2
 ## Returns a view for QuestionEngine.make() (or a probe view, with "probe"), plus
 ## "rule": unseen, wrong, frequency or probe. opts (all optional):
 ##   region  plan from this catalogue region's built types only (a run's region)
+##   cells   plan from these coverage cells only (a dungeon floor, Dungeon.floor_cells)
+##   prefer_types  types still to appear on this floor (Q14): while any of them has a
+##           cell in the pool, the pool is those cells, and the three rules pick inside
+##           it. "Exam-style only" ignores it: exam frequency is then the only rule.
 ##   probes  false leaves concept probes out (a fight asks questions with answers)
 ##   salt    mixed into the stream, so a run's seed changes its questions
 static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionary:
@@ -31,12 +35,21 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 	save.seed = int(save.seed) + 1
 	var exam_only: bool = save.settings.get("exam_only", false)
 	var region: String = opts.get("region", "")
-	var types: Array = region_types(region) if region != "" else []
-	var pool := QuestionEngine.cells(exam_only, types)
-	if region != "" and types.is_empty():
-		pool = []
+	var pool: Array
+	if opts.has("cells"):
+		pool = opts.cells
+	else:
+		var types: Array = region_types(region) if region != "" else []
+		pool = QuestionEngine.cells(exam_only, types)
+		if region != "" and types.is_empty():
+			pool = []
 	if pool.is_empty():
 		return {"error": "no questions to plan in region %s" % region}
+	var prefer: Array = opts.get("prefer_types", [])
+	if not exam_only and not prefer.is_empty():
+		var wanted := pool.filter(func(c): return prefer.has(c.type))
+		if not wanted.is_empty():
+			pool = wanted
 	var recent: Array = (save.history as Array).slice(-SPACING)
 	var seed := rng.int_in(1, 999999)
 	var fmt: String = "mcq" if rng.chance(0.5) else "value"
@@ -65,9 +78,9 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 	return _view(_weighted(fresh if not fresh.is_empty() else pool, rng), seed, fmt, "frequency")
 
 
-## The built types of a catalogue region, in catalogue order.
+## The built types of a catalogue region (or Dungeon.ALL), in catalogue order.
 static func region_types(region: String) -> Array:
-	return QuestionEngine.built_types().filter(func(id): return QuestionEngine.type_of(id).get("region") == region)
+	return Dungeon.region_types(region)
 
 
 static func type_weight(type_id: String) -> float:

@@ -23,7 +23,7 @@ const readJSON = f => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 
 // Fields of a type the engine reads. Bank part lists and exam prose stay behind.
 const TYPE_FIELDS = ['id', 'topic', 'source', 'kind', 'region', 'name', 'summary', 'situation', 'level',
-  'formats', 'representations', 'unknowns', 'angles', 'concepts', 'misconceptions', 'methods'];
+  'formats', 'representations', 'unknowns', 'angles', 'concepts', 'misconceptions', 'methods', 'chain', 'supports'];
 
 export function build() {
   const doc = readJSON('curriculum/question-types.json');
@@ -37,6 +37,8 @@ export function build() {
     out.frequency = t.stats?.parts ?? 0;
     // Marks a typical exam part of this type is worth: the timer's base (Q6 on FAL-274).
     if (t.stats?.marks?.median !== undefined) out.marks = t.stats.marks.median;
+    // Section A and B bank parts: a boss (G4) favours the types Section B chains most.
+    if (t.stats?.section) out.section = t.stats.section;
     out.angles = (t.angles || []).map(a => {
       const m = a.skill ? skills.get(a.skill)?.methods.find(x => x.id === a.method) : t.methods?.find(x => x.id === a.method);
       return { ...a, name: m?.name ?? a.method, about: m?.summary ?? '' };

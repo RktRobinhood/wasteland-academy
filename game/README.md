@@ -16,8 +16,9 @@ game/
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
 ├── scenes/fight.tscn    ← the fight screen (ui/fight.gd), on the practice screen's card
 ├── engine/              ← the question engine: situations, views, marking, planner, save
-├── engine/run.gd        ← a run: fights, outcomes, lifelines, the hooks (see "Combat")
-├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines
+├── engine/run.gd        ← a run: floors, fights, bosses, outcomes, lifelines, the hooks (see "Combat")
+├── engine/dungeon.gd    ← floors by level, tiers, boss chains, start floors (see "The dungeon")
+├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains
 ├── ui/                  ← screens and the graph view
 ├── data/catalogue.json  ← generated from curriculum/question-types.json (don't edit)
 ├── scenes/audio_hud.tscn ← the AudioHud autoload: speaker icon, gear, settings screen
@@ -146,18 +147,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 - **Save** (`engine/save_data.gd`): versioned, with a migration step per version.
   Version 2 (FAL-413): `class` is null until classes exist, `trees` and `lessons` are
   empty, `scrap` is the Scrap banked from runs and `runs` totals them. A save without
-  `class` or `trees` gets them on load.
+  `class` or `trees` gets them on load. Version 3 (FAL-415): `dungeon` holds each
+  region's best floor and the floors whose boss fell.
 
 ## Combat
 
-A run (`engine/run.gd`) takes a region, a start floor and a seed, and plays fights in
-a row until the player's HP reaches 0 or they quit. Each fight is an enemy of tier D1 to
-D5 (the HTML game's `js/combat.js` table). Each question is the planner's next cell in
-the region (`Planner.next(save, now, {"region", "probes": false, "salt"})`). At the end,
-the summary shows the questions right, the fights won, the Scrap earned and the skills
-missed, and the Scrap goes into the save. G4 adds floors, mini-bosses and bosses; until
-then every fight plays on the run's start floor (1 from the title screen) and the tier
-follows the HTML game's island rhythm (every 3rd fight D3, 5th D4, 10th D5).
+A run (`engine/run.gd`) takes a region, a start floor and a seed, and plays floors of
+fights until the player's HP reaches 0 or they quit (see "The dungeon"). Each fight is
+an enemy of tier D1 to D5 (the HTML game's `js/combat.js` table). Each question is the
+planner's next cell from the floor's cells (`Planner.next(save, now, {"cells",
+"prefer_types", "probes": false, "salt"})`). At the end, the summary shows the floor
+reached, the bosses beaten, the questions right, the fights won, the Scrap earned and
+the skills missed, and the Scrap goes into the save.
 
 `Run` has no UI, so a test plays a whole run: `start()`, `tick(delta)`,
 `answer(response)`, `next()`, `quit()`, and the lifelines `use_fifty()`, `use_hint()`
@@ -198,11 +199,63 @@ lifeline row for the Paper 1 or 2 badge (C1).
   (`engine/modifiers.gd`), which returns it unchanged until something is added. Bazaar
   perks (G6) and classes (FAL-308) add a Callable.
 - **Fight slots (FAL-347).** `Run.slot_kind(seed, floor, fight)` says what a slot is:
-  "fight", "encounter" or "cell". It always says "fight" until FAL-349.
+  "fight", "encounter" or "cell". It always says "fight" until FAL-349. The run asks it
+  for every slot, bosses too.
+
+### The dungeon (FAL-415)
+
+`engine/dungeon.gd` (`Dungeon`) holds the rules and no state; every number is in the
+dungeon part of `Tuning`. Q4, Q6, Q9 and Q14 are on the FAL-274 plan.
+
+- **Floors.** A floor is 10 fights: a mini-boss at fight 5 and a boss at fight 10.
+  Beating the boss opens the next floor in the same run. Floor 1 serves levels 0 to 2,
+  floor 2 levels 2 and 3, floor 3 levels 3 and 4, and floor 4 and deeper every level,
+  0 to 5, and every type of the region. Link types (`kind: "link"`, the `fn-link-*`
+  types) play as level 5: only on bosses and from floor 4.
+- **Floor tables.** By levels alone every Quadratics exam type lands on floors 1, 2
+  and 3, so `Tuning.FLOOR_TYPES` gives Quadratics Q4's floors: 1 the features type (axis
+  and vertex), 2 the three forms, conditions and solving, 3 the discriminant,
+  inequalities and the curve-and-line type. A table type keeps the floor's top level; a
+  type new on a floor also brings its easier cells (floor 3 starts the discriminant at
+  "how many roots"). A floor whose table types aren't built yet uses the level rule. A
+  region without a table uses levels only.
+- **Warm-ups.** The first fight of floor 1 opens with `Tuning.WARMUPS` (2) level-0
+  questions (the `fn-pre-*` types). After a miss, the next question is a prior-learning
+  type whose `supports` lists a skill of the missed unknown, where the region has one.
+  Both wait for a region's `fn-pre-*` situations to be built.
+- **The mix (Q14).** The planner is handed the floor's cells and the types not yet asked
+  on the floor (`prefer_types`): while one is left, it picks among those, by its three
+  rules. So every type on a floor appears on it (the test plays 200 floors). With
+  "Exam-style only" on, exam frequency is the only rule, as before.
+- **Tiers.** D1 or D2 for a normal fight, D3 for the mini-boss and D5 for the boss
+  (`js/combat.js`), all one tier higher on floors 4 and 5, two on 6 and 7, three from 8,
+  capped at D5. From floor 4 an enemy's damage also grows 10% a floor. The run's tier is
+  the one `question_opened` sends, for the journey strip.
+- **Timers.** `Tuning.seconds_for(marks, floor, typed)` with the floor being played, so
+  the clock tightens as a run goes down.
+- **Mini-bosses and bosses (Q9).** `Tuning.CHAINS` writes each type's catalogue `chain`
+  as unknowns in order (a step may name another type on the same situation). A mini-boss
+  asks 2 consecutive steps and a boss 3 or 4, by the seed, from a type on the floor
+  weighted by its Section B count. `QuestionEngine.make_chain(steps, seed)` makes them
+  all on one situation, generated once from all their needs together
+  (`merge_needs`). Each part has its own clock from its own marks. A wrong part costs HP
+  and shows the right value, and the next part carries it (`carried`: the part before's
+  right answer, shown in a box above the question), whatever was answered. The enemy bar
+  counts parts; surviving every part beats it. A boss ends with one link question where
+  the region has one built (`Tuning.BOSS_LINK_PART`). A floor with no chain built has a
+  normal fight at the boss's tier instead.
+- **The "boss beaten" event.** The heal `Tuning.BOSS_HEAL` (0) goes through
+  `modifiers.apply("boss_heal", ...)` with `ctx.boss` "mini" or "boss", then through
+  `heal`, then `boss_beaten(floor, kind)` fires. Second Wind (G6) adds 20 there.
+- **Start floor.** `Dungeon.start_floors(save, region)` is floor 1 and every floor whose
+  boss the player has beaten. The fight screen opens on a floor select with those floors.
+  The save keeps `dungeon[region] = {"best", "beaten"}`.
+- **All regions.** Region `"all"` (`Dungeon.ALL`) mixes every built type of the island
+  (every type with a region). The map (G5) links to `/next/?play=all`.
 
 ### Journey strip events
 
-The run emits four signals for views such as the journey strip (FAL-331). They are view
+The run emits six signals for views such as the journey strip (FAL-331). They are view
 only: nothing in the run waits on them, and a run plays the same with none connected
 (`test_combat.gd` checks).
 
@@ -212,6 +265,8 @@ only: nothing in the run waits on them, and a run plays the same with none conne
 | `question_opened(fight, tier)` | each question opens, fight number from 1 |
 | `answer_resolved(outcome)` | each answer or timeout: right, glancing, late, wrong or timeout |
 | `run_ended(summary)` | death or quit, after the Scrap is banked |
+| `floor_started(floor)` | a floor opens: the start floor, then each one after its boss falls |
+| `boss_beaten(floor, kind)` | a mini-boss (`"mini"`) or boss (`"boss"`) falls, after its heal |
 
 The strip (FAL-331) isn't merged yet, so the fight screen keeps an empty
 `JourneyStrip` box above the card for it.
@@ -222,7 +277,11 @@ The practice screen takes deep links, for screenshots and for sending someone a
 question: `/next/?view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, or
 `<type>/probe/<n>` for a concept probe. Add `&autoplay=right` (or `wrong`) to answer it
 at once. The fight screen takes `/next/?play=quadratics&seed=3&floor=1`, with
-`&autoplay=right`, `wrong`, or `lose` (wrong answers to the end, for the summary).
+`&autoplay=right`, `wrong`, or `lose` (wrong answers to the end, for the summary). `play`
+is a region id or `all`. `floor` must be one the save may start on, else the run starts
+on floor 1. `&fight=5` or `&fight=10` starts at the mini-boss or boss (such a run records
+no floors), and `&autoplay=carry` answers its first part wrong and opens the next, to show
+the value carried on. `&select=1` shows the floor select.
 
 ### The SymPy answer checker
 
@@ -235,7 +294,10 @@ the givens. Each situation has its own checks (`SITUATION_CHECKS`, keyed by the
 `situation_id` every question exports); the answer, option and working checks are
 shared. For arithmetic sequences it reads u₁, d and n back from the notation line, the
 terms, the table, the words and the question text, solves them with SymPy, and checks
-they give the sequence in the givens. It prints a table per type and per cell. SymPy is pinned in
+they give the sequence in the givens. Every mini-boss and boss chain is exported too
+(`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
+chain: one situation, and each part's `carried` value is the part before's answer. It
+prints a table per type and per cell. SymPy is pinned in
 `requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it
 next to `./test.sh`.
 
@@ -245,8 +307,9 @@ The checker only exports seeds 1 to 50. `tools/stress-questions` makes every cel
 seeds 51 to 2250 (about 207,000 questions, a few minutes) and checks that each question
 is made with four options, that its own answer typed exactly and to 3 s.f. is marked
 right, and that every wrong option typed in is marked wrong with its misconception. It
-fails on any script error, such as a failed assert in `Q`. CI runs it as its own
-`stress` job.
+does the same for every boss chain with seeds 51 to 1050, and checks each part's carried
+value. It fails on any script error, such as a failed assert in `Q`. CI runs it as its
+own `stress` job.
 
 ## Tests
 
@@ -281,7 +344,15 @@ script error happens while it runs. Run one file with
   way" on floor 2 and never on floor 1; a modifier that doubles Scrap; the stakes table;
   the slot picker; and the journey signals connected to nothing.
 - `test_fight.gd`: the fight screen plays a miss with its worked solution, a hit, a
-  timeout, the lifelines, quit and the summary, and fits at 360x780, 390x844 and 1280x800.
+  timeout, the lifelines, quit and the summary, the floor select with beaten floors, a
+  boss part with the value carried on, and fits at 360x780, 390x844 and 1280x800.
+- `test_dungeon.gd`: the same seed gives the same floors, fights and bosses; fight 5 is a
+  2-part mini-boss and fight 10 a 3- or 4-part boss on one situation, following its chain;
+  follow-through after a wrong part; floor 1 serves levels 0 to 2 and floor 4 includes
+  level 5; Quadratics' floors match Q4; prior learning after a miss; every type on every
+  floor over 200 floors; tiers and timers by floor; the start-floor rule and the save; the
+  all-regions dungeon; the "boss beaten" event; and the balance check, which prints the
+  average floor and Scrap per run for players who answer 50%, 70% and 90% right.
 - `test_practice.gd`: the practice screen plays every representation and format,
   records answers, and fits at 390x844 and 1280x800.
 - `test_audio.gd`: a loop per location at the length the review measured, only the
