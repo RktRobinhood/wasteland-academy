@@ -4080,6 +4080,148 @@ def check_log_quadratic(q):
     return None, None
 
 
+# ── log-function (fn-log-function-features) ──
+
+def lf_parse(text):
+    """'y = 2log₃(2x − 6) + 1' -> (A, b, inside, c)."""
+    m = re.search(r"(?:y|f\(x\)) = (−|\d+)?log([₀-₉]+)\(([^()]+)\)(?: ([+−]) (\d+))?", text)
+    need(m is not None, f"can't read the log function in {text!r}")
+    A = 1 if m.group(1) is None else (-1 if m.group(1) == "−" else int(m.group(1)))
+    return A, int(m.group(2).translate(EL_SUB)), parse(m.group(3)), el_parse_q(m.group(4), m.group(5))
+
+
+def lf_set_want(ans, sol):
+    """The answer values for a solution set: lo < x < hi (range2) or a ray (bound)."""
+    need(isinstance(sol, sp.Interval), f"the solution {sol} is not one interval")
+    if sol.sup == sp.oo:
+        need(ans["kind"] == "bound", "a ray is not written as x > v")
+        return qr_norm(ans, {"rel": ">" if sol.left_open else "≥", "v": str(sol.inf)})
+    if sol.inf == -sp.oo:
+        need(ans["kind"] == "bound", "a ray is not written as x < v")
+        return qr_norm(ans, {"rel": "<" if sol.right_open else "≤", "v": str(sol.sup)})
+    need(ans["kind"] == "range2", "a bounded set is not written as lo < x < hi")
+    return qr_norm(ans, {"lo": str(sol.inf), "r1": "<" if sol.left_open else "≤", "r2": "<" if sol.right_open else "≤", "hi": str(sol.sup)})
+
+
+def lf_curve(q, fn):
+    gr = q["graph"]
+    need(gr is not None, "no graph")
+    for x0, y0 in gr["curves"][0][::16]:
+        need(abs(sp.N(fn.subs(X, sp.Float(x0, 30))) - y0) <= 1e-6 * max(1, abs(y0)), f"the curve misses ({x0}, {y0})")
+    return gr
+
+
+def check_log_function(q):
+    g, ans, u, rep, L, asked = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"-\d", t), f"a hyphen for a minus in {t!r}")
+    wr = {}
+    xs = sp.Symbol("xs", real=True)
+    say_x = lambda v: el_m_text(f"x = {frac_text(v)}")
+    if u == "sign-of-log-expression":
+        m = em_read(r"^f\(x\) = ln\((x(?: [−+] \d+)?)\)/x([¹²³]?), for x > (\d+)$", L[0], "f")
+        h = el_parse_shift(m.group(1))
+        pw = int((m.group(2) or "¹").translate(str.maketrans("¹²³", "123")))
+        need(h >= 0 and int(m.group(3)) == h, "the domain is not x > h with h ≥ 0")
+        rel = em_read(r"f\(x\) ([<>]) 0", asked, "the sign").group(1)
+        fx = sp.log(xs - h) / xs ** pw
+        sol = sp.solveset(sp.Gt(fx, 0) if rel == ">" else sp.Lt(fx, 0), xs, sp.Interval.open(h, sp.oo))
+        want = lf_set_want(ans, sol)
+        qr_check_common(q, want, wr)
+        return None, None
+    if u == "reflect-exponential":
+        b, hh, cc = el_parse_exp(L[0].split(" is shown")[0].split(" passes")[0].replace("The graph of y", "f(x)"))
+        need(cc == 0, "the exponential is shifted vertically")
+        px, py = [el_num(v) for v in em_read(r"matches \((−?\d+), (−?\d+)\)", asked, "the point").groups()]
+        need(sp.Integer(b) ** (px - hh) == py, "the point is not on the exponential")
+        if rep == "graph":
+            lf_curve(q, sp.Integer(b) ** (X - hh))
+        want = qr_norm(ans, {"x": str(py), "y": str(px)})
+        qr_check_common(q, want, wr)
+        return None, None
+    if u == "n-from-asymptote":
+        b = int(em_read(r"y = log([₀-₉]+)\(x − n\)", L[0], "the base").group(1).translate(EL_SUB))
+        if rep == "graph":
+            a = R(sp.nsimplify(q["graph"]["vlines"][0]["at"]))
+        else:
+            a = el_num(em_read(r"asymptote x = (−?\d+)\.", L[0], "the asymptote").group(1))
+        cc = el_parse_q(*em_read(r"\(x − n\)(?: ([+−]) (\d+))?", L[0], "c").groups())
+        if rep == "graph":
+            lf_curve(q, sp.log(X - a, b) + cc)
+        want = qr_norm(ans, {"v": str(a)})
+        if a != 0:
+            wr["SL2.4.asymptotes#2"] = {qr_norm(ans, {"v": str(-a)})}
+        qr_check_common(q, want, wr)
+        return None, None
+    if u == "pick-graph" and rep == "graph":
+        gr = q["graph"]
+        def matches(text):
+            A, b, ins, c = lf_parse(text)
+            fn = A * sp.log(ins, b) + c
+            pts = gr["curves"][0][::16]
+            inside_ = [(x0, y0) for x0, y0 in pts if sp.N(ins.subs(X, sp.Float(x0, 30))) > 0]
+            return len(inside_) * 2 >= len(pts) and all(abs(sp.N(fn.subs(X, sp.Float(x0, 30))) - y0) <= 1e-6 * max(1, abs(y0))
+                                                       for x0, y0 in inside_)
+        good = [o["text"] for o in q["choices"] if matches(o["text"])]
+        need(len(good) == 1, f"{len(good)} equations fit the graph")
+        want = qr_norm(ans, {"v": good[0]})
+        qr_check_common(q, want, wr)
+        return None, None
+    A, b, ins, c = lf_parse(" ".join(L) if u != "pick-graph" else asked)
+    mm, nn = [R(v) for v in sp.Poly(ins, X).all_coeffs()] if sp.Poly(ins, X).degree() == 1 else (None, None)
+    need(mm is not None and mm in {1, 2, 3, -1, -2, -3} and A in {1, 2, 3, -1}, "not a clean log function")
+    x0 = -nn / mm
+    need(x0.q in (1, 2), "the asymptote is not whole or a half")
+    fn = A * sp.log(ins, b) + c
+    dom = sp.solveset(ins.subs(X, xs) > 0, xs, sp.S.Reals)
+    if rep == "graph" and u != "log-inequality":
+        gr = lf_curve(q, fn)
+        need([R(sp.nsimplify(v["at"])) for v in gr["vlines"]] == [x0], "the asymptote drawn is not x = x0")
+    if u == "asymptote-from-equation":
+        want = qr_norm(ans, {"v": say_x(x0)})
+        wr["SL2.9.log-graph#1"] = {qr_norm(ans, {"v": say_x(nn / mm)})}
+        wr["SL2.4.asymptotes#0"] = {qr_norm(ans, {"v": frac_text(x0)})}
+    elif u == "domain-from-equation":
+        want = lf_set_want(ans, dom)
+        wr["SL2.2.domain#1"] = {qr_norm(ans, {"rel": ">", "v": "0"})}
+    elif u == "domain-from-graph":
+        need(isinstance(dom, sp.Interval), "the domain is not one interval")
+        right = el_m_text(f"x > {frac_text(dom.inf)}" if dom.sup == sp.oo else f"x < {frac_text(dom.sup)}")
+        want = qr_norm(ans, {"v": right})
+        wr["SL2.2.domain#2"] = {qr_norm(ans, {"v": "all real values of y"})}
+    elif u == "asymptote-from-graph":
+        want = qr_norm(ans, {"v": say_x(x0)})
+        wr["SL2.4.asymptotes#1"] = {qr_norm(ans, {"v": el_m_text(f"y = {frac_text(x0)}")})}
+        wr["SL2.9.log-graph#0"] = {qr_norm(ans, {"v": "y = 0"})}
+    elif u == "x-intercept":
+        sol = sp.solveset(fn.subs(X, xs), xs, dom)
+        need(isinstance(sol, sp.FiniteSet) and len(sol) == 1 and list(sol)[0].is_rational, f"the x-intercept {sol} is not one exact number")
+        want = qr_norm(ans, {"v": str(list(sol)[0])})
+        wr["SL2.9.log-graph#2"] = {qr_norm(ans, {"v": str(x0)})}
+    elif u == "pick-graph":
+        need(mm == 1 and A == 1, "pick-graph is on log_b(x − h) + c")
+        h = x0
+        P = lambda x_, y_: el_m_text(f"({frac_text(x_)}, {frac_text(y_)})")
+        say = lambda a_, p1, p2, up: el_m_text(f"asymptote x = {frac_text(a_)}, through {p1} and {p2}, {'increasing' if up else 'decreasing'}")
+        p2 = P(h + b, c + 1)
+        need(fn.subs(X, h + 1) == c and sp.simplify(fn.subs(X, h + b) - (c + 1)) == 0, "the key points are not on the graph")
+        want = qr_norm(ans, {"v": say(h, P(h + 1, c), p2, True)})
+        wr["SL2.9.log-graph#2"] = {qr_norm(ans, {"v": say(h, P(h, 0), p2, True)})}
+    elif u == "log-inequality":
+        m = em_read(r"^Solve log([₀-₉]+)\(([^()]+)\) ([<>≤≥]) (−?\d+)\.$", asked, "the inequality")
+        k = el_num(m.group(4))
+        op = {"<": sp.Lt, ">": sp.Gt, "≤": sp.Le, "≥": sp.Ge}[m.group(3)]
+        sol = sp.solveset(op(sp.log(ins.subs(X, xs), b), k), xs, dom)
+        if rep == "graph":
+            gr = lf_curve(q, sp.log(ins, b))
+            need([R(sp.nsimplify(hl["at"])) for hl in gr["hlines"]] == [k], "the line drawn is not y = k")
+        want = lf_set_want(ans, sol)
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    qr_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -4087,7 +4229,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic}
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

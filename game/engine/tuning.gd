@@ -174,6 +174,8 @@ const CHAINS := {
 	"fn-exp-log-inverse-composite": ["evaluate-log-function", "inverse-of-log", "evaluate-inverse"],
 	# the roots and the domain, the asymptotes at the roots, the zeros from g(x) = 1, the maximum
 	"fn-log-of-quadratic": ["argument-roots", "domain-from-inequality", "asymptotes", "zeros", "max-value"],
+	# the asymptote opens, then the domain, where it crosses the x-axis, and an inequality
+	"fn-log-function-features": ["asymptote-from-equation", "domain-from-equation", "x-intercept", "log-inequality"],
 }
 
 

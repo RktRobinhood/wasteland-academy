@@ -6,9 +6,10 @@ extends "res://tests/test_case.gd"
 ## would type them. The SymPy checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 49, "fn-log-of-quadratic": 71}
+const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 49, "fn-log-of-quadratic": 71,
+	"fn-log-function-features": 38}
 const SITUATION := {"fn-exponential-model": "exp-model", "fn-exp-log-inverse-composite": "exp-log-pair",
-	"fn-log-of-quadratic": "log-quadratic"}
+	"fn-log-of-quadratic": "log-quadratic", "fn-log-function-features": "log-function"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-log-of-quadratic|SL1.5.exp-log-form#1": "reading log_k G = n as nᵏ = G gives k = ln G/ln n, never a whole number here, so no exact option shows it",

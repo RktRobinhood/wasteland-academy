@@ -54,6 +54,7 @@ static var SITUATIONS := {
 	"exp-model": [ExpModelSituation, ExpModelViews],
 	"exp-log-pair": [ExpLogPairSituation, ExpLogPairViews],
 	"log-quadratic": [LogQuadraticSituation, LogQuadraticViews],
+	"log-function": [LogFunctionSituation, LogFunctionViews],
 }
 
 static var _cat: Dictionary = {}
