@@ -9,15 +9,18 @@ extends "res://tests/test_case.gd"
 const CELLS := {"fn-sketch-gdc": 42, "fn-gdc-features": 36, "fn-gdc-intersection": 29, "fn-gdc-optimise-combined": 27,
 	"fn-gdc-solve-equation": 33, "fn-sketch-from-features": 30,
 	"fn-concept-solutions-as-intersections": 17, "fn-ext-inequality-graphical": 11,
-	"fn-pre-graph-reading": 10, "fn-ext-match-graph": 17}
+	"fn-pre-graph-reading": 10, "fn-ext-match-graph": 17,
+	"fn-link-extremes": 45, "fn-link-graph-vs-algebra": 42}
 const SITUATION := {"fn-sketch-gdc": "gdc-curve", "fn-gdc-features": "gdc-curve", "fn-gdc-intersection": "gdc-two-curves",
 	"fn-gdc-optimise-combined": "gdc-combined", "fn-gdc-solve-equation": "gdc-context-equation",
 	"fn-sketch-from-features": "graph-from-features", "fn-concept-solutions-as-intersections": "gdc-two-curves",
 	"fn-ext-inequality-graphical": "gdc-inequality", "fn-pre-graph-reading": "fn-pre-graph-reading",
-	"fn-ext-match-graph": "graph-match"}
+	"fn-ext-match-graph": "graph-match", "fn-link-extremes": "fn-link-extremes",
+	"fn-link-graph-vs-algebra": "fn-link-graph-vs-algebra"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-sketch-gdc|SL2.10.number-of-solutions#2": "counting the asymptote's level needs a curve that levels off; the gdc-curve asymptote is vertical",
+	"fn-link-extremes|SL5.8.find-stationary-points#0": "a cubic whose turning points are whole numbers has no whole-number roots to offer as f(x) = 0's answer in the same form",
 	"fn-gdc-optimise-combined|SL2.4.max-min#1": "D's greatest value is always its turning value here (D is concave for the towns, and starts at 0 for the drugs), so no endpoint beats it",
 }
 ## What each wrong graph's mistake is, as a misconception ref ("" for none in the catalogue).

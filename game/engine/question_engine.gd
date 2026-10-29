@@ -72,6 +72,8 @@ static var SITUATIONS := {
 	"gdc-inequality": [GdcInequalitySituation, GdcInequalityViews],
 	"fn-pre-graph-reading": [GraphReadingSituation, GraphReadingViews],
 	"graph-match": [GraphMatchSituation, GraphMatchViews],
+	"fn-link-extremes": [LinkExtremesSituation, LinkExtremesViews],
+	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
 }
 
 static var _cat: Dictionary = {}

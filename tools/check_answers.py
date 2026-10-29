@@ -6711,6 +6711,267 @@ def check_graph_match(q):
     return None, None
 
 
+# ── Graphs and key features (FAL-420): fn-link-extremes ───────
+# An extreme value found several ways. Each function is read back from the question
+# and its extremes found again with SymPy: the vertex from h′(t) = 0, the wave's from
+# sympy's maximum and minimum on a period, the touching lines from a zero
+# discriminant, the closed interval's from its stationary points and ends, and the
+# cubic's from f′ = 0 and f″.
+
+LE_SIGN = r"(?: ([+−]) (\d+))?"
+
+
+def le_signed(sign, n):
+    return 0 if n is None else (int(n) if sign == "+" else -int(n))
+
+
+def le_no_hyphen(q):
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def le_wave(text):
+    m = re.search(r"y = (−?\d+) sin\((\d+)x\)" + LE_SIGN, text)
+    need(m is not None, f"can't read the wave in {text!r}")
+    return el_num(m.group(1)), int(m.group(2)), le_signed(m.group(3), m.group(4))
+
+
+def le_graph_is(q, fn):
+    if q["view"]["rep"] == "graph":
+        need(q["graph"] is not None and gc_curve_is(q["graph"]["curves"][0], gc_f(fn)), "the graph drawn is not the function")
+
+
+def check_link_extremes(q):
+    u, asked, L = q["view"]["unknown"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "fn-link-extremes is Paper 1")
+    le_no_hyphen(q)
+    ft = frac_text
+    wr = {}
+    if u == "max-height-methods":
+        m = re.search(r"h\(t\) = (.+?) metres", asked)
+        h = gc_expr(m.group(1).replace("t", "x"))
+        a = sp.Poly(h, X).LC()
+        need(a < 0, "the height model doesn't open downwards")
+        T = sp.solve(sp.diff(h, X), X)[0]
+        H = h.subs(X, T)
+        need(T.is_integer and H.is_integer and T > 0, "the top is not at whole numbers")
+        need(all(not r.is_rational for r in sp.solve(h, X)), "the roots are not surds")
+        say = lambda what, v, t: f"a {what} of {ft(v)} m at t = {ft(t)} s"
+        want = say("maximum", H, T)
+        wr = {"SL2.4.max-min#0": {say("maximum", T, H)}, "SL2.6.vertex#2": {say("minimum", H, T)}}
+        le_graph_is(q, h)
+    elif u in ("wave-extremes", "wave-max-point"):
+        A, B, D = le_wave(asked)
+        f = A * sp.sin(B * X) + D
+        per = sp.Interval(0, 2 * sp.pi)
+        hi, lo = sp.maximum(f, X, per), sp.minimum(f, X, per)
+        if u == "wave-extremes":
+            say = lambda a, b: f"greatest {ft(a)}, least {ft(b)}"
+            want = say(hi, lo)
+            amp = abs(A)
+            wr["SL3.7.read-features#1"] = {say(amp, -amp), say(D + abs(A + D), D - abs(A + D))}
+        else:
+            first = min(sp.solveset(sp.Eq(f, hi), X, sp.Interval.open(0, 2 * sp.pi)))
+            want = "x = " + ext_pi(first / sp.pi)
+            wr["SL3.7.read-features#0"] = {"x = " + ft(sp.Rational(B * (1 if A > 0 else 3), 4))}
+        if q["view"]["rep"] == "graph":
+            need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the graph drawn is not the wave")
+    elif u == "range-from-extremes":
+        m = re.search(r"with A > 0, is (−?\d+) ≤ y ≤ (−?\d+)\.", L[0])
+        lo, hi = el_num(m.group(1)), el_num(m.group(2))
+        A_, D_ = sp.symbols("A D")
+        sol = sp.solve([D_ + A_ - hi, D_ - A_ - lo], [A_, D_])
+        say = lambda a, d: f"amplitude {ft(a)}, principal axis y = {ft(d)}"
+        want = say(sol[A_], sol[D_])
+        wr["SL3.7.read-features#1"] = {say(abs(hi), sol[D_])}
+    elif u == "tangent-means-touch":
+        ml = re.search(r"The line y = mx" + LE_SIGN + r" is a tangent", asked)
+        mc = re.search(r"to the curve y = x²" + LE_SIGN + r"\.", asked)
+        n, r = le_signed(ml.group(1), ml.group(2)), le_signed(mc.group(1), mc.group(2))
+        M = sp.Symbol("m")
+        quad = sp.Poly(X**2 + r - (M * X + n), X)
+        ms = sorted(sp.solve(sp.discriminant(quad.as_expr(), X), M))
+        need(len(ms) == 2 and all(v.is_integer for v in ms), "the gradients are not two whole numbers")
+        parts = []
+        for mv in ms:
+            xs = sp.solve(quad.as_expr().subs(M, mv), X)
+            need(len(xs) == 1, "the line meets the curve twice")
+            parts.append(f"m = {ft(mv)} at ({ft(xs[0])}, {ft(xs[0] ** 2 + r)})")
+        want = " or ".join(parts)
+        wr["SL5.4.tangency-condition#1"] = {f"m < {ft(ms[0])} or m > {ft(ms[1])}"}
+        if q["view"]["rep"] == "graph":
+            need(gc_curve_is(q["graph"]["curves"][0], gc_f(X**2 + r)), "the curve drawn is not the parabola")
+    elif u == "endpoint-beats-vertex":
+        m = re.search(r"Find the range of f\(x\) = (.+?), for (−?\d+) ≤ x ≤ (−?\d+)\.", asked)
+        f, p, qq = gc_expr(m.group(1)), el_num(m.group(2)), el_num(m.group(3))
+        crit = [c for c in sp.solve(sp.diff(f, X), X) if p < c < qq]
+        need(len(crit) == 1, "no turning point inside the interval")
+        ends = [f.subs(X, p), f.subs(X, qq)]
+        vals = ends + [f.subs(X, crit[0])]
+        k, hi = min(vals), max(vals)
+        need(hi in ends and hi != min(ends), "the greatest value is not at one end only")
+        rt = lambda a, b: f"{ft(a)} ≤ f(x) ≤ {ft(b)}"
+        want = rt(k, hi)
+        wr = {"SL2.4.max-min#1": {rt(k, min(ends))}, "SL2.2.range#0": {rt(min(ends), max(ends))},
+              "SL2.2.range#2": {f"{ft(p)} ≤ x ≤ {ft(qq)}"}, "SL5.8.closed-interval-extremes#0": {f"f(x) ≥ {ft(k)}"}}
+        le_graph_is(q, f)
+    elif u == "cubic-turning":
+        f = gc_expr(re.search(r"turning points of f\(x\) = (.+?), and say", asked).group(1))
+        xs = sorted(sp.solve(sp.diff(f, X), X))
+        need(len(xs) == 2 and all(v.is_integer for v in xs), "the turning points are not at two whole numbers")
+        kinds = {x: ("max" if sp.diff(f, X, 2).subs(X, x) < 0 else "min") for x in xs}
+        mx = next(x for x in xs if kinds[x] == "max")
+        mn = next(x for x in xs if kinds[x] == "min")
+        say = lambda ya, yb: f"maximum ({ft(mx)}, {ft(ya)}), minimum ({ft(mn)}, {ft(yb)})"
+        want = say(f.subs(X, mx), f.subs(X, mn))
+        wr["SL5.8.find-stationary-points#2"] = {say(0, 0)}
+        le_graph_is(q, f)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
+# ── Graphs and key features (FAL-420): fn-link-graph-vs-algebra ──
+# An equation as two graphs that meet. Each equation is read back; exact solutions
+# come from SymPy's solveset, GDC ones from root brackets refined with mpmath to 30
+# digits, counts from solveset on the interval (or real-root counts of f − k), and the
+# area from integrating between the meeting points.
+
+
+def lg_ex(text):
+    m = re.fullmatch(r"(eˣ|e\^\((\d)x\)) = (\d+)", text)
+    return None if m is None else (int(m.group(2) or 1), int(m.group(3)))
+
+
+def lg_ln_over(c, k, name="ln"):
+    return f"{name} {c}" if k == 1 else f"({name} {c})/{k}"
+
+
+def lg_xs(names):
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def lg_s2(x):
+    return sig3(x, 2).replace("-", "−")
+
+
+def lg_pi(text):
+    m = re.fullmatch(r"(\d*)π(?:/(\d+))?", text)
+    return sp.Rational(int(m.group(1) or 1), int(m.group(2) or 1))
+
+
+def lg_sols(xs):
+    n = len(xs)
+    return f"{n} solution{'' if n == 1 else 's'}: " + lg_xs([ext_pi(x / sp.pi) for x in xs])
+
+
+def check_link_graph_algebra(q):
+    u, asked, L = q["view"]["unknown"], q["asked"], q["lines"]
+    le_no_hyphen(q)
+    ft = frac_text
+    wr = {}
+    paper = 1
+    if u == "which-method":
+        paper = 2
+        eq = re.fullmatch(r"Can (.+) be solved exactly by algebra\? Choose the true statement\.", asked).group(1)
+        e = lg_ex(eq)
+        if e:
+            k, c = e
+            x0 = sp.solveset(sp.exp(k * X) - c, X, sp.S.Reals)
+            need(len(x0) == 1, "e^(kx) = c has not one solution")
+            want = f"Yes: x = {lg_ln_over(c, k)} ≈ {gc_s(sp.N(next(iter(x0)), 30))}"
+        else:
+            m = re.fullmatch(r"(eˣ|ln x) = (\d+) − x", eq)
+            a = int(m.group(2))
+            lhs = sp.exp(X) if m.group(1) == "eˣ" else sp.log(X)
+            zs = gc_zeros(lhs - (a - X), 0.001 if m.group(1) == "ln x" else -10, a + 2)
+            need(len(zs) == 1 and not on_edge(abs(zs[0])), "not one clean meeting point")
+            want = "No: graph both sides; x ≈ " + gc_s(zs[0])
+    elif u == "solve-by-intersection":
+        paper = 2
+        rhs_ = gc_expr(re.fullmatch(r"Solve eˣ = (.+), giving every solution to 3 s\.f\.", asked).group(1))
+        zs = gc_zeros(sp.exp(X) - rhs_, -20, 10)
+        need(len(zs) == 2 and all(not on_edge(abs(z)) for z in zs), "not two clean meeting points")
+        want = lg_xs([gc_s(z) for z in zs])
+        wr = {"SL2.10.solve-gdc#0": {lg_xs([gc_s(zs[1])])}, "SL2.10.solve-gdc#1": {lg_xs([lg_s2(z) for z in zs])}}
+        if q["view"]["rep"] == "graph":
+            cs = q["graph"]["curves"]
+            need(gc_curve_is(cs[0], gc_f(sp.exp(X))) and gc_curve_is(cs[1], gc_f(rhs_)), "the graphs drawn are not the two sides")
+            need(q["graph"]["x0"] < float(zs[0]), "the window hides the left meeting point")
+    elif u == "count-trig-solutions":
+        m = re.fullmatch(r"How many solutions has (\d) (cos|sin) x = (−?\d+) for 0 ≤ x ≤ (.+)\? Find them\.", asked)
+        A, fn, rv, U = int(m.group(1)), getattr(sp, m.group(2)), el_num(m.group(3)), lg_pi(m.group(4)) * sp.pi
+        eq = A * fn(X) - rv
+        sols = sorted(sp.solveset(eq, X, sp.Interval(0, U)), key=float)
+        nxt = min(sp.solveset(eq, X, sp.Interval.Lopen(U, U + 2 * sp.pi)), key=float)
+        want = lg_sols(sols)
+        wr = {"SL2.10.number-of-solutions#1": {lg_sols(sols + [nxt])}, "SL3.8.graphical#0": {lg_sols([s_ for s_ in sols if s_ <= 2 * sp.pi])}}
+        if q["view"]["rep"] == "graph":
+            g = q["graph"]
+            need(gc_curve_is(g["curves"][0], gc_f(A * fn(X))) and abs(g["hlines"][0]["at"] - float(rv)) < 1e-9, "the graph drawn is not the equation's")
+    elif u == "k-for-count":
+        f = gc_expr(re.search(r"The graph of f\(x\) = (.+?) is shown", L[0]).group(1))
+        n = {"one": 1, "two": 2, "three": 3}[re.search(r"exactly (one|two|three) solution", asked).group(1)]
+        tv = sorted(f.subs(X, x) for x in sp.solve(sp.diff(f, X), X))
+        lo, hi = tv
+        cnt = lambda k: len(set(sp.Poly(f - k, X).real_roots()))
+        L_, H_ = ft(lo), ft(hi)
+        got = {"inside": cnt((lo + hi) / 2), "at": (cnt(lo), cnt(hi)), "out": (cnt(lo - 1), cnt(hi + 1))}
+        need(got["inside"] == 3 and got["at"] == (2, 2) and got["out"] == (1, 1), f"the counts are not 1, 2, 3: {got}")
+        want = {3: f"{L_} < k < {H_}", 2: f"k = {L_} or k = {H_}", 1: f"k < {L_} or k > {H_}"}[n]
+        if n == 3:
+            wr["SL2.10.number-of-solutions#0"] = {f"{L_} ≤ k ≤ {H_}"}
+        need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the graph drawn is not f")
+    elif u == "limits-first":
+        m = re.search(r"The curve y = (.+?) and the line y = (.+?) enclose a region", asked)
+        cv, ln_ = gc_expr(m.group(1)), gc_expr(m.group(2))
+        p, qq = sorted(sp.solve(cv - ln_, X))
+        need(p < 0 < qq and p.is_integer and qq.is_integer, "the meeting points are not whole numbers either side of 0")
+        area = sp.integrate(sp.Abs(ln_ - cv), (X, p, qq))
+        say = lambda a, b, ar: f"x = {ft(a)} and x = {ft(b)}; area {ft(ar)}"
+        want = say(p, qq, area)
+        u0, v0 = sorted(sp.solve(cv, X))
+        wr = {"SL5.11.area-between-curves#0": {say(p, qq, -area)},
+              "SL5.11.area-between-curves#1": {say(u0, v0, abs(sp.integrate(ln_ - cv, (X, u0, v0))))},
+              "SL2.4.intersection#1": {say(0, qq, abs(sp.integrate(ln_ - cv, (X, 0, qq))))}}
+        if q["view"]["rep"] == "graph":
+            cs = q["graph"]["curves"]
+            need(gc_curve_is(cs[0], gc_f(cv)) and gc_curve_is(cs[1], gc_f(ln_)), "the graphs drawn are not the curve and the line")
+    elif u == "log-equation-check":
+        m = re.fullmatch(r"Solve ln x \+ ln\(x \+ (\d+)\) = ln (\d+)\.", asked)
+        a, b = int(m.group(1)), int(m.group(2))
+        lhs = sp.log(X) + sp.log(X + a) - sp.log(b)
+        # The meeting points of the graphs (x > 0 only), and the roots algebra gives.
+        zs = gc_zeros(lhs, sp.Rational(1, 1000), 60)
+        need(len(zs) == 1, f"the graphs meet {len(zs)} times")
+        roots = sorted(sp.solve(X**2 + a * X - b, X))
+        good = [x for x in roots if x > 0 and abs(sp.N(lhs.subs(X, x), 30)) < 1e-25]
+        need(len(good) == 1 and abs(good[0] - zs[0]) < 1e-20, "the algebra's root is not the meeting point")
+        r = good[0]
+        bad = [x for x in roots if x != r]
+        need(len(bad) == 1 and bad[0] < 0 and r.is_integer, "no rejected whole-number root")
+        want = "x = " + ft(r)
+        both = f"x = {ft(r)} or x = {ft(bad[0])}"
+        wr = {"SL2.10.solve-analytic#0": {both}, "SL1.7.log-equations#0": {both}}
+        if q["view"]["rep"] == "graph":
+            g = q["graph"]
+            need(gc_curve_is(g["curves"][0], gc_f(sp.log(X) + sp.log(X + a))) and abs(g["hlines"][0]["at"] - float(sp.log(b))) < 1e-9,
+                 "the graphs drawn are not the two sides")
+    elif u == "exponential-two-ways":
+        paper = 2
+        k, c = lg_ex(re.fullmatch(r"Solve (.+) exactly, and give x to 3 s\.f\.", asked).group(1))
+        x0 = sp.N(next(iter(sp.solveset(sp.exp(k * X) - c, X, sp.S.Reals))), 30)
+        need(not on_edge(abs(x0)), "x is on a rounding edge")
+        want = f"x = {lg_ln_over(c, k)} ≈ {gc_s(x0)}"
+        wr["SL1.5.evaluate-tech#0"] = {f"x = {lg_ln_over(c, k, 'log')} ≈ {gc_s(sp.N(sp.log(c, 10) / k, 30))}"}
+    else:
+        raise Fail(f"no check for {u}")
+    need(q["paper"] == paper, f"paper {q['paper']}, not {paper}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -6725,7 +6986,9 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "graph-from-features": check_graph_from_features,
                     "gdc-inequality": check_gdc_inequality,
                     "fn-pre-graph-reading": check_graph_reading,
-                    "graph-match": check_graph_match}
+                    "graph-match": check_graph_match,
+                    "fn-link-extremes": check_link_extremes,
+                    "fn-link-graph-vs-algebra": check_link_graph_algebra}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
