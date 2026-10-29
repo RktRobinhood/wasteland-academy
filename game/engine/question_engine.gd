@@ -52,6 +52,7 @@ static var SITUATIONS := {
 	"fn-link-equivalent-forms": [EquivalentFormsSituation, EquivalentFormsViews],
 	"fn-link-symmetry": [SymmetrySituation, SymmetryViews],
 	"exp-model": [ExpModelSituation, ExpModelViews],
+	"exp-log-pair": [ExpLogPairSituation, ExpLogPairViews],
 }
 
 static var _cat: Dictionary = {}
@@ -627,7 +628,8 @@ static func mark(question: Dictionary, response: Dictionary) -> Dictionary:
 	r.misconception = ""
 	if r.complete and not r.correct:
 		for c in question.choices:
-			if not c.correct and c.ref != "" and Answer.values_right(Answer.with_values(question.answer, c.values), r.values):
+			if not c.correct and c.ref != "" and Answer.typable(question.answer, c.values) \
+					and Answer.values_right(Answer.with_values(question.answer, c.values), r.values):
 				r.misconception = c.ref
 				break
 	return r

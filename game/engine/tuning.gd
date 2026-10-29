@@ -169,6 +169,9 @@ const CHAINS := {
 	# chain's opener (the initial value) and closer (the long-run value) are on a limited
 	# growth model, which these four parts can't share, so they stay single questions.
 	"fn-exponential-model": ["k-from-data-point", "predict-from-data-point", "time-to-level", "whole-units-inequality"],
+	# evaluate g, find g⁻¹, evaluate g⁻¹: all on one log function. The chain's composite
+	# and transformation parts need a second function, so they stay single questions.
+	"fn-exp-log-inverse-composite": ["evaluate-log-function", "inverse-of-log", "evaluate-inverse"],
 }
 
 

@@ -6,8 +6,8 @@ extends "res://tests/test_case.gd"
 ## would type them. The SymPy checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-exponential-model": 77}
-const SITUATION := {"fn-exponential-model": "exp-model"}
+const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 49}
+const SITUATION := {"fn-exponential-model": "exp-model", "fn-exp-log-inverse-composite": "exp-log-pair"}
 ## Distractor misconceptions no option can carry yet, and why.
 const NOT_BUILT := {}
 
@@ -113,9 +113,35 @@ func test_a_time_is_never_on_a_rounding_edge_and_whole_units_round_up() -> void:
 		check_eq(int(q.answer.values.v.n), ceili(t), "seed %d" % seed)
 
 
-func test_the_boss_chain_is_one_model() -> void:
-	var windows := Dungeon.chain_windows("fn-exponential-model")
-	check(not windows.is_empty(), "no boss chain")
-	for steps in windows:
-		var c := QuestionEngine.make_chain(steps, 5)
-		check(not c.has("error"), str(c.get("error")))
+func test_the_boss_chains_are_one_situation() -> void:
+	for t in CELLS:
+		var windows := Dungeon.chain_windows(t)
+		check(not windows.is_empty(), "%s has no boss chain" % t)
+		for steps in windows:
+			var c := QuestionEngine.make_chain(steps, 5)
+			check(not c.has("error"), str(c.get("error")))
+
+
+func test_an_inverse_is_typed_as_its_two_shifts() -> void:
+	var q := _first("fn-exp-log-inverse-composite", "inverse-of-log")
+	var v: Dictionary = q.answer.values
+	check(QuestionEngine.mark(q, {"p": v.p.key(), "q": v.q.key()}).correct, q.answer_text)
+	check(not QuestionEngine.mark(q, {"p": v.q.key(), "q": v.p.key()}).correct or v.p.eq(v.q), "the shifts swapped")
+
+
+func test_an_inverse_offers_one_over_f() -> void:
+	var found := false
+	for seed in range(1, 20):
+		var q := _first("fn-exp-log-inverse-composite", "inverse-of-exponential", "mcq", seed)
+		if q.choices.any(func(o): return o.text.contains("= 1/(") and o.ref == "SL2.5.find-inverse#0"):
+			found = true
+	check(found, "1/f(x) is never offered as f⁻¹")
+
+
+func test_numbers_use_a_true_minus() -> void:
+	for c in QuestionEngine.cells(false, ["fn-exp-log-inverse-composite"]):
+		for seed in [1, 2, 3, 4]:
+			var q := _make(c.type, c.unknown, c.rep, c.angle, seed, "mcq")
+			var texts: Array = [q.prompt] + q.lines + q.choices.map(func(o): return o.text)
+			for t in texts:
+				check(not RegEx.create_from_string("-\\d").search(t), "%s: %s" % [c.key, t])

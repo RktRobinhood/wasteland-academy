@@ -128,7 +128,8 @@ func _check(q: Dictionary, name: String) -> int:
 	if not rd.correct and not (ans.get("exact", false) and rounded):
 		fails.append("%s: decimal typed answer marked wrong: %s %s" % [name, q.answer_text, _decimal_typed(ans, ans.values)])
 	for ch in q.choices:
-		if ch.correct:
+		# A wrong option in another form (1/f(x) for a log) can't be typed at all.
+		if ch.correct or not Answer.typable(ans, ch.values):
 			continue
 		var rw := QuestionEngine.mark(q, _typed(ans, ch.values))
 		if rw.correct:

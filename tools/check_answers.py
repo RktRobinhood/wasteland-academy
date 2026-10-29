@@ -3275,7 +3275,7 @@ def check_symmetry(q):
 # Answer kinds the region adds (game/engine/answer.gd): lnq (m·ln r, exact), pct (a
 # rise or fall of r%), expmodel (P₀(a)ᵗ) and limited (C, A and k of C + Ae^(−kt)).
 
-EL_KINDS = {"lnq", "pct", "expmodel", "limited"}
+EL_KINDS = {"lnq", "pct", "expmodel", "limited", "fn", "logform", "xpow"}
 
 
 def el_num(text):
@@ -3297,6 +3297,12 @@ def el_lnq_text(m, r):
 def el_text(ans, v):
     kind, fx, label = ans["kind"], ans.get("fixed") or {}, ans.get("label", "")
     if kind == "lnq":
+        if v.get("form") == "sub":
+            m = R(v["m"])
+            return label + f"ln {frac_text(v['r'])} {'−' if m >= 0 else '+'} {frac_text(abs(m))}"
+        if v.get("form") == "dive":
+            m = R(v["m"])
+            return label + f"{frac_text(v['r'])}/({'' if m == 1 else frac_text(m)}e)"
         return label + el_lnq_text(v["m"], v["r"])
     if kind == "pct":
         pv = dec_text(v["v"]) if ans.get("exact") else sig3(R(v["v"]))
@@ -3305,6 +3311,15 @@ def el_text(ans, v):
         return f"{fx.get('sym', 'P')}(t) = {dec_text(v['p0'])}({dec_text(v['a'])})ᵗ"
     if kind == "limited":
         return f"C = {frac_text(v['C'])}, A = {frac_text(v['A'])}, k = {sig3(R(v['k'])).replace('-', '−')}"
+    if kind == "fn":
+        return fx.get("name", "f(x)") + " = " + el_fn_text(v.get("form", fx.get("shape", "exp")), fx["b"], v.get("p", 0), v["q"])
+    if kind == "logform":
+        return f"{el_log_name(v['b'])} {frac_text(v['x'])} = {frac_text(v['y'])}"
+    if kind == "xpow":
+        n = R(v["n"])
+        if v.get("form") == "lin":
+            return fx.get("name", "y") + " = " + qr_lead(n) + "x"
+        return fx.get("name", "y") + " = x" + (ext_sup(n) if n.q == 1 and n > 0 else f"^({frac_text(n)})")
     raise Fail(f"the checker can't write answers of kind {kind}")
 
 
@@ -3312,13 +3327,25 @@ def el_norm(ans, v):
     kind = ans["kind"]
     if kind == "lnq":
         m, r = R(v["m"]), R(v["r"])
-        return None if r <= 0 else round(float(m * sp.log(r)), 9)
+        if r <= 0:
+            return None
+        if v.get("form") == "sub":
+            return round(float(sp.log(r) - m), 9)
+        if v.get("form") == "dive":
+            return round(float(r / (m * sp.E)), 9)
+        return round(float(m * sp.log(r)), 9)
     if kind == "pct":
         return (v["dir"], R(v["v"]) if ans.get("exact") else sig3(R(v["v"])))
     if kind == "expmodel":
         return (R(v["p0"]), R(v["a"]))
     if kind == "limited":
         return (R(v["C"]), R(v["A"]), sig3(R(v["k"])))
+    if kind == "fn":
+        return (v.get("form", ans["fixed"].get("shape", "exp")), R(v.get("p", 0)), R(v["q"]))
+    if kind == "logform":
+        return (R(v["b"]), R(v["x"]), R(v["y"]))
+    if kind == "xpow":
+        return (v.get("form", "pow"), R(v["n"]))
     raise Fail(f"the checker can't compare answers of kind {kind}")
 
 
@@ -3642,6 +3669,289 @@ def check_exp_model(q):
     return None, None
 
 
+# ── exp-log-pair (fn-exp-log-inverse-composite) ──
+
+EL_SUB = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+EL_TO_SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+EL_NOT_DEFINED = "not defined: there is no log of a number that is not positive"
+EL_PTS = [sp.Rational(1, 3), sp.Rational(7, 4), sp.Rational(5, 2), 4]
+
+
+def el_log_name(b):
+    return "ln" if str(b) == "e" else "log" + frac_text(b).translate(EL_TO_SUB)
+
+
+def el_x_minus(p):
+    p = R(p)
+    return "x" if p == 0 else f"x {'−' if p > 0 else '+'} {frac_text(abs(p))}"
+
+
+def el_plus_q(q):
+    q = R(q)
+    return "" if q == 0 else f" {'+' if q > 0 else '−'} {frac_text(abs(q))}"
+
+
+def el_fn_text(form, b, p, q):
+    bb = "e" if str(b) == "e" else frac_text(b)
+    xp = el_x_minus(p)
+    pw = bb + "ˣ" if xp == "x" else f"{bb}^({xp})"
+    if form == "exp":
+        return pw + el_plus_q(q)
+    if form == "log":
+        return f"{el_log_name(b)}({xp}){el_plus_q(q)}"
+    if form == "recip":
+        return f"1/({pw}{el_plus_q(q)})" if R(q) != 0 else f"1/{pw}"
+    if form == "pow":
+        return (f"({xp})" if xp != "x" else "x") + ext_sup(b) + el_plus_q(q)
+    if form == "exphalf":
+        return bb + "^(x/2)" + el_plus_q(q)
+    if form == "pm":
+        return ("" if R(q) == 0 else frac_text(q) + " ") + "± " + bb + "^(x/2)"
+    raise Fail(f"no fn form {form}")
+
+
+def el_fn_expr(form, b, p, q):
+    """The function an fn answer writes, as a SymPy expression in x."""
+    b, p, q = (sp.E if str(b) == "e" else R(b)), R(p), R(q)
+    return {"exp": b ** (X - p) + q, "log": sp.log(X - p, b) + q, "recip": 1 / (b ** (X - p) + q),
+            "pow": (X - p) ** b + q, "exphalf": b ** (X / 2) + q}[form]
+
+
+def el_m_text(text):
+    return text.replace("-", "−")
+
+
+def el_parse_shift(xp):
+    """'x − 3' -> 3, 'x + 2' -> −2, 'x' -> 0."""
+    m = re.fullmatch(r"x(?: ([−+]) (\d+))?", xp)
+    need(m is not None, f"can't read the shift in {xp!r}")
+    return 0 if m.group(1) is None else (int(m.group(2)) if m.group(1) == "−" else -int(m.group(2)))
+
+
+def el_parse_q(sign, n):
+    return 0 if sign is None else (int(n) if sign == "+" else -int(n))
+
+
+def el_parse_log(text, name):
+    """'g(x) = log₄(x − 5) + 4, for x > 5' -> (b, h, c), with the domain checked."""
+    m = re.fullmatch(name + r" = log([₀-₉]+)\((x(?: [−+] \d+)?)\)(?: ([+−]) (\d+))?(?:, for x > (−?\d+))?", text)
+    need(m is not None, f"can't read the log function {text!r}")
+    b, h, c = int(m.group(1).translate(EL_SUB)), el_parse_shift(m.group(2)), el_parse_q(m.group(3), m.group(4))
+    if m.group(5) is not None:
+        need(el_num(m.group(5)) == h, "the domain shown is not x > h")
+    return b, h, c
+
+
+def el_parse_exp(text, name="f\\(x\\)"):
+    """'f(x) = 4^(x + 1) + 1' or 'f(x) = 2ˣ' -> (b, h, c)."""
+    m = re.fullmatch(name + r" = (\d+)(?:ˣ|\^\((x(?: [−+] \d+)?)\))(?: ([+−]) (\d+))?", text)
+    need(m is not None, f"can't read the exponential {text!r}")
+    return int(m.group(1)), (0 if m.group(2) is None else el_parse_shift(m.group(2))), el_parse_q(m.group(3), m.group(4))
+
+
+def el_is_inverse(F, f, xs):
+    """F(f(x)) = x at each x (numerically, to 30 digits)."""
+    for x0 in xs:
+        y = f.subs(X, x0)
+        back = F.subs(X, y)
+        need(abs(sp.N(back - x0, 30)) < sp.Rational(1, 10**20), f"the answer is not the inverse at x = {x0}")
+
+
+def el_fn_norm(form, p, q):
+    return (form, R(p), R(q))
+
+
+def el_check_log_table(q, b, h, c, hide):
+    rows = q["table"]["rows"]
+    xs, ys = rows[0][1], rows[1][1]
+    need(len(xs) == len(ys) >= 3, "the table is too short")
+    for xt, yt in zip(xs, ys):
+        n = sp.nsimplify(sp.log(el_num(xt) - h, b))
+        need(n.is_integer, f"x = {xt} is not h plus a power of b")
+        if yt == "?":
+            need(el_num(xt) == hide, "the missing value is not the one asked for")
+        else:
+            need(el_num(yt) == n + c, f"the table's g({xt}) = {yt} is wrong")
+
+
+def check_exp_log_pair(q):
+    g, ans, u, rep, L, asked = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"-\d", t), f"a hyphen for a minus in {t!r}")
+    wr = {}
+    FI, ELI, ELF = "SL2.5.find-inverse", "SL2.9.exp-log-inverse", "SL1.5.exp-log-form"
+    if u in ("evaluate-log-function", "evaluate-inverse", "inverse-of-log"):
+        b, h, c = el_parse_log(L[0], r"g\(x\)")
+        need(b in (2, 3, 4, 5, 10) and -5 <= h <= 5 and -4 <= c <= 4, "not a clean log function")
+    if u == "evaluate-log-function":
+        x = el_num(em_read(r"g\((−?\d+)\)\.", asked, "the input").group(1))
+        val = sp.nsimplify(sp.log(x - h, b)) + c
+        need(val.is_integer and x - h <= 125, f"g({x}) = {val} is not a whole power")
+        if rep == "table":
+            el_check_log_table(q, b, h, c, x)
+        want = qr_norm(ans, {"v": str(val)})
+        wr[f"{ELF}#0"] = {qr_norm(ans, {"v": str((x - h) / b + c)})}
+    elif u == "log-of-non-positive":
+        b, h, c = el_parse_log(L[0], r"g\(x\)")
+        x0 = el_num(em_read(r"Find g\((−?\d+)\)", asked, "the input").group(1))
+        need(x0 - h <= 0, "the inside is positive, so g is defined")
+        want = qr_norm(ans, {"v": EL_NOT_DEFINED})
+        wr[f"{ELF}#2"] = {qr_norm(ans, {"v": el_m_text(f"g({x0}) = {c}")})}
+    elif u == "inverse-of-exponential":
+        b, h, c = el_parse_exp(L[0])
+        f = b ** (X - h) + c
+        vals = ans["values"]
+        el_is_inverse(el_fn_expr("log", b, vals["p"], vals["q"]), f, EL_PTS)
+        want = el_fn_norm("log", c, h)
+        wr[f"{FI}#0"] = {el_fn_norm("recip", h, c)}
+    elif u == "inverse-of-log":
+        f = sp.log(X - h, b) + c
+        vals = ans["values"]
+        el_is_inverse(el_fn_expr("exp", b, vals["p"], vals["q"]), f, [h + x for x in EL_PTS])
+        want = el_fn_norm("exp", c, h)
+        wr[f"{FI}#1"] = {el_fn_norm("exp", -h, -c)}
+        wr[f"{ELF}#1"] = {el_fn_norm("pow", c, h)}
+    elif u == "evaluate-inverse":
+        a = el_num(em_read(r"Find g⁻¹\((−?\d+)\)\.", asked, "the value").group(1))
+        x = b ** (a - c) + h
+        need(sp.log(x - h, b) + c == a and 1 <= a - c <= 3, "g at the answer is not the value asked")
+        if rep == "table":
+            el_check_log_table(q, b, h, c, None)
+            need(frac_text(a) in q["table"]["rows"][1][1], "the value asked is not in the table")
+        want = qr_norm(ans, {"v": str(x)})
+        wr[f"{ELI}#1"] = {qr_norm(ans, {"v": str((a - c) ** b + h)})}
+    elif u == "inverse-awkward-base":
+        b1 = int(em_read(r"^f\(x\) = (\d+)ˣ$", L[0], "f").group(1))
+        v = el_num(em_read(r"Find f⁻¹\((\d+)\)", asked, "the value").group(1))
+        val = sp.nsimplify(sp.log(v) / sp.log(b1))
+        need(val.is_rational and not val.is_integer, f"log_{b1} {v} = {val} is not a fraction")
+        want = qr_norm(ans, {"v": str(val)})
+        wr["SL1.7.change-of-base#0"] = {qr_norm(ans, {"v": str(1 / val)})}
+    elif u == "simplify-composite":
+        b1 = int(em_read(r"^f\(x\) = (\d+)ˣ$", L[0], "f").group(1))
+        b2 = int(em_read(r"^g\(x\) = log([₀-₉]+) x, for x > 0$", L[1], "g").group(1).translate(EL_SUB))
+        n = sp.nsimplify(sp.log(b1) / sp.log(b2))
+        need(n.is_rational and n != 1, "the bases are not from one family")
+        need(sp.simplify(sp.Integer(b1) ** sp.log(sp.Integer(7), b2) - sp.Integer(7) ** n) == 0, "f(g(7)) is not 7 to that power")
+        want = ("pow", n)
+        wr["SL2.5.composite-expression#0"] = {("lin", n)}
+        pbase = min(p for p in (2, 3) if sp.log(b2, p).is_integer and sp.log(b1, p).is_integer)
+        if b2 != pbase:
+            wr["SL1.7.change-of-base#2"] = {("pow", sp.Rational(int(sp.log(b1, pbase)), b2))}
+    elif u == "composite-inequality":
+        fpoly = parse(em_read(r"^f\(x\) = (.+)$", L[0], "f").group(1))
+        b = int(em_read(r"^g\(x\) = log([₀-₉]+) x, for x > 0$", L[1], "g").group(1).translate(EL_SUB))
+        m = em_read(r"^Solve f\(g\(x\)\) ([<>≤≥]) (−?\d+)\.$", asked, "the inequality")
+        rel, d = m.group(1), el_num(m.group(2))
+        xs = sp.Symbol("xs", positive=True)
+        lhs = fpoly.subs(X, sp.log(xs, b))
+        op = {"<": sp.Lt, ">": sp.Gt, "≤": sp.Le, "≥": sp.Ge}[rel]
+        sol = sp.solveset(op(lhs, d), xs, sp.Interval.open(0, sp.oo))
+        need(isinstance(sol, sp.Interval), f"the solution {sol} is not one interval")
+        if sol.inf == 0:
+            need(sol.left_open and sol.sup.is_integer, "not 0 < x < v")
+            want = qr_norm(ans, {"lo": "0", "r1": "<", "r2": "<" if sol.right_open else "≤", "hi": str(sol.sup)})
+            need(ans["kind"] == "range2", "a bounded set is not written as lo < x < hi")
+        else:
+            need(sol.sup == sp.oo and sol.inf.is_integer, "not x > v")
+            want = qr_norm(ans, {"rel": ">" if sol.left_open else "≥", "v": str(sol.inf)})
+            need(ans["kind"] == "bound", "a ray is not written as x > v")
+    elif u == "transformations-between":
+        Lf = [l for l in L if l.startswith("f(x) = ")][0]
+        Lg = [l for l in L if l.startswith("g(x) = ")][0]
+        b, h0, c0 = el_parse_exp(Lf)
+        need(h0 == 0 and c0 == 0, "f is not the parent bˣ")
+        bg, hg, cg = el_parse_exp(Lg, r"g\(x\)")
+        if "translation" in asked:
+            need(bg == b and hg != 0, "g is not a translation of f")
+            right = el_m_text(f"a translation by the vector ({hg}, {cg})")
+            wr["SL2.11.describe#0"] = {qr_norm(ans, {"v": el_m_text(f"a translation by the vector ({-hg}, {cg})")})}
+            gx = b ** (X - hg) + cg
+        else:
+            j = sp.nsimplify(sp.log(bg) / sp.log(b))
+            need("stretch" in asked and j.is_integer and j > 1 and hg == 0 and cg == 0, "g is not a stretch of f")
+            right = f"a horizontal stretch, scale factor 1/{j}"
+            wr["SL2.11.describe#2"] = {qr_norm(ans, {"v": f"a stretch, scale factor 1/{j}"})}
+            gx = sp.Integer(bg) ** X
+        if rep == "graph":
+            gr = q["graph"]
+            for pts, fn in zip(gr["curves"], [sp.Integer(b) ** X, gx]):
+                for x0, y0 in pts[::16]:
+                    need(abs(sp.N(fn.subs(X, sp.Float(x0, 30))) - y0) <= 1e-6 * max(1, abs(y0)), "a curve is not its function")
+        want = qr_norm(ans, {"v": right})
+    elif u == "write-log-form":
+        m = em_read(r"^(\d+)([⁰¹²³⁴⁵⁶⁷⁸⁹]+) = (\d+)$", L[0], "the power")
+        b, n, x = int(m.group(1)), int(m.group(2).translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))), int(m.group(3))
+        need(b ** n == x, "the power statement is false")
+        want = (R(b), R(x), R(n))
+        wr[f"{ELF}#1"] = {(R(n), R(x), R(b))}
+    elif u == "solve-exp-equation":
+        m = em_read(r"^e\^\((\d+)x\)(?: ([+−]) (\d+))? = (−?\d+)$", L[0], "the equation")
+        mm, c, d = int(m.group(1)), el_parse_q(m.group(2), m.group(3)), el_num(m.group(4))
+        sol = sp.solve(sp.exp(mm * X) + c - d, X)
+        real = [s_ for s_ in sol if s_.is_real]
+        need(len(real) == 1, "not one real solution")
+        r = d - c
+        want = round(float(real[0]), 9)
+        wr[f"{ELI}#0"] = {round(float(mm * sp.log(r)), 9), round(float(sp.log(r) - mm), 9)}
+        wr[f"{ELI}#2"] = {round(float(r / (mm * sp.E)), 9)}
+    elif u == "solve-log-equation":
+        m = em_read(r"^log([₀-₉]+)\((x(?: [−+] \d+)?)\)(?: ([+−]) (\d+))? = (−?\d+)$", L[0], "the equation")
+        b, h, c, d = int(m.group(1).translate(EL_SUB)), el_parse_shift(m.group(2)), el_parse_q(m.group(3), m.group(4)), el_num(m.group(5))
+        sol = sp.solve(sp.log(X - h, b) + c - d, X)
+        need(len(sol) == 1 and sol[0].is_integer, f"the solution {sol} is not one whole number")
+        want = qr_norm(ans, {"v": str(sol[0])})
+        wr[f"{ELI}#1"] = {qr_norm(ans, {"v": str((d - c) ** b + h)})}
+    elif u == "composite-order":
+        b, _, _ = el_parse_exp(L[0])
+        if "log" in L[1]:
+            need(L[1] == f"g(x) = {el_log_name(b)} x, for x > 0", "g is not log_b x")
+            fg_e, gf_e, fg, gf = X, X, "x", "x"
+        else:
+            p = parse(em_read(r"^g\(x\) = (.+)$", L[1], "g").group(1)) - X
+            need(p.is_integer and p != 0, "g is not x + p")
+            fg_e, gf_e = sp.Integer(b) ** (X + p), sp.Integer(b) ** X + p
+            fg, gf = el_fn_text("exp", b, -p, 0), f"{b}ˣ{el_plus_q(p)}"
+        same = sp.simplify(fg_e - gf_e) == 0
+        say = lambda a_, c_, e_: f"f(g(x)) = {a_}, g(f(x)) = {c_}: {'equal' if e_ else 'not equal'}"
+        want = qr_norm(ans, {"v": say(fg, gf, same)})
+        if not same:
+            wr["SL2.5.composite-expression#2"] = {qr_norm(ans, {"v": say(fg, gf, True)})}
+    elif u == "inverse-graph":
+        b, h, c = el_parse_exp(L[0])
+        f = b ** (X - h) + c
+        y0 = f.subs(X, 0)
+        need(y0.is_integer, "the inverse's x-intercept is not whole")
+        gr = q["graph"]
+        for x0, yv in gr["curves"][0][::16]:
+            need(abs(sp.N(f.subs(X, sp.Float(x0, 30))) - yv) <= 1e-6 * max(1, abs(yv)), "the curve is not f")
+        need([R(sp.nsimplify(hl["at"])) for hl in gr["hlines"]] == [c], "the asymptote drawn is not y = c")
+        want = qr_norm(ans, {"v0": str(c), "v1": str(y0)})
+    elif u == "inverse-log-of-square":
+        m = em_read(r"^g\(x\) = log([₀-₉]+)\(\((x(?: [−+] \d+)?)\)²\), for x > (−?\d+)$|^g\(x\) = log([₀-₉]+)\(x²\), for x > (−?\d+)$", L[0], "g")
+        if m.group(1):
+            b, h = int(m.group(1).translate(EL_SUB)), el_parse_shift(m.group(2))
+            need(el_num(m.group(3)) == h, "the domain is not x > h")
+        else:
+            b, h = int(m.group(4).translate(EL_SUB)), 0
+            need(el_num(m.group(5)) == 0, "the domain is not x > 0")
+        f = sp.log((X - h) ** 2, b)
+        vals = ans["values"]
+        el_is_inverse(el_fn_expr("exphalf", b, 0, vals["q"]), f, [h + x for x in EL_PTS])
+        want = el_fn_norm("exphalf", 0, h)
+        wr[f"{FI}#2"] = {el_fn_norm("pm", 0, h)}
+    elif u == "function-from-inverse":
+        b, h, c = el_parse_log(L[0], r"f⁻¹\(x\)")
+        finv = sp.log(X - h, b) + c
+        vals = ans["values"]
+        el_is_inverse(finv, el_fn_expr("exp", b, vals["p"], vals["q"]), EL_PTS)
+        want = el_fn_norm("exp", c, h)
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    qr_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -3649,7 +3959,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model}
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
