@@ -56,6 +56,7 @@ static var SITUATIONS := {
 	"log-quadratic": [LogQuadraticSituation, LogQuadraticViews],
 	"log-function": [LogFunctionSituation, LogFunctionViews],
 	"fn-pre-percent-multiplier": [PercentSituation, PercentViews],
+	"exp-growth-vs-linear": [GrowthPatternsSituation, GrowthPatternsViews],
 }
 
 static var _cat: Dictionary = {}

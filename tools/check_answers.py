@@ -4411,6 +4411,81 @@ def check_percent(q):
 SPOT_CHECKS["fn-pre-percent-multiplier"] = pc_first_false
 
 
+# ── exp-growth-vs-linear (fn-concept-growth-patterns) ──
+
+GP_LIN = "linear: the differences are constant"
+GP_EXP = "exponential: the ratios are constant"
+GP_NEITHER = "neither: the differences and the ratios both change"
+
+
+def gp_pattern(vals):
+    d = {vals[i + 1] - vals[i] for i in range(len(vals) - 1)}
+    r = {vals[i + 1] / vals[i] for i in range(len(vals) - 1)}
+    return GP_LIN if len(d) == 1 else (GP_EXP if len(r) == 1 else GP_NEITHER)
+
+
+def gp_models(L):
+    Lj = " ".join(L)
+    m = re.search(r"L\(t\) = (\d+) \+ (\d+)t", Lj) or re.search(r"L starts at (\d+) and gains (\d+) a year", Lj)
+    e = re.search(r"E\(t\) = (\d+)\(([\d.]+)\)ᵗ", Lj)
+    if e:
+        P0, a = el_num(e.group(1)), el_num(e.group(2))
+    else:
+        e = em_read(r"E starts at (\d+) and grows by (\d+(?:\.\d+)?)% a year", Lj, "E")
+        P0, a = el_num(e.group(1)), 1 + el_num(e.group(2)) / 100
+    need(m is not None, "can't read L")
+    return el_num(m.group(1)), el_num(m.group(2)), P0, a
+
+
+def check_growth(q):
+    ans, u, rep, L = q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    wr = {}
+    if u == "classify-table":
+        vals = [el_num(v) for v in q["table"]["rows"][1][1]]
+        want = qr_norm(ans, {"v": gp_pattern(vals)})
+    elif u == "classify-graph":
+        vals = [R(sp.nsimplify(p["y"])) for p in q["graph"]["points"]]
+        need([R(sp.nsimplify(p["x"])) for p in q["graph"]["points"]] == [0, 1, 2, 3], "the marked points are not t = 0 to 3")
+        want = qr_norm(ans, {"v": gp_pattern(vals)})
+    elif u == "classify-words":
+        m = re.search(r"starts with (\d+) cells and grows by (\d+)% each hour", L[0])
+        if m:
+            P0, r = el_num(m.group(1)), el_num(m.group(2))
+            want = qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(1 + r / 100)})ᵗ"})
+            wr["SL2.9.exp-model#0"] = {qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(r / 100)})ᵗ"})}
+            wr["SL2.9.exp-model#1"] = {qr_norm(ans, {"v": f"linear: N = {dec_text(P0)} + {dec_text(P0 * r / 100)}t"})}
+        else:
+            m = em_read(r"holds (\d+) litres and gains (\d+) litres each hour", L[0], "the tank")
+            P0, d = el_num(m.group(1)), el_num(m.group(2))
+            want = qr_norm(ans, {"v": f"linear: N = {dec_text(P0)} + {dec_text(d)}t"})
+            wr["SL2.1.line-model#1"] = {qr_norm(ans, {"v": f"linear: N = {dec_text(d)} + {dec_text(P0)}t"})}
+    elif u == "next-values":
+        v0, v1 = [el_num(x) for x in em_read(r"are (\d+(?:\.\d+)?) and (\d+(?:\.\d+)?)\.", L[0], "the values").groups()]
+        want = qr_norm(ans, {"v0": str(2 * v1 - v0), "v1": str(v1 ** 2 / v0)})
+    elif u == "interpret-d-and-r":
+        Q0, d, P0, a = gp_models(L)
+        want = qr_norm(ans, {"v": f"each step L gains {dec_text(d)} and E is multiplied by {dec_text(a)}"})
+        wr["SL2.1.line-model#0"] = {qr_norm(ans, {"v": f"L gains {dec_text(d)} in total and E is multiplied by {dec_text(a)} each step"})}
+    elif u == "when-overtakes":
+        Q0, d, P0, a = gp_models(L)
+        E = lambda t: P0 * a ** t
+        Lf = lambda t: Q0 + d * t
+        n = next(t for t in range(0, 60) if all(E(k) > Lf(k) for k in range(t, t + 40)))
+        need(3 <= n <= 25 and Q0 > P0, "the overtaking is out of range")
+        neg = sp.nsolve(P0 * a ** X - Q0 - d * X, X, -5)
+        need(neg < 0, "no crossing before the start")
+        want = qr_norm(ans, {"v": str(n)})
+        wr["SL2.1.line-model#2"] = {qr_norm(ans, {"v": str(int(sp.floor(neg + sp.Rational(1, 2))))})}
+        if rep == "table":
+            rows = {r_[0]: r_[1] for r_ in q["table"]["rows"]}
+            for t_, lv, ev in zip(rows["t"], rows["L(t)"], rows["E(t)"]):
+                need(el_num(lv) == Lf(int(t_)) and abs(float(el_num(ev)) - float(E(int(t_)))) <= 0.006, f"the table at t = {t_} is wrong")
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    qr_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -4418,7 +4493,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent}
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
