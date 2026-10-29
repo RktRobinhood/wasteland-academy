@@ -1695,6 +1695,8 @@ def qr_text(ans, v):
     kind, fx, label, unit = ans["kind"], ans.get("fixed") or {}, ans.get("label", ""), ans.get("unit", "")
     if kind in EXT_KINDS or (kind == "number" and ans.get("show")):
         return ext_text(ans, v)
+    if kind in QR_SF_KINDS and ans.get("show") == "sf":
+        return qr_sf_text(ans, v)
     if kind in EL_KINDS:
         return el_text(ans, v)
     var = fx.get("var", "k")
@@ -1745,6 +1747,8 @@ def qr_norm(ans, v):
     kind, fx = ans["kind"], ans.get("fixed") or {}
     if kind in EXT_KINDS or (kind == "number" and ans.get("show") == "sf"):
         return ext_norm(ans, v)
+    if kind in QR_SF_KINDS and ans.get("show") == "sf":
+        return qr_sf_norm(ans, v)
     if kind in EL_KINDS:
         return el_norm(ans, v)
     if kind in ("interval", "bound"):
@@ -1763,6 +1767,60 @@ def qr_norm(ans, v):
         x = v[key]
         out.append((key, x if not isinstance(x, str) or not re.fullmatch(r"-?\d+(/\d+)?", x) else R(x)))
     return tuple(out)
+
+
+# Paper 2 (FAL-419): k values and interval ends that need a calculator, written to
+# 3 s.f. Such an answer is told apart by what it shows, so its norm is its numbers to
+# 3 s.f. with its shape; qr_sf_set writes an exact SymPy set the same way.
+QR_SF_KINDS = {"interval", "bound", "kvals"}
+
+
+def qr_sf_text(ans, v):
+    var = (ans.get("fixed") or {}).get("var", "k")
+    kind = ans["kind"]
+    if kind == "kvals":
+        a, b = sorted([R(v["r1"]), R(v["r2"])])
+        return f"{var} = {ext_sf(a)} or {var} = {ext_sf(b)}"
+    if kind == "bound":
+        return f"{var} {v['rel']} {ext_sf(R(v['v']))}"
+    inc = v["ends"] == "included"
+    lt, gt = ("≤", "≥") if inc else ("<", ">")
+    lo, hi = ext_sf(R(v["lo"])), ext_sf(R(v["hi"]))
+    return {"between": f"{lo} {lt} {var} {lt} {hi}", "outside": f"{var} {lt} {lo} or {var} {gt} {hi}",
+            "pm_lt": f"{var} {lt} ±{hi}", "pm_gt": f"{var} {gt} ±{hi}", "below": f"{var} {lt} {hi}",
+            "above": f"{var} {gt} {lo}"}[v["shape"]]
+
+
+def qr_sf_norm(ans, v):
+    kind = ans["kind"]
+    if kind == "kvals":
+        return tuple(ext_sf(x) for x in sorted([R(v["r1"]), R(v["r2"])]))
+    if kind == "bound":
+        return (v["rel"], ext_sf(R(v["v"])))
+    inc = v["ends"] == "included"
+    sh = v["shape"]
+    if sh in ("between", "outside"):
+        return (sh, ext_sf(R(v["lo"])), ext_sf(R(v["hi"])), v["ends"])
+    if sh == "below":
+        return ("≤" if inc else "<", ext_sf(R(v["hi"])))
+    if sh == "above":
+        return ("≥" if inc else ">", ext_sf(R(v["lo"])))
+    return ("pm", sh, ext_sf(R(v["hi"])), v["ends"])
+
+
+def qr_sf_set(S):
+    """An exact set of real numbers (one interval, one ray or two rays) as qr_sf_norm writes it."""
+    if isinstance(S, sp.Union):
+        need(len(S.args) == 2, f"{S} is not two rays")
+        left, right = sorted(S.args, key=lambda i: float(i.end) if i.end.is_finite else float(i.start))
+        need(left.start == -sp.oo and right.end == sp.oo, f"{S} is not two rays")
+        return ("outside", ext_sf(left.end), ext_sf(right.start), "left out" if left.right_open else "included")
+    need(isinstance(S, sp.Interval), f"{S} is not an interval")
+    if S.start == -sp.oo:
+        return ("<" if S.right_open else "≤", ext_sf(S.end))
+    if S.end == sp.oo:
+        return (">" if S.left_open else "≥", ext_sf(S.start))
+    return ("between", ext_sf(S.start), ext_sf(S.end), "left out" if S.left_open else "included")
 
 
 def qr_check_common(q, want, wrongs=None):
@@ -1815,6 +1873,9 @@ QP_SKETCH = ["opens upwards and crosses the x-axis twice", "opens upwards and to
              "opens downwards and touches the x-axis once", "opens downwards and never meets the x-axis"]
 QP_BASE = {"nature-from-equation", "delta-sign-from-graph", "graph-from-delta"}
 QP_CRIT_MAX = 30
+# The unknowns with a Paper 2 version (FAL-419): Δ is a quadratic in k with irrational
+# zeros, so k is found with a calculator and given to 3 s.f.
+QP_P2 = {"k-for-equal-roots", "k-interval", "always-positive"}
 
 
 def qp_nat(d, labels):
@@ -1867,6 +1928,8 @@ def check_qparam(q):
     u = q["view"]["unknown"]
     g = q["given"]
     ans = q["answer"]
+    p2 = q["paper"] == 2
+    need(not p2 or (u in QP_P2 and q["view"]["rep"] != "graph"), f"{u} on a {q['view']['rep']} has no Paper 2 version")
     if u in QP_BASE:
         a, b, c = R(g["a"]), R(g["b"]), R(g["c"])
         need(a in A_ALLOWED and abs(b) <= B_MAX and abs(c) <= C_MAX and c != 0, "the parabola is outside the clean limits")
@@ -1899,8 +1962,18 @@ def check_qparam(q):
     qp_check_shown(q, f, curve, line)
     A = R(g["a0"])
     D = sp.expand(sp.discriminant(f, X))
-    crit = sorted(sp.solve(D, K))
-    need(1 <= len(crit) <= 2 and all(c.is_integer and abs(c) <= QP_CRIT_MAX for c in crit), f"critical k {crit} not whole numbers inside the limits")
+    crit = sorted(sp.solve(D, K), key=float)
+    if p2:
+        # Paper 2: two irrational critical values, each clear of a 3 s.f. rounding edge.
+        need(len(crit) == 2 and not any(c.is_rational for c in crit), f"Paper 2 critical k {crit} don't need a calculator")
+        need(all(abs(c) <= QP_CRIT_MAX and not on_edge(abs(c)) for c in crit), f"Paper 2 critical k {crit} outside the limits or on a rounding edge")
+        need("3 significant figures" in q["asked"], "Paper 2 doesn't ask for 3 s.f.")
+        need(ans.get("show") == "sf", "a Paper 2 answer is not written to 3 s.f.")
+    else:
+        need(1 <= len(crit) <= 2 and all(c.is_integer and abs(c) <= QP_CRIT_MAX for c in crit), f"critical k {crit} not whole numbers inside the limits")
+        need(ans.get("show") != "sf", "a Paper 1 answer is written to 3 s.f.")
+    # The set an answer means, as its kind compares them: exact, or to 3 s.f. on Paper 2.
+    cv = qr_sf_set if p2 else (lambda S: S)
     lines_family = g["family"] in ("grad", "icpt")
     if u == "roots-from-k":
         kv = R(g["kv"])
@@ -1917,7 +1990,7 @@ def check_qparam(q):
             wr["SL2.7.discriminant#0"] = {(want[0], want[1], b0**2 - 4 * A * abs(c0))}
         qr_check_common(q, want, wr)
     elif u == "k-for-equal-roots":
-        want = qr_norm(ans, {"v": str(crit[0])}) if len(crit) == 1 else tuple(crit)
+        want = qr_norm(ans, {"v": str(crit[0])}) if len(crit) == 1 else (tuple(ext_sf(c) for c in crit) if p2 else tuple(crit))
         wr = {}
         if g["family"] == "icpt":
             p, r = R(g["p"]), R(g["r"])
@@ -1936,13 +2009,13 @@ def check_qparam(q):
         if u == "k-interval":
             if cond == "real":
                 S2 = sp.solve_univariate_inequality(D > 0, K, relational=False)
-                wr["SL2.7.discriminant-parameter#2"] = {S2}
+                wr["SL2.7.discriminant-parameter#2"] = {cv(S2)}
             if len(crit) == 2:
                 inc = "included" if cond == "real" else "left out"
-                wr["SL2.7.inequality#1"] = {sp.Interval(crit[0], crit[1], inc != "included", inc != "included")}
-                if crit[0] == -crit[1]:
-                    wr["SL2.7.discriminant-parameter#1"] = {("pm", "pm_lt", crit[1], inc)}
-        qr_check_common(q, S, wr)
+                wr["SL2.7.inequality#1"] = {cv(sp.Interval(crit[0], crit[1], inc != "included", inc != "included"))}
+                if sp.simplify(crit[0] + crit[1]) == 0:
+                    wr["SL2.7.discriminant-parameter#1"] = {("pm", "pm_lt", ext_sf(crit[1]) if p2 else crit[1], inc)}
+        qr_check_common(q, cv(S), wr)
     elif u == "tangent-contact-point":
         need(len(crit) == 1, "a tangent needs one critical k")
         k0 = crit[0]
@@ -2083,11 +2156,27 @@ def qe_roots_poly(f):
     return sorted(sp.solveset(f, X, domain=sp.S.Reals))
 
 
+# The unknowns with a Paper 2 version (FAL-419): a context, b^(2x) and a sum of logs
+# whose root needs a calculator, given to 3 s.f.
+QE_P2 = {"solve-in-context", "solve-hidden-exponential", "solve-hidden-log"}
+
+
+def qe_paper2(q, x):
+    """A Paper 2 root: irrational, clear of a 3 s.f. rounding edge, asked to 3 s.f."""
+    need(not x.is_rational, "Paper 2 root doesn't need a calculator")
+    need(not on_edge(x), "the answer is on a 3 s.f. rounding edge")
+    need(q["answer"].get("show") == "sf" and "3 significant figures" in q["asked"], "Paper 2 is not asked and written to 3 s.f.")
+    need(not q["answer"].get("exact"), "a Paper 2 answer is marked exactly")
+
+
 def check_qeq(q):
     u = q["view"]["unknown"]
     g = q["given"]
     ans = q["answer"]
     L = q["lines"]
+    p2 = q["paper"] == 2
+    need(not p2 or u in QE_P2, f"{u} has no Paper 2 version")
+    need(not p2 or q["view"]["angle"] != "factorise" or q["view"].get("same_angle"), "a factorising method was given Paper 2 numbers")
     if u in ("solve-factorisable", "solve-surd"):
         f = R(g["a"]) * X**2 + R(g["b"]) * X + R(g["c"])
         need(L[0].endswith(" = 0") and parse(L[0][:-4]) == sp.expand(f), "the equation shown is not the givens")
@@ -2122,6 +2211,7 @@ def check_qeq(q):
         neg = [r for r in rs if r <= 0]
         need(len(pos) == 1 and len(neg) == 1, "the context doesn't rule out exactly one root")
         x = pos[0]
+        need(g["paper"] == q["paper"], "the context's paper is not the question's")
         if g["paper"] == 1:
             need(x.is_integer and ans.get("exact"), "Paper 1 answer is not an exact whole number")
             want = qr_norm(ans, {"v": str(x)})
@@ -2148,12 +2238,20 @@ def check_qeq(q):
             good = [w for w in us if w > 0]
             bad = [w for w in us if w <= 0]
             need(len(good) == 1 and len(bad) == 1, "not exactly one u-root to reject")
-            x = sp.log(good[0], b)
-            x = sp.nsimplify(x)
-            need(x.is_integer, "x is not a whole number")
-            wr = {"SL2.7.hidden-quadratic#0": {qr_norm(ans, {"v": str(good[0])})},
-                  "SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(-sp.nsimplify(sp.log(-bad[0], b)))})}}
-            qr_check_common(q, qr_norm(ans, {"v": str(x)}), wr)
+            wrong1 = -sp.nsimplify(sp.log(-bad[0], b))
+            if p2:
+                # b is 2 or 3, so log_b u is rational only when u is a whole power of b.
+                need(b in (2, 3) and good[0].is_integer and b ** round(float(sp.log(good[0], b))) != good[0], "Paper 2: x = log_b u should need a calculator")
+                x = sp.log(good[0]) / sp.log(b)
+                qe_paper2(q, x)
+                wr = {"SL2.7.hidden-quadratic#0": {ext_sf(good[0])}, "SL2.7.hidden-quadratic#1": {ext_sf(wrong1)}}
+                qr_check_common(q, ext_sf(x), wr)
+            else:
+                x = sp.nsimplify(sp.log(good[0], b))
+                need(x.is_integer, "x is not a whole number")
+                wr = {"SL2.7.hidden-quadratic#0": {qr_norm(ans, {"v": str(good[0])})},
+                      "SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(wrong1)})}}
+                qr_check_common(q, qr_norm(ans, {"v": str(x)}), wr)
     elif u == "solve-hidden-reciprocal":
         m = re.match(r"^x ([+−]) (\d+)/x = (−?\d+)$", L[0])
         need(m is not None, f"can't read {L[0]!r}")
@@ -2169,7 +2267,13 @@ def check_qeq(q):
         ok = [r for r in rs if r > 0 and r + d > 0]
         bad = [r for r in rs if r not in ok]
         need(len(ok) == 1 and len(bad) == 1, "not exactly one root to reject")
-        qr_check_common(q, qr_norm(ans, {"v": str(ok[0])}), {"SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(bad[0])})}})
+        if p2:
+            qe_paper2(q, ok[0])
+            need(not on_edge(abs(bad[0])), "the rejected root is on a 3 s.f. rounding edge")
+            qr_check_common(q, ext_sf(ok[0]), {"SL2.7.hidden-quadratic#1": {ext_sf(bad[0])}})
+        else:
+            need(ok[0].is_integer, "a Paper 1 root is not a whole number")
+            qr_check_common(q, qr_norm(ans, {"v": str(ok[0])}), {"SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(bad[0])})}})
     elif u == "equation-from-roots":
         m = re.match(r"^The roots of a quadratic equation are x = (.+)\.$", L[0]) or re.match(r"^A quadratic equation has roots (.+)\.$", L[0])
         need(m is not None, f"can't read {L[0]!r}")
@@ -2201,6 +2305,10 @@ def check_qeq(q):
 # ── quadratic-inequality ──
 
 QI_REL = {"<": lambda f: f < 0, "≤": lambda f: f <= 0, ">": lambda f: f > 0, "≥": lambda f: f >= 0}
+# Papers (FAL-419): these have a Paper 2 version whose roots need a calculator (the ends
+# to 3 s.f.); the largest-integer context always needs one; the rest are Paper 1.
+QI_P2 = {"solve-against-zero", "solve-against-constant", "negative-a"}
+QI_P2_ONLY = {"largest-integer"}
 
 
 def qi_read(line):
@@ -2215,6 +2323,8 @@ def check_qineq(q):
     g = q["given"]
     ans = q["answer"]
     L = q["lines"]
+    p2 = q["paper"] == 2
+    need(p2 == (u in QI_P2_ONLY) or u in QI_P2, f"{u} is not asked on Paper {q['paper']}")
     if u == "largest-integer":
         m = re.match(r"^A mosaic has n rows of \(n \+ (\d+)\) tiles, and there are (\d+) tiles to use\.$", L[0])
         need(m is not None, "can't read the context")
@@ -2258,28 +2368,42 @@ def check_qineq(q):
         need(ans["fixed"]["options"][2:] == [f"x = {frac_text(h)} only", f"every x except {frac_text(h)}"], "the options don't name the vertex")
         qr_check_common(q, want)
         return None, None
-    rs = sorted(sp.solveset(f, X, domain=sp.S.Reals))
-    need(len(rs) == 2 and all(r.is_rational for r in rs), "the roots are not two rational numbers")
+    rs = sorted(sp.solveset(f, X, domain=sp.S.Reals), key=float)
+    if p2:
+        # Paper 2: whole-number coefficients, irrational roots clear of a 3 s.f. rounding edge.
+        a_, b_, c_ = R(g["a"]), R(g["b"]), R(g["c"])
+        need(a_ in A_ALLOWED and a_.q == 1 and abs(b_) <= B_MAX and abs(c_) <= C_MAX and c_ != 0, "the quadratic is outside the clean limits")
+        need(len(rs) == 2 and not any(r.is_rational for r in rs), "Paper 2: the roots should need a calculator")
+        need(not any(on_edge(abs(r)) for r in rs), "a root is on a 3 s.f. rounding edge")
+        need(ans.get("show") == "sf" and "3 significant figures" in q["asked"], "Paper 2 is not asked and written to 3 s.f.")
+    else:
+        need(len(rs) == 2 and all(r.is_rational for r in rs), "the roots are not two rational numbers")
+    cv = qr_sf_set if p2 else (lambda S: S)
     if q.get("graph"):
         gr = q["graph"]
-        need(sorted(pt["x"] for pt in gr["points"]) == [float(rs[0]), float(rs[1])], "the roots marked are not the roots")
+        if p2:
+            # The roots are for the GDC to find, so none are marked; the curve is f.
+            need(not gr["points"], "a Paper 2 graph marks its roots")
+            need(abs(gr["a"] - float(R(g["a"]))) < 1e-9 and abs(gr["h"] - float(-R(g["b"]) / (2 * R(g["a"])))) < 1e-9, "the graph is not the given parabola")
+        else:
+            need(sorted(pt["x"] for pt in gr["points"]) == [float(rs[0]), float(rs[1])], "the roots marked are not the roots")
     wr = {}
     inc = "left out" if rel in ("<", ">") else "included"
     between = sp.Interval(rs[0], rs[1], inc == "left out", inc == "left out")
     outside = sp.Union(sp.Interval(-sp.oo, rs[0], True, inc == "left out"), sp.Interval(rs[1], sp.oo, inc == "left out", True))
     if S == outside:
-        wr["SL2.7.inequality#1"] = {between}
+        wr["SL2.7.inequality#1"] = {cv(between)}
     if u == "negative-a":
         need(R(g["a"]) < 0, "a is not negative")
         # Dividing by −1 but keeping the sign solves the opposite inequality.
-        wr["SL2.7.inequality#2"] = {sp.solve_univariate_inequality(QI_REL[rel](-f), X, relational=False)}
+        wr["SL2.7.inequality#2"] = {cv(sp.solve_univariate_inequality(QI_REL[rel](-f), X, relational=False))}
     if u == "square-against-constant":
         n = sp.sqrt(rhs_)
         need(n.is_integer and f == X**2 - rhs_, "not x² against a square")
         lt = rel in ("<", "≤")
         wr["SL2.7.inequality#0"] = {("pm", "pm_lt" if lt else "pm_gt", n, inc),
                                     qr_set("bound", {"rel": rel, "v": str(n)})}
-    qr_check_common(q, S, wr)
+    qr_check_common(q, cv(S), wr)
     return None, None
 
 
@@ -3105,6 +3229,9 @@ def check_qmodel(q):
     a, b, c = R(g["a"]), R(g["b"]), R(g["c"])
     f = a * X**2 + b * X + c
     need(a in QM_A[ctx], f"a = {a} is not a clean {ctx} model")
+    # Paper 2 is a ball with a = −4.9 (FAL-419); a pen or a table is Paper 1.
+    need(q["paper"] == (2 if a == sp.Rational(-49, 10) else 1), f"a = {a} on Paper {q['paper']}")
+    need(q["paper"] == 1 or (ctx == "ball" and rep != "table"), "a pen or a table on Paper 2")
     name = "h(t)" if ctx == "ball" else "A(x)"
     tv, hv = vertex(f)
     need(sp.expand(R(g["a"]) * (X - R(g["T"]))**2 + R(g["H"]) - f) == 0, "the vertex form doesn't match the model")

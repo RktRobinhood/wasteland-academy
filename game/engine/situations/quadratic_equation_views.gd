@@ -22,6 +22,18 @@ func has(unknown: String) -> bool:
 	return NEED.has(unknown)
 
 
+## The papers a cell can be asked on (FAL-419). A context, b^(2x) and a sum of logs
+## have Paper 2 versions whose root needs a calculator (3 s.f.); a factorising method
+## can't solve those, so a factorising context is Paper 1. The rest are exact: Paper 1.
+func papers(unknown: String, _rep: String, angle: String) -> Array:
+	match unknown:
+		"solve-in-context":
+			return [1] if angle == "factorise" else [1, 2]
+		"solve-hidden-exponential", "solve-hidden-log":
+			return [1, 2]
+	return [1]
+
+
 func need(unknown: String, rep: String) -> Dictionary:
 	var n: Dictionary = NEED[unknown].duplicate()
 	if rep == "graph":
@@ -195,6 +207,8 @@ const SCALE_I := 1000000000
 
 
 func u_solve_hidden_exponential(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	if s.get("paper", 1) == 2:
+		return _hidden_exponential_p2(s)
 	var ans := Answer.make("number", {"v": s.n}, {}, "x = ")
 	var final := "So " + Answer.text(ans) + "."
 	var res: Dictionary = ans.values
@@ -214,6 +228,34 @@ func u_solve_hidden_exponential(_rep: String, s: Dictionary, _rng: Seeded) -> Di
 			"gdc-intersect": {"result": res, "steps": [
 				"Graph y = %s on the GDC: it crosses the x-axis once." % exp_line(s).trim_suffix(" = 0"),
 				"The zero is at x = %s. Check: %s^(%s) = %s, and u = %s is a root of the quadratic in u." % [N(s.n), N(s.base), N(s.n), N(s.u1), N(s.u1)],
+				final]},
+		},
+	}
+
+
+## Paper 2: u = b^x has a root that isn't a power of b, so x = ln u/ln b, to 3 s.f.
+func _hidden_exponential_p2(s: Dictionary) -> Dictionary:
+	var x: Q = s.x
+	var ans := Answer.make("number", {"v": x}, {}, "x = ")
+	ans.show = "sf"
+	var final := "So " + Answer.text(ans) + "."
+	var res: Dictionary = ans.values
+	var b := bx(s.base)
+	return {
+		"asked": "Solve the equation, giving x correct to 3 significant figures.", "lines": [exp_line(s)],
+		"given": {"base": s.base.key(), "B": s.B.key(), "C": s.C.key()}, "answer": ans,
+		"wrongs": [wrong({"v": s.u1}, "SL2.7.hidden-quadratic#0"), wrong({"v": s.j.neg()}, "SL2.7.hidden-quadratic#1")],
+		"generic": [{"v": s.u2}, {"v": x.add(1)}, {"v": s.j}, {"v": x.neg()}],
+		"methods": {
+			"substitution": {"result": res, "steps": [
+				"%s^(2x) = (%s)², so let u = %s: %s = 0" % [N(s.base), b, b, Fmt.poly([1, s.B, s.C]).replace("x", "u")],
+				"(u%s)(u%s) = 0, so u = %s or u = %s" % [Fmt.plus(s.u1.neg()), Fmt.plus(s.u2.neg()), N(s.u1), N(s.u2)],
+				"%s = %s has no solution, since %s > 0 for every x; %s = %s gives x = ln %s/ln %s = %s (GDC)" % [
+					b, N(s.u2), b, b, N(s.u1), N(s.u1), N(s.base), Fmt.sf(x)],
+				final]},
+			"gdc-intersect": {"result": res, "steps": [
+				"Graph y = %s on the GDC: it crosses the x-axis once." % exp_line(s).trim_suffix(" = 0"),
+				"With a GDC, use zero: x = %s. Check: u = %s = %s is the positive root of the quadratic in u." % [Fmt.sf(x), b, N(s.u1)],
 				final]},
 		},
 	}
@@ -247,6 +289,8 @@ func u_solve_hidden_reciprocal(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 
 
 func u_solve_hidden_log(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	if s.get("paper", 1) == 2:
+		return _hidden_log_p2(s)
 	var ans := Answer.make("number", {"v": s.r1}, {}, "x = ")
 	var final := "So " + Answer.text(ans) + "."
 	var xd := "x" + Fmt.plus(s.d)
@@ -263,6 +307,32 @@ func u_solve_hidden_log(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 			"gdc-intersect": {"result": res, "steps": [
 				"Graph y = ln x + ln(%s) and y = ln %s: they meet once, at x = %s." % [xd, N(s.c), N(s.r1)],
 				"The quadratic's other root x = %s is outside the domain x > 0." % N(s.r2), final]},
+		},
+	}
+
+
+## Paper 2: x(x + d) = c has no whole-number root, so x comes from the formula, to 3 s.f.
+func _hidden_log_p2(s: Dictionary) -> Dictionary:
+	var x: Q = s.x
+	var ans := Answer.make("number", {"v": x}, {}, "x = ")
+	ans.show = "sf"
+	var final := "So " + Answer.text(ans) + "."
+	var xd := "x" + Fmt.plus(s.d)
+	var res: Dictionary = ans.values
+	var other := Fmt.sf(s.xneg)
+	return {
+		"asked": "Solve the equation, giving x correct to 3 significant figures.", "lines": ["ln x + ln(%s) = ln %s" % [xd, N(s.c)]],
+		"given": {"d": s.d.key(), "c": s.c.key()}, "answer": ans,
+		"wrongs": [wrong({"v": s.xneg}, "SL2.7.hidden-quadratic#1")],
+		"generic": [{"v": x.neg()}, {"v": s.c}, {"v": x.add(1)}, {"v": s.xneg.neg()}],
+		"methods": {
+			"clear-or-combine": {"result": res, "steps": [
+				"ln x + ln(%s) = ln(x(%s)), so x(%s) = %s" % [xd, xd, xd, N(s.c)],
+				"%s = 0, so by the formula x = (%s ± √%s)/2 = %s or %s" % [Fmt.poly([1, s.d, s.c.neg()]), N(s.d.neg()), N(s.disc), Fmt.sf(x), other],
+				"x = %s would make ln x undefined, so reject it." % other, final]},
+			"gdc-intersect": {"result": res, "steps": [
+				"Graph y = ln x + ln(%s) and y = ln %s on the GDC, and use intersect: they meet once, at x = %s." % [xd, N(s.c), Fmt.sf(x)],
+				"The quadratic's other root x = %s is outside the domain x > 0." % other, final]},
 		},
 	}
 

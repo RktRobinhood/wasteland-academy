@@ -238,23 +238,26 @@ const RELS := ["<", "≤", ">", "≥"]
 const DIRS := ["rise", "fall"]
 
 
-static func interval_text(v: String, shape: String, lo: Variant, hi: Variant, ends: String) -> String:
+## show "sf" writes the ends to 3 s.f. (a Paper 2 interval whose ends need a calculator).
+static func interval_text(v: String, shape: String, lo: Variant, hi: Variant, ends: String, show: String = "") -> String:
 	var inc := ends == "included"
 	var lt := "≤" if inc else "<"
 	var gt := "≥" if inc else ">"
+	var a := Fmt.sf(lo) if show == "sf" else Fmt.num(lo)
+	var b := Fmt.sf(hi) if show == "sf" else Fmt.num(hi)
 	match shape:
 		"between":
-			return "%s %s %s %s %s" % [Fmt.num(lo), lt, v, lt, Fmt.num(hi)]
+			return "%s %s %s %s %s" % [a, lt, v, lt, b]
 		"outside":
-			return "%s %s %s or %s %s %s" % [v, lt, Fmt.num(lo), v, gt, Fmt.num(hi)]
+			return "%s %s %s or %s %s %s" % [v, lt, a, v, gt, b]
 		"pm_lt":
-			return "%s %s ±%s" % [v, lt, Fmt.num(hi)]
+			return "%s %s ±%s" % [v, lt, b]
 		"pm_gt":
-			return "%s %s ±%s" % [v, gt, Fmt.num(hi)]
+			return "%s %s ±%s" % [v, gt, b]
 		"below":
-			return "%s %s %s" % [v, lt, Fmt.num(hi)]
+			return "%s %s %s" % [v, lt, b]
 		"above":
-			return "%s %s %s" % [v, gt, Fmt.num(lo)]
+			return "%s %s %s" % [v, gt, a]
 	return "?"
 
 
@@ -438,11 +441,11 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 		"kvals":
 			var rs := _sorted([v.r1, v.r2])
 			var name: String = fx.get("var", "k")
-			return "%s = %s or %s = %s" % [name, Fmt.num(rs[0]), name, Fmt.num(rs[1])]
+			return "%s = %s or %s = %s" % [name, shown(ans, rs[0]), name, shown(ans, rs[1])]
 		"interval":
-			return interval_text(fx.get("var", "k"), v.shape, v.lo, v.hi, v.ends)
+			return interval_text(fx.get("var", "k"), v.shape, v.lo, v.hi, v.ends, ans.get("show", ""))
 		"bound":
-			return "%s %s %s" % [fx.get("var", "k"), v.rel, Fmt.num(v.v)]
+			return "%s %s %s" % [fx.get("var", "k"), v.rel, shown(ans, v.v)]
 		"quad_in":
 			var a: Variant = fx.A if fx.has("A") else v.A
 			return ans.label + Fmt.poly([a, v.B, v.C], fx.get("var", "x")) + fx.get("tail", "")
