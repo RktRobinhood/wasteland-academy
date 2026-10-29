@@ -77,16 +77,16 @@ func u_classify_words(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if exp_kind:
 		var r: Q = s.r
 		lines = ["A colony starts with %s cells and grows by %s%% each hour." % [D(P0), D(r)]]
-		right = "exponential: N = %s(%s)ᵗ" % [D(P0), D(s.a)]
-		wrongs = [wrong({"v": "exponential: N = %s(%s)ᵗ" % [D(P0), D(r.div(Q.new(100)))]}, "SL2.9.exp-model#0"),
+		right = "exponential: N = %s(%s)^t" % [D(P0), D(s.a)]
+		wrongs = [wrong({"v": "exponential: N = %s(%s)^t" % [D(P0), D(r.div(Q.new(100)))]}, "SL2.9.exp-model#0"),
 			wrong({"v": "linear: N = %s + %st" % [D(P0), D(P0.mul(r).div(Q.new(100)))]}, "SL2.9.exp-model#1")]
-		gen = ["linear: N = %s + %st" % [D(P0), D(r)], "exponential: N = %s(%s)ᵗ" % [D(r), D(P0)]]
+		gen = ["linear: N = %s + %st" % [D(P0), D(r)], "exponential: N = %s(%s)^t" % [D(r), D(P0)]]
 	else:
 		var d: Q = s.d
 		lines = ["A tank holds %s litres and gains %s litres each hour." % [D(P0), D(d)]]
 		right = "linear: N = %s + %st" % [D(P0), D(d)]
 		wrongs = [wrong({"v": "linear: N = %s + %st" % [D(d), D(P0)]}, "SL2.1.line-model#1")]
-		gen = ["exponential: N = %s(%s)ᵗ" % [D(P0), D(d)], "exponential: N = %s(%s)ᵗ" % [D(P0), D(Q.new(1).add(d.div(Q.new(100))))],
+		gen = ["exponential: N = %s(%s)^t" % [D(P0), D(d)], "exponential: N = %s(%s)^t" % [D(P0), D(Q.new(1).add(d.div(Q.new(100))))],
 			"linear: N = %st" % D(d)]
 	var opts: Array = [right] + wrongs.map(func(w): return w.values.v) + gen
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
@@ -143,7 +143,7 @@ func u_interpret_d_and_r(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var w0 := "L gains %s in total and E is multiplied by %s each step" % [D(d), D(a)]
 	var opts := [right, w0, "each step L is multiplied by %s and E gains %s" % [D(d), D(a)], "each step L gains %s and E gains %s" % [D(d), D(a)]]
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
-	var lines: Array = ["L(t) = %s + %st" % [D(s.Q0), D(d)], "E(t) = %s(%s)ᵗ" % [D(s.P0), D(a)]] if rep == "equation" \
+	var lines: Array = ["L(t) = %s + %st" % [D(s.Q0), D(d)], "E(t) = %s(%s)^t" % [D(s.P0), D(a)]] if rep == "equation" \
 		else ["Two savings plans: L starts at %s and gains %s a year; E starts at %s and grows by %s%% a year." % [D(s.Q0), D(d), D(s.P0), D(s.r)]]
 	return {"asked": "What do d and a mean for each step?", "lines": lines, "answer": ans, "wrongs": [wrong({"v": w0}, "SL2.1.line-model#0")],
 		"generic": [{"v": opts[2]}, {"v": opts[3]}],
@@ -162,7 +162,7 @@ func u_when_overtakes(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var check := "At t = %d: E = %s, L = %s; at t = %d: E = %s > L = %s." % [n - 1, V(e_b), V(l_b), n, V(e_n), V(l_n)]
 	var final := "So " + Answer.text(ans) + "."
 	var out := {"asked": "Find the first whole number of steps t after which E stays ahead of L.", "answer": ans,
-		"lines": ["L(t) = %s + %st" % [D(s.Q0), D(s.d)], "E(t) = %s(%s)ᵗ" % [D(s.P0), D(s.a)]],
+		"lines": ["L(t) = %s + %st" % [D(s.Q0), D(s.d)], "E(t) = %s(%s)^t" % [D(s.P0), D(s.a)]],
 		"wrongs": [wrong({"v": Q.new(roundi(nneg))}, "SL2.1.line-model#2")],
 		"generic": [{"v": Q.new(n - 1)}, {"v": Q.new(n + 1)}, {"v": Q.new(n + 2)}],
 		"pick_wrongs": [{"name": "Set the rates equal", "why": "a ratio and a difference are not the same kind of rate"},
@@ -171,7 +171,7 @@ func u_when_overtakes(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"methods": {
 			"repeated-multiplication": method(["Step on from t = 0, multiplying E by %s and adding %s to L." % [D(s.a), D(s.d)], check, final], ans.values),
 			"gdc-intersect": method(["Graph both: they cross at t ≈ %s (and before the start, at t ≈ %s, outside the model)." % [Fmt.sf(_cross(s), 3), Fmt.sf(nneg, 3)], check, final], ans.values),
-			"logs-for-unknown": method(["%s(%s)ᵗ = %s + %st mixes a power and a linear term, so logs can't isolate t." % [D(s.P0), D(s.a), D(s.Q0), D(s.d)],
+			"logs-for-unknown": method(["%s(%s)^t = %s + %st mixes a power and a linear term, so logs can't isolate t." % [D(s.P0), D(s.a), D(s.Q0), D(s.d)],
 				"Use a table instead: " + check, final], ans.values),
 		}}
 	if rep == "table":

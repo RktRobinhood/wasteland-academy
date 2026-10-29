@@ -10,7 +10,7 @@ extends RefCounted
 ##   m, n    the inside mx + n (m from ±1, ±2, ±3); x0 = −n/m, the asymptote (a Q: whole,
 ##           or a half when |m| = 2)
 ##   A       the stretch in front (1, 2, 3 or −1)
-##   e       (need.intercept) c = −A·e, so the x-intercept has mx + n = bᵉ: xi
+##   e       (need.intercept) c = −A·e, so the x-intercept has mx + n = b^e: xi
 ##   k, rel  (need.ineq) log_b(mx + n) rel k
 ##   ratio   (need.ratio) ln(x − h)/x^pw with h ≥ 0, so x^pw > 0 on the domain: pw, rel
 ##

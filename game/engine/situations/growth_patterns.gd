@@ -6,7 +6,7 @@ extends RefCounted
 ## for the exponential), with a whole growth factor or a round percentage.
 ##
 ## generate() returns:
-##   P0, a   the exponential E(t) = P0·aᵗ (a a Q: 2, 3/2, 6/5, 5/4, 11/10)
+##   P0, a   the exponential E(t) = P0·a^t (a a Q: 2, 3/2, 6/5, 5/4, 11/10)
 ##   Q0, d   the linear L(t) = Q0 + d·t, starting higher (Q0 > P0) and adding d each step
 ##   kind    which pattern a single table, description or graph shows: "lin", "exp" or
 ##           "neither" (a quadratic: neither differences nor ratios constant)

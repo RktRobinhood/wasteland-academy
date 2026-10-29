@@ -3273,7 +3273,7 @@ def check_symmetry(q):
 
 # ── Exponentials and logs (FAL-418) ──────────────────────────
 # Answer kinds the region adds (game/engine/answer.gd): lnq (m·ln r, exact), pct (a
-# rise or fall of r%), expmodel (P₀(a)ᵗ) and limited (C, A and k of C + Ae^(−kt)).
+# rise or fall of r%), expmodel (P₀(a)^t) and limited (C, A and k of C + Ae^(−kt)).
 
 EL_KINDS = {"lnq", "pct", "expmodel", "limited", "fn", "logform", "xpow", "range", "yint"}
 
@@ -3308,7 +3308,7 @@ def el_text(ans, v):
         pv = dec_text(v["v"]) if ans.get("exact") else sig3(R(v["v"]))
         return f"a {v['dir']} of {pv}% {fx.get('per', '')}".strip()
     if kind == "expmodel":
-        return f"{fx.get('sym', 'P')}(t) = {dec_text(v['p0'])}({dec_text(v['a'])})ᵗ"
+        return f"{fx.get('sym', 'P')}(t) = {dec_text(v['p0'])}({dec_text(v['a'])})^t"
     if kind == "limited":
         return f"C = {frac_text(v['C'])}, A = {frac_text(v['A'])}, k = {sig3(R(v['k'])).replace('-', '−')}"
     if kind == "fn":
@@ -3453,7 +3453,7 @@ def em_model_text(g, k_shown=True):
     """The model as the checker writes it, to find among the lines."""
     s, f = g["ctx"]["sym"], g["form"]
     if f == "factor":
-        return f"{s}(t) = {frac_text(g['P0'])}({dec_text(g['a'])})ᵗ"
+        return f"{s}(t) = {frac_text(g['P0'])}({dec_text(g['a'])})^t"
     if f == "shift":
         return f"{s}(t) = {frac_text(g['P0'])}({dec_text(g['a'])})^(t − {g['t0']})"
     if f == "cont":
@@ -3482,7 +3482,7 @@ def em_shown(q, g):
     L = " / ".join(q["lines"])
     f = g["form"]
     if f in ("factor", "shift"):
-        m = em_read(r"(\w)\(t\) = (\d+)\(([\d.]+)\)(ᵗ|\^\(t − (\d+)\))", L, "the model")
+        m = em_read(r"(\w)\(t\) = (\d+)\(([\d.]+)\)(\^t|\^\(t − (\d+)\))", L, "the model")
         need(el_num(m.group(2)) == R(g["P0"]) and el_num(m.group(3)) == R(g["a"]), "the model shown is not the givens")
         need((m.group(5) is None) == (f == "factor") and (f == "factor" or int(m.group(5)) == int(g["t0"])), "the shift shown is not t0")
     elif f == "cont":
@@ -3638,7 +3638,7 @@ def check_exp_model(q):
         wr[f"{FP}#1"] = {(start, C - start, el_m(kw))}
     elif u == "initial-from-later":
         L = " / ".join(q["lines"])
-        a = el_num(em_read(r"P₀\(([\d.]+)\)ᵗ", L, "the factor").group(1))
+        a = el_num(em_read(r"P₀\(([\d.]+)\)\^t", L, "the factor").group(1))
         m = em_read(r"(?:\w\((\d+)\) = (\d+)|After (\d+) \w+ it is (\d+)\.)", L, "the reading")
         t1, P1 = (int(m.group(1)), el_num(m.group(2))) if m.group(1) else (int(m.group(3)), el_num(m.group(4)))
         need((a, t1, P1) == (R(g["a"]), int(g["t1"]), R(g["P1"])), "the reading shown is not the givens")
@@ -3662,8 +3662,8 @@ def check_exp_model(q):
         want = ("rise" if gf > 1 else "fall", m3(abs(gf - 1) * 100))
     elif u == "two-models-equal":
         L = q["lines"]
-        P0, a = [el_num(x) for x in em_read(r"^P\(t\) = (\d+)\(([\d.]+)\)ᵗ$", L[1], "P").groups()]
-        Pb, ab = [el_num(x) for x in em_read(r"^Q\(t\) = (\d+)\(([\d.]+)\)ᵗ$", L[2], "Q").groups()]
+        P0, a = [el_num(x) for x in em_read(r"^P\(t\) = (\d+)\(([\d.]+)\)\^t$", L[1], "P").groups()]
+        Pb, ab = [el_num(x) for x in em_read(r"^Q\(t\) = (\d+)\(([\d.]+)\)\^t$", L[2], "Q").groups()]
         need((P0, a, Pb, ab) == (R(g["P0"]), R(g["a"]), R(g["P0b"]), R(g["ab"])), "the models shown are not the givens")
         t = sp.log(Pb / P0) / sp.log(a / ab)
         need(2 < num(t) < 40, "the models meet out of range")
@@ -3702,7 +3702,7 @@ def el_plus_q(q):
 def el_fn_text(form, b, p, q):
     bb = "e" if str(b) == "e" else frac_text(b)
     xp = el_x_minus(p)
-    pw = bb + "ˣ" if xp == "x" else f"{bb}^({xp})"
+    pw = bb + "^x" if xp == "x" else f"{bb}^({xp})"
     if form == "exp":
         return pw + el_plus_q(q)
     if form == "log":
@@ -3751,8 +3751,8 @@ def el_parse_log(text, name):
 
 
 def el_parse_exp(text, name="f\\(x\\)"):
-    """'f(x) = 4^(x + 1) + 1' or 'f(x) = 2ˣ' -> (b, h, c)."""
-    m = re.fullmatch(name + r" = (\d+)(?:ˣ|\^\((x(?: [−+] \d+)?)\))(?: ([+−]) (\d+))?", text)
+    """'f(x) = 4^(x + 1) + 1' or 'f(x) = 2^x' -> (b, h, c)."""
+    m = re.fullmatch(name + r" = (\d+)(?:\^x|\^\((x(?: [−+] \d+)?)\))(?: ([+−]) (\d+))?", text)
     need(m is not None, f"can't read the exponential {text!r}")
     return int(m.group(1)), (0 if m.group(2) is None else el_parse_shift(m.group(2))), el_parse_q(m.group(3), m.group(4))
 
@@ -3789,8 +3789,8 @@ EG_UNKNOWNS = {"y-intercept", "asymptote", "range", "growth-or-decay", "pick-gra
 
 
 def eg_parse(text):
-    """'y = 2 × 3^(x − 1) + 2' or 'y = −2ˣ + 1' -> (A, b, h, c)."""
-    m = re.search(r"y = (?:(−)|\(?(\d+(?:/\d+)?)\)? × )?(\d+)(?:ˣ|\^\((x(?: [−+] \d+)?)\))(?: ([+−]) (\d+))?", text)
+    """'y = 2 × 3^(x − 1) + 2' or 'y = −2^x + 1' -> (A, b, h, c)."""
+    m = re.search(r"y = (?:(−)|\(?(\d+(?:/\d+)?)\)? × )?(\d+)(?:\^x|\^\((x(?: [−+] \d+)?)\))(?: ([+−]) (\d+))?", text)
     need(m is not None, f"can't read the exponential in {text!r}")
     A = -1 if m.group(1) else (R(m.group(2)) if m.group(2) else 1)
     return sp.Rational(A), int(m.group(3)), (0 if m.group(4) is None else el_parse_shift(m.group(4))), el_parse_q(m.group(5), m.group(6))
@@ -3832,8 +3832,8 @@ def check_exp_graph(q):
             pts = q["graph"]["curves"][0]
             up = pts[-1][1] > pts[0][1]
         else:
-            m = em_read(r"^y = (\d+)(ˣ|\^\(−x\))$", L[0], "the function")
-            up = m.group(2) == "ˣ"
+            m = em_read(r"^y = (\d+)(\^x|\^\(−x\))$", L[0], "the function")
+            up = m.group(2) == "^x"
         right = "increasing: the base is greater than 1" if up else "decreasing: the base is between 0 and 1"
         want = qr_norm(ans, {"v": right})
     elif u == "pick-graph":
@@ -3843,8 +3843,8 @@ def check_exp_graph(q):
         P = lambda x_, y_: el_m_text(f"({frac_text(x_)}, {frac_text(y_)})")
         want = qr_norm(ans, {"v": say(c, P(0, y0), P(h, A + c), True)})
     elif u == "moves-from-parent":
-        need(f"(0, 1) on y = {b}ˣ" in asked, "the parent is not bˣ")
-        # (0, 1) on bˣ is where the exponent is 0: x = h, y = A + c.
+        need(f"(0, 1) on y = {b}^x" in asked, "the parent is not b^x")
+        # (0, 1) on b^x is where the exponent is 0: x = h, y = A + c.
         need(sp.simplify(f.subs(X, h) - (A + c)) == 0, "the image is not on the curve")
         want = qr_norm(ans, {"x": str(h), "y": str(A + c)})
     elif u == "equation-from-graph":
@@ -3861,14 +3861,14 @@ def check_exp_graph(q):
         need(xs[:2] == [0, 1], "the points are not at x = 0 and x = 1")
         A_ = ys[0] - c
         b_ = (ys[1] - c) / A_
-        need(b_.is_integer and b_ > 1 and all(A_ * b_ ** x + c == y for x, y in zip(xs, ys)), "the points are not on one A·bˣ + c")
+        need(b_.is_integer and b_ > 1 and all(A_ * b_ ** x + c == y for x, y in zip(xs, ys)), "the points are not on one A·b^x + c")
         if rep == "graph":
             fn = A_ * b_ ** X + c
             for x0, y0 in q["graph"]["curves"][0][::16]:
                 need(abs(sp.N(fn.subs(X, sp.Float(x0, 30))) - y0) <= 1e-6 * max(1, abs(y0)), "the curve is not the function")
         want = qr_norm(ans, {"v0": str(c), "v1": str(A_), "v2": str(b_)})
     elif u == "compare-reflections":
-        b = int(em_read(r"y = (\d+)ˣ and y = \(1/(\d+)\)ˣ", Lj, "the two").group(1))
+        b = int(em_read(r"y = (\d+)\^x and y = \(1/(\d+)\)\^x", Lj, "the two").group(1))
         need(sp.simplify(sp.Integer(b) ** (-X) - sp.Rational(1, b) ** X) == 0, "not a reflection pair")
         want = qr_norm(ans, {"v": "reflections of each other in the y-axis"})
         wr["SL2.9.exp-graph#2"] = {qr_norm(ans, {"v": "reflections of each other in the x-axis"})}
@@ -3925,14 +3925,14 @@ def check_exp_log_pair(q):
         want = qr_norm(ans, {"v": str(x)})
         wr[f"{ELI}#1"] = {qr_norm(ans, {"v": str((a - c) ** b + h)})}
     elif u == "inverse-awkward-base":
-        b1 = int(em_read(r"^f\(x\) = (\d+)ˣ$", L[0], "f").group(1))
+        b1 = int(em_read(r"^f\(x\) = (\d+)\^x$", L[0], "f").group(1))
         v = el_num(em_read(r"Find f⁻¹\((\d+)\)", asked, "the value").group(1))
         val = sp.nsimplify(sp.log(v) / sp.log(b1))
         need(val.is_rational and not val.is_integer, f"log_{b1} {v} = {val} is not a fraction")
         want = qr_norm(ans, {"v": str(val)})
         wr["SL1.7.change-of-base#0"] = {qr_norm(ans, {"v": str(1 / val)})}
     elif u == "simplify-composite":
-        b1 = int(em_read(r"^f\(x\) = (\d+)ˣ$", L[0], "f").group(1))
+        b1 = int(em_read(r"^f\(x\) = (\d+)\^x$", L[0], "f").group(1))
         b2 = int(em_read(r"^g\(x\) = log([₀-₉]+) x, for x > 0$", L[1], "g").group(1).translate(EL_SUB))
         n = sp.nsimplify(sp.log(b1) / sp.log(b2))
         need(n.is_rational and n != 1, "the bases are not from one family")
@@ -3964,7 +3964,7 @@ def check_exp_log_pair(q):
         Lf = [l for l in L if l.startswith("f(x) = ")][0]
         Lg = [l for l in L if l.startswith("g(x) = ")][0]
         b, h0, c0 = el_parse_exp(Lf)
-        need(h0 == 0 and c0 == 0, "f is not the parent bˣ")
+        need(h0 == 0 and c0 == 0, "f is not the parent b^x")
         bg, hg, cg = el_parse_exp(Lg, r"g\(x\)")
         if "translation" in asked:
             need(bg == b and hg != 0, "g is not a translation of f")
@@ -4015,7 +4015,7 @@ def check_exp_log_pair(q):
             p = parse(em_read(r"^g\(x\) = (.+)$", L[1], "g").group(1)) - X
             need(p.is_integer and p != 0, "g is not x + p")
             fg_e, gf_e = sp.Integer(b) ** (X + p), sp.Integer(b) ** X + p
-            fg, gf = el_fn_text("exp", b, -p, 0), f"{b}ˣ{el_plus_q(p)}"
+            fg, gf = el_fn_text("exp", b, -p, 0), f"{b}^x{el_plus_q(p)}"
         same = sp.simplify(fg_e - gf_e) == 0
         say = lambda a_, c_, e_: f"f(g(x)) = {a_}, g(f(x)) = {c_}: {'equal' if e_ else 'not equal'}"
         want = qr_norm(ans, {"v": say(fg, gf, same)})
@@ -4451,7 +4451,7 @@ def gp_pattern(vals):
 def gp_models(L):
     Lj = " ".join(L)
     m = re.search(r"L\(t\) = (\d+) \+ (\d+)t", Lj) or re.search(r"L starts at (\d+) and gains (\d+) a year", Lj)
-    e = re.search(r"E\(t\) = (\d+)\(([\d.]+)\)ᵗ", Lj)
+    e = re.search(r"E\(t\) = (\d+)\(([\d.]+)\)\^t", Lj)
     if e:
         P0, a = el_num(e.group(1)), el_num(e.group(2))
     else:
@@ -4475,8 +4475,8 @@ def check_growth(q):
         m = re.search(r"starts with (\d+) cells and grows by (\d+)% each hour", L[0])
         if m:
             P0, r = el_num(m.group(1)), el_num(m.group(2))
-            want = qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(1 + r / 100)})ᵗ"})
-            wr["SL2.9.exp-model#0"] = {qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(r / 100)})ᵗ"})}
+            want = qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(1 + r / 100)})^t"})
+            wr["SL2.9.exp-model#0"] = {qr_norm(ans, {"v": f"exponential: N = {dec_text(P0)}({dec_text(r / 100)})^t"})}
             wr["SL2.9.exp-model#1"] = {qr_norm(ans, {"v": f"linear: N = {dec_text(P0)} + {dec_text(P0 * r / 100)}t"})}
         else:
             m = em_read(r"holds (\d+) litres and gains (\d+) litres each hour", L[0], "the tank")
@@ -4536,7 +4536,7 @@ def check_link_growth(q):
     elif u in ("sequence-vs-function", "depreciation-two-ways", "compounding-factor"):
         n = int(em_read(r"after (\d+) years", asked, "the years").group(1))
         if u == "sequence-vs-function":
-            m = re.search(r"V\(t\) = (\d+)\(([\d.]+)\)ᵗ", Lj)
+            m = re.search(r"V\(t\) = (\d+)\(([\d.]+)\)\^t", Lj)
             if m:
                 P0, f = el_num(m.group(1)), el_num(m.group(2))
             else:
@@ -4572,7 +4572,7 @@ def check_link_growth(q):
             for t_, v_ in zip(q["table"]["rows"][0][1], q["table"]["rows"][1][1]):
                 need(sig3(P0 * f ** int(t_), 6) == v_.replace("−", "-") or abs(float(el_num(v_)) - float(P0 * f ** int(t_))) < 0.01, f"the table at n = {t_} is wrong")
         else:
-            m = em_read(r"V\(n\) = (\d+)\(([\d.]+)\)ⁿ", Lj, "the model")
+            m = em_read(r"V\(n\) = (\d+)\(([\d.]+)\)\^n", Lj, "the model")
             P0, f = el_num(m.group(1)), el_num(m.group(2))
         nx = sp.log(Tv / P0) / sp.log(f)
         frac = num(nx) - sp.floor(num(nx))
@@ -4588,7 +4588,7 @@ def check_link_growth(q):
         need(f.is_rational, "the factor is not exact")
         want = qr_norm(ans, {"v0": str(f), "v1": str((f - 1) * 100)})
     elif u == "graph-from-factor":
-        m = em_read(r"y = (\d+)\(([\d.]+)\)ˣ", asked, "the function")
+        m = em_read(r"y = (\d+)\(([\d.]+)\)\^x", asked, "the function")
         P0, f = el_num(m.group(1)), el_num(m.group(2))
         if f > 1:
             right = f"starts at (0, {frac_text(P0)}) and rises, with y = 0 as its asymptote on the left"
@@ -4609,7 +4609,7 @@ def check_link_growth(q):
             qv = vals[1] / vals[0]
             need(vals[2] == vals[1] * qv, "the series is not geometric")
         conv = abs(qv) < 1
-        want = qr_norm(ans, {"v": "yes: |r| < 1, so rⁿ dies away to 0" if conv else "no: |r| ≥ 1, so rⁿ does not die away"})
+        want = qr_norm(ans, {"v": "yes: |r| < 1, so r^n dies away to 0" if conv else "no: |r| ≥ 1, so r^n does not die away"})
         if not conv and qv < 1 and qv != -1:
             wr["SL1.8.convergence#0"] = {qr_norm(ans, {"v": "yes: r < 1 is enough"})}
         if abs(qv) == 1:

@@ -12,7 +12,7 @@ extends RefCounted
 ##
 ## generate() returns the parabola's a, b, c, h, k (= G), p, q and disc, plus:
 ##   w      the half-width (q − p)/2, so G = −a·w²
-##   base   the log's base, with G = baseⁿ (n = 2 or 3, so G/n is not the base)
+##   base   the log's base, with G = base^n (n = 2 or 3, so G/n is not the base)
 ##   n      the maximum value of f, at x = h
 ##   d      the zeros are h ± √d: g(x) = 1 gives (x − h)² = (G − 1)/(−a) = d
 ##   zm, zr d = zm²·zr, so the zeros are h ± zm√zr
@@ -24,7 +24,7 @@ extends RefCounted
 ## The clean limits are the checker's too (tools/check_answers.py, LQ_*).
 
 const TRIES := 2000
-## [a, w, base, n]: G = −a·w² = baseⁿ, with d = (G − 1)/(−a) whole and not a square,
+## [a, w, base, n]: G = −a·w² = base^n, with d = (G − 1)/(−a) whole and not a square,
 ## and G/n not the base (4 = 2² is out: 4/2 is 2).
 const SHAPES := [
 	[[-1, 1], 3, 3, 2], [[-1, 1], 4, 4, 2], [[-1, 1], 5, 5, 2], [[-1, 1], 6, 6, 2],

@@ -11,17 +11,17 @@ extends RefCounted
 ##            g⁻¹(a) = b^m + h) and a, d (= c + m, for log_b(x − h) + c = d)
 ##   exp      f(x) = b^(x − h) + c: b, h, c (h ≤ 0 for a graph, so the inverse's
 ##            x-intercept c + b^(−h) is whole)
-##   family   two bases from one family p: b1 = p^i, b2 = p^j (i ≠ j), and k: f(x) = b1ˣ
+##   family   two bases from one family p: b1 = p^i, b2 = p^j (i ≠ j), and k: f(x) = b1^x
 ##            at p^k gives f⁻¹(p^k) = k/i; f(log_b2 x) = x^(i/j)
 ##   esolve   e^(mx) + c = d: m, c, d, r = d − c, so x = (ln r)/m
 ##   ineq     f(x) = px + q, g(x) = log_b x and f(g(x)) rel d: p, q, b, rel, d, n = (d − q)/p
-##   shift    f(x) = bˣ and g(x) = b^(x + p) + q: b, p, q
-##   stretch  f(x) = bˣ and g(x) = (b^j)ˣ: b, j
+##   shift    f(x) = b^x and g(x) = b^(x + p) + q: b, p, q
+##   stretch  f(x) = b^x and g(x) = (b^j)^x: b, j
 ##   (transform asks for shift or stretch, by the method: see generate())
-##   compose  f(x) = bˣ and g(x) = x + p: b, p, equal (g = log_b x instead, so f∘g = g∘f)
+##   compose  f(x) = b^x and g(x) = x + p: b, p, equal (g = log_b x instead, so f∘g = g∘f)
 ##   square   g(x) = log_b((x − h)²) for x > h: b, h
 ##   expgraph f(x) = A·b^(x − h) + c (fn-ext-exp-graph): b, A (a Q), h, c, and flip (b^(−x)
-##            in place of bˣ, for growth or decay)
+##            in place of b^x, for growth or decay)
 ##
 ## The clean limits are the checker's too (tools/check_answers.py, EL_*).
 

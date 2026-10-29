@@ -88,6 +88,9 @@ func _draw() -> void:
 	for y in range(y0 + 1, y1):
 		if y % ly == 0 and y != 0:
 			var p := to_px(Vector2(clampi(0, x0, x1), y)) + Vector2(-34, 10)
+			# A y-axis at the plot's left edge (a model from t = 0) keeps its labels inside.
+			if p.x < r.position.x + 30:
+				p.x += 68
 			if not _near_point(p):
 				_text(font, _n(y), p, UiTheme.DIM, FONT_SIZE - 6, true)
 	_text(font, "x", Vector2(r.end.x - 14, origin.y - 12), UiTheme.DIM, FONT_SIZE, true)

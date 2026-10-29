@@ -2,7 +2,7 @@ extends "res://tests/test_case.gd"
 ## The Exponentials and logs region (FAL-418): its exam types are built with every
 ## catalogue cell on their situations, their distractor misconceptions show up as
 ## options, and the region's answer kinds (an exact k as m·ln r, a percentage change,
-## a model P₀(a)ᵗ, and C, A and k of a limited growth model) mark the way a student
+## a model P₀(a)^t, and C, A and k of a limited growth model) mark the way a student
 ## would type them. The SymPy checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
@@ -15,7 +15,7 @@ const SITUATION := {"fn-exponential-model": "exp-model", "fn-exp-log-inverse-com
 	"fn-concept-growth-patterns": "exp-growth-vs-linear", "fn-link-multiplicative-growth": "fn-link-multiplicative-growth"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
-	"fn-log-of-quadratic|SL1.5.exp-log-form#1": "reading log_k G = n as nᵏ = G gives k = ln G/ln n, never a whole number here, so no exact option shows it",
+	"fn-log-of-quadratic|SL1.5.exp-log-form#1": "reading log_k G = n as n^k = G gives k = ln G/ln n, never a whole number here, so no exact option shows it",
 	"fn-log-of-quadratic|SL2.7.solve-equation#2": "only h + √d: the surd-root answer always shows ± (as in fn-solve-quadratic)",
 }
 

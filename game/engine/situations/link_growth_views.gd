@@ -61,7 +61,7 @@ func u_percent_to_factor(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var w1: String = say.call(Q.new(100 + r, 100)) if not s.up else say.call(Q.new(100 - r, 100))
 	var opts := [right, w0, w1, say.call(Q.new(r, 10).add(Q.new(1)))]
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
-	var out := {"asked": "Write down the factor r of the model V = V₀rᵗ, and whether its graph rises or falls.",
+	var out := {"asked": "Write down the factor r of the model V = V₀r^t, and whether its graph rises or falls.",
 		"lines": ["A value %s." % rate_text(s)], "answer": ans,
 		"wrongs": [wrong({"v": w0}, "SL2.9.exp-model#0")] + ([wrong({"v": w1}, "SL1.3.model#1")] if not s.up else []),
 		"generic": [{"v": opts[3]}] + ([{"v": w1}] if s.up else []),
@@ -79,7 +79,7 @@ func u_sequence_vs_function(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var n: int = s.n
 	var x := P0.to_float() * pow(f.to_float(), n)
 	var out := {"asked": "Find the value after %d years." % n, "answer": measure("V = ", x), "wrongs": [], "generic": []}
-	out.lines = ["V(t) = %s(%s)ᵗ, and u₁ = %s is the value at the start." % [D(P0), D(f), D(P0)]] if rep == "equation" \
+	out.lines = ["V(t) = %s(%s)^t, and u₁ = %s is the value at the start." % [D(P0), D(f), D(P0)]] if rep == "equation" \
 		else ["An investment of %s %s." % [D(P0), rate_text(s)]]
 	var less := P0.to_float() * pow(f.to_float(), n - 1)
 	var tagged := [[P0.to_float() * f.to_float() * n, "SL2.9.exp-model#1"], [less, "SL2.9.exp-model#2"], [less, "SL1.3.model#2"],
@@ -94,8 +94,8 @@ func u_sequence_vs_function(rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	out.methods = {
 		"substitute-model": method(["V(%d) = %s × %s^%d" % [n, D(P0), D(f), n], "= %s" % W(x), final], v),
 		"nth-formula": method(["As a sequence u₁ = %s is year 0, so after %d years is u_%d = u₁r^%d." % [D(P0), n, n + 1, n], "The exponents differ by one because u₁ is t = 0: u_%d = %s × %s^%d = %s" % [n + 1, D(P0), D(f), n, W(x)], final], v),
-		"exponential-form": method(["V = V₀rᵗ with V₀ = %s, r = %s, t = %d." % [D(P0), D(f), n], "V = %s" % W(x), final], v),
-		"compound-formula": method(["FV = PV(1 %s %d/100)ⁿ" % ["+" if s.up else "−", s.r], "= %s × %s^%d = %s" % [D(P0), D(f), n, W(x)], final], v),
+		"exponential-form": method(["V = V₀r^t with V₀ = %s, r = %s, t = %d." % [D(P0), D(f), n], "V = %s" % W(x), final], v),
+		"compound-formula": method(["FV = PV(1 %s %d/100)^n" % ["+" if s.up else "−", s.r], "= %s × %s^%d = %s" % [D(P0), D(f), n, W(x)], final], v),
 		"tvm": method(["TVM: N = %d, I%% = %s%d, PV = −%s, PMT = 0, P/Y = C/Y = 1." % [n, "" if s.up else "−", s.r, D(P0)], "FV = %s" % W(x), final], v),
 	}
 	return out
@@ -121,7 +121,7 @@ func u_first_below(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"words":
 			out.lines = ["A car bought for %s loses %d%% of its value each year." % [D(P0), s.r]]
 		_:
-			out.lines = ["V(n) = %s(%s)ⁿ" % [D(P0), D(fd)]]
+			out.lines = ["V(n) = %s(%s)^n" % [D(P0), D(fd)]]
 	var lo := P0.to_float() * pow(fd.to_float(), nb - 1)
 	var hi := P0.to_float() * pow(fd.to_float(), nb)
 	var check := "V(%d) = %s and V(%d) = %s, so n = %d is the first below %s." % [nb - 1, W(lo), nb, W(hi), nb, D(T_)]
@@ -129,10 +129,10 @@ func u_first_below(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v: Dictionary = ans.values
 	out.methods = {
 		"multiplier": method(["Each year multiplies the value by %s." % D(fd), check, final], v),
-		"tabulate": method(["List %s × %sⁿ for n = 1, 2, 3, …" % [D(P0), D(fd)], check, final], v),
+		"tabulate": method(["List %s × %s^n for n = 1, 2, 3, …" % [D(P0), D(fd)], check, final], v),
 		"gdc-table-compare": method(["Table y = %s × %s^x on the GDC and scan for the first value below %s." % [D(P0), D(fd), D(T_)], check, final], v),
 		"graph-intersect": method(["Graph y = %s × %s^x and y = %s: they cross at x = %s." % [D(P0), D(fd), D(T_), W(nx)], "Round up: " + check, final], v),
-		"logs-for-unknown": method(["%s × %sⁿ < %s, so n > ln(%s)/ln(%s) = %s (ln %s is negative, so the sign turns round)." % [D(P0), D(fd), D(T_), D(T_.div(P0)), D(fd), W(nx), D(fd)], check, final], v),
+		"logs-for-unknown": method(["%s × %s^n < %s, so n > ln(%s)/ln(%s) = %s (ln %s is negative, so the sign turns round)." % [D(P0), D(fd), D(T_), D(T_.div(P0)), D(fd), W(nx), D(fd)], check, final], v),
 		"gdc-intersect": method(["The graphs cross at n ≈ %s." % W(nx), "A whole year is needed, so round up: " + check, final], v),
 	}
 	return out
@@ -168,7 +168,7 @@ func u_graph_from_factor(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var w2 := ExpLogPairViews.M("starts at (0, −%s) and falls, the growth graph reflected in the x-axis" % D(P0))
 	var opts := [right, w2, say.call(D(P0), "rises" if not grows else "falls"), "starts at (0, 0) and %s" % ("rises" if grows else "falls")]
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
-	var out := {"asked": "Which describes the graph of y = %s(%s)ˣ?" % [D(P0), D(f)], "lines": ["y = %s(%s)ˣ" % [D(P0), D(f)]], "answer": ans,
+	var out := {"asked": "Which describes the graph of y = %s(%s)^x?" % [D(P0), D(f)], "lines": ["y = %s(%s)^x" % [D(P0), D(f)]], "answer": ans,
 		"wrongs": [wrong({"v": w2}, "SL2.9.exp-graph#2")] if not grows else [], "generic": opts.slice(1).map(func(o): return {"v": o}),
 		"methods": {
 			"base-comparison": method(["The base %s is %s 1, so the graph %s." % [D(f), "above" if grows else "between 0 and", "rises" if grows else "falls"], "A positive start keeps every value above 0: y = 0 is the asymptote.", "So it " + right + "."], ans.values),
@@ -177,12 +177,12 @@ func u_graph_from_factor(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	if rep == "graph":
 		var fn := func(x: float) -> float: return P0.to_float() * pow(f.to_float(), x)
 		out.graph = Plot.spec([Plot.sample(fn, -10.0, 10.0)], [[0, P0.to_float(), Fmt.point(0, P0)]], -10, 10, 0, Plot.nice_top(maxf(fn.call(-10.0), fn.call(10.0))))
-		out.lines = ["The graph of y = %s(%s)ˣ is shown." % [D(P0), D(f)]]
+		out.lines = ["The graph of y = %s(%s)^x is shown." % [D(P0), D(f)]]
 	return out
 
 
-const CONVERGES := "yes: |r| < 1, so rⁿ dies away to 0"
-const DIVERGES := "no: |r| ≥ 1, so rⁿ does not die away"
+const CONVERGES := "yes: |r| < 1, so r^n dies away to 0"
+const DIVERGES := "no: |r| ≥ 1, so r^n does not die away"
 
 
 func u_sum_to_infinity_link(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -202,7 +202,7 @@ func u_sum_to_infinity_link(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	return {"asked": "Does the series have a sum to infinity?", "lines": lines, "answer": ans, "wrongs": wrongs,
 		"generic": opts.slice(1).filter(func(o): return not wrongs.any(func(w): return w.values.v == o)).map(func(o): return {"v": o}),
 		"methods": {
-			"test-ratio": method(["r = %s, so |r| = %s." % [D(q), D(q.abs_q())], "rⁿ → 0 exactly when |r| < 1; then S∞ = u₁/(1 − r).", "So " + right + "."], ans.values),
+			"test-ratio": method(["r = %s, so |r| = %s." % [D(q), D(q.abs_q())], "r^n → 0 exactly when |r| < 1; then S∞ = u₁/(1 − r).", "So " + right + "."], ans.values),
 			"partial-sums": method([ExpLogPairViews.M("Partial sums: %s, …" % ", ".join(parts)), "They can look settled, so test the ratio: |r| = %s." % D(q.abs_q()), "So " + right + "."], ans.values),
 		}}
 
@@ -235,7 +235,7 @@ func u_depreciation_two_ways(rep: String, s: Dictionary, rng: Seeded) -> Diction
 		"multiplier": method(["Losing %d%% leaves %s of the value each year." % [r, D(fd)], "%s × %s^%d = %s" % [D(P0), D(fd), n, W(x)], final], v),
 		"tabulate": method(["Year 1: %s, year 2: %s, …: each is %s × the one before." % [D(P0.mul(fd)), D(P0.mul(fd).mul(fd)), D(fd)], "After %d years: %s × %s^%d = %s" % [n, D(P0), D(fd), n, W(x)], final], v),
 		"repeated-multiplication": method(["As a sequence u₁ = %s (year 0), so year %d is u_%d = %s × %s^%d." % [D(P0), n, n + 1, D(P0), D(fd), n], "= %s" % W(x), final], v),
-		"decay-multiplier": method(["As a function V(t) = %s × %sᵗ." % [D(P0), D(fd)], "V(%d) = %s" % [n, W(x)], final], v),
+		"decay-multiplier": method(["As a function V(t) = %s × %s^t." % [D(P0), D(fd)], "V(%d) = %s" % [n, W(x)], final], v),
 		"year-by-year": method(["Multiply by %s once a year, %d times." % [D(fd), n], "%s × %s^%d = %s" % [D(P0), D(fd), n, W(x)], final], v),
 	}
 	return out

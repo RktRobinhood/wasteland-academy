@@ -6,10 +6,10 @@ extends RefCounted
 ## of them can be hidden. Paper 2: answers that aren't whole are given to 3 s.f.
 ##
 ## generate() returns:
-##   form   "factor" P₀(a)ᵗ, "shift" P₀(a)^(t − t0), "cont" A·e^(kt) with k given,
+##   form   "factor" P₀(a)^t, "shift" P₀(a)^(t − t0), "cont" A·e^(kt) with k given,
 ##          "half" A·e^(kt) with k = ±ln 2/T (a half-life or doubling time T),
 ##          "data" A·e^(kt) with k from a reading (t1, P1), "limited" C + A·e^(−kt),
-##          "log10" R = m·log₁₀(x/x₀), "two" two P₀(a)ᵗ models that meet
+##          "log10" R = m·log₁₀(x/x₀), "two" two P₀(a)^t models that meet
 ##   ctx    the context: what (the sentence's subject), sym, time (plural), one (singular)
 ##   P0, r, a, t0     factor and shift: r a whole percentage, a = 1 + r/100 (Q)
 ##   A, k             cont (k a Q, 3 d.p.), half (k a float; T, dir "half"/"double"),

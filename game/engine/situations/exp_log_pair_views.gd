@@ -198,7 +198,7 @@ func u_log_of_non_positive(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 		"generic": [{"v": opts[2]}, {"v": opts[3]}],
 		"methods": {"what-power": {"result": ans.values, "steps": [
 			"The inside is %s." % inside(s, x0),
-			"No power of %d is %d: %dʸ is positive for every y." % [b, x0 - h, b], final]}},
+			"No power of %d is %d: %d^y is positive for every y." % [b, x0 - h, b], final]}},
 	}
 
 
@@ -299,7 +299,7 @@ func u_inverse_awkward_base(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var final := "So " + Answer.text(ans) + "."
 	var dec := String.num(float(k) / i, 4)
 	return {
-		"asked": "Find f⁻¹(%d), as a fraction." % v, "lines": ["f(x) = %dˣ" % b1], "answer": ans,
+		"asked": "Find f⁻¹(%d), as a fraction." % v, "lines": ["f(x) = %d^x" % b1], "answer": ans,
 		"wrongs": [wrong({"v": Q.new(i, k)}, "SL1.7.change-of-base#0")],
 		"generic": [{"v": Q.new(k * i)}, {"v": Q.new(v, b1)}, {"v": Q.new(k)}, {"v": Q.new(k + 1, i)}],
 		"methods": {
@@ -310,7 +310,7 @@ func u_inverse_awkward_base(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 				"Ask: %d to what power gives %d?" % [b1, v],
 				"%d = %s and %d = %s, so %s = %d." % [b1, PW(p, i), v, PW(p, k), QP(b1, Q.new(k, i)), v], final]},
 			"common-base-power": {"result": ans.values, "steps": [
-				"Write both as powers of %d: (%s)ʸ = %s" % [p, PW(p, i), PW(p, k)],
+				"Write both as powers of %d: (%s)^y = %s" % [p, PW(p, i), PW(p, k)],
 				"%dy = %d" % [i, k], final]},
 			"cob-formula": {"result": ans.values, "steps": [
 				"%s %d = log %d / log %d = log %s / log %s" % [LG(b1), v, v, b1, PW(p, k), PW(p, i)],
@@ -333,7 +333,7 @@ func u_simplify_composite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	ans.exact = true
 	var final := "So " + Answer.text(ans) + "."
 	var out := {
-		"asked": "Find f(g(x)), in its simplest form.", "lines": ["f(x) = %dˣ" % b1, "g(x) = %s x, for x > 0" % LG(b2)],
+		"asked": "Find f(g(x)), in its simplest form.", "lines": ["f(x) = %d^x" % b1, "g(x) = %s x, for x > 0" % LG(b2)],
 		"answer": ans, "wrongs": [wrong({"n": n, "form": "lin"}, "SL2.5.composite-expression#0")],
 		"generic": [{"n": Q.new(j, i)}, {"n": Q.new(b1, b2)}, {"n": Q.new(i * j)}],
 	}
@@ -406,7 +406,7 @@ func u_composite_inequality(_rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 
 func u_transformations_between(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b: int = s.b
-	var lines: Array = ["f(x) = %dˣ" % b]
+	var lines: Array = ["f(x) = %d^x" % b]
 	var opts: Array = []
 	var wrongs: Array = []
 	var right := ""
@@ -443,7 +443,7 @@ func u_transformations_between(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	else:
 		var j: int = s.j
 		var bj := ipow(b, j)
-		lines.append("g(x) = %dˣ" % bj)
+		lines.append("g(x) = %d^x" % bj)
 		g = func(x: float) -> float: return pow(float(bj), x)
 		var sf := "1/%d" % j
 		right = "a horizontal stretch, scale factor %s" % sf
@@ -452,7 +452,7 @@ func u_transformations_between(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		wrongs = [wrong({"v": w2}, "SL2.11.describe#2")]
 		asked = "Describe the stretch that maps the graph of y = f(x) onto the graph of y = g(x)."
 		methods["common-base-power"] = {"result": {"v": right}, "steps": [
-			"%d = %s, so g(x) = (%s)ˣ = %d^(%dx) = f(%dx)." % [bj, PW(b, j), PW(b, j), b, j, j],
+			"%d = %s, so g(x) = (%s)^x = %d^(%dx) = f(%dx)." % [bj, PW(b, j), PW(b, j), b, j, j],
 			"f(%dx) squeezes the graph towards the y-axis: a horizontal stretch, scale factor 1/%d." % [j, j], "So it is %s." % right]}
 		methods["rewrite-in-f"] = {"result": {"v": right}, "steps": [
 			"g(x) = %d^(%dx) = f(%dx)." % [b, j, j], "y = f(ax) is a horizontal stretch with scale factor 1/a.", "So it is %s." % right]}
@@ -484,9 +484,9 @@ func u_write_log_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"generic": [{"b": Q.new(x), "x": Q.new(b), "y": Q.new(n)}, {"b": Q.new(b), "x": Q.new(n), "y": Q.new(x)}, {"b": Q.new(b), "x": Q.new(x), "y": Q.new(n + 1)}],
 		"methods": {
 			"convert-form": {"result": ans.values, "steps": [
-				"bʸ = x says y is the power of b that gives x: log_b x = y.", "Here b = %d, y = %d and x = %d." % [b, n, x], final]},
+				"b^y = x says y is the power of b that gives x: log_b x = y.", "Here b = %d, y = %d and x = %d." % [b, n, x], final]},
 			"rewrite-exponential": {"result": ans.values, "steps": [
-				"log_b x = y means exactly bʸ = x.", "%s = %d has b = %d, x = %d, y = %d." % [PW(b, n), x, b, x, n], final]},
+				"log_b x = y means exactly b^y = x.", "%s = %d has b = %d, x = %d, y = %d." % [PW(b, n), x, b, x, n], final]},
 		},
 	}
 
@@ -515,7 +515,7 @@ func u_solve_exp_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 				"The exact value is asked for: e^(%dx) = %d gives %dx = ln %d." % [m, r, m, r], final]},
 			"apply-inverse": {"result": ans.values, "steps": [
 				"%s: e^(%dx) = %d" % ["Subtract %d" % c if c > 0 else ("Add %d" % -c if c < 0 else "Already alone"), m, r],
-				"Apply ln, the inverse of eˣ: %dx = ln %d, then divide by %d." % [m, r, m], final]},
+				"Apply ln, the inverse of e^x: %dx = ln %d, then divide by %d." % [m, r, m], final]},
 		},
 	}
 
@@ -538,7 +538,7 @@ func u_solve_log_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			"convert-form": {"result": ans.values, "steps": [
 				"%s(%s) = %d" % [LG(b), Answer.x_minus(h), m], "In exponential form: %s = %s = %d" % [Answer.x_minus(h), PW(b, m), ipow(b, m)], final]},
 			"rewrite-exponential": {"result": ans.values, "steps": [
-				"log_b A = m means bᵐ = A: here %s = %s." % [Answer.x_minus(h), PW(b, m)], "x = %d%s = %d" % [ipow(b, m), c_step(h), x], final]},
+				"log_b A = m means b^m = A: here %s = %s." % [Answer.x_minus(h), PW(b, m)], "x = %d%s = %d" % [ipow(b, m), c_step(h), x], final]},
 			"apply-inverse": {"result": ans.values, "steps": [
 				"%s%s(%s) = %d" % ["" if c == 0 else ("Subtract %d: " % c if c > 0 else "Add %d: " % -c), LG(b), Answer.x_minus(h), m],
 				"Raise %d to each side: %s = %d" % [b, Answer.x_minus(h), ipow(b, m)], final]},
@@ -550,7 +550,7 @@ func u_composite_order(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b: int = s.b
 	var p: int = s.p
 	var eq: bool = s.equal
-	var lines: Array = ["f(x) = %dˣ" % b]
+	var lines: Array = ["f(x) = %d^x" % b]
 	var fg := ""
 	var gf := ""
 	var opts: Array = []
@@ -562,11 +562,11 @@ func u_composite_order(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		lines.append("g(x) = " + Fmt.poly([1, p]))
 		fg = Answer.fn_text("exp", b, -p, 0)
-		gf = "%dˣ%s" % [b, Answer.plus_q(p)]
+		gf = "%d^x%s" % [b, Answer.plus_q(p)]
 	var say := func(a: String, c: String, same: bool) -> String: return "f(g(x)) = %s, g(f(x)) = %s: %s" % [a, c, "equal" if same else "not equal"]
 	var right: String = say.call(fg, gf, eq)
 	if eq:
-		opts = [right, say.call(fg, gf, false), say.call("%s x" % LG(b), "%dˣ" % b, false), say.call("%dˣ" % b, "%s x" % LG(b), false)]
+		opts = [right, say.call(fg, gf, false), say.call("%s x" % LG(b), "%d^x" % b, false), say.call("%d^x" % b, "%s x" % LG(b), false)]
 	else:
 		var w: String = say.call(fg, gf, true)
 		opts = [right, w, say.call(gf, fg, false), say.call(fg, fg, true)]
@@ -627,7 +627,7 @@ func u_inverse_log_of_square(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		"wrongs": [wrong(fn_wrong("pm", 0, h), "SL2.5.find-inverse#2")],
 		"generic": [fn_wrong("exphalf", 0, -h), fn_wrong("exp", 0, h), fn_wrong("pm", 0, -h)],
 		"methods": {"swap-then-solve": {"result": ans.values, "steps": [
-			"Swap x and y: x = %s(%s), so %s = %dˣ." % [LG(b), sq.replace("x", "y"), sq.replace("x", "y"), b],
+			"Swap x and y: x = %s(%s), so %s = %d^x." % [LG(b), sq.replace("x", "y"), sq.replace("x", "y"), b],
 			"%s = ±%d^(x/2). g's domain is x > %d, so g⁻¹'s range is y > %d: take +." % [Answer.x_minus(h).replace("x", "y"), b, h, h],
 			final]}},
 	}
@@ -655,7 +655,7 @@ func u_function_from_inverse(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 
 # ── fn-ext-exp-graph ─────────────────────────────────────────
 
-## A·b^(x − h) + c as written: "2 × 3^(x − 1) + 2", "−2ˣ + 1".
+## A·b^(x − h) + c as written: "2 × 3^(x − 1) + 2", "−2^x + 1".
 static func eg_text(s: Dictionary) -> String:
 	var A: Q = s.A
 	var pw := Answer.fn_text("exp", s.b, s.h, 0)
@@ -693,7 +693,7 @@ func u_y_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"methods": {
 			"key-points": {"result": ans.values, "steps": ["Put x = 0: y = %s" % eg_text(s).replace("x", "0"), "= %s" % N(y0), final]},
 			"transform-parent": {"result": ans.values, "steps": [
-				"Moving (0, 1) on y = %dˣ gives (%d, %s), not the y-intercept, as h ≠ 0." % [s.b, s.h, N(s.A.add(Q.new(s.c)))],
+				"Moving (0, 1) on y = %d^x gives (%d, %s), not the y-intercept, as h ≠ 0." % [s.b, s.h, N(s.A.add(Q.new(s.c)))],
 				"Substitute x = 0 instead: y = %s" % N(y0), final]},
 		}}
 
@@ -707,8 +707,8 @@ func u_asymptote(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"wrongs": [wrong({"var": "y", "h": Q.new(0)}, "SL2.9.exp-graph#1")],
 		"generic": [{"var": "x", "h": Q.new(c)}, {"var": "y", "h": Q.new(-c)}, {"var": "y", "h": s.A.add(Q.new(c))}, {"var": "x", "h": Q.new(s.h)}],
 		"methods": {
-			"key-points": {"result": ans.values, "steps": ["As x → −∞, %dˣ → 0, so the A·b^(x − h) part → 0." % s.b, "y → %d" % c, final]},
-			"transform-parent": {"result": ans.values, "steps": ["y = %dˣ has asymptote y = 0." % s.b, "The + %d moves it %s to y = %d; the stretch and the shift in x don't move it." % [c, "up" if c > 0 else "down", c], final]},
+			"key-points": {"result": ans.values, "steps": ["As x → −∞, %d^x → 0, so the A·b^(x − h) part → 0." % s.b, "y → %d" % c, final]},
+			"transform-parent": {"result": ans.values, "steps": ["y = %d^x has asymptote y = 0." % s.b, "The + %d moves it %s to y = %d; the stretch and the shift in x don't move it." % [c, "up" if c > 0 else "down", c], final]},
 		}}
 	if rep == "graph":
 		out.lines = ["The graph of y = %s is shown." % eg_text(s)]
@@ -747,11 +747,11 @@ func u_growth_or_decay(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var opts := [right, GROWS if flip else DECAYS, "increasing: the exponent is negative" if flip else "decreasing: the exponent is positive",
 		"neither: it has an asymptote"]
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
-	var shown := "y = %dˣ" % b if not flip else ("y = %d^(−x)" % b if rep != "table" else "y = (1/%d)ˣ" % b)
+	var shown := "y = %d^x" % b if not flip else ("y = %d^(−x)" % b if rep != "table" else "y = (1/%d)^x" % b)
 	var out := {"asked": "Does the graph rise or fall from left to right, and why?", "lines": [shown], "answer": ans,
 		"generic": opts.slice(1).map(func(o): return {"v": o}),
 		"methods": {"base-comparison": {"result": ans.values, "steps": [
-			("%d^(−x) = (1/%d)ˣ: the base is 1/%d." % [b, b, b]) if flip else "The base is %d." % b,
+			("%d^(−x) = (1/%d)^x: the base is 1/%d." % [b, b, b]) if flip else "The base is %d." % b,
 			"A base %s 1 makes y %s as x grows." % ["between 0 and" if flip else "greater than", "shrink" if flip else "grow"], "So it is " + right + "."]}}}
 	if rep == "table":
 		var xs := [-1, 0, 1, 2]
@@ -764,7 +764,7 @@ func u_growth_or_decay(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		t.c = 0
 		var f := func(x: float) -> float: return pow(float(b), -x if flip else x)
 		out.graph = Plot.spec([Plot.sample(f, -4.0, 4.0)], [[0, 1, "(0, 1)"]], -4, 4, -1, 10)
-		out.lines = ["The graph of an exponential function y = aˣ is shown."]
+		out.lines = ["The graph of an exponential function y = a^x is shown."]
 	return out
 
 
@@ -801,8 +801,8 @@ func u_moves_from_parent(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := Answer.make("point", {"x": Q.new(s.h), "y": top})
 	ans.exact = true
 	var final := "So (0, 1) goes to " + Answer.text(ans) + "."
-	var said := "y = " + eg_text(s) if rep == "equation" else "The graph of y = %dˣ is transformed to y = %s." % [s.b, eg_text(s)]
-	return {"asked": "Where does the point (0, 1) on y = %dˣ go?" % s.b, "lines": [said], "answer": ans,
+	var said := "y = " + eg_text(s) if rep == "equation" else "The graph of y = %d^x is transformed to y = %s." % [s.b, eg_text(s)]
+	return {"asked": "Where does the point (0, 1) on y = %d^x go?" % s.b, "lines": [said], "answer": ans,
 		"generic": [{"x": Q.new(-s.h), "y": top}, {"x": Q.new(s.h), "y": Q.new(1 + c)}, {"x": Q.new(s.h), "y": s.A.mul(Q.new(c))}, {"x": Q.new(0), "y": eg_y0(s)}],
 		"methods": {"transform-parent": {"result": ans.values, "steps": [
 			"x − %d inside moves it %d to the right; the %s in front stretches the y-value 1 to %s." % [s.h, s.h, N(s.A), N(s.A)],
@@ -817,14 +817,14 @@ func u_equation_from_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var y1: Q = A.mul(Q.new(b)).add(Q.new(c))
 	var ans := Answer.make("named", {"v0": Q.new(c), "v1": A, "v2": Q.new(b)}, {"names": ["c", "A", "b"]})
 	ans.exact = true
-	var out := {"asked": "The function is y = A·bˣ + c. Find c, A and b.", "answer": ans,
+	var out := {"asked": "The function is y = A·b^x + c. Find c, A and b.", "answer": ans,
 		"generic": [{"v0": y0, "v1": Q.new(c), "v2": Q.new(b)}, {"v0": Q.new(c), "v1": y0, "v2": Q.new(b)}, {"v0": Q.new(c), "v1": A, "v2": y1.sub(Q.new(c))},
 			{"v0": Q.new(-c), "v1": A, "v2": Q.new(b)}]}
 	if rep == "table":
 		out.lines = ["As x → −∞, y → %d." % c]
 		out.table = {"rows": [["x", ["0", "1", "2"]], ["y", [N(y0), N(y1), N(A.mul(Q.new(b * b)).add(Q.new(c)))]]]}
 	else:
-		out.lines = ["The graph of y = A·bˣ + c is shown, with its asymptote y = %d." % c]
+		out.lines = ["The graph of y = A·b^x + c is shown, with its asymptote y = %d." % c]
 		out.graph = eg_graph(s, [[0, y0.to_float(), Fmt.point(0, y0)], [1, y1.to_float(), Fmt.point(1, y1)]])
 	var final := "So " + Answer.text(ans) + "."
 	var steps_c := "The asymptote is y = %d, so c = %d." % [c, c]
@@ -832,7 +832,7 @@ func u_equation_from_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var steps_b := "At x = 1: %s·b + %s = %s, so b = %d." % [N(A), N(c), N(y1), b]
 	out.methods = {
 		"transform-parent": {"result": ans.values, "steps": [steps_c, steps_a + " " + steps_b, final]},
-		"gdc-transfer": {"result": ans.values, "steps": [steps_c + " " + steps_a, "Check b on the GDC: y = %s·%dˣ + %d passes through (1, %s)." % [N(A), b, c, N(y1)], final]},
+		"gdc-transfer": {"result": ans.values, "steps": [steps_c + " " + steps_a, "Check b on the GDC: y = %s·%d^x + %d passes through (1, %s)." % [N(A), b, c, N(y1)], final]},
 		"asymptote-first": {"result": ans.values, "steps": [steps_c, steps_a, steps_b, final]},
 	}
 	return out
@@ -848,8 +848,8 @@ func u_compare_reflections(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var ans := Answer.make("choice", {"v": MIRROR_Y}, {"options": opts})
 	var f := func(x: float) -> float: return pow(float(b), x)
 	var g := func(x: float) -> float: return pow(float(b), -x)
-	return {"asked": "How are the two graphs related?", "lines": ["The graphs of y = %dˣ and y = (1/%d)ˣ are shown." % [b, b]], "answer": ans,
+	return {"asked": "How are the two graphs related?", "lines": ["The graphs of y = %d^x and y = (1/%d)^x are shown." % [b, b]], "answer": ans,
 		"graph": Plot.spec([Plot.sample(f, -4.0, 4.0), Plot.sample(g, -4.0, 4.0)], [[0, 1, "(0, 1)"]], -4, 4, -1, 10),
 		"wrongs": [wrong({"v": MIRROR_X}, "SL2.9.exp-graph#2")], "generic": [{"v": opts[2]}, {"v": opts[3]}],
 		"methods": {"base-comparison": {"result": ans.values, "steps": [
-			"(1/%d)ˣ = %d^(−x): it is y = %dˣ with x replaced by −x." % [b, b, b], "Replacing x by −x reflects a graph in the y-axis; both pass through (0, 1).", "So they are " + MIRROR_Y + "."]}}}
+			"(1/%d)^x = %d^(−x): it is y = %d^x with x replaced by −x." % [b, b, b], "Replacing x by −x reflects a graph in the y-axis; both pass through (0, 1).", "So they are " + MIRROR_Y + "."]}}}

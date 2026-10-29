@@ -277,7 +277,7 @@ func u_pick_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"y = %s x has asymptote x = 0 and passes through (1, 0) and (%d, 1)." % [Answer.log_name(b), b],
 			"Moving by (%s, %d) gives asymptote x = %s, %s and %s; a log with b > 1 increases." % [N(h), c, N(h), p1, p2], final]},
 		"reflect-exponential": {"result": v, "steps": [
-			"y = %dˣ passes through (0, 1) and (1, %d); reflected in y = x, %s x passes through (1, 0) and (%d, 1)." % [b, b, Answer.log_name(b), b],
+			"y = %d^x passes through (0, 1) and (1, %d); reflected in y = x, %s x passes through (1, 0) and (%d, 1)." % [b, b, Answer.log_name(b), b],
 			"Then translate by (%s, %d): %s and %s, asymptote x = %s." % [N(h), c, p1, p2, N(h)], final]},
 		"translate-parent": {"result": v, "steps": [
 			"x − %s inside moves the graph %s right; + %d outside moves it %d up." % [N(h), N(h), c, c], "The asymptote x = 0 moves to x = %s, and (1, 0) to %s." % [N(h), p1], final]},

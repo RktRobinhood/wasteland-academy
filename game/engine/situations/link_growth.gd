@@ -7,9 +7,9 @@ extends RefCounted
 ## generate() returns:
 ##   P0, r, up, f    a start value, a yearly rate of r% (up: a rise) and its factor f (a Q)
 ##   n               a number of years
-##   T, nb           a threshold below P0 and the first whole year nb with P0·fᵐ < T
+##   T, nb           a threshold below P0 and the first whole year nb with P0·f^m < T
 ##                   (a decay); nx the exact crossing
-##   t1, t2, V1, V2  two exact readings V = P0·fᵗ (factor from two values)
+##   t1, t2, V1, V2  two exact readings V = P0·f^t (factor from two values)
 ##   k, R, N         compounding k times a year at R% a year, for N years
 ##   kc              a continuous rate e^(kc·t) (a Q)
 ##   q               a series ratio (a Q), some with |q| ≥ 1

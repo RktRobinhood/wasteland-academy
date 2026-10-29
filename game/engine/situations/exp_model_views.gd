@@ -119,7 +119,7 @@ static func sym(s: Dictionary) -> String:
 	return s.ctx.sym
 
 
-## The exponent written after e or a bracket: "ᵗ", "^(t − 3)", "^(0.035t)".
+## The exponent written after e or a bracket: "^t", "^(t − 3)", "^(0.035t)".
 static func k_text(k: Variant) -> String:
 	return D(k) if k is Q else "k"
 
@@ -129,7 +129,7 @@ static func model(s: Dictionary, k_shown: bool = true) -> String:
 	var f := sym(s) + "(t) = "
 	match s.form:
 		"factor":
-			return f + "%s(%s)ᵗ" % [N(s.P0), D(s.a)]
+			return f + "%s(%s)^t" % [N(s.P0), D(s.a)]
 		"shift":
 			return f + "%s(%s)^(t − %d)" % [N(s.P0), D(s.a), s.t0]
 		"cont":
@@ -202,11 +202,11 @@ static func solve_lines(s: Dictionary, lv: Q) -> Dictionary:
 	match s.form:
 		"factor", "shift":
 			var ex := "t" if s.form == "factor" else "(t − %d)" % s.t0
-			var pw := "%s^%s" % [D(s.a), ex] if s.form == "shift" else "%sᵗ" % D(s.a)
+			var pw := "%s^%s" % [D(s.a), ex] if s.form == "shift" else "%s^t" % D(s.a)
 			var ratio := lv.div(s.P0)
 			var lead := "" if s.form == "factor" else "%d + " % s.t0
 			return {
-				"eq": "%s(%s)%s = %s" % [N(s.P0), D(s.a), "ᵗ" if s.form == "factor" else "^" + ex, N(lv)],
+				"eq": "%s(%s)%s = %s" % [N(s.P0), D(s.a), "^t" if s.form == "factor" else "^" + ex, N(lv)],
 				"iso": "%s = %s/%s = %s" % [pw, N(lv), N(s.P0), N(ratio)],
 				"logs": "%s × ln %s = ln(%s)" % [ex, D(s.a), N(ratio)],
 				"expr": "t = %sln(%s)/ln %s" % [lead, N(ratio), D(s.a)],
@@ -533,7 +533,7 @@ func u_model_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		vals.append(s.P0.mul(ExpModelSituation.pow_q(s.a, i)))
 	var final := "So " + Answer.text(ans) + "."
 	return {
-		"asked": "The table shows %s at t = 1, 2, 3 and 4 %s. Find the model %s(t) = P₀(a)ᵗ." % [y, s.ctx.time, y],
+		"asked": "The table shows %s at t = 1, 2, 3 and 4 %s. Find the model %s(t) = P₀(a)^t." % [y, s.ctx.time, y],
 		"lines": ["%s t %s after it was first measured grows or falls by the same factor each %s." % [s.ctx.what, s.ctx.time, s.ctx.one]],
 		"table": {"rows": [["t", ["1", "2", "3", "4"]], ["%s(t)" % y, vals.map(func(v): return D(v))]]},
 		"given": given_of(s), "answer": ans,
@@ -547,7 +547,7 @@ func u_model_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 				"P₀a = %s and P₀a² = %s." % [D(vals[0]), D(vals[1])],
 				"Divide: a = %s; then P₀ = %s ÷ %s = %s" % [D(s.a), D(vals[0]), D(s.a), N(s.P0)], final]},
 			"gdc-regression": {"result": ans.values, "steps": [
-				"Exponential regression on the table gives y = %s × %sˣ, exactly, since every ratio is %s." % [N(s.P0), D(s.a), D(s.a)],
+				"Exponential regression on the table gives y = %s × %s^x, exactly, since every ratio is %s." % [N(s.P0), D(s.a), D(s.a)],
 				"The regression's start is at t = 0, not at the first column (t = 1).", final]},
 		},
 	}
@@ -587,7 +587,7 @@ func u_initial_from_later(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var y := sym(s)
 	var g := pow(s.a.to_float(), s.t1)
 	var x: float = s.P1.to_float() / g
-	var shown := "%s(t) = P₀(%s)ᵗ" % [y, D(s.a)]
+	var shown := "%s(t) = P₀(%s)^t" % [y, D(s.a)]
 	var said := ["%s t %s after it was first measured is modelled by %s. After %d %s it is %s." % [s.ctx.what, s.ctx.time, shown, s.t1, s.ctx.time, N(s.P1)]] \
 		if rep == "words" else [shown, "%s(%d) = %s" % [y, s.t1, N(s.P1)], "t is the time in %s." % s.ctx.time]
 	var out := {"asked": "Find the start value P₀.", "lines": said, "given": given_of(s), "answer": measure("P₀ = ", x),
@@ -669,8 +669,8 @@ func u_change_over_period(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 func u_two_models_equal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var t: float = s.tL
 	var unit: String = " " + s.ctx.time
-	var p := "%s(%s)ᵗ" % [N(s.P0), D(s.a)]
-	var q := "%s(%s)ᵗ" % [N(s.P0b), D(s.ab)]
+	var p := "%s(%s)^t" % [N(s.P0), D(s.a)]
+	var q := "%s(%s)^t" % [N(s.P0b), D(s.ab)]
 	var out := {"asked": "Find the value of t when P(t) = Q(t).", "lines": [s.ctx.what, "P(t) = " + p, "Q(t) = " + q],
 		"given": given_of(s), "answer": measure("t = ", t, unit, true), "wrongs": [], "generic": []}
 	if rep == "graph":
@@ -687,11 +687,11 @@ func u_two_models_equal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var at := "t = ln(%s)/ln(%s) = %s" % [N(ratio), N(fr), W(t)]
 	out.methods = {
 		"logs-for-unknown": {"result": out.answer.values, "steps": [
-			"%s = %s" % [p, q], "(%s/%s)ᵗ = %s/%s, so (%s)ᵗ = %s" % [D(s.a), D(s.ab), N(s.P0b), N(s.P0), N(fr), N(ratio)], at, final]},
+			"%s = %s" % [p, q], "(%s/%s)^t = %s/%s, so (%s)^t = %s" % [D(s.a), D(s.ab), N(s.P0b), N(s.P0), N(fr), N(ratio)], at, final]},
 		"gdc-intersect": {"result": out.answer.values, "steps": ["Graph y = %s and y = %s." % [p, q], "They cross at t = %s." % W(t), final]},
 		"log-both-sides": {"result": out.answer.values, "steps": [
 			"ln %s + t ln %s = ln %s + t ln %s" % [N(s.P0), D(s.a), N(s.P0b), D(s.ab)],
 			"t(ln %s − ln %s) = ln %s − ln %s" % [D(s.a), D(s.ab), N(s.P0b), N(s.P0)], at, final]},
-		"analytic-logs": {"result": out.answer.values, "steps": ["Divide both sides by %s(%s)ᵗ: (%s)ᵗ = %s" % [N(s.P0), D(s.ab), N(fr), N(ratio)], at, final]},
+		"analytic-logs": {"result": out.answer.values, "steps": ["Divide both sides by %s(%s)^t: (%s)^t = %s" % [N(s.P0), D(s.ab), N(fr), N(ratio)], at, final]},
 	}
 	return out

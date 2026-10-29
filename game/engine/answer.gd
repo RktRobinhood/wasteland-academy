@@ -24,7 +24,7 @@ extends RefCounted
 ##              (the solutions of a trig equation, as multiples of π, in any order);
 ##              for the Exponentials and logs region (FAL-418) also lnq (m·ln r, exact,
 ##              marked by value so (1/5) ln(1/2) is −(ln 2)/5), pct (a rise or fall of r%),
-##              expmodel (P₀(a)ᵗ), limited (C, A and k of C + A·e^(−kt)), fn (a function
+##              expmodel (P₀(a)^t), limited (C, A and k of C + A·e^(−kt)), fn (a function
 ##              of x in one of FN_FORMS, its shifts p and q typed; a wrong option may
 ##              take another form, such as 1/f(x)), logform (log_b x = y) and xpow
 ##              (xⁿ; a wrong option may be n·x)
@@ -202,7 +202,7 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 		"pct":
 			t = ["a ", {"pick": "dir", "options": DIRS}, " of ", {"slot": "v"}, "% " + str(fixed.get("per", ""))]
 		"expmodel":
-			t = ["%s(t) = " % fixed.get("sym", "P"), {"slot": "p0"}, "(", {"slot": "a"}, ")ᵗ"]
+			t = ["%s(t) = " % fixed.get("sym", "P"), {"slot": "p0"}, "(", {"slot": "a"}, ")^t"]
 		"limited":
 			t = ["C = ", {"slot": "C"}, ",  A = ", {"slot": "A"}, ",  k = ", {"slot": "k"}]
 		"fn":
@@ -327,7 +327,7 @@ static func plus_q(q: Variant) -> String:
 static func fn_text(form: String, b: Variant, p: Variant, q: Variant) -> String:
 	var bb := base_text(b)
 	var xp := x_minus(p)
-	var pw := bb + "ˣ" if xp == "x" else "%s^(%s)" % [bb, xp]
+	var pw := bb + "^x" if xp == "x" else "%s^(%s)" % [bb, xp]
 	match form:
 		"exp":
 			return pw + plus_q(q)
@@ -507,7 +507,7 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			var pv: String = Fmt.dec(v.v) if ans.get("exact", false) else Fmt.sf(v.v)
 			return ("a %s of %s%% %s" % [v.dir, pv, fx.get("per", "")]).strip_edges()
 		"expmodel":
-			return "%s(t) = %s(%s)ᵗ" % [fx.get("sym", "P"), Fmt.dec(v.p0), Fmt.dec(v.a)]
+			return "%s(t) = %s(%s)^t" % [fx.get("sym", "P"), Fmt.dec(v.p0), Fmt.dec(v.a)]
 		"limited":
 			return "C = %s, A = %s, k = %s" % [Fmt.num(v.C), Fmt.num(v.A), Fmt.sf(v.k)]
 		"fn":
