@@ -109,7 +109,11 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   ABC, with whole-number givens for the view (two sides and the angle between them,
   three sides, two angles and a side, and so on), solved whole. Its views
   (`triangle_views.gd`) show it in words or as a labelled drawing (`ui/triangle_view.gd`),
-  and every answer is a measure to 3 s.f. (FAL-395).
+  and on Paper 2 every answer is a measure to 3 s.f. (FAL-395), never a rational value
+  that needs no calculator. Its Paper 1 version (FAL-419) gives angles of 30°, 45°, 60°,
+  90°, 120° or 135° and sides chosen so the answer is exact: a whole number (3, 5, 7 with
+  120°) or m√r (the `surd` kind), marked exactly, with the exact sines and cosines in the
+  working. Every cell makes both papers but the sine rule's angle, which is Paper 2 only.
 - `engine/situations/arithmetic_sequence.gd` (FAL-392) is the Topic 1
   situation: one arithmetic sequence with u₁, d, n, uₙ, Sₙ, two later terms and the
   first four terms, for `t1-arithmetic-sequence`. Its representations are `notation`
@@ -635,7 +639,8 @@ script error happens while it runs. Run one file with
   the exam-only cells.
 - `test_triangles.gd`: the two Topic 3 types on the triangle: built, every angle from
   20° to 140°, one triangle for the sine rule's angle, acute or obtuse said, 3 s.f.
-  marking with no false failures, every misconception appears as an option.
+  marking with no false failures, every misconception appears as an option; Paper 2
+  answers need a calculator, Paper 1 answers are exact whole numbers or surds.
 - `test_distributions.gd`: the three Topic 4 types on the distribution: built, every
   distribution adds to 1 inside its limits, k in a table, a formula and words, answers
   written as the question writes probabilities, exact or 3 s.f. marking, p and q as two
