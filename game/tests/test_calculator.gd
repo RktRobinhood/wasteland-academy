@@ -225,3 +225,28 @@ func test_coded_look_without_art_and_art_when_there() -> void:
 		fail("tests/fixtures/art/ui/calculator/ has no casing fixture")
 	art.free()
 	ArtSlots.root = root
+
+
+## Each licence notice is at the top of the file that uses it and in the game's credits,
+## which the title screen opens.
+func test_licences_in_the_files_and_the_credits() -> void:
+	var expr := FileAccess.get_file_as_string("res://engine/expr.gd")
+	var brent := FileAccess.get_file_as_string("res://engine/brent.gd")
+	check(expr.find("Lewis Van Winkle") < 1500 and expr.contains("ALTERED SOURCE"), "TinyExpr's zlib notice heads expr.gd, marked altered")
+	check(brent.find("Redistribution and use in source and binary forms") < 2500, "SciPy's BSD-3 notice heads brent.gd")
+	var all := ""
+	for s in Credits.sections():
+		all += "%s %s %s\n" % [s.what, s.licence, s.notice]
+	for want in ["TinyExpr", "zlib", "This notice may not be removed", "SciPy", "BSD-3-Clause",
+			"Neither the name of the copyright holder", "Open Font License", "MIT"]:
+		check(all.contains(want), "the credits have %s" % want)
+	var main: Control = (load("res://scenes/main.tscn") as PackedScene).instantiate()
+	tree.root.add_child(main)
+	await tree.process_frame
+	var link: LinkButton = main.get_node_or_null("CreditsLink")
+	check(link != null, "a Credits link on the title screen")
+	if link != null:
+		link.pressed.emit()
+		var c := main.get_node_or_null("Credits")
+		check(c != null, "the credits open")
+	main.free()

@@ -165,6 +165,8 @@ func _build() -> void:
 	_skin_keys()
 	col.add_child(keypad)
 	resized.connect(_fit)
+	# A mode switch or a longer readout changes the casing's height: fit it again.
+	casing.minimum_size_changed.connect(func(): _fit.call_deferred())
 	set_mode("sci")
 	set_angle(false)
 

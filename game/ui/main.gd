@@ -51,6 +51,7 @@ func _ready() -> void:
 	var classic := classic_url()
 	if classic != "":
 		add_classic_link(classic)
+	add_credits_link()
 	MapLink.listen(get_tree())
 	if _routed:
 		return
@@ -107,6 +108,24 @@ static func classic_url() -> String:
 		return ""
 	var url = JavaScriptBridge.eval("document.querySelector('meta[name=\"wa-classic\"]')?.content || ''", true)
 	return url if url is String else ""
+
+
+## The small "Credits" link, in the bottom left corner: third-party code, fonts and sound
+## with their licences (FAL-419).
+func add_credits_link() -> LinkButton:
+	var link := LinkButton.new()
+	link.name = "CreditsLink"
+	link.text = "Credits"
+	link.underline = LinkButton.UNDERLINE_MODE_ALWAYS
+	link.add_theme_font_size_override("font_size", UiTheme.BODY)
+	link.add_theme_color_override("font_color", UiTheme.DIM)
+	link.add_theme_color_override("font_hover_color", UiTheme.TEAL)
+	link.add_theme_color_override("font_pressed_color", UiTheme.TEAL)
+	link.pressed.connect(func() -> void: add_child(Credits.make()))
+	add_child(link)
+	link.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 48)
+	link.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	return link
 
 
 ## The small "Classic game" link, in the bottom right corner. It opens `url` in this tab.

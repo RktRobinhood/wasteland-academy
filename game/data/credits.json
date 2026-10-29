@@ -1,0 +1,40 @@
+{
+ "about": "The game's credits: third-party code, fonts and sound, with their licence notices. Shown by ui/credits.gd from the title screen. Each code notice is also at the top of the file that uses it.",
+ "sections": [
+  {
+   "title": "Calculator: expression engine",
+   "used_in": "engine/expr.gd (the calculator and every typed answer)",
+   "what": "TinyExpr by Lewis Van Winkle, ported to GDScript and altered (see the file's header).",
+   "licence": "zlib",
+   "notice": "TinyExpr - Tiny recursive descent parser and evaluation engine in C\nCopyright (c) 2015-2020 Lewis Van Winkle\nhttp://CodePlea.com\n\nThis software is provided 'as-is', without any express or implied\nwarranty. In no event will the authors be held liable for any damages\narising from the use of this software.\n\nPermission is granted to anyone to use this software for any purpose,\nincluding commercial applications, and to alter it and redistribute it\nfreely, subject to the following restrictions:\n\n1. The origin of this software must not be misrepresented; you must not\n   claim that you wrote the original software. If you use this software\n   in a product, an acknowledgement in the product documentation would be\n   appreciated but is not required.\n2. Altered source versions must be plainly marked as such, and must not be\n   misrepresented as being the original software.\n3. This notice may not be removed or altered from any source distribution."
+  },
+  {
+   "title": "Calculator: zeros, maxima, minima and intersections",
+   "used_in": "engine/brent.gd",
+   "what": "SciPy's Brent root finder (brentq) and Brent minimiser, ported to GDScript.",
+   "licence": "BSD-3-Clause",
+   "notice": "Copyright (c) 2001-2002 Enthought, Inc. 2003, SciPy Developers.\nAll rights reserved.\n\nRedistribution and use in source and binary forms, with or without\nmodification, are permitted provided that the following conditions\nare met:\n\n1. Redistributions of source code must retain the above copyright\n   notice, this list of conditions and the following disclaimer.\n\n2. Redistributions in binary form must reproduce the above\n   copyright notice, this list of conditions and the following\n   disclaimer in the documentation and/or other materials provided\n   with the distribution.\n\n3. Neither the name of the copyright holder nor the names of its\n   contributors may be used to endorse or promote products derived\n   from this software without specific prior written permission.\n\nTHIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n\"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\nLIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\nA PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT\nOWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,\nSPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT\nLIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,\nDATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\nTHEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE\nOF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+  },
+  {
+   "title": "Fonts",
+   "used_in": "assets/fonts/",
+   "what": "Bangers (The Bangers Project Authors) and Share Tech Mono (Carrois Type Design, Ralph du Carrois).",
+   "licence": "SIL Open Font License 1.1",
+   "notice": "See assets/fonts/OFL-Bangers.txt and assets/fonts/OFL-ShareTechMono.txt."
+  },
+  {
+   "title": "Sound",
+   "used_in": "assets/audio/",
+   "what": "Sound effects from free libraries; music made for the game. Every file's source, licence and changes are listed in assets/audio/CREDITS.md in the repository.",
+   "licence": "CC0 1.0 (sound effects)",
+   "notice": "CC0 needs no attribution; the sources are credited anyway."
+  },
+  {
+   "title": "Godot Engine",
+   "used_in": "the whole game",
+   "what": "Made with the Godot Engine.",
+   "licence": "MIT",
+   "notice": "godot"
+  }
+ ]
+}
