@@ -306,22 +306,8 @@ func u_cos2x_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		},
 		"pick_wrongs": [pick("Use cos 2x = 2 cos x", "that is not an identity"), pick("Divide through by %s x" % s.fn, "that loses solutions and still leaves cos 2x"),
 			pick("Use cos 2x = %s" % other, "that leaves %s x and %s x in one equation" % ["cos" if s.fn == "sin" else "sin", s.fn])]}
-	# Misconception: cos 2x = 1 − sin²x (or 2cos x), giving another quadratic.
-	var wrongs: Array = []
-	if s.fn == "sin":
-		# 1 − f² + B f + C = 0: f² − B f − (1 + C) = 0.
-		var disc: Q = s.B.sq().add(s.C.add(1).mul(4))
-		var rt := roundi(sqrt(maxf(0.0, disc.to_float())))
-		if disc.n >= 0 and disc.d == 1 and rt * rt == disc.n:
-			var f1: Q = s.B.add(rt).div(2)
-			var f2: Q = s.B.sub(rt).div(2)
-			var ws := EquivalentFormsSituation.solutions("sin", [f1, f2])
-			if ws.size() == sols.size():
-				var wv := {}
-				for i in ws.size():
-					wv["a%d" % i] = ws[i]
-				wrongs.append(wrong(wv, "SL3.6.double-angle-values#1"))
-	out.wrongs = wrongs
+	# SL3.6.double-angle-values#1 (cos 2x = 1 − sin²x) gives a quadratic whose roots are
+	# not sines of special angles, so its answers are no multiples of π: no option.
 	out.generic = _angle_slips(sols)
 	return out
 

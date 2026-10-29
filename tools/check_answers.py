@@ -26,6 +26,7 @@ import re
 import sys
 from collections import defaultdict
 from decimal import ROUND_HALF_UP, Decimal
+from functools import lru_cache
 from pathlib import Path
 
 import mpmath
@@ -2762,6 +2763,7 @@ LI_WORDS = {"<": "is less than", "≤": "is at most", ">": "is more than", "≥"
 LI_FLIP = {"<": ">", ">": "<", "≤": "≥", "≥": "≤"}
 
 
+@lru_cache(maxsize=None)
 def li_set(cond):
     return sp.solve_univariate_inequality(cond, X, relational=False)
 
@@ -2987,6 +2989,18 @@ EF_CLAIMS = {
 TRIG = {"sin": sp.sin, "cos": sp.cos}
 
 
+@lru_cache(maxsize=None)
+def trig_solutions(fn, B, C):
+    """The solutions in [0, 2π] of cos 2x + B·fn(x) + C = 0 (cached: the same equation comes up often)."""
+    return sp.solveset(sp.cos(2 * X) + B * TRIG[fn](X) + C, X, sp.Interval(0, 2 * sp.pi))
+
+
+@lru_cache(maxsize=None)
+def trig_level(fn, val):
+    """The x in [0, 2π] with fn(x) = val."""
+    return sp.solveset(TRIG[fn](X) - val, X, sp.Interval(0, 2 * sp.pi))
+
+
 def ef_same(x, y):
     """Whether two expressions are one object: equal as polynomials, or as numbers."""
     d = sp.simplify(sp.expand_log(x - y, force=True))
@@ -3062,19 +3076,10 @@ def check_eqforms(q):
     elif u == "cos2x-form":
         fn, B, C = g["fn"], R(g["B"]), R(g["C"])
         need(L[0] == f"cos 2x{ef_trig_text(B, fn)}{'' if C == 0 else (' − ' if C < 0 else ' + ') + frac_text(abs(C))} = 0, for 0 ≤ x ≤ 2π", "the equation shown is not the givens")
-        eq = sp.cos(2 * X) + B * TRIG[fn](X) + C
-        sols = sp.solveset(eq, X, sp.Interval(0, 2 * sp.pi))
+        sols = trig_solutions(fn, B, C)
         need(isinstance(sols, sp.FiniteSet) and 2 <= len(sols) <= 4, f"{sols} is not 2 to 4 solutions")
         vals = sorted(sp.nsimplify(s_ / sp.pi) for s_ in sols)
         want = qr_norm(ans, {f"a{i}": str(v_) for i, v_ in enumerate(vals)})
-        if fn == "sin":
-            # cos 2x taken as 1 − sin²x.
-            S = sp.Symbol("S")
-            rts = [r for r in sp.solve(1 - S**2 + B * S + C, S) if r.is_rational]
-            if len(rts) == 2:
-                ws = sp.Union(*[sp.solveset(sp.sin(X) - r, X, sp.Interval(0, 2 * sp.pi)) for r in rts])
-                if isinstance(ws, sp.FiniteSet) and len(ws) == len(vals):
-                    wr["SL3.6.double-angle-values#1"] = {qr_norm(ans, {f"a{i}": str(sp.nsimplify(w / sp.pi)) for i, w in enumerate(sorted(ws, key=float))})}
         qr_check_common(q, want, wr)
     elif u == "power-form-first":
         A, m_, B, n_ = R(g["A"]), R(g["m"]), R(g["B"]), R(g["n"])
@@ -3117,7 +3122,6 @@ SY_NOT = {"The terms of an arithmetic sequence go up by the same amount each tim
           "A line has the same gradient between any two of its points", "e^(a + b) = e^a × e^b", "The angles of a triangle add up to π"}
 SY_EXACT = {"1/2": sp.Rational(1, 2), "√2/2": sp.sqrt(2) / 2, "√3/2": sp.sqrt(3) / 2}
 TH = sp.Symbol("theta")
-NN, RR = sp.symbols("n r", integer=True, positive=True)
 
 
 def sy_parabola(g):
@@ -3240,9 +3244,8 @@ def check_symmetry(q):
         need(th in {sp.Rational(1, 6), sp.Rational(1, 4), sp.Rational(1, 3)}, "θ is not a special angle")
         m = re.search(r"the line y = (\S+) through", L[0]) if rep == "graph" else re.search(r"= (\S+?)\.?$", L[0])
         need(m is not None and sp.simplify(SY_EXACT[m.group(1)] - val) == 0, "the value shown is not the angle's")
-        I = sp.Interval(0, 2 * sp.pi)
-        same = sorted(sp.solveset(TRIG[fn](X) - val, X, I), key=float)
-        opp = sorted(sp.solveset(TRIG[fn](X) + val, X, I), key=float)
+        same = sorted(trig_level(fn, val), key=float)
+        opp = sorted(trig_level(fn, -val), key=float)
         need(len(same) == 2 and th * sp.pi in same and len(opp) == 2, "not two angles each way")
         other = [x for x in same if x != th * sp.pi][0] / sp.pi
         o1, o2 = (x / sp.pi for x in opp)
