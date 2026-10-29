@@ -5866,7 +5866,76 @@ def tc_window(cs):
     return [c for c in cs if abs(c[0]) <= 10 and abs(c[1]) <= 10]
 
 
+# fn-concept-solutions-as-intersections (FAL-420): solutions as meeting points, on the
+# gdc-two-curves situation. The curves are read back and every crossing found again; a
+# cubic's count of solutions of f(x) = k comes from its exact turning values.
+
+def tc_concept(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    j = " ".join([asked] + L)
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    m = re.search(r"The sketch shows y = (.+?), with turning points \((−?\d+), (−?\d+)\) and \((−?\d+), (−?\d+)\)\.", j)
+    if m:
+        need(q["paper"] == 1, "the cubic's count is Paper 1")
+        f = gc_expr(m.group(1))
+        ts = sorted(sp.solve(sp.diff(f, X), X))
+        need([(t, f.subs(X, t)) for t in ts] == [(el_num(m.group(2)), el_num(m.group(3))), (el_num(m.group(4)), el_num(m.group(5)))],
+             "the turning points shown are not the cubic's")
+        lo_v, hi_v = sorted([f.subs(X, t) for t in ts])
+        if u == "k-for-count":
+            gc_check_common(q, f"{frac_text(lo_v)} < k < {frac_text(hi_v)}", {"SL2.10.number-of-solutions#0": {f"{frac_text(lo_v)} ≤ k ≤ {frac_text(hi_v)}"}})
+            return None, None
+        k = el_num(re.search(r"= (−?\d+) have\?", asked).group(1))
+        n = len(set(sp.real_roots(sp.Poly(f - k, X))))
+        wr = {"SL2.10.number-of-solutions#0": {"3"}} if n == 2 else {}
+        gc_check_common(q, str(n), wr)
+        return None, None
+    need(q["paper"] == 2, "two GDC curves are Paper 2")
+    pats = [r"To solve (.+?) = (.+?) with a GDC", r"The sketch shows y = (.+?) and y = (.+?) for ", r"graph(?:s of|s)? y = (.+?) and y = (.+?)(?:;| meet)",
+            r"Equation A: (.+?) = (.+?)\.  Equation B", r"Solving (.+?) = (.+?) is the same", r"f\(x\) = (.+?) and g\(x\) = (.+?), for "]
+    for p in pats:
+        m = re.search(p, j)
+        if m:
+            break
+    need(m is not None, "can't read the two functions")
+    f, g = gc_expr(m.group(1)), gc_expr(m.group(2))
+    d1, d2 = el_num(q["given"]["d1"]), el_num(q["given"]["d2"])
+    cs = tc_crossings(f, g, d1, d2, False)
+    need(all(gc_fair(x) and gc_fair(y) for x, y in cs), "a crossing is not a fair 3 s.f. value")
+    right = next(o for o in q["choices"] if o["correct"])
+    if u == "graphs-for-equation":
+        need("read the x-coordinates where they meet" in right["text"], "the right plan doesn't read the x-coordinates")
+        gc_check_common(q, right["text"], {})
+    elif u == "count-from-sketch":
+        wr = {}
+        if [c for c in cs if abs(c[0]) <= 10 and abs(c[1]) <= 10] != list(cs):
+            wr["SL2.10.solve-gdc#0"] = {str(len([c for c in cs if abs(c[0]) <= 10 and abs(c[1]) <= 10]))}
+        gc_check_common(q, str(len(cs)), wr)
+    elif u == "x-not-y":
+        need(len(cs) == 2, "not two meeting points")
+        want = f"x = {gc_s(cs[0][0])} and x = {gc_s(cs[1][0])}"
+        pts = f"({gc_s(cs[0][0])}, {gc_s(cs[0][1])}) and ({gc_s(cs[1][0])}, {gc_s(cs[1][1])})"
+        need(pts in j, "the meeting points said are not the curves'")
+        gc_check_common(q, want, {"SL2.4.intersection#0": {pts, f"y = {gc_s(cs[0][1])} and y = {gc_s(cs[1][1])}"}})
+    elif u == "difference-picture":
+        ff, gg = gc_f(f), gc_f(g)
+        mk = {"sum": lambda x: ff(x) + gg(x), "lifted": lambda x: ff(x) - gg(x) + 2, "f-alone": ff}
+        for o, gr in zip(q["choices"], q["graphs"]):
+            fn = (lambda x: ff(x) - gg(x)) if o["correct"] else mk[o["mistake"]]
+            need(gc_curve_is(gr["curves"][0], fn), f"the {o.get('mistake') or 'right'} graph is not what it says")
+        gc_check_common(q, right["text"], {})
+    elif u == "same-solutions-after-rearranging":
+        need(right["text"].startswith("Yes: B is A with"), "the right option doesn't say they have the same solutions")
+        gc_check_common(q, right["text"], {})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
 def check_gdc_two_curves(q):
+    if q["view"]["type"] == "fn-concept-solutions-as-intersections":
+        return tc_concept(q)
     g_, u, rep, L, asked = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
     need(q["paper"] == 2, "two GDC curves are Paper 2")
     for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:

@@ -136,17 +136,24 @@ jobs:
   # Its own job so the godot job keeps its time. About 14 minutes with the Quadratics
   # extension types (FAL-459): main's FAL-415 run was cancelled at 15. About 22 on main
   # before the Exponentials and logs region (FAL-418), which adds 355 cells to 506.
+  # The Graphs and key features region (FAL-420) finds every number by root-finding,
+  # about ten times the cost of a question elsewhere, so the sweep runs as four shards
+  # side by side (--shard=k/4: every fourth cell and chain), each with every seed.
   stress:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
-      - run: tools/stress-questions
+      - run: tools/stress-questions --shard=${{ matrix.shard }}/4
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: stress-questions
+          name: stress-questions-${{ matrix.shard }}
           path: _scratch/stress-questions.log
           if-no-files-found: ignore
           retention-days: 14

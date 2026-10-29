@@ -7,10 +7,11 @@ extends "res://tests/test_case.gd"
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
 const CELLS := {"fn-sketch-gdc": 42, "fn-gdc-features": 36, "fn-gdc-intersection": 29, "fn-gdc-optimise-combined": 27,
-	"fn-gdc-solve-equation": 33, "fn-sketch-from-features": 30}
+	"fn-gdc-solve-equation": 33, "fn-sketch-from-features": 30,
+	"fn-concept-solutions-as-intersections": 17}
 const SITUATION := {"fn-sketch-gdc": "gdc-curve", "fn-gdc-features": "gdc-curve", "fn-gdc-intersection": "gdc-two-curves",
 	"fn-gdc-optimise-combined": "gdc-combined", "fn-gdc-solve-equation": "gdc-context-equation",
-	"fn-sketch-from-features": "graph-from-features"}
+	"fn-sketch-from-features": "graph-from-features", "fn-concept-solutions-as-intersections": "gdc-two-curves"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-sketch-gdc|SL2.10.number-of-solutions#2": "counting the asymptote's level needs a curve that levels off; the gdc-curve asymptote is vertical",
@@ -63,7 +64,7 @@ func test_every_cell_makes_a_question_on_its_situation() -> void:
 
 ## The GDC types are Paper 2; sketching from exact features is Paper 1 (stats.paper).
 func test_each_type_is_on_its_paper() -> void:
-	for t in CELLS:
+	for t in CELLS.keys().filter(func(id): return QuestionEngine.type_of(id).source == "exam"):
 		var want := 1 if t == "fn-sketch-from-features" else 2
 		for c in QuestionEngine.cells(false, [t]):
 			var q := _make(t, c.unknown, c.rep, c.angle, 4, "mcq")

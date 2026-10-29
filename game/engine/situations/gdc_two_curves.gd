@@ -12,7 +12,9 @@ extends RefCounted
 ## to a maximum and falls. generate() returns:
 ##   mode       "line" (a curve and a line), "context" (two models of time t ≥ 0),
 ##              "inverse" (f(x) = e^(bx) + c and f⁻¹(x) = (1/b) ln(x − c)), "far"
-##              (one crossing past x = 10, outside the standard window)
+##              (one crossing past x = 10, outside the standard window), "turns" (a
+##              cubic a(x³ − 3p²x) + c with turning points at ±p, the line y = k; its
+##              crossings are counted, not found)
 ##   f, g       the two curves
 ##   var        "x", or "t" in context
 ##   d1, d2     the domain (whole numbers; in the inverse mode d1 is f⁻¹'s asymptote, left out)
@@ -45,6 +47,9 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var mode: String = need.get("mode", "line")
 	if mode == "any":
 		mode = "line"
+	# turns_or_far: the cubic against y = k, or (a third of the time) a crossing past 10.
+	if mode == "turns_or_far":
+		mode = "far" if rng.chance(1.0 / 3.0) else "turns"
 	# far_ok: a third of the time, one crossing is past x = 10 (SL2.4.intersection#1).
 	var far_free: bool = need.get("far_ok", false) and not need.has("crossings") and not need.get("at0", false) \
 			and not need.get("table", false)
@@ -60,6 +65,10 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		var s := _draw(rng, mode, need)
 		if s.is_empty():
 			continue
+		if s.mode == "turns":
+			# Whole-number turning points and k: read off the sketch, no calculator.
+			s.paper = 1
+			return s
 		s.crossings = crossings(s, lo_x(s), s.d2.to_float())
 		if _clean(s, need):
 			s.mode = mode
@@ -199,6 +208,25 @@ static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:
 			s.g = curve("log", {"A": Q.new(1).div(b), "r": c.neg()})
 			s.d1 = c
 			s.d2 = Q.new(rng.int_in(4, 6))
+		"turns":
+			# f(x) = a(x³ − 3p²x) + c: turning points at x = ±p, at whole-number heights,
+			# against a horizontal line y = k (fn-concept-solutions-as-intersections).
+			var a := Q.new([1, -1][rng.int_in(0, 1)])
+			var p := rng.int_in(1, 2)
+			var c := Q.new(rng.int_in(-2, 2))
+			if p == 2:
+				a = a.div(Q.new(4))
+			s.f = curve("cubic", {"A": a, "m": a.mul(Q.new(-3 * p * p)), "c": c})
+			s.p = Q.new(p)
+			s.top = c.add(a.mul(Q.new(2 * p * p * p)).abs_q())
+			s.bottom = c.sub(a.mul(Q.new(2 * p * p * p)).abs_q())
+			# k: a turning value (the line touches there) or a whole number between or outside.
+			var ks := [s.top, s.bottom, s.top.add(Q.new(1)), c, s.bottom.sub(Q.new(1))]
+			s.g = line(Q.new(0), ks[rng.int_in(0, ks.size() - 1)])
+			s.d1 = Q.new(-3 * p)
+			s.d2 = Q.new(3 * p)
+			s.crossings = []
+			return s
 		"far":
 			s.f = curve("explin", {"A": _pick(rng, [0.5, 0.2, 0.3, 1]), "b": _pick(rng, [0.25, 0.3, 0.35, 0.4])})
 			s.g = line(_pick(rng, [1, 1.5, 2, 2.5, 3]), Q.new(rng.int_in(-4, 6), 2))

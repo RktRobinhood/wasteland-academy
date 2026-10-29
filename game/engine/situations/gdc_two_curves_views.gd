@@ -16,7 +16,18 @@ const NEED := {
 	"crossing-in-interval": {"mode": "line", "crossings": 2},
 	"crossing-from-table": {"mode": "line", "table": true},
 	"constant-from-crossing": {"mode": "line", "at0": true, "crossings": 2},
+	# fn-concept-solutions-as-intersections (extension)
+	"graphs-for-equation": {"mode": "line", "crossings": 2},
+	"count-from-sketch": {"mode": "turns_or_far"},
+	"x-not-y": {"mode": "line", "crossings": 2},
+	"difference-picture": {"mode": "line", "crossings": 2},
+	"same-solutions-after-rearranging": {"mode": "line", "crossings": 2},
+	"k-for-count": {"mode": "turns"},
 }
+
+## The extension unknowns offer true-false-reason (a student's answer, from the options).
+const TFR := ["graphs-for-equation", "count-from-sketch", "x-not-y", "same-solutions-after-rearranging", "k-for-count"]
+const NS := "SL2.10.number-of-solutions"
 
 const IN := "SL2.4.intersection"
 const SG := "SL2.10.solve-gdc"
@@ -28,6 +39,10 @@ func has(unknown: String) -> bool:
 
 func need(unknown: String, _rep: String) -> Dictionary:
 	return NEED[unknown].duplicate()
+
+
+func formats(unknown: String) -> Array:
+	return ["true-false-reason"] if unknown in TFR else []
 
 
 ## Two needs as one for a shared situation, or null: the far mode shares only with the
@@ -412,5 +427,188 @@ func u_constant_from_crossing(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 				"Graph y = %s and y = %s; the intersect tool finds the other crossing at x = %s." % [ft(s), gt(s), W(other[0])], final]},
 			"equate-and-solve": {"result": ans.values, "steps": [sub,
 				"Then %s = %s mixes families, so the GDC solves it: x = 0 or x = %s." % [ft(s), gt(s), W(other[0])], final]},
+		},
+	}
+
+
+# ── fn-concept-solutions-as-intersections ────────────────────
+
+func u_graphs_for_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var eq := "%s = %s" % [ft(s), gt(s)]
+	var right := "Graph y = %s and y = %s, and read the x-coordinates where they meet." % [ft(s), gt(s)]
+	var out := LogFunctionViews.choice(right, [], ["Graph y = %s and y = %s, and read the y-coordinates where they meet." % [ft(s), gt(s)],
+		"Graph y = %s only, and read where it crosses the x-axis." % ft(s),
+		"Graph y = %s − %s, and read where it crosses y = 1." % [ft(s), gt(s)]])
+	var final: String = "So: " + right
+	out.merge({
+		"asked": "To solve %s with a GDC, which graphs do you draw, and what do you read off?" % eq, "lines": [eq],
+		"methods": {
+			"sketch-and-count": {"result": out.answer.values, "steps": ["Each side of the equation is a function of x: graph each one.",
+				"A solution is an x where both sides are equal: an x-coordinate where the graphs meet.", final]},
+			"intersect-two-graphs": {"result": out.answer.values, "steps": ["Graph both sides, then use intersect at each crossing.",
+				"The solutions are the x-values it gives: %s." % xs6(s.crossings), final]},
+		}})
+	return out
+
+
+func u_count_from_sketch(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var n: int
+	var wrongs: Array = []
+	var lines: Array
+	var asked: String
+	var steps: Array
+	if s.mode == "turns":
+		var k: Q = s.g.c
+		var top: Q = s.top
+		var bottom: Q = s.bottom
+		n = 1
+		if k.to_float() < top.to_float() and k.to_float() > bottom.to_float():
+			n = 3
+		elif k.eq(top) or k.eq(bottom):
+			n = 2
+			wrongs.append(wrong({"v": Q.new(3)}, NS + "#0"))
+		lines = ["The sketch shows y = %s, with turning points (%s, %s) and (%s, %s)." % [ft(s), N(s.p.neg()), N(_at_q(s, s.p.neg())),
+			N(s.p), N(_at_q(s, s.p))]]
+		asked = "How many solutions does %s = %s have?" % [ft(s), N(k)]
+		steps = ["Draw the horizontal line y = %s across the sketch." % N(k),
+			"It meets the curve %d time%s%s." % [n, "" if n == 1 else "s", ": it only touches at the turning point, which is one solution" if n == 2 else ""]]
+	else:
+		n = s.crossings.size()
+		var inside := in_window(s.crossings).size()
+		if inside != n:
+			wrongs.append(wrong({"v": Q.new(inside)}, SG + "#0"))
+		lines = ["The sketch shows y = %s and y = %s for %s." % [ft(s), gt(s), dom(s)]]
+		asked = "How many solutions does %s = %s have for %s?" % [ft(s), gt(s), dom(s)]
+		steps = ["Count every crossing over the whole domain, not just the standard window.", "They cross at " + xs6(s.crossings) + "."]
+	var ans := Answer.make("number", {"v": Q.new(n)})
+	ans.exact = true
+	var final := "So there %s %d solution%s." % ["is" if n == 1 else "are", n, "" if n == 1 else "s"]
+	return {
+		"asked": asked, "lines": lines, "graph": _sketch(s), "answer": ans, "wrongs": wrongs,
+		"generic": [{"v": Q.new(n + 1)}, {"v": Q.new(maxi(n - 1, 0))}, {"v": Q.new(n + 2)}, {"v": Q.new(0)}],
+		"methods": {
+			"sketch-and-count": {"result": ans.values, "steps": steps + [final]},
+			"horizontal-line-sweep": {"result": ans.values, "steps": steps + [final]},
+			"gdc-graph": {"result": ans.values, "steps": ["Graph both sides on the GDC with a window wide enough to see every crossing."] + steps.slice(1) + [final]},
+		},
+	}
+
+
+## f at a whole-number x, exactly: the turns mode's turning values.
+static func _at_q(s: Dictionary, x: Q) -> Q:
+	return s.f.A.mul(x).mul(x).mul(x).add(s.f.m.mul(x)).add(s.f.c)
+
+
+static func N(v: Variant) -> String:
+	return Fmt.num(v)
+
+
+## The sketch: both curves (the turns mode's cubic with its turning points marked).
+static func _sketch(s: Dictionary) -> Dictionary:
+	if s.mode != "turns":
+		return screen(s)
+	var p: float = s.p.to_float()
+	var f := func(x: float) -> float: return GdcTwoCurvesSituation.at(s.f, x)
+	var top: float = s.top.to_float()
+	var bottom: float = s.bottom.to_float()
+	var k: float = s.g.c.to_float()
+	var w := GdcKit.window(-2.2 * p, 2.2 * p, minf(bottom, k) - 1.0, maxf(top, k) + 1.0, 0.0, 0.1)
+	var pts := [[-p, f.call(-p), "(%s, %s)" % [N(s.p.neg()), N(_at_q(s, s.p.neg()))]], [p, f.call(p), "(%s, %s)" % [N(s.p), N(_at_q(s, s.p))]]]
+	return Plot.spec([GdcKit.curve(f, -2.2 * p, 2.2 * p)], pts, w[0], w[1], w[2], w[3], [[k, "y = " + N(s.g.c)]])
+
+
+func u_x_not_y(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var cs: Array = s.crossings
+	var xs := "x = %s and x = %s" % [S(cs[0][0]), S(cs[1][0])]
+	var pts := "(%s, %s) and (%s, %s)" % [S(cs[0][0]), S(cs[0][1]), S(cs[1][0]), S(cs[1][1])]
+	var ys := "y = %s and y = %s" % [S(cs[0][1]), S(cs[1][1])]
+	var out := LogFunctionViews.choice(xs, [wrong({"v": pts}, IN + "#0"), wrong({"v": ys}, IN + "#0")],
+		["x = %s and x = %s" % [S(cs[0][1]), S(cs[1][1])]])
+	var final: String = "So the solutions are " + xs + "."
+	var lines := ["The graphs of y = %s and y = %s meet at %s." % [ft(s), gt(s), pts]]
+	if rep == "words":
+		lines = ["A student graphs y = %s and y = %s; the GDC shows they meet at %s." % [ft(s), gt(s), pts]]
+	out.merge({
+		"asked": "What are the solutions of %s = %s?" % [ft(s), gt(s)], "lines": lines, "graph": screen(s) if rep == "graph" else null,
+		"methods": {
+			"sketch-and-count": {"result": out.answer.values, "steps": ["An equation in x has values of x as its solutions.",
+				"At each meeting point both sides are equal, so its x-coordinate solves it.", final]},
+			"intersect-two-graphs": {"result": out.answer.values, "steps": ["The intersect tool gives the points %s." % pts,
+				"Only the x-coordinates answer an equation in x.", final]},
+		}})
+	return out
+
+
+func u_difference_picture(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var lo := GdcTwoCurvesSituation.lo_x(s)
+	var hi: float = s.d2.to_float()
+	var f := func(x: float) -> float: return GdcTwoCurvesSituation.at(s.f, x)
+	var g := func(x: float) -> float: return GdcTwoCurvesSituation.at(s.g, x)
+	var d := func(x: float) -> float: return f.call(x) - g.call(x)
+	var su := func(x: float) -> float: return f.call(x) + g.call(x)
+	var up := func(x: float) -> float: return f.call(x) - g.call(x) + 2.0
+	var ys: Array = [0.0]
+	for i in 33:
+		var x := lo + (hi - lo) * i / 32.0
+		ys.append(d.call(x))
+	var w := GdcKit.window(lo, hi, ys.min(), ys.max())
+	var cd := func(fn: Callable) -> Dictionary: return GdcKit.card([GdcKit.curve(fn, lo, hi)], [], w)
+	var p := GdcKit.pick(cd.call(d), [
+		{"graph": cd.call(su), "ref": "", "mistake": "sum", "why": "it is f + g, whose zeros are not where f and g meet"},
+		{"graph": cd.call(up), "ref": "", "mistake": "lifted", "why": "it is f − g + 2: its zeros moved off the meeting points"},
+		{"graph": cd.call(f), "ref": "", "mistake": "f-alone", "why": "it is f alone: its zeros are where f = 0, not where f = g"},
+	], rng)
+	var final: String = "So the graph of y = f(x) − g(x) is %s: it crosses the x-axis at %s." % [p.answer.values.v, xs6(s.crossings)]
+	return {
+		"asked": "The graphs of y = f(x) and y = g(x) are shown. Which graph is y = f(x) − g(x)?",
+		"lines": ["f(x) = %s and g(x) = %s, for %s" % [ft(s), gt(s), dom(s)]], "graph": screen(s), "answer": p.answer, "graphs": p.graphs,
+		"methods": {
+			"zeros-of-difference": {"result": p.answer.values, "steps": ["f(x) − g(x) = 0 exactly where f(x) = g(x).",
+				"So its graph crosses the x-axis at the meeting x-values, %s." % xs6(s.crossings), final]},
+			"zero-of-difference": {"result": p.answer.values, "steps": ["Subtract the heights at each x: where f is above g, f − g is positive.",
+				"Its zeros are the meeting x-values.", final]},
+		},
+	}
+
+
+func u_same_solutions_after_rearranging(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var a := "%s = %s" % [ft(s), gt(s)]
+	var b := "%s − (%s) = 0" % [ft(s), gt(s)]
+	var right := "Yes: B is A with %s taken from both sides, so they have the same solutions." % gt(s)
+	var out := LogFunctionViews.choice(right, [], ["No: B's solutions are where the graph of the difference meets y = %s." % gt(s),
+		"No: rearranging an equation changes its solutions.", "Yes, but only when both sides are lines."])
+	var final: String = "So: " + right
+	var lines := ["Equation A: %s.  Equation B: %s." % [a, b]]
+	if rep == "words":
+		lines = ["A student says: \"Solving %s is the same as finding the zeros of y = %s − (%s).\"" % [a, ft(s), gt(s)]]
+	out.merge({
+		"asked": "Do equations A and B have the same solutions?" if rep == "equation" else "Is the student right?", "lines": lines,
+		"methods": {
+			"zeros-of-difference": {"result": out.answer.values, "steps": ["Subtracting the same thing from both sides keeps every solution and adds none.",
+				"So the zeros of the difference are the meeting x-values: %s." % xs6(s.crossings), final]},
+			"zero-of-difference": {"result": out.answer.values, "steps": ["Graph y = %s − (%s): it crosses the x-axis at %s." % [ft(s), gt(s), xs6(s.crossings)],
+				"Those are where the two graphs of A meet.", final]},
+		}})
+	return out
+
+
+func u_k_for_count(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var top: Q = s.top
+	var bottom: Q = s.bottom
+	var ans := Answer.make("range2", {"lo": bottom, "r1": "<", "r2": "<", "hi": top}, {"var": "k"})
+	ans.exact = true
+	var final := "So f(x) = k has three solutions for " + Answer.text(ans) + "."
+	return {
+		"asked": "For which values of k does %s = k have exactly three solutions?" % ft(s),
+		"lines": ["The sketch shows y = %s, with turning points (%s, %s) and (%s, %s)." % [ft(s), N(s.p.neg()), N(_at_q(s, s.p.neg())),
+			N(s.p), N(_at_q(s, s.p))]], "graph": _sketch(s), "answer": ans,
+		"wrongs": [wrong({"lo": bottom, "r1": "≤", "r2": "≤", "hi": top}, NS + "#0")],
+		"generic": [{"lo": bottom, "r1": "<", "r2": "≤", "hi": top}, {"lo": s.p.neg(), "r1": "<", "r2": "<", "hi": s.p},
+			{"lo": bottom.sub(Q.new(1)), "r1": "<", "r2": "<", "hi": top.add(Q.new(1))}],
+		"methods": {
+			"horizontal-line-sweep": {"result": ans.values, "steps": ["Slide a line y = k up the sketch and count where it meets the curve.",
+				"Between the turning values %s and %s it meets it three times; at either one it only touches there, so twice." % [N(bottom), N(top)], final]},
+			"turning-point-boundaries": {"result": ans.values, "steps": ["The count changes only at the turning values, %s and %s." % [N(bottom), N(top)],
+				"Strictly between them there are three solutions; at them, two.", final]},
 		},
 	}
