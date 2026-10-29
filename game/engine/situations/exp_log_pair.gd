@@ -27,6 +27,12 @@ extends RefCounted
 
 const TRIES := 2000
 const BASES := [2, 3, 4, 5, 10]
+## The modes with a Paper 2 version.
+const PAPER2_MODES := ["log", "esolve"]
+## Paper 2 limits: the inside x − h for g(xe), t (in tenths) and b^t.
+const XE_INSIDE := [2, 60]
+const T_TENTHS := [2, 29]
+const BT_MAX := 150.0
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
@@ -43,10 +49,15 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 				mode = "shift"
 			_:
 				mode = "stretch" if rng.chance(0.5) else "shift"
+	var paper: int = need.get("paper", 0)
 	for i in TRIES:
 		var s := _draw(rng, mode, need)
+		if not s.is_empty() and paper == 2 and mode in PAPER2_MODES:
+			s = _paper2(rng, mode, s)
 		if not s.is_empty():
 			s.mode = mode
+			if paper > 0:
+				s.paper = 2 if paper == 2 and mode in PAPER2_MODES else 1
 			return s
 	push_error("ExpLogPairSituation: no clean situation for %s" % need)
 	return {}
@@ -132,6 +143,33 @@ static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:
 			if need.get("a_pos", false) and s.A.sign() < 0:
 				return {}
 			s.flip = rng.chance(0.5)
+	return s
+
+
+## The Paper 2 numbers on top of a drawn situation, or {} to draw again. Only called
+## for Paper 2, so the Paper 1 stream is untouched.
+static func _paper2(rng: Seeded, mode: String, s: Dictionary) -> Dictionary:
+	match mode:
+		"log":
+			var b: int = s.b
+			var k := rng.int_in(XE_INSIDE[0], XE_INSIDE[1])
+			var p := 1
+			while p < k:
+				p *= b
+			if p == k or not Answer.rounds_clearly(log(float(k)) / log(float(b)) + s.c):
+				return {}
+			s.xe = s.h + k
+			var t10 := rng.int_in(T_TENTHS[0], T_TENTHS[1])
+			var bt := pow(float(b), t10 / 10.0)
+			var x: float = bt + s.h
+			# Not whole (b = 4 at a half is a whole power of 2), small, and clear of an edge.
+			if t10 % 10 == 0 or bt > BT_MAX or absf(bt - roundf(bt)) < 1e-6 or absf(x) < 1.0 or not Answer.rounds_clearly(x):
+				return {}
+			s.t = Q.new(t10, 10)
+			s.at = s.t.add(Q.new(s.c))
+		"esolve":
+			if not Answer.rounds_clearly(log(float(s.r)) / s.m):
+				return {}
 	return s
 
 

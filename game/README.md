@@ -115,7 +115,11 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   first four terms, for `t1-arithmetic-sequence`. Its representations are `notation`
   (u₁ = 7,  d = 3), `terms` (7, 10, 13, 16, …), `table` (n against uₙ) and `words`,
   and its answers are marked exactly (`exact` on the answer), because Paper 1 wants a
-  whole-number sum such as 1807, not 1810. Any type with a `situation` gets a copy in
+  whole-number sum such as 1807, not 1810. Its Paper 2 version (FAL-419), in words only,
+  is a savings plan in dollars and cents or a training plan in km with a decimal u₁ and
+  d, worked with a GDC: a term or a sum (money to 2 d.p. or a decimal, still exact, since
+  it ends), or the first week or day whose term or running total is more than a round
+  threshold (a whole n). Any type with a `situation` gets a copy in
   `data/catalogue.json`, whatever its topic.
 - `engine/situations/distribution.gd` (FAL-396) is the Topic 4 situation: one
   discrete random variable X with 3 to 5 values, its probabilities as multiples of k,
@@ -167,7 +171,10 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   that meet. `exp_log_pair.gd` is an exponential and its log inverse, with modes for
   bases from one family, an e-equation, a composite inequality, a translation or stretch
   between exponentials, f∘g against g∘f and the log of a square; `fn-ext-exp-graph`
-  shares it (A·b^(x − h) + c). `log_quadratic.gd` extends `quadratic`: a downward
+  shares it (A·b^(x − h) + c). Its Paper 2 version (FAL-419) asks g at an input whose
+  inside is not a power of b, g⁻¹ at a decimal, log_b(x − h) + c = a decimal and
+  e^(mx) + c = d, each to 3 s.f. with a GDC and the rounding trap; `fn-ext-exp-graph`
+  stays Paper 1. `log_quadratic.gd` extends `quadratic`: a downward
   parabola whose top is a whole power of the log's base, so the maximum, the base and the
   surd zeros come out exact. `log_function.gd` extends `exp-log-pair`: A·log_b(mx + n) + c.
   The extension situations are `percent.gd` (`fn-pre-percent-multiplier`),

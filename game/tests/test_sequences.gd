@@ -103,3 +103,53 @@ func test_probes_are_served() -> void:
 	check_eq(mine.size(), 3)
 	check_eq(QuestionEngine.probe(TYPE, 1).verdict, "True")
 	check_eq(QuestionEngine.probe(TYPE, 2).verdict, "Sometimes")
+
+
+func test_paper_2_is_a_decimal_context_in_words() -> void:
+	# FAL-419: the words cells of four unknowns have a Paper 2 version, every other
+	# cell is Paper 1 only.
+	var t := QuestionEngine.type_of(TYPE)
+	for c in QuestionEngine.cells(false, [TYPE]):
+		var both: bool = c.rep == "words" and c.unknown in ArithmeticSequenceViews.PAPER2
+		check_eq(QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle), [1, 2] if both else [1], c.key)
+		if not both:
+			continue
+		for seed in range(1, 11):
+			var q := QuestionEngine.make({"type": TYPE, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed,
+				"format": "mcq", "paper": 2})
+			check_eq(q.paper, 2, c.key)
+			check(q.situation.ctx in ["money", "km"], c.key)
+			# u₁ and d are decimals, so the working needs a calculator, and the answer is
+			# still exact: an amount that ends, or a whole n.
+			check(not q.given.u1.is_valid_int() and not q.given.d.is_valid_int(), "%s seed %d: u₁ or d is whole" % [c.key, seed])
+			check(q.answer.exact, c.key)
+			var v: Q = q.answer.values.v
+			check(v.mul(100).is_int(), "%s seed %d: %s doesn't end" % [c.key, seed, q.answer_text])
+			if c.unknown.begins_with("n-from"):
+				check(v.is_int() and v.sign() > 0, "%s seed %d: n is not a positive whole number" % [c.key, seed])
+			check(q.solutions.all(func(sol): return sol.steps.any(func(st): return st.contains("GDC"))), c.key + ": no GDC step")
+			var right: int = range(q.choices.size()).filter(func(i): return q.choices[i].correct)[0]
+			check(QuestionEngine.mark(q, {"choice": right}).correct, c.key)
+
+
+func test_paper_2_first_term_and_sum_over_a_threshold() -> void:
+	for seed in range(1, 31):
+		var s := ArithmeticSequenceSituation.generate(Seeded.new("sum|%d" % seed), {"n": "sum", "sum_root": true, "paper": 2})
+		var n: int = s.n.n
+		check(s.X.lt(ArithmeticSequenceSituation.sum(s, n)) and not s.X.lt(ArithmeticSequenceSituation.sum(s, n - 1)),
+			"seed %d: S%d is not the first sum over %s" % [seed, n, s.X.key()])
+		var t := ArithmeticSequenceSituation.generate(Seeded.new("term|%d" % seed), {"n": "term", "paper": 2})
+		var m: int = t.n.n
+		check(t.Y.lt(ArithmeticSequenceSituation.term(t, m)) and not t.Y.lt(ArithmeticSequenceSituation.term(t, m - 1)),
+			"seed %d: u%d is not the first term over %s" % [seed, m, t.Y.key()])
+
+
+func test_paper_1_numbers_do_not_change_with_the_paper() -> void:
+	# Told Paper 1, the recipe draws exactly what it drew before papers existed.
+	for need in [{"n": "term"}, {"n": "sum", "two_terms": true}, {"n": "sum", "sum_root": true}]:
+		for seed in range(1, 21):
+			var a := ArithmeticSequenceSituation.generate(Seeded.new("p|%d" % seed), need)
+			var b := ArithmeticSequenceSituation.generate(Seeded.new("p|%d" % seed), need.merged({"paper": 1}))
+			check_eq(b.paper, 1)
+			b.erase("paper")
+			check_eq(str(ArithmeticSequenceSituation.export(a)), str(ArithmeticSequenceSituation.export(b)), str(need))
