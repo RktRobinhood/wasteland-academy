@@ -80,10 +80,11 @@ jobs:
           retention-days: 14
 
   # The seed sweep: every cell with seeds 51 to 2250, past the checker's 1 to 50.
-  # Its own job so the godot job keeps its time. About 4 minutes.
+  # Its own job so the godot job keeps its time. About 14 minutes with the Quadratics
+  # extension types (FAL-459): main's FAL-415 run was cancelled at 15.
   stress:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh

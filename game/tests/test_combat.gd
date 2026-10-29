@@ -19,7 +19,7 @@ static func respond(q: Dictionary, right: bool) -> Dictionary:
 	for i in q.choices.size():
 		if q.choices[i].correct == right and not q.choices[i].get("trap", false) and pick < 0:
 			pick = i
-	if q.format == "mcq":
+	if QuestionEngine.is_choice(q):
 		return {"choice": pick}
 	var values: Dictionary = q.answer.values if right else q.choices[pick].values
 	var out := {}

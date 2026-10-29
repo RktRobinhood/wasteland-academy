@@ -19,8 +19,17 @@ const CATALOGUE := "res://data/catalogue.json"
 ## The eight formats of the FAL-310 plan. BUILT are the ones a question can use now;
 ## the rest are named so a view can ask for them and get a clear "not built yet".
 const FORMATS := ["value", "mcq", "error-spot", "method-pick", "true-false-reason", "match", "order-steps", "pick-the-graph"]
-const BUILT := ["value", "mcq"]
+const BUILT := ["value", "mcq", "error-spot", "method-pick", "true-false-reason"]
 const CHOICES := 4
+## The formats built on a question (FAL-459), each played as four options like mcq:
+## error-spot (which line of a student's working is the first wrong one),
+## method-pick (which method works) and true-false-reason (is a student's answer
+## right, and if not, what should it be). A cell offers one only where its type's
+## catalogue `formats` lists it and its views build it (views.formats(unknown)).
+const EXTRA_FORMATS := ["error-spot", "method-pick", "true-false-reason"]
+const CHOICE_FORMATS := ["mcq", "error-spot", "method-pick", "true-false-reason"]
+## The share of a cell's questions the planner asks in one of its extra formats.
+const EXTRA_SHARE := 0.3
 
 ## Situation id -> [recipe, views]. A situation that `extends` another one (say
 ## quadratic-inequality) gets its own entry: a recipe that calls the base recipe's
@@ -35,6 +44,13 @@ static var SITUATIONS := {
 	"quadratic-equation": [QuadraticEquationSituation, QuadraticEquationViews],
 	"quadratic-inequality": [QuadraticInequalitySituation, QuadraticInequalityViews],
 	"cubic": [CubicSituation, CubicViews],
+	"fn-pre-expand": [ExpandSituation, ExpandViews],
+	"fn-pre-factorise": [FactoriseSituation, FactoriseViews],
+	"fn-pre-surds": [SurdsSituation, SurdsViews],
+	"fn-pre-linear-inequalities": [LinearInequalitySituation, LinearInequalityViews],
+	"quadratic-model": [QuadraticModelSituation, QuadraticModelViews],
+	"fn-link-equivalent-forms": [EquivalentFormsSituation, EquivalentFormsViews],
+	"fn-link-symmetry": [SymmetrySituation, SymmetryViews],
 }
 
 static var _cat: Dictionary = {}
@@ -140,6 +156,43 @@ static func cells(exam_only: bool = false, types: Array = []) -> Array:
 
 static func cell_key(type: String, unknown: String, rep: String, angle: String) -> String:
 	return "%s|%s|%s|%s" % [type, unknown, rep, angle]
+
+
+## Whether a question is answered by picking one of its options.
+static func is_choice(q: Dictionary) -> bool:
+	return q.get("format", "") in CHOICE_FORMATS
+
+
+## The extra formats (EXTRA_FORMATS) a cell can be asked in: listed in its type's
+## `formats` and built by its views for the unknown. method-pick needs a method that
+## works: not "any", and not one the catalogue says fails for the unknown.
+static func extra_formats(type_id: String, unknown: String, angle: String) -> Array:
+	var t := type_of(type_id)
+	var views = views_for(t)
+	if views == null or not views.has_method("formats"):
+		return []
+	var listed: Array = t.get("formats", [])
+	var works := angle != "any" and not fails(t, unknown, angle)
+	return views.formats(unknown).filter(func(f): return f in EXTRA_FORMATS and f in listed and (f != "method-pick" or works))
+
+
+## Whether the catalogue says a method fails for an unknown (its angle's weak kind).
+static func fails(t: Dictionary, unknown: String, method: String) -> bool:
+	for a in t.get("angles", []):
+		var weak: Dictionary = a.get("weak", {})
+		if a.method == method and weak.get("kind") == "fails" and unknown in weak.get("unknowns", []):
+			return true
+	return false
+
+
+## The planner's and the dungeon's format, switched to one of the cell's extra
+## formats about EXTRA_SHARE of the time. It draws only for a cell that has one, so
+## every other cell's stream is unchanged.
+static func upgrade_format(c: Dictionary, fmt: String, rng: Seeded) -> String:
+	var extra := extra_formats(c.type, c.unknown, c.angle)
+	if extra.is_empty() or not rng.chance(EXTRA_SHARE):
+		return fmt
+	return extra[rng.int_in(0, extra.size() - 1)]
 
 
 # ── One situation, many questions ────────────────────────────
@@ -360,6 +413,8 @@ static func _resolve(view: Dictionary) -> Dictionary:
 		return {"error": "unknown format %s" % fmt}
 	if not fmt in BUILT:
 		return {"error": "format %s is not built yet" % fmt}
+	if fmt in EXTRA_FORMATS and not fmt in extra_formats(t.id, u.id, angle):
+		return {"error": "format %s is not built for %s" % [fmt, cell_key(t.id, u.id, rep, angle)]}
 	return {"t": t, "u": u, "views": views, "rep": rep, "angles": angles, "angle": angle, "format": fmt,
 		"seed": int(view.get("seed", 0)), "marks": int(view.get("marks", t.get("marks", 0)))}
 
@@ -370,7 +425,14 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 	var u: Dictionary = v.u
 	var angle: String = v.angle
 	var fmt: String = v.format
-	var b: Dictionary = v.views.build(u.id, v.rep, s, rng)
+	# An extra format is built on the question's multiple-choice form.
+	var extra := ""
+	if fmt in EXTRA_FORMATS:
+		extra = fmt
+		fmt = "mcq"
+	# Views whose context hangs on the method (fn-link-symmetry's find-the-mirror: a
+	# parabola, or nCr) are told it.
+	var b: Dictionary = v.views.build_view(u.id, v.rep, angle, s, rng) if v.views.has_method("build_view") else v.views.build(u.id, v.rep, s, rng)
 	var ans: Dictionary = b.answer
 	if ans.kind in Answer.MC_ONLY:
 		fmt = "mcq"
@@ -390,7 +452,7 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 				"result": b.methods[a].result})
 	var choices := _choices(ans, b, rng)
 	var out_view := {"type": t.id, "unknown": u.id, "rep": v.rep, "angle": angle, "format": fmt, "seed": v.seed}
-	return {
+	var q := {
 		"view": out_view,
 		"marks": v.marks,
 		"cell": cell_key(t.id, u.id, v.rep, angle),
@@ -402,6 +464,9 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 		"choices": choices, "solutions": solutions,
 		"given": b.given, "situation_id": t.situation, "situation": SITUATIONS[t.situation][0].export(s),
 	}
+	if extra != "":
+		_reformat(q, v, b, extra)
+	return q
 
 
 ## Four options: the answer and three wrong ones. The view's rounding trap (Q7) comes
@@ -437,6 +502,89 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	return rng.shuffled(opts)
 
 
+## The catalogue text of a misconception ref ("" if the type has none by that ref).
+## A misconception without a ref of its own is "<type id>#<index>".
+static func misconception_text(t: Dictionary, ref: String) -> String:
+	var ms: Array = t.get("misconceptions", [])
+	for i in ms.size():
+		if ms[i].get("ref", "%s#%d" % [t.id, i]) == ref:
+			return ms[i].text
+	return ""
+
+
+## Turns a built multiple-choice question into an extra format, in place. The
+## question's answer, working and its own options (kept as base_choices, for the
+## checker) stay; the prompt and the four options change, and `reason` says why
+## the right option is right.
+static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) -> void:
+	var t: Dictionary = v.t
+	var rng := Seeded.new("%s|%s|%d" % [q.cell, fmt, v.seed])
+	# The stream's first draw leans low (FAL-460), so it is spent before anything is picked.
+	rng.int_in(0, 1)
+	q.base_choices = q.choices
+	q.format = fmt
+	q.view.format = fmt
+	var opts: Array = []
+	match fmt:
+		"true-false-reason":
+			var right: Dictionary = q.choices.filter(func(c): return c.correct)[0]
+			var wrongs: Array = q.choices.filter(func(c): return not c.correct)
+			var claims: Array = wrongs.filter(func(c): return not c.get("trap", false))
+			var tagged: Array = claims.filter(func(c): return c.ref != "")
+			var claim: Dictionary = right
+			if not claims.is_empty() and not rng.chance(0.5):
+				claim = rng.pick(tagged if not tagged.is_empty() else claims)
+			if claim.correct:
+				opts.append({"text": "True", "correct": true, "ref": ""})
+			else:
+				opts.append({"text": "False: it should be %s" % right.text, "correct": true, "ref": ""})
+				# Agreeing with a misconception's answer is that misconception.
+				opts.append({"text": "True", "correct": false, "ref": claim.ref})
+			for w in wrongs:
+				if opts.size() < CHOICES and w != claim:
+					opts.append({"text": "False: it should be %s" % w.text, "correct": false, "ref": ""})
+			q.claim = claim.text
+			q.prompt = "%s\nA student's answer: %s. True or false?" % [b.asked, claim.text]
+			var why := misconception_text(t, claim.ref) if not claim.correct else ""
+			if claim.correct:
+				q.reason = "The student is right: the answer is %s." % right.text
+			else:
+				q.reason = "The answer is %s, not %s." % [right.text, claim.text] + (" The mistake: %s." % why.rstrip(".") if why != "" else "")
+		"method-pick":
+			var right_name: String = angle_info(t, v.u.id, v.angle).name
+			var works: Array = v.angles.filter(func(a): return not fails(t, v.u.id, a)).map(func(a): return angle_info(t, v.u.id, a).get("name", a))
+			var pool: Array = []
+			for a in t.get("angles", []):
+				if fails(t, v.u.id, a.method):
+					pool.append({"name": a.name, "why": a.weak.why})
+			pool.append_array(b.get("pick_wrongs", []))
+			opts.append({"text": right_name, "correct": true, "ref": ""})
+			var whys: Array = []
+			for w in pool:
+				if opts.size() >= CHOICES:
+					break
+				if w.name in works or opts.any(func(o): return o.text == w.name):
+					continue
+				opts.append({"text": w.name, "correct": false, "ref": ""})
+				whys.append("%s: %s." % [w.name, w.why.rstrip(".")])
+			q.prompt = "%s\nWhich method works for this question?" % b.asked
+			q.reason = "%s works. %s" % [right_name, " ".join(whys)]
+		"error-spot":
+			var spot: Dictionary = b.spot
+			var shown: Array = q.lines.duplicate()
+			shown.append("A student's working:")
+			for i in spot.lines.size():
+				shown.append("Line %d: %s" % [i + 1, spot.lines[i]])
+				opts.append({"text": "Line %d" % (i + 1), "correct": i == spot.bad, "ref": ""})
+			q.lines = shown
+			q.spot = {"lines": spot.lines, "bad": spot.bad, "ref": spot.ref}
+			q.prompt = "%s\nA student answered this. Which line has the first mistake?" % b.asked
+			q.reason = "Line %d is wrong: %s." % [spot.bad + 1, spot.why.rstrip(".")]
+	for o in opts:
+		o.values = {"v": o.text}
+	q.choices = opts if fmt == "error-spot" else rng.shuffled(opts)
+
+
 ## A wrong option must still be a well-formed answer: no zero leading coefficient, and
 ## a measure (shown to 3 s.f.) that is positive and not on a rounding edge.
 static func _usable(ans: Dictionary, values: Dictionary) -> bool:
@@ -467,7 +615,7 @@ static func _nudges(ans: Dictionary) -> Array:
 ## "misconception"}: glancing is the right value with too few figures, or the rounding
 ## trap picked (Q7); misconception is the ref of the wrong option the answer matches, or "".
 static func mark(question: Dictionary, response: Dictionary) -> Dictionary:
-	if question.format == "mcq":
+	if is_choice(question):
 		var i := int(response.get("choice", -1))
 		if i < 0 or i >= question.choices.size():
 			return {"correct": false, "complete": false, "glancing": false, "errors": {"choice": "Choose one."}, "misconception": ""}

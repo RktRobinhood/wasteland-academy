@@ -217,8 +217,8 @@ static func boss_plan(seed_no: int, region: String, on_floor: int, kind: String,
 		if not links.is_empty():
 			var lc := QuestionEngine.cells(false, [links[rng.int_in(0, links.size() - 1)]])
 			var c: Dictionary = lc[rng.int_in(0, lc.size() - 1)]
-			link = {"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle,
-				"format": "mcq" if rng.chance(0.5) else "value", "seed": rng.int_in(1, 999999)}
+			var fmt := QuestionEngine.upgrade_format(c, "mcq" if rng.chance(0.5) else "value", rng)
+			link = {"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": fmt, "seed": rng.int_in(1, 999999)}
 	return {"kind": kind, "type": pick, "steps": steps, "seed": rng.int_in(1, 999999), "link": link}
 
 

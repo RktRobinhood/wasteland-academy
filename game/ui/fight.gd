@@ -517,7 +517,7 @@ func check_answer() -> void:
 	if answered or run == null or run.state != "question":
 		return
 	var response := {}
-	if question.format == "mcq":
+	if QuestionEngine.is_choice(question):
 		response = {"choice": _choice}
 	else:
 		for id in _slots:
@@ -544,25 +544,24 @@ func _show_result(r: Dictionary) -> void:
 		"right":
 			feedback.text = "Hit! −%d enemy HP · +%d Scrap" % [r.enemy_damage, r.scrap + r.bonus]
 		"glancing":
-			feedback.text = "Glancing hit: half damage. %s The answer is %s." % [r.note, question.answer_text]
+			feedback.text = "Glancing hit: half damage. %s The answer is %s." % [r.note, right_text(question)]
 			color = UiTheme.SAND
 		"late":
 			feedback.text = "Late hit! It lands, but you take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
 			color = UiTheme.SAND
 		"wrong":
-			feedback.text = "Missed. −%d HP. The answer is %s." % [r.player_damage, question.answer_text]
+			feedback.text = "Missed. −%d HP. The answer is %s." % [r.player_damage, right_text(question)]
 			color = UiTheme.PINK
 		"timeout":
-			feedback.text = "Time's up. −%d HP. The answer is %s." % [r.player_damage, question.answer_text]
+			feedback.text = "Time's up. −%d HP. The answer is %s." % [r.player_damage, right_text(question)]
 			color = UiTheme.PINK
 	if r.bonus > 0:
 		feedback.text += " Another way: +%d bonus Scrap." % r.bonus
-	var ref: String = r.get("misconception", "")
-	if ref != "" and r.outcome == "wrong":
-		for m in QuestionEngine.type_of(question.view.type).get("misconceptions", []):
-			if m.ref == ref:
-				feedback.text += "\nWatch out: " + m.text + "."
-				break
+	var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), r.get("misconception", ""))
+	if why != "" and r.outcome == "wrong":
+		feedback.text += "\nWatch out: " + why + "."
+	if question.has("reason") and r.outcome != "right":
+		feedback.text += "\n" + question.reason
 	if r.get("carry", "") != "" and r.outcome in ["wrong", "timeout", "glancing"]:
 		feedback.text += "\nPart (%s) carries on from %s." % [QuestionEngine.part_letter(r.part + 1), r.carry]
 	if r.defeated:
@@ -572,7 +571,7 @@ func _show_result(r: Dictionary) -> void:
 		if r.get("floor_cleared", false):
 			feedback.text += " Floor %d cleared: floor %d is next." % [run.floor_no, run.floor_no + 1]
 	feedback.add_theme_color_override("font_color", color)
-	if question.format == "mcq":
+	if QuestionEngine.is_choice(question):
 		for i in _choice_buttons.size():
 			if question.choices[i].correct:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.TEAL)

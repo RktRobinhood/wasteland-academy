@@ -3,13 +3,15 @@ extends SceneTree
 ## SymPy answer checker (tools/check_answers.py). Used by tools/check-answers.
 ##
 ##   godot --headless --path game --script res://tools/export_questions.gd -- \
-##       --out=/abs/questions.json [--per-cell=50] [--per-type=1000]
+##       --out=/abs/questions.json [--per-cell=50] [--per-type=1000] [--types=id,id]
 ##
 ## Every coverage cell of every built type gets at least --per-cell questions, and
 ## every type at least --per-type. Seeds run 1, 2, 3, ...; odd seeds are multiple
 ## choice and even seeds typed values (the numbers don't depend on the format).
 ## Each cell also gets --shared questions (default 10) made on its family's shared
-## situation (QuestionEngine.families(), the explorer's "Ask it another way").
+## situation (QuestionEngine.families(), the explorer's "Ask it another way"), and
+## --per-format questions (default 20) in each extra format it offers
+## (QuestionEngine.extra_formats(): error-spot, method-pick, true-false-reason).
 ##
 ## Then every mini-boss and boss chain (Dungeon.chain_windows) with --per-chain seeds:
 ## each part is exported as a question too, with "chain" (the chain's id) and "part",
@@ -21,7 +23,7 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var args := {"per-cell": "50", "per-type": "1000", "shared": "10", "per-chain": "50", "out": "user://questions.json"}
+	var args := {"per-cell": "50", "per-type": "1000", "shared": "10", "per-format": "20", "per-chain": "50", "out": "user://questions.json"}
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--") and a.contains("="):
 			var kv := a.substr(2).split("=", true, 1)
@@ -32,7 +34,10 @@ func _run() -> void:
 	var questions: Array = []
 	var errors: Array = []
 	var types: Array = []
+	var only: Array = Array(args.get("types", "").split(",", false))
 	for id in QuestionEngine.built_types():
+		if not only.is_empty() and not id in only:
+			continue
 		var cells := QuestionEngine.cells(false, [id])
 		var n := maxi(per_cell, ceili(float(per_type) / cells.size()))
 		types.append({"type": id, "cells": cells.size(), "per_cell": n})
@@ -44,6 +49,9 @@ func _run() -> void:
 			for seed in range(1, shared + 1):
 				views.append({"type": id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle,
 					"format": "mcq" if seed % 2 == 1 else "value", "seed": seed, "shared": true})
+			for f in QuestionEngine.extra_formats(id, c.unknown, c.angle):
+				for seed in range(1, int(args["per-format"]) + 1):
+					views.append({"type": id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": f, "seed": seed})
 			for view in views:
 				var q := QuestionEngine.make(view)
 				if q.has("error"):
@@ -52,6 +60,8 @@ func _run() -> void:
 				questions.append(plain(q))
 	var chains := 0
 	for id in QuestionEngine.built_types():
+		if not only.is_empty() and not id in only:
+			continue
 		for steps in Dungeon.chain_windows(id):
 			var name := "%s: %s" % [id, " > ".join(steps.map(func(st): return st.unknown))]
 			for seed in range(1, int(args["per-chain"]) + 1):

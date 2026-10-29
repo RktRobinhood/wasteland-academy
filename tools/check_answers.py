@@ -26,8 +26,10 @@ import re
 import sys
 from collections import defaultdict
 from decimal import ROUND_HALF_UP, Decimal
+from functools import lru_cache
 from pathlib import Path
 
+import mpmath
 import sympy as sp
 from sympy.parsing.sympy_parser import (implicit_multiplication_application, parse_expr,
                                         standard_transformations)
@@ -518,7 +520,12 @@ def check_lines(q, f_given):
 
 def check(q):
     """Routes a question to its situation's checks, then checks the answer, the
-    options and the worked solutions the same way for every situation."""
+    options and the worked solutions the same way for every situation. A question in
+    an extra format (FAL-459) has its own four options checked first, then the
+    question it is built on, with that question's own options."""
+    if q["format"] in EXTRA_FORMATS:
+        check_format(q)
+        q = dict(q, choices=q["base_choices"])
     sit = q.get("situation_id", "quadratic")
     need(sit in SITUATION_CHECKS, f"the checker has no checks for situation {sit}")
     exp, f = SITUATION_CHECKS[sit](q)
@@ -1472,6 +1479,8 @@ def qr_surd(m, r):
 
 def qr_text(ans, v):
     kind, fx, label, unit = ans["kind"], ans.get("fixed") or {}, ans.get("label", ""), ans.get("unit", "")
+    if kind in EXT_KINDS or (kind == "number" and ans.get("show")):
+        return ext_text(ans, v)
     var = fx.get("var", "k")
     if kind == "number":
         return label + frac_text(v["v"]) + unit
@@ -1518,6 +1527,8 @@ def qr_text(ans, v):
 def qr_norm(ans, v):
     """A value equal for two answers exactly when they mean the same."""
     kind, fx = ans["kind"], ans.get("fixed") or {}
+    if kind in EXT_KINDS or (kind == "number" and ans.get("show") == "sf"):
+        return ext_norm(ans, v)
     if kind in ("interval", "bound"):
         st = qr_set(kind, v)
         return ("pm", v["shape"], R(v["hi"]), v["ends"]) if st is None else st
@@ -2251,10 +2262,1019 @@ def check_cubic(q):
     raise Fail(f"the checker has no solver for {u}")
 
 
+# ── Quadratics extension types (FAL-459) ─────────────────────
+# The fn-pre-* prior learning, fn-ext-quadratic-model and the two fn-link-* types,
+# each on its own situation. Their answers add kinds (see game/engine/answer.gd), and
+# three formats are built on their questions: error-spot, method-pick and
+# true-false-reason.
+
+EXT_KINDS = {"poly", "named", "pair", "brackets", "brackets2", "common", "pm_surd", "range2", "related", "features", "angles", "factorised", "axis"}
+EXTRA_FORMATS = {"error-spot", "method-pick", "true-false-reason"}
+SUPS = str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
+CATALOGUE = None
+
+
+def game_type(tid):
+    """A type as the game's catalogue copy has it (with method names)."""
+    global CATALOGUE
+    if CATALOGUE is None:
+        CATALOGUE = {t["id"]: t for t in json.loads((ROOT / "game/data/catalogue.json").read_text())["types"]}
+    return CATALOGUE[tid]
+
+
+def ext_sup(p):
+    p = int(p)
+    return "" if p == 1 else str(p).translate(SUPS)
+
+
+def ext_terms(coeffs, powers, letter="x", dec=False):
+    out = ""
+    for c, p in zip(coeffs, powers):
+        c, p = R(c), int(p)
+        if c == 0:
+            continue
+        if dec:
+            body = dec_text(abs(c)) if p == 0 else ("" if abs(c) == 1 else dec_text(abs(c))) + letter + ext_sup(p)
+        else:
+            body = frac_text(abs(c)) if p == 0 else qr_lead(abs(c)) + letter + ext_sup(p)
+        out = (("−" if c < 0 else "") + body) if out == "" else out + (" − " if c < 0 else " + ") + body
+    return out or "0"
+
+
+def ext_sf(x):
+    return sig3(x).replace("-", "−")
+
+
+def ext_shown(ans, x):
+    show = ans.get("show", "")
+    if show == "sf":
+        return ext_sf(R(x))
+    if show == "dec":
+        return dec_text(x)
+    return frac_text(x)
+
+
+def ext_pi(x):
+    x = R(x)
+    if x == 0:
+        return "0"
+    top = "π" if abs(x.p) == 1 else f"{abs(x.p)}π"
+    return ("−" if x < 0 else "") + top + ("" if x.q == 1 else f"/{x.q}")
+
+
+def ext_poly_parts(ans, v):
+    fx = ans["fixed"]
+    n = len(fx["powers"])
+    cs = [fx["lead"] if i == 0 and "lead" in fx else v[f"c{i}"] for i in range(n)]
+    ps = [int(R(v[f"e{i}"])) if fx.get("typed_powers") else int(fx["powers"][i]) for i in range(n)]
+    return cs, ps
+
+
+def ext_bracket(r):
+    """(x + r) as the game writes it: "(x + 3)", "(x − 5)"."""
+    r = R(r)
+    return "x" if r == 0 else f"(x {'+' if r > 0 else '−'} {frac_text(abs(r))})"
+
+
+def ext_text(ans, v):
+    kind, fx, label = ans["kind"], ans.get("fixed") or {}, ans.get("label", "")
+    if kind == "number":
+        return label + ext_shown(ans, v["v"]) + ans.get("unit", "")
+    if kind == "poly":
+        cs, ps = ext_poly_parts(ans, v)
+        return label + ext_terms(cs, ps, fx.get("var", "x"), ans.get("show") == "dec")
+    if kind == "named":
+        units = fx.get("units", [""] * len(fx["names"]))
+        return ", ".join(f"{n} = {ext_shown(ans, v[f'v{i}'])}{units[i]}" for i, n in enumerate(fx["names"]))
+    if kind == "pair":
+        a, b = sorted([R(v["r1"]), R(v["r2"])])
+        return f"{label}{frac_text(a)} and {frac_text(b)}"
+    if kind == "brackets":
+        a, b = sorted([R(v["r"]), R(v["s"])])
+        return label + ext_bracket(b) + ext_bracket(a)
+    if kind == "brackets2":
+        return label + f"({qr_poly([v['a1'], v['b1']])})({qr_poly([v['a2'], v['b2']])})"
+    if kind == "common":
+        return label + qr_lead(v["g"]) + "x(" + qr_poly([v["a"], v["b"]]) + ")"
+    if kind == "pm_surd":
+        h = R(v["h"])
+        return label + ("" if h == 0 else frac_text(h) + " ") + "± " + qr_surd(v["m"], v["r"])
+    if kind == "range2":
+        return f"{frac_text(v['lo'])} {v['r1']} {fx.get('var', 'x')} {v['r2']} {frac_text(v['hi'])}"
+    if kind == "related":
+        a, b = sorted([R(v["o1"]), R(v["o2"])])
+        return f"same value {ext_pi(v['s'])}; opposite sign {ext_pi(a)} and {ext_pi(b)}"
+    if kind == "features":
+        a, b = sorted([R(v["r1"]), R(v["r2"])])
+        return f"y-intercept {frac_text(v['c'])}; roots {frac_text(a)} and {frac_text(b)}; vertex {qr_point(v['h'], v['k'])}"
+    if kind == "axis":
+        return f"{v['var']} = {frac_text(v['h'])}"
+    if kind == "factorised":
+        p_, q_ = sorted([R(v["p"]), R(v["q"])])
+        return "f(x) = " + qr_lead(v["a"]) + ext_bracket(-p_) + ext_bracket(-q_)
+    if kind == "angles":
+        xs = [ext_pi(x) for x in sorted(R(v[f"a{i}"]) for i in range(int(fx["n"])))]
+        return "x = " + (", ".join(xs[:-1]) + " or " + xs[-1] if len(xs) > 1 else xs[0])
+    raise Fail(f"the checker can't write answers of kind {kind}")
+
+
+def ext_norm(ans, v):
+    kind, fx = ans["kind"], ans.get("fixed") or {}
+    if kind == "number":
+        return ext_sf(R(v["v"]))
+    if kind == "poly":
+        cs, ps = ext_poly_parts(ans, v)
+        return tuple(sorted(zip(ps, (R(c) for c in cs))))
+    if kind == "named":
+        vals = [R(v[f"v{i}"]) for i in range(len(fx["names"]))]
+        return tuple(ext_sf(x) if ans.get("show") == "sf" else x for x in vals)
+    if kind == "pair":
+        return tuple(sorted([R(v["r1"]), R(v["r2"])]))
+    if kind == "brackets":
+        return tuple(sorted([R(v["r"]), R(v["s"])]))
+    if kind == "brackets2":
+        return tuple(sorted([(R(v["a1"]), R(v["b1"])), (R(v["a2"]), R(v["b2"]))]))
+    if kind == "common":
+        return (R(v["g"]), R(v["a"]), R(v["b"]))
+    if kind == "pm_surd":
+        return (R(v["h"]), R(v["m"]), R(v["r"]))
+    if kind == "range2":
+        return (R(v["lo"]), v["r1"], v["r2"], R(v["hi"]))
+    if kind == "related":
+        return (R(v["s"]), tuple(sorted([R(v["o1"]), R(v["o2"])])))
+    if kind == "features":
+        return (R(v["c"]), tuple(sorted([R(v["r1"]), R(v["r2"])])), R(v["h"]), R(v["k"]))
+    if kind == "angles":
+        return tuple(sorted(R(v[f"a{i}"]) for i in range(int(fx["n"]))))
+    if kind == "factorised":
+        return (R(v["a"]), tuple(sorted([R(v["p"]), R(v["q"])])))
+    if kind == "axis":
+        return (v["var"], R(v["h"]))
+    raise Fail(f"the checker can't compare answers of kind {kind}")
+
+
+def ext_poly_values(ans, coeffs):
+    """Answer values for a polynomial given as power -> coefficient, in ans's shape."""
+    fx = ans["fixed"]
+    out = {}
+    for i, p in enumerate(fx["powers"]):
+        c = coeffs.get(int(p), 0)
+        if i == 0 and "lead" in fx:
+            need(R(fx["lead"]) == c, f"the given leading coefficient {fx['lead']} is not {c}")
+            continue
+        out[f"c{i}"] = str(c)
+    extra = set(coeffs) - {int(p) for p in fx["powers"]}
+    need(all(coeffs[p] == 0 for p in extra), f"the answer's powers {fx['powers']} miss a term of {coeffs}")
+    return out
+
+
+def poly_coeffs(f):
+    return {int(m[0]): c for m, c in sp.Poly(sp.expand(f), X).terms()} if f != 0 else {}
+
+
+def ext_misconception_refs(tid, as_=None):
+    """The type's misconceptions by ref (its own, or <type id>#<index>)."""
+    t = game_type(tid)
+    return {m.get("ref", f"{tid}#{i}"): m for i, m in enumerate(t.get("misconceptions", [])) if as_ is None or m["as"] == as_}
+
+
+def eq_true(line, letters=()):
+    """Whether a line 'A = B' (or 'A = B = C') is an identity in x."""
+    sides = [p.strip() for p in line.replace("[", "(").replace("]", ")").split(" = ")]
+    need(len(sides) >= 2, f"no '=' in {line!r}")
+    vals = [parse(p, letters) for p in sides]
+    return all(sp.expand(vals[0] - w) == 0 for w in vals[1:])
+
+
+SPOT_CHECKS = {}
+
+
+def check_format(q):
+    """The four options of an error-spot, method-pick or true-false-reason question."""
+    fmt, ch = q["format"], q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    need(len({o["text"] for o in ch}) == 4, "two options read the same")
+    right = next(o for o in ch if o["correct"])
+    base = q["base_choices"]
+    need(len(base) == 4 and sum(1 for o in base if o["correct"]) == 1, "the question it is built on has no four options")
+    t = game_type(q["view"]["type"])
+    u = q["view"]["unknown"]
+    need(fmt in t["formats"], f"{t['id']} does not list the format {fmt}")
+    if fmt == "true-false-reason":
+        claim = q["claim"]
+        claimed = [o for o in base if o["text"] == claim]
+        need(len(claimed) == 1 and not claimed[0].get("trap"), f"the student's answer {claim!r} is not one of the question's options")
+        need(f"A student's answer: {claim}. True or false?" in q["prompt"], "the prompt doesn't state the student's answer")
+        wrong_texts = {o["text"] for o in base if not o["correct"]}
+        if claimed[0]["correct"]:
+            need(right["text"] == "True", "a right answer is not marked True")
+        else:
+            need(right["text"] == f"False: it should be {q['answer_text']}", "a wrong answer is not corrected to the answer")
+            tru = [o for o in ch if o["text"] == "True"]
+            need(len(tru) == 1 and tru[0]["ref"] == claimed[0]["ref"], "agreeing with the wrong answer doesn't log its misconception")
+        for o in ch:
+            if o["correct"] or o["text"] == "True":
+                continue
+            need(o["text"].startswith("False: it should be ") and o["text"][20:] in wrong_texts and o["text"][20:] != claim,
+                 f"option {o['text']!r} doesn't correct to another wrong option")
+    elif fmt == "method-pick":
+        view_angle = q["view"]["angle"]
+        need(view_angle != "any", "method-pick without a method")
+        failing = {a["name"] for a in t["angles"] if a.get("weak", {}).get("kind") == "fails" and u in a["weak"]["unknowns"]}
+        works = {a["name"] for a in t["angles"] if u in a["suits"]} - failing
+        need(right["text"] not in failing, f"the right method {right['text']!r} fails for {u}")
+        name = next(a["name"] for a in t["angles"] if a["method"] == view_angle and u in a["suits"])
+        need(right["text"] == name, f"the right method is {right['text']!r}, not the view's {name!r}")
+        need("Which method works for this question?" in q["prompt"] and "Method:" not in q["prompt"], "the prompt gives the method away")
+        for o in ch:
+            if not o["correct"]:
+                need(o["text"] not in works, f"{o['text']!r} works for {u} but is marked wrong")
+    elif fmt == "error-spot":
+        spot = q["spot"]
+        need([o["text"] for o in ch] == [f"Line {i + 1}" for i in range(4)], "the options are not Line 1 to Line 4")
+        need(ch[spot["bad"]]["correct"], "the right option is not the first wrong line")
+        need(spot["ref"] in ext_misconception_refs(t["id"], "error-spot"), f"{spot['ref']} is not an error-spot of {t['id']}")
+        need(q["lines"][-5:] == ["A student's working:"] + [f"Line {i + 1}: {l}" for i, l in enumerate(spot["lines"])], "the working shown is not the spot's")
+        sit = q["situation_id"]
+        need(sit in SPOT_CHECKS, f"the checker has no error-spot checks for {sit}")
+        first = SPOT_CHECKS[sit](q, spot["lines"])
+        need(first == spot["bad"], f"the first wrong line is {first + 1 if first is not None else 'none'}, not {spot['bad'] + 1}")
+
+
+def first_false(lines, letters=()):
+    for i, line in enumerate(lines):
+        if not eq_true(line, letters):
+            return i
+    return None
+
+
+# ── fn-pre-expand ──
+
+EXP_LIMIT = 9
+
+
+def check_expand(q):
+    g, ans, u, L = q["given"], q["answer"], q["view"]["unknown"], q["lines"]
+    T = "fn-pre-expand"
+    if u == "missing-term":
+        b = R(g["b"])
+        need(L[0] == f"(x + r)² = {qr_poly([1, b])} + c", "the identity shown is not the givens")
+        r = b / 2
+        need(r.q == 1 and r != 0 and abs(r) <= EXP_LIMIT, "r is not a small whole number")
+        qr_check_common(q, qr_norm(ans, {"v0": str(r), "v1": str(r**2)}))
+        return None, None
+    k, r, s_, d = (R(g[n]) for n in ["k", "r", "s", "d"])
+    for n, v in (("k", k), ("r", r), ("s", s_)):
+        need(v != 0 and abs(v) <= EXP_LIMIT and v.q == 1, f"{n} = {v} is not a small whole number")
+    form = g["form"]
+    e = {"single": k * X * (X + r), "double": (X + r) * (X + s_), "square": (X + r)**2,
+         "scaled": k * (X + r) * (X + s_), "vertex": k * (X + r)**2 + d}[form]
+    need(parse(L[0]) == sp.expand(e), f"the expression shown {L[0]!r} is not the givens")
+    if form in ("double", "scaled"):
+        need(r != s_ and r + s_ != 0, "the brackets have no middle term")
+    full = poly_coeffs(e)
+    want = qr_norm(ans, ext_poly_values(ans, full))
+    def shape(c):
+        return qr_norm(ans, ext_poly_values(ans, {p: v for p, v in c.items() if v != 0} | {p: 0 for p in full if p not in c}))
+    wr = {}
+    if form == "double":
+        wr[f"{T}#2"] = {shape({2: 1, 1: -(r + s_), 0: r * s_})}
+    if form == "square":
+        wr[f"{T}#0"] = {shape({2: 1, 1: 0, 0: r**2})}
+    if form == "scaled":
+        wr[f"{T}#1"] = {shape({2: k, 1: r + s_, 0: r * s_})}
+    if form == "vertex":
+        wr[f"{T}#0"] = {shape({2: k, 1: 0, 0: k * r**2 + d})}
+        wr[f"{T}#3"] = {shape({2: k, 1: 2 * k * r, 0: k * (r**2 + d)})}
+    if q["view"]["rep"] == "graph":
+        t = q["table"]["rows"]
+        sgn = lambda v: ("+" if v > 0 else "−") + frac_text(abs(v))
+        other = r if form == "square" else s_
+        need(t == [["×", ["x", sgn(other)]], ["x", ["?", "?"]], [sgn(r), ["?", "?"]]], "the area grid's edges are not the brackets")
+    qr_check_common(q, want, wr)
+    return None, None
+
+
+def spot_expand(q, lines):
+    return first_false(lines)
+
+
+SPOT_CHECKS["fn-pre-expand"] = spot_expand
+
+
+# ── fn-pre-factorise ──
+
+def check_factorise(q):
+    g, ans, u, L = q["given"], q["answer"], q["view"]["unknown"], q["lines"]
+    T = "fn-pre-factorise"
+    if u == "factor-pair":
+        P, S = R(g["P"]), R(g["S"])
+        need(L[0] == f"Two numbers have product {frac_text(P)} and sum {frac_text(S)}.", "the product and sum shown are not the givens")
+        m, n = sorted(sp.solve(X**2 - S * X + P, X))
+        need(m.is_integer and n.is_integer and m != n and m != 0 and n != 0, "the two numbers are not different nonzero whole numbers")
+        qr_check_common(q, qr_norm(ans, {"r1": str(m), "r2": str(n)}))
+        return None, None
+    A, B, C = R(g["A"]), R(g["B"]), R(g["C"])
+    f = A * X**2 + B * X + C
+    if u == "missing-bracket-term":
+        r = R(g["r"])
+        need(L[0] == f"{ext_bracket(r)}(x + □) = {qr_poly([A, B, C])}", "the identity shown is not the givens")
+        S_ = sp.Symbol("S")
+        sol = sp.solve(sp.Poly(sp.expand((X + r) * (X + S_) - f), X).coeffs(), S_, dict=True)
+        need(len(sol) == 1 and sol[0][S_].is_integer, "no whole number fills the bracket")
+        need(ans.get("exact"), "a missing whole number must be marked exactly")
+        qr_check_common(q, qr_norm(ans, {"v": str(sol[0][S_])}))
+        return None, None
+    need(parse(L[0]) == sp.expand(f), f"the expression shown {L[0]!r} is not the givens")
+    need(all(c.q == 1 and abs(c) <= 81 for c in (A, B, C)), "coefficients are not small whole numbers")
+    wr = {}
+    if u == "difference-of-squares":
+        need(B == 0 and sp.sqrt(A).is_integer and sp.sqrt(abs(C)).is_integer, "not p²x² ± q²")
+        p_, q_ = sp.sqrt(A), sp.sqrt(abs(C))
+        if C > 0:
+            need(len(sp.factor_list(f)[1]) == 1, "a sum of squares that factorises")
+            fake = f"({qr_lead(p_)}x + {q_})({qr_lead(p_)}x − {q_})"
+            need(ans["kind"] == "choice" and fake in ans["fixed"]["options"], "the sum of squares is not offered as a difference")
+            wr[f"{T}#1"] = {qr_norm(ans, {"v": fake})}
+            qr_check_common(q, qr_norm(ans, {"v": "It does not factorise"}), wr)
+            return None, None
+    if u == "common-factor":
+        need(C == 0 and A > 0, "not kx² + mx")
+        gg = sp.gcd(A, B)
+        a_, b_ = A / gg, B / gg
+        need(gg >= 2, "the highest common factor is only x")
+        wr[f"{T}#2"] = {qr_norm(ans, {"g": str(gg), "a": str(a_), "b": str(B)})}
+        qr_check_common(q, qr_norm(ans, {"g": str(gg), "a": str(a_), "b": str(b_)}), wr)
+        return None, None
+    # The factors, by SymPy: each linear factor written with a positive x term.
+    content, fs = sp.factor_list(f)
+    lin = []
+    for fac, mult in fs:
+        need(sp.degree(fac, X) == 1, f"{f} has a factor {fac} that is not linear")
+        a1, b1 = sp.Poly(fac, X).all_coeffs()
+        if a1 < 0:
+            a1, b1, content = -a1, -b1, -content
+        lin += [(a1, b1)] * mult
+    need(content == 1 and len(lin) == 2, f"{f} is not the product of two primitive brackets")
+    if q.get("table"):
+        lead = "x" if A == 1 else "?x"
+        need(q["table"]["rows"] == [["×", [lead, "?"]], [lead, [ext_terms([A], [2]), "?"]], ["?", ["?", frac_text(C)]]],
+             "the area grid's corners are not the expression's")
+        need(L[1] == f"The area grid's total is {qr_poly([A, B, C])}: its two empty cells add to {ext_terms([B], [1])}.", "the grid's line is wrong")
+    if u == "monic-trinomial":
+        need(A == 1, "not monic")
+        (_, r), (_, s_) = lin
+        wr[f"{T}#0"] = {qr_norm(ans, {"r": str(-r), "s": str(-s_)})}
+        qr_check_common(q, qr_norm(ans, {"r": str(r), "s": str(s_)}), wr)
+        return None, None
+    (a1, b1), (a2, b2) = lin
+    if u == "non-monic":
+        need(A >= 2, "a is not more than 1")
+        # The pair of c only, in brackets with x: (x + b1)(x + b2).
+        wr[f"{T}#3"] = {qr_norm(ans, {"a1": "1", "b1": str(b1), "a2": "1", "b2": str(b2)})}
+    qr_check_common(q, qr_norm(ans, {"a1": str(a1), "b1": str(b1), "a2": str(a2), "b2": str(b2)}), wr)
+    return None, None
+
+
+def spot_factorise(q, lines):
+    """The first wrong line of a working for ax² + bx + c (fn-pre-factorise#3)."""
+    g = q["given"]
+    A, B, C = R(g["A"]), R(g["B"]), R(g["C"])
+    e = qr_poly([A, B, C])
+    for i, line in enumerate(lines):
+        if line == f"{e} has a = {frac_text(A)}, b = {frac_text(B)} and c = {frac_text(C)}":
+            continue
+        if line == f"We need two numbers that add to {frac_text(B)}":
+            continue
+        m = re.fullmatch(r"Two numbers that multiply to (\S+): (\S+) and (\S+)", line)
+        if m:
+            if RD(m.group(1)) == A * C and RD(m.group(2)) * RD(m.group(3)) == A * C:
+                continue
+            return i
+        line = line.removeprefix("So ").removeprefix("Check: ")
+        m = re.fullmatch(r"The roots are x = (\S+) and x = (\S+)", line)
+        if m:
+            if {RD(m.group(1)), RD(m.group(2))} == set(sp.solve(A * X**2 + B * X + C, X)):
+                continue
+            return i
+        if not eq_true(line):
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-factorise"] = spot_factorise
+
+
+# ── fn-pre-surds ──
+
+def surd_parts(e):
+    """A positive surd m√r (r square-free) as (m, r)."""
+    e = sp.nsimplify(e)
+    m, rest = e.as_coeff_Mul()
+    r = rest**2
+    need(m.is_rational and r.is_integer and r >= 1, f"{e} is not m√r")
+    return sp.Rational(m), int(r)
+
+
+def surd_expr(text):
+    """A surd expression as the game writes it: '√(4 × 24)', '√4 × √24', '(2√24)²', '4√6'."""
+    t = text.replace("−", "-").replace("×", "*").replace("²", "**2")
+    t = re.sub(r"(\d)√", r"\1*√", t)
+    t = re.sub(r"√(\d+)", r"sqrt(\1)", t).replace("√(", "sqrt(")
+    return sp.nsimplify(sp.sympify(t))
+
+
+def check_surds(q):
+    g, ans, u, L = q["given"], q["answer"], q["view"]["unknown"], q["lines"]
+    T = "fn-pre-surds"
+    wr = {}
+    def sv(e):
+        m, r = surd_parts(e)
+        return qr_norm(ans, {"m": str(m), "r": str(r)})
+    if u == "simplify-root":
+        n = R(g["n"])
+        need(L[0] == f"√{n}" and n <= 300, "the root shown is not the givens")
+        m, r = surd_parts(sp.sqrt(n))
+        need(m.q == 1 and m > 1 and not sp.isprime(m), "the square factor's root is not a composite whole number")
+        f = sp.divisors(m)[1]
+        wr[f"{T}#2"] = {qr_norm(ans, {"m": str(f), "r": str(n / f**2)})}
+        qr_check_common(q, sv(sp.sqrt(n)), wr)
+    elif u == "add-like-surds":
+        n1, n2 = R(g["n1"]), R(g["n2"])
+        need(L[0] == f"√{n1} + √{n2}", "the sum shown is not the givens")
+        need(surd_parts(sp.sqrt(n1))[1] == surd_parts(sp.sqrt(n2))[1] and n1 != n2, "not two different multiples of one surd")
+        wr[f"{T}#0"] = {sv(sp.sqrt(n1 + n2))}
+        qr_check_common(q, sv(sp.sqrt(n1) + sp.sqrt(n2)), wr)
+    elif u == "multiply-surds":
+        m_, n_ = R(g["m"]), R(g["n"])
+        need(L[0] == f"√{m_} × √{n_}", "the product shown is not the givens")
+        need(not sp.sqrt(m_).is_integer and not sp.sqrt(n_).is_integer, "one of the roots is a whole number")
+        qr_check_common(q, sv(sp.sqrt(m_) * sp.sqrt(n_)))
+    elif u == "formula-fraction":
+        m0, n, d = R(g["m0"]), R(g["n"]), R(g["d"])
+        need(L[0] == f"({frac_text(m0)} ± √{n})/{d}", "the fraction shown is not the givens")
+        h = m0 / d
+        m, r = surd_parts(sp.sqrt(n) / d)
+        need(h.q == 1 and m.q == 1, "the fraction doesn't simplify to whole numbers")
+        wr[f"{T}#1"] = {qr_norm(ans, {"h": str(m0), "m": str(m), "r": str(r)})}
+        qr_check_common(q, qr_norm(ans, {"h": str(h), "m": str(m), "r": str(r)}), wr)
+    elif u == "surd-to-root":
+        a, b = R(g["a"]), R(g["b"])
+        need(L[0] == qr_surd(a, b) and surd_parts(a * sp.sqrt(b)) == (a, b), "the surd shown is not in simplest form")
+        need(ans.get("exact"), "the whole number under the root must be marked exactly")
+        qr_check_common(q, qr_norm(ans, {"v": str(a**2 * b)}))
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    # Every option is a different value or a different form: none may equal the answer
+    # in simplest form unless it is the answer.
+    return None, None
+
+
+def spot_surds(q, lines):
+    """The first wrong line of a working for √n (fn-pre-surds#2)."""
+    for i, line in enumerate(lines):
+        m = re.fullmatch(r"(\d+) has no square factor(?:, so (\S+) is simplest)?", line)
+        if m:
+            if sp.factorint(int(m.group(1))) and max(sp.factorint(int(m.group(1))).values()) >= 2:
+                return i
+            continue
+        m = re.fullmatch(r"So √(\d+) in simplest form is (\S+)", line)
+        if m:
+            mm, r = surd_parts(sp.sqrt(int(m.group(1))))
+            if m.group(2) != qr_surd(mm, r):
+                return i
+            continue
+        line = line.removeprefix("So ").removeprefix("Check: ")
+        sides = [p.strip() for p in line.split(" = ")]
+        vals = [surd_expr(p) for p in sides]
+        if any(sp.simplify(vals[0] - w) != 0 for w in vals[1:]):
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-surds"] = spot_surds
+
+
+# ── fn-pre-linear-inequalities ──
+
+LI_REL = {"<": lambda l, r: l < r, "≤": lambda l, r: l <= r, ">": lambda l, r: l > r, "≥": lambda l, r: l >= r}
+LI_WORDS = {"<": "is less than", "≤": "is at most", ">": "is more than", "≥": "is at least"}
+LI_FLIP = {"<": ">", ">": "<", "≤": "≥", "≥": "≤"}
+
+
+@lru_cache(maxsize=None)
+def li_set(cond):
+    return sp.solve_univariate_inequality(cond, X, relational=False)
+
+
+def ineq_set(text):
+    """'−3 < 2x + 1 ≤ 9', 'x ≥ −10 and x < −1' or '5x > 20' as the set of x it holds for."""
+    if " and " in text:
+        out = sp.S.Reals
+        for part in text.split(" and "):
+            out = out.intersect(ineq_set(part))
+        return out
+    parts = re.split(r" (<|≤|>|≥) ", text)
+    need(len(parts) in (3, 5), f"can't read the inequality {text!r}")
+    vals = [parse(p) for p in parts[0::2]]
+    out = sp.S.Reals
+    for i, rel in enumerate(parts[1::2]):
+        out = out.intersect(li_set(LI_REL[rel](vals[i], vals[i + 1])))
+    return out
+
+
+def li_range2(S):
+    """A bounded interval as range2 values (lo, r1, r2, hi)."""
+    need(isinstance(S, sp.Interval) and S.start.is_finite and S.end.is_finite, f"{S} is not a bounded interval")
+    return (S.start, "<" if S.left_open else "≤", "<" if S.right_open else "≤", S.end)
+
+
+def li_words_one(a, b, rel, c):
+    if a > 0:
+        return f"{frac_text(a)} times a number x, {'plus' if b > 0 else 'minus'} {frac_text(abs(b))}, {LI_WORDS[rel]} {frac_text(c)}."
+    return f"{frac_text(b)} minus {frac_text(abs(a))} times a number x {LI_WORDS[rel]} {frac_text(c)}."
+
+
+def check_lineq(q):
+    g, ans, u, L, rep = q["given"], q["answer"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    T = "fn-pre-linear-inequalities"
+    wr = {}
+    if u == "read-number-line":
+        gr = q["graph"]
+        need(gr["kind"] == "numberline", "the graph is not a number line")
+        seg, marks = gr["segment"], gr["marks"]
+        lo = sp.nsimplify(seg["from"]) if seg["from"] is not None else -sp.oo
+        hi = sp.nsimplify(seg["to"]) if seg["to"] is not None else sp.oo
+        opens = {sp.nsimplify(m["at"]): m["open"] for m in marks}
+        need(set(opens) == {v for v in (lo, hi) if v.is_finite}, "a circle is not at an end of the shading")
+        S = sp.Interval(lo, hi, opens.get(lo, True), opens.get(hi, True))
+        swapped = sp.Interval(lo, hi, not opens.get(lo, False) if lo.is_finite else True, not opens.get(hi, False) if hi.is_finite else True)
+        if ans["kind"] == "bound":
+            wr[f"{T}#1"] = {swapped}
+            qr_check_common(q, S, wr)
+        else:
+            wr[f"{T}#1"] = {li_range2(swapped)}
+            qr_check_common(q, li_range2(S), wr)
+        return None, None
+    a, b = R(g["a"]), R(g["b"])
+    need(a.q == 1 and abs(a) >= 2 and abs(a) <= 5 and b != 0 and b.q == 1, "a or b is out of its limits")
+    e = a * X + b
+    if u == "one-sided":
+        rel, c = g["rel"], R(g["c"])
+        if rep == "words":
+            need(L[0] == li_words_one(a, b, rel, c), "the words are not the givens")
+        else:
+            need(ineq_set(L[0]) == li_set(LI_REL[rel](e, c)) and L[0] == f"{qr_poly([a, b])} {rel} {frac_text(c)}", "the inequality shown is not the givens")
+        S = li_set(LI_REL[rel](e, c))
+        if a < 0:
+            wr[f"{T}#0"] = {li_set(LI_REL[rel](X, (c - b) / a))}
+        qr_check_common(q, S, wr)
+        return None, None
+    c1, c2, rel1, rel2 = R(g["c1"]), R(g["c2"]), g["rel1"], g["rel2"]
+    S = li_set(LI_REL[rel1](c1, e)).intersect(li_set(LI_REL[rel2](e, c2)))
+    shown = f"{frac_text(c1)} {rel1} {qr_poly([a, b])} {rel2} {frac_text(c2)}"
+    if rep == "words":
+        lhs = qr_poly([a, b]) if a > 0 else f"{frac_text(b)} − {qr_lead(abs(a))}x"
+        need(L[0] == f"{lhs} {LI_WORDS[LI_FLIP[rel1]]} {frac_text(c1)} and {LI_WORDS[rel2]} {frac_text(c2)}.", "the words are not the givens")
+    else:
+        need(L[0] == shown, "the inequality shown is not the givens")
+    if u == "count-integers":
+        need(S.is_finite_set is False and S.measure.is_finite, "the solution is not a bounded interval")
+        n = sum(1 for k in range(int(sp.floor(S.start)) - 1, int(sp.ceiling(S.end)) + 2) if sp.Integer(k) in S)
+        need(2 <= n <= 12, f"{n} whole numbers")
+        need(not (S.start.is_integer and S.end.is_integer), "both ends are whole numbers")
+        need(ans.get("exact"), "a count must be marked exactly")
+        qr_check_common(q, qr_norm(ans, {"v": str(n)}))
+        return None, None
+    # two-sided
+    if a < 0:
+        wr[f"{T}#0"] = {((c1 - b) / a, rel1, rel2, (c2 - b) / a)}
+    wr[f"{T}#2"] = {li_range2(li_set(LI_REL[rel1](c1, a * X)).intersect(li_set(LI_REL[rel2](a * X, c2))))}
+    qr_check_common(q, li_range2(S), wr)
+    return None, None
+
+
+def spot_lineq(q, lines):
+    """The first line of a working whose inequality has another solution than the question's."""
+    g = q["given"]
+    a, b = R(g["a"]), R(g["b"])
+    S = li_set(LI_REL[g["rel1"]](R(g["c1"]), a * X + b)).intersect(li_set(LI_REL[g["rel2"]](a * X + b, R(g["c2"]))))
+    for i, line in enumerate(lines):
+        need(": " in line, f"can't read {line!r}")
+        if ineq_set(line.rsplit(": ", 1)[1]) != S:
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-linear-inequalities"] = spot_lineq
+
+
+# ── quadratic-model (fn-ext-quadratic-model) ──
+
+QM_A = {"ball": {sp.Integer(-5), sp.Integer(-4), sp.Rational(-49, 10)}, "pen": {sp.Integer(-2), sp.Integer(-1)}}
+
+
+def qm_expr(text):
+    """'−4.9t² + 19.6t + 1.6' (in t or x) as a polynomial in x."""
+    return sp.nsimplify(parse(text.replace("t", "x")), rational=True)
+
+
+def check_qmodel(q):
+    g, ans, u, L, rep = q["given"], q["answer"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    T_ = "SL2.6.model"
+    ctx = g["ctx"]
+    a, b, c = R(g["a"]), R(g["b"]), R(g["c"])
+    f = a * X**2 + b * X + c
+    need(a in QM_A[ctx], f"a = {a} is not a clean {ctx} model")
+    name = "h(t)" if ctx == "ball" else "A(x)"
+    tv, hv = vertex(f)
+    need(sp.expand(R(g["a"]) * (X - R(g["T"]))**2 + R(g["H"]) - f) == 0, "the vertex form doesn't match the model")
+    need(tv > 0 and hv > 0, "the top is not after the start and above the ground")
+    if ctx == "pen":
+        Lf = R(g["L"])
+        want_f = X * (Lf - 2 * X) if g["wall"] else X * (Lf / 2 - X)
+        need(sp.expand(want_f - f) == 0, "the pen's model doesn't come from its fence")
+        need(f"{frac_text(Lf)} m of fence" in L[0], "the fence length shown is not the givens")
+    else:
+        need(L[0].startswith("A ball is thrown upwards") or u == "model-from-features" or rep == "words", "the context is not a thrown ball")
+        need(c >= 0, "the ball starts below the ground")
+    model_lines = [l for l in L if l.startswith(f"{name} = ") or l.startswith(f"The graph of y = {name} = ")]
+    for l in model_lines:
+        rhs_ = l.split(f"{name} = ", 1)[1].removesuffix(" is shown.").split(". ")[0].rstrip(".")
+        if "(" in rhs_ and u == "interpret-vertex":
+            need(qm_expr(rhs_) == sp.expand(f), "the vertex form shown is not the model")
+        else:
+            need(qm_expr(rhs_) == sp.expand(f), f"the model shown {rhs_!r} is not the givens")
+    if q.get("graph"):
+        gr = q["graph"]
+        need(sp.nsimplify(gr["a"]) == a and sp.nsimplify(gr["h"]) == tv and sp.nsimplify(gr["k"]) == hv, "the graph is another curve")
+        for pt in gr["points"]:
+            need(f.subs(X, sp.nsimplify(pt["x"])) == sp.nsimplify(pt["y"]), f"the marked point {pt['label']} is not on the curve")
+    if q.get("table"):
+        t = q["table"]
+        need(all(f.subs(X, R(x)) == R(y) for x, y in zip(t["xs"], t["ys"])), "a table value is not on the curve")
+    wr = {}
+    if u == "max-value":
+        wr[f"{T_}#0"] = {qr_norm(ans, {"v": str(tv)})}
+        qr_check_common(q, qr_norm(ans, {"v": str(hv)}), wr)
+    elif u == "time-of-max":
+        wr[f"{T_}#0"] = {qr_norm(ans, {"v": str(hv)})}
+        qr_check_common(q, qr_norm(ans, {"v": str(tv)}), wr)
+    elif u == "zero-time":
+        rs = sorted(sp.solve(f, X), key=float)
+        need(len(rs) == 2 and rs[0] < 0 < rs[1], "the model has no negative root to reject")
+        sf = ans.get("show") == "sf"
+        need(sf == (a == sp.Rational(-49, 10)), "Paper 2 is not written to 3 s.f.")
+        if not sf:
+            need(rs[1].is_rational, "a Paper 1 landing time is not exact")
+        else:
+            need(not on_edge(rs[1]), "the landing time is on a rounding edge")
+        val = lambda r: {"v": str(r) if r.is_rational else str(sp.Rational(round(float(r) * 10**9), 10**9))}
+        wr[f"{T_}#1"] = {qr_norm(ans, val(rs[0]))}
+        qr_check_common(q, qr_norm(ans, val(rs[1])), wr)
+    elif u == "form-area-model":
+        need(ctx == "pen", "not a pen")
+        qr_check_common(q, qr_norm(ans, {"v0": str(tv), "v1": str(hv)}))
+    elif u == "interpret-vertex":
+        T, H = dec_text(tv), dec_text(hv)
+        right = f"The ball is highest, {H} m, after {T} s" if ctx == "ball" else f"The area is largest, {H} m², when the width is {T} m"
+        swap = f"The ball is highest, {T} m, after {H} s" if ctx == "ball" else f"The area is largest, {T} m², when the width is {H} m"
+        if rep == "words":
+            need(f"has its vertex at ({T}, {H})." in L[1], "the vertex said is not the model's")
+        wr[f"{T_}#0"] = {qr_norm(ans, {"v": swap})}
+        qr_check_common(q, qr_norm(ans, {"v": right}), wr)
+    elif u == "second-time-at-height":
+        t1 = R(g["t1"])
+        need(0 < t1 < tv, "the first time is not before the top")
+        y1 = f.subs(X, t1)
+        said = f"{dec_text(y1)} m high at t = {dec_text(t1)} s."
+        need(any(said in l for l in L), "the height and time said are not on the model")
+        if rep == "words":
+            need(f"is highest after {dec_text(tv)} s" in L[0], "the top said is not the model's")
+        other = [r for r in sp.solve(f - y1, X) if r != t1]
+        need(len(other) == 1, "no other time at that height")
+        qr_check_common(q, qr_norm(ans, {"v": str(other[0])}))
+    elif u == "model-from-features":
+        m = re.fullmatch(r"A ball is thrown upwards from (\S+) m\. It is highest, (\S+) m, after (\S+) s\.", L[0])
+        need(m is not None, "can't read the features")
+        h0, H, T = (RD(x) for x in m.groups())
+        A_ = sp.Symbol("A")
+        sol = sp.solve(sp.Eq(A_ * T**2 + H, h0), A_)
+        model = sp.expand(sol[0] * (X - T)**2 + H)
+        co = poly_coeffs(model)
+        qr_check_common(q, qr_norm(ans, ext_poly_values(ans, co)))
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    return None, None
+
+
+# ── fn-link-equivalent-forms ──
+
+EF_PAIRS = {
+    "log-sub": lambda m, n: (sp.log(m * n) - sp.log(n), sp.log(m)),
+    "log-div": lambda m, n: (sp.log(m * n) / sp.log(n), sp.log(m)),
+    "log-pow": lambda m, n: (2 * sp.log(m), sp.log(m * m)),
+    "log-add": lambda m, n: (sp.log(m) + sp.log(n), sp.log(m + n)),
+    "sq-sum": lambda m, n: ((X + m)**2, X**2 + m * m),
+    "dos": lambda m, n: ((X + m) * (X - m), X**2 - m * m),
+}
+EF_CLAIMS = {
+    "log(a + b) = log a + log b": lambda a, b: (sp.log(a + b, 10), sp.log(a, 10) + sp.log(b, 10)),
+    "(log a)² = 2 log a": lambda a, b: (sp.log(a, 10)**2, 2 * sp.log(a, 10)),
+    "log a − log b = log(a/b)": lambda a, b: (sp.log(a, 10) - sp.log(b, 10), sp.log(a / b, 10)),
+    "log(aⁿ) = n log a": lambda a, b: (sp.log(a**3, 10), 3 * sp.log(a, 10)),
+    "log(a/b) = log a / log b": lambda a, b: (sp.log(a / b, 10), sp.log(a, 10) / sp.log(b, 10)),
+}
+TRIG = {"sin": sp.sin, "cos": sp.cos}
+
+
+@lru_cache(maxsize=None)
+def trig_solutions(fn, B, C):
+    """The solutions in [0, 2π] of cos 2x + B·fn(x) + C = 0 (cached: the same equation comes up often)."""
+    return sp.solveset(sp.cos(2 * X) + B * TRIG[fn](X) + C, X, sp.Interval(0, 2 * sp.pi))
+
+
+@lru_cache(maxsize=None)
+def trig_level(fn, val):
+    """The x in [0, 2π] with fn(x) = val."""
+    return sp.solveset(TRIG[fn](X) - val, X, sp.Interval(0, 2 * sp.pi))
+
+
+def ef_same(x, y):
+    """Whether two expressions are one object: equal as polynomials, or as numbers."""
+    d = sp.simplify(sp.expand_log(x - y, force=True))
+    return d == 0 or (d.is_number and abs(sp.N(d, 30)) < 1e-25)
+
+
+def ef_trig_text(c, fn):
+    mag = "" if abs(c) == 1 else frac_text(abs(c)) + " "
+    return (" − " if c < 0 else " + ") + mag + fn + " x"
+
+
+def check_eqforms(q):
+    g, ans, u, L, rep = q["given"], q["answer"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    wr = {}
+    if u == "form-for-feature":
+        m = re.search(r"f\(x\) = (.+)\.$", L[0])
+        need(m is not None, "can't read the three forms")
+        forms = m.group(1).split(" = ")
+        need(len(forms) == 3, "not three forms")
+        fs = [parse(f) for f in forms]
+        need(fs[0] == fs[1] == fs[2], "the three forms are not one quadratic")
+        f = fs[0]
+        a, b, c = coeffs(f)
+        need(forms[0] == qr_poly([a, b, c]), "the first form is not the general form")
+        rs = real_roots(f)
+        hv, kv = vertex(f)
+        need(all(r.is_integer for r in rs) and hv != 0, "the roots are not whole numbers, or the vertex is on the y-axis")
+        if q.get("graph"):
+            gr = q["graph"]
+            need(sp.nsimplify(gr["a"]) == a and sp.nsimplify(gr["h"]) == hv and sp.nsimplify(gr["k"]) == kv, "the graph is another parabola")
+        feat = lambda cc, r1, r2, h, k: qr_norm(ans, {"c": str(cc), "r1": str(r1), "r2": str(r2), "h": str(h), "k": str(k)})
+        wr["SL2.6.complete-square#1"] = {feat(c, rs[0], rs[1], hv, c - hv**2)}
+        wr["SL2.6.factorised-form#0"] = {feat(c, -rs[0], -rs[1], hv, kv)}
+        wr["SL2.6.factorised-form#2"] = {feat(rs[0] * rs[1], rs[0], rs[1], hv, kv)}
+        qr_check_common(q, feat(c, rs[0], rs[1], hv, kv), wr)
+    elif u == "identity-constants":
+        m = re.fullmatch(r"(.+) ≡ \(x \+ p\)² \+ q", L[0])
+        need(m is not None, "can't read the identity")
+        P_, Q_ = sp.symbols("P Q")
+        sol = sp.solve(sp.Poly(sp.expand(parse(m.group(1)) - (X + P_)**2 - Q_), X).coeffs(), [P_, Q_], dict=True)
+        need(len(sol) == 1, "the identity doesn't fix p and q")
+        p_, q_ = sol[0][P_], sol[0][Q_]
+        c = parse(m.group(1)).subs(X, 0)
+        wr["SL2.6.complete-square#0"] = {qr_norm(ans, {"v0": str(p_), "v1": str(c)})}
+        wr["SL2.6.complete-square#2"] = {qr_norm(ans, {"v0": str(-p_), "v1": str(q_)})}
+        qr_check_common(q, qr_norm(ans, {"v0": str(p_), "v1": str(q_)}), wr)
+    elif u == "same-or-not":
+        mm, nn = R(g["m"]), R(g["n"])
+        x, y = EF_PAIRS[g["pair"]](mm, nn)
+        same = ef_same(x, y)
+        right = ans["values"]["v"]
+        need(right.startswith("The same: ") == same and (right.startswith("Not the same: ") != same), f"the answer {right!r} gets the verdict wrong")
+        for o in ans["fixed"]["options"]:
+            if o == "The same: ln a/ln b = ln(a/b)":
+                need(g["pair"] == "log-div" and not same, "the log-quotient misconception on another pair")
+                wr["SL1.7.log-laws#1"] = {qr_norm(ans, {"v": o})}
+            if o == "The same: they agree when x = 0":
+                need(not same and sp.expand(x - y).subs(X, 0) == 0, "they don't agree at x = 0, or are the same")
+                wr["SL1.6.identity-constants#0"] = {qr_norm(ans, {"v": o})}
+        qr_check_common(q, qr_norm(ans, {"v": right}), wr)
+    elif u == "log-law-check":
+        claim = next((c for c in EF_CLAIMS if c in L[0]), None)
+        need(claim is not None, f"can't read the claim in {L[0]!r}")
+        sides = EF_CLAIMS[claim](sp.Integer(5), sp.Integer(3))
+        true_ = ef_same(*sides)
+        right = ans["values"]["v"]
+        need(right.startswith("True") == true_ and not right.startswith("True, but"), f"the answer {right!r} gets the claim wrong")
+        if "True" in ans["fixed"]["options"]:
+            ref = {"log(a + b) = log a + log b": "SL1.7.log-laws#0", "(log a)² = 2 log a": "SL1.7.log-laws#2"}.get(claim)
+            if ref:
+                wr[ref] = {qr_norm(ans, {"v": "True"})}
+        qr_check_common(q, qr_norm(ans, {"v": right}), wr)
+    elif u == "cos2x-form":
+        fn, B, C = g["fn"], R(g["B"]), R(g["C"])
+        need(L[0] == f"cos 2x{ef_trig_text(B, fn)}{'' if C == 0 else (' − ' if C < 0 else ' + ') + frac_text(abs(C))} = 0, for 0 ≤ x ≤ 2π", "the equation shown is not the givens")
+        sols = trig_solutions(fn, B, C)
+        need(isinstance(sols, sp.FiniteSet) and 2 <= len(sols) <= 4, f"{sols} is not 2 to 4 solutions")
+        vals = sorted(sp.nsimplify(s_ / sp.pi) for s_ in sols)
+        want = qr_norm(ans, {f"a{i}": str(v_) for i, v_ in enumerate(vals)})
+        qr_check_common(q, want, wr)
+    elif u == "power-form-first":
+        A, m_, B, n_ = R(g["A"]), R(g["m"]), R(g["B"]), R(g["n"])
+        f = parse(L[0].removeprefix("f(x) = "))
+        need(sp.simplify(f - (A / X**m_ + 1 / (B * X**n_))) == 0, "the function shown is not the givens")
+        def pairs(e):
+            out = []
+            for t in sp.Add.make_args(sp.expand(e)):
+                c_, pw = t.as_coeff_exponent(X)
+                out.append((int(pw), sp.Rational(c_)))
+            return tuple(sorted(out))
+        def vals(ts):
+            """Two terms (coefficient, power), kept apart even when the powers are equal."""
+            ps = sorted((int(pw), sp.Rational(c_)) for c_, pw in ts)
+            return qr_norm(ans, {k: str(v_) for i, (pw, c_) in enumerate(ps) for k, v_ in ((f"c{i}", c_), (f"e{i}", pw))})
+        d = sp.diff(f, X)
+        right = [(-m_ * A, -m_ - 1), (-n_ / B, -n_ - 1)]
+        need(pairs(d) == tuple(sorted((int(pw), c_) for c_, pw in right)), "the derivative is not two powers of x")
+        # 1/(Bxⁿ) written as Bx⁻ⁿ; the denominator differentiated (A/xᵐ -> A/(m·xᵐ⁻¹));
+        # the new power one up instead of one down.
+        wr["SL1.5.zero-negative#2"] = {vals([right[0], (-n_ * B, -n_ - 1)])}
+        wr["SL5.3.negative-powers#0"] = {vals([(A / m_, -(m_ - 1)), right[1]])}
+        wr["SL5.3.negative-powers#1"] = {vals([(-m_ * A, -m_ + 1), right[1]])}
+        qr_check_common(q, vals(right), wr)
+    elif u == "roots-from-vertex-form":
+        f = parse(L[0].removeprefix("f(x) = "))
+        a, _, _ = coeffs(f)
+        rs = real_roots(f)
+        need(all(r.is_integer for r in rs), "the roots are not whole numbers")
+        qr_check_common(q, qr_norm(ans, {"a": str(a), "p": str(rs[0]), "q": str(rs[1])}))
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    return None, None
+
+
+# ── fn-link-symmetry ──
+
+SY_MIRRORS = {"normal": "For X ~ N(μ, σ²), P(X < μ − a) = P(X > μ + a)", "trig": "sin(π − θ) = sin θ", "ncr": "nCr = nC(n − r)"}
+SY_NOT = {"The terms of an arithmetic sequence go up by the same amount each time", "log(ab) = log a + log b",
+          "A line has the same gradient between any two of its points", "e^(a + b) = e^a × e^b", "The angles of a triangle add up to π"}
+SY_EXACT = {"1/2": sp.Rational(1, 2), "√2/2": sp.sqrt(2) / 2, "√3/2": sp.sqrt(3) / 2}
+TH = sp.Symbol("theta")
+
+
+def sy_parabola(g):
+    a, h, k = R(g["a"]), R(g["h"]), R(g["k"])
+    need(a in {1, -1, 2, -2, sp.Rational(1, 2)} and h.q == 1 and k.q == 1 and h != 0, "the parabola is out of its limits")
+    return sp.expand(a * (X - h)**2 + k)
+
+
+def check_symmetry(q):
+    g, ans, u, L, rep = q["given"], q["answer"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    wr = {}
+    if u == "same-idea":
+        topic = g["topic"]
+        right = SY_MIRRORS[topic]
+        need(set(ans["fixed"]["options"]) - {right} <= SY_NOT, "an option is neither the mirror fact nor a fact without a mirror")
+        # The mirror fact really holds.
+        if topic == "trig":
+            need(sp.simplify(sp.sin(sp.pi - TH) - sp.sin(TH)) == 0, "sin(π − θ) ≠ sin θ")
+        elif topic == "ncr":
+            need(all(sp.binomial(n, r) == sp.binomial(n, n - r) for n in range(1, 12) for r in range(n + 1)), "nCr ≠ nC(n − r)")
+        else:
+            Z = sp.Symbol("z")
+            need(sp.simplify(sp.erf(-Z) + sp.erf(Z)) == 0, "the normal curve is not symmetric")
+        qr_check_common(q, qr_norm(ans, {"v": right}))
+    elif u == "mirror-point":
+        f = sy_parabola(g)
+        h, d, y = R(g["h"]), R(g["d"]), R(g["y"])
+        x1 = h - d
+        need(f.subs(X, x1) == y, "the point is not on the parabola")
+        if rep == "equation":
+            m = re.fullmatch(r"The parabola y = (.+) has its axis of symmetry at x = (\S+) and passes through \((\S+), (\S+)\)\.", L[0])
+            need(m is not None and parse(m.group(1)) == f and RD(m.group(2)) == vertex(f)[0], "the parabola or its axis shown is not the givens")
+            need((RD(m.group(3)), RD(m.group(4))) == (x1, y), "the point shown is not the givens")
+        if q.get("table"):
+            t = q["table"]
+            need(all(f.subs(X, R(x)) == R(yy) for x, yy in zip(t["xs"], t["ys"])), "a table value is not on the parabola")
+            need(max(R(x) for x in t["xs"]) == h, "the table doesn't stop at the axis")
+        if q.get("graph"):
+            gr = q["graph"]
+            need(sp.nsimplify(gr["axis"]) == vertex(f)[0], "the axis drawn is not the parabola's")
+            need(all(f.subs(X, sp.nsimplify(pt["x"])) == sp.nsimplify(pt["y"]) for pt in gr["points"]), "a marked point is off the curve")
+        other = [r for r in sp.solve(f - y, X) if r != x1]
+        need(len(other) == 1, "no single matching point")
+        pt = lambda x: qr_norm(ans, {"x": str(x), "y": str(y)})
+        wr["SL2.4.symmetry#0"] = {pt(-x1)}
+        wr["SL2.4.symmetry#1"] = {pt(h), pt(h + 2 * d)}
+        qr_check_common(q, pt(other[0]), wr)
+    elif u == "find-the-mirror":
+        ctx = g.get("ctx", "parabola")
+        if ctx == "ncr":
+            m = re.fullmatch(r"ⁿC(\d+) = ⁿC(\d+), and \d+ ≠ \d+\.", L[0]) if rep == "words" else None
+            r1, r2 = (int(m.group(1)), int(m.group(2))) if m else (int(R(g["r"])), int(R(g["n"]) - R(g["r"])))
+            n = R(g["n"])
+            need(r1 != r2, "the two r are equal")
+            sol = [v_ for v_ in range(max(r1, r2), 30) if sp.binomial(v_, r1) == sp.binomial(v_, r2)]
+            need(sol == [n], f"nC{r1} = nC{r2} has n = {sol}, not {n}")
+            if q.get("table"):
+                need(q["table"]["rows"] == [["r", [str(r1), str(r2)]], ["nCr", [str(sp.binomial(n, r1))] * 2]], "the table is not the row's values")
+            if q.get("graph"):
+                gr = q["graph"]
+                need(gr["kind"] == "bars" and [R(y_) for y_ in gr["ys"]] == [sp.binomial(n, k) for k in range(n + 1)], "the bars are not row n")
+            need(ans.get("exact"), "n must be marked exactly")
+            qr_check_common(q, qr_norm(ans, {"v": str(n)}))
+        elif ctx == "normal":
+            m = re.fullmatch(r"X ~ N\(μ, σ²\) and P\(X < (\S+)\) = P\(X > (\S+)\)\.", L[0])
+            need(m is not None, "can't read the tails")
+            lo, hi = RD(m.group(1)), RD(m.group(2))
+            qr_check_common(q, qr_norm(ans, {"v": str((lo + hi) / 2)}))
+        else:
+            f = sy_parabola(g)
+            xa, xb, yv = R(g["xa"]), R(g["xb"]), R(g["yv"])
+            need(xa != xb and f.subs(X, xa) == yv == f.subs(X, xb), "the two points are not a pair at one height on the parabola")
+            if rep == "words":
+                need(L[0] == f"A parabola has y = {frac_text(yv)} at x = {frac_text(xa)} and at x = {frac_text(xb)}.", "the pair said is not the givens")
+            if q.get("table"):
+                t = q["table"]
+                need(all(f.subs(X, R(x)) == R(yy) for x, yy in zip(t["xs"], t["ys"])), "a table value is not on the parabola")
+                need(str(xa) in [str(R(x)) for x in t["xs"]] and str(xb) in [str(R(x)) for x in t["xs"]], "the pair is not in the table")
+            if q.get("graph"):
+                gr = q["graph"]
+                need(gr["axis"] is None, "the graph gives the axis away")
+                need(all(f.subs(X, sp.nsimplify(pt["x"])) == sp.nsimplify(pt["y"]) for pt in gr["points"]), "a marked point is off the curve")
+            h = vertex(f)[0]
+            wr["SL2.6.axis-symmetry#1"] = {qr_norm(ans, {"var": "y", "h": str(h)})}
+            qr_check_common(q, qr_norm(ans, {"var": "x", "h": str(h)}), wr)
+    elif u in ("normal-middle", "normal-other-tail"):
+        mu, a, p_ = R(g["mu"]), R(g["a"]), R(g["p"])
+        need("σ²" in L[0] and f"N({frac_text(mu)}, σ²)" in L[0], "σ is given, but the tail fixes it")
+        need(0 < p_ < sp.Rational(1, 2), "the tail is not less than a half")
+        # The mirror: a tail p beyond μ + a means σ = a/z, with Φ(z) = 1 − p.
+        z = sp.sqrt(2) * sp.erfinv(1 - 2 * p_)
+        sigma = a / z
+        Phi = lambda x: (1 + sp.erf((x - mu) / (sigma * sp.sqrt(2)))) / 2
+        if q.get("graph"):
+            need(abs(float(q["graph"]["sigma"]) - float(sigma)) < 1e-6, "the curve drawn has another σ than the tail fixes")
+        if u == "normal-middle":
+            need(f"P(X > {frac_text(mu + a)}) = {dec_text(p_)}" in L[0] or f"P(X > {frac_text(mu + a)}), is {dec_text(p_)}" in L[0], "the tail shown is not the givens")
+            mid = sp.nsimplify(sp.N(Phi(mu + a) - Phi(mu - a), 30), rational=True, tolerance=1e-20)
+            wr["SL4.9.symmetry-probability#0"] = {qr_norm(ans, {"v": str(2 * p_)})}
+            qr_check_common(q, qr_norm(ans, {"v": str(mid)}), wr)
+        else:
+            need(f"P(X < {frac_text(mu - a)}) = {dec_text(p_)}" in L[0] or f"P(X < {frac_text(mu - a)}), is {dec_text(p_)}" in L[0], "the tail shown is not the givens")
+            up = sp.nsimplify(sp.N(1 - Phi(mu + a), 30), rational=True, tolerance=1e-20)
+            wr["SL4.9.symmetry-probability#1"] = {qr_norm(ans, {"v0": str(p_), "v1": str(p_ + sp.Rational(1, 2))})}
+            qr_check_common(q, qr_norm(ans, {"v0": str(up), "v1": str(1 - up)}), wr)
+    elif u == "central-interval":
+        mu, sigma, qq = R(g["mu"]), R(g["sigma"]), R(g["q"])
+        need(L[0] == f"X ~ N({frac_text(mu)}, {frac_text(sigma)}²).", "the distribution shown is not the givens")
+        mpmath.mp.dps = 40
+        z = sp.Float(str(mpmath.sqrt(2) * mpmath.erfinv(mpmath.mpf(qq.p) / qq.q)), 40)
+        lo, hi = mu - z * sigma, mu + z * sigma
+        need(lo > 0 and not on_edge(lo) and not on_edge(hi), "an end is negative or on a rounding edge")
+        zw = sp.Float(str(mpmath.sqrt(2) * mpmath.erfinv(2 * mpmath.mpf(qq.p) / qq.q - 1)), 40)
+        nine = lambda x: str(sp.Rational(round(float(x) * 10**9), 10**9))
+        wr["SL4.9.central-interval#0"] = {qr_norm(ans, {"v0": nine(mu - zw * sigma), "v1": nine(mu + zw * sigma)})}
+        qr_check_common(q, qr_norm(ans, {"v0": nine(lo), "v1": nine(hi)}), wr)
+    elif u == "related-angle":
+        fn, th = g["fn"], R(g["theta"])
+        val = TRIG[fn](th * sp.pi)
+        need(th in {sp.Rational(1, 6), sp.Rational(1, 4), sp.Rational(1, 3)}, "θ is not a special angle")
+        m = re.search(r"the line y = (\S+) through", L[0]) if rep == "graph" else re.search(r"= (\S+?)\.?$", L[0])
+        need(m is not None and sp.simplify(SY_EXACT[m.group(1)] - val) == 0, "the value shown is not the angle's")
+        same = sorted(trig_level(fn, val), key=float)
+        opp = sorted(trig_level(fn, -val), key=float)
+        need(len(same) == 2 and th * sp.pi in same and len(opp) == 2, "not two angles each way")
+        other = [x for x in same if x != th * sp.pi][0] / sp.pi
+        o1, o2 = (x / sp.pi for x in opp)
+        rel = lambda s_, a_, b_: qr_norm(ans, {"s": str(s_), "o1": str(a_), "o2": str(b_)})
+        wr["SL3.5.related-angles#0"] = {rel(o1, other, o2), rel(o2, other, o1)}
+        wr["SL3.5.related-angles#1"] = {rel(sp.Rational(1, 2) + th, o1, o2)}
+        qr_check_common(q, rel(other, o1, o2), wr)
+    elif u == "ncr-mirror":
+        n, r = R(g["n"]), R(g["r"])
+        m = re.fullmatch(r"(\d+)C(\d+) = (\d+)Cr, with r ≠ (\d+)", L[0])
+        need(m is not None and (R(m.group(1)), R(m.group(2))) == (n, r), "the nCr shown is not the givens")
+        others = [k for k in range(int(n) + 1) if k != r and sp.binomial(n, k) == sp.binomial(n, r)]
+        need(len(others) == 1, "no single other r")
+        need(ans.get("exact"), "r and the value must be marked exactly")
+        wr["SL1.9.ncr-pascal#0"] = {qr_norm(ans, {"v0": str(others[0]), "v1": str(sp.factorial(n) / sp.factorial(r))})}
+        qr_check_common(q, qr_norm(ans, {"v0": str(others[0]), "v1": str(sp.binomial(n, r))}), wr)
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
-                    "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq}
+                    "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
+                    "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
+                    "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
+                    "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
+                    "fn-link-symmetry": check_symmetry}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

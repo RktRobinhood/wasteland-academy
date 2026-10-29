@@ -134,3 +134,51 @@ static func plus(v: Variant) -> String:
 static func paren(v: Variant) -> String:
 	var q := Q.of(v)
 	return "(%s)" % q.text() if q.sign() < 0 or not q.is_int() else q.text()
+
+
+# ── Quadratics extension types (FAL-459) ─────────────────────
+
+const SUPS := {"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "-": "⁻"}
+
+
+## A power as a superscript after a letter: "" for 1, "²", "⁻³".
+static func sup(power: Variant) -> String:
+	var p := int(power)
+	if p == 1:
+		return ""
+	var out := ""
+	for ch in str(p):
+		out += SUPS[ch]
+	return out
+
+
+## A sum of c·xⁿ in the order given, skipping zero terms: terms([3, −1/4], [−2, −3])
+## is "3x⁻² − (1/4)x⁻³". A power of 0 is the number itself. With dec, coefficients
+## are decimals when they end ("−4.9t² + 19.6t + 1.5").
+static func terms(coeffs: Array, powers: Array, letter: String = "x", decimal: bool = false) -> String:
+	var out := ""
+	for i in coeffs.size():
+		var c := Q.of(coeffs[i])
+		if c.is_zero():
+			continue
+		var p := int(powers[i])
+		var mag := c.abs_q()
+		var body: String
+		if decimal:
+			body = dec(mag) if p == 0 else ("" if mag.eq(1) else dec(mag)) + letter + sup(p)
+		else:
+			body = mag.text() if p == 0 else lead(mag) + letter + sup(p)
+		if out == "":
+			out = ("−" if c.sign() < 0 else "") + body
+		else:
+			out += (" − " if c.sign() < 0 else " + ") + body
+	return out if out != "" else "0"
+
+
+## A multiple of π: "π", "5π/6", "−π/2", "2π", "0".
+static func pi(v: Variant) -> String:
+	var q := Q.of(v)
+	if q.is_zero():
+		return "0"
+	var top := "π" if absi(q.n) == 1 else "%dπ" % absi(q.n)
+	return ("−" if q.n < 0 else "") + top + ("" if q.d == 1 else "/%d" % q.d)

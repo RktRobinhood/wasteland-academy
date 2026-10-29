@@ -26,7 +26,8 @@ const DEFAULT_COURSES := [
 const STATUS := {"live": "live", "mapped": "syllabus mapped", "planned": "planned",
 	"pending": "syllabus mapping in progress"}
 const REPS := {"equation": "Equation", "words": "Words", "graph": "Graph", "table": "Table"}
-const FORMAT_NAMES := {"value": "Value", "mcq": "Multiple choice"}
+const FORMAT_NAMES := {"value": "Value", "mcq": "Multiple choice", "error-spot": "Error spot", "method-pick": "Method pick",
+	"true-false-reason": "True or false"}
 ## Base units: the choices pane's width in landscape, and the widest the screen gets.
 const LEFT := 1150
 const WIDEST := 2900
@@ -372,6 +373,13 @@ func _fix_view() -> void:
 		rep = reps[0] if not reps.is_empty() else ""
 	if not angle in _angles_for(unknown):
 		angle = "any"
+	_fix_format()
+
+
+## An extra format the view no longer offers goes back to multiple choice.
+func _fix_format() -> void:
+	if fmt in QuestionEngine.EXTRA_FORMATS and not fmt in QuestionEngine.extra_formats(type_id, unknown, angle):
+		fmt = "mcq"
 
 
 func _choose(field: String, value: Variant) -> void:
@@ -390,6 +398,7 @@ func _choose(field: String, value: Variant) -> void:
 			rep = value
 		"angle":
 			angle = value
+			_fix_format()
 		"format":
 			fmt = value
 	_refresh()
@@ -553,7 +562,7 @@ func _pickers() -> void:
 	choices.add_child(mlist)
 	_heading("Format")
 	var fflow := _flow("Format")
-	for f in ["value", "mcq"]:
+	for f in ["value", "mcq"] + QuestionEngine.extra_formats(type_id, unknown, angle):
 		var b := _toggle(FORMAT_NAMES[f], f == fmt, _choose.bind("format", f))
 		b.autowrap_mode = TextServer.AUTOWRAP_OFF
 		b.name = "Format_" + f
@@ -648,9 +657,8 @@ func _show_versions() -> void:
 			for line in q.lines:
 				inner.add_child(UiTheme.label(line, UiTheme.BODY, UiTheme.SAND if line.contains(" = ") else UiTheme.TEXT))
 			if q.graph != null:
-				var g := GraphView.new()
-				g.custom_minimum_size.y = 480
-				g.set_spec(q.graph)
+				var g := graph_for(q.graph)
+				g.custom_minimum_size.y = mini(480, int(g.custom_minimum_size.y))
 				inner.add_child(g)
 			if q.table != null:
 				inner.add_child(_table(q.table))

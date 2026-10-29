@@ -134,6 +134,23 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 - `engine/situations/cubic.gd` is the Topic 5 situation: a cubic built
   from f′(x) = 3a(x − p)(x − q), so its stationary points are on whole numbers, with a
   point x₀ for the gradient, tangent and normal (FAL-394).
+- **The Quadratics extension types** (FAL-459) are seven more situations, one per
+  type: `expand.gd`, `factorise.gd`, `surds.gd` and `linear_inequality.gd` (the
+  `fn-pre-*` prior learning, which the dungeon's warm-ups and after-a-miss questions
+  now play), `quadratic_model.gd` (a thrown ball or a fenced pen, Paper 2 with
+  a = −4.9), `equivalent_forms.gd` and `symmetry.gd` (the two link types, which reach
+  into log laws, cos 2x, negative powers, the normal curve, related angles and nCr).
+  Their views extend `extension_views.gd`. Each is built from its answer, so the
+  numbers stay clean. The `fn-pre-*` misconceptions have no catalogue ref, so they
+  are logged as `<type id>#<index>` (`QuestionEngine.misconception_text`). The area
+  grid of `fn-pre-expand` and `fn-pre-factorise` is a table, and `ui/plot_view.gd` draws
+  the graphs that aren't a parabola: a number line, a shaded normal curve, sin x or
+  cos x on [0, 2π], and the bars of a row of Pascal's triangle. Views whose context
+  depends on the method (find-the-mirror: a parabola or nCr) define `build_view()`,
+  which is told the method. New answer kinds: `poly` (powers fixed or typed),
+  `named`, `pair`, `brackets`, `brackets2`, `common`, `pm_surd`, `range2`,
+  `related`, `features` and `angles`. An answer can set `show: "sf"` (3 s.f.), and
+  options of such an answer are told apart by their text.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -151,6 +168,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
 - **Formats**: the layer names all eight from the plan. `value` (slot inputs such as
   a(x − □)² + □) and `mcq` are built, and the concept probes play as a verdict
   (true or false; always, sometimes or never; the sign) and then the reason.
+  Three more are built on a question's multiple-choice form (FAL-459), each as four
+  options with a `reason` shown after the answer: **error-spot** (a student's four
+  lines of working, from the catalogue's `error-spot` misconceptions; which line is
+  the first wrong one), **method-pick** (which method works: the view's method against
+  the catalogue's failing methods and the view's own `pick_wrongs`; never asked on a
+  method the catalogue says fails) and **true-false-reason** (a student's answer,
+  right or one of the wrong options; agreeing with a misconception logs it). A cell
+  offers one only where its type's catalogue `formats` lists it and its views build it
+  (`QuestionEngine.extra_formats()`), and the planner and a boss's link part ask one
+  about a third of the time (`EXTRA_SHARE`). Exam types offer none. `match`,
+  `multipart`, `order-steps` and `pick-the-graph` are not built.
 - **Marking** (`engine/answer.gd`): exact or right to 3 s.f. More figures are right too
   when they are the value correctly rounded (12.35 for 12.3456). The right value with
   too few figures (2.3 for 2.347) is a **glancing hit** (Q7): `mark()` returns
@@ -344,8 +372,13 @@ terms, the table, the words and the question text, solves them with SymPy, and c
 they give the sequence in the givens. For the four FAL-414 situations it reads the
 equations, sentences and sketches back, solves the unknown (Δ in k, the meeting points,
 the valid root, the solution set) and works out each tagged misconception's wrong value
-itself, and every worked solution must be 2 to 5 steps. Each cell also gets 10 questions
-made on its family's shared situation. Every mini-boss and boss chain is exported too
+itself, and every worked solution must be 2 to 5 steps. For the seven FAL-459 situations
+it does the same, with SymPy, mpmath and the catalogue's own method names: an error-spot
+question's first wrong line is found again from the working (each line an identity, a
+solution set or a surd claim), a method-pick question's wrong methods must not work, and
+a true-false-reason question's student answer must be one of the question's options.
+Each cell also gets 10 questions made on its family's shared situation, and 20 in each
+extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
 chain: one situation, and each part's `carried` value is the part before's answer. It
 prints a table per type and per cell. SymPy is pinned in
@@ -356,7 +389,8 @@ next to `./test.sh`.
 
 The checker only exports seeds 1 to 50. `tools/stress-questions` makes every cell with
 seeds 51 to 2250 (about 258,000 questions, a few minutes) and checks that each question
-is made with four options (every fourth seed also on its family's shared situation), that its own answer typed exactly and to 3 s.f. is marked
+is made with four options (every fourth seed also on its family's shared situation, and
+in each extra format the cell offers), that its own answer typed exactly and to 3 s.f. is marked
 right, and that every wrong option typed in is marked wrong with its misconception. It
 does the same for every boss chain with seeds 51 to 1050, and checks each part's carried
 value. It fails on any script error, such as a failed assert in `Q`. CI runs it as its

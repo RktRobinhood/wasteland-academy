@@ -208,7 +208,8 @@ func _make_boss() -> Dictionary:
 		return {}
 	var parts: Array = chain.parts
 	var link := false
-	if not plan.link.is_empty():
+	# A link type is extension material, so "Exam-style only" leaves the link part out.
+	if not plan.link.is_empty() and not _exam_only():
 		var lq := QuestionEngine.make(plan.link)
 		if not lq.has("error"):
 			lq.part = parts.size()
@@ -439,7 +440,7 @@ func can_use(lifeline: String) -> bool:
 		return false
 	match lifeline:
 		"fifty":
-			return question.format == "mcq" and removed.is_empty()
+			return QuestionEngine.is_choice(question) and removed.is_empty()
 		"hint":
 			return hint == "" and not question.solutions.is_empty()
 		"freeze":
