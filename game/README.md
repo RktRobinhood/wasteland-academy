@@ -236,13 +236,27 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   parabola, a model on an interval, a curve that levels off, sin or cos on 0 to 2π, a
   curve from conditions) and the sketch that shows them, for `fn-sketch-from-features`.
   Each recipe draws its family once and looks at 48 samples before it finds roots, so a
-  question takes about 7 ms, as the rest of the sweep does. New answer kinds: `xs` (a
+  question takes about 7 ms, about ten times the rest of the sweep; CI runs the sweep in
+  four shards (`tools/stress-questions --shard=k/4`). New answer kinds: `xs` (a
   list of x-values, any order; options may have other counts), `pts` (a list of points,
   any order; a wrong option may give only the x-coordinates) and `graph` (pick the
   graph). A view's rounding trap can carry a misconception (`trap_ref`) where the
   catalogue's mistake is too few figures: picking it is a glancing hit that logs it.
   `Answer._sorted` and `_pairs` compare as floats, because Q.lt's cross-multiplying
   overflows on nine-decimal values.
+  The region's extension types: `fn-concept-solutions-as-intersections` is more views
+  on `gdc-two-curves`; `gdc_inequality.gd` extends it with f(x) > g(x) or < g(x), solved
+  from the crossings (`fn-ext-inequality-graphical`); `graph_reading.gd` is reading a
+  grid and rounding (`fn-pre-graph-reading`); `graph_match.gd` matches y = a·bˣ + c or a
+  factorised quadratic to its graph (`fn-ext-match-graph`; the match format isn't
+  built, so matching several plays as picking one); `link_extremes.gd` is an extreme
+  found several ways (a height model's top, a wave's range and first peak, a touching
+  line, a closed interval, a cubic's turning points: `fn-link-extremes`); and
+  `link_graph_algebra.gd` is an equation as two graphs that meet (`fn-link-graph-vs-algebra`).
+  The two link types extend `extension_views.gd` and offer true-false-reason and
+  method-pick; the concept type and graph-match offer true-false-reason. Not built yet:
+  error-spot (fn-ext-inequality-graphical, fn-pre-graph-reading) and method-pick for
+  fn-concept-solutions-as-intersections.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -815,7 +829,9 @@ script error happens while it runs. Run one file with
   four lettered cards with each wrong card's mistake and misconception (and picking it
   logs it), zeros marked in any order to 3 s.f. with 2 s.f. a glancing hit, the 2 s.f.
   turning point as the trap that logs SL2.4.max-min#2, the greatest value at an
-  endpoint, each boss chain on one situation and a true minus sign throughout.
+  endpoint, each boss chain on one situation and a true minus sign throughout. The
+  extension types are in it too, with every cell built (a cubic's f(x) = 0 distractor
+  in fn-link-extremes is listed with the reason).
 - `test_exp_log.gd`: the eight Exponentials and logs types (FAL-418): built with every
   cell on their situations, 2 to 5 steps per worked solution, every distractor
   misconception as an option (two that no exact option can show are listed with the
