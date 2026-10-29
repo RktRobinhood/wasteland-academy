@@ -11,7 +11,7 @@ extends SceneTree
 ## tools/stress-questions. Exits non-zero on any failure.
 ##
 ##   godot --headless --path game --script res://tools/stress_questions.gd -- \
-##       [--from=51] [--to=2250]
+##       [--from=51] [--to=2250] [--types=id,id]
 
 ## Seeds per boss chain, from --from: there are a few dozen chains, each several parts.
 const CHAIN_SEEDS := 1000
@@ -55,7 +55,8 @@ func _run() -> void:
 	var hi := int(args.to)
 	var n := 0
 	var short_choices := 0
-	for c in QuestionEngine.cells():
+	var only: Array = Array(str(args.get("types", "")).split(",", false))
+	for c in QuestionEngine.cells(false, only):
 		var views: Array = []
 		for seed in range(lo, hi + 1):
 			views.append({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed})
@@ -77,6 +78,8 @@ func _run() -> void:
 			short_choices += _check(q, "%s seed %d" % [key, seed])
 	var chains := 0
 	for id in QuestionEngine.built_types():
+		if not only.is_empty() and not id in only:
+			continue
 		for steps in Dungeon.chain_windows(id):
 			var name := "chain %s" % "+".join(steps.map(func(st): return st.unknown))
 			for seed in range(lo, mini(hi, lo + CHAIN_SEEDS - 1) + 1):
@@ -118,8 +121,11 @@ func _check(q: Dictionary, name: String) -> int:
 	var r := QuestionEngine.mark(q, _typed(ans, ans.values))
 	if not r.correct:
 		fails.append("%s: exact typed answer marked wrong: %s" % [name, q.answer_text])
+	# An exact answer (an exact k, −(ln 2)/3) is only right exactly, so its 3 s.f.
+	# decimal is checked only where that decimal is the exact value.
+	var rounded := Answer.slots(ans).any(func(item): return item.has("slot") and Answer.needs_rounding(ans.values[item.slot]))
 	var rd := QuestionEngine.mark(q, _decimal_typed(ans, ans.values))
-	if not rd.correct:
+	if not rd.correct and not (ans.get("exact", false) and rounded):
 		fails.append("%s: decimal typed answer marked wrong: %s %s" % [name, q.answer_text, _decimal_typed(ans, ans.values)])
 	for ch in q.choices:
 		if ch.correct:

@@ -51,6 +51,7 @@ static var SITUATIONS := {
 	"quadratic-model": [QuadraticModelSituation, QuadraticModelViews],
 	"fn-link-equivalent-forms": [EquivalentFormsSituation, EquivalentFormsViews],
 	"fn-link-symmetry": [SymmetrySituation, SymmetryViews],
+	"exp-model": [ExpModelSituation, ExpModelViews],
 }
 
 static var _cat: Dictionary = {}
@@ -586,11 +587,12 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 
 
 ## A wrong option must still be a well-formed answer: no zero leading coefficient, and
-## a measure (shown to 3 s.f.) that is positive and not on a rounding edge.
+## a measure (shown to 3 s.f.) that is positive (or, for a signed one such as a decay
+## rate, not zero) and not on a rounding edge.
 static func _usable(ans: Dictionary, values: Dictionary) -> bool:
 	if ans.kind == "measure":
 		var x: float = Q.of(values.v).to_float()
-		return x > 0.0 and Answer.rounds_clearly(x)
+		return (x > 0.0 or (ans.get("signed", false) and x != 0.0)) and Answer.rounds_clearly(x)
 	for id in ["a", "ga", "fa", "va"]:
 		if values.has(id) and values[id] is Q and values[id].is_zero():
 			return false

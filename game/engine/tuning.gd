@@ -165,6 +165,10 @@ const CHAINS := {
 	"fn-discriminant": ["delta-in-k", "k-for-equal-roots", "k-interval"],
 	# the substitution, then solve and reject the impossible root
 	"fn-solve-quadratic": ["choose-substitution", "solve-hidden-exponential"],
+	# k from a second reading, predict, the time to a level, then whole time units. The
+	# chain's opener (the initial value) and closer (the long-run value) are on a limited
+	# growth model, which these four parts can't share, so they stay single questions.
+	"fn-exponential-model": ["k-from-data-point", "predict-from-data-point", "time-to-level", "whole-units-inequality"],
 }
 
 

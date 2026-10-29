@@ -1481,6 +1481,8 @@ def qr_text(ans, v):
     kind, fx, label, unit = ans["kind"], ans.get("fixed") or {}, ans.get("label", ""), ans.get("unit", "")
     if kind in EXT_KINDS or (kind == "number" and ans.get("show")):
         return ext_text(ans, v)
+    if kind in EL_KINDS:
+        return el_text(ans, v)
     var = fx.get("var", "k")
     if kind == "number":
         return label + frac_text(v["v"]) + unit
@@ -1520,7 +1522,7 @@ def qr_text(ans, v):
     if kind == "ineq_a":
         return f"{qr_poly([1, v['b'], v['c']])} {v['rel']} 0"
     if kind == "measure":
-        return label + sig3(R(v["v"])) + unit
+        return label + sig3(R(v["v"])).replace("-", "−") + unit
     raise Fail(f"the checker can't write answers of kind {kind}")
 
 
@@ -1529,6 +1531,8 @@ def qr_norm(ans, v):
     kind, fx = ans["kind"], ans.get("fixed") or {}
     if kind in EXT_KINDS or (kind == "number" and ans.get("show") == "sf"):
         return ext_norm(ans, v)
+    if kind in EL_KINDS:
+        return el_norm(ans, v)
     if kind in ("interval", "bound"):
         st = qr_set(kind, v)
         return ("pm", v["shape"], R(v["hi"]), v["ends"]) if st is None else st
@@ -3267,6 +3271,377 @@ def check_symmetry(q):
     return None, None
 
 
+# ── Exponentials and logs (FAL-418) ──────────────────────────
+# Answer kinds the region adds (game/engine/answer.gd): lnq (m·ln r, exact), pct (a
+# rise or fall of r%), expmodel (P₀(a)ᵗ) and limited (C, A and k of C + Ae^(−kt)).
+
+EL_KINDS = {"lnq", "pct", "expmodel", "limited"}
+
+
+def el_num(text):
+    """A number as the game writes it: 1.05, −455, 7/20."""
+    return sp.Rational(text.replace("−", "-"))
+
+
+def el_lnq_text(m, r):
+    m, r = R(m), R(r)
+    top = f"ln {frac_text(r)}" if r.q == 1 else f"ln({frac_text(r)})"
+    if abs(m.p) != 1:
+        top = f"{abs(m.p)} {top}"
+    body = top
+    if m.q != 1:
+        body = (f"({top})" if " " in top and r.q == 1 else top) + f"/{m.q}"
+    return ("−" if m < 0 else "") + body
+
+
+def el_text(ans, v):
+    kind, fx, label = ans["kind"], ans.get("fixed") or {}, ans.get("label", "")
+    if kind == "lnq":
+        return label + el_lnq_text(v["m"], v["r"])
+    if kind == "pct":
+        pv = dec_text(v["v"]) if ans.get("exact") else sig3(R(v["v"]))
+        return f"a {v['dir']} of {pv}% {fx.get('per', '')}".strip()
+    if kind == "expmodel":
+        return f"{fx.get('sym', 'P')}(t) = {dec_text(v['p0'])}({dec_text(v['a'])})ᵗ"
+    if kind == "limited":
+        return f"C = {frac_text(v['C'])}, A = {frac_text(v['A'])}, k = {sig3(R(v['k'])).replace('-', '−')}"
+    raise Fail(f"the checker can't write answers of kind {kind}")
+
+
+def el_norm(ans, v):
+    kind = ans["kind"]
+    if kind == "lnq":
+        m, r = R(v["m"]), R(v["r"])
+        return None if r <= 0 else round(float(m * sp.log(r)), 9)
+    if kind == "pct":
+        return (v["dir"], R(v["v"]) if ans.get("exact") else sig3(R(v["v"])))
+    if kind == "expmodel":
+        return (R(v["p0"]), R(v["a"]))
+    if kind == "limited":
+        return (R(v["C"]), R(v["A"]), sig3(R(v["k"])))
+    raise Fail(f"the checker can't compare answers of kind {kind}")
+
+
+def el_m(x):
+    """A measure's normalised value (as qr_norm writes one): 3 s.f., sign kept."""
+    return sig3(x)
+
+
+# ── exp-model (fn-exponential-model) ──
+# The clean limits, the checker's own copy of game/engine/situations/exp_model.gd's.
+
+EM_STARTS = {100, 200, 250, 400, 500, 800, 1000, 1200, 1500, 2000, 2500, 5000}
+EM_TABLE_STARTS = {1000, 2000, 4000, 5000}
+EM_TABLE_RATES = {10, 20, 25, 30, 50, -10, -20, -40, -50}
+EM_T_MAX = 60
+EM_MAX_VALUE = 100000
+EM_LOG_M = {1, 2, 5, 10, 20}
+EM_LOG_X0 = {2, 4, 5, 10, 20, 50}
+EM_REL = sp.Rational(1, 10**6)
+T_ = sp.Symbol("t")
+
+
+def em_k(g):
+    """The model's rate k, exact (a log for a half-life or a reading)."""
+    f = g["form"]
+    if f == "half":
+        return (1 if g["dir"] == "double" else -1) * sp.log(2) / int(g["T"])
+    if f == "data":
+        return sp.log(R(g["P1"]) / R(g["A"])) / int(g["t1"])
+    if f == "limited" and "t1" in g:
+        return -sp.log((R(g["P1"]) - R(g["C"])) / R(g["A"])) / int(g["t1"])
+    return R(g["k"])
+
+
+def em_f(g):
+    """The model as an expression in t."""
+    f = g["form"]
+    if f in ("factor", "shift"):
+        return R(g["P0"]) * R(g["a"]) ** (T_ - int(g.get("t0", 0)))
+    if f in ("cont", "half", "data"):
+        return R(g["A"]) * sp.exp(em_k(g) * T_)
+    if f == "limited":
+        return R(g["C"]) + R(g["A"]) * sp.exp(-em_k(g) * T_)
+    raise Fail(f"no model for form {f}")
+
+
+def em_time(g, lv):
+    """When the model equals lv, exact."""
+    f = g["form"]
+    if f in ("factor", "shift"):
+        return int(g.get("t0", 0)) + sp.log(lv / R(g["P0"])) / sp.log(R(g["a"]))
+    if f in ("cont", "half", "data"):
+        return sp.log(lv / R(g["A"])) / em_k(g)
+    return -sp.log((lv - R(g["C"])) / R(g["A"])) / em_k(g)
+
+
+def em_growing(g):
+    f = g["form"]
+    if f in ("factor", "shift", "two"):
+        return R(g["a"]) > 1
+    if f == "limited":
+        return R(g["A"]) < 0
+    return num(em_k(g)) > 0
+
+
+def em_clean(g):
+    f = g["form"]
+    need(f in {"factor", "shift", "cont", "half", "data", "limited", "log10", "two"}, f"unknown form {f}")
+    if f in ("factor", "shift"):
+        r, P0 = int(g["r"]), R(g["P0"])
+        need(R(g["a"]) == 1 + sp.Rational(r, 100), "a is not 1 + r/100")
+        need((P0 in EM_STARTS and (2 <= r <= 25 or -30 <= r <= -3)) or (P0 in EM_TABLE_STARTS and r in EM_TABLE_RATES),
+             f"P₀ = {P0}, r = {r}% is not a clean model")
+        need(int(g["t0"]) == (0 if f == "factor" else int(g["t0"])) and (f == "factor" or 1 <= int(g["t0"]) <= 5), "t0 out of range")
+    elif f == "cont":
+        k = R(g["k"])
+        need(R(g["A"]) in EM_STARTS and (k * 200).q == 1 and 5 <= abs(k * 200) <= 60, f"k = {k} is not a clean rate")
+    elif f == "half":
+        need(R(g["A"]) in EM_STARTS and 2 <= int(g["T"]) <= 30 and g["dir"] in ("half", "double"), "not a clean half-life")
+    elif f == "data":
+        P1, A = R(g["P1"]), R(g["A"])
+        need(A in EM_STARTS and 2 <= int(g["t1"]) <= 10 and 0 < P1 != A, "not a clean reading")
+    elif f == "limited":
+        C, A = R(g["C"]), R(g["A"])
+        need(C > 0 and C + A > 0 and A != 0, "the limited model starts at or below zero")
+        if "t1" in g:
+            frac = (R(g["P1"]) - C) / A
+            need(0 < frac < 1, "the reading is not between the start and the long run")
+    elif f == "log10":
+        m, x0, Rv = R(g["m"]), R(g["x0"]), R(g["R"])
+        need(m in EM_LOG_M and x0 in EM_LOG_X0 and sp.Rational(6, 5) <= Rv / m <= sp.Rational(9, 2), "not a clean log model")
+    elif f == "two":
+        need(R(g["P0"]) < R(g["P0b"]) and R(g["a"]) > R(g["ab"]), "the two models never meet")
+
+
+def em_model_text(g, k_shown=True):
+    """The model as the checker writes it, to find among the lines."""
+    s, f = g["ctx"]["sym"], g["form"]
+    if f == "factor":
+        return f"{s}(t) = {frac_text(g['P0'])}({dec_text(g['a'])})ᵗ"
+    if f == "shift":
+        return f"{s}(t) = {frac_text(g['P0'])}({dec_text(g['a'])})^(t − {g['t0']})"
+    if f == "cont":
+        return f"{s}(t) = {frac_text(g['A'])}e^({dec_text(g['k'])}t)"
+    if f in ("half", "data"):
+        return f"{s}(t) = {frac_text(g['A'])}e^(kt)"
+    if f == "limited":
+        A = R(g["A"])
+        e = f"e^(−{dec_text(g['k'])}t)" if k_shown and "t1" not in g else "e^(−kt)"
+        return f"{s}(t) = {frac_text(g['C'])} {'+' if A > 0 else '−'} {frac_text(abs(A))}{e}"
+    if f == "log10":
+        m = R(g["m"])
+        return f"{s} = {'' if m == 1 else frac_text(m) + ' '}log₁₀(x/{frac_text(g['x0'])})"
+    raise Fail(f"no model text for {f}")
+
+
+def em_read(pattern, text, what):
+    m = re.search(pattern, text)
+    need(m is not None, f"can't read {what} from {text!r}")
+    return m
+
+
+def em_shown(q, g):
+    """The model and its extras as the lines show them, read back with regexes and
+    compared with the givens. Returns the joined lines."""
+    L = " / ".join(q["lines"])
+    f = g["form"]
+    if f in ("factor", "shift"):
+        m = em_read(r"(\w)\(t\) = (\d+)\(([\d.]+)\)(ᵗ|\^\(t − (\d+)\))", L, "the model")
+        need(el_num(m.group(2)) == R(g["P0"]) and el_num(m.group(3)) == R(g["a"]), "the model shown is not the givens")
+        need((m.group(5) is None) == (f == "factor") and (f == "factor" or int(m.group(5)) == int(g["t0"])), "the shift shown is not t0")
+    elif f == "cont":
+        m = em_read(r"(\w)\(t\) = (\d+)e\^\((−?[\d.]+)t\)", L, "the model")
+        need(el_num(m.group(2)) == R(g["A"]) and el_num(m.group(3)) == R(g["k"]), "the model shown is not the givens")
+    elif f in ("half", "data"):
+        m = em_read(r"(\w)\(t\) = (\d+)e\^\(kt\)", L, "the model")
+        need(el_num(m.group(2)) == R(g["A"]), "the start shown is not A")
+        if f == "half":
+            m2 = em_read(r"(?:Its half-life is|It doubles every) (\d+) ", L, "the half-life")
+            need(int(m2.group(1)) == int(g["T"]) and ("half-life" in m2.group(0)) == (g["dir"] == "half"), "the half-life shown is not T")
+    elif f == "limited":
+        m = em_read(r"(\w)\(t\) = (\d+) ([+−]) (\d+)e\^\(−([\d.]+|k)t\)", L, "the model")
+        A = el_num(m.group(4)) * (1 if m.group(3) == "+" else -1)
+        need(el_num(m.group(2)) == R(g["C"]) and A == R(g["A"]), "the model shown is not the givens")
+        need(m.group(5) == "k" or el_num(m.group(5)) == R(g["k"]), "the k shown is not the givens")
+    elif f == "log10":
+        need(em_model_text(g) in L, "the log model shown is not the givens")
+    if f == "data" and q["view"]["rep"] != "table" and q["view"]["unknown"] not in ("initial-from-later",):
+        m = em_read(r"(?:\w\((\d+)\) = (\d+)|After (\d+) \w+ it is (\d+)\.)", L, "the reading")
+        t1, P1 = (m.group(1), m.group(2)) if m.group(1) else (m.group(3), m.group(4))
+        need(int(t1) == int(g["t1"]) and el_num(P1) == R(g["P1"]), "the reading shown is not the givens")
+    if f == "shift":
+        need(f"The model holds for t ≥ {g['t0']}." in L, "the model's domain is not shown")
+    return L
+
+
+def em_graph(q, g, curves):
+    """The curves are sampled from the model(s); every marked point is on one of them."""
+    gr = q["graph"]
+    need(gr is not None and len(gr["curves"]) == len(curves), "the graph does not show the model")
+    for pts, fn in zip(gr["curves"], curves):
+        for x, y in pts[::20]:
+            need(abs(num(fn.subs(T_, sp.Float(x, 30))) - sp.Float(y, 30)) <= EM_REL * max(1, abs(y)), f"the curve misses ({x}, {y})")
+    for p in gr["points"]:
+        need(any(abs(num(fn.subs(T_, sp.Float(p["x"], 30))) - sp.Float(p["y"], 30)) <= EM_REL * max(1, abs(p["y"])) for fn in curves),
+             f"the marked point {p['label']} is not on the curve")
+        need(p["label"] in (f"({frac_text(sp.nsimplify(p['x']))}, {frac_text(sp.nsimplify(p['y']))})", "P", "Q"),
+             f"the point's label {p['label']!r} is not its coordinates")
+    return gr
+
+
+def check_exp_model(q):
+    g, ans, u, rep = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"]
+    asked = q["asked"]
+    em_clean(g)
+    M, CA, LG, FP = "SL2.9.exp-model", "SL2.10.context-apply", "SL1.7.solve-with-logs", "SL2.9.find-parameters"
+    wr = {}
+    m3 = lambda x: (need(not on_edge(abs(num(x))), f"{u}: {num(x)} is on a rounding edge"), el_m(x))[1]
+    if "t2" in g and g["form"] not in ("log10", "two"):
+        later = num(em_f(g).subs(T_, int(g["t2"])))
+        need(1 <= later <= EM_MAX_VALUE, f"the prediction {later} is not a believable size")
+    if u not in ("factor-from-percent", "model-from-table", "model-from-graph", "initial-from-later", "time-from-graph",
+                 "two-models-equal"):
+        em_shown(q, g)
+    if u == "initial-value":
+        C, A = R(g["C"]), R(g["A"])
+        wr[f"{FP}#0"] = {qr_norm(ans, {"v": str(A)})}
+        wr[f"{FP}#1"] = {qr_norm(ans, {"v": str(C)})}
+        need(ans.get("exact"), "the start value is not marked exactly")
+        want = qr_norm(ans, {"v": str(C + A)})
+    elif u == "predict-value":
+        t2 = int(em_read(r"Find \w\((\d+)\)", asked, "the time").group(1))
+        P0, a, r = R(g["P0"]), R(g["a"]), int(g["r"])
+        want = m3(P0 * a**t2)
+        wr[f"{M}#1"] = {el_m(P0 * a * t2), el_m(P0 * (1 + sp.Rational(r, 100) * t2))}
+        wr[f"{M}#2"] = {el_m(P0 * a ** (t2 - 1))}
+        if rep == "graph":
+            em_graph(q, g, [em_f(g)])
+    elif u == "interpret-factor":
+        a = R(g["a"])
+        d = "rise" if a > 1 else "fall"
+        need(ans.get("exact") and f"the {dec_text(a)} in the model" in asked, "the factor asked is not the model's")
+        want = (d, abs(a - 1) * 100)
+        wr[f"{M}#0"] = {(d, a * 100)}
+    elif u == "long-run-value":
+        need(ans.get("exact"), "the long-run value is not marked exactly")
+        want = qr_norm(ans, {"v": g["C"]})
+        if rep == "graph":
+            gr = em_graph(q, g, [em_f(g)])
+            need(any(R(sp.nsimplify(h["at"])) == R(g["C"]) for h in gr["hlines"]), "the asymptote is not drawn at C")
+    elif u == "k-from-half-life":
+        need(ans.get("exact") and "exact" in asked, "an exact k is not asked exactly")
+        want = round(float(em_k(g)), 9)
+    elif u == "k-from-data-point":
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0][1] == ["0", str(g["t1"])] and rows[1][1] == [frac_text(g["A"]), frac_text(g["P1"])], "the table is not the reading")
+        want = m3(em_k(g))
+    elif u == "predict-from-data-point":
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0][1] == ["0", str(g["t1"])] and rows[1][1] == [frac_text(g["A"]), frac_text(g["P1"])], "the table is not the reading")
+        t2 = int(em_read(r"Find \w\((\d+)\)", asked, "the time").group(1))
+        k = em_k(g)
+        want = m3(R(g["A"]) * sp.exp(k * t2))
+        k2 = sp.Rational(sig3(k, 2))
+        wr[f"{LG}#2"] = {el_m(R(g["A"]) * sp.exp(k2 * t2))}
+    elif u in ("time-to-level", "whole-units-inequality"):
+        lv = el_num(em_read(r"(?:= |than )(\d+)\.", asked, "the level").group(1))
+        need(lv == R(g["L"]), "the level asked is not L")
+        t = em_time(g, lv)
+        tn = num(t)
+        need(int(g.get("t0", 0)) + sp.Rational(1, 2) < tn <= EM_T_MAX, f"t = {tn} is out of range")
+        if u == "time-to-level":
+            want = m3(t)
+            wr[f"{CA}#1"] = {el_m(-t)}
+            wr[f"{CA}#2"] = {el_m(lv)}
+            if g["form"] == "shift":
+                wr[f"{LG}#0"] = {el_m(sp.log(lv / R(g["P0"])) + int(g["t0"]) * sp.log(R(g["a"])))}
+        else:
+            frac = tn - sp.floor(tn)
+            need(sp.Rational(1, 10) <= frac <= sp.Rational(9, 10), "the crossing is too near a whole number")
+            need(("more than" in asked) == em_growing(g), "more or less than is the wrong way for the model")
+            need(ans.get("exact"), "a whole number of periods is not marked exactly")
+            first = int(sp.ceiling(tn))
+            want = qr_norm(ans, {"v": str(first)})
+            wr[f"{CA}#0"] = {qr_norm(ans, {"v": str(int(sp.floor(tn + sp.Rational(1, 2))))})}
+    elif u == "log-model-solve":
+        Rv = el_num(em_read(r"when \w = ([\d.]+)\.", asked, "the reading").group(1))
+        need(Rv == R(g["R"]), "the reading asked is not R")
+        e = Rv / R(g["m"])
+        want = m3(R(g["x0"]) * 10**e)
+        wr["SL1.5.exp-log-form#1"] = {el_m(R(g["x0"]) * e**10)}
+    elif u == "factor-from-percent":
+        m = em_read(r"is (\d+) at t = 0, and it (grows|falls) by (\d+)% each (\w+)\.", q["lines"][0], "the start and rate")
+        P0, pr = el_num(m.group(1)), sp.Rational(int(m.group(3)), 100)
+        a = 1 + pr if m.group(2) == "grows" else 1 - pr
+        need((P0, a) == (R(g["P0"]), R(g["a"])), "the words are not the givens")
+        need(ans.get("exact"), "the model is not marked exactly")
+        want = (P0, a)
+        wr[f"{M}#0"] = {(P0, pr)}
+    elif u == "model-from-table":
+        rows = q["table"]["rows"]
+        need(rows[0][1] == ["1", "2", "3", "4"], "the table is not t = 1 to 4")
+        vs = [el_num(x) for x in rows[1][1]]
+        a = vs[1] / vs[0]
+        need(all(vs[i + 1] / vs[i] == a for i in range(3)), "the table has no constant ratio")
+        need((vs[0] / a, a) == (R(g["P0"]), R(g["a"])), "the table is not the givens' model")
+        want = (vs[0] / a, a)
+        wr[f"{M}#2"] = {(vs[0], a)}
+    elif u == "model-from-graph":
+        gr = em_graph(q, g, [em_f(g)])
+        Cs = [R(sp.nsimplify(h["at"])) for h in gr["hlines"]]
+        pts = [(R(sp.nsimplify(p["x"])), R(sp.nsimplify(p["y"]))) for p in gr["points"]]
+        need(len(Cs) == 1 and len(pts) == 2 and pts[0][0] == 0, "the graph doesn't show the asymptote, the start and a point")
+        C, start, (t1, P1) = Cs[0], pts[0][1], pts[1]
+        A = start - C
+        k = -sp.log((P1 - C) / A) / t1
+        need(0.02 <= num(k) <= 0.6, "k is out of range")
+        want = (C, A, m3(k))
+        kw = -sp.log((P1 - start) / (C - start)) / t1
+        wr[f"{FP}#1"] = {(start, C - start, el_m(kw))}
+    elif u == "initial-from-later":
+        L = " / ".join(q["lines"])
+        a = el_num(em_read(r"P₀\(([\d.]+)\)ᵗ", L, "the factor").group(1))
+        m = em_read(r"(?:\w\((\d+)\) = (\d+)|After (\d+) \w+ it is (\d+)\.)", L, "the reading")
+        t1, P1 = (int(m.group(1)), el_num(m.group(2))) if m.group(1) else (int(m.group(3)), el_num(m.group(4)))
+        need((a, t1, P1) == (R(g["a"]), int(g["t1"]), R(g["P1"])), "the reading shown is not the givens")
+        want = m3(P1 / a**t1)
+        wr[f"{M}#2"] = {el_m(P1 / a ** (t1 - 1))}
+    elif u == "half-life-from-k":
+        need(R(g["k"]) < 0, "a half-life of a growing model")
+        want = m3(sp.log(2) / abs(R(g["k"])))
+    elif u == "time-from-graph":
+        gr = em_graph(q, g, [em_f(g)])
+        need(f"The graph of {em_model_text(g)} is shown" in q["lines"][0], "the model named is not the givens")
+        lv = el_num(em_read(r"when \w\(t\) = (\d+)\.", asked, "the level").group(1))
+        need(any(R(sp.nsimplify(h["at"])) == lv for h in gr["hlines"]), "the level is not drawn")
+        t = sp.nsimplify(sp.simplify(em_time(g, lv)))
+        need(t.is_integer and 0 < t <= 24, f"the level is not reached at a whole number of half-lives (t = {t})")
+        need(ans.get("exact"), "a time read off the grid is not marked exactly")
+        want = qr_norm(ans, {"v": str(t)})
+    elif u == "change-over-period":
+        n = int(em_read(r"over (\d+) ", asked, "the period").group(1))
+        gf = R(g["a"]) ** n
+        want = ("rise" if gf > 1 else "fall", m3(abs(gf - 1) * 100))
+    elif u == "two-models-equal":
+        L = q["lines"]
+        P0, a = [el_num(x) for x in em_read(r"^P\(t\) = (\d+)\(([\d.]+)\)ᵗ$", L[1], "P").groups()]
+        Pb, ab = [el_num(x) for x in em_read(r"^Q\(t\) = (\d+)\(([\d.]+)\)ᵗ$", L[2], "Q").groups()]
+        need((P0, a, Pb, ab) == (R(g["P0"]), R(g["a"]), R(g["P0b"]), R(g["ab"])), "the models shown are not the givens")
+        t = sp.log(Pb / P0) / sp.log(a / ab)
+        need(2 < num(t) < 40, "the models meet out of range")
+        want = m3(t)
+        wr[f"{CA}#1"] = {el_m(-t)}
+        if rep == "graph":
+            em_graph(q, g, [P0 * a**T_, Pb * ab**T_])
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    qr_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -3274,7 +3649,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry}
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

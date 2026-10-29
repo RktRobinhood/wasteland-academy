@@ -21,7 +21,10 @@ extends RefCounted
 ##              brackets2 ((ax + b)(cx + d)), common (gx(ax + b)), pm_surd
 ##              (h ± m√r), range2 (lo < x ≤ hi), related (angles as multiples of π),
 ##              features (a quadratic's y-intercept, roots and vertex) and angles
-##              (the solutions of a trig equation, as multiples of π, in any order)
+##              (the solutions of a trig equation, as multiples of π, in any order);
+##              for the Exponentials and logs region (FAL-418) also lnq (m·ln r, exact,
+##              marked by value so (1/5) ln(1/2) is −(ln 2)/5), pct (a rise or fall of r%),
+##              expmodel (P₀(a)ᵗ) and limited (C, A and k of C + A·e^(−kt))
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
@@ -37,6 +40,8 @@ extends RefCounted
 ##   show       (optional) how a number is written: "dec" as a decimal when it ends
 ##              (0.35, not 7/20), "money" with two decimal places (2.50), "sf" to 3
 ##              significant figures (a value a calculator gives); else a fraction
+##   signed     (optional) a measure that may be negative (a decay rate k): wrong options
+##              may be negative too
 ##
 ## Typed numbers go through parse_number(), which accepts whole numbers, decimals and
 ## fractions only. Nothing a student types is evaluated as an expression (Godot's
@@ -188,6 +193,15 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 				t.append("π")
 				ids.append("a%d" % i)
 			unordered = [ids]
+		# ── Exponentials and logs (FAL-418) ──
+		"lnq":
+			t = [label, {"slot": "m"}, " ln ", {"slot": "r"}]
+		"pct":
+			t = ["a ", {"pick": "dir", "options": DIRS}, " of ", {"slot": "v"}, "% " + str(fixed.get("per", ""))]
+		"expmodel":
+			t = ["%s(t) = " % fixed.get("sym", "P"), {"slot": "p0"}, "(", {"slot": "a"}, ")ᵗ"]
+		"limited":
+			t = ["C = ", {"slot": "C"}, ",  A = ", {"slot": "A"}, ",  k = ", {"slot": "k"}]
 	var out := {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
 	if kind == "brackets2":
 		out.pairs = [["a1", "b1"], ["a2", "b2"]]
@@ -202,6 +216,8 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 const SHAPES := ["between", "outside"]
 const ENDS := ["left out", "included"]
 const RELS := ["<", "≤", ">", "≥"]
+## A percentage change (pct): a rise or a fall.
+const DIRS := ["rise", "fall"]
 
 
 static func interval_text(v: String, shape: String, lo: Variant, hi: Variant, ends: String) -> String:
@@ -231,6 +247,28 @@ static func surd_text(m: Variant, r: Variant) -> String:
 	if rq.eq(1):
 		return Fmt.num(mq)
 	return ("" if mq.eq(1) else Fmt.num(mq)) + "√" + Fmt.num(rq)
+
+
+## m·ln r as the IB writes it: "ln 2", "3 ln 2", "−(ln 2)/5", "(3 ln 2)/5", "ln(3/2)/4".
+static func lnq_text(m: Variant, r: Variant) -> String:
+	var mq := Q.of(m)
+	var rq := Q.of(r)
+	var top := "ln " + rq.text() if rq.is_int() else "ln(%s)" % rq.text()
+	var n := absi(mq.n)
+	if n != 1:
+		top = "%d %s" % [n, top]
+	var body := top
+	if mq.d != 1:
+		body = ("(%s)" % top if top.contains(" ") and rq.is_int() else top) + "/%d" % mq.d
+	return ("−" if mq.sign() < 0 else "") + body
+
+
+## m·ln r as a float, for marking an lnq answer by value.
+static func lnq_value(m: Variant, r: Variant) -> float:
+	var rq := Q.of(r)
+	if rq.sign() <= 0:
+		return NAN
+	return Q.of(m).to_float() * log(rq.to_float())
 
 
 ## The same answer shape with other values (for a wrong option).
@@ -363,6 +401,15 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			var xs := _sorted(range(int(fx.n)).map(func(i): return v["a%d" % i]))
 			var names: Array = xs.map(func(x): return Fmt.pi(x))
 			return "x = " + (", ".join(names.slice(0, names.size() - 1)) + " or " + names[names.size() - 1] if names.size() > 1 else names[0])
+		"lnq":
+			return ans.label + lnq_text(v.m, v.r)
+		"pct":
+			var pv: String = Fmt.dec(v.v) if ans.get("exact", false) else Fmt.sf(v.v)
+			return ("a %s of %s%% %s" % [v.dir, pv, fx.get("per", "")]).strip_edges()
+		"expmodel":
+			return "%s(t) = %s(%s)ᵗ" % [fx.get("sym", "P"), Fmt.dec(v.p0), Fmt.dec(v.a)]
+		"limited":
+			return "C = %s, A = %s, k = %s" % [Fmt.num(v.C), Fmt.num(v.A), Fmt.sf(v.k)]
 	return "?"
 
 
@@ -402,6 +449,11 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	# So is any answer written to 3 s.f. (FAL-459): it is told apart by its text.
 	if ans.get("show", "") == "sf":
 		return "sf:" + text(ans, values)
+	if ans.kind == "lnq":
+		return "lnq:%.9f" % lnq_value(values.m, values.r)
+	# Shown to 3 s.f. or as decimals: two values that read the same are one option.
+	if ans.kind in ["pct", "expmodel", "limited"]:
+		return ans.kind + ":" + text(ans, values)
 	var v := values.duplicate()
 	if ans.kind == "points2":
 		var ps := _pairs(v)
@@ -654,6 +706,11 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 ## Whether typed values match the answer, slot by slot, trying each order of an
 ## unordered group. With glancing, a number with too few figures counts too.
 static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
+	if ans.kind == "lnq":
+		# Marked by value: (1/5) ln(1/2) and −(1/5) ln 2 are the same k.
+		var want := lnq_value(ans.values.m, ans.values.r)
+		var have := lnq_value(got.get("m", Q.new(0)), got.get("r", Q.new(0))) if got.get("m") is Q and got.get("r") is Q else NAN
+		return is_finite(have) and absf(have - want) <= 1e-9 * maxf(1.0, absf(want))
 	if ans.kind == "points2" and not got.is_empty():
 		var swapped := {"x1": got.get("x2"), "y1": got.get("y2"), "x2": got.get("x1"), "y2": got.get("y1")}
 		var plain := ans.duplicate()
