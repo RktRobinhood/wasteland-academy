@@ -46,6 +46,7 @@ static var SITUATIONS := {
 	"cubic": [CubicSituation, CubicViews],
 	"fn-pre-expand": [ExpandSituation, ExpandViews],
 	"fn-pre-factorise": [FactoriseSituation, FactoriseViews],
+	"fn-pre-surds": [SurdsSituation, SurdsViews],
 }
 
 static var _cat: Dictionary = {}

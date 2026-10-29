@@ -2645,11 +2645,102 @@ def spot_factorise(q, lines):
 SPOT_CHECKS["fn-pre-factorise"] = spot_factorise
 
 
+# ── fn-pre-surds ──
+
+def surd_parts(e):
+    """A positive surd m√r (r square-free) as (m, r)."""
+    e = sp.nsimplify(e)
+    m, rest = e.as_coeff_Mul()
+    r = rest**2
+    need(m.is_rational and r.is_integer and r >= 1, f"{e} is not m√r")
+    return sp.Rational(m), int(r)
+
+
+def surd_expr(text):
+    """A surd expression as the game writes it: '√(4 × 24)', '√4 × √24', '(2√24)²', '4√6'."""
+    t = text.replace("−", "-").replace("×", "*").replace("²", "**2")
+    t = re.sub(r"(\d)√", r"\1*√", t)
+    t = re.sub(r"√(\d+)", r"sqrt(\1)", t).replace("√(", "sqrt(")
+    return sp.nsimplify(sp.sympify(t))
+
+
+def check_surds(q):
+    g, ans, u, L = q["given"], q["answer"], q["view"]["unknown"], q["lines"]
+    T = "fn-pre-surds"
+    wr = {}
+    def sv(e):
+        m, r = surd_parts(e)
+        return qr_norm(ans, {"m": str(m), "r": str(r)})
+    if u == "simplify-root":
+        n = R(g["n"])
+        need(L[0] == f"√{n}" and n <= 300, "the root shown is not the givens")
+        m, r = surd_parts(sp.sqrt(n))
+        need(m.q == 1 and m > 1 and not sp.isprime(m), "the square factor's root is not a composite whole number")
+        f = sp.divisors(m)[1]
+        wr[f"{T}#2"] = {qr_norm(ans, {"m": str(f), "r": str(n / f**2)})}
+        qr_check_common(q, sv(sp.sqrt(n)), wr)
+    elif u == "add-like-surds":
+        n1, n2 = R(g["n1"]), R(g["n2"])
+        need(L[0] == f"√{n1} + √{n2}", "the sum shown is not the givens")
+        need(surd_parts(sp.sqrt(n1))[1] == surd_parts(sp.sqrt(n2))[1] and n1 != n2, "not two different multiples of one surd")
+        wr[f"{T}#0"] = {sv(sp.sqrt(n1 + n2))}
+        qr_check_common(q, sv(sp.sqrt(n1) + sp.sqrt(n2)), wr)
+    elif u == "multiply-surds":
+        m_, n_ = R(g["m"]), R(g["n"])
+        need(L[0] == f"√{m_} × √{n_}", "the product shown is not the givens")
+        need(not sp.sqrt(m_).is_integer and not sp.sqrt(n_).is_integer, "one of the roots is a whole number")
+        qr_check_common(q, sv(sp.sqrt(m_) * sp.sqrt(n_)))
+    elif u == "formula-fraction":
+        m0, n, d = R(g["m0"]), R(g["n"]), R(g["d"])
+        need(L[0] == f"({frac_text(m0)} ± √{n})/{d}", "the fraction shown is not the givens")
+        h = m0 / d
+        m, r = surd_parts(sp.sqrt(n) / d)
+        need(h.q == 1 and m.q == 1, "the fraction doesn't simplify to whole numbers")
+        wr[f"{T}#1"] = {qr_norm(ans, {"h": str(m0), "m": str(m), "r": str(r)})}
+        qr_check_common(q, qr_norm(ans, {"h": str(h), "m": str(m), "r": str(r)}), wr)
+    elif u == "surd-to-root":
+        a, b = R(g["a"]), R(g["b"])
+        need(L[0] == qr_surd(a, b) and surd_parts(a * sp.sqrt(b)) == (a, b), "the surd shown is not in simplest form")
+        need(ans.get("exact"), "the whole number under the root must be marked exactly")
+        qr_check_common(q, qr_norm(ans, {"v": str(a**2 * b)}))
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    # Every option is a different value or a different form: none may equal the answer
+    # in simplest form unless it is the answer.
+    return None, None
+
+
+def spot_surds(q, lines):
+    """The first wrong line of a working for √n (fn-pre-surds#2)."""
+    for i, line in enumerate(lines):
+        m = re.fullmatch(r"(\d+) has no square factor(?:, so (\S+) is simplest)?", line)
+        if m:
+            if sp.factorint(int(m.group(1))) and max(sp.factorint(int(m.group(1))).values()) >= 2:
+                return i
+            continue
+        m = re.fullmatch(r"So √(\d+) in simplest form is (\S+)", line)
+        if m:
+            mm, r = surd_parts(sp.sqrt(int(m.group(1))))
+            if m.group(2) != qr_surd(mm, r):
+                return i
+            continue
+        line = line.removeprefix("So ").removeprefix("Check: ")
+        sides = [p.strip() for p in line.split(" = ")]
+        vals = [surd_expr(p) for p in sides]
+        if any(sp.simplify(vals[0] - w) != 0 for w in vals[1:]):
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-surds"] = spot_surds
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
-                    "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise}
+                    "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
+                    "fn-pre-surds": check_surds}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
