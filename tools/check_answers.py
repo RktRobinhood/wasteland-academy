@@ -1091,6 +1091,8 @@ def seq_solve(eqs, what):
 
 def check_arithmetic(q):
     u = q["view"]["unknown"]
+    if q.get("paper", 1) == 2:
+        return seq_check_p2(q)
     s = {k: v for k, v in q["situation"].items()}
     u1, d, n, un, sn = (R(s[k]) for k in ("u1", "d", "n", "un", "sn"))
     need(all(v.q == 1 for v in (u1, d, n, un, sn)), "a value is not a whole number")
@@ -1132,6 +1134,123 @@ def check_arithmetic(q):
         "sum-from-u1-d": seq_sum(NN), "sum-from-first-last": seq_sum(NN),
     }[u]
     return {"v": sp.nsimplify(v.subs(sol))}, None
+
+
+# Paper 2 (FAL-419): a context in words with a decimal u₁ and d, the checker's own copy
+# of the engine's limits (arithmetic_sequence.gd, P2): in hundredths, u₁ and d with
+# their step, and the threshold's step; EDGE keeps "first more than" clear of a whole n.
+SEQ_P2 = {
+    "money": {"u1": (500, 4000, 5), "d": (15, 250, 5), "term": 100, "sum": 1000},
+    "km": {"u1": (200, 800, 10), "d": (10, 50, 5), "term": 100, "sum": 500},
+}
+SEQ_TO_SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+SEQ_P2_UNKNOWNS = {"term-from-u1-d", "n-from-term", "sum-from-u1-d", "n-from-sum"}
+SEQ_P2_EDGE = sp.Rational(15, 100)
+SEQ_NUM = r"(\d+(?:\.\d+)?)"
+SEQ_P2_INTRO = {
+    "money": r"^Ana saves \$" + SEQ_NUM + r" in the first week of a savings plan, and each week after that she saves \$" + SEQ_NUM + r" more than the week before\.$",
+    "km": r"^Ben runs " + SEQ_NUM + r" km on the first day of his training plan, and each day after that he runs " + SEQ_NUM + r" km more than the day before\.$",
+}
+
+
+def seq_p2_amount(ctx, v):
+    """An amount as the context writes it: money to 2 d.p. (whole dollars bare), or a decimal."""
+    return money_text(v) if ctx == "money" else dec_text(v)
+
+
+def seq_p2_cent(ctx, v):
+    """Money to the nearest cent (half a cent up); km as it is."""
+    return sp.floor(v * 100 + sp.Rational(1, 2)) / 100 if ctx == "money" else v
+
+
+def seq_p2_first_over(k_real):
+    """The least whole n ≥ 1 with f(n) > the threshold, from the real crossing k_real."""
+    need(not k_real.is_integer, "the threshold is reached exactly at a whole n")
+    frac = k_real - sp.floor(k_real)
+    need(SEQ_P2_EDGE <= frac <= 1 - SEQ_P2_EDGE, f"the crossing n = {sp.N(k_real, 8)} is too close to a whole n")
+    return int(sp.floor(k_real)) + 1
+
+
+def seq_check_p2(q):
+    """Paper 2: reads u₁ and d back from the context, solves the unknown with SymPy (a
+    term, a sum, or the first n over a round threshold) and checks every tagged option."""
+    u, rep, ans, L, asked = q["view"]["unknown"], q["view"]["rep"], q["answer"], q["lines"], q["asked"]
+    s = q["situation"]
+    need(u in SEQ_P2_UNKNOWNS and rep == "words", f"{u} ({rep}) has no Paper 2 version")
+    ctx = s["ctx"]
+    m = re.fullmatch(SEQ_P2_INTRO[ctx], L[0])
+    need(m is not None and len(L) == 1, f"can't read the context {L[0]!r}")
+    u1, d = R(m.group(1)), R(m.group(2))
+    need(m.group(1) == seq_p2_amount(ctx, u1) and m.group(2) == seq_p2_amount(ctx, d), "an amount is not written as the context writes it")
+    lim = SEQ_P2[ctx]
+    for v, (lo, hi, by) in ((u1, lim["u1"]), (d, lim["d"])):
+        c = v * 100
+        need(c.is_integer and lo <= c <= hi and c % by == 0, f"{v} is outside the Paper 2 limits")
+        need(not v.is_integer, f"{v} is a whole number: Paper 2 uses decimals")
+    need((R(s["u1"]), R(s["d"])) == (u1, d), "the context is not the situation")
+    need(R(q["given"]["u1"]) == u1 and R(q["given"]["d"]) == d, "the givens are not the context")
+    sit = {U1: u1, D: d}
+    need([R(v) for v in s["us"]] == [seq_term(k).subs(sit) for k in (1, 2, 3, 4)], "the first terms are wrong")
+    need(ans.get("exact") is True, "the answer is not marked exactly")
+    per = "week" if ctx == "money" else "day"
+    unit = "$" if ctx == "money" else ""
+    tail = "" if ctx == "money" else " km"
+    refs = {}
+    if u in ("term-from-u1-d", "sum-from-u1-d"):
+        pat = (r"^How much does she save in week (\d+)\?$" if ctx == "money" else r"^How far does he run on day (\d+)\?$") \
+            if u == "term-from-u1-d" else \
+            (r"^How much has she saved in total after (\d+) weeks\?$" if ctx == "money" else r"^How far has he run in total after (\d+) days\?$")
+        n = R(em_read(pat, asked, "n").group(1))
+        lo, hi = SEQ_N_TERM if u == "term-from-u1-d" else SEQ_N_SUM
+        need(lo <= n <= hi, f"n = {n} is outside {lo} to {hi}")
+        need(ans.get("show") == ("money" if ctx == "money" else "dec"), "an amount is not shown as the context writes it")
+        sym = "u" if u == "term-from-u1-d" else "S"
+        need(ans["label"] == f"{sym}{str(n).translate(SEQ_TO_SUB)} = {unit}" and ans.get("unit", "") == tail, f"the label {ans['label']!r} names another term")
+        if u == "term-from-u1-d":
+            v = seq_term(n).subs(sit)
+            refs = {"SL1.2.nth-term#0": {u1 + n * d}, "SL1.2.nth-term#2": {n}}
+        else:
+            v = seq_sum(n).subs(sit)
+            refs = {"SL1.2.sum#0": {seq_p2_cent(ctx, n * (2 * u1 + n * d) / 2)}, "SL1.2.sum#1": {seq_sum(n - 1).subs(sit)},
+                    "SL1.2.sum#2": {seq_term(n).subs(sit)}}
+        need(R(s["n"]) == n, "the situation's n is not the one asked")
+        need(v <= (SEQ_UN_MAX if sym == "u" else SEQ_SN_MAX), f"{v} is too big")
+        need((v * 100).is_integer, f"{v} doesn't end in whole hundredths")
+        for o in q["choices"]:
+            need(o["text"] == ans["label"] + seq_p2_amount(ctx, R(o["values"]["v"])) + tail, f"option {o['text']!r} is not written as an amount")
+    else:
+        need(ans["label"] == "n = ", "the answer is not n")
+        if u == "n-from-term":
+            pat = r"^In which week n does she first save more than \$(\d+)\?$" if ctx == "money" else r"^On which day n does he first run more than (\d+) km\?$"
+            y = R(em_read(pat, asked, "the threshold").group(1))
+            need((y * 100) % lim["term"] == 0, "the threshold is not round")
+            v = seq_p2_first_over(1 + (y - u1) / d)
+            need(SEQ_N_TERM[0] <= v <= SEQ_N_TERM[1], f"n = {v} is outside the limits")
+            need(seq_term(v).subs(sit) > y >= seq_term(v - 1).subs(sit), "the term n is not the first over the threshold")
+            refs = {"SL1.2.find-n#2": {v - 1}, "SL1.2.find-n#1": {y}}
+        else:
+            pat = (r"^After how many weeks n is her total saved first more than \$(\d+)\?$" if ctx == "money"
+                   else r"^After how many days n is his total distance first more than (\d+) km\?$")
+            x = R(em_read(pat, asked, "the threshold").group(1))
+            need((x * 100) % lim["sum"] == 0, "the threshold is not round")
+            roots = sorted(sp.solve(sp.Eq(seq_sum(NN).subs(sit), x), NN), key=lambda r_: float(r_))
+            need(len(roots) == 2 and roots[0] < 0 < roots[1], f"the roots {roots} are not one negative, one positive")
+            v = seq_p2_first_over(roots[1])
+            need(SEQ_N_SUM[0] <= v <= SEQ_N_SUM[1], f"n = {v} is outside the limits")
+            need(seq_sum(v).subs(sit) > x >= seq_sum(v - 1).subs(sit), "S_n is not the first sum over the threshold")
+            refs = {"SL1.2.sum-unknown#1": {R(sig3(roots[0]))}, "SL1.2.sum-unknown#2": {x}}
+        for o in q["choices"]:
+            need(o["text"] == "n = " + dec_text(R(o["values"]["v"])), f"option {o['text']!r} is not n as a decimal")
+        v = sp.Integer(v)
+        need(R(s["n"]) == v, "the situation's n is not the answer")
+    for o in q["choices"]:
+        if o["ref"]:
+            need(o["ref"] in refs, f"the checker can't confirm {o['ref']} on {u}")
+            need(R(o["values"]["v"]) in refs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+    for sol in q["solutions"]:
+        need(2 <= len(sol["steps"]) <= 5, f"{sol['name']}: {len(sol['steps'])} steps, not 2 to 5")
+        need(any("GDC" in st for st in sol["steps"]), f"{sol['name']}: a Paper 2 solution doesn't use the GDC")
+    return {"v": v}, None
 
 
 # ── Discrete distributions (FAL-396) ─────────────────────────
@@ -3979,6 +4098,9 @@ def check_exp_log_pair(q):
         need(not re.search(r"-\d", t), f"a hyphen for a minus in {t!r}")
     wr = {}
     FI, ELI, ELF = "SL2.5.find-inverse", "SL2.9.exp-log-inverse", "SL1.5.exp-log-form"
+    if q.get("paper", 1) == 2:
+        return check_exp_log_pair_p2(q)
+    need(u not in EL_P2 or ans.get("exact") is True, "a Paper 1 answer is not exact")
     if u in ("evaluate-log-function", "evaluate-inverse", "inverse-of-log"):
         b, h, c = el_parse_log(L[0], r"g\(x\)")
         need(b in (2, 3, 4, 5, 10) and -5 <= h <= 5 and -4 <= c <= 4, "not a clean log function")
@@ -4148,6 +4270,92 @@ def check_exp_log_pair(q):
     else:
         raise Fail(f"the checker has no solver for {u}")
     qr_check_common(q, want, wr)
+    return None, None
+
+
+# Paper 2 (FAL-419): the cells with a calculator version, and its limits (the engine's
+# are in exp_log_pair.gd): the inside of g(x) is 2 to 60 and not a power of b; g⁻¹ and
+# the log equation are at c + t, t in tenths (0.2 to 2.9, not whole), with b^t ≤ 150.
+EL_P2 = {"evaluate-log-function", "evaluate-inverse", "solve-exp-equation", "solve-log-equation"}
+EL_P2_INSIDE = (2, 60)
+EL_P2_T = (sp.Rational(1, 5), sp.Rational(29, 10))
+EL_P2_BT = 150
+EL_SF = ", correct to 3 significant figures"
+
+
+def el_p2_value(v):
+    """A Paper 2 answer: needs a calculator and is clear of a 3 s.f. rounding edge."""
+    need(not sp.nsimplify(v).is_rational, f"{v} doesn't need a calculator")
+    need(not on_edge(abs(v)), f"{sp.N(v, 12)} is on a 3 s.f. rounding edge")
+    return ext_sf(v)
+
+
+def el_p2_t(text, c):
+    """The decimal a = c + t asked at: t in tenths, in limits, not whole."""
+    a = el_num(text)
+    t = a - c
+    need(t.q == 10 or t.q == 5 or t.q == 2, f"t = {t} is not in tenths")
+    need(EL_P2_T[0] <= t <= EL_P2_T[1] and not t.is_integer, f"t = {t} is outside the limits")
+    return a, t
+
+
+def check_exp_log_pair_p2(q):
+    """Paper 2: the same functions at numbers that need a calculator, each answer to
+    3 s.f. (show sf), solved again here with SymPy."""
+    g, ans, u, rep, L, asked = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    ELI, ELF = "SL2.9.exp-log-inverse", "SL1.5.exp-log-form"
+    need(u in EL_P2 and rep == "equation", f"{u} ({rep}) has no Paper 2 version")
+    need(ans.get("show") == "sf" and not ans.get("exact") and ans["kind"] == "number", "a Paper 2 answer is not a number to 3 s.f.")
+    need(asked.endswith(EL_SF + "."), "a Paper 2 question doesn't ask for 3 s.f.")
+    wr = {}
+    if u in ("evaluate-log-function", "evaluate-inverse"):
+        b, h, c = el_parse_log(L[0], r"g\(x\)")
+        need(b in (2, 3, 4, 5, 10) and -5 <= h <= 5 and -4 <= c <= 4, "not a clean log function")
+    if u == "evaluate-log-function":
+        x = el_num(em_read(r"^Find g\((−?\d+)\),", asked, "the input").group(1))
+        k = x - h
+        need(EL_P2_INSIDE[0] <= k <= EL_P2_INSIDE[1], f"the inside {k} is outside the limits")
+        need(not sp.nsimplify(sp.log(k, b)).is_rational, f"{k} is a power of {b}")
+        need(ans["label"] == el_m_text(f"g({x}) = "), "the label is not g at the input")
+        want = el_p2_value(sp.log(k, b) + c)
+        wr[f"{ELF}#0"] = {ext_sf(k / sp.Integer(b) + c)}
+    elif u == "evaluate-inverse":
+        m = em_read(r"^Find g⁻¹\((−?\d+(?:\.\d+)?)\),", asked, "the value")
+        a, t = el_p2_t(m.group(1), c)
+        need(sp.Integer(b) ** t <= EL_P2_BT, "b^t is too big")
+        x = sp.Integer(b) ** t + h
+        need(sp.simplify(sp.log(x - h, b) + c - a) == 0, "g at the answer is not the value asked")
+        need(abs(x) >= 1, "the answer is too close to 0")
+        want = el_p2_value(x)
+        wr[f"{ELI}#1"] = {ext_sf(t ** b + h)}
+    elif u == "solve-exp-equation":
+        m = em_read(r"^e\^\((\d+)x\)(?: ([+−]) (\d+))? = (−?\d+)$", L[0], "the equation")
+        mm, c, d = int(m.group(1)), el_parse_q(m.group(2), m.group(3)), el_num(m.group(4))
+        need(asked == f"Solve {L[0]}, giving x{EL_SF}.", "the question is not the equation shown")
+        sol = [s_ for s_ in sp.solve(sp.exp(mm * X) + c - d, X) if s_.is_real]
+        need(len(sol) == 1, "not one real solution")
+        r = d - c
+        want = el_p2_value(sol[0])
+        wr[f"{ELI}#0"] = {ext_sf(mm * sp.log(r)), ext_sf(sp.log(r) - mm)}
+        wr[f"{ELI}#2"] = {ext_sf(r / (mm * sp.E))}
+    elif u == "solve-log-equation":
+        m = em_read(r"^log([₀-₉]+)\((x(?: [−+] \d+)?)\)(?: ([+−]) (\d+))? = (−?\d+\.\d+)$", L[0], "the equation")
+        b, h, c = int(m.group(1).translate(EL_SUB)), el_parse_shift(m.group(2)), el_parse_q(m.group(3), m.group(4))
+        need(b in (2, 3, 4, 5, 10) and -5 <= h <= 5 and -4 <= c <= 4, "not a clean log equation")
+        need(asked == f"Solve {L[0]}, giving x{EL_SF}.", "the question is not the equation shown")
+        a, t = el_p2_t(m.group(5), c)
+        need(sp.Integer(b) ** t <= EL_P2_BT, "b^t is too big")
+        sol = sp.solve(sp.log(X - h, b) + c - a, X)
+        need(len(sol) == 1, f"the solution {sol} is not one number")
+        need(abs(sol[0]) >= 1, "the answer is too close to 0")
+        want = el_p2_value(sol[0])
+        wr[f"{ELI}#1"] = {ext_sf(t ** b + h)}
+    qr_check_common(q, want, wr)
+    if any(o.get("trap") for o in q["choices"]):
+        trap = [o for o in q["choices"] if o.get("trap")][0]
+        need(sig3(R(trap["values"]["v"]), 2) == sig3(R(ans["values"]["v"]), 2), "the rounding trap is not the answer to 2 s.f.")
+    for sol in q["solutions"]:
+        need(any("GDC" in st for st in sol["steps"]), f"{sol['name']}: a Paper 2 solution doesn't use the GDC")
     return None, None
 
 

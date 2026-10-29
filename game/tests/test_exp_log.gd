@@ -164,3 +164,57 @@ func test_the_error_spot_is_adding_the_percentages() -> void:
 		var q := _make(c.type, c.unknown, c.rep, c.angle, seed, "error-spot")
 		check(not q.has("error"), str(q.get("error")))
 		check_eq(q.spot.bad, 2, "the multiplication of the two multipliers is the first wrong line")
+
+
+func test_exp_log_pair_paper_2_needs_a_calculator() -> void:
+	# FAL-419: four cells of fn-exp-log-inverse-composite have a Paper 2 version, asked
+	# to 3 s.f. with the rounding trap; fn-ext-exp-graph is Paper 1 only.
+	var t := QuestionEngine.type_of("fn-exp-log-inverse-composite")
+	var p2 := 0
+	for c in QuestionEngine.cells(false, [t.id]):
+		var papers := QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle)
+		if papers == [1]:
+			continue
+		p2 += 1
+		check(c.rep == "equation" and c.unknown in ExpLogPairViews.PAPER2, c.key)
+		for seed in range(1, 9):
+			var q := _make(t.id, c.unknown, c.rep, c.angle, seed, "mcq")
+			var f := QuestionEngine.make({"type": t.id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed,
+				"format": "mcq", "paper": 2})
+			check_eq(f.paper, 2, c.key)
+			check(f.answer.show == "sf" and not f.answer.get("exact", false), "%s: %s is not to 3 s.f." % [c.key, f.answer_text])
+			check(Answer.needs_rounding(f.answer.values.v), "%s: %s needs no calculator" % [c.key, f.answer_text])
+			check(Answer.rounds_clearly(f.answer.values.v.to_float()), "%s: %s is on a rounding edge" % [c.key, f.answer_text])
+			# The 2 s.f. trap, unless it reads as the answer itself (9.9 for 9.90).
+			var v: Q = f.answer.values.v
+			var two: Q = Answer.parse_number(Fmt.sf(v, 2).replace("−", "-")).q
+			var three: Q = Answer.parse_number(Fmt.sf(v).replace("−", "-")).q
+			check(two.eq(three) or f.choices.any(func(o): return o.get("trap", false)), "%s: no rounding trap" % c.key)
+			check(f.solutions.all(func(sol): return sol.steps.any(func(st): return st.contains("GDC"))), c.key + ": no GDC step")
+			# Typed to 3 s.f., right; typed to 2 s.f. (where that rounds), a glancing hit.
+			var typed := QuestionEngine.make({"type": t.id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed,
+				"paper": 2})
+			check(QuestionEngine.mark(typed, {"v": three.key()}).correct, "%s: %s typed is wrong" % [c.key, Fmt.sf(v)])
+			# (Answer.number_glancing: only a coarser decimal, so 120 for 124 is a plain miss.)
+			if not two.eq(three) and not two.is_int():
+				var r := QuestionEngine.mark(typed, {"v": two.key()})
+				check(not r.correct and r.glancing, "%s: %s typed is not glancing" % [c.key, Fmt.sf(v, 2)])
+			var p1 := QuestionEngine.make({"type": t.id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed,
+				"format": "mcq", "paper": 1})
+			check(p1.paper == 1 and p1.answer.get("exact", false), "%s: Paper 1 is not exact" % c.key)
+			if q.paper == 1:
+				check_eq(q.prompt + str(q.lines), p1.prompt + str(p1.lines), c.key + ": Paper 1 changed")
+	check_eq(p2, 11)
+	var ext := QuestionEngine.type_of("fn-ext-exp-graph")
+	for c in QuestionEngine.cells(false, [ext.id]):
+		check_eq(QuestionEngine.cell_papers(ext, c.unknown, c.rep, c.angle), [1], c.key)
+
+
+func test_exp_log_pair_paper_1_numbers_do_not_change() -> void:
+	for mode in ["log", "esolve", "exp", "family", "ineq", "expgraph"]:
+		for seed in range(1, 21):
+			var a := ExpLogPairSituation.generate(Seeded.new("p|%d" % seed), {"mode": mode})
+			var b := ExpLogPairSituation.generate(Seeded.new("p|%d" % seed), {"mode": mode, "paper": 1})
+			check_eq(b.paper, 1)
+			b.erase("paper")
+			check_eq(str(ExpLogPairSituation.export(a)), str(ExpLogPairSituation.export(b)), mode)
