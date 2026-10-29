@@ -6,10 +6,14 @@ extends "res://tests/test_case.gd"
 ## would type them. The SymPy checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 49}
-const SITUATION := {"fn-exponential-model": "exp-model", "fn-exp-log-inverse-composite": "exp-log-pair"}
-## Distractor misconceptions no option can carry yet, and why.
-const NOT_BUILT := {}
+const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 49, "fn-log-of-quadratic": 71}
+const SITUATION := {"fn-exponential-model": "exp-model", "fn-exp-log-inverse-composite": "exp-log-pair",
+	"fn-log-of-quadratic": "log-quadratic"}
+## Distractor misconceptions no option can carry yet ("type|ref"), and why.
+const NOT_BUILT := {
+	"fn-log-of-quadratic|SL1.5.exp-log-form#1": "reading log_k G = n as nᵏ = G gives k = ln G/ln n, never a whole number here, so no exact option shows it",
+	"fn-log-of-quadratic|SL2.7.solve-equation#2": "only h + √d: the surd-root answer always shows ± (as in fn-solve-quadratic)",
+}
 
 
 func _make(type: String, unknown: String, rep: String, angle: String, seed: int, format: String = "value") -> Dictionary:
@@ -49,7 +53,7 @@ func test_every_distractor_misconception_is_an_option() -> void:
 	for t in CELLS:
 		var ty := QuestionEngine.type_of(t)
 		for m in ty.misconceptions:
-			if m.as != "distractor" or NOT_BUILT.has(m.ref):
+			if m.as != "distractor" or NOT_BUILT.has("%s|%s" % [t, m.ref]):
 				continue
 			for u in m.in:
 				var found := false

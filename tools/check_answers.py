@@ -3275,7 +3275,7 @@ def check_symmetry(q):
 # Answer kinds the region adds (game/engine/answer.gd): lnq (m·ln r, exact), pct (a
 # rise or fall of r%), expmodel (P₀(a)ᵗ) and limited (C, A and k of C + Ae^(−kt)).
 
-EL_KINDS = {"lnq", "pct", "expmodel", "limited", "fn", "logform", "xpow"}
+EL_KINDS = {"lnq", "pct", "expmodel", "limited", "fn", "logform", "xpow", "range"}
 
 
 def el_num(text):
@@ -3315,6 +3315,8 @@ def el_text(ans, v):
         return fx.get("name", "f(x)") + " = " + el_fn_text(v.get("form", fx.get("shape", "exp")), fx["b"], v.get("p", 0), v["q"])
     if kind == "logform":
         return f"{el_log_name(v['b'])} {frac_text(v['x'])} = {frac_text(v['y'])}"
+    if kind == "range":
+        return f"{v['var']} {v['rel']} {frac_text(v['k'])}"
     if kind == "xpow":
         n = R(v["n"])
         if v.get("form") == "lin":
@@ -3346,6 +3348,8 @@ def el_norm(ans, v):
         return (R(v["b"]), R(v["x"]), R(v["y"]))
     if kind == "xpow":
         return (v.get("form", "pow"), R(v["n"]))
+    if kind == "range":
+        return (v["var"], v["rel"], R(v["k"]))
     raise Fail(f"the checker can't compare answers of kind {kind}")
 
 
@@ -3952,6 +3956,130 @@ def check_exp_log_pair(q):
     return None, None
 
 
+# ── log-quadratic (fn-log-of-quadratic) ──
+# The clean limits, the checker's own copy of game/engine/situations/log_quadratic.gd's.
+
+LQ_A = {sp.Integer(-1), sp.Rational(-1, 2)}
+LQ_N = {2, 3}
+LQ_H_MAX = 5
+
+
+def lq_surd(expr):
+    """A zero h ± m√r as the game writes it: "3 − 2√2", "−√3"."""
+    h, rest = sp.expand(expr).as_coeff_Add()
+    m, root = rest.as_coeff_Mul()
+    r = sp.Integer(root ** 2)
+    body = qr_surd(abs(m), r)
+    if h == 0:
+        return ("−" if m < 0 else "") + body
+    return f"{frac_text(h)} {'−' if m < 0 else '+'} {body}"
+
+
+def lq_read(q):
+    """The base (None when it is the unknown k) and g, from the lines."""
+    L = " ".join(q["lines"])
+    m = re.search(r"f\(x\) = log([₀-₉]+|_k)\(([^()]*)\)", L)
+    if m and "g(x)" not in m.group(2):
+        base = None if m.group(1) == "_k" else int(m.group(1).translate(EL_SUB))
+        return base, parse(m.group(2).replace("½", "(1/2)"))
+    m = re.search(r"g\(x\) = (.+?)\. ", L)
+    need(m is not None, "can't read g")
+    return None, parse(m.group(1))
+
+
+def check_log_quadratic(q):
+    g, ans, u, rep, L = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    for t in [q["asked"]] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"-\d", t), f"a hyphen for a minus in {t!r}")
+    if u == "quadratic-from-features":
+        base = int(em_read(r"f\(x\) = log([₀-₉]+)\(g\(x\)\)", L[0], "the base").group(1).translate(EL_SUB))
+        if rep == "graph":
+            p, qq = sorted(R(sp.nsimplify(v["at"])) for v in q["graph"]["vlines"])
+            n = R(em_read(r"maximum point is \((−?\d+), (\d+)\)", L[0], "the maximum").group(2))
+        else:
+            m = em_read(r"asymptotes x = (−?\d+) and x = (−?\d+), and its maximum value is (\d+)\.", L[1], "the features")
+            p, qq, n = el_num(m.group(1)), el_num(m.group(2)), R(m.group(3))
+        G = sp.Integer(base) ** n
+        a = -G / ((qq - p) / 2) ** 2
+        gp = sp.expand(a * (X - p) * (X - qq))
+    else:
+        base, gp = lq_read(q)
+        if base is None:
+            base = int(g["base"])
+    a, b_, c = [R(x) for x in sp.Poly(gp, X).all_coeffs()]
+    need(a in LQ_A, f"a = {a} is not a clean downward parabola")
+    rts = sorted(sp.solve(gp, X))
+    need(len(rts) == 2 and all(r_.is_integer for r_ in rts), "the roots of g are not whole")
+    p, qq = rts
+    h, G = (p + qq) / 2, gp.subs(X, (p + qq) / 2)
+    need(abs(h) <= LQ_H_MAX and h.is_integer, "the axis is out of range")
+    n = sp.nsimplify(sp.log(G, base))
+    need(n.is_integer and int(n) in LQ_N and G / n != base, f"G = {G} is not a clean power of {base}")
+    zs = sorted(sp.solve(gp - 1, X), key=lambda z: float(z))
+    need(len(zs) == 2 and not zs[0].is_rational, "the zeros are not surds")
+    f = sp.log(gp, base)
+    if q.get("graph") and u != "quadratic-from-features" or (u == "quadratic-from-features" and rep == "graph"):
+        gr = q["graph"]
+        for x0, y0 in gr["curves"][0][::16]:
+            need(abs(sp.N(f.subs(X, sp.Float(x0, 30))) - y0) <= 1e-6 * max(1, abs(y0)), f"the curve misses ({x0}, {y0})")
+        need(sorted(R(sp.nsimplify(v["at"])) for v in gr["vlines"]) == [p, qq], "the asymptotes drawn are not at the roots")
+        for pt in gr["points"]:
+            need(sp.simplify(f.subs(X, sp.nsimplify(pt["x"])) - sp.nsimplify(pt["y"])) == 0, f"the marked point {pt['label']} is not on f")
+    wr = {}
+    if u == "argument-roots":
+        want = qr_norm(ans, {"r1": str(p), "r2": str(qq)})
+    elif u == "domain-from-inequality":
+        want = sp.solveset(gp > 0, X, sp.S.Reals)
+        wr["SL2.7.inequality#0"] = {sp.Interval.open(p, sp.oo)}
+    elif u == "asymptotes":
+        say = lambda a_, b2: el_m_text(f"x = {frac_text(a_)} and x = {frac_text(b2)}")
+        want = qr_norm(ans, {"v": say(p, qq)})
+        wr["SL2.4.asymptotes#0"] = {qr_norm(ans, {"v": f"{frac_text(p)} and {frac_text(qq)}"})}
+        wr["SL2.4.asymptotes#1"] = {qr_norm(ans, {"v": f"y = {frac_text(p)} and y = {frac_text(qq)}"})}
+        wr["SL2.4.asymptotes#2"] = {qr_norm(ans, {"v": say(-p, -qq)})}
+        wr["SL2.9.log-graph#0"] = {qr_norm(ans, {"v": "y = 0"})}
+    elif u == "zeros":
+        half = sp.expand(zs[1] - h)
+        m_, root = half.as_coeff_Mul()
+        want = qr_norm(ans, {"h": str(h), "m": str(m_), "r": str(sp.Integer(root ** 2))})
+    elif u == "max-value":
+        want = qr_norm(ans, {"v0": str(n), "v1": str(h)})
+        wr["SL2.6.vertex#0"] = {qr_norm(ans, {"v0": str(n), "v1": str(-h)})}
+        wr["SL2.6.vertex#1"] = {qr_norm(ans, {"v0": str(h), "v1": str(h)})}
+    elif u == "base-from-max":
+        Ls = " ".join(L)
+        nn = R(em_read(r"(?:maximum value of f is|largest value f takes is|maximum point is \(−?\d+,) (\d+)", Ls, "the maximum").group(1))
+        k = sp.nsimplify(G ** (sp.Integer(1) / nn))
+        need(k.is_integer and k == base, "the base from the maximum is not the given base")
+        want = qr_norm(ans, {"v": str(k)})
+        wr["SL1.5.exp-log-form#0"] = {qr_norm(ans, {"v": str(G / nn)})}
+    elif u == "range":
+        want = ("y", "≤", n)
+        wr["SL2.6.vertex#2"] = {("y", "≥", n)}
+        wr["SL2.2.range#2"] = {("x", "≤", n)}
+    elif u == "axis-of-graph":
+        need(h != 0, "the axis is the y-axis, so x = 0 can't be a wrong option")
+        want = qr_norm(ans, {"var": "x", "h": str(h)})
+        wr["SL2.4.symmetry#0"] = {qr_norm(ans, {"var": "x", "h": "0"})}
+    elif u == "y-intercept":
+        need(p < 0 < qq, "the graph does not meet the y-axis")
+        need(ans["label"] == f"f(0) = {el_log_name(base)} ", "the form asked is not log_k c")
+        want = qr_norm(ans, {"v": str(gp.subs(X, 0))})
+    elif u == "sign-of-f":
+        neg = sp.solveset(f < 0, X, sp.Interval.open(p, qq))
+        z1, z2 = zs
+        need(neg == sp.Union(sp.Interval.open(p, z1), sp.Interval.open(z2, qq)), f"f < 0 on {neg}")
+        right = f"{frac_text(p)} < x < {lq_surd(z1)} or {lq_surd(z2)} < x < {frac_text(qq)}"
+        want = qr_norm(ans, {"v": right})
+        wr["SL2.7.inequality#1"] = {qr_norm(ans, {"v": f"{lq_surd(z1)} < x < {lq_surd(z2)}"})}
+    elif u == "quadratic-from-features":
+        want = qr_norm(ans, {"A": str(a), "B": str(b_), "C": str(c)})
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    qr_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -3959,7 +4087,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair}
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

@@ -172,6 +172,8 @@ const CHAINS := {
 	# evaluate g, find g⁻¹, evaluate g⁻¹: all on one log function. The chain's composite
 	# and transformation parts need a second function, so they stay single questions.
 	"fn-exp-log-inverse-composite": ["evaluate-log-function", "inverse-of-log", "evaluate-inverse"],
+	# the roots and the domain, the asymptotes at the roots, the zeros from g(x) = 1, the maximum
+	"fn-log-of-quadratic": ["argument-roots", "domain-from-inequality", "asymptotes", "zeros", "max-value"],
 }
 
 

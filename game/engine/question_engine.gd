@@ -53,6 +53,7 @@ static var SITUATIONS := {
 	"fn-link-symmetry": [SymmetrySituation, SymmetryViews],
 	"exp-model": [ExpModelSituation, ExpModelViews],
 	"exp-log-pair": [ExpLogPairSituation, ExpLogPairViews],
+	"log-quadratic": [LogQuadraticSituation, LogQuadraticViews],
 }
 
 static var _cat: Dictionary = {}
