@@ -8,6 +8,13 @@ extends RefCounted
 ## asked, lines, given, answer, wrongs, generic and methods. The equation
 ## representation uses function notation (f(x), f′(x)); the words representation says
 ## "the curve y = …", "dy/dx" and "the tangent is parallel to the line …".
+##
+## Paper 2 (FAL-419): x-for-gradient, tangent-at-point, normal-at-point,
+## stationary-points and max-value can also be asked on the calculator cubic
+## (CubicSituation's Paper 2): decimal coefficients, answers to 3 s.f. (show "sf"), and
+## working that reads the values off a GDC (the polynomial solver, max/min, evaluating
+## f and f′). The rest are Paper 1 only: derivatives and k come out exact, and the
+## nature and the point of inflexion are Paper 1 skills on the IB papers.
 
 const NEED := {
 	"derivative": {},
@@ -28,8 +35,17 @@ const MAX := "local maximum"
 const MIN := "local minimum"
 
 
+## The unknowns with a Paper 2 version.
+const PAPER_2 := ["x-for-gradient", "tangent-at-point", "normal-at-point", "stationary-points", "max-value"]
+
+
 func has(unknown: String) -> bool:
 	return NEED.has(unknown)
+
+
+## The papers a cell can be asked on (QuestionEngine.cell_papers).
+func papers(unknown: String, _rep: String, _angle: String) -> Array:
+	return [1, 2] if unknown in PAPER_2 else [1]
 
 
 func need(unknown: String, _rep: String) -> Dictionary:
@@ -37,10 +53,19 @@ func need(unknown: String, _rep: String) -> Dictionary:
 
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
-	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
+	var name := "u_" + unknown.replace("-", "_")
+	if p2(s) and unknown in PAPER_2:
+		name += "_p2"
+	var out: Dictionary = call(name, rep, s, rng)
 	for key in ["lines", "graph", "table", "wrongs", "generic"]:
 		if not out.has(key):
 			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+	if p2(s):
+		# Q7's rounding trap, where one number to 3 s.f. is the answer.
+		out.trap = Answer.rounding_trap(out.answer)
+		# Every option's numbers are clear of a 3 s.f. rounding edge.
+		out.wrongs = out.wrongs.filter(func(w): return clear_values(w.values))
+		out.generic = out.generic.filter(func(g): return clear_values(g))
 	return out
 
 
@@ -63,11 +88,20 @@ static func d_coeffs(s: Dictionary) -> Array:
 
 
 static func cubic(s: Dictionary) -> String:
+	if p2(s):
+		return Fmt.terms(coeffs(s), [3, 2, 1, 0], "x", true)
 	return Fmt.poly(coeffs(s))
 
 
 static func deriv(s: Dictionary) -> String:
+	if p2(s):
+		return Fmt.terms(d_coeffs(s), [2, 1, 0], "x", true)
 	return Fmt.poly(d_coeffs(s))
+
+
+## Whether the situation is the Paper 2 (calculator) cubic.
+static func p2(s: Dictionary) -> bool:
+	return int(s.get("paper", 1)) == 2
 
 
 ## The function as the representation shows it.
@@ -566,5 +600,240 @@ func u_max_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"asked": asked, "lines": f_lines(rep, s), "given": given(s), "answer": ans,
 		"wrongs": [wrong({"v": xm}, "SL5.8.optimise-given-function#0")],
 		"generic": [{"v": CubicSituation.f(s, xn)}, {"v": s.d}, {"v": ym.neg()}],
+		"methods": {"derivative-zero-and-test": {"steps": st, "result": ans.values}},
+	}
+
+
+# ── Paper 2 (FAL-419) ────────────────────────────────────────
+# The calculator cubic: decimal coefficients, values read off a GDC to 6 s.f. in the
+# working, answers to 3 s.f.
+
+const SF3 := " correct to 3 significant figures"
+
+
+## An exact decimal: "2.4567", "−0.432".
+static func D(v: Variant) -> String:
+	return Fmt.dec(v)
+
+
+## An exact decimal, in brackets when negative.
+static func DP(v: Variant) -> String:
+	var q := Q.of(v)
+	return "(%s)" % D(q) if q.sign() < 0 else D(q)
+
+
+## A GDC reading: six significant figures, so nothing is rounded early.
+static func W(x: float) -> String:
+	return Fmt.sf(x, 6)
+
+
+static func WP(x: float) -> String:
+	return "(%s)" % W(x) if x < 0.0 else W(x)
+
+
+static func qf(x: float) -> Q:
+	return CubicSituation.qf(x)
+
+
+## Decimal coefficients, highest power first: "1.2x² − 4.2x + 3".
+static func dpoly(cs: Array) -> String:
+	var powers: Array = []
+	for i in cs.size():
+		powers.append(cs.size() - 1 - i)
+	return Fmt.terms(cs, powers, "x", true)
+
+
+static func sf_ans(ans: Dictionary) -> Dictionary:
+	ans.show = "sf"
+	return ans
+
+
+## Whether every number of an option is 0 or clear of a 3 s.f. rounding edge.
+static func clear_values(values: Dictionary) -> bool:
+	for k in values:
+		var v = values[k]
+		if v is Q and not v.is_zero() and not CubicSituation.clear3(v.to_float()):
+			return false
+	return true
+
+
+## The stationary x-values as floats, from the exact coefficients.
+static func stationary_xs(s: Dictionary) -> Array:
+	return CubicSituation.irrational_roots(s.a.mul(3), s.b.mul(2), s.c)
+
+
+## "(x − 1.3)", "(x + 0.7)".
+static func dfactor(x0: Q) -> String:
+	return "(x %s %s)" % ["−" if x0.sign() >= 0 else "+", D(x0.abs_q())]
+
+
+## The point of contact and the gradient there, read off a GDC.
+static func contact_steps_p2(rep: String, s: Dictionary) -> Array:
+	var x0: Q = s.x0
+	if rep == "words":
+		return [
+			"With a GDC, y = %s when x = %s, so the point is (%s, %s)" % [D(s.y0), D(x0), D(x0), D(s.y0)],
+			"dy/dx = %s, so at x = %s, dy/dx = %s, the gradient of the tangent" % [deriv(s), D(x0), D(s.m0)],
+		]
+	return [
+		"With a GDC, f(%s) = %s, so the point is (%s, %s)" % [D(x0), D(s.y0), D(x0), D(s.y0)],
+		"f′(x) = %s, so f′(%s) = %s, the gradient of the tangent" % [deriv(s), D(x0), D(s.m0)],
+	]
+
+
+func u_tangent_at_point_p2(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var m: Q = s.m0
+	var x0: Q = s.x0
+	var c: Q = s.y0.sub(m.mul(x0))
+	var ans := sf_ans(Answer.make("line", {"m": m, "c": c}))
+	var asked := "Find the equation of the tangent to the graph of f at x = %s. Give it in the form y = mx + c, with m and c%s." % [D(x0), SF3]
+	if rep == "words":
+		asked = "Find the equation of the tangent to the curve at the point where x = %s, in the form y = mx + c, with m and c%s." % [D(x0), SF3]
+	var final := "So the tangent is %s." % Answer.text(ans)
+	var pg := contact_steps_p2(rep, s)
+	pg.append("y − %s = %s%s" % [DP(s.y0), DP(m), dfactor(x0)])
+	pg.append(final)
+	var fc := contact_steps_p2(rep, s)
+	fc.append("Put the point into y = %sx + c: c = %s − %s × %s = %s" % [D(m), D(s.y0), DP(m), DP(x0), D(c)])
+	fc.append(final)
+	var mn := Q.new(-1).div(m)
+	return {
+		"asked": asked, "lines": f_lines(rep, s), "given": given(s).merged({"x0": x0.key()}), "answer": ans,
+		"wrongs": [
+			wrong({"m": m, "c": m.sub(m.mul(x0))}, "SL5.4.tangent-equation#1"),
+			wrong({"m": mn, "c": s.y0.sub(mn.mul(x0))}, "SL5.4.tangent-equation#2"),
+		],
+		"generic": [{"m": m, "c": s.y0.add(m.mul(x0))}, {"m": m, "c": s.y0}, {"m": s.y0, "c": c}, {"m": m.neg(), "c": c}],
+		"methods": {
+			"point-gradient": {"steps": pg, "result": ans.values},
+			"find-c": {"steps": fc, "result": ans.values},
+		},
+	}
+
+
+func u_normal_at_point_p2(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var m: Q = s.m0
+	var x0: Q = s.x0
+	var mf := m.to_float()
+	var mn := -1.0 / mf
+	var cn: float = s.y0.to_float() - mn * x0.to_float()
+	var ans := sf_ans(Answer.make("line", {"m": qf(mn), "c": qf(cn)}))
+	var asked := "Find the equation of the normal to the graph of f at x = %s. Give it in the form y = mx + c, with m and c%s." % [D(x0), SF3]
+	if rep == "words":
+		asked = "Find the equation of the normal to the curve at the point where x = %s, in the form y = mx + c, with m and c%s." % [D(x0), SF3]
+	var final := "So the normal is %s." % Answer.text(ans)
+	var nr := contact_steps_p2(rep, s)
+	nr.append("The normal is perpendicular to the tangent, so its gradient is −1/%s = %s; y − %s = %s%s" % [DP(m), W(mn), DP(s.y0), WP(mn), dfactor(x0)])
+	nr.append(final)
+	var rf := contact_steps_p2(rep, s)
+	rf.append("The normal through (x₀, y₀) with tangent gradient m is (x − x₀) + m(y − y₀) = 0: %s + %s(y − %s) = 0, so y = %sx %s %s" % [
+		dfactor(x0), DP(m), DP(s.y0), W(mn), "−" if cn < 0.0 else "+", W(absf(cn))])
+	rf.append(final)
+	var ct: Q = s.y0.sub(m.mul(x0))
+	return {
+		"asked": asked, "lines": f_lines(rep, s), "given": given(s).merged({"x0": x0.key()}), "answer": ans,
+		"wrongs": [
+			wrong({"m": m.neg(), "c": s.y0.add(m.mul(x0))}, "SL5.4.normal-equation#0"),
+			wrong({"m": qf(1.0 / mf), "c": qf(s.y0.to_float() - x0.to_float() / mf)}, "SL5.4.normal-equation#0"),
+			wrong({"m": qf(mn), "c": ct}, "SL5.4.normal-equation#1"),
+		],
+		"generic": [{"m": m, "c": ct}, {"m": qf(mn), "c": s.y0}, {"m": qf(mn), "c": qf(-cn)}],
+		"methods": {
+			"negative-reciprocal": {"steps": nr, "result": ans.values},
+			"rearranged-form": {"steps": rf, "result": ans.values},
+		},
+	}
+
+
+func u_x_for_gradient_p2(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var g: Q = s.g
+	var ans := sf_ans(Answer.make("roots", {"r1": s.r1, "r2": s.r2}))
+	var asked := "Find the values of x for which f′(x) = %s. Give your answers%s." % [N(g), SF3]
+	var given_q := given(s).merged({"g": g.key()})
+	var why := "The gradient of the graph at x is f′(x), so solve f′(x) = %s." % N(g)
+	if rep == "words":
+		var k := Q.new(rng.int_in(1, 9) * (1 if rng.chance(0.5) else -1))
+		var line := "y = " + Fmt.poly([g, k])
+		asked = "Find the x-coordinates of the points on the curve where the tangent is parallel to the line %s. Give your answers%s." % [line, SF3]
+		given_q.line = [g.key(), k.key()]
+		why = "Parallel lines have equal gradients, so the tangent's gradient is %s, the gradient of %s." % [N(g), line]
+	var dc := d_coeffs(s)
+	var lhs := dpoly([dc[0], dc[1], dc[2].sub(g)])
+	var xs := CubicSituation.irrational_roots(dc[0], dc[1], dc[2].sub(g))
+	var gdc := "With a GDC (the polynomial solver, or the zeros of y = %s): x = %s or x = %s" % [lhs, W(xs[0]), W(xs[1])]
+	var final := "So " + Answer.text(ans) + "."
+	var sf: Array = ["%s = %s" % [dname(rep), deriv(s)]]
+	if rep == "words":
+		sf.append("The gradient of the curve is dy/dx, so solve dy/dx = %s: %s = 0" % [N(g), lhs])
+	else:
+		sf.append("%s So %s = 0" % [why, lhs])
+	sf.append_array([gdc, final])
+	var mg: Array = [why, "%s = %s, so solve %s = %s: %s = 0" % [dname(rep), deriv(s), deriv(s), N(g), lhs], gdc, final]
+	var generic: Array = [{"r1": s.p, "r2": s.q}]
+	var opp := CubicSituation.irrational_roots(dc[0], dc[1], dc[2].add(g))
+	if opp.size() == 2:
+		generic.append({"r1": qf(opp[0]), "r2": qf(opp[1])})
+	generic.append_array([{"r1": s.r1.neg(), "r2": s.r2.neg()}, {"r1": s.r1, "r2": s.r2.neg()}, {"r1": s.r1.neg(), "r2": s.r2}])
+	return {
+		"asked": asked, "lines": f_lines(rep, s), "given": given_q, "answer": ans,
+		"generic": generic,
+		"methods": {
+			"solve-f-prime": {"steps": sf, "result": ans.values},
+			"match-gradients": {"steps": mg, "result": ans.values},
+		},
+	}
+
+
+## f′ = 0 solved on a GDC: the start of the Paper 2 stationary-point questions.
+static func stationary_steps_p2(rep: String, s: Dictionary) -> Array:
+	var xs := stationary_xs(s)
+	return [
+		"%s = %s. Stationary points are where it is 0: %s = 0" % [dname(rep), deriv(s), deriv(s)],
+		"With a GDC (the polynomial solver, or the maximum and minimum of the graph): x = %s or x = %s" % [W(xs[0]), W(xs[1])],
+	]
+
+
+func u_stationary_points_p2(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var ans := sf_ans(Answer.make("points2", {"x1": s.p, "y1": s.fp, "x2": s.q, "y2": s.fq}))
+	var asked := "Find the coordinates of the stationary points of the graph of f,%s." % SF3
+	if rep == "words":
+		asked = "Find the coordinates of the two stationary points on the curve,%s." % SF3
+	var xs := stationary_xs(s)
+	var st := stationary_steps_p2(rep, s)
+	var ev := "f(%s) = %s and f(%s) = %s"
+	if rep == "words":
+		ev = "When x = %s, y = %s; when x = %s, y = %s"
+	st.append(ev % [W(xs[0]), W(CubicSituation.f_float(s, xs[0])), W(xs[1]), W(CubicSituation.f_float(s, xs[1]))])
+	st.append("So the stationary points are " + Answer.text(ans) + ".")
+	return {
+		"asked": asked, "lines": f_lines(rep, s), "given": given(s), "answer": ans,
+		"wrongs": [wrong({"x1": s.p, "y1": Q.new(0), "x2": s.q, "y2": Q.new(0)}, "SL5.8.find-stationary-points#2")],
+		"generic": [{"x1": s.p, "y1": s.fq, "x2": s.q, "y2": s.fp}, {"x1": s.p.neg(), "y1": s.fp, "x2": s.q.neg(), "y2": s.fq},
+			{"x1": s.p, "y1": s.fp.neg(), "x2": s.q, "y2": s.fq.neg()}],
+		"methods": {"solve-f-prime-zero": {"steps": st, "result": ans.values}},
+	}
+
+
+func u_max_value_p2(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var up: bool = s.a.sign() > 0
+	var xs := stationary_xs(s)
+	var xm: float = xs[0] if up else xs[1]
+	var xn: float = xs[1] if up else xs[0]
+	var ym := CubicSituation.f_float(s, xm)
+	var label := "y = " if rep == "words" else "local maximum = "
+	var ans := sf_ans(Answer.make("number", {"v": qf(ym)}, {}, label))
+	var asked := "Find the local maximum value of f,%s." % SF3
+	if rep == "words":
+		asked = "Find the y-coordinate of the local maximum point on the curve,%s." % SF3
+	var f2c: Array = [s.a.mul(6), s.b.mul(2)]
+	var st := stationary_steps_p2(rep, s)
+	var f2v: float = s.a.to_float() * 6.0 * xm + s.b.to_float() * 2.0
+	st.append("%s = %s, which is %s < 0 at x = %s, so that is the local maximum" % [d2name(rep), dpoly(f2c), W(f2v), W(xm)])
+	var at := "When x = %s, y" % W(xm) if rep == "words" else "f(%s)" % W(xm)
+	st.append("%s = %s, so %s." % [at, W(ym), Answer.text(ans)])
+	return {
+		"asked": asked, "lines": f_lines(rep, s), "given": given(s), "answer": ans,
+		"wrongs": [wrong({"v": qf(xm)}, "SL5.8.optimise-given-function#0")],
+		"generic": [{"v": qf(CubicSituation.f_float(s, xn))}, {"v": s.d}, {"v": qf(-ym)}, {"v": qf(ym + 1.0)}],
 		"methods": {"derivative-zero-and-test": {"steps": st, "result": ans.values}},
 	}

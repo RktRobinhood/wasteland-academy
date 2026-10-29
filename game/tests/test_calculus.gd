@@ -8,8 +8,11 @@ const TYPES := ["t5-differentiate-polynomial", "t5-tangent-normal-equation", "t5
 const CATALOGUE_CELLS := {"t5-differentiate-polynomial": 5, "t5-tangent-normal-equation": 10, "t5-tangent-condition": 6, "t5-stationary-points": 14}
 
 
-func _make(type: String, unknown: String, rep: String, angle: String, seed: int, format: String = "value") -> Dictionary:
-	return QuestionEngine.make({"type": type, "unknown": unknown, "rep": rep, "angle": angle, "seed": seed, "format": format})
+func _make(type: String, unknown: String, rep: String, angle: String, seed: int, format: String = "value", paper: int = 0) -> Dictionary:
+	var view := {"type": type, "unknown": unknown, "rep": rep, "angle": angle, "seed": seed, "format": format}
+	if paper > 0:
+		view.paper = paper
+	return QuestionEngine.make(view)
 
 
 func test_the_four_topic_5_types_are_built() -> void:
@@ -41,13 +44,13 @@ func test_every_distractor_misconception_is_an_option() -> void:
 
 func test_the_stationary_points_are_whole_numbers() -> void:
 	for seed in range(1, 31):
-		var q := _make("t5-stationary-points", "stationary-points", "equation", "solve-f-prime-zero", seed)
+		var q := _make("t5-stationary-points", "stationary-points", "equation", "solve-f-prime-zero", seed, "value", 1)
 		for k in ["x1", "y1", "x2", "y2"]:
 			check(q.answer.values[k].is_int(), "seed %d: %s = %s" % [seed, k, q.answer.values[k]])
 
 
 func test_stationary_points_in_either_order() -> void:
-	var q := _make("t5-stationary-points", "stationary-points", "words", "solve-f-prime-zero", 3)
+	var q := _make("t5-stationary-points", "stationary-points", "words", "solve-f-prime-zero", 3, "value", 1)
 	var v: Dictionary = q.answer.values
 	var swapped := {"x1": v.x2.key(), "y1": v.y2.key(), "x2": v.x1.key(), "y2": v.y1.key()}
 	check(QuestionEngine.mark(q, swapped).correct, "the two points in the other order")
@@ -99,7 +102,8 @@ func test_the_normal_takes_three_significant_figures() -> void:
 
 func test_the_normal_is_paper_1_friendly() -> void:
 	for seed in range(1, 101):
-		var q := _make("t5-tangent-normal-equation", "normal-at-point", "words", "rearranged-form", seed)
+		var q := _make("t5-tangent-normal-equation", "normal-at-point", "words", "rearranged-form", seed, "value", 1)
+		check_eq(q.paper, 1)
 		var v: Dictionary = q.answer.values
 		check(v.m.d <= CubicSituation.NORMAL_DEN_MAX and v.c.d <= CubicSituation.NORMAL_DEN_MAX,
 			"seed %d: y = %sx + %s" % [seed, v.m.key(), v.c.key()])
@@ -126,3 +130,86 @@ func test_the_tangent_condition_hides_a_coefficient() -> void:
 		check(q.answer.get("exact", false), "k is marked exactly")
 		var hid: String = q.situation.hidden
 		check_eq(q.answer.values.v.key(), q.situation[hid], "seed %d" % seed)
+
+
+# ── Paper 1 or 2 (FAL-419) ───────────────────────────────────
+
+const PAPER_2_CELLS := [
+	["t5-tangent-condition", "x-for-gradient", "equation", "solve-f-prime"],
+	["t5-tangent-condition", "x-for-gradient", "words", "match-gradients"],
+	["t5-tangent-normal-equation", "tangent-at-point", "words", "point-gradient"],
+	["t5-tangent-normal-equation", "normal-at-point", "equation", "negative-reciprocal"],
+	["t5-stationary-points", "stationary-points", "words", "solve-f-prime-zero"],
+	["t5-stationary-points", "max-value", "equation", "derivative-zero-and-test"],
+]
+
+
+func test_which_cells_make_paper_2() -> void:
+	var views := CubicViews.new()
+	for u in ["derivative", "derivative-from-fraction", "gradient-at-point", "read-from-tangent", "coefficient-from-tangent", "nature", "inflexion-point"]:
+		check_eq(views.papers(u, "equation", "any"), [1], u)
+	for u in CubicViews.PAPER_2:
+		check_eq(views.papers(u, "words", "any"), [1, 2], u)
+	check_eq(QuestionEngine.cell_papers(QuestionEngine.type_of("t5-differentiate-polynomial"), "derivative", "equation", "power-rule"), [1])
+
+
+## Paper 2: a decimal cubic, answers to 3 s.f. that need rounding, and GDC working.
+func test_paper_2_needs_a_calculator() -> void:
+	for c in PAPER_2_CELLS:
+		for seed in range(1, 16):
+			var q := _make(c[0], c[1], c[2], c[3], seed, "mcq", 2)
+			var key := "%s seed %d" % [c[1], seed]
+			check_eq(q.paper, 2, key)
+			check_eq(q.situation.paper, 2, key)
+			check(q.lines[0].contains("."), "%s: %s has no decimals" % [key, q.lines[0]])
+			check(q.asked.contains("correct to 3 significant figures"), key)
+			check_eq(q.answer.get("show", ""), "sf", key)
+			check(not q.answer.get("exact", false), "%s is marked exactly" % key)
+			check(q.answer.values.values().any(func(v): return v is Q and Answer.needs_rounding(v)), "%s: %s needs no rounding" % [key, q.answer_text])
+			for sol in q.solutions:
+				check(sol.steps.size() >= 2 and sol.steps.size() <= 5, "%s: %d steps" % [key, sol.steps.size()])
+				check(" ".join(sol.steps).contains("GDC"), "%s: the working doesn't use the GDC" % key)
+			for o in q.choices:
+				for v in o.values.values():
+					if v is Q and not v.is_zero() and not o.get("trap", false):
+						check(Answer.rounds_clearly(v.to_float()), "%s: option %s on a rounding edge" % [key, o.text])
+
+
+## The answer typed to 3 s.f. is right; to 2 s.f. it is a glancing hit.
+func test_paper_2_marks_three_significant_figures() -> void:
+	var q := _make("t5-stationary-points", "stationary-points", "equation", "solve-f-prime-zero", 4, "value", 2)
+	var typed := {}
+	for k in q.answer.values:
+		typed[k] = Fmt.sf(q.answer.values[k]).replace("−", "-")
+	check(QuestionEngine.mark(q, typed).correct, str(typed))
+	q = _make("t5-tangent-normal-equation", "normal-at-point", "words", "rearranged-form", 5, "value", 2)
+	var v: Dictionary = q.answer.values
+	check(QuestionEngine.mark(q, {"m": Fmt.sf(v.m).replace("−", "-"), "c": Fmt.sf(v.c).replace("−", "-")}).correct, q.answer_text)
+	check(q.answer_text.begins_with("y = ") and q.answer_text.contains("x"), q.answer_text)
+
+
+## Where one number is the answer (the local maximum), the rounding trap is an option.
+func test_paper_2_has_the_rounding_trap() -> void:
+	var traps := 0
+	for seed in range(1, 21):
+		var q := _make("t5-stationary-points", "max-value", "words", "derivative-zero-and-test", seed, "mcq", 2)
+		var t: Array = q.choices.filter(func(o): return o.get("trap", false))
+		if not t.is_empty():
+			traps += 1
+			check(not t[0].correct and t[0].ref == "")
+			check(QuestionEngine.mark(q, {"choice": q.choices.find(t[0])}).glancing)
+	check(traps >= 15, "the rounding trap on %d of 20" % traps)
+
+
+## Paper 1 is today's cubic: the same numbers as with no paper at all.
+func test_paper_1_keeps_its_numbers() -> void:
+	for c in PAPER_2_CELLS:
+		var t := QuestionEngine.type_of(c[0])
+		for seed in range(1, 11):
+			var q := _make(c[0], c[1], c[2], c[3], seed, "value", 1)
+			check_eq(q.paper, 1)
+			var need: Dictionary = CubicViews.new().need(c[1], c[2])
+			need["angle"] = c[3]
+			var s := CubicSituation.generate(Seeded.new("%s|%d" % [QuestionEngine.cell_key(t.id, c[1], c[2], c[3]), seed]), need)
+			for k in ["a", "b", "c", "d"]:
+				check_eq(q.situation[k], s[k].key(), "%s seed %d: %s" % [c[1], seed, k])

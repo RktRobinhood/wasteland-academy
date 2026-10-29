@@ -42,7 +42,8 @@ extends RefCounted
 ##              answers the IB wants exact, such as a whole-number sum (2345 is not 2350)
 ##   show       (optional) how a number is written: "dec" as a decimal when it ends
 ##              (0.35, not 7/20), "money" with two decimal places (2.50), "sf" to 3
-##              significant figures (a value a calculator gives); else a fraction
+##              significant figures (a value a calculator gives); else a fraction.
+##              roots, points2 and line honour it too (the cubic's Paper 2, FAL-419)
 ##   signed     (optional) a measure that may be negative (a decay rate k): wrong options
 ##              may be negative too
 ##
@@ -400,7 +401,7 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return "%s = %s" % [v["var"], Fmt.num(v.h)]
 		"roots":
 			var rs := _sorted([v.r1, v.r2])
-			return "x = %s and x = %s" % [Fmt.num(rs[0]), Fmt.num(rs[1])]
+			return "x = %s and x = %s" % [shown(ans, rs[0]), shown(ans, rs[1])]
 		"point":
 			return Fmt.point(v.x, v.y)
 		"yint":
@@ -461,12 +462,14 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 		"deriv":
 			return (ans.label if ans.label != "" else "f′(x) = ") + Fmt.poly([v.u2, v.u1, v.u0])
 		"line":
+			if ans.get("show", "") == "sf":
+				return "y = " + sf_line(v.m, v.c)
 			return "y = " + Fmt.poly([v.m, v.c])
 		"tangent_read":
 			return "f′(%s) = %s,  f(%s) = %s" % [Fmt.num(fx.x0), Fmt.num(v.m), Fmt.num(fx.x0), Fmt.num(v.y)]
 		"points2":
 			var ps := _pairs(v)
-			return "%s and %s" % [Fmt.point(ps[0][0], ps[0][1]), Fmt.point(ps[1][0], ps[1][1])]
+			return "(%s, %s) and (%s, %s)" % [shown(ans, ps[0][0]), shown(ans, ps[0][1]), shown(ans, ps[1][0]), shown(ans, ps[1][1])]
 		"natures":
 			return "x = %s: %s,  x = %s: %s" % [Fmt.num(fx.p), v.k1, Fmt.num(fx.q), v.k2]
 		"poly":
@@ -521,6 +524,16 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 				return fx.get("name", "y") + " = " + Fmt.lead(nq) + "x"
 			return fx.get("name", "y") + " = x" + (Fmt.sup(nq.n) if nq.is_int() and nq.sign() > 0 else "^(%s)" % nq.text())
 	return "?"
+
+
+## mx + c with both numbers to 3 s.f. (a Paper 2 line): "2.31x − 0.552", "−4.70x".
+static func sf_line(m: Variant, c: Variant) -> String:
+	var mq := Q.of(m)
+	var cq := Q.of(c)
+	var out := Fmt.sf(mq) + "x"
+	if not cq.is_zero():
+		out += (" − " if cq.sign() < 0 else " + ") + Fmt.sf(cq.abs_q())
+	return out
 
 
 ## A poly answer written out: its terms in the order of its powers, each power the

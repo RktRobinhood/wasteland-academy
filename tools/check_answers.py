@@ -2146,6 +2146,8 @@ def shown_line_gradient(text):
 
 
 def check_cubic(q):
+    if q.get("paper", 1) == 2:
+        return check_cubic_p2(q)
     u = q["view"]["unknown"]
     s = q["situation"]
     g = q["given"]
@@ -2264,6 +2266,187 @@ def check_cubic(q):
         need(len(mx) == 1, "not one local maximum")
         return {"v": f.subs(X, mx[0])}, None
     raise Fail(f"the checker has no solver for {u}")
+
+
+# ── Cubic, Paper 2 (FAL-419) ──
+# The calculator cubic: decimal coefficients (tenths, at least one of a, b, c not
+# whole), f′ with two irrational roots, and x₀ a decimal to one place. Every value is
+# solved again with SymPy and given to 3 s.f., clear of a rounding edge. The engine's
+# copy of these limits is in game/engine/situations/cubic.gd (P2_*).
+
+CUBIC_P2_UNKNOWNS = {"x-for-gradient", "tangent-at-point", "normal-at-point", "stationary-points", "max-value"}
+CUBIC_P2_A = {sp.Rational(n, 10) * sg for n in (2, 4, 5, 10, 15, 20) for sg in (1, -1)}
+CUBIC_P2_B_MAX, CUBIC_P2_C_MAX, CUBIC_P2_D_MAX = 4, 9, 9
+CUBIC_P2_X_MAX, CUBIC_P2_X_MIN, CUBIC_P2_X_GAP = 5, sp.Rational(1, 10), sp.Rational(1, 2)
+CUBIC_P2_X0_MAX, CUBIC_P2_G_MAX = 3, 20
+CUBIC_P2_TOL = sp.Rational(1, 10**6)
+CUBIC_P2_V_MIN = sp.Rational(1, 10)   # every number of an answer is at least this big
+DEC_ = r"(−?\d+(?:\.\d+)?)"
+
+
+def cubic_sf(x):
+    return "0" if x == 0 else sig3(x).replace("-", "−")
+
+
+def cubic_p2_vals(kind, v):
+    """An answer's numbers in a fixed order: roots and points sorted, as written."""
+    if kind == "roots":
+        return sorted([v["r1"], v["r2"]], key=num)
+    if kind == "points2":
+        ps = sorted([(v["x1"], v["y1"]), (v["x2"], v["y2"])], key=lambda p: (num(p[0]), num(p[1])))
+        return [ps[0][0], ps[0][1], ps[1][0], ps[1][1]]
+    if kind == "line":
+        return [v["m"], v["c"]]
+    return [v["v"]]
+
+
+def cubic_p2_text(ans, v):
+    kind = ans["kind"]
+    xs = [cubic_sf(x) for x in cubic_p2_vals(kind, v)]
+    if kind == "roots":
+        return f"x = {xs[0]} and x = {xs[1]}"
+    if kind == "points2":
+        return f"({xs[0]}, {xs[1]}) and ({xs[2]}, {xs[3]})"
+    if kind == "line":
+        m, c = v["m"], v["c"]
+        return "y = " + xs[0] + "x" + ("" if c == 0 else (" − " if c < 0 else " + ") + cubic_sf(abs(c)))
+    return ans["label"] + xs[0]
+
+
+def cubic_p2_common(q, want, wrongs):
+    """want: slot -> exact value. wrongs: ref -> list of slot dicts that slip gives."""
+    ans = q["answer"]
+    kind = ans["kind"]
+    need(ans.get("show") == "sf" and not ans.get("exact"), "a Paper 2 answer is not written to 3 s.f.")
+    need("correct to 3 significant figures" in q["asked"], "the question doesn't ask for 3 s.f.")
+    wv = cubic_p2_vals(kind, want)
+    for x in wv:
+        need(abs(x) >= CUBIC_P2_V_MIN and not on_edge(abs(x)), f"the answer's {float(num(x)):.8} is too small or on a 3 s.f. rounding edge")
+    need(any(not sp.sympify(x).is_rational or R(sig3(x)) != x for x in wv), "no number needs rounding: no calculator needed")
+
+    def rv(vals):
+        return {k: R(x) for k, x in vals.items()}
+
+    def close(vals):
+        got = cubic_p2_vals(kind, rv(vals))
+        return all(abs(num(a) - num(b)) <= CUBIC_P2_TOL * max(1, abs(num(b))) for a, b in zip(got, wv))
+
+    right = cubic_p2_text(ans, want)
+    need(close(ans["values"]), f"engine answer {q['answer_text']!r} is wrong (expected {right!r})")
+    need(q["answer_text"] == right, f"answer text {q['answer_text']!r}, expected {right!r}")
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    texts = set()
+    wrong_texts = {ref: {cubic_p2_text(ans, w) for w in ws} for ref, ws in wrongs.items()}
+    for o in ch:
+        ov = rv(o["values"])
+        need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
+        texts.add(o["text"])
+        if o.get("trap"):
+            need(kind == "number" and not o["correct"] and not o["ref"], f"rounding trap {o['text']!r} is wrong-tagged")
+            need(ov["v"] == R(sig3(want["v"], 2)) and o["text"] != right, f"rounding trap {o['text']!r} is not the answer to 2 s.f.")
+            continue
+        for x in cubic_p2_vals(kind, ov):
+            need(x == 0 or not on_edge(abs(x)), f"option {o['text']!r} is on a 3 s.f. rounding edge ({float(num(x)):.8})")
+        need(o["text"] == cubic_p2_text(ans, ov), f"option text {o['text']!r} doesn't say its values")
+        need((o["text"] == right) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'} but is {'right' if o['text'] == right else 'wrong'}")
+        if o["correct"]:
+            need(close(o["values"]), "the right option is not the answer")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrong_texts, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(o["text"] in wrong_texts[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(close(sol["result"]), f"{sol['name']}: last step gives {sol['result']}, not the answer")
+        need(QR_STEPS[0] <= len(sol["steps"]) <= QR_STEPS[1], f"{sol['name']}: {len(sol['steps'])} steps, not 2 to 5")
+        need(any("GDC" in st for st in sol["steps"]), f"{sol['name']}: the working doesn't use the calculator")
+        need(right in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+
+
+def cubic_p2_pair(xs, what):
+    """Two x-values fit to ask for to 3 s.f.: irrational, in range, apart, clear."""
+    need(len(xs) == 2 and all(x.is_real for x in xs), f"{what}: not two real roots ({xs})")
+    need(all(not x.is_rational for x in xs), f"{what}: a root is rational, so no calculator is needed")
+    need(xs[1] - xs[0] >= CUBIC_P2_X_GAP, f"{what}: the roots are too close")
+    for x in xs:
+        need(CUBIC_P2_X_MIN <= abs(x) <= CUBIC_P2_X_MAX, f"{what}: x = {float(num(x)):.6} out of limits")
+        need(not on_edge(abs(x)), f"{what}: x = {float(num(x)):.8} is on a 3 s.f. rounding edge")
+
+
+def check_cubic_p2(q):
+    u = q["view"]["unknown"]
+    s = q["situation"]
+    g = q["given"]
+    need(u in CUBIC_P2_UNKNOWNS, f"{u} has no Paper 2 version")
+    need(s.get("paper") == 2, "the situation is not the Paper 2 cubic")
+    a, b, c, d = (R(v) for v in g["f"])
+    need([R(s[n]) for n in "abcd"] == [a, b, c, d], "the givens describe another cubic than the situation")
+    need(a in CUBIC_P2_A, f"a = {a} is not a Paper 2 choice")
+    need(all((10 * v).q == 1 and v != 0 for v in (b, c, d)), "b, c or d is 0 or not in tenths")
+    need(abs(b) <= CUBIC_P2_B_MAX and abs(c) <= CUBIC_P2_C_MAX and abs(d) <= CUBIC_P2_D_MAX, "b, c or d too big")
+    need(any(v.q != 1 for v in (a, b, c)), "every coefficient of f′ is whole: not a calculator cubic")
+    f = sp.expand(a * X**3 + b * X**2 + c * X + d)
+    f1 = sp.diff(f, X)
+    f2 = sp.diff(f, X, 2)
+    need(sp.expand(sp.nsimplify(shown_curve(q), rational=True)) == f, "the curve shown is not the given one")
+    xs = sorted(sp.solve(f1, X), key=num)
+    cubic_p2_pair(xs, "f′(x) = 0")
+    for x in xs:
+        y = f.subs(X, x)
+        need(abs(num(y)) <= CUBIC_Y_MAX and not on_edge(abs(y)), f"f({float(num(x)):.6}) = {float(num(y)):.8} is too high or on a rounding edge")
+    for k, x in (("p", xs[0]), ("q", xs[1]), ("fp", f.subs(X, xs[0])), ("fq", f.subs(X, xs[1]))):
+        need(abs(num(R(s[k])) - num(x)) <= CUBIC_P2_TOL * max(1, abs(num(x))), f"the situation's {k} is not f's")
+    text = " ".join(q["lines"] + [q["asked"]])
+
+    if u == "x-for-gradient":
+        gr = R(g["g"])
+        need(gr.q == 1 and gr != 0 and abs(gr) <= CUBIC_P2_G_MAX, "g out of limits")
+        if q["view"]["rep"] == "words":
+            need(shown_line_gradient(q["asked"]) == gr, "the line shown has another gradient")
+        else:
+            need(shown_number(q["asked"], r"f′\(x\) = " + INT_) == gr, "the gradient shown is not g")
+        rs = sorted(sp.solve(sp.Eq(f1, gr), X), key=num)
+        cubic_p2_pair(rs, f"f′(x) = {gr}")
+        cubic_p2_common(q, {"r1": rs[0], "r2": rs[1]}, {})
+        return None, None
+    if u == "max-value":
+        mx = [x for x in xs if f2.subs(X, x) < 0]
+        need(len(mx) == 1, "not one local maximum")
+        need(q["answer"]["label"] == ("y = " if q["view"]["rep"] == "words" else "local maximum = "), "the answer's label")
+        cubic_p2_common(q, {"v": f.subs(X, mx[0])}, {"SL5.8.optimise-given-function#0": [{"v": mx[0]}]})
+        return None, None
+    if u == "stationary-points":
+        ys = [f.subs(X, x) for x in xs]
+        cubic_p2_common(q, {"x1": xs[0], "y1": ys[0], "x2": xs[1], "y2": ys[1]},
+                        {"SL5.8.find-stationary-points#2": [{"x1": xs[0], "y1": 0, "x2": xs[1], "y2": 0}]})
+        return None, None
+
+    # The tangent and the normal at x₀.
+    x0 = R(g["x0"])
+    need((10 * x0).q == 1 and x0.q != 1 and abs(x0) <= CUBIC_P2_X0_MAX, f"x0 = {x0} is not a decimal to one place up to 3")
+    need(R(s["x0"]) == x0, "x0 differs from the situation")
+    need(shown_number(q["asked"], r"x = " + DEC_) == x0, "the x shown is not x0")
+    y0, m = f.subs(X, x0), f1.subs(X, x0)
+    ct = y0 - m * x0
+    need(m != 0 and abs(m) != 1 and abs(m) <= CUBIC_M0_MAX and abs(y0) <= CUBIC_Y_MAX, "f′(x0) or f(x0) out of limits")
+    need(ct != 0, "the tangent goes through the origin")
+    if u == "tangent-at-point":
+        mn = -1 / m
+        cubic_p2_common(q, {"m": m, "c": ct}, {
+            "SL5.4.tangent-equation#1": [{"m": m, "c": m - m * x0}],
+            "SL5.4.tangent-equation#2": [{"m": mn, "c": y0 - mn * x0}]})
+        return None, None
+    if u == "normal-at-point":
+        mn = -1 / m
+        cubic_p2_common(q, {"m": mn, "c": y0 - mn * x0}, {
+            "SL5.4.normal-equation#0": [{"m": -m, "c": y0 + m * x0}, {"m": 1 / m, "c": y0 - x0 / m}],
+            "SL5.4.normal-equation#1": [{"m": mn, "c": ct}]})
+        return None, None
+    raise Fail(f"the checker has no Paper 2 solver for {u}")
 
 
 # ── Quadratics extension types (FAL-459) ─────────────────────

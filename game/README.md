@@ -146,7 +146,12 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   says it fails there and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
 - `engine/situations/cubic.gd` is the Topic 5 situation: a cubic built
   from f′(x) = 3a(x − p)(x − q), so its stationary points are on whole numbers, with a
-  point x₀ for the gradient, tangent and normal (FAL-394).
+  point x₀ for the gradient, tangent and normal (FAL-394). Its Paper 2 version
+  (FAL-419) is a calculator cubic with decimal coefficients and irrational stationary
+  points, x₀ a decimal: x for a gradient, the tangent, the normal, the stationary points
+  and the local maximum are then asked to 3 s.f. with GDC working (`roots`, `line` and
+  `points2` honour `show: "sf"`); the derivatives, k, the nature and the inflexion stay
+  Paper 1.
 - **The Quadratics extension types** (FAL-459) are seven more situations, one per
   type: `expand.gd`, `factorise.gd`, `surds.gd` and `linear_inequality.gd` (the
   `fn-pre-*` prior learning, which the dungeon's warm-ups and after-a-miss questions
@@ -738,7 +743,9 @@ script error happens while it runs. Run one file with
   the percent error-spot's first wrong line.
 - `test_calculus.gd`: the four Topic 5 types on the cubic: built, every misconception
   appears as an option, two points in either order, nature as multiple choice, f′(x)
-  marked exactly, the normal to 3 s.f.
+  marked exactly, the normal to 3 s.f.; Paper 2 needs a calculator (decimals, 3 s.f.
+  answers that need rounding, GDC working, the rounding trap) and Paper 1 keeps its
+  numbers.
 - `test_answer.gd`: parsing and marking typed answers.
 - `test_expr.gd`: the expression engine against a table of 65 expressions (2^3^2 = 512,
   −3^2 = −9, 2x at x = 3 is 6, sin 30° = 0.5, ln e = 1, ...), exact fractions for
