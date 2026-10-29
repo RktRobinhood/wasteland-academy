@@ -19,8 +19,9 @@ extends RefCounted
 ##              c·xⁿ, with the powers fixed or typed), named (labelled numbers),
 ##              pair (two numbers, either order), brackets ((x + r)(x + s)),
 ##              brackets2 ((ax + b)(cx + d)), common (gx(ax + b)), pm_surd
-##              (h ± m√r), range2 (lo < x ≤ hi), related (angles as multiples of π)
-##              and features (a quadratic's y-intercept, roots and vertex)
+##              (h ± m√r), range2 (lo < x ≤ hi), related (angles as multiples of π),
+##              features (a quadratic's y-intercept, roots and vertex) and angles
+##              (the solutions of a trig equation, as multiples of π, in any order)
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
@@ -177,6 +178,16 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 		"features":
 			t = ["y-intercept ", {"slot": "c"}, ";  roots ", {"slot": "r1"}, " and ", {"slot": "r2"}, ";  vertex (", {"slot": "h"}, ", ", {"slot": "k"}, ")"]
 			unordered = [["r1", "r2"]]
+		"angles":
+			t = ["x = "]
+			var ids: Array = []
+			for i in int(fixed.n):
+				if i > 0:
+					t.append(" or " if i == int(fixed.n) - 1 else ", ")
+				t.append({"slot": "a%d" % i})
+				t.append("π")
+				ids.append("a%d" % i)
+			unordered = [ids]
 	var out := {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
 	if kind == "brackets2":
 		out.pairs = [["a1", "b1"], ["a2", "b2"]]
@@ -348,6 +359,10 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 		"features":
 			var rs := _sorted([v.r1, v.r2])
 			return "y-intercept %s; roots %s and %s; vertex %s" % [Fmt.num(v.c), Fmt.num(rs[0]), Fmt.num(rs[1]), Fmt.point(v.h, v.k)]
+		"angles":
+			var xs := _sorted(range(int(fx.n)).map(func(i): return v["a%d" % i]))
+			var names: Array = xs.map(func(x): return Fmt.pi(x))
+			return "x = " + (", ".join(names.slice(0, names.size() - 1)) + " or " + names[names.size() - 1] if names.size() > 1 else names[0])
 	return "?"
 
 

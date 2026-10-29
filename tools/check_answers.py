@@ -2266,7 +2266,7 @@ def check_cubic(q):
 # three formats are built on their questions: error-spot, method-pick and
 # true-false-reason.
 
-EXT_KINDS = {"poly", "named", "pair", "brackets", "brackets2", "common", "pm_surd", "range2", "related", "features"}
+EXT_KINDS = {"poly", "named", "pair", "brackets", "brackets2", "common", "pm_surd", "range2", "related", "features", "angles", "factorised"}
 EXTRA_FORMATS = {"error-spot", "method-pick", "true-false-reason"}
 SUPS = str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
 CATALOGUE = None
@@ -2365,6 +2365,12 @@ def ext_text(ans, v):
     if kind == "features":
         a, b = sorted([R(v["r1"]), R(v["r2"])])
         return f"y-intercept {frac_text(v['c'])}; roots {frac_text(a)} and {frac_text(b)}; vertex {qr_point(v['h'], v['k'])}"
+    if kind == "factorised":
+        p_, q_ = sorted([R(v["p"]), R(v["q"])])
+        return "f(x) = " + qr_lead(v["a"]) + ext_bracket(-p_) + ext_bracket(-q_)
+    if kind == "angles":
+        xs = [ext_pi(x) for x in sorted(R(v[f"a{i}"]) for i in range(int(fx["n"])))]
+        return "x = " + (", ".join(xs[:-1]) + " or " + xs[-1] if len(xs) > 1 else xs[0])
     raise Fail(f"the checker can't write answers of kind {kind}")
 
 
@@ -2394,6 +2400,10 @@ def ext_norm(ans, v):
         return (R(v["s"]), tuple(sorted([R(v["o1"]), R(v["o2"])])))
     if kind == "features":
         return (R(v["c"]), tuple(sorted([R(v["r1"]), R(v["r2"])])), R(v["h"]), R(v["k"]))
+    if kind == "angles":
+        return tuple(sorted(R(v[f"a{i}"]) for i in range(int(fx["n"]))))
+    if kind == "factorised":
+        return (R(v["a"]), tuple(sorted([R(v["p"]), R(v["q"])])))
     raise Fail(f"the checker can't compare answers of kind {kind}")
 
 
@@ -2465,7 +2475,9 @@ def check_format(q):
     elif fmt == "method-pick":
         view_angle = q["view"]["angle"]
         need(view_angle != "any", "method-pick without a method")
-        works = {a["name"] for a in t["angles"] if u in a["suits"]}
+        failing = {a["name"] for a in t["angles"] if a.get("weak", {}).get("kind") == "fails" and u in a["weak"]["unknowns"]}
+        works = {a["name"] for a in t["angles"] if u in a["suits"]} - failing
+        need(right["text"] not in failing, f"the right method {right['text']!r} fails for {u}")
         name = next(a["name"] for a in t["angles"] if a["method"] == view_angle and u in a["suits"])
         need(right["text"] == name, f"the right method is {right['text']!r}, not the view's {name!r}")
         need("Which method works for this question?" in q["prompt"] and "Method:" not in q["prompt"], "the prompt gives the method away")
@@ -2950,13 +2962,156 @@ def check_qmodel(q):
     return None, None
 
 
+# ── fn-link-equivalent-forms ──
+
+EF_PAIRS = {
+    "log-sub": lambda m, n: (sp.log(m * n) - sp.log(n), sp.log(m)),
+    "log-div": lambda m, n: (sp.log(m * n) / sp.log(n), sp.log(m)),
+    "log-pow": lambda m, n: (2 * sp.log(m), sp.log(m * m)),
+    "log-add": lambda m, n: (sp.log(m) + sp.log(n), sp.log(m + n)),
+    "sq-sum": lambda m, n: ((X + m)**2, X**2 + m * m),
+    "dos": lambda m, n: ((X + m) * (X - m), X**2 - m * m),
+}
+EF_CLAIMS = {
+    "log(a + b) = log a + log b": lambda a, b: (sp.log(a + b, 10), sp.log(a, 10) + sp.log(b, 10)),
+    "(log a)² = 2 log a": lambda a, b: (sp.log(a, 10)**2, 2 * sp.log(a, 10)),
+    "log a − log b = log(a/b)": lambda a, b: (sp.log(a, 10) - sp.log(b, 10), sp.log(a / b, 10)),
+    "log(aⁿ) = n log a": lambda a, b: (sp.log(a**3, 10), 3 * sp.log(a, 10)),
+    "log(a/b) = log a / log b": lambda a, b: (sp.log(a / b, 10), sp.log(a, 10) / sp.log(b, 10)),
+}
+TRIG = {"sin": sp.sin, "cos": sp.cos}
+
+
+def ef_same(x, y):
+    """Whether two expressions are one object: equal as polynomials, or as numbers."""
+    d = sp.simplify(sp.expand_log(x - y, force=True))
+    return d == 0 or (d.is_number and abs(sp.N(d, 30)) < 1e-25)
+
+
+def ef_trig_text(c, fn):
+    mag = "" if abs(c) == 1 else frac_text(abs(c)) + " "
+    return (" − " if c < 0 else " + ") + mag + fn + " x"
+
+
+def check_eqforms(q):
+    g, ans, u, L, rep = q["given"], q["answer"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    wr = {}
+    if u == "form-for-feature":
+        m = re.search(r"f\(x\) = (.+)\.$", L[0])
+        need(m is not None, "can't read the three forms")
+        forms = m.group(1).split(" = ")
+        need(len(forms) == 3, "not three forms")
+        fs = [parse(f) for f in forms]
+        need(fs[0] == fs[1] == fs[2], "the three forms are not one quadratic")
+        f = fs[0]
+        a, b, c = coeffs(f)
+        need(forms[0] == qr_poly([a, b, c]), "the first form is not the general form")
+        rs = real_roots(f)
+        hv, kv = vertex(f)
+        need(all(r.is_integer for r in rs) and hv != 0, "the roots are not whole numbers, or the vertex is on the y-axis")
+        if q.get("graph"):
+            gr = q["graph"]
+            need(sp.nsimplify(gr["a"]) == a and sp.nsimplify(gr["h"]) == hv and sp.nsimplify(gr["k"]) == kv, "the graph is another parabola")
+        feat = lambda cc, r1, r2, h, k: qr_norm(ans, {"c": str(cc), "r1": str(r1), "r2": str(r2), "h": str(h), "k": str(k)})
+        wr["SL2.6.complete-square#1"] = {feat(c, rs[0], rs[1], hv, c - hv**2)}
+        wr["SL2.6.factorised-form#0"] = {feat(c, -rs[0], -rs[1], hv, kv)}
+        wr["SL2.6.factorised-form#2"] = {feat(rs[0] * rs[1], rs[0], rs[1], hv, kv)}
+        qr_check_common(q, feat(c, rs[0], rs[1], hv, kv), wr)
+    elif u == "identity-constants":
+        m = re.fullmatch(r"(.+) ≡ \(x \+ p\)² \+ q", L[0])
+        need(m is not None, "can't read the identity")
+        P_, Q_ = sp.symbols("P Q")
+        sol = sp.solve(sp.Poly(sp.expand(parse(m.group(1)) - (X + P_)**2 - Q_), X).coeffs(), [P_, Q_], dict=True)
+        need(len(sol) == 1, "the identity doesn't fix p and q")
+        p_, q_ = sol[0][P_], sol[0][Q_]
+        c = parse(m.group(1)).subs(X, 0)
+        wr["SL2.6.complete-square#0"] = {qr_norm(ans, {"v0": str(p_), "v1": str(c)})}
+        wr["SL2.6.complete-square#2"] = {qr_norm(ans, {"v0": str(-p_), "v1": str(q_)})}
+        qr_check_common(q, qr_norm(ans, {"v0": str(p_), "v1": str(q_)}), wr)
+    elif u == "same-or-not":
+        mm, nn = R(g["m"]), R(g["n"])
+        x, y = EF_PAIRS[g["pair"]](mm, nn)
+        same = ef_same(x, y)
+        right = ans["values"]["v"]
+        need(right.startswith("The same: ") == same and (right.startswith("Not the same: ") != same), f"the answer {right!r} gets the verdict wrong")
+        for o in ans["fixed"]["options"]:
+            if o == "The same: ln a/ln b = ln(a/b)":
+                need(g["pair"] == "log-div" and not same, "the log-quotient misconception on another pair")
+                wr["SL1.7.log-laws#1"] = {qr_norm(ans, {"v": o})}
+            if o == "The same: they agree when x = 0":
+                need(not same and sp.expand(x - y).subs(X, 0) == 0, "they don't agree at x = 0, or are the same")
+                wr["SL1.6.identity-constants#0"] = {qr_norm(ans, {"v": o})}
+        qr_check_common(q, qr_norm(ans, {"v": right}), wr)
+    elif u == "log-law-check":
+        claim = next((c for c in EF_CLAIMS if c in L[0]), None)
+        need(claim is not None, f"can't read the claim in {L[0]!r}")
+        sides = EF_CLAIMS[claim](sp.Integer(5), sp.Integer(3))
+        true_ = ef_same(*sides)
+        right = ans["values"]["v"]
+        need(right.startswith("True") == true_ and not right.startswith("True, but"), f"the answer {right!r} gets the claim wrong")
+        if "True" in ans["fixed"]["options"]:
+            ref = {"log(a + b) = log a + log b": "SL1.7.log-laws#0", "(log a)² = 2 log a": "SL1.7.log-laws#2"}.get(claim)
+            if ref:
+                wr[ref] = {qr_norm(ans, {"v": "True"})}
+        qr_check_common(q, qr_norm(ans, {"v": right}), wr)
+    elif u == "cos2x-form":
+        fn, B, C = g["fn"], R(g["B"]), R(g["C"])
+        need(L[0] == f"cos 2x{ef_trig_text(B, fn)}{'' if C == 0 else (' − ' if C < 0 else ' + ') + frac_text(abs(C))} = 0, for 0 ≤ x ≤ 2π", "the equation shown is not the givens")
+        eq = sp.cos(2 * X) + B * TRIG[fn](X) + C
+        sols = sp.solveset(eq, X, sp.Interval(0, 2 * sp.pi))
+        need(isinstance(sols, sp.FiniteSet) and 2 <= len(sols) <= 4, f"{sols} is not 2 to 4 solutions")
+        vals = sorted(sp.nsimplify(s_ / sp.pi) for s_ in sols)
+        want = qr_norm(ans, {f"a{i}": str(v_) for i, v_ in enumerate(vals)})
+        if fn == "sin":
+            # cos 2x taken as 1 − sin²x.
+            S = sp.Symbol("S")
+            rts = [r for r in sp.solve(1 - S**2 + B * S + C, S) if r.is_rational]
+            if len(rts) == 2:
+                ws = sp.Union(*[sp.solveset(sp.sin(X) - r, X, sp.Interval(0, 2 * sp.pi)) for r in rts])
+                if isinstance(ws, sp.FiniteSet) and len(ws) == len(vals):
+                    wr["SL3.6.double-angle-values#1"] = {qr_norm(ans, {f"a{i}": str(sp.nsimplify(w / sp.pi)) for i, w in enumerate(sorted(ws, key=float))})}
+        qr_check_common(q, want, wr)
+    elif u == "power-form-first":
+        A, m_, B, n_ = R(g["A"]), R(g["m"]), R(g["B"]), R(g["n"])
+        f = parse(L[0].removeprefix("f(x) = "))
+        need(sp.simplify(f - (A / X**m_ + 1 / (B * X**n_))) == 0, "the function shown is not the givens")
+        def pairs(e):
+            out = []
+            for t in sp.Add.make_args(sp.expand(e)):
+                c_, pw = t.as_coeff_exponent(X)
+                out.append((int(pw), sp.Rational(c_)))
+            return tuple(sorted(out))
+        def vals(ts):
+            """Two terms (coefficient, power), kept apart even when the powers are equal."""
+            ps = sorted((int(pw), sp.Rational(c_)) for c_, pw in ts)
+            return qr_norm(ans, {k: str(v_) for i, (pw, c_) in enumerate(ps) for k, v_ in ((f"c{i}", c_), (f"e{i}", pw))})
+        d = sp.diff(f, X)
+        right = [(-m_ * A, -m_ - 1), (-n_ / B, -n_ - 1)]
+        need(pairs(d) == tuple(sorted((int(pw), c_) for c_, pw in right)), "the derivative is not two powers of x")
+        # 1/(Bxⁿ) written as Bx⁻ⁿ; the denominator differentiated (A/xᵐ -> A/(m·xᵐ⁻¹));
+        # the new power one up instead of one down.
+        wr["SL1.5.zero-negative#2"] = {vals([right[0], (-n_ * B, -n_ - 1)])}
+        wr["SL5.3.negative-powers#0"] = {vals([(A / m_, -(m_ - 1)), right[1]])}
+        wr["SL5.3.negative-powers#1"] = {vals([(-m_ * A, -m_ + 1), right[1]])}
+        qr_check_common(q, vals(right), wr)
+    elif u == "roots-from-vertex-form":
+        f = parse(L[0].removeprefix("f(x) = "))
+        a, _, _ = coeffs(f)
+        rs = real_roots(f)
+        need(all(r.is_integer for r in rs), "the roots are not whole numbers")
+        qr_check_common(q, qr_norm(ans, {"a": str(a), "p": str(rs[0]), "q": str(rs[1])}))
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
-                    "quadratic-model": check_qmodel}
+                    "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

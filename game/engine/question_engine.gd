@@ -49,6 +49,7 @@ static var SITUATIONS := {
 	"fn-pre-surds": [SurdsSituation, SurdsViews],
 	"fn-pre-linear-inequalities": [LinearInequalitySituation, LinearInequalityViews],
 	"quadratic-model": [QuadraticModelSituation, QuadraticModelViews],
+	"fn-link-equivalent-forms": [EquivalentFormsSituation, EquivalentFormsViews],
 }
 
 static var _cat: Dictionary = {}
@@ -162,14 +163,25 @@ static func is_choice(q: Dictionary) -> bool:
 
 
 ## The extra formats (EXTRA_FORMATS) a cell can be asked in: listed in its type's
-## `formats` and built by its views for the unknown. method-pick needs a method.
+## `formats` and built by its views for the unknown. method-pick needs a method that
+## works: not "any", and not one the catalogue says fails for the unknown.
 static func extra_formats(type_id: String, unknown: String, angle: String) -> Array:
 	var t := type_of(type_id)
 	var views = views_for(t)
 	if views == null or not views.has_method("formats"):
 		return []
 	var listed: Array = t.get("formats", [])
-	return views.formats(unknown).filter(func(f): return f in EXTRA_FORMATS and f in listed and (f != "method-pick" or angle != "any"))
+	var works := angle != "any" and not fails(t, unknown, angle)
+	return views.formats(unknown).filter(func(f): return f in EXTRA_FORMATS and f in listed and (f != "method-pick" or works))
+
+
+## Whether the catalogue says a method fails for an unknown (its angle's weak kind).
+static func fails(t: Dictionary, unknown: String, method: String) -> bool:
+	for a in t.get("angles", []):
+		var weak: Dictionary = a.get("weak", {})
+		if a.method == method and weak.get("kind") == "fails" and unknown in weak.get("unknowns", []):
+			return true
+	return false
 
 
 ## The planner's and the dungeon's format, switched to one of the cell's extra
@@ -532,12 +544,11 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 			q.reason = ("The answer is %s." % right.text) + (" The mistake: %s." % why.rstrip(".") if why != "" else "")
 		"method-pick":
 			var right_name: String = angle_info(t, v.u.id, v.angle).name
-			var works: Array = v.angles.map(func(a): return angle_info(t, v.u.id, a).get("name", a))
+			var works: Array = v.angles.filter(func(a): return not fails(t, v.u.id, a)).map(func(a): return angle_info(t, v.u.id, a).get("name", a))
 			var pool: Array = []
 			for a in t.get("angles", []):
-				var weak: Dictionary = a.get("weak", {})
-				if weak.get("kind") == "fails" and v.u.id in weak.get("unknowns", []):
-					pool.append({"name": a.name, "why": weak.why})
+				if fails(t, v.u.id, a.method):
+					pool.append({"name": a.name, "why": a.weak.why})
 			pool.append_array(b.get("pick_wrongs", []))
 			opts.append({"text": right_name, "correct": true, "ref": ""})
 			var whys: Array = []
