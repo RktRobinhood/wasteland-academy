@@ -22,9 +22,6 @@ func _ready() -> void:
 	var start := get_node_or_null("Center/Column/Buttons/Practice") as Button
 	if start != null:
 		start.pressed.connect(open_practice)
-	var bazaar := get_node_or_null("Center/Column/Buttons/Bazaar") as Button
-	if bazaar != null:
-		bazaar.pressed.connect(open_bazaar)
 	var engine := get_node_or_null("Center/Column/Engine") as Button
 	if engine != null:
 		engine.pressed.connect(open_explorer)
@@ -42,7 +39,7 @@ func _ready() -> void:
 	elif not practice.deep_link().is_empty():
 		open_practice.call_deferred()
 	elif MapLink.address() != "":
-		get_tree().change_scene_to_file.call_deferred(MapLink.MAP)
+		get_tree().change_scene_to_file.call_deferred(MapLink.scene_for(MapLink.parse(MapLink.address())))
 
 
 func open_practice() -> void:

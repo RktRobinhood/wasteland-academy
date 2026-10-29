@@ -7,7 +7,8 @@ extends Control
 ## - The world map is the HTML game's overworld painting with a button over each island.
 ##   The Signal Tower (Functions) is open; the other four are "coming later". The
 ##   Thunderdome opens once a second island does, and the Relic Library (FAL-325) has a
-##   locked spot.
+##   locked spot. Under the painting, as in the HTML game, a button opens the Bazaar (G6,
+##   ui/bazaar.gd) with the Scrap there is to spend.
 ## - The Functions island has the 8 regions in the plan's order, the all-regions dungeon
 ##   and a locked spot for a Relic device. A region with no built type is "coming soon",
 ##   worked out from the engine, so a region lights up when its situations merge.
@@ -26,6 +27,8 @@ const ART_DIR := "res://assets/map/functions/"
 ## Both maps are drawn on a portrait board of this size, scaled to fit under the header.
 const BOARD := Vector2(1080, 1920)
 const HEADER := 190.0
+## The world map's bar under the board, for the Bazaar.
+const FOOTER := 170.0
 const COLUMN := 1000
 const COLUMN_WIDE := 1500
 ## A landmark's box on the island board, in board units.
@@ -61,6 +64,7 @@ var route: Dictionary = {}
 
 var world: Control
 var world_board: Control
+var bazaar_button: Button
 var island: Control
 var island_board: Control
 var region_view: Control
@@ -164,6 +168,7 @@ func _build() -> void:
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	world_board.add_child(art)
 	_header(world, "The Wasteland", "Title", func(): MapLink.home(get_tree()))
+	_footer(world)
 
 	island = _layer("Island")
 	island_board = _board(island)
@@ -233,13 +238,41 @@ func _header(parent: Control, text: String, back_text: String, back: Callable) -
 	_headers.append(m)
 
 
+## The world map's bottom bar: the Bazaar button.
+func _footer(parent: Control) -> void:
+	var m := MarginContainer.new()
+	m.name = "Footer"
+	m.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	m.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	m.custom_minimum_size.y = FOOTER
+	m.add_theme_constant_override("margin_left", 36)
+	m.add_theme_constant_override("margin_right", 36)
+	m.add_theme_constant_override("margin_bottom", 30)
+	parent.add_child(m)
+	bazaar_button = Button.new()
+	bazaar_button.name = "Bazaar"
+	bazaar_button.add_theme_font_size_override("font_size", UiTheme.BIG)
+	bazaar_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	bazaar_button.custom_minimum_size.x = 640
+	bazaar_button.pressed.connect(open_bazaar)
+	m.add_child(bazaar_button)
+
+
+## The Bazaar, as a history entry, so the browser's back button returns to the map.
+func open_bazaar() -> void:
+	go(MapLink.BAZAAR_ROUTE)
+
+
 func _fit() -> void:
 	var area := size
 	var room := Rect2(0, HEADER, area.x, maxf(1.0, area.y - HEADER))
-	var s := minf(room.size.x / BOARD.x, room.size.y / BOARD.y)
-	for b in [world_board, island_board]:
+	var world_room := Rect2(room.position, Vector2(room.size.x, maxf(1.0, room.size.y - FOOTER)))
+	for pair in [[world_board, world_room], [island_board, room]]:
+		var b: Control = pair[0]
+		var r: Rect2 = pair[1]
+		var s := minf(r.size.x / BOARD.x, r.size.y / BOARD.y)
 		b.scale = Vector2(s, s)
-		b.position = room.position + (room.size - BOARD * s) / 2.0
+		b.position = r.position + (r.size - BOARD * s) / 2.0
 	var side := maxf(36.0, (area.x - (COLUMN_WIDE if area.x > area.y else COLUMN)) / 2.0)
 	for m in _headers:
 		m.add_theme_constant_override("margin_left", 36)
@@ -301,6 +334,7 @@ func _fill_world() -> void:
 	var lib := _zone_button(world_board, "RelicLibrary", RELIC_LIBRARY_ZONE)
 	lib.disabled = true
 	_zone_label(lib, "Relic Library", "Locked", UiTheme.DIM)
+	bazaar_button.text = "Bazaar · %d Scrap" % int(save.get("scrap", 0))
 	var first := world_board.get_node("Island_functions") as Button
 	first.grab_focus.call_deferred()
 

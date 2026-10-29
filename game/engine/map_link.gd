@@ -2,7 +2,8 @@ class_name MapLink
 extends RefCounted
 ## Links into the map (Q11 on the FAL-274 plan), so a teacher can post a region to a
 ## class: /next/#functions/quadratics opens that region's screen, /next/#functions the
-## island and /next/#world the world map. Anything else falls back to the world map.
+## island, /next/#world the world map and /next/#bazaar the Bazaar (ui/bazaar.gd), which
+## the world map links. Anything else falls back to the world map.
 ##
 ##   MapLink.parse("#functions/quadratics")  # {"screen": "region", "island": "functions", "region": "quadratics"}
 ##   MapLink.to_hash({"screen": "island", "island": "functions"})  # "#functions"
@@ -13,7 +14,10 @@ extends RefCounted
 
 const MAP := "res://scenes/map.tscn"
 const MAIN := "res://scenes/main.tscn"
+const BAZAAR := "res://scenes/bazaar.tscn"
 const WORLD := {"screen": "world"}
+## The Bazaar is its own scene, but a map link all the same, so back leaves it.
+const BAZAAR_ROUTE := {"screen": "bazaar"}
 ## Islands with a map, by link id -> catalogue topic. The others are "coming later".
 const OPEN_ISLANDS := {"functions": 2}
 ## Each open island's music (audio/music_tracks.gd); "-boss" is its boss loop.
@@ -28,6 +32,8 @@ static var _on_hash = null
 ## The route a link asks for. Case, slashes and spaces around it don't matter.
 static func parse(link: String) -> Dictionary:
 	var s := link.strip_edges().trim_prefix("#").trim_prefix("/").trim_suffix("/").to_lower()
+	if s == "bazaar":
+		return BAZAAR_ROUTE.duplicate()
 	var parts := s.split("/")
 	if parts.size() < 1 or parts.size() > 2 or not OPEN_ISLANDS.has(parts[0]):
 		return WORLD.duplicate()
@@ -44,7 +50,14 @@ static func to_hash(route: Dictionary) -> String:
 			return "#" + String(route.island)
 		"region":
 			return "#%s/%s" % [route.island, route.region]
+		"bazaar":
+			return "#bazaar"
 	return "#world"
+
+
+## The scene a route is shown in: the Bazaar's own, or the map's.
+static func scene_for(route: Dictionary) -> String:
+	return BAZAAR if route.get("screen", "") == "bazaar" else MAP
 
 
 ## The catalogue's region ids, in the plan's order (the catalogue's `order`).
@@ -90,16 +103,26 @@ static func address() -> String:
 
 
 ## Shows a route: records it, writes it to the address bar (a history entry, unless
-## `replace`) and opens the map scene if it isn't already open.
+## `replace`) and opens its scene (scene_for) if it isn't already open.
 static func go(tree: SceneTree, route: Dictionary, replace := false) -> void:
 	current = route.duplicate()
 	listen(tree)
 	_write(route, replace)
-	var scene := tree.current_scene
-	if scene != null and scene.has_method("show_route"):
-		scene.show_route(current)
+	_show(tree, tree.current_scene, current, false)
+
+
+## Shows a route in the scene on screen when that scene draws it, or opens its scene,
+## quitting a run in progress first when `leave`.
+static func _show(tree: SceneTree, scene: Node, route: Dictionary, leave: bool) -> void:
+	var want := scene_for(route)
+	if scene != null and scene.scene_file_path == want and want == BAZAAR:
+		return
+	if want == MAP and scene != null and scene.has_method("show_route"):
+		scene.show_route(route)
 	else:
-		tree.change_scene_to_file(MAP)
+		if leave:
+			_leave(scene)
+		tree.change_scene_to_file(want)
 
 
 static func _write(route: Dictionary, replace: bool) -> void:
@@ -137,14 +160,10 @@ static func _hash_changed(_args: Array) -> void:
 			_tree.change_scene_to_file(MAIN)
 		return
 	var route := parse(h)
-	if route == current and scene != null and scene.scene_file_path == MAP:
+	if route == current and scene != null and scene.scene_file_path == scene_for(route):
 		return
 	current = route
-	if scene != null and scene.has_method("show_route"):
-		scene.show_route(route)
-		return
-	_leave(scene)
-	_tree.change_scene_to_file(MAP)
+	_show(_tree, scene, route, true)
 
 
 static func _leave(scene: Node) -> void:

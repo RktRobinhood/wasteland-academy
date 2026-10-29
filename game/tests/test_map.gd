@@ -2,11 +2,13 @@ extends "res://tests/test_case.gd"
 ## The map (FAL-417): links for every region, the island and junk; coverage, accuracy
 ## and the weakest skills against hand counts on scripted saves; the world map, the
 ## Functions island and the region screen, "coming soon" for a region with nothing
-## built, the music each screen asks for, and the fit on a phone and a PC window.
+## built, the music each screen asks for, the fit on a phone and a PC window, and the
+## world map opening the Bazaar (FAL-416) and leaving it going back there.
 
 const MAP := "res://scenes/map.tscn"
 const FIGHT := "res://scenes/fight.tscn"
 const MAIN := "res://scenes/main.tscn"
+const BAZAAR := "res://scenes/bazaar.tscn"
 const SAVE := "user://test_map_save.json"
 const CATALOGUE := "res://data/catalogue.json"
 
@@ -68,6 +70,16 @@ func test_the_island_and_world_links() -> void:
 	check_eq(MapLink.to_hash({"screen": "island", "island": "functions"}), "#functions")
 	check_eq(MapLink.parse("#world"), {"screen": "world"})
 	check_eq(MapLink.to_hash({"screen": "world"}), "#world")
+	check_eq(MapLink.scene_for({"screen": "world"}), MAP)
+	check_eq(MapLink.scene_for(MapLink.region_route("quadratics")), MAP)
+
+
+func test_the_bazaar_link() -> void:
+	check_eq(MapLink.parse("#bazaar"), MapLink.BAZAAR_ROUTE)
+	check_eq(MapLink.parse("#Bazaar/"), MapLink.BAZAAR_ROUTE, "case and a slash")
+	check_eq(MapLink.to_hash(MapLink.BAZAAR_ROUTE), "#bazaar")
+	check_eq(MapLink.scene_for(MapLink.BAZAAR_ROUTE), BAZAAR, "its own scene")
+	check_eq(MapLink.parse("#functions/bazaar"), {"screen": "world"}, "not a region")
 
 
 func test_junk_falls_back_to_the_world_map() -> void:
@@ -204,7 +216,40 @@ func test_the_world_map() -> void:
 		check_eq((b.get_node("Label/State") as Label).text, "Coming later", id)
 	check((board.get_node("Thunderdome") as Button).disabled, "the Thunderdome waits for a second island")
 	check((board.get_node("RelicLibrary") as Button).disabled, "the Relic Library spot is locked")
+	var shop := m.world.get_node("Footer/Bazaar") as Button
+	check(not shop.disabled and shop.is_visible_in_tree(), "the Bazaar is open")
+	check_eq(shop.text, "Bazaar · 0 Scrap")
+	check(shop.pressed.is_connected(m.open_bazaar), "it opens the Bazaar")
 	check_eq(Audio.location(), "overworld", "the overworld loop")
+	_done(made)
+
+
+func test_the_world_map_opens_the_bazaar_and_leaving_it_goes_back() -> void:
+	var save := SaveData.blank()
+	save.scrap = 1240
+	var made: Array = await _map({"screen": "world"}, save)
+	var m: Control = made[1]
+	var shop := m.world.get_node("Footer/Bazaar") as Button
+	check_eq(shop.text, "Bazaar · 1240 Scrap", "the Scrap to spend")
+	shop.pressed.emit()
+	for i in 3:
+		await tree.process_frame
+	check_eq(MapLink.current, MapLink.BAZAAR_ROUTE, "the route")
+	var bazaar := tree.current_scene
+	check(bazaar != null and bazaar.scene_file_path == BAZAAR, "the Bazaar is on screen")
+	if bazaar != null and bazaar.scene_file_path == BAZAAR:
+		var back := bazaar.find_child("Back", true, false) as Button
+		check_eq(back.text, "World map")
+		back.pressed.emit()
+		for i in 3:
+			await tree.process_frame
+		var map := tree.current_scene
+		check(map != null and map.scene_file_path == MAP, "back on the map")
+		if map != null and map.scene_file_path == MAP:
+			check_eq(map.screen, "world", "on the world map")
+	check_eq(MapLink.current, {"screen": "world"})
+	tree.unload_current_scene()
+	await tree.process_frame
 	_done(made)
 
 
@@ -322,6 +367,7 @@ func test_play_on_the_title_opens_the_map() -> void:
 	tree.root.add_child(main)
 	var play := main.get_node("Center/Column/Buttons/Play") as Button
 	check(play.pressed.is_connected(main.open_map), "Play opens the map")
+	check(main.find_child("Bazaar", true, false) == null, "the Bazaar is on the map, not the title")
 	main.free()
 
 
@@ -351,4 +397,8 @@ func test_every_screen_fits_a_phone_and_a_pc_window() -> void:
 						check(screen.encloses((b as Control).get_global_rect()), "%s: %s outside" % [what, b.name])
 				var head: Control = (m.world if r.screen == "world" else m.island).get_node("Header")
 				check(head.get_global_rect().end.y <= board.get_global_rect().position.y + 1.0, "%s: the header overlaps the board" % what)
+				if r.screen == "world":
+					var shop := m.world.get_node("Footer/Bazaar") as Control
+					check(screen.encloses(shop.get_global_rect()), "%s: the Bazaar button outside" % what)
+					check(shop.get_global_rect().position.y >= board.get_global_rect().end.y - 1.0, "%s: the Bazaar button overlaps the board" % what)
 			_done(made)

@@ -2,13 +2,14 @@ extends Control
 ## The Bazaar screen (G6): spend the Scrap banked from runs. Upgrades are kept for good
 ## and capped, the perk is one slot for the next run, and cosmetics are name-plate
 ## frames and colour tints. The rules are engine/bazaar.gd; this screen only draws them.
-## It is reached from the title screen (the map, G5, links it later) and from a run's
-## summary.
+## It is reached from the world map (ui/map.gd) and from a run's summary, and leaving
+## it goes back to the world map.
 ##
-## Deep links: /next/?bazaar opens it; /next/?bazaar=demo opens it on a sample save
-## with Scrap to spend and a few things bought, and stores nothing (screenshots).
+## Links: /next/#bazaar is its map link (engine/map_link.gd), so the browser's back
+## button leaves it. /next/?bazaar opens it too; /next/?bazaar=demo opens it on a
+## sample save with Scrap to spend and a few things bought, and stores nothing
+## (screenshots).
 
-const MAIN := "res://scenes/main.tscn"
 const MONO := preload("res://assets/fonts/share-tech-mono-latin.woff2")
 const COLUMN := 1000
 const COLUMN_WIDE := 2500
@@ -44,6 +45,11 @@ func _ready() -> void:
 	resized.connect(_fit)
 	_fit()
 	refresh()
+
+
+## Back to the world map.
+func leave() -> void:
+	MapLink.go(get_tree(), MapLink.WORLD)
 
 
 ## A save with Scrap to spend and a few things bought, for screenshots.
@@ -86,9 +92,9 @@ func _build() -> void:
 	head.add_child(spacer)
 	var back := Button.new()
 	back.name = "Back"
-	back.text = "Back"
+	back.text = "World map"
 	back.add_theme_font_size_override("font_size", UiTheme.SMALL)
-	back.pressed.connect(func(): get_tree().change_scene_to_file(MAIN))
+	back.pressed.connect(leave)
 	head.add_child(back)
 	hud_gap = Control.new()
 	hud_gap.name = "HudGap"

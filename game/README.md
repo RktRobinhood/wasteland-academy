@@ -415,7 +415,8 @@ title screen opens it. One scene with three screens:
 - **The world map**: the HTML game's overworld painting (`assets/map/overworld.png`)
   with a button over each island. The Signal Tower (Functions) is open; the other four
   say "Coming later". The Thunderdome stays locked until a second island opens
-  (`MapLink.OPEN_ISLANDS`), and the Relic Library has a locked spot.
+  (`MapLink.OPEN_ISLANDS`), and the Relic Library has a locked spot. A bar under the
+  painting opens the Bazaar (see "The Bazaar") and shows the Scrap there is to spend.
 - **The Functions island**: the 8 regions in the catalogue's `order`, the all-regions
   dungeon and a locked Relic device spot. A region whose types aren't built yet says
   "Coming soon" and can't start a run or Practice. That comes from the engine
@@ -433,7 +434,8 @@ title screen opens it. One scene with three screens:
 **Links and the back button.** On the web the hash is the route. Moving on the map
 sets it, which makes a browser history entry, and a `hashchange` (back, forward, a
 pasted link) sends the game there. Back from a run quits it, so its Scrap is banked.
-An unknown link opens the world map and rewrites the address bar to `#world`. On the
+An unknown link opens the world map and rewrites the address bar to `#world`. `#bazaar`
+is the Bazaar: its own scene, but a map link like the others, so back leaves it. On the
 desktop, `-- --map=functions/quadratics` does the same as the hash.
 
 ### Map art
@@ -459,8 +461,8 @@ the background clear below each spot.
 
 ## The Bazaar
 
-Scrap banked from runs buys things at the Bazaar (G6, Q10). The title screen and a
-run's summary link to it until the map (G5) does. `engine/bazaar.gd` holds the rules and
+Scrap banked from runs buys things at the Bazaar (G6, Q10). The world map's bottom bar
+and a run's summary link to it (`#bazaar`), and its "World map" button goes back there. `engine/bazaar.gd` holds the rules and
 no UI; `ui/bazaar.gd` draws them. Every price, cap and perk value is in the Bazaar
 section of `engine/tuning.gd`.
 
@@ -485,8 +487,8 @@ section of `engine/tuning.gd`.
   `test_bazaar.gd` checks that such a player unlocks something every 2 or 3 runs. Print
   the price table with
   `godot --headless --path game --script res://tools/bazaar_balance.gd`.
-- Deep links: `/next/?bazaar` opens it, `/next/?bazaar=demo` opens it on a sample save
-  and stores nothing (screenshots).
+- Links: `/next/#bazaar` is its map link; `/next/?bazaar` opens it too, and
+  `/next/?bazaar=demo` opens it on a sample save and stores nothing (screenshots).
 
 ## Tests
 
@@ -532,8 +534,8 @@ script error happens while it runs. Run one file with
 - `test_bazaar.gd`: each upgrade stops at its cap, each perk changes exactly its own
   value through the modifiers and is used up after one run, one perk slot, Scrap never
   goes negative and a failed purchase changes nothing, cosmetics, the save and its
-  migration, the 70% player's runs per unlock, the screen, and the plate and perk on
-  the fight screen.
+  migration, the 70% player's runs per unlock, the screen, the plate and perk on the
+  fight screen, and the world map opening the Bazaar and leaving it going back there.
 - `test_fight.gd`: the fight screen plays a miss with its worked solution, a hit, a
   timeout, the lifelines, quit and the summary, the floor select with beaten floors, a
   boss part with the value carried on, and fits at 360x780, 390x844 and 1280x800.

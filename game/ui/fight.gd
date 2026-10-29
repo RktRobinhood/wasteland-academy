@@ -694,7 +694,7 @@ func _show_summary(s: Dictionary) -> void:
 	shop.name = "Bazaar"
 	shop.text = "Spend Scrap at the Bazaar"
 	shop.add_theme_font_size_override("font_size", UiTheme.BIG)
-	shop.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/bazaar.tscn"))
+	shop.pressed.connect(func(): MapLink.go(get_tree(), MapLink.BAZAAR_ROUTE))
 	summary_box.add_child(shop)
 	var back := Button.new()
 	back.name = "Map"
