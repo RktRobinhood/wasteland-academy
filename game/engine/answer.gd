@@ -42,13 +42,15 @@ extends RefCounted
 ##              answers the IB wants exact, such as a whole-number sum (2345 is not 2350)
 ##   show       (optional) how a number is written: "dec" as a decimal when it ends
 ##              (0.35, not 7/20), "money" with two decimal places (2.50), "sf" to 3
-##              significant figures (a value a calculator gives); else a fraction
+##              significant figures (a value a calculator gives); else a fraction.
+##              roots, points2 and line honour it too (the cubic's Paper 2, FAL-419)
 ##   signed     (optional) a measure that may be negative (a decay rate k): wrong options
 ##              may be negative too
 ##
-## Typed numbers go through parse_number(), which accepts whole numbers, decimals and
-## fractions only. Nothing a student types is evaluated as an expression (Godot's
-## Expression reads 2^3 as 1 and can call engine functions).
+## Typed numbers go through parse_number(), which reads them with the calculator's
+## expression engine (engine/expr.gd) and takes any that work out to a fraction of whole
+## numbers. Godot's Expression class is never used on what a student types (it reads
+## 2^3 as 1 and can call engine functions).
 
 const MC_ONLY := ["triple", "claim", "natures"]
 const NATURES := ["local maximum", "local minimum"]
@@ -237,23 +239,26 @@ const RELS := ["<", "≤", ">", "≥"]
 const DIRS := ["rise", "fall"]
 
 
-static func interval_text(v: String, shape: String, lo: Variant, hi: Variant, ends: String) -> String:
+## show "sf" writes the ends to 3 s.f. (a Paper 2 interval whose ends need a calculator).
+static func interval_text(v: String, shape: String, lo: Variant, hi: Variant, ends: String, show: String = "") -> String:
 	var inc := ends == "included"
 	var lt := "≤" if inc else "<"
 	var gt := "≥" if inc else ">"
+	var a := Fmt.sf(lo) if show == "sf" else Fmt.num(lo)
+	var b := Fmt.sf(hi) if show == "sf" else Fmt.num(hi)
 	match shape:
 		"between":
-			return "%s %s %s %s %s" % [Fmt.num(lo), lt, v, lt, Fmt.num(hi)]
+			return "%s %s %s %s %s" % [a, lt, v, lt, b]
 		"outside":
-			return "%s %s %s or %s %s %s" % [v, lt, Fmt.num(lo), v, gt, Fmt.num(hi)]
+			return "%s %s %s or %s %s %s" % [v, lt, a, v, gt, b]
 		"pm_lt":
-			return "%s %s ±%s" % [v, lt, Fmt.num(hi)]
+			return "%s %s ±%s" % [v, lt, b]
 		"pm_gt":
-			return "%s %s ±%s" % [v, gt, Fmt.num(hi)]
+			return "%s %s ±%s" % [v, gt, b]
 		"below":
-			return "%s %s %s" % [v, lt, Fmt.num(hi)]
+			return "%s %s %s" % [v, lt, b]
 		"above":
-			return "%s %s %s" % [v, gt, Fmt.num(lo)]
+			return "%s %s %s" % [v, gt, a]
 	return "?"
 
 
@@ -399,7 +404,7 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return "%s = %s" % [v["var"], Fmt.num(v.h)]
 		"roots":
 			var rs := _sorted([v.r1, v.r2])
-			return "x = %s and x = %s" % [Fmt.num(rs[0]), Fmt.num(rs[1])]
+			return "x = %s and x = %s" % [shown(ans, rs[0]), shown(ans, rs[1])]
 		"point":
 			return Fmt.point(v.x, v.y)
 		"yint":
@@ -437,11 +442,11 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 		"kvals":
 			var rs := _sorted([v.r1, v.r2])
 			var name: String = fx.get("var", "k")
-			return "%s = %s or %s = %s" % [name, Fmt.num(rs[0]), name, Fmt.num(rs[1])]
+			return "%s = %s or %s = %s" % [name, shown(ans, rs[0]), name, shown(ans, rs[1])]
 		"interval":
-			return interval_text(fx.get("var", "k"), v.shape, v.lo, v.hi, v.ends)
+			return interval_text(fx.get("var", "k"), v.shape, v.lo, v.hi, v.ends, ans.get("show", ""))
 		"bound":
-			return "%s %s %s" % [fx.get("var", "k"), v.rel, Fmt.num(v.v)]
+			return "%s %s %s" % [fx.get("var", "k"), v.rel, shown(ans, v.v)]
 		"quad_in":
 			var a: Variant = fx.A if fx.has("A") else v.A
 			return ans.label + Fmt.poly([a, v.B, v.C], fx.get("var", "x")) + fx.get("tail", "")
@@ -460,12 +465,14 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 		"deriv":
 			return (ans.label if ans.label != "" else "f′(x) = ") + Fmt.poly([v.u2, v.u1, v.u0])
 		"line":
+			if ans.get("show", "") == "sf":
+				return "y = " + sf_line(v.m, v.c)
 			return "y = " + Fmt.poly([v.m, v.c])
 		"tangent_read":
 			return "f′(%s) = %s,  f(%s) = %s" % [Fmt.num(fx.x0), Fmt.num(v.m), Fmt.num(fx.x0), Fmt.num(v.y)]
 		"points2":
 			var ps := _pairs(v)
-			return "%s and %s" % [Fmt.point(ps[0][0], ps[0][1]), Fmt.point(ps[1][0], ps[1][1])]
+			return "(%s, %s) and (%s, %s)" % [shown(ans, ps[0][0]), shown(ans, ps[0][1]), shown(ans, ps[1][0]), shown(ans, ps[1][1])]
 		"natures":
 			return "x = %s: %s,  x = %s: %s" % [Fmt.num(fx.p), v.k1, Fmt.num(fx.q), v.k2]
 		"poly":
@@ -520,6 +527,16 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 				return fx.get("name", "y") + " = " + Fmt.lead(nq) + "x"
 			return fx.get("name", "y") + " = x" + (Fmt.sup(nq.n) if nq.is_int() and nq.sign() > 0 else "^(%s)" % nq.text())
 	return "?"
+
+
+## mx + c with both numbers to 3 s.f. (a Paper 2 line): "2.31x − 0.552", "−4.70x".
+static func sf_line(m: Variant, c: Variant) -> String:
+	var mq := Q.of(m)
+	var cq := Q.of(c)
+	var out := Fmt.sf(mq) + "x"
+	if not cq.is_zero():
+		out += (" − " if cq.sign() < 0 else " + ") + Fmt.sf(cq.abs_q())
+	return out
 
 
 ## A poly answer written out: its terms in the order of its powers, each power the
@@ -619,59 +636,45 @@ static func _sorted(qs: Array) -> Array:
 
 # ── Typed numbers ────────────────────────────────────────────
 
-static var _num_re: RegEx
-
-
-## Reads a typed number: 3, −1.5, .5, 3/2, -3/2, 1.5/2, ½, with an optional "x =" or
-## "y =" in front and spaces anywhere. Returns {"ok": true, "q": Q, "decimal": bool}
-## or {"ok": false, "error": "..."}.
+## Reads a typed number with the expression engine (Expr, the calculator's own): 3,
+## −1.5, .5, 3/2, 3/-2, ½, 2(3), 2^-1, with an optional "x =" or "y =" in front and
+## spaces anywhere. The value must be a fraction of whole numbers, so exact marking
+## stays exact: √2 or ln 2 is turned down with a note to work it out. Returns
+## {"ok": true, "q": Q, "decimal": bool} or {"ok": false, "error": "..."}.
 static func parse_number(raw: String) -> Dictionary:
-	if _num_re == null:
-		_num_re = RegEx.create_from_string("^([+-]?)(\\d+(?:\\.\\d*)?|\\.\\d+)(?:/([+-]?)(\\d+(?:\\.\\d*)?|\\.\\d+))?$")
-	if RegEx.create_from_string("\\d\\s+[\\d.]").search(raw) != null:
-		return {"ok": false, "error": "Type a number, like 3, −1.5 or 3/2."}
-	var s := raw.strip_edges().replace(" ", "").replace("−", "-").replace("–", "-").replace("—", "-")
-	s = s.replace("½", "1/2")
+	var s := raw.strip_edges().replace("−", "-").replace("–", "-").replace("—", "-")
+	var bare := s.replace(" ", "")
 	for prefix in ["f(x)=", "y=", "x=", "Y=", "X="]:
-		if s.begins_with(prefix):
-			s = s.substr(prefix.length())
-	if s.begins_with("(") and s.ends_with(")") and s.length() > 2:
-		s = s.substr(1, s.length() - 2)
-	if s == "":
+		if bare.begins_with(prefix):
+			s = s.substr(s.find("=") + 1)
+			break
+	if s.strip_edges() == "":
 		return {"ok": false, "error": "empty"}
-	var m := _num_re.search(s)
-	if m == null:
+	var r := Expr.parse(s)
+	if not r.ok:
+		if r.error == "empty":
+			return r
 		return {"ok": false, "error": "Type a number, like 3, −1.5 or 3/2."}
-	var top := _decimal(m.get_string(2))
-	if top == null:
-		return {"ok": false, "error": "That number has too many digits."}
-	if m.get_string(1) == "-":
-		top = top.neg()
-	var dec := m.get_string(2).contains(".")
-	if m.get_string(4) != "":
-		var bottom := _decimal(m.get_string(4))
-		if bottom == null or bottom.is_zero():
-			return {"ok": false, "error": "The bottom of a fraction can't be 0."}
-		if m.get_string(3) == "-":
-			bottom = bottom.neg()
-		top = top.div(bottom)
-		dec = dec or m.get_string(4).contains(".")
-	return {"ok": true, "q": top, "decimal": dec}
+	var q := Expr.eval_exact(r.tree)
+	if q == null:
+		if is_finite(Expr.eval_float(r.tree)) and not _divides_by_zero(r.tree):
+			return {"ok": false, "error": "Work that out to a number, like 2.35."}
+		return {"ok": false, "error": "That has no value: is something divided by 0?"}
+	return {"ok": true, "q": q, "decimal": r.decimal}
 
 
-static func _decimal(s: String) -> Q:
-	var parts := s.split(".")
-	var whole := parts[0]
-	var frac := parts[1] if parts.size() > 1 else ""
-	var digits := (whole + frac).lstrip("0")
-	if digits.length() > 15:
-		return null
-	var den := 1
-	for i in frac.length():
-		den *= 10
-		if den > 1000000000000000:
-			return null
-	return Q.new((whole + frac).to_int(), den)
+## Whether a tree divides by 0 anywhere (1/0, 3/(2 − 2)).
+static func _divides_by_zero(tree: Variant) -> bool:
+	if not tree is Array:
+		return false
+	if tree[0] == "div":
+		var b := Expr.eval_exact(tree[2])
+		if b != null and b.is_zero():
+			return true
+	for i in range(1, tree.size()):
+		if tree[i] is Array and _divides_by_zero(tree[i]):
+			return true
+	return false
 
 
 ## IB style: right if exact, or if it rounds to the same 3 significant figures as the

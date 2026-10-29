@@ -36,6 +36,19 @@ func has(unknown: String) -> bool:
 	return NEED.has(unknown)
 
 
+## The papers a cell can be asked on (FAL-419). Equal roots (but not on a sketch, which
+## is drawn at a whole-number k), an interval of k and "always positive" have Paper 2
+## versions: Δ is a quadratic in k whose zeros are irrational, so k needs a calculator
+## and is given to 3 s.f. The rest are exact, Paper 1.
+func papers(unknown: String, rep: String, _angle: String) -> Array:
+	match unknown:
+		"k-for-equal-roots":
+			return [1] if rep == "graph" else [1, 2]
+		"k-interval", "always-positive":
+			return [1, 2]
+	return [1]
+
+
 func need(unknown: String, rep: String) -> Dictionary:
 	var n: Dictionary = NEED[unknown].duplicate(true)
 	if n.has("base"):
@@ -78,6 +91,21 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 
 static func N(v: Variant) -> String:
 	return Fmt.num(v)
+
+
+## Paper 2: the critical values of k are irrational, written to 3 s.f.
+static func p2(s: Dictionary) -> bool:
+	return s.get("paper", 1) == 2
+
+
+## A value of k as this paper writes it: exact, or to 3 s.f. on Paper 2.
+static func KN(s: Dictionary, v: Variant) -> String:
+	return Fmt.sf(v) if p2(s) else N(v)
+
+
+## What Paper 2 adds to the question: the answers to 3 s.f.
+static func to_sf(s: Dictionary) -> String:
+	return " Give your answers correct to 3 significant figures." if p2(s) else ""
 
 
 static func wrong(values: Dictionary, ref: String = "") -> Dictionary:
@@ -178,6 +206,10 @@ static func delta_step(s: Dictionary) -> String:
 ## Solving Δ = 0, in one step.
 static func zero_step(s: Dictionary) -> String:
 	var c: Array = s.crit
+	if p2(s):
+		if s.dB.is_zero():
+			return "%s = 0 gives k² = %s, so k = ±√%s; with a GDC, k = %s or k = %s" % [dexpr(s), N(s.dC.neg()), N(s.dC.neg()), Fmt.sf(c[0]), Fmt.sf(c[1])]
+		return "%s = 0 has no whole-number roots; with a GDC (or the formula), k = %s or k = %s" % [dexpr(s), Fmt.sf(c[0]), Fmt.sf(c[1])]
 	if s.dA.is_zero():
 		return "%s = 0 gives k = %s" % [dexpr(s), N(c[0])]
 	if s.dB.is_zero():
@@ -188,7 +220,10 @@ static func zero_step(s: Dictionary) -> String:
 static func crit_answer(s: Dictionary) -> Dictionary:
 	if s.crit.size() == 1:
 		return Answer.make("number", {"v": s.crit[0]}, {}, "k = ")
-	return Answer.make("kvals", {"r1": s.crit[0], "r2": s.crit[1]}, {"var": "k"})
+	var ans := Answer.make("kvals", {"r1": s.crit[0], "r2": s.crit[1]}, {"var": "k"})
+	if p2(s):
+		ans.show = "sf"
+	return ans
 
 
 ## The graph at the critical k: the parabola touching the x-axis, or the curve and the
@@ -399,10 +434,10 @@ func u_k_for_equal_roots(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var one: bool = s.crit.size() == 1
 	var out := {"answer": ans, "given": given_of(s), "lines": shown(s)}
 	var cond := "The line is a tangent to the curve." if line else "The equation f(x) = 0 has equal roots."
-	out.asked = cond + (" Find the value of k." if one else " Find the possible values of k.")
+	out.asked = cond + (" Find the value of k." if one else " Find the possible values of k.") + to_sf(s)
 	if rep == "words" and line:
 		out.lines = ["The line y = %s is a tangent to the curve y = %s." % [line_rhs(s), curve_rhs(s)]]
-		out.asked = "Find the value of k." if one else "Find the possible values of k."
+		out.asked = ("Find the value of k." if one else "Find the possible values of k.") + to_sf(s)
 	if rep == "graph":
 		out.graph = crit_graph(s, "")
 		out.lines = shown(s) + ["The sketch shows the %s." % ("line touching the curve" if line else "graph of y = f(x) touching the x-axis")]
@@ -452,19 +487,22 @@ static func deriv_steps(s: Dictionary, final: String) -> Array:
 			st.append("The point is on both: %s = kx₀%s; with k = 2x₀%s this gives x₀² = %s" % [Fmt.poly([1, s.p, s.r]).replace("x", "x₀"), Fmt.plus(s.n) if not s.n.is_zero() else "", Fmt.plus(s.p) if not s.p.is_zero() else "", N(s.r.sub(s.n))])
 			var x1: Q = s.crit[0].sub(s.p).div(2)
 			var x2: Q = s.crit[1].sub(s.p).div(2)
-			st.append("So x₀ = %s or x₀ = %s, and k = 2x₀%s = %s or %s" % [N(x1), N(x2), Fmt.plus(s.p) if not s.p.is_zero() else "", N(s.crit[0]), N(s.crit[1])])
+			var roots := "x₀ = %s or x₀ = %s" % [N(x1), N(x2)]
+			if p2(s):
+				roots = "x₀ = ±√%s (with a GDC, %s or %s)" % [N(s.r.sub(s.n)), Fmt.sf(x1), Fmt.sf(x2)]
+			st.append("So %s, and k = 2x₀%s = %s or %s" % [roots, Fmt.plus(s.p) if not s.p.is_zero() else "", KN(s, s.crit[0]), KN(s, s.crit[1])])
 		_:
 			st.append("A parabola touches the x-axis at a turning point, where f′(x) = 0 and f(x) = 0.")
 			st.append("f′(x) = %s" % _fprime(s))
 			var parts: PackedStringArray = []
 			for k in s.crit:
 				var x0 := QuadraticParameterSituation.contact_x(s, k)
-				parts.append("k = %s touches at x = %s" % [N(k), N(x0)])
+				parts.append("k = %s touches at x = %s" % [KN(s, k), KN(s, x0)])
 			if s.family == "c":
 				var x0: Q = s.b0.neg().div(s.a0.mul(2))
 				st.append("f′(x) = 0 at x = %s; f(%s) = %s%s + k = 0" % [N(x0), N(x0), N(s.a0.mul(x0.sq())), Fmt.plus(s.b0.mul(x0))])
 			else:
-				st.append("Solving f′(x) = 0 and f(x) = 0 together: " + ", ".join(parts))
+				st.append("Solving f′(x) = 0 and f(x) = 0 together%s: " % (" (with a GDC, to 3 s.f.)" if p2(s) else "") + ", ".join(parts))
 	st.append(final)
 	return st
 
@@ -498,7 +536,10 @@ static func cond_answer(s: Dictionary, cond: String) -> Dictionary:
 		return Answer.make("bound", {"rel": rel, "v": s.crit[0]}, {"var": "k"})
 	var shape := "between" if cond == "none" else "outside"
 	var ends := "included" if cond == "real" else "left out"
-	return Answer.make("interval", {"shape": shape, "lo": s.crit[0], "hi": s.crit[1], "ends": ends}, {"var": "k"})
+	var ans := Answer.make("interval", {"shape": shape, "lo": s.crit[0], "hi": s.crit[1], "ends": ends}, {"var": "k"})
+	if p2(s):
+		ans.show = "sf"
+	return ans
 
 
 static func flip_rel(rel: String) -> String:
@@ -522,7 +563,7 @@ static func interval_methods(s: Dictionary, cond: String, ans: Dictionary, lead:
 	if lin:
 		region = "%s is a straight line in k with gradient %s, so it is positive for k %s %s" % [dexpr(s), N(s.dB), ">" if s.dB.sign() > 0 else "<", N(c[0])]
 	else:
-		region = "Δ is a U-shaped quadratic in k: positive outside %s and %s, negative between them" % [N(c[0]), N(c[1])]
+		region = "Δ is a U-shaped quadratic in k: positive outside %s and %s, negative between them" % [KN(s, c[0]), KN(s, c[1])]
 	var dcm := base.duplicate()
 	dcm.append("%s: %s" % [sym, zero_step(s)])
 	dcm.append(region + ".")
@@ -531,12 +572,15 @@ static func interval_methods(s: Dictionary, cond: String, ans: Dictionary, lead:
 	if lin:
 		sk.append("Sketch Δ against k: a straight line crossing the k-axis at k = %s, with gradient %s." % [N(c[0]), N(s.dB)])
 	else:
-		sk.append("Sketch Δ against k: a U-shaped parabola crossing the k-axis at k = %s and k = %s." % [N(c[0]), N(c[1])])
+		sk.append("Sketch Δ against k: a U-shaped parabola crossing the k-axis at k = %s and k = %s%s." % [KN(s, c[0]), KN(s, c[1]), " (the GDC's zero)" if p2(s) else ""])
 	sk.append("%s is where the sketch is %s the axis%s." % [sym, "above" if cond != "none" else "below", " or on it" if cond == "real" else ""])
 	sk.append(final)
 	var tbl := base.duplicate()
 	if lin:
 		tbl.append("Δ changes sign once, at k = %s: Δ %s 0 for k < %s and Δ %s 0 for k > %s." % [N(c[0]), "<" if s.dB.sign() > 0 else ">", N(c[0]), ">" if s.dB.sign() > 0 else "<", N(c[0])])
+	elif p2(s):
+		tbl.append("With a GDC, Δ = 0 at k = %s and k = %s. Signs: k < %s gives +, %s < k < %s gives −, k > %s gives +." % [
+			Fmt.sf(c[0]), Fmt.sf(c[1]), Fmt.sf(c[0]), Fmt.sf(c[0]), Fmt.sf(c[1]), Fmt.sf(c[1])])
 	else:
 		tbl.append("Δ = (k%s)(k%s). Signs: k < %s gives (−)(−) = +, %s < k < %s gives (+)(−) = −, k > %s gives (+)(+) = +." % [
 			Fmt.plus(c[0].neg()), Fmt.plus(c[1].neg()), N(c[0]), N(c[0]), N(c[1]), N(c[1])])
@@ -546,12 +590,19 @@ static func interval_methods(s: Dictionary, cond: String, ans: Dictionary, lead:
 	var t: Q = c[0].add(1) if lin else c[0].add(c[1]).div(2).add(0)
 	if not lin and not t.is_int():
 		t = c[0].add(1)
+	if p2(s):
+		# A whole number between the two irrational zeros.
+		t = Q.new(roundi((s.crit_f[0] + s.crit_f[1]) / 2.0))
 	var dt := QuadraticParameterSituation.delta_at(s, t)
-	tp.append("Δ = 0 at %s. Test k = %s: Δ = %s, which is %s." % [("k = " + N(c[0])) if lin else "k = %s and k = %s" % [N(c[0]), N(c[1])], N(t), N(dt), "positive" if dt.sign() > 0 else "negative"])
+	tp.append("%sΔ = 0 at %s. Test k = %s: Δ = %s, which is %s." % ["With a GDC, " if p2(s) else "", ("k = " + N(c[0])) if lin else "k = %s and k = %s" % [KN(s, c[0]), KN(s, c[1])], N(t), N(dt), "positive" if dt.sign() > 0 else "negative"])
 	tp.append(final)
 	var gs: Array = lead.duplicate()
-	gs.append("Graph y = %s on the GDC with a slider for k: the number of roots changes at %s." % [kx_text(s), ("k = " + N(c[0])) if lin else "k = %s and k = %s" % [N(c[0]), N(c[1])]])
-	gs.append("The slider can't give exact boundaries, so set Δ = 0: " + delta_step(s) + ", and " + zero_step(s))
+	if p2(s):
+		gs.append("Graph y = %s on the GDC with a slider for k: the number of roots changes near k = %s and k = %s." % [kx_text(s), Fmt.sf(c[0]), Fmt.sf(c[1])])
+		gs.append("For 3 s.f., " + delta_step(s) + "; graph y = %s and use zero: k = %s or k = %s" % [dexpr(s).replace("k", "x"), Fmt.sf(c[0]), Fmt.sf(c[1])])
+	else:
+		gs.append("Graph y = %s on the GDC with a slider for k: the number of roots changes at %s." % [kx_text(s), ("k = " + N(c[0])) if lin else "k = %s and k = %s" % [N(c[0]), N(c[1])]])
+		gs.append("The slider can't give exact boundaries, so set Δ = 0: " + delta_step(s) + ", and " + zero_step(s))
 	gs.append(final)
 	return {"discriminant-condition": {"result": res, "steps": dcm}, "sketch-roots": {"result": res, "steps": sk},
 		"sign-table": {"result": res, "steps": tbl}, "test-point": {"result": res, "steps": tp},
@@ -594,7 +645,7 @@ func u_k_interval(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		lines = ["The line y = %s %s." % [line_rhs(s), said % curve_rhs(s)]]
 	var w := interval_wrongs(ans, cond, true)
 	return {
-		"asked": ("Find the possible values of k." if line else "The equation f(x) = 0 %s. Find the possible values of k." % said),
+		"asked": ("Find the possible values of k." if line else "The equation f(x) = 0 %s. Find the possible values of k." % said) + to_sf(s),
 		"lines": lines, "given": given_of(s).merged({"cond": cond}), "answer": ans,
 		"wrongs": w.wrongs, "generic": w.generic,
 		"methods": interval_methods(s, cond, ans, equate(s)),
@@ -612,6 +663,7 @@ func u_always_positive(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		lines = ["The expression %s is positive for every real value of x." % kx_text(s)]
 		asked = "Find the possible values of k."
+	asked += to_sf(s)
 	var final := "So " + Answer.text(ans) + "."
 	var ms := interval_methods(s, "none", ans, [])
 	var why := "%s > 0 for all x needs a > 0 (here a = %s) and no real roots, so Δ < 0." % [kx_text(s), N(s.a0)]

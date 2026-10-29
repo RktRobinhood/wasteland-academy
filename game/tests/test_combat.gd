@@ -217,7 +217,7 @@ func test_a_glancing_hit() -> void:
 	# A measure to 3 s.f. typed to 2 s.f. Quadratics' answers are all exact, so the
 	# test asks a triangle question in the same fight.
 	r.question = QuestionEngine.make({"type": "t3-sine-cosine-rule", "unknown": "side-cosine-rule", "rep": "words",
-		"angle": "cosine-rule", "format": "value", "seed": 7})
+		"angle": "cosine-rule", "format": "value", "seed": 7, "paper": 2})
 	var v: Q = r.question.answer.values.v
 	var res := r.answer({"v": Fmt.sf(v, 2)})
 	check_eq(res.outcome, "glancing", "%s for %s" % [Fmt.sf(v, 2), Fmt.sf(v)])

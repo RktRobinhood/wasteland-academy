@@ -7,7 +7,16 @@ extends RefCounted
 ##
 ## Representations: "words" (sides named by their ends, as the IB writes them: AB = 9 cm,
 ## angle BAC = 50°) and "diagram" (a labelled drawing, with the asked side or angle
-## marked ?). Every answer is a measure written to 3 s.f. and marked to 3 s.f.
+## marked ?).
+##
+## Paper 2 (FAL-419): every answer is a measure written to 3 s.f. and marked to 3 s.f.,
+## worked with a calculator. Paper 1 (the situation's paper is 1): the angles are 30°,
+## 45°, 60°, 90°, 120° or 135° and every value is exact, so the answer is a whole
+## number (kind number) or m√r (kind surd), marked exactly (`exact`), and the working
+## uses the exact sines and cosines. A wrong option on Paper 1 is offered only where it
+## is exact too: the calculator-only slips (radian mode) and the slips that give an
+## angle no table of exact values has stay on Paper 2. The sine rule's ambiguous angle
+## is Paper 2 only (papers()).
 ##
 ## `given` holds what the student is shown, for the SymPy checker: the givens kind,
 ## sides (letter -> cm), angles (letter -> degrees), area, obtuse, and ask.
@@ -37,8 +46,18 @@ func need(unknown: String, _rep: String) -> Dictionary:
 	return NEED[unknown].duplicate()
 
 
+## The papers a cell can be asked on: every unknown on both, but the sine rule's angle
+## (only one triangle fits) on Paper 2, as no whole sides make its sine exact but a
+## right triangle's.
+func papers(unknown: String, _rep: String, _angle: String) -> Array:
+	return [2] if unknown == "angle-sine-rule" else [1, 2]
+
+
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
-	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
+	var name := "u_" + unknown.replace("-", "_")
+	if int(s.get("paper", 2)) == 1 and has_method(name + "_p1"):
+		name += "_p1"
+	var out: Dictionary = call(name, rep, s, rng)
 	for key in ["lines", "graph", "table", "diagram", "wrongs", "generic"]:
 		if not out.has(key):
 			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
@@ -136,7 +155,7 @@ static func show(rep: String, s: Dictionary, out: Dictionary) -> void:
 	for k in sh.angles:
 		out.given.angles[k] = whole(sh.angles[k])
 	if sh.area != null:
-		out.given.area = whole(sh.area)
+		out.given.area = area_text(sh)
 	if sh.obtuse != null:
 		out.given.obtuse = sh.obtuse
 	var facts: Array = []
@@ -149,15 +168,20 @@ static func show(rep: String, s: Dictionary, out: Dictionary) -> void:
 		tail = " %s is %s." % [cap(angle(s.X)), "obtuse" if sh.obtuse else "acute"]
 	if rep == "words":
 		if sh.area != null:
-			out.lines = ["Triangle ABC has an area of %s cm². In it, %s.%s" % [whole(sh.area), and_list(facts), tail]]
+			out.lines = ["Triangle ABC has an area of %s cm². In it, %s.%s" % [area_text(sh), and_list(facts), tail]]
 		else:
 			out.lines = ["In triangle ABC, %s." % and_list(facts)]
 		return
 	var cap := "The diagram shows triangle ABC (not to scale)."
 	if sh.area != null:
-		cap += " Its area is %s cm².%s" % [whole(sh.area), tail]
+		cap += " Its area is %s cm².%s" % [area_text(sh), tail]
 	out.lines = [cap]
 	out.diagram = diagram(s)
+
+
+## The shown area: a whole number, or m√r on Paper 1 ("6√3").
+static func area_text(sh: Dictionary) -> String:
+	return Answer.surd_text(int(sh.area), int(sh.get("area_root", 1)))
 
 
 static func and_list(items: Array) -> String:
@@ -496,4 +520,345 @@ func u_angle_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var no_half := deg(asin(ratio / 2.0))
 	wrong(out, 180.0 - no_half if obtuse else no_half, "SL3.2.area-sine#2")
 	generic(out, [180.0 - x, deg(acos(ratio)), 90.0 - acute if not obtuse else 90.0 + acute / 2.0])
+	return out
+
+
+# ── Paper 1 (FAL-419) ────────────────────────────────────────
+# Exact values are TriangleSituation's [m, r], m√r.
+
+static func ex(m: Variant, r: int = 1) -> Array:
+	return TriangleSituation.ex(m, r)
+
+
+static func et(a: Array) -> String:
+	return TriangleSituation.ex_text(a)
+
+
+static func sin_t(deg: int) -> String:
+	return et(TriangleSituation.sin_of(deg))
+
+
+static func cos_t(deg: int) -> String:
+	return et(TriangleSituation.cos_of(deg))
+
+
+## A factor in a product or a divisor: anything but a positive whole number in
+## brackets, "(−1/2)", "(√3/2)", "(3√3)".
+static func fac(a: Array) -> String:
+	var t := et(a)
+	return t if (a[0] as Q).sign() > 0 and (a[0] as Q).is_int() and int(a[1]) == 1 else "(%s)" % t
+
+
+## The answer for an exact value: a whole number (kind number) or m√r (kind surd),
+## marked exactly.
+static func exact_answer(label: String, unit: String, e: Array) -> Dictionary:
+	var ans: Dictionary
+	if int(e[1]) == 1:
+		ans = Answer.make("number", {"v": e[0]}, {}, label, unit)
+	else:
+		ans = Answer.make("surd", {"m": e[0], "r": Q.new(int(e[1]))}, {}, label, unit)
+	ans.exact = true
+	return ans
+
+
+## An exact value as the answer's values, or {} where the answer can't show it: m must
+## be a positive whole number, and a whole-number answer takes no surd.
+static func ex_values(ans: Dictionary, e: Array) -> Dictionary:
+	var m: Q = e[0]
+	if not m.is_int() or m.sign() <= 0:
+		return {}
+	if ans.kind == "number":
+		return {"v": m} if int(e[1]) == 1 else {}
+	return {"m": m, "r": Q.new(int(e[1]))}
+
+
+static func ex_wrong(out: Dictionary, e: Array, ref: String = "") -> void:
+	var v := ex_values(out.answer, e)
+	if not v.is_empty():
+		out.wrongs.append({"values": v, "ref": ref})
+
+
+static func ex_generic(out: Dictionary, es: Array) -> void:
+	for e in es:
+		var v := ex_values(out.answer, e)
+		if not v.is_empty():
+			out.generic.append(v)
+
+
+## Spare wrong options near an exact answer, so four are always found without nudging
+## a root: m ± 1 and 2m on the same root, and the other common root.
+static func near(e: Array) -> Array:
+	var m: Q = e[0]
+	var r: int = e[1]
+	var out: Array = [[m.add(1), r], [m.mul(2), r], [m.sub(1), r]]
+	if r != 1:
+		out.append([m, 3 if r == 2 else 2])
+	return out
+
+
+## Nice angles near an exact angle: the other angle with the same sine, the
+## complement, and the angles the sine and cosine tables pair up.
+static func near_angles(x: int) -> Array:
+	var out: Array = []
+	for a in [180 - x, 90 - x if x < 90 else x - 90, 30, 150, 45, 135, 60, 120]:
+		if a > 0 and a != x and not out.has(a):
+			out.append([Q.new(a), 1])
+	return out
+
+
+static func ask_side_p1(letter: String) -> String:
+	return "Find the exact length of %s." % side(letter)
+
+
+static func ask_angle_p1(letter: String) -> String:
+	return "Find the size of %s." % angle(letter)
+
+
+## The angle whose sine is sin_e, from the exact values: "sin 60° = √3/2".
+static func sin_fact(deg: int) -> String:
+	return "sin %d° = %s" % [deg, sin_t(deg)]
+
+
+# ── t3-sine-cosine-rule, Paper 1 ─────────────────────────────
+
+func u_side_cosine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var X: String = s.X
+	var Y: String = s.Y
+	var Z: String = s.Z
+	var y: int = s.shown.sides[lo(Y)]
+	var z: int = s.shown.sides[lo(Z)]
+	var d: int = s.shown.angles[X]
+	var e: Array = s.exact
+	var ans := exact_answer(side(X) + " = ", CM, e)
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	show(rep, s, out)
+	out.asked = ask_side_p1(X)
+	var c := TriangleSituation.cos_of(d)
+	var x2: int = y * y + z * z - (Q.new(2 * y * z).mul(c[0])).n
+	var x: int = (e[0] as Q).n
+	var mid := y * z
+	var cosine := [
+		names([X, Y, Z]),
+		"%s is opposite %s, the angle between the two given sides, so use the cosine rule." % [side(X), angle(X)],
+		"%s² = %s² + %s² − 2%s%s cos %s, and cos %d° = %s" % [lo(X), lo(Y), lo(Z), lo(Y), lo(Z), X, d, cos_t(d)],
+		"%s² = %d² + %d² − 2 × %d × %d × %s = %d + %d %s %d = %d" % [lo(X), y, z, y, z, fac(c), y * y, z * z,
+			"−" if c[0].sign() > 0 else "+", mid, x2],
+		"%s = √%d = %d" % [lo(X), x2, x],
+		"So %s." % Answer.text(ans)]
+	# The perpendicular from Z to the line XY, at F: ZF = y sin X, FY = z − y cos X.
+	var h := TriangleSituation.ex_mul([Q.new(y), 1], TriangleSituation.sin_of(d))
+	var fq := Q.new(z).sub(Q.new(y).mul(c[0]))
+	var ycos := TriangleSituation.ex_mul([Q.new(y), 1], c)
+	var h2: Q = (h[0] as Q).sq().mul(int(h[1]))
+	var perp := [
+		"Drop a perpendicular from %s to the line %s, meeting it at F." % [Z, line(X, Y)],
+		"In the right triangle %sF%s: %sF = %d sin %d° = %d × %s = %s cm." % [X, Z, Z, y, d, y, sin_t(d), et(h)],
+		("F%s = %d − %d cos %d° = %d − %s = %s cm." % [Y, z, y, d, z, fac(ycos), fq.text()]) if fq.sign() >= 0 \
+			else ("F lies beyond %s, so F%s = %d cos %d° − %d = %s − %d = %s cm." % [Y, Y, y, d, z, et(ycos), z, fq.neg().text()]),
+		"In the right triangle %sF%s: %s² = %sF² + F%s² = %s + %s = %d" % [Z, Y, side(X), Z, Y, h2.text(), fq.sq().text(), x2],
+		"%s = √%d = %d" % [side(X), x2, x],
+		"So %s." % Answer.text(ans)]
+	out.methods = {"cosine-rule": {"steps": cosine, "result": ans.values},
+		"drop-perpendicular": {"steps": perp, "result": ans.values}}
+	ex_wrong(out, [Q.new(x2), 1], "SL3.2.cosine-rule-side#1")
+	var flipped: int = y * y + z * z + (Q.new(2 * y * z).mul(c[0])).n
+	ex_generic(out, [[Q.new(y + z - x), 1], [Q.new(y + z), 1], [Q.new(flipped), 1]])
+	ex_generic(out, near(e))
+	return out
+
+
+func u_angle_cosine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var X: String = s.X
+	var Y: String = s.Y
+	var Z: String = s.Z
+	var sx: int = s.shown.sides[lo(X)]
+	var sy: int = s.shown.sides[lo(Y)]
+	var sz: int = s.shown.sides[lo(Z)]
+	var e: Array = s.exact
+	var d: int = (e[0] as Q).n
+	var ans := exact_answer(angle(X) + " = ", DEG, e)
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	show(rep, s, out)
+	out.asked = ask_angle_p1(X)
+	var top := sy * sy + sz * sz - sx * sx
+	var bottom := 2 * sy * sz
+	var c := Q.new(top, bottom)
+	var known := ("cos 60° = 1/2, so cos 120° = cos(180° − 60°) = −1/2, and %s = 120°." % X) if top < 0 \
+		else ("cos 60° = 1/2, so %s = 60°." % X)
+	var obtuse := "The cosine is negative, so the angle is obtuse." if top < 0 else ""
+	var rearranged := [
+		"%s is opposite %s = %d cm, so %s² is the square that is taken away." % [cap(angle(X)), side(X), sx, lo(X)],
+		"cos %s = (%s² + %s² − %s²) / (2%s%s)" % [X, lo(Y), lo(Z), lo(X), lo(Y), lo(Z)],
+		"cos %s = (%d² + %d² − %d²) / (2 × %d × %d) = %s / %d = %s" % [X, sy, sz, sx, sy, sz, Q.new(top).text(), bottom, c.text()]]
+	if obtuse != "":
+		rearranged.append(obtuse)
+	rearranged.append_array([known, "So %s." % Answer.text(ans)])
+	var solve := [
+		"%s is opposite %s = %d cm." % [cap(angle(X)), side(X), sx],
+		"%s² = %s² + %s² − 2%s%s cos %s" % [lo(X), lo(Y), lo(Z), lo(Y), lo(Z), X],
+		"%d² = %d² + %d² − 2 × %d × %d × cos %s" % [sx, sy, sz, sy, sz, X],
+		"%d = %d − %d cos %s" % [sx * sx, sy * sy + sz * sz, bottom, X],
+		"%d cos %s = %s, so cos %s = %s" % [bottom, X, Q.new(top).text(), X, c.text()]]
+	if obtuse != "":
+		solve.append(obtuse)
+	solve.append_array([known, "So %s." % Answer.text(ans)])
+	out.methods = {"rearranged-formula": {"steps": rearranged, "result": ans.values},
+		"substitute-then-solve": {"steps": solve, "result": ans.values}}
+	if top < 0:
+		ex_wrong(out, [Q.new(180 - d), 1], "SL3.2.cosine-rule-angle#1")
+	ex_generic(out, near_angles(d))
+	return out
+
+
+func u_side_sine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var X: String = s.X
+	var Y: String = s.Y
+	var Z: String = s.Z
+	var x: int = s.shown.sides[lo(X)]
+	var dX := roundi(s.angles[X])
+	var dY := roundi(s.angles[Y])
+	var dZ := roundi(s.angles[Z])
+	var e: Array = s.exact
+	var ans := exact_answer(side(Y) + " = ", CM, e)
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	show(rep, s, out)
+	out.asked = ask_side_p1(Y)
+	var first: Array = [names([X, Y])]
+	if s.variant == "sum":
+		first.append("%s is opposite %s, which is not given, so use the angle sum first: %s = 180° − %d° − %d° = %d°." % [
+			side(Y), angle(Y), Y, dX, dZ, dY])
+	var sX := TriangleSituation.sin_of(dX)
+	var sY := TriangleSituation.sin_of(dY)
+	var xe: Array = [Q.new(x), 1]
+	var top_e := TriangleSituation.ex_mul(xe, sY)
+	var top := first.duplicate()
+	top.append_array([
+		"%s / sin %s = %s / sin %s, with %s and %s" % [lo(Y), Y, lo(X), X, sin_fact(dY), sin_fact(dX)],
+		"%s = %s sin %s / sin %s = %d × %s ÷ %s = %s ÷ %s = %s" % [lo(Y), lo(X), Y, X, x, fac(sY), fac(sX), et(top_e), fac(sX), et(e)],
+		"So %s." % Answer.text(ans)])
+	var alt := first.duplicate()
+	alt.append_array([
+		"Drop the altitude from %s to the line %s. Its height h is a side of two right triangles: h = %s sin %s and h = %s sin %s." % [
+			Z, line(X, Y), lo(X), Y, lo(Y), X],
+		"h = %d sin %d° = %d × %s = %s cm" % [x, dY, x, fac(sY), et(top_e)],
+		"%s = h / sin %s = %s ÷ %s = %s" % [lo(Y), X, et(top_e), fac(sX), et(e)],
+		"So %s." % Answer.text(ans)])
+	out.methods = {"sides-on-top": {"steps": top, "result": ans.values}, "drop-altitude": {"steps": alt, "result": ans.values}}
+	if dZ in TriangleSituation.NICE:
+		ex_wrong(out, TriangleSituation.ex_div(TriangleSituation.ex_mul(xe, TriangleSituation.sin_of(dZ)), sX), "SL3.2.sine-rule#0")
+	ex_wrong(out, TriangleSituation.ex_div(TriangleSituation.ex_mul(xe, sX), sY), "SL3.2.sine-rule#1")
+	ex_generic(out, [top_e, TriangleSituation.ex_div(xe, sY), TriangleSituation.ex_mul(xe, sX)])
+	ex_generic(out, near(e))
+	return out
+
+
+# ── t3-triangle-area, Paper 1 ────────────────────────────────
+
+func u_area_from_two_sides_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var X: String = s.X
+	var Y: String = s.Y
+	var Z: String = s.Z
+	var y: int = s.shown.sides[lo(Y)]
+	var z: int = s.shown.sides[lo(Z)]
+	var d: int = s.shown.angles[X]
+	var e: Array = s.exact
+	var ans := exact_answer("Area = ", CM2, e)
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	show(rep, s, out)
+	out.asked = "Find the exact area of triangle ABC."
+	var sX := TriangleSituation.sin_of(d)
+	var half := [
+		"%s is the angle between %s and %s, so use Area = ½%s%s sin %s." % [cap(angle(X)), side(Y), side(Z), lo(Y), lo(Z), X],
+		"%s, so Area = ½ × %d × %d × %s = %s" % [sin_fact(d), y, z, fac(sX), et(e)],
+		"So %s." % Answer.text(ans)]
+	var h := TriangleSituation.ex_mul([Q.new(y), 1], sX)
+	var base := [
+		"Take %s = %d cm as the base. The perpendicular height from %s is h = %d sin %d° = %d × %s = %s cm." % [
+			side(Z), z, Z, y, d, y, fac(sX), et(h)],
+		"Area = ½ × base × height = ½ × %d × %s = %s" % [z, fac(h), et(e)],
+		"So %s." % Answer.text(ans)]
+	out.methods = {"half-ab-sinc": {"steps": half, "result": ans.values}, "base-height": {"steps": base, "result": ans.values}}
+	ex_wrong(out, TriangleSituation.ex_mul(e, [Q.new(2), 1]), "SL3.2.area-sine#2")
+	var cX := TriangleSituation.cos_of(d)
+	var half_yz: Array = [Q.new(y * z, 2), 1]
+	ex_generic(out, [half_yz, TriangleSituation.ex_mul(half_yz, [(cX[0] as Q).abs_q(), cX[1]]),
+		TriangleSituation.ex_mul([Q.new(y * z), 1], [(cX[0] as Q).abs_q(), cX[1]])])
+	ex_generic(out, near(e))
+	return out
+
+
+func u_side_from_area_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var X: String = s.X
+	var Y: String = s.Y
+	var Z: String = s.Z
+	var y: int = s.shown.sides[lo(Y)]
+	var d: int = s.shown.angles[X]
+	var area: int = s.shown.area
+	var e: Array = s.exact
+	var ans := exact_answer(side(Z) + " = ", CM, e)
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	show(rep, s, out)
+	out.asked = ask_side_p1(Z)
+	var sX := TriangleSituation.sin_of(d)
+	var h := TriangleSituation.ex_mul([Q.new(y), 1], sX)
+	var half := [
+		"%s is the angle between %s and %s, so Area = ½ × %s × %s × sin %s." % [cap(angle(X)), side(Y), side(Z), side(Y), side(Z), X],
+		"%d = ½ × %d × %s × %s, as %s" % [area, y, side(Z), fac(sX), sin_fact(d)],
+		"%s = 2 × %d ÷ (%d × %s) = %d ÷ %s = %s" % [side(Z), area, y, fac(sX), 2 * area, fac(h), et(e)],
+		"So %s." % Answer.text(ans)]
+	var base := [
+		"Take %s as the base. The perpendicular height from %s is h = %d sin %d° = %d × %s = %s cm." % [side(Z), Z, y, d, y, fac(sX), et(h)],
+		"%d = ½ × %s × %s" % [area, side(Z), fac(h)],
+		"%s = 2 × %d ÷ %s = %d ÷ %s = %s" % [side(Z), area, fac(h), 2 * area, fac(h), et(e)],
+		"So %s." % Answer.text(ans)]
+	out.methods = {"half-ab-sinc": {"steps": half, "result": ans.values}, "base-height": {"steps": base, "result": ans.values}}
+	ex_wrong(out, TriangleSituation.ex_mul(e, [Q.new(1, 2), 1]), "SL3.2.area-sine#2")
+	ex_generic(out, [[Q.new(2 * area, y), 1], TriangleSituation.ex_mul(e, sX), [Q.new(area, y), 1]])
+	ex_generic(out, near(e))
+	return out
+
+
+func u_angle_from_area_p1(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var X: String = s.X
+	var Y: String = s.Y
+	var Z: String = s.Z
+	var y: int = s.shown.sides[lo(Y)]
+	var z: int = s.shown.sides[lo(Z)]
+	var obtuse: bool = s.shown.obtuse
+	var e: Array = s.exact
+	var d: int = (e[0] as Q).n
+	var acute := 180 - d if obtuse else d
+	var ans := exact_answer(angle(X) + " = ", DEG, e)
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	show(rep, s, out)
+	out.asked = ask_angle_p1(X)
+	var at := area_text(s.shown)
+	var area_e := TriangleSituation.ex(int(s.shown.area), int(s.shown.get("area_root", 1)))
+	var sX := TriangleSituation.sin_of(d)
+	var pick := ("%s is obtuse, so %s = 180° − %d° = %d°." % [cap(angle(X)), X, acute, d]) if obtuse \
+		else ("%s is acute, so %s = %d°." % [cap(angle(X)), X, d])
+	var half := [
+		"%s is the angle between %s and %s, so Area = ½%s%s sin %s." % [cap(angle(X)), side(Y), side(Z), lo(Y), lo(Z), X],
+		"%s = ½ × %d × %d × sin %s" % [at, y, z, X],
+		"sin %s = 2 × %s ÷ (%d × %d) = %s" % [X, fac(area_e), y, z, et(sX)],
+		"%s, so the acute angle is %d°." % [sin_fact(acute), acute],
+		pick,
+		"So %s." % Answer.text(ans)]
+	var h := TriangleSituation.ex_mul([Q.new(y), 1], sX)
+	var base := [
+		"Take %s = %d cm as the base: %s = ½ × %d × h, so the height from %s is h = %s cm." % [side(Z), z, at, z, Z, et(h)],
+		"That height is %s sin %s, so sin %s = h / %s = %s ÷ %d = %s" % [lo(Y), X, X, lo(Y), fac(h), y, et(sX)],
+		"%s, so the acute angle is %d°." % [sin_fact(acute), acute],
+		pick,
+		"So %s." % Answer.text(ans)]
+	var both := [
+		"sin %s = 2 × Area / (%s%s) = 2 × %s ÷ (%d × %d) = %s" % [X, lo(Y), lo(Z), fac(area_e), y, z, et(sX)],
+		"Two angles from 0° to 180° have this sine: %d° and 180° − %d° = %d°. Both give the same area." % [acute, acute, 180 - acute],
+		pick,
+		"So %s." % Answer.text(ans)]
+	out.methods = {"half-ab-sinc": {"steps": half, "result": ans.values}, "base-height": {"steps": base, "result": ans.values},
+		"reverse-two-angles": {"steps": both, "result": ans.values}}
+	if obtuse:
+		ex_wrong(out, [Q.new(acute), 1], "SL3.2.area-sine#1")
+	ex_generic(out, near_angles(d))
 	return out

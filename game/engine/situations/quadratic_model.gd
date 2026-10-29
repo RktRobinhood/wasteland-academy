@@ -12,6 +12,11 @@ extends RefCounted
 ## generate() returns ctx ("ball" or "pen"), a, T, H, h0 and the general form a, b, c
 ## (b and c of a·t² + b·t + c), and for a pen L and wall; with need.land, the landing
 ## time land (a Q to nine decimal places on Paper 2) and the negative root neg.
+##
+## The recipe picks its own paper (a ball is Paper 2 about one time in four or five; a
+## pen and a table are Paper 1). The type has no exam counts, so QuestionEngine only
+## passes need.paper when a view forces one (FAL-419): then Paper 2 is a ball with
+## a = −4.9, and Paper 1 a ball with a = −5 or −4, or a pen.
 
 const TRIES := 2000
 
@@ -20,8 +25,9 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	# The stream's first draw leans low (see quadratic_inequality.gd), so it is spent.
 	rng.int_in(0, 1)
 	var ctx: String = need.get("ctx", "any")
+	var forced := int(need.get("paper", 0))
 	for i in TRIES:
-		var c := ctx if ctx != "any" else ("ball" if rng.chance(0.6) else "pen")
+		var c := ctx if ctx != "any" else ("ball" if forced == 2 or rng.chance(0.6) else "pen")
 		var s := _ball(rng, need) if c == "ball" else _pen(rng, need)
 		if not s.is_empty():
 			s.ctx = c
@@ -34,6 +40,8 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 
 static func _ball(rng: Seeded, need: Dictionary) -> Dictionary:
 	var paper2: bool = need.get("land", false) and rng.chance(0.25) or (not need.get("land", false) and not need.get("table", false) and rng.chance(0.2))
+	if need.has("paper"):
+		paper2 = int(need.paper) == 2 and not need.get("table", false)
 	var a := Q.new(-49, 10) if paper2 else Q.new(rng.pick([-5, -4]))
 	var T: Q
 	if a.eq(-4) and not need.get("table", false) and rng.chance(0.5):

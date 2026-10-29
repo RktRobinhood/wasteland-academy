@@ -40,6 +40,9 @@ export function build() {
     if (t.stats?.marks?.median !== undefined) out.marks = t.stats.marks.median;
     // Section A and B bank parts: a boss (G4) favours the types Section B chains most.
     if (t.stats?.section) out.section = t.stats.section;
+    // How often the IB asked the type on each paper: the game makes Paper 1 and Paper 2
+    // versions in that ratio (FAL-419).
+    if (t.stats?.paper) out.paper = t.stats.paper;
     out.angles = (t.angles || []).map(a => {
       const m = a.skill ? skills.get(a.skill)?.methods.find(x => x.id === a.method) : t.methods?.find(x => x.id === a.method);
       return { ...a, name: m?.name ?? a.method, about: m?.summary ?? '' };

@@ -1,6 +1,6 @@
 extends "res://tests/test_case.gd"
 ## Typed answers (IB style): exact or right to 3 s.f., the forms a student would type,
-## slot inputs for forms, and nothing evaluated as an expression.
+## slot inputs for forms, read by the calculator's expression engine (never Godot's).
 
 
 func _q(text: String) -> Variant:
@@ -17,8 +17,19 @@ func test_parses_what_students_type() -> void:
 
 
 func test_rejects_anything_that_is_not_a_number() -> void:
-	for text in ["2^3", "2**3", "abc", "1/0", "3x", "1+1", "sqrt(4)", "", "OS.execute()", "1e3", "--2", "1/2/3", "3 4"]:
+	for text in ["2**3", "abc", "1/0", "3x", "", "OS.execute()", "1e3", "3 4", "√2", "ln(2)", "π", "x = y"]:
 		check(_q(text) == null, "%s should not parse" % text)
+
+
+## Typed answers go through the calculator's expression engine (FAL-419), so arithmetic
+## that works out to a fraction is read as that fraction.
+func test_reads_arithmetic_with_the_expression_engine() -> void:
+	var cases := {"2^3": "8", "1+1": "2", "sqrt(4)": "2", "--2": "2", "1/2/3": "1/6", "2(3)": "6", "2^-1": "1/2",
+		"-3^2": "-9", "(1/2)^2": "1/4", "3/(1+1)": "3/2"}
+	for text in cases:
+		check_eq(_q(text), cases[text], text)
+	check(Answer.parse_number("1.5").decimal and not Answer.parse_number("3/2").decimal, "decimal flag")
+	check(Answer.parse_number("√2").error.begins_with("Work that out"), "an irrational value is turned down kindly")
 
 
 func test_three_significant_figures() -> void:
@@ -40,7 +51,7 @@ func test_slots_and_unordered_roots() -> void:
 	check(not Answer.mark(ans, {"r1": "1", "r2": "-5"}).correct)
 	var blank := Answer.mark(ans, {"r1": "5", "r2": ""})
 	check(not blank.complete, "a blank slot is not marked")
-	var bad := Answer.mark(ans, {"r1": "5", "r2": "2^3"})
+	var bad := Answer.mark(ans, {"r1": "5", "r2": "two"})
 	check(not bad.complete and bad.errors.has("r2"), "a non-number is not marked")
 
 
