@@ -17,12 +17,16 @@ extends RefCounted
 ##   dungeon    region id (or "all") -> {"best": deepest floor reached, "beaten":
 ##              [floors whose boss fell]}; a run may start on floor 1 or on the floor
 ##              after any beaten one
+##   bazaar     what the Bazaar sold (G6, engine/bazaar.gd): {"max_hp": levels bought,
+##              "lifelines": {"fifty", "hint", "freeze"} -> extra charges bought,
+##              "perk": {} or {"id", "lifeline"} for the next run, "owned": cosmetic
+##              ids, "frame" and "tint" worn ("" for none), "spent": Scrap spent}
 ##
 ## When a wrong answer matches a multiple-choice distractor, the distractor's
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can
 ## use it later.
 
-const VERSION := 3
+const VERSION := 4
 const PATH := "user://save.json"
 const HISTORY := 20
 
@@ -30,7 +34,13 @@ const HISTORY := 20
 static func blank() -> Dictionary:
 	return {"version": VERSION, "settings": {"exam_only": false}, "cells": {}, "probes": {}, "history": [],
 		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
-		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {}}
+		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {},
+		"bazaar": blank_bazaar()}
+
+
+static func blank_bazaar() -> Dictionary:
+	return {"max_hp": 0, "lifelines": {"fifty": 0, "hint": 0, "freeze": 0}, "perk": {}, "owned": [],
+		"frame": "", "tint": "", "spent": 0}
 
 
 ## Brings any older save up to VERSION, one step at a time, then fills in fields a
@@ -75,6 +85,12 @@ static func call_step(v: int, data: Dictionary) -> Dictionary:
 			# Version 2 to 3 (FAL-415): the dungeon record per region. A save from
 			# before floors has beaten no boss, so blank() gives it an empty one.
 			return data.duplicate(true)
+		3:
+			# Version 3 to 4 (FAL-416): the Bazaar. Nothing could be bought before it,
+			# so the record starts blank, and the Scrap banked so far is kept to spend.
+			var out := data.duplicate(true)
+			out["bazaar"] = blank_bazaar()
+			return out
 	return data
 
 

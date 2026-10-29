@@ -72,6 +72,8 @@ jobs:
           'map-island=#functions'
           'map-region=#functions/quadratics'
           'map-coming-soon=#functions/exp-log'
+          'bazaar=?bazaar=demo'
+          'bazaar-link=#bazaar'
       - uses: actions/upload-artifact@v7
         if: always()
         with:

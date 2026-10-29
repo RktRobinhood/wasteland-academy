@@ -1,13 +1,14 @@
 extends Control
 ## The title screen. "Play" opens the map (ui/map.gd), "Practice" opens the practice
 ## screen and "Engine" the engine explorer. On the first load only, ?explore (see
-## explorer.gd) goes to the explorer, a deep link to a run (see fight.gd) or a question
-## (see practice.gd) goes straight there, and a map link such as #functions/quadratics
-## (see engine/map_link.gd) opens the map there.
+## explorer.gd) goes to the explorer, a deep link to the Bazaar (see bazaar.gd), a run
+## (see fight.gd) or a question (see practice.gd) goes straight there, and a map link
+## such as #functions/quadratics (see engine/map_link.gd) opens the map there.
 
 const PRACTICE := "res://scenes/practice.tscn"
 const FIGHT := "res://scenes/fight.tscn"
 const EXPLORER := "res://scenes/explorer.tscn"
+const BAZAAR := "res://scenes/bazaar.tscn"
 
 static var _routed := false
 
@@ -31,12 +32,14 @@ func _ready() -> void:
 	var practice := preload("res://ui/practice.gd")
 	if practice.url_args().has("explore"):
 		open_explorer.call_deferred()
+	elif preload("res://ui/bazaar.gd").deep_link() != "":
+		open_bazaar.call_deferred()
 	elif not preload("res://ui/fight.gd").deep_link().is_empty():
 		open_fight.call_deferred()
 	elif not practice.deep_link().is_empty():
 		open_practice.call_deferred()
 	elif MapLink.address() != "":
-		get_tree().change_scene_to_file.call_deferred(MapLink.MAP)
+		get_tree().change_scene_to_file.call_deferred(MapLink.scene_for(MapLink.parse(MapLink.address())))
 
 
 func open_practice() -> void:
@@ -54,3 +57,7 @@ func open_fight() -> void:
 
 func open_explorer() -> void:
 	get_tree().change_scene_to_file(EXPLORER)
+
+
+func open_bazaar() -> void:
+	get_tree().change_scene_to_file(BAZAAR)
