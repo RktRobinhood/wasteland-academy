@@ -4087,6 +4087,38 @@ def lq_read(q):
     return None, parse(m.group(1))
 
 
+@lru_cache(maxsize=None)
+def lq_facts(gtext, base):
+    """Everything about one f(x) = log_base(g(x)) that doesn't depend on the question:
+    solved once per function (there are only a few dozen), with the clean limits."""
+    gp = sp.sympify(gtext, locals={"x": X})
+    out = {"error": None}
+    a, b_, c = [R(x) for x in sp.Poly(gp, X).all_coeffs()]
+    rts = sorted(sp.solve(gp, X))
+    if a not in LQ_A:
+        out["error"] = f"a = {a} is not a clean downward parabola"
+        return out
+    if len(rts) != 2 or not all(r_.is_integer for r_ in rts):
+        out["error"] = "the roots of g are not whole"
+        return out
+    p, qq = rts
+    h, G = (p + qq) / 2, gp.subs(X, (p + qq) / 2)
+    n = sp.nsimplify(sp.log(G, base))
+    zs = sorted(sp.solve(gp - 1, X), key=lambda z: float(z))
+    if abs(h) > LQ_H_MAX or not h.is_integer:
+        out["error"] = "the axis is out of range"
+    elif not (n.is_integer and int(n) in LQ_N and G / n != base):
+        out["error"] = f"G = {G} is not a clean power of {base}"
+    elif len(zs) != 2 or zs[0].is_rational:
+        out["error"] = "the zeros are not surds"
+    gf = sp.lambdify(X, gp, "math")
+    out.update(a=a, b=b_, c=c, p=p, q=qq, h=h, G=G, n=n, zs=zs,
+               dom=sp.solveset(gp > 0, X, sp.S.Reals),
+               neg=sp.solveset(sp.log(gp, base) < 0, X, sp.Interval.open(p, qq)),
+               fnum=lambda x0: mpmath.log(gf(x0)) / mpmath.log(base))
+    return out
+
+
 def check_log_quadratic(q):
     g, ans, u, rep, L = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
     for t in [q["asked"]] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
@@ -4106,22 +4138,14 @@ def check_log_quadratic(q):
         base, gp = lq_read(q)
         if base is None:
             base = int(g["base"])
-    a, b_, c = [R(x) for x in sp.Poly(gp, X).all_coeffs()]
-    need(a in LQ_A, f"a = {a} is not a clean downward parabola")
-    rts = sorted(sp.solve(gp, X))
-    need(len(rts) == 2 and all(r_.is_integer for r_ in rts), "the roots of g are not whole")
-    p, qq = rts
-    h, G = (p + qq) / 2, gp.subs(X, (p + qq) / 2)
-    need(abs(h) <= LQ_H_MAX and h.is_integer, "the axis is out of range")
-    n = sp.nsimplify(sp.log(G, base))
-    need(n.is_integer and int(n) in LQ_N and G / n != base, f"G = {G} is not a clean power of {base}")
-    zs = sorted(sp.solve(gp - 1, X), key=lambda z: float(z))
-    need(len(zs) == 2 and not zs[0].is_rational, "the zeros are not surds")
+    F = lq_facts(str(gp), base)
+    need(F["error"] is None, F["error"] or "")
+    a, b_, c, p, qq, h, G, n, zs = (F[k] for k in ("a", "b", "c", "p", "q", "h", "G", "n", "zs"))
     f = sp.log(gp, base)
     if q.get("graph") and u != "quadratic-from-features" or (u == "quadratic-from-features" and rep == "graph"):
         gr = q["graph"]
         for x0, y0 in gr["curves"][0][::16]:
-            need(abs(sp.N(f.subs(X, sp.Float(x0, 30))) - y0) <= 1e-6 * max(1, abs(y0)), f"the curve misses ({x0}, {y0})")
+            need(abs(F["fnum"](x0) - y0) <= 1e-6 * max(1, abs(y0)), f"the curve misses ({x0}, {y0})")
         need(sorted(R(sp.nsimplify(v["at"])) for v in gr["vlines"]) == [p, qq], "the asymptotes drawn are not at the roots")
         for pt in gr["points"]:
             need(sp.simplify(f.subs(X, sp.nsimplify(pt["x"])) - sp.nsimplify(pt["y"])) == 0, f"the marked point {pt['label']} is not on f")
@@ -4129,7 +4153,7 @@ def check_log_quadratic(q):
     if u == "argument-roots":
         want = qr_norm(ans, {"r1": str(p), "r2": str(qq)})
     elif u == "domain-from-inequality":
-        want = sp.solveset(gp > 0, X, sp.S.Reals)
+        want = F["dom"]
         wr["SL2.7.inequality#0"] = {sp.Interval.open(p, sp.oo)}
     elif u == "asymptotes":
         say = lambda a_, b2: el_m_text(f"x = {frac_text(a_)} and x = {frac_text(b2)}")
@@ -4166,7 +4190,7 @@ def check_log_quadratic(q):
         need(ans["label"] == f"f(0) = {el_log_name(base)} ", "the form asked is not log_k c")
         want = qr_norm(ans, {"v": str(gp.subs(X, 0))})
     elif u == "sign-of-f":
-        neg = sp.solveset(f < 0, X, sp.Interval.open(p, qq))
+        neg = F["neg"]
         z1, z2 = zs
         need(neg == sp.Union(sp.Interval.open(p, z1), sp.Interval.open(z2, qq)), f"f < 0 on {neg}")
         right = f"{frac_text(p)} < x < {lq_surd(z1)} or {lq_surd(z2)} < x < {frac_text(qq)}"

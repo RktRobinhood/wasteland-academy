@@ -44,8 +44,6 @@ jobs:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
       - run: ./test.sh
-      # The SymPy answer checker: pip installs requirements.txt into .venv first.
-      - run: tools/check-answers
       - run: ./export.sh
       # Boot the export in headless Chromium at phone and PC sizes
       - uses: actions/setup-node@v7
@@ -81,16 +79,35 @@ jobs:
           path: |
             web-shots/
             _scratch/*.log
-            _scratch/check-answers/report.txt
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # The SymPy answer checker, in its own job like the sweep so the godot job keeps its
+  # time: with the Exponentials and logs region (FAL-418) it checks about 70,000
+  # questions, and the godot job had been at 13 of its 15 minutes without it.
+  answers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - run: scripts/ci-install-godot.sh
+      # pip installs requirements.txt into .venv first.
+      - run: tools/check-answers
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: check-answers
+          path: _scratch/check-answers/report.txt
           if-no-files-found: ignore
           retention-days: 14
 
   # The seed sweep: every cell with seeds 51 to 2250, past the checker's 1 to 50.
   # Its own job so the godot job keeps its time. About 14 minutes with the Quadratics
-  # extension types (FAL-459): main's FAL-415 run was cancelled at 15.
+  # extension types (FAL-459): main's FAL-415 run was cancelled at 15. About 22 on main
+  # before the Exponentials and logs region (FAL-418), which adds 355 cells to 506.
   stress:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh

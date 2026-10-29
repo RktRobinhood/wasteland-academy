@@ -421,7 +421,7 @@ extra format it offers (`--per-format`). Every mini-boss and boss chain is expor
 chain: one situation, and each part's `carried` value is the part before's answer. It
 prints a table per type and per cell. SymPy is pinned in
 `requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it
-next to `./test.sh`.
+as its own `answers` job.
 
 ### The seed sweep
 
