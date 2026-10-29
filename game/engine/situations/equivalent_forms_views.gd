@@ -140,7 +140,7 @@ func u_same_or_not(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			refs[opts[1]] = "SL1.7.log-laws#1"
 			check = law
 		"log-pow":
-			law = "n ln a = ln aⁿ, so %s = ln %d² = %s" % [pr.x, m, pr.y]
+			law = "n ln a = ln a^n, so %s = ln %d² = %s" % [pr.x, m, pr.y]
 			opts = ["The same: " + law, "Not the same: %s = ln %d" % [pr.x, 2 * m], "Not the same: %s = (ln %d)²" % [pr.x, m], "The same only to 3 decimal places"]
 			check = "%s ≈ %s and %s ≈ %s" % [pr.x, Fmt.sf(2 * log(m)), pr.y, Fmt.sf(log(m * m))]
 		"log-add":
@@ -181,12 +181,12 @@ const CLAIM := {
 	"add": ["log(a + b) = log a + log b", false, "log(ab) = log a + log b"],
 	"sq": ["(log a)² = 2 log a", false, "log(a²) = 2 log a"],
 	"sub": ["log a − log b = log(a/b)", true, "it is the quotient law"],
-	"pow": ["log(aⁿ) = n log a", true, "it is the power law"],
+	"pow": ["log(a^n) = n log a", true, "it is the power law"],
 	"div": ["log(a/b) = log a / log b", false, "log(a/b) = log a − log b"],
 }
 
 
-## The two sides of a claim at a = m, b = n (n = 2 for aⁿ), each as base-10 logs.
+## The two sides of a claim at a = m, b = n (n = 2 for a^n), each as base-10 logs.
 static func claim_sides(claim: String, m: float, n: float) -> Array:
 	var lg := func(x: float) -> float: return log(x) / log(10.0)
 	match claim:
@@ -216,7 +216,7 @@ func u_log_law_check(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"sub":
 			opts = [right, "False: log a − log b = log(a − b)", "False: log a − log b = log a / log b", "True, but only when a > b"]
 		"pow":
-			opts = [right, "False: log(aⁿ) = (log a)ⁿ", "False: log(aⁿ) = log(na)", "True, but only for whole numbers n"]
+			opts = [right, "False: log(a^n) = (log a)^n", "False: log(a^n) = log(na)", "True, but only for whole numbers n"]
 		_:
 			opts = [right, "True", "False: log(a/b) = log(a − b)", "True, but only when a > b"]
 	var ans := Answer.make("choice", {"v": right}, {"options": opts})
@@ -353,13 +353,13 @@ func u_power_form_first(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	return {"asked": "Write f(x) as a sum of powers of x, then find f′(x).", "lines": [shown], "given": export(s), "answer": ans,
 		"methods": {
 			"index-form": method(["Write each term as a power of x: " + index, "Differentiate each term: %s and %s" % [dterm.call(k1, p1), dterm.call(k2, p2)], final], vals),
-			"reciprocal-rule": method(["1/xⁿ = x⁻ⁿ, so " + index, "Bring each power down and take 1 off it: %s and %s" % [dterm.call(k1, p1), dterm.call(k2, p2)], final], vals),
+			"reciprocal-rule": method(["1/x^n = x^(−n), so " + index, "Bring each power down and take 1 off it: %s and %s" % [dterm.call(k1, p1), dterm.call(k2, p2)], final], vals),
 			"quotient-rule": method([quot.call(s.A.n, 1, s.m.n), quot.call(1, s.B.n, s.n.n), final], vals),
 		},
 		"wrongs": [
-			# 1/(Bxⁿ) written as Bx⁻ⁿ.
+			# 1/(Bx^n) written as Bx^(−n).
 			wrong({"c0": d1, "e0": p1.sub(1), "c1": s.B.mul(p2), "e1": p2.sub(1)}, "SL1.5.zero-negative#2"),
-			# The denominator differentiated: A/xᵐ -> A/(m·xᵐ⁻¹).
+			# The denominator differentiated: A/x^m -> A/(m·x^(m−1)).
 			wrong({"c0": k1.div(s.m), "e0": p1.add(1), "c1": d2, "e1": p2.sub(1)}, "SL5.3.negative-powers#0"),
 			# The new power one up, not one down.
 			wrong({"c0": d1, "e0": p1.add(1), "c1": d2, "e1": p2.sub(1)}, "SL5.3.negative-powers#1"),

@@ -6,7 +6,8 @@ extends Control
 ##
 ## spec is the "graph" Dictionary of a question (quadratic_views.gd graph()). A spec
 ## with "curves" (Plot.spec(), FAL-418) draws those sampled curves instead of the
-## parabola, plus its dashed asymptotes ("hlines", "vlines": {"at", "label"}).
+## parabola, plus its dashed asymptotes ("hlines", "vlines": {"at", "label"}). A spec's
+## "x_name" names the across axis ("t" for a model in time); "x" if it has none.
 
 const PAD := 18.0
 const DOT := 13.0
@@ -99,7 +100,7 @@ func _draw() -> void:
 				p.x += 68
 			if not _near_point(p):
 				_text(font, _n(y), p, UiTheme.DIM, FONT_SIZE - 6, true)
-	_text(font, "x", Vector2(r.end.x - 14, origin.y - 12), UiTheme.DIM, FONT_SIZE, true)
+	_text(font, spec.get("x_name", "x"), Vector2(r.end.x - 14, origin.y - 12), UiTheme.DIM, FONT_SIZE, true)
 	_text(font, "y", Vector2(origin.x + 22, r.position.y + 26), UiTheme.DIM, FONT_SIZE, true)
 	# Axis of symmetry.
 	if spec.get("axis") != null:
@@ -165,7 +166,11 @@ func _draw_curves(font: Font) -> void:
 			draw_line(to_px(Vector2(x, y)), to_px(Vector2(minf(x + dash * 0.5, x1), y)), UiTheme.SAND, 4.0)
 			x += dash
 		if hl.get("label", "") != "":
-			_text(font, hl.label, to_px(Vector2(x1, y)) + Vector2(-190, -14), UiTheme.SAND, FONT_SIZE - 4, false, true)
+			# Above the line, or below it where the curve runs through that space (FAL-499).
+			var at := to_px(Vector2(x1, y)) + Vector2(-190, -14)
+			if _crosses_label(font, hl.label, at, FONT_SIZE - 4):
+				at.y += FONT_SIZE + 24
+			_text(font, hl.label, at, UiTheme.SAND, FONT_SIZE - 4, false, true)
 	for vl in spec.get("vlines", []):
 		var x := float(vl.at)
 		var y := y0
@@ -225,6 +230,17 @@ func _text(font: Font, s: String, at: Vector2, col: Color, fs: int, centred: boo
 
 
 ## Whether a tick label at p would sit on a marked point or its curve label.
+## Whether a curve passes under the backed label _text would draw at `at`.
+func _crosses_label(font: Font, s: String, at: Vector2, fs: int) -> bool:
+	var w := font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	var box := Rect2(at + Vector2(-6, -fs + 2), Vector2(w + 12, fs + 10)).grow(4.0)
+	for c in spec.curves:
+		for p in c:
+			if box.has_point(to_px(Vector2(p[0], p[1]))):
+				return true
+	return false
+
+
 func _near_point(p: Vector2) -> bool:
 	for m in spec.points:
 		if to_px(Vector2(m.x, m.y)).distance_to(p) < 44.0:

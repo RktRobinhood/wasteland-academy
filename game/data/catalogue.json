@@ -180,12 +180,12 @@
 				{
 					"name": "wrapper",
 					"is": "what the quadratic stands for",
-					"pick": "plain; context (lengths, a sector, probabilities that sum to 1); u = bˣ; x + c/x; a sum of logs"
+					"pick": "plain; context (lengths, a sector, probabilities that sum to 1); u = b^x; x + c/x; a sum of logs"
 				},
 				{
 					"name": "u-roots",
 					"is": "the roots of the quadratic in u",
-					"pick": "integers, one of them ≤ 0 when u = bˣ so it must be rejected"
+					"pick": "integers, one of them ≤ 0 when u = b^x so it must be rejected"
 				},
 				{
 					"name": "x-roots",
@@ -195,7 +195,7 @@
 				{
 					"name": "invalid root",
 					"is": "the root the wrapper rules out",
-					"pick": "exactly one: a negative length, a probability outside [0, 1], bˣ ≤ 0 or a log of a non-positive number"
+					"pick": "exactly one: a negative length, a probability outside [0, 1], b^x ≤ 0 or a log of a non-positive number"
 				}
 			],
 			"clean": [
@@ -368,7 +368,7 @@
 				{
 					"name": "form",
 					"is": "how the model is written",
-					"pick": "P₀·aᵗ (a growth factor such as 1.04 or 0.85); A·e^(kt); C + A·e^(−kt) (cooling, limited growth); P₀·a^(t − t₀) when time is counted from a start year"
+					"pick": "P₀·a^t (a growth factor such as 1.04 or 0.85); A·e^(kt); C + A·e^(−kt) (cooling, limited growth); P₀·a^(t − t₀) when time is counted from a start year"
 				},
 				{
 					"name": "P₀",
@@ -422,7 +422,7 @@
 				}
 			],
 			"modes": [
-				"growth factor form P₀·aᵗ (percent per unit time)",
+				"growth factor form P₀·a^t (percent per unit time)",
 				"continuous form A·e^(kt) with k from a half-life or a data point",
 				"limited form C + A·e^(−kt), with the long-run value C",
 				"base-10 log model (a scale such as loudness or acidity): L = m·log₁₀(x/x₀), solved by turning it back into a power"
@@ -456,7 +456,7 @@
 				{
 					"name": "overtaking time",
 					"is": "when the exponential passes the linear model for good",
-					"pick": "the first whole step where P₀·aⁿ > P₀ + d·n"
+					"pick": "the first whole step where P₀·a^n > P₀ + d·n"
 				},
 				{
 					"name": "table",
@@ -598,7 +598,7 @@
 				{
 					"name": "k",
 					"is": "the base of the log",
-					"pick": "such that G = kⁿ for a small whole n"
+					"pick": "such that G = k^n for a small whole n"
 				},
 				{
 					"name": "maximum",
@@ -618,7 +618,7 @@
 			],
 			"clean": [
 				"roots p and q are integers with q − p even",
-				"G = kⁿ with n = 1, 2 or 3",
+				"G = k^n with n = 1, 2 or 3",
 				"G/n differs from the true base, so a divided answer is wrong",
 				"the zeros are h ± √d with d small and not a square"
 			]
@@ -891,7 +891,7 @@
 				{
 					"name": "equation",
 					"is": "the function",
-					"pick": "linear, quadratic (any form), exponential growth or decay a·bˣ + c, logarithmic, or reciprocal a/(x − h) + k"
+					"pick": "linear, quadratic (any form), exponential growth or decay a·b^x + c, logarithmic, or reciprocal a/(x − h) + k"
 				},
 				{
 					"name": "facts",
@@ -1638,7 +1638,7 @@
 				{
 					"name": "f",
 					"is": "the base function",
-					"pick": "x², x³, √x, 1/x, eˣ, ln x or log₂ x, sin x, or a graph through labelled grid points"
+					"pick": "x², x³, √x, 1/x, e^x, ln x or log₂ x, sin x, or a graph through labelled grid points"
 				},
 				{
 					"name": "moves",
@@ -1973,7 +1973,7 @@
 				{
 					"name": "parent",
 					"is": "the graph that is moved",
-					"pick": "x², 1/x, eˣ, sin x or x³"
+					"pick": "x², 1/x, e^x, sin x or x³"
 				},
 				{
 					"name": "moved feature",
@@ -2019,7 +2019,7 @@
 				{
 					"name": "graph",
 					"is": "y = f(x) and its image y = f(x − a) + b",
-					"pick": "parent x², 1/x, eˣ or a line"
+					"pick": "parent x², 1/x, e^x or a line"
 				},
 				{
 					"name": "point and image",
@@ -2140,7 +2140,7 @@
 				{
 					"name": "threshold",
 					"is": "a target T",
-					"pick": "chosen so the first whole period past it is clear, e.g. 400 × 0.8ⁿ < 100 first at n = 7"
+					"pick": "chosen so the first whole period past it is clear, e.g. 400 × 0.8^n < 100 first at n = 7"
 				},
 				{
 					"name": "series",
@@ -2161,7 +2161,7 @@
 				{
 					"name": "process",
 					"is": "what is done",
-					"pick": "eˣ, 2ˣ, x² (x ≥ 0), cos x, d/dx, a normal probability P(X < x)"
+					"pick": "e^x, 2^x, x² (x ≥ 0), cos x, d/dx, a normal probability P(X < x)"
 				},
 				{
 					"name": "undo",
@@ -2171,7 +2171,7 @@
 				{
 					"name": "point pair",
 					"is": "(a, b) on the process and (b, a) on the undo",
-					"pick": "e.g. (2, e²) on y = eˣ and (e², 2) on y = ln x"
+					"pick": "e.g. (2, e²) on y = e^x and (e², 2) on y = ln x"
 				},
 				{
 					"name": "restriction",
@@ -2260,7 +2260,7 @@
 				},
 				{
 					"name": "power form",
-					"is": "a/xⁿ written as ax⁻ⁿ",
+					"is": "a/x^n written as ax^(−n)",
 					"pick": "n = 1, 2 or 3; fractions such as 1/(4x³) = (1/4)x⁻³"
 				},
 				{
@@ -2316,12 +2316,12 @@
 				{
 					"name": "pair",
 					"is": "f and g",
-					"pick": "solvable by algebra (eˣ = 20, x² = 2x + 3), or not (eˣ = 4 − x)"
+					"pick": "solvable by algebra (e^x = 20, x² = 2x + 3), or not (e^x = 4 − x)"
 				},
 				{
 					"name": "meeting points",
 					"is": "the solutions",
-					"pick": "exact when algebra works; to 3 s.f. otherwise, e.g. eˣ = 4 − x at x ≈ 1.07"
+					"pick": "exact when algebra works; to 3 s.f. otherwise, e.g. e^x = 4 − x at x ≈ 1.07"
 				},
 				{
 					"name": "count",
@@ -2641,7 +2641,7 @@
 		"SL4.7.find-k": "Use ΣP(X = x) = 1 to find an unknown probability or constant",
 		"SL4.7.build-distribution": "Construct a probability distribution from a context",
 		"SL4.7.table-probabilities": "Find probabilities such as P(X ≥ a) from a distribution",
-		"SL5.3.power-rule": "Differentiate axⁿ and sums of such terms",
+		"SL5.3.power-rule": "Differentiate ax^n and sums of such terms",
 		"SL5.3.negative-powers": "Rewrite reciprocals and fractions as powers of x, then differentiate",
 		"SL5.3.gradient-at-point": "Find the gradient of a curve at a given point",
 		"SL5.3.point-with-given-gradient": "Find the point(s) where a curve has a given gradient",
@@ -2677,7 +2677,7 @@
 		"SL1.4.future-value": "Find the future value of a compound interest investment",
 		"SL1.8.convergence": "Decide whether a geometric series converges and find the condition for convergence",
 		"SL4.9.inverse-normal": "Find a value of X from a given probability (inverse normal)",
-		"SL5.5.antidiff-power": "Anti-differentiate sums of axⁿ (n ∈ ℤ, n ≠ −1)",
+		"SL5.5.antidiff-power": "Anti-differentiate sums of ax^n (n ∈ ℤ, n ≠ −1)",
 		"SL3.8.solve-basic": "Solve sin x = k, cos x = k or tan x = k in a finite interval",
 		"SL4.9.symmetry-probability": "Find normal probabilities from given ones using symmetry, without a calculator",
 		"SL3.5.related-angles": "Find exact values for any multiple of π/6, π/4 or π/3, including negative and reflex angles",
@@ -5166,7 +5166,7 @@
 				{
 					"id": "range-exponential",
 					"given": [
-						"an exponential such as eˣ + 2"
+						"an exponential such as e^x + 2"
 					],
 					"asked": "its range",
 					"level": 1,
@@ -5462,7 +5462,7 @@
 						"range-exponential",
 						"range-rational"
 					],
-					"wrong": "y ≥ 2 for eˣ + 2, or the asymptote value left in the range"
+					"wrong": "y ≥ 2 for e^x + 2, or the asymptote value left in the range"
 				},
 				{
 					"ref": "SL2.2.range#2",
@@ -5802,7 +5802,7 @@
 						"unknowns": [
 							"sketch-on-domain"
 						],
-						"why": "a mixed equation such as eˣ = 3x + 2 has no algebraic solution, so the zeros cannot be found by hand"
+						"why": "a mixed equation such as e^x = 3x + 2 has no algebraic solution, so the zeros cannot be found by hand"
 					},
 					"name": "Find key features by hand, then join",
 					"about": "Calculate intercepts, turning points and asymptotes algebraically and draw the shape between them."
@@ -7321,14 +7321,14 @@
 				},
 				{
 					"kind": "interpret-parameter",
-					"prompt": "y = eˣ and y = 4 − x meet at x ≈ 1.0737. A student rounds x to 1.07 and works out y = e^1.07. Why is y wrong to 3 s.f., and how do you avoid it?",
+					"prompt": "y = e^x and y = 4 − x meet at x ≈ 1.0737. A student rounds x to 1.07 and works out y = e^1.07. Why is y wrong to 3 s.f., and how do you avoid it?",
 					"answer": "The curves are steep there, so a small error in x moves y: e^1.07 ≈ 2.92, but the true y is 4 − 1.0737… ≈ 2.93. Keep the unrounded x stored (or read y straight from the intersect tool) and round only at the end.",
 					"level": 4
 				},
 				{
 					"kind": "predict-check",
-					"prompt": "Predict how many times y = 2ˣ and y = x² meet. Then check with the GDC.",
-					"answer": "Three. They meet at x = 2 and at x = 4 (2⁴ = 16 = 4²), and once for a negative x, near −0.767, where x² is growing to the left and 2ˣ is shrinking. A window with y only up to 10 hides the crossing at (4, 16).",
+					"prompt": "Predict how many times y = 2^x and y = x² meet. Then check with the GDC.",
+					"answer": "Three. They meet at x = 2 and at x = 4 (2⁴ = 16 = 4²), and once for a negative x, near −0.767, where x² is growing to the left and 2^x is shrinking. A window with y only up to 10 hides the crossing at (4, 16).",
 					"level": 4
 				}
 			],
@@ -7389,7 +7389,7 @@
 					"in": [
 						"solve-f-equals-g"
 					],
-					"wrong": "for eˣ = x + 3, writes x = ln x + ln 3 and tries to solve that"
+					"wrong": "for e^x = x + 3, writes x = ln x + ln 3 and tries to solve that"
 				}
 			],
 			"chain": [
@@ -8140,7 +8140,7 @@
 				},
 				{
 					"kind": "true-false-reason",
-					"prompt": "Taking ln of both sides of eˣ = x + 3 gives x = ln x + ln 3.",
+					"prompt": "Taking ln of both sides of e^x = x + 3 gives x = ln x + ln 3.",
 					"answer": "False. ln(x + 3) is not ln x + ln 3 (that is ln 3x). The correct step gives x = ln(x + 3), which still cannot be solved by hand. The GDC gives x ≈ −2.95 and x ≈ 1.51.",
 					"level": 3
 				},
@@ -9498,7 +9498,7 @@
 				{
 					"id": "transformations-between",
 					"given": [
-						"two exponentials such as 3^(x + 2) and 9ˣ"
+						"two exponentials such as 3^(x + 2) and 9^x"
 					],
 					"asked": "the transformations that map one graph onto the other",
 					"level": 3,
@@ -9514,7 +9514,7 @@
 				{
 					"id": "write-log-form",
 					"given": [
-						"a power statement bʸ = x"
+						"a power statement b^y = x"
 					],
 					"asked": "the same statement as a log",
 					"level": 1,
@@ -9860,7 +9860,7 @@
 				},
 				{
 					"kind": "always-sometimes-never",
-					"prompt": "If f(x) = eˣ and g(x) = ln x, then f(g(x)) = g(f(x)).",
+					"prompt": "If f(x) = e^x and g(x) = ln x, then f(g(x)) = g(f(x)).",
 					"answer": "Sometimes. Both simplify to x, but f(g(x)) only exists for x > 0, while g(f(x)) = x for every x. They agree only for x > 0.",
 					"level": 4
 				},
@@ -9879,7 +9879,7 @@
 					"in": [
 						"inverse-of-exponential"
 					],
-					"wrong": "1/bˣ (that is, b^(−x)) given as the inverse"
+					"wrong": "1/b^x (that is, b^(−x)) given as the inverse"
 				},
 				{
 					"ref": "SL2.5.find-inverse#1",
@@ -9916,7 +9916,7 @@
 						"solve-log-equation",
 						"evaluate-inverse"
 					],
-					"wrong": "for log_b x = n, gives nᵇ instead of bⁿ"
+					"wrong": "for log_b x = n, gives n^b instead of b^n"
 				},
 				{
 					"ref": "SL2.9.exp-log-inverse#2",
@@ -9971,7 +9971,7 @@
 					"in": [
 						"simplify-composite"
 					],
-					"wrong": "for f(x) = 4ˣ + x and g(x) = log₂ x, writes x² + x: only the first x replaced by g(x)"
+					"wrong": "for f(x) = 4^x + x and g(x) = log₂ x, writes x² + x: only the first x replaced by g(x)"
 				},
 				{
 					"ref": "SL2.5.composite-expression#2",
@@ -10016,7 +10016,7 @@
 					"in": [
 						"solve-exp-equation"
 					],
-					"wrong": "for 2ˣ + 3 = 11, writes x ln 2 + ln 3 = ln 11: ln applied term by term"
+					"wrong": "for 2^x + 3 = 11, writes x ln 2 + ln 3 = ln 11: ln applied term by term"
 				},
 				{
 					"ref": "SL2.11.describe#0",
@@ -10025,7 +10025,7 @@
 					"in": [
 						"transformations-between"
 					],
-					"wrong": "for 3^(x + 2) → 3ˣ, says \"translate 2 to the left\", or gives the vector (−2, 0), when it moves right"
+					"wrong": "for 3^(x + 2) → 3^x, says \"translate 2 to the left\", or gives the vector (−2, 0), when it moves right"
 				},
 				{
 					"ref": "SL2.11.describe#1",
@@ -11286,7 +11286,7 @@
 				{
 					"id": "solve-hidden-exponential",
 					"given": [
-						"b²ˣ + p·bˣ + q = 0"
+						"b^(2x) + p·b^x + q = 0"
 					],
 					"asked": "x, rejecting the impossible root",
 					"level": 3,
@@ -11301,7 +11301,7 @@
 				{
 					"id": "choose-substitution",
 					"given": [
-						"an exponential equation with b²ˣ and bˣ"
+						"an exponential equation with b^(2x) and b^x"
 					],
 					"asked": "the substitution and the quadratic it gives",
 					"level": 2,
@@ -11503,8 +11503,8 @@
 				},
 				{
 					"kind": "predict-check",
-					"prompt": "Before solving e²ˣ − eˣ − 6 = 0, predict how many solutions it has. Then solve.",
-					"answer": "One. With u = eˣ, u² − u − 6 = 0 gives u = 3 or u = −2, and eˣ = −2 is impossible, so x = ln 3 only.",
+					"prompt": "Before solving e^(2x) − e^x − 6 = 0, predict how many solutions it has. Then solve.",
+					"answer": "One. With u = e^x, u² − u − 6 = 0 gives u = 3 or u = −2, and e^x = −2 is impossible, so x = ln 3 only.",
 					"level": 3
 				}
 			],
@@ -11555,7 +11555,7 @@
 						"solve-hidden-exponential",
 						"solve-hidden-log"
 					],
-					"wrong": "keeps the root from bˣ = negative, or the root that makes a log argument negative"
+					"wrong": "keeps the root from b^x = negative, or the root that makes a log argument negative"
 				},
 				{
 					"ref": "SL2.7.hidden-quadratic#2",
@@ -11564,7 +11564,7 @@
 					"in": [
 						"choose-substitution"
 					],
-					"wrong": "rewrites 4ˣ as 2·2ˣ, so the \"quadratic\" is linear"
+					"wrong": "rewrites 4^x as 2·2^x, so the \"quadratic\" is linear"
 				}
 			],
 			"chain": [
@@ -14503,7 +14503,7 @@
 				{
 					"id": "interpret-factor",
 					"given": [
-						"a model P₀·aᵗ"
+						"a model P₀·a^t"
 					],
 					"asked": "what a means, as a percentage change per unit time",
 					"level": 1,
@@ -14649,7 +14649,7 @@
 					"given": [
 						"a start value and a percentage change per unit time, in words"
 					],
-					"asked": "the model P₀·aᵗ",
+					"asked": "the model P₀·a^t",
 					"level": 1,
 					"exam": false,
 					"reps": [
@@ -14963,7 +14963,7 @@
 				},
 				{
 					"kind": "interpret-parameter",
-					"prompt": "In V = 800(0.85)ᵗ, what do 800 and 0.85 mean?",
+					"prompt": "In V = 800(0.85)^t, what do 800 and 0.85 mean?",
 					"answer": "V is 800 at t = 0. Each unit of time V is multiplied by 0.85, so it keeps 85% and loses 15% of its value.",
 					"level": 3
 				}
@@ -14977,7 +14977,7 @@
 						"factor-from-percent",
 						"interpret-factor"
 					],
-					"wrong": "P₀·(0.04)ᵗ for 4% growth, or 1.04 read as a 104% rise"
+					"wrong": "P₀·(0.04)^t for 4% growth, or 1.04 read as a 104% rise"
 				},
 				{
 					"ref": "SL2.9.exp-model#1",
@@ -15255,7 +15255,7 @@
 				{
 					"id": "reflect-exponential",
 					"given": [
-						"the graph of bˣ"
+						"the graph of b^x"
 					],
 					"asked": "the graph of log_b x, with its key points and asymptote",
 					"level": 2,
@@ -15650,7 +15650,7 @@
 					"id": "describe-log-rewrite",
 					"given": [
 						"log_b x",
-						"a log such as log_b(bⁿx) or log_b(xⁿ)"
+						"a log such as log_b(b^nx) or log_b(x^n)"
 					],
 					"asked": "the rewritten form, and the translation or stretch it shows",
 					"level": 3,
@@ -21431,7 +21431,7 @@
 			"kind": "skill",
 			"region": "exp-log",
 			"name": "Sketch and describe exponential graphs",
-			"summary": "Intercept, asymptote, range, growth or decay, and the moves that turn eˣ or bˣ into A·b^(x − h) + c.",
+			"summary": "Intercept, asymptote, range, growth or decay, and the moves that turn e^x or b^x into A·b^(x − h) + c.",
 			"situation": "exp-log-pair",
 			"level": [
 				1,
@@ -21462,7 +21462,7 @@
 				{
 					"rep": "words",
 					"exam": false,
-					"how": "a list of moves in words: \"eˣ moved 1 right and 2 up\""
+					"how": "a list of moves in words: \"e^x moved 1 right and 2 up\""
 				}
 			],
 			"unknowns": [
@@ -21552,7 +21552,7 @@
 					"given": [
 						"A·b^(x − h) + c"
 					],
-					"asked": "the moves from bˣ, and where (0, 1) and y = 0 go",
+					"asked": "the moves from b^x, and where (0, 1) and y = 0 go",
 					"level": 2,
 					"exam": false,
 					"reps": [
@@ -21584,7 +21584,7 @@
 				{
 					"id": "compare-reflections",
 					"given": [
-						"bˣ and (1/b)ˣ on the same axes"
+						"b^x and (1/b)^x on the same axes"
 					],
 					"asked": "how the two graphs are related",
 					"level": 2,
@@ -21679,14 +21679,14 @@
 			"concepts": [
 				{
 					"kind": "true-false-reason",
-					"prompt": "y = 2^(−x) and y = (1/2)ˣ are the same graph.",
-					"answer": "True. 2^(−x) = 1/2ˣ = (1/2)ˣ. Both are 2ˣ reflected in the y-axis.",
+					"prompt": "y = 2^(−x) and y = (1/2)^x are the same graph.",
+					"answer": "True. 2^(−x) = 1/2^x = (1/2)^x. Both are 2^x reflected in the y-axis.",
 					"level": 3
 				},
 				{
 					"kind": "always-sometimes-never",
-					"prompt": "The graph of y = A·bˣ + c crosses its asymptote y = c.",
-					"answer": "Never, when A ≠ 0. A·bˣ is never 0, so y never equals c; it only gets closer and closer.",
+					"prompt": "The graph of y = A·b^x + c crosses its asymptote y = c.",
+					"answer": "Never, when A ≠ 0. A·b^x is never 0, so y never equals c; it only gets closer and closer.",
 					"level": 3
 				}
 			],
@@ -21707,7 +21707,7 @@
 					"in": [
 						"asymptote"
 					],
-					"wrong": "y = 0 for eˣ + c"
+					"wrong": "y = 0 for e^x + c"
 				},
 				{
 					"ref": "SL2.9.exp-graph#2",
@@ -21931,7 +21931,7 @@
 						"unknowns": [
 							"when-overtakes"
 						],
-						"why": "P₀·aⁿ = P₀ + dn mixes a power and a linear term, so logs cannot isolate n; use a table"
+						"why": "P₀·a^n = P₀ + dn mixes a power and a linear term, so logs cannot isolate n; use a table"
 					},
 					"name": "Use logs to find an unknown exponent or rate",
 					"about": "Isolate the exponential, take ln of both sides and solve for t or k."
@@ -21968,7 +21968,7 @@
 					"in": [
 						"classify-words"
 					],
-					"wrong": "P₀(0.08)ᵗ for \"rises by 8% each step\""
+					"wrong": "P₀(0.08)^t for \"rises by 8% each step\""
 				},
 				{
 					"ref": "SL2.9.exp-model#1",
@@ -22384,7 +22384,7 @@
 				{
 					"id": "signs-from-graph",
 					"given": [
-						"a graph of y = a·bˣ + c or a parabola"
+						"a graph of y = a·b^x + c or a parabola"
 					],
 					"asked": "the signs of the parameters (a > 0? b > 1?)",
 					"level": 2,
@@ -22475,8 +22475,8 @@
 			"concepts": [
 				{
 					"kind": "true-false-reason",
-					"prompt": "y = 2^(−x) and y = (1/2)ˣ have the same graph.",
-					"answer": "True. 2^(−x) = (2⁻¹)ˣ = (1/2)ˣ, so both pass through (0, 1) and decay towards y = 0 as x grows.",
+					"prompt": "y = 2^(−x) and y = (1/2)^x have the same graph.",
+					"answer": "True. 2^(−x) = (2⁻¹)^x = (1/2)^x, so both pass through (0, 1) and decay towards y = 0 as x grows.",
 					"level": 3
 				},
 				{
@@ -22505,7 +22505,7 @@
 						"graph-from-equation",
 						"signs-from-graph"
 					],
-					"wrong": "a growth curve for (1/2)ˣ, or a decay curve for 2ˣ"
+					"wrong": "a growth curve for (1/2)^x, or a decay curve for 2^x"
 				},
 				{
 					"ref": "SL2.3.match-graph#2",
@@ -22673,7 +22673,7 @@
 							"solve-with-gdc",
 							"two-piece-solution"
 						],
-						"why": "eˣ = 3x has no algebraic solution, so the boundaries cannot be found by hand"
+						"why": "e^x = 3x has no algebraic solution, so the boundaries cannot be found by hand"
 					},
 					"name": "Solve the equality, then test the intervals",
 					"about": "Find the boundary points algebraically where possible, then test one value in each interval."
@@ -22683,7 +22683,7 @@
 				{
 					"kind": "always-sometimes-never",
 					"prompt": "The solution of f(x) > g(x) is a single interval.",
-					"answer": "Sometimes. eˣ > 3x holds for x < 0.619 and for x > 1.51: two pieces, because the line is above the curve only between the two crossings.",
+					"answer": "Sometimes. e^x > 3x holds for x < 0.619 and for x > 1.51: two pieces, because the line is above the curve only between the two crossings.",
 					"level": 4
 				},
 				{
@@ -22766,7 +22766,7 @@
 				{
 					"id": "graphs-for-equation",
 					"given": [
-						"an equation such as eˣ = 4 − x²"
+						"an equation such as e^x = 4 − x²"
 					],
 					"asked": "which two graphs to draw, and what to read off them",
 					"level": 3,
@@ -22942,14 +22942,14 @@
 			"concepts": [
 				{
 					"kind": "true-false-reason",
-					"prompt": "The solutions of eˣ = 4 − x² are the y-values where the two graphs meet.",
+					"prompt": "The solutions of e^x = 4 − x² are the y-values where the two graphs meet.",
 					"answer": "False. The solutions are the x-values, x ≈ −1.96 and x ≈ 1.06. The y-value at each meeting point is the common output of both sides.",
 					"level": 3
 				},
 				{
 					"kind": "always-sometimes-never",
 					"prompt": "Rearranging an equation before graphing it changes its solutions.",
-					"answer": "Sometimes. Adding or subtracting a term on both sides changes the pictures but not the meeting x-values: eˣ = x + 3 and eˣ − x = 3 both give x ≈ −2.95 and 1.51. Dividing both sides by x can lose the solution x = 0.",
+					"answer": "Sometimes. Adding or subtracting a term on both sides changes the pictures but not the meeting x-values: e^x = x + 3 and e^x − x = 3 both give x ≈ −2.95 and 1.51. Dividing both sides by x can lose the solution x = 0.",
 					"level": 4
 				},
 				{
@@ -27286,7 +27286,7 @@
 				{
 					"id": "moved-feature",
 					"given": [
-						"a parent graph (x², 1/x, eˣ or sin x)",
+						"a parent graph (x², 1/x, e^x or sin x)",
 						"a translation vector (a, b)"
 					],
 					"asked": "where its key feature lands: vertex, asymptotes or a maximum point",
@@ -27683,7 +27683,7 @@
 					"in": [
 						"moved-feature"
 					],
-					"wrong": "moves the curve of eˣ or 1/x but keeps the asymptote at y = 0"
+					"wrong": "moves the curve of e^x or 1/x but keeps the asymptote at y = 0"
 				},
 				{
 					"ref": "SL2.11.stretch#0",
@@ -28968,7 +28968,7 @@
 						"SL1.3.model",
 						"SL2.9.exp-model"
 					],
-					"note": "400 × 0.8ⁿ: 104.86 at n = 6, 83.89 at n = 7, so n = 7"
+					"note": "400 × 0.8^n: 104.86 at n = 6, 83.89 at n = 7, so n = 7"
 				},
 				{
 					"id": "factor-from-two-values",
@@ -29010,7 +29010,7 @@
 					"given": [
 						"a geometric series with ratio r"
 					],
-					"asked": "whether it has a sum to infinity, tied to whether rⁿ dies away",
+					"asked": "whether it has a sum to infinity, tied to whether r^n dies away",
 					"level": 3,
 					"exam": false,
 					"reps": [
@@ -29337,7 +29337,7 @@
 					"in": [
 						"graph-from-factor"
 					],
-					"wrong": "the graph of 0.5ˣ drawn as 2ˣ reflected in the x-axis, below the axis"
+					"wrong": "the graph of 0.5^x drawn as 2^x reflected in the x-axis, below the axis"
 				},
 				{
 					"ref": "SL1.3.nth-term#0",
@@ -29346,7 +29346,7 @@
 					"in": [
 						"sequence-vs-function"
 					],
-					"wrong": "u_n = P₀rⁿ, one period too many"
+					"wrong": "u_n = P₀r^n, one period too many"
 				},
 				{
 					"ref": "SL1.3.model#1",
@@ -29482,7 +29482,7 @@
 				{
 					"id": "reflect-point",
 					"given": [
-						"a point on y = eˣ (or y = 2ˣ)"
+						"a point on y = e^x (or y = 2^x)"
 					],
 					"asked": "the matching point on y = ln x (or log₂ x), and the mirror line",
 					"level": 3,
@@ -29779,7 +29779,7 @@
 				},
 				{
 					"kind": "interpret-parameter",
-					"prompt": "The point (2, e²) is on y = eˣ. Where is the matching point on y = ln x, and why?",
+					"prompt": "The point (2, e²) is on y = e^x. Where is the matching point on y = ln x, and why?",
 					"answer": "(e², 2). An inverse swaps input and output, which is a reflection in the line y = x.",
 					"level": 3
 				}
@@ -30492,7 +30492,7 @@
 					"given": [
 						"a function with terms like 3/x² or 1/(4x³)"
 					],
-					"asked": "the function as a sum of axⁿ, then its derivative",
+					"asked": "the function as a sum of ax^n, then its derivative",
 					"level": 3,
 					"exam": false,
 					"reps": [
@@ -30664,7 +30664,7 @@
 					"suits": [
 						"power-form-first"
 					],
-					"name": "Write each term as axⁿ",
+					"name": "Write each term as ax^n",
 					"about": "Rewrite 3/x² as 3x⁻², apply the power rule (−2 becomes −3), and rewrite with positive powers if asked."
 				},
 				{
@@ -31403,7 +31403,7 @@
 				{
 					"id": "which-method",
 					"given": [
-						"an equation such as e^(2x) = 5 or eˣ = 4 − x"
+						"an equation such as e^(2x) = 5 or e^x = 4 − x"
 					],
 					"asked": "whether algebra can solve it, and a method that works",
 					"level": 3,
@@ -31415,7 +31415,7 @@
 						"SL2.10.solve-gdc",
 						"SL2.10.solve-analytic"
 					],
-					"note": "e^(2x) = 5: x = (ln 5)/2 ≈ 0.805; eˣ = 4 − x: GDC only, x ≈ 1.07"
+					"note": "e^(2x) = 5: x = (ln 5)/2 ≈ 0.805; e^x = 4 − x: GDC only, x ≈ 1.07"
 				},
 				{
 					"id": "solve-by-intersection",
@@ -31509,7 +31509,7 @@
 				{
 					"id": "exponential-two-ways",
 					"given": [
-						"an equation such as eˣ = 20"
+						"an equation such as e^x = 20"
 					],
 					"asked": "x exactly with logs and to 3 s.f. with the GDC, and that the two agree",
 					"level": 3,
@@ -31573,7 +31573,7 @@
 						"unknowns": [
 							"which-method"
 						],
-						"why": "in eˣ = 4 − x, x is both in the exponent and outside it, so no inverse isolates it"
+						"why": "in e^x = 4 − x, x is both in the exponent and outside it, so no inverse isolates it"
 					},
 					"name": "Apply inverse operations to both sides",
 					"about": "Isolate the function and undo it: exponentiate a log, take ln of an exponential, multiply out a fraction."
@@ -31727,8 +31727,8 @@
 			"concepts": [
 				{
 					"kind": "true-false-reason",
-					"prompt": "eˣ = 4 − x can be solved exactly by taking ln of both sides: x = ln(4 − x).",
-					"answer": "False. x is still on both sides, so nothing has been solved. There is no algebraic method; the graphs of y = eˣ and y = 4 − x meet once, at x ≈ 1.07.",
+					"prompt": "e^x = 4 − x can be solved exactly by taking ln of both sides: x = ln(4 − x).",
+					"answer": "False. x is still on both sides, so nothing has been solved. There is no algebraic method; the graphs of y = e^x and y = 4 − x meet once, at x ≈ 1.07.",
 					"level": 3
 				},
 				{
@@ -31770,7 +31770,7 @@
 					"in": [
 						"which-method"
 					],
-					"wrong": "takes ln of eˣ = 4 − x and writes x = ln 4 − ln x"
+					"wrong": "takes ln of e^x = 4 − x and writes x = ln 4 − ln x"
 				},
 				{
 					"ref": "SL2.10.solve-analytic#0",
@@ -31878,7 +31878,7 @@
 					"in": [
 						"exponential-two-ways"
 					],
-					"wrong": "log 20 ≈ 1.30, the base-10 key used for eˣ = 20"
+					"wrong": "log 20 ≈ 1.30, the base-10 key used for e^x = 20"
 				}
 			],
 			"frequency": 0
@@ -32010,7 +32010,7 @@
 			"source": "extension",
 			"kind": "skill",
 			"name": "Integer exponent laws",
-			"summary": "Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/xⁿ as ax⁻ⁿ.",
+			"summary": "Simplify products, quotients and powers of terms with integer exponents, including zero and negative ones, and write a/x^n as ax^(−n).",
 			"level": [
 				1,
 				3
@@ -32033,7 +32033,7 @@
 			"source": "extension",
 			"kind": "skill",
 			"name": "Logs and exponential equations on the GDC",
-			"summary": "Evaluate log and ln values on the GDC and solve aˣ = b to 3 significant figures, choosing the right log key.",
+			"summary": "Evaluate log and ln values on the GDC and solve a^x = b to 3 significant figures, choosing the right log key.",
 			"level": [
 				1,
 				2
@@ -32141,7 +32141,7 @@
 			"source": "extension",
 			"kind": "skill",
 			"name": "Exponential equations that are quadratics",
-			"summary": "Spot that an equation in b²ˣ and bˣ is a quadratic in u = bˣ, solve it, and reject any u that is zero or negative.",
+			"summary": "Spot that an equation in b^(2x) and b^x is a quadratic in u = b^x, solve it, and reject any u that is zero or negative.",
 			"level": [
 				3,
 				4
@@ -32186,7 +32186,7 @@
 			"source": "extension",
 			"kind": "skill",
 			"name": "Constant term when both terms contain x",
-			"summary": "In an expansion such as (x² + 3/x)ⁿ, write the general term, find the r that makes the power of x zero (or a given power), and find that term.",
+			"summary": "In an expansion such as (x² + 3/x)^n, write the general term, find the r that makes the power of x zero (or a given power), and find that term.",
 			"level": [
 				3,
 				4
@@ -32208,7 +32208,7 @@
 			"source": "extension",
 			"kind": "skill",
 			"name": "A coefficient in a bracket times an expansion",
-			"summary": "Find one coefficient in (p + qx)(a + bx)ⁿ by pairing each term of the first bracket with the matching term of the expansion and adding.",
+			"summary": "Find one coefficient in (p + qx)(a + bx)^n by pairing each term of the first bracket with the matching term of the expansion and adding.",
 			"level": [
 				3,
 				4
