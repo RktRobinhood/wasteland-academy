@@ -2735,12 +2735,125 @@ def spot_surds(q, lines):
 SPOT_CHECKS["fn-pre-surds"] = spot_surds
 
 
+# ── fn-pre-linear-inequalities ──
+
+LI_REL = {"<": lambda l, r: l < r, "≤": lambda l, r: l <= r, ">": lambda l, r: l > r, "≥": lambda l, r: l >= r}
+LI_WORDS = {"<": "is less than", "≤": "is at most", ">": "is more than", "≥": "is at least"}
+LI_FLIP = {"<": ">", ">": "<", "≤": "≥", "≥": "≤"}
+
+
+def li_set(cond):
+    return sp.solve_univariate_inequality(cond, X, relational=False)
+
+
+def ineq_set(text):
+    """'−3 < 2x + 1 ≤ 9', 'x ≥ −10 and x < −1' or '5x > 20' as the set of x it holds for."""
+    if " and " in text:
+        out = sp.S.Reals
+        for part in text.split(" and "):
+            out = out.intersect(ineq_set(part))
+        return out
+    parts = re.split(r" (<|≤|>|≥) ", text)
+    need(len(parts) in (3, 5), f"can't read the inequality {text!r}")
+    vals = [parse(p) for p in parts[0::2]]
+    out = sp.S.Reals
+    for i, rel in enumerate(parts[1::2]):
+        out = out.intersect(li_set(LI_REL[rel](vals[i], vals[i + 1])))
+    return out
+
+
+def li_range2(S):
+    """A bounded interval as range2 values (lo, r1, r2, hi)."""
+    need(isinstance(S, sp.Interval) and S.start.is_finite and S.end.is_finite, f"{S} is not a bounded interval")
+    return (S.start, "<" if S.left_open else "≤", "<" if S.right_open else "≤", S.end)
+
+
+def li_words_one(a, b, rel, c):
+    if a > 0:
+        return f"{frac_text(a)} times a number x, {'plus' if b > 0 else 'minus'} {frac_text(abs(b))}, {LI_WORDS[rel]} {frac_text(c)}."
+    return f"{frac_text(b)} minus {frac_text(abs(a))} times a number x {LI_WORDS[rel]} {frac_text(c)}."
+
+
+def check_lineq(q):
+    g, ans, u, L, rep = q["given"], q["answer"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    T = "fn-pre-linear-inequalities"
+    wr = {}
+    if u == "read-number-line":
+        gr = q["graph"]
+        need(gr["kind"] == "numberline", "the graph is not a number line")
+        seg, marks = gr["segment"], gr["marks"]
+        lo = sp.nsimplify(seg["from"]) if seg["from"] is not None else -sp.oo
+        hi = sp.nsimplify(seg["to"]) if seg["to"] is not None else sp.oo
+        opens = {sp.nsimplify(m["at"]): m["open"] for m in marks}
+        need(set(opens) == {v for v in (lo, hi) if v.is_finite}, "a circle is not at an end of the shading")
+        S = sp.Interval(lo, hi, opens.get(lo, True), opens.get(hi, True))
+        swapped = sp.Interval(lo, hi, not opens.get(lo, False) if lo.is_finite else True, not opens.get(hi, False) if hi.is_finite else True)
+        if ans["kind"] == "bound":
+            wr[f"{T}#1"] = {swapped}
+            qr_check_common(q, S, wr)
+        else:
+            wr[f"{T}#1"] = {li_range2(swapped)}
+            qr_check_common(q, li_range2(S), wr)
+        return None, None
+    a, b = R(g["a"]), R(g["b"])
+    need(a.q == 1 and abs(a) >= 2 and abs(a) <= 5 and b != 0 and b.q == 1, "a or b is out of its limits")
+    e = a * X + b
+    if u == "one-sided":
+        rel, c = g["rel"], R(g["c"])
+        if rep == "words":
+            need(L[0] == li_words_one(a, b, rel, c), "the words are not the givens")
+        else:
+            need(ineq_set(L[0]) == li_set(LI_REL[rel](e, c)) and L[0] == f"{qr_poly([a, b])} {rel} {frac_text(c)}", "the inequality shown is not the givens")
+        S = li_set(LI_REL[rel](e, c))
+        if a < 0:
+            wr[f"{T}#0"] = {li_set(LI_REL[rel](X, (c - b) / a))}
+        qr_check_common(q, S, wr)
+        return None, None
+    c1, c2, rel1, rel2 = R(g["c1"]), R(g["c2"]), g["rel1"], g["rel2"]
+    S = li_set(LI_REL[rel1](c1, e)).intersect(li_set(LI_REL[rel2](e, c2)))
+    shown = f"{frac_text(c1)} {rel1} {qr_poly([a, b])} {rel2} {frac_text(c2)}"
+    if rep == "words":
+        lhs = qr_poly([a, b]) if a > 0 else f"{frac_text(b)} − {qr_lead(abs(a))}x"
+        need(L[0] == f"{lhs} {LI_WORDS[LI_FLIP[rel1]]} {frac_text(c1)} and {LI_WORDS[rel2]} {frac_text(c2)}.", "the words are not the givens")
+    else:
+        need(L[0] == shown, "the inequality shown is not the givens")
+    if u == "count-integers":
+        need(S.is_finite_set is False and S.measure.is_finite, "the solution is not a bounded interval")
+        n = sum(1 for k in range(int(sp.floor(S.start)) - 1, int(sp.ceiling(S.end)) + 2) if sp.Integer(k) in S)
+        need(2 <= n <= 12, f"{n} whole numbers")
+        need(not (S.start.is_integer and S.end.is_integer), "both ends are whole numbers")
+        need(ans.get("exact"), "a count must be marked exactly")
+        qr_check_common(q, qr_norm(ans, {"v": str(n)}))
+        return None, None
+    # two-sided
+    if a < 0:
+        wr[f"{T}#0"] = {((c1 - b) / a, rel1, rel2, (c2 - b) / a)}
+    wr[f"{T}#2"] = {li_range2(li_set(LI_REL[rel1](c1, a * X)).intersect(li_set(LI_REL[rel2](a * X, c2))))}
+    qr_check_common(q, li_range2(S), wr)
+    return None, None
+
+
+def spot_lineq(q, lines):
+    """The first line of a working whose inequality has another solution than the question's."""
+    g = q["given"]
+    a, b = R(g["a"]), R(g["b"])
+    S = li_set(LI_REL[g["rel1"]](R(g["c1"]), a * X + b)).intersect(li_set(LI_REL[g["rel2"]](a * X + b, R(g["c2"]))))
+    for i, line in enumerate(lines):
+        need(": " in line, f"can't read {line!r}")
+        if ineq_set(line.rsplit(": ", 1)[1]) != S:
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-linear-inequalities"] = spot_lineq
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
-                    "fn-pre-surds": check_surds}
+                    "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
