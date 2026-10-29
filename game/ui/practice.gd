@@ -8,17 +8,25 @@ extends Control
 ##   desktop:  -- --view=fn-quadratic-features/... --seed=3
 ## Add autoplay=right (or wrong) to answer it at once and show the feedback and
 ## working. A probe view is type/probe/<index>.
+##
+## The map's region screen opens it on one region (launch_region): the planner then
+## plans from that region's built types, and "Map" goes back to the region.
 
 ## Column width in base units: phone (portrait) and PC (landscape).
 const COLUMN := 1000
 const COLUMN_WIDE := 1500
 const KEYS := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".", "/", "−", "Del"]
 
+## The region the map asked for, read once by _ready().
+static var launch_region := ""
+
 ## Where the save lives. Tests point this somewhere else.
 var save_path := SaveData.PATH
 var save: Dictionary
 var question: Dictionary = {}
 var answered := false
+## Plan from this region only ("" for every built type).
+var practice_region := ""
 
 var _slots := {}        # slot id -> LineEdit
 var _picks := {}        # pick id -> chosen option ("" until chosen)
@@ -43,6 +51,9 @@ var working: VBoxContainer
 
 func _ready() -> void:
 	theme = UiTheme.make()
+	if launch_region != "":
+		practice_region = launch_region
+		launch_region = ""
 	_build()
 	save = SaveData.load_from(save_path)
 	exam_toggle.set_pressed_no_signal(save.settings.exam_only)
@@ -95,9 +106,22 @@ func _build() -> void:
 	hud_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	head.add_child(hud_gap)
 	col.add_child(head)
+	var row := HBoxContainer.new()
+	row.name = "ProgressRow"
+	row.add_theme_constant_override("separation", 20)
 	progress = UiTheme.label("", UiTheme.SMALL, UiTheme.DIM)
 	progress.name = "Progress"
-	col.add_child(progress)
+	progress.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(progress)
+	var map := Button.new()
+	map.name = "Map"
+	map.text = "Map"
+	map.add_theme_font_size_override("font_size", UiTheme.SMALL)
+	map.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	map.pressed.connect(func():
+		MapLink.go(get_tree(), MapLink.region_route(practice_region) if practice_region != "" else MapLink.WORLD))
+	row.add_child(map)
+	col.add_child(row)
 
 	scroll = ScrollContainer.new()
 	scroll.name = "Scroll"
@@ -126,7 +150,7 @@ func now() -> int:
 
 
 func next_question() -> void:
-	var v := Planner.next(save, now())
+	var v := Planner.next(save, now(), {"region": practice_region} if practice_region != "" else {})
 	SaveData.store(save, save_path)
 	show_view(v)
 
@@ -493,7 +517,7 @@ func _show_steps(box: VBoxContainer, i: int) -> void:
 
 
 func _update_progress() -> void:
-	var pool := QuestionEngine.cells(save.settings.exam_only)
+	var pool := QuestionEngine.cells(save.settings.exam_only, Dungeon.region_types(practice_region) if practice_region != "" else [])
 	var seen := 0
 	var right := 0
 	for c in pool:
@@ -502,7 +526,8 @@ func _update_progress() -> void:
 			seen += 1
 			if r.get("last_result") == "right":
 				right += 1
-	progress.text = "%d of %d checked · %d right last time" % [seen, pool.size(), right]
+	progress.text = ("%s · " % Dungeon.region_name(practice_region) if practice_region != "" else "") + \
+		"%d of %d checked · %d right last time" % [seen, pool.size(), right]
 
 
 func _on_exam_toggled(on: bool) -> void:

@@ -13,13 +13,18 @@ game/
 ├── project.godot        ← portrait 1080x1920 base, "expand" stretch, Compatibility renderer
 ├── export_presets.cfg   ← one preset, "Web": no threads, no PWA
 ├── scenes/main.tscn     ← title screen (title, Spark, Play, Practice, Engine)
+├── scenes/map.tscn      ← the map (ui/map.gd): world, island, region screen (see "The map")
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
 ├── scenes/fight.tscn    ← the fight screen (ui/fight.gd), on the practice screen's card
 ├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /next/?explore
 ├── engine/              ← the question engine: situations, views, marking, planner, save
 ├── engine/run.gd        ← a run: floors, fights, bosses, outcomes, lifelines, the hooks (see "Combat")
 ├── engine/dungeon.gd    ← floors by level, tiers, boss chains, start floors (see "The dungeon")
-├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains
+├── engine/map_link.gd   ← map links (#functions/quadratics), browser history, music by island
+├── engine/progress.gd   ← a region's accuracy, best floor, coverage and weakest skills
+├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains, Bazaar prices
+├── engine/bazaar.gd     ← the Bazaar's rules: upgrades, perks, cosmetics (see "The Bazaar")
+├── scenes/bazaar.tscn   ← the Bazaar screen (ui/bazaar.gd); ui/name_plate.gd draws the plate
 ├── ui/                  ← screens and the graph view
 ├── data/catalogue.json  ← generated from curriculum/question-types.json (don't edit)
 ├── scenes/audio_hud.tscn ← the AudioHud autoload: speaker icon, gear, settings screen
@@ -31,6 +36,7 @@ game/
 ├── tools/screenshot.gd  ← used by ../screenshot.sh
 ├── tools/export_questions.gd  ← used by ../tools/check-answers
 ├── tools/stress_questions.gd  ← used by ../tools/stress-questions
+├── tools/bazaar_sim.gd, bazaar_balance.gd  ← the Bazaar's balance check and price table
 ├── addons/godot_mcp_toolkit/  ← editor plugin for the Godot MCP (see docs/MCP-NOTES.md)
 └── docs/MCP-NOTES.md
 ```
@@ -65,9 +71,9 @@ Audio.sound_enabled = true           # what the speaker icon switches
   game's `js/sfx.js` and live in `audio/sfx_cues.gd`.
 - Every file in `assets/audio/` has its licence entry in `../assets/audio/CREDITS.md`.
   Nothing ships without one.
-- While the build has no map, the settings screen carries a location picker and a button
-  per effect, so a cue can be heard without gameplay. Both rows go when the overworld can
-  call `play_location()` itself.
+- The map and the runs choose the loop (FAL-417): the world map plays `overworld`, an
+  island and its runs play the island's loop, and a mini-boss or boss its `-boss` loop
+  (`MapLink.music_for`). The settings screen has only the three settings.
 
 ## Scripts (run from the repo root)
 
@@ -227,7 +233,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Version 2 (FAL-413): `class` is null until classes exist, `trees` and `lessons` are
   empty, `scrap` is the Scrap banked from runs and `runs` totals them. A save without
   `class` or `trees` gets them on load. Version 3 (FAL-415): `dungeon` holds each
-  region's best floor and the floors whose boss fell.
+  region's best floor and the floors whose boss fell. Version 4 (FAL-416): `bazaar`,
+  what the Bazaar sold; an older save gets a blank one and keeps its Scrap to spend.
 
 ## Combat
 
@@ -274,9 +281,10 @@ lifeline row for the Paper 1 or 2 badge (C1).
   with the view's `same_angle`) asked by the next angle the type lists for that unknown,
   for bonus Scrap. Only where the unknown has more than one angle.
 - **Modifiers (class plan phase 0, FAL-291).** Every damage, heal, Scrap and time value,
-  and the starting HP, passes through `run.modifiers.apply(kind, value, ctx)`
-  (`engine/modifiers.gd`), which returns it unchanged until something is added. Bazaar
-  perks (G6) and classes (FAL-308) add a Callable.
+  the starting HP, each lifeline's starting charges and what one use costs, pass through
+  `run.modifiers.apply(kind, value, ctx)` (`engine/modifiers.gd`), which returns it
+  unchanged until something is added. The Bazaar (G6) and classes (FAL-308) add a
+  Callable.
 - **Fight slots (FAL-347).** `Run.slot_kind(seed, floor, fight)` says what a slot is:
   "fight", "encounter" or "cell". It always says "fight" until FAL-349. The run asks it
   for every slot, bosses too.
@@ -330,7 +338,7 @@ dungeon part of `Tuning`. Q4, Q6, Q9 and Q14 are on the FAL-274 plan.
   N whose boss the player has beaten, floor N + 1. The fight screen opens on a floor select with those floors.
   The save keeps `dungeon[region] = {"best", "beaten"}`.
 - **All regions.** Region `"all"` (`Dungeon.ALL`) mixes every built type of the island
-  (every type with a region). The map (G5) links to `/next/?play=all`.
+  (every type with a region). The map's "All regions" spot is `#functions/all`.
 
 ### Journey strip events
 
@@ -361,6 +369,9 @@ is a region id or `all`. `floor` must be one the save may start on, else the run
 on floor 1. `&fight=5` or `&fight=10` starts at the mini-boss or boss (such a run records
 no floors), and `&autoplay=carry` answers its first part wrong and opens the next, to show
 the value carried on. `&select=1` shows the floor select.
+
+The map takes a hash: `/next/#functions/quadratics` opens that region's screen,
+`/next/#functions` the island and `/next/#world` the world map (see "The map").
 
 ### The engine explorer
 
@@ -426,6 +437,89 @@ own `stress` job. `--types=id,id` sweeps only those types. An exact answer (an e
 decimal is the exact value, and a wrong option that can't be typed (`Answer.typable`) is
 not typed in.
 
+## The map
+
+`scenes/map.tscn` (`ui/map.gd`, FAL-417; Q3 and Q11 on the FAL-274 plan). "Play" on the
+title screen opens it. One scene with three screens:
+
+- **The world map**: the HTML game's overworld painting (`assets/map/overworld.png`)
+  with a button over each island. The Signal Tower (Functions) is open; the other four
+  say "Coming later". The Thunderdome stays locked until a second island opens
+  (`MapLink.OPEN_ISLANDS`), and the Relic Library has a locked spot. A bar under the
+  painting opens the Bazaar (see "The Bazaar") and shows the Scrap there is to spend.
+- **The Functions island**: the 8 regions in the catalogue's `order`, the all-regions
+  dungeon and a locked Relic device spot. A region whose types aren't built yet says
+  "Coming soon" and can't start a run or Practice. That comes from the engine
+  (`Progress.is_built`, which asks `Dungeon.region_types`), so a region opens when its
+  situations merge, with no map change.
+- **The region screen**: accuracy, best floor and coverage ("34 of 52 checked": the
+  cells the save has seen against the catalogue's cells for the region, built or not),
+  all following the "Exam-style only" switch, which the screen also carries. Then the 3
+  weakest skills: the lowest accuracy among skills with at least 3 answers, where each
+  answer counts for every skill its unknown lists (`Progress.weakest_skills`). Skill
+  names come from `curriculum/aa-sl.json` via `catalogue.json`'s `skills`. Its buttons
+  start floor 1, start after a beaten boss (`Dungeon.start_floors`) or open Practice on
+  that region.
+
+**Links and the back button.** On the web the hash is the route. Moving on the map
+sets it, which makes a browser history entry, and a `hashchange` (back, forward, a
+pasted link) sends the game there. Back from a run quits it, so its Scrap is banked.
+An unknown link opens the world map and rewrites the address bar to `#world`. `#bazaar`
+is the Bazaar: its own scene, but a map link like the others, so back leaves it. On the
+desktop, `-- --map=functions/quadratics` does the same as the hash.
+
+### Map art
+
+The island map loads its art by file name from `game/assets/map/functions/`. Each file
+is optional: when one isn't there, that piece keeps the coded look (a dusk gradient
+with a dashed trail, and a numbered ring in the state's colour), so art can land one
+file at a time. Import each with mipmaps on, like the rest of the art.
+
+| File | Size | What it is |
+|---|---|---|
+| `background.png` | 1080x1920, opaque | The whole island, portrait. The spots sit on it at the places in `SPOTS` in `ui/map.gd` (% of the board), climbing from Quadratics at the bottom to the tower at the top |
+| `<spot>-locked.png` | 256x256, transparent | A spot's landmark before its questions are built |
+| `<spot>-open.png` | 256x256, transparent | A spot's landmark once it can be played |
+| `<spot>-cleared.png` | 256x256, transparent | A spot's landmark once floor 3's boss is beaten there |
+
+`<spot>` is a region id (`quadratics`, `exp-log`, `graphs-features`,
+`composite-inverse`, `rational`, `function-basics`, `lines`, `transformations`), `all`
+for the all-regions dungeon at the tower, or `relic` for the Relic device (only
+`relic-locked.png` is used for now). A landmark is drawn in a 200x200 box, kept square
+and centred, with the spot's name and progress line under it, so leave the bottom of
+the background clear below each spot.
+
+## The Bazaar
+
+Scrap banked from runs buys things at the Bazaar (G6, Q10). The world map's bottom bar
+and a run's summary link to it (`#bazaar`), and its "World map" button goes back there. `engine/bazaar.gd` holds the rules and
+no UI; `ui/bazaar.gd` draws them. Every price, cap and perk value is in the Bazaar
+section of `engine/tuning.gd`.
+
+- **Upgrades, kept for good and capped:** Max HP +10, up to 3 times (100 to 130), and
+  +1 charge of a lifeline the player picks, up to 2 times in all.
+- **One perk slot, for the next run only:** Field Manual (a Hint spends no charge),
+  Scrap Armour (+20 HP), Lucky Find (+1 charge on a lifeline the player picks), Second
+  Wind (+20 on G4's boss heal, after a boss but not a mini-boss) and Field Watch (+10 s
+  on every question's clock, not Time Freeze). A second perk can't be bought while one
+  waits. The run uses it up as it starts.
+- **Cosmetics:** name-plate frames from the encounter UI art (Field Note, Signal Box,
+  Brass Chip) and colour tints from the Salvage Neon palette, for the plate over the
+  player's HP bar and the bar itself. Looks only.
+- **Through the modifiers only.** `Bazaar.equip(run, save)`, before `run.start()`, adds
+  one modifier built from what was bought and empties the perk slot. Nothing in the
+  Bazaar touches combat code.
+- **A failed purchase changes nothing**, and says why: not enough Scrap, at its cap,
+  owned already, the perk slot full, or no lifeline picked.
+- **Prices** come from the Scrap a player who answers 70% right banks in a run
+  (`Tuning.SCRAP_PER_RUN_70`): each upgrade level and cosmetic costs 2 to 3 runs of it,
+  and a perk under one. `tools/bazaar_sim.gd` plays real runs and shops after each;
+  `test_bazaar.gd` checks that such a player unlocks something every 2 or 3 runs. Print
+  the price table with
+  `godot --headless --path game --script res://tools/bazaar_balance.gd`.
+- Links: `/next/#bazaar` is its map link; `/next/?bazaar` opens it too, and
+  `/next/?bazaar=demo` opens it on a sample save and stores nothing (screenshots).
+
 ## Tests
 
 `game/tests/run_tests.gd` is a small runner with no third-party framework. It loads
@@ -475,6 +569,11 @@ script error happens while it runs. Run one file with
   and without Time Freeze; glancing hits and the rounding trap; lifelines; "Another
   way" on floor 2 and never on floor 1; a modifier that doubles Scrap; the stakes table;
   the slot picker; and the journey signals connected to nothing.
+- `test_bazaar.gd`: each upgrade stops at its cap, each perk changes exactly its own
+  value through the modifiers and is used up after one run, one perk slot, Scrap never
+  goes negative and a failed purchase changes nothing, cosmetics, the save and its
+  migration, the 70% player's runs per unlock, the screen, the plate and perk on the
+  fight screen, and the world map opening the Bazaar and leaving it going back there.
 - `test_fight.gd`: the fight screen plays a miss with its worked solution, a hit, a
   timeout, the lifelines, quit and the summary, the floor select with beaten floors, a
   boss part with the value carried on, and fits at 360x780, 390x844 and 1280x800.
@@ -490,7 +589,14 @@ script error happens while it runs. Run one file with
 - `test_audio.gd`: a loop per location at the length the review measured, only the
   wired-in loops in `assets/audio/music/`, the effects mirrored from the HTML game, the
   two buses, sound off on a fresh install, settings that survive a reload, and the
-  settings screen listing every location and effect.
+  settings screen with the three settings and none of the old playtest rows.
+- `test_map.gd`: links for every region id, the island and junk; coverage against a
+  hand count from the catalogue on a scripted save with the switch off and on;
+  accuracy, best floor and cleared; the weakest skills leaving out skills with fewer
+  than 3 answers; the world map, the island and the region screen; "Coming soon" for a
+  region with nothing built, which can't start a run; a run started from the map; the
+  island's loop in a run and the boss loop in a boss; Play opening the map; and every
+  screen fitting 390x844 and 1280x800.
 - `test_explorer.gd`: the engine explorer opens on a live class with no errors, counts
   the catalogue per topic, plays from its pickers, keeps the situation when it asks
   another way, works without `data/courses.json`, and fits at 390x844 and 1280x800.

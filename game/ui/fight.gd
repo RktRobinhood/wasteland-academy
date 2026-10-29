@@ -18,8 +18,10 @@ extends "res://ui/practice.gd"
 ## show the summary; autoplay=carry answers a boss's first part wrong and opens the
 ## next, to show the value carried on. fight=5 or fight=10 starts at the mini-boss or
 ## the boss; such a run records no floors. select=1 shows the floor select.
+##
+## The map (ui/map.gd) starts a run by setting `launch` before opening this scene. The
+## island's loop plays during a run, and its boss loop during a mini-boss or boss.
 
-const MAIN := "res://scenes/main.tscn"
 const MONO := preload("res://assets/fonts/share-tech-mono-latin.woff2")
 const GREEN := Color(0.36, 0.8, 0.42)
 const ORANGE := Color(0.95, 0.6, 0.2)
@@ -28,7 +30,12 @@ const RED := Color(0.93, 0.26, 0.3)
 const STRIP_HEIGHT := 150
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
 
+## The run the map asked for: {"region", "floor"}, read once by _ready().
+static var launch: Dictionary = {}
+
 var run: Run
+## The Bazaar perk this run plays with ({} for none).
+var perk: Dictionary = {}
 var region := "quadratics"
 var start_floor := 1
 var run_seed := 0
@@ -42,6 +49,8 @@ var enemy_name: Label
 var enemy_bar: ProgressBar
 var enemy_hp: Label
 var player_bar: ProgressBar
+## The name plate (G6 cosmetics) and the perk, over the player's HP bar.
+var plate_row: HBoxContainer
 var player_hp: Label
 var scrap_label: Label
 var timer_bar: ProgressBar
@@ -67,6 +76,12 @@ func _ready() -> void:
 	_fit()
 	var deep := deep_link()
 	save = SaveData.load_from(save_path)
+	if not launch.is_empty():
+		region = launch.region
+		start_floor = launch.floor if Dungeon.start_floors(save, region).has(launch.floor) else 1
+		launch = {}
+		start_run()
+		return
 	if deep.is_empty():
 		if select_first:
 			show_floor_select()
@@ -99,7 +114,11 @@ func start_run() -> void:
 	if first_fight > 1:
 		run.first_fight = first_fight
 		run.records = false
+	# What the Bazaar sold (G6) reaches the run through its modifiers only.
+	perk = Bazaar.equip(run, save)
+	SaveData.store(save, save_path)
 	run.question_opened.connect(func(_f, _t): _show_question())
+	run.question_opened.connect(func(_f, _t): Audio.play_location(MapLink.music_for(region, run.kind != "fight")))
 	run.run_ended.connect(_show_summary)
 	summary_box.visible = false
 	floor_box.visible = false
@@ -162,12 +181,25 @@ func show_floor_select() -> void:
 	lock.name = "Locked"
 	list.add_child(lock)
 	var back := Button.new()
-	back.name = "Title"
-	back.text = "Back to the title"
+	back.name = "Map"
+	back.text = "Back to the map"
 	back.add_theme_font_size_override("font_size", UiTheme.BIG)
-	back.pressed.connect(func(): get_tree().change_scene_to_file(MAIN))
+	back.pressed.connect(to_map)
 	floor_box.add_child(back)
 	(list.get_child(0) as Button).grab_focus.call_deferred()
+
+
+## Back to the map, on the screen the run was started from (the region's, after a
+## deep link).
+func to_map() -> void:
+	MapLink.go(get_tree(), MapLink.current if not MapLink.current.is_empty() else MapLink.region_route(region))
+
+
+## Leaving by the browser's back button: a run in progress is quit, so its Scrap is
+## banked.
+func leave_run() -> void:
+	if run != null and run.state != "ended":
+		run.quit()
 
 
 ## What a floor asks, in a few words.
@@ -314,8 +346,10 @@ func _status() -> Control:
 	enemy_hp.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	erow.add_child(enemy_hp)
 	bars.add_child(erow)
-	var you := _mono("YOU", UiTheme.SMALL, UiTheme.TEAL)
-	bars.add_child(you)
+	plate_row = HBoxContainer.new()
+	plate_row.name = "Plate"
+	plate_row.add_theme_constant_override("separation", 16)
+	bars.add_child(plate_row)
 	var prow := HBoxContainer.new()
 	player_bar = _bar(UiTheme.TEAL, 34)
 	player_bar.name = "PlayerHP"
@@ -470,15 +504,27 @@ func _update_hud() -> void:
 	player_bar.max_value = run.max_hp
 	player_bar.value = run.hp
 	player_hp.text = "%d/%d" % [run.hp, run.max_hp]
+	_update_plate()
 	scrap_label.text = "Scrap +%d · a miss costs %d HP" % [run.stats.scrap, run.enemy.damage]
 	for id in lifeline_buttons:
 		var b: Button = lifeline_buttons[id]
 		var n := int(run.lifelines.get(id, 0))
 		b.disabled = not run.can_use(id)
 		b.icon = load("res://assets/ui/lifeline-%s-%s.png" % [id, "on" if not b.disabled else "off"])
-		b.text = "%s ×%d" % [LIFELINE_NAMES[id], n]
+		b.text = "%s ×%d" % [LIFELINE_NAMES[id], n] if run.lifeline_cost(id) > 0 else "%s free" % LIFELINE_NAMES[id]
 	_update_progress()
 	_update_timer()
+
+
+## The name plate in the frame and tint worn, the HP bar in the tint, and the perk.
+func _update_plate() -> void:
+	if plate_row.get_child_count() == 0:
+		plate_row.add_child(NamePlate.for_save(save))
+		var p := _mono("", UiTheme.SMALL, UiTheme.SAND)
+		p.name = "Perk"
+		plate_row.add_child(p)
+		(player_bar.get_theme_stylebox("fill") as StyleBoxFlat).bg_color = NamePlate.tint_of(save)
+	(plate_row.get_node("Perk") as Label).text = ("Perk: " + Bazaar.perk_name(perk)) if not perk.is_empty() else ""
 
 
 func _update_timer() -> void:
@@ -644,11 +690,17 @@ func _show_summary(s: Dictionary) -> void:
 		first_fight = 1
 		show_floor_select())
 	summary_box.add_child(again)
+	var shop := Button.new()
+	shop.name = "Bazaar"
+	shop.text = "Spend Scrap at the Bazaar"
+	shop.add_theme_font_size_override("font_size", UiTheme.BIG)
+	shop.pressed.connect(func(): MapLink.go(get_tree(), MapLink.BAZAAR_ROUTE))
+	summary_box.add_child(shop)
 	var back := Button.new()
-	back.name = "Title"
-	back.text = "Back to the title"
+	back.name = "Map"
+	back.text = "Back to the map"
 	back.add_theme_font_size_override("font_size", UiTheme.BIG)
-	back.pressed.connect(func(): get_tree().change_scene_to_file(MAIN))
+	back.pressed.connect(to_map)
 	summary_box.add_child(back)
 	_update_hud()
 

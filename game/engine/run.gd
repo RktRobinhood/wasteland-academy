@@ -118,7 +118,9 @@ func _init(save_data: Dictionary, region_id: String, from_floor: int = 1, seed_n
 func start() -> void:
 	max_hp = roundi(modifiers.apply("max_hp", Tuning.BASE_HP, {}))
 	hp = max_hp
-	lifelines = Tuning.LIFELINES.duplicate()
+	lifelines = {}
+	for id in Tuning.LIFELINES:
+		lifelines[id] = maxi(0, roundi(modifiers.apply("lifelines", Tuning.LIFELINES[id], {"lifeline": id})))
 	run_started.emit(region, avatar, run_seed)
 	_enter_floor(start_floor)
 	fight = clampi(first_fight, 1, Tuning.FIGHTS_PER_FLOOR) - 1
@@ -383,7 +385,9 @@ func _resolve(outcome: String, m: Dictionary) -> Dictionary:
 func _boss_down() -> int:
 	stats.minis += 1 if kind == "mini" else 0
 	stats.bosses += 1 if kind == "boss" else 0
-	var healed := heal(modifiers.apply("boss_heal", Tuning.BOSS_HEAL, _ctx()))
+	var c := _ctx()
+	c.boss = kind
+	var healed := heal(modifiers.apply("boss_heal", Tuning.BOSS_HEAL, c))
 	if kind == "boss" and records:
 		Dungeon.note_floor(save, region, floor_no, true)
 	boss_beaten.emit(floor_no, kind)
@@ -435,8 +439,13 @@ func heal(amount: float) -> int:
 
 # ── Lifelines ────────────────────────────────────────────────
 
+## Charges one use of a lifeline spends, through the modifiers (0 when it's free).
+func lifeline_cost(lifeline: String) -> int:
+	return maxi(0, roundi(modifiers.apply("lifeline_cost", 1, {"lifeline": lifeline})))
+
+
 func can_use(lifeline: String) -> bool:
-	if state != "question" or int(lifelines.get(lifeline, 0)) <= 0:
+	if state != "question" or int(lifelines.get(lifeline, 0)) < lifeline_cost(lifeline):
 		return false
 	match lifeline:
 		"fifty":
@@ -452,7 +461,7 @@ func can_use(lifeline: String) -> bool:
 func use_fifty() -> Array:
 	if not can_use("fifty"):
 		return []
-	lifelines.fifty -= 1
+	lifelines.fifty -= lifeline_cost("fifty")
 	var wrong: Array = []
 	for i in question.choices.size():
 		if not question.choices[i].correct:
@@ -466,7 +475,7 @@ func use_fifty() -> Array:
 func use_hint() -> String:
 	if not can_use("hint"):
 		return ""
-	lifelines.hint -= 1
+	lifelines.hint -= lifeline_cost("hint")
 	hint = question.solutions[0].steps[0]
 	return hint
 
@@ -475,8 +484,10 @@ func use_hint() -> String:
 func use_freeze() -> float:
 	if not can_use("freeze"):
 		return 0.0
-	lifelines.freeze -= 1
-	frozen_left = modifiers.apply("time", Tuning.FREEZE_SECONDS, _ctx())
+	lifelines.freeze -= lifeline_cost("freeze")
+	var c := _ctx()
+	c.freeze = true
+	frozen_left = modifiers.apply("time", Tuning.FREEZE_SECONDS, c)
 	return frozen_left
 
 
