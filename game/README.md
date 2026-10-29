@@ -126,7 +126,11 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a formula P(X = x) = k f(x) or decimals, or a game with prizes and a stake. Its views
   (`distribution_views.gd`) show it as a table, a formula or in words, and ask k, a
   missing probability, P(event), E(X), p and q from E(X), the fair stake, an expected
-  number of occurrences or the number of trials.
+  number of occurrences or the number of trials. Every cell makes both papers (FAL-419):
+  Paper 2 has awkward decimals to 3 d.p. (0.137), k beside them or in a reciprocal
+  formula (k/x), and a lucky dip of 1000 tokens; k, E(X), an expected number and a
+  formula's P(event) are then answered to 3 s.f. with the rounding trap, the stake to the
+  nearest cent, and the rest exactly. Paper 1 keeps its numbers.
 - The rest of the Quadratics region (FAL-414) is four more situations. Three extend
   `quadratic` by calling its `generate()`: `quadratic_parameter.gd` (a quadratic with a
   constant k, given directly or as a line meeting a curve, for `fn-discriminant`),
@@ -721,7 +725,9 @@ script error happens while it runs. Run one file with
 - `test_distributions.gd`: the three Topic 4 types on the distribution: built, every
   distribution adds to 1 inside its limits, k in a table, a formula and words, answers
   written as the question writes probabilities, exact or 3 s.f. marking, p and q as two
-  slots, strict events, every misconception appears as an option.
+  slots, strict events, every misconception appears as an option (on Paper 2 too);
+  Paper 2 has awkward decimals and 3 s.f. answers where a calculator gives them, with
+  the rounding trap, and Paper 1's numbers are unchanged.
 - `test_quadratics.gd`: the four FAL-414 types: built with every cell, 2 to 5 steps per
   worked solution, every distractor misconception as an option (three that no answer
   shape can carry yet are listed with the reason), two rays typed as one interval caught

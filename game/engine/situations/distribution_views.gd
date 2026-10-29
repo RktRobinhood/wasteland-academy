@@ -13,6 +13,12 @@ extends RefCounted
 ## answered as a decimal, one in fractions as a fraction. Typed answers are marked right
 ## exactly or to 3 s.f., as the IB marks them.
 ##
+## Paper 1 or 2 (FAL-419): every cell makes both. Paper 2 shows awkward decimals to
+## 3 d.p. (0.137) or a reciprocal formula (k/x); k, E(X), an expected number and an
+## event's probability from a formula are then answered to 3 s.f. (show "sf", with the
+## rounding trap), the fair stake to the nearest cent, and the rest exactly, as the
+## question writes them (0.384, p = 0.137, n = 250). Its working uses the GDC.
+##
 ## `given` holds what the student is shown, for the SymPy checker: the style, the
 ## values of X, each probability as written (k, 2k, 0.35, 3/10, p, ?), the formula,
 ## the event, E(X) when it is given, the trials, the expected number and the game.
@@ -26,6 +32,11 @@ const CONTEXTS := [
 ]
 
 const PX := "P(X = x)"
+
+
+## Every cell can be asked on either paper (FAL-419).
+func papers(unknown: String, _rep: String, _angle: String) -> Array:
+	return [1, 2] if has(unknown) else []
 
 
 func has(unknown: String) -> bool:
@@ -62,13 +73,58 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	for key in ["lines", "graph", "table", "diagram", "wrongs", "generic"]:
 		if not out.has(key):
 			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
+	if s.get("paper", 1) == 2:
+		out.trap = trap(out)
 	return out
+
+
+## Q7's rounding trap on Paper 2: the answer to 2 s.f., where it needs rounding. Not for
+## a stake (money is to the cent), and not where it would push out a misconception that
+## reads the same (87 for an expected 86.8 is the rounding-to-whole slip).
+static func trap(out: Dictionary) -> Dictionary:
+	var ans: Dictionary = out.answer
+	if ans.get("show", "") == "money":
+		return {}
+	var t := Answer.rounding_trap(ans)
+	if t.is_empty():
+		return t
+	for w in out.wrongs:
+		if Answer.canon(ans, w.values) == Answer.canon(ans, t):
+			return {}
+	return t
 
 
 # ── Writing numbers ──────────────────────────────────────────
 
 static func dec_style(s: Dictionary) -> bool:
-	return s.style == "decimal"
+	return s.style in ["decimal", "calc"]
+
+
+static func p2(s: Dictionary) -> bool:
+	return s.get("paper", 1) == 2
+
+
+## A Paper 2 rule (k/x): its probabilities are k over a whole number.
+static func recip(s: Dictionary) -> bool:
+	return s.rule != "" and DistributionSituation.RULES[s.rule].get("p2", false)
+
+
+## Working figures on the GDC: six significant figures, or the decimal where it ends
+## within them (0.1712, not 0.171200).
+static func W(v: Variant) -> String:
+	var r := Answer.parse_number(Fmt.sf(v, 6).replace("−", "-"))
+	return Fmt.dec(v) if r.ok and r.q.eq(Q.of(v)) else Fmt.sf(v, 6)
+
+
+## " = 0.255474" after a fraction a Paper 2 formula question works out on the GDC.
+static func gdc_tail(s: Dictionary, v: Q) -> String:
+	return " = " + W(v) if recip(s) and Answer.needs_rounding(v) else ""
+
+
+## The nudge between near-miss options: a step of the decimals (0.05 or 0.1), 0.01
+## among Paper 2's 3 d.p. ones, or 1/total for multiples and formulas.
+static func step(s: Dictionary) -> Q:
+	return Q.new(1, 100) if s.style == "calc" else Q.new(1, s.total)
 
 
 ## A probability or other number as this situation writes it.
@@ -93,6 +149,8 @@ static func shown_p(s: Dictionary, i: int) -> String:
 		return "q"
 	if s.style == "multiples" and not s.k_known:
 		return "k" if s.mult[i] == 1 else "%dk" % s.mult[i]
+	if not s.get("kc", []).is_empty() and s.kc[i] > 0:
+		return "k" if s.kc[i] == 1 else "%dk" % s.kc[i]
 	return pt(s, s.ps[i])
 
 
@@ -177,9 +235,10 @@ static func xs_of(s: Dictionary, idx: Array) -> String:
 
 
 ## The formula's right-hand side: "k(x + 1)", or "(x + 1)/14" with k put in.
+## A Paper 2 formula keeps its k: "k/x", with k given after it when it is known.
 static func formula_text(s: Dictionary) -> String:
 	var f: String = DistributionSituation.RULES[s.rule].text
-	return "%s/%d" % [f, s.total] if s.k_known else "k" + f
+	return "%s/%d" % [f, s.total] if s.k_known and not recip(s) else "k" + f
 
 
 # ── What the student sees ────────────────────────────────────
@@ -196,9 +255,12 @@ static func show(rep: String, s: Dictionary, out: Dictionary, extra: Array = [])
 		"game": null}
 	var ctx: Dictionary = CONTEXTS[s.context]
 	if rep == "equation":
-		out.lines = ["A discrete random variable X has", "P(X = x) = %s, for x = %s." % [formula_text(s),
-			", ".join(s.xs.map(func(x): return str(x)))]]
+		var where := ", where k = %s" % s.k.text() if recip(s) and s.k_known else ""
+		out.lines = ["A discrete random variable X has", "P(X = x) = %s, for x = %s%s." % [formula_text(s),
+			", ".join(s.xs.map(func(x): return str(x))), where]]
 		out.given.entries = null
+		if where != "":
+			out.given.k = s.k.key()
 	elif rep == "table":
 		out.lines = ["The table shows the probability distribution of a discrete random variable X."]
 		out.table = {"rows": [["x", s.xs.map(func(x): return str(x))], [PX, entries]]}
@@ -234,7 +296,7 @@ static func wrong(out: Dictionary, v: Variant, ref: String = "", prob: bool = fa
 	if v == null:
 		return
 	var q := Q.of(v)
-	if out.answer.get("show", "") != "" and Fmt.dec(q).contains("/"):
+	if out.answer.get("show", "") in ["dec", "money"] and Fmt.dec(q).contains("/"):
 		return
 	if not _keep(out, {"v": q}, prob):
 		return
@@ -249,7 +311,7 @@ static func _keep(out: Dictionary, values: Dictionary, prob: bool) -> bool:
 	var keys: Array = []
 	for id in values:
 		var x: float = values[id].to_float()
-		if x <= 0.0 or (prob and x >= 1.0) or not Answer.rounds_clearly(x, DistributionSituation.EDGE):
+		if x <= 0.0 or (prob and x >= 1.0) or not Answer.rounds_clearly(x, DistributionSituation.EDGE_SAFE):
 			return false
 		keys.append(Fmt.sf(x))
 	var key := ",".join(keys)
@@ -275,6 +337,8 @@ static func res(v: Q) -> Dictionary:
 # ── t4-discrete-distribution ─────────────────────────────────
 
 func u_k_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	if p2(s):
+		return k_paper2(rep, s)
 	var ans := number_answer("k = ", s.k, false)
 	var out := {"answer": ans, "wrongs": [], "generic": []}
 	show(rep, s, out)
@@ -308,6 +372,67 @@ func u_k_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return out
 
 
+## Paper 2's k, to 3 s.f.: beside awkward decimals (0.137 + k + 2k + 0.264 = 1), or
+## from a reciprocal formula (k(1 + 1/2 + 1/3) = 1), added up on the GDC.
+func k_paper2(rep: String, s: Dictionary) -> Dictionary:
+	var ans := number_answer("k = ", s.k, false)
+	ans.show = "sf"
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	show(rep, s, out)
+	out.asked = "Find the value of k, correct to 3 significant figures."
+	var n: int = s.xs.size()
+	var steps: Array = []
+	var rest := Q.new(1)       # what the multiples of k add to
+	var coef: Array = []       # P(X = x) ÷ k
+	var csum := Q.new(0)
+	if recip(s):
+		var items: Array = []
+		var parts: Array = []
+		for x in s.xs:
+			var d := DistributionSituation.rule_value(s.rule, x)
+			items.append("%s = %s" % [px(x), "k" if d == 1 else "k/%d" % d])
+			parts.append("1" if d == 1 else "1/%d" % d)
+			coef.append(Q.new(1, d))
+			csum = csum.add(coef[-1])
+		steps.append_array([
+			"Put each value of x into %s: %s." % [formula_text(s), and_list(items)],
+			"The probabilities add to 1: k(%s) = 1" % " + ".join(parts),
+			"With a GDC: %s = %s, so k = 1 ÷ %s = %s" % [" + ".join(parts), W(csum), W(csum), W(s.k)]])
+	else:
+		var terms: Array = []
+		var have := Q.new(0)
+		for i in n:
+			terms.append(shown_p(s, i))
+			coef.append(Q.new(s.kc[i]))
+			csum = csum.add(s.kc[i])
+			if s.kc[i] == 0:
+				have = have.add(s.ps[i])
+		rest = Q.new(1).sub(have)
+		var ck := "k" if csum.eq(1) else "%sk" % csum.text()
+		steps.append_array([
+			"The probabilities add to 1: %s = 1" % " + ".join(terms),
+			"%s + %s = 1, so %s = 1 − %s = %s" % [Fmt.dec(have), ck, ck, Fmt.dec(have), Fmt.dec(rest)],
+			"k = %s ÷ %s = %s on the GDC" % [Fmt.dec(rest), csum.text(), W(s.k)]])
+	steps.append("So %s." % Answer.text(ans))
+	out.methods = {"sum-to-one": {"steps": steps, "result": res(s.k)}}
+	# The products x × (P ÷ k), or the x-values, set to add up instead.
+	var sxc := Q.new(0)
+	var sx := 0
+	for i in n:
+		sxc = sxc.add(coef[i].mul(s.xs[i]))
+		sx += s.xs[i]
+	if sxc.sign() > 0:
+		wrong(out, rest.div(sxc), "SL4.7.find-k#0")
+	if rest.eq(1) and sx > 0:
+		wrong(out, Q.new(1, sx), "SL4.7.find-k#0")
+	wrong(out, rest)
+	wrong(out, rest.div(csum.add(1)))
+	wrong(out, s.k.mul(2))
+	wrong(out, Q.new(1, n))
+	wrong(out, csum)
+	return out
+
+
 func u_missing_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var m: int = s.missing
 	var p: Q = s.ps[m]
@@ -326,7 +451,7 @@ func u_missing_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"%s = 1 − %s = %s" % [px(s.xs[m]), pt(s, have), pt(s, p)],
 		"So %s." % Answer.text(ans)]
 	var last := [
-		"Add the probabilities that are given: %s" % sum_text(s, known),
+		"Add the probabilities that are given%s: %s" % [" on the GDC" if p2(s) else "", sum_text(s, known)],
 		"The last one is what is left of 1: 1 − %s = %s" % [pt(s, have), pt(s, p)],
 		"Check: %s is from 0 to 1, so the table is a valid distribution." % pt(s, p),
 		"So %s." % Answer.text(ans)]
@@ -336,9 +461,9 @@ func u_missing_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	for j in known:
 		wrong(out, p.add(s.ps[j]), "", true)
 	wrong(out, Q.new(1).sub(p), "", true)
-	var step := Q.new(1, s.total)
+	var nudge := step(s)
 	for k in [1, -1, 2, -2]:
-		wrong(out, p.add(step.mul(k)), "", true)
+		wrong(out, p.add(nudge.mul(k)), "", true)
 	return out
 
 
@@ -346,9 +471,13 @@ func u_event_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var e: Dictionary = s.event
 	var label := "P(%s) = " % event_text(e)
 	var ans := number_answer(label, s.pe, dec_style(s))
+	if recip(s):
+		ans.show = "sf"
 	var out := {"answer": ans, "wrongs": [], "generic": []}
 	show(rep, s, out)
 	out.asked = "Find P(%s)." % event_text(e)
+	if ans.get("show", "") == "sf":
+		out.asked = "Find P(%s), correct to 3 significant figures." % event_text(e)
 	var inn := inside_idx(s)
 	var outs := outside_idx(s)
 	var strict := DistributionSituation.with_strict_ends(e)
@@ -367,14 +496,14 @@ func u_event_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var add := first.duplicate()
 	add.append_array([
 		"%s takes in %s%s." % [event_text(e), xs_of(s, inn), note],
-		"P(%s) = %s" % [event_text(e), sum_text(s, inn)],
+		"P(%s) = %s%s" % [event_text(e), sum_text(s, inn), gdc_tail(s, s.pe)],
 		"So %s." % Answer.text(ans)])
 	var rest := sum_of(s, outs)
 	var comp := first.duplicate()
 	comp.append_array([
 		"%s leaves out %s%s." % [event_text(e), xs_of(s, outs), note_out],
 		"Those add to %s." % sum_text(s, outs),
-		"P(%s) = 1 − %s = %s" % [event_text(e), pt(s, rest), pt(s, s.pe)],
+		"P(%s) = 1 − %s = %s%s" % [event_text(e), pt(s, rest), pt(s, s.pe), gdc_tail(s, s.pe)],
 		"So %s." % Answer.text(ans)])
 	out.methods = {"add-entries": {"steps": add, "result": res(s.pe)}, "complement": {"steps": comp, "result": res(s.pe)}}
 	if not strict.is_empty():
@@ -397,9 +526,12 @@ func u_event_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		wrong(out, s.ps[i], "", true)
 		for j in range(i + 1, s.xs.size()):
 			wrong(out, s.ps[i].add(s.ps[j]), "", true)
-	var step := Q.new(1, s.total)
+	var nudge := step(s)
 	for k in [1, -1, 2, -2]:
-		wrong(out, s.pe.add(step.mul(k)), "", true)
+		wrong(out, s.pe.add(nudge.mul(k)), "", true)
+	# Last resorts, for a symmetric table whose slips all agree (P(X ≤ 2) = 1/2).
+	wrong(out, s.pe.div(2), "", true)
+	wrong(out, Q.new(1).sub(s.pe.div(2)), "", true)
 	return out
 
 
@@ -426,15 +558,17 @@ static func mean_tail(s: Dictionary) -> String:
 		for i in s.xs.size():
 			top += s.xs[i] * s.mult[i]
 		var raw := "%d/%d" % [top, s.total]
-		return raw if Q.new(top, s.total).text() == raw else raw + " = " + s.mean.text()
+		return (raw if Q.new(top, s.total).text() == raw else raw + " = " + s.mean.text()) + gdc_tail(s, s.mean)
 	return pt(s, s.mean)
 
 
 func u_expected_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := number_answer("E(X) = ", s.mean, dec_style(s))
+	if p2(s):
+		ans.show = "sf"
 	var out := {"answer": ans, "wrongs": [], "generic": []}
 	show(rep, s, out)
-	out.asked = "Find E(X)."
+	out.asked = "Find E(X)." if not p2(s) else "Find E(X), correct to 3 significant figures."
 	var tp := xp_terms(s)
 	var first: Array = [tabulate(s)] if rep == "equation" else []
 	var sum := first.duplicate()
@@ -539,22 +673,22 @@ func u_probabilities_from_mean(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var q1 := b1.sub(a.mul(xp)).div(d)
 	pair(out, a.sub(q1), q1, "SL4.7.unknowns-from-mean#1")
 	pair(out, q, p)
-	var step := Q.new(1, s.total)
-	pair(out, p.add(step), q.sub(step))
-	pair(out, p.sub(step), q.add(step))
+	var nudge := step(s)
+	pair(out, p.add(nudge), q.sub(nudge))
+	pair(out, p.sub(nudge), q.add(nudge))
 	var q2 := b.sub(Q.new(xp)).div(d)               # p + q = 1, the given ones left out
 	pair(out, Q.new(1).sub(q2), q2)
 	pair(out, a.div(2), a.div(2))
 	for k in [2, -2, 3, -3]:
-		pair(out, p.add(step.mul(k)), q.sub(step.mul(k)))
-	pair(out, q.add(step), p.sub(step))
-	pair(out, q.sub(step), p.add(step))
+		pair(out, p.add(nudge.mul(k)), q.sub(nudge.mul(k)))
+	pair(out, q.add(nudge), p.sub(nudge))
+	pair(out, q.sub(nudge), p.add(nudge))
 	# Σ x P = E(X) with the given values' products left out.
 	var q3: Q = s.mean.sub(a.mul(xp)).div(d)
 	pair(out, a.sub(q3), q3)
 	for k in [1, -1]:
-		pair(out, p.add(step.mul(k)), q)
-		pair(out, p, q.add(step.mul(k)))
+		pair(out, p.add(nudge.mul(k)), q)
+		pair(out, p, q.add(nudge.mul(k)))
 	return out
 
 
@@ -587,9 +721,19 @@ func u_fair_stake(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		entries.append(pt(s, s.ps[i]))
 	out.given = {"style": s.style, "k_known": false, "xs": s.xs.duplicate(), "entries": entries, "rule": "",
 		"total": null, "event": null, "mean": null, "n": null, "count": null,
-		"game": {"sectors": s.sectors if rep == "words" else null}}
+		"game": {"sectors": s.sectors if rep == "words" and not p2(s) else null}}
 	var probs_line := ""
-	if rep == "words":
+	if rep == "words" and p2(s):
+		# Paper 2: a lucky dip of 1000 tokens, each prize's share an awkward decimal.
+		out.given.game = {"sectors": null, "tokens": s.sectors}
+		var wins: Array = []
+		for i in range(n - 1, 0, -1):
+			wins.append("%d tokens win $%d" % [s.mult[i], s.xs[i]])
+		out.lines = ["A lucky dip at the bazaar holds %d tokens. %s, and the other %d win nothing. A player pays a stake to draw one token." % [
+			s.sectors, cap(and_list(wins)), s.mult[0]]]
+		probs_line = "Each token has probability 1/%d, so the prizes %s have probabilities %s." % [
+			s.sectors, and_list(s.xs.map(func(x): return "$%d" % x)), and_list(entries)]
+	elif rep == "words":
 		var wins: Array = []
 		for i in range(n - 1, 0, -1):
 			wins.append("%d %s $%d" % [s.mult[i], "sector wins" if s.mult[i] == 1 else "sectors win", s.xs[i]])
@@ -600,11 +744,13 @@ func u_fair_stake(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		out.lines = ["A player pays a stake to play a game at the bazaar. The table shows the prizes and their probabilities."]
 		out.table = {"rows": [["Prize ($)", s.xs.map(func(x): return str(x))], ["Probability", entries]]}
-	out.asked = "Find the stake that makes the game fair."
+	out.asked = "Find the stake that makes the game fair." if not p2(s) else "Find the stake that makes the game fair, to the nearest cent."
 	var terms: Array = []
 	for i in n:
 		terms.append("%d × %s" % [s.xs[i], entries[i]])
 	var mean := Fmt.dec(s.mean)
+	# Paper 2: the expected prize in tenths of a cent, rounded to the cent.
+	var cents := "" if not p2(s) else ", which is $%s to the nearest cent" % Fmt.money(s.mean)
 	var first: Array = [probs_line] if probs_line != "" else []
 	var gain := first.duplicate()
 	var gains: Array = s.xs.map(func(x): return ("−c" if x == 0 else "%d − c" % x))
@@ -612,11 +758,11 @@ func u_fair_stake(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"Let the stake be $c. The player's gain G is the prize minus the stake: %s." % and_list(gains),
 		"E(G) = Σ (prize − c) × P = Σ prize × P − c × Σ P = %s − c" % ("(" + " + ".join(terms) + ")"),
 		"Σ prize × P = %s, so E(G) = %s − c." % [mean, mean],
-		"Fair means E(G) = 0, so c = %s." % mean,
+		"Fair means E(G) = 0, so c = %s%s." % [mean, cents],
 		"So %s." % Answer.text(ans)])
 	var cost := first.duplicate()
 	cost.append_array([
-		"Expected prize = Σ prize × P = %s = %s" % [" + ".join(terms), mean],
+		"Expected prize = Σ prize × P = %s = %s%s" % [" + ".join(terms), mean, cents],
 		"The game is fair when the expected prize equals the cost to play: $%s." % Fmt.money(s.mean),
 		"So %s." % Answer.text(ans)])
 	out.methods = {"net-gain-table": {"steps": gain, "result": res(s.mean)}, "winnings-vs-cost": {"steps": cost, "result": res(s.mean)}}
@@ -671,15 +817,22 @@ static func show_trials(rep: String, s: Dictionary, out: Dictionary, extra: Arra
 func u_expected_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ctx: Dictionary = CONTEXTS[s.context if rep == "words" else 0]
 	var ans := number_answer("Expected number = ", s.count, true)
+	if p2(s):
+		ans.show = "sf"
 	var out := {"answer": ans, "wrongs": [], "generic": []}
 	show_trials(rep, s, out, [ctx.run % s.n])
 	out.given.n = s.n
 	out.asked = "Find the expected number of %s with %s." % [ctx.trial, event_text(s.event)]
+	if p2(s):
+		out.asked = out.asked.trim_suffix(".") + ", correct to 3 significant figures."
 	var inn := inside_idx(s)
 	var steps: Array = [tabulate(s)] if rep == "equation" else []
+	var count := Fmt.dec(s.count)
+	if count.contains("/"):
+		count += " = " + W(s.count)
 	steps.append_array([
 		"P(%s) = %s" % [event_text(s.event), sum_text(s, inn)],
-		"Expected number = n × P(%s) = %d × %s = %s" % [event_text(s.event), s.n, pt(s, s.pe), Fmt.dec(s.count)]])
+		"Expected number = n × P(%s) = %d × %s = %s" % [event_text(s.event), s.n, pt(s, s.pe), count]])
 	if not s.count.is_int():
 		steps.append("It is an average over many runs, so it need not be a whole number.")
 	steps.append("So %s." % Answer.text(ans))
@@ -709,8 +862,10 @@ func u_trials_for_count(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"n = %s ÷ %s = %d" % [Fmt.dec(s.count), par(pt(s, s.pe)), s.n],
 		"So %s." % Answer.text(ans)]
 	out.methods = {"n-times-p": {"steps": steps, "result": res(Q.new(s.n))}}
-	wrong(out, s.count.mul(s.pe))
-	wrong(out, s.count.div(Q.new(1).sub(s.pe)))
+	# Multiplied instead of divided, or by the wrong probability: on Paper 2 rounded to
+	# a whole number of trials, as a student would write it.
+	for v in [s.count.mul(s.pe), s.count.div(Q.new(1).sub(s.pe))]:
+		wrong(out, Q.new(half_up(v)) if p2(s) else v)
 	wrong(out, Q.new(s.n * 2))
 	wrong(out, Q.new(s.n / 2))
 	wrong(out, Q.new(s.n + 10))

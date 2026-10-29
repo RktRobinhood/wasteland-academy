@@ -1058,6 +1058,31 @@ KSYM, PSYM, QSYM, MSYM = sp.symbols("k p q m")
 # Asks whose options are probabilities, so between 0 and 1. k is not one: k = 21 from
 # 21k = 1 is a real slip.
 DIST_PROB_ASKS = {"missing-probability", "event-probability", "probabilities-from-mean"}
+# Paper 2 (FAL-419): awkward decimals to 3 d.p. (never a whole number of hundredths),
+# every probability from 0.05 to 0.6, a reciprocal formula k/f(x) for a whole f(x),
+# a lucky dip of 1000 tokens. Paper 1 keeps the limits above.
+DIST_P2_MILLE = 1000
+DIST_P1_TOTAL_MAX = 60
+SF3_SUFFIX = ", correct to 3 significant figures"
+
+
+def dist_awkward(p):
+    """A Paper 2 decimal: a whole number of thousandths, not of hundredths."""
+    return (p * DIST_P2_MILLE).q == 1 and (p * 100).q != 1
+
+
+def dist_needs_rounding(v):
+    return sp.Rational(sig3(v)) != v
+
+
+def money_round_text(v):
+    """A Paper 2 stake to the nearest cent, halves up (never on a half cent)."""
+    v = sp.Rational(v)
+    if v.q == 1:
+        return frac_text(v)
+    # Not whole dollars, so written with its cents, even when they round to $8.00.
+    cents = int(sp.floor(v * 100 + sp.Rational(1, 2)))
+    return f"{cents // 100}.{cents % 100:02d}"
 
 
 def frac_text(v):
@@ -1104,14 +1129,20 @@ def entry_value(text):
     return sp.Rational(t)
 
 
-def formula_values(line):
-    """The values of x and P(X = x) from 'P(X = x) = k(x + 1), for x = 0, 1, 2.'"""
-    m = re.fullmatch(r"P\(X = x\) = (.+), for x = ([\d, ]+)\.", line)
+def formula_values(line, k=None):
+    """The values of x and P(X = x) from 'P(X = x) = k(x + 1), for x = 0, 1, 2.', or
+    Paper 2's 'P(X = x) = k/x, for x = 1, 2, 3, where k = 6/11.' (k is put in, and
+    must be the given k)."""
+    m = re.fullmatch(r"P\(X = x\) = (.+), for x = ([\d, ]+?)(?:, where k = (\d+/\d+))?\.", line)
     need(m, f"formula line {line!r}")
+    need((m[3] is None) == (k is None), "k is given in the formula line but not in the givens, or the other way")
     rhs_text = re.sub(r"k(?=[x(])", "k*", m[1])
     s = rhs_text.replace("−", "-").replace("²", "**2")
     f = sp.sympify(parse_expr(s, local_dict={"x": X, "k": KSYM}, transformations=TRANSFORMS))
     xs = [int(v) for v in m[2].split(",")]
+    if m[3] is not None:
+        need(sp.Rational(m[3]) == sp.Rational(k), "the shown k is not the given one")
+        f = f.subs(KSYM, sp.Rational(m[3]))
     return xs, [sp.nsimplify(f.subs(X, x)) for x in xs]
 
 
@@ -1150,7 +1181,20 @@ def dist_read(q):
     lines = q["lines"]
     out = {"game": g.get("game") is not None}
     if out["game"]:
-        if rep == "words":
+        if rep == "words" and g["game"].get("tokens"):
+            # Paper 2: a lucky dip of 1000 tokens.
+            text = lines[0]
+            m = re.fullmatch(r"A lucky dip at the bazaar holds (\d+) tokens\. (.+), and the other (\d+) win nothing\. "
+                             r"A player pays a stake to draw one token\.", text)
+            need(m, f"lucky dip {text!r}")
+            tokens = int(m[1])
+            need(tokens == g["game"]["tokens"] == DIST_P2_MILLE, "the lucky dip's tokens are not as given")
+            wins = [(int(w[2]), int(w[1])) for w in re.finditer(r"(\d+) tokens win \$(\d+)", m[2])]
+            counts = {0: int(m[3]), **{w[0]: w[1] for w in wins}}
+            need(len(counts) == len(wins) + 1 and sum(counts.values()) == tokens, "the tokens don't add up")
+            out["xs"] = sorted(counts)
+            out["ps"] = [sp.Rational(counts[x], tokens) for x in out["xs"]]
+        elif rep == "words":
             text = lines[0]
             sectors = int(re.search(r"spinner with (\d+) equal sectors", text)[1])
             wins = [(int(m[2]), int(m[1])) for m in re.finditer(r"(\d+) sectors? wins? \$(\d+)", text)]
@@ -1170,7 +1214,7 @@ def dist_read(q):
         return out
     if rep == "equation":
         need(len(lines) >= 2, "no formula line")
-        xs, ps = formula_values(lines[1])
+        xs, ps = formula_values(lines[1], g.get("k"))
         need(g["entries"] is None, "a formula question also lists entries")
     elif rep == "table":
         rows = q["table"]["rows"]
@@ -1194,7 +1238,9 @@ def dist_read(q):
     return out
 
 
-def dist_clean(u, d, style):
+def dist_clean(u, d, style, paper=1, shown=None, k=None):
+    """The clean limits. shown: the probabilities as written (k, p and q still in);
+    k: k where the probabilities are k × something."""
     xs, ps = d["xs"], d["ps"]
     if d["game"]:
         need(len(xs) in DIST_PRIZES and xs[0] == 0, "a game has 3 or 4 prizes, one of them $0")
@@ -1207,14 +1253,35 @@ def dist_clean(u, d, style):
     for p in ps:
         need(0 < p < 1, f"probability {p} is not between 0 and 1")
         if style == "decimal":
+            need(paper == 1, "Paper 2 decimals that are steps of 0.05")
             need(DIST_P[0] <= p <= DIST_P[1] and (p * 20).q == 1, f"probability {p} is not a step of 0.05 from 0.05 to 0.6")
+        if paper == 2:
+            need(DIST_P[0] <= p <= DIST_P[1], f"Paper 2 probability {p} is not from 0.05 to 0.6")
+    if paper == 1:
+        need(style in ("multiples", "formula", "decimal"), f"Paper 1 style {style}")
+        if style == "formula":
+            need(max(sp.Rational(p).q for p in ps) <= DIST_P1_TOTAL_MAX, "a Paper 1 formula's probabilities are beyond sixtieths")
+        return
+    # Paper 2: decimals that want a calculator, or a reciprocal formula.
+    need(style in ("calc", "formula"), f"Paper 2 style {style}")
+    if style == "calc":
+        for e in shown or ps:
+            if not sp.sympify(e).free_symbols:
+                need(dist_awkward(sp.Rational(e)), f"Paper 2 decimal {e} is not an awkward one to 3 d.p.")
+    else:
+        need(k is not None, "a Paper 2 formula without k")
+        for p in ps:
+            r = sp.Rational(p) / sp.Rational(k)
+            need(r.p == 1 and r.q > 1 or r == 1, f"P(X = x) = {p} is not k over a whole number")
 
 
 def dist_event_prob(xs, ps, ev):
     return sum((p for x, p in zip(xs, ps) if event_holds(ev, x)), sp.Integer(0))
 
 
-def dist_show(u, style):
+def dist_show(u, style, paper=1, ans_show=None):
+    if paper == 2:
+        return {"sf": sig3, "dec": dec_text, "money": money_round_text}.get(ans_show, frac_text)
     if u == "k-from-sum":
         return frac_text
     if u == "fair-stake":
@@ -1230,8 +1297,19 @@ def check_distribution(q):
     rep = q["view"]["rep"]
     style = g["style"]
     asked = q["asked"]
+    paper = q.get("paper", 1)
+    need(paper in (1, 2), f"paper {paper}")
+    ans_show = q["answer"].get("show")
+    # Paper 2 says when it wants 3 s.f.; Paper 1 never does.
+    sf = asked.endswith(SF3_SUFFIX + ".")
+    need(sf == (ans_show == "sf"), f"asked {asked!r} with an answer shown {ans_show!r}")
+    need(paper == 2 or not sf, "a Paper 1 answer to 3 s.f.")
+    if sf:
+        asked = asked[:-len(SF3_SUFFIX) - 1] + "."
     d = dist_read(q)
     xs, ps = d["xs"], d["ps"]
+    shown = list(ps)
+    k_val = sp.Rational(g["k"]) if g.get("k") else None
     free = set().union(*[sp.sympify(p).free_symbols for p in ps])
     ev = None
     wrongs = {}
@@ -1242,11 +1320,17 @@ def check_distribution(q):
         sol = sp.solve(sp.Eq(sum(ps), 1), KSYM)
         need(len(sol) == 1, "the sum doesn't fix k")
         exp = sol[0]
-        need(DIST_K[0] <= exp <= DIST_K[1], f"k = {exp} is outside 1/60 to 1/6")
+        if paper == 1:
+            need(DIST_K[0] <= exp <= DIST_K[1], f"k = {exp} is outside 1/60 to 1/6")
+        else:
+            need(dist_needs_rounding(exp), f"Paper 2 k = {exp} needs no calculator")
         coef = [sp.Poly(p, KSYM).coeff_monomial(KSYM) for p in ps]
+        # What the multiples of k add to: 1, less any decimals beside them.
+        rest = 1 - sum(sp.expand(p - c * KSYM) for p, c in zip(ps, coef))
         sxc = sum(x * c for x, c in zip(xs, coef))
-        wrongs["SL4.7.find-k#0"] = [sp.Rational(1, v) for v in (sxc, sum(xs)) if v > 0]
+        wrongs["SL4.7.find-k#0"] = [rest / v for v in (sxc, sum(xs) if rest == 1 else 0) if v > 0]
         ps = [p.subs(KSYM, exp) for p in ps]
+        k_val = exp
         label = "k = "
     elif u == "missing-probability":
         need(free == {MSYM} and ps.count(MSYM) == 1, "not one missing probability")
@@ -1267,7 +1351,10 @@ def check_distribution(q):
         exp_pq = (sol[0][PSYM], sol[0][QSYM])
         need(exp_pq[0] != exp_pq[1], "p and q are equal")
         for v in exp_pq:
-            need(DIST_P[0] <= v <= DIST_P[1] and (v * 20).q == 1, f"{v} is not a step of 0.05 from 0.05 to 0.6")
+            if paper == 1:
+                need(DIST_P[0] <= v <= DIST_P[1] and (v * 20).q == 1, f"{v} is not a step of 0.05 from 0.05 to 0.6")
+            else:
+                need(DIST_P[0] <= v <= DIST_P[1] and dist_awkward(v), f"{v} is not an awkward decimal from 0.05 to 0.6")
         bad = sp.solve([sp.Eq(sum(ps), 1), sp.Eq(sum(x * p for x, p in zip(xs, ps)), 1)], [PSYM, QSYM], dict=True)
         wrongs["SL4.7.unknowns-from-mean#1"] = [(b[PSYM], b[QSYM]) for b in bad]
         ps = [p.subs(sol[0]) for p in ps]
@@ -1277,10 +1364,18 @@ def check_distribution(q):
         need(not free, f"{u} shows unknowns {free}")
         if u == "fair-stake":
             exp = sum(x * p for x, p in zip(xs, ps))
-            need((exp * 100).q == 1 and exp >= DIST_STAKE_MIN, f"the stake {exp} is not whole cents from $0.50")
+            need(exp >= DIST_STAKE_MIN, f"the stake {exp} is under $0.50")
+            if paper == 1:
+                need((exp * 100).q == 1, f"the stake {exp} is not whole cents")
+                need(asked == "Find the stake that makes the game fair.", f"asked {asked!r}")
+            else:
+                # To the nearest cent from tenths of a cent, never on a half cent.
+                mille = exp * 1000
+                need(mille.q == 1 and mille % 10 not in (0, 5), f"the Paper 2 stake {exp} is not to be rounded to the cent")
+                need(asked == "Find the stake that makes the game fair, to the nearest cent.", f"asked {asked!r}")
+                need(ans_show == "money", "the stake is not shown as money")
             win = sum(x * p for x, p in zip(xs, ps) if x > 0)
             wrongs["SL4.7.fair-game#0"] = [sp.Rational(sp.floor(win / ps[0] * 100 + sp.Rational(1, 2)), 100)]
-            need(asked == "Find the stake that makes the game fair.", f"asked {asked!r}")
             label = "Stake = $"
         elif u == "expected-value":
             exp = sum(x * p for x, p in zip(xs, ps))
@@ -1312,7 +1407,11 @@ def check_distribution(q):
                 need(DIST_TRIALS[0] <= n <= DIST_TRIALS[1], f"{n} trials")
                 need(f" {n} " in " " + q["lines"][-1], "the number of trials is not shown")
                 exp = n * pe
-                need((exp * 2).q == 1 and exp >= 1, f"expected number {exp} is not whole or .5")
+                need(exp >= 1, f"expected number {exp} is under 1")
+                if paper == 1:
+                    need((exp * 2).q == 1, f"expected number {exp} is not whole or .5")
+                else:
+                    need(exp.q != 1 and ans_show == "sf", f"Paper 2 expected number {exp} is whole or not to 3 s.f.")
                 wrongs["SL4.5.expected-occurrences#0"] = [] if exp.q == 1 else [sp.floor(exp + sp.Rational(1, 2))]
                 wrongs["SL4.5.expected-occurrences#1"] = [pe]
                 label = "Expected number = "
@@ -1322,12 +1421,19 @@ def check_distribution(q):
                 need(m and sp.Rational(m[1]) == count, "the expected number is not shown")
                 exp = count / pe
                 need(exp.q == 1 and DIST_TRIALS[0] <= exp <= DIST_TRIALS[1], f"n = {exp}")
-                need((count * 2).q == 1 and count >= 1, f"expected number {count} is not whole or .5")
+                need(count >= 1, f"expected number {count} is under 1")
+                if paper == 1:
+                    need((count * 2).q == 1, f"expected number {count} is not whole or .5")
+                else:
+                    need((count * 100).q == 1, f"expected number {count} has more than 2 decimal places")
                 label = "n = "
             else:
                 raise Fail(f"the checker has no solver for {u}")
-    dist_clean(u, {**d, "ps": ps}, style)
-    show = dist_show(u, style)
+    dist_clean(u, {**d, "ps": ps}, style, paper, shown, k_val)
+    show = dist_show(u, style, paper, ans_show)
+    if paper == 2 and ans_show != "sf" and exp is not None:
+        # An exact Paper 2 answer is a decimal that ends (0.384, n = 250, $7.206).
+        need(dec_text(exp).count("/") == 0, f"Paper 2 answer {exp} doesn't end")
     prob = u in DIST_PROB_ASKS
 
     def value_text(v):
@@ -1361,6 +1467,13 @@ def check_distribution(q):
     keys = set()
     for o in ch:
         ov = vals(o["values"])
+        if o.get("trap"):
+            # Q7's rounding trap (Paper 2): the answer to 2 s.f., written as a decimal.
+            need(paper == 2 and exp_pq is None and ans_show == "sf", "a rounding trap off a Paper 2 3 s.f. answer")
+            need(not o["correct"] and not o["ref"], f"rounding trap {o['text']!r} is wrong-tagged")
+            need(dist_needs_rounding(want) and ov == sp.Rational(sig3(want, 2)), f"rounding trap {o['text']!r} is not the answer to 2 s.f.")
+            need(o["text"] == label + dec_text(ov), f"rounding trap text {o['text']!r}")
+            continue
         parts = ov if exp_pq is not None else (ov,)
         for v in parts:
             need(v > 0 and (not prob or v < 1), f"option {o['text']!r} is out of range")
