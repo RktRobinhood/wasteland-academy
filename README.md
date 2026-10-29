@@ -58,6 +58,7 @@ npm test
 - `tests/content/`: content validator (`node --test`). Known content defects are listed in `tests/content/known-defects.mjs` and show as TODO.
 - `tests/unit/`: unit checks (`node --test`): question generator, spaced repetition, save migrations, and the offline rules above (no remote URLs, everything precached, vendored KaTeX matches `katex@0.16.9`).
 - `tests/e2e/`: Playwright. A full island fight on a phone screen, a small-phone layout check, service-worker checks (a full fight with the network off, and updates), save export/import, and the install button and iOS tip.
+- `tools/telemetry/`: the weekly telemetry outlier report (`report.py`), tested on fake events with planted outliers: `python3 -m unittest discover -s tools/telemetry`.
 
 GitHub Actions runs `npm test` on every PR and on pushes to `main`.
 `tests/unit/service-worker.test.mjs` checks the service worker leaves `next/` and
