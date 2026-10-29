@@ -4222,6 +4222,95 @@ def check_log_function(q):
     return None, None
 
 
+# ── fn-pre-percent-multiplier ──
+# The clean limits, the checker's own copy of game/engine/situations/percent.gd's.
+
+PC_RATES = {5, 8, 10, 12, 15, 20, 25, 30, 35, 40}
+PC_AMOUNTS = {80, 120, 160, 200, 240, 300, 360, 400, 500, 640, 800, 1200, 1500, 2000}
+
+
+def pc_val(text):
+    """A side of a line of working, with every decimal read exactly."""
+    t = re.sub(r"\d+\.\d+", lambda m: f"({sp.Rational(m.group(0))})", text.replace("−", "-").replace("×", "*"))
+    return sp.sympify(t)
+
+
+def pc_first_false(q, lines):
+    for i, line in enumerate(lines):
+        a, b = line.split(" = ")
+        if pc_val(a) != pc_val(b):
+            return i
+    return None
+
+
+def pc_change(text):
+    """'an increase of 15%' -> 115/100."""
+    m = em_read(r"(increase|decrease|rises by|falls by) (?:of )?(\d+)%", text, "the change")
+    r = int(m.group(2))
+    return 1 + sp.Rational(r, 100) * (1 if m.group(1) in ("increase", "rises by") else -1), r
+
+
+def check_percent(q):
+    g, ans, u, rep, L = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    T = "fn-pre-percent-multiplier"
+    need(R(g["P"]) in PC_AMOUNTS and int(g["r"]) in PC_RATES and int(g["r2"]) in PC_RATES, "not a clean amount or rate")
+    wr = {}
+    Lj = " ".join(L)
+    tab = {row[0]: row[1][0] for row in q["table"]["rows"]} if q.get("table") else {}
+    def amount(key, pat):
+        return el_num(tab[key]) if key in tab else el_num(em_read(pat, Lj, key).group(1))
+    if u in ("increase-multiplier", "decrease-multiplier"):
+        m, r = pc_change(q["asked"])
+        want = qr_norm(ans, {"v": str(m)})
+        if u == "decrease-multiplier":
+            wr[f"{T}#0"] = {qr_norm(ans, {"v": str(sp.Rational(r, 100))})}
+        elif r < 10:
+            wr[f"{T}#1"] = {qr_norm(ans, {"v": str(1 + sp.Rational(r, 10))})}
+    elif u == "apply-change":
+        if rep == "table":
+            P, ch = el_num(tab["Before"]), tab["Change"]
+            m = 1 + sp.Rational(int(ch[1:-1]), 100) * (1 if ch[0] == "+" else -1)
+            r = int(ch[1:-1])
+        else:
+            P = el_num(em_read(r"([\d.]+)(?:,| changes)", Lj, "the amount").group(1))
+            m, r = pc_change(q["asked"])
+        want = qr_norm(ans, {"v": str(P * m)})
+        if m < 1:
+            wr[f"{T}#0"] = {qr_norm(ans, {"v": str(P * sp.Rational(r, 100))})}
+    elif u == "multiplier-to-percent":
+        mm = el_num(em_read(r"multiplying by ([\d.]+) stand for\?", q["asked"], "the multiplier").group(1))
+        want = ("rise" if mm > 1 else "fall", abs(mm - 1) * 100)
+    elif u == "reverse-percentage":
+        if rep == "table":
+            A, ch = el_num(tab["After"]), tab["Change"]
+            r, up = int(ch[1:-1]), ch[0] == "+"
+        else:
+            A = el_num(em_read(r"([\d.]+)(?: after|\.$)", Lj, "the amount after").group(1))
+            m_, r = pc_change(Lj)
+            up = m_ > 1
+        m = 1 + sp.Rational(r, 100) * (1 if up else -1)
+        want = qr_norm(ans, {"v": str(A / m)})
+        wr[f"{T}#2"] = {qr_norm(ans, {"v": str(A - A * sp.Rational(r, 100) if up else A + A * sp.Rational(r, 100))})}
+    elif u == "repeated-changes":
+        parts = Lj.replace("A price has ", "").rstrip(".").split(", then ")
+        (m1, _), (m2, _) = pc_change(parts[0]), pc_change(parts[1])
+        M = m1 * m2
+        want = qr_norm(ans, {"v0": str(M), "v1": str((M - 1) * 100)})
+    elif u == "percent-from-amounts":
+        if rep == "table":
+            P, A = el_num(tab["Before"]), el_num(tab["After"])
+        else:
+            P, A = [el_num(x) for x in em_read(r"(\d+(?:\.\d+)?) (?:→|to) (\d+(?:\.\d+)?)", Lj, "the amounts").groups()]
+        want = ("rise" if A > P else "fall", abs(A - P) / P * 100)
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    qr_check_common(q, want, wr)
+    return None, None
+
+
+SPOT_CHECKS["fn-pre-percent-multiplier"] = pc_first_false
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -4229,7 +4318,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function}
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

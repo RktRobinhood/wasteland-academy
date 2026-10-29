@@ -7,9 +7,10 @@ extends "res://tests/test_case.gd"
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
 const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 49, "fn-log-of-quadratic": 71,
-	"fn-log-function-features": 38}
+	"fn-log-function-features": 38, "fn-pre-percent-multiplier": 22}
 const SITUATION := {"fn-exponential-model": "exp-model", "fn-exp-log-inverse-composite": "exp-log-pair",
-	"fn-log-of-quadratic": "log-quadratic", "fn-log-function-features": "log-function"}
+	"fn-log-of-quadratic": "log-quadratic", "fn-log-function-features": "log-function",
+	"fn-pre-percent-multiplier": "fn-pre-percent-multiplier"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-log-of-quadratic|SL1.5.exp-log-form#1": "reading log_k G = n as nᵏ = G gives k = ln G/ln n, never a whole number here, so no exact option shows it",
@@ -119,7 +120,7 @@ func test_a_time_is_never_on_a_rounding_edge_and_whole_units_round_up() -> void:
 
 
 func test_the_boss_chains_are_one_situation() -> void:
-	for t in CELLS:
+	for t in CELLS.keys().filter(func(id): return QuestionEngine.type_of(id).source == "exam"):
 		var windows := Dungeon.chain_windows(t)
 		check(not windows.is_empty(), "%s has no boss chain" % t)
 		for steps in windows:
@@ -150,3 +151,11 @@ func test_numbers_use_a_true_minus() -> void:
 			var texts: Array = [q.prompt] + q.lines + q.choices.map(func(o): return o.text)
 			for t in texts:
 				check(not RegEx.create_from_string("-\\d").search(t), "%s: %s" % [c.key, t])
+
+
+func test_the_error_spot_is_adding_the_percentages() -> void:
+	var c: Dictionary = QuestionEngine.cells(false, ["fn-pre-percent-multiplier"]).filter(func(x): return x.unknown == "repeated-changes")[0]
+	for seed in range(1, 10):
+		var q := _make(c.type, c.unknown, c.rep, c.angle, seed, "error-spot")
+		check(not q.has("error"), str(q.get("error")))
+		check_eq(q.spot.bad, 2, "the multiplication of the two multipliers is the first wrong line")
