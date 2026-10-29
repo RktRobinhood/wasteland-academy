@@ -1,0 +1,28 @@
+# The telemetry collector (FAL-406). Not deployed yet: see README.md, "Deploying".
+name = "wasteland-telemetry"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+# Cloudflare's Workers Logs record request metadata, headers included, which would put
+# the IP in a log. The collector logs nothing.
+[observability]
+enabled = false
+
+[vars]
+ALLOWED_ORIGIN = "https://rktrobinhood.github.io"
+# Requests per session per minute, counted in each Worker instance
+RATE_LIMIT_PER_MINUTE = "30"
+
+# The database lives in the EU jurisdiction. Cloudflare sets that when the database is
+# created, not here: `npx wrangler d1 create wasteland-telemetry --jurisdiction eu`,
+# then paste the database_id it prints below. Deploying with this placeholder fails,
+# which is the point: it stops Wrangler making a database outside the EU.
+[[d1_databases]]
+binding = "DB"
+database_name = "wasteland-telemetry"
+database_id = "replace-with-the-id-from-wrangler-d1-create"
+migrations_dir = "migrations"
+
+# Deletes raw events older than 12 months, daily at 03:15 UTC
+[triggers]
+crons = ["15 3 * * *"]
