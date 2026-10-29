@@ -6532,6 +6532,70 @@ def check_gdc_inequality(q):
     return None, None
 
 
+# ── Graphs and key features (FAL-420): fn-pre-graph-reading ───
+# Reading a grid and rounding. The number or point is read back from the question and
+# rounded again with Decimal (half up), each misconception's value worked out the same.
+
+GR_T = "fn-pre-graph-reading#"
+
+
+def gr_round(text, places=None, sf=None):
+    d = Decimal(text.replace("−", "-"))
+    if sf is not None:
+        e = d.copy_abs().adjusted()
+        q = Decimal(1).scaleb(e - sf + 1)
+    else:
+        q = Decimal(1).scaleb(-places)
+    return dec_text(sp.Rational(str(d.quantize(q, rounding=ROUND_HALF_UP))))
+
+
+def check_graph_reading(q):
+    u, asked, L = q["view"]["unknown"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "graph reading is Paper 1")
+    wr = {}
+    if u == "read-coordinates":
+        p = [p for p in q["graph"]["points"] if p["label"] == "P"]
+        need(len(p) == 1, "no point P on the grid")
+        x, y = int(p[0]["x"]), int(p[0]["y"])
+        want = f"({frac_text(x)}, {frac_text(y)})"
+        wr[GR_T + "1"] = {f"({frac_text(y)}, {frac_text(x)})"}
+    elif u == "read-with-scale":
+        sc = int(re.search(r"Each grid square on the y-axis is (\d+) units", asked).group(1))
+        n = int(re.search(r"The point is (\d+) squares above", L[0]).group(1))
+        need(abs(q["graph"]["points"][0]["y"] - n * sc) < 1e-9, "the point drawn is not at that height")
+        want = f"y = {n * sc}"
+        wr[GR_T + "0"] = {f"y = {n}"}
+    elif u == "plot-from-table":
+        t = q["table"]
+        pts = sorted((int(R(x)), int(R(y))) for x, y in zip(t["xs"], t["ys"]))
+        mk = {"swapped": lambda p: (p[1], p[0]), "up-one": lambda p: (p[0], p[1] + 1), "flipped": lambda p: (p[0], -p[1])}
+        for o, gr in zip(q["choices"], q["graphs"]):
+            got = sorted((int(round(p["x"])), int(round(p["y"]))) for p in gr["points"])
+            exp_ = pts if o["correct"] else sorted(mk[o["mistake"]](p) for p in pts)
+            need(got == exp_, f"the {o.get('mistake') or 'right'} grid doesn't show its points")
+            if not o["correct"]:
+                need(o["ref"] == (GR_T + "1" if o["mistake"] == "swapped" else ""), "a grid is mistagged")
+        gc_check_common(q, next(o["text"] for o in q["choices"] if o["correct"]), {o["ref"]: {o["text"]} for o in q["choices"] if o["ref"]})
+        return None, None
+    elif u in ("round-3sf", "round-small-3sf"):
+        v = re.search(r"Write (.+?) correct to 3 significant figures\.", asked).group(1)
+        want = gr_round(v, sf=3)
+        if u == "round-3sf":
+            wr[GR_T + "4"] = {gr_round(v, sf=2)}
+        else:
+            wr[GR_T + "2"] = {gr_round(v, places=3)}
+    elif u == "round-dp":
+        m = re.search(r"Write (.+?) correct to (\d) decimal places?\.", asked)
+        want = gr_round(m.group(1), places=int(m.group(2)))
+    elif u == "which-values-round":
+        b = sp.Rational(re.search(r"A value x is (.+?), correct to 3 significant figures", asked).group(1).replace("−", "-"))
+        want = f"{dec_text(b - sp.Rational(1, 200))} ≤ x < {dec_text(b + sp.Rational(1, 200))}"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -6544,7 +6608,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "gdc-combined": check_gdc_combined,
                     "gdc-context-equation": check_gdc_context_equation,
                     "graph-from-features": check_graph_from_features,
-                    "gdc-inequality": check_gdc_inequality}
+                    "gdc-inequality": check_gdc_inequality,
+                    "fn-pre-graph-reading": check_graph_reading}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

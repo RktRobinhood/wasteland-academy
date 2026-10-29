@@ -8,11 +8,12 @@ extends "res://tests/test_case.gd"
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
 const CELLS := {"fn-sketch-gdc": 42, "fn-gdc-features": 36, "fn-gdc-intersection": 29, "fn-gdc-optimise-combined": 27,
 	"fn-gdc-solve-equation": 33, "fn-sketch-from-features": 30,
-	"fn-concept-solutions-as-intersections": 17, "fn-ext-inequality-graphical": 11}
+	"fn-concept-solutions-as-intersections": 17, "fn-ext-inequality-graphical": 11,
+	"fn-pre-graph-reading": 10}
 const SITUATION := {"fn-sketch-gdc": "gdc-curve", "fn-gdc-features": "gdc-curve", "fn-gdc-intersection": "gdc-two-curves",
 	"fn-gdc-optimise-combined": "gdc-combined", "fn-gdc-solve-equation": "gdc-context-equation",
 	"fn-sketch-from-features": "graph-from-features", "fn-concept-solutions-as-intersections": "gdc-two-curves",
-	"fn-ext-inequality-graphical": "gdc-inequality"}
+	"fn-ext-inequality-graphical": "gdc-inequality", "fn-pre-graph-reading": "fn-pre-graph-reading"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-sketch-gdc|SL2.10.number-of-solutions#2": "counting the asymptote's level needs a curve that levels off; the gdc-curve asymptote is vertical",
