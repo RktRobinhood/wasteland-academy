@@ -164,10 +164,10 @@ func render_question() -> void:
 	match question.format:
 		"value":
 			_add_slots()
-		"mcq":
-			_add_options(question.choices.map(func(c): return c.text))
 		"probe":
 			_add_options(question.options)
+		_:
+			_add_options(question.choices.map(func(c): return c.text))
 	check_button = Button.new()
 	check_button.name = "Check"
 	check_button.text = "Check"
@@ -220,10 +220,7 @@ func _add_representation() -> void:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		card.add_child(l)
 	if question.graph != null:
-		var g := GraphView.new()
-		g.name = "Graph"
-		g.set_spec(question.graph)
-		card.add_child(g)
+		card.add_child(graph_for(question.graph))
 	if question.table != null:
 		card.add_child(_table(question.table))
 	if question.get("diagram") != null:
@@ -231,6 +228,15 @@ func _add_representation() -> void:
 		d.name = "Diagram"
 		d.set_spec(question.diagram)
 		card.add_child(d)
+
+
+## The view that draws a question's graph: PlotView for a graph with a "kind" (number
+## line, normal curve, sin or cos, bars), else GraphView's parabola.
+static func graph_for(spec: Dictionary) -> Control:
+	var g: Control = PlotView.new() if spec.get("kind", "") != "" else GraphView.new()
+	g.name = "Graph"
+	g.set_spec(spec)
+	return g
 
 
 func _table(t: Dictionary) -> Control:
@@ -371,13 +377,13 @@ func check_answer() -> void:
 			for id in _picks:
 				response[id] = _picks[id]
 			result = QuestionEngine.mark(question, response)
-		"mcq":
-			result = QuestionEngine.mark(question, {"choice": _choice})
 		"probe":
 			if _choice < 0:
 				result = {"complete": false, "errors": {"choice": "Choose one."}}
 			else:
 				result = QuestionEngine.mark_probe(question, question.options[_choice])
+		_:
+			result = QuestionEngine.mark(question, {"choice": _choice})
 	feedback.visible = true
 	if not result.complete:
 		var msgs: Array = result.errors.values()
@@ -414,22 +420,32 @@ func _show_feedback(result: Dictionary) -> void:
 		if probe:
 			feedback.text = "Not quite." if question.verdict != "" else "Here is the answer:"
 		else:
-			feedback.text = "Not quite. The answer is %s." % question.answer_text
+			feedback.text = "Not quite. The answer is %s." % right_text(question)
 		feedback.add_theme_color_override("font_color", UiTheme.PINK)
-		var ref: String = result.get("misconception", "")
-		if ref != "":
-			for m in QuestionEngine.type_of(question.view.type).get("misconceptions", []):
-				if m.ref == ref:
-					feedback.text += "\nWatch out: " + m.text + "."
-					break
-	if question.format in ["mcq", "probe"]:
+		var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), result.get("misconception", ""))
+		if why != "":
+			feedback.text += "\nWatch out: " + why + "."
+	# An error-spot, method-pick or true-false-reason question says why.
+	if question.has("reason"):
+		feedback.text += "\n" + question.reason
+	if question.format == "probe" or QuestionEngine.is_choice(question):
 		for i in _choice_buttons.size():
-			var right_option: bool = question.choices[i].correct if question.format == "mcq" else question.options[i] == question.verdict
+			var right_option: bool = question.choices[i].correct if question.format != "probe" else question.options[i] == question.verdict
 			if right_option:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.TEAL)
 			elif i == _choice:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.PINK)
 	_show_working()
+
+
+## The right answer as feedback names it: the answer, or for an extra format the right
+## option (Line 3, a method, True).
+static func right_text(q: Dictionary) -> String:
+	if q.format in QuestionEngine.EXTRA_FORMATS:
+		for c in q.choices:
+			if c.correct:
+				return c.text
+	return q.answer_text
 
 
 ## The worked solution, with a tab per method (or a probe's reveal).
@@ -500,23 +516,6 @@ func autoplay(right: bool) -> void:
 	if question.is_empty() or question.has("error"):
 		return
 	match question.format:
-		"mcq", "probe":
-			var pick := -1
-			var items: Array = question.choices if question.format == "mcq" else question.options
-			for i in items.size():
-				var ok: bool = question.choices[i].correct if question.format == "mcq" else items[i] == question.verdict or (question.verdict == "" and i == 0)
-				if ok == right and pick < 0:
-					pick = i
-			# A wrong answer picks a misconception's option when there is one.
-			if not right and question.format == "mcq":
-				for i in items.size():
-					if question.choices[i].ref != "":
-						pick = i
-						break
-			if pick < 0:
-				pick = 0
-			_choice_buttons[pick].button_pressed = true
-			_choice = pick
 		"value":
 			var values: Dictionary = question.answer.values
 			if not right:
@@ -537,6 +536,23 @@ func autoplay(right: bool) -> void:
 				_picks[id] = values[id]
 				for b in _pick_buttons[id]:
 					b.button_pressed = b.text == values[id]
+		_:
+			var pick := -1
+			var items: Array = question.choices if question.format != "probe" else question.options
+			for i in items.size():
+				var ok: bool = question.choices[i].correct if question.format != "probe" else items[i] == question.verdict or (question.verdict == "" and i == 0)
+				if ok == right and pick < 0:
+					pick = i
+			# A wrong answer picks a misconception's option when there is one.
+			if not right and question.format != "probe":
+				for i in items.size():
+					if question.choices[i].ref != "":
+						pick = i
+						break
+			if pick < 0:
+				pick = 0
+			_choice_buttons[pick].button_pressed = true
+			_choice = pick
 	check_answer()
 
 

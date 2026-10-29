@@ -101,8 +101,11 @@ func test_format_layer_names_all_eight() -> void:
 	for f in ["value", "mcq", "error-spot", "method-pick", "true-false-reason", "match", "order-steps", "pick-the-graph"]:
 		check(f in QuestionEngine.FORMATS, f)
 	var v := {"type": "fn-quadratic-features", "unknown": "axis-from-general", "rep": "equation", "angle": "minus-b-over-2a",
-		"seed": 1, "format": "error-spot"}
+		"seed": 1, "format": "match"}
 	check(QuestionEngine.make(v).get("error", "").contains("not built yet"), "an unbuilt format says so")
+	# error-spot is built (FAL-459), but only where a type lists it and its views write the working.
+	v.format = "error-spot"
+	check(QuestionEngine.make(v).get("error", "").contains("not built for"), "a built format a view doesn't offer says so")
 	v.format = "nonsense"
 	check(QuestionEngine.make(v).has("error"))
 

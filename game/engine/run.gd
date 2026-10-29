@@ -439,7 +439,7 @@ func can_use(lifeline: String) -> bool:
 		return false
 	match lifeline:
 		"fifty":
-			return question.format == "mcq" and removed.is_empty()
+			return QuestionEngine.is_choice(question) and removed.is_empty()
 		"hint":
 			return hint == "" and not question.solutions.is_empty()
 		"freeze":

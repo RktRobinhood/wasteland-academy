@@ -65,17 +65,17 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 
 		var unseen_cells := pool.filter(func(c): return not save.cells.has(c.key))
 		if not unseen_cells.is_empty():
-			return _view(_weighted(unseen_cells, rng), seed, fmt, "unseen")
+			return _view(_weighted(unseen_cells, rng), seed, fmt, "unseen", rng)
 
 		var wrong := pool.filter(func(c):
 			var r: Dictionary = save.cells.get(c.key, {})
 			return r.get("last_result") == "wrong" and now - int(r.get("last", 0)) <= RECENT and not recent.has(c.key))
 		if not wrong.is_empty():
 			wrong.sort_custom(func(x, y): return int(save.cells[x.key].last) < int(save.cells[y.key].last))
-			return _view(wrong[0], seed, fmt, "wrong")
+			return _view(wrong[0], seed, fmt, "wrong", rng)
 
 	var fresh := pool.filter(func(c): return not recent.has(c.key))
-	return _view(_weighted(fresh if not fresh.is_empty() else pool, rng), seed, fmt, "frequency")
+	return _view(_weighted(fresh if not fresh.is_empty() else pool, rng), seed, fmt, "frequency", rng)
 
 
 ## The built types of a catalogue region (or Dungeon.ALL), in catalogue order.
@@ -100,5 +100,8 @@ static func _weighted(cells: Array, rng: Seeded) -> Dictionary:
 	return cells[rng.weighted(weights)]
 
 
-static func _view(c: Dictionary, seed: int, fmt: String, rule: String) -> Dictionary:
-	return {"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": fmt, "seed": seed, "rule": rule}
+## The view for a cell. A cell with extra formats (error-spot, method-pick,
+## true-false-reason) is asked in one of them some of the time.
+static func _view(c: Dictionary, seed: int, fmt: String, rule: String, rng: Seeded) -> Dictionary:
+	return {"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": QuestionEngine.upgrade_format(c, fmt, rng),
+		"seed": seed, "rule": rule}
