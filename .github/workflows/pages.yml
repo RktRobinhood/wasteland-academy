@@ -1,6 +1,10 @@
 # Publishes the site to GitHub Pages on every push to main: the repo as it is, plus
 # the Godot web export at next/. Pull requests build the site but don't deploy it.
 #
+# The takeover switch is the GODOT_AT_ROOT line below (README, "Switching to Godot").
+# Off, the site is as above. On, Godot is at the root, the HTML game at classic/, and
+# next/ sends people on to the root. scripts/assemble-site.sh lays out both.
+#
 # The repo goes through actions/jekyll-build-pages, the same step Pages' "deploy
 # from a branch" runs, so every URL of the HTML game stays exactly as it was.
 # Needs Settings > Pages > Build and deployment > Source set to "GitHub Actions".
@@ -14,6 +18,10 @@ on:
 
 permissions:
   contents: read
+
+env:
+  # The takeover switch: the repository variable GODOT_AT_ROOT, on or off. Unset is off.
+  GODOT_AT_ROOT: ${{ vars.GODOT_AT_ROOT || 'off' }}
 
 concurrency:
   group: pages-${{ github.ref }}
@@ -32,11 +40,11 @@ jobs:
           destination: ./_site
       - run: scripts/ci-install-godot.sh
       - run: ./export.sh "$RUNNER_TEMP/next"
-      - name: Add the export at next/
+      - name: Lay out the site with the takeover switch ${{ env.GODOT_AT_ROOT }}
         run: |
-          if [ -e _site/next ]; then echo "the repo already publishes a next/ path" >&2; exit 1; fi
-          sudo cp -r "$RUNNER_TEMP/next" _site/next
-          ls -l _site/next
+          sudo chown -R "$(id -u):$(id -g)" _site
+          scripts/assemble-site.sh _site "$RUNNER_TEMP/next" "$GODOT_AT_ROOT"
+          ls -l _site _site/next
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
