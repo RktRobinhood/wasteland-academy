@@ -4486,6 +4486,121 @@ def check_growth(q):
     return None, None
 
 
+# ── fn-link-multiplicative-growth ──
+# The clean limits, the checker's own copy of game/engine/situations/link_growth.gd's.
+
+LG_STARTS = {1000, 2000, 5000, 8000, 12000, 20000}
+LG_RATES = {2, 4, 5, 8, 10, 12, 15, 20, 25}
+
+
+def check_link_growth(q):
+    g, ans, u, rep, L, asked = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    Lj = " ".join(L)
+    need(R(g["P0"]) in LG_STARTS and int(g["r"]) in LG_RATES, "not a clean start or rate")
+    wr = {}
+    m3 = lambda x: (need(not on_edge(abs(num(x))), f"{u}: {num(x)} is on a rounding edge"), el_m(x))[1]
+    T = "fn-link-multiplicative-growth"
+    if u == "percent-to-factor":
+        m = em_read(r"A value (rises|falls) by (\d+)% a year\.", L[0], "the rate")
+        r = int(m.group(2))
+        f = 1 + sp.Rational(r, 100) * (1 if m.group(1) == "rises" else -1)
+        say = lambda v: f"r = {dec_text(v)}: the graph {'rises' if v > 1 else 'falls'}"
+        want = qr_norm(ans, {"v": say(f)})
+        wr["SL2.9.exp-model#0"] = {qr_norm(ans, {"v": say(sp.Rational(r, 100))})}
+        if f < 1:
+            wr["SL1.3.model#1"] = {qr_norm(ans, {"v": say(1 + sp.Rational(r, 100))})}
+    elif u in ("sequence-vs-function", "depreciation-two-ways", "compounding-factor"):
+        n = int(em_read(r"after (\d+) years", asked, "the years").group(1))
+        if u == "sequence-vs-function":
+            m = re.search(r"V\(t\) = (\d+)\(([\d.]+)\)ᵗ", Lj)
+            if m:
+                P0, f = el_num(m.group(1)), el_num(m.group(2))
+            else:
+                m = em_read(r"An investment of (\d+) (rises|falls) by (\d+)% a year\.", Lj, "the investment")
+                P0, f = el_num(m.group(1)), 1 + sp.Rational(int(m.group(3)), 100) * (1 if m.group(2) == "rises" else -1)
+            want = m3(P0 * f ** n)
+            wr["SL2.9.exp-model#1"] = {el_m(P0 * f * n)}
+            wr["SL2.9.exp-model#2"] = wr["SL1.3.model#2"] = {el_m(P0 * f ** (n - 1))}
+            wr["SL1.3.nth-term#0"] = {el_m(P0 * f ** (n + 1))}
+        elif u == "depreciation-two-ways":
+            m = em_read(r"bought for (\d+) loses (\d+)% of its value each year", Lj, "the machine")
+            P0, r = el_num(m.group(1)), sp.Rational(int(m.group(2)), 100)
+            if rep == "table":
+                vals = [el_num(v) for v in q["table"]["rows"][1][1]]
+                need(vals == [P0, P0 * (1 - r), P0 * (1 - r) ** 2], "the table is not the machine's values")
+            want = m3(P0 * (1 - r) ** n)
+            wr["SL1.4.depreciation#1"] = wr["SL1.3.model#1"] = {el_m(P0 * (1 - r * n))}
+            wr["SL1.4.depreciation#0"] = {el_m(P0 * (1 + r) ** n), el_m(P0 * r ** n)}
+        else:
+            m = em_read(r"(\d+) is invested at (\d+)% a year, compounded (half-yearly|quarterly|monthly)\.", Lj, "the investment")
+            P0, R_ = el_num(m.group(1)), sp.Rational(int(m.group(2)), 100)
+            k = {"half-yearly": 2, "quarterly": 4, "monthly": 12}[m.group(3)]
+            want = m3(P0 * (1 + R_ / k) ** (k * n))
+            wr["SL1.4.future-value#0"] = {el_m(P0 * (1 + R_) ** (k * n))}
+            wr["SL1.4.future-value#1"] = {el_m(P0 * (1 + R_ * n))}
+    elif u == "first-below":
+        Tv = el_num(em_read(r"below (\d+)\.", asked, "the threshold").group(1))
+        if rep == "words":
+            m = em_read(r"bought for (\d+) loses (\d+)% of its value each year", Lj, "the car")
+            P0, f = el_num(m.group(1)), 1 - sp.Rational(int(m.group(2)), 100)
+        elif rep == "table":
+            P0, f = R(g["P0"]), 1 - sp.Rational(int(em_read(r"falls by (\d+)% a year", Lj, "the rate").group(1)), 100)
+            for t_, v_ in zip(q["table"]["rows"][0][1], q["table"]["rows"][1][1]):
+                need(sig3(P0 * f ** int(t_), 6) == v_.replace("−", "-") or abs(float(el_num(v_)) - float(P0 * f ** int(t_))) < 0.01, f"the table at n = {t_} is wrong")
+        else:
+            m = em_read(r"V\(n\) = (\d+)\(([\d.]+)\)ⁿ", Lj, "the model")
+            P0, f = el_num(m.group(1)), el_num(m.group(2))
+        nx = sp.log(Tv / P0) / sp.log(f)
+        frac = num(nx) - sp.floor(num(nx))
+        need(sp.Rational(1, 10) <= frac <= sp.Rational(9, 10), "the crossing is too near a whole year")
+        want = qr_norm(ans, {"v": str(int(sp.ceiling(num(nx))))})
+    elif u == "factor-from-two-values":
+        if rep == "table":
+            (t1, t2), (V1, V2) = [int(x) for x in q["table"]["rows"][0][1]], [el_num(x) for x in q["table"]["rows"][1][1]]
+        else:
+            m = em_read(r"is (\d+(?:\.\d+)?) after (\d+) years and (\d+(?:\.\d+)?) after (\d+) years", Lj, "the values")
+            V1, t1, V2, t2 = el_num(m.group(1)), int(m.group(2)), el_num(m.group(3)), int(m.group(4))
+        f = sp.nsimplify((V2 / V1) ** sp.Rational(1, t2 - t1))
+        need(f.is_rational, "the factor is not exact")
+        want = qr_norm(ans, {"v0": str(f), "v1": str((f - 1) * 100)})
+    elif u == "graph-from-factor":
+        m = em_read(r"y = (\d+)\(([\d.]+)\)ˣ", asked, "the function")
+        P0, f = el_num(m.group(1)), el_num(m.group(2))
+        if f > 1:
+            right = f"starts at (0, {frac_text(P0)}) and rises, with y = 0 as its asymptote on the left"
+        else:
+            right = f"starts at (0, {frac_text(P0)}) and falls towards y = 0"
+            wr["SL2.9.exp-graph#2"] = {qr_norm(ans, {"v": f"starts at (0, −{frac_text(P0)}) and falls, the growth graph reflected in the x-axis"})}
+        if rep == "graph":
+            for x0, y0 in q["graph"]["curves"][0][::16]:
+                need(abs(float(P0 * f ** sp.Float(x0, 30)) - y0) <= 1e-6 * max(1, abs(y0)), "the curve is not the function")
+        want = qr_norm(ans, {"v": right})
+    elif u == "sum-to-infinity-link":
+        if rep == "words":
+            qv = el_num(em_read(r"common ratio (−?\d+(?:\.\d+)?(?:/\d+)?)\.$", L[0], "the ratio").group(1))
+        else:
+            parts = re.findall(r"([+−]?) ?(\d+(?:/\d+)?)", L[0])
+            vals = [el_num(n_) * (-1 if s_ == "−" else 1) for s_, n_ in parts]
+            need(len(vals) == 3 and vals[0] == 8, "can't read the series")
+            qv = vals[1] / vals[0]
+            need(vals[2] == vals[1] * qv, "the series is not geometric")
+        conv = abs(qv) < 1
+        want = qr_norm(ans, {"v": "yes: |r| < 1, so rⁿ dies away to 0" if conv else "no: |r| ≥ 1, so rⁿ does not die away"})
+        if not conv and qv < 1 and qv != -1:
+            wr["SL1.8.convergence#0"] = {qr_norm(ans, {"v": "yes: r < 1 is enough"})}
+        if abs(qv) == 1:
+            wr["SL1.8.convergence#2"] = {qr_norm(ans, {"v": "yes: |r| ≤ 1 is enough"})}
+    elif u == "continuous-factor":
+        kc = el_num(em_read(r"e\^\((−?[\d.]+)t\)", L[0], "k").group(1))
+        e = sp.exp(kc)
+        m3(e), m3((e - 1) * 100)
+        want = (ext_sf(e), ext_sf((e - 1) * 100))
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    qr_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -4493,7 +4608,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth}
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

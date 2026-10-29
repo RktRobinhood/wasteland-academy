@@ -8,11 +8,11 @@ extends "res://tests/test_case.gd"
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
 const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 49, "fn-log-of-quadratic": 71,
 	"fn-log-function-features": 38, "fn-pre-percent-multiplier": 22, "fn-ext-exp-graph": 28,
-	"fn-concept-growth-patterns": 17}
+	"fn-concept-growth-patterns": 17, "fn-link-multiplicative-growth": 53}
 const SITUATION := {"fn-exponential-model": "exp-model", "fn-exp-log-inverse-composite": "exp-log-pair",
 	"fn-log-of-quadratic": "log-quadratic", "fn-log-function-features": "log-function",
 	"fn-pre-percent-multiplier": "fn-pre-percent-multiplier", "fn-ext-exp-graph": "exp-log-pair",
-	"fn-concept-growth-patterns": "exp-growth-vs-linear"}
+	"fn-concept-growth-patterns": "exp-growth-vs-linear", "fn-link-multiplicative-growth": "fn-link-multiplicative-growth"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-log-of-quadratic|SL1.5.exp-log-form#1": "reading log_k G = n as nᵏ = G gives k = ln G/ln n, never a whole number here, so no exact option shows it",

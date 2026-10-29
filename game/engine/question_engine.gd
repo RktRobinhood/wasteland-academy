@@ -57,6 +57,7 @@ static var SITUATIONS := {
 	"log-function": [LogFunctionSituation, LogFunctionViews],
 	"fn-pre-percent-multiplier": [PercentSituation, PercentViews],
 	"exp-growth-vs-linear": [GrowthPatternsSituation, GrowthPatternsViews],
+	"fn-link-multiplicative-growth": [LinkGrowthSituation, LinkGrowthViews],
 }
 
 static var _cat: Dictionary = {}

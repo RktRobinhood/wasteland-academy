@@ -195,7 +195,7 @@ static func _level(rng: Seeded, s: Dictionary) -> Variant:
 ## Clear of a 3 s.f. rounding edge, with a margin over the checker's (0.02), so float
 ## and exact arithmetic can't land on opposite sides of it; and not next to a power of
 ## ten, where 999.6 or 1000.3 shows as "1000" and a near miss such as 997 reads as right.
-static func _clear(x: float) -> bool:
+static func rounds_clear(x: float) -> bool:
 	if not is_finite(x) or x == 0.0:
 		return false
 	var mantissa := absf(x) / pow(10.0, floorf(log(absf(x)) / log(10.0)))
@@ -206,12 +206,12 @@ static func _clean(s: Dictionary, need: Dictionary) -> bool:
 	match s.form:
 		"log10":
 			var x := log_x(s)
-			return _clear(x) and x < MAX_VALUE
+			return rounds_clear(x) and x < MAX_VALUE
 		"two":
-			return s.tL > 2.0 and s.tL < 40.0 and _clear(s.tL)
+			return s.tL > 2.0 and s.tL < 40.0 and rounds_clear(s.tL)
 	var t: float = s.tL
 	var t0: int = s.get("t0", 0)
-	if not is_finite(t) or t <= t0 + 0.5 or t > 60.0 or not _clear(t):
+	if not is_finite(t) or t <= t0 + 0.5 or t > 60.0 or not rounds_clear(t):
 		return false
 	# Whole-period answers must not sit on a whole number.
 	if s.form != "half" or not s.has("halvings"):
@@ -220,7 +220,7 @@ static func _clean(s: Dictionary, need: Dictionary) -> bool:
 			return false
 	# A prediction stays a believable size (and well inside exact arithmetic).
 	var later := value(s, s.t2)
-	if not _clear(later) or later > MAX_VALUE or later < 1.0:
+	if not rounds_clear(later) or later > MAX_VALUE or later < 1.0:
 		return false
 	match s.form:
 		"factor", "shift":
@@ -229,18 +229,18 @@ static func _clean(s: Dictionary, need: Dictionary) -> bool:
 					var v: Q = s.P0.mul(pow_q(s.a, i))
 					if 100 % v.d != 0:
 						return false
-			if not _clear(s.P1.to_float() / pow(s.a.to_float(), s.t1)):
+			if not rounds_clear(s.P1.to_float() / pow(s.a.to_float(), s.t1)):
 				return false
-			if not _clear(absf(pow(s.a.to_float(), s.n) - 1.0) * 100.0):
+			if not rounds_clear(absf(pow(s.a.to_float(), s.n) - 1.0) * 100.0):
 				return false
 		"data":
-			if not _clear(s.k):
+			if not rounds_clear(s.k):
 				return false
 		"limited":
-			if need.get("kpoint", false) and (s.k < 0.02 or s.k > 0.6 or not _clear(s.k)):
+			if need.get("kpoint", false) and (s.k < 0.02 or s.k > 0.6 or not rounds_clear(s.k)):
 				return false
 		"cont":
-			if s.k.sign() < 0 and not _clear(log(2.0) / absf(s.k.to_float())):
+			if s.k.sign() < 0 and not rounds_clear(log(2.0) / absf(s.k.to_float())):
 				return false
 	return true
 
