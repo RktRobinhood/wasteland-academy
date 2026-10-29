@@ -20380,7 +20380,7 @@
    "constraints": [
     "every probability from 0.05 to 0.6",
     "an expected number is a whole number or ends in .5",
-    "Paper 1 friendly: exact answers, no calculator needed"
+    "Paper 1 or Paper 2: exact answers with no calculator on Paper 1, awkward decimals that need a calculator on Paper 2"
    ],
    "formats": [
     "value",
@@ -20727,7 +20727,7 @@
     "every probability from 0.05 to 0.6",
     "p and q are different and both from 0.05 to 0.6",
     "a fair stake is a whole number of cents",
-    "Paper 1 friendly: exact answers, no calculator needed"
+    "Paper 1 or Paper 2: exact answers with no calculator on Paper 1, awkward decimals that need a calculator on Paper 2"
    ],
    "formats": [
     "value",
@@ -20994,7 +20994,7 @@
    "constraints": [
     "every probability from 0.05 to 0.6, or k from 1/60 to 1/6",
     "an event takes in at least one value and leaves out at least one",
-    "Paper 1 friendly: exact answers, no calculator needed"
+    "Paper 1 or Paper 2: exact answers with no calculator on Paper 1, awkward decimals that need a calculator on Paper 2"
    ],
    "formats": [
     "value",

@@ -245,19 +245,20 @@ func _build() -> void:
 	col.add_theme_constant_override("separation", 16)
 	margin.add_child(col)
 
+	# The title takes the width Quit and the HUD gap leave, and wraps there, so a long
+	# region name ("Exponentials and logs · Floor 1") never pushes Quit off a phone
+	# (FAL-506).
 	var head := HBoxContainer.new()
 	head.name = "Head"
 	title = UiTheme.label("Fight", 72, UiTheme.TEAL)
 	title.name = "Title"
-	title.autowrap_mode = TextServer.AUTOWRAP_OFF
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_theme_font_override("font", UiTheme.TITLE_FONT)
 	head.add_child(title)
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(spacer)
 	quit_button = Button.new()
 	quit_button.name = "Quit"
 	quit_button.text = "Quit"
+	quit_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	quit_button.add_theme_font_size_override("font_size", UiTheme.SMALL)
 	quit_button.pressed.connect(func(): if run != null: run.quit())
 	head.add_child(quit_button)
