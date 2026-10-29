@@ -18,8 +18,10 @@ extends "res://ui/practice.gd"
 ## show the summary; autoplay=carry answers a boss's first part wrong and opens the
 ## next, to show the value carried on. fight=5 or fight=10 starts at the mini-boss or
 ## the boss; such a run records no floors. select=1 shows the floor select.
+##
+## The map (ui/map.gd) starts a run by setting `launch` before opening this scene. The
+## island's loop plays during a run, and its boss loop during a mini-boss or boss.
 
-const MAIN := "res://scenes/main.tscn"
 const MONO := preload("res://assets/fonts/share-tech-mono-latin.woff2")
 const GREEN := Color(0.36, 0.8, 0.42)
 const ORANGE := Color(0.95, 0.6, 0.2)
@@ -27,6 +29,9 @@ const RED := Color(0.93, 0.26, 0.3)
 ## Height kept above the card for the journey strip (FAL-331), in base units.
 const STRIP_HEIGHT := 150
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
+
+## The run the map asked for: {"region", "floor"}, read once by _ready().
+static var launch: Dictionary = {}
 
 var run: Run
 var region := "quadratics"
@@ -67,6 +72,12 @@ func _ready() -> void:
 	_fit()
 	var deep := deep_link()
 	save = SaveData.load_from(save_path)
+	if not launch.is_empty():
+		region = launch.region
+		start_floor = launch.floor if Dungeon.start_floors(save, region).has(launch.floor) else 1
+		launch = {}
+		start_run()
+		return
 	if deep.is_empty():
 		if select_first:
 			show_floor_select()
@@ -100,6 +111,7 @@ func start_run() -> void:
 		run.first_fight = first_fight
 		run.records = false
 	run.question_opened.connect(func(_f, _t): _show_question())
+	run.question_opened.connect(func(_f, _t): Audio.play_location(MapLink.music_for(region, run.kind != "fight")))
 	run.run_ended.connect(_show_summary)
 	summary_box.visible = false
 	floor_box.visible = false
@@ -162,12 +174,25 @@ func show_floor_select() -> void:
 	lock.name = "Locked"
 	list.add_child(lock)
 	var back := Button.new()
-	back.name = "Title"
-	back.text = "Back to the title"
+	back.name = "Map"
+	back.text = "Back to the map"
 	back.add_theme_font_size_override("font_size", UiTheme.BIG)
-	back.pressed.connect(func(): get_tree().change_scene_to_file(MAIN))
+	back.pressed.connect(to_map)
 	floor_box.add_child(back)
 	(list.get_child(0) as Button).grab_focus.call_deferred()
+
+
+## Back to the map, on the screen the run was started from (the region's, after a
+## deep link).
+func to_map() -> void:
+	MapLink.go(get_tree(), MapLink.current if not MapLink.current.is_empty() else MapLink.region_route(region))
+
+
+## Leaving by the browser's back button: a run in progress is quit, so its Scrap is
+## banked.
+func leave_run() -> void:
+	if run != null and run.state != "ended":
+		run.quit()
 
 
 ## What a floor asks, in a few words.
@@ -645,10 +670,10 @@ func _show_summary(s: Dictionary) -> void:
 		show_floor_select())
 	summary_box.add_child(again)
 	var back := Button.new()
-	back.name = "Title"
-	back.text = "Back to the title"
+	back.name = "Map"
+	back.text = "Back to the map"
 	back.add_theme_font_size_override("font_size", UiTheme.BIG)
-	back.pressed.connect(func(): get_tree().change_scene_to_file(MAIN))
+	back.pressed.connect(to_map)
 	summary_box.add_child(back)
 	_update_hud()
 

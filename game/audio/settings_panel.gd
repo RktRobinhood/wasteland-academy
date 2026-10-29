@@ -6,17 +6,13 @@ extends Control
 ## It lives in the AudioHud autoload, so the gear icon opens it from anywhere.
 ## Changes reach Audio as the player drags, and Audio saves them.
 ##
-## Two playtest rows sit below the divider while the Godot build has no map yet:
-## a picker for every location loop, and a button per sound effect. Delete them
-## once the overworld can set the location itself.
+## The map and the runs choose the music themselves (Audio.play_location, FAL-417).
 
 @onready var _sound: Button = %SoundToggle
 @onready var _music: HSlider = %MusicSlider
 @onready var _music_value: Label = %MusicValue
 @onready var _sfx: HSlider = %SfxSlider
 @onready var _sfx_value: Label = %SfxValue
-@onready var _location: OptionButton = %LocationPicker
-@onready var _check: GridContainer = %CheckGrid
 @onready var _hint: Label = %Hint
 @onready var _close: Button = %Close
 
@@ -31,8 +27,6 @@ func _ready() -> void:
 	# One blip when the drag ends, so the level can be judged without a stutter.
 	_sfx.drag_ended.connect(_on_sfx_drag_ended)
 	_close.pressed.connect(close)
-	_build_location_picker()
-	_build_sound_check()
 	Audio.settings_changed.connect(_show_current)
 	_show_current()
 
@@ -54,22 +48,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _build_location_picker() -> void:
-	_location.clear()
-	for cue: String in MusicTracks.CUES:
-		_location.add_item(MusicTracks.display_name(cue))
-		_location.set_item_metadata(_location.item_count - 1, cue)
-	_location.item_selected.connect(_on_location_selected)
-
-
-func _build_sound_check() -> void:
-	for cue: String in SfxCues.CUES:
-		var button := Button.new()
-		button.text = String(SfxCues.CUES[cue]["name"])
-		button.pressed.connect(Audio.play_sfx.bind(cue))
-		_check.add_child(button)
-
-
 ## Put what Audio holds on screen, without sending it straight back.
 func _show_current() -> void:
 	if _showing:
@@ -81,17 +59,8 @@ func _show_current() -> void:
 	_music_value.text = _percent(Audio.music_volume)
 	_sfx.set_value_no_signal(Audio.sfx_volume)
 	_sfx_value.text = _percent(Audio.sfx_volume)
-	_select_location(Audio.location())
 	_hint.visible = not Audio.sound_enabled
 	_showing = false
-
-
-func _select_location(cue: String) -> void:
-	for index in _location.item_count:
-		if String(_location.get_item_metadata(index)) == cue:
-			_location.select(index)
-			return
-	_location.select(-1)
 
 
 func _on_sound_toggled(pressed: bool) -> void:
@@ -111,10 +80,6 @@ func _on_sfx_changed(value: float) -> void:
 func _on_sfx_drag_ended(changed: bool) -> void:
 	if changed:
 		Audio.play_sfx("confirm")
-
-
-func _on_location_selected(index: int) -> void:
-	Audio.play_location(String(_location.get_item_metadata(index)))
 
 
 static func _percent(level: float) -> String:

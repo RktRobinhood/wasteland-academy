@@ -236,7 +236,7 @@ func test_the_hud_never_covers_the_practice_header() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_audio_practice_save.json"))
 
 
-func test_the_settings_screen_shows_every_level_and_location() -> void:
+func test_the_settings_screen_shows_the_levels_and_no_playtest_rows() -> void:
 	var audio := _audio()
 	if audio == null:
 		return
@@ -249,10 +249,9 @@ func test_the_settings_screen_shows_every_level_and_location() -> void:
 	panel.open()
 	await tree.process_frame
 	check_eq(panel.visible, true, "open() did not show the settings screen")
-	var picker := panel.get_node("Center/Panel/Pad/Column/LocationPicker") as OptionButton
-	check_eq(picker.item_count, MusicTracks.CUES.size(), "locations in the picker")
-	var checks := panel.get_node("Center/Panel/Pad/Column/CheckGrid") as GridContainer
-	check_eq(checks.get_child_count(), SfxCues.CUES.size(), "buttons in the sound check")
+	# The map and runs pick the music now (FAL-417), so the playtest rows are gone.
+	check(panel.get_node_or_null("Center/Panel/Pad/Column/LocationPicker") == null, "the location picker is still there")
+	check(panel.get_node_or_null("Center/Panel/Pad/Column/CheckGrid") == null, "the per-effect buttons are still there")
 	var music_value := panel.get_node("Center/Panel/Pad/Column/MusicRow/MusicValue") as Label
 	check_eq(music_value.text, "40%", "the music level on screen")
 	var hint := panel.get_node("Center/Panel/Pad/Column/Hint") as Label

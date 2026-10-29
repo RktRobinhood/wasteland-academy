@@ -13,12 +13,15 @@ game/
 ├── project.godot        ← portrait 1080x1920 base, "expand" stretch, Compatibility renderer
 ├── export_presets.cfg   ← one preset, "Web": no threads, no PWA
 ├── scenes/main.tscn     ← title screen (title, Spark, Play, Practice, Engine)
+├── scenes/map.tscn      ← the map (ui/map.gd): world, island, region screen (see "The map")
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
 ├── scenes/fight.tscn    ← the fight screen (ui/fight.gd), on the practice screen's card
 ├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /next/?explore
 ├── engine/              ← the question engine: situations, views, marking, planner, save
 ├── engine/run.gd        ← a run: floors, fights, bosses, outcomes, lifelines, the hooks (see "Combat")
 ├── engine/dungeon.gd    ← floors by level, tiers, boss chains, start floors (see "The dungeon")
+├── engine/map_link.gd   ← map links (#functions/quadratics), browser history, music by island
+├── engine/progress.gd   ← a region's accuracy, best floor, coverage and weakest skills
 ├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains
 ├── ui/                  ← screens and the graph view
 ├── data/catalogue.json  ← generated from curriculum/question-types.json (don't edit)
@@ -65,9 +68,9 @@ Audio.sound_enabled = true           # what the speaker icon switches
   game's `js/sfx.js` and live in `audio/sfx_cues.gd`.
 - Every file in `assets/audio/` has its licence entry in `../assets/audio/CREDITS.md`.
   Nothing ships without one.
-- While the build has no map, the settings screen carries a location picker and a button
-  per effect, so a cue can be heard without gameplay. Both rows go when the overworld can
-  call `play_location()` itself.
+- The map and the runs choose the loop (FAL-417): the world map plays `overworld`, an
+  island and its runs play the island's loop, and a mini-boss or boss its `-boss` loop
+  (`MapLink.music_for`). The settings screen has only the three settings.
 
 ## Scripts (run from the repo root)
 
@@ -308,7 +311,7 @@ dungeon part of `Tuning`. Q4, Q6, Q9 and Q14 are on the FAL-274 plan.
   N whose boss the player has beaten, floor N + 1. The fight screen opens on a floor select with those floors.
   The save keeps `dungeon[region] = {"best", "beaten"}`.
 - **All regions.** Region `"all"` (`Dungeon.ALL`) mixes every built type of the island
-  (every type with a region). The map (G5) links to `/next/?play=all`.
+  (every type with a region). The map's "All regions" spot is `#functions/all`.
 
 ### Journey strip events
 
@@ -339,6 +342,9 @@ is a region id or `all`. `floor` must be one the save may start on, else the run
 on floor 1. `&fight=5` or `&fight=10` starts at the mini-boss or boss (such a run records
 no floors), and `&autoplay=carry` answers its first part wrong and opens the next, to show
 the value carried on. `&select=1` shows the floor select.
+
+The map takes a hash: `/next/#functions/quadratics` opens that region's screen,
+`/next/#functions` the island and `/next/#world` the world map (see "The map").
 
 ### The engine explorer
 
@@ -396,6 +402,56 @@ does the same for every boss chain with seeds 51 to 1050, and checks each part's
 value. It fails on any script error, such as a failed assert in `Q`. CI runs it as its
 own `stress` job.
 
+## The map
+
+`scenes/map.tscn` (`ui/map.gd`, FAL-417; Q3 and Q11 on the FAL-274 plan). "Play" on the
+title screen opens it. One scene with three screens:
+
+- **The world map**: the HTML game's overworld painting (`assets/map/overworld.png`)
+  with a button over each island. The Signal Tower (Functions) is open; the other four
+  say "Coming later". The Thunderdome stays locked until a second island opens
+  (`MapLink.OPEN_ISLANDS`), and the Relic Library has a locked spot.
+- **The Functions island**: the 8 regions in the catalogue's `order`, the all-regions
+  dungeon and a locked Relic device spot. A region whose types aren't built yet says
+  "Coming soon" and can't start a run or Practice. That comes from the engine
+  (`Progress.is_built`, which asks `Dungeon.region_types`), so a region opens when its
+  situations merge, with no map change.
+- **The region screen**: accuracy, best floor and coverage ("34 of 52 checked": the
+  cells the save has seen against the catalogue's cells for the region, built or not),
+  all following the "Exam-style only" switch, which the screen also carries. Then the 3
+  weakest skills: the lowest accuracy among skills with at least 3 answers, where each
+  answer counts for every skill its unknown lists (`Progress.weakest_skills`). Skill
+  names come from `curriculum/aa-sl.json` via `catalogue.json`'s `skills`. Its buttons
+  start floor 1, start after a beaten boss (`Dungeon.start_floors`) or open Practice on
+  that region.
+
+**Links and the back button.** On the web the hash is the route. Moving on the map
+sets it, which makes a browser history entry, and a `hashchange` (back, forward, a
+pasted link) sends the game there. Back from a run quits it, so its Scrap is banked.
+An unknown link opens the world map and rewrites the address bar to `#world`. On the
+desktop, `-- --map=functions/quadratics` does the same as the hash.
+
+### Map art
+
+The island map loads its art by file name from `game/assets/map/functions/`. Each file
+is optional: when one isn't there, that piece keeps the coded look (a dusk gradient
+with a dashed trail, and a numbered ring in the state's colour), so art can land one
+file at a time. Import each with mipmaps on, like the rest of the art.
+
+| File | Size | What it is |
+|---|---|---|
+| `background.png` | 1080x1920, opaque | The whole island, portrait. The spots sit on it at the places in `SPOTS` in `ui/map.gd` (% of the board), climbing from Quadratics at the bottom to the tower at the top |
+| `<spot>-locked.png` | 256x256, transparent | A spot's landmark before its questions are built |
+| `<spot>-open.png` | 256x256, transparent | A spot's landmark once it can be played |
+| `<spot>-cleared.png` | 256x256, transparent | A spot's landmark once floor 3's boss is beaten there |
+
+`<spot>` is a region id (`quadratics`, `exp-log`, `graphs-features`,
+`composite-inverse`, `rational`, `function-basics`, `lines`, `transformations`), `all`
+for the all-regions dungeon at the tower, or `relic` for the Relic device (only
+`relic-locked.png` is used for now). A landmark is drawn in a 200x200 box, kept square
+and centred, with the spot's name and progress line under it, so leave the bottom of
+the background clear below each spot.
+
 ## Tests
 
 `game/tests/run_tests.gd` is a small runner with no third-party framework. It loads
@@ -452,7 +508,14 @@ script error happens while it runs. Run one file with
 - `test_audio.gd`: a loop per location at the length the review measured, only the
   wired-in loops in `assets/audio/music/`, the effects mirrored from the HTML game, the
   two buses, sound off on a fresh install, settings that survive a reload, and the
-  settings screen listing every location and effect.
+  settings screen with the three settings and none of the old playtest rows.
+- `test_map.gd`: links for every region id, the island and junk; coverage against a
+  hand count from the catalogue on a scripted save with the switch off and on;
+  accuracy, best floor and cleared; the weakest skills leaving out skills with fewer
+  than 3 answers; the world map, the island and the region screen; "Coming soon" for a
+  region with nothing built, which can't start a run; a run started from the map; the
+  island's loop in a run and the boss loop in a boss; Play opening the map; and every
+  screen fitting 390x844 and 1280x800.
 - `test_explorer.gd`: the engine explorer opens on a live class with no errors, counts
   the catalogue per topic, plays from its pickers, keeps the situation when it asks
   another way, works without `data/courses.json`, and fits at 390x844 and 1280x800.
