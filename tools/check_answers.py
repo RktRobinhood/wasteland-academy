@@ -6209,6 +6209,201 @@ def check_gdc_context_equation(q):
     return None, None
 
 
+# ── Graphs and key features (FAL-420): graph-from-features ────
+# Paper 1: exact features and the sketch that shows them. The function is read back
+# from the question's text, its features worked out exactly with SymPy, and each card
+# of a pick-the-graph question is checked: the right one is the function with its
+# features marked, each wrong one exactly its named mistake.
+
+GF_SK, GF_SI = "SL2.6.sketch", "SL2.3.sketch-from-info"
+
+
+def gf_expr(text):
+    return tc_expr(text.replace("½", "(1/2)"))
+
+
+def gf_read(q):
+    """(fam, f, info) from the question's text: f as SymPy in x (t read as x)."""
+    u = q["view"]["unknown"]
+    j = " ".join([q["asked"]] + q["lines"])
+    m = re.search(r"roots x = (−?\d+) and x = (−?\d+), its vertex at \((.+?), (.+?)\) and its y-intercept at \(0, (.+?)\), with a ([<>]) 0", j)
+    if m:
+        r1, r2, c = el_num(m.group(1)), el_num(m.group(2)), el_num(m.group(5))
+        a = c / (r1 * r2)
+        need((a > 0) == (m.group(6) == ">"), "the sign of a doesn't match the features")
+        f = a * (X - r1) * (X - r2)
+        need(sp.nsimplify(m.group(3).replace("−", "-")) == (r1 + r2) / 2 and sp.nsimplify(m.group(4).replace("−", "-")) == f.subs(X, (r1 + r2) / 2), "the vertex said is not the parabola's")
+        return "quadratic", f, {}
+    m = re.search(r"f\(x\) = (.+?)$", q["lines"][0]) if q["lines"] and q["lines"][0].startswith("f(x) = ") else None
+    if m:
+        return "quadratic", gf_expr(m.group(1)), {}
+    m = re.search(r"([hv])\(t\) = (.+?)(?: m/s| metres)?(?:, for 0 ≤ t ≤ (\d+)|\.)", j)
+    if m:
+        T = re.search(r"(?:0 ≤ t ≤ |lands at t = )(\d+)", j)
+        return "interval", gf_expr(m.group(2)), {"T": el_num(T.group(1)), "kind": "height" if m.group(1) == "h" else "velocity"}
+    m = re.search(r"y = (\d+)xe\^\(−x\)|maximum at \(1, (\d+)/e\)", j)
+    if m:
+        a = el_num(m.group(1) or m.group(2))
+        return "texp", a * X * sp.exp(-X), {}
+    m = re.search(r"T\(t\) = (\d+) \+ (\d+)e\^\(−([\d.]+)t\)", j)
+    if m:
+        R_, D_, k = el_num(m.group(1)), el_num(m.group(2)), R(sp.nsimplify(m.group(3)))
+        return "cooling", R_ + D_ * sp.exp(-k * X), {"R": R_, "D": D_, "k": k}
+    m = re.search(r"y = (\d*)(sin|cos) x, for 0 ≤ x ≤ 2π", j) or re.search(r"A (sin|cos) graph with amplitude (\d+)", j)
+    if m:
+        if m.re.pattern.startswith("y"):
+            A, fn = el_num(m.group(1) or "1"), m.group(2)
+        else:
+            fn, A = m.group(1), el_num(m.group(2))
+        return "trig", A * (sp.sin(X) if fn == "sin" else sp.cos(X)), {"A": A, "fn": fn}
+    m = re.search(r"passes through \(0, (\d+)\), has a zero at x = (−\d+)", j)
+    need(m is not None, "can't read the function")
+    return "conditions", None, {"y0": el_num(m.group(1)), "z": el_num(m.group(2))}
+
+
+def gf_feats(fam, f, info):
+    """The exact features a sketch marks: [(x, y), ...]."""
+    if fam == "quadratic":
+        rs = sorted(sp.solve(f, X))
+        need(len(rs) == 2 and all(r.is_integer for r in rs), "the roots are not whole numbers")
+        h = (rs[0] + rs[1]) / 2
+        need(h.q in (1, 2), "the vertex is not at a whole number or a half")
+        return [(rs[0], 0), (rs[1], 0), (h, f.subs(X, h)), (0, f.subs(X, 0))]
+    if fam == "interval":
+        T = info["T"]
+        if info["kind"] == "height":
+            return [(0, 0), (T, 0), (T / 2, f.subs(X, T / 2))]
+        rs = sorted(sp.solve(f, X))
+        v = (rs[0] + rs[1]) / 2
+        return [(0, f.subs(X, 0)), (rs[0], 0), (rs[1], 0), (v, f.subs(X, v)), (T, f.subs(X, T))]
+    if fam == "texp":
+        return [(0, 0), (1, f.subs(X, 1))]
+    if fam == "cooling":
+        return [(0, f.subs(X, 0))]
+    if fam == "trig":
+        return [(sp.pi / 2 * i, f.subs(X, sp.pi / 2 * i)) for i in range(5)]
+    return [(0, info["y0"]), (info["z"], 0)]
+
+
+def gf_dots(gr, want):
+    got = sorted((round(p["x"], 6), round(p["y"], 6)) for p in gr["points"])
+    exp_ = sorted((round(float(x), 6), round(float(y), 6)) for x, y in want)
+    return len(got) == len(exp_) and all(abs(a[0] - b[0]) < 1e-5 and abs(a[1] - b[1]) < 1e-5 for a, b in zip(got, exp_))
+
+
+def gf_cards(q, fam, f, info):
+    ch, graphs = q["choices"], q["graphs"]
+    need(len(graphs) == 4 and [o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "not four lettered graphs")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right graph")
+    need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in graphs}) == 1, "the cards don't share one window")
+    feats = gf_feats(fam, f, info)
+    ff = gc_f(f) if f is not None else None
+    a = sp.Poly(f, X).LC() if fam == "quadratic" else None
+    for o, gr in zip(ch, graphs):
+        c = gr["curves"][0]
+        mk = o.get("mistake", "")
+        if o["correct"]:
+            if fam == "conditions":
+                xs = [p[0] for p in c]
+                need(all(b > a_ for a_, b in zip(xs, xs[1:])), "the right graph is not a function")
+                need(all(c[i + 1][1] > c[i][1] for i in range(len(c) - 1)), "the right graph is not increasing")
+                for x0, y0 in feats:
+                    near = min(c, key=lambda p: abs(p[0] - float(x0)))
+                    need(abs(near[0] - float(x0)) < 0.05 and abs(near[1] - float(y0)) < 0.1, f"the right graph misses ({x0}, {y0})")
+            else:
+                need(gc_curve_is(c, ff), "the right graph is not f")
+                need(gf_dots(gr, feats), "the right graph doesn't mark the features")
+            continue
+        refs = {"flipped": GF_SK + "#0" if (a is not None and a < 0) else "", "pointed": GF_SK + "#1", "vertex-on-axis": GF_SK + "#2",
+                "below-zero": GF_SI + "#1", "below-room": GF_SI + "#1", "turns-back": GF_SI + "#2", "doubles-back": GF_SI + "#0"}
+        need(o["ref"] == refs.get(mk, ""), f"the {mk} graph is tagged {o['ref']!r}")
+        need(o.get("why", "") != "", f"the {mk} graph doesn't say what is wrong")
+        if mk == "flipped":
+            need(gc_curve_is(c, lambda x: -ff(x)), "the flipped graph is not −f")
+        elif mk == "pointed":
+            (hx, hy) = feats[2] if fam == "quadratic" else feats[3] if info.get("kind") == "velocity" else feats[2]
+            r = feats[0][0] if fam == "quadratic" else (feats[1][0] if info.get("kind") == "velocity" else 0)
+            need(gc_curve_is(c, lambda x: hy - hy * abs(x - hx) / abs(hx - r)), "the pointed graph is not a V at the vertex")
+        elif mk == "vertex-on-axis":
+            need(gc_curve_is(c, lambda x: a * x ** 2 + ff(0)), "the vertex-on-axis graph is not ax² + c")
+        elif mk in ("below-zero", "past-domain"):
+            need(gc_curve_is(c, ff) and c[-1][0] > float(info["T"]) + 1, f"the {mk} graph doesn't carry f past the end")
+            if mk == "below-zero":
+                need(c[-1][1] < 0, "the height doesn't go below 0")
+        elif mk == "turns-back":
+            A = ff(1) * mpmath.e
+            need(gc_curve_is(c, lambda x: ff(x) + A / 4 * max(0, x - 2.5) ** 2), "the turns-back graph is not f turned up after x = 2.5")
+        elif mk == "max-moved":
+            A = ff(1) * mpmath.e
+            need(gc_curve_is(c, lambda x: A * x * mpmath.exp(-x / 2)), "the max-moved graph is not axe^(−x/2)")
+        elif mk == "swapped":
+            other = info["A"] * (sp.cos(X) if info["fn"] == "sin" else sp.sin(X))
+            need(gc_curve_is(c, gc_f(other)), "the swapped graph is not the other trig function")
+        elif mk == "amplitude":
+            amp = 1 if info["A"] > 1 else 2
+            need(gc_curve_is(c, gc_f(amp * f / info["A"])), "the amplitude graph has the wrong amplitude")
+        elif mk == "below-room":
+            Rr, Dd, k = info["R"], info["D"], info["k"]
+            need(gc_curve_is(c, gc_f(Rr - 6 + (Dd + 6) * sp.exp(-k * X))), "the below-room graph doesn't level off below the room")
+        elif mk == "steady":
+            need(gc_curve_is(c, gc_f(info["R"] + info["D"] - info["D"] * info["k"] * X)), "the steady graph is not the starting rate")
+        elif mk == "warming":
+            need(gc_curve_is(c, gc_f(info["R"] + info["D"] - info["D"] * sp.exp(-info["k"] * X))), "the warming graph is not warming")
+        elif mk == "doubles-back":
+            xs = [p[0] for p in c]
+            need(any(b < a_ for a_, b in zip(xs, xs[1:])) and any(b > a_ for a_, b in zip(xs, xs[1:])), "the doubles-back graph doesn't turn back")
+        elif mk == "shifted":
+            near = min(c, key=lambda p: abs(p[0]))
+            need(abs(near[1] - float(info["y0"])) > 1, "the shifted graph still passes through (0, y0)")
+        elif mk == "mirrored":
+            need(c[0][1] > c[-1][1], "the mirrored graph is not decreasing")
+        else:
+            raise Fail(f"unknown mistake {mk}")
+    return next(o["text"] for o in ch if o["correct"])
+
+
+def check_graph_from_features(q):
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    need(q["paper"] == 1, "graph-from-features is Paper 1")
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    if q["format"] == "pick-the-graph":
+        fam, f, info = gf_read(q)
+        right = gf_cards(q, fam, f, info)
+        gc_check_common(q, right, {o["ref"]: {o["text"]} for o in q["choices"] if o["ref"]})
+        return None, None
+    g = q["given"]
+    a, r1, r2 = R(g["a"]), R(g["r1"]), R(g["r2"])
+    f = a * (X - r1) * (X - r2)
+    h = (r1 + r2) / 2
+    k, c = f.subs(X, h), f.subs(X, 0)
+    pt = lambda x_, y_: f"({frac_text(x_)}, {frac_text(y_)})"
+    if u == "features-from-sketch":
+        labels = {p["label"] for p in q["graph"]["points"]}
+        need({pt(r1, 0), pt(r2, 0), pt(h, k), pt(0, c)} == labels, "the sketch's labels are not the parabola's features")
+        need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the sketch is not the parabola")
+        d = "opens upwards" if a > 0 else "opens downwards"
+        desc = lambda dd: f"vertex {pt(h, k)}, roots {frac_text(r1)} and {frac_text(r2)}, y-intercept {frac_text(c)}, {dd}"
+        wr = {GF_SK + "#0": {desc("opens upwards")}} if a < 0 else {}
+        gc_check_common(q, desc(d), wr)
+        return None, None
+    if u == "judge-a-sketch":
+        shown = gf_expr(q["lines"][0].split(" = ", 1)[1])
+        need(sp.expand(shown - f) == 0, "the equation shown is not the parabola")
+        gr = q["graph"]["curves"][0]
+        ff = gc_f(f)
+        flaw = g["flaw"]
+        if flaw == "flipped":
+            need(gc_curve_is(gr, lambda x: -ff(x)), "the sketch is not f flipped")
+            want = f"It opens the wrong way: a {'>' if a > 0 else '<'} 0, so it should open {'upwards' if a > 0 else 'downwards'}."
+        else:
+            need(gc_curve_is(gr, lambda x: k - k * abs(x - h) / abs(h - r1)), "the sketch is not a V at the vertex")
+            want = "Its vertex is a sharp point: a parabola is smooth there."
+        gc_check_common(q, want, {GF_SK + "#2": {f"Its vertex should be on the y-axis, at {pt(0, c)}."}})
+        return None, None
+    raise Fail(f"the checker has no graph-from-features check for {u}")
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -6219,7 +6414,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth,
                     "gdc-curve": check_gdc_curve, "gdc-two-curves": check_gdc_two_curves,
                     "gdc-combined": check_gdc_combined,
-                    "gdc-context-equation": check_gdc_context_equation}
+                    "gdc-context-equation": check_gdc_context_equation,
+                    "graph-from-features": check_graph_from_features}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

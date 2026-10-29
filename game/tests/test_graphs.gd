@@ -7,17 +7,24 @@ extends "res://tests/test_case.gd"
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
 const CELLS := {"fn-sketch-gdc": 42, "fn-gdc-features": 36, "fn-gdc-intersection": 29, "fn-gdc-optimise-combined": 27,
-	"fn-gdc-solve-equation": 33}
+	"fn-gdc-solve-equation": 33, "fn-sketch-from-features": 30}
 const SITUATION := {"fn-sketch-gdc": "gdc-curve", "fn-gdc-features": "gdc-curve", "fn-gdc-intersection": "gdc-two-curves",
-	"fn-gdc-optimise-combined": "gdc-combined", "fn-gdc-solve-equation": "gdc-context-equation"}
+	"fn-gdc-optimise-combined": "gdc-combined", "fn-gdc-solve-equation": "gdc-context-equation",
+	"fn-sketch-from-features": "graph-from-features"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-sketch-gdc|SL2.10.number-of-solutions#2": "counting the asymptote's level needs a curve that levels off; the gdc-curve asymptote is vertical",
 	"fn-gdc-optimise-combined|SL2.4.max-min#1": "D's greatest value is always its turning value here (D is concave for the towns, and starts at 0 for the drugs), so no endpoint beats it",
 }
 ## What each wrong graph's mistake is, as a misconception ref ("" for none in the catalogue).
+## (fn-sketch-from-features' flipped parabola is SL2.6.sketch#0 only when a < 0, and its
+## past-domain is a velocity's, with no misconception: those two are checked by kind.)
 const MISTAKES := {"past-domain": "SL2.3.sketch-from-equation#1", "squashed": "SL2.3.sketch-from-equation#2",
-	"through-asymptote": "SL2.3.sketch-from-equation#0", "reflected": "", "mirrored": ""}
+	"through-asymptote": "SL2.3.sketch-from-equation#0", "reflected": "", "mirrored": "",
+	"pointed": "SL2.6.sketch#1", "vertex-on-axis": "SL2.6.sketch#2", "below-zero": "SL2.3.sketch-from-info#1",
+	"below-room": "SL2.3.sketch-from-info#1", "turns-back": "SL2.3.sketch-from-info#2", "doubles-back": "SL2.3.sketch-from-info#0",
+	"max-moved": "", "swapped": "", "amplitude": "", "shifted": "", "steady": "", "warming": "",
+	"sideways": "SL2.3.sum-difference#0", "difference": "", "constant-lift": ""}
 
 
 func _make(type: String, unknown: String, rep: String, angle: String, seed: int, format: String = "value") -> Dictionary:
@@ -54,11 +61,13 @@ func test_every_cell_makes_a_question_on_its_situation() -> void:
 					check(q.table != null, c.key + ": no table")
 
 
-func test_the_gdc_types_are_paper_2() -> void:
+## The GDC types are Paper 2; sketching from exact features is Paper 1 (stats.paper).
+func test_each_type_is_on_its_paper() -> void:
 	for t in CELLS:
+		var want := 1 if t == "fn-sketch-from-features" else 2
 		for c in QuestionEngine.cells(false, [t]):
 			var q := _make(t, c.unknown, c.rep, c.angle, 4, "mcq")
-			check_eq(q.paper, 2, c.key)
+			check_eq(q.paper, want, c.key)
 
 
 func test_every_distractor_misconception_is_an_option() -> void:
@@ -90,12 +99,19 @@ func test_same_seed_same_question() -> void:
 			check_eq(a.prompt + str(a.lines) + a.answer_text, b.prompt + str(b.lines) + b.answer_text, c.key)
 
 
+## Every unknown whose answer is a sketch, by type.
+const SKETCHES := {"fn-sketch-gdc": ["sketch-on-domain", "sketch-with-asymptote", "sketch-from-table"],
+	"fn-sketch-from-features": ["sketch-quadratic", "sketch-on-interval", "sketch-with-asymptote", "sketch-trig-on-interval",
+		"sketch-from-conditions", "sketch-from-context"],
+	"fn-gdc-optimise-combined": ["sum-graph"]}
+
+
 func test_pick_the_graph_is_four_cards_each_wrong_one_a_mistake() -> void:
-	for u in ["sketch-on-domain", "sketch-with-asymptote", "sketch-from-table"]:
-		for c in QuestionEngine.cells(false, ["fn-sketch-gdc"]).filter(func(x): return x.unknown == u):
-			for seed in range(1, 8):
+	for t in SKETCHES:
+		for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown in SKETCHES[t]):
+			for seed in range(1, 6):
 				# Whatever format is asked, a graph answer plays as pick the graph.
-				var q := _make("fn-sketch-gdc", u, c.rep, c.angle, seed, "value" if seed % 2 == 0 else "mcq")
+				var q := _make(t, c.unknown, c.rep, c.angle, seed, "value" if seed % 2 == 0 else "mcq")
 				check_eq(q.format, "pick-the-graph", c.key)
 				check(QuestionEngine.is_choice(q), c.key)
 				check_eq(q.graphs.size(), 4, c.key)
@@ -107,8 +123,11 @@ func test_pick_the_graph_is_four_cards_each_wrong_one_a_mistake() -> void:
 					if o.correct:
 						check(q.answer_text == o.text, c.key)
 						continue
-					check(MISTAKES.has(o.mistake), "%s: mistake %s" % [c.key, o.mistake])
-					check_eq(o.ref, MISTAKES.get(o.mistake, "?"), c.key)
+					if t == "fn-sketch-from-features" and o.mistake in ["flipped", "past-domain"]:
+						check(o.ref in ["", "SL2.6.sketch#0"], c.key)
+					else:
+						check(MISTAKES.has(o.mistake), "%s: mistake %s" % [c.key, o.mistake])
+						check_eq(o.ref, MISTAKES.get(o.mistake, "?"), c.key)
 					check(o.why != "", c.key + ": no why")
 					# Picking a wrong graph logs its misconception.
 					var r := QuestionEngine.mark(q, {"choice": i})

@@ -186,6 +186,8 @@ const CHAINS := {
 	"fn-gdc-optimise-combined": ["form-difference", "max-difference", "interpret-extreme"],
 	# solve on the GDC, then reject the root the context can't have
 	"fn-gdc-solve-equation": ["root-in-interval", "reject-a-root"],
+	# the sketch from its features, then what is wrong with a student's sketch of it
+	"fn-sketch-from-features": ["sketch-quadratic", "judge-a-sketch"],
 }
 
 
