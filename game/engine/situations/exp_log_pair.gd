@@ -20,6 +20,8 @@ extends RefCounted
 ##   (transform asks for shift or stretch, by the method: see generate())
 ##   compose  f(x) = bˣ and g(x) = x + p: b, p, equal (g = log_b x instead, so f∘g = g∘f)
 ##   square   g(x) = log_b((x − h)²) for x > h: b, h
+##   expgraph f(x) = A·b^(x − h) + c (fn-ext-exp-graph): b, A (a Q), h, c, and flip (b^(−x)
+##            in place of bˣ, for growth or decay)
 ##
 ## The clean limits are the checker's too (tools/check_answers.py, EL_*).
 
@@ -120,6 +122,16 @@ static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:
 		"square":
 			s.b = _pick(rng, [2, 3, 5, 10])
 			s.h = rng.int_in(-5, 5)
+		"expgraph":
+			s.b = _pick(rng, [2, 3])
+			s.A = _pick(rng, [Q.new(1), Q.new(1), Q.new(2), Q.new(3), Q.new(-1), Q.new(1, 2)])
+			s.h = 0 if need.get("h0", false) else rng.int_in(-2, 2)
+			s.c = _nonzero(rng, -4, 4) if need.get("c_nonzero", false) else rng.int_in(-4, 4)
+			if need.get("h_nonzero", false) and s.h == 0:
+				return {}
+			if need.get("a_pos", false) and s.A.sign() < 0:
+				return {}
+			s.flip = rng.chance(0.5)
 	return s
 
 

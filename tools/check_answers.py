@@ -3275,7 +3275,7 @@ def check_symmetry(q):
 # Answer kinds the region adds (game/engine/answer.gd): lnq (m·ln r, exact), pct (a
 # rise or fall of r%), expmodel (P₀(a)ᵗ) and limited (C, A and k of C + Ae^(−kt)).
 
-EL_KINDS = {"lnq", "pct", "expmodel", "limited", "fn", "logform", "xpow", "range"}
+EL_KINDS = {"lnq", "pct", "expmodel", "limited", "fn", "logform", "xpow", "range", "yint"}
 
 
 def el_num(text):
@@ -3317,6 +3317,8 @@ def el_text(ans, v):
         return f"{el_log_name(v['b'])} {frac_text(v['x'])} = {frac_text(v['y'])}"
     if kind == "range":
         return f"{v['var']} {v['rel']} {frac_text(v['k'])}"
+    if kind == "yint":
+        return f"(0, {frac_text(v['y'])})"
     if kind == "xpow":
         n = R(v["n"])
         if v.get("form") == "lin":
@@ -3350,6 +3352,8 @@ def el_norm(ans, v):
         return (v.get("form", "pow"), R(v["n"]))
     if kind == "range":
         return (v["var"], v["rel"], R(v["k"]))
+    if kind == "yint":
+        return R(v["y"])
     raise Fail(f"the checker can't compare answers of kind {kind}")
 
 
@@ -3778,8 +3782,104 @@ def el_check_log_table(q, b, h, c, hide):
             need(el_num(yt) == n + c, f"the table's g({xt}) = {yt} is wrong")
 
 
+# ── fn-ext-exp-graph (on exp-log-pair) ──
+
+EG_UNKNOWNS = {"y-intercept", "asymptote", "range", "growth-or-decay", "pick-graph", "moves-from-parent",
+               "equation-from-graph", "compare-reflections"}
+
+
+def eg_parse(text):
+    """'y = 2 × 3^(x − 1) + 2' or 'y = −2ˣ + 1' -> (A, b, h, c)."""
+    m = re.search(r"y = (?:(−)|\(?(\d+(?:/\d+)?)\)? × )?(\d+)(?:ˣ|\^\((x(?: [−+] \d+)?)\))(?: ([+−]) (\d+))?", text)
+    need(m is not None, f"can't read the exponential in {text!r}")
+    A = -1 if m.group(1) else (R(m.group(2)) if m.group(2) else 1)
+    return sp.Rational(A), int(m.group(3)), (0 if m.group(4) is None else el_parse_shift(m.group(4))), el_parse_q(m.group(5), m.group(6))
+
+
+def check_exp_graph(q):
+    ans, u, rep, L, asked = q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    Lj = " ".join(L)
+    wr = {}
+    if u in ("growth-or-decay", "compare-reflections", "equation-from-graph"):
+        A = b = h = c = None
+    else:
+        A, b, h, c = eg_parse(asked if u == "pick-graph" else Lj.split("transformed to ")[-1])
+        need(b in (2, 3) and A in {1, 2, 3, -1, sp.Rational(1, 2)} and abs(h) <= 2 and abs(c) <= 4, "not a clean exponential")
+        f = A * sp.Integer(b) ** (X - h) + c
+        if q.get("graph"):
+            for x0, y0 in q["graph"]["curves"][0][::16]:
+                need(abs(sp.N(f.subs(X, sp.Float(x0, 30))) - y0) <= 1e-6 * max(1, abs(y0)), "the curve is not the function")
+    if u == "y-intercept":
+        need(h != 0, "h = 0 makes the slip the answer")
+        want = qr_norm(ans, {"y": str(f.subs(X, 0))})
+        wr["SL2.9.exp-graph#0"] = {qr_norm(ans, {"y": str(A + c)})}
+    elif u == "asymptote":
+        need(c != 0, "c = 0 makes y = 0 the answer")
+        want = qr_norm(ans, {"var": "y", "h": str(sp.limit(f, X, -sp.oo))})
+        wr["SL2.9.exp-graph#1"] = {qr_norm(ans, {"var": "y", "h": "0"})}
+    elif u == "range":
+        lim = sp.limit(f, X, -sp.oo)
+        rng_ = sp.calculus.util.function_range(f, X, sp.S.Reals)
+        need(rng_ in (sp.Interval.open(lim, sp.oo), sp.Interval.open(-sp.oo, lim)), f"the range {rng_} is not one side of the asymptote")
+        want = qr_norm(ans, {"rel": ">" if rng_.sup == sp.oo else "<", "v": str(lim)})
+        wr["SL2.2.range#1"] = {qr_norm(ans, {"rel": "≥" if rng_.sup == sp.oo else "≤", "v": str(lim)})}
+    elif u == "growth-or-decay":
+        if rep == "table":
+            ys = [el_num(y) for y in q["table"]["rows"][1][1]]
+            up = ys[1] > ys[0]
+            need(all(ys[i + 1] / ys[i] == ys[1] / ys[0] for i in range(3)), "the table is not exponential")
+        elif rep == "graph":
+            pts = q["graph"]["curves"][0]
+            up = pts[-1][1] > pts[0][1]
+        else:
+            m = em_read(r"^y = (\d+)(ˣ|\^\(−x\))$", L[0], "the function")
+            up = m.group(2) == "ˣ"
+        right = "increasing: the base is greater than 1" if up else "decreasing: the base is between 0 and 1"
+        want = qr_norm(ans, {"v": right})
+    elif u == "pick-graph":
+        need(A > 0, "a reflected graph is not offered as increasing")
+        y0 = f.subs(X, 0)
+        say = lambda asym, a_, b_, up_: el_m_text(f"asymptote y = {asym}, through {a_} and {b_}, {'increasing' if up_ else 'decreasing'}")
+        P = lambda x_, y_: el_m_text(f"({frac_text(x_)}, {frac_text(y_)})")
+        want = qr_norm(ans, {"v": say(c, P(0, y0), P(h, A + c), True)})
+    elif u == "moves-from-parent":
+        need(f"(0, 1) on y = {b}ˣ" in asked, "the parent is not bˣ")
+        # (0, 1) on bˣ is where the exponent is 0: x = h, y = A + c.
+        need(sp.simplify(f.subs(X, h) - (A + c)) == 0, "the image is not on the curve")
+        want = qr_norm(ans, {"x": str(h), "y": str(A + c)})
+    elif u == "equation-from-graph":
+        if rep == "table":
+            c = el_num(em_read(r"y → (−?\d+)\.", Lj, "the asymptote").group(1))
+            xs = [int(x) for x in q["table"]["rows"][0][1]]
+            ys = [el_num(y) for y in q["table"]["rows"][1][1]]
+        else:
+            gr = q["graph"]
+            c = R(sp.nsimplify(gr["hlines"][0]["at"]))
+            need(el_num(em_read(r"asymptote y = (−?\d+)\.", Lj, "the asymptote").group(1)) == c, "the asymptote said is not the one drawn")
+            xs = [R(sp.nsimplify(p["x"])) for p in gr["points"]]
+            ys = [R(sp.nsimplify(p["y"])) for p in gr["points"]]
+        need(xs[:2] == [0, 1], "the points are not at x = 0 and x = 1")
+        A_ = ys[0] - c
+        b_ = (ys[1] - c) / A_
+        need(b_.is_integer and b_ > 1 and all(A_ * b_ ** x + c == y for x, y in zip(xs, ys)), "the points are not on one A·bˣ + c")
+        if rep == "graph":
+            fn = A_ * b_ ** X + c
+            for x0, y0 in q["graph"]["curves"][0][::16]:
+                need(abs(sp.N(fn.subs(X, sp.Float(x0, 30))) - y0) <= 1e-6 * max(1, abs(y0)), "the curve is not the function")
+        want = qr_norm(ans, {"v0": str(c), "v1": str(A_), "v2": str(b_)})
+    elif u == "compare-reflections":
+        b = int(em_read(r"y = (\d+)ˣ and y = \(1/(\d+)\)ˣ", Lj, "the two").group(1))
+        need(sp.simplify(sp.Integer(b) ** (-X) - sp.Rational(1, b) ** X) == 0, "not a reflection pair")
+        want = qr_norm(ans, {"v": "reflections of each other in the y-axis"})
+        wr["SL2.9.exp-graph#2"] = {qr_norm(ans, {"v": "reflections of each other in the x-axis"})}
+    qr_check_common(q, want, wr)
+    return None, None
+
+
 def check_exp_log_pair(q):
     g, ans, u, rep, L, asked = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    if u in EG_UNKNOWNS:
+        return check_exp_graph(q)
     for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
         need(not re.search(r"-\d", t), f"a hyphen for a minus in {t!r}")
     wr = {}

@@ -24,7 +24,19 @@ const NEED := {
 	"inverse-graph": {"mode": "exp", "graph": true},
 	"inverse-log-of-square": {"mode": "square"},
 	"function-from-inverse": {"mode": "log"},
+	# fn-ext-exp-graph (the extra skill "Exponential graphs")
+	"y-intercept": {"mode": "expgraph", "h_nonzero": true},
+	"asymptote": {"mode": "expgraph", "c_nonzero": true},
+	"range": {"mode": "expgraph", "c_nonzero": true},
+	"growth-or-decay": {"mode": "expgraph", "a_pos": true},
+	"pick-graph": {"mode": "expgraph", "a_pos": true},
+	"moves-from-parent": {"mode": "expgraph"},
+	"equation-from-graph": {"mode": "expgraph", "h0": true, "c_nonzero": true},
+	"compare-reflections": {"mode": "expgraph"},
 }
+## The extra formats the fn-ext-exp-graph views build (the catalogue lists true-false-reason).
+const EXTRA := ["y-intercept", "asymptote", "range", "growth-or-decay", "pick-graph", "moves-from-parent",
+	"equation-from-graph", "compare-reflections"]
 const NOT_DEFINED := "not defined: there is no log of a number that is not positive"
 
 
@@ -34,6 +46,10 @@ func has(unknown: String) -> bool:
 
 func need(unknown: String, _rep: String) -> Dictionary:
 	return NEED[unknown].duplicate()
+
+
+func formats(unknown: String) -> Array:
+	return ["true-false-reason"] if unknown in EXTRA else []
 
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -635,3 +651,205 @@ func u_function_from_inverse(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 				"In exponential form: %s = %d^(y%s), so f(x) = %d^(%s)%s" % [Answer.x_minus(h), b, Answer.plus_q(-c), b, Answer.x_minus(c), Answer.plus_q(h)], final]},
 		},
 	}
+
+
+# ── fn-ext-exp-graph ─────────────────────────────────────────
+
+## A·b^(x − h) + c as written: "2 × 3^(x − 1) + 2", "−2ˣ + 1".
+static func eg_text(s: Dictionary) -> String:
+	var A: Q = s.A
+	var pw := Answer.fn_text("exp", s.b, s.h, 0)
+	var lead := "" if A.eq(Q.new(1)) else ("−" if A.eq(Q.new(-1)) else Fmt.paren(A) + " × ")
+	return lead + pw + Answer.plus_q(s.c)
+
+
+static func eg_at(s: Dictionary, x: float) -> float:
+	return s.A.to_float() * pow(float(s.b), x - s.h) + s.c
+
+
+## f(0) = A·b^(−h) + c, exactly.
+static func eg_y0(s: Dictionary) -> Q:
+	var h: int = s.h
+	var p := Q.new(1)
+	for i in absi(h):
+		p = p.div(Q.new(s.b)) if h > 0 else p.mul(Q.new(s.b))
+	return s.A.mul(p).add(Q.new(s.c))
+
+
+static func eg_graph(s: Dictionary, points: Array = []) -> Dictionary:
+	var f := func(x: float) -> float: return eg_at(s, x)
+	var c: int = s.c
+	return Plot.spec([Plot.sample(f, -6.0, 6.0)], points, -6, 6, c - 8, c + 8, [[float(c), "y = %d" % c]])
+
+
+func u_y_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var y0 := eg_y0(s)
+	var ans := Answer.make("yint", {"y": y0})
+	ans.exact = true
+	var final := "So it is " + Answer.text(ans) + "."
+	return {"asked": "Find the y-intercept of the graph.", "lines": ["y = " + eg_text(s)], "answer": ans,
+		"wrongs": [wrong({"y": s.A.add(Q.new(s.c))}, "SL2.9.exp-graph#0")],
+		"generic": [{"y": Q.new(s.c)}, {"y": y0.sub(Q.new(s.c))}, {"y": y0.add(Q.new(1))}, {"y": y0.neg()}],
+		"methods": {
+			"key-points": {"result": ans.values, "steps": ["Put x = 0: y = %s" % eg_text(s).replace("x", "0"), "= %s" % N(y0), final]},
+			"transform-parent": {"result": ans.values, "steps": [
+				"Moving (0, 1) on y = %dˣ gives (%d, %s), not the y-intercept, as h ≠ 0." % [s.b, s.h, N(s.A.add(Q.new(s.c)))],
+				"Substitute x = 0 instead: y = %s" % N(y0), final]},
+		}}
+
+
+func u_asymptote(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var c: int = s.c
+	var ans := Answer.make("axis", {"var": "y", "h": Q.new(c)})
+	ans.exact = true
+	var final := "So the asymptote is " + Answer.text(ans) + "."
+	var out := {"asked": "Write down the equation of the horizontal asymptote.", "lines": ["y = " + eg_text(s)], "answer": ans,
+		"wrongs": [wrong({"var": "y", "h": Q.new(0)}, "SL2.9.exp-graph#1")],
+		"generic": [{"var": "x", "h": Q.new(c)}, {"var": "y", "h": Q.new(-c)}, {"var": "y", "h": s.A.add(Q.new(c))}, {"var": "x", "h": Q.new(s.h)}],
+		"methods": {
+			"key-points": {"result": ans.values, "steps": ["As x → −∞, %dˣ → 0, so the A·b^(x − h) part → 0." % s.b, "y → %d" % c, final]},
+			"transform-parent": {"result": ans.values, "steps": ["y = %dˣ has asymptote y = 0." % s.b, "The + %d moves it %s to y = %d; the stretch and the shift in x don't move it." % [c, "up" if c > 0 else "down", c], final]},
+		}}
+	if rep == "graph":
+		out.lines = ["The graph of y = %s is shown." % eg_text(s)]
+		out.graph = eg_graph(s)
+	return out
+
+
+func u_range(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var c: int = s.c
+	var up: bool = s.A.sign() > 0
+	var ans := Answer.make("bound", {"rel": ">" if up else "<", "v": Q.new(c)}, {"var": "y"})
+	ans.exact = true
+	var final := "So the range is " + Answer.text(ans) + "."
+	var out := {"asked": "Find the range of the function.", "lines": ["y = " + eg_text(s)], "answer": ans,
+		"wrongs": [wrong({"rel": "≥" if up else "≤", "v": Q.new(c)}, "SL2.2.range#1")],
+		"generic": [{"rel": ">" if up else "<", "v": Q.new(0)}, {"rel": "<" if up else ">", "v": Q.new(c)}, {"rel": ">" if up else "<", "v": eg_y0(s)}],
+		"methods": {
+			"key-points": {"result": ans.values, "steps": ["The asymptote is y = %d, which the graph never reaches." % c, "A = %s is %s, so the graph is %s it." % [N(s.A), "positive" if up else "negative", "above" if up else "below"], final]},
+			"gdc-transfer": {"result": ans.values, "steps": ["Graph y = %s: it levels off towards y = %d on the left." % [eg_text(s), c], "It stays %s y = %d and takes every value there." % ["above" if up else "below", c], final]},
+			"vertex-or-asymptote": {"result": ans.values, "steps": ["An exponential has no vertex: its range is fixed by the asymptote y = %d." % c, "The values are all on one side, never equal to %d." % c, final]},
+		}}
+	if rep == "graph":
+		out.lines = ["The graph of y = %s is shown." % eg_text(s)]
+		out.graph = eg_graph(s)
+	return out
+
+
+const GROWS := "increasing: the base is greater than 1"
+const DECAYS := "decreasing: the base is between 0 and 1"
+
+
+func u_growth_or_decay(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var b: int = s.b
+	var flip: bool = s.flip
+	var right := DECAYS if flip else GROWS
+	var opts := [right, GROWS if flip else DECAYS, "increasing: the exponent is negative" if flip else "decreasing: the exponent is positive",
+		"neither: it has an asymptote"]
+	var ans := Answer.make("choice", {"v": right}, {"options": opts})
+	var shown := "y = %dˣ" % b if not flip else ("y = %d^(−x)" % b if rep != "table" else "y = (1/%d)ˣ" % b)
+	var out := {"asked": "Does the graph rise or fall from left to right, and why?", "lines": [shown], "answer": ans,
+		"generic": opts.slice(1).map(func(o): return {"v": o}),
+		"methods": {"base-comparison": {"result": ans.values, "steps": [
+			("%d^(−x) = (1/%d)ˣ: the base is 1/%d." % [b, b, b]) if flip else "The base is %d." % b,
+			"A base %s 1 makes y %s as x grows." % ["between 0 and" if flip else "greater than", "shrink" if flip else "grow"], "So it is " + right + "."]}}}
+	if rep == "table":
+		var xs := [-1, 0, 1, 2]
+		out.table = {"rows": [["x", xs.map(func(x): return str(x).replace("-", "−"))], ["y", xs.map(func(x): return N(Q.new(1).mul(Q.new(int(pow(b, absi(x))))) if (x >= 0) != flip else Q.new(1, int(pow(b, absi(x))))))]]}
+		out.lines = ["The table shows values of an exponential function."]
+	elif rep == "graph":
+		var t := s.duplicate()
+		t.A = Q.new(1)
+		t.h = 0
+		t.c = 0
+		var f := func(x: float) -> float: return pow(float(b), -x if flip else x)
+		out.graph = Plot.spec([Plot.sample(f, -4.0, 4.0)], [[0, 1, "(0, 1)"]], -4, 4, -1, 10)
+		out.lines = ["The graph of an exponential function y = aˣ is shown."]
+	return out
+
+
+func u_pick_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var c: int = s.c
+	var y0 := eg_y0(s)
+	var p1 := Fmt.point(s.h, s.A.add(Q.new(c)))
+	var say := func(asym: int, a: String, b2: String, up: bool) -> String: return M("asymptote y = %d, through %s and %s, %s" % [asym, a, b2, "increasing" if up else "decreasing"])
+	var right: String = say.call(c, Fmt.point(0, y0), p1, true)
+	var opts: Array = [right]
+	for o in [say.call(0, Fmt.point(0, y0), p1, true), say.call(c, Fmt.point(0, y0), p1, false), say.call(c, Fmt.point(0, s.A.add(Q.new(c))), p1, true),
+			say.call(-c, Fmt.point(0, y0), p1, true), say.call(c, Fmt.point(0, y0.add(Q.new(1))), p1, true),
+			say.call(c + 1, Fmt.point(0, y0), p1, true), say.call(c, Fmt.point(0, y0), Fmt.point(-s.h, s.A.add(Q.new(c))), true)]:
+		if not o in opts:
+			opts.append(o)
+	var ans := Answer.make("choice", {"v": right}, {"options": opts})
+	var final := "So it is: " + right + "."
+	var out := {"asked": "Which description matches the graph of y = %s?" % eg_text(s), "lines": ["y = " + eg_text(s)], "answer": ans,
+		"generic": opts.slice(1).map(func(o): return {"v": o}),
+		"methods": {
+			"key-points": {"result": ans.values, "steps": ["The asymptote is y = %d; at x = 0, y = %s." % [c, N(y0)], "At x = %d, y = %s." % [s.h, N(s.A.add(Q.new(c)))], final]},
+			"base-comparison": {"result": ans.values, "steps": ["The base %d is greater than 1 and A > 0, so the graph increases." % s.b, "It passes through (0, %s) and levels off at y = %d." % [N(y0), c], final]},
+			"gdc-transfer": {"result": ans.values, "steps": ["Graph y = %s on the GDC." % eg_text(s), "Its trace crosses x = 0 at y = %s and flattens towards y = %d." % [N(y0), c], final]},
+		}}
+	if rep == "graph":
+		out.graph = eg_graph(s)
+		out.lines = ["The graph of y = %s is shown." % eg_text(s)]
+	return out
+
+
+func u_moves_from_parent(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var c: int = s.c
+	var top: Q = s.A.add(Q.new(c))
+	var ans := Answer.make("point", {"x": Q.new(s.h), "y": top})
+	ans.exact = true
+	var final := "So (0, 1) goes to " + Answer.text(ans) + "."
+	var said := "y = " + eg_text(s) if rep == "equation" else "The graph of y = %dˣ is transformed to y = %s." % [s.b, eg_text(s)]
+	return {"asked": "Where does the point (0, 1) on y = %dˣ go?" % s.b, "lines": [said], "answer": ans,
+		"generic": [{"x": Q.new(-s.h), "y": top}, {"x": Q.new(s.h), "y": Q.new(1 + c)}, {"x": Q.new(s.h), "y": s.A.mul(Q.new(c))}, {"x": Q.new(0), "y": eg_y0(s)}],
+		"methods": {"transform-parent": {"result": ans.values, "steps": [
+			"x − %d inside moves it %d to the right; the %s in front stretches the y-value 1 to %s." % [s.h, s.h, N(s.A), N(s.A)],
+			"The + %d moves it up %d: (%d, %s); the asymptote y = 0 goes to y = %d." % [c, c, s.h, N(top), c], final]}}}
+
+
+func u_equation_from_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var b: int = s.b
+	var c: int = s.c
+	var A: Q = s.A
+	var y0: Q = A.add(Q.new(c))
+	var y1: Q = A.mul(Q.new(b)).add(Q.new(c))
+	var ans := Answer.make("named", {"v0": Q.new(c), "v1": A, "v2": Q.new(b)}, {"names": ["c", "A", "b"]})
+	ans.exact = true
+	var out := {"asked": "The function is y = A·bˣ + c. Find c, A and b.", "answer": ans,
+		"generic": [{"v0": y0, "v1": Q.new(c), "v2": Q.new(b)}, {"v0": Q.new(c), "v1": y0, "v2": Q.new(b)}, {"v0": Q.new(c), "v1": A, "v2": y1.sub(Q.new(c))},
+			{"v0": Q.new(-c), "v1": A, "v2": Q.new(b)}]}
+	if rep == "table":
+		out.lines = ["As x → −∞, y → %d." % c]
+		out.table = {"rows": [["x", ["0", "1", "2"]], ["y", [N(y0), N(y1), N(A.mul(Q.new(b * b)).add(Q.new(c)))]]]}
+	else:
+		out.lines = ["The graph of y = A·bˣ + c is shown, with its asymptote y = %d." % c]
+		out.graph = eg_graph(s, [[0, y0.to_float(), Fmt.point(0, y0)], [1, y1.to_float(), Fmt.point(1, y1)]])
+	var final := "So " + Answer.text(ans) + "."
+	var steps_c := "The asymptote is y = %d, so c = %d." % [c, c]
+	var steps_a := "At x = 0, b⁰ = 1: A + %s = %s, so A = %s." % [N(c), N(y0), N(A)]
+	var steps_b := "At x = 1: %s·b + %s = %s, so b = %d." % [N(A), N(c), N(y1), b]
+	out.methods = {
+		"transform-parent": {"result": ans.values, "steps": [steps_c, steps_a + " " + steps_b, final]},
+		"gdc-transfer": {"result": ans.values, "steps": [steps_c + " " + steps_a, "Check b on the GDC: y = %s·%dˣ + %d passes through (1, %s)." % [N(A), b, c, N(y1)], final]},
+		"asymptote-first": {"result": ans.values, "steps": [steps_c, steps_a, steps_b, final]},
+	}
+	return out
+
+
+const MIRROR_Y := "reflections of each other in the y-axis"
+const MIRROR_X := "reflections of each other in the x-axis"
+
+
+func u_compare_reflections(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var b: int = s.b
+	var opts := [MIRROR_Y, MIRROR_X, "reflections of each other in y = x", "the same graph"]
+	var ans := Answer.make("choice", {"v": MIRROR_Y}, {"options": opts})
+	var f := func(x: float) -> float: return pow(float(b), x)
+	var g := func(x: float) -> float: return pow(float(b), -x)
+	return {"asked": "How are the two graphs related?", "lines": ["The graphs of y = %dˣ and y = (1/%d)ˣ are shown." % [b, b]], "answer": ans,
+		"graph": Plot.spec([Plot.sample(f, -4.0, 4.0), Plot.sample(g, -4.0, 4.0)], [[0, 1, "(0, 1)"]], -4, 4, -1, 10),
+		"wrongs": [wrong({"v": MIRROR_X}, "SL2.9.exp-graph#2")], "generic": [{"v": opts[2]}, {"v": opts[3]}],
+		"methods": {"base-comparison": {"result": ans.values, "steps": [
+			"(1/%d)ˣ = %d^(−x): it is y = %dˣ with x replaced by −x." % [b, b, b], "Replacing x by −x reflects a graph in the y-axis; both pass through (0, 1).", "So they are " + MIRROR_Y + "."]}}}
