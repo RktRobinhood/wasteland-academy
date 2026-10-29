@@ -609,8 +609,10 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	var seen := {Answer.canon(ans, ans.values): true}
 	var picked: Array = []
 	var pool: Array = []
+	# A view whose misconception is "too few figures" (SL2.4.max-min#2) tags its trap
+	# with it (trap_ref), so picking it is a glancing hit that logs the misconception.
 	if not b.get("trap", {}).is_empty():
-		pool.append({"values": b.trap, "ref": "", "trap": true})
+		pool.append({"values": b.trap, "ref": b.get("trap_ref", ""), "trap": true})
 	for w in b.wrongs:
 		pool.append(w)
 	for g in b.generic:

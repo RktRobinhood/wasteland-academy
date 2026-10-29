@@ -54,6 +54,15 @@ func need(unknown: String, _rep: String) -> Dictionary:
 	return NEED[unknown].duplicate()
 
 
+## Two needs as one for a shared situation (QuestionEngine.families()), or null. The
+## far mode (a zero past x = 10) only shares with the other far views: on top of
+## exactly two zeros or a maximum inside, it is rarely clean.
+func merge_need(a: Dictionary, b: Dictionary) -> Variant:
+	if a.get("far_ok", false) != b.get("far_ok", false):
+		return null
+	return QuestionEngine.merge_need(a, b)
+
+
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
 	for key in ["lines", "graph", "table", "wrongs", "generic"]:
@@ -623,8 +632,6 @@ func _turning_point(rep: String, s: Dictionary, rng: Seeded, style: String) -> D
 	var word := kind_word(t)
 	var final := "So the local %s is at %s." % [word, Answer.text(ans)]
 	var wrongs: Array = [wrong({"x": tq[0], "y": Q.new(0)}, MM + "#0")]
-	if style == "coords":
-		wrongs.append(wrong({"x": sfq(t.x, 1), "y": sfq(t.y, 1)}, MM + "#2"))
 	var gen: Array = [{"x": tq[1], "y": tq[0]}, {"x": tq[0], "y": tq[1].neg()}]
 	for u in s.turns:
 		if u != t:
@@ -632,6 +639,10 @@ func _turning_point(rep: String, s: Dictionary, rng: Seeded, style: String) -> D
 	gen.append({"x": qf(s.zeros[0]), "y": Q.new(0)})
 	var asked := "Find the coordinates of the local %s of the graph of f." % word
 	var out := {"asked": asked, "lines": [line(s)], "answer": ans, "wrongs": wrongs, "generic": gen}
+	# The coordinates to 2 s.f. are the rounding trap, and on fn-gdc-features they are
+	# its misconception SL2.4.max-min#2.
+	if style == "coords":
+		out.trap_ref = MM + "#2"
 	if rep == "graph":
 		out.lines = ["The graph of %s is shown." % line(s)]
 		out.graph = screen(s, end_dots(s))

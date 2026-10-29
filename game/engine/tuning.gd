@@ -176,6 +176,10 @@ const CHAINS := {
 	"fn-log-of-quadratic": ["argument-roots", "domain-from-inequality", "asymptotes", "zeros", "max-value"],
 	# the asymptote opens, then the domain, where it crosses the x-axis, and an inequality
 	"fn-log-function-features": ["asymptote-from-equation", "domain-from-equation", "x-intercept", "log-inequality"],
+	# the sketch, then its labelled zeros and turning point, then how many solutions f(x) = k has
+	"fn-sketch-gdc": ["sketch-on-domain", "label-zeros", "label-turning-point", "count-solutions-from-sketch"],
+	# the y-intercept and the zeros, the distance between the stored zeros, the turning point
+	"fn-gdc-features": ["y-intercept", "zeros-gdc", "use-stored-zeros", "turning-point-coordinates"],
 }
 
 

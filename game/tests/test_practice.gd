@@ -21,6 +21,7 @@ const VIEWS := [
 	{"type": "t5-stationary-points", "unknown": "stationary-points", "rep": "equation", "angle": "solve-f-prime-zero", "format": "value", "seed": 9},
 	{"type": "t5-stationary-points", "unknown": "nature", "rep": "words", "angle": "second-derivative-test", "format": "mcq", "seed": 10},
 	{"type": "t5-tangent-normal-equation", "unknown": "normal-at-point", "rep": "equation", "angle": "rearranged-form", "format": "value", "seed": 11},
+	{"type": "fn-sketch-gdc", "unknown": "sketch-on-domain", "rep": "equation", "angle": "gdc-transfer", "format": "mcq", "seed": 3},
 	{"type": "fn-quadratic-features", "probe": 2, "format": "probe"},
 	{"type": "fn-quadratic-features", "probe": 0, "format": "probe"},
 ]

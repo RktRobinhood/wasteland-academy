@@ -5354,6 +5354,444 @@ def check_link_growth(q):
     return None, None
 
 
+# ── Graphs and key features (FAL-420): gdc-curve ──────────────
+# One awkward curve on a closed domain. Its function and domain are read back from the
+# question's text, and every feature is found again with mpmath to 30 digits: zeros
+# from sign changes on a fine grid closed in by findroot, turning points as zeros of
+# the derivative SymPy takes. Answers are compared as the game writes them, to 3 s.f.
+# (an exact value too: 2.5 is "2.50"). The clean limits are the checker's own copy:
+# the engine's are in game/engine/situations/gdc_curve.gd.
+
+GC_ZEROS = (1, 3)
+GC_TURNS = (1, 2)
+GC_SEP = sp.Rational(1, 2)          # features at least this far apart in x
+GC_Y_SPAN = 20                      # the whole graph fits a window about 20 high
+GC_SLOPE = sp.Rational(1, 4)        # each zero a clean crossing
+GC_TOL = sp.Rational(1, 10**7)      # the engine keeps nine decimal places
+GC_GRID = 1200
+GC_SIT, GC_ZI, GC_MM, GC_NS, GC_SG = ("SL2.3.sketch-from-equation", "SL2.4.zeros-intercepts", "SL2.4.max-min",
+                                      "SL2.10.number-of-solutions", "SL2.10.solve-gdc")
+GC_LOCALS = {"x": X, "exp": sp.exp, "log": sp.log, "sin": sp.sin, "cos": sp.cos}
+
+
+def gc_expr(text):
+    """The game's way of writing a function, as SymPy: '2e^(0.5x) − 3x − 1'."""
+    t = text.replace("−", "-").replace("e^(", "exp(").replace("ln(", "log(")
+    t = t.replace("x³", "x**3").replace("x²", "x**2").replace(")²", ")**2").replace("^", "**")
+    need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the function {text!r}")
+    return sp.nsimplify(parse_expr(t, transformations=TRANSFORMS, local_dict=GC_LOCALS), rational=True)
+
+
+def gc_read(q):
+    """(f, d1, d2, open_left) from the first 'f(x) = …, for d1 ≤ x ≤ d2' the question says."""
+    for t in [q["asked"]] + q["lines"]:
+        m = re.search(r"f\(x\) = (.+?),? (?:for|on) (−?\d+) (<|≤) x ≤ (−?\d+)", t)
+        if m:
+            return gc_expr(m.group(1)), el_num(m.group(2)), el_num(m.group(4)), m.group(3) == "<"
+    raise Fail("can't find f(x) and its domain in the question")
+
+
+def gc_f(fn):
+    return sp.lambdify(X, fn, "mpmath")
+
+
+def gc_zeros(fn, a, b):
+    """Every zero of fn on [a, b] (a sign change on the grid, refined to 30 digits)."""
+    f = gc_f(fn)
+    out = []
+    mpmath.mp.dps = 30
+    xs = [mpmath.mpf(a) + (mpmath.mpf(b) - mpmath.mpf(a)) * i / GC_GRID for i in range(GC_GRID + 1)]
+    ys = [f(x) for x in xs]
+    for i in range(GC_GRID):
+        y0, y1 = ys[i], ys[i + 1]
+        if y0 == 0:
+            out.append(xs[i])
+        elif y0 * y1 < 0:
+            out.append(mpmath.findroot(f, (xs[i], xs[i + 1]), solver="anderson"))
+    if ys[-1] == 0:
+        out.append(xs[-1])
+    return out
+
+
+@lru_cache(maxsize=4096)
+def gc_features(fn, d1, d2, open_left):
+    """zeros, turns [(x, y, 'max'|'min')], ends [(x, y)] of fn on its domain."""
+    lo = d1 + sp.Rational(1, 1000) if open_left else d1
+    f = gc_f(fn)
+    df = sp.diff(fn, X)
+    zs = gc_zeros(fn, lo, d2)
+    turns = []
+    for t in gc_zeros(df, lo, d2):
+        if t <= lo or t >= d2:
+            continue
+        s = gc_f(sp.diff(df, X))(t)
+        need(s != 0, "a stationary point that doesn't turn")
+        turns.append((t, f(t), "max" if s < 0 else "min"))
+    ends = [] if open_left else [(mpmath.mpf(d1), f(mpmath.mpf(d1)))]
+    ends.append((mpmath.mpf(d2), f(mpmath.mpf(d2))))
+    return tuple(zs), tuple(turns), tuple(ends)
+
+
+def gc_s(x):
+    """x to 3 s.f., as the game writes it (0 is "0")."""
+    if x == 0:
+        return "0"
+    return ext_sf(sp.Float(x, 30)) if not isinstance(x, sp.Rational) else ext_sf(x)
+
+
+def gc_rounds(x):
+    """Whether x needs rounding at 3 s.f. (an exact 2.5 doesn't)."""
+    return not (isinstance(x, sp.Rational) and sp.Rational(sig3(x)) == x) and x != 0
+
+
+def gc_s2(x):
+    """x as the rounding trap writes it: to 2 s.f. as a decimal, or exact if it needs no rounding."""
+    if not gc_rounds(x):
+        return dec_text(R(x))
+    return dec_text(sp.Rational(sig3(sp.Float(x, 30) if not isinstance(x, sp.Rational) else x, 2)))
+
+
+def gc_trap(vals, text):
+    """The rounding trap's text, or None when no value needs rounding."""
+    return text if any(gc_rounds(v) for v in vals) else None
+
+
+def gc_xs2(xs):
+    names = sorted([gc_s2(x) for x in xs], key=lambda t: float(sp.Rational(t.replace("−", "-"))))
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def gc_pt(x, y):
+    return f"({gc_s(x)}, {gc_s(y)})"
+
+
+def gc_xs(xs):
+    names = [gc_s(x) for x in sorted(xs, key=lambda v: float(v))]
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def gc_close(engine, true):
+    return abs(num(R(engine)) - num(true)) <= GC_TOL * max(1, abs(num(true)))
+
+
+def gc_fair(x):
+    v = num(x)
+    return not on_edge(abs(v)) and abs(v - sp.Integer(round(v))) > sp.Rational(2, 100) if v != 0 else False
+
+
+def gc_clean(q, fn, d1, d2, open_left, F):
+    zs, ts, ends = F
+    g = q["given"]
+    exact = g["fam"] in ("product", "xcubic")
+    need(GC_ZEROS[0] <= len(zs) <= GC_ZEROS[1], f"{len(zs)} zeros, not 1 to 3")
+    need(GC_TURNS[0] <= len(ts) <= GC_TURNS[1], f"{len(ts)} turning points, not 1 or 2")
+    df = gc_f(sp.diff(fn, X))
+    for z in zs:
+        need(abs(df(z)) >= GC_SLOPE, f"the zero at {z} is not a clean crossing")
+        need(exact or gc_fair(z), f"the zero {z} is not a fair 3 s.f. value")
+    for t in ts:
+        need(abs(t[1]) >= sp.Rational(2, 5), "a turning point too near the x-axis")
+        need(g["fam"] == "bellform" or (gc_fair(t[0]) and gc_fair(t[1])), f"the turning point {t[:2]} is not fair to 3 s.f.")
+    xs = sorted([float(z) for z in zs] + [float(t[0]) for t in ts])
+    need(all(b - a >= float(GC_SEP) - 1e-9 for a, b in zip(xs, xs[1:])), "two features closer than 0.5 in x")
+    ys = [t[1] for t in ts] + [e[1] for e in ends]
+    if open_left:
+        ys.append(gc_f(fn)(mpmath.mpf(d1) + mpmath.mpf("0.051")))
+    need(max(ys) - min(ys) <= GC_Y_SPAN + sp.Rational(1, 10), "the graph is more than about 20 high")
+    need(g["d1"] == str(d1) and g["d2"] == str(d2), "the domain shown is not the situation's")
+
+
+def gc_pieces(fn, a, b, open_left_at=None):
+    """The monotone pieces of fn on [a, b]: breakpoint values, ±inf at an asymptote end."""
+    f = gc_f(fn)
+    df = sp.diff(fn, X)
+    xs = [mpmath.mpf(a)] + [t for t in gc_zeros(df, a, b) if mpmath.mpf(a) < t < mpmath.mpf(b)] + [mpmath.mpf(b)]
+    vs = [f(x) for x in xs]
+    if open_left_at is not None:
+        vs[0] = -mpmath.inf if sp.limit(fn, X, open_left_at, "+") == -sp.oo else mpmath.inf
+    return vs
+
+
+def gc_count(vs, k):
+    n = sum(1 for i in range(len(vs) - 1) if min(vs[i], vs[i + 1]) - 1e-20 <= k <= max(vs[i], vs[i + 1]) + 1e-20)
+    return n - sum(1 for v in vs[1:-1] if abs(v - k) < 1e-20)
+
+
+def gc_kset(vs, n):
+    """The k with exactly n solutions, as one interval (lo, lo_in, hi, hi_in), or None."""
+    levels = sorted({v for v in vs if mpmath.isfinite(v)})
+    tests = [(levels[0] - 1, False)]
+    for i, l in enumerate(levels):
+        tests.append((l, True))
+        tests.append((l + 1 if i == len(levels) - 1 else (l + levels[i + 1]) / 2, False))
+    runs, cur = [], None
+    for i, (k, at) in enumerate(tests):
+        ok = gc_count(vs, k) == n
+        if ok and cur is None:
+            if i in (0, len(tests) - 1):
+                return None
+            cur = [k if at else tests[i - 1][0], at]
+        elif not ok and cur is not None:
+            runs.append((cur[0], cur[1], k if at else tests[i - 1][0], not at))
+            cur = None
+    return runs[0] if cur is None and len(runs) == 1 else None
+
+
+def gc_range2(ks):
+    lo, lo_in, hi, hi_in = ks
+    return f"{gc_s(lo)} {'≤' if lo_in else '<'} k {'≤' if hi_in else '<'} {gc_s(hi)}"
+
+
+def gc_curve_is(curve, g, tol=1e-6):
+    """Whether the sampled curve [[x, y], ...] lies on y = g(x)."""
+    return len(curve) > 10 and all(abs(float(g(mpmath.mpf(x))) - y) <= tol * max(1, abs(y)) for x, y in curve[::10])
+
+
+def gc_cards(q, fn, d1, d2, open_left, F):
+    """Pick the graph: the right card is f on its domain with every feature marked, and
+    each wrong card is f with exactly the one mistake it names."""
+    zs, ts, ends = F
+    f = gc_f(fn)
+    lo = float(d1) + (0.001 if open_left else 0)
+    graphs, ch = q["graphs"], q["choices"]
+    need(len(graphs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+    need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the graphs are not lettered A to D")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right graph")
+    need(all(gr.get("card") for gr in graphs), "a graph is not drawn as a card")
+    need(len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+    need(len({(gr["x0"], gr["x1"], gr["y0"], gr["y1"]) for gr in graphs}) == 1, "the cards don't share one window")
+    refs = {"past-domain": GC_SIT + "#1", "squashed": GC_SIT + "#2", "through-asymptote": GC_SIT + "#0", "reflected": "", "mirrored": ""}
+    t_rows = ""
+    for o, gr in zip(ch, graphs):
+        cs = gr["curves"]
+        mk = o.get("mistake", "")
+        if o["correct"]:
+            need(len(cs) == 1 and gc_curve_is(cs[0], f), "the right graph is not f")
+            need(abs(cs[0][0][0] - lo) < 1e-6 and abs(cs[0][-1][0] - float(d2)) < 1e-6, "the right graph doesn't stop at the domain's ends")
+            dots = sorted((round(p["x"], 6), round(p["y"], 6)) for p in gr["points"])
+            want = sorted([(round(float(z), 6), 0.0) for z in zs] + [(round(float(t[0]), 6), round(float(t[1]), 6)) for t in ts]
+                          + [(round(float(e[0]), 6), round(float(e[1]), 6)) for e in ends])
+            need(len(dots) == len(want) and all(abs(a[0] - b[0]) < 1e-5 and abs(a[1] - b[1]) < 1e-5 for a, b in zip(dots, want)),
+                 "the right graph doesn't mark every zero, turning point and endpoint")
+            continue
+        need(mk in refs, f"a wrong graph names no mistake ({mk!r})")
+        need(o["ref"] == refs[mk], f"the {mk} graph is tagged {o['ref']!r}, not {refs[mk]!r}")
+        need(o.get("why", "") != "", f"the {mk} graph doesn't say what is wrong")
+        if mk == "past-domain":
+            need(len(cs) == 1 and gc_curve_is(cs[0], f), "the past-domain graph is not f")
+            need(cs[0][-1][0] > float(d2) + 1 and (open_left or cs[0][0][0] < float(d1) - 1), "the past-domain graph stops at the domain")
+            need(not any(abs(p["x"] - float(e[0])) < 1e-6 and abs(p["y"] - float(e[1])) < 1e-6 for p in gr["points"] for e in ends),
+                 "the past-domain graph marks an endpoint")
+        elif mk == "squashed":
+            dy = min((t[1] for t in ts), key=lambda v: abs(v))
+            need(len(cs) == 1 and gc_curve_is(cs[0], lambda x: f(x) - dy), "the squashed graph is not f moved so a turning point sits on the x-axis")
+        elif mk == "reflected":
+            need(len(cs) == 1 and gc_curve_is(cs[0], lambda x: -f(x)), "the reflected graph is not −f")
+        elif mk == "mirrored":
+            need(len(cs) == 1 and gc_curve_is(cs[0], lambda x: f(-x)), "the mirrored graph is not f(−x)")
+        elif mk == "through-asymptote":
+            need(open_left and len(cs) == 2, "the through-asymptote graph needs an asymptote and two pieces")
+            left = gc_f(fn.subs(sp.log(X - d1), sp.log(-(X - d1))))
+            need(gc_curve_is(cs[0], left) and cs[0][-1][0] < float(d1) and gc_curve_is(cs[1], f), "the through-asymptote graph is not f carried through x = d1")
+    return next(o["text"] for o in ch if o["correct"])
+
+
+def gc_check_common(q, want, wrongs, trap=None, steps=(2, 5)):
+    """want: the answer's text as the game writes it, from the checker's own values.
+    wrongs: ref -> the texts that misconception gives. trap: the 2 s.f. text, or None."""
+    ch = q["choices"]
+    need(q["answer_text"] == want, f"engine answer {q['answer_text']!r} is wrong (expected {want!r})")
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    need(len({o["text"] for o in ch}) == 4, "two options read the same")
+    for o in ch:
+        need(o["correct"] == (o["text"] == want), f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+        if o.get("trap"):
+            need(trap is not None and o["text"] == trap, f"rounding trap {o['text']!r} is not the answer to 2 s.f. ({trap!r})")
+        if o["ref"] and not o.get("trap"):
+            need(o["ref"] in wrongs, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(o["text"] in wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives ({wrongs[o['ref']]})")
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(steps[0] <= len(sol["steps"]) <= steps[1], f"{sol['name']}: {len(sol['steps'])} steps, not 2 to 5")
+        need(q["answer_text"] in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+
+
+def gc_table(q, f):
+    t = q["table"]
+    need(t is not None, "no table")
+    for xv, yv in zip(t["xs"], t["ys"]):
+        need(gc_close(yv, f(mpmath.mpf(R(xv)))), f"the table's f({xv}) is wrong")
+    return [R(v) for v in t["xs"]], [R(v) for v in t["ys"]]
+
+
+def check_gdc_curve(q):
+    g, u, rep, L, asked = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "a GDC curve is Paper 2")
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    if u == "constant-from-max":
+        m = re.search(r"f\(x\) = (.+) \+ c, for (−?\d+) ≤ x ≤ (−?\d+), .*The local maximum value of f is (−?[\d.]+)\.", asked)
+        need(m is not None, "can't read constant-from-max")
+        gfn, d1, d2, M = gc_expr(m.group(1)), el_num(m.group(2)), el_num(m.group(3)), R(sp.nsimplify(m.group(4).replace("−", "-")))
+        _, ts, _ = gc_features(gfn, d1, d2, False)
+        mx = [t for t in ts if t[2] == "max"]
+        need(len(mx) == 1, "g has no single local maximum")
+        c = M - mx[0][1]
+        gc_check_common(q, "c = " + gc_s(c), {}, gc_trap([c], "c = " + gc_s2(c)))
+        return None, None
+    if u == "solve-as-zeros":
+        m = re.fullmatch(r"(.+) = (−?[\d.]+)", L[0])
+        need(m is not None, "can't read the equation")
+        k = R(sp.nsimplify(m.group(2).replace("−", "-")))
+        fn = gc_expr(m.group(1)) - k
+        d = re.search(r"for (−?\d+) ≤ x ≤ (−?\d+)", asked)
+        d1, d2, open_left = el_num(d.group(1)), el_num(d.group(2)), False
+    else:
+        fn, d1, d2, open_left = gc_read(q)
+    F = gc_features(fn, d1, d2, open_left)
+    zs, ts, ends = F
+    gc_clean(q, fn, d1, d2, open_left, F)
+    f = gc_f(fn)
+    wr = {}
+    if rep == "graph" and q.get("graph") is not None:
+        need(gc_curve_is(q["graph"]["curves"][0], f), "the graph drawn is not f")
+    if q["format"] == "pick-the-graph":
+        if u == "sketch-from-table":
+            gc_table(q, f)
+        right = gc_cards(q, fn, d1, d2, open_left, F)
+        # gc_cards confirmed each wrong graph's mistake, and so its misconception.
+        gc_check_common(q, right, {o["ref"]: {o["text"]} for o in q["choices"] if o["ref"]})
+        return None, None
+    exact_x = g["fam"] in ("product", "xcubic")
+    zq = [sp.nsimplify(z, [], tolerance=1e-20, rational=True) if exact_x and abs(z - round(z)) < 1e-20 else z for z in zs]
+    y0 = sp.nsimplify(fn.subs(X, 0)) if d1 <= 0 <= d2 else None
+    trap = None
+    if u in ("label-zeros", "zeros-gdc", "zeros-with-x-factor", "solve-as-zeros"):
+        want = gc_xs(zq)
+        trap = gc_trap(zq, gc_xs2(zq))
+        if u in ("label-zeros", "zeros-gdc") and y0 is not None:
+            wr[GC_ZI + "#0"] = {gc_xs(zq[:i] + [y0] + zq[i + 1:]) for i in range(len(zq))}
+        if u == "label-zeros" and g["fam"] == "product":
+            wr[GC_ZI + "#1"] = {gc_xs([R(g["p"]), -R(g["q"])])}
+        if u == "zeros-gdc":
+            wr[GC_SG + "#0"] = {gc_xs([z for z in zq if abs(z) <= 10])}
+        if u == "zeros-with-x-factor":
+            need(len(zq) == 3 and 0 in zq, "x-factor mode needs three zeros, one of them 0")
+            wr[GC_ZI + "#2"] = {gc_xs([z for z in zq if z != 0])}
+    elif u in ("label-y-intercept", "y-intercept"):
+        need(y0 is not None, "0 is not in the domain")
+        want = f"(0, {gc_s(y0)})"
+        trap = gc_trap([y0], f"(0, {gc_s2(y0)})")
+        if u == "y-intercept":
+            wr[GC_ZI + "#0"] = {f"(0, {gc_s(z)})" for z in zq}
+    elif u in ("label-turning-point", "turning-point-coordinates", "extreme-value-only"):
+        word = "maximum" if "local maximum" in asked else "minimum"
+        t = [t for t in ts if t[2] == word[:3]]
+        need(len(t) == 1, f"not one local {word}")
+        tx, ty = t[0][:2]
+        if g["fam"] == "bellform":
+            tx, ty = R(g["h"]), R(g["A"]) + R(g["c"])
+        if u == "extreme-value-only":
+            want = gc_s(ty)
+            trap = gc_trap([ty], gc_s2(ty))
+            wr[GC_MM + "#0"] = {gc_s(tx)}
+        else:
+            want = gc_pt(tx, ty)
+            trap = gc_trap([tx, ty], f"({gc_s2(tx)}, {gc_s2(ty)})")
+            wr[GC_MM + "#0"] = {f"({gc_s(tx)}, 0)"}
+            if u == "turning-point-coordinates":
+                tr = [o for o in q["choices"] if o.get("trap")]
+                need(all(o["ref"] == GC_MM + "#2" for o in tr), "the 2 s.f. trap doesn't log SL2.4.max-min#2")
+    elif u == "endpoint-coordinates":
+        want = " and ".join(gc_pt(*e) for e in ends)
+        trap = gc_trap([e[1] for e in ends], " and ".join(f"({gc_s2(e[0])}, {gc_s2(e[1])})" for e in ends))
+        wr[GC_SIT + "#1"] = {f"{gc_pt(d1 - 1, f(mpmath.mpf(d1 - 1)))} and {gc_pt(d2 + 1, f(mpmath.mpf(d2 + 1)))}"}
+    elif u == "greatest-on-domain":
+        cands = [(t[1], "turn") for t in ts] + [(e[1], "end") for e in ends]
+        top = max(cands, key=lambda c_: c_[0])
+        need(top[1] == "end", "the greatest value is not at an endpoint (endpoint-extreme mode)")
+        mx = [t for t in ts if t[2] == "max"]
+        need(mx and top[0] - mx[0][1] >= sp.Rational(1, 2), "the endpoint is not clearly above the local maximum")
+        want, trap = gc_s(top[0]), gc_trap([top[0]], gc_s2(top[0]))
+        wr[GC_MM + "#1"] = {gc_s(t[1]) for t in mx}
+    elif u == "window-for-domain":
+        def window(o):
+            m_ = re.fullmatch(r"Xmin = (−?\d+), Xmax = (−?\d+), Ymin = (−?\d+), Ymax = (−?\d+)", o)
+            need(m_ is not None, f"can't read the window {o!r}")
+            return [el_num(v) for v in m_.groups()]
+        ys = [t[1] for t in ts] + [e[1] for e in ends]
+        lo_y, hi_y = min(ys), max(ys)
+        good = [o["text"] for o in q["choices"] if (lambda w: w[0] == d1 and w[1] == d2 and w[2] < lo_y and w[3] > hi_y
+                                                     and w[3] - w[2] <= hi_y - lo_y + 4)(window(o["text"]))]
+        need(len(good) == 1, f"{len(good)} windows show the whole graph without squashing it")
+        want = good[0]
+        wr[GC_SIT + "#2"] = {"Xmin = −10, Xmax = 10, Ymin = −10, Ymax = 10"}
+    elif u == "judge-a-sketch":
+        labs = g["labels"]
+        need(len(labs) == 4 and sum(1 for lb in labs if lb["bad"]) == 1, "the sketch doesn't have one wrong label among four")
+        feats = {}
+        for z in zs:
+            feats[f"the zero at x ≈ {gc_s(z)}"] = f"({gc_s(z)}, 0)"
+        for t in ts:
+            feats["the local " + ("maximum" if t[2] == "max" else "minimum")] = gc_pt(t[0], t[1])
+        for i, e in enumerate(ends):
+            feats[f"the {['left', 'right'][i]} endpoint"] = f"({frac_text(R(sp.nsimplify(e[0])))}, {gc_s(e[1])})"
+        pts = {p["label"] for p in q["graph"]["points"]}
+        for lb in labs:
+            need(lb["name"] in feats, f"the sketch labels {lb['name']}, which f doesn't have")
+            need(lb["label"] in pts, f"the label {lb['label']} isn't drawn")
+            need((lb["label"] != feats[lb["name"]]) == lb["bad"], f"the label {lb['label']} at {lb['name']} is {'right' if lb['label'] == feats[lb['name']] else 'wrong'}")
+        bad = next(lb for lb in labs if lb["bad"])
+        want = f"The label {bad['label']} at {bad['name']}"
+    elif u == "count-solutions-from-sketch":
+        touch = g["touch"]
+        if touch:
+            word = "max" if "local maximum" in asked else "min"
+            k = next(t[1] for t in ts if t[2] == word)
+        else:
+            k = R(g["k"])
+            need(k.q in (1, 10) and str(dec_text(k)) in asked, "k is not the one-place decimal asked")
+        lo_open = d1 if open_left else None
+        vs = gc_pieces(fn, d1 + (sp.Rational(1, 10**6) if open_left else 0), d2, lo_open)
+        n = gc_count(vs, k)
+        want = str(n)
+        if touch:
+            wr[GC_NS + "#0"] = {str(n + 1)}
+        ext = gc_count(gc_pieces(fn, (d1 + sp.Rational(1, 10**6)) if open_left else d1 - 3, d2 + 3, lo_open), k)
+        wr[GC_NS + "#1"] = {str(ext)}
+    elif u == "k-for-count":
+        lo_open = d1 if open_left else None
+        ks = gc_kset(gc_pieces(fn, d1 + (sp.Rational(1, 10**6) if open_left else 0), d2, lo_open), 2)
+        need(ks is not None and ks[2] - ks[0] >= sp.Rational(1, 2), "two solutions is not one interval of k")
+        want = gc_range2(ks)
+        trap = gc_trap([ks[0], ks[2]], f"{gc_s2(ks[0])} {'≤' if ks[1] else '<'} k {'≤' if ks[3] else '<'} {gc_s2(ks[2])}")
+        ext = gc_kset(gc_pieces(fn, (d1 + sp.Rational(1, 10**6)) if open_left else d1 - 3, d2 + 3, lo_open), 2)
+        if ext is not None:
+            wr[GC_NS + "#1"] = {gc_range2(ext)}
+    elif u == "count-zeros":
+        want = str(len(zs))
+        wr[GC_SG + "#0"] = {str(sum(1 for z in zs if abs(z) <= 10))}
+    elif u == "zero-from-table":
+        xs_, ys_ = gc_table(q, f)
+        z = max(zs)
+        need(sum(1 for i in range(len(ys_) - 1) if ys_[i] * ys_[i + 1] < 0) == len(zs), "the table doesn't show each zero as a sign change")
+        want, trap = "x = " + gc_s(z), gc_trap([z], "x = " + gc_s2(z))
+    elif u == "use-stored-zeros":
+        need(len(zs) == 2, "use-stored-zeros needs two zeros")
+        dz = zs[1] - zs[0]
+        want, trap = gc_s(dz), gc_trap([dz], gc_s2(dz))
+        r = sp.Rational(sig3(sp.Float(zs[1], 30))) - sp.Rational(sig3(sp.Float(zs[0], 30)))
+        wr[GC_SG + "#1"] = {gc_s(r)}
+    else:
+        raise Fail(f"the checker has no gdc-curve check for {u}")
+    # The engine's own answer values say the same, to its nine decimal places.
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -5361,7 +5799,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth}
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth,
+                    "gdc-curve": check_gdc_curve}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
