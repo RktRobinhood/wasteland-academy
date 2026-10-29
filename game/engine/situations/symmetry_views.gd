@@ -99,7 +99,7 @@ func u_same_idea(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	return {"asked": "The vertex of a parabola is halfway between its roots. Which of these uses the same mirror idea?",
 		"lines": ["A parabola is symmetric about its axis: matching points sit the same distance either side."], "given": {"topic": topic, "options": [right] + nots},
 		"answer": ans, "generic": nots.map(func(o): return {"v": o}),
-		"methods": {angle: method(steps.get(angle, steps["midpoint-of-roots"]), ans.values)}}
+		"methods": steps.keys().reduce(func(acc, k): acc[k] = method(steps[k], ans.values); return acc, {})}
 
 
 # ── mirror-point ─────────────────────────────────────────────
@@ -159,10 +159,13 @@ func u_find_the_mirror(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.table = {"xs": xs, "ys": xs.map(func(x): return at(p, x)), "heads": ["x", "y"]}
 		out.lines = ["The table gives points on a parabola."]
 	var mid := "x = (%s + %s)/2 = %s" % [N(xa), N(xb), N(p.h)]
-	out.methods = {}
-	if roots:
-		out.methods["midpoint-of-roots"] = method(["The roots are x = %s and x = %s; the axis is halfway between them" % [N(xa), N(xb)], mid, final], ans.values)
-	out.methods["midpoint-of-pair"] = method(["x = %s and x = %s give the same y, %s, so they are mirror images" % [N(xa), N(xb), N(yv)], mid, final], ans.values)
+	var first := "The roots are x = %s and x = %s; the axis is halfway between them" % [N(xa), N(xb)] if roots \
+		else "The parabola is a mirror about its axis: like its roots, any two points at one height sit the same distance either side"
+	out.methods = {
+		"midpoint-of-roots": method([first, mid, final], ans.values),
+		"midpoint-of-pair": method(["x = %s and x = %s give the same y, %s, so they are mirror images" % [N(xa), N(xb), N(yv)], mid, final], ans.values),
+		"symmetry": method(["As ⁿCᵣ = ⁿCₙ₋ᵣ puts equal values of a row either side of its middle, equal values of y sit either side of the axis", mid, final], ans.values),
+	}
 	out.wrongs = [wrong({"var": "y", "h": p.h}, "SL2.6.axis-symmetry#1")]
 	out.generic = [{"var": "x", "h": p.k}, {"var": "x", "h": xb.sub(xa)}, {"var": "x", "h": p.h.neg()}, {"var": "x", "h": xa.add(xb)}]
 	return out
@@ -185,7 +188,12 @@ func _mirror_ncr(rep: String, c: Dictionary) -> Dictionary:
 	var pair := "r = %d and r = %d give the same value" % [r, n - r]
 	if rep == "graph":
 		pair = "The bars are symmetric: r = %d and r = %d are mirror images, both %d" % [r, n - r, c.value.n]
-	out.methods = {"symmetry": method([pair + ", so they are mirror images: ⁿCᵣ = ⁿCₙ₋ᵣ", "r + (n − r) = n, so n = %d + %d" % [r, n - r], "So %s." % Answer.text(ans)], ans.values)}
+	var sum := "The mirror is the middle of the row, r = n/2 = (%d + %d)/2, so n = %d + %d" % [r, n - r, r, n - r]
+	out.methods = {
+		"symmetry": method([pair + ", so they are mirror images: ⁿCᵣ = ⁿCₙ₋ᵣ", "r + (n − r) = n, so n = %d + %d" % [r, n - r], "So %s." % Answer.text(ans)], ans.values),
+		"midpoint-of-pair": method(["r = %d and r = %d give the same value: a mirror pair" % [r, n - r], sum, "So %s." % Answer.text(ans)], ans.values),
+		"midpoint-of-roots": method(["As a parabola's roots sit either side of its axis, the two equal values sit either side of the middle of the row", sum, "So %s." % Answer.text(ans)], ans.values),
+	}
 	out.generic = [{"v": Q.new((n) / 2)}, {"v": Q.new(absi(n - 2 * r))}, {"v": Q.new(n + 1)}, {"v": Q.new(n - 1)}]
 	return out
 
@@ -197,7 +205,11 @@ func _mirror_normal(nm: Dictionary) -> Dictionary:
 	ans.exact = true
 	return {"asked": "Find μ.", "given": export(nm).merged({"ctx": "normal"}), "answer": ans,
 		"lines": ["X ~ N(μ, σ²) and P(X < %s) = P(X > %s)." % [N(lo), N(hi)]],
-		"methods": {"midpoint-of-pair": method(["Equal tails sit the same distance either side of the mean", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values)},
+		"methods": {
+			"midpoint-of-pair": method(["Equal tails sit the same distance either side of the mean", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values),
+			"midpoint-of-roots": method(["As a parabola's roots sit either side of its axis, equal tails sit either side of the mean", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values),
+			"symmetry": method(["As ⁿCᵣ = ⁿCₙ₋ᵣ mirrors a row about its middle, the normal curve mirrors about μ", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values),
+		},
 		"generic": [{"v": hi.sub(lo)}, {"v": lo}, {"v": hi}, {"v": lo.add(hi)}]}
 
 
