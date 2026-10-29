@@ -518,7 +518,12 @@ def check_lines(q, f_given):
 
 def check(q):
     """Routes a question to its situation's checks, then checks the answer, the
-    options and the worked solutions the same way for every situation."""
+    options and the worked solutions the same way for every situation. A question in
+    an extra format (FAL-459) has its own four options checked first, then the
+    question it is built on, with that question's own options."""
+    if q["format"] in EXTRA_FORMATS:
+        check_format(q)
+        q = dict(q, choices=q["base_choices"])
     sit = q.get("situation_id", "quadratic")
     need(sit in SITUATION_CHECKS, f"the checker has no checks for situation {sit}")
     exp, f = SITUATION_CHECKS[sit](q)
@@ -1472,6 +1477,8 @@ def qr_surd(m, r):
 
 def qr_text(ans, v):
     kind, fx, label, unit = ans["kind"], ans.get("fixed") or {}, ans.get("label", ""), ans.get("unit", "")
+    if kind in EXT_KINDS or (kind == "number" and ans.get("show")):
+        return ext_text(ans, v)
     var = fx.get("var", "k")
     if kind == "number":
         return label + frac_text(v["v"]) + unit
@@ -1518,6 +1525,8 @@ def qr_text(ans, v):
 def qr_norm(ans, v):
     """A value equal for two answers exactly when they mean the same."""
     kind, fx = ans["kind"], ans.get("fixed") or {}
+    if kind in EXT_KINDS or (kind == "number" and ans.get("show") == "sf"):
+        return ext_norm(ans, v)
     if kind in ("interval", "bound"):
         st = qr_set(kind, v)
         return ("pm", v["shape"], R(v["hi"]), v["ends"]) if st is None else st
@@ -2251,10 +2260,293 @@ def check_cubic(q):
     raise Fail(f"the checker has no solver for {u}")
 
 
+# ── Quadratics extension types (FAL-459) ─────────────────────
+# The fn-pre-* prior learning, fn-ext-quadratic-model and the two fn-link-* types,
+# each on its own situation. Their answers add kinds (see game/engine/answer.gd), and
+# three formats are built on their questions: error-spot, method-pick and
+# true-false-reason.
+
+EXT_KINDS = {"poly", "named", "pair", "brackets", "brackets2", "common", "pm_surd", "range2", "related", "features"}
+EXTRA_FORMATS = {"error-spot", "method-pick", "true-false-reason"}
+SUPS = str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
+CATALOGUE = None
+
+
+def game_type(tid):
+    """A type as the game's catalogue copy has it (with method names)."""
+    global CATALOGUE
+    if CATALOGUE is None:
+        CATALOGUE = {t["id"]: t for t in json.loads((ROOT / "game/data/catalogue.json").read_text())["types"]}
+    return CATALOGUE[tid]
+
+
+def ext_sup(p):
+    p = int(p)
+    return "" if p == 1 else str(p).translate(SUPS)
+
+
+def ext_terms(coeffs, powers, letter="x"):
+    out = ""
+    for c, p in zip(coeffs, powers):
+        c, p = R(c), int(p)
+        if c == 0:
+            continue
+        body = frac_text(abs(c)) if p == 0 else qr_lead(abs(c)) + letter + ext_sup(p)
+        out = (("−" if c < 0 else "") + body) if out == "" else out + (" − " if c < 0 else " + ") + body
+    return out or "0"
+
+
+def ext_sf(x):
+    return sig3(x).replace("-", "−")
+
+
+def ext_shown(ans, x):
+    show = ans.get("show", "")
+    if show == "sf":
+        return ext_sf(R(x))
+    if show == "dec":
+        return dec_text(x)
+    return frac_text(x)
+
+
+def ext_pi(x):
+    x = R(x)
+    if x == 0:
+        return "0"
+    top = "π" if abs(x.p) == 1 else f"{abs(x.p)}π"
+    return ("−" if x < 0 else "") + top + ("" if x.q == 1 else f"/{x.q}")
+
+
+def ext_poly_parts(ans, v):
+    fx = ans["fixed"]
+    n = len(fx["powers"])
+    cs = [fx["lead"] if i == 0 and "lead" in fx else v[f"c{i}"] for i in range(n)]
+    ps = [int(R(v[f"e{i}"])) if fx.get("typed_powers") else int(fx["powers"][i]) for i in range(n)]
+    return cs, ps
+
+
+def ext_bracket(r):
+    """(x + r) as the game writes it: "(x + 3)", "(x − 5)"."""
+    r = R(r)
+    return "x" if r == 0 else f"(x {'+' if r > 0 else '−'} {frac_text(abs(r))})"
+
+
+def ext_text(ans, v):
+    kind, fx, label = ans["kind"], ans.get("fixed") or {}, ans.get("label", "")
+    if kind == "number":
+        return label + ext_shown(ans, v["v"]) + ans.get("unit", "")
+    if kind == "poly":
+        cs, ps = ext_poly_parts(ans, v)
+        return label + ext_terms(cs, ps, fx.get("var", "x"))
+    if kind == "named":
+        units = fx.get("units", [""] * len(fx["names"]))
+        return ", ".join(f"{n} = {ext_shown(ans, v[f'v{i}'])}{units[i]}" for i, n in enumerate(fx["names"]))
+    if kind == "pair":
+        a, b = sorted([R(v["r1"]), R(v["r2"])])
+        return f"{label}{frac_text(a)} and {frac_text(b)}"
+    if kind == "brackets":
+        a, b = sorted([R(v["r"]), R(v["s"])])
+        return label + ext_bracket(b) + ext_bracket(a)
+    if kind == "brackets2":
+        return label + f"({qr_poly([v['a1'], v['b1']])})({qr_poly([v['a2'], v['b2']])})"
+    if kind == "common":
+        return label + qr_lead(v["g"]) + "x(" + qr_poly([v["a"], v["b"]]) + ")"
+    if kind == "pm_surd":
+        h = R(v["h"])
+        return label + ("" if h == 0 else frac_text(h) + " ") + "± " + qr_surd(v["m"], v["r"])
+    if kind == "range2":
+        return f"{frac_text(v['lo'])} {v['r1']} {fx.get('var', 'x')} {v['r2']} {frac_text(v['hi'])}"
+    if kind == "related":
+        a, b = sorted([R(v["o1"]), R(v["o2"])])
+        return f"same value {ext_pi(v['s'])}; opposite sign {ext_pi(a)} and {ext_pi(b)}"
+    if kind == "features":
+        a, b = sorted([R(v["r1"]), R(v["r2"])])
+        return f"y-intercept {frac_text(v['c'])}; roots {frac_text(a)} and {frac_text(b)}; vertex {qr_point(v['h'], v['k'])}"
+    raise Fail(f"the checker can't write answers of kind {kind}")
+
+
+def ext_norm(ans, v):
+    kind, fx = ans["kind"], ans.get("fixed") or {}
+    if kind == "number":
+        return ext_sf(R(v["v"]))
+    if kind == "poly":
+        cs, ps = ext_poly_parts(ans, v)
+        return tuple(sorted(zip(ps, (R(c) for c in cs))))
+    if kind == "named":
+        vals = [R(v[f"v{i}"]) for i in range(len(fx["names"]))]
+        return tuple(ext_sf(x) if ans.get("show") == "sf" else x for x in vals)
+    if kind == "pair":
+        return tuple(sorted([R(v["r1"]), R(v["r2"])]))
+    if kind == "brackets":
+        return tuple(sorted([R(v["r"]), R(v["s"])]))
+    if kind == "brackets2":
+        return tuple(sorted([(R(v["a1"]), R(v["b1"])), (R(v["a2"]), R(v["b2"]))]))
+    if kind == "common":
+        return (R(v["g"]), R(v["a"]), R(v["b"]))
+    if kind == "pm_surd":
+        return (R(v["h"]), R(v["m"]), R(v["r"]))
+    if kind == "range2":
+        return (R(v["lo"]), v["r1"], v["r2"], R(v["hi"]))
+    if kind == "related":
+        return (R(v["s"]), tuple(sorted([R(v["o1"]), R(v["o2"])])))
+    if kind == "features":
+        return (R(v["c"]), tuple(sorted([R(v["r1"]), R(v["r2"])])), R(v["h"]), R(v["k"]))
+    raise Fail(f"the checker can't compare answers of kind {kind}")
+
+
+def ext_poly_values(ans, coeffs):
+    """Answer values for a polynomial given as power -> coefficient, in ans's shape."""
+    fx = ans["fixed"]
+    out = {}
+    for i, p in enumerate(fx["powers"]):
+        c = coeffs.get(int(p), 0)
+        if i == 0 and "lead" in fx:
+            need(R(fx["lead"]) == c, f"the given leading coefficient {fx['lead']} is not {c}")
+            continue
+        out[f"c{i}"] = str(c)
+    extra = set(coeffs) - {int(p) for p in fx["powers"]}
+    need(all(coeffs[p] == 0 for p in extra), f"the answer's powers {fx['powers']} miss a term of {coeffs}")
+    return out
+
+
+def poly_coeffs(f):
+    return {int(m[0]): c for m, c in sp.Poly(sp.expand(f), X).terms()} if f != 0 else {}
+
+
+def ext_misconception_refs(tid, as_=None):
+    """The type's misconceptions by ref (its own, or <type id>#<index>)."""
+    t = game_type(tid)
+    return {m.get("ref", f"{tid}#{i}"): m for i, m in enumerate(t.get("misconceptions", [])) if as_ is None or m["as"] == as_}
+
+
+def eq_true(line, letters=()):
+    """Whether a line 'A = B' (or 'A = B = C') is an identity in x."""
+    sides = [p.strip() for p in line.replace("[", "(").replace("]", ")").split(" = ")]
+    need(len(sides) >= 2, f"no '=' in {line!r}")
+    vals = [parse(p, letters) for p in sides]
+    return all(sp.expand(vals[0] - w) == 0 for w in vals[1:])
+
+
+SPOT_CHECKS = {}
+
+
+def check_format(q):
+    """The four options of an error-spot, method-pick or true-false-reason question."""
+    fmt, ch = q["format"], q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    need(len({o["text"] for o in ch}) == 4, "two options read the same")
+    right = next(o for o in ch if o["correct"])
+    base = q["base_choices"]
+    need(len(base) == 4 and sum(1 for o in base if o["correct"]) == 1, "the question it is built on has no four options")
+    t = game_type(q["view"]["type"])
+    u = q["view"]["unknown"]
+    need(fmt in t["formats"], f"{t['id']} does not list the format {fmt}")
+    if fmt == "true-false-reason":
+        claim = q["claim"]
+        claimed = [o for o in base if o["text"] == claim]
+        need(len(claimed) == 1 and not claimed[0].get("trap"), f"the student's answer {claim!r} is not one of the question's options")
+        need(f"A student's answer: {claim}. True or false?" in q["prompt"], "the prompt doesn't state the student's answer")
+        wrong_texts = {o["text"] for o in base if not o["correct"]}
+        if claimed[0]["correct"]:
+            need(right["text"] == "True", "a right answer is not marked True")
+        else:
+            need(right["text"] == f"False: it should be {q['answer_text']}", "a wrong answer is not corrected to the answer")
+            tru = [o for o in ch if o["text"] == "True"]
+            need(len(tru) == 1 and tru[0]["ref"] == claimed[0]["ref"], "agreeing with the wrong answer doesn't log its misconception")
+        for o in ch:
+            if o["correct"] or o["text"] == "True":
+                continue
+            need(o["text"].startswith("False: it should be ") and o["text"][20:] in wrong_texts and o["text"][20:] != claim,
+                 f"option {o['text']!r} doesn't correct to another wrong option")
+    elif fmt == "method-pick":
+        view_angle = q["view"]["angle"]
+        need(view_angle != "any", "method-pick without a method")
+        works = {a["name"] for a in t["angles"] if u in a["suits"]}
+        name = next(a["name"] for a in t["angles"] if a["method"] == view_angle and u in a["suits"])
+        need(right["text"] == name, f"the right method is {right['text']!r}, not the view's {name!r}")
+        need("Which method works for this question?" in q["prompt"] and "Method:" not in q["prompt"], "the prompt gives the method away")
+        for o in ch:
+            if not o["correct"]:
+                need(o["text"] not in works, f"{o['text']!r} works for {u} but is marked wrong")
+    elif fmt == "error-spot":
+        spot = q["spot"]
+        need([o["text"] for o in ch] == [f"Line {i + 1}" for i in range(4)], "the options are not Line 1 to Line 4")
+        need(ch[spot["bad"]]["correct"], "the right option is not the first wrong line")
+        need(spot["ref"] in ext_misconception_refs(t["id"], "error-spot"), f"{spot['ref']} is not an error-spot of {t['id']}")
+        need(q["lines"][-5:] == ["A student's working:"] + [f"Line {i + 1}: {l}" for i, l in enumerate(spot["lines"])], "the working shown is not the spot's")
+        sit = q["situation_id"]
+        need(sit in SPOT_CHECKS, f"the checker has no error-spot checks for {sit}")
+        first = SPOT_CHECKS[sit](q, spot["lines"])
+        need(first == spot["bad"], f"the first wrong line is {first + 1 if first is not None else 'none'}, not {spot['bad'] + 1}")
+
+
+def first_false(lines, letters=()):
+    for i, line in enumerate(lines):
+        if not eq_true(line, letters):
+            return i
+    return None
+
+
+# ── fn-pre-expand ──
+
+EXP_LIMIT = 9
+
+
+def check_expand(q):
+    g, ans, u, L = q["given"], q["answer"], q["view"]["unknown"], q["lines"]
+    T = "fn-pre-expand"
+    if u == "missing-term":
+        b = R(g["b"])
+        need(L[0] == f"(x + r)² = {qr_poly([1, b])} + c", "the identity shown is not the givens")
+        r = b / 2
+        need(r.q == 1 and r != 0 and abs(r) <= EXP_LIMIT, "r is not a small whole number")
+        qr_check_common(q, qr_norm(ans, {"v0": str(r), "v1": str(r**2)}))
+        return None, None
+    k, r, s_, d = (R(g[n]) for n in ["k", "r", "s", "d"])
+    for n, v in (("k", k), ("r", r), ("s", s_)):
+        need(v != 0 and abs(v) <= EXP_LIMIT and v.q == 1, f"{n} = {v} is not a small whole number")
+    form = g["form"]
+    e = {"single": k * X * (X + r), "double": (X + r) * (X + s_), "square": (X + r)**2,
+         "scaled": k * (X + r) * (X + s_), "vertex": k * (X + r)**2 + d}[form]
+    need(parse(L[0]) == sp.expand(e), f"the expression shown {L[0]!r} is not the givens")
+    if form in ("double", "scaled"):
+        need(r != s_ and r + s_ != 0, "the brackets have no middle term")
+    full = poly_coeffs(e)
+    want = qr_norm(ans, ext_poly_values(ans, full))
+    def shape(c):
+        return qr_norm(ans, ext_poly_values(ans, {p: v for p, v in c.items() if v != 0} | {p: 0 for p in full if p not in c}))
+    wr = {}
+    if form == "double":
+        wr[f"{T}#2"] = {shape({2: 1, 1: -(r + s_), 0: r * s_})}
+    if form == "square":
+        wr[f"{T}#0"] = {shape({2: 1, 1: 0, 0: r**2})}
+    if form == "scaled":
+        wr[f"{T}#1"] = {shape({2: k, 1: r + s_, 0: r * s_})}
+    if form == "vertex":
+        wr[f"{T}#0"] = {shape({2: k, 1: 0, 0: k * r**2 + d})}
+        wr[f"{T}#3"] = {shape({2: k, 1: 2 * k * r, 0: k * (r**2 + d)})}
+    if q["view"]["rep"] == "graph":
+        t = q["table"]["rows"]
+        sgn = lambda v: ("+" if v > 0 else "−") + frac_text(abs(v))
+        other = r if form == "square" else s_
+        need(t == [["×", ["x", sgn(other)]], ["x", ["?", "?"]], [sgn(r), ["?", "?"]]], "the area grid's edges are not the brackets")
+    qr_check_common(q, want, wr)
+    return None, None
+
+
+def spot_expand(q, lines):
+    return first_false(lines)
+
+
+SPOT_CHECKS["fn-pre-expand"] = spot_expand
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
-                    "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq}
+                    "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
+                    "fn-pre-expand": check_expand}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

@@ -3,7 +3,9 @@ extends SceneTree
 ## and checks each question is made, has four options, marks its own answer right
 ## (exact and to 3 s.f.) and marks every wrong option wrong, naming its misconception.
 ## Every fourth seed is also made on the cell's shared situation (the explorer's
-## "Ask it another way", QuestionEngine.families()). Then the same for every boss chain
+## "Ask it another way", QuestionEngine.families()), and every fourth in each extra
+## format the cell offers (error-spot, method-pick, true-false-reason): four options,
+## the right one marked right and the rest wrong. Then the same for every boss chain
 ## (Dungeon.chain_windows) with CHAIN_SEEDS of those seeds: each part made on one
 ## situation, and each carried value the part before's answer. Used by
 ## tools/stress-questions. Exits non-zero on any failure.
@@ -59,9 +61,11 @@ func _run() -> void:
 			views.append({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed})
 			if seed % 4 == 0:
 				views.append({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed, "shared": true})
+				for f in QuestionEngine.extra_formats(c.type, c.unknown, c.angle):
+					views.append({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": f, "seed": seed})
 		for view in views:
 			var seed: int = view.seed
-			var key: String = c.key + (" shared" if view.has("shared") else "")
+			var key: String = c.key + (" shared" if view.has("shared") else "") + (" " + view.format if view.format != "value" else "")
 			var q = QuestionEngine.make(view)
 			n += 1
 			if typeof(q) != TYPE_DICTIONARY or q.is_empty():
@@ -102,6 +106,12 @@ func _check(q: Dictionary, name: String) -> int:
 	if q.choices.size() != 4:
 		short = 1
 		fails.append("%s: %d choices" % [name, q.choices.size()])
+	if q.format in QuestionEngine.EXTRA_FORMATS:
+		for i in q.choices.size():
+			var r := QuestionEngine.mark(q, {"choice": i})
+			if r.correct != q.choices[i].correct:
+				fails.append("%s: option %s is marked %s" % [name, q.choices[i].text, "right" if r.correct else "wrong"])
+		return short
 	var ans: Dictionary = q.answer
 	if ans.kind in Answer.MC_ONLY:
 		return short

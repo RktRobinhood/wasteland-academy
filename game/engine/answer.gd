@@ -14,19 +14,28 @@ extends RefCounted
 ##              each stationary point);
 ##              for the Quadratics region (FAL-414) also choice, delta_nature, kvals,
 ##              interval, bound, quad_in, kpoint, surd, surd_roots, npoint, kroot and
-##              ineq_a, with points2 and line as the cubic writes them
+##              ineq_a, with points2 and line as the cubic writes them;
+##              for the Quadratics extension types (FAL-459) also poly (a sum of
+##              c·xⁿ, with the powers fixed or typed), named (labelled numbers),
+##              pair (two numbers, either order), brackets ((x + r)(x + s)),
+##              brackets2 ((ax + b)(cx + d)), common (gx(ax + b)), pm_surd
+##              (h ± m√r), range2 (lo < x ≤ hi), related (angles as multiples of π)
+##              and features (a quadratic's y-intercept, roots and vertex)
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
 ##   fixed      values shown as given, not asked (a in "2(x − □)² + □")
 ##   unordered  groups of slot ids that may come in any order (two roots)
 ##   pairs      (optional) groups of slot-id lists that may swap as wholes: two points
-##              [["x1", "y1"], ["x2", "y2"]] can come in either order, each kept whole
+##              [["x1", "y1"], ["x2", "y2"]] can come in either order, each kept whole.
+##              points2 swaps its own; any other kind that sets pairs is marked in
+##              every order of them (brackets2, a poly with typed powers)
 ##   unit       text after the number: " cm", "°" (measure only)
 ##   exact      (optional) true when only the exact value is right, not 3 s.f.: Paper 1
 ##              answers the IB wants exact, such as a whole-number sum (2345 is not 2350)
 ##   show       (optional) how a number is written: "dec" as a decimal when it ends
-##              (0.35, not 7/20), "money" with two decimal places (2.50); else a fraction
+##              (0.35, not 7/20), "money" with two decimal places (2.50), "sf" to 3
+##              significant figures (a value a calculator gives); else a fraction
 ##
 ## Typed numbers go through parse_number(), which accepts whole numbers, decimals and
 ## fractions only. Nothing a student types is evaluated as an expression (Godot's
@@ -125,7 +134,55 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = ["(", {"slot": "x1"}, ", ", {"slot": "y1"}, ") and (", {"slot": "x2"}, ", ", {"slot": "y2"}, ")"]
 		"natures":
 			t = ["x = %s: " % Fmt.num(fixed.p), {"pick": "k1", "options": NATURES}, ",  x = %s: " % Fmt.num(fixed.q), {"pick": "k2", "options": NATURES}]
-	return {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
+		# ── Quadratics extension types (FAL-459) ──
+		"poly":
+			t = [label]
+			var v: String = fixed.get("var", "x")
+			var n: int = fixed.powers.size()
+			for i in n:
+				if i == 0 and fixed.has("lead"):
+					t.append(Fmt.lead(fixed.lead) + v + Fmt.sup(fixed.powers[0]))
+				elif fixed.get("typed_powers", false):
+					t.append_array([{"slot": "c%d" % i}, v + "^", {"slot": "e%d" % i}])
+				else:
+					t.append({"slot": "c%d" % i})
+					if int(fixed.powers[i]) != 0:
+						t.append(v + Fmt.sup(fixed.powers[i]))
+				if i < n - 1:
+					t.append(" + ")
+		"named":
+			var names: Array = fixed.names
+			for i in names.size():
+				t.append(("" if i == 0 else ",  ") + names[i] + " = ")
+				t.append({"slot": "v%d" % i})
+				if fixed.has("units"):
+					t.append(fixed.units[i])
+		"pair":
+			t = [label, {"slot": "r1"}, " and ", {"slot": "r2"}]
+			unordered = [["r1", "r2"]]
+		"brackets":
+			t = [label + "(x + ", {"slot": "r"}, ")(x + ", {"slot": "s"}, ")"]
+			unordered = [["r", "s"]]
+		"brackets2":
+			t = [label + "(", {"slot": "a1"}, "x + ", {"slot": "b1"}, ")(", {"slot": "a2"}, "x + ", {"slot": "b2"}, ")"]
+		"common":
+			t = [label, {"slot": "g"}, "x(", {"slot": "a"}, "x + ", {"slot": "b"}, ")"]
+		"pm_surd":
+			t = [label, {"slot": "h"}, " ± ", {"slot": "m"}, "√", {"slot": "r"}]
+		"range2":
+			t = [{"slot": "lo"}, " ", {"pick": "r1", "options": ["<", "≤"]}, " %s " % fixed.get("var", "x"), {"pick": "r2", "options": ["<", "≤"]}, " ", {"slot": "hi"}]
+		"related":
+			t = ["same value: ", {"slot": "s"}, "π;  opposite sign: ", {"slot": "o1"}, "π and ", {"slot": "o2"}, "π"]
+			unordered = [["o1", "o2"]]
+		"features":
+			t = ["y-intercept ", {"slot": "c"}, ";  roots ", {"slot": "r1"}, " and ", {"slot": "r2"}, ";  vertex (", {"slot": "h"}, ", ", {"slot": "k"}, ")"]
+			unordered = [["r1", "r2"]]
+	var out := {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
+	if kind == "brackets2":
+		out.pairs = [["a1", "b1"], ["a2", "b2"]]
+	elif kind == "poly" and fixed.get("typed_powers", false):
+		out.pairs = range(fixed.powers.size()).map(func(i): return ["c%d" % i, "e%d" % i])
+	return out
 
 
 ## The interval kind: between the two numbers, or outside them, with the ends left out
@@ -262,7 +319,48 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return "%s and %s" % [Fmt.point(ps[0][0], ps[0][1]), Fmt.point(ps[1][0], ps[1][1])]
 		"natures":
 			return "x = %s: %s,  x = %s: %s" % [Fmt.num(fx.p), v.k1, Fmt.num(fx.q), v.k2]
+		"poly":
+			return ans.label + poly_text(ans, v)
+		"named":
+			var parts: PackedStringArray = []
+			for i in fx.names.size():
+				parts.append("%s = %s%s" % [fx.names[i], shown(ans, v["v%d" % i]), fx.units[i] if fx.has("units") else ""])
+			return ", ".join(parts)
+		"pair":
+			var rs := _sorted([v.r1, v.r2])
+			return "%s%s and %s" % [ans.label, Fmt.num(rs[0]), Fmt.num(rs[1])]
+		"brackets":
+			var rs := _sorted([v.r, v.s])
+			return ans.label + Fmt.factor(Q.of(rs[1]).neg()) + Fmt.factor(Q.of(rs[0]).neg())
+		"brackets2":
+			var bs: Array = [[v.a1, v.b1], [v.a2, v.b2]]
+			return ans.label + "(%s)(%s)" % [Fmt.poly([bs[0][0], bs[0][1]]), Fmt.poly([bs[1][0], bs[1][1]])]
+		"common":
+			return ans.label + Fmt.lead(v.g) + "x(" + Fmt.poly([v.a, v.b]) + ")"
+		"pm_surd":
+			var h := Q.of(v.h)
+			return ans.label + ("" if h.is_zero() else Fmt.num(h) + " ") + "± " + surd_text(v.m, v.r)
+		"range2":
+			return "%s %s %s %s %s" % [Fmt.num(v.lo), v.r1, fx.get("var", "x"), v.r2, Fmt.num(v.hi)]
+		"related":
+			var os := _sorted([v.o1, v.o2])
+			return "same value %s; opposite sign %s and %s" % [Fmt.pi(v.s), Fmt.pi(os[0]), Fmt.pi(os[1])]
+		"features":
+			var rs := _sorted([v.r1, v.r2])
+			return "y-intercept %s; roots %s and %s; vertex %s" % [Fmt.num(v.c), Fmt.num(rs[0]), Fmt.num(rs[1]), Fmt.point(v.h, v.k)]
 	return "?"
+
+
+## A poly answer written out: its terms in the order of its powers, each power the
+## value's own when the powers are typed.
+static func poly_text(ans: Dictionary, v: Dictionary) -> String:
+	var fx: Dictionary = ans.fixed
+	var coeffs: Array = []
+	var powers: Array = []
+	for i in fx.powers.size():
+		coeffs.append(fx.lead if i == 0 and fx.has("lead") else v["c%d" % i])
+		powers.append(int(Q.of(v["e%d" % i]).n) if fx.get("typed_powers", false) else int(fx.powers[i]))
+	return Fmt.terms(coeffs, powers, fx.get("var", "x"))
 
 
 ## A typed number as the answer writes it: a fraction, a decimal or money (see show).
@@ -272,6 +370,8 @@ static func shown(ans: Dictionary, v: Variant) -> String:
 			return Fmt.dec(v)
 		"money":
 			return Fmt.money(v)
+		"sf":
+			return Fmt.sf(v)
 	return Fmt.num(v)
 
 
@@ -288,6 +388,16 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind == "points2":
 		var ps := _pairs(v)
 		v = {"x1": ps[0][0], "y1": ps[0][1], "x2": ps[1][0], "y2": ps[1][1]}
+	elif not ans.get("pairs", []).is_empty():
+		# Groups that swap as wholes: written in a sorted order of their values.
+		var groups: Array = ans.pairs.map(func(g): return g.map(func(id): return v[id].key() if v[id] is Q else str(v[id])))
+		var order := range(groups.size())
+		order.sort_custom(func(i, j): return str(groups[i]) < str(groups[j]))
+		var nv := v.duplicate()
+		for gi in order.size():
+			for k in ans.pairs[gi].size():
+				nv[ans.pairs[gi][k]] = v[ans.pairs[order[gi]][k]]
+		v = nv
 	for group in ans.unordered:
 		var sorted_vals := _sorted(group.map(func(id): return v[id]))
 		for i in group.size():
@@ -531,6 +641,17 @@ static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = fals
 		var plain := ans.duplicate()
 		plain.kind = "point_pair"
 		return values_right(plain, got, glancing) or values_right(plain, swapped, glancing)
+	if not ans.get("pairs", []).is_empty():
+		var plain := ans.duplicate()
+		plain.erase("pairs")
+		for perm in _perms(range(ans.pairs.size())):
+			var moved := got.duplicate()
+			for gi in perm.size():
+				for k in ans.pairs[gi].size():
+					moved[ans.pairs[gi][k]] = got.get(ans.pairs[perm[gi]][k])
+			if values_right(plain, moved, glancing):
+				return true
+		return false
 	var want: Dictionary = ans.values
 	var exact: bool = ans.get("exact", false)
 	var free := {}
