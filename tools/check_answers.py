@@ -3179,7 +3179,7 @@ def check_symmetry(q):
             sol = [v_ for v_ in range(max(r1, r2), 30) if sp.binomial(v_, r1) == sp.binomial(v_, r2)]
             need(sol == [n], f"nC{r1} = nC{r2} has n = {sol}, not {n}")
             if q.get("table"):
-                need(q["table"]["rows"] == [["r", [str(r1), str(r2)]], ["ⁿCᵣ", [str(sp.binomial(n, r1))] * 2]], "the table is not the row's values")
+                need(q["table"]["rows"] == [["r", [str(r1), str(r2)]], ["nCr", [str(sp.binomial(n, r1))] * 2]], "the table is not the row's values")
             if q.get("graph"):
                 gr = q["graph"]
                 need(gr["kind"] == "bars" and [R(y_) for y_ in gr["ys"]] == [sp.binomial(n, k) for k in range(n + 1)], "the bars are not row n")

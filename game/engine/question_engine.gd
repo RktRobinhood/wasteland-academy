@@ -546,7 +546,10 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 			q.claim = claim.text
 			q.prompt = "%s\nA student's answer: %s. True or false?" % [b.asked, claim.text]
 			var why := misconception_text(t, claim.ref) if not claim.correct else ""
-			q.reason = ("The answer is %s." % right.text) + (" The mistake: %s." % why.rstrip(".") if why != "" else "")
+			if claim.correct:
+				q.reason = "The student is right: the answer is %s." % right.text
+			else:
+				q.reason = "The answer is %s, not %s." % [right.text, claim.text] + (" The mistake: %s." % why.rstrip(".") if why != "" else "")
 		"method-pick":
 			var right_name: String = angle_info(t, v.u.id, v.angle).name
 			var works: Array = v.angles.filter(func(a): return not fails(t, v.u.id, a)).map(func(a): return angle_info(t, v.u.id, a).get("name", a))

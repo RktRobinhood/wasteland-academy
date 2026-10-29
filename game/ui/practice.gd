@@ -213,8 +213,9 @@ func _add_next() -> void:
 
 func _add_representation() -> void:
 	for line in question.lines:
-		var is_eq: bool = (question.rep == "equation" and (line.begins_with("f(") or line.contains(" = "))) \
-			or question.rep in ["notation", "terms"]
+		# A student's working (error-spot) reads as lines of text, not as the equation.
+		var is_eq: bool = ((question.rep == "equation" and (line.begins_with("f(") or line.contains(" = "))) \
+			or question.rep in ["notation", "terms"]) and not line.begins_with("Line ")
 		var l := UiTheme.label(line, UiTheme.BIG if is_eq else UiTheme.BODY, UiTheme.SAND if is_eq else UiTheme.TEXT)
 		if is_eq:
 			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

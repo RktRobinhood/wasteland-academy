@@ -164,7 +164,7 @@ func u_find_the_mirror(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.methods = {
 		"midpoint-of-roots": method([first, mid, final], ans.values),
 		"midpoint-of-pair": method(["x = %s and x = %s give the same y, %s, so they are mirror images" % [N(xa), N(xb), N(yv)], mid, final], ans.values),
-		"symmetry": method(["As ⁿCᵣ = ⁿCₙ₋ᵣ puts equal values of a row either side of its middle, equal values of y sit either side of the axis", mid, final], ans.values),
+		"symmetry": method(["As nCr = nC(n − r) puts equal values of a row either side of its middle, equal values of y sit either side of the axis", mid, final], ans.values),
 	}
 	out.wrongs = [wrong({"var": "y", "h": p.h}, "SL2.6.axis-symmetry#1")]
 	out.generic = [{"var": "x", "h": p.k}, {"var": "x", "h": xb.sub(xa)}, {"var": "x", "h": p.h.neg()}, {"var": "x", "h": xa.add(xb)}]
@@ -179,18 +179,18 @@ func _mirror_ncr(rep: String, c: Dictionary) -> Dictionary:
 	var out := {"asked": "Find n.", "given": export(c).merged({"ctx": "ncr"}), "answer": ans,
 		"lines": ["ⁿC%d = ⁿC%d, and %d ≠ %d." % [r, n - r, r, n - r]]}
 	if rep == "table":
-		out.table = {"rows": [["r", [str(r), str(n - r)]], ["ⁿCᵣ", [str(c.value.n), str(c.value.n)]]]}
-		out.lines = ["The table gives two values of ⁿCᵣ from one row of Pascal's triangle."]
+		out.table = {"rows": [["r", [str(r), str(n - r)]], ["nCr", [str(c.value.n), str(c.value.n)]]]}
+		out.lines = ["The table gives two values of nCr from one row of Pascal's triangle."]
 	elif rep == "graph":
 		var xs: Array = range(0, n + 1)
 		out.graph = {"kind": "bars", "xs": xs, "ys": xs.map(func(k): return SymmetrySituation.ncr(n, k)), "hide": []}
-		out.lines = ["The bar chart shows one row of Pascal's triangle, ⁿCᵣ for r = 0, 1, 2, …"]
+		out.lines = ["The bar chart shows one row of Pascal's triangle, nCr for r = 0, 1, 2, …"]
 	var pair := "r = %d and r = %d give the same value" % [r, n - r]
 	if rep == "graph":
 		pair = "The bars are symmetric: r = %d and r = %d are mirror images, both %d" % [r, n - r, c.value.n]
 	var sum := "The mirror is the middle of the row, r = n/2 = (%d + %d)/2, so n = %d + %d" % [r, n - r, r, n - r]
 	out.methods = {
-		"symmetry": method([pair + ", so they are mirror images: ⁿCᵣ = ⁿCₙ₋ᵣ", "r + (n − r) = n, so n = %d + %d" % [r, n - r], "So %s." % Answer.text(ans)], ans.values),
+		"symmetry": method([pair + ", so they are mirror images: nCr = nC(n − r)", "r + (n − r) = n, so n = %d + %d" % [r, n - r], "So %s." % Answer.text(ans)], ans.values),
 		"midpoint-of-pair": method(["r = %d and r = %d give the same value: a mirror pair" % [r, n - r], sum, "So %s." % Answer.text(ans)], ans.values),
 		"midpoint-of-roots": method(["As a parabola's roots sit either side of its axis, the two equal values sit either side of the middle of the row", sum, "So %s." % Answer.text(ans)], ans.values),
 	}
@@ -208,7 +208,7 @@ func _mirror_normal(nm: Dictionary) -> Dictionary:
 		"methods": {
 			"midpoint-of-pair": method(["Equal tails sit the same distance either side of the mean", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values),
 			"midpoint-of-roots": method(["As a parabola's roots sit either side of its axis, equal tails sit either side of the mean", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values),
-			"symmetry": method(["As ⁿCᵣ = ⁿCₙ₋ᵣ mirrors a row about its middle, the normal curve mirrors about μ", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values),
+			"symmetry": method(["As nCr = nC(n − r) mirrors a row about its middle, the normal curve mirrors about μ", "μ = (%s + %s)/2 = %s" % [N(lo), N(hi), N(nm.mu)], "So %s." % Answer.text(ans)], ans.values),
 		},
 		"generic": [{"v": hi.sub(lo)}, {"v": lo}, {"v": hi}, {"v": lo.add(hi)}]}
 
@@ -331,7 +331,7 @@ func u_ncr_mirror(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		for i in range(2, k + 1):
 			out *= i
 		return out
-	return {"asked": "Find the other r with ⁿCᵣ = %dC%d, and that value." % [n, r], "given": export(s), "answer": ans,
+	return {"asked": "Find the other r with nCr = %dC%d, and that value." % [n, r], "given": export(s), "answer": ans,
 		"lines": ["%dC%d = %dCr, with r ≠ %d" % [n, r, n, r]],
 		"methods": {
 			"symmetry": method(["Choosing %d to take is choosing %d to leave, so %dC%d = %dC%d" % [r, n - r, n, r, n, n - r],
