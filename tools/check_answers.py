@@ -527,6 +527,9 @@ def check(q):
         check_format(q)
         q = dict(q, choices=q["base_choices"])
     sit = q.get("situation_id", "quadratic")
+    # Every question is Paper 1 or Paper 2 (FAL-419); each situation's checks hold its
+    # numbers to that paper.
+    need(q.get("paper") in (1, 2), f"paper is {q.get('paper')!r}, not 1 or 2")
     need(sit in SITUATION_CHECKS, f"the checker has no checks for situation {sit}")
     exp, f = SITUATION_CHECKS[sit](q)
     if exp is not None:  # the triangle and distribution checks are complete on their own
