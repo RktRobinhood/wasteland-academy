@@ -5368,7 +5368,7 @@ GC_SEP = sp.Rational(1, 2)          # features at least this far apart in x
 GC_Y_SPAN = 20                      # the whole graph fits a window about 20 high
 GC_SLOPE = sp.Rational(1, 4)        # each zero a clean crossing
 GC_TOL = sp.Rational(1, 10**7)      # the engine keeps nine decimal places
-GC_GRID = 1200
+GC_GRID = 800
 GC_SIT, GC_ZI, GC_MM, GC_NS, GC_SG = ("SL2.3.sketch-from-equation", "SL2.4.zeros-intercepts", "SL2.4.max-min",
                                       "SL2.10.number-of-solutions", "SL2.10.solve-gdc")
 GC_LOCALS = {"x": X, "exp": sp.exp, "log": sp.log, "sin": sp.sin, "cos": sp.cos}
@@ -5396,20 +5396,28 @@ def gc_f(fn):
 
 
 def gc_zeros(fn, a, b):
-    """Every zero of fn on [a, b] (a sign change on the grid, refined to 30 digits)."""
+    """Every zero of fn on [a, b]: a sign change on a fine float grid, then refined to
+    30 digits with mpmath."""
+    fl = sp.lambdify(X, fn, "math")
     f = gc_f(fn)
-    out = []
     mpmath.mp.dps = 30
-    xs = [mpmath.mpf(a) + (mpmath.mpf(b) - mpmath.mpf(a)) * i / GC_GRID for i in range(GC_GRID + 1)]
-    ys = [f(x) for x in xs]
+    a, b = float(a), float(b)
+    out = []
+    xs = [a + (b - a) * i / GC_GRID for i in range(GC_GRID + 1)]
+    ys = []
+    for x in xs:
+        try:
+            ys.append(fl(x))
+        except (ValueError, ZeroDivisionError, OverflowError):
+            ys.append(float("nan"))
     for i in range(GC_GRID):
         y0, y1 = ys[i], ys[i + 1]
         if y0 == 0:
-            out.append(xs[i])
+            out.append(mpmath.mpf(xs[i]))
         elif y0 * y1 < 0:
-            out.append(mpmath.findroot(f, (xs[i], xs[i + 1]), solver="anderson"))
+            out.append(mpmath.findroot(f, (mpmath.mpf(xs[i]), mpmath.mpf(xs[i + 1])), solver="anderson"))
     if ys[-1] == 0:
-        out.append(xs[-1])
+        out.append(mpmath.mpf(xs[-1]))
     return out
 
 
@@ -5792,6 +5800,164 @@ def check_gdc_curve(q):
     return None, None
 
 
+# ── Graphs and key features (FAL-420): gdc-two-curves ─────────
+# Two functions that cross one to three times. Both are read back from the question's
+# text (t is read as x), and every crossing is found again as a zero of f − g with
+# mpmath, its y from f at the unrounded x. The clean limits are the checker's own copy:
+# the engine's are in game/engine/situations/gdc_two_curves.gd.
+
+TC_SLOPE = sp.Rational(3, 10)       # each crossing at a clear angle
+TC_IN, TC_SG = "SL2.4.intersection", "SL2.10.solve-gdc"
+
+
+def tc_expr(text):
+    return gc_expr(text.replace("t", "x"))
+
+
+def tc_read(q):
+    """(f, g, lo, hi, open_left) from the question's text."""
+    texts = [q["asked"]] + q["lines"]
+    joined = " ".join(texts)
+    pats = [r"f\(x\) = (.+?),? and (?:its inverse f⁻¹\(x\)|g\(x\)) = (.+?), for ",
+            r"A\(t\) = (.+?) m, and in tank B is B\(t\) = (.+?) m, ",
+            r"P\(t\) = (.+?) and Q\(t\) = (.+?) thousand people, ",
+            r"^Solve (.+?) = (.+?), for "]
+    for p in pats:
+        m = re.search(p, joined)
+        if m:
+            f, g = tc_expr(m.group(1)), tc_expr(m.group(2))
+            break
+    else:
+        raise Fail("can't read the two functions")
+    d = re.search(r"for (−?\d+) ≤ [xt] ≤ (−?\d+)", joined)
+    if d:
+        return f, g, el_num(d.group(1)), el_num(d.group(2)), False
+    d = re.search(r"for x > (−?[\d.]+)", joined)
+    need(d is not None, "can't read the domain")
+    return f, g, R(sp.nsimplify(d.group(1).replace("−", "-"))), None, True
+
+
+@lru_cache(maxsize=4096)
+def tc_crossings(f, g, lo, hi, open_left):
+    a = lo + sp.Rational(1, 1000) if open_left else lo
+    ff = gc_f(f)
+    return tuple((x, ff(x)) for x in gc_zeros(f - g, a, hi))
+
+
+def tc_pts(cs):
+    names = [gc_pt(x, y) for x, y in sorted(cs, key=lambda c: float(c[0]))]
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def tc_pts2(cs):
+    names = [f"({gc_s2(x)}, {gc_s2(y)})" for x, y in sorted(cs, key=lambda c: float(c[0]))]
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def tc_only_x(cs):
+    names = [gc_s(x) for x, _ in sorted(cs, key=lambda c: float(c[0]))]
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and x = " + names[-1])
+
+
+def tc_window(cs):
+    return [c for c in cs if abs(c[0]) <= 10 and abs(c[1]) <= 10]
+
+
+def check_gdc_two_curves(q):
+    g_, u, rep, L, asked = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "two GDC curves are Paper 2")
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    if u == "constant-from-crossing":
+        m = re.search(r"line y = (.+?) \+ k meets the curve y = (.+?) where x = 0\.", " ".join(L)) or \
+            re.search(r"line with gradient (−?[\d.]+) passes through the point where the curve y = (.+?) crosses the y-axis\.", " ".join(L))
+        need(m is not None, "can't read the line and the curve")
+        mtext = m.group(1)
+        mm = R(sp.nsimplify(mtext.replace("−", "-").replace("x", "") or "1")) if mtext not in ("x", "−x") else (1 if mtext == "x" else -1)
+        f = gc_expr(m.group(2))
+        k = sp.nsimplify(f.subs(X, 0))
+        need(k.is_rational, "f(0) is not exact")
+        g = mm * X + k
+        d1, d2 = el_num(g_["d1"]), el_num(g_["d2"])
+        cs = tc_crossings(f, g, d1, d2, False)
+        others = [c for c in cs if abs(c[0]) > 1e-20]
+        need(len(cs) == 2 and len(others) == 1, "the line doesn't meet the curve once more")
+        need(gc_fair(others[0][0]), "the other crossing is not a fair 3 s.f. value")
+        want = f"k = {gc_s(k)}, x = {gc_s(others[0][0])}"
+        gc_check_common(q, want, {}, gc_trap([k, others[0][0]], f"k = {gc_s2(k)}, x = {gc_s2(others[0][0])}"))
+        return None, None
+    f, g, lo, hi, open_left = tc_read(q)
+    if hi is None:
+        hi = el_num(g_["d2"])
+    cs = tc_crossings(f, g, lo, hi, open_left)
+    need(1 <= len(cs) <= 3, f"{len(cs)} crossings, not 1 to 3")
+    df = gc_f(sp.diff(f - g, X))
+    for i, (x, y) in enumerate(cs):
+        need(abs(df(x)) >= TC_SLOPE, f"the crossing at x = {x} is near a tangent")
+        need(gc_fair(x) and gc_fair(y), f"the crossing ({x}, {y}) is not fair to 3 s.f.")
+        need(x - lo >= sp.Rational(1, 5) and hi - x >= sp.Rational(1, 5), "a crossing at the end of the domain")
+        if i:
+            need(x - cs[i - 1][0] >= GC_SEP, "two crossings closer than 0.5")
+    if open_left:
+        # f⁻¹ really is the inverse: f(f⁻¹(x)) = x.
+        ff, gg = gc_f(f), gc_f(g)
+        for x0 in [lo + 1, lo + 2, hi]:
+            need(abs(ff(gg(mpmath.mpf(x0))) - x0) < 1e-20, "f⁻¹ is not the inverse of f")
+    if rep == "graph" and q.get("graph") is not None:
+        need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)) and gc_curve_is(q["graph"]["curves"][1], gc_f(g)), "the graphs drawn are not f and g")
+    wr, trap = {}, None
+    if u in ("intersection-points", "function-and-inverse"):
+        want, trap = tc_pts(cs), tc_pts2(cs)
+        wr[TC_IN + "#0"] = {tc_only_x(cs)}
+        if u == "intersection-points" and tc_window(cs):
+            wr[TC_IN + "#1"] = {tc_pts(tc_window(cs))}
+        if u == "function-and-inverse":
+            need(all(abs(x - y) < 1e-20 for x, y in cs), "f and f⁻¹ meet off y = x")
+    elif u == "solve-f-equals-g":
+        want, trap = gc_xs([c[0] for c in cs]), gc_xs2([c[0] for c in cs])
+        if tc_window(cs):
+            wr[TC_SG + "#0"] = {gc_xs([c[0] for c in tc_window(cs)])}
+    elif u == "models-equal":
+        need(lo == 0 and all(gc_f(fn)(mpmath.mpf(0)) >= 0 for fn in (f, g)), "a model starts below 0")
+        if len(cs) == 2:
+            # Two towns that meet twice, the second time past the standard window's t = 10.
+            need(cs[0][0] < 9 and cs[1][0] > sp.Rational(103, 10), "the second meeting is not past t = 10")
+            want, trap = gc_xs([c[0] for c in cs]).replace("x = ", "t = "), gc_xs2([c[0] for c in cs]).replace("x = ", "t = ")
+            wr[TC_SG + "#0"] = {"t = " + gc_s(cs[0][0])}
+        else:
+            need(len(cs) == 1, "the models don't meet once for t ≥ 0")
+            want, trap = "t = " + gc_s(cs[0][0]), "t = " + gc_s2(cs[0][0])
+            need(all(o["ref"] == TC_SG + "#1" for o in q["choices"] if o.get("trap")), "the 2 s.f. time doesn't log SL2.10.solve-gdc#1")
+    elif u == "distance-between-crossings":
+        need(len(cs) == 2, "not two crossings")
+        (x1, y1), (x2, y2) = cs
+        d = mpmath.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        want, trap = gc_s(d), gc_s2(d)
+        rr = [sp.Rational(sig3(sp.Float(v, 30))) for v in (x1, y1, x2, y2)]
+        wr[TC_IN + "#2"] = {gc_s(sp.N(sp.sqrt((rr[2] - rr[0]) ** 2 + (rr[3] - rr[1]) ** 2), 30))}
+    elif u == "count-crossings":
+        want = str(len(cs))
+        wr[TC_IN + "#1"] = {str(len(tc_window(cs)))}
+    elif u == "crossing-in-interval":
+        m = re.search(r"for (−?[\d.]+) < x < (−?[\d.]+)\.", asked)
+        a, b = [R(sp.nsimplify(v.replace("−", "-"))) for v in m.groups()]
+        inside = [c for c in cs if a < c[0] < b]
+        need(len(inside) == 1, f"{len(inside)} crossings in the interval")
+        want, trap = gc_pt(*inside[0]), f"({gc_s2(inside[0][0])}, {gc_s2(inside[0][1])})"
+    elif u == "crossing-from-table":
+        t = q["table"]
+        ff, gg = gc_f(f), gc_f(g)
+        for xv, fv, gv in zip(t["xs"], t["fs"], t["gs"]):
+            need(gc_close(fv, ff(mpmath.mpf(R(xv)))) and gc_close(gv, gg(mpmath.mpf(R(xv)))), f"the table is wrong at x = {xv}")
+        hs = [R(fv) - R(gv) for fv, gv in zip(t["fs"], t["gs"])]
+        need(sum(1 for i in range(len(hs) - 1) if hs[i] * hs[i + 1] < 0) == len(cs), "the table doesn't show each crossing as a sign change")
+        want, trap = "x = " + gc_s(cs[-1][0]), "x = " + gc_s2(cs[-1][0])
+    else:
+        raise Fail(f"the checker has no gdc-two-curves check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -5800,7 +5966,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
                     "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth,
-                    "gdc-curve": check_gdc_curve}
+                    "gdc-curve": check_gdc_curve, "gdc-two-curves": check_gdc_two_curves}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

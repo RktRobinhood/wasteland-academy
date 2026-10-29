@@ -69,7 +69,10 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		"read-from-form":
 			if mode == "mixed":
 				mode = "bellform"
-	if mode == "mixed" and need.get("far_ok", false) and rng.chance(1.0 / 3.0):
+	# The far mode only where nothing else pins the zeros or a maximum down (a boss chain
+	# that also asks for exactly two zeros).
+	var far_free: bool = not need.has("zeros") and need.get("turn", "") != "max" and not need.get("sketch", false)
+	if mode == "mixed" and need.get("far_ok", false) and far_free and rng.chance(1.0 / 3.0):
 		mode = "far"
 	# The family is drawn once, so families that are often unclean still come up as
 	# often. An endpoint extreme needs a local maximum below an end (a bell or a cubic

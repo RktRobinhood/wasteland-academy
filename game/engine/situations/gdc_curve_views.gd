@@ -738,8 +738,8 @@ func u_window_for_domain(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.merge({
 		"asked": "Which GDC window shows the whole graph on its domain without squashing it?", "lines": lines,
 		"methods": {"gdc-transfer": {"result": out.answer.values, "steps": [
-			"Set x from one end of the domain to the other: %d to %d." % [d1, d2],
-			"The least and greatest values are %s and %s, so y from %d to %d holds them with a little room." % [S(yr[0]), S(yr[1]), y0, y1],
+			"Set x from one end of the domain to the other: %s to %s." % [Fmt.num(d1), Fmt.num(d2)],
+			"The least and greatest values are %s and %s, so y from %s to %s holds them with a little room." % [S(yr[0]), S(yr[1]), Fmt.num(y0), Fmt.num(y1)],
 			final]}}})
 	return out
 
@@ -781,7 +781,7 @@ func u_judge_a_sketch(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var right: String = opt.call(bad)
 	var out := LogFunctionViews.choice(right, [], good.map(func(f): return opt.call(f)))
 	var pts: Array = feats.map(func(f): return [f.x, f.y, f.label])
-	var final: String = "So the wrong label is %s: %s." % [bad.label, bad.why]
+	var final: String = "%s is wrong: %s." % [right, bad.why]
 	out.merge({
 		"asked": "A student sketched y = f(x) and labelled its features. Which label is wrong?",
 		"lines": ["The student's sketch of %s is shown." % line(s)], "graph": screen(s, pts),

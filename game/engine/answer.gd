@@ -234,9 +234,17 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			unordered = [ids]
 		"graph":
 			t = [{"pick": "v", "options": fixed.options}]
+		"pts":
+			var n := int(str(values.n))
+			for i in n:
+				if i > 0:
+					t.append(" and " if i == n - 1 else ", ")
+				t.append_array(["(", {"slot": "x%d" % i}, ", ", {"slot": "y%d" % i}, ")"])
 	var out := {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
 	if kind == "brackets2":
 		out.pairs = [["a1", "b1"], ["a2", "b2"]]
+	elif kind == "pts":
+		out.pairs = range(int(str(values.n))).map(func(i): return ["x%d" % i, "y%d" % i])
 	elif kind == "poly" and fixed.get("typed_powers", false):
 		out.pairs = range(fixed.powers.size()).map(func(i): return ["c%d" % i, "e%d" % i])
 	return out
@@ -543,7 +551,30 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return fx.get("var", "x") + " = " + xs_list(_sorted(xs_values(v)).map(func(x): return shown(ans, x)))
 		"graph":
 			return str(v.v)
+		"pts":
+			# A wrong option may give only the x-coordinates (SL2.4.intersection#0).
+			if v.get("only_x", false):
+				return "x = " + xs_list(pts_values(v).map(func(p): return shown(ans, p[0]))).replace(" or ", " and x = ")
+			return xs_list(pts_values(v).map(func(p): return "(%s, %s)" % [shown(ans, p[0]), shown(ans, p[1])])).replace(" or ", " and ")
 	return "?"
+
+
+## The points of a pts answer, in order of x: [[x, y], ...].
+static func pts_values(v: Dictionary) -> Array:
+	var out: Array = []
+	for i in int(str(v.n)):
+		out.append([v["x%d" % i], v["y%d" % i]])
+	out.sort_custom(func(a, b): return Q.of(a[0]).to_float() < Q.of(b[0]).to_float())
+	return out
+
+
+## A pts answer's values from a list of [x, y].
+static func pts_of(ps: Array) -> Dictionary:
+	var out := {"n": str(ps.size())}
+	for i in ps.size():
+		out["x%d" % i] = ps[i][0]
+		out["y%d" % i] = ps[i][1]
+	return out
 
 
 ## The x-values of an xs answer, as many as its own count says.
@@ -618,8 +649,8 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind == "lnq":
 		return "lnq:%.9f" % lnq_value(values.m, values.r, values.get("form", ""))
 	# Its options may have other counts, so an xs answer is told apart by its text.
-	if ans.kind == "xs":
-		return "xs:" + text(ans, values)
+	if ans.kind in ["xs", "pts"]:
+		return ans.kind + ":" + text(ans, values)
 	# Shown to 3 s.f. or as decimals: two values that read the same are one option.
 	if ans.kind in ["pct", "expmodel", "limited", "fn", "xpow"]:
 		return ans.kind + ":" + text(ans, values)
@@ -666,14 +697,18 @@ static func export_values(values: Dictionary) -> Dictionary:
 ## The two points of a points2 answer, the one with the smaller x first.
 static func _pairs(v: Dictionary) -> Array:
 	var ps: Array = [[v.x1, v.y1], [v.x2, v.y2]]
-	if Q.of(ps[1][0]).lt(ps[0][0]) or (Q.of(ps[1][0]).eq(ps[0][0]) and Q.of(ps[1][1]).lt(ps[0][1])):
+	var x0 := Q.of(ps[0][0]).to_float()
+	var x1 := Q.of(ps[1][0]).to_float()
+	if x1 < x0 or (x1 == x0 and Q.of(ps[1][1]).to_float() < Q.of(ps[0][1]).to_float()):
 		ps.reverse()
 	return ps
 
 
+## In order of value. Compared as floats: a GDC value has nine decimal places, and
+## Q.lt's cross-multiplying would overflow.
 static func _sorted(qs: Array) -> Array:
 	var out := qs.duplicate()
-	out.sort_custom(func(x, y): return Q.of(x).lt(y))
+	out.sort_custom(func(x, y): return Q.of(x).to_float() < Q.of(y).to_float())
 	return out
 
 
@@ -839,6 +874,8 @@ static func trap_text(ans: Dictionary, values: Dictionary) -> String:
 			return "%s %s %s %s %s" % [Fmt.dec(values.lo), values.r1, fx_var(ans), values.r2, Fmt.dec(values.hi)]
 		"xs":
 			return fx_var(ans) + " = " + xs_list(_sorted(xs_values(values)).map(func(x): return Fmt.dec(x)))
+		"pts":
+			return xs_list(pts_values(values).map(func(p): return "(%s, %s)" % [Fmt.dec(p[0]), Fmt.dec(p[1])])).replace(" or ", " and ")
 		"named":
 			var parts: PackedStringArray = []
 			for i in ans.fixed.names.size():

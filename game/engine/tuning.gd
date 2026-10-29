@@ -180,6 +180,8 @@ const CHAINS := {
 	"fn-sketch-gdc": ["sketch-on-domain", "label-zeros", "label-turning-point", "count-solutions-from-sketch"],
 	# the y-intercept and the zeros, the distance between the stored zeros, the turning point
 	"fn-gdc-features": ["y-intercept", "zeros-gdc", "use-stored-zeros", "turning-point-coordinates"],
+	# the meeting points, the one in an interval, then the distance between them
+	"fn-gdc-intersection": ["intersection-points", "crossing-in-interval", "distance-between-crossings"],
 }
 
 
