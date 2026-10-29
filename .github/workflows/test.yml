@@ -1,5 +1,5 @@
-# Runs the test net: the HTML game's tests, and the Godot project's tests and web
-# export. Deployment is in pages.yml.
+# Runs the test net: the HTML game's tests, the Godot project's tests and web export,
+# and the takeover dry run. Deployment is in pages.yml.
 name: test
 
 on:
@@ -82,6 +82,35 @@ jobs:
             web-shots/
             _scratch/*.log
             _scratch/check-answers/report.txt
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # The takeover dry run (README, "Switching to Godot"): the site as Jekyll builds it,
+  # laid out with the switch off and on, each checked in Chromium.
+  takeover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      # Before the export, so Jekyll sees only the checkout, as in pages.yml
+      - uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - run: scripts/ci-install-godot.sh
+      - run: ./export.sh
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: tools/takeover-dry-run _site build/next
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: takeover-dry-run
+          path: test-results/
           if-no-files-found: ignore
           retention-days: 14
 

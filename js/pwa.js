@@ -22,6 +22,14 @@ const PWA = {
       this._showInstallButton(false);
     });
 
+    // With the takeover switch on (README, "Switching to Godot") this game is at
+    // classic/, and the new version is at the site root
+    const newVersion = document.getElementById('new-version-link');
+    if (newVersion && /\/classic\/(index\.html)?$/.test(location.pathname)) {
+      newVersion.href = '../';
+      newVersion.classList.remove('hidden');
+    }
+
     // iOS has no install prompt, so explain Add to Home Screen, once
     if (this._isIOS() && !this._isStandalone() && !Platform.storage.get(this.IOS_TIP_KEY)) {
       document.getElementById('ios-install-tip')?.classList.remove('hidden');

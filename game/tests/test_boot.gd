@@ -1,6 +1,7 @@
 extends "res://tests/test_case.gd"
 ## The boot scene loads, runs a few frames and logs no errors, and its column fits on a
-## phone and in a PC browser window.
+## phone and in a PC browser window. The "Classic game" link shows only with the
+## takeover switch on, and sits clear of the column.
 
 const MAIN := "res://scenes/main.tscn"
 
@@ -57,9 +58,29 @@ func test_column_fits_in_a_pc_window() -> void:
 	await _check_fits(Vector2i(1280, 800))
 
 
+func test_no_classic_link_with_the_switch_off() -> void:
+	# Off the web there's no page, so no wa-classic meta: as with the switch off
+	check_eq(preload("res://ui/main.gd").classic_url(), "")
+	var main := (load(MAIN) as PackedScene).instantiate()
+	tree.root.add_child(main)
+	await tree.process_frame
+	check(main.get_node_or_null("Classic") == null, "a Classic link with the switch off")
+	main.free()
+
+
+func test_classic_link_on_a_phone() -> void:
+	await _check_fits(Vector2i(390, 844), "classic/")
+
+
+func test_classic_link_in_a_pc_window() -> void:
+	await _check_fits(Vector2i(1280, 800), "classic/")
+
+
 ## Lays the scene out in the area the "expand" stretch gives a window of this size,
 ## and checks the title column sits inside it with no clipped text.
-func _check_fits(window: Vector2i) -> void:
+## With `classic`, also adds the "Classic game" link and checks it's on screen, clear
+## of the column.
+func _check_fits(window: Vector2i, classic := "") -> void:
 	var base := Vector2(ProjectSettings.get_setting("display/window/size/viewport_width"),
 			ProjectSettings.get_setting("display/window/size/viewport_height"))
 	var scale := minf(window.x / base.x, window.y / base.y)
@@ -69,6 +90,7 @@ func _check_fits(window: Vector2i) -> void:
 	tree.root.add_child(frame)
 	var main := (load(MAIN) as PackedScene).instantiate() as Control
 	frame.add_child(main)
+	var link: LinkButton = main.add_classic_link(classic) if classic != "" else null
 	for i in 3:
 		await tree.process_frame
 	var column := main.get_node("Center/Column") as Control
@@ -79,4 +101,9 @@ func _check_fits(window: Vector2i) -> void:
 		if label is Label:
 			check(label.get_visible_line_count() == label.get_line_count(),
 					"%s: %s clips its text" % [window, label.name])
+	if link != null:
+		var at := link.get_global_rect()
+		check(screen.encloses(at), "%s: Classic link %s outside %s" % [window, at, screen])
+		check(not at.intersects(rect), "%s: Classic link %s over the column %s" % [window, at, rect])
+		check_eq(link.text, "Classic game")
 	frame.free()

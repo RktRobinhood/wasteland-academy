@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# The takeover dry run (README, "Switching to Godot"): lays out the site with the
+# switch off and with it on (scripts/assemble-site.sh), serves each the way GitHub
+# Pages does, and checks both in Chromium (tests/takeover/takeover.spec.mjs).
+# Screenshots of / and classic/ with the switch on go to test-results/takeover-shots/.
+#
+#   tools/takeover-dry-run [site dir] [export dir]
+#
+# The site dir is the HTML game as Jekyll built it (CI passes _site). Without one, the
+# repo's files stand in for it, less the dot and underscore paths Jekyll skips. The
+# export defaults to build/next (./export.sh). Needs `npm ci` and
+# `npx playwright install chromium`. Exits non-zero on any failure.
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+site="${1:-}"
+export_dir="${2:-$ROOT/build/next}"
+work="$ROOT/_scratch/takeover"
+
+rm -rf "$work"
+mkdir -p "$work/off"
+if [ -n "$site" ]; then
+	cp -r "$site/." "$work/off/"
+else
+	(cd "$ROOT" && git ls-files -z --cached --others --exclude-standard \
+		| grep -zv -E '(^|/)[._]' \
+		| while IFS= read -r -d '' f; do [ -f "$f" ] && printf '%s\0' "$f"; done \
+		| xargs -0 cp --parents -t "$work/off")
+fi
+cp -r "$work/off" "$work/on"
+"$ROOT/scripts/assemble-site.sh" "$work/off" "$export_dir" off
+"$ROOT/scripts/assemble-site.sh" "$work/on" "$export_dir" on
+
+cd "$ROOT"
+TAKEOVER_SITES="$work" npx playwright test -c tests/takeover/playwright.config.mjs
