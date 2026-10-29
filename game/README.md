@@ -587,12 +587,12 @@ desktop, `-- --map=functions/quadratics` does the same as the hash.
 
 The island map loads its art by file name from `game/assets/map/functions/`. Each file
 is optional: when one isn't there, that piece keeps the coded look (a dusk gradient
-with a dashed trail, and a numbered ring in the state's colour), so art can land one
-file at a time. Import each with mipmaps on, like the rest of the art.
+with branching roads, and a ring in the state's colour with a short glyph for the
+region), so art can land one file at a time. Import each with mipmaps on, like the rest of the art.
 
 | File | Size | What it is |
 |---|---|---|
-| `background.png` | 1080x1920, opaque | The whole island, portrait. The spots sit on it at the places in `SPOTS` in `ui/map.gd` (% of the board), climbing from Quadratics at the bottom to the tower at the top |
+| `background.png` | 1080x1920, opaque | The whole island, portrait. The spots sit on it at the places in `SPOTS` in `ui/map.gd` (% of the board). It is a hub: the Signal Tower in the middle with the all-regions gate at its foot, the eight regions around it, a road from the tower to each, a loop road between neighbours, and a road up from the landing on the south shore (50, 97). The FAL-531 plan has the table |
 | `<spot>-locked.png` | 256x256, transparent | A spot's landmark before its questions are built |
 | `<spot>-open.png` | 256x256, transparent | A spot's landmark once it can be played |
 | `<spot>-cleared.png` | 256x256, transparent | A spot's landmark once floor 3's boss is beaten there |
@@ -600,9 +600,11 @@ file at a time. Import each with mipmaps on, like the rest of the art.
 `<spot>` is a region id (`quadratics`, `exp-log`, `graphs-features`,
 `composite-inverse`, `rational`, `function-basics`, `lines`, `transformations`), `all`
 for the all-regions dungeon at the tower, or `relic` for the Relic device (only
-`relic-locked.png` is used for now). A landmark is drawn in a 200x200 box, kept square
-and centred, with the spot's name and progress line under it, so leave the bottom of
-the background clear below each spot.
+`relic-locked.png` is used for now). A landmark is drawn in a 200x200 box (the Relic
+device's in 140x140), kept square and centred, with the spot's name and progress line
+under it, so leave the bottom of the background clear below each spot. SPARK's pick
+(`Progress.suggest()`) gets a pink beacon drawn over its landmark, art or not, so leave
+the landmark itself readable under a ring.
 
 ## Art slots
 

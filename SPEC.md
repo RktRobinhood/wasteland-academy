@@ -165,6 +165,7 @@ Island states: **Locked** / **In Progress** / **Cleared** (boss defeated)
 Node states: **Locked** / **Available** / **Complete** / **WANTED** (has flagged questions)
 
 ### 4.2 Island Structure (Node Map)
+Island maps are hubs (FAL-531): regions sit around the island's tower, joined by branching roads, and open in any order. SPARK's pick (the untried, weakest or least-covered open region) gives guidance in place of gates. The floors inside a region stay in order.
 Each island contains 6–10 nodes arranged in a branching path:
 - One **main branch** (linear, prerequisite-ordered)
 - **Side branches** for alternative/advanced subtopics
@@ -311,6 +312,7 @@ Examples:
 - *Focused*: Timer extended by 10s on all questions this run
 
 ### Mastery Gating (Island Mode)
+In the Godot game (FAL-531), island maps are hubs: every built region opens in any order, and SPARK's pick gives guidance in place of the gates below. Only the floors inside a region stay sequential.
 - Island nodes unlock sequentially along the main branch
 - Side branch nodes unlock when their prerequisite main-branch node is cleared
 - Island boss unlocks only when all main-branch nodes are cleared
