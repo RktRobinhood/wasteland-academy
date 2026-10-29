@@ -126,14 +126,72 @@ func test_paper_two_contexts_need_a_calculator() -> void:
 	var p2 := 0
 	for seed in range(1, 81):
 		var q := _make("fn-solve-quadratic", "solve-in-context", "words", "quadratic-formula", seed)
+		check_eq(q.answer.kind == "measure", q.paper == 2, "seed %d: a measure answer is exactly a Paper 2 one" % seed)
 		if q.answer.kind == "measure":
 			p2 += 1
 			check(q.situation.paper == 2, "a measure answer is Paper 2")
-	# One in four, near enough (the exam has 3 Paper 1 parts to 1 Paper 2 part).
-	check(p2 >= 10 and p2 <= 35, "%d of 80 are Paper 2" % p2)
+	# The exam has 3 Paper 1 parts to 1 Paper 2 part. Six of the type's 20 cells can be
+	# Paper 2 (contexts, b^(2x) and logs), so each is Paper 2 five times in six (FAL-419).
+	check(p2 >= 45 and p2 <= 75, "%d of 80 are Paper 2" % p2)
 	for seed in range(1, 41):
 		var q := _make("fn-solve-quadratic", "solve-in-context", "words", "factorise", seed)
 		check(q.answer.kind == "number", "a factorising method gets a Paper 1 context")
+		check_eq(q.paper, 1, "a factorising context is Paper 1")
+
+
+## The cells with both papers (FAL-419): asked for Paper 2, the answer needs a
+## calculator and is written and marked to 3 s.f., and the working uses the GDC or
+## the formula; asked for Paper 1, it stays exact.
+func test_forced_papers_are_exact_or_need_a_calculator() -> void:
+	for t in CELLS:
+		var ty := QuestionEngine.type_of(t)
+		for c in QuestionEngine.cells(false, [t]):
+			var ps := QuestionEngine.cell_papers(ty, c.unknown, c.rep, c.angle)
+			for seed in [1, 2, 3, 4]:
+				for p in ps:
+					var q := QuestionEngine.make({"type": t, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed, "paper": p})
+					var key := "%s seed %d Paper %d" % [c.key, seed, p]
+					check_eq(q.paper, p, key)
+					var ans: Dictionary = q.answer
+					var nums: Array = Answer.slots(ans).filter(func(i): return i.has("slot")).map(func(i): return ans.values[i.slot])
+					var rounded := nums.any(func(v): return v is Q and Answer.needs_rounding(v))
+					if p == 1:
+						check(ans.get("show", "") != "sf" and ans.kind != "measure", key + ": a Paper 1 answer is written to 3 s.f.")
+						continue
+					if c.unknown == "largest-integer":
+						continue
+					check(ans.get("show", "") == "sf" or ans.kind == "measure", key + ": not written to 3 s.f.")
+					check(rounded and not ans.get("exact", false), key + ": the answer doesn't need a calculator")
+					check("3 significant figures" in q.asked, key + ": doesn't ask for 3 s.f.")
+					var r := QuestionEngine.mark(q, _sf_typed(ans))
+					check(r.correct, key + ": the answer typed to 3 s.f. is marked wrong")
+					var steps := " ".join(q.solutions[0].steps)
+					check("GDC" in steps or "formula" in steps or "√" in steps, key + ": the working uses no calculator")
+
+
+## Each typed number of an answer written to 3 s.f., as a student types it.
+func _sf_typed(ans: Dictionary) -> Dictionary:
+	var resp := {}
+	for item in Answer.slots(ans):
+		if item.has("slot"):
+			resp[item.slot] = Fmt.sf(ans.values[item.slot]).replace("−", "-")
+		else:
+			resp[item.pick] = str(ans.values[item.pick])
+	return resp
+
+
+## fn-ext-quadratic-model has no exam counts: its recipe picks its own paper, but a
+## view can force one where the cell can make it (a ball, not a pen or a table).
+func test_a_quadratic_model_takes_a_forced_paper() -> void:
+	var ty := QuestionEngine.type_of("fn-ext-quadratic-model")
+	for c in QuestionEngine.cells(false, ["fn-ext-quadratic-model"]):
+		var ps := QuestionEngine.cell_papers(ty, c.unknown, c.rep, c.angle)
+		check(ps == [1] if c.rep == "table" or c.unknown == "form-area-model" else ps == [1, 2], c.key)
+		for seed in [1, 2, 3]:
+			for p in ps:
+				var q := QuestionEngine.make({"type": ty.id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed, "paper": p})
+				check_eq(q.paper, p, c.key)
+				check_eq(q.situation.a == "-49/10", p == 2, "%s seed %d: Paper %d with a = %s" % [c.key, seed, p, q.situation.a])
 
 
 ## "Another way" (FAL-310) keeps the numbers: a same_angle view of every

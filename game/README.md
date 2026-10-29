@@ -135,11 +135,21 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   (k > 4), `kvals`, `delta_nature`, `quad_in` (Δ in k, or a quadratic in u), `kpoint`,
   `points2` (two points, either order), `surd` (m√r), `surd_roots`, `line`, `npoint`,
   `kroot`, `ineq_a` and `choice`. The graph view also draws a line (`graph.line`). The
-  Paper 2 context (a length to 3 s.f.) is one solve-in-context question in four, and never
-  for the factorising method: `QuestionEngine.make()` passes the method that made the
-  numbers to the recipe as `need.angle`. That is the `same_angle` method for "Another
-  way", so switching to factorising keeps a Paper 2 context, and the factorising working
-  says it fails there and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
+  Paper 2 context (a length to 3 s.f.) is never for the factorising method:
+  `QuestionEngine.make()` passes the method that made the numbers to the recipe as
+  `need.angle`. That is the `same_angle` method for "Another way", so switching to
+  factorising keeps a Paper 2 context, and the factorising working says it fails there
+  and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
+  Paper 2 versions (FAL-419), chosen by `need.paper` with each views' `papers()`: in
+  `fn-solve-quadratic` a context, b^(2x) (u not a power of b, so x = ln u/ln b) and a sum
+  of logs (x(x + d) = c with no whole root), each x to 3 s.f.; in `fn-quadratic-inequality`
+  against 0, against a constant and with a < 0, whole-number coefficients with irrational
+  roots, the interval's ends to 3 s.f. (a Paper 2 graph marks no roots), and the
+  largest-integer context is always Paper 2; in `fn-discriminant` equal roots (not on a
+  sketch), an interval of k and "always positive" on the families whose Δ is a quadratic
+  in k (b, grad, both) with irrational zeros, k to 3 s.f. `interval`, `bound` and `kvals`
+  answers honour `show: "sf"`. `fn-ext-quadratic-model` picks its own paper, but takes a
+  forced one (a ball with a = −4.9 on Paper 2; pens and tables are Paper 1).
 - `engine/situations/cubic.gd` is the Topic 5 situation: a cubic built
   from f′(x) = 3a(x − p)(x − q), so its stationary points are on whole numbers, with a
   point x₀ for the gradient, tangent and normal (FAL-394).
@@ -644,8 +654,10 @@ script error happens while it runs. Run one file with
   worked solution, every distractor misconception as an option (three that no answer
   shape can carry yet are listed with the reason), two rays typed as one interval caught
   as SL2.7.inequality#1, two points in either order, a tangent's point on both graphs,
-  Paper 2 contexts at about one in four, and "Another way" keeping the numbers for every
-  fn-solve-quadratic unknown and pair of methods.
+  Paper 2 contexts (never for factorising), every cell with both papers exact on Paper 1
+  and to 3 s.f. with calculator working on Paper 2, a quadratic model taking a forced
+  paper, and "Another way" keeping the numbers for every fn-solve-quadratic unknown and
+  pair of methods.
 - `test_exp_log.gd`: the eight Exponentials and logs types (FAL-418): built with every
   cell on their situations, 2 to 5 steps per worked solution, every distractor
   misconception as an option (two that no exact option can show are listed with the
