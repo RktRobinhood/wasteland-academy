@@ -21,6 +21,8 @@ playwright/.cache/
 
 # Godot (game/)
 game/.godot/
+# Copied from assets/journey/ by scripts/godot-env.sh (FAL-331)
+game/assets/journey/
 build/
 
 # SymPy answer checker (tools/check-answers)

@@ -21,7 +21,33 @@ editor_open() {
 	pgrep -u "$(id -u)" -f -- "--path $GAME( |$)" | xargs -r ps -o args= -p | grep -q -- "--editor"
 }
 
+# The journey strip's sheets live once, in the repo's assets/journey/ (FAL-331). They are
+# copied into game/assets/journey/ (gitignored) before every import, export and editor
+# start, so a new sheet needs no code change and git holds no second copy. Each image
+# gets a "keep" import file: the export ships the original WebP or PNG bytes, which
+# the game decodes itself (journey/journey_assets.gd), instead of re-encoding them.
+sync_journey() {
+	local src="$ROOT/assets/journey" dst="$GAME/assets/journey" rel
+	[ -d "$src" ] || return 0
+	mkdir -p "$dst"
+	# Drop copies whose source has gone (FAL-208 moved sheets between folders).
+	while IFS= read -r -d '' rel; do
+		rel="${rel#"$dst"/}"
+		case "$rel" in *.import) [ -e "$src/${rel%.import}" ] || rm -f "$dst/$rel" ;; *) [ -e "$src/$rel" ] || rm -f "$dst/$rel" ;; esac
+	done < <(find "$dst" -type f -print0)
+	find "$dst" -mindepth 1 -type d -empty -delete
+	while IFS= read -r -d '' rel; do
+		rel="${rel#"$src"/}"
+		mkdir -p "$dst/$(dirname "$rel")"
+		cmp -s "$src/$rel" "$dst/$rel" || cp "$src/$rel" "$dst/$rel"
+		case "$rel" in
+			*.webp|*.png) [ -e "$dst/$rel.import" ] || printf '[remap]\n\nimporter="keep"\n' >"$dst/$rel.import" ;;
+		esac
+	done < <(find "$src" -type f \( -name '*.json' -o -name '*.webp' -o -name '*.png' \) -print0)
+}
+
 import_project() {
+	sync_journey
 	if editor_open; then
 		echo "skip import: a Godot editor is already open on $GAME"
 		return 0

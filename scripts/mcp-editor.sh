@@ -19,6 +19,7 @@ start)
 		echo "already running (pid $(cat "$pidfile"))"
 		exit 0
 	fi
+	sync_journey
 	GODOT_MCP_EDITOR_PORT_MIN="${GODOT_MCP_EDITOR_PORT_MIN:-6551}" GODOT_MCP_EDITOR_PORT_MAX="${GODOT_MCP_EDITOR_PORT_MAX:-6560}" \
 		setsid nohup "$GODOT" --headless --editor --path "$GAME" --lsp-port "${LSP_PORT:-6025}" >"$log" 2>&1 &
 	echo $! >"$pidfile"
