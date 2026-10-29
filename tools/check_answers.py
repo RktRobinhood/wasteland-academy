@@ -518,11 +518,18 @@ def check_lines(q, f_given):
 
 # ── One question ─────────────────────────────────────────────
 
+# The game's font has superscript digits and ⁻ but no superscript letters (FAL-499):
+# a power with a letter in it is written with a caret, x^n or x^(m−1).
+SUP_LETTER = re.compile("[ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ]")
+
+
 def check(q):
     """Routes a question to its situation's checks, then checks the answer, the
     options and the worked solutions the same way for every situation. A question in
     an extra format (FAL-459) has its own four options checked first, then the
     question it is built on, with that question's own options."""
+    sup = SUP_LETTER.search(json.dumps(q, ensure_ascii=False))
+    need(sup is None, f"a superscript letter {sup and sup.group()!r} the game's font can't show")
     if q["format"] in EXTRA_FORMATS:
         check_format(q)
         q = dict(q, choices=q["base_choices"])
@@ -2987,7 +2994,7 @@ EF_CLAIMS = {
     "log(a + b) = log a + log b": lambda a, b: (sp.log(a + b, 10), sp.log(a, 10) + sp.log(b, 10)),
     "(log a)² = 2 log a": lambda a, b: (sp.log(a, 10)**2, 2 * sp.log(a, 10)),
     "log a − log b = log(a/b)": lambda a, b: (sp.log(a, 10) - sp.log(b, 10), sp.log(a / b, 10)),
-    "log(aⁿ) = n log a": lambda a, b: (sp.log(a**3, 10), 3 * sp.log(a, 10)),
+    "log(a^n) = n log a": lambda a, b: (sp.log(a**3, 10), 3 * sp.log(a, 10)),
     "log(a/b) = log a / log b": lambda a, b: (sp.log(a / b, 10), sp.log(a, 10) / sp.log(b, 10)),
 }
 TRIG = {"sin": sp.sin, "cos": sp.cos}
@@ -3176,7 +3183,7 @@ def check_symmetry(q):
     elif u == "find-the-mirror":
         ctx = g.get("ctx", "parabola")
         if ctx == "ncr":
-            m = re.fullmatch(r"ⁿC(\d+) = ⁿC(\d+), and \d+ ≠ \d+\.", L[0]) if rep == "words" else None
+            m = re.fullmatch(r"nC(\d+) = nC(\d+), and \d+ ≠ \d+\.", L[0]) if rep == "words" else None
             r1, r2 = (int(m.group(1)), int(m.group(2))) if m else (int(R(g["r"])), int(R(g["n"]) - R(g["r"])))
             n = R(g["n"])
             need(r1 != r2, "the two r are equal")
