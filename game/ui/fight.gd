@@ -21,6 +21,11 @@ extends "res://ui/practice.gd"
 ##
 ## The map (ui/map.gd) starts a run by setting `launch` before opening this scene. The
 ## island's loop plays during a run, and its boss loop during a mini-boss or boss.
+##
+## Art by file name (FAL-470, engine/art_slots.gd): the region's backdrop behind the
+## screen, its mini-boss and boss (with a hurt frame that flashes on a hit) and their
+## taunts, the shared enemy pool, and the run banners and best-floor medals. Each one
+## missing keeps the look from before.
 
 const MONO := preload("res://assets/fonts/share-tech-mono-latin.woff2")
 const GREEN := Color(0.36, 0.8, 0.42)
@@ -29,6 +34,11 @@ const RED := Color(0.93, 0.26, 0.3)
 ## Height kept above the card for the journey strip (FAL-331), in base units.
 const STRIP_HEIGHT := 150
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
+## How long a hit shows the enemy's hurt frame (one flash, FAL-473).
+const HURT_FLASH := 0.08
+## Run banners and medals, in base units.
+const BANNER_HEIGHT := 240
+const MEDAL := 120
 
 ## The run the map asked for: {"region", "floor"}, read once by _ready().
 static var launch: Dictionary = {}
@@ -43,6 +53,8 @@ var result: Dictionary = {}
 
 var title: Label
 var quit_button: Button
+## The region's backdrop (FAL-470), hidden while it has none.
+var backdrop: TextureRect
 var strip: Control
 var enemy_art: TextureRect
 var enemy_name: Label
@@ -67,6 +79,8 @@ var first_fight := 1
 var select_first := true
 ## The rows that only mean something while a question is open.
 var _question_rows: Array = []
+## The fight (run.fights) whose taunt was shown, so it shows once a fight.
+var _taunted := -1
 
 
 func _ready() -> void:
@@ -111,6 +125,7 @@ func start_run() -> void:
 	if run_seed == 0:
 		run_seed = int(Time.get_unix_time_from_system()) % 1000000 + 1
 	run = Run.new(save, region, start_floor, run_seed)
+	_taunted = -1
 	if first_fight > 1:
 		run.first_fight = first_fight
 		run.records = false
@@ -122,6 +137,7 @@ func start_run() -> void:
 	run.run_ended.connect(_show_summary)
 	summary_box.visible = false
 	floor_box.visible = false
+	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
 	quit_button.visible = true
 	scroll.visible = true
 	for c in _question_rows + [col_node("Status"), strip]:
@@ -143,6 +159,7 @@ func show_floor_select() -> void:
 		c.visible = false
 	floor_box.visible = true
 	quit_button.visible = false
+	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
 	for c in floor_box.get_children():
 		floor_box.remove_child(c)
 		c.queue_free()
@@ -156,8 +173,8 @@ func show_floor_select() -> void:
 	var rec := Dungeon.record(save, region)
 	var floors := Dungeon.start_floors(save, region)
 	if int(rec.get("best", 0)) > 0:
-		floor_box.add_child(_mono("Best floor: %d · floor bosses beaten: %d" % [int(rec.best), (rec.get("beaten", []) as Array).size()],
-			UiTheme.BODY, UiTheme.SAND))
+		floor_box.add_child(_with_medal(int(rec.best), _mono("Best floor: %d · floor bosses beaten: %d" % [int(rec.best),
+			(rec.get("beaten", []) as Array).size()], UiTheme.BODY, UiTheme.SAND)))
 	var list := VBoxContainer.new()
 	list.name = "Floors"
 	list.add_theme_constant_override("separation", 14)
@@ -216,6 +233,8 @@ func _build() -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
+	backdrop = UiTheme.backdrop()
+	add_child(backdrop)
 	margin = MarginContainer.new()
 	margin.name = "Margin"
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -434,6 +453,12 @@ func _show_question() -> void:
 		card.move_child(tag, 0)
 	if not run.boss.is_empty():
 		_show_boss_part()
+	if run.enemy.taunt != "" and _taunted != run.fights:
+		_taunted = run.fights
+		var taunt := UiTheme.label("%s: “%s”" % [run.enemy.name, run.enemy.taunt], UiTheme.BODY, UiTheme.SAND)
+		taunt.name = "Taunt"
+		card.add_child(taunt)
+		card.move_child(taunt, 0)
 	hint_label = UiTheme.label("", UiTheme.BODY, UiTheme.SAND)
 	hint_label.name = "Hint"
 	hint_label.visible = false
@@ -494,7 +519,7 @@ func _update_progress() -> void:
 func _update_hud() -> void:
 	title.text = "%s · Floor %d" % [Dungeon.region_name(region), run.floor_no]
 	enemy_name.text = "%s · D%d" % [run.enemy.name, run.tier]
-	enemy_art.texture = load("res://assets/enemies/" + run.enemy.art)
+	enemy_art.texture = load(run.enemy.art)
 	enemy_bar.max_value = run.enemy.max_hp
 	enemy_bar.value = run.enemy.hp
 	if run.boss.is_empty():
@@ -617,6 +642,10 @@ func _show_result(r: Dictionary) -> void:
 		if r.get("floor_cleared", false):
 			feedback.text += " Floor %d cleared: floor %d is next." % [run.floor_no, run.floor_no + 1]
 	feedback.add_theme_color_override("font_color", color)
+	var banner := _result_banner(r)
+	if banner != null:
+		card.add_child(banner)
+		card.move_child(banner, feedback.get_index())
 	if QuestionEngine.is_choice(question):
 		for i in _choice_buttons.size():
 			if question.choices[i].correct:
@@ -644,6 +673,50 @@ func _show_result(r: Dictionary) -> void:
 		for b in bs:
 			b.disabled = true
 	_update_hud()
+	if r.enemy_damage > 0:
+		flash_hurt()
+
+
+## On a hit, the enemy's hurt frame for HURT_FLASH seconds, where it has one.
+func flash_hurt() -> void:
+	if run.enemy.hurt == "":
+		return
+	var art: String = run.enemy.art
+	enemy_art.texture = load(run.enemy.hurt)
+	get_tree().create_timer(HURT_FLASH).timeout.connect(func():
+		if is_instance_valid(enemy_art) and run != null and run.enemy.art == art:
+			enemy_art.texture = load(art))
+
+
+## The "floor cleared" banner when a boss falls, "boss beaten" when a mini-boss does, or
+## null (no banner art, or nothing fell): the feedback line says it either way.
+func _result_banner(r: Dictionary) -> Control:
+	if not r.defeated or run.kind == "fight":
+		return null
+	var slot := "floor-cleared" if r.get("floor_cleared", false) else "boss-beaten"
+	var tex := ArtSlots.texture("ui/run/banner-" + slot)
+	if tex == null:
+		return null
+	var text := "Floor %d cleared" % run.floor_no if slot == "floor-cleared" else "Mini-boss beaten"
+	return UiTheme.banner(tex, text, BANNER_HEIGHT, 84, UiTheme.SAND)
+
+
+## `line` with the best-floor medal for `best` before it, or just `line` with no medal art.
+func _with_medal(best: int, line: Control) -> Control:
+	var tex := ArtSlots.medal(best)
+	if tex == null:
+		return line
+	var row := HBoxContainer.new()
+	row.name = "Best"
+	row.add_theme_constant_override("separation", 20)
+	var m := UiTheme.icon(tex, MEDAL)
+	m.name = "Medal"
+	row.add_child(m)
+	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if line is Label:
+		(line as Label).autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	row.add_child(line)
+	return row
 
 
 func next_question() -> void:
@@ -660,12 +733,21 @@ func _show_summary(s: Dictionary) -> void:
 	for c in summary_box.get_children():
 		summary_box.remove_child(c)
 		c.queue_free()
-	var head := UiTheme.label("Run over" if s.reason == "quit" else "You're down", 96, UiTheme.PINK)
-	head.name = "Heading"
-	head.add_theme_font_override("font", UiTheme.TITLE_FONT)
-	summary_box.add_child(head)
+	var heading := "Run over" if s.reason == "quit" else "You're down"
+	var over := ArtSlots.texture("ui/run/banner-run-over")
+	if over != null:
+		var b := UiTheme.banner(over, heading, BANNER_HEIGHT, 96, UiTheme.PINK)
+		b.get_node("Text").name = "Heading"
+		summary_box.add_child(b)
+	else:
+		var head := UiTheme.label(heading, 96, UiTheme.PINK)
+		head.name = "Heading"
+		head.add_theme_font_override("font", UiTheme.TITLE_FONT)
+		summary_box.add_child(head)
+	var reached := _mono("Floor %d reached · bosses beaten: %d" % [s.floor, s.bosses], UiTheme.BIG)
+	reached.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary_box.add_child(_with_medal(int(Dungeon.record(save, region).get("best", 0)), reached))
 	var lines := [
-		"Floor %d reached · bosses beaten: %d" % [s.floor, s.bosses],
 		"Questions right: %d of %d · fights won: %d" % [s.right, s.questions, s.fights_won],
 		"Scrap earned: %d" % s.scrap,
 		"Scrap in the bank: %d" % s.banked,

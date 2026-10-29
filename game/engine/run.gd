@@ -76,7 +76,8 @@ var boss: Dictionary = {}
 var floor_cells: Array = []
 var floor_seen: Dictionary = {}
 var warmups_left := 0
-## {"name", "rank", "art", "damage", "scrap", "hp", "max_hp"}
+## {"name", "rank", "art", "hurt", "taunt", "damage", "scrap", "hp", "max_hp"}: art and
+## hurt are file paths (hurt "" for none), taunt "" for none (ArtSlots.enemy).
 var enemy: Dictionary = {}
 var question: Dictionary = {}
 var question_no := 0
@@ -183,7 +184,10 @@ func _next_fight() -> void:
 	kind = Dungeon.fight_kind(fight)
 	tier = Dungeon.tier_for(run_seed, floor_no, fight)
 	var e: Dictionary = Tuning.ENEMIES[tier]
-	enemy = {"name": e.name, "rank": e.rank, "art": e.art, "damage": Tuning.damage_on(int(e.damage), floor_no),
+	# Who it is (name, taunt, art) is looks only (ArtSlots, FAL-470); the tier sets the numbers.
+	var look := ArtSlots.enemy(region, kind, tier, run_seed, floor_no, fight)
+	enemy = {"name": look.name, "rank": e.rank, "art": look.art, "hurt": look.hurt, "taunt": look.taunt,
+		"damage": Tuning.damage_on(int(e.damage), floor_no),
 		"scrap": e.scrap, "hp": int(e.hits) * Tuning.HIT, "max_hp": int(e.hits) * Tuning.HIT}
 	boss = {}
 	if kind != "fight":
@@ -194,7 +198,8 @@ func _next_fight() -> void:
 			_followup = {}
 			enemy.hp = boss.parts.size() * Tuning.HIT
 			enemy.max_hp = enemy.hp
-			enemy.name = ("Mini-boss " if kind == "mini" else "Boss ") + enemy.name
+			if not look.named:
+				enemy.name = ("Mini-boss " if kind == "mini" else "Boss ") + enemy.name
 	_open_question()
 
 

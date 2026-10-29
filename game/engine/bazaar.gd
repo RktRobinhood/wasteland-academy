@@ -14,7 +14,7 @@ extends RefCounted
 ## built from what was bought, and the run's numbers pass through it like any other.
 ##
 ## Item ids: the upgrades "max_hp" and "lifeline", the perks in PERKS, and the cosmetics
-## "frame:<id>" and "tint:<id>" (FRAMES, TINTS).
+## "frame:<id>" and "tint:<id>" (frames(), TINTS).
 
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Time Freeze"}
 
@@ -35,13 +35,9 @@ const PERKS := {
 ## The items the player picks a lifeline for when buying.
 const PICK_LIFELINE := ["lifeline", "lucky_find"]
 
-## Name-plate frames, from the encounter UI art (FAL-359). margins are the nine-slice
-## margins in that art's ui.json: left, top, right, bottom.
-const FRAMES := {
-	"field_note": {"name": "Field Note", "art": "res://assets/ui/encounter/field-note-card.png", "margins": [12, 12, 12, 12]},
-	"signal": {"name": "Signal Box", "art": "res://assets/ui/encounter/dialogue-box.png", "margins": [14, 14, 14, 14]},
-	"brass": {"name": "Brass Chip", "art": "res://assets/ui/encounter/stakes-chip.png", "margins": [10, 8, 10, 8]},
-}
+## Name-plate frames are data: data/frames.json lists each one's id, name, art (an art
+## slot, ArtSlots) and nine-slice margins (left, top, right, bottom), so a new frame is
+## a file and a row, not code. The first three are the encounter UI art (FAL-359).
 
 ## Colour tints for the name plate and the player's HP bar, from the Salvage Neon
 ## palette (ART_REQUIREMENTS.md). With none worn they are Scrap Teal.
@@ -76,9 +72,20 @@ static func record(save: Dictionary) -> Dictionary:
 	return rec
 
 
+## The name-plate frames, id -> {"name", "art" (a file path), "margins"}, in the order
+## data/frames.json lists them. A frame whose art isn't there is left out.
+static func frames() -> Dictionary:
+	var out := {}
+	for f in ArtSlots.data("frames.json"):
+		var art := ArtSlots.find(str(f.get("art", "")))
+		if art != "" and f.has("id"):
+			out[str(f.id)] = {"name": f.get("name", f.id), "art": art, "margins": f.get("margins", [0, 0, 0, 0])}
+	return out
+
+
 static func cosmetics() -> Array:
 	var out := []
-	for id in FRAMES:
+	for id in frames():
 		out.append("frame:" + id)
 	for id in TINTS:
 		out.append("tint:" + id)

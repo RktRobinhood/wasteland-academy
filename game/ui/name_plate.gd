@@ -5,9 +5,9 @@ extends RefCounted
 ## Bazaar shows it as the preview. With nothing worn it is a plain panel in Scrap Teal.
 
 
-## The frame worn, as Bazaar.FRAMES has it, or {} for the plain plate.
+## The frame worn, as Bazaar.frames() has it, or {} for the plain plate.
 static func frame_of(save: Dictionary) -> Dictionary:
-	return Bazaar.FRAMES.get(Bazaar.record(save).frame, {})
+	return Bazaar.frames().get(Bazaar.record(save).frame, {})
 
 
 ## The tint worn, or Scrap Teal with none.
@@ -21,7 +21,7 @@ static func make(text: String, frame_id: String, tint_id: String, size: int = Ui
 	var box := PanelContainer.new()
 	box.name = "NamePlate"
 	box.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	var frame: Dictionary = Bazaar.FRAMES.get(frame_id, {})
+	var frame: Dictionary = Bazaar.frames().get(frame_id, {})
 	var pad := roundi(size * 0.7)
 	if frame.is_empty():
 		var sb := UiTheme.panel(UiTheme.PANEL_HI)
@@ -32,10 +32,10 @@ static func make(text: String, frame_id: String, tint_id: String, size: int = Ui
 		var sb := StyleBoxTexture.new()
 		sb.texture = load(frame.art)
 		var m: Array = frame.margins
-		sb.texture_margin_left = m[0]
-		sb.texture_margin_top = m[1]
-		sb.texture_margin_right = m[2]
-		sb.texture_margin_bottom = m[3]
+		sb.texture_margin_left = int(m[0])
+		sb.texture_margin_top = int(m[1])
+		sb.texture_margin_right = int(m[2])
+		sb.texture_margin_bottom = int(m[3])
 		_pad(sb, pad + int(m[0]), roundi(size * 0.25) + int(m[1]))
 		box.add_theme_stylebox_override("panel", sb)
 	var l := UiTheme.label(text, size, (Bazaar.TINTS.get(tint_id, {}) as Dictionary).get("color", UiTheme.TEAL))

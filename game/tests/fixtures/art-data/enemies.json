@@ -1,0 +1,22 @@
+[
+	{
+		"id": "scrap-hound",
+		"name": "Scrap Hound",
+		"tier": 1
+	},
+	{
+		"id": "dust-runner",
+		"name": "Dust Runner",
+		"tier": 1
+	},
+	{
+		"id": "ghost",
+		"name": "Ghost",
+		"tier": 1
+	},
+	{
+		"id": "rust-brute",
+		"name": "Rust Brute",
+		"tier": 2
+	}
+]

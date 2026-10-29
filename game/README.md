@@ -24,6 +24,8 @@ game/
 ├── engine/progress.gd   ← a region's accuracy, best floor, coverage and weakest skills
 ├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains, Bazaar prices
 ├── engine/bazaar.gd     ← the Bazaar's rules: upgrades, perks, cosmetics (see "The Bazaar")
+├── engine/art_slots.gd  ← art by file name, with a fallback for each (see "Art slots")
+├── data/bosses.json, enemies.json, frames.json ← boss names and taunts, the enemy pool, name-plate frames
 ├── scenes/bazaar.tscn   ← the Bazaar screen (ui/bazaar.gd); ui/name_plate.gd draws the plate
 ├── ui/                  ← screens and the graph view
 ├── data/catalogue.json  ← generated from curriculum/question-types.json (don't edit)
@@ -44,8 +46,9 @@ game/
 `config/name` is "Wasteland Academy", so its `user://` folder is its own, not the Atlas's.
 
 Art is imported with mipmaps on (`mipmaps/generate=true` in each `.import`) and drawn
-with linear mipmap filtering, so it stays smooth at phone and PC sizes. When you add
-art, set the same in its `.import` file.
+with linear mipmap filtering, so it stays smooth at phone and PC sizes. New art imports
+lossy too (see "Art slots"): `project.godot`'s `[importer_defaults]` give a new file
+both, so let Godot write its `.import`.
 
 ## Sound
 
@@ -459,6 +462,99 @@ for the all-regions dungeon at the tower, or `relic` for the Relic device (only
 and centred, with the spot's name and progress line under it, so leave the bottom of
 the background clear below each spot.
 
+## Art slots
+
+The game loads its art by file name (FAL-470, `engine/art_slots.gd`), so each art batch
+(FAL-362) shows up in the game as soon as its PR merges, with no code change. **This
+section is the contract for the art briefs.** Every file is optional: when one isn't
+there, the game falls back to the art or the coded look it had before, and a region with
+no art plays exactly as it did.
+
+**Rules for every file**
+
+- A slot's file is `<name>.webp` or `<name>.png` (WebP is looked for first), except the
+  share card. Under 300 KB each.
+- Lossy, with mipmaps: `compress/mode=1` (lossy, quality 0.8) and
+  `mipmaps/generate=true` in its `.import`. `project.godot`'s importer defaults give a new
+  file both, so let Godot write the `.import` (`./test.sh` does). `test_art.gd` fails on a
+  file in these folders that imports lossless, because lossless costs about ten times the
+  download (a 1920×1080 painting: 1.42 MB lossless, 152 KB lossy).
+- Text is drawn by the game, never painted into the art.
+- Names, taunts, the enemy pool and the frames are data in `game/data/`, so adding one is
+  a row in a JSON file, not code.
+
+**`assets/title/`**
+
+| File | Size | Where it shows | With no file |
+|---|---|---|---|
+| `key-art` | 1920×1080, opaque | Behind the title screen in a landscape window (a PC). The title sits in the top 30% and the buttons in the lowest 20% | The plain title screen with Spark |
+| `key-art-phone` | 1080×1920, opaque | The same in a portrait window (a phone). Title in the top 35%, buttons in the lowest 25% | The plain title screen with Spark |
+| `share-card.png` (or `.jpg`) | 1200×630 | The link preview. `export.sh` copies it beside `index.html` and points the page's Open Graph and Twitter tags at it (`scripts/share-card.sh`). It stays out of the game download | No link-preview tags |
+
+The title screen uses only the version for the window's shape, so with only one of the
+two, the other shape keeps the plain look. Spark is in the key art, so the Spark image
+steps aside when it shows.
+
+**`assets/regions/<region-id>/`**, for `quadratics`, `exp-log`, `graphs-features`,
+`composite-inverse`, `rational`, `function-basics`, `lines` and `transformations`
+(`all`, the all-regions dungeon, works too)
+
+| File | Size | Where it shows | With no file |
+|---|---|---|---|
+| `backdrop` | 1920×1080, opaque, dark | Behind the fight screen and its floor select, cover-fitted under a 55% wash of the background colour. A phone held upright shows about the centre 500 px, so keep what matters in the centre 600 | The plain background |
+| `miniboss` | 512×512, transparent | Fight 5, the mini-boss, in the 190 px enemy box | The tier's enemy (see `enemies/`) |
+| `miniboss-hurt` | 512×512, transparent: the same pose, size and place | Flashes for 80 ms when a hit lands | No flash |
+| `boss` | 512×512, transparent | Fight 10, the boss | The tier's enemy |
+| `boss-hurt` | 512×512, transparent: the same pose, size and place | Flashes for 80 ms when a hit lands | No flash |
+
+Each mini-boss's and boss's name and one-line taunt are in `data/bosses.json`:
+`{"<region-id>": {"miniboss": {"name", "taunt"}, "boss": {"name", "taunt"}}}`. The
+name replaces the tier name over the HP bar, and the taunt opens the fight on the card.
+A region with no entry shows "Mini-boss Enforcer" and the like, as before, and no taunt.
+
+**`assets/enemies/`**: the shared pool of regular enemies
+
+| File | Size | Where it shows | With no file |
+|---|---|---|---|
+| `<id>` | 512×512, transparent (`d1` to `d5` are 256×256) | A regular fight of its tier | Left out of the draw |
+| `<id>-hurt` | The same box, pose and place | Flashes for 80 ms when a hit lands | No flash |
+
+Each enemy is a row in `data/enemies.json`: `{"id", "name", "tier"}`, tier 1 to 5 (D1 to
+D5; floors 1 to 3 fight D1 and D2, deeper floors higher tiers). A regular fight draws
+from its tier's rows whose file is there, by the run's seed, floor and fight, so a run
+replays the same. The five `d1` to `d5` enemies are rows too, so they stay in the draw.
+The tier sets the numbers (HP, damage, Scrap); the pool only sets the name and the art.
+With no row's file there, a fight shows the tier's own enemy from `Tuning.ENEMIES`.
+
+**`assets/bazaar/`**
+
+| File | Size | Where it shows | With no file |
+|---|---|---|---|
+| `stall` | 1920×1080, opaque, dark | Behind the Bazaar, cover-fitted under a 60% wash. Centre 600 px as for backdrops | The plain background |
+| `shopkeeper` | 512×512, transparent | Beside the Bazaar's title, at 200 px | No shopkeeper |
+| `shopkeeper-idle` | 512×512, transparent: the same pose, size and place | Swaps in for 0.6 s every 4 s | The portrait stays still |
+| `scrap` | 128×128, transparent | Beside the Scrap count, at 96 px | The count alone |
+| `upgrade-max-hp`, `upgrade-lifeline` | 128×128, transparent | Beside each upgrade, at 96 px | No icon |
+| `perk-field-manual`, `perk-scrap-armour`, `perk-lucky-find`, `perk-second-wind`, `perk-field-watch` | 128×128, transparent | Beside each perk, at 96 px | No icon |
+| `frame-<id>` | A nine-slice panel, any size | A name-plate frame on sale in the Bazaar | Not on sale |
+
+A frame is a row in `data/frames.json`: `{"id", "name", "art": "bazaar/frame-<id>",
+"margins": [left, top, right, bottom]}`, the nine-slice margins in pixels. Rows are
+listed in the Bazaar in file order; a row whose art isn't there is left out.
+
+**`assets/ui/run/`**
+
+| File | Size | Where it shows | With no file |
+|---|---|---|---|
+| `banner-floor-cleared` | 1200×300, transparent. Keep the middle clear: the game writes "Floor 2 cleared" across it | After a floor's boss falls, above the result line | The result line alone, as before |
+| `banner-boss-beaten` | 1200×300, transparent; the game writes "Mini-boss beaten" | After a mini-boss falls | The result line alone |
+| `banner-run-over` | 1200×300, transparent; the game writes "Run over" or "You're down" | The heading of the run summary | The text heading |
+| `medal-floor-1`, `medal-floor-2`, `medal-floor-3` | 256×256, transparent | Beside the region's best floor on the floor select and the run summary, at 120 px | The line alone |
+| `medal-floor-4` | 256×256, transparent | The same, for a best floor of 4 or deeper | The line alone |
+
+Not here: the island map (`assets/map/functions/`, see "Map art"), and the weak-skills
+flag on the map, which has no slot yet.
+
 ## The Bazaar
 
 Scrap banked from runs buys things at the Bazaar (G6, Q10). The world map's bottom bar
@@ -473,8 +569,8 @@ section of `engine/tuning.gd`.
   Wind (+20 on G4's boss heal, after a boss but not a mini-boss) and Field Watch (+10 s
   on every question's clock, not Time Freeze). A second perk can't be bought while one
   waits. The run uses it up as it starts.
-- **Cosmetics:** name-plate frames from the encounter UI art (Field Note, Signal Box,
-  Brass Chip) and colour tints from the Salvage Neon palette, for the plate over the
+- **Cosmetics:** name-plate frames, listed in `data/frames.json` (the first three are
+  the encounter UI art: Field Note, Signal Box, Brass Chip; see "Art slots") and colour tints from the Salvage Neon palette, for the plate over the
   player's HP bar and the bar itself. Looks only.
 - **Through the modifiers only.** `Bazaar.equip(run, save)`, before `run.start()`, adds
   one modifier built from what was bought and empties the perk slot. Nothing in the
@@ -552,6 +648,12 @@ script error happens while it runs. Run one file with
   wired-in loops in `assets/audio/music/`, the effects mirrored from the HTML game, the
   two buses, sound off on a fresh install, settings that survive a reload, and the
   settings screen with the three settings and none of the old playtest rows.
+- `test_art.gd`: every art slot loads its file when it's there and falls back when it
+  isn't, on tiny fixture images (`tests/fixtures/art/`) and fixture data; the region's
+  bosses with their names, taunts and hurt frames; the enemy pool; a region with no art
+  playing exactly as before, and the same run with art giving the same results; the
+  fight screen, title screen and Bazaar with art and without; and every file in the art
+  folders importing lossy with mipmaps.
 - `test_map.gd`: links for every region id, the island and junk; coverage against a
   hand count from the catalogue on a scripted save with the switch off and on;
   accuracy, best floor and cleared; the weakest skills leaving out skills with fewer
@@ -576,7 +678,9 @@ Export templates: `./export.sh` looks in `$GODOT_TEMPLATES`, then
 `scripts/fetch_web_templates.py`, which pulls just the two Web templates (about 20 MB)
 out of the 1.3 GB official archive with HTTP range requests, into
 `_scratch/godot-data/`. It then runs the export with `XDG_DATA_HOME` set to that data
-dir, for that command only.
+dir, for that command only. Then `scripts/share-card.sh` adds the link-preview tags
+when there is a share card (see "Art slots"). It takes the page's address as its second
+argument, for a build published somewhere other than `/next/`.
 
 `.github/workflows/pages.yml` deploys on every push to `main`: the repo through
 `actions/jekyll-build-pages` (the same build Pages' branch deploy runs, so the HTML

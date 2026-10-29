@@ -1,0 +1,82 @@
+{
+	"quadratics": {
+		"miniboss": {
+			"name": "Arc Gunner Pell",
+			"taunt": "Everything I throw comes back down. Eventually."
+		},
+		"boss": {
+			"name": "Warden Apex",
+			"taunt": "I'm the highest point out here. Come up and say that to my face."
+		}
+	},
+	"exp-log": {
+		"miniboss": {
+			"name": "Compound Cora",
+			"taunt": "Pay me a little now. By dark you'll owe the whole cart."
+		},
+		"boss": {
+			"name": "Baron Exponent",
+			"taunt": "Double it. Double it again. I've got time."
+		}
+	},
+	"graphs-features": {
+		"miniboss": {
+			"name": "Tracer Wren",
+			"taunt": "I never touch the line. Not quite."
+		},
+		"boss": {
+			"name": "The Cartographer",
+			"taunt": "I drew every road out here first. You're walking on my homework."
+		}
+	},
+	"composite-inverse": {
+		"miniboss": {
+			"name": "Switchback Jun",
+			"taunt": "Mine goes in, his comes out, and you wait in the middle."
+		},
+		"boss": {
+			"name": "The Mirror Foreman",
+			"taunt": "Undo me, if you can. Order matters."
+		}
+	},
+	"rational": {
+		"miniboss": {
+			"name": "Ration Clerk Vee",
+			"taunt": "The top I can give you. It's the bottom we need to talk about."
+		},
+		"boss": {
+			"name": "Warden Zero",
+			"taunt": "Don't stand where I'm not defined."
+		}
+	},
+	"function-basics": {
+		"miniboss": {
+			"name": "Hopper Dave",
+			"taunt": "Feed me one thing, get one thing. That's the rule, and not my rule."
+		},
+		"boss": {
+			"name": "Dispatcher Mapp",
+			"taunt": "One input, one output. Cross my wires and I'll know."
+		}
+	},
+	"lines": {
+		"miniboss": {
+			"name": "Slope Rider Kit",
+			"taunt": "Rise over run. I mostly do the rise."
+		},
+		"boss": {
+			"name": "The Straight Man",
+			"taunt": "I don't bend. I don't curve. I don't make exceptions."
+		}
+	},
+	"transformations": {
+		"miniboss": {
+			"name": "Shifty Nan",
+			"taunt": "Left, right, bigger, flipped. Still me."
+		},
+		"boss": {
+			"name": "The Tailor",
+			"taunt": "Everything gets shifted, stretched or flipped. Even your plan."
+		}
+	}
+}
