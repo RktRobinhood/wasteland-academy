@@ -606,6 +606,9 @@ TRI_AREA_MIN = 3
 TRI_TOL = sp.Rational(1, 10**7)      # relative: the engine keeps nine decimal places
 DIGITS = 40
 LETTERS3 = ["A", "B", "C"]
+# Paper 1 (FAL-419): the given angles have exact sines and cosines, and every value
+# is a whole number or m√r.
+TRI_NICE = {30, 45, 60, 90, 120, 135}
 
 
 def deg_cos(d):
@@ -655,6 +658,28 @@ def side_name(L):
 def angle_name(L):
     a, b = [x for x in LETTERS3 if x != L]
     return f"angle {a}{L}{b}"
+
+
+def tri_area(text):
+    """A shown area as the game writes it: "12", or m√r on Paper 1 ("6√3")."""
+    m = re.fullmatch(r"(\d*)√(\d+)", text)
+    if m:
+        return (R(m[1]) if m[1] else 1) * sp.sqrt(R(m[2]))
+    return R(text)
+
+
+def tri_surd(e):
+    """An exact positive value as (m, r): m√r with m a whole number and r square-free."""
+    e = sp.radsimp(sp.simplify(e))
+    m, rest = e.as_coeff_Mul()
+    r = sp.simplify(rest**2)
+    need(m.is_Rational and m.q == 1 and m > 0 and r.is_Integer and r >= 1 and sp.factorint(r) == {p: 1 for p in sp.factorint(r)},
+         f"the value {e} is not a whole number or m√r")
+    return int(m), int(r)
+
+
+def tri_surd_text(m, r):
+    return str(m) if r == 1 else ("" if m == 1 else str(m)) + f"√{r}"
 
 
 def tri_roles(g):
@@ -710,13 +735,13 @@ def tri_solve(g):
         A[Y] = to_deg(sp.asin(S[Y] * deg_sin(A[X]) / S[X]))
         need(num(A[X] + 180 - A[Y]) >= 180, "the obtuse angle 180° − B would also fit")
     elif kind == "area-side":
-        area = R(g["area"])
+        area = tri_area(g["area"])
         need(set(S) == {Y} and set(A) == {X}, "area-side givens are not the area, a side and an angle")
         S[Z] = 2 * area / (S[Y] * deg_sin(A[X]))
         S[X] = sp.sqrt(S[Y]**2 + S[Z]**2 - 2 * S[Y] * S[Z] * deg_cos(A[X]))
         A[Y] = to_deg(sp.acos((S[X]**2 + S[Z]**2 - S[Y]**2) / (2 * S[X] * S[Z])))
     elif kind == "area-angle":
-        area = R(g["area"])
+        area = tri_area(g["area"])
         need(set(S) == {Y, Z} and not A and g["obtuse"] in (True, False), "area-angle givens are not the area, two sides and acute or obtuse")
         ratio = 2 * area / (S[Y] * S[Z])
         need(ratio < 1, "no angle has that sine")
@@ -727,6 +752,14 @@ def tri_solve(g):
         A[Y] = to_deg(sp.acos((S[X]**2 + S[Z]**2 - S[Y]**2) / (2 * S[X] * S[Z])))
     else:
         raise Fail(f"unknown triangle givens {kind}")
+    # The asked value exactly, before the numbers take over (Paper 1 checks it exactly).
+    ask = g["ask"]
+    if ask == "area":
+        exact = S[Y] * S[Z] * deg_sin(A[X]) / 2
+    elif ask in LETTERS3:
+        exact = A[ask]
+    else:
+        exact = S[ask.upper()]
     # From here on every quantity is a 40-digit number, which keeps the checks fast.
     S = {L: num(v) for L, v in S.items()}
     A = {L: num(v) for L, v in A.items()}
@@ -740,13 +773,13 @@ def tri_solve(g):
             S[L] = k * deg_sin(A[L])
     area = S[Y] * S[Z] * deg_sin(A[X]) / 2
     if g.get("area") is not None:
-        need(close(area, R(g["area"])), "the given area is not this triangle's area")
+        need(close(area, tri_area(g["area"])), "the given area is not this triangle's area")
     for L in LETTERS3:
         need(TRI_ANGLE[0] <= num(A[L]) <= TRI_ANGLE[1], f"angle {L} = {num(A[L]):.4} is outside 20° to 140°")
     need(close(sum(A.values()), 180), "the angles don't add up to 180°")
     for L in LETTERS3:  # the sine rule holds all round
         need(close(S[L] / deg_sin(A[L]), k), "the sides and angles are not one triangle")
-    return {"X": X, "Y": Y, "Z": Z, "S": S, "A": A, "area": area}
+    return {"X": X, "Y": Y, "Z": Z, "S": S, "A": A, "area": area, "exact": exact}
 
 
 def tri_wrongs(u, g, t):
@@ -770,10 +803,10 @@ def tri_wrongs(u, g, t):
     if u == "area-from-two-sides":
         return {"SL3.2.area-sine#2": [2 * area], "SL3.2.right-side#2": [y * z * sp.sin(A[X]) / 2]}
     if u == "side-from-area":
-        return {"SL3.2.area-sine#2": [R(g["area"]) / (y * deg_sin(A[X]))]}
+        return {"SL3.2.area-sine#2": [tri_area(g["area"]) / (y * deg_sin(A[X]))]}
     if u == "angle-from-area":
-        acute = to_deg(sp.asin(2 * R(g["area"]) / (y * z)))
-        half = to_deg(sp.asin(R(g["area"]) / (y * z)))
+        acute = to_deg(sp.asin(2 * tri_area(g["area"]) / (y * z)))
+        half = to_deg(sp.asin(tri_area(g["area"]) / (y * z)))
         return {"SL3.2.area-sine#1": [acute], "SL3.2.area-sine#2": [180 - half if g["obtuse"] else half]}
     raise Fail(f"no misconceptions known for {u}")
 
@@ -785,7 +818,7 @@ def tri_shown(q, g):
     text = " ".join(q["lines"])
     sides = {m[1]: m[2] for m in re.finditer(r"\b([ABC]{2}) = (\d+) cm", text)}
     angles = {m[1][1]: m[2] for m in re.finditer(r"angle ([ABC]{3}) = (\d+)°", text)}
-    m = re.search(r"area (?:of|is) (\d+) cm²", text)
+    m = re.search(r"area (?:of|is) (\d*√\d+|\d+) cm²", text)
     area = m[1] if m else None
     m = re.search(r"Angle ([ABC]{3}) is (obtuse|acute)", text)
     obtuse = (m[2] == "obtuse") if m else None
@@ -844,12 +877,14 @@ def check_triangle(q):
     need(u in want_givens, f"the checker has no solver for {u}")
     need(g["givens"] == want_givens[u][0], f"{u} is asked from {g['givens']} givens")
     need((g["ask"] == "area") == (want_givens[u][1] == "area"), "the area is asked on the wrong unknown")
+    paper = q.get("paper")
+    need(paper in (1, 2), f"paper {paper!r}")
+    need(paper == 2 or u != "angle-sine-rule", "the sine rule's angle is asked on Paper 1")
     t = tri_solve(g)
     tri_shown(q, g)
     if q["diagram"] is not None:
         tri_diagram(q, t)
     exp, label, unit = tri_measure(q, t)
-    need(not on_edge(exp), f"the answer {num(exp):.8} is on a 3 s.f. rounding edge")
 
     # The situation the engine exported is the same triangle.
     sit = q["situation"]
@@ -857,6 +892,11 @@ def check_triangle(q):
         need(close(R(sit["angles"][L]), t["A"][L]), f"situation angle {L} differs")
         need(close(R(sit["sides"][L.lower()]), t["S"][L]), f"situation side {L.lower()} differs")
     need(close(R(sit["area"]), t["area"]), "situation area differs")
+    if paper == 1:
+        tri_check_p1(q, g, t, u, label, unit)
+        return None, None
+    need(t["exact"].is_rational is not True, f"the Paper 2 answer {t['exact']} needs no calculator")
+    need(not on_edge(exp), f"the answer {num(exp):.8} is on a 3 s.f. rounding edge")
 
     # The answer: its value, and its text to 3 s.f. with the right label and unit.
     ans = q["answer"]
@@ -898,6 +938,61 @@ def check_triangle(q):
     if q["view"]["angle"] != "any":
         need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
     return None, None
+
+
+def tri_check_p1(q, g, t, u, label, unit):
+    """A Paper 1 triangle: nice angles given, the answer exact (a whole number or m√r)
+    and marked exactly, the options exact and wrong, the working ending at it."""
+    for v in g["angles"].values():
+        need(int(v) in TRI_NICE, f"Paper 1 angle {v}° has no exact sine")
+    if g.get("area") is not None:
+        tri_surd(tri_area(g["area"]))
+    m, r = tri_surd(t["exact"])
+    ans = q["answer"]
+    need(ans.get("exact") is True, "a Paper 1 answer is not marked exactly")
+    need(ans["label"] == label and ans["unit"] == unit, f"answer label {ans['label']!r}{ans['unit']!r}, expected {label!r}{unit!r}")
+
+    def value(v):
+        """An option's values as (m, r), checked to be a whole number or m√r."""
+        if ans["kind"] == "number":
+            need(set(v) == {"v"}, f"values {v}")
+            return tri_surd(R(v["v"]))
+        need(ans["kind"] == "surd" and set(v) == {"m", "r"}, f"answer kind {ans['kind']}")
+        got = tri_surd(R(v["m"]) * sp.sqrt(R(v["r"])))
+        need(got == (int(R(v["m"])), int(R(v["r"]))), f"{v} is not in simplest surd form")
+        return got
+
+    need(ans["kind"] == ("number" if r == 1 else "surd"), f"answer kind {ans['kind']} for {tri_surd_text(m, r)}")
+    need(value(ans["values"]) == (m, r), f"engine answer {q['answer_text']!r} is wrong (expected {tri_surd_text(m, r)})")
+    want = label + tri_surd_text(m, r) + unit
+    need(q["answer_text"] == want, f"answer text {q['answer_text']!r}, expected {want!r}")
+
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    wrongs = tri_wrongs(u, g, t)
+    texts = set()
+    for o in ch:
+        om, orr = value(o["values"])
+        need(o["text"] == label + tri_surd_text(om, orr) + unit, f"option text {o['text']!r} doesn't say its value")
+        need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
+        texts.add(o["text"])
+        need(((om, orr) == (m, r)) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'} wrongly")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrongs, f"{o['ref']} is not a misconception of {u}")
+            need(any(close(om * sp.sqrt(orr), w) for w in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+            need(o["ref"] != "SL3.2.right-side#2", "a calculator slip on Paper 1")
+
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(value(sol["result"]) == (m, r), f"{sol['name']}: last step gives {sol['result']}, not the answer")
+        last = sol["steps"][-1]
+        need(q["answer_text"] in last, f"{sol['name']}: last step {last!r} doesn't state the answer")
+        need(2 <= len(sol["steps"]) <= 8, f"{sol['name']}: {len(sol['steps'])} steps")
+        need(not any(w in " ".join(sol["steps"]) for w in ("GDC", "sin⁻¹", "cos⁻¹", "3 s.f.")), f"{sol['name']}: a calculator step on Paper 1")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
 
 
 # ── Arithmetic sequences (FAL-392) ───────────────────────────

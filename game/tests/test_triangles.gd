@@ -1,17 +1,24 @@
 extends "res://tests/test_case.gd"
 ## The question engine on the triangle situation (FAL-395): both Topic 3 types are
 ## built, every triangle is well shaped, marking to 3 s.f. has no false failures, and
-## every misconception shows up as an option. The SymPy checker (tools/check-answers)
-## checks the maths.
+## every misconception shows up as an option. Paper 2 (a calculator, 3 s.f.) and
+## Paper 1 (nice angles, exact answers) both (FAL-419). The SymPy checker
+## (tools/check-answers) checks the maths.
 
 const TYPES := ["t3-sine-cosine-rule", "t3-triangle-area"]
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
 const CATALOGUE_CELLS := {"t3-sine-cosine-rule": 16, "t3-triangle-area": 14}
 
 
-func _make(unknown: String, rep: String, angle: String, seed: int, format: String = "value") -> Dictionary:
+## A question on Paper 2 (3 s.f. measures) unless another paper is asked for.
+func _make(unknown: String, rep: String, angle: String, seed: int, format: String = "value", paper: int = 2) -> Dictionary:
 	var type := "t3-triangle-area" if unknown.contains("area") else "t3-sine-cosine-rule"
-	return QuestionEngine.make({"type": type, "unknown": unknown, "rep": rep, "angle": angle, "seed": seed, "format": format})
+	return QuestionEngine.make({"type": type, "unknown": unknown, "rep": rep, "angle": angle, "seed": seed, "format": format,
+		"paper": paper})
+
+
+func _papers(c: Dictionary) -> Array:
+	return QuestionEngine.cell_papers(QuestionEngine.type_of(c.type), c.unknown, c.rep, c.angle)
 
 
 func test_both_types_are_built() -> void:
@@ -23,18 +30,87 @@ func test_both_types_are_built() -> void:
 
 func test_every_triangle_is_well_shaped() -> void:
 	for c in QuestionEngine.cells(false, TYPES):
-		for seed in range(1, 21):
-			var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed})
-			if q.has("error"):
-				fail("%s seed %d: %s" % [c.key, seed, q.error])
-				return
-			var total := 0.0
-			for L in ["A", "B", "C"]:
-				var a := float(q.situation.angles[L])
-				total += a
-				check(a >= 20.0 and a <= 140.0, "%s seed %d: angle %s = %s" % [c.key, seed, L, a])
-			check(absf(total - 180.0) < 1e-6, "%s seed %d: angles add to %s" % [c.key, seed, total])
-			check(Answer.rounds_clearly(q.answer.values.v.to_float()), "%s seed %d: answer on a rounding edge" % [c.key, seed])
+		for paper in _papers(c):
+			for seed in range(1, 21):
+				var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed,
+					"paper": paper})
+				if q.has("error"):
+					fail("%s seed %d: %s" % [c.key, seed, q.error])
+					return
+				var total := 0.0
+				for L in ["A", "B", "C"]:
+					var a := float(q.situation.angles[L])
+					total += a
+					check(a >= 20.0 and a <= 140.0, "%s seed %d: angle %s = %s" % [c.key, seed, L, a])
+				check(absf(total - 180.0) < 1e-6, "%s seed %d: angles add to %s" % [c.key, seed, total])
+				check_eq(q.paper, paper, c.key)
+				if paper == 2:
+					check(Answer.rounds_clearly(q.answer.values.v.to_float()), "%s seed %d: answer on a rounding edge" % [c.key, seed])
+
+
+func test_the_papers_of_each_cell() -> void:
+	for c in QuestionEngine.cells(false, TYPES):
+		check_eq(_papers(c), [2] if c.unknown == "angle-sine-rule" else [1, 2], c.key)
+
+
+func test_paper_2_needs_a_calculator() -> void:
+	for c in QuestionEngine.cells(false, TYPES):
+		for seed in range(1, 11):
+			var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed, "paper": 2})
+			check_eq(q.answer.kind, "measure", c.key)
+			check(not q.answer.get("exact", false), "%s: a Paper 2 measure is marked to 3 s.f." % c.key)
+			var v: float = q.answer.values.v.to_float()
+			check(not TriangleSituation._rational(v), "%s seed %d: %s needs no calculator" % [c.key, seed, q.answer_text])
+			check(q.answer_text.contains(Fmt.sf(v)), "%s: %s is not to 3 s.f." % [c.key, q.answer_text])
+
+
+func test_paper_1_is_exact() -> void:
+	var kinds := {}
+	for c in QuestionEngine.cells(false, TYPES):
+		if not 1 in _papers(c):
+			continue
+		for seed in range(1, 16):
+			var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed, "paper": 1})
+			var ans: Dictionary = q.answer
+			kinds[ans.kind] = true
+			check(ans.kind in ["number", "surd"] and ans.get("exact", false), "%s: %s answer" % [c.key, ans.kind])
+			for L in q.given.angles:
+				check(int(q.given.angles[L]) in TriangleSituation.NICE, "%s seed %d: angle %s°" % [c.key, seed, q.given.angles[L]])
+			for v in ans.values.values():
+				check(v.is_int() and v.sign() > 0, "%s seed %d: %s" % [c.key, seed, q.answer_text])
+			check(not q.answer_text.contains("."), "%s: %s" % [c.key, q.answer_text])
+			for sol in q.solutions:
+				check(Answer.values_right(ans, sol.result), "%s: %s ends at %s" % [c.key, sol.name, sol.result])
+				check(sol.steps[-1].contains(q.answer_text), "%s: %s last step %s" % [c.key, sol.name, sol.steps[-1]])
+			# Exact marking: the exact value is right, a 3 s.f. decimal of a surd is not.
+			var typed := {}
+			for k in ans.values:
+				typed[k] = ans.values[k].text()
+			check(QuestionEngine.mark(q, typed).correct, "%s: exact answer marked wrong" % c.key)
+			if ans.kind == "surd":
+				var x: float = ans.values.m.to_float() * sqrt(ans.values.r.to_float())
+				check(not QuestionEngine.mark(q, {"m": Fmt.sf(x), "r": "1"}).correct, "%s: a decimal for %s is right" % [c.key, q.answer_text])
+	check(kinds.has("number") and kinds.has("surd"), "whole-number and surd answers: %s" % [kinds.keys()])
+
+
+func test_paper_1_nice_triangles() -> void:
+	# 3, 5, 7 with 120° and the like: the cosine rule's side is whole.
+	for seed in range(1, 21):
+		var q := _make("side-cosine-rule", "words", "cosine-rule", seed, "value", 1)
+		var ang := int(q.given.angles.values()[0])
+		var ys: Array = q.given.sides.values().map(func(v): return int(v))
+		var x: int = q.answer.values.v.n
+		check(ang in [60, 120], "seed %d: %d°" % [seed, ang])
+		var x2: int = ys[0] * ys[0] + ys[1] * ys[1] + (ys[0] * ys[1] if ang == 120 else -ys[0] * ys[1])
+		check_eq(x * x, x2, "seed %d" % seed)
+	# The area's angle: obtuse and acute, from a whole or surd area.
+	var obtuse := {}
+	for seed in range(1, 41):
+		var q := _make("angle-from-area", "words", "reverse-two-angles", seed, "mcq", 1)
+		obtuse[q.given.obtuse] = true
+		check(q.lines[0].contains("is obtuse" if q.given.obtuse else "is acute"), q.lines[0])
+		check_eq(q.answer.values.v.n > 90, q.given.obtuse, q.answer_text)
+	check_eq(obtuse.size(), 2, "both acute and obtuse angles on Paper 1")
 
 
 func test_sine_rule_angle_has_one_triangle() -> void:
@@ -116,7 +192,8 @@ func test_every_distractor_misconception_is_an_option() -> void:
 				var found := false
 				for c in QuestionEngine.cells(false, [id]).filter(func(x): return x.unknown == u):
 					for seed in range(1, 40):
-						var q := QuestionEngine.make({"type": id, "unknown": u, "rep": c.rep, "angle": c.angle, "seed": seed, "format": "mcq"})
+						var q := QuestionEngine.make({"type": id, "unknown": u, "rep": c.rep, "angle": c.angle, "seed": seed, "format": "mcq",
+							"paper": 2})
 						if q.choices.any(func(o): return o.ref == m.ref):
 							found = true
 							break
@@ -136,7 +213,7 @@ func test_a_typed_misconception_is_recognised() -> void:
 
 func test_every_method_ends_at_the_answer() -> void:
 	for c in QuestionEngine.cells(false, TYPES):
-		var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": 7})
+		var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": 7, "paper": 2})
 		var want: float = q.answer.values.v.to_float()
 		for s in q.solutions:
 			check(absf(s.result.v.to_float() - want) < 1e-6 * want, "%s: %s gives %s" % [c.key, s.name, s.result.v.to_float()])
