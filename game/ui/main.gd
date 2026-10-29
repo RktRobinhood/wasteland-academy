@@ -1,8 +1,9 @@
 extends Control
-## The title screen. "Play" opens the Quadratics floor select (the map, G5, replaces it),
-## "Practice" opens the practice screen and "Engine" the engine explorer. On the first
-## load only, ?explore (see explorer.gd) goes to the explorer, and a deep link to a run
-## (see fight.gd) or a question (see practice.gd) goes straight there.
+## The title screen. "Play" opens the map (ui/map.gd), "Practice" opens the practice
+## screen and "Engine" the engine explorer. On the first load only, ?explore (see
+## explorer.gd) goes to the explorer, a deep link to a run (see fight.gd) or a question
+## (see practice.gd) goes straight there, and a map link such as #functions/quadratics
+## (see engine/map_link.gd) opens the map there.
 
 const PRACTICE := "res://scenes/practice.tscn"
 const FIGHT := "res://scenes/fight.tscn"
@@ -15,7 +16,7 @@ func _ready() -> void:
 	theme = UiTheme.make()
 	var play := get_node_or_null("Center/Column/Buttons/Play") as Button
 	if play != null:
-		play.pressed.connect(open_fight)
+		play.pressed.connect(open_map)
 		play.grab_focus.call_deferred()
 	var start := get_node_or_null("Center/Column/Buttons/Practice") as Button
 	if start != null:
@@ -23,6 +24,7 @@ func _ready() -> void:
 	var engine := get_node_or_null("Center/Column/Engine") as Button
 	if engine != null:
 		engine.pressed.connect(open_explorer)
+	MapLink.listen(get_tree())
 	if _routed:
 		return
 	_routed = true
@@ -33,10 +35,17 @@ func _ready() -> void:
 		open_fight.call_deferred()
 	elif not practice.deep_link().is_empty():
 		open_practice.call_deferred()
+	elif MapLink.address() != "":
+		get_tree().change_scene_to_file.call_deferred(MapLink.MAP)
 
 
 func open_practice() -> void:
 	get_tree().change_scene_to_file(PRACTICE)
+
+
+## The world map, as a history entry, so the browser's back button returns here.
+func open_map() -> void:
+	MapLink.go(get_tree(), MapLink.WORLD)
 
 
 func open_fight() -> void:

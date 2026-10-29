@@ -68,6 +68,10 @@ jobs:
           'explore-first=?explore&view=fn-quadratic-features/vertex-from-factorised/equation/any/value&seed=7'
           'explore-another-way=?explore&view=fn-quadratic-features/vertex-from-general/equation/any/value&seed=7&autoplay=right'
           'explore-ten=?explore&view=fn-quadratic-from-conditions/a-from-vertex-and-point/graph/any/mcq&seed=12&ten=1'
+          'map-world=#world'
+          'map-island=#functions'
+          'map-region=#functions/quadratics'
+          'map-coming-soon=#functions/exp-log'
       - uses: actions/upload-artifact@v7
         if: always()
         with:
