@@ -54,20 +54,23 @@ func test_every_cell_makes_a_question_on_its_situation() -> void:
 func test_every_distractor_misconception_is_an_option() -> void:
 	for t in CELLS:
 		var ty := QuestionEngine.type_of(t)
-		for m in ty.misconceptions:
-			if m.as != "distractor" or NOT_BUILT.has("%s|%s" % [t, m.ref]):
+		for i in ty.misconceptions.size():
+			var m: Dictionary = ty.misconceptions[i]
+			# A misconception without a ref of its own is "<type id>#<index>".
+			var ref: String = m.get("ref", "%s#%d" % [t, i])
+			if m.as != "distractor" or NOT_BUILT.has("%s|%s" % [t, ref]):
 				continue
 			for u in m.in:
 				var found := false
 				for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == u):
 					for seed in range(1, 40):
 						var q := _make(t, u, c.rep, c.angle, seed, "mcq")
-						if q.choices.any(func(o): return o.ref == m.ref):
+						if q.choices.any(func(o): return o.ref == ref):
 							found = true
 							break
 					if found:
 						break
-				check(found, "%s never offers %s" % [u, m.ref])
+				check(found, "%s never offers %s" % [u, ref])
 
 
 func test_same_seed_same_question() -> void:
