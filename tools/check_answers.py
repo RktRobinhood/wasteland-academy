@@ -28,6 +28,7 @@ from collections import defaultdict
 from decimal import ROUND_HALF_UP, Decimal
 from pathlib import Path
 
+import mpmath
 import sympy as sp
 from sympy.parsing.sympy_parser import (implicit_multiplication_application, parse_expr,
                                         standard_transformations)
@@ -2266,7 +2267,7 @@ def check_cubic(q):
 # three formats are built on their questions: error-spot, method-pick and
 # true-false-reason.
 
-EXT_KINDS = {"poly", "named", "pair", "brackets", "brackets2", "common", "pm_surd", "range2", "related", "features", "angles", "factorised"}
+EXT_KINDS = {"poly", "named", "pair", "brackets", "brackets2", "common", "pm_surd", "range2", "related", "features", "angles", "factorised", "axis"}
 EXTRA_FORMATS = {"error-spot", "method-pick", "true-false-reason"}
 SUPS = str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻")
 CATALOGUE = None
@@ -2365,6 +2366,8 @@ def ext_text(ans, v):
     if kind == "features":
         a, b = sorted([R(v["r1"]), R(v["r2"])])
         return f"y-intercept {frac_text(v['c'])}; roots {frac_text(a)} and {frac_text(b)}; vertex {qr_point(v['h'], v['k'])}"
+    if kind == "axis":
+        return f"{v['var']} = {frac_text(v['h'])}"
     if kind == "factorised":
         p_, q_ = sorted([R(v["p"]), R(v["q"])])
         return "f(x) = " + qr_lead(v["a"]) + ext_bracket(-p_) + ext_bracket(-q_)
@@ -2404,6 +2407,8 @@ def ext_norm(ans, v):
         return tuple(sorted(R(v[f"a{i}"]) for i in range(int(fx["n"]))))
     if kind == "factorised":
         return (R(v["a"]), tuple(sorted([R(v["p"]), R(v["q"])])))
+    if kind == "axis":
+        return (v["var"], R(v["h"]))
     raise Fail(f"the checker can't compare answers of kind {kind}")
 
 
@@ -3105,13 +3110,168 @@ def check_eqforms(q):
     return None, None
 
 
+# ── fn-link-symmetry ──
+
+SY_MIRRORS = {"normal": "For X ~ N(μ, σ²), P(X < μ − a) = P(X > μ + a)", "trig": "sin(π − θ) = sin θ", "ncr": "nCr = nC(n − r)"}
+SY_NOT = {"The terms of an arithmetic sequence go up by the same amount each time", "log(ab) = log a + log b",
+          "A line has the same gradient between any two of its points", "e^(a + b) = e^a × e^b", "The angles of a triangle add up to π"}
+SY_EXACT = {"1/2": sp.Rational(1, 2), "√2/2": sp.sqrt(2) / 2, "√3/2": sp.sqrt(3) / 2}
+TH = sp.Symbol("theta")
+NN, RR = sp.symbols("n r", integer=True, positive=True)
+
+
+def sy_parabola(g):
+    a, h, k = R(g["a"]), R(g["h"]), R(g["k"])
+    need(a in {1, -1, 2, -2, sp.Rational(1, 2)} and h.q == 1 and k.q == 1 and h != 0, "the parabola is out of its limits")
+    return sp.expand(a * (X - h)**2 + k)
+
+
+def check_symmetry(q):
+    g, ans, u, L, rep = q["given"], q["answer"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    wr = {}
+    if u == "same-idea":
+        topic = g["topic"]
+        right = SY_MIRRORS[topic]
+        need(set(ans["fixed"]["options"]) - {right} <= SY_NOT, "an option is neither the mirror fact nor a fact without a mirror")
+        # The mirror fact really holds.
+        if topic == "trig":
+            need(sp.simplify(sp.sin(sp.pi - TH) - sp.sin(TH)) == 0, "sin(π − θ) ≠ sin θ")
+        elif topic == "ncr":
+            need(all(sp.binomial(n, r) == sp.binomial(n, n - r) for n in range(1, 12) for r in range(n + 1)), "nCr ≠ nC(n − r)")
+        else:
+            Z = sp.Symbol("z")
+            need(sp.simplify(sp.erf(-Z) + sp.erf(Z)) == 0, "the normal curve is not symmetric")
+        qr_check_common(q, qr_norm(ans, {"v": right}))
+    elif u == "mirror-point":
+        f = sy_parabola(g)
+        h, d, y = R(g["h"]), R(g["d"]), R(g["y"])
+        x1 = h - d
+        need(f.subs(X, x1) == y, "the point is not on the parabola")
+        if rep == "equation":
+            m = re.fullmatch(r"The parabola y = (.+) has its axis of symmetry at x = (\S+) and passes through \((\S+), (\S+)\)\.", L[0])
+            need(m is not None and parse(m.group(1)) == f and RD(m.group(2)) == vertex(f)[0], "the parabola or its axis shown is not the givens")
+            need((RD(m.group(3)), RD(m.group(4))) == (x1, y), "the point shown is not the givens")
+        if q.get("table"):
+            t = q["table"]
+            need(all(f.subs(X, R(x)) == R(yy) for x, yy in zip(t["xs"], t["ys"])), "a table value is not on the parabola")
+            need(max(R(x) for x in t["xs"]) == h, "the table doesn't stop at the axis")
+        if q.get("graph"):
+            gr = q["graph"]
+            need(sp.nsimplify(gr["axis"]) == vertex(f)[0], "the axis drawn is not the parabola's")
+            need(all(f.subs(X, sp.nsimplify(pt["x"])) == sp.nsimplify(pt["y"]) for pt in gr["points"]), "a marked point is off the curve")
+        other = [r for r in sp.solve(f - y, X) if r != x1]
+        need(len(other) == 1, "no single matching point")
+        pt = lambda x: qr_norm(ans, {"x": str(x), "y": str(y)})
+        wr["SL2.4.symmetry#0"] = {pt(-x1)}
+        wr["SL2.4.symmetry#1"] = {pt(h), pt(h + 2 * d)}
+        qr_check_common(q, pt(other[0]), wr)
+    elif u == "find-the-mirror":
+        ctx = g.get("ctx", "parabola")
+        if ctx == "ncr":
+            m = re.fullmatch(r"ⁿC(\d+) = ⁿC(\d+), and \d+ ≠ \d+\.", L[0]) if rep == "words" else None
+            r1, r2 = (int(m.group(1)), int(m.group(2))) if m else (int(R(g["r"])), int(R(g["n"]) - R(g["r"])))
+            n = R(g["n"])
+            need(r1 != r2, "the two r are equal")
+            sol = [v_ for v_ in range(max(r1, r2), 30) if sp.binomial(v_, r1) == sp.binomial(v_, r2)]
+            need(sol == [n], f"nC{r1} = nC{r2} has n = {sol}, not {n}")
+            if q.get("table"):
+                need(q["table"]["rows"] == [["r", [str(r1), str(r2)]], ["ⁿCᵣ", [str(sp.binomial(n, r1))] * 2]], "the table is not the row's values")
+            if q.get("graph"):
+                gr = q["graph"]
+                need(gr["kind"] == "bars" and [R(y_) for y_ in gr["ys"]] == [sp.binomial(n, k) for k in range(n + 1)], "the bars are not row n")
+            need(ans.get("exact"), "n must be marked exactly")
+            qr_check_common(q, qr_norm(ans, {"v": str(n)}))
+        elif ctx == "normal":
+            m = re.fullmatch(r"X ~ N\(μ, σ²\) and P\(X < (\S+)\) = P\(X > (\S+)\)\.", L[0])
+            need(m is not None, "can't read the tails")
+            lo, hi = RD(m.group(1)), RD(m.group(2))
+            qr_check_common(q, qr_norm(ans, {"v": str((lo + hi) / 2)}))
+        else:
+            f = sy_parabola(g)
+            xa, xb, yv = R(g["xa"]), R(g["xb"]), R(g["yv"])
+            need(xa != xb and f.subs(X, xa) == yv == f.subs(X, xb), "the two points are not a pair at one height on the parabola")
+            if rep == "words":
+                need(L[0] == f"A parabola has y = {frac_text(yv)} at x = {frac_text(xa)} and at x = {frac_text(xb)}.", "the pair said is not the givens")
+            if q.get("table"):
+                t = q["table"]
+                need(all(f.subs(X, R(x)) == R(yy) for x, yy in zip(t["xs"], t["ys"])), "a table value is not on the parabola")
+                need(str(xa) in [str(R(x)) for x in t["xs"]] and str(xb) in [str(R(x)) for x in t["xs"]], "the pair is not in the table")
+            if q.get("graph"):
+                gr = q["graph"]
+                need(gr["axis"] is None, "the graph gives the axis away")
+                need(all(f.subs(X, sp.nsimplify(pt["x"])) == sp.nsimplify(pt["y"]) for pt in gr["points"]), "a marked point is off the curve")
+            h = vertex(f)[0]
+            wr["SL2.6.axis-symmetry#1"] = {qr_norm(ans, {"var": "y", "h": str(h)})}
+            qr_check_common(q, qr_norm(ans, {"var": "x", "h": str(h)}), wr)
+    elif u in ("normal-middle", "normal-other-tail"):
+        mu, a, p_ = R(g["mu"]), R(g["a"]), R(g["p"])
+        need("σ²" in L[0] and f"N({frac_text(mu)}, σ²)" in L[0], "σ is given, but the tail fixes it")
+        need(0 < p_ < sp.Rational(1, 2), "the tail is not less than a half")
+        # The mirror: a tail p beyond μ + a means σ = a/z, with Φ(z) = 1 − p.
+        z = sp.sqrt(2) * sp.erfinv(1 - 2 * p_)
+        sigma = a / z
+        Phi = lambda x: (1 + sp.erf((x - mu) / (sigma * sp.sqrt(2)))) / 2
+        if q.get("graph"):
+            need(abs(float(q["graph"]["sigma"]) - float(sigma)) < 1e-6, "the curve drawn has another σ than the tail fixes")
+        if u == "normal-middle":
+            need(f"P(X > {frac_text(mu + a)}) = {dec_text(p_)}" in L[0] or f"P(X > {frac_text(mu + a)}), is {dec_text(p_)}" in L[0], "the tail shown is not the givens")
+            mid = sp.nsimplify(sp.N(Phi(mu + a) - Phi(mu - a), 30), rational=True, tolerance=1e-20)
+            wr["SL4.9.symmetry-probability#0"] = {qr_norm(ans, {"v": str(2 * p_)})}
+            qr_check_common(q, qr_norm(ans, {"v": str(mid)}), wr)
+        else:
+            need(f"P(X < {frac_text(mu - a)}) = {dec_text(p_)}" in L[0] or f"P(X < {frac_text(mu - a)}), is {dec_text(p_)}" in L[0], "the tail shown is not the givens")
+            up = sp.nsimplify(sp.N(1 - Phi(mu + a), 30), rational=True, tolerance=1e-20)
+            wr["SL4.9.symmetry-probability#1"] = {qr_norm(ans, {"v0": str(p_), "v1": str(p_ + sp.Rational(1, 2))})}
+            qr_check_common(q, qr_norm(ans, {"v0": str(up), "v1": str(1 - up)}), wr)
+    elif u == "central-interval":
+        mu, sigma, qq = R(g["mu"]), R(g["sigma"]), R(g["q"])
+        need(L[0] == f"X ~ N({frac_text(mu)}, {frac_text(sigma)}²).", "the distribution shown is not the givens")
+        mpmath.mp.dps = 40
+        z = sp.Float(str(mpmath.sqrt(2) * mpmath.erfinv(mpmath.mpf(qq.p) / qq.q)), 40)
+        lo, hi = mu - z * sigma, mu + z * sigma
+        need(lo > 0 and not on_edge(lo) and not on_edge(hi), "an end is negative or on a rounding edge")
+        zw = sp.Float(str(mpmath.sqrt(2) * mpmath.erfinv(2 * mpmath.mpf(qq.p) / qq.q - 1)), 40)
+        nine = lambda x: str(sp.Rational(round(float(x) * 10**9), 10**9))
+        wr["SL4.9.central-interval#0"] = {qr_norm(ans, {"v0": nine(mu - zw * sigma), "v1": nine(mu + zw * sigma)})}
+        qr_check_common(q, qr_norm(ans, {"v0": nine(lo), "v1": nine(hi)}), wr)
+    elif u == "related-angle":
+        fn, th = g["fn"], R(g["theta"])
+        val = TRIG[fn](th * sp.pi)
+        need(th in {sp.Rational(1, 6), sp.Rational(1, 4), sp.Rational(1, 3)}, "θ is not a special angle")
+        m = re.search(r"the line y = (\S+) through", L[0]) if rep == "graph" else re.search(r"= (\S+?)\.?$", L[0])
+        need(m is not None and sp.simplify(SY_EXACT[m.group(1)] - val) == 0, "the value shown is not the angle's")
+        I = sp.Interval(0, 2 * sp.pi)
+        same = sorted(sp.solveset(TRIG[fn](X) - val, X, I), key=float)
+        opp = sorted(sp.solveset(TRIG[fn](X) + val, X, I), key=float)
+        need(len(same) == 2 and th * sp.pi in same and len(opp) == 2, "not two angles each way")
+        other = [x for x in same if x != th * sp.pi][0] / sp.pi
+        o1, o2 = (x / sp.pi for x in opp)
+        rel = lambda s_, a_, b_: qr_norm(ans, {"s": str(s_), "o1": str(a_), "o2": str(b_)})
+        wr["SL3.5.related-angles#0"] = {rel(o1, other, o2), rel(o2, other, o1)}
+        wr["SL3.5.related-angles#1"] = {rel(sp.Rational(1, 2) + th, o1, o2)}
+        qr_check_common(q, rel(other, o1, o2), wr)
+    elif u == "ncr-mirror":
+        n, r = R(g["n"]), R(g["r"])
+        m = re.fullmatch(r"(\d+)C(\d+) = (\d+)Cr, with r ≠ (\d+)", L[0])
+        need(m is not None and (R(m.group(1)), R(m.group(2))) == (n, r), "the nCr shown is not the givens")
+        others = [k for k in range(int(n) + 1) if k != r and sp.binomial(n, k) == sp.binomial(n, r)]
+        need(len(others) == 1, "no single other r")
+        need(ans.get("exact"), "r and the value must be marked exactly")
+        wr["SL1.9.ncr-pascal#0"] = {qr_norm(ans, {"v0": str(others[0]), "v1": str(sp.factorial(n) / sp.factorial(r))})}
+        qr_check_common(q, qr_norm(ans, {"v0": str(others[0]), "v1": str(sp.binomial(n, r))}), wr)
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
-                    "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms}
+                    "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
+                    "fn-link-symmetry": check_symmetry}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

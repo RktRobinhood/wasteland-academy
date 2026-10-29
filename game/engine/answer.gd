@@ -399,6 +399,9 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	# A measure is told apart by what it shows: two values with the same 3 s.f. are one option.
 	if ans.kind == "measure":
 		return "measure:" + Fmt.sf(values.v)
+	# So is any answer written to 3 s.f. (FAL-459): it is told apart by its text.
+	if ans.get("show", "") == "sf":
+		return "sf:" + text(ans, values)
 	var v := values.duplicate()
 	if ans.kind == "points2":
 		var ps := _pairs(v)

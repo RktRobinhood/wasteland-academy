@@ -50,6 +50,7 @@ static var SITUATIONS := {
 	"fn-pre-linear-inequalities": [LinearInequalitySituation, LinearInequalityViews],
 	"quadratic-model": [QuadraticModelSituation, QuadraticModelViews],
 	"fn-link-equivalent-forms": [EquivalentFormsSituation, EquivalentFormsViews],
+	"fn-link-symmetry": [SymmetrySituation, SymmetryViews],
 }
 
 static var _cat: Dictionary = {}
@@ -429,7 +430,9 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 	if fmt in EXTRA_FORMATS:
 		extra = fmt
 		fmt = "mcq"
-	var b: Dictionary = v.views.build(u.id, v.rep, s, rng)
+	# Views whose context hangs on the method (fn-link-symmetry's find-the-mirror: a
+	# parabola, or nCr) are told it.
+	var b: Dictionary = v.views.build_view(u.id, v.rep, angle, s, rng) if v.views.has_method("build_view") else v.views.build(u.id, v.rep, s, rng)
 	var ans: Dictionary = b.answer
 	if ans.kind in Answer.MC_ONLY:
 		fmt = "mcq"

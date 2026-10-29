@@ -40,6 +40,15 @@ func formats(unknown: String) -> Array:
 	return extra().get(unknown, [])
 
 
+## The method the view asks for, while build() runs (build_view sets it).
+var angle := "any"
+
+
+func build_view(unknown: String, rep: String, method_id: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	angle = method_id
+	return build(unknown, rep, s, rng)
+
+
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
 	for key in ["lines", "graph", "table", "wrongs", "generic"]:
