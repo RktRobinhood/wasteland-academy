@@ -71,6 +71,7 @@ static var SITUATIONS := {
 	"graph-from-features": [GraphFromFeaturesSituation, GraphFromFeaturesViews],
 	"gdc-inequality": [GdcInequalitySituation, GdcInequalityViews],
 	"fn-pre-graph-reading": [GraphReadingSituation, GraphReadingViews],
+	"graph-match": [GraphMatchSituation, GraphMatchViews],
 }
 
 static var _cat: Dictionary = {}

@@ -6596,6 +6596,121 @@ def check_graph_reading(q):
     return None, None
 
 
+# ── Graphs and key features (FAL-420): graph-match ────────────
+# An equation (y = a·bˣ + c or y = a(x − p)(x − q)) and its graph. Each equation is read
+# back with SymPy; each graph is tested against the equations, and each wrong graph or
+# equation against the one change it names.
+
+GM_MG = "SL2.3.match-graph"
+
+
+def gm_expr(text):
+    t = text.split(" = ", 1)[1] if text.startswith("y = ") else text
+    return gc_expr(t.replace("ˣ", "**x"))
+
+
+def gm_parts(f):
+    """('exp', a, b, c) or ('quad', a, p, q) for a parsed equation."""
+    f = sp.expand(f)
+    if f.is_polynomial(X):
+        P = sp.Poly(f, X)
+        rs = sorted(sp.roots(P).keys())
+        return ("quad", P.LC(), rs[0], rs[-1])
+    # a·bˣ + c from f(0), f(1) and f(2), exactly: b = (f(2) − f(1))/(f(1) − f(0)).
+    y0, y1, y2 = [sp.nsimplify(f.subs(X, k)) for k in (0, 1, 2)]
+    b = (y2 - y1) / (y1 - y0)
+    a = (y1 - y0) / (b - 1)
+    c = y0 - a
+    need(sp.simplify(a * b ** X + c - f) == 0, f"{f} is not a·bˣ + c")
+    return ("exp", a, b, c)
+
+
+def gm_change(f, mk):
+    kind, a, u, v = gm_parts(f)
+    if kind == "exp":
+        b, c = u, v
+        return {"lifted": a * b ** X + c + 2, "swapped": a * (1 / b) ** X + c, "moved": -a * b ** X + c}[mk]
+    p, q = u, v
+    return {"lifted": 2 * a * (X - p) * (X - q), "swapped": -a * (X - p) * (X - q), "moved": a * (X - p - 1) * (X - q - 1)}[mk]
+
+
+def check_graph_match(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "matching a graph is Paper 1")
+    for t in [asked] + L + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    right = next(o for o in q["choices"] if o["correct"])
+    if q["format"] == "pick-the-graph":
+        if u == "graph-from-facts":
+            m = re.search(r"decays towards the line y = (−?\d+) and passes through \(0, (−?\d+)\)", asked)
+            c, y0 = el_num(m.group(1)), el_num(m.group(2))
+            gr = q["graphs"][q["choices"].index(right)]["curves"][0]
+            ys = [p[1] for p in gr]
+            need(all(b < a for a, b in zip(ys, ys[1:])), "the right curve doesn't decay")
+            near0 = min(gr, key=lambda p: abs(p[0]))
+            need(abs(near0[0]) < 1e-9 and abs(near0[1] - float(y0)) < 1e-6 and abs(ys[-1] - float(c)) < 0.5, "the right curve misses its facts")
+            f = None
+        else:
+            m = re.search(r"Which graph is (y = .+?)\?", asked)
+            f = gm_expr(m.group(1))
+        others = []
+        if u == "match-several":
+            others = [gm_expr(t) for t in re.search(r"Three equations: (y = .+?), (y = .+?) and (y = .+?)\.", asked).groups()]
+        for o, gr in zip(q["choices"], q["graphs"]):
+            c0 = gr["curves"][0]
+            if f is None:
+                if not o["correct"]:
+                    need(o["ref"] == "", "a graph-from-facts card is tagged")
+                continue
+            if o["correct"]:
+                need(gc_curve_is(c0, gc_f(f)), "the right graph is not the equation")
+                continue
+            mk = o["mistake"]
+            if mk in ("other-a", "other-b"):
+                need(any(gc_curve_is(c0, gc_f(g)) for g in others if sp.simplify(g - f) != 0), "an other graph is not one of the other equations")
+                need(o["ref"] == "", "an other graph is tagged")
+                continue
+            need(gc_curve_is(c0, gc_f(gm_change(f, mk))), f"the {mk} graph is not that change")
+            kind = gm_parts(f)[0]
+            want_ref = {"lifted": GM_MG + "#0", "swapped": (GM_MG + "#1" if kind == "exp" else "") if u != "match-several" else GM_MG + "#2",
+                        "moved": ""}[mk]
+            need(o["ref"] == want_ref, f"the {mk} graph is tagged {o['ref']!r}")
+        gc_check_common(q, right["text"], {o["ref"]: {o["text"]} for o in q["choices"] if o["ref"]})
+        return None, None
+    curve = q["graph"]["curves"][0]
+    if u in ("equation-from-graph", "match-several"):
+        fits = [o for o in q["choices"] if gc_curve_is(curve, gc_f(gm_expr(o["text"])))]
+        need(len(fits) == 1 and fits[0]["correct"], f"{len(fits)} equations fit the graph")
+        f = gm_expr(right["text"])
+        mk = "lifted" if u == "equation-from-graph" else "swapped"
+        wr = {(GM_MG + "#0" if mk == "lifted" else GM_MG + "#2"): {o["text"] for o in q["choices"] if o["ref"] and sp.simplify(gm_expr(o["text"]) - gm_change(f, mk)) == 0}}
+        gc_check_common(q, right["text"], wr)
+    elif u == "rule-out-graph":
+        f = gm_expr(L[0])
+        need(gc_curve_is(curve, gc_f(gm_change(f, "lifted"))), "the graph shown is not the equation with another y-intercept")
+        y0, y1 = f.subs(X, 0), gm_change(f, "lifted").subs(X, 0)
+        gc_check_common(q, f"It crosses the y-axis at ({frac_text(0)}, {frac_text(y1)}), but the equation gives ({frac_text(0)}, {frac_text(y0)}) at x = 0.", {})
+    elif u == "signs-from-graph":
+        g = q["given"]
+        if g["fam"] == "exp":
+            f = R(g["a"]) * R(g["b"]) ** X + R(g["c"])
+            ap, bb = R(g["a"]) > 0, R(g["b"]) > 1
+            want = f"a {'>' if ap else '<'} 0 and {'b > 1' if bb else '0 < b < 1'}"
+            flip = f"a {'>' if ap else '<'} 0 and {'0 < b < 1' if bb else 'b > 1'}"
+            wr = {GM_MG + "#1": {flip}}
+        else:
+            f = R(g["a"]) * (X - R(g["p"])) * (X - R(g["q"]))
+            ap, cp = R(g["a"]) > 0, f.subs(X, 0) > 0
+            want = f"a {'>' if ap else '<'} 0 and the y-intercept is {'positive' if cp else 'negative'}"
+            flip = f"a {'<' if ap else '>'} 0 and the y-intercept is {'positive' if cp else 'negative'}"
+            wr = {GM_MG + "#2": {flip}}
+        need(gc_curve_is(curve, gc_f(f)), "the graph is not the given function")
+        gc_check_common(q, want, wr)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -6609,7 +6724,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "gdc-context-equation": check_gdc_context_equation,
                     "graph-from-features": check_graph_from_features,
                     "gdc-inequality": check_gdc_inequality,
-                    "fn-pre-graph-reading": check_graph_reading}
+                    "fn-pre-graph-reading": check_graph_reading,
+                    "graph-match": check_graph_match}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
