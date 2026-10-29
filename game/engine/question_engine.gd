@@ -45,6 +45,7 @@ static var SITUATIONS := {
 	"quadratic-inequality": [QuadraticInequalitySituation, QuadraticInequalityViews],
 	"cubic": [CubicSituation, CubicViews],
 	"fn-pre-expand": [ExpandSituation, ExpandViews],
+	"fn-pre-factorise": [FactoriseSituation, FactoriseViews],
 }
 
 static var _cat: Dictionary = {}

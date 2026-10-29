@@ -2542,11 +2542,114 @@ def spot_expand(q, lines):
 SPOT_CHECKS["fn-pre-expand"] = spot_expand
 
 
+# ── fn-pre-factorise ──
+
+def check_factorise(q):
+    g, ans, u, L = q["given"], q["answer"], q["view"]["unknown"], q["lines"]
+    T = "fn-pre-factorise"
+    if u == "factor-pair":
+        P, S = R(g["P"]), R(g["S"])
+        need(L[0] == f"Two numbers have product {frac_text(P)} and sum {frac_text(S)}.", "the product and sum shown are not the givens")
+        m, n = sorted(sp.solve(X**2 - S * X + P, X))
+        need(m.is_integer and n.is_integer and m != n and m != 0 and n != 0, "the two numbers are not different nonzero whole numbers")
+        qr_check_common(q, qr_norm(ans, {"r1": str(m), "r2": str(n)}))
+        return None, None
+    A, B, C = R(g["A"]), R(g["B"]), R(g["C"])
+    f = A * X**2 + B * X + C
+    if u == "missing-bracket-term":
+        r = R(g["r"])
+        need(L[0] == f"{ext_bracket(r)}(x + □) = {qr_poly([A, B, C])}", "the identity shown is not the givens")
+        S_ = sp.Symbol("S")
+        sol = sp.solve(sp.Poly(sp.expand((X + r) * (X + S_) - f), X).coeffs(), S_, dict=True)
+        need(len(sol) == 1 and sol[0][S_].is_integer, "no whole number fills the bracket")
+        need(ans.get("exact"), "a missing whole number must be marked exactly")
+        qr_check_common(q, qr_norm(ans, {"v": str(sol[0][S_])}))
+        return None, None
+    need(parse(L[0]) == sp.expand(f), f"the expression shown {L[0]!r} is not the givens")
+    need(all(c.q == 1 and abs(c) <= 81 for c in (A, B, C)), "coefficients are not small whole numbers")
+    wr = {}
+    if u == "difference-of-squares":
+        need(B == 0 and sp.sqrt(A).is_integer and sp.sqrt(abs(C)).is_integer, "not p²x² ± q²")
+        p_, q_ = sp.sqrt(A), sp.sqrt(abs(C))
+        if C > 0:
+            need(len(sp.factor_list(f)[1]) == 1, "a sum of squares that factorises")
+            fake = f"({qr_lead(p_)}x + {q_})({qr_lead(p_)}x − {q_})"
+            need(ans["kind"] == "choice" and fake in ans["fixed"]["options"], "the sum of squares is not offered as a difference")
+            wr[f"{T}#1"] = {qr_norm(ans, {"v": fake})}
+            qr_check_common(q, qr_norm(ans, {"v": "It does not factorise"}), wr)
+            return None, None
+    if u == "common-factor":
+        need(C == 0 and A > 0, "not kx² + mx")
+        gg = sp.gcd(A, B)
+        a_, b_ = A / gg, B / gg
+        need(gg >= 2, "the highest common factor is only x")
+        wr[f"{T}#2"] = {qr_norm(ans, {"g": str(gg), "a": str(a_), "b": str(B)})}
+        qr_check_common(q, qr_norm(ans, {"g": str(gg), "a": str(a_), "b": str(b_)}), wr)
+        return None, None
+    # The factors, by SymPy: each linear factor written with a positive x term.
+    content, fs = sp.factor_list(f)
+    lin = []
+    for fac, mult in fs:
+        need(sp.degree(fac, X) == 1, f"{f} has a factor {fac} that is not linear")
+        a1, b1 = sp.Poly(fac, X).all_coeffs()
+        if a1 < 0:
+            a1, b1, content = -a1, -b1, -content
+        lin += [(a1, b1)] * mult
+    need(content == 1 and len(lin) == 2, f"{f} is not the product of two primitive brackets")
+    if q.get("table"):
+        lead = "x" if A == 1 else "?x"
+        need(q["table"]["rows"] == [["×", [lead, "?"]], [lead, [ext_terms([A], [2]), "?"]], ["?", ["?", frac_text(C)]]],
+             "the area grid's corners are not the expression's")
+        need(L[1] == f"The area grid's total is {qr_poly([A, B, C])}: its two empty cells add to {ext_terms([B], [1])}.", "the grid's line is wrong")
+    if u == "monic-trinomial":
+        need(A == 1, "not monic")
+        (_, r), (_, s_) = lin
+        wr[f"{T}#0"] = {qr_norm(ans, {"r": str(-r), "s": str(-s_)})}
+        qr_check_common(q, qr_norm(ans, {"r": str(r), "s": str(s_)}), wr)
+        return None, None
+    (a1, b1), (a2, b2) = lin
+    if u == "non-monic":
+        need(A >= 2, "a is not more than 1")
+        # The pair of c only, in brackets with x: (x + b1)(x + b2).
+        wr[f"{T}#3"] = {qr_norm(ans, {"a1": "1", "b1": str(b1), "a2": "1", "b2": str(b2)})}
+    qr_check_common(q, qr_norm(ans, {"a1": str(a1), "b1": str(b1), "a2": str(a2), "b2": str(b2)}), wr)
+    return None, None
+
+
+def spot_factorise(q, lines):
+    """The first wrong line of a working for ax² + bx + c (fn-pre-factorise#3)."""
+    g = q["given"]
+    A, B, C = R(g["A"]), R(g["B"]), R(g["C"])
+    e = qr_poly([A, B, C])
+    for i, line in enumerate(lines):
+        if line == f"{e} has a = {frac_text(A)}, b = {frac_text(B)} and c = {frac_text(C)}":
+            continue
+        if line == f"We need two numbers that add to {frac_text(B)}":
+            continue
+        m = re.fullmatch(r"Two numbers that multiply to (\S+): (\S+) and (\S+)", line)
+        if m:
+            if RD(m.group(1)) == A * C and RD(m.group(2)) * RD(m.group(3)) == A * C:
+                continue
+            return i
+        line = line.removeprefix("So ").removeprefix("Check: ")
+        m = re.fullmatch(r"The roots are x = (\S+) and x = (\S+)", line)
+        if m:
+            if {RD(m.group(1)), RD(m.group(2))} == set(sp.solve(A * X**2 + B * X + C, X)):
+                continue
+            return i
+        if not eq_true(line):
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-factorise"] = spot_factorise
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
-                    "fn-pre-expand": check_expand}
+                    "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
