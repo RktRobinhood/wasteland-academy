@@ -44,7 +44,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 		if not out.has(key):
 			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
 	out.given = GdcTwoCurvesSituation.export(s)
-	out.given.merge(out.get("check", {}))
+	out.given.merge(out.get("check", {}), true)
 	if not out.has("trap"):
 		out.trap = GdcCurveViews.trap(out.answer) if out.answer.kind != "pts" else Answer.rounding_trap_all(out.answer)
 	out.wrongs = out.wrongs.filter(func(w): return GdcCurveViews.clear(w.values))

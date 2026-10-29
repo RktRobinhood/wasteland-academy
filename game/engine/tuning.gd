@@ -184,6 +184,8 @@ const CHAINS := {
 	"fn-gdc-intersection": ["intersection-points", "crossing-in-interval", "distance-between-crossings"],
 	# form D(t), find its greatest value and when, then say what the time means
 	"fn-gdc-optimise-combined": ["form-difference", "max-difference", "interpret-extreme"],
+	# solve on the GDC, then reject the root the context can't have
+	"fn-gdc-solve-equation": ["root-in-interval", "reject-a-root"],
 }
 
 

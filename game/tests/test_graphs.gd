@@ -6,9 +6,10 @@ extends "res://tests/test_case.gd"
 ## (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-sketch-gdc": 42, "fn-gdc-features": 36, "fn-gdc-intersection": 29, "fn-gdc-optimise-combined": 27}
+const CELLS := {"fn-sketch-gdc": 42, "fn-gdc-features": 36, "fn-gdc-intersection": 29, "fn-gdc-optimise-combined": 27,
+	"fn-gdc-solve-equation": 33}
 const SITUATION := {"fn-sketch-gdc": "gdc-curve", "fn-gdc-features": "gdc-curve", "fn-gdc-intersection": "gdc-two-curves",
-	"fn-gdc-optimise-combined": "gdc-combined"}
+	"fn-gdc-optimise-combined": "gdc-combined", "fn-gdc-solve-equation": "gdc-context-equation"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-sketch-gdc|SL2.10.number-of-solutions#2": "counting the asymptote's level needs a curve that levels off; the gdc-curve asymptote is vertical",

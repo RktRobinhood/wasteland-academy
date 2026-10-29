@@ -5443,8 +5443,9 @@ def gc_features(fn, d1, d2, open_left):
 
 
 def gc_s(x):
-    """x to 3 s.f., as the game writes it (0 is "0")."""
-    if x == 0:
+    """x to 3 s.f., as the game writes it (0 is "0", and so is a GDC zero below 1e−9:
+    the engine keeps nine decimal places)."""
+    if x == 0 or abs(x) < sp.Rational(1, 10**9):
         return "0"
     return ext_sf(sp.Float(x, 30)) if not isinstance(x, sp.Rational) else ext_sf(x)
 
@@ -5762,8 +5763,8 @@ def check_gdc_curve(q):
             word = "max" if "local maximum" in asked else "min"
             k = next(t[1] for t in ts if t[2] == word)
         else:
-            k = R(g["k"])
-            need(k.q in (1, 10) and str(dec_text(k)) in asked, "k is not the one-place decimal asked")
+            k = R(g["line_k"])
+            need((k * 10).q == 1 and f"f(x) = {dec_text(k)} have" in asked, "k is not the one-place decimal asked")
         lo_open = d1 if open_left else None
         vs = gc_pieces(fn, d1 + (sp.Rational(1, 10**6) if open_left else 0), d2, lo_open)
         n = gc_count(vs, k)
@@ -6086,6 +6087,128 @@ def check_gdc_combined(q):
     return None, None
 
 
+# ── Graphs and key features (FAL-420): gdc-context-equation ───
+# An equation that mixes families, from a context. The equation is read back from the
+# question's text and every root in a wide window found again with mpmath; the
+# context's interval picks the one asked for.
+
+CE_SG, CE_CA = "SL2.10.solve-gdc", "SL2.10.context-apply"
+
+
+def ce_num(t):
+    return R(sp.nsimplify(t.replace("−", "-").replace(",", "")))
+
+
+def check_gdc_context_equation(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 2, "a GDC equation is Paper 2")
+    j = " ".join([asked] + L)
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    wr, trap = {}, None
+    if u == "constant-from-root":
+        m = re.search(r"(?:has a solution x = |where x = )([\d.]+)\.", j)
+        x0 = ce_num(m.group(1))
+        k = x0 / sp.sin(x0)
+        gc_check_common(q, "k = " + gc_s(sp.N(k, 30)), {}, "k = " + gc_s2(sp.N(k, 30)))
+        return None, None
+    if u == "smallest-whole-number":
+        m = re.search(r"\$(\d+) is invested at ([\d.]+)% a year", j)
+        mt = re.search(r"worth more than \$(\d+)\.", asked)
+        need(m is not None and mt is not None, "can't read the investment")
+        P0, rate, T = ce_num(m.group(1)), ce_num(m.group(2)), ce_num(mt.group(1))
+        mul = 1 + rate / 100
+        n = 0
+        while P0 * mul ** n <= T:
+            n += 1
+        need(n >= 4, "the target is reached too soon")
+        nr = sp.log(T / P0) / sp.log(mul)
+        need(abs(sp.N(nr) - round(sp.N(nr))) >= sp.Rational(5, 100), "the real n is too near a whole number")
+        if rep == "table":
+            t = q["table"]
+            for xv, yv in zip(t["xs"], t["ys"]):
+                need(abs(R(yv) - P0 * mul ** R(xv)) <= sp.Rational(1, 200), f"the table's value at n = {xv} is wrong")
+        gc_check_common(q, f"n = {n}", {CE_CA + "#0": {f"n = {n - 1}"}})
+        return None, None
+    lo, hi = -20, 20
+    if u == "form-and-solve":
+        m = re.search(r"radius (\d+) cm\. The segment's area is ([\d.]+) cm²", asked)
+        r, A = ce_num(m.group(1)), ce_num(m.group(2))
+        th = sp.Symbol("th")
+        h = r ** 2 / 2 * (X - sp.sin(X)) - A
+        rs = gc_zeros(h, sp.Rational(1, 10**6), sp.pi)
+        need(len(rs) == 1, "not one angle between 0 and π")
+        arc = r * rs[0]
+        th2 = sp.Rational(sig3(sp.Float(rs[0], 30), 2))
+        gc_check_common(q, gc_s(arc) + " cm", {CE_SG + "#1": {gc_s(r * th2) + " cm"}}, gc_s2(arc) + " cm")
+        return None, None
+    if u == "simultaneous-nonlinear":
+        a, b = re.search(r"y = (.+?) and y = (.+?), for x > 0", asked).groups()
+        fa, fb = gc_expr(a), gc_expr(b)
+        rs = gc_zeros(fa - fb, -20, 20)
+        pos = [x for x in rs if x > 0]
+        need(len(pos) == 1, "not one solution with x > 0")
+        y = gc_f(fb)(pos[0])
+        x2 = sp.Rational(sig3(sp.Float(pos[0], 30), 2))
+        gc_check_common(q, "y = " + gc_s(y), {CE_SG + "#1": {"y = " + gc_s(fb.subs(X, x2))}}, "y = " + gc_s2(y))
+        return None, None
+    if u == "first-time":
+        m = re.search(r"h\(t\) = (.+?)\. Find the first time it is ([\d.]+) m high", asked)
+        f, c = tc_expr(m.group(1)), ce_num(m.group(2))
+        rs = gc_zeros(f - c, sp.Rational(1, 10**6), 20)
+        need(len(rs) == 2, "the ball is not at that height twice")
+        if rep == "graph":
+            need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the graph drawn is not h")
+        gc_check_common(q, "t = " + gc_s(rs[0]), {CE_CA + "#2": {"t = " + gc_s(c)}}, "t = " + gc_s2(rs[0]))
+        return None, None
+    # x = k sin x, or an exponential against a line.
+    if L[0].startswith("Two quantities"):
+        m2 = re.search(r"modelled by (e\^\([^)]*\)) and (.+?), where", L[0])
+        lhs, rhs = tc_expr(m2.group(1)), tc_expr(m2.group(2))
+    elif L[0].startswith("x = "):
+        lhs, rhs = X, gc_expr(L[0][4:].replace("sin x", "sin(x)"))
+    elif L[0].startswith("The graph of y = "):
+        m3 = re.search(r"y = (e\^\([^)]*\)) − \((.+?)\) is shown", L[0])
+        lhs, rhs = gc_expr(m3.group(1)), gc_expr(m3.group(2))
+    else:
+        # The line is the equation itself: "e^(0.3x) = 2.5x + 4".
+        need(L[0].count(" = ") == 1, f"can't read the equation {L[0]!r}")
+        a_, b_ = L[0].split(" = ")
+        lhs, rhs = gc_expr(a_), gc_expr(b_)
+    rs = gc_zeros(lhs - rhs, lo, hi)
+    need(1 <= len(rs) <= 4 and all(abs(x) < 1e-20 or gc_fair(x) for x in rs), "the roots are not fair 3 s.f. values")
+    v = "t" if u in ("reject-a-root",) or (u == "root-in-interval" and rep == "words") else "x"
+    if u == "solve-mixed-equation":
+        if "positive solution" in asked:
+            pos = [x for x in rs if x > 1e-9]
+            need(len(pos) == 1, "not one positive solution")
+            want = pos[0]
+        else:
+            need("largest solution" in asked, "which solution is asked?")
+            want = rs[-1]
+            need(want > sp.Rational(105, 10), "the largest solution is not past x = 10")
+            wr[CE_SG + "#0"] = {"x = " + gc_s(max(x for x in rs if abs(x) <= 10))}
+        gc_check_common(q, "x = " + gc_s(want), wr, "x = " + gc_s2(want))
+    elif u in ("root-in-interval", "reject-a-root"):
+        need(len(rs) == 2 and rs[0] < 0 < rs[1], "not one negative and one positive root")
+        if u == "root-in-interval":
+            gc_check_common(q, f"{v} = {gc_s(rs[1])}", {CE_CA + "#1": {f"{v} = {gc_s(rs[0])}"}}, f"{v} = {gc_s2(rs[1])}")
+        else:
+            right = next(o for o in q["choices"] if o["correct"])
+            need(right["text"].startswith(f"t = {gc_s(rs[1])}:") and f"t = {gc_s(rs[0])}" in right["text"], "the right option doesn't keep the positive root")
+            for o in q["choices"]:
+                if o["ref"]:
+                    need(o["text"].startswith(f"t = {gc_s(rs[0])}:"), "CA#1 doesn't keep the negative root")
+            gc_check_common(q, right["text"], {CE_CA + "#1": {o["text"] for o in q["choices"] if o["ref"]}})
+    elif u == "count-roots":
+        if rep == "graph":
+            need(gc_curve_is(q["graph"]["curves"][0], gc_f(lhs - rhs)), "the graph drawn is not the difference")
+        gc_check_common(q, str(len(rs)), {CE_SG + "#0": {str(sum(1 for x in rs if abs(x) <= 10))}})
+    else:
+        raise Fail(f"the checker has no gdc-context-equation check for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -6095,7 +6218,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
                     "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth,
                     "gdc-curve": check_gdc_curve, "gdc-two-curves": check_gdc_two_curves,
-                    "gdc-combined": check_gdc_combined}
+                    "gdc-combined": check_gdc_combined,
+                    "gdc-context-equation": check_gdc_context_equation}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

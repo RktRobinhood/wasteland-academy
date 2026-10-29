@@ -70,7 +70,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
 	out.given = GdcCurveSituation.export(s)
 	# What a builder adds for the checker: the labels it drew, the k it chose.
-	out.given.merge(out.get("check", {}))
+	out.given.merge(out.get("check", {}), true)
 	if not out.has("trap"):
 		out.trap = trap(out.answer)
 	# Every option's numbers are clear of a 3 s.f. rounding edge.
@@ -844,7 +844,7 @@ func u_count_solutions_from_sketch(rep: String, s: Dictionary, rng: Seeded) -> D
 	var asked := "How many solutions does f(x) = %s have on the domain?" % k_text
 	if touch:
 		asked = "Let k be the local %s value of f. How many solutions does f(x) = k have on the domain?" % kind_word(t)
-	var out := {"asked": asked, "answer": ans, "wrongs": wrongs, "generic": gen, "check": {"k": qf(k), "touch": touch}}
+	var out := {"asked": asked, "answer": ans, "wrongs": wrongs, "generic": gen, "check": {"line_k": qf(k), "touch": touch}}
 	if rep == "graph":
 		out.lines = ["The sketch of %s is shown, with its turning points and endpoints labelled." % line(s)]
 		out.graph = screen(s, labels(s).filter(func(p): return p[1] != 0.0))
