@@ -534,6 +534,9 @@ def check(q):
         check_format(q)
         q = dict(q, choices=q["base_choices"])
     sit = q.get("situation_id", "quadratic")
+    # Every question is Paper 1 or Paper 2 (FAL-419); each situation's checks hold its
+    # numbers to that paper.
+    need(q.get("paper") in (1, 2), f"paper is {q.get('paper')!r}, not 1 or 2")
     need(sit in SITUATION_CHECKS, f"the checker has no checks for situation {sit}")
     exp, f = SITUATION_CHECKS[sit](q)
     if exp is not None:  # the triangle and distribution checks are complete on their own
@@ -613,6 +616,9 @@ TRI_AREA_MIN = 3
 TRI_TOL = sp.Rational(1, 10**7)      # relative: the engine keeps nine decimal places
 DIGITS = 40
 LETTERS3 = ["A", "B", "C"]
+# Paper 1 (FAL-419): the given angles have exact sines and cosines, and every value
+# is a whole number or m√r.
+TRI_NICE = {30, 45, 60, 90, 120, 135}
 
 
 def deg_cos(d):
@@ -662,6 +668,28 @@ def side_name(L):
 def angle_name(L):
     a, b = [x for x in LETTERS3 if x != L]
     return f"angle {a}{L}{b}"
+
+
+def tri_area(text):
+    """A shown area as the game writes it: "12", or m√r on Paper 1 ("6√3")."""
+    m = re.fullmatch(r"(\d*)√(\d+)", text)
+    if m:
+        return (R(m[1]) if m[1] else 1) * sp.sqrt(R(m[2]))
+    return R(text)
+
+
+def tri_surd(e):
+    """An exact positive value as (m, r): m√r with m a whole number and r square-free."""
+    e = sp.radsimp(sp.simplify(e))
+    m, rest = e.as_coeff_Mul()
+    r = sp.simplify(rest**2)
+    need(m.is_Rational and m.q == 1 and m > 0 and r.is_Integer and r >= 1 and sp.factorint(r) == {p: 1 for p in sp.factorint(r)},
+         f"the value {e} is not a whole number or m√r")
+    return int(m), int(r)
+
+
+def tri_surd_text(m, r):
+    return str(m) if r == 1 else ("" if m == 1 else str(m)) + f"√{r}"
 
 
 def tri_roles(g):
@@ -717,13 +745,13 @@ def tri_solve(g):
         A[Y] = to_deg(sp.asin(S[Y] * deg_sin(A[X]) / S[X]))
         need(num(A[X] + 180 - A[Y]) >= 180, "the obtuse angle 180° − B would also fit")
     elif kind == "area-side":
-        area = R(g["area"])
+        area = tri_area(g["area"])
         need(set(S) == {Y} and set(A) == {X}, "area-side givens are not the area, a side and an angle")
         S[Z] = 2 * area / (S[Y] * deg_sin(A[X]))
         S[X] = sp.sqrt(S[Y]**2 + S[Z]**2 - 2 * S[Y] * S[Z] * deg_cos(A[X]))
         A[Y] = to_deg(sp.acos((S[X]**2 + S[Z]**2 - S[Y]**2) / (2 * S[X] * S[Z])))
     elif kind == "area-angle":
-        area = R(g["area"])
+        area = tri_area(g["area"])
         need(set(S) == {Y, Z} and not A and g["obtuse"] in (True, False), "area-angle givens are not the area, two sides and acute or obtuse")
         ratio = 2 * area / (S[Y] * S[Z])
         need(ratio < 1, "no angle has that sine")
@@ -734,6 +762,14 @@ def tri_solve(g):
         A[Y] = to_deg(sp.acos((S[X]**2 + S[Z]**2 - S[Y]**2) / (2 * S[X] * S[Z])))
     else:
         raise Fail(f"unknown triangle givens {kind}")
+    # The asked value exactly, before the numbers take over (Paper 1 checks it exactly).
+    ask = g["ask"]
+    if ask == "area":
+        exact = S[Y] * S[Z] * deg_sin(A[X]) / 2
+    elif ask in LETTERS3:
+        exact = A[ask]
+    else:
+        exact = S[ask.upper()]
     # From here on every quantity is a 40-digit number, which keeps the checks fast.
     S = {L: num(v) for L, v in S.items()}
     A = {L: num(v) for L, v in A.items()}
@@ -747,13 +783,13 @@ def tri_solve(g):
             S[L] = k * deg_sin(A[L])
     area = S[Y] * S[Z] * deg_sin(A[X]) / 2
     if g.get("area") is not None:
-        need(close(area, R(g["area"])), "the given area is not this triangle's area")
+        need(close(area, tri_area(g["area"])), "the given area is not this triangle's area")
     for L in LETTERS3:
         need(TRI_ANGLE[0] <= num(A[L]) <= TRI_ANGLE[1], f"angle {L} = {num(A[L]):.4} is outside 20° to 140°")
     need(close(sum(A.values()), 180), "the angles don't add up to 180°")
     for L in LETTERS3:  # the sine rule holds all round
         need(close(S[L] / deg_sin(A[L]), k), "the sides and angles are not one triangle")
-    return {"X": X, "Y": Y, "Z": Z, "S": S, "A": A, "area": area}
+    return {"X": X, "Y": Y, "Z": Z, "S": S, "A": A, "area": area, "exact": exact}
 
 
 def tri_wrongs(u, g, t):
@@ -777,10 +813,10 @@ def tri_wrongs(u, g, t):
     if u == "area-from-two-sides":
         return {"SL3.2.area-sine#2": [2 * area], "SL3.2.right-side#2": [y * z * sp.sin(A[X]) / 2]}
     if u == "side-from-area":
-        return {"SL3.2.area-sine#2": [R(g["area"]) / (y * deg_sin(A[X]))]}
+        return {"SL3.2.area-sine#2": [tri_area(g["area"]) / (y * deg_sin(A[X]))]}
     if u == "angle-from-area":
-        acute = to_deg(sp.asin(2 * R(g["area"]) / (y * z)))
-        half = to_deg(sp.asin(R(g["area"]) / (y * z)))
+        acute = to_deg(sp.asin(2 * tri_area(g["area"]) / (y * z)))
+        half = to_deg(sp.asin(tri_area(g["area"]) / (y * z)))
         return {"SL3.2.area-sine#1": [acute], "SL3.2.area-sine#2": [180 - half if g["obtuse"] else half]}
     raise Fail(f"no misconceptions known for {u}")
 
@@ -792,7 +828,7 @@ def tri_shown(q, g):
     text = " ".join(q["lines"])
     sides = {m[1]: m[2] for m in re.finditer(r"\b([ABC]{2}) = (\d+) cm", text)}
     angles = {m[1][1]: m[2] for m in re.finditer(r"angle ([ABC]{3}) = (\d+)°", text)}
-    m = re.search(r"area (?:of|is) (\d+) cm²", text)
+    m = re.search(r"area (?:of|is) (\d*√\d+|\d+) cm²", text)
     area = m[1] if m else None
     m = re.search(r"Angle ([ABC]{3}) is (obtuse|acute)", text)
     obtuse = (m[2] == "obtuse") if m else None
@@ -851,12 +887,14 @@ def check_triangle(q):
     need(u in want_givens, f"the checker has no solver for {u}")
     need(g["givens"] == want_givens[u][0], f"{u} is asked from {g['givens']} givens")
     need((g["ask"] == "area") == (want_givens[u][1] == "area"), "the area is asked on the wrong unknown")
+    paper = q.get("paper")
+    need(paper in (1, 2), f"paper {paper!r}")
+    need(paper == 2 or u != "angle-sine-rule", "the sine rule's angle is asked on Paper 1")
     t = tri_solve(g)
     tri_shown(q, g)
     if q["diagram"] is not None:
         tri_diagram(q, t)
     exp, label, unit = tri_measure(q, t)
-    need(not on_edge(exp), f"the answer {num(exp):.8} is on a 3 s.f. rounding edge")
 
     # The situation the engine exported is the same triangle.
     sit = q["situation"]
@@ -864,6 +902,11 @@ def check_triangle(q):
         need(close(R(sit["angles"][L]), t["A"][L]), f"situation angle {L} differs")
         need(close(R(sit["sides"][L.lower()]), t["S"][L]), f"situation side {L.lower()} differs")
     need(close(R(sit["area"]), t["area"]), "situation area differs")
+    if paper == 1:
+        tri_check_p1(q, g, t, u, label, unit)
+        return None, None
+    need(t["exact"].is_rational is not True, f"the Paper 2 answer {t['exact']} needs no calculator")
+    need(not on_edge(exp), f"the answer {num(exp):.8} is on a 3 s.f. rounding edge")
 
     # The answer: its value, and its text to 3 s.f. with the right label and unit.
     ans = q["answer"]
@@ -905,6 +948,61 @@ def check_triangle(q):
     if q["view"]["angle"] != "any":
         need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
     return None, None
+
+
+def tri_check_p1(q, g, t, u, label, unit):
+    """A Paper 1 triangle: nice angles given, the answer exact (a whole number or m√r)
+    and marked exactly, the options exact and wrong, the working ending at it."""
+    for v in g["angles"].values():
+        need(int(v) in TRI_NICE, f"Paper 1 angle {v}° has no exact sine")
+    if g.get("area") is not None:
+        tri_surd(tri_area(g["area"]))
+    m, r = tri_surd(t["exact"])
+    ans = q["answer"]
+    need(ans.get("exact") is True, "a Paper 1 answer is not marked exactly")
+    need(ans["label"] == label and ans["unit"] == unit, f"answer label {ans['label']!r}{ans['unit']!r}, expected {label!r}{unit!r}")
+
+    def value(v):
+        """An option's values as (m, r), checked to be a whole number or m√r."""
+        if ans["kind"] == "number":
+            need(set(v) == {"v"}, f"values {v}")
+            return tri_surd(R(v["v"]))
+        need(ans["kind"] == "surd" and set(v) == {"m", "r"}, f"answer kind {ans['kind']}")
+        got = tri_surd(R(v["m"]) * sp.sqrt(R(v["r"])))
+        need(got == (int(R(v["m"])), int(R(v["r"]))), f"{v} is not in simplest surd form")
+        return got
+
+    need(ans["kind"] == ("number" if r == 1 else "surd"), f"answer kind {ans['kind']} for {tri_surd_text(m, r)}")
+    need(value(ans["values"]) == (m, r), f"engine answer {q['answer_text']!r} is wrong (expected {tri_surd_text(m, r)})")
+    want = label + tri_surd_text(m, r) + unit
+    need(q["answer_text"] == want, f"answer text {q['answer_text']!r}, expected {want!r}")
+
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    wrongs = tri_wrongs(u, g, t)
+    texts = set()
+    for o in ch:
+        om, orr = value(o["values"])
+        need(o["text"] == label + tri_surd_text(om, orr) + unit, f"option text {o['text']!r} doesn't say its value")
+        need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
+        texts.add(o["text"])
+        need(((om, orr) == (m, r)) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'} wrongly")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrongs, f"{o['ref']} is not a misconception of {u}")
+            need(any(close(om * sp.sqrt(orr), w) for w in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+            need(o["ref"] != "SL3.2.right-side#2", "a calculator slip on Paper 1")
+
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(value(sol["result"]) == (m, r), f"{sol['name']}: last step gives {sol['result']}, not the answer")
+        last = sol["steps"][-1]
+        need(q["answer_text"] in last, f"{sol['name']}: last step {last!r} doesn't state the answer")
+        need(2 <= len(sol["steps"]) <= 8, f"{sol['name']}: {len(sol['steps'])} steps")
+        need(not any(w in " ".join(sol["steps"]) for w in ("GDC", "sin⁻¹", "cos⁻¹", "3 s.f.")), f"{sol['name']}: a calculator step on Paper 1")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
 
 
 # ── Arithmetic sequences (FAL-392) ───────────────────────────
@@ -1003,6 +1101,8 @@ def seq_solve(eqs, what):
 
 def check_arithmetic(q):
     u = q["view"]["unknown"]
+    if q.get("paper", 1) == 2:
+        return seq_check_p2(q)
     s = {k: v for k, v in q["situation"].items()}
     u1, d, n, un, sn = (R(s[k]) for k in ("u1", "d", "n", "un", "sn"))
     need(all(v.q == 1 for v in (u1, d, n, un, sn)), "a value is not a whole number")
@@ -1046,6 +1146,123 @@ def check_arithmetic(q):
     return {"v": sp.nsimplify(v.subs(sol))}, None
 
 
+# Paper 2 (FAL-419): a context in words with a decimal u₁ and d, the checker's own copy
+# of the engine's limits (arithmetic_sequence.gd, P2): in hundredths, u₁ and d with
+# their step, and the threshold's step; EDGE keeps "first more than" clear of a whole n.
+SEQ_P2 = {
+    "money": {"u1": (500, 4000, 5), "d": (15, 250, 5), "term": 100, "sum": 1000},
+    "km": {"u1": (200, 800, 10), "d": (10, 50, 5), "term": 100, "sum": 500},
+}
+SEQ_TO_SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+SEQ_P2_UNKNOWNS = {"term-from-u1-d", "n-from-term", "sum-from-u1-d", "n-from-sum"}
+SEQ_P2_EDGE = sp.Rational(15, 100)
+SEQ_NUM = r"(\d+(?:\.\d+)?)"
+SEQ_P2_INTRO = {
+    "money": r"^Ana saves \$" + SEQ_NUM + r" in the first week of a savings plan, and each week after that she saves \$" + SEQ_NUM + r" more than the week before\.$",
+    "km": r"^Ben runs " + SEQ_NUM + r" km on the first day of his training plan, and each day after that he runs " + SEQ_NUM + r" km more than the day before\.$",
+}
+
+
+def seq_p2_amount(ctx, v):
+    """An amount as the context writes it: money to 2 d.p. (whole dollars bare), or a decimal."""
+    return money_text(v) if ctx == "money" else dec_text(v)
+
+
+def seq_p2_cent(ctx, v):
+    """Money to the nearest cent (half a cent up); km as it is."""
+    return sp.floor(v * 100 + sp.Rational(1, 2)) / 100 if ctx == "money" else v
+
+
+def seq_p2_first_over(k_real):
+    """The least whole n ≥ 1 with f(n) > the threshold, from the real crossing k_real."""
+    need(not k_real.is_integer, "the threshold is reached exactly at a whole n")
+    frac = k_real - sp.floor(k_real)
+    need(SEQ_P2_EDGE <= frac <= 1 - SEQ_P2_EDGE, f"the crossing n = {sp.N(k_real, 8)} is too close to a whole n")
+    return int(sp.floor(k_real)) + 1
+
+
+def seq_check_p2(q):
+    """Paper 2: reads u₁ and d back from the context, solves the unknown with SymPy (a
+    term, a sum, or the first n over a round threshold) and checks every tagged option."""
+    u, rep, ans, L, asked = q["view"]["unknown"], q["view"]["rep"], q["answer"], q["lines"], q["asked"]
+    s = q["situation"]
+    need(u in SEQ_P2_UNKNOWNS and rep == "words", f"{u} ({rep}) has no Paper 2 version")
+    ctx = s["ctx"]
+    m = re.fullmatch(SEQ_P2_INTRO[ctx], L[0])
+    need(m is not None and len(L) == 1, f"can't read the context {L[0]!r}")
+    u1, d = R(m.group(1)), R(m.group(2))
+    need(m.group(1) == seq_p2_amount(ctx, u1) and m.group(2) == seq_p2_amount(ctx, d), "an amount is not written as the context writes it")
+    lim = SEQ_P2[ctx]
+    for v, (lo, hi, by) in ((u1, lim["u1"]), (d, lim["d"])):
+        c = v * 100
+        need(c.is_integer and lo <= c <= hi and c % by == 0, f"{v} is outside the Paper 2 limits")
+        need(not v.is_integer, f"{v} is a whole number: Paper 2 uses decimals")
+    need((R(s["u1"]), R(s["d"])) == (u1, d), "the context is not the situation")
+    need(R(q["given"]["u1"]) == u1 and R(q["given"]["d"]) == d, "the givens are not the context")
+    sit = {U1: u1, D: d}
+    need([R(v) for v in s["us"]] == [seq_term(k).subs(sit) for k in (1, 2, 3, 4)], "the first terms are wrong")
+    need(ans.get("exact") is True, "the answer is not marked exactly")
+    per = "week" if ctx == "money" else "day"
+    unit = "$" if ctx == "money" else ""
+    tail = "" if ctx == "money" else " km"
+    refs = {}
+    if u in ("term-from-u1-d", "sum-from-u1-d"):
+        pat = (r"^How much does she save in week (\d+)\?$" if ctx == "money" else r"^How far does he run on day (\d+)\?$") \
+            if u == "term-from-u1-d" else \
+            (r"^How much has she saved in total after (\d+) weeks\?$" if ctx == "money" else r"^How far has he run in total after (\d+) days\?$")
+        n = R(em_read(pat, asked, "n").group(1))
+        lo, hi = SEQ_N_TERM if u == "term-from-u1-d" else SEQ_N_SUM
+        need(lo <= n <= hi, f"n = {n} is outside {lo} to {hi}")
+        need(ans.get("show") == ("money" if ctx == "money" else "dec"), "an amount is not shown as the context writes it")
+        sym = "u" if u == "term-from-u1-d" else "S"
+        need(ans["label"] == f"{sym}{str(n).translate(SEQ_TO_SUB)} = {unit}" and ans.get("unit", "") == tail, f"the label {ans['label']!r} names another term")
+        if u == "term-from-u1-d":
+            v = seq_term(n).subs(sit)
+            refs = {"SL1.2.nth-term#0": {u1 + n * d}, "SL1.2.nth-term#2": {n}}
+        else:
+            v = seq_sum(n).subs(sit)
+            refs = {"SL1.2.sum#0": {seq_p2_cent(ctx, n * (2 * u1 + n * d) / 2)}, "SL1.2.sum#1": {seq_sum(n - 1).subs(sit)},
+                    "SL1.2.sum#2": {seq_term(n).subs(sit)}}
+        need(R(s["n"]) == n, "the situation's n is not the one asked")
+        need(v <= (SEQ_UN_MAX if sym == "u" else SEQ_SN_MAX), f"{v} is too big")
+        need((v * 100).is_integer, f"{v} doesn't end in whole hundredths")
+        for o in q["choices"]:
+            need(o["text"] == ans["label"] + seq_p2_amount(ctx, R(o["values"]["v"])) + tail, f"option {o['text']!r} is not written as an amount")
+    else:
+        need(ans["label"] == "n = ", "the answer is not n")
+        if u == "n-from-term":
+            pat = r"^In which week n does she first save more than \$(\d+)\?$" if ctx == "money" else r"^On which day n does he first run more than (\d+) km\?$"
+            y = R(em_read(pat, asked, "the threshold").group(1))
+            need((y * 100) % lim["term"] == 0, "the threshold is not round")
+            v = seq_p2_first_over(1 + (y - u1) / d)
+            need(SEQ_N_TERM[0] <= v <= SEQ_N_TERM[1], f"n = {v} is outside the limits")
+            need(seq_term(v).subs(sit) > y >= seq_term(v - 1).subs(sit), "the term n is not the first over the threshold")
+            refs = {"SL1.2.find-n#2": {v - 1}, "SL1.2.find-n#1": {y}}
+        else:
+            pat = (r"^After how many weeks n is her total saved first more than \$(\d+)\?$" if ctx == "money"
+                   else r"^After how many days n is his total distance first more than (\d+) km\?$")
+            x = R(em_read(pat, asked, "the threshold").group(1))
+            need((x * 100) % lim["sum"] == 0, "the threshold is not round")
+            roots = sorted(sp.solve(sp.Eq(seq_sum(NN).subs(sit), x), NN), key=lambda r_: float(r_))
+            need(len(roots) == 2 and roots[0] < 0 < roots[1], f"the roots {roots} are not one negative, one positive")
+            v = seq_p2_first_over(roots[1])
+            need(SEQ_N_SUM[0] <= v <= SEQ_N_SUM[1], f"n = {v} is outside the limits")
+            need(seq_sum(v).subs(sit) > x >= seq_sum(v - 1).subs(sit), "S_n is not the first sum over the threshold")
+            refs = {"SL1.2.sum-unknown#1": {R(sig3(roots[0]))}, "SL1.2.sum-unknown#2": {x}}
+        for o in q["choices"]:
+            need(o["text"] == "n = " + dec_text(R(o["values"]["v"])), f"option {o['text']!r} is not n as a decimal")
+        v = sp.Integer(v)
+        need(R(s["n"]) == v, "the situation's n is not the answer")
+    for o in q["choices"]:
+        if o["ref"]:
+            need(o["ref"] in refs, f"the checker can't confirm {o['ref']} on {u}")
+            need(R(o["values"]["v"]) in refs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+    for sol in q["solutions"]:
+        need(2 <= len(sol["steps"]) <= 5, f"{sol['name']}: {len(sol['steps'])} steps, not 2 to 5")
+        need(any("GDC" in st for st in sol["steps"]), f"{sol['name']}: a Paper 2 solution doesn't use the GDC")
+    return {"v": v}, None
+
+
 # ── Discrete distributions (FAL-396) ─────────────────────────
 # The `distribution` situation's clean limits, the checker's own copy: the engine's is
 # in game/engine/situations/distribution.gd. The distribution is read back from what
@@ -1065,6 +1282,31 @@ KSYM, PSYM, QSYM, MSYM = sp.symbols("k p q m")
 # Asks whose options are probabilities, so between 0 and 1. k is not one: k = 21 from
 # 21k = 1 is a real slip.
 DIST_PROB_ASKS = {"missing-probability", "event-probability", "probabilities-from-mean"}
+# Paper 2 (FAL-419): awkward decimals to 3 d.p. (never a whole number of hundredths),
+# every probability from 0.05 to 0.6, a reciprocal formula k/f(x) for a whole f(x),
+# a lucky dip of 1000 tokens. Paper 1 keeps the limits above.
+DIST_P2_MILLE = 1000
+DIST_P1_TOTAL_MAX = 60
+SF3_SUFFIX = ", correct to 3 significant figures"
+
+
+def dist_awkward(p):
+    """A Paper 2 decimal: a whole number of thousandths, not of hundredths."""
+    return (p * DIST_P2_MILLE).q == 1 and (p * 100).q != 1
+
+
+def dist_needs_rounding(v):
+    return sp.Rational(sig3(v)) != v
+
+
+def money_round_text(v):
+    """A Paper 2 stake to the nearest cent, halves up (never on a half cent)."""
+    v = sp.Rational(v)
+    if v.q == 1:
+        return frac_text(v)
+    # Not whole dollars, so written with its cents, even when they round to $8.00.
+    cents = int(sp.floor(v * 100 + sp.Rational(1, 2)))
+    return f"{cents // 100}.{cents % 100:02d}"
 
 
 def frac_text(v):
@@ -1111,14 +1353,20 @@ def entry_value(text):
     return sp.Rational(t)
 
 
-def formula_values(line):
-    """The values of x and P(X = x) from 'P(X = x) = k(x + 1), for x = 0, 1, 2.'"""
-    m = re.fullmatch(r"P\(X = x\) = (.+), for x = ([\d, ]+)\.", line)
+def formula_values(line, k=None):
+    """The values of x and P(X = x) from 'P(X = x) = k(x + 1), for x = 0, 1, 2.', or
+    Paper 2's 'P(X = x) = k/x, for x = 1, 2, 3, where k = 6/11.' (k is put in, and
+    must be the given k)."""
+    m = re.fullmatch(r"P\(X = x\) = (.+), for x = ([\d, ]+?)(?:, where k = (\d+/\d+))?\.", line)
     need(m, f"formula line {line!r}")
+    need((m[3] is None) == (k is None), "k is given in the formula line but not in the givens, or the other way")
     rhs_text = re.sub(r"k(?=[x(])", "k*", m[1])
     s = rhs_text.replace("−", "-").replace("²", "**2")
     f = sp.sympify(parse_expr(s, local_dict={"x": X, "k": KSYM}, transformations=TRANSFORMS))
     xs = [int(v) for v in m[2].split(",")]
+    if m[3] is not None:
+        need(sp.Rational(m[3]) == sp.Rational(k), "the shown k is not the given one")
+        f = f.subs(KSYM, sp.Rational(m[3]))
     return xs, [sp.nsimplify(f.subs(X, x)) for x in xs]
 
 
@@ -1157,7 +1405,20 @@ def dist_read(q):
     lines = q["lines"]
     out = {"game": g.get("game") is not None}
     if out["game"]:
-        if rep == "words":
+        if rep == "words" and g["game"].get("tokens"):
+            # Paper 2: a lucky dip of 1000 tokens.
+            text = lines[0]
+            m = re.fullmatch(r"A lucky dip at the bazaar holds (\d+) tokens\. (.+), and the other (\d+) win nothing\. "
+                             r"A player pays a stake to draw one token\.", text)
+            need(m, f"lucky dip {text!r}")
+            tokens = int(m[1])
+            need(tokens == g["game"]["tokens"] == DIST_P2_MILLE, "the lucky dip's tokens are not as given")
+            wins = [(int(w[2]), int(w[1])) for w in re.finditer(r"(\d+) tokens win \$(\d+)", m[2])]
+            counts = {0: int(m[3]), **{w[0]: w[1] for w in wins}}
+            need(len(counts) == len(wins) + 1 and sum(counts.values()) == tokens, "the tokens don't add up")
+            out["xs"] = sorted(counts)
+            out["ps"] = [sp.Rational(counts[x], tokens) for x in out["xs"]]
+        elif rep == "words":
             text = lines[0]
             sectors = int(re.search(r"spinner with (\d+) equal sectors", text)[1])
             wins = [(int(m[2]), int(m[1])) for m in re.finditer(r"(\d+) sectors? wins? \$(\d+)", text)]
@@ -1177,7 +1438,7 @@ def dist_read(q):
         return out
     if rep == "equation":
         need(len(lines) >= 2, "no formula line")
-        xs, ps = formula_values(lines[1])
+        xs, ps = formula_values(lines[1], g.get("k"))
         need(g["entries"] is None, "a formula question also lists entries")
     elif rep == "table":
         rows = q["table"]["rows"]
@@ -1201,7 +1462,9 @@ def dist_read(q):
     return out
 
 
-def dist_clean(u, d, style):
+def dist_clean(u, d, style, paper=1, shown=None, k=None):
+    """The clean limits. shown: the probabilities as written (k, p and q still in);
+    k: k where the probabilities are k × something."""
     xs, ps = d["xs"], d["ps"]
     if d["game"]:
         need(len(xs) in DIST_PRIZES and xs[0] == 0, "a game has 3 or 4 prizes, one of them $0")
@@ -1214,14 +1477,35 @@ def dist_clean(u, d, style):
     for p in ps:
         need(0 < p < 1, f"probability {p} is not between 0 and 1")
         if style == "decimal":
+            need(paper == 1, "Paper 2 decimals that are steps of 0.05")
             need(DIST_P[0] <= p <= DIST_P[1] and (p * 20).q == 1, f"probability {p} is not a step of 0.05 from 0.05 to 0.6")
+        if paper == 2:
+            need(DIST_P[0] <= p <= DIST_P[1], f"Paper 2 probability {p} is not from 0.05 to 0.6")
+    if paper == 1:
+        need(style in ("multiples", "formula", "decimal"), f"Paper 1 style {style}")
+        if style == "formula":
+            need(max(sp.Rational(p).q for p in ps) <= DIST_P1_TOTAL_MAX, "a Paper 1 formula's probabilities are beyond sixtieths")
+        return
+    # Paper 2: decimals that want a calculator, or a reciprocal formula.
+    need(style in ("calc", "formula"), f"Paper 2 style {style}")
+    if style == "calc":
+        for e in shown or ps:
+            if not sp.sympify(e).free_symbols:
+                need(dist_awkward(sp.Rational(e)), f"Paper 2 decimal {e} is not an awkward one to 3 d.p.")
+    else:
+        need(k is not None, "a Paper 2 formula without k")
+        for p in ps:
+            r = sp.Rational(p) / sp.Rational(k)
+            need(r.p == 1 and r.q > 1 or r == 1, f"P(X = x) = {p} is not k over a whole number")
 
 
 def dist_event_prob(xs, ps, ev):
     return sum((p for x, p in zip(xs, ps) if event_holds(ev, x)), sp.Integer(0))
 
 
-def dist_show(u, style):
+def dist_show(u, style, paper=1, ans_show=None):
+    if paper == 2:
+        return {"sf": sig3, "dec": dec_text, "money": money_round_text}.get(ans_show, frac_text)
     if u == "k-from-sum":
         return frac_text
     if u == "fair-stake":
@@ -1237,8 +1521,19 @@ def check_distribution(q):
     rep = q["view"]["rep"]
     style = g["style"]
     asked = q["asked"]
+    paper = q.get("paper", 1)
+    need(paper in (1, 2), f"paper {paper}")
+    ans_show = q["answer"].get("show")
+    # Paper 2 says when it wants 3 s.f.; Paper 1 never does.
+    sf = asked.endswith(SF3_SUFFIX + ".")
+    need(sf == (ans_show == "sf"), f"asked {asked!r} with an answer shown {ans_show!r}")
+    need(paper == 2 or not sf, "a Paper 1 answer to 3 s.f.")
+    if sf:
+        asked = asked[:-len(SF3_SUFFIX) - 1] + "."
     d = dist_read(q)
     xs, ps = d["xs"], d["ps"]
+    shown = list(ps)
+    k_val = sp.Rational(g["k"]) if g.get("k") else None
     free = set().union(*[sp.sympify(p).free_symbols for p in ps])
     ev = None
     wrongs = {}
@@ -1249,11 +1544,17 @@ def check_distribution(q):
         sol = sp.solve(sp.Eq(sum(ps), 1), KSYM)
         need(len(sol) == 1, "the sum doesn't fix k")
         exp = sol[0]
-        need(DIST_K[0] <= exp <= DIST_K[1], f"k = {exp} is outside 1/60 to 1/6")
+        if paper == 1:
+            need(DIST_K[0] <= exp <= DIST_K[1], f"k = {exp} is outside 1/60 to 1/6")
+        else:
+            need(dist_needs_rounding(exp), f"Paper 2 k = {exp} needs no calculator")
         coef = [sp.Poly(p, KSYM).coeff_monomial(KSYM) for p in ps]
+        # What the multiples of k add to: 1, less any decimals beside them.
+        rest = 1 - sum(sp.expand(p - c * KSYM) for p, c in zip(ps, coef))
         sxc = sum(x * c for x, c in zip(xs, coef))
-        wrongs["SL4.7.find-k#0"] = [sp.Rational(1, v) for v in (sxc, sum(xs)) if v > 0]
+        wrongs["SL4.7.find-k#0"] = [rest / v for v in (sxc, sum(xs) if rest == 1 else 0) if v > 0]
         ps = [p.subs(KSYM, exp) for p in ps]
+        k_val = exp
         label = "k = "
     elif u == "missing-probability":
         need(free == {MSYM} and ps.count(MSYM) == 1, "not one missing probability")
@@ -1274,7 +1575,10 @@ def check_distribution(q):
         exp_pq = (sol[0][PSYM], sol[0][QSYM])
         need(exp_pq[0] != exp_pq[1], "p and q are equal")
         for v in exp_pq:
-            need(DIST_P[0] <= v <= DIST_P[1] and (v * 20).q == 1, f"{v} is not a step of 0.05 from 0.05 to 0.6")
+            if paper == 1:
+                need(DIST_P[0] <= v <= DIST_P[1] and (v * 20).q == 1, f"{v} is not a step of 0.05 from 0.05 to 0.6")
+            else:
+                need(DIST_P[0] <= v <= DIST_P[1] and dist_awkward(v), f"{v} is not an awkward decimal from 0.05 to 0.6")
         bad = sp.solve([sp.Eq(sum(ps), 1), sp.Eq(sum(x * p for x, p in zip(xs, ps)), 1)], [PSYM, QSYM], dict=True)
         wrongs["SL4.7.unknowns-from-mean#1"] = [(b[PSYM], b[QSYM]) for b in bad]
         ps = [p.subs(sol[0]) for p in ps]
@@ -1284,10 +1588,18 @@ def check_distribution(q):
         need(not free, f"{u} shows unknowns {free}")
         if u == "fair-stake":
             exp = sum(x * p for x, p in zip(xs, ps))
-            need((exp * 100).q == 1 and exp >= DIST_STAKE_MIN, f"the stake {exp} is not whole cents from $0.50")
+            need(exp >= DIST_STAKE_MIN, f"the stake {exp} is under $0.50")
+            if paper == 1:
+                need((exp * 100).q == 1, f"the stake {exp} is not whole cents")
+                need(asked == "Find the stake that makes the game fair.", f"asked {asked!r}")
+            else:
+                # To the nearest cent from tenths of a cent, never on a half cent.
+                mille = exp * 1000
+                need(mille.q == 1 and mille % 10 not in (0, 5), f"the Paper 2 stake {exp} is not to be rounded to the cent")
+                need(asked == "Find the stake that makes the game fair, to the nearest cent.", f"asked {asked!r}")
+                need(ans_show == "money", "the stake is not shown as money")
             win = sum(x * p for x, p in zip(xs, ps) if x > 0)
             wrongs["SL4.7.fair-game#0"] = [sp.Rational(sp.floor(win / ps[0] * 100 + sp.Rational(1, 2)), 100)]
-            need(asked == "Find the stake that makes the game fair.", f"asked {asked!r}")
             label = "Stake = $"
         elif u == "expected-value":
             exp = sum(x * p for x, p in zip(xs, ps))
@@ -1319,7 +1631,11 @@ def check_distribution(q):
                 need(DIST_TRIALS[0] <= n <= DIST_TRIALS[1], f"{n} trials")
                 need(f" {n} " in " " + q["lines"][-1], "the number of trials is not shown")
                 exp = n * pe
-                need((exp * 2).q == 1 and exp >= 1, f"expected number {exp} is not whole or .5")
+                need(exp >= 1, f"expected number {exp} is under 1")
+                if paper == 1:
+                    need((exp * 2).q == 1, f"expected number {exp} is not whole or .5")
+                else:
+                    need(exp.q != 1 and ans_show == "sf", f"Paper 2 expected number {exp} is whole or not to 3 s.f.")
                 wrongs["SL4.5.expected-occurrences#0"] = [] if exp.q == 1 else [sp.floor(exp + sp.Rational(1, 2))]
                 wrongs["SL4.5.expected-occurrences#1"] = [pe]
                 label = "Expected number = "
@@ -1329,12 +1645,19 @@ def check_distribution(q):
                 need(m and sp.Rational(m[1]) == count, "the expected number is not shown")
                 exp = count / pe
                 need(exp.q == 1 and DIST_TRIALS[0] <= exp <= DIST_TRIALS[1], f"n = {exp}")
-                need((count * 2).q == 1 and count >= 1, f"expected number {count} is not whole or .5")
+                need(count >= 1, f"expected number {count} is under 1")
+                if paper == 1:
+                    need((count * 2).q == 1, f"expected number {count} is not whole or .5")
+                else:
+                    need((count * 100).q == 1, f"expected number {count} has more than 2 decimal places")
                 label = "n = "
             else:
                 raise Fail(f"the checker has no solver for {u}")
-    dist_clean(u, {**d, "ps": ps}, style)
-    show = dist_show(u, style)
+    dist_clean(u, {**d, "ps": ps}, style, paper, shown, k_val)
+    show = dist_show(u, style, paper, ans_show)
+    if paper == 2 and ans_show != "sf" and exp is not None:
+        # An exact Paper 2 answer is a decimal that ends (0.384, n = 250, $7.206).
+        need(dec_text(exp).count("/") == 0, f"Paper 2 answer {exp} doesn't end")
     prob = u in DIST_PROB_ASKS
 
     def value_text(v):
@@ -1368,6 +1691,13 @@ def check_distribution(q):
     keys = set()
     for o in ch:
         ov = vals(o["values"])
+        if o.get("trap"):
+            # Q7's rounding trap (Paper 2): the answer to 2 s.f., written as a decimal.
+            need(paper == 2 and exp_pq is None and ans_show == "sf", "a rounding trap off a Paper 2 3 s.f. answer")
+            need(not o["correct"] and not o["ref"], f"rounding trap {o['text']!r} is wrong-tagged")
+            need(dist_needs_rounding(want) and ov == sp.Rational(sig3(want, 2)), f"rounding trap {o['text']!r} is not the answer to 2 s.f.")
+            need(o["text"] == label + dec_text(ov), f"rounding trap text {o['text']!r}")
+            continue
         parts = ov if exp_pq is not None else (ov,)
         for v in parts:
             need(v > 0 and (not prob or v < 1), f"option {o['text']!r} is out of range")
@@ -1488,6 +1818,8 @@ def qr_text(ans, v):
     kind, fx, label, unit = ans["kind"], ans.get("fixed") or {}, ans.get("label", ""), ans.get("unit", "")
     if kind in EXT_KINDS or (kind == "number" and ans.get("show")):
         return ext_text(ans, v)
+    if kind in QR_SF_KINDS and ans.get("show") == "sf":
+        return qr_sf_text(ans, v)
     if kind in EL_KINDS:
         return el_text(ans, v)
     var = fx.get("var", "k")
@@ -1538,6 +1870,8 @@ def qr_norm(ans, v):
     kind, fx = ans["kind"], ans.get("fixed") or {}
     if kind in EXT_KINDS or (kind == "number" and ans.get("show") == "sf"):
         return ext_norm(ans, v)
+    if kind in QR_SF_KINDS and ans.get("show") == "sf":
+        return qr_sf_norm(ans, v)
     if kind in EL_KINDS:
         return el_norm(ans, v)
     if kind in ("interval", "bound"):
@@ -1556,6 +1890,60 @@ def qr_norm(ans, v):
         x = v[key]
         out.append((key, x if not isinstance(x, str) or not re.fullmatch(r"-?\d+(/\d+)?", x) else R(x)))
     return tuple(out)
+
+
+# Paper 2 (FAL-419): k values and interval ends that need a calculator, written to
+# 3 s.f. Such an answer is told apart by what it shows, so its norm is its numbers to
+# 3 s.f. with its shape; qr_sf_set writes an exact SymPy set the same way.
+QR_SF_KINDS = {"interval", "bound", "kvals"}
+
+
+def qr_sf_text(ans, v):
+    var = (ans.get("fixed") or {}).get("var", "k")
+    kind = ans["kind"]
+    if kind == "kvals":
+        a, b = sorted([R(v["r1"]), R(v["r2"])])
+        return f"{var} = {ext_sf(a)} or {var} = {ext_sf(b)}"
+    if kind == "bound":
+        return f"{var} {v['rel']} {ext_sf(R(v['v']))}"
+    inc = v["ends"] == "included"
+    lt, gt = ("≤", "≥") if inc else ("<", ">")
+    lo, hi = ext_sf(R(v["lo"])), ext_sf(R(v["hi"]))
+    return {"between": f"{lo} {lt} {var} {lt} {hi}", "outside": f"{var} {lt} {lo} or {var} {gt} {hi}",
+            "pm_lt": f"{var} {lt} ±{hi}", "pm_gt": f"{var} {gt} ±{hi}", "below": f"{var} {lt} {hi}",
+            "above": f"{var} {gt} {lo}"}[v["shape"]]
+
+
+def qr_sf_norm(ans, v):
+    kind = ans["kind"]
+    if kind == "kvals":
+        return tuple(ext_sf(x) for x in sorted([R(v["r1"]), R(v["r2"])]))
+    if kind == "bound":
+        return (v["rel"], ext_sf(R(v["v"])))
+    inc = v["ends"] == "included"
+    sh = v["shape"]
+    if sh in ("between", "outside"):
+        return (sh, ext_sf(R(v["lo"])), ext_sf(R(v["hi"])), v["ends"])
+    if sh == "below":
+        return ("≤" if inc else "<", ext_sf(R(v["hi"])))
+    if sh == "above":
+        return ("≥" if inc else ">", ext_sf(R(v["lo"])))
+    return ("pm", sh, ext_sf(R(v["hi"])), v["ends"])
+
+
+def qr_sf_set(S):
+    """An exact set of real numbers (one interval, one ray or two rays) as qr_sf_norm writes it."""
+    if isinstance(S, sp.Union):
+        need(len(S.args) == 2, f"{S} is not two rays")
+        left, right = sorted(S.args, key=lambda i: float(i.end) if i.end.is_finite else float(i.start))
+        need(left.start == -sp.oo and right.end == sp.oo, f"{S} is not two rays")
+        return ("outside", ext_sf(left.end), ext_sf(right.start), "left out" if left.right_open else "included")
+    need(isinstance(S, sp.Interval), f"{S} is not an interval")
+    if S.start == -sp.oo:
+        return ("<" if S.right_open else "≤", ext_sf(S.end))
+    if S.end == sp.oo:
+        return (">" if S.left_open else "≥", ext_sf(S.start))
+    return ("between", ext_sf(S.start), ext_sf(S.end), "left out" if S.left_open else "included")
 
 
 def qr_check_common(q, want, wrongs=None):
@@ -1608,6 +1996,9 @@ QP_SKETCH = ["opens upwards and crosses the x-axis twice", "opens upwards and to
              "opens downwards and touches the x-axis once", "opens downwards and never meets the x-axis"]
 QP_BASE = {"nature-from-equation", "delta-sign-from-graph", "graph-from-delta"}
 QP_CRIT_MAX = 30
+# The unknowns with a Paper 2 version (FAL-419): Δ is a quadratic in k with irrational
+# zeros, so k is found with a calculator and given to 3 s.f.
+QP_P2 = {"k-for-equal-roots", "k-interval", "always-positive"}
 
 
 def qp_nat(d, labels):
@@ -1660,6 +2051,8 @@ def check_qparam(q):
     u = q["view"]["unknown"]
     g = q["given"]
     ans = q["answer"]
+    p2 = q["paper"] == 2
+    need(not p2 or (u in QP_P2 and q["view"]["rep"] != "graph"), f"{u} on a {q['view']['rep']} has no Paper 2 version")
     if u in QP_BASE:
         a, b, c = R(g["a"]), R(g["b"]), R(g["c"])
         need(a in A_ALLOWED and abs(b) <= B_MAX and abs(c) <= C_MAX and c != 0, "the parabola is outside the clean limits")
@@ -1692,8 +2085,18 @@ def check_qparam(q):
     qp_check_shown(q, f, curve, line)
     A = R(g["a0"])
     D = sp.expand(sp.discriminant(f, X))
-    crit = sorted(sp.solve(D, K))
-    need(1 <= len(crit) <= 2 and all(c.is_integer and abs(c) <= QP_CRIT_MAX for c in crit), f"critical k {crit} not whole numbers inside the limits")
+    crit = sorted(sp.solve(D, K), key=float)
+    if p2:
+        # Paper 2: two irrational critical values, each clear of a 3 s.f. rounding edge.
+        need(len(crit) == 2 and not any(c.is_rational for c in crit), f"Paper 2 critical k {crit} don't need a calculator")
+        need(all(abs(c) <= QP_CRIT_MAX and not on_edge(abs(c)) for c in crit), f"Paper 2 critical k {crit} outside the limits or on a rounding edge")
+        need("3 significant figures" in q["asked"], "Paper 2 doesn't ask for 3 s.f.")
+        need(ans.get("show") == "sf", "a Paper 2 answer is not written to 3 s.f.")
+    else:
+        need(1 <= len(crit) <= 2 and all(c.is_integer and abs(c) <= QP_CRIT_MAX for c in crit), f"critical k {crit} not whole numbers inside the limits")
+        need(ans.get("show") != "sf", "a Paper 1 answer is written to 3 s.f.")
+    # The set an answer means, as its kind compares them: exact, or to 3 s.f. on Paper 2.
+    cv = qr_sf_set if p2 else (lambda S: S)
     lines_family = g["family"] in ("grad", "icpt")
     if u == "roots-from-k":
         kv = R(g["kv"])
@@ -1710,7 +2113,7 @@ def check_qparam(q):
             wr["SL2.7.discriminant#0"] = {(want[0], want[1], b0**2 - 4 * A * abs(c0))}
         qr_check_common(q, want, wr)
     elif u == "k-for-equal-roots":
-        want = qr_norm(ans, {"v": str(crit[0])}) if len(crit) == 1 else tuple(crit)
+        want = qr_norm(ans, {"v": str(crit[0])}) if len(crit) == 1 else (tuple(ext_sf(c) for c in crit) if p2 else tuple(crit))
         wr = {}
         if g["family"] == "icpt":
             p, r = R(g["p"]), R(g["r"])
@@ -1729,13 +2132,13 @@ def check_qparam(q):
         if u == "k-interval":
             if cond == "real":
                 S2 = sp.solve_univariate_inequality(D > 0, K, relational=False)
-                wr["SL2.7.discriminant-parameter#2"] = {S2}
+                wr["SL2.7.discriminant-parameter#2"] = {cv(S2)}
             if len(crit) == 2:
                 inc = "included" if cond == "real" else "left out"
-                wr["SL2.7.inequality#1"] = {sp.Interval(crit[0], crit[1], inc != "included", inc != "included")}
-                if crit[0] == -crit[1]:
-                    wr["SL2.7.discriminant-parameter#1"] = {("pm", "pm_lt", crit[1], inc)}
-        qr_check_common(q, S, wr)
+                wr["SL2.7.inequality#1"] = {cv(sp.Interval(crit[0], crit[1], inc != "included", inc != "included"))}
+                if sp.simplify(crit[0] + crit[1]) == 0:
+                    wr["SL2.7.discriminant-parameter#1"] = {("pm", "pm_lt", ext_sf(crit[1]) if p2 else crit[1], inc)}
+        qr_check_common(q, cv(S), wr)
     elif u == "tangent-contact-point":
         need(len(crit) == 1, "a tangent needs one critical k")
         k0 = crit[0]
@@ -1876,11 +2279,27 @@ def qe_roots_poly(f):
     return sorted(sp.solveset(f, X, domain=sp.S.Reals))
 
 
+# The unknowns with a Paper 2 version (FAL-419): a context, b^(2x) and a sum of logs
+# whose root needs a calculator, given to 3 s.f.
+QE_P2 = {"solve-in-context", "solve-hidden-exponential", "solve-hidden-log"}
+
+
+def qe_paper2(q, x):
+    """A Paper 2 root: irrational, clear of a 3 s.f. rounding edge, asked to 3 s.f."""
+    need(not x.is_rational, "Paper 2 root doesn't need a calculator")
+    need(not on_edge(x), "the answer is on a 3 s.f. rounding edge")
+    need(q["answer"].get("show") == "sf" and "3 significant figures" in q["asked"], "Paper 2 is not asked and written to 3 s.f.")
+    need(not q["answer"].get("exact"), "a Paper 2 answer is marked exactly")
+
+
 def check_qeq(q):
     u = q["view"]["unknown"]
     g = q["given"]
     ans = q["answer"]
     L = q["lines"]
+    p2 = q["paper"] == 2
+    need(not p2 or u in QE_P2, f"{u} has no Paper 2 version")
+    need(not p2 or q["view"]["angle"] != "factorise" or q["view"].get("same_angle"), "a factorising method was given Paper 2 numbers")
     if u in ("solve-factorisable", "solve-surd"):
         f = R(g["a"]) * X**2 + R(g["b"]) * X + R(g["c"])
         need(L[0].endswith(" = 0") and parse(L[0][:-4]) == sp.expand(f), "the equation shown is not the givens")
@@ -1915,6 +2334,7 @@ def check_qeq(q):
         neg = [r for r in rs if r <= 0]
         need(len(pos) == 1 and len(neg) == 1, "the context doesn't rule out exactly one root")
         x = pos[0]
+        need(g["paper"] == q["paper"], "the context's paper is not the question's")
         if g["paper"] == 1:
             need(x.is_integer and ans.get("exact"), "Paper 1 answer is not an exact whole number")
             want = qr_norm(ans, {"v": str(x)})
@@ -1941,12 +2361,20 @@ def check_qeq(q):
             good = [w for w in us if w > 0]
             bad = [w for w in us if w <= 0]
             need(len(good) == 1 and len(bad) == 1, "not exactly one u-root to reject")
-            x = sp.log(good[0], b)
-            x = sp.nsimplify(x)
-            need(x.is_integer, "x is not a whole number")
-            wr = {"SL2.7.hidden-quadratic#0": {qr_norm(ans, {"v": str(good[0])})},
-                  "SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(-sp.nsimplify(sp.log(-bad[0], b)))})}}
-            qr_check_common(q, qr_norm(ans, {"v": str(x)}), wr)
+            wrong1 = -sp.nsimplify(sp.log(-bad[0], b))
+            if p2:
+                # b is 2 or 3, so log_b u is rational only when u is a whole power of b.
+                need(b in (2, 3) and good[0].is_integer and b ** round(float(sp.log(good[0], b))) != good[0], "Paper 2: x = log_b u should need a calculator")
+                x = sp.log(good[0]) / sp.log(b)
+                qe_paper2(q, x)
+                wr = {"SL2.7.hidden-quadratic#0": {ext_sf(good[0])}, "SL2.7.hidden-quadratic#1": {ext_sf(wrong1)}}
+                qr_check_common(q, ext_sf(x), wr)
+            else:
+                x = sp.nsimplify(sp.log(good[0], b))
+                need(x.is_integer, "x is not a whole number")
+                wr = {"SL2.7.hidden-quadratic#0": {qr_norm(ans, {"v": str(good[0])})},
+                      "SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(wrong1)})}}
+                qr_check_common(q, qr_norm(ans, {"v": str(x)}), wr)
     elif u == "solve-hidden-reciprocal":
         m = re.match(r"^x ([+−]) (\d+)/x = (−?\d+)$", L[0])
         need(m is not None, f"can't read {L[0]!r}")
@@ -1962,7 +2390,13 @@ def check_qeq(q):
         ok = [r for r in rs if r > 0 and r + d > 0]
         bad = [r for r in rs if r not in ok]
         need(len(ok) == 1 and len(bad) == 1, "not exactly one root to reject")
-        qr_check_common(q, qr_norm(ans, {"v": str(ok[0])}), {"SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(bad[0])})}})
+        if p2:
+            qe_paper2(q, ok[0])
+            need(not on_edge(abs(bad[0])), "the rejected root is on a 3 s.f. rounding edge")
+            qr_check_common(q, ext_sf(ok[0]), {"SL2.7.hidden-quadratic#1": {ext_sf(bad[0])}})
+        else:
+            need(ok[0].is_integer, "a Paper 1 root is not a whole number")
+            qr_check_common(q, qr_norm(ans, {"v": str(ok[0])}), {"SL2.7.hidden-quadratic#1": {qr_norm(ans, {"v": str(bad[0])})}})
     elif u == "equation-from-roots":
         m = re.match(r"^The roots of a quadratic equation are x = (.+)\.$", L[0]) or re.match(r"^A quadratic equation has roots (.+)\.$", L[0])
         need(m is not None, f"can't read {L[0]!r}")
@@ -1994,6 +2428,10 @@ def check_qeq(q):
 # ── quadratic-inequality ──
 
 QI_REL = {"<": lambda f: f < 0, "≤": lambda f: f <= 0, ">": lambda f: f > 0, "≥": lambda f: f >= 0}
+# Papers (FAL-419): these have a Paper 2 version whose roots need a calculator (the ends
+# to 3 s.f.); the largest-integer context always needs one; the rest are Paper 1.
+QI_P2 = {"solve-against-zero", "solve-against-constant", "negative-a"}
+QI_P2_ONLY = {"largest-integer"}
 
 
 def qi_read(line):
@@ -2008,6 +2446,8 @@ def check_qineq(q):
     g = q["given"]
     ans = q["answer"]
     L = q["lines"]
+    p2 = q["paper"] == 2
+    need(p2 == (u in QI_P2_ONLY) or u in QI_P2, f"{u} is not asked on Paper {q['paper']}")
     if u == "largest-integer":
         m = re.match(r"^A mosaic has n rows of \(n \+ (\d+)\) tiles, and there are (\d+) tiles to use\.$", L[0])
         need(m is not None, "can't read the context")
@@ -2051,28 +2491,42 @@ def check_qineq(q):
         need(ans["fixed"]["options"][2:] == [f"x = {frac_text(h)} only", f"every x except {frac_text(h)}"], "the options don't name the vertex")
         qr_check_common(q, want)
         return None, None
-    rs = sorted(sp.solveset(f, X, domain=sp.S.Reals))
-    need(len(rs) == 2 and all(r.is_rational for r in rs), "the roots are not two rational numbers")
+    rs = sorted(sp.solveset(f, X, domain=sp.S.Reals), key=float)
+    if p2:
+        # Paper 2: whole-number coefficients, irrational roots clear of a 3 s.f. rounding edge.
+        a_, b_, c_ = R(g["a"]), R(g["b"]), R(g["c"])
+        need(a_ in A_ALLOWED and a_.q == 1 and abs(b_) <= B_MAX and abs(c_) <= C_MAX and c_ != 0, "the quadratic is outside the clean limits")
+        need(len(rs) == 2 and not any(r.is_rational for r in rs), "Paper 2: the roots should need a calculator")
+        need(not any(on_edge(abs(r)) for r in rs), "a root is on a 3 s.f. rounding edge")
+        need(ans.get("show") == "sf" and "3 significant figures" in q["asked"], "Paper 2 is not asked and written to 3 s.f.")
+    else:
+        need(len(rs) == 2 and all(r.is_rational for r in rs), "the roots are not two rational numbers")
+    cv = qr_sf_set if p2 else (lambda S: S)
     if q.get("graph"):
         gr = q["graph"]
-        need(sorted(pt["x"] for pt in gr["points"]) == [float(rs[0]), float(rs[1])], "the roots marked are not the roots")
+        if p2:
+            # The roots are for the GDC to find, so none are marked; the curve is f.
+            need(not gr["points"], "a Paper 2 graph marks its roots")
+            need(abs(gr["a"] - float(R(g["a"]))) < 1e-9 and abs(gr["h"] - float(-R(g["b"]) / (2 * R(g["a"])))) < 1e-9, "the graph is not the given parabola")
+        else:
+            need(sorted(pt["x"] for pt in gr["points"]) == [float(rs[0]), float(rs[1])], "the roots marked are not the roots")
     wr = {}
     inc = "left out" if rel in ("<", ">") else "included"
     between = sp.Interval(rs[0], rs[1], inc == "left out", inc == "left out")
     outside = sp.Union(sp.Interval(-sp.oo, rs[0], True, inc == "left out"), sp.Interval(rs[1], sp.oo, inc == "left out", True))
     if S == outside:
-        wr["SL2.7.inequality#1"] = {between}
+        wr["SL2.7.inequality#1"] = {cv(between)}
     if u == "negative-a":
         need(R(g["a"]) < 0, "a is not negative")
         # Dividing by −1 but keeping the sign solves the opposite inequality.
-        wr["SL2.7.inequality#2"] = {sp.solve_univariate_inequality(QI_REL[rel](-f), X, relational=False)}
+        wr["SL2.7.inequality#2"] = {cv(sp.solve_univariate_inequality(QI_REL[rel](-f), X, relational=False))}
     if u == "square-against-constant":
         n = sp.sqrt(rhs_)
         need(n.is_integer and f == X**2 - rhs_, "not x² against a square")
         lt = rel in ("<", "≤")
         wr["SL2.7.inequality#0"] = {("pm", "pm_lt" if lt else "pm_gt", n, inc),
                                     qr_set("bound", {"rel": rel, "v": str(n)})}
-    qr_check_common(q, S, wr)
+    qr_check_common(q, cv(S), wr)
     return None, None
 
 
@@ -2153,6 +2607,8 @@ def shown_line_gradient(text):
 
 
 def check_cubic(q):
+    if q.get("paper", 1) == 2:
+        return check_cubic_p2(q)
     u = q["view"]["unknown"]
     s = q["situation"]
     g = q["given"]
@@ -2271,6 +2727,187 @@ def check_cubic(q):
         need(len(mx) == 1, "not one local maximum")
         return {"v": f.subs(X, mx[0])}, None
     raise Fail(f"the checker has no solver for {u}")
+
+
+# ── Cubic, Paper 2 (FAL-419) ──
+# The calculator cubic: decimal coefficients (tenths, at least one of a, b, c not
+# whole), f′ with two irrational roots, and x₀ a decimal to one place. Every value is
+# solved again with SymPy and given to 3 s.f., clear of a rounding edge. The engine's
+# copy of these limits is in game/engine/situations/cubic.gd (P2_*).
+
+CUBIC_P2_UNKNOWNS = {"x-for-gradient", "tangent-at-point", "normal-at-point", "stationary-points", "max-value"}
+CUBIC_P2_A = {sp.Rational(n, 10) * sg for n in (2, 4, 5, 10, 15, 20) for sg in (1, -1)}
+CUBIC_P2_B_MAX, CUBIC_P2_C_MAX, CUBIC_P2_D_MAX = 4, 9, 9
+CUBIC_P2_X_MAX, CUBIC_P2_X_MIN, CUBIC_P2_X_GAP = 5, sp.Rational(1, 10), sp.Rational(1, 2)
+CUBIC_P2_X0_MAX, CUBIC_P2_G_MAX = 3, 20
+CUBIC_P2_TOL = sp.Rational(1, 10**6)
+CUBIC_P2_V_MIN = sp.Rational(1, 10)   # every number of an answer is at least this big
+DEC_ = r"(−?\d+(?:\.\d+)?)"
+
+
+def cubic_sf(x):
+    return "0" if x == 0 else sig3(x).replace("-", "−")
+
+
+def cubic_p2_vals(kind, v):
+    """An answer's numbers in a fixed order: roots and points sorted, as written."""
+    if kind == "roots":
+        return sorted([v["r1"], v["r2"]], key=num)
+    if kind == "points2":
+        ps = sorted([(v["x1"], v["y1"]), (v["x2"], v["y2"])], key=lambda p: (num(p[0]), num(p[1])))
+        return [ps[0][0], ps[0][1], ps[1][0], ps[1][1]]
+    if kind == "line":
+        return [v["m"], v["c"]]
+    return [v["v"]]
+
+
+def cubic_p2_text(ans, v):
+    kind = ans["kind"]
+    xs = [cubic_sf(x) for x in cubic_p2_vals(kind, v)]
+    if kind == "roots":
+        return f"x = {xs[0]} and x = {xs[1]}"
+    if kind == "points2":
+        return f"({xs[0]}, {xs[1]}) and ({xs[2]}, {xs[3]})"
+    if kind == "line":
+        m, c = v["m"], v["c"]
+        return "y = " + xs[0] + "x" + ("" if c == 0 else (" − " if c < 0 else " + ") + cubic_sf(abs(c)))
+    return ans["label"] + xs[0]
+
+
+def cubic_p2_common(q, want, wrongs):
+    """want: slot -> exact value. wrongs: ref -> list of slot dicts that slip gives."""
+    ans = q["answer"]
+    kind = ans["kind"]
+    need(ans.get("show") == "sf" and not ans.get("exact"), "a Paper 2 answer is not written to 3 s.f.")
+    need("correct to 3 significant figures" in q["asked"], "the question doesn't ask for 3 s.f.")
+    wv = cubic_p2_vals(kind, want)
+    for x in wv:
+        need(abs(x) >= CUBIC_P2_V_MIN and not on_edge(abs(x)), f"the answer's {float(num(x)):.8} is too small or on a 3 s.f. rounding edge")
+    need(any(not sp.sympify(x).is_rational or R(sig3(x)) != x for x in wv), "no number needs rounding: no calculator needed")
+
+    def rv(vals):
+        return {k: R(x) for k, x in vals.items()}
+
+    def close(vals):
+        got = cubic_p2_vals(kind, rv(vals))
+        return all(abs(num(a) - num(b)) <= CUBIC_P2_TOL * max(1, abs(num(b))) for a, b in zip(got, wv))
+
+    right = cubic_p2_text(ans, want)
+    need(close(ans["values"]), f"engine answer {q['answer_text']!r} is wrong (expected {right!r})")
+    need(q["answer_text"] == right, f"answer text {q['answer_text']!r}, expected {right!r}")
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    texts = set()
+    wrong_texts = {ref: {cubic_p2_text(ans, w) for w in ws} for ref, ws in wrongs.items()}
+    for o in ch:
+        ov = rv(o["values"])
+        need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
+        texts.add(o["text"])
+        if o.get("trap"):
+            need(kind == "number" and not o["correct"] and not o["ref"], f"rounding trap {o['text']!r} is wrong-tagged")
+            need(ov["v"] == R(sig3(want["v"], 2)) and o["text"] != right, f"rounding trap {o['text']!r} is not the answer to 2 s.f.")
+            continue
+        for x in cubic_p2_vals(kind, ov):
+            need(x == 0 or not on_edge(abs(x)), f"option {o['text']!r} is on a 3 s.f. rounding edge ({float(num(x)):.8})")
+        need(o["text"] == cubic_p2_text(ans, ov), f"option text {o['text']!r} doesn't say its values")
+        need((o["text"] == right) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'} but is {'right' if o['text'] == right else 'wrong'}")
+        if o["correct"]:
+            need(close(o["values"]), "the right option is not the answer")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrong_texts, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(o["text"] in wrong_texts[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(close(sol["result"]), f"{sol['name']}: last step gives {sol['result']}, not the answer")
+        need(QR_STEPS[0] <= len(sol["steps"]) <= QR_STEPS[1], f"{sol['name']}: {len(sol['steps'])} steps, not 2 to 5")
+        need(any("GDC" in st for st in sol["steps"]), f"{sol['name']}: the working doesn't use the calculator")
+        need(right in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+
+
+def cubic_p2_pair(xs, what):
+    """Two x-values fit to ask for to 3 s.f.: irrational, in range, apart, clear."""
+    need(len(xs) == 2 and all(x.is_real for x in xs), f"{what}: not two real roots ({xs})")
+    need(all(not x.is_rational for x in xs), f"{what}: a root is rational, so no calculator is needed")
+    need(xs[1] - xs[0] >= CUBIC_P2_X_GAP, f"{what}: the roots are too close")
+    for x in xs:
+        need(CUBIC_P2_X_MIN <= abs(x) <= CUBIC_P2_X_MAX, f"{what}: x = {float(num(x)):.6} out of limits")
+        need(not on_edge(abs(x)), f"{what}: x = {float(num(x)):.8} is on a 3 s.f. rounding edge")
+
+
+def check_cubic_p2(q):
+    u = q["view"]["unknown"]
+    s = q["situation"]
+    g = q["given"]
+    need(u in CUBIC_P2_UNKNOWNS, f"{u} has no Paper 2 version")
+    need(s.get("paper") == 2, "the situation is not the Paper 2 cubic")
+    a, b, c, d = (R(v) for v in g["f"])
+    need([R(s[n]) for n in "abcd"] == [a, b, c, d], "the givens describe another cubic than the situation")
+    need(a in CUBIC_P2_A, f"a = {a} is not a Paper 2 choice")
+    need(all((10 * v).q == 1 and v != 0 for v in (b, c, d)), "b, c or d is 0 or not in tenths")
+    need(abs(b) <= CUBIC_P2_B_MAX and abs(c) <= CUBIC_P2_C_MAX and abs(d) <= CUBIC_P2_D_MAX, "b, c or d too big")
+    need(any(v.q != 1 for v in (a, b, c)), "every coefficient of f′ is whole: not a calculator cubic")
+    f = sp.expand(a * X**3 + b * X**2 + c * X + d)
+    f1 = sp.diff(f, X)
+    f2 = sp.diff(f, X, 2)
+    need(sp.expand(sp.nsimplify(shown_curve(q), rational=True)) == f, "the curve shown is not the given one")
+    xs = sorted(sp.solve(f1, X), key=num)
+    cubic_p2_pair(xs, "f′(x) = 0")
+    for x in xs:
+        y = f.subs(X, x)
+        need(abs(num(y)) <= CUBIC_Y_MAX and not on_edge(abs(y)), f"f({float(num(x)):.6}) = {float(num(y)):.8} is too high or on a rounding edge")
+    for k, x in (("p", xs[0]), ("q", xs[1]), ("fp", f.subs(X, xs[0])), ("fq", f.subs(X, xs[1]))):
+        need(abs(num(R(s[k])) - num(x)) <= CUBIC_P2_TOL * max(1, abs(num(x))), f"the situation's {k} is not f's")
+    text = " ".join(q["lines"] + [q["asked"]])
+
+    if u == "x-for-gradient":
+        gr = R(g["g"])
+        need(gr.q == 1 and gr != 0 and abs(gr) <= CUBIC_P2_G_MAX, "g out of limits")
+        if q["view"]["rep"] == "words":
+            need(shown_line_gradient(q["asked"]) == gr, "the line shown has another gradient")
+        else:
+            need(shown_number(q["asked"], r"f′\(x\) = " + INT_) == gr, "the gradient shown is not g")
+        rs = sorted(sp.solve(sp.Eq(f1, gr), X), key=num)
+        cubic_p2_pair(rs, f"f′(x) = {gr}")
+        cubic_p2_common(q, {"r1": rs[0], "r2": rs[1]}, {})
+        return None, None
+    if u == "max-value":
+        mx = [x for x in xs if f2.subs(X, x) < 0]
+        need(len(mx) == 1, "not one local maximum")
+        need(q["answer"]["label"] == ("y = " if q["view"]["rep"] == "words" else "local maximum = "), "the answer's label")
+        cubic_p2_common(q, {"v": f.subs(X, mx[0])}, {"SL5.8.optimise-given-function#0": [{"v": mx[0]}]})
+        return None, None
+    if u == "stationary-points":
+        ys = [f.subs(X, x) for x in xs]
+        cubic_p2_common(q, {"x1": xs[0], "y1": ys[0], "x2": xs[1], "y2": ys[1]},
+                        {"SL5.8.find-stationary-points#2": [{"x1": xs[0], "y1": 0, "x2": xs[1], "y2": 0}]})
+        return None, None
+
+    # The tangent and the normal at x₀.
+    x0 = R(g["x0"])
+    need((10 * x0).q == 1 and x0.q != 1 and abs(x0) <= CUBIC_P2_X0_MAX, f"x0 = {x0} is not a decimal to one place up to 3")
+    need(R(s["x0"]) == x0, "x0 differs from the situation")
+    need(shown_number(q["asked"], r"x = " + DEC_) == x0, "the x shown is not x0")
+    y0, m = f.subs(X, x0), f1.subs(X, x0)
+    ct = y0 - m * x0
+    need(m != 0 and abs(m) != 1 and abs(m) <= CUBIC_M0_MAX and abs(y0) <= CUBIC_Y_MAX, "f′(x0) or f(x0) out of limits")
+    need(ct != 0, "the tangent goes through the origin")
+    if u == "tangent-at-point":
+        mn = -1 / m
+        cubic_p2_common(q, {"m": m, "c": ct}, {
+            "SL5.4.tangent-equation#1": [{"m": m, "c": m - m * x0}],
+            "SL5.4.tangent-equation#2": [{"m": mn, "c": y0 - mn * x0}]})
+        return None, None
+    if u == "normal-at-point":
+        mn = -1 / m
+        cubic_p2_common(q, {"m": mn, "c": y0 - mn * x0}, {
+            "SL5.4.normal-equation#0": [{"m": -m, "c": y0 + m * x0}, {"m": 1 / m, "c": y0 - x0 / m}],
+            "SL5.4.normal-equation#1": [{"m": mn, "c": ct}]})
+        return None, None
+    raise Fail(f"the checker has no Paper 2 solver for {u}")
 
 
 # ── Quadratics extension types (FAL-459) ─────────────────────
@@ -2898,6 +3535,9 @@ def check_qmodel(q):
     a, b, c = R(g["a"]), R(g["b"]), R(g["c"])
     f = a * X**2 + b * X + c
     need(a in QM_A[ctx], f"a = {a} is not a clean {ctx} model")
+    # Paper 2 is a ball with a = −4.9 (FAL-419); a pen or a table is Paper 1.
+    need(q["paper"] == (2 if a == sp.Rational(-49, 10) else 1), f"a = {a} on Paper {q['paper']}")
+    need(q["paper"] == 1 or (ctx == "ball" and rep != "table"), "a pen or a table on Paper 2")
     name = "h(t)" if ctx == "ball" else "A(x)"
     tv, hv = vertex(f)
     need(sp.expand(R(g["a"]) * (X - R(g["T"]))**2 + R(g["H"]) - f) == 0, "the vertex form doesn't match the model")
@@ -3891,6 +4531,9 @@ def check_exp_log_pair(q):
         need(not re.search(r"-\d", t), f"a hyphen for a minus in {t!r}")
     wr = {}
     FI, ELI, ELF = "SL2.5.find-inverse", "SL2.9.exp-log-inverse", "SL1.5.exp-log-form"
+    if q.get("paper", 1) == 2:
+        return check_exp_log_pair_p2(q)
+    need(u not in EL_P2 or ans.get("exact") is True, "a Paper 1 answer is not exact")
     if u in ("evaluate-log-function", "evaluate-inverse", "inverse-of-log"):
         b, h, c = el_parse_log(L[0], r"g\(x\)")
         need(b in (2, 3, 4, 5, 10) and -5 <= h <= 5 and -4 <= c <= 4, "not a clean log function")
@@ -4060,6 +4703,92 @@ def check_exp_log_pair(q):
     else:
         raise Fail(f"the checker has no solver for {u}")
     qr_check_common(q, want, wr)
+    return None, None
+
+
+# Paper 2 (FAL-419): the cells with a calculator version, and its limits (the engine's
+# are in exp_log_pair.gd): the inside of g(x) is 2 to 60 and not a power of b; g⁻¹ and
+# the log equation are at c + t, t in tenths (0.2 to 2.9, not whole), with b^t ≤ 150.
+EL_P2 = {"evaluate-log-function", "evaluate-inverse", "solve-exp-equation", "solve-log-equation"}
+EL_P2_INSIDE = (2, 60)
+EL_P2_T = (sp.Rational(1, 5), sp.Rational(29, 10))
+EL_P2_BT = 150
+EL_SF = ", correct to 3 significant figures"
+
+
+def el_p2_value(v):
+    """A Paper 2 answer: needs a calculator and is clear of a 3 s.f. rounding edge."""
+    need(not sp.nsimplify(v).is_rational, f"{v} doesn't need a calculator")
+    need(not on_edge(abs(v)), f"{sp.N(v, 12)} is on a 3 s.f. rounding edge")
+    return ext_sf(v)
+
+
+def el_p2_t(text, c):
+    """The decimal a = c + t asked at: t in tenths, in limits, not whole."""
+    a = el_num(text)
+    t = a - c
+    need(t.q == 10 or t.q == 5 or t.q == 2, f"t = {t} is not in tenths")
+    need(EL_P2_T[0] <= t <= EL_P2_T[1] and not t.is_integer, f"t = {t} is outside the limits")
+    return a, t
+
+
+def check_exp_log_pair_p2(q):
+    """Paper 2: the same functions at numbers that need a calculator, each answer to
+    3 s.f. (show sf), solved again here with SymPy."""
+    g, ans, u, rep, L, asked = q["given"], q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    ELI, ELF = "SL2.9.exp-log-inverse", "SL1.5.exp-log-form"
+    need(u in EL_P2 and rep == "equation", f"{u} ({rep}) has no Paper 2 version")
+    need(ans.get("show") == "sf" and not ans.get("exact") and ans["kind"] == "number", "a Paper 2 answer is not a number to 3 s.f.")
+    need(asked.endswith(EL_SF + "."), "a Paper 2 question doesn't ask for 3 s.f.")
+    wr = {}
+    if u in ("evaluate-log-function", "evaluate-inverse"):
+        b, h, c = el_parse_log(L[0], r"g\(x\)")
+        need(b in (2, 3, 4, 5, 10) and -5 <= h <= 5 and -4 <= c <= 4, "not a clean log function")
+    if u == "evaluate-log-function":
+        x = el_num(em_read(r"^Find g\((−?\d+)\),", asked, "the input").group(1))
+        k = x - h
+        need(EL_P2_INSIDE[0] <= k <= EL_P2_INSIDE[1], f"the inside {k} is outside the limits")
+        need(not sp.nsimplify(sp.log(k, b)).is_rational, f"{k} is a power of {b}")
+        need(ans["label"] == el_m_text(f"g({x}) = "), "the label is not g at the input")
+        want = el_p2_value(sp.log(k, b) + c)
+        wr[f"{ELF}#0"] = {ext_sf(k / sp.Integer(b) + c)}
+    elif u == "evaluate-inverse":
+        m = em_read(r"^Find g⁻¹\((−?\d+(?:\.\d+)?)\),", asked, "the value")
+        a, t = el_p2_t(m.group(1), c)
+        need(sp.Integer(b) ** t <= EL_P2_BT, "b^t is too big")
+        x = sp.Integer(b) ** t + h
+        need(sp.simplify(sp.log(x - h, b) + c - a) == 0, "g at the answer is not the value asked")
+        need(abs(x) >= 1, "the answer is too close to 0")
+        want = el_p2_value(x)
+        wr[f"{ELI}#1"] = {ext_sf(t ** b + h)}
+    elif u == "solve-exp-equation":
+        m = em_read(r"^e\^\((\d+)x\)(?: ([+−]) (\d+))? = (−?\d+)$", L[0], "the equation")
+        mm, c, d = int(m.group(1)), el_parse_q(m.group(2), m.group(3)), el_num(m.group(4))
+        need(asked == f"Solve {L[0]}, giving x{EL_SF}.", "the question is not the equation shown")
+        sol = [s_ for s_ in sp.solve(sp.exp(mm * X) + c - d, X) if s_.is_real]
+        need(len(sol) == 1, "not one real solution")
+        r = d - c
+        want = el_p2_value(sol[0])
+        wr[f"{ELI}#0"] = {ext_sf(mm * sp.log(r)), ext_sf(sp.log(r) - mm)}
+        wr[f"{ELI}#2"] = {ext_sf(r / (mm * sp.E))}
+    elif u == "solve-log-equation":
+        m = em_read(r"^log([₀-₉]+)\((x(?: [−+] \d+)?)\)(?: ([+−]) (\d+))? = (−?\d+\.\d+)$", L[0], "the equation")
+        b, h, c = int(m.group(1).translate(EL_SUB)), el_parse_shift(m.group(2)), el_parse_q(m.group(3), m.group(4))
+        need(b in (2, 3, 4, 5, 10) and -5 <= h <= 5 and -4 <= c <= 4, "not a clean log equation")
+        need(asked == f"Solve {L[0]}, giving x{EL_SF}.", "the question is not the equation shown")
+        a, t = el_p2_t(m.group(5), c)
+        need(sp.Integer(b) ** t <= EL_P2_BT, "b^t is too big")
+        sol = sp.solve(sp.log(X - h, b) + c - a, X)
+        need(len(sol) == 1, f"the solution {sol} is not one number")
+        need(abs(sol[0]) >= 1, "the answer is too close to 0")
+        want = el_p2_value(sol[0])
+        wr[f"{ELI}#1"] = {ext_sf(t ** b + h)}
+    qr_check_common(q, want, wr)
+    if any(o.get("trap") for o in q["choices"]):
+        trap = [o for o in q["choices"] if o.get("trap")][0]
+        need(sig3(R(trap["values"]["v"]), 2) == sig3(R(ans["values"]["v"]), 2), "the rounding trap is not the answer to 2 s.f.")
+    for sol in q["solutions"]:
+        need(any("GDC" in st for st in sol["steps"]), f"{sol['name']}: a Paper 2 solution doesn't use the GDC")
     return None, None
 
 

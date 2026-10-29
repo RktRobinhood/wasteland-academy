@@ -37,6 +37,15 @@ func need(unknown: String, rep: String) -> Dictionary:
 	return n
 
 
+## The papers each cell can make (FAL-419): a ball can be Paper 2 (a = −4.9); a pen
+## and a table are Paper 1 only. The type has no exam counts, so this only says which
+## papers a view may force; the recipe still picks its own otherwise.
+func papers(unknown: String, rep: String, _angle: String) -> Array:
+	if rep == "table" or needs()[unknown].ctx == "pen":
+		return [1]
+	return [1, 2]
+
+
 func extra() -> Dictionary:
 	var mp := ["method-pick"]
 	return {"max-value": mp, "time-of-max": mp, "form-area-model": mp, "interpret-vertex": mp,

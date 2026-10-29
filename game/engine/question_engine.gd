@@ -277,6 +277,84 @@ static func merge_need(a: Dictionary, b: Dictionary) -> Variant:
 	return out
 
 
+# ── Paper 1 or 2 (FAL-419) ───────────────────────────────────
+# Every question is Paper 1 (no calculator: its numbers come out exact) or Paper 2 (a
+# calculator: numbers that need one), and carries it as `paper`. A type the IB asks on
+# both papers makes both, in the ratio of its bank parts (the catalogue's `paper`,
+# {"p1", "p2"}). Each cell says which papers its views can make
+# (views.papers(unknown, rep, angle)); the cells that can make both make up for the
+# cells that can't, so the type as a whole lands on the exam's share. The paper is
+# drawn from its own seeded stream, so the recipe's numbers stream is untouched, and the
+# recipe is told it as need.paper. A situation that sets its own `paper` has the last
+# word, so the badge always matches the numbers. A type with no exam counts (an
+# extension type) gets no need.paper, and its recipe decides as before.
+
+static var _paper_chance := {}
+
+
+## The Paper 2 share of a type's exam parts, or -1.0 when the catalogue has none.
+static func paper_share(t: Dictionary) -> float:
+	var p: Dictionary = t.get("paper", {})
+	var total := int(p.get("p1", 0)) + int(p.get("p2", 0))
+	return float(p.get("p2", 0)) / total if total > 0 else -1.0
+
+
+## The papers a cell can be asked on. Views say (papers(unknown, rep, angle)); where
+## they don't, a type the exam asks on one paper only gets that paper, a type with no
+## exam counts gets [] (its recipe decides, and sets the situation's `paper`), and any
+## other gets Paper 1.
+static func cell_papers(t: Dictionary, unknown: String, rep: String, angle: String) -> Array:
+	var views = views_for(t)
+	if views != null and views.has_method("papers"):
+		var own: Array = views.papers(unknown, rep, angle)
+		if not own.is_empty():
+			return own
+	var share := paper_share(t)
+	if share < 0.0:
+		return []
+	return [2] if share == 1.0 else [1]
+
+
+## The chance that a cell able to make both papers makes Paper 2, chosen so the type's
+## cells together land on paper_share(): (share × cells − Paper 2-only cells) ÷ cells
+## that can make both, kept between 0 and 1.
+static func paper_chance(t: Dictionary) -> float:
+	if _paper_chance.has(t.id):
+		return _paper_chance[t.id]
+	var share := paper_share(t)
+	var only2 := 0
+	var both := 0
+	var all := 0
+	for c in cells(false, [t.id]):
+		var ps := cell_papers(t, c.unknown, c.rep, c.angle)
+		all += 1
+		if ps == [2]:
+			only2 += 1
+		elif ps.size() > 1:
+			both += 1
+	var chance := 0.0
+	if share >= 0.0 and both > 0:
+		chance = clampf((share * all - only2) / both, 0.0, 1.0)
+	_paper_chance[t.id] = chance
+	return chance
+
+
+## The paper for a question: forced (1 or 2, where the cell can make it), the one
+## paper the cell can make, or drawn at paper_chance(). 0 for a type with no exam
+## counts, whose recipe decides.
+static func _pick_paper(t: Dictionary, papers: Array, key: String, forced: Variant) -> int:
+	if int(forced) in papers:
+		return int(forced)
+	if papers.is_empty() or paper_share(t) < 0.0:
+		return 0
+	if papers.size() == 1:
+		return int(papers[0])
+	var rng := Seeded.new("paper|" + key)
+	# The stream's first draw leans low (FAL-460), so it is spent first.
+	rng.int_in(0, 1)
+	return 2 if rng.chance(paper_chance(t)) else 1
+
+
 ## Makes the question for a view. Returns {"error": "..."} if the view can't be made.
 static func make(view: Dictionary) -> Dictionary:
 	var v := _resolve(view)
@@ -289,9 +367,19 @@ static func make(view: Dictionary) -> Dictionary:
 	var rng := Seeded.new("%s|%d" % [cell_key(v.t.id, v.u.id, v.rep, rng_angle), v.seed])
 	var recipe = SITUATIONS[v.t.situation][0]
 	var s: Dictionary
+	var paper := 0
 	if shared:
 		var fam := family_of(v.t.id, v.u.id, v.rep)
-		s = recipe.generate(Seeded.new("%s|%s|%s|%d" % [v.t.id, v.rep, ",".join(fam.unknowns), v.seed]), fam.need)
+		var fam_key := "%s|%s|%s|%d" % [v.t.id, v.rep, ",".join(fam.unknowns), v.seed]
+		# One paper for the whole family, so every unknown asks the same numbers.
+		var both := [1, 2]
+		for id in fam.unknowns:
+			both = both.filter(func(p): return p in cell_papers(v.t, id, v.rep, v.angle))
+		paper = _pick_paper(v.t, both if not both.is_empty() else [1], fam_key, view.get("paper", 0))
+		var fn: Dictionary = fam.need.duplicate()
+		if paper > 0:
+			fn["paper"] = paper
+		s = recipe.generate(Seeded.new(fam_key), fn)
 	else:
 		# The method that made the numbers rides along, for recipes whose numbers depend
 		# on it (a Paper 2 context that a factorising method can't solve). It is the
@@ -300,10 +388,15 @@ static func make(view: Dictionary) -> Dictionary:
 		# family, not to a method, so it gets none. Other recipes ignore it.
 		var nd: Dictionary = v.views.need(v.u.id, v.rep)
 		nd["angle"] = rng_angle
+		var key := "%s|%d" % [cell_key(v.t.id, v.u.id, v.rep, rng_angle), v.seed]
+		paper = _pick_paper(v.t, cell_papers(v.t, v.u.id, v.rep, rng_angle), key, view.get("paper", 0))
+		if paper > 0:
+			nd["paper"] = paper
 		s = recipe.generate(rng, nd)
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % cell_key(v.t.id, v.u.id, v.rep, v.angle)}
 	var q := _build(v, s, rng)
+	q.paper = int(s.get("paper", paper if paper > 0 else 1))
 	if rng_angle != v.angle:
 		q.view.same_angle = rng_angle
 	if shared:
@@ -343,6 +436,13 @@ static func make_chain(steps: Array, seed: int) -> Dictionary:
 		vs.append(v)
 		keys.append("%s:%s" % [v.t.id, v.u.id])
 	var chain_key := "chain|%s|%d" % ["+".join(keys), seed]
+	# One paper for the whole chain: one that every part can be asked on.
+	var both := [1, 2]
+	for v in vs:
+		both = both.filter(func(p): return p in cell_papers(v.t, v.u.id, v.rep, v.angle))
+	var paper := _pick_paper(vs[0].t, both if not both.is_empty() else [1], chain_key, 0)
+	if paper > 0:
+		need["paper"] = paper
 	var s: Dictionary = SITUATIONS[sit][0].generate(Seeded.new(chain_key), need)
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % chain_key}
@@ -350,6 +450,7 @@ static func make_chain(steps: Array, seed: int) -> Dictionary:
 	for i in vs.size():
 		var q := _build(vs[i], s, Seeded.new("%s|part %d" % [chain_key, i]))
 		q.part = i
+		q.paper = int(s.get("paper", paper if paper > 0 else 1))
 		if i > 0:
 			var before: Dictionary = parts[i - 1]
 			q.carried = {"part": part_letter(i - 1), "asked": before.asked, "values": before.answer.values,
@@ -679,7 +780,7 @@ static func probe(type_id: String, index: int) -> Dictionary:
 	var verdict := first if first in options else ""
 	if verdict == "":
 		options = SELF_MARK
-	return {"format": "probe", "kind": c.kind, "cell": "%s|concept|%d" % [type_id, index], "type_name": t.name,
+	return {"format": "probe", "paper": 1, "kind": c.kind, "cell": "%s|concept|%d" % [type_id, index], "type_name": t.name,
 		"level": int(c.level), "prompt": c.prompt, "options": options, "verdict": verdict, "reveal": c.answer,
 		"view": {"type": type_id, "probe": index, "format": "probe"}}
 

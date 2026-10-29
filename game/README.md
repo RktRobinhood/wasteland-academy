@@ -25,6 +25,10 @@ game/
 ├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains, Bazaar prices
 ├── engine/bazaar.gd     ← the Bazaar's rules: upgrades, perks, cosmetics (see "The Bazaar")
 ├── engine/art_slots.gd  ← art by file name, with a fallback for each (see "Art slots")
+├── engine/expr.gd       ← the expression engine (TinyExpr port): the calculator and every typed answer
+├── engine/brent.gd, graph_tools.gd ← Brent's root finder and minimiser (SciPy port); zeros, extrema, intersections
+├── ui/calculator.gd     ← the in-game calculator (see "The calculator"); ui/calc_graph.gd its graph, ui/keypad.gd the keys
+├── ui/credits.gd, data/credits.json ← the credits, from the title screen: third-party code, fonts, sound
 ├── data/bosses.json, enemies.json, frames.json ← boss names and taunts, the enemy pool, name-plate frames
 ├── scenes/bazaar.tscn   ← the Bazaar screen (ui/bazaar.gd); ui/name_plate.gd draws the plate
 ├── ui/                  ← screens and the graph view
@@ -109,20 +113,32 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   ABC, with whole-number givens for the view (two sides and the angle between them,
   three sides, two angles and a side, and so on), solved whole. Its views
   (`triangle_views.gd`) show it in words or as a labelled drawing (`ui/triangle_view.gd`),
-  and every answer is a measure to 3 s.f. (FAL-395).
+  and on Paper 2 every answer is a measure to 3 s.f. (FAL-395), never a rational value
+  that needs no calculator. Its Paper 1 version (FAL-419) gives angles of 30°, 45°, 60°,
+  90°, 120° or 135° and sides chosen so the answer is exact: a whole number (3, 5, 7 with
+  120°) or m√r (the `surd` kind), marked exactly, with the exact sines and cosines in the
+  working. Every cell makes both papers but the sine rule's angle, which is Paper 2 only.
 - `engine/situations/arithmetic_sequence.gd` (FAL-392) is the Topic 1
   situation: one arithmetic sequence with u₁, d, n, uₙ, Sₙ, two later terms and the
   first four terms, for `t1-arithmetic-sequence`. Its representations are `notation`
   (u₁ = 7,  d = 3), `terms` (7, 10, 13, 16, …), `table` (n against uₙ) and `words`,
   and its answers are marked exactly (`exact` on the answer), because Paper 1 wants a
-  whole-number sum such as 1807, not 1810. Any type with a `situation` gets a copy in
+  whole-number sum such as 1807, not 1810. Its Paper 2 version (FAL-419), in words only,
+  is a savings plan in dollars and cents or a training plan in km with a decimal u₁ and
+  d, worked with a GDC: a term or a sum (money to 2 d.p. or a decimal, still exact, since
+  it ends), or the first week or day whose term or running total is more than a round
+  threshold (a whole n). Any type with a `situation` gets a copy in
   `data/catalogue.json`, whatever its topic.
 - `engine/situations/distribution.gd` (FAL-396) is the Topic 4 situation: one
   discrete random variable X with 3 to 5 values, its probabilities as multiples of k,
   a formula P(X = x) = k f(x) or decimals, or a game with prizes and a stake. Its views
   (`distribution_views.gd`) show it as a table, a formula or in words, and ask k, a
   missing probability, P(event), E(X), p and q from E(X), the fair stake, an expected
-  number of occurrences or the number of trials.
+  number of occurrences or the number of trials. Every cell makes both papers (FAL-419):
+  Paper 2 has awkward decimals to 3 d.p. (0.137), k beside them or in a reciprocal
+  formula (k/x), and a lucky dip of 1000 tokens; k, E(X), an expected number and a
+  formula's P(event) are then answered to 3 s.f. with the rounding trap, the stake to the
+  nearest cent, and the rest exactly. Paper 1 keeps its numbers.
 - The rest of the Quadratics region (FAL-414) is four more situations. Three extend
   `quadratic` by calling its `generate()`: `quadratic_parameter.gd` (a quadratic with a
   constant k, given directly or as a line meeting a curve, for `fn-discriminant`),
@@ -135,14 +151,29 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   (k > 4), `kvals`, `delta_nature`, `quad_in` (Δ in k, or a quadratic in u), `kpoint`,
   `points2` (two points, either order), `surd` (m√r), `surd_roots`, `line`, `npoint`,
   `kroot`, `ineq_a` and `choice`. The graph view also draws a line (`graph.line`). The
-  Paper 2 context (a length to 3 s.f.) is one solve-in-context question in four, and never
-  for the factorising method: `QuestionEngine.make()` passes the method that made the
-  numbers to the recipe as `need.angle`. That is the `same_angle` method for "Another
-  way", so switching to factorising keeps a Paper 2 context, and the factorising working
-  says it fails there and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
+  Paper 2 context (a length to 3 s.f.) is never for the factorising method:
+  `QuestionEngine.make()` passes the method that made the numbers to the recipe as
+  `need.angle`. That is the `same_angle` method for "Another way", so switching to
+  factorising keeps a Paper 2 context, and the factorising working says it fails there
+  and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
+  Paper 2 versions (FAL-419), chosen by `need.paper` with each views' `papers()`: in
+  `fn-solve-quadratic` a context, b^(2x) (u not a power of b, so x = ln u/ln b) and a sum
+  of logs (x(x + d) = c with no whole root), each x to 3 s.f.; in `fn-quadratic-inequality`
+  against 0, against a constant and with a < 0, whole-number coefficients with irrational
+  roots, the interval's ends to 3 s.f. (a Paper 2 graph marks no roots), and the
+  largest-integer context is always Paper 2; in `fn-discriminant` equal roots (not on a
+  sketch), an interval of k and "always positive" on the families whose Δ is a quadratic
+  in k (b, grad, both) with irrational zeros, k to 3 s.f. `interval`, `bound` and `kvals`
+  answers honour `show: "sf"`. `fn-ext-quadratic-model` picks its own paper, but takes a
+  forced one (a ball with a = −4.9 on Paper 2; pens and tables are Paper 1).
 - `engine/situations/cubic.gd` is the Topic 5 situation: a cubic built
   from f′(x) = 3a(x − p)(x − q), so its stationary points are on whole numbers, with a
-  point x₀ for the gradient, tangent and normal (FAL-394).
+  point x₀ for the gradient, tangent and normal (FAL-394). Its Paper 2 version
+  (FAL-419) is a calculator cubic with decimal coefficients and irrational stationary
+  points, x₀ a decimal: x for a gradient, the tangent, the normal, the stationary points
+  and the local maximum are then asked to 3 s.f. with GDC working (`roots`, `line` and
+  `points2` honour `show: "sf"`); the derivatives, k, the nature and the inflexion stay
+  Paper 1.
 - **The Quadratics extension types** (FAL-459) are seven more situations, one per
   type: `expand.gd`, `factorise.gd`, `surds.gd` and `linear_inequality.gd` (the
   `fn-pre-*` prior learning, which the dungeon's warm-ups and after-a-miss questions
@@ -167,7 +198,10 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   that meet. `exp_log_pair.gd` is an exponential and its log inverse, with modes for
   bases from one family, an e-equation, a composite inequality, a translation or stretch
   between exponentials, f∘g against g∘f and the log of a square; `fn-ext-exp-graph`
-  shares it (A·b^(x − h) + c). `log_quadratic.gd` extends `quadratic`: a downward
+  shares it (A·b^(x − h) + c). Its Paper 2 version (FAL-419) asks g at an input whose
+  inside is not a power of b, g⁻¹ at a decimal, log_b(x − h) + c = a decimal and
+  e^(mx) + c = d, each to 3 s.f. with a GDC and the rounding trap; `fn-ext-exp-graph`
+  stays Paper 1. `log_quadratic.gd` extends `quadratic`: a downward
   parabola whose top is a whole power of the log's base, so the maximum, the base and the
   surd zeros come out exact. `log_function.gd` extends `exp-log-pair`: A·log_b(mx + n) + c.
   The extension situations are `percent.gd` (`fn-pre-percent-multiplier`),
@@ -210,14 +244,30 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   (`QuestionEngine.extra_formats()`), and the planner and a boss's link part ask one
   about a third of the time (`EXTRA_SHARE`). Exam types offer none. `match`,
   `multipart`, `order-steps` and `pick-the-graph` are not built.
+- **Paper 1 or 2** (FAL-419): every question carries `paper`. Paper 1 numbers come out
+  exact; Paper 2 numbers need a calculator, and only Paper 2 questions show the
+  Calculator button (see "The calculator"). A type the IB asks on both papers makes
+  both, in the ratio of its bank parts (`paper: {"p1", "p2"}` in `data/catalogue.json`,
+  from `stats.paper`). Each situation's views say which papers a cell can make
+  (`papers(unknown, rep, angle)`: `[1]`, `[2]` or `[1, 2]`); `QuestionEngine` draws the
+  paper on its own seeded stream (so the numbers stream is untouched), boosting the
+  cells that can make both so the type lands on the exam's share
+  (`QuestionEngine.paper_chance`), and hands it to the recipe as `need.paper`. A
+  situation that sets its own `paper` has the last word, so the badge always matches the
+  numbers. A boss chain and a family's shared situation are on one paper. Extension types
+  have no exam counts, so their recipes decide as before. Concept probes are Paper 1. A
+  view may force one with `"paper": 1` or `2` (and a deep link with `&paper=2`).
 - **Marking** (`engine/answer.gd`): exact or right to 3 s.f. More figures are right too
   when they are the value correctly rounded (12.35 for 12.3456). The right value with
   too few figures (2.3 for 2.347) is a **glancing hit** (Q7): `mark()` returns
   `glancing`, and combat does half damage with the note "The IB needs 3 s.f.". Only a
   value that needs rounding has one (1 is not a glancing ½), and an `exact` answer has none. An answer's `show` writes
   it as a decimal (0.35) or as money (2.50) instead of a fraction; probabilities are
-  answered the way the question gives them. Typed numbers are parsed
-  by hand (whole numbers, decimals, fractions); nothing is evaluated as an expression.
+  answered the way the question gives them. Typed numbers are read
+  by the calculator's expression engine (`engine/expr.gd`), so 3/2, −1.5, 2(3) and 2^-1
+  all work; the value must be a fraction of whole numbers (`Expr.eval_exact`), so exact
+  marking stays exact, and √2 or ln 2 gets "Work that out to a number". Godot's
+  `Expression` class is never used on what a student types (`test_expr.gd` checks).
 - **Planner** (`engine/planner.gd`): never-seen cell, then a recently missed one, then
   exam frequency. "Exam-style only" (off by default) keeps exam cells only and follows
   exam frequency.
@@ -253,8 +303,8 @@ the skills missed, and the Scrap goes into the save.
 `answer(response)`, `next()`, `quit()`, and the lifelines `use_fifty()`, `use_hint()`
 and `use_freeze()`. The fight screen (`ui/fight.gd`) extends the practice screen and
 draws the run: enemy and player HP, the timer bar, the lifelines, the card, and the
-summary. It keeps room above the card for the journey strip (FAL-331) and in the
-lifeline row for the Paper 1 or 2 badge (C1).
+summary. It keeps room above the card for the journey strip (FAL-331). The lifeline row
+ends with the question's paper: "No calculator", or on Paper 2 the Calculator button.
 
 - **One settings file.** Every number is in `engine/tuning.gd` (`Tuning`): HP, the
   tiers, Scrap, the timers, the late zone, the stakes table, the lifelines and "Another
@@ -366,7 +416,11 @@ The strip (FAL-331) isn't merged yet, so the fight screen keeps an empty
 The practice screen takes deep links, for screenshots and for sending someone a
 question: `/next/?view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, or
 `<type>/probe/<n>` for a concept probe. Add `&autoplay=right` (or `wrong`) to answer it
-at once. The fight screen takes `/next/?play=quadratics&seed=3&floor=1`, with
+at once, and `&paper=1` or `2` for that paper where the cell can make it. On a Paper 2
+question, `&calc=sci` or `&calc=graph` opens the calculator, with `&do=expr;expr` worked
+out in Scientific mode, or `&y1=`, `&y2=`, `&win=xmin,xmax,ymin,ymax`,
+`&tool=zero|max|min|intersect` and `&deg=1` in Graph mode (the screenshots use these).
+The fight screen takes `/next/?play=quadratics&seed=3&floor=1`, with
 `&autoplay=right`, `wrong`, or `lose` (wrong answers to the end, for the summary). `play`
 is a region id or `all`. `floor` must be one the save may start on, else the run starts
 on floor 1. `&fight=5` or `&fight=10` starts at the mini-boss or boss (such a run records
@@ -439,6 +493,64 @@ own `stress` job. `--types=id,id` sweeps only those types. An exact answer (an e
 −(ln 2)/3) is only right exactly, so its 3 s.f. decimal is checked only where that
 decimal is the exact value, and a wrong option that can't be typed (`Answer.typable`) is
 not typed in.
+
+## The calculator
+
+Paper 2 questions get the in-game calculator (FAL-419), a backup for a forgotten
+TI-Nspire: the Calculator button in the practice card's top row, or at the end of the
+fight screen's lifeline row. Paper 1 questions show "No calculator" and can't open it.
+The clock keeps running while it is open, it costs no lifeline and no Scrap, and a
+Paper 1 question next closes it. The spec is on FAL-274 (Functions recipes, "In-game
+calculator").
+
+- **Scientific mode**: the keypad (the typed answers' keys, `ui/keypad.gd`, with the
+  function rows above them), recent results (tap one to use it again), Ans, degrees or
+  radians, and results to 6 significant figures (`engine/calc_format.gd`), so the
+  student still rounds to 3 s.f.
+- **Graph mode**: y1 and y2 (`ui/calc_graph.gd`), drag to pan, wheel, pinch or + − to
+  zoom, Std for −10 to 10, tap to trace. A curve has a gap where it jumps
+  (`GraphTools.jumps`). Zero, Max, Min and Intersect find every one in the window with
+  Brent's methods (`engine/brent.gd`, `engine/graph_tools.gd`), mark them in Dust Yellow
+  and list them to 6 s.f.
+- **The expression engine** (`engine/expr.gd`) is a port of TinyExpr: 2x is 2 × x,
+  powers go right to left (2^3^2 = 512) and above a leading minus (−3^2 = −9), 1/2x is
+  x/2, trig in degrees or radians, π, e, ln, log (base 10), √, abs, Ans. Names come from
+  its own tables only, so nothing typed can reach the engine.
+- **Licences**: TinyExpr (zlib) and SciPy (BSD-3-Clause), each notice at the top of the
+  file that uses it and in the credits (`data/credits.json`, the title screen's
+  "Credits"), with the fonts (OFL), the sound (CC0) and Godot's own licence.
+- It fits a 360 px phone (1040 base units wide at most) and sits at the bottom of the
+  screen, so the top of the question stays in sight.
+
+### Calculator art
+
+The look is drawn in code in the Salvage Neon Bazaar style (FAL-274's themed-look
+table): a dark riveted casing with a Scrap Teal border and a stamped Bazaar Magenta
+crown, a Charcoal `#1F2937` screen with the maths in mint `#9FF0E6`, worn keys that glow
+Scrap Teal when pressed, Rust Orange `#FAA261` function keys and a Bazaar Magenta
+`#FF3DA7` mode switch; y1 in Scrap Teal, y2 in Bazaar Magenta, marks in Dust Yellow
+`#EACB74`; Share Tech Mono for numbers and Bangers for labels.
+
+Artist's art (FAL-421) replaces it file by file from **`game/assets/ui/calculator/`**,
+loaded by name like every art slot (`<name>.webp` or `.png`, lossy with mipmaps, under
+300 KB, no text painted in). Each file is a **nine-slice**: the corners (the margin
+below, in pixels, on every side) stay whole and the middle stretches, so draw the rim
+inside the margin and keep the middle plain. With a file missing, that piece keeps the
+coded look; with the casing there, the coded rivets and crown step aside.
+
+| File | Size | Nine-slice margin | What it is |
+|---|---|---|---|
+| `casing` | 1040×1800, transparent outside the casing | 72 | The whole device behind everything: metal, rivets, worn edges, neon border, the crown stamped near the top left (the title "Field Calc" sits 34 px in from the top left) |
+| `screen` | 512×512 | 28 | The display behind the results and the graph: a dark bezel around a Charcoal face |
+| `key` | 128×112 | 20 | A digit key, up |
+| `key-pressed` | 128×112 | 20 | A digit key, down, glowing Scrap Teal |
+| `key-fn` | 128×112 | 20 | A function key (sin, ln, (, +, ...), up, Rust Orange |
+| `key-fn-pressed` | 128×112 | 20 | The same, down |
+| `key-mode` | 128×112 | 20 | The mode switch and EXE, up, Bazaar Magenta |
+| `key-mode-pressed` | 128×112 | 20 | The same, down |
+
+Key labels are drawn by the game on top, in dark ink (white on `key-mode`), so leave
+each key's face plain.
 
 ## The map
 
@@ -635,17 +747,22 @@ script error happens while it runs. Run one file with
   the exam-only cells.
 - `test_triangles.gd`: the two Topic 3 types on the triangle: built, every angle from
   20° to 140°, one triangle for the sine rule's angle, acute or obtuse said, 3 s.f.
-  marking with no false failures, every misconception appears as an option.
+  marking with no false failures, every misconception appears as an option; Paper 2
+  answers need a calculator, Paper 1 answers are exact whole numbers or surds.
 - `test_distributions.gd`: the three Topic 4 types on the distribution: built, every
   distribution adds to 1 inside its limits, k in a table, a formula and words, answers
   written as the question writes probabilities, exact or 3 s.f. marking, p and q as two
-  slots, strict events, every misconception appears as an option.
+  slots, strict events, every misconception appears as an option (on Paper 2 too);
+  Paper 2 has awkward decimals and 3 s.f. answers where a calculator gives them, with
+  the rounding trap, and Paper 1's numbers are unchanged.
 - `test_quadratics.gd`: the four FAL-414 types: built with every cell, 2 to 5 steps per
   worked solution, every distractor misconception as an option (three that no answer
   shape can carry yet are listed with the reason), two rays typed as one interval caught
   as SL2.7.inequality#1, two points in either order, a tangent's point on both graphs,
-  Paper 2 contexts at about one in four, and "Another way" keeping the numbers for every
-  fn-solve-quadratic unknown and pair of methods.
+  Paper 2 contexts (never for factorising), every cell with both papers exact on Paper 1
+  and to 3 s.f. with calculator working on Paper 2, a quadratic model taking a forced
+  paper, and "Another way" keeping the numbers for every fn-solve-quadratic unknown and
+  pair of methods.
 - `test_exp_log.gd`: the eight Exponentials and logs types (FAL-418): built with every
   cell on their situations, 2 to 5 steps per worked solution, every distractor
   misconception as an option (two that no exact option can show are listed with the
@@ -656,8 +773,24 @@ script error happens while it runs. Run one file with
   the percent error-spot's first wrong line.
 - `test_calculus.gd`: the four Topic 5 types on the cubic: built, every misconception
   appears as an option, two points in either order, nature as multiple choice, f′(x)
-  marked exactly, the normal to 3 s.f.
+  marked exactly, the normal to 3 s.f.; Paper 2 needs a calculator (decimals, 3 s.f.
+  answers that need rounding, GDC working, the rounding trap) and Paper 1 keeps its
+  numbers.
 - `test_answer.gd`: parsing and marking typed answers.
+- `test_expr.gd`: the expression engine against a table of 65 expressions (2^3^2 = 512,
+  −3^2 = −9, 2x at x = 3 is 6, sin 30° = 0.5, ln e = 1, ...), exact fractions for
+  marking, no real value, and anything that isn't maths turned down; and no `Expression`
+  in the game's code.
+- `test_brent.gd`: Brent's root finder and minimiser, and the zeros, maxima, minima and
+  intersections of 23 functions against SymPy's in `tests/fixtures/brent.json` to 6 s.f.
+  (`tools/brent_reference.py` writes it), with poles neither zeros nor turning points.
+- `test_paper.gd`: every question has a paper, a forced paper is given where the cell
+  can make it, over 1,000 questions per type the Paper 2 share is within 5 points of the
+  exam's, a boss chain is on one paper, and concept probes are Paper 1.
+- `test_calculator.gd`: the Calculator button only on Paper 2, Scientific mode (keys,
+  recent results, Ans, degrees), 6 s.f., the graph tools and their marks, pan, zoom and
+  trace, the clock running and nothing spent in a fight, the art slots and the coded
+  look, the licences in their files and the credits, and the fit at 360, 390 and 1280 px.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.
 - `test_combat.gd`: a scripted run with a fixed seed and answers gives the same fights,

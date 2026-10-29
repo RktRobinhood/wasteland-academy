@@ -20,6 +20,18 @@ func has(unknown: String) -> bool:
 	return NEED.has(unknown)
 
 
+## The papers a cell can be asked on (FAL-419). Against 0, against a constant and with
+## a < 0 have Paper 2 versions whose roots need a calculator (ends to 3 s.f.); the
+## largest-integer context always does; the rest are exact, Paper 1.
+func papers(unknown: String, _rep: String, _angle: String) -> Array:
+	match unknown:
+		"solve-against-zero", "solve-against-constant", "negative-a":
+			return [1, 2]
+		"largest-integer":
+			return [2]
+	return [1]
+
+
 func need(unknown: String, rep: String) -> Dictionary:
 	var n: Dictionary = NEED[unknown].duplicate()
 	if rep == "graph":
@@ -53,8 +65,20 @@ static func strict(rel: String) -> bool:
 static func solution(s: Dictionary) -> Dictionary:
 	var below: bool = s.rel == "<" or s.rel == "≤"
 	var between: bool = below == (s.a.sign() > 0)
-	return Answer.make("interval", {"shape": "between" if between else "outside", "lo": s.p, "hi": s.q,
+	var ans := Answer.make("interval", {"shape": "between" if between else "outside", "lo": s.p, "hi": s.q,
 		"ends": "left out" if strict(s.rel) else "included"}, {"var": "x"})
+	if p2(s):
+		ans.show = "sf"
+	return ans
+
+
+## Paper 2: the roots need a calculator, and the ends are given to 3 s.f.
+static func p2(s: Dictionary) -> bool:
+	return s.get("paper", 1) == 2 and s.get("form", "") != "largest"
+
+
+static func asked(s: Dictionary) -> String:
+	return "Solve the inequality, giving the ends correct to 3 significant figures." if p2(s) else "Solve the inequality."
 
 
 static func given_of(s: Dictionary) -> Dictionary:
@@ -74,6 +98,8 @@ static func generic_sets(v: Dictionary) -> Array:
 
 ## The three ways of reading a·(x − p)(x − q) against 0, ending at the answer.
 static func methods(s: Dictionary, ans: Dictionary, lead: Array) -> Dictionary:
+	if p2(s):
+		return methods_p2(s, ans, lead)
 	var final := "So " + Answer.text(ans) + "."
 	var res: Dictionary = ans.values
 	var up: bool = s.a.sign() > 0
@@ -101,7 +127,42 @@ static func methods(s: Dictionary, ans: Dictionary, lead: Array) -> Dictionary:
 	return {"sketch-roots": {"result": res, "steps": sk}, "sign-table": {"result": res, "steps": st}, "test-point": {"result": res, "steps": tp}}
 
 
+## Paper 2: the roots come from the GDC's zero (or the formula), to 3 s.f.
+static func methods_p2(s: Dictionary, ans: Dictionary, lead: Array) -> Dictionary:
+	var final := "So " + Answer.text(ans) + "."
+	var res: Dictionary = ans.values
+	var up: bool = s.a.sign() > 0
+	var f := Fmt.general(s.a, s.b, s.c)
+	var P := Fmt.sf(s.p)
+	var R := Fmt.sf(s.q)
+	var roots := "With a GDC, graph y = %s and use zero: it crosses the x-axis at x = %s and x = %s." % [f, P, R]
+	var below: bool = s.rel == "<" or s.rel == "≤"
+	var region := "between the roots" if below == up else "outside the roots"
+	var sk: Array = lead.duplicate()
+	sk.append(roots)
+	sk.append("The parabola opens %s, so it is %s the x-axis between the roots and %s it outside them." % [
+		"upwards" if up else "downwards", "below" if up else "above", "above" if up else "below"])
+	sk.append("%s 0 is %s%s." % [s.rel, region, "" if strict(s.rel) else ", with the roots included"])
+	sk.append(final)
+	var st: Array = lead.duplicate()
+	var sg := ["+", "−", "+"] if up else ["−", "+", "−"]
+	st.append("Δ = %s is not a square, so use the formula (or the GDC's solver): f(x) = 0 at x = %s and x = %s." % [N(s.disc), P, R])
+	st.append("Signs of f(x): x < %s gives %s, %s < x < %s gives %s, x > %s gives %s." % [P, sg[0], P, R, sg[1], R, sg[2]])
+	st.append("%s 0 picks the %s rows%s." % [s.rel, "−" if below else "+", "" if strict(s.rel) else ", plus the roots"])
+	st.append(final)
+	var tp: Array = lead.duplicate()
+	var t: Q = s.h
+	var ft: Q = s.a.mul(t.sq()).add(s.b.mul(t)).add(s.c)
+	tp.append(roots)
+	tp.append("Test x = %s, between them: f(%s) = %s, which is %s, so %s 0 is %s." % [N(t), N(t), N(ft), "negative" if ft.sign() < 0 else "positive", s.rel, region])
+	tp.append(final)
+	return {"sketch-roots": {"result": res, "steps": sk}, "sign-table": {"result": res, "steps": st}, "test-point": {"result": res, "steps": tp}}
+
+
 static func roots_graph(s: Dictionary) -> Dictionary:
+	# Paper 2's roots are for the GDC to find, so none are marked.
+	if p2(s):
+		return QuadraticViews.graph(s, [])
 	return QuadraticViews.graph(s, [[s.p, 0], [s.q, 0]])
 
 
@@ -110,10 +171,10 @@ static func roots_graph(s: Dictionary) -> Dictionary:
 func _solve(rep: String, s: Dictionary, tag2: bool) -> Dictionary:
 	var ans := solution(s)
 	var line := "%s %s 0" % [Fmt.general(s.a, s.b, s.c), s.rel]
-	var out := {"asked": "Solve the inequality.", "lines": [line], "given": given_of(s), "answer": ans}
+	var out := {"asked": asked(s), "lines": [line], "given": given_of(s), "answer": ans}
 	if rep == "graph":
 		out.graph = roots_graph(s)
-		out.lines = [line, "The graph of y = %s is shown, with its roots marked." % Fmt.general(s.a, s.b, s.c)]
+		out.lines = [line, "The graph of y = %s is shown%s." % [Fmt.general(s.a, s.b, s.c), "" if p2(s) else ", with its roots marked"]]
 	var v: Dictionary = ans.values
 	var wrongs: Array = []
 	if v.shape == "outside":
@@ -144,7 +205,7 @@ func u_solve_against_constant(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	if v.shape == "outside":
 		wrongs.append(wrong({"shape": "between", "lo": v.lo, "hi": v.hi, "ends": v.ends}, "SL2.7.inequality#1"))
 	var ms := methods(s, ans, [move])
-	return {"asked": "Solve the inequality.", "lines": [line], "given": given_of(s), "answer": ans, "wrongs": wrongs,
+	return {"asked": asked(s), "lines": [line], "given": given_of(s), "answer": ans, "wrongs": wrongs,
 		"generic": generic_sets(v), "methods": {"sketch-roots": ms["sketch-roots"]}}
 
 

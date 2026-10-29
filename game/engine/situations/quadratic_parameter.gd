@@ -30,6 +30,14 @@ extends RefCounted
 ##   kv         pick a value of k
 ##   cond       pick a condition
 ##   a_pos      the quadratic in x opens upwards (a0 > 0)
+##   paper      2 for Paper 2 (FAL-419): a family whose Δ is a quadratic in k (b, grad,
+##              both) with irrational critical values, which need a calculator and are
+##              given to 3 s.f. crit then holds them to six decimal places (few
+##              enough that products of Qs stay inside 64 bits), and crit_f as
+##              floats. When the view's families have none of these, the situation
+##              stays Paper 1.
+##
+## Every situation carries `paper` (1 or 2).
 
 const CRIT_MAX := 30
 const COEF_MAX := 24
@@ -42,8 +50,15 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	# change every other situation's questions.
 	rng.int_in(0, 1)
 	if need.has("base"):
-		return _base(rng, need.base)
+		var bs := _base(rng, need.base)
+		if not bs.is_empty():
+			bs.paper = 1
+		return bs
 	var fams: Array = need.get("families", ["c", "b", "grad", "icpt", "both"])
+	if int(need.get("paper", 1)) == 2:
+		var f2: Array = fams.filter(func(f): return f in P2_FAMILIES)
+		if not f2.is_empty():
+			return _generate_p2(rng, f2, need)
 	for i in TRIES:
 		var fam: String = fams[rng.int_in(0, fams.size() - 1)]
 		var s := _draw(rng, fam, need)
@@ -56,9 +71,111 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 			_pick_kv(rng, s)
 		if need.get("cond", false):
 			s.cond = ["two", "none", "real"][rng.int_in(0, 2)]
+		s.paper = 1
 		return s
 	push_error("QuadraticParameterSituation: no clean situation for %s" % need)
 	return {}
+
+
+# ── Paper 2 ──────────────────────────────────────────────────
+
+## The families whose Δ is a quadratic in k, so its zeros can be irrational.
+const P2_FAMILIES := ["b", "grad", "both"]
+const SCALE := 1000000
+## Whole numbers that aren't squares, for √ under a Paper 2 critical k.
+const NON_SQUARES := [2, 3, 5, 6, 7, 8, 10, 11, 12, 13]
+
+
+static func _generate_p2(rng: Seeded, fams: Array, need: Dictionary) -> Dictionary:
+	for i in TRIES:
+		var fam: String = fams[rng.int_in(0, fams.size() - 1)]
+		var s := _draw_p2(rng, fam, need)
+		if s.is_empty():
+			continue
+		_derive_p2(s)
+		if not _clean_p2(s):
+			continue
+		if need.get("cond", false):
+			s.cond = ["two", "none", "real"][rng.int_in(0, 2)]
+		s.paper = 2
+		return s
+	push_error("QuadraticParameterSituation: no clean Paper 2 situation for %s" % need)
+	return {}
+
+
+static func _draw_p2(rng: Seeded, fam: String, need: Dictionary) -> Dictionary:
+	var s := {"family": fam, "a0": Q.new(1), "b0": Q.new(0), "b1": Q.new(0), "c0": Q.new(0), "c1": Q.new(0),
+		"p": null, "r": null, "m": null, "n": null, "kv": null, "cond": ""}
+	match fam:
+		"b":
+			# ax² + kx + c with ac not a square: k = ±2√(ac).
+			var a: int = [1, 1, 2, 3, -1, -2][rng.int_in(0, 5)]
+			if need.get("a_pos", false) and a < 0:
+				return {}
+			var c := rng.int_in(1, 12) * (1 if a > 0 else -1)
+			if not ((a * c) in NON_SQUARES):
+				return {}
+			s.a0 = Q.new(a)
+			s.c0 = Q.new(c)
+			s.b1 = Q.new(1)
+		"grad":
+			# r − n not a square: k = p ± 2√(r − n).
+			var p := rng.int_in(-6, 6)
+			var sq: int = NON_SQUARES[rng.int_in(0, NON_SQUARES.size() - 1)]
+			var n := rng.int_in(-6, 6)
+			s.p = Q.new(p)
+			s.n = Q.new(n)
+			s.r = Q.new(n + sq)
+			s.b0 = Q.new(p)
+			s.b1 = Q.new(-1)
+			s.c0 = Q.new(sq)
+		"both":
+			# x² + kx + (αk + β): Δ = k² − 4αk − 4β, zero at 2α ± 2√(α² + β).
+			var al := rng.int_in(-4, 4)
+			var be := rng.int_in(-12, 12)
+			if al == 0 or not ((al * al + be) in NON_SQUARES):
+				return {}
+			s.b1 = Q.new(1)
+			s.c1 = Q.new(al)
+			s.c0 = Q.new(be)
+	return s
+
+
+static func _derive_p2(s: Dictionary) -> void:
+	var a0: Q = s.a0
+	s.dA = s.b1.sq()
+	s.dB = s.b0.mul(s.b1).mul(2).sub(a0.mul(s.c1).mul(4))
+	s.dC = s.b0.sq().sub(a0.mul(s.c0).mul(4))
+	var disc: float = s.dB.sq().sub(s.dA.mul(s.dC).mul(4)).to_float()
+	s.crit = []
+	if disc <= 0.0:
+		return
+	var A2: float = 2.0 * s.dA.to_float()
+	var k1: float = (-s.dB.to_float() - sqrt(disc)) / A2
+	var k2: float = (-s.dB.to_float() + sqrt(disc)) / A2
+	s.crit = [approx(minf(k1, k2)), approx(maxf(k1, k2))]
+	s.crit_f = [minf(k1, k2), maxf(k1, k2)]
+
+
+## A float as a Q to six decimal places; −x gives exactly the negative.
+static func approx(x: float) -> Q:
+	return Q.new(roundi(x * SCALE), SCALE)
+
+
+## Two irrational critical values, each clear of a 3 s.f. rounding edge and not tiny,
+## inside the Paper 1 limits for the coefficients.
+static func _clean_p2(s: Dictionary) -> bool:
+	if s.crit.size() != 2:
+		return false
+	for k in s.crit_f:
+		if absf(k) < 0.2 or absf(k) > CRIT_MAX or not Answer.rounds_clearly(k, 0.05):
+			return false
+	for key in ["b0", "c0", "dC"]:
+		if absi(s[key].n) > (COEF_MAX if key != "dC" else 150):
+			return false
+	if s.r != null and absi(s.r.n) > 20:
+		return false
+	return true
 
 
 static func _base(rng: Seeded, base: Dictionary) -> Dictionary:

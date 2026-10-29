@@ -62,6 +62,8 @@ jobs:
           'floor-select=?play=quadratics&select=1'
           'mini-boss=?play=quadratics&seed=3&fight=5'
           'boss-carry=?play=quadratics&seed=3&fight=10&autoplay=carry'
+          'calc-sci=?view=fn-exponential-model/time-to-level/equation/logs-for-unknown/value&seed=2&calc=sci&do=1770/400%3Bln%28Ans%29/0.255%3B400e%5E%280.255%2AAns%29'
+          'calc-graph=?view=fn-exponential-model/time-to-level/equation/logs-for-unknown/value&seed=2&calc=graph&y1=400e%5E%280.255x%29&y2=1770&win=-1,10,-300,3000&tool=intersect'
           'explore=?explore'
           'explore-first=?explore&view=fn-quadratic-features/vertex-from-factorised/equation/any/value&seed=7'
           'explore-another-way=?explore&view=fn-quadratic-features/vertex-from-general/equation/any/value&seed=7&autoplay=right'

@@ -15,6 +15,11 @@ extends RefCounted
 ##   two_terms  pick p and q
 ##   sum_root   the quadratic in n has a negative whole second root
 ##
+##   paper      1 or 2 (FAL-419). Paper 2 draws a context instead (see _draw_p2): savings
+##              in dollars and cents, or a training plan in km, with a decimal u₁ and d,
+##              and a round threshold: Y for the first term over it (need.n "term"), X
+##              for the first sum over it ("sum"). Paper 1 draws exactly as before.
+##
 ## The clean limits below are the numbers behind the catalogue's `clean` text. The
 ## SymPy checker (tools/check_answers.py) holds its own copy and fails on any breach.
 
@@ -29,12 +34,23 @@ const GAP_RANGE := [2, 8]  ## q − p
 const Q_MAX := 20
 const TERMS := 4           ## the first terms shown as a list or a table
 const TRIES := 4000
+## Paper 2 limits, in hundredths (cents, or hundredths of a km): u₁ and d, each not
+## whole, and the threshold's step. A threshold's crossing point (where uₙ or Sₙ
+## equals it, as a real n) keeps EDGE from a whole n, so "first more than" is clear.
+const P2 := {
+	"money": {"u1": [500, 4000, 5], "d": [15, 250, 5], "step_term": 100, "step_sum": 1000},
+	"km": {"u1": [200, 800, 10], "d": [10, 50, 5], "step_term": 100, "step_sum": 500},
+}
+const EDGE := 0.15
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
+	var paper: int = need.get("paper", 0)
 	for i in TRIES:
-		var s := _draw(rng, need)
+		var s := _draw_p2(rng, need) if paper == 2 else _draw(rng, need)
 		if not s.is_empty():
+			if paper > 0:
+				s.paper = paper
 			return s
 	push_error("ArithmeticSequenceSituation: no clean situation for %s" % need)
 	return {}
@@ -89,6 +105,66 @@ static func _draw(rng: Seeded, need: Dictionary) -> Dictionary:
 			return {}
 		s.other = Q.new(other)
 	return s
+
+
+## A whole number of hundredths in [lo, hi] in steps of `by`, not a whole number.
+static func _hundredths(rng: Seeded, lim: Array) -> Q:
+	var v: int = rng.int_in(lim[0] / lim[2], lim[1] / lim[2]) * lim[2]
+	return Q.new(v, 100) if v % 100 != 0 else null
+
+
+## Paper 2: a context with a decimal u₁ and d (both positive), and the threshold its
+## view asks about. Every value ends (cents, or hundredths of a km).
+static func _draw_p2(rng: Seeded, need: Dictionary) -> Dictionary:
+	var ctx := "money" if rng.chance(0.5) else "km"
+	var lim: Dictionary = P2[ctx]
+	var u1 = _hundredths(rng, lim.u1)
+	var d = _hundredths(rng, lim.d)
+	var is_term: bool = need.get("n", "sum") == "term"
+	var nl: Array = N_TERM if is_term else N_SUM
+	var n := rng.int_in(nl[0], nl[1])
+	if u1 == null or d == null:
+		return {}
+	var s := {"u1": u1, "d": d, "n": Q.new(n), "p": null, "q": null, "up": null, "uq": null, "other": null,
+		"ctx": ctx, "Y": null, "X": null}
+	s.un = term(s, n)
+	s.sn = sum(s, n)
+	if s.un.to_float() > UN_MAX or s.sn.to_float() > SN_MAX:
+		return {}
+	var ns := []
+	var us := []
+	for k in range(1, TERMS + 1):
+		ns.append(Q.new(k))
+		us.append(term(s, k))
+	s.ns = ns
+	s.us = us
+	if is_term:
+		# Y: a whole number of dollars (or km) between uₙ₋₁ and uₙ.
+		var step: int = lim.step_term
+		var y: int = (s.un.mul(100).n / step) * step
+		var real := 1.0 + (y / 100.0 - u1.to_float()) / d.to_float()
+		if real <= n - 1 + EDGE or real >= n - EDGE:
+			return {}
+		s.Y = Q.new(y, 100)
+	else:
+		# X: a round total between Sₙ₋₁ and Sₙ.
+		var step: int = lim.step_sum
+		var x: int = (s.sn.mul(100).n / step) * step
+		var real := sum_root(s, Q.new(x, 100))
+		if x <= 0 or real <= n - 1 + EDGE or real >= n - EDGE:
+			return {}
+		s.X = Q.new(x, 100)
+		s.other = null
+	return s
+
+
+## The real n where Sₙ = v: the positive root of (d/2)n² + (u₁ − d/2)n − v = 0, or
+## the negative one (positive = false).
+static func sum_root(s: Dictionary, v: Q, positive: bool = true) -> float:
+	var a: float = s.d.to_float() / 2.0
+	var b: float = s.u1.to_float() - a
+	var disc := b * b + 4.0 * a * v.to_float()
+	return (-b + sqrt(disc)) / (2.0 * a) if positive else (-b - sqrt(disc)) / (2.0 * a)
 
 
 ## The situation as plain strings, for the answer export.

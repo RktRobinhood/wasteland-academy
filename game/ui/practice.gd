@@ -15,7 +15,8 @@ extends Control
 ## Column width in base units: phone (portrait) and PC (landscape).
 const COLUMN := 1000
 const COLUMN_WIDE := 1500
-const KEYS := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ".", "/", "−", "Del"]
+## The answer keys (Keypad.ANSWER_KEYS): the calculator shares them (FAL-419).
+const KEYS := Keypad.ANSWER_KEYS
 
 ## The region the map asked for, read once by _ready().
 static var launch_region := ""
@@ -47,6 +48,9 @@ var check_button: Button
 var next_button: Button
 var feedback: Label
 var working: VBoxContainer
+## The in-game calculator (FAL-419), made the first time a Paper 2 question opens it.
+var calculator: Calculator
+var paper_box: HBoxContainer
 
 
 func _ready() -> void:
@@ -65,6 +69,7 @@ func _ready() -> void:
 		show_view(deep.view)
 		if deep.autoplay != "":
 			autoplay(deep.autoplay == "right")
+		open_from_link(url_args())
 	else:
 		next_question()
 
@@ -178,7 +183,18 @@ func render_question() -> void:
 		meta += " · exam style"
 	if question.format == "probe":
 		meta += " · concept"
-	card.add_child(UiTheme.label(meta, UiTheme.SMALL, UiTheme.DIM))
+	var meta_row := HBoxContainer.new()
+	meta_row.name = "MetaRow"
+	meta_row.add_theme_constant_override("separation", 16)
+	var meta_label := UiTheme.label(meta, UiTheme.SMALL, UiTheme.DIM)
+	meta_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	meta_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	meta_row.add_child(meta_label)
+	paper_box = HBoxContainer.new()
+	paper_box.name = "PaperBox"
+	meta_row.add_child(paper_box)
+	card.add_child(meta_row)
+	show_paper()
 	var prompt := UiTheme.label(question.prompt, UiTheme.BODY)
 	prompt.name = "Prompt"
 	card.add_child(prompt)
@@ -341,23 +357,11 @@ func _grab(e: Variant) -> void:
 		e.grab_focus()
 
 
-## Number keys, so a phone needs no system keyboard.
+## Number keys, so a phone needs no system keyboard: the keypad the calculator shares.
 func _keypad() -> Control:
-	var grid := GridContainer.new()
-	grid.name = "Keypad"
-	grid.columns = 7
-	grid.add_theme_constant_override("h_separation", 10)
-	grid.add_theme_constant_override("v_separation", 10)
-	for k in KEYS:
-		var b := Button.new()
-		b.text = k
-		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(120, 104)
-		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.add_theme_font_size_override("font_size", UiTheme.BIG)
-		b.pressed.connect(_on_key.bind(k))
-		grid.add_child(b)
-	return grid
+	var pad := Keypad.make()
+	pad.key.connect(_on_key)
+	return pad
 
 
 func _on_key(k: String) -> void:
@@ -582,6 +586,91 @@ func autoplay(right: bool) -> void:
 	check_answer()
 
 
+# ── Paper 1 or 2, and the calculator (FAL-419) ───────────────
+
+## Where the paper badge goes: the card's top row here; the fight screen keeps its own
+## slot in the lifeline row.
+func paper_slot() -> Control:
+	return paper_box
+
+
+## The question's paper as a badge: "No calculator" on Paper 1, and on Paper 2 a
+## "Calculator" badge that is the button that opens the calculator. A question with no
+## paper (an error) shows none. Moving to a Paper 1 question closes the calculator.
+func show_paper() -> void:
+	var slot := paper_slot()
+	if slot == null:
+		return
+	for c in slot.get_children():
+		slot.remove_child(c)
+		c.queue_free()
+	var paper := int(question.get("paper", 0))
+	if paper != 2 and calculator != null:
+		calculator.close()
+	if paper == 2:
+		var b := Button.new()
+		b.name = "CalculatorButton"
+		b.text = "Calculator"
+		b.tooltip_text = "Paper 2: open the calculator. The clock keeps running."
+		b.add_theme_font_override("font", UiTheme.TITLE_FONT)
+		b.add_theme_font_size_override("font_size", UiTheme.SMALL + 4)
+		var sb := UiTheme.panel(Color(UiTheme.TEAL, 0.18))
+		sb.border_color = UiTheme.TEAL
+		sb.set_border_width_all(3)
+		sb.content_margin_top = 10
+		sb.content_margin_bottom = 10
+		sb.content_margin_left = 18
+		sb.content_margin_right = 18
+		for state in ["normal", "hover", "pressed", "focus"]:
+			b.add_theme_stylebox_override(state, sb)
+		b.add_theme_color_override("font_color", UiTheme.TEAL)
+		b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		b.pressed.connect(open_calculator)
+		slot.add_child(b)
+	elif paper == 1:
+		var l := UiTheme.label("No calculator", UiTheme.SMALL, UiTheme.DIM)
+		l.name = "NoCalculator"
+		l.autowrap_mode = TextServer.AUTOWRAP_OFF
+		l.add_theme_font_override("font", UiTheme.TITLE_FONT)
+		l.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		slot.add_child(l)
+
+
+## Opens the calculator over the screen, in `mode` ("sci" or "graph"; as it was if
+## ""). Only a Paper 2 question can. Nothing stops: the clock keeps running.
+func open_calculator(mode: String = "") -> void:
+	if int(question.get("paper", 0)) != 2:
+		return
+	if calculator == null:
+		calculator = Calculator.make()
+		add_child(calculator)
+	calculator.open(mode)
+
+
+## Opens the calculator from a link, for screenshots: &calc=sci or &calc=graph, with
+## &y1=, &y2=, &win=xmin,xmax,ymin,ymax, &tool=zero|max|min|intersect and &deg=1.
+## In Scientific mode, &do=expr;expr works each one out in turn.
+func open_from_link(args: Dictionary) -> void:
+	if not args.has("calc"):
+		return
+	open_calculator("graph" if args.calc == "graph" else "sci")
+	if calculator == null or not calculator.visible:
+		return
+	calculator.set_angle(args.get("deg", "") == "1")
+	for line in str(args.get("do", "")).split(";", false):
+		calculator.input.text = line
+		calculator.evaluate()
+	for i in 2:
+		if args.has("y%d" % (i + 1)):
+			calculator.fn_edits[i].text = args["y%d" % (i + 1)]
+	calculator._refresh_graph()
+	var win: PackedStringArray = str(args.get("win", "")).split(",")
+	if win.size() == 4:
+		calculator.graph.set_window(win[0].to_float(), win[1].to_float(), win[2].to_float(), win[3].to_float())
+	if args.has("tool"):
+		calculator.use_tool(args.tool)
+
+
 ## The URL's query (web) and the command line's --key=value arguments. A bare key
 ## (?explore, --explore) is there with the value "".
 static func url_args() -> Dictionary:
@@ -615,6 +704,8 @@ static func view_from(args: Dictionary) -> Dictionary:
 	elif p.size() >= 4:
 		view = {"type": p[0], "unknown": p[1], "rep": p[2], "angle": p[3], "format": p[4] if p.size() > 4 else "value",
 			"seed": int(args.get("seed", "1"))}
+		if args.has("paper"):
+			view.paper = int(args.paper)
 	else:
 		return {}
 	return {"view": view, "autoplay": args.get("autoplay", "")}

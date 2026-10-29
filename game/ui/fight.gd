@@ -6,8 +6,9 @@ extends "res://ui/practice.gd"
 ## the worked solution before the next question; the run ends in a summary. A mini-boss
 ## or boss shows its part, the parts done, and the value carried on from the part before.
 ##
-## Room is kept for two later pieces: the journey strip (FAL-331) above the card, and
-## the Paper 1 or 2 badge (C1, FAL-419) in the lifeline row.
+## Room is kept for the journey strip (FAL-331) above the card. The lifeline row ends
+## with the question's paper (FAL-419): "No calculator", or the Calculator button on a
+## Paper 2 question, which opens the calculator while the clock keeps running.
 ##
 ## Deep links, for screenshots and tests:
 ##   web:      /next/?play=quadratics&seed=3&floor=1&autoplay=wrong
@@ -421,13 +422,19 @@ func _lifelines() -> Control:
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
-	# The Paper 1 or 2 badge (C1, FAL-419) goes here.
-	badge = Control.new()
-	badge.name = "PaperBadge"
-	badge.custom_minimum_size = Vector2(150, 0)
-	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The Paper 1 or 2 badge (FAL-419): "No calculator", or the Calculator button.
+	var box := HBoxContainer.new()
+	box.name = "PaperBadge"
+	box.custom_minimum_size = Vector2(150, 0)
+	box.alignment = BoxContainer.ALIGNMENT_END
+	badge = box
 	row.add_child(badge)
 	return row
+
+
+## The paper badge sits in the lifeline row here, not on the card (FAL-419).
+func paper_slot() -> Control:
+	return badge
 
 
 func _process(delta: float) -> void:

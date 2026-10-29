@@ -8,6 +8,11 @@ extends RefCounted
 ## Representations: "notation" (u₁ = 7,  d = 3), "terms" (7, 10, 13, 16, …), "table"
 ## (n against uₙ) and "words". Every answer is a whole number and is marked exactly.
 ##
+## Paper 2 (FAL-419, papers()): in words, a savings plan in dollars and cents or a
+## training plan in km, with a decimal u₁ and d, worked with a GDC. A term or a sum is
+## a decimal that ends, written as money (2 d.p.) or a decimal and still marked exactly
+## (the IB gives it exactly); the first term or sum over a round threshold is a whole n.
+##
 ## `given` holds what the student is shown, as plain strings, for the SymPy checker:
 ## u1, d, n, un (the term uₙ for the given n), sum (Sₙ), value (a term whose n is
 ## asked), and terms: [[k, u_k], ...].
@@ -27,6 +32,8 @@ const NEED := {
 }
 
 const SUBS := "₀₁₂₃₄₅₆₇₈₉"
+## The unknowns with a Paper 2 version, asked in words.
+const PAPER2 := ["term-from-u1-d", "n-from-term", "sum-from-u1-d", "n-from-sum"]
 const REF := "SL1.2."
 
 
@@ -38,8 +45,14 @@ func need(unknown: String, _rep: String) -> Dictionary:
 	return NEED[unknown].duplicate()
 
 
+## The papers a cell can be asked on (QuestionEngine.cell_papers).
+func papers(unknown: String, rep: String, _angle: String) -> Array:
+	return [1, 2] if unknown in PAPER2 and rep == "words" else [1]
+
+
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
-	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng)
+	var out: Dictionary = call("u_" + unknown.replace("-", "_"), rep, s, rng) if s.get("paper", 1) != 2 \
+		else call("p2_" + unknown.replace("-", "_"), s)
 	for key in ["lines", "graph", "table", "wrongs", "generic"]:
 		if not out.has(key):
 			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
@@ -441,4 +454,160 @@ func u_u1_from_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong(mean2.sub(s.d.mul(n)).div(2), "sum#0")]
 	# 2u₁ not halved, the mean term Sₙ/n, one step on
 	out.generic = gen([mean2.sub(jump), s.sn.div(n), s.u1.add(s.d)])
+	return out
+
+
+# ── Paper 2 (FAL-419) ────────────────────────────────────────
+# A context in words with a decimal u₁ and d. The words name the person, the period
+# (week or day) and the unit; the SymPy checker reads u₁ and d back from them.
+
+const CTX := {
+	"money": {"who": "Ana", "she": "she", "her": "her", "per": "week",
+		"intro": "Ana saves $%s in the first week of a savings plan, and each week after that she saves $%s more than the week before."},
+	"km": {"who": "Ben", "she": "he", "her": "his", "per": "day",
+		"intro": "Ben runs %s km on the first day of his training plan, and each day after that he runs %s km more than the day before."},
+}
+
+
+## An amount as the context writes it: "12.40" (dollars) or "3.6" (km).
+static func V(s: Dictionary, v: Variant) -> String:
+	return Fmt.money(v) if s.ctx == "money" else Fmt.dec(v)
+
+
+## With its unit: "$12.40", "3.6 km".
+static func VU(s: Dictionary, v: Variant) -> String:
+	return ("$" + V(s, v)) if s.ctx == "money" else V(s, v) + " km"
+
+
+## An amount answer: money to 2 d.p. or a decimal in km, marked exactly.
+static func amount(s: Dictionary, label: String, v: Q) -> Dictionary:
+	var ans := Answer.make("number", {"v": v}, {}, label + ("$" if s.ctx == "money" else ""), "" if s.ctx == "money" else " km")
+	ans.show = "money" if s.ctx == "money" else "dec"
+	return ans
+
+
+## A whole n, written as a decimal so a wrong option such as a root shows as 22.7.
+static func count(v: Q) -> Dictionary:
+	var ans := number("n = ", v)
+	ans.show = "dec"
+	return ans
+
+
+## A value to 3 s.f., as an exact decimal (a wrong option).
+static func q3(x: float) -> Q:
+	return Answer.parse_number(Fmt.sf(x).replace("−", "-")).q
+
+
+static func p2_out(s: Dictionary, ans: Dictionary, asked: String) -> Dictionary:
+	return {"answer": ans, "asked": asked, "lines": [CTX[s.ctx].intro % [V(s, s.u1), V(s, s.d)]],
+		"given": {"u1": s.u1.key(), "d": s.d.key(), "ctx": s.ctx}}
+
+
+static func p2_read(s: Dictionary) -> String:
+	return "u₁ = %s and d = %s, in %s." % [V(s, s.u1), V(s, s.d), "dollars" if s.ctx == "money" else "km"]
+
+
+## An amount as it would be written: money to the nearest cent (a wrong sum such as
+## n/2 (2u₁ + nd) can end in half a cent).
+static func cent(s: Dictionary, v: Q) -> Q:
+	if s.ctx != "money":
+		return v
+	var w := v.mul(100).add(Q.new(1, 2))
+	return Q.new(w.n / w.d, 100)
+
+
+## Only positive amounts are offered, each as it would be written.
+static func positive(s: Dictionary, vs: Array) -> Array:
+	return gen(vs.filter(func(v): return v.sign() > 0).map(func(v): return cent(s, v)))
+
+
+func p2_term_from_u1_d(s: Dictionary) -> Dictionary:
+	var c: Dictionary = CTX[s.ctx]
+	var n: int = s.n.n
+	var ans := amount(s, u(n) + " = ", s.un)
+	var asked := ("How much does %s save in week %d?" if s.ctx == "money" else "How far does %s run on day %d?") % [c.she, n]
+	var out := p2_out(s, ans, asked)
+	out.given.n = s.n.key()
+	var jump: Q = s.d.mul(n - 1)
+	var c0: Q = s.u1.sub(s.d)
+	var final := "So %s." % Answer.text(ans)
+	out.methods = {
+		"nth-formula": {"result": res(s.un), "steps": [p2_read(s), "uₙ = u₁ + (n − 1)d, and %s %d is %s." % [c.per, n, u(n)],
+			"With a GDC: %s = %s + %d × %s = %s" % [u(n), V(s, s.u1), n - 1, V(s, s.d), V(s, s.un)], final]},
+		"linear-function": {"result": res(s.un), "steps": [p2_read(s),
+			"uₙ = %s + %s(n − 1) = %sn + %s" % [V(s, s.u1), V(s, s.d), V(s, s.d), V(s, c0)],
+			"With a GDC: %s = %s × %d + %s = %s" % [u(n), V(s, s.d), n, V(s, c0), V(s, s.un)], final]},
+	}
+	out.wrongs = [wrong(s.u1.add(s.d.mul(n)), "nth-term#0"), wrong(s.n, "nth-term#2")]
+	out.generic = positive(s, [jump, s.d.mul(n), s.un.sub(s.d.mul(2))])
+	return out
+
+
+func p2_sum_from_u1_d(s: Dictionary) -> Dictionary:
+	var c: Dictionary = CTX[s.ctx]
+	var n: int = s.n.n
+	var ans := amount(s, S(n) + " = ", s.sn)
+	var asked := ("How much has %s saved in total after %d weeks?" if s.ctx == "money" else "How far has %s run in total after %d days?") % [c.she, n]
+	var out := p2_out(s, ans, asked)
+	out.given.n = s.n.key()
+	var inner: Q = s.u1.mul(2).add(s.d.mul(n - 1))
+	var final := "So %s." % Answer.text(ans)
+	out.methods = {
+		"formula-d": {"result": res(s.sn), "steps": [p2_read(s) + " After %d %ss is %s." % [n, c.per, S(n)], "Sₙ = n/2 (2u₁ + (n − 1)d)",
+			"With a GDC: %s = %s × (2 × %s + %d × %s) = %s × %s = %s" % [S(n), half(n), V(s, s.u1), n - 1, V(s, s.d), half(n), V(s, inner), V(s, s.sn)], final]},
+		"formula-last": {"result": res(s.sn), "steps": [p2_read(s) + " %s = %s + %d × %s = %s" % [u(n), V(s, s.u1), n - 1, V(s, s.d), V(s, s.un)],
+			"Sₙ = n/2 (u₁ + uₙ)",
+			"With a GDC: %s = %s × (%s + %s) = %s" % [S(n), half(n), V(s, s.u1), V(s, s.un), V(s, s.sn)], final]},
+	}
+	out.wrongs = [wrong(cent(s, Q.new(n, 2).mul(s.u1.mul(2).add(s.d.mul(n)))), "sum#0"),
+		wrong(ArithmeticSequenceSituation.sum(s, n - 1), "sum#1"), wrong(s.un, "sum#2")]
+	out.generic = positive(s, [s.sn.mul(2), ArithmeticSequenceSituation.sum(s, n + 1), s.un.mul(n)])
+	return out
+
+
+func p2_n_from_term(s: Dictionary) -> Dictionary:
+	var c: Dictionary = CTX[s.ctx]
+	var y: Q = s.Y
+	var ans := count(s.n)
+	var asked := ("In which week n does %s first save more than %s?" if s.ctx == "money" else "On which day n does %s first run more than %s?") % [c.she, VU(s, y)]
+	var out := p2_out(s, ans, asked)
+	out.given.over = y.key()
+	var rise: Q = y.sub(s.u1)
+	var steps: float = rise.to_float() / s.d.to_float()
+	var whole: int = s.n.n - 1
+	var final := "So %s." % Answer.text(ans)
+	out.methods = {
+		"solve-linear": {"result": res(s.n), "steps": [
+			"uₙ = %s + (n − 1) × %s > %s" % [V(s, s.u1), V(s, s.d), V(s, y)],
+			"With a GDC: n − 1 > (%s − %s)/%s = %s" % [V(s, y), V(s, s.u1), V(s, s.d), Fmt.sf(steps, 6)],
+			"n > %s, and n is a whole number of %ss, so it is the next whole number." % [Fmt.sf(steps + 1.0, 6), c.per], final]},
+		"count-steps": {"result": res(s.n), "steps": [
+			"From %s to %s is %s − %s = %s." % [V(s, s.u1), V(s, y), V(s, y), V(s, s.u1), V(s, rise)],
+			"Each step adds %s: %s/%s = %s on a GDC, so %d whole steps are needed to pass %s." % [V(s, s.d), V(s, rise), V(s, s.d), Fmt.sf(steps, 6), whole, V(s, y)],
+			"%d steps after the first term is term %d + 1. %s" % [whole, whole, final]]},
+	}
+	out.wrongs = [wrong(Q.new(whole), "find-n#2"), wrong(y, "find-n#1")]
+	out.generic = gen([s.n.add(1), q3(steps + 1.0)])
+	return out
+
+
+func p2_n_from_sum(s: Dictionary) -> Dictionary:
+	var c: Dictionary = CTX[s.ctx]
+	var x: Q = s.X
+	var n: int = s.n.n
+	var ans := count(s.n)
+	var asked := ("After how many weeks n is %s total saved first more than %s?" if s.ctx == "money" \
+		else "After how many days n is %s total distance first more than %s?") % [c.her, VU(s, x)]
+	var out := p2_out(s, ans, asked)
+	out.given.over_sum = x.key()
+	var r := ArithmeticSequenceSituation.sum_root(s, x)
+	var neg := ArithmeticSequenceSituation.sum_root(s, x, false)
+	var before := ArithmeticSequenceSituation.sum(s, n - 1)
+	out.methods = {"quadratic-in-n": {"result": res(s.n), "steps": [
+		"Sₙ = n/2 (2 × %s + (n − 1) × %s) > %s" % [V(s, s.u1), V(s, s.d), V(s, x)],
+		"With a GDC, solve n/2 (2 × %s + (n − 1) × %s) = %s: n = %s or n = %s" % [V(s, s.u1), V(s, s.d), V(s, x), Fmt.sf(r, 6), Fmt.sf(neg, 6)],
+		"n counts %ss, so it is positive, and Sₙ grows with n: the sum first passes %s at the next whole number." % [c.per, V(s, x)],
+		"A table of Sₙ on the GDC checks it: %s = %s and %s = %s. So %s." % [S(n - 1), V(s, before), S(n), V(s, s.sn), Answer.text(ans)]]}}
+	out.wrongs = [wrong(q3(neg), "sum-unknown#1"), wrong(x, "sum-unknown#2")]
+	out.generic = gen([Q.new(n - 1), q3(r), s.n.add(1)])
 	return out

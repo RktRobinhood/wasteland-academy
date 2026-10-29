@@ -4,6 +4,11 @@ extends RefCounted
 ## fn-exp-log-inverse-composite (FAL-418). Builders return what QuadraticViews' builders
 ## return (see quadratic_views.gd). Paper 1: every answer is exact.
 ##
+## Paper 2 (FAL-419, papers()): g at an input whose inside is not a power of b, g⁻¹ at
+## a decimal, log_b(x − h) + c = a decimal and e^(mx) + c = d, each asked to 3 s.f.
+## (show "sf") and worked with a GDC, with the rounding trap. fn-ext-exp-graph is
+## Paper 1 only.
+##
 ## `given` holds the numbers the student is shown, for the SymPy checker, which reads
 ## them back from the lines, the table and the graph.
 
@@ -38,6 +43,9 @@ const NEED := {
 const EXTRA := ["y-intercept", "asymptote", "range", "growth-or-decay", "pick-graph", "moves-from-parent",
 	"equation-from-graph", "compare-reflections"]
 const NOT_DEFINED := "not defined: there is no log of a number that is not positive"
+## The cells with a Paper 2 version: unknown -> its representations.
+const PAPER2 := {"evaluate-log-function": ["equation"], "evaluate-inverse": ["equation"],
+	"solve-exp-equation": ["equation"], "solve-log-equation": ["equation"]}
 
 
 func has(unknown: String) -> bool:
@@ -46,6 +54,11 @@ func has(unknown: String) -> bool:
 
 func need(unknown: String, _rep: String) -> Dictionary:
 	return NEED[unknown].duplicate()
+
+
+## The papers a cell can be asked on (QuestionEngine.cell_papers).
+func papers(unknown: String, rep: String, _angle: String) -> Array:
+	return [1, 2] if rep in PAPER2.get(unknown, []) else [1]
 
 
 func formats(unknown: String) -> Array:
@@ -59,7 +72,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 			out[key] = [] if key in ["lines", "wrongs", "generic"] else null
 	if not out.has("given"):
 		out.given = ExpLogPairSituation.export(s)
-	out.trap = {}
+	out.trap = Answer.rounding_trap(out.answer) if s.get("paper", 1) == 2 else {}
 	# Numbers written with %d keep a hyphen for a minus: the game writes "−".
 	out.asked = M(out.asked)
 	out.lines = out.lines.map(func(l): return M(l))
@@ -127,6 +140,35 @@ static func exact_number(label: String, v: Variant, unit: String = "") -> Dictio
 	return ans
 
 
+## A Paper 2 answer: a number written to 3 s.f.
+static func sf_number(label: String, x: float) -> Dictionary:
+	var ans := Answer.make("number", {"v": TriangleViews.qf(x)}, {}, label)
+	ans.show = "sf"
+	return ans
+
+
+## A wrong Paper 2 value (as an option), kept only when it is a real number.
+static func sf_wrong(out: Dictionary, x: float, ref: String = "") -> void:
+	if is_finite(x) and x != 0.0 and absf(x) < 1e6:
+		if ref == "":
+			out.generic.append({"v": TriangleViews.qf(x)})
+		else:
+			out.wrongs.append(wrong({"v": TriangleViews.qf(x)}, ref))
+
+
+## Working figures on a GDC: six significant figures.
+static func W(x: float) -> String:
+	return Fmt.sf(x, 6)
+
+
+static func D(v: Variant) -> String:
+	return Fmt.dec(v)
+
+
+static func lg(b: int, x: float) -> float:
+	return log(x) / log(float(b))
+
+
 static func ipow(b: int, n: int) -> int:
 	var out := 1
 	for i in n:
@@ -161,6 +203,8 @@ static func c_step(c: int) -> String:
 # ── fn-exp-log-inverse-composite ─────────────────────────────
 
 func u_evaluate_log_function(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	if s.get("paper", 1) == 2:
+		return p2_evaluate_log_function(s)
 	var b: int = s.b
 	var h: int = s.h
 	var c: int = s.c
@@ -259,6 +303,8 @@ func u_inverse_of_log(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 
 func u_evaluate_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	if s.get("paper", 1) == 2:
+		return p2_evaluate_inverse(s)
 	var b: int = s.b
 	var h: int = s.h
 	var c: int = s.c
@@ -492,6 +538,8 @@ func u_write_log_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 
 func u_solve_exp_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	if s.get("paper", 1) == 2:
+		return p2_solve_exp_equation(s)
 	var m: int = s.m
 	var c: int = s.c
 	var d: int = s.d
@@ -521,6 +569,8 @@ func u_solve_exp_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 
 
 func u_solve_log_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	if s.get("paper", 1) == 2:
+		return p2_solve_log_equation(s)
 	var b: int = s.b
 	var h: int = s.h
 	var c: int = s.c
@@ -651,6 +701,135 @@ func u_function_from_inverse(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 				"In exponential form: %s = %d^(y%s), so f(x) = %d^(%s)%s" % [Answer.x_minus(h), b, Answer.plus_q(-c), b, Answer.x_minus(c), Answer.plus_q(h)], final]},
 		},
 	}
+
+
+# ── Paper 2 (FAL-419) ────────────────────────────────────────
+# The same functions at numbers that need a calculator: each answer to 3 s.f.
+
+const SF := ", correct to 3 significant figures"
+
+
+## g(xe) = log_b(xe − h) + c, where xe − h is not a power of b.
+func p2_evaluate_log_function(s: Dictionary) -> Dictionary:
+	var b: int = s.b
+	var h: int = s.h
+	var c: int = s.c
+	var x: int = s.xe
+	var k := x - h
+	var lk := lg(b, k)
+	var val := lk + c
+	var ans := sf_number(M("g(%d) = " % x), val)
+	var out := {"answer": ans, "lines": [log_fn(s) + ", for x > %d" % h], "wrongs": [], "generic": [],
+		"asked": "Find g(%d)%s." % [x, SF]}
+	sf_wrong(out, float(k) / b + c, "SL1.5.exp-log-form#0")
+	for w in [lk, lg(b, x) + c if x > 0 else NAN, log(float(k)) + c, val + 1.0]:
+		sf_wrong(out, w)
+	var lo := 0
+	while ipow(b, lo + 1) < k:
+		lo += 1
+	out.methods = {"what-power": {"result": ans.values, "steps": [
+		"The inside is %s, and %s < %d < %s: no whole power of %d gives %d." % [inside(s, x), PW(b, lo), k, PW(b, lo + 1), b, k],
+		"With a GDC: %s %d = ln %d / ln %d = %s" % [LG(b), k, k, b, W(lk)],
+		"g(%d) = %s%s = %s" % [x, W(lk), c_step(c), W(val)], "So " + Answer.text(ans) + "."]}}
+	return out
+
+
+## g⁻¹(at) = b^t + h, with t in tenths.
+func p2_evaluate_inverse(s: Dictionary) -> Dictionary:
+	var b: int = s.b
+	var h: int = s.h
+	var c: int = s.c
+	var t: Q = s.t
+	var a: Q = s.at
+	var bt := pow(float(b), t.to_float())
+	var x := bt + h
+	var ans := sf_number(M("g⁻¹(%s) = " % D(a)), x)
+	var out := {"answer": ans, "lines": [log_fn(s) + ", for x > %d" % h], "wrongs": [], "generic": [],
+		"asked": "Find g⁻¹(%s)%s." % [D(a), SF]}
+	sf_wrong(out, pow(t.to_float(), b) + h, "SL2.9.exp-log-inverse#1")
+	for w in [bt, pow(float(b), a.to_float()) + h, bt - h, lg(b, a.to_float() - h) + c if a.to_float() > h else NAN]:
+		sf_wrong(out, w)
+	var final := "So " + Answer.text(ans) + "."
+	var pw := "%d^(%s)" % [b, D(t)]
+	out.methods = {
+		"reverse-operations": {"result": ans.values, "steps": [
+			"g⁻¹ undoes g: subtract %d, raise %d to that power, then add %d." % [c, b, h],
+			("%s%s = %s, and with a GDC %s = %s" % [D(a), c_step(-c), D(t), pw, W(bt)]) if c != 0 else "With a GDC %s = %s" % [pw, W(bt)],
+			"%s%s = %s" % [W(bt), c_step(h), W(x)], final]},
+		"convert-form": {"result": ans.values, "steps": [
+			"g⁻¹(%s) is the x with g(x) = %s: %s(%s) = %s" % [D(a), D(a), LG(b), Answer.x_minus(h), D(t)],
+			"In exponential form: %s = %s = %s (GDC)" % [Answer.x_minus(h), pw, W(bt)],
+			"x = %s%s = %s" % [W(bt), c_step(h), W(x)], final]},
+		"inverse-identities": {"result": ans.values, "steps": [
+			"g(g⁻¹(%s)) = %s, so %s(x%s) = %s, where x = g⁻¹(%s)." % [D(a), D(a), LG(b), c_step(-h), D(t), D(a)],
+			"%s^(%s x) = x, so x%s = %s; with a GDC that is %s." % [b, LG(b), c_step(-h), pw, W(bt)],
+			"x = %s" % W(x), final]},
+	}
+	return out
+
+
+## e^(mx) + c = d, with x = (ln r)/m to 3 s.f.
+func p2_solve_exp_equation(s: Dictionary) -> Dictionary:
+	var m: int = s.m
+	var c: int = s.c
+	var d: int = s.d
+	var r: int = s.r
+	var lr := log(float(r))
+	var x := lr / m
+	var ans := sf_number("x = ", x)
+	var eq := "e^(%dx)%s = %d" % [m, Answer.plus_q(c), d]
+	var out := {"answer": ans, "lines": [eq], "wrongs": [], "generic": [], "asked": "Solve %s, giving x%s." % [eq, SF]}
+	# The trap takes one of the three wrong options, so the two misconceptions go first.
+	sf_wrong(out, m * lr, "SL2.9.exp-log-inverse#0")
+	sf_wrong(out, r / (m * exp(1.0)), "SL2.9.exp-log-inverse#2")
+	sf_wrong(out, lr - m, "SL2.9.exp-log-inverse#0")
+	for w in [log(float(d)) / m if d > 0 else NAN, -x, lr, x + 1.0]:
+		sf_wrong(out, w)
+	var final := "So " + Answer.text(ans) + "."
+	var alone := "Subtract %d" % c if c > 0 else ("Add %d" % -c if c < 0 else "Already alone")
+	out.methods = {
+		"take-logs": {"result": ans.values, "steps": ["e^(%dx) = %d" % [m, r], "Take ln of both sides: %dx = ln %d" % [m, r],
+			"With a GDC: x = (ln %d)/%d = %s" % [r, m, W(x)], final]},
+		"change-of-base": {"result": ans.values, "steps": ["e^(%dx) = %d, so %dx = logₑ %d = ln %d" % [m, r, m, r, r],
+			"x = (ln %d)/%d = %s on a GDC" % [r, m, W(x)], final]},
+		"gdc-intersect": {"result": ans.values, "steps": [
+			"Graph y = e^(%dx)%s and y = %d on a GDC." % [m, Answer.plus_q(c), d],
+			"The intersection tool gives x = %s." % W(x), final]},
+		"apply-inverse": {"result": ans.values, "steps": ["%s: e^(%dx) = %d" % [alone, m, r],
+			"Apply ln, the inverse of e^x: %dx = ln %d, then divide by %d." % [m, r, m], "With a GDC: x = %s" % W(x), final]},
+	}
+	return out
+
+
+## log_b(x − h) + c = at, so x = b^t + h.
+func p2_solve_log_equation(s: Dictionary) -> Dictionary:
+	var b: int = s.b
+	var h: int = s.h
+	var c: int = s.c
+	var t: Q = s.t
+	var a: Q = s.at
+	var bt := pow(float(b), t.to_float())
+	var x := bt + h
+	var ans := sf_number("x = ", x)
+	var eq := "%s(%s)%s = %s" % [LG(b), Answer.x_minus(h), Answer.plus_q(c), D(a)]
+	var out := {"answer": ans, "lines": [eq], "wrongs": [], "generic": [], "asked": "Solve %s, giving x%s." % [eq, SF]}
+	sf_wrong(out, pow(t.to_float(), b) + h, "SL2.9.exp-log-inverse#1")
+	for w in [bt - h, pow(float(b), a.to_float()) + h, bt, x + 1.0]:
+		sf_wrong(out, w)
+	var final := "So " + Answer.text(ans) + "."
+	var pw := "%d^(%s)" % [b, D(t)]
+	out.methods = {
+		"convert-form": {"result": ans.values, "steps": [
+			"%s(%s) = %s" % [LG(b), Answer.x_minus(h), D(t)],
+			"In exponential form: %s = %s = %s (GDC)" % [Answer.x_minus(h), pw, W(bt)], final]},
+		"rewrite-exponential": {"result": ans.values, "steps": [
+			"log_b A = m means b^m = A: here %s = %s." % [Answer.x_minus(h), pw],
+			"With a GDC: x = %s%s = %s" % [W(bt), c_step(h), W(x)], final]},
+		"apply-inverse": {"result": ans.values, "steps": [
+			"%s%s(%s) = %s" % ["" if c == 0 else ("Subtract %d: " % c if c > 0 else "Add %d: " % -c), LG(b), Answer.x_minus(h), D(t)],
+			"Raise %d to each side: %s = %s = %s on a GDC" % [b, Answer.x_minus(h), pw, W(bt)], final]},
+	}
+	return out
 
 
 # ── fn-ext-exp-graph ─────────────────────────────────────────

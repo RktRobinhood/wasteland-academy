@@ -11,6 +11,12 @@ extends RefCounted
 ##   rel     "<", "≤", ">" or "≥"
 ##   rhs     the number f(x) is compared with (0 unless form is "const")
 ##   n       x² compared with n² (square); d and T for n(n + d) ≤ T (largest)
+##   paper   1 or 2. Paper 2 (need.paper = 2, for zero, const and nega): whole-number
+##           coefficients whose roots are irrational, so the ends need a calculator and
+##           are given to 3 s.f.; p and q are then the roots to six decimal places
+##           (few enough that products of Qs stay inside 64 bits). The
+##           largest-integer context is Paper 2 (its boundary needs a calculator);
+##           the rest are Paper 1.
 
 const RELS := ["<", "≤", ">", "≥"]
 const TRIES := 2000
@@ -22,12 +28,15 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	# change every other situation's questions.
 	rng.int_in(0, 1)
 	var form: String = need.get("form", "zero")
+	var p2: bool = int(need.get("paper", 1)) == 2 and form in P2_FORMS
 	for i in TRIES:
-		var s := _draw(rng, form, need)
+		var s := _draw_p2(rng, form, need) if p2 else _draw(rng, form, need)
 		if not s.is_empty():
 			s.form = form
 			if not s.has("rel"):
 				s.rel = RELS[rng.int_in(0, 3)]
+			if not s.has("paper"):
+				s.paper = 2 if form == "largest" else 1
 			return s
 	push_error("QuadraticInequalitySituation: no clean situation for %s" % need)
 	return {}
@@ -77,6 +86,45 @@ static func _draw(rng: Seeded, form: String, need: Dictionary) -> Dictionary:
 				return {}
 			return {"d": Q.new(d), "T": Q.new(t), "root": x, "best": Q.new(floori(x)), "rel": "≤"}
 	return {}
+
+
+## The forms with a Paper 2 version whose roots need a calculator.
+const P2_FORMS := ["zero", "const", "nega"]
+const SCALE := 1000000
+
+
+## Paper 2: a·x² + b·x + c with whole numbers and Δ > 0 not a square, so the roots are
+## irrational. Each root is clear of a 3 s.f. rounding edge.
+static func _draw_p2(rng: Seeded, form: String, need: Dictionary) -> Dictionary:
+	var a: int = [1, 1, 2, 3, -1, -2][rng.int_in(0, 5)]
+	if form == "nega":
+		a = -absi(a)
+	elif form == "zero" and a < 0 and rng.chance(0.6):
+		return {}
+	var b := rng.int_in(-9, 9)
+	var c := rng.int_in(-12, 12)
+	var disc := b * b - 4 * a * c
+	var root := int(round(sqrt(float(maxi(disc, 0)))))
+	if c == 0 or disc <= 0 or root * root == disc:
+		return {}
+	var r1 := (-b - sqrt(float(disc))) / (2.0 * a)
+	var r2 := (-b + sqrt(float(disc))) / (2.0 * a)
+	var lo := minf(r1, r2)
+	var hi := maxf(r1, r2)
+	for x in [lo, hi]:
+		if absf(x) < 0.1 or absf(x) > 12.0 or not Answer.rounds_clearly(x, 0.05):
+			return {}
+	var s := {"a": Q.new(a), "b": Q.new(b), "c": Q.new(c), "disc": Q.new(disc), "h": Q.new(-b, 2 * a),
+		"p": Q.new(roundi(lo * SCALE), SCALE), "q": Q.new(roundi(hi * SCALE), SCALE), "rhs": Q.new(0), "paper": 2, "mode": "irrational"}
+	s.k = s.c.sub(s.b.sq().div(s.a.mul(4)))
+	if need.get("graph", false) and (absi(c) > QuadraticSituation.GRAPH_Y_MAX or absf(s.k.to_float()) > QuadraticSituation.GRAPH_Y_MAX):
+		return {}
+	if form == "const":
+		var d := rng.int_in(-9, 9)
+		if d == 0 or absi(c + d) > QuadraticSituation.C_MAX:
+			return {}
+		s.rhs = Q.new(d)
+	return s
 
 
 static func export(s: Dictionary) -> Dictionary:
