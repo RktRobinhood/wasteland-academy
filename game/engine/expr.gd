@@ -49,8 +49,9 @@ const ALIASES := {"arcsin": "asin", "arccos": "acos", "arctan": "atan", "sin⁻�
 const CONSTANTS := ["π", "e"]
 ## The longest whole number or decimal it reads, in digits (Q stays inside 64 bits).
 const MAX_DIGITS := 15
-## Exact work stops (eval_exact gives null) once a numerator or denominator passes this.
-const EXACT_LIMIT := 1e15
+## Exact work stops (eval_exact gives null) where a product inside Q would pass this,
+## well inside 64 bits (9.2e18).
+const EXACT_LIMIT := 4e18
 
 const ERR_NOT_MATHS := "That isn't something the calculator can work out."
 
@@ -420,8 +421,19 @@ static func eval_exact(tree: Variant) -> Q:
 				return null
 			if tree[0] == "div" and b.is_zero():
 				return null
-			# Check the size first, so Q's 64-bit work can't overflow.
-			var big := float(maxi(absi(a.n), a.d)) * float(maxi(absi(b.n), b.d))
+			# Check the size of Q's cross products first, so its 64-bit work can't overflow.
+			var an := absf(float(a.n))
+			var bn := absf(float(b.n))
+			var ad := float(a.d)
+			var bd := float(b.d)
+			var big: float
+			match tree[0]:
+				"mul":
+					big = maxf(an * bn, ad * bd)
+				"div":
+					big = maxf(an * bd, ad * bn)
+				_:
+					big = maxf(maxf(an * bd, bn * ad), ad * bd)
 			if big > EXACT_LIMIT:
 				return null
 			match tree[0]:

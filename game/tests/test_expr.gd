@@ -101,7 +101,9 @@ func test_radians_unless_told_degrees() -> void:
 
 func test_exact_fractions_for_marking() -> void:
 	var cases := {"1/2": "1/2", "2^-1": "1/2", "2(3)": "6", "1.5/2": "3/4", "(1/3)^2": "1/9", "√(9/4)": "3/2",
-		"-3^2": "-9", "0.1+0.2": "3/10", "2^3^2": "512", "6/4": "3/2", "abs(-2/3)": "2/3"}
+		"-3^2": "-9", "0.1+0.2": "3/10", "2^3^2": "512", "6/4": "3/2", "abs(-2/3)": "2/3",
+		# Long fractions the engine exports for 3 s.f. answers stay exact.
+		"1708800749/200000000": "1708800749/200000000", "3138428376721/200000000": "3138428376721/200000000"}
 	for text in cases:
 		var r := Expr.parse(text)
 		var q := Expr.eval_exact(r.tree) if r.ok else null
