@@ -191,7 +191,7 @@ static func model_graph(s: Dictionary, t_max: float, points: Array, asymptote: b
 		hl.append([s.C.to_float(), ""])
 	if level != null:
 		hl.append([Q.of(level).to_float(), "y = %s" % N(level)])
-	return Plot.spec([Plot.sample(f, 0.0, t_max)], points, 0, ceili(t_max), 0, Plot.nice_top(top), hl)
+	return Plot.spec([Plot.sample(f, 0.0, t_max)], points, 0, ceili(t_max), 0, Plot.nice_top(top), hl).merged({"x_name": "t"})
 
 
 ## Solving the model = lv for t, written for each method. Returns {"eq", "iso", "logs",
@@ -678,7 +678,7 @@ func u_two_models_equal(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var fq := func(x: float) -> float: return s.P0b.to_float() * pow(s.ab.to_float(), x)
 		var tm := t * 1.5
 		out.graph = Plot.spec([Plot.sample(fp, 0.0, tm), Plot.sample(fq, 0.0, tm)],
-			[[0, s.P0.to_float(), "P"], [0, s.P0b.to_float(), "Q"]], 0, ceili(tm), 0, Plot.nice_top(maxf(fp.call(tm), fq.call(tm))))
+			[[0, s.P0.to_float(), "P"], [0, s.P0b.to_float(), "Q"]], 0, ceili(tm), 0, Plot.nice_top(maxf(fp.call(tm), fq.call(tm)))).merged({"x_name": "t"})
 	var ratio: Q = s.P0b.div(s.P0)
 	var fr: Q = s.a.div(s.ab)
 	wrong_x(out, -t, "SL2.10.context-apply#1")

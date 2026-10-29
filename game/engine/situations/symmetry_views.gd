@@ -177,7 +177,7 @@ func _mirror_ncr(rep: String, c: Dictionary) -> Dictionary:
 	var ans := Answer.make("number", {"v": c.n}, {}, "n = ")
 	ans.exact = true
 	var out := {"asked": "Find n.", "given": export(c).merged({"ctx": "ncr"}), "answer": ans,
-		"lines": ["ⁿC%d = ⁿC%d, and %d ≠ %d." % [r, n - r, r, n - r]]}
+		"lines": ["nC%d = nC%d, and %d ≠ %d." % [r, n - r, r, n - r]]}
 	if rep == "table":
 		out.table = {"rows": [["r", [str(r), str(n - r)]], ["nCr", [str(c.value.n), str(c.value.n)]]]}
 		out.lines = ["The table gives two values of nCr from one row of Pascal's triangle."]
