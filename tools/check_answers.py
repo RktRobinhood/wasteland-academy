@@ -5378,6 +5378,8 @@ def gc_expr(text):
     """The game's way of writing a function, as SymPy: '2e^(0.5x) − 3x − 1'."""
     t = text.replace("−", "-").replace("e^(", "exp(").replace("ln(", "log(")
     t = t.replace("x³", "x**3").replace("x²", "x**2").replace(")²", ")**2").replace("^", "**")
+    # x·e^(…) is written xe^(…): keep the parser from reading "xexp" as one name.
+    t = re.sub(r"([x)])exp\(", r"\1*exp(", t)
     need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the function {text!r}")
     return sp.nsimplify(parse_expr(t, transformations=TRANSFORMS, local_dict=GC_LOCALS), rational=True)
 
@@ -5958,6 +5960,132 @@ def check_gdc_two_curves(q):
     return None, None
 
 
+# ── Graphs and key features (FAL-420): gdc-combined ───────────
+# Two models and a function made from them: D(t) (how far one is ahead), the distance
+# d(x) from a point to a curve, or the sum f + g. The models are read back from the
+# question's text; D's maximum, d's minimum and the zeros are found again with mpmath.
+
+CB_MM, CB_SD, CB_CA = "SL2.4.max-min", "SL2.3.sum-difference", "SL2.10.context-apply"
+
+
+def cb_read(q):
+    """(kind, f, g, lo, hi, P): kind 'towns', 'drugs', 'distance' or 'sum'; D = Q − P for
+    towns and A − B for drugs."""
+    j = " ".join([q["asked"]] + q["lines"])
+    m = re.search(r"P\(t\) = (.+?)(?: thousand people)?,? and (?:town Q has |town Q, )?Q\(t\) = (.+?)(?: thousand people|, in thousands)?, .*?(?:for 0 ≤ t ≤ (\d+)|t years after 2020)", j)
+    if m and "P(t)" in j:
+        f, g = tc_expr(m.group(1)), tc_expr(m.group(2))
+        d = re.search(r"for 0 ≤ t ≤ (\d+)", j)
+        return "towns", f, g, sp.Integer(0), el_num(d.group(1)) if d else el_num(q["given"]["d2"]), None
+    m = re.search(r"A\(t\) = (.+?) and B\(t\) = (.+?)(?: mg/l)?, .*?for 0 ≤ t ≤ (\d+)", j)
+    if m:
+        return "drugs", tc_expr(m.group(1)), tc_expr(m.group(2)), sp.Integer(0), el_num(m.group(3)), None
+    m = re.search(r"f\(x\) = (.+?), for (−?\d+) ≤ x ≤ (−?\d+), and the point P\((−?\d+), (−?\d+)\)", j)
+    if m:
+        return "distance", gc_expr(m.group(1)), None, el_num(m.group(2)), el_num(m.group(3)), (el_num(m.group(4)), el_num(m.group(5)))
+    m = re.search(r"f\(x\) = (.+?) and g\(x\) = (.+?), for (−?\d+) ≤ x ≤ (−?\d+)", j)
+    need(m is not None, "can't read the models")
+    return "sum", gc_expr(m.group(1)), gc_expr(m.group(2)), el_num(m.group(3)), el_num(m.group(4)), None
+
+
+def cb_extreme(h, lo, hi, want):
+    """The one interior max (or min) of h, which beats both ends: (x, h(x))."""
+    fh = gc_f(h)
+    ts = [t for t in gc_zeros(sp.diff(h, X), lo, hi) if mpmath.mpf(lo) < t < mpmath.mpf(hi)]
+    d2 = gc_f(sp.diff(h, X, 2))
+    ext = [t for t in ts if (d2(t) < 0) == (want == "max")]
+    need(len(ext) == 1, f"not one interior {want}")
+    x = ext[0]
+    for e in (lo, hi):
+        v = fh(mpmath.mpf(e))
+        need(v < fh(x) if want == "max" else v > fh(x), f"the {want} is at an end of the domain")
+    return x, fh(x)
+
+
+def check_gdc_combined(q):
+    u, rep, asked = q["view"]["unknown"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 2, "a combined GDC function is Paper 2")
+    for t in [asked] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    kind, f, g, lo, hi, P = cb_read(q)
+    wr, trap = {}, None
+    D = (g - f) if kind == "towns" else (f - g) if kind == "drugs" else None
+    if u == "form-difference":
+        right = [o for o in q["choices"] if sp.simplify(tc_expr(o["text"].split(" = ", 1)[1]) - D) == 0]
+        need(len(right) == 1 and right[0]["correct"], "not exactly one option is D(t) the right way round")
+        gc_check_common(q, right[0]["text"], {})
+        return None, None
+    if u in ("max-difference", "interpret-extreme"):
+        x, y = cb_extreme(D, lo, hi, "max")
+        need(abs(y) >= 1 and gc_fair(x) and gc_fair(y), "the greatest difference is not a fair 3 s.f. value")
+        if u == "interpret-extreme":
+            need(f"maximum point at ({gc_s(x)}, {gc_s(y)})" in asked, "the maximum point asked is not D's")
+            right = next(o for o in q["choices"] if o["correct"])
+            need("furthest" in right["text"] and gc_s(x) in right["text"], "the right option doesn't say the time of the greatest lead")
+            for o in q["choices"]:
+                if o["ref"] == CB_CA + "#2":
+                    need(gc_s(y) in o["text"] and "greatest" in o["text"], "CA#2 doesn't give the size of the lead")
+            gc_check_common(q, right["text"], {CB_CA + "#2": {o["text"] for o in q["choices"] if o["ref"] == CB_CA + "#2"}})
+            return None, None
+        want, trap = f"t = {gc_s(x)}, D = {gc_s(y)}", f"t = {gc_s2(x)}, D = {gc_s2(y)}"
+        wr[CB_MM + "#0"] = {f"t = {gc_s(y)}, D = {gc_s(x)}"}
+        if kind == "drugs":
+            k = -sp.Poly(sp.log(f / X).expand(force=True), X).all_coeffs()[0]
+            tA = 1 / k
+            wr[CB_SD + "#2"] = {f"t = {gc_s(tA)}, D = {gc_s(gc_f(D)(mpmath.mpf(tA)))}"}
+    elif u == "difference-zero":
+        zs = gc_zeros(D, lo, hi)
+        need(len(zs) == 1, "D is not zero once in the domain")
+        before = gc_zeros(D, -20, 0)
+        need(len(before) == 1, "D has no one zero before t = 0")
+        want, trap = "t = " + gc_s(zs[0]), "t = " + gc_s2(zs[0])
+        wr[CB_CA + "#1"] = {f"t = {gc_s(before[0])} or {gc_s(zs[0])}"}
+    elif u in ("least-distance", "closest-point"):
+        d = sp.sqrt((X - P[0]) ** 2 + (f - P[1]) ** 2)
+        x, dm = cb_extreme(d, lo, hi, "min")
+        y = gc_f(f)(x)
+        if u == "least-distance":
+            want, trap = gc_s(dm), gc_s2(dm)
+            wr[CB_MM + "#0"] = {gc_s(x)}
+            need(all(o["ref"] == CB_MM + "#2" for o in q["choices"] if o.get("trap")), "the 2 s.f. distance doesn't log SL2.4.max-min#2")
+        else:
+            want, trap = gc_pt(x, y), f"({gc_s2(x)}, {gc_s2(y)})"
+    elif u == "sum-graph":
+        S_ = gc_f(f + g)
+        ff, gg = gc_f(f), gc_f(g)
+        mk = {"sideways": (CB_SD + "#0", lambda x: ff(x + gg(x))), "difference": ("", lambda x: ff(x) - gg(x)),
+              "constant-lift": ("", lambda x: ff(x) + gg(mpmath.mpf(0)))}
+        ch, graphs = q["choices"], q["graphs"]
+        need(len(graphs) == 4 and sum(1 for o in ch if o["correct"]) == 1, "pick the graph needs four graphs, one right")
+        for o, gr in zip(ch, graphs):
+            if o["correct"]:
+                need(gc_curve_is(gr["curves"][0], S_), "the right graph is not f + g")
+            else:
+                need(o["mistake"] in mk and o["ref"] == mk[o["mistake"]][0], f"the {o['mistake']} graph is mistagged")
+                need(gc_curve_is(gr["curves"][0], mk[o["mistake"]][1]), f"the {o['mistake']} graph is not that mistake")
+        gc_check_common(q, next(o["text"] for o in ch if o["correct"]), {o["ref"]: {o["text"]} for o in ch if o["ref"]})
+        return None, None
+    elif u == "sum-zeros":
+        zs = gc_zeros(f + g, lo, hi)
+        need(1 <= len(zs) <= 3 and all(gc_fair(z) for z in zs), "f + g has no fair zeros")
+        want, trap = gc_xs(zs), gc_xs2(zs)
+        wr[CB_SD + "#1"] = {gc_xs(sorted(list(gc_zeros(f, lo, hi)) + list(gc_zeros(g, lo, hi)), key=float))}
+    elif u == "first-whole-day":
+        zs = gc_zeros(f - g, lo, hi)
+        need(len(zs) == 1 and gc_fair(zs[0]), "P doesn't overtake Q once")
+        n = int(mpmath.ceil(zs[0]))
+        want = f"t = {n}"
+        wr[CB_CA + "#0"] = {f"t = {int(mpmath.floor(zs[0]))}"}
+        if rep == "table":
+            t = q["table"]
+            for xv, fv, gv in zip(t["xs"], t["fs"], t["gs"]):
+                need(gc_close(fv, gc_f(f)(mpmath.mpf(R(xv)))) and gc_close(gv, gc_f(g)(mpmath.mpf(R(xv)))), f"the table is wrong at t = {xv}")
+    else:
+        raise Fail(f"the checker has no gdc-combined check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -5966,7 +6094,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
                     "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth,
-                    "gdc-curve": check_gdc_curve, "gdc-two-curves": check_gdc_two_curves}
+                    "gdc-curve": check_gdc_curve, "gdc-two-curves": check_gdc_two_curves,
+                    "gdc-combined": check_gdc_combined}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

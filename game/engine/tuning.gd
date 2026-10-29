@@ -182,6 +182,8 @@ const CHAINS := {
 	"fn-gdc-features": ["y-intercept", "zeros-gdc", "use-stored-zeros", "turning-point-coordinates"],
 	# the meeting points, the one in an interval, then the distance between them
 	"fn-gdc-intersection": ["intersection-points", "crossing-in-interval", "distance-between-crossings"],
+	# form D(t), find its greatest value and when, then say what the time means
+	"fn-gdc-optimise-combined": ["form-difference", "max-difference", "interpret-extreme"],
 }
 
 

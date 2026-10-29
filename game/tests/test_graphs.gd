@@ -6,11 +6,13 @@ extends "res://tests/test_case.gd"
 ## (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-sketch-gdc": 42, "fn-gdc-features": 36, "fn-gdc-intersection": 29}
-const SITUATION := {"fn-sketch-gdc": "gdc-curve", "fn-gdc-features": "gdc-curve", "fn-gdc-intersection": "gdc-two-curves"}
+const CELLS := {"fn-sketch-gdc": 42, "fn-gdc-features": 36, "fn-gdc-intersection": 29, "fn-gdc-optimise-combined": 27}
+const SITUATION := {"fn-sketch-gdc": "gdc-curve", "fn-gdc-features": "gdc-curve", "fn-gdc-intersection": "gdc-two-curves",
+	"fn-gdc-optimise-combined": "gdc-combined"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-sketch-gdc|SL2.10.number-of-solutions#2": "counting the asymptote's level needs a curve that levels off; the gdc-curve asymptote is vertical",
+	"fn-gdc-optimise-combined|SL2.4.max-min#1": "D's greatest value is always its turning value here (D is concave for the towns, and starts at 0 for the drugs), so no endpoint beats it",
 }
 ## What each wrong graph's mistake is, as a misconception ref ("" for none in the catalogue).
 const MISTAKES := {"past-domain": "SL2.3.sketch-from-equation#1", "squashed": "SL2.3.sketch-from-equation#2",

@@ -66,6 +66,7 @@ static var SITUATIONS := {
 	"fn-link-multiplicative-growth": [LinkGrowthSituation, LinkGrowthViews],
 	"gdc-curve": [GdcCurveSituation, GdcCurveViews],
 	"gdc-two-curves": [GdcTwoCurvesSituation, GdcTwoCurvesViews],
+	"gdc-combined": [GdcCombinedSituation, GdcCombinedViews],
 }
 
 static var _cat: Dictionary = {}

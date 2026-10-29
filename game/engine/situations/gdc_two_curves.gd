@@ -8,7 +8,8 @@ extends RefCounted
 ##
 ## Each function is a curve: a gdc-curve family (GdcCurveSituation: "explin", "cubic",
 ## "trig", "log", "bell", with its coefficients as Q and their floats in `co`) or a
-## "line" mx + c (m and c). generate() returns:
+## "line" mx + c (m and c), or (for gdc-combined) "texp" A·x·e^(−kx), a model that rises
+## to a maximum and falls. generate() returns:
 ##   mode       "line" (a curve and a line), "context" (two models of time t ≥ 0),
 ##              "inverse" (f(x) = e^(bx) + c and f⁻¹(x) = (1/b) ln(x − c)), "far"
 ##              (one crossing past x = 10, outside the standard window)
@@ -97,24 +98,33 @@ static func line(m: Q, n: Q) -> Dictionary:
 
 
 static func at(c: Dictionary, x: float) -> float:
-	if c.fam == "line":
-		return c.co[2] * x + c.co[3]
+	match c.fam:
+		"line":
+			return c.co[2] * x + c.co[3]
+		"texp":
+			return c.co[0] * x * exp(-c.co[4] * x)
 	return GdcCurveSituation.at(c, x)
 
 
 static func slope(c: Dictionary, x: float) -> float:
-	if c.fam == "line":
-		return c.co[2]
+	match c.fam:
+		"line":
+			return c.co[2]
+		"texp":
+			return c.co[0] * exp(-c.co[4] * x) * (1.0 - c.co[4] * x)
 	return GdcCurveSituation.slope(c, x)
 
 
 ## A curve as written, in x or t: "2e^(0.5x) − 1", "1.5x + 2".
 static func text(c: Dictionary, v: String = "x") -> String:
 	var out: String
-	if c.fam == "line":
-		out = GdcKit.first(c.m, "x") + GdcKit.join(c.c, "") if not c.m.is_zero() else Fmt.dec(c.c)
-	else:
-		out = GdcCurveSituation.text(c)
+	match c.fam:
+		"line":
+			out = GdcKit.first(c.m, "x") + GdcKit.join(c.c, "") if not c.m.is_zero() else Fmt.dec(c.c)
+		"texp":
+			out = GdcKit.first(c.A, "xe^(−%sx)" % GdcKit.lead(c.k))
+		_:
+			out = GdcCurveSituation.text(c)
 	return out.replace("x", v) if v != "x" else out
 
 
