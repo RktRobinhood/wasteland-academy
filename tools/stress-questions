@@ -3,10 +3,11 @@
 # default, past the 1 to 50 that tools/check-answers exports, and checks each question
 # is made and marks its own answer right and its wrong options wrong. Every fourth
 # seed is also made on its family's shared situation (the explorer's "Ask it another
-# way"), and in each extra format it offers. About 1.5 million questions: some 6 minutes
-# on CI, longer on a busy desktop. Exits non-zero on any failure.
+# way"), and in each extra format it offers. About 2.7 million questions with the
+# Exponentials and logs region (FAL-418): over 30 minutes on CI, so the cap is 55 (the
+# CI job allows 60). Exits non-zero on any failure.
 #
-#   tools/stress-questions [--from=51] [--to=2250]
+#   tools/stress-questions [--from=51] [--to=2250] [--types=id,id]
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 source "$ROOT/scripts/godot-env.sh"
@@ -15,7 +16,7 @@ import_project
 log="$ROOT/_scratch/stress-questions.log"
 mkdir -p "$(dirname "$log")"
 set +e
-timeout 1800 "$GODOT" --headless --path "$GAME" --script res://tools/stress_questions.gd -- "$@" 2>&1 \
+timeout 3300 "$GODOT" --headless --path "$GAME" --script res://tools/stress_questions.gd -- "$@" 2>&1 \
 	| grep -v "^\[MCP" | tee "$log"
 status=${PIPESTATUS[0]}
 set -e
