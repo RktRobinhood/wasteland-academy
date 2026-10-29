@@ -165,6 +165,17 @@ const CHAINS := {
 	"fn-discriminant": ["delta-in-k", "k-for-equal-roots", "k-interval"],
 	# the substitution, then solve and reject the impossible root
 	"fn-solve-quadratic": ["choose-substitution", "solve-hidden-exponential"],
+	# k from a second reading, predict, the time to a level, then whole time units. The
+	# chain's opener (the initial value) and closer (the long-run value) are on a limited
+	# growth model, which these four parts can't share, so they stay single questions.
+	"fn-exponential-model": ["k-from-data-point", "predict-from-data-point", "time-to-level", "whole-units-inequality"],
+	# evaluate g, find g⁻¹, evaluate g⁻¹: all on one log function. The chain's composite
+	# and transformation parts need a second function, so they stay single questions.
+	"fn-exp-log-inverse-composite": ["evaluate-log-function", "inverse-of-log", "evaluate-inverse"],
+	# the roots and the domain, the asymptotes at the roots, the zeros from g(x) = 1, the maximum
+	"fn-log-of-quadratic": ["argument-roots", "domain-from-inequality", "asymptotes", "zeros", "max-value"],
+	# the asymptote opens, then the domain, where it crosses the x-axis, and an inequality
+	"fn-log-function-features": ["asymptote-from-equation", "domain-from-equation", "x-intercept", "log-inequality"],
 }
 
 

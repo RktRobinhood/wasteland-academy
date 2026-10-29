@@ -160,6 +160,28 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `named`, `pair`, `brackets`, `brackets2`, `common`, `pm_surd`, `range2`,
   `related`, `features` and `angles`. An answer can set `show: "sf"` (3 s.f.), and
   options of such an answer are told apart by their text.
+- **The Exponentials and logs region** (FAL-418) adds four exam situations and three
+  extension ones. `exp_model.gd` is one model in a context, Paper 2 (values and times to
+  3 s.f.): growth or decay as P₀(a)ᵗ, shifted, continuous with k given or from a
+  half-life or a reading, limited growth C + Ae^(−kt), a log₁₀ reading, or two models
+  that meet. `exp_log_pair.gd` is an exponential and its log inverse, with modes for
+  bases from one family, an e-equation, a composite inequality, a translation or stretch
+  between exponentials, f∘g against g∘f and the log of a square; `fn-ext-exp-graph`
+  shares it (A·b^(x − h) + c). `log_quadratic.gd` extends `quadratic`: a downward
+  parabola whose top is a whole power of the log's base, so the maximum, the base and the
+  surd zeros come out exact. `log_function.gd` extends `exp-log-pair`: A·log_b(mx + n) + c.
+  The extension situations are `percent.gd` (`fn-pre-percent-multiplier`),
+  `growth_patterns.gd` (`exp-growth-vs-linear`, extending `exp-model`) and
+  `link_growth.gd` (`fn-link-multiplicative-growth`). `engine/plot.gd` makes graph specs
+  of sampled curves with dashed asymptotes, which `ui/graph_view.gd` draws. New answer
+  kinds: `lnq` (an exact k as m·ln r, marked by value, so (1/5) ln(1/2) is −(ln 2)/5),
+  `pct` (a rise or fall of r%), `expmodel` (P₀(a)ᵗ), `limited` (C, A and k), `fn` (a
+  function of x with its shifts typed; a wrong option may take another form, such as
+  1/f(x) or (x − p)ᵇ + q), `logform` (log_b x = y) and `xpow` (xⁿ). `Answer.typable()`
+  says whether an option could be typed into the answer's slots; a wrong option in
+  another form can be picked but is never taken as a typed misconception. The
+  catalogue's pick-the-graph unknowns play as four descriptions (from the equation) or
+  four equations (from the graph) until that format is built.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -391,13 +413,18 @@ it does the same, with SymPy, mpmath and the catalogue's own method names: an er
 question's first wrong line is found again from the working (each line an identity, a
 solution set or a surd claim), a method-pick question's wrong methods must not work, and
 a true-false-reason question's student answer must be one of the question's options.
+For the FAL-418 situations it reads the model or function back from the lines, works
+out every value with SymPy (an inverse is checked by composing it with the original at
+several points; domains, signs and inequalities with `solveset`), checks the curves and
+marked points of each graph against the function, and keeps the clean limits (`EM_*`,
+`LQ_*`, `LF_*`, `PC_*`, `LG_*`), including that no 3 s.f. answer sits on a rounding edge.
 Each cell also gets 10 questions made on its family's shared situation, and 20 in each
 extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
 chain: one situation, and each part's `carried` value is the part before's answer. It
 prints a table per type and per cell. SymPy is pinned in
 `requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it
-next to `./test.sh`.
+as its own `answers` job.
 
 ### The seed sweep
 
@@ -408,7 +435,10 @@ in each extra format the cell offers), that its own answer typed exactly and to 
 right, and that every wrong option typed in is marked wrong with its misconception. It
 does the same for every boss chain with seeds 51 to 1050, and checks each part's carried
 value. It fails on any script error, such as a failed assert in `Q`. CI runs it as its
-own `stress` job.
+own `stress` job. `--types=id,id` sweeps only those types. An exact answer (an exact k,
+−(ln 2)/3) is only right exactly, so its 3 s.f. decimal is checked only where that
+decimal is the exact value, and a wrong option that can't be typed (`Answer.typable`) is
+not typed in.
 
 ## The map
 
@@ -616,6 +646,14 @@ script error happens while it runs. Run one file with
   as SL2.7.inequality#1, two points in either order, a tangent's point on both graphs,
   Paper 2 contexts at about one in four, and "Another way" keeping the numbers for every
   fn-solve-quadratic unknown and pair of methods.
+- `test_exp_log.gd`: the eight Exponentials and logs types (FAL-418): built with every
+  cell on their situations, 2 to 5 steps per worked solution, every distractor
+  misconception as an option (two that no exact option can show are listed with the
+  reason), the same seed giving the same question, an exact k marked by value, a
+  percentage change needing its direction, a model typed as decimals, a limited model's
+  k to 3 s.f., whole time units rounded up, each boss chain on one situation, an inverse
+  typed as its two shifts with 1/f(x) offered as f⁻¹, a true minus sign throughout, and
+  the percent error-spot's first wrong line.
 - `test_calculus.gd`: the four Topic 5 types on the cubic: built, every misconception
   appears as an option, two points in either order, nature as multiple choice, f′(x)
   marked exactly, the normal to 3 s.f.

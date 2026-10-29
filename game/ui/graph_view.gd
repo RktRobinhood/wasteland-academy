@@ -4,7 +4,9 @@ extends Control
 ## curve, the points the view gives (dot and coordinates) and, if given, the axis of
 ## symmetry as a dashed line. Sized for a phone: the plot fills the column's width.
 ##
-## spec is the "graph" Dictionary of a question (quadratic_views.gd graph()).
+## spec is the "graph" Dictionary of a question (quadratic_views.gd graph()). A spec
+## with "curves" (Plot.spec(), FAL-418) draws those sampled curves instead of the
+## parabola, plus its dashed asymptotes ("hlines", "vlines": {"at", "label"}).
 
 const PAD := 18.0
 const DOT := 13.0
@@ -44,10 +46,10 @@ func to_px(p: Vector2) -> Vector2:
 
 ## Grid step in units so lines are at least min_px apart: 1, 2, 5, 10, ...
 static func step_for(units: float, px: float, min_px: float) -> int:
-	for s in [1, 2, 5, 10, 20, 50]:
+	for s in [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000]:
 		if px / units * s >= min_px:
 			return s
-	return 100
+	return 10000
 
 
 func _draw() -> void:
@@ -86,6 +88,9 @@ func _draw() -> void:
 	for y in range(y0 + 1, y1):
 		if y % ly == 0 and y != 0:
 			var p := to_px(Vector2(clampi(0, x0, x1), y)) + Vector2(-34, 10)
+			# A y-axis at the plot's left edge (a model from t = 0) keeps its labels inside.
+			if p.x < r.position.x + 30:
+				p.x += 68
 			if not _near_point(p):
 				_text(font, _n(y), p, UiTheme.DIM, FONT_SIZE - 6, true)
 	_text(font, "x", Vector2(r.end.x - 14, origin.y - 12), UiTheme.DIM, FONT_SIZE, true)
@@ -98,6 +103,70 @@ func _draw() -> void:
 			draw_line(to_px(Vector2(ax, t)), to_px(Vector2(ax, minf(t + 0.5, y1))), UiTheme.SAND, 4.0)
 			t += 1.0
 		_text(font, spec.axis_label, to_px(Vector2(ax, y1)) + Vector2(14, 40), UiTheme.SAND, FONT_SIZE, false)
+	if spec.has("curves"):
+		_draw_curves(font)
+	else:
+		_draw_parabola()
+	# Marked points with their coordinates.
+	for p in spec.points:
+		var c := to_px(Vector2(p.x, p.y))
+		draw_circle(c, DOT, UiTheme.PINK)
+		draw_circle(c, DOT * 0.45, UiTheme.BG)
+		var w := font.get_string_size(p.label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
+		var at := c + Vector2(20, -20)
+		if at.x + w > r.end.x:
+			at.x = c.x - 20 - w
+		if at.y - FONT_SIZE < r.position.y:
+			at.y = c.y + FONT_SIZE + 16
+		_text(font, p.label, at, UiTheme.TEXT, FONT_SIZE, false, true)
+	if spec.get("caption", "") != "":
+		_text(font, spec.caption, r.position + Vector2(14, 44), UiTheme.SAND, FONT_SIZE, false, true)
+
+
+## Sampled curves (each [[x, y], ...]) clipped to the plot, and dashed asymptotes.
+func _draw_curves(font: Font) -> void:
+	var x0 := float(spec.x0)
+	var x1 := float(spec.x1)
+	var y0 := float(spec.y0)
+	var y1 := float(spec.y1)
+	var cols := [UiTheme.TEAL, UiTheme.SAND]
+	for i in spec.curves.size():
+		var seg := PackedVector2Array()
+		for p in spec.curves[i]:
+			if p[1] >= y0 and p[1] <= y1 and p[0] >= x0 and p[0] <= x1:
+				seg.append(to_px(Vector2(p[0], p[1])))
+			elif seg.size() > 0:
+				if seg.size() > 1:
+					draw_polyline(seg, cols[i % cols.size()], 6.0, true)
+				seg = PackedVector2Array()
+		if seg.size() > 1:
+			draw_polyline(seg, cols[i % cols.size()], 6.0, true)
+	for hl in spec.get("hlines", []):
+		var y := float(hl.at)
+		var x := x0
+		var dash := (x1 - x0) / 40.0
+		while x < x1:
+			draw_line(to_px(Vector2(x, y)), to_px(Vector2(minf(x + dash * 0.5, x1), y)), UiTheme.SAND, 4.0)
+			x += dash
+		if hl.get("label", "") != "":
+			_text(font, hl.label, to_px(Vector2(x1, y)) + Vector2(-190, -14), UiTheme.SAND, FONT_SIZE - 4, false, true)
+	for vl in spec.get("vlines", []):
+		var x := float(vl.at)
+		var y := y0
+		var dash := (y1 - y0) / 40.0
+		while y < y1:
+			draw_line(to_px(Vector2(x, y)), to_px(Vector2(x, minf(y + dash * 0.5, y1))), UiTheme.SAND, 4.0)
+			y += dash
+		if vl.get("label", "") != "":
+			_text(font, vl.label, to_px(Vector2(x, y1)) + Vector2(14, 40), UiTheme.SAND, FONT_SIZE - 4, false, true)
+
+
+func _draw_parabola() -> void:
+	var x0 := int(spec.x0)
+	var x1 := int(spec.x1)
+	var y0 := int(spec.y0)
+	var y1 := int(spec.y1)
+	var font := get_theme_default_font()
 	# The curve, clipped to the plot.
 	var a := float(spec.a)
 	var h := float(spec.h)
@@ -129,20 +198,6 @@ func _draw() -> void:
 			draw_line(ends[0], ends[ends.size() - 1], UiTheme.SAND, 5.0, true)
 		if spec.line.get("label", "") != "" and ends.size() > 1:
 			_text(font, spec.line.label, ends[ends.size() - 1] + Vector2(-150, -18), UiTheme.SAND, FONT_SIZE - 4, false, true)
-	# Marked points with their coordinates.
-	for p in spec.points:
-		var c := to_px(Vector2(p.x, p.y))
-		draw_circle(c, DOT, UiTheme.PINK)
-		draw_circle(c, DOT * 0.45, UiTheme.BG)
-		var w := font.get_string_size(p.label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
-		var at := c + Vector2(20, -20)
-		if at.x + w > r.end.x:
-			at.x = c.x - 20 - w
-		if at.y - FONT_SIZE < r.position.y:
-			at.y = c.y + FONT_SIZE + 16
-		_text(font, p.label, at, UiTheme.TEXT, FONT_SIZE, false, true)
-	if spec.get("caption", "") != "":
-		_text(font, spec.caption, r.position + Vector2(14, 44), UiTheme.SAND, FONT_SIZE, false, true)
 
 
 func _text(font: Font, s: String, at: Vector2, col: Color, fs: int, centred: bool, backed: bool = false) -> void:

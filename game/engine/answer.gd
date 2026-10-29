@@ -21,7 +21,13 @@ extends RefCounted
 ##              brackets2 ((ax + b)(cx + d)), common (gx(ax + b)), pm_surd
 ##              (h ± m√r), range2 (lo < x ≤ hi), related (angles as multiples of π),
 ##              features (a quadratic's y-intercept, roots and vertex) and angles
-##              (the solutions of a trig equation, as multiples of π, in any order)
+##              (the solutions of a trig equation, as multiples of π, in any order);
+##              for the Exponentials and logs region (FAL-418) also lnq (m·ln r, exact,
+##              marked by value so (1/5) ln(1/2) is −(ln 2)/5), pct (a rise or fall of r%),
+##              expmodel (P₀(a)^t), limited (C, A and k of C + A·e^(−kt)), fn (a function
+##              of x in one of FN_FORMS, its shifts p and q typed; a wrong option may
+##              take another form, such as 1/f(x)), logform (log_b x = y) and xpow
+##              (xⁿ; a wrong option may be n·x)
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
@@ -37,6 +43,8 @@ extends RefCounted
 ##   show       (optional) how a number is written: "dec" as a decimal when it ends
 ##              (0.35, not 7/20), "money" with two decimal places (2.50), "sf" to 3
 ##              significant figures (a value a calculator gives); else a fraction
+##   signed     (optional) a measure that may be negative (a decay rate k): wrong options
+##              may be negative too
 ##
 ## Typed numbers go through parse_number(), which accepts whole numbers, decimals and
 ## fractions only. Nothing a student types is evaluated as an expression (Godot's
@@ -188,6 +196,29 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 				t.append("π")
 				ids.append("a%d" % i)
 			unordered = [ids]
+		# ── Exponentials and logs (FAL-418) ──
+		"lnq":
+			t = [label, {"slot": "m"}, " ln ", {"slot": "r"}]
+		"pct":
+			t = ["a ", {"pick": "dir", "options": DIRS}, " of ", {"slot": "v"}, "% " + str(fixed.get("per", ""))]
+		"expmodel":
+			t = ["%s(t) = " % fixed.get("sym", "P"), {"slot": "p0"}, "(", {"slot": "a"}, ")^t"]
+		"limited":
+			t = ["C = ", {"slot": "C"}, ",  A = ", {"slot": "A"}, ",  k = ", {"slot": "k"}]
+		"fn":
+			var head: String = fixed.get("name", "f(x)") + " = "
+			var bb := base_text(fixed.b)
+			match fixed.get("shape", "exp"):
+				"exp":
+					t = [head + bb + "^(x − ", {"slot": "p"}, ") + ", {"slot": "q"}]
+				"log":
+					t = [head + log_name(fixed.b) + "(x − ", {"slot": "p"}, ") + ", {"slot": "q"}]
+				"exphalf":
+					t = [head + bb + "^(x/2) + ", {"slot": "q"}]
+		"logform":
+			t = ["log base ", {"slot": "b"}, " of ", {"slot": "x"}, " = ", {"slot": "y"}]
+		"xpow":
+			t = [fixed.get("name", "y") + " = x^", {"slot": "n"}]
 	var out := {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
 	if kind == "brackets2":
 		out.pairs = [["a1", "b1"], ["a2", "b2"]]
@@ -202,6 +233,8 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 const SHAPES := ["between", "outside"]
 const ENDS := ["left out", "included"]
 const RELS := ["<", "≤", ">", "≥"]
+## A percentage change (pct): a rise or a fall.
+const DIRS := ["rise", "fall"]
 
 
 static func interval_text(v: String, shape: String, lo: Variant, hi: Variant, ends: String) -> String:
@@ -231,6 +264,111 @@ static func surd_text(m: Variant, r: Variant) -> String:
 	if rq.eq(1):
 		return Fmt.num(mq)
 	return ("" if mq.eq(1) else Fmt.num(mq)) + "√" + Fmt.num(rq)
+
+
+## m·ln r as the IB writes it: "ln 2", "3 ln 2", "−(ln 2)/5", "(3 ln 2)/5", "ln(3/2)/4".
+## A wrong option may take another form: "sub" ln r − m, "dive" r/(me).
+static func lnq_text(m: Variant, r: Variant, form: String = "") -> String:
+	var mq := Q.of(m)
+	var rq := Q.of(r)
+	if form == "sub":
+		return "ln %s %s %s" % [rq.text(), "−" if mq.sign() >= 0 else "+", mq.abs_q().text()]
+	if form == "dive":
+		return "%s/(%se)" % [rq.text(), "" if mq.eq(1) else mq.text()]
+	var top := "ln " + rq.text() if rq.is_int() else "ln(%s)" % rq.text()
+	var n := absi(mq.n)
+	if n != 1:
+		top = "%d %s" % [n, top]
+	var body := top
+	if mq.d != 1:
+		body = ("(%s)" % top if top.contains(" ") and rq.is_int() else top) + "/%d" % mq.d
+	return ("−" if mq.sign() < 0 else "") + body
+
+
+## The forms an fn answer can take (FAL-418), for b, p and q:
+##   exp      b^(x − p) + q          log      log_b(x − p) + q
+##   recip    1/(b^(x − p) + q)      pow      (x − p)^b + q
+##   exphalf  b^(x/2) + q            pm       q ± b^(x/2)
+const FN_FORMS := ["exp", "log", "recip", "pow", "exphalf", "pm"]
+const SUBS := "₀₁₂₃₄₅₆₇₈₉"
+
+
+## A base as written in a power: "2", "e".
+static func base_text(b: Variant) -> String:
+	return "e" if str(b) == "e" else Fmt.num(b)
+
+
+## log_b written with its base as a subscript: "log₂", "log₁₀", "ln".
+static func log_name(b: Variant) -> String:
+	if str(b) == "e":
+		return "ln"
+	var out := "log"
+	for ch in Fmt.num(b):
+		out += SUBS[int(ch)]
+	return out
+
+
+## "x − 3", "x + 2", "x".
+static func x_minus(p: Variant) -> String:
+	var pq := Q.of(p)
+	if pq.is_zero():
+		return "x"
+	return "x %s %s" % ["−" if pq.sign() > 0 else "+", Fmt.num(pq.abs_q())]
+
+
+## " + 4", " − 1", "".
+static func plus_q(q: Variant) -> String:
+	var qq := Q.of(q)
+	if qq.is_zero():
+		return ""
+	return " %s %s" % ["+" if qq.sign() > 0 else "−", Fmt.num(qq.abs_q())]
+
+
+static func fn_text(form: String, b: Variant, p: Variant, q: Variant) -> String:
+	var bb := base_text(b)
+	var xp := x_minus(p)
+	var pw := bb + "^x" if xp == "x" else "%s^(%s)" % [bb, xp]
+	match form:
+		"exp":
+			return pw + plus_q(q)
+		"log":
+			return "%s(%s)%s" % [log_name(b), xp, plus_q(q)]
+		"recip":
+			return "1/(%s%s)" % [pw, plus_q(q)] if not Q.of(q).is_zero() else "1/%s" % pw
+		"pow":
+			var sq := "(%s)%s" % [xp, Fmt.sup(int(b))] if xp != "x" else "x" + Fmt.sup(int(b))
+			return sq + plus_q(q)
+		"exphalf":
+			return bb + "^(x/2)" + plus_q(q)
+		"pm":
+			return ("" if Q.of(q).is_zero() else Fmt.num(q) + " ") + "± " + bb + "^(x/2)"
+	return "?"
+
+
+## m·ln r as a float, for marking an lnq answer by value.
+static func lnq_value(m: Variant, r: Variant, form: String = "") -> float:
+	var rq := Q.of(r)
+	if rq.sign() <= 0:
+		return NAN
+	match form:
+		"sub":
+			return log(rq.to_float()) - Q.of(m).to_float()
+		"dive":
+			return rq.to_float() / (Q.of(m).to_float() * exp(1.0))
+	return Q.of(m).to_float() * log(rq.to_float())
+
+
+## Whether a student could type these values into the answer's slots: every value that
+## isn't a slot (an fn's form, say) is the answer's own. A wrong option in another form,
+## such as 1/f(x) for an inverse asked as a log, can be picked but never typed.
+static func typable(ans: Dictionary, values: Dictionary) -> bool:
+	var ids: Array = slots(ans).map(func(item): return item.get("slot", item.get("pick", "")))
+	for key in values:
+		if key in ids:
+			continue
+		if not ans.values.has(key) or str(ans.values[key]) != str(values[key]):
+			return false
+	return true
 
 
 ## The same answer shape with other values (for a wrong option).
@@ -363,6 +501,24 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			var xs := _sorted(range(int(fx.n)).map(func(i): return v["a%d" % i]))
 			var names: Array = xs.map(func(x): return Fmt.pi(x))
 			return "x = " + (", ".join(names.slice(0, names.size() - 1)) + " or " + names[names.size() - 1] if names.size() > 1 else names[0])
+		"lnq":
+			return ans.label + lnq_text(v.m, v.r, v.get("form", ""))
+		"pct":
+			var pv: String = Fmt.dec(v.v) if ans.get("exact", false) else Fmt.sf(v.v)
+			return ("a %s of %s%% %s" % [v.dir, pv, fx.get("per", "")]).strip_edges()
+		"expmodel":
+			return "%s(t) = %s(%s)^t" % [fx.get("sym", "P"), Fmt.dec(v.p0), Fmt.dec(v.a)]
+		"limited":
+			return "C = %s, A = %s, k = %s" % [Fmt.num(v.C), Fmt.num(v.A), Fmt.sf(v.k)]
+		"fn":
+			return fx.get("name", "f(x)") + " = " + fn_text(v.get("form", fx.get("shape", "exp")), fx.b, v.get("p", 0), v.q)
+		"logform":
+			return "%s %s = %s" % [log_name(v.b), Fmt.num(v.x), Fmt.num(v.y)]
+		"xpow":
+			var nq := Q.of(v.n)
+			if v.get("form", "") == "lin":
+				return fx.get("name", "y") + " = " + Fmt.lead(nq) + "x"
+			return fx.get("name", "y") + " = x" + (Fmt.sup(nq.n) if nq.is_int() and nq.sign() > 0 else "^(%s)" % nq.text())
 	return "?"
 
 
@@ -402,6 +558,11 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	# So is any answer written to 3 s.f. (FAL-459): it is told apart by its text.
 	if ans.get("show", "") == "sf":
 		return "sf:" + text(ans, values)
+	if ans.kind == "lnq":
+		return "lnq:%.9f" % lnq_value(values.m, values.r, values.get("form", ""))
+	# Shown to 3 s.f. or as decimals: two values that read the same are one option.
+	if ans.kind in ["pct", "expmodel", "limited", "fn", "xpow"]:
+		return ans.kind + ":" + text(ans, values)
 	var v := values.duplicate()
 	if ans.kind == "points2":
 		var ps := _pairs(v)
@@ -654,6 +815,11 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 ## Whether typed values match the answer, slot by slot, trying each order of an
 ## unordered group. With glancing, a number with too few figures counts too.
 static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
+	if ans.kind == "lnq":
+		# Marked by value: (1/5) ln(1/2) and −(1/5) ln 2 are the same k.
+		var want := lnq_value(ans.values.m, ans.values.r)
+		var have := lnq_value(got.get("m", Q.new(0)), got.get("r", Q.new(0))) if got.get("m") is Q and got.get("r") is Q else NAN
+		return is_finite(have) and absf(have - want) <= 1e-9 * maxf(1.0, absf(want))
 	if ans.kind == "points2" and not got.is_empty():
 		var swapped := {"x1": got.get("x2"), "y1": got.get("y2"), "x2": got.get("x1"), "y2": got.get("y1")}
 		var plain := ans.duplicate()

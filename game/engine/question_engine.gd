@@ -51,6 +51,13 @@ static var SITUATIONS := {
 	"quadratic-model": [QuadraticModelSituation, QuadraticModelViews],
 	"fn-link-equivalent-forms": [EquivalentFormsSituation, EquivalentFormsViews],
 	"fn-link-symmetry": [SymmetrySituation, SymmetryViews],
+	"exp-model": [ExpModelSituation, ExpModelViews],
+	"exp-log-pair": [ExpLogPairSituation, ExpLogPairViews],
+	"log-quadratic": [LogQuadraticSituation, LogQuadraticViews],
+	"log-function": [LogFunctionSituation, LogFunctionViews],
+	"fn-pre-percent-multiplier": [PercentSituation, PercentViews],
+	"exp-growth-vs-linear": [GrowthPatternsSituation, GrowthPatternsViews],
+	"fn-link-multiplicative-growth": [LinkGrowthSituation, LinkGrowthViews],
 }
 
 static var _cat: Dictionary = {}
@@ -586,11 +593,12 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 
 
 ## A wrong option must still be a well-formed answer: no zero leading coefficient, and
-## a measure (shown to 3 s.f.) that is positive and not on a rounding edge.
+## a measure (shown to 3 s.f.) that is positive (or, for a signed one such as a decay
+## rate, not zero) and not on a rounding edge.
 static func _usable(ans: Dictionary, values: Dictionary) -> bool:
 	if ans.kind == "measure":
 		var x: float = Q.of(values.v).to_float()
-		return x > 0.0 and Answer.rounds_clearly(x)
+		return (x > 0.0 or (ans.get("signed", false) and x != 0.0)) and Answer.rounds_clearly(x)
 	for id in ["a", "ga", "fa", "va"]:
 		if values.has(id) and values[id] is Q and values[id].is_zero():
 			return false
@@ -625,7 +633,8 @@ static func mark(question: Dictionary, response: Dictionary) -> Dictionary:
 	r.misconception = ""
 	if r.complete and not r.correct:
 		for c in question.choices:
-			if not c.correct and c.ref != "" and Answer.values_right(Answer.with_values(question.answer, c.values), r.values):
+			if not c.correct and c.ref != "" and Answer.typable(question.answer, c.values) \
+					and Answer.values_right(Answer.with_values(question.answer, c.values), r.values):
 				r.misconception = c.ref
 				break
 	return r
