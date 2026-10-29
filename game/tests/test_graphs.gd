@@ -20,7 +20,7 @@ const SITUATION := {"fn-sketch-gdc": "gdc-curve", "fn-gdc-features": "gdc-curve"
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-sketch-gdc|SL2.10.number-of-solutions#2": "counting the asymptote's level needs a curve that levels off; the gdc-curve asymptote is vertical",
-	"fn-link-extremes|SL5.8.find-stationary-points#0": "a cubic whose turning points are whole numbers has no whole-number roots to offer as f(x) = 0's answer in the same form",
+	"fn-link-extremes|SL5.8.find-stationary-points#0": "the answer is two turning points; f(x) = 0 gives up to three x-values, rarely exact, which don't fit that form",
 	"fn-gdc-optimise-combined|SL2.4.max-min#1": "D's greatest value is always its turning value here (D is concave for the towns, and starts at 0 for the drugs), so no endpoint beats it",
 }
 ## What each wrong graph's mistake is, as a misconception ref ("" for none in the catalogue).
