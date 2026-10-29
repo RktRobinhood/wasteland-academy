@@ -1,0 +1,12 @@
+{
+	"quadratics": {
+		"miniboss": {
+			"name": "Fixture Gunner",
+			"taunt": "Fixture taunt."
+		},
+		"boss": {
+			"name": "Fixture Warden",
+			"taunt": "Fixture boss taunt."
+		}
+	}
+}

@@ -84,3 +84,69 @@ static func panel(color: Color = PANEL) -> StyleBoxFlat:
 	sb.content_margin_top = 22
 	sb.content_margin_bottom = 22
 	return sb
+
+
+## Art behind a whole screen (FAL-470): cover-fitted and centred, under a wash of the
+## background colour (`wash` its opacity) so the text on top stays easy to read. Add it
+## right after the screen's background; show_backdrop() gives it its texture.
+static func backdrop(wash: float = 0.55) -> TextureRect:
+	var art := TextureRect.new()
+	art.name = "Backdrop"
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.visible = false
+	var tint := ColorRect.new()
+	tint.name = "Wash"
+	tint.color = Color(BG, wash)
+	tint.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.add_child(tint)
+	return art
+
+
+## Shows a backdrop's art, or hides it (the plain background) when tex is null.
+static func show_backdrop(art: TextureRect, tex: Texture2D) -> void:
+	art.texture = tex
+	art.visible = tex != null
+
+
+## A square icon, `size` base units a side, kept in proportion.
+static func icon(tex: Texture2D, size: int) -> TextureRect:
+	var r := TextureRect.new()
+	r.name = "Icon"
+	r.texture = tex
+	r.custom_minimum_size = Vector2(size, size)
+	r.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	r.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	r.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return r
+
+
+## `text` set on banner art (FAL-470), `height` base units tall; the label is the banner's
+## child "Text".
+static func banner(tex: Texture2D, text: String, height: int, size: int, color: Color) -> Control:
+	var box := Control.new()
+	box.name = "Banner"
+	box.custom_minimum_size.y = height
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var art := TextureRect.new()
+	art.name = "Art"
+	art.texture = tex
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_child(art)
+	var l := label(text, size, color)
+	l.name = "Text"
+	l.set_anchors_preset(Control.PRESET_FULL_RECT)
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	l.add_theme_font_override("font", TITLE_FONT)
+	l.add_theme_color_override("font_outline_color", BG)
+	l.add_theme_constant_override("outline_size", maxi(6, roundi(size * 0.18)))
+	box.add_child(l)
+	return box

@@ -1,0 +1,24 @@
+[
+	{
+		"id": "rivet",
+		"name": "Rivet Plate",
+		"art": "bazaar/frame-rivet",
+		"margins": [
+			4,
+			4,
+			4,
+			4
+		]
+	},
+	{
+		"id": "missing",
+		"name": "Missing",
+		"art": "bazaar/frame-missing",
+		"margins": [
+			4,
+			4,
+			4,
+			4
+		]
+	}
+]

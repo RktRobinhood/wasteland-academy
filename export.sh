@@ -57,5 +57,7 @@ if grep -E "(^|\s)(SCRIPT )?ERROR:" "$log" >/dev/null || [ ! -f "$out/index.pck"
 	echo "export reported errors (above)" >&2
 	exit 1
 fi
+# Link previews point at the share card, when there is one (FAL-470).
+"$ROOT/scripts/share-card.sh" "$out"
 ls -l "$out"
 echo "ok   export -> $out"

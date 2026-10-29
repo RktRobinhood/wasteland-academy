@@ -1,0 +1,35 @@
+[
+	{
+		"id": "field_note",
+		"name": "Field Note",
+		"art": "ui/encounter/field-note-card",
+		"margins": [
+			12,
+			12,
+			12,
+			12
+		]
+	},
+	{
+		"id": "signal",
+		"name": "Signal Box",
+		"art": "ui/encounter/dialogue-box",
+		"margins": [
+			14,
+			14,
+			14,
+			14
+		]
+	},
+	{
+		"id": "brass",
+		"name": "Brass Chip",
+		"art": "ui/encounter/stakes-chip",
+		"margins": [
+			10,
+			8,
+			10,
+			8
+		]
+	}
+]

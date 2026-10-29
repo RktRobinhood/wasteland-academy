@@ -5,6 +5,10 @@ extends Control
 ## It is reached from the world map (ui/map.gd) and from a run's summary, and leaving
 ## it goes back to the world map.
 ##
+## Art by file name (FAL-470, engine/art_slots.gd): the stall behind the screen, the
+## shopkeeper by the title (with an idle frame now and then), and an icon beside each
+## upgrade, each perk and the Scrap count. Each one missing keeps the look from before.
+##
 ## Links: /next/#bazaar is its map link (engine/map_link.gd), so the browser's back
 ## button leaves it. /next/?bazaar opens it too; /next/?bazaar=demo opens it on a
 ## sample save with Scrap to spend and a few things bought, and stores nothing
@@ -15,6 +19,12 @@ const COLUMN := 1000
 const COLUMN_WIDE := 2500
 ## The shelves are darker than a button, so every button stands out on them.
 const SHELF := Color(0.1, 0.125, 0.17)
+## Item and Scrap icons, and the shopkeeper, in base units.
+const ICON := 96
+const SHOPKEEPER := 200
+## The shopkeeper shows the idle frame for IDLE_FOR seconds every IDLE_EVERY.
+const IDLE_EVERY := 4.0
+const IDLE_FOR := 0.6
 
 ## Where the save lives. "" stores nothing (the demo).
 var save_path := SaveData.PATH
@@ -24,6 +34,10 @@ var save: Dictionary = {}
 var margin: MarginContainer
 var hud_gap: Control
 var bank: Label
+var shopkeeper: TextureRect
+var _keeper: Texture2D
+var _keeper_idle: Texture2D
+var _idle_clock := 0.0
 var message: Label
 var scroll: ScrollContainer
 var cols: BoxContainer
@@ -71,6 +85,9 @@ func _build() -> void:
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
+	var stall := UiTheme.backdrop(0.6)
+	UiTheme.show_backdrop(stall, ArtSlots.texture("bazaar/stall"))
+	add_child(stall)
 	margin = MarginContainer.new()
 	margin.name = "Margin"
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -82,6 +99,13 @@ func _build() -> void:
 
 	var head := HBoxContainer.new()
 	head.name = "Head"
+	head.add_theme_constant_override("separation", 24)
+	_keeper = ArtSlots.texture("bazaar/shopkeeper")
+	_keeper_idle = ArtSlots.texture("bazaar/shopkeeper-idle")
+	if _keeper != null:
+		shopkeeper = UiTheme.icon(_keeper, SHOPKEEPER)
+		shopkeeper.name = "Shopkeeper"
+		head.add_child(shopkeeper)
 	var title := UiTheme.label("Bazaar", 96, UiTheme.PINK)
 	title.name = "Title"
 	title.autowrap_mode = TextServer.AUTOWRAP_OFF
@@ -94,6 +118,7 @@ func _build() -> void:
 	back.name = "Back"
 	back.text = "World map"
 	back.add_theme_font_size_override("font_size", UiTheme.SMALL)
+	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(leave)
 	head.add_child(back)
 	hud_gap = Control.new()
@@ -104,7 +129,16 @@ func _build() -> void:
 
 	bank = _mono("", UiTheme.BIG, UiTheme.SAND)
 	bank.name = "Bank"
-	col.add_child(bank)
+	var scrap := ArtSlots.bazaar_icon("scrap")
+	if scrap != null:
+		var row := HBoxContainer.new()
+		row.name = "BankRow"
+		row.add_theme_constant_override("separation", 16)
+		row.add_child(UiTheme.icon(scrap, ICON))
+		row.add_child(bank)
+		col.add_child(row)
+	else:
+		col.add_child(bank)
 	message = UiTheme.label("Scrap comes from runs. Every run banks some, even a short one.", UiTheme.SMALL, UiTheme.DIM)
 	message.name = "Message"
 	col.add_child(message)
@@ -127,6 +161,13 @@ func _build() -> void:
 		cols.add_child(v)
 	left = cols.get_node("Left")
 	right = cols.get_node("Right")
+
+
+func _process(delta: float) -> void:
+	if shopkeeper == null or _keeper_idle == null:
+		return
+	_idle_clock = fmod(_idle_clock + delta, IDLE_EVERY)
+	shopkeeper.texture = _keeper_idle if _idle_clock >= IDLE_EVERY - IDLE_FOR else _keeper
 
 
 func _fit() -> void:
@@ -191,7 +232,7 @@ func _name_of(item: String, lifeline: String) -> String:
 	if Bazaar.PERKS.has(item):
 		return Bazaar.perk_name({"id": item, "lifeline": lifeline})
 	var parts := item.split(":")
-	return (Bazaar.FRAMES if parts[0] == "frame" else Bazaar.TINTS)[parts[1]].name
+	return (Bazaar.frames() if parts[0] == "frame" else Bazaar.TINTS)[parts[1]].name
 
 
 # ── Sections ─────────────────────────────────────────────────
@@ -210,8 +251,9 @@ func _section(id: String, heading: String, note: String) -> Array:
 	return [box, v]
 
 
-## One item: its name and what it does, a line on where it stands, and its buttons.
-func _row(v: VBoxContainer, name: String, text: String, status: String) -> HBoxContainer:
+## One item: its name and what it does, a line on where it stands, and its buttons, with
+## the item's icon beside them when there is one (`icon`: an upgrade or perk id).
+func _row(v: VBoxContainer, name: String, text: String, status: String, icon: String = "") -> HBoxContainer:
 	var row := VBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	row.add_child(UiTheme.label(name, UiTheme.BIG, UiTheme.SAND))
@@ -221,7 +263,19 @@ func _row(v: VBoxContainer, name: String, text: String, status: String) -> HBoxC
 	var btns := HBoxContainer.new()
 	btns.add_theme_constant_override("separation", 14)
 	row.add_child(btns)
-	v.add_child(row)
+	var tex := ArtSlots.bazaar_icon(icon) if icon != "" else null
+	if tex == null:
+		v.add_child(row)
+		return btns
+	var line := HBoxContainer.new()
+	line.name = "Item"
+	line.add_theme_constant_override("separation", 20)
+	var i := UiTheme.icon(tex, ICON)
+	i.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	line.add_child(i)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	line.add_child(row)
+	v.add_child(line)
 	return btns
 
 
@@ -252,7 +306,7 @@ func _upgrades() -> Control:
 	var hp := Tuning.BASE_HP + Tuning.MAX_HP_STEP * Bazaar.level(save, "max_hp")
 	var hp_max := Tuning.BASE_HP + Tuning.MAX_HP_STEP * Bazaar.cap("max_hp")
 	_row(v, Bazaar.UPGRADES.max_hp.name, Bazaar.UPGRADES.max_hp.text,
-			"Max HP %d of %d · bought %d of %d" % [hp, hp_max, Bazaar.level(save, "max_hp"), Bazaar.cap("max_hp")]) \
+			"Max HP %d of %d · bought %d of %d" % [hp, hp_max, Bazaar.level(save, "max_hp"), Bazaar.cap("max_hp")], "max_hp") \
 			.add_child(_buy_button("max_hp"))
 	var got := []
 	for id in rec.lifelines:
@@ -260,7 +314,7 @@ func _upgrades() -> Control:
 			got.append("%s +%d" % [Bazaar.LIFELINE_NAMES[id], int(rec.lifelines[id])])
 	var btns := _row(v, Bazaar.UPGRADES.lifeline.name, Bazaar.UPGRADES.lifeline.text,
 			"Bought %d of %d%s" % [Bazaar.level(save, "lifeline"), Bazaar.cap("lifeline"),
-			(": " + ", ".join(got)) if not got.is_empty() else ""])
+			(": " + ", ".join(got)) if not got.is_empty() else ""], "lifeline")
 	for id in Bazaar.LIFELINE_NAMES:
 		btns.add_child(_buy_button("lifeline", id, _short(id)))
 	return made[0]
@@ -275,7 +329,7 @@ func _perks() -> Control:
 	slot.name = "Slot"
 	v.add_child(slot)
 	for id in Bazaar.PERKS:
-		var btns := _row(v, Bazaar.PERKS[id].name, Bazaar.PERKS[id].text, "")
+		var btns := _row(v, Bazaar.PERKS[id].name, Bazaar.PERKS[id].text, "", id)
 		if id in Bazaar.PICK_LIFELINE:
 			for l in Bazaar.LIFELINE_NAMES:
 				btns.add_child(_buy_button(id, l, _short(l)))
@@ -300,7 +354,7 @@ func _cosmetics() -> Control:
 		grid.add_theme_constant_override("h_separation", 12)
 		grid.add_theme_constant_override("v_separation", 12)
 		v.add_child(grid)
-		var table: Dictionary = Bazaar.FRAMES if kind == "frame" else Bazaar.TINTS
+		var table: Dictionary = Bazaar.frames() if kind == "frame" else Bazaar.TINTS
 		for id in [""] + table.keys():
 			var item: String = kind + ":" + id
 			var cell := VBoxContainer.new()

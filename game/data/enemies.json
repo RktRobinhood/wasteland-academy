@@ -1,0 +1,27 @@
+[
+	{
+		"id": "d1-scavenger",
+		"name": "Scavenger",
+		"tier": 1
+	},
+	{
+		"id": "d2-raider",
+		"name": "Raider",
+		"tier": 2
+	},
+	{
+		"id": "d3-enforcer",
+		"name": "Enforcer",
+		"tier": 3
+	},
+	{
+		"id": "d4-warlord",
+		"name": "Warlord",
+		"tier": 4
+	},
+	{
+		"id": "d5-overseer",
+		"name": "OVERSEER",
+		"tier": 5
+	}
+]
