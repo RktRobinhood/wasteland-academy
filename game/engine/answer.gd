@@ -52,7 +52,7 @@ extends RefCounted
 ## numbers. Godot's Expression class is never used on what a student types (it reads
 ## 2^3 as 1 and can call engine functions).
 
-const MC_ONLY := ["triple", "claim", "natures"]
+const MC_ONLY := ["triple", "claim", "natures", "graph"]
 const NATURES := ["local maximum", "local minimum"]
 
 
@@ -221,6 +221,19 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = ["log base ", {"slot": "b"}, " of ", {"slot": "x"}, " = ", {"slot": "y"}]
 		"xpow":
 			t = [fixed.get("name", "y") + " = x^", {"slot": "n"}]
+		# ── Graphs and key features (FAL-420) ──
+		"xs":
+			t = [fixed.get("var", "x") + " = "]
+			var ids: Array = []
+			var n := int(str(values.n))
+			for i in n:
+				if i > 0:
+					t.append(" or " if i == n - 1 else ", ")
+				t.append({"slot": "x%d" % i})
+				ids.append("x%d" % i)
+			unordered = [ids]
+		"graph":
+			t = [{"pick": "v", "options": fixed.options}]
 	var out := {"kind": kind, "template": t, "values": values, "fixed": fixed, "unordered": unordered, "label": label, "unit": unit}
 	if kind == "brackets2":
 		out.pairs = [["a1", "b1"], ["a2", "b2"]]
@@ -406,9 +419,9 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			var rs := _sorted([v.r1, v.r2])
 			return "x = %s and x = %s" % [shown(ans, rs[0]), shown(ans, rs[1])]
 		"point":
-			return Fmt.point(v.x, v.y)
+			return "(%s, %s)" % [shown(ans, v.x), shown(ans, v.y)]
 		"yint":
-			return Fmt.point(0, v.y)
+			return "(0, %s)" % shown(ans, v.y)
 		"vertex_form":
 			return "f(x) = " + Fmt.vertex(v.a, v.h, v.k)
 		"vertex_form_a":
@@ -497,7 +510,7 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			var h := Q.of(v.h)
 			return ans.label + ("" if h.is_zero() else Fmt.num(h) + " ") + "± " + surd_text(v.m, v.r)
 		"range2":
-			return "%s %s %s %s %s" % [Fmt.num(v.lo), v.r1, fx.get("var", "x"), v.r2, Fmt.num(v.hi)]
+			return "%s %s %s %s %s" % [shown(ans, v.lo), v.r1, fx.get("var", "x"), v.r2, shown(ans, v.hi)]
 		"related":
 			var os := _sorted([v.o1, v.o2])
 			return "same value %s; opposite sign %s and %s" % [Fmt.pi(v.s), Fmt.pi(os[0]), Fmt.pi(os[1])]
@@ -526,7 +539,34 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			if v.get("form", "") == "lin":
 				return fx.get("name", "y") + " = " + Fmt.lead(nq) + "x"
 			return fx.get("name", "y") + " = x" + (Fmt.sup(nq.n) if nq.is_int() and nq.sign() > 0 else "^(%s)" % nq.text())
+		"xs":
+			return fx.get("var", "x") + " = " + xs_list(_sorted(xs_values(v)).map(func(x): return shown(ans, x)))
+		"graph":
+			return str(v.v)
 	return "?"
+
+
+## The x-values of an xs answer, as many as its own count says.
+static func xs_values(v: Dictionary) -> Array:
+	var out: Array = []
+	for i in int(str(v.n)):
+		out.append(v["x%d" % i])
+	return out
+
+
+## "a", "a or b", "a, b or c".
+static func xs_list(names: Array) -> String:
+	if names.size() <= 1:
+		return names[0] if names.size() == 1 else ""
+	return ", ".join(names.slice(0, names.size() - 1)) + " or " + names[names.size() - 1]
+
+
+## An xs answer's values from a list of numbers.
+static func xs_of(xs: Array) -> Dictionary:
+	var out := {"n": str(xs.size())}
+	for i in xs.size():
+		out["x%d" % i] = xs[i]
+	return out
 
 
 ## mx + c with both numbers to 3 s.f. (a Paper 2 line): "2.31x − 0.552", "−4.70x".
@@ -577,6 +617,9 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 		return "sf:" + text(ans, values)
 	if ans.kind == "lnq":
 		return "lnq:%.9f" % lnq_value(values.m, values.r, values.get("form", ""))
+	# Its options may have other counts, so an xs answer is told apart by its text.
+	if ans.kind == "xs":
+		return "xs:" + text(ans, values)
 	# Shown to 3 s.f. or as decimals: two values that read the same are one option.
 	if ans.kind in ["pct", "expmodel", "limited", "fn", "xpow"]:
 		return ans.kind + ":" + text(ans, values)
@@ -786,7 +829,48 @@ static func trap_text(ans: Dictionary, values: Dictionary) -> String:
 			return "%s = %s" % [values["var"], Fmt.dec(values.h)]
 		"yint":
 			return "(0, %s)" % Fmt.dec(values.y)
+		# Several numbers at 2 s.f. (FAL-420): each written as the decimal it is.
+		"point":
+			return "(%s, %s)" % [Fmt.dec(values.x), Fmt.dec(values.y)]
+		"points2":
+			var ps := _pairs(values)
+			return "(%s, %s) and (%s, %s)" % [Fmt.dec(ps[0][0]), Fmt.dec(ps[0][1]), Fmt.dec(ps[1][0]), Fmt.dec(ps[1][1])]
+		"range2":
+			return "%s %s %s %s %s" % [Fmt.dec(values.lo), values.r1, fx_var(ans), values.r2, Fmt.dec(values.hi)]
+		"xs":
+			return fx_var(ans) + " = " + xs_list(_sorted(xs_values(values)).map(func(x): return Fmt.dec(x)))
+		"named":
+			var parts: PackedStringArray = []
+			for i in ans.fixed.names.size():
+				parts.append("%s = %s" % [ans.fixed.names[i], Fmt.dec(values["v%d" % i])])
+			return ", ".join(parts)
 	return text(ans, values)
+
+
+static func fx_var(ans: Dictionary) -> String:
+	return ans.fixed.get("var", "x")
+
+
+## Q7's rounding trap for an answer of several 3 s.f. numbers (a point, a list of
+## zeros, named values): every number to 2 s.f. {} where none needs rounding.
+static func rounding_trap_all(ans: Dictionary) -> Dictionary:
+	if ans.get("exact", false):
+		return {}
+	var out := (ans.values as Dictionary).duplicate()
+	var any := false
+	for item in slots(ans):
+		if not item.has("slot"):
+			continue
+		var v: Variant = ans.values[item.slot]
+		if not v is Q or v.is_zero():
+			continue
+		if needs_rounding(v):
+			var r := parse_number(Fmt.sf(v, 2).replace("−", "-"))
+			if not r.ok or r.q.is_zero():
+				return {}
+			out[item.slot] = r.q
+			any = true
+	return out if any else {}
 
 
 ## Marks typed slot entries. response: slot id -> String (typed or picked).
