@@ -65,7 +65,9 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		mode = "mixed"
 	match need.get("angle", ""):
 		"factorised-read":
-			mode = "product"
+			# The x-factor mode has its factor x already; any other view gets the product.
+			if mode == "mixed":
+				mode = "product"
 		"read-from-form":
 			if mode == "mixed":
 				mode = "bellform"

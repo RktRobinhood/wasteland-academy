@@ -27,7 +27,11 @@ extends RefCounted
 ##              expmodel (P₀(a)^t), limited (C, A and k of C + A·e^(−kt)), fn (a function
 ##              of x in one of FN_FORMS, its shifts p and q typed; a wrong option may
 ##              take another form, such as 1/f(x)), logform (log_b x = y) and xpow
-##              (xⁿ; a wrong option may be n·x)
+##              (xⁿ; a wrong option may be n·x);
+##              for the Graphs and key features region (FAL-420) also xs (x-values in
+##              any order; options may have other counts), pts (points in any order; a
+##              wrong option may give only_x, the x-coordinates) and graph (pick the
+##              graph: "Graph A" to "Graph D")
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)

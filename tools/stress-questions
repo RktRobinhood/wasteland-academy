@@ -7,7 +7,11 @@
 # Exponentials and logs region (FAL-418): over 30 minutes on CI, so the cap is 55 (the
 # CI job allows 60). Exits non-zero on any failure.
 #
-#   tools/stress-questions [--from=51] [--to=2250] [--types=id,id]
+#   tools/stress-questions [--from=51] [--to=2250] [--types=id,id] [--shard=k/n]
+#
+# The Graphs and key features region (FAL-420) finds every number numerically, so its
+# questions take about ten times as long to make; CI runs the sweep in shards
+# (--shard=k/n: every n-th cell from the k-th), each in its own job.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 source "$ROOT/scripts/godot-env.sh"

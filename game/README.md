@@ -214,8 +214,35 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   1/f(x) or (x − p)ᵇ + q), `logform` (log_b x = y) and `xpow` (xⁿ). `Answer.typable()`
   says whether an option could be typed into the answer's slots; a wrong option in
   another form can be picked but is never taken as a typed misconception. The
-  catalogue's pick-the-graph unknowns play as four descriptions (from the equation) or
-  four equations (from the graph) until that format is built.
+  catalogue's pick-the-graph unknowns on those situations play as four descriptions
+  (from the equation) or four equations (from the graph).
+- **The Graphs and key features region** (FAL-420) adds five exam situations, all but
+  one Paper 2, whose numbers only a GDC finds. `engine/situations/gdc_kit.gd` is what
+  they share: every zero of a function on an interval (a sign change on a sample grid,
+  closed in by Brent's method, `engine/brent.gd`), turning points as the zeros of the
+  derivative, the region's way of writing a function, and the pick-the-graph cards.
+  Values are kept as Q to nine decimal places, shown to 6 s.f. in the working (as a GDC
+  shows them) and asked to 3 s.f. `gdc_curve.gd` is one awkward curve on a closed
+  domain (an exponential plus a line, a cubic, a bell curve, sine or cosine plus a line,
+  a factorised product, an x-factor cubic, a log with its asymptote at one end, a bell
+  form), for `fn-sketch-gdc` and `fn-gdc-features`. `gdc_two_curves.gd` is two curves
+  that cross one to three times (a curve and a line, two models of time, f and f⁻¹, or
+  one crossing past x = 10), for `fn-gdc-intersection`. `gdc_combined.gd` extends it
+  with a function made from them (how far one town or drug is ahead, the distance from
+  a point to a curve, the sum), for `fn-gdc-optimise-combined`. `gdc_context_equation.gd`
+  is an equation that mixes families from a context (x = k sin x, a circle's segment, an
+  exponential against a line, a first time, savings, two curves in two unknowns), for
+  `fn-gdc-solve-equation`. `graph_from_features.gd` is Paper 1: exact features (a
+  parabola, a model on an interval, a curve that levels off, sin or cos on 0 to 2π, a
+  curve from conditions) and the sketch that shows them, for `fn-sketch-from-features`.
+  Each recipe draws its family once and looks at 48 samples before it finds roots, so a
+  question takes about 7 ms, as the rest of the sweep does. New answer kinds: `xs` (a
+  list of x-values, any order; options may have other counts), `pts` (a list of points,
+  any order; a wrong option may give only the x-coordinates) and `graph` (pick the
+  graph). A view's rounding trap can carry a misconception (`trap_ref`) where the
+  catalogue's mistake is too few figures: picking it is a glancing hit that logs it.
+  `Answer._sorted` and `_pairs` compare as floats, because Q.lt's cross-multiplying
+  overflows on nine-decimal values.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -242,8 +269,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   right or one of the wrong options; agreeing with a misconception logs it). A cell
   offers one only where its type's catalogue `formats` lists it and its views build it
   (`QuestionEngine.extra_formats()`), and the planner and a boss's link part ask one
-  about a third of the time (`EXTRA_SHARE`). Exam types offer none. `match`,
-  `multipart`, `order-steps` and `pick-the-graph` are not built.
+  about a third of the time (`EXTRA_SHARE`). Exam types offer none. **pick-the-graph**
+  (Q13, FAL-420; the catalogue calls it `graph-pick`) is built: students can't draw, so
+  a sketch question shows four graphs, `q.graphs`, and asks which is right. A view
+  whose answer is the `graph` kind plays it whatever format was asked
+  (`GdcKit.pick()` shuffles and letters the cards). Each wrong card changes one thing,
+  a typical mistake: its option's `ref` is the misconception (logged like any other),
+  `mistake` names the change (the checker tests that change alone) and `why` says what
+  is wrong, which the feedback shows as `reason`. The practice and fight screens draw
+  the four cards in a 2 × 2 grid, each above its letter button, in GraphView's card
+  mode (thinner lines, smaller dots, fewer numbers), so they read on a 360 px phone.
+  `match`, `multipart` and `order-steps` are not built.
 - **Paper 1 or 2** (FAL-419): every question carries `paper`. Paper 1 numbers come out
   exact; Paper 2 numbers need a calculator, and only Paper 2 questions show the
   Calculator button (see "The calculator"). A type the IB asks on both papers makes
@@ -472,6 +508,15 @@ out every value with SymPy (an inverse is checked by composing it with the origi
 several points; domains, signs and inequalities with `solveset`), checks the curves and
 marked points of each graph against the function, and keeps the clean limits (`EM_*`,
 `LQ_*`, `LF_*`, `PC_*`, `LG_*`), including that no 3 s.f. answer sits on a rounding edge.
+For the FAL-420 situations it reads the function (or both curves, the models, the
+equation) back from the question's text with SymPy, scans a fine float grid for sign
+changes and refines every zero, turning point and crossing to 30 digits with mpmath,
+then compares each answer and option as the game writes it, to 3 s.f. (`GC_*`, `TC_*`,
+`CB_*`, `CE_*`, `GF_*`). Each tagged misconception's value is worked out again, and
+each card of a pick-the-graph question is tested: the right card is the function on
+its domain with every feature marked, and each wrong card is exactly its named mistake
+(−f, f past the domain, f with a turning point moved onto the axis, a V at the vertex,
+and so on).
 Each cell also gets 10 questions made on its family's shared situation, and 20 in each
 extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
@@ -763,6 +808,14 @@ script error happens while it runs. Run one file with
   and to 3 s.f. with calculator working on Paper 2, a quadratic model taking a forced
   paper, and "Another way" keeping the numbers for every fn-solve-quadratic unknown and
   pair of methods.
+- `test_graphs.gd`: the Graphs and key features types (FAL-420): built with every cell
+  on their situations, each on its paper, every distractor misconception as an option
+  (one that the vertical asymptote can't show, and one that D's shape rules out, are
+  listed with the reason), the same seed giving the same question, pick the graph as
+  four lettered cards with each wrong card's mistake and misconception (and picking it
+  logs it), zeros marked in any order to 3 s.f. with 2 s.f. a glancing hit, the 2 s.f.
+  turning point as the trap that logs SL2.4.max-min#2, the greatest value at an
+  endpoint, each boss chain on one situation and a true minus sign throughout.
 - `test_exp_log.gd`: the eight Exponentials and logs types (FAL-418): built with every
   cell on their situations, 2 to 5 steps per worked solution, every distractor
   misconception as an option (two that no exact option can show are listed with the

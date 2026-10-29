@@ -116,6 +116,9 @@ func _draw() -> void:
 	# Marked points with their coordinates.
 	var dot := DOT * (0.75 if _card() else 1.0)
 	for p in spec.points:
+		# A point outside the window (a wrong card's endpoint carried off it) isn't drawn.
+		if p.x < float(spec.x0) or p.x > float(spec.x1) or p.y < float(spec.y0) or p.y > float(spec.y1):
+			continue
 		var c := to_px(Vector2(p.x, p.y))
 		draw_circle(c, dot, UiTheme.PINK)
 		draw_circle(c, dot * 0.45, UiTheme.BG)

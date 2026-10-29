@@ -11,7 +11,10 @@ extends SceneTree
 ## tools/stress-questions. Exits non-zero on any failure.
 ##
 ##   godot --headless --path game --script res://tools/stress_questions.gd -- \
-##       [--from=51] [--to=2250] [--types=id,id]
+##       [--from=51] [--to=2250] [--types=id,id] [--shard=k/n]
+##
+## --shard=k/n sweeps every n-th cell and boss chain from the k-th, so CI can run the
+## sweep as n jobs side by side (FAL-420).
 
 ## Seeds per boss chain, from --from: there are a few dozen chains, each several parts.
 const CHAIN_SEEDS := 1000
@@ -56,7 +59,16 @@ func _run() -> void:
 	var n := 0
 	var short_choices := 0
 	var only: Array = Array(str(args.get("types", "")).split(",", false))
-	for c in QuestionEngine.cells(false, only):
+	# --shard=k/n: only every n-th cell (and boss chain) from the k-th, so n CI jobs can
+	# share the sweep (FAL-420). Round-robin keeps each shard's mix of situations alike.
+	var shard := str(args.get("shard", "1/1")).split("/")
+	var shard_k := int(shard[0]) - 1
+	var shard_n := maxi(1, int(shard[1]))
+	var all_cells := QuestionEngine.cells(false, only)
+	for ci in all_cells.size():
+		if ci % shard_n != shard_k:
+			continue
+		var c: Dictionary = all_cells[ci]
 		var views: Array = []
 		for seed in range(lo, hi + 1):
 			views.append({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": "value", "seed": seed})
@@ -77,10 +89,14 @@ func _run() -> void:
 				continue
 			short_choices += _check(q, "%s seed %d" % [key, seed])
 	var chains := 0
+	var window_no := 0
 	for id in QuestionEngine.built_types():
 		if not only.is_empty() and not id in only:
 			continue
 		for steps in Dungeon.chain_windows(id):
+			window_no += 1
+			if (window_no - 1) % shard_n != shard_k:
+				continue
 			var name := "chain %s" % "+".join(steps.map(func(st): return st.unknown))
 			for seed in range(lo, mini(hi, lo + CHAIN_SEEDS - 1) + 1):
 				var c := QuestionEngine.make_chain(steps.map(func(st): return st.merged({"format": "value"})), seed)

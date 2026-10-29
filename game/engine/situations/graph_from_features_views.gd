@@ -140,7 +140,33 @@ static func level_lines(s: Dictionary) -> Array:
 static func wrong_card(s: Dictionary, w: Array, g: Callable, mistake: String, ref: String, why: String, lo: float = NAN,
 		hi: float = NAN, dots: Array = []) -> Dictionary:
 	var curve := GdcKit.curve(g, s.x0 if is_nan(lo) else lo, s.x1 if is_nan(hi) else hi)
+	if dots.is_empty():
+		dots = auto_dots(s, curve)
 	return {"graph": card(s, [curve], dots, w, level_lines(s)), "ref": ref, "mistake": mistake, "why": why}
+
+
+## A wrong card's own features, from its drawn curve, so every card marks its points
+## the same way and the dots don't give the right one away: its zeros, turning points
+## and y-intercept, and its ends where the domain is closed.
+static func auto_dots(s: Dictionary, curve: Array) -> Array:
+	var out: Array = []
+	for i in range(1, curve.size()):
+		var a: Array = curve[i - 1]
+		var b: Array = curve[i]
+		if a[1] == 0.0:
+			out.append([a[0], 0.0, ""])
+		elif a[1] * b[1] < 0.0:
+			out.append([a[0] + (b[0] - a[0]) * a[1] / (a[1] - b[1]), 0.0, ""])
+		if i < curve.size() - 1 and (b[1] - a[1]) * (curve[i + 1][1] - b[1]) < 0.0:
+			out.append([b[0], b[1], ""])
+		if a[0] < 0.0 and b[0] >= 0.0 and absf(a[1]) > 1e-9 and absf(b[1]) > 1e-9:
+			out.append([0.0, a[1] + (b[1] - a[1]) * (0.0 - a[0]) / (b[0] - a[0]), ""])
+	var closed: bool = s.fam in ["interval", "trig"] or (s.fam == "levels" and s.kind == "cooling")
+	if closed:
+		out.append([curve[0][0], curve[0][1], ""])
+		if s.fam != "levels":
+			out.append([curve[-1][0], curve[-1][1], ""])
+	return out
 
 
 static func flipped(s: Dictionary, w: Array, ref: String) -> Dictionary:
@@ -323,7 +349,7 @@ static func _doubles_back(s: Dictionary, w: Array) -> Dictionary:
 	for i in 161:
 		var u := -0.4 + 1.8 * i / 160.0
 		pts.append([z * (1.0 - u) + 4.0 * u * (u - 1.0), y0 * u])
-	return {"graph": card(s, [pts], [], w), "ref": SI + "#0", "mistake": "doubles-back",
+	return {"graph": card(s, [pts], [[z, 0.0, ""], [0.0, y0, ""]], w), "ref": SI + "#0", "mistake": "doubles-back",
 		"why": "it turns back on itself, so one x has two y-values: it is not the graph of a function"}
 
 

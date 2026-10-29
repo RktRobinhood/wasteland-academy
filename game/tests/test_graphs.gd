@@ -133,6 +133,12 @@ func test_pick_the_graph_is_four_cards_each_wrong_one_a_mistake() -> void:
 					var r := QuestionEngine.mark(q, {"choice": i})
 					check(not r.correct and r.misconception == o.ref, c.key)
 				check(q.reason != "", c.key + ": no reason")
+				# The dots don't give the answer away: if the right card marks points, so
+				# does every wrong one.
+				var right_i: int = q.choices.find(q.choices.filter(func(o): return o.correct)[0])
+				if not q.graphs[right_i].points.is_empty():
+					for i in 4:
+						check(not q.graphs[i].points.is_empty(), "%s seed %d: %s has no points" % [c.key, seed, q.choices[i].text])
 				check(QuestionEngine.mark(q, {"choice": q.choices.find(q.choices.filter(func(o): return o.correct)[0])}).correct, c.key)
 
 
