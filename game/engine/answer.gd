@@ -46,9 +46,10 @@ extends RefCounted
 ##   signed     (optional) a measure that may be negative (a decay rate k): wrong options
 ##              may be negative too
 ##
-## Typed numbers go through parse_number(), which accepts whole numbers, decimals and
-## fractions only. Nothing a student types is evaluated as an expression (Godot's
-## Expression reads 2^3 as 1 and can call engine functions).
+## Typed numbers go through parse_number(), which reads them with the calculator's
+## expression engine (engine/expr.gd) and takes any that work out to a fraction of whole
+## numbers. Godot's Expression class is never used on what a student types (it reads
+## 2^3 as 1 and can call engine functions).
 
 const MC_ONLY := ["triple", "claim", "natures"]
 const NATURES := ["local maximum", "local minimum"]
@@ -619,59 +620,45 @@ static func _sorted(qs: Array) -> Array:
 
 # ── Typed numbers ────────────────────────────────────────────
 
-static var _num_re: RegEx
-
-
-## Reads a typed number: 3, −1.5, .5, 3/2, -3/2, 1.5/2, ½, with an optional "x =" or
-## "y =" in front and spaces anywhere. Returns {"ok": true, "q": Q, "decimal": bool}
-## or {"ok": false, "error": "..."}.
+## Reads a typed number with the expression engine (Expr, the calculator's own): 3,
+## −1.5, .5, 3/2, 3/-2, ½, 2(3), 2^-1, with an optional "x =" or "y =" in front and
+## spaces anywhere. The value must be a fraction of whole numbers, so exact marking
+## stays exact: √2 or ln 2 is turned down with a note to work it out. Returns
+## {"ok": true, "q": Q, "decimal": bool} or {"ok": false, "error": "..."}.
 static func parse_number(raw: String) -> Dictionary:
-	if _num_re == null:
-		_num_re = RegEx.create_from_string("^([+-]?)(\\d+(?:\\.\\d*)?|\\.\\d+)(?:/([+-]?)(\\d+(?:\\.\\d*)?|\\.\\d+))?$")
-	if RegEx.create_from_string("\\d\\s+[\\d.]").search(raw) != null:
-		return {"ok": false, "error": "Type a number, like 3, −1.5 or 3/2."}
-	var s := raw.strip_edges().replace(" ", "").replace("−", "-").replace("–", "-").replace("—", "-")
-	s = s.replace("½", "1/2")
+	var s := raw.strip_edges().replace("−", "-").replace("–", "-").replace("—", "-")
+	var bare := s.replace(" ", "")
 	for prefix in ["f(x)=", "y=", "x=", "Y=", "X="]:
-		if s.begins_with(prefix):
-			s = s.substr(prefix.length())
-	if s.begins_with("(") and s.ends_with(")") and s.length() > 2:
-		s = s.substr(1, s.length() - 2)
-	if s == "":
+		if bare.begins_with(prefix):
+			s = s.substr(s.find("=") + 1)
+			break
+	if s.strip_edges() == "":
 		return {"ok": false, "error": "empty"}
-	var m := _num_re.search(s)
-	if m == null:
+	var r := Expr.parse(s)
+	if not r.ok:
+		if r.error == "empty":
+			return r
 		return {"ok": false, "error": "Type a number, like 3, −1.5 or 3/2."}
-	var top := _decimal(m.get_string(2))
-	if top == null:
-		return {"ok": false, "error": "That number has too many digits."}
-	if m.get_string(1) == "-":
-		top = top.neg()
-	var dec := m.get_string(2).contains(".")
-	if m.get_string(4) != "":
-		var bottom := _decimal(m.get_string(4))
-		if bottom == null or bottom.is_zero():
-			return {"ok": false, "error": "The bottom of a fraction can't be 0."}
-		if m.get_string(3) == "-":
-			bottom = bottom.neg()
-		top = top.div(bottom)
-		dec = dec or m.get_string(4).contains(".")
-	return {"ok": true, "q": top, "decimal": dec}
+	var q := Expr.eval_exact(r.tree)
+	if q == null:
+		if is_finite(Expr.eval_float(r.tree)) and not _divides_by_zero(r.tree):
+			return {"ok": false, "error": "Work that out to a number, like 2.35."}
+		return {"ok": false, "error": "That has no value: is something divided by 0?"}
+	return {"ok": true, "q": q, "decimal": r.decimal}
 
 
-static func _decimal(s: String) -> Q:
-	var parts := s.split(".")
-	var whole := parts[0]
-	var frac := parts[1] if parts.size() > 1 else ""
-	var digits := (whole + frac).lstrip("0")
-	if digits.length() > 15:
-		return null
-	var den := 1
-	for i in frac.length():
-		den *= 10
-		if den > 1000000000000000:
-			return null
-	return Q.new((whole + frac).to_int(), den)
+## Whether a tree divides by 0 anywhere (1/0, 3/(2 − 2)).
+static func _divides_by_zero(tree: Variant) -> bool:
+	if not tree is Array:
+		return false
+	if tree[0] == "div":
+		var b := Expr.eval_exact(tree[2])
+		if b != null and b.is_zero():
+			return true
+	for i in range(1, tree.size()):
+		if tree[i] is Array and _divides_by_zero(tree[i]):
+			return true
+	return false
 
 
 ## IB style: right if exact, or if it rounds to the same 3 significant figures as the
