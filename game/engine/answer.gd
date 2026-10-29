@@ -360,7 +360,7 @@ static func poly_text(ans: Dictionary, v: Dictionary) -> String:
 	for i in fx.powers.size():
 		coeffs.append(fx.lead if i == 0 and fx.has("lead") else v["c%d" % i])
 		powers.append(int(Q.of(v["e%d" % i]).n) if fx.get("typed_powers", false) else int(fx.powers[i]))
-	return Fmt.terms(coeffs, powers, fx.get("var", "x"))
+	return Fmt.terms(coeffs, powers, fx.get("var", "x"), ans.get("show", "") == "dec")
 
 
 ## A typed number as the answer writes it: a fraction, a decimal or money (see show).

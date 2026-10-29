@@ -48,6 +48,7 @@ static var SITUATIONS := {
 	"fn-pre-factorise": [FactoriseSituation, FactoriseViews],
 	"fn-pre-surds": [SurdsSituation, SurdsViews],
 	"fn-pre-linear-inequalities": [LinearInequalitySituation, LinearInequalityViews],
+	"quadratic-model": [QuadraticModelSituation, QuadraticModelViews],
 }
 
 static var _cat: Dictionary = {}

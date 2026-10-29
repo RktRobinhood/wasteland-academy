@@ -2285,13 +2285,16 @@ def ext_sup(p):
     return "" if p == 1 else str(p).translate(SUPS)
 
 
-def ext_terms(coeffs, powers, letter="x"):
+def ext_terms(coeffs, powers, letter="x", dec=False):
     out = ""
     for c, p in zip(coeffs, powers):
         c, p = R(c), int(p)
         if c == 0:
             continue
-        body = frac_text(abs(c)) if p == 0 else qr_lead(abs(c)) + letter + ext_sup(p)
+        if dec:
+            body = dec_text(abs(c)) if p == 0 else ("" if abs(c) == 1 else dec_text(abs(c))) + letter + ext_sup(p)
+        else:
+            body = frac_text(abs(c)) if p == 0 else qr_lead(abs(c)) + letter + ext_sup(p)
         out = (("−" if c < 0 else "") + body) if out == "" else out + (" − " if c < 0 else " + ") + body
     return out or "0"
 
@@ -2337,7 +2340,7 @@ def ext_text(ans, v):
         return label + ext_shown(ans, v["v"]) + ans.get("unit", "")
     if kind == "poly":
         cs, ps = ext_poly_parts(ans, v)
-        return label + ext_terms(cs, ps, fx.get("var", "x"))
+        return label + ext_terms(cs, ps, fx.get("var", "x"), ans.get("show") == "dec")
     if kind == "named":
         units = fx.get("units", [""] * len(fx["names"]))
         return ", ".join(f"{n} = {ext_shown(ans, v[f'v{i}'])}{units[i]}" for i, n in enumerate(fx["names"]))
@@ -2848,12 +2851,112 @@ def spot_lineq(q, lines):
 SPOT_CHECKS["fn-pre-linear-inequalities"] = spot_lineq
 
 
+# ── quadratic-model (fn-ext-quadratic-model) ──
+
+QM_A = {"ball": {sp.Integer(-5), sp.Integer(-4), sp.Rational(-49, 10)}, "pen": {sp.Integer(-2), sp.Integer(-1)}}
+
+
+def qm_expr(text):
+    """'−4.9t² + 19.6t + 1.6' (in t or x) as a polynomial in x."""
+    return sp.nsimplify(parse(text.replace("t", "x")), rational=True)
+
+
+def check_qmodel(q):
+    g, ans, u, L, rep = q["given"], q["answer"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    T_ = "SL2.6.model"
+    ctx = g["ctx"]
+    a, b, c = R(g["a"]), R(g["b"]), R(g["c"])
+    f = a * X**2 + b * X + c
+    need(a in QM_A[ctx], f"a = {a} is not a clean {ctx} model")
+    name = "h(t)" if ctx == "ball" else "A(x)"
+    tv, hv = vertex(f)
+    need(sp.expand(R(g["a"]) * (X - R(g["T"]))**2 + R(g["H"]) - f) == 0, "the vertex form doesn't match the model")
+    need(tv > 0 and hv > 0, "the top is not after the start and above the ground")
+    if ctx == "pen":
+        Lf = R(g["L"])
+        want_f = X * (Lf - 2 * X) if g["wall"] else X * (Lf / 2 - X)
+        need(sp.expand(want_f - f) == 0, "the pen's model doesn't come from its fence")
+        need(f"{frac_text(Lf)} m of fence" in L[0], "the fence length shown is not the givens")
+    else:
+        need(L[0].startswith("A ball is thrown upwards") or u == "model-from-features" or rep == "words", "the context is not a thrown ball")
+        need(c >= 0, "the ball starts below the ground")
+    model_lines = [l for l in L if l.startswith(f"{name} = ") or l.startswith(f"The graph of y = {name} = ")]
+    for l in model_lines:
+        rhs_ = l.split(f"{name} = ", 1)[1].removesuffix(" is shown.").split(". ")[0].rstrip(".")
+        if "(" in rhs_ and u == "interpret-vertex":
+            need(qm_expr(rhs_) == sp.expand(f), "the vertex form shown is not the model")
+        else:
+            need(qm_expr(rhs_) == sp.expand(f), f"the model shown {rhs_!r} is not the givens")
+    if q.get("graph"):
+        gr = q["graph"]
+        need(sp.nsimplify(gr["a"]) == a and sp.nsimplify(gr["h"]) == tv and sp.nsimplify(gr["k"]) == hv, "the graph is another curve")
+        for pt in gr["points"]:
+            need(f.subs(X, sp.nsimplify(pt["x"])) == sp.nsimplify(pt["y"]), f"the marked point {pt['label']} is not on the curve")
+    if q.get("table"):
+        t = q["table"]
+        need(all(f.subs(X, R(x)) == R(y) for x, y in zip(t["xs"], t["ys"])), "a table value is not on the curve")
+    wr = {}
+    if u == "max-value":
+        wr[f"{T_}#0"] = {qr_norm(ans, {"v": str(tv)})}
+        qr_check_common(q, qr_norm(ans, {"v": str(hv)}), wr)
+    elif u == "time-of-max":
+        wr[f"{T_}#0"] = {qr_norm(ans, {"v": str(hv)})}
+        qr_check_common(q, qr_norm(ans, {"v": str(tv)}), wr)
+    elif u == "zero-time":
+        rs = sorted(sp.solve(f, X), key=float)
+        need(len(rs) == 2 and rs[0] < 0 < rs[1], "the model has no negative root to reject")
+        sf = ans.get("show") == "sf"
+        need(sf == (a == sp.Rational(-49, 10)), "Paper 2 is not written to 3 s.f.")
+        if not sf:
+            need(rs[1].is_rational, "a Paper 1 landing time is not exact")
+        else:
+            need(not on_edge(rs[1]), "the landing time is on a rounding edge")
+        val = lambda r: {"v": str(r) if r.is_rational else str(sp.Rational(round(float(r) * 10**9), 10**9))}
+        wr[f"{T_}#1"] = {qr_norm(ans, val(rs[0]))}
+        qr_check_common(q, qr_norm(ans, val(rs[1])), wr)
+    elif u == "form-area-model":
+        need(ctx == "pen", "not a pen")
+        qr_check_common(q, qr_norm(ans, {"v0": str(tv), "v1": str(hv)}))
+    elif u == "interpret-vertex":
+        T, H = dec_text(tv), dec_text(hv)
+        right = f"The ball is highest, {H} m, after {T} s" if ctx == "ball" else f"The area is largest, {H} m², when the width is {T} m"
+        swap = f"The ball is highest, {T} m, after {H} s" if ctx == "ball" else f"The area is largest, {T} m², when the width is {H} m"
+        if rep == "words":
+            need(f"has its vertex at ({T}, {H})." in L[1], "the vertex said is not the model's")
+        wr[f"{T_}#0"] = {qr_norm(ans, {"v": swap})}
+        qr_check_common(q, qr_norm(ans, {"v": right}), wr)
+    elif u == "second-time-at-height":
+        t1 = R(g["t1"])
+        need(0 < t1 < tv, "the first time is not before the top")
+        y1 = f.subs(X, t1)
+        said = f"{dec_text(y1)} m high at t = {dec_text(t1)} s."
+        need(any(said in l for l in L), "the height and time said are not on the model")
+        if rep == "words":
+            need(f"is highest after {dec_text(tv)} s" in L[0], "the top said is not the model's")
+        other = [r for r in sp.solve(f - y1, X) if r != t1]
+        need(len(other) == 1, "no other time at that height")
+        qr_check_common(q, qr_norm(ans, {"v": str(other[0])}))
+    elif u == "model-from-features":
+        m = re.fullmatch(r"A ball is thrown upwards from (\S+) m\. It is highest, (\S+) m, after (\S+) s\.", L[0])
+        need(m is not None, "can't read the features")
+        h0, H, T = (RD(x) for x in m.groups())
+        A_ = sp.Symbol("A")
+        sol = sp.solve(sp.Eq(A_ * T**2 + H, h0), A_)
+        model = sp.expand(sol[0] * (X - T)**2 + H)
+        co = poly_coeffs(model)
+        qr_check_common(q, qr_norm(ans, ext_poly_values(ans, co)))
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
-                    "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq}
+                    "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
+                    "quadratic-model": check_qmodel}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

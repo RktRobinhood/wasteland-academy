@@ -153,15 +153,21 @@ static func sup(power: Variant) -> String:
 
 
 ## A sum of c·xⁿ in the order given, skipping zero terms: terms([3, −1/4], [−2, −3])
-## is "3x⁻² − (1/4)x⁻³". A power of 0 is the number itself.
-static func terms(coeffs: Array, powers: Array, letter: String = "x") -> String:
+## is "3x⁻² − (1/4)x⁻³". A power of 0 is the number itself. With dec, coefficients
+## are decimals when they end ("−4.9t² + 19.6t + 1.5").
+static func terms(coeffs: Array, powers: Array, letter: String = "x", decimal: bool = false) -> String:
 	var out := ""
 	for i in coeffs.size():
 		var c := Q.of(coeffs[i])
 		if c.is_zero():
 			continue
 		var p := int(powers[i])
-		var body := c.abs_q().text() if p == 0 else lead(c.abs_q()) + letter + sup(p)
+		var mag := c.abs_q()
+		var body: String
+		if decimal:
+			body = dec(mag) if p == 0 else ("" if mag.eq(1) else dec(mag)) + letter + sup(p)
+		else:
+			body = mag.text() if p == 0 else lead(mag) + letter + sup(p)
 		if out == "":
 			out = ("−" if c.sign() < 0 else "") + body
 		else:
