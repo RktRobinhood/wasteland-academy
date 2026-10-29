@@ -6,7 +6,7 @@ Sources: `SPEC.md` §10 and §13, `assets/style-guide/README.md`, and the roster
 
 ## Rules for every character
 
-- The player types a callsign at first launch (SPEC §10). Lines that name the player use `{callsign}`. No line uses "he", "she", "girl" or "boy" for the player, because SPEC §10 lets the player choose the avatar. See conflict 1.
+- The player types a callsign at first launch (SPEC §10). Lines that name the player use `{callsign}`. No line uses "he", "she", "girl", "boy" or "guy" for the player, because the player can be Tilly, Banjo or SPARK (SPEC §10). See "SPARK as the player's avatar" under the Learner.
 - No character calls a question easy, simple or obvious, and nobody says "just" in front of a step ("just factorise"). A student who is stuck hears that as "you're slow".
 - Every number in a line is checked before it ships. A hint points at the next move. It never does the move.
 - Numbers on screen go in KaTeX (`$x^2$`), per SPEC §13. In voice scripts they are written the way the character says them.
@@ -18,7 +18,7 @@ Sources: `SPEC.md` §10 and §13, `assets/style-guide/README.md`, and the roster
 
 Canon: the player character. Curious, determined, hands-on, resourceful (style guide); also kind, "makes a difference" (roster sheet). Expressions: curious, excited, determined, thinking.
 
-Two looks share this voice: **Tilly Redback** (the female Learner) and **Banjo Brumby** (the male Learner), named on FAL-345 (2026-10-24). The names show on the look picker. Lines call the player `{callsign}`, never Tilly or Banjo, and never gender them.
+Two looks share this voice: **Tilly Redback** (the female Learner) and **Banjo Brumby** (the male Learner), named on FAL-345 (2026-10-24). The names show on the look picker. A SPARK player uses it too (see the end of this block). Lines call the player `{callsign}`, never Tilly or Banjo, and never gender them.
 
 The Learner speaks mostly as dialogue options the player taps (three per prompt on the roster sheet's dialogue mockup). Keep each option under about eight words so it fits the button. Every option set includes one that asks for help and doesn't sound ashamed of it.
 
@@ -45,6 +45,16 @@ The Learner speaks mostly as dialogue options the player taps (three per prompt 
 - Curious: "What's the ratio for, though? Like, what breaks if it's off?"
 - Determined, before a boss: "Third try. I know which part hits hard now."
 - Stuck, asking for help: "Walk me through the first step. Only the first."
+
+### SPARK as the player's avatar
+
+Decided on FAL-332, 2026-10-29: the player picks Tilly Redback, Banjo Brumby or SPARK, and SPARK is gender-neutral. All three use this block. The Learner's lines are the player's words whatever the avatar looks like, so a SPARK player taps the same options as Tilly or Banjo, in the Learner's voice. The Learner has no voice brief, so these lines stay as text on the buttons and Spark's voice never says them.
+
+- Lines call the player `{callsign}` and talk to them as "you" in every run. Nobody calls a SPARK player "Spark".
+- A line the player could be in has to hold for a robot. Spark's art has two gripper hands, eyes and treads, so "hands", "eyes" and "hold this" all work. Feet, running, breath, hair, skin, eating and sleeping don't. An idiom nobody reads literally ("walk me through it") is fine.
+- Checked 2026-10-29: every Learner line on this sheet (the table, the samples and the cover-the-name line) holds for a SPARK player. None needed a fix.
+
+**Hints in a SPARK run (provisional canon, 2026-10-29).** Matt hasn't said who gives hints when the player is SPARK. Until the board rules, hints, corrections and worked solutions stay in Spark's voice, with the same text in every run, so there's only one set of lines to write. In a SPARK run they read as Spark talking to the student who's steering it: "we" is Spark and that student, and "you" still gets the credit. A Spark line that needs the player to be a second body beside Spark ("climb on my treads") breaks in a SPARK run, so don't write one.
 
 ---
 
@@ -180,8 +190,8 @@ The same idea, "you made a ratio mistake", in each voice:
 
 ## Where canon disagrees (raised on FAL-332)
 
-1. **Learner's gender.** SPEC §10 has the player choose Female Learner, Male Learner or SPARK at first launch. The style guide README calls the Learner "a resourceful female scavenger", and the roster sheet shows only one, a young woman. These sheets don't gender the Learner in any line, which works with either reading. Decision needed: is the male Learner avatar still in V1? *Update 2026-10-24:* Matt's comments on FAL-345 count both, a girl and a guy, and ask for names. They're now Tilly Redback and Banjo Brumby. The card on FAL-332 is still where this is decided.
-2. **Spark as avatar and companion.** SPEC §10 lists SPARK as a player avatar and also as the companion who gives every hint. If a student plays as SPARK, the companion is talking to itself. These sheets assume the player is the human Learner and Spark is always the companion. Decision needed: drop SPARK from the avatar list, or tell me how the companion works when Spark is the avatar.
+1. **Learner's gender.** *Decided 2026-10-29* (board, FAL-332 card e328c985): V1 ships three avatars, Tilly Redback (the female Learner), Banjo Brumby (the male Learner) and SPARK. Tilly and Banjo share the Learner's voice. The style guide README's "a resourceful female scavenger" and the roster sheet's single young woman both predate the decision.
+2. **Spark as avatar and companion.** *Decided 2026-10-29*, same card: SPARK is a playable, gender-neutral avatar. The card didn't say who gives hints in a SPARK run. The provisional answer is under "SPARK as the player's avatar" in the Learner block, and the board can overrule it.
 3. **Spark's sarcasm.** SPEC §10 says "slightly sarcastic". The roster sheet's Spark tone line ("Math isn't just in books. It's in the world around us!") has none. The sheet follows SPEC, because SPEC sets Spark's tone; the roster line is treated as poster copy.
 4. **Voice versus scope.** SPEC §14 still puts "Sound / music" out of scope for V1. ROADMAP.md (L3, December) plans local narration with subtitles for the Relic lessons, and FAL-330 is already making voice auditions. ROADMAP is the newer plan, so the briefs assume voiced lines. SPEC §14 should be updated to match.
 
