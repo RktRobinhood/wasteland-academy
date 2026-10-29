@@ -19,6 +19,7 @@ function fixture() {
   const dir = fs.mkdtempSync(path.join(REPO, '_scratch', 'takeover-unit-'));
   const files = {
     'site/index.html': 'html game', 'site/service-worker.js': 'html worker', 'site/js/engine.js': 'engine',
+    'site/manifest.json': read(REPO, 'manifest.json'),
     'export/index.html': '<html>\n<head>\n<title>godot</title>', 'export/index.pck': 'pck', 'export/index.wasm': 'wasm',
   };
   for (const [rel, text] of Object.entries(files)) {
@@ -53,6 +54,37 @@ test('switch on: Godot at the root, the HTML game at classic/, next/ a redirect'
   assert.equal(read(site, 'next/index.html'), read(REPO, '_takeover/next.html'));
   assert.deepEqual(fs.readdirSync(site).sort(),
     ['classic', 'index.html', 'index.pck', 'index.wasm', 'next', 'service-worker.js']);
+});
+
+test('switch on gives the HTML game its own app id, so an installed app stays at the root', t => {
+  const { dir, site, exp } = fixture();
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  execFileSync(ASSEMBLE, [site, exp, 'on'], { stdio: 'pipe' });
+  const classic = JSON.parse(read(site, 'classic/manifest.json'));
+  assert.equal(classic.id, 'wasteland-academy-classic');
+  assert.equal(classic.start_url, './index.html');
+  assert.equal(classic.scope, './');
+  const { id, ...rest } = classic;
+  const { id: repoId, ...repoRest } = JSON.parse(read(REPO, 'manifest.json'));
+  assert.equal(repoId, 'wasteland-academy');
+  assert.deepEqual(rest, repoRest);
+});
+
+test('switch off keeps the app id', t => {
+  const { dir, site, exp } = fixture();
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  execFileSync(ASSEMBLE, [site, exp, 'off'], { stdio: 'pipe' });
+  assert.equal(read(site, 'manifest.json'), read(REPO, 'manifest.json'));
+  assert.equal(JSON.parse(read(site, 'manifest.json')).id, 'wasteland-academy');
+});
+
+test('switch on stops the build if the HTML game\'s manifest has another id', t => {
+  const { dir, site, exp } = fixture();
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(site, 'manifest.json'), '{ "id": "something-else" }');
+  const run = spawnSync(ASSEMBLE, [site, exp, 'on'], { encoding: 'utf8' });
+  assert.notEqual(run.status, 0);
+  assert.match(run.stderr, /manifest\.json/);
 });
 
 test('any other switch value, or a published next/, stops the build', t => {

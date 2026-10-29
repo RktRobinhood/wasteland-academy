@@ -113,6 +113,9 @@ What the switch changes, in `scripts/assemble-site.sh`:
   ran the old game at `/` fetches it as that worker's update. It deletes the old game's
   cached files (keeping `classic/`'s), unregisters, and reloads the page.
 - `next/index.html` becomes `_takeover/next.html`, the redirect.
+- `classic/manifest.json` gets the app id `wasteland-academy-classic`. Without it, a
+  student who opens `/classic/` inside the app they installed from the old `/` would
+  have that app move to `classic/` and open the HTML game from then on.
 - Godot's `index.html` gets `<meta name="wa-classic" content="classic/">`, which shows
   its "Classic game" link. The HTML game shows "NEW VERSION ▸" when it runs from
   `classic/`.

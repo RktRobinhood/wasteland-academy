@@ -127,6 +127,10 @@ test.describe('switch off: the site as it was', () => {
     await expect(page.locator('meta[name="wa-classic"]')).toHaveCount(0);
   });
 
+  test('the root manifest keeps the app id', async ({ request }) => {
+    expect((await (await request.get(site.url + 'manifest.json')).json()).id).toBe('wasteland-academy');
+  });
+
   test('/classic/ isn\'t published', async ({ request }) => {
     expect((await request.get(site.url + 'classic/')).status()).toBe(404);
   });
@@ -195,6 +199,12 @@ test.describe('switch on: Godot at the root, the HTML game at classic/', () => {
     // Without the trailing slash, as Pages redirects
     await page.goto(site.url + 'next?play=quadratics&seed=3');
     expect(page.url()).toBe(site.url + '?play=quadratics&seed=3');
+  });
+
+  test('classic/ has its own app id, so an app installed from the old root stays there', async ({ request }) => {
+    const manifest = await (await request.get(site.url + 'classic/manifest.json')).json();
+    expect(manifest.id).toBe('wasteland-academy-classic');
+    expect([manifest.start_url, manifest.scope]).toEqual(['./index.html', './']);
   });
 
   test('a browser that ran the old game ends up on Godot at /, and keeps its save', async ({ page }) => {

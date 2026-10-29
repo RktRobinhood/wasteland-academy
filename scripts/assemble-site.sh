@@ -7,7 +7,8 @@
 # <site dir> is the HTML game as Jekyll built it, <export dir> the Godot web export.
 #   off  the HTML game at the root, Godot at next/ (the site before the takeover)
 #   on   Godot at the root, the HTML game at classic/, next/ a redirect to the root,
-#        and the root service-worker.js the retiring worker from _takeover/
+#        the root service-worker.js the retiring worker from _takeover/, and
+#        classic/manifest.json the app id wasteland-academy-classic
 #
 # .github/workflows/pages.yml runs this. tools/takeover-dry-run runs it for both
 # positions and checks each in Chromium.
@@ -39,6 +40,10 @@ on)
 	# Godot's title screen shows its "Classic game" link only with this (game/ui/main.gd)
 	sed -i 's|<head>|<head>\n<meta name="wa-classic" content="classic/">|' "$site/index.html"
 	grep -q 'name="wa-classic"' "$site/index.html" || { echo "no <head> in the Godot index.html" >&2; exit 1; }
+	# A new app id, so opening classic/ inside an app installed from the old root
+	# doesn't move that app's start_url and scope to classic/
+	sed -i 's|"id": "wasteland-academy"|"id": "wasteland-academy-classic"|' "$site/classic/manifest.json"
+	grep -q '"id": "wasteland-academy-classic"' "$site/classic/manifest.json" || { echo "no \"id\": \"wasteland-academy\" in the HTML game's manifest.json" >&2; exit 1; }
 	;;
 *)
 	echo "the takeover switch is \"$position\": it must be off or on" >&2
