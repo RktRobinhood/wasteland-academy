@@ -69,6 +69,7 @@ static var SITUATIONS := {
 	"gdc-combined": [GdcCombinedSituation, GdcCombinedViews],
 	"gdc-context-equation": [GdcContextEquationSituation, GdcContextEquationViews],
 	"graph-from-features": [GraphFromFeaturesSituation, GraphFromFeaturesViews],
+	"gdc-inequality": [GdcInequalitySituation, GdcInequalityViews],
 }
 
 static var _cat: Dictionary = {}

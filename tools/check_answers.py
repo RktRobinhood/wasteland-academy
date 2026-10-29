@@ -6473,6 +6473,65 @@ def check_graph_from_features(q):
     raise Fail(f"the checker has no graph-from-features check for {u}")
 
 
+# ── Graphs and key features (FAL-420): gdc-inequality ─────────
+# An inequality between two curves, solved from their crossings: the curves and the
+# inequality are read back, the crossings found again, and the solution set worked
+# out from the sign of f − g in each part of the domain.
+
+IQ_IE = "SL2.10.inequality-graphical"
+
+
+def iq_sets(cs, d1, d2, v="x"):
+    a, b = gc_s(cs[0][0]), gc_s(cs[1][0])
+    D1, D2 = frac_text(d1), frac_text(d2)
+    return {"inside": f"{a} < {v} < {b}", "outside": f"{D1} ≤ {v} < {a} or {b} < {v} ≤ {D2}", "right": f"{b} < {v} ≤ {D2}",
+            "points": f"{v} = {a} or {v} = {b}"}
+
+
+def check_gdc_inequality(q):
+    u, asked, L = q["view"]["unknown"], q["asked"], q["lines"]
+    need(q["paper"] == 2, "a GDC inequality is Paper 2")
+    j = " ".join([asked] + L)
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    v = "x"
+    if u == "exceeds-in-context":
+        m = re.search(r"C\(t\) = (.+?) mg/l, for 0 ≤ t ≤ (\d+)", j)
+        f, g, rel, d1, d2, v = tc_expr(m.group(1)), el_num(re.search(r"above ([\d.]+) mg/l", asked).group(1)), ">", sp.Integer(0), el_num(m.group(2)), "t"
+        g = R(sp.nsimplify(str(g)))
+    elif u == "inequality-from-region":
+        m = re.search(r"The graphs of y = (.+?) and y = (.+?) are shown", j)
+        f, g = gc_expr(m.group(1)), gc_expr(m.group(2))
+        d1, d2 = el_num(q["given"]["d1"]), el_num(q["given"]["d2"])
+        rel = None
+    else:
+        m = re.search(r"[Ss]olve (.+?) ([<>]) (.+?), for (−?\d+) ≤ x ≤ (−?\d+)\.", asked)
+        need(m is not None, "can't read the inequality")
+        f, rel, g, d1, d2 = gc_expr(m.group(1)), m.group(2), gc_expr(m.group(3)), el_num(m.group(4)), el_num(m.group(5))
+    cs = tc_crossings(f, g, d1 + (sp.Rational(1, 10**6) if v == "t" else 0), d2, False)
+    need(len(cs) == 2 and all(gc_fair(x) for x, _ in cs), "not two fair crossings")
+    h = gc_f(f - g)
+    mid = (cs[0][0] + cs[1][0]) / 2
+    above_mid = h(mid) > 0
+    st = iq_sets(cs, d1, d2, v)
+    if q.get("graph") is not None:
+        need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)) and gc_curve_is(q["graph"]["curves"][1], gc_f(g)), "the graphs drawn are not f and g")
+    if rel is None:
+        inside = st["inside"] in asked
+        need(inside or st["outside"] in asked, "the set asked is not one the crossings make")
+        want_rel = ">" if inside == above_mid else "<"
+        fs, gs = m.group(1), m.group(2)
+        gc_check_common(q, f"{fs} {want_rel} {gs}", {})
+        return None, None
+    inside = (rel == ">") == above_mid
+    want = st["inside"] if inside else st["outside"]
+    wr = {IQ_IE + "#0": {st["points"]}, IQ_IE + "#1": {st["inside"]}, IQ_IE + "#2": {st["right"]}}
+    if inside:
+        wr.pop(IQ_IE + "#1")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -6484,7 +6543,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "gdc-curve": check_gdc_curve, "gdc-two-curves": check_gdc_two_curves,
                     "gdc-combined": check_gdc_combined,
                     "gdc-context-equation": check_gdc_context_equation,
-                    "graph-from-features": check_graph_from_features}
+                    "graph-from-features": check_graph_from_features,
+                    "gdc-inequality": check_gdc_inequality}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
