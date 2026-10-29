@@ -9,9 +9,12 @@ extends Control
 ##   Thunderdome opens once a second island does, and the Relic Library (FAL-325) has a
 ##   locked spot. Under the painting, as in the HTML game, a button opens the Bazaar (G6,
 ##   ui/bazaar.gd) with the Scrap there is to spend.
-## - The Functions island has the 8 regions in the plan's order, the all-regions dungeon
-##   and a locked spot for a Relic device. A region with no built type is "coming soon",
-##   worked out from the engine, so a region lights up when its situations merge.
+## - The Functions island is a hub (FAL-531 plan): the all-regions dungeon at the tower in
+##   the middle, the 8 regions around it, a spoke road from the tower to each and a loop
+##   road between neighbours, so any region can be played in any order. A locked spot
+##   waits for a Relic device. A region with no built type is "coming soon", worked out
+##   from the engine, so a region lights up when its situations merge. SPARK's pick
+##   (Progress.suggest()) gets a beacon and first focus: a suggestion, never a gate.
 ## - The region screen shows accuracy, best floor, coverage and the 3 weakest skills
 ##   (Progress), and starts a run on floor 1 or after a beaten boss, or opens Practice.
 ##
@@ -31,8 +34,12 @@ const HEADER := 190.0
 const FOOTER := 170.0
 const COLUMN := 1000
 const COLUMN_WIDE := 1500
-## A landmark's box on the island board, in board units.
+## A landmark's box on the island board, in board units, and the Relic device's.
 const LANDMARK := 200.0
+const RELIC_LANDMARK := 140.0
+## A spot's button on the island board, and the Relic device's width.
+const SPOT_SIZE := Vector2(480, LANDMARK + 110)
+const RELIC_WIDTH := 200.0
 
 ## The five islands, where each sits on the overworld (centre and size, in % of the
 ## board, measured from the art; js/router.js has the same zones) and its music.
@@ -46,21 +53,41 @@ const ISLANDS := [
 const THUNDERDOME_ZONE := Rect2(50, 46, 38, 18)
 const RELIC_LIBRARY_ZONE := Rect2(83, 94, 30, 8)
 
-## Where each spot sits on the Functions island board (centre, in % of the board): the
-## regions climb from the bottom in the plan's order to the all-regions dungeon at the
-## tower. Spots are keyed by region id, plus "all" and "relic".
+## Where each landmark sits on the Functions island board (centre, in % of the board;
+## the FAL-531 plan's table): the all-regions dungeon at the tower in the middle, the
+## regions around it, the two most-examined by the landing on the south shore. Spots are
+## keyed by region id, plus "all" and "relic".
 const SPOTS := {
-	"quadratics": Vector2(25, 86), "exp-log": Vector2(75, 78), "graphs-features": Vector2(25, 70),
-	"composite-inverse": Vector2(75, 62), "rational": Vector2(25, 54), "function-basics": Vector2(75, 46),
-	"lines": Vector2(25, 38), "transformations": Vector2(75, 30), "all": Vector2(68, 11),
-	"relic": Vector2(23, 18),
+	"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
+	"graphs-features": Vector2(79, 65), "lines": Vector2(21, 27), "rational": Vector2(79, 28),
+	"composite-inverse": Vector2(25, 8), "transformations": Vector2(75, 9), "all": Vector2(50, 46),
+	"relic": Vector2(12, 50),
+}
+## The jetty the player lands at (painted only, not a button), with a road to the tower.
+const LANDING := Vector2(50, 97)
+## The loop road around the island, between neighbouring regions.
+const LOOP := [
+	["quadratics", "exp-log"], ["exp-log", "graphs-features"], ["graphs-features", "rational"],
+	["rational", "transformations"], ["transformations", "composite-inverse"],
+	["composite-inverse", "lines"], ["lines", "function-basics"], ["function-basics", "quadratics"],
+]
+## The coded landmark's glyph for each region, in place of a number. Only characters the
+## title font has (no superscript letters, FAL-499); mark() falls back to initials.
+const GLYPHS := {
+	"quadratics": "x²", "exp-log": "log", "graphs-features": "(x,y)", "composite-inverse": "f(g)",
+	"rational": "1/x", "function-basics": "f(x)", "lines": "mx+c", "transformations": "-f(x)",
+	Dungeon.ALL: "ALL", "relic": "?",
 }
 
 var save_path := SaveData.PATH
+## Where the island's art is looked for; tests point it at fixtures.
+var art_dir := ART_DIR
 var save: Dictionary = {}
 ## "world", "island" or "region".
 var screen := ""
 var route: Dictionary = {}
+## SPARK's pick on the island on screen: Progress.suggest(), {} when nothing is open.
+var pick: Dictionary = {}
 
 var world: Control
 var world_board: Control
@@ -146,6 +173,30 @@ func spot_state(region: String) -> String:
 ## True when a run can start in the region: it has a built type.
 static func can_start(region: String) -> bool:
 	return Progress.is_built(region)
+
+
+## The roads on the island, as pairs of ends (a spot id or "landing"): a spoke from the
+## tower to every other spot, the loop between neighbours and the road up from the landing.
+static func roads() -> Array:
+	var out: Array = [["landing", Dungeon.ALL]]
+	for id in SPOTS:
+		if id != Dungeon.ALL:
+			out.append([Dungeon.ALL, id])
+	return out + LOOP
+
+
+## The short mark on a spot's coded landmark: its glyph when the title font can draw
+## every character of it, otherwise the initials of its name.
+static func mark(id: String, glyph: String = "") -> String:
+	if glyph == "":
+		glyph = GLYPHS.get(id, "")
+	if glyph != "" and range(glyph.length()).all(func(i): return UiTheme.TITLE_FONT.has_char(glyph.unicode_at(i))):
+		return glyph
+	var initials := ""
+	for w in Dungeon.region_name(id).split(" ", false):
+		if w != "and":
+			initials += w.left(1).to_upper()
+	return initials
 
 
 # ── Building ─────────────────────────────────────────────────
@@ -366,7 +417,7 @@ func _fill_island() -> void:
 	var info := island_info(route.island)
 	var title := island.get_node("Header").get_child(0).get_node("Title") as Label
 	title.text = info.name
-	var bg_path := ART_DIR + "background.png"
+	var bg_path := art_dir + "background.png"
 	if ResourceLoader.exists(bg_path):
 		var art := TextureRect.new()
 		art.name = "Art"
@@ -378,20 +429,20 @@ func _fill_island() -> void:
 		island_board.add_child(art)
 	else:
 		island_board.add_child(_coded_ground())
+	pick = Progress.suggest(save)
 	var first: Button = null
 	for id in MapLink.region_ids():
-		var b := _spot(id, Dungeon.region_name(id), spot_state(id), str(MapLink.region_ids().find(id) + 1))
-		if first == null:
+		var b := _spot(id, Dungeon.region_name(id), spot_state(id))
+		if first == null or id == pick.get("region"):
 			first = b
-	_spot(Dungeon.ALL, Dungeon.ALL_NAME, spot_state(Dungeon.ALL), "ALL")
-	var relic := _spot("relic", "Relic device", "locked", "?")
+	_spot(Dungeon.ALL, Dungeon.ALL_NAME, spot_state(Dungeon.ALL))
+	var relic := _spot("relic", "Relic device", "locked")
 	relic.disabled = true
-	(relic.get_node("Box/State") as Label).text = "Locked · lessons later"
+	relic.tooltip_text = "Locked · lessons later"
 	first.grab_focus.call_deferred()
 
 
-## The coded ground when there is no background art: a dusk gradient and a dashed trail
-## through the spots in order.
+## The coded ground when there is no background art: a dusk gradient and the roads.
 func _coded_ground() -> Control:
 	var g := TextureRect.new()
 	g.name = "Ground"
@@ -407,64 +458,103 @@ func _coded_ground() -> Control:
 	g.stretch_mode = TextureRect.STRETCH_SCALE
 	g.size = BOARD
 	g.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var trail := Trail.new()
-	trail.size = BOARD
-	for id in MapLink.region_ids() + [Dungeon.ALL]:
-		if SPOTS.has(id):
-			trail.points.append(SPOTS[id] * BOARD / 100.0)
-	g.add_child(trail)
+	var r := Roads.new()
+	r.name = "Roads"
+	r.size = BOARD
+	for ends in roads():
+		r.lines.append([_road_end(ends[0]), _road_end(ends[1]), ends.has(Dungeon.ALL)])
+	g.add_child(r)
 	return g
 
 
-class Trail extends Control:
-	var points := PackedVector2Array()
+static func _road_end(id: String) -> Vector2:
+	return (LANDING if id == "landing" else SPOTS[id]) * BOARD / 100.0
+
+
+## The coded roads: spokes and the landing road dashed, the loop road fainter, and the
+## jetty as a dot.
+class Roads extends Control:
+	## [from, to, spoke], in board units.
+	var lines: Array = []
 
 	func _ready() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		for i in points.size() - 1:
-			draw_dashed_line(points[i], points[i + 1], Color(UiTheme.SAND, 0.5), 10.0, 30.0)
+		for l in lines:
+			draw_dashed_line(l[0], l[1], Color(UiTheme.SAND, 0.5 if l[2] else 0.3), 10.0, 30.0)
+		draw_circle(LANDING * BOARD / 100.0, 22.0, Color(UiTheme.SAND, 0.6))
 
 
 ## A spot on the island: its landmark (art for its state, or the coded look), name and
-## state line. Every spot but the Relic device opens its region screen.
-func _spot(id: String, title: String, state: String, mark: String) -> Button:
-	var at: Vector2 = SPOTS.get(id, Vector2(50, 50))
+## state line, and SPARK's beacon when it is the pick. Every spot but the Relic device
+## opens its region screen; the Relic device is small and shows its name only.
+func _spot(id: String, title: String, state: String) -> Button:
+	var at: Vector2 = SPOTS.get(id, Vector2(50, 50)) * BOARD / 100.0
+	var relic := id == "relic"
+	var box_h := RELIC_LANDMARK if relic else LANDMARK
 	var b := Button.new()
 	b.name = "Spot_" + id
 	b.flat = true
-	b.size = Vector2(480, LANDMARK + 110)
-	b.position = at * BOARD / 100.0 - Vector2(b.size.x / 2.0, LANDMARK / 2.0)
+	# As wide as SPOT_SIZE allows while staying centred on the spot and on the board.
+	var w := RELIC_WIDTH if relic else minf(SPOT_SIZE.x, 2.0 * minf(at.x, BOARD.x - at.x))
+	b.size = Vector2(w, box_h + 60) if relic else Vector2(w, SPOT_SIZE.y)
+	b.position = at - Vector2(w / 2.0, box_h / 2.0)
 	var box := VBoxContainer.new()
 	box.name = "Box"
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_theme_constant_override("separation", 2)
 	box.size = b.size
-	box.add_child(_landmark(id, state, mark))
-	var name_l := _tag(title, 40, UiTheme.TEXT)
+	box.add_child(_landmark(id, state, box_h))
+	var name_l := _tag(title, UiTheme.SMALL if relic else 40, UiTheme.TEXT)
 	name_l.name = "Name"
 	name_l.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_shrink_to(name_l, w)
 	box.add_child(name_l)
-	var state_l := _tag(spot_line(id, state), UiTheme.SMALL, {"locked": UiTheme.DIM, "open": UiTheme.TEAL, "cleared": UiTheme.SAND}[state])
-	state_l.name = "State"
-	state_l.autowrap_mode = TextServer.AUTOWRAP_OFF
-	box.add_child(state_l)
+	if not relic:
+		var state_l := _tag(spot_line(id, state), UiTheme.SMALL, {"locked": UiTheme.DIM, "open": UiTheme.TEAL, "cleared": UiTheme.SAND}[state])
+		state_l.name = "State"
+		state_l.autowrap_mode = TextServer.AUTOWRAP_OFF
+		# A line too wide for the spot breaks before its last part (SPARK's pick).
+		var i := state_l.text.rfind(" · ")
+		if i >= 0 and _width(state_l) > w:
+			state_l.text = state_l.text.left(i) + "\n" + state_l.text.substr(i + 3)
+		box.add_child(state_l)
 	b.add_child(box)
-	if id != "relic":
+	if id == pick.get("region"):
+		var beacon := Beacon.new()
+		beacon.name = "Beacon"
+		beacon.position = Vector2(w / 2.0, box_h / 2.0)
+		b.add_child(beacon)
+	if not relic:
 		b.pressed.connect(func(): go({"screen": "region", "island": route.island, "region": id}))
 	island_board.add_child(b)
 	return b
 
 
-## The line under a spot: "Coming soon", or how the player is doing there.
+static func _width(l: Label) -> float:
+	var f := l.get_theme_font("font")
+	return f.get_string_size(l.text, HORIZONTAL_ALIGNMENT_LEFT, -1, l.get_theme_font_size("font_size")).x
+
+
+## Takes a label's font size down until its text fits the width.
+static func _shrink_to(l: Label, width: float) -> void:
+	var fs := l.get_theme_font_size("font_size")
+	while fs > UiTheme.SMALL and _width(l) > width:
+		fs -= 2
+		l.add_theme_font_size_override("font_size", fs)
+
+
+## The line under a spot: "Coming soon", or how the player is doing there, and
+## " · SPARK's pick" on the pick.
 func spot_line(id: String, state: String) -> String:
 	if state == "locked":
 		return "Coming soon"
+	var pick_tag := " · SPARK's pick" if id == pick.get("region") else ""
 	var acc := Progress.accuracy(save, id)
 	var best := Progress.best_floor(save, id)
 	if acc.seen == 0 and best == 0:
-		return "Not tried yet"
+		return "Not tried yet" + pick_tag
 	var bits: Array = []
 	if best > 0:
 		bits.append("Floor %d" % best)
@@ -472,16 +562,16 @@ func spot_line(id: String, state: String) -> String:
 		bits.append("%d%%" % acc.percent)
 	if state == "cleared":
 		bits.append("Cleared")
-	return " · ".join(bits)
+	return " · ".join(bits) + pick_tag
 
 
 ## The landmark art for a spot in a state, or the coded look: a ring in the state's
-## colour with the region's number.
-func _landmark(id: String, state: String, mark: String) -> Control:
-	var path := "%s%s-%s.png" % [ART_DIR, id, state]
+## colour with the region's glyph (mark()).
+func _landmark(id: String, state: String, box: float = LANDMARK) -> Control:
+	var path := "%s%s-%s.png" % [art_dir, id, state]
 	var holder := CenterContainer.new()
 	holder.name = "Landmark"
-	holder.custom_minimum_size = Vector2(0, LANDMARK)
+	holder.custom_minimum_size = Vector2(0, box)
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if ResourceLoader.exists(path):
 		var art := TextureRect.new()
@@ -489,13 +579,13 @@ func _landmark(id: String, state: String, mark: String) -> Control:
 		art.texture = load(path)
 		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		art.custom_minimum_size = Vector2(LANDMARK, LANDMARK)
+		art.custom_minimum_size = Vector2(box, box)
 		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		holder.add_child(art)
 		return holder
 	var ring := PanelContainer.new()
 	ring.name = "Coded"
-	var d := LANDMARK * (1.0 if id == Dungeon.ALL else 0.8)
+	var d := box * (1.0 if id == Dungeon.ALL else 0.8)
 	ring.custom_minimum_size = Vector2(d, d)
 	ring.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var sb := StyleBoxFlat.new()
@@ -506,14 +596,34 @@ func _landmark(id: String, state: String, mark: String) -> Control:
 	sb.set_border_width_all(10)
 	sb.set_corner_radius_all(int(d / 2.0))
 	ring.add_theme_stylebox_override("panel", sb)
-	var l := UiTheme.label(mark, 96 if mark.length() == 1 else 72, sb.border_color)
+	var text := mark(id)
+	var l := UiTheme.label(text, 96 if text.length() == 1 else 72, sb.border_color)
 	l.name = "Mark"
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	_shrink_to(l, d * 0.75)
 	ring.add_child(l)
 	holder.add_child(ring)
 	return holder
+
+
+## SPARK's beacon on the pick: two rings round the landmark and signal waves over it,
+## pulsing. Drawn on top, so it shows over landmark art too. Centred on its position.
+class Beacon extends Control:
+	const R := 108.0
+
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var t := create_tween().set_loops()
+		t.tween_property(self, "modulate:a", 0.45, 0.9).set_trans(Tween.TRANS_SINE)
+		t.tween_property(self, "modulate:a", 1.0, 0.9).set_trans(Tween.TRANS_SINE)
+
+	func _draw() -> void:
+		draw_arc(Vector2.ZERO, R, 0.0, TAU, 64, UiTheme.PINK, 8.0, true)
+		draw_arc(Vector2.ZERO, R + 18.0, 0.0, TAU, 64, Color(UiTheme.PINK, 0.4), 4.0, true)
+		for i in 2:
+			draw_arc(Vector2(0, -R - 12.0), 14.0 + 12.0 * i, PI * 1.2, PI * 1.8, 16, UiTheme.PINK, 6.0, true)
 
 
 # ── The region screen ────────────────────────────────────────
