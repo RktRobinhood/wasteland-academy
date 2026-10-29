@@ -44,7 +44,8 @@ assets/
 │   ├── question-card.png        ← Question card frame 360×400
 │   ├── hp-frame-player.png      ← Player HP bar frame 320×48
 │   ├── hp-frame-enemy.png       ← Enemy HP bar frame 320×48
-│   └── encounter/               ← Encounter and Field Notes UI, see ENCOUNTER UI below (FAL-359)
+│   ├── encounter/               ← Encounter and Field Notes UI, see ENCOUNTER UI below (FAL-359)
+│   └── calculator/              ← The in-game calculator's casing and keys (game/assets/ui/), see CALCULATOR UI below (FAL-421)
 │
 └── map/
     ├── overworld.png                 ← Full world map background 1080×1920
@@ -329,6 +330,23 @@ Short "ready" loops for the 3 class badges, the 3 skill **on** icons and the 3 l
 | dialogue-box.png | 192×96 | 14/14/14/14 |
 
 Where it came from: local ComfyUI Qwen Image 2.1 int8 (text-to-image, 512², 25 steps Euler/simple, CFG 1, seed 35901) for the paper and metal textures and the three badge silhouettes. Pillow combined the textures with fixed frame geometry (frames, rivets, tails, pips) and resized the badges. Workflow, prompts and validation are on FAL-359.
+
+---
+
+## CALCULATOR UI (FAL-421)
+
+### Spec
+- Folder: `game/assets/ui/calculator/` (the Godot game). The sizes, file names and nine-slice margins are in `game/README.md`, "Calculator art"; the game draws all text on top.
+- Every file is a nine-slice: rims, rivets and wear stay inside the margin, middles are plain.
+- Colours: casing neon Scrap Teal #22D3C5, crown Bazaar Magenta #FF3DA7, screen face Charcoal #1F2937, digit keys worn off-white, function keys Rust Orange #FAA261, mode switch and EXE Bazaar Magenta #FF3DA7. Pressed keys sit lower and glow Scrap Teal.
+
+| Files | Native size | Nine-slice margin |
+|---|---|---|
+| casing.webp | 1040×1800 | 72 |
+| screen.png | 512×512 | 28 |
+| key.png, key-pressed.png, key-fn.png, key-fn-pressed.png, key-mode.png, key-mode-pressed.png | 128×112 | 20 |
+
+Where it came from: original work. Local ComfyUI Qwen Image 2.1 int8 (text-to-image, 1024², 25 steps Euler/simple, CFG 1) made two flat textures: the casing's gunmetal (seed 42101) and the keys' worn paint grain (seed 42101). Pillow and NumPy drew everything else over them from fixed geometry: the casing outline, bevel, chipped edges, rust, rivets, neon tube, maker's badge and crown, the screen bezel, and every key. Prompts, build script and checks are on FAL-421.
 
 ---
 

@@ -209,11 +209,14 @@ func test_fits_a_360_phone_and_a_pc() -> void:
 
 
 func test_coded_look_without_art_and_art_when_there() -> void:
+	var root := ArtSlots.root
+	for f in Calculator.ART_MARGINS:
+		check(ArtSlots.find(Calculator.ART + f) != "", "Artist's %s is in assets/ui/calculator/ (FAL-421)" % f)
+	ArtSlots.root = "res://tests/fixtures/no-art/"
 	var c := _calc()
 	check(c.casing.get_theme_stylebox("panel") is StyleBoxFlat, "the coded casing")
 	check(c.casing.get_node_or_null("Rivets") != null, "rivets drawn in code")
 	c.free()
-	var root := ArtSlots.root
 	ArtSlots.root = "res://tests/fixtures/art/"
 	var art := _calc()
 	var has_fixture := ArtSlots.find(Calculator.ART + "casing") != ""
