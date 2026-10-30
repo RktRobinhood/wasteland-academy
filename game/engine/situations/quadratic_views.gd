@@ -525,7 +525,7 @@ func u_vertex_from_factorised(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var hf: Q = ex.b.neg().div(a.mul(2))
 	var kf := a.mul(hf.sq()).add(ex.b.mul(hf)).add(ex.c)
 	var form: Array = pre.duplicate()
-	form.append("Expand: " + ex.steps[0])
+	form.append("Expand: " + Step.text(ex.steps[0]))
 	form.append(ex.steps[-1])
 	form.append_array([
 		"x = −b/(2a) = %s/%s = %s" % [P(ex.b.neg()), P(a.mul(2)), N(hf)],

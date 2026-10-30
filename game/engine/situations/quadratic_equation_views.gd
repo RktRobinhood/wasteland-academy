@@ -197,7 +197,7 @@ func u_solve_in_context(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"generic": [{"v": s.r2}, {"v": s.r1.mul(2)}, {"v": s.r1.add(1)}, {"v": s.r1.sub(1)}],
 		"methods": {
 			"factorise": {"result": res, "steps": [setup, "(x%s)(x%s) = 0" % [Fmt.plus(s.r1.neg()), Fmt.plus(s.r2.neg())], reject, final]},
-			"quadratic-formula": {"result": res, "steps": [setup, fs.steps[0] + ", " + fs.steps[1], reject, final]},
+			"quadratic-formula": {"result": res, "steps": [setup, Step.text(fs.steps[0]) + ", " + Step.text(fs.steps[1]), reject, final]},
 			"gdc-solver": {"result": res, "steps": [setup, "The GDC's polynomial solver gives " + reject, final]},
 		},
 	}

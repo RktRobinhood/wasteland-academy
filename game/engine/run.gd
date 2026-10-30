@@ -481,7 +481,7 @@ func use_hint() -> String:
 	if not can_use("hint"):
 		return ""
 	lifelines.hint -= lifeline_cost("hint")
-	hint = question.solutions[0].steps[0]
+	hint = Step.text(question.solutions[0].steps[0])
 	return hint
 
 

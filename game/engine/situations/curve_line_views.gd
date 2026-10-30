@@ -149,7 +149,7 @@ func u_meeting_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"Let d(x) = (%s) − (%s) = %s. They meet where d(x) = 0." % [curve_rhs(s), line_rhs(s), Fmt.general(c[0], c[1], c[2])],
 			factor_step(s), final]},
 		"factorise": {"result": res, "steps": [equate_step(s), factor_step(s), final]},
-		"quadratic-formula": {"result": res, "steps": [equate_step(s), fs.steps[0] + ", so √Δ = " + fs.steps[1].trim_prefix("√Δ = "), fs.steps[2], final]},
+		"quadratic-formula": {"result": res, "steps": [equate_step(s), Step.text(fs.steps[0]) + ", so √Δ = " + Step.text(fs.steps[1]).trim_prefix("√Δ = "), fs.steps[2], final]},
 	}
 	return out
 
@@ -207,7 +207,7 @@ func u_chord_length(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.generic = [{"m": Q.new(dx), "r": Q.new(1)}, {"m": Q.new(dx * dx), "r": Q.new(r)}, {"m": Q.new(sv[0]), "r": Q.new(sv[1] + 1)},
 		{"m": Q.new(1), "r": Q.new(dx * dx + absi(dy.n))}, {"m": Q.new(s0[0] * 2), "r": Q.new(r)}]
 	out.methods = {
-		"quadratic-formula": {"result": res, "steps": [equate_step(s), fs.steps[0] + ", so x = " + fs.steps[3].trim_prefix("x = "), dist, final]},
+		"quadratic-formula": {"result": res, "steps": [equate_step(s), Step.text(fs.steps[0]) + ", so x = " + Step.text(fs.steps[3]).trim_prefix("x = "), dist, final]},
 		"complete-square": {"result": res, "steps": [equate_step(s),
 			"Complete the square: %s(x%s)² = %s, so x = %s ± %s" % [Fmt.lead(s.a), Fmt.plus(h.neg()) if not h.is_zero() else "", N(s.a.mul(half.sq())), N(h), N(half)],
 			dist, final]},
