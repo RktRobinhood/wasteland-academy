@@ -37,7 +37,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	out.asked = ExpLogPairViews.M(out.asked)
 	out.lines = out.lines.map(func(l): return ExpLogPairViews.M(l))
 	for a in out.methods:
-		out.methods[a].steps = out.methods[a].steps.map(func(l): return ExpLogPairViews.M(l))
+		out.methods[a].steps = out.methods[a].steps.map(func(st): return Step.map_text(st, ExpLogPairViews.M))
 	return out
 
 
