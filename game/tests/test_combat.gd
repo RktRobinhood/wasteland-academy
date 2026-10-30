@@ -289,7 +289,7 @@ func test_lifelines() -> void:
 	var r := _run()
 	r.start()
 	var steps: Array = r.question.solutions[0].steps
-	check_eq(r.use_hint(), steps[0], "Hint shows the first step")
+	check_eq(r.use_hint(), Step.text(steps[0]), "Hint shows the first step")
 	check_eq(r.use_hint(), "", "once")
 	check(r.use_freeze() == Tuning.FREEZE_SECONDS)
 	check_eq(r.use_freeze(), 0.0, "once")

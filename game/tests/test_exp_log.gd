@@ -190,7 +190,7 @@ func test_exp_log_pair_paper_2_needs_a_calculator() -> void:
 			var two: Q = Answer.parse_number(Fmt.sf(v, 2).replace("−", "-")).q
 			var three: Q = Answer.parse_number(Fmt.sf(v).replace("−", "-")).q
 			check(two.eq(three) or f.choices.any(func(o): return o.get("trap", false)), "%s: no rounding trap" % c.key)
-			check(f.solutions.all(func(sol): return sol.steps.any(func(st): return st.contains("GDC"))), c.key + ": no GDC step")
+			check(f.solutions.all(func(sol): return sol.steps.any(func(st): return Step.text(st).contains("GDC"))), c.key + ": no GDC step")
 			# Typed to 3 s.f., right; typed to 2 s.f. (where that rounds), a glancing hit.
 			var typed := QuestionEngine.make({"type": t.id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed,
 				"paper": 2})

@@ -16,6 +16,10 @@ extends SceneTree
 ## Then every mini-boss and boss chain (Dungeon.chain_windows) with --per-chain seeds:
 ## each part is exported as a question too, with "chain" (the chain's id) and "part",
 ## so the checker solves every boss part and checks the parts carry on from each other.
+##
+## A worked solution's steps are exported as text (Step.text), so the checker reads
+## them the same whether a step carries a move tag or not; each solution's "moves"
+## lists the step's move id, or null, per step (FAL-426).
 
 
 func _initialize() -> void:
@@ -57,7 +61,7 @@ func _run() -> void:
 				if q.has("error"):
 					errors.append({"view": view, "error": q.error})
 					continue
-				questions.append(plain(q))
+				questions.append(exported(q))
 	var chains := 0
 	for id in QuestionEngine.built_types():
 		if not only.is_empty() and not id in only:
@@ -71,7 +75,7 @@ func _run() -> void:
 					continue
 				chains += 1
 				for q in c.parts:
-					var e: Dictionary = plain(q)
+					var e: Dictionary = exported(q)
 					e.chain = "%s seed %d" % [name, seed]
 					questions.append(e)
 	var out := {"types": types, "questions": questions, "errors": errors, "chains": chains,
@@ -87,6 +91,16 @@ func _run() -> void:
 	for e in errors.slice(0, 20):
 		printerr("  %s: %s" % [e.view, e.error])
 	quit(1 if not errors.is_empty() or questions.is_empty() else 0)
+
+
+## A question as JSON: plain values, and each worked solution's steps as text with
+## their moves beside them.
+static func exported(q: Dictionary) -> Dictionary:
+	var e: Dictionary = plain(q)
+	for sol in e.solutions:
+		sol.moves = sol.steps.map(func(st): return Step.move(st) if Step.move(st) != "" else null)
+		sol.steps = Step.texts(sol.steps)
+	return e
 
 
 ## Q -> "3/2", recursively.
