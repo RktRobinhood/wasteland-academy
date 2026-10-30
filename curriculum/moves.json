@@ -608,7 +608,7 @@
       "id": "exact-value",
       "name": "Exact value",
       "when": "Using a trig value known exactly, such as sin 30° = 1/2 or cos 120° = −1/2.",
-      "say": "We know this value by heart, so the calculator can rest.",
+      "say": "This is an exact value, so the calculator can rest.",
       "examples": [
         "sin 30° = 1/2, so the acute angle is 30°.",
         "c² = a² + b² − 2ab cos C, and cos 120° = −1/2"
