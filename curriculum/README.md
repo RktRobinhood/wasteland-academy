@@ -16,6 +16,8 @@ The single source of truth for what Wasteland Academy covers: the four IB Mathem
 | `PEDAGOGY_GAPS.md` | Generated from `question-types.json`. What the exam leaves out, region by region: unknowns, representations, methods, concept probes, misconceptions and extension types. |
 | `lessons.json` | The Relic lesson map: short playable lessons designed down from the exam question types, each teaching one idea (GitHub issue #13). Functions in full; the other islands as big ideas only. |
 | `LESSONS.md` | Generated from `lessons.json`. Each region's lesson ladder, the build order, and which lessons sit behind each exam type. |
+| `moves.json` | The explainer move list: solving actions a teacher names the same way in any topic, each with the line Spark says for it. |
+| `moves-map.json` | The move for every worked step of every built method, keyed by method and step count. |
 
 Regenerate the reports after changing the map or any content pack:
 
@@ -27,6 +29,8 @@ node tools/courses.mjs --write    # rewrite game/data/courses.json and COURSES.m
 node tools/question-types.mjs --bank ../Math-AA---Question-Bank --write   # check the type catalogue, rewrite QUESTION_TYPES.md
 node tools/pedagogy.mjs --write   # check situations, views and extension types, rewrite PEDAGOGY_GAPS.md
 node tools/lessons.mjs --write    # check the lesson map, refresh its priorities, rewrite LESSONS.md
+node tools/moves.mjs --check       # check the move list and the step map
+node tools/moves.mjs --coverage /abs/questions.json   # also check the map against an export, print coverage
 ```
 
 ## How the pieces fit
@@ -103,3 +107,34 @@ A Relic lesson is a 3 to 6 minute playable episode: a character shows a broken m
 - **`priority`** is computed: `parts` is the exam parts the lesson supports, weighted by the share of each type's exam unknowns it lists, and `rank` is the build order. `--write` refreshes both.
 - **`gaps`** lists any Functions exam type with no lesson, with the reason. The check fails if an exam type has neither.
 
+## Explainer moves (moves.json, moves-map.json)
+
+An explainer replays a worked solution on a chalkboard, one chapter per step (FAL-375). Recording a voice line for every step of every question is out of reach, so each step gets a general **move**. Spark says the move's line once and never says a number. The board writes this question's working, and the captions show Spark's words.
+
+**`moves.json`** lists the moves. Each move has:
+
+- **`id`**: lower-case words joined by hyphens, such as `complete-square`. Move IDs are permanent once they are on `main`, because voice files and step tags point at them. To drop one, mark it `"retired": true`.
+- **`name`**: a short title for authors.
+- **`when`**: one line on when the move applies.
+- **`say`**: the line Spark says. It is one sentence of 4 to 12 words, and it has to fit every step the move covers. It has no numbers, not even as words ("one", "half"), and no symbol the board shows. The rules in `writing/voice-sheets.md` apply too: no "just", "easy" or "guess". These lines are drafts, and the Writer turns them into Spark's voice. Voice files go in `game/assets/audio/voice/spark/moves/<move-id>_1.ogg` and `_2.ogg`.
+- **`examples`**: 2 or 3 steps the move covers, as the board would show them.
+
+**`moves-map.json`** gives the move for each step of every built method. The key is `type/unknown/angle`, and under it is one list per step count, with one move ID (or `null` when nothing fits) per step index:
+
+```json
+"fn-quadratic-features/vertex-from-general/complete-square": {
+  "5": ["read-givens", "complete-square", "complete-square", "simplify", "state-answer"],
+  "7": ["read-givens", "complete-square", "complete-square", "complete-square", "expand", "simplify", "state-answer"]
+}
+```
+
+A method's step count can change with the representation (a graph adds a "read it off" step) or with the numbers (when a = 1 there is nothing to take out before completing the square), so the list is looked up by the method and by how many steps that question's solution has. Two refinements cover the rest:
+
+- **`"<rep>/<n>"`**, such as `"words/4"`, is a list for one representation whose steps line up differently from the others at the same count. It wins over the plain `"<n>"` list.
+- **`branches`** (top level) handle a step whose numbers send it down another route with the same step count. One example is a cosine-rule angle that comes out as an exact value instead of through cos⁻¹. Each branch gives the method, the step list (`steps`), the step `index`, a pattern (`match`) found in that branch's step text, and the `move` for it.
+
+`null` means no move fits that step. Spark says nothing over it, and the board still writes it. The `angle` in a key is a method from `question-types.json`, or `any` where the engine has a single route for an unknown.
+
+In the engine a step can be a String, as now, or `{"move": "<move id>", "board": "<this question's text>"}`. Coder tags the steps from this map. A branch matches a different line of engine code, so that line gets the branch's move.
+
+The map is built from the export in `game/tools/export_questions.gd`. When a method changes or a new type is built, export again and run `node tools/moves.mjs --coverage <questions.json>`. It fails if any exported solution's step count is not in the map, and it prints the share of steps that have a move, type by type.
