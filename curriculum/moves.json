@@ -6,7 +6,7 @@
       "id": "read-givens",
       "name": "Read the givens",
       "when": "Pulling the values, points, roots or coefficients out of the question, its table or its graph before any working.",
-      "say": "Start by reading off what the question gives us.",
+      "say": "Let's see what the question has already given away.",
       "examples": [
         "The roots are −4 and −2.",
         "a = 1, b = k, c = 5 − 2k",
@@ -17,7 +17,7 @@
       "id": "label-diagram",
       "name": "Label the diagram",
       "when": "Naming sides, angles or points so the letters in a formula match the figure.",
-      "say": "Label the diagram so the formula's letters match.",
+      "say": "Label the diagram first, so we know what's what.",
       "examples": [
         "Label each side by the angle opposite it: c = AB, a = BC, b = AC.",
         "Edges: x and −7 down the side, x and +6 along the top."
@@ -27,7 +27,7 @@
       "id": "draw-construction",
       "name": "Draw a helpful line",
       "when": "Adding a perpendicular, an altitude or a reference line (y = k, y = x) that the method then works from.",
-      "say": "Draw in an extra line we can work with.",
+      "say": "Add a line the question didn't draw for us.",
       "examples": [
         "Drop a perpendicular from B to the line AC, meeting it at F.",
         "Draw y = 3 across the graph and mark where it meets the curve."
@@ -37,7 +37,7 @@
       "id": "introduce-letter",
       "name": "Give it a letter",
       "when": "Naming an unknown, or a repeated expression, with a new letter: let u = 3^x, let the stake be $c, let r be the other root.",
-      "say": "Give the unknown piece a letter of its own.",
+      "say": "This gets its own letter from here on.",
       "examples": [
         "Let u = 2^x; then 2^(2x) = u².",
         "Let the stake be $c. The player's gain G is the prize minus the stake."
@@ -47,7 +47,7 @@
       "id": "model-from-context",
       "name": "Turn the words into maths",
       "when": "Writing an expression, equation or probability from a situation described in words.",
-      "say": "Turn the situation into an expression we can use.",
+      "say": "Strip the story down to the maths underneath.",
       "examples": [
         "Two widths and two lengths use 56 m, so the length is 28 − x",
         "Area: x(x + 8) = 20, so x² + 8x − 20 = 0"
@@ -57,7 +57,7 @@
       "id": "recall-formula",
       "name": "Write down the formula",
       "when": "Stating a general formula, identity pattern or standard form before any of this question's numbers go in.",
-      "say": "Write down the formula we're going to use.",
+      "say": "Write the formula down clean, before any numbers touch it.",
       "examples": [
         "uₙ = u₁ + (n − 1)d",
         "c² = a² + b² − 2ab cos C",
@@ -68,7 +68,7 @@
       "id": "recall-fact",
       "name": "Recall the key fact",
       "when": "Stating the property, definition or parent-graph feature a step relies on: the y-intercept is at x = 0, a log needs a positive input, y = ln x has asymptote x = 0.",
-      "say": "Remember the fact this step stands on.",
+      "say": "Here's the fact this step leans on.",
       "examples": [
         "The y-intercept is where x = 0.",
         "y = 3^x has asymptote y = 0.",
@@ -79,7 +79,7 @@
       "id": "choose-rule",
       "name": "Pick the rule",
       "when": "Deciding which formula, rule or identity fits what is known, and saying why.",
-      "say": "Pick the rule that matches what we know.",
+      "say": "Look at what we've got, and pick the rule that fits.",
       "examples": [
         "AB is opposite angle ACB, the angle between the two given sides, so use the cosine rule.",
         "Angle ABC is the angle between BC and AB, so use Area = ½ac sin B."
@@ -89,7 +89,7 @@
       "id": "apply-condition",
       "name": "Turn the condition into an equation",
       "when": "Writing a stated condition as an equation or inequality: equal roots, gradient zero, probabilities add to 1, a fair game, a positive log input.",
-      "say": "Turn the condition into something we can solve.",
+      "say": "Write the condition as maths we can solve.",
       "examples": [
         "Equal roots (a tangent) need Δ = 0: 4k − 4 = 0",
         "The probabilities add to 1: 5k + 5k + 5k + 6k = 1",
@@ -100,7 +100,7 @@
       "id": "use-identity",
       "name": "Use an identity",
       "when": "Replacing an expression with one that is always equal to it: a double-angle formula, f(f⁻¹(x)) = x, b^(log_b x) = x.",
-      "say": "Swap in an identity that fits this expression.",
+      "say": "Swap in an identity: same value, friendlier shape.",
       "examples": [
         "cos 2x = 2cos²x − 1 turns it into 2cos²x − 3 cos x + 1 = 0",
         "So f(g(x)) = (2^(log₂ x))³, and 2^(log₂ x) = x."
@@ -110,7 +110,7 @@
       "id": "substitute",
       "name": "Substitute",
       "when": "Putting known values into a formula, a form with gaps, or an expression.",
-      "say": "Put the values we know into the formula.",
+      "say": "Drop the values we know into place.",
       "examples": [
         "Substitute (0, −10): −10 = a(0 + 4)² + 6",
         "u₂₃ = 22 + 22 × 10 = 242",
@@ -121,7 +121,7 @@
       "id": "substitute-back",
       "name": "Substitute back",
       "when": "Using a value just found to get its partner: y from x, the second coefficient from the first, the vertex height from its x.",
-      "say": "Put that back in to find the matching value.",
+      "say": "Now put that back in to find its partner.",
       "examples": [
         "On the line: y = −2 × (−5) + 5 = 15",
         "f(−1) = 2 × 1 − 4 + 6 = 4",
@@ -132,7 +132,7 @@
       "id": "evaluate",
       "name": "Work it out",
       "when": "Arithmetic, or a calculator evaluation, that turns an expression into a number.",
-      "say": "Work out the value.",
+      "say": "Crunch it down to a number.",
       "examples": [
         "= 5000 × 3.79750 = 18987.5",
         "√Δ = 12",
@@ -143,7 +143,7 @@
       "id": "test-point",
       "name": "Test a value",
       "when": "Trying a value to decide a sign or a region, or to see whether two expressions agree.",
-      "say": "Try a value and see what happens.",
+      "say": "Try a test value and see how it reacts.",
       "examples": [
         "Test x = 0, between them: f(0) = −4, which is negative.",
         "Try x = 2: g(2) = 1, so f(g(2)) = 8."
@@ -153,7 +153,7 @@
       "id": "check",
       "name": "Check",
       "when": "Confirming an answer by substituting it back, expanding, graphing or checking it is in range.",
-      "say": "Check the answer really works.",
+      "say": "Before we trust it, check it.",
       "examples": [
         "Check: x² − 16 = (x − 4)(x + 4)",
         "Check: 0.077 is from 0 to 1, so the table is a valid distribution."
@@ -163,7 +163,7 @@
       "id": "find-midpoint",
       "name": "Find the midpoint",
       "when": "Averaging two values or two points to find the middle.",
-      "say": "Average the pair to find the middle.",
+      "say": "Meet in the middle by averaging the pair.",
       "examples": [
         "x = (1 + 3)/2 = 4/2 = 2",
         "M = ((2 + 6)/2, (−1 + 5)/2) = (4, 2)"
@@ -173,7 +173,7 @@
       "id": "rearrange",
       "name": "Rearrange",
       "when": "Moving terms across so the equation has a useful shape, such as everything on one side.",
-      "say": "Move the terms across to get a useful shape.",
+      "say": "Move terms across until it's a shape we can use.",
       "examples": [
         "Take −2x + 5 from both sides.",
         "Move 3 across first: x² + 2x − 9 ≤ 0"
@@ -183,7 +183,7 @@
       "id": "isolate",
       "name": "Isolate the unknown",
       "when": "Undoing operations one at a time until the unknown stands alone.",
-      "say": "Undo each operation until the unknown stands alone.",
+      "say": "Peel off the operations until the unknown stands alone.",
       "examples": [
         "−16 = 16a, so a = −1",
         "Divide both sides by 5: x > 4",
@@ -194,7 +194,7 @@
       "id": "solve-equation",
       "name": "Solve the equation",
       "when": "Solving an equation by whichever route its numbers suit (isolating, a square root, factorising, the formula or a GDC), where the same step takes different routes in different questions.",
-      "say": "Solve the equation for the unknown.",
+      "say": "Solve it, by whatever route these numbers like best.",
       "examples": [
         "k² − 36 = 0 gives k² = 36, so k = ±6",
         "k² + 4k − 44 = 0 has no whole-number roots; with a GDC (or the formula), k = −8.93 or k = 4.93"
@@ -204,7 +204,7 @@
       "id": "simplify",
       "name": "Simplify",
       "when": "Collecting like terms, dividing through by a common factor, or tidying an expression.",
-      "say": "Collect like terms and tidy it up.",
+      "say": "Simplify it, so there's less to carry.",
       "examples": [
         "f(x) = 2(x + 1)² − 2 + 6",
         "Divide by 6: x² + 5x + 4 = 0",
@@ -215,7 +215,7 @@
       "id": "expand",
       "name": "Expand",
       "when": "Multiplying out brackets, including a grid and squared brackets.",
-      "say": "Multiply out the brackets.",
+      "say": "Crack the brackets open and multiply everything out.",
       "examples": [
         "(x − 4)² = x² − 8x + 16",
         "Cells: x × x = x²,  x × 6 = 6x,  (−7) × x = −7x,  (−7) × 6 = −42"
@@ -225,7 +225,7 @@
       "id": "factorise",
       "name": "Factorise",
       "when": "Writing an expression as a product, including taking out a common factor or grouping.",
-      "say": "Factorise it, starting with any common factor.",
+      "say": "Factorise, and take out any common factor first.",
       "examples": [
         "Factorise: (x + 6)(x + 3) = 0",
         "Take out x: x(3x − 12) = 0",
@@ -236,7 +236,7 @@
       "id": "find-factor-pair",
       "name": "Find the factor pair",
       "when": "Looking for two numbers with a given product and sum.",
-      "say": "Find the pair with the right product and sum.",
+      "say": "Which pair has the right product and the right sum?",
       "examples": [
         "Find two numbers that multiply to 21 and add to −10: −3 and −7.",
         "The pair that adds to −17 is −11 and −6"
@@ -246,7 +246,7 @@
       "id": "zero-product",
       "name": "Zero product rule",
       "when": "A product equals zero, so each factor gives a solution.",
-      "say": "A product vanishes only when a factor does.",
+      "say": "A product only vanishes if a factor does.",
       "examples": [
         "A product is 0 when a factor is 0: x = −6 or x = −3",
         "x + 6 = 0 gives x = −6"
@@ -266,7 +266,7 @@
       "id": "complete-square",
       "name": "Complete the square",
       "when": "Rewriting a quadratic as a(x − h)² + k, to find the vertex or to solve.",
-      "say": "Rewrite it by completing the square.",
+      "say": "Complete the square, a step at a time.",
       "examples": [
         "Half of 6 is 3, so x² + 6x = (x + 3)² − 9",
         "Complete the square: −3(x − 2)² + 6 = 0"
@@ -276,7 +276,7 @@
       "id": "square-root-both-sides",
       "name": "Square root both sides",
       "when": "Taking the square root of both sides, with ± when both roots count.",
-      "say": "Take the square root of both sides.",
+      "say": "Square root both sides, and ask if the negative root counts.",
       "examples": [
         "x − 2 = ±√2",
         "c = √49 = 7"
@@ -286,7 +286,7 @@
       "id": "clear-fractions",
       "name": "Clear the fractions",
       "when": "Multiplying every term by a denominator so no fraction is left.",
-      "say": "Multiply through to clear the fractions.",
+      "say": "Multiply through, and watch the fractions clear out.",
       "examples": [
         "Multiply by x (x ≠ 0): x² − 6 = 5x",
         "Multiply by 2: 1826 = n(n + 61)"
@@ -296,7 +296,7 @@
       "id": "compare-coefficients",
       "name": "Compare coefficients",
       "when": "Matching the coefficients of the same powers on the two sides of an identity.",
-      "say": "Match the coefficients on both sides.",
+      "say": "Line up the coefficients, power by power, on both sides.",
       "examples": [
         "Compare with ½x² + 4x + 12: the x² terms give a = 1/2.",
         "≡ means the coefficients match: 2p = −10, so p = −5"
@@ -306,7 +306,7 @@
       "id": "rewrite-form",
       "name": "Rewrite in a better form",
       "when": "Rewriting an expression in an equal form that shows what is needed: index form, a common base, f(ax), a split numerator.",
-      "say": "Rewrite it in a form that shows what we need.",
+      "say": "Rewrite it so the part we need is out in the open.",
       "examples": [
         "1/x^n = x^(−n), so f(x) = 4x⁻³ + (1/5)x⁻²",
         "Write both as powers of 2: (2²)^y = 2⁵",
@@ -317,7 +317,7 @@
       "id": "compute-discriminant",
       "name": "Work out the discriminant",
       "when": "Calculating b² − 4ac, often to count the roots.",
-      "say": "Work out the discriminant.",
+      "say": "The discriminant counts the real roots, so work it out.",
       "examples": [
         "Δ = b² − 4ac = 9² − 4 × 1 × 18 = 9",
         "a = 1, b = k, c = 2, so Δ = b² − 4ac = k² − 8"
@@ -327,7 +327,7 @@
       "id": "quadratic-formula",
       "name": "Quadratic formula",
       "when": "Solving ax² + bx + c = 0 with x = (−b ± √Δ)/(2a).",
-      "say": "Use the quadratic formula.",
+      "say": "Out comes the quadratic formula, which works on any quadratic.",
       "examples": [
         "x = (−b ± √Δ)/(2a) = (−9 ± 3)/2",
         "x² − 3x − 21 = 0, so by the formula x = (3 ± √93)/2"
@@ -337,7 +337,7 @@
       "id": "simplify-surd",
       "name": "Simplify the surd",
       "when": "Pulling square factors out of a root, or combining roots with √a × √b = √(ab).",
-      "say": "Use the surd rules and pull out square factors.",
+      "say": "Use the surd rules and drag square factors outside the root.",
       "examples": [
         "√72 = √(36 × 2) = 6√2",
         "√8 × √45 = √(8 × 45) = √360"
@@ -347,7 +347,7 @@
       "id": "equate",
       "name": "Set them equal",
       "when": "Two expressions describe the same quantity: where two graphs meet, or where two gradients match.",
-      "say": "Set the expressions equal to each other.",
+      "say": "They describe the same thing, so set them equal.",
       "examples": [
         "Where they meet, the y-values are equal: −x² − 9x − 5 = −2x + 5",
         "800(1.13)^t = 2000(1.03)^t"
@@ -367,7 +367,7 @@
       "id": "sign-table",
       "name": "Sign table",
       "when": "Working out the sign of an expression on each interval between its zeros.",
-      "say": "Work out the sign on each interval.",
+      "say": "Check the sign on each stretch between the roots.",
       "examples": [
         "Signs: x < −7 gives −, −7 < x < −3 gives +, x > −3 gives −.",
         "Δ = (k − 2)(k − 10). Signs: k < 2 gives (−)(−) = +, 2 < k < 10 gives (+)(−) = −."
@@ -377,7 +377,7 @@
       "id": "pick-region",
       "name": "Pick the region",
       "when": "Choosing which intervals satisfy the inequality, and whether the ends are included.",
-      "say": "Pick the region the inequality asks for.",
+      "say": "Pick the region the inequality wants, then decide about the ends.",
       "examples": [
         "≤ 0 is between the roots, with the roots included.",
         "Δ < 0 picks the − rows."
@@ -387,7 +387,7 @@
       "id": "reason-from-shape",
       "name": "Use the shape",
       "when": "Sketching or picturing a graph and using its shape: which way a parabola opens, growth or decay, where a vertex sits.",
-      "say": "Picture the graph and let its shape decide.",
+      "say": "Picture the graph, and let its shape do the talking.",
       "examples": [
         "The parabola opens upwards, so it is below the x-axis between the roots.",
         "A base greater than 1 makes y grow as x grows."
@@ -397,7 +397,7 @@
       "id": "end-behaviour",
       "name": "Long-run behaviour",
       "when": "Asking what happens as the input grows large or nears a boundary, to find an asymptote or a long-run value.",
-      "say": "Look at what happens far along the graph.",
+      "say": "Follow the graph out towards the edge and see where it settles.",
       "examples": [
         "As t grows, e^(−0.27t) gets closer and closer to 0.",
         "As x → −∞, 3^x → 0, so the A·b^(x − h) part → 0."
@@ -407,7 +407,7 @@
       "id": "use-symmetry",
       "name": "Use the symmetry",
       "when": "Using a mirror line or centre: a parabola's axis, the normal curve's mean, nCr = nC(n − r).",
-      "say": "Use the symmetry: matching points sit evenly either side.",
+      "say": "It's symmetric, and matching points sit the same distance either side.",
       "examples": [
         "The roots are x = 1 and x = 3. The axis is halfway between them.",
         "64 and 116 are both 26 from the mean 90, so P(X < 64) = P(X > 116)"
@@ -417,7 +417,7 @@
       "id": "take-logs",
       "name": "Take logs",
       "when": "Taking ln or log of both sides to bring an unknown power down.",
-      "say": "Take logs of both sides.",
+      "say": "Take logs of both sides and bring the power down.",
       "examples": [
         "Take ln of both sides: 4x = ln 5",
         "Take ln of both sides: ln 400 + (t − 5) × ln 1.05 = ln 1130"
@@ -427,7 +427,7 @@
       "id": "convert-log-exp",
       "name": "Switch log and power form",
       "when": "Rewriting log_b A = m as b^m = A, or the other way round.",
-      "say": "Switch between log form and power form.",
+      "say": "Switch between log form and power form, same fact either way.",
       "examples": [
         "In exponential form: x − 4 = 10² = 100",
         "In log form: 3k = ln ½ = −ln 2"
@@ -437,7 +437,7 @@
       "id": "use-log-law",
       "name": "Use a log law",
       "when": "Combining or splitting logs with the product, quotient or power law.",
-      "say": "Use a log law to combine or split the logs.",
+      "say": "Use a log law to glue the logs together or split them.",
       "examples": [
         "ln x + ln(x − 3) = ln(x(x − 3))",
         "log 32 / log 4 = (5 log 2)/(2 log 2)"
@@ -447,7 +447,7 @@
       "id": "change-of-base",
       "name": "Change of base",
       "when": "Rewriting a log in another base so it can be evaluated or simplified.",
-      "say": "Change to a base we can work with.",
+      "say": "Change the base to something we can work with.",
       "examples": [
         "log₄ 32 = ln 32 / ln 4",
         "log₄ 13 = ln 13 / ln 4 = 1.85022"
@@ -457,7 +457,7 @@
       "id": "apply-inverse",
       "name": "Apply the inverse",
       "when": "Undoing a function on both sides with its inverse: raise to a base, take inverse sine or cosine, square a root away.",
-      "say": "Undo the function with its inverse.",
+      "say": "Undo the function by applying its inverse to both sides.",
       "examples": [
         "Raise 10 to each side: x − 4 = 100",
         "C = cos⁻¹(43/52) = 34.2°",
@@ -468,7 +468,7 @@
       "id": "ask-what-power",
       "name": "Ask what power",
       "when": "Finding a log by asking which power of the base gives the number.",
-      "say": "Ask what power of the base gives this number.",
+      "say": "What power of the base gives this number?",
       "examples": [
         "Ask: 4 to what power gives 32?",
         "No power of 3 is −1: 3^y is positive for every y."
@@ -478,7 +478,7 @@
       "id": "swap-x-and-y",
       "name": "Swap x and y",
       "when": "Finding an inverse by swapping input and output, then solving.",
-      "say": "Swap the roles of input and output.",
+      "say": "Inputs and outputs swap places for the inverse.",
       "examples": [
         "Swap x and y: x = 4^(y + 1) + 1",
         "The inverse swaps x and y: asymptote x = −2, through (2, 0)."
@@ -488,7 +488,7 @@
       "id": "reverse-operations",
       "name": "Reverse the operations",
       "when": "Listing what a function does in order, then undoing it backwards.",
-      "say": "Track the operations, then undo them in reverse order.",
+      "say": "List what the function does, then undo it from the end.",
       "examples": [
         "g subtracts 5, takes log₂, then adds 4.",
         "Undo them in reverse order: subtract 4, raise 2 to that power, then add 5."
@@ -498,7 +498,7 @@
       "id": "compose",
       "name": "Compose",
       "when": "Putting one function's output into another: f(g(x)).",
-      "say": "Feed the output of the inner function into the outer.",
+      "say": "Feed the inner function's output straight into the outer.",
       "examples": [
         "Put g(x) in place of x in f: f(g(x)) = 8^(log₂ x).",
         "g(f(x)): put f(x) into g, giving 2^x + 4."
@@ -508,7 +508,7 @@
       "id": "transform-point",
       "name": "Move the key points",
       "when": "Sending points and asymptotes through a translation, stretch or reflection.",
-      "say": "Move the key points through the transformation.",
+      "say": "Send the key points and asymptotes through the transformation.",
       "examples": [
         "Reflecting in y = x swaps the coordinates: (−1, 2) goes to (2, −1).",
         "The asymptote x = 0 moves to x = −5, and (1, 0) to (−4, −4)."
@@ -518,7 +518,7 @@
       "id": "describe-transformation",
       "name": "Name the transformation",
       "when": "Saying which transformation turns one graph into another, with its size and direction.",
-      "say": "Name the transformation and how big it is.",
+      "say": "Name the transformation, with its size and direction.",
       "examples": [
         "f(2x) squeezes the graph towards the y-axis: a horizontal stretch, scale factor 1/2.",
         "x − n inside moves y = log₃ x by n to the right, asymptote and all."
@@ -528,7 +528,7 @@
       "id": "compare-neighbours",
       "name": "Compare neighbouring values",
       "when": "Finding the common difference or ratio by comparing each value with the one before.",
-      "say": "Compare each value with the value before it.",
+      "say": "Compare each value with the value before, and look for the pattern.",
       "examples": [
         "Differences: 400, 600, 900, 1350.",
         "Each step multiplies by 3240/3600 = 0.9."
@@ -538,7 +538,7 @@
       "id": "count-steps",
       "name": "Count the steps",
       "when": "Counting how many steps of d or r separate two terms.",
-      "say": "Count the steps from term to term.",
+      "say": "Count the steps between the terms, not the terms themselves.",
       "examples": [
         "From u₁₀ to u₁₈ is 18 − 10 = 8 steps of d.",
         "14 steps after the first term is term 14 + 1, so n = 15."
@@ -548,7 +548,7 @@
       "id": "repeat-multiplier",
       "name": "Repeat the multiplier",
       "when": "Applying the same growth or decay factor once per step, or step by step until a target is passed.",
-      "say": "Apply the same multiplier, step after step.",
+      "say": "Same multiplier, every single step.",
       "examples": [
         "Each hour, N is multiplied by 1.09.",
         "After one year V = V₀ × 0.85, after two V₀ × 0.85², and so on."
@@ -558,7 +558,7 @@
       "id": "percent-multiplier",
       "name": "Percentage as a multiplier",
       "when": "Turning a percentage change into a multiplier, or a multiplier back into a percentage change.",
-      "say": "Switch between the percentage change and its multiplier.",
+      "say": "Turn the percentage change into a multiplier, or back again.",
       "examples": [
         "Falling by 27% means multiplying by 1 − 0.27 = 0.73 each day.",
         "1.11 = 111% of the amount."
@@ -568,7 +568,7 @@
       "id": "gauss-pair",
       "name": "Pair the terms",
       "when": "Writing an arithmetic sum forwards and backwards so every column has the same total.",
-      "say": "Write the sum forwards and backwards, then add.",
+      "say": "Write the sum forwards, then backwards underneath, and add the columns.",
       "examples": [
         "Write S₂₇ forwards and backwards, and add the two lines term by term.",
         "Each of the 27 columns adds to u₁ + u₂₇ = 33 + 85 = 118."
@@ -578,7 +578,7 @@
       "id": "angle-sum",
       "name": "Angle sum",
       "when": "Using the angles of a triangle (180°) or on a line to find a missing angle.",
-      "say": "Use the angle sum of a triangle.",
+      "say": "The angles add up to a set total, so find the gap.",
       "examples": [
         "C = 180° − 47° − 37° = 96°",
         "Angles on a straight line: x = 180° − 112° = 68°"
@@ -588,7 +588,7 @@
       "id": "use-right-triangle",
       "name": "Right-angled triangle",
       "when": "Finding a side or height with sin, cos or tan in a right-angled triangle.",
-      "say": "Use trigonometry in the right-angled triangle.",
+      "say": "Work in the right-angled triangle with sine, cosine or tangent.",
       "examples": [
         "The perpendicular height from C is h = 15 sin 77° = 14.62 cm.",
         "In the right triangle CFB: BF = 5 sin 120° = 5√3/2 cm."
@@ -598,7 +598,7 @@
       "id": "pythagoras",
       "name": "Pythagoras",
       "when": "Finding a length from two perpendicular parts, including the distance formula.",
-      "say": "Use Pythagoras to find the length.",
+      "say": "Perpendicular parts mean Pythagoras can find the length.",
       "examples": [
         "In the right triangle BFA: AB² = BF² + FA² = 75/4 + 121/4 = 49",
         "AB = √(6² + (−18)²) = √360 = 6√10"
@@ -608,7 +608,7 @@
       "id": "exact-value",
       "name": "Exact value",
       "when": "Using a trig value known exactly, such as sin 30° = 1/2 or cos 120° = −1/2.",
-      "say": "Use the exact value we know by heart.",
+      "say": "This is an exact value, so the calculator can rest.",
       "examples": [
         "sin 30° = 1/2, so the acute angle is 30°.",
         "c² = a² + b² − 2ab cos C, and cos 120° = −1/2"
@@ -618,7 +618,7 @@
       "id": "find-all-angles",
       "name": "Find every angle",
       "when": "Listing every angle in the range with a given sine, cosine or tangent, by symmetry or the unit circle.",
-      "say": "Find every angle in the range with this value.",
+      "say": "The calculator stops early, so find every angle in the range.",
       "examples": [
         "Two angles from 0° to 180° have this sine: 30° and 180° − 30° = 150°.",
         "cos x = 1/2 gives x = π/3, 5π/3"
@@ -628,7 +628,7 @@
       "id": "find-gradient",
       "name": "Find the gradient",
       "when": "Rise over run between two points.",
-      "say": "Find the gradient: rise over run.",
+      "say": "Find the gradient: rise over run between the points.",
       "examples": [
         "Gradient m = (2 − 11)/(−2 − (−5)) = −3",
         "From (0, 1) to (4, 9) the line rises 8 over a run of 4, so m = 2."
@@ -638,7 +638,7 @@
       "id": "point-gradient-line",
       "name": "Line from a point and gradient",
       "when": "Writing a line's equation from one point on it and its gradient.",
-      "say": "Build the line from a point and its gradient.",
+      "say": "A point and a gradient pin the line down.",
       "examples": [
         "y − 19 = 24(x − 1)",
         "Put the point into y = 24x + c: 19 = 24 × 1 + c"
@@ -648,7 +648,7 @@
       "id": "perpendicular-gradient",
       "name": "Perpendicular gradient",
       "when": "Turning a gradient m into −1/m for a perpendicular line or a normal.",
-      "say": "Flip the gradient and change its sign.",
+      "say": "Perpendicular means flip the gradient and change its sign.",
       "examples": [
         "The normal is perpendicular to the tangent, so its gradient is −1/(−6) = 1/6",
         "AB has gradient 3/4, so a line perpendicular to it has gradient −4/3."
@@ -658,7 +658,7 @@
       "id": "differentiate",
       "name": "Differentiate",
       "when": "Finding a derivative, first or second, term by term.",
-      "say": "Differentiate term by term.",
+      "say": "Differentiate, and take it term by term.",
       "examples": [
         "f′(x) = 6x² − 18x + 12",
         "−2x³ → −6x²,  −6x² → −12x,  18x → 18,  −5 → 0",
@@ -669,7 +669,7 @@
       "id": "classify-turning-point",
       "name": "Maximum or minimum",
       "when": "Deciding the nature of a stationary point from the sign of f″ or the sign change of f′.",
-      "say": "Use the sign to decide maximum or minimum.",
+      "say": "Let the sign tell us: maximum or minimum?",
       "examples": [
         "f″(1) = 12(1) − 18 = −6 < 0, so x = 1 is a local maximum",
         "At x = 2 the gradient goes − to +: a local minimum"
@@ -679,7 +679,7 @@
       "id": "integrate",
       "name": "Integrate",
       "when": "Finding an antiderivative term by term, with + C.",
-      "say": "Integrate each term, and remember the constant.",
+      "say": "Integrate term by term, and bring the constant along.",
       "examples": [
         "∫ (6x² − 4) dx = 2x³ − 4x + C",
         "∫ 3e^(2x) dx = (3/2)e^(2x) + C"
@@ -689,7 +689,7 @@
       "id": "definite-integral",
       "name": "Definite integral",
       "when": "Evaluating an integral between limits, including an area as top minus bottom.",
-      "say": "Integrate, then evaluate between the limits.",
+      "say": "Integrate, then evaluate at the top limit and subtract the bottom.",
       "examples": [
         "[x³ − x]₁³ = (27 − 3) − (1 − 1) = 24",
         "Area = ∫ from 0 to 2 of ((x + 2) − x²) dx"
@@ -699,7 +699,7 @@
       "id": "list-outcomes",
       "name": "List the outcomes",
       "when": "Deciding which values an event takes in, or leaves out.",
-      "say": "List the values the event includes.",
+      "say": "Which values does the event take in, and which stay out?",
       "examples": [
         "X > 4 takes in x = 5 and x = 6 (not x = 4: the inequality is strict).",
         "X ≥ 2 leaves out x = 1."
@@ -709,7 +709,7 @@
       "id": "add-probabilities",
       "name": "Add the probabilities",
       "when": "Adding the probabilities of the outcomes in an event.",
-      "say": "Add the probabilities of the outcomes we want.",
+      "say": "Add up the probabilities for these outcomes.",
       "examples": [
         "P(X > 4) = 4/7 + 2/7 = 6/7",
         "Add the probabilities that are given: 0.3 + 0.4 = 0.7"
@@ -719,7 +719,7 @@
       "id": "use-complement",
       "name": "Use the complement",
       "when": "Finding a probability or area as the whole minus what is not wanted.",
-      "say": "Take away what we don't want from the whole.",
+      "say": "Start from the whole and take away what we don't want.",
       "examples": [
         "P(X > 4) = 1 − 1/7 = 6/7",
         "The middle is what the two tails leave: 1 − 2 × 0.35 = 0.3"
@@ -729,7 +729,7 @@
       "id": "expected-value",
       "name": "Expected value",
       "when": "Working out E(X) = Σ x P(X = x).",
-      "say": "Weight each value by its probability, then add.",
+      "say": "Weight each value by its probability, then add them up.",
       "examples": [
         "E(X) = Σ x P(X = x) = 0 × 5/9 + 1 × 2/9 + 2 × 2/9",
         "Expected prize = Σ prize × P = 8.136"
@@ -749,7 +749,7 @@
       "id": "standardise",
       "name": "Standardise",
       "when": "Turning a value into a z-score, z = (x − μ)/σ, or back again.",
-      "say": "Measure the distance from the mean in standard deviations.",
+      "say": "How many standard deviations from the mean is it?",
       "examples": [
         "z = (130 − 100)/15 = 2",
         "x = μ + zσ = 50 + 1.28 × 4 = 55.1"
@@ -759,7 +759,7 @@
       "id": "gdc-graph",
       "name": "GDC graph or table",
       "when": "Graphing or tabulating on the GDC and reading a zero, intersection, maximum, minimum or value.",
-      "say": "Use the calculator's graph or table to find it.",
+      "say": "Calculator out: graph it or table it, then read it off.",
       "examples": [
         "Graph y = 3^(2x) + 3^x − 72 on the GDC: it crosses the x-axis once.",
         "Table y = 1000 × 0.88^x on the GDC and scan for the first value below 510."
@@ -769,7 +769,7 @@
       "id": "gdc-solver",
       "name": "GDC solver",
       "when": "Using the GDC's polynomial, simultaneous-equation, numerical or finance solver.",
-      "say": "Hand the equation to the calculator's solver.",
+      "say": "Hand this to the calculator's solver and let it work.",
       "examples": [
         "The GDC's polynomial solver gives x = 2 or x = −10.",
         "Enter the three equations in the GDC's simultaneous equation solver:"
@@ -779,7 +779,7 @@
       "id": "gdc-stats",
       "name": "GDC statistics",
       "when": "Using GDC lists, 1-Var Stats, regression, normalcdf or invNorm.",
-      "say": "Use the calculator's statistics tools.",
+      "say": "This is a job for the calculator's statistics tools.",
       "examples": [
         "Put the probabilities in list L2: 0.319, 0.053, 0.244, 0.384.",
         "b = invNorm(0.975, 140, 2) = 144"
@@ -789,7 +789,7 @@
       "id": "interpret",
       "name": "Say what it means",
       "when": "Explaining what a number or result says: the nature of the roots, a rate in context, a parameter's meaning.",
-      "say": "Say what the result means here.",
+      "say": "So what is that result telling us?",
       "examples": [
         "Δ > 0, so there are two distinct real roots.",
         "0.89 = 1 − 0.11, so M loses 11% of its value each day."
@@ -799,7 +799,7 @@
       "id": "keep-valid-solutions",
       "name": "Keep the valid solutions",
       "when": "Rejecting answers the domain or context rules out, or choosing between an acute and an obtuse angle.",
-      "say": "Keep only the answers that fit the situation.",
+      "say": "Not every answer survives out here, so keep those that fit.",
       "examples": [
         "x = 2 or x = −10; a length can't be negative, so reject x = −10.",
         "Angle BAC is obtuse, so A = 180° − 54.63° = 125°."
@@ -809,7 +809,7 @@
       "id": "round-for-context",
       "name": "Round for the context",
       "when": "Rounding to the accuracy asked, or up or down to a whole number the context needs.",
-      "say": "Round the way the question and context need.",
+      "say": "Round with care, because the situation decides which way.",
       "examples": [
         "Round up, not to the nearest: N(20) = 6491.45 and N(21) = 7075.68, so t = 21.",
         "c = 8.136, which is $8.14 to the nearest cent."
@@ -819,7 +819,7 @@
       "id": "state-answer",
       "name": "State the answer",
       "when": "The closing line that gives the answer in the form asked.",
-      "say": "Write the answer clearly.",
+      "say": "There's our answer, in the form the question asked for.",
       "examples": [
         "So the vertex is (−3, −1).",
         "So k = 1/21."
