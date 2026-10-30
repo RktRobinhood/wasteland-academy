@@ -130,6 +130,13 @@ static func angle_info(t: Dictionary, unknown: String, method: String) -> Dictio
 	return {}
 
 
+## A method's name on one question: the view's title for it where it names the
+## question's own letters (b.titles: "Substitute, then solve for cos B"), else the
+## catalogue's.
+static func method_name(t: Dictionary, unknown: String, method: String, b: Dictionary, fallback: String) -> String:
+	return b.get("titles", {}).get(method, angle_info(t, unknown, method).get("name", fallback))
+
+
 static func rep_is_exam(t: Dictionary, rep: String) -> bool:
 	for r in t.get("representations", []):
 		if r.rep == rep:
@@ -547,7 +554,7 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 
 	var prompt: String = b.asked
 	if angle != "any":
-		prompt += "\nMethod: %s." % angle_info(t, u.id, angle).name
+		prompt += "\nMethod: %s." % method_name(t, u.id, angle, b, angle)
 	var solutions: Array = []
 	var order: Array = [angle] if angle != "any" else []
 	for a in v.angles:
@@ -555,8 +562,7 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 			order.append(a)
 	for a in order:
 		if b.methods.has(a):
-			var info := angle_info(t, u.id, a)
-			solutions.append({"angle": a, "name": info.get("name", "Worked solution"), "steps": b.methods[a].steps,
+			solutions.append({"angle": a, "name": method_name(t, u.id, a, b, "Worked solution"), "steps": b.methods[a].steps,
 				"result": b.methods[a].result})
 	var choices := _choices(ans, b, rng)
 	var out_view := {"type": t.id, "unknown": u.id, "rep": v.rep, "angle": angle, "format": fmt, "seed": v.seed}
@@ -659,8 +665,8 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 			else:
 				q.reason = "The answer is %s, not %s." % [right.text, claim.text] + (" The mistake: %s." % why.rstrip(".") if why != "" else "")
 		"method-pick":
-			var right_name: String = angle_info(t, v.u.id, v.angle).name
-			var works: Array = v.angles.filter(func(a): return not fails(t, v.u.id, a)).map(func(a): return angle_info(t, v.u.id, a).get("name", a))
+			var right_name := method_name(t, v.u.id, v.angle, b, v.angle)
+			var works: Array = v.angles.filter(func(a): return not fails(t, v.u.id, a)).map(func(a): return method_name(t, v.u.id, a, b, a))
 			var pool: Array = []
 			for a in t.get("angles", []):
 				if fails(t, v.u.id, a.method):
