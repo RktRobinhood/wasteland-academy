@@ -1,0 +1,1766 @@
+{
+  "version": 1,
+  "about": "The explainer move for every worked step of every built method (FAL-425). Key: type/unknown/angle. Under it, one list per step count (or per representation and step count, as words/4, where that rep lines up differently), with one move ID from moves.json, or null when no move fits, per step index. branches give the move for a step whose numbers take another route at the same step count, matched by a pattern in the step text. Built from game/tools/export_questions.gd; check with node tools/moves.mjs --coverage <questions.json>. See curriculum/README.md.",
+  "branches": [
+    {
+      "key": "fn-exp-log-inverse-composite/transformations-between/common-base-power",
+      "steps": "3",
+      "index": 0,
+      "match": "keeps the base",
+      "move": "read-givens"
+    },
+    {
+      "key": "fn-exp-log-inverse-composite/solve-exp-equation/gdc-intersect",
+      "steps": "3",
+      "index": 1,
+      "match": "^The exact value",
+      "move": "take-logs"
+    },
+    {
+      "key": "fn-exp-log-inverse-composite/solve-exp-equation/apply-inverse",
+      "steps": "4",
+      "index": 0,
+      "match": "^Already alone",
+      "move": "read-givens"
+    },
+    {
+      "key": "fn-exp-log-inverse-composite/solve-exp-equation/apply-inverse",
+      "steps": "3",
+      "index": 0,
+      "match": "^Already alone",
+      "move": "read-givens"
+    },
+    {
+      "key": "fn-exp-log-inverse-composite/solve-log-equation/apply-inverse",
+      "steps": "3",
+      "index": 0,
+      "match": "^log",
+      "move": "read-givens"
+    },
+    {
+      "key": "fn-solve-quadratic/solve-in-context/factorise",
+      "steps": "4",
+      "index": 1,
+      "match": "^Δ = ",
+      "move": "compute-discriminant"
+    },
+    {
+      "key": "fn-solve-quadratic/solve-in-context/quadratic-formula",
+      "steps": "4",
+      "index": 1,
+      "match": "^x = \\(",
+      "move": "quadratic-formula"
+    },
+    {
+      "key": "fn-discriminant/k-for-equal-roots/derivative-match",
+      "steps": "4",
+      "index": 0,
+      "match": "^A parabola touches",
+      "move": "recall-fact"
+    },
+    {
+      "key": "fn-discriminant/k-for-equal-roots/derivative-match",
+      "steps": "4",
+      "index": 1,
+      "match": "^The point is on both",
+      "move": "substitute"
+    },
+    {
+      "key": "fn-discriminant/k-for-equal-roots/derivative-match",
+      "steps": "4",
+      "index": 1,
+      "match": "^f′\\(x\\) =",
+      "move": "differentiate"
+    },
+    {
+      "key": "fn-discriminant/k-for-equal-roots/derivative-match",
+      "steps": "4",
+      "index": 2,
+      "match": "^So x₀|^Solving f′",
+      "move": "solve-equation"
+    },
+    {
+      "key": "fn-discriminant/k-for-equal-roots/derivative-match",
+      "steps": "4",
+      "index": 2,
+      "match": "^f′\\(x\\) = 0 at",
+      "move": "apply-condition"
+    },
+    {
+      "key": "fn-quadratic-inequality/solve-against-zero/sketch-roots",
+      "steps": "4",
+      "index": 0,
+      "match": "\\) = 0 at x",
+      "move": "zero-product"
+    },
+    {
+      "key": "fn-quadratic-inequality/solve-against-zero/test-point",
+      "steps": "3",
+      "index": 0,
+      "match": "\\) = 0 at x",
+      "move": "zero-product"
+    },
+    {
+      "key": "fn-quadratic-inequality/solve-against-constant/sketch-roots",
+      "steps": "5",
+      "index": 1,
+      "match": "\\) = 0 at x",
+      "move": "zero-product"
+    },
+    {
+      "key": "fn-quadratic-inequality/negative-a/sketch-roots",
+      "steps": "4",
+      "index": 0,
+      "match": "\\) = 0 at x",
+      "move": "zero-product"
+    },
+    {
+      "key": "t3-triangle-area/angle-from-area/half-ab-sinc",
+      "steps": "6",
+      "index": 3,
+      "match": "^sin \\d+° =",
+      "move": "exact-value"
+    },
+    {
+      "key": "t3-triangle-area/angle-from-area/base-height",
+      "steps": "5",
+      "index": 2,
+      "match": "^sin \\d+° =",
+      "move": "exact-value"
+    },
+    {
+      "key": "t3-sine-cosine-rule/angle-cosine-rule/rearranged-formula",
+      "steps": "5",
+      "index": 3,
+      "match": "^cos \\d+° =",
+      "move": "exact-value"
+    },
+    {
+      "key": "t3-sine-cosine-rule/angle-cosine-rule/rearranged-formula",
+      "steps": "6",
+      "index": 3,
+      "match": "^The cosine is negative",
+      "move": "interpret"
+    },
+    {
+      "key": "t3-sine-cosine-rule/angle-cosine-rule/rearranged-formula",
+      "steps": "6",
+      "index": 4,
+      "match": "^cos \\d+° =",
+      "move": "exact-value"
+    },
+    {
+      "key": "t3-sine-cosine-rule/angle-cosine-rule/substitute-then-solve",
+      "steps": "7",
+      "index": 5,
+      "match": "^cos \\d+° =",
+      "move": "exact-value"
+    },
+    {
+      "key": "t3-sine-cosine-rule/angle-cosine-rule/substitute-then-solve",
+      "steps": "8",
+      "index": 5,
+      "match": "^The cosine is negative",
+      "move": "interpret"
+    },
+    {
+      "key": "t3-sine-cosine-rule/angle-cosine-rule/substitute-then-solve",
+      "steps": "8",
+      "index": 6,
+      "match": "^cos \\d+° =",
+      "move": "exact-value"
+    },
+    {
+      "key": "t4-expected-occurrences/expected-count/n-times-p",
+      "steps": "3",
+      "index": 0,
+      "match": "^P\\([^)]*\\) = [^+]*$",
+      "move": "read-givens"
+    },
+    {
+      "key": "t4-expected-occurrences/expected-count/n-times-p",
+      "steps": "4",
+      "index": 0,
+      "match": "^P\\([^)]*\\) = [^+]*$",
+      "move": "read-givens"
+    },
+    {
+      "key": "t4-expected-occurrences/expected-count/n-times-p",
+      "steps": "equation/4",
+      "index": 1,
+      "match": "^P\\([^)]*\\) = [^+]*$",
+      "move": "simplify"
+    },
+    {
+      "key": "t4-expected-occurrences/trials-for-count/n-times-p",
+      "steps": "4",
+      "index": 0,
+      "match": "^P\\([^)]*\\) = [^+]*$",
+      "move": "read-givens"
+    },
+    {
+      "key": "t4-expected-value/probabilities-from-mean/two-equations",
+      "steps": "5",
+      "index": 2,
+      "match": "adds nothing",
+      "move": "isolate"
+    },
+    {
+      "key": "fn-ext-quadratic-model/second-time-at-height/symmetry-of-flight",
+      "steps": "4",
+      "index": 0,
+      "match": "^The top is at t = [^−]*$",
+      "move": "read-givens"
+    },
+    {
+      "key": "fn-pre-factorise/difference-of-squares/recognise-pattern",
+      "steps": "3",
+      "index": 1,
+      "match": "none of them",
+      "move": "check"
+    },
+    {
+      "key": "fn-ext-exp-graph/growth-or-decay/base-comparison",
+      "steps": "3",
+      "index": 0,
+      "match": "\\^\\(−x\\)",
+      "move": "rewrite-form"
+    },
+    {
+      "key": "fn-link-symmetry/find-the-mirror/symmetry",
+      "steps": "3",
+      "index": 1,
+      "match": "^r \\+ \\(n − r\\)",
+      "move": "use-symmetry"
+    },
+    {
+      "key": "fn-link-equivalent-forms/same-or-not/combine",
+      "steps": "2",
+      "index": 0,
+      "match": "\\(x [+−]",
+      "move": "expand"
+    },
+    {
+      "key": "fn-link-equivalent-forms/same-or-not/combine",
+      "steps": "2",
+      "index": 0,
+      "match": "≈",
+      "move": "evaluate"
+    },
+    {
+      "key": "fn-link-equivalent-forms/same-or-not/gdc-check",
+      "steps": "3",
+      "index": 1,
+      "match": "^So they differ",
+      "move": "interpret"
+    },
+    {
+      "key": "fn-link-equivalent-forms/same-or-not/gdc-check",
+      "steps": "3",
+      "index": 1,
+      "match": "agrees: \\(x",
+      "move": "expand"
+    }
+  ],
+  "map": {
+    "fn-exp-log-inverse-composite/evaluate-log-function/what-power": {
+      "3": ["ask-what-power", "substitute-back", "state-answer"],
+      "4": ["ask-what-power", "evaluate", "substitute-back", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/log-of-non-positive/what-power": {
+      "3": ["evaluate", "ask-what-power", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-of-exponential/swap-then-solve": {
+      "3": ["swap-x-and-y", "convert-log-exp", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-of-exponential/reverse-operations": {
+      "3": ["reverse-operations", "reverse-operations", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-of-exponential/convert-form": {
+      "3": ["convert-log-exp", "swap-x-and-y", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-of-exponential/take-logs": {
+      "3": ["take-logs", "swap-x-and-y", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-of-log/swap-then-solve": {
+      "3": ["swap-x-and-y", "convert-log-exp", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-of-log/reverse-operations": {
+      "3": ["reverse-operations", "reverse-operations", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-of-log/rewrite-exponential": {
+      "3": ["convert-log-exp", "swap-x-and-y", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/evaluate-inverse/reverse-operations": {
+      "3": ["reverse-operations", "evaluate", "state-answer"],
+      "4": ["reverse-operations", "evaluate", "evaluate", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/evaluate-inverse/convert-form": {
+      "3": ["apply-condition", "convert-log-exp", "state-answer"],
+      "4": ["apply-condition", "convert-log-exp", "isolate", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/evaluate-inverse/inverse-identities": {
+      "3": ["use-identity", "state-answer", "state-answer"],
+      "4": ["use-identity", "apply-inverse", "isolate", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-awkward-base/change-of-base": {
+      "3": ["ask-what-power", "change-of-base", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-awkward-base/what-power": {
+      "3": ["ask-what-power", "rewrite-form", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-awkward-base/common-base-power": {
+      "3": ["rewrite-form", "equate", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-awkward-base/cob-formula": {
+      "3": ["change-of-base", "use-log-law", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-awkward-base/gdc-logbase": {
+      "3": ["evaluate", "rewrite-form", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/simplify-composite/inverse-identities": {
+      "3": ["compose", "use-identity", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/simplify-composite/substitute-whole": {
+      "3": ["compose", "use-identity", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/simplify-composite/numeric-check": {
+      "3": ["test-point", "check", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/simplify-composite/common-base-power": {
+      "3": ["rewrite-form", "use-identity", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/composite-inequality/convert-form": {
+      "4": ["compose", "isolate", "convert-log-exp", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/composite-inequality/substitute-whole": {
+      "4": ["compose", "isolate", "recall-fact", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/transformations-between/common-base-power": {
+      "3": ["rewrite-form", "describe-transformation", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/transformations-between/rewrite-in-f": {
+      "3": ["rewrite-form", "describe-transformation", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/transformations-between/compare-key-points": {
+      "3": ["read-givens", "transform-point", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/write-log-form/convert-form": {
+      "3": ["convert-log-exp", "read-givens", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/write-log-form/rewrite-exponential": {
+      "3": ["convert-log-exp", "read-givens", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/solve-exp-equation/take-logs": {
+      "3": ["read-givens", "take-logs", "state-answer"],
+      "4": ["read-givens", "take-logs", "evaluate", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/solve-exp-equation/change-of-base": {
+      "3": ["convert-log-exp", "isolate", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/solve-exp-equation/gdc-intersect": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/solve-exp-equation/apply-inverse": {
+      "3": ["isolate", "apply-inverse", "state-answer"],
+      "4": ["isolate", "apply-inverse", "evaluate", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/solve-log-equation/convert-form": {
+      "3": ["read-givens", "convert-log-exp", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/solve-log-equation/rewrite-exponential": {
+      "3": ["convert-log-exp", "isolate", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/solve-log-equation/apply-inverse": {
+      "3": ["isolate", "apply-inverse", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/composite-order/substitute-whole": {
+      "3": ["compose", "compose", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/composite-order/numeric-check": {
+      "3": ["test-point", "compose", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-graph/graph-check": {
+      "3": ["transform-point", "transform-point", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-graph/compare-key-points": {
+      "3": ["read-givens", "swap-x-and-y", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/inverse-log-of-square/swap-then-solve": {
+      "3": ["swap-x-and-y", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/function-from-inverse/swap-then-solve": {
+      "3": ["swap-x-and-y", "convert-log-exp", "state-answer"]
+    },
+    "fn-exp-log-inverse-composite/function-from-inverse/rewrite-exponential": {
+      "3": ["swap-x-and-y", "convert-log-exp", "state-answer"]
+    },
+    "fn-quadratic-features/roots-from-factorised/factorise": {
+      "4": ["zero-product", "zero-product", "zero-product", "state-answer"]
+    },
+    "fn-quadratic-features/y-intercept-from-factorised/any": {
+      "3": ["recall-fact", "substitute", "state-answer"]
+    },
+    "fn-quadratic-features/y-intercept-from-vertex-form/any": {
+      "3": ["recall-fact", "substitute", "state-answer"]
+    },
+    "fn-quadratic-features/axis-from-roots/midpoint-of-roots": {
+      "3": ["use-symmetry", "find-midpoint", "state-answer"]
+    },
+    "fn-quadratic-features/axis-from-vertex/vertex-form-read": {
+      "2": ["recall-fact", "state-answer"],
+      "3": ["recall-fact", "read-givens", "state-answer"]
+    },
+    "fn-quadratic-features/axis-from-general/minus-b-over-2a": {
+      "3": ["read-givens", "substitute", "state-answer"]
+    },
+    "fn-quadratic-features/axis-from-general/vertex-form-read": {
+      "6": ["read-givens", "complete-square", "complete-square", "simplify", "recall-fact", "state-answer"],
+      "8": ["read-givens", "complete-square", "complete-square", "complete-square", "expand", "simplify", "recall-fact", "state-answer"]
+    },
+    "fn-quadratic-features/axis-from-general/derivative-zero": {
+      "3": ["differentiate", "apply-condition", "state-answer"]
+    },
+    "fn-quadratic-features/axis-from-equal-outputs/midpoint-of-roots": {
+      "3": ["use-symmetry", "find-midpoint", "state-answer"]
+    },
+    "fn-quadratic-features/second-root-from-axis/midpoint-of-roots": {
+      "4": ["use-symmetry", "isolate", "isolate", "state-answer"]
+    },
+    "fn-quadratic-features/b-from-axis/minus-b-over-2a": {
+      "3": ["substitute", "isolate", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-from-vertex-form/read-vertex-form": {
+      "3": ["recall-fact", "read-givens", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-from-factorised/formula-then-substitute": {
+      "5": ["expand", "expand", "substitute", "substitute-back", "state-answer"],
+      "7": ["roots-to-factors", "substitute", "expand", "expand", "substitute", "substitute-back", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-from-factorised/midpoint-of-roots": {
+      "3": ["use-symmetry", "substitute-back", "state-answer"],
+      "5": ["roots-to-factors", "substitute", "use-symmetry", "substitute-back", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-from-general/complete-square": {
+      "5": ["read-givens", "complete-square", "complete-square", "simplify", "state-answer"],
+      "7": ["read-givens", "complete-square", "complete-square", "complete-square", "expand", "simplify", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-from-general/formula-then-substitute": {
+      "3": ["substitute", "substitute-back", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-from-general/derivative-zero": {
+      "4": ["differentiate", "apply-condition", "substitute-back", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-from-table/midpoint-of-roots": {
+      "4": ["use-symmetry", "read-givens", "reason-from-shape", "state-answer"]
+    },
+    "fn-quadratic-features/max-or-min/read-vertex-form": {
+      "3": ["reason-from-shape", "read-givens", "state-answer"]
+    },
+    "fn-quadratic-features/h-k-from-vertex/read-vertex-form": {
+      "3": ["recall-fact", "read-givens", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-form-from-general/complete-square": {
+      "5": ["read-givens", "complete-square", "complete-square", "simplify", "state-answer"],
+      "7": ["read-givens", "complete-square", "complete-square", "complete-square", "expand", "simplify", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-form-from-general/compare-coefficients": {
+      "5": ["recall-formula", "compare-coefficients", "compare-coefficients", "compare-coefficients", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-form-from-general/vertex-first": {
+      "3": ["substitute", "substitute-back", "state-answer"]
+    },
+    "fn-quadratic-features/vertex-form-from-factorised/vertex-first": {
+      "3": ["find-midpoint", "substitute-back", "state-answer"]
+    },
+    "fn-quadratic-features/general-from-vertex-form/compare-coefficients": {
+      "4": ["expand", "expand", "simplify", "state-answer"],
+      "5": ["expand", "expand", "expand", "simplify", "state-answer"]
+    },
+    "fn-quadratic-features/factorised-from-general/factorise": {
+      "4": ["factorise", "find-factor-pair", "factorise", "state-answer"]
+    },
+    "fn-quadratic-features/factorised-from-general/roots-to-factors": {
+      "7": ["choose-rule", "compute-discriminant", "evaluate", "quadratic-formula", "evaluate", "roots-to-factors", "state-answer"]
+    },
+    "fn-quadratic-features/factorised-from-vertex-form/complete-square": {
+      "4": ["rearrange", "isolate", "square-root-both-sides", "state-answer"]
+    },
+    "fn-quadratic-features/factorised-from-vertex-form/roots-to-factors": {
+      "7": ["expand", "choose-rule", "compute-discriminant", "evaluate", "quadratic-formula", "evaluate", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/vertex-form-from-vertex-and-a/vertex-form-plus-point": {
+      "3": ["recall-formula", "substitute", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/a-from-vertex-and-point/vertex-form-plus-point": {
+      "4": ["substitute", "substitute", "isolate", "state-answer"],
+      "5": ["use-symmetry", "substitute", "substitute", "isolate", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/a-from-vertex-and-point/simultaneous-equations": {
+      "6": ["substitute", "substitute", "substitute", "eliminate", "substitute", "state-answer"],
+      "7": ["use-symmetry", "substitute", "substitute", "substitute", "eliminate", "substitute", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/equation-from-vertex-and-root/vertex-form-plus-point": {
+      "4": ["substitute", "substitute", "use-symmetry", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/equation-from-vertex-and-root/intercept-form-plus-point": {
+      "4": ["use-symmetry", "roots-to-factors", "substitute", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/equation-from-vertex-and-root/read-graph-intercepts": {
+      "4": ["use-symmetry", "roots-to-factors", "substitute", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/equation-from-vertex-and-root/midpoint-of-roots": {
+      "4": ["use-symmetry", "roots-to-factors", "substitute", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/a-from-roots-and-point/intercept-form-plus-point": {
+      "4": ["read-givens", "roots-to-factors", "substitute", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/a-from-roots-and-point/roots-to-factors": {
+      "4": ["read-givens", "roots-to-factors", "substitute", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/a-from-roots-and-point/read-graph-intercepts": {
+      "4": ["read-givens", "roots-to-factors", "substitute", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/coefficients-from-roots/intercept-form-plus-point": {
+      "5": ["roots-to-factors", "expand", "expand", "expand", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/coefficients-from-roots/roots-to-factors": {
+      "6": ["roots-to-factors", "roots-to-factors", "expand", "expand", "expand", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/coefficients-from-roots/midpoint-of-roots": {
+      "4": ["use-symmetry", "substitute", "substitute", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/coefficient-from-axis/minus-b-over-2a": {
+      "3": ["substitute", "isolate", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/coefficients-from-two-points-and-axis/simultaneous-equations": {
+      "5": ["substitute", "substitute", "eliminate", "substitute-back", "state-answer"],
+      "6": ["substitute", "substitute", "substitute", "eliminate", "substitute-back", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/range-after-finding/vertex-or-asymptote": {
+      "4": ["substitute", "use-symmetry", "reason-from-shape", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/coefficients-from-three-points/simultaneous-equations": {
+      "10": ["substitute", "substitute", "substitute", "substitute", "eliminate", "eliminate", "eliminate", "substitute-back", "substitute-back", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/coefficients-from-three-points/gdc-solve": {
+      "6": ["gdc-solver", "substitute", "substitute", "substitute", "gdc-solver", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/coefficient-from-point/simultaneous-equations": {
+      "4": ["substitute", "isolate", "isolate", "state-answer"]
+    },
+    "fn-quadratic-from-conditions/equation-from-table/vertex-form-plus-point": {
+      "5": ["use-symmetry", "substitute", "substitute", "isolate", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-factorisable/factorise": {
+      "3": ["factorise", "zero-product", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-factorisable/quadratic-formula": {
+      "4": ["compute-discriminant", "evaluate", "quadratic-formula", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-no-constant/factorise": {
+      "3": ["factorise", "zero-product", "state-answer"],
+      "4": ["rearrange", "factorise", "zero-product", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-surd/quadratic-formula": {
+      "4": ["compute-discriminant", "simplify-surd", "quadratic-formula", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-surd/complete-square": {
+      "4": ["complete-square", "isolate", "square-root-both-sides", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-in-context/factorise": {
+      "4": ["model-from-context", "factorise", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-in-context/quadratic-formula": {
+      "4": ["model-from-context", "compute-discriminant", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-in-context/gdc-solver": {
+      "3": ["model-from-context", "gdc-solver", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-hidden-exponential/substitution": {
+      "4": ["introduce-letter", "factorise", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-hidden-exponential/gdc-intersect": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"]
+    },
+    "fn-solve-quadratic/choose-substitution/substitution": {
+      "3": ["rewrite-form", "introduce-letter", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-hidden-reciprocal/clear-or-combine": {
+      "4": ["clear-fractions", "factorise", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-hidden-log/clear-or-combine": {
+      "4": ["use-log-law", "solve-equation", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-solve-quadratic/solve-hidden-log/gdc-intersect": {
+      "3": ["gdc-graph", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-solve-quadratic/equation-from-roots/complete-square": {
+      "4": ["rearrange", "apply-inverse", "expand", "state-answer"]
+    },
+    "fn-solve-quadratic/coefficient-from-root/factorise": {
+      "4": ["substitute", "recall-fact", "check", "state-answer"]
+    },
+    "fn-discriminant/nature-from-equation/compute-delta": {
+      "4": ["read-givens", "compute-discriminant", "interpret", "state-answer"]
+    },
+    "fn-discriminant/nature-from-equation/vertex-position": {
+      "4": ["complete-square", "reason-from-shape", "interpret", "compute-discriminant"]
+    },
+    "fn-discriminant/nature-from-equation/gdc-graph": {
+      "3": ["gdc-graph", "compute-discriminant", "state-answer"]
+    },
+    "fn-discriminant/delta-sign-from-graph/vertex-position": {
+      "3": ["reason-from-shape", "reason-from-shape", "state-answer"]
+    },
+    "fn-discriminant/graph-from-delta/vertex-position": {
+      "3": ["reason-from-shape", "interpret", "state-answer"]
+    },
+    "fn-discriminant/roots-from-k/compute-delta": {
+      "3": ["substitute", "compute-discriminant", "state-answer"]
+    },
+    "fn-discriminant/roots-from-k/gdc-slider": {
+      "3": ["gdc-graph", "compute-discriminant", "state-answer"]
+    },
+    "fn-discriminant/delta-in-k/discriminant-condition": {
+      "2": ["compute-discriminant", "state-answer"],
+      "3": ["equate", "compute-discriminant", "state-answer"]
+    },
+    "fn-discriminant/k-for-equal-roots/discriminant-condition": {
+      "3": ["compute-discriminant", "apply-condition", "state-answer"],
+      "4": ["equate", "compute-discriminant", "apply-condition", "state-answer"]
+    },
+    "fn-discriminant/k-for-equal-roots/complete-square-condition": {
+      "4": ["complete-square", "apply-condition", "solve-equation", "state-answer"],
+      "5": ["equate", "complete-square", "apply-condition", "solve-equation", "state-answer"]
+    },
+    "fn-discriminant/k-for-equal-roots/derivative-match": {
+      "4": ["equate", "substitute-back", "substitute", "state-answer"]
+    },
+    "fn-discriminant/k-interval/discriminant-condition": {
+      "4": ["compute-discriminant", "apply-condition", "reason-from-shape", "state-answer"],
+      "5": ["equate", "compute-discriminant", "apply-condition", "reason-from-shape", "state-answer"]
+    },
+    "fn-discriminant/k-interval/gdc-slider": {
+      "3": ["gdc-graph", "compute-discriminant", "state-answer"],
+      "4": ["equate", "gdc-graph", "compute-discriminant", "state-answer"]
+    },
+    "fn-discriminant/k-interval/sketch-roots": {
+      "4": ["compute-discriminant", "reason-from-shape", "pick-region", "state-answer"],
+      "5": ["equate", "compute-discriminant", "reason-from-shape", "pick-region", "state-answer"]
+    },
+    "fn-discriminant/k-interval/sign-table": {
+      "4": ["compute-discriminant", "sign-table", "pick-region", "state-answer"],
+      "5": ["equate", "compute-discriminant", "sign-table", "pick-region", "state-answer"]
+    },
+    "fn-discriminant/k-interval/test-point": {
+      "3": ["compute-discriminant", "test-point", "state-answer"],
+      "4": ["equate", "compute-discriminant", "test-point", "state-answer"]
+    },
+    "fn-discriminant/always-positive/compute-delta": {
+      "4": ["apply-condition", "compute-discriminant", "solve-equation", "state-answer"]
+    },
+    "fn-discriminant/always-positive/discriminant-condition": {
+      "5": ["apply-condition", "compute-discriminant", "apply-condition", "reason-from-shape", "state-answer"]
+    },
+    "fn-discriminant/always-positive/complete-square-condition": {
+      "4": ["complete-square", "apply-condition", "solve-equation", "state-answer"]
+    },
+    "fn-discriminant/same-sign-roots/discriminant-condition": {
+      "4": ["compute-discriminant", "apply-condition", "apply-condition", "state-answer"]
+    },
+    "fn-discriminant/same-sign-roots/sketch-roots": {
+      "4": ["reason-from-shape", "apply-condition", "apply-condition", "state-answer"]
+    },
+    "fn-discriminant/same-sign-roots/test-point": {
+      "4": ["apply-condition", "apply-condition", "test-point", "state-answer"]
+    },
+    "fn-discriminant/tangent-contact-point/discriminant-condition": {
+      "5": ["equate", "compute-discriminant", "apply-condition", "substitute", "state-answer"]
+    },
+    "fn-discriminant/tangent-contact-point/derivative-match": {
+      "4": ["equate", "substitute-back", "substitute", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/equate-to-quadratic/equate-and-solve": {
+      "3": ["equate", "rearrange", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/equate-to-quadratic/reduce-to-polynomial": {
+      "3": ["equate", "simplify", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/meeting-x/equate-and-solve": {
+      "3": ["equate", "factorise", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/meeting-x/sketch-and-count": {
+      "4": ["reason-from-shape", "equate", "factorise", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/meeting-x/zeros-of-difference": {
+      "3": ["equate", "factorise", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/meeting-x/factorise": {
+      "3": ["equate", "factorise", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/meeting-x/quadratic-formula": {
+      "4": ["equate", "compute-discriminant", "quadratic-formula", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/meeting-points/equate-and-solve": {
+      "4": ["equate", "factorise", "substitute-back", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/meeting-points/gdc-intersect": {
+      "3": ["gdc-graph", "substitute-back", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/meeting-points/graph-check": {
+      "4": ["equate", "factorise", "substitute-back", "check"]
+    },
+    "fn-curve-intersection-quadratic/chord-length/quadratic-formula": {
+      "4": ["equate", "compute-discriminant", "pythagoras", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/chord-length/complete-square": {
+      "4": ["equate", "complete-square", "pythagoras", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/normal-meets-again/equate-and-solve": {
+      "4": ["equate", "factorise", "substitute-back", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/normal-meets-again/factorise": {
+      "4": ["roots-to-factors", "factorise", "substitute-back", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/line-from-meeting-points/two-point-formula": {
+      "4": ["substitute", "find-gradient", "point-gradient-line", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/intercept-from-one-point/equate-and-solve": {
+      "5": ["substitute", "substitute", "equate", "factorise", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/count-from-sketch/sketch-and-count": {
+      "3": ["read-givens", "compute-discriminant", "state-answer"]
+    },
+    "fn-curve-intersection-quadratic/count-from-sketch/graph-check": {
+      "3": ["compute-discriminant", "gdc-graph", "state-answer"]
+    },
+    "fn-quadratic-inequality/solve-against-zero/sketch-roots": {
+      "4": ["gdc-graph", "reason-from-shape", "pick-region", "state-answer"]
+    },
+    "fn-quadratic-inequality/solve-against-zero/sign-table": {
+      "3": ["sign-table", "pick-region", "state-answer"],
+      "4": ["quadratic-formula", "sign-table", "pick-region", "state-answer"]
+    },
+    "fn-quadratic-inequality/solve-against-zero/test-point": {
+      "3": ["gdc-graph", "test-point", "state-answer"]
+    },
+    "fn-quadratic-inequality/solve-against-constant/sketch-roots": {
+      "5": ["rearrange", "gdc-graph", "reason-from-shape", "pick-region", "state-answer"]
+    },
+    "fn-quadratic-inequality/largest-integer/test-point": {
+      "4": ["model-from-context", "quadratic-formula", "test-point", "state-answer"]
+    },
+    "fn-quadratic-inequality/largest-integer/gdc-graph": {
+      "3": ["gdc-graph", "round-for-context", "state-answer"]
+    },
+    "fn-quadratic-inequality/square-against-constant/sketch-roots": {
+      "4": ["factorise", "zero-product", "pick-region", "state-answer"]
+    },
+    "fn-quadratic-inequality/square-against-constant/test-point": {
+      "4": ["factorise", "zero-product", "test-point", "state-answer"]
+    },
+    "fn-quadratic-inequality/negative-a/sketch-roots": {
+      "4": ["gdc-graph", "reason-from-shape", "pick-region", "state-answer"]
+    },
+    "fn-quadratic-inequality/negative-a/sign-table": {
+      "3": ["sign-table", "pick-region", "state-answer"],
+      "4": ["quadratic-formula", "sign-table", "pick-region", "state-answer"]
+    },
+    "fn-quadratic-inequality/no-real-roots-case/sketch-roots": {
+      "3": ["compute-discriminant", "reason-from-shape", "state-answer"]
+    },
+    "fn-quadratic-inequality/inequality-from-solution/sketch-roots": {
+      "3": ["roots-to-factors", "reason-from-shape", "state-answer"]
+    },
+    "fn-log-of-quadratic/argument-roots/factorise": {
+      "3": ["factorise", "zero-product", "state-answer"]
+    },
+    "fn-log-of-quadratic/argument-roots/quadratic-formula": {
+      "3": ["compute-discriminant", "quadratic-formula", "state-answer"]
+    },
+    "fn-log-of-quadratic/domain-from-inequality/sketch-roots": {
+      "3": ["apply-condition", "reason-from-shape", "state-answer"]
+    },
+    "fn-log-of-quadratic/domain-from-inequality/sign-table": {
+      "3": ["roots-to-factors", "sign-table", "state-answer"]
+    },
+    "fn-log-of-quadratic/domain-from-inequality/test-point": {
+      "3": ["apply-condition", "test-point", "state-answer"]
+    },
+    "fn-log-of-quadratic/domain-from-inequality/gdc-graph": {
+      "3": ["gdc-graph", "pick-region", "state-answer"]
+    },
+    "fn-log-of-quadratic/domain-from-inequality/restriction-rules": {
+      "3": ["apply-condition", "reason-from-shape", "state-answer"]
+    },
+    "fn-log-of-quadratic/asymptotes/undefined-input": {
+      "3": ["apply-condition", "end-behaviour", "state-answer"]
+    },
+    "fn-log-of-quadratic/asymptotes/move-parent-asymptote": {
+      "3": ["recall-fact", "apply-condition", "state-answer"]
+    },
+    "fn-log-of-quadratic/asymptotes/gdc-table": {
+      "3": ["gdc-graph", "check", "state-answer"]
+    },
+    "fn-log-of-quadratic/zeros/quadratic-formula": {
+      "3": ["apply-condition", "quadratic-formula", "state-answer"]
+    },
+    "fn-log-of-quadratic/zeros/complete-square": {
+      "3": ["complete-square", "square-root-both-sides", "state-answer"]
+    },
+    "fn-log-of-quadratic/zeros/key-points": {
+      "3": ["recall-fact", "complete-square", "state-answer"]
+    },
+    "fn-log-of-quadratic/zeros/rewrite-exponential": {
+      "3": ["convert-log-exp", "complete-square", "state-answer"]
+    },
+    "fn-log-of-quadratic/max-value/gdc-transfer": {
+      "3": ["gdc-graph", "check", "state-answer"]
+    },
+    "fn-log-of-quadratic/max-value/midpoint-of-roots": {
+      "3": ["find-midpoint", "reason-from-shape", "state-answer"]
+    },
+    "fn-log-of-quadratic/max-value/formula-then-substitute": {
+      "3": ["substitute", "substitute-back", "state-answer"]
+    },
+    "fn-log-of-quadratic/max-value/complete-square": {
+      "3": ["complete-square", "substitute-back", "state-answer"]
+    },
+    "fn-log-of-quadratic/max-value/derivative-zero": {
+      "3": ["apply-condition", "substitute-back", "state-answer"]
+    },
+    "fn-log-of-quadratic/max-value/what-power": {
+      "3": ["read-givens", "ask-what-power", "state-answer"]
+    },
+    "fn-log-of-quadratic/base-from-max/key-points": {
+      "3": ["use-symmetry", "convert-log-exp", "state-answer"]
+    },
+    "fn-log-of-quadratic/base-from-max/midpoint-of-roots": {
+      "3": ["find-midpoint", "convert-log-exp", "state-answer"]
+    },
+    "fn-log-of-quadratic/base-from-max/rewrite-exponential": {
+      "3": ["use-symmetry", "convert-log-exp", "state-answer"]
+    },
+    "fn-log-of-quadratic/base-from-max/what-power": {
+      "3": ["use-symmetry", "apply-inverse", "state-answer"]
+    },
+    "fn-log-of-quadratic/range/complete-square": {
+      "3": ["complete-square", "reason-from-shape", "state-answer"]
+    },
+    "fn-log-of-quadratic/range/vertex-or-asymptote": {
+      "3": ["reason-from-shape", "end-behaviour", "state-answer"]
+    },
+    "fn-log-of-quadratic/axis-of-graph/midpoint-of-roots": {
+      "3": ["use-symmetry", "find-midpoint", "state-answer"]
+    },
+    "fn-log-of-quadratic/axis-of-graph/formula-then-substitute": {
+      "3": ["substitute", "use-symmetry", "state-answer"]
+    },
+    "fn-log-of-quadratic/axis-of-graph/midpoint-of-pair": {
+      "3": ["use-symmetry", "find-midpoint", "state-answer"]
+    },
+    "fn-log-of-quadratic/axis-of-graph/read-from-form": {
+      "3": ["read-givens", "recall-fact", "state-answer"]
+    },
+    "fn-log-of-quadratic/y-intercept/what-power": {
+      "3": ["substitute", "substitute-back", "state-answer"]
+    },
+    "fn-log-of-quadratic/sign-of-f/sketch-roots": {
+      "3": ["apply-condition", "reason-from-shape", "state-answer"]
+    },
+    "fn-log-of-quadratic/sign-of-f/test-point": {
+      "3": ["apply-condition", "test-point", "state-answer"]
+    },
+    "fn-log-of-quadratic/sign-of-f/key-points": {
+      "3": ["recall-fact", "pick-region", "state-answer"]
+    },
+    "fn-log-of-quadratic/sign-of-f/gdc-transfer": {
+      "3": ["gdc-graph", "apply-condition", "state-answer"]
+    },
+    "fn-log-of-quadratic/quadratic-from-features/undefined-input": {
+      "3": ["roots-to-factors", "substitute", "state-answer"]
+    },
+    "fn-log-of-quadratic/quadratic-from-features/read-vertex-form": {
+      "3": ["substitute", "substitute", "state-answer"]
+    },
+    "fn-exponential-model/initial-value/substitute-model": {
+      "3": ["substitute", "evaluate", "state-answer"]
+    },
+    "fn-exponential-model/initial-value/asymptote-first": {
+      "3": ["read-givens", "evaluate", "state-answer"]
+    },
+    "fn-exponential-model/predict-value/substitute-model": {
+      "3": ["substitute", "evaluate", "state-answer"]
+    },
+    "fn-exponential-model/interpret-factor/substitute-model": {
+      "3": ["interpret", "percent-multiplier", "state-answer"]
+    },
+    "fn-exponential-model/long-run-value/asymptote-first": {
+      "3": ["end-behaviour", "end-behaviour", "state-answer"]
+    },
+    "fn-exponential-model/k-from-half-life/logs-for-unknown": {
+      "4": ["model-from-context", "isolate", "take-logs", "state-answer"]
+    },
+    "fn-exponential-model/k-from-half-life/isolate-then-log": {
+      "3": ["isolate", "convert-log-exp", "state-answer"]
+    },
+    "fn-exponential-model/k-from-data-point/logs-for-unknown": {
+      "5": ["substitute", "isolate", "take-logs", "isolate", "state-answer"]
+    },
+    "fn-exponential-model/k-from-data-point/simultaneous-points": {
+      "4": ["substitute", "substitute", "take-logs", "state-answer"]
+    },
+    "fn-exponential-model/k-from-data-point/isolate-then-log": {
+      "3": ["isolate", "convert-log-exp", "state-answer"]
+    },
+    "fn-exponential-model/predict-from-data-point/substitute-model": {
+      "4": ["take-logs", "substitute", "evaluate", "state-answer"]
+    },
+    "fn-exponential-model/predict-from-data-point/simultaneous-points": {
+      "4": ["substitute", "substitute", "evaluate", "state-answer"]
+    },
+    "fn-exponential-model/time-to-level/logs-for-unknown": {
+      "5": ["model-from-context", "isolate", "take-logs", "isolate", "state-answer"]
+    },
+    "fn-exponential-model/time-to-level/gdc-intersect": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"]
+    },
+    "fn-exponential-model/time-to-level/isolate-then-log": {
+      "3": ["isolate", "convert-log-exp", "state-answer"]
+    },
+    "fn-exponential-model/time-to-level/log-both-sides": {
+      "4": ["model-from-context", "take-logs", "isolate", "state-answer"]
+    },
+    "fn-exponential-model/time-to-level/gdc-solver": {
+      "3": ["gdc-solver", "gdc-solver", "state-answer"]
+    },
+    "fn-exponential-model/time-to-level/analytic-logs": {
+      "3": ["isolate", "take-logs", "state-answer"]
+    },
+    "fn-exponential-model/whole-units-inequality/logs-for-unknown": {
+      "4": ["model-from-context", "take-logs", "round-for-context", "state-answer"]
+    },
+    "fn-exponential-model/whole-units-inequality/gdc-intersect": {
+      "4": ["gdc-graph", "pick-region", "round-for-context", "state-answer"]
+    },
+    "fn-exponential-model/whole-units-inequality/repeated-multiplication": {
+      "3": ["repeat-multiplier", "repeat-multiplier", "state-answer"]
+    },
+    "fn-exponential-model/whole-units-inequality/log-both-sides": {
+      "4": ["model-from-context", "take-logs", "round-for-context", "state-answer"]
+    },
+    "fn-exponential-model/whole-units-inequality/gdc-solver": {
+      "3": ["gdc-solver", "round-for-context", "state-answer"]
+    },
+    "fn-exponential-model/whole-units-inequality/table-search": {
+      "3": ["gdc-graph", "round-for-context", "state-answer"]
+    },
+    "fn-exponential-model/log-model-solve/substitute-model": {
+      "4": ["substitute", "convert-log-exp", "isolate", "state-answer"]
+    },
+    "fn-exponential-model/factor-from-percent/substitute-model": {
+      "3": ["percent-multiplier", "read-givens", "state-answer"]
+    },
+    "fn-exponential-model/model-from-table/repeated-multiplication": {
+      "3": ["compare-neighbours", "isolate", "state-answer"]
+    },
+    "fn-exponential-model/model-from-table/simultaneous-points": {
+      "3": ["substitute", "eliminate", "state-answer"]
+    },
+    "fn-exponential-model/model-from-table/gdc-regression": {
+      "3": ["gdc-stats", "interpret", "state-answer"]
+    },
+    "fn-exponential-model/model-from-graph/asymptote-first": {
+      "4": ["read-givens", "substitute", "substitute", "state-answer"]
+    },
+    "fn-exponential-model/model-from-graph/simultaneous-points": {
+      "3": ["end-behaviour", "substitute", "state-answer"]
+    },
+    "fn-exponential-model/initial-from-later/logs-for-unknown": {
+      "3": ["substitute", "isolate", "state-answer"]
+    },
+    "fn-exponential-model/half-life-from-k/logs-for-unknown": {
+      "4": ["model-from-context", "take-logs", "isolate", "state-answer"]
+    },
+    "fn-exponential-model/half-life-from-k/isolate-then-log": {
+      "3": ["isolate", "take-logs", "state-answer"]
+    },
+    "fn-exponential-model/time-from-graph/gdc-intersect": {
+      "3": ["read-givens", "repeat-multiplier", "state-answer"]
+    },
+    "fn-exponential-model/change-over-period/repeated-multiplication": {
+      "3": ["repeat-multiplier", "percent-multiplier", "state-answer"]
+    },
+    "fn-exponential-model/two-models-equal/logs-for-unknown": {
+      "4": ["equate", "rearrange", "take-logs", "state-answer"]
+    },
+    "fn-exponential-model/two-models-equal/gdc-intersect": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"]
+    },
+    "fn-exponential-model/two-models-equal/log-both-sides": {
+      "4": ["take-logs", "rearrange", "isolate", "state-answer"]
+    },
+    "fn-exponential-model/two-models-equal/analytic-logs": {
+      "3": ["rearrange", "take-logs", "state-answer"]
+    },
+    "fn-log-function-features/asymptote-from-equation/translate-parent": {
+      "3": ["factorise", "transform-point", "state-answer"]
+    },
+    "fn-log-function-features/asymptote-from-equation/undefined-input": {
+      "3": ["apply-condition", "isolate", "state-answer"]
+    },
+    "fn-log-function-features/asymptote-from-equation/move-parent-asymptote": {
+      "3": ["recall-fact", "apply-condition", "state-answer"]
+    },
+    "fn-log-function-features/asymptote-from-equation/gdc-table": {
+      "3": ["gdc-graph", "isolate", "state-answer"]
+    },
+    "fn-log-function-features/sign-of-log-expression/key-points": {
+      "3": ["recall-fact", "pick-region", "state-answer"]
+    },
+    "fn-log-function-features/sign-of-log-expression/restriction-rules": {
+      "3": ["apply-condition", "pick-region", "state-answer"]
+    },
+    "fn-log-function-features/domain-from-equation/restriction-rules": {
+      "3": ["apply-condition", "isolate", "state-answer"]
+    },
+    "fn-log-function-features/domain-from-equation/graph-extent": {
+      "3": ["reason-from-shape", "pick-region", "state-answer"]
+    },
+    "fn-log-function-features/domain-from-graph/graph-extent": {
+      "3": ["read-givens", "recall-fact", "state-answer"]
+    },
+    "fn-log-function-features/asymptote-from-graph/move-parent-asymptote": {
+      "3": ["read-givens", "recall-fact", "state-answer"]
+    },
+    "fn-log-function-features/x-intercept/key-points": {
+      "3": ["apply-condition", "convert-log-exp", "state-answer"]
+    },
+    "fn-log-function-features/x-intercept/gdc-transfer": {
+      "3": ["gdc-graph", "convert-log-exp", "state-answer"]
+    },
+    "fn-log-function-features/pick-graph/key-points": {
+      "3": ["recall-fact", "transform-point", "state-answer"]
+    },
+    "fn-log-function-features/pick-graph/reflect-exponential": {
+      "3": ["transform-point", "transform-point", "state-answer"]
+    },
+    "fn-log-function-features/pick-graph/translate-parent": {
+      "3": ["describe-transformation", "transform-point", "state-answer"]
+    },
+    "fn-log-function-features/pick-graph/gdc-transfer": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"]
+    },
+    "fn-log-function-features/reflect-exponential/key-points": {
+      "3": ["recall-fact", "transform-point", "state-answer"]
+    },
+    "fn-log-function-features/reflect-exponential/reflect-exponential": {
+      "3": ["swap-x-and-y", "transform-point", "state-answer"]
+    },
+    "fn-log-function-features/n-from-asymptote/translate-parent": {
+      "3": ["describe-transformation", "transform-point", "state-answer"]
+    },
+    "fn-log-function-features/n-from-asymptote/undefined-input": {
+      "3": ["apply-condition", "read-givens", "state-answer"]
+    },
+    "fn-log-function-features/n-from-asymptote/asymptote-first": {
+      "3": ["read-givens", "apply-condition", "state-answer"]
+    },
+    "fn-log-function-features/log-inequality/key-points": {
+      "3": ["convert-log-exp", "reason-from-shape", "state-answer"]
+    },
+    "fn-log-function-features/log-inequality/restriction-rules": {
+      "3": ["convert-log-exp", "apply-condition", "state-answer"]
+    },
+    "t1-arithmetic-sequence/term-from-u1-d/nth-formula": {
+      "3": ["recall-formula", "substitute", "state-answer"],
+      "4": ["compare-neighbours", "recall-formula", "substitute", "state-answer"],
+      "words/4": ["read-givens", "recall-formula", "substitute", "state-answer"]
+    },
+    "t1-arithmetic-sequence/term-from-u1-d/linear-function": {
+      "3": ["substitute", "substitute", "state-answer"],
+      "4": ["compare-neighbours", "substitute", "substitute", "state-answer"],
+      "words/4": ["read-givens", "substitute", "substitute", "state-answer"]
+    },
+    "t1-arithmetic-sequence/d-from-two-terms/gap-count": {
+      "3": ["count-steps", "isolate", "state-answer"]
+    },
+    "t1-arithmetic-sequence/d-from-two-terms/simultaneous": {
+      "4": ["substitute", "substitute", "eliminate", "state-answer"]
+    },
+    "t1-arithmetic-sequence/u1-from-two-terms/gap-count": {
+      "3": ["count-steps", "count-steps", "state-answer"]
+    },
+    "t1-arithmetic-sequence/u1-from-two-terms/simultaneous": {
+      "5": ["substitute", "substitute", "eliminate", "substitute-back", "state-answer"]
+    },
+    "t1-arithmetic-sequence/n-from-term/solve-linear": {
+      "4": ["model-from-context", "isolate", "round-for-context", "state-answer"],
+      "5": ["recall-formula", "substitute", "isolate", "isolate", "state-answer"],
+      "6": ["compare-neighbours", "recall-formula", "substitute", "isolate", "isolate", "state-answer"]
+    },
+    "t1-arithmetic-sequence/n-from-term/count-steps": {
+      "3": ["evaluate", "count-steps", "count-steps"],
+      "4": ["compare-neighbours", "evaluate", "count-steps", "count-steps"]
+    },
+    "t1-arithmetic-sequence/sum-from-u1-d/formula-d": {
+      "3": ["recall-formula", "substitute", "state-answer"],
+      "4": ["compare-neighbours", "recall-formula", "substitute", "state-answer"],
+      "words/4": ["read-givens", "recall-formula", "substitute", "state-answer"]
+    },
+    "t1-arithmetic-sequence/sum-from-u1-d/formula-last": {
+      "4": ["substitute", "recall-formula", "substitute", "state-answer"],
+      "5": ["compare-neighbours", "substitute", "recall-formula", "substitute", "state-answer"]
+    },
+    "t1-arithmetic-sequence/sum-from-first-last/formula-last": {
+      "3": ["recall-formula", "substitute", "state-answer"]
+    },
+    "t1-arithmetic-sequence/sum-from-first-last/gauss-pairing": {
+      "4": ["gauss-pair", "gauss-pair", "evaluate", "state-answer"]
+    },
+    "t1-arithmetic-sequence/n-from-sum/quadratic-in-n": {
+      "4": ["model-from-context", "gdc-solver", "round-for-context", "check"],
+      "7": ["recall-formula", "substitute", "clear-fractions", "rearrange", "factorise", "zero-product", "keep-valid-solutions"],
+      "8": ["compare-neighbours", "recall-formula", "substitute", "clear-fractions", "rearrange", "factorise", "zero-product", "keep-valid-solutions"]
+    },
+    "t1-arithmetic-sequence/d-from-sum/formula-last": {
+      "4": ["substitute", "substitute-back", "substitute", "state-answer"]
+    },
+    "t1-arithmetic-sequence/d-from-sum/linear-unknowns": {
+      "4": ["substitute", "isolate", "isolate", "state-answer"]
+    },
+    "t1-arithmetic-sequence/u1-from-sum/formula-last": {
+      "4": ["substitute", "substitute", "eliminate", "state-answer"]
+    },
+    "t1-arithmetic-sequence/u1-from-sum/linear-unknowns": {
+      "4": ["substitute", "isolate", "isolate", "state-answer"]
+    },
+    "t3-triangle-area/area-from-two-sides/half-ab-sinc": {
+      "3": ["choose-rule", "substitute", "state-answer"]
+    },
+    "t3-triangle-area/area-from-two-sides/base-height": {
+      "3": ["use-right-triangle", "substitute", "state-answer"]
+    },
+    "t3-triangle-area/side-from-area/half-ab-sinc": {
+      "4": ["choose-rule", "substitute", "isolate", "state-answer"]
+    },
+    "t3-triangle-area/side-from-area/base-height": {
+      "4": ["use-right-triangle", "substitute", "isolate", "state-answer"]
+    },
+    "t3-triangle-area/angle-from-area/half-ab-sinc": {
+      "6": ["choose-rule", "substitute", "isolate", "apply-inverse", "keep-valid-solutions", "state-answer"]
+    },
+    "t3-triangle-area/angle-from-area/base-height": {
+      "5": ["substitute", "use-right-triangle", "apply-inverse", "keep-valid-solutions", "state-answer"]
+    },
+    "t3-triangle-area/angle-from-area/reverse-two-angles": {
+      "4": ["substitute", "find-all-angles", "keep-valid-solutions", "state-answer"]
+    },
+    "t3-sine-cosine-rule/side-cosine-rule/cosine-rule": {
+      "6": ["label-diagram", "choose-rule", "recall-formula", "substitute", "square-root-both-sides", "state-answer"]
+    },
+    "t3-sine-cosine-rule/side-cosine-rule/drop-perpendicular": {
+      "6": ["draw-construction", "use-right-triangle", "use-right-triangle", "pythagoras", "square-root-both-sides", "state-answer"]
+    },
+    "t3-sine-cosine-rule/angle-cosine-rule/rearranged-formula": {
+      "5": ["label-diagram", "recall-formula", "substitute", "apply-inverse", "state-answer"],
+      "6": ["label-diagram", "recall-formula", "substitute", "apply-inverse", "interpret", "state-answer"]
+    },
+    "t3-sine-cosine-rule/angle-cosine-rule/substitute-then-solve": {
+      "7": ["label-diagram", "recall-formula", "substitute", "simplify", "isolate", "apply-inverse", "state-answer"],
+      "8": ["label-diagram", "recall-formula", "substitute", "simplify", "isolate", "apply-inverse", "interpret", "state-answer"]
+    },
+    "t3-sine-cosine-rule/side-sine-rule/sides-on-top": {
+      "4": ["label-diagram", "recall-formula", "substitute", "state-answer"],
+      "5": ["label-diagram", "angle-sum", "recall-formula", "substitute", "state-answer"]
+    },
+    "t3-sine-cosine-rule/side-sine-rule/drop-altitude": {
+      "5": ["label-diagram", "draw-construction", "use-right-triangle", "use-right-triangle", "state-answer"],
+      "6": ["label-diagram", "angle-sum", "draw-construction", "use-right-triangle", "use-right-triangle", "state-answer"]
+    },
+    "t3-sine-cosine-rule/angle-sine-rule/sines-on-top": {
+      "6": ["label-diagram", "recall-formula", "substitute", "apply-inverse", "keep-valid-solutions", "state-answer"]
+    },
+    "t3-sine-cosine-rule/angle-sine-rule/drop-altitude": {
+      "6": ["label-diagram", "draw-construction", "use-right-triangle", "apply-inverse", "keep-valid-solutions", "state-answer"]
+    },
+    "t4-expected-occurrences/expected-count/n-times-p": {
+      "3": ["add-probabilities", "expected-count", "state-answer"],
+      "4": ["add-probabilities", "expected-count", "interpret", "state-answer"],
+      "5": ["substitute", "add-probabilities", "expected-count", "interpret", "state-answer"],
+      "equation/4": ["substitute", "add-probabilities", "expected-count", "state-answer"]
+    },
+    "t4-expected-occurrences/trials-for-count/n-times-p": {
+      "4": ["add-probabilities", "expected-count", "isolate", "state-answer"]
+    },
+    "t4-expected-value/expected-value/sum-xp": {
+      "3": ["expected-value", "evaluate", "state-answer"],
+      "4": ["substitute", "expected-value", "evaluate", "state-answer"]
+    },
+    "t4-expected-value/expected-value/gdc-weighted": {
+      "5": ["gdc-stats", "gdc-stats", "gdc-stats", "interpret", "state-answer"],
+      "6": ["substitute", "gdc-stats", "gdc-stats", "gdc-stats", "interpret", "state-answer"]
+    },
+    "t4-expected-value/probabilities-from-mean/two-equations": {
+      "5": ["apply-condition", "expected-value", "eliminate", "substitute-back", "state-answer"]
+    },
+    "t4-expected-value/probabilities-from-mean/gdc-simultaneous": {
+      "5": ["apply-condition", "expected-value", "gdc-solver", "gdc-solver", "state-answer"]
+    },
+    "t4-expected-value/fair-stake/net-gain-table": {
+      "5": ["introduce-letter", "expected-value", "evaluate", "apply-condition", "state-answer"],
+      "6": ["model-from-context", "introduce-letter", "expected-value", "evaluate", "apply-condition", "state-answer"]
+    },
+    "t4-expected-value/fair-stake/winnings-vs-cost": {
+      "3": ["expected-value", "apply-condition", "state-answer"],
+      "4": ["model-from-context", "expected-value", "apply-condition", "state-answer"]
+    },
+    "t4-discrete-distribution/k-from-sum/sum-to-one": {
+      "4": ["apply-condition", "simplify", "isolate", "state-answer"],
+      "5": ["substitute", "apply-condition", "simplify", "isolate", "state-answer"],
+      "equation/4": ["substitute", "apply-condition", "evaluate", "state-answer"]
+    },
+    "t4-discrete-distribution/missing-probability/sum-to-one": {
+      "4": ["apply-condition", "simplify", "isolate", "state-answer"]
+    },
+    "t4-discrete-distribution/missing-probability/last-by-subtraction": {
+      "4": ["add-probabilities", "use-complement", "check", "state-answer"]
+    },
+    "t4-discrete-distribution/event-probability/add-entries": {
+      "3": ["list-outcomes", "add-probabilities", "state-answer"],
+      "4": ["substitute", "list-outcomes", "add-probabilities", "state-answer"]
+    },
+    "t4-discrete-distribution/event-probability/complement": {
+      "4": ["list-outcomes", "add-probabilities", "use-complement", "state-answer"],
+      "5": ["substitute", "list-outcomes", "add-probabilities", "use-complement", "state-answer"]
+    },
+    "t5-differentiate-polynomial/derivative/power-rule": {
+      "3": ["recall-formula", "differentiate", "state-answer"]
+    },
+    "t5-differentiate-polynomial/derivative-from-fraction/split-fraction": {
+      "4": ["rewrite-form", "recall-formula", "differentiate", "state-answer"]
+    },
+    "t5-differentiate-polynomial/gradient-at-point/differentiate-substitute": {
+      "3": ["differentiate", "substitute", "state-answer"]
+    },
+    "t5-tangent-condition/x-for-gradient/solve-f-prime": {
+      "4": ["differentiate", "apply-condition", "gdc-solver", "state-answer"],
+      "8": ["differentiate", "apply-condition", "equate", "rearrange", "simplify", "factorise", "zero-product", "state-answer"]
+    },
+    "t5-tangent-condition/x-for-gradient/match-gradients": {
+      "4": ["apply-condition", "differentiate", "gdc-solver", "state-answer"],
+      "8": ["apply-condition", "differentiate", "equate", "rearrange", "simplify", "factorise", "zero-product", "state-answer"]
+    },
+    "t5-tangent-condition/coefficient-from-tangent/form-equations": {
+      "5": ["differentiate", "apply-condition", "substitute", "equate", "state-answer"],
+      "6": ["differentiate", "apply-condition", "substitute", "equate", "isolate", "state-answer"]
+    },
+    "t5-tangent-normal-equation/tangent-at-point/point-gradient": {
+      "4": ["evaluate", "differentiate", "point-gradient-line", "state-answer"],
+      "5": ["substitute", "differentiate", "substitute", "point-gradient-line", "state-answer"]
+    },
+    "t5-tangent-normal-equation/tangent-at-point/find-c": {
+      "4": ["evaluate", "differentiate", "substitute", "state-answer"],
+      "6": ["substitute", "differentiate", "substitute", "substitute", "isolate", "state-answer"]
+    },
+    "t5-tangent-normal-equation/normal-at-point/negative-reciprocal": {
+      "4": ["evaluate", "differentiate", "perpendicular-gradient", "state-answer"],
+      "6": ["substitute", "differentiate", "substitute", "perpendicular-gradient", "point-gradient-line", "state-answer"]
+    },
+    "t5-tangent-normal-equation/normal-at-point/rearranged-form": {
+      "4": ["evaluate", "differentiate", "substitute", "state-answer"],
+      "9": ["substitute", "differentiate", "substitute", "recall-formula", "substitute", "rearrange", "isolate", "isolate", "state-answer"]
+    },
+    "t5-tangent-normal-equation/read-from-tangent/substitute-point": {
+      "4": ["read-givens", "recall-fact", "substitute", "state-answer"]
+    },
+    "t5-stationary-points/stationary-points/solve-f-prime-zero": {
+      "4": ["apply-condition", "gdc-solver", "substitute-back", "state-answer"],
+      "9": ["differentiate", "apply-condition", "apply-condition", "simplify", "factorise", "zero-product", "substitute-back", "substitute-back", "state-answer"]
+    },
+    "t5-stationary-points/nature/second-derivative-test": {
+      "5": ["differentiate", "differentiate", "classify-turning-point", "classify-turning-point", "state-answer"]
+    },
+    "t5-stationary-points/nature/first-derivative-sign-table": {
+      "8": ["differentiate", "sign-table", "test-point", "test-point", "test-point", "classify-turning-point", "classify-turning-point", "state-answer"]
+    },
+    "t5-stationary-points/nature/cubic-shape": {
+      "4": ["reason-from-shape", "classify-turning-point", null, "state-answer"]
+    },
+    "t5-stationary-points/inflexion-point/second-derivative-sign-change": {
+      "6": ["differentiate", "differentiate", "apply-condition", "reason-from-shape", "substitute-back", "state-answer"]
+    },
+    "t5-stationary-points/inflexion-point/cubic-midpoint": {
+      "9": ["differentiate", "apply-condition", "apply-condition", "simplify", "factorise", "zero-product", "find-midpoint", "substitute-back", "state-answer"]
+    },
+    "t5-stationary-points/max-value/derivative-zero-and-test": {
+      "4": ["apply-condition", "gdc-solver", "classify-turning-point", "substitute-back"],
+      "10": ["differentiate", "apply-condition", "apply-condition", "simplify", "factorise", "zero-product", "differentiate", "classify-turning-point", "substitute-back", "state-answer"]
+    },
+    "fn-ext-quadratic-model/max-value/vertex-in-context": {
+      "3": ["substitute", "substitute-back", "state-answer"]
+    },
+    "fn-ext-quadratic-model/max-value/gdc-max": {
+      "2": ["gdc-graph", "state-answer"]
+    },
+    "fn-ext-quadratic-model/max-value/derivative": {
+      "4": ["differentiate", "apply-condition", "substitute-back", "state-answer"]
+    },
+    "fn-ext-quadratic-model/time-of-max/vertex-in-context": {
+      "3": ["substitute", "substitute-back", "state-answer"],
+      "4": ["read-givens", "substitute", "substitute-back", "state-answer"]
+    },
+    "fn-ext-quadratic-model/time-of-max/gdc-max": {
+      "2": ["gdc-graph", "state-answer"],
+      "3": ["read-givens", "gdc-graph", "state-answer"]
+    },
+    "fn-ext-quadratic-model/time-of-max/derivative": {
+      "4": ["differentiate", "apply-condition", "substitute-back", "state-answer"],
+      "5": ["read-givens", "differentiate", "apply-condition", "substitute-back", "state-answer"]
+    },
+    "fn-ext-quadratic-model/time-of-max/symmetry-of-flight": {
+      "3": ["read-givens", "use-symmetry", "state-answer"],
+      "4": ["equate", "use-symmetry", "substitute-back", "state-answer"]
+    },
+    "fn-ext-quadratic-model/zero-time/any": {
+      "5": ["complete-square", "square-root-both-sides", "evaluate", "keep-valid-solutions", "state-answer"]
+    },
+    "fn-ext-quadratic-model/form-area-model/vertex-in-context": {
+      "4": ["model-from-context", "model-from-context", "substitute", "state-answer"]
+    },
+    "fn-ext-quadratic-model/form-area-model/derivative": {
+      "4": ["model-from-context", "model-from-context", "differentiate", "state-answer"]
+    },
+    "fn-ext-quadratic-model/interpret-vertex/vertex-in-context": {
+      "3": ["read-givens", "interpret", "state-answer"]
+    },
+    "fn-ext-quadratic-model/second-time-at-height/symmetry-of-flight": {
+      "4": ["substitute", "use-symmetry", "evaluate", "state-answer"],
+      "table/4": ["use-symmetry", "use-symmetry", "evaluate", "state-answer"]
+    },
+    "fn-ext-quadratic-model/model-from-features/vertex-in-context": {
+      "4": ["substitute", "substitute", "expand", "state-answer"]
+    },
+    "fn-concept-quadratic-forms/match-three-forms/compare-coefficients": {
+      "3": ["expand", "expand", "state-answer"],
+      "4": ["read-givens", "expand", "expand", "state-answer"]
+    },
+    "fn-concept-quadratic-forms/match-three-forms/roots-to-factors": {
+      "7": ["apply-condition", "compute-discriminant", "evaluate", "quadratic-formula", "evaluate", "state-answer", "state-answer"],
+      "8": ["read-givens", "apply-condition", "compute-discriminant", "evaluate", "quadratic-formula", "evaluate", "state-answer", "state-answer"]
+    },
+    "fn-concept-quadratic-forms/form-for-feature/read-vertex-form": {
+      "2": ["recall-fact", "state-answer"]
+    },
+    "fn-concept-quadratic-forms/form-for-task/read-vertex-form": {
+      "2": ["recall-fact", "state-answer"]
+    },
+    "fn-concept-quadratic-forms/missing-form/roots-to-factors": {
+      "4": ["read-givens", "compute-discriminant", "interpret", "state-answer"]
+    },
+    "fn-pre-expand/single-bracket/distribute": {
+      "2": ["expand", "state-answer"]
+    },
+    "fn-pre-expand/double-bracket/distribute": {
+      "3": ["expand", "simplify", "state-answer"]
+    },
+    "fn-pre-expand/double-bracket/grid": {
+      "4": ["label-diagram", "expand", "simplify", "state-answer"]
+    },
+    "fn-pre-expand/double-bracket/number-check": {
+      "3": ["expand", "check", "state-answer"]
+    },
+    "fn-pre-expand/perfect-square/grid": {
+      "4": ["label-diagram", "expand", "simplify", "state-answer"]
+    },
+    "fn-pre-expand/perfect-square/square-pattern": {
+      "3": ["recall-formula", "evaluate", "state-answer"]
+    },
+    "fn-pre-expand/scaled-product/distribute": {
+      "3": ["expand", "expand", "state-answer"]
+    },
+    "fn-pre-expand/scaled-product/number-check": {
+      "3": ["expand", "check", "state-answer"]
+    },
+    "fn-pre-expand/vertex-form-expand/distribute": {
+      "4": ["expand", "expand", "simplify", "state-answer"]
+    },
+    "fn-pre-expand/vertex-form-expand/square-pattern": {
+      "4": ["expand", "expand", "simplify", "state-answer"]
+    },
+    "fn-pre-expand/vertex-form-expand/number-check": {
+      "3": ["expand", "check", "state-answer"]
+    },
+    "fn-pre-expand/missing-term/square-pattern": {
+      "3": ["compare-coefficients", "isolate", "state-answer"]
+    },
+    "fn-pre-factorise/common-factor/recognise-pattern": {
+      "3": ["factorise", "factorise", "state-answer"]
+    },
+    "fn-pre-factorise/monic-trinomial/product-sum": {
+      "2": ["find-factor-pair", "state-answer"]
+    },
+    "fn-pre-factorise/monic-trinomial/expand-check": {
+      "3": ["find-factor-pair", "check", "state-answer"]
+    },
+    "fn-pre-factorise/difference-of-squares/recognise-pattern": {
+      "3": ["rewrite-form", "recall-formula", "state-answer"]
+    },
+    "fn-pre-factorise/non-monic/product-sum": {
+      "3": ["find-factor-pair", "factorise", "state-answer"]
+    },
+    "fn-pre-factorise/non-monic/split-middle": {
+      "4": ["find-factor-pair", "factorise", "factorise", "state-answer"]
+    },
+    "fn-pre-factorise/non-monic/roots-first": {
+      "4": ["quadratic-formula", "evaluate", "roots-to-factors", "state-answer"]
+    },
+    "fn-pre-factorise/non-monic/expand-check": {
+      "3": ["find-factor-pair", "check", "state-answer"]
+    },
+    "fn-pre-factorise/factor-pair/product-sum": {
+      "3": ["find-factor-pair", "find-factor-pair", "state-answer"]
+    },
+    "fn-pre-factorise/missing-bracket-term/expand-check": {
+      "3": ["compare-coefficients", "isolate", "state-answer"]
+    },
+    "fn-pre-surds/simplify-root/largest-square-factor": {
+      "3": ["simplify-surd", "check", "state-answer"]
+    },
+    "fn-pre-surds/simplify-root/prime-factorise": {
+      "2": ["simplify-surd", "state-answer"]
+    },
+    "fn-pre-surds/simplify-root/square-check": {
+      "3": ["simplify-surd", "check", "state-answer"]
+    },
+    "fn-pre-surds/add-like-surds/largest-square-factor": {
+      "3": ["simplify-surd", "simplify", "state-answer"]
+    },
+    "fn-pre-surds/multiply-surds/largest-square-factor": {
+      "3": ["simplify-surd", "simplify-surd", "state-answer"]
+    },
+    "fn-pre-surds/multiply-surds/prime-factorise": {
+      "3": ["simplify-surd", "simplify-surd", "state-answer"]
+    },
+    "fn-pre-surds/formula-fraction/largest-square-factor": {
+      "3": ["simplify-surd", "simplify", "state-answer"]
+    },
+    "fn-pre-surds/surd-to-root/square-check": {
+      "4": ["simplify-surd", "evaluate", "check", "state-answer"]
+    },
+    "fn-pre-linear-inequalities/one-sided/inverse-operations": {
+      "3": ["isolate", "isolate", "state-answer"]
+    },
+    "fn-pre-linear-inequalities/one-sided/keep-x-positive": {
+      "3": ["isolate", "isolate", "state-answer"],
+      "4": ["rearrange", "isolate", "isolate", "state-answer"]
+    },
+    "fn-pre-linear-inequalities/one-sided/test-value": {
+      "4": ["isolate", "test-point", "pick-region", "state-answer"]
+    },
+    "fn-pre-linear-inequalities/two-sided/inverse-operations": {
+      "3": ["isolate", "isolate", "state-answer"]
+    },
+    "fn-pre-linear-inequalities/read-number-line/test-value": {
+      "4": ["read-givens", "test-point", "recall-fact", "state-answer"]
+    },
+    "fn-pre-linear-inequalities/count-integers/test-value": {
+      "4": ["isolate", "list-outcomes", "test-point", "state-answer"]
+    },
+    "fn-ext-exp-graph/y-intercept/key-points": {
+      "3": ["substitute", "evaluate", "state-answer"]
+    },
+    "fn-ext-exp-graph/y-intercept/transform-parent": {
+      "3": ["transform-point", "substitute", "state-answer"]
+    },
+    "fn-ext-exp-graph/asymptote/key-points": {
+      "3": ["end-behaviour", "end-behaviour", "state-answer"]
+    },
+    "fn-ext-exp-graph/asymptote/transform-parent": {
+      "3": ["recall-fact", "transform-point", "state-answer"]
+    },
+    "fn-ext-exp-graph/range/key-points": {
+      "3": ["read-givens", "reason-from-shape", "state-answer"]
+    },
+    "fn-ext-exp-graph/range/gdc-transfer": {
+      "3": ["gdc-graph", "reason-from-shape", "state-answer"]
+    },
+    "fn-ext-exp-graph/range/vertex-or-asymptote": {
+      "3": ["recall-fact", "reason-from-shape", "state-answer"]
+    },
+    "fn-ext-exp-graph/growth-or-decay/base-comparison": {
+      "3": ["read-givens", "reason-from-shape", "state-answer"]
+    },
+    "fn-ext-exp-graph/pick-graph/key-points": {
+      "3": ["read-givens", "substitute", "state-answer"]
+    },
+    "fn-ext-exp-graph/pick-graph/base-comparison": {
+      "3": ["reason-from-shape", "read-givens", "state-answer"]
+    },
+    "fn-ext-exp-graph/pick-graph/gdc-transfer": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"]
+    },
+    "fn-ext-exp-graph/moves-from-parent/transform-parent": {
+      "3": ["describe-transformation", "transform-point", "state-answer"]
+    },
+    "fn-ext-exp-graph/equation-from-graph/transform-parent": {
+      "3": ["read-givens", "substitute", "state-answer"]
+    },
+    "fn-ext-exp-graph/equation-from-graph/asymptote-first": {
+      "4": ["read-givens", "substitute", "substitute-back", "state-answer"]
+    },
+    "fn-ext-exp-graph/compare-reflections/base-comparison": {
+      "3": ["rewrite-form", "describe-transformation", "state-answer"]
+    },
+    "fn-concept-growth-patterns/classify-table/table-differences": {
+      "3": ["compare-neighbours", "compare-neighbours", "state-answer"]
+    },
+    "fn-concept-growth-patterns/classify-table/repeated-multiplication": {
+      "3": ["compare-neighbours", "compare-neighbours", "state-answer"]
+    },
+    "fn-concept-growth-patterns/classify-words/rate-and-start": {
+      "3": ["read-givens", "model-from-context", "state-answer"]
+    },
+    "fn-concept-growth-patterns/classify-graph/base-comparison": {
+      "3": ["read-givens", "compare-neighbours", "state-answer"]
+    },
+    "fn-concept-growth-patterns/next-values/table-differences": {
+      "3": ["compare-neighbours", "compare-neighbours", "state-answer"]
+    },
+    "fn-concept-growth-patterns/next-values/repeated-multiplication": {
+      "3": ["repeat-multiplier", "evaluate", "state-answer"]
+    },
+    "fn-concept-growth-patterns/interpret-d-and-r/rate-and-start": {
+      "3": ["interpret", "interpret", "state-answer"]
+    },
+    "fn-concept-growth-patterns/when-overtakes/repeated-multiplication": {
+      "3": ["repeat-multiplier", "test-point", "state-answer"]
+    },
+    "fn-concept-growth-patterns/when-overtakes/gdc-intersect": {
+      "3": ["gdc-graph", "test-point", "state-answer"]
+    },
+    "fn-concept-growth-patterns/when-overtakes/logs-for-unknown": {
+      "3": ["choose-rule", "test-point", "state-answer"]
+    },
+    "fn-pre-percent-multiplier/increase-multiplier/one-multiplier": {
+      "3": ["percent-multiplier", "rewrite-form", "state-answer"]
+    },
+    "fn-pre-percent-multiplier/decrease-multiplier/one-multiplier": {
+      "3": ["percent-multiplier", "rewrite-form", "state-answer"]
+    },
+    "fn-pre-percent-multiplier/apply-change/one-multiplier": {
+      "3": ["percent-multiplier", "evaluate", "state-answer"]
+    },
+    "fn-pre-percent-multiplier/apply-change/find-then-add": {
+      "3": ["evaluate", "evaluate", "state-answer"]
+    },
+    "fn-pre-percent-multiplier/multiplier-to-percent/one-multiplier": {
+      "3": ["rewrite-form", "percent-multiplier", "state-answer"]
+    },
+    "fn-pre-percent-multiplier/reverse-percentage/divide-to-reverse": {
+      "3": ["percent-multiplier", "isolate", "state-answer"]
+    },
+    "fn-pre-percent-multiplier/reverse-percentage/unitary": {
+      "3": ["evaluate", "evaluate", "state-answer"]
+    },
+    "fn-pre-percent-multiplier/repeated-changes/one-multiplier": {
+      "4": ["percent-multiplier", "evaluate", "percent-multiplier", "state-answer"]
+    },
+    "fn-pre-percent-multiplier/percent-from-amounts/one-multiplier": {
+      "3": ["evaluate", "percent-multiplier", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/percent-to-factor/multiplier": {
+      "3": ["percent-multiplier", "state-answer", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/percent-to-factor/repeated-multiplication": {
+      "3": ["repeat-multiplier", "reason-from-shape", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/percent-to-factor/base-comparison": {
+      "3": ["percent-multiplier", "recall-fact", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/sequence-vs-function/substitute-model": {
+      "3": ["substitute", "evaluate", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/sequence-vs-function/nth-formula": {
+      "3": ["count-steps", "substitute", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/sequence-vs-function/exponential-form": {
+      "3": ["substitute", "evaluate", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/sequence-vs-function/compound-formula": {
+      "3": ["recall-formula", "substitute", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/sequence-vs-function/tvm": {
+      "3": ["gdc-solver", "gdc-solver", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/first-below/multiplier": {
+      "3": ["read-givens", "repeat-multiplier", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/first-below/tabulate": {
+      "3": ["repeat-multiplier", "test-point", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/first-below/gdc-table-compare": {
+      "3": ["gdc-graph", "gdc-graph", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/first-below/graph-intersect": {
+      "3": ["gdc-graph", "round-for-context", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/first-below/logs-for-unknown": {
+      "3": ["take-logs", "round-for-context", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/first-below/gdc-intersect": {
+      "3": ["gdc-graph", "round-for-context", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/factor-from-two-values/substitute-model": {
+      "3": ["substitute", "percent-multiplier", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/graph-from-factor/base-comparison": {
+      "3": ["reason-from-shape", "end-behaviour", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/graph-from-factor/key-points": {
+      "3": ["substitute", "end-behaviour", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/sum-to-infinity-link/test-ratio": {
+      "3": ["read-givens", "recall-fact", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/sum-to-infinity-link/partial-sums": {
+      "3": ["evaluate", "choose-rule", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/depreciation-two-ways/multiplier": {
+      "3": ["percent-multiplier", "repeat-multiplier", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/depreciation-two-ways/tabulate": {
+      "3": ["repeat-multiplier", "evaluate", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/depreciation-two-ways/repeated-multiplication": {
+      "3": ["count-steps", "evaluate", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/depreciation-two-ways/decay-multiplier": {
+      "3": ["model-from-context", "substitute", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/depreciation-two-ways/year-by-year": {
+      "3": ["repeat-multiplier", "evaluate", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/continuous-factor/substitute-model": {
+      "3": ["interpret", "percent-multiplier", "state-answer"]
+    },
+    "fn-link-multiplicative-growth/compounding-factor/compound-formula": {
+      "3": ["percent-multiplier", "substitute", "state-answer"]
+    },
+    "fn-link-symmetry/same-idea/midpoint-of-roots": {
+      "3": ["use-symmetry", "use-symmetry", "state-answer"]
+    },
+    "fn-link-symmetry/same-idea/graph-symmetry": {
+      "3": ["use-symmetry", "state-answer", "state-answer"]
+    },
+    "fn-link-symmetry/same-idea/shaded-sketch": {
+      "3": ["use-symmetry", "state-answer", "state-answer"]
+    },
+    "fn-link-symmetry/mirror-point/midpoint-of-roots": {
+      "3": ["use-symmetry", "isolate", "state-answer"]
+    },
+    "fn-link-symmetry/mirror-point/reflect-point": {
+      "3": [null, "use-symmetry", "state-answer"]
+    },
+    "fn-link-symmetry/find-the-mirror/midpoint-of-roots": {
+      "3": ["use-symmetry", "find-midpoint", "state-answer"]
+    },
+    "fn-link-symmetry/find-the-mirror/midpoint-of-pair": {
+      "3": ["use-symmetry", "find-midpoint", "state-answer"]
+    },
+    "fn-link-symmetry/find-the-mirror/symmetry": {
+      "3": ["use-symmetry", "find-midpoint", "state-answer"]
+    },
+    "fn-link-symmetry/normal-middle/mirror-tails": {
+      "3": ["use-symmetry", "use-complement", "state-answer"]
+    },
+    "fn-link-symmetry/normal-middle/area-bookkeeping": {
+      "4": ["apply-condition", "use-symmetry", "use-complement", "state-answer"]
+    },
+    "fn-link-symmetry/normal-middle/shaded-sketch": {
+      "3": ["use-symmetry", "use-complement", "state-answer"]
+    },
+    "fn-link-symmetry/normal-other-tail/mirror-tails": {
+      "3": ["use-symmetry", "use-complement", "state-answer"]
+    },
+    "fn-link-symmetry/normal-other-tail/area-bookkeeping": {
+      "4": ["recall-fact", "use-symmetry", "add-probabilities", "state-answer"]
+    },
+    "fn-link-symmetry/central-interval/split-tails": {
+      "4": ["use-symmetry", "gdc-stats", "use-symmetry", "state-answer"]
+    },
+    "fn-link-symmetry/central-interval/gdc-center": {
+      "3": ["gdc-stats", "gdc-stats", "state-answer"]
+    },
+    "fn-link-symmetry/related-angle/unit-circle-reflection": {
+      "4": ["recall-fact", "use-symmetry", "find-all-angles", "state-answer"]
+    },
+    "fn-link-symmetry/related-angle/graph-symmetry": {
+      "3": ["use-symmetry", "find-all-angles", "state-answer"]
+    },
+    "fn-link-symmetry/ncr-mirror/symmetry": {
+      "3": ["use-symmetry", "evaluate", "state-answer"]
+    },
+    "fn-link-symmetry/ncr-mirror/factorial-formula": {
+      "3": ["evaluate", "test-point", "state-answer"]
+    },
+    "fn-link-equivalent-forms/form-for-feature/complete-square": {
+      "4": ["substitute", "roots-to-factors", "complete-square", "state-answer"]
+    },
+    "fn-link-equivalent-forms/form-for-feature/compare-coefficients": {
+      "4": ["read-givens", "compare-coefficients", "substitute-back", "state-answer"]
+    },
+    "fn-link-equivalent-forms/form-for-feature/vertex-first": {
+      "3": ["substitute", "read-givens", "state-answer"]
+    },
+    "fn-link-equivalent-forms/form-for-feature/factorise": {
+      "4": ["factorise", "find-midpoint", "substitute", "state-answer"]
+    },
+    "fn-link-equivalent-forms/identity-constants/complete-square": {
+      "3": ["complete-square", "simplify", "state-answer"]
+    },
+    "fn-link-equivalent-forms/identity-constants/compare-coefficients": {
+      "3": ["expand", "compare-coefficients", "state-answer"]
+    },
+    "fn-link-equivalent-forms/identity-constants/substitute-values": {
+      "4": ["substitute", "eliminate", "substitute-back", "state-answer"]
+    },
+    "fn-link-equivalent-forms/same-or-not/substitute-values": {
+      "3": ["test-point", "interpret", "state-answer"]
+    },
+    "fn-link-equivalent-forms/same-or-not/combine": {
+      "2": ["use-log-law", "state-answer"]
+    },
+    "fn-link-equivalent-forms/same-or-not/gdc-check": {
+      "3": ["test-point", "use-log-law", "state-answer"]
+    },
+    "fn-link-equivalent-forms/log-law-check/combine": {
+      "3": ["test-point", "interpret", "state-answer"]
+    },
+    "fn-link-equivalent-forms/log-law-check/gdc-check": {
+      "3": ["test-point", "interpret", "state-answer"]
+    },
+    "fn-link-equivalent-forms/cos2x-form/identity-then-factorise": {
+      "4": ["use-identity", "factorise", "find-all-angles", "state-answer"]
+    },
+    "fn-link-equivalent-forms/cos2x-form/gdc-graph": {
+      "3": ["gdc-graph", "exact-value", "state-answer"]
+    },
+    "fn-link-equivalent-forms/cos2x-form/pick-cos2-form": {
+      "4": ["choose-rule", "factorise", "find-all-angles", "state-answer"]
+    },
+    "fn-link-equivalent-forms/power-form-first/reciprocal-rule": {
+      "3": ["rewrite-form", "differentiate", "state-answer"]
+    },
+    "fn-link-equivalent-forms/power-form-first/index-form": {
+      "3": ["rewrite-form", "differentiate", "state-answer"]
+    },
+    "fn-link-equivalent-forms/power-form-first/quotient-rule": {
+      "3": ["differentiate", "differentiate", "state-answer"]
+    },
+    "fn-link-equivalent-forms/roots-from-vertex-form/roots-to-factors": {
+      "4": ["apply-condition", "square-root-both-sides", "roots-to-factors", "state-answer"]
+    }
+  }
+}
