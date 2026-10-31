@@ -118,7 +118,10 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   that needs no calculator. Its Paper 1 version (FAL-419) gives angles of 30°, 45°, 60°,
   90°, 120° or 135° and sides chosen so the answer is exact: a whole number (3, 5, 7 with
   120°) or m√r (the `surd` kind), marked exactly, with the exact sines and cosines in the
-  working. Every cell makes both papers but the sine rule's angle, which is Paper 2 only.
+  working. On Paper 2 the working shows four figures, or more where the next step
+  worked from four would be off in its last place (FAL-412: h = 10.465, not 10.47, so
+  ½ × 16 × h gives the 83.7 shown); `tools/check-answers` works out every step's
+  arithmetic from the figures shown. Every cell makes both papers but the sine rule's angle, which is Paper 2 only.
 - `engine/situations/arithmetic_sequence.gd` (FAL-392) is the Topic 1
   situation: one arithmetic sequence with u₁, d, n, uₙ, Sₙ, two later terms and the
   first four terms, for `t1-arithmetic-sequence`. Its representations are `notation`

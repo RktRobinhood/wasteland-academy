@@ -878,6 +878,192 @@ def tri_measure(q, t):
     return t["S"][ask.upper()], side_name(ask.upper()) + " = ", " cm"
 
 
+# The worked steps' arithmetic (FAL-412): every "expr = value" in a step, where the expr
+# is numbers only ("½ × 16 × 10.47", "√305.2", "sin⁻¹(0.5333)", "3 − (−5/2)"), is
+# evaluated exactly from the figures shown. A decimal value on Paper 2 must be the
+# expr correctly rounded to the places it shows, so following the printed working
+# reaches the printed numbers; anything else (a fraction, a surd, all of Paper 1)
+# must equal it.
+
+TRI_TOKEN = re.compile(r"\s*(?:(?P<num>\d+(?:\.\d+)?)|(?P<fn>(?:sin|cos|tan)(?:⁻¹)?(?![A-Za-z]))|(?P<word>[A-Za-z]+)"
+                       r"|(?P<op>[−+×÷/()²°√½])|(?P<punct>[,.:;<>]))")
+TRI_FNS = {"sin": deg_sin, "cos": deg_cos, "tan": lambda d: sp.tan(sp.pi * d / 180),
+           "sin⁻¹": lambda x: to_deg(sp.asin(x)), "cos⁻¹": lambda x: to_deg(sp.acos(x)), "tan⁻¹": lambda x: to_deg(sp.atan(x))}
+
+
+def tri_tokens(text):
+    out, i = [], 0
+    while i < len(text):
+        m = TRI_TOKEN.match(text, i)
+        if not m or m.end() == i:
+            if text[i:].strip() == "":
+                break
+            out.append(("other", text[i]))
+            i += 1
+            continue
+        kind = m.lastgroup
+        out.append((kind, m[kind]))
+        i = m.end()
+    return out
+
+
+class TriParse:
+    """Numbers, + − × ÷ /, ², √, ½, brackets, a factor written next to the one before it
+    ("5 sin 65°", "7√3") and sin, cos, sin⁻¹ and cos⁻¹ in degrees. ° only marks degrees."""
+
+    def __init__(self, toks):
+        self.t, self.i = toks, 0
+
+    def peek(self):
+        return self.t[self.i] if self.i < len(self.t) else (None, None)
+
+    def take(self, value=None):
+        tok = self.peek()
+        if tok[0] is None or (value is not None and tok[1] != value):
+            raise Fail("parse")
+        self.i += 1
+        return tok
+
+    def expr(self):
+        v = self.term()
+        while self.peek()[1] in ("+", "−"):
+            v = v + self.term() if self.take()[1] == "+" else v - self.term()
+        return v
+
+    def starts_factor(self):
+        k, s = self.peek()
+        return k in ("num", "fn") or s in ("(", "√", "½")
+
+    def term(self):
+        v = self.unary()
+        while True:
+            s = self.peek()[1]
+            if s in ("×", "÷", "/"):
+                self.take()
+                w = self.unary()
+                v = v * w if s == "×" else v / w
+            elif self.starts_factor():
+                v = v * self.power()
+            else:
+                return v
+
+    def unary(self):
+        if self.peek()[1] == "−":
+            self.take()
+            return -self.unary()
+        return self.power()
+
+    def power(self):
+        v = self.primary()
+        while self.peek()[1] in ("²", "°"):
+            if self.take()[1] == "²":
+                v = v**2
+        return v
+
+    def primary(self):
+        k, s = self.peek()
+        if k == "num":
+            self.take()
+            return sp.Rational(s)
+        if s == "½":
+            self.take()
+            return sp.Rational(1, 2)
+        if s == "(":
+            self.take()
+            v = self.expr()
+            self.take(")")
+            return v
+        if s == "√":
+            self.take()
+            return sp.sqrt(self.primary())
+        if k == "fn":
+            self.take()
+            arg = self.primary()
+            if self.peek()[1] == "°":
+                self.take()
+            return TRI_FNS[s](arg)
+        raise Fail("parse")
+
+
+def tri_value(toks):
+    """The value of tokens that are all one numeric expression, else None."""
+    if not toks or any(k in ("word", "punct", "other") for k, _ in toks):
+        return None
+    p = TriParse(toks)
+    try:
+        v = p.expr()
+    except (Fail, ZeroDivisionError, TypeError, ValueError):
+        return None
+    return v if p.i == len(toks) else None
+
+
+def tri_is_working(toks):
+    """Something is worked out: an operation, not a number on its own."""
+    return any(k == "fn" or s in ("+", "−", "×", "÷", "/", "²", "√", "½") for k, s in toks)
+
+
+def tri_lhs(text):
+    """The numeric expression a segment ends with, after its prose: the longest
+    numeric tail that follows nothing, punctuation or a word (not a letter standing
+    for a side or angle, nor an operator, which would make the tail part of a formula)."""
+    toks = tri_tokens(text)
+    for start in range(len(toks)):
+        tail = toks[start:]
+        v = tri_value(tail)
+        if v is None:
+            continue
+        before = toks[start - 1] if start else None
+        if before is None or before[0] == "punct" or (before[0] == "word" and len(before[1]) > 1):
+            return tail, v
+        return None
+    return None
+
+
+def tri_rhs(text):
+    """The value a segment starts with: its longest numeric head, followed by nothing,
+    punctuation or a word (a unit or prose), not by more of a formula."""
+    toks = tri_tokens(text)
+    for end in range(len(toks), 0, -1):
+        head = toks[:end]
+        v = tri_value(head)
+        if v is None:
+            continue
+        after = toks[end] if end < len(toks) else None
+        if after is None or after[0] == "punct" or (after[0] == "word" and len(after[1]) > 1):
+            return head, v
+        return None
+    return None
+
+
+def tri_rounds_to(v, shown):
+    """v, correctly rounded to the places shown ("83.7", "0.5333", "148"), is shown."""
+    places = len(shown.split(".")[1]) if "." in shown else 0
+    d = Decimal(str(sp.N(v, DIGITS)))
+    step = Decimal(1).scaleb(-places)
+    return d.quantize(step, rounding=ROUND_HALF_UP) == Decimal(shown)
+
+
+def tri_working(q, sol):
+    """Each "expr = value" in a worked solution holds for the figures shown. Returns
+    how many were checked."""
+    checked = 0
+    for st in sol["steps"]:
+        parts = st.split(" = ")
+        for left, right in zip(parts, parts[1:]):
+            lhs, rhs = tri_lhs(left), tri_rhs(right)
+            if lhs is None or rhs is None or not tri_is_working(lhs[0]):
+                continue
+            (_, lv), (rtoks, rv) = lhs, rhs
+            plain = [s for k, s in rtoks if s != "°"]
+            if q.get("paper") == 2 and len(plain) == 1 and rtoks[0][0] == "num":
+                ok = tri_rounds_to(lv, plain[0])
+            else:
+                ok = abs(num(lv) - num(rv)) <= sp.Float(10, DIGITS)**-25 * max(abs(num(rv)), 1)
+            need(ok, f"{sol['name']}: in {st!r}, {left.strip()} is {num(lv):.10}, not {right.split(',')[0].strip()}")
+            checked += 1
+    return checked
+
+
 def check_triangle(q):
     g = q["given"]
     u = q["view"]["unknown"]
@@ -945,6 +1131,7 @@ def check_triangle(q):
         need(close(R(sol["result"]["v"]), exp), f"{sol['name']}: last step gives {num(R(sol['result']['v'])):.8}, not the answer")
         last = sol["steps"][-1]
         need(q["answer_text"] in last, f"{sol['name']}: last step {last!r} doesn't state the answer")
+        need(tri_working(q, sol) > 0, f"{sol['name']}: no step works anything out")
     if q["view"]["angle"] != "any":
         need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
     return None, None
@@ -1001,6 +1188,7 @@ def tri_check_p1(q, g, t, u, label, unit):
         need(q["answer_text"] in last, f"{sol['name']}: last step {last!r} doesn't state the answer")
         need(2 <= len(sol["steps"]) <= 8, f"{sol['name']}: {len(sol['steps'])} steps")
         need(not any(w in " ".join(sol["steps"]) for w in ("GDC", "sin⁻¹", "cos⁻¹", "3 s.f.")), f"{sol['name']}: a calculator step on Paper 1")
+        need(tri_working(q, sol) > 0, f"{sol['name']}: no step works anything out")
     if q["view"]["angle"] != "any":
         need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
 

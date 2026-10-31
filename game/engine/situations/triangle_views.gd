@@ -80,6 +80,39 @@ static func w(x: float) -> String:
 	return Fmt.sf(x, 4)
 
 
+## The figures to show working values xs to, so that the next step, worked from the
+## figures shown, gives the n figures it shows (FAL-412): four, or more where four
+## would be off in the last place. next takes the values as an Array. A value or step
+## within a hair of a rounding edge (39/64 = 0.609375 to 5 figures) counts as off, so
+## a float can't decide it.
+static func figs(xs: Array, next: Callable, n: int) -> int:
+	var want := Fmt.sf(next.call(xs), n)
+	for k in range(4, 10):
+		if xs.any(func(x): return not clear(x, k, Fmt.sf(x, k))):
+			continue
+		if clear(next.call(xs.map(func(x): return shown(x, k))), n, want):
+			return k
+	return 10
+
+
+## y reads as want to n figures, and would still a hair either side.
+static func clear(y: float, n: int, want: String) -> bool:
+	return Fmt.sf(y * (1.0 + 1e-9), n) == want and Fmt.sf(y * (1.0 - 1e-9), n) == want
+
+
+## x as it reads to k significant figures.
+static func shown(x: float, k: int) -> float:
+	return signf(x) * Fmt.sf(absf(x), k).to_float()
+
+
+static func asin_deg(xs: Array) -> float:
+	return deg(asin(xs[0]))
+
+
+static func supplement(xs: Array) -> float:
+	return 180.0 - xs[0]
+
+
 static func rad(deg: float) -> float:
 	return deg_to_rad(deg)
 
@@ -247,23 +280,30 @@ func u_side_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var tX := whole(ax)
 	var sx2 := sy * sy + sz * sz - 2.0 * sy * sz * cos(rad(ax))
 	var sx := sqrt(sx2)
+	var root := func(xs: Array) -> float: return sqrt(xs[0])
+	var t2 := Fmt.sf(sx2, figs([sx2], root, 3))
 	var cosine := [
 		names([X, Y, Z]),
 		"%s is opposite %s, the angle between the two given sides, so use the cosine rule." % [side(X), angle(X)],
 		"%s² = %s² + %s² − 2%s%s cos %s" % [lo(X), lo(Y), lo(Z), lo(Y), lo(Z), X],
-		"%s² = %s² + %s² − 2 × %s × %s × cos %s° = %s" % [lo(X), ty, tz, ty, tz, tX, w(sx2)],
-		"%s = √%s = %s" % [lo(X), w(sx2), sf(sx)],
+		"%s² = %s² + %s² − 2 × %s × %s × cos %s° = %s" % [lo(X), ty, tz, ty, tz, tX, t2],
+		"%s = √%s = %s" % [lo(X), t2, sf(sx)],
 		"So %s." % Answer.text(ans, res(sx))]
 	# The perpendicular from Z to the line PQ, at F: RF = sy sin X and FQ = sz − sy cos X.
 	var h := sy * sin(rad(ax))
 	var fq := sz - sy * cos(rad(ax))
 	var fq_text := "%s − %s cos %s°" % [tz, ty, tX]
+	var hyp2 := h * h + fq * fq
+	var k2 := figs([hyp2], root, 3)
+	var k := figs([h, fq], func(xs: Array) -> float: return xs[0] * xs[0] + xs[1] * xs[1], k2)
+	var th := Fmt.sf(h, k)
+	var tq := Fmt.sf(absf(fq), k)
 	var perp := [
 		"Drop a perpendicular from %s to the line %s, meeting it at F." % [Z, line(X, Y)],
-		"In the right triangle %sF%s: %sF = %s sin %s° = %s cm." % [X, Z, Z, ty, tX, w(h)],
-		("F%s = %s = %s cm." % [Y, fq_text, w(fq)]) if fq >= 0.0 else ("F lies beyond %s, so F%s = −(%s) = %s cm." % [Y, Y, fq_text, w(-fq)]),
-		"In the right triangle %sF%s: %s² = %sF² + F%s² = %s² + %s² = %s" % [Z, Y, side(X), Z, Y, w(h), w(absf(fq)), w(h * h + fq * fq)],
-		"%s = √%s = %s" % [side(X), w(h * h + fq * fq), sf(sqrt(h * h + fq * fq))],
+		"In the right triangle %sF%s: %sF = %s sin %s° = %s cm." % [X, Z, Z, ty, tX, th],
+		("F%s = %s = %s cm." % [Y, fq_text, tq]) if fq >= 0.0 else ("F lies beyond %s, so F%s = −(%s) = %s cm." % [Y, Y, fq_text, tq]),
+		"In the right triangle %sF%s: %s² = %sF² + F%s² = %s² + %s² = %s" % [Z, Y, side(X), Z, Y, th, tq, Fmt.sf(hyp2, k2)],
+		"%s = √%s = %s" % [side(X), Fmt.sf(hyp2, k2), sf(sqrt(hyp2))],
 		"So %s." % Answer.text(ans, res(sqrt(h * h + fq * fq)))]
 	out.methods = {"cosine-rule": {"steps": cosine, "result": res(sx)},
 		"drop-perpendicular": {"steps": perp, "result": res(sqrt(h * h + fq * fq))}}
@@ -273,6 +313,18 @@ func u_side_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	wrong(out, sqrt(sy * sy + sz * sz - 2.0 * sy * sz * cos(ax)), "SL3.2.right-side#2")
 	generic(out, [sqrt(sy * sy + sz * sz + 2.0 * sy * sz * cos(rad(ax))), sqrt(sy * sy + sz * sz), sy + sz - sx])
 	return out
+
+
+## top / bottom, and its lowest terms when they differ: "301 / 364 = 43/52", "103 / 392".
+static func over(top: int, bottom: int) -> String:
+	var c := Q.new(top, bottom)
+	var t := "%s / %d" % [Q.new(top).text(), bottom]
+	return t if c.d == bottom else t + " = " + c.text()
+
+
+## The cosine rule's angle methods, named for the asked angle: "solve for cos B".
+static func titles(X: String) -> Dictionary:
+	return {"substitute-then-solve": "Substitute, then solve for cos %s" % X}
 
 
 func u_angle_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -294,7 +346,7 @@ func u_angle_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var rearranged := [
 		"%s is opposite %s = %d cm, so %s² is the square that is taken away." % [cap(angle(X)), side(X), sx, lo(X)],
 		"cos %s = (%s² + %s² − %s²) / (2%s%s)" % [X, lo(Y), lo(Z), lo(X), lo(Y), lo(Z)],
-		"cos %s = (%d² + %d² − %d²) / (2 × %d × %d) = %s / %d = %s" % [X, sy, sz, sx, sy, sz, Q.new(top).text(), bottom, c.text()],
+		"cos %s = (%d² + %d² − %d²) / (2 × %d × %d) = %s" % [X, sy, sz, sx, sy, sz, over(top, bottom)],
 		"%s = cos⁻¹(%s) = %s°" % [X, c.text(), sf(x)]]
 	if obtuse != "":
 		rearranged.append(obtuse)
@@ -311,6 +363,7 @@ func u_angle_cosine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	solve.append("So %s." % Answer.text(ans, res(x)))
 	out.methods = {"rearranged-formula": {"steps": rearranged, "result": res(x)},
 		"substitute-then-solve": {"steps": solve, "result": res(x)}}
+	out.titles = titles(X)
 	wrong(out, s.angles[Y], "SL3.2.cosine-rule-angle#0")
 	wrong(out, s.angles[Z], "SL3.2.cosine-rule-angle#0")
 	if top < 0:
@@ -346,12 +399,13 @@ func u_side_sine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"So %s." % Answer.text(ans, res(sy))])
 	var h := sx * sin(rad(ay))
 	var q2 := h / sin(rad(ax))
+	var th := Fmt.sf(h, figs([h], func(xs: Array) -> float: return xs[0] / sin(rad(ax)), 3))
 	var alt := first.duplicate()
 	alt.append_array([
 		"Drop the altitude from %s to the line %s. Its height h is a side of two right triangles: h = %s sin %s and h = %s sin %s." % [
 			Z, line(X, Y), lo(X), Y, lo(Y), X],
-		"h = %s sin %s° = %s cm" % [tx, tY, w(h)],
-		"%s = h / sin %s = %s / sin %s° = %s" % [lo(Y), X, w(h), tX, sf(q2)],
+		"h = %s sin %s° = %s cm" % [tx, tY, th],
+		"%s = h / sin %s = %s / sin %s° = %s" % [lo(Y), X, th, tX, sf(q2)],
 		"So %s." % Answer.text(ans, res(q2))])
 	out.methods = {"sides-on-top": {"steps": top, "result": res(sy)}, "drop-altitude": {"steps": alt, "result": res(q2)}}
 	wrong(out, sx * sin(rad(az)) / sin(rad(ax)), "SL3.2.sine-rule#0")
@@ -377,23 +431,27 @@ func u_angle_sine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var tX := whole(ax)
 	var ratio := sy * sin(rad(ax)) / sx
 	var x := deg(asin(ratio))
+	var tr := Fmt.sf(ratio, figs([ratio], asin_deg, 3))
 	var unique := "%s < %s, so %s < %s and %s is acute: 180° − %s° would leave no room for %s = %s°." % [
 		lo(Y), lo(X), Y, X, Y, sf(x), X, tX]
 	var sines := [
 		names([X, Y]),
 		"sin %s / %s = sin %s / %s" % [Y, lo(Y), X, lo(X)],
-		"sin %s = %s sin %s / %s = %s sin %s° / %s = %s" % [Y, lo(Y), X, lo(X), ty, tX, tx, w(ratio)],
-		"%s = sin⁻¹(%s) = %s°" % [Y, w(ratio), sf(x)],
+		"sin %s = %s sin %s / %s = %s sin %s° / %s = %s" % [Y, lo(Y), X, lo(X), ty, tX, tx, tr],
+		"%s = sin⁻¹(%s) = %s°" % [Y, tr, sf(x)],
 		unique,
 		"So %s." % Answer.text(ans, res(x))]
 	var h := sy * sin(rad(ax))
 	var x2 := deg(asin(h / sx))
+	var kr := figs([h / sx], asin_deg, 3)
+	var th := Fmt.sf(h, figs([h], func(xs: Array) -> float: return xs[0] / sx, kr))
+	var tr2 := Fmt.sf(h / sx, kr)
 	var alt := [
 		names([X, Y]),
 		"Drop the altitude from %s to the line %s: in the right triangle with hypotenuse %s, h = %s sin %s° = %s cm." % [
-			Z, line(X, Y), lo(Y), ty, tX, w(h)],
-		"In the right triangle with hypotenuse %s = %s cm: sin %s = h / %s = %s / %s = %s" % [lo(X), tx, Y, lo(X), w(h), tx, w(h / sx)],
-		"%s = sin⁻¹(%s) = %s°" % [Y, w(h / sx), sf(x2)],
+			Z, line(X, Y), lo(Y), ty, tX, th],
+		"In the right triangle with hypotenuse %s = %s cm: sin %s = h / %s = %s / %s = %s" % [lo(X), tx, Y, lo(X), th, tx, tr2],
+		"%s = sin⁻¹(%s) = %s°" % [Y, tr2, sf(x2)],
 		unique,
 		"So %s." % Answer.text(ans, res(x2))]
 	out.methods = {"sines-on-top": {"steps": sines, "result": res(x)}, "drop-altitude": {"steps": alt, "result": res(x2)}}
@@ -428,9 +486,10 @@ func u_area_from_two_sides(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"So %s." % Answer.text(ans, res(area))]
 	var h := sy * sin(rad(ax))
 	var area2 := 0.5 * sz * h
+	var th := Fmt.sf(h, figs([h], func(xs: Array) -> float: return 0.5 * sz * xs[0], 3))
 	var base := [
-		"Take %s = %s cm as the base. The perpendicular height from %s is h = %s sin %s° = %s cm." % [side(Z), tz, Z, ty, tX, w(h)],
-		"Area = ½ × base × height = ½ × %s × %s = %s" % [tz, w(h), sf(area2)],
+		"Take %s = %s cm as the base. The perpendicular height from %s is h = %s sin %s° = %s cm." % [side(Z), tz, Z, ty, tX, th],
+		"Area = ½ × base × height = ½ × %s × %s = %s" % [tz, th, sf(area2)],
 		"So %s." % Answer.text(ans, res(area2))]
 	out.methods = {"half-ab-sinc": {"steps": half, "result": res(area)}, "base-height": {"steps": base, "result": res(area2)}}
 	wrong(out, 2.0 * area, "SL3.2.area-sine#2")
@@ -460,10 +519,11 @@ func u_side_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"So %s." % Answer.text(ans, res(sz))]
 	var h := sy * sin(rad(ax))
 	var r2 := 2.0 * area / h
+	var th := Fmt.sf(h, figs([h], func(xs: Array) -> float: return 2.0 * area / xs[0], 3))
 	var base := [
-		"Take %s as the base. The perpendicular height from %s is h = %s sin %s° = %s cm." % [side(Z), Z, ty, tX, w(h)],
-		"%d = ½ × %s × %s" % [area, side(Z), w(h)],
-		"%s = 2 × %d / %s = %s" % [side(Z), area, w(h), sf(r2)],
+		"Take %s as the base. The perpendicular height from %s is h = %s sin %s° = %s cm." % [side(Z), Z, ty, tX, th],
+		"%d = ½ × %s × %s" % [area, side(Z), th],
+		"%s = 2 × %d / %s = %s" % [side(Z), area, th, sf(r2)],
 		"So %s." % Answer.text(ans, res(r2))]
 	out.methods = {"half-ab-sinc": {"steps": half, "result": res(sz)}, "base-height": {"steps": base, "result": res(r2)}}
 	wrong(out, sz / 2.0, "SL3.2.area-sine#2")
@@ -488,29 +548,38 @@ func u_angle_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ratio := 2.0 * area / (sy * sz)
 	var acute := deg(asin(ratio))
 	var x := 180.0 - acute if obtuse else acute
-	var pick := ("%s is obtuse, so %s = 180° − %s° = %s°." % [cap(angle(X)), X, w(acute), sf(x)]) if obtuse \
+	# The acute angle is shown so that 180° − it gives the supplement's 4 figures and,
+	# when it is the answer, the answer's 3; the sines so that sin⁻¹ gives the angle.
+	var ka := figs([acute], supplement, 4)
+	if obtuse:
+		ka = maxi(ka, figs([acute], supplement, 3))
+	var ta := Fmt.sf(acute, ka)
+	var tr := Fmt.sf(ratio, figs([ratio], asin_deg, ka))
+	var pick := ("%s is obtuse, so %s = 180° − %s° = %s°." % [cap(angle(X)), X, ta, sf(x)]) if obtuse \
 		else ("%s is acute, so %s = %s°." % [cap(angle(X)), X, sf(x)])
 	var frac := Q.new(2 * area, int(sy) * int(sz))
 	var half := [
 		"%s is the angle between %s and %s, so Area = ½%s%s sin %s." % [cap(angle(X)), side(Y), side(Z), lo(Y), lo(Z), X],
 		"%d = ½ × %s × %s × sin %s" % [area, ty, tz, X],
-		"sin %s = 2 × %d / (%s × %s) = %s = %s" % [X, area, ty, tz, frac.text(), w(ratio)],
-		"sin⁻¹(%s) = %s°" % [w(ratio), w(acute)],
+		"sin %s = 2 × %d / (%s × %s) = %s = %s" % [X, area, ty, tz, frac.text(), tr],
+		"sin⁻¹(%s) = %s°" % [tr, ta],
 		pick,
 		"So %s." % Answer.text(ans, res(x))]
 	var h := 2.0 * area / sz
 	var ratio2 := h / sy
 	var acute2 := deg(asin(ratio2))
 	var x2 := 180.0 - acute2 if obtuse else acute2
+	var kr := figs([ratio2], asin_deg, ka)
+	var th := Fmt.sf(h, figs([h], func(xs: Array) -> float: return xs[0] / sy, kr))
 	var base := [
-		"Take %s = %s cm as the base: %d = ½ × %s × h, so the height from %s is h = %s cm." % [side(Z), tz, area, tz, Z, w(h)],
-		"That height is %s sin %s, so sin %s = h / %s = %s / %s = %s" % [lo(Y), X, X, lo(Y), w(h), ty, w(ratio2)],
-		"sin⁻¹(%s) = %s°" % [w(ratio2), w(acute2)],
+		"Take %s = %s cm as the base: %d = ½ × %s × h, so the height from %s is h = %s cm." % [side(Z), tz, area, tz, Z, th],
+		"That height is %s sin %s, so sin %s = h / %s = %s / %s = %s" % [lo(Y), X, X, lo(Y), th, ty, Fmt.sf(ratio2, kr)],
+		"sin⁻¹(%s) = %s°" % [Fmt.sf(ratio2, kr), Fmt.sf(acute2, ka)],
 		pick,
 		"So %s." % Answer.text(ans, res(x2))]
 	var both := [
-		"sin %s = 2 × Area / (%s%s) = 2 × %d / (%s × %s) = %s" % [X, lo(Y), lo(Z), area, ty, tz, w(ratio)],
-		"Two angles from 0° to 180° have this sine: %s° and 180° − %s° = %s°. Both give the same area." % [w(acute), w(acute), w(180.0 - acute)],
+		"sin %s = 2 × Area / (%s%s) = 2 × %d / (%s × %s) = %s" % [X, lo(Y), lo(Z), area, ty, tz, tr],
+		"Two angles from 0° to 180° have this sine: %s° and 180° − %s° = %s°. Both give the same area." % [ta, ta, w(180.0 - acute)],
 		pick,
 		"So %s." % Answer.text(ans, res(x))]
 	out.methods = {"half-ab-sinc": {"steps": half, "result": res(x)}, "base-height": {"steps": base, "result": res(x2)},
@@ -689,7 +758,7 @@ func u_angle_cosine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var rearranged := [
 		"%s is opposite %s = %d cm, so %s² is the square that is taken away." % [cap(angle(X)), side(X), sx, lo(X)],
 		"cos %s = (%s² + %s² − %s²) / (2%s%s)" % [X, lo(Y), lo(Z), lo(X), lo(Y), lo(Z)],
-		"cos %s = (%d² + %d² − %d²) / (2 × %d × %d) = %s / %d = %s" % [X, sy, sz, sx, sy, sz, Q.new(top).text(), bottom, c.text()]]
+		"cos %s = (%d² + %d² − %d²) / (2 × %d × %d) = %s" % [X, sy, sz, sx, sy, sz, over(top, bottom)]]
 	if obtuse != "":
 		rearranged.append(obtuse)
 	rearranged.append_array([known, "So %s." % Answer.text(ans)])
@@ -704,6 +773,7 @@ func u_angle_cosine_rule_p1(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	solve.append_array([known, "So %s." % Answer.text(ans)])
 	out.methods = {"rearranged-formula": {"steps": rearranged, "result": ans.values},
 		"substitute-then-solve": {"steps": solve, "result": ans.values}}
+	out.titles = titles(X)
 	if top < 0:
 		ex_wrong(out, [Q.new(180 - d), 1], "SL3.2.cosine-rule-angle#1")
 	ex_generic(out, near_angles(d))

@@ -218,3 +218,36 @@ func test_every_method_ends_at_the_answer() -> void:
 		for s in q.solutions:
 			check(absf(s.result.v.to_float() - want) < 1e-6 * want, "%s: %s gives %s" % [c.key, s.name, s.result.v.to_float()])
 			check(Step.text(s.steps[-1]).contains(q.answer_text), "%s: %s last step %s" % [c.key, s.name, Step.text(s.steps[-1])])
+
+
+func test_the_cosine_rule_angle_method_names_the_asked_angle() -> void:
+	# FAL-412: "Substitute, then solve for cos B" when B is asked, not always cos A.
+	var asked := {}
+	for paper in [1, 2]:
+		for seed in range(1, 31):
+			var q := _make("angle-cosine-rule", "words", "substitute-then-solve", seed, "value", paper)
+			var X: String = q.given.ask
+			asked[X] = true
+			var title := "Substitute, then solve for cos %s" % X
+			check(q.prompt.contains("Method: %s." % title), "seed %d: %s" % [seed, q.prompt])
+			var names: Array = q.solutions.map(func(s): return s.name)
+			check(title in names, "seed %d: %s" % [seed, names])
+	check(asked.size() > 1, "only angle %s is asked" % [asked.keys()])
+
+
+func test_a_fraction_in_lowest_terms_is_written_once() -> void:
+	# FAL-412: "103 / 392", not "103 / 392 = 103/392"; "301 / 364 = 43/52" still simplifies.
+	check_eq(TriangleViews.over(103, 392), "103 / 392")
+	check_eq(TriangleViews.over(-103, 392), "−103 / 392")
+	check_eq(TriangleViews.over(301, 364), "301 / 364 = 43/52")
+	check_eq(TriangleViews.over(24, 48), "24 / 48 = 1/2")
+
+
+func test_working_figures_reach_the_next_step() -> void:
+	# FAL-412: h = 10.47 cm made ½ × 16 × 10.47 = 83.76, not the 83.7 shown. More
+	# figures are shown where four would be off; a tie (0.609375) takes them all.
+	var half_base := func(xs: Array) -> float: return 0.5 * 16.0 * xs[0]
+	check_eq(TriangleViews.figs([10.4651], half_base, 3), 5, "10.465")
+	check_eq(TriangleViews.figs([12.0], half_base, 3), 4, "12.00 is enough")
+	check(not TriangleViews.clear(39.0 / 64.0, 5, Fmt.sf(39.0 / 64.0, 5)), "0.609375 is a tie to 5 figures")
+	check(TriangleViews.clear(39.0 / 64.0, 6, "0.609375"), "and clear to 6")
