@@ -253,3 +253,39 @@ func test_licences_in_the_files_and_the_credits() -> void:
 		var c := main.get_node_or_null("Credits")
 		check(c != null, "the credits open")
 	main.free()
+
+
+## FAL-512: the oldest recent result showing sits whole inside the box, and the EXE and
+## mode labels are white.
+func test_top_history_row_is_whole_and_exe_is_white() -> void:
+	for window in [Vector2i(360, 780), Vector2i(390, 844), Vector2i(1280, 800)]:
+		var made: Array = await _practice(_area(window))
+		var p: Control = made[1]
+		p.show_view(P2)
+		await tree.process_frame
+		p.open_calculator("sci")
+		await tree.process_frame
+		var c: Calculator = p.calculator
+		for n in range(1, 13):
+			_type(c, Array(str(n).split("")) + ["+", "1", "EXE"])
+		await tree.process_frame
+		await tree.process_frame
+		await tree.process_frame
+		var box := c.history_scroll.get_global_rect()
+		var rows := c.history_box.get_children().filter(func(n): return n is Button and n.visible)
+		var top: Control = null
+		for r in rows:
+			if r.get_global_rect().end.y > box.position.y + 0.5:
+				top = r
+				break
+		check(top != null, "%s: there are rows showing" % [window])
+		if top:
+			var r: Rect2 = top.get_global_rect()
+			check(r.position.y >= box.position.y - 0.5 and r.end.y <= box.end.y + 0.5,
+				"%s: the top row %s sits inside the history box %s" % [window, r, box])
+		var last: Rect2 = rows[-1].get_global_rect()
+		check(last.end.y <= box.end.y + 0.5 and last.end.y > box.end.y - 8.0,
+			"%s: the newest row %s ends at the bottom of the box %s" % [window, last, box])
+		for b in [c.keypad.buttons["EXE"], c.mode_button]:
+			check_eq(b.get_theme_color("font_color"), Color.WHITE, "%s: %s label is white" % [window, b.name])
+		_done(made)
