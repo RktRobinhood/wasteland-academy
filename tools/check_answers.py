@@ -518,8 +518,10 @@ def check_lines(q, f_given):
 
 # ── One question ─────────────────────────────────────────────
 
-# The game's font has superscript digits and ⁻ but no superscript letters (FAL-499):
-# a power with a letter in it is written with a caret, x^n or x^(m−1).
+# The game's default font has superscript digits but no superscript letters (FAL-499):
+# a power with a letter in it is written with a caret, x^n or x^(m−1). It has no ⁻
+# either (FAL-514), so a bundled DejaVu Sans subset sits behind it; the exporter asks
+# the real font stack about every character, and "missing_glyphs" lists those it can't draw.
 SUP_LETTER = re.compile("[ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ]")
 
 
@@ -530,6 +532,7 @@ def check(q):
     question it is built on, with that question's own options."""
     sup = SUP_LETTER.search(json.dumps(q, ensure_ascii=False))
     need(sup is None, f"a superscript letter {sup and sup.group()!r} the game's font can't show")
+    need(not q.get("missing_glyphs"), f"characters the game's fonts can't draw: {q.get('missing_glyphs')!r}")
     if q["format"] in EXTRA_FORMATS:
         check_format(q)
         q = dict(q, choices=q["base_choices"])

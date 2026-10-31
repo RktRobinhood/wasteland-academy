@@ -213,8 +213,7 @@ func _text(font: Font, s: String, at: Vector2, col: Color, fs: int, centred: boo
 	draw_string(font, pos, s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
 
 
-## Whether a tick label at p would sit on a marked point or its curve label.
-## Whether a curve passes under the backed label _text would draw at `at`.
+## Whether a curve passes under the backed label s would draw at `at`.
 func _crosses_label(font: Font, s: String, at: Vector2, fs: int) -> bool:
 	var w := font.get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
 	var box := Rect2(at + Vector2(-6, -fs + 2), Vector2(w + 12, fs + 10)).grow(4.0)
@@ -225,6 +224,7 @@ func _crosses_label(font: Font, s: String, at: Vector2, fs: int) -> bool:
 	return false
 
 
+## Whether a tick label at p would sit on a marked point or its curve label.
 func _near_point(p: Vector2) -> bool:
 	for m in spec.points:
 		if to_px(Vector2(m.x, m.y)).distance_to(p) < 44.0:
