@@ -517,7 +517,7 @@ func _show_steps(box: VBoxContainer, i: int) -> void:
 	var sol: Dictionary = question.solutions[i]
 	box.add_child(UiTheme.label(sol.name, UiTheme.SMALL, UiTheme.DIM))
 	for st in sol.steps:
-		box.add_child(UiTheme.label(st, UiTheme.BODY))
+		box.add_child(UiTheme.label(Step.text(st), UiTheme.BODY))
 
 
 func _update_progress() -> void:

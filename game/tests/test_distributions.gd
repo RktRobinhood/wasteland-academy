@@ -53,7 +53,7 @@ func test_k_in_each_representation() -> void:
 	check_eq(t.answer_text, "k = 1/%d" % t.situation.total)
 	var f := _make("t4-discrete-distribution", "k-from-sum", "equation", "sum-to-one", 1)
 	check(f.lines[1].begins_with("P(X = x) = k"), f.lines[1])
-	check(f.solutions[0].steps[0].begins_with("Put each value of x into"), "a formula is tabulated first")
+	check(Step.text(f.solutions[0].steps[0]).begins_with("Put each value of x into"), "a formula is tabulated first")
 	var w := _make("t4-discrete-distribution", "k-from-sum", "words", "sum-to-one", 1)
 	check(w.table == null and w.lines[0].begins_with("Let X be "), w.lines[0])
 
@@ -190,7 +190,7 @@ func test_paper_2_k_beside_decimals_and_in_a_formula() -> void:
 	var t := _make("t4-discrete-distribution", "k-from-sum", "table", "sum-to-one", 3, "value", 2)
 	var row: Array = t.table.rows[1][1]
 	check(row.any(func(e): return e.ends_with("k")) and row.any(func(e): return e.begins_with("0.")), "decimals and multiples of k: %s" % [row])
-	check(t.solutions[0].steps.any(func(st): return st.contains("GDC")), "the working uses the GDC")
+	check(t.solutions[0].steps.any(func(st): return Step.text(st).contains("GDC")), "the working uses the GDC")
 	var f := _make("t4-discrete-distribution", "k-from-sum", "equation", "sum-to-one", 3, "value", 2)
 	check(f.lines[1].begins_with("P(X = x) = k/"), f.lines[1])
 	var e := _make("t4-expected-value", "expected-value", "equation", "sum-xp", 3, "value", 2)
@@ -200,7 +200,7 @@ func test_paper_2_k_beside_decimals_and_in_a_formula() -> void:
 func test_paper_2_lucky_dip() -> void:
 	var q := _make("t4-expected-value", "fair-stake", "words", "net-gain-table", 5, "value", 2)
 	check(q.lines[0].begins_with("A lucky dip at the bazaar holds 1000 tokens."), q.lines[0])
-	check(q.solutions[0].steps.any(func(st): return st.contains("to the nearest cent")), "the stake is rounded to the cent")
+	check(q.solutions[0].steps.any(func(st): return Step.text(st).contains("to the nearest cent")), "the stake is rounded to the cent")
 
 
 func test_paper_2_offers_the_rounding_trap() -> void:

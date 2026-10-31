@@ -25,6 +25,7 @@ game/
 ├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains, Bazaar prices
 ├── engine/bazaar.gd     ← the Bazaar's rules: upgrades, perks, cosmetics (see "The Bazaar")
 ├── engine/art_slots.gd  ← art by file name, with a fallback for each (see "Art slots")
+├── engine/step.gd       ← a worked-solution step: a String, or {move, board} with a move tag (see "Question engine")
 ├── engine/expr.gd       ← the expression engine (TinyExpr port): the calculator and every typed answer
 ├── engine/brent.gd, graph_tools.gd ← Brent's root finder and minimiser (SciPy port); zeros, extrema, intersections
 ├── ui/calculator.gd     ← the in-game calculator (see "The calculator"); ui/calc_graph.gd its graph, ui/keypad.gd the keys
@@ -223,6 +224,13 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
   with its `ref`) and a worked solution for every method that suits the unknown.
+- A **worked-solution step** (FAL-426) in `methods[angle].steps` is a String, or
+  `{"move": "<move id>", "board": "<text>"}` when it carries a move tag for the
+  explainers: the move is the general step from `curriculum/moves.json`, and the board
+  is this question's text. Read steps with `Step.text(st)` (what is shown: the board,
+  or the String) and `Step.move(st)` (the move id, or ""), never by type. The checker's
+  export writes steps as text, with each solution's `moves` beside them (a move id or
+  null per step).
 - `QuestionEngine.make(view)` (`engine/question_engine.gd`) returns the question, its
   marking and its working for any explicit view and seed. The same view and seed always
   give the same question. `QuestionEngine.cells()` lists the coverage cells.
@@ -818,6 +826,8 @@ script error happens while it runs. Run one file with
   average floor and Scrap per run for players who answer 50%, 70% and 90% right.
 - `test_practice.gd`: the practice screen plays every representation and format,
   records answers, and fits at 390x844 and 1280x800.
+- `test_step.gd`: a worked-solution step as a String or a tagged `{move, board}`: the
+  practice screen and Hint show the board, and the export writes text with the moves.
 - `test_audio.gd`: a loop per location at the length the review measured, only the
   wired-in loops in `assets/audio/music/`, the effects mirrored from the HTML game, the
   two buses, sound off on a fresh install, settings that survive a reload, and the

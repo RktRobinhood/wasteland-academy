@@ -4674,7 +4674,7 @@ def check_exp_graph(q):
     elif u == "pick-graph":
         need(A > 0, "a reflected graph is not offered as increasing")
         y0 = f.subs(X, 0)
-        say = lambda asym, a_, b_, up_: el_m_text(f"asymptote y = {asym}, through {a_} and {b_}, {'increasing' if up_ else 'decreasing'}")
+        say = lambda asym, a_, b_, up_: el_m_text(f"asymptote y = {asym}, through {a_ if a_ == b_ else a_ + ' and ' + b_}, {'increasing' if up_ else 'decreasing'}")
         P = lambda x_, y_: el_m_text(f"({frac_text(x_)}, {frac_text(y_)})")
         want = qr_norm(ans, {"v": say(c, P(0, y0), P(h, A + c), True)})
     elif u == "moves-from-parent":

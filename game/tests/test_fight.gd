@@ -14,7 +14,8 @@ func _area(window: Vector2i) -> Vector2:
 	return Vector2(window) / scale
 
 
-func _screen(area: Vector2, seed_no: int = 3, select := false, save: Dictionary = {}, fight := 1) -> Array:
+func _screen(area: Vector2, seed_no: int = 3, select := false, save: Dictionary = {}, fight := 1,
+		region := "quadratics") -> Array:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 	if not save.is_empty():
 		SaveData.store(save, SAVE)
@@ -26,6 +27,7 @@ func _screen(area: Vector2, seed_no: int = 3, select := false, save: Dictionary 
 	f.run_seed = seed_no
 	f.select_first = select
 	f.first_fight = fight
+	f.region = region
 	frame.add_child(f)
 	await tree.process_frame
 	return [frame, f]
@@ -122,6 +124,38 @@ func test_fits_a_390_phone() -> void:
 
 func test_fits_a_pc_window() -> void:
 	await _check_fits(Vector2i(1280, 800))
+
+
+## Every region's title, the all-regions dungeon's too, leaves Quit on screen, clear
+## of the title and of the speaker and gear's strip (FAL-506). A region with no
+## questions yet can't start a run, so its title goes on a Quadratics run.
+func test_quit_fits_beside_every_region_title() -> void:
+	var regions: Array = [Dungeon.ALL]
+	for r in QuestionEngine.catalogue().get("regions", []):
+		regions.append(r.id)
+	check(regions.has("exp-log") and Progress.is_built("exp-log"), "the longest title is in the list, and playable")
+	for window in [Vector2i(360, 780), Vector2i(390, 844), Vector2i(1280, 800)]:
+		var area := _area(window)
+		var screen := Rect2(Vector2.ZERO, area)
+		for region in regions:
+			var built := Progress.is_built(region)
+			var made: Array = await _screen(area, 3, false, {}, 1, region if built else "quadratics")
+			var f: Control = made[1]
+			if not built:
+				f.region = region
+				f._update_hud()
+			for i in 3:
+				await tree.process_frame
+			var what := "%s %s" % [window, region]
+			check(f.title.text.begins_with(Dungeon.region_name(region)), "%s: title %s" % [what, f.title.text])
+			var quit: Rect2 = f.quit_button.get_global_rect()
+			var title: Rect2 = f.title.get_global_rect()
+			check(f.quit_button.is_visible_in_tree(), "%s: Quit shows" % what)
+			check(screen.encloses(quit), "%s: Quit %s outside %s" % [what, quit, screen])
+			check(quit.end.x <= area.x - AudioHud.RESERVED_RIGHT + 1, "%s: Quit %s under the speaker and gear" % [what, quit])
+			check(title.end.x <= quit.position.x + 1, "%s: the title %s runs into Quit %s" % [what, title, quit])
+			check(f.title.get_line_count() <= 2, "%s: the title takes %d lines" % [what, f.title.get_line_count()])
+			_done(made)
 
 
 ## The column, the HUD and the card fit the width (the card scrolls down), with the

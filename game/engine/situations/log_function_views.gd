@@ -48,7 +48,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	out.asked = M(out.asked)
 	out.lines = out.lines.map(func(l): return M(l))
 	for a in out.methods:
-		out.methods[a].steps = out.methods[a].steps.map(func(l): return M(l))
+		out.methods[a].steps = out.methods[a].steps.map(func(st): return Step.map_text(st, M))
 	return out
 
 

@@ -81,7 +81,7 @@ func test_paper_1_is_exact() -> void:
 			check(not q.answer_text.contains("."), "%s: %s" % [c.key, q.answer_text])
 			for sol in q.solutions:
 				check(Answer.values_right(ans, sol.result), "%s: %s ends at %s" % [c.key, sol.name, sol.result])
-				check(sol.steps[-1].contains(q.answer_text), "%s: %s last step %s" % [c.key, sol.name, sol.steps[-1]])
+				check(Step.text(sol.steps[-1]).contains(q.answer_text), "%s: %s last step %s" % [c.key, sol.name, Step.text(sol.steps[-1])])
 			# Exact marking: the exact value is right, a 3 s.f. decimal of a surd is not.
 			var typed := {}
 			for k in ans.values:
@@ -217,7 +217,7 @@ func test_every_method_ends_at_the_answer() -> void:
 		var want: float = q.answer.values.v.to_float()
 		for s in q.solutions:
 			check(absf(s.result.v.to_float() - want) < 1e-6 * want, "%s: %s gives %s" % [c.key, s.name, s.result.v.to_float()])
-			check(s.steps[-1].contains(q.answer_text), "%s: %s last step %s" % [c.key, s.name, s.steps[-1]])
+			check(Step.text(s.steps[-1]).contains(q.answer_text), "%s: %s last step %s" % [c.key, s.name, Step.text(s.steps[-1])])
 
 
 func test_the_cosine_rule_angle_method_names_the_asked_angle() -> void:

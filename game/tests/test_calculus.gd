@@ -168,7 +168,7 @@ func test_paper_2_needs_a_calculator() -> void:
 			check(q.answer.values.values().any(func(v): return v is Q and Answer.needs_rounding(v)), "%s: %s needs no rounding" % [key, q.answer_text])
 			for sol in q.solutions:
 				check(sol.steps.size() >= 2 and sol.steps.size() <= 5, "%s: %d steps" % [key, sol.steps.size()])
-				check(" ".join(sol.steps).contains("GDC"), "%s: the working doesn't use the GDC" % key)
+				check(" ".join(Step.texts(sol.steps)).contains("GDC"), "%s: the working doesn't use the GDC" % key)
 			for o in q.choices:
 				for v in o.values.values():
 					if v is Q and not v.is_zero() and not o.get("trap", false):

@@ -77,7 +77,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	out.asked = M(out.asked)
 	out.lines = out.lines.map(func(l): return M(l))
 	for a in out.methods:
-		out.methods[a].steps = out.methods[a].steps.map(func(l): return M(l))
+		out.methods[a].steps = out.methods[a].steps.map(func(st): return Step.map_text(st, M))
 	return out
 
 
@@ -658,7 +658,8 @@ func u_inverse_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"methods": {
 			"graph-check": {"result": ans.values, "steps": [
 				"Reflect the graph in y = x: the asymptote y = %d becomes x = %d." % [c, c],
-				"f crosses the y-axis at (0, %d), so f⁻¹ crosses the x-axis at (%d, 0)." % [y0, y0], final]},
+				("f crosses the y-axis at (0, %d), so f⁻¹ crosses the x-axis at (%d, 0)." % [y0, y0]) if y0 != 0
+					else "f passes through the origin, so f⁻¹ does too: its x-intercept is x = 0.", final]},
 			"compare-key-points": {"result": ans.values, "steps": [
 				"f has asymptote y = %d and passes through (0, %d)." % [c, y0],
 				"The inverse swaps x and y: asymptote x = %d, through (%d, 0)." % [c, y0], final]},
@@ -951,7 +952,9 @@ func u_pick_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c: int = s.c
 	var y0 := eg_y0(s)
 	var p1 := Fmt.point(s.h, s.A.add(Q.new(c)))
-	var say := func(asym: int, a: String, b2: String, up: bool) -> String: return M("asymptote y = %d, through %s and %s, %s" % [asym, a, b2, "increasing" if up else "decreasing"])
+	# With h = 0 the y-intercept is also where the exponent is 0, so the point is named once.
+	var say := func(asym: int, a: String, b2: String, up: bool) -> String:
+		return M("asymptote y = %d, through %s, %s" % [asym, a if a == b2 else a + " and " + b2, "increasing" if up else "decreasing"])
 	var right: String = say.call(c, Fmt.point(0, y0), p1, true)
 	var opts: Array = [right]
 	for o in [say.call(0, Fmt.point(0, y0), p1, true), say.call(c, Fmt.point(0, y0), p1, false), say.call(c, Fmt.point(0, s.A.add(Q.new(c))), p1, true),
@@ -964,7 +967,8 @@ func u_pick_graph(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"asked": "Which description matches the graph of y = %s?" % eg_text(s), "lines": ["y = " + eg_text(s)], "answer": ans,
 		"generic": opts.slice(1).map(func(o): return {"v": o}),
 		"methods": {
-			"key-points": {"result": ans.values, "steps": ["The asymptote is y = %d; at x = 0, y = %s." % [c, N(y0)], "At x = %d, y = %s." % [s.h, N(s.A.add(Q.new(c)))], final]},
+			"key-points": {"result": ans.values, "steps": ["The asymptote is y = %d; at x = 0, y = %s." % [c, N(y0)],
+				"At x = %d, y = %s." % [s.h, N(s.A.add(Q.new(c)))] if s.h != 0 else "At x = 1, y = %s." % N(s.A.mul(Q.new(s.b)).add(Q.new(c))), final]},
 			"base-comparison": {"result": ans.values, "steps": ["The base %d is greater than 1 and A > 0, so the graph increases." % s.b, "It passes through (0, %s) and levels off at y = %d." % [N(y0), c], final]},
 			"gdc-transfer": {"result": ans.values, "steps": ["Graph y = %s on the GDC." % eg_text(s), "Its trace crosses x = 0 at y = %s and flattens towards y = %d." % [N(y0), c], final]},
 		}}

@@ -25,9 +25,9 @@
   {
    "title": "Sound",
    "used_in": "assets/audio/",
-   "what": "Sound effects from free libraries; music made for the game. Every file's source, licence and changes are listed in assets/audio/CREDITS.md in the repository.",
-   "licence": "CC0 1.0 (sound effects)",
-   "notice": "CC0 needs no attribution; the sources are credited anyway."
+   "what": "Sound effects from free libraries; music made for the game; Spark's voice generated on our own machine with VoxCPM2 by OpenBMB. Every file's source, licence and changes are listed in assets/audio/CREDITS.md in the repository.",
+   "licence": "CC0 1.0 (sound effects); Apache-2.0 (VoxCPM2, the voice model)",
+   "notice": "CC0 needs no attribution; the sources are credited anyway. VoxCPM2 is released by OpenBMB under the Apache License 2.0: https://github.com/OpenBMB/VoxCPM"
   },
   {
    "title": "Godot Engine",

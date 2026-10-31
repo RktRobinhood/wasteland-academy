@@ -127,7 +127,7 @@ func test_paper_2_is_a_decimal_context_in_words() -> void:
 			check(v.mul(100).is_int(), "%s seed %d: %s doesn't end" % [c.key, seed, q.answer_text])
 			if c.unknown.begins_with("n-from"):
 				check(v.is_int() and v.sign() > 0, "%s seed %d: n is not a positive whole number" % [c.key, seed])
-			check(q.solutions.all(func(sol): return sol.steps.any(func(st): return st.contains("GDC"))), c.key + ": no GDC step")
+			check(q.solutions.all(func(sol): return sol.steps.any(func(st): return Step.text(st).contains("GDC"))), c.key + ": no GDC step")
 			var right: int = range(q.choices.size()).filter(func(i): return q.choices[i].correct)[0]
 			check(QuestionEngine.mark(q, {"choice": right}).correct, c.key)
 

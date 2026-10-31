@@ -165,7 +165,7 @@ func test_forced_papers_are_exact_or_need_a_calculator() -> void:
 					check("3 significant figures" in q.asked, key + ": doesn't ask for 3 s.f.")
 					var r := QuestionEngine.mark(q, _sf_typed(ans))
 					check(r.correct, key + ": the answer typed to 3 s.f. is marked wrong")
-					var steps := " ".join(q.solutions[0].steps)
+					var steps := " ".join(Step.texts(q.solutions[0].steps))
 					check("GDC" in steps or "formula" in steps or "√" in steps, key + ": the working uses no calculator")
 
 
@@ -220,7 +220,7 @@ func test_another_way_keeps_the_numbers() -> void:
 					check(b.solutions[0].angle == to, key + ": the view's own method comes first")
 					if to == "factorise" and a.answer.kind == "measure":
 						p2_to_factorise += 1
-						check("factorising fails" in " ".join(b.solutions[0].steps), key + ": says factorising fails")
+						check("factorising fails" in " ".join(Step.texts(b.solutions[0].steps)), key + ": says factorising fails")
 	check(p2_to_factorise > 0, "no Paper 2 context switched to factorising")
 
 
