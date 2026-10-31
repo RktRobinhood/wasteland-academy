@@ -7,6 +7,7 @@ extends RefCounted
 ##   Progress.accuracy(save, "quadratics")       # {"right", "seen", "percent"}
 ##   Progress.weakest_skills(save, "quadratics") # up to 3 {"id", "name", "right", "seen", "percent"}
 ##   Progress.is_built("rational")               # false until a situation of the region is built
+##   Progress.suggest(save)                      # SPARK's pick: {"region", "why"}, or {}
 ##
 ## A region is a catalogue region id, or Dungeon.ALL for the whole island. Coverage
 ## counts the cells the save has seen against the catalogue's cells for the region,
@@ -119,6 +120,36 @@ static func best_floor(save: Dictionary, region: String) -> int:
 ## types decide, so a region lights up when its situations merge, with no map change.
 static func is_built(region: String) -> bool:
 	return not Dungeon.region_types(region).is_empty()
+
+
+## SPARK's pick on the island map (FAL-531 plan): the open (built) region to suggest,
+## and why, as {"region", "why"}; {} when no region is open. A suggestion, never a gate.
+##   "untried":  the first the player hasn't tried, in MapLink.region_ids() order (most
+##               examined first);
+##   "accuracy": otherwise the lowest accuracy among regions with MIN_ATTEMPTS answers;
+##   "coverage": otherwise the lowest share of the region's cells checked.
+## Ties go to the earlier region in that order.
+static func suggest(save: Dictionary, regions: Array = MapLink.region_ids()) -> Dictionary:
+	var open := regions.filter(func(id): return is_built(id))
+	for id in open:
+		if accuracy(save, id).seen == 0 and best_floor(save, id) == 0:
+			return {"region": id, "why": "untried"}
+	var best := {}
+	var low := INF
+	for id in open:
+		var acc := accuracy(save, id)
+		if acc.seen >= MIN_ATTEMPTS and float(acc.right) / acc.seen < low:
+			low = float(acc.right) / acc.seen
+			best = {"region": id, "why": "accuracy"}
+	if not best.is_empty():
+		return best
+	for id in open:
+		var cov := coverage(save, id)
+		var share: float = float(cov.checked) / cov.total if cov.total > 0 else 1.0
+		if share < low:
+			low = share
+			best = {"region": id, "why": "coverage"}
+	return best
 
 
 ## True once the player has beaten the boss of the last skill-tier floor (floor 3), the
