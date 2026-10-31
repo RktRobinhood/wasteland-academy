@@ -40,6 +40,8 @@ const WIDTH := 1040
 ## margins on a 360 px phone), so its height is known before the first frame.
 const TEXT_WIDTH := 880
 const HISTORY := 30
+## The recent-results box is about this tall; _fit_history trims it to whole rows.
+const HISTORY_HEIGHT := 380
 const TITLE_FONT := preload("res://assets/fonts/bangers-latin.woff2")
 
 var mode := "sci"
@@ -208,7 +210,7 @@ func _sci() -> Control:
 	sci_box.add_theme_constant_override("separation", 8)
 	history_scroll = ScrollContainer.new()
 	history_scroll.name = "History"
-	history_scroll.custom_minimum_size = Vector2(0, 380)
+	history_scroll.custom_minimum_size = Vector2(0, HISTORY_HEIGHT)
 	history_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	sci_box.add_child(history_scroll)
 	history_box = VBoxContainer.new()
@@ -393,7 +395,7 @@ static func _key_look(b: Button, slot: String, face: Color) -> void:
 		b.add_theme_stylebox_override(state, normal)
 	b.add_theme_stylebox_override("pressed", down)
 	b.add_theme_stylebox_override("hover_pressed", down)
-	var ink := Color.WHITE if face == MAGENTA else INK
+	var ink := Color.WHITE if slot == "key-mode" else INK
 	for c in ["font_color", "font_hover_color", "font_focus_color"]:
 		b.add_theme_color_override(c, ink)
 	b.add_theme_color_override("font_pressed_color", TEAL.darkened(0.5))
@@ -509,9 +511,31 @@ func _add_history_row(entry: Dictionary) -> void:
 	_scroll_down.call_deferred()
 
 
+## Sizes the recent-results box to a whole number of rows, so the oldest row showing is
+## never cut off at the top of the screen (FAL-512). The hint shares the box while the
+## results all fit, and goes once they fill it.
+func _fit_history() -> void:
+	var rows := history_box.get_children().filter(func(n): return n is Button)
+	if rows.is_empty():
+		return
+	var sep: int = history_box.get_theme_constant("separation")
+	var step: float = (rows[0] as Button).get_combined_minimum_size().y + sep
+	var fit := maxi(1, int((HISTORY_HEIGHT + sep) / step))
+	history_scroll.custom_minimum_size.y = fit * step - sep
+	history_box.get_node("Hint").visible = rows.size() < fit
+
+
 func _scroll_down() -> void:
 	if is_instance_valid(history_scroll):
-		history_scroll.scroll_vertical = int(history_scroll.get_v_scroll_bar().max_value)
+		_fit_history()
+		# The scroll bar's range is a frame behind a row just added, and scrolling to its
+		# old max left the oldest row cut off. Wait one frame, then scroll by the content's
+		# own size.
+		await get_tree().process_frame
+		if not is_instance_valid(history_scroll):
+			return
+		var over := history_box.get_combined_minimum_size().y - history_scroll.custom_minimum_size.y
+		history_scroll.scroll_vertical = maxi(0, ceili(over))
 
 
 func _say(text: String) -> void:
