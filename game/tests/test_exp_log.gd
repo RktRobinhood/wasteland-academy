@@ -158,6 +158,30 @@ func test_numbers_use_a_true_minus() -> void:
 				check(not RegEx.create_from_string("-\\d").search(t), "%s: %s" % [c.key, t])
 
 
+func test_a_point_is_named_once_when_the_two_key_points_meet() -> void:
+	# FAL-564: with h = 0 the y-intercept is also where the exponent is 0, and with
+	# f(0) = 0 the inverse's x-intercept is the origin too.
+	var pt := RegEx.create_from_string("\\((−?[\\d/]+), (−?[\\d/]+)\\)")
+	var met := {"pick-graph": 0, "inverse-graph": 0}
+	for c in QuestionEngine.cells(false, ["fn-ext-exp-graph", "fn-exp-log-inverse-composite"]):
+		if not c.unknown in ["pick-graph", "inverse-graph"]:
+			continue
+		for seed in range(1, 41):
+			var q := _make(c.type, c.unknown, c.rep, c.angle, seed, "mcq")
+			var texts: Array = q.lines + q.choices.map(func(o): return o.text)
+			for sol in q.solutions:
+				texts += sol.steps
+			for t in texts:
+				var seen := {}
+				for m in pt.search_all(t):
+					check(not seen.has(m.get_string()), "%s seed %d: %s" % [c.key, seed, t])
+					seen[m.get_string()] = true
+			if (c.unknown == "pick-graph" and q.situation.h == 0) or (c.unknown == "inverse-graph" and texts.any(func(t): return t.contains("origin"))):
+				met[c.unknown] += 1
+	for u in met:
+		check(met[u] > 0, "%s: no seed puts the two key points together" % u)
+
+
 func test_the_error_spot_is_adding_the_percentages() -> void:
 	var c: Dictionary = QuestionEngine.cells(false, ["fn-pre-percent-multiplier"]).filter(func(x): return x.unknown == "repeated-changes")[0]
 	for seed in range(1, 10):
