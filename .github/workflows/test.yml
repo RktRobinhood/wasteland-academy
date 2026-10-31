@@ -27,6 +27,8 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm test
+      # The telemetry outlier report (FAL-407): standard library only, no install
+      - run: python3 -m unittest discover -s tools/telemetry
       - uses: actions/upload-artifact@v7
         if: always()
         with:
