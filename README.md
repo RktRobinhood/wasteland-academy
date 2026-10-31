@@ -22,6 +22,7 @@ IB Math AA SL gamified review tool. Post-apocalyptic roguelite. Static GitHub Pa
 ├── content/            ← Question packs (one file per topic)
 ├── vendor/             ← KaTeX and the two fonts, copied in (see vendor/LICENSES.md)
 ├── game/               ← Godot 4.7.2 version, published at /next/ (see game/README.md)
+├── services/telemetry/ ← Anonymous telemetry collector, a Cloudflare Worker (see its README.md)
 └── assets/             ← Art assets (avatars, enemies, UI, maps)
 ```
 

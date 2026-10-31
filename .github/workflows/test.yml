@@ -84,6 +84,25 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  # The telemetry collector (services/telemetry, FAL-406): a Cloudflare Worker,
+  # tested in Cloudflare's local runtime with its own package.json.
+  telemetry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: services/telemetry
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: services/telemetry/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
   # The SymPy answer checker, in its own job like the sweep so the godot job keeps its
   # time: with the Exponentials and logs region (FAL-418) it checks about 70,000
   # questions, and the godot job had been at 13 of its 15 minutes without it.
