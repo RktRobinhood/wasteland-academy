@@ -138,14 +138,14 @@ static func thunderdome_open() -> bool:
 
 ## "locked" (coming soon: nothing built), "open" or "cleared", for a region or "all".
 func spot_state(region: String) -> String:
-	if not Progress.is_built(region):
+	if not Progress.is_built(region, Courses.of(save)):
 		return "locked"
 	return "cleared" if Progress.is_cleared(save, region) else "open"
 
 
 ## True when a run can start in the region: it has a built type.
-static func can_start(region: String) -> bool:
-	return Progress.is_built(region)
+static func can_start(region: String, course: String = "") -> bool:
+	return Progress.is_built(region, course)
 
 
 # ── Building ─────────────────────────────────────────────────
@@ -543,7 +543,7 @@ func _fill_region() -> void:
 	head.add_child(region_gap)
 	region_col.add_child(head)
 
-	if not can_start(id):
+	if not can_start(id, Courses.of(save)):
 		var soon := UiTheme.label("Coming soon", 72, UiTheme.SAND)
 		soon.name = "ComingSoon"
 		soon.add_theme_font_override("font", UiTheme.TITLE_FONT)
@@ -566,7 +566,7 @@ func _fill_region() -> void:
 	region_col.add_child(_stats_panel(id))
 	region_col.add_child(_weak_panel(id))
 
-	if can_start(id):
+	if can_start(id, Courses.of(save)):
 		var buttons := VBoxContainer.new()
 		buttons.name = "Start"
 		buttons.add_theme_constant_override("separation", 16)
@@ -635,7 +635,7 @@ func _weak_panel(id: String) -> Control:
 ## Starts a run in the region on a floor the save may start on. A region with nothing
 ## built can't start one.
 func start_run(region: String, on_floor: int) -> bool:
-	if not can_start(region):
+	if not can_start(region, Courses.of(save)):
 		return false
 	preload("res://ui/fight.gd").launch = {"region": region, "floor": on_floor}
 	get_tree().change_scene_to_file(FIGHT)
@@ -643,7 +643,7 @@ func start_run(region: String, on_floor: int) -> bool:
 
 
 func open_practice(region: String) -> bool:
-	if not can_start(region):
+	if not can_start(region, Courses.of(save)):
 		return false
 	preload("res://ui/practice.gd").launch_region = region
 	get_tree().change_scene_to_file(PRACTICE)

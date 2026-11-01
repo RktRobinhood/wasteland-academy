@@ -559,7 +559,8 @@ func _show_steps(box: VBoxContainer, i: int) -> void:
 
 
 func _update_progress() -> void:
-	var pool := QuestionEngine.cells(save.settings.exam_only, Dungeon.region_types(practice_region) if practice_region != "" else [])
+	var course := Courses.of(save)
+	var pool := QuestionEngine.cells(save.settings.exam_only, Dungeon.region_types(practice_region, course) if practice_region != "" else [], course)
 	var seen := 0
 	var right := 0
 	for c in pool:

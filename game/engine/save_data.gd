@@ -4,6 +4,9 @@ extends RefCounted
 ##
 ##   version    VERSION; older saves go through migrate() on load
 ##   settings   {"exam_only": false}
+##   course     the student's IB course (FAL-397): "aa-sl", "aa-hl", "ai-sl" or "ai-hl".
+##              Courses.of(save) reads it; set_course() changes it and keeps every cell
+##              record, so progress on the skills two courses share is not lost
 ##   cells      coverage cell key -> {"seen", "right", "wrong", "last", "last_result",
 ##              "misconceptions": {ref: times}, "last_misconception"}
 ##   probes     concept probe key -> the same record, without misconceptions
@@ -26,13 +29,13 @@ extends RefCounted
 ## misconception ref is recorded on the cell, so lesson feedback and suggestions can
 ## use it later.
 
-const VERSION := 4
+const VERSION := 5
 const PATH := "user://save.json"
 const HISTORY := 20
 
 
 static func blank() -> Dictionary:
-	return {"version": VERSION, "settings": {"exam_only": false}, "cells": {}, "probes": {}, "history": [],
+	return {"version": VERSION, "settings": {"exam_only": false}, "course": Courses.DEFAULT, "cells": {}, "probes": {}, "history": [],
 		"seed": 0, "class": null, "trees": {}, "lessons": {}, "scrap": 0,
 		"runs": {"played": 0, "best_fights": 0, "questions": 0, "right": 0}, "dungeon": {},
 		"bazaar": blank_bazaar()}
@@ -91,7 +94,23 @@ static func call_step(v: int, data: Dictionary) -> Dictionary:
 			var out := data.duplicate(true)
 			out["bazaar"] = blank_bazaar()
 			return out
+		4:
+			# Version 4 to 5 (FAL-397): the IB course. Every save so far played AA SL, the
+			# only course built, so that is the course it keeps.
+			var out := data.duplicate(true)
+			out["course"] = Courses.DEFAULT
+			return out
 	return data
+
+
+## Puts the save on a course (Courses.ids()). Returns false, changing nothing, for an id
+## courses.json doesn't list. The cell records stay: a cell is a skill's question, so a
+## course that shares the skill keeps what the student has done on it.
+static func set_course(data: Dictionary, course: String) -> bool:
+	if not Courses.has(course):
+		return false
+	data["course"] = course
+	return true
 
 
 static func load_from(path: String = PATH) -> Dictionary:
