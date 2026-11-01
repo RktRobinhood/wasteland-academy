@@ -19,7 +19,11 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	if need.get("mode", "") == "level":
 		s = _level(rng)
 	else:
-		s = GdcTwoCurvesSituation.generate(rng, {"mode": "line", "crossings": 2})
+		for i in 50:
+			s = GdcTwoCurvesSituation.generate(rng, {"mode": "line", "crossings": 2})
+			# A curve meeting the line exactly at an end of the domain is a third crossing.
+			if s.is_empty() or (absf(GdcTwoCurvesSituation.h(s, s.d1.to_float())) > 1e-6 and absf(GdcTwoCurvesSituation.h(s, s.d2.to_float())) > 1e-6):
+				break
 	if s.is_empty():
 		return {}
 	var x0: float = s.crossings[0][0]
