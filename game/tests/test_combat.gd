@@ -13,11 +13,15 @@ func _run(seed_no: int = 42, start_floor: int = 1, save: Dictionary = {}) -> Run
 	return r
 
 
-## The response that answers the open question right, or wrong (a wrong option).
+## The response that answers the open question right, or wrong (a wrong option). A typed
+## question's wrong answer is one that can be typed: some wrong options can't (a root the
+## question has no slot for).
 static func respond(q: Dictionary, right: bool) -> Dictionary:
 	var pick := -1
+	var typed := not QuestionEngine.is_choice(q)
 	for i in q.choices.size():
-		if q.choices[i].correct == right and not q.choices[i].get("trap", false) and pick < 0:
+		if q.choices[i].correct == right and not q.choices[i].get("trap", false) and pick < 0 \
+				and (right or not typed or Answer.typable(q.answer, q.choices[i].values)):
 			pick = i
 	if QuestionEngine.is_choice(q):
 		return {"choice": pick}

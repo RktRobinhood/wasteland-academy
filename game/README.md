@@ -22,6 +22,7 @@ game/
 ├── engine/dungeon.gd    ← floors by level, tiers, boss chains, start floors (see "The dungeon")
 ├── engine/map_link.gd   ← map links (#functions/quadratics), browser history, music by island
 ├── engine/progress.gd   ← a region's accuracy, best floor, coverage and weakest skills
+├── engine/courses.gd    ← the student's IB course and what it covers (see "Courses")
 ├── engine/tuning.gd     ← every combat number: timers, tiers, Scrap, stakes, lifelines, floors, chains, Bazaar prices
 ├── engine/bazaar.gd     ← the Bazaar's rules: upgrades, perks, cosmetics (see "The Bazaar")
 ├── engine/art_slots.gd  ← art by file name, with a fallback for each (see "Art slots")
@@ -336,7 +337,24 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `Expression` class is never used on what a student types (`test_expr.gd` checks).
 - **Planner** (`engine/planner.gd`): never-seen cell, then a recently missed one, then
   exam frequency. "Exam-style only" (off by default) keeps exam cells only and follows
-  exam frequency.
+  exam frequency. It plans only from the cells the save's course covers (see "Courses").
+- **Courses** (`engine/courses.gd`, FAL-397): the save's `course` is `aa-sl`, `aa-hl`,
+  `ai-sl` or `ai-hl` (`SaveData.set_course()`, `Courses.of(save)`), and a course is a
+  filter over the shared skills, not a separate game. `data/courses.json` lists the
+  subtopics each course covers (written by `node tools/courses.mjs --write` from the
+  `courses` on every subtopic), and a skill is in the subtopic of the first two parts of
+  its id (`SL2.6.vertex` is in `SL2.6`). A cell is **covered** when every skill of its
+  unknown is in the course and the method (angle) it asks by teaches a skill that is too
+  (`QuestionEngine.covered()`); an unknown with no skills (prior-learning algebra) is
+  covered by every course. `QuestionEngine.cells()`, `built_types()`, `probes()` and
+  `angles_for()` take a course (`""` for none), and so do `Dungeon`'s floors, warm-ups,
+  prior-learning steps, boss chains and link parts, `Planner`, `Progress` and the map's
+  locked regions. A `Run` reads the course when it starts. AA SL and AA HL cover every
+  question built so far, so for them nothing changes. AI SL and AI HL get fewer cells,
+  about three in ten of the built ones at the time of writing: a cell needs every skill it
+  tests in the course, and the AI guide shares only some of AA's subtopics (`SL2.6`
+  quadratics and `SL2.9` exponentials and logs are AA's alone). The rest needs AI content
+  built. Changing course keeps every cell record, so progress on shared skills is not lost.
 - **Rounding trap** (Q7), **a rule for every situation**: a view's builder returns
   `trap`, from `Answer.rounding_trap(answer)`. Where the answer is one number that
   needs rounding at 3 s.f., that is the number rounded to 2 s.f., and `_choices()`
@@ -354,6 +372,7 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `class` or `trees` gets them on load. Version 3 (FAL-415): `dungeon` holds each
   region's best floor and the floors whose boss fell. Version 4 (FAL-416): `bazaar`,
   what the Bazaar sold; an older save gets a blank one and keeps its Scrap to spend.
+  Version 5 (FAL-397): `course`, `aa-sl` for every save made before it.
 
 ## Combat
 
@@ -880,6 +899,11 @@ script error happens while it runs. Run one file with
 - `test_seeded.gd`: the seeded stream's first draw is as fair as every later one (chance,
   float, whole number, pick and weighted pick over 1000 seeds), the same text gives the
   same stream, and the first five draws of one key are pinned (FAL-460).
+- `test_courses.gd`: the four courses; which skills, unknowns and methods each covers
+  (AA SL and AA HL every built cell, AI SL inside AI HL); the save's `course`, its
+  version 5 migration and `set_course()` keeping the cell records; and that the planner,
+  a run's floors, warm-ups, prior learning, mini-bosses, bosses and links, and the map's
+  counts only use cells the course covers.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.
 - `test_combat.gd`: a scripted run with a fixed seed and answers gives the same fights,

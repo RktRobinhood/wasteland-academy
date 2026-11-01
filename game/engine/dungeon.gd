@@ -12,14 +12,19 @@ extends RefCounted
 ##
 ## A region is a catalogue region id, or ALL for the all-regions dungeon: every built
 ## type of the island (the Functions types, which have a region).
+##
+## Most functions take the student's `course` last (Courses.of(save); "" for none): a
+## floor, a warm-up, a prior-learning step, a boss chain or a link part only uses
+## unknowns the course covers.
 
 const ALL := "all"
 const ALL_NAME := "All regions"
 
 
-## The built types a run in this region plays, in catalogue order.
-static func region_types(region: String) -> Array:
-	var built := QuestionEngine.built_types()
+## The built types a run in this region plays, in catalogue order. With a course, the
+## types it covers at least one unknown of.
+static func region_types(region: String, course: String = "") -> Array:
+	var built := QuestionEngine.built_types(course)
 	if region == ALL:
 		return built.filter(func(id): return QuestionEngine.type_of(id).get("region") != null)
 	return built.filter(func(id): return QuestionEngine.type_of(id).get("region") == region)
@@ -56,11 +61,11 @@ static func floor_band(on_floor: int) -> Array:
 
 ## Every coverage cell this floor serves, in the region's built types (or in `types`,
 ## for tests). exam_only is the save's "Exam-style only" switch.
-static func floor_cells(region: String, on_floor: int, exam_only: bool = false, types: Array = []) -> Array:
-	var ids: Array = types if not types.is_empty() else region_types(region)
+static func floor_cells(region: String, on_floor: int, exam_only: bool = false, types: Array = [], course: String = "") -> Array:
+	var ids: Array = types if not types.is_empty() else region_types(region, course)
 	if ids.is_empty():
 		return []
-	return filter_floor(QuestionEngine.cells(exam_only, ids), region, on_floor)
+	return filter_floor(QuestionEngine.cells(exam_only, ids, course), region, on_floor)
 
 
 ## The cells of `cells` that belong on a floor: the floor table's types where the
@@ -101,20 +106,20 @@ static func floor_types(cells: Array) -> Array:
 
 
 ## Level-0 cells (prior learning) of the region, for warm-ups and after a miss.
-static func prior_cells(region: String, exam_only: bool = false) -> Array:
-	var ids := region_types(region).filter(func(id): return is_prior(id))
-	return QuestionEngine.cells(exam_only, ids) if not ids.is_empty() else []
+static func prior_cells(region: String, exam_only: bool = false, course: String = "") -> Array:
+	var ids := region_types(region, course).filter(func(id): return is_prior(id))
+	return QuestionEngine.cells(exam_only, ids, course) if not ids.is_empty() else []
 
 
 ## The prior-learning type to serve after a miss on this cell: one of the region's
 ## (or `types`') prior-learning types whose `supports` lists a skill of the missed
 ## unknown, picked by `salt`; "" if none does or the miss was prior learning itself.
-static func prior_for(region: String, cell_key: String, salt: String = "", types: Array = []) -> String:
+static func prior_for(region: String, cell_key: String, salt: String = "", types: Array = [], course: String = "") -> String:
 	var bits := cell_key.split("|")
 	if bits.size() < 2 or is_prior(bits[0]):
 		return ""
 	var skills: Array = QuestionEngine.unknown_of(QuestionEngine.type_of(bits[0]), bits[1]).get("skills", [])
-	var ids: Array = types if not types.is_empty() else region_types(region)
+	var ids: Array = types if not types.is_empty() else region_types(region, course)
 	var fits: Array = ids.filter(func(id):
 		if not is_prior(id):
 			return false
@@ -152,8 +157,9 @@ static func tier_for(seed_no: int, on_floor: int, n: int) -> int:
 	return mini(5, base + Tuning.raise_for(on_floor))
 
 
-## A type's chain as steps [{"type", "unknown"}], only if every step is built.
-static func chain_steps(type_id: String) -> Array:
+## A type's chain as steps [{"type", "unknown"}], only if every step is built (and, with
+## a course, covered by it).
+static func chain_steps(type_id: String, course: String = "") -> Array:
 	var out: Array = []
 	for step in Tuning.CHAINS.get(type_id, []):
 		var bits: PackedStringArray = (step as String).split(":")
@@ -161,6 +167,9 @@ static func chain_steps(type_id: String) -> Array:
 		var u := bits[-1]
 		var views = QuestionEngine.views_for(QuestionEngine.type_of(t))
 		if views == null or not views.has(u):
+			return []
+		var ty := QuestionEngine.type_of(t)
+		if not QuestionEngine.covered(course, ty, QuestionEngine.unknown_of(ty, u)):
 			return []
 		out.append({"type": t, "unknown": u})
 	return out
@@ -192,30 +201,30 @@ static func parts_for(seed_no: int, on_floor: int, kind: String) -> int:
 ## for the boss's last part ({} if none is built). {} if no type on the floor (or, failing
 ## that, in the region) has a chain long enough.
 ##   cells   the floor's cells (Dungeon.floor_cells), for the floor's types
-static func boss_plan(seed_no: int, region: String, on_floor: int, kind: String, cells: Array = []) -> Dictionary:
+static func boss_plan(seed_no: int, region: String, on_floor: int, kind: String, cells: Array = [], course: String = "") -> Dictionary:
 	var rng := Seeded.new("boss|%d|%d|%s|%s" % [seed_no, on_floor, kind, region])
 	var n := parts_for(seed_no, on_floor, kind)
-	var floor_ids := floor_types(cells if not cells.is_empty() else floor_cells(region, on_floor))
-	var pick := _boss_type(floor_ids, n, rng)
+	var floor_ids := floor_types(cells if not cells.is_empty() else floor_cells(region, on_floor, false, [], course))
+	var pick := _boss_type(floor_ids, n, rng, course)
 	if pick == "":
-		pick = _boss_type(region_types(region), n, rng)
+		pick = _boss_type(region_types(region, course), n, rng, course)
 	if pick == "":
 		return {}
-	var chain := chain_steps(pick)
+	var chain := chain_steps(pick, course)
 	var at := rng.int_in(0, chain.size() - n)
 	var steps: Array = []
 	for i in n:
 		var st: Dictionary = chain[at + i].duplicate()
 		var u := QuestionEngine.unknown_of(QuestionEngine.type_of(st.type), st.unknown)
 		st.rep = u.reps[0]
-		st.angle = QuestionEngine.angles_for(QuestionEngine.type_of(st.type), st.unknown)[0]
+		st.angle = QuestionEngine.angles_for(QuestionEngine.type_of(st.type), st.unknown, course)[0]
 		st.format = "mcq" if rng.chance(0.5) else "value"
 		steps.append(st)
 	var link := {}
 	if kind == "boss" and Tuning.BOSS_LINK_PART:
-		var links := region_types(region).filter(func(id): return is_link(id))
+		var links := region_types(region, course).filter(func(id): return is_link(id))
 		if not links.is_empty():
-			var lc := QuestionEngine.cells(false, [links[rng.int_in(0, links.size() - 1)]])
+			var lc := QuestionEngine.cells(false, [links[rng.int_in(0, links.size() - 1)]], course)
 			var c: Dictionary = lc[rng.int_in(0, lc.size() - 1)]
 			var fmt := QuestionEngine.upgrade_format(c, "mcq" if rng.chance(0.5) else "value", rng)
 			link = {"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": fmt, "seed": rng.int_in(1, 999999)}
@@ -224,8 +233,8 @@ static func boss_plan(seed_no: int, region: String, on_floor: int, kind: String,
 
 ## A type with a chain of at least n built steps, weighted by how often Section B
 ## chains it (stats.section.B, plus 1 so a Section A type can still come up).
-static func _boss_type(ids: Array, n: int, rng: Seeded) -> String:
-	var ok: Array = ids.filter(func(id): return chain_steps(id).size() >= n)
+static func _boss_type(ids: Array, n: int, rng: Seeded, course: String = "") -> String:
+	var ok: Array = ids.filter(func(id): return chain_steps(id, course).size() >= n)
 	if ok.is_empty():
 		return ""
 	var weights: Array = ok.map(func(id):

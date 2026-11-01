@@ -107,8 +107,9 @@ static func views_for(t: Dictionary) -> Object:
 	return _views[sit]
 
 
-## Types the engine can make questions for: every unknown has a builder.
-static func built_types() -> Array:
+## Types the engine can make questions for: every unknown has a builder. With a course
+## (Courses), only the types it covers at least one unknown of (covers_type).
+static func built_types(course: String = "") -> Array:
 	var out: Array = []
 	for t in catalogue().types:
 		var v = views_for(t)
@@ -118,7 +119,7 @@ static func built_types() -> Array:
 		for u in t.unknowns:
 			if not v.has(u.id):
 				all = false
-		if all:
+		if all and covers_type(course, t):
 			out.append(t.id)
 	return out
 
@@ -131,12 +132,33 @@ static func unknown_of(t: Dictionary, id: String) -> Dictionary:
 
 
 ## The angles (method ids) that suit an unknown, in catalogue order; ["any"] if none.
-static func angles_for(t: Dictionary, unknown: String) -> Array:
+## With a course, only the methods it covers: [] when the unknown has methods and none of
+## them is in the course.
+static func angles_for(t: Dictionary, unknown: String, course: String = "") -> Array:
 	var out: Array = []
+	var listed := false
 	for a in t.get("angles", []):
-		if unknown in a.suits and not out.has(a.method):
-			out.append(a.method)
-	return out if not out.is_empty() else ["any"]
+		if unknown in a.suits:
+			listed = true
+			if not out.has(a.method) and Courses.covers_method(course, a):
+				out.append(a.method)
+	return out if not out.is_empty() or listed else ["any"]
+
+
+## Whether a student on `course` may be asked the unknown `u` of type `t`: every skill it
+## lists is in the course, and so is one of its methods (if it has any).
+static func covered(course: String, t: Dictionary, u: Dictionary) -> bool:
+	return course == "" or (Courses.covers(course, u) and not angles_for(t, u.id, course).is_empty())
+
+
+## Whether the course covers at least one unknown of a catalogue type.
+static func covers_type(course: String, t: Dictionary) -> bool:
+	if course == "":
+		return true
+	for u in t.get("unknowns", []):
+		if covered(course, t, u):
+			return true
+	return false
 
 
 static func angle_info(t: Dictionary, unknown: String, method: String) -> Dictionary:
@@ -162,10 +184,11 @@ static func rep_is_exam(t: Dictionary, rep: String) -> bool:
 
 ## Every coverage cell of the built types (or of `types`), each
 ## {"key", "type", "unknown", "rep", "angle", "level", "exam", "weight"}.
-## exam_only keeps exam types and their exam unknowns and representations.
-static func cells(exam_only: bool = false, types: Array = []) -> Array:
+## exam_only keeps exam types and their exam unknowns and representations. A course
+## (Courses) keeps the unknowns it covers; "" keeps them all.
+static func cells(exam_only: bool = false, types: Array = [], course: String = "") -> Array:
 	var out: Array = []
-	var ids := types if not types.is_empty() else built_types()
+	var ids := types if not types.is_empty() else built_types(course)
 	for id in ids:
 		var t := type_of(id)
 		var exam_type: bool = t.source == "exam"
@@ -174,11 +197,13 @@ static func cells(exam_only: bool = false, types: Array = []) -> Array:
 		for u in t.unknowns:
 			if exam_only and not u.exam:
 				continue
+			if not covered(course, t, u):
+				continue
 			for rep in u.reps:
 				var exam: bool = exam_type and bool(u.exam) and rep_is_exam(t, rep)
 				if exam_only and not exam:
 					continue
-				for angle in angles_for(t, u.id):
+				for angle in angles_for(t, u.id, course):
 					out.append({"key": cell_key(id, u.id, rep, angle), "type": id, "unknown": u.id, "rep": rep,
 						"angle": angle, "level": int(u.level), "exam": exam})
 	return out
@@ -789,13 +814,14 @@ const VERDICTS := {
 const SELF_MARK := ["I had it", "Not yet"]
 
 
-## Every concept probe of the built types: {"key", "type", "index", "kind", "level"}.
-## Probes are extension material, so "Exam-style only" leaves them out.
-static func probes(exam_only: bool = false) -> Array:
+## Every concept probe of the built types (of a course's, with one): {"key", "type",
+## "index", "kind", "level"}. Probes are extension material, so "Exam-style only" leaves
+## them out.
+static func probes(exam_only: bool = false, course: String = "") -> Array:
 	if exam_only:
 		return []
 	var out: Array = []
-	for id in built_types():
+	for id in built_types(course):
 		var t := type_of(id)
 		var cs: Array = t.get("concepts", [])
 		for i in cs.size():

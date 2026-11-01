@@ -11,7 +11,8 @@ extends RefCounted
 ## A region is a catalogue region id, or Dungeon.ALL for the whole island. Coverage
 ## counts the cells the save has seen against the catalogue's cells for the region,
 ## built or not, so it reads "0 of 40" before a region is playable. Every number follows
-## the save's "Exam-style only" switch: with it on, only exam cells count.
+## the save's "Exam-style only" switch: with it on, only exam cells count. They follow its
+## course too (Courses.of): the cells that course covers.
 
 ## How many weakest skills the region screen flags.
 const WEAKEST := 3
@@ -31,20 +32,26 @@ static func catalogue_types(region: String) -> Array:
 	return out
 
 
-## The catalogue's coverage cells for the region, with the "Exam-style only" switch.
-static func catalogue_cells(region: String, exam_only: bool = false) -> Array:
+## The catalogue's coverage cells for the region, with the "Exam-style only" switch and
+## the course's cells only (Courses; "" for every cell).
+static func catalogue_cells(region: String, exam_only: bool = false, course: String = "") -> Array:
 	var ids := catalogue_types(region)
 	# cells() with no types means every built type, so an empty region stays empty.
-	return QuestionEngine.cells(exam_only, ids) if not ids.is_empty() else []
+	return QuestionEngine.cells(exam_only, ids, course) if not ids.is_empty() else []
 
 
 static func _exam_only(save: Dictionary) -> bool:
 	return bool(save.get("settings", {}).get("exam_only", false))
 
 
+## The region's cells as the save sees them: its "Exam-style only" switch and its course.
+static func _cells(save: Dictionary, region: String) -> Array:
+	return catalogue_cells(region, _exam_only(save), Courses.of(save))
+
+
 ## {"checked": cells the save has seen, "total": the catalogue's cells}, for the region.
 static func coverage(save: Dictionary, region: String) -> Dictionary:
-	var pool := catalogue_cells(region, _exam_only(save))
+	var pool := _cells(save, region)
 	var checked := 0
 	for c in pool:
 		if int(save.cells.get(c.key, {}).get("seen", 0)) > 0:
@@ -57,7 +64,7 @@ static func coverage(save: Dictionary, region: String) -> Dictionary:
 static func accuracy(save: Dictionary, region: String) -> Dictionary:
 	var right := 0
 	var seen := 0
-	for c in catalogue_cells(region, _exam_only(save)):
+	for c in _cells(save, region):
 		var r: Dictionary = save.cells.get(c.key, {})
 		right += int(r.get("right", 0))
 		seen += int(r.get("seen", 0))
@@ -68,7 +75,7 @@ static func accuracy(save: Dictionary, region: String) -> Dictionary:
 ## unknown lists.
 static func skill_stats(save: Dictionary, region: String) -> Dictionary:
 	var out := {}
-	for c in catalogue_cells(region, _exam_only(save)):
+	for c in _cells(save, region):
 		var r: Dictionary = save.cells.get(c.key, {})
 		var seen := int(r.get("seen", 0))
 		if seen == 0:
@@ -115,10 +122,11 @@ static func best_floor(save: Dictionary, region: String) -> int:
 	return int(Dungeon.record(save, region).get("best", 0))
 
 
-## True when the region has a built type, so a run can start there. The engine's built
-## types decide, so a region lights up when its situations merge, with no map change.
-static func is_built(region: String) -> bool:
-	return not Dungeon.region_types(region).is_empty()
+## True when the region has a built type (that the course covers, with one), so a run can
+## start there. The engine's built types decide, so a region lights up when its
+## situations merge, with no map change.
+static func is_built(region: String, course: String = "") -> bool:
+	return not Dungeon.region_types(region, course).is_empty()
 
 
 ## True once the player has beaten the boss of the last skill-tier floor (floor 3), the

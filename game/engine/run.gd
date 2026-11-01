@@ -43,6 +43,8 @@ const GLANCING_NOTE := "The IB needs 3 s.f."
 
 var save: Dictionary
 var region: String
+## The save's IB course (Courses.of), read when the run starts: a run asks only what it covers.
+var course := ""
 var start_floor: int
 ## The floor being played, from start_floor down.
 var floor_no: int
@@ -110,6 +112,7 @@ var rule := ""
 func _init(save_data: Dictionary, region_id: String, from_floor: int = 1, seed_no: int = 1, avatar_id: String = "learner") -> void:
 	save = save_data
 	region = region_id
+	course = Courses.of(save)
 	start_floor = maxi(1, from_floor)
 	floor_no = start_floor
 	run_seed = seed_no
@@ -163,7 +166,7 @@ func _ctx() -> Dictionary:
 func _enter_floor(f: int) -> void:
 	floor_no = f
 	fight = 0
-	floor_cells = Dungeon.floor_cells(region, f, _exam_only())
+	floor_cells = Dungeon.floor_cells(region, f, _exam_only(), [], course)
 	floor_seen = {}
 	warmups_left = Tuning.WARMUPS if f == 1 else 0
 	if records:
@@ -206,7 +209,7 @@ func _next_fight() -> void:
 ## The mini-boss or boss of this fight (Q9): the chain's parts made on one situation,
 ## plus a link question to end a boss where the region has one. {} if none can be made.
 func _make_boss() -> Dictionary:
-	var plan := Dungeon.boss_plan(run_seed, region, floor_no, kind, floor_cells)
+	var plan := Dungeon.boss_plan(run_seed, region, floor_no, kind, floor_cells, course)
 	if plan.is_empty():
 		return {}
 	var chain := QuestionEngine.make_chain(plan.steps, plan.seed)
@@ -264,10 +267,10 @@ func _plan() -> Dictionary:
 	var why := ""
 	if warmups_left > 0:
 		warmups_left -= 1
-		opts.cells = Dungeon.prior_cells(region, _exam_only())
+		opts.cells = Dungeon.prior_cells(region, _exam_only(), course)
 		why = "warm-up"
 	elif _prior != "":
-		opts.cells = QuestionEngine.cells(_exam_only(), [_prior])
+		opts.cells = QuestionEngine.cells(_exam_only(), [_prior], course)
 		why = "prior"
 	_prior = ""
 	if opts.get("cells", []).is_empty():
@@ -371,7 +374,7 @@ func _resolve(outcome: String, m: Dictionary) -> Dictionary:
 		_followup = _another_way_view()
 	# A missed step that needs prior learning brings it next (after a boss, once it falls).
 	if not right and _prior == "":
-		_prior = Dungeon.prior_for(region, question.cell, "%d|%d" % [run_seed, question_no])
+		_prior = Dungeon.prior_for(region, question.cell, "%d|%d" % [run_seed, question_no], [], course)
 	if defeated:
 		stats.fights_won += 1
 		if kind != "fight":
@@ -406,7 +409,7 @@ func _another_way_view() -> Dictionary:
 	if floor_no < Tuning.ANOTHER_WAY_FLOOR:
 		return {}
 	var v: Dictionary = question.view
-	var angles := QuestionEngine.angles_for(QuestionEngine.type_of(v.type), v.unknown)
+	var angles := QuestionEngine.angles_for(QuestionEngine.type_of(v.type), v.unknown, course)
 	if angles.size() < 2 or not v.angle in angles:
 		return {}
 	if not Seeded.new("another|%d|%d" % [run_seed, question_no]).chance(Tuning.ANOTHER_WAY_CHANCE):
