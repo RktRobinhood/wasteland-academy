@@ -140,6 +140,9 @@ export function build() {
   const skillCount = list => list.reduce((s, x) => s + x.st.skills.length, 0);
   const isThin = sk => THIN_FIELDS.some(f => !sk[f]?.length);
 
+  // `subtopics` lists the subtopic IDs the course covers, so the engine can tell which
+  // questions a student on that course may be asked (a skill's subtopic is its first two
+  // dot-separated parts, as in engine/courses.gd).
   const index = {
     courses: COURSES.map(c => ({
       ...c,
@@ -147,6 +150,7 @@ export function build() {
         const list = inCourse(c.id, n);
         return { n, name: topicNames[n], subtopics: list.length, skills: skillCount(list), hours: topicHours(c.id, n) };
       }),
+      subtopics: live.filter(x => x.st.courses.includes(c.id)).map(x => x.st.id),
     })),
   };
   for (const c of index.courses) for (const t of c.topics)

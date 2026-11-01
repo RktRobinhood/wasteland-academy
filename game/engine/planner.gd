@@ -29,18 +29,20 @@ const EXTENSION_WEIGHT := 2
 ##           it. "Exam-style only" ignores it: exam frequency is then the only rule.
 ##   probes  false leaves concept probes out (a fight asks questions with answers)
 ##   salt    mixed into the stream, so a run's seed changes its questions
+## The pool is only what the save's course covers (Courses.of), the probes too.
 static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionary:
 	var salt: String = opts.get("salt", "")
 	var rng := Seeded.new("planner|%d" % int(save.seed) + ("|" + salt if salt != "" else ""))
 	save.seed = int(save.seed) + 1
 	var exam_only: bool = save.settings.get("exam_only", false)
+	var course := Courses.of(save)
 	var region: String = opts.get("region", "")
 	var pool: Array
 	if opts.has("cells"):
 		pool = opts.cells
 	else:
-		var types: Array = region_types(region) if region != "" else []
-		pool = QuestionEngine.cells(exam_only, types)
+		var types: Array = region_types(region, course) if region != "" else []
+		pool = QuestionEngine.cells(exam_only, types, course)
 		if region != "" and types.is_empty():
 			pool = []
 	if pool.is_empty():
@@ -55,7 +57,7 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 	var fmt: String = "mcq" if rng.chance(0.5) else "value"
 
 	if not exam_only:
-		var probes := QuestionEngine.probes() if opts.get("probes", true) else []
+		var probes := QuestionEngine.probes(false, course) if opts.get("probes", true) else []
 		if not probes.is_empty() and rng.int_in(1, PROBE_EVERY) == 1:
 			var unseen := probes.filter(func(p): return not save.probes.has(p.key))
 			var from: Array = unseen if not unseen.is_empty() else probes.filter(func(p): return not recent.has(p.key))
@@ -79,8 +81,8 @@ static func next(save: Dictionary, now: int, opts: Dictionary = {}) -> Dictionar
 
 
 ## The built types of a catalogue region (or Dungeon.ALL), in catalogue order.
-static func region_types(region: String) -> Array:
-	return Dungeon.region_types(region)
+static func region_types(region: String, course: String = "") -> Array:
+	return Dungeon.region_types(region, course)
 
 
 static func type_weight(type_id: String) -> float:
