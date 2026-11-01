@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { load, check, render, format } from '../../tools/lessons.mjs';
+import { load, check, render, format, priorities } from '../../tools/lessons.mjs';
 
 const data = load();
 const result = check(data);
@@ -47,6 +47,34 @@ test('the check catches a prerequisite cycle', () => {
   const d = clone();
   lesson(d, 'lesson.fn.gradient').prerequisites.push('lesson.fn.perpendicular');
   assert.match(errorsOf(d), /prerequisite cycle/);
+});
+
+test('from L5 every lesson is built after its prerequisites; only the pilot and the second lesson are exempt', () => {
+  const { lessons, pilot, second } = data.lessons;
+  const types = new Map(data.doc.types.map(t => [t.id, t]));
+  const prio = priorities(lessons, types, [pilot, second]);
+  assert.equal(prio.get(pilot).rank, 1);
+  assert.equal(prio.get(second).rank, 2);
+  for (const l of lessons) {
+    if (l.id === pilot || l.id === second) continue;
+    for (const p of l.prerequisites) assert.ok(prio.get(p).rank < prio.get(l.id).rank, `${l.id} is built before its prerequisite ${p}`);
+  }
+  // The pilot and the second lesson both need function-machine, which is built after them.
+  assert.ok(lesson(data, pilot).prerequisites.some(p => prio.get(p).rank > 1));
+  assert.doesNotMatch(result.errors.join('\n'), new RegExp(`${pilot}: rank|${second}: rank`));
+});
+
+test('the check fails when a lesson comes before one of its prerequisites', () => {
+  const d = clone();
+  const before = lesson(d, 'lesson.fn.zero-product'), after = lesson(d, 'lesson.fn.parabola-symmetry');
+  [before.priority.rank, after.priority.rank] = [after.priority.rank, before.priority.rank];
+  assert.match(errorsOf(d), /lesson\.fn\.parabola-symmetry: rank \d+ comes before its prerequisite lesson\.fn\.zero-product/);
+  // A new prerequisite moves the lesson after it when the priorities are recomputed.
+  const e = clone();
+  lesson(e, 'lesson.fn.function-machine').prerequisites.push('lesson.fn.pre-surds');
+  const types = new Map(e.doc.types.map(t => [t.id, t]));
+  const prio = priorities(e.lessons.lessons, types, [e.lessons.pilot, e.lessons.second]);
+  assert.ok(prio.get('lesson.fn.pre-surds').rank < prio.get('lesson.fn.function-machine').rank);
 });
 
 test('the check catches an exam type with no lesson and no gap', () => {

@@ -6,14 +6,14 @@ A Relic lesson is a 3 to 6 minute playable episode (GitHub issue #13): a charact
 
 ## In numbers
 
-- **Functions (Scrapworks, B0-LT):** 53 lessons, of which 11 are level 0 prior learning.
+- **Functions (Scrapworks, B0-LT):** 54 lessons, of which 11 are level 0 prior learning.
 - **Exam types:** 27 of 27 Functions exam types have at least one lesson.
-- **Interaction kinds:** drag and position 9, sliders and dials 11, buttons and switches 3, graph manipulation 3, sorting and matching 6, building or balancing expressions 8, placing geometric objects 4, predict, then simulate 9.
+- **Interaction kinds:** drag and position 9, sliders and dials 11, buttons and switches 3, graph manipulation 3, sorting and matching 6, building or balancing expressions 8, placing geometric objects 5, predict, then simulate 9.
 - **Pilot (L2):** lesson.fn.translation. **Second lesson (L4):** lesson.fn.composite.
 
 | Region (build order) | Lessons | of which level 0 | Exam types |
 |---|---|---|---|
-| 1. Quadratics | 12 | 4 | 6 |
+| 1. Quadratics | 13 | 4 | 6 |
 | 2. Exponentials and logs | 7 | 1 | 4 |
 | 3. Graphs and key features | 9 | 1 | 6 |
 | 4. Composite and inverse | 5 | 1 | 3 |
@@ -24,63 +24,64 @@ A Relic lesson is a 3 to 6 minute playable episode (GitHub issue #13): a charact
 
 ## Build order
 
-Ranked by **weighted exam parts**: for each exam type a lesson supports, the type's parts in the bank (May 2021 to May 2025) times the share of its exam unknowns the lesson prepares for. Ties go to the lesson more other lessons depend on. The pilot and the second lesson are fixed by the roadmap (L2 and L4); this order applies from L5.
+The pilot and the second lesson come first, where the roadmap puts them (L2 and L4). They test the engine, and players can open any lesson, so they do not wait for their prerequisites. From L5, a lesson always comes after every lesson in its prerequisites. Among the lessons whose prerequisites are already placed, the next is the one with the most **weighted exam parts**: for each exam type a lesson supports, the type's parts in the bank (May 2021 to May 2025) times the share of its exam unknowns the lesson prepares for. Ties go to the lesson more other lessons depend on, then to the ID. Prerequisites set this order and the lessons the game suggests; they never lock a lesson.
 
 | Rank | Lesson | Region | Interaction | Weighted parts | Lessons that need it | Exam types it supports |
 |---|---|---|---|---|---|---|
-| 1 | One In, One Out (`function-machine`) | Function basics | Drag and position | 19.5 | 33 | `fn-evaluate-function`, `fn-graph-table-composite-inverse`, `fn-sketch-gdc`, `fn-gdc-features`, `fn-rational-asymptotes-intercepts`, `fn-quadratic-features` |
-| 2 | Two Machines in a Row (`composite`) | Composite and inverse | Building or balancing expressions | 15.3 | 0 | `fn-composite`, `fn-graph-table-composite-inverse`, `fn-exp-log-inverse-composite`, `fn-domain-range` |
-| 3 | Find the Walls (`rational-asymptotes`) | Rational functions | Predict, then simulate | 14.8 | 2 | `fn-rational-asymptotes-intercepts`, `fn-rational-sketch`, `fn-domain-range`, `fn-inverse-algebraic` |
-| 4 | Where the Tracks Cross (`meeting-points`) | Graphs and key features | Predict, then simulate | 13.4 | 6 | `fn-gdc-intersection`, `fn-curve-intersection-quadratic`, `fn-gdc-solve-equation`, `fn-rational-sketch` |
-| 5 | When Algebra Jams (`gdc-solve`) | Graphs and key features | Buttons and switches | 12.9 | 1 | `fn-gdc-solve-equation`, `fn-gdc-features`, `fn-gdc-intersection`, `fn-sketch-gdc` |
-| 6 | Spot the Impostor (`sketch-features`) | Graphs and key features | Sorting and matching | 12.8 | 0 | `fn-sketch-gdc`, `fn-sketch-from-features`, `fn-rational-sketch` |
-| 7 | Tune k Until It Grazes (`discriminant-parameter`) | Quadratics | Sliders and dials | 11.8 | 0 | `fn-discriminant`, `fn-curve-intersection-quadratic` |
-| 8 | What Power? (`log-undoes-power`) | Exponentials and logs | Building or balancing expressions | 10.2 | 3 | `fn-exp-log-inverse-composite`, `fn-exponential-model`, `fn-log-of-quadratic` |
-| 9 | Bring Down the Exponent (`solve-with-logs`) | Exponentials and logs | Buttons and switches | 8.5 | 0 | `fn-exponential-model`, `fn-exp-log-inverse-composite` |
-| 10 | The Fountain's Mirror (`parabola-symmetry`) | Quadratics | Placing geometric objects | 8.2 | 5 | `fn-quadratic-features`, `fn-quadratic-from-conditions` |
-| 11 | The Broken Conveyor (`translation`) | Transformations | Drag and position | 7.4 | 11 | `fn-transform-describe`, `fn-transform-apply`, `fn-quadratic-features`, `fn-exp-log-inverse-composite` |
-| 12 | The Spring Press (`stretch`) | Transformations | Sliders and dials | 7 | 2 | `fn-transform-describe`, `fn-transform-apply`, `fn-exp-log-inverse-composite` |
-| 13 | Either Valve Shuts It (`zero-product`) | Quadratics | Sliders and dials | 6.8 | 9 | `fn-solve-quadratic`, `fn-quadratic-features`, `fn-curve-intersection-quadratic`, `fn-log-of-quadratic`, `fn-quadratic-inequality`, `fn-gdc-features` |
-| 14 | Does It Make Sense? (`context-check`) | Graphs and key features | Sorting and matching | 6.8 | 0 | `fn-gdc-solve-equation`, `fn-exponential-model`, `fn-solve-quadratic`, `fn-quadratic-inequality`, `fn-gdc-intersection`, `fn-evaluate-function` |
-| 15 | Rewire the Machine (`swap-and-solve`) | Composite and inverse | Building or balancing expressions | 6.6 | 0 | `fn-inverse-algebraic`, `fn-exp-log-inverse-composite` |
-| 16 | What Goes In, What Comes Out (`domain-range`) | Function basics | Sliders and dials | 6.5 | 3 | `fn-domain-range`, `fn-log-of-quadratic`, `fn-quadratic-from-conditions`, `fn-log-function-features`, `fn-rational-asymptotes-intercepts`, `fn-sketch-from-features` |
-| 17 | How High, and Where? (`how-high-and-where`) | Graphs and key features | Drag and position | 6.5 | 2 | `fn-gdc-features`, `fn-sketch-gdc`, `fn-gdc-optimise-combined`, `fn-domain-range` |
+| 1 (pilot, L2) | The Broken Conveyor (`translation`) | Transformations | Drag and position | 7.4 | 11 | `fn-transform-describe`, `fn-transform-apply`, `fn-quadratic-features`, `fn-exp-log-inverse-composite` |
+| 2 (second, L4) | Two Machines in a Row (`composite`) | Composite and inverse | Building or balancing expressions | 15.3 | 0 | `fn-composite`, `fn-graph-table-composite-inverse`, `fn-exp-log-inverse-composite`, `fn-domain-range` |
+| 3 | The Spring Press (`stretch`) | Transformations | Sliders and dials | 7 | 2 | `fn-transform-describe`, `fn-transform-apply`, `fn-exp-log-inverse-composite` |
+| 4 | Flip Switches (`reflection`) | Transformations | Buttons and switches | 2.7 | 1 | `fn-transform-apply`, `fn-transform-describe`, `fn-inverse-algebraic`, `fn-domain-range` |
+| 5 | Moves in Order (`transform-order`) | Transformations | Sorting and matching | 3.5 | 0 | `fn-transform-apply`, `fn-transform-describe` |
+| 6 | Rise per Step (`gradient`) | Lines | Sliders and dials | 2.4 | 9 | `fn-line-from-conditions` |
+| 7 | Brackets Round Negatives (`pre-substitute`) | Function basics | Predict, then simulate | 0 | 43 | – |
+| 8 | One In, One Out (`function-machine`) | Function basics | Drag and position | 19.5 | 33 | `fn-evaluate-function`, `fn-graph-table-composite-inverse`, `fn-sketch-gdc`, `fn-gdc-features`, `fn-rational-asymptotes-intercepts`, `fn-quadratic-features` |
+| 9 | Run It Backwards (`inverse-undo`) | Composite and inverse | Sorting and matching | 3.8 | 7 | `fn-graph-table-composite-inverse`, `fn-exp-log-inverse-composite`, `fn-inverse-algebraic` |
+| 10 | The Mirror Line (`inverse-reflection`) | Function basics | Placing geometric objects | 4.8 | 1 | `fn-inverse-reflection`, `fn-inverse-algebraic`, `fn-gdc-intersection`, `fn-log-function-features`, `fn-rational-sketch` |
+| 11 | Keep the Scales Level (`pre-balance`) | Lines | Building or balancing expressions | 0 | 25 | – |
+| 12 | Pin and Swing (`line-equation`) | Lines | Drag and position | 6 | 8 | `fn-line-from-conditions` |
+| 13 | The Quarter Turn (`perpendicular`) | Lines | Placing geometric objects | 3.6 | 0 | `fn-line-from-conditions` |
+| 14 | Fill the Rectangle (`pre-expand`) | Quadratics | Building or balancing expressions | 0 | 17 | – |
+| 15 | Find the Sides (`pre-factorise`) | Quadratics | Building or balancing expressions | 0 | 16 | – |
+| 16 | Either Valve Shuts It (`zero-product`) | Quadratics | Sliders and dials | 6.8 | 10 | `fn-solve-quadratic`, `fn-quadratic-features`, `fn-curve-intersection-quadratic`, `fn-log-of-quadratic`, `fn-quadratic-inequality`, `fn-gdc-features` |
+| 17 | The Fountain's Mirror (`parabola-symmetry`) | Quadratics | Placing geometric objects | 8.2 | 8 | `fn-quadratic-features`, `fn-quadratic-from-conditions` |
 | 18 | The Crane Hook (`vertex-form`) | Quadratics | Graph manipulation | 6.3 | 4 | `fn-quadratic-features`, `fn-quadratic-from-conditions`, `fn-domain-range`, `fn-log-of-quadratic`, `fn-sketch-from-features` |
-| 19 | Pin and Swing (`line-equation`) | Lines | Drag and position | 6 | 8 | `fn-line-from-conditions` |
-| 20 | One More Bolt (`quadratic-from-clues`) | Quadratics | Sliders and dials | 5.3 | 0 | `fn-quadratic-from-conditions`, `fn-quadratic-features` |
-| 21 | Below the Waterline (`quadratic-inequality`) | Quadratics | Drag and position | 4.8 | 2 | `fn-quadratic-inequality`, `fn-discriminant`, `fn-log-of-quadratic` |
-| 22 | The Mirror Line (`inverse-reflection`) | Function basics | Placing geometric objects | 4.8 | 1 | `fn-inverse-reflection`, `fn-inverse-algebraic`, `fn-gdc-intersection`, `fn-log-function-features`, `fn-rational-sketch` |
-| 23 | Multiply, Don't Add (`growth-factor`) | Exponentials and logs | Predict, then simulate | 4.2 | 5 | `fn-exponential-model` |
-| 24 | Run It Backwards (`inverse-undo`) | Composite and inverse | Sorting and matching | 3.8 | 7 | `fn-graph-table-composite-inverse`, `fn-exp-log-inverse-composite`, `fn-inverse-algebraic` |
-| 25 | The Mirrored Curve (`log-graph`) | Exponentials and logs | Placing geometric objects | 3.7 | 0 | `fn-log-function-features`, `fn-log-of-quadratic`, `fn-exp-log-inverse-composite` |
-| 26 | The Quarter Turn (`perpendicular`) | Lines | Placing geometric objects | 3.6 | 0 | `fn-line-from-conditions` |
-| 27 | Moves in Order (`transform-order`) | Transformations | Sorting and matching | 3.5 | 0 | `fn-transform-apply`, `fn-transform-describe` |
-| 28 | Cut It to Undo It (`inverse-domain`) | Composite and inverse | Sliders and dials | 3.3 | 0 | `fn-inverse-algebraic`, `fn-graph-table-composite-inverse`, `fn-domain-range` |
-| 29 | 1/x in Disguise (`transformed-reciprocal`) | Rational functions | Graph manipulation | 3.3 | 0 | `fn-rational-sketch`, `fn-transform-describe` |
-| 30 | Stack the Heights (`combine-functions`) | Graphs and key features | Graph manipulation | 3 | 0 | `fn-gdc-optimise-combined` |
-| 31 | Sweep the Beam (`count-solutions`) | Graphs and key features | Sliders and dials | 2.9 | 0 | `fn-sketch-gdc`, `fn-rational-sketch`, `fn-graph-table-composite-inverse` |
-| 32 | The Curve That Never Lands (`exp-graph`) | Exponentials and logs | Sliders and dials | 2.8 | 1 | `fn-exponential-model` |
-| 33 | Flip Switches (`reflection`) | Transformations | Buttons and switches | 2.7 | 1 | `fn-transform-apply`, `fn-transform-describe`, `fn-inverse-algebraic`, `fn-domain-range` |
-| 34 | Rise per Step (`gradient`) | Lines | Sliders and dials | 2.4 | 9 | `fn-line-from-conditions` |
-| 35 | Above the Line (`graph-inequality`) | Graphs and key features | Drag and position | 2.4 | 0 | `fn-rational-sketch`, `fn-quadratic-inequality` |
-| 36 | The Level It Never Reaches (`long-run-value`) | Rational functions | Sliders and dials | 2.4 | 0 | `fn-exponential-model`, `fn-sketch-from-features` |
-| 37 | Does It Reach the Floor? (`discriminant`) | Quadratics | Predict, then simulate | 2.2 | 1 | `fn-discriminant`, `fn-quadratic-inequality`, `fn-solve-quadratic` |
-| 38 | Divide by Almost Nothing (`reciprocal`) | Rational functions | Drag and position | 1.8 | 3 | `fn-rational-sketch` |
-| 39 | The Missing Corner (`complete-square`) | Quadratics | Building or balancing expressions | 1.8 | 0 | `fn-quadratic-features`, `fn-transform-describe` |
-| 40 | A Quadratic in Disguise (`hidden-quadratic`) | Exponentials and logs | Predict, then simulate | 1.3 | 0 | `fn-solve-quadratic` |
-| 41 | Brackets Round Negatives (`pre-substitute`) | Function basics | Predict, then simulate | 0 | 43 | – |
-| 42 | Keep the Scales Level (`pre-balance`) | Lines | Building or balancing expressions | 0 | 25 | – |
-| 43 | Fill the Rectangle (`pre-expand`) | Quadratics | Building or balancing expressions | 0 | 16 | – |
-| 44 | Find the Sides (`pre-factorise`) | Quadratics | Building or balancing expressions | 0 | 15 | – |
-| 45 | Two Lamps, One Point (`pre-simultaneous`) | Lines | Drag and position | 0 | 8 | – |
-| 46 | The Tipping See-Saw (`pre-linear-inequalities`) | Quadratics | Predict, then simulate | 0 | 7 | – |
-| 47 | Start Plus Rate (`line-model`) | Lines | Predict, then simulate | 0 | 6 | – |
-| 48 | One Multiplication (`pre-percent-multiplier`) | Exponentials and logs | Sliders and dials | 0 | 6 | – |
-| 49 | Read the Gauge (`pre-read-and-round`) | Graphs and key features | Drag and position | 0 | 5 | – |
-| 50 | Never Divide by Zero (`pre-algebraic-fractions`) | Rational functions | Predict, then simulate | 0 | 4 | – |
-| 51 | Roots That Split (`pre-surds`) | Quadratics | Sorting and matching | 0 | 2 | – |
-| 52 | One Button, One Token (`is-function`) | Function basics | Sorting and matching | 0 | 1 | `fn-graph-table-composite-inverse` |
+| 19 | The Missing Corner (`complete-square`) | Quadratics | Building or balancing expressions | 1.8 | 0 | `fn-quadratic-features`, `fn-transform-describe` |
+| 20 | Two Lamps, One Point (`pre-simultaneous`) | Lines | Drag and position | 0 | 8 | – |
+| 21 | Where the Tracks Cross (`meeting-points`) | Graphs and key features | Predict, then simulate | 13.4 | 6 | `fn-gdc-intersection`, `fn-curve-intersection-quadratic`, `fn-gdc-solve-equation`, `fn-rational-sketch` |
+| 22 | One More Bolt (`quadratic-from-clues`) | Quadratics | Sliders and dials | 5.3 | 0 | `fn-quadratic-from-conditions`, `fn-quadratic-features` |
+| 23 | Stack the Heights (`combine-functions`) | Graphs and key features | Graph manipulation | 3 | 0 | `fn-gdc-optimise-combined` |
+| 24 | The Tipping See-Saw (`pre-linear-inequalities`) | Quadratics | Predict, then simulate | 0 | 7 | – |
+| 25 | What Goes In, What Comes Out (`domain-range`) | Function basics | Sliders and dials | 6.5 | 3 | `fn-domain-range`, `fn-log-of-quadratic`, `fn-quadratic-from-conditions`, `fn-log-function-features`, `fn-rational-asymptotes-intercepts`, `fn-sketch-from-features` |
+| 26 | Below the Waterline (`quadratic-inequality`) | Quadratics | Drag and position | 4.8 | 2 | `fn-quadratic-inequality`, `fn-discriminant`, `fn-log-of-quadratic` |
+| 27 | Above the Line (`graph-inequality`) | Graphs and key features | Drag and position | 2.4 | 0 | `fn-rational-sketch`, `fn-quadratic-inequality` |
+| 28 | Start Plus Rate (`line-model`) | Lines | Predict, then simulate | 0 | 6 | – |
+| 29 | One Multiplication (`pre-percent-multiplier`) | Exponentials and logs | Sliders and dials | 0 | 6 | – |
+| 30 | Multiply, Don't Add (`growth-factor`) | Exponentials and logs | Predict, then simulate | 4.2 | 5 | `fn-exponential-model` |
+| 31 | What Power? (`log-undoes-power`) | Exponentials and logs | Building or balancing expressions | 10.2 | 3 | `fn-exp-log-inverse-composite`, `fn-exponential-model`, `fn-log-of-quadratic` |
+| 32 | Bring Down the Exponent (`solve-with-logs`) | Exponentials and logs | Buttons and switches | 8.5 | 0 | `fn-exponential-model`, `fn-exp-log-inverse-composite` |
+| 33 | The Curve That Never Lands (`exp-graph`) | Exponentials and logs | Sliders and dials | 2.8 | 1 | `fn-exponential-model` |
+| 34 | The Mirrored Curve (`log-graph`) | Exponentials and logs | Placing geometric objects | 3.7 | 0 | `fn-log-function-features`, `fn-log-of-quadratic`, `fn-exp-log-inverse-composite` |
+| 35 | A Quadratic in Disguise (`hidden-quadratic`) | Exponentials and logs | Predict, then simulate | 1.3 | 0 | `fn-solve-quadratic` |
+| 36 | Read the Gauge (`pre-read-and-round`) | Graphs and key features | Drag and position | 0 | 5 | – |
+| 37 | When Algebra Jams (`gdc-solve`) | Graphs and key features | Buttons and switches | 12.9 | 1 | `fn-gdc-solve-equation`, `fn-gdc-features`, `fn-gdc-intersection`, `fn-sketch-gdc` |
+| 38 | Does It Make Sense? (`context-check`) | Graphs and key features | Sorting and matching | 6.8 | 0 | `fn-gdc-solve-equation`, `fn-exponential-model`, `fn-solve-quadratic`, `fn-quadratic-inequality`, `fn-gdc-intersection`, `fn-evaluate-function` |
+| 39 | How High, and Where? (`how-high-and-where`) | Graphs and key features | Drag and position | 6.5 | 2 | `fn-gdc-features`, `fn-sketch-gdc`, `fn-gdc-optimise-combined`, `fn-domain-range` |
+| 40 | Spot the Impostor (`sketch-features`) | Graphs and key features | Sorting and matching | 12.8 | 0 | `fn-sketch-gdc`, `fn-sketch-from-features`, `fn-rational-sketch` |
+| 41 | Sweep the Beam (`count-solutions`) | Graphs and key features | Sliders and dials | 2.9 | 0 | `fn-sketch-gdc`, `fn-rational-sketch`, `fn-graph-table-composite-inverse` |
+| 42 | Never Divide by Zero (`pre-algebraic-fractions`) | Rational functions | Predict, then simulate | 0 | 4 | – |
+| 43 | Divide by Almost Nothing (`reciprocal`) | Rational functions | Drag and position | 1.8 | 3 | `fn-rational-sketch` |
+| 44 | Find the Walls (`rational-asymptotes`) | Rational functions | Predict, then simulate | 14.8 | 2 | `fn-rational-asymptotes-intercepts`, `fn-rational-sketch`, `fn-domain-range`, `fn-inverse-algebraic` |
+| 45 | 1/x in Disguise (`transformed-reciprocal`) | Rational functions | Graph manipulation | 3.3 | 0 | `fn-rational-sketch`, `fn-transform-describe` |
+| 46 | The Level It Never Reaches (`long-run-value`) | Rational functions | Sliders and dials | 2.4 | 0 | `fn-exponential-model`, `fn-sketch-from-features` |
+| 47 | Roots That Split (`pre-surds`) | Quadratics | Sorting and matching | 0 | 3 | – |
+| 48 | Two Clamps, One Centre (`quadratic-formula`) | Quadratics | Placing geometric objects | 3.3 | 2 | `fn-solve-quadratic`, `fn-curve-intersection-quadratic` |
+| 49 | Does It Reach the Floor? (`discriminant`) | Quadratics | Predict, then simulate | 2.2 | 1 | `fn-discriminant`, `fn-quadratic-inequality`, `fn-solve-quadratic` |
+| 50 | Tune k Until It Grazes (`discriminant-parameter`) | Quadratics | Sliders and dials | 11.8 | 0 | `fn-discriminant`, `fn-curve-intersection-quadratic` |
+| 51 | One Button, One Token (`is-function`) | Function basics | Sorting and matching | 0 | 1 | `fn-graph-table-composite-inverse` |
+| 52 | Cut It to Undo It (`inverse-domain`) | Composite and inverse | Sliders and dials | 3.3 | 0 | `fn-inverse-algebraic`, `fn-graph-table-composite-inverse`, `fn-domain-range` |
 | 53 | Make It the Subject (`pre-change-subject`) | Composite and inverse | Building or balancing expressions | 0 | 1 | – |
+| 54 | Rewire the Machine (`swap-and-solve`) | Composite and inverse | Building or balancing expressions | 6.6 | 0 | `fn-inverse-algebraic`, `fn-exp-log-inverse-composite` |
 
 ## Lessons by region
 
@@ -98,10 +99,11 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 | 6 | The Missing Corner (`complete-square`) | `vertex-form`, `pre-expand` | 2–3 | Building or balancing expressions | `fn-quadratic-features` (11), `fn-transform-describe` (6), `fn-concept-quadratic-forms`, `fn-link-equivalent-forms` |
 | 7 | One More Bolt (`quadratic-from-clues`) | `vertex-form`, `zero-product`, `pre-simultaneous` (Lines) | 1–3 | Sliders and dials | `fn-quadratic-from-conditions` (7), `fn-quadratic-features` (11), `fn-concept-quadratic-forms` |
 | 8 | Roots That Split (`pre-surds`) | – | 0–0 | Sorting and matching | `fn-pre-surds` |
-| 9 | Does It Reach the Floor? (`discriminant`) | `zero-product`, `vertex-form`, `pre-surds` | 1–3 | Predict, then simulate | `fn-discriminant` (13), `fn-quadratic-inequality` (2), `fn-solve-quadratic` (4), `fn-concept-quadratic-forms` |
-| 10 | The Tipping See-Saw (`pre-linear-inequalities`) | `pre-balance` (Lines) | 0–0 | Predict, then simulate | `fn-pre-linear-inequalities` |
-| 11 | Below the Waterline (`quadratic-inequality`) | `zero-product`, `pre-linear-inequalities` | 1–4 | Drag and position | `fn-quadratic-inequality` (2), `fn-discriminant` (13), `fn-log-of-quadratic` (4), `fn-ext-inequality-graphical` |
-| 12 | Tune k Until It Grazes (`discriminant-parameter`) | `discriminant`, `quadratic-inequality`, `meeting-points` (Graphs and key features) | 2–4 | Sliders and dials | `fn-discriminant` (13), `fn-curve-intersection-quadratic` (5), `fn-link-extremes` |
+| 9 | Two Clamps, One Centre (`quadratic-formula`) | `zero-product`, `parabola-symmetry`, `pre-surds` | 1–3 | Placing geometric objects | `fn-solve-quadratic` (4), `fn-curve-intersection-quadratic` (5) |
+| 10 | Does It Reach the Floor? (`discriminant`) | `zero-product`, `vertex-form`, `pre-surds`, `quadratic-formula` | 1–3 | Predict, then simulate | `fn-discriminant` (13), `fn-quadratic-inequality` (2), `fn-solve-quadratic` (4), `fn-concept-quadratic-forms` |
+| 11 | The Tipping See-Saw (`pre-linear-inequalities`) | `pre-balance` (Lines) | 0–0 | Predict, then simulate | `fn-pre-linear-inequalities` |
+| 12 | Below the Waterline (`quadratic-inequality`) | `zero-product`, `pre-linear-inequalities`, `parabola-symmetry` | 1–4 | Drag and position | `fn-quadratic-inequality` (2), `fn-discriminant` (13), `fn-log-of-quadratic` (4), `fn-ext-inequality-graphical` |
+| 13 | Tune k Until It Grazes (`discriminant-parameter`) | `discriminant`, `quadratic-inequality`, `meeting-points` (Graphs and key features) | 2–4 | Sliders and dials | `fn-discriminant` (13), `fn-curve-intersection-quadratic` (5), `fn-link-extremes` |
 
 #### Fill the Rectangle (`lesson.fn.pre-expand`)
 
@@ -187,6 +189,17 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 - **Skills:** prior learning (level 0).
 - **Misconceptions the react stage targets:** `fn-pre-surds#0`, `fn-pre-surds#1`, `fn-pre-surds#2`.
 - **Alignment:** IB SL2.7 Solving quadratic equations and inequalities; the discriminant. Common Core HSN.RN.A.2. GCSE Number 8. A-level B2.
+
+#### Two Clamps, One Centre (`lesson.fn.quadratic-formula`)
+
+- **Objective:** Solve a quadratic equation that will not factorise by using the quadratic formula, giving exact or rounded roots.
+- **Idea:** The quadratic formula x = (−b ± √(b² − 4ac))/(2a) solves every quadratic, whether it factorises or not: the roots are −b/(2a) plus and minus √(b² − 4ac)/(2a), equal steps either side of the axis x = −b/(2a), so the ± gives both of them, and leaving the root as a surd keeps the answers exact.
+- **Scenario (placing geometric objects):** B0-LT's crane has to clamp a curved girder at the two points where it meets the floor, and this girder's numbers will not split into brackets. The player places the crane's centre post at −b/(2a) and swings two clamps out the same distance, √(b² − 4ac)/(2a), either side; B0-LT reacts when only one clamp swings out, when the sign of −4ac slips because c is negative, or when only the root is divided by 2a. The debrief writes the two clamp positions as x = (−b ± √(b² − 4ac))/(2a).
+- **Apply:** `fn-solve-quadratic`: solve-surd, solve-in-context.
+- **Skills:** `SL2.7.solve-equation`.
+- **Misconceptions the react stage targets:** `SL2.7.solve-equation#2`, `SL2.7.discriminant#0`, `fn-pre-surds#1`.
+- **Alignment:** IB SL2.7 Solving quadratic equations and inequalities; the discriminant. Common Core HSA.REI.B.4.b. GCSE Algebra 18. A-level B3.
+- **Materials:** [OpenStax College Algebra (1st edition), 2.5 Quadratic Equations](https://openstax.org/books/college-algebra/pages/2-5-quadratic-equations) (CC BY 4.0).
 
 #### Does It Reach the Floor? (`lesson.fn.discriminant`)
 
@@ -280,7 +293,7 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 - **Idea:** log_b x is the power you raise b to in order to get x, so log_b x = y and bʸ = x say the same thing, and log_b undoes the function bˣ.
 - **Scenario (building or balancing expressions):** B0-LT's lock opens when the right number of doubling gears is stacked to turn 1 into the code number. The player stacks gears until the counter reaches the code, then reads the number of gears as the log; B0-LT reacts when the player divides the code by the base or tries to stack gears to reach 0. The debrief writes the stack as 2⁵ = 32 and as log₂ 32 = 5.
 - **Apply:** `fn-exp-log-inverse-composite`: write-log-form, evaluate-log-function, solve-log-equation, inverse-awkward-base.
-- **Skills:** `SL2.9.exp-log-inverse`, `SL1.5.exp-log-form`. Assumes from other islands: `SL1.7.change-of-base`.
+- **Skills:** `SL2.9.exp-log-inverse`. Assumes from other islands: `SL1.7.change-of-base`, `SL1.5.exp-log-form`.
 - **Misconceptions the react stage targets:** `SL1.5.exp-log-form#0`, `SL1.5.exp-log-form#1`, `SL1.5.exp-log-form#2`, `SL2.9.exp-log-inverse#1`.
 - **Alignment:** IB SL2.9 Exponential and logarithmic functions; SL1.5 Integer exponents and introduction to logarithms. Common Core HSF.BF.B.5. AP Precalculus 2.9 Logarithmic Expressions; 2.10 Inverses of Exponential Functions. A-level F3.
 - **Materials:** [OpenStax Precalculus (1st edition), 4.3 Logarithmic Functions](https://openstax.org/books/precalculus/pages/4-3-logarithmic-functions) (CC BY 4.0); [Active Prelude to Calculus, What a logarithm is](https://activecalculus.org/prelude/sec-exp-log.html) (CC BY-SA 4.0).
@@ -291,7 +304,7 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 - **Idea:** To free t from an exponent, first get the power on its own, then take logs of both sides: 5e^(kt) = 20 becomes e^(kt) = 4, so kt = ln 4.
 - **Scenario (buttons and switches):** B0-LT's algae tank grows exponentially, and the robot needs to know when it will pass the overflow line. The player presses operation buttons that act on both sides of a balance, dividing, taking logs and dividing again, and the tank's timer fills in once t stands alone; B0-LT reacts when the player takes logs before the power is on its own or loses the brackets around the exponent. The debrief writes the answer as t = (ln 4)/k and checks it on the calculator to 3 significant figures.
 - **Apply:** `fn-exponential-model`: time-to-level, k-from-data-point, k-from-half-life.
-- **Skills:** `SL2.9.exp-log-inverse`, `SL2.9.find-parameters`, `SL1.7.solve-with-logs`.
+- **Skills:** `SL2.9.exp-log-inverse`, `SL2.9.find-parameters`. Assumes from other islands: `SL1.7.solve-with-logs`.
 - **Misconceptions the react stage targets:** `SL1.7.solve-with-logs#0`, `SL1.7.solve-with-logs#1`, `SL1.7.solve-with-logs#2`, `SL2.9.exp-log-inverse#0`, `SL2.9.exp-log-inverse#2`.
 - **Alignment:** IB SL2.9 Exponential and logarithmic functions; SL1.7 Rational exponents, laws of logarithms and exponential equations. Common Core HSF.LE.A.4. AP Precalculus 2.13 Exponential and Logarithmic Equations and Inequalities. A-level F5.
 - **Materials:** [OpenStax Precalculus (1st edition), 4.6 Exponential and Logarithmic Equations](https://openstax.org/books/precalculus/pages/4-6-exponential-and-logarithmic-equations) (CC BY 4.0); [OpenStax Precalculus (1st edition), 4.7 Exponential and Logarithmic Models](https://openstax.org/books/precalculus/pages/4-7-exponential-and-logarithmic-models) (CC BY 4.0).
@@ -748,33 +761,33 @@ Each region's ladder lists its lessons with their prerequisites first. Prerequis
 
 | Exam type | Parts | Lessons |
 |---|---|---|
-| Exponential growth, decay and limited-growth models (`fn-exponential-model`) | 14 | `log-undoes-power`, `solve-with-logs`, `context-check`, `growth-factor`, `exp-graph`, `long-run-value` |
-| Discriminant conditions on a parameter (`fn-discriminant`) | 13 | `discriminant-parameter`, `quadratic-inequality`, `discriminant` |
-| Exponential and log functions as inverses and composites (`fn-exp-log-inverse-composite`) | 12 | `composite`, `log-undoes-power`, `solve-with-logs`, `translation`, `stretch`, `swap-and-solve`, `inverse-undo`, `log-graph` |
-| Straight line from conditions, then use it (`fn-line-from-conditions`) | 12 | `line-equation`, `perpendicular`, `gradient` |
-| Asymptotes and intercepts of (ax + b)/(cx + d) (`fn-rational-asymptotes-intercepts`) | 12 | `function-machine`, `rational-asymptotes`, `domain-range` |
-| Read and convert quadratic forms (`fn-quadratic-features`) | 11 | `function-machine`, `parabola-symmetry`, `translation`, `zero-product`, `vertex-form`, `quadratic-from-clues`, `complete-square` |
+| Exponential growth, decay and limited-growth models (`fn-exponential-model`) | 14 | `growth-factor`, `log-undoes-power`, `solve-with-logs`, `exp-graph`, `context-check`, `long-run-value` |
+| Discriminant conditions on a parameter (`fn-discriminant`) | 13 | `quadratic-inequality`, `discriminant`, `discriminant-parameter` |
+| Exponential and log functions as inverses and composites (`fn-exp-log-inverse-composite`) | 12 | `translation`, `composite`, `stretch`, `inverse-undo`, `log-undoes-power`, `solve-with-logs`, `log-graph`, `swap-and-solve` |
+| Straight line from conditions, then use it (`fn-line-from-conditions`) | 12 | `gradient`, `line-equation`, `perpendicular` |
+| Asymptotes and intercepts of (ax + b)/(cx + d) (`fn-rational-asymptotes-intercepts`) | 12 | `function-machine`, `domain-range`, `rational-asymptotes` |
+| Read and convert quadratic forms (`fn-quadratic-features`) | 11 | `translation`, `function-machine`, `zero-product`, `parabola-symmetry`, `vertex-form`, `complete-square`, `quadratic-from-clues` |
 | Form a composite, evaluate it, solve for a parameter (`fn-composite`) | 9 | `composite` |
-| Values, composites and inverse values read from a graph or a table (`fn-graph-table-composite-inverse`) | 8 | `function-machine`, `composite`, `inverse-undo`, `inverse-domain`, `count-solutions`, `is-function` |
+| Values, composites and inverse values read from a graph or a table (`fn-graph-table-composite-inverse`) | 8 | `composite`, `function-machine`, `inverse-undo`, `count-solutions`, `is-function`, `inverse-domain` |
 | Evaluate a function or model at a given input (`fn-evaluate-function`) | 7 | `function-machine`, `context-check` |
-| Intersection of two curves with the GDC (`fn-gdc-intersection`) | 7 | `meeting-points`, `gdc-solve`, `context-check`, `inverse-reflection` |
-| Find a quadratic from its roots, vertex or points (`fn-quadratic-from-conditions`) | 7 | `parabola-symmetry`, `domain-range`, `vertex-form`, `quadratic-from-clues` |
-| Sketch a rational function and use the sketch (`fn-rational-sketch`) | 7 | `rational-asymptotes`, `meeting-points`, `sketch-features`, `inverse-reflection`, `transformed-reciprocal`, `count-solutions`, `graph-inequality`, `reciprocal` |
-| Sketch a graph from the GDC on a given domain (`fn-sketch-gdc`) | 7 | `function-machine`, `gdc-solve`, `sketch-features`, `how-high-and-where`, `count-solutions` |
-| Describe the transformations between two graphs (`fn-transform-describe`) | 6 | `translation`, `stretch`, `transform-order`, `transformed-reciprocal`, `reflection`, `complete-square` |
-| Intersect a curve and a line exactly, then use the points (`fn-curve-intersection-quadratic`) | 5 | `meeting-points`, `discriminant-parameter`, `zero-product` |
-| Zeros and turning points with the GDC (`fn-gdc-features`) | 5 | `function-machine`, `gdc-solve`, `zero-product`, `how-high-and-where` |
-| Find an inverse algebraically, with its domain; self-inverse functions (`fn-inverse-algebraic`) | 5 | `rational-asymptotes`, `swap-and-solve`, `inverse-reflection`, `inverse-undo`, `inverse-domain`, `reflection` |
-| Domain and range, including restricted and transformed functions (`fn-domain-range`) | 4 | `composite`, `rational-asymptotes`, `domain-range`, `how-high-and-where`, `vertex-form`, `inverse-domain`, `reflection` |
-| Build a new function from given ones and optimise it with the GDC (`fn-gdc-optimise-combined`) | 4 | `how-high-and-where`, `combine-functions` |
+| Intersection of two curves with the GDC (`fn-gdc-intersection`) | 7 | `inverse-reflection`, `meeting-points`, `gdc-solve`, `context-check` |
+| Find a quadratic from its roots, vertex or points (`fn-quadratic-from-conditions`) | 7 | `parabola-symmetry`, `vertex-form`, `quadratic-from-clues`, `domain-range` |
+| Sketch a rational function and use the sketch (`fn-rational-sketch`) | 7 | `inverse-reflection`, `meeting-points`, `graph-inequality`, `sketch-features`, `count-solutions`, `reciprocal`, `rational-asymptotes`, `transformed-reciprocal` |
+| Sketch a graph from the GDC on a given domain (`fn-sketch-gdc`) | 7 | `function-machine`, `gdc-solve`, `how-high-and-where`, `sketch-features`, `count-solutions` |
+| Describe the transformations between two graphs (`fn-transform-describe`) | 6 | `translation`, `stretch`, `reflection`, `transform-order`, `complete-square`, `transformed-reciprocal` |
+| Intersect a curve and a line exactly, then use the points (`fn-curve-intersection-quadratic`) | 5 | `zero-product`, `meeting-points`, `quadratic-formula`, `discriminant-parameter` |
+| Zeros and turning points with the GDC (`fn-gdc-features`) | 5 | `function-machine`, `zero-product`, `gdc-solve`, `how-high-and-where` |
+| Find an inverse algebraically, with its domain; self-inverse functions (`fn-inverse-algebraic`) | 5 | `reflection`, `inverse-undo`, `inverse-reflection`, `rational-asymptotes`, `inverse-domain`, `swap-and-solve` |
+| Domain and range, including restricted and transformed functions (`fn-domain-range`) | 4 | `composite`, `reflection`, `vertex-form`, `domain-range`, `how-high-and-where`, `rational-asymptotes`, `inverse-domain` |
+| Build a new function from given ones and optimise it with the GDC (`fn-gdc-optimise-combined`) | 4 | `combine-functions`, `how-high-and-where` |
 | Solve an equation that needs technology (`fn-gdc-solve-equation`) | 4 | `meeting-points`, `gdc-solve`, `context-check` |
-| Log of a quadratic: domain, asymptotes, zeros and maximum (`fn-log-of-quadratic`) | 4 | `log-undoes-power`, `zero-product`, `domain-range`, `vertex-form`, `quadratic-inequality`, `log-graph` |
-| Sketch from features found in earlier parts (`fn-sketch-from-features`) | 4 | `sketch-features`, `domain-range`, `vertex-form`, `long-run-value` |
-| Solve a quadratic exactly, in context or in disguise (`fn-solve-quadratic`) | 4 | `zero-product`, `context-check`, `discriminant`, `hidden-quadratic` |
-| Log function features: asymptote, domain and sign (`fn-log-function-features`) | 3 | `domain-range`, `inverse-reflection`, `log-graph` |
+| Log of a quadratic: domain, asymptotes, zeros and maximum (`fn-log-of-quadratic`) | 4 | `zero-product`, `vertex-form`, `domain-range`, `quadratic-inequality`, `log-undoes-power`, `log-graph` |
+| Sketch from features found in earlier parts (`fn-sketch-from-features`) | 4 | `vertex-form`, `domain-range`, `sketch-features`, `long-run-value` |
+| Solve a quadratic exactly, in context or in disguise (`fn-solve-quadratic`) | 4 | `zero-product`, `hidden-quadratic`, `context-check`, `quadratic-formula`, `discriminant` |
+| Log function features: asymptote, domain and sign (`fn-log-function-features`) | 3 | `inverse-reflection`, `domain-range`, `log-graph` |
 | Inverse as a reflection in y = x (`fn-inverse-reflection`) | 2 | `inverse-reflection` |
-| Solve a quadratic inequality (`fn-quadratic-inequality`) | 2 | `zero-product`, `context-check`, `quadratic-inequality`, `graph-inequality`, `discriminant` |
-| Apply transformations to a graph (`fn-transform-apply`) | 2 | `translation`, `stretch`, `transform-order`, `reflection` |
+| Solve a quadratic inequality (`fn-quadratic-inequality`) | 2 | `zero-product`, `quadratic-inequality`, `graph-inequality`, `context-check`, `discriminant` |
+| Apply transformations to a graph (`fn-transform-apply`) | 2 | `translation`, `stretch`, `reflection`, `transform-order` |
 
 ## Gaps
 

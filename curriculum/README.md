@@ -95,16 +95,16 @@ A Relic lesson is a 3 to 6 minute playable episode: a character shows a broken m
 - **`id`** is `lesson.<island>.<idea>`, with the island prefix `num`, `fn`, `geo`, `stat` or `calc` for topics 1 to 5. Lesson IDs are permanent once they are on `main`, like every other ID here: saves will record lesson progress against them.
 - **`objective`** is one sentence a student would understand. **`idea`** is the principle underneath it.
 - **`region`**, **`topic`** and **`station`** place the lesson: a Functions region from `question-types.json`, and the Relic station from `ROADMAP.md` (`scrapworks` for Functions).
-- **`skills`** are skill IDs from this map. **`assumes`** lists skills the lesson needs that another island teaches, such as log laws.
+- **`skills`** are skill IDs from this map. **`assumes`** lists skills the lesson needs that another island teaches, such as log laws. `assumes` is a plain list for suggestions: it never locks a lesson.
 - **`supports`** are the question-type IDs the lesson prepares students for. **`unknowns`** lists, for each supported type, the unknowns it prepares for; every exam type in `supports` needs an entry.
 - **`levels`** is the level range the lesson teaches towards (0 to 5, as in `question-types.json`). Level 0 lessons are prior learning: they apply a `prior-learning` type and have no skills of their own.
-- **`prerequisites`** are lesson IDs. The check rejects cycles.
+- **`prerequisites`** are lesson IDs. The check rejects cycles. They set the build order and the lessons the game suggests, but never lock a lesson: players can open any lesson.
 - **`misconceptions`** are the mistakes the react stage answers: `skill#index` into this map, or `type#index` for a prior-learning type's own misconceptions. Lesson feedback and multiple-choice distractors use the same entries.
 - **`interaction`** is one of the 8 kinds in `interactions`. **`scenario`** is 2 or 3 sentences: the character, the machine, what the player controls, what success looks like, and the notation the debrief brings in.
 - **`apply`** is what the engine generates for the independent task: a `type`, its `unknowns`, and optionally the `reps` to show the givens in.
 - **`alignment`** is the IB subtopic plus Common Core, AP Precalculus, GCSE and A level references. Every code must be listed in `sources`, which records where it was checked. Leave a code out rather than guess one.
 - **`materials`** are open resources worth borrowing from. Only licences that allow a paid release are accepted (CC BY, CC BY-SA, CC0 and similar). Check the licence on the source itself: OpenStax 2e books and PhET simulations are now non-commercial, for example. Adapting CC BY-SA material makes the adapted asset CC BY-SA too. OpenStax's book pages also say the books may not be fed to AI tools without permission, so agents take ideas from them, not text.
-- **`priority`** is computed: `parts` is the exam parts the lesson supports, weighted by the share of each type's exam unknowns it lists, and `rank` is the build order. `--write` refreshes both.
+- **`priority`** is computed: `parts` is the exam parts the lesson supports, weighted by the share of each type's exam unknowns it lists, and `rank` is the build order: the pilot and the second lesson first, then every lesson after all its prerequisites, the most weighted parts first among those that are ready. `--write` refreshes both.
 - **`gaps`** lists any Functions exam type with no lesson, with the reason. The check fails if an exam type has neither.
 
 ## Explainer moves (moves.json, moves-map.json)
