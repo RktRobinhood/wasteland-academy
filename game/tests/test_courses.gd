@@ -71,6 +71,8 @@ func test_an_unknown_needs_every_one_of_its_skills() -> void:
 	check(Courses.covers("aa-hl", {"skills": ["SL2.6.vertex", "AHL1.10.binomial"]}), "both in AA HL")
 	check(Courses.covers("ai-sl", {}), "prior learning lists no skills: every course assumes it")
 	check(Courses.covers("ai-sl", {"skills": []}))
+	check(not Courses.covers("no-such-course", {}), "a course nobody lists covers nothing, not even prior learning")
+	check(Courses.covers("", {"skills": ["AHL1.10.binomial"]}), "no course, no filter")
 
 
 func test_aa_sl_and_aa_hl_cover_every_built_question() -> void:
