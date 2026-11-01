@@ -42,7 +42,13 @@ func _decimal_typed(ans: Dictionary, values: Dictionary) -> Dictionary:
 	for item in Answer.slots(ans):
 		if item.has("slot"):
 			var f: float = (values[item.slot] as Q).to_float()
-			resp[item.slot] = String.num(f, 3) if absf(f) >= 1.0 else String.num(f, 4)
+			if absf(f) >= 1.0:
+				resp[item.slot] = String.num(f, 3)
+			elif absf(f) >= 0.1:
+				resp[item.slot] = String.num(f, 4)
+			else:
+				# Under 0.1 four places lose figures (0.00932 → 0.0093): 3 s.f. instead.
+				resp[item.slot] = Fmt.sf(f).replace("−", "-")
 		else:
 			resp[item.pick] = str(values[item.pick])
 	return resp

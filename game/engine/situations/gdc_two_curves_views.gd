@@ -523,7 +523,8 @@ func u_x_not_y(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var pts := "(%s, %s) and (%s, %s)" % [S(cs[0][0]), S(cs[0][1]), S(cs[1][0]), S(cs[1][1])]
 	var ys := "y = %s and y = %s" % [S(cs[0][1]), S(cs[1][1])]
 	var out := LogFunctionViews.choice(xs, [wrong({"v": pts}, IN + "#0"), wrong({"v": ys}, IN + "#0")],
-		["x = %s and x = %s" % [S(cs[0][1]), S(cs[1][1])]])
+		["x = %s and x = %s" % [S(cs[0][1]), S(cs[1][1])], "x = %s and x = %s" % [S(-float(cs[0][0])), S(-float(cs[1][0]))],
+			"x = %s and x = %s" % [S(cs[0][0]), S(-float(cs[1][0]))]])
 	var final: String = "So the solutions are " + xs + "."
 	var lines := ["The graphs of y = %s and y = %s meet at %s." % [ft(s), gt(s), pts]]
 	if rep == "words":
