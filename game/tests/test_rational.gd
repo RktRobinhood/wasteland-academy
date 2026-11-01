@@ -177,3 +177,63 @@ func test_the_scaled_split_has_whole_numbers() -> void:
 		check(not q.has("error"), "seed %d" % seed)
 		var v: Dictionary = q.answer.values
 		check((v.v0 as Q).is_int() and (v.v1 as Q).is_int(), "A and k are whole: " + q.answer_text)
+
+
+# ── fn-pre-algebraic-fractions ───────────────────────────────
+
+func test_algebraic_fractions_are_built_with_every_cell() -> void:
+	var t := "fn-pre-algebraic-fractions"
+	check(t in QuestionEngine.built_types(), "%s is not built" % t)
+	check_eq(QuestionEngine.cells(false, [t]).size(), 10, t)
+	for c in QuestionEngine.cells(false, [t]):
+		for seed in [1, 2, 3, 4]:
+			var q := _make(t, c.unknown, c.rep, c.angle, seed)
+			check(not q.has("error"), "%s seed %d: %s" % [c.key, seed, q.get("error")])
+			if q.has("error"):
+				break
+			check_eq(q.situation_id, t, c.key)
+			check_eq(q.choices.size(), 4, c.key)
+			check_eq(q.solutions[0].angle, c.angle, c.key + ": the asked method comes first")
+			for sol in q.solutions:
+				check(sol.steps.size() >= 2 and sol.steps.size() <= 5, "%s: %d steps" % [c.key, sol.steps.size()])
+				check(q.answer_text in Step.text(sol.steps[sol.steps.size() - 1]), "%s: the last step doesn't state the answer" % c.key)
+
+
+func test_an_equation_is_solved_by_typing_a_number() -> void:
+	var q := _make("fn-pre-algebraic-fractions", "clear-and-solve", "equation", "multiply-through", 3)
+	check(QuestionEngine.mark(q, {"v": (q.answer.values.v as Q).key()}).correct, q.answer_text)
+	check(not QuestionEngine.mark(q, {"v": (q.answer.values.v as Q).add(1).key()}).correct, "another x is wrong")
+
+
+func test_clearing_an_equation_offers_error_spot() -> void:
+	var t := "fn-pre-algebraic-fractions"
+	var made := 0
+	for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == "clear-and-solve"):
+		check(QuestionEngine.extra_formats(t, c.unknown, c.angle).has("error-spot"), c.key)
+		var q := _make(t, c.unknown, c.rep, c.angle, 4, "error-spot")
+		check(not q.has("error"), "%s: %s" % [c.key, q.get("error")])
+		if not q.has("error"):
+			check_eq(q.choices.size(), 4, c.key)
+			made += 1
+	check(made > 0, "no error-spot question")
+
+
+func test_every_slip_of_algebraic_fractions_is_an_option() -> void:
+	var t := "fn-pre-algebraic-fractions"
+	var ty := QuestionEngine.type_of(t)
+	for i in ty.misconceptions.size():
+		var m: Dictionary = ty.misconceptions[i]
+		if m.as != "distractor":
+			continue
+		var ref := "%s#%d" % [t, i]
+		for u in m.in:
+			var found := false
+			for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == u):
+				for seed in range(1, 80):
+					var q := _make(t, u, c.rep, c.angle, seed, "mcq")
+					if q.choices.any(func(o): return o.ref == ref):
+						found = true
+						break
+				if found:
+					break
+			check(found, "%s never offers %s" % [u, ref])

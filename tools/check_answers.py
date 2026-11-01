@@ -9500,6 +9500,176 @@ def rf_spot(q, lines):
 
 SPOT_CHECKS["rational-function"] = rf_spot
 
+# ── Algebraic fractions (FAL-423): fn-pre-algebraic-fractions ─
+# Each fraction or equation is read back from the question and worked out again with
+# SymPy: the excluded value is where the bottom is zero, a simplified form is the same
+# function (with the same excluded value), a sum is the same function, an equation's
+# solution is solved for and substituted back, and each wrong option is shown to be a
+# different function.
+
+AF = "fn-pre-algebraic-fractions#"
+AF_ZERO_WORDS = "no value: dividing by 0 gives 0"
+
+
+def af_expr(text):
+    t = text.replace("−", "-").replace("²", "**2")
+    need(re.fullmatch(r"[0-9x+\-*/(). ]+", t) is not None, f"can't read {text!r}")
+    return sp.nsimplify(parse_expr(t, transformations=TRANSFORMS, local_dict={"x": X}), rational=True)
+
+
+def af_split_frac(text):
+    """'(3x + 1)/(x − 4)' -> (top text, bottom text)."""
+    m = re.fullmatch(r"(\(.+?\)|[^/]+)/(\(.+\)|[^/]+)", text)
+    need(m is not None, f"can't read the fraction {text!r}")
+    return m.group(1), m.group(2)
+
+
+def af_excluded(f):
+    """The x-values that make the bottom of f (a ratio of polynomials) zero."""
+    num, den = sp.fraction(sp.together(f))
+    return sorted(sp.real_roots(sp.Poly(den, X)))
+
+
+def af_same(f, g):
+    return sp.simplify(f - g) == 0
+
+
+def check_algfrac(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "Paper 1")
+    for t in [asked] + L + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    ft = frac_text
+    if u == "excluded-value":
+        if rep == "equation":
+            top, bot = af_split_frac(L[0])
+        else:
+            m = re.fullmatch(r"A fraction has (.+) on the top and (.+) on the bottom\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            top, bot = m.group(1), m.group(2)
+        t, b = af_expr(top), af_expr(bot)
+        h = sp.solve(b, X)
+        need(len(h) == 1, "the bottom has one zero")
+        h = sp.nsimplify(h[0])
+        need(sp.simplify(t.subs(X, h)) != 0, "the top is zero where the bottom is")
+        want = f"x ≠ {ft(h)}, because the bottom would be 0"
+        wr = {AF + "3": {AF_ZERO_WORDS}}
+        gc_check_common(q, want, wr)
+    elif u == "simplify-by-cancelling":
+        top, bot = af_split_frac(L[0])
+        t, b = af_expr(top), af_expr(bot)
+        f = sp.cancel(t / b)
+        num, den = sp.fraction(f)
+        h = sp.nsimplify(sp.solve(b, X)[0])
+        common = sp.Poly(sp.gcd(t, b), X).degree()
+        if common == 0:
+            want = "it cannot be simplified"
+            need(sp.Poly(t, X).degree() == 1 and sp.Poly(b, X).degree() == 1, "a cancel that is not one bracket over one bracket")
+            a_, b_ = sp.Poly(t, X).all_coeffs()[1], sp.Poly(b, X).all_coeffs()[1]
+            need(a_ != b_, "the brackets are the same")
+            wr = {AF + "0": {ft(sp.Rational(a_, b_))}}
+        else:
+            need(common == 1, "more than one common factor")
+            want = f"{af_poly_text(sp.cancel(t / b))} (x ≠ {ft(h)})"
+            need(sp.Poly(sp.fraction(sp.cancel(t / b))[1], X).degree() == 0, "the simplest form still has x in the bottom")
+            wr = {}
+        gc_check_common(q, want, wr)
+    elif u == "add-fractions":
+        m = re.fullmatch(r"(−?\d+)/\((.+?)\) \+ (−?\d+)/\((.+?)\)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        f = af_expr(m.group(1)) / af_expr(m.group(2)) + af_expr(m.group(3)) / af_expr(m.group(4))
+        g = sp.together(f)
+        num, den = sp.fraction(g)
+        bot = f"(({m.group(2)})({m.group(4)}))"
+        npoly = sp.Poly(num, X)
+        want = f"{af_wrap(af_poly_text(npoly.as_expr()))}/{bot}"
+        need(af_same(af_expr(want), f), "the right option is not the sum")
+        p, a, q_, b = (int(m.group(i).replace("−", "-")) if i in (1, 3) else None for i in (1, 2, 3, 4))
+        wrong_sum = f"{ft(af_expr(m.group(1)) + af_expr(m.group(3)))}/{af_wrap(af_poly_text(af_expr(m.group(2)) + af_expr(m.group(4))))}"
+        for o in q["choices"]:
+            if not o["correct"]:
+                try:
+                    need(not af_same(af_expr(o["text"]), f), f"a wrong option {o['text']!r} is the sum")
+                except ZeroDivisionError:
+                    pass
+        gc_check_common(q, want, {AF + "1": {wrong_sum}})
+    elif u == "clear-and-solve":
+        m = re.fullmatch(r"(−?\d+)(?: ([+−]) (\d+))?/\((.+?)\) = (−?\d+)", L[0].replace(" + ", " + ", 1))
+        m = re.fullmatch(r"(−?\d+) ([+−]) (\d+)/\((.+?)\) = (−?\d+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        a = int(m.group(1).replace("−", "-"))
+        k = int(m.group(3)) * (1 if m.group(2) == "+" else -1)
+        bracket = af_expr(m.group(4))
+        c = int(m.group(5).replace("−", "-"))
+        sol = sp.solve(sp.Eq(a + k / bracket, c), X)
+        need(len(sol) == 1 and sol[0].is_integer and bracket.subs(X, sol[0]) != 0, "the solution is not a whole number or is excluded")
+        x = sol[0]
+        need(a + k / bracket.subs(X, x) == c, "the solution doesn't satisfy the equation")
+        wrong_x = sp.nsimplify(sp.solve(sp.Eq(a + k, c * bracket), X)[0])
+        need(wrong_x != x, "the slip gives the right answer")
+        gc_check_common(q, f"x = {ft(x)}", {AF + "2": {f"x = {ft(wrong_x)}"}})
+    elif u == "missing-numerator":
+        m = re.fullmatch(r"Fill in the numerator: (.+?) = \(□\)/\((.+?)\)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        top, bot = af_expr(m.group(1)), af_expr(m.group(2))
+        num = sp.expand(sp.cancel((top - 0) * bot))
+        want = af_poly_text(num) if num.has(X) else ft(num)
+        need(af_same(top, num / bot), "the right option is not the numerator")
+        for o in q["choices"]:
+            if not o["correct"]:
+                need(not af_same(af_expr(o["text"]) / bot, top), f"a wrong option {o['text']!r} is the numerator")
+        gc_check_common(q, want, {})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+def af_poly_text(e):
+    """A polynomial in x as the game writes it ('x² + 5x + 6' is not used: the game writes
+    the simplified results, which here are linear or constant)."""
+    P = sp.Poly(sp.expand(e), X)
+    cs = P.all_coeffs()
+    if P.degree() == 0:
+        return frac_text(cs[0])
+    if P.degree() == 1:
+        a, b = cs
+        out = ("−" if a < 0 else "") + ("" if abs(a) == 1 else frac_text(abs(a))) + "x"
+        if b != 0:
+            out += (" − " if b < 0 else " + ") + frac_text(abs(b))
+        return out
+    raise Fail(f"can't write {e}")
+
+
+def af_wrap(t):
+    return t if " " not in t else f"({t})"
+
+
+def af_spot(q, lines):
+    """The first line of a student's solution of a + k/(x − h) = c that is not an equation with
+    the true solution: a line is right when its solution is the equation's solution."""
+    m = re.fullmatch(r"(−?\d+) ([+−]) (\d+)/\((.+?)\) = (−?\d+)", q["lines"][0] if not q["lines"][0].startswith("A student") else q["lines"][0])
+    # the question's own equation is the first of the lines before the student's working
+    eq_line = next(l for l in q["lines"] if re.fullmatch(r"(−?\d+) ([+−]) (\d+)/\((.+?)\) = (−?\d+)", l))
+    m = re.fullmatch(r"(−?\d+) ([+−]) (\d+)/\((.+?)\) = (−?\d+)", eq_line)
+    a = int(m.group(1).replace("−", "-"))
+    k = int(m.group(3)) * (1 if m.group(2) == "+" else -1)
+    bracket = af_expr(m.group(4))
+    true_x = sp.solve(sp.Eq(a + k / bracket, int(m.group(5).replace("−", "-"))), X)
+    for i, line in enumerate(lines):
+        if " = " not in line:
+            continue
+        l, r = line.split(" = ", 1)
+        try:
+            sol = sp.solve(sp.Eq(af_expr(l), af_expr(r)), X)
+        except Exception:
+            sol = None
+        if sol != true_x:
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-algebraic-fractions"] = af_spot
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -9518,7 +9688,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
-                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational}
+                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

@@ -102,7 +102,7 @@ func test_every_cell_of_a_course_uses_only_skills_the_course_covers() -> void:
 			var u := QuestionEngine.unknown_of(t, c.unknown)
 			for s in u.get("skills", []):
 				check(Courses.covers_skill(course, s), "%s on %s: skill %s" % [c.key, course, s])
-			var m := QuestionEngine.angle_info(t, c.unknown, c.angle)
+			var m := QuestionEngine.angle_info(t, c.unknown, c.angle, course)
 			check(Courses.covers_method(course, m), "%s on %s: method %s" % [c.key, course, c.angle])
 
 

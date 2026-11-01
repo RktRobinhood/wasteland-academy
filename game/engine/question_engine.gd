@@ -82,6 +82,7 @@ static var SITUATIONS := {
 	"composite-graph-table": [GraphTableSituation, GraphTableViews],
 	"fn-pre-rearrange": [RearrangeSituation, RearrangeViews],
 	"rational-function": [RationalFunctionSituation, RationalFunctionViews],
+	"fn-pre-algebraic-fractions": [AlgebraicFractionSituation, AlgebraicFractionViews],
 }
 
 static var _cat: Dictionary = {}
@@ -169,11 +170,18 @@ static func covers_type(course: String, t: Dictionary) -> bool:
 	return false
 
 
-static func angle_info(t: Dictionary, unknown: String, method: String) -> Dictionary:
+## The catalogue's entry for a method on an unknown. A method can be listed twice for one
+## unknown under two skills (gdc-table, for a table's asymptotes: SL2.8 and SL2.4); with a
+## course, the entry it covers comes first (FAL-423).
+static func angle_info(t: Dictionary, unknown: String, method: String, course: String = "") -> Dictionary:
+	var found := {}
 	for a in t.get("angles", []):
 		if a.method == method and unknown in a.suits:
-			return a
-	return {}
+			if Courses.covers_method(course, a):
+				return a
+			if found.is_empty():
+				found = a
+	return found
 
 
 ## A method's name on one question: the view's title for it where it names the
