@@ -7811,6 +7811,180 @@ def check_regression(q):
     return None, None
 
 
+# ── compound-interest (t1-compound-interest, FAL-695) ────────
+# The `compound-interest` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/compound_interest.gd. Every value is found again with exact
+# rationals (Python integers do not overflow), and a rate or a time from a high-precision root
+# or logarithm.
+
+CI_SKILL = "SL1.4."
+CI_WHO = ["Kira", "Tomas", "The Guild", "A trader", "Ines", "The caravan fund"]
+CI_FREQ = {"annually": 1, "half-yearly": 2, "quarterly": 4, "monthly": 12}
+CI_TENTHS = {sp.Rational(t, 10) for t in range(15, 81, 5)}
+CI_QUARTERS = {sp.Rational(t, 100) for t in range(175, 726, 50)}
+CI_CENT_EDGE = sp.Rational(149, 1000)   # the engine's is 0.15
+CI_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+CI_YEAR_GAP = sp.Rational(149, 1000)    # the engine's is 0.15
+
+
+def ci_value(pv, r, k, n):
+    return pv * (1 + r / (100 * k)) ** (k * n)
+
+
+def ci_cents(x):
+    """x to the nearest cent, half up, as a Rational."""
+    return sp.floor(x * 100 + sp.Rational(1, 2)) / 100
+
+
+def ci_clear(x):
+    """x rounds to a cent without doubt: its leftover fraction of a cent is at least CI_CENT_EDGE from 0.5."""
+    if not (0 < x <= 100000):
+        return False
+    f = x * 100 - sp.floor(x * 100)
+    return abs(f - sp.Rational(1, 2)) >= CI_CENT_EDGE
+
+
+def ci_money(c):
+    """A cents value as the game writes it: whole dollars bare, else two decimals."""
+    c = sp.Rational(c)
+    return str(int(c)) if c.q == 1 else f"{Decimal(c.p) / Decimal(c.q):.2f}"
+
+
+def ci_rate_clear(x):
+    v = num(x)
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= CI_EDGE
+
+
+def check_compound_interest(q):
+    g, u, L, rep = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    asked = q["asked"]
+    paper = q["paper"]
+    need(paper in (1, 2), f"paper {paper}")
+    need(paper == 2 or (u in ("future-value", "interest-earned") and q["view"]["angle"] == "compound-formula"), "only a future value or interest by formula is Paper 1")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    freqs = "|".join(CI_FREQ)
+
+    def who_ok(w):
+        need(w in CI_WHO and CI_WHO.index(w) == int(g["ctx"]), f"the story's name {w!r}")
+
+    if u in ("future-value", "interest-earned", "time-needed"):
+        m = re.fullmatch(r"(.+) invests \$(\d+) in an account that pays ([\d.]+)% per year, compounded (" + freqs + r")\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        who_ok(m.group(1))
+        pv, r, k = sp.Integer(m.group(2)), R(m.group(3)), CI_FREQ[m.group(4)]
+        if paper == 1:
+            need(k == 1 and pv in (1000, 2000, 4000, 5000, 8000, 10000) and r in (5, 10, 20, 25, 50), f"Paper 1 PV {pv}, rate {r} or compounding {k} is outside the limits")
+        else:
+            need(pv % 500 == 0 and 1000 <= pv <= 20000 and r in CI_TENTHS, f"PV {pv} or rate {r} is outside the limits")
+        need(R(g["pv"]) == pv and R(g["r"]) == r and int(g["k"]) == k, "the givens are not what is shown")
+        if u in ("future-value", "interest-earned"):
+            mn = re.fullmatch(r"Find the (?:value of the investment after|interest earned over the) (\d+) years, to the nearest cent\.", asked)
+            need(mn is not None and asked == (f"Find the value of the investment after {mn.group(1)} years, to the nearest cent." if u == "future-value"
+                                              else f"Find the interest earned over the {mn.group(1)} years, to the nearest cent."), f"asked {asked!r}")
+            n = int(mn.group(1))
+            need((paper == 1 and 2 <= n <= 4 or paper == 2 and 2 <= n <= 12) and int(g["n"]) == n, f"n = {n}")
+            need(paper == 2 or (int(r), n) in ((10, 2), (10, 3), (10, 4), (20, 2), (20, 3), (5, 2), (50, 2), (25, 2)), f"Paper 1 rate {r} for {n} years")
+            fv = ci_value(pv, r, k, n)
+            annual, simple = ci_value(pv, r, 1, k * n), pv * (1 + n * r / 100)
+            need(all(ci_clear(x) for x in (fv, fv - pv, annual, simple)), "a value is on the edge between two cents, or outside the limits")
+            need(abs(fv - simple) >= 1 and (paper == 1 or abs(fv - annual) >= 1), "a slip reads the same as the answer")
+            if u == "future-value":
+                want = "value = $" + ci_money(ci_cents(fv))
+                wrongs[CI_SKILL + "future-value#0"] = {"value = $" + ci_money(ci_cents(annual))}
+                wrongs[CI_SKILL + "future-value#1"] = {"value = $" + ci_money(ci_cents(simple))}
+                wrongs[CI_SKILL + "future-value#2"] = {"value = $" + ci_money(ci_cents(fv - pv))}
+            else:
+                want = "interest = $" + ci_money(ci_cents(fv - pv))
+                wrongs[CI_SKILL + "future-value#2"] = {"interest = $" + ci_money(ci_cents(fv))}
+        else:
+            mt = re.fullmatch(r"Find the number of complete years needed for the investment to be worth more than \$(\d+)\.", asked)
+            need(mt is not None, f"asked {asked!r}")
+            target = sp.Integer(mt.group(1))
+            need(target % 500 == 0 and target >= sp.Rational(12, 10) * pv and R(g["target"]) == target, f"target {target}")
+            years = next(i for i in range(1, 400) if ci_value(pv, r, k, i) > target)
+            x = sp.log(sp.Rational(target) / pv) / (k * sp.log(1 + r / (100 * k)))
+            xn = num(x)
+            frac = xn - sp.floor(xn)
+            need(CI_YEAR_GAP <= frac <= 1 - CI_YEAR_GAP, f"the real solution {float(xn):.4f} is not clear of a whole number")
+            need(years == int(g["years"]) and 3 <= years <= 40, f"the least n is {years}, not {g['years']}")
+            want = f"years = {years}"
+            if sp.floor(xn + sp.Rational(1, 2)) != years:
+                wrongs[CI_SKILL + "find-time#0"] = {f"years = {int(sp.floor(xn + sp.Rational(1, 2)))}"}
+            if k > 1:
+                wrongs[CI_SKILL + "find-time#1"] = {f"years = {int(sp.ceiling(xn * k))}"}
+    elif u == "present-value":
+        m = re.fullmatch(r"(.+) wants an account to be worth \$(\d+) after (\d+) years\. The account pays ([\d.]+)% per year, compounded (" + freqs + r")\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        who_ok(m.group(1))
+        fv, n, r, k = sp.Integer(m.group(2)), int(m.group(3)), R(m.group(4)), CI_FREQ[m.group(5)]
+        need(fv % 500 == 0 and 2000 <= fv <= 50000 and 2 <= n <= 12 and r in CI_TENTHS, f"FV {fv}, n {n} or rate {r} is outside the limits")
+        need(asked == "Find the amount to invest now, to the nearest cent.", f"asked {asked!r}")
+        need(R(g["fv"]) == fv and int(g["n"]) == n and R(g["r"]) == r and int(g["k"]) == k, "the givens are not what is shown")
+        pv = fv / (1 + r / (100 * k)) ** (k * n)
+        need(ci_clear(pv) and pv >= 500, f"PV {float(pv):.4f} is on a cent edge or too small")
+        need(ci_clear(fv * (1 + r / (100 * k)) ** (k * n)) and ci_clear(fv / (1 + r / 100) ** (k * n)) and ci_clear(fv / (1 + n * r / 100)), "a wrong option is on a cent edge")
+        want = "PV = $" + ci_money(ci_cents(pv))
+    elif u == "interest-rate":
+        m = re.fullmatch(r"(.+) invests \$(\d+) in an account that pays interest compounded (" + freqs + r")\. After (\d+) years the account is worth \$([\d.]+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        who_ok(m.group(1))
+        pv, k, n, fv = sp.Integer(m.group(2)), CI_FREQ[m.group(3)], int(m.group(4)), R(m.group(5))
+        need(pv % 500 == 0 and 1000 <= pv <= 20000 and 2 <= n <= 12, f"PV {pv} or n {n} is outside the limits")
+        need(asked == "Find the annual interest rate, as a percentage to 3 s.f.", f"asked {asked!r}")
+        need(R(g["pv"]) == pv and R(g["fv"]) == fv and int(g["k"]) == k and int(g["n"]) == n, "the givens are not what is shown")
+        ratio = fv / pv
+        found = 100 * k * (ratio ** sp.Rational(1, k * n) - 1)
+        fn = num(found)
+        nearest = sp.Rational(sp.floor(fn * 4 + sp.Rational(1, 2)), 4)
+        need(nearest in CI_QUARTERS and abs(fn - nearest) < sp.Rational(1, 100) and abs(fn - nearest) >= sp.Rational(1, 10**6), f"the rate {float(fn):.6f} is not a quarter, or is on it exactly")
+        need(ci_rate_clear(found), "the rate is on a rounding edge")
+        slip_root, slip_share = ratio ** sp.Rational(1, k * n), (ratio - 1) * 100 / n
+        need(ci_rate_clear(slip_root) and ci_rate_clear(slip_share), "a slip is on a rounding edge")
+        need(len({sig3(found), sig3(slip_root), sig3(slip_share)}) == 3, "the slips read the same as the answer")
+        need(sig3(found) == sig3(nearest), "the rate does not read as its quarter at 3 s.f.")
+        want = "rate = " + sig3(found).replace("-", "−") + "%"
+        trap = "rate = " + dec_text(sp.Rational(sig3(found, 2))) + "%"
+        wrongs[CI_SKILL + "find-rate-or-pv#0"] = {"rate = " + sig3(slip_root) + "%"}
+        wrongs[CI_SKILL + "find-rate-or-pv#2"] = {"rate = " + sig3(slip_share) + "%"}
+    elif u == "compare-options":
+        m = re.fullmatch(r"(.+) invests \$(\d+) for (\d+) years in one of two accounts\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        who_ok(m.group(1))
+        pv, n = sp.Integer(m.group(2)), int(m.group(3))
+        need(pv % 1000 == 0 and 1000 <= pv <= 20000 and 3 <= n <= 15, f"PV {pv} or n {n} is outside the limits")
+        need(asked == f"How much more is account A worth than account B at the end of the {n} years? Give your answer to the nearest cent.", f"asked {asked!r}")
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0] == ["Account", ["A", "B"]] and rows[1][0] == "Rate (% per year)" and rows[2][0] == "Compounded", "table heads")
+            ra, rb = R(rows[1][1][0]), R(rows[1][1][1])
+            ka, kb = CI_FREQ[rows[2][1][0]], CI_FREQ[rows[2][1][1]]
+        else:
+            mm = re.fullmatch(r"Account A pays ([\d.]+)% per year, compounded (" + freqs + r"). Account B pays ([\d.]+)% per year, compounded (" + freqs + r")\.", L[1])
+            need(mm is not None, f"can't read {L[1]!r}")
+            ra, ka, rb, kb = R(mm.group(1)), CI_FREQ[mm.group(2)], R(mm.group(3)), CI_FREQ[mm.group(4)]
+        need(ra in CI_TENTHS and rb in CI_TENTHS and not (ra == rb and ka == kb), "the accounts are outside the limits or the same")
+        need(R(g["pv"]) == pv and R(g["r"]) == ra and R(g["rb"]) == rb and int(g["k"]) == ka and int(g["kb"]) == kb and int(g["n"]) == n, "the givens are not what is shown")
+        a, b = ci_value(pv, ra, ka, n), ci_value(pv, rb, kb, n)
+        d = a - b
+        need(d >= 20 and ci_clear(a) and ci_clear(b) and ci_clear(d), "the difference is below 20 or a value is on a cent edge")
+        need(ci_cents(a) - ci_cents(b) == ci_cents(d), "rounding first changes the difference")
+        a1, b1 = ci_value(pv, ra, 1, n), ci_value(pv, rb, 1, n)
+        need(ci_clear(a1 - b1) and a1 - b1 >= 1 and abs(a1 - b1 - d) >= 1, "the nominal-rate slip is on a cent edge or reads the same")
+        want = "difference = $" + ci_money(ci_cents(d))
+        wrongs[CI_SKILL + "compare-options#0"] = {"difference = $" + ci_money(ci_cents(a1 - b1))}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+    for sol in q["solutions"]:
+        need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -7828,7 +8002,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
-                    "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression}
+                    "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression, "compound-interest": check_compound_interest}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
