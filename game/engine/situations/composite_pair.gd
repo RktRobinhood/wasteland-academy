@@ -17,6 +17,7 @@ extends RefCounted
 ##            Paper 2 value (need.paper = 2) is f = sin x
 ##   param    pm or lin, drawn here
 ##   pm       k in g = a·x + k, f = x² + c: (f∘g)(x0) = v gives a·x0 + k = ±n, so k = k1 or k2
+##            (Paper 2: ±√r, r not a square: r, awkward)
 ##   lin      k in f = k·x + d: (f∘g)(x0) = v gives k = (v − d) ÷ g(x0)
 ##   coef     f = x² + c, g = k·x + d: the x² coefficient of f∘g is p = k², so k = ±n
 ##   solve    f, g and a target t: (f∘g)(x) = t has the x-values xs (two when f squares)
@@ -84,15 +85,16 @@ static func draw_rule(rng: Seeded, kinds: Array) -> Dictionary:
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var mode: String = need.get("mode", "forward")
-	# A parameter from a value: k in the inner rule (a ± pair) or in the outer one.
+	# A parameter from a value: k in the inner rule (a ± pair) or in the outer one. A
+	# Paper 2 one is always the ± pair with an irrational root.
 	if mode == "param":
-		mode = "pm" if rng.chance(0.7) else "lin"
+		mode = "pm" if rng.chance(0.7) or need.get("paper", 0) == 2 else "lin"
 	for i in TRIES:
 		var s := _draw(rng, mode, need)
 		if not s.is_empty() and _clean(s, mode):
 			s.mode = mode
 			if need.get("paper", 0) > 0:
-				s.paper = 2 if s.has("sine") else 1
+				s.paper = 2 if s.has("sine") or s.has("awkward") else 1
 			return s
 	push_error("CompositePairSituation: no clean situation for %s" % need)
 	return {}
@@ -118,6 +120,17 @@ static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:
 			s.a = pick(rng, G_M)
 			s.c = rng.int_in(-6, 6)
 			s.x0 = Q.new(pick(rng, X0))
+			if need.get("paper", 0) == 2:
+				# Paper 2: (a·x₀ + k)² = r with r not a square, so k needs a calculator.
+				s.r = pick(rng, [2, 3, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20])
+				s.v = Q.new(s.r + s.c)
+				var root := sqrt(float(s.r))
+				s.k1 = Q.new(roundi((root - s.a * s.x0.n) * 1e9), 1000000000)
+				s.k2 = Q.new(roundi((-root - s.a * s.x0.n) * 1e9), 1000000000)
+				if not (Answer.rounds_clearly(s.k1.to_float()) and Answer.rounds_clearly(s.k2.to_float())):
+					return {}
+				s.awkward = true
+				return s
 			s.n = rng.int_in(1, 6)
 			s.v = Q.new(s.n * s.n + s.c)
 			s.k1 = Q.new(s.n - s.a * s.x0.n)

@@ -7733,7 +7733,8 @@ def check_composite(q):
     r = cp_rules(q)
     wr = {}
     trap = None
-    need(q["paper"] == (2 if u == "value-inside-out" and "sin x" in " ".join(L) else 1), "the paper is not the one the numbers need")
+    need(q["paper"] == 1 or u in ("value-inside-out", "parameter-from-value"), "a Paper 2 question that needs no calculator")
+    need(q["paper"] == 1 or u == "parameter-from-value" or "sin x" in " ".join(L), "the paper is not the one the numbers need")
     if u == "value-inside-out":
         f, g = r["f"], r["g"]
         m = re.fullmatch(r"Find \(f∘g\)\((−?\d+)\)\.", asked.replace("-", "−"))
@@ -7775,6 +7776,14 @@ def check_composite(q):
         f, g = r["f"], r["g"]
         x0, V = el_num(m.group(1)), el_num(m.group(2))
         sols = sorted(sp.solve(f.subs(X, g.subs(X, x0)) - V, K))
+        if q["paper"] == 2:
+            # Paper 2: (a·x₀ + k)² = r with r not a square, k to 3 s.f.
+            need(m.group(3) != "k" and len(sols) == 2 and g.has(K) and not f.has(K), "Paper 2 is the ± pair in g")
+            need(all(not s_.is_rational for s_ in sols), "a Paper 2 k is a whole number: it needs no calculator")
+            vals = [R(str(sp.N(s_, 30))) for s_ in sols]
+            need(all(abs(v_) <= 30 for v_ in vals), "k is out of range")
+            cp_check_text(q, f"k = {ext_sf(vals[0])} or k = {ext_sf(vals[1])}", {})
+            return None, None
         need(all(s_.is_rational and s_.q == 1 and abs(s_) <= 20 for s_ in sols), f"k is not a whole number from −20 to 20: {sols}")
         if m.group(3) == "k":
             need(len(sols) == 1 and f.has(K) and not g.has(K), "a single k is in f")

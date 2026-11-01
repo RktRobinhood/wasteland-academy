@@ -32,10 +32,11 @@ func needs() -> Dictionary:
 	}
 
 
-## Only the inside-out value is asked with a calculator on Paper 2 (the catalogue's one
-## Paper 2 part is a composite with a trig rule); every other cell is Paper 1.
+## Paper 2 is a composite with a trig rule evaluated on the calculator (the catalogue's one
+## Paper 2 part), or a constant k from (a·x₀ + k)² = r with r not a square; every other cell
+## is Paper 1.
 func papers(unknown: String, _rep: String, _angle: String) -> Array:
-	return [1, 2] if unknown == "value-inside-out" else [1]
+	return [1, 2] if unknown in ["value-inside-out", "parameter-from-value"] else [1]
 
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -225,26 +226,38 @@ func u_parameter_from_value(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 func _param_pm(s: Dictionary) -> Dictionary:
 	var a: int = s.a
 	var c: int = s.c
-	var n: int = s.n
 	var x0: Q = s.x0
 	var v: Q = s.v
 	var ans := Answer.make("kvals", {"r1": s.k1, "r2": s.k2}, {"var": "k"})
+	# n: the whole number whose ± is a·x₀ + k, or r, the number under the root (Paper 2).
+	var n: int = s.r if s.has("r") else s.n
+	var awkward: bool = s.get("awkward", false)
+	if awkward:
+		ans.show = "sf"
 	var shown := Q.new(a).mul(x0)
 	var out := {"asked": "Given that (f∘g)(%s) = %s, find the possible values of k." % [N(x0), N(v)],
 		"lines": ["f(x) = %s" % Fmt.poly([1, 0, c]), "g(x) = %sx + k" % Fmt.lead(a)], "answer": ans, "wrongs": [], "generic": []}
-	out.generic = [{"r1": Q.new(n), "r2": Q.new(-n)}, {"r1": Q.new(n).add(shown), "r2": Q.new(-n).add(shown)},
-		{"r1": s.k1, "r2": s.k1.neg()}, {"r1": s.k1.add(1), "r2": s.k2.add(1)}]
+	if awkward:
+		var root := Q.new(roundi(sqrt(float(s.r)) * 1e9), 1000000000)
+		out.generic = [{"r1": root, "r2": root.neg()}, {"r1": root.add(shown), "r2": root.neg().add(shown)},
+			{"r1": s.k1.add(1), "r2": s.k2.add(1)}, {"r1": root.sub(shown).add(1), "r2": root.neg().sub(shown).add(1)}]
+	else:
+		out.generic = [{"r1": Q.new(n), "r2": Q.new(-n)}, {"r1": Q.new(n).add(shown), "r2": Q.new(-n).add(shown)},
+			{"r1": s.k1, "r2": s.k1.neg()}, {"r1": s.k1.add(1), "r2": s.k2.add(1)}]
 	var final := "So %s." % Answer.text(ans)
 	var gx_text := "k" if shown.is_zero() else ("%s + k" % N(shown) if shown.sign() > 0 else "k − %s" % shown.abs_q().text())
 	var plus_c := "%s %s" % ["+" if c >= 0 else "−", absi(c)]
 	var power := "(%s)² %s = %s" % [gx_text, plus_c, N(v)]
-	var solved := "(%s)² = %s, so %s = ±%d" % [gx_text, N(v.sub(c)), gx_text, n]
+	var root_text := "√%d" % n if awkward else str(n)
+	var solved := "(%s)² = %s, so %s = ±%s" % [gx_text, N(v.sub(c)), gx_text, root_text]
 	var composite := "(f∘g)(x) = (%sx + k)² %s" % [Fmt.lead(a), plus_c]
+	var finish := "k = %s or k = %s" % [N(s.k1), N(s.k2)]
+	if awkward:
+		finish = "√%d = %s, so k = %s or k = %s" % [n, Fmt.sf(sqrt(float(n)), 4), Fmt.sf(s.k1, 4), Fmt.sf(s.k2, 4)]
 	out.methods = {
-		"inside-out": method(["g(%s) = %s" % [N(x0), gx_text], "f(g(%s)) = %s" % [N(x0), power], solved, final], ans.values),
-		"build-then-substitute": method([composite, "Put x = %s: %s" % [N(x0), power], solved, final], ans.values),
-		"substitute-whole": method([composite, "Set x = %s and the value equal to %s: %s" % [N(x0), N(v), power], solved,
-			"k = %s or k = %s" % [N(s.k1), N(s.k2)], final], ans.values),
+		"inside-out": method(["g(%s) = %s" % [N(x0), gx_text], "f(g(%s)) = %s" % [N(x0), power], solved, finish, final], ans.values),
+		"build-then-substitute": method([composite, "Put x = %s: %s" % [N(x0), power], solved, finish, final], ans.values),
+		"substitute-whole": method([composite, "Set x = %s and the value equal to %s: %s" % [N(x0), N(v), power], solved, finish, final], ans.values),
 	}
 	return out
 
