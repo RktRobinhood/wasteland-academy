@@ -74,6 +74,7 @@ static var SITUATIONS := {
 	"graph-match": [GraphMatchSituation, GraphMatchViews],
 	"fn-link-extremes": [LinkExtremesSituation, LinkExtremesViews],
 	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
+	"counting": [CountingSituation, CountingViews],
 }
 
 static var _cat: Dictionary = {}

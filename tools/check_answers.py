@@ -21,7 +21,9 @@ any type fewer than 1,000.
     python3 tools/check_answers.py questions.json
 """
 
+import itertools
 import json
+import math
 import re
 import sys
 from collections import defaultdict
@@ -7182,6 +7184,121 @@ def check_link_graph_algebra(q):
     return None, None
 
 
+# ── counting (t1-ahl-counting, FAL-695) ──────────────────────
+# The `counting` situation, checked by brute force: every count is made again by listing
+# the arrangements or selections and counting the ones that fit, so the engine's formulas
+# are not trusted. The engine's limits are in game/engine/situations/counting.gd.
+
+CT_SKILL = "AHL1.10."
+CT_CODE_STORIES = ["A locker code is {l} followed by {d}. Letters and digits can repeat.",
+                   "A radio password is {l} then {d}, with repeats allowed.",
+                   "A vault code has {l} followed by {d}. Any letter or digit can be used again."]
+CT_ITEMS = ["books", "flags", "tools", "photographs", "batteries", "jars"]
+CT_PLACES = {2: "A winner and a runner-up are chosen from {n} runners.", 3: "Gold, silver and bronze medals are awarded among {n} runners.",
+             4: "The first four places are decided in a race with {n} runners."}
+CT_GROUPS = [("men", "women"), ("boys", "girls"), ("scouts", "guides"), ("sailors", "pilots"), ("farmers", "traders"), ("engineers", "medics")]
+CT_WHO = ["friends", "guards", "scavengers", "traders", "pilots", "cadets"]
+CT_COUNT_MAX = 20_000_000
+
+
+def ct_committees(men, women, k):
+    people = [0] * men + [1] * women           # 1 is a woman
+    return [sum(people[i] for i in c) for c in itertools.combinations(range(men + women), k)]
+
+
+def check_counting(q):
+    g, u, L, rep = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    need(g["ask"] == u, f"the situation is for {g['ask']}, not {u}")
+    a, b, d, m, n, r, v, k, men, women, j, ctx = (int(g[x]) for x in ("a", "b", "d", "m", "n", "r", "v", "k", "men", "women", "j", "ctx"))
+    asked = q["asked"]
+    label = "value = " if rep == "equation" else "number of ways = "
+    wrongs, val = {}, None
+
+    def line0(text):
+        need(L[0] == text, f"the first line is {L[0]!r}, not {text!r}")
+
+    if u == "code-count":
+        line0(CT_CODE_STORIES[ctx % 3].format(l=f"{a} letters", d=f"{b} digits"))
+        need(asked == "How many different codes are possible?", f"asked {asked!r}")
+        need(2 <= a <= 3 and 2 <= b <= 4, "the code has an unusual size")
+        val = 26**a * 10**b          # each of the a + b places is filled independently
+        wrongs[CT_SKILL + "counting-principle#1"] = {f"{label}{26 * a + 10 * b}"}
+    elif u == "no-repeat-number":
+        line0(f"A {d}-digit number does not start with 0.")
+        need(asked == f"How many {d}-digit numbers have no repeated digit?", f"asked {asked!r}")
+        need(3 <= d <= 5, "the number has an unusual length")
+        val = sum(1 for p in itertools.permutations(range(10), d) if p[0] != 0)
+        wrongs[CT_SKILL + "counting-principle#0"] = {f"{label}{math.perm(10, d)}"}
+    elif u == "even-numbers":
+        line0(f"The digits are 1 to {m}, and each is used at most once.")
+        need(asked == f"How many even {d}-digit numbers can be made?", f"asked {asked!r}")
+        need(m in (6, 8) and d in (3, 4), "the pool or length is unusual")
+        val = sum(1 for p in itertools.permutations(range(1, m + 1), d) if p[-1] % 2 == 0)
+        wrongs[CT_SKILL + "counting-principle#2"] = {f"{label}{math.perm(m, d - 1) * (m // 2)}"}
+    elif u == "arrange-all":
+        line0(f"Evaluate {n}!" if rep == "equation" else f"{n} different {CT_ITEMS[ctx % 6]} are arranged in a row.")
+        need(asked == ("Find the value." if rep == "equation" else "In how many ways can this be done?"), f"asked {asked!r}")
+        need(5 <= n <= 8, "n is outside 5 to 8")
+        val = sum(1 for _ in itertools.permutations(range(n)))
+    elif u == "award-places":
+        line0(f"Evaluate {n}P{r}" if rep == "equation" else CT_PLACES[r].format(n=n))
+        need(asked == ("Find the value." if rep == "equation" else "How many different results are possible?"), f"asked {asked!r}")
+        need(6 <= n <= 12 and 2 <= r <= 4, "n or r is outside the limits")
+        val = sum(1 for _ in itertools.permutations(range(n), r))
+        wrongs[CT_SKILL + "permutations#0"] = {f"{label}{math.comb(n, r)}"}
+        wrongs[CT_SKILL + "permutations#1"] = {f"{label}{n**r}"}
+        wrongs[CT_SKILL + "permutations#2"] = {f"{label}{math.factorial(n) // math.factorial(r)}"}
+    elif u == "find-n-from-npr":
+        line0(f"nP2 = {v}" if rep == "equation" else f"A race has n runners. There are {v} ways to award first and second place.")
+        need(asked == "Find n.", f"asked {asked!r}")
+        label = "n = "
+        roots = sp.solve(sp.Symbol("n") ** 2 - sp.Symbol("n") - v, sp.Symbol("n"))
+        pos = [x for x in roots if x > 0]
+        need(len(pos) == 1 and pos[0].is_integer and any(x < 0 and x.is_integer for x in roots), f"n² − n − {v} = 0 has roots {roots}")
+        val = int(pos[0])
+        need(6 <= val <= 15, f"n = {val} is outside 6 to 15")
+        need(sum(1 for _ in itertools.permutations(range(val), 2)) == v, "nP2 is not the value shown")
+    elif u == "committee":
+        line0(f"Evaluate {n}C{k}" if rep == "equation" else f"A committee of {k} is chosen from {n} people.")
+        need(asked == ("Find the value." if rep == "equation" else "How many different committees are possible?"), f"asked {asked!r}")
+        need(8 <= n <= 14 and 3 <= k <= 5, "n or k is outside the limits")
+        val = sum(1 for _ in itertools.combinations(range(n), k))
+        wrongs[CT_SKILL + "combinations#2"] = {f"{label}{math.perm(n, k)}"}
+    elif u in ("committee-mixed", "committee-at-least-one"):
+        g0, g1 = CT_GROUPS[ctx % 6]
+        line0(f"A committee of {k} is chosen from {men} {g0} and {women} {g1}.")
+        need(4 <= men <= 7 and 3 <= women <= 6 and 4 <= k <= 5, "the group sizes are outside the limits")
+        w = ct_committees(men, women, k)
+        if u == "committee-mixed":
+            need(asked == f"How many committees have exactly {j} {g1}?", f"asked {asked!r}")
+            need(2 <= j < k and j <= women and k - j <= men, "j is outside its limits")
+            val = sum(1 for x in w if x == j)
+            wrongs[CT_SKILL + "combinations#0"] = {f"{label}{math.comb(women, j) + math.comb(men, k - j)}"}
+        else:
+            need(asked == f"How many committees have at least one of the {g1}?", f"asked {asked!r}")
+            need(k <= men, "k is above the men")
+            val = sum(1 for x in w if x >= 1)
+            wrongs[CT_SKILL + "combinations#1"] = {f"{label}{women * math.comb(men + women - 1, k - 1)}"}
+    elif u in ("together", "apart"):
+        who = CT_WHO[ctx % 6]
+        line0(f"{n} {who} sit in a row. Two particular {who} {'must' if u == 'together' else 'must not'} sit next to each other.")
+        need(asked == "In how many ways can they be arranged?", f"asked {asked!r}")
+        need(5 <= n <= 8, "n is outside 5 to 8")
+        adjacent = lambda p: abs(p.index(0) - p.index(1)) == 1
+        val = sum(1 for p in itertools.permutations(range(n)) if adjacent(p) == (u == "together"))
+        wrongs[CT_SKILL + ("restricted-arrangements#0" if u == "together" else "restricted-arrangements#1")] = \
+            {f"{label}{math.factorial(n - 1) if u == 'together' else math.factorial(n) - 2}"}
+    else:
+        raise Fail(f"no check for {u}")
+    need(0 < val < CT_COUNT_MAX, f"the count {val} is out of range")
+    need(int(g["count"]) == val, f"the engine's count is {g['count']}, not {val}")
+    gc_check_common(q, f"{label}{val}", wrongs, None)
+    need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+    for sol in q["solutions"]:
+        need(f"{label}{val}" in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state the answer")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -7198,7 +7315,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-graph-reading": check_graph_reading,
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
-                    "fn-link-graph-vs-algebra": check_link_graph_algebra}
+                    "fn-link-graph-vs-algebra": check_link_graph_algebra,
+                    "counting": check_counting}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

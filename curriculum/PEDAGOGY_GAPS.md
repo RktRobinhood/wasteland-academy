@@ -8,7 +8,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## In numbers
 
-- **Types:** 106 exam and 75 extension (45 skill, 11 prior-learning, 8 concept, 11 link).
+- **Types:** 106 exam and 76 extension (46 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
 - **Functions:** 141 unknowns the exam asks and 434 it doesn't; 589 angles, 203 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
 - **Coverage cells** (one unknown in one representation by one method): 2144 in Functions, of which 531 are reachable with "Exam-style only" on.
@@ -1668,7 +1668,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 1 exam type has them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 16 extension types. Unknowns and angles follow one topic at a time, as Functions did; 1 exam type has them so far.
 
 #### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 21 bank parts)
 
@@ -1710,6 +1710,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 | `t1-ext-partial-vs-infinite` Partial sums against the sum to infinity | skill | sn-vs-sinf | 3–4 | Bank sum-to-infinity parts (t1-sum-to-infinity) find S∞, test convergence or find an unknown; none compares a partial sum with S∞. | Compare S_n with S∞: find the least n that brings S_n within a given gap of S∞, or the share of S∞ that the first few terms give. |
 | `t1-ext-binomial-constant-term` Constant term when both terms contain x | skill | constant-term | 3–4 | Bank binomial parts (t1-binomial-term, t1-binomial-find-unknown) have x in one term only; none needs the powers of x from both terms balanced. | In an expansion such as (x² + 3/x)ⁿ, write the general term, find the r that makes the power of x zero (or a given power), and find that term. |
 | `t1-ext-binomial-product` A coefficient in a bracket times an expansion | skill | product-expansion | 3–4 | No bank binomial part multiplies the expansion by another bracket. | Find one coefficient in (p + qx)(a + bx)ⁿ by pairing each term of the first bracket with the matching term of the expansion and adding. |
+| `t1-ahl-counting` Counting: codes, arrangements, selections and restricted rows (AA HL) | skill | AHL1.10.counting-principle, AHL1.10.permutations, AHL1.10.combinations, AHL1.10.restricted-arrangements | 1–4 | The question bank behind the exam types is AA SL's, which has no counting parts. AHL1.10's counting skills are AA HL only, so there is no bank part to hang them on: this type is built from the HL syllabus map and its exam-style prompts. | Count outcomes with the multiplication principle, ordered arrangements with n! and nPr, selections with nCr (exactly, and 'at least one'), and rows where two people must or must not sit together. |
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 

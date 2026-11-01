@@ -75,13 +75,24 @@ func test_an_unknown_needs_every_one_of_its_skills() -> void:
 	check(Courses.covers("", {"skills": ["AHL1.10.binomial"]}), "no course, no filter")
 
 
-func test_aa_sl_and_aa_hl_cover_every_built_question() -> void:
+## The built types that are on AA HL's list and no other course's (AHL subtopics).
+const HL_ONLY := ["t1-ahl-counting"]
+
+
+func test_aa_hl_covers_every_built_question_and_aa_sl_every_one_but_the_hl_only_types() -> void:
 	var all := QuestionEngine.cells().size()
 	check(all > 1000, "the game has %d cells" % all)
-	for c in ["aa-sl", "aa-hl"]:
-		check_eq(QuestionEngine.cells(false, [], c).size(), all, "%s has every cell" % c)
-		check_eq(QuestionEngine.built_types(c), QuestionEngine.built_types(), "%s has every built type" % c)
-		check_eq(QuestionEngine.probes(false, c).size(), QuestionEngine.probes().size(), "%s has every probe" % c)
+	var hl_only_cells := QuestionEngine.cells(false, HL_ONLY).size()
+	var hl_only_probes := QuestionEngine.probes().filter(func(p): return p.type in HL_ONLY).size()
+	check_eq(QuestionEngine.cells(false, [], "aa-hl").size(), all, "AA HL has every cell")
+	check_eq(QuestionEngine.built_types("aa-hl"), QuestionEngine.built_types(), "AA HL has every built type")
+	check_eq(QuestionEngine.probes(false, "aa-hl").size(), QuestionEngine.probes().size(), "AA HL has every probe")
+	check_eq(QuestionEngine.cells(false, [], "aa-sl").size(), all - hl_only_cells, "AA SL has every cell but the HL-only types'")
+	check_eq(QuestionEngine.built_types("aa-sl"), QuestionEngine.built_types().filter(func(id): return not id in HL_ONLY), "AA SL has every other built type")
+	check_eq(QuestionEngine.probes(false, "aa-sl").size(), QuestionEngine.probes().size() - hl_only_probes, "AA SL has every other probe")
+	for id in HL_ONLY:
+		check(QuestionEngine.cells(false, [id], "aa-sl").is_empty(), "AA SL has none of %s" % id)
+		check(not QuestionEngine.cells(false, [id], "aa-hl").is_empty(), "AA HL has %s" % id)
 
 
 func test_the_ai_courses_are_smaller_and_ai_hl_holds_ai_sl() -> void:
