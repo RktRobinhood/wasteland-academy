@@ -315,7 +315,8 @@ func u_inverse_root(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var flipq := finv({"fam": "root", "p": f.p, "q": -f.q if f.q != 0 else f.p, "r": f.r})
 	var dom := ", domain x ≥ %s, range y ≥ %s" % [N(f.r), N(x0)]
 	var pick := choose(right, [tag("%s, domain x ≥ %s, range y ≥ %s" % [finv(f), N(x0), N(f.r)], R_DOMAIN_OF_F)],
-		[slip + dom, flipq + dom, "f⁻¹(x) = " + inv(f) + Fmt.plus(f.r if f.r != 0 else 1) + dom])
+		[slip + dom, flipq + dom, "f⁻¹(x) = " + inv(f) + Fmt.plus(f.r if f.r != 0 else 1) + dom,
+		finv({"fam": "root", "p": f.p + 1, "q": f.q, "r": f.r}) + dom])
 	var out := {"asked": "Find f⁻¹(x), with its domain and range.", "lines": [InverseRuleSituation.rule_line(f)], "answer": pick.answer}
 	out.merge(pick)
 	if rep == "graph":
