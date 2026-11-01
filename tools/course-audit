@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# The course audit: where the engine stands for each IB course, from numbers.
+# Exports what the engine can ask each course from Godot, then joins it with the
+# curriculum maps and the type catalogue (tools/course-audit.mjs). Prints the tables and
+# keeps them in _scratch/course-audit/report.md. Writes nothing tracked.
+#
+#   tools/course-audit
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT/scripts/godot-env.sh"
+
+out="$ROOT/_scratch/course-audit"
+mkdir -p "$out"
+import_project
+"$GODOT" --headless --path "$GAME" --script res://tools/course_report.gd -- --out="$out/report.json" 2>&1 \
+	| grep -v "^\[MCP" | grep -E "course_report|ERROR" || true
+test -s "$out/report.json" || { echo "course-audit: no report was written" >&2; exit 1; }
+node "$ROOT/tools/course-audit.mjs" "$out/report.json" | tee "$out/report.md"

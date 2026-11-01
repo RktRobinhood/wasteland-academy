@@ -43,6 +43,7 @@ game/
 ├── tests/               ← headless test runner and tests
 ├── tools/screenshot.gd  ← used by ../screenshot.sh
 ├── tools/export_questions.gd  ← used by ../tools/check-answers
+├── tools/course_report.gd  ← used by ../tools/course-audit
 ├── tools/stress_questions.gd  ← used by ../tools/stress-questions
 ├── tools/bazaar_sim.gd, bazaar_balance.gd  ← the Bazaar's balance check and price table
 ├── addons/godot_mcp_toolkit/  ← editor plugin for the Godot MCP (see docs/MCP-NOTES.md)
@@ -97,6 +98,7 @@ Godot is found on `PATH`, at `~/.local/bin/godot`, or from `GODOT=/path/to/godot
 | `node scripts/web-screenshot.mjs [export dir] [out dir] [name=?query ...]` | Serves an export at `/wasteland-academy/next/` and screenshots it in headless Chromium at 390x844 and 1280x800, plus each named deep link. Fails if the page logs an error |
 | `tools/check-answers` | The SymPy answer checker (see below) |
 | `tools/stress-questions [--from=51] [--to=2250]` | The seed sweep (see below) |
+| `tools/course-audit` | Where the engine stands for each IB course: skills, types and built questions (see below) |
 | `scripts/mcp-editor.sh start\|stop` | Headless editor on `game/` for the Godot MCP |
 | `python3 -I scripts/mcp_call.py <tool> '<json>' ...` | Calls Godot MCP tools through that editor |
 
@@ -582,6 +584,24 @@ own `stress` job. `--types=id,id` sweeps only those types. An exact answer (an e
 −(ln 2)/3) is only right exactly, so its 3 s.f. decimal is checked only where that
 decimal is the exact value, and a wrong option that can't be typed (`Answer.typable`) is
 not typed in.
+
+### The course audit
+
+`tools/course-audit` shows where the engine stands for each IB course, so the order of
+the rollout comes from numbers (FAL-695). `tools/course_report.gd` exports what the
+engine can ask each course (`Courses`), and `tools/course-audit.mjs` joins that with the
+curriculum maps and `curriculum/question-types.json`. It prints, and keeps in
+`_scratch/course-audit/report.md` (nothing tracked, since the numbers move with every
+type that lands):
+
+- per course and topic: the skills the course has, the skills a type in the catalogue
+  lists (**catalogued**) and the skills a built question tests (**playable**);
+- the subtopics no type lists at all, which is every AA HL-only and AI-only subtopic so
+  far: their types have to be designed before a generator can be built;
+- the catalogued types not built yet, ranked by the skills they would make playable in
+  each course.
+
+`tests/unit/course-audit.test.mjs` runs the second half on a faked report.
 
 ## The calculator
 
