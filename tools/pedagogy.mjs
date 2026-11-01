@@ -17,7 +17,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJSON = f => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 
 // diagram is a labelled figure, such as a triangle with its sides and angles marked.
-// notation and terms are for sequences: u₁ = 7, d = 3, or the first terms 7, 10, 13, …
+// notation and terms are for sequences: u₁ = 7, d = 3, or the first terms 7, 10, 13, … A list of data values is also "terms".
 export const REPS = ['equation', 'graph', 'table', 'words', 'diagram', 'notation', 'terms'];
 export const KINDS = ['skill', 'prior-learning', 'concept', 'link'];
 export const PROBES = ['true-false-reason', 'always-sometimes-never', 'interpret-parameter', 'predict-check'];

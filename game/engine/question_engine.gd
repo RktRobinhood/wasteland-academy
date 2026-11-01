@@ -75,6 +75,7 @@ static var SITUATIONS := {
 	"fn-link-extremes": [LinkExtremesSituation, LinkExtremesViews],
 	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
 	"binomial": [BinomialSituation, BinomialViews],
+	"data-summary": [DataSummarySituation, DataSummaryViews],
 }
 
 static var _cat: Dictionary = {}
