@@ -22,8 +22,6 @@ const TRIES := 2000
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (see quadratic_inequality.gd), so it is spent.
-	rng.int_in(0, 1)
 	var ctx: String = need.get("ctx", "any")
 	var forced := int(need.get("paper", 0))
 	for i in TRIES:

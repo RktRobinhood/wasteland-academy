@@ -412,7 +412,12 @@ func _another_way_view() -> Dictionary:
 	if not Seeded.new("another|%d|%d" % [run_seed, question_no]).chance(Tuning.ANOTHER_WAY_CHANCE):
 		return {}
 	var other: String = angles[(angles.find(v.angle) + 1) % angles.size()]
-	return {"type": v.type, "unknown": v.unknown, "rep": v.rep, "angle": other, "format": v.format,
+	# An extra format is not built for every method (method-pick needs one that works), so
+	# a follow-up the format doesn't fit is the plain multiple-choice form it is built on.
+	var fmt: String = v.format
+	if fmt in QuestionEngine.EXTRA_FORMATS and not fmt in QuestionEngine.extra_formats(v.type, v.unknown, other):
+		fmt = "mcq"
+	return {"type": v.type, "unknown": v.unknown, "rep": v.rep, "angle": other, "format": fmt,
 		"seed": v.seed, "same_angle": v.get("same_angle", v.angle)}
 
 

@@ -14,8 +14,6 @@ const TRIES := 500
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (see quadratic_inequality.gd), so it is spent.
-	rng.int_in(0, 1)
 	var form: String = need.get("form", "double")
 	for i in TRIES:
 		var s := _draw(rng, form)

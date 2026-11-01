@@ -357,8 +357,6 @@ static func _pick_paper(t: Dictionary, papers: Array, key: String, forced: Varia
 	if papers.size() == 1:
 		return int(papers[0])
 	var rng := Seeded.new("paper|" + key)
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	return 2 if rng.chance(paper_chance(t)) else 1
 
 
@@ -633,8 +631,6 @@ static func misconception_text(t: Dictionary, ref: String) -> String:
 static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) -> void:
 	var t: Dictionary = v.t
 	var rng := Seeded.new("%s|%s|%d" % [q.cell, fmt, v.seed])
-	# The stream's first draw leans low (FAL-460), so it is spent before anything is picked.
-	rng.int_in(0, 1)
 	q.base_choices = q.choices
 	q.format = fmt
 	q.view.format = fmt

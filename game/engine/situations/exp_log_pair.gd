@@ -36,8 +36,6 @@ const BT_MAX := 150.0
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low, so it is spent first (as the quadratic recipes do).
-	rng.int_in(0, 1)
 	var mode: String = need.get("mode", "log")
 	# A transformation between two exponentials is a translation or a stretch: common
 	# bases make a stretch, rewriting in f a translation, key points either.

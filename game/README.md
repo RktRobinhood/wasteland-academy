@@ -159,7 +159,7 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `QuestionEngine.make()` passes the method that made the numbers to the recipe as
   `need.angle`. That is the `same_angle` method for "Another way", so switching to
   factorising keeps a Paper 2 context, and the factorising working says it fails there
-  and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
+  and uses the formula.
   Paper 2 versions (FAL-419), chosen by `need.paper` with each views' `papers()`: in
   `fn-solve-quadratic` a context, b^(2x) (u not a power of b, so x = ln u/ln b) and a sum
   of logs (x(x + d) = c with no whole root), each x to 3 s.f.; in `fn-quadratic-inequality`
@@ -802,12 +802,16 @@ script error happens while it runs. Run one file with
   recent results, Ans, degrees), 6 s.f., the graph tools and their marks, pan, zoom and
   trace, the clock running and nothing spent in a fight, the art slots and the coded
   look, the licences in their files and the credits, and the fit at 360, 390 and 1280 px.
+- `test_seeded.gd`: the seeded stream's first draw is as fair as every later one (chance,
+  float, whole number, pick and weighted pick over 1000 seeds), the same text gives the
+  same stream, and the first five draws of one key are pinned (FAL-460).
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.
 - `test_combat.gd`: a scripted run with a fixed seed and answers gives the same fights,
   results and save; timers on every floor; each outcome's damage and Scrap by tier, with
   and without Time Freeze; glancing hits and the rounding trap; lifelines; "Another
-  way" on floor 2 and never on floor 1; a modifier that doubles Scrap; the stakes table;
+  way" on floor 2 and never on floor 1, and a follow-up that can be made for every cell
+  with an extra format (FAL-695); a modifier that doubles Scrap; the stakes table;
   the slot picker; and the journey signals connected to nothing.
 - `test_bazaar.gd`: each upgrade stops at its cap, each perk changes exactly its own
   value through the modifiers and is used up after one run, one perk slot, Scrap never
