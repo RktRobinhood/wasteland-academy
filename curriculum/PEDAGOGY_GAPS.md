@@ -1751,7 +1751,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 5 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 6 exam types have them so far.
 
 #### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 11 bank parts)
 
@@ -1775,6 +1775,24 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): The median of an ordered data set with 12 values is the 6th value. — False: with an even number of values the median is halfway between the 6th and 7th values, so it need not be a value in the set.
   - *true-false-reason* (L4): One class of 10 students has a mean mark of 60 and another of 30 students has a mean mark of 80. The mean mark of all 40 students is 70. — False: the mean of the two means ignores the group sizes. The totals are 600 and 2400, so the mean is 3000 ÷ 40 = 75, nearer the bigger group's mean.
 - **Misconceptions used:** 9. Taking the middle value of the unordered list as the median; Giving the position (n + 1)/2 as the median instead of the value in that position; Giving the highest frequency as the mode instead of the value that has that frequency; Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1; Finding quartiles from the unordered list; Averaging the two group means for a combined mean when the groups are different sizes; Forgetting that the unknown frequency p also appears in the denominator Σf; The mean is always the best average because it uses every value; The mode is the most useful average for continuous data.
+
+#### Regression line and Pearson r on the GDC, then predict (`t4-regression-gdc`, exam, 19 bank parts)
+
+- **Situation:** Paired data and the line fitted to it.
+- **Representations:** **table**, **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a table of x and y → the regression line y = ax + b, to 3 s.f.
+  - **exam** L2: given a table of x and y → Pearson's r, to 3 s.f.
+  - **exam** L1: given a table of x and y → the mean point (x̄, ȳ)
+  - **exam** L3: given the mean point; the gradient of the regression line → the constant c in y = ax + c
+  - **exam** L3: given a table of x and y; an x inside the data → the estimate of y, from the regression line
+  - **exam** L2: given a regression line to 3 s.f.; an x → the estimate of y
+- **Angles:** LinReg with x as the first list; Linear regression on the GDC; Find x̄ and ȳ; Substitute the mean point; Gradient plus the mean point; Substitute into the equation.
+- **Concept probes:**
+  - *true-false-reason* (L3): If the x-list and the y-list are swapped on the GDC, r changes but the line stays the same. — False: r stays the same, because it treats x and y alike, but the line changes. Swapping the lists gives the regression line of x on y, a different line.
+  - *always-sometimes-never* (L3): The mean point (x̄, ȳ) is one of the points in the data. — Sometimes: it is when a point happens to sit at both means, as for (1, 2), (3, 4), (5, 6) and (3, 4), but for (1, 1), (2, 3) and (6, 2) the mean point (3, 2) is not.
+  - *true-false-reason* (L4): A regression line with r = 0.95 can be used to estimate y for any value of x. — False: the line only fits the range of the data. An estimate at an x far outside it is an extrapolation, however strong r is, and may not hold.
+- **Misconceptions used:** 5. Entering the lists the wrong way round and getting the line of x on y; Rounding a and b too early and losing accuracy in later predictions; Reporting r² from the GDC as r; Forcing the line of best fit through the origin; Rearranging the y-on-x line to predict x from a given y.
 
 #### Expected number of occurrences, n x p (`t4-expected-occurrences`, exam, 4 bank parts)
 

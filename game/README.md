@@ -162,6 +162,19 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a range, Var = np, σ = Var, E(X) rounded, n rounded down, p = Var ÷ E, a kth success
   read as k in m trials, a conditional multiplied). As every exam type, it offers no extra
   format (error-spot, method-pick, true-false-reason): `test_extension.gd` holds that rule.
+- `engine/situations/regression.gd` (FAL-695) is `t4-regression-gdc` (SL4.4, on all four
+  syllabuses): paired data, 6 to 9 whole-number points near a line (x from 1 to 20, y from 8
+  to 99, 0.8 ≤ |r| ≤ 0.99, up or down as the story says), so the means, the regression line
+  and every sum are exact `Q` and r is the one float. Its views (`regression_views.gd`)
+  ask 6 unknowns, all Paper 2 with the GDC's LinReg: the line y = ax + b, r, the mean point,
+  c in y = ax + c from a given mean point, an estimate at an x inside the data, and an
+  estimate from a line given to 3 s.f. Answers are to 3 s.f. with the rounding trap (the
+  line and the mean point have none), and the mean point is exact. Wrong options come from
+  the SL4.4 misconceptions: the line of x on y for swapped lists, a and b rounded to 3 s.f.
+  before the estimate, r² for r, c = 0 for a line forced through the origin, and the line
+  rearranged for x. A table's heads are x and y with a story line above. The game's font
+  has no precomposed ȳ, so the mean point is written y plus a combining macron, as x̄ is.
+  As every exam type, it offers no extra format: `test_extension.gd` holds that rule.
 - `engine/situations/data_summary.gd` (FAL-695) is `t4-summary-statistics` (SL4.3, on all four
   syllabuses): one discrete data set, shown as a list in no particular order (rep `terms`)
   or as a frequency table, all exact (`Q`). Its views (`data_summary_views.gd`) ask 11
@@ -916,6 +929,13 @@ script error happens while it runs. Run one file with
   probability; the least n the first that works; n and p from E(X) and Var(X) exact;
   every misconception as an option; 3 s.f. marking with 2 s.f. a glancing hit; the three
   concept probes; and every course having every cell.
+- `test_regression.gd`: t4-regression-gdc built with every cell and all four SL4.4 skills;
+  every cell in both formats with 2 to 5 steps per worked solution; Paper 2 only; the sums,
+  the line and r against hand values; the data near a line of the story's sign and the line
+  through the mean point; exact means and c; an estimate inside the data, with the
+  early-rounding and rearranged-line slips reading differently; a line written with its
+  sign; 3 s.f. marking and an exact mean point; every misconception as an option; r² as an
+  option and r never 1 or more; the three concept probes; and every course having every cell.
 - `test_data_summary.gd`: t4-summary-statistics built with every cell and all four SL4.3
   skills; every cell in both formats with 2 to 5 steps per worked solution; the GDC cells
   Paper 2 and the by-hand unknowns Paper 1, and both papers where a cell can make both;
