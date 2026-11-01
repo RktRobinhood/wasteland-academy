@@ -770,7 +770,15 @@ static func number_right(typed: Q, exact: Q) -> bool:
 	var t := exact.to_float()
 	var e := floori(log(absf(t)) / log(10.0) + 1e-12)
 	var unit := pow(10.0, e - 2)
-	return roundi(t / unit) == roundi(typed.to_float() / unit) or _rounded_to_own_figures(typed, t, unit)
+	var same := roundi(t / unit) == roundi(typed.to_float() / unit)
+	# Across a power of ten (0.997 against 1.002) the typed number's own 3 s.f. must
+	# agree too: 0.997 is not 1.00.
+	if same and typed.to_float() != 0.0:
+		var te := floori(log(absf(typed.to_float())) / log(10.0) + 1e-12)
+		if te != e:
+			var tu := pow(10.0, te - 2)
+			same = roundi(t / tu) == roundi(typed.to_float() / tu)
+	return same or _rounded_to_own_figures(typed, t, unit)
 
 
 ## Whether x is at least `edge` units of its 3rd significant figure away from a
