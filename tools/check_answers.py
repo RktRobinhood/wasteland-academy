@@ -5552,6 +5552,1624 @@ def check_link_growth(q):
     return None, None
 
 
+# ── Graphs and key features (FAL-420): gdc-curve ──────────────
+# One awkward curve on a closed domain. Its function and domain are read back from the
+# question's text, and every feature is found again with mpmath to 30 digits: zeros
+# from sign changes on a fine grid closed in by findroot, turning points as zeros of
+# the derivative SymPy takes. Answers are compared as the game writes them, to 3 s.f.
+# (an exact value too: 2.5 is "2.50"). The clean limits are the checker's own copy:
+# the engine's are in game/engine/situations/gdc_curve.gd.
+
+GC_ZEROS = (1, 3)
+GC_TURNS = (1, 2)
+GC_SEP = sp.Rational(1, 2)          # features at least this far apart in x
+GC_Y_SPAN = 20                      # the whole graph fits a window about 20 high
+GC_SLOPE = sp.Rational(1, 4)        # each zero a clean crossing
+GC_TOL = sp.Rational(1, 10**7)      # the engine keeps nine decimal places
+GC_GRID = 800
+GC_SIT, GC_ZI, GC_MM, GC_NS, GC_SG = ("SL2.3.sketch-from-equation", "SL2.4.zeros-intercepts", "SL2.4.max-min",
+                                      "SL2.10.number-of-solutions", "SL2.10.solve-gdc")
+GC_LOCALS = {"x": X, "exp": sp.exp, "log": sp.log, "sin": sp.sin, "cos": sp.cos}
+
+
+def gc_expr(text):
+    """The game's way of writing a function, as SymPy: '2e^(0.5x) − 3x − 1'."""
+    t = text.replace("−", "-").replace("e^(", "exp(").replace("ln(", "log(")
+    t = t.replace("x³", "x**3").replace("x²", "x**2").replace(")²", ")**2").replace("^", "**")
+    # x·e^(…) is written xe^(…): keep the parser from reading "xexp" as one name.
+    t = re.sub(r"([x)])exp\(", r"\1*exp(", t)
+    need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the function {text!r}")
+    return sp.nsimplify(parse_expr(t, transformations=TRANSFORMS, local_dict=GC_LOCALS), rational=True)
+
+
+def gc_read(q):
+    """(f, d1, d2, open_left) from the first 'f(x) = …, for d1 ≤ x ≤ d2' the question says."""
+    for t in [q["asked"]] + q["lines"]:
+        m = re.search(r"f\(x\) = (.+?),? (?:for|on) (−?\d+) (<|≤) x ≤ (−?\d+)", t)
+        if m:
+            return gc_expr(m.group(1)), el_num(m.group(2)), el_num(m.group(4)), m.group(3) == "<"
+    raise Fail("can't find f(x) and its domain in the question")
+
+
+def gc_f(fn):
+    return sp.lambdify(X, fn, "mpmath")
+
+
+def gc_zeros(fn, a, b):
+    """Every zero of fn on [a, b]: a sign change on a fine float grid, then refined to
+    30 digits with mpmath."""
+    fl = sp.lambdify(X, fn, "math")
+    f = gc_f(fn)
+    mpmath.mp.dps = 30
+    a, b = float(a), float(b)
+    out = []
+    xs = [a + (b - a) * i / GC_GRID for i in range(GC_GRID + 1)]
+    ys = []
+    for x in xs:
+        try:
+            ys.append(fl(x))
+        except (ValueError, ZeroDivisionError, OverflowError):
+            ys.append(float("nan"))
+    for i in range(GC_GRID):
+        y0, y1 = ys[i], ys[i + 1]
+        if y0 == 0:
+            out.append(mpmath.mpf(xs[i]))
+        elif y0 * y1 < 0:
+            out.append(mpmath.findroot(f, (mpmath.mpf(xs[i]), mpmath.mpf(xs[i + 1])), solver="anderson"))
+    if ys[-1] == 0:
+        out.append(mpmath.mpf(xs[-1]))
+    return out
+
+
+@lru_cache(maxsize=4096)
+def gc_features(fn, d1, d2, open_left):
+    """zeros, turns [(x, y, 'max'|'min')], ends [(x, y)] of fn on its domain."""
+    lo = d1 + sp.Rational(1, 1000) if open_left else d1
+    f = gc_f(fn)
+    df = sp.diff(fn, X)
+    zs = gc_zeros(fn, lo, d2)
+    turns = []
+    for t in gc_zeros(df, lo, d2):
+        if t <= lo or t >= d2:
+            continue
+        s = gc_f(sp.diff(df, X))(t)
+        need(s != 0, "a stationary point that doesn't turn")
+        turns.append((t, f(t), "max" if s < 0 else "min"))
+    ends = [] if open_left else [(mpmath.mpf(d1), f(mpmath.mpf(d1)))]
+    ends.append((mpmath.mpf(d2), f(mpmath.mpf(d2))))
+    return tuple(zs), tuple(turns), tuple(ends)
+
+
+def gc_s(x):
+    """x to 3 s.f., as the game writes it (0 is "0", and so is a GDC zero below 1e−9:
+    the engine keeps nine decimal places)."""
+    if x == 0 or abs(x) < sp.Rational(1, 10**9):
+        return "0"
+    return ext_sf(sp.Float(x, 30)) if not isinstance(x, sp.Rational) else ext_sf(x)
+
+
+def gc_rounds(x):
+    """Whether x needs rounding at 3 s.f. (an exact 2.5 doesn't)."""
+    return not (isinstance(x, sp.Rational) and sp.Rational(sig3(x)) == x) and x != 0
+
+
+def gc_s2(x):
+    """x as the rounding trap writes it: to 2 s.f. as a decimal, or exact if it needs no rounding."""
+    if not gc_rounds(x):
+        return dec_text(R(x))
+    return dec_text(sp.Rational(sig3(sp.Float(x, 30) if not isinstance(x, sp.Rational) else x, 2)))
+
+
+def gc_trap(vals, text):
+    """The rounding trap's text, or None when no value needs rounding."""
+    return text if any(gc_rounds(v) for v in vals) else None
+
+
+def gc_xs2(xs):
+    names = sorted([gc_s2(x) for x in xs], key=lambda t: float(sp.Rational(t.replace("−", "-"))))
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def gc_pt(x, y):
+    return f"({gc_s(x)}, {gc_s(y)})"
+
+
+def gc_xs(xs):
+    names = [gc_s(x) for x in sorted(xs, key=lambda v: float(v))]
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def gc_close(engine, true):
+    return abs(num(R(engine)) - num(true)) <= GC_TOL * max(1, abs(num(true)))
+
+
+def gc_fair(x):
+    v = num(x)
+    return not on_edge(abs(v)) and abs(v - sp.Integer(round(v))) > sp.Rational(2, 100) if v != 0 else False
+
+
+def gc_clean(q, fn, d1, d2, open_left, F):
+    zs, ts, ends = F
+    g = q["given"]
+    exact = g["fam"] in ("product", "xcubic")
+    need(GC_ZEROS[0] <= len(zs) <= GC_ZEROS[1], f"{len(zs)} zeros, not 1 to 3")
+    need(GC_TURNS[0] <= len(ts) <= GC_TURNS[1], f"{len(ts)} turning points, not 1 or 2")
+    df = gc_f(sp.diff(fn, X))
+    for z in zs:
+        need(abs(df(z)) >= GC_SLOPE, f"the zero at {z} is not a clean crossing")
+        need(exact or gc_fair(z), f"the zero {z} is not a fair 3 s.f. value")
+    for t in ts:
+        need(abs(t[1]) >= sp.Rational(2, 5), "a turning point too near the x-axis")
+        need(g["fam"] == "bellform" or (gc_fair(t[0]) and gc_fair(t[1])), f"the turning point {t[:2]} is not fair to 3 s.f.")
+    xs = sorted([float(z) for z in zs] + [float(t[0]) for t in ts])
+    need(all(b - a >= float(GC_SEP) - 1e-9 for a, b in zip(xs, xs[1:])), "two features closer than 0.5 in x")
+    ys = [t[1] for t in ts] + [e[1] for e in ends]
+    if open_left:
+        ys.append(gc_f(fn)(mpmath.mpf(d1) + mpmath.mpf("0.051")))
+    need(max(ys) - min(ys) <= GC_Y_SPAN + sp.Rational(1, 10), "the graph is more than about 20 high")
+    need(g["d1"] == str(d1) and g["d2"] == str(d2), "the domain shown is not the situation's")
+
+
+def gc_pieces(fn, a, b, open_left_at=None):
+    """The monotone pieces of fn on [a, b]: breakpoint values, ±inf at an asymptote end."""
+    f = gc_f(fn)
+    df = sp.diff(fn, X)
+    xs = [mpmath.mpf(a)] + [t for t in gc_zeros(df, a, b) if mpmath.mpf(a) < t < mpmath.mpf(b)] + [mpmath.mpf(b)]
+    vs = [f(x) for x in xs]
+    if open_left_at is not None:
+        vs[0] = -mpmath.inf if sp.limit(fn, X, open_left_at, "+") == -sp.oo else mpmath.inf
+    return vs
+
+
+def gc_count(vs, k):
+    n = sum(1 for i in range(len(vs) - 1) if min(vs[i], vs[i + 1]) - 1e-20 <= k <= max(vs[i], vs[i + 1]) + 1e-20)
+    return n - sum(1 for v in vs[1:-1] if abs(v - k) < 1e-20)
+
+
+def gc_kset(vs, n):
+    """The k with exactly n solutions, as one interval (lo, lo_in, hi, hi_in), or None."""
+    levels = sorted({v for v in vs if mpmath.isfinite(v)})
+    tests = [(levels[0] - 1, False)]
+    for i, l in enumerate(levels):
+        tests.append((l, True))
+        tests.append((l + 1 if i == len(levels) - 1 else (l + levels[i + 1]) / 2, False))
+    runs, cur = [], None
+    for i, (k, at) in enumerate(tests):
+        ok = gc_count(vs, k) == n
+        if ok and cur is None:
+            if i in (0, len(tests) - 1):
+                return None
+            cur = [k if at else tests[i - 1][0], at]
+        elif not ok and cur is not None:
+            runs.append((cur[0], cur[1], k if at else tests[i - 1][0], not at))
+            cur = None
+    return runs[0] if cur is None and len(runs) == 1 else None
+
+
+def gc_range2(ks):
+    lo, lo_in, hi, hi_in = ks
+    return f"{gc_s(lo)} {'≤' if lo_in else '<'} k {'≤' if hi_in else '<'} {gc_s(hi)}"
+
+
+def gc_curve_is(curve, g, tol=1e-6):
+    """Whether the sampled curve [[x, y], ...] lies on y = g(x)."""
+    return len(curve) > 10 and all(abs(float(g(mpmath.mpf(x))) - y) <= tol * max(1, abs(y)) for x, y in curve[::10])
+
+
+def gc_cards(q, fn, d1, d2, open_left, F):
+    """Pick the graph: the right card is f on its domain with every feature marked, and
+    each wrong card is f with exactly the one mistake it names."""
+    zs, ts, ends = F
+    f = gc_f(fn)
+    lo = float(d1) + (0.001 if open_left else 0)
+    graphs, ch = q["graphs"], q["choices"]
+    need(len(graphs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+    need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the graphs are not lettered A to D")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right graph")
+    need(all(gr.get("card") for gr in graphs), "a graph is not drawn as a card")
+    need(len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+    need(len({(gr["x0"], gr["x1"], gr["y0"], gr["y1"]) for gr in graphs}) == 1, "the cards don't share one window")
+    refs = {"past-domain": GC_SIT + "#1", "squashed": GC_SIT + "#2", "through-asymptote": GC_SIT + "#0", "reflected": "", "mirrored": ""}
+    t_rows = ""
+    for o, gr in zip(ch, graphs):
+        cs = gr["curves"]
+        mk = o.get("mistake", "")
+        if o["correct"]:
+            need(len(cs) == 1 and gc_curve_is(cs[0], f), "the right graph is not f")
+            need(abs(cs[0][0][0] - lo) < 1e-6 and abs(cs[0][-1][0] - float(d2)) < 1e-6, "the right graph doesn't stop at the domain's ends")
+            dots = sorted((round(p["x"], 6), round(p["y"], 6)) for p in gr["points"])
+            want = sorted([(round(float(z), 6), 0.0) for z in zs] + [(round(float(t[0]), 6), round(float(t[1]), 6)) for t in ts]
+                          + [(round(float(e[0]), 6), round(float(e[1]), 6)) for e in ends])
+            need(len(dots) == len(want) and all(abs(a[0] - b[0]) < 1e-5 and abs(a[1] - b[1]) < 1e-5 for a, b in zip(dots, want)),
+                 "the right graph doesn't mark every zero, turning point and endpoint")
+            continue
+        need(mk in refs, f"a wrong graph names no mistake ({mk!r})")
+        need(o["ref"] == refs[mk], f"the {mk} graph is tagged {o['ref']!r}, not {refs[mk]!r}")
+        need(o.get("why", "") != "", f"the {mk} graph doesn't say what is wrong")
+        if mk == "past-domain":
+            need(len(cs) == 1 and gc_curve_is(cs[0], f), "the past-domain graph is not f")
+            need(cs[0][-1][0] > float(d2) + 1 and (open_left or cs[0][0][0] < float(d1) - 1), "the past-domain graph stops at the domain")
+            need(not any(abs(p["x"] - float(e[0])) < 1e-6 and abs(p["y"] - float(e[1])) < 1e-6 for p in gr["points"] for e in ends),
+                 "the past-domain graph marks an endpoint")
+        elif mk == "squashed":
+            dy = min((t[1] for t in ts), key=lambda v: abs(v))
+            need(len(cs) == 1 and gc_curve_is(cs[0], lambda x: f(x) - dy), "the squashed graph is not f moved so a turning point sits on the x-axis")
+        elif mk == "reflected":
+            need(len(cs) == 1 and gc_curve_is(cs[0], lambda x: -f(x)), "the reflected graph is not −f")
+        elif mk == "mirrored":
+            need(len(cs) == 1 and gc_curve_is(cs[0], lambda x: f(-x)), "the mirrored graph is not f(−x)")
+        elif mk == "through-asymptote":
+            need(open_left and len(cs) == 2, "the through-asymptote graph needs an asymptote and two pieces")
+            left = gc_f(fn.subs(sp.log(X - d1), sp.log(-(X - d1))))
+            need(gc_curve_is(cs[0], left) and cs[0][-1][0] < float(d1) and gc_curve_is(cs[1], f), "the through-asymptote graph is not f carried through x = d1")
+    return next(o["text"] for o in ch if o["correct"])
+
+
+def gc_check_common(q, want, wrongs, trap=None, steps=(2, 5)):
+    """want: the answer's text as the game writes it, from the checker's own values.
+    wrongs: ref -> the texts that misconception gives. trap: the 2 s.f. text, or None."""
+    ch = q["choices"]
+    need(q["answer_text"] == want, f"engine answer {q['answer_text']!r} is wrong (expected {want!r})")
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    need(len({o["text"] for o in ch}) == 4, "two options read the same")
+    for o in ch:
+        need(o["correct"] == (o["text"] == want), f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+        if o.get("trap"):
+            need(trap is not None and o["text"] == trap, f"rounding trap {o['text']!r} is not the answer to 2 s.f. ({trap!r})")
+        if o["ref"] and not o.get("trap"):
+            need(o["ref"] in wrongs, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(o["text"] in wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives ({wrongs[o['ref']]})")
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(steps[0] <= len(sol["steps"]) <= steps[1], f"{sol['name']}: {len(sol['steps'])} steps, not 2 to 5")
+        need(q["answer_text"] in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+
+
+def gc_table(q, f):
+    t = q["table"]
+    need(t is not None, "no table")
+    for xv, yv in zip(t["xs"], t["ys"]):
+        need(gc_close(yv, f(mpmath.mpf(R(xv)))), f"the table's f({xv}) is wrong")
+    return [R(v) for v in t["xs"]], [R(v) for v in t["ys"]]
+
+
+def check_gdc_curve(q):
+    g, u, rep, L, asked = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "a GDC curve is Paper 2")
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    if u == "constant-from-max":
+        m = re.search(r"f\(x\) = (.+) \+ c, for (−?\d+) ≤ x ≤ (−?\d+), .*The local maximum value of f is (−?[\d.]+)\.", asked)
+        need(m is not None, "can't read constant-from-max")
+        gfn, d1, d2, M = gc_expr(m.group(1)), el_num(m.group(2)), el_num(m.group(3)), R(sp.nsimplify(m.group(4).replace("−", "-")))
+        _, ts, _ = gc_features(gfn, d1, d2, False)
+        mx = [t for t in ts if t[2] == "max"]
+        need(len(mx) == 1, "g has no single local maximum")
+        c = M - mx[0][1]
+        gc_check_common(q, "c = " + gc_s(c), {}, gc_trap([c], "c = " + gc_s2(c)))
+        return None, None
+    if u == "solve-as-zeros":
+        m = re.fullmatch(r"(.+) = (−?[\d.]+)", L[0])
+        need(m is not None, "can't read the equation")
+        k = R(sp.nsimplify(m.group(2).replace("−", "-")))
+        fn = gc_expr(m.group(1)) - k
+        d = re.search(r"for (−?\d+) ≤ x ≤ (−?\d+)", asked)
+        d1, d2, open_left = el_num(d.group(1)), el_num(d.group(2)), False
+    else:
+        fn, d1, d2, open_left = gc_read(q)
+    F = gc_features(fn, d1, d2, open_left)
+    zs, ts, ends = F
+    gc_clean(q, fn, d1, d2, open_left, F)
+    f = gc_f(fn)
+    wr = {}
+    if rep == "graph" and q.get("graph") is not None:
+        need(gc_curve_is(q["graph"]["curves"][0], f), "the graph drawn is not f")
+    if q["format"] == "pick-the-graph":
+        if u == "sketch-from-table":
+            gc_table(q, f)
+        right = gc_cards(q, fn, d1, d2, open_left, F)
+        # gc_cards confirmed each wrong graph's mistake, and so its misconception.
+        gc_check_common(q, right, {o["ref"]: {o["text"]} for o in q["choices"] if o["ref"]})
+        return None, None
+    exact_x = g["fam"] in ("product", "xcubic")
+    zq = [sp.nsimplify(z, [], tolerance=1e-20, rational=True) if exact_x and abs(z - round(z)) < 1e-20 else z for z in zs]
+    y0 = sp.nsimplify(fn.subs(X, 0)) if d1 <= 0 <= d2 else None
+    trap = None
+    if u in ("label-zeros", "zeros-gdc", "zeros-with-x-factor", "solve-as-zeros"):
+        want = gc_xs(zq)
+        trap = gc_trap(zq, gc_xs2(zq))
+        if u in ("label-zeros", "zeros-gdc") and y0 is not None:
+            wr[GC_ZI + "#0"] = {gc_xs(zq[:i] + [y0] + zq[i + 1:]) for i in range(len(zq))}
+        if u == "label-zeros" and g["fam"] == "product":
+            wr[GC_ZI + "#1"] = {gc_xs([R(g["p"]), -R(g["q"])])}
+        if u == "zeros-gdc":
+            wr[GC_SG + "#0"] = {gc_xs([z for z in zq if abs(z) <= 10])}
+        if u == "zeros-with-x-factor":
+            need(len(zq) == 3 and 0 in zq, "x-factor mode needs three zeros, one of them 0")
+            wr[GC_ZI + "#2"] = {gc_xs([z for z in zq if z != 0])}
+    elif u in ("label-y-intercept", "y-intercept"):
+        need(y0 is not None, "0 is not in the domain")
+        want = f"(0, {gc_s(y0)})"
+        trap = gc_trap([y0], f"(0, {gc_s2(y0)})")
+        if u == "y-intercept":
+            wr[GC_ZI + "#0"] = {f"(0, {gc_s(z)})" for z in zq}
+    elif u in ("label-turning-point", "turning-point-coordinates", "extreme-value-only"):
+        word = "maximum" if "local maximum" in asked else "minimum"
+        t = [t for t in ts if t[2] == word[:3]]
+        need(len(t) == 1, f"not one local {word}")
+        tx, ty = t[0][:2]
+        if g["fam"] == "bellform":
+            tx, ty = R(g["h"]), R(g["A"]) + R(g["c"])
+        if u == "extreme-value-only":
+            want = gc_s(ty)
+            trap = gc_trap([ty], gc_s2(ty))
+            wr[GC_MM + "#0"] = {gc_s(tx)}
+        else:
+            want = gc_pt(tx, ty)
+            trap = gc_trap([tx, ty], f"({gc_s2(tx)}, {gc_s2(ty)})")
+            wr[GC_MM + "#0"] = {f"({gc_s(tx)}, 0)"}
+            if u == "turning-point-coordinates":
+                tr = [o for o in q["choices"] if o.get("trap")]
+                need(all(o["ref"] == GC_MM + "#2" for o in tr), "the 2 s.f. trap doesn't log SL2.4.max-min#2")
+    elif u == "endpoint-coordinates":
+        want = " and ".join(gc_pt(*e) for e in ends)
+        trap = gc_trap([e[1] for e in ends], " and ".join(f"({gc_s2(e[0])}, {gc_s2(e[1])})" for e in ends))
+        wr[GC_SIT + "#1"] = {f"{gc_pt(d1 - 1, f(mpmath.mpf(d1 - 1)))} and {gc_pt(d2 + 1, f(mpmath.mpf(d2 + 1)))}"}
+    elif u == "greatest-on-domain":
+        cands = [(t[1], "turn") for t in ts] + [(e[1], "end") for e in ends]
+        top = max(cands, key=lambda c_: c_[0])
+        need(top[1] == "end", "the greatest value is not at an endpoint (endpoint-extreme mode)")
+        mx = [t for t in ts if t[2] == "max"]
+        need(mx and top[0] - mx[0][1] >= sp.Rational(1, 2), "the endpoint is not clearly above the local maximum")
+        want, trap = gc_s(top[0]), gc_trap([top[0]], gc_s2(top[0]))
+        wr[GC_MM + "#1"] = {gc_s(t[1]) for t in mx}
+    elif u == "window-for-domain":
+        def window(o):
+            m_ = re.fullmatch(r"Xmin = (−?\d+), Xmax = (−?\d+), Ymin = (−?\d+), Ymax = (−?\d+)", o)
+            need(m_ is not None, f"can't read the window {o!r}")
+            return [el_num(v) for v in m_.groups()]
+        ys = [t[1] for t in ts] + [e[1] for e in ends]
+        lo_y, hi_y = min(ys), max(ys)
+        good = [o["text"] for o in q["choices"] if (lambda w: w[0] == d1 and w[1] == d2 and w[2] < lo_y and w[3] > hi_y
+                                                     and w[3] - w[2] <= hi_y - lo_y + 4)(window(o["text"]))]
+        need(len(good) == 1, f"{len(good)} windows show the whole graph without squashing it")
+        want = good[0]
+        wr[GC_SIT + "#2"] = {"Xmin = −10, Xmax = 10, Ymin = −10, Ymax = 10"}
+    elif u == "judge-a-sketch":
+        labs = g["labels"]
+        need(len(labs) == 4 and sum(1 for lb in labs if lb["bad"]) == 1, "the sketch doesn't have one wrong label among four")
+        feats = {}
+        for z in zs:
+            feats[f"the zero at x ≈ {gc_s(z)}"] = f"({gc_s(z)}, 0)"
+        for t in ts:
+            feats["the local " + ("maximum" if t[2] == "max" else "minimum")] = gc_pt(t[0], t[1])
+        for i, e in enumerate(ends):
+            feats[f"the {['left', 'right'][i]} endpoint"] = f"({frac_text(R(sp.nsimplify(e[0])))}, {gc_s(e[1])})"
+        pts = {p["label"] for p in q["graph"]["points"]}
+        for lb in labs:
+            need(lb["name"] in feats, f"the sketch labels {lb['name']}, which f doesn't have")
+            need(lb["label"] in pts, f"the label {lb['label']} isn't drawn")
+            need((lb["label"] != feats[lb["name"]]) == lb["bad"], f"the label {lb['label']} at {lb['name']} is {'right' if lb['label'] == feats[lb['name']] else 'wrong'}")
+        bad = next(lb for lb in labs if lb["bad"])
+        want = f"The label {bad['label']} at {bad['name']}"
+    elif u == "count-solutions-from-sketch":
+        touch = g["touch"]
+        if touch:
+            word = "max" if "local maximum" in asked else "min"
+            k = next(t[1] for t in ts if t[2] == word)
+        else:
+            k = R(g["line_k"])
+            need((k * 10).q == 1 and f"f(x) = {dec_text(k)} have" in asked, "k is not the one-place decimal asked")
+        lo_open = d1 if open_left else None
+        vs = gc_pieces(fn, d1 + (sp.Rational(1, 10**6) if open_left else 0), d2, lo_open)
+        n = gc_count(vs, k)
+        want = str(n)
+        if touch:
+            wr[GC_NS + "#0"] = {str(n + 1)}
+        ext = gc_count(gc_pieces(fn, (d1 + sp.Rational(1, 10**6)) if open_left else d1 - 3, d2 + 3, lo_open), k)
+        wr[GC_NS + "#1"] = {str(ext)}
+    elif u == "k-for-count":
+        lo_open = d1 if open_left else None
+        ks = gc_kset(gc_pieces(fn, d1 + (sp.Rational(1, 10**6) if open_left else 0), d2, lo_open), 2)
+        need(ks is not None and ks[2] - ks[0] >= sp.Rational(1, 2), "two solutions is not one interval of k")
+        want = gc_range2(ks)
+        trap = gc_trap([ks[0], ks[2]], f"{gc_s2(ks[0])} {'≤' if ks[1] else '<'} k {'≤' if ks[3] else '<'} {gc_s2(ks[2])}")
+        ext = gc_kset(gc_pieces(fn, (d1 + sp.Rational(1, 10**6)) if open_left else d1 - 3, d2 + 3, lo_open), 2)
+        if ext is not None:
+            wr[GC_NS + "#1"] = {gc_range2(ext)}
+    elif u == "count-zeros":
+        want = str(len(zs))
+        wr[GC_SG + "#0"] = {str(sum(1 for z in zs if abs(z) <= 10))}
+    elif u == "zero-from-table":
+        xs_, ys_ = gc_table(q, f)
+        z = max(zs)
+        need(sum(1 for i in range(len(ys_) - 1) if ys_[i] * ys_[i + 1] < 0) == len(zs), "the table doesn't show each zero as a sign change")
+        want, trap = "x = " + gc_s(z), gc_trap([z], "x = " + gc_s2(z))
+    elif u == "use-stored-zeros":
+        need(len(zs) == 2, "use-stored-zeros needs two zeros")
+        dz = zs[1] - zs[0]
+        want, trap = gc_s(dz), gc_trap([dz], gc_s2(dz))
+        r = sp.Rational(sig3(sp.Float(zs[1], 30))) - sp.Rational(sig3(sp.Float(zs[0], 30)))
+        wr[GC_SG + "#1"] = {gc_s(r)}
+    else:
+        raise Fail(f"the checker has no gdc-curve check for {u}")
+    # The engine's own answer values say the same, to its nine decimal places.
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
+# ── Graphs and key features (FAL-420): gdc-two-curves ─────────
+# Two functions that cross one to three times. Both are read back from the question's
+# text (t is read as x), and every crossing is found again as a zero of f − g with
+# mpmath, its y from f at the unrounded x. The clean limits are the checker's own copy:
+# the engine's are in game/engine/situations/gdc_two_curves.gd.
+
+TC_SLOPE = sp.Rational(3, 10)       # each crossing at a clear angle
+TC_IN, TC_SG = "SL2.4.intersection", "SL2.10.solve-gdc"
+
+
+def tc_expr(text):
+    return gc_expr(text.replace("t", "x"))
+
+
+def tc_read(q):
+    """(f, g, lo, hi, open_left) from the question's text."""
+    texts = [q["asked"]] + q["lines"]
+    joined = " ".join(texts)
+    pats = [r"f\(x\) = (.+?),? and (?:its inverse f⁻¹\(x\)|g\(x\)) = (.+?), for ",
+            r"A\(t\) = (.+?) m, and in tank B is B\(t\) = (.+?) m, ",
+            r"P\(t\) = (.+?) and Q\(t\) = (.+?) thousand people, ",
+            r"^Solve (.+?) = (.+?), for "]
+    for p in pats:
+        m = re.search(p, joined)
+        if m:
+            f, g = tc_expr(m.group(1)), tc_expr(m.group(2))
+            break
+    else:
+        raise Fail("can't read the two functions")
+    d = re.search(r"for (−?\d+) ≤ [xt] ≤ (−?\d+)", joined)
+    if d:
+        return f, g, el_num(d.group(1)), el_num(d.group(2)), False
+    d = re.search(r"for x > (−?[\d.]+)", joined)
+    need(d is not None, "can't read the domain")
+    return f, g, R(sp.nsimplify(d.group(1).replace("−", "-"))), None, True
+
+
+@lru_cache(maxsize=4096)
+def tc_crossings(f, g, lo, hi, open_left):
+    a = lo + sp.Rational(1, 1000) if open_left else lo
+    ff = gc_f(f)
+    return tuple((x, ff(x)) for x in gc_zeros(f - g, a, hi))
+
+
+def tc_pts(cs):
+    names = [gc_pt(x, y) for x, y in sorted(cs, key=lambda c: float(c[0]))]
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def tc_pts2(cs):
+    names = [f"({gc_s2(x)}, {gc_s2(y)})" for x, y in sorted(cs, key=lambda c: float(c[0]))]
+    return names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and " + names[-1]
+
+
+def tc_only_x(cs):
+    names = [gc_s(x) for x, _ in sorted(cs, key=lambda c: float(c[0]))]
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " and x = " + names[-1])
+
+
+def tc_window(cs):
+    return [c for c in cs if abs(c[0]) <= 10 and abs(c[1]) <= 10]
+
+
+# fn-concept-solutions-as-intersections (FAL-420): solutions as meeting points, on the
+# gdc-two-curves situation. The curves are read back and every crossing found again; a
+# cubic's count of solutions of f(x) = k comes from its exact turning values.
+
+def tc_concept(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    j = " ".join([asked] + L)
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    m = re.search(r"The sketch shows y = (.+?), with turning points \((−?\d+), (−?\d+)\) and \((−?\d+), (−?\d+)\)\.", j)
+    if m:
+        need(q["paper"] == 1, "the cubic's count is Paper 1")
+        f = gc_expr(m.group(1))
+        ts = sorted(sp.solve(sp.diff(f, X), X))
+        need([(t, f.subs(X, t)) for t in ts] == [(el_num(m.group(2)), el_num(m.group(3))), (el_num(m.group(4)), el_num(m.group(5)))],
+             "the turning points shown are not the cubic's")
+        lo_v, hi_v = sorted([f.subs(X, t) for t in ts])
+        if u == "k-for-count":
+            gc_check_common(q, f"{frac_text(lo_v)} < k < {frac_text(hi_v)}", {"SL2.10.number-of-solutions#0": {f"{frac_text(lo_v)} ≤ k ≤ {frac_text(hi_v)}"}})
+            return None, None
+        k = el_num(re.search(r"= (−?\d+) have\?", asked).group(1))
+        n = len(set(sp.real_roots(sp.Poly(f - k, X))))
+        wr = {"SL2.10.number-of-solutions#0": {"3"}} if n == 2 else {}
+        gc_check_common(q, str(n), wr)
+        return None, None
+    need(q["paper"] == 2, "two GDC curves are Paper 2")
+    pats = [r"To solve (.+?) = (.+?) with a GDC", r"The sketch shows y = (.+?) and y = (.+?) for ", r"graph(?:s of|s)? y = (.+?) and y = (.+?)(?:;| meet)",
+            r"Equation A: (.+?) = (.+?)\.  Equation B", r"Solving (.+?) = (.+?) is the same", r"f\(x\) = (.+?) and g\(x\) = (.+?), for "]
+    for p in pats:
+        m = re.search(p, j)
+        if m:
+            break
+    need(m is not None, "can't read the two functions")
+    f, g = gc_expr(m.group(1)), gc_expr(m.group(2))
+    d1, d2 = el_num(q["given"]["d1"]), el_num(q["given"]["d2"])
+    cs = tc_crossings(f, g, d1, d2, False)
+    need(all(gc_fair(x) and gc_fair(y) for x, y in cs), "a crossing is not a fair 3 s.f. value")
+    right = next(o for o in q["choices"] if o["correct"])
+    if u == "graphs-for-equation":
+        need("read the x-coordinates where they meet" in right["text"], "the right plan doesn't read the x-coordinates")
+        gc_check_common(q, right["text"], {})
+    elif u == "count-from-sketch":
+        wr = {}
+        if [c for c in cs if abs(c[0]) <= 10 and abs(c[1]) <= 10] != list(cs):
+            wr["SL2.10.solve-gdc#0"] = {str(len([c for c in cs if abs(c[0]) <= 10 and abs(c[1]) <= 10]))}
+        gc_check_common(q, str(len(cs)), wr)
+    elif u == "x-not-y":
+        need(len(cs) == 2, "not two meeting points")
+        want = f"x = {gc_s(cs[0][0])} and x = {gc_s(cs[1][0])}"
+        pts = f"({gc_s(cs[0][0])}, {gc_s(cs[0][1])}) and ({gc_s(cs[1][0])}, {gc_s(cs[1][1])})"
+        need(pts in j, "the meeting points said are not the curves'")
+        gc_check_common(q, want, {"SL2.4.intersection#0": {pts, f"y = {gc_s(cs[0][1])} and y = {gc_s(cs[1][1])}"}})
+    elif u == "difference-picture":
+        ff, gg = gc_f(f), gc_f(g)
+        mk = {"sum": lambda x: ff(x) + gg(x), "lifted": lambda x: ff(x) - gg(x) + 2, "f-alone": ff}
+        for o, gr in zip(q["choices"], q["graphs"]):
+            fn = (lambda x: ff(x) - gg(x)) if o["correct"] else mk[o["mistake"]]
+            need(gc_curve_is(gr["curves"][0], fn), f"the {o.get('mistake') or 'right'} graph is not what it says")
+        gc_check_common(q, right["text"], {})
+    elif u == "same-solutions-after-rearranging":
+        need(right["text"].startswith("Yes: B is A with"), "the right option doesn't say they have the same solutions")
+        gc_check_common(q, right["text"], {})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+def check_gdc_two_curves(q):
+    if q["view"]["type"] == "fn-concept-solutions-as-intersections":
+        return tc_concept(q)
+    g_, u, rep, L, asked = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 2, "two GDC curves are Paper 2")
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    if u == "constant-from-crossing":
+        m = re.search(r"line y = (.+?) \+ k meets the curve y = (.+?) where x = 0\.", " ".join(L)) or \
+            re.search(r"line with gradient (−?[\d.]+) passes through the point where the curve y = (.+?) crosses the y-axis\.", " ".join(L))
+        need(m is not None, "can't read the line and the curve")
+        mtext = m.group(1)
+        mm = R(sp.nsimplify(mtext.replace("−", "-").replace("x", "") or "1")) if mtext not in ("x", "−x") else (1 if mtext == "x" else -1)
+        f = gc_expr(m.group(2))
+        k = sp.nsimplify(f.subs(X, 0))
+        need(k.is_rational, "f(0) is not exact")
+        g = mm * X + k
+        d1, d2 = el_num(g_["d1"]), el_num(g_["d2"])
+        cs = tc_crossings(f, g, d1, d2, False)
+        others = [c for c in cs if abs(c[0]) > 1e-20]
+        need(len(cs) == 2 and len(others) == 1, "the line doesn't meet the curve once more")
+        need(gc_fair(others[0][0]), "the other crossing is not a fair 3 s.f. value")
+        want = f"k = {gc_s(k)}, x = {gc_s(others[0][0])}"
+        gc_check_common(q, want, {}, gc_trap([k, others[0][0]], f"k = {gc_s2(k)}, x = {gc_s2(others[0][0])}"))
+        return None, None
+    f, g, lo, hi, open_left = tc_read(q)
+    if hi is None:
+        hi = el_num(g_["d2"])
+    cs = tc_crossings(f, g, lo, hi, open_left)
+    need(1 <= len(cs) <= 3, f"{len(cs)} crossings, not 1 to 3")
+    df = gc_f(sp.diff(f - g, X))
+    for i, (x, y) in enumerate(cs):
+        need(abs(df(x)) >= TC_SLOPE, f"the crossing at x = {x} is near a tangent")
+        need(gc_fair(x) and gc_fair(y), f"the crossing ({x}, {y}) is not fair to 3 s.f.")
+        need(x - lo >= sp.Rational(1, 5) and hi - x >= sp.Rational(1, 5), "a crossing at the end of the domain")
+        if i:
+            need(x - cs[i - 1][0] >= GC_SEP, "two crossings closer than 0.5")
+    if open_left:
+        # f⁻¹ really is the inverse: f(f⁻¹(x)) = x.
+        ff, gg = gc_f(f), gc_f(g)
+        for x0 in [lo + 1, lo + 2, hi]:
+            need(abs(ff(gg(mpmath.mpf(x0))) - x0) < 1e-20, "f⁻¹ is not the inverse of f")
+    if rep == "graph" and q.get("graph") is not None:
+        need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)) and gc_curve_is(q["graph"]["curves"][1], gc_f(g)), "the graphs drawn are not f and g")
+    wr, trap = {}, None
+    if u in ("intersection-points", "function-and-inverse"):
+        want, trap = tc_pts(cs), tc_pts2(cs)
+        wr[TC_IN + "#0"] = {tc_only_x(cs)}
+        if u == "intersection-points" and tc_window(cs):
+            wr[TC_IN + "#1"] = {tc_pts(tc_window(cs))}
+        if u == "function-and-inverse":
+            need(all(abs(x - y) < 1e-20 for x, y in cs), "f and f⁻¹ meet off y = x")
+    elif u == "solve-f-equals-g":
+        want, trap = gc_xs([c[0] for c in cs]), gc_xs2([c[0] for c in cs])
+        if tc_window(cs):
+            wr[TC_SG + "#0"] = {gc_xs([c[0] for c in tc_window(cs)])}
+    elif u == "models-equal":
+        need(lo == 0 and all(gc_f(fn)(mpmath.mpf(0)) >= 0 for fn in (f, g)), "a model starts below 0")
+        if len(cs) == 2:
+            # Two towns that meet twice, the second time past the standard window's t = 10.
+            need(cs[0][0] < 9 and cs[1][0] > sp.Rational(103, 10), "the second meeting is not past t = 10")
+            want, trap = gc_xs([c[0] for c in cs]).replace("x = ", "t = "), gc_xs2([c[0] for c in cs]).replace("x = ", "t = ")
+            wr[TC_SG + "#0"] = {"t = " + gc_s(cs[0][0])}
+        else:
+            need(len(cs) == 1, "the models don't meet once for t ≥ 0")
+            want, trap = "t = " + gc_s(cs[0][0]), "t = " + gc_s2(cs[0][0])
+            need(all(o["ref"] == TC_SG + "#1" for o in q["choices"] if o.get("trap")), "the 2 s.f. time doesn't log SL2.10.solve-gdc#1")
+    elif u == "distance-between-crossings":
+        need(len(cs) == 2, "not two crossings")
+        (x1, y1), (x2, y2) = cs
+        d = mpmath.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+        want, trap = gc_s(d), gc_s2(d)
+        rr = [sp.Rational(sig3(sp.Float(v, 30))) for v in (x1, y1, x2, y2)]
+        wr[TC_IN + "#2"] = {gc_s(sp.N(sp.sqrt((rr[2] - rr[0]) ** 2 + (rr[3] - rr[1]) ** 2), 30))}
+    elif u == "count-crossings":
+        want = str(len(cs))
+        wr[TC_IN + "#1"] = {str(len(tc_window(cs)))}
+    elif u == "crossing-in-interval":
+        m = re.search(r"for (−?[\d.]+) < x < (−?[\d.]+)\.", asked)
+        a, b = [R(sp.nsimplify(v.replace("−", "-"))) for v in m.groups()]
+        inside = [c for c in cs if a < c[0] < b]
+        need(len(inside) == 1, f"{len(inside)} crossings in the interval")
+        want, trap = gc_pt(*inside[0]), f"({gc_s2(inside[0][0])}, {gc_s2(inside[0][1])})"
+    elif u == "crossing-from-table":
+        t = q["table"]
+        ff, gg = gc_f(f), gc_f(g)
+        for xv, fv, gv in zip(t["xs"], t["fs"], t["gs"]):
+            need(gc_close(fv, ff(mpmath.mpf(R(xv)))) and gc_close(gv, gg(mpmath.mpf(R(xv)))), f"the table is wrong at x = {xv}")
+        hs = [R(fv) - R(gv) for fv, gv in zip(t["fs"], t["gs"])]
+        need(sum(1 for i in range(len(hs) - 1) if hs[i] * hs[i + 1] < 0) == len(cs), "the table doesn't show each crossing as a sign change")
+        want, trap = "x = " + gc_s(cs[-1][0]), "x = " + gc_s2(cs[-1][0])
+    else:
+        raise Fail(f"the checker has no gdc-two-curves check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
+# ── Graphs and key features (FAL-420): gdc-combined ───────────
+# Two models and a function made from them: D(t) (how far one is ahead), the distance
+# d(x) from a point to a curve, or the sum f + g. The models are read back from the
+# question's text; D's maximum, d's minimum and the zeros are found again with mpmath.
+
+CB_MM, CB_SD, CB_CA = "SL2.4.max-min", "SL2.3.sum-difference", "SL2.10.context-apply"
+
+
+def cb_read(q):
+    """(kind, f, g, lo, hi, P): kind 'towns', 'drugs', 'distance' or 'sum'; D = Q − P for
+    towns and A − B for drugs."""
+    j = " ".join([q["asked"]] + q["lines"])
+    m = re.search(r"P\(t\) = (.+?)(?: thousand people)?,? and (?:town Q has |town Q, )?Q\(t\) = (.+?)(?: thousand people|, in thousands)?, .*?(?:for 0 ≤ t ≤ (\d+)|t years after 2020)", j)
+    if m and "P(t)" in j:
+        f, g = tc_expr(m.group(1)), tc_expr(m.group(2))
+        d = re.search(r"for 0 ≤ t ≤ (\d+)", j)
+        return "towns", f, g, sp.Integer(0), el_num(d.group(1)) if d else el_num(q["given"]["d2"]), None
+    m = re.search(r"A\(t\) = (.+?) and B\(t\) = (.+?)(?: mg/l)?, .*?for 0 ≤ t ≤ (\d+)", j)
+    if m:
+        return "drugs", tc_expr(m.group(1)), tc_expr(m.group(2)), sp.Integer(0), el_num(m.group(3)), None
+    m = re.search(r"f\(x\) = (.+?), for (−?\d+) ≤ x ≤ (−?\d+), and the point P\((−?\d+), (−?\d+)\)", j)
+    if m:
+        return "distance", gc_expr(m.group(1)), None, el_num(m.group(2)), el_num(m.group(3)), (el_num(m.group(4)), el_num(m.group(5)))
+    m = re.search(r"f\(x\) = (.+?) and g\(x\) = (.+?), for (−?\d+) ≤ x ≤ (−?\d+)", j)
+    need(m is not None, "can't read the models")
+    return "sum", gc_expr(m.group(1)), gc_expr(m.group(2)), el_num(m.group(3)), el_num(m.group(4)), None
+
+
+def cb_extreme(h, lo, hi, want):
+    """The one interior max (or min) of h, which beats both ends: (x, h(x))."""
+    fh = gc_f(h)
+    ts = [t for t in gc_zeros(sp.diff(h, X), lo, hi) if mpmath.mpf(lo) < t < mpmath.mpf(hi)]
+    d2 = gc_f(sp.diff(h, X, 2))
+    ext = [t for t in ts if (d2(t) < 0) == (want == "max")]
+    need(len(ext) == 1, f"not one interior {want}")
+    x = ext[0]
+    for e in (lo, hi):
+        v = fh(mpmath.mpf(e))
+        need(v < fh(x) if want == "max" else v > fh(x), f"the {want} is at an end of the domain")
+    return x, fh(x)
+
+
+def check_gdc_combined(q):
+    u, rep, asked = q["view"]["unknown"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 2, "a combined GDC function is Paper 2")
+    for t in [asked] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    kind, f, g, lo, hi, P = cb_read(q)
+    wr, trap = {}, None
+    D = (g - f) if kind == "towns" else (f - g) if kind == "drugs" else None
+    if u == "form-difference":
+        right = [o for o in q["choices"] if sp.simplify(tc_expr(o["text"].split(" = ", 1)[1]) - D) == 0]
+        need(len(right) == 1 and right[0]["correct"], "not exactly one option is D(t) the right way round")
+        gc_check_common(q, right[0]["text"], {})
+        return None, None
+    if u in ("max-difference", "interpret-extreme"):
+        x, y = cb_extreme(D, lo, hi, "max")
+        need(abs(y) >= 1 and gc_fair(x) and gc_fair(y), "the greatest difference is not a fair 3 s.f. value")
+        if u == "interpret-extreme":
+            need(f"maximum point at ({gc_s(x)}, {gc_s(y)})" in asked, "the maximum point asked is not D's")
+            right = next(o for o in q["choices"] if o["correct"])
+            need("furthest" in right["text"] and gc_s(x) in right["text"], "the right option doesn't say the time of the greatest lead")
+            for o in q["choices"]:
+                if o["ref"] == CB_CA + "#2":
+                    need(gc_s(y) in o["text"] and "greatest" in o["text"], "CA#2 doesn't give the size of the lead")
+            gc_check_common(q, right["text"], {CB_CA + "#2": {o["text"] for o in q["choices"] if o["ref"] == CB_CA + "#2"}})
+            return None, None
+        want, trap = f"t = {gc_s(x)}, D = {gc_s(y)}", f"t = {gc_s2(x)}, D = {gc_s2(y)}"
+        wr[CB_MM + "#0"] = {f"t = {gc_s(y)}, D = {gc_s(x)}"}
+        if kind == "drugs":
+            k = -sp.Poly(sp.log(f / X).expand(force=True), X).all_coeffs()[0]
+            tA = 1 / k
+            wr[CB_SD + "#2"] = {f"t = {gc_s(tA)}, D = {gc_s(gc_f(D)(mpmath.mpf(tA)))}"}
+    elif u == "difference-zero":
+        zs = gc_zeros(D, lo, hi)
+        need(len(zs) == 1, "D is not zero once in the domain")
+        before = gc_zeros(D, -20, 0)
+        need(len(before) == 1, "D has no one zero before t = 0")
+        want, trap = "t = " + gc_s(zs[0]), "t = " + gc_s2(zs[0])
+        wr[CB_CA + "#1"] = {f"t = {gc_s(before[0])} or {gc_s(zs[0])}"}
+    elif u in ("least-distance", "closest-point"):
+        d = sp.sqrt((X - P[0]) ** 2 + (f - P[1]) ** 2)
+        x, dm = cb_extreme(d, lo, hi, "min")
+        y = gc_f(f)(x)
+        if u == "least-distance":
+            want, trap = gc_s(dm), gc_s2(dm)
+            wr[CB_MM + "#0"] = {gc_s(x)}
+            need(all(o["ref"] == CB_MM + "#2" for o in q["choices"] if o.get("trap")), "the 2 s.f. distance doesn't log SL2.4.max-min#2")
+        else:
+            want, trap = gc_pt(x, y), f"({gc_s2(x)}, {gc_s2(y)})"
+    elif u == "sum-graph":
+        S_ = gc_f(f + g)
+        ff, gg = gc_f(f), gc_f(g)
+        mk = {"sideways": (CB_SD + "#0", lambda x: ff(x + gg(x))), "difference": ("", lambda x: ff(x) - gg(x)),
+              "constant-lift": ("", lambda x: ff(x) + gg(mpmath.mpf(0)))}
+        ch, graphs = q["choices"], q["graphs"]
+        need(len(graphs) == 4 and sum(1 for o in ch if o["correct"]) == 1, "pick the graph needs four graphs, one right")
+        for o, gr in zip(ch, graphs):
+            if o["correct"]:
+                need(gc_curve_is(gr["curves"][0], S_), "the right graph is not f + g")
+            else:
+                need(o["mistake"] in mk and o["ref"] == mk[o["mistake"]][0], f"the {o['mistake']} graph is mistagged")
+                need(gc_curve_is(gr["curves"][0], mk[o["mistake"]][1]), f"the {o['mistake']} graph is not that mistake")
+        gc_check_common(q, next(o["text"] for o in ch if o["correct"]), {o["ref"]: {o["text"]} for o in ch if o["ref"]})
+        return None, None
+    elif u == "sum-zeros":
+        zs = gc_zeros(f + g, lo, hi)
+        need(1 <= len(zs) <= 3 and all(gc_fair(z) for z in zs), "f + g has no fair zeros")
+        want, trap = gc_xs(zs), gc_xs2(zs)
+        wr[CB_SD + "#1"] = {gc_xs(sorted(list(gc_zeros(f, lo, hi)) + list(gc_zeros(g, lo, hi)), key=float))}
+    elif u == "first-whole-day":
+        zs = gc_zeros(f - g, lo, hi)
+        need(len(zs) == 1 and gc_fair(zs[0]), "P doesn't overtake Q once")
+        n = int(mpmath.ceil(zs[0]))
+        want = f"t = {n}"
+        wr[CB_CA + "#0"] = {f"t = {int(mpmath.floor(zs[0]))}"}
+        if rep == "table":
+            t = q["table"]
+            for xv, fv, gv in zip(t["xs"], t["fs"], t["gs"]):
+                need(gc_close(fv, gc_f(f)(mpmath.mpf(R(xv)))) and gc_close(gv, gc_f(g)(mpmath.mpf(R(xv)))), f"the table is wrong at t = {xv}")
+    else:
+        raise Fail(f"the checker has no gdc-combined check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
+# ── Graphs and key features (FAL-420): gdc-context-equation ───
+# An equation that mixes families, from a context. The equation is read back from the
+# question's text and every root in a wide window found again with mpmath; the
+# context's interval picks the one asked for.
+
+CE_SG, CE_CA = "SL2.10.solve-gdc", "SL2.10.context-apply"
+
+
+def ce_num(t):
+    return R(sp.nsimplify(t.replace("−", "-").replace(",", "")))
+
+
+def check_gdc_context_equation(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 2, "a GDC equation is Paper 2")
+    j = " ".join([asked] + L)
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    wr, trap = {}, None
+    if u == "constant-from-root":
+        m = re.search(r"(?:has a solution x = |where x = )([\d.]+)\.", j)
+        x0 = ce_num(m.group(1))
+        k = x0 / sp.sin(x0)
+        gc_check_common(q, "k = " + gc_s(sp.N(k, 30)), {}, "k = " + gc_s2(sp.N(k, 30)))
+        return None, None
+    if u == "smallest-whole-number":
+        m = re.search(r"\$(\d+) is invested at ([\d.]+)% a year", j)
+        mt = re.search(r"worth more than \$(\d+)\.", asked)
+        need(m is not None and mt is not None, "can't read the investment")
+        P0, rate, T = ce_num(m.group(1)), ce_num(m.group(2)), ce_num(mt.group(1))
+        mul = 1 + rate / 100
+        n = 0
+        while P0 * mul ** n <= T:
+            n += 1
+        need(n >= 4, "the target is reached too soon")
+        nr = sp.log(T / P0) / sp.log(mul)
+        need(abs(sp.N(nr) - round(sp.N(nr))) >= sp.Rational(5, 100), "the real n is too near a whole number")
+        if rep == "table":
+            t = q["table"]
+            for xv, yv in zip(t["xs"], t["ys"]):
+                need(abs(R(yv) - P0 * mul ** R(xv)) <= sp.Rational(1, 200), f"the table's value at n = {xv} is wrong")
+        gc_check_common(q, f"n = {n}", {CE_CA + "#0": {f"n = {n - 1}"}})
+        return None, None
+    lo, hi = -20, 20
+    if u == "form-and-solve":
+        m = re.search(r"radius (\d+) cm\. The segment's area is ([\d.]+) cm²", asked)
+        r, A = ce_num(m.group(1)), ce_num(m.group(2))
+        th = sp.Symbol("th")
+        h = r ** 2 / 2 * (X - sp.sin(X)) - A
+        rs = gc_zeros(h, sp.Rational(1, 10**6), sp.pi)
+        need(len(rs) == 1, "not one angle between 0 and π")
+        arc = r * rs[0]
+        th2 = sp.Rational(sig3(sp.Float(rs[0], 30), 2))
+        gc_check_common(q, gc_s(arc) + " cm", {CE_SG + "#1": {gc_s(r * th2) + " cm"}}, gc_s2(arc) + " cm")
+        return None, None
+    if u == "simultaneous-nonlinear":
+        a, b = re.search(r"y = (.+?) and y = (.+?), for x > 0", asked).groups()
+        fa, fb = gc_expr(a), gc_expr(b)
+        rs = gc_zeros(fa - fb, -20, 20)
+        pos = [x for x in rs if x > 0]
+        need(len(pos) == 1, "not one solution with x > 0")
+        y = gc_f(fb)(pos[0])
+        x2 = sp.Rational(sig3(sp.Float(pos[0], 30), 2))
+        gc_check_common(q, "y = " + gc_s(y), {CE_SG + "#1": {"y = " + gc_s(fb.subs(X, x2))}}, "y = " + gc_s2(y))
+        return None, None
+    if u == "first-time":
+        m = re.search(r"h\(t\) = (.+?)\. Find the first time it is ([\d.]+) m high", asked)
+        f, c = tc_expr(m.group(1)), ce_num(m.group(2))
+        rs = gc_zeros(f - c, sp.Rational(1, 10**6), 20)
+        need(len(rs) == 2, "the ball is not at that height twice")
+        if rep == "graph":
+            need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the graph drawn is not h")
+        gc_check_common(q, "t = " + gc_s(rs[0]), {CE_CA + "#2": {"t = " + gc_s(c)}}, "t = " + gc_s2(rs[0]))
+        return None, None
+    # x = k sin x, or an exponential against a line.
+    if L[0].startswith("Two quantities"):
+        m2 = re.search(r"modelled by (e\^\([^)]*\)) and (.+?), where", L[0])
+        lhs, rhs = tc_expr(m2.group(1)), tc_expr(m2.group(2))
+    elif L[0].startswith("x = "):
+        lhs, rhs = X, gc_expr(L[0][4:].replace("sin x", "sin(x)"))
+    elif L[0].startswith("The graph of y = "):
+        m3 = re.search(r"y = (e\^\([^)]*\)) − \((.+?)\) is shown", L[0])
+        lhs, rhs = gc_expr(m3.group(1)), gc_expr(m3.group(2))
+    else:
+        # The line is the equation itself: "e^(0.3x) = 2.5x + 4".
+        need(L[0].count(" = ") == 1, f"can't read the equation {L[0]!r}")
+        a_, b_ = L[0].split(" = ")
+        lhs, rhs = gc_expr(a_), gc_expr(b_)
+    rs = gc_zeros(lhs - rhs, lo, hi)
+    need(1 <= len(rs) <= 4 and all(abs(x) < 1e-20 or gc_fair(x) for x in rs), "the roots are not fair 3 s.f. values")
+    v = "t" if u in ("reject-a-root",) or (u == "root-in-interval" and rep == "words") else "x"
+    if u == "solve-mixed-equation":
+        if "positive solution" in asked:
+            pos = [x for x in rs if x > 1e-9]
+            need(len(pos) == 1, "not one positive solution")
+            want = pos[0]
+        else:
+            need("largest solution" in asked, "which solution is asked?")
+            want = rs[-1]
+            need(want > sp.Rational(105, 10), "the largest solution is not past x = 10")
+            wr[CE_SG + "#0"] = {"x = " + gc_s(max(x for x in rs if abs(x) <= 10))}
+        gc_check_common(q, "x = " + gc_s(want), wr, "x = " + gc_s2(want))
+    elif u in ("root-in-interval", "reject-a-root"):
+        need(len(rs) == 2 and rs[0] < 0 < rs[1], "not one negative and one positive root")
+        if u == "root-in-interval":
+            gc_check_common(q, f"{v} = {gc_s(rs[1])}", {CE_CA + "#1": {f"{v} = {gc_s(rs[0])}"}}, f"{v} = {gc_s2(rs[1])}")
+        else:
+            right = next(o for o in q["choices"] if o["correct"])
+            need(right["text"].startswith(f"t = {gc_s(rs[1])}:") and f"t = {gc_s(rs[0])}" in right["text"], "the right option doesn't keep the positive root")
+            for o in q["choices"]:
+                if o["ref"]:
+                    need(o["text"].startswith(f"t = {gc_s(rs[0])}:"), "CA#1 doesn't keep the negative root")
+            gc_check_common(q, right["text"], {CE_CA + "#1": {o["text"] for o in q["choices"] if o["ref"]}})
+    elif u == "count-roots":
+        if rep == "graph":
+            need(gc_curve_is(q["graph"]["curves"][0], gc_f(lhs - rhs)), "the graph drawn is not the difference")
+        gc_check_common(q, str(len(rs)), {CE_SG + "#0": {str(sum(1 for x in rs if abs(x) <= 10))}})
+    else:
+        raise Fail(f"the checker has no gdc-context-equation check for {u}")
+    return None, None
+
+
+# ── Graphs and key features (FAL-420): graph-from-features ────
+# Paper 1: exact features and the sketch that shows them. The function is read back
+# from the question's text, its features worked out exactly with SymPy, and each card
+# of a pick-the-graph question is checked: the right one is the function with its
+# features marked, each wrong one exactly its named mistake.
+
+GF_SK, GF_SI = "SL2.6.sketch", "SL2.3.sketch-from-info"
+
+
+def gf_expr(text):
+    return tc_expr(text.replace("½", "(1/2)"))
+
+
+def gf_read(q):
+    """(fam, f, info) from the question's text: f as SymPy in x (t read as x)."""
+    u = q["view"]["unknown"]
+    j = " ".join([q["asked"]] + q["lines"])
+    m = re.search(r"roots x = (−?\d+) and x = (−?\d+), its vertex at \((.+?), (.+?)\) and its y-intercept at \(0, (.+?)\), with a ([<>]) 0", j)
+    if m:
+        r1, r2, c = el_num(m.group(1)), el_num(m.group(2)), el_num(m.group(5))
+        a = c / (r1 * r2)
+        need((a > 0) == (m.group(6) == ">"), "the sign of a doesn't match the features")
+        f = a * (X - r1) * (X - r2)
+        need(sp.nsimplify(m.group(3).replace("−", "-")) == (r1 + r2) / 2 and sp.nsimplify(m.group(4).replace("−", "-")) == f.subs(X, (r1 + r2) / 2), "the vertex said is not the parabola's")
+        return "quadratic", f, {}
+    m = re.search(r"f\(x\) = (.+?)$", q["lines"][0]) if q["lines"] and q["lines"][0].startswith("f(x) = ") else None
+    if m:
+        return "quadratic", gf_expr(m.group(1)), {}
+    m = re.search(r"([hv])\(t\) = (.+?)(?: m/s| metres)?(?:, for 0 ≤ t ≤ (\d+)|\.)", j)
+    if m:
+        T = re.search(r"(?:0 ≤ t ≤ |lands at t = )(\d+)", j)
+        return "interval", gf_expr(m.group(2)), {"T": el_num(T.group(1)), "kind": "height" if m.group(1) == "h" else "velocity"}
+    m = re.search(r"y = (\d+)xe\^\(−x\)|maximum at \(1, (\d+)/e\)", j)
+    if m:
+        a = el_num(m.group(1) or m.group(2))
+        return "texp", a * X * sp.exp(-X), {}
+    m = re.search(r"T\(t\) = (\d+) \+ (\d+)e\^\(−([\d.]+)t\)", j)
+    if m:
+        R_, D_, k = el_num(m.group(1)), el_num(m.group(2)), R(sp.nsimplify(m.group(3)))
+        return "cooling", R_ + D_ * sp.exp(-k * X), {"R": R_, "D": D_, "k": k}
+    m = re.search(r"y = (\d*)(sin|cos) x, for 0 ≤ x ≤ 2π", j) or re.search(r"A (sin|cos) graph with amplitude (\d+)", j)
+    if m:
+        if m.re.pattern.startswith("y"):
+            A, fn = el_num(m.group(1) or "1"), m.group(2)
+        else:
+            fn, A = m.group(1), el_num(m.group(2))
+        return "trig", A * (sp.sin(X) if fn == "sin" else sp.cos(X)), {"A": A, "fn": fn}
+    m = re.search(r"passes through \(0, (\d+)\), has a zero at x = (−\d+)", j)
+    need(m is not None, "can't read the function")
+    return "conditions", None, {"y0": el_num(m.group(1)), "z": el_num(m.group(2))}
+
+
+def gf_feats(fam, f, info):
+    """The exact features a sketch marks: [(x, y), ...]."""
+    if fam == "quadratic":
+        rs = sorted(sp.solve(f, X))
+        need(len(rs) == 2 and all(r.is_integer for r in rs), "the roots are not whole numbers")
+        h = (rs[0] + rs[1]) / 2
+        need(h.q in (1, 2), "the vertex is not at a whole number or a half")
+        return [(rs[0], 0), (rs[1], 0), (h, f.subs(X, h)), (0, f.subs(X, 0))]
+    if fam == "interval":
+        T = info["T"]
+        if info["kind"] == "height":
+            return [(0, 0), (T, 0), (T / 2, f.subs(X, T / 2))]
+        rs = sorted(sp.solve(f, X))
+        v = (rs[0] + rs[1]) / 2
+        return [(0, f.subs(X, 0)), (rs[0], 0), (rs[1], 0), (v, f.subs(X, v)), (T, f.subs(X, T))]
+    if fam == "texp":
+        return [(0, 0), (1, f.subs(X, 1))]
+    if fam == "cooling":
+        return [(0, f.subs(X, 0))]
+    if fam == "trig":
+        return [(sp.pi / 2 * i, f.subs(X, sp.pi / 2 * i)) for i in range(5)]
+    return [(0, info["y0"]), (info["z"], 0)]
+
+
+def gf_dots(gr, want):
+    got = sorted((round(p["x"], 6), round(p["y"], 6)) for p in gr["points"])
+    exp_ = sorted((round(float(x), 6), round(float(y), 6)) for x, y in want)
+    return len(got) == len(exp_) and all(abs(a[0] - b[0]) < 1e-5 and abs(a[1] - b[1]) < 1e-5 for a, b in zip(got, exp_))
+
+
+def gf_cards(q, fam, f, info):
+    ch, graphs = q["choices"], q["graphs"]
+    need(len(graphs) == 4 and [o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "not four lettered graphs")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right graph")
+    need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in graphs}) == 1, "the cards don't share one window")
+    feats = gf_feats(fam, f, info)
+    ff = gc_f(f) if f is not None else None
+    a = sp.Poly(f, X).LC() if fam == "quadratic" else None
+    for o, gr in zip(ch, graphs):
+        c = gr["curves"][0]
+        mk = o.get("mistake", "")
+        if o["correct"]:
+            if fam == "conditions":
+                xs = [p[0] for p in c]
+                need(all(b > a_ for a_, b in zip(xs, xs[1:])), "the right graph is not a function")
+                need(all(c[i + 1][1] > c[i][1] for i in range(len(c) - 1)), "the right graph is not increasing")
+                for x0, y0 in feats:
+                    near = min(c, key=lambda p: abs(p[0] - float(x0)))
+                    need(abs(near[0] - float(x0)) < 0.05 and abs(near[1] - float(y0)) < 0.1, f"the right graph misses ({x0}, {y0})")
+            else:
+                need(gc_curve_is(c, ff), "the right graph is not f")
+                need(gf_dots(gr, feats), "the right graph doesn't mark the features")
+            continue
+        refs = {"flipped": GF_SK + "#0" if (a is not None and a < 0) else "", "pointed": GF_SK + "#1", "vertex-on-axis": GF_SK + "#2",
+                "below-zero": GF_SI + "#1", "below-room": GF_SI + "#1", "turns-back": GF_SI + "#2", "doubles-back": GF_SI + "#0"}
+        need(o["ref"] == refs.get(mk, ""), f"the {mk} graph is tagged {o['ref']!r}")
+        need(o.get("why", "") != "", f"the {mk} graph doesn't say what is wrong")
+        if mk == "flipped":
+            need(gc_curve_is(c, lambda x: -ff(x)), "the flipped graph is not −f")
+        elif mk == "pointed":
+            (hx, hy) = feats[2] if fam == "quadratic" else feats[3] if info.get("kind") == "velocity" else feats[2]
+            r = feats[0][0] if fam == "quadratic" else (feats[1][0] if info.get("kind") == "velocity" else 0)
+            need(gc_curve_is(c, lambda x: hy - hy * abs(x - hx) / abs(hx - r)), "the pointed graph is not a V at the vertex")
+        elif mk == "vertex-on-axis":
+            need(gc_curve_is(c, lambda x: a * x ** 2 + ff(0)), "the vertex-on-axis graph is not ax² + c")
+        elif mk in ("below-zero", "past-domain"):
+            need(gc_curve_is(c, ff) and c[-1][0] > float(info["T"]) + 1, f"the {mk} graph doesn't carry f past the end")
+            if mk == "below-zero":
+                need(c[-1][1] < 0, "the height doesn't go below 0")
+        elif mk == "turns-back":
+            A = ff(1) * mpmath.e
+            need(gc_curve_is(c, lambda x: ff(x) + A / 4 * max(0, x - 2.5) ** 2), "the turns-back graph is not f turned up after x = 2.5")
+        elif mk == "max-moved":
+            A = ff(1) * mpmath.e
+            need(gc_curve_is(c, lambda x: A * x * mpmath.exp(-x / 2)), "the max-moved graph is not axe^(−x/2)")
+        elif mk == "swapped":
+            other = info["A"] * (sp.cos(X) if info["fn"] == "sin" else sp.sin(X))
+            need(gc_curve_is(c, gc_f(other)), "the swapped graph is not the other trig function")
+        elif mk == "amplitude":
+            amp = 1 if info["A"] > 1 else 2
+            need(gc_curve_is(c, gc_f(amp * f / info["A"])), "the amplitude graph has the wrong amplitude")
+        elif mk == "below-room":
+            Rr, Dd, k = info["R"], info["D"], info["k"]
+            need(gc_curve_is(c, gc_f(Rr - 6 + (Dd + 6) * sp.exp(-k * X))), "the below-room graph doesn't level off below the room")
+        elif mk == "steady":
+            need(gc_curve_is(c, gc_f(info["R"] + info["D"] - info["D"] * info["k"] * X)), "the steady graph is not the starting rate")
+        elif mk == "warming":
+            need(gc_curve_is(c, gc_f(info["R"] + info["D"] - info["D"] * sp.exp(-info["k"] * X))), "the warming graph is not warming")
+        elif mk == "doubles-back":
+            xs = [p[0] for p in c]
+            need(any(b < a_ for a_, b in zip(xs, xs[1:])) and any(b > a_ for a_, b in zip(xs, xs[1:])), "the doubles-back graph doesn't turn back")
+        elif mk == "shifted":
+            near = min(c, key=lambda p: abs(p[0]))
+            need(abs(near[1] - float(info["y0"])) > 1, "the shifted graph still passes through (0, y0)")
+        elif mk == "mirrored":
+            need(c[0][1] > c[-1][1], "the mirrored graph is not decreasing")
+        else:
+            raise Fail(f"unknown mistake {mk}")
+    return next(o["text"] for o in ch if o["correct"])
+
+
+def check_graph_from_features(q):
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    need(q["paper"] == 1, "graph-from-features is Paper 1")
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    if q["format"] == "pick-the-graph":
+        fam, f, info = gf_read(q)
+        right = gf_cards(q, fam, f, info)
+        gc_check_common(q, right, {o["ref"]: {o["text"]} for o in q["choices"] if o["ref"]})
+        return None, None
+    g = q["given"]
+    a, r1, r2 = R(g["a"]), R(g["r1"]), R(g["r2"])
+    f = a * (X - r1) * (X - r2)
+    h = (r1 + r2) / 2
+    k, c = f.subs(X, h), f.subs(X, 0)
+    pt = lambda x_, y_: f"({frac_text(x_)}, {frac_text(y_)})"
+    if u == "features-from-sketch":
+        labels = {p["label"] for p in q["graph"]["points"]}
+        need({pt(r1, 0), pt(r2, 0), pt(h, k), pt(0, c)} == labels, "the sketch's labels are not the parabola's features")
+        need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the sketch is not the parabola")
+        d = "opens upwards" if a > 0 else "opens downwards"
+        desc = lambda dd: f"vertex {pt(h, k)}, roots {frac_text(r1)} and {frac_text(r2)}, y-intercept {frac_text(c)}, {dd}"
+        wr = {GF_SK + "#0": {desc("opens upwards")}} if a < 0 else {}
+        gc_check_common(q, desc(d), wr)
+        return None, None
+    if u == "judge-a-sketch":
+        shown = gf_expr(q["lines"][0].split(" = ", 1)[1])
+        need(sp.expand(shown - f) == 0, "the equation shown is not the parabola")
+        gr = q["graph"]["curves"][0]
+        ff = gc_f(f)
+        flaw = g["flaw"]
+        if flaw == "flipped":
+            need(gc_curve_is(gr, lambda x: -ff(x)), "the sketch is not f flipped")
+            want = f"It opens the wrong way: a {'>' if a > 0 else '<'} 0, so it should open {'upwards' if a > 0 else 'downwards'}."
+        else:
+            need(gc_curve_is(gr, lambda x: k - k * abs(x - h) / abs(h - r1)), "the sketch is not a V at the vertex")
+            want = "Its vertex is a sharp point: a parabola is smooth there."
+        gc_check_common(q, want, {GF_SK + "#2": {f"Its vertex should be on the y-axis, at {pt(0, c)}."}})
+        return None, None
+    raise Fail(f"the checker has no graph-from-features check for {u}")
+
+
+# ── Graphs and key features (FAL-420): gdc-inequality ─────────
+# An inequality between two curves, solved from their crossings: the curves and the
+# inequality are read back, the crossings found again, and the solution set worked
+# out from the sign of f − g in each part of the domain.
+
+IQ_IE = "SL2.10.inequality-graphical"
+
+
+def iq_sets(cs, d1, d2, v="x"):
+    a, b = gc_s(cs[0][0]), gc_s(cs[1][0])
+    D1, D2 = frac_text(d1), frac_text(d2)
+    return {"inside": f"{a} < {v} < {b}", "outside": f"{D1} ≤ {v} < {a} or {b} < {v} ≤ {D2}", "right": f"{b} < {v} ≤ {D2}",
+            "points": f"{v} = {a} or {v} = {b}"}
+
+
+def check_gdc_inequality(q):
+    u, asked, L = q["view"]["unknown"], q["asked"], q["lines"]
+    need(q["paper"] == 2, "a GDC inequality is Paper 2")
+    j = " ".join([asked] + L)
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    v = "x"
+    if u == "exceeds-in-context":
+        m = re.search(r"C\(t\) = (.+?) mg/l, for 0 ≤ t ≤ (\d+)", j)
+        f, g, rel, d1, d2, v = tc_expr(m.group(1)), el_num(re.search(r"above ([\d.]+) mg/l", asked).group(1)), ">", sp.Integer(0), el_num(m.group(2)), "t"
+        g = R(sp.nsimplify(str(g)))
+    elif u == "inequality-from-region":
+        m = re.search(r"The graphs of y = (.+?) and y = (.+?) are shown", j)
+        f, g = gc_expr(m.group(1)), gc_expr(m.group(2))
+        d1, d2 = el_num(q["given"]["d1"]), el_num(q["given"]["d2"])
+        rel = None
+    else:
+        m = re.search(r"[Ss]olve (.+?) ([<>]) (.+?), for (−?\d+) ≤ x ≤ (−?\d+)\.", asked)
+        need(m is not None, "can't read the inequality")
+        f, rel, g, d1, d2 = gc_expr(m.group(1)), m.group(2), gc_expr(m.group(3)), el_num(m.group(4)), el_num(m.group(5))
+    cs = tc_crossings(f, g, d1 + (sp.Rational(1, 10**6) if v == "t" else 0), d2, False)
+    need(len(cs) == 2 and all(gc_fair(x) for x, _ in cs), "not two fair crossings")
+    h = gc_f(f - g)
+    mid = (cs[0][0] + cs[1][0]) / 2
+    above_mid = h(mid) > 0
+    st = iq_sets(cs, d1, d2, v)
+    if q.get("graph") is not None:
+        need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)) and gc_curve_is(q["graph"]["curves"][1], gc_f(g)), "the graphs drawn are not f and g")
+    if rel is None:
+        inside = st["inside"] in asked
+        need(inside or st["outside"] in asked, "the set asked is not one the crossings make")
+        want_rel = ">" if inside == above_mid else "<"
+        fs, gs = m.group(1), m.group(2)
+        gc_check_common(q, f"{fs} {want_rel} {gs}", {})
+        return None, None
+    inside = (rel == ">") == above_mid
+    want = st["inside"] if inside else st["outside"]
+    wr = {IQ_IE + "#0": {st["points"]}, IQ_IE + "#1": {st["inside"]}, IQ_IE + "#2": {st["right"]}}
+    if inside:
+        wr.pop(IQ_IE + "#1")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
+# ── Graphs and key features (FAL-420): fn-pre-graph-reading ───
+# Reading a grid and rounding. The number or point is read back from the question and
+# rounded again with Decimal (half up), each misconception's value worked out the same.
+
+GR_T = "fn-pre-graph-reading#"
+
+
+def gr_round(text, places=None, sf=None):
+    d = Decimal(text.replace("−", "-"))
+    if sf is not None:
+        e = d.copy_abs().adjusted()
+        q = Decimal(1).scaleb(e - sf + 1)
+    else:
+        q = Decimal(1).scaleb(-places)
+    return dec_text(sp.Rational(str(d.quantize(q, rounding=ROUND_HALF_UP))))
+
+
+def check_graph_reading(q):
+    u, asked, L = q["view"]["unknown"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "graph reading is Paper 1")
+    wr = {}
+    if u == "read-coordinates":
+        p = [p for p in q["graph"]["points"] if p["label"] == "P"]
+        need(len(p) == 1, "no point P on the grid")
+        x, y = int(p[0]["x"]), int(p[0]["y"])
+        want = f"({frac_text(x)}, {frac_text(y)})"
+        wr[GR_T + "1"] = {f"({frac_text(y)}, {frac_text(x)})"}
+    elif u == "read-with-scale":
+        sc = int(re.search(r"Each grid square on the y-axis is (\d+) units", asked).group(1))
+        n = int(re.search(r"The point is (\d+) squares above", L[0]).group(1))
+        need(abs(q["graph"]["points"][0]["y"] - n * sc) < 1e-9, "the point drawn is not at that height")
+        want = f"y = {n * sc}"
+        wr[GR_T + "0"] = {f"y = {n}"}
+    elif u == "plot-from-table":
+        t = q["table"]
+        pts = sorted((int(R(x)), int(R(y))) for x, y in zip(t["xs"], t["ys"]))
+        mk = {"swapped": lambda p: (p[1], p[0]), "up-one": lambda p: (p[0], p[1] + 1), "flipped": lambda p: (p[0], -p[1])}
+        for o, gr in zip(q["choices"], q["graphs"]):
+            got = sorted((int(round(p["x"])), int(round(p["y"]))) for p in gr["points"])
+            exp_ = pts if o["correct"] else sorted(mk[o["mistake"]](p) for p in pts)
+            need(got == exp_, f"the {o.get('mistake') or 'right'} grid doesn't show its points")
+            if not o["correct"]:
+                need(o["ref"] == (GR_T + "1" if o["mistake"] == "swapped" else ""), "a grid is mistagged")
+        gc_check_common(q, next(o["text"] for o in q["choices"] if o["correct"]), {o["ref"]: {o["text"]} for o in q["choices"] if o["ref"]})
+        return None, None
+    elif u in ("round-3sf", "round-small-3sf"):
+        v = re.search(r"Write (.+?) correct to 3 significant figures\.", asked).group(1)
+        want = gr_round(v, sf=3)
+        if u == "round-3sf":
+            wr[GR_T + "4"] = {gr_round(v, sf=2)}
+        else:
+            wr[GR_T + "2"] = {gr_round(v, places=3)}
+    elif u == "round-dp":
+        m = re.search(r"Write (.+?) correct to (\d) decimal places?\.", asked)
+        want = gr_round(m.group(1), places=int(m.group(2)))
+    elif u == "which-values-round":
+        b = sp.Rational(re.search(r"A value x is (.+?), correct to 3 significant figures", asked).group(1).replace("−", "-"))
+        want = f"{dec_text(b - sp.Rational(1, 200))} ≤ x < {dec_text(b + sp.Rational(1, 200))}"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
+# ── Graphs and key features (FAL-420): graph-match ────────────
+# An equation (y = a·b^x + c or y = a(x − p)(x − q)) and its graph. Each equation is read
+# back with SymPy; each graph is tested against the equations, and each wrong graph or
+# equation against the one change it names.
+
+GM_MG = "SL2.3.match-graph"
+
+
+def gm_expr(text):
+    t = text.split(" = ", 1)[1] if text.startswith("y = ") else text
+    return gc_expr(t)
+
+
+def gm_parts(f):
+    """('exp', a, b, c) or ('quad', a, p, q) for a parsed equation."""
+    f = sp.expand(f)
+    if f.is_polynomial(X):
+        P = sp.Poly(f, X)
+        rs = sorted(sp.roots(P).keys())
+        return ("quad", P.LC(), rs[0], rs[-1])
+    # a·b^x + c from f(0), f(1) and f(2), exactly: b = (f(2) − f(1))/(f(1) − f(0)).
+    y0, y1, y2 = [sp.nsimplify(f.subs(X, k)) for k in (0, 1, 2)]
+    b = (y2 - y1) / (y1 - y0)
+    a = (y1 - y0) / (b - 1)
+    c = y0 - a
+    need(sp.simplify(a * b ** X + c - f) == 0, f"{f} is not a·b^x + c")
+    return ("exp", a, b, c)
+
+
+def gm_change(f, mk):
+    kind, a, u, v = gm_parts(f)
+    if kind == "exp":
+        b, c = u, v
+        return {"lifted": a * b ** X + c + 2, "swapped": a * (1 / b) ** X + c, "moved": -a * b ** X + c}[mk]
+    p, q = u, v
+    return {"lifted": 2 * a * (X - p) * (X - q), "swapped": -a * (X - p) * (X - q), "moved": a * (X - p - 1) * (X - q - 1)}[mk]
+
+
+def check_graph_match(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "matching a graph is Paper 1")
+    for t in [asked] + L + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    right = next(o for o in q["choices"] if o["correct"])
+    if q["format"] == "pick-the-graph":
+        if u == "graph-from-facts":
+            m = re.search(r"decays towards the line y = (−?\d+) and passes through \(0, (−?\d+)\)", asked)
+            c, y0 = el_num(m.group(1)), el_num(m.group(2))
+            gr = q["graphs"][q["choices"].index(right)]["curves"][0]
+            ys = [p[1] for p in gr]
+            need(all(b < a for a, b in zip(ys, ys[1:])), "the right curve doesn't decay")
+            near0 = min(gr, key=lambda p: abs(p[0]))
+            need(abs(near0[0]) < 1e-9 and abs(near0[1] - float(y0)) < 1e-6 and abs(ys[-1] - float(c)) < 0.5, "the right curve misses its facts")
+            f = None
+        else:
+            m = re.search(r"Which graph is (y = .+?)\?", asked)
+            f = gm_expr(m.group(1))
+        others = []
+        if u == "match-several":
+            others = [gm_expr(t) for t in re.search(r"Three equations: (y = .+?), (y = .+?) and (y = .+?)\.", asked).groups()]
+        for o, gr in zip(q["choices"], q["graphs"]):
+            c0 = gr["curves"][0]
+            if f is None:
+                if not o["correct"]:
+                    need(o["ref"] == "", "a graph-from-facts card is tagged")
+                continue
+            if o["correct"]:
+                need(gc_curve_is(c0, gc_f(f)), "the right graph is not the equation")
+                continue
+            mk = o["mistake"]
+            if mk in ("other-a", "other-b"):
+                need(any(gc_curve_is(c0, gc_f(g)) for g in others if sp.simplify(g - f) != 0), "an other graph is not one of the other equations")
+                need(o["ref"] == "", "an other graph is tagged")
+                continue
+            need(gc_curve_is(c0, gc_f(gm_change(f, mk))), f"the {mk} graph is not that change")
+            kind = gm_parts(f)[0]
+            want_ref = {"lifted": GM_MG + "#0", "swapped": (GM_MG + "#1" if kind == "exp" else "") if u != "match-several" else GM_MG + "#2",
+                        "moved": ""}[mk]
+            need(o["ref"] == want_ref, f"the {mk} graph is tagged {o['ref']!r}")
+        gc_check_common(q, right["text"], {o["ref"]: {o["text"]} for o in q["choices"] if o["ref"]})
+        return None, None
+    curve = q["graph"]["curves"][0]
+    if u in ("equation-from-graph", "match-several"):
+        fits = [o for o in q["choices"] if gc_curve_is(curve, gc_f(gm_expr(o["text"])))]
+        need(len(fits) == 1 and fits[0]["correct"], f"{len(fits)} equations fit the graph")
+        f = gm_expr(right["text"])
+        mk = "lifted" if u == "equation-from-graph" else "swapped"
+        wr = {(GM_MG + "#0" if mk == "lifted" else GM_MG + "#2"): {o["text"] for o in q["choices"] if o["ref"] and sp.simplify(gm_expr(o["text"]) - gm_change(f, mk)) == 0}}
+        gc_check_common(q, right["text"], wr)
+    elif u == "rule-out-graph":
+        f = gm_expr(L[0])
+        need(gc_curve_is(curve, gc_f(gm_change(f, "lifted"))), "the graph shown is not the equation with another y-intercept")
+        y0, y1 = f.subs(X, 0), gm_change(f, "lifted").subs(X, 0)
+        gc_check_common(q, f"It crosses the y-axis at ({frac_text(0)}, {frac_text(y1)}), but the equation gives ({frac_text(0)}, {frac_text(y0)}) at x = 0.", {})
+    elif u == "signs-from-graph":
+        g = q["given"]
+        if g["fam"] == "exp":
+            f = R(g["a"]) * R(g["b"]) ** X + R(g["c"])
+            ap, bb = R(g["a"]) > 0, R(g["b"]) > 1
+            want = f"a {'>' if ap else '<'} 0 and {'b > 1' if bb else '0 < b < 1'}"
+            flip = f"a {'>' if ap else '<'} 0 and {'0 < b < 1' if bb else 'b > 1'}"
+            wr = {GM_MG + "#1": {flip}}
+        else:
+            f = R(g["a"]) * (X - R(g["p"])) * (X - R(g["q"]))
+            ap, cp = R(g["a"]) > 0, f.subs(X, 0) > 0
+            want = f"a {'>' if ap else '<'} 0 and the y-intercept is {'positive' if cp else 'negative'}"
+            flip = f"a {'<' if ap else '>'} 0 and the y-intercept is {'positive' if cp else 'negative'}"
+            wr = {GM_MG + "#2": {flip}}
+        need(gc_curve_is(curve, gc_f(f)), "the graph is not the given function")
+        gc_check_common(q, want, wr)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+# ── Graphs and key features (FAL-420): fn-link-extremes ───────
+# An extreme value found several ways. Each function is read back from the question
+# and its extremes found again with SymPy: the vertex from h′(t) = 0, the wave's from
+# sympy's maximum and minimum on a period, the touching lines from a zero
+# discriminant, the closed interval's from its stationary points and ends, and the
+# cubic's from f′ = 0 and f″.
+
+LE_SIGN = r"(?: ([+−]) (\d+))?"
+
+
+def le_signed(sign, n):
+    return 0 if n is None else (int(n) if sign == "+" else -int(n))
+
+
+def le_no_hyphen(q):
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def le_wave(text):
+    m = re.search(r"y = (−?\d+) sin\((\d+)x\)" + LE_SIGN, text)
+    need(m is not None, f"can't read the wave in {text!r}")
+    return el_num(m.group(1)), int(m.group(2)), le_signed(m.group(3), m.group(4))
+
+
+def le_graph_is(q, fn):
+    if q["view"]["rep"] == "graph":
+        need(q["graph"] is not None and gc_curve_is(q["graph"]["curves"][0], gc_f(fn)), "the graph drawn is not the function")
+
+
+def check_link_extremes(q):
+    u, asked, L = q["view"]["unknown"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "fn-link-extremes is Paper 1")
+    le_no_hyphen(q)
+    ft = frac_text
+    wr = {}
+    if u == "max-height-methods":
+        m = re.search(r"h\(t\) = (.+?) metres", asked)
+        h = gc_expr(m.group(1).replace("t", "x"))
+        a = sp.Poly(h, X).LC()
+        need(a < 0, "the height model doesn't open downwards")
+        T = sp.solve(sp.diff(h, X), X)[0]
+        H = h.subs(X, T)
+        need(T.is_integer and H.is_integer and T > 0, "the top is not at whole numbers")
+        need(all(not r.is_rational for r in sp.solve(h, X)), "the roots are not surds")
+        say = lambda what, v, t: f"a {what} of {ft(v)} m at t = {ft(t)} s"
+        want = say("maximum", H, T)
+        wr = {"SL2.4.max-min#0": {say("maximum", T, H)}, "SL2.6.vertex#2": {say("minimum", H, T)}}
+        le_graph_is(q, h)
+    elif u in ("wave-extremes", "wave-max-point"):
+        A, B, D = le_wave(asked)
+        f = A * sp.sin(B * X) + D
+        per = sp.Interval(0, 2 * sp.pi)
+        hi, lo = sp.maximum(f, X, per), sp.minimum(f, X, per)
+        if u == "wave-extremes":
+            say = lambda a, b: f"greatest {ft(a)}, least {ft(b)}"
+            want = say(hi, lo)
+            amp = abs(A)
+            wr["SL3.7.read-features#1"] = {say(amp, -amp), say(D + abs(A + D), D - abs(A + D))}
+        else:
+            first = min(sp.solveset(sp.Eq(f, hi), X, sp.Interval.open(0, 2 * sp.pi)))
+            want = "x = " + ext_pi(first / sp.pi)
+            wr["SL3.7.read-features#0"] = {"x = " + ft(sp.Rational(B * (1 if A > 0 else 3), 4))}
+        if q["view"]["rep"] == "graph":
+            need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the graph drawn is not the wave")
+    elif u == "range-from-extremes":
+        m = re.search(r"with A > 0, is (−?\d+) ≤ y ≤ (−?\d+)\.", L[0])
+        lo, hi = el_num(m.group(1)), el_num(m.group(2))
+        A_, D_ = sp.symbols("A D")
+        sol = sp.solve([D_ + A_ - hi, D_ - A_ - lo], [A_, D_])
+        say = lambda a, d: f"amplitude {ft(a)}, principal axis y = {ft(d)}"
+        want = say(sol[A_], sol[D_])
+        wr["SL3.7.read-features#1"] = {say(abs(hi), sol[D_])}
+    elif u == "tangent-means-touch":
+        ml = re.search(r"The line y = mx" + LE_SIGN + r" is a tangent", asked)
+        mc = re.search(r"to the curve y = x²" + LE_SIGN + r"\.", asked)
+        n, r = le_signed(ml.group(1), ml.group(2)), le_signed(mc.group(1), mc.group(2))
+        M = sp.Symbol("m")
+        quad = sp.Poly(X**2 + r - (M * X + n), X)
+        ms = sorted(sp.solve(sp.discriminant(quad.as_expr(), X), M))
+        need(len(ms) == 2 and all(v.is_integer for v in ms), "the gradients are not two whole numbers")
+        parts = []
+        for mv in ms:
+            xs = sp.solve(quad.as_expr().subs(M, mv), X)
+            need(len(xs) == 1, "the line meets the curve twice")
+            parts.append(f"m = {ft(mv)} at ({ft(xs[0])}, {ft(xs[0] ** 2 + r)})")
+        want = " or ".join(parts)
+        wr["SL5.4.tangency-condition#1"] = {f"m < {ft(ms[0])} or m > {ft(ms[1])}"}
+        if q["view"]["rep"] == "graph":
+            need(gc_curve_is(q["graph"]["curves"][0], gc_f(X**2 + r)), "the curve drawn is not the parabola")
+    elif u == "endpoint-beats-vertex":
+        m = re.search(r"Find the range of f\(x\) = (.+?), for (−?\d+) ≤ x ≤ (−?\d+)\.", asked)
+        f, p, qq = gc_expr(m.group(1)), el_num(m.group(2)), el_num(m.group(3))
+        crit = [c for c in sp.solve(sp.diff(f, X), X) if p < c < qq]
+        need(len(crit) == 1, "no turning point inside the interval")
+        ends = [f.subs(X, p), f.subs(X, qq)]
+        vals = ends + [f.subs(X, crit[0])]
+        k, hi = min(vals), max(vals)
+        need(hi in ends and hi != min(ends), "the greatest value is not at one end only")
+        rt = lambda a, b: f"{ft(a)} ≤ f(x) ≤ {ft(b)}"
+        want = rt(k, hi)
+        wr = {"SL2.4.max-min#1": {rt(k, min(ends))}, "SL2.2.range#0": {rt(min(ends), max(ends))},
+              "SL2.2.range#2": {f"{ft(p)} ≤ x ≤ {ft(qq)}"}, "SL5.8.closed-interval-extremes#0": {f"f(x) ≥ {ft(k)}"}}
+        le_graph_is(q, f)
+    elif u == "cubic-turning":
+        f = gc_expr(re.search(r"turning points of f\(x\) = (.+?), and say", asked).group(1))
+        xs = sorted(sp.solve(sp.diff(f, X), X))
+        need(len(xs) == 2 and all(v.is_integer for v in xs), "the turning points are not at two whole numbers")
+        kinds = {x: ("max" if sp.diff(f, X, 2).subs(X, x) < 0 else "min") for x in xs}
+        mx = next(x for x in xs if kinds[x] == "max")
+        mn = next(x for x in xs if kinds[x] == "min")
+        say = lambda ya, yb: f"maximum ({ft(mx)}, {ft(ya)}), minimum ({ft(mn)}, {ft(yb)})"
+        want = say(f.subs(X, mx), f.subs(X, mn))
+        wr["SL5.8.find-stationary-points#2"] = {say(0, 0)}
+        le_graph_is(q, f)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
+# ── Graphs and key features (FAL-420): fn-link-graph-vs-algebra ──
+# An equation as two graphs that meet. Each equation is read back; exact solutions
+# come from SymPy's solveset, GDC ones from root brackets refined with mpmath to 30
+# digits, counts from solveset on the interval (or real-root counts of f − k), and the
+# area from integrating between the meeting points.
+
+
+def lg_ex(text):
+    m = re.fullmatch(r"(e\^x|e\^\((\d)x\)) = (\d+)", text)
+    return None if m is None else (int(m.group(2) or 1), int(m.group(3)))
+
+
+def lg_ln_over(c, k, name="ln"):
+    return f"{name} {c}" if k == 1 else f"({name} {c})/{k}"
+
+
+def lg_xs(names):
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def lg_s2(x):
+    return sig3(x, 2).replace("-", "−")
+
+
+def lg_pi(text):
+    m = re.fullmatch(r"(\d*)π(?:/(\d+))?", text)
+    return sp.Rational(int(m.group(1) or 1), int(m.group(2) or 1))
+
+
+def lg_sols(xs):
+    n = len(xs)
+    return f"{n} solution{'' if n == 1 else 's'}: " + lg_xs([ext_pi(x / sp.pi) for x in xs])
+
+
+def check_link_graph_algebra(q):
+    u, asked, L = q["view"]["unknown"], q["asked"], q["lines"]
+    le_no_hyphen(q)
+    ft = frac_text
+    wr = {}
+    paper = 1
+    if u == "which-method":
+        paper = 2
+        eq = re.fullmatch(r"Can (.+) be solved exactly by algebra\? Choose the true statement\.", asked).group(1)
+        e = lg_ex(eq)
+        if e:
+            k, c = e
+            x0 = sp.solveset(sp.exp(k * X) - c, X, sp.S.Reals)
+            need(len(x0) == 1, "e^(kx) = c has not one solution")
+            want = f"Yes: x = {lg_ln_over(c, k)} ≈ {gc_s(sp.N(next(iter(x0)), 30))}"
+        else:
+            m = re.fullmatch(r"(e\^x|ln x) = (\d+) − x", eq)
+            a = int(m.group(2))
+            lhs = sp.exp(X) if m.group(1) == "e^x" else sp.log(X)
+            zs = gc_zeros(lhs - (a - X), 0.001 if m.group(1) == "ln x" else -10, a + 2)
+            need(len(zs) == 1 and not on_edge(abs(zs[0])), "not one clean meeting point")
+            want = "No: graph both sides; x ≈ " + gc_s(zs[0])
+    elif u == "solve-by-intersection":
+        paper = 2
+        rhs_ = gc_expr(re.fullmatch(r"Solve e\^x = (.+), giving every solution to 3 s\.f\.", asked).group(1))
+        zs = gc_zeros(sp.exp(X) - rhs_, -20, 10)
+        need(len(zs) == 2 and all(not on_edge(abs(z)) for z in zs), "not two clean meeting points")
+        want = lg_xs([gc_s(z) for z in zs])
+        wr = {"SL2.10.solve-gdc#0": {lg_xs([gc_s(zs[1])])}, "SL2.10.solve-gdc#1": {lg_xs([lg_s2(z) for z in zs])}}
+        if q["view"]["rep"] == "graph":
+            cs = q["graph"]["curves"]
+            need(gc_curve_is(cs[0], gc_f(sp.exp(X))) and gc_curve_is(cs[1], gc_f(rhs_)), "the graphs drawn are not the two sides")
+            need(q["graph"]["x0"] < float(zs[0]), "the window hides the left meeting point")
+    elif u == "count-trig-solutions":
+        m = re.fullmatch(r"How many solutions has (\d) (cos|sin) x = (−?\d+) for 0 ≤ x ≤ (.+)\? Find them\.", asked)
+        A, fn, rv, U = int(m.group(1)), getattr(sp, m.group(2)), el_num(m.group(3)), lg_pi(m.group(4)) * sp.pi
+        eq = A * fn(X) - rv
+        sols = sorted(sp.solveset(eq, X, sp.Interval(0, U)), key=float)
+        nxt = min(sp.solveset(eq, X, sp.Interval.Lopen(U, U + 2 * sp.pi)), key=float)
+        want = lg_sols(sols)
+        wr = {"SL2.10.number-of-solutions#1": {lg_sols(sols + [nxt])}, "SL3.8.graphical#0": {lg_sols([s_ for s_ in sols if s_ <= 2 * sp.pi])}}
+        if q["view"]["rep"] == "graph":
+            g = q["graph"]
+            need(gc_curve_is(g["curves"][0], gc_f(A * fn(X))) and abs(g["hlines"][0]["at"] - float(rv)) < 1e-9, "the graph drawn is not the equation's")
+    elif u == "k-for-count":
+        f = gc_expr(re.search(r"The graph of f\(x\) = (.+?) is shown", L[0]).group(1))
+        n = {"one": 1, "two": 2, "three": 3}[re.search(r"exactly (one|two|three) solution", asked).group(1)]
+        tv = sorted(f.subs(X, x) for x in sp.solve(sp.diff(f, X), X))
+        lo, hi = tv
+        cnt = lambda k: len(set(sp.Poly(f - k, X).real_roots()))
+        L_, H_ = ft(lo), ft(hi)
+        got = {"inside": cnt((lo + hi) / 2), "at": (cnt(lo), cnt(hi)), "out": (cnt(lo - 1), cnt(hi + 1))}
+        need(got["inside"] == 3 and got["at"] == (2, 2) and got["out"] == (1, 1), f"the counts are not 1, 2, 3: {got}")
+        want = {3: f"{L_} < k < {H_}", 2: f"k = {L_} or k = {H_}", 1: f"k < {L_} or k > {H_}"}[n]
+        if n == 3:
+            wr["SL2.10.number-of-solutions#0"] = {f"{L_} ≤ k ≤ {H_}"}
+        need(gc_curve_is(q["graph"]["curves"][0], gc_f(f)), "the graph drawn is not f")
+    elif u == "limits-first":
+        m = re.search(r"The curve y = (.+?) and the line y = (.+?) enclose a region", asked)
+        cv, ln_ = gc_expr(m.group(1)), gc_expr(m.group(2))
+        p, qq = sorted(sp.solve(cv - ln_, X))
+        need(p < 0 < qq and p.is_integer and qq.is_integer, "the meeting points are not whole numbers either side of 0")
+        area = sp.integrate(sp.Abs(ln_ - cv), (X, p, qq))
+        say = lambda a, b, ar: f"x = {ft(a)} and x = {ft(b)}; area {ft(ar)}"
+        want = say(p, qq, area)
+        u0, v0 = sorted(sp.solve(cv, X))
+        wr = {"SL5.11.area-between-curves#0": {say(p, qq, -area)},
+              "SL5.11.area-between-curves#1": {say(u0, v0, abs(sp.integrate(ln_ - cv, (X, u0, v0))))},
+              "SL2.4.intersection#1": {say(0, qq, abs(sp.integrate(ln_ - cv, (X, 0, qq))))}}
+        if q["view"]["rep"] == "graph":
+            cs = q["graph"]["curves"]
+            need(gc_curve_is(cs[0], gc_f(cv)) and gc_curve_is(cs[1], gc_f(ln_)), "the graphs drawn are not the curve and the line")
+    elif u == "log-equation-check":
+        m = re.fullmatch(r"Solve ln x \+ ln\(x \+ (\d+)\) = ln (\d+)\.", asked)
+        a, b = int(m.group(1)), int(m.group(2))
+        lhs = sp.log(X) + sp.log(X + a) - sp.log(b)
+        # The meeting points of the graphs (x > 0 only), and the roots algebra gives.
+        zs = gc_zeros(lhs, sp.Rational(1, 1000), 60)
+        need(len(zs) == 1, f"the graphs meet {len(zs)} times")
+        roots = sorted(sp.solve(X**2 + a * X - b, X))
+        good = [x for x in roots if x > 0 and abs(sp.N(lhs.subs(X, x), 30)) < 1e-25]
+        need(len(good) == 1 and abs(good[0] - zs[0]) < 1e-20, "the algebra's root is not the meeting point")
+        r = good[0]
+        bad = [x for x in roots if x != r]
+        need(len(bad) == 1 and bad[0] < 0 and r.is_integer, "no rejected whole-number root")
+        want = "x = " + ft(r)
+        both = f"x = {ft(r)} or x = {ft(bad[0])}"
+        wr = {"SL2.10.solve-analytic#0": {both}, "SL1.7.log-equations#0": {both}}
+        if q["view"]["rep"] == "graph":
+            g = q["graph"]
+            need(gc_curve_is(g["curves"][0], gc_f(sp.log(X) + sp.log(X + a))) and abs(g["hlines"][0]["at"] - float(sp.log(b))) < 1e-9,
+                 "the graphs drawn are not the two sides")
+    elif u == "exponential-two-ways":
+        paper = 2
+        k, c = lg_ex(re.fullmatch(r"Solve (.+) exactly, and give x to 3 s\.f\.", asked).group(1))
+        x0 = sp.N(next(iter(sp.solveset(sp.exp(k * X) - c, X, sp.S.Reals))), 30)
+        need(not on_edge(abs(x0)), "x is on a rounding edge")
+        want = f"x = {lg_ln_over(c, k)} ≈ {gc_s(x0)}"
+        wr["SL1.5.evaluate-tech#0"] = {f"x = {lg_ln_over(c, k, 'log')} ≈ {gc_s(sp.N(sp.log(c, 10) / k, 30))}"}
+    else:
+        raise Fail(f"no check for {u}")
+    need(q["paper"] == paper, f"paper {q['paper']}, not {paper}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -5559,7 +7177,16 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
                     "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
                     "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth}
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth,
+                    "gdc-curve": check_gdc_curve, "gdc-two-curves": check_gdc_two_curves,
+                    "gdc-combined": check_gdc_combined,
+                    "gdc-context-equation": check_gdc_context_equation,
+                    "graph-from-features": check_graph_from_features,
+                    "gdc-inequality": check_gdc_inequality,
+                    "fn-pre-graph-reading": check_graph_reading,
+                    "graph-match": check_graph_match,
+                    "fn-link-extremes": check_link_extremes,
+                    "fn-link-graph-vs-algebra": check_link_graph_algebra}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
