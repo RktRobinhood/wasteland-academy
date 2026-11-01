@@ -205,7 +205,7 @@ func test_courses_file_is_optional() -> void:
 		{"id": "aa-sl", "short": "AA SL", "name": "Analysis and Approaches SL", "status": "live",
 			"topics": [{"n": 1, "name": "Number and algebra", "subtopics": 9, "skills": 61, "hours": 19},
 				{"n": 2, "name": "Functions", "subtopics": 11, "skills": 62, "hours": 21}]},
-		{"id": "aa-hl", "short": "AA HL", "name": "Analysis and Approaches HL", "status": "mapped",
+		{"id": "mystery-hl", "short": "Mystery HL", "name": "A course the engine doesn't list", "status": "mapped",
 			"topics": [{"n": 1, "name": "Number and algebra", "subtopics": 12, "skills": 80, "hours": 39}]}]}))
 	f.close()
 	var read: Array = Explorer.load_courses(COURSES)
@@ -213,11 +213,11 @@ func test_courses_file_is_optional() -> void:
 	var made: Array = await _screen()
 	var e: Control = made[1]
 	e.courses = read
-	e._choose("course", "aa-hl")
+	e._choose("course", "mystery-hl")
 	e._choose("topic", 1)
 	var note := e.choices.find_child("CourseNote", true, false) as Label
 	check(note != null and note.text.contains("syllabus mapped") and note.text.contains("12 subtopics"), note.text if note else "no note")
-	check(e.new_button.disabled, "no questions for a course that isn't live")
+	check(e.new_button.disabled, "no questions for a course the engine doesn't cover")
 	e._choose("course", "aa-sl")
 	e._choose("topic", 2)
 	check(not e.new_button.disabled, "AA SL plays again")
@@ -228,6 +228,49 @@ func test_courses_file_is_optional() -> void:
 	f.close()
 	check_eq(Explorer.load_courses(COURSES).size(), 4)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(COURSES))
+	made[0].free()
+
+
+func test_every_course_plays_the_classes_it_covers() -> void:
+	# The explorer asks the engine (Courses), not the syllabus map's status: AA HL plays all
+	# of AA SL's classes, and AI SL and AI HL the ones whose skills they share.
+	var made: Array = await _screen()
+	var e: Control = made[1]
+	var all := QuestionEngine.built_types().size()
+	var counts := {}
+	for id in Courses.ids():
+		e._choose("course", id)
+		check(e._live(), "%s is live" % id)
+		check_eq(e._live_types(), QuestionEngine.built_types(id), "%s's classes" % id)
+		counts[id] = e._live_types().size()
+		var keys := {}
+		for c in QuestionEngine.cells(false, [], id):
+			keys[c.key] = true
+		for n in range(1, 6):
+			for t in e._types_in(n)[0]:
+				check(e._live_types().has(t.id), "%s lists %s" % [id, t.id])
+		check(not e.new_button.disabled, "%s can ask a question" % id)
+		check(not e.question.is_empty() and not e.question.has("error"), "%s: %s" % [id, e.question.get("error", "")])
+		# The explorer's default method is "any", which is no coverage cell: check the unknown.
+		var asked: Dictionary = e.question.view
+		check(QuestionEngine.covered(id, QuestionEngine.type_of(asked.type), QuestionEngine.unknown_of(QuestionEngine.type_of(asked.type), asked.unknown)),
+			"%s asked %s" % [id, e.question.cell])
+		for c in e._cells():
+			check(keys.has(c.key), "%s's cell %s" % [id, c.key])
+	check_eq(counts["aa-sl"], all)
+	check_eq(counts["aa-hl"], all, "AA HL has every class AA SL has")
+	check(counts["ai-sl"] < all and counts["ai-hl"] >= counts["ai-sl"], "AI SL has %d, AI HL %d" % [counts["ai-sl"], counts["ai-hl"]])
+	# A class built for AA that an AI course doesn't cover is greyed out and says so.
+	e._choose("course", "ai-sl")
+	e._choose("topic", 2)
+	e.show_unbuilt = true
+	e._refresh()
+	var not_in := 0
+	for b in e.choices.find_children("*", "Button", true, false):
+		if b.text.ends_with("not in AI SL"):
+			check(b.disabled, b.text + " can be picked")
+			not_in += 1
+	check(not_in > 0, "some Functions classes are not in AI SL")
 	made[0].free()
 
 

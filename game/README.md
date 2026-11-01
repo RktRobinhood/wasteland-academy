@@ -526,10 +526,13 @@ catalogue: a type is live when its situation is built, so a new situation shows 
 with no change here, and the rest are listed greyed out. "New question" draws a random
 seed; "Ask it another way" keeps the seed and the family's situation and asks the next
 unknown of the family; "Show 10 versions" shows ten seeds with their answers. The class
-size line counts `QuestionEngine.cells()`. Courses come from `data/courses.json` when it
-is there, and from a built-in list (AA SL live, the rest "syllabus mapping in
-progress") when it isn't. Phones show the choices and the question one at a time;
-landscape shows them side by side.
+size line counts `QuestionEngine.cells()` of the picked course. Courses come from
+`data/courses.json` when it is there, and from a built-in list when it isn't. A course
+is live when the engine covers a built class for it (`Courses`, see "Courses"), whatever
+the syllabus map's status: AA HL plays every class AA SL does, AI SL and AI HL the ones
+whose skills they share, and a built class they don't cover is greyed out as "not in AI
+SL". A course the engine doesn't list shows the syllabus note and asks nothing. Phones
+show the choices and the question one at a time; landscape shows them side by side.
 
 The URL follows the screen, so a state can be bookmarked:
 `/next/?explore&view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, plus
@@ -968,7 +971,8 @@ script error happens while it runs. Run one file with
   region with nothing built, which can't start a run; a run started from the map; the
   island's loop in a run and the boss loop in a boss; Play opening the map; and every
   screen fitting 390x844 and 1280x800.
-- `test_explorer.gd`: the engine explorer opens on a live class with no errors, counts
+- `test_explorer.gd`: the engine explorer opens on a live class with no errors, plays
+  each course's own classes (AA HL all of AA SL's, AI SL's inside AI HL's), counts
   the catalogue per topic, plays from its pickers, keeps the situation when it asks
   another way, works without `data/courses.json`, and fits at 390x844 and 1280x800.
 

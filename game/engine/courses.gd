@@ -81,10 +81,13 @@ static func covers_skill(course: String, skill: String) -> bool:
 	return _courses().get(course, {}).get("subtopics", {}).has(subtopic_of(skill))
 
 
-## Whether a student on `course` may be asked this catalogue unknown.
+## Whether a student on `course` may be asked this catalogue unknown. A course that
+## courses.json doesn't list covers nothing.
 static func covers(course: String, unknown: Dictionary) -> bool:
-	if course == "":
+	if course == "" or _courses().is_empty():
 		return true
+	if not has(course):
+		return false
 	for s in unknown.get("skills", []):
 		if not covers_skill(course, s):
 			return false

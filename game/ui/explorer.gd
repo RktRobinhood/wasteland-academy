@@ -243,12 +243,14 @@ func _course() -> Dictionary:
 	return courses[0] if not courses.is_empty() else DEFAULT_COURSES[0]
 
 
+## Whether the engine can ask this course anything: it covers a built type (Courses).
+## courses.json's `status` is the syllabus map's, and only says so in the note.
 func _live() -> bool:
-	return _course().get("status") == "live"
+	return not _live_types().is_empty()
 
 
 func _live_types() -> Array:
-	return QuestionEngine.built_types()
+	return QuestionEngine.built_types(course)
 
 
 ## The topics of the course: from courses.json, else the catalogue's (AA SL) names.
@@ -284,7 +286,7 @@ func _first_live_topic() -> int:
 func _cells() -> Array:
 	if type_id == "":
 		return []
-	return QuestionEngine.cells(exam_only, [type_id])
+	return QuestionEngine.cells(exam_only, [type_id], course)
 
 
 func _unknowns() -> Array:
@@ -305,7 +307,7 @@ func _reps_for(u: String) -> Array:
 
 func _angles_for(u: String) -> Array:
 	var out: Array = ["any"]
-	for a in QuestionEngine.angles_for(QuestionEngine.type_of(type_id), u):
+	for a in QuestionEngine.angles_for(QuestionEngine.type_of(type_id), u, course):
 		if a != "any":
 			out.append(a)
 	return out
@@ -521,7 +523,8 @@ func _class_list() -> void:
 	list.add_child(more)
 	if show_unbuilt:
 		for t in split[1]:
-			var g := _toggle(t.get("name", t.id) + " · not built yet", false, func(): pass, UiTheme.SMALL)
+			var why := "not built yet" if not t.id in QuestionEngine.built_types() else "not in " + String(_course().get("short", course))
+			var g := _toggle(t.get("name", t.id) + " · " + why, false, func(): pass, UiTheme.SMALL)
 			g.disabled = true
 			list.add_child(g)
 
