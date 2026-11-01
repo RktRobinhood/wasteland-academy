@@ -9670,6 +9670,146 @@ def af_spot(q, lines):
 
 SPOT_CHECKS["fn-pre-algebraic-fractions"] = af_spot
 
+# ── Asymptote gallery (FAL-423): rational-asymptote-gallery ───
+# Each fact about the example is worked out again with SymPy (a limit, where f(x) = A, where
+# the function is undefined, what cancels), the right statement is written from those facts,
+# and every other option is shown not to be it.
+
+AG_STORIES = {"the number of fish in a lake": (" thousand fish", "years"), "the concentration of salt in a tank": (" g per litre", "minutes"),
+              "the speed of a rocket sled": (" m/s", "seconds")}
+AG_RM, AG_NO_HA, AG_SWAP, AG_RATIO = "SL2.8.rational-model#0", "SL2.8.asymptotes#2", "SL2.4.asymptotes#1", "SL2.8.asymptotes#1"
+
+
+def ag_lin(q):
+    """f(x) = (ax + b)/(x + d) from the givens, checked against the line that shows it."""
+    g = q["given"]
+    a, b, d = (int(R(g[n])) for n in "abd")
+    f = (a * X + b) / (X + d)
+    for t in q["lines"]:
+        if t.startswith("f(x) = ") and "(" in t:
+            need(sp.simplify(rf_expr(t) - f) == 0, f"the equation shown {t!r} is not the givens")
+    T = rf_truth(f)
+    need(sp.nsimplify(g["A"]) == T["A"] and sp.nsimplify(g["h"]) == T["h"] and sp.nsimplify(g["B"]) == T["B"], "the givens' A, h and B are not f's")
+    need(T["A"].q == 1 and T["h"].q == 1 and T["B"].q == 1 and T["A"] != 0 and T["h"] != 0, "A, h and B are whole numbers")
+    return f, T, (a, b, d)
+
+
+def ag_dec4(v):
+    return dec_text(sp.Rational(str(round(float(v) * 10000)), 10000))
+
+
+def check_gallery(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "Paper 1")
+    for t in [asked] + L + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    ft = frac_text
+    if u == "asymptote-in-context":
+        m = re.fullmatch(r"(.+) is modelled by P\(t\) = \((\d+)t \+ (\d+)\)/\(t \+ (\d+)\), where t is in (.+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        story = m.group(1)[0].lower() + m.group(1)[1:]
+        need(story in AG_STORIES and AG_STORIES[story][1] == m.group(5), "the story's units")
+        P = (int(m.group(2)) * X + int(m.group(3))) / (X + int(m.group(4)))
+        Lv = sp.limit(P, X, sp.oo)
+        need(Lv == int(m.group(2)), "the long-run value is not L")
+        need(sp.simplify(Lv - P).subs(X, 0) > 0 and sp.solve(sp.Eq(P, Lv), X) == [], "the level reaches L")
+        unit = AG_STORIES[story][0]
+        cap = m.group(1)
+        want = f"In the long run {story} gets closer and closer to {ft(Lv)}{unit}, but it never reaches it."
+        wr = {AG_RM: {f"{cap} reaches {ft(Lv)}{unit} after enough {m.group(5)}."}}
+        gc_check_common(q, want, wr)
+        return None, None
+    if u == "gap-not-asymptote":
+        fr = L[0].split(" = ", 1)[1]
+        top, bot = af_split_frac(fr)
+        num, den = af_expr(top), af_expr(bot)
+        simple = sp.cancel(num / den)
+        need(not simple.has(X), "f is not a constant with a gap")
+        h = sp.solve(den, X)
+        need(len(h) == 1, "the bottom has one zero")
+        h = sp.nsimplify(h[0])
+        need(sp.simplify(num.subs(X, h)) == 0, "the top is not zero at the gap")
+        want = f"{fr} is {ft(simple)} for every x except x = {ft(h)}, so the graph is the line y = {ft(simple)} with one point missing: a gap, not an asymptote."
+        need(asked == f"Does f have an asymptote at x = {ft(h)}? Say why.", "the question names another x")
+        gc_check_common(q, want, {})
+        return None, None
+    if u == "crosses-horizontal":
+        g = q["given"]
+        kind = g["kind"]
+        if kind == "lin":
+            f, T, co = ag_lin(q)
+            A, shown = T["A"], RationalFunctionSituation_text(co)
+        else:
+            A = sp.Integer(int(R(g["A"])))
+            f = {"bell": X / (X**2 + 1), "decay": X * sp.exp(-X), "shifted": A + X / (X**2 + 1)}[kind]
+            shown = {"bell": "x/(x² + 1)", "decay": "x·e^(−x)", "shifted": f"{ft(A)} + x/(x² + 1)"}[kind]
+        need(any(shown in t for t in L), "the function shown is not the one in the givens")
+        need(sp.limit(f, X, sp.oo) == A, "A is not the horizontal asymptote")
+        line = f"y = {ft(A)}"
+        need(f"horizontal asymptote {line}" in asked, "the question's asymptote")
+        sols = sp.solve(sp.Eq(f, A), X)
+        if kind != "lin":
+            need(sols == [0], "the curve meets its asymptote at x = 0 only")
+            want = f"Yes: it crosses {line} at x = 0, where {'x·e^(−x)' if kind == 'decay' else 'x/(x² + 1)'} is 0."
+        else:
+            need(sols == [], "f meets its asymptote")
+            B, h = T["B"], T["h"]
+            want = f"No: f(x) = {ft(A)} would need {ft(B)}/(x − {ft(h)}) = 0, and a fraction with a top of {ft(B)} is never 0."
+        if rep == "graph":
+            gr = q["graph"]
+            fl = sp.lambdify(X, f, "math")
+            need(all(abs(fl(x) - y) < 1e-6 for cv in gr["curves"] for x, y in cv), "the curve drawn is not f")
+            need(any(abs(hl["at"] - float(A)) < 1e-9 for hl in gr["hlines"]), "the horizontal asymptote is not drawn")
+        gc_check_common(q, want, {})
+        return None, None
+    f, T, co = ag_lin(q)
+    h, A, B = T["h"], T["A"], T["B"]
+    a, b, d = co
+    if u == "why-vertical":
+        need(asked == f"Why does the graph have a vertical asymptote at x = {ft(h)}, and what happens to y on each side?", "the question names another x")
+        left, right_ = sp.limit(f, X, h, "-"), sp.limit(f, X, h, "+")
+        need({left, right_} == {-sp.oo, sp.oo}, "the sides don't go to ±∞")
+        low = "very large and negative" if left == -sp.oo else "very large and positive"
+        high = "very large and positive" if left == -sp.oo else "very large and negative"
+        h_ = ft(h)
+        mk = lambda l, r: f"At x = {h_} the bottom is 0, so f is undefined there. Just left of x = {h_}, y is {l}; just right of it, y is {r}."
+        want = mk(low, high)
+        if rep == "table":
+            for xs, ys in zip(q["table"]["rows"][0][1], q["table"]["rows"][1][1]):
+                need(abs(float(f.subs(X, R(xs.replace("−", "-")))) - float(R(ys.replace("−", "-")))) < 0.00006, f"the table's f({xs}) is not {ys}")
+        wr = {AG_SWAP: {f"The graph levels off at the value x = {h_}, so it is a horizontal asymptote."}}
+        gc_check_common(q, want, wr)
+    elif u == "why-horizontal":
+        need(asked == f"Why does y get close to {ft(A)} for large x?", "the question names another value")
+        need(sp.limit(f, X, sp.oo) == A, "the limit is not A")
+        ax = "x" if a == 1 else f"{a}x"
+        ax = ("−" if a < 0 else "") + ("" if abs(a) == 1 else str(abs(a))) + "x"
+        ax = ax if a != 1 else "x"
+        want = f"For large x the numbers {ft(b)} and {ft(d)} matter less and less next to {ax} and x, so f(x) is close to {ft(A)}."
+        if rep == "table":
+            for xs, ys in zip(q["table"]["rows"][0][1], q["table"]["rows"][1][1]):
+                need(abs(float(f.subs(X, R(xs.replace("−", "-")))) - float(R(ys.replace("−", "-")))) < 0.00006, f"the table's f({xs}) is not {ys}")
+        frac = L[0].split(" = ", 1)[1] if rep == "equation" else RationalFunctionSituation_text(co)
+        wr = {AG_NO_HA: {f"It doesn't: {frac} has no horizontal asymptote, because the top is not a constant."},
+              AG_RATIO: {f"f(x) gets close to {ft(sp.Rational(b, d))}, the ratio of the constants {ft(b)} and {ft(d)}."}}
+        gc_check_common(q, want, wr)
+    elif u == "crosses-vertical":
+        need(asked == f"A student says the graph can cross its vertical asymptote x = {ft(h)}. Is that right?", "the question names another x")
+        need(sp.simplify(sp.fraction(sp.together(f))[1].subs(X, h)) == 0, "f is defined at x = h")
+        if rep == "graph":
+            rf_graph_is(q["graph"], rf_truth(f))
+        want = f"No: f is not defined at x = {ft(h)}, so no point of the graph has x = {ft(h)}."
+        gc_check_common(q, want, {})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+def RationalFunctionSituation_text(co):
+    a, b, d = co
+    return f"{af_wrap(rf_poly(a, b))}/{af_wrap(rf_poly(1, d))}"
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -9688,7 +9828,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
-                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac}
+                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

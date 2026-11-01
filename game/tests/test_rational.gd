@@ -237,3 +237,49 @@ func test_every_slip_of_algebraic_fractions_is_an_option() -> void:
 				if found:
 					break
 			check(found, "%s never offers %s" % [u, ref])
+
+
+# ── fn-concept-asymptote-meaning ─────────────────────────────
+
+func test_the_asymptote_gallery_is_built_and_plays_true_false_reason() -> void:
+	var t := "fn-concept-asymptote-meaning"
+	check(t in QuestionEngine.built_types(), "%s is not built" % t)
+	check_eq(QuestionEngine.cells(false, [t]).size(), 18, t)
+	var tf := 0
+	for c in QuestionEngine.cells(false, [t]):
+		for seed in [1, 2, 3, 4]:
+			var q := _make(t, c.unknown, c.rep, c.angle, seed)
+			check(not q.has("error"), "%s seed %d: %s" % [c.key, seed, q.get("error")])
+			if q.has("error"):
+				break
+			check_eq(q.situation_id, "rational-asymptote-gallery", c.key)
+			check_eq(q.choices.size(), 4, c.key)
+			check_eq(q.solutions[0].angle, c.angle, c.key + ": the asked method comes first")
+			for sol in q.solutions:
+				check(sol.steps.size() >= 2 and sol.steps.size() <= 5, "%s: %d steps" % [c.key, sol.steps.size()])
+				check(q.answer_text in Step.text(sol.steps[sol.steps.size() - 1]), "%s: the last step doesn't state the answer" % c.key)
+		if QuestionEngine.extra_formats(t, c.unknown, c.angle).has("true-false-reason"):
+			var q := _make(t, c.unknown, c.rep, c.angle, 5, "true-false-reason")
+			check(not q.has("error") and q.format == "true-false-reason", "%s as true-false-reason: %s" % [c.key, q.get("error")])
+			tf += 1
+	check(tf > 0, "true-false-reason is offered")
+
+
+func test_every_slip_of_the_gallery_is_an_option() -> void:
+	var t := "fn-concept-asymptote-meaning"
+	var ty := QuestionEngine.type_of(t)
+	for i in ty.misconceptions.size():
+		var m: Dictionary = ty.misconceptions[i]
+		if m.as != "distractor":
+			continue
+		for u in m.in:
+			var found := false
+			for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == u):
+				for seed in range(1, 80):
+					var q := _make(t, u, c.rep, c.angle, seed, "mcq")
+					if q.choices.any(func(o): return o.ref == m.ref):
+						found = true
+						break
+				if found:
+					break
+			check(found, "%s never offers %s" % [u, m.ref])

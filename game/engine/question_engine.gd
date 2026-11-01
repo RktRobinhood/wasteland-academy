@@ -83,6 +83,7 @@ static var SITUATIONS := {
 	"fn-pre-rearrange": [RearrangeSituation, RearrangeViews],
 	"rational-function": [RationalFunctionSituation, RationalFunctionViews],
 	"fn-pre-algebraic-fractions": [AlgebraicFractionSituation, AlgebraicFractionViews],
+	"rational-asymptote-gallery": [AsymptoteGallerySituation, AsymptoteGalleryViews],
 }
 
 static var _cat: Dictionary = {}
