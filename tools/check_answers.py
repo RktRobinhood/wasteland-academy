@@ -7894,6 +7894,368 @@ def check_composite(q):
     return None, None
 
 
+# ── inverse-rule (fn-inverse-algebraic) ──
+# A function of x is picked from four written options, so the checker reads each option
+# back with SymPy and tests it as maths: the right one is the inverse, every wrong one is not.
+
+from sympy.calculus.util import continuous_domain, function_range
+
+XR = sp.Symbol("x", real=True)
+IR_SUBS = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+IR_REFS = {"reciprocal": "SL2.5.find-inverse#0", "order": "SL2.5.find-inverse#1", "pm": "SL2.5.find-inverse#2",
+           "domain-of-f": "SL2.5.inverse-domain-range#0", "y-intercept": "SL2.5.inverse-domain-range#1",
+           "excluded": "SL2.8.rational-inverse#1", "one": "SL2.5.identity#0", "solve-inverse": "SL2.5.identity#1",
+           "reflect": "SL2.11.reflect#1"}
+IR_POINTS = [sp.Rational(n, 2) for n in range(-16, 21)]
+
+
+def ir_expr(text, letters=()):
+    """A function the game writes ('(x − 3)/2', '3 + √(x − 2)', 'log₂(x + 1)', '2^x − 1') as SymPy."""
+    t = text.replace("−", "-").replace("²", "**2").replace("√x", "sqrt(x)").replace("√", "sqrt")
+    t = re.sub(r"log([₀-₉]+)\(([^()]*)\)", lambda m: f"log({m.group(2)}, {m.group(1).translate(IR_SUBS)})", t)
+    t = re.sub(r"log([₀-₉]+) x", lambda m: f"log(x, {m.group(1).translate(IR_SUBS)})", t)
+    t = t.replace("ln x", "log(x)").replace("ln(", "log(").replace("e^x", "exp(x)").replace("^", "**")
+    need(re.fullmatch(r"[0-9x+\-*/(). a-z,]+", t) is not None, f"can't read the function {text!r}")
+    local = {"x": XR}
+    for n in letters:
+        local[n] = LETTERS[n]
+    return parse_expr(t, local_dict=local, transformations=TRANSFORMS)
+
+
+def ir_step(st, e):
+    st = st.replace("−", "-")
+    w = st.split(" ")
+    if w[0] in ("add", "subtract", "double", "treble", "negate", "square", "halve") or st.startswith("multiply by") or st.startswith("divide by"):
+        return cp_step(st, e) if w[0] not in ("halve", "divide") else (e / 2 if w[0] == "halve" else e / R(w[2]))
+    if st == "take the square root":
+        return sp.sqrt(e)
+    if st.startswith("raise "):
+        base = w[1]
+        return sp.exp(e) if base == "e" else R(base) ** e
+    if st == "take the natural log":
+        return sp.log(e)
+    if st.startswith("take log base "):
+        return sp.log(e, R(w[3]))
+    raise Fail(f"can't read the step {st!r}")
+
+
+def ir_steps(text):
+    e = XR
+    for st in text.split(", then "):
+        e = ir_step(st, e)
+    return e
+
+
+def ir_rule(line):
+    """(expression, restriction) of 'f(x) = …, for x ≥ 3', 'f: double, then add 1.' or 'f⁻¹: …'."""
+    m = re.fullmatch(r"f\(x\) = (.+?)(?:, for x (≥|≤) (−?\d+))?", line)
+    if m:
+        return ir_expr(m.group(1)), (None if m.group(2) is None else (m.group(2), el_num(m.group(3))))
+    m = re.fullmatch(r"f(?:⁻¹)?: (.+)\.", line)
+    need(m is not None, f"can't read the rule {line!r}")
+    return ir_steps(m.group(1)), None
+
+
+def ir_domain(e, restriction):
+    d = continuous_domain(e, XR, sp.S.Reals)
+    if restriction is not None:
+        rel, k = restriction
+        d = d.intersect(sp.Interval(k, sp.oo) if rel == "≥" else sp.Interval(-sp.oo, k))
+    return d
+
+
+def ir_cond(S, var):
+    """A set of reals as the game writes a condition: 'x ≥ 3', 'x ≠ 2', 'all real x'."""
+    if S == sp.S.Reals:
+        return f"all real {var}"
+    if isinstance(S, sp.Union):
+        need(len(S.args) == 2 and all(isinstance(i, sp.Interval) and i.is_open for i in S.args), f"{S} is not two open rays")
+        lo, hi = sorted(S.args, key=lambda i: 0 if i.start == -sp.oo else 1)
+        need(lo.start == -sp.oo and hi.end == sp.oo and lo.end == hi.start, f"{S} is not the reals minus a point")
+        return f"{var} ≠ {frac_text(lo.end)}"
+    need(isinstance(S, sp.Interval), f"{S} is not an interval")
+    if S.end == sp.oo:
+        return f"{var} {'>' if S.left_open else '≥'} {frac_text(S.start)}"
+    need(S.start == -sp.oo, f"{S} is bounded")
+    return f"{var} {'<' if S.right_open else '≤'} {frac_text(S.end)}"
+
+
+def ir_coeffs(e):
+    return {int(m[0]): c for m, c in sp.Poly(sp.expand(e), XR).terms()}
+
+
+def ir_fn(e):
+    return sp.lambdify(XR, e, "mpmath")
+
+
+def ir_close(a, b):
+    try:
+        return abs(mpmath.mpmathify(a) - mpmath.mpmathify(b)) < mpmath.mpf(10) ** -12
+    except (TypeError, ValueError):
+        return False
+
+
+def ir_inside(S, x0):
+    return bool(S.contains(x0) == sp.true)
+
+
+def ir_points(S, e):
+    """x-values inside S where e is a finite real number."""
+    f = ir_fn(e)
+    out = []
+    mpmath.mp.dps = 40
+    for x0 in IR_POINTS:
+        if not ir_inside(S, x0):
+            continue
+        try:
+            y = f(mpmath.mpf(x0.p) / x0.q)
+        except (ZeroDivisionError, ValueError, TypeError):
+            continue
+        if isinstance(y, mpmath.mpf) and abs(y) < 1e6:
+            out.append(x0)
+    need(len(out) >= 4, "fewer than four test points")
+    return out
+
+
+def ir_is_inverse(F, f, dom):
+    """True when F(f(x)) = x on the sample points of dom, with F defined there."""
+    ff, Ff = ir_fn(f), ir_fn(F)
+    for x0 in ir_points(dom, f):
+        xv = mpmath.mpf(x0.p) / x0.q
+        try:
+            back = Ff(ff(xv))
+        except (ZeroDivisionError, ValueError, TypeError):
+            return False
+        if not (isinstance(back, mpmath.mpf) and ir_close(back, xv)):
+            return False
+    return True
+
+
+def ir_same(a, b, S):
+    """Two expressions agree on the sample points of S."""
+    fa, fb = ir_fn(a), ir_fn(b)
+    for x0 in ir_points(S, a):
+        xv = mpmath.mpf(x0.p) / x0.q
+        try:
+            va, vb = fa(xv), fb(xv)
+        except (ZeroDivisionError, ValueError, TypeError):
+            return False
+        if not (isinstance(vb, mpmath.mpf) and ir_close(va, vb)):
+            return False
+    return True
+
+
+def ir_split(text, prefix="f⁻¹(x) = "):
+    """('F', tail) from 'f⁻¹(x) = F, domain …' or 'f⁻¹(x) = F = −f(−x)'."""
+    need(text.startswith(prefix), f"{text!r} does not start with {prefix!r}")
+    body = text[len(prefix):]
+    for sep in (", domain ", ", which ", " = "):
+        if sep in body:
+            F, tail = body.split(sep, 1)
+            return F, sep.strip(" ,") + " " + tail if sep != " = " else tail
+    return body, ""
+
+
+def ir_graph(q, f, dom):
+    g = q.get("graph")
+    need(g is not None, "no graph")
+    curves = g["curves"]
+    need(curves[-1] == [[-8.0, -8.0], [8.0, 8.0]], "the line y = x is not drawn last")
+    ff = ir_fn(f)
+    for c in curves[:-1]:
+        need(len(c) > 5, "a curve with too few points")
+        for x0, y0 in c:
+            need(abs(ff(mpmath.mpf(x0)) - y0) < 1e-4 * max(1, abs(y0)), f"the graph's point ({x0}, {y0}) is not on f")
+
+
+def check_inverse(q):
+    ans, u, rep, L, asked = q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] in (1, 2), "paper")
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    right = q["answer_text"]
+    ch = q["choices"]
+    wr = {}
+    if u == "restrict-for-inverse":
+        f = parse(rhs(L[0]))
+        co = poly_coeffs(f)
+        need(set(co) == {0, 1, 2} or set(co) == {1, 2} or set(co) == {0, 2} or set(co) == {2}, f"f is not a quadratic: {f}")
+        h = -co.get(1, 0) / (2 * co[2])
+        need(h.q == 1 and h != 0, f"the vertex {h} is not a whole number")
+        least = "least value of k for which f has an inverse on the domain x ≥ k." in asked
+        need(least or "greatest value of k for which f has an inverse on the domain x ≤ k." in asked, f"asked {asked!r}")
+        if q["graph"] is not None:
+            ir_graph(q, f, sp.S.Reals)
+        wr[IR_REFS["y-intercept"]] = {"k = 0"}
+        gc_check_common(q, "k = " + frac_text(h), wr)
+        return None, None
+    if u == "self-inverse-constant":
+        fk = ir_expr(rhs(L[0]), letters=("k",))
+        numer = sp.numer(sp.together(fk.subs(XR, fk) - XR))
+        sols = sp.solve(sp.Poly(sp.expand(numer), XR).all_coeffs(), K, dict=True)
+        vals = {s_[K] for s_ in sols if K in s_}
+        need(len(vals) == 1, f"k = {vals}")
+        k0 = vals.pop()
+        need(k0.is_rational and k0.q == 1, f"k = {k0}")
+        gc_check_common(q, "k = " + frac_text(k0), {})
+        return None, None
+    f, restriction = ir_rule(L[0] if not L[0].startswith("f⁻¹(x)") else "f(x) = 0")
+    dom = ir_domain(f, restriction) if not L[0].startswith("f⁻¹(x)") else None
+    if u in ("function-from-inverse",):
+        G = ir_expr(rhs(L[0])) if L[0].startswith("f⁻¹(x) = ") else ir_steps(re.fullmatch(r"f⁻¹: (.+)\.", L[0]).group(1))
+        gdom = continuous_domain(G, XR, sp.S.Reals)
+        need(asked == "Find f(x).", f"asked {asked!r}")
+        truth = {}
+        for o in ch:
+            mm = re.fullmatch(r"f\(x\) = (.+)", o["text"])
+            need(mm is not None, f"can't read the option {o['text']!r}")
+            E = ir_expr(mm.group(1))
+            ok = True
+            gf, Ef = ir_fn(G), ir_fn(E)
+            for y0 in ir_points(gdom, G):
+                yv = mpmath.mpf(y0.p) / y0.q
+                try:
+                    back = Ef(gf(yv))
+                except (ZeroDivisionError, ValueError, TypeError):
+                    ok = False
+                    break
+                if not (isinstance(back, mpmath.mpf) and ir_close(back, yv)):
+                    ok = False
+                    break
+            truth[o["text"]] = ok
+            if o["ref"]:
+                wr.setdefault(o["ref"], set()).add(o["text"])
+        need(truth[right] and sum(truth.values()) == 1, f"the options that are inverses of f⁻¹: {[t for t, v in truth.items() if v]}")
+        gc_check_common(q, right, {k: v for k, v in wr.items() if all(not truth[t] for t in v)})
+        return None, None
+    need(dom is not None, "no rule")
+    rng = function_range(f, XR, dom)
+    if q["graph"] is not None:
+        ir_graph(q, f, dom)
+    if u in ("inverse-linear", "inverse-rational", "inverse-restricted-quadratic", "inverse-root", "inverse-exponential"):
+        # domain and range of f⁻¹ (root, exponential): the range and the domain of f
+        dom_text, ran_text = ir_cond(rng, "x"), ir_cond(dom, "y")
+        f_dom_text, f_ran_text = ir_cond(dom, "x"), ir_cond(rng, "y")
+        truth = {}
+        for o in ch:
+            if u == "inverse-root":
+                mm = re.fullmatch(r"(f⁻¹\(x\) = .+), domain (.+), range (.+)", o["text"])
+                need(mm is not None, f"can't read {o['text']!r}")
+                F, claim = mm.group(1)[len("f⁻¹(x) = "):], (mm.group(2), mm.group(3))
+                want_claim = (dom_text, ran_text)
+                f_claim = (f_dom_text, f_ran_text)
+            elif u == "inverse-exponential":
+                mm = re.fullmatch(r"(f⁻¹\(x\) = .+), domain (.+)", o["text"])
+                need(mm is not None, f"can't read {o['text']!r}")
+                F, claim = mm.group(1)[len("f⁻¹(x) = "):], mm.group(2)
+                want_claim, f_claim = dom_text, f_dom_text
+            else:
+                need(o["text"].startswith("f⁻¹(x) = "), f"can't read {o['text']!r}")
+                F, claim, want_claim, f_claim = o["text"][len("f⁻¹(x) = "):], None, None, None
+            is_inv = "±" not in F and ir_is_inverse(ir_expr(F), f, dom)
+            truth[o["text"]] = is_inv and claim == want_claim
+            if o["ref"]:
+                ref = o["ref"]
+                if ref == IR_REFS["domain-of-f"]:
+                    need(is_inv and claim == f_claim, f"{o['text']!r} is not the right inverse with f's own domain")
+                elif ref == IR_REFS["reciprocal"]:
+                    need(ir_same(ir_expr(F), 1 / f, dom), f"{o['text']!r} is not 1/f(x)")
+                elif ref == IR_REFS["order"]:
+                    a_ = ir_coeffs(f)
+                    need(not is_inv and ir_same(ir_expr(F), XR / a_[1] - a_.get(0, 0), dom), f"{o['text']!r} is not x/a − b")
+                elif ref == IR_REFS["pm"]:
+                    # A ± in the answer, or the other branch of the root: 2h − (the right inverse).
+                    other = 2 * restriction[1] - ir_expr(right[len("f⁻¹(x) = "):])
+                    need("±" in F or (not is_inv and ir_same(ir_expr(F), other, rng)), f"{o['text']!r} is not a ± or the other branch")
+                else:
+                    raise Fail(f"the checker can't confirm {ref} on {u}")
+                wr.setdefault(ref, set()).add(o["text"])
+        need(truth[right] and sum(truth.values()) == 1, f"the options that are right: {[t for t, v in truth.items() if v]}")
+        if u == "inverse-restricted-quadratic":
+            need(restriction is not None, "no restriction on the quadratic")
+        gc_check_common(q, right, wr)
+        return None, None
+    # Conditions and values (domain, range, asymptotes, constants)
+    if u == "inverse-domain":
+        need(asked == "Find the domain of f⁻¹.", f"asked {asked!r}")
+        want = ir_cond(rng, "x")
+        wr[IR_REFS["domain-of-f"]] = {ir_cond(dom, "x")}
+    elif u == "inverse-range":
+        need(asked == "Find the range of f⁻¹.", f"asked {asked!r}")
+        want = ir_cond(dom, "y")
+        wr[IR_REFS["domain-of-f"]] = {ir_cond(rng, "y")}
+    elif u == "rational-inverse-domain":
+        want = f"domain {ir_cond(rng, 'x')}, range {ir_cond(dom, 'y')}"
+        wr[IR_REFS["excluded"]] = {f"domain {ir_cond(dom, 'x')}, range {ir_cond(rng, 'y')}"}
+    elif u == "inverse-asymptotes":
+        vert = sp.solve(sp.denom(sp.together(f)), XR)
+        ends = {sp.limit(f, XR, sp.oo), sp.limit(f, XR, -sp.oo)}
+        finite = [e_ for e_ in ends if e_.is_rational]
+        need(len(finite) == 1, f"f has {len(finite)} horizontal asymptotes")
+        horiz = finite[0]
+        if vert:
+            need(len(vert) == 1 and horiz.is_rational, "f has one vertical and one horizontal asymptote")
+            want = f"x = {frac_text(horiz)} and y = {frac_text(vert[0])}"
+            wr[IR_REFS["excluded"]] = {f"x = {frac_text(vert[0])} and y = {frac_text(horiz)}"}
+        else:
+            need(horiz.is_rational, "an exponential has one horizontal asymptote")
+            want = f"x = {frac_text(horiz)}"
+            wr[IR_REFS["excluded"]] = {f"y = {frac_text(horiz)}"}
+    elif u == "show-self-inverse":
+        truth = {}
+        for o in ch:
+            mm = re.fullmatch(r"f⁻¹\(x\) = (.+), which (is|is not) f\(x\)", o["text"])
+            need(mm is not None, f"can't read {o['text']!r}")
+            F = ir_expr(mm.group(1))
+            truth[o["text"]] = ir_is_inverse(F, f, dom) and ir_same(F, f, dom) == (mm.group(2) == "is")
+        need(truth[right] and sum(truth.values()) == 1, f"the options that are right: {[t for t, v in truth.items() if v]}")
+        gc_check_common(q, right, {})
+        return None, None
+    elif u == "inverse-as-reflections":
+        truth = {}
+        for o in ch:
+            mm = re.fullmatch(r"f⁻¹\(x\) = (.+) = (−f\(−x\)|f\(−x\)|−f\(x\))", o["text"])
+            need(mm is not None, f"can't read {o['text']!r}")
+            F = ir_expr(mm.group(1))
+            R_ = {"−f(−x)": -f.subs(XR, -XR), "f(−x)": f.subs(XR, -XR), "−f(x)": -f}[mm.group(2)]
+            inv = ir_is_inverse(F, f, dom)
+            truth[o["text"]] = inv and ir_same(F, R_, dom)
+            if o["ref"]:
+                need(o["ref"] == IR_REFS["reflect"] and inv and mm.group(2) != "−f(−x)", f"{o['text']!r} is not the reflection slip")
+                wr.setdefault(o["ref"], set()).add(o["text"])
+        need(truth[right] and sum(truth.values()) == 1, f"the options that are right: {[t for t, v in truth.items() if v]}")
+        gc_check_common(q, right, wr)
+        return None, None
+    elif u == "compose-to-identity":
+        g = ir_expr(rhs(L[1]))
+        c = sp.simplify(f.subs(XR, g))
+        co = ir_coeffs(c)
+        need(set(co) <= {0, 1}, f"f(g(x)) = {c}")
+        want = ("(f∘g)(x) = x: g is the inverse of f" if c == XR else f"(f∘g)(x) = {cp_poly_text(c.subs(XR, X))}: g is not the inverse of f")
+    elif u == "identity-value":
+        m = re.fullmatch(r"Given that f has an inverse, find \(f∘f⁻¹\)\((−?\d+)\)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        n = el_num(m.group(1))
+        need(ir_inside(rng, n), f"{n} is not in the range of f, so f⁻¹({n}) is not defined")
+        want = f"(f∘f⁻¹)({m.group(1)}) = {m.group(1)}"
+        wr[IR_REFS["one"]] = {f"(f∘f⁻¹)({m.group(1)}) = 1"}
+    elif u == "solve-inverse-equals":
+        m = re.fullmatch(r"Solve f⁻¹\(x\) = (−?\d+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        c0 = el_num(m.group(1))
+        need(ir_inside(dom, c0), f"{c0} is not in the domain of f")
+        v = sp.nsimplify(f.subs(XR, c0))
+        need(v.is_rational and v.q == 1, f"f({c0}) = {v} is not a whole number")
+        want = "x = " + frac_text(v)
+        sol = [t for t in sp.solve(f - c0, XR) if t.is_real and ir_inside(dom, t)]
+        if len(sol) == 1 and sol[0].is_rational:
+            wr[IR_REFS["solve-inverse"]] = {"x = " + frac_text(sol[0])}
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -7912,7 +8274,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "data-summary": check_data_summary,
-                    "composite-pair": check_composite}
+                    "composite-pair": check_composite, "inverse-rule": check_inverse}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

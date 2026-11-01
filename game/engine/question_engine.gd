@@ -77,6 +77,7 @@ static var SITUATIONS := {
 	"binomial": [BinomialSituation, BinomialViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],
+	"inverse-rule": [InverseRuleSituation, InverseRuleViews],
 }
 
 static var _cat: Dictionary = {}
