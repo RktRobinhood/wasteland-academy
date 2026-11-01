@@ -31,7 +31,10 @@ extends RefCounted
 ##              for the Graphs and key features region (FAL-420) also xs (x-values in
 ##              any order; options may have other counts), pts (points in any order; a
 ##              wrong option may give only_x, the x-coordinates) and graph (pick the
-##              graph: "Graph A" to "Graph D")
+##              graph: "Graph A" to "Graph D");
+##              for the Rational functions region (FAL-423) also xint (the x-intercept,
+##              (x, 0)), and axis honours show and may carry var "" (the number alone, a
+##              wrong option for an asymptote written as an equation)
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
@@ -79,6 +82,8 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = ["(", {"slot": "x"}, ", ", {"slot": "y"}, ")"]
 		"yint":
 			t = ["(0, ", {"slot": "y"}, ")"]
+		"xint":
+			t = ["(", {"slot": "x"}, ", 0)"]
 		"vertex_form":
 			t = ["f(x) = ", {"slot": "a"}, "(x − ", {"slot": "h"}, ")² + ", {"slot": "k"}]
 		"vertex_form_a":
@@ -393,6 +398,11 @@ static func lnq_value(m: Variant, r: Variant, form: String = "") -> float:
 ## such as 1/f(x) for an inverse asked as a log, can be picked but never typed.
 static func typable(ans: Dictionary, values: Dictionary) -> bool:
 	var ids: Array = slots(ans).map(func(item): return item.get("slot", item.get("pick", "")))
+	# A pick left empty can't be typed: a number written without its "x = " is an option that
+	# can be picked but never typed (FAL-423).
+	for item in slots(ans):
+		if item.has("pick") and values.has(item.pick) and str(values[item.pick]) == "":
+			return false
 	for key in values:
 		if key in ids:
 			continue
@@ -426,7 +436,10 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 		"xval":
 			return "x = " + Fmt.num(v.v)
 		"axis":
-			return "%s = %s" % [v["var"], Fmt.num(v.h)]
+			# A wrong option may give the number alone, for the equation (FAL-423).
+			if v["var"] == "":
+				return shown(ans, v.h)
+			return "%s = %s" % [v["var"], shown(ans, v.h)]
 		"roots":
 			var rs := _sorted([v.r1, v.r2])
 			return "x = %s and x = %s" % [shown(ans, rs[0]), shown(ans, rs[1])]
@@ -434,6 +447,8 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return "(%s, %s)" % [shown(ans, v.x), shown(ans, v.y)]
 		"yint":
 			return "(0, %s)" % shown(ans, v.y)
+		"xint":
+			return "(%s, 0)" % shown(ans, v.x)
 		"vertex_form":
 			return "f(x) = " + Fmt.vertex(v.a, v.h, v.k)
 		"vertex_form_a":
@@ -840,7 +855,7 @@ static func needs_rounding(v: Q) -> bool:
 
 
 ## Kinds whose one typed number can be shown rounded, as a rounding trap.
-const TRAP_KINDS := ["number", "xval", "axis", "yint"]
+const TRAP_KINDS := ["number", "xval", "axis", "yint", "xint"]
 
 
 ## The rounding trap for a multiple-choice question (Q7): the answer's value rounded to
@@ -876,6 +891,8 @@ static func trap_text(ans: Dictionary, values: Dictionary) -> String:
 			return "%s = %s" % [values["var"], Fmt.dec(values.h)]
 		"yint":
 			return "(0, %s)" % Fmt.dec(values.y)
+		"xint":
+			return "(%s, 0)" % Fmt.dec(values.x)
 		# Several numbers at 2 s.f. (FAL-420): each written as the decimal it is.
 		"point":
 			return "(%s, %s)" % [Fmt.dec(values.x), Fmt.dec(values.y)]
