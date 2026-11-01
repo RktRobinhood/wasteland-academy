@@ -76,6 +76,7 @@ static var SITUATIONS := {
 	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
 	"binomial": [BinomialSituation, BinomialViews],
 	"regression": [RegressionSituation, RegressionViews],
+	"data-summary": [DataSummarySituation, DataSummaryViews],
 }
 
 static var _cat: Dictionary = {}

@@ -1751,7 +1751,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 5 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 6 exam types have them so far.
+
+#### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 11 bank parts)
+
+- **Situation:** One discrete data set, as a list or a frequency table, and what summarises it.
+- **Representations:** **terms**, **table**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a list of values or a frequency table → the mean
+  - **exam** L1: given a list of values or a frequency table → the median
+  - **exam** L1: given a list of values or a frequency table → the mode
+  - **exam** L1: given a list of values or a frequency table → the range
+  - **exam** L2: given a list of values or a frequency table → the lower quartile and the upper quartile
+  - **exam** L2: given a list of values or a frequency table → the interquartile range
+  - **exam** L3: given the mean; all but one of the values → the missing value
+  - **exam** L4: given the mean; a frequency table with one frequency p → p
+  - **exam** L3: given the sizes and means of two groups → the mean of the two groups together
+  - **exam** L2: given eight measurements with one far above the rest → the most appropriate measure of the centre
+  - **exam** L2: given eight measurements with one far above the rest → the measure of spread least affected by the outlier
+- **Angles:** Mean = Σx ÷ n (or Σfx ÷ Σf); Median at position (n + 1)/2; GDC 1-Var Stats; Median of each half; GDC 1-Var Stats; Work with totals; Set Σfx ÷ Σf equal to the mean; Deviations from the mean add to zero; Check for outliers or skew; Compare the mean with the median.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): The mean of a data set is one of the values in the data set. — Sometimes: for 2, 4, 6 the mean is 4, which is in the set, but for 1, 2, 6 the mean is 3, which is not.
+  - *true-false-reason* (L3): The median of an ordered data set with 12 values is the 6th value. — False: with an even number of values the median is halfway between the 6th and 7th values, so it need not be a value in the set.
+  - *true-false-reason* (L4): One class of 10 students has a mean mark of 60 and another of 30 students has a mean mark of 80. The mean mark of all 40 students is 70. — False: the mean of the two means ignores the group sizes. The totals are 600 and 2400, so the mean is 3000 ÷ 40 = 75, nearer the bigger group's mean.
+- **Misconceptions used:** 9. Taking the middle value of the unordered list as the median; Giving the position (n + 1)/2 as the median instead of the value in that position; Giving the highest frequency as the mode instead of the value that has that frequency; Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1; Finding quartiles from the unordered list; Averaging the two group means for a combined mean when the groups are different sizes; Forgetting that the unknown frequency p also appears in the denominator Σf; The mean is always the best average because it uses every value; The mode is the most useful average for continuous data.
 
 #### Regression line and Pearson r on the GDC, then predict (`t4-regression-gdc`, exam, 19 bank parts)
 

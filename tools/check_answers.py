@@ -7403,6 +7403,255 @@ def check_binomial(q):
     return None, None
 
 
+# ── data-summary (t4-summary-statistics, FAL-695) ────────────
+# The `data-summary` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/data_summary.gd. The data are read back from the lines and the
+# table the student sees, and every summary is found again with exact rationals.
+
+DS_SKILL = "SL4.3."
+DS_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+# The stories, in the engine's order.
+DS_CONTEXTS = [("quiz scores", "score"), ("daily temperatures in °C", "temperature"), ("journey times in minutes", "time"),
+               ("parcel masses in kg", "mass"), ("plant heights in cm", "height"), ("ages in years", "age")]
+DS_GROUPS = [("boys", "girls", "mark", "students"), ("morning shifts", "evening shifts", "number of customers", "shifts"),
+             ("small packets", "large packets", "number of seeds", "packets"),
+             ("first-year pupils", "second-year pupils", "homework time in minutes", "pupils"),
+             ("cyclists", "walkers", "distance in km", "people")]
+DS_SPREADS = ["The masses, in kg, of 8 crates of tinned food:", "The times, in minutes, 8 couriers took to cross the wasteland:",
+              "The daily water use, in litres, of 8 households:", "The distances, in km, 8 scavengers travelled in a day:",
+              "The lengths, in cm, of 8 pipes:", "The rainfall, in mm, a station recorded on 8 days:"]
+DS_CENTRES = ["the mean", "the median", "the mode", "the midrange"]
+DS_MEASURES = ["the range", "the interquartile range", "the standard deviation", "the variance"]
+# Limits by paper: a list's size and values, a table's number of values, total frequency and values.
+DS_LIST = {1: ((5, 11), (1, 20)), 2: ((10, 18), (10, 60))}
+DS_TABLE = {1: ((4, 6), (8, 24), (1, 15)), 2: ((5, 8), (25, 60), (10, 60))}
+
+
+def ds_median(v):
+    n = len(v)
+    return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
+
+
+def ds_quartiles(v):
+    n = len(v)
+    h = n // 2
+    return ds_median(v[:h]), ds_median(v[h + n % 2:])
+
+
+def ds_clear(x):
+    """x is at least DS_EDGE of a unit of its 3rd figure from a rounding edge."""
+    v = num(x)
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= DS_EDGE
+
+
+def ds_mode(v):
+    counts = {}
+    for x in v:
+        counts[x] = counts.get(x, 0) + 1
+    top = max(counts.values())
+    modes = [x for x, c in counts.items() if c == top]
+    return modes, top
+
+
+def ds_num(x, label):
+    """A number answer as the game writes it: exact where it ends, else to 3 s.f."""
+    if sp.Rational(sig3(x)) == x:
+        return label + dec_text(x), None
+    return label + sig3(x).replace("-", "−"), label + dec_text(sp.Rational(sig3(x, 2)))
+
+
+def ds_numbers(text):
+    return [R(v) for v in re.findall(r"\d+(?:\.\d+)?", text.replace("−", "-"))]
+
+
+def check_data_summary(q):
+    g, u, L, rep, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["paper"]
+    asked = q["asked"]
+    need(paper in (1, 2), f"paper {paper}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+
+    # The data as shown: a list in the order shown, or a table's values and frequencies.
+    def shown_list(line):
+        need(re.fullmatch(r"\d+(\.\d)?(, \d+(\.\d)?)*", line) is not None, f"can't read the list {line!r}")
+        return [R(x) for x in line.split(", ")]
+
+    xs, fs, data = None, None, None
+    if u in ("mean-of-data", "median-of-data", "mode-of-data", "range-of-data", "quartiles-of-data", "iqr-of-data"):
+        if rep == "table":
+            need(L == ["The table shows the data."], f"the line {L!r}")
+            rows = q["table"]["rows"]
+            need(rows[0][0] == "x" and rows[1][0] == "Frequency", "table heads")
+            xs, fs = [R(v) for v in rows[0][1]], [int(v) for v in rows[1][1]]
+            need(xs == sorted(set(xs)) and all(f >= 1 for f in fs), "the table's values are not distinct and ascending")
+            (m_lo, m_hi), (t_lo, t_hi), (v_lo, v_hi) = DS_TABLE[paper]
+            need(m_lo <= len(xs) <= m_hi, f"{len(xs)} values in the table")
+            need(t_lo <= sum(fs) <= t_hi, f"the frequencies add to {sum(fs)}")
+            need(all(v_lo <= x <= v_hi for x in xs), "a table value is outside the limits")
+            need(max(fs) <= (7 if paper == 1 else 12), "a frequency is above the limit")
+            data = sorted(x for x, f in zip(xs, fs) for _ in range(f))
+        else:
+            need(len(L) == 1 and q["table"] is None, f"the lines {L!r}")
+            xs = shown_list(L[0])
+            (n_lo, n_hi), (v_lo, v_hi) = DS_LIST[paper]
+            need(n_lo <= len(xs) <= n_hi, f"{len(xs)} values")
+            need(all(x == int(x) and v_lo <= x <= v_hi for x in xs), "a value is outside the limits or not whole")
+            data = sorted(xs)
+            need(xs != data, "the list is already in order")
+        n = len(data)
+    if u == "mean-of-data":
+        mean = sum(data) / n
+        if paper == 1:
+            need((mean * 10).q == 1, f"the Paper 1 mean {mean} does not end within one decimal place")
+            need(n <= (10 if rep == "terms" else 24), f"n = {n}")
+        else:
+            need(sp.Rational(sig3(mean)) != mean, f"the Paper 2 mean {mean} needs no rounding")
+            need(ds_clear(mean), f"the mean {float(mean):.6f} is on a rounding edge")
+        need(R(g["mean"]) == mean, "the mean given is not the mean of the data shown")
+        need(asked == ("Find the mean of the data." if paper == 1 else "Find the mean of the data, to 3 s.f."), f"asked {asked!r}")
+        want, trap = ds_num(mean, "mean = ")
+        sol = next((s for s in q["solutions"] if s["angle"] == "sum-over-n"), None)
+        if sol is not None and rep == "terms":
+            need(sol["steps"][0].endswith(f"= {dec_text(sum(data))}"), f"the sum in {sol['steps'][0]!r}")
+            need(f"÷ {n} = " in sol["steps"][1], f"the division in {sol['steps'][1]!r}")
+    elif u == "median-of-data":
+        med = ds_median(data)
+        need(asked == "Find the median of the data.", f"asked {asked!r}")
+        want = "median = " + dec_text(med)
+        if rep == "terms":
+            need(5 <= n <= (11 if paper == 1 else 18), f"n = {n}")
+            wrongs[DS_SKILL + "mean-median-mode#0"] = {"median = " + dec_text(ds_median(xs))}
+        wrongs[DS_SKILL + "mean-median-mode#1"] = {"median = " + dec_text(sp.Rational(n + 1, 2))}
+        for sol in q["solutions"]:
+            if sol["angle"] == "ordered-position" and rep == "terms":
+                need(sol["steps"][0] == "Put the values in order: " + ", ".join(dec_text(x) for x in data), f"order step {sol['steps'][0]!r}")
+    elif u == "mode-of-data":
+        modes, top = ds_mode(data)
+        need(len(modes) == 1 and top >= 2, f"modes {modes} occurring {top} times")
+        need(sp.Integer(top) != modes[0], "the mode equals its own count")
+        need(R(g["mode"]) == modes[0] and int(g["mode_count"]) == top, "the mode given is not the mode of the data shown")
+        need(asked == "Write down the mode of the data.", f"asked {asked!r}")
+        want = "mode = " + dec_text(modes[0])
+        wrongs[DS_SKILL + "mean-median-mode#2"] = {"mode = " + str(top)}
+    elif u == "range-of-data":
+        need(asked == "Find the range of the data.", f"asked {asked!r}")
+        want = "range = " + dec_text(data[-1] - data[0])
+    elif u in ("quartiles-of-data", "iqr-of-data"):
+        q1, q3 = ds_quartiles(data)
+        need(q1 < q3, "Q1 is not below Q3")
+        need(R(g["q1"]) == q1 and R(g["q3"]) == q3, "the quartiles given are not those of the data shown")
+        need(rep == "table" or (paper == 1 and 7 <= n <= 11) or (paper == 2 and 11 <= n <= 17), f"n = {n}")
+        if u == "quartiles-of-data":
+            need(asked == "Find the lower quartile and the upper quartile of the data.", f"asked {asked!r}")
+            want = f"Q₁ = {dec_text(q1)}, Q₃ = {dec_text(q3)}"
+            if rep == "terms":
+                h = n // 2
+                wrongs[DS_SKILL + "quartiles-discrete#1"] = {f"Q₁ = {dec_text(ds_median(xs[:h]))}, Q₃ = {dec_text(ds_median(xs[h + n % 2:]))}"}
+        else:
+            need(asked == "Find the interquartile range of the data.", f"asked {asked!r}")
+            want = "IQR = " + dec_text(q3 - q1)
+            wrongs[DS_SKILL + "quartiles-discrete#0"] = {"IQR = " + dec_text(q1 + q3)}
+    elif u == "missing-value-from-mean":
+        if rep == "terms":
+            items = L[0].split(", ")
+            need(L[0].count("k") == 1 and re.fullmatch(r"(\d+|k)(, (\d+|k))*", L[0]) is not None, f"can't read {L[0]!r}")
+            mt = re.fullmatch(r"The mean of these numbers is (\d+(?:\.\d)?)\.", L[1])
+            need(mt is not None and asked == "Find k.", f"can't read {L[1]!r} / {asked!r}")
+            known = [R(x) for x in items if x != "k"]
+            n = len(items)
+            label = "k = "
+        else:
+            cm = next((c for c in DS_CONTEXTS if L[0].endswith(f" {c[0]}") or f" {c[0]} is " in L[0]), None)
+            need(cm is not None, f"no story in {L[0]!r}")
+            mt = re.fullmatch(r"The mean of (\d+) " + re.escape(cm[0]) + r" is (\d+(?:\.\d)?)\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            n = int(mt.group(1))
+            m2 = re.fullmatch(r"(\d+) of them are (.+)\.", L[1])
+            need(m2 is not None and int(m2.group(1)) == n - 1, f"can't read {L[1]!r}")
+            known = [R(x) for x in re.split(r", | and ", m2.group(2))]
+            need(asked == f"Find the missing {cm[1]}.", f"asked {asked!r}")
+            label = f"missing {cm[1]} = "
+            mt = re.fullmatch(r"The mean of (\d+) .+ is (\d+(?:\.\d)?)\.", L[0])
+        M = R(mt.group(mt.lastindex))
+        need(len(known) == n - 1 and 4 <= n <= 7, f"n = {n}")
+        need((M * 10).q == 1, "the mean ends in more than one decimal place")
+        k = M * n - sum(known)
+        need(k == int(k) and 2 <= k <= 40 and k != M, f"k = {k} is not a whole number from 2 to 40, or is the mean")
+        need(all(x == int(x) and 2 <= x <= 40 for x in known), "a known value is outside 2 to 40")
+        need(R(g["k"]) == k, "the k given is not the missing value")
+        want = label + dec_text(k)
+    elif u == "missing-frequency-from-mean":
+        need(rep == "table" and asked == "Find p.", f"asked {asked!r}")
+        mt = re.fullmatch(r"The mean of the data is (\d+(?:\.\d)?)\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        M = R(mt.group(1))
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "Frequency" and rows[1][1].count("p") == 1, "table")
+        xs2 = [R(v) for v in rows[0][1]]
+        at = rows[1][1].index("p")
+        known_f = [(x, int(f)) for x, f in zip(xs2, rows[1][1]) if f != "p"]
+        need(4 <= len(xs2) <= 5 and xs2 == [xs2[0] + i for i in range(len(xs2))] and 1 <= xs2[0] <= 6, f"the values {xs2}")
+        need(all(2 <= f <= 9 for _, f in known_f), "a known frequency is outside 2 to 9")
+        xp = xs2[at]
+        need((M * 10).q == 1 and xs2[0] < M < xs2[-1] and M != xp, f"the mean {M} is not between the values, or is the missing column's value")
+        F, S = sum(f for _, f in known_f), sum(x * f for x, f in known_f)
+        p = (M * F - S) / (xp - M)
+        need(p == int(p) and 2 <= p <= 9, f"p = {p} is not a whole number from 2 to 9")
+        need(F + p <= 40, "the table's total is above 40")
+        need(R(g["p"]) == p, "the p given is not the missing frequency")
+        want = "p = " + dec_text(p)
+        slip = (M * F - S) / xp
+        if slip > 0 and (slip * 100).q == 1:
+            wrongs[DS_SKILL + "mean-totals#1"] = {"p = " + dec_text(slip)}
+    elif u == "combined-mean":
+        gi = int(g["ctx"])
+        a, b, what, alls = DS_GROUPS[gi]
+        m1 = re.fullmatch(r"(\d+) " + re.escape(a) + r" have a mean " + re.escape(what) + r" of (\d+)\.", L[0])
+        m2 = re.fullmatch(r"(\d+) " + re.escape(b) + r" have a mean " + re.escape(what) + r" of (\d+)\.", L[1])
+        need(m1 is not None and m2 is not None, f"can't read {L!r}")
+        n1, mu1, n2, mu2 = int(m1.group(1)), int(m1.group(2)), int(m2.group(1)), int(m2.group(2))
+        need(asked == f"Find the mean {what} of all {n1 + n2} {alls}.", f"asked {asked!r}")
+        need(n1 != n2 and mu1 != mu2 and 6 <= n1 <= 30 and 6 <= n2 <= 30 and 10 <= mu1 <= 90 and 10 <= mu2 <= 90, "the groups are outside the limits")
+        mean = sp.Rational(n1 * mu1 + n2 * mu2, n1 + n2)
+        need((mean * 10).q == 1, f"the combined mean {mean} does not end within one decimal place")
+        need(mean != sp.Rational(mu1 + mu2, 2), "the combined mean is the mean of the means")
+        want = "mean = " + dec_text(mean)
+        wrongs[DS_SKILL + "mean-totals#0"] = {"mean = " + dec_text(sp.Rational(mu1 + mu2, 2))}
+    elif u in ("choose-average", "choose-spread"):
+        gi = int(g["ctx"])
+        need(L[0] == DS_SPREADS[gi], f"the story {L[0]!r}")
+        v8 = shown_list(L[1])
+        need(len(v8) == 8 and len(set(v8)) == 8, "eight different values")
+        sv = sorted(v8)
+        need(v8 != sv, "the list is already in order")
+        need(all(sp.Rational(4) <= x <= 12 for x in sv[:7]) and 30 <= sv[7] <= 60, "seven values from 4 to 12 and an outlier from 30 to 60")
+        mean, med = sum(sv) / 8, ds_median(sv)
+        q1, q3 = ds_quartiles(sv)
+        need(mean >= sp.Rational(14, 10) * med, f"the mean {float(mean):.3f} is not 40% above the median {float(med):.3f}")
+        need(sv[7] - sv[0] > 2 * (q3 - q1), "the range is not more than twice the IQR")
+        if u == "choose-average":
+            need(asked == "Which is the most appropriate measure of the centre of these data?", f"asked {asked!r}")
+            want = DS_CENTRES[1]
+            wrongs[DS_SKILL + "choose-measure#0"] = {DS_CENTRES[0]}
+            wrongs[DS_SKILL + "choose-measure#1"] = {DS_CENTRES[2]}
+            need({o["text"] for o in q["choices"]} <= set(DS_CENTRES), "an option is not a measure of centre")
+        else:
+            need(asked == "One value is an outlier. Which measure of spread is least affected by it?", f"asked {asked!r}")
+            want = DS_MEASURES[1]
+            need({o["text"] for o in q["choices"]} <= set(DS_MEASURES), "an option is not a measure of spread")
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+    for sol in q["solutions"]:
+        need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
 # ── regression (t4-regression-gdc, FAL-695) ──────────────────
 # The `regression` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/regression.gd. The data are read back from the table shown, and
@@ -7579,7 +7828,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
-                    "binomial": check_binomial, "regression": check_regression}
+                    "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

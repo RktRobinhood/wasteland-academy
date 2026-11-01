@@ -2661,6 +2661,70 @@
     "the line of x on y reads differently from the line of y on x at 3 s.f., so swapped lists are a distractor",
     "an estimate is inside the data (interpolation), never an extrapolation"
    ]
+  },
+  "data-summary": {
+   "name": "One discrete data set, as a list or a frequency table, and what summarises it",
+   "summary": "Pick a data set of whole numbers, shown as a list in no particular order or as a table of values and frequencies. Its mean, median, mode, range, quartiles and interquartile range are then known. The same ideas run backwards (a missing value or frequency from a given mean, two group means combined) and sideways (which measure an outlier leaves alone).",
+   "quantities": [
+    {
+     "name": "x",
+     "is": "the values",
+     "pick": "whole numbers from 1 to 15 (Paper 1) or 10 to 60 (Paper 2); a list has 5 to 11 values on Paper 1 and 10 to 18 on Paper 2; a table has 4 to 8 distinct values"
+    },
+    {
+     "name": "f",
+     "is": "the frequency of each value in a table",
+     "pick": "1 to 7 on Paper 1 (a total of 8 to 24) and 1 to 12 on Paper 2 (a total of 25 to 60)"
+    },
+    {
+     "name": "n",
+     "is": "how many values there are",
+     "pick": "the length of the list, or the frequencies added"
+    },
+    {
+     "name": "mean",
+     "is": "Σx ÷ n, or Σfx ÷ Σf",
+     "pick": "Paper 1: a whole number or one decimal place. Paper 2: a number that needs rounding, clear of a 3 s.f. rounding edge"
+    },
+    {
+     "name": "median",
+     "is": "the middle value, or halfway between the two middle ones",
+     "pick": "an odd or an even n"
+    },
+    {
+     "name": "mode",
+     "is": "the value that occurs most often",
+     "pick": "one value only, strictly the most frequent, occurring at least twice, and not equal to its own count"
+    },
+    {
+     "name": "Q₁, Q₃",
+     "is": "the medians of the lower and upper halves (the median itself left out when n is odd)",
+     "pick": "Q₁ < Q₃"
+    },
+    {
+     "name": "k, p",
+     "is": "a missing value in a list, or a missing frequency in a table, when the mean is given",
+     "pick": "k from 2 to 40 and not the mean; p from 2 to 9 with the table's total at most 40; the mean ends in at most one decimal place and lies between the least and greatest value"
+    },
+    {
+     "name": "n₁, m₁, n₂, m₂",
+     "is": "two groups with their sizes and means",
+     "pick": "sizes from 6 to 30 and different, means from 10 to 90 and different, the combined mean ending in at most one decimal place"
+    },
+    {
+     "name": "outlier",
+     "is": "one measurement far above seven others",
+     "pick": "seven values from 4.0 to 12.0, all different, and one from 30.0 to 60.0, so that the mean is at least 1.4 times the median and the range is more than twice the interquartile range"
+    }
+   ],
+   "clean": [
+    "Paper 1 uses small whole numbers and exact answers; Paper 2 answers a mean to 3 s.f., and every other answer is exact",
+    "a list is shown in an order that is not ascending, so putting it in order is a step",
+    "a mode is unique, so the question has one answer",
+    "quartiles are the medians of the two halves, leaving the median out when n is odd, as the IB's GDCs do",
+    "a missing value or frequency makes the mean end in at most one decimal place, and the answer is a whole number",
+    "a combined mean differs from the mean of the two means, because the group sizes and means are different"
+   ]
   }
  },
  "types": [
@@ -20314,8 +20378,9 @@
    "id": "t4-summary-statistics",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Mean, median, mode, quartiles and spread of a data set",
+   "summary": "Find the mean, median, mode, range, quartiles and interquartile range of a list or a frequency table, find a missing value or frequency from a given mean, combine two group means, and choose the measure of centre or spread an outlier leaves alone.",
    "syllabus": [
     "4.3"
    ],
@@ -20324,6 +20389,422 @@
     "SL4.3.quartiles-discrete",
     "SL4.3.choose-measure",
     "SL4.3.mean-totals"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "put the data in order, or read a frequency table",
+    "the mean from Σx ÷ n or Σfx ÷ Σf, or with the GDC's 1-Var Stats",
+    "the median at position (n + 1) ÷ 2, and the mode as the most frequent value",
+    "Q₁ and Q₃ as the medians of the two halves, then the range and Q₃ − Q₁",
+    "a missing value or frequency from total = mean × n, or a combined mean from the group totals",
+    "the measure of centre or spread an outlier does not move"
+   ],
+   "given": [
+    "a list of values, or a frequency table",
+    "a mean and all but one of the values, or a mean and a table with one frequency p",
+    "two groups' sizes and means",
+    "eight measurements with one outlier"
+   ],
+   "asked": "The mean, median, mode, range, quartiles or interquartile range; a missing value or frequency; a combined mean; or the best measure of centre or spread.",
+   "answerForms": [
+    "exact",
+    "3 s.f.",
+    "a measure named"
+   ],
+   "randomise": [
+    "the values, and whether they are a list or a frequency table",
+    "an odd or an even number of values, for the median and the halves",
+    "the missing value or frequency, and the story",
+    "the two groups' sizes and means",
+    "the eight measurements and the outlier"
+   ],
+   "constraints": [
+    "Paper 1 uses small whole numbers, and its mean ends in at most one decimal place",
+    "a Paper 2 mean needs rounding to 3 s.f., and is clear of a rounding edge",
+    "a mode is unique and occurs at least twice",
+    "quartiles are the medians of the lower and upper halves, the median left out when n is odd",
+    "a missing value or frequency is a whole number, and a combined mean ends in at most one decimal place",
+    "the outlier pulls the mean at least 40% above the median"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "data-summary",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "terms",
+     "exam": true,
+     "how": "the data as a list of values, 7, 3, 12, 9, 7, 15, in no particular order"
+    },
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "a frequency table: the values in one row and how many times each occurs in the next"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: the mean of five scores with one missing, two groups with their sizes and means, or eight measurements with one very large one"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "mean-of-data",
+     "given": [
+      "a list of values or a frequency table"
+     ],
+     "asked": "the mean",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "terms",
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-median-mode"
+     ]
+    },
+    {
+     "id": "median-of-data",
+     "given": [
+      "a list of values or a frequency table"
+     ],
+     "asked": "the median",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "terms",
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-median-mode"
+     ]
+    },
+    {
+     "id": "mode-of-data",
+     "given": [
+      "a list of values or a frequency table"
+     ],
+     "asked": "the mode",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "terms",
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-median-mode"
+     ]
+    },
+    {
+     "id": "range-of-data",
+     "given": [
+      "a list of values or a frequency table"
+     ],
+     "asked": "the range",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "terms",
+      "table"
+     ],
+     "skills": [
+      "SL4.3.quartiles-discrete"
+     ]
+    },
+    {
+     "id": "quartiles-of-data",
+     "given": [
+      "a list of values or a frequency table"
+     ],
+     "asked": "the lower quartile and the upper quartile",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "terms",
+      "table"
+     ],
+     "skills": [
+      "SL4.3.quartiles-discrete"
+     ]
+    },
+    {
+     "id": "iqr-of-data",
+     "given": [
+      "a list of values or a frequency table"
+     ],
+     "asked": "the interquartile range",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "terms",
+      "table"
+     ],
+     "skills": [
+      "SL4.3.quartiles-discrete"
+     ]
+    },
+    {
+     "id": "missing-value-from-mean",
+     "given": [
+      "the mean",
+      "all but one of the values"
+     ],
+     "asked": "the missing value",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "terms",
+      "words"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "missing-frequency-from-mean",
+     "given": [
+      "the mean",
+      "a frequency table with one frequency p"
+     ],
+     "asked": "p",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "combined-mean",
+     "given": [
+      "the sizes and means of two groups"
+     ],
+     "asked": "the mean of the two groups together",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "choose-average",
+     "given": [
+      "eight measurements with one far above the rest"
+     ],
+     "asked": "the most appropriate measure of the centre",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.choose-measure"
+     ]
+    },
+    {
+     "id": "choose-spread",
+     "given": [
+      "eight measurements with one far above the rest"
+     ],
+     "asked": "the measure of spread least affected by the outlier",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.choose-measure"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.3.mean-median-mode",
+     "method": "sum-over-n",
+     "suits": [
+      "mean-of-data"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-median-mode",
+     "method": "ordered-position",
+     "suits": [
+      "median-of-data"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-median-mode",
+     "method": "gdc-1var",
+     "suits": [
+      "mean-of-data",
+      "median-of-data"
+     ]
+    },
+    {
+     "skill": "SL4.3.quartiles-discrete",
+     "method": "median-of-halves",
+     "suits": [
+      "quartiles-of-data",
+      "iqr-of-data"
+     ]
+    },
+    {
+     "skill": "SL4.3.quartiles-discrete",
+     "method": "gdc-1var",
+     "suits": [
+      "quartiles-of-data",
+      "iqr-of-data"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-totals",
+     "method": "total-from-mean",
+     "suits": [
+      "missing-value-from-mean",
+      "combined-mean"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-totals",
+     "method": "frequency-equation",
+     "suits": [
+      "missing-frequency-from-mean"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-totals",
+     "method": "deviations-sum-zero",
+     "suits": [
+      "missing-value-from-mean",
+      "missing-frequency-from-mean"
+     ]
+    },
+    {
+     "skill": "SL4.3.choose-measure",
+     "method": "outlier-skew-check",
+     "suits": [
+      "choose-average",
+      "choose-spread"
+     ]
+    },
+    {
+     "skill": "SL4.3.choose-measure",
+     "method": "compare-mean-median",
+     "suits": [
+      "choose-average"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The mean of a data set is one of the values in the data set.",
+     "answer": "Sometimes: for 2, 4, 6 the mean is 4, which is in the set, but for 1, 2, 6 the mean is 3, which is not.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "The median of an ordered data set with 12 values is the 6th value.",
+     "answer": "False: with an even number of values the median is halfway between the 6th and 7th values, so it need not be a value in the set.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "One class of 10 students has a mean mark of 60 and another of 30 students has a mean mark of 80. The mean mark of all 40 students is 70.",
+     "answer": "False: the mean of the two means ignores the group sizes. The totals are 600 and 2400, so the mean is 3000 ÷ 40 = 75, nearer the bigger group's mean.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.3.mean-median-mode#0",
+     "text": "Taking the middle value of the unordered list as the median",
+     "as": "distractor",
+     "in": [
+      "median-of-data"
+     ],
+     "wrong": "the middle value of the list as it is shown, without putting it in order"
+    },
+    {
+     "ref": "SL4.3.mean-median-mode#1",
+     "text": "Giving the position (n + 1)/2 as the median instead of the value in that position",
+     "as": "distractor",
+     "in": [
+      "median-of-data"
+     ],
+     "wrong": "(n + 1) ÷ 2, the position of the median, given as the median"
+    },
+    {
+     "ref": "SL4.3.mean-median-mode#2",
+     "text": "Giving the highest frequency as the mode instead of the value that has that frequency",
+     "as": "distractor",
+     "in": [
+      "mode-of-data"
+     ],
+     "wrong": "the number of times the mode occurs, given as the mode"
+    },
+    {
+     "ref": "SL4.3.quartiles-discrete#0",
+     "text": "Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1",
+     "as": "distractor",
+     "in": [
+      "iqr-of-data"
+     ],
+     "wrong": "Q₁ + Q₃ for the interquartile range"
+    },
+    {
+     "ref": "SL4.3.quartiles-discrete#1",
+     "text": "Finding quartiles from the unordered list",
+     "as": "distractor",
+     "in": [
+      "quartiles-of-data"
+     ],
+     "wrong": "the medians of the halves of the list as it is shown, without ordering it"
+    },
+    {
+     "ref": "SL4.3.mean-totals#0",
+     "text": "Averaging the two group means for a combined mean when the groups are different sizes",
+     "as": "distractor",
+     "in": [
+      "combined-mean"
+     ],
+     "wrong": "(m₁ + m₂) ÷ 2, the mean of the two means"
+    },
+    {
+     "ref": "SL4.3.mean-totals#1",
+     "text": "Forgetting that the unknown frequency p also appears in the denominator Σf",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-mean"
+     ],
+     "wrong": "p from Σfx = mean × Σf with p left out of Σf"
+    },
+    {
+     "ref": "SL4.3.choose-measure#0",
+     "text": "The mean is always the best average because it uses every value",
+     "as": "distractor",
+     "in": [
+      "choose-average"
+     ],
+     "wrong": "the mean, because it uses every value"
+    },
+    {
+     "ref": "SL4.3.choose-measure#1",
+     "text": "The mode is the most useful average for continuous data",
+     "as": "distractor",
+     "in": [
+      "choose-average"
+     ],
+     "wrong": "the mode, for measurements that are all different"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q04.b",

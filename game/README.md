@@ -175,6 +175,23 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   rearranged for x. A table's heads are x and y with a story line above. The game's font
   has no precomposed ȳ, so the mean point is written y plus a combining macron, as x̄ is.
   As every exam type, it offers no extra format: `test_extension.gd` holds that rule.
+- `engine/situations/data_summary.gd` (FAL-695) is `t4-summary-statistics` (SL4.3, on all four
+  syllabuses): one discrete data set, shown as a list in no particular order (rep `terms`)
+  or as a frequency table, all exact (`Q`). Its views (`data_summary_views.gd`) ask 11
+  unknowns: the mean, median, mode, range, quartiles (the median of each half, the median
+  itself left out when n is odd) and interquartile range of the data; a missing value in a
+  list or a missing frequency p in a table from a given mean; a combined mean of two
+  groups; and, for eight measurements with one outlier, the best measure of the centre or
+  the measure of spread it leaves alone (a `choice` answer). A cell says which papers it can
+  make (`papers()`): the GDC working (`gdc-1var`) is Paper 2 only, the totals, combined
+  mean and outlier questions are Paper 1 only, the rest make both. Paper 1 has small whole
+  numbers and a mean ending in at most one decimal place; on Paper 2 a mean needs rounding
+  and is answered to 3 s.f. with the rounding trap, and everything else stays exact. Wrong
+  options come from the SL4.3 misconceptions (the middle of the unordered list, the position
+  for the median, the count for the mode, Q₁ + Q₃ for the IQR, the quartiles of the
+  unordered list, the mean of the two means, p left out of Σf, the mean or the mode as the
+  best average) and never read as a fraction (`DataSummaryViews.tidy`). As every exam type, it
+  offers no extra format: `test_extension.gd` holds that rule.
 - The rest of the Quadratics region (FAL-414) is four more situations. Three extend
   `quadratic` by calling its `generate()`: `quadratic_parameter.gd` (a quadratic with a
   constant k, given directly or as a line meeting a curve, for `fn-discriminant`),
@@ -919,6 +936,15 @@ script error happens while it runs. Run one file with
   early-rounding and rearranged-line slips reading differently; a line written with its
   sign; 3 s.f. marking and an exact mean point; every misconception as an option; r² as an
   option and r never 1 or more; the three concept probes; and every course having every cell.
+- `test_data_summary.gd`: t4-summary-statistics built with every cell and all four SL4.3
+  skills; every cell in both formats with 2 to 5 steps per worked solution; the GDC cells
+  Paper 2 and the by-hand unknowns Paper 1, and both papers where a cell can make both;
+  every list shown out of order; the medians, quartiles and modes against hand values; a
+  Paper 1 mean ending in one decimal place and a Paper 2 mean needing 3 s.f.; a unique mode
+  that is not its own count; the missing value and frequency fitting their mean; a combined
+  mean that is not the mean of the means; the outlier dragging the mean; every misconception
+  as an option; exact and 3 s.f. marking; the three concept probes; and every course having
+  every cell.
 - `test_quadratics.gd`: the four FAL-414 types: built with every cell, 2 to 5 steps per
   worked solution, every distractor misconception as an option (three that no answer
   shape can carry yet are listed with the reason), two rays typed as one interval caught
