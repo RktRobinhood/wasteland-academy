@@ -30,8 +30,6 @@ const WIDE := 20.0
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	var form: String = need.get("form", "ksin")
 	# mixed: x = k sin x, or (a third of the time) an exponential and a line with a root
 	# past x = 10. far_ok: that far root a third of the time.

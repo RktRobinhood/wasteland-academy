@@ -13,8 +13,6 @@ extends RefCounted
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	var s: Dictionary
 	if need.get("mode", "") == "level":
 		s = _level(rng)

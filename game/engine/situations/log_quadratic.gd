@@ -34,8 +34,6 @@ const H_MAX := 5
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low, so it is spent first (as the quadratic recipes do).
-	rng.int_in(0, 1)
 	for i in TRIES:
 		var shape: Array = SHAPES[rng.int_in(0, SHAPES.size() - 1)]
 		var a := Q.new(shape[0][0], shape[0][1])

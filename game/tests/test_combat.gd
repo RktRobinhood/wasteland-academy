@@ -340,6 +340,31 @@ func test_another_way_on_floor_2() -> void:
 	check(seen < 40, "only now and then")
 
 
+func test_another_way_can_always_be_made() -> void:
+	# The follow-up keeps the format, and an extra one is not built for every method:
+	# method-pick has none for "any" or a method that fails. The run used to end on
+	# "no questions" there (FAL-695).
+	var r := _run(5, 2)
+	var followups := 0
+	for c in QuestionEngine.cells():
+		for fmt in QuestionEngine.extra_formats(c.type, c.unknown, c.angle):
+			var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "format": fmt, "seed": 3})
+			check(not q.has("error"), "%s as %s: %s" % [c.key, fmt, q.get("error", "")])
+			if q.has("error"):
+				continue
+			r.question = q
+			for n in range(1, 41):
+				r.question_no = n
+				var v := r._another_way_view()
+				if v.is_empty():
+					continue
+				followups += 1
+				var f := QuestionEngine.make(v)
+				check(not f.has("error"), "%s as %s, another way: %s" % [c.key, fmt, f.get("error", "")])
+				break
+	check(followups > 100, "only %d follow-ups were tried" % followups)
+
+
 func test_no_another_way_on_floor_1() -> void:
 	var r := _run(5, 1)
 	r.start()

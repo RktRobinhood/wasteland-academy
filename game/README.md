@@ -160,7 +160,7 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `QuestionEngine.make()` passes the method that made the numbers to the recipe as
   `need.angle`. That is the `same_angle` method for "Another way", so switching to
   factorising keeps a Paper 2 context, and the factorising working says it fails there
-  and uses the formula. The seeded stream's first draw leans low, so these recipes spend it first.
+  and uses the formula.
   Paper 2 versions (FAL-419), chosen by `need.paper` with each views' `papers()`: in
   `fn-solve-quadratic` a context, b^(2x) (u not a power of b, so x = ln u/ln b) and a sum
   of logs (x(x + d) = c with no whole root), each x to 3 s.f.; in `fn-quadratic-inequality`
@@ -248,7 +248,12 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   graph). A view's rounding trap can carry a misconception (`trap_ref`) where the
   catalogue's mistake is too few figures: picking it is a glancing hit that logs it.
   `Answer._sorted` and `_pairs` compare as floats, because Q.lt's cross-multiplying
-  overflows on nine-decimal values.
+  overflows on nine-decimal values. The crossing scan of `gdc-two-curves` also looks at
+  every sample that sits lower than both neighbours on one side of the line (`_dips`):
+  a curve that only just dips through it (two crossings 0.04 apart, 0.001 deep) has no sign
+  change between samples, and the situation is turned down for the shallow angle, as the
+  answer checker's finer grid would find them (FAL-695). The checker keeps a crossing exact
+  when x is a rational root and y is rational (`gc_exact_point`), as the game does.
   The region's extension types: `fn-concept-solutions-as-intersections` is more views
   on `gdc-two-curves`; `gdc_inequality.gd` extends it with f(x) > g(x) or < g(x), solved
   from the crossings (`fn-ext-inequality-graphical`); `graph_reading.gd` is reading a
@@ -866,7 +871,8 @@ script error happens while it runs. Run one file with
   turning point as the trap that logs SL2.4.max-min#2, the greatest value at an
   endpoint, each boss chain on one situation and a true minus sign throughout. The
   extension types are in it too, with every cell built (a cubic's f(x) = 0 distractor
-  in fn-link-extremes is listed with the reason).
+  in fn-link-extremes is listed with the reason). A curve that dips through a line between
+  two samples is found, and a two-curves situation has every crossing a fine scan finds.
 - `test_exp_log.gd`: the eight Exponentials and logs types (FAL-418): built with every
   cell on their situations, 2 to 5 steps per worked solution, every distractor
   misconception as an option (two that no exact option can show are listed with the
@@ -895,6 +901,9 @@ script error happens while it runs. Run one file with
   recent results, Ans, degrees), 6 s.f., the graph tools and their marks, pan, zoom and
   trace, the clock running and nothing spent in a fight, the art slots and the coded
   look, the licences in their files and the credits, and the fit at 360, 390 and 1280 px.
+- `test_seeded.gd`: the seeded stream's first draw is as fair as every later one (chance,
+  float, whole number, pick and weighted pick over 1000 seeds), the same text gives the
+  same stream, and the first five draws of one key are pinned (FAL-460).
 - `test_courses.gd`: the four courses; which skills, unknowns and methods each covers
   (AA SL and AA HL every built cell, AI SL inside AI HL); the save's `course`, its
   version 5 migration and `set_course()` keeping the cell records; and that the planner,
@@ -905,7 +914,8 @@ script error happens while it runs. Run one file with
 - `test_combat.gd`: a scripted run with a fixed seed and answers gives the same fights,
   results and save; timers on every floor; each outcome's damage and Scrap by tier, with
   and without Time Freeze; glancing hits and the rounding trap; lifelines; "Another
-  way" on floor 2 and never on floor 1; a modifier that doubles Scrap; the stakes table;
+  way" on floor 2 and never on floor 1, and a follow-up that can be made for every cell
+  with an extra format (FAL-695); a modifier that doubles Scrap; the stakes table;
   the slot picker; and the journey signals connected to nothing.
 - `test_bazaar.gd`: each upgrade stops at its cap, each perk changes exactly its own
   value through the modifiers and is used up after one run, one perk slot, Scrap never

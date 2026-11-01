@@ -89,8 +89,6 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 
 
 static func _generate_p2(rng: Seeded, need: Dictionary) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	for i in TRIES:
 		var s := _draw_p2(rng)
 		if s.is_empty():

@@ -20,8 +20,6 @@ const TRIES := 500
 
 
 static func generate(rng: Seeded, _need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low, so it is spent first (as the quadratic recipes do).
-	rng.int_in(0, 1)
 	for i in TRIES:
 		var s := {}
 		s.P = Q.new(AMOUNTS[rng.int_in(0, AMOUNTS.size() - 1)])

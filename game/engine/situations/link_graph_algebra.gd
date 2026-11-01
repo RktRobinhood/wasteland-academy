@@ -23,8 +23,6 @@ const TRIES := 2000
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	var kind: String = need.get("kind", "method")
 	var s: Dictionary
 	match kind:

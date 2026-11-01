@@ -17,8 +17,6 @@ const BASES := [[2, 1], [3, 1], [1, 2], [1, 3]]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	var fam: String = need.get("fam", "any")
 	if fam == "any":
 		fam = "exp" if rng.chance(0.5) else "quad"
