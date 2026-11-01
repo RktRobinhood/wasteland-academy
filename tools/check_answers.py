@@ -8641,6 +8641,165 @@ def ra_spot(q, lines):
 SPOT_CHECKS["fn-pre-rearrange"] = ra_spot
 
 
+# ── regression (t4-regression-gdc, FAL-695) ──────────────────
+# The `regression` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/regression.gd. The data are read back from the table shown, and
+# a, b, r and every estimate are found again with exact rationals (r with a square root).
+
+RG_SKILL = "SL4.4."
+RG_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+# The stories, in the engine's order: what x is, what y is, what a row is, and the sign of r.
+RG_CONTEXTS = [("hours of study per week", "test score out of 100", "students", 1),
+               ("daily temperature in °C", "number of cans of lemonade sold", "days", 1),
+               ("age of a car in years", "value in hundreds of dollars", "cars", -1),
+               ("hours of sunshine in a day", "litres of water collected", "days", 1),
+               ("height above sea level in hundreds of metres", "air temperature in °C", "weather stations", -1),
+               ("minutes of exercise per day", "resting heart rate in beats per minute", "adults", -1),
+               ("number of workers on a repair crew", "repairs finished in a week", "crews", 1),
+               ("distance from the city in km", "house price in tens of thousands of dollars", "houses", -1)]
+
+
+def rg_clear(x):
+    """x is zero, or at least RG_EDGE of a unit of its 3rd figure from a rounding edge."""
+    if x == 0:
+        return True
+    v = num(x)
+    e = sp.floor(sp.log(abs(v), 10))
+    scaled = abs(v) / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= RG_EDGE
+
+
+def rg_s(x):
+    return sig3(x).replace("-", "−")
+
+
+def rg_line(m, c):
+    """mx + c as the game writes it to 3 s.f.: "2.31x − 0.552", "−4.70x"."""
+    out = rg_s(m) + "x"
+    if c != 0:
+        out += (" − " if c < 0 else " + ") + sig3(abs(c))
+    return out
+
+
+def rg_num(x, label):
+    """A number answer as the game writes it: exact where 3 s.f. changes nothing, else to 3 s.f."""
+    if sp.Rational(sig3(x)) == x:
+        return label + dec_text(x), None
+    return label + rg_s(x), label + dec_text(sp.Rational(sig3(x, 2)))
+
+
+def rg_decimal(text, places):
+    v = R(text.replace("−", "-"))
+    need((v * 10 ** places).q == 1, f"{text!r} has more than {places} decimal places")
+    return v
+
+
+def check_regression(q):
+    g, u, L, rep = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    asked = q["asked"]
+    need(q["paper"] == 2, "regression questions are Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+
+    if u in ("regression-line", "correlation-coefficient", "mean-point", "predict-from-data"):
+        need(rep == "table" and q["table"] is not None, "a table")
+        mt = re.fullmatch(r"The table shows the (.+) \(x\) and the (.+) \(y\) for (\d+) (.+)\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        ctx = next((c for c in RG_CONTEXTS if c[:2] == (mt.group(1), mt.group(2)) and c[2] == mt.group(4)), None)
+        need(ctx is not None, f"no story matches {L[0]!r}")
+        need(RG_CONTEXTS.index(ctx) == int(g["ctx"]), "the story is not the one given")
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "y", "table heads")
+        xs, ys = [int(v) for v in rows[0][1]], [int(v) for v in rows[1][1]]
+        n = len(xs)
+        need(n == len(ys) == int(mt.group(3)) and 6 <= n <= 9, f"n = {n}")
+        need(xs == sorted(set(xs)) and 1 <= xs[0] and xs[-1] <= 20, f"x-values {xs}")
+        need(all(8 <= y <= 99 for y in ys), "a y-value is outside 8 to 99")
+        sx, sy = sum(xs), sum(ys)
+        mx, my = sp.Rational(sx, n), sp.Rational(sy, n)
+        sxx = sp.Rational(n * sum(x * x for x in xs) - sx * sx, n)
+        sxy = sp.Rational(n * sum(x * y for x, y in zip(xs, ys)) - sx * sy, n)
+        syy = sp.Rational(n * sum(y * y for y in ys) - sy * sy, n)
+        a = sxy / sxx
+        b = my - a * mx
+        r = sxy / sp.sqrt(sxx * syy)
+        need(sp.Rational(8, 10) <= abs(r) <= sp.Rational(99, 100), f"|r| = {float(abs(r)):.4f} is outside 0.8 to 0.99")
+        need((r > 0) == (ctx[3] > 0), "the sign of r does not match the story")
+        need(R(g["a"]) == a and R(g["b"]) == b and R(g["mx"]) == mx and R(g["my"]) == my, "the givens are not the line and means of the table shown")
+        ay = sxy / syy
+        by = mx - ay * my
+        if u == "regression-line":
+            need(asked == "Find the equation of the regression line of y on x, in the form y = ax + b, with a and b to 3 s.f.", f"asked {asked!r}")
+            need(rg_clear(a) and rg_clear(b) and abs(b) >= 1, "a or b is on a rounding edge, or |b| < 1")
+            need(rg_clear(ay) and rg_clear(by) and sig3(a) != sig3(ay) and sig3(b) != sig3(by), "the swapped line is not clear or reads the same")
+            want = "y = " + rg_line(a, b)
+            wrongs[RG_SKILL + "regression-y-on-x#0"] = {"y = " + rg_line(ay, by)}
+        elif u == "correlation-coefficient":
+            need(asked == "Find the value of r, Pearson's product-moment correlation coefficient, to 3 s.f.", f"asked {asked!r}")
+            need(rg_clear(r) and rg_clear(r * r), "r or r² is on a rounding edge")
+            want, trap = rg_num(r, "r = ")
+            wrongs[RG_SKILL + "pearson-r#0"] = {"r = " + rg_s(r * r)}
+        elif u == "mean-point":
+            need(asked == "Write down the coordinates of the mean point.", f"asked {asked!r}")
+            need((mx * 100).q == 1 and (my * 100).q == 1, "a mean ends in more than two decimal places")
+            want = f"({dec_text(mx)}, {dec_text(my)})"
+        else:
+            mt2 = re.fullmatch(r"Use the regression line of y on x to estimate y when x = (\d+)\. Give your answer to 3 s\.f\.", asked)
+            need(mt2 is not None, f"asked {asked!r}")
+            x0 = int(mt2.group(1))
+            need(xs[0] < x0 < xs[-1] and x0 not in xs, f"x = {x0} is not strictly inside the data and off the table")
+            y0 = a * x0 + b
+            a3, b3 = sp.Rational(sig3(a)), sp.Rational(sig3(b))
+            y3 = a3 * x0 + b3
+            xr = (x0 - b) / a
+            need(a3 != a and b3 != b, "a or b needs no rounding")
+            need(y0 > 0 and rg_clear(y0) and rg_clear(y3) and rg_clear(xr), "an estimate is not positive, or is on a rounding edge")
+            need(sp.Rational(sig3(y0)) != y0, "the estimate needs no rounding")
+            need(len({sig3(y0), sig3(y3), sig3(xr)}) == 3, "the estimates read the same at 3 s.f.")
+            want, trap = rg_num(y0, "y = ")
+            wrongs[RG_SKILL + "regression-y-on-x#1"] = {"y = " + rg_s(y3)}
+            wrongs[RG_SKILL + "predict#1"] = {"y = " + rg_s(xr)}
+    elif u == "c-from-mean-point":
+        need(rep == "equation" and asked == "The regression line passes through the mean point. Find c.", f"asked {asked!r}")
+        mt = re.fullmatch(r"The mean point of a set of data is \((\d+(?:\.\d)?), (\d+(?:\.\d{1,2})?)\)\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        ml = re.fullmatch(r"The regression line of y on x is y = (−?\d+(?:\.\d)?)x \+ c\.", L[1])
+        need(ml is not None, f"can't read {L[1]!r}")
+        mx, my, a = R(mt.group(1)), R(mt.group(2)), rg_decimal(ml.group(1), 1)
+        need(2 <= mx <= 15 and 20 <= my <= 90 and (my * 100).q == 1, "the mean point is outside the limits")
+        need(sp.Rational(1, 2) <= abs(a) <= sp.Rational(49, 10) and abs(a) != 1, f"the gradient {a}")
+        c = my - a * mx
+        need(1 <= abs(c) <= 150 and rg_clear(c), f"c = {c} is outside 1 to 150 or on a rounding edge")
+        need(R(g["c"]) == c, "the c given is not the constant")
+        want, trap = rg_num(c, "c = ")
+        wrongs[RG_SKILL + "mean-point#0"] = {"c = 0"}
+    elif u == "predict-from-line":
+        need(rep == "equation", "equation rep")
+        ml = re.fullmatch(r"The regression line of y on x is y = (−?\d+\.\d\d?|−?\d+)x ([+−]) (\d+(?:\.\d)?)\.", L[0])
+        need(ml is not None, f"can't read {L[0]!r}")
+        a = rg_decimal(ml.group(1), 2)
+        b = rg_decimal(ml.group(3), 1) * (1 if ml.group(2) == "+" else -1)
+        need(sp.Rational(1, 2) <= abs(a) <= sp.Rational(999, 100) and sp.Rational(3, 2) <= abs(b) <= sp.Rational(999, 10), "the line is outside the limits")
+        mt2 = re.fullmatch(r"Use the line to estimate y when x = (\d+)\. Give your answer to 3 s\.f\.", asked)
+        need(mt2 is not None, f"asked {asked!r}")
+        x0 = int(mt2.group(1))
+        need(5 <= x0 <= 40, f"x = {x0}")
+        y0 = a * x0 + b
+        xr = (x0 - b) / a
+        need(5 <= y0 <= 500 and sp.Rational(sig3(y0)) != y0 and rg_clear(y0) and rg_clear(xr) and sig3(xr) != sig3(y0), "the estimate is outside the limits or on a rounding edge")
+        need(R(g["y0"]) == y0, "the estimate given is not the line at x")
+        want, trap = rg_num(y0, "y = ")
+        wrongs[RG_SKILL + "predict#1"] = {"y = " + rg_s(xr)}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+    for sol in q["solutions"]:
+        need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -8658,7 +8817,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
-                    "binomial": check_binomial, "data-summary": check_data_summary,
+                    "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange}
 
 

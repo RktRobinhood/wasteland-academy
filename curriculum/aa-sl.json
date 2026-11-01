@@ -10936,20 +10936,20 @@
                 {
                   "id": "mean-coordinates",
                   "approach": "formula",
-                  "name": "Find x̄ and ȳ",
-                  "summary": "Average the x-values and the y-values separately to get the mean point (x̄, ȳ)."
+                  "name": "Find x̄ and ȳ",
+                  "summary": "Average the x-values and the y-values separately to get the mean point (x̄, ȳ)."
                 },
                 {
                   "id": "line-by-eye",
                   "approach": "graphical",
                   "name": "Draw through the mean point by eye",
-                  "summary": "Plot (x̄, ȳ), then draw a straight line through it that follows the trend with roughly equal numbers of points on each side."
+                  "summary": "Plot (x̄, ȳ), then draw a straight line through it that follows the trend with roughly equal numbers of points on each side."
                 },
                 {
                   "id": "substitute-mean-point",
                   "approach": "algebraic",
                   "name": "Substitute the mean point",
-                  "summary": "Every regression line passes through (x̄, ȳ), so substitute it into y = ax + b to find a missing constant."
+                  "summary": "Every regression line passes through (x̄, ȳ), so substitute it into y = ax + b to find a missing constant."
                 }
               ],
               "misconceptions": [
@@ -10991,7 +10991,7 @@
                   "id": "gradient-and-mean-point",
                   "approach": "algebraic",
                   "name": "Gradient plus the mean point",
-                  "summary": "If the gradient a and the means are given, use y − ȳ = a(x − x̄), because the line passes through (x̄, ȳ)."
+                  "summary": "If the gradient a and the means are given, use y − ȳ = a(x − x̄), because the line passes through (x̄, ȳ)."
                 }
               ],
               "misconceptions": [
@@ -12668,7 +12668,7 @@
                   "id": "gradient-mean-point",
                   "approach": "algebraic",
                   "name": "Gradient plus the mean point",
-                  "summary": "If the gradient c is given, use x − x̄ = c(y − ȳ), because the line passes through (x̄, ȳ)."
+                  "summary": "If the gradient c is given, use x − x̄ = c(y − ȳ), because the line passes through (x̄, ȳ)."
                 }
               ],
               "misconceptions": [
@@ -12760,9 +12760,9 @@
               "id": "SL4.10.mean-point-intersection",
               "name": "Use the fact that both regression lines pass through the mean point",
               "examTypes": [
-                "The regression lines are y = 0.8x + 2 and x = 1.1y − 1. Find x̄ and ȳ",
+                "The regression lines are y = 0.8x + 2 and x = 1.1y − 1. Find x̄ and ȳ",
                 "Write down the coordinates of the point where the two regression lines meet",
-                "Given that x̄ = 12, use the regression line of y on x to find ȳ"
+                "Given that x̄ = 12, use the regression line of y on x to find ȳ"
               ],
               "difficulty": [
                 2,
@@ -12784,7 +12784,7 @@
                   "id": "solve-simultaneously",
                   "approach": "algebraic",
                   "name": "Solve the two lines simultaneously",
-                  "summary": "Substitute one equation into the other; the solution (x, y) is the mean point (x̄, ȳ)."
+                  "summary": "Substitute one equation into the other; the solution (x, y) is the mean point (x̄, ȳ)."
                 },
                 {
                   "id": "gdc-intersect",
@@ -12796,7 +12796,7 @@
                   "id": "substitute-known-mean",
                   "approach": "algebraic",
                   "name": "Substitute one known mean",
-                  "summary": "If x̄ is known, substitute it into either regression line to get ȳ."
+                  "summary": "If x̄ is known, substitute it into either regression line to get ȳ."
                 }
               ],
               "misconceptions": [
