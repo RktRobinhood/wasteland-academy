@@ -2564,6 +2564,60 @@
 				"the normal is asked only where |f′(x₀)| ≤ 6, so its gradient and c have denominators of 6 or less",
 				"the two x-values with a given gradient are distinct whole numbers from −5 to 5, and |g| ≤ 60"
 			]
+		},
+		"binomial": {
+			"name": "One binomial random variable X ~ B(n, p) in a context",
+			"summary": "Pick n trials and a probability of success p, then a count k (or two, for a range). Every probability, the mean, the variance and the standard deviation are then known, and any of them can be asked, from the numbers or from a story about seeds, filters or batteries.",
+			"quantities": [
+				{
+					"name": "n",
+					"is": "the number of independent trials",
+					"pick": "a whole number from 5 to 20 for a probability, up to 60 for a mean or variance, up to 40 when n and p are found from the mean and variance"
+				},
+				{
+					"name": "p",
+					"is": "the probability of success on one trial, the same every time",
+					"pick": "a decimal in steps of 0.05 from 0.1 to 0.9 (steps of 0.1 where a variance or standard deviation is asked, so it comes out exact)"
+				},
+				{
+					"name": "q",
+					"is": "the probability of failure, 1 − p",
+					"pick": "from p"
+				},
+				{
+					"name": "k",
+					"is": "the number of successes asked about",
+					"pick": "a whole number from 1 to n − 1, or from 2 to 4 for 'the kth success'"
+				},
+				{
+					"name": "event",
+					"is": "X = k, X ≤ k, X < k, X ≥ k, X > k, a ≤ X ≤ b or a < X ≤ b",
+					"pick": "its probability from 0.02 to 0.98 (0.01 to 0.4 for X = k), clear of a rounding edge; at most 6 terms when the working adds them"
+				},
+				{
+					"name": "E(X), Var(X), σ",
+					"is": "np, npq and √(npq)",
+					"pick": "exact decimals for E(X) and Var(X); σ to 3 s.f."
+				},
+				{
+					"name": "c, N",
+					"is": "a target probability for 'at least one success' (0.9, 0.95 or 0.99) and the least number of trials N that reaches it",
+					"pick": "N from ln(1 − c)/ln(1 − p) rounded up, with that quotient at least 0.1 from a whole number, N at most 60"
+				},
+				{
+					"name": "m",
+					"is": "the trial the kth success is on",
+					"pick": "m from k + 2 to k + 8"
+				}
+			],
+			"clean": [
+				"Paper 2 only (the bank's binomial parts are all Paper 2): probabilities and the standard deviation are answered to 3 s.f., and E(X), Var(X) and n and p are exact",
+				"every probability asked is at least 0.005, and not within 0.03 of a rounding edge at the third figure",
+				"the trials are independent with the same p, and the story says so",
+				"a range or a total that the working adds has at most 6 terms; 'at least' and 'between' are also worked with the complement or cdf values",
+				"when n and p are found from E(X) and Var(X), Var(X) < E(X), p is a multiple of 0.1 and n is a whole number",
+				"the least number of trials is found from P(X ≥ 1) > c, with N − 1 failing and N working"
+			]
 		}
 	},
 	"skills": {
@@ -2641,6 +2695,12 @@
 		"SL4.7.find-k": "Use ΣP(X = x) = 1 to find an unknown probability or constant",
 		"SL4.7.build-distribution": "Construct a probability distribution from a context",
 		"SL4.7.table-probabilities": "Find probabilities such as P(X ≥ a) from a distribution",
+		"SL4.8.identify": "Recognise a binomial situation and state n and p",
+		"SL4.8.exact-probability": "Find P(X = r) for a binomial distribution",
+		"SL4.8.cumulative-probability": "Find cumulative binomial probabilities: at most, at least, between",
+		"SL4.8.mean-variance": "Find the mean, variance and standard deviation of a binomial distribution",
+		"SL4.8.find-n-or-p": "Find n or p from given information about a binomial distribution",
+		"SL4.8.binomial-in-context": "Build a binomial model from an earlier probability, including conditional and 'kth success' questions",
 		"SL5.3.power-rule": "Differentiate ax^n and sums of such terms",
 		"SL5.3.negative-powers": "Rewrite reciprocals and fractions as powers of x, then differentiate",
 		"SL5.3.gradient-at-point": "Find the gradient of a curve at a given point",
@@ -18998,6 +19058,508 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Binomial probabilities, mean, and finding n",
+			"summary": "State a binomial model B(n, p), then find P(X = r), cumulative probabilities (at most, at least, between), the mean, variance and standard deviation, n and p from them or from a probability target, and the harder 'kth success' and conditional questions.",
+			"situation": "binomial",
+			"formats": [
+				"value",
+				"mcq",
+				"error-spot",
+				"method-pick",
+				"true-false-reason"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the model in notation, X ~ B(12, 0.35), and the event as a probability: P(X = 4), P(X ≥ 3), P(2 < X ≤ 6)"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: 12 seeds, each germinating with probability 0.35, independently; X is the number that germinate"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "n-and-p-from-words",
+					"given": [
+						"a story of n independent trials with a probability p of success"
+					],
+					"asked": "the distribution of X, B(n, p)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.8.identify"
+					]
+				},
+				{
+					"id": "exact-probability",
+					"given": [
+						"n",
+						"p",
+						"k"
+					],
+					"asked": "P(X = k)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.exact-probability"
+					]
+				},
+				{
+					"id": "at-most-probability",
+					"given": [
+						"n",
+						"p",
+						"k"
+					],
+					"asked": "P(X ≤ k) or P(X < k)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.cumulative-probability"
+					]
+				},
+				{
+					"id": "at-least-probability",
+					"given": [
+						"n",
+						"p",
+						"k"
+					],
+					"asked": "P(X ≥ k) or P(X > k)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.cumulative-probability"
+					]
+				},
+				{
+					"id": "between-probability",
+					"given": [
+						"n",
+						"p",
+						"a and b"
+					],
+					"asked": "P(a ≤ X ≤ b) or P(a < X ≤ b)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.cumulative-probability"
+					]
+				},
+				{
+					"id": "mean-from-parameters",
+					"given": [
+						"n",
+						"p"
+					],
+					"asked": "E(X), the expected number",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.mean-variance"
+					]
+				},
+				{
+					"id": "variance-from-parameters",
+					"given": [
+						"n",
+						"p"
+					],
+					"asked": "Var(X)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.mean-variance"
+					]
+				},
+				{
+					"id": "std-deviation",
+					"given": [
+						"n",
+						"p"
+					],
+					"asked": "the standard deviation, to 3 s.f.",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.mean-variance"
+					]
+				},
+				{
+					"id": "n-and-p-from-mean-variance",
+					"given": [
+						"E(X)",
+						"Var(X)"
+					],
+					"asked": "n and p",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.find-n-or-p"
+					]
+				},
+				{
+					"id": "least-trials",
+					"given": [
+						"p",
+						"a target probability c for at least one success"
+					],
+					"asked": "the least number of trials n with P(X ≥ 1) > c",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.find-n-or-p"
+					]
+				},
+				{
+					"id": "kth-success-trial",
+					"given": [
+						"p",
+						"k",
+						"the trial m"
+					],
+					"asked": "the probability the kth success is on trial m",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.binomial-in-context"
+					]
+				},
+				{
+					"id": "conditional-probability",
+					"given": [
+						"n",
+						"p",
+						"j"
+					],
+					"asked": "P(X = j) given that X ≥ 1",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.8.binomial-in-context"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.8.identify",
+					"method": "four-conditions",
+					"suits": [
+						"n-and-p-from-words"
+					],
+					"name": "Check the four conditions",
+					"about": "A fixed number of trials n, each either success or failure, a constant probability p, and independent trials; if all hold, X ~ B(n, p)."
+				},
+				{
+					"skill": "SL4.8.exact-probability",
+					"method": "gdc-binompdf",
+					"suits": [
+						"exact-probability"
+					],
+					"name": "Binomial pdf on the GDC",
+					"about": "Enter n, p and r into binompdf to get P(X = r) directly."
+				},
+				{
+					"skill": "SL4.8.exact-probability",
+					"method": "ncr-formula",
+					"suits": [
+						"exact-probability"
+					],
+					"name": "nCr p^r (1 − p)^(n − r)",
+					"about": "Choose which r trials succeed (nCr ways), then multiply by p for each success and by 1 − p for each failure."
+				},
+				{
+					"skill": "SL4.8.cumulative-probability",
+					"method": "gdc-binomcdf",
+					"suits": [
+						"at-most-probability",
+						"at-least-probability",
+						"between-probability"
+					],
+					"name": "Binomial cdf on the GDC",
+					"about": "binomcdf gives P(X ≤ k); for a range, use the lower and upper bound version or subtract two cumulative values."
+				},
+				{
+					"skill": "SL4.8.cumulative-probability",
+					"method": "complement",
+					"suits": [
+						"at-least-probability"
+					],
+					"name": "Complement for 'at least'",
+					"about": "P(X ≥ k) = 1 − P(X ≤ k − 1); 'at least one' is 1 − P(X = 0) = 1 − (1 − p)^n."
+				},
+				{
+					"skill": "SL4.8.cumulative-probability",
+					"method": "sum-pdfs",
+					"suits": [
+						"at-most-probability",
+						"between-probability"
+					],
+					"name": "Add the individual probabilities",
+					"about": "For a short range, add P(X = r) for each r in the range."
+				},
+				{
+					"skill": "SL4.8.mean-variance",
+					"method": "np-npq",
+					"suits": [
+						"mean-from-parameters",
+						"variance-from-parameters",
+						"std-deviation"
+					],
+					"name": "E(X) = np and Var(X) = np(1 − p)",
+					"about": "Multiply n by p for the mean; multiply by (1 − p) as well for the variance, and square-root that for the standard deviation."
+				},
+				{
+					"skill": "SL4.8.find-n-or-p",
+					"method": "divide-var-by-mean",
+					"suits": [
+						"n-and-p-from-mean-variance"
+					],
+					"name": "Divide Var(X) by E(X) to get 1 − p",
+					"about": "np(1 − p) ÷ np = 1 − p, so p follows at once, and then n = E(X) ÷ p."
+				},
+				{
+					"skill": "SL4.8.find-n-or-p",
+					"method": "log-inequality",
+					"suits": [
+						"least-trials"
+					],
+					"name": "Solve 1 − (1 − p)^n > c with logs",
+					"about": "Rearrange to (1 − p)^n < 1 − c, take logs, divide by the negative log (reversing the inequality), and round n up."
+				},
+				{
+					"skill": "SL4.8.find-n-or-p",
+					"method": "gdc-table",
+					"suits": [
+						"least-trials"
+					],
+					"name": "GDC table of values in n",
+					"about": "Tabulate 1 − (1 − p)^n (or binomcdf as a function of n) and read off the first n that satisfies the condition."
+				},
+				{
+					"skill": "SL4.8.binomial-in-context",
+					"method": "split-last-trial",
+					"suits": [
+						"kth-success-trial"
+					],
+					"name": "Split off the last trial",
+					"about": "For 'the kth success is on trial m', require exactly k − 1 successes in the first m − 1 trials (binomial), then multiply by p for trial m."
+				},
+				{
+					"skill": "SL4.8.binomial-in-context",
+					"method": "conditional-ratio",
+					"suits": [
+						"conditional-probability"
+					],
+					"name": "Conditional probability as a ratio",
+					"about": "For a 'given that' question, divide P(both conditions) by P(given condition), simplifying the intersection first (X = 2 and X ≥ 1 is just X = 2)."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "X is the number of hearts in 5 cards dealt from a standard pack without putting any back. X follows a binomial distribution.",
+					"answer": "False: dealing without replacement changes the chance of a heart from card to card, so the trials are not independent with the same p.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "For X ~ B(n, p), the most likely value of X is the whole number nearest to np.",
+					"answer": "Sometimes: it usually is, but for X ~ B(7, 0.1) the most likely value is 0 (P(X = 0) = 0.478 and P(X = 1) = 0.372) while np = 0.7 is nearest to 1.",
+					"level": 4
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "For any binomial distribution, Var(X) is smaller than E(X).",
+					"answer": "True: Var(X) = np(1 − p) = E(X)(1 − p), and 1 − p is less than 1, so the variance is always smaller than the mean. That is why Var(X) ÷ E(X) gives 1 − p.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.8.identify#0",
+					"text": "Writing B(p, n) instead of B(n, p)",
+					"as": "distractor",
+					"in": [
+						"n-and-p-from-words"
+					],
+					"wrong": "n and p swapped"
+				},
+				{
+					"ref": "SL4.8.exact-probability#0",
+					"text": "Leaving out the nCr factor and giving just p^r (1 − p)^(n − r)",
+					"as": "distractor",
+					"in": [
+						"exact-probability"
+					],
+					"wrong": "p^k (1 − p)^(n − k) with no count of the ways"
+				},
+				{
+					"ref": "SL4.8.exact-probability#1",
+					"text": "Swapping the powers: p^(n − r) (1 − p)^r",
+					"as": "distractor",
+					"in": [
+						"exact-probability"
+					],
+					"wrong": "nCk p^(n − k) (1 − p)^k"
+				},
+				{
+					"ref": "SL4.8.exact-probability#2",
+					"text": "Using the cumulative function (binomcdf) for 'exactly r'",
+					"as": "distractor",
+					"in": [
+						"exact-probability"
+					],
+					"wrong": "P(X ≤ k) for P(X = k)"
+				},
+				{
+					"ref": "SL4.8.cumulative-probability#0",
+					"text": "P(X ≥ 3) = 1 − P(X ≤ 3) (it should be 1 − P(X ≤ 2))",
+					"as": "distractor",
+					"in": [
+						"at-least-probability"
+					],
+					"wrong": "1 − P(X ≤ k) for 'at least k', or 1 − P(X ≤ k − 1) for 'more than k'"
+				},
+				{
+					"ref": "SL4.8.cumulative-probability#1",
+					"text": "Using P(X ≤ 5) for P(X < 5)",
+					"as": "distractor",
+					"in": [
+						"at-most-probability"
+					],
+					"wrong": "P(X ≤ k) for 'fewer than k'"
+				},
+				{
+					"ref": "SL4.8.cumulative-probability#2",
+					"text": "P(2 < X ≤ 6) = P(X ≤ 6) − P(X ≤ 3) (it should subtract P(X ≤ 2))",
+					"as": "distractor",
+					"in": [
+						"between-probability"
+					],
+					"wrong": "P(X ≤ b) − P(X ≤ a + 1) for a < X ≤ b"
+				},
+				{
+					"ref": "SL4.8.mean-variance#0",
+					"text": "Var(X) = np (forgetting the factor 1 − p)",
+					"as": "distractor",
+					"in": [
+						"variance-from-parameters"
+					],
+					"wrong": "np for the variance"
+				},
+				{
+					"ref": "SL4.8.mean-variance#1",
+					"text": "Giving np(1 − p) when the standard deviation is asked for",
+					"as": "distractor",
+					"in": [
+						"std-deviation"
+					],
+					"wrong": "the variance for the standard deviation"
+				},
+				{
+					"ref": "SL4.8.mean-variance#2",
+					"text": "Rounding E(X) to a whole number",
+					"as": "distractor",
+					"in": [
+						"mean-from-parameters"
+					],
+					"wrong": "np rounded to the nearest whole number"
+				},
+				{
+					"ref": "SL4.8.find-n-or-p#1",
+					"text": "Rounding n down instead of up to the next whole number",
+					"as": "distractor",
+					"in": [
+						"least-trials"
+					],
+					"wrong": "N − 1: the last n that does not reach the target"
+				},
+				{
+					"ref": "SL4.8.find-n-or-p#2",
+					"text": "Taking p = Var(X) ÷ E(X) (that gives 1 − p)",
+					"as": "distractor",
+					"in": [
+						"n-and-p-from-mean-variance"
+					],
+					"wrong": "p and 1 − p swapped, with n kept"
+				},
+				{
+					"ref": "SL4.8.binomial-in-context#1",
+					"text": "Finding P(X = 3) in 8 trials for 'the third success is on the eighth trial'",
+					"as": "distractor",
+					"in": [
+						"kth-success-trial"
+					],
+					"wrong": "nCr p^k q^(m − k) with m trials, which has the kth success anywhere in them"
+				},
+				{
+					"ref": "SL4.8.binomial-in-context#2",
+					"text": "Multiplying the two probabilities in a conditional instead of dividing",
+					"as": "distractor",
+					"in": [
+						"conditional-probability"
+					],
+					"wrong": "P(X = j) × P(X ≥ 1)"
+				}
+			],
+			"chain": [
+				"state X ~ B(n, p) from the story",
+				"P(X = r) with the GDC or nCr p^r (1 − p)^(n − r)",
+				"a cumulative probability: at most, fewer than, at least, more than, between",
+				"E(X) = np, Var(X) = np(1 − p) and the standard deviation",
+				"n or p from E(X) and Var(X), or the least n for P(X ≥ 1) > c",
+				"the kth success on trial m, or a probability given that at least one success happened"
+			],
 			"frequency": 18,
 			"marks": 3,
 			"section": {
@@ -19007,9 +19569,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 18
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-inverse-normal",

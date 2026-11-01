@@ -1751,7 +1751,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 4 exam types have them so far.
 
 #### Expected number of occurrences, n x p (`t4-expected-occurrences`, exam, 4 bank parts)
 
@@ -1792,6 +1792,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): The probabilities 0.2, 0.5, 0.4 and −0.1 make a valid probability distribution, because they add to 1. — False: every probability must also be from 0 to 1, and −0.1 is negative.
   - *always-sometimes-never* (L3): P(X > 2) + P(X ≤ 2) = 1. — Always: every value of X is either more than 2 or at most 2, and never both, so the two events are complements.
 - **Misconceptions used:** 3. Adding the x-values (or the products x × P) instead of the probabilities; Treating every possible value of X as equally likely; Including the endpoint for a strict inequality, e.g. using X = 2 in P(X > 2).
+
+#### Binomial probabilities, mean, and finding n (`t4-binomial`, exam, 18 bank parts)
+
+- **Situation:** One binomial random variable X ~ B(n, p) in a context.
+- **Representations:** **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a story of n independent trials with a probability p of success → the distribution of X, B(n, p)
+  - **exam** L2: given n; p; k → P(X = k)
+  - **exam** L2: given n; p; k → P(X ≤ k) or P(X < k)
+  - **exam** L3: given n; p; k → P(X ≥ k) or P(X > k)
+  - **exam** L3: given n; p; a and b → P(a ≤ X ≤ b) or P(a < X ≤ b)
+  - **exam** L1: given n; p → E(X), the expected number
+  - **exam** L2: given n; p → Var(X)
+  - **exam** L2: given n; p → the standard deviation, to 3 s.f.
+  - **exam** L3: given E(X); Var(X) → n and p
+  - **exam** L4: given p; a target probability c for at least one success → the least number of trials n with P(X ≥ 1) > c
+  - **exam** L5: given p; k; the trial m → the probability the kth success is on trial m
+  - **exam** L5: given n; p; j → P(X = j) given that X ≥ 1
+- **Angles:** Check the four conditions; Binomial pdf on the GDC; nCr p^r (1 − p)^(n − r); Binomial cdf on the GDC; Complement for 'at least'; Add the individual probabilities; E(X) = np and Var(X) = np(1 − p); Divide Var(X) by E(X) to get 1 − p; Solve 1 − (1 − p)^n > c with logs; GDC table of values in n; Split off the last trial; Conditional probability as a ratio.
+- **Concept probes:**
+  - *true-false-reason* (L3): X is the number of hearts in 5 cards dealt from a standard pack without putting any back. X follows a binomial distribution. — False: dealing without replacement changes the chance of a heart from card to card, so the trials are not independent with the same p.
+  - *always-sometimes-never* (L4): For X ~ B(n, p), the most likely value of X is the whole number nearest to np. — Sometimes: it usually is, but for X ~ B(7, 0.1) the most likely value is 0 (P(X = 0) = 0.478 and P(X = 1) = 0.372) while np = 0.7 is nearest to 1.
+  - *true-false-reason* (L4): For any binomial distribution, Var(X) is smaller than E(X). — True: Var(X) = np(1 − p) = E(X)(1 − p), and 1 − p is less than 1, so the variance is always smaller than the mean. That is why Var(X) ÷ E(X) gives 1 − p.
+- **Misconceptions used:** 14. Writing B(p, n) instead of B(n, p); Leaving out the nCr factor and giving just p^r (1 − p)^(n − r); Swapping the powers: p^(n − r) (1 − p)^r; Using the cumulative function (binomcdf) for 'exactly r'; P(X ≥ 3) = 1 − P(X ≤ 3) (it should be 1 − P(X ≤ 2)); Using P(X ≤ 5) for P(X < 5); P(2 < X ≤ 6) = P(X ≤ 6) − P(X ≤ 3) (it should subtract P(X ≤ 2)); Var(X) = np (forgetting the factor 1 − p); Giving np(1 − p) when the standard deviation is asked for; Rounding E(X) to a whole number; Rounding n down instead of up to the next whole number; Taking p = Var(X) ÷ E(X) (that gives 1 − p); Finding P(X = 3) in 8 trials for 'the third success is on the eighth trial'; Multiplying the two probabilities in a conditional instead of dividing.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
