@@ -2549,6 +2549,44 @@
     "the normal is asked only where |f′(x₀)| ≤ 6, so its gradient and c have denominators of 6 or less",
     "the two x-values with a given gradient are distinct whole numbers from −5 to 5, and |g| ≤ 60"
    ]
+  },
+  "counting": {
+   "name": "One counting problem: codes, numbers, awards, committees and rows",
+   "summary": "Pick the sizes (letters and digits in a code, the digits of a number, runners for the medals, men and women for a committee, people in a row), then the count follows exactly, so each family asks one count from its story or from the symbols.",
+   "quantities": [
+    {
+     "name": "a, b",
+     "is": "letters and digits in a code",
+     "pick": "2 or 3 letters, 2 to 4 digits; letters and digits may repeat"
+    },
+    {
+     "name": "d, m",
+     "is": "the digits of a number, and the pool 1 to m the even numbers are made from",
+     "pick": "3 to 5 digits with no repeats; m = 6 or 8 with 3 or 4 digits"
+    },
+    {
+     "name": "n, r",
+     "is": "the objects or runners, and the places filled",
+     "pick": "n from 5 to 8 to arrange, from 6 to 12 for r = 2 to 4 places, from 8 to 14 to choose k of"
+    },
+    {
+     "name": "men, women, k, j",
+     "is": "a committee of k from men and women, with j women",
+     "pick": "4 to 7 men, 3 to 6 women, k = 4 or 5, j from 2 to k − 1 and at most the women"
+    },
+    {
+     "name": "the count",
+     "is": "the number of ways",
+     "pick": "exact, a whole number below 20 million"
+    }
+   ],
+   "clean": [
+    "every answer is a whole number of ways, below 20 million",
+    "a code's letters and digits can repeat; a number's digits cannot, and does not start with 0",
+    "n found from nP2 = v is a whole number from 6 to 15, and the other root of n² − n − v = 0 is negative",
+    "the committee always has at least 1 woman and at least 1 man",
+    "two particular people are different people, and the row has 5 to 8"
+   ]
   }
  },
  "types": [
@@ -35553,6 +35591,430 @@
     "mcq",
     "error-spot",
     "true-false-reason"
+   ]
+  },
+  {
+   "id": "t1-ahl-counting",
+   "topic": 1,
+   "source": "extension",
+   "kind": "skill",
+   "detail": "full",
+   "name": "Counting: codes, arrangements, selections and restricted rows (AA HL)",
+   "summary": "Count outcomes with the multiplication principle, ordered arrangements with n! and nPr, selections with nCr (exactly, and 'at least one'), and rows where two people must or must not sit together.",
+   "level": [
+    1,
+    4
+   ],
+   "gap": "The question bank behind the exam types is AA SL's, which has no counting parts. AHL1.10's counting skills are AA HL only, so there is no bank part to hang them on: this type is built from the HL syllabus map and its exam-style prompts.",
+   "skills": [
+    "AHL1.10.counting-principle",
+    "AHL1.10.permutations",
+    "AHL1.10.combinations",
+    "AHL1.10.restricted-arrangements"
+   ],
+   "situation": "counting",
+   "sharesSituation": [],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "representations": [
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a story: a locker code, medals among runners, a committee chosen from men and women, people in a row"
+    },
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the count in symbols: 7!, 10P3, 12C4, or n found from nP2 = 56"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "code-count",
+     "given": [
+      "the letters and digits in a code"
+     ],
+     "asked": "the number of codes",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "AHL1.10.counting-principle"
+     ]
+    },
+    {
+     "id": "no-repeat-number",
+     "given": [
+      "the number of digits"
+     ],
+     "asked": "how many numbers have no repeated digit",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "AHL1.10.counting-principle"
+     ]
+    },
+    {
+     "id": "even-numbers",
+     "given": [
+      "the digits 1 to m",
+      "the length"
+     ],
+     "asked": "how many even numbers, with no repeated digit",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "AHL1.10.counting-principle"
+     ]
+    },
+    {
+     "id": "arrange-all",
+     "given": [
+      "n different objects"
+     ],
+     "asked": "the number of arrangements, n!",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "AHL1.10.permutations"
+     ]
+    },
+    {
+     "id": "award-places",
+     "given": [
+      "n runners",
+      "r places"
+     ],
+     "asked": "the number of results, nPr",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "AHL1.10.permutations"
+     ]
+    },
+    {
+     "id": "find-n-from-npr",
+     "given": [
+      "nP2 = v"
+     ],
+     "asked": "n",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "AHL1.10.permutations"
+     ]
+    },
+    {
+     "id": "committee",
+     "given": [
+      "n people",
+      "a committee of k"
+     ],
+     "asked": "the number of committees, nCk",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "AHL1.10.combinations"
+     ]
+    },
+    {
+     "id": "committee-mixed",
+     "given": [
+      "men and women",
+      "k",
+      "exactly j women"
+     ],
+     "asked": "the number of committees with exactly j women",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "AHL1.10.combinations"
+     ]
+    },
+    {
+     "id": "committee-at-least-one",
+     "given": [
+      "men and women",
+      "k"
+     ],
+     "asked": "the number of committees with at least one woman",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "AHL1.10.combinations"
+     ]
+    },
+    {
+     "id": "together",
+     "given": [
+      "n people in a row",
+      "two who must sit together"
+     ],
+     "asked": "the number of arrangements",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "AHL1.10.restricted-arrangements"
+     ]
+    },
+    {
+     "id": "apart",
+     "given": [
+      "n people in a row",
+      "two who must not sit together"
+     ],
+     "asked": "the number of arrangements",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "AHL1.10.restricted-arrangements"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "AHL1.10.counting-principle",
+     "method": "slot-boxes",
+     "suits": [
+      "code-count",
+      "no-repeat-number",
+      "even-numbers"
+     ]
+    },
+    {
+     "skill": "AHL1.10.counting-principle",
+     "method": "complement-count",
+     "suits": [
+      "no-repeat-number"
+     ]
+    },
+    {
+     "skill": "AHL1.10.permutations",
+     "method": "npr-formula",
+     "suits": [
+      "arrange-all",
+      "award-places"
+     ]
+    },
+    {
+     "skill": "AHL1.10.permutations",
+     "method": "slot-product",
+     "suits": [
+      "arrange-all",
+      "award-places"
+     ]
+    },
+    {
+     "skill": "AHL1.10.permutations",
+     "method": "gdc-npr",
+     "suits": [
+      "award-places"
+     ]
+    },
+    {
+     "skill": "AHL1.10.permutations",
+     "method": "quadratic-in-n",
+     "suits": [
+      "find-n-from-npr"
+     ]
+    },
+    {
+     "skill": "AHL1.10.combinations",
+     "method": "gdc-ncr",
+     "suits": [
+      "committee",
+      "committee-mixed",
+      "committee-at-least-one"
+     ]
+    },
+    {
+     "skill": "AHL1.10.combinations",
+     "method": "product-of-choices",
+     "suits": [
+      "committee-mixed"
+     ]
+    },
+    {
+     "skill": "AHL1.10.combinations",
+     "method": "complement",
+     "suits": [
+      "committee-at-least-one"
+     ]
+    },
+    {
+     "skill": "AHL1.10.combinations",
+     "method": "case-sum",
+     "suits": [
+      "committee-at-least-one"
+     ]
+    },
+    {
+     "skill": "AHL1.10.restricted-arrangements",
+     "method": "glue-block",
+     "suits": [
+      "together"
+     ]
+    },
+    {
+     "skill": "AHL1.10.restricted-arrangements",
+     "method": "complement",
+     "suits": [
+      "apart"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "To choose a committee of 3 from 10 people there are 10 × 9 × 8 = 720 ways.",
+     "answer": "False: 720 counts the committees in order, so each committee is counted 3! = 6 times; there are 720 ÷ 6 = 120.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "For the same n and r, nPr is larger than nCr.",
+     "answer": "Sometimes: nPr = r! × nCr, so it is larger whenever r ≥ 2, and equal when r = 0 or 1.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "AHL1.10.counting-principle#0",
+     "text": "Ignoring the leading-zero restriction: 10 × 9 × 8 × 7 = 5040 four-digit numbers instead of 4536",
+     "as": "distractor",
+     "in": [
+      "no-repeat-number"
+     ],
+     "wrong": "the count with a leading 0 allowed: 10Pd"
+    },
+    {
+     "ref": "AHL1.10.counting-principle#1",
+     "text": "Adding when the stages happen together: 26 + 26 + 10 + 10 + 10 = 82 codes instead of 26² × 10³ = 676 000",
+     "as": "distractor",
+     "in": [
+      "code-count"
+     ],
+     "wrong": "26a + 10b: the choices added, not multiplied"
+    },
+    {
+     "ref": "AHL1.10.counting-principle#2",
+     "text": "Filling the unrestricted slots first and then assuming 3 even digits remain: 6 × 5 × 3 = 90 even three-digit numbers instead of 3 × 5 × 4 = 60",
+     "as": "distractor",
+     "in": [
+      "even-numbers"
+     ],
+     "wrong": "the free digits first, then the even choices unchanged"
+    },
+    {
+     "ref": "AHL1.10.permutations#0",
+     "text": "Using combinations when order matters: 10C3 = 120 medal results instead of 720",
+     "as": "distractor",
+     "in": [
+      "award-places"
+     ],
+     "wrong": "nCr for an ordered result"
+    },
+    {
+     "ref": "AHL1.10.permutations#1",
+     "text": "Allowing repeats: 10³ = 1000 medal results, as if one runner could win two medals",
+     "as": "distractor",
+     "in": [
+      "award-places"
+     ],
+     "wrong": "n^r: one runner winning twice"
+    },
+    {
+     "ref": "AHL1.10.permutations#2",
+     "text": "Writing nPr = n!/r! (for 10P3 this gives 10!/3! = 604 800)",
+     "as": "distractor",
+     "in": [
+      "award-places"
+     ],
+     "wrong": "n! ÷ r! for nPr"
+    },
+    {
+     "ref": "AHL1.10.combinations#0",
+     "text": "Adding instead of multiplying across groups: 5C2 + 6C2 = 25 instead of 150",
+     "as": "distractor",
+     "in": [
+      "committee-mixed"
+     ],
+     "wrong": "the two group counts added"
+    },
+    {
+     "ref": "AHL1.10.combinations#1",
+     "text": "Counting 'at least one woman' as 5 × 10C3 = 600, which counts committees with several women more than once (true answer 315)",
+     "as": "distractor",
+     "in": [
+      "committee-at-least-one"
+     ],
+     "wrong": "one woman chosen first, then any others: committees counted twice"
+    },
+    {
+     "ref": "AHL1.10.combinations#2",
+     "text": "Using 11P4 = 7920 for a committee, where order does not matter",
+     "as": "distractor",
+     "in": [
+      "committee"
+     ],
+     "wrong": "nPk for a committee"
+    },
+    {
+     "ref": "AHL1.10.restricted-arrangements#0",
+     "text": "Forgetting the 2! inside the block: 5! = 120 arrangements with A and B together instead of 240",
+     "as": "distractor",
+     "in": [
+      "together"
+     ],
+     "wrong": "(n − 1)!: the block's own order forgotten"
+    },
+    {
+     "ref": "AHL1.10.restricted-arrangements#1",
+     "text": "Counting 'apart' as 6! − 2 = 718, subtracting only two arrangements",
+     "as": "distractor",
+     "in": [
+      "apart"
+     ],
+     "wrong": "n! − 2"
+    }
    ]
   }
  ],

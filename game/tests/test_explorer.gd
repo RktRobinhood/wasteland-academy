@@ -44,7 +44,7 @@ func test_opens_on_a_live_class_with_no_errors() -> void:
 func test_topic_counts_come_from_the_catalogue() -> void:
 	var made: Array = await _screen()
 	var e: Control = made[1]
-	var built := QuestionEngine.built_types()
+	var built := QuestionEngine.built_types("aa-sl")
 	var total := 0
 	for n in range(1, 6):
 		var split: Array = e._types_in(n)
@@ -237,6 +237,7 @@ func test_every_course_plays_the_classes_it_covers() -> void:
 	var made: Array = await _screen()
 	var e: Control = made[1]
 	var all := QuestionEngine.built_types().size()
+	var aa_sl := QuestionEngine.built_types("aa-sl").size()
 	var counts := {}
 	for id in Courses.ids():
 		e._choose("course", id)
@@ -257,8 +258,9 @@ func test_every_course_plays_the_classes_it_covers() -> void:
 			"%s asked %s" % [id, e.question.cell])
 		for c in e._cells():
 			check(keys.has(c.key), "%s's cell %s" % [id, c.key])
-	check_eq(counts["aa-sl"], all)
-	check_eq(counts["aa-hl"], all, "AA HL has every class AA SL has")
+	check_eq(counts["aa-sl"], aa_sl)
+	check_eq(counts["aa-hl"], all, "AA HL has every class there is")
+	check(counts["aa-hl"] >= counts["aa-sl"], "AA HL has every class AA SL has")
 	check(counts["ai-sl"] < all and counts["ai-hl"] >= counts["ai-sl"], "AI SL has %d, AI HL %d" % [counts["ai-sl"], counts["ai-hl"]])
 	# A class built for AA that an AI course doesn't cover is greyed out and says so.
 	e._choose("course", "ai-sl")
