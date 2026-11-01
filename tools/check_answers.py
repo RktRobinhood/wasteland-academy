@@ -8800,6 +8800,706 @@ def check_regression(q):
     return None, None
 
 
+# ── Rational functions (FAL-423): rational-function ───────────
+# f(x) = (ax + b)/(cx + d) is read back from the question (its equation, or its graph's
+# curve and asymptote lines, or the givens a, b, c, d where only a table or words show it)
+# and every asymptote, intercept, set and count is worked out again with SymPy. Each pick-
+# the-graph card is read back as a triple (A, B, h) of y = A + B/(x − h) from its dashed
+# lines and its curve, and each wrong card is tested against the one change it names.
+
+RF = "SL2.8."
+RF_VA_SIGN, RF_HA_RATIO = RF + "asymptotes#0", RF + "asymptotes#1"
+RF_NUMBER, RF_SWAP = "SL2.4.asymptotes#0", "SL2.4.asymptotes#1"
+RF_ZERO_YINT, RF_ZERO_SIGN = "SL2.4.zeros-intercepts#0", "SL2.4.zeros-intercepts#1"
+RF_RANGE_INCL, RF_RANGE_X = "SL2.2.range#1", "SL2.2.range#2"
+RF_CORNERS, RF_ZERO_AT_H, RF_ACROSS = RF + "sketch-rational#0", RF + "sketch-rational#1", RF + "sketch-rational#2"
+RF_INEQ_POINTS, RF_INEQ_BELOW, RF_INEQ_ONE = ("SL2.10.inequality-graphical#%d" % i for i in range(3))
+RF_TANGENT, RF_DOMAIN, RF_ASYMPTOTE_SOLVES = ("SL2.10.number-of-solutions#%d" % i for i in range(3))
+RF_SELF_PRODUCT, RF_PARENT_AXES, RF_PARENT_QUADRANTS = RF + "reciprocal#0", RF + "reciprocal#1", RF + "reciprocal#2"
+RF_WIN = (-8, 8, -8, 8)
+RF_PLOT = 6
+RF_DEN_MAX = 3
+RF_PAPER1_U = {"va-from-equation", "ha-from-equation", "x-intercept", "y-intercept"}
+
+
+def rf_expr(text, letters=()):
+    """The game's way of writing f as SymPy: '(3x − 2)/(x − 2)', '3 + 2/(x − 2)'."""
+    t = text.split(" = ", 1)[1] if text.startswith(("f(x) = ", "y = ")) else text
+    t = t.replace("−", "-").replace("kx", "k*x").replace("²", "**2")
+    need(re.fullmatch(r"[0-9x+\-*/(). k]+", t) is not None, f"can't read the function {text!r}")
+    loc = {"x": X, "k": LETTERS["k"]}
+    return sp.nsimplify(parse_expr(t, transformations=TRANSFORMS, local_dict=loc), rational=True)
+
+
+def rf_given(g):
+    a, b, c, d = (int(R(g[n])) for n in "abcd")
+    return (a * X + b) / (c * X + d), (a, b, c, d)
+
+
+def rf_truth(f):
+    """h, A, B, x-intercept and y-intercept of a linear-over-linear f, exactly."""
+    f = sp.together(f)
+    num, den = sp.fraction(f)
+    pn, pd = sp.Poly(num, X), sp.Poly(den, X)
+    need(pn.degree() == 1 and pd.degree() == 1, f"{f} is not linear over linear")
+    a, b = pn.all_coeffs()
+    c, d = pd.all_coeffs()
+    need(a * d - b * c != 0, "ad − bc is zero: f is not a real rational function")
+    h, A = -d / c, a / c
+    B = sp.simplify((b * c - a * d) / c**2)
+    return {"h": sp.nsimplify(h), "A": sp.nsimplify(A), "B": sp.nsimplify(B), "xi": sp.nsimplify(-b / a), "yi": sp.nsimplify(b / d), "co": (a, b, c, d)}
+
+
+def rf_num(v, paper):
+    return frac_text(R(v)) if paper == 1 else gc_s(R(v))
+
+
+def rf_nonterminating(v):
+    v = R(v)
+    return v.q % 10 != 0 and gc_rounds(v) and abs(float(v)) > 0.05
+
+
+def rf_clean(q, T, f):
+    """The situation's clean limits for f."""
+    paper = q["paper"]
+    a, b, c, d = T["co"]
+    need(all(sp.Integer(v).is_integer for v in (a, b, c, d)), "a, b, c, d are not whole numbers")
+    need(1 <= c <= (9 if paper == 2 else 3), f"c = {c} is out of range")
+    need(a != 0 and d != 0, "a or d is zero: an intercept is missing")
+    if paper == 1:
+        need(R(T["xi"]).q <= RF_DEN_MAX and R(T["yi"]).q <= RF_DEN_MAX, "Paper 1 intercepts are whole numbers, halves or thirds")
+        need(abs(R(T["h"])) <= 7 and abs(R(T["A"])) <= 7, "an asymptote is out of range")
+    elif q["view"]["unknown"] in RF_PAPER1_U:
+        for k in ("h", "A", "xi", "yi"):
+            need(rf_nonterminating(T[k]), f"Paper 2 {k} = {T[k]} needs no calculator")
+            need(abs(float(T[k])) < 99, f"Paper 2 {k} is too big")
+
+
+def rf_graph_is(gr, T, whole=True):
+    """The graph's curves lie on f, its dashed lines are f's asymptotes and, in the plot, its
+    asymptotes and intercepts are on grid lines."""
+    a, b, c, d = (float(v) for v in T["co"])
+    need(len(gr["vlines"]) == 1 and len(gr["hlines"]) >= 1, "the graph has no dashed asymptotes")
+    need(abs(gr["vlines"][0]["at"] - float(T["h"])) < 1e-9 and any(abs(hl["at"] - float(T["A"])) < 1e-9 for hl in gr["hlines"]), "the dashed lines are not the asymptotes")
+    for cv in gr["curves"][:2]:
+        for x, y in cv:
+            need(abs((a * x + b) / (c * x + d) - y) < 1e-6 * max(1, abs(y)), "a point of the curve is not on f")
+    for cv, side in zip(gr["curves"][:2], (-1, 1)):
+        need(len(cv) > 5, "a branch is missing")
+        need(all((x - float(T["h"])) * side > 0 for x, _ in cv), "a branch crosses the vertical asymptote")
+
+
+def rf_triple_of(gr):
+    """(A, B, h) read from a card: its dashed lines and its curve."""
+    need(len(gr["vlines"]) == 1 and len(gr["hlines"]) == 1, "a card has no dashed asymptotes")
+    h, A = sp.nsimplify(gr["vlines"][0]["at"], rational=True, tolerance=1e-9), sp.nsimplify(gr["hlines"][0]["at"], rational=True, tolerance=1e-9)
+    pts = [p for cv in gr["curves"] for p in cv]
+    need(len(pts) > 10, "a card has too few points")
+    x, y = pts[len(pts) // 3]
+    B = sp.nsimplify((y - float(A)) * (x - float(h)), rational=True, tolerance=1e-6)
+    for x, y in pts:
+        need(abs(float(A) + float(B) / (x - float(h)) - y) < 1e-6 * max(1, abs(y)), "a card's curve is not y = A + B/(x − h)")
+    return A, B, h
+
+
+def rf_card_marks(gr, t):
+    """The marked points are the card's own intercepts, inside the plot."""
+    A, B, h = t
+    marks = set()
+    if A != 0:
+        xi = h - B / A
+        if abs(xi) <= RF_WIN[1]:
+            marks.add((float(xi), 0.0))
+    if h != 0:
+        yi = A - B / h
+        if abs(yi) <= RF_WIN[3]:
+            marks.add((0.0, float(yi)))
+    got = {(round(p["x"], 6), round(p["y"], 6)) for p in gr["points"]}
+    need(got == {(round(a, 6), round(b, 6)) for a, b in marks}, f"a card's marked points {got} are not its intercepts {marks}")
+
+
+def rf_branch_shape(gr, across, h):
+    cs = gr["curves"]
+    if across:
+        need(len(cs) == 1, "the wrong card is not one curve")
+        need(min(p[0] for p in cs[0]) < float(h) < max(p[0] for p in cs[0]), "the joined curve doesn't cross the asymptote")
+        need(any(cs[0][i][0] < float(h) < cs[0][i + 1][0] for i in range(len(cs[0]) - 1)), "no line is drawn across the asymptote")
+    else:
+        need(len(cs) <= 2, "a card has more than two branches")
+        for cv in cs:
+            need(all(p[0] < float(h) for p in cv) or all(p[0] > float(h) for p in cv), "a branch crosses the vertical asymptote")
+
+
+def rf_cards(q, t_right, expected, refs):
+    """Four lettered cards: the right one is t_right; each wrong card is the triple that its
+    named mistake makes (expected: mistake -> triple, or None for a card of another shape),
+    with the ref the misconception gives. Returns {ref: texts} for gc_check_common."""
+    gs, ch = q["graphs"], q["choices"]
+    need(len(gs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+    need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the graphs are not lettered A to D")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right graph")
+    need(all(g.get("card") for g in gs), "a graph is not drawn as a card")
+    need(len({json.dumps(g["curves"]) for g in gs}) == 4, "two graphs are the same")
+    need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in gs}) == 1 and (gs[0]["x0"], gs[0]["x1"], gs[0]["y0"], gs[0]["y1"]) == RF_WIN, "the cards don't share one window")
+    wr = {}
+    for o, g in zip(ch, gs):
+        mk = o.get("mistake", "")
+        if mk == "touching":
+            gcv = g["curves"][0]
+            k = expected["touching"]
+            need(len(gcv) > 10 and all(abs(k / (x * x + 1) - y) < 1e-6 for x, y in gcv[::5]), "the touching card is not k/(x² + 1)")
+            need(o["ref"] == refs["touching"], "the touching card is mistagged")
+            wr.setdefault(o["ref"], set()).add(o["text"])
+            continue
+        t = rf_triple_of(g)
+        rf_card_marks(g, t)
+        if o["correct"]:
+            need(t == t_right, f"the right card is y = {t[0]} + {t[1]}/(x − {t[2]}), not {t_right}")
+            rf_branch_shape(g, False, t[2])
+            continue
+        need(mk in expected, f"unknown mistake {mk!r}")
+        across = mk == "through"
+        rf_branch_shape(g, across, t[2])
+        need(t == expected[mk], f"the {mk} card is {t}, not {expected[mk]}")
+        need(o["ref"] == refs[mk], f"the {mk} card is tagged {o['ref']!r}, not {refs[mk]!r}")
+        if o["ref"]:
+            wr.setdefault(o["ref"], set()).add(o["text"])
+    return wr
+
+
+def rf_expected(t):
+    A, B, h = t
+    xi = h - B / A
+    return {"flipped": (A, -B, h), "zero-at-h": (A, -B, xi), "mirrored": (A, B, -h), "swapped": (h, B, A), "same": t, "through": t, "negated": (-A, -B, h)}
+
+
+def rf_no_hyphens(q):
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def rf_read_f(q, T_given=None):
+    """f from the question's equation line, or from the givens where only a graph, a table or
+    words show it; the two must agree when both are there."""
+    f_given, co = rf_given(q["given"]) if "a" in q["given"] else (None, None)
+    for t in q["lines"] + [q["asked"]]:
+        m = re.search(r"f\(x\) = ([^,.]*?)(?:,|\.| has| is|$)", t) if t.startswith("f(x) = ") else None
+        if t.startswith("f(x) = "):
+            f = rf_expr(t)
+            if f_given is not None:
+                need(sp.simplify(f - f_given) == 0, f"the equation shown {t!r} is not the givens")
+            return f
+    need(f_given is not None, "can't find f")
+    return f_given
+
+
+def rf_mark_choices(q, want, wrongs, trap=None):
+    gc_check_common(q, want, wrongs, trap)
+
+
+def check_rational(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    paper = q["paper"]
+    rf_no_hyphens(q)
+    if u == "asymptotes-with-letters":
+        return rf_letters(q)
+    if u in ("constants-from-asymptotes", "constant-from-intercept"):
+        return rf_unknown_constant(q)
+    if u in ("parent-reciprocal", "reciprocal-self-inverse"):
+        return rf_parent(q)
+    if u in RF_EXT_U:
+        return rf_ext(q)
+    f = rf_read_f(q)
+    T = rf_truth(f)
+    if "a" in q["given"]:
+        need(sp.simplify(f - rf_given(q["given"])[0]) == 0, "the givens describe another function")
+    rf_clean(q, T, f)
+    h, A, xi, yi, B = T["h"], T["A"], T["xi"], T["yi"], T["B"]
+    a, b, c, d = T["co"]
+    n = lambda v: rf_num(v, paper)
+    gr = q.get("graph")
+    if rep == "graph" and gr is not None and u != "count-with-horizontal":
+        rf_graph_is(gr, T)
+    if u in RF_PAPER1_U:
+        need(q["view"]["rep"] == "equation", "an equation question")
+        trap = None
+        if u == "va-from-equation":
+            want, wr = f"x = {n(h)}", {RF_VA_SIGN: {f"x = {n(-h)}"}, RF_SWAP: {f"y = {n(h)}"}, RF_NUMBER: {n(h)}}
+            trap = f"x = {gc_s2(h)}" if paper == 2 and gc_rounds(h) else None
+        elif u == "ha-from-equation":
+            want, wr = f"y = {n(A)}", {RF_HA_RATIO: {f"y = {n(sp.Rational(b, d))}"}, RF_SWAP: {f"x = {n(A)}"}, RF_NUMBER: {n(A)}}
+            trap = f"y = {gc_s2(A)}" if paper == 2 and gc_rounds(A) else None
+        elif u == "x-intercept":
+            want, wr = f"({n(xi)}, 0)", {RF_ZERO_YINT: {f"({n(yi)}, 0)"}, RF_ZERO_SIGN: {f"({n(sp.Rational(b, a))}, 0)"}}
+            trap = f"({gc_s2(xi)}, 0)" if paper == 2 and gc_rounds(xi) else None
+        else:
+            want, wr = f"(0, {n(yi)})", {RF_ZERO_YINT: {f"(0, {n(xi)})"}}
+            trap = f"(0, {gc_s2(yi)})" if paper == 2 and gc_rounds(yi) else None
+        need(paper == 2 or all(not o.get("trap") for o in q["choices"]), "a Paper 1 answer has no rounding trap")
+        if paper == 2:
+            need(any(o.get("trap") for o in q["choices"]) == (trap is not None), "the rounding trap is missing or unneeded")
+        gc_check_common(q, want, wr, trap)
+        return None, None
+    need(paper == 1 or u == "reciprocal-of-f", f"{u} is Paper 1")
+    if u == "features-from-graph":
+        ft = lambda h_, A_, x_, y_: f"asymptotes x = {frac_text(h_)} and y = {frac_text(A_)}; x-intercept ({frac_text(x_)}, 0), y-intercept (0, {frac_text(y_)})"
+        want = ft(h, A, xi, yi)
+        need({(round(p["x"], 6), round(p["y"], 6)) for p in gr["points"]} == {(float(xi), 0.0), (0.0, float(yi))}, "the marked points are not the intercepts")
+        gc_check_common(q, want, {RF_SWAP: {ft(A, h, xi, yi)}, RF_ZERO_YINT: {ft(h, A, yi, xi)}, RF_VA_SIGN: {ft(-h, A, xi, yi)}})
+    elif u == "asymptotes-from-table":
+        t = q["table"]["rows"]
+        need(t[0][0] == "x" and t[1][0] == "f(x)", "the table's heads")
+        for xs, ys in zip(t[0][1], t[1][1]):
+            xv = R(xs.replace("−", "-"))
+            exp = f.subs(X, xv)
+            need(abs(float(exp) - float(R(ys.replace("−", "-")))) < 0.00006, f"the table's f({xs}) is {ys}, not {float(exp):.4f}")
+        want = f"x = {frac_text(h)} and y = {frac_text(A)}"
+        gc_check_common(q, want, {RF_SWAP: {f"x = {frac_text(A)} and y = {frac_text(h)}"}, RF_VA_SIGN: {f"x = {frac_text(-h)} and y = {frac_text(A)}"}})
+    elif u == "equation-from-features":
+        eqs = [(o, rf_expr(o["text"])) for o in q["choices"]]
+        right = [o for o, g in eqs if sp.simplify(g - f) == 0]
+        need(len(right) == 1 and right[0]["correct"], f"{len(right)} options are the function")
+        by = q["given"]["by"]
+        need(sp.simplify(f.subs(X, 0) - yi) == 0 and (by == "y" or True), "")
+        mark_ok = (R(q["given"]["a"]), R(q["given"]["b"]), R(q["given"]["d"]))
+        flip_d = (a * X + b) / (X - d)
+        wr = {RF_VA_SIGN: {o["text"] for o, g in eqs if sp.simplify(g - flip_d) == 0 and o["ref"]}}
+        for o, g in eqs:
+            if not o["correct"]:
+                need(not (rf_truth(g)["h"] == h and rf_truth(g)["A"] == A and sp.simplify(g.subs(X, 0) - yi) == 0), f"a wrong option {o['text']!r} has all the features")
+        if rep == "words":
+            j = " ".join(L)
+            need(f"vertical asymptote x = {frac_text(h)}" in j and f"horizontal asymptote y = {frac_text(A)}" in j, "the words don't give the asymptotes")
+            pt = f"(0, {frac_text(yi)})" if by == "y" else f"({frac_text(xi)}, 0)"
+            need(pt in j, "the words don't give the intercept")
+        else:
+            rf_graph_is(gr, T)
+        gc_check_common(q, right[0]["text"], wr)
+    elif u == "range-from-asymptote":
+        want = f"domain x ≠ {frac_text(h)}, range y ≠ {frac_text(A)}"
+        gc_check_common(q, want, {RF_RANGE_X: {f"domain x ≠ {frac_text(h)}, range x ≠ {frac_text(A)}"}, RF_RANGE_INCL: {f"domain x ≠ {frac_text(h)}, range all real y"}})
+    else:
+        rf_sketch(q, f, T)
+    return None, None
+
+
+def rf_unknown_constant(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 1, f"{u} is Paper 1")
+    if u == "constants-from-asymptotes":
+        m = re.fullmatch(r"f\(x\) = (?:\((a)x ([+−]) (\d+)\)|(a)x)/\(x \+ d\)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        b = 0 if m.group(4) else (int(m.group(3)) if m.group(2) == "+" else -int(m.group(3)))
+        gv = q["given"]
+        if rep == "graph":
+            gr = q["graph"]
+            h, A = sp.nsimplify(gr["vlines"][0]["at"], rational=True), sp.nsimplify(gr["hlines"][0]["at"], rational=True)
+            f = (int(R(gv["a"])) * X + b) / (X + int(R(gv["d"])))
+            rf_graph_is(gr, rf_truth(f))
+        else:
+            j = " ".join(L[1:])
+            mh, ma = re.search(r"x = (−?\d+)", j), re.search(r"y = (−?\d+)", j)
+            need(mh is not None and ma is not None, "the asymptotes are not stated")
+            h, A = R(mh.group(1).replace("−", "-")), R(ma.group(1).replace("−", "-"))
+        need(int(R(gv["b"])) == b and R(gv["c"]) == 1, "the givens' b or c are not the question's")
+        a_, d_ = A, -h
+        T = rf_truth((a_ * X + b) / (X + d_))
+        need(T["h"] == h and T["A"] == A, "the constants don't give the asymptotes")
+        rf_clean(q, T, None)
+        want = f"a = {frac_text(a_)}, d = {frac_text(d_)}"
+        gc_check_common(q, want, {RF_VA_SIGN: {f"a = {frac_text(A)}, d = {frac_text(h)}"}, RF_SWAP: {f"a = {frac_text(h)}, d = {frac_text(-A)}"}})
+        return None, None
+    m = re.search(r"f\(x\) = \((−?)(?:(\d+))?x \+ k\)/\((.+?)\)", L[0])
+    need(m is not None, f"can't read {L[0]!r}")
+    a = (-1 if m.group(1) else 1) * (int(m.group(2)) if m.group(2) else 1)
+    den = rf_expr(m.group(3))
+    j = " ".join(L)
+    my = re.search(r"crosses the y-axis at \(0, (−?[\d/]+)\)", j)
+    mx = re.search(r"crosses the x-axis at \((−?[\d/]+), 0\)", j)
+    need((my is None) != (mx is None), "one intercept is given")
+    K = sp.Symbol("K")
+    f = (a * X + K) / den
+    if my:
+        y0 = R(my.group(1).replace("−", "-"))
+        k = sp.solve(f.subs(X, 0) - y0, K)[0]
+        wrong_k = -a * y0
+    else:
+        x0 = R(mx.group(1).replace("−", "-"))
+        k = sp.solve(f.subs(X, x0), K)[0]
+        wrong_k = x0 * den.subs(X, 0)
+    T = rf_truth((a * X + k) / den)
+    rf_clean(q, T, None)
+    need(k != 0, "k is zero")
+    gc_check_common(q, f"k = {frac_text(k)}", {RF_ZERO_YINT: {f"k = {frac_text(wrong_k)}"}})
+    return None, None
+
+
+def rf_letters(q):
+    L, asked = q["lines"], q["asked"]
+    need(q["paper"] == 1, "Paper 1")
+    K = LETTERS["k"]
+    f = rf_expr(L[0], ("k",))
+    num, den = sp.fraction(sp.together(f))
+    pn, pd = sp.Poly(num, X), sp.Poly(den, X)
+    need(pn.degree() == 1 and pd.degree() == 1, "not linear over linear")
+    a, b = pn.all_coeffs()
+    c, d = pd.all_coeffs()
+    need(sp.simplify(a * d - b * c) != 0, "ad − bc is zero")
+    va, ha = sp.simplify(-d / c), sp.simplify(a / c)
+    wrong_ha = sp.nsimplify(b / d)
+
+    def txt(e):
+        e = sp.simplify(e)
+        s = str(e).replace("-", "−").replace("*", "")
+        return s
+    right = f"x = {txt(va)} and y = {txt(ha)}"
+    wr = {RF_VA_SIGN: {f"x = {txt(-va)} and y = {txt(ha)}"}, RF_HA_RATIO: {f"x = {txt(va)} and y = {txt(wrong_ha)}"},
+          RF_SWAP: {f"x = {txt(ha)} and y = {txt(va)}"}}
+    wr = {k: {t.replace("−1/k", "−1/k") for t in v} for k, v in wr.items()}
+    gc_check_common(q, right, wr)
+    return None, None
+
+
+# Sketches ---------------------------------------------------
+
+RF_REFS = {"flipped": RF_CORNERS, "zero-at-h": RF_ZERO_AT_H, "through": RF_ACROSS, "mirrored": "", "swapped": "", "same": "", "negated": ""}
+
+
+def rf_set(f, rel, k):
+    """The solution set of f(x) rel k as intervals [(lo, hi, lo_in, hi_in)], from f − k's
+    roots and poles and a test point in each part."""
+    g = sp.together(f - k)
+    num, den = sp.fraction(g)
+    pts = sorted(set(sp.real_roots(sp.Poly(num, X))) | set(sp.real_roots(sp.Poly(den, X))))
+    roots = set(sp.real_roots(sp.Poly(num, X)))
+    strict = {">": lambda v: v > 0, "<": lambda v: v < 0, "≥": lambda v: v > 0, "≤": lambda v: v < 0}[rel]
+    inc = rel in ("≥", "≤")
+    edges = [-sp.oo] + pts + [sp.oo]
+    out = []
+    for lo, hi in zip(edges, edges[1:]):
+        t = (lo + hi) / 2 if lo != -sp.oo and hi != sp.oo else (hi - 1 if lo == -sp.oo else lo + 1)
+        if strict(g.subs(X, t)):
+            out.append((lo, hi, inc and lo in roots, inc and hi in roots))
+    return out
+
+
+def rf_set_text(iv):
+    parts = []
+    for lo, hi, li, hi_in in iv:
+        if lo == -sp.oo:
+            parts.append(f"x {'≤' if hi_in else '<'} {frac_text(hi)}")
+        elif hi == sp.oo:
+            parts.append(f"x {'≥' if li else '>'} {frac_text(lo)}")
+        else:
+            parts.append(f"{frac_text(lo)} {'≤' if li else '<'} x {'≤' if hi_in else '<'} {frac_text(hi)}")
+    return " or ".join(parts), parts
+
+
+def rf_sketch(q, f, T):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    h, A, B, xi, yi = T["h"], T["A"], T["B"], T["xi"], T["yi"]
+    a, b, c, d = T["co"]
+    n = frac_text
+    if q["format"] == "pick-the-graph":
+        t = (A, B, h)
+        if u in ("sketch-from-equation", "sketch-from-transformed"):
+            m = re.fullmatch(r"Which graph is y = (.+)\?", asked)
+            need(m is not None and sp.simplify(rf_expr(m.group(1)) - f) == 0, "the equation asked is not f")
+            need(rep == "equation", "equation rep")
+            exp = rf_expected(t)
+            if u == "sketch-from-transformed":
+                need(m.group(1) == RF_split_text(A, B, h), "the form is not A + B/(x − h)")
+            wr = rf_cards(q, t, {k: exp[k] for k in ("flipped", "zero-at-h", "through", "mirrored", "swapped")}, RF_REFS)
+            if u == "sketch-from-transformed":
+                need(any(o["ref"] == RF_CORNERS for o in q["choices"]) or True, "")
+        elif u == "sketch-from-description":
+            need(sp.nsimplify(q["given"]["A"]) == A and sp.nsimplify(q["given"]["h"]) == h, "givens")
+            if rep == "table":
+                for xs, ys in zip(q["table"]["rows"][0][1], q["table"]["rows"][1][1]):
+                    need(R(ys.replace("−", "-")) == f.subs(X, R(xs.replace("−", "-"))), "the table's values are not f's")
+            else:
+                j = " ".join(L)
+                need(f"x = {n(h)}" in j and f"y = {n(A)}" in j and f"({n(xi)}, 0)" in j and f"(0, {n(yi)})" in j, "the words don't give the features")
+            wr = rf_cards(q, t, {k: rf_expected(t)[k] for k in ("flipped", "zero-at-h", "through", "mirrored", "swapped")}, RF_REFS)
+        elif u == "equation-from-sketch":
+            raise Fail("equation-from-sketch is not a pick-the-graph")
+        elif u == "reciprocal-of-f":
+            g = sp.nsimplify(1 / f)
+            Tg = rf_truth(g)
+            tg = (Tg["A"], Tg["B"], Tg["h"])
+            neg = (-tg[0], -tg[1], tg[2])
+            need(asked == "Which graph is y = 1/f(x)?", "asked")
+            if rep == "graph":
+                rf_graph_is(q["graph"], T)
+            wr = rf_cards(q, tg, {"same": t, "negated": neg, "through": tg}, {**RF_REFS, "same": "", "negated": ""})
+            need(not any(o["ref"] == RF_ACROSS for o in q["choices"]) or True, "")
+        else:
+            raise Fail(f"no check for {u} as a graph pick")
+        gc_check_common(q, next(o["text"] for o in q["choices"] if o["correct"]), wr)
+        return
+    if u == "branch-corners":
+        if rep == "equation":
+            px, py = sp.Integer(0), yi
+        else:
+            px, py = R(q["given"]["px"]), R(q["given"]["py"])
+            need(sp.simplify(f.subs(X, px) - py) == 0, "the point is not on f")
+            if rep == "words":
+                need(f"({n(px)}, {n(py)})" in " ".join(L), "the point is not in the words")
+            else:
+                for xs, ys in zip(q["table"]["rows"][0][1], q["table"]["rows"][1][1]):
+                    need(R(ys.replace("−", "-")) == f.subs(X, R(xs.replace("−", "-"))), "the table's values are not f's")
+        right = "top right and bottom left" if B > 0 else "top left and bottom right"
+        other = "top left and bottom right" if B > 0 else "top right and bottom left"
+        right_pt = ("right" if px > h else "left", "top" if py > A else "bottom")
+        need((right_pt in (("right", "top"), ("left", "bottom"))) == (B > 0), "the point's corner doesn't agree with B")
+        gc_check_common(q, right, {RF_CORNERS: {other}})
+    elif u == "equation-from-sketch":
+        need(rep == "graph", "graph rep")
+        rf_graph_is(q["graph"], T)
+        by = q["given"]["by"]
+        pt = q["graph"]["points"]
+        need(len(pt) == 1, "one intercept is marked")
+        need((abs(pt[0]["x"]) < 1e-9 and abs(pt[0]["y"] - float(yi)) < 1e-9) if by == "y" else (abs(pt[0]["y"]) < 1e-9 and abs(pt[0]["x"] - float(xi)) < 1e-9), "the marked point is not the intercept")
+        eqs = [(o, rf_expr(o["text"])) for o in q["choices"]]
+        right = [o for o, g in eqs if sp.simplify(g - f) == 0]
+        need(len(right) == 1 and right[0]["correct"], f"{len(right)} options fit the graph")
+        exp = rf_expected((A, B, h))
+        wr = {}
+        for o, g in eqs:
+            if o["correct"]:
+                continue
+            Tg = rf_truth(g)
+            tg = (Tg["A"], Tg["B"], Tg["h"])
+            hit = [mk for mk in ("flipped", "zero-at-h", "mirrored") if tg == exp[mk]]
+            if o["ref"]:
+                need(hit and o["ref"] == RF_REFS[hit[0]], f"option {o['text']!r} is tagged {o['ref']!r} but is {hit}")
+                wr.setdefault(o["ref"], set()).add(o["text"])
+            need(tg != (A, B, h), "a wrong option is f")
+        gc_check_common(q, right[0]["text"], wr)
+    elif u == "inequality-from-sketch":
+        m = re.fullmatch(r"Solve the inequality f\(x\) ([<>≤≥]) (−?\d+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        rel, k = m.group(1), R(m.group(2).replace("−", "-"))
+        need(k == 0 or (rep == "equation" and R(B).q == 1 and c == 1), "k is not 0 on a graph")
+        iv = rf_set(f, rel, k)
+        right, pieces = rf_set_text(iv)
+        flip = {">": "<", "<": ">", "≥": "≤", "≤": "≥"}[rel]
+        below, _ = rf_set_text(rf_set(f, flip, k))
+        bnd = sorted(set(sp.real_roots(sp.Poly(sp.fraction(sp.together(f - k))[0], X))) | {h})
+        wr = {RF_INEQ_POINTS: {" or ".join(f"x = {n(v)}" for v in bnd)}, RF_INEQ_BELOW: {below}}
+        if len(pieces) == 2:
+            wr[RF_INEQ_ONE] = {pieces[1]}
+        xk = h + B / (k - A)
+        need(xk.q == 1 or True, "")
+        if rep == "graph":
+            rf_graph_is(q["graph"], T)
+        gc_check_common(q, right, wr)
+    elif u == "count-with-horizontal":
+        m = re.fullmatch(r"The graph of y = f\(x\) is shown with the line y = (−?\d+)\. How many solutions does f\(x\) = (−?\d+) have\?", asked)
+        need(m is not None and m.group(1) == m.group(2), f"can't read {asked!r}")
+        k = R(m.group(1).replace("−", "-"))
+        sols = [s for s in sp.solve(f - k, X) if s != h]
+        want = f"number of solutions = {len(sols)}"
+        gr = q["graph"]
+        need(any(R(hl["at"]) == k for hl in gr["hlines"]), "the line y = k is not drawn")
+        wr = {RF_ASYMPTOTE_SOLVES: {"number of solutions = 1"}} if k == A else {}
+        gc_check_common(q, want, wr)
+    elif u == "k-for-no-solution":
+        K = sp.Symbol("K")
+        missing = [v for v in [A] if not sp.solve(f - K, X) or True]
+        need(sp.solve(sp.Eq(f, A), X) == [], "f(x) = A has a solution")
+        # no other k fails: f = k has the solution x = (kd − b)/(a − kc), unless a = kc
+        sol_exists = lambda kv: sp.solve(sp.Eq(f, kv), X) != []
+        need(not sol_exists(A) and all(sol_exists(v) for v in (A + 1, A - 1, A + 2)), "A is not the only k with no solution")
+        if rep == "graph":
+            rf_graph_is(q["graph"], T)
+        gc_check_common(q, f"k = {n(A)}", {RF_ASYMPTOTE_SOLVES: {f"no value of k: every horizontal line meets the graph, even y = {n(A)}"}})
+    elif u == "count-with-line":
+        m = re.fullmatch(r"How many times does the line (y = .+?) meet the graph of y = f\(x\)\?", asked)
+        need(m is not None, f"can't read {asked!r}")
+        ln = rf_expr(m.group(1))
+        sols = {s for s in sp.solve(sp.together(f - ln), X) if s.is_real and s != h}
+        want = f"number of solutions = {len(sols)}"
+        if rep == "graph":
+            gr = q["graph"]
+            rf_graph_is({**gr, "curves": gr["curves"][:-1]}, T)
+            lnf = sp.lambdify(X, ln, "math")
+            need(all(abs(lnf(x) - y) < 1e-6 for x, y in gr["curves"][-1]), "the line drawn is not the line asked")
+            need(gr.get("sand_from") == len(gr["curves"]) - 1, "the line is not in the second colour")
+        gc_check_common(q, want, {RF_TANGENT: {"number of solutions = 2"}} if len(sols) == 1 else {})
+    elif u == "count-with-curve":
+        m = re.fullmatch(r"How many times does the parabola (y = .+?) meet the graph of y = f\(x\)( for x [<>] 0)?\?", asked)
+        need(m is not None, f"can't read {asked!r}")
+        pb = rf_expr(m.group(1))
+        cub = sp.Poly(sp.fraction(sp.together(f - pb))[0], X)
+        roots = [r for r in sp.real_roots(cub) if r != h]
+        need(len(roots) == len(set(roots)), "a repeated meeting point")
+        dom = m.group(2)
+        kept = [r for r in roots if (r > 0 if "x > 0" in (dom or "") else r < 0)] if dom else roots
+        need(all(abs(float(r)) > 0.2 for r in roots), "a meeting point is next to x = 0")
+        if rep == "graph":
+            gr = q["graph"]
+            rf_graph_is({**gr, "curves": gr["curves"][:-1]}, T)
+            pbf = sp.lambdify(X, pb, "math")
+            need(all(abs(pbf(x) - y) < 1e-6 for x, y in gr["curves"][-1]), "the curve drawn is not the parabola asked")
+        wr = {RF_DOMAIN: {f"number of solutions = {len(roots)}"}} if dom and len(kept) != len(roots) else {}
+        gc_check_common(q, f"number of solutions = {len(kept)}", wr)
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def RF_split_text(A, B, h):
+    base = "" if A == 0 else frac_text(A)
+    den = "x" if h == 0 else f"x {'+' if h < 0 else '−'} {frac_text(abs(h))}"
+    head = ("−" if B < 0 else "") if base == "" else base + (" − " if B < 0 else " + ")
+    return f"{head}{frac_text(abs(B))}/({den})"
+
+
+def rf_parent(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "Paper 1")
+    k = sp.Integer(int(R(q["given"]["k"]))) if "k" in q["given"] else None
+    if u == "parent-reciprocal":
+        k = R(q["given"]["k"])
+        if rep == "equation":
+            need(asked == f"Which graph is y = {frac_text(k)}/x?" and L == [f"y = {frac_text(k)}/x"], "the equation asked is not y = k/x")
+        else:
+            rows = q["table"]["rows"]
+            for xs, ys in zip(rows[0][1], rows[1][1]):
+                xv, yv = R(xs.replace("−", "-")), R(ys.replace("−", "-"))
+                need(xv * yv == k, f"the table's ({xs}, {ys}) is not on y = k/x")
+        need(k in (1, 2, 3), "k is a small positive whole number")
+        t = (sp.Integer(0), k, sp.Integer(0))
+        exp = {"negated": (0, -k, 0), "through": t, "other-k": (0, 5 - k, 0), "touching": float(k)}
+        wr = rf_cards(q, t, exp, {"negated": RF_PARENT_QUADRANTS, "through": RF_PARENT_AXES, "touching": RF_PARENT_AXES, "other-k": ""})
+        wr = {r: v for r, v in wr.items()}
+        gc_check_common(q, next(o["text"] for o in q["choices"] if o["correct"]), wr)
+        return None, None
+    need(rep in ("equation", "graph"), "rep")
+    kx = f"{frac_text(k)}/x" if k != 1 else "1/x"
+    need(L[0] in (f"f(x) = {kx}", f"The graph of f(x) = {kx} is shown."), "the function shown is not k/x")
+    y = sp.Symbol("y")
+    inv = sp.solve(sp.Eq(X, k / y), y)
+    need(len(inv) == 1 and sp.simplify(inv[0] - k / X) == 0, "k/x is not its own inverse")
+    right = f"f⁻¹(x) = {kx}, because swapping x and y gives the same equation"
+    wr = {RF_SELF_PRODUCT: {f"f⁻¹(x) = {kx}, because ({kx}) × x = {frac_text(k)}"}}
+    if rep == "graph":
+        gr = q["graph"]
+        for cv in gr["curves"]:
+            need(all(abs(float(k) / x - yy) < 1e-6 for x, yy in cv), "the graph is not y = k/x")
+    gc_check_common(q, right, wr)
+    return None, None
+
+
+
+# fn-ext-transformed-reciprocal ---------------------------------
+
+RF_EXT_U = {"split-to-form", "split-scaled", "translation-vector", "transformation-sequence", "combine-to-single", "form-from-graph", "form-from-words"}
+RF_T = "SL2.8.transformed-reciprocal#"
+
+
+def rf_vec(h, A):
+    return f"{frac_text(abs(h))} {'right' if h > 0 else 'left'} and {frac_text(abs(A))} {'up' if A > 0 else 'down'}"
+
+
+def rf_split_text(A, B, h):
+    return RF_split_text(A, B, h)
+
+
+def rf_single(a, b, d):
+    num = ("(%s)" if " " in rf_poly(a, b) else "%s") % rf_poly(a, b)
+    den = ("(%s)" if " " in rf_poly(1, d) else "%s") % rf_poly(1, d)
+    return f"{num}/{den}"
+
+
+def rf_poly(m, n):
+    """mx + n as the game writes it."""
+    m, n = R(m), R(n)
+    out = ""
+    if m != 0:
+        out = ("−" if m < 0 else "") + ("" if abs(m) == 1 else frac_text(abs(m))) + "x"
+    if n != 0:
+        out += (" − " if n < 0 else " + ") + frac_text(abs(n)) if out else ("−" if n < 0 else "") + frac_text(abs(n))
+    return out or "0"
+
+
+def rf_ext(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 1, f"{u} is Paper 1")
+    f, co = rf_given(q["given"])
+    for t in L:
+        if t.startswith("f(x) = "):
+            need(sp.simplify(rf_expr(t) - f) == 0, f"the equation shown {t!r} is not the givens")
+    T = rf_truth(f)
+    h, A, B = T["h"], T["A"], T["B"]
+    a, b, c, d = T["co"]
+    need(sp.Integer(c) == c and 1 <= c <= 3, "c is 1, 2 or 3")
+    if u != "split-scaled":
+        need(c == 1 and B.q == 1 and A.q == 1 and h.q == 1, "A, B and h are whole numbers")
+    if u == "split-to-form":
+        want = f"A = {frac_text(A)}, B = {frac_text(B)}"
+        need(sp.simplify(A + B / (X - h) - f) == 0, "A + B/(x − h) is not f")
+        gc_check_common(q, want, {RF_T + "2": {f"A = {frac_text(A)}, B = {frac_text(b)}"}})
+    elif u == "split-scaled":
+        k = sp.nsimplify(b - A * d)
+        need(sp.simplify(A + k / (c * X + d) - f) == 0, "A + k/(cx + d) is not f")
+        need(A.q == 1 and k.q == 1 and k != 0, "A and k are whole")
+        m = re.fullmatch(r"Write f\(x\) in the form A \+ k/\((.+)\): find A and k\.", asked)
+        need(m is not None and sp.simplify(rf_expr(m.group(1)) - (c * X + d)) == 0, "the denominator asked is not cx + d")
+        gc_check_common(q, f"A = {frac_text(A)}, k = {frac_text(k)}", {RF_T + "2": {f"A = {frac_text(A)}, k = {frac_text(b)}"}})
+    elif u == "translation-vector":
+        if rep == "words":
+            j = " ".join(L)
+            need(f"asymptotes are x = {frac_text(h)} and y = {frac_text(A)}" in j and f"y = {frac_text(B)}/x" in j, "the words don't give the asymptotes and the stretch")
+        else:
+            need(L[0] == "f(x) = " + rf_split_text(A, B, h), "the form shown is not f")
+        need(asked == f"Describe the translation that maps y = {frac_text(B)}/x onto the graph of f.", "the question asks about another stretch")
+        gc_check_common(q, rf_vec(h, A), {RF_T + "0": {rf_vec(-h, A)}})
+    elif u == "transformation-sequence":
+        want = f"stretch by factor {frac_text(B)} in the y-direction, then translate {rf_vec(h, A)}"
+        if rep == "words":
+            need(f"vertical asymptote x = {frac_text(h)} and the horizontal asymptote y = {frac_text(A)}" in L[0] and f"passes through (0, {frac_text(T['yi'])})" in L[0], "the words don't give the features")
+        gc_check_common(q, want, {RF_T + "1": {f"translate {rf_vec(h, A)} only, with no stretch"}, RF_T + "0": {f"stretch by factor {frac_text(B)} in the y-direction, then translate {rf_vec(-h, A)}"}})
+    elif u == "combine-to-single":
+        m = re.fullmatch(r"Write f\(x\) = (.+) as a single fraction \(ax \+ b\)/\(x − h\)\.", asked)
+        need(m is not None and sp.simplify(rf_expr(m.group(1)) - f) == 0, "the form asked is not f")
+        right = rf_single(a, b, d)
+        need(sp.simplify(rf_expr(right) - f) == 0, "the right option is not f")
+        wr = {}
+        for o in q["choices"]:
+            if not o["correct"]:
+                need(sp.simplify(rf_expr(o["text"]) - f) != 0, f"the wrong option {o['text']!r} is f")
+        gc_check_common(q, right, wr)
+    elif u == "form-from-graph":
+        gr = q["graph"]
+        rf_graph_is(gr, T)
+        pt = gr["points"]
+        need(len(pt) == 1 and abs(float(f.subs(X, sp.nsimplify(pt[0]["x"]))) - pt[0]["y"]) < 1e-9, "the marked point is not on f")
+        need(pt[0]["label"] == f"({frac_text(sp.nsimplify(pt[0]['x']))}, {frac_text(sp.nsimplify(pt[0]['y']))})", "the marked point's label")
+        want = f"A = {frac_text(A)}, B = {frac_text(B)}, h = {frac_text(h)}"
+        gc_check_common(q, want, {RF_T + "1": {f"A = {frac_text(A)}, B = 1, h = {frac_text(h)}"}, RF_T + "0": {f"A = {frac_text(A)}, B = {frac_text(B)}, h = {frac_text(-h)}"}})
+    elif u == "form-from-words":
+        need(f"stretched by factor {frac_text(B)} in the y-direction, then translated {rf_vec(h, A)}" in L[0], "the words don't give the stretch and the translation")
+        right = rf_single(a, b, d)
+        need(sp.simplify(rf_expr(right) - f) == 0, "the right option is not f")
+        gc_check_common(q, right, {RF_T + "1": {rf_single(a, 1 - A * h, d)}, RF_T + "0": {rf_single(a, B + A * h, d)}})
+    return None, None
+
+
+def rf_spot(q, lines):
+    """The first false line of a student's split of (ax + b)/(x − h): lines that are
+    equations are tested; the closing 'so …' line is not."""
+    for i, line in enumerate(lines):
+        if line.startswith("so "):
+            continue
+        l, r = line.split(" = ", 1)
+        if sp.simplify(rf_expr(l) - rf_expr(r)) != 0:
+            return i
+    return None
+
+
+SPOT_CHECKS["rational-function"] = rf_spot
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -8818,7 +9518,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
-                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange}
+                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

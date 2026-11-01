@@ -143,21 +143,25 @@ func _draw_curves(font: Font) -> void:
 	var y0 := float(spec.y0)
 	var y1 := float(spec.y1)
 	var cols := [UiTheme.TEAL, UiTheme.SAND]
-	# A card's curves are one curve in pieces (a curve carried through its asymptote).
-	if _card():
+	# A card's curves are one curve in pieces (a curve carried through its asymptote), and
+	# so are the branches of a rational function (spec.one_colour, FAL-423).
+	if _card() or spec.get("one_colour", false):
 		cols = [UiTheme.TEAL]
 	var width := 5.0 if _card() else 6.0
 	for i in spec.curves.size():
 		var seg := PackedVector2Array()
+		var col: Color = cols[i % cols.size()]
+		if spec.has("sand_from") and i >= int(spec.sand_from):
+			col = UiTheme.SAND
 		for p in spec.curves[i]:
 			if p[1] >= y0 and p[1] <= y1 and p[0] >= x0 and p[0] <= x1:
 				seg.append(to_px(Vector2(p[0], p[1])))
 			elif seg.size() > 0:
 				if seg.size() > 1:
-					draw_polyline(seg, cols[i % cols.size()], width, true)
+					draw_polyline(seg, col, width, true)
 				seg = PackedVector2Array()
 		if seg.size() > 1:
-			draw_polyline(seg, cols[i % cols.size()], width, true)
+			draw_polyline(seg, col, width, true)
 	for hl in spec.get("hlines", []):
 		var y := float(hl.at)
 		var x := x0

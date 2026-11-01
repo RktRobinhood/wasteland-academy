@@ -344,6 +344,31 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   table readings are all Paper 1. A mini-boss on `fn-composite` asks the composite and then
   its value (`Tuning.CHAINS`); the other unknowns each need their own numbers, so they are
   single questions.
+- **The Rational functions region** (FAL-423): `rational_function.gd` is one
+  linear-over-linear function f(x) = (ax + b)/(cx + d) = A + B/(x − h), built from its asymptotes
+  and stretch so its intercepts are never none (a, d ≠ 0) and ad − bc ≠ 0. Paper 1 keeps
+  c = 1, 2 or 3 and intercepts that are whole numbers, halves or thirds; a graph or card needs c = 1
+  with the asymptotes and both intercepts whole and inside the plot. Paper 2 (`papers()`) gives
+  a, b, c, d that need a calculator, so the asymptotes and intercepts of `fn-rational-asymptotes-
+  intercepts` are decimals that don't end, asked to 3 s.f. with the rounding trap, and `fn-rational-
+  sketch`'s reciprocal of f is Paper 2 (as in the bank) with asymptotes between the grid lines. Its
+  extras, asked by a view's need, are a line y = mx + n that meets f 0, 1 (a tangent) or 2 times, a
+  parabola that meets it 1 to 3 times (a count by the cubic's discriminant, found again numerically;
+  a restricted domain `x > 0` changes the count), a horizontal line y = k, k = A or not, a relation
+  and a k (0, or a value whose boundary is whole) for an inequality, and the 1, 2 or 3 of y = k/x.
+  `rational_cards.gd` draws every graph: a curve is a triple (A, B, h), drawn as two branches that
+  run to the edge of the plot and stop, so **no line is drawn across x = h** (a card with such a
+  line is the wrong one, `through`). The views (`rational_function_views.gd`) are 24 unknowns:
+  asymptotes and intercepts are typed (`axis`, `xint`, `yint`, `named`, `number`), the rest are
+  a pick of four written options (`choice`), a pick of four graphs (Q13) or a count. Each wrong
+  graph changes one thing of the right one (`flipped`: B's sign, `zero-at-h`: the asymptote and the
+  zero swapped, `through`, `mirrored`: x = −h, `swapped`: the asymptotes swapped), tagged with its
+  misconception. `axis` answers honour `show` and a wrong option may be the number alone (var ""), the
+  asymptote written as a number. The checker reads each card back as a triple from its dashed lines
+  and its curve and tests it against the change it names, and finds every asymptote, intercept,
+  solution set and count again with SymPy. `ui/graph_view.gd` draws a rational function's branches in
+  one colour (`one_colour`) and a second curve (the line or the parabola) in the other
+  (`sand_from`). The exam types offer no extra format.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
