@@ -2618,6 +2618,64 @@
 				"when n and p are found from E(X) and Var(X), Var(X) < E(X), p is a multiple of 0.1 and n is a whole number",
 				"the least number of trials is found from P(X ≥ 1) > c, with N − 1 failing and N working"
 			]
+		},
+		"regression": {
+			"name": "Paired data and the line fitted to it",
+			"summary": "Pick x-values and y-values that lie near a straight line, in a story where the correlation is positive or negative. The means, the regression line of y on x and Pearson's r are then known. The same line is used backwards (a constant from the mean point) and forwards (an estimate at an x inside the data, or from a line given to 3 s.f.).",
+			"quantities": [
+				{
+					"name": "n",
+					"is": "the number of points",
+					"pick": "6 to 9"
+				},
+				{
+					"name": "x",
+					"is": "the x-values",
+					"pick": "n different whole numbers from 1 to 20, in ascending order"
+				},
+				{
+					"name": "y",
+					"is": "the y-values",
+					"pick": "whole numbers from 8 to 99 that follow a slope of 0.5 to 4 up or down (down where the story says so), with noise of up to 9 either way, so that 0.8 ≤ |r| ≤ 0.99"
+				},
+				{
+					"name": "x̄, ȳ",
+					"is": "the mean point",
+					"pick": "Σx ÷ n and Σy ÷ n; both end within two decimal places where the mean point is asked"
+				},
+				{
+					"name": "a, b",
+					"is": "the regression line y = ax + b of y on x",
+					"pick": "exact from Sxy ÷ Sxx and ȳ − a x̄; both clear of a rounding edge at 3 s.f. where they are asked, and |b| ≥ 1"
+				},
+				{
+					"name": "r",
+					"is": "Pearson's coefficient, Sxy ÷ √(Sxx Syy)",
+					"pick": "clear of a rounding edge at 3 s.f., and so is r²"
+				},
+				{
+					"name": "x₀, y₀",
+					"is": "the x an estimate is made at, and the estimate",
+					"pick": "x₀ a whole number strictly inside the data and not in the table; y₀ = a x₀ + b is positive, needs rounding, and differs at 3 s.f. from the estimate made with a and b rounded to 3 s.f."
+				},
+				{
+					"name": "given line",
+					"is": "y = ax + b given to 3 s.f. or fewer, for an estimate",
+					"pick": "a from 0.50 to 9.99 and b from 1.5 to 99.9, either sign; x₀ from 5 to 40; y₀ from 5 to 500 and needing rounding"
+				},
+				{
+					"name": "mean point and gradient",
+					"is": "a mean point (x̄, ȳ) and a gradient a, to find c in y = ax + c",
+					"pick": "a to one decimal place from 0.5 to 4.9 (either sign), x̄ from 2.0 to 15.0 to one place, ȳ from 20.00 to 90.00; c ≠ 0 with 1 ≤ |c| ≤ 150"
+				}
+			],
+			"clean": [
+				"Paper 2 only (every regression part in the bank is Paper 2): the GDC finds a, b and r, and answers are to 3 s.f.",
+				"the data are whole numbers, so the means and the regression line are exact and r is the only irrational number",
+				"every answer is at least 0.03 of a unit of its third figure from a rounding edge",
+				"the line of x on y reads differently from the line of y on x at 3 s.f., so swapped lists are a distractor",
+				"an estimate is inside the data (interpolation), never an extrapolation"
+			]
 		}
 	},
 	"skills": {
@@ -2688,6 +2746,10 @@
 		"SL3.2.cosine-rule-side": "Use the cosine rule to find a side from two sides and the included angle",
 		"SL3.2.cosine-rule-angle": "Use the cosine rule to find an angle from three sides",
 		"SL3.2.sine-rule": "Use the sine rule to find a side or an angle",
+		"SL4.4.regression-y-on-x": "Find the equation of the regression line of y on x",
+		"SL4.4.pearson-r": "Calculate Pearson's r with technology and match r to a scatter diagram",
+		"SL4.4.mean-point": "Find the mean point and use it with lines of best fit",
+		"SL4.4.predict": "Use the regression line to predict, and judge whether the prediction is reliable",
 		"SL4.5.expected-occurrences": "Find the expected number of occurrences",
 		"SL4.7.expected-value": "Calculate and interpret E(X)",
 		"SL4.7.unknowns-from-mean": "Find unknown probabilities or values given E(X)",
@@ -18445,6 +18507,252 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Regression line and Pearson r on the GDC, then predict",
+			"summary": "From a table of paired data, find the regression line of y on x, Pearson's r and the mean point with the GDC, find a constant of a regression line from the mean point, and use a regression line to estimate y.",
+			"situation": "regression",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a table of x against y, with a story line: hours of study and test scores for 8 students"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "a line given, y = 2.34x + 12.6, or a mean point (6.4, 71.25) with y = 1.4x + c"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "regression-line",
+					"given": [
+						"a table of x and y"
+					],
+					"asked": "the regression line y = ax + b, to 3 s.f.",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.4.regression-y-on-x"
+					]
+				},
+				{
+					"id": "correlation-coefficient",
+					"given": [
+						"a table of x and y"
+					],
+					"asked": "Pearson's r, to 3 s.f.",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.4.pearson-r"
+					]
+				},
+				{
+					"id": "mean-point",
+					"given": [
+						"a table of x and y"
+					],
+					"asked": "the mean point (x̄, ȳ)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.4.mean-point"
+					]
+				},
+				{
+					"id": "c-from-mean-point",
+					"given": [
+						"the mean point",
+						"the gradient of the regression line"
+					],
+					"asked": "the constant c in y = ax + c",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.4.mean-point",
+						"SL4.4.regression-y-on-x"
+					]
+				},
+				{
+					"id": "predict-from-data",
+					"given": [
+						"a table of x and y",
+						"an x inside the data"
+					],
+					"asked": "the estimate of y, from the regression line",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.4.predict"
+					]
+				},
+				{
+					"id": "predict-from-line",
+					"given": [
+						"a regression line to 3 s.f.",
+						"an x"
+					],
+					"asked": "the estimate of y",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.4.predict"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.4.regression-y-on-x",
+					"method": "gdc-linreg",
+					"suits": [
+						"regression-line"
+					],
+					"name": "LinReg with x as the first list",
+					"about": "Enter the independent variable as x and the dependent variable as y, run LinReg (ax + b) and write a and b to 3 significant figures."
+				},
+				{
+					"skill": "SL4.4.pearson-r",
+					"method": "gdc-linreg",
+					"suits": [
+						"correlation-coefficient"
+					],
+					"name": "Linear regression on the GDC",
+					"about": "Enter x and y in two lists, run LinReg (ax + b) with diagnostics on, and read r."
+				},
+				{
+					"skill": "SL4.4.mean-point",
+					"method": "mean-coordinates",
+					"suits": [
+						"mean-point"
+					],
+					"name": "Find x̄ and ȳ",
+					"about": "Average the x-values and the y-values separately to get the mean point (x̄, ȳ)."
+				},
+				{
+					"skill": "SL4.4.mean-point",
+					"method": "substitute-mean-point",
+					"suits": [
+						"c-from-mean-point"
+					],
+					"name": "Substitute the mean point",
+					"about": "Every regression line passes through (x̄, ȳ), so substitute it into y = ax + b to find a missing constant."
+				},
+				{
+					"skill": "SL4.4.regression-y-on-x",
+					"method": "gradient-and-mean-point",
+					"suits": [
+						"c-from-mean-point"
+					],
+					"name": "Gradient plus the mean point",
+					"about": "If the gradient a and the means are given, use y − ȳ = a(x − x̄), because the line passes through (x̄, ȳ)."
+				},
+				{
+					"skill": "SL4.4.predict",
+					"method": "substitute",
+					"suits": [
+						"predict-from-data",
+						"predict-from-line"
+					],
+					"name": "Substitute into the equation",
+					"about": "Put the given x into y = ax + b, using the unrounded a and b from the GDC where possible."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If the x-list and the y-list are swapped on the GDC, r changes but the line stays the same.",
+					"answer": "False: r stays the same, because it treats x and y alike, but the line changes. Swapping the lists gives the regression line of x on y, a different line.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The mean point (x̄, ȳ) is one of the points in the data.",
+					"answer": "Sometimes: it is when a point happens to sit at both means, as for (1, 2), (3, 4), (5, 6) and (3, 4), but for (1, 1), (2, 3) and (6, 2) the mean point (3, 2) is not.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "A regression line with r = 0.95 can be used to estimate y for any value of x.",
+					"answer": "False: the line only fits the range of the data. An estimate at an x far outside it is an extrapolation, however strong r is, and may not hold.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.4.regression-y-on-x#0",
+					"text": "Entering the lists the wrong way round and getting the line of x on y",
+					"as": "distractor",
+					"in": [
+						"regression-line"
+					],
+					"wrong": "the line of x on y, written as y = ax + b: what swapped lists give"
+				},
+				{
+					"ref": "SL4.4.regression-y-on-x#1",
+					"text": "Rounding a and b too early and losing accuracy in later predictions",
+					"as": "distractor",
+					"in": [
+						"predict-from-data"
+					],
+					"wrong": "y from a and b rounded to 3 s.f. before the estimate"
+				},
+				{
+					"ref": "SL4.4.pearson-r#0",
+					"text": "Reporting r² from the GDC as r",
+					"as": "distractor",
+					"in": [
+						"correlation-coefficient"
+					],
+					"wrong": "r² read off the GDC and given as r"
+				},
+				{
+					"ref": "SL4.4.mean-point#0",
+					"text": "Forcing the line of best fit through the origin",
+					"as": "distractor",
+					"in": [
+						"c-from-mean-point"
+					],
+					"wrong": "c = 0: the line forced through the origin"
+				},
+				{
+					"ref": "SL4.4.predict#1",
+					"text": "Rearranging the y-on-x line to predict x from a given y",
+					"as": "distractor",
+					"in": [
+						"predict-from-data",
+						"predict-from-line"
+					],
+					"wrong": "(x₀ − b) ÷ a: the line rearranged to find x from y = x₀"
+				}
+			],
+			"chain": [
+				"enter x and y in two lists on the GDC",
+				"LinReg (ax + b) with diagnostics on gives a, b and r",
+				"the mean point (x̄, ȳ) from the two lists",
+				"a constant of y = ax + c from the mean point",
+				"substitute an x inside the data into y = ax + b to estimate y"
+			],
 			"frequency": 19,
 			"marks": 2,
 			"section": {
@@ -18454,9 +18762,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 19
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-expected-occurrences",
