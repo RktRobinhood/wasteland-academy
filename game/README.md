@@ -663,7 +663,12 @@ title screen opens it. One scene with three screens:
   answer counts for every skill its unknown lists (`Progress.weakest_skills`). Skill
   names come from `curriculum/aa-sl.json` via `catalogue.json`'s `skills`. Its buttons
   start floor 1, start after a beaten boss (`Dungeon.start_floors`) or open Practice on
-  that region.
+  that region. Above them is the **course picker** (FAL-397): one button per IB course
+  (AA SL, AA HL, AI SL, AI HL), the save's pressed. Picking one stores it
+  (`SaveData.set_course`, `Map.set_course`) and draws the screen again, so every number
+  on it, the locked regions on the island and the next run follow the course (see
+  "Courses"); the cell records stay. It sits on the region screen for now, a scrolling
+  column that has room, until character setup gives it a place beside the class pick.
 
 **Links and the back button.** On the web the hash is the route. Moving on the map
 sets it, which makes a browser history entry, and a `hashchange` (back, forward, a
@@ -934,7 +939,8 @@ script error happens while it runs. Run one file with
 - `test_map.gd`: links for every region id, the island and junk; coverage against a
   hand count from the catalogue on a scripted save with the switch off and on;
   accuracy, best floor and cleared; the weakest skills leaving out skills with fewer
-  than 3 answers; the world map, the island and the region screen; "Coming soon" for a
+  than 3 answers; the world map, the island and the region screen; the course picker
+  storing the course and keeping the records; "Coming soon" for a
   region with nothing built, which can't start a run; a run started from the map; the
   island's loop in a run and the boss loop in a boss; Play opening the map; and every
   screen fitting 390x844 and 1280x800.
