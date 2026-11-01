@@ -57,8 +57,6 @@ const TWO := {"what": "P(t) and Q(t) are the populations of two towns t years fr
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low, so it is spent first (as the quadratic recipes do).
-	rng.int_in(0, 1)
 	var form: String = need.get("form", "any")
 	if form.begins_with("any"):
 		form = ["factor", "shift", "cont", "limited"][rng.int_in(0, 3)]

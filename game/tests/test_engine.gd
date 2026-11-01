@@ -41,8 +41,9 @@ func test_every_cell_makes_a_question() -> void:
 
 func test_two_points_and_axis_never_gives_a_mirror_pair() -> void:
 	# Seeds 188 and 217 once fitted only a mirror pair on the graph, so with the axis
-	# given a, b and c had no single answer and the working divided by zero.
-	for seed in [188, 217]:
+	# given a, b and c had no single answer and the working divided by zero. Seeded's
+	# fix (FAL-460) changed what each seed makes, so the first 300 are swept instead.
+	for seed in range(1, 301):
 		var q := QuestionEngine.make({"type": "fn-quadratic-from-conditions", "unknown": "coefficients-from-two-points-and-axis",
 			"rep": "graph", "angle": "simultaneous-equations", "seed": seed})
 		check(not q.is_empty() and not q.has("error"), "seed %d: no question" % seed)

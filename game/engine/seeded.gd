@@ -3,14 +3,16 @@ extends RefCounted
 ## A seeded random stream. The same seed and view key always give the same numbers,
 ## on desktop and on the web build: the seed is an FNV-1a hash of the text (not
 ## Godot's hash(), which is not promised to stay the same between versions), and
-## RandomNumberGenerator is PCG32, which is integer-only.
+## RandomNumberGenerator is PCG32, which is integer-only. The 64-bit state is filled
+## from two hashes (FAL-460): a state under 2^32 has no high bits, and PCG32 reads its
+## output from the high bits, so the first draw would be close to 0 for every seed.
 
 var rng := RandomNumberGenerator.new()
 
 
 func _init(text: String) -> void:
 	rng.seed = Seeded.fnv1a(text)
-	rng.state = Seeded.fnv1a("state:" + text)
+	rng.state = (Seeded.fnv1a("state-high:" + text) << 32) | Seeded.fnv1a("state:" + text)
 
 
 ## 32-bit FNV-1a. Kept to 32 bits so the products never overflow an int.

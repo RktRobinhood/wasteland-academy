@@ -24,8 +24,6 @@ const HALF_ROOTS := [-3, -1, 1, 3]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (see quadratic_inequality.gd), so it is spent.
-	rng.int_in(0, 1)
 	var form: String = need.get("form", "quad")
 	for i in TRIES:
 		var s := _draw(rng, form, need)

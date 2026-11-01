@@ -42,8 +42,6 @@ const LINE_M := [0.5, 1, 1.5, 2, -0.5, -1, -1.5, -2, 0.4, -0.4]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	var mode: String = need.get("mode", "line")
 	if mode == "any":
 		mode = "line"
@@ -146,10 +144,45 @@ static func h(s: Dictionary, x: float) -> float:
 	return at(s.f, x) - at(s.g, x)
 
 
-## The crossings of f and g on [lo, hi]: [[x, y], ...].
+## The crossings of f and g on [lo, hi]: [[x, y], ...]. A sign change between samples,
+## and the crossings of a dip: a curve that only just dips through the line has no sign
+## change between two samples, so each sample that sits lower than both its neighbours (all
+## on one side) is searched for a minimum on the other side. Those crossings come out so
+## _clean() turns the situation down for their shallow angle, as the answer checker does.
 static func crossings(s: Dictionary, lo: float, hi: float) -> Array:
 	var d := func(x: float) -> float: return at(s.f, x) - at(s.g, x)
-	return GdcKit.zeros(d, lo, hi, maxi(64, ceili((hi - lo) * 16.0))).map(func(x): return [x, at(s.f, x)])
+	var n := maxi(64, ceili((hi - lo) * 16.0))
+	var xs: Array = GdcKit.zeros(d, lo, hi, n)
+	xs.append_array(_dips(d, lo, hi, n))
+	xs.sort()
+	return xs.map(func(x): return [x, at(s.f, x)])
+
+
+## The crossings hidden between two samples: where d has the same sign on three samples in
+## a row but dips, between the outer two, to the other side of 0.
+static func _dips(d: Callable, lo: float, hi: float, n: int) -> Array:
+	var ys: Array = []
+	for i in n + 1:
+		ys.append(d.call(lo + (hi - lo) * i / n))
+	var out: Array = []
+	for i in range(1, n):
+		var y: float = ys[i]
+		if y == 0.0 or not (is_finite(y) and is_finite(ys[i - 1]) and is_finite(ys[i + 1])):
+			continue
+		var sg := signf(y)
+		if signf(ys[i - 1]) != sg or signf(ys[i + 1]) != sg or absf(y) >= absf(ys[i - 1]) or absf(y) > absf(ys[i + 1]):
+			continue
+		var xa := lo + (hi - lo) * (i - 1) / n
+		var xm := lo + (hi - lo) * i / n
+		var xb := lo + (hi - lo) * (i + 1) / n
+		var m := Brent.minimize(func(x: float) -> float: return sg * d.call(x), xa, xm, xb)
+		if sg * float(d.call(m.x)) >= 0.0:
+			continue
+		for pair in [[xa, m.x], [m.x, xb]]:
+			var r := Brent.root(d, pair[0], pair[1])
+			if r.ok:
+				out.append(r.x)
+	return out
 
 
 static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:

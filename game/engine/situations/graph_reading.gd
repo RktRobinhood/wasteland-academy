@@ -16,8 +16,6 @@ extends RefCounted
 
 
 static func generate(rng: Seeded, _need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	var nz := func() -> int: return [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5][rng.int_in(0, 9)]
 	var s := {"paper": 1}
 	s.px = nz.call()

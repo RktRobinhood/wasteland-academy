@@ -353,8 +353,6 @@ static func _whole_cosine_rule() -> Array:
 
 
 static func _draw_p1(rng: Seeded, givens: String, need: Dictionary) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	var roles := rng.shuffled(LETTERS)
 	var X: String = roles[0]
 	var Y: String = roles[1]

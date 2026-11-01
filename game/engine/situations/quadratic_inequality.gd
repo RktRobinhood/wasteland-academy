@@ -23,10 +23,6 @@ const TRIES := 2000
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (chance(0.25) is true for every seed), so it is
-	# spent before anything is picked. Seeded itself is left alone: changing it would
-	# change every other situation's questions.
-	rng.int_in(0, 1)
 	var form: String = need.get("form", "zero")
 	var p2: bool = int(need.get("paper", 1)) == 2 and form in P2_FORMS
 	for i in TRIES:

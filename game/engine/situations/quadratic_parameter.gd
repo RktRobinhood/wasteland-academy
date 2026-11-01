@@ -45,10 +45,6 @@ const TRIES := 4000
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (chance(0.25) is true for every seed), so it is
-	# spent before anything is picked. Seeded itself is left alone: changing it would
-	# change every other situation's questions.
-	rng.int_in(0, 1)
 	if need.has("base"):
 		var bs := _base(rng, need.base)
 		if not bs.is_empty():
