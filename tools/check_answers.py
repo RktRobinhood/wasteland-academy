@@ -6039,10 +6039,22 @@ def tc_read(q):
 
 
 @lru_cache(maxsize=4096)
+def gc_exact_point(f, x):
+    """A crossing as (x, y). The checker finds x numerically, so both would come out as
+    30-digit floats, and a float always "needs rounding". The game keeps a designed crossing
+    exact (x = 2.5, y = −5.75, which needs none at 3 s.f.), so when x is a rational root
+    (to 20 places) and f(x) is rational, both are returned as Rationals."""
+    q = sp.Rational(int(mpmath.nint(x * 10**6)), 10**6)
+    if abs(x - mpmath.mpf(q.p) / q.q) < mpmath.mpf(10) ** -20:
+        y = f.subs(X, q)
+        if y.is_Rational:
+            return q, y
+    return x, gc_f(f)(x)
+
+
 def tc_crossings(f, g, lo, hi, open_left):
     a = lo + sp.Rational(1, 1000) if open_left else lo
-    ff = gc_f(f)
-    return tuple((x, ff(x)) for x in gc_zeros(f - g, a, hi))
+    return tuple(gc_exact_point(f, x) for x in gc_zeros(f - g, a, hi))
 
 
 def tc_pts(cs):

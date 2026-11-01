@@ -22,8 +22,6 @@ const TRIES := 400
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	var fam: String = need.get("fam", "quadratic")
 	for i in TRIES:
 		var s := _draw(rng, fam, need)

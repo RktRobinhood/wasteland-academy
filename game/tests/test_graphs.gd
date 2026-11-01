@@ -200,3 +200,35 @@ func test_numbers_use_a_true_minus() -> void:
 			var texts: Array = [q.prompt] + q.lines + q.choices.map(func(o): return o.text)
 			for x in texts:
 				check(not RegEx.create_from_string("(?<![A-Za-z])-\\d").search(x), "%s: %s" % [c.key, x])
+
+
+
+func test_a_curve_that_only_just_dips_through_the_line_is_found_and_turned_down() -> void:
+	# 2.5cos(1.5x) + 2 against 2 − 0.4x on 0 to 8 meets four times: twice in a dip near x = 6.2,
+	# 0.04 wide and 0.001 deep, which falls between two samples of a scan 16 to the unit.
+	# The question once said the solutions were x = 1.17 and 2.83 (seed 11, FAL-695).
+	var C = GdcTwoCurvesSituation
+	var s := {"mode": "line", "var": "x", "d1": Q.new(0), "d2": Q.new(8),
+		"f": C.curve("trig", {"A": Q.new(5, 2), "B": Q.new(3, 2), "c": Q.new(2), "fn": "cos"}),
+		"g": C.line(Q.new(-2, 5), Q.new(2))}
+	s.crossings = C.crossings(s, 0.0, 8.0)
+	var want := [1.1731, 2.8285, 6.1934, 6.2305]
+	check_eq(s.crossings.size(), 4, "crossings")
+	for i in mini(4, s.crossings.size()):
+		check(absf(s.crossings[i][0] - want[i]) < 0.001, "crossing %d is %s" % [i, s.crossings[i][0]])
+	check(not C._clean(s, {}), "four crossings, two of them at a shallow angle, is not a clean situation")
+
+
+func test_a_two_curves_situation_has_every_crossing_a_fine_scan_finds() -> void:
+	# What the SymPy checker finds on a grid of 800, the situation finds too.
+	var C = GdcTwoCurvesSituation
+	var drawn := 0
+	for need in [{}, {"crossings": 2}, {"mode": "context"}]:
+		for i in 150:
+			var s: Dictionary = C.generate(Seeded.new("dips|%s|%d" % [need, i]), need)
+			if s.is_empty() or s.get("paper", 2) == 1:
+				continue
+			drawn += 1
+			var fine: Array = GdcKit.zeros(func(x: float) -> float: return C.h(s, x), C.lo_x(s), s.d2.to_float(), 4000)
+			check_eq(fine.size(), s.crossings.size(), "%s draw %d: %s" % [need, i, s.crossings.map(func(c): return snappedf(c[0], 0.01))])
+	check(drawn > 300, "only %d situations drawn" % drawn)

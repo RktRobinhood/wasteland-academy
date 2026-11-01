@@ -247,7 +247,12 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   graph). A view's rounding trap can carry a misconception (`trap_ref`) where the
   catalogue's mistake is too few figures: picking it is a glancing hit that logs it.
   `Answer._sorted` and `_pairs` compare as floats, because Q.lt's cross-multiplying
-  overflows on nine-decimal values.
+  overflows on nine-decimal values. The crossing scan of `gdc-two-curves` also looks at
+  every sample that sits lower than both neighbours on one side of the line (`_dips`):
+  a curve that only just dips through it (two crossings 0.04 apart, 0.001 deep) has no sign
+  change between samples, and the situation is turned down for the shallow angle, as the
+  answer checker's finer grid would find them (FAL-695). The checker keeps a crossing exact
+  when x is a rational root and y is rational (`gc_exact_point`), as the game does.
   The region's extension types: `fn-concept-solutions-as-intersections` is more views
   on `gdc-two-curves`; `gdc_inequality.gd` extends it with f(x) > g(x) or < g(x), solved
   from the crossings (`fn-ext-inequality-graphical`); `graph_reading.gd` is reading a
@@ -842,7 +847,8 @@ script error happens while it runs. Run one file with
   turning point as the trap that logs SL2.4.max-min#2, the greatest value at an
   endpoint, each boss chain on one situation and a true minus sign throughout. The
   extension types are in it too, with every cell built (a cubic's f(x) = 0 distractor
-  in fn-link-extremes is listed with the reason).
+  in fn-link-extremes is listed with the reason). A curve that dips through a line between
+  two samples is found, and a two-curves situation has every crossing a fine scan finds.
 - `test_exp_log.gd`: the eight Exponentials and logs types (FAL-418): built with every
   cell on their situations, 2 to 5 steps per worked solution, every distractor
   misconception as an option (two that no exact option can show are listed with the

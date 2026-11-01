@@ -58,8 +58,6 @@ const MIXED := ["explin", "cubic", "bell", "trig"]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
-	# The stream's first draw leans low (FAL-460), so it is spent first.
-	rng.int_in(0, 1)
 	var mode: String = need.get("mode", "mixed")
 	if mode == "any":
 		mode = "mixed"
