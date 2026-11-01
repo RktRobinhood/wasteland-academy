@@ -146,6 +146,22 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   formula (k/x), and a lucky dip of 1000 tokens; k, E(X), an expected number and a
   formula's P(event) are then answered to 3 s.f. with the rounding trap, the stake to the
   nearest cent, and the rest exactly. Paper 1 keeps its numbers.
+- `engine/situations/binomial.gd` (FAL-695) is `t4-binomial`, the first type built from
+  the course audit's list (SL4.8, on all four syllabuses): X ~ B(n, p), with n from 5 to 20
+  (more for a mean) and p in steps of 0.05. Its views (`binomial_views.gd`) show it as
+  X ~ B(12, 0.35) or as one of eight stories (seeds, filters, scans, cans, arrows,
+  bridges, drone trips, batteries), and ask 12 unknowns: n and p from a story, P(X = k),
+  at most / fewer than, at least / more than, between, E(X), Var(X), the standard
+  deviation, n and p from E(X) and Var(X), the least n for P(X ≥ 1) > c, "the kth success
+  is on trial m" and a conditional P(X = j | X ≥ 1). Every question is Paper 2 (every
+  binomial part in the bank is): probabilities and the standard deviation are answered to
+  3 s.f. with the rounding trap, E(X), Var(X), n and p exactly. Probabilities are floats,
+  as a GDC computes them, and the working uses binompdf and binomcdf, nCr, the complement
+  or a sum. Wrong options come from the SL4.8 misconceptions (no nCr, swapped powers, cdf
+  for pdf, `1 − P(X ≤ k)` for at least k, `< k` read as `≤ k`, the wrong subtraction for
+  a range, Var = np, σ = Var, E(X) rounded, n rounded down, p = Var ÷ E, a kth success
+  read as k in m trials, a conditional multiplied). As every exam type, it offers no extra
+  format (error-spot, method-pick, true-false-reason): `test_extension.gd` holds that rule.
 - The rest of the Quadratics region (FAL-414) is four more situations. Three extend
   `quadratic` by calling its `generate()`: `quadratic_parameter.gd` (a quadratic with a
   constant k, given directly or as a line meeting a curve, for `fn-discriminant`),
@@ -869,6 +885,12 @@ script error happens while it runs. Run one file with
   slots, strict events, every misconception appears as an option (on Paper 2 too);
   Paper 2 has awkward decimals and 3 s.f. answers where a calculator gives them, with
   the rounding trap, and Paper 1's numbers are unchanged.
+- `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
+  cell in every format; Paper 2 only; the same seed giving the same question; the story
+  and the model saying n and p; probabilities against hand values; every option a
+  probability; the least n the first that works; n and p from E(X) and Var(X) exact;
+  every misconception as an option; 3 s.f. marking with 2 s.f. a glancing hit; the three
+  concept probes; and every course having every cell.
 - `test_quadratics.gd`: the four FAL-414 types: built with every cell, 2 to 5 steps per
   worked solution, every distractor misconception as an option (three that no answer
   shape can carry yet are listed with the reason), two rays typed as one interval caught

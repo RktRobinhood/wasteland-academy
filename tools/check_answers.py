@@ -7182,6 +7182,227 @@ def check_link_graph_algebra(q):
     return None, None
 
 
+# ── binomial (t4-binomial, FAL-695) ──────────────────────────
+# The `binomial` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/binomial.gd. Every probability is solved again from n and p with
+# exact rationals and rounded to 3 s.f. on the true value; the engine works in floats.
+
+BN_SKILL = "SL4.8."
+BN_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03; a hair under it, so no float-vs-exact tie fails
+BN_RANGES = {"exact-probability": (sp.Rational(1, 100), sp.Rational(2, 5)),
+             "at-most-probability": (sp.Rational(1, 50), sp.Rational(49, 50)),
+             "at-least-probability": (sp.Rational(1, 50), sp.Rational(49, 50)),
+             "between-probability": (sp.Rational(1, 20), sp.Rational(19, 20)),
+             "kth-success-trial": (sp.Rational(1, 100), sp.Rational(2, 5)),
+             "conditional-probability": (sp.Rational(1, 50), sp.Rational(3, 5))}
+BN_TERMS_MAX = 6
+BN_LEAST_GAP = sp.Rational(99, 1000)    # the engine's is 0.1
+BN_LEAST_MAX = 60
+# The stories, in the engine's order: unit, singular, plural verb phrase, singular verb phrase.
+BN_CONTEXTS = [("seeds", "seed", "germinate", "germinates"), ("filters", "filter", "work", "works"),
+               ("scans", "scan", "pick up a signal", "picks up a signal"), ("cans", "can", "go bad", "goes bad"),
+               ("arrows", "arrow", "hit the target", "hits the target"), ("bridges", "bridge", "hold", "holds"),
+               ("trips", "trip", "arrive on time", "arrives on time"), ("batteries", "battery", "last all night", "lasts all night")]
+
+
+def bn_pmf(n, p, k):
+    return sp.binomial(n, k) * p**k * (1 - p)**(n - k) if 0 <= k <= n else sp.Integer(0)
+
+
+def bn_cdf(n, p, k):
+    return sum((bn_pmf(n, p, r) for r in range(0, min(k, n) + 1)), sp.Integer(0)) if k >= 0 else sp.Integer(0)
+
+
+def bn_clear(x, lo, hi):
+    """x is between lo and hi, and at least BN_EDGE of a unit of its 3rd figure from a rounding edge."""
+    if not (lo <= x <= hi):
+        return False
+    v = num(x)
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= BN_EDGE
+
+
+def bn_ordinal(i):
+    if 11 <= i % 100 <= 13:
+        return f"{i}th"
+    return f"{i}{ {1: 'st', 2: 'nd', 3: 'rd'}.get(i % 10, 'th') }"
+
+
+def bn_event(form, k, a, b):
+    return {"le": f"X ≤ {k}", "lt": f"X < {k}", "ge": f"X ≥ {k}", "gt": f"X > {k}", "in": f"{a} ≤ X ≤ {b}",
+            "lo-open": f"{a} < X ≤ {b}", "": f"X = {k}"}[form]
+
+
+def bn_event_words(form, k, a, b, tail):
+    return {"le": f"at most {k} {tail}", "lt": f"fewer than {k} {tail}", "ge": f"at least {k} {tail}", "gt": f"more than {k} {tail}",
+            "in": f"at least {a} but at most {b} {tail}", "lo-open": f"more than {a} but at most {b} {tail}", "": f"exactly {k} {tail}"}[form]
+
+
+def bn_prob_text(label, x):
+    return label + sig3(x).replace("-", "−")
+
+
+def bn_trap(label, x):
+    """The rounding trap's text: the answer to 2 s.f., or None where the answer is exact at 3 s.f."""
+    if sp.Rational(sig3(x)) == x:
+        return None
+    return label + dec_text(sp.Rational(sig3(x, 2)))
+
+
+def check_binomial(q):
+    g, u, L, rep = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    T = "t4-binomial"
+    need(q["paper"] == 2, "binomial questions are Paper 2")
+    n, p = int(g["n"]), R(g["p"])
+    qq = 1 - p
+    need(0 < p < 1 and (p * 20).q == 1, "p is not a multiple of 0.05")
+    ctx = BN_CONTEXTS[int(g["ctx"])]
+    unit, sing, good, good1 = ctx
+    ptxt = dec_text(p)
+    form, k, a, b, lo, hi, m = g["form"], int(g["k"]), int(g["a"]), int(g["b"]), int(g["lo"]), int(g["hi"]), int(g["m"])
+
+    # What is shown is what is given.
+    if u not in ("least-trials", "kth-success-trial"):
+        if u == "n-and-p-from-mean-variance":
+            need(L[0].startswith("X ~ B(n, p)") if rep == "equation" else L[0].startswith("Let X be "), f"first line {L[0]!r}")
+        elif rep == "equation":
+            need(L[0] == f"X ~ B({n}, {ptxt})", f"the model shown is {L[0]!r}, not B({n}, {ptxt})")
+        else:
+            need(f" {ptxt}," in L[0] and f"{n} {unit}" in L[0] or f"{n} " in L[0], f"the story {L[0]!r} doesn't give n and p")
+            need(f"probability {ptxt}" in L[0], f"the story {L[0]!r} doesn't give p = {ptxt}")
+    asked = q["asked"]
+
+    wrongs, trap, want = {}, None, None
+    if u == "n-and-p-from-words":
+        need(rep == "words" and f"{n} " in L[0] and f"probability {ptxt}" in L[0], "the story doesn't give n and p")
+        want = f"n = {n}, p = {ptxt}"
+        wrongs[BN_SKILL + "identify#0"] = {f"n = {ptxt}, p = {n}"}
+    elif u in ("exact-probability", "at-most-probability", "at-least-probability", "between-probability"):
+        need(form == {"exact-probability": ""}.get(u, form) and form in {"exact-probability": [""], "at-most-probability": ["le", "lt"],
+             "at-least-probability": ["ge", "gt"], "between-probability": ["in", "lo-open"]}[u] or u == "exact-probability" and form == "", f"form {form!r}")
+        # The event as bounds on X.
+        want_bounds = {"": (k, k), "le": (0, k), "lt": (0, k - 1), "ge": (k, n), "gt": (k + 1, n), "in": (a, b), "lo-open": (a + 1, b)}[form]
+        need((lo, hi) == want_bounds, f"bounds {(lo, hi)} are not {want_bounds} for {form!r}")
+        need(0 <= lo <= hi <= n, "the event is outside 0 to n")
+        ev = bn_event(form, k, a, b)
+        if rep == "equation":
+            need(asked == f"Find P({ev}).", f"the question asks {asked!r}, not P({ev})")
+        else:
+            tail = f"of the {n} {unit} {good}"
+            need(asked == f"Find the probability that {bn_event_words(form, k, a, b, tail)}.", f"the question asks {asked!r}")
+        x = bn_cdf(n, p, hi) - bn_cdf(n, p, lo - 1)
+        label = f"P({ev}) = " if u != "exact-probability" else f"P(X = {k}) = "
+        need(bn_clear(x, *BN_RANGES[u]), f"P({ev}) = {float(x):.6f} is out of range or on a rounding edge")
+        if u == "between-probability":
+            need(hi - lo + 1 <= BN_TERMS_MAX, "the working adds more than 6 terms")
+        if u == "at-most-probability":
+            need(k <= 6, "k is above 6")
+        want, trap = bn_prob_text(label, x), bn_trap(label, x)
+        if u == "exact-probability":
+            wrongs[BN_SKILL + "exact-probability#0"] = {bn_prob_text(label, p**k * qq**(n - k))}
+            wrongs[BN_SKILL + "exact-probability#1"] = {bn_prob_text(label, sp.binomial(n, k) * p**(n - k) * qq**k)}
+            wrongs[BN_SKILL + "exact-probability#2"] = {bn_prob_text(label, bn_cdf(n, p, k))}
+        elif u == "at-most-probability":
+            if form == "lt":
+                wrongs[BN_SKILL + "cumulative-probability#1"] = {bn_prob_text(label, bn_cdf(n, p, k))}
+        elif u == "at-least-probability":
+            wrongs[BN_SKILL + "cumulative-probability#0"] = {bn_prob_text(label, 1 - bn_cdf(n, p, k if form == "ge" else k - 1))}
+        else:
+            if form == "lo-open":
+                wrongs[BN_SKILL + "cumulative-probability#2"] = {bn_prob_text(label, bn_cdf(n, p, b) - bn_cdf(n, p, lo))}
+    elif u in ("mean-from-parameters", "variance-from-parameters", "std-deviation"):
+        if rep == "equation":
+            need(asked == {"mean-from-parameters": "Find E(X).", "variance-from-parameters": "Find Var(X).",
+                           "std-deviation": "Find the standard deviation of X, to 3 s.f."}[u], f"asked {asked!r}")
+        else:
+            need(asked == {"mean-from-parameters": f"Find the expected number of {unit} that {good}.", "variance-from-parameters": "Find the variance of X.",
+                           "std-deviation": "Find the standard deviation of X, to 3 s.f."}[u], f"asked {asked!r}")
+        mean, var = n * p, n * p * qq
+        need(R(g["mean"]) == mean if u == "mean-from-parameters" else R(g["variance"]) == var if u != "mean-from-parameters" else True, "E(X) or Var(X) given is not npq")
+        if u == "mean-from-parameters":
+            need(n >= 10 and n <= 60, "n is outside 10 to 60")
+            want = f"E(X) = {dec_text(mean)}"
+            if mean.q != 1:
+                wrongs[BN_SKILL + "mean-variance#2"] = {f"E(X) = {dec_text(sp.Integer(sp.floor(mean + sp.Rational(1, 2))))}"}
+        elif u == "variance-from-parameters":
+            need((p * 10).q == 1, "p is not a multiple of 0.1 for a variance")
+            want = f"Var(X) = {dec_text(var)}"
+            wrongs[BN_SKILL + "mean-variance#0"] = {f"Var(X) = {dec_text(mean)}"}
+        else:
+            need((p * 10).q == 1, "p is not a multiple of 0.1 for a standard deviation")
+            sd = sp.sqrt(var)
+            need(bn_clear(sd, sp.Rational(0), sp.Integer(100)), "the standard deviation is on a rounding edge")
+            label = "standard deviation = "
+            want, trap = bn_prob_text(label, sd), bn_trap(label, sd) if not sd.is_rational or sp.Rational(sig3(sd)) != sd else None
+            wrongs[BN_SKILL + "mean-variance#1"] = {bn_prob_text(label, var)}
+    elif u == "n-and-p-from-mean-variance":
+        eline = L[-1]
+        mt = re.fullmatch(r"E\(X\) = ([\d.]+) and Var\(X\) = ([\d.]+)", eline)
+        need(mt is not None, f"can't read {eline!r}")
+        E, V = R(mt.group(1)), R(mt.group(2))
+        need(V < E, "Var(X) is not below E(X)")
+        # n and p from what is SHOWN, not from the givens.
+        p2 = 1 - V / E
+        n2 = E / p2
+        need(n2.q == 1 and (p2 * 10).q == 1, f"n = {n2}, p = {p2} are not a whole number and a multiple of 0.1")
+        need(int(n2) == n and p2 == p, "the givens are not what the shown E(X) and Var(X) give")
+        need(asked == "Find n and p.", f"asked {asked!r}")
+        want = f"n = {n}, p = {dec_text(p)}"
+        wrongs[BN_SKILL + "find-n-or-p#2"] = {f"n = {n}, p = {dec_text(1 - p)}"}
+    elif u == "least-trials":
+        c = R(g["c"])
+        if rep == "equation":
+            need(L[0] == f"X ~ B(n, {ptxt})", f"first line {L[0]!r}")
+            need(asked == f"Find the least n such that P(X ≥ 1) > {dec_text(c)}.", f"asked {asked!r}")
+        else:
+            need(f"probability {ptxt}" in L[0], f"the story {L[0]!r} doesn't give p")
+            need(asked == f"How many {unit} are needed so that the probability that at least one {sing} {good1} is greater than {dec_text(c)}?", f"asked {asked!r}")
+        need(c in (sp.Rational(9, 10), sp.Rational(19, 20), sp.Rational(99, 100)), "c is not 0.9, 0.95 or 0.99")
+        nn = next(i for i in range(1, 400) if 1 - qq**i > c)
+        need(nn == int(g["nn"]), f"the least n is {nn}, not {g['nn']}")
+        x = sp.log(1 - c) / sp.log(qq)
+        frac = sp.N(x - sp.floor(x), 20)
+        need(BN_LEAST_GAP <= frac <= 1 - BN_LEAST_GAP, f"the quotient {float(x):.4f} is not clear of a whole number")
+        need(3 <= nn <= BN_LEAST_MAX, f"n = {nn} is outside 3 to {BN_LEAST_MAX}")
+        want = f"n = {nn}"
+        if nn > 1:
+            wrongs[BN_SKILL + "find-n-or-p#1"] = {f"n = {nn - 1}"}
+    elif u == "kth-success-trial":
+        if rep == "equation":
+            need(L[0] == f"Independent trials, each a success with probability {ptxt}.", f"first line {L[0]!r}")
+            need(asked == f"Find the probability that the {bn_ordinal(k)} success is on trial {m}.", f"asked {asked!r}")
+        else:
+            need(f"probability {ptxt}" in L[0], f"the story {L[0]!r} doesn't give p")
+            need(asked == f"Find the probability that the {bn_ordinal(k)} {sing} to {good} is the {bn_ordinal(m)} {sing} used.", f"asked {asked!r}")
+        need(2 <= k <= 4 and k + 2 <= m <= k + 8, f"k = {k}, m = {m} are outside the limits")
+        x = sp.binomial(m - 1, k - 1) * p**k * qq**(m - k)
+        label = "probability = "
+        need(bn_clear(x, *BN_RANGES[u]), f"the probability {float(x):.6f} is out of range or on a rounding edge")
+        want, trap = bn_prob_text(label, x), bn_trap(label, x)
+        wrongs[BN_SKILL + "binomial-in-context#1"] = {bn_prob_text(label, bn_pmf(m, p, k))}
+    elif u == "conditional-probability":
+        j = k
+        if rep == "equation":
+            need(asked == f"Find P(X = {j} | X ≥ 1).", f"asked {asked!r}")
+        else:
+            need(asked == f"Given that at least one {sing} {good1}, find the probability that exactly {j} of the {n} {unit} {good}.", f"asked {asked!r}")
+        at_one = 1 - qq**n
+        need(at_one <= sp.Rational(97, 100), "P(X ≥ 1) is above 0.97, so dividing by it hardly matters")
+        x = bn_pmf(n, p, j) / at_one
+        label = "probability = "
+        need(1 <= j <= n - 1 and bn_clear(x, *BN_RANGES[u]), f"the probability {float(x):.6f} is out of range or on a rounding edge")
+        want, trap = bn_prob_text(label, x), bn_trap(label, x)
+        wrongs[BN_SKILL + "binomial-in-context#2"] = {bn_prob_text(label, bn_pmf(n, p, j) * at_one)}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+    for sol in q["solutions"]:
+        need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -7198,7 +7419,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-graph-reading": check_graph_reading,
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
-                    "fn-link-graph-vs-algebra": check_link_graph_algebra}
+                    "fn-link-graph-vs-algebra": check_link_graph_algebra,
+                    "binomial": check_binomial}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
