@@ -13,6 +13,12 @@ const PAD := 18.0
 const DOT := 13.0
 const FONT_SIZE := 34
 
+## A pick-the-graph card (spec.card, FAL-420) is half the column wide, so it draws
+## thinner, with its dots smaller and its numbers fewer: one labelled grid line in
+## each 90 px.
+func _card() -> bool:
+	return spec.get("card", false)
+
 var spec: Dictionary = {}
 
 
@@ -65,8 +71,8 @@ func _draw() -> void:
 	var y1 := int(spec.y1)
 	var sx := step_for(x1 - x0, r.size.x, 22.0)
 	var sy := step_for(y1 - y0, r.size.y, 22.0)
-	var lx := step_for(x1 - x0, r.size.x, 70.0)
-	var ly := step_for(y1 - y0, r.size.y, 56.0)
+	var lx := step_for(x1 - x0, r.size.x, 90.0 if _card() else 70.0)
+	var ly := step_for(y1 - y0, r.size.y, 90.0 if _card() else 56.0)
 	# Grid: every unit (or step) faint, labelled steps brighter.
 	for x in range(x0, x1 + 1):
 		if x % sx == 0:
@@ -109,10 +115,16 @@ func _draw() -> void:
 	else:
 		_draw_parabola()
 	# Marked points with their coordinates.
+	var dot := DOT * (0.75 if _card() else 1.0)
 	for p in spec.points:
+		# A point outside the window (a wrong card's endpoint carried off it) isn't drawn.
+		if p.x < float(spec.x0) or p.x > float(spec.x1) or p.y < float(spec.y0) or p.y > float(spec.y1):
+			continue
 		var c := to_px(Vector2(p.x, p.y))
-		draw_circle(c, DOT, UiTheme.PINK)
-		draw_circle(c, DOT * 0.45, UiTheme.BG)
+		draw_circle(c, dot, UiTheme.PINK)
+		draw_circle(c, dot * 0.45, UiTheme.BG)
+		if p.label == "":
+			continue
 		var w := font.get_string_size(p.label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
 		var at := c + Vector2(20, -20)
 		if at.x + w > r.end.x:
@@ -131,6 +143,10 @@ func _draw_curves(font: Font) -> void:
 	var y0 := float(spec.y0)
 	var y1 := float(spec.y1)
 	var cols := [UiTheme.TEAL, UiTheme.SAND]
+	# A card's curves are one curve in pieces (a curve carried through its asymptote).
+	if _card():
+		cols = [UiTheme.TEAL]
+	var width := 5.0 if _card() else 6.0
 	for i in spec.curves.size():
 		var seg := PackedVector2Array()
 		for p in spec.curves[i]:
@@ -138,10 +154,10 @@ func _draw_curves(font: Font) -> void:
 				seg.append(to_px(Vector2(p[0], p[1])))
 			elif seg.size() > 0:
 				if seg.size() > 1:
-					draw_polyline(seg, cols[i % cols.size()], 6.0, true)
+					draw_polyline(seg, cols[i % cols.size()], width, true)
 				seg = PackedVector2Array()
 		if seg.size() > 1:
-			draw_polyline(seg, cols[i % cols.size()], 6.0, true)
+			draw_polyline(seg, cols[i % cols.size()], width, true)
 	for hl in spec.get("hlines", []):
 		var y := float(hl.at)
 		var x := x0

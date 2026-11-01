@@ -176,6 +176,18 @@ const CHAINS := {
 	"fn-log-of-quadratic": ["argument-roots", "domain-from-inequality", "asymptotes", "zeros", "max-value"],
 	# the asymptote opens, then the domain, where it crosses the x-axis, and an inequality
 	"fn-log-function-features": ["asymptote-from-equation", "domain-from-equation", "x-intercept", "log-inequality"],
+	# the sketch, then its labelled zeros and turning point, then how many solutions f(x) = k has
+	"fn-sketch-gdc": ["sketch-on-domain", "label-zeros", "label-turning-point", "count-solutions-from-sketch"],
+	# the y-intercept and the zeros, the distance between the stored zeros, the turning point
+	"fn-gdc-features": ["y-intercept", "zeros-gdc", "use-stored-zeros", "turning-point-coordinates"],
+	# the meeting points, the one in an interval, then the distance between them
+	"fn-gdc-intersection": ["intersection-points", "crossing-in-interval", "distance-between-crossings"],
+	# form D(t), find its greatest value and when, then say what the time means
+	"fn-gdc-optimise-combined": ["form-difference", "max-difference", "interpret-extreme"],
+	# solve on the GDC, then reject the root the context can't have
+	"fn-gdc-solve-equation": ["root-in-interval", "reject-a-root"],
+	# the sketch from its features, then what is wrong with a student's sketch of it
+	"fn-sketch-from-features": ["sketch-quadratic", "judge-a-sketch"],
 }
 
 

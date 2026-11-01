@@ -19,7 +19,7 @@ const CATALOGUE := "res://data/catalogue.json"
 ## The eight formats of the FAL-310 plan. BUILT are the ones a question can use now;
 ## the rest are named so a view can ask for them and get a clear "not built yet".
 const FORMATS := ["value", "mcq", "error-spot", "method-pick", "true-false-reason", "match", "order-steps", "pick-the-graph"]
-const BUILT := ["value", "mcq", "error-spot", "method-pick", "true-false-reason"]
+const BUILT := ["value", "mcq", "error-spot", "method-pick", "true-false-reason", "pick-the-graph"]
 const CHOICES := 4
 ## The formats built on a question (FAL-459), each played as four options like mcq:
 ## error-spot (which line of a student's working is the first wrong one),
@@ -27,7 +27,13 @@ const CHOICES := 4
 ## right, and if not, what should it be). A cell offers one only where its type's
 ## catalogue `formats` lists it and its views build it (views.formats(unknown)).
 const EXTRA_FORMATS := ["error-spot", "method-pick", "true-false-reason"]
-const CHOICE_FORMATS := ["mcq", "error-spot", "method-pick", "true-false-reason"]
+const CHOICE_FORMATS := ["mcq", "error-spot", "method-pick", "true-false-reason", "pick-the-graph"]
+## Pick the graph (Q13, FAL-420; the catalogue's `graph-pick`): students can't draw, so a
+## sketch question shows four graphs, q.graphs, and asks which is right. Its answer is
+## the `graph` kind ("Graph A" to "Graph D"), so any view whose builder makes one plays
+## it, whatever format was asked. Each wrong graph changes one thing, a typical mistake:
+## its option's `ref` is the misconception (logged like any other), `mistake` names the
+## change (the checker tests it) and `why` says what is wrong with it.
 ## The share of a cell's questions the planner asks in one of its extra formats.
 const EXTRA_SHARE := 0.3
 
@@ -58,6 +64,16 @@ static var SITUATIONS := {
 	"fn-pre-percent-multiplier": [PercentSituation, PercentViews],
 	"exp-growth-vs-linear": [GrowthPatternsSituation, GrowthPatternsViews],
 	"fn-link-multiplicative-growth": [LinkGrowthSituation, LinkGrowthViews],
+	"gdc-curve": [GdcCurveSituation, GdcCurveViews],
+	"gdc-two-curves": [GdcTwoCurvesSituation, GdcTwoCurvesViews],
+	"gdc-combined": [GdcCombinedSituation, GdcCombinedViews],
+	"gdc-context-equation": [GdcContextEquationSituation, GdcContextEquationViews],
+	"graph-from-features": [GraphFromFeaturesSituation, GraphFromFeaturesViews],
+	"gdc-inequality": [GdcInequalitySituation, GdcInequalityViews],
+	"fn-pre-graph-reading": [GraphReadingSituation, GraphReadingViews],
+	"graph-match": [GraphMatchSituation, GraphMatchViews],
+	"fn-link-extremes": [LinkExtremesSituation, LinkExtremesViews],
+	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
 }
 
 static var _cat: Dictionary = {}
@@ -551,6 +567,10 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans: Dictionary = b.answer
 	if ans.kind in Answer.MC_ONLY:
 		fmt = "mcq"
+	if ans.kind == "graph":
+		fmt = "pick-the-graph"
+	elif fmt == "pick-the-graph":
+		fmt = "mcq"
 
 	var prompt: String = b.asked
 	if angle != "any":
@@ -564,7 +584,7 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 		if b.methods.has(a):
 			solutions.append({"angle": a, "name": method_name(t, u.id, a, b, "Worked solution"), "steps": b.methods[a].steps,
 				"result": b.methods[a].result})
-	var choices := _choices(ans, b, rng)
+	var choices := _choices(ans, b, rng) if fmt != "pick-the-graph" else _graph_choices(b)
 	var out_view := {"type": t.id, "unknown": u.id, "rep": v.rep, "angle": angle, "format": fmt, "seed": v.seed}
 	var q := {
 		"view": out_view,
@@ -578,9 +598,23 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 		"choices": choices, "solutions": solutions,
 		"given": b.given, "situation_id": t.situation, "situation": SITUATIONS[t.situation][0].export(s),
 	}
-	if extra != "":
+	if fmt == "pick-the-graph":
+		q.graphs = b.graphs.map(func(g): return g.graph)
+		var reasons: Array = []
+		for c in choices:
+			if not c.correct and c.why != "":
+				reasons.append("%s: %s." % [c.text, c.why.rstrip(".")])
+		q.reason = " ".join(reasons)
+	elif extra != "":
 		_reformat(q, v, b, extra)
 	return q
+
+
+## The options of a pick-the-graph question, in its graphs' letter order (GdcKit.pick):
+## each "Graph A" to "Graph D", with the misconception (`ref`) its wrong graph shows.
+static func _graph_choices(b: Dictionary) -> Array:
+	return b.graphs.map(func(g): return {"text": g.text, "values": {"v": g.text}, "correct": g.correct, "ref": g.ref,
+		"mistake": g.mistake, "why": g.why})
 
 
 ## Four options: the answer and three wrong ones. The view's rounding trap (Q7) comes
@@ -590,8 +624,10 @@ static func _choices(ans: Dictionary, b: Dictionary, rng: Seeded) -> Array:
 	var seen := {Answer.canon(ans, ans.values): true}
 	var picked: Array = []
 	var pool: Array = []
+	# A view whose misconception is "too few figures" (SL2.4.max-min#2) tags its trap
+	# with it (trap_ref), so picking it is a glancing hit that logs the misconception.
 	if not b.get("trap", {}).is_empty():
-		pool.append({"values": b.trap, "ref": "", "trap": true})
+		pool.append({"values": b.trap, "ref": b.get("trap_ref", ""), "trap": true})
 	for w in b.wrongs:
 		pool.append(w)
 	for g in b.generic:

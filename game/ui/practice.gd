@@ -206,6 +206,8 @@ func render_question() -> void:
 			_add_slots()
 		"probe":
 			_add_options(question.options)
+		"pick-the-graph":
+			_add_graph_options()
 		_:
 			_add_options(question.choices.map(func(c): return c.text))
 	check_button = Button.new()
@@ -391,6 +393,42 @@ func _add_options(texts: Array) -> void:
 		box.add_child(b)
 		_choice_buttons.append(b)
 	card.add_child(box)
+
+
+## Pick the graph (Q13): the four graphs in a 2 × 2 grid, each card above its letter
+## button. Tapping a card picks it too. Readable on a 360 px wide phone: each card is
+## half the column, with fewer, larger labels (GraphView's card mode).
+func _add_graph_options() -> void:
+	var grid := GridContainer.new()
+	grid.name = "GraphOptions"
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 14)
+	grid.add_theme_constant_override("v_separation", 18)
+	var group := ButtonGroup.new()
+	for i in question.choices.size():
+		var cell := VBoxContainer.new()
+		cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cell.add_theme_constant_override("separation", 6)
+		var g := GraphView.new()
+		g.name = "Card%d" % i
+		g.custom_minimum_size = Vector2(0, 430)
+		g.mouse_filter = Control.MOUSE_FILTER_STOP
+		g.set_spec(question.graphs[i])
+		var b := Button.new()
+		b.text = question.choices[i].text
+		b.toggle_mode = true
+		b.button_group = group
+		b.add_theme_font_size_override("font_size", UiTheme.BODY)
+		b.pressed.connect(func(): _choice = i)
+		g.gui_input.connect(func(e: InputEvent):
+			if e is InputEventMouseButton and e.pressed and not b.disabled:
+				b.button_pressed = true
+				_choice = i)
+		cell.add_child(g)
+		cell.add_child(b)
+		grid.add_child(cell)
+		_choice_buttons.append(b)
+	card.add_child(grid)
 
 
 ## Marks the answer, records it in the save and shows the feedback and working.
