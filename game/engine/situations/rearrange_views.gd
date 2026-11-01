@@ -243,15 +243,19 @@ func u_which_original(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	match src:
 		"two":
 			plain = [RearrangeSituation.formula_text("two", {"a": inner.a, "b": -inner.b}), RearrangeSituation.formula_text("two", {"a": -inner.a, "b": inner.b}),
-				RearrangeSituation.formula_text("two", {"a": inner.a + 1, "b": inner.b}), RearrangeSituation.formula_text("two", {"a": inner.a, "b": inner.b + 1})]
+				RearrangeSituation.formula_text("two", {"a": inner.a + 1, "b": inner.b}), RearrangeSituation.formula_text("two", {"a": inner.a, "b": inner.b + 1}),
+				RearrangeSituation.formula_text("two", {"a": inner.a + 2, "b": inner.b}), RearrangeSituation.formula_text("two", {"a": inner.a, "b": inner.b + 2})]
 		"denom":
 			plain = [RearrangeSituation.formula_text("denom", {"a": inner.a, "b": -inner.b}), RearrangeSituation.formula_text("denom", {"a": -inner.a, "b": inner.b}),
-				RearrangeSituation.formula_text("denom", {"a": inner.a + 1, "b": inner.b}), RearrangeSituation.formula_text("denom", {"a": inner.a, "b": inner.b + 1})]
+				RearrangeSituation.formula_text("denom", {"a": inner.a + 1, "b": inner.b}), RearrangeSituation.formula_text("denom", {"a": inner.a, "b": inner.b + 1}),
+				RearrangeSituation.formula_text("denom", {"a": inner.a + 2, "b": inner.b}), RearrangeSituation.formula_text("denom", {"a": inner.a, "b": inner.b + 2})]
 		_:
 			plain = [RearrangeSituation.formula_text("twice", {"a": inner.d, "b": inner.b, "c": inner.c, "d": inner.a}),
 				RearrangeSituation.formula_text("twice", {"a": inner.a, "b": -inner.b, "c": inner.c, "d": inner.d}),
 				RearrangeSituation.formula_text("twice", {"a": inner.a, "b": inner.b, "c": -inner.c, "d": inner.d}),
-				RearrangeSituation.formula_text("twice", {"a": inner.a, "b": inner.b + 1, "c": inner.c, "d": inner.d})]
+				RearrangeSituation.formula_text("twice", {"a": inner.a, "b": inner.b + 1, "c": inner.c, "d": inner.d}),
+				RearrangeSituation.formula_text("twice", {"a": inner.a, "b": inner.b + 2, "c": inner.c, "d": inner.d}),
+				RearrangeSituation.formula_text("twice", {"a": inner.a, "b": inner.b, "c": inner.c, "d": inner.d + 1})]
 	var out := {"asked": "Which formula did this come from?", "lines": [shown]}
 	out.merge(pick(right, [], plain))
 	var final := "So it came from %s." % right
