@@ -7652,6 +7652,239 @@ def check_data_summary(q):
     return None, None
 
 
+# ── composite-pair (fn-composite) ──
+
+CP_PREFIX = "SL2.5.composite-"
+CP_REFS = {"value-order": "SL2.5.composite-value#0", "product": "SL2.5.composite-value#1", "twice": "SL2.5.composite-value#2",
+           "order": "SL2.5.composite-expression#0", "equal": "SL2.5.composite-expression#2", "undo": "SL2.5.find-inverse#1"}
+CP_COEF_MAX = 60
+CP_V_MAX = 200
+K = sp.Symbol("k")
+
+
+def cp_step(st, e):
+    """One step of a rule said in words ("subtract 4"), applied to the expression e."""
+    w = st.replace("−", "-").split(" ")
+    if w[0] == "add":
+        return e + R(w[1])
+    if w[0] == "subtract":
+        return e - R(w[1])
+    if w[0] == "double":
+        return 2 * e
+    if w[0] == "treble":
+        return 3 * e
+    if w[0] == "square":
+        return e**2
+    if w[0] == "cube":
+        return e**3
+    if w[0] == "negate":
+        return -e
+    if w[0] == "multiply" and w[1] == "by":
+        return R(w[2]) * e
+    raise Fail(f"can't read the step {st!r}")
+
+
+def cp_steps(text):
+    e = X
+    for st in text.split(", then "):
+        e = cp_step(st, e)
+    return sp.expand(e)
+
+
+def cp_rules(q):
+    """f and g (and h) from the lines of a question: 'f(x) = …' or 'f: double, then add 1.'"""
+    out = {}
+    for line in q["lines"]:
+        m = re.fullmatch(r"([a-z])\(x\) = (.+)", line)
+        if m:
+            out[m.group(1)] = parse(m.group(2), letters=("k",))
+            continue
+        m = re.fullmatch(r"([a-z]): (.+)\.", line)
+        if m:
+            out[m.group(1)] = cp_steps(m.group(2))
+    return out
+
+
+def cp_poly_text(e, var="x"):
+    co = poly_coeffs(sp.expand(e))
+    deg = max(co) if co else 0
+    return ext_terms([co.get(p, 0) for p in range(deg, -1, -1)], list(range(deg, -1, -1)), var)
+
+
+def cp_int_poly(e, what):
+    co = poly_coeffs(sp.expand(e))
+    need(all(sp.Rational(c).q == 1 and abs(c) <= CP_COEF_MAX for c in co.values()), f"{what} has a coefficient that is not a whole number up to {CP_COEF_MAX}")
+
+
+def cp_is_linear(e, what):
+    co = poly_coeffs(sp.expand(e))
+    need(set(co) <= {0, 1} and co.get(1, 0) != 0 and sp.Rational(co[1]).q == 1 and sp.Rational(co.get(0, 0)).q == 1, f"{what} is not a linear rule with whole numbers")
+
+
+def cp_check_text(q, want, wrongs, trap=None):
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    gc_check_common(q, want, wrongs, trap)
+
+
+def check_composite(q):
+    ans, u, rep, L, asked = q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    lab = ans.get("label", "")
+    r = cp_rules(q)
+    wr = {}
+    trap = None
+    need(q["paper"] == (2 if u == "value-inside-out" and "sin x" in " ".join(L) else 1), "the paper is not the one the numbers need")
+    if u == "value-inside-out":
+        f, g = r["f"], r["g"]
+        m = re.fullmatch(r"Find \(f∘g\)\((−?\d+)\)\.", asked.replace("-", "−"))
+        need(m is not None, f"can't read {asked!r}")
+        x0 = el_num(m.group(1))
+        need(lab == f"(f∘g)({m.group(1)}) = ", f"label {lab!r}")
+        cp_is_linear(g, "g")
+        need(poly_coeffs(g)[1] != 1, "g has gradient 1")
+        gx = g.subs(X, x0)
+        v = f.subs(X, gx)
+        if f == sp.sin(X):
+            need(L[2] == "x is in radians.", "radians are not stated")
+            val = lambda e: R(str(sp.N(e, 30)))
+            want = lab + ext_sf(val(v))
+            wr[CP_REFS["value-order"]] = {lab + ext_sf(val(g.subs(X, f.subs(X, x0))))}
+            wr[CP_REFS["product"]] = {lab + ext_sf(val(f.subs(X, x0) * gx))}
+            wr[CP_REFS["twice"]] = {lab + ext_sf(val(g.subs(X, gx)))}
+            trap = lab + dec_text(R(sig3(val(v), 2).replace("−", "-")))
+        else:
+            need(abs(v) <= CP_V_MAX, "the value is more than 200")
+            cp_int_poly(f, "f")
+            want = lab + frac_text(v)
+            wr[CP_REFS["value-order"]] = {lab + frac_text(g.subs(X, f.subs(X, x0)))}
+            wr[CP_REFS["product"]] = {lab + frac_text(f.subs(X, x0) * gx)}
+            wr[CP_REFS["twice"]] = {lab + frac_text(f.subs(X, f.subs(X, x0)))}
+    elif u == "expression":
+        f, g = r["f"], r["g"]
+        m = re.fullmatch(r"Find \((f∘g|g∘f)\)\(x\), simplified\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        cp_is_linear(g, "g")
+        h, h2 = (f.subs(X, g), g.subs(X, f)) if m.group(1) == "f∘g" else (g.subs(X, f), f.subs(X, g))
+        cp_int_poly(h, "the composite")
+        want = f"({m.group(1)})(x) = " + cp_poly_text(h)
+        need(lab == f"({m.group(1)})(x) = ", f"label {lab!r}")
+        wr[CP_REFS["order"]] = {lab + cp_poly_text(h2)}
+    elif u == "parameter-from-value":
+        m = re.fullmatch(r"Given that \(f∘g\)\((−?\d+)\) = (−?\d+), find (the possible values of k|k)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        f, g = r["f"], r["g"]
+        x0, V = el_num(m.group(1)), el_num(m.group(2))
+        sols = sorted(sp.solve(f.subs(X, g.subs(X, x0)) - V, K))
+        need(all(s_.is_rational and s_.q == 1 and abs(s_) <= 20 for s_ in sols), f"k is not a whole number from −20 to 20: {sols}")
+        if m.group(3) == "k":
+            need(len(sols) == 1 and f.has(K) and not g.has(K), "a single k is in f")
+            want = "k = " + frac_text(sols[0])
+            other = sorted(sp.solve(g.subs(X, f.subs(X, x0)) - V, K))
+            wr[CP_REFS["order"]] = {"k = " + frac_text(other[0])}
+        else:
+            need(len(sols) == 2 and g.has(K) and not f.has(K), "a ± pair of k is in g")
+            want = f"k = {frac_text(sols[0])} or k = {frac_text(sols[1])}"
+    elif u == "parameter-from-coefficients":
+        m = re.fullmatch(r"The composite \(f∘g\)\(x\) can be written as (\d+)x² \+ qx \+ r\. Find the possible values of k\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        f, g = r["f"], r["g"]
+        P = int(m.group(1))
+        co = sp.Poly(sp.expand(f.subs(X, g)), X).coeff_monomial(X**2)
+        sols = sorted(sp.solve(co - P, K))
+        need(len(sols) == 2 and all(s_.q == 1 for s_ in sols) and sols[0] == -sols[1], f"k = {sols}")
+        need(g.has(K) and not f.has(K), "k is in g only")
+        want = f"k = {frac_text(sols[0])} or k = {frac_text(sols[1])}"
+    elif u == "solve-composite":
+        m = re.fullmatch(r"Solve \(f∘g\)\(x\) = (−?\d+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        f, g = r["f"], r["g"]
+        cp_is_linear(g, "g")
+        T = el_num(m.group(1))
+        need(abs(T) <= CP_V_MAX, "the target is more than 200")
+        roots = sp.Poly(sp.expand(f.subs(X, g)) - T, X).real_roots()
+        need(all(rt_.is_rational and rt_.q == 1 for rt_ in roots), f"the solutions {roots} are not whole numbers")
+        xs = sorted(set(roots))
+        parts = [frac_text(x) for x in xs]
+        want = "x = " + ((", ".join(parts[:-1]) + " or " + parts[-1]) if len(parts) > 1 else parts[0])
+    elif u == "self-composite":
+        f = r["f"]
+        need(asked == "Find (f∘f)(x), simplified.", f"asked {asked!r}")
+        h = f.subs(X, f)
+        cp_int_poly(h, "the composite")
+        want = "(f∘f)(x) = " + cp_poly_text(h)
+    elif u == "compare-orders":
+        need(asked == "Find f∘g and g∘f, and say whether they are equal.", f"asked {asked!r}")
+        f, g = r["f"], r["g"]
+        cp_is_linear(g, "g")
+        fg, gf = sp.expand(f.subs(X, g)), sp.expand(g.subs(X, f))
+        need(sp.simplify(fg - gf) != 0, "the composites are equal")
+        cp_int_poly(fg, "f∘g")
+        cp_int_poly(gf, "g∘f")
+        T_ = cp_poly_text
+        want = f"f∘g = {T_(fg)} and g∘f = {T_(gf)}: not equal"
+        wr[CP_REFS["order"]] = {f"f∘g = {T_(gf)} and g∘f = {T_(fg)}: not equal"}
+        wr[CP_REFS["equal"]] = {f"f∘g = {T_(fg)} and g∘f = {T_(fg)}: equal"}
+    elif u == "build-from-words":
+        m = re.fullmatch(r"A rule takes x and does this: (.+)\. Write it as one expression, h\(x\)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        steps = m.group(1).split(", then ")
+        need(2 <= len(steps) <= 3 and sum(1 for st in steps if st == "square") <= 1, "the chain is not 2 or 3 steps with one power at most")
+        h = cp_steps(m.group(1))
+        cp_int_poly(h, "h")
+        want = "h(x) = " + cp_poly_text(h)
+        rev = X
+        for st in reversed(steps):
+            rev = cp_step(st, rev)
+        wr[CP_REFS["order"]] = {"h(x) = " + cp_poly_text(sp.expand(rev))}
+    elif u == "decompose":
+        h = r["h"]
+        cp_int_poly(h, "h")
+        pair = lambda t: re.fullmatch(r"g\(x\) = (.+) and f\(x\) = (.+)", t)
+        mm = pair(q["answer_text"])
+        need(mm is not None, f"can't read {q['answer_text']!r}")
+        g, f = parse(mm.group(1)), parse(mm.group(2))
+        cp_is_linear(g, "g")
+        need(sp.expand(f.subs(X, g) - h) == 0, "f(g(x)) is not h")
+        need(sp.degree(f, X) in (2, 3) and f.subs(X, X) == f, "f is not a power rule")
+        for o in q["choices"]:
+            if o["correct"]:
+                continue
+            m2 = pair(o["text"])
+            need(m2 is not None, f"can't read the option {o['text']!r}")
+            need(sp.expand(parse(m2.group(2)).subs(X, parse(m2.group(1))) - h) != 0, f"the option {o['text']!r} is also a decomposition of h")
+            if o["ref"]:
+                need(o["ref"] == CP_REFS["order"] and (parse(m2.group(1)), parse(m2.group(2))) == (f, g), f"{o['ref']} is not the swapped pair")
+        want = q["answer_text"]
+        wr[CP_REFS["order"]] = {o["text"] for o in q["choices"] if o["ref"]}
+    elif u == "inner-from-composite":
+        need(L[1].startswith("(f∘g)(x) = "), f"lines {L!r}")
+        h = parse(L[1].split(" = ", 1)[1])
+        f = r["f"]
+        co = poly_coeffs(f)
+        need(set(co) <= {0, 1} and co.get(1, 0) not in (0, 1) and co.get(0, 0) != 0, "f is not mx + c with m ≠ 0, 1 and c ≠ 0")
+        m_, c_ = co[1], co.get(0, 0)
+        g = sp.expand((h - c_) / m_)
+        cp_int_poly(g, "g")
+        need(sp.degree(g, X) in (1, 2), "g is not linear or quadratic")
+        want = "g(x) = " + cp_poly_text(g)
+        wr[CP_REFS["undo"]] = {"g(x) = " + cp_poly_text(sp.expand(h / m_ - c_))}
+    elif u == "outer-from-composite":
+        need(L[1].startswith("(f∘g)(x) = "), f"lines {L!r}")
+        h = parse(L[1].split(" = ", 1)[1])
+        g = r["g"]
+        cp_is_linear(g, "g")
+        co = poly_coeffs(g)
+        a_, b_ = co[1], co.get(0, 0)
+        f = sp.expand(h.subs(X, (X - b_) / a_))
+        cp_int_poly(f, "f")
+        need(sp.degree(f, X) == 2, "f is not a quadratic")
+        want = "f(x) = " + cp_poly_text(f)
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    cp_check_text(q, want, wr, trap)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -7669,7 +7902,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
-                    "binomial": check_binomial, "data-summary": check_data_summary}
+                    "binomial": check_binomial, "data-summary": check_data_summary,
+                    "composite-pair": check_composite}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
