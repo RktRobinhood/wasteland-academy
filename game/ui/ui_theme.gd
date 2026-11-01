@@ -3,8 +3,10 @@ extends RefCounted
 ## Salvage Neon colours and sizes for plain screens. Sizes are in base units (the
 ## 1080-wide portrait canvas): a 390 px phone shows them at about a third.
 ##
-## Maths text uses Godot's default font, which has −, ², √, ≥, ≤, ½ and Δ. The
-## vendored Share Tech Mono doesn't.
+## Maths text uses Godot's default font (Open Sans), which has −, ², √, ≥, ≤, ½ and Δ
+## but not ⁻, ∘, ↦, →, ≡, ℝ, ∈ and the like (FAL-514). install_math_font() puts a
+## subset of DejaVu Sans behind it for those. The vendored Share Tech Mono has neither;
+## Calculator.mono() falls back to the default font, so it gets them too.
 
 const BG := Color(0.121569, 0.160784, 0.215686)
 const PANEL := Color(0.16, 0.2, 0.27)
@@ -22,9 +24,32 @@ const BIG := 50
 const SMALL := 32
 
 const TITLE_FONT := preload("res://assets/fonts/bangers-latin.woff2")
+const MATH_FONT := preload("res://assets/fonts/dejavu-math-subset.woff2")
+
+
+## Adds the maths subset behind the default font, once. Safe to call again.
+static func install_math_font() -> void:
+	var base := ThemeDB.fallback_font
+	if not base.fallbacks.has(MATH_FONT):
+		base.fallbacks = base.fallbacks + [MATH_FONT]
+
+
+## The characters of s the game's default font stack can't draw (each once, in order of
+## appearance). Whitespace and control characters never count. A box on screen means
+## this is not empty; tools/check-answers and the tests fail on it.
+static func missing_glyphs(s: String) -> String:
+	install_math_font()
+	var font := ThemeDB.fallback_font
+	var out := ""
+	for i in s.length():
+		var ch := s.substr(i, 1)
+		if ch.unicode_at(0) > 32 and not font.has_char(ch.unicode_at(0)) and not out.contains(ch):
+			out += ch
+	return out
 
 
 static func make() -> Theme:
+	install_math_font()
 	var t := Theme.new()
 	t.default_font_size = BODY
 	t.set_color("font_color", "Label", TEXT)

@@ -18,9 +18,9 @@
   {
    "title": "Fonts",
    "used_in": "assets/fonts/",
-   "what": "Bangers (The Bangers Project Authors) and Share Tech Mono (Carrois Type Design, Ralph du Carrois).",
-   "licence": "SIL Open Font License 1.1",
-   "notice": "See assets/fonts/OFL-Bangers.txt and assets/fonts/OFL-ShareTechMono.txt."
+   "what": "Bangers (The Bangers Project Authors), Share Tech Mono (Carrois Type Design, Ralph du Carrois) and a subset of DejaVu Sans (Bitstream, Inc. and the DejaVu authors) for the maths signs.",
+   "licence": "SIL Open Font License 1.1 (Bangers, Share Tech Mono); Bitstream Vera licence (DejaVu Sans)",
+   "notice": "See assets/fonts/OFL-Bangers.txt, assets/fonts/OFL-ShareTechMono.txt and assets/fonts/LICENSE-DejaVu.txt."
   },
   {
    "title": "Sound",

@@ -100,6 +100,10 @@ static func exported(q: Dictionary) -> Dictionary:
 	for sol in e.solutions:
 		sol.moves = sol.steps.map(func(st): return Step.move(st) if Step.move(st) != "" else null)
 		sol.steps = Step.texts(sol.steps)
+	# Characters the game's fonts can't draw show as boxes (FAL-514); the checker fails on any.
+	var missing := UiTheme.missing_glyphs(JSON.stringify(e))
+	if missing != "":
+		e.missing_glyphs = missing
 	return e
 
 

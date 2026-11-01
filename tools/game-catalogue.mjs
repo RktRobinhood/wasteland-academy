@@ -26,7 +26,7 @@ const readJSON = f => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
 const TYPE_FIELDS = ['id', 'topic', 'source', 'kind', 'region', 'name', 'summary', 'situation', 'level',
   'formats', 'representations', 'unknowns', 'angles', 'concepts', 'misconceptions', 'methods', 'chain', 'supports'];
 
-// The game's font has superscript digits and ⁻ but no superscript letters (FAL-499),
+// The game's default font has superscript digits but no superscript letters (FAL-499),
 // so a power with a letter in it is written with a caret, as the engine writes it:
 // eˣ -> e^x, b²ˣ -> b^(2x), x⁻ⁿ -> x^(−n). Powers of digits only (x², 2⁻¹) stay.
 const SUP_LETTERS = 'ᵃaᵇbᶜcᵈdᵉeᶠfᵍgʰhⁱiʲjᵏkˡlᵐmⁿnᵒoᵖpʳrˢsᵗtᵘuᵛvʷwˣxʸyᶻz';
