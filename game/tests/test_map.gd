@@ -307,6 +307,47 @@ func test_a_region_screen_shows_progress_and_its_start_buttons() -> void:
 	_done(made)
 
 
+func test_the_region_screen_picks_the_course_and_keeps_the_progress() -> void:
+	var save := SaveData.blank()
+	var shared: Dictionary = Progress.catalogue_cells("quadratics", false, "ai-sl")[0]
+	SaveData.record(save, shared.key, true, 100)
+	var made: Array = await _map(MapLink.parse("#functions/quadratics"), save)
+	var m: Control = made[1]
+	var row: Control = m.region_col.get_node("Course")
+	check_eq(row.get_children().filter(func(c): return c is Button).map(func(b): return String(b.name)), Courses.ids(), "a button per course")
+	check((row.get_node("aa-sl") as Button).button_pressed, "the save is on AA SL")
+	check_eq((row.get_node("ai-sl") as Button).text, "AI SL")
+	var aa_total: int = Progress.coverage(m.save, "quadratics").total
+	(row.get_node("ai-sl") as Button).button_pressed = true
+	(row.get_node("ai-sl") as Button).pressed.emit()
+	await tree.process_frame
+	check_eq(m.save.course, "ai-sl", "the map's save")
+	var stored := SaveData.load_from(SAVE)
+	check_eq(stored.course, "ai-sl", "the course is saved")
+	check_eq(stored.cells[shared.key].seen, 1, "the record on a shared cell stays")
+	var row2: Control = m.region_col.get_node("Course")
+	check((row2.get_node("ai-sl") as Button).button_pressed and not (row2.get_node("aa-sl") as Button).button_pressed, "the row shows AI SL")
+	var ai_total: int = Progress.coverage(m.save, "quadratics").total
+	check(ai_total < aa_total, "AI SL's Quadratics has fewer cells (%d) than AA SL's (%d)" % [ai_total, aa_total])
+	check(m.region_col.get_node_or_null("Start") != null, "AI SL still has questions here")
+	check_eq(m.set_course("no-such-course"), false, "an unknown course is refused")
+	check_eq(SaveData.load_from(SAVE).course, "ai-sl", "and nothing changes")
+	_done(made)
+
+
+func test_a_coming_soon_region_still_offers_the_picker_and_says_why() -> void:
+	var id := _unbuilt_region()
+	if id == "":
+		return  # Every region is built: nothing left to be "coming soon".
+	var made: Array = await _map(MapLink.region_route(id))
+	var m: Control = made[1]
+	check(m.region_col.get_node_or_null("ComingSoon") != null, "says coming soon")
+	check(m.region_col.get_node_or_null("Course") != null, "a student on another course can switch from here")
+	var said: Array = m.region_col.find_children("*", "Label", true, false).map(func(l): return (l as Label).text)
+	check(said.any(func(t: String): return t.contains("aren't built yet")), "nothing is built in any course: %s" % [said])
+	_done(made)
+
+
 func test_a_region_with_nothing_built_shows_coming_soon_and_cannot_start() -> void:
 	var id := _unbuilt_region()
 	if id == "":

@@ -238,6 +238,43 @@ func _header(parent: Control, text: String, back_text: String, back: Callable) -
 	_headers.append(m)
 
 
+## The course picker (FAL-397): one button per IB course, the save's course pressed.
+## Picking one stores it and draws the screen again, so a region the course has no
+## questions in turns to "Coming soon" and back. Every cell record stays.
+func _course_row() -> Control:
+	var row := HBoxContainer.new()
+	row.name = "Course"
+	row.add_theme_constant_override("separation", 12)
+	var label := UiTheme.label("Course", UiTheme.SMALL, UiTheme.SAND)
+	label.name = "Label"
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	row.add_child(label)
+	var group := ButtonGroup.new()
+	for id in Courses.ids():
+		var b := Button.new()
+		b.name = id
+		b.text = Courses.info(id).short
+		b.tooltip_text = Courses.info(id).name
+		b.toggle_mode = true
+		b.button_group = group
+		b.set_pressed_no_signal(id == Courses.of(save))
+		b.add_theme_font_size_override("font_size", UiTheme.SMALL)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.pressed.connect(set_course.bind(id))
+		row.add_child(b)
+	return row
+
+
+## Puts the save on a course, stores it and draws the region screen again (as the
+## "Exam-style only" switch does). False for an id Courses doesn't list.
+func set_course(id: String) -> bool:
+	if not SaveData.set_course(save, id):
+		return false
+	SaveData.store(save, save_path)
+	_fill_region()
+	return true
+
+
 ## The world map's bottom bar: the Bazaar button.
 func _footer(parent: Control) -> void:
 	var m := MarginContainer.new()
@@ -542,13 +579,18 @@ func _fill_region() -> void:
 	region_gap.custom_minimum_size.x = maxf(0.0, AudioHud.RESERVED_RIGHT - _side)
 	head.add_child(region_gap)
 	region_col.add_child(head)
+	region_col.add_child(_course_row())
 
 	if not can_start(id, Courses.of(save)):
 		var soon := UiTheme.label("Coming soon", 72, UiTheme.SAND)
 		soon.name = "ComingSoon"
 		soon.add_theme_font_override("font", UiTheme.TITLE_FONT)
 		region_col.add_child(soon)
-		region_col.add_child(UiTheme.label("This region's questions aren't built yet. It opens here as soon as they are.", UiTheme.BODY, UiTheme.DIM))
+		var course := Courses.info(Courses.of(save))
+		if can_start(id) and not course.is_empty():
+			region_col.add_child(UiTheme.label("%s has no questions built here yet. Another course may: pick it above." % course.short, UiTheme.BODY, UiTheme.DIM))
+		else:
+			region_col.add_child(UiTheme.label("This region's questions aren't built yet. It opens here as soon as they are.", UiTheme.BODY, UiTheme.DIM))
 
 	var exam := Button.new()
 	exam.name = "ExamOnly"
