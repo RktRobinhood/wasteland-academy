@@ -2725,6 +2725,54 @@
     "a missing value or frequency makes the mean end in at most one decimal place, and the answer is a whole number",
     "a combined mean differs from the mean of the two means, because the group sizes and means are different"
    ]
+  },
+  "compound-interest": {
+   "name": "Money invested at a nominal annual rate, compounded k times a year",
+   "summary": "Pick an amount, an annual rate, how often it is compounded and a number of years. The value after those years, the interest earned, the amount to invest now, the rate, the time to reach a target and a second account to compare it with are then all known.",
+   "quantities": [
+    {
+     "name": "PV",
+     "is": "the amount invested",
+     "pick": "a multiple of 500 dollars from 1000 to 20000 (from 1000 to 20000 in thousands for two accounts)"
+    },
+    {
+     "name": "r",
+     "is": "the nominal annual rate, in per cent",
+     "pick": "from 1.5 to 8.0 in steps of 0.5; from 1.75 to 7.25 in steps of 0.5 (a quarter, so its 3 s.f. value is not its own 2 s.f. trap) where the rate is asked for"
+    },
+    {
+     "name": "k",
+     "is": "the compounding periods in a year",
+     "pick": "1, 2, 4 or 12 (annually, half-yearly, quarterly, monthly)"
+    },
+    {
+     "name": "n",
+     "is": "the number of years",
+     "pick": "2 to 12 (3 to 15 for two accounts); a time asked for is 3 to 40 years"
+    },
+    {
+     "name": "FV",
+     "is": "PV(1 + r/(100k))^(kn)",
+     "pick": "a value to the cent whose leftover fraction of a cent is at least 0.15 from 0.5, the rounding edge, and at most 100000; where FV is given it is a multiple of 500, or the value to the cent for a rate asked for"
+    },
+    {
+     "name": "target",
+     "is": "the amount a time-needed question asks the investment to pass",
+     "pick": "a multiple of 500 at least 1.2 times PV, with the real number of years at least 0.15 from a whole number"
+    },
+    {
+     "name": "second account",
+     "is": "a rate rb and a compounding kb for the same PV and n",
+     "pick": "different from the first, A worth at least 20 dollars more than B, and the difference in cents the same whether the two values are rounded first or not"
+    }
+   ],
+   "clean": [
+    "Paper 2 for most (14 of the bank's 16 compound interest parts): the GDC's TVM solver or the formula does the work; a Paper 1 future value or interest earned is annual compounding at 5%, 10%, 20%, 25% or 50% for 2 to 4 years on a round sum, exact by hand",
+    "money answers are to the nearest cent, exactly, and every value, and every wrong option that is offered, leaves a fraction of a cent at least 0.15 from the rounding edge at 0.5",
+    "a rate asked for is a quarter of a per cent, and its 3 s.f. value is clear of an edge, so the answer and its 2 s.f. rounding trap read differently",
+    "a time asked for is the first whole number of years that passes the target, with the real solution at least 0.15 from a whole number",
+    "the slips (the annual rate over kn periods, simple interest, the root without the 1 taken off, the total growth shared over n years, the time rounded to the nearest year) each read differently from the answer"
+   ]
   }
  },
  "types": [
@@ -18399,8 +18447,9 @@
    "id": "t1-compound-interest",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Compound interest: value, rate or time, with different compounding periods",
+   "summary": "Find the value of an investment after n years of compound interest, the interest earned, the amount to invest now, the annual rate, the time to reach a target, and how much more one account is worth than another.",
    "syllabus": [
     "1.4"
    ],
@@ -18409,6 +18458,326 @@
     "SL1.4.find-rate-or-pv",
     "SL1.4.find-time",
     "SL1.4.compare-options"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "the growth factor per period, 1 + r/(100k), and kn periods",
+    "FV = PV(1 + r/(100k))^(kn), by formula or in the GDC's TVM solver",
+    "interest earned = FV − PV",
+    "PV = FV ÷ the factor, or r from the (kn)th root of FV ÷ PV",
+    "the time to pass a target, from logs or the TVM solver, rounded up",
+    "two accounts, compared over the same time"
+   ],
+   "given": [
+    "an amount, a rate, a compounding and a number of years",
+    "an amount to reach and a number of years",
+    "an amount and the value it has grown to",
+    "a target and a rate",
+    "two accounts with their rates and compounding"
+   ],
+   "asked": "The value, the interest earned, the amount to invest, the rate, the number of years, or the difference between two accounts.",
+   "answerForms": [
+    "to the nearest cent",
+    "3 s.f.",
+    "a whole number of years"
+   ],
+   "randomise": [
+    "the amount, the rate and how often it is compounded",
+    "the number of years, or the target",
+    "the story: who invests",
+    "the second account's rate and compounding"
+   ],
+   "constraints": [
+    "Paper 2: the GDC does the work; a Paper 1 future value or interest is annual, at a round rate, for 2 to 4 years",
+    "money is to the nearest cent, and every value is clear of the rounding edge at half a cent",
+    "a rate asked for is a quarter of a per cent and clear of a 3 s.f. edge",
+    "a time is the first whole number of years that passes the target, with its real solution clear of a whole number",
+    "the difference between two accounts is at least 20 dollars"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "compound-interest",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: Kira invests $5000 in an account that pays 4.5% per year, compounded quarterly"
+    },
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "two accounts side by side: their rates and how often each is compounded"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "future-value",
+     "given": [
+      "the amount",
+      "the rate",
+      "the compounding",
+      "the years"
+     ],
+     "asked": "the value after the years, to the nearest cent",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.4.future-value"
+     ]
+    },
+    {
+     "id": "interest-earned",
+     "given": [
+      "the amount",
+      "the rate",
+      "the compounding",
+      "the years"
+     ],
+     "asked": "the interest earned, to the nearest cent",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.4.future-value"
+     ]
+    },
+    {
+     "id": "present-value",
+     "given": [
+      "the amount to reach",
+      "the rate",
+      "the compounding",
+      "the years"
+     ],
+     "asked": "the amount to invest now, to the nearest cent",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.4.find-rate-or-pv"
+     ]
+    },
+    {
+     "id": "interest-rate",
+     "given": [
+      "the amount",
+      "the value it has grown to",
+      "the compounding",
+      "the years"
+     ],
+     "asked": "the annual interest rate, to 3 s.f.",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.4.find-rate-or-pv"
+     ]
+    },
+    {
+     "id": "time-needed",
+     "given": [
+      "the amount",
+      "a target",
+      "the rate",
+      "the compounding"
+     ],
+     "asked": "the number of complete years to pass the target",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.4.find-time"
+     ]
+    },
+    {
+     "id": "compare-options",
+     "given": [
+      "the amount",
+      "the years",
+      "two accounts' rates and compounding"
+     ],
+     "asked": "how much more account A is worth than account B, to the nearest cent",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.compare-options"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.4.future-value",
+     "method": "compound-formula",
+     "suits": [
+      "future-value",
+      "interest-earned"
+     ]
+    },
+    {
+     "skill": "SL1.4.future-value",
+     "method": "tvm",
+     "suits": [
+      "future-value",
+      "interest-earned"
+     ]
+    },
+    {
+     "skill": "SL1.4.find-rate-or-pv",
+     "method": "rearrange",
+     "suits": [
+      "present-value",
+      "interest-rate"
+     ]
+    },
+    {
+     "skill": "SL1.4.find-rate-or-pv",
+     "method": "tvm",
+     "suits": [
+      "present-value",
+      "interest-rate"
+     ]
+    },
+    {
+     "skill": "SL1.4.find-time",
+     "method": "logs",
+     "suits": [
+      "time-needed"
+     ]
+    },
+    {
+     "skill": "SL1.4.find-time",
+     "method": "tvm",
+     "suits": [
+      "time-needed"
+     ]
+    },
+    {
+     "skill": "SL1.4.compare-options",
+     "method": "compute-both",
+     "suits": [
+      "compare-options"
+     ]
+    },
+    {
+     "skill": "SL1.4.compare-options",
+     "method": "annual-factor",
+     "suits": [
+      "compare-options"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Compounding more often a year always gives a larger value than compounding annually, at the same annual rate.",
+     "answer": "Always: at the same nominal rate each period's interest starts earning interest sooner, so the yearly growth factor (1 + r/100k)^k rises with k. At 5% it is 1.0500 annually, 1.0509 quarterly and 1.0512 monthly.",
+     "level": 4
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "$1000 invested at 5% compounded annually for 10 years earns twice as much interest as $1000 invested at 5% for 5 years.",
+     "answer": "False: interest is earned on interest, so the second five years earn more than the first. The 10-year interest is $628.89 and the 5-year interest is $276.28, more than double.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "An investment that is worth $5000 after 3 years at 4% compounded annually is worth $5000 ÷ 1.04^3 now.",
+     "answer": "True: the value after 3 years is PV × 1.04^3, so the amount invested now is the future value divided by 1.04^3.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.4.future-value#0",
+     "text": "Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20",
+     "as": "distractor",
+     "in": [
+      "future-value"
+     ],
+     "wrong": "PV(1 + r/100)^(kn): the annual rate over kn periods"
+    },
+    {
+     "ref": "SL1.4.future-value#1",
+     "text": "Using simple interest: 1200 + 3 × 60 = $1380",
+     "as": "distractor",
+     "in": [
+      "future-value"
+     ],
+     "wrong": "PV(1 + nr/100): simple interest"
+    },
+    {
+     "ref": "SL1.4.future-value#2",
+     "text": "Giving the total value when the question asks for the interest earned (or the reverse)",
+     "as": "distractor",
+     "in": [
+      "future-value",
+      "interest-earned"
+     ],
+     "wrong": "FV − PV given as the value, or FV given as the interest"
+    },
+    {
+     "ref": "SL1.4.find-rate-or-pv#0",
+     "text": "Taking the root but not subtracting 1 and multiplying by 100, giving a rate of 1.1%",
+     "as": "distractor",
+     "in": [
+      "interest-rate"
+     ],
+     "wrong": "(FV ÷ PV)^(1/kn) written as the rate, with no 1 taken off and no 100"
+    },
+    {
+     "ref": "SL1.4.find-rate-or-pv#2",
+     "text": "Halving the total growth instead of taking a root: 21% ÷ 2 = 10.5%",
+     "as": "distractor",
+     "in": [
+      "interest-rate"
+     ],
+     "wrong": "(FV ÷ PV − 1) × 100 ÷ n: the total growth shared over n years"
+    },
+    {
+     "ref": "SL1.4.find-time#0",
+     "text": "Rounding the number of periods to the nearest integer instead of up",
+     "as": "distractor",
+     "in": [
+      "time-needed"
+     ],
+     "wrong": "the real number of years rounded to the nearest whole number"
+    },
+    {
+     "ref": "SL1.4.find-time#1",
+     "text": "Forgetting to convert N from months or quarters back into years",
+     "as": "distractor",
+     "in": [
+      "time-needed"
+     ],
+     "wrong": "the number of periods given as the number of years"
+    },
+    {
+     "ref": "SL1.4.compare-options#0",
+     "text": "Comparing nominal rates only and ignoring the compounding frequency",
+     "as": "distractor",
+     "in": [
+      "compare-options"
+     ],
+     "wrong": "the difference with both accounts compounded annually"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q07.a",
