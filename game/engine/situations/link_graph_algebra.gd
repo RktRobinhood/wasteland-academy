@@ -6,9 +6,9 @@ extends RefCounted
 ## a GDC's to 3 s.f. where it doesn't (Paper 2).
 ##
 ## generate() returns, by need.kind:
-##   "method"  solvable: e^(kx) = c, x = (ln c)/k; else eˣ = a − x or ln x = a − x (form "exp"
+##   "method"  solvable: e^(kx) = c, x = (ln c)/k; else e^x = a − x or ln x = a − x (form "exp"
 ##             or "ln"), one meeting point x0 found numerically
-##   "meet"    eˣ = bx + a, two meeting points xs (one far to the left)
+##   "meet"    e^x = bx + a, two meeting points xs (one far to the left)
 ##   "trig"    A·fn x = ±A/2 (fn "cos" or "sin") on 0 ≤ x ≤ U, U = N·π/2: the solutions sols
 ##             and the next one past U, as multiples of π (Q)
 ##   "kcount"  a cubic with whole turning points (LinkExtremesSituation's) and count 1 to 3,

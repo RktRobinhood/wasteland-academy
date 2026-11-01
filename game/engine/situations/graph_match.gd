@@ -5,7 +5,7 @@ extends RefCounted
 ## fn-ext-match-graph is built on it. Paper 1: whole-number features.
 ##
 ## generate() returns:
-##   fam   "exp" y = a·bˣ + c (b 2, 3, ½ or ⅓; a ±1 or 2), or "quad" y = a(x − p)(x − q)
+##   fam   "exp" y = a·b^x + c (b 2, 3, ½ or ⅓; a ±1 or 2), or "quad" y = a(x − p)(x − q)
 ##   a, b, c (exp); a, p, q (quad), as Q
 ##   y0    the y-intercept
 ##   others  for match-several: two more functions of other families, [{"fam", ...}]
@@ -78,13 +78,13 @@ static func y0_q(s: Dictionary) -> Q:
 	return s.a.mul(s.p).mul(s.q)
 
 
-## The equation as written: "y = 2(3)ˣ − 1", "y = −(x + 1)(x − 3)".
+## The equation as written: "y = 2(3)^x − 1", "y = −(x + 1)(x − 3)".
 static func text(s: Dictionary) -> String:
 	if s.fam == "exp":
 		var base := Fmt.num(s.b) if s.b.is_int() else "(%s)" % Fmt.num(s.b)
-		var head := ("%s(%s)" % [Fmt.lead(s.a), Fmt.num(s.b)] if s.b.is_int() else "%s%s" % [Fmt.lead(s.a), base]) + "ˣ"
+		var head := ("%s(%s)" % [Fmt.lead(s.a), Fmt.num(s.b)] if s.b.is_int() else "%s%s" % [Fmt.lead(s.a), base]) + "^x"
 		if s.a.eq(1) or s.a.eq(-1):
-			head = Fmt.lead(s.a) + base + "ˣ"
+			head = Fmt.lead(s.a) + base + "^x"
 		return "y = " + head + Answer.plus_q(s.c)
 	return "y = %s(%s)(%s)" % [Fmt.lead(s.a), Answer.x_minus(s.p), Answer.x_minus(s.q)]
 

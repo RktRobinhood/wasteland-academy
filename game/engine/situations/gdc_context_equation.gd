@@ -8,7 +8,7 @@ extends RefCounted
 ## generate() returns:
 ##   form    "ksin" x = k sin x; "sector" (r²/2)(θ − sin θ) = A, a circle's segment;
 ##           "expline" e^(bx) = mx + c; "height" a·te^(−kt) = c, a first time;
-##           "savings" P(1 + r/100)ⁿ ≥ T, a whole number of years; "simul" y = e^(bx) + c
+##           "savings" P(1 + r/100)^n ≥ T, a whole number of years; "simul" y = e^(bx) + c
 ##           and y = p − x², two equations in two unknowns
 ##   the form's numbers as Q (k; r, A; b, m, c; a, k, c; P, rate, T; b, c, p) and
 ##   co, their floats

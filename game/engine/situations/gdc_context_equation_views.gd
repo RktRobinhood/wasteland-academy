@@ -285,7 +285,7 @@ func u_smallest_whole_number(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var ans := Answer.make("number", {"v": Q.new(n)}, {}, "n = ")
 	ans.exact = true
 	var final := "So the smallest whole number of years is " + Answer.text(ans) + "."
-	var words := "$%s is invested at %s%% a year, compounded yearly. After n whole years it is worth %s(1.%s)ⁿ dollars." % [Fmt.num(p0), D(rate),
+	var words := "$%s is invested at %s%% a year, compounded yearly. After n whole years it is worth %s(1.%s)^n dollars." % [Fmt.num(p0), D(rate),
 		Fmt.num(p0), _pct_digits(rate)]
 	var out := {"asked": "Find the smallest whole number of years after which the investment is worth more than $%s." % Fmt.num(target),
 		"lines": [words], "answer": ans, "wrongs": [wrong({"v": Q.new(floori(n_real))}, CA + "#0")],
@@ -296,9 +296,9 @@ func u_smallest_whole_number(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 			"rows": [["n", tb.xs.map(func(v): return Fmt.num(v))], ["value ($)", tb.ys.map(func(v): return Fmt.money(v))]]}
 	var m := "1.%s" % _pct_digits(rate)
 	out.methods = {
-		"table-sign-change": {"result": ans.values, "steps": ["Tabulate %s(%s)ⁿ at whole n." % [Fmt.num(p0), m],
+		"table-sign-change": {"result": ans.values, "steps": ["Tabulate %s(%s)^n at whole n." % [Fmt.num(p0), m],
 			"It is below $%s at n = %d and above it at n = %d." % [Fmt.num(target), n - 1, n], final]},
-		"analytic-logs": {"result": ans.values, "steps": ["%s(%s)ⁿ > %s, so n > ln(%s/%s) ÷ ln %s = %s." % [Fmt.num(p0), m, Fmt.num(target),
+		"analytic-logs": {"result": ans.values, "steps": ["%s(%s)^n > %s, so n > ln(%s/%s) ÷ ln %s = %s." % [Fmt.num(p0), m, Fmt.num(target),
 			Fmt.num(target), Fmt.num(p0), m, W(n_real)], "n must be a whole number past that, so round up, not down.", final]},
 		"table-search": {"result": ans.values, "steps": ["Use the GDC's table of %s(%s)^x and scroll to where it passes %s." % [Fmt.num(p0), m, Fmt.num(target)],
 			"The first whole year above $%s is %d." % [Fmt.num(target), n], final]},

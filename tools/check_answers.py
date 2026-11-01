@@ -6604,7 +6604,7 @@ def check_graph_reading(q):
 
 
 # ── Graphs and key features (FAL-420): graph-match ────────────
-# An equation (y = a·bˣ + c or y = a(x − p)(x − q)) and its graph. Each equation is read
+# An equation (y = a·b^x + c or y = a(x − p)(x − q)) and its graph. Each equation is read
 # back with SymPy; each graph is tested against the equations, and each wrong graph or
 # equation against the one change it names.
 
@@ -6613,7 +6613,7 @@ GM_MG = "SL2.3.match-graph"
 
 def gm_expr(text):
     t = text.split(" = ", 1)[1] if text.startswith("y = ") else text
-    return gc_expr(t.replace("ˣ", "**x"))
+    return gc_expr(t)
 
 
 def gm_parts(f):
@@ -6623,12 +6623,12 @@ def gm_parts(f):
         P = sp.Poly(f, X)
         rs = sorted(sp.roots(P).keys())
         return ("quad", P.LC(), rs[0], rs[-1])
-    # a·bˣ + c from f(0), f(1) and f(2), exactly: b = (f(2) − f(1))/(f(1) − f(0)).
+    # a·b^x + c from f(0), f(1) and f(2), exactly: b = (f(2) − f(1))/(f(1) − f(0)).
     y0, y1, y2 = [sp.nsimplify(f.subs(X, k)) for k in (0, 1, 2)]
     b = (y2 - y1) / (y1 - y0)
     a = (y1 - y0) / (b - 1)
     c = y0 - a
-    need(sp.simplify(a * b ** X + c - f) == 0, f"{f} is not a·bˣ + c")
+    need(sp.simplify(a * b ** X + c - f) == 0, f"{f} is not a·b^x + c")
     return ("exp", a, b, c)
 
 
@@ -6847,7 +6847,7 @@ def check_link_extremes(q):
 
 
 def lg_ex(text):
-    m = re.fullmatch(r"(eˣ|e\^\((\d)x\)) = (\d+)", text)
+    m = re.fullmatch(r"(e\^x|e\^\((\d)x\)) = (\d+)", text)
     return None if m is None else (int(m.group(2) or 1), int(m.group(3)))
 
 
@@ -6889,15 +6889,15 @@ def check_link_graph_algebra(q):
             need(len(x0) == 1, "e^(kx) = c has not one solution")
             want = f"Yes: x = {lg_ln_over(c, k)} ≈ {gc_s(sp.N(next(iter(x0)), 30))}"
         else:
-            m = re.fullmatch(r"(eˣ|ln x) = (\d+) − x", eq)
+            m = re.fullmatch(r"(e\^x|ln x) = (\d+) − x", eq)
             a = int(m.group(2))
-            lhs = sp.exp(X) if m.group(1) == "eˣ" else sp.log(X)
+            lhs = sp.exp(X) if m.group(1) == "e^x" else sp.log(X)
             zs = gc_zeros(lhs - (a - X), 0.001 if m.group(1) == "ln x" else -10, a + 2)
             need(len(zs) == 1 and not on_edge(abs(zs[0])), "not one clean meeting point")
             want = "No: graph both sides; x ≈ " + gc_s(zs[0])
     elif u == "solve-by-intersection":
         paper = 2
-        rhs_ = gc_expr(re.fullmatch(r"Solve eˣ = (.+), giving every solution to 3 s\.f\.", asked).group(1))
+        rhs_ = gc_expr(re.fullmatch(r"Solve e\^x = (.+), giving every solution to 3 s\.f\.", asked).group(1))
         zs = gc_zeros(sp.exp(X) - rhs_, -20, 10)
         need(len(zs) == 2 and all(not on_edge(abs(z)) for z in zs), "not two clean meeting points")
         want = lg_xs([gc_s(z) for z in zs])

@@ -215,7 +215,7 @@ func u_signs_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		opts = [combos.call(ap, not cp), combos.call(not ap, not cp)]
 	var out := LogFunctionViews.choice(right, [wrong(flip, MG + ("#1" if s.fam == "exp" else "#2"))], opts)
 	var final: String = "So " + right + "."
-	var form := "y = a·bˣ + c" if s.fam == "exp" else "y = a(x − p)(x − q)"
+	var form := "y = a·b^x + c" if s.fam == "exp" else "y = a(x − p)(x − q)"
 	out.merge({
 		"asked": "The graph is %s. What are the signs?" % form, "lines": ["The graph of %s is shown." % form], "graph": plot(s, false),
 		"methods": {"end-behaviour": {"result": out.answer.values, "steps": ["The graph: " + facts(s) + ".",

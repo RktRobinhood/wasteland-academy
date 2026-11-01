@@ -51,9 +51,9 @@ static func ask(right: String, wrongs: Array, generic: Array, asked: String, lin
 	return LinkExtremesViews.ask(right, wrongs, generic, asked, lines, methods, final, picks)
 
 
-## e^(kx) as written: "eˣ", "e^(2x)".
+## e^(kx) as written: "e^x", "e^(2x)".
 static func ex(k: int) -> String:
-	return "eˣ" if k == 1 else "e^(%dx)" % k
+	return "e^x" if k == 1 else "e^(%dx)" % k
 
 
 ## (ln c)/k as written: "ln 20", "(ln 5)/2"; log for "log".
@@ -87,7 +87,7 @@ func u_which_method(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		}
 	else:
 		var a: int = s.a
-		var f := "eˣ" if s.form == "exp" else "ln x"
+		var f := "e^x" if s.form == "exp" else "ln x"
 		eq = "%s = %d − x" % [f, a]
 		right = "No: graph both sides; x ≈ " + S(s.x0)
 		if s.form == "exp":
@@ -112,7 +112,7 @@ func u_solve_by_intersection(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var line := Fmt.poly([s.b, s.a])
 	var x1: float = s.xs[0]
 	var x2: float = s.xs[1]
-	var eq := "eˣ = " + line
+	var eq := "e^x = " + line
 	var right := xs_text([S(x1), S(x2)])
 	var h := func(x: float) -> float: return exp(x) - (s.b * x + s.a)
 	var sign := func(x: int) -> String: return "h(%s) = %s" % [N(x), S(h.call(x))]
@@ -120,10 +120,10 @@ func u_solve_by_intersection(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var out := ask(right, [[xs_text([S(x2)]), "SL2.10.solve-gdc#0"], [xs_text([Fmt.sf(x1, 2), Fmt.sf(x2, 2)]), "SL2.10.solve-gdc#1"]],
 		[xs_text([S(x1)]), "No solution"],
 		"Solve %s, giving every solution to 3 s.f." % eq, [eq], {
-			"intersect-two-graphs": ["Graph Y1 = eˣ and Y2 = %s and use intersect: x = %s." % [line, W(x2)],
+			"intersect-two-graphs": ["Graph Y1 = e^x and Y2 = %s and use intersect: x = %s." % [line, W(x2)],
 				"Widen the window to the left: they meet again at x = %s." % W(x1)],
-			"zero-of-difference": ["Graph y = eˣ − (%s) and find its zeros: x = %s and x = %s." % [line, W(x1), W(x2)]],
-			"table-sign-change": ["With h(x) = eˣ − (%s): %s and %s differ in sign, and so do %s and %s." % [line,
+			"zero-of-difference": ["Graph y = e^x − (%s) and find its zeros: x = %s and x = %s." % [line, W(x1), W(x2)]],
+			"table-sign-change": ["With h(x) = e^x − (%s): %s and %s differ in sign, and so do %s and %s." % [line,
 				sign.call(floori(x1)), sign.call(ceili(x1)), sign.call(floori(x2)), sign.call(ceili(x2))],
 				"Refining each sign change gives x = %s and x = %s." % [W(x1), W(x2)]],
 			"gdc-intersect": ["Intersect on the GDC, in a window wide enough for both: x = %s and x = %s." % [W(x1), W(x2)]],
@@ -133,7 +133,7 @@ func u_solve_by_intersection(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 			pick("Intersect in the default window only", "the second meeting point is far to the left")])
 	if rep == "graph":
 		var lo := floori(x1) - 1
-		out.lines = [ExpLogPairViews.M("The graphs of y = eˣ and y = %s are shown." % line)]
+		out.lines = [ExpLogPairViews.M("The graphs of y = e^x and y = %s are shown." % line)]
 		out.graph = Plot.spec([GdcKit.curve(func(x: float) -> float: return exp(x), lo, 3.0), GdcKit.curve(func(x: float) -> float: return s.b * x + s.a, lo, 3.0)],
 			[], lo, 3, -3, ceili(3.0 * s.b + s.a) + 2)
 	return out
