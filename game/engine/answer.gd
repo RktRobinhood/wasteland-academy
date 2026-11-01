@@ -398,6 +398,11 @@ static func lnq_value(m: Variant, r: Variant, form: String = "") -> float:
 ## such as 1/f(x) for an inverse asked as a log, can be picked but never typed.
 static func typable(ans: Dictionary, values: Dictionary) -> bool:
 	var ids: Array = slots(ans).map(func(item): return item.get("slot", item.get("pick", "")))
+	# A pick left empty can't be typed: a number written without its "x = " is an option that
+	# can be picked but never typed (FAL-423).
+	for item in slots(ans):
+		if item.has("pick") and values.has(item.pick) and str(values[item.pick]) == "":
+			return false
 	for key in values:
 		if key in ids:
 			continue
