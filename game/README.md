@@ -315,6 +315,35 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   method-pick; the concept type and graph-match offer true-false-reason. Not built yet:
   error-spot (fn-ext-inequality-graphical, fn-pre-graph-reading) and method-pick for
   fn-concept-solutions-as-intersections.
+- **The Composite and inverse region** (FAL-422) adds three exam situations. `composite_pair.gd`
+  is two rules chained, f and g, as `{"t", "co"}` polynomials (a line, x² + c, (x − h)², x³ + c,
+  or sin x on Paper 2, with a generic quadratic for an outer rule to find), with modes for
+  the forward composites and a value, a constant k from a value or from a stated coefficient,
+  an equation (f∘g)(x) = t, f∘f, f∘g against g∘f, a chain of steps in words, a rule split in
+  two, and the two reversed composites (find g given f and f∘g, find f given g and f∘g). Its
+  views (`composite_pair_views.gd`) say each rule as f(x) = … or in steps ("double, then
+  subtract 3"); an expression is the `poly` kind, k a `kvals` pair or a number, the solutions
+  an `xs` list and the order-of-composition and decompose questions a pick of four sentences.
+  The one Paper 2 value is (f∘g)(x₀) with f = sin x in radians, to 3 s.f. with the rounding
+  trap, and a k from (a·x₀ + k)² = r with r not a square, to 3 s.f. `inverse_rule.gd` is a rule
+  from a family with its domain: a line, (ax + b)/(cx + d) with whole-number asymptotes,
+  √(px + q) + r, a quadratic on one side of its vertex, or b^x + q. Students can't type a
+  function of x, so its views (`inverse_rule_views.gd`) offer an inverse, a domain, an
+  asymptote pair or a reflection claim as four written options (the `choice` kind), and a
+  constant, a value or a k as a number. The checker reads each option back with SymPy and
+  tests it as maths, so the right one is the inverse and every wrong one is shown not to be.
+  `graph_table.gd` is f (and g) at six consecutive whole numbers, drawn as dots joined by
+  lines (so a one-to-one f is always rising or falling) or written as a table or a sentence
+  of values, with a rule mode for the views that print the rule beside the graph. Its views
+  (`graph_table_views.gd`) read a value, a composite, an inverse value, a domain or range,
+  the matching points of f⁻¹ (the `pts` kind), every solution of f(x) = k on a graph that
+  turns back, and why it has no inverse. The checker rebuilds f and g from the table, the
+  graph's dots or the sentence, never from the engine's givens. Paper: the algebra of
+  `fn-inverse-algebraic` is exact on both papers, so its Paper 2 questions (four in five, as
+  the exam has them) have the same exact numbers and the calculator on offer; the graph and
+  table readings are all Paper 1. A mini-boss on `fn-composite` asks the composite and then
+  its value (`Tuning.CHAINS`); the other unknowns each need their own numbers, so they are
+  single questions.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
