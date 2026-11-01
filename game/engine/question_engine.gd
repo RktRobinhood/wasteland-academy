@@ -79,6 +79,7 @@ static var SITUATIONS := {
 	"composite-pair": [CompositePairSituation, CompositePairViews],
 	"inverse-rule": [InverseRuleSituation, InverseRuleViews],
 	"composite-graph-table": [GraphTableSituation, GraphTableViews],
+	"fn-pre-rearrange": [RearrangeSituation, RearrangeViews],
 }
 
 static var _cat: Dictionary = {}

@@ -66,10 +66,10 @@ static func lin(rng: Seeded) -> Dictionary:
 static func rat(rng: Seeded) -> Dictionary:
 	while true:
 		var c: int = pick(rng, [1, 1, -1, 2])
-		var a: int = c * rng.int_in(-3, 3)
-		var d: int = c * rng.int_in(-3, 3)
+		var a: int = c * nonzero(rng, -3, 3)
+		var d: int = c * nonzero(rng, -3, 3)
 		var b := rng.int_in(-6, 6)
-		if a * d - b * c != 0 and not (a == 0 and b == 0):
+		if a * d - b * c != 0:
 			return {"fam": "rat", "a": a, "b": b, "c": c, "d": d}
 	return {}
 
@@ -240,7 +240,8 @@ static func rule_text(f: Dictionary) -> String:
 
 ## top/bottom, with the top bracketed unless it is a plain number.
 static func frac(top: String, bottom: String) -> String:
-	return "%s/(%s)" % [top if not top.contains("x") else "(%s)" % top, bottom]
+	var plain := not (top.contains("x") or top.contains("y") or top.contains(" "))
+	return "%s/(%s)" % [top if plain else "(%s)" % top, bottom]
 
 
 ## f(x) = … with the domain a restricted rule needs.

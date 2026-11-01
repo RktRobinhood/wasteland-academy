@@ -8197,6 +8197,9 @@ def check_inverse(q):
         vert = sp.solve(sp.denom(sp.together(f)), XR)
         ends = {sp.limit(f, XR, sp.oo), sp.limit(f, XR, -sp.oo)}
         finite = [e_ for e_ in ends if e_.is_rational]
+        if not vert and not finite:
+            # SymPy's limit of c**x at −∞ is wrong: take the finite bound of the range instead.
+            finite = [b_ for b_ in {rng.inf, rng.sup} if b_.is_rational]
         need(len(finite) == 1, f"f has {len(finite)} horizontal asymptotes")
         horiz = finite[0]
         if vert:
@@ -8483,6 +8486,161 @@ def check_graph_table(q):
     return None, None
 
 
+# ── fn-pre-rearrange ──
+# The rearrangement is picked from four written options. Each option's equation is solved
+# for the subject with SymPy: the right one gives the formula's own solutions, a wrong one
+# does not. The checker's own table of the one-step formulas (RA_FORMULAS) reads a sentence.
+
+RA_T = "fn-pre-rearrange"
+RA_FORMULAS = {
+    "The speed v is the starting speed u plus the acceleration a times the time t.": "v = u + a*t",
+    "The distance d is the speed s times the time t.": "d = s*t",
+    "The force F is the mass m times the acceleration a.": "F = m*a",
+    "The area A is the length l times the width w.": "A = l*w",
+    "y is x plus 5.": "y = x + 5",
+    "The circumference C is π times the diameter d.": "C = pi*d",
+}
+RA_SYMS = {ch: sp.Symbol(ch) for ch in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+
+
+def ra_parse(text):
+    """A formula side as the game writes it: 'y/2 + 3', '(m − 4)/(k − 2)', '√(y − 1)', 'π', '2yx'."""
+    t = text.replace("−", "-").replace("²", "**2").replace("√", "@").replace("π", "#")
+    t = re.sub(r"@([A-Za-z])", r"@(\1)", t)
+    t = re.sub(r"(?<=[A-Za-z0-9#)])(?=[A-Za-z@#(])", "*", t)
+    t = re.sub(r"(?<=[A-Za-z#)])(?=[0-9])", "*", t)
+    t = t.replace("*@", "*sqrt").replace("@", "sqrt").replace("#", "pi")
+    t = t.replace("*(", "*(")
+    need(re.fullmatch(r"[0-9A-Za-z+\-*/(). ]+", t) is not None, f"can't read the formula {text!r}")
+    return parse_expr(t, local_dict=dict(RA_SYMS, pi=sp.pi, sqrt=sp.sqrt), transformations=standard_transformations)
+
+
+def ra_sides(line):
+    need(line.count("=") == 1, f"not an equation: {line!r}")
+    left, right = [p.strip() for p in line.split("=")]
+    return left, right
+
+
+def ra_solutions(line, subject):
+    """The subject's solutions of an equation, a set of expressions (± gives two)."""
+    left, right = ra_sides(line)
+    sym = RA_SYMS[subject]
+    if left == subject and "±" in right:
+        e = ra_parse(right.replace("±", ""))
+        return [e, -e]
+    if left == subject:
+        return [ra_parse(right)]
+    return [sp.simplify(s_) for s_ in sp.solve(sp.Eq(ra_parse(left), ra_parse(right)), sym)]
+
+
+def ra_same(a, b):
+    """Two lists of expressions equal as sets, to SymPy's simplification."""
+    if len(a) != len(b):
+        return False
+    rest = list(b)
+    for x_ in a:
+        hit = next((y_ for y_ in rest if sp.simplify(x_ - y_) == 0), None)
+        if hit is None:
+            return False
+        rest.remove(hit)
+    return True
+
+
+def ra_original(q, u):
+    """(equation text, subject letter) of the formula a question asks about."""
+    L = q["lines"]
+    if u == "one-step":
+        eq = RA_FORMULAS[L[0]] if L[0] in RA_FORMULAS else L[0]
+        m = re.fullmatch(r"Make (\w) the subject of the formula\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        return eq.replace("a*t", "at").replace("s*t", "st").replace("m*a", "ma").replace("l*w", "lw").replace("pi*d", "πd"), m.group(1)
+    need(q["asked"] == "Make x the subject of the formula.", f"asked {q['asked']!r}")
+    line = L[0]
+    m = re.fullmatch(r"x is (doubled|trebled|multiplied by (−?\d+)), and then (\d+) is (added|subtracted), to give y\.", line)
+    if m:
+        a = {"doubled": 2, "trebled": 3}.get(m.group(1), None) or int(m.group(2).replace("−", "-"))
+        b = int(m.group(3)) * (1 if m.group(4) == "added" else -1)
+        return f"y = {a}x + {b}".replace("+ -", "- "), "x"
+    m = re.fullmatch(r"y is x squared (plus|minus) (\d+)\.", line)
+    if m:
+        return f"y = x² {'+' if m.group(1) == 'plus' else '−'} {m.group(2)}", "x"
+    m = re.fullmatch(r"y is the square root of x (plus|minus) (\d+)\.", line)
+    if m:
+        return f"y = √(x {'+' if m.group(1) == 'plus' else '−'} {m.group(2)})", "x"
+    return line, "x"
+
+
+def check_rearrange(q):
+    u, L, asked = q["view"]["unknown"], q["lines"], q["asked"]
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    need(q["paper"] == 1, "prior learning has no calculator")
+    if u == "which-original":
+        need(asked == "Which formula did this come from?", f"asked {asked!r}")
+        shown = ra_solutions(L[0], "x")
+        truth = {o["text"]: ra_same(ra_solutions(o["text"], "x"), shown) for o in q["choices"]}
+        need(truth[q["answer_text"]] and sum(truth.values()) == 1, f"the options that give {L[0]!r}: {[t for t, v in truth.items() if v]}")
+        gc_check_common(q, q["answer_text"], {})
+        return None, None
+    if u == "subject-twice-linear":
+        need(re.fullmatch(r"kx [+−] \d+ = \dx \+ m", L[0]) is not None, f"can't read {L[0]!r}")
+        eq, subject = L[0], "x"
+    else:
+        eq, subject = ra_original(q, u)
+    orig = ra_solutions(eq, subject)
+    truth = {}
+    wr = {}
+    for o in q["choices"]:
+        need(o["text"].startswith(f"{subject} = "), f"option {o['text']!r} is not {subject} = …")
+        sols = ra_solutions(o["text"], subject)
+        truth[o["text"]] = ra_same(sols, orig)
+        if o["ref"]:
+            wr.setdefault(o["ref"], set()).add(o["text"])
+    need(truth[q["answer_text"]] and sum(truth.values()) == 1, f"the options that are rearrangements: {[t for t, v in truth.items() if v]}")
+    # What each misconception gives, checked as maths.
+    right = ra_solutions(q["answer_text"], subject)
+    y = RA_SYMS["y"]
+    for ref, texts in wr.items():
+        for t in texts:
+            e = ra_solutions(t, subject)
+            if ref == RA_T + "#0":
+                co = sp.Poly(ra_parse(ra_sides(eq)[1]), RA_SYMS["x"]).all_coeffs()
+                need(ra_same(e, [y / co[0] - co[1]]), f"{t!r} is not y/a − b")
+            elif ref == RA_T + "#1":
+                c_ = ra_parse(ra_sides(eq)[1]) - RA_SYMS["x"] ** 2
+                r_ = sp.sqrt(abs(c_))
+                need(ra_same(e, [sp.sqrt(y) - r_ if c_ > 0 else sp.sqrt(y) + r_]), f"{t!r} is not √y − √c")
+            elif ref == RA_T + "#2":
+                top = sp.numer(sp.together(ra_parse(ra_sides(eq)[1])))
+                bot = sp.denom(sp.together(ra_parse(ra_sides(eq)[1])))
+                b2 = -sp.Poly(bot, RA_SYMS["x"]).all_coeffs()[1]
+                need(ra_same(e, [y / top + b2]), f"{t!r} is not y/a + b")
+            elif ref == RA_T + "#4":
+                need(len(e) == 1 and ra_same(e, [ra_solutions(q["answer_text"], subject)[0]]), f"{t!r} is not the positive root alone")
+            else:
+                raise Fail(f"the checker can't confirm {ref} on {u}")
+    gc_check_common(q, q["answer_text"], {ref: texts for ref, texts in wr.items()})
+    return None, None
+
+
+def ra_spot(q, lines):
+    """The first line of a student's working on subject-twice that is wrong: one that has
+    x on both sides of 'x = …', or one that is not the original equation rearranged."""
+    eq, subject = ra_original(q, "subject-twice")
+    orig = ra_solutions(eq, subject)
+    for i, line in enumerate(lines):
+        line = line[3:] if line.startswith("So ") else line
+        left, right = ra_sides(line)
+        if left == subject and subject in right:
+            return i
+        if not ra_same(ra_solutions(line, subject), orig):
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-rearrange"] = ra_spot
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -8501,7 +8659,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "data-summary": check_data_summary,
-                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table}
+                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

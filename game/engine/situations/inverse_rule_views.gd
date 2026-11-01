@@ -537,7 +537,8 @@ func u_compose_to_identity(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var right := "(f∘g)(x) = x: g is the inverse of f" if is_inv else "(f∘g)(x) = %s: g is not the inverse of f" % comp
 	var fake := ["(f∘g)(x) = x: g is the inverse of f", "(f∘g)(x) = %s: g is the inverse of f" % comp]
 	var pick := choose(right, [], [fake[1] if is_inv else fake[0], "(f∘g)(x) = %s: g is not the inverse of f" % Fmt.poly([a, 0]) if is_inv else "(f∘g)(x) = %s: g is not the inverse of f" % Fmt.poly([a, b]),
-		"(f∘g)(x) = %s: g is not the inverse of f" % Fmt.poly([1, 1]), "(f∘g)(x) = %s: g is not the inverse of f" % Fmt.poly([1, b + 2])])
+		"(f∘g)(x) = %s: g is not the inverse of f" % Fmt.poly([1, 1]), "(f∘g)(x) = %s: g is not the inverse of f" % Fmt.poly([1, b + 2]),
+		"(f∘g)(x) = %s: g is not the inverse of f" % Fmt.poly([1, b + 3]), "(f∘g)(x) = %s: g is not the inverse of f" % Fmt.poly([a, 1])])
 	var out := {"asked": "Find (f∘g)(x) and say whether g is the inverse of f.", "lines": [InverseRuleSituation.rule_line(f), "g(x) = " + g.text]}
 	out.merge(pick)
 	var put := rt(f).replace("x", "(" + g.text + ")")
@@ -623,7 +624,7 @@ func u_inverse_asymptotes(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	else:
 		right = "x = %s" % N(f.q)
 		bad.append(tag("y = %s" % N(f.q), R_EXCLUDED))
-		plain = ["x = %s" % N(-f.q), "y = %s" % N(-f.q), "x = %s and y = %s" % [N(f.q), N(f.q)]]
+		plain = ["x = %s" % N(-f.q), "y = %s" % N(-f.q), "x = %s and y = %s" % [N(f.q), N(f.q)], "x = %s" % N(f.q + 1), "y = %s" % N(f.q + 1)]
 		f_asy = "y = %s" % N(f.q)
 	var pick := choose(right, bad, plain)
 	var out := {"asked": "Without finding f⁻¹, write down the equation of each asymptote of the graph of f⁻¹.", "lines": [InverseRuleSituation.rule_line(f)]}

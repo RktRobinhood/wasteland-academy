@@ -1,14 +1,15 @@
 extends "res://tests/test_case.gd"
-## The Composite and inverse region (FAL-422): its three exam types are built with every
+## The Composite and inverse region (FAL-422): its three exam types, and the one extension
+## type built so far (fn-pre-rearrange), are built with every
 ## catalogue cell on their situations, their distractor misconceptions show up as options,
 ## and the region's answers mark the way a student would give them (an expression as a
 ## polynomial, a constant or a pair of them, an x-value, a function picked from four).
 ## The SymPy checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-composite": 31, "fn-graph-table-composite-inverse": 75, "fn-inverse-algebraic": 63}
+const CELLS := {"fn-composite": 31, "fn-graph-table-composite-inverse": 75, "fn-inverse-algebraic": 63, "fn-pre-rearrange": 17}
 const SITUATION := {"fn-composite": "composite-pair", "fn-graph-table-composite-inverse": "composite-graph-table",
-	"fn-inverse-algebraic": "inverse-rule"}
+	"fn-inverse-algebraic": "inverse-rule", "fn-pre-rearrange": "fn-pre-rearrange"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {
 	"fn-composite|SL2.7.solve-equation#2": "only one k of a ± pair is a pair answer with one value, which no option can show",
@@ -58,8 +59,23 @@ func test_every_cell_makes_a_question_on_its_situation() -> void:
 
 func test_exam_types_offer_no_extra_format() -> void:
 	for t in CELLS:
+		if QuestionEngine.type_of(t).source != "exam":
+			continue
 		for c in QuestionEngine.cells(false, [t]):
 			check(QuestionEngine.extra_formats(t, c.unknown, c.angle).is_empty(), c.key)
+
+
+func test_rearranging_offers_error_spot_and_method_pick() -> void:
+	var seen := {}
+	for c in QuestionEngine.cells(false, ["fn-pre-rearrange"]):
+		for f in QuestionEngine.extra_formats("fn-pre-rearrange", c.unknown, c.angle):
+			seen[f] = true
+			var q := _make("fn-pre-rearrange", c.unknown, c.rep, c.angle, 3, f)
+			check(not q.has("error"), "%s as %s: %s" % [c.key, f, q.get("error")])
+			if not q.has("error"):
+				check_eq(q.choices.size(), 4, "%s as %s" % [c.key, f])
+				check_eq(q.choices.filter(func(o): return o.correct).size(), 1, "%s as %s" % [c.key, f])
+	check(seen.has("error-spot") and seen.has("method-pick"), "both extra formats are offered")
 
 
 func test_every_distractor_misconception_is_an_option() -> void:
