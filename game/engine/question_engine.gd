@@ -84,6 +84,7 @@ static var SITUATIONS := {
 	"rational-function": [RationalFunctionSituation, RationalFunctionViews],
 	"fn-pre-algebraic-fractions": [AlgebraicFractionSituation, AlgebraicFractionViews],
 	"rational-asymptote-gallery": [AsymptoteGallerySituation, AsymptoteGalleryViews],
+	"rational-model": [RationalModelSituation, RationalModelViews],
 }
 
 static var _cat: Dictionary = {}

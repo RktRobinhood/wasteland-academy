@@ -369,6 +369,31 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   solution set and count again with SymPy. `ui/graph_view.gd` draws a rational function's branches in
   one colour (`one_colour`) and a second curve (the line or the parabola) in the other
   (`sand_from`). The exam types offer no extra format.
+  **The Rational functions extension types** (FAL-423): `fn-ext-transformed-reciprocal` is seven more
+  unknowns on the same `rational-function` situation (mode `split`: f = A + k/(cx + d) with A and k
+  whole and c = 2 or 3, for the scaled split), asked as `named` constants (A and B, A and k, or A, B and
+  h read off a graph with one marked point), a pick of four translations ("3 right and 2 up"), of a
+  stretch and a translation in order, or of single fractions. `algebraic_fraction.gd`
+  (`fn-pre-algebraic-fractions`, the level-0 prior learning, so the dungeon's warm-ups can play it) is
+  built from its answer: an excluded value, a fraction simplified by cancelling a factor (or one that
+  can't be, where cancelling terms is the slip), a sum of two fractions, an equation a + k/(x − h) = c
+  whose solution is whole and never excluded, and a missing numerator. The answers are written options
+  (`choice`) checked as functions by SymPy, and an equation's solution is a typed number. Its
+  misconceptions have no ref, so they are logged as `fn-pre-algebraic-fractions#<index>`.
+  `asymptote_gallery.gd` (`fn-concept-asymptote-meaning`) is curves with asymptotes side by side: a
+  linear-over-linear one, a curve that meets its horizontal asymptote (x/(x² + 1), x·e^(−x), A + x/(x²
+  + 1)) or does not, (ax + b)/(cx + d) with ad = bc (a gap, not an asymptote) and a level that settles.
+  What an asymptote means is an explanation, so each answer is one of four statements, and the
+  type's true-false-reason format plays them as a student's claim. `rational_model.gd`
+  (`fn-ext-rational-model`) is a model (αx + β)/(x + γ) in a context: an average cost
+  (F + vn)/n, a mixture topped up (s + px)/(V + x) or a level that settles (Lt + P₀k)/(t + k), with an input
+  where the value ends, a table, a whole input and its value, a target whose input is not whole (so the
+  least whole number rounds up: rounding down and giving the output are the slips) and one data point
+  for a constant. Every answer is exact (Paper 1): the catalogue's Paper 2 versions, to 3 s.f., and
+  its `multipart` format are not built. Built formats of the extension types: error-spot on
+  `split-to-form` and on `clear-and-solve` (the catalogue's one error-spot slip of each),
+  true-false-reason on every unknown of the gallery and the model. Not built: method-pick, order-steps
+  and match (see the formats above).
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged

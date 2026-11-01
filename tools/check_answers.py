@@ -8962,6 +8962,7 @@ def rf_cards(q, t_right, expected, refs):
         rf_branch_shape(g, across, t[2])
         need(t == expected[mk], f"the {mk} card is {t}, not {expected[mk]}")
         need(o["ref"] == refs[mk], f"the {mk} card is tagged {o['ref']!r}, not {refs[mk]!r}")
+        need(o.get("why", "") != "", f"the {mk} card doesn't say what is wrong")
         if o["ref"]:
             wr.setdefault(o["ref"], set()).add(o["text"])
     return wr
@@ -8978,12 +8979,11 @@ def rf_no_hyphens(q):
         need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
 
 
-def rf_read_f(q, T_given=None):
+def rf_read_f(q):
     """f from the question's equation line, or from the givens where only a graph, a table or
     words show it; the two must agree when both are there."""
     f_given, co = rf_given(q["given"]) if "a" in q["given"] else (None, None)
     for t in q["lines"] + [q["asked"]]:
-        m = re.search(r"f\(x\) = ([^,.]*?)(?:,|\.| has| is|$)", t) if t.startswith("f(x) = ") else None
         if t.startswith("f(x) = "):
             f = rf_expr(t)
             if f_given is not None:
@@ -8991,10 +8991,6 @@ def rf_read_f(q, T_given=None):
             return f
     need(f_given is not None, "can't find f")
     return f_given
-
-
-def rf_mark_choices(q, want, wrongs, trap=None):
-    gc_check_common(q, want, wrongs, trap)
 
 
 def check_rational(q):
@@ -9060,8 +9056,7 @@ def check_rational(q):
         right = [o for o, g in eqs if sp.simplify(g - f) == 0]
         need(len(right) == 1 and right[0]["correct"], f"{len(right)} options are the function")
         by = q["given"]["by"]
-        need(sp.simplify(f.subs(X, 0) - yi) == 0 and (by == "y" or True), "")
-        mark_ok = (R(q["given"]["a"]), R(q["given"]["b"]), R(q["given"]["d"]))
+        need(sp.simplify(f.subs(X, 0) - yi) == 0, "f(0) is not the y-intercept")
         flip_d = (a * X + b) / (X - d)
         wr = {RF_VA_SIGN: {o["text"] for o, g in eqs if sp.simplify(g - flip_d) == 0 and o["ref"]}}
         for o, g in eqs:
@@ -9210,8 +9205,6 @@ def rf_sketch(q, f, T):
             if u == "sketch-from-transformed":
                 need(m.group(1) == RF_split_text(A, B, h), "the form is not A + B/(x − h)")
             wr = rf_cards(q, t, {k: exp[k] for k in ("flipped", "zero-at-h", "through", "mirrored", "swapped")}, RF_REFS)
-            if u == "sketch-from-transformed":
-                need(any(o["ref"] == RF_CORNERS for o in q["choices"]) or True, "")
         elif u == "sketch-from-description":
             need(sp.nsimplify(q["given"]["A"]) == A and sp.nsimplify(q["given"]["h"]) == h, "givens")
             if rep == "table":
@@ -9232,7 +9225,6 @@ def rf_sketch(q, f, T):
             if rep == "graph":
                 rf_graph_is(q["graph"], T)
             wr = rf_cards(q, tg, {"same": t, "negated": neg, "through": tg}, {**RF_REFS, "same": "", "negated": ""})
-            need(not any(o["ref"] == RF_ACROSS for o in q["choices"]) or True, "")
         else:
             raise Fail(f"no check for {u} as a graph pick")
         gc_check_common(q, next(o["text"] for o in q["choices"] if o["correct"]), wr)
@@ -9290,7 +9282,7 @@ def rf_sketch(q, f, T):
         if len(pieces) == 2:
             wr[RF_INEQ_ONE] = {pieces[1]}
         xk = h + B / (k - A)
-        need(xk.q == 1 or True, "")
+        need(k == 0 or xk.q == 1, "the boundary of f(x) = k is not a whole number")
         if rep == "graph":
             rf_graph_is(q["graph"], T)
         gc_check_common(q, right, wr)
@@ -9306,7 +9298,6 @@ def rf_sketch(q, f, T):
         gc_check_common(q, want, wr)
     elif u == "k-for-no-solution":
         K = sp.Symbol("K")
-        missing = [v for v in [A] if not sp.solve(f - K, X) or True]
         need(sp.solve(sp.Eq(f, A), X) == [], "f(x) = A has a solution")
         # no other k fails: f = k has the solution x = (kd − b)/(a − kc), unless a = kc
         sol_exists = lambda kv: sp.solve(sp.Eq(f, kv), X) != []
@@ -9810,6 +9801,180 @@ def RationalFunctionSituation_text(co):
     return f"{af_wrap(rf_poly(a, b))}/{af_wrap(rf_poly(1, d))}"
 
 
+# ── Rational models (FAL-423): rational-model ─────────────────
+# The model f(x) = (αx + β)/(x + γ) is read back from the givens and from the formula or the
+# words the question shows; every value, input, count and constant is worked out again with
+# SymPy by substituting, solving and trying whole numbers.
+
+RM = "SL2.8.rational-model#"
+RM_REACHES, RM_ROUND_DOWN, RM_REAL_VALUE, RM_OUTPUT = RM + "0", RM + "1", RM + "2", "SL2.2.function-model#2"
+RM_UNITS = {"cost": (" dollars per item", " items", "A", "n"), "mix": (" g per litre", " litres", "C", "x")}
+
+
+def rm_model(q):
+    g = q["given"]
+    ctx = g["ctx"]
+    al, be, ga = (int(R(g[n])) for n in ("al", "be", "ga"))
+    if ctx == "cost":
+        need(ga == 0 and al == int(R(g["v"])) and be == int(R(g["F"])), "the cost model's numbers")
+        info = RM_UNITS["cost"]
+    elif ctx == "mix":
+        need(ga == int(R(g["V"])) and al == int(R(g["p"])) and be == int(R(g["s"])) == int(R(g["V"])) * int(R(g["c0"])), "the mixture's numbers")
+        info = RM_UNITS["mix"]
+    else:
+        need(ga == int(R(g["k"])) and al == int(R(g["L"])) and be == int(R(g["P0"])) * int(R(g["k"])), "the settling model's numbers")
+        story = g["story"]
+        need(tuple(story[:1]) and story[0] in AG_STORIES and AG_STORIES[story[0]] == (story[1], story[2]), "the story's units")
+        info = ("%s" % story[1], " " + story[2], "P", "t")
+    f = (al * X + be) / (X + ga)
+    return ctx, al, be, ga, f, info
+
+
+def rm_terminates(v):
+    v = R(v)
+    d = v.q
+    while d % 2 == 0:
+        d //= 2
+    while d % 5 == 0:
+        d //= 5
+    return d == 1
+
+
+def check_model(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    need(q["paper"] == 1, "Paper 1")
+    for t in [asked] + L + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    ctx, al, be, ga, f, (unit, in_unit, fn, v) = rm_model(q)
+    g = q["given"]
+    ft, dt = frac_text, dec_text
+    # the formula or the words shown are the givens
+    for t in L:
+        m = re.search(rf"{fn}\({v}\) = (\(.+?\)/\(?.+?\)?)(?: dollars| grams|,|\.)", t)
+        if m and u not in ("parameters-from-data", "build-model"):
+            rhs = m.group(1).replace(f"({v})", "(x)").replace(v, "x")
+            need(sp.simplify(rf_expr(rhs.replace(" grams", "")) - f) == 0, f"the formula shown {m.group(1)!r} is not the givens")
+    if rep == "words" and u != "parameters-from-data":
+        j = " ".join(L)
+        if ctx == "cost":
+            need(f"fixed cost of {be} dollars, and each item costs {al} dollars" in j, "the words don't give F and v")
+        else:
+            need(f"holds {ga} litres of water with {be} grams of salt" in j and f"at {al} grams per litre" in j, "the words don't give V, s and p")
+    nm = "settle" if ctx == "settle" else ctx
+    long_run = {"cost": ("The average cost per item gets closer and closer to {a} dollars, the cost of making one more item, but never reaches it.", "The average cost per item reaches {a} dollars once enough items are made."),
+                "mix": ("The concentration gets closer and closer to {a} g per litre, the strength of the water added, but never reaches it.", "The concentration reaches {a} g per litre after enough litres are added.")}
+    if u == "evaluate-model":
+        m = re.fullmatch(rf"Find {fn}\((\d+)\)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        x0 = int(m.group(1))
+        val = f.subs(X, x0)
+        need(rm_terminates(val) and val > 0, "the value is not a decimal that ends")
+        if rep == "table":
+            need(x0 not in [int(R(x)) for x in q["table"]["rows"][0][1]], "x0 is in the table")
+        gc_check_common(q, f"{fn}({x0}) = {dt(val)}{unit}", {})
+    elif u == "long-run-value":
+        need(sp.limit(f, X, sp.oo) == al and sp.solve(sp.Eq(f, al), X) == [], "the long-run value is α and is never reached")
+        if ctx == "settle":
+            story = g["story"][0]
+            cap = story[0].upper() + story[1:]
+            want = f"In the long run {story} gets closer and closer to {al}{unit}, but never reaches it."
+            wr = {RM_REACHES: {f"{cap} reaches {al}{unit} after enough {in_unit.strip()}."}}
+        else:
+            want = long_run[ctx][0].format(a=al)
+            wr = {RM_REACHES: {long_run[ctx][1].format(a=al)}}
+        if rep == "graph":
+            gr = q["graph"]
+            fl = sp.lambdify(X, f, "math")
+            need(all(abs(fl(x) - y) < 1e-6 * max(1, abs(y)) for cv in gr["curves"] for x, y in cv), "the curve drawn is not the model")
+            need(any(abs(hl["at"] - al) < 1e-9 for hl in gr["hlines"]), "the asymptote isn't drawn")
+        gc_check_common(q, want, wr)
+    elif u in ("least-n-for-target", "input-for-value"):
+        if u == "least-n-for-target":
+            m = re.search(r"(?:less than|at least) (−?[\d.]+) (?:dollars|g per litre|[a-z ]+?)(?: of|\?|$)", asked)
+            m = re.search(r"(?:less than|at least) (−?[\d.]+)", asked) if m is None else m
+            need(m is not None, f"can't read {asked!r}")
+            T = sp.nsimplify(m.group(1).replace("−", "-"), rational=True)
+            if ctx == "settle":
+                T = T
+            cond = (lambda val: val < T) if ctx == "cost" else (lambda val: val >= T)
+            ns = next(n for n in range(1, 2000) if cond(f.subs(X, n)))
+            need(not cond(f.subs(X, ns - 1)) if ns > 1 else True, "n is not the least")
+            xstar = sp.solve(sp.Eq(f, T), X)
+            need(len(xstar) == 1 and not xstar[0].is_integer and xstar[0] > 0, "the exact solution is whole or not positive")
+            need(sp.ceiling(xstar[0]) == ns, "n is not the next whole number up")
+            val_n = f.subs(X, ns)
+            shown = dt(sp.Rational(int(sp.floor(val_n * 100 + sp.Rational(1, 2))), 100))
+            want = f"{v} = {ns}{in_unit}"
+            gc_check_common(q, want, {RM_ROUND_DOWN: {f"{v} = {ns - 1}{in_unit}"}, RM_OUTPUT: {f"{v} = {shown}{in_unit}"}})
+        else:
+            m = re.fullmatch(rf"For which {v} is {fn}\({v}\) = (−?[\d.]+)\?", asked)
+            need(m is not None, f"can't read {asked!r}")
+            T = sp.nsimplify(m.group(1).replace("−", "-"), rational=True)
+            sol = sp.solve(sp.Eq(f, T), X)
+            need(len(sol) == 1 and sol[0].is_integer and sol[0] > 0, "the input is not a whole number")
+            if rep == "table":
+                need(int(sol[0]) not in [int(R(x)) for x in q["table"]["rows"][0][1]], "the answer is in the table")
+            if rep == "graph":
+                need(any(abs(hl["at"] - float(T)) < 1e-9 for hl in q["graph"]["hlines"]), "the line y = T isn't drawn")
+            gc_check_common(q, f"{v} = {sol[0]}{in_unit}", {})
+        if rep == "table":
+            for xs, ys in zip(q["table"]["rows"][0][1], q["table"]["rows"][1][1]):
+                need(R(ys.replace("−", "-")) == f.subs(X, R(xs)), f"the table's value at {xs} is wrong")
+    elif u == "build-model":
+        if ctx == "cost":
+            want = f"A(n) = ({be} + {al}n)/n"
+            need(asked == "Write the model for the average cost per item of n items, A(n)." and sp.simplify((be + al * X) / X - f) == 0, "the cost model")
+        else:
+            want = f"C(x) = ({be} + {al}x)/({ga} + x)"
+            need(asked == "Write the model for the concentration after x litres are added, C(x)." and sp.simplify((be + al * X) / (ga + X) - f) == 0, "the mixture model")
+        for o in q["choices"]:
+            rhs = o["text"].split(" = ", 1)[1].replace("n", "x")
+            if o["correct"]:
+                need(sp.simplify(rf_expr(rhs) - f) == 0, "the right model is not the model")
+            else:
+                need(sp.simplify(rf_expr(rhs) - f) != 0, f"a wrong option {o['text']!r} is the model")
+        gc_check_common(q, want, {})
+    elif u == "interpret-vertical-asymptote":
+        need(f"vertical asymptote at {v} = {ft(-ga)}." in asked, "the asymptote asked about")
+        need(sp.fraction(sp.together(f))[1].subs(X, -ga) == 0, "the asymptote is not where the bottom is 0")
+        if ctx == "cost":
+            want = "n = 0 is outside the sensible domain: with no items made the average cost is not defined."
+            wr = {RM_REAL_VALUE: {"n = 0 is a real production level: making 0 items gives the highest average cost."}}
+        elif ctx == "mix":
+            want = f"x = {ft(-ga)} is outside the sensible domain: a negative number of litres can't be added."
+            wr = {RM_REAL_VALUE: {f"x = {ft(-ga)} is a real amount: adding {ft(-ga)} litres gives the strongest mixture."}}
+        else:
+            want = f"t = {ft(-ga)} is outside the sensible domain: the model starts at t = 0, so a negative time is never used."
+            wr = {RM_REAL_VALUE: {f"t = {ft(-ga)} is a real time: the level is largest {ga} {g['story'][2]} before the start."}}
+        if rep == "graph":
+            gr = q["graph"]
+            fl = sp.lambdify(X, f, "math")
+            need(all(abs(fl(x) - y) < 1e-6 * max(1, abs(y)) for cv in gr["curves"] for x, y in cv), "the curve drawn is not the model")
+        gc_check_common(q, want, wr)
+    elif u == "parameters-from-data":
+        K = sp.Symbol("K")
+        g_ = q["given"]
+        if ctx == "cost":
+            name, shown_f, val = "F", (K + al * X) / X, be
+        elif ctx == "mix":
+            name, shown_f, val = "s", (K + al * X) / (ga + X), be
+        else:
+            name, shown_f, val = "k", (al * X + int(R(g_["P0"])) * K) / (X + K), ga
+        x1, y1 = int(R(g_["x1"])), R(g_["y1"])
+        sol = sp.solve(sp.Eq(shown_f.subs(X, x1), y1), K)
+        need(len(sol) == 1 and sol[0] == val and sol[0].is_integer and sol[0] > 0, f"the constant is {sol}, not {val}")
+        if rep == "words":
+            need(f"{dt(y1)}" in " ".join(L), "the data point is not in the words")
+        else:
+            for xs, ys in zip(q["table"]["rows"][0][1], q["table"]["rows"][1][1]):
+                need(R(ys.replace("−", "-")) == f.subs(X, R(xs)), f"the table's value at {xs} is wrong")
+            need(any(int(R(xs)) == x1 for xs in q["table"]["rows"][0][1]), "the data point is not in the table")
+        gc_check_common(q, f"{name} = {val}{' dollars' if ctx == 'cost' else ' grams' if ctx == 'mix' else ' ' + g_['story'][2]}", {})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -9828,7 +9993,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
-                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery}
+                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

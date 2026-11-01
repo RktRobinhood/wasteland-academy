@@ -283,3 +283,58 @@ func test_every_slip_of_the_gallery_is_an_option() -> void:
 				if found:
 					break
 			check(found, "%s never offers %s" % [u, m.ref])
+
+
+# ── fn-ext-rational-model ────────────────────────────────────
+
+func test_the_rational_model_is_built_with_every_cell() -> void:
+	var t := "fn-ext-rational-model"
+	check(t in QuestionEngine.built_types(), "%s is not built" % t)
+	check_eq(QuestionEngine.cells(false, [t]).size(), 25, t)
+	for c in QuestionEngine.cells(false, [t]):
+		for seed in [1, 2, 3, 4]:
+			var q := _make(t, c.unknown, c.rep, c.angle, seed)
+			check(not q.has("error"), "%s seed %d: %s" % [c.key, seed, q.get("error")])
+			if q.has("error"):
+				break
+			check_eq(q.situation_id, "rational-model", c.key)
+			check_eq(q.choices.size(), 4, c.key)
+			check_eq(q.solutions[0].angle, c.angle, c.key + ": the asked method comes first")
+			for sol in q.solutions:
+				check(sol.steps.size() >= 2 and sol.steps.size() <= 5, "%s: %d steps" % [c.key, sol.steps.size()])
+				check(q.answer_text in Step.text(sol.steps[sol.steps.size() - 1]), "%s: the last step doesn't state the answer" % c.key)
+			if c.rep == "graph":
+				check(q.graph != null, c.key + ": no graph")
+			if c.rep == "table":
+				check(q.table != null, c.key + ": no table")
+
+
+func test_every_slip_of_the_rational_model_is_an_option() -> void:
+	var t := "fn-ext-rational-model"
+	var ty := QuestionEngine.type_of(t)
+	for i in ty.misconceptions.size():
+		var m: Dictionary = ty.misconceptions[i]
+		if m.as != "distractor":
+			continue
+		for u in m["in"]:
+			var found := false
+			for c in QuestionEngine.cells(false, [t]).filter(func(x): return x.unknown == u):
+				for seed in range(1, 80):
+					var q := _make(t, u, c.rep, c.angle, seed, "mcq")
+					if q.choices.any(func(o): return o.ref == m.ref):
+						found = true
+						break
+				if found:
+					break
+			check(found, "%s never offers %s" % [u, m.ref])
+
+
+func test_the_least_whole_number_rounds_up() -> void:
+	for seed in range(1, 30):
+		var q := _make("fn-ext-rational-model", "least-n-for-target", "equation", "solve-algebraically", seed)
+		var s: Dictionary = q.situation
+		check(str(s.nstar).contains("/"), "the exact input is not whole")
+		var typed := {"v": Q.new(int(s.n)).key()}
+		check(QuestionEngine.mark(q, typed).correct, "n = %s is right" % str(s.n))
+		var down := {"v": Q.new(int(s.n) - 1).key()}
+		check(not QuestionEngine.mark(q, down).correct, "rounding down is wrong")

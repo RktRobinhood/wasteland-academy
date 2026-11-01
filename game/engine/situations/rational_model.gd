@@ -94,12 +94,12 @@ static func _draw(rng: Seeded, need: Dictionary) -> Dictionary:
 		return {}
 	s.x0 = _pick(rng, xs)
 	var others: Array = xs.filter(func(x): return x != s.x0)
+	s.xstar = _pick(rng, others)
 	var table: Array = []
-	for x in rng.shuffled(others).slice(0, 4):
+	for x in rng.shuffled(others.filter(func(x): return x != s.xstar)).slice(0, 4):
 		table.append(x)
 	table.sort()
 	s.xs = table
-	s.xstar = _pick(rng, others)
 	s.tstar = at(s, s.xstar)
 	# The target: a decimal that ends, strictly between f's start and its long-run value
 	# (cost falls to v, so above it), with a x* that is not whole.
@@ -119,7 +119,7 @@ static func _draw(rng: Seeded, need: Dictionary) -> Dictionary:
 			break
 	if not s.has("tgt"):
 		return {}
-	s.x1 = _pick(rng, others)
+	s.x1 = _pick(rng, s.xs)
 	s.y1 = at(s, s.x1)
 	return s
 
