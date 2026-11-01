@@ -294,8 +294,8 @@ static func inverse_text(f: Dictionary) -> String:
 				return Fmt.poly([a, -b * a])
 			var sgn := 1 if a > 0 else -1
 			var top := Fmt.poly([sgn, -b * sgn])
-			if top == "x":
-				return "x/%d" % absi(a)
+			if top == "x" or top == "−x":
+				return "%s/%d" % [top, absi(a)]
 			return "(%s)/%d" % [top, absi(a)]
 		"rat":
 			return frac(Fmt.poly([f.d, -f.b]), Fmt.poly([-f.c, f.a]))

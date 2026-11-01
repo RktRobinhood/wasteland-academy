@@ -78,6 +78,7 @@ static var SITUATIONS := {
 	"data-summary": [DataSummarySituation, DataSummaryViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],
 	"inverse-rule": [InverseRuleSituation, InverseRuleViews],
+	"composite-graph-table": [GraphTableSituation, GraphTableViews],
 }
 
 static var _cat: Dictionary = {}

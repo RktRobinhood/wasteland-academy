@@ -7956,6 +7956,12 @@ def ir_rule(line):
     return ir_steps(m.group(1)), None
 
 
+def ir_range(e, dom):
+    """The range of e on dom. SymPy can't do a bare c**x, so powers of a number become exp."""
+    e2 = e.replace(lambda t: t.is_Pow and t.base.is_number and t.exp.has(XR), lambda t: sp.exp(t.exp * sp.log(t.base)))
+    return function_range(e2, XR, dom)
+
+
 def ir_domain(e, restriction):
     d = continuous_domain(e, XR, sp.S.Reals)
     if restriction is not None:
@@ -8129,7 +8135,7 @@ def check_inverse(q):
         gc_check_common(q, right, {k: v for k, v in wr.items() if all(not truth[t] for t in v)})
         return None, None
     need(dom is not None, "no rule")
-    rng = function_range(f, XR, dom)
+    rng = ir_range(f, dom)
     if q["graph"] is not None:
         ir_graph(q, f, dom)
     if u in ("inverse-linear", "inverse-rational", "inverse-restricted-quadratic", "inverse-root", "inverse-exponential"):
@@ -8256,6 +8262,227 @@ def check_inverse(q):
     return None, None
 
 
+# ── composite-graph-table (fn-graph-table-composite-inverse) ──
+# f and g are read back from the table, the graph's dots or the sentence the question
+# shows, never from the engine's givens.
+
+GT_REFS = {"notation-rule": "SL2.2.evaluate-notation#1", "shifted": "SL2.2.evaluate-notation#2", "solve-as-value": "SL2.3.read-graph#0",
+           "one-crossing": "SL2.3.read-graph#1", "order": "SL2.5.composite-value#0", "product": "SL2.5.composite-value#1",
+           "twice": "SL2.5.composite-value#2", "reciprocal": "SL2.2.inverse-undo#0", "axis": "SL2.2.inverse-undo#1",
+           "value-not-inverse": "SL2.2.inverse-undo#2", "solve-inverse": "SL2.5.identity#1", "domain-of-f": "SL2.5.inverse-domain-range#0",
+           "y-intercept": "SL2.5.inverse-domain-range#1", "every-inverse": "SL2.5.inverse-domain-range#2"}
+
+
+def gt_int(text):
+    return int(text.replace("−", "-"))
+
+
+def gt_read(q):
+    """{'f': {x: y}, 'g': {x: y}} from the table, the graph's dots and the sentence."""
+    out = {"f": {}, "g": {}}
+    t = q.get("table")
+    if t:
+        xs = [gt_int(c) for c in t["rows"][0][1]]
+        for label, cells in t["rows"][1:]:
+            name = label[0]
+            for x, c in zip(xs, cells):
+                if c != "?":
+                    out[name][x] = gt_int(c)
+    gr = q.get("graph")
+    if gr and gr["points"] and not q["lines"][0].startswith("f(x)"):
+        for p in gr["points"]:
+            need(p["x"] == int(p["x"]) and p["y"] == int(p["y"]), "a dot is off the grid")
+            out["f"][int(p["x"])] = int(p["y"])
+        curve = gr["curves"][0]
+        need([(int(a), int(b)) for a, b in curve] == [(int(p["x"]), int(p["y"])) for p in gr["points"]], "the lines don't join the dots")
+    for line in q["lines"]:
+        for name, x, y in re.findall(r"([fg])\((−?\d+)\) = (−?\d+)", line):
+            out[name][gt_int(x)] = gt_int(y)
+    return out
+
+
+def gt_monotone(d):
+    ys = [d[x] for x in sorted(d)]
+    need(all(a < b for a, b in zip(ys, ys[1:])) or all(a > b for a, b in zip(ys, ys[1:])), f"{ys} is not one-to-one")
+
+
+def gt_inv(d, y):
+    xs = [x for x in d if d[x] == y]
+    need(len(xs) == 1, f"f⁻¹({y}) has {len(xs)} values")
+    return xs[0]
+
+
+def gt_num(label, v):
+    return label.replace("-", "−") + frac_text(v)
+
+
+def check_graph_table(q):
+    ans, u, rep, L, asked = q["answer"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 1, "the graph and table readings are Paper 1")
+    for t in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+    wr = {}
+    if u == "value-from-rule":
+        f = parse(rhs(L[0]))
+        a = gt_int(re.fullmatch(r"Find f\((−?\d+)\)\.", asked).group(1))
+        v = f.subs(X, a)
+        co = poly_coeffs(f)
+        if a != 0 and co.get(2, 0) != 0:
+            wr[GT_REFS["notation-rule"]] = {gt_num(f"f({a}) = ".replace("-", "−"), co.get(0, 0) + co.get(1, 0) * a - co[2] * a * a)}
+        if rep == "graph":
+            curve = q["graph"]["curves"][0]
+            need(all(abs(float(f.subs(X, x0)) - y0) < 1e-6 for x0, y0 in curve), "the curve is not the rule")
+        gc_check_common(q, gt_num(f"f({a}) = ", v), wr)
+        return None, None
+    if u == "self-composite-read" and L[0].startswith("f(x) = "):
+        f = parse(rhs(L[0]))
+        fn = {x: f.subs(X, x) for x in range(-4, 9)}
+        a = gt_int(re.fullmatch(r"Find \(f∘f\)\((−?\d+)\)\.", asked).group(1))
+        mid = f.subs(X, a)
+        v = f.subs(X, mid)
+        need(abs(mid) <= 6 and abs(v) <= 99, "the numbers are out of range")
+        wr[GT_REFS["product"]] = {gt_num(f"(f∘f)({a}) = ", mid * mid)}
+        if rep != "equation":
+            d = gt_read(q)["f"]
+            need(all(d[x] == fn[x] for x in d), "the table or graph is not the rule")
+        gc_check_common(q, gt_num(f"(f∘f)({a}) = ", v), wr)
+        return None, None
+    d = gt_read(q)
+    f, g = d["f"], d["g"]
+    xs = sorted(f)
+    need(len(xs) >= 3 and xs == list(range(xs[0], xs[0] + len(xs))) or rep == "words", "the inputs are not consecutive")
+    if u == "read-value":
+        a = gt_int(re.fullmatch(r"Find f\((−?\d+)\)\.", asked).group(1))
+        want = gt_num(f"f({a}) = ", f[a])
+    elif u == "self-composite-read":
+        a = gt_int(re.fullmatch(r"Find \(f∘f\)\((−?\d+)\)\.", asked).group(1))
+        gt_monotone(f)
+        need(f[a] in f, "f(a) is not an input")
+        mid = f[a]
+        wr[GT_REFS["product"]] = {gt_num(f"(f∘f)({a}) = ", mid * mid)}
+        want = gt_num(f"(f∘f)({a}) = ", f[mid])
+    elif u == "composite-from-table":
+        m = re.fullmatch(r"Find \((f∘g|g∘f)\)\((−?\d+)\)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        a = gt_int(m.group(2))
+        gt_monotone(f)
+        gt_monotone(g)
+        outer, inner = (f, g) if m.group(1) == "f∘g" else (g, f)
+        need(inner[a] in outer, "the inner value is not an input of the outer rule")
+        lab = f"({m.group(1)})({a}) = "
+        want = gt_num(lab, outer[inner[a]])
+        if outer[a] in inner:
+            wr[GT_REFS["order"]] = {gt_num(lab, inner[outer[a]])}
+        wr[GT_REFS["product"]] = {gt_num(lab, f[a] * g[a])}
+        if inner[a] in inner:
+            wr[GT_REFS["twice"]] = {gt_num(lab, inner[inner[a]])}
+    elif u == "solve-from-table":
+        k = gt_int(re.fullmatch(r"Solve f\(x\) = (−?\d+)\.", asked).group(1))
+        gt_monotone(f)
+        x = gt_inv(f, k)
+        want = "x = " + frac_text(x)
+        if k in f and k != x:
+            wr[GT_REFS["solve-as-value"]] = {"x = " + frac_text(f[k])}
+    elif u == "inverse-value-read":
+        b = gt_int(re.fullmatch(r"Find f⁻¹\((−?\d+)\)\.", asked).group(1))
+        gt_monotone(f)
+        a = gt_inv(f, b)
+        lab = f"f⁻¹({b}) = "
+        want = gt_num(lab, a)
+        if b in f:
+            wr[GT_REFS["value-not-inverse"]] = {gt_num(lab, f[b])}
+            if f[b] != 0:
+                wr[GT_REFS["reciprocal"]] = {gt_num(lab, sp.Rational(1, f[b]))}
+    elif u in ("inverse-domain-read", "inverse-range-read"):
+        gt_monotone(f)
+        m = re.fullmatch(r"The graph of f is shown, for (−?\d+) ≤ x ≤ (−?\d+)\.", L[0])
+        need(m is not None and (gt_int(m.group(1)), gt_int(m.group(2))) == (xs[0], xs[-1]), "the stated domain is not the graph's")
+        ylo, yhi = min(f.values()), max(f.values())
+        fx = lambda lo, hi, v: f"{frac_text(lo)} ≤ {v} ≤ {frac_text(hi)}"
+        if u == "inverse-domain-read":
+            want, wr[GT_REFS["domain-of-f"]] = fx(ylo, yhi, "x"), {fx(xs[0], xs[-1], "x")}
+        else:
+            want, wr[GT_REFS["domain-of-f"]] = fx(xs[0], xs[-1], "y"), {fx(ylo, yhi, "y")}
+    elif u == "solve-inverse-equation":
+        m = re.fullmatch(r"Solve f⁻¹\((.+)\) = (−?\d+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        inner = parse(m.group(1))
+        gt_monotone(f)
+        c = gt_int(m.group(2))
+        x = sp.solve(inner - f[c], X)
+        need(len(x) == 1 and x[0].q == 1, f"x = {x}")
+        want = "x = " + frac_text(x[0])
+        if c in f.values():
+            back = gt_inv(f, c)
+            sl = sp.solve(inner - back, X)
+            need(len(sl) == 1, "the slip has one value")
+            wr[GT_REFS["solve-inverse"]] = {"x = " + frac_text(sl[0])}
+    elif u == "value-at-shifted-input":
+        gt_monotone(f)
+        k = gt_inv(f, 0)
+        need(k + 1 in f, "k + 1 is not an input")
+        want = gt_num("f(k + 1) = ", f[k + 1])
+        wr[GT_REFS["shifted"]] = {"f(k + 1) = 1"}
+    elif u == "mixed-inverse-composite":
+        b = gt_int(re.fullmatch(r"Find \(f∘g⁻¹\)\((−?\d+)\)\.", asked).group(1))
+        gt_monotone(f)
+        gt_monotone(g)
+        lab = f"(f∘g⁻¹)({b}) = "
+        want = gt_num(lab, f[gt_inv(g, b)])
+        if b in g:
+            wr[GT_REFS["value-not-inverse"]] = {gt_num(lab, f[g[b]] if g[b] in f else f[b])}
+    elif u == "missing-entry":
+        m = re.fullmatch(r"The table has one entry missing\. Given that \(f∘g\)\((−?\d+)\) = (−?\d+), find g\(\1\)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        a, v = gt_int(m.group(1)), gt_int(m.group(2))
+        need(a not in g and "?" in " ".join(" ".join(r[1]) for r in q["table"]["rows"]), "the blank is not g(a)")
+        gt_monotone(f)
+        want = gt_num(f"g({a}) = ", gt_inv(f, v))
+    elif u == "inverse-points":
+        pts = {}
+        for p in q["graph"]["points"]:
+            m = re.fullmatch(r"([AB]) \((−?\d+), (−?\d+)\)", p["label"] or "")
+            if m:
+                need(int(p["x"]) == gt_int(m.group(2)) and int(p["y"]) == gt_int(m.group(3)), "a label is not its point")
+                pts[m.group(1)] = (int(p["x"]), int(p["y"]))
+        need(set(pts) == {"A", "B"}, "the points A and B")
+        gt_monotone(f)
+        right = sorted((y, x) for x, y in pts.values())
+        want = " and ".join(f"({frac_text(x)}, {frac_text(y)})" for x, y in right)
+        axis = sorted((x, -y) for x, y in pts.values())
+        wr[GT_REFS["axis"]] = {" and ".join(f"({frac_text(x)}, {frac_text(y)})" for x, y in axis)}
+    elif u == "count-solutions":
+        k = gt_int(re.fullmatch(r"Find every solution of f\(x\) = (−?\d+)\.", asked).group(1))
+        sols = []
+        for x0, x1 in zip(xs, xs[1:]):
+            lo, hi = sorted((f[x0], f[x1]))
+            need(not (lo < k < hi), "the line y = k crosses between two dots")
+        sols = [x for x in xs if f[x] == k]
+        need(len(sols) == 2, f"{len(sols)} solutions")
+        want = "x = " + " or ".join(frac_text(x) for x in sols)
+        wr[GT_REFS["one-crossing"]] = {"x = " + frac_text(sols[1])}
+    elif u == "why-no-inverse":
+        pat = r"It is not one-to-one: f\((−?\d+)\) = f\((−?\d+)\) = (−?\d+), so f⁻¹\(\3\) would have two values"
+        truth = {}
+        for o in q["choices"]:
+            m = re.fullmatch(pat, o["text"])
+            truth[o["text"]] = bool(m) and gt_int(m.group(1)) != gt_int(m.group(2)) and f.get(gt_int(m.group(1))) == f.get(gt_int(m.group(2))) == gt_int(m.group(3))
+        need(truth[q["answer_text"]] and sum(truth.values()) == 1, f"the options that are true: {[t for t, v in truth.items() if v]}")
+        wr[GT_REFS["every-inverse"]] = {"It has one: reflect the graph in y = x"}
+        want = q["answer_text"]
+    elif u == "restrict-from-graph":
+        ys = [f[x] for x in xs]
+        turns = [x for i, x in enumerate(xs[1:-1], 1) if (ys[i] - ys[i - 1]) * (ys[i + 1] - ys[i]) < 0]
+        need(len(turns) == 1, f"turns at {turns}")
+        want = "k = " + frac_text(turns[0])
+        need(turns[0] != 0, "the turn is at x = 0, so the y-intercept slip is right")
+        wr[GT_REFS["y-intercept"]] = {"k = 0"}
+    else:
+        raise Fail(f"the checker has no solver for {u}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -8274,7 +8501,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "data-summary": check_data_summary,
-                    "composite-pair": check_composite, "inverse-rule": check_inverse}
+                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
