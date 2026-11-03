@@ -125,6 +125,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   worked from four would be off in its last place (FAL-412: h = 10.465, not 10.47, so
   ½ × 16 × h gives the 83.7 shown); `tools/check-answers` works out every step's
   arithmetic from the figures shown. Every cell makes both papers but the sine rule's angle, which is Paper 2 only.
+  `t3-ambiguous-case` (FAL-412) is on the same situation, Paper 2 only. Its `ssa-two`
+  givens fit two triangles (`second` on the situation), both inside the limits, and its
+  questions ask both values of the angle or both lengths of the third side. The answer
+  is the `measures` kind: two 3 s.f. measures in either order, each marked like
+  `measure`, with an option that stops at one (`only`). Its diagram draws both triangles
+  on one base line, lettered B₁ and B₂ (`second` in the diagram spec), with a measuring
+  line under the base for each asked length. `largest-angle` uses `ssa-mix`, one triangle
+  or two half and half, in words only since a drawing would show how many fit, so the
+  student has to decide before answering: the acute angle is right only when the obtuse
+  one has no room. The checker solves each question from the sine rule and from the
+  cosine rule as a quadratic, and the two must agree.
 - `engine/situations/arithmetic_sequence.gd` (FAL-392) is the Topic 1
   situation: one arithmetic sequence with u₁, d, n, uₙ, Sₙ, two later terms and the
   first four terms, for `t1-arithmetic-sequence`. Its representations are `notation`

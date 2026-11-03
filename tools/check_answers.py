@@ -1067,9 +1067,173 @@ def tri_working(q, sol):
     return checked
 
 
+# The ambiguous case (t3-ambiguous-case, FAL-412): two sides and an angle opposite one of
+# them. The triangles that fit are solved twice, from the sine rule with both angles
+# and from the cosine rule as a quadratic in the third side, and must agree. Both, or
+# the one, must keep every angle inside the limits. Paper 2 only.
+
+AMB_GIVENS = {"both-angles": "ssa-two", "both-sides": "ssa-two", "largest-angle": "ssa-mix"}
+
+
+def amb_solve(g):
+    """Every triangle that fits the givens: X the given angle, Y the other side's angle,
+    Z the third; each triangle has "Y" (degrees), "Z" and "z" (cm), acute Y first."""
+    need(len(g["sides"]) == 2 and len(g["angles"]) == 1, "the givens are not two sides and an angle")
+    X = next(iter(g["angles"]))
+    need(X.lower() in g["sides"], "the given angle is not opposite a given side")
+    Y = next(k.upper() for k in g["sides"] if k.upper() != X)
+    Z = (set(LETTERS3) - {X, Y}).pop()
+    x, y, ax = R(g["sides"][X.lower()]), R(g["sides"][Y.lower()]), R(g["angles"][X])
+    for v in (x, y):
+        need(v.q == 1 and TRI_SIDE[0] <= v <= TRI_SIDE[1], f"given side {v} is not a whole number from 3 to 20")
+    need(ax.q == 1 and TRI_ANGLE[0] <= ax <= TRI_ANGLE[1], f"given angle {ax} is not a whole number of degrees from 20 to 140")
+    ratio = y * deg_sin(ax) / x
+    need(num(ratio) < 1, "side x doesn't reach the line, so no triangle fits")
+    acute = num(to_deg(sp.asin(ratio)))
+    tris = []
+    for ay in (acute, 180 - acute):
+        az = 180 - num(ax) - ay
+        if az > 0:
+            tris.append({"Y": ay, "Z": az, "z": num(x * deg_sin(az) / deg_sin(ax))})
+    b, c = num(2 * y * deg_cos(ax)), num(y**2 - x**2)
+    d = sp.sqrt(b**2 - 4 * c)
+    roots = sorted([r for r in ((b + d) / 2, (b - d) / 2) if r > 0], reverse=True)
+    need(len(roots) == len(tris), f"the sine rule fits {len(tris)} triangles, the cosine rule {len(roots)}")
+    for tr, r in zip(tris, roots):
+        need(close(tr["z"], r), "the sine rule and the cosine rule give different third sides")
+        for a in (ax, tr["Y"], tr["Z"]):
+            need(TRI_ANGLE[0] <= num(a) <= TRI_ANGLE[1], f"an angle of {num(a):.4} is outside 20° to 140°")
+    return {"X": X, "Y": Y, "Z": Z, "x": x, "y": y, "ax": ax, "tris": tris, "acute": acute}
+
+
+def amb_needs_calculator(v):
+    return not any(abs(num(v) * d - round(num(v) * d)) < sp.Float("1e-7", DIGITS) * d for d in range(1, 25))
+
+
+def amb_wrongs(u, t):
+    """Each misconception's wrong value(s), worked out independently of the engine."""
+    x, y, ax, tris, acute = t["x"], t["y"], t["ax"], t["tris"], t["acute"]
+    swapped = num(x * deg_sin(ax) / y)
+    w = num(to_deg(sp.asin(swapped))) if swapped < 1 else None
+    if u == "both-angles":
+        return {"SL3.5.ambiguous-case#0": [(acute,)], "SL3.2.sine-rule#0": [] if w is None else [(w, 180 - w)]}
+    if u == "both-sides":
+        return {"SL3.5.ambiguous-case#0": [(tris[0]["z"],)],
+                "SL3.2.sine-rule#0": [tuple(x * deg_sin(tr["Z"]) / deg_sin(acute) for tr in tris)]}
+    out = {"SL3.2.sine-rule#0": [] if w is None else [(w,)]}
+    out["SL3.5.ambiguous-case#0" if len(tris) == 2 else "SL3.5.ambiguous-case#1"] = [(acute if len(tris) == 2 else 180 - acute,)]
+    return out
+
+
+def amb_diagram(q, t):
+    """Both triangles to scale on one base line: X, then the two places of Y, with Z above."""
+    dg = q["diagram"]
+    v = {L: sp.Matrix([sp.Float(c, DIGITS) for c in p]) for L, p in dg["vertices"].items()}
+    X, Y, Z = t["X"], t["Y"], t["Z"]
+    need(dg["second"]["vertex"] == Y, "the second place is not the asked vertex's")
+    other = sp.Matrix([sp.Float(c, DIGITS) for c in dg["second"]["at"]])
+    dist = lambda p, r: sp.sqrt(((p - r).T * (p - r))[0])
+    need(close(dist(v[X], v[Z]), t["y"]), "the drawn side y is not to scale")
+    for p, tr in ((v[Y], t["tris"][0]), (other, t["tris"][1])):
+        need(close(dist(p, v[X]), tr["z"]), "a drawn third side is not to scale")
+        need(close(dist(p, v[Z]), t["x"]), "a drawn side x is not to scale")
+        need(num(p[1]) == 0 and num(v[X][1]) == 0, "the two places are not on one base line")
+
+
+def amb_values(o):
+    """An option's values: both, or the one it stops at."""
+    return (R(o["values"]["v1"]),) if o["values"].get("only") else (R(o["values"]["v1"]), R(o["values"]["v2"]))
+
+
+def amb_text(label, unit, vals):
+    return label + " or ".join(sig3(v) + unit for v in sorted(vals, key=num))
+
+
+def check_ambiguous(q, u):
+    g = q["given"]
+    need(g["givens"] == AMB_GIVENS[u], f"{u} is asked from {g['givens']} givens")
+    need(q.get("paper") == 2, "the ambiguous case is asked on Paper 1")
+    t = amb_solve(g)
+    X, Y, Z, tris = t["X"], t["Y"], t["Z"], t["tris"]
+    if g["givens"] == "ssa-two":
+        need(len(tris) == 2, "two triangles don't fit")
+        need(t["x"] < t["y"], "the side opposite the given angle is not the shorter one")
+    need(len(tris) == 1 or abs(t["acute"] - 90) >= TRI_RIGHT_GAP, "the two triangles are too near alike")
+    tri_shown(q, g)
+    if q["diagram"] is not None:
+        need(len(tris) == 2, "a diagram of the ambiguous case with one triangle")
+        amb_diagram(q, t)
+    sit = q["situation"]
+    need(close(R(sit["angles"][Y]), tris[0]["Y"]) and close(R(sit["sides"][Z.lower()]), tris[0]["z"]), "the situation is another triangle")
+    if len(tris) == 2:
+        need("second" in sit, "the situation has no second triangle")
+        need(close(R(sit["second"]["angles"][Y]), tris[1]["Y"]) and close(R(sit["second"]["sides"][Z.lower()]), tris[1]["z"]), "the situation's second triangle differs")
+    else:
+        need("second" not in sit, "the situation has a second triangle that doesn't fit")
+
+    if u == "both-angles":
+        want, label, unit = tuple(tr["Y"] for tr in tris), angle_name(Y) + " = ", "°"
+        need(g["ask"] == Y, "the asked angle is not the other side's")
+    elif u == "both-sides":
+        want, label, unit = tuple(tr["z"] for tr in tris), side_name(Z) + " = ", " cm"
+        need(g["ask"] == Z.lower(), "the asked side is not the third side")
+    else:
+        want, label, unit = (max(tr["Y"] for tr in tris),), angle_name(Y) + " = ", "°"
+    for v in want:
+        need(amb_needs_calculator(v), f"the answer {num(v):.8} needs no calculator")
+        need(not on_edge(v), f"the answer {num(v):.8} is on a 3 s.f. rounding edge")
+
+    ans = q["answer"]
+    kind = "measures" if len(want) == 2 else "measure"
+    need(ans["kind"] == kind, f"answer kind {ans['kind']}")
+    need(ans["label"] == label and ans["unit"] == unit, f"answer label {ans['label']!r}{ans['unit']!r}, expected {label!r}{unit!r}")
+    ids = ("v1", "v2") if kind == "measures" else ("v",)
+    got = sorted((R(ans["values"][i]) for i in ids), key=num)
+    for a, b in zip(got, sorted(want, key=num)):
+        need(close(a, b), f"engine answer {num(a):.8} is wrong (expected {num(b):.8})")
+    text = amb_text(label, unit, want)
+    need(q["answer_text"] == text, f"answer text {q['answer_text']!r}, expected {text!r}")
+    if kind == "measures":
+        need(sig3(want[0]) != sig3(want[1]), "the two values read the same")
+        need(sorted(ans["unordered"][0]) == ["v1", "v2"], "the two values are not in either order")
+
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    wrongs = amb_wrongs(u, t)
+    texts = set()
+    for o in ch:
+        ov = amb_values(o) if kind == "measures" else (R(o["values"]["v"]),)
+        for v in ov:
+            need(v > 0, f"option {o['text']!r} is not positive")
+            need(not on_edge(v), f"option {o['text']!r} is on a 3 s.f. rounding edge ({num(v):.8})")
+        need(o["text"] == amb_text(label, unit, ov), f"option text {o['text']!r} doesn't say its values")
+        need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
+        texts.add(o["text"])
+        right = o["text"] == text
+        need(right == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'} but is {'right' if right else 'wrong'}")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrongs, f"{o['ref']} is not a misconception of {u}")
+            sorted_ov = sorted(ov, key=num)
+            need(any(len(w) == len(ov) and all(close(a, b) for a, b in zip(sorted_ov, sorted(w, key=num))) for w in wrongs[o["ref"]]),
+                 f"option {o['text']!r} is not what {o['ref']} gives")
+
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        rv = sorted((R(sol["result"][i]) for i in ids), key=num)
+        need(all(close(a, b) for a, b in zip(rv, sorted(want, key=num))), f"{sol['name']}: last step doesn't give the answer")
+        need(q["answer_text"] in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+        need(tri_working(q, sol) > 0, f"{sol['name']}: no step works anything out")
+    need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+    return None, None
+
+
 def check_triangle(q):
     g = q["given"]
     u = q["view"]["unknown"]
+    if u in AMB_GIVENS:
+        return check_ambiguous(q, u)
     want_givens = {"side-cosine-rule": ("sas", None), "angle-cosine-rule": ("sss", None), "side-sine-rule": ("aas", None),
                    "angle-sine-rule": ("ssa", None), "area-from-two-sides": ("sas", "area"), "side-from-area": ("area-side", None),
                    "angle-from-area": ("area-angle", None)}

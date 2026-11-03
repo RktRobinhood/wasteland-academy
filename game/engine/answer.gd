@@ -6,7 +6,9 @@ extends RefCounted
 ##   kind       how it is written (see text()): number, axis, xval, roots, point, yint,
 ##              vertex_form, vertex_form_a, general, general_a, factorised, maxmin,
 ##              vertex_kind, range, triple, claim; for the triangle situation also
-##              measure (a length, angle or area, written to 3 s.f. with its unit); for
+##              measure (a length, angle or area, written to 3 s.f. with its unit) and
+##              measures (the two possible measures of the ambiguous case, either order;
+##              a wrong option may give `only` the first); for
 ##              the distribution situation also pq (two unknown probabilities p and q);
 ##              for the cubic situation also deriv
 ##              (f′(x) as a quadratic), line (y = mx + c), tangent_read (f′(x₀) and f(x₀)),
@@ -102,6 +104,9 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = []
 		"measure":
 			t = [label, {"slot": "v"}, unit]
+		"measures":
+			t = [label, {"slot": "v1"}, unit, " or ", {"slot": "v2"}, unit]
+			unordered = [["v1", "v2"]]
 		"pq":
 			t = ["p = ", {"slot": "p"}, ",  q = ", {"slot": "q"}]
 		# ── Quadratics region (FAL-414) ──
@@ -458,6 +463,12 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return v.text
 		"measure":
 			return ans.label + Fmt.sf(v.v) + ans.unit
+		"measures":
+			# A wrong option may give only one (SL3.5.ambiguous-case#0).
+			if v.get("only", false):
+				return ans.label + Fmt.sf(v.v1) + ans.unit
+			var ms := _sorted([v.v1, v.v2])
+			return "%s%s%s or %s%s" % [ans.label, Fmt.sf(ms[0]), ans.unit, Fmt.sf(ms[1]), ans.unit]
 		"pq":
 			return "p = %s, q = %s" % [shown(ans, v.p), shown(ans, v.q)]
 		"choice":
@@ -653,7 +664,7 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind == "lnq":
 		return "lnq:%.9f" % lnq_value(values.m, values.r, values.get("form", ""))
 	# Its options may have other counts, so an xs answer is told apart by its text.
-	if ans.kind in ["xs", "pts"]:
+	if ans.kind in ["xs", "pts", "measures"]:
 		return ans.kind + ":" + text(ans, values)
 	# Shown to 3 s.f. or as decimals: two values that read the same are one option.
 	if ans.kind in ["pct", "expmodel", "limited", "fn", "xpow"]:
