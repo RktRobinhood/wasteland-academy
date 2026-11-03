@@ -465,7 +465,7 @@ the skills missed, and the Scrap goes into the save.
 `answer(response)`, `next()`, `quit()`, and the lifelines `use_fifty()`, `use_hint()`
 and `use_freeze()`. The fight screen (`ui/fight.gd`) extends the practice screen and
 draws the run: enemy and player HP, the timer bar, the lifelines, the card, and the
-summary. It keeps room above the card for the journey strip (FAL-331). The lifeline row
+summary, with the journey strip (FAL-331, below) above the card. The lifeline row
 ends with the question's paper: "No calculator", or on Paper 2 the Calculator button.
 
 - **One settings file.** Every number is in `engine/tuning.gd` (`Tuning`): HP, the
@@ -570,8 +570,47 @@ only: nothing in the run waits on them, and a run plays the same with none conne
 | `floor_started(floor)` | a floor opens: the start floor, then each one after its boss falls |
 | `boss_beaten(floor, kind)` | a mini-boss (`"mini"`) or boss (`"boss"`) falls, after its heal |
 
-The strip (FAL-331) isn't merged yet, so the fight screen keeps an empty
-`JourneyStrip` box above the card for it.
+### The journey strip
+
+A band of side-view scene above the fight screen's card (FAL-331, plan on FAL-289): the
+Learner walks right with Spark over the region's parallax, and each answer plays out as
+a beat: Explore, Puzzle, Fight or Boss. It is a view only. It never sends anything back,
+never takes input (`mouse_filter` is IGNORE), and every call reaches it deferred, so the
+run plays the same with the strip on, off or broken (`test_journey.gd` checks all three).
+
+- **The sheets.** `JourneyAssets.scan()` reads every atlas and JSON under
+  `assets/journey/`, found by folder (`party/`, `enemies/`, `weapons/`, one folder per
+  region), so a new sheet that follows `assets/journey/README.md` needs no code change.
+  `scripts/godot-env.sh` copies `assets/journey/` into `game/assets/journey/` at import
+  time (git ignores the copy), and the Web preset exports its JSON.
+- **The calls** (`journey/journey_stage.gd`, `scenes/journey_stage.tscn`):
+
+  | Call | When |
+  |---|---|
+  | `start_run(region, avatar, weapon, seed)` | the run starts; hides the strip if the avatar has no sheet |
+  | `fight_started(fight, tier, questions)` | a fight opens; tier 1 to 5 (0: none yet, taken as D1 to D2) |
+  | `question_opened(index)` | a question opens: whatever is playing jumps to its end, then only idle loops play |
+  | `answer_resolved(outcome, info)` | right, wrong, timeout, late or partial; `info.damage` sets the damage number |
+  | `fight_ended()` | the fight is won or left: victory or retreat, then walk on |
+  | `run_ended()` | death or quit |
+  | `set_weapon(name)` | cosmetic; the Learner isn't redrawn |
+
+- **Choosing the beat.** `JourneyBeats.encounter(seed, fight, tier, roster, questions)`
+  is a pure function: D1 Explore, D2 Explore or Puzzle, D3 a fight with 1 to 2 monsters
+  (now and then a Puzzle), D4 a fight (a bandit ambush or 2 to 3 monsters), D5 the boss.
+  Fight 5 is the mini-boss and fight 10 the boss, whatever the tier. It uses only sheets
+  that exist.
+- **The fight screen.** `JourneyLink.attach(run, stage, save)` turns the run's signals
+  (above) into these calls: the run's region goes to its island's journey region
+  (`functions` is `signal-tower`), a glancing hit is `partial`, and the avatar is the
+  save's `profile.avatar` ("female" when there is none, as the HTML game does). A region
+  with no journey art, or an avatar with no sheet, hides the strip.
+- **Calm and reduced motion.** While a question is open only idle loops play. A hit
+  gets one 80 ms flash, at most 3 a second. `reduced_motion` swaps poses and stops the
+  scroll.
+- **The demo.** `/next/?journey=demo` (desktop: `-- --journey=demo`) replays the FAL-293
+  reel's script with a dummy question card under the strip (`ui/journey_demo.gd`).
+  Add `&motion=reduced` for reduced motion.
 
 ### Deep links
 

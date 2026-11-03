@@ -6,7 +6,8 @@ extends "res://ui/practice.gd"
 ## the worked solution before the next question; the run ends in a summary. A mini-boss
 ## or boss shows its part, the parts done, and the value carried on from the part before.
 ##
-## Room is kept for the journey strip (FAL-331) above the card. The lifeline row ends
+## The journey strip (FAL-331, journey/journey_stage.gd) sits above the card, driven
+## from the run's view signals by JourneyLink. The lifeline row ends
 ## with the question's paper (FAL-419): "No calculator", or the Calculator button on a
 ## Paper 2 question, which opens the calculator while the clock keeps running.
 ##
@@ -32,8 +33,12 @@ const MONO := preload("res://assets/fonts/share-tech-mono-latin.woff2")
 const GREEN := Color(0.36, 0.8, 0.42)
 const ORANGE := Color(0.95, 0.6, 0.2)
 const RED := Color(0.93, 0.26, 0.3)
-## Height kept above the card for the journey strip (FAL-331), in base units.
+## The journey strip's height (FAL-331), in base units: the least, and its most as a
+## share of the window, so a phone keeps room for the card. It sizes like the demo
+## (ui/journey_demo.gd) otherwise.
 const STRIP_HEIGHT := 150
+const STRIP_SHARE := 0.2
+const JOURNEY_STAGE := "res://scenes/journey_stage.tscn"
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
 ## How long a hit shows the enemy's hurt frame (one flash, FAL-473).
 const HURT_FLASH := 0.08
@@ -57,6 +62,8 @@ var quit_button: Button
 ## The region's backdrop (FAL-470), hidden while it has none.
 var backdrop: TextureRect
 var strip: Control
+## Drives the strip from the run; view only (journey/journey_link.gd).
+var journey: JourneyLink
 var enemy_art: TextureRect
 var enemy_name: Label
 var enemy_bar: ProgressBar
@@ -87,8 +94,10 @@ var _taunted := -1
 func _ready() -> void:
 	theme = UiTheme.make()
 	_build()
+	resized.connect(_fit_strip)
 	resized.connect(_fit)
 	_fit()
+	_fit_strip()
 	var deep := deep_link()
 	save = SaveData.load_from(save_path)
 	if not launch.is_empty():
@@ -121,6 +130,11 @@ func _ready() -> void:
 			next_question()
 
 
+func _fit_strip() -> void:
+	var col := minf(size.x, COLUMN_WIDE if size.x > size.y else COLUMN)
+	strip.custom_minimum_size.y = maxf(STRIP_HEIGHT, minf(col * JourneyStage.H / 380.0, size.y * STRIP_SHARE))
+
+
 ## Starts a run with this screen's region, floor and seed (a fresh seed if 0).
 func start_run() -> void:
 	if run_seed == 0:
@@ -136,6 +150,7 @@ func start_run() -> void:
 	run.question_opened.connect(func(_f, _t): _show_question())
 	run.question_opened.connect(func(_f, _t): Audio.play_location(MapLink.music_for(region, run.kind != "fight")))
 	run.run_ended.connect(_show_summary)
+	journey = JourneyLink.attach(run, strip, save)
 	summary_box.visible = false
 	floor_box.visible = false
 	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
@@ -268,8 +283,8 @@ func _build() -> void:
 	head.add_child(hud_gap)
 	col.add_child(head)
 
-	# The journey strip (FAL-331) goes here, above the card.
-	strip = Control.new()
+	# The journey strip (FAL-331), above the card. JourneyLink drives it from the run.
+	strip = (load(JOURNEY_STAGE) as PackedScene).instantiate()
 	strip.name = "JourneyStrip"
 	strip.custom_minimum_size.y = STRIP_HEIGHT
 	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -735,7 +750,7 @@ func next_question() -> void:
 func _show_summary(s: Dictionary) -> void:
 	SaveData.store(save, save_path)
 	scroll.visible = false
-	for c in _question_rows:
+	for c in _question_rows + [strip]:
 		c.visible = false
 	summary_box.visible = true
 	for c in summary_box.get_children():

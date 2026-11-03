@@ -365,3 +365,94 @@ func test_demo_fits_a_phone_and_a_pc_window() -> void:
 		check(screen.encloses(strip.get_global_rect()), "%s: strip outside the screen" % window)
 		check(demo.question.text != "…", "%s: a question shows" % window)
 		frame.free()
+
+
+# ------------------------------------------------------------------ the fight screen
+
+## Records what JourneyLink asks of a strip.
+class Recorder:
+	extends Control
+	var calls: Array = []
+
+	func start_run(r: String, a: String, w: String, s: int) -> void:
+		calls.append(["start_run", r, a, w, s])
+
+	func fight_started(f: int, t: int, q: int) -> void:
+		calls.append(["fight_started", f, t, q])
+
+	func question_opened(i: int) -> void:
+		calls.append(["question_opened", i])
+
+	func answer_resolved(o: String, info: Dictionary) -> void:
+		calls.append(["answer_resolved", o, info])
+
+	func fight_ended() -> void:
+		calls.append(["fight_ended"])
+
+	func run_ended() -> void:
+		calls.append(["run_ended"])
+
+
+## A Run played to the end with test_combat.gd's script, with a strip (or none) linked.
+## Returns what a save would hold.
+func _fight_run(strip: Control, save: Dictionary = {}) -> Array:
+	var r := Run.new(save if not save.is_empty() else SaveData.blank(), "quadratics", 1, 42)
+	r.clock = func() -> int: return 1_800_000_000
+	if strip != null:
+		JourneyLink.attach(r, strip, r.save)
+	preload("res://tests/test_combat.gd").play(r)
+	await tree.process_frame
+	return [r.answers, r.summary, JSON.stringify(r.save)]
+
+
+func test_the_run_drives_the_strip() -> void:
+	var rec := Recorder.new()
+	tree.root.add_child(rec)
+	var made: Array = await _fight_run(rec)
+	var answers: Array = made[0]
+	var names := rec.calls.map(func(c): return c[0])
+	check_eq(rec.calls[0].slice(0, 4), ["start_run", "signal-tower", "learner-female", "rebar"], "the Functions island is Signal Tower")
+	check_eq(names[-1], "run_ended")
+	check_eq(names.count("answer_resolved"), answers.size(), "one beat per answer")
+	check_eq(names.count("question_opened"), answers.size())
+	var fights := {}
+	for a in answers:
+		fights["%d|%d" % [a.floor, a.fight]] = true
+	check_eq(names.count("fight_started"), fights.size(), "one encounter per fight")
+	check_eq(names.count("fight_ended"), fights.size(), "every encounter ends")
+	for c in rec.calls:
+		if c[0] == "answer_resolved":
+			check(c[1] in ["right", "wrong", "timeout", "late", "partial"], "outcome %s" % c[1])
+		if c[0] == "fight_started":
+			check(c[2] >= 1 and c[2] <= 5 and c[3] >= 1, "fight %s" % [c])
+	rec.free()
+
+
+func test_the_fight_run_is_view_only() -> void:
+	var off: Array = await _fight_run(null)
+	var on_stage := _stage()
+	tree.root.add_child(on_stage)
+	var on: Array = await _fight_run(on_stage)
+	var broken_stage := _stage()
+	broken_stage.fail_animations = true
+	tree.root.add_child(broken_stage)
+	var broken: Array = await _fight_run(broken_stage)
+	check(off[0].size() >= 5, "the run played")
+	check_eq(on, off, "strip on")
+	check_eq(broken, off, "animations failing")
+	check(on_stage.active, "the strip showed")
+	check(not broken_stage.active, "the broken strip played nothing")
+	on_stage.free()
+	broken_stage.free()
+
+
+func test_the_save_picks_the_avatar() -> void:
+	check_eq(JourneyLink.avatar_for({}), "learner-female", "the HTML game's default")
+	check_eq(JourneyLink.avatar_for({"profile": {"avatar": "male"}}), "learner-male")
+	var save := SaveData.blank()
+	save.profile = {"avatar": "robot"}
+	var s := _stage()
+	tree.root.add_child(s)
+	await _fight_run(s, save)
+	check(not s.active and not s.visible, "an avatar with no sheet hides the strip")
+	s.free()
