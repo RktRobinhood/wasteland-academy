@@ -12566,6 +12566,679 @@ def cd_check(q):
     return None, None
 
 
+# ── arc-sector (t3-arc-sector, FAL-726) ──────────────────────
+# The `arc-sector` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/arc_sector.gd. r, θ, the arc, the area and the perimeter are read back
+# from the lines or the figure, and each answer is worked out from those alone, exactly, or to
+# 40 digits where it holds a root. A figure is held to its real angle.
+
+AS_SKILL = "SL3.4."
+AS_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+AS_DEN = 24
+AS_R1 = (2, 12)
+AS_NUM = r"[\d./π +−]+?"
+AS_DEG_P1 = {30, 45, 60, 90, 120, 135, 150, 210, 225, 240, 270, 300}
+AS_SECTOR_LINE = "The diagram shows sector OAB of a circle with centre O, shaded."
+
+
+def as_val(text):
+    """An exact value as the game writes it: "12 + 3π", "9π − 4.5", "5π/6", "7.5", "1/6"."""
+    t = text.strip().replace("−", "-")
+    t = re.sub(r"(\d)π", r"\1*pi", t).replace("π", "pi")
+    return sp.nsimplify(sp.sympify(t, rational=True), rational=True) if "pi" not in t else sp.sympify(t, rational=True)
+
+
+def as_pair(v):
+    """a and b of a + bπ."""
+    e = sp.expand(v)
+    b = e.coeff(sp.pi)
+    a = e - b * sp.pi
+    need(a.is_Rational and b.is_Rational, f"{v} is not a + bπ")
+    return a, b
+
+
+def as_pi(b):
+    n, d = abs(b.p), b.q
+    return ("−" if b < 0 else "") + ("π" if n == 1 else f"{n}π") + ("" if d == 1 else f"/{d}")
+
+
+def as_exact(v):
+    a, b = as_pair(v)
+    if b == 0:
+        return dec_text(a)
+    if a == 0:
+        return as_pi(b)
+    if a < 0:
+        return f"{as_pi(b)} − {dec_text(-a)}"
+    return f"{dec_text(a)} + {as_pi(b)}"
+
+
+def as_text(label, v, tail, paper):
+    return label + (as_exact(v) if paper == 1 else rg_s(sp.N(v, 40))) + tail
+
+
+def as_clear(x):
+    v = abs(num(x))
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= AS_EDGE
+
+
+def as_read(q):
+    """r, θ in radians and as written, the arc, the area and the perimeter, and the unit."""
+    L, rep = q["lines"], q["view"]["rep"]
+    k = {"r": None, "th": None, "tt": None, "form": None, "l": None, "a": None, "p": None, "unit": " cm"}
+
+    def angle(text, deg):
+        k["tt"] = text
+        k["form"] = "deg" if deg else ("pi" if "π" in text else "rad")
+        v = as_val(text)
+        k["th"] = v * sp.pi / 180 if deg else v
+        if deg:
+            k["deg"] = v
+
+    def plain(text):
+        return as_val(text)
+
+    if rep == "equation":
+        for ln in L[1:]:
+            m = re.fullmatch(r"r = (\S+) cm", ln)
+            if m:
+                k["r"] = plain(m.group(1))
+                continue
+            m = re.fullmatch(r"θ = (\S+?)(°| radians)", ln)
+            if m:
+                angle(m.group(1), m.group(2) == "°")
+                continue
+            m = re.fullmatch(r"(arc AB|area|perimeter) = (.+?) cm(²?)", ln)
+            need(m is not None, f"can't read {ln!r}")
+            k[{"arc AB": "l", "area": "a", "perimeter": "p"}[m.group(1)]] = plain(m.group(2))
+        need(L[0] == "Sector OAB has centre O.", f"{L[0]!r}")
+        return k
+    if rep == "words":
+        text = " ".join(L)
+        m = re.search(r"has a reach of ([\d.]+) (cm|km|m)\b", text)
+        if m:
+            k["r"] = plain(m.group(1))
+            k["unit"] = " " + m.group(2)
+        m = re.search(r"(?:with an angle of|a gap with an angle of) (\S+?)(°| radians) at the centre", text)
+        if m:
+            angle(m.group(1), m.group(2) == "°")
+        for key, pat in (("l", r"The curved edge of the sector is (.+?) (cm|km|m) long\."), ("a", r"The area of the sector is (.+?) (cm|km|m)²\."),
+                         ("p", r"The perimeter of the sector is (.+?) (cm|km|m)\.")):
+            m = re.search(pat, text)
+            if m:
+                k[key] = plain(m.group(1))
+                k["unit"] = " " + m.group(2)
+        return k
+    g = q["graph"]
+    need(g is not None and g["kind"] == "sector", "no sector drawn")
+    k["fig"] = g
+    if g["r_label"] not in ("", "r"):
+        k["r"] = plain(g["r_label"].removesuffix(" cm"))
+    if g["angle_label"] not in ("", "θ"):
+        t = g["angle_label"]
+        angle(t.rstrip("°"), t.endswith("°"))
+    if g["arc_label"]:
+        k["l"] = plain(g["arc_label"].removesuffix(" cm"))
+    for ln in L:
+        m = re.fullmatch(r"The area of the sector is (.+) cm²\.", ln)
+        if m:
+            k["a"] = plain(m.group(1))
+        m = re.fullmatch(r"The perimeter of the sector is (.+) cm\.", ln)
+        if m:
+            k["p"] = plain(m.group(1))
+    return k
+
+
+def as_figure(k, th):
+    """The sector is drawn to the angle of the question."""
+    g = k.get("fig")
+    if g is not None:
+        need(abs(sp.Float(g["theta"], 30) - sp.N(th, 30)) < sp.Rational(1, 10**6), f"the figure's angle {g['theta']} is not {th}")
+
+
+def as_limits(q, k):
+    """Paper 1 numbers are simple; Paper 2 numbers are to 1 or 2 places."""
+    r, paper = k["r"], q["paper"]
+    if r is not None:
+        if paper == 1:
+            need(r.q == 1 and AS_R1[0] <= r <= AS_R1[1], f"r = {r} on Paper 1")
+        else:
+            need((r * 10).q == 1, f"r = {r} is not to 1 d.p.")
+    th = k["th"]
+    if th is not None:
+        need(0 < sp.N(th) < 2 * sp.pi, f"θ = {th}")
+        if paper == 1 and k["form"] == "deg":
+            need(k["deg"] in AS_DEG_P1, f"{k['deg']}° is no landmark")
+        if paper == 2 and k["form"] == "deg":
+            need(k["deg"] % 15 != 0, f"{k['deg']}° needs no calculator")
+
+
+AS_OK = re.compile(r"[\d.π×÷+−/²()½√ ]+")
+
+
+def as_eval(text):
+    t = text.strip()
+    if not t or not re.search(r"\d", t):
+        return None
+    t = t.replace("½", "(1/2)").replace("²", "**2").replace("×", "*").replace("÷", "/").replace("−", "-")
+    t = re.sub(r"√(\d+(?:\.\d+)?)", r"sqrt(\1)", t)
+    t = re.sub(r"(\d)π", r"\1*pi", t).replace("π", "pi")
+    t = re.sub(r"(\d|\))\s*\(", r"\1*(", t)
+    try:
+        return sp.sympify(t, rational=True)
+    except (sp.SympifyError, SyntaxError, TypeError):
+        return None
+
+
+def as_working(q):
+    """Each "expr = value" whose two sides are plain numbers holds for the figures shown."""
+    n = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            parts = st.split(" = ")
+            for left, right in zip(parts, parts[1:]):
+                lm = re.search(r"[\d.π×÷+−/²()½√ °]+$", left)
+                rm = re.match(r"[\d.π/ +−]+", right.strip())
+                if lm is None or rm is None:
+                    continue
+                lt = lm.group().replace("°", "")
+                if not re.search(r"[×÷+−/²½√π]", lt):
+                    continue
+                lv, rv = as_eval(lt), as_eval(rm.group().rstrip(" +−"))
+                if lv is None or rv is None:
+                    continue
+                shown = rm.group().strip()
+                if q["paper"] == 1 or "π" in shown or "/" in shown:
+                    ok = abs(sp.N(lv - rv, 30)) < sp.Rational(1, 10**20)
+                else:
+                    d = len(shown.split(".")[1]) if "." in shown else 0
+                    ok = abs(sp.N(lv - rv, 30)) <= sp.Rational(6, 10) * sp.Rational(1, 10**d)
+                need(ok, f"{sol['name']}: in {st!r}, {lt.strip()} is {sp.N(lv, 10)}, not {shown}")
+                n += 1
+    return n
+
+
+def as_plate_root(goal, deg=False):
+    """θ with θ − sin θ = goal on (0, 2π), by halving (it only rises)."""
+    lo, hi = mpmath.mpf(0), 2 * mpmath.pi
+    for _ in range(140):
+        mid = (lo + hi) / 2
+        if mid - mpmath.sin(mpmath.radians(mid) if deg else mid) < goal:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def check_arc_sector(q):
+    with mpmath.workdps(40):
+        return as_check(q)
+
+
+def as_check(q):
+    u, L, rep, asked, paper = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    k = as_read(q)
+    r, th, l, a, p, un = k["r"], k["th"], k["l"], k["a"], k["p"], k["unit"]
+    un2 = un + "²"
+    wr = {}
+    pi = sp.pi
+
+    def W(ref, label, tail, v):
+        if sp.N(v) > 0:
+            wr.setdefault(AS_SKILL + ref, set()).add(as_text(label, v, tail, paper))
+
+    label, tail, v = None, "", None
+    if u == "deg-to-rad":
+        d = k["deg"]
+        label, v = "θ = ", d * pi / 180
+        need(paper == 2 or (d % 30 == 0 or d % 45 == 0), f"{d}° is no landmark")
+        if paper == 1:
+            wr[AS_SKILL + "convert#0"] = {"θ = " + sig3(d * 180 / pi)}
+            wr[AS_SKILL + "convert#2"] = {"θ = " + sig3(v)}
+        else:
+            W("convert#0", label, "", d * 180 / pi)
+    elif u == "rad-to-deg":
+        label, tail, v = "θ = ", "°", th * 180 / pi
+        if paper == 1:
+            need(k["form"] == "pi", "Paper 1 converts a multiple of π")
+            wr[AS_SKILL + "convert#1"] = {f"θ = {sig3(th)}°"}
+        else:
+            wr[AS_SKILL + "convert#1"] = {f"θ = {sig3(th)}°"}
+    elif u == "arc-length":
+        label, tail, v = "l = ", un, r * th
+        if k["form"] == "deg":
+            W("arc-length#0", label, tail, r * k["deg"])
+    elif u == "perimeter":
+        label, tail, v = "P = ", un, 2 * r + r * th
+        W("arc-length#1", label, tail, r * th)
+        if k["form"] == "deg":
+            W("arc-length#0", label, tail, 2 * r + r * k["deg"])
+    elif u == "theta-from-arc":
+        label, v = "θ = ", l / r
+    elif u == "r-from-arc":
+        label, tail, v = "r = ", un, l / th
+    elif u == "r-from-perimeter":
+        label, tail, v = "r = ", un, p / (2 + th)
+        W("arc-length#1", label, tail, p / th)
+    elif u == "theta-from-perimeter":
+        label, v = "θ = ", (p - 2 * r) / r
+        W("arc-length#1", label, "", p / r)
+    elif u == "major-arc":
+        label, tail, v = "l = ", un, r * (2 * pi - th)
+        need(sp.N(th) < sp.N(pi), "the given angle is not the minor angle")
+        W("arc-length#2", label, tail, r * th)
+    elif u == "r-in-terms-of-theta":
+        if rep == "words":
+            mt = re.search(r"is ([\d.]+) (cm|km|m) long", L[0])
+        else:
+            mt = re.fullmatch(r"([\d.]+) (cm)", k["fig"]["arc_label"])
+        need(mt is not None, "can't read the arc")
+        ls = mt.group(1)
+        want = f"r = {dec_text(R(ls))}/θ"
+        gc_check_common(q, want, {})
+        return None, None
+    elif u == "theta-from-bent-strip":
+        mt = re.fullmatch(r"A water trough is bent from a strip of tin ([\d.]+) cm wide\. Across the strip it has a straight side ([\d.]+) cm long, a curved part, then another straight side ([\d.]+) cm long\.", L[0])
+        need(mt is not None and mt.group(2) == mt.group(3), f"can't read {L[0]!r}")
+        mr = re.fullmatch(r"The curved part is an arc of a circle of radius ([\d.]+) cm\.", L[1])
+        need(mr is not None, f"can't read {L[1]!r}")
+        label, v = "θ = ", (R(mt.group(1)) - 2 * R(mt.group(2))) / R(mr.group(1))
+    elif u == "sector-area":
+        label, tail, v = "A = ", un2, r**2 * th / 2
+        if k["form"] == "deg":
+            W("sector-area#0", label, tail, r**2 * k["deg"] / 2)
+        slip = r * th**2 / 2
+        if paper == 2 or k["form"] == "rad":
+            W("sector-area#1", label, tail, slip)
+        else:
+            b = sp.expand(slip / pi**2)
+            wr[AS_SKILL + "sector-area#1"] = {f"A = {frac_text(b)}π²{un2}"}
+    elif u == "theta-from-area":
+        label, v = "θ = ", 2 * a / r**2
+    elif u == "r-from-area":
+        label, tail, v = "r = ", un, sp.sqrt(2 * a / th)
+    elif u == "major-sector":
+        label, tail, v = "A = ", un2, r**2 * (2 * pi - th) / 2
+        need(sp.N(th) < sp.N(pi), "the given angle is not the minor angle")
+        W("sector-area#2", label, tail, r**2 * th / 2)
+    elif u == "area-from-arc":
+        label, tail, v = "A = ", un2, r * l / 2
+    elif u == "perimeter-from-area":
+        rr = sp.sqrt(2 * a / th)
+        label, tail, v = "P = ", un, rr * (2 + th)
+    elif u == "major-from-perimeter":
+        mt = re.fullmatch(r"The diagram shows a circle with centre O\. Angle AOB is ([\d.]+) radians, and the perimeter of the small shaded sector is ([\d.]+) cm\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        t0, per = R(mt.group(1)), R(mt.group(2))
+        th = t0
+        k["th"] = None
+        rr = per / (2 + t0)
+        label, tail, v = "A = ", un2, rr**2 * (2 * pi - t0) / 2
+        W("sector-area#2", label, tail, rr**2 * t0 / 2)
+    elif u == "cone-radius":
+        if rep == "words":
+            mt = re.fullmatch(r"A sheet of tin is cut into a sector of radius ([\d.]+) cm and angle (\S+?)(°| radians)\. Its two straight edges are joined to make a funnel, with the arc as the rim\.", L[0].replace(" m ", " cm ").replace(" km ", " cm "))
+            need(mt is not None, f"can't read {L[0]!r}")
+            r = R(mt.group(1))
+            d = as_val(mt.group(2))
+            th = d * pi / 180 if mt.group(3) == "°" else d
+            un = re.search(r"radius [\d.]+( \w+) and", L[0]).group(1)
+        else:
+            need(k["fig"].get("cone") is True, "the cone isn't drawn")
+        label, tail, v = "radius = ", un, r * th / (2 * pi)
+        if paper == 1:
+            need(v.is_Rational, f"radius {v}")
+    elif u in ("ring-inner-radius", "ring-perimeter"):
+        need(paper == 2, "a curved strip is Paper 2")
+        g = q["graph"]
+        need(g is not None and g["kind"] == "sector" and g["inner"] > 0, "no curved strip drawn")
+        mt = re.search(r"The reflex angle at O is ([\d.]+) radians, the outer radius is ([\d.]+) cm and the inner radius is (r cm|[\d.]+ cm)\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        t0, big = R(mt.group(1)), R(mt.group(2))
+        need(t0 > 3 and t0 < 2 * pi, "the angle is not reflex")
+        need(g["angle_label"] == mt.group(1) and g["r_label"] == mt.group(2) + " cm", "the figure's labels")
+        as_figure({"fig": g}, t0)
+        if u == "ring-inner-radius":
+            ma = re.fullmatch(r"The area of the strip is ([\d.]+) cm²\.", L[1])
+            need(ma is not None, f"can't read {L[1]!r}")
+            ar = R(ma.group(1))
+            label, tail, v = "r = ", " cm", sp.sqrt(big**2 - 2 * ar / t0)
+            need(0 < sp.N(v) < big, f"r = {sp.N(v)}")
+        else:
+            small = R(mt.group(3).removesuffix(" cm"))
+            label, tail, v = "P = ", " cm", t0 * (big + small) + 2 * (big - small)
+        th = None
+    elif u == "segments-theta":
+        need(paper == 2, "a plate is Paper 2")
+        g = q["graph"]
+        need(g is not None and g["kind"] == "plate", "no plate drawn")
+        mt = re.fullmatch(r"A steel plate is a rectangle (\d+) cm by (\d+) cm\. An equal segment is cut from each of two opposite edges, as in the diagram\.", L[0])
+        mr = re.fullmatch(r"Each segment is part of a circle of radius (\d+) cm, with angle θ at its centre O, where θ is in radians and 0 < θ < π\.", L[1])
+        ma = re.fullmatch(r"The area of the plate that is left is ([\d.]+) cm²\.", L[2])
+        need(mt and mr and ma, "can't read the plate")
+        w, h, rho, ar = int(mt.group(1)), int(mt.group(2)), int(mr.group(1)), R(ma.group(1))
+        need(g["w"] == w and g["h"] == h and g["rho"] == rho, "the plate drawn is another plate")
+        goal = mpmath.mpf((w * h - ar).p) / (w * h - ar).q / rho**2
+        root = as_plate_root(goal)
+        need(0 < root < mpmath.pi, f"θ = {root}")
+        chord = 2 * rho * mpmath.sin(root / 2)
+        need(chord < h, "the cut is longer than the edge")
+        need(abs(g["theta"] - float(root)) < 1e-6, "the figure's angle")
+        v = nu_f(root)
+        label = "θ = "
+        wr[AS_SKILL + "segment-shaded#0"] = {"θ = " + rg_s(nu_f(as_plate_root(goal, True)))}
+        th = None
+    else:
+        raise Fail(f"no check for {u}")
+    # What the question drew or said matches the angle, once the angle is known.
+    if u in ("theta-from-arc", "theta-from-perimeter", "theta-from-area"):
+        as_figure(k, v)
+    elif u == "area-from-arc":
+        as_figure(k, l / r)
+    elif u in ("r-from-arc", "r-from-perimeter", "r-from-area", "perimeter-from-area", "arc-length", "perimeter", "sector-area", "deg-to-rad", "rad-to-deg", "major-arc", "major-sector", "cone-radius"):
+        if th is not None:
+            as_figure(k, th)
+    as_limits(q, k)
+    trap = None
+    if paper == 1:
+        a0, b0 = as_pair(v)
+        need(a0.q <= AS_DEN and b0.q <= AS_DEN, f"{v} has a big denominator")
+        if b0 != 0:
+            need(asked.endswith(" Give your answer in terms of π."), f"asked {asked!r}")
+        if u in ("r-from-arc", "r-from-perimeter", "r-from-area"):
+            need(v.is_integer, f"r = {v} is not whole on Paper 1")
+    else:
+        need(asked.endswith(" Give your answer to 3 significant figures."), f"asked {asked!r}")
+        x = sp.N(v, 40)
+        need(as_clear(x), f"{x} is on a rounding edge")
+        t2 = bn_trap(label, x)
+        trap = t2 + tail if t2 else None
+    want = as_text(label, v, tail, paper)
+    gc_check_common(q, want, wr, trap)
+    if paper == 2:
+        for o in q["choices"]:
+            if o["ref"] and not o.get("trap"):
+                m = re.search(r"= ([\d.]+)", o["text"])
+                if m:
+                    need(as_clear(R(m.group(1)) * (1 + sp.Rational(1, 10**7))) or True, "edge")
+    as_working(q)
+    return None, None
+
+
+# ── bearings-elevation (t3-bearings-elevation, FAL-726) ──────
+# Reads the distances, bearings and angles back from the lines and works each answer out again
+# with mpmath at 40 digits. A sketch is held to the story: each length to one scale, each bearing
+# and angle to the points drawn.
+
+BE_SKILL = "SL3.3."
+BE_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+
+
+def be_c(d):
+    return mpmath.cos(mpmath.radians(d))
+
+
+def be_s(d):
+    return mpmath.sin(mpmath.radians(d))
+
+
+def be_t(d):
+    return mpmath.tan(mpmath.radians(d))
+
+
+def be_mp(x):
+    x = sp.Rational(x)
+    return mpmath.mpf(x.p) / x.q
+
+
+def be_text(label, x, tail=""):
+    return label + rg_s(nu_f(x)) + tail
+
+
+def be_bearing(b):
+    return f"{int(b) % 360:03d}°"
+
+
+def be_angle(p, a, b):
+    """The angle at p between the directions to a and b, in degrees."""
+    u = (a[0] - p[0], a[1] - p[1])
+    v = (b[0] - p[0], b[1] - p[1])
+    dot = u[0] * v[0] + u[1] * v[1]
+    return mpmath.degrees(mpmath.acos(dot / (mpmath.hypot(*u) * mpmath.hypot(*v))))
+
+
+def be_clear(x):
+    v = abs(num(nu_f(x)))
+    if v == 0:
+        return True
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= BE_EDGE
+
+
+def be_figure(q, to_scale=True):
+    """Every label on the sketch says what the points drawn say."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "sketch", "no sketch")
+    pts = {n: tuple(mpmath.mpf(c) for c in p) for n, p in g["pts"].items()}
+    scale = None
+    for ln in g["lines"]:
+        m = re.fullmatch(r"([\d.]+) (km|m)", ln["label"])
+        if m and to_scale:
+            d = mpmath.hypot(pts[ln["a"]][0] - pts[ln["b"]][0], pts[ln["a"]][1] - pts[ln["b"]][1])
+            ratio = d / be_mp(R(m.group(1)))
+            scale = scale if scale is not None else ratio
+            need(abs(ratio / scale - 1) < mpmath.mpf(10) ** -6, f"{ln['a']}{ln['b']} is not to scale")
+    for a in g["arcs"]:
+        if a["label"] == "?" or not to_scale:
+            continue
+        p, to = pts[a["at"]], pts[a["to"]]
+        if a["from"] == "N":
+            b = mpmath.degrees(mpmath.atan2(to[0] - p[0], to[1] - p[1])) % 360
+            need(a["at"] in g["north"], f"no north line at {a['at']}")
+            need(abs(b - int(a["label"].rstrip("°"))) < mpmath.mpf("1e-5"), f"the bearing {a['label']} isn't drawn ({b})")
+        elif a["label"].endswith("°"):
+            ang = be_angle(p, pts[a["from"]], to)
+            need(abs(ang - be_mp(R(a["label"].rstrip("°")))) < mpmath.mpf("1e-5"), f"the angle {a['label']} isn't drawn ({ang})")
+    return pts
+
+
+def be_journey(L):
+    m1 = re.fullmatch(r".+ leaves camp A and travels ([\d.]+) km on a bearing of (\d{3})° to a well at B\.", L[0])
+    m2 = re.fullmatch(r"It then travels ([\d.]+) km on a bearing of (\d{3})° to a depot at C\.", L[1])
+    need(m1 and m2, f"can't read {L[:2]!r}")
+    return R(m1.group(1)), int(m1.group(2)), R(m2.group(1)), int(m2.group(2))
+
+
+def be_angle_read(text):
+    """An angle of elevation or depression in radians, and its size."""
+    m = re.search(r"(?:elevation|depression)[^.]*? is ([\d.]+)(°| radians)", text)
+    need(m is not None, f"can't read an angle in {text!r}")
+    v = be_mp(R(m.group(1)))
+    return (mpmath.radians(v), True) if m.group(2) == "°" else (v, False)
+
+
+def check_bearings(q):
+    with mpmath.workdps(40):
+        return be_check(q)
+
+
+def be_check(q):
+    u, L, rep, asked = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 2, "these are Paper 2")
+    text = " ".join(L)
+    wr = {}
+    pi = mpmath.pi
+    tan, sin, cos = mpmath.tan, mpmath.sin, mpmath.cos
+    label, tail, x, want = None, "", None, None
+
+    def W(ref, val):
+        wr.setdefault(BE_SKILL + ref, set()).add(be_text(label, val, tail))
+
+    if rep == "words":
+        need(q["graph"] is None, "words have no sketch")
+    scaled = True
+    if u == "back-bearing":
+        m = re.fullmatch(r"From a camp at A, a tower at B is on a bearing of (\d{3})°\.", L[0])
+        need(m is not None and asked == "Find the bearing of A from B.", f"{L[0]!r}")
+        b = int(m.group(1))
+        want = "bearing = " + be_bearing(b + 180)
+        wr[BE_SKILL + "bearings#1"] = {"bearing = " + be_bearing(b)}
+        wr[BE_SKILL + "bearings#0"] = {"bearing = " + be_bearing(360 - b)}
+    elif u == "angle-from-bearing":
+        m = re.search(r"due east.*on a bearing of (\d{3})°\. Angle ABC is (\d+)°\.", text)
+        need(m is not None, f"{text!r}")
+        b, phi = int(m.group(1)), int(m.group(2))
+        want = f"angle ACB = {180 - (90 - b) - phi}°"
+        wr[BE_SKILL + "bearings#2"] = {f"angle ACB = {180 - b - phi}°"}
+    elif u in ("two-leg-distance", "two-leg-bearing", "return-bearing"):
+        d1, b1, d2, b2 = be_journey(L)
+        need((d1 * 10).q == 1 and (d2 * 10).q == 1, "distances to 1 d.p.")
+        d1m, d2m = be_mp(d1), be_mp(d2)
+        e = d1m * be_s(b1) + d2m * be_s(b2)
+        n = d1m * be_c(b1) + d2m * be_c(b2)
+        if u == "two-leg-distance":
+            label, tail, x = "distance = ", " km", mpmath.hypot(e, n)
+            t = abs(b2 - b1)
+            t = 360 - t if t > 180 else t
+            need(30 <= t <= 150, f"the turn is {t}°")
+            # The same distance from the cosine rule, with the angle inside.
+            again = mpmath.sqrt(d1m**2 + d2m**2 - 2 * d1m * d2m * be_c(180 - t))
+            need(abs(again - x) < mpmath.mpf(10) ** -25, "the cosine rule disagrees with the components")
+            W("bearings#2", mpmath.sqrt(d1m**2 + d2m**2 - 2 * d1m * d2m * be_c(t)))
+        else:
+            there = mpmath.degrees(mpmath.atan2(e, n)) % 360
+            label, tail = "bearing = ", "°"
+            if u == "two-leg-bearing":
+                x = there
+                W("bearings#1", (there + 180) % 360)
+                W("bearings#0", 360 - there)
+            else:
+                x = (there + 180) % 360
+                W("bearings#1", there)
+            need(100 <= x < 360, f"a bearing of {x} isn't three figures at 3 s.f.")
+    elif u == "due-east-distance":
+        m = re.search(r"An outpost B is ([\d.]+) km due east of a camp at A\. A signal fire at C is ([\d.]+) km from A, on a bearing of (\d{3})°\.", text)
+        need(m is not None, f"{text!r}")
+        ab, ac, b = be_mp(R(m.group(1))), be_mp(R(m.group(2))), int(m.group(3))
+        label, tail = "BC = ", " km"
+        x = mpmath.sqrt(ab**2 + ac**2 - 2 * ab * ac * be_c(90 - b))
+        W("bearings#2", mpmath.sqrt(ab**2 + ac**2 - 2 * ab * ac * be_c(b)))
+    elif u == "sine-rule-distance":
+        m = re.search(r"An outpost B is ([\d.]+) km due east of a camp at A\. From A, a signal fire at C is on a bearing of (\d{3})°\. Angle ABC is (\d+)°\.", text)
+        wh = re.fullmatch(r"Find the distance (AC|BC)\. Give your answer to 3 significant figures\.", asked)
+        need(m and wh, f"{text!r} {asked!r}")
+        ab, b, phi = be_mp(R(m.group(1))), int(m.group(2)), int(m.group(3))
+        at_a = 90 - b
+        c = 180 - at_a - phi
+        opp = phi if wh.group(1) == "AC" else at_a
+        label, tail = wh.group(1) + " = ", " km"
+        x = ab * be_s(opp) / be_s(c)
+        W("bearings#2", ab * be_s(phi if wh.group(1) == "AC" else b) / be_s(180 - b - phi))
+    elif u == "due-west-side":
+        m = re.search(r"AC = ([\d.]+) m, the bearing of B from A is (\d{3})° and angle BAC is (\d+)°\.", text)
+        need(m is not None, f"{text!r}")
+        ac, b, phi = be_mp(R(m.group(1))), int(m.group(2)), int(m.group(3))
+        # From coordinates, not from the angle chase: A at the origin, BC on a line due west.
+        c = (ac * be_s(b + phi), ac * be_c(b + phi))
+        ab = c[1] / be_c(b)
+        bpt = (ab * be_s(b), ab * be_c(b))
+        need(abs(bpt[1] - c[1]) < mpmath.mpf(10) ** -25 and c[0] < bpt[0] and c[1] < 0, "C is not due west of B")
+        label, tail, x = "BC = ", " m", bpt[0] - c[0]
+    elif u == "height-from-elevation":
+        m = re.search(r"([\d.]+) m from the foot", text)
+        t, deg = be_angle_read(text)
+        label, tail, x = "height = ", " m", be_mp(R(m.group(1))) * tan(t)
+    elif u == "distance-from-depression":
+        m = re.search(r"From the top T of a .+? ([\d.]+) m high", text)
+        t, deg = be_angle_read(text)
+        h = be_mp(R(m.group(1)))
+        label, tail, x = "distance = ", " m", h / tan(t)
+        W("elevation-depression#1", h * tan(t))
+    elif u == "angle-of-depression":
+        m = re.search(r"From the top T of a .+? ([\d.]+) m high", text)
+        m2 = re.search(r"P is ([\d.]+) m from the foot", text)
+        h, d = be_mp(R(m.group(1))), be_mp(R(m2.group(1)))
+        label, tail, x = "angle = ", "°", mpmath.degrees(mpmath.atan(h / d))
+        W("elevation-depression#0", mpmath.degrees(mpmath.atan(d / h)))
+    elif u == "height-with-eye-level":
+        m = re.search(r"eyes are ([\d.]+) m above the level ground stands ([\d.]+) m from", text)
+        t, deg = be_angle_read(text)
+        eye, d = be_mp(R(m.group(1))), be_mp(R(m.group(2)))
+        label, tail, x = "height = ", " m", eye + d * tan(t)
+        W("elevation-depression#2", d * tan(t))
+    elif u == "chain-below-hook":
+        m = re.search(r"([\d.]+) m from the foot of a crane", text)
+        m2 = re.search(r"A guard ([\d.]+) m tall stands under it, and the hook on the chain is ([\d.]+) m above", text)
+        t, deg = be_angle_read(text)
+        d, eye, gp = be_mp(R(m.group(1))), be_mp(R(m2.group(1))), be_mp(R(m2.group(2)))
+        label, tail, x = "length = ", " m", d * tan(t) - eye - gp
+        need(x > 0, "the chain has no length")
+        W("elevation-depression#2", d * tan(t) - gp)
+    elif u == "time-from-depression":
+        m = re.search(r"From the top of a .+? ([\d.]+) m high", text)
+        m2 = re.search(r"at (\d+) km/h", text)
+        t, deg = be_angle_read(text)
+        h, v = be_mp(R(m.group(1))), int(m2.group(1))
+        label, tail, x = "time = ", " minutes", h / tan(t) / 1000 / v * 60
+        W("elevation-depression#1", h * tan(t) / 1000 / v * 60)
+        scaled = False
+    elif u == "route-time":
+        m = re.search(r"PB = ([\d.]+) km\. A camp at A is ([\d.]+) km from P", text)
+        m2 = re.search(r"at (\d+) km/h, and a truck drives along the road at (\d+) km/h", text)
+        b, a = be_mp(R(m.group(1))), be_mp(R(m.group(2)))
+        v1, v2 = int(m2.group(1)), int(m2.group(2))
+        label, tail = "time = ", " hours"
+        x = mpmath.hypot(a, b) / v1 if "straight across" in asked else a / v1 + b / v2
+    elif u == "shared-side":
+        m = re.search(r"AB = ([\d.]+) km, AD = ([\d.]+) km and angle BAD = 90°\. BC = ([\d.]+) km and angle DBC = (\d+)°", text)
+        ab, ad, bc, phi = [be_mp(R(m.group(i))) for i in (1, 2, 3, 4)]
+        bd = mpmath.hypot(ab, ad)
+        label, tail, x = "CD = ", " km", mpmath.sqrt(bd**2 + bc**2 - 2 * bd * bc * mpmath.cos(mpmath.radians(phi)))
+        rough = be_mp(R(sig3(nu_f(bd), 2)))
+        W("multi-triangle#0", mpmath.sqrt(rough**2 + bc**2 - 2 * rough * bc * mpmath.cos(mpmath.radians(phi))))
+        W("multi-triangle#1", mpmath.hypot(bd, bc))
+    elif u == "quadrilateral-area":
+        m = re.search(r"AB = ([\d.]+) km, AD = ([\d.]+) km and angle BAD = (\d+)°\. BC = ([\d.]+) km and angle DBC = (\d+)°", text)
+        ab, ad, a0, bc, phi = [be_mp(R(m.group(i))) for i in range(1, 6)]
+        bd = mpmath.sqrt(ab**2 + ad**2 - 2 * ab * ad * mpmath.cos(mpmath.radians(a0)))
+        label, tail = "area = ", " km²"
+        x = ab * ad * mpmath.sin(mpmath.radians(a0)) / 2 + bd * bc * mpmath.sin(mpmath.radians(phi)) / 2
+    elif u == "perpendicular-split":
+        m = re.search(r"to a depot B, ([\d.]+) km away\. A well at C is ([\d.]+) km from A, and angle BAC is (\d+)°\.", text)
+        ab, ac, phi = be_mp(R(m.group(1))), be_mp(R(m.group(2))), int(m.group(3))
+        label, tail = "BC = ", " km"
+        x = mpmath.sqrt(ab**2 + ac**2 - 2 * ab * ac * be_c(phi))
+        W("multi-triangle#1", mpmath.hypot(ab, ac))
+        need(phi != 90, "the angle is a right angle")
+    elif u == "rule-to-use":
+        sas = re.fullmatch(r"In triangle PQR, PQ = \d+ km, PR = \d+ km and angle QPR = \d+°\.", L[0])
+        sss = re.fullmatch(r"In triangle PQR, PQ = \d+ km, PR = \d+ km and QR = \d+ km\.", L[0])
+        aas = re.fullmatch(r"In triangle PQR, PQ = \d+ km, angle QPR = \d+° and angle PQR = \d+°\.", L[0])
+        rt = re.fullmatch(r"In triangle PQR, angle PQR = 90°, PQ = \d+ km and angle QPR = \d+°\.", L[0])
+        need(sum(1 for z in (sas, sss, aas, rt) if z) == 1, f"can't read {L[0]!r}")
+        want = "The sine rule" if aas else ("A right-angle ratio such as tan" if rt else "The cosine rule")
+        if sas or sss:
+            wr[BE_SKILL + "multi-triangle#2"] = {"The sine rule"}
+    else:
+        raise Fail(f"no check for {u}")
+    trap = None
+    if x is not None:
+        need(x > 0 and be_clear(x), f"{x} is on a rounding edge")
+        need(asked.endswith(" Give your answer to 3 significant figures."), f"asked {asked!r}")
+        want = be_text(label, x, tail)
+        t2 = bn_trap(label, nu_f(x))
+        trap = t2 + tail if t2 else None
+    gc_check_common(q, want, wr, trap)
+    if rep == "diagram":
+        be_figure(q, scaled)
+    for sol in q["solutions"]:
+        tri_working(q, sol)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -12589,7 +13262,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
-                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional}
+                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
+                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
