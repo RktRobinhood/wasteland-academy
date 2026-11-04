@@ -3205,6 +3205,50 @@
 				"every 3 s.f. answer is at least 0.03 of a unit of its third figure from a rounding edge",
 				"rearranging the line of y on x reads differently from the line of x on y at 3 s.f."
 			]
+		},
+		"sampling": {
+			"name": "A population, its groups and a sample",
+			"summary": "A population in named groups, and a surveyor who takes a sample by one of the five techniques. Each group is a whole multiple of its share of the sample, so the technique, the interval, a number in proportion, a shortfall and the question of who is left out can all be asked of one story.",
+			"quantities": [
+				{
+					"name": "n",
+					"is": "the sample size",
+					"pick": "Paper 1: 10 to 40; Paper 2: 40 to 150; a small 5 to 12 where a result keeps changing"
+				},
+				{
+					"name": "k",
+					"is": "the interval, N ÷ n",
+					"pick": "Paper 1: 4 to 20; Paper 2: 6 to 40"
+				},
+				{
+					"name": "N",
+					"is": "the population",
+					"pick": "n k"
+				},
+				{
+					"name": "q, G",
+					"is": "each group's share of the sample and its size",
+					"pick": "two or three different whole q adding to n, and G = k q"
+				},
+				{
+					"name": "tech",
+					"is": "the technique",
+					"pick": "simple random, systematic, convenience, quota or stratified"
+				},
+				{
+					"name": "got",
+					"is": "the sample's own numbers",
+					"pick": "they add to n and differ from q"
+				}
+			],
+			"clean": [
+				"every group size is a whole multiple of the interval",
+				"groups have different sizes",
+				"the sample size is not the interval, so the two can't be mistaken for each other",
+				"a percentage sample is used only where it is a whole percentage",
+				"the most under-represented group falls short by the most and by the largest share, and is not the group with the fewest in the sample",
+				"a sample that misses the mix misses it by at least 2"
+			]
 		}
 	},
 	"skills": {
@@ -3280,6 +3324,8 @@
 		"SL3.2.area-sine": "Find the area of a triangle using ½ab sin C, or work backwards from the area",
 		"SL3.2.cosine-rule-side": "Use the cosine rule to find a side from two sides and the included angle",
 		"SL3.2.cosine-rule-angle": "Use the cosine rule to find an angle from three sides",
+		"SL4.1.sampling-technique": "Identify, describe and evaluate a sampling technique",
+		"SL4.1.bias-reliability": "Comment on bias in a sample and the reliability of data",
 		"SL4.3.mean-median-mode": "Find the mean, median and mode of a data set or a discrete frequency table",
 		"SL4.3.quartiles-discrete": "Find quartiles, range and IQR of discrete data",
 		"SL4.3.mean-totals": "Use total = mean × n to find a missing value, a missing frequency or a combined mean",
@@ -19401,6 +19447,442 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Sampling methods and bias",
+			"summary": "A population in groups and a surveyor's method, in a story or a table: name the technique, give a disadvantage, describe a systematic sample, find its interval or a later pick, choose the best technique, fill groups in proportion, and judge bias and reliability: who is left out, which way an estimate leans, what would fix it, and what a larger sample can't do.",
+			"situation": "sampling",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a camp of farmers and guards, and what a surveyor did"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "each group's size, with the sample's numbers beside them"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "name-technique",
+					"given": [
+						"the population",
+						"the surveyor's method"
+					],
+					"asked": "the sampling technique",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "technique-disadvantage",
+					"given": [
+						"the population",
+						"the surveyor's method"
+					],
+					"asked": "a disadvantage of this method",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "describe-systematic",
+					"given": [
+						"the population",
+						"the sample size or percentage"
+					],
+					"asked": "how to take a systematic sample",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "systematic-interval",
+					"given": [
+						"the size of the list",
+						"the sample size or percentage"
+					],
+					"asked": "the interval",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "systematic-member",
+					"given": [
+						"the start and the interval"
+					],
+					"asked": "the number of a later pick",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "best-technique",
+					"given": [
+						"what the survey needs",
+						"whether there is a list"
+					],
+					"asked": "the technique that fits best",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "is-it-random",
+					"given": [
+						"the surveyor's method"
+					],
+					"asked": "whether it is a simple random sample",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "quota-number",
+					"given": [
+						"the group sizes",
+						"the sample size"
+					],
+					"asked": "a group's number in a sample in proportion",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "fair-share",
+					"given": [
+						"the group sizes",
+						"the sample's numbers"
+					],
+					"asked": "how far a group falls short of its share",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "under-represented",
+					"given": [
+						"the group sizes",
+						"the sample's numbers"
+					],
+					"asked": "the most under-represented group",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "why-biased",
+					"given": [
+						"the population",
+						"a sample from one group"
+					],
+					"asked": "why it may not represent the population",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "bias-direction",
+					"given": [
+						"a sample from an untypical place"
+					],
+					"asked": "which way the estimate leans",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "better-method",
+					"given": [
+						"the population",
+						"a sample from one group"
+					],
+					"asked": "the change that would fix it",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique",
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "bigger-sample",
+					"given": [
+						"a biased sample",
+						"a plan to ask more"
+					],
+					"asked": "whether that removes the bias",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "random-not-perfect",
+					"given": [
+						"the population",
+						"a random sample that misses the mix"
+					],
+					"asked": "what that shows",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "improve-reliability",
+					"given": [
+						"a small random sample whose result keeps changing"
+					],
+					"asked": "what would make it more reliable",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "source-reliability",
+					"given": [
+						"a figure and where it comes from"
+					],
+					"asked": "why it may not be reliable",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.1.sampling-technique",
+					"method": "feature-checklist",
+					"suits": [
+						"name-technique",
+						"describe-systematic",
+						"systematic-interval",
+						"systematic-member",
+						"best-technique",
+						"is-it-random",
+						"quota-number"
+					],
+					"name": "Run the feature checklist",
+					"about": "Ask in turn: is there a fixed interval (systematic)? Are groups filled in proportion (stratified if chosen randomly within each group, quota if not)? Does everyone have an equal chance (simple random)? Is it just whoever is easiest to reach (convenience)?"
+				},
+				{
+					"skill": "SL4.1.sampling-technique",
+					"method": "eliminate-by-flaw",
+					"suits": [
+						"name-technique",
+						"technique-disadvantage",
+						"best-technique",
+						"is-it-random"
+					],
+					"name": "Eliminate by what could go wrong",
+					"about": "Look at who could never be chosen or who is over-represented, and rule out the techniques that would not have that flaw."
+				},
+				{
+					"skill": "SL4.1.bias-reliability",
+					"method": "who-is-missing",
+					"suits": [
+						"why-biased",
+						"bias-direction",
+						"better-method",
+						"bigger-sample",
+						"improve-reliability",
+						"source-reliability"
+					],
+					"name": "Who is left out or over-represented?",
+					"about": "Picture the whole population, name the group the method cannot reach (or reaches too often), and say which way that would push the results."
+				},
+				{
+					"skill": "SL4.1.bias-reliability",
+					"method": "compare-proportions",
+					"suits": [
+						"fair-share",
+						"under-represented",
+						"why-biased",
+						"bigger-sample",
+						"random-not-perfect",
+						"improve-reliability"
+					],
+					"name": "Compare the sample's make-up with the population's",
+					"about": "Compare the proportion of each group in the sample with the proportion in the population; a large mismatch signals bias."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A quota sample and a stratified sample of the same size contain the same numbers from each group, so they are the same method.",
+					"answer": "False: the numbers match, but a stratified sample draws at random inside each group, and a quota sample takes whoever comes by until each group is full.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "A larger sample gets rid of bias.",
+					"answer": "Never by itself: more people from the same biased method makes the result steadier, not fairer. Only changing who can be chosen removes the bias.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If a sample is random, its mix of groups matches the population.",
+					"answer": "False: a random method gives everyone a fair chance, but chance can still move any one sample away from the true mix.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.1.sampling-technique#0",
+					"text": "Quota sampling and stratified sampling are the same (quota fills each group without random selection)",
+					"as": "distractor",
+					"in": [
+						"name-technique",
+						"best-technique"
+					],
+					"wrong": "the other of the two techniques"
+				},
+				{
+					"ref": "SL4.1.sampling-technique#1",
+					"text": "Systematic sampling is fully random (only the starting point is random; the rest follows the interval)",
+					"as": "distractor",
+					"in": [
+						"name-technique",
+						"best-technique",
+						"describe-systematic",
+						"is-it-random"
+					],
+					"wrong": "simple random for a fixed interval, or a free draw offered as systematic"
+				},
+				{
+					"ref": "SL4.1.sampling-technique#2",
+					"text": "Stopping people in the street is simple random sampling",
+					"as": "distractor",
+					"in": [
+						"name-technique",
+						"is-it-random",
+						"better-method"
+					],
+					"wrong": "simple random for whoever comes by"
+				},
+				{
+					"ref": "SL4.1.bias-reliability#0",
+					"text": "A larger sample removes bias (it improves reliability, but a biased method stays biased)",
+					"as": "distractor",
+					"in": [
+						"why-biased",
+						"bias-direction",
+						"better-method",
+						"bigger-sample",
+						"source-reliability"
+					],
+					"wrong": "more people from the same method called a fix"
+				},
+				{
+					"ref": "SL4.1.bias-reliability#1",
+					"text": "A random sample is always perfectly representative",
+					"as": "distractor",
+					"in": [
+						"why-biased",
+						"bias-direction",
+						"better-method",
+						"random-not-perfect",
+						"improve-reliability",
+						"under-represented"
+					],
+					"wrong": "a random draw called exact or sure to match"
+				}
+			],
+			"chain": [
+				"read who the conclusion is about and how people were chosen",
+				"run the checklist: a fixed interval, groups filled in proportion, an equal chance, or whoever is easiest",
+				"name who is left out or over-represented, and compare the sample's make-up with the population's",
+				"say what would go wrong and what would fix it"
+			],
 			"frequency": 4,
 			"marks": 2,
 			"section": {
@@ -19410,9 +19892,7 @@
 			"paper": {
 				"p1": 3,
 				"p2": 1
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-outlier-rule",

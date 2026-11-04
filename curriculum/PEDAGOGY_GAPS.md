@@ -1783,7 +1783,36 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 10 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 11 exam types have them so far.
+
+#### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
+
+- **Situation:** A population, its groups and a sample.
+- **Representations:** **words**, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the population; the surveyor's method → the sampling technique
+  - **exam** L2: given the population; the surveyor's method → a disadvantage of this method
+  - **exam** L2: given the population; the sample size or percentage → how to take a systematic sample
+  - new L1: given the size of the list; the sample size or percentage → the interval
+  - new L2: given the start and the interval → the number of a later pick
+  - **exam** L2: given what the survey needs; whether there is a list → the technique that fits best
+  - new L2: given the surveyor's method → whether it is a simple random sample
+  - new L2: given the group sizes; the sample size → a group's number in a sample in proportion
+  - new L2: given the group sizes; the sample's numbers → how far a group falls short of its share
+  - new L3: given the group sizes; the sample's numbers → the most under-represented group
+  - **exam** L2: given the population; a sample from one group → why it may not represent the population
+  - new L3: given a sample from an untypical place → which way the estimate leans
+  - **exam** L2: given the population; a sample from one group → the change that would fix it
+  - new L2: given a biased sample; a plan to ask more → whether that removes the bias
+  - new L3: given the population; a random sample that misses the mix → what that shows
+  - new L2: given a small random sample whose result keeps changing → what would make it more reliable
+  - new L2: given a figure and where it comes from → why it may not be reliable
+- **Angles:** Run the feature checklist; Eliminate by what could go wrong; Who is left out or over-represented?; Compare the sample's make-up with the population's.
+- **Concept probes:**
+  - *true-false-reason* (L3): A quota sample and a stratified sample of the same size contain the same numbers from each group, so they are the same method. — False: the numbers match, but a stratified sample draws at random inside each group, and a quota sample takes whoever comes by until each group is full.
+  - *always-sometimes-never* (L3): A larger sample gets rid of bias. — Never by itself: more people from the same biased method makes the result steadier, not fairer. Only changing who can be chosen removes the bias.
+  - *true-false-reason* (L3): If a sample is random, its mix of groups matches the population. — False: a random method gives everyone a fair chance, but chance can still move any one sample away from the true mix.
+- **Misconceptions used:** 5. Quota sampling and stratified sampling are the same (quota fills each group without random selection); Systematic sampling is fully random (only the starting point is random; the rest follows the interval); Stopping people in the street is simple random sampling; A larger sample removes bias (it improves reliability, but a biased method stays biased); A random sample is always perfectly representative.
 
 #### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 11 bank parts)
 

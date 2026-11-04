@@ -12566,6 +12566,316 @@ def cd_check(q):
     return None, None
 
 
+# ── sampling (t4-sampling, FAL-726) ──────────────────────────
+# The `sampling` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/sampling.gd. The technique is worked out from what the surveyor does, by
+# the checklist (a fixed interval, groups filled, a random draw), never from the situation.
+
+SM_T = "SL4.1.sampling-technique#"
+SM_B = "SL4.1.bias-reliability#"
+SM_CTX = [("settlers", "camp", ("farmers", "guards", "cooks"), "at the well", "the camp register", "how much water they use"),
+          ("traders", "market", ("salt sellers", "fuel sellers", "scrap dealers"), "at the market gate", "the traders' ledger", "how far they travel"),
+          ("scavengers", "depot", ("day crew", "night crew", "drivers"), "at the depot door", "the crew roster", "how many hours they work"),
+          ("miners", "mine", ("diggers", "haulers", "blasters"), "at the pit head", "the pay book", "how often they fall ill"),
+          ("drivers", "convoy", ("truck drivers", "bike riders", "tanker drivers"), "at the fuel pump", "the convoy log", "how much fuel they burn"),
+          ("medics", "hospital", ("nurses", "surgeons", "porters"), "at the supply tent", "the duty rota", "how many hours they sleep"),
+          ("farmers", "settlement", ("goat keepers", "bean growers", "fish farmers"), "at the grain store", "the land register", "how much they harvest"),
+          ("mechanics", "workshop", ("welders", "wirers", "fitters"), "at the tool hatch", "the workshop roll", "how many repairs they finish")]
+SM_NAMES = {"simple": "Simple random sampling", "systematic": "Systematic sampling", "convenience": "Convenience sampling",
+            "quota": "Quota sampling", "stratified": "Stratified sampling"}
+# A disadvantage is true of the techniques listed: anything else offered is false of the method.
+SM_FLAWS = {"It needs a complete list of everyone in the {}.": {"simple", "systematic", "stratified"},
+            "A repeating pattern in the list could match the interval.": {"systematic"},
+            "The size of each group must be known before starting.": {"stratified", "quota"},
+            "Those who come by first may differ from the rest of the {}.": {"convenience", "quota"},
+            "Nobody is drawn at random within a group, so the surveyor's choices can skew it.": {"quota"},
+            "Only the starting point is chosen at random.": {"systematic"}}
+SM_MAIN = {"simple": "It needs a complete list of everyone in the {}.", "systematic": "A repeating pattern in the list could match the interval.",
+           "stratified": "The size of each group must be known before starting.", "convenience": "Those who come by first may differ from the rest of the {}.",
+           "quota": "Nobody is drawn at random within a group, so the surveyor's choices can skew it."}
+# Where they were asked, and what a mean from those people does.
+SM_LEAN = {"in the queue at the well": "Too high: people in that queue fetch more water than most.",
+           "in the sick bay": "Too low: people in the sick bay walk less than most.",
+           "in the line at the fuel pump": "Too high: people in that line burn more fuel than most.",
+           "on the night watch": "Too low: people on the night watch sleep less than most.",
+           "at the largest stalls": "Too high: people at the largest stalls take more than most.",
+           "in the hunger ward": "Too low: people in the hunger ward eat less than most.",
+           "at their benches at midnight": "Too high: people at their benches at midnight work longer than most.",
+           "in the schoolroom": "Too low: people in the schoolroom are younger than most."}
+SM_WHY = {"thank-you notes from": "He hears only from his own happy customers, and he gains if the figure is high.",
+          "her own test of": "She tested her own jars, and she gains if the figure is high.",
+          "letters from": "Buyers whose filters failed are unlikely to have written in.",
+          "a show of hands from": "People may not say what they think in front of her guards.",
+          "people who called the show": "Only people who feel strongly enough to call are counted.",
+          "before the floods": "The survey is old, and the floods may have changed the ruins."}
+
+
+def sm_ord(k):
+    if 11 <= k % 100 <= 13:
+        return f"{k}th"
+    return f"{k}" + {1: "st", 2: "nd", 3: "rd"}.get(k % 10, "th")
+
+
+def sm_cap(t):
+    return t[0].upper() + t[1:]
+
+
+def sm_camp(line, c):
+    """N and the group sizes from "A camp has 240 settlers: 160 farmers and 80 guards."."""
+    mt = re.fullmatch(rf"A {c[1]} has (\d+) {c[0]}: (.+)\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    G = []
+    for i, part in enumerate(re.split(r", | and (?=\d)", mt.group(2))):
+        m2 = re.fullmatch(rf"(\d+) {c[2][i]}", part)
+        need(m2 is not None, f"can't read the group {part!r}")
+        G.append(int(m2.group(1)))
+    need(sum(G) == int(mt.group(1)), "the groups don't add to the population")
+    need(len(set(G)) == len(G), "two groups are the same size")
+    return int(mt.group(1)), G
+
+
+def sm_table(q, c, cols):
+    """Columns of the groups table as ints, with the Total row checked."""
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "group" and len(rows[0][1]) == cols, "table heads")
+    need([r[0] for r in rows[1:-1]] == list(c[2][:len(rows) - 2]) and rows[-1][0] == "Total", "table groups")
+    out = [[int(r[1][j]) for r in rows[1:-1]] for j in range(cols)]
+    for j in range(cols):
+        need(sum(out[j]) == int(rows[-1][1][j]), "a column doesn't add to its total")
+    return out
+
+
+def sm_scale(q, N, G, n=None):
+    """The interval for a sample of n, with each group whole at that scale."""
+    need(n is not None and n > 0 and N % n == 0, f"{N} is not a whole number of samples of {n}")
+    k = N // n
+    p1 = q["paper"] == 1
+    need(k != n, "the interval is the sample size")
+    need((4 if p1 else 6) <= k <= (20 if p1 else 40) and (10 if p1 else 40) <= n <= (40 if p1 else 150), f"n = {n}, k = {k} is outside the limits")
+    for g in G:
+        need(g % k == 0, f"the group of {g} isn't a whole multiple of {k}")
+    return k
+
+
+def sm_technique(line, c, G):
+    """The checklist on a surveyor's method: (technique, sample size, interval)."""
+    every = re.search(r"every (\d+)(?:st|nd|rd|th) name", line)
+    random = "at random" in line or "random start" in line
+    filled = re.search(rf"(\d+) {c[2][0]} and (\d+) {c[2][1]}", line)
+    if every:
+        k = int(every.group(1))
+        need(random and f"among the first {k} names" in line and every.group(0) == f"every {sm_ord(k)} name", f"can't read the interval in {line!r}")
+        return "systematic", sum(G) // k
+    if filled:
+        a, b = int(filled.group(1)), int(filled.group(2))
+        need(a * G[1] == b * G[0], f"the groups in {line!r} are not in proportion")
+        return ("stratified" if random else "quota"), a + b
+    n = int(re.search(r"\b(\d+)\b", line).group(1))
+    return ("simple" if random else "convenience"), n
+
+
+def sm_size(line, N):
+    mt = re.fullmatch(r"The surveyor wants a sample of (\d+)(%?) of them\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    v = int(mt.group(1))
+    if mt.group(2):
+        need(N * v % 100 == 0, "the percentage isn't a whole number of people")
+        return N * v // 100
+    return v
+
+
+def sm_arith(q):
+    """The working's sums, wherever a step writes one."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for a, b, r in re.findall(r"(\d+) ÷ (\d+) = (\d+)", st):
+                need(int(a) == int(b) * int(r), f"{st!r}")
+            for a, b, r in re.findall(r"(\d+) − (\d+) = (\d+)", st):
+                need(int(a) - int(b) == int(r), f"{st!r}")
+
+
+def check_sampling(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    c = SM_CTX[int(g["ctx"])]
+    who, place, names, spot, lst, topic = c
+    a, b = names[0], names[1]
+    wrongs, want = {}, None
+    if u in ("name-technique", "technique-disadvantage", "is-it-random"):
+        N, G = sm_camp(L[0], c)
+        tech, n = sm_technique(L[1], c, G)
+        sm_scale(q, N, G, n)
+        if u == "name-technique":
+            need(asked == "Which sampling technique is this?", f"asked {asked!r}")
+            want = SM_NAMES[tech]
+            wrongs = {"quota": {SM_T + "0": {SM_NAMES["stratified"]}}, "stratified": {SM_T + "0": {SM_NAMES["quota"]}},
+                      "systematic": {SM_T + "1": {SM_NAMES["simple"]}}, "convenience": {SM_T + "2": {SM_NAMES["simple"]}}, "simple": {}}[tech]
+            need(all(o["text"] in SM_NAMES.values() for o in q["choices"]), "an option is not a technique")
+        elif u == "technique-disadvantage":
+            want = SM_MAIN[tech].format(place)
+            for o in q["choices"]:
+                key = next((f for f in SM_FLAWS if f.format(place) == o["text"]), None)
+                need(key is not None, f"{o['text']!r} is not a known flaw")
+                need(o["correct"] or tech not in SM_FLAWS[key], f"{o['text']!r} is true of {tech}, so it is no wrong option")
+        else:
+            need(asked == "Is this a simple random sample?", f"asked {asked!r}")
+            if tech == "systematic":
+                want = "No: only the start is random, and the interval fixes every pick after it."
+                wrongs = {SM_T + "1": {"Yes: the start is random, so the whole sample is random."}}
+            elif tech == "convenience":
+                want = "No: anyone who doesn't come by has no chance of being chosen."
+                wrongs = {SM_T + "2": {"Yes: whoever comes by is a random person."}}
+            else:
+                need(tech == "simple", f"{tech} isn't asked here")
+                want = f"Yes: every set of {n} people has the same chance."
+                wrongs = {SM_T + "1": {"No: only the start is random."}}
+    elif u == "best-technique":
+        text = " ".join(L)
+        if "There is no list. " in text:
+            mt = re.fullmatch(rf"The (\d+) {who} pass {spot} one at a time during a shift\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            need("spread evenly along the line, from a random start" in L[1], f"{L[1]!r}")
+            want, wrongs = SM_NAMES["systematic"], {SM_T + "1": {SM_NAMES["simple"]}}
+        elif "There is no list," in text:
+            sm_camp(L[0], c)
+            need(f"can only reach people {spot}" in L[1], f"{L[1]!r}")
+            want, wrongs = SM_NAMES["quota"], {SM_T + "0": {SM_NAMES["stratified"]}}
+        elif "must have an equal chance" in text:
+            sm_camp(L[0], c)
+            want, wrongs = SM_NAMES["stratified"], {SM_T + "0": {SM_NAMES["quota"]}}
+        else:
+            need("The groups don't matter here" in text, f"{text!r}")
+            want = SM_NAMES["simple"]
+            wrongs = {SM_T + "1": {SM_NAMES["systematic"]}, SM_T + "2": {SM_NAMES["convenience"]}}
+    elif u == "describe-systematic":
+        N, G = sm_camp(L[0], c)
+        n = sm_size(L[1], N)
+        k = sm_scale(q, N, G, n)
+        want = f"Go down {lst}, pick a random start among the first {k} names, then take every {sm_ord(k)} name."
+        wrongs = {SM_T + "1": {f"Draw {n} names at random from {lst}."}}
+    elif u == "systematic-interval":
+        mt = re.fullmatch(rf"{re.escape(sm_cap(lst))} lists (\d+) {who}\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        N = int(mt.group(1))
+        n = sm_size(L[1], N)
+        k = sm_scale(q, N, [], n)
+        want = f"interval = {k}"
+    elif u == "systematic-member":
+        mt = re.fullmatch(rf"{re.escape(sm_cap(lst))} numbers (\d+) {who} from 1 to (\d+)\.", L[0])
+        m2 = re.fullmatch(r"A systematic sample starts at number (\d+) and takes every (\d+)(?:st|nd|rd|th) name\.", L[1])
+        m3 = re.fullmatch(r"Find the number of the (\d+)(?:st|nd|rd|th) person chosen\.", asked)
+        need(mt and m2 and m3 and mt.group(1) == mt.group(2), "can't read the sample")
+        N, start, k, j = int(mt.group(1)), int(m2.group(1)), int(m2.group(2)), int(m3.group(1))
+        v = start + (j - 1) * k
+        need(1 <= start <= k and v <= N, "the pick is off the list")
+        want = f"number {v}"
+    elif u == "quota-number":
+        mt = re.search(r"A (quota|stratified) sample of (\d+) must match", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        n = int(mt.group(2))
+        if rep == "table":
+            m2 = re.fullmatch(rf"The table shows the (\d+) {who} in a {place}\.", L[0])
+            need(m2 is not None, f"can't read {L[0]!r}")
+            G = sm_table(q, c, 1)[0]
+            N = int(m2.group(1))
+            need(N == sum(G), "the table's total isn't the population")
+        else:
+            N, G = sm_camp(L[0], c)
+        sm_scale(q, N, G, n)
+        m3 = re.fullmatch(r"Find how many (.+) go in the sample\.", asked)
+        i = names.index(m3.group(1))
+        v = sp.Rational(G[i] * n, N)
+        need(v.q == 1, "the number isn't whole")
+        want = f"number = {v}"
+    elif u in ("fair-share", "under-represented"):
+        if rep == "table":
+            mt = re.fullmatch(rf"The table shows a {place} of (\d+) {who} and a sample of (\d+) of them\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            N, n = int(mt.group(1)), int(mt.group(2))
+            G, got = sm_table(q, c, 2)
+            need(sum(G) == N and sum(got) == n, "totals")
+        else:
+            N, G = sm_camp(L[0], c)
+            mt = re.fullmatch(rf"A sample of (\d+) holds (\d+) {names[0]}, (\d+) {names[1]} and (\d+) {names[2]}\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            n, got = int(mt.group(1)), [int(mt.group(i)) for i in (2, 3, 4)]
+            need(sum(got) == n, "the sample doesn't add up")
+        sm_scale(q, N, G, n)
+        fair = [sp.Rational(x * n, N) for x in G]
+        need(all(f.q == 1 for f in fair), "a fair share isn't whole")
+        if u == "fair-share":
+            m3 = re.fullmatch(rf"By how many does the number of (.+) fall short of the mix of the {place}\?", asked)
+            i = names.index(m3.group(1))
+            need(got[i] < fair[i] and got[i] > 0, "the group doesn't fall short")
+            want = f"number = {fair[i] - got[i]}"
+        else:
+            ratio = [sp.Rational(x, f) for x, f in zip(got, fair)]
+            short = [f - x for x, f in zip(got, fair)]
+            i = ratio.index(min(ratio))
+            need(short[i] == max(short) and short.count(short[i]) == 1 and sorted(ratio)[1] > ratio[i], "no one group is clearly the most under-represented")
+            need(got[i] != min(got), "the smallest count gives the answer away")
+            want = sm_cap(names[i])
+            wrongs = {SM_B + "1": {f"None: the sample matches the {place}."}}
+    elif u in ("why-biased", "better-method"):
+        N, G = sm_camp(L[0], c)
+        mt = re.fullmatch(rf"To learn {topic} across the whole {place}, a surveyor draws (\d+) {a} at random and asks only them\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        n = int(mt.group(1))
+        if u == "why-biased":
+            want = f"Only {a} were asked, so the {b} had no chance of being chosen."
+            wrongs = {SM_B + "0": {f"The sample is too small: with more {a} it would have no bias."},
+                      SM_B + "1": {f"Nothing: a random draw always represents the whole {place}."}}
+        else:
+            want = f"Stratified sampling: draw at random from both the {a} and the {b}, in proportion to their numbers."
+            wrongs = {SM_B + "0": {f"Keep to the {a}, and ask {2 * n} of them instead."},
+                      SM_B + "1": {f"Change nothing: a random draw from the {a} is enough."},
+                      SM_T + "2": {f"Ask the first {n} {who} who come by {spot}."}}
+    elif u == "bias-direction":
+        mt = re.fullmatch(r"She asks (\d+) of them, all (.+)\.", L[1])
+        need(mt is not None and mt.group(2) in SM_LEAN, f"can't read {L[1]!r}")
+        n, want = int(mt.group(1)), SM_LEAN[mt.group(2)]
+        wrongs = {SM_B + "0": {f"Neither: asking {n} people cancels out any bias."}, SM_B + "1": {"Neither: a sample is always a fair picture of everyone."}}
+    elif u == "bigger-sample":
+        N, G = sm_camp(L[0], c)
+        mt = re.fullmatch(rf"A surveyor asks (\d+) {a} about {topic}, and none of the {b}\.", L[1])
+        need(mt is not None and L[2] == f"She plans to ask {3 * int(mt.group(1))} {a} instead.", f"can't read {L[1:]!r}")
+        want = f"No: the result gets steadier, but the {b} are still left out."
+        wrongs = {SM_B + "0": {"Yes: a larger sample removes bias."}}
+    elif u == "random-not-perfect":
+        if rep == "table":
+            mt = re.fullmatch(rf"The table shows a {place} of (\d+) {who} and a simple random sample of (\d+) of them\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            N, n = int(mt.group(1)), int(mt.group(2))
+            G, got = sm_table(q, c, 2)
+        else:
+            N, G = sm_camp(L[0], c)
+            mt = re.fullmatch(rf"A simple random sample of (\d+) holds (\d+) {a} and (\d+) {b}\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            n, got = int(mt.group(1)), [int(mt.group(2)), int(mt.group(3))]
+        need(sum(got) == n, "the sample doesn't add up")
+        sm_scale(q, N, G, n)
+        need(all(abs(sp.Rational(x * n, N) - y) >= 2 for x, y in zip(G, got)), "the sample doesn't miss the mix")
+        want = "The draw can be fair and still miss the mix: chance alone moves a sample."
+        wrongs = {SM_B + "1": {f"The draw can't have been random: a random sample always matches the {place}.", f"The {place}'s numbers must be wrong: a sample shows the true mix."}}
+    elif u == "improve-reliability":
+        mt = re.fullmatch(rf"A surveyor wants to learn {topic}, so she draws (\d+) of all the {who} at random\.", L[0])
+        need(mt is not None and 5 <= int(mt.group(1)) <= 12, f"can't read {L[0]!r}")
+        want = "Take a larger random sample, so that one person counts for less."
+        wrongs = {SM_B + "1": {f"Keep the {mt.group(1)}: a random sample is always exact."}}
+    elif u == "source-reliability":
+        mt = re.fullmatch(r"The figure comes from (.+)\.", L[1])
+        key = next((k for k in SM_WHY if k in mt.group(1)), None)
+        need(key is not None, f"can't read {L[1]!r}")
+        want = SM_WHY[key]
+        wrongs = {SM_B + "0": {f"It is reliable: {re.search(r'[0-9]+', L[1]).group()} is enough to remove any bias."}}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs)
+    sm_arith(q)
+    for sol in q["solutions"]:
+        need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -12589,7 +12899,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
-                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional}
+                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
+                    "sampling": check_sampling}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
