@@ -100,6 +100,9 @@ static var SITUATIONS := {
 	"line-conditions": [LineConditionsSituation, LineConditionsViews],
 	"line-crossing": [LineCrossingSituation, LineCrossingViews],
 	"line-model": [LineModelSituation, LineModelViews],
+	"fn-pre-linear-equations": [LinearEquationSituation, LinearEquationViews],
+	"fn-pre-simultaneous": [SimultaneousSituation, SimultaneousViews],
+	"fn-link-rate-of-change": [LinkRateSituation, LinkRateViews],
 }
 
 static var _cat: Dictionary = {}
