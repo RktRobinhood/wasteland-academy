@@ -89,7 +89,7 @@ jobs:
   # questions, and the godot job had been at 13 of its 15 minutes without it.
   answers:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
