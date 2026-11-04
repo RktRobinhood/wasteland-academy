@@ -4,7 +4,7 @@ extends "res://tests/test_case.gd"
 ## (tools/check-answers) checks the maths.
 
 ## Cells per type: every catalogue cell (the type's unknown × rep × method).
-const CELLS := {"fn-line-from-conditions": 102}
+const CELLS := {"fn-line-from-conditions": 102, "fn-ext-intersection-lines": 21}
 ## Distractor misconceptions no option can carry ("type|ref"), and why.
 const NOT_BUILT := {}
 
@@ -109,6 +109,23 @@ func test_the_boss_chain_is_one_line() -> void:
 	check_eq(c.parts.size(), 5)
 	for q in c.parts:
 		check_eq(q.paper, 1, "the chain is Paper 1")
+
+
+func test_a_wrong_option_can_stop_at_x() -> void:
+	var ans := Answer.make("point", {"x": Q.new(3), "y": Q.new(-2)})
+	ans.exact = true
+	var alone := {"x": Q.new(3), "y": Q.new(0), "alone": true}
+	check_eq(Answer.text(ans, alone), "x = 3")
+	check(not Answer.typable(ans, alone), "it can only be picked")
+	check(Answer.canon(ans, alone) != Answer.canon(ans, {"x": Q.new(3), "y": Q.new(0)}), "and is not the point (3, 0)")
+
+
+func test_the_gdc_meeting_point_is_paper_2_and_the_rest_paper_1() -> void:
+	var t := "fn-ext-intersection-lines"
+	for c in QuestionEngine.cells(false, [t]):
+		for seed in range(1, 12):
+			var q := _make(t, c.unknown, c.rep, c.angle, seed)
+			check_eq(q.paper, 2 if c.angle == "gdc-intersect" else 1, c.key)
 
 
 func test_a_paper_1_equation_is_exact() -> void:

@@ -12145,6 +12145,141 @@ def lc_trap(q):
     return f"y = {'−' if m < 0 else ''}{'' if lead == '1' else lead}x{tail}"
 
 
+# ── Lines (FAL-424): line-crossing ───────────────────────────
+# The two lines are read back from the text (or a line's gradient and intercept in words), the
+# meeting point is solved again exactly, and the tagged wrong options worked out as they say.
+
+LX = "SL2.1.intersection-lines#"
+LX_X_ONLY, LX_SIGN, LX_FAR = LX + "0", LX + "1", LX + "2"
+LX_LIM = 6
+
+
+def lx_terms(L):
+    """(a, b, k) of ax + by = k or y = mx + c, as rationals."""
+    t = L.split(": ", 1)[-1].strip().rstrip(".")
+    left, right = t.split(" = ")
+    p, q = lc_terms(left), lc_terms(right)
+    return p[0] - q[0], p[1] - q[1], q[2] - p[2]
+
+
+def lx_words(t):
+    f = re.fullmatch(rf"L[₁₂] has gradient ({LC_NUM}) and y-intercept ({LC_NUM})\.", t)
+    if f:
+        return -lc_q(f.group(1)), sp.Integer(1), lc_q(f.group(2))
+    f = re.fullmatch(rf"L₂ goes through \(({LC_NUM}), ({LC_NUM})\) and \(({LC_NUM}), ({LC_NUM})\)\.", t)
+    if f:
+        x1, y1, x2, y2 = (lc_q(v) for v in f.groups())
+        need(x1 != x2, "the two points are one above the other")
+        m = (y2 - y1) / (x2 - x1)
+        return -m, sp.Integer(1), y1 - m * x1
+    return lx_terms(t)
+
+
+def lx_meet(p, q):
+    (a1, b1, k1), (a2, b2, k2) = p, q
+    det = a1 * b2 - a2 * b1
+    need(det != 0, "the lines don't meet at one point")
+    return (k1 * b2 - k2 * b1) / det, (a1 * k2 - a2 * k1) / det
+
+
+def lx_ptext(x, y, paper):
+    n = frac_text if paper == 1 else gc_s
+    return f"({n(x)}, {n(y)})"
+
+
+def lx_ptrap(x, y):
+    return f"({gc_s2(x)}, {gc_s2(y)})"
+
+
+def lx_clean_point(q, x, y):
+    if q["paper"] == 1:
+        need(x.q == 1 and y.q == 1 and abs(x) <= LX_LIM and abs(y) <= LX_LIM, f"the meeting point ({x}, {y}) is not small and whole")
+    else:
+        need(q["view"]["angle"] == "gdc-intersect" or q["view"].get("same_angle") == "gdc-intersect", "Paper 2 is the GDC's intersect")
+        need(gc_rounds(x) and gc_rounds(y), "a Paper 2 meeting point that needs no calculator")
+
+
+def check_line_crossing(q):
+    u, rep, L, paper = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["paper"]
+    lc_style(q)
+    if q["view"]["angle"] == "gdc-intersect" and not q["view"].get("shared"):
+        need(paper == 2, "the GDC's intersect is Paper 2")
+    trap = None
+    wr = {}
+    if u in ("meet-slope-intercept", "meet-general", "meet-from-graph"):
+        p, r = lx_terms(L[0]), lx_terms(L[1])
+        x, y = lx_meet(p, r)
+        lx_clean_point(q, x, y)
+        want = lx_ptext(x, y, paper)
+        trap = lx_ptrap(x, y) if paper == 2 else None
+        nx = frac_text if paper == 1 else gc_s
+        wr[LX_X_ONLY] = {f"x = {nx(x)}"}
+        if u == "meet-general":
+            a1, b1, k1 = p
+            need(r[0] == 1, "L₂ has x alone")
+            need(all(v.q == 1 for v in (a1, b1, k1) + r), "the coefficients are not whole")
+            slip = a1 * r[1] + b1
+            if slip != 0:
+                ys = (a1 * r[2] - k1) / slip
+                wr[LX_SIGN] = {lx_ptext(r[2] - r[1] * ys, ys, paper)}
+        if rep == "graph":
+            g = q["graph"]
+            need(len(g["curves"]) == 2, "two lines are drawn")
+            for cv, (a, b, k) in zip(g["curves"], (p, r)):
+                need(len(cv) > 5, "a line is missing")
+                for px, py in cv[::9]:
+                    need(abs(float(a) * px + float(b) * py - float(k)) < 1e-6, "the line drawn is another line")
+                    need(g["y0"] <= py <= g["y1"], "a line leaves the plot")
+            need(abs(x) <= g["x1"] and abs(y) <= g["y1"], "they meet off the grid")
+    elif u == "point-on-both":
+        f = re.search(rf"point \(({LC_NUM}), ({LC_NUM})\)", q["asked"])
+        px, py = lc_q(f.group(1)), lc_q(f.group(2))
+        on = [a * px + b * py == k for a, b, k in (lx_words(L[0]), lx_words(L[1]))]
+        want = {(True, True): "It lies on both lines", (True, False): "It lies on L₁ but not on L₂", (False, True): "It lies on L₂ but not on L₁",
+                (False, False): "It lies on neither line"}[tuple(on)]
+    elif u == "do-they-meet":
+        (a1, b1, k1), (a2, b2, k2) = lx_words(L[0]), lx_words(L[1])
+        if rep == "equation":
+            need(all(v.q == 1 for v in (a2, b2, k2)) and a2 > 0, "L₂ is not whole with a > 0")
+        if a1 * b2 == a2 * b1:
+            want = "They are the same line, so they share every point" if a1 * k2 == a2 * k1 else "They never meet, because the gradients are equal and the intercepts differ"
+            if want.startswith("They never"):
+                wr[LX_FAR] = {"They do meet far away, because any two lines cross somewhere"}
+        else:
+            want = "They meet at one point, because the gradients are different"
+    elif u == "line-through-meeting-point":
+        x, y = lx_meet(lx_words(L[0]), lx_words(L[1]))
+        lx_clean_point(q, x, y)
+        f = re.search(rf"through T\(({LC_NUM}), ({LC_NUM})\)", q["asked"])
+        if f:
+            tx, ty = lc_q(f.group(1)), lc_q(f.group(2))
+            need(tx != x, "T is straight above the meeting point")
+            n = (ty - y) / (tx - x)
+        else:
+            f = re.search(rf"has gradient ({LC_NUM})\.", q["asked"])
+            n = lc_q(f.group(1))
+        want = lc_sl(n, y - n * x)
+    elif u == "constant-from-meeting-point":
+        f = re.fullmatch(rf"L₁ and L₂ meet where x = ({LC_NUM})\. Find k\.", q["asked"])
+        x = lc_q(f.group(1))
+        g = re.fullmatch(r"L₁: y = (.*)x \+ k", L[0])
+        m = lc_lead(g.group(1))
+        a, b, k = lx_terms(L[1])
+        y = (k - a * x) / b
+        want = f"k = {frac_text(y - m * x)}"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
+def lc_lead(t):
+    """A coefficient as Fmt.lead writes it: '', '−', '½', '(3/2)', '−(3/2)'."""
+    if t in ("", "−"):
+        return sp.Integer(-1 if t else 1)
+    return lc_terms(t + "x")[0]
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -12169,7 +12304,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion,
-                    "line-conditions": check_line_conditions}
+                    "line-conditions": check_line_conditions, "line-crossing": check_line_crossing}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

@@ -38,7 +38,8 @@ extends RefCounted
 ##              (x, 0)), and axis honours show and may carry var "" (the number alone, a
 ##              wrong option for an asymptote written as an equation);
 ##              for the Lines region (FAL-424) also gline (ax + by + d = 0: a whole-number
-##              multiple of the line with a > 0 is right too);
+##              multiple of the line with a > 0 is right too), and point may carry alone
+##              (x with no y, a wrong option that can be picked but never typed);
 ##              for Topic 5 (FAL-723) also form: an expression written by its builder.
 ##              fixed.parts is the slot input, values.text the expression as it reads,
 ##              and a wrong option in another shape carries "shape" and is never typed
@@ -458,6 +459,9 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			var rs := _sorted([v.r1, v.r2])
 			return "x = %s and x = %s" % [shown(ans, rs[0]), shown(ans, rs[1])]
 		"point":
+			# A wrong option may stop at x, with no y (FAL-424).
+			if v.get("alone", false):
+				return "x = " + shown(ans, v.x)
 			return "(%s, %s)" % [shown(ans, v.x), shown(ans, v.y)]
 		"yint":
 			return "(0, %s)" % shown(ans, v.y)
@@ -699,7 +703,7 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind == "measure":
 		return "measure:" + Fmt.sf(values.v)
 	# So is any answer written to 3 s.f. (FAL-459): it is told apart by its text.
-	if ans.get("show", "") == "sf":
+	if ans.get("show", "") == "sf" or values.get("alone", false):
 		return "sf:" + text(ans, values)
 	if ans.kind == "lnq":
 		return "lnq:%.9f" % lnq_value(values.m, values.r, values.get("form", ""))

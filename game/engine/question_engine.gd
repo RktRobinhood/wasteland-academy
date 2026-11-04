@@ -94,6 +94,7 @@ static var SITUATIONS := {
 	"definite-integral": [DefiniteIntegralSituation, DefiniteIntegralViews],
 	"motion": [MotionSituation, MotionViews],
 	"line-conditions": [LineConditionsSituation, LineConditionsViews],
+	"line-crossing": [LineCrossingSituation, LineCrossingViews],
 }
 
 static var _cat: Dictionary = {}
