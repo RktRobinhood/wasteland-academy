@@ -230,6 +230,35 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   rearranged for x. A table's heads are x and y with a story line above. The game's font
   has no precomposed ȳ, so the mean point is written y plus a combining macron, as x̄ is.
   As every exam type, it offers no extra format: `test_extension.gd` holds that rule.
+- `engine/situations/regression_pair.gd` (FAL-725) is `t4-regression-x-on-y` (SL4.10, AA only):
+  the same paired data, with both lines. Its views (`regression_pair_views.gd`) ask the line
+  x = cy + d (a `named` answer: c and d), d from a mean point, which line to use (a `claim`), an
+  estimate of x from data or from both lines, whether an estimate is reliable (a `claim`), the
+  mean point from both lines (on the equations, or with both lines drawn) and one mean from the
+  other. The table, the estimates and the judgement are Paper 2; choosing a line and the mean
+  point are on both papers, with lines through a whole-number mean point and 0 < ac < 1.
+- `engine/situations/normal_unknown.gd` (FAL-725) is `t4-normal-unknown-parameter` (SL4.12, AA only,
+  all Paper 2): X is normal with something hidden. The student's facts stay clean (whole values,
+  areas in hundredths), and the hidden parameter is whatever they force, so z and the answers are
+  floats, from `SymmetrySituation.phi` and `inv_norm`. Its views (`normal_unknown_views.gd`) ask 11
+  unknowns: k from an area, an event for Z (a `form` answer with the inequality picked and the
+  bound typed), P(within kσ), σ or μ from a tail, σ from an interquartile range or a central
+  area, μ and σ from two tails (a `named` answer), μ and σ from equal tails, and μ from two
+  z-values. Representations are the equation, a story with percentages, and a shaded curve.
+- `engine/situations/venn.gd` (FAL-725) is `t4-venn-addition-rule` (SL4.6, on all four syllabuses):
+  four regions out of a total, shown as decimals, fractions or counts in a story, a Venn diagram
+  (PlotView's `venn`, rep `diagram`) or a two-way table (rep `table`, with heads and totals as
+  rows). Its views (`venn_views.gd`) ask 12 unknowns: P(A ∪ B), P(A ∩ B), P(A′ ∩ B′), P(A ∩ B′),
+  exactly one, a region of a diagram, x in a diagram of expressions, a table entry, and the least
+  and greatest overlap. Paper 1 is exact; Paper 2 has decimals to 3 places or counts answered to
+  3 s.f. An option that should be a probability is one: `build()` adds near values, because the
+  engine's last-resort nudges add 1.
+- `engine/situations/conditional.gd` (FAL-725) is `t4-conditional-probability` (SL4.11, AA only). The
+  events come from `VennSituation`; it also draws a two-stage tree (PlotView's `tree`), two draws
+  without replacement, the multiplication rule, and normal, binomial and discrete conditionals.
+  Its views (`conditional_views.gd`) ask 13 unknowns. A normal conditional on a curve shades the
+  given and the wanted area, so the overlap shows darker. Answers are exact on Paper 1, in the
+  numbers the question uses, and to 3 s.f. on Paper 2; normal and binomial ones are Paper 2 only.
 - `engine/situations/data_summary.gd` (FAL-695) is `t4-summary-statistics` (SL4.3, on all four
   syllabuses): one discrete data set, shown as a list in no particular order (rep `terms`)
   or as a frequency table, all exact (`Q`). Its views (`data_summary_views.gd`) ask 11
@@ -835,6 +864,11 @@ definite integral or area is worked out again with SymPy, or mpmath for a model,
 roots it finds itself, and each shaded strip must be the region asked for; rests and extremes are
 found again from v(t), exactly on Paper 1 (`check_integration`, `check_definite_integral`,
 `check_motion`).
+For the four FAL-725 situations it reads the facts back from the question: lines, percentages,
+sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and lines again with
+exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
+back into erf, and a shaded area must be the area given (`check_regression_pair`,
+`check_normal_unknown`, `check_venn`, `check_conditional`).
 Each cell also gets 10 questions made on its family's shared situation, and 20 in each
 extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
@@ -1165,6 +1199,10 @@ script error happens while it runs. Run one file with
   early-rounding and rearranged-line slips reading differently; a line written with its
   sign; 3 s.f. marking and an exact mean point; every misconception as an option; r² as an
   option and r never 1 or more; the three concept probes; and every course having every cell.
+- `test_regression_pair.gd`, `test_normal_unknown.gd`, `test_venn.gd`, `test_conditional.gd`: the four
+  FAL-725 types: each built with every cell and all its skills, one right option on each paper,
+  the numbers against hand values, the figures drawn, every misconception as an option, and the
+  courses each is in.
 - `test_data_summary.gd`: t4-summary-statistics built with every cell and all four SL4.3
   skills; every cell in both formats with 2 to 5 steps per worked solution; the GDC cells
   Paper 2 and the by-hand unknowns Paper 1, and both papers where a cell can make both;
