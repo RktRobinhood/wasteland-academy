@@ -21,7 +21,8 @@ extends RefCounted
 ## own copy.
 
 const TRIES := 6000
-const EDGE := 0.03
+## Wider than the usual 0.03: a typed to four figures must still round to the answer.
+const EDGE := 0.06
 const CONTEXTS := 6
 ## Tenths: a Paper 1 value's a.
 const NICE := [12, 15, 16, 20, 24, 25, 30, 32, 40, 45, 50, 60, 75, 80, 90]

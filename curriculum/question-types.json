@@ -3465,7 +3465,7 @@
    ],
    "clean": [
     "Paper 1 answers are exact, with a at most three figures, or four on a sphere's volume",
-    "Paper 2 answers that need rounding have a to 3 s.f., at least 0.03 of a unit of its third figure from a rounding edge, and a stays below 9.9",
+    "Paper 2 answers that need rounding have a to 3 s.f., at least 0.06 of a unit of its third figure from a rounding edge, and a stays below 9.9",
     "k is at least 2 from 0 in size wherever it is an answer",
     "m and n are nonzero and different, and mn ≠ m + n, so multiplying the powers is a different answer",
     "the four numbers of order-mixed have different values"
@@ -21173,7 +21173,7 @@
     {
      "kind": "true-false-reason",
      "prompt": "A cone and a cylinder have the same radius and the same height. The cone's volume is a third of the cylinder's.",
-     "answer": "True: V = ⅓πr²h for the cone and πr²h for the cylinder, with the same r and h.",
+     "answer": "True: V = (1/3)πr²h for the cone and πr²h for the cylinder, with the same r and h.",
      "level": 3
     },
     {
@@ -21192,7 +21192,7 @@
    "misconceptions": [
     {
      "ref": "SL3.1.volume-solids#0",
-     "text": "Using the slant height instead of the perpendicular height in V = ⅓πr²h",
+     "text": "Using the slant height instead of the perpendicular height in V = (1/3)πr²h",
      "as": "distractor",
      "in": [
       "cone-volume-from-slant",
@@ -21207,7 +21207,7 @@
     },
     {
      "ref": "SL3.1.volume-solids#1",
-     "text": "Forgetting the ⅓ for a cone or pyramid, or using (4/3)πr³ for a hemisphere",
+     "text": "Forgetting the 1/3 for a cone or pyramid, or using (4/3)πr³ for a hemisphere",
      "as": "distractor",
      "in": [
       "cone-volume",
@@ -21225,7 +21225,7 @@
       "inscribed-volume",
       "sector-cone-volume"
      ],
-     "wrong": "the volume with the ⅓ left out, or a whole sphere's (4/3)πr³ for a hemisphere"
+     "wrong": "the volume with the 1/3 left out, or a whole sphere's (4/3)πr³ for a hemisphere"
     },
     {
      "ref": "SL3.1.volume-solids#2",

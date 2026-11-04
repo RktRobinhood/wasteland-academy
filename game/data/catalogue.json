@@ -3206,6 +3206,179 @@
 				"rearranging the line of y on x reads differently from the line of x on y at 3 s.f."
 			]
 		},
+		"sampling": {
+			"name": "A population, its groups and a sample",
+			"summary": "A population in named groups, and a surveyor who takes a sample by one of the five techniques. Each group is a whole multiple of its share of the sample, so the technique, the interval, a number in proportion, a shortfall and the question of who is left out can all be asked of one story.",
+			"quantities": [
+				{
+					"name": "n",
+					"is": "the sample size",
+					"pick": "Paper 1: 10 to 40; Paper 2: 40 to 150; a small 5 to 12 where a result keeps changing"
+				},
+				{
+					"name": "k",
+					"is": "the interval, N ÷ n",
+					"pick": "Paper 1: 4 to 20; Paper 2: 6 to 40"
+				},
+				{
+					"name": "N",
+					"is": "the population",
+					"pick": "n k"
+				},
+				{
+					"name": "q, G",
+					"is": "each group's share of the sample and its size",
+					"pick": "two or three different whole q adding to n, and G = k q"
+				},
+				{
+					"name": "tech",
+					"is": "the technique",
+					"pick": "simple random, systematic, convenience, quota or stratified"
+				},
+				{
+					"name": "got",
+					"is": "the sample's own numbers",
+					"pick": "they add to n and differ from q"
+				}
+			],
+			"clean": [
+				"every group size is a whole multiple of the interval",
+				"groups have different sizes",
+				"the sample size is not the interval, so the two can't be mistaken for each other",
+				"a percentage sample is used only where it is a whole percentage",
+				"the most under-represented group falls short by the most and by the largest share, and is not the group with the fewest in the sample",
+				"a sample that misses the mix misses it by at least 2"
+			]
+		},
+		"cumulative-frequency": {
+			"name": "Grouped data as a cumulative frequency curve or table",
+			"summary": "A data set known by its running totals. On a curve, on a grid of 20 squares by 20, the total is a multiple of 20 and every value read, right or wrong, sits on a corner of the grid. In a table, classes are equal and estimates from them are clean. Any reading, count, cut-off or frequency can be asked of either.",
+			"quantities": [
+				{
+					"name": "n",
+					"is": "the total",
+					"pick": "a multiple of 20 from 40 to 240"
+				},
+				{
+					"name": "dx, dy",
+					"is": "one square across and up",
+					"pick": "dx from the story: 1, 2, 5, 10 or 20; dy = n/20"
+				},
+				{
+					"name": "knots",
+					"is": "the grid points the curve goes through",
+					"pick": "rising strictly from height 0 to n on an S shape, at the quartiles and at every level or value a question reads"
+				},
+				{
+					"name": "bs, fs, cf",
+					"is": "the class boundaries, the frequencies and the running totals",
+					"pick": "on a curve, boundaries at knots; in a table, four or five equal classes"
+				},
+				{
+					"name": "pct, top, v",
+					"is": "what a question reads",
+					"pick": "a percentage, a number at the top, or a value"
+				}
+			],
+			"clean": [
+				"every reading of a curve, right or wrong, is a corner of the grid",
+				"the curve rises strictly, between 0.25 and 6 squares up per square across between knots",
+				"the median is not at the middle of the axis",
+				"an estimate from a table ends in at most one decimal, and a count from a table is whole",
+				"a percentile is never asked on n = 100, where k and k% of n are the same",
+				"all Paper 1"
+			]
+		},
+		"arc-sector": {
+			"name": "One sector of a circle",
+			"summary": "Pick a radius and an angle, written in radians, in degrees or as a multiple of π. The arc, the perimeter, the area and the major sector all follow, and any of them can be given so that r or θ is found by working back.",
+			"quantities": [
+				{
+					"name": "r",
+					"is": "the radius",
+					"pick": "Paper 1: a whole number from 2 to 12; Paper 2: 2.0 to 30.0 to 1 d.p."
+				},
+				{
+					"name": "t",
+					"is": "the angle θ",
+					"pick": "Paper 1: a landmark multiple of π, a landmark in degrees, or a simple decimal in radians; Paper 2: 0.25 to 5.5 radians to 2 d.p., or a whole number of degrees that is not a landmark"
+				},
+				{
+					"name": "form",
+					"is": "how the angle is written",
+					"pick": "pi, rad or deg"
+				},
+				{
+					"name": "l, area, per",
+					"is": "the arc, area and perimeter when they are given",
+					"pick": "worked out exactly on Paper 1; to 1 d.p. on Paper 2, with r or θ then worked out from them"
+				},
+				{
+					"name": "rin",
+					"is": "the inner radius of a curved strip",
+					"pick": "less than r"
+				},
+				{
+					"name": "w, h",
+					"is": "the width and height of a plate with two segments cut away",
+					"pick": "whole numbers with the two cuts clear of each other"
+				},
+				{
+					"name": "side, strip",
+					"is": "a bent strip's straight sides and width",
+					"pick": "the width less the two sides leaves the arc"
+				}
+			],
+			"clean": [
+				"Paper 1 answers are exact, in terms of π where that applies, and any fraction has a denominator of at most 24",
+				"r worked back on Paper 1 is a whole number",
+				"Paper 2 answers are to 3 s.f. and every value offered, right or wrong, is at least 0.03 of a unit of its third figure from a rounding edge",
+				"a minor angle is less than π where a major sector or major arc is asked",
+				"θ stays between 0 and 2π"
+			]
+		},
+		"bearings-elevation": {
+			"name": "Journeys, sightings and connected triangles",
+			"summary": "Points on a map or in a side view, set from real coordinates: bearings and distances, heights and lines of sight, and triangles that share a side. Any bearing, angle or length can be asked, and the sketch keeps the real shape.",
+			"quantities": [
+				{
+					"name": "d1, d2",
+					"is": "distances along a journey or sides of a triangle",
+					"pick": "2.0 to 40.0 to 1 d.p., or whole numbers"
+				},
+				{
+					"name": "b1, b2",
+					"is": "bearings",
+					"pick": "whole degrees, with the turn between two legs from 30° to 150°"
+				},
+				{
+					"name": "h, x",
+					"is": "a height and a horizontal distance",
+					"pick": "whole metres or 1 d.p."
+				},
+				{
+					"name": "e",
+					"is": "an angle of elevation or depression",
+					"pick": "whole degrees from 12° to 70° on a sketch to scale, or small angles marked not to scale; sometimes radians to 2 d.p."
+				},
+				{
+					"name": "eye, gap",
+					"is": "an observer's height and a clearance",
+					"pick": "1.5 to 1.9 m, and 1.0 to 4.0 m"
+				},
+				{
+					"name": "v",
+					"is": "a speed",
+					"pick": "whole km/h"
+				}
+			],
+			"clean": [
+				"every question is Paper 2",
+				"no angle inside a triangle is 90° unless the question says so",
+				"every 3 s.f. value, right or wrong, is at least 0.03 of a unit of its third figure from a rounding edge",
+				"a bearing is written with three figures and lies between 000° and 360°"
+			]
+		},
 		"solid": {
 			"name": "One solid and its measurements",
 			"summary": "A cone, pyramid, sphere, hemisphere or a composite of them, with a sketch or in words, or the flat sector that rolls into a cone. Its radius, height, slant height and base edges fix every volume and area, and any of them can be asked, or found back from a given volume or area.",
@@ -3307,7 +3480,7 @@
 			],
 			"clean": [
 				"Paper 1 answers are exact, with a at most three figures, or four on a sphere's volume",
-				"Paper 2 answers that need rounding have a to 3 s.f., at least 0.03 of a unit of its third figure from a rounding edge, and a stays below 9.9",
+				"Paper 2 answers that need rounding have a to 3 s.f., at least 0.06 of a unit of its third figure from a rounding edge, and a stays below 9.9",
 				"k is at least 2 from 0 in size wherever it is an answer",
 				"m and n are nonzero and different, and mn ≠ m + n, so multiplying the powers is a different answer",
 				"the four numbers of order-mixed have different values"
@@ -3392,6 +3565,18 @@
 		"SL3.2.area-sine": "Find the area of a triangle using ½ab sin C, or work backwards from the area",
 		"SL3.2.cosine-rule-side": "Use the cosine rule to find a side from two sides and the included angle",
 		"SL3.2.cosine-rule-angle": "Use the cosine rule to find an angle from three sides",
+		"SL3.3.bearings": "Interpret bearings, draw the journey diagram, and find distances and bearings",
+		"SL3.3.elevation-depression": "Use angles of elevation and depression to find heights and distances",
+		"SL3.3.multi-triangle": "Solve multi-step problems across connected triangles, choosing the right rule at each step",
+		"SL3.4.convert": "Convert between degrees and radians",
+		"SL3.4.arc-length": "Find arc length or sector perimeter, or work back to r or θ",
+		"SL3.4.sector-area": "Find sector area, or work back to r or θ",
+		"SL3.4.segment-shaded": "Find the area or perimeter of a segment or composite shaded region",
+		"SL4.1.sampling-technique": "Identify, describe and evaluate a sampling technique",
+		"SL4.1.bias-reliability": "Comment on bias in a sample and the reliability of data",
+		"SL4.2.cumfreq-quartiles": "Find the median, quartiles, percentiles and IQR from a cumulative frequency graph",
+		"SL4.2.cumfreq-count": "Estimate how many values lie above, below or between given values, or find a cut-off",
+		"SL4.2.cumfreq-build": "Build a cumulative frequency table and graph, and recover class frequencies from it",
 		"SL4.3.mean-median-mode": "Find the mean, median and mode of a data set or a discrete frequency table",
 		"SL4.3.quartiles-discrete": "Find quartiles, range and IQR of discrete data",
 		"SL4.3.mean-totals": "Use total = mean × n to find a missing value, a missing frequency or a combined mean",
@@ -19727,7 +19912,7 @@
 						"volume-in-terms"
 					],
 					"name": "Substitute into the booklet formula",
-					"about": "Choose V = ⅓Bh, ⅓πr²h, (4/3)πr³ or (2/3)πr³ for a hemisphere and substitute."
+					"about": "Choose V = (1/3)Bh, (1/3)πr²h, (4/3)πr³ or (2/3)πr³ for a hemisphere and substitute."
 				},
 				{
 					"skill": "SL3.1.volume-solids",
@@ -19751,7 +19936,7 @@
 						"sector-cone-volume"
 					],
 					"name": "Find the perpendicular height first",
-					"about": "When only a slant height or slant edge is given, use a right triangle through the apex to get h before using ⅓Bh."
+					"about": "When only a slant height or slant edge is given, use a right triangle through the apex to get h before using 1/3Bh."
 				},
 				{
 					"skill": "SL3.1.volume-solids",
@@ -19820,7 +20005,7 @@
 				{
 					"kind": "true-false-reason",
 					"prompt": "A cone and a cylinder have the same radius and the same height. The cone's volume is a third of the cylinder's.",
-					"answer": "True: V = ⅓πr²h for the cone and πr²h for the cylinder, with the same r and h.",
+					"answer": "True: V = (1/3)πr²h for the cone and πr²h for the cylinder, with the same r and h.",
 					"level": 3
 				},
 				{
@@ -19839,7 +20024,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL3.1.volume-solids#0",
-					"text": "Using the slant height instead of the perpendicular height in V = ⅓πr²h",
+					"text": "Using the slant height instead of the perpendicular height in V = (1/3)πr²h",
 					"as": "distractor",
 					"in": [
 						"cone-volume-from-slant",
@@ -19854,7 +20039,7 @@
 				},
 				{
 					"ref": "SL3.1.volume-solids#1",
-					"text": "Forgetting the ⅓ for a cone or pyramid, or using (4/3)πr³ for a hemisphere",
+					"text": "Forgetting the 1/3 for a cone or pyramid, or using (4/3)πr³ for a hemisphere",
 					"as": "distractor",
 					"in": [
 						"cone-volume",
@@ -19872,7 +20057,7 @@
 						"inscribed-volume",
 						"sector-cone-volume"
 					],
-					"wrong": "the volume with the ⅓ left out, or a whole sphere's (4/3)πr³ for a hemisphere"
+					"wrong": "the volume with the 1/3 left out, or a whole sphere's (4/3)πr³ for a hemisphere"
 				},
 				{
 					"ref": "SL3.1.volume-solids#2",
@@ -20591,6 +20776,543 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Bearings, elevation and depression in context",
+			"summary": "Journeys, sightings and fields in the wasteland: back bearings, bearings and distances of a two-leg journey, angles inside a triangle from a bearing, heights and distances from angles of elevation and depression, with an observer's height and a speed where the story has them, and chains of connected triangles.",
+			"situation": "bearings-elevation",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a caravan leaves camp and travels 12 km on a bearing of 070°"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the same story with a sketch: a north line at each point and labelled points, or a side view with the ground, the height and the line of sight"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "back-bearing",
+					"given": [
+						"the bearing of B from A"
+					],
+					"asked": "the bearing of A from B",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.bearings"
+					]
+				},
+				{
+					"id": "angle-from-bearing",
+					"given": [
+						"B due east of A, the bearing of C from A, angle ABC"
+					],
+					"asked": "angle ACB",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.bearings"
+					]
+				},
+				{
+					"id": "two-leg-distance",
+					"given": [
+						"two legs of a journey, each a distance and a bearing"
+					],
+					"asked": "the distance from the start",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.bearings"
+					]
+				},
+				{
+					"id": "two-leg-bearing",
+					"given": [
+						"two legs of a journey"
+					],
+					"asked": "the bearing of the end from the start",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.bearings"
+					]
+				},
+				{
+					"id": "return-bearing",
+					"given": [
+						"two legs of a journey"
+					],
+					"asked": "the bearing of the start from the end",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.bearings"
+					]
+				},
+				{
+					"id": "due-east-distance",
+					"given": [
+						"B due east of A, C at a distance and bearing from A"
+					],
+					"asked": "BC",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.bearings"
+					]
+				},
+				{
+					"id": "sine-rule-distance",
+					"given": [
+						"B due east of A, the bearing of C from A, angle ABC"
+					],
+					"asked": "AC or BC",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.bearings"
+					]
+				},
+				{
+					"id": "due-west-side",
+					"given": [
+						"C due west of B, the bearing of B from A, angle BAC, the length AC"
+					],
+					"asked": "angle ABC, then BC",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.bearings"
+					]
+				},
+				{
+					"id": "height-from-elevation",
+					"given": [
+						"a distance along the ground and an angle of elevation"
+					],
+					"asked": "the height",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "distance-from-depression",
+					"given": [
+						"a height and an angle of depression"
+					],
+					"asked": "the horizontal distance",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "angle-of-depression",
+					"given": [
+						"a height and a horizontal distance"
+					],
+					"asked": "the angle of depression",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "height-with-eye-level",
+					"given": [
+						"an observer's eye height, a distance and an angle of elevation"
+					],
+					"asked": "the height",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "chain-below-hook",
+					"given": [
+						"the height of a crane's arm from an angle of elevation, and a guard's height and clearance"
+					],
+					"asked": "the length of the chain",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "time-from-depression",
+					"given": [
+						"a height, an angle of depression and a speed"
+					],
+					"asked": "the time to reach the point, in minutes",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "route-time",
+					"given": [
+						"two perpendicular distances and speeds"
+					],
+					"asked": "the time for a route",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.multi-triangle"
+					]
+				},
+				{
+					"id": "shared-side",
+					"given": [
+						"a right-angled triangle and a triangle sharing its long side"
+					],
+					"asked": "the far side",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.multi-triangle"
+					]
+				},
+				{
+					"id": "quadrilateral-area",
+					"given": [
+						"two sides and the angle between them on each side of a diagonal"
+					],
+					"asked": "the area of the quadrilateral",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.multi-triangle"
+					]
+				},
+				{
+					"id": "perpendicular-split",
+					"given": [
+						"two sides of a triangle and the angle between them"
+					],
+					"asked": "the third side",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.multi-triangle"
+					]
+				},
+				{
+					"id": "rule-to-use",
+					"given": [
+						"what is known about a triangle"
+					],
+					"asked": "which rule to use first",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.multi-triangle"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.3.bearings",
+					"method": "angle-chase-cosine",
+					"suits": [
+						"angle-from-bearing",
+						"two-leg-distance",
+						"two-leg-bearing",
+						"return-bearing",
+						"due-east-distance",
+						"sine-rule-distance",
+						"due-west-side"
+					],
+					"name": "Angle chase, then cosine and sine rules",
+					"about": "Draw north lines at each point, use co-interior angles (sum 180°) to find the angle inside the triangle, then the cosine rule for distance and the sine rule for the direction."
+				},
+				{
+					"skill": "SL3.3.bearings",
+					"method": "components",
+					"suits": [
+						"two-leg-distance",
+						"two-leg-bearing",
+						"return-bearing",
+						"due-east-distance"
+					],
+					"name": "East and north components",
+					"about": "Resolve each leg into east = d sin(bearing) and north = d cos(bearing), add the components, then use Pythagoras for the distance and tan⁻¹ for the direction."
+				},
+				{
+					"skill": "SL3.3.bearings",
+					"method": "back-bearing",
+					"suits": [
+						"back-bearing",
+						"return-bearing"
+					],
+					"name": "Back bearing ± 180°",
+					"about": "The bearing of A from B is the bearing of B from A plus or minus 180°."
+				},
+				{
+					"skill": "SL3.3.elevation-depression",
+					"method": "right-triangle",
+					"suits": [
+						"height-from-elevation",
+						"distance-from-depression",
+						"angle-of-depression",
+						"height-with-eye-level",
+						"chain-below-hook",
+						"time-from-depression"
+					],
+					"name": "One right triangle with tan",
+					"about": "Sketch the horizontal, the vertical height and the line of sight, then use tan θ = height / horizontal distance (or sin/cos if the sloping length is involved)."
+				},
+				{
+					"skill": "SL3.3.elevation-depression",
+					"method": "alternate-angles",
+					"suits": [
+						"distance-from-depression",
+						"angle-of-depression",
+						"time-from-depression"
+					],
+					"name": "Move the angle of depression",
+					"about": "An angle of depression from the top equals the angle of elevation from the bottom (alternate angles between horizontals), so place it inside the triangle at ground level."
+				},
+				{
+					"skill": "SL3.3.multi-triangle",
+					"method": "classify-given",
+					"suits": [
+						"route-time",
+						"shared-side",
+						"perpendicular-split",
+						"rule-to-use"
+					],
+					"name": "Classify what each triangle gives you",
+					"about": "Right angle → SOH CAH TOA or Pythagoras; SAS or SSS → cosine rule; a side with its opposite angle → sine rule; then carry the shared side into the next triangle."
+				},
+				{
+					"skill": "SL3.3.multi-triangle",
+					"method": "split-into-right",
+					"suits": [
+						"perpendicular-split"
+					],
+					"name": "Split into right triangles",
+					"about": "Drop perpendiculars to break the shape into right triangles and use only SOH CAH TOA and Pythagoras."
+				},
+				{
+					"skill": "SL3.3.multi-triangle",
+					"method": "either-diagonal",
+					"suits": [
+						"quadrilateral-area"
+					],
+					"name": "Split a quadrilateral along a diagonal",
+					"about": "Cut along whichever diagonal gives two triangles with enough information, and add the two ½ab sin C areas."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If the bearing of B from A is 070°, the bearing of A from B is 290°.",
+					"answer": "False: 290° is 360° − 070°. The way back is the opposite direction, 070° + 180° = 250°.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "An angle of depression from the top of a tower equals the angle of elevation of the top from the ground below.",
+					"answer": "Always: the two horizontals are parallel, so they are alternate angles.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "Two legs on bearings of 040° and 100° meet at an angle of 60° inside the triangle.",
+					"answer": "False: 60° is the turn. The north lines are parallel, so the angle inside is 180° − 60° = 120°.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.3.bearings#0",
+					"text": "Measuring a bearing anticlockwise or from east instead of clockwise from north",
+					"as": "distractor",
+					"in": [
+						"back-bearing",
+						"two-leg-bearing"
+					],
+					"wrong": "360° − the bearing, measured the wrong way round"
+				},
+				{
+					"ref": "SL3.3.bearings#1",
+					"text": "Giving the bearing of A from B when asked for B from A",
+					"as": "distractor",
+					"in": [
+						"back-bearing",
+						"two-leg-bearing",
+						"return-bearing"
+					],
+					"wrong": "the bearing the other way"
+				},
+				{
+					"ref": "SL3.3.bearings#2",
+					"text": "Using the bearings themselves as angles inside the triangle without angle chasing",
+					"as": "distractor",
+					"in": [
+						"angle-from-bearing",
+						"two-leg-distance",
+						"due-east-distance",
+						"sine-rule-distance"
+					],
+					"wrong": "the bearing, or the turn between two bearings, used as the angle inside"
+				},
+				{
+					"ref": "SL3.3.elevation-depression#0",
+					"text": "Measuring the angle of depression from the vertical instead of the horizontal",
+					"as": "distractor",
+					"in": [
+						"angle-of-depression"
+					],
+					"wrong": "90° less the angle, tan⁻¹(distance ÷ height)"
+				},
+				{
+					"ref": "SL3.3.elevation-depression#1",
+					"text": "Putting the angle of depression inside the triangle at the top vertex",
+					"as": "distractor",
+					"in": [
+						"distance-from-depression",
+						"time-from-depression"
+					],
+					"wrong": "height × tan θ for the distance"
+				},
+				{
+					"ref": "SL3.3.elevation-depression#2",
+					"text": "Forgetting to add the observer's eye height",
+					"as": "distractor",
+					"in": [
+						"height-with-eye-level",
+						"chain-below-hook"
+					],
+					"wrong": "the eye height left out"
+				},
+				{
+					"ref": "SL3.3.multi-triangle#0",
+					"text": "Rounding the shared side early and carrying the error into the next triangle",
+					"as": "distractor",
+					"in": [
+						"shared-side"
+					],
+					"wrong": "the shared side rounded to 2 s.f. before the cosine rule"
+				},
+				{
+					"ref": "SL3.3.multi-triangle#1",
+					"text": "Assuming an angle is 90° because it looks like it",
+					"as": "distractor",
+					"in": [
+						"shared-side",
+						"perpendicular-split"
+					],
+					"wrong": "Pythagoras on a triangle with no right angle"
+				},
+				{
+					"ref": "SL3.3.multi-triangle#2",
+					"text": "Using the sine rule in a triangle where no side–opposite angle pair is known",
+					"as": "distractor",
+					"in": [
+						"rule-to-use"
+					],
+					"wrong": "the sine rule offered on two sides and the angle between them"
+				}
+			],
+			"chain": [
+				"draw a north line at each point, or the horizontal at each eye",
+				"chase the bearings into angles inside the triangle, or move a depression to ground level",
+				"choose the rule each triangle allows: a right angle, SAS or SSS, or a side with its opposite angle",
+				"carry the exact shared side into the next triangle",
+				"turn the angle back into a bearing, or add what the triangle leaves out"
+			],
 			"frequency": 7,
 			"marks": 2,
 			"section": {
@@ -20600,9 +21322,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 7
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-circular-motion",
@@ -20645,6 +21365,635 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Arc length, sector area and perimeter, forwards or backwards",
+			"summary": "One sector of a circle, with its radius and its angle in radians, in degrees or as a multiple of π: convert the angle, find the arc, the perimeter or the area, or work back to r or θ from any of them. It also takes the major arc and major sector, a sector rolled into a cone, a curved strip between two circles and a plate with two segments cut away.",
+			"situation": "arc-sector",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "the values listed: r = 6 cm, θ = 5π/6 radians"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a sector OAB drawn to its real angle, with the radius, angle and arc labelled and the sector asked about shaded"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a searchlight with a reach of 40 m lights a sector of the yard"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "deg-to-rad",
+					"given": [
+						"an angle in degrees"
+					],
+					"asked": "the angle in radians",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "rad-to-deg",
+					"given": [
+						"an angle in radians"
+					],
+					"asked": "the angle in degrees",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "arc-length",
+					"given": [
+						"r",
+						"θ"
+					],
+					"asked": "the arc length",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "perimeter",
+					"given": [
+						"r",
+						"θ"
+					],
+					"asked": "the perimeter of the sector",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "theta-from-arc",
+					"given": [
+						"r",
+						"the arc length"
+					],
+					"asked": "θ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "r-from-arc",
+					"given": [
+						"θ",
+						"the arc length"
+					],
+					"asked": "r",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "r-from-perimeter",
+					"given": [
+						"θ",
+						"the perimeter"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "theta-from-perimeter",
+					"given": [
+						"r",
+						"the perimeter"
+					],
+					"asked": "θ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "major-arc",
+					"given": [
+						"r",
+						"the minor angle θ"
+					],
+					"asked": "the major arc",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "r-in-terms-of-theta",
+					"given": [
+						"the arc length, with θ unknown"
+					],
+					"asked": "an expression for r in terms of θ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "theta-from-bent-strip",
+					"given": [
+						"a strip's width, two straight sides and the radius of the curved part"
+					],
+					"asked": "θ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "sector-area",
+					"given": [
+						"r",
+						"θ"
+					],
+					"asked": "the area of the sector",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-area"
+					]
+				},
+				{
+					"id": "theta-from-area",
+					"given": [
+						"r",
+						"the area"
+					],
+					"asked": "θ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-area"
+					]
+				},
+				{
+					"id": "r-from-area",
+					"given": [
+						"θ",
+						"the area"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-area"
+					]
+				},
+				{
+					"id": "major-sector",
+					"given": [
+						"r",
+						"the minor angle θ"
+					],
+					"asked": "the area of the major sector",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-area"
+					]
+				},
+				{
+					"id": "area-from-arc",
+					"given": [
+						"r",
+						"the arc length"
+					],
+					"asked": "the area of the sector",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.arc-length",
+						"SL3.4.sector-area"
+					]
+				},
+				{
+					"id": "perimeter-from-area",
+					"given": [
+						"θ",
+						"the area"
+					],
+					"asked": "the perimeter of the sector",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.arc-length",
+						"SL3.4.sector-area"
+					]
+				},
+				{
+					"id": "major-from-perimeter",
+					"given": [
+						"θ",
+						"the perimeter of the minor sector"
+					],
+					"asked": "the exact area of the rest of the circle",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.arc-length",
+						"SL3.4.sector-area"
+					]
+				},
+				{
+					"id": "cone-radius",
+					"given": [
+						"a sector's r and θ, rolled into a cone"
+					],
+					"asked": "the radius of the cone's base",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "ring-inner-radius",
+					"given": [
+						"the outer radius, the angle and the area of a curved strip between two circles"
+					],
+					"asked": "the inner radius",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.sector-area"
+					]
+				},
+				{
+					"id": "ring-perimeter",
+					"given": [
+						"both radii and the angle of a curved strip"
+					],
+					"asked": "its perimeter",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.arc-length"
+					]
+				},
+				{
+					"id": "segments-theta",
+					"given": [
+						"a rectangular plate with two equal segments cut away, and its area"
+					],
+					"asked": "θ",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.4.convert",
+					"method": "multiply-factor",
+					"suits": [
+						"deg-to-rad",
+						"rad-to-deg"
+					],
+					"name": "Multiply by π/180 or 180/π",
+					"about": "Degrees to radians: multiply by π/180; radians to degrees: multiply by 180/π."
+				},
+				{
+					"skill": "SL3.4.convert",
+					"method": "fraction-of-turn",
+					"suits": [
+						"deg-to-rad",
+						"rad-to-deg"
+					],
+					"name": "Fraction of a full turn",
+					"about": "Write the angle as a fraction of 360°, then take the same fraction of 2π: 150° is 5/12 of a turn, so 5π/6."
+				},
+				{
+					"skill": "SL3.4.convert",
+					"method": "landmarks",
+					"suits": [
+						"deg-to-rad",
+						"rad-to-deg"
+					],
+					"name": "Count in landmark angles",
+					"about": "30° = π/6, so 150° = 5 × π/6; 45° = π/4, so 135° = 3π/4."
+				},
+				{
+					"skill": "SL3.4.arc-length",
+					"method": "l-equals-r-theta",
+					"suits": [
+						"arc-length",
+						"perimeter",
+						"theta-from-arc",
+						"r-from-arc",
+						"r-from-perimeter",
+						"theta-from-perimeter",
+						"major-arc",
+						"r-in-terms-of-theta",
+						"theta-from-bent-strip",
+						"cone-radius",
+						"ring-perimeter",
+						"perimeter-from-area",
+						"area-from-arc",
+						"major-from-perimeter"
+					],
+					"name": "l = rθ",
+					"about": "With θ in radians, l = rθ; rearrange to θ = l / r or r = l / θ."
+				},
+				{
+					"skill": "SL3.4.arc-length",
+					"method": "fraction-of-circumference",
+					"suits": [
+						"arc-length",
+						"perimeter",
+						"theta-from-arc",
+						"major-arc",
+						"cone-radius"
+					],
+					"name": "Fraction of the circumference",
+					"about": "The arc is the fraction θ / 2π (or θ / 360° in degrees) of the full circumference 2πr."
+				},
+				{
+					"skill": "SL3.4.sector-area",
+					"method": "half-r-squared-theta",
+					"suits": [
+						"sector-area",
+						"theta-from-area",
+						"r-from-area",
+						"major-sector",
+						"ring-inner-radius"
+					],
+					"name": "A = ½r²θ",
+					"about": "With θ in radians, A = ½r²θ; rearrange to θ = 2A / r²."
+				},
+				{
+					"skill": "SL3.4.sector-area",
+					"method": "fraction-of-circle",
+					"suits": [
+						"sector-area",
+						"theta-from-area",
+						"major-sector"
+					],
+					"name": "Fraction of the whole circle",
+					"about": "The sector is the fraction θ / 2π of the full area πr²."
+				},
+				{
+					"skill": "SL3.4.sector-area",
+					"method": "complement",
+					"suits": [
+						"major-sector"
+					],
+					"name": "Major sector by complement",
+					"about": "Major sector = πr² − minor sector, or use the reflex angle 2π − θ in ½r²θ."
+				},
+				{
+					"skill": "SL3.4.segment-shaded",
+					"method": "sector-minus-triangle",
+					"suits": [
+						"segments-theta"
+					],
+					"name": "Sector minus triangle",
+					"about": "Segment = ½r²θ − ½r² sin θ = ½r²(θ − sin θ)."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If you double the radius of a sector and keep its angle, its area doubles.",
+					"answer": "False: A = ½r²θ, so the area goes up four times. The arc is what doubles.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "An arc is shorter than the radius of its circle.",
+					"answer": "Sometimes: l = rθ, so it holds exactly when θ is less than 1 radian.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "What does 1 radian mean on a circle?",
+					"answer": "It is the angle at the centre where the arc is as long as the radius, because l = rθ gives l = r when θ = 1.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.4.convert#0",
+					"text": "Multiplying by 180/π when converting degrees to radians",
+					"as": "distractor",
+					"in": [
+						"deg-to-rad"
+					],
+					"wrong": "degrees × 180/π"
+				},
+				{
+					"ref": "SL3.4.convert#1",
+					"text": "Thinking π radians is 3.14° or that 1 radian is about 1°",
+					"as": "distractor",
+					"in": [
+						"rad-to-deg"
+					],
+					"wrong": "the size in radians written as degrees"
+				},
+				{
+					"ref": "SL3.4.convert#2",
+					"text": "Giving a decimal when an exact multiple of π is asked for",
+					"as": "distractor",
+					"in": [
+						"deg-to-rad"
+					],
+					"wrong": "the decimal in place of the multiple of π, on Paper 1"
+				},
+				{
+					"ref": "SL3.4.arc-length#0",
+					"text": "Using θ in degrees in l = rθ",
+					"as": "distractor",
+					"in": [
+						"arc-length",
+						"perimeter"
+					],
+					"wrong": "r × the angle in degrees"
+				},
+				{
+					"ref": "SL3.4.arc-length#1",
+					"text": "Forgetting the two radii when finding the perimeter of a sector",
+					"as": "distractor",
+					"in": [
+						"perimeter",
+						"r-from-perimeter",
+						"theta-from-perimeter"
+					],
+					"wrong": "the arc alone taken as the perimeter"
+				},
+				{
+					"ref": "SL3.4.arc-length#2",
+					"text": "Using the minor-arc angle when the major arc is asked for",
+					"as": "distractor",
+					"in": [
+						"major-arc"
+					],
+					"wrong": "the minor arc rθ"
+				},
+				{
+					"ref": "SL3.4.sector-area#0",
+					"text": "Using θ in degrees in ½r²θ",
+					"as": "distractor",
+					"in": [
+						"sector-area"
+					],
+					"wrong": "½r² × the angle in degrees"
+				},
+				{
+					"ref": "SL3.4.sector-area#1",
+					"text": "Squaring θ instead of r: ½rθ²",
+					"as": "distractor",
+					"in": [
+						"sector-area"
+					],
+					"wrong": "½rθ²"
+				},
+				{
+					"ref": "SL3.4.sector-area#2",
+					"text": "Giving the minor sector when the major sector is asked for",
+					"as": "distractor",
+					"in": [
+						"major-sector",
+						"major-from-perimeter"
+					],
+					"wrong": "the minor sector ½r²θ"
+				},
+				{
+					"ref": "SL3.4.segment-shaded#0",
+					"text": "Calculator in degree mode when evaluating sin θ for θ in radians",
+					"as": "distractor",
+					"in": [
+						"segments-theta"
+					],
+					"wrong": "the root of the same equation with sin θ taken in degrees"
+				}
+			],
+			"chain": [
+				"see whether the angle is in radians, and convert it if it isn't",
+				"l = rθ for the arc, A = ½r²θ for the area",
+				"add the two radii for a perimeter",
+				"rearrange to work back to r or θ, taking the square root for r from an area",
+				"take the reflex angle or the rest of the circle for a major sector"
+			],
 			"frequency": 16,
 			"marks": 3,
 			"section": {
@@ -20654,9 +22003,7 @@
 			"paper": {
 				"p1": 9,
 				"p2": 7
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-exact-values",
@@ -20843,6 +22190,442 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Sampling methods and bias",
+			"summary": "A population in groups and a surveyor's method, in a story or a table: name the technique, give a disadvantage, describe a systematic sample, find its interval or a later pick, choose the best technique, fill groups in proportion, and judge bias and reliability: who is left out, which way an estimate leans, what would fix it, and what a larger sample can't do.",
+			"situation": "sampling",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a camp of farmers and guards, and what a surveyor did"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "each group's size, with the sample's numbers beside them"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "name-technique",
+					"given": [
+						"the population",
+						"the surveyor's method"
+					],
+					"asked": "the sampling technique",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "technique-disadvantage",
+					"given": [
+						"the population",
+						"the surveyor's method"
+					],
+					"asked": "a disadvantage of this method",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "describe-systematic",
+					"given": [
+						"the population",
+						"the sample size or percentage"
+					],
+					"asked": "how to take a systematic sample",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "systematic-interval",
+					"given": [
+						"the size of the list",
+						"the sample size or percentage"
+					],
+					"asked": "the interval",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "systematic-member",
+					"given": [
+						"the start and the interval"
+					],
+					"asked": "the number of a later pick",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "best-technique",
+					"given": [
+						"what the survey needs",
+						"whether there is a list"
+					],
+					"asked": "the technique that fits best",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "is-it-random",
+					"given": [
+						"the surveyor's method"
+					],
+					"asked": "whether it is a simple random sample",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "quota-number",
+					"given": [
+						"the group sizes",
+						"the sample size"
+					],
+					"asked": "a group's number in a sample in proportion",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.1.sampling-technique"
+					]
+				},
+				{
+					"id": "fair-share",
+					"given": [
+						"the group sizes",
+						"the sample's numbers"
+					],
+					"asked": "how far a group falls short of its share",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "under-represented",
+					"given": [
+						"the group sizes",
+						"the sample's numbers"
+					],
+					"asked": "the most under-represented group",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "why-biased",
+					"given": [
+						"the population",
+						"a sample from one group"
+					],
+					"asked": "why it may not represent the population",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "bias-direction",
+					"given": [
+						"a sample from an untypical place"
+					],
+					"asked": "which way the estimate leans",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "better-method",
+					"given": [
+						"the population",
+						"a sample from one group"
+					],
+					"asked": "the change that would fix it",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.sampling-technique",
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "bigger-sample",
+					"given": [
+						"a biased sample",
+						"a plan to ask more"
+					],
+					"asked": "whether that removes the bias",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "random-not-perfect",
+					"given": [
+						"the population",
+						"a random sample that misses the mix"
+					],
+					"asked": "what that shows",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "improve-reliability",
+					"given": [
+						"a small random sample whose result keeps changing"
+					],
+					"asked": "what would make it more reliable",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				},
+				{
+					"id": "source-reliability",
+					"given": [
+						"a figure and where it comes from"
+					],
+					"asked": "why it may not be reliable",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.bias-reliability"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.1.sampling-technique",
+					"method": "feature-checklist",
+					"suits": [
+						"name-technique",
+						"describe-systematic",
+						"systematic-interval",
+						"systematic-member",
+						"best-technique",
+						"is-it-random",
+						"quota-number"
+					],
+					"name": "Run the feature checklist",
+					"about": "Ask in turn: is there a fixed interval (systematic)? Are groups filled in proportion (stratified if chosen randomly within each group, quota if not)? Does everyone have an equal chance (simple random)? Is it just whoever is easiest to reach (convenience)?"
+				},
+				{
+					"skill": "SL4.1.sampling-technique",
+					"method": "eliminate-by-flaw",
+					"suits": [
+						"name-technique",
+						"technique-disadvantage",
+						"best-technique",
+						"is-it-random"
+					],
+					"name": "Eliminate by what could go wrong",
+					"about": "Look at who could never be chosen or who is over-represented, and rule out the techniques that would not have that flaw."
+				},
+				{
+					"skill": "SL4.1.bias-reliability",
+					"method": "who-is-missing",
+					"suits": [
+						"why-biased",
+						"bias-direction",
+						"better-method",
+						"bigger-sample",
+						"improve-reliability",
+						"source-reliability"
+					],
+					"name": "Who is left out or over-represented?",
+					"about": "Picture the whole population, name the group the method cannot reach (or reaches too often), and say which way that would push the results."
+				},
+				{
+					"skill": "SL4.1.bias-reliability",
+					"method": "compare-proportions",
+					"suits": [
+						"fair-share",
+						"under-represented",
+						"why-biased",
+						"bigger-sample",
+						"random-not-perfect",
+						"improve-reliability"
+					],
+					"name": "Compare the sample's make-up with the population's",
+					"about": "Compare the proportion of each group in the sample with the proportion in the population; a large mismatch signals bias."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A quota sample and a stratified sample of the same size contain the same numbers from each group, so they are the same method.",
+					"answer": "False: the numbers match, but a stratified sample draws at random inside each group, and a quota sample takes whoever comes by until each group is full.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "A larger sample gets rid of bias.",
+					"answer": "Never by itself: more people from the same biased method makes the result steadier, not fairer. Only changing who can be chosen removes the bias.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If a sample is random, its mix of groups matches the population.",
+					"answer": "False: a random method gives everyone a fair chance, but chance can still move any one sample away from the true mix.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.1.sampling-technique#0",
+					"text": "Quota sampling and stratified sampling are the same (quota fills each group without random selection)",
+					"as": "distractor",
+					"in": [
+						"name-technique",
+						"best-technique"
+					],
+					"wrong": "the other of the two techniques"
+				},
+				{
+					"ref": "SL4.1.sampling-technique#1",
+					"text": "Systematic sampling is fully random (only the starting point is random; the rest follows the interval)",
+					"as": "distractor",
+					"in": [
+						"name-technique",
+						"best-technique",
+						"describe-systematic",
+						"is-it-random"
+					],
+					"wrong": "simple random for a fixed interval, or a free draw offered as systematic"
+				},
+				{
+					"ref": "SL4.1.sampling-technique#2",
+					"text": "Stopping people in the street is simple random sampling",
+					"as": "distractor",
+					"in": [
+						"name-technique",
+						"is-it-random",
+						"better-method"
+					],
+					"wrong": "simple random for whoever comes by"
+				},
+				{
+					"ref": "SL4.1.bias-reliability#0",
+					"text": "A larger sample removes bias (it improves reliability, but a biased method stays biased)",
+					"as": "distractor",
+					"in": [
+						"why-biased",
+						"bias-direction",
+						"better-method",
+						"bigger-sample",
+						"source-reliability"
+					],
+					"wrong": "more people from the same method called a fix"
+				},
+				{
+					"ref": "SL4.1.bias-reliability#1",
+					"text": "A random sample is always perfectly representative",
+					"as": "distractor",
+					"in": [
+						"why-biased",
+						"bias-direction",
+						"better-method",
+						"random-not-perfect",
+						"improve-reliability",
+						"under-represented"
+					],
+					"wrong": "a random draw called exact or sure to match"
+				}
+			],
+			"chain": [
+				"read who the conclusion is about and how people were chosen",
+				"run the checklist: a fixed interval, groups filled in proportion, an equal chance, or whoever is easiest",
+				"name who is left out or over-represented, and compare the sample's make-up with the population's",
+				"say what would go wrong and what would fix it"
+			],
 			"frequency": 4,
 			"marks": 2,
 			"section": {
@@ -20852,9 +22635,7 @@
 			"paper": {
 				"p1": 3,
 				"p2": 1
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-outlier-rule",
@@ -20879,6 +22660,686 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Read and use a cumulative frequency graph",
+			"summary": "Grouped data as a cumulative frequency curve on a grid, or as a table of classes: read the median, quartiles, percentiles, IQR and range, count how many lie above, below or between values, find a cut-off, estimate by interpolating the table, and build the running totals from the frequencies and back, including which points are plotted.",
+			"situation": "cumulative-frequency",
+			"formats": [
+				"value",
+				"mcq",
+				"graph-pick"
+			],
+			"representations": [
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "a cumulative frequency curve on a grid fine enough to read, with its scale in words"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "classes as inequalities with frequencies, cumulative frequencies, or both"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "median-from-graph",
+					"given": [
+						"the curve"
+					],
+					"asked": "the median",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-quartiles"
+					]
+				},
+				{
+					"id": "quartile-from-graph",
+					"given": [
+						"the curve"
+					],
+					"asked": "a quartile",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-quartiles"
+					]
+				},
+				{
+					"id": "iqr-from-graph",
+					"given": [
+						"the curve"
+					],
+					"asked": "the interquartile range",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-quartiles"
+					]
+				},
+				{
+					"id": "percentile-from-graph",
+					"given": [
+						"the curve"
+					],
+					"asked": "a percentile",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-quartiles"
+					]
+				},
+				{
+					"id": "range-from-graph",
+					"given": [
+						"the curve"
+					],
+					"asked": "the range, from where the curve starts and ends",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-quartiles"
+					]
+				},
+				{
+					"id": "median-from-table",
+					"given": [
+						"a table of classes"
+					],
+					"asked": "the median, by interpolating",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-quartiles"
+					]
+				},
+				{
+					"id": "quartile-from-table",
+					"given": [
+						"a table of classes"
+					],
+					"asked": "a quartile, by interpolating",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-quartiles"
+					]
+				},
+				{
+					"id": "iqr-from-table",
+					"given": [
+						"a table of classes"
+					],
+					"asked": "the interquartile range, by interpolating",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-quartiles"
+					]
+				},
+				{
+					"id": "percentile-from-table",
+					"given": [
+						"a table of classes"
+					],
+					"asked": "a percentile, by interpolating",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-quartiles"
+					]
+				},
+				{
+					"id": "count-below",
+					"given": [
+						"the curve",
+						"a value"
+					],
+					"asked": "how many are at or below it",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "count-above",
+					"given": [
+						"the curve",
+						"a value"
+					],
+					"asked": "how many are above it",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "count-between",
+					"given": [
+						"the curve",
+						"two values"
+					],
+					"asked": "how many are between them",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "percent-above",
+					"given": [
+						"the curve",
+						"a value"
+					],
+					"asked": "the percentage above it",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "percentile-of-value",
+					"given": [
+						"the curve",
+						"a value"
+					],
+					"asked": "which percentile it is",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "cutoff-top",
+					"given": [
+						"the curve",
+						"how many are at the top"
+					],
+					"asked": "the lowest value at the top",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "cutoff-percent",
+					"given": [
+						"the curve",
+						"the percentage above k"
+					],
+					"asked": "k",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "share-of-limit",
+					"given": [
+						"the curve",
+						"a limit and a percentage of it"
+					],
+					"asked": "how many are above that",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "scale-to-population",
+					"given": [
+						"the curve of a sample",
+						"the size of the whole group"
+					],
+					"asked": "how many of the whole group are above a value",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "count-below-table",
+					"given": [
+						"a table of classes",
+						"a value inside a class"
+					],
+					"asked": "how many are at or below it, by interpolating",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "count-above-table",
+					"given": [
+						"a table of classes",
+						"a value inside a class"
+					],
+					"asked": "how many are above it, by interpolating",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "count-between-table",
+					"given": [
+						"a table of classes",
+						"two values inside classes"
+					],
+					"asked": "how many are between them, by interpolating",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "cutoff-table",
+					"given": [
+						"a table of classes",
+						"how many are at the top"
+					],
+					"asked": "the lowest value at the top, by interpolating",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-count"
+					]
+				},
+				{
+					"id": "cf-entry",
+					"given": [
+						"the frequencies and the totals so far"
+					],
+					"asked": "a cumulative frequency",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-build"
+					]
+				},
+				{
+					"id": "last-frequency",
+					"given": [
+						"the frequencies but one, and the last total"
+					],
+					"asked": "the missing frequency",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-build"
+					]
+				},
+				{
+					"id": "frequency-from-cf",
+					"given": [
+						"a table of running totals"
+					],
+					"asked": "a class's frequency",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-build"
+					]
+				},
+				{
+					"id": "frequency-from-graph",
+					"given": [
+						"the curve"
+					],
+					"asked": "a class's frequency",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-build"
+					]
+				},
+				{
+					"id": "p-q-from-graph",
+					"given": [
+						"the curve",
+						"a frequency table with p and q"
+					],
+					"asked": "p and q",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.cumfreq-build"
+					]
+				},
+				{
+					"id": "plot-point",
+					"given": [
+						"a table of classes"
+					],
+					"asked": "the point plotted for a class",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-build"
+					]
+				},
+				{
+					"id": "curve-start",
+					"given": [
+						"a table of classes"
+					],
+					"asked": "where the curve starts",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-build"
+					]
+				},
+				{
+					"id": "pick-curve",
+					"given": [
+						"a table of classes"
+					],
+					"asked": "which of four curves is right",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.cumfreq-build"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.2.cumfreq-quartiles",
+					"method": "across-and-down",
+					"suits": [
+						"median-from-graph",
+						"quartile-from-graph",
+						"iqr-from-graph",
+						"percentile-from-graph",
+						"range-from-graph"
+					],
+					"name": "Across from the cumulative frequency, down to the value",
+					"about": "Go across from n/2 (median), n/4 (Q1), 3n/4 (Q3) or k% of n (kth percentile) on the vertical axis to the curve, then down to read the data value."
+				},
+				{
+					"skill": "SL4.2.cumfreq-quartiles",
+					"method": "interpolate-table",
+					"suits": [
+						"median-from-table",
+						"quartile-from-table",
+						"iqr-from-table",
+						"percentile-from-table"
+					],
+					"name": "Interpolate within the cumulative frequency table",
+					"about": "Find the class containing the (n/2)th value and estimate how far through that class it lies, proportionally."
+				},
+				{
+					"skill": "SL4.2.cumfreq-count",
+					"method": "read-and-subtract",
+					"suits": [
+						"count-below",
+						"count-above",
+						"count-between",
+						"percent-above",
+						"percentile-of-value",
+						"cutoff-top",
+						"cutoff-percent",
+						"share-of-limit",
+						"scale-to-population"
+					],
+					"name": "Up to the curve, across, then subtract from n",
+					"about": "Go up from the value to the curve and across to read how many are at or below it; subtract from n for 'more than'. Reverse the route (across from n − 30, then down) to find a cut-off."
+				},
+				{
+					"skill": "SL4.2.cumfreq-count",
+					"method": "interpolate-table",
+					"suits": [
+						"count-below-table",
+						"count-above-table",
+						"count-between-table",
+						"cutoff-table"
+					],
+					"name": "Interpolate in the table",
+					"about": "With only a table, assume values are spread evenly through the class and take the matching fraction of that class's frequency."
+				},
+				{
+					"skill": "SL4.2.cumfreq-build",
+					"method": "running-total",
+					"suits": [
+						"cf-entry",
+						"last-frequency"
+					],
+					"name": "Running total",
+					"about": "Add each class frequency to the total so far; the last cumulative frequency must equal n."
+				},
+				{
+					"skill": "SL4.2.cumfreq-build",
+					"method": "difference-back",
+					"suits": [
+						"frequency-from-cf",
+						"frequency-from-graph",
+						"p-q-from-graph"
+					],
+					"name": "Subtract consecutive cumulative values",
+					"about": "Going backwards, the frequency of a class is its cumulative frequency minus the cumulative frequency before it."
+				},
+				{
+					"skill": "SL4.2.cumfreq-build",
+					"method": "plot-upper-bounds",
+					"suits": [
+						"plot-point",
+						"curve-start",
+						"pick-curve"
+					],
+					"name": "Plot at upper class boundaries",
+					"about": "Plot each cumulative frequency against the upper boundary of its class, start at zero on the lower boundary of the first class, and join with a smooth curve."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A cumulative frequency of 30 at x = 20 means that 30 values are equal to 20.",
+					"answer": "False: it is a running total, so 30 values are at or below 20.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The 90th percentile is read across from 90 on the vertical axis.",
+					"answer": "Sometimes: only when n is 100. Otherwise it is across from 90% of n.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "The curve is steepest between 20 and 30. What does that say about the data?",
+					"answer": "More values lie in that stretch than in any other of the same width: steep means many, flat means few.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.2.cumfreq-quartiles#0",
+					"text": "Reading the median halfway along the horizontal axis instead of from n/2 on the vertical axis",
+					"as": "distractor",
+					"in": [
+						"median-from-graph",
+						"median-from-table"
+					],
+					"wrong": "the middle of the axis"
+				},
+				{
+					"ref": "SL4.2.cumfreq-quartiles#1",
+					"text": "Finding Q3 − Q1 on the cumulative frequency axis instead of on the data axis",
+					"as": "distractor",
+					"in": [
+						"iqr-from-graph",
+						"iqr-from-table"
+					],
+					"wrong": "3n/4 − n/4 = n/2"
+				},
+				{
+					"ref": "SL4.2.cumfreq-quartiles#2",
+					"text": "Reading the 90th percentile from 90 on the vertical axis when n is not 100",
+					"as": "distractor",
+					"in": [
+						"percentile-from-graph",
+						"percentile-from-table"
+					],
+					"wrong": "the value at k on the vertical axis"
+				},
+				{
+					"ref": "SL4.2.cumfreq-count#0",
+					"text": "Giving the cumulative frequency at 65 as the number who scored more than 65 (it is the number at or below)",
+					"as": "distractor",
+					"in": [
+						"count-above",
+						"percent-above",
+						"share-of-limit",
+						"scale-to-population",
+						"count-above-table"
+					],
+					"wrong": "the reading itself, without subtracting from n"
+				},
+				{
+					"ref": "SL4.2.cumfreq-count#1",
+					"text": "For the top 30, reading across from 30 on the vertical axis instead of from n − 30",
+					"as": "distractor",
+					"in": [
+						"cutoff-top",
+						"cutoff-percent",
+						"cutoff-table"
+					],
+					"wrong": "the value at t on the vertical axis, not at n − t"
+				},
+				{
+					"ref": "SL4.2.cumfreq-build#0",
+					"text": "Plotting cumulative frequencies at class midpoints instead of upper boundaries",
+					"as": "distractor",
+					"in": [
+						"plot-point",
+						"pick-curve"
+					],
+					"wrong": "the point at the middle of the class"
+				},
+				{
+					"ref": "SL4.2.cumfreq-build#1",
+					"text": "Reading a cumulative frequency as the frequency of that single class",
+					"as": "distractor",
+					"in": [
+						"cf-entry",
+						"frequency-from-cf",
+						"frequency-from-graph",
+						"p-q-from-graph",
+						"plot-point",
+						"pick-curve"
+					],
+					"wrong": "the running total for the frequency, or the frequency for the running total"
+				}
+			],
+			"chain": [
+				"find the height on the vertical axis: n/2, n/4, 3n/4, k% of n, or n minus the top",
+				"go across to the curve and down to the value, or up from a value and across",
+				"subtract from n for 'more than', or two readings for 'between'",
+				"with only a table, take each class as evenly spread and interpolate",
+				"keep a running total, or subtract consecutive totals, to move between frequencies and cumulative frequencies"
+			],
 			"frequency": 6,
 			"marks": 3,
 			"section": {
@@ -20888,9 +23349,7 @@
 			"paper": {
 				"p1": 6,
 				"p2": 0
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-box-plot",

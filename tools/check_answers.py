@@ -14387,7 +14387,7 @@ def sd_x_measures(q):
 # game/engine/situations/standard_form.gd. Numbers are read back from the question's text as exact
 # Rationals, so a power of ten never has to fit a float, and each answer is normalised again here.
 
-SF_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+SF_EDGE = sp.Rational(59, 1000)         # the engine's is 0.06
 SF_C = "SL1.1.convert#"
 SF_M = "SL1.1.multiply-divide#"
 SF_X = "SL1.1.context#"
@@ -14641,7 +14641,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
                     "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
-                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings}
+                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings,
                     "solid": check_solid, "standard-form": check_standard_form}
 
 

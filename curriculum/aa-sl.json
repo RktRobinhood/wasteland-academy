@@ -7519,7 +7519,7 @@
                   "id": "booklet-formula",
                   "approach": "formula",
                   "name": "Substitute into the booklet formula",
-                  "summary": "Choose V = ⅓Bh, ⅓πr²h, (4/3)πr³ or (2/3)πr³ for a hemisphere and substitute."
+                  "summary": "Choose V = (1/3)Bh, (1/3)πr²h, (4/3)πr³ or (2/3)πr³ for a hemisphere and substitute."
                 },
                 {
                   "id": "decompose",
@@ -7531,7 +7531,7 @@
                   "id": "height-by-pythagoras",
                   "approach": "geometric",
                   "name": "Find the perpendicular height first",
-                  "summary": "When only a slant height or slant edge is given, use a right triangle through the apex to get h before using ⅓Bh."
+                  "summary": "When only a slant height or slant edge is given, use a right triangle through the apex to get h before using 1/3Bh."
                 },
                 {
                   "id": "rearrange",
@@ -7547,14 +7547,14 @@
                 }
               ],
               "misconceptions": [
-                "Using the slant height instead of the perpendicular height in V = ⅓πr²h",
-                "Forgetting the ⅓ for a cone or pyramid, or using (4/3)πr³ for a hemisphere",
+                "Using the slant height instead of the perpendicular height in V = (1/3)πr²h",
+                "Forgetting the 1/3 for a cone or pyramid, or using (4/3)πr³ for a hemisphere",
                 "Using the diameter as the radius"
               ],
               "threads": [
                 {
                   "thread": "accumulation",
-                  "echo": "A cone is a stack of thin circular discs shrinking to a point; adding up all those slices is where the ⅓ comes from, the same 'add up small pieces' idea as integration."
+                  "echo": "A cone is a stack of thin circular discs shrinking to a point; adding up all those slices is where the 1/3 comes from, the same 'add up small pieces' idea as integration."
                 }
               ]
             },

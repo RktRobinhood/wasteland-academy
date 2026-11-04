@@ -230,8 +230,7 @@ func _to_form(rep: String, s: Dictionary, big: bool) -> Dictionary:
 	var round_it: Array = ["To 3 s.f., a = %s." % Fmt.sf(a)] if s.paper == 2 else []
 	out.methods = {"place-shift": method([moved(s, big), "Each place %s k by 1, so k = %s." % ["left raises" if big else "right lowers", N(k)]] + round_it + tail, ans.values),
 		"factor-powers": method(["%s = %s × %s" % [number, Fmt.dec(a), ten(k)]] + round_it + tail, ans.values)}
-	if s.paper == 2:
-		out.methods["gdc-sci"] = method(["In SCI mode the GDC shows %s." % display(a, k), "The display is not a final answer: write it as a × 10^k."] + tail, ans.values)
+	out.methods["gdc-sci"] = method(["In SCI mode the GDC shows %s." % display(a, k), "The display is not a final answer: write it as a × 10^k."] + tail, ans.values)
 	return out
 
 
@@ -352,11 +351,15 @@ static func tidy(v: Q, e: int, r: Q, k: int) -> Array:
 	return [] if v.eq(r) and e == k else ["%s × %s = %s × %s, so that 1 ≤ a < 10" % [Fmt.dec(v), ten(e), Fmt.dec(r), ten(k)]]
 
 
-## Adds the GDC's working, on Paper 2.
+## Adds the GDC's working. The GDC cells are Paper 2, but every suited method has its working.
 static func gdc(out: Dictionary, s: Dictionary, entry: String) -> void:
-	if s.paper == 2:
-		out.methods["gdc-ee"] = method(["Enter %s with the EE key, in brackets." % entry, "The GDC shows %s." % display(s.r, s.k),
-			"Write the display as a × 10^k, to 3 s.f.", say(out.answer)], out.answer.values)
+	out.methods["gdc-ee"] = method(["Enter %s with the EE key, in brackets." % entry, "The GDC shows %s." % display(s.r, s.k),
+		"Write the display as a × 10^k" + (", to 3 s.f." if s.paper == 2 else "."), say(out.answer)], out.answer.values)
+
+
+## The answer as an ordinary number. A Paper 2 answer needn't end, so it is cut to 5 s.f.
+static func whole(s: Dictionary) -> String:
+	return plain(s.r if s.paper == 1 else Answer.parse_number(Fmt.sf(s.r, 5)).q, s.k)
 
 
 func _times(_rep: String, s: Dictionary) -> Dictionary:
@@ -378,8 +381,7 @@ func _times(_rep: String, s: Dictionary) -> Dictionary:
 	var group := ["(%s × %s) × (%s × %s) = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), ten(s.m), ten(s.n), Fmt.dec(v), ten(e)]]
 	out.methods = {"group-and-index": method(["Multiply the a-values and add the powers of ten."] + group + tidy_sf(s, v, e) + [say(ans)], ans.values)}
 	gdc(out, s, "(%s) × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
-	if s.paper == 1:
-		out.methods["ordinary-numbers"] = method(["%s × %s = %s" % [plain(s.a, s.m), plain(s.b, s.n), plain(s.r, s.k)], say(ans)], ans.values)
+	out.methods["ordinary-numbers"] = method(["%s × %s = %s" % [plain(s.a, s.m), plain(s.b, s.n), whole(s)], say(ans)], ans.values)
 	return out
 
 
@@ -398,8 +400,7 @@ func _over(_rep: String, s: Dictionary) -> Dictionary:
 	var group := "(%s ÷ %s) × 10^(%s − %s) = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), N(s.m), P(s.n), written(v, s.paper == 2, 5), ten(e)]
 	out.methods = {"group-and-index": method(["Divide the a-values and subtract the powers of ten.", group] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
 	gdc(out, s, "(%s) ÷ (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
-	if s.paper == 1:
-		out.methods["ordinary-numbers"] = method(["%s ÷ %s = %s" % [plain(s.a, s.m), plain(s.b, s.n), plain(s.r, s.k)], say(ans)], ans.values)
+	out.methods["ordinary-numbers"] = method(["%s ÷ %s = %s" % [plain(s.a, s.m), plain(s.b, s.n), whole(s)], say(ans)], ans.values)
 	return out
 
 
@@ -434,7 +435,10 @@ static func slips(s: Dictionary, ans: Dictionary, v: Q, e: int, rng: Seeded) -> 
 	if s.paper == 1:
 		return []
 	var pair := StandardFormSituation.norm(v, e)
-	var list: Array = options(ans, [[pair[0], pair[1], R_EARLY]]) + [raw(s)]
+	var list: Array = [raw(s)]
+	# Early figures that land on the answer are no slip: typed, they would be marked right.
+	if pair[1] != s.k or not Answer.number_right(pair[0], s.r):
+		list += options(ans, [[pair[0], pair[1], R_EARLY]])
 	return rng.shuffled(list)
 
 
