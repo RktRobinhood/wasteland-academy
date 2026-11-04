@@ -13495,6 +13495,124 @@ def rl_on_eq_close(F):
     return lambda p: abs(g(p[0], p[1])) < 1e-6
 
 
+# ── fn-pre-substitute (FAL-424) ──────────────────────────────
+# The expression and the input are read from the text the student sees. The clean limits are
+# the checker's own copy (SB_*).
+
+SB_T = "fn-pre-substitute"
+SB_R = {i: f"{SB_T}#{i}" for i in range(4)}
+SB_MAX_D = 16
+SB_FRACTIONS = {sp.Rational(*p) for p in [(1, 2), (-1, 2), (1, 3), (3, 2), (1, 4), (2, 3)]}
+
+
+def sb_read(q):
+    """(expression text, the input) from the view's representation."""
+    rep, L, asked = q["view"]["rep"], q["lines"], q["asked"]
+    if rep == "words":
+        m = re.fullmatch(r"Find the value of (.+) when x = (\S+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        return m.group(1), R(m.group(2).replace("−", "-"))
+    if rep == "table":
+        need(L[0].startswith("y = "), "no rule above the table")
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "y" and len(rows[0][1]) == 5 == len(rows[1][1]), "the table's shape")
+        need(rows[1][1].count("?") == 1, "not one missing entry")
+        i = rows[1][1].index("?")
+        f = bf_expr(L[0][4:])
+        for xs, ys in zip(rows[0][1], rows[1][1]):
+            if ys != "?":
+                need(f.subs(X, R(xs.replace("−", "-"))) == R(ys.replace("−", "-")), f"the table's y at {xs} is {ys}")
+        return L[0][4:], R(rows[0][1][i].replace("−", "-"))
+    need(L[1].startswith("x = "), "no input")
+    return L[0], R(L[1][4:].replace("−", "-"))
+
+
+def sb_ltr(part, x0):
+    """A fraction's top or bottom worked left to right, where order matters: None for 'x + 2'."""
+    m = re.fullmatch(r"(\d+) ([+−]) (\d*)x", part)
+    if not m:
+        return None
+    c, mult = int(m.group(1)), int(m.group(3) or 1)
+    return (c + (mult if m.group(2) == "+" else -mult)) * x0
+
+
+def sb_parts(text):
+    m = re.fullmatch(r"\((.+)\)/\((.+)\)", text)
+    need(m is not None, f"not a fraction: {text!r}")
+    return m.group(1), m.group(2)
+
+
+def check_substitute(q):
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    need(q["paper"] == 1, "prior learning is Paper 1")
+    bf_no_hyphens(q)
+    wr = {}
+    if u == "missing-input":
+        text, v = (q["lines"][0].split(" = ") if rep == "equation" else re.fullmatch(r"The expression (.+) has the value (\S+)\. Find x\.", q["asked"]).groups())
+        f = bf_expr(text)
+        need(sp.degree(f, X) == 1, "not linear")
+        sols = sp.solve(f - R(v.replace("−", "-")), X)
+        need(len(sols) == 1 and sols[0].q == 1 and sols[0] != 0, f"x = {sols}")
+        want = f"x = {frac_text(sols[0])}"
+    else:
+        text, x0 = sb_read(q)
+        f = bf_expr(text)
+        val = f.subs(X, x0)
+        need(val.is_Rational, f"the value {val} is not exact")
+        need(val.q <= SB_MAX_D, f"the value {val} is not simple")
+        if u == "fraction-input":
+            need(x0 in SB_FRACTIONS, f"the input {x0} is not a simple fraction")
+        else:
+            need(x0.q == 1 and -5 <= x0 <= 5 and x0 != 0, f"the input {x0}")
+        want = frac_text(val)
+        if u in ("negative-into-square", "negative-into-linear"):
+            need(x0 < 0, "the input is not negative")
+        if u == "negative-into-square":
+            a, b, c = [sp.Poly(f, X).coeff_monomial(X**i) for i in (2, 1, 0)]
+            need(a != 0, "no x²")
+            wr = {SB_R[0]: {frac_text(-a * x0**2 + b * x0 + c)}}
+        elif u == "negative-into-linear":
+            wr = {SB_R[2]: {frac_text(f.subs(X, -x0))}}
+        elif u == "coefficient-and-power":
+            a = sp.Poly(f, X).coeff_monomial(X**2)
+            need(f == a * X**2, "not ax²")
+            wr = {SB_R[1]: {frac_text((a * x0)**2)}, SB_R[0]: {frac_text(-val)}}
+        elif u == "rational-expression":
+            top, bottom = sb_parts(text)
+            ft, fb = bf_expr(top).subs(X, x0), bf_expr(bottom).subs(X, x0)
+            lt, lb = sb_ltr(top, x0), sb_ltr(bottom, x0)
+            need((lt is None) != (lb is None), "exactly one part should depend on the order")
+            wr = {SB_R[3]: {frac_text(lt / fb if lt is not None else ft / lb)}}
+    gc_check_common(q, want, wr)
+    for o in q["choices"]:
+        need(o["correct"] or R(o["text"].replace("x = ", "").replace("−", "-")) != R(want.replace("x = ", "").replace("−", "-")), "a wrong option equals the answer")
+    return None, None
+
+
+def sb_spot(q, lines):
+    """The first false line of a student's working on a fraction."""
+    text, x0 = sb_read(q)
+    top, bottom = sb_parts(text)
+    ft, fb = bf_expr(top).subs(X, x0), bf_expr(bottom).subs(X, x0)
+    got = {"Top": ft, "Bottom": fb}
+    for i, line in enumerate(lines):
+        if line.startswith("Put x = "):
+            m = re.fullmatch(r"Put x = (\S+) in: top (.+), bottom (.+)", line)
+            need(m is not None, f"can't read {line!r}")
+            if R(m.group(1).replace("−", "-")) != x0 or parse(m.group(2)) != ft or parse(m.group(3)) != fb:
+                return i
+        elif line.startswith("So the value is "):
+            if R(line[16:].replace("−", "-")) != ft / fb:
+                return i
+        else:
+            head = line.split(":")[0]
+            need(head in got, f"can't read {line!r}")
+            if R(line.rsplit(" = ", 1)[1].replace("−", "-")) != got[head]:
+                return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-substitute"] = sb_spot
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -13519,7 +13637,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
-                    "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation}
+                    "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation, "fn-pre-substitute": check_substitute}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

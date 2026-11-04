@@ -101,6 +101,7 @@ static var SITUATIONS := {
 	"basic-restricted": [BasicRestrictedSituation, BasicRestrictedViews],
 	"basic-one-to-one": [BasicOneToOneSituation, BasicOneToOneViews],
 	"basic-relation": [BasicRelationSituation, BasicRelationViews],
+	"fn-pre-substitute": [SubstituteSituation, SubstituteViews],
 }
 
 static var _cat: Dictionary = {}
