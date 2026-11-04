@@ -15,6 +15,8 @@ extends Control
 ## Column width in base units: phone (portrait) and PC (landscape).
 const COLUMN := 1000
 const COLUMN_WIDE := 1500
+## Wider than this, a word-choice answer wraps. Fits the fight's framed card on a phone.
+const PICK_WIDE := 900
 ## The answer keys (Keypad.ANSWER_KEYS): the calculator shares them (FAL-419).
 const KEYS := Keypad.ANSWER_KEYS
 
@@ -305,7 +307,13 @@ func _table(t: Dictionary) -> Control:
 			cell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			grid.add_child(cell)
 	box.add_child(grid)
-	return box
+	# A wide table scrolls sideways by itself, so it can't push the card off a phone.
+	var wrap := ScrollContainer.new()
+	wrap.name = "TableScroll"
+	wrap.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	wrap.add_child(box)
+	return wrap
 
 
 ## The answer as slots: text with boxes to type numbers in and buttons for words.
@@ -347,6 +355,14 @@ func _add_slots() -> void:
 				buttons.append(b)
 			_pick_buttons[item.pick] = buttons
 	card.add_child(flow)
+	# A long answer wraps on a line of its own, not off the side of a phone. Measured
+	# here, in the card, where the buttons have their font.
+	for buttons in _pick_buttons.values():
+		for b: Button in buttons:
+			if b.get_combined_minimum_size().x > PICK_WIDE:
+				b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+				b.custom_minimum_size.x = PICK_WIDE
 	if not _slots.is_empty():
 		card.add_child(_keypad())
 		_focus = _slots.values()[0]
