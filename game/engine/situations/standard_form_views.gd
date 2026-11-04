@@ -90,7 +90,9 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	# A rounded a: the trap writes it to 2 s.f.
 	if out.answer.kind == "form" and not out.answer.exact and Answer.needs_rounding(out.answer.values.a):
 		var two: Q = Answer.parse_number(Fmt.sf(out.answer.values.a, 2)).q
-		out.trap = form_ans(two, s.k, true, _head(out.answer), _tail(out.answer), 2).values
+		# 5.2 for 5.2013 is right to 3 s.f., so it is no trap.
+		if not Answer.number_right(two, out.answer.values.a):
+			out.trap = form_ans(two, s.k, true, _head(out.answer), _tail(out.answer), 2).values
 	return out
 
 
