@@ -37,6 +37,8 @@ extends RefCounted
 ##              for the Rational functions region (FAL-423) also xint (the x-intercept,
 ##              (x, 0)), and axis honours show and may carry var "" (the number alone, a
 ##              wrong option for an asymptote written as an equation);
+##              for the Lines region (FAL-424) also gline (ax + by + d = 0: a whole-number
+##              multiple of the line with a > 0 is right too);
 ##              for Topic 5 (FAL-723) also form: an expression written by its builder.
 ##              fixed.parts is the slot input, values.text the expression as it reads,
 ##              and a wrong option in another shape carries "shape" and is never typed
@@ -156,6 +158,8 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = [label if label != "" else "f′(x) = ", {"slot": "u2"}, "x² + ", {"slot": "u1"}, "x + ", {"slot": "u0"}]
 		"line":
 			t = ["y = ", {"slot": "m"}, "x + ", {"slot": "c"}]
+		"gline":
+			t = [{"slot": "a"}, "x + ", {"slot": "b"}, "y + ", {"slot": "d"}, " = 0"]
 		"tangent_read":
 			t = ["f′(%s) = " % Fmt.num(fixed.x0), {"slot": "m"}, ",  f(%s) = " % Fmt.num(fixed.x0), {"slot": "y"}]
 		"points2":
@@ -524,6 +528,8 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			if ans.get("show", "") == "sf":
 				return "y = " + sf_line(v.m, v.c)
 			return "y = " + Fmt.poly([v.m, v.c])
+		"gline":
+			return gline_text(v.a, v.b, v.d)
 		"tangent_read":
 			return "f′(%s) = %s,  f(%s) = %s" % [Fmt.num(fx.x0), Fmt.num(v.m), Fmt.num(fx.x0), Fmt.num(v.y)]
 		"points2":
@@ -635,6 +641,18 @@ static func xs_of(xs: Array) -> Dictionary:
 	for i in xs.size():
 		out["x%d" % i] = xs[i]
 	return out
+
+
+## ax + by + d = 0 as a student writes it: "2x − 3y + 6 = 0", "x + 2y = 0" when d is 0.
+static func gline_text(a: Variant, b: Variant, d: Variant) -> String:
+	var out := ""
+	if not Q.of(a).is_zero():
+		out = Fmt.term(Q.of(a), 1, true)
+	if not Q.of(b).is_zero():
+		out += Fmt.term(Q.of(b), 1, out == "", "y")
+	if not Q.of(d).is_zero():
+		out += Fmt.term(Q.of(d), 0, out == "")
+	return out + " = 0"
 
 
 ## mx + c with both numbers to 3 s.f. (a Paper 2 line): "2.31x − 0.552", "−4.70x".
@@ -992,6 +1010,15 @@ static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = fals
 		var want := lnq_value(ans.values.m, ans.values.r)
 		var have := lnq_value(got.get("m", Q.new(0)), got.get("r", Q.new(0))) if got.get("m") is Q and got.get("r") is Q else NAN
 		return is_finite(have) and absf(have - want) <= 1e-9 * maxf(1.0, absf(want))
+	if ans.kind == "gline":
+		# Any whole-number multiple of the line with a > 0 is that line (FAL-424).
+		for id in ["a", "b", "d"]:
+			if not got.get(id) is Q or not got[id].is_int():
+				return false
+		if got.a.sign() != ans.values.a.sign() or got.a.is_zero():
+			return false
+		var scale: Q = got.a.div(ans.values.a)
+		return got.b.eq(ans.values.b.mul(scale)) and got.d.eq(ans.values.d.mul(scale))
 	if ans.kind == "points2" and not got.is_empty():
 		var swapped := {"x1": got.get("x2"), "y1": got.get("y2"), "x2": got.get("x1"), "y2": got.get("y1")}
 		var plain := ans.duplicate()
