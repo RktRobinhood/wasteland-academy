@@ -25,6 +25,7 @@ together (FAL-722). A shard that is missing or there twice is a failure.
 """
 
 import json
+import math
 import re
 import sys
 from collections import defaultdict
@@ -14619,6 +14620,789 @@ def sig_v2(x):
     return sp.Rational(sig3(x, 2))
 
 
+# ── Exact trig (t3-exact-values, t3-identity-values, t3-trig-equation, FAL-727) ──
+# Exact values as the game writes them, read back and worked out again with SymPy from what the
+# question shows. An angle in the export is the multiple of π.
+
+TR_FN = {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan}
+
+
+def tr_read(text):
+    """A value as the game writes it: "−√3/2", "(1 + √3)/2", "5√2/2", "7/2"."""
+    t = text.strip().replace("−", "-")
+    t = re.sub(r"(\d)√(\d+)", r"\1*sqrt(\2)", t)
+    t = re.sub(r"√(\d+)", r"sqrt(\1)", t)
+    return sp.sympify(t, rational=True)
+
+
+def tr_text(v):
+    """The checker's own writing of a + b√r, with the root on top."""
+    v = sp.nsimplify(sp.radsimp(sp.expand(sp.simplify(v))))
+    a, b, r = sp.Integer(0), sp.Integer(0), None
+    for term in sp.Add.make_args(sp.expand(v)):
+        if term.is_Rational:
+            a += term
+            continue
+        c, rest = term.as_coeff_Mul()
+        need(rest.is_Pow and rest.exp == sp.Rational(1, 2) and rest.base.is_Integer, f"{v} is not a + b√r")
+        need(r is None or r == rest.base, f"{v} has two surds")
+        b, r = c, rest.base
+    if b == 0:
+        return frac_text(a)
+    d = sp.ilcm(a.q, b.q)
+    ai, bi = int(a * d), int(b * d)
+    unit = lambda n: ("" if n == 1 else str(n)) + f"√{r}"
+    if ai == 0:
+        return ("−" if bi < 0 else "") + unit(abs(bi)) + ("" if d == 1 else f"/{d}")
+    two = f"{frac_text(sp.Integer(ai))} {'+' if bi > 0 else '−'} {unit(abs(bi))}"
+    return two if d == 1 else f"({two})/{d}"
+
+
+def tr_angle(t, form="pi"):
+    t = R(t)
+    if form == "deg":
+        return dec_text(t * 180) + "°"
+    return as_pi(t) if t != 0 else "0"
+
+
+def tr_call(fn, t, form="pi"):
+    return f"{fn} {tr_angle(t, form)}" if form == "deg" else f"{fn}({tr_angle(t, form)})"
+
+
+def tr_of(fn, t):
+    return TR_FN[fn](R(t) * sp.pi)
+
+
+def tr_hyphens(q):
+    for tx in [q["asked"]] + q["lines"] + [str(st) for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+
+
+def tr_common(q, label, v, wrongs, tail="", steps=(2, 10), read=None):
+    """The answer is label + the value + tail. Every option is checked by value too, so a wrong
+    option can't be the right value written another way."""
+    want = label + tr_text(v) + tail
+    tr_hyphens(q)
+    gc_check_common(q, want, {k: {label + tr_text(w) + tail for w in vs} for k, vs in wrongs.items()}, steps=steps)
+    for o in q["choices"]:
+        body = o["text"]
+        need(body.startswith(label) and body.endswith(tail), f"option {body!r} has another shape")
+        x = tr_read(body[len(label):len(body) - len(tail) if tail else None])
+        need(sp.simplify(x - v) == 0 if o["correct"] else sp.simplify(x - v) != 0, f"option {body!r} has the wrong value")
+
+
+def tr_claim(q, right, wrongs, steps=(2, 6)):
+    tr_hyphens(q)
+    gc_check_common(q, right, wrongs, steps=steps)
+
+
+TR_ROUND = {sp.Rational(*p) for p in [(2, 3), (3, 4), (5, 6), (7, 6), (5, 4), (4, 3), (5, 3), (7, 4), (11, 6)]}
+TR_FAR = {sp.Rational(*p) for p in [(-1, 6), (-1, 4), (-1, 3), (-2, 3), (-3, 4), (-5, 6), (13, 6), (9, 4), (7, 3)]}
+TR_ACUTE = {sp.Rational(1, 6), sp.Rational(1, 4), sp.Rational(1, 3)}
+TR_SPECIAL = TR_ACUTE | {sp.Integer(0), sp.Rational(1, 2)}
+
+
+def tr_quadrant(t):
+    return int(sp.floor((R(t) % 2) * 2)) + 1
+
+
+def tr_ref(t):
+    """The angle to the nearest x-axis, worked from the unit circle's own folds."""
+    u = R(t) % 2
+    u = u if u <= 1 else u - 1
+    return min(u, 1 - u)
+
+
+def check_exact_trig(q):
+    g, u, rep, L, asked = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 1, "every exact value is Paper 1")
+    SW, TS, SF = "SL3.5.exact-special#0", "SL3.5.exact-special#1", "SL3.5.exact-special#2"
+    SG, YA, NG = "SL3.5.related-angles#0", "SL3.5.related-angles#1", "SL3.5.related-angles#2"
+    CO, CK, TZ = "SL3.5.unit-circle#0", "SL3.5.unit-circle#1", "SL3.5.unit-circle#2"
+
+    def first_wrongs(fn, t, k=1):
+        w = {}
+        t = R(t)
+        if fn != "tan" and t in (sp.Rational(1, 6), sp.Rational(1, 3)):
+            w[SW] = [k * tr_of("cos" if fn == "sin" else "sin", t)]
+        if fn == "tan" and t == sp.Rational(1, 6):
+            w[TS] = [k * sp.sqrt(3)]
+        if fn != "tan" and t == sp.Rational(1, 4):
+            w[SF] = [k * sp.Rational(1, 2)]
+        return w
+
+    if u == "special-value":
+        fn, t = g["fn"], R(g["t"])
+        need(t in (TR_ACUTE if rep == "diagram" else TR_SPECIAL), f"{t} is no landmark")
+        need(not (fn == "tan" and t == sp.Rational(1, 2)), "tan(π/2) has no value")
+        name = tr_call(fn, t, g["form"])
+        v = tr_of(fn, t)
+        need(g["form"] == "pi" or rep == "equation", "degrees are in the written form")
+        if rep == "diagram":
+            d = q["diagram"]
+            need(abs(math.atan2(d["vertices"]["C"][1], d["vertices"]["B"][0]) - float(t) * math.pi) < 1e-6, "the triangle has another angle")
+            need(d["vertices"]["B"][1] == 0 and abs(d["vertices"]["C"][0] - d["vertices"]["B"][0]) < 1e-9, "the triangle isn't right-angled at B")
+            labels = {sd["side"]: sd["label"] for sd in d["sides"]}
+            a, b, c = tr_read(labels["a"]), tr_read(labels["b"]), tr_read(labels["c"])
+            need(sp.simplify(a / c - sp.tan(t * sp.pi)) == 0 and sp.simplify(a**2 + c**2 - b**2) == 0, "the sides don't fit the angle")
+            tr_common(q, f"{fn} θ = ", v, first_wrongs(fn, t))
+            return None, None
+        if rep == "table":
+            rows = dict((r[0], r[1]) for r in q["table"]["rows"])
+            need(rows["θ"] == ["0", "π/6", "π/4", "π/3", "π/2"], "the table's heads are wrong")
+            need(rows[f"{fn} θ"][rows["θ"].index(tr_angle(t))] == "?", "the asked cell is not marked")
+            for f, cells in rows.items():
+                if f != "θ" and f != f"{fn} θ":
+                    for h, c in zip(["0", "1/6", "1/4", "1/3", "1/2"], cells):
+                        need(c == tr_text(tr_of(f[:3], h)), f"the table's {f} at {h}π is wrong")
+        need(name in asked or rep == "table", f"the question doesn't ask {name}")
+        tr_common(q, name + " = ", v, first_wrongs(fn, t))
+    elif u == "scaled-value":
+        fn, t, k = g["fn"], R(g["t"]), R(g["k"])
+        need(t in TR_ACUTE and 2 <= k <= 12, "out of range")
+        v = k * tr_of(fn, t)
+        ang = tr_angle(t)
+        if rep == "equation":
+            need(L == [f"f(x) = {k} {fn} x"] and asked == f"Find the exact value of f({ang}).", f"can't read {L}")
+            tr_common(q, f"f({ang}) = ", v, first_wrongs(fn, t, k))
+        else:
+            need(f"h = {k} {fn} θ metres" in L[0] and asked.endswith(f"θ = {ang}."), f"can't read {L}")
+            tr_common(q, "h = ", v, first_wrongs(fn, t, k), " m")
+    elif u == "special-sum":
+        fn, t, fn2, t2, plus, first = g["fn"], R(g["t"]), g["fn2"], R(g["t2"]), g["plus"], R(g["first"])
+        sg = 1 if plus else -1
+        v = first * tr_of(fn, t)**2 + sg * tr_of(fn2, t2)
+        need(L == [f"{'' if first == 1 else first}{fn}²({tr_angle(t)}) {'+' if plus else '−'} {tr_call(fn2, t2)}"], f"can't read {L}")
+        w = {}
+        if fn != "tan" and t == sp.Rational(1, 4):
+            w[SF] = [first * sp.Rational(1, 4) + sg * tr_of(fn2, t2)]
+        tr_common(q, "", v, w)
+    elif u == "related-value":
+        fn, t = g["fn"], R(g["t"])
+        need(t in (TR_ROUND if rep == "graph" else TR_ROUND | TR_FAR), f"{t} is out of range")
+        name = tr_call(fn, t)
+        need(name in asked, f"the question doesn't ask {name}")
+        v = tr_of(fn, t)
+        w = {SG: [-v]}
+        if t < 0:
+            w[NG] = [tr_of(fn, -t)]
+        r = tr_ref(t)
+        need(sp.simplify(abs(v) - tr_of(fn, r)) == 0, "the reference angle doesn't give the size")
+        if r != sp.Rational(1, 4):
+            w[YA] = [sp.sign(v) * tr_of(fn, sp.Rational(1, 2) - r)]
+        if rep == "diagram":
+            p = q["graph"]["points"][0]
+            need(abs(p["x"] - math.cos(float(t) * math.pi)) < 1e-9 and abs(p["y"] - math.sin(float(t) * math.pi)) < 1e-9, "P is drawn at another angle")
+        elif rep == "graph":
+            p = q["graph"]["points"][0]
+            need(abs(p["x"] - float(t) * math.pi) < 1e-9 and abs(p["y"] - float(v)) < 1e-9, "P is drawn in another place")
+            pts = q["graph"]["curves"][0]
+            f = math.sin if fn == "sin" else math.cos
+            need(all(abs(y - f(x)) < 1e-9 for x, y in pts), "the curve is another function")
+        tr_common(q, name + " = ", v, w)
+    elif u == "related-sum":
+        fn, t, fn2, t2 = g["fn"], R(g["t"]), g["fn2"], R(g["t2"])
+        need(t in TR_ROUND and t2 in TR_ROUND and t != t2, "out of range")
+        need(L == [f"{tr_call(fn, t)} + {tr_call(fn2, t2)}"], f"can't read {L}")
+        a, b = tr_of(fn, t), tr_of(fn2, t2)
+        tr_common(q, "", a + b, {SG: [b - a]}, steps=(2, 10))
+    elif u == "given-related":
+        gv = sp.Rational(R(g["g"]), R(g["n"]))
+        need(0 < gv < 1, "the given ratio is out of range")
+        # A numeric acute angle stands in for θ: the sign must hold at any acute θ.
+        fn, rule = g["fn"], g["rule"]
+        if rep == "diagram":
+            need(L[1] == f"sin CAD = {frac_text(gv)}", f"can't read {L}")
+            th = q["graph"]["theta"]
+            need(abs(math.sin(th) - float(gv)) < 1e-9 and th < math.pi / 2, "the figure has another angle")
+            tr_common(q, "sin CAB = ", gv, {SG: [-gv]})
+        else:
+            need(L == [f"{fn} θ = {frac_text(gv)}, where θ is acute."], f"can't read {L}")
+            ang = {"pi-minus": lambda x: sp.pi - x, "pi-plus": lambda x: sp.pi + x, "minus": lambda x: -x}[rule]
+            name = {"pi-minus": "π − θ", "pi-plus": "π + θ", "minus": "−θ"}[rule]
+            x = sp.Symbol("x", positive=True)
+            sign = sp.simplify(TR_FN[fn](ang(x)) / TR_FN[fn](x))
+            need(sign in (1, -1), f"{fn} at {name} is no multiple of {fn} θ")
+            tr_common(q, f"{fn}({name}) = ", sign * gv, {SG: [-sign * gv]})
+    elif u == "point-at-angle":
+        t = R(g["t"])
+        x, y = tr_of("cos", t), tr_of("sin", t)
+        need(tr_angle(t) in L[0], f"can't read {L}")
+        want = f"P = ({tr_text(x)}, {tr_text(y)})"
+        pw = {CO: {f"P = ({tr_text(y)}, {tr_text(x)})"}, CK: {f"P = ({tr_text(x)}, {tr_text(-y)})"}}
+        tr_hyphens(q)
+        gc_check_common(q, want, pw)
+    elif u in ("ratio-from-point", "tan-from-point"):
+        x, y = R(g["x"]), R(g["y"])
+        need(x**2 + y**2 == 1, "the point is not on the unit circle")
+        need(f"({frac_text(x)}, {frac_text(y)})" in L[0], f"can't read {L}")
+        if u == "ratio-from-point":
+            fn = g["fn"]
+            tr_common(q, f"{fn} θ = ", y if fn == "sin" else x, {CO: [x if fn == "sin" else y]})
+        else:
+            tr_common(q, "tan θ = ", y / x, {CO: [x / y]})
+    elif u == "sign-in-quadrant":
+        qd, fn, fn2 = g["q"], g["fn"], g["fn2"]
+        th = sp.pi * sp.Rational(2 * qd - 1, 4)
+        need(["0 < θ < π/2", "π/2 < θ < π", "π < θ < 3π/2", "3π/2 < θ < 2π"][qd - 1] in L[0], f"can't read {L}")
+        text = lambda s1, s2: f"{fn} θ {'>' if s1 > 0 else '<'} 0 and {fn2} θ {'>' if s2 > 0 else '<'} 0"
+        a, b = TR_FN[fn](th), TR_FN[fn2](th)
+        ma, mb = TR_FN[fn](-th), TR_FN[fn2](-th)
+        tr_claim(q, text(a, b), {CK: {text(ma, mb)}})
+    elif u == "tan-undefined":
+        t = R(g["t"])
+        need(sp.cos(t * sp.pi) == 0, "tan has a value there")
+        at = tr_angle(t)
+        need(asked == f"Why does tan({at}) have no value?", asked)
+        tr_claim(q, f"cos({at}) = 0, so sin ÷ cos divides by zero",
+                 {TZ: {f"tan({at}) = 0, because the angle is on an axis", f"tan({at}) = 1, because sin and cos are equal there"}})
+    else:
+        need(False, f"no check for {u}")
+    return None, None
+
+
+def tr_mid(qd):
+    """An angle in quadrant qd, to read signs from."""
+    return sp.pi * sp.Rational(2 * qd - 1, 4)
+
+
+def check_trig_identity(q):
+    g, u, rep, L, asked = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == 1, "every identity question is Paper 1")
+    SG, DS, RT = "SL3.6.ratio-from-ratio#0", "SL3.6.ratio-from-ratio#1", "SL3.6.ratio-from-ratio#2"
+    S2, C2, LS = "SL3.6.double-angle-values#0", "SL3.6.double-angle-values#1", "SL3.6.double-angle-values#2"
+    EX, PR = "SL3.6.simplify#0", "SL3.6.simplify#1"
+
+    def theta():
+        """sin θ and cos θ from the shown ratio and quadrant alone."""
+        qd = g["q"]
+        size = sp.sqrt(R(g["top"])) / R(g["n"])
+        need(size < 1, "the given ratio is out of range")
+        mid = tr_mid(qd)
+        rest = sp.sqrt(1 - size**2)
+        if g["fn"] == "sin":
+            sv, cv = sp.sign(sp.sin(mid)) * size, sp.sign(sp.cos(mid)) * rest
+            shown = sv
+        else:
+            cv, sv = sp.sign(sp.cos(mid)) * size, sp.sign(sp.sin(mid)) * rest
+            shown = cv
+        tr_given(f"{g['fn']} θ = {tr_text(shown)}", qd, sv, cv)
+        return sv, cv
+
+    def tr_given(head, qd, sv, cv):
+        if rep == "diagram":
+            need(L[0].startswith(head + ". The point P"), f"can't read {L}")
+            p = q["graph"]["points"][0]
+            need(abs(p["x"] - float(cv)) < 1e-9 and abs(p["y"] - float(sv)) < 1e-9, "P is drawn in another place")
+            need(q["graph"]["quadrant"] == qd, "another quadrant is shaded")
+        else:
+            need(L == [f"{head} and {['0 < θ < π/2', 'π/2 < θ < π', 'π < θ < 3π/2', '3π/2 < θ < 2π'][qd - 1]}."], f"can't read {L}")
+
+    if u == "cos-from-sin":
+        sv, cv = theta()
+        tr_common(q, "cos θ = ", cv, {SG: [-cv], DS: [1 - sv]})
+    elif u == "sin-from-cos":
+        sv, cv = theta()
+        tr_common(q, "sin θ = ", sv, {SG: [-sv], RT: [sp.sign(sv) * (1 - abs(cv))]})
+    elif u == "tan-from-ratio":
+        sv, cv = theta()
+        tr_common(q, "tan θ = ", sv / cv, {SG: [-sv / cv]})
+    elif u == "cos-from-tan":
+        qd = g["q"]
+        t = sp.sign(sp.tan(tr_mid(qd))) * sp.Rational(g["rise"], g["run"])
+        cv = sp.sign(sp.cos(tr_mid(qd))) / sp.sqrt(1 + t**2)
+        tr_given(f"tan θ = {frac_text(t)}", qd, t * cv, cv)
+        tr_common(q, "cos θ = ", cv, {SG: [-cv]})
+    elif u == "sin2-from-ratio":
+        sv, cv = theta()
+        w = {S2: [2 * sv]}
+        if cv < 0:
+            w[LS] = [2 * sv * abs(cv)]
+        tr_common(q, "sin 2θ = ", 2 * sv * cv, w)
+    elif u == "cos2-from-sin":
+        sv, cv = theta()
+        tr_common(q, "cos 2θ = ", cv**2 - sv**2, {C2: [1 - sv**2, 2 * cv]})
+    elif u == "cos2-from-cos":
+        sv, cv = theta()
+        tr_common(q, "cos 2θ = ", cv**2 - sv**2, {C2: [2 * cv]})
+    elif u == "cos-from-cos2":
+        if rep == "diagram":
+            a, b, c = R(g["a"]), R(g["b"]), R(g["c"])
+            need(L == [f"In triangle ABC, AB = {c} cm, AC = {b} cm, BC = {a} cm and angle BAC = 2θ."], f"can't read {L}")
+            need(a < b + c and b < a + c and c < a + b, "no such triangle")
+            k = (b**2 + c**2 - a**2) / (2 * b * c)
+            v = q["diagram"]["vertices"]
+            need(abs(math.hypot(v["C"][0] - v["B"][0], v["C"][1] - v["B"][1]) - float(a)) < 1e-6, "the figure has another side")
+        else:
+            k = R(g["cos2"])
+            need(L == [f"cos 2θ = {frac_text(k)} and 0 < θ < π/2."], f"can't read {L}")
+        need(-1 < k < 1 and k != 0, "out of range")
+        tr_common(q, "cos θ = ", sp.sqrt((1 + k) / 2), {C2: [k / 2]})
+    elif u == "rewrite-in-sin":
+        base, dbl, p, m, k = g["base"], g["src"] == "double", R(g["p"]), R(g["m"]), R(g["k"])
+        x, y = sp.Symbol("x"), sp.Symbol("y")
+        other = "cos" if base == "sin" else "sin"
+        lead = f"{p} cos 2x" if dbl else f"{p} {other}²x"
+        need(L[0].startswith(lead), f"can't read {L}")
+        expr = p * (sp.cos(2 * x) if dbl else TR_FN[other](x)**2) + m * TR_FN[base](x) + k
+        # The coefficients of the quadratic in u = sin x or cos x, from three values of x.
+        a_, b_, c_ = sp.symbols("a_ b_ c_")
+        eqs = [sp.Eq(a_ * TR_FN[base](t)**2 + b_ * TR_FN[base](t) + c_, expr.subs(x, t)) for t in (sp.pi / 6, sp.pi / 2, -sp.pi / 2, 0, sp.pi / 3)]
+        sol = sp.solve(eqs[:3] if base == "sin" else [eqs[3], sp.Eq(a_ - b_ + c_, expr.subs(x, sp.pi)), eqs[4]], [a_, b_, c_])
+        for e in eqs:
+            need(sp.simplify(e.lhs.subs(sol) - e.rhs) == 0, "no quadratic fits")
+        co = [int(sol[a_]), int(sol[b_]), int(sol[c_])]
+        text = lambda c: tr_quad(c, base)
+        w = {}
+        if dbl:
+            w[C2] = {text([int(-p), int(m), int(p + k)] if base == "sin" else [int(p), int(m), int(k)])}
+        tr_hyphens(q)
+        gc_check_common(q, text(co), w, steps=(2, 10))
+    elif u == "single-cos":
+        k, w_ = int(g["k"]), int(g["w"])
+        inner = "" if w_ == 1 else str(w_)
+        x = sp.Symbol("x")
+        if g["from"] == "sin":
+            need(L == [f"{k} − {2 * k} sin²{inner}x"], f"can't read {L}")
+            e = k - 2 * k * sp.sin(w_ * x)**2
+        else:
+            need(L == [f"{2 * k} cos²{inner}x − {k}"], f"can't read {L}")
+            e = 2 * k * sp.cos(w_ * x)**2 - k
+        need(sp.simplify(e - k * sp.cos(2 * w_ * x)) == 0, "the identity fails")
+        tr_hyphens(q)
+        gc_check_common(q, f"{k} cos {2 * w_}x".replace("1 cos", "cos") if k > 1 else f"cos {2 * w_}x", {}, steps=(2, 10))
+    elif u == "product-sine":
+        k, w_ = int(g["k"]), int(g["w"])
+        inner = "" if w_ == 1 else str(w_)
+        need(L == [f"{2 * k} sin {inner}x cos {inner}x"], f"can't read {L}")
+        x = sp.Symbol("x")
+        need(sp.simplify(2 * k * sp.sin(w_ * x) * sp.cos(w_ * x) - k * sp.sin(2 * w_ * x)) == 0, "the identity fails")
+        tr_hyphens(q)
+        gc_check_common(q, f"{k} sin {2 * w_}x" if k > 1 else f"sin {2 * w_}x", {PR: {f"{2 * k} sin {2 * w_}x"}}, steps=(2, 10))
+    elif u == "expand-square":
+        k, minus = int(g["k"]), g["minus"]
+        need(L == [f"{'' if k == 1 else k}(sin x {'−' if minus else '+'} cos x)²"], f"can't read {L}")
+        x = sp.Symbol("x")
+        b = -k if minus else k
+        need(sp.simplify(k * (sp.sin(x) + (-1 if minus else 1) * sp.cos(x))**2 - (k + b * sp.sin(2 * x))) == 0, "the identity fails")
+        tr_hyphens(q)
+        gc_check_common(q, f"{k} {'−' if minus else '+'} {'' if k == 1 else str(k) + ' '}sin 2x", {EX: {str(k)}}, steps=(2, 10))
+    elif u == "max-after-rewrite":
+        k, w_, d = int(g["k"]), int(g["w"]), int(g["d"])
+        x = sp.Symbol("x")
+        top = sp.maximum(k * sp.sin(2 * w_ * x) + d, x, sp.Interval(0, sp.pi))
+        tr_hyphens(q)
+        gc_check_common(q, f"maximum = {frac_text(top)}", {PR: {f"maximum = {frac_text(2 * k + d)}"}}, steps=(2, 10))
+    else:
+        need(False, f"no check for {u}")
+    return None, None
+
+
+def tr_quad(c, fn):
+    def term(v, body, first):
+        size = "" if abs(v) == 1 else f"{abs(v)} "
+        if first:
+            return ("−" if v < 0 else "") + size + body
+        return f" {'+' if v > 0 else '−'} {size}{body}"
+    out = term(c[0], f"{fn}²x", True)
+    if c[1]:
+        out += term(c[1], f"{fn} x", False)
+    if c[2]:
+        out += f" {'+' if c[2] > 0 else '−'} {abs(c[2])}"
+    return out
+
+
+TQ_NS = {"pi": math.pi, "sqrt": math.sqrt}
+
+
+def tq_python(text):
+    """A side of an equation as the game writes it, as Python: the checker reads what is shown."""
+    t = text.replace("−", "-").replace("π", "pi").replace("θ", "x").replace("°", "")
+    t = re.sub(r"√(\d+)", r"sqrt(\1)", t)
+    t = re.sub(r"(sin|cos|tan)²x", r"\1(x)**2", t)
+    t = re.sub(r"(sin|cos|tan) (\d*)x", lambda m: f"{m.group(1)}({m.group(2) + '*' if m.group(2) else ''}x)", t)
+    t = re.sub(r"(\d)(x|pi)", r"\1*\2", t)
+    t = re.sub(r"(\d|\))\s*(sin|cos|tan|sqrt)", r"\1*\2", t)
+    t = t.replace(")(", ")*(")
+    return t
+
+
+def tq_function(line, deg):
+    """f(x) = left − right, from the shown equation, in radians or degrees."""
+    left, right = [tq_python(p.strip()) for p in line.split(" = ")]
+    ns = dict(TQ_NS)
+    k = math.pi / 180 if deg else 1.0
+    ns["sin"], ns["cos"], ns["tan"] = (lambda u: math.sin(u * k)), (lambda u: math.cos(u * k)), (lambda u: math.tan(u * k))
+    code = compile(f"({left}) - ({right})", "shown", "eval")
+    return lambda x: eval(code, ns, {"x": x})
+
+
+def tq_roots(f, lo, hi, open_hi, deg, step):
+    """Every root of f on the interval: on a grid of the angles that can come out exactly, and
+    any sign change between those that isn't one of them is a failure."""
+    n = round((hi - lo) / step)
+    roots = []
+    grid = [lo + i * step for i in range(n + 1)]
+    for x in grid:
+        if abs(f(x)) < 1e-9 and not (open_hi and x == grid[-1]):
+            roots.append(x)
+    fine = 900
+    last = None
+    limit = 1e6
+    for i in range(fine + 1):
+        x = lo + (hi - lo) * (i + 0.37) / (fine + 1)
+        y = f(x)
+        if last is not None and last * y < 0 and abs(y) < limit and abs(last) < limit and abs(y - last) < 3:
+            need(any(abs(r - x) < 2 * (hi - lo) / fine for r in roots), f"the equation has a root near {x}")
+        last = y
+    return roots
+
+
+def tq_names(roots, deg):
+    if deg:
+        return [dec_text(sp.Rational(round(x * 2), 2)) + "°" for x in roots]
+    names = []
+    for x in roots:
+        m = sp.Rational(round(x / math.pi * 144), 144)
+        need(abs(float(m) * math.pi - x) < 1e-9, f"{x} is no multiple of π")
+        names.append(tr_angle(m))
+    return names
+
+
+def tq_list(names):
+    if not names:
+        return None
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def tq_solve(fn, k, b, phi, lo, hi, open_hi=False, deg=False):
+    """fn(bx + φ) = k on an interval given in the unit of x, the checker's own sweep."""
+    u = 180.0 if deg else math.pi
+    step = 2.5 if deg else math.pi / 144
+    g = {"sin": math.sin, "cos": math.cos, "tan": math.tan}[fn]
+    pi_ = math.pi
+    f = (lambda x: g(b * x * (pi_ / 180) + phi * pi_) - k) if deg else (lambda x: g(b * x + phi * pi_) - k)
+    n = round((hi - lo) / step)
+    out = []
+    for i in range(n + 1):
+        x = lo + i * step
+        if abs(f(x)) < 1e-9 and not (open_hi and i == n):
+            out.append(x)
+    return tq_names(out, deg)
+
+
+def check_trig_equation(q):
+    g, u, rep, L, asked = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    need(q["paper"] == (2 if u in ("basic-decimal", "compound-decimal") else 1), f"paper {q['paper']} for {u}")
+    tr_hyphens(q)
+    B0, B1, B2 = "SL3.8.solve-basic#0", "SL3.8.solve-basic#1", "SL3.8.solve-basic#2"
+    K0, K1, K2 = "SL3.8.compound-angle#0", "SL3.8.compound-angle#1", "SL3.8.compound-angle#2"
+    F0, F1, F2 = "SL3.8.factorise-not-divide#0", "SL3.8.factorise-not-divide#1", "SL3.8.factorise-not-divide#2"
+    Q1 = "SL3.8.quadratic-in-trig#1"
+    deg = g["form"] == "deg"
+    if u == "factor-reject":
+        m = R(g["m"])
+        side = {1: "sin θ cos θ", -1: "−sin θ cos θ"}.get(m, f"{frac_text(m)} sin θ cos θ")
+        need(L == [f"sin²θ = {side}, for 0 < θ < π"], f"can't read {L}")
+        f = tq_function(L[0].split(",")[0], False)
+        t = math.atan2(float(m), 1.0)
+        t = t if t > 0 else t + math.pi
+        need(abs(f(t)) < 1e-9, "tan θ doesn't solve the equation")
+        tr_common(q, "tan θ = ", m, {F1: [1 / m]})
+        return None, None
+    if u == "least-positive":
+        f = tq_function(L[0], False)
+        step = math.pi / 144
+        roots = tq_roots(f, step, 8 * math.pi, False, False, step)
+        need(len(roots) > 0, "no positive solution")
+        want = tq_list(tq_names(roots[:1], False))
+        phi, b = float(R(g["phi"])), float(R(g["b"]))
+        w = tq_solve(g["fn"], tr_val_float(g["k"]), b, -phi, step, 8 * math.pi)
+        gc_check_common(q, want, {K2: {tq_list(w[:1])}} if w else {}, steps=(2, 6))
+        return None, None
+    line = L[0]
+    mt = re.fullmatch(r"(.+), for (.+) ≤ x (≤|<) (.+)", line)
+    need(mt is not None, f"can't read {line!r}")
+    open_hi = mt.group(3) == "<"
+    read_end = lambda e: float(sp.sympify(tq_python(e), {"pi": sp.pi}))
+    lo, hi = read_end(mt.group(2)), read_end(mt.group(4))
+    need(lo == float(R(g["lo"]) * (180 if deg else sp.pi)) and hi == float(R(g["hi"]) * (180 if deg else sp.pi)), "the interval is another one")
+    f = tq_function(mt.group(1), deg)
+    if u in ("basic-decimal", "compound-decimal"):
+        fn, k, b = g["fn"], R(g["k"]), int(R(g["b"]))
+        ks = float(k)
+        mpmath.mp.dps = 30
+        need(abs(k) < 1 or fn == "tan", "k is out of range")
+        base = {"sin": [mpmath.asin(ks), mpmath.pi - mpmath.asin(ks)], "cos": [mpmath.acos(ks), -mpmath.acos(ks)], "tan": [mpmath.atan(ks)]}[fn]
+        period = mpmath.pi if fn == "tan" else 2 * mpmath.pi
+        xs = sorted({round(float((u0 + n * period) / b), 9) for u0 in base for n in range(-6, 12) if -1e-9 <= (u0 + n * period) / b <= hi + 1e-9})
+        need(all(abs(f(x)) < 1e-6 for x in xs), "the solutions don't solve the equation")
+        vals = [sp.Float(str(x), 12) for x in xs]
+        names = [gc_s(v) for v in vals]
+        want = "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+        w = {}
+        if u == "basic-decimal" and len(xs) > 1:
+            w[B0] = {f"x = {names[0]}"}
+        if u == "compound-decimal":
+            kept = [gc_s(v) for v, x in zip(vals, xs) if x * b <= hi + 1e-9]
+            if len(kept) < len(names):
+                w[K0] = {"x = " + (kept[0] if len(kept) == 1 else ", ".join(kept[:-1]) + " or " + kept[-1])}
+        gc_check_common(q, want, w, gc_trap(vals, gc_xs2(vals)), steps=(2, 6))
+        return None, None
+    step = 2.5 if deg else math.pi / 144
+    roots = tq_roots(f, lo, hi, open_hi, deg, step)
+    need(1 <= len(roots) <= 8, f"{len(roots)} solutions")
+    names = tq_names(roots, deg)
+    want = tq_list(names)
+    w = {}
+    fn = g["fn"]
+    b, phi = float(R(g["b"])), float(R(g["phi"]))
+    ks = tr_val_float(g["k"]) if "k" in g else None
+    sv = lambda fn_, k_, bb=1.0, ph=0.0: tq_solve(fn_, k_, bb, ph, lo, hi, open_hi, deg)
+    d = math.degrees if deg else (lambda v: v)
+    if u in ("basic-exact", "wide-interval", "basic-degrees"):
+        need(ks is not None and abs(ks) <= 2, "k is out of range")
+        al = {"sin": math.asin, "cos": math.acos, "tan": math.atan}[fn](ks)
+        if len(roots) > 1:
+            w[B0] = {tq_list(tq_names([d(al)], deg))}
+        if fn == "cos":
+            pair = sorted({round(v, 9) for v in (d(al), d(math.pi - al)) if lo - 1e-9 <= v <= hi + 1e-9})
+            if pair:
+                w[B1] = {tq_list(tq_names(pair, deg))}
+        if u == "wide-interval" and lo < 0:
+            pos = [r for r in roots if r >= -1e-9]
+            if pos:
+                w[B2] = {tq_list(tq_names(pos, deg))}
+    elif u in ("multiple-angle", "shifted-angle", "degree-compound"):
+        al = {"sin": math.asin, "cos": math.acos, "tan": math.atan}[fn](ks)
+        ph_x = phi * (180 if deg else math.pi)
+        if b > 1:
+            kept = [r for r in roots if b * r <= hi + 1e-9]
+            if kept and len(kept) < len(roots):
+                w[K0] = {tq_list(tq_names(kept, deg))}
+            w[K1] = {tq_list(tq_names([(d(al) - ph_x) / b], deg))}
+        if phi != 0:
+            alt = sv(fn, ks, b, -phi)
+            if alt:
+                w[K2] = {tq_list(alt)}
+    elif u == "tan-compound":
+        w[K1] = {tq_list(tq_names([math.atan(ks) / b], deg))}
+    elif u == "k-cos-to-tan":
+        w[F1] = {tq_list(sv("tan", 1 / ks))}
+    elif u == "double-equals-cos":
+        w[F0] = {tq_list(sv("sin", ks))}
+    elif u == "double-equals-sin":
+        w[F0] = {tq_list(sv("cos", ks))}
+        if abs(ks - 0.5) < 1e-9:
+            w[F2] = {"x = 0"}
+    elif u == "product-zero":
+        w[F0] = {tq_list(sv(g["f2"], ks))}
+    elif u == "squares-to-tan":
+        w[Q1] = {tq_list(sv("tan", ks))}
+    else:
+        need(False, f"no check for {u}")
+    gc_check_common(q, want, w, steps=(2, 7))
+    if rep == "graph" and u in ("basic-exact", "wide-interval", "multiple-angle", "shifted-angle"):
+        need(abs(q["graph"]["hlines"][0]["at"] - ks) < 1e-9, "the dashed line is at another height")
+    return None, None
+
+
+def tr_val_float(v):
+    """A value [a, b, r] of the export: a + b√r."""
+    return float(R(v[0])) + float(R(v[1])) * math.sqrt(float(v[2]))
+
+
+TM_CONTEXTS = [("D", "m", "hours"), ("T", "°C", "hours"), ("h", "m", "minutes"), ("L", "m", "days"), ("P", "kW", "minutes"), ("R", "m", "hours")]
+TM_P2_ONLY = ("sum-as-cos", "tan-two-points", "wheel-model", "c-from-crossing", "level-from-duration")
+
+
+def tm_f(v):
+    """An exact value as gc_s takes it."""
+    return v if isinstance(v, sp.Rational) else sp.Float(sp.N(v, 30), 30)
+
+
+def tm_named(pairs, sf=True):
+    return ", ".join(f"{n} = {gc_s(tm_f(v)) if sf else dec_text(v)}" for n, v in pairs)
+
+
+def tm_x(paper, v):
+    return as_pi(v) if paper == 1 else dec_text(v)
+
+
+def tm_wave(q):
+    """The wave's numbers from its turning points alone, and the figure held to them."""
+    g, rep, L, paper = q["given"], q["view"]["rep"], q["lines"], q["paper"]
+    top, low, xm, xn = R(g["top"]), R(g["low"]), R(g["xmax"]), R(g["xmin"])
+    need(top > low and xn > xm, "the turning points are in the wrong order")
+    a, d = (top - low) / 2, (top + low) / 2
+    per = 2 * (xn - xm)
+    if paper == 1:
+        need(a.q == 1 and d.q == 1, "a and d are not whole on Paper 1")
+        b = 1 / (per / 2)
+        need(b.q == 1, "b is not whole on Paper 1")
+        need(R(g["w"]) == b, "the given b is not the turning points' b")
+    else:
+        need(R(g["period"]) == per, "the given period is not the turning points' period")
+        b = 2 * sp.pi / per
+    tp = f"({tm_x(paper, xm)}, {dec_text(top)})"
+    bp = f"({tm_x(paper, xn)}, {dec_text(low)})"
+    if rep == "graph":
+        gr = q["graph"]
+        need([p["label"] for p in gr["points"]] == [f"max {tp}", f"min {bp}"], "the turning points are labelled wrongly")
+        s = math.pi if paper == 1 else 1.0
+        bf = float(b)
+        pts = gr["curves"][0]
+        for x, y in pts[::17]:
+            need(abs(y - (float(a) * math.cos(bf * (x - float(xm) * s)) + float(d))) < 1e-6, "the curve is another wave")
+    elif rep == "words":
+        c = TM_CONTEXTS[g["ctx"]]
+        need(L[1] == f"Its largest value is {dec_text(top)} {c[1]}, at t = {dec_text(xm)}, and its next smallest value is {dec_text(low)} {c[1]}, at t = {dec_text(xn)}.", f"can't read {L}")
+    else:
+        need(L[1] == f"A maximum is at {tp} and the next minimum at {bp}.", f"can't read {L}")
+    return a, b, d, xm, xn, per
+
+
+def tm_num(q, label, v, wrongs, steps=(2, 7)):
+    v = tm_f(v)
+    want = label + gc_s(v)
+    gc_check_common(q, want, {k: {label + gc_s(tm_f(w)) for w in vs} for k, vs in wrongs.items()}, gc_trap([v], label + gc_s2(v)), steps=steps)
+
+
+def tm_c_text(paper, v):
+    return "c = " + (as_pi(v) if paper == 1 else dec_text(v))
+
+
+def check_trig_model(q):
+    g, u, rep, L, asked, paper = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"], q["paper"]
+    need(paper == (1 if u == "q-from-minimum" else 2) if u == "q-from-minimum" or u in TM_P2_ONLY else paper in (1, 2), f"paper {paper} for {u}")
+    need(rep != "words" or paper == 2, "a story is Paper 2")
+    PG, NH, CS = "SL3.7.equation-from-graph#0", "SL3.7.equation-from-graph#1", "SL3.7.equation-from-graph#2"
+    SB, ST, RG = "SL3.7.transformations#0", "SL3.7.transformations#1", "SL3.7.transformations#2"
+    DG, PB = "SL3.7.model-context#0", "SL3.7.model-context#2"
+    tr_hyphens(q)
+    if u == "amp-axis":
+        a, b, d, *_ = tm_wave(q)
+        gc_check_common(q, tm_named([("a", a), ("d", d)], False), {NH: {tm_named([("a", 2 * a), ("d", d)], False)}})
+    elif u == "b-from-period":
+        a, b, d, xm, xn, per = tm_wave(q)
+        if paper == 1:
+            gc_check_common(q, f"b = {dec_text(b)}", {PG: {f"b = {dec_text(2 * b)}"}})
+        else:
+            tm_num(q, "b = ", b, {PG: [2 * b], PB: [per]})
+    elif u == "c-cos-from-max":
+        a, b, d, xm, xn, per = tm_wave(q)
+        need(0 < xm < per, "c is not the smallest positive")
+        gc_check_common(q, tm_c_text(paper, xm), {CS: {tm_c_text(paper, -xm)}})
+    elif u == "c-sine-shift":
+        a, b, d, xm, xn, per = tm_wave(q)
+        c = xm - per / 4
+        need(0 < c < per, "c is not the smallest positive")
+        gc_check_common(q, tm_c_text(paper, c), {CS: {tm_c_text(paper, -c)}})
+    elif u == "all-four":
+        a, b, d, xm, xn, per = tm_wave(q)
+        if paper == 1:
+            t = lambda a_, b_, c_, d_: f"a = {dec_text(a_)}, b = {dec_text(b_)}, c = {as_pi(c_)}, d = {dec_text(d_)}"
+        else:
+            t = lambda a_, b_, c_, d_: tm_named([("a", a_), ("b", b_), ("c", c_), ("d", d_)])
+        gc_check_common(q, t(a, b, xm, d), {NH: {t(2 * a, b, xm, d)}, PG: {t(a, 2 * b, xm, d)}, CS: {t(a, b, -xm, d)}}, steps=(2, 6))
+    elif u == "q-from-minimum":
+        p, m, phi, fn = R(g["p"]), R(g["m"]), R(g["phi"]), g["fn"]
+        need(L[0] == f"f(x) = {p} {fn}(x + {as_pi(phi)}) + q", f"can't read {L}")
+        qv = m + p
+        tr_common(q, "f(0) = ", p * tr_of(fn, phi) + qv, {NH: [p * tr_of(fn, phi) + m]})
+    elif u == "sum-as-cos":
+        p, q0, k = R(g["p"]), R(g["q0"]), R(g["k"])
+        ks = "" if k == 1 else str(k)
+        need(L[0] == f"g(x) = {p} sin {ks}x + {q0} cos {ks}x", f"can't read {L}")
+        x = sp.Symbol("x")
+        amp = sp.sqrt(p**2 + q0**2)
+        c = sp.atan2(p, q0) / k
+        need(sp.simplify(p * sp.sin(k * x) + q0 * sp.cos(k * x) - amp * sp.cos(k * (x - c))).equals(0) in (True, None), "the two forms differ")
+        for t_ in (0.3, 1.1):
+            need(abs(float(p) * math.sin(float(k) * t_) + float(q0) * math.cos(float(k) * t_) - float(amp) * math.cos(float(k) * (t_ - float(c)))) < 1e-9, "the two forms differ")
+        t = lambda a_, c_: tm_named([("a", a_), ("b", k), ("c", c_)])
+        gc_check_common(q, t(amp, c), {NH: {t(2 * amp, c)}, CS: {t(amp, -c)}}, steps=(2, 6))
+    elif u == "tan-two-points":
+        z, h, v = R(g["z"]), R(g["h"]), R(g["v"])
+        need(h < z / 2, "the point is past the asymptote")
+        b = sp.pi / z
+        a = v / sp.tan(b * h)
+        b2 = 2 * sp.pi / z
+        t = lambda a_, b_: tm_named([("a", a_), ("b", b_)])
+        gc_check_common(q, t(a, b), {PG: {t(v / sp.tan(b2 * h), b2)}}, steps=(2, 6))
+    elif u == "shift-from-bracket":
+        bw, phi, right = R(g["bw"]), R(g["phi"]), g["right"]
+        c = phi / bw if right else -phi / bw
+        phi_s = phi if right else -phi
+        need(f"{bw}x {'−' if right else '+'} {tm_x(paper, phi)}" in L[0], f"can't read {L}")
+        ct = lambda v: "c = " + tm_x(paper, v)
+        gc_check_common(q, ct(c), {SB: {ct(phi_s)}, RG: {ct(-c)}})
+    elif u == "image-equation":
+        amp, bw, lift, fn = int(g["amp"]), int(g["bw"]), int(g["lift"]), g["fn"]
+        need(L[0] == f"f(x) = {amp} {fn}({bw}x) {'+' if lift > 0 else '−'} {abs(lift)}", f"can't read {L}")
+        tail = lambda v: "" if v == 0 else f" {'+' if v > 0 else '−'} {abs(v)}"
+        if g["kind"] == "translate":
+            c, up = R(g["mv"]), int(g["up"])
+            need(f"({tm_x(paper, c)}, {frac_text(up)})" in L[1] or rep == "words", f"can't read {L}")
+            img = lambda v: f"g(x) = {amp} {fn}({bw}(x {'−' if v > 0 else '+'} {tm_x(paper, abs(v))})){tail(lift + up)}"
+            gc_check_common(q, img(c), {RG: {img(-c)}})
+        else:
+            sf = int(g["sf"])
+            d = sp.Rational(bw, sf)
+            dt = dec_text(d) if d.q == 1 else f"({frac_text(d)})"
+            gc_check_common(q, f"g(x) = {amp} {fn}({bw * sf}x){tail(lift)}", {ST: {f"g(x) = {amp} {fn}({dt}x){tail(lift)}"}})
+    elif u == "describe-transformations":
+        amp, bw, lift, fn, phi, right = int(g["amp"]), int(g["bw"]), int(g["lift"]), g["fn"], R(g["phi"]), g["right"]
+        need(L[0] == f"y = {amp} {fn}({bw}x {'−' if right else '+'} {tm_x(paper, phi)}) {'+' if lift > 0 else '−'} {abs(lift)}", f"can't read {L}")
+        c = phi / bw if right else -phi / bw
+        t = lambda sf, v: f"A vertical stretch with scale factor {amp}, a horizontal stretch with scale factor {sf}, then a translation by ({tm_x(paper, v)}, {frac_text(lift)})"
+        # The image of a test point under the right chain must be on the graph.
+        x0 = 0.4
+        f0 = {"sin": math.sin, "cos": math.cos}[fn]
+        s_ = math.pi if paper == 1 else 1.0
+        need(abs(amp * f0(x0) + lift - (amp * f0(bw * (x0 / bw + float(c) * s_) - (float(phi) * s_ if right else -float(phi) * s_)) + lift)) < 1e-9, "the chain is not the graph")
+        gc_check_common(q, t(f"1/{bw}", c), {SB: {t(f"1/{bw}", phi if right else -phi)}, ST: {t(str(bw), c)}, RG: {t(f"1/{bw}", -c)}})
+    elif u == "pq-from-translation":
+        amp, bw, up, fn, phi, right = int(g["amp"]), int(g["bw"]), int(g["up"]), g["fn"], R(g["phi"]), g["right"]
+        p = phi / bw if right else -phi / bw
+        t = lambda p_, q_: f"p = {tm_x(paper, p_)}, q = {frac_text(q_)}"
+        need(L[0] == f"f(x) = {amp} {fn}({bw}x)", f"can't read {L}")
+        gc_check_common(q, t(p, up), {SB: {t(phi if right else -phi, up)}, RG: {t(-p, up)}})
+    elif u == "wheel-model":
+        dia, base, per = R(g["dia"]), R(g["base"]), R(g["period"])
+        if rep == "words":
+            need(L[0] == f"A wheel of diameter {dia} m turns once every {dec_text(per)} minutes. Its lowest seat passes {base} m above the ground, and a seat starts at the lowest point at t = 0.", f"can't read {L}")
+        else:
+            pts = q["graph"]["points"]
+            need(abs(pts[0]["y"] - float(base)) < 1e-9 and abs(pts[1]["y"] - float(base + dia)) < 1e-9 and abs(pts[1]["x"] - float(per) / 2) < 1e-9, "the figure has other numbers")
+        a, b, d = -dia / 2, 2 * sp.pi / per, base + dia / 2
+        t = lambda b_: tm_named([("a", a), ("b", b_), ("d", d)])
+        gc_check_common(q, t(b), {PB: {t(per)}, PG: {t(2 * b)}})
+    elif u == "c-from-crossing":
+        top, low, t1, level, per = R(g["top"]), R(g["low"]), R(g["t1"]), R(g["level"]), R(g["period"])
+        a, d = (top - low) / 2, (top + low) / 2
+        with mpmath.workdps(40):
+            r = sp.Rational(level - d) / a
+            need(abs(r) < 1, "the level is out of range")
+            b = 2 * sp.pi / per
+            c = t1 - sp.asin(r) / b
+            cd = t1 - (sp.asin(r) * 180 / sp.pi) / b
+            need(abs(sp.N(a * sp.sin(b * (t1 - c)) + d - level)) < 1e-20, "the crossing is wrong")
+            need(sp.N(sp.cos(b * (t1 - c))) > 0, "the model is not rising there")
+            tm_num(q, "c = ", c, {DG: [cd]})
+    elif u == "level-from-duration":
+        top, low, width, per, xm = R(g["top"]), R(g["low"]), R(g["width"]), R(g["period"]), R(g["xmax"])
+        a, d = (top - low) / 2, (top + low) / 2
+        b = 2 * sp.pi / per
+        need(0 < width < per, "the time above k is out of range")
+        k = a * sp.cos(b * width / 2) + d
+        kd = a * sp.cos(b * width / 2 * sp.pi / 180) + d
+        tm_num(q, "k = ", k, {DG: [kd]})
+    else:
+        need(False, f"no check for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -14644,7 +15428,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
                     "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
-                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings,
+                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-model": check_trig_model,
                     "solid": check_solid, "standard-form": check_standard_form}
 
 

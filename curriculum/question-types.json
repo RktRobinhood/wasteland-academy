@@ -3470,6 +3470,186 @@
     "m and n are nonzero and different, and mn ≠ m + n, so multiplying the powers is a different answer",
     "the four numbers of order-mixed have different values"
    ]
+  },
+  "exact-trig": {
+   "name": "Landmark angles and the unit circle",
+   "summary": "Pick a landmark angle, in radians or degrees, or a point on the unit circle from a Pythagorean triple. Every ratio follows exactly, and a related angle or a sum of two ratios is built from it.",
+   "quantities": [
+    {
+     "name": "t",
+     "is": "the angle, as a multiple of π",
+     "pick": "a landmark: 0, π/6, π/4, π/3, π/2, or any multiple of π/6, π/4 or π/3 past them, negative or on the second turn"
+    },
+    {
+     "name": "form",
+     "is": "how the angle is written",
+     "pick": "pi or deg"
+    },
+    {
+     "name": "fn",
+     "is": "the ratio",
+     "pick": "sin, cos or tan"
+    },
+    {
+     "name": "k",
+     "is": "the number in front of the ratio",
+     "pick": "2 to 12"
+    },
+    {
+     "name": "fn2, t2",
+     "is": "the second term of a sum",
+     "pick": "any pair whose sum has at most one kind of surd"
+    },
+    {
+     "name": "g, n",
+     "is": "a given ratio g/n of an acute θ",
+     "pick": "a proper fraction with n from 3 to 8"
+    },
+    {
+     "name": "x, y",
+     "is": "a point on the unit circle",
+     "pick": "from the triples 3-4-5, 5-12-13, 8-15-17, 7-24-25, 20-21-29, in any quadrant"
+    },
+    {
+     "name": "q",
+     "is": "the quadrant",
+     "pick": "1 to 4"
+    }
+   ],
+   "clean": [
+    "every value is exact: a rational, m√r/d, or (a + m√r)/d",
+    "no question asks a tan that has no value, except the one that asks why",
+    "an angle in degrees is a landmark, on Paper 1"
+   ]
+  },
+  "trig-identity": {
+   "name": "One angle fixed by a ratio, or one expression to rewrite",
+   "summary": "Pick a ratio and a quadrant, and sin θ, cos θ, tan θ, sin 2θ and cos 2θ all follow exactly. Or pick the numbers of an expression, and an identity rewrites it.",
+   "quantities": [
+    {
+     "name": "fn, top, n",
+     "is": "the given ratio ±√top/n",
+     "pick": "from a list of rationals and surds whose partner is a clean surd"
+    },
+    {
+     "name": "q",
+     "is": "the quadrant of θ",
+     "pick": "1 to 4"
+    },
+    {
+     "name": "rise, run",
+     "is": "the given tan θ",
+     "pick": "whole numbers from 1 to 9 in lowest terms"
+    },
+    {
+     "name": "a, b, c",
+     "is": "a triangle's sides, with 2θ between b and c",
+     "pick": "whole numbers that make a triangle"
+    },
+    {
+     "name": "cos2",
+     "is": "cos 2θ, with θ acute",
+     "pick": "a fraction, or from the cosine rule"
+    },
+    {
+     "name": "p, m, k",
+     "is": "the numbers of p cos²x + m sin x + k",
+     "pick": "small whole numbers"
+    },
+    {
+     "name": "k, w",
+     "is": "the size and the inner multiple",
+     "pick": "k from 1 to 9, w from 1 to 3"
+    }
+   ],
+   "clean": [
+    "every value is exact, with one surd at most",
+    "the answer's sign comes from the quadrant",
+    "a rewritten expression has whole-number coefficients"
+   ]
+  },
+  "trig-equation": {
+   "name": "One trig equation on an interval",
+   "summary": "Pick the ratio, a landmark value k, the inner angle bx + φ and the interval. Every solution follows, as a multiple of π or in degrees. A factorised form or a rewrite to tan x is built from the same values.",
+   "quantities": [
+    {
+     "name": "fn, k",
+     "is": "the ratio and its value",
+     "pick": "a landmark value on Paper 1; a decimal on Paper 2"
+    },
+    {
+     "name": "b, phi",
+     "is": "the inner angle bx + φ",
+     "pick": "b from 1 to 4 or a half; φ a landmark, or a multiple of 5° in degrees"
+    },
+    {
+     "name": "lo, hi",
+     "is": "the interval",
+     "pick": "0 to π, 2π or 4π, or −π to π and the like"
+    },
+    {
+     "name": "form",
+     "is": "how angles are written",
+     "pick": "pi or deg"
+    },
+    {
+     "name": "m",
+     "is": "the number in a factorised equation, or the tan value",
+     "pick": "twice a landmark value"
+    }
+   ],
+   "clean": [
+    "Paper 1 has landmark values, so every solution is exact",
+    "Paper 2 is only where a decimal k needs a GDC",
+    "there are at most 8 solutions, and a compound equation has at least 2",
+    "a solution in degrees is a whole number"
+   ]
+  },
+  "trig-model": {
+   "name": "One wave and the model behind it",
+   "summary": "Pick the top and bottom of a wave and where it peaks. Half the range, the mean, the period and the shift all follow, whichever of them is hidden. On Paper 1 the across axis is in multiples of π; on Paper 2 it is a story in hours, minutes or days.",
+   "quantities": [
+    {
+     "name": "top, low",
+     "is": "the largest and smallest values",
+     "pick": "whole numbers on Paper 1 with an even range; on Paper 2 whole or half numbers"
+    },
+    {
+     "name": "a, d",
+     "is": "half the range and the mean",
+     "pick": "derived"
+    },
+    {
+     "name": "w or period",
+     "is": "b on Paper 1, the period T on Paper 2",
+     "pick": "w from 1 to 4; T from a list of round times"
+    },
+    {
+     "name": "xmax, xmin",
+     "is": "a maximum and the next minimum",
+     "pick": "a landmark over w on Paper 1; whole on Paper 2"
+    },
+    {
+     "name": "phi, bw, amp, lift",
+     "is": "the numbers of a sin(bx − φ) + d",
+     "pick": "φ a landmark on Paper 1, a decimal on Paper 2"
+    },
+    {
+     "name": "p, q0, k",
+     "is": "the numbers of p sin kx + q cos kx",
+     "pick": "small whole numbers, coprime"
+    },
+    {
+     "name": "z, h, v",
+     "is": "a tan graph's first zero and one point",
+     "pick": "halves, with the point well before the asymptote"
+    }
+   ],
+   "clean": [
+    "Paper 1 is exact, with the across axis in multiples of π",
+    "Paper 2 answers are to 3 s.f., clear of a rounding edge",
+    "the range is even on Paper 1, so a and d are whole"
+   ]
   }
  },
  "types": [
@@ -23497,7 +23677,7 @@
    "id": "t3-exact-values",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Exact trig values and related angles",
    "syllabus": [
     "3.5"
@@ -23506,6 +23686,454 @@
     "SL3.5.exact-special",
     "SL3.5.related-angles",
     "SL3.5.unit-circle"
+   ],
+   "summary": "Exact sin, cos and tan: at the landmark angles from 0 to π/2, at any related angle past them, in sums and with a number in front, and read from a point on the unit circle.",
+   "skillFit": "full",
+   "chain": [
+    "place the angle: first quadrant, or reflect it there",
+    "take the value from a special triangle, the unit circle or the √n/2 pattern",
+    "fix the sign from the quadrant",
+    "multiply or add, keeping the surd exact"
+   ],
+   "given": [
+    "a landmark angle, in radians or degrees",
+    "a function with a number in front",
+    "a related angle, on a unit circle or a wave",
+    "a ratio of an acute angle",
+    "a point on the unit circle"
+   ],
+   "asked": "An exact value, the coordinates of a point on the unit circle, the signs of two ratios, or why tan has no value.",
+   "answerForms": [
+    "exact: a whole number, a fraction or a surd"
+   ],
+   "randomise": [
+    "the ratio",
+    "the angle, and radians or degrees",
+    "the number in front",
+    "the quadrant",
+    "the point on the unit circle"
+   ],
+   "constraints": [
+    "every question is Paper 1, as every bank part is",
+    "a surd is written with the root on top, √3/3 not 1/√3",
+    "a sum has at most one kind of surd",
+    "a wrong option is a real mistake where one fits the numbers"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "exact-trig",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the value to find, written out: cos(5π/6), or sin 150°"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a story with a formula: a rope k m long at θ to the ground"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "a right-angled special triangle, the unit circle with P or a shaded quadrant, or an angle on a straight line"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "y = sin x or y = cos x on 0 to 2π, with the across axis in multiples of π"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "the landmark angles with their sines and cosines, and one cell to fill in"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "special-value",
+     "given": [
+      "a landmark angle from 0 to π/2",
+      "which ratio"
+     ],
+     "asked": "the exact value",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "table"
+     ],
+     "skills": [
+      "SL3.5.exact-special"
+     ]
+    },
+    {
+     "id": "scaled-value",
+     "given": [
+      "f(x) = k sin x or k cos x, or the same formula in a story",
+      "a landmark angle"
+     ],
+     "asked": "the exact value of f at the angle",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL3.5.exact-special"
+     ]
+    },
+    {
+     "id": "special-sum",
+     "given": [
+      "a sum with a squared ratio, such as sin²(π/4) + cos(π/3)"
+     ],
+     "asked": "its exact value",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.5.exact-special"
+     ]
+    },
+    {
+     "id": "related-value",
+     "given": [
+      "a multiple of π/6, π/4 or π/3 past the first quadrant, negative or on the second turn"
+     ],
+     "asked": "the exact value of its sin, cos or tan",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "graph"
+     ],
+     "skills": [
+      "SL3.5.related-angles"
+     ]
+    },
+    {
+     "id": "related-sum",
+     "given": [
+      "a sum of two related ratios"
+     ],
+     "asked": "its exact value",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.5.related-angles"
+     ]
+    },
+    {
+     "id": "given-related",
+     "given": [
+      "a ratio of an acute θ, or of one angle on a straight line"
+     ],
+     "asked": "the ratio of π − θ, π + θ or −θ",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.5.related-angles"
+     ]
+    },
+    {
+     "id": "point-at-angle",
+     "given": [
+      "an angle on the unit circle"
+     ],
+     "asked": "the exact coordinates of P",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.5.unit-circle"
+     ]
+    },
+    {
+     "id": "ratio-from-point",
+     "given": [
+      "a point on the unit circle"
+     ],
+     "asked": "sin θ or cos θ",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.5.unit-circle"
+     ]
+    },
+    {
+     "id": "tan-from-point",
+     "given": [
+      "a point on the unit circle"
+     ],
+     "asked": "tan θ",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.5.unit-circle"
+     ]
+    },
+    {
+     "id": "sign-in-quadrant",
+     "given": [
+      "an interval for θ"
+     ],
+     "asked": "the signs of two ratios",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram",
+      "graph"
+     ],
+     "skills": [
+      "SL3.5.unit-circle"
+     ]
+    },
+    {
+     "id": "tan-undefined",
+     "given": [
+      "an angle where the radius is vertical"
+     ],
+     "asked": "why tan has no value there",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "graph"
+     ],
+     "skills": [
+      "SL3.5.unit-circle"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.5.exact-special",
+     "method": "special-triangles",
+     "suits": [
+      "special-value",
+      "scaled-value",
+      "special-sum"
+     ]
+    },
+    {
+     "skill": "SL3.5.exact-special",
+     "method": "unit-circle-points",
+     "suits": [
+      "special-value",
+      "scaled-value"
+     ]
+    },
+    {
+     "skill": "SL3.5.exact-special",
+     "method": "root-pattern",
+     "suits": [
+      "special-value",
+      "scaled-value",
+      "special-sum"
+     ]
+    },
+    {
+     "skill": "SL3.5.related-angles",
+     "method": "unit-circle-reflection",
+     "suits": [
+      "related-value",
+      "given-related"
+     ]
+    },
+    {
+     "skill": "SL3.5.related-angles",
+     "method": "reference-angle-cast",
+     "suits": [
+      "related-value",
+      "related-sum"
+     ]
+    },
+    {
+     "skill": "SL3.5.related-angles",
+     "method": "graph-symmetry",
+     "suits": [
+      "related-value"
+     ]
+    },
+    {
+     "skill": "SL3.5.related-angles",
+     "method": "identity",
+     "suits": [
+      "related-value",
+      "related-sum",
+      "given-related"
+     ]
+    },
+    {
+     "skill": "SL3.5.unit-circle",
+     "method": "read-coordinates",
+     "suits": [
+      "point-at-angle",
+      "ratio-from-point",
+      "tan-from-point"
+     ]
+    },
+    {
+     "skill": "SL3.5.unit-circle",
+     "method": "cast",
+     "suits": [
+      "sign-in-quadrant"
+     ]
+    },
+    {
+     "skill": "SL3.5.unit-circle",
+     "method": "tan-as-gradient",
+     "suits": [
+      "tan-from-point",
+      "tan-undefined"
+     ]
+    },
+    {
+     "skill": "SL3.5.unit-circle",
+     "method": "graph-read",
+     "suits": [
+      "sign-in-quadrant",
+      "tan-undefined"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "sin(2π/3) = −sin(π/3), because 2π/3 is past π/2.",
+     "answer": "False: 2π/3 is in the second quadrant, where sin is positive, so sin(2π/3) = sin(π/3).",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "For an angle θ, sin(π − θ) = sin θ.",
+     "answer": "Always: θ and π − θ are mirror images in the y-axis, so their points on the unit circle have the same height.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "Why is the cos list of the landmark angles the sin list read backwards?",
+     "answer": "Because cos θ = sin(π/2 − θ): reflecting the unit circle in y = x swaps x and y.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.5.exact-special#0",
+     "text": "Swapping sin(π/6) = 1/2 and cos(π/6) = √3/2",
+     "as": "distractor",
+     "in": [
+      "special-value",
+      "scaled-value"
+     ],
+     "wrong": "the other ratio at the same angle"
+    },
+    {
+     "ref": "SL3.5.exact-special#1",
+     "text": "Writing tan(π/6) = √3 instead of 1/√3",
+     "as": "distractor",
+     "in": [
+      "special-value"
+     ],
+     "wrong": "√3 for tan(π/6)"
+    },
+    {
+     "ref": "SL3.5.exact-special#2",
+     "text": "Thinking sin(π/4) = 1/2",
+     "as": "distractor",
+     "in": [
+      "special-value",
+      "special-sum"
+     ],
+     "wrong": "1/2 for sin(π/4) or cos(π/4)"
+    },
+    {
+     "ref": "SL3.5.related-angles#0",
+     "text": "Correct size but wrong sign for the quadrant, e.g. cos(2π/3) = 1/2",
+     "as": "distractor",
+     "in": [
+      "related-value",
+      "related-sum",
+      "given-related"
+     ],
+     "wrong": "the right size with the wrong sign"
+    },
+    {
+     "ref": "SL3.5.related-angles#1",
+     "text": "Measuring the reference angle from the y-axis, e.g. using π/3 for 5π/6",
+     "as": "distractor",
+     "in": [
+      "related-value"
+     ],
+     "wrong": "the value at π/2 less the reference angle"
+    },
+    {
+     "ref": "SL3.5.related-angles#2",
+     "text": "Treating a negative angle as positive, e.g. sin(−π/6) = 1/2",
+     "as": "distractor",
+     "in": [
+      "related-value"
+     ],
+     "wrong": "the value at the positive angle"
+    },
+    {
+     "ref": "SL3.5.unit-circle#0",
+     "text": "Swapping coordinates: taking sin θ as the x-coordinate",
+     "as": "distractor",
+     "in": [
+      "point-at-angle",
+      "ratio-from-point",
+      "tan-from-point"
+     ],
+     "wrong": "x and y swapped"
+    },
+    {
+     "ref": "SL3.5.unit-circle#1",
+     "text": "Measuring θ clockwise or from the y-axis",
+     "as": "distractor",
+     "in": [
+      "point-at-angle",
+      "sign-in-quadrant"
+     ],
+     "wrong": "the point reflected in the x-axis, the angle read clockwise"
+    },
+    {
+     "ref": "SL3.5.unit-circle#2",
+     "text": "Thinking tan(π/2) = 0 or 1 instead of undefined",
+     "as": "distractor",
+     "in": [
+      "tan-undefined"
+     ],
+     "wrong": "tan(π/2) given as 0 or 1"
+    }
    ],
    "parts": [
     "aa-sl-2023-may-tz2-p1-q08.c",
@@ -23574,7 +24202,7 @@
    "id": "t3-identity-values",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Use Pythagorean and double-angle identities to find exact values or rewrite",
    "syllabus": [
     "3.6"
@@ -23583,6 +24211,455 @@
     "SL3.6.ratio-from-ratio",
     "SL3.6.double-angle-values",
     "SL3.6.simplify"
+   ],
+   "summary": "Find one ratio from another with the quadrant setting the sign, find sin 2θ and cos 2θ from a ratio, work back from cos 2θ, and rewrite expressions with the Pythagorean and double angle identities.",
+   "skillFit": "full",
+   "chain": [
+    "square and use sin²θ + cos²θ = 1, or sketch a right triangle",
+    "take the root and fix the sign from the quadrant",
+    "pick the form of cos 2θ that fits what is given, or use sin 2θ = 2 sin θ cos θ",
+    "to rewrite, spot the pattern, take out a number, and swap it with an identity"
+   ],
+   "given": [
+    "one ratio and a quadrant",
+    "cos 2θ with θ acute",
+    "a triangle with the angle 2θ",
+    "an expression in sin x and cos x"
+   ],
+   "asked": "An exact ratio, an exact sin 2θ or cos 2θ, a rewritten expression, or a maximum value.",
+   "answerForms": [
+    "exact: a fraction or a surd",
+    "an expression with whole-number coefficients"
+   ],
+   "randomise": [
+    "the ratio and the quadrant",
+    "which ratio is given and which is asked",
+    "the triangle's sides",
+    "the numbers of the expression"
+   ],
+   "constraints": [
+    "every question is Paper 1, as every bank part is",
+    "a surd is written with the root on top",
+    "the quadrant makes the sign matter: both signs are offered",
+    "a rewritten expression keeps whole-number coefficients"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "trig-identity",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the ratio and interval written out: sin θ = 3/5 and π/2 < θ < π"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "the unit circle with θ's quadrant shaded and P marked, or a triangle with its angle 2θ"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "cos-from-sin",
+     "given": [
+      "sin θ",
+      "the quadrant"
+     ],
+     "asked": "cos θ",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.6.ratio-from-ratio"
+     ]
+    },
+    {
+     "id": "sin-from-cos",
+     "given": [
+      "cos θ",
+      "the quadrant"
+     ],
+     "asked": "sin θ",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.6.ratio-from-ratio"
+     ]
+    },
+    {
+     "id": "tan-from-ratio",
+     "given": [
+      "sin θ or cos θ",
+      "the quadrant"
+     ],
+     "asked": "tan θ",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.6.ratio-from-ratio"
+     ]
+    },
+    {
+     "id": "cos-from-tan",
+     "given": [
+      "tan θ",
+      "the quadrant"
+     ],
+     "asked": "cos θ",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.6.ratio-from-ratio"
+     ]
+    },
+    {
+     "id": "sin2-from-ratio",
+     "given": [
+      "sin θ or cos θ",
+      "the quadrant"
+     ],
+     "asked": "sin 2θ",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.6.ratio-from-ratio",
+      "SL3.6.double-angle-values"
+     ]
+    },
+    {
+     "id": "cos2-from-sin",
+     "given": [
+      "sin θ",
+      "the quadrant"
+     ],
+     "asked": "cos 2θ",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.6.double-angle-values"
+     ]
+    },
+    {
+     "id": "cos2-from-cos",
+     "given": [
+      "cos θ",
+      "the quadrant"
+     ],
+     "asked": "cos 2θ",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.6.double-angle-values"
+     ]
+    },
+    {
+     "id": "cos-from-cos2",
+     "given": [
+      "cos 2θ with θ acute, or a triangle with the angle 2θ"
+     ],
+     "asked": "cos θ",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.6.double-angle-values"
+     ]
+    },
+    {
+     "id": "rewrite-in-sin",
+     "given": [
+      "an expression with cos²x or cos 2x and sin x, or the same in cos x"
+     ],
+     "asked": "the expression in one ratio",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.simplify"
+     ]
+    },
+    {
+     "id": "single-cos",
+     "given": [
+      "3 − 6 sin²x, or 6 cos²x − 3"
+     ],
+     "asked": "the form a cos bx",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.simplify"
+     ]
+    },
+    {
+     "id": "product-sine",
+     "given": [
+      "6 sin x cos x"
+     ],
+     "asked": "the form a sin bx",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.simplify"
+     ]
+    },
+    {
+     "id": "expand-square",
+     "given": [
+      "k(sin x ± cos x)²"
+     ],
+     "asked": "the form a + b sin cx",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.simplify"
+     ]
+    },
+    {
+     "id": "max-after-rewrite",
+     "given": [
+      "f(x) = 2k sin x cos x + d"
+     ],
+     "asked": "the maximum value of f",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.simplify"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.6.ratio-from-ratio",
+     "method": "pythagorean-identity",
+     "suits": [
+      "cos-from-sin",
+      "sin-from-cos",
+      "tan-from-ratio"
+     ]
+    },
+    {
+     "skill": "SL3.6.ratio-from-ratio",
+     "method": "right-triangle-sketch",
+     "suits": [
+      "cos-from-sin",
+      "sin-from-cos",
+      "tan-from-ratio",
+      "cos-from-tan"
+     ]
+    },
+    {
+     "skill": "SL3.6.ratio-from-ratio",
+     "method": "unit-circle-point",
+     "suits": [
+      "cos-from-sin",
+      "sin-from-cos",
+      "tan-from-ratio",
+      "cos-from-tan"
+     ]
+    },
+    {
+     "skill": "SL3.6.double-angle-values",
+     "method": "pick-cos2-form",
+     "suits": [
+      "cos2-from-sin",
+      "cos2-from-cos",
+      "cos-from-cos2"
+     ]
+    },
+    {
+     "skill": "SL3.6.double-angle-values",
+     "method": "find-both-ratios",
+     "suits": [
+      "sin2-from-ratio",
+      "cos2-from-sin",
+      "cos2-from-cos"
+     ]
+    },
+    {
+     "skill": "SL3.6.double-angle-values",
+     "method": "triangle",
+     "suits": [
+      "sin2-from-ratio",
+      "cos2-from-sin",
+      "cos2-from-cos"
+     ]
+    },
+    {
+     "skill": "SL3.6.simplify",
+     "method": "expand-then-identity",
+     "suits": [
+      "expand-square"
+     ]
+    },
+    {
+     "skill": "SL3.6.simplify",
+     "method": "pattern-match",
+     "suits": [
+      "rewrite-in-sin",
+      "single-cos",
+      "product-sine",
+      "max-after-rewrite"
+     ]
+    },
+    {
+     "skill": "SL3.6.simplify",
+     "method": "test-value",
+     "suits": [
+      "rewrite-in-sin",
+      "single-cos",
+      "product-sine",
+      "expand-square",
+      "max-after-rewrite"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If sin θ = 3/5, then cos θ = 4/5.",
+     "answer": "False: the size is 4/5, but the sign depends on the quadrant. In the second quadrant cos θ = −4/5.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "sin 2θ = 2 sin θ.",
+     "answer": "Sometimes: only when cos θ = 1 or sin θ = 0, because sin 2θ = 2 sin θ cos θ.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "Why does 1 − 2 sin²θ suit a question that gives sin θ?",
+     "answer": "Because it is cos 2θ written with sin θ alone, so the other ratio is never needed.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.6.ratio-from-ratio#0",
+     "text": "Ignoring the quadrant and giving cos θ = +4/5 when θ is obtuse",
+     "as": "distractor",
+     "in": [
+      "cos-from-sin",
+      "sin-from-cos",
+      "tan-from-ratio",
+      "cos-from-tan"
+     ],
+     "wrong": "the right size with the wrong sign"
+    },
+    {
+     "ref": "SL3.6.ratio-from-ratio#1",
+     "text": "Writing cos θ = 1 − sin θ, dropping the squares",
+     "as": "distractor",
+     "in": [
+      "cos-from-sin"
+     ],
+     "wrong": "1 − sin θ"
+    },
+    {
+     "ref": "SL3.6.ratio-from-ratio#2",
+     "text": "Taking √(1 − 9/25) as 1 − 3/5",
+     "as": "distractor",
+     "in": [
+      "sin-from-cos"
+     ],
+     "wrong": "1 − |cos θ|, with the sign of the quadrant"
+    },
+    {
+     "ref": "SL3.6.double-angle-values#0",
+     "text": "sin 2θ = 2 sin θ",
+     "as": "distractor",
+     "in": [
+      "sin2-from-ratio"
+     ],
+     "wrong": "2 sin θ"
+    },
+    {
+     "ref": "SL3.6.double-angle-values#1",
+     "text": "cos 2θ = 2 cos θ, or cos 2θ = 1 − sin²θ",
+     "as": "distractor",
+     "in": [
+      "cos2-from-sin",
+      "cos2-from-cos",
+      "cos-from-cos2",
+      "rewrite-in-sin"
+     ],
+     "wrong": "2 cos θ, or 1 − sin²θ"
+    },
+    {
+     "ref": "SL3.6.double-angle-values#2",
+     "text": "Losing the negative sign of cos θ for an obtuse θ before substituting into sin 2θ",
+     "as": "distractor",
+     "in": [
+      "sin2-from-ratio"
+     ],
+     "wrong": "2 sin θ cos θ with the size of cos θ"
+    },
+    {
+     "ref": "SL3.6.simplify#0",
+     "text": "Expanding (sin x + cos x)² as sin²x + cos²x",
+     "as": "distractor",
+     "in": [
+      "expand-square"
+     ],
+     "wrong": "the square expanded without its middle term"
+    },
+    {
+     "ref": "SL3.6.simplify#1",
+     "text": "Writing 4 sin x cos x as 4 sin 2x instead of 2 sin 2x",
+     "as": "distractor",
+     "in": [
+      "product-sine",
+      "max-after-rewrite"
+     ],
+     "wrong": "the number in front not halved"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p1-q03.a",
@@ -23748,7 +24825,7 @@
    "id": "t3-trig-model-parameters",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Find the parameters of a trig model from a graph, data or context",
    "syllabus": [
     "3.7",
@@ -23758,6 +24835,527 @@
     "SL3.7.equation-from-graph",
     "SL3.7.transformations",
     "SL3.7.model-context"
+   ],
+   "summary": "Find the parameters of a trig model from its turning points, a graph, a story or two points: a, b, c and d, the exact y-intercept once the midline is known, a sum written as one cosine, a tan graph's a and b, and the transformations that build the wave.",
+   "skillFit": "full",
+   "chain": [
+    "half the range gives a, and the mean gives d",
+    "twice the gap from a maximum to the next minimum is the period, and b = 2π ÷ period",
+    "a maximum gives c in a cosine, a quarter of a period earlier in a sine",
+    "take b out of the bracket before reading a shift",
+    "in a story, check the model at t = 0"
+   ],
+   "given": [
+    "a maximum and the next minimum",
+    "a graph with its turning points",
+    "a story with a period",
+    "two points on a tan graph",
+    "a function and a transformation"
+   ],
+   "asked": "One or more of a, b, c and d, an exact y-intercept, a level, the equation of an image, or the transformations.",
+   "answerForms": [
+    "exact, with π where it applies",
+    "3 s.f."
+   ],
+   "randomise": [
+    "the top and bottom",
+    "the period or b",
+    "where the wave peaks",
+    "sine or cosine",
+    "the story",
+    "the phase and the transformation"
+   ],
+   "constraints": [
+    "Paper 1 is exact and Paper 2 a story or a decimal phase, in the exam's ratio",
+    "the range is even on Paper 1",
+    "every 3 s.f. value is clear of a rounding edge",
+    "a wave is drawn to its real period and shift"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "trig-model",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the model with its letters, and the turning points listed"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "the wave, with the across axis in multiples of π on Paper 1, and its turning points marked"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: the depth of water at the harbour wall, with t in hours"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "amp-axis",
+     "given": [
+      "a maximum and a minimum"
+     ],
+     "asked": "a and d",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL3.7.equation-from-graph"
+     ]
+    },
+    {
+     "id": "b-from-period",
+     "given": [
+      "a maximum and the next minimum"
+     ],
+     "asked": "b",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL3.7.equation-from-graph"
+     ]
+    },
+    {
+     "id": "c-cos-from-max",
+     "given": [
+      "a, b and d, and a maximum"
+     ],
+     "asked": "c in a cos(b(x − c)) + d",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL3.7.equation-from-graph"
+     ]
+    },
+    {
+     "id": "c-sine-shift",
+     "given": [
+      "a, b and d, and a maximum"
+     ],
+     "asked": "c in a sin(b(x − c)) + d",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL3.7.equation-from-graph",
+      "SL3.7.model-context"
+     ]
+    },
+    {
+     "id": "all-four",
+     "given": [
+      "a maximum and the next minimum"
+     ],
+     "asked": "a, b, c and d",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL3.7.equation-from-graph"
+     ]
+    },
+    {
+     "id": "q-from-minimum",
+     "given": [
+      "f(x) = p sin(x + φ) + q and its minimum"
+     ],
+     "asked": "the exact y-intercept",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.7.equation-from-graph"
+     ]
+    },
+    {
+     "id": "sum-as-cos",
+     "given": [
+      "p sin kx + q cos kx, with a GDC"
+     ],
+     "asked": "a, b and c in a cos(b(x − c))",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.7.equation-from-graph"
+     ]
+    },
+    {
+     "id": "tan-two-points",
+     "given": [
+      "f(x) = a tan(bx), its first x-intercept and one point"
+     ],
+     "asked": "a and b",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.7.equation-from-graph"
+     ]
+    },
+    {
+     "id": "shift-from-bracket",
+     "given": [
+      "y = a sin(bx − φ) + d"
+     ],
+     "asked": "c, in the form with b taken out",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.7.transformations"
+     ]
+    },
+    {
+     "id": "image-equation",
+     "given": [
+      "f(x), and a translation or a horizontal stretch"
+     ],
+     "asked": "the equation of the image",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL3.7.transformations"
+     ]
+    },
+    {
+     "id": "describe-transformations",
+     "given": [
+      "y = a sin(bx − φ) + d"
+     ],
+     "asked": "the transformations from y = sin x",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.7.transformations"
+     ]
+    },
+    {
+     "id": "pq-from-translation",
+     "given": [
+      "f(x) and g(x) = f(x − p) + q"
+     ],
+     "asked": "p and q",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.7.transformations"
+     ]
+    },
+    {
+     "id": "wheel-model",
+     "given": [
+      "a wheel's diameter, height and time for one turn, starting at the bottom"
+     ],
+     "asked": "a, b and d",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL3.7.model-context"
+     ]
+    },
+    {
+     "id": "c-from-crossing",
+     "given": [
+      "a sine model and when it rises through a level"
+     ],
+     "asked": "c",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "SL3.7.model-context",
+      "SL3.7.equation-from-graph"
+     ]
+    },
+    {
+     "id": "level-from-duration",
+     "given": [
+      "a cosine model and how long it stays above a level"
+     ],
+     "asked": "the level",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL3.7.model-context"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.7.equation-from-graph",
+     "method": "max-min-averages",
+     "suits": [
+      "amp-axis",
+      "b-from-period",
+      "all-four",
+      "q-from-minimum",
+      "sum-as-cos",
+      "wheel-model"
+     ]
+    },
+    {
+     "skill": "SL3.7.equation-from-graph",
+     "method": "cos-at-max",
+     "suits": [
+      "c-cos-from-max",
+      "all-four",
+      "sum-as-cos"
+     ]
+    },
+    {
+     "skill": "SL3.7.equation-from-graph",
+     "method": "substitute-point",
+     "suits": [
+      "c-cos-from-max",
+      "c-sine-shift",
+      "q-from-minimum",
+      "tan-two-points"
+     ]
+    },
+    {
+     "skill": "SL3.7.equation-from-graph",
+     "method": "gdc-check",
+     "suits": [
+      "all-four",
+      "sum-as-cos",
+      "tan-two-points"
+     ]
+    },
+    {
+     "skill": "SL3.7.transformations",
+     "method": "factor-b-first",
+     "suits": [
+      "shift-from-bracket",
+      "describe-transformations"
+     ]
+    },
+    {
+     "skill": "SL3.7.transformations",
+     "method": "track-key-points",
+     "suits": [
+      "image-equation",
+      "describe-transformations"
+     ]
+    },
+    {
+     "skill": "SL3.7.transformations",
+     "method": "translation-vector",
+     "suits": [
+      "shift-from-bracket",
+      "image-equation",
+      "pq-from-translation"
+     ]
+    },
+    {
+     "skill": "SL3.7.transformations",
+     "method": "gdc-overlay",
+     "suits": [
+      "pq-from-translation"
+     ]
+    },
+    {
+     "skill": "SL3.7.model-context",
+     "method": "substitute-evaluate",
+     "suits": [
+      "wheel-model"
+     ]
+    },
+    {
+     "skill": "SL3.7.model-context",
+     "method": "gdc-intersection",
+     "suits": [
+      "c-from-crossing"
+     ]
+    },
+    {
+     "skill": "SL3.7.model-context",
+     "method": "solve-analytically",
+     "suits": [
+      "c-sine-shift",
+      "c-from-crossing",
+      "level-from-duration"
+     ]
+    },
+    {
+     "skill": "SL3.7.model-context",
+     "method": "symmetry-duration",
+     "suits": [
+      "level-from-duration"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A wave has a maximum at x = 2 and the next minimum at x = 5, so its period is 3.",
+     "answer": "False: from a maximum to the next minimum is half a period, so the period is 6.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "sin(2x − π/3) is sin 2x moved π/3 to the right.",
+     "answer": "Never: the bracket is 2(x − π/6), so the move is π/6. The 2 stretches the shift as well.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "In h(t) = −10 cos(πt/6) + 12, what does the minus sign tell you?",
+     "answer": "The wave starts at its lowest point: at t = 0 it is 12 − 10 = 2, then it rises.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.7.equation-from-graph#0",
+     "text": "Taking the period as the gap from a maximum to the next minimum",
+     "as": "distractor",
+     "in": [
+      "b-from-period",
+      "all-four",
+      "tan-two-points",
+      "wheel-model"
+     ],
+     "wrong": "the period taken as the gap from a maximum to the next minimum"
+    },
+    {
+     "ref": "SL3.7.equation-from-graph#1",
+     "text": "Using a = max − min, forgetting to halve",
+     "as": "distractor",
+     "in": [
+      "amp-axis",
+      "all-four",
+      "q-from-minimum",
+      "sum-as-cos"
+     ],
+     "wrong": "a = max − min, not halved"
+    },
+    {
+     "ref": "SL3.7.equation-from-graph#2",
+     "text": "Getting the sign of c wrong in a cos(b(x − c)) + d",
+     "as": "distractor",
+     "in": [
+      "c-cos-from-max",
+      "c-sine-shift",
+      "all-four",
+      "sum-as-cos"
+     ],
+     "wrong": "c with the wrong sign"
+    },
+    {
+     "ref": "SL3.7.transformations#0",
+     "text": "Reading sin(2x + π/3) as a shift of π/3 left instead of π/6",
+     "as": "distractor",
+     "in": [
+      "shift-from-bracket",
+      "describe-transformations",
+      "pq-from-translation"
+     ],
+     "wrong": "the shift read before b is taken out"
+    },
+    {
+     "ref": "SL3.7.transformations#1",
+     "text": "Using scale factor b for the horizontal stretch instead of 1/b",
+     "as": "distractor",
+     "in": [
+      "image-equation",
+      "describe-transformations"
+     ],
+     "wrong": "scale factor b, not 1/b"
+    },
+    {
+     "ref": "SL3.7.transformations#2",
+     "text": "Translating right for a +c inside the bracket",
+     "as": "distractor",
+     "in": [
+      "shift-from-bracket",
+      "image-equation",
+      "describe-transformations",
+      "pq-from-translation"
+     ],
+     "wrong": "the shift with the wrong sign"
+    },
+    {
+     "ref": "SL3.7.model-context#0",
+     "text": "Calculator in degree mode for a radian model",
+     "as": "distractor",
+     "in": [
+      "c-from-crossing",
+      "level-from-duration"
+     ],
+     "wrong": "the angle taken in degrees"
+    },
+    {
+     "ref": "SL3.7.model-context#2",
+     "text": "Reading the period as b rather than 2π/b, e.g. b = π/6 means a 12-hour cycle",
+     "as": "distractor",
+     "in": [
+      "b-from-period",
+      "wheel-model"
+     ],
+     "wrong": "b = the period"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q04",
@@ -23870,7 +25468,7 @@
    "id": "t3-trig-equation",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Solve a trig equation exactly in an interval",
    "syllabus": [
     "3.8"
@@ -23879,6 +25477,528 @@
     "SL3.8.solve-basic",
     "SL3.8.compound-angle",
     "SL3.8.factorise-not-divide"
+   ],
+   "summary": "Solve a trig equation in an interval: sin x, cos x or tan x equal to a value, with a transformed angle bx + φ, in radians or degrees, and by factorising or turning it into tan x so that no solution is lost.",
+   "skillFit": "full",
+   "chain": [
+    "rearrange to fn(bx + φ) = k, factorise, or divide to get tan",
+    "find the reference angle and the quadrants, or the principal value and the symmetry",
+    "transform the interval for bx + φ, or add multiples of the new period",
+    "undo to x and keep the solutions inside the interval"
+   ],
+   "given": [
+    "an equation in one ratio",
+    "an interval in radians or degrees",
+    "the wave and a line, or both sides as graphs",
+    "the unit circle with a line through the solutions"
+   ],
+   "asked": "Every solution in the interval, exactly on Paper 1, the least positive one, or tan θ.",
+   "answerForms": [
+    "exact multiples of π",
+    "degrees",
+    "3 s.f. for a decimal k"
+   ],
+   "randomise": [
+    "the ratio and the value",
+    "b and φ",
+    "the interval",
+    "radians or degrees",
+    "how the equation is written"
+   ],
+   "constraints": [
+    "every bank part is Paper 1, so every question is but the two GDC unknowns",
+    "the solutions can be typed in any order",
+    "a wrong option may have another number of solutions, and can then be picked but not typed",
+    "a solution in degrees is whole"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "trig-equation",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the equation and interval written out: 2 cos x = −√3, for 0 ≤ x ≤ 2π"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the wave with the line y = k, or both sides, with the across axis in multiples of π"
+    },
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "the unit circle with the line y = k or x = k, and the points where it cuts"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "basic-exact",
+     "given": [
+      "a ratio equal to a landmark value",
+      "0 to 2π"
+     ],
+     "asked": "every solution, exactly",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.8.solve-basic"
+     ]
+    },
+    {
+     "id": "wide-interval",
+     "given": [
+      "a ratio equal to a landmark value",
+      "an interval such as −π to π or 0 to 4π"
+     ],
+     "asked": "every solution, exactly",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.solve-basic"
+     ]
+    },
+    {
+     "id": "basic-degrees",
+     "given": [
+      "a ratio equal to a landmark value",
+      "an interval in degrees"
+     ],
+     "asked": "every solution in degrees",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.solve-basic"
+     ]
+    },
+    {
+     "id": "basic-decimal",
+     "given": [
+      "a ratio equal to a decimal",
+      "0 to 2π"
+     ],
+     "asked": "every solution, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.solve-basic"
+     ]
+    },
+    {
+     "id": "multiple-angle",
+     "given": [
+      "sin bx, cos bx or tan bx equal to a landmark value"
+     ],
+     "asked": "every solution, exactly",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.compound-angle"
+     ]
+    },
+    {
+     "id": "shifted-angle",
+     "given": [
+      "sin(x + φ), cos(x + φ) or tan(x + φ) equal to a landmark value"
+     ],
+     "asked": "every solution, exactly",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.compound-angle"
+     ]
+    },
+    {
+     "id": "least-positive",
+     "given": [
+      "fn(bx + φ) equal to a landmark value"
+     ],
+     "asked": "the least positive solution",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.compound-angle"
+     ]
+    },
+    {
+     "id": "degree-compound",
+     "given": [
+      "fn(bx − α°) equal to a landmark value",
+      "an interval in degrees"
+     ],
+     "asked": "every solution in degrees",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.compound-angle"
+     ]
+    },
+    {
+     "id": "compound-decimal",
+     "given": [
+      "sin bx or cos bx equal to a decimal"
+     ],
+     "asked": "every solution, to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.compound-angle"
+     ]
+    },
+    {
+     "id": "tan-compound",
+     "given": [
+      "√3 sin 2x = cos 2x and the like"
+     ],
+     "asked": "every solution, exactly",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.compound-angle",
+      "SL3.8.factorise-not-divide"
+     ]
+    },
+    {
+     "id": "k-cos-to-tan",
+     "given": [
+      "sin x = k cos x"
+     ],
+     "asked": "every solution, exactly",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.factorise-not-divide"
+     ]
+    },
+    {
+     "id": "double-equals-cos",
+     "given": [
+      "sin 2x = m cos x"
+     ],
+     "asked": "every solution, exactly",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.factorise-not-divide"
+     ]
+    },
+    {
+     "id": "double-equals-sin",
+     "given": [
+      "sin 2x = m sin x"
+     ],
+     "asked": "every solution, exactly",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.factorise-not-divide"
+     ]
+    },
+    {
+     "id": "product-zero",
+     "given": [
+      "a product of a ratio and a bracket, equal to 0"
+     ],
+     "asked": "every solution, exactly",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.factorise-not-divide"
+     ]
+    },
+    {
+     "id": "squares-to-tan",
+     "given": [
+      "a cos²x − b sin²x = 0"
+     ],
+     "asked": "every solution, exactly",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.factorise-not-divide"
+     ]
+    },
+    {
+     "id": "factor-reject",
+     "given": [
+      "sin²θ = m sin θ cos θ on 0 to π"
+     ],
+     "asked": "tan θ",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.factorise-not-divide"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.8.solve-basic",
+     "method": "unit-circle-cast",
+     "suits": [
+      "basic-exact",
+      "wide-interval",
+      "basic-degrees"
+     ]
+    },
+    {
+     "skill": "SL3.8.solve-basic",
+     "method": "graph-symmetry",
+     "suits": [
+      "basic-exact",
+      "wide-interval",
+      "basic-degrees"
+     ]
+    },
+    {
+     "skill": "SL3.8.solve-basic",
+     "method": "gdc-intersection",
+     "suits": [
+      "basic-decimal"
+     ]
+    },
+    {
+     "skill": "SL3.8.compound-angle",
+     "method": "substitute-u",
+     "suits": [
+      "multiple-angle",
+      "shifted-angle",
+      "least-positive",
+      "degree-compound",
+      "tan-compound"
+     ]
+    },
+    {
+     "skill": "SL3.8.compound-angle",
+     "method": "add-the-period",
+     "suits": [
+      "multiple-angle",
+      "shifted-angle",
+      "least-positive",
+      "degree-compound"
+     ]
+    },
+    {
+     "skill": "SL3.8.compound-angle",
+     "method": "gdc-intersection",
+     "suits": [
+      "compound-decimal"
+     ]
+    },
+    {
+     "skill": "SL3.8.factorise-not-divide",
+     "method": "factorise",
+     "suits": [
+      "double-equals-cos",
+      "double-equals-sin",
+      "product-zero",
+      "squares-to-tan",
+      "factor-reject"
+     ]
+    },
+    {
+     "skill": "SL3.8.factorise-not-divide",
+     "method": "divide-to-tan",
+     "suits": [
+      "tan-compound",
+      "k-cos-to-tan",
+      "squares-to-tan",
+      "factor-reject"
+     ]
+    },
+    {
+     "skill": "SL3.8.factorise-not-divide",
+     "method": "graphical-check",
+     "suits": [
+      "k-cos-to-tan",
+      "double-equals-cos",
+      "double-equals-sin"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "sin x = 0.5 has one solution for 0 ≤ x ≤ 2π, x = π/6.",
+     "answer": "False: the calculator gives one value, but sin x = 0.5 again at x = 5π/6, the mirror image in x = π/2.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "sin 2x = k has twice as many solutions as sin x = k on the same interval.",
+     "answer": "Sometimes: usually the graph fits twice the waves, but at k = ±1 or at the ends of the interval the count can differ.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "If you cancel cos x from 2 sin x cos x = cos x, what do you lose?",
+     "answer": "The solutions of cos x = 0: x = π/2 and 3π/2 on 0 to 2π. The graphs cross there, so factorise instead of dividing.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.8.solve-basic#0",
+     "text": "Stopping at the calculator's principal value",
+     "as": "distractor",
+     "in": [
+      "basic-exact",
+      "wide-interval",
+      "basic-degrees",
+      "basic-decimal"
+     ],
+     "wrong": "the principal value alone"
+    },
+    {
+     "ref": "SL3.8.solve-basic#1",
+     "text": "Using 180° − α for cos instead of 360° − α",
+     "as": "distractor",
+     "in": [
+      "basic-exact",
+      "wide-interval",
+      "basic-degrees"
+     ],
+     "wrong": "α and π − α for a cosine"
+    },
+    {
+     "ref": "SL3.8.solve-basic#2",
+     "text": "Missing solutions in a negative interval such as −π ≤ x ≤ π",
+     "as": "distractor",
+     "in": [
+      "wide-interval"
+     ],
+     "wrong": "the solutions from 0 up only"
+    },
+    {
+     "ref": "SL3.8.compound-angle#0",
+     "text": "Solving for 2x without extending the interval, losing half the solutions",
+     "as": "distractor",
+     "in": [
+      "multiple-angle",
+      "compound-decimal"
+     ],
+     "wrong": "the first wave's solutions only"
+    },
+    {
+     "ref": "SL3.8.compound-angle#1",
+     "text": "Dividing only the principal value by 2 and forgetting the others",
+     "as": "distractor",
+     "in": [
+      "multiple-angle",
+      "degree-compound",
+      "tan-compound"
+     ],
+     "wrong": "the principal value undone, alone"
+    },
+    {
+     "ref": "SL3.8.compound-angle#2",
+     "text": "Undoing x + π/4 by adding π/4 instead of subtracting",
+     "as": "distractor",
+     "in": [
+      "shifted-angle",
+      "least-positive",
+      "degree-compound"
+     ],
+     "wrong": "the solutions with φ added"
+    },
+    {
+     "ref": "SL3.8.factorise-not-divide#0",
+     "text": "Cancelling cos x from 2 sin x cos x = cos x and losing x = π/2 and 3π/2",
+     "as": "distractor",
+     "in": [
+      "double-equals-cos",
+      "double-equals-sin",
+      "product-zero"
+     ],
+     "wrong": "the factor cancelled, its solutions gone"
+    },
+    {
+     "ref": "SL3.8.factorise-not-divide#1",
+     "text": "Getting tan x = 1/√3 from sin x = √3 cos x (it is √3)",
+     "as": "distractor",
+     "in": [
+      "k-cos-to-tan",
+      "factor-reject"
+     ],
+     "wrong": "tan x = 1/k"
+    },
+    {
+     "ref": "SL3.8.factorise-not-divide#2",
+     "text": "Turning sin 2x = sin x into 2x = x",
+     "as": "distractor",
+     "in": [
+      "double-equals-sin"
+     ],
+     "wrong": "2x = x, so x = 0"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#1",
+     "text": "Taking only the positive root of tan²x = 1/3",
+     "as": "distractor",
+     "in": [
+      "squares-to-tan"
+     ],
+     "wrong": "the positive root of tan²x alone"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q06.b",
