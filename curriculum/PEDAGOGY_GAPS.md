@@ -1903,7 +1903,51 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 4 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 8 exam types have them so far.
+
+#### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
+
+- **Situation:** A quantity changing in time, and its limits.
+- **Representations:** **equation**, **words**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a model; a time t → the rate of change at t, or V′(t), to 3 s.f.
+  - **exam** L2: given a model; the value of V′(t) → what V′(t) means, in the story
+  - new L1: given the units of V and of t → the units of dV/dt
+  - new L1: given a sentence about a rate → the sentence in derivative notation
+  - **exam** L3: given two rates at one time → what the two rates say
+  - **exam** L2: given a model A + B e^(−kt) → the limit of the model as t → ∞
+  - **exam** L3: given a model A + B e^(−kt) → the limit of its derivative as t → ∞
+  - new L1: given a table of f(x) either side of a point → the limit at that point
+  - new L1: given a graph with a gap at a point → the limit at that point
+  - new L2: given a rational function with 0/0 at a point → the limit at that point
+- **Angles:** Read dy/dx as 'units of y per unit of x'; Use the sign for direction; Picture the tangent; Trace the graph towards x = a; Read the trend in a table of values; Generate the table on the GDC; Factorise and cancel, then substitute.
+- **Concept probes:**
+  - *true-false-reason* (L3): If V′(5) = −3, then the volume at t = 5 is negative. — False: V′(5) is the rate of change, not the volume. The volume could be 40 litres and falling at 3 litres per minute.
+  - *true-false-reason* (L3): If f(2) is not defined, then the limit of f(x) as x → 2 does not exist. — False: the limit depends on the values near 2, not at 2. (x² − 4)/(x − 2) is not defined at 2, but its limit there is 4.
+  - *always-sometimes-never* (L4): When a model levels off as t → ∞, its rate of change approaches 0. — Always: a curve that levels off is getting flatter, so its gradient approaches 0, whatever height it levels off at.
+- **Misconceptions used:** 6. Reading f′(5) = 12 as 'the value of f at 5 is 12'; Ignoring the negative sign, so dV/dt = −3 is read as increasing by 3; Giving the units of y only (cm²) instead of y per unit x (cm² per second); The limit does not exist because f(a) itself is undefined (0/0); The limit always equals f(a), even when the graph has a hole or jump at x = a; Checking values on one side of x = a only.
+
+#### Where a function is increasing or decreasing (`t5-increasing-decreasing`, exam, 4 bank parts)
+
+- **Situation:** A function and where it rises or falls.
+- **Representations:** **equation**, **graph**, words, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a cubic f(x) → where f is increasing or decreasing
+  - new L2: given a table of f′(x) → where f is increasing or decreasing
+  - **exam** L1: given a quadratic f(x) → where f is increasing or decreasing
+  - **exam** L2: given the graph of f′ → where f is increasing or decreasing
+  - **exam** L3: given f′(x) = a + bx − c e^x → where f is increasing or decreasing, to 3 s.f.
+  - new L1: given the graph of f, with two marked points → the sign of f′ at each point
+  - **exam** L2: given the graph of a quadratic f → where f′(x) > 0 or f′(x) < 0
+  - **exam** L3: given a quadratic with whole-number roots → where f is both negative and increasing, or positive and decreasing
+  - new L4: given a cubic with a letter k → the values of k for which f is increasing or decreasing for all x
+  - **exam** L3: given f in vertex form; g′(x) = f(x) − d → the values of d for which g is an increasing function
+- **Angles:** Solve f′(x) > 0 or f′(x) < 0; Sign table for f′; Read the graph of f′; Find turning points of f on the GDC; Use the vertex of a quadratic; Walk along the curve left to right; Lay a tangent at the point; Build a sign diagram; Require discriminant of f′ ≤ 0; Require the minimum of f′ to be ≥ 0; Explore k on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): If f(x) < 0 for every x in an interval, then f is decreasing there. — False: being below the axis says nothing about direction. f(x) = x² − 9 is negative on 0 < x < 3, and it is increasing there.
+  - *true-false-reason* (L4): If f′(a) = 0, then f changes from increasing to decreasing, or the other way, at x = a. — False: f(x) = x³ has f′(0) = 0, and it is increasing on both sides of 0.
+  - *always-sometimes-never* (L4): A cubic with a positive leading coefficient is increasing for all x. — Sometimes: x³ + x is, but x³ − 3x has turning points at x = ±1 and decreases between them. It depends on whether f′ has two roots.
+- **Misconceptions used:** 8. Giving an interval of y-values rather than x-values; Solving f(x) < 0 (below the axis) instead of f′(x) < 0 (going down); Getting the inequality the wrong way round when the leading coefficient of f′ is negative; Confusing f′(x) < 0 with f(x) < 0 (being below the axis); Thinking f′ = 0 at the x-intercepts rather than at the turning points; Using the discriminant of f(x) instead of f′(x); Using b² − 4ac > 0 (two roots) instead of ≤ 0; Solving k² ≤ 9 as k ≤ 3 only, losing −3 ≤ k.
 
 #### Differentiate a polynomial or negative power and evaluate (`t5-differentiate-polynomial`, exam, 6 bank parts)
 
@@ -1956,6 +2000,58 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 - **Concept probes:**
   - *always-sometimes-never* (L3): A point where f″(x) = 0 is a point of inflexion. — Sometimes: f″ must also change sign there. For f(x) = x⁴, f″(0) = 0 but (0, 0) is a minimum.
 - **Misconceptions used:** 3. Substituting the x-value into f′ instead of f to get the y-coordinate; f″ > 0 means a maximum (sign reversed); Giving the x-value when the maximum value is asked for (or the other way round).
+
+#### Chain, product and quotient rules (`t5-differentiation-rules`, exam, 8 bank parts)
+
+- **Situation:** A function to differentiate.
+- **Representations:** **equation**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a e^x + b ln x + c sin x or c cos x, plus a constant → f′(x), term by term
+  - **exam** L1: given a root of x, or 1 over a root, plus b/x^n → f′(x), each term as a power of x
+  - **exam** L2: given a ln(x^n) or a ln(dx), plus b x^m → dy/dx
+  - **exam** L2: given c(a x^m + b)^n → dy/dx
+  - **exam** L2: given (ax + b)² → dy/dx, as px + q
+  - **exam** L2: given e, ln, sin, cos or a root of a linear or quadratic inside → dy/dx
+  - **exam** L3: given ln((ax + b)^n) or ln √(ax + b) → dy/dx
+  - **exam** L2: given x^n times e^(ax), ln x, sin x or cos x, or e^x sin x → dy/dx
+  - **exam** L2: given (ax + b)(cx² + d) → dy/dx, as px² + qx + r
+  - **exam** L3: given a x^m √x → dy/dx, as a power of x
+  - **exam** L2: given (ax + b)/(cx + d) → dy/dx, as k/(cx + d)²
+  - **exam** L3: given (ln x)/x^n, e^(ax)/x or (sin x)/x → dy/dx
+  - **exam** L3: given (ax² + bx + c)/x → dy/dx
+  - **exam** L3: given a function; a form for its derivative, with constants p, q, r → the constants: show that the derivative takes the form
+  - **exam** L3: given a composite function; x = k → the gradient at x = k
+  - **exam** L3: given a product; x = k → the gradient at x = k
+  - **exam** L3: given a quotient; x = k → the gradient at x = k
+  - **exam** L4: given (ax + p)³/(x + c)², with the letter p → f′(x) in terms of p
+- **Angles:** Standard results term by term; Rewrite roots as rational powers; Simplify logs first; Outer derivative × inner derivative; Substitute u for the inside; Expand a small power first; Split logs before differentiating; Product rule; Multiply out first; Combine into one power; Quotient rule; Rewrite as u × v⁻¹; Split when the denominator is a single term; Differentiate, then simplify to the target; Pick the rule that lands nearest the target; Meet in the middle.
+- **Concept probes:**
+  - *true-false-reason* (L3): The derivative of a product is the product of the derivatives. — False: for y = x · x = x², the product of the derivatives is 1 · 1 = 1, but dy/dx = 2x. The product rule has two terms.
+  - *always-sometimes-never* (L3): Writing a function another way before differentiating changes its derivative. — Never: ln(x³) and 3 ln x are the same function for x > 0, so they have the same derivative. A rewrite only changes how much work it takes.
+  - *true-false-reason* (L4): If f(x) = (2x + 1)/(2x − 3), then the derivative of the top divided by the derivative of the bottom gives f′(x). — False: that gives 2/2 = 1, a constant, but the quotient rule gives −8/(2x − 3)², which is always negative.
+- **Misconceptions used:** 13. d/dx cos x = sin x (missing the minus sign); d/dx eˣ = x eˣ⁻¹, treating eˣ as a power of x; Getting a fractional power wrong: x^(−1/3) → −(1/3)x^(2/3) instead of −(1/3)x^(−4/3); Forgetting the inner derivative: d/dx (3x² + 1)⁴ = 4(3x² + 1)³; d/dx ln(3x) = 1/(3x) instead of 1/x; Replacing the inside by its derivative: 4(6x)³; (uv)′ = u′v′; Writing only one of the two terms; Factorising wrongly, e.g. 2x ln x + x = x(2 ln x); Reversing the numerator to u v′ − v u′, which flips the sign of the answer; Forgetting to square the denominator; (u/v)′ = u′/v′; Sign slips when expanding −u v′ in the quotient rule.
+
+#### Second derivative and concavity (`t5-concavity`, exam, 5 bank parts)
+
+- **Situation:** A function, its second derivative and its shape.
+- **Representations:** **equation**, **graph**, words, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given f(x) or y → f″(x) or d²y/dx²
+  - **exam** L2: given f(x) or f′(x); x = k → f″(k), or the gradient of f′ at k
+  - **exam** L2: given a cubic or a quartic → where the graph is concave up or down
+  - **exam** L3: given f″(x) = (ax + b)e^(cx) → where the graph is concave up or down
+  - **exam** L3: given f′(x) = a + bx − c e^x → where the graph is concave up or down, to 3 s.f.
+  - **exam** L3: given the graph of f′ → where the graph of f is concave up or down
+  - new L2: given f(x); x = k → f″(k), and whether the curve is concave up or down there
+  - new L2: given the graph of a cubic f → which graph could be y = f′(x)
+  - **exam** L3: given the graph of f′ → which graph could be y = f″(x)
+  - new L3: given the signs of f′ and f″ → which graph could be y = f(x)
+- **Angles:** Differentiate f′(x) again; Gradient of the f′ graph on the GDC; Solve f″(x) > 0 or f″(x) < 0; Is f′ increasing?; Curve above or below its tangents; Look at the GDC graph; Turning points become zeros; Degree drops by one; Sign rows for f′ and f″; Graph the numerical derivative.
+- **Concept probes:**
+  - *true-false-reason* (L3): A graph that is concave up must be increasing. — False: f(x) = x² is concave up everywhere, and it decreases for x < 0. Concave up says the gradient is increasing, not the function.
+  - *true-false-reason* (L3): If f″(x) > 0 on an interval, then f′ is increasing on that interval. — True: f″ is the derivative of f′, so a positive f″ means f′ is increasing, whatever the sign of f′ itself.
+  - *always-sometimes-never* (L4): If f″(a) = 0, then the graph of f has a point of inflexion at x = a. — Sometimes: x³ does at x = 0, but x⁴ has f″(0) = 0 and is concave up on both sides, so it has none. f″ has to change sign.
+- **Misconceptions used:** 7. Squaring f′(x) instead of differentiating it; Differentiating f(x) again instead of f′(x); Reading d²y/dx² as (dy/dx)²; Confusing concave up (f″ > 0) with increasing (f′ > 0); Thinking concave down means decreasing; Drawing f′ as a shifted copy of f; Putting the zeros of f′ at the x-intercepts of f instead of at its turning points.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

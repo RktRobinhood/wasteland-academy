@@ -173,6 +173,32 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a range, Var = np, σ = Var, E(X) rounded, n rounded down, p = Var ÷ E, a kth success
   read as k in m trials, a conditional multiplied). As every exam type, it offers no extra
   format (error-spot, method-pick, true-false-reason): `test_extension.gd` holds that rule.
+- `engine/situations/differentiation.gd` (FAL-723) is `t5-differentiation-rules` (SL5.6, AA only):
+  one function to differentiate, with whole-number coefficients. Its views ask 18 unknowns:
+  standard results and rational powers, the chain rule on a bracket, an exponential, a log, a
+  trig function or a root, the product and quotient rules, each with a rewrite beside it where
+  the map lists one, a derivative shown to take a given form, a gradient at a point (one unknown
+  per rule, so each keeps its one route) and a derivative with the letter p left in, which is
+  Paper 2 only. A derivative is a `form` answer (see `engine/answer.gd`): the student types the
+  numbers into the expression and it is marked exactly; a wrong option in another shape carries
+  `shape`, so it can be picked but never typed. A Paper 1 gradient is exact (a whole number, a
+  fraction, or −2e³), and a Paper 2 gradient is at an x to 1 d.p., to 3 s.f.
+- `engine/situations/derivative_meaning.gd` (FAL-723) is `t5-derivative-meaning` (SL5.1, on all
+  four syllabuses): a quantity in one of eight stories, modelled by A + B e^(−kt) or A + B sin(wt),
+  and rational functions with 0/0 at a point. Every question is Paper 2, as every bank part is.
+  It asks a rate from the GDC, what a rate means, its units, a sentence in derivative notation,
+  a comparison of two rates, the limit of a model or of its rate as t → ∞, and a limit from a
+  table, from a graph with a gap and a dot, or by cancelling. A reading in words is a `claim`.
+- `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
+  syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
+  roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
+  An interval is a `form` answer with a between/outside pick and two typed ends in either order,
+  so the shape isn't given away; the ends being open or closed isn't asked, except for a
+  parameter, where the boundary is the point of the question.
+- `engine/situations/concavity.gd` (FAL-723) is `t5-concavity` (SL5.7, AA only): second derivatives,
+  f″ at a point, where a graph is concave up or down, and three matching questions played as
+  pick the graph (f to f′, f′ to f″, and the signs of f′ and f″ to f). The Paper 2 value of f″ is
+  at an x to 1 d.p.; f′(x) = a + bx − c e^x has b ≠ c, so ln(b/c) needs a calculator.
 - `engine/situations/regression.gd` (FAL-695) is `t4-regression-gdc` (SL4.4, on all four
   syllabuses): paired data, 6 to 9 whole-number points near a line (x from 1 to 20, y from 8
   to 99, 0.8 ≤ |r| ≤ 0.99, up or down as the story says), so the means, the regression line
@@ -541,8 +567,8 @@ the skills missed, and the Scrap goes into the save.
 `Run` has no UI, so a test plays a whole run: `start()`, `tick(delta)`,
 `answer(response)`, `next()`, `quit()`, and the lifelines `use_fifty()`, `use_hint()`
 and `use_freeze()`. The fight screen (`ui/fight.gd`) extends the practice screen and
-draws the run: enemy and player HP, the timer bar, the lifelines, the card, and the
-summary. It keeps room above the card for the journey strip (FAL-331). The lifeline row
+draws the run: the player's HP, the enemy in the scene, the timer bar, the lifelines, the card and the
+summary, with the journey scene (FAL-331, below) at the top. The lifeline row
 ends with the question's paper: "No calculator", or on Paper 2 the Calculator button.
 
 - **One settings file.** Every number is in `engine/tuning.gd` (`Tuning`): HP, the
@@ -647,8 +673,56 @@ only: nothing in the run waits on them, and a run plays the same with none conne
 | `floor_started(floor)` | a floor opens: the start floor, then each one after its boss falls |
 | `boss_beaten(floor, kind)` | a mini-boss (`"mini"`) or boss (`"boss"`) falls, after its heal |
 
-The strip (FAL-331) isn't merged yet, so the fight screen keeps an empty
-`JourneyStrip` box above the card for it.
+### The journey strip
+
+The side-view scene at the top of the fight screen (FAL-331, plan on FAL-289): the
+Learner walks right with Spark over the region's parallax, and each answer plays out as
+a beat: Explore, Puzzle, Fight or Boss. It is a view only. It never sends anything back,
+never takes input (`mouse_filter` is IGNORE), and every call reaches it deferred, so the
+run plays the same with the strip on, off or broken (`test_journey.gd` checks all three).
+
+- **The sheets.** `JourneyAssets.scan()` reads every atlas and JSON under
+  `assets/journey/`, found by folder (`party/`, `enemies/`, `weapons/`, one folder per
+  region), so a new sheet that follows `assets/journey/README.md` needs no code change.
+  `scripts/godot-env.sh` copies `assets/journey/` into `game/assets/journey/` at import
+  time (git ignores the copy), and the Web preset exports its JSON.
+- **The calls** (`journey/journey_stage.gd`, `scenes/journey_stage.tscn`):
+
+  | Call | When |
+  |---|---|
+  | `start_run(region, avatar, weapon, seed)` | the run starts; hides the strip if the avatar has no sheet |
+  | `fight_ahead(fight, tier, questions)` | a fight is won: the next encounter starts past the right edge and comes on |
+  | `fight_started(fight, tier, questions)` | a fight opens; tier 1 to 5 (0: none yet, taken as D1 to D2). Sets up the encounter if `fight_ahead` didn't |
+  | `question_opened(index)` | a question opens: a walk stops where it is, a beat jumps to its end, then only idle loops play |
+  | `answer_resolved(outcome, info)` | right, wrong, timeout, late or partial; `info.damage` sets the damage number |
+  | `fight_ended()` | the fight is won or left: victory or retreat, then walk on |
+  | `run_ended()` | death or quit |
+  | `set_weapon(name)` | cosmetic; the Learner isn't redrawn |
+
+- **Choosing the beat.** `JourneyBeats.encounter(seed, fight, tier, roster, questions)`
+  is a pure function: D1 Explore, D2 Explore or Puzzle, D3 a fight with 1 to 2 monsters
+  (now and then a Puzzle), D4 a fight (a bandit ambush or 2 to 3 monsters), D5 the boss.
+  Fight 5 is the mini-boss and fight 10 the boss, whatever the tier. It uses only sheets
+  that exist.
+- **The fight screen.** `JourneyLink.attach(run, stage, save)` turns the run's signals
+  (above) into these calls: the run's region goes to its island's journey region
+  (`functions` is `signal-tower`), a glancing hit is `partial`, and the avatar is the
+  save's `profile.avatar` ("female" when there is none, as the HTML game does). A region
+  with no journey art, or an avatar with no sheet, hides the strip. A won fight names
+  the next one from `Dungeon.tier_for()`, which doesn't touch the run.
+- **Nothing pops in.** An encounter starts past the right edge (`_width()`, not a fixed
+  distance) and comes on with the ground at walking speed, a leg of about 6 s on a
+  phone. A question stops the leg where it is. The next answer finishes it at
+  `CATCH_UP` before its beat plays, and the next question can cut that short, so the
+  strip never delays the run. The first encounter of a run opens the screen already in
+  place. Raiders in an ambush drop from the top of the frame. With reduced motion the
+  encounter stands in place.
+- **Calm and reduced motion.** While a question is open only idle loops play. A hit
+  gets one 80 ms flash, at most 3 a second. `reduced_motion` swaps poses and stops the
+  scroll.
+- **The demo.** `/next/?journey=demo` (desktop: `-- --journey=demo`) replays the FAL-293
+  reel's script with a dummy question card under the strip (`ui/journey_demo.gd`).
+  Add `&motion=reduced` for reduced motion.
 
 ### Deep links
 
@@ -723,6 +797,11 @@ each card of a pick-the-graph question is tested: the right card is the function
 its domain with every feature marked, and each wrong card is exactly its named mistake
 (−f, f past the domain, f with a turning point moved onto the axis, a V at the vertex,
 and so on).
+For the four FAL-723 situations it reads the function, model or graph back from the question
+(`calc_expr`), differentiates with SymPy and compares every option with that at three points
+at 30 digits; each tagged wrong option is worked out again from its misconception, a `form`
+answer's slots must make the expression it shows, and a pick-the-graph card must be its named
+mistake (`dr_*`, `dm_*`, `mo_*`, `co_*`).
 Each cell also gets 10 questions made on its family's shared situation, and 20 in each
 extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
@@ -1032,6 +1111,10 @@ script error happens while it runs. Run one file with
   slots, strict events, every misconception appears as an option (on Paper 2 too);
   Paper 2 has awkward decimals and 3 s.f. answers where a calculator gives them, with
   the rounding trap, and Paper 1's numbers are unchanged.
+- `test_differentiation.gd`, `test_derivative_meaning.gd`, `test_monotonic.gd`, `test_concavity.gd`:
+  the four FAL-723 types: built with every cell and every skill, no extra format, four
+  different options, GDC methods on Paper 2 only, an expression marked by its numbers, an
+  interval marked in either order, a limit graph with a gap, and matching as four graphs.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a

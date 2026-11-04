@@ -10316,6 +10316,724 @@ def check_model(q):
     return None, None
 
 
+# ── Differentiation (FAL-723) ────────────────────────────────
+# Reads the function back from the line shown, differentiates it with SymPy and compares
+# every option with that at several points, in mpmath. Each tagged wrong option is worked
+# out again from the misconception, from the numbers in the given, and those numbers are
+# first held to the function on screen.
+
+CX, CP = sp.Symbol("x"), sp.Symbol("p")
+CALC_PTS = (sp.Rational(137, 100), sp.Rational(271, 100), sp.Rational(393, 100))
+CALC_LOCALS = {"x": CX, "t": CX, "p": CP, "exp": sp.exp, "sqrt": sp.sqrt, "log": sp.log, "sin": sp.sin, "cos": sp.cos,
+               "cbrt": lambda e: e ** sp.Rational(1, 3)}
+SUP_DIGITS = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
+
+
+def calc_expr(text):
+    """The game's way of writing a function, as SymPy: '4x e^(3x)(2 + x)', '(ln x)/x⁴', '6/∛x', 'x^(−1/2)'."""
+    t = text.strip().replace("−", "-").replace("½", "(1/2)").replace("×", "*")
+    t = re.sub(r"(?<![a-z])e([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)", lambda m: "exp(" + m.group(1).translate(SUP_DIGITS) + ")", t)
+    t = t.replace("e^(", "exp(").replace("e^x", "exp(x)").replace("e^t", "exp(t)")
+    t = re.sub(r"[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+", lambda m: "**(" + m.group(0).translate(SUP_DIGITS) + ")", t)
+    t = t.replace("√(", "sqrt(").replace("√x", "sqrt(x)").replace("∛(", "cbrt(").replace("∛x", "cbrt(x)")
+    t = re.sub(r"ln ([0-9]+|x|t)", r"log(\1)", t).replace("ln(", "log(")
+    t = re.sub(r"(sin|cos) (x|t)", r"\1(\2)", t).replace("^", "**")
+    t = re.sub(r"([0-9xtp)]) ?(exp|sqrt|cbrt|log|sin|cos)\(", r"\1*\2(", t)
+    t = re.sub(r"\) ?([a-z(0-9])", r")*\1", t)
+    t = re.sub(r"\*\*\*", "**", t)
+    t = re.sub(r"(?<![a-z])([xtp]) ?\(", r"\1*(", t)
+    need(re.fullmatch(r"[0-9xtp+\-*/(). a-z]+", t) is not None, f"can't read the expression {text!r}")
+    return parse_expr(t, transformations=TRANSFORMS, local_dict=CALC_LOCALS)
+
+
+def calc_same(a, b):
+    """Whether two expressions agree at three points (p = 1.7 where a letter is left in)."""
+    d = sp.sympify(a) - sp.sympify(b)
+    for x in CALC_PTS:
+        v = sp.N(d.subs({CX: x, CP: sp.Rational(17, 10)}), 30)
+        if abs(complex(v)) > 1e-10 * max(1.0, abs(complex(sp.N(sp.sympify(a).subs({CX: x, CP: sp.Rational(17, 10)}), 30)))):
+            return False
+    return True
+
+
+def calc_rhs(text):
+    return text.split(" = ", 1)[1]
+
+
+def calc_template(ans, values):
+    """The expression the slots make: the answer's own template, with these numbers in."""
+    out = ""
+    for item in ans["template"]:
+        if isinstance(item, str):
+            out += item
+        else:
+            v = str(values[item["slot"]])
+            out += "(" + v + ")"
+    return calc_rhs(out)
+
+
+def calc_steps(q, steps=(2, 5)):
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(steps[0] <= len(sol["steps"]) <= steps[1], f"{sol['name']}: {len(sol['steps'])} steps, not {steps[0]} to {steps[1]}")
+        need(q["answer_text"] in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def calc_options(q):
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    need(len({o["text"] for o in ch}) == 4, "two options read the same")
+    need(q["answer_text"] == next(o["text"] for o in ch if o["correct"]), "the answer's text is not the right option")
+
+
+DR_CHAIN = "SL5.6.chain-rule#"
+DR_PROD = "SL5.6.product-rule#"
+DR_QUOT = "SL5.6.quotient-rule#"
+DR_STD = "SL5.6.standard-derivatives#"
+
+
+def dr_wrongs(u, fam, g, f, df):
+    """ref -> the expressions that misconception gives, worked out from f itself."""
+    x = CX
+    a, b, c, d, m, n = (int(g[k]) for k in "abcdmn")
+    w = {}
+    if u == "standard-terms":
+        tr = sp.cos(x) if fam == "cos" else sp.sin(x)
+        dtr = sp.diff(tr, x)
+        w[DR_STD + "1"] = [a * x * sp.exp(x - 1) + b / x + c * dtr]
+        if fam == "cos":
+            w[DR_STD + "0"] = [a * sp.exp(x) + b / x + c * sp.sin(x)]
+    elif u == "root-powers":
+        r = {"sqrt": sp.Rational(1, 2), "cbrt": sp.Rational(1, 3), "invsqrt": -sp.Rational(1, 2), "invcbrt": -sp.Rational(1, 3)}[fam]
+        w[DR_STD + "2"] = [a * r * x ** (r + 1) - n * b * x ** (-n - 1)]
+    elif u == "log-power-terms":
+        if fam == "power":
+            w[DR_CHAIN + "0"] = [a / x ** n + b * m * x ** (m - 1)]
+        else:
+            w[DR_CHAIN + "1"] = [a / (d * x) + b * m * x ** (m - 1)]
+    elif u == "chain-power":
+        inn = a * x ** m + b
+        w[DR_CHAIN + "0"] = [c * n * inn ** (n - 1)]
+        w[DR_CHAIN + "2"] = [c * n * sp.diff(inn, x) ** (n - 1)]
+    elif u == "chain-small-power":
+        w[DR_CHAIN + "0"] = [2 * (a * x + b)]
+    elif u == "chain-function":
+        lin = a * x + b
+        w[DR_CHAIN + "0"] = [{"exp-quad": sp.exp(a * x ** 2 + b), "exp-lin": sp.exp(lin), "ln-quad": 1 / (x ** 2 + b), "ln-lin": 1 / lin,
+                              "sin-lin": sp.cos(lin), "cos-lin": -sp.sin(lin), "sqrt-lin": 1 / (2 * sp.sqrt(lin))}[fam]]
+        if fam == "cos-lin":
+            w[DR_STD + "0"] = [a * sp.sin(lin)]
+    elif u == "chain-log-split":
+        w[DR_CHAIN + "0"] = [(n if fam == "power" else sp.Rational(1, 2)) / (a * x + b)]
+    elif u == "product-functions":
+        U, V = {"exp": (x ** n, sp.exp(a * x)), "ln": (x ** n, sp.log(x)), "sin": (x ** n, sp.sin(x)), "cos": (x ** n, sp.cos(x)),
+                "exp-sin": (sp.exp(x), sp.sin(x))}[fam]
+        w[DR_PROD + "0"] = [sp.diff(U, x) * sp.diff(V, x)]
+        w[DR_PROD + "1"] = [sp.diff(U, x) * V, U * sp.diff(V, x)]
+        if fam == "ln":
+            w[DR_PROD + "2"] = [x ** (n - 1) * n * sp.log(x)]
+    elif u == "product-polys":
+        U, V = a * x + b, c * x ** 2 + d
+        w[DR_PROD + "0"] = [sp.diff(U, x) * sp.diff(V, x)]
+        w[DR_PROD + "1"] = [sp.diff(U, x) * V, U * sp.diff(V, x)]
+    elif u == "product-powers":
+        U, V = a * x ** m, sp.sqrt(x)
+        w[DR_PROD + "0"] = [sp.diff(U, x) * sp.diff(V, x)]
+        w[DR_PROD + "1"] = [sp.diff(U, x) * V, U * sp.diff(V, x)]
+    elif u in ("quotient-linear", "quotient-functions", "quotient-split"):
+        U, V = {"quotient-linear": (a * x + b, c * x + d), "quotient-split": (a * x ** 2 + b * x + c, x)}.get(u) or \
+            {"ln": (sp.log(x), x ** n), "exp": (sp.exp(a * x), x), "sin": (sp.sin(x), x)}[fam]
+        du, dv = sp.diff(U, x), sp.diff(V, x)
+        w[DR_QUOT + "0"] = [(U * dv - V * du) / V ** 2]
+        w[DR_QUOT + "1"] = [(V * du - U * dv) / V]
+        w[DR_QUOT + "2"] = [du / dv]
+        if u == "quotient-functions" and fam == "ln":
+            # The bracket's common factor cancelled as in the right answer, with v left unsquared.
+            w[DR_QUOT + "1"].append((1 - n * sp.log(x)) / x ** n)
+        if u == "quotient-functions" and fam == "exp":
+            w[DR_QUOT + "1"].append(sp.exp(a * x) * (a * x - 1) / x)
+    elif u == "parameter-derivative":
+        L = a * x + CP
+        K = x + c
+        w[DR_QUOT + "0"] = [-df]
+        w[DR_CHAIN + "0"] = [(3 * L ** 2 * K ** 2 - L ** 3 * 2 * K) / K ** 4]
+        w[DR_QUOT + "1"] = [df * K]
+    return w
+
+
+def check_differentiation(q):
+    g, u, L, ans = q["given"], q["view"]["unknown"], q["lines"], q["answer"]
+    fam, paper = g["fam"], q["paper"]
+    src = L[0]
+    m = re.search(r"(?:y|f\(x\)) = (.+?)(?:, (?:for|where) .*)?\.?$", src)
+    need(m is not None, f"can't read the function in {src!r}")
+    f = calc_expr(m.group(1))
+    df = sp.diff(f, CX)
+    a, b, c, d, nm, n = (int(g[k]) for k in "abcdmn")
+    x = CX
+    # The numbers in the given are the function on screen.
+    held = {"standard-terms": a * sp.exp(x) + b * sp.log(x) + c * (sp.cos(x) if fam == "cos" else sp.sin(x)) + d,
+            "chain-power": c * (a * x ** nm + b) ** n, "chain-small-power": (a * x + b) ** 2,
+            "product-polys": (a * x + b) * (c * x ** 2 + d), "product-powers": a * x ** nm * sp.sqrt(x),
+            "quotient-linear": (a * x + b) / (c * x + d), "quotient-split": (a * x ** 2 + b * x + c) / x}.get(u)
+    if held is not None:
+        need(calc_same(f, held), "the function shown is not the one in the given")
+    if u == "quotient-linear":
+        need(a * d != b * c, "the quotient is a constant")
+    calc_options(q)
+    calc_steps(q)
+    if paper == 2:
+        need(u in ("chain-power", "chain-function", "quotient-functions", "gradient-chain", "gradient-product", "gradient-quotient", "parameter-derivative"), f"{u} is Paper 1 only")
+    need(u != "parameter-derivative" or paper == 2, "the letter p is Paper 2 only")
+
+    if u == "show-form":
+        tm = re.fullmatch(r"Show that (?:dy/dx|f′\(x\)) = (.+), and state .*", L[1])
+        need(tm is not None, f"can't read the target in {L[1]!r}")
+        for o in q["choices"]:
+            vals = dict(re.findall(r"([pqr]) = (−?\d+)", o["text"]))
+            t = tm.group(1)
+            for k, v in vals.items():
+                t = re.sub(rf"(?<![a-z]){k}(?=x|[^a-z]|$)", "(" + v + ")", t)
+            need(calc_same(calc_expr(t), df) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+            if o["ref"]:
+                nb = {k: int(v.replace("−", "-")) for k, v in vals.items()}
+                right = {k: int(R(ans["values"]["v%d" % i])) for i, k in enumerate(["p", "q", "r"][:len(vals)])}
+                if o["ref"].endswith("show-derivative-form#2"):
+                    slip = {"ln": ("q", -right.get("q", 0)), "linear": ("p", -right["p"]), "alg": ("q", -right.get("q", 0) - 2)}[fam]
+                    need(nb[slip[0]] == slip[1], f"{o['text']!r} is not a sign slip")
+                else:
+                    need(o["ref"] == DR_QUOT + "1" and nb["r"] == 2 * (right["r"] - 1), f"{o['text']!r} is not the bottom left unsimplified")
+        return None, None
+
+    if u.startswith("gradient-"):
+        km = re.search(r"(?:f′\(|x = )(−?[\d.]+)", q["asked"])
+        k = sp.Rational(km.group(1).replace("−", "-"))
+        need(R(g["k"]) == k, "the x asked is not the x in the given")
+        v = df.subs(x, k)
+        if paper == 2:
+            need((k * 10).q == 1 and k.q != 1, "a Paper 2 gradient is at an x to 1 d.p.")
+            val = sp.Float(sp.N(v, 40), 40)
+            need(not on_edge(abs(val)), "the gradient sits on a rounding edge")
+            need(q["answer_text"] == "Gradient = " + gc_s(val), f"gradient {q['answer_text']!r}, not {gc_s(val)}")
+            for o in q["choices"]:
+                need((o["text"] == q["answer_text"]) == o["correct"], f"option {o['text']!r}")
+            return None, None
+        need(k.q == 1, "a Paper 1 gradient is at a whole x")
+        for o in q["choices"]:
+            t = calc_rhs(o["text"]).replace("(−", "(-")
+            got = sp.sympify(calc_expr(t))
+            need(calc_same(got, v) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'} ({v})")
+            if o["ref"]:
+                U = {"chain": None, "product": x ** n, "quotient": a * x + b}[fam]
+                V = {"chain": None, "product": (a * x - b) ** 2, "quotient": x ** 2 + c}[fam]
+                if fam == "chain":
+                    want = [sp.exp(k ** 2 + b)]
+                else:
+                    du, dv = sp.diff(U, x).subs(x, k), sp.diff(V, x).subs(x, k)
+                    Uk, Vk = U.subs(x, k), V.subs(x, k)
+                    want = {DR_PROD + "0": [du * dv], DR_PROD + "1": [du * Vk, Uk * dv], DR_QUOT + "0": [(Uk * dv - Vk * du) / Vk ** 2],
+                            DR_QUOT + "1": [(Vk * du - Uk * dv) / Vk], DR_QUOT + "2": [du / dv] if dv != 0 else []}[o["ref"]]
+                need(any(calc_same(got, e) for e in want), f"option {o['text']!r} is not what {o['ref']} gives")
+        return None, None
+
+    wrongs = dr_wrongs(u, fam, g, f, df)
+    filled = calc_expr(calc_template(ans, ans["values"]))
+    need(calc_same(filled, df), f"the answer's slots make {filled}, not f′")
+    for o in q["choices"]:
+        got = calc_expr(calc_rhs(o["text"]))
+        need(calc_same(got, df) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+        if o["ref"]:
+            need(o["ref"] in wrongs, f"the checker can't confirm {o['ref']} on {u}")
+            need(any(calc_same(got, e) for e in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+        if not o["correct"] and "shape" not in o["values"]:
+            need(calc_same(calc_expr(calc_template(ans, o["values"])), got), f"option {o['text']!r} is not what its slots make")
+    return None, None
+
+
+# ── What a derivative means, and limits (FAL-723) ────────────
+
+DM_CONTEXTS = [("V", "volume of water in a tank", "litres", "minute", "minutes"), ("H", "temperature of a generator", "°C", "minute", "minutes"),
+               ("R", "radiation reading at a checkpoint", "microsieverts", "hour", "hours"), ("D", "depth of water in a flooded canal", "metres", "hour", "hours"),
+               ("P", "population of a settlement", "people", "year", "years"), ("F", "fuel in a convoy's tanks", "litres", "hour", "hours"),
+               ("L", "length of a vine on the wall", "cm", "day", "days"), ("C", "charge in a battery bank", "kilowatt-hours", "hour", "hours")]
+DM_I = "SL5.1.interpret-derivative#"
+DM_L = "SL5.1.estimate-limit#"
+
+
+def dm_model(q):
+    for t in q["lines"]:
+        m = re.search(r"[A-Z]\(t\) = (.+?), t ≥ 0", t)
+        if m:
+            return calc_expr(m.group(1).replace("t", "x").replace("x ≥", "t ≥"))
+    raise Fail("can't read the model")
+
+
+def dm_word(r):
+    return "increasing" if r > 0 else "decreasing"
+
+
+def dm_num(v):
+    return str(v).replace("-", "−")
+
+
+def dm_graph_curve(q, fn):
+    f = sp.lambdify(CX, fn, "mpmath")
+    for x, y in q["graph"]["curves"][0][:: 20]:
+        need(abs(f(mpmath.mpf(str(x))) - mpmath.mpf(str(y))) < mpmath.mpf(10) ** -6, "the graph drawn is not the model")
+
+
+def check_derivative_meaning(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 2, "a derivative's meaning is Paper 2")
+    sym, what, y, per, time = DM_CONTEXTS[int(g["ctx"])]
+    unit = f"{y} per {per}"
+    calc_options(q)
+    calc_steps(q)
+    wrongs, want, trap = {}, None, None
+    if u in ("rate-at-time", "interpret-value"):
+        fn = dm_model(q)
+        t0 = int(g["t0"])
+        r = sp.N(sp.diff(fn, CX).subs(CX, t0), 40)
+        v = sp.N(fn.subs(CX, t0), 40)
+        need(not on_edge(abs(r)) and not on_edge(abs(v)), "a value sits on a rounding edge")
+        if u == "rate-at-time":
+            label, tail = (f"{sym}′({t0}) = ", "") if rep == "equation" else (f"d{sym}/dt = ", " " + unit)
+            want = label + gc_s(r) + tail
+            trap = label + gc_s2(r) + tail
+            wrongs = {DM_I + "0": {label + gc_s(v) + tail}, DM_I + "1": {label + gc_s(-r) + tail}}
+        else:
+            need(L[1] == f"{sym}′({t0}) = {gc_s(r)}, to 3 s.f.", f"the rate shown is {L[1]!r}")
+            mag = gc_s(abs(r))
+            want = f"At t = {t0}, the {what} is {dm_word(r)} at {mag} {unit}."
+            wrongs = {DM_I + "0": {f"At t = {t0}, the {what} is {mag} {y}."},
+                      DM_I + "1": {f"At t = {t0}, the {what} is {dm_word(-r)} at {mag} {unit}."},
+                      DM_I + "2": {f"At t = {t0}, the {what} has {'gone up' if r > 0 else 'gone down'} by {mag} {y}."}}
+            if rep == "graph":
+                dm_graph_curve(q, fn)
+                tang = q["graph"]["curves"][1]
+                f = sp.lambdify(CX, v + r * (CX - t0), "mpmath")
+                for x, yy in tang[:: 20]:
+                    need(abs(f(mpmath.mpf(str(x))) - mpmath.mpf(str(yy))) < mpmath.mpf(10) ** -6, "the line drawn is not the tangent")
+    elif u == "units-of-rate":
+        want = unit
+        wrongs = {DM_I + "2": {y}}
+    elif u == "write-in-notation":
+        m = re.fullmatch(rf"The {re.escape(what)} is (increasing|decreasing) at (\d+) {re.escape(unit)}\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        n = int(m.group(2)) * (1 if m.group(1) == "increasing" else -1)
+        want = f"d{sym}/dt = {dm_num(n)}"
+        wrongs = {DM_I + "0": {f"{sym} = {dm_num(n)}"}, DM_I + "1": {f"d{sym}/dt = {dm_num(-n)}"}}
+    elif u == "compare-rates":
+        t0 = int(g["t0"])
+        if rep == "table":
+            b, c = q["table"]["rows"][1][1]
+        else:
+            m = re.fullmatch(rf"A′\({t0}\) = (\S+) and B′\({t0}\) = (\S+)", L[1])
+            need(m is not None, f"can't read {L[1]!r}")
+            b, c = m.groups()
+        b, c = R(b.replace("−", "-")), R(c.replace("−", "-"))
+        need(abs(b) != abs(c), "the two rates have the same size")
+        fast, slow = ("A", "B") if abs(b) > abs(c) else ("B", "A")
+        move = f"A is {dm_word(b)} and B is {dm_word(c)}"
+        want = f"{move}, and {fast} is changing faster."
+        same = dm_word(-b) if b * c > 0 else "increasing"
+        wrongs = {DM_I + "1": {f"Both are {same}, and {fast} is changing faster."}, DM_I + "0": {f"{fast} holds more than {slow} at t = {t0}."}}
+    elif u in ("limit-of-model", "limit-of-rate"):
+        fn = None
+        if rep == "graph":
+            m = re.search(r"= (.+), t ≥ 0", L[0])
+            fn = calc_expr(m.group(1).replace("t", "x").replace("x ≥", "t ≥"))
+            dm_graph_curve(q, fn)
+        elif rep == "table":
+            A, B, k = R(g["A"]), R(g["B"]), R(g["k"])
+            fn = A + B * sp.exp(-k * CX)
+            rows = q["table"]["rows"]
+            for ts, vs in zip(rows[0][1], rows[1][1]):
+                need(abs(sp.N(fn.subs(CX, int(ts))) - sp.Float(vs.replace("−", "-"))) < sp.Float(vs.replace("−", "-")).__abs__() * sp.Float("0.0001"), f"the table's value at t = {ts} is wrong")
+        else:
+            fn = dm_model(q)
+        first = fn.subs(CX, 0)
+        lim = sp.limit(fn, CX, sp.oo) if u == "limit-of-model" else sp.limit(sp.diff(fn, CX), CX, sp.oo)
+        want = f"The limit is {dm_num(lim)}"
+        wrongs = {DM_L + "0": {"The limit does not exist"}, DM_L + "1": {f"The limit is {dm_num(first)}" if u == "limit-of-model" else f"The limit is {dm_num(sp.limit(fn, CX, sp.oo))}"}}
+    else:
+        a = int(g["a"])
+        if u == "limit-from-graph":
+            m, rr, yd = int(g["m"]), int(g["rr"]), int(g["y"])
+            lim = m * (a - rr)
+            need(yd != lim, "the dot is at the height of the limit")
+            need(len(q["graph"]["curves"]) == 1, "the two sides of the gap are one curve")
+            pts = [p for p in q["graph"]["curves"][0] if p[1] <= q["graph"]["y1"]]
+            need(all(abs(p[0] - a) > 0.1 for p in pts), "the curve has no gap at a")
+            need({p[0] < a for p in pts} == {True, False}, "the curve is not on both sides of a")
+            need(all(abs(p[1] - m * (p[0] - rr)) < 1e-6 for p in pts), "the curve is not m(x − r)")
+            dot = q["graph"]["points"][0]
+            need(dot["x"] == a and dot["y"] == yd, "the dot is not at (a, y)")
+            wrongs = {DM_L + "1": {f"The limit is {dm_num(yd)}"}}
+        else:
+            top, bot = re.fullmatch(r"f\(x\) = \((.+)\)/\((.+)\)", L[0]).groups()
+            ft, fb = calc_expr(top), calc_expr(bot)
+            need(ft.subs(CX, a) == 0 and fb.subs(CX, a) == 0, "this is not 0/0 at a")
+            f = sp.cancel(ft / fb)
+            lim = f.subs(CX, a)
+            if u == "limit-from-table":
+                rows = q["table"]["rows"]
+                xs, ys = [R(t.replace("−", "-")) for t in rows[0][1]], [R(t.replace("−", "-")) for t in rows[1][1]]
+                need(xs == sorted(xs) and xs[1] < a < xs[2], "the table is not either side of a")
+                for xv, yv in zip(xs, ys):
+                    need(f.subs(CX, xv) == yv, f"the table's f({xv}) is wrong")
+                wrongs = {DM_L + "2": {"The limit is " + dec_text(ys[1])}}
+        want = f"The limit is {dm_num(lim)}"
+        wrongs[DM_L + "0"] = {"The limit does not exist"}
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+# ── Increasing and decreasing (FAL-723) ──────────────────────
+
+MO_I = "SL5.2.increasing-decreasing-intervals#"
+MO_G = "SL5.2.sign-from-graph#"
+MO_P = "SL5.2.parameter-for-monotonic#"
+
+
+def mo_iv(shape, lo, hi, s=dm_num):
+    return f"{s(lo)} < x < {s(hi)}" if shape == "between" else f"x < {s(lo)} or x > {s(hi)}"
+
+
+def mo_where(df, word, lo, hi):
+    """Where f rises or falls, from the sign of f′ at a point inside each stretch: between or outside lo and hi."""
+    mid = sp.N(df.subs(CX, (lo + hi) / 2), 30)
+    up = mid > 0
+    return "between" if up == (word == "increasing") else "outside"
+
+
+def mo_two_roots(df):
+    rs = sorted(sp.Poly(df, CX).ground_roots().keys())
+    need(len(rs) == 2, f"f′ does not have two rational roots: {df}")
+    return rs
+
+
+def mo_sign(v):
+    return "positive" if v > 0 else ("negative" if v < 0 else "zero")
+
+
+def check_monotonic(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    calc_options(q)
+    calc_steps(q)
+    word = "increasing" if "increasing" in asked or " increases " in asked else "decreasing"
+    if q["view"]["angle"] in ("gdc-turning-points", "gdc-slider"):
+        need(q["paper"] == 2, "a GDC method is Paper 2")
+    wrongs, want = {}, None
+    if u == "interval-from-equation":
+        f = calc_expr(re.search(r"= (.+?)\.?$", L[0]).group(1))
+        df = sp.diff(f, CX)
+        p, r2 = mo_two_roots(df)
+        shape = mo_where(df, word, p, r2)
+        want = mo_iv(shape, p, r2)
+        ys = sorted([f.subs(CX, p), f.subs(CX, r2)])
+        wrongs = {MO_I + "0": {mo_iv(shape, ys[0], ys[1])}, MO_I + "2": {mo_iv("outside" if shape == "between" else "between", p, r2)}}
+        need(sp.Poly(df, CX).LC() < 0 or not any(o["ref"] == MO_I + "2" for o in q["choices"]), "a wrong way round is only for a negative leading coefficient")
+    elif u == "interval-from-table":
+        rows = q["table"]["rows"]
+        xs = [R(t.replace("−", "-")) for t in rows[0][1]]
+        ys = [R(t.replace("−", "-")) for t in rows[1][1]]
+        zs = [x for x, y in zip(xs, ys) if y == 0]
+        need(len(zs) == 2 and xs == sorted(xs), "the table doesn't show two zeros of f′")
+        # A cubic's f′ is the parabola through the table: it must fit all five points.
+        fit = sp.interpolate(list(zip(xs[:3], ys[:3])), CX)
+        for x, y in zip(xs, ys):
+            need(fit.subs(CX, x) == y, "the table is not a quadratic f′")
+        between = ys[2]
+        need(between != 0 and ys[0] * between < 0 and ys[4] * between < 0, "f′ doesn't change sign at the zeros")
+        shape = "between" if (between > 0) == (word == "increasing") else "outside"
+        want = mo_iv(shape, zs[0], zs[1])
+        wrongs = {MO_I + "2": {mo_iv("outside" if shape == "between" else "between", zs[0], zs[1])}}
+    elif u == "quadratic-interval":
+        f = calc_expr(L[0].split(" = ", 1)[1])
+        df = sp.diff(f, CX)
+        h = sp.solve(df, CX)[0]
+        a = sp.Poly(f, CX).LC()
+        rel = ">" if (a > 0) == (word == "increasing") else "<"
+        want = f"x {rel} {dm_num(h)}"
+        rs = sorted(sp.Poly(f, CX).ground_roots().keys())
+        wrongs = {MO_I + "0": {f"y {rel} {dm_num(f.subs(CX, h))}"}, MO_I + "1": {f"{dm_num(rs[0])} < x < {dm_num(rs[1])}"},
+                  MO_I + "2": {f"x {'<' if rel == '>' else '>'} {dm_num(h)}"}}
+    elif u == "interval-from-derivative-graph":
+        gp = q["graph"]
+        pts = gp["points"]
+        r1, r2 = R(int(pts[0]["x"])), R(int(pts[1]["x"]))
+        need(pts[0]["y"] == 0 and pts[1]["y"] == 0, "the marked points are not on the axis")
+        curve = gp["curves"][0]
+        xm = float((r1 + r2) / 2)
+        mid = min(curve, key=lambda c: abs(c[0] - xm))[1]
+        need(mid != 0, "the curve is on the axis at the middle")
+        for a, b in curve[:: 40]:
+            sg = (mpmath.mpf(str(a)) - r1) * (mpmath.mpf(str(a)) - r2)
+            need(abs(sg) < 1e-3 or abs(b / sg - (mid / ((xm - float(r1)) * (xm - float(r2))))) < 1e-6, "the curve is not a parabola through its marked points")
+        shape = "between" if (mid > 0) == (word == "increasing") else "outside"
+        want = mo_iv(shape, r1, r2)
+        wrongs = {MO_I + "2": {mo_iv("outside" if shape == "between" else "between", r1, r2)}}
+    elif u == "interval-gdc":
+        need(q["paper"] == 2, "f′ with an exponential is Paper 2")
+        df = calc_expr(L[0].split(" = ", 1)[1])
+        fn = sp.lambdify(CX, df, "mpmath")
+        zs = gc_zeros(df, -20, 8)
+        need(len(zs) == 2, f"f′ has {len(zs)} zeros")
+        need(all(gc_fair(z) for z in zs), "a zero sits on a rounding edge")
+        up = fn((zs[0] + zs[1]) / 2) > 0
+        shape = "between" if up == (word == "increasing") else "outside"
+        want = mo_iv(shape, zs[0], zs[1], gc_s)
+        wrongs = {MO_I + "2": {mo_iv("outside" if shape == "between" else "between", zs[0], zs[1], gc_s)}}
+    elif u == "sign-at-points":
+        x1, x2 = int(g["x1"]), int(g["x2"])
+        co = [int(c) for c in g["coeffs"]]
+        f = sum(c * CX ** (3 - i) for i, c in enumerate(co))
+        df = sp.diff(f, CX)
+        curve = q["graph"]["curves"][0]
+        fnf = sp.lambdify(CX, f, "mpmath")
+        for a, b in curve[:: 40]:
+            need(abs(fnf(mpmath.mpf(str(a))) - mpmath.mpf(str(b))) < 1e-6, "the curve drawn is not f")
+        need({p["label"] for p in q["graph"]["points"]} >= {"A", "B"}, "the points aren't marked")
+        d1, d2 = df.subs(CX, x1), df.subs(CX, x2)
+        txt = lambda a, b: f"f′({dm_num(x1)}) is {a} and f′({dm_num(x2)}) is {b}"
+        want = txt(mo_sign(d1), mo_sign(d2))
+        wrongs = {MO_G + "0": {txt(mo_sign(f.subs(CX, x1)), mo_sign(f.subs(CX, x2)))}}
+    elif u == "intervals-from-graph":
+        pts = q["graph"]["points"]
+        h, k = R(int(pts[0]["x"])), R(int(pts[0]["y"]))
+        r1, r2 = R(int(pts[1]["x"])), R(int(pts[2]["x"]))
+        need(pts[1]["y"] == 0 and pts[2]["y"] == 0 and h == (r1 + r2) / 2, "the marks are not the vertex and roots")
+        a = k / ((h - r1) * (h - r2))
+        neg = "< 0" in asked
+        rel = ">" if (a > 0) != neg else "<"
+        want = f"x {rel} {dm_num(h)}"
+        below = mo_iv("between" if a > 0 else "outside", r1, r2)
+        above = mo_iv("outside" if a > 0 else "between", r1, r2)
+        wrongs = {MO_G + "0": {below if neg else above}, MO_G + "1": {above if neg else below}}
+    elif u == "negative-and-increasing":
+        f = calc_expr(L[0].split(" = ", 1)[1])
+        df = sp.diff(f, CX)
+        rs = sorted(sp.Poly(f, CX).ground_roots().keys())
+        a = sp.Poly(f, CX).LC()
+        h = sp.solve(df, CX)[0]
+        need(("negative and increasing" in asked) == (a > 0), "the words don't suit the parabola")
+        # Checked on the x-axis: both conditions at a grid of points.
+        good = [sp.Rational(i, 2) for i in range(-30, 30)]
+        sign_ok = lambda x: (f.subs(CX, x) < 0 and df.subs(CX, x) > 0) if a > 0 else (f.subs(CX, x) > 0 and df.subs(CX, x) < 0)
+        hit = [x for x in good if sign_ok(x)]
+        want = f"{dm_num(min(hit) - sp.Rational(1, 2))} < x < {dm_num(max(hit) + sp.Rational(1, 2))}"
+        wrongs = {MO_I + "1": {f"{dm_num(rs[0])} < x < {dm_num(rs[1])}"}}
+    elif u == "parameter-discriminant":
+        K = sp.Symbol("k")
+        m = re.fullmatch(r"f\(x\) = (−?)x³ \+ kx² ([+−]) (\d*)x(?: ([+−]) (\d+))?", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        sa = -1 if m.group(1) else 1
+        c = int(m.group(3) or 1) * (-1 if m.group(2) == "−" else 1)
+        need(sa * c > 0, "f′ can have no roots only if its ends agree")
+        need(word == ("increasing" if sa > 0 else "decreasing"), "the word doesn't suit the sign of x³")
+        bound = sp.solve((2 * K) ** 2 - 4 * 3 * sa * c, K)
+        need(all(b.is_integer for b in bound) and len(bound) == 2, f"the bound isn't whole: {bound}")
+        lo, hi = sorted(bound)
+        want = f"{dm_num(lo)} ≤ k ≤ {dm_num(hi)}"
+        b2 = sp.sqrt(4 * sa * c) * 1
+        wrongs = {MO_P + "0": {f"−{mo_surd(b2)} ≤ k ≤ {mo_surd(b2)}"}, MO_P + "1": {f"k < {dm_num(lo)} or k > {dm_num(hi)}"}, MO_P + "2": {f"k ≤ {dm_num(hi)}"}}
+    elif u == "parameter-shift":
+        f = calc_expr(L[0].split(" = ", 1)[1])
+        df = sp.diff(f, CX)
+        h = sp.solve(df, CX)[0]
+        k = f.subs(CX, h)
+        need(sp.Poly(f, CX).LC() > 0, "g′ opens down, so g can't increase everywhere")
+        want = f"d ≤ {dm_num(k)}"
+        wrongs = {MO_P + "1": {f"d > {dm_num(k)}"}}
+    gc_check_common(q, want, wrongs)
+    return None, None
+
+
+def mo_surd(v):
+    """2√3 as the game writes it, from a SymPy surd."""
+    c, r = v.as_coeff_Mul()
+    return ("" if c == 1 else str(c)) + "√" + str(r.args[0])
+
+
+# ── Second derivative and concavity (FAL-723) ────────────────
+
+CO_F = "SL5.7.find-second-derivative#"
+CO_C = "SL5.7.concavity#"
+CO_M = "SL5.7.sketch-match-graphs#"
+
+
+def co_read(line):
+    m = re.search(r"(?:y|f\(x\)|f′\(x\)|f″\(x\)) = (.+?)(?:, (?:for|with) .*)?\.?$", line)
+    need(m is not None, f"can't read {line!r}")
+    return calc_expr(m.group(1))
+
+
+def co_curve_is(curve, fn, tol=1e-6):
+    f = sp.lambdify(CX, fn, "mpmath")
+    return all(abs(f(mpmath.mpf(str(a))) - mpmath.mpf(str(b))) < tol for a, b in curve[:: 25])
+
+
+def co_cubic(g):
+    co = [int(c) for c in g["coeffs"]]
+    return sum(c * CX ** (3 - i) for i, c in enumerate(co))
+
+
+def co_cards(q, want, mistakes, main=None):
+    """The right card is want; each wrong card is its named mistake and nothing else."""
+    if main is not None:
+        need(co_curve_is(q["graph"]["curves"][0], main), "the graph shown is not the function")
+    cards = q["graphs"]
+    need(len(cards) == 4, f"{len(cards)} cards")
+    calc_options(q)
+    calc_steps(q)
+    for o, card in zip(q["choices"], cards):
+        c = card["curves"][0]
+        need(len(c) > 3, "a card has no curve")
+        if o["correct"]:
+            need(co_curve_is(c, want), "the right card is not the graph asked for")
+        else:
+            need(not co_curve_is(c, want), f"{o['text']} is the right graph too")
+            m = o["mistake"]
+            need(m in mistakes, f"the checker can't confirm the mistake {m!r}")
+            need(co_curve_is(c, mistakes[m][0]), f"{o['text']} is not {m}")
+            need(o["ref"] == mistakes[m][1], f"{o['text']}: ref {o['ref']!r} is not {mistakes[m][1]!r}")
+
+
+def check_concavity(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    if u.startswith("match-"):
+        f = co_cubic(g)
+        d1, d2 = sp.diff(f, CX), sp.diff(f, CX, 2)
+        p, r2 = int(g["p"]), int(g["q"])
+        need(sorted(sp.Poly(d1, CX).ground_roots().keys()) == [p, r2], "the turning points are not the ones the question gives")
+        if q["view"]["angle"] == "gdc-nderiv":
+            need(q["paper"] == 2, "a GDC method is Paper 2")
+        A = sp.Poly(f, CX).LC()
+        if u == "match-derivative":
+            zs = gc_zeros(f, p - 2, r2 + 2)
+            mist = {"shifted": (f - 4, CO_M + "0"), "flipped": (-d1, ""), "moved": (d1.subs(CX, CX - 1), CO_M + "1")}
+            if len(zs) >= 2:
+                mist["intercepts"] = (3 * A * (CX - sp.Float(zs[0], 25)) * (CX - sp.Float(zs[-1], 25)), CO_M + "1")
+            co_cards(q, d1, mist, f)
+        elif u == "match-second-derivative":
+            co_cards(q, d2, {"shifted": (d1 - 3, CO_M + "0"), "flipped": (-d2, ""), "intercepts": (6 * A * (CX - p), CO_M + "1")}, d1)
+        else:
+            if rep == "table":
+                rows = q["table"]["rows"]
+                h = (p + r2) // 2
+                need(rows[1][1] == ["+", "−", "−", "+"] and rows[2][1] == ["−", "−", "+", "+"], "the signs are not this cubic's")
+                for x, a, b in [(p - 1, "+", "−"), (p + sp.Rational(1, 2), "−", "−"), (r2 - sp.Rational(1, 2), "−", "+"), (r2 + 1, "+", "+")]:
+                    need((d1.subs(CX, x) > 0) == (a == "+") and (d2.subs(CX, x) > 0) == (b == "+"), f"the signs at {x} are wrong")
+                need(dm_num(p) in rows[0][1][0] and dm_num(r2) in rows[0][1][3] and dm_num(h) in rows[0][1][1], "the stretches are not this cubic's")
+            co_cards(q, f, {"flipped": (-f, ""), "moved": (f.subs(CX, CX + 2), ""), "parabola": (d1, CO_M + "0")})
+        return None, None
+    calc_options(q)
+    calc_steps(q)
+    if q["view"]["angle"] in ("gdc-gradient-of-derivative", "gdc-shape"):
+        need(q["paper"] == 2, "a GDC method is Paper 2")
+    wrongs, want, trap = {}, None, None
+    up = "concave up" in asked
+    if u == "second-derivative":
+        f = co_read(L[0])
+        d1, d2 = sp.diff(f, CX), sp.diff(f, CX, 2)
+        wrongs = {CO_F + "0": [d1 ** 2], CO_F + "2": [d1 ** 2], CO_F + "1": [d1]}
+        ans = q["answer"]
+        need(calc_same(calc_expr(calc_template(ans, ans["values"])), d2), "the answer's slots are not f″")
+        for o in q["choices"]:
+            got = calc_expr(calc_rhs(o["text"]))
+            need(calc_same(got, d2) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+            if o["ref"]:
+                need(o["ref"] in wrongs and any(calc_same(got, e) for e in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+            if not o["correct"] and "shape" not in o["values"]:
+                need(calc_same(calc_expr(calc_template(ans, o["values"])), got), f"option {o['text']!r} is not what its slots make")
+        return None, None
+    if u == "second-derivative-value":
+        k = R(g["k"])
+        e = co_read(L[0])
+        given_prime = L[0].startswith("f′")
+        d1 = e if given_prime else sp.diff(e, CX)
+        d2 = sp.diff(d1, CX)
+        v, b = d2.subs(CX, k), d1.subs(CX, k)
+        lab = f"f″({dec_text(k)}) = "
+        if q["paper"] == 2:
+            need(k.q != 1 and (k * 10).q == 1, "a Paper 2 value is at an x to 1 d.p.")
+            vv, bb = sp.N(v, 40), sp.N(b, 40)
+            need(not on_edge(abs(vv)), "the value sits on a rounding edge")
+            want, trap = lab + gc_s(vv), lab + gc_s2(vv)
+            wrongs = {CO_F + "1": {lab + gc_s(bb)}, CO_F + "0": {lab + gc_s(bb ** 2)}}
+        else:
+            need(k.q == 1, "a Paper 1 value is at a whole x")
+            want = lab + dm_num(v)
+            wrongs = {CO_F + "1": {lab + dm_num(b)}, CO_F + "0": {lab + dm_num(b ** 2)}}
+    elif u == "concave-interval":
+        f = co_read(L[0])
+        d1, d2 = sp.diff(f, CX), sp.diff(f, CX, 2)
+        rs = sorted(sp.Poly(d2, CX).ground_roots().keys())
+        if len(rs) == 1:
+            h = rs[0]
+            more = (sp.Poly(d2, CX).LC() > 0) == up
+            want = f"x {'>' if more else '<'} {dm_num(h)}"
+            z = sorted(sp.Poly(d1, CX).ground_roots().keys())
+            wrongs = {CO_C + "0": {mo_iv("outside" if sp.Poly(d1, CX).LC() > 0 else "between", z[0], z[1])}}
+        else:
+            need(len(rs) == 2, f"f″ has {len(rs)} roots")
+            shape = "between" if (d2.subs(CX, (rs[0] + rs[1]) / 2) > 0) == up else "outside"
+            want = mo_iv(shape, rs[0], rs[1])
+    elif u == "concave-exponential":
+        d2 = co_read(L[0])
+        h = sp.solve(d2, CX)
+        need(len(h) == 1 and h[0].is_integer, f"f″ has no whole-number root: {h}")
+        h = h[0]
+        pos_right = d2.subs(CX, h + 1) > 0
+        want = f"x {'>' if pos_right == up else '<'} {dm_num(h)}"
+    elif u == "concave-gdc":
+        need(q["paper"] == 2, "f′ with an exponential is Paper 2")
+        d1 = co_read(L[0])
+        zs = gc_zeros(d1, -20, 8)
+        need(len(zs) == 2, "f′ doesn't have two zeros")
+        d2 = sp.diff(d1, CX)
+        x0 = sp.solve(d2, CX)[0]
+        val = sp.N(x0, 40)
+        need(not on_edge(abs(val)), "the answer sits on a rounding edge")
+        right_pos = d2.subs(CX, x0 + 1) > 0
+        want = f"x {'>' if right_pos == up else '<'} {gc_s(val)}"
+        wrongs = {CO_C + "0": {mo_iv("between", zs[0], zs[1], gc_s)}}
+    elif u == "concave-from-derivative-graph":
+        pts = q["graph"]["points"]
+        h, k, r1, r2 = R(int(pts[0]["x"])), R(int(pts[0]["y"])), R(int(pts[1]["x"])), R(int(pts[2]["x"]))
+        need(pts[1]["y"] == 0 and pts[2]["y"] == 0 and h == (r1 + r2) / 2, "the marks are not the vertex and roots")
+        a = k / ((h - r1) * (h - r2))
+        need(co_curve_is(q["graph"]["curves"][0], a * (CX - r1) * (CX - r2)), "the graph is not the parabola its marks say")
+        want = f"x {'>' if (a > 0) == up else '<'} {dm_num(h)}"
+        wrongs = {CO_C + "0": {mo_iv("outside" if a > 0 else "between", r1, r2)}}
+    elif u == "concave-at-point":
+        m = re.search(r"f\(x\) = (.+?)(?:, with .*)?$", L[0])
+        f = calc_expr(m.group(1))
+        k = int(g["k"])
+        d1, d2 = sp.diff(f, CX), sp.diff(f, CX, 2)
+        v, b = d2.subs(CX, k), d1.subs(CX, k)
+        need(v != 0, "f″ is 0 at the point")
+        word = "up" if v > 0 else "down"
+        txt = lambda n, w: f"f″({dm_num(k)}) = {dm_num(n)}, so the curve is concave {w}"
+        want = txt(v, word)
+        by_dir = "up" if b > 0 else "down"
+        wrongs = {CO_C + "0": {txt(v, "up")}, CO_C + "1": {txt(v, "down")}}
+        if rep == "graph":
+            need(co_curve_is(q["graph"]["curves"][0], f), "the graph is not f")
+            need(co_curve_is(q["graph"]["curves"][1], f.subs(CX, k) + b * (CX - k)), "the line is not the tangent")
+        for o in q["choices"]:
+            if o["ref"] in wrongs:
+                need(by_dir != word and by_dir == o["text"].rsplit(" ", 1)[1], f"{o['text']!r} is not the shape read from the direction")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -10335,7 +11053,9 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
-                    "compound-interest": check_compound_interest}
+                    "compound-interest": check_compound_interest,
+                    "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
+                    "monotonic": check_monotonic, "concavity": check_concavity}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

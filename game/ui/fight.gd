@@ -1,14 +1,20 @@
 extends "res://ui/practice.gd"
 ## The fight screen (FAL-413, FAL-415): a run (engine/run.gd) drawn as fights. It opens
-## on the floor select (floor 1, and the floor after each beaten boss). The enemy and
-## the player's HP, the draining timer, the lifelines and Scrap sit above the practice
-## screen's question card, which this screen reuses. A wrong answer or a timeout shows
-## the worked solution before the next question; the run ends in a summary. A mini-boss
-## or boss shows its part, the parts done, and the value carried on from the part before.
+## on the floor select (floor 1, and the floor after each beaten boss). A wrong answer or
+## a timeout shows the worked solution before the next question; the run ends in a
+## summary. A mini-boss or boss shows its part, the parts done, and the value carried on
+## from the part before.
 ##
-## Room is kept for the journey strip (FAL-331) above the card. The lifeline row ends
-## with the question's paper (FAL-419): "No calculator", or the Calculator button on a
-## Paper 2 question, which opens the calculator while the clock keeps running.
+## From the top (FAL-331, the FAL-293 reel): one slim header with the region, the
+## player's HP and Scrap, Quit, and the speaker and gear above it; the journey scene
+## (journey/journey_stage.gd), driven from the run's view signals by JourneyLink, with
+## the enemy standing in it and the enemy's name and HP over it; the timer, the lifelines
+## and the fight's progress; then the practice screen's question card, which this screen
+## reuses. On a window wide enough the scene and those rows stand left of the card, so
+## the card has the window's height. An avatar with no journey sheet gets the enemy's
+## portrait in the scene's place. The lifeline row ends with the question's paper
+## (FAL-419): "No calculator", or the Calculator button on a Paper 2 question, which
+## opens the calculator while the clock keeps running.
 ##
 ## Deep links, for screenshots and tests:
 ##   web:      /next/?play=quadratics&seed=3&floor=1&autoplay=wrong
@@ -17,7 +23,8 @@ extends "res://ui/practice.gd"
 ## may start on, else the run starts on floor 1. autoplay=right or wrong answers the
 ## first question at once; autoplay=lose plays wrong answers until the run ends, to
 ## show the summary; autoplay=carry answers a boss's first part wrong and opens the
-## next, to show the value carried on. fight=5 or fight=10 starts at the mini-boss or
+## next, to show the value carried on. autoplay=loop plays itself at a reader's pace,
+## to record the scene. fight=5 or fight=10 starts at the mini-boss or
 ## the boss; such a run records no floors. select=1 shows the floor select.
 ##
 ## The map (ui/map.gd) starts a run by setting `launch` before opening this scene. The
@@ -32,11 +39,22 @@ const MONO := preload("res://assets/fonts/share-tech-mono-latin.woff2")
 const GREEN := Color(0.36, 0.8, 0.42)
 const ORANGE := Color(0.95, 0.6, 0.2)
 const RED := Color(0.93, 0.26, 0.3)
-## Height kept above the card for the journey strip (FAL-331), in base units.
-const STRIP_HEIGHT := 150
+## The journey scene's share of the screen's height, on a phone (the reel's 400 of 1280
+## px) and left of the card on a wide window.
+const SCENE_SHARE := 0.3
+const SCENE_SHARE_WIDE := 0.34
+## From this width (base units) the scene stands beside the card, as wide as this at most.
+const WIDE_FROM := 2000
+const LEFT_WIDE := 1300
+const LEFT_LEAST := 800
+const PAD := 30
+const ENEMY_TAG_WIDTH := 350
+const JOURNEY_STAGE := "res://scenes/journey_stage.tscn"
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
 ## How long a hit shows the enemy's hurt frame (one flash, FAL-473).
 const HURT_FLASH := 0.08
+const LOOP_THINK := 2.0
+const LOOP_READ := 4.0
 ## Run banners and medals, in base units.
 const BANNER_HEIGHT := 240
 const MEDAL := 120
@@ -56,16 +74,25 @@ var title: Label
 var quit_button: Button
 ## The region's backdrop (FAL-470), hidden while it has none.
 var backdrop: TextureRect
+## The scene's frame: the strip, the enemy's overlay, and the portrait when no strip shows.
+var scene_box: Control
 var strip: Control
+## Drives the strip from the run; view only (journey/journey_link.gd).
+var journey: JourneyLink
+## The scene and the rows under it, and the card or the floor select or the summary.
+var body: BoxContainer
+var left: VBoxContainer
 var enemy_art: TextureRect
 var enemy_name: Label
 var enemy_bar: ProgressBar
 var enemy_hp: Label
 var player_bar: ProgressBar
-## The name plate (G6 cosmetics) and the perk, over the player's HP bar.
+## The name plate (G6 cosmetics) and the perk.
 var plate_row: HBoxContainer
 var player_hp: Label
 var scrap_label: Label
+## The player's HP and Scrap in the header, only during a run.
+var hp_row: HBoxContainer
 var timer_bar: ProgressBar
 var timer_label: Label
 var timer_fill: StyleBoxFlat
@@ -78,8 +105,6 @@ var floor_box: VBoxContainer
 var first_fight := 1
 ## Open on the floor select (tests set false to start a run on start_floor at once).
 var select_first := true
-## The rows that only mean something while a question is open.
-var _question_rows: Array = []
 ## The fight (run.fights) whose taunt was shown, so it shows once a fight.
 var _taunted := -1
 
@@ -119,6 +144,33 @@ func _ready() -> void:
 		"carry":
 			autoplay(false)
 			next_question()
+		"loop":
+			_play_loop()
+
+
+## Plays on by itself, a miss now and then: a question stays open LOOP_THINK seconds and
+## a result LOOP_READ.
+func _play_loop() -> void:
+	while run != null and run.state != "ended":
+		await get_tree().create_timer(LOOP_THINK).timeout
+		autoplay(run.question_no % 4 != 0)
+		await get_tree().create_timer(LOOP_READ).timeout
+		next_question()
+
+
+func _fit() -> void:
+	var wide := size.x >= WIDE_FROM
+	var left_w := clampf(size.x - COLUMN_WIDE - PAD * 2, LEFT_LEAST, LEFT_WIDE)
+	var side := maxf(0.0, (size.x - left_w - COLUMN_WIDE - PAD * 2) / 2.0) if wide else 0.0
+	margin.add_theme_constant_override("margin_left", int(side))
+	margin.add_theme_constant_override("margin_right", int(side))
+	margin.add_theme_constant_override("margin_top", 0)
+	margin.add_theme_constant_override("margin_bottom", 20)
+	hud_gap.custom_minimum_size.x = maxf(0.0, AudioHud.RESERVED_RIGHT - side - PAD)
+	body.vertical = not wide
+	left.custom_minimum_size.x = left_w if wide else 0.0
+	var band: float = left_w if wide else size.x
+	scene_box.custom_minimum_size.y = JourneyStage.fit_height(band, size.y, SCENE_SHARE_WIDE if wide else SCENE_SHARE)
 
 
 ## Starts a run with this screen's region, floor and seed (a fresh seed if 0).
@@ -136,18 +188,15 @@ func start_run() -> void:
 	run.question_opened.connect(func(_f, _t): _show_question())
 	run.question_opened.connect(func(_f, _t): Audio.play_location(MapLink.music_for(region, run.kind != "fight")))
 	run.run_ended.connect(_show_summary)
+	journey = JourneyLink.attach(run, strip, save)
 	summary_box.visible = false
 	floor_box.visible = false
 	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
 	quit_button.visible = true
 	scroll.visible = true
-	for c in _question_rows + [col_node("Status"), strip]:
-		c.visible = true
+	left.visible = true
+	hp_row.visible = true
 	run.start()
-
-
-func col_node(n: String) -> Control:
-	return margin.get_node("Column/" + n) as Control
 
 
 ## The floor select (Q4): floor 1 and the floor after each floor whose boss the player
@@ -156,8 +205,8 @@ func show_floor_select() -> void:
 	run = null
 	scroll.visible = false
 	summary_box.visible = false
-	for c in _question_rows + [col_node("Status"), strip]:
-		c.visible = false
+	left.visible = false
+	hp_row.visible = false
 	floor_box.visible = true
 	quit_button.visible = false
 	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
@@ -245,50 +294,35 @@ func _build() -> void:
 	col.add_theme_constant_override("separation", 16)
 	margin.add_child(col)
 
-	# The title takes the width Quit and the HUD gap leave, and wraps there, so a long
-	# region name ("Exponentials and logs · Floor 1") never pushes Quit off a phone
-	# (FAL-506).
-	var head := HBoxContainer.new()
-	head.name = "Head"
-	title = UiTheme.label("Fight", 72, UiTheme.TEAL)
-	title.name = "Title"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title.add_theme_font_override("font", UiTheme.TITLE_FONT)
-	head.add_child(title)
-	quit_button = Button.new()
-	quit_button.name = "Quit"
-	quit_button.text = "Quit"
-	quit_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	quit_button.add_theme_font_size_override("font_size", UiTheme.SMALL)
-	quit_button.pressed.connect(func(): if run != null: run.quit())
-	head.add_child(quit_button)
-	hud_gap = Control.new()
-	hud_gap.name = "HudGap"
-	hud_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	head.add_child(hud_gap)
-	col.add_child(head)
+	col.add_child(_head())
 
-	# The journey strip (FAL-331) goes here, above the card.
-	strip = Control.new()
-	strip.name = "JourneyStrip"
-	strip.custom_minimum_size.y = STRIP_HEIGHT
-	strip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	col.add_child(strip)
+	# The scene and its rows, then the card. On a wide window they stand side by side.
+	body = BoxContainer.new()
+	body.name = "Body"
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", PAD * 2)
+	col.add_child(body)
+	left = VBoxContainer.new()
+	left.name = "Left"
+	left.add_theme_constant_override("separation", 12)
+	body.add_child(left)
+	left.add_child(_scene())
+	left.add_child(_padded(_rows()))
 
-	col.add_child(_status())
-	col.add_child(_timer())
-	col.add_child(_lifelines())
-	# _update_progress() writes here; the fight shows the fight and question number.
-	progress = UiTheme.label("", UiTheme.SMALL, UiTheme.DIM)
-	progress.name = "Progress"
-	col.add_child(progress)
-	_question_rows = [col.get_node("Timer"), col.get_node("Lifelines"), progress]
+	var right := VBoxContainer.new()
+	right.name = "Right"
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var pad := _padded(right)
+	pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pad.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(pad)
 
 	scroll = ScrollContainer.new()
 	scroll.name = "Scroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	col.add_child(scroll)
+	right.add_child(scroll)
 	card = VBoxContainer.new()
 	card.name = "Card"
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -300,14 +334,153 @@ func _build() -> void:
 	summary_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	summary_box.add_theme_constant_override("separation", 22)
 	summary_box.visible = false
-	col.add_child(summary_box)
+	right.add_child(summary_box)
 
 	floor_box = VBoxContainer.new()
 	floor_box.name = "FloorSelect"
 	floor_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	floor_box.add_theme_constant_override("separation", 22)
 	floor_box.visible = false
-	col.add_child(floor_box)
+	right.add_child(floor_box)
+
+
+## `c` with the side padding the full-width scene doesn't have.
+func _padded(c: Control) -> MarginContainer:
+	var m := MarginContainer.new()
+	m.add_theme_constant_override("margin_left", PAD)
+	m.add_theme_constant_override("margin_right", PAD)
+	m.add_child(c)
+	return m
+
+
+## The slim header: the region over the player's HP and Scrap, then Quit. The title
+## takes the width Quit and the HUD gap leave, and wraps there, so a long region name
+## ("Exponentials and logs · Floor 1") never pushes Quit off a phone (FAL-506).
+func _head() -> Control:
+	var head := HBoxContainer.new()
+	head.name = "Head"
+	head.custom_minimum_size.y = 136
+	head.add_theme_constant_override("separation", 20)
+	var text := VBoxContainer.new()
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text.alignment = BoxContainer.ALIGNMENT_CENTER
+	text.add_theme_constant_override("separation", 6)
+	head.add_child(text)
+	title = UiTheme.label("Fight", 56, UiTheme.TEAL)
+	title.name = "Title"
+	title.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	text.add_child(title)
+	hp_row = HBoxContainer.new()
+	hp_row.name = "Hp"
+	hp_row.add_theme_constant_override("separation", 16)
+	text.add_child(hp_row)
+	player_bar = _bar(UiTheme.TEAL, 26)
+	player_bar.name = "PlayerHP"
+	player_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	hp_row.add_child(player_bar)
+	player_hp = _mono("", UiTheme.SMALL)
+	player_hp.name = "PlayerHPText"
+	hp_row.add_child(player_hp)
+	scrap_label = _mono("", UiTheme.SMALL, UiTheme.SAND)
+	scrap_label.name = "Scrap"
+	hp_row.add_child(scrap_label)
+	quit_button = Button.new()
+	quit_button.name = "Quit"
+	quit_button.text = "Quit"
+	quit_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	quit_button.add_theme_font_size_override("font_size", UiTheme.SMALL)
+	quit_button.pressed.connect(func(): if run != null: run.quit())
+	head.add_child(quit_button)
+	hud_gap = Control.new()
+	hud_gap.name = "HudGap"
+	hud_gap.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	head.add_child(hud_gap)
+	return _padded(head)
+
+
+## The journey scene (FAL-331), with the enemy's name and HP over it. JourneyLink drives
+## it. With no strip to stand in, the enemy's portrait does.
+func _scene() -> Control:
+	scene_box = Control.new()
+	scene_box.name = "Scene"
+	scene_box.clip_contents = true
+	scene_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var back := ColorRect.new()
+	back.color = UiTheme.PANEL
+	back.set_anchors_preset(Control.PRESET_FULL_RECT)
+	back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	scene_box.add_child(back)
+	enemy_art = TextureRect.new()
+	enemy_art.name = "EnemyArt"
+	enemy_art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	enemy_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	enemy_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	enemy_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	scene_box.add_child(enemy_art)
+	strip = (load(JOURNEY_STAGE) as PackedScene).instantiate()
+	strip.name = "JourneyStrip"
+	strip.custom_minimum_size = Vector2.ZERO
+	strip.set_anchors_preset(Control.PRESET_FULL_RECT)
+	strip.visibility_changed.connect(func(): enemy_art.visible = not strip.visible)
+	scene_box.add_child(strip)
+	scene_box.add_child(_enemy_tag())
+	return scene_box
+
+
+## The enemy's name and HP, small, in the scene's top-right corner.
+func _enemy_tag() -> Control:
+	var box := PanelContainer.new()
+	box.name = "EnemyTag"
+	box.anchor_left = 1.0
+	box.anchor_right = 1.0
+	box.offset_left = -ENEMY_TAG_WIDTH - 12
+	box.offset_right = -12
+	box.offset_top = 12
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(UiTheme.BG, 0.72)
+	style.set_corner_radius_all(10)
+	style.set_content_margin_all(12)
+	box.add_theme_stylebox_override("panel", style)
+	var bars := VBoxContainer.new()
+	bars.add_theme_constant_override("separation", 4)
+	box.add_child(bars)
+	enemy_name = UiTheme.label("", 40, UiTheme.PINK)
+	enemy_name.name = "EnemyName"
+	enemy_name.autowrap_mode = TextServer.AUTOWRAP_OFF
+	enemy_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	enemy_name.clip_text = true
+	enemy_name.add_theme_font_override("font", UiTheme.TITLE_FONT)
+	bars.add_child(enemy_name)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	enemy_bar = _bar(UiTheme.PINK, 18)
+	enemy_bar.name = "EnemyHP"
+	enemy_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(enemy_bar)
+	enemy_hp = _mono("", 30)
+	enemy_hp.name = "EnemyHPText"
+	row.add_child(enemy_hp)
+	bars.add_child(row)
+	return box
+
+
+## Under the scene: the timer, the lifelines, then the plate, the perk and the progress.
+func _rows() -> Control:
+	var rows := VBoxContainer.new()
+	rows.name = "Rows"
+	rows.add_theme_constant_override("separation", 10)
+	rows.add_child(_timer())
+	rows.add_child(_lifelines())
+	plate_row = HBoxContainer.new()
+	plate_row.name = "Plate"
+	plate_row.add_theme_constant_override("separation", 16)
+	rows.add_child(plate_row)
+	# _update_progress() writes here; the fight shows the fight and question number.
+	progress = UiTheme.label("", UiTheme.SMALL, UiTheme.DIM)
+	progress.name = "Progress"
+	rows.add_child(progress)
+	return rows
 
 
 func _bar(color: Color, height: int) -> ProgressBar:
@@ -333,72 +506,18 @@ func _mono(text: String, size: int, color: Color = UiTheme.TEXT) -> Label:
 	return l
 
 
-## The enemy (portrait, name, HP) and the player (HP, Scrap).
-func _status() -> Control:
-	var box := PanelContainer.new()
-	box.name = "Status"
-	box.add_theme_stylebox_override("panel", UiTheme.panel())
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 24)
-	box.add_child(row)
-	enemy_art = TextureRect.new()
-	enemy_art.name = "EnemyArt"
-	enemy_art.custom_minimum_size = Vector2(190, 190)
-	enemy_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	enemy_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	enemy_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	row.add_child(enemy_art)
-	var bars := VBoxContainer.new()
-	bars.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bars.add_theme_constant_override("separation", 8)
-	row.add_child(bars)
-	enemy_name = UiTheme.label("", 54, UiTheme.PINK)
-	enemy_name.name = "EnemyName"
-	enemy_name.autowrap_mode = TextServer.AUTOWRAP_OFF
-	enemy_name.add_theme_font_override("font", UiTheme.TITLE_FONT)
-	bars.add_child(enemy_name)
-	var erow := HBoxContainer.new()
-	enemy_bar = _bar(UiTheme.PINK, 34)
-	enemy_bar.name = "EnemyHP"
-	enemy_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	erow.add_child(enemy_bar)
-	enemy_hp = _mono("", UiTheme.SMALL)
-	enemy_hp.custom_minimum_size.x = 120
-	enemy_hp.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	erow.add_child(enemy_hp)
-	bars.add_child(erow)
-	plate_row = HBoxContainer.new()
-	plate_row.name = "Plate"
-	plate_row.add_theme_constant_override("separation", 16)
-	bars.add_child(plate_row)
-	var prow := HBoxContainer.new()
-	player_bar = _bar(UiTheme.TEAL, 34)
-	player_bar.name = "PlayerHP"
-	player_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	prow.add_child(player_bar)
-	player_hp = _mono("", UiTheme.SMALL)
-	player_hp.custom_minimum_size.x = 120
-	player_hp.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	prow.add_child(player_hp)
-	bars.add_child(prow)
-	scrap_label = _mono("", UiTheme.SMALL, UiTheme.SAND)
-	scrap_label.name = "Scrap"
-	bars.add_child(scrap_label)
-	return box
-
-
 func _timer() -> Control:
 	var row := HBoxContainer.new()
 	row.name = "Timer"
 	row.add_theme_constant_override("separation", 16)
-	timer_bar = _bar(GREEN, 40)
+	timer_bar = _bar(GREEN, 22)
 	timer_bar.name = "TimerBar"
 	timer_bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	timer_fill = timer_bar.get_theme_stylebox("fill") as StyleBoxFlat
 	row.add_child(timer_bar)
-	timer_label = _mono("", UiTheme.BODY)
+	timer_label = _mono("", UiTheme.SMALL)
 	timer_label.name = "TimerText"
-	timer_label.custom_minimum_size.x = 150
+	timer_label.custom_minimum_size.x = 130
 	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(timer_label)
 	return row
@@ -414,8 +533,8 @@ func _lifelines() -> Control:
 		b.text = LIFELINE_NAMES[id]
 		b.icon = load("res://assets/ui/lifeline-%s-on.png" % id)
 		b.expand_icon = true
-		b.custom_minimum_size = Vector2(230, 110)
-		b.add_theme_constant_override("icon_max_width", 72)
+		b.custom_minimum_size = Vector2(230, 100)
+		b.add_theme_constant_override("icon_max_width", 64)
 		b.add_theme_font_size_override("font_size", UiTheme.SMALL)
 		b.pressed.connect(use_lifeline.bind(id))
 		row.add_child(b)
@@ -521,7 +640,7 @@ func _update_progress() -> void:
 			QuestionEngine.part_letter(mini(run.boss.part, run.boss.parts.size() - 1)), run.boss.parts.size()]
 	else:
 		what += " · question %d" % run.question_no
-	progress.text = "Floor %d · %s" % [run.floor_no, what]
+	progress.text = "Floor %d · %s · a miss costs %d HP" % [run.floor_no, what, run.enemy.damage]
 
 
 func _update_hud() -> void:
@@ -538,7 +657,7 @@ func _update_hud() -> void:
 	player_bar.value = run.hp
 	player_hp.text = "%d/%d" % [run.hp, run.max_hp]
 	_update_plate()
-	scrap_label.text = "Scrap +%d · a miss costs %d HP" % [run.stats.scrap, run.enemy.damage]
+	scrap_label.text = "Scrap +%d" % run.stats.scrap
 	for id in lifeline_buttons:
 		var b: Button = lifeline_buttons[id]
 		var n := int(run.lifelines.get(id, 0))
@@ -735,8 +854,7 @@ func next_question() -> void:
 func _show_summary(s: Dictionary) -> void:
 	SaveData.store(save, save_path)
 	scroll.visible = false
-	for c in _question_rows:
-		c.visible = false
+	left.visible = false
 	summary_box.visible = true
 	for c in summary_box.get_children():
 		summary_box.remove_child(c)
