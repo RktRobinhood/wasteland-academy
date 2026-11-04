@@ -1885,7 +1885,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 8 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 11 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -1983,6 +1983,40 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): A point where f″(x) = 0 is a point of inflexion. — Sometimes: f″ must also change sign there. For f(x) = x⁴, f″(0) = 0 but (0, 0) is a minimum.
 - **Misconceptions used:** 3. Substituting the x-value into f′ instead of f to get the y-coordinate; f″ > 0 means a maximum (sign reversed); Giving the x-value when the maximum value is asked for (or the other way round).
 
+#### Kinematics: rest, direction change, acceleration, maximum speed (`t5-kinematics-motion`, exam, 29 bank parts)
+
+- **Situation:** A particle on a straight line.
+- **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given s(t), a polynomial → v(t)
+  - **exam** L1: given v(t), a polynomial → a(t)
+  - **exam** L2: given s(t); a time → the velocity at that time
+  - **exam** L2: given v(t); a time → the acceleration at that time
+  - **exam** L3: given v(t); a value of a → the time when the acceleration has that value
+  - **exam** L2: given v(t); a value of v → the time when the velocity has that value
+  - **exam** L2: given v(t) → the first time the particle is at rest
+  - **exam** L3: given v(t) → the time the particle changes direction
+  - **exam** L2: given s(t) = At(t − p)(t − q) → the last time the particle is back at the start
+  - **exam** L3: given v(t) → the times the particle moves in one direction
+  - **exam** L3: given v(t) → the acceleration when the particle is first at rest
+  - new L3: given v(t); a time → whether the particle is speeding up or slowing down
+  - **exam** L2: given v(t), a quadratic opening down → the maximum velocity
+  - **exam** L3: given v(t) with e or sin → the maximum velocity, to 3 s.f.
+  - **exam** L3: given v(t) on an interval → the maximum speed
+  - **exam** L4: given v(t) with e or sin → the acceleration at the time of maximum speed
+  - **exam** L4: given v(t) with e or sin → the maximum acceleration
+  - **exam** L2: given a v–t graph → the maximum velocity and the maximum speed
+  - new L1: given a v–t graph in straight pieces → the acceleration at a time
+  - new L1: given an s–t graph in straight pieces → the velocity at a time
+  - new L2: given a v–t graph in straight pieces → the displacement over the whole time
+  - new L1: given a v–t graph in straight pieces → when the particle moves in the negative direction
+- **Angles:** Differentiate with respect to t; GDC dy/dx at the time; Gradient of a motion graph; Solve v(t) = 0; Sign of v either side; Zeros of the v–t graph; Compare signs of v and a; Solve s(t) = 0; Set a = 0; GDC max/min of v or |v|; Vertex of a quadratic velocity; Read gradients; Signed area under the v–t graph; Above or below the axis.
+- **Concept probes:**
+  - *true-false-reason* (L3): A particle with negative acceleration is slowing down. — False: it depends on v too. If v and a are both negative, the particle is speeding up in the negative direction.
+  - *true-false-reason* (L4): If v(3) = 0, the particle changes direction at t = 3. — False: v has to change sign there too. v(t) = (t − 3)² is 0 at t = 3, but the particle keeps going the same way.
+  - *always-sometimes-never* (L3): The maximum speed of a particle is the same as its maximum velocity. — Sometimes: a large negative velocity is a high speed, so the maximum speed can come where the velocity is at its lowest.
+- **Misconceptions used:** 12. Substituting t into s to get the velocity; Computing average velocity s/t instead of ds/dt; Assuming acceleration is constant when it depends on t; At rest means a = 0; Speeding up means a > 0, even when v < 0; Counting every zero of v as a change of direction, even where v touches zero without changing sign; Treating maximum speed as maximum velocity (a large negative velocity is a high speed); Ignoring the endpoints of the time interval; Setting v = 0 to find the maximum velocity; Reading the height of a v–t graph as the displacement; Thinking a downward-sloping v–t graph means moving backwards; Counting area below the axis as positive displacement.
+
 #### Chain, product and quotient rules (`t5-differentiation-rules`, exam, 8 bank parts)
 
 - **Situation:** A function to differentiate.
@@ -2034,6 +2068,71 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): If f″(x) > 0 on an interval, then f′ is increasing on that interval. — True: f″ is the derivative of f′, so a positive f″ means f′ is increasing, whatever the sign of f′ itself.
   - *always-sometimes-never* (L4): If f″(a) = 0, then the graph of f has a point of inflexion at x = a. — Sometimes: x³ does at x = 0, but x⁴ has f″(0) = 0 and is concave up on both sides, so it has none. f″ has to change sign.
 - **Misconceptions used:** 7. Squaring f′(x) instead of differentiating it; Differentiating f(x) again instead of f′(x); Reading d²y/dx² as (dy/dx)²; Confusing concave up (f″ > 0) with increasing (f′ > 0); Thinking concave down means decreasing; Drawing f′ as a shifted copy of f; Putting the zeros of f′ at the x-intercepts of f instead of at its turning points.
+
+#### Definite integrals and areas, including regions below the axis and unknown limits (`t5-definite-integral-area`, exam, 9 bank parts)
+
+- **Situation:** A definite integral, a region or a rate.
+- **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a quadratic; limits → the value of the integral
+  - **exam** L2: given a√x + b/√x; limits that are perfect squares → the exact value of the integral
+  - **exam** L3: given a + b cos x or a + b sin x; limits 0 and π/2 or π → the exact value of the integral
+  - **exam** L3: given k/(x + c); whole-number limits → the exact value of the integral
+  - new L3: given k e^(ax); limits 0 and n → the exact value of the integral
+  - new L2: given a polynomial; limits −a and a → the value of the integral
+  - new L1: given ax + b, positive between the limits; whole-number limits → the value of the integral
+  - **exam** L2: given a quadratic above the x-axis between its roots → the area of the region
+  - new L2: given a quadratic below the x-axis between its roots → the area of the region
+  - **exam** L3: given a curve with a root inside the interval → the total area between the curve and the x-axis
+  - **exam** L3: given a function with e or sin, on a figure → the total area, to 3 s.f.
+  - new L3: given k sin x on a full period, or a cubic odd about its middle root → the total area
+  - new L3: given ∫ from p to k of (ax + b) dx = N → k
+  - **exam** L4: given ∫ from 0 to k of x/(x² + a) dx = (1/2) ln m → k
+  - **exam** L4: given ∫ from 0 to m of cos x sinⁿ x dx = V → m
+  - new L3: given y = kx², two limits and the area → k
+  - new L4: given a parabola touching the x-axis, a tangent at P → the area between the curve, the tangent and the x-axis
+  - **exam** L4: given a line through O to a point on y = k/x, then that curve → the area under both
+  - **exam** L3: given a rate r(t); a time T → the total change in the first T units of time
+  - **exam** L3: given a rate r(t); the starting amount; a time T → the amount at time T
+  - new L2: given the graph of a rate, in straight pieces → the total change
+  - new L4: given a linear rate; a total → the time when the total is reached
+  - new L2: given a rate r(t); ∫ from 0 to T of r(t) dt → what the integral means in the story
+- **Angles:** F(upper) − F(lower); Odd and even functions; Signed area of simple shapes; GDC check; Negate the part below the axis; Split at the x-intercepts; Integrate |f| on the GDC; Use symmetry; Integrate, then solve for the unknown; Solve on the GDC; Scale a known area; Integral plus or minus a triangle; Top minus bottom, piece by piece; GDC for the pieces; Anti-differentiate the rate; Integrate the rate on the GDC; Area under a rate graph.
+- **Concept probes:**
+  - *true-false-reason* (L3): If ∫ from a to b of f(x) dx = 0, then f(x) = 0 for every x between a and b. — False: the parts above and below the axis can cancel. ∫ from 0 to 2π of sin x dx = 0, but sin x is not always 0.
+  - *true-false-reason* (L3): The area between a curve and the x-axis from a to b is always ∫ from a to b of f(x) dx. — False: that is only true where f(x) ≥ 0. Where the curve is below the axis the integral is negative, so each piece has to be taken as positive.
+  - *always-sometimes-never* (L4): Multiplying a rate by the time taken gives the total change. — Sometimes: only when the rate is constant. In general the total is the integral of the rate, the area under its graph.
+- **Misconceptions used:** 14. Computing F(lower) − F(upper); Assuming the lower limit contributes 0, e.g. treating e⁰ or cos 0 as 0; Writing + C in the answer to a definite integral; Integrating straight across a root so the positive and negative parts cancel; Giving a negative number as an area; Splitting at a turning point instead of at the x-intercept; Keeping a root for the upper limit that is below the lower limit or outside the given range; Forgetting to subtract F(lower) when it is not zero; Using the curve's x-intercept as the end of the triangle instead of the tangent's; Adding a piece that should be subtracted, counting the region under the line twice; Forgetting that the lower boundary changes at the point of contact; Evaluating the rate at the end time instead of integrating; Adding the starting amount when only the change is asked for, or forgetting it when the total is asked for; Giving the answer in units per minute instead of units.
+
+#### Integrate standard functions and linear composites (`t5-indefinite-integral`, exam, 7 bank parts)
+
+- **Situation:** A function to integrate.
+- **Representations:** **equation**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a polynomial → its integral
+  - new L2: given a sum with a/xⁿ → its integral
+  - new L2: given (x + p)(x + q) → its integral
+  - new L1: given a e^x + b sin x + c cos x → its integral
+  - **exam** L1: given ax + b + c/x → its integral, with ln|x|
+  - new L2: given a root of x plus 1 over that root → its integral
+  - **exam** L2: given e^(ax + b) + c → its integral
+  - **exam** L2: given k cos(ax + b) or k sin(ax + b) → its integral
+  - new L2: given k/(ax + b) → its integral
+  - new L2: given k(ax + b)ⁿ → its integral
+  - new L2: given (ax + b)² → its integral
+  - **exam** L3: given kx(x² + a)ⁿ or kx/(x² + a)ⁿ → its integral
+  - new L3: given kx e^(x² + a) → its integral
+  - new L3: given kx/(x² + a) → its integral
+  - new L3: given k sin x cosⁿ x or k cos x sinⁿ x → its integral
+  - new L2: given (ax² + bx + c)/x → its integral
+  - new L2: given (a + √x)² or (e^x + a)² → its integral
+  - new L3: given k sin x cos x → its integral
+- **Angles:** Reverse power rule; Guess, differentiate, adjust; Expand or rewrite first; Standard results term by term; Rewrite roots as powers; Differentiate to check; Integrate, then divide by a; Substitute u = ax + b; Differentiate to check; Expand a low power; Inspection (reverse chain rule); Substitution u = g(x); Recognise g′(x)/g(x); Split the fraction; Expand the square; Use a trig identity; Spot a reverse chain rule instead.
+- **Concept probes:**
+  - *true-false-reason* (L3): If F′(x) = f(x), then F(x) + 7 is also an antiderivative of f. — True: the 7 differentiates to 0. Every antiderivative of f is F(x) plus a constant, which is why an indefinite integral ends in + C.
+  - *true-false-reason* (L4): ∫ 2 sin x cos x dx can be sin² x + C and also −cos² x + C. — True: the two differ by 1, since sin² x + cos² x = 1. Two correct answers can look different and still differ only by a constant.
+  - *always-sometimes-never* (L4): ∫ f(x)g(x) dx equals (∫ f(x) dx)(∫ g(x) dx). — Sometimes at best, and not as a rule: for f(x) = g(x) = x it fails, since x³/3 is not (x²/2)². There is no product rule that splits an integral this way.
+- **Misconceptions used:** 14. Dividing by the old power n instead of n + 1; Forgetting + C; Integrating 3/x² as 3/(x³/3) or as 3 ln(x²); ∫ sin x dx = cos x + C (wrong sign); Using the power rule on 1/x: ∫ x⁻¹ dx = x⁰/0; Multiplying by the new power instead of dividing: ∫ x^(1/2) dx = (3/2)x^(3/2); Multiplying by a as in differentiation: ∫ cos(4x) dx = 4 sin(4x) + C; Missing the factor ½: ∫ 1/(2x − 5) dx = ln|2x − 5| + C; Dividing by the exponent: ∫ e^(3x + 1) dx = e^(3x + 1)/(3x + 1) + C; Integrating the outer function but leaving the extra x in place; Forgetting to divide by 2: ∫ 6x/(x² + 1) dx = 6 ln(x² + 1) + C; Forgetting to substitute back from u to x; Integrating numerator and denominator separately: ∫ (x² + 3)/x dx = (x³/3 + 3x)/(x²/2); Missing the middle term: (eˣ + 1)² = e^(2x) + 1.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

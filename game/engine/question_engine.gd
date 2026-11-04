@@ -89,6 +89,9 @@ static var SITUATIONS := {
 	"derivative-meaning": [DerivativeMeaningSituation, DerivativeMeaningViews],
 	"monotonic": [MonotonicSituation, MonotonicViews],
 	"concavity": [ConcavitySituation, ConcavityViews],
+	"integration": [IntegrationSituation, IntegrationViews],
+	"definite-integral": [DefiniteIntegralSituation, DefiniteIntegralViews],
+	"motion": [MotionSituation, MotionViews],
 }
 
 static var _cat: Dictionary = {}
