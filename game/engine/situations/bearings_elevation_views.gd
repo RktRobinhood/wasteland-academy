@@ -306,7 +306,7 @@ static func _chase(s: Dictionary) -> Dictionary:
 	return {"ac": ac_t, "angle": ca}
 
 
-func _both_bearing(s: Dictionary, end_b: float, ans: Dictionary) -> Dictionary:
+static func _both_bearing(s: Dictionary) -> Dictionary:
 	var c := _chase(s)
 	var d2t := D(s.d2)
 	var d1t := D(s.d1)
@@ -316,10 +316,10 @@ func _both_bearing(s: Dictionary, end_b: float, ans: Dictionary) -> Dictionary:
 	var p := journey(s)
 	var east := W(p.C[0])
 	var north := W(p.C[1])
-	var q_note := "AC has east part %s and north part %s, from adding each leg's d sin(bearing) and d cos(bearing)." % [east, north]
+	var note := "AC has east part %s and north part %s, from adding each leg's d sin(bearing) and d cos(bearing)." % [east, north]
 	return {"chase": ["Angle ABC is %d°, and the cosine rule gives AC = %s." % [b, c.ac],
 		"cos A = (%s² + %s² − %s²) ÷ (2 × %s × %s), so angle BAC = %s°" % [d1t, c.ac, d2t, d1t, c.ac, c.angle],
-		"The bearing of C from A is %s = %s°" % [joined, W(fposmod(float(s.b1) + (1.0 if clockwise else -1.0) * back(c.angle), 360.0))]], "note": q_note}
+		"The bearing of C from A is %s = %s°" % [joined, W(fposmod(float(s.b1) + (1.0 if clockwise else -1.0) * back(c.angle), 360.0))]], "note": note}
 
 
 func u_two_leg_bearing(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -328,7 +328,7 @@ func u_two_leg_bearing(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := frame(rep, journey_lines(s), sf3("Find the bearing of the depot from camp."), ans, journey_sketch(s, ""))
 	out.wrongs = bad(fposmod(b + 180.0, 360.0), R_FROM_TO) + bad(360.0 - b, R_WRONG_WAY)
 	out.generic = gens([fposmod(b + 90.0, 360.0), fposmod(450.0 - b, 360.0), float(s.b1 + s.b2) / 2.0, b - 20.0])
-	var both := _both_bearing(s, b, ans)
+	var both := _both_bearing(s)
 	out.methods = {"angle-chase-cosine": method(both.chase + [say(ans)], ans.values),
 		"components": method([both.note, "tan⁻¹ of east ÷ north gives the angle from the north line, then put it in the right quarter.", say(ans)], ans.values)}
 	return out
@@ -338,10 +338,10 @@ func u_return_bearing(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var there := start_to_end(s)
 	var b := fposmod(there + 180.0, 360.0)
 	var ans := ans_of("bearing = ", b, "°")
-	var out := frame(rep, journey_lines(s), sf3("Find the bearing the caravan must take to go straight back to camp from the depot.").replace("the caravan", "it"), ans, journey_sketch(s, ""))
+	var out := frame(rep, journey_lines(s), sf3("Find the bearing it must take to go straight back to camp from the depot."), ans, journey_sketch(s, ""))
 	out.wrongs = bad(there, R_FROM_TO)
 	out.generic = gens([360.0 - b, fposmod(b + 90.0, 360.0), fposmod(b - 90.0, 360.0), b - 20.0])
-	var both := _both_bearing(s, there, ans)
+	var both := _both_bearing(s)
 	var flip := "Add or take away 180°: the way back is %s°." % W(fposmod(back(W(there)) + 180.0, 360.0))
 	out.methods = {"angle-chase-cosine": method(both.chase + [flip, say(ans)], ans.values),
 		"components": method([both.note, "The way from C to A reverses both parts, then tan⁻¹ of east ÷ north gives the direction.", say(ans)], ans.values),
@@ -417,13 +417,13 @@ func u_due_west_side(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 # ── Elevation and depression ─────────────────────────────────
 
-func tall(s: Dictionary) -> String:
+static func tall(s: Dictionary) -> String:
 	return TALL[s.ctx]
 
 
 ## A side view: the top T above the foot F, and the point P on the ground, with the horizontal
 ## through T where the angle is a depression.
-static func side_view(s: Dictionary, h: float, x: float, depress: bool, h_label: String, x_label: String, label: String, extra: Dictionary = {}) -> Dictionary:
+static func side_view(h: float, x: float, depress: bool, h_label: String, x_label: String, label: String, extra: Dictionary = {}) -> Dictionary:
 	var pts := {"T": [0.0, h], "F": [0.0, 0.0], "P": [x, 0.0]}
 	var lines := [side("F", "T", h_label), side("F", "P", x_label), side("T", "P", "", true)]
 	var arcs: Array
@@ -442,7 +442,7 @@ func u_height_from_elevation(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var h := x * tan(t)
 	var ans := ans_of("height = ", h, " m")
 	var lines := ["A scavenger stands at P on level ground, %s m from the foot F of a %s." % [D(s.x), tall(s)], "The angle of elevation of the top T from P is %s." % angle_words(s)]
-	var out := frame(rep, lines, sf3("Find the height of the %s." % tall(s)), ans, side_view(s, h, x, false, "?", D(s.x) + " m", _angle_label(s)))
+	var out := frame(rep, lines, sf3("Find the height of the %s." % tall(s)), ans, side_view(h, x, false, "?", D(s.x) + " m", _angle_label(s)))
 	out.wrongs = []
 	var degree_slip: float = x * tan(rad(s.e.to_float())) if s.form == "rad" else x * tan(s.e.to_float())
 	out.generic = gens([x * sin(t), x * cos(t), x / tan(t), absf(degree_slip), h + 2.0])
@@ -460,7 +460,7 @@ func u_distance_from_depression(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var x := h / tan(t)
 	var ans := ans_of("distance = ", x, " m")
 	var lines := ["From the top T of a %s %s m high, a lookout sees %s at P on level ground." % [tall(s), D(s.h), SEEN[s.ctx]], "The angle of depression of P from T is %s." % angle_words(s)]
-	var out := frame(rep, lines, sf3("Find the horizontal distance from the foot of the %s to P." % tall(s)), ans, side_view(s, h, x, true, D(s.h) + " m", "?", _angle_label(s)))
+	var out := frame(rep, lines, sf3("Find the horizontal distance from the foot of the %s to P." % tall(s)), ans, side_view(h, x, true, D(s.h) + " m", "?", _angle_label(s)))
 	out.wrongs = bad(h * tan(t), R_AT_TOP)
 	out.generic = gens([h * sin(t), h / sin(t), h / cos(t), x + 2.0, x * 1.5])
 	out.methods = {"right-triangle": method(["The angle is measured down from the horizontal, so the tangent is height ÷ distance.", "distance = %s ÷ %s = %s" % [D(s.h), tan_text(s), W(x)], say(ans)], ans.values),
@@ -474,7 +474,7 @@ func u_angle_of_depression(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var e := rad_to_deg(atan(h / x))
 	var ans := ans_of("angle = ", e, "°")
 	var lines := ["From the top T of a %s %s m high, a lookout sees %s at P on level ground." % [tall(s), D(s.h), SEEN[s.ctx]], "P is %s m from the foot of the %s." % [D(s.x), tall(s)]]
-	var out := frame(rep, lines, sf3("Find the angle of depression of P from T."), ans, side_view(s, h, x, true, D(s.h) + " m", D(s.x) + " m", "?"))
+	var out := frame(rep, lines, sf3("Find the angle of depression of P from T."), ans, side_view(h, x, true, D(s.h) + " m", D(s.x) + " m", "?"))
 	out.wrongs = bad(90.0 - e, R_FROM_VERTICAL)
 	var hyp := sqrt(h * h + x * x)
 	out.generic = gens([rad_to_deg(asin(h / hyp)) + 5.0, rad_to_deg(acos(h / hyp)) + 5.0, e / 2.0, e + 10.0, e * 1.5])
@@ -527,7 +527,7 @@ func u_time_from_depression(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var ans := ans_of("time = ", mins, " minutes")
 	var lines := ["From the top of a %s %s m high, a lookout sees %s at P. The angle of depression of P is %s." % [tall(s), D(s.h), SEEN[s.ctx], angle_words(s)],
 		"A rescue cart leaves the foot of the %s and drives straight to P at %d km/h." % [tall(s), s.v1]]
-	var g := side_view(s, 20.0, 60.0, true, D(s.h) + " m", "", _angle_label(s), {"note": "not to scale"})
+	var g := side_view(20.0, 60.0, true, D(s.h) + " m", "", _angle_label(s), {"note": "not to scale"})
 	var out := frame(rep, lines, sf3("Find the time the cart takes, in minutes."), ans, g)
 	out.wrongs = bad(h * tan(t) / 1000.0 / float(s.v1) * 60.0, R_AT_TOP)
 	out.generic = gens([x / 1000.0 / float(s.v1), h / sin(t) / 1000.0 / float(s.v1) * 60.0 * 1.5, x / float(s.v1), mins * 2.0, mins / 2.0])

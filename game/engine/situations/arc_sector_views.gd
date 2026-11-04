@@ -135,7 +135,7 @@ static func Br(s: Dictionary, v: Array) -> String:
 
 ## A value as it is given: exact on Paper 1, as drawn on Paper 2.
 static func G(v: Array) -> String:
-	return exact(v) if not v[0].is_zero() or not v[1].is_zero() else "0"
+	return exact(v)
 
 
 static func R(s: Dictionary) -> String:
@@ -656,7 +656,7 @@ func u_area_from_arc(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := frame(rep, s, ["r", "l"], "Find the area of the sector.", ans)
 	var l: Q = s.l[0]
 	out.wrongs = []
-	out.generic = others(ans, s, [ab(l.mul(s.r)), ab(l.mul(s.r).div(4)), ab(l.sq().div(2)), ab(s.r.sq().mul(s.t)), ab(half), ab(half.mul(s.t).add(s.r))])
+	out.generic = others(ans, s, [ab(l.mul(s.r)), ab(l.mul(s.r).div(4)), ab(l.sq().div(2)), ab(s.r.sq().mul(s.t)), ab(half), ab(half.mul(s.t).add(s.r)), ab(half.mul(s.t).add(1)), ab(half.mul(s.t).add(2)), ab(half.mul(s.t).mul(3))])
 	out.methods = {"l-equals-r-theta": method(["θ = l ÷ r = %s ÷ %s = %s" % [Fmt.dec(l), R(s), W(s, ab(s.t))], "A = ½r²θ = ½ × %s² × %s = %s" % [R(s), W(s, ab(s.t)), W(s, scale(S(s, ab(s.t)), half))], say(ans)], ans.values)}
 	return out
 
