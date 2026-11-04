@@ -655,7 +655,7 @@ func u_major_from_perimeter(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var out := {"table": null, "answer": ans}
 	out.lines = ["The diagram shows a circle with centre O. Angle AOB is %s radians, and the perimeter of the small shaded sector is %s." % [t, G(per) + unit(s)]]
 	out.graph = figure(s, "minor", {"circle": true, "r_label": "r", "angle_label": t})
-	out.asked = finish(s, "Find the area of the part of the circle that isn't shaded." + (" Give the exact value." if s.paper == 1 else ""), ans)
+	out.asked = finish(s, "Find the area of the part of the circle that isn't shaded.", ans)
 	var minor := ab(half.mul(s.t))
 	var circle := ab(0, s.r.sq())
 	out.wrongs = like(ans, s, minor, R_MINOR)
