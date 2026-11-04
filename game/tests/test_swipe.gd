@@ -13,6 +13,15 @@ const MCQ := {"type": "fn-quadratic-features", "unknown": "vertex-from-factorise
 const WOBBLE := 10.0
 
 
+## Collects the engine's errors: the runner's own logger only fails a test on a script error.
+class EngineErrors extends Logger:
+	var seen: PackedStringArray = []
+
+	func _log_error(_function: String, _file: String, _line: int, code: String, rationale: String,
+			_editor_notify: bool, _error_type: int, _backtraces: Array[ScriptBacktrace]) -> void:
+		seen.append(rationale if rationale != "" else code)
+
+
 func _screen(path: String, view: Dictionary) -> Array:
 	Input.emulate_touch_from_mouse = true
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
@@ -289,4 +298,18 @@ func test_a_timeout_shows_the_result() -> void:
 		check(_shows(f, f.next_button), "Next shows")
 	else:
 		fail("the clock didn't run out")
+	_done(made)
+
+
+## autoplay=lose answers many questions in one frame, and each one asks for the reveal.
+func test_answers_in_one_frame_reveal_once() -> void:
+	var made: Array = await _screen(SCREENS[0], MCQ)
+	var f: Control = made[1]
+	var errors := EngineErrors.new()
+	OS.add_logger(errors)
+	f.run.question = f.question
+	f.lose()
+	await _settle()
+	OS.remove_logger(errors)
+	check_eq(errors.seen, PackedStringArray(), "engine errors")
 	_done(made)

@@ -530,7 +530,10 @@ func check_answer() -> void:
 ## and solution too tall to show with Next keep the result in view; a swipe reaches Next.
 func _reveal_result(frames := LAYOUT_FRAMES) -> void:
 	if frames > 0:
-		get_tree().process_frame.connect(_reveal_result.bind(frames - 1), CONNECT_ONE_SHOT)
+		# autoplay=lose answers several questions in one frame.
+		var later := _reveal_result.bind(frames - 1)
+		if not get_tree().process_frame.is_connected(later):
+			get_tree().process_frame.connect(later, CONNECT_ONE_SHOT)
 		return
 	if not answered:
 		return
