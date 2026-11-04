@@ -8854,6 +8854,8 @@ def check_questions(data):
         t = q["view"]["type"]
         ok = True
         try:
+            if cell == "t4-binomial|least-trials|equation|log-inequality":
+                raise Fail("deliberate failure to prove the shards (FAL-722)")
             check(q)
         except Fail as e:
             ok = False
