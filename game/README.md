@@ -657,6 +657,15 @@ only: nothing in the run waits on them, and a run plays the same with none conne
 | `floor_started(floor)` | a floor opens: the start floor, then each one after its boss falls |
 | `boss_beaten(floor, kind)` | a mini-boss (`"mini"`) or boss (`"boss"`) falls, after its heal |
 
+### The question card's frame
+
+On the fight screen the question scrolls inside the reel's rusted metal frame
+(`ui/card_frame.gd`, art `assets/ui/question-card.png`, copied to `game/assets/ui/`). It is
+a 9-slice with 40 px slices and a transparent centre, drawn scaled over the card's colour:
+50 base units thick on a phone, 80 on a wide window. The floor select and the summary
+have no frame. A table wider than the card scrolls sideways by itself, and a word-choice
+answer wider than `PICK_WIDE` wraps on its own line (`ui/practice.gd`).
+
 ### The journey strip
 
 The side-view scene at the top of the fight screen (FAL-331, plan on FAL-289): the

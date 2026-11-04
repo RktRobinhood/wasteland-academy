@@ -189,7 +189,7 @@ func _check_fits(window: Vector2i) -> void:
 # ── The scroller is the fight screen (FAL-331) ───────────────
 
 func test_the_scene_is_the_fight_screen() -> void:
-	for spec in [[Vector2i(390, 844), 0.25, 1150], [Vector2i(360, 780), 0.25, 1150], [Vector2i(1280, 800), 0.3, 1400]]:
+	for spec in [[Vector2i(390, 844), 0.25, 1080], [Vector2i(360, 780), 0.25, 1080], [Vector2i(1280, 800), 0.3, 1400]]:
 		var area := _area(spec[0])
 		var made: Array = await _screen(area)
 		var f: Control = made[1]
@@ -249,6 +249,72 @@ func test_a_long_question_scrolls() -> void:
 		await tree.process_frame
 	check(f.card.size.y > f.scroll.size.y, "taller than its room")
 	check(f.scroll.get_v_scroll_bar().max_value >= 3000, "and it scrolls")
+	_done(made)
+
+
+## The reel's metal frame stays put around the card; the question scrolls inside it.
+func test_the_card_has_its_frame() -> void:
+	for spec in [[Vector2i(390, 844), 50], [Vector2i(360, 780), 50], [Vector2i(1280, 800), 80]]:
+		var area := _area(spec[0])
+		var made: Array = await _screen(area)
+		var f: Control = made[1]
+		for i in 3:
+			await tree.process_frame
+		var what := str(spec[0])
+		var frame: CardFrame = f.card_frame
+		check(frame.is_visible_in_tree(), "%s: the frame shows" % what)
+		check_eq(frame.thickness(), spec[1], what)
+		check(Rect2(Vector2.ZERO, area).encloses(frame.get_global_rect()), "%s: frame on the screen (%s)" % [what, frame.get_global_rect()])
+		var inside := frame.get_global_rect().grow(-frame.thickness())
+		check(inside.encloses(f.scroll.get_global_rect()), "%s: the card is inside the frame" % what)
+		var filler := Control.new()
+		filler.custom_minimum_size.y = 3000
+		f.card.add_child(filler)
+		for i in 3:
+			await tree.process_frame
+		f.scroll.scroll_vertical = 1000
+		await tree.process_frame
+		check(inside.encloses(f.scroll.get_global_rect()), "%s: the frame holds still as the card scrolls" % what)
+		_done(made)
+
+
+func test_only_the_question_has_the_frame() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)), 3, true)
+	var f: Control = made[1]
+	check(not f.card_frame.visible, "not around the floor select")
+	f.start_run()
+	check(f.card_frame.visible, "around the question")
+	f.lose()
+	check(not f.card_frame.visible, "not around the summary")
+	_done(made)
+
+
+## The widest cards in the catalogue, in the fight's framed column on the smallest phone.
+func test_wide_tables_and_long_answers_fit_the_frame() -> void:
+	var made: Array = await _screen(_area(Vector2i(360, 780)))
+	var f: Control = made[1]
+	for i in 3:
+		await tree.process_frame
+	var seen := {"table": 0, "wrapped": 0}
+	for c: Dictionary in QuestionEngine.cells(false, ["fn-sketch-gdc", "fn-gdc-features", "fn-concept-asymptote-meaning", "fn-ext-exp-graph"]):
+		var v := c.duplicate()
+		v.format = "value"
+		v.seed = 1
+		f.show_view(v)
+		if f.question.has("error"):
+			continue
+		await tree.process_frame
+		check(f.card.get_combined_minimum_size().x <= f.scroll.size.x, "%s %s: %s wide in %s" % [c.type, c.unknown, f.card.get_combined_minimum_size().x, f.scroll.size.x])
+		var table: Node = f.card.find_child("TableScroll", true, false)
+		if table != null and table.get_child(0).get_combined_minimum_size().x > table.size.x:
+			seen.table += 1
+			check(table.get_h_scroll_bar().max_value >= table.get_child(0).get_combined_minimum_size().x, "%s: the table scrolls sideways" % c.type)
+		for b: Button in f.card.find_children("*", "Button", true, false):
+			if b.autowrap_mode != TextServer.AUTOWRAP_OFF and b.get_parent().name == "Slots":
+				seen.wrapped += 1
+				check(b.size.x <= f.scroll.size.x and b.size.y >= UiTheme.BIG * 2, "%s: the answer wraps (%s)" % [c.type, b.size])
+	check(seen.table > 0, "a table wider than the card was tried")
+	check(seen.wrapped > 0, "a long word-choice answer was tried")
 	_done(made)
 
 

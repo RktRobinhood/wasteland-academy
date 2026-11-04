@@ -10,7 +10,7 @@ extends "res://ui/practice.gd"
 ## (journey/journey_stage.gd), driven from the run's view signals by JourneyLink, with
 ## the enemy standing in it and the enemy's name and HP over it; the timer, the lifelines
 ## and the fight's progress; then the practice screen's question card, which this screen
-## reuses. On a window wide enough the scene and those rows stand left of the card, so
+## reuses, in the reel's metal frame (ui/card_frame.gd). On a window wide enough the scene and those rows stand left of the card, so
 ## the card has the window's height. An avatar with no journey sheet gets the enemy's
 ## portrait in the scene's place. The lifeline row ends with the question's paper
 ## (FAL-419): "No calculator", or the Calculator button on a Paper 2 question, which
@@ -48,6 +48,11 @@ const WIDE_FROM := 2000
 const LEFT_WIDE := 1300
 const LEFT_LEAST := 800
 const PAD := 30
+## The card's frame, in base units per art pixel: thin on a phone, where width is short
+## (the HTML game's 20 px), as the reel on a wide window. Its side gap on a phone.
+const FRAME_SCALE := 1.25
+const FRAME_SCALE_WIDE := 2.0
+const FRAME_GAP := 6
 const ENEMY_TAG_WIDTH := 350
 const JOURNEY_STAGE := "res://scenes/journey_stage.tscn"
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
@@ -82,6 +87,9 @@ var journey: JourneyLink
 ## The scene and the rows under it, and the card or the floor select or the summary.
 var body: BoxContainer
 var left: VBoxContainer
+## Holds the card's frame clear of the scene's sides.
+var right_pad: MarginContainer
+var card_frame: CardFrame
 var enemy_art: TextureRect
 var enemy_name: Label
 var enemy_bar: ProgressBar
@@ -160,12 +168,16 @@ func _play_loop() -> void:
 
 func _fit() -> void:
 	var wide := size.x >= WIDE_FROM
-	var left_w := clampf(size.x - COLUMN_WIDE - PAD * 2, LEFT_LEAST, LEFT_WIDE)
-	var side := maxf(0.0, (size.x - left_w - COLUMN_WIDE - PAD * 2) / 2.0) if wide else 0.0
+	card_frame.art_scale = FRAME_SCALE_WIDE if wide else FRAME_SCALE
+	var column := COLUMN_WIDE + card_frame.thickness() * 2
+	var left_w := clampf(size.x - column - PAD * 2, LEFT_LEAST, LEFT_WIDE)
+	var side := maxf(0.0, (size.x - left_w - column - PAD * 2) / 2.0) if wide else 0.0
+	right_pad.add_theme_constant_override("margin_left", PAD if wide else FRAME_GAP)
+	right_pad.add_theme_constant_override("margin_right", PAD if wide else FRAME_GAP)
 	margin.add_theme_constant_override("margin_left", int(side))
 	margin.add_theme_constant_override("margin_right", int(side))
 	margin.add_theme_constant_override("margin_top", 0)
-	margin.add_theme_constant_override("margin_bottom", 20)
+	margin.add_theme_constant_override("margin_bottom", 20 if wide else FRAME_GAP)
 	hud_gap.custom_minimum_size.x = maxf(0.0, AudioHud.RESERVED_RIGHT - side - PAD)
 	body.vertical = not wide
 	left.custom_minimum_size.x = left_w if wide else 0.0
@@ -193,6 +205,7 @@ func start_run() -> void:
 	floor_box.visible = false
 	UiTheme.show_backdrop(backdrop, ArtSlots.backdrop(region))
 	quit_button.visible = true
+	card_frame.visible = true
 	scroll.visible = true
 	left.visible = true
 	hp_row.visible = true
@@ -203,6 +216,7 @@ func start_run() -> void:
 ## has beaten, the best floor so far, and what opens the next one.
 func show_floor_select() -> void:
 	run = null
+	card_frame.visible = false
 	scroll.visible = false
 	summary_box.visible = false
 	left.visible = false
@@ -313,16 +327,19 @@ func _build() -> void:
 	right.name = "Right"
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var pad := _padded(right)
-	pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	pad.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_child(pad)
+	right_pad = _padded(right)
+	right_pad.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_pad.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(right_pad)
 
+	card_frame = CardFrame.new()
+	card_frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right.add_child(card_frame)
 	scroll = ScrollContainer.new()
 	scroll.name = "Scroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	right.add_child(scroll)
+	card_frame.add_child(scroll)
 	card = VBoxContainer.new()
 	card.name = "Card"
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -853,6 +870,7 @@ func next_question() -> void:
 
 func _show_summary(s: Dictionary) -> void:
 	SaveData.store(save, save_path)
+	card_frame.visible = false
 	scroll.visible = false
 	left.visible = false
 	summary_box.visible = true
