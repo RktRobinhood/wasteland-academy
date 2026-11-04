@@ -3190,6 +3190,96 @@
     "every 3 s.f. answer is at least 0.03 of a unit of its third figure from a rounding edge",
     "rearranging the line of y on x reads differently from the line of x on y at 3 s.f."
    ]
+  },
+  "arc-sector": {
+   "name": "One sector of a circle",
+   "summary": "Pick a radius and an angle, written in radians, in degrees or as a multiple of π. The arc, the perimeter, the area and the major sector all follow, and any of them can be given so that r or θ is found by working back.",
+   "quantities": [
+    {
+     "name": "r",
+     "is": "the radius",
+     "pick": "Paper 1: a whole number from 2 to 12; Paper 2: 2.0 to 30.0 to 1 d.p."
+    },
+    {
+     "name": "t",
+     "is": "the angle θ",
+     "pick": "Paper 1: a landmark multiple of π, a landmark in degrees, or a simple decimal in radians; Paper 2: 0.25 to 5.5 radians to 2 d.p., or a whole number of degrees that is not a landmark"
+    },
+    {
+     "name": "form",
+     "is": "how the angle is written",
+     "pick": "pi, rad or deg"
+    },
+    {
+     "name": "l, area, per",
+     "is": "the arc, area and perimeter when they are given",
+     "pick": "worked out exactly on Paper 1; to 1 d.p. on Paper 2, with r or θ then worked out from them"
+    },
+    {
+     "name": "rin",
+     "is": "the inner radius of a curved strip",
+     "pick": "less than r"
+    },
+    {
+     "name": "w, h",
+     "is": "the width and height of a plate with two segments cut away",
+     "pick": "whole numbers with the two cuts clear of each other"
+    },
+    {
+     "name": "side, strip",
+     "is": "a bent strip's straight sides and width",
+     "pick": "the width less the two sides leaves the arc"
+    }
+   ],
+   "clean": [
+    "Paper 1 answers are exact, in terms of π where that applies, and any fraction has a denominator of at most 24",
+    "r worked back on Paper 1 is a whole number",
+    "Paper 2 answers are to 3 s.f. and every value offered, right or wrong, is at least 0.03 of a unit of its third figure from a rounding edge",
+    "a minor angle is less than π where a major sector or major arc is asked",
+    "θ stays between 0 and 2π"
+   ]
+  },
+  "bearings-elevation": {
+   "name": "Journeys, sightings and connected triangles",
+   "summary": "Points on a map or in a side view, set from real coordinates: bearings and distances, heights and lines of sight, and triangles that share a side. Any bearing, angle or length can be asked, and the sketch keeps the real shape.",
+   "quantities": [
+    {
+     "name": "d1, d2",
+     "is": "distances along a journey or sides of a triangle",
+     "pick": "2.0 to 40.0 to 1 d.p., or whole numbers"
+    },
+    {
+     "name": "b1, b2",
+     "is": "bearings",
+     "pick": "whole degrees, with the turn between two legs from 30° to 150°"
+    },
+    {
+     "name": "h, x",
+     "is": "a height and a horizontal distance",
+     "pick": "whole metres or 1 d.p."
+    },
+    {
+     "name": "e",
+     "is": "an angle of elevation or depression",
+     "pick": "whole degrees from 12° to 70° on a sketch to scale, or small angles marked not to scale; sometimes radians to 2 d.p."
+    },
+    {
+     "name": "eye, gap",
+     "is": "an observer's height and a clearance",
+     "pick": "1.5 to 1.9 m, and 1.0 to 4.0 m"
+    },
+    {
+     "name": "v",
+     "is": "a speed",
+     "pick": "whole km/h"
+    }
+   ],
+   "clean": [
+    "every question is Paper 2",
+    "no angle inside a triangle is 90° unless the question says so",
+    "every 3 s.f. value, right or wrong, is at least 0.03 of a unit of its third figure from a rounding edge",
+    "a bearing is written with three figures and lies between 000° and 360°"
+   ]
   }
  },
  "types": [
@@ -20500,7 +20590,7 @@
    "id": "t3-bearings-elevation",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Bearings, elevation and depression in context",
    "syllabus": [
     "3.3"
@@ -20509,6 +20599,552 @@
     "SL3.3.bearings",
     "SL3.3.elevation-depression",
     "SL3.3.multi-triangle"
+   ],
+   "summary": "Journeys, sightings and fields in the wasteland: back bearings, bearings and distances of a two-leg journey, angles inside a triangle from a bearing, heights and distances from angles of elevation and depression, with an observer's height and a speed where the story has them, and chains of connected triangles.",
+   "skillFit": "full",
+   "chain": [
+    "draw a north line at each point, or the horizontal at each eye",
+    "chase the bearings into angles inside the triangle, or move a depression to ground level",
+    "choose the rule each triangle allows: a right angle, SAS or SSS, or a side with its opposite angle",
+    "carry the exact shared side into the next triangle",
+    "turn the angle back into a bearing, or add what the triangle leaves out"
+   ],
+   "given": [
+    "bearings and distances",
+    "an angle of elevation or depression and a height or a distance",
+    "two triangles sharing a side",
+    "speeds along a route"
+   ],
+   "asked": "A bearing or back bearing, an angle inside a triangle, a distance, a height, an angle of depression, a time, an area of a quadrilateral, or the rule to use first.",
+   "answerForms": [
+    "3 s.f.",
+    "exact whole-number bearing or angle"
+   ],
+   "randomise": [
+    "the distances, bearings and angles",
+    "the story",
+    "whether a sketch is drawn",
+    "degrees or radians for an angle of elevation"
+   ],
+   "constraints": [
+    "every question is Paper 2",
+    "a bearing is written with three figures",
+    "an answer to 3 s.f. is clear of a rounding edge, and so is every wrong value offered",
+    "a sketch keeps the real shape, with a north line at each point that uses a bearing, unless it says it is not to scale"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "bearings-elevation",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: a caravan leaves camp and travels 12 km on a bearing of 070°"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "the same story with a sketch: a north line at each point and labelled points, or a side view with the ground, the height and the line of sight"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "back-bearing",
+     "given": [
+      "the bearing of B from A"
+     ],
+     "asked": "the bearing of A from B",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.bearings"
+     ]
+    },
+    {
+     "id": "angle-from-bearing",
+     "given": [
+      "B due east of A, the bearing of C from A, angle ABC"
+     ],
+     "asked": "angle ACB",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.bearings"
+     ]
+    },
+    {
+     "id": "two-leg-distance",
+     "given": [
+      "two legs of a journey, each a distance and a bearing"
+     ],
+     "asked": "the distance from the start",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.bearings"
+     ]
+    },
+    {
+     "id": "two-leg-bearing",
+     "given": [
+      "two legs of a journey"
+     ],
+     "asked": "the bearing of the end from the start",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.bearings"
+     ]
+    },
+    {
+     "id": "return-bearing",
+     "given": [
+      "two legs of a journey"
+     ],
+     "asked": "the bearing of the start from the end",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.bearings"
+     ]
+    },
+    {
+     "id": "due-east-distance",
+     "given": [
+      "B due east of A, C at a distance and bearing from A"
+     ],
+     "asked": "BC",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.bearings"
+     ]
+    },
+    {
+     "id": "sine-rule-distance",
+     "given": [
+      "B due east of A, the bearing of C from A, angle ABC"
+     ],
+     "asked": "AC or BC",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.bearings"
+     ]
+    },
+    {
+     "id": "due-west-side",
+     "given": [
+      "C due west of B, the bearing of B from A, angle BAC, the length AC"
+     ],
+     "asked": "angle ABC, then BC",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.bearings"
+     ]
+    },
+    {
+     "id": "height-from-elevation",
+     "given": [
+      "a distance along the ground and an angle of elevation"
+     ],
+     "asked": "the height",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.elevation-depression"
+     ]
+    },
+    {
+     "id": "distance-from-depression",
+     "given": [
+      "a height and an angle of depression"
+     ],
+     "asked": "the horizontal distance",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.elevation-depression"
+     ]
+    },
+    {
+     "id": "angle-of-depression",
+     "given": [
+      "a height and a horizontal distance"
+     ],
+     "asked": "the angle of depression",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.elevation-depression"
+     ]
+    },
+    {
+     "id": "height-with-eye-level",
+     "given": [
+      "an observer's eye height, a distance and an angle of elevation"
+     ],
+     "asked": "the height",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.elevation-depression"
+     ]
+    },
+    {
+     "id": "chain-below-hook",
+     "given": [
+      "the height of a crane's arm from an angle of elevation, and a guard's height and clearance"
+     ],
+     "asked": "the length of the chain",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.elevation-depression"
+     ]
+    },
+    {
+     "id": "time-from-depression",
+     "given": [
+      "a height, an angle of depression and a speed"
+     ],
+     "asked": "the time to reach the point, in minutes",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.elevation-depression"
+     ]
+    },
+    {
+     "id": "route-time",
+     "given": [
+      "two perpendicular distances and speeds"
+     ],
+     "asked": "the time for a route",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.multi-triangle"
+     ]
+    },
+    {
+     "id": "shared-side",
+     "given": [
+      "a right-angled triangle and a triangle sharing its long side"
+     ],
+     "asked": "the far side",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.multi-triangle"
+     ]
+    },
+    {
+     "id": "quadrilateral-area",
+     "given": [
+      "two sides and the angle between them on each side of a diagonal"
+     ],
+     "asked": "the area of the quadrilateral",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.multi-triangle"
+     ]
+    },
+    {
+     "id": "perpendicular-split",
+     "given": [
+      "two sides of a triangle and the angle between them"
+     ],
+     "asked": "the third side",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.multi-triangle"
+     ]
+    },
+    {
+     "id": "rule-to-use",
+     "given": [
+      "what is known about a triangle"
+     ],
+     "asked": "which rule to use first",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.3.multi-triangle"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.3.bearings",
+     "method": "angle-chase-cosine",
+     "suits": [
+      "angle-from-bearing",
+      "two-leg-distance",
+      "two-leg-bearing",
+      "return-bearing",
+      "due-east-distance",
+      "sine-rule-distance",
+      "due-west-side"
+     ]
+    },
+    {
+     "skill": "SL3.3.bearings",
+     "method": "components",
+     "suits": [
+      "two-leg-distance",
+      "two-leg-bearing",
+      "return-bearing",
+      "due-east-distance"
+     ]
+    },
+    {
+     "skill": "SL3.3.bearings",
+     "method": "back-bearing",
+     "suits": [
+      "back-bearing",
+      "return-bearing"
+     ]
+    },
+    {
+     "skill": "SL3.3.elevation-depression",
+     "method": "right-triangle",
+     "suits": [
+      "height-from-elevation",
+      "distance-from-depression",
+      "angle-of-depression",
+      "height-with-eye-level",
+      "chain-below-hook",
+      "time-from-depression"
+     ]
+    },
+    {
+     "skill": "SL3.3.elevation-depression",
+     "method": "alternate-angles",
+     "suits": [
+      "distance-from-depression",
+      "angle-of-depression",
+      "time-from-depression"
+     ]
+    },
+    {
+     "skill": "SL3.3.multi-triangle",
+     "method": "classify-given",
+     "suits": [
+      "route-time",
+      "shared-side",
+      "perpendicular-split",
+      "rule-to-use"
+     ]
+    },
+    {
+     "skill": "SL3.3.multi-triangle",
+     "method": "split-into-right",
+     "suits": [
+      "perpendicular-split"
+     ]
+    },
+    {
+     "skill": "SL3.3.multi-triangle",
+     "method": "either-diagonal",
+     "suits": [
+      "quadrilateral-area"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If the bearing of B from A is 070°, the bearing of A from B is 290°.",
+     "answer": "False: 290° is 360° − 070°. The way back is the opposite direction, 070° + 180° = 250°.",
+     "level": 2
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "An angle of depression from the top of a tower equals the angle of elevation of the top from the ground below.",
+     "answer": "Always: the two horizontals are parallel, so they are alternate angles.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "Two legs on bearings of 040° and 100° meet at an angle of 60° inside the triangle.",
+     "answer": "False: 60° is the turn. The north lines are parallel, so the angle inside is 180° − 60° = 120°.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.3.bearings#0",
+     "text": "Measuring a bearing anticlockwise or from east instead of clockwise from north",
+     "as": "distractor",
+     "in": [
+      "back-bearing",
+      "two-leg-bearing"
+     ],
+     "wrong": "360° − the bearing, measured the wrong way round"
+    },
+    {
+     "ref": "SL3.3.bearings#1",
+     "text": "Giving the bearing of A from B when asked for B from A",
+     "as": "distractor",
+     "in": [
+      "back-bearing",
+      "two-leg-bearing",
+      "return-bearing"
+     ],
+     "wrong": "the bearing the other way"
+    },
+    {
+     "ref": "SL3.3.bearings#2",
+     "text": "Using the bearings themselves as angles inside the triangle without angle chasing",
+     "as": "distractor",
+     "in": [
+      "angle-from-bearing",
+      "two-leg-distance",
+      "due-east-distance",
+      "sine-rule-distance"
+     ],
+     "wrong": "the bearing, or the turn between two bearings, used as the angle inside"
+    },
+    {
+     "ref": "SL3.3.elevation-depression#0",
+     "text": "Measuring the angle of depression from the vertical instead of the horizontal",
+     "as": "distractor",
+     "in": [
+      "angle-of-depression"
+     ],
+     "wrong": "90° less the angle, tan⁻¹(distance ÷ height)"
+    },
+    {
+     "ref": "SL3.3.elevation-depression#1",
+     "text": "Putting the angle of depression inside the triangle at the top vertex",
+     "as": "distractor",
+     "in": [
+      "distance-from-depression",
+      "time-from-depression"
+     ],
+     "wrong": "height × tan θ for the distance"
+    },
+    {
+     "ref": "SL3.3.elevation-depression#2",
+     "text": "Forgetting to add the observer's eye height",
+     "as": "distractor",
+     "in": [
+      "height-with-eye-level",
+      "chain-below-hook"
+     ],
+     "wrong": "the eye height left out"
+    },
+    {
+     "ref": "SL3.3.multi-triangle#0",
+     "text": "Rounding the shared side early and carrying the error into the next triangle",
+     "as": "distractor",
+     "in": [
+      "shared-side"
+     ],
+     "wrong": "the shared side rounded to 2 s.f. before the cosine rule"
+    },
+    {
+     "ref": "SL3.3.multi-triangle#1",
+     "text": "Assuming an angle is 90° because it looks like it",
+     "as": "distractor",
+     "in": [
+      "shared-side",
+      "perpendicular-split"
+     ],
+     "wrong": "Pythagoras on a triangle with no right angle"
+    },
+    {
+     "ref": "SL3.3.multi-triangle#2",
+     "text": "Using the sine rule in a triangle where no side–opposite angle pair is known",
+     "as": "distractor",
+     "in": [
+      "rule-to-use"
+     ],
+     "wrong": "the sine rule offered on two sides and the angle between them"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q08.e",
@@ -20629,7 +21265,7 @@
    "id": "t3-arc-sector",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Arc length, sector area and perimeter, forwards or backwards",
    "syllabus": [
     "3.4"
@@ -20638,6 +21274,643 @@
     "SL3.4.arc-length",
     "SL3.4.sector-area",
     "SL3.4.convert"
+   ],
+   "summary": "One sector of a circle, with its radius and its angle in radians, in degrees or as a multiple of π: convert the angle, find the arc, the perimeter or the area, or work back to r or θ from any of them. It also takes the major arc and major sector, a sector rolled into a cone, a curved strip between two circles and a plate with two segments cut away.",
+   "skillFit": "full",
+   "chain": [
+    "see whether the angle is in radians, and convert it if it isn't",
+    "l = rθ for the arc, A = ½r²θ for the area",
+    "add the two radii for a perimeter",
+    "rearrange to work back to r or θ, taking the square root for r from an area",
+    "take the reflex angle or the rest of the circle for a major sector"
+   ],
+   "given": [
+    "r and θ, on a labelled sector or in words",
+    "an arc, an area or a perimeter, with r or θ",
+    "a full circle with one sector cut out"
+   ],
+   "asked": "An angle converted, the arc length, the perimeter, the area of a sector or major sector, r or θ, an expression for r in terms of θ, the radius of a cone made from a sector, or a length or area of a composite shape.",
+   "answerForms": [
+    "exact, in terms of π",
+    "exact fraction or decimal",
+    "3 s.f."
+   ],
+   "randomise": [
+    "r and θ",
+    "radians, a multiple of π or degrees",
+    "the story",
+    "which quantity is hidden",
+    "which sector is shaded"
+   ],
+   "constraints": [
+    "Paper 1 is exact: r is whole, θ is a landmark multiple of π, a landmark in degrees or a simple decimal",
+    "Paper 2 has r to 1 d.p. and θ to 2 d.p. or in whole degrees, with answers to 3 s.f.",
+    "a sector is drawn to its real angle",
+    "every 3 s.f. value, right or wrong, is clear of a rounding edge"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "arc-sector",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the values listed: r = 6 cm, θ = 5π/6 radians"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "a sector OAB drawn to its real angle, with the radius, angle and arc labelled and the sector asked about shaded"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: a searchlight with a reach of 40 m lights a sector of the yard"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "deg-to-rad",
+     "given": [
+      "an angle in degrees"
+     ],
+     "asked": "the angle in radians",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "rad-to-deg",
+     "given": [
+      "an angle in radians"
+     ],
+     "asked": "the angle in degrees",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "arc-length",
+     "given": [
+      "r",
+      "θ"
+     ],
+     "asked": "the arc length",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "perimeter",
+     "given": [
+      "r",
+      "θ"
+     ],
+     "asked": "the perimeter of the sector",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "theta-from-arc",
+     "given": [
+      "r",
+      "the arc length"
+     ],
+     "asked": "θ",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "r-from-arc",
+     "given": [
+      "θ",
+      "the arc length"
+     ],
+     "asked": "r",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "r-from-perimeter",
+     "given": [
+      "θ",
+      "the perimeter"
+     ],
+     "asked": "r",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "theta-from-perimeter",
+     "given": [
+      "r",
+      "the perimeter"
+     ],
+     "asked": "θ",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "major-arc",
+     "given": [
+      "r",
+      "the minor angle θ"
+     ],
+     "asked": "the major arc",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "r-in-terms-of-theta",
+     "given": [
+      "the arc length, with θ unknown"
+     ],
+     "asked": "an expression for r in terms of θ",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "theta-from-bent-strip",
+     "given": [
+      "a strip's width, two straight sides and the radius of the curved part"
+     ],
+     "asked": "θ",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "sector-area",
+     "given": [
+      "r",
+      "θ"
+     ],
+     "asked": "the area of the sector",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.sector-area"
+     ]
+    },
+    {
+     "id": "theta-from-area",
+     "given": [
+      "r",
+      "the area"
+     ],
+     "asked": "θ",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.sector-area"
+     ]
+    },
+    {
+     "id": "r-from-area",
+     "given": [
+      "θ",
+      "the area"
+     ],
+     "asked": "r",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.sector-area"
+     ]
+    },
+    {
+     "id": "major-sector",
+     "given": [
+      "r",
+      "the minor angle θ"
+     ],
+     "asked": "the area of the major sector",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.sector-area"
+     ]
+    },
+    {
+     "id": "area-from-arc",
+     "given": [
+      "r",
+      "the arc length"
+     ],
+     "asked": "the area of the sector",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.arc-length",
+      "SL3.4.sector-area"
+     ]
+    },
+    {
+     "id": "perimeter-from-area",
+     "given": [
+      "θ",
+      "the area"
+     ],
+     "asked": "the perimeter of the sector",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.arc-length",
+      "SL3.4.sector-area"
+     ]
+    },
+    {
+     "id": "major-from-perimeter",
+     "given": [
+      "θ",
+      "the perimeter of the minor sector"
+     ],
+     "asked": "the exact area of the rest of the circle",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.arc-length",
+      "SL3.4.sector-area"
+     ]
+    },
+    {
+     "id": "cone-radius",
+     "given": [
+      "a sector's r and θ, rolled into a cone"
+     ],
+     "asked": "the radius of the cone's base",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "ring-inner-radius",
+     "given": [
+      "the outer radius, the angle and the area of a curved strip between two circles"
+     ],
+     "asked": "the inner radius",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.sector-area"
+     ]
+    },
+    {
+     "id": "ring-perimeter",
+     "given": [
+      "both radii and the angle of a curved strip"
+     ],
+     "asked": "its perimeter",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.arc-length"
+     ]
+    },
+    {
+     "id": "segments-theta",
+     "given": [
+      "a rectangular plate with two equal segments cut away, and its area"
+     ],
+     "asked": "θ",
+     "level": 5,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.segment-shaded"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.4.convert",
+     "method": "multiply-factor",
+     "suits": [
+      "deg-to-rad",
+      "rad-to-deg"
+     ]
+    },
+    {
+     "skill": "SL3.4.convert",
+     "method": "fraction-of-turn",
+     "suits": [
+      "deg-to-rad",
+      "rad-to-deg"
+     ]
+    },
+    {
+     "skill": "SL3.4.convert",
+     "method": "landmarks",
+     "suits": [
+      "deg-to-rad",
+      "rad-to-deg"
+     ]
+    },
+    {
+     "skill": "SL3.4.arc-length",
+     "method": "l-equals-r-theta",
+     "suits": [
+      "arc-length",
+      "perimeter",
+      "theta-from-arc",
+      "r-from-arc",
+      "r-from-perimeter",
+      "theta-from-perimeter",
+      "major-arc",
+      "r-in-terms-of-theta",
+      "theta-from-bent-strip",
+      "cone-radius",
+      "ring-perimeter",
+      "perimeter-from-area",
+      "area-from-arc",
+      "major-from-perimeter"
+     ]
+    },
+    {
+     "skill": "SL3.4.arc-length",
+     "method": "fraction-of-circumference",
+     "suits": [
+      "arc-length",
+      "perimeter",
+      "theta-from-arc",
+      "major-arc",
+      "cone-radius"
+     ]
+    },
+    {
+     "skill": "SL3.4.sector-area",
+     "method": "half-r-squared-theta",
+     "suits": [
+      "sector-area",
+      "theta-from-area",
+      "r-from-area",
+      "major-sector",
+      "ring-inner-radius"
+     ]
+    },
+    {
+     "skill": "SL3.4.sector-area",
+     "method": "fraction-of-circle",
+     "suits": [
+      "sector-area",
+      "theta-from-area",
+      "major-sector"
+     ]
+    },
+    {
+     "skill": "SL3.4.sector-area",
+     "method": "complement",
+     "suits": [
+      "major-sector"
+     ]
+    },
+    {
+     "skill": "SL3.4.segment-shaded",
+     "method": "sector-minus-triangle",
+     "suits": [
+      "segments-theta"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If you double the radius of a sector and keep its angle, its area doubles.",
+     "answer": "False: A = ½r²θ, so the area goes up four times. The arc is what doubles.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "An arc is shorter than the radius of its circle.",
+     "answer": "Sometimes: l = rθ, so it holds exactly when θ is less than 1 radian.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "What does 1 radian mean on a circle?",
+     "answer": "It is the angle at the centre where the arc is as long as the radius, because l = rθ gives l = r when θ = 1.",
+     "level": 2
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.4.convert#0",
+     "text": "Multiplying by 180/π when converting degrees to radians",
+     "as": "distractor",
+     "in": [
+      "deg-to-rad"
+     ],
+     "wrong": "degrees × 180/π"
+    },
+    {
+     "ref": "SL3.4.convert#1",
+     "text": "Thinking π radians is 3.14° or that 1 radian is about 1°",
+     "as": "distractor",
+     "in": [
+      "rad-to-deg"
+     ],
+     "wrong": "the size in radians written as degrees"
+    },
+    {
+     "ref": "SL3.4.convert#2",
+     "text": "Giving a decimal when an exact multiple of π is asked for",
+     "as": "distractor",
+     "in": [
+      "deg-to-rad"
+     ],
+     "wrong": "the decimal in place of the multiple of π, on Paper 1"
+    },
+    {
+     "ref": "SL3.4.arc-length#0",
+     "text": "Using θ in degrees in l = rθ",
+     "as": "distractor",
+     "in": [
+      "arc-length",
+      "perimeter"
+     ],
+     "wrong": "r × the angle in degrees"
+    },
+    {
+     "ref": "SL3.4.arc-length#1",
+     "text": "Forgetting the two radii when finding the perimeter of a sector",
+     "as": "distractor",
+     "in": [
+      "perimeter",
+      "r-from-perimeter",
+      "theta-from-perimeter"
+     ],
+     "wrong": "the arc alone taken as the perimeter"
+    },
+    {
+     "ref": "SL3.4.arc-length#2",
+     "text": "Using the minor-arc angle when the major arc is asked for",
+     "as": "distractor",
+     "in": [
+      "major-arc"
+     ],
+     "wrong": "the minor arc rθ"
+    },
+    {
+     "ref": "SL3.4.sector-area#0",
+     "text": "Using θ in degrees in ½r²θ",
+     "as": "distractor",
+     "in": [
+      "sector-area"
+     ],
+     "wrong": "½r² × the angle in degrees"
+    },
+    {
+     "ref": "SL3.4.sector-area#1",
+     "text": "Squaring θ instead of r: ½rθ²",
+     "as": "distractor",
+     "in": [
+      "sector-area"
+     ],
+     "wrong": "½rθ²"
+    },
+    {
+     "ref": "SL3.4.sector-area#2",
+     "text": "Giving the minor sector when the major sector is asked for",
+     "as": "distractor",
+     "in": [
+      "major-sector",
+      "major-from-perimeter"
+     ],
+     "wrong": "the minor sector ½r²θ"
+    },
+    {
+     "ref": "SL3.4.segment-shaded#0",
+     "text": "Calculator in degree mode when evaluating sin θ for θ in radians",
+     "as": "distractor",
+     "in": [
+      "segments-theta"
+     ],
+     "wrong": "the root of the same equation with sin θ taken in degrees"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q08.a",
