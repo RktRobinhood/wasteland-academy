@@ -2905,6 +2905,110 @@
     "f″ has whole-number coefficients and roots",
     "each wrong graph is one mistake"
    ]
+  },
+  "integration": {
+   "name": "A function to integrate",
+   "summary": "One integrand with whole-number coefficients, built so its antiderivative has simple fractions: a sum of powers, a standard function, a composite with ax + b, a reverse chain rule pattern, or a form to rewrite first.",
+   "quantities": [
+    {
+     "name": "a, b, c",
+     "is": "the integrand's coefficients",
+     "pick": "whole and nonzero, small enough to integrate by hand"
+    },
+    {
+     "name": "n",
+     "is": "a power",
+     "pick": "whole, 2 to 6, and never −1"
+    },
+    {
+     "name": "p, q",
+     "is": "the numbers in a bracket or a linear inside",
+     "pick": "whole and nonzero, with the two brackets different"
+    },
+    {
+     "name": "k",
+     "is": "the multiple in front of a reverse chain rule pattern",
+     "pick": "even where it has to cancel a 2"
+    }
+   ],
+   "modes": [
+    "Paper 1 and Paper 2: an exact expression, marked by its numbers"
+   ],
+   "clean": [
+    "every coefficient of the answer is a whole number or a simple fraction",
+    "a linear inside has a ≠ ±1, so dividing by a matters",
+    "the inside of ln is positive for every x where the pattern is g′/g"
+   ]
+  },
+  "definite-integral": {
+   "name": "A definite integral, a region or a rate",
+   "summary": "A function on an interval, a shaded region, a region cut by a tangent or a line, an integral equal to a given value with one letter left to find, or a rate in a story.",
+   "quantities": [
+    {
+     "name": "p, q",
+     "is": "the limits",
+     "pick": "whole, or a simple multiple of π, with p < q"
+    },
+    {
+     "name": "f",
+     "is": "the integrand",
+     "pick": "a polynomial built from whole-number roots, a root of x, a + b cos x, k/(x + c) or e^(ax)"
+    },
+    {
+     "name": "k",
+     "is": "the unknown limit, stretch or point of contact",
+     "pick": "whole, or π/6, π/4 or π/3, and picked first so the given value is exact"
+    },
+    {
+     "name": "r(t)",
+     "is": "a rate in a story",
+     "pick": "a whole-number polynomial on Paper 1, and a model with e or sin on Paper 2"
+    }
+   ],
+   "modes": [
+    "Paper 1: an exact answer",
+    "Paper 2: a GDC value to 3 s.f."
+   ],
+   "clean": [
+    "roots and points of contact are whole numbers",
+    "a Paper 2 answer is clear of a rounding edge",
+    "a region's corners are marked on its figure"
+   ]
+  },
+  "motion": {
+   "name": "A particle on a straight line",
+   "summary": "A displacement or velocity in time, on an interval from t = 0, with its rests, turning points and fastest moments found first, or a motion graph in straight pieces.",
+   "quantities": [
+    {
+     "name": "A, p, q",
+     "is": "Paper 1: v(t) = 3A(t − p)(t − q)",
+     "pick": "p and q whole, with p + q even, so s(t) has whole coefficients"
+    },
+    {
+     "name": "v(t)",
+     "is": "Paper 2: a velocity with e or sin",
+     "pick": "A t e^(−kt) − B, A sin(wt) + B, or A e^(−kt) cos(wt)"
+    },
+    {
+     "name": "T",
+     "is": "the end of the interval",
+     "pick": "whole, past the last rest"
+    },
+    {
+     "name": "pieces",
+     "is": "a motion graph in straight pieces",
+     "pick": "whole-number corners"
+    }
+   ],
+   "modes": [
+    "Paper 1: whole-number polynomials, exact",
+    "Paper 2: a GDC value to 3 s.f."
+   ],
+   "clean": [
+    "rests and turning points are at least 0.5 apart",
+    "Paper 2 values are clear of a rounding edge",
+    "a corner of a motion graph is at whole numbers"
+   ]
   }
  },
  "types": [
@@ -25585,8 +25689,9 @@
    "id": "t5-kinematics-motion",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Kinematics: rest, direction change, acceleration, maximum speed",
+   "summary": "Find velocity and acceleration, when a particle is at rest, changes direction or moves one way, its greatest velocity, speed or acceleration, and read all of this from motion graphs. Most of it is Paper 2, on a velocity with e or sin.",
    "syllabus": [
     "5.9"
    ],
@@ -25595,6 +25700,665 @@
     "SL5.9.rest-and-direction",
     "SL5.9.max-speed",
     "SL5.9.motion-graphs"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "differentiate s to get v, and v to get a",
+    "solve v = 0 and check the sign either side",
+    "use the sign of v and of a",
+    "find a = 0, then compare with the ends of the interval",
+    "read gradients and signed areas from a graph"
+   ],
+   "given": [
+    "s(t) or v(t) on an interval",
+    "a story",
+    "a v–t or s–t graph"
+   ],
+   "asked": "A velocity, an acceleration, a time, an interval of time, the greatest speed, or a reading from a graph.",
+   "answerForms": [
+    "an expression",
+    "exact",
+    "3 s.f.",
+    "an interval",
+    "a sentence"
+   ],
+   "randomise": [
+    "whole-number rests on Paper 1",
+    "the model and its numbers on Paper 2",
+    "the time asked about",
+    "a motion graph's corners"
+   ],
+   "constraints": [
+    "every time is inside the interval, which starts at t = 0",
+    "rests on Paper 2 are clear of a rounding edge",
+    "maximum speed is sometimes at an end of the interval or at a negative velocity"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "motion",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "s(t) or v(t) with its interval"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "the graph of v against t or of s against t"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a cart on a rail, with its velocity or position as a formula"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "velocity-expression",
+     "given": [
+      "s(t), a polynomial"
+     ],
+     "asked": "v(t)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.velocity-acceleration"
+     ]
+    },
+    {
+     "id": "acceleration-expression",
+     "given": [
+      "v(t), a polynomial"
+     ],
+     "asked": "a(t)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.velocity-acceleration"
+     ]
+    },
+    {
+     "id": "velocity-at-time",
+     "given": [
+      "s(t)",
+      "a time"
+     ],
+     "asked": "the velocity at that time",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.9.velocity-acceleration"
+     ]
+    },
+    {
+     "id": "acceleration-at-time",
+     "given": [
+      "v(t)",
+      "a time"
+     ],
+     "asked": "the acceleration at that time",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.9.velocity-acceleration"
+     ]
+    },
+    {
+     "id": "time-from-acceleration",
+     "given": [
+      "v(t)",
+      "a value of a"
+     ],
+     "asked": "the time when the acceleration has that value",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.velocity-acceleration"
+     ]
+    },
+    {
+     "id": "time-from-velocity",
+     "given": [
+      "v(t)",
+      "a value of v"
+     ],
+     "asked": "the time when the velocity has that value",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.rest-and-direction"
+     ]
+    },
+    {
+     "id": "first-at-rest",
+     "given": [
+      "v(t)"
+     ],
+     "asked": "the first time the particle is at rest",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.9.rest-and-direction"
+     ]
+    },
+    {
+     "id": "change-direction",
+     "given": [
+      "v(t)"
+     ],
+     "asked": "the time the particle changes direction",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.9.rest-and-direction"
+     ]
+    },
+    {
+     "id": "returns-to-start",
+     "given": [
+      "s(t) = At(t − p)(t − q)"
+     ],
+     "asked": "the last time the particle is back at the start",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.rest-and-direction"
+     ]
+    },
+    {
+     "id": "moving-one-way",
+     "given": [
+      "v(t)"
+     ],
+     "asked": "the times the particle moves in one direction",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.9.rest-and-direction"
+     ]
+    },
+    {
+     "id": "acceleration-at-rest",
+     "given": [
+      "v(t)"
+     ],
+     "asked": "the acceleration when the particle is first at rest",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.rest-and-direction"
+     ]
+    },
+    {
+     "id": "speeding-up",
+     "given": [
+      "v(t)",
+      "a time"
+     ],
+     "asked": "whether the particle is speeding up or slowing down",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.rest-and-direction"
+     ]
+    },
+    {
+     "id": "max-velocity-quadratic",
+     "given": [
+      "v(t), a quadratic opening down"
+     ],
+     "asked": "the maximum velocity",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.max-speed"
+     ]
+    },
+    {
+     "id": "max-velocity",
+     "given": [
+      "v(t) with e or sin"
+     ],
+     "asked": "the maximum velocity, to 3 s.f.",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.9.max-speed"
+     ]
+    },
+    {
+     "id": "max-speed",
+     "given": [
+      "v(t) on an interval"
+     ],
+     "asked": "the maximum speed",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.9.max-speed"
+     ]
+    },
+    {
+     "id": "acceleration-at-max-speed",
+     "given": [
+      "v(t) with e or sin"
+     ],
+     "asked": "the acceleration at the time of maximum speed",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.max-speed"
+     ]
+    },
+    {
+     "id": "max-acceleration",
+     "given": [
+      "v(t) with e or sin"
+     ],
+     "asked": "the maximum acceleration",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.9.max-speed"
+     ]
+    },
+    {
+     "id": "speed-from-graph",
+     "given": [
+      "a v–t graph"
+     ],
+     "asked": "the maximum velocity and the maximum speed",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.9.motion-graphs"
+     ]
+    },
+    {
+     "id": "acceleration-from-graph",
+     "given": [
+      "a v–t graph in straight pieces"
+     ],
+     "asked": "the acceleration at a time",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.9.motion-graphs",
+      "SL5.9.velocity-acceleration"
+     ]
+    },
+    {
+     "id": "velocity-from-graph",
+     "given": [
+      "an s–t graph in straight pieces"
+     ],
+     "asked": "the velocity at a time",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.9.motion-graphs",
+      "SL5.9.velocity-acceleration"
+     ]
+    },
+    {
+     "id": "displacement-from-graph",
+     "given": [
+      "a v–t graph in straight pieces"
+     ],
+     "asked": "the displacement over the whole time",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.9.motion-graphs"
+     ]
+    },
+    {
+     "id": "direction-from-graph",
+     "given": [
+      "a v–t graph in straight pieces"
+     ],
+     "asked": "when the particle moves in the negative direction",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.9.motion-graphs"
+     ]
+    }
+   ],
+   "methods": [
+    {
+     "id": "solve-s-zero",
+     "name": "Solve s(t) = 0",
+     "summary": "The particle is back at the start when its displacement from the start is 0: factorise s(t) and keep the positive roots."
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.9.velocity-acceleration",
+     "method": "differentiate-displacement",
+     "suits": [
+      "velocity-expression",
+      "acceleration-expression",
+      "velocity-at-time",
+      "acceleration-at-time",
+      "time-from-acceleration"
+     ]
+    },
+    {
+     "skill": "SL5.9.velocity-acceleration",
+     "method": "gdc-dydx",
+     "suits": [
+      "velocity-at-time",
+      "acceleration-at-time"
+     ]
+    },
+    {
+     "skill": "SL5.9.velocity-acceleration",
+     "method": "graph-gradient",
+     "suits": [
+      "acceleration-from-graph",
+      "velocity-from-graph"
+     ]
+    },
+    {
+     "skill": "SL5.9.rest-and-direction",
+     "method": "solve-v-zero",
+     "suits": [
+      "first-at-rest",
+      "acceleration-at-rest"
+     ]
+    },
+    {
+     "skill": "SL5.9.rest-and-direction",
+     "method": "sign-table",
+     "suits": [
+      "change-direction",
+      "moving-one-way"
+     ]
+    },
+    {
+     "skill": "SL5.9.rest-and-direction",
+     "method": "gdc-zeros",
+     "suits": [
+      "time-from-velocity",
+      "first-at-rest",
+      "change-direction",
+      "moving-one-way",
+      "acceleration-at-rest"
+     ]
+    },
+    {
+     "skill": "SL5.9.rest-and-direction",
+     "method": "compare-signs",
+     "suits": [
+      "speeding-up"
+     ]
+    },
+    {
+     "method": "solve-s-zero",
+     "suits": [
+      "returns-to-start"
+     ]
+    },
+    {
+     "skill": "SL5.9.max-speed",
+     "method": "acceleration-zero",
+     "suits": [
+      "max-velocity-quadratic",
+      "max-velocity",
+      "max-speed"
+     ]
+    },
+    {
+     "skill": "SL5.9.max-speed",
+     "method": "gdc-max-min",
+     "suits": [
+      "max-velocity",
+      "max-speed",
+      "acceleration-at-max-speed",
+      "max-acceleration"
+     ]
+    },
+    {
+     "skill": "SL5.9.max-speed",
+     "method": "vertex-of-velocity",
+     "suits": [
+      "max-velocity-quadratic"
+     ]
+    },
+    {
+     "skill": "SL5.9.motion-graphs",
+     "method": "gradient-reading",
+     "suits": [
+      "acceleration-from-graph",
+      "velocity-from-graph"
+     ]
+    },
+    {
+     "skill": "SL5.9.motion-graphs",
+     "method": "signed-area",
+     "suits": [
+      "displacement-from-graph"
+     ]
+    },
+    {
+     "skill": "SL5.9.motion-graphs",
+     "method": "sign-of-graph",
+     "suits": [
+      "speed-from-graph",
+      "direction-from-graph"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A particle with negative acceleration is slowing down.",
+     "answer": "False: it depends on v too. If v and a are both negative, the particle is speeding up in the negative direction.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "If v(3) = 0, the particle changes direction at t = 3.",
+     "answer": "False: v has to change sign there too. v(t) = (t − 3)² is 0 at t = 3, but the particle keeps going the same way.",
+     "level": 4
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The maximum speed of a particle is the same as its maximum velocity.",
+     "answer": "Sometimes: a large negative velocity is a high speed, so the maximum speed can come where the velocity is at its lowest.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.9.velocity-acceleration#0",
+     "text": "Substituting t into s to get the velocity",
+     "as": "distractor",
+     "in": [
+      "velocity-at-time",
+      "acceleration-at-time"
+     ],
+     "wrong": "s at the time, not v"
+    },
+    {
+     "ref": "SL5.9.velocity-acceleration#1",
+     "text": "Computing average velocity s/t instead of ds/dt",
+     "as": "distractor",
+     "in": [
+      "velocity-at-time"
+     ],
+     "wrong": "s ÷ t at the time"
+    },
+    {
+     "ref": "SL5.9.velocity-acceleration#2",
+     "text": "Assuming acceleration is constant when it depends on t",
+     "as": "distractor",
+     "in": [
+      "acceleration-at-time"
+     ],
+     "wrong": "the average, as if a were constant"
+    },
+    {
+     "ref": "SL5.9.rest-and-direction#0",
+     "text": "At rest means a = 0",
+     "as": "distractor",
+     "in": [
+      "first-at-rest",
+      "change-direction"
+     ],
+     "wrong": "the time when a = 0"
+    },
+    {
+     "ref": "SL5.9.rest-and-direction#1",
+     "text": "Speeding up means a > 0, even when v < 0",
+     "as": "distractor",
+     "in": [
+      "speeding-up"
+     ],
+     "wrong": "the sign of a alone"
+    },
+    {
+     "ref": "SL5.9.rest-and-direction#2",
+     "text": "Counting every zero of v as a change of direction, even where v touches zero without changing sign",
+     "as": "distractor",
+     "in": [
+      "change-direction"
+     ],
+     "wrong": "the root where v touches 0"
+    },
+    {
+     "ref": "SL5.9.max-speed#0",
+     "text": "Treating maximum speed as maximum velocity (a large negative velocity is a high speed)",
+     "as": "distractor",
+     "in": [
+      "max-speed",
+      "speed-from-graph"
+     ],
+     "wrong": "the maximum velocity, not speed"
+    },
+    {
+     "ref": "SL5.9.max-speed#1",
+     "text": "Ignoring the endpoints of the time interval",
+     "as": "distractor",
+     "in": [
+      "max-speed"
+     ],
+     "wrong": "the end of the interval ignored"
+    },
+    {
+     "ref": "SL5.9.max-speed#2",
+     "text": "Setting v = 0 to find the maximum velocity",
+     "as": "distractor",
+     "in": [
+      "max-velocity-quadratic"
+     ],
+     "wrong": "the time v = 0, or v's value there"
+    },
+    {
+     "ref": "SL5.9.motion-graphs#0",
+     "text": "Reading the height of a v–t graph as the displacement",
+     "as": "distractor",
+     "in": [
+      "displacement-from-graph"
+     ],
+     "wrong": "the graph's height, not its area"
+    },
+    {
+     "ref": "SL5.9.motion-graphs#1",
+     "text": "Thinking a downward-sloping v–t graph means moving backwards",
+     "as": "distractor",
+     "in": [
+      "direction-from-graph"
+     ],
+     "wrong": "where the graph slopes down, not where it is below the axis"
+    },
+    {
+     "ref": "SL5.9.motion-graphs#2",
+     "text": "Counting area below the axis as positive displacement",
+     "as": "distractor",
+     "in": [
+      "displacement-from-graph"
+     ],
+     "wrong": "the area below the axis counted as positive"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q05.a",
@@ -26845,8 +27609,9 @@
    "id": "t5-definite-integral-area",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Definite integrals and areas, including regions below the axis and unknown limits",
+   "summary": "Evaluate a definite integral exactly, find an area with a region below the x-axis, find an unknown limit or stretch from a given value, find a region cut by a tangent or a line, and turn a rate in a story into a total.",
    "syllabus": [
     "5.11",
     "5.10"
@@ -26857,6 +27622,725 @@
     "SL5.11.unknown-limit-or-parameter",
     "SL5.11.composite-region-area",
     "SL5.5.total-change-from-rate"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "find an antiderivative and subtract",
+    "split at the roots and count every piece as positive",
+    "set the integral equal to the value and solve",
+    "add or subtract a triangle",
+    "integrate a rate to get a total"
+   ],
+   "given": [
+    "an integrand and limits",
+    "a curve with a shaded region",
+    "an integral's value with a letter left in",
+    "a curve with a tangent or a line",
+    "a rate in a story, or its graph"
+   ],
+   "asked": "A value, an area, a limit, a letter or a total, exact on Paper 1 and to 3 s.f. on Paper 2.",
+   "answerForms": [
+    "exact",
+    "3 s.f.",
+    "a sentence"
+   ],
+   "randomise": [
+    "the limits and the coefficients",
+    "roots and points of contact",
+    "the given value, worked out from a letter picked first",
+    "the story and its units"
+   ],
+   "constraints": [
+    "the shaded region is drawn and its corners are marked",
+    "a region with parts below the axis has its root inside the interval",
+    "an unknown limit has one root that fits and one that does not",
+    "on Paper 2 the answer needs rounding and is clear of a rounding edge"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "definite-integral",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the integrand and limits, or the curve's equation and the region in words"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "the curve with the region shaded and its corners marked"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a rate in a story"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "evaluate-polynomial",
+     "given": [
+      "a quadratic",
+      "limits"
+     ],
+     "asked": "the value of the integral",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.evaluate-definite"
+     ]
+    },
+    {
+     "id": "evaluate-roots",
+     "given": [
+      "a√x + b/√x",
+      "limits that are perfect squares"
+     ],
+     "asked": "the exact value of the integral",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.evaluate-definite"
+     ]
+    },
+    {
+     "id": "evaluate-trig",
+     "given": [
+      "a + b cos x or a + b sin x",
+      "limits 0 and π/2 or π"
+     ],
+     "asked": "the exact value of the integral",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.evaluate-definite"
+     ]
+    },
+    {
+     "id": "evaluate-log",
+     "given": [
+      "k/(x + c)",
+      "whole-number limits"
+     ],
+     "asked": "the exact value of the integral",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.evaluate-definite"
+     ]
+    },
+    {
+     "id": "evaluate-exp",
+     "given": [
+      "k e^(ax)",
+      "limits 0 and n"
+     ],
+     "asked": "the exact value of the integral",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.evaluate-definite"
+     ]
+    },
+    {
+     "id": "evaluate-odd-even",
+     "given": [
+      "a polynomial",
+      "limits −a and a"
+     ],
+     "asked": "the value of the integral",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.evaluate-definite"
+     ]
+    },
+    {
+     "id": "evaluate-linear",
+     "given": [
+      "ax + b, positive between the limits",
+      "whole-number limits"
+     ],
+     "asked": "the value of the integral",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.evaluate-definite"
+     ]
+    },
+    {
+     "id": "area-above-axis",
+     "given": [
+      "a quadratic above the x-axis between its roots"
+     ],
+     "asked": "the area of the region",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.11.evaluate-definite"
+     ]
+    },
+    {
+     "id": "area-below-axis",
+     "given": [
+      "a quadratic below the x-axis between its roots"
+     ],
+     "asked": "the area of the region",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.11.area-with-negative-regions"
+     ]
+    },
+    {
+     "id": "area-across-root",
+     "given": [
+      "a curve with a root inside the interval"
+     ],
+     "asked": "the total area between the curve and the x-axis",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.11.area-with-negative-regions"
+     ]
+    },
+    {
+     "id": "area-gdc",
+     "given": [
+      "a function with e or sin, on a figure"
+     ],
+     "asked": "the total area, to 3 s.f.",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.11.area-with-negative-regions"
+     ]
+    },
+    {
+     "id": "area-symmetry",
+     "given": [
+      "k sin x on a full period, or a cubic odd about its middle root"
+     ],
+     "asked": "the total area",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.11.area-with-negative-regions"
+     ]
+    },
+    {
+     "id": "unknown-upper-limit",
+     "given": [
+      "∫ from p to k of (ax + b) dx = N"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.unknown-limit-or-parameter"
+     ]
+    },
+    {
+     "id": "unknown-limit-log",
+     "given": [
+      "∫ from 0 to k of x/(x² + a) dx = (1/2) ln m"
+     ],
+     "asked": "k",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.unknown-limit-or-parameter"
+     ]
+    },
+    {
+     "id": "unknown-limit-trig",
+     "given": [
+      "∫ from 0 to m of cos x sinⁿ x dx = V"
+     ],
+     "asked": "m",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.11.unknown-limit-or-parameter"
+     ]
+    },
+    {
+     "id": "unknown-stretch",
+     "given": [
+      "y = kx², two limits and the area"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.11.unknown-limit-or-parameter"
+     ]
+    },
+    {
+     "id": "region-tangent",
+     "given": [
+      "a parabola touching the x-axis, a tangent at P"
+     ],
+     "asked": "the area between the curve, the tangent and the x-axis",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.11.composite-region-area"
+     ]
+    },
+    {
+     "id": "region-line-curve",
+     "given": [
+      "a line through O to a point on y = k/x, then that curve"
+     ],
+     "asked": "the area under both",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.11.composite-region-area"
+     ]
+    },
+    {
+     "id": "total-from-rate",
+     "given": [
+      "a rate r(t)",
+      "a time T"
+     ],
+     "asked": "the total change in the first T units of time",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.total-change-from-rate"
+     ]
+    },
+    {
+     "id": "amount-with-start",
+     "given": [
+      "a rate r(t)",
+      "the starting amount",
+      "a time T"
+     ],
+     "asked": "the amount at time T",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.5.total-change-from-rate"
+     ]
+    },
+    {
+     "id": "total-from-rate-graph",
+     "given": [
+      "the graph of a rate, in straight pieces"
+     ],
+     "asked": "the total change",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.5.total-change-from-rate"
+     ]
+    },
+    {
+     "id": "time-to-reach",
+     "given": [
+      "a linear rate",
+      "a total"
+     ],
+     "asked": "the time when the total is reached",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.5.total-change-from-rate"
+     ]
+    },
+    {
+     "id": "interpret-integral",
+     "given": [
+      "a rate r(t)",
+      "∫ from 0 to T of r(t) dt"
+     ],
+     "asked": "what the integral means in the story",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.5.total-change-from-rate"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.11.evaluate-definite",
+     "method": "antiderivative-substitute",
+     "suits": [
+      "evaluate-polynomial",
+      "evaluate-roots",
+      "evaluate-trig",
+      "evaluate-log",
+      "evaluate-exp",
+      "evaluate-odd-even",
+      "evaluate-linear",
+      "area-above-axis"
+     ]
+    },
+    {
+     "skill": "SL5.11.evaluate-definite",
+     "method": "odd-even-symmetry",
+     "suits": [
+      "evaluate-odd-even"
+     ]
+    },
+    {
+     "skill": "SL5.11.evaluate-definite",
+     "method": "geometric-area",
+     "suits": [
+      "evaluate-linear"
+     ]
+    },
+    {
+     "skill": "SL5.11.evaluate-definite",
+     "method": "gdc-check",
+     "suits": [
+      "evaluate-polynomial"
+     ]
+    },
+    {
+     "skill": "SL5.11.area-with-negative-regions",
+     "method": "negate-below",
+     "suits": [
+      "area-below-axis"
+     ]
+    },
+    {
+     "skill": "SL5.11.area-with-negative-regions",
+     "method": "split-at-roots",
+     "suits": [
+      "area-across-root",
+      "area-symmetry"
+     ]
+    },
+    {
+     "skill": "SL5.11.area-with-negative-regions",
+     "method": "gdc-absolute",
+     "suits": [
+      "area-across-root",
+      "area-gdc"
+     ]
+    },
+    {
+     "skill": "SL5.11.area-with-negative-regions",
+     "method": "symmetry-shortcut",
+     "suits": [
+      "area-symmetry"
+     ]
+    },
+    {
+     "skill": "SL5.11.unknown-limit-or-parameter",
+     "method": "integrate-then-solve",
+     "suits": [
+      "unknown-upper-limit",
+      "unknown-limit-log",
+      "unknown-limit-trig",
+      "unknown-stretch"
+     ]
+    },
+    {
+     "skill": "SL5.11.unknown-limit-or-parameter",
+     "method": "gdc-solve",
+     "suits": [
+      "unknown-upper-limit"
+     ]
+    },
+    {
+     "skill": "SL5.11.unknown-limit-or-parameter",
+     "method": "area-scaling",
+     "suits": [
+      "unknown-stretch"
+     ]
+    },
+    {
+     "skill": "SL5.11.composite-region-area",
+     "method": "integral-plus-triangle",
+     "suits": [
+      "region-tangent",
+      "region-line-curve"
+     ]
+    },
+    {
+     "skill": "SL5.11.composite-region-area",
+     "method": "piecewise-top-minus-bottom",
+     "suits": [
+      "region-tangent",
+      "region-line-curve"
+     ]
+    },
+    {
+     "skill": "SL5.11.composite-region-area",
+     "method": "gdc-pieces",
+     "suits": [
+      "region-tangent",
+      "region-line-curve"
+     ]
+    },
+    {
+     "skill": "SL5.5.total-change-from-rate",
+     "method": "antiderivative-of-rate",
+     "suits": [
+      "total-from-rate",
+      "amount-with-start",
+      "time-to-reach"
+     ]
+    },
+    {
+     "skill": "SL5.5.total-change-from-rate",
+     "method": "gdc-integrate-rate",
+     "suits": [
+      "total-from-rate"
+     ]
+    },
+    {
+     "skill": "SL5.5.total-change-from-rate",
+     "method": "area-under-rate-graph",
+     "suits": [
+      "total-from-rate-graph",
+      "interpret-integral"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If ∫ from a to b of f(x) dx = 0, then f(x) = 0 for every x between a and b.",
+     "answer": "False: the parts above and below the axis can cancel. ∫ from 0 to 2π of sin x dx = 0, but sin x is not always 0.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "The area between a curve and the x-axis from a to b is always ∫ from a to b of f(x) dx.",
+     "answer": "False: that is only true where f(x) ≥ 0. Where the curve is below the axis the integral is negative, so each piece has to be taken as positive.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Multiplying a rate by the time taken gives the total change.",
+     "answer": "Sometimes: only when the rate is constant. In general the total is the integral of the rate, the area under its graph.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.11.evaluate-definite#0",
+     "text": "Computing F(lower) − F(upper)",
+     "as": "distractor",
+     "in": [
+      "evaluate-polynomial",
+      "evaluate-roots",
+      "evaluate-log",
+      "evaluate-exp",
+      "evaluate-linear"
+     ],
+     "wrong": "the two ends the wrong way round"
+    },
+    {
+     "ref": "SL5.11.evaluate-definite#1",
+     "text": "Assuming the lower limit contributes 0, e.g. treating e⁰ or cos 0 as 0",
+     "as": "distractor",
+     "in": [
+      "evaluate-trig",
+      "evaluate-exp"
+     ],
+     "wrong": "e⁰ or cos 0 taken as 0"
+    },
+    {
+     "ref": "SL5.11.evaluate-definite#2",
+     "text": "Writing + C in the answer to a definite integral",
+     "as": "distractor",
+     "in": [
+      "evaluate-log",
+      "evaluate-linear"
+     ],
+     "wrong": "the value with + C after it"
+    },
+    {
+     "ref": "SL5.11.area-with-negative-regions#0",
+     "text": "Integrating straight across a root so the positive and negative parts cancel",
+     "as": "distractor",
+     "in": [
+      "area-across-root",
+      "area-symmetry",
+      "area-gdc"
+     ],
+     "wrong": "one integral across the root, so the pieces cancel"
+    },
+    {
+     "ref": "SL5.11.area-with-negative-regions#1",
+     "text": "Giving a negative number as an area",
+     "as": "distractor",
+     "in": [
+      "area-below-axis"
+     ],
+     "wrong": "the integral itself, negative"
+    },
+    {
+     "ref": "SL5.11.area-with-negative-regions#2",
+     "text": "Splitting at a turning point instead of at the x-intercept",
+     "as": "distractor",
+     "in": [
+      "area-across-root"
+     ],
+     "wrong": "the interval split at the turning point"
+    },
+    {
+     "ref": "SL5.11.unknown-limit-or-parameter#0",
+     "text": "Keeping a root for the upper limit that is below the lower limit or outside the given range",
+     "as": "distractor",
+     "in": [
+      "unknown-upper-limit"
+     ],
+     "wrong": "the root that doesn't fit"
+    },
+    {
+     "ref": "SL5.11.unknown-limit-or-parameter#1",
+     "text": "Forgetting to subtract F(lower) when it is not zero",
+     "as": "distractor",
+     "in": [
+      "unknown-upper-limit",
+      "unknown-limit-log",
+      "unknown-stretch"
+     ],
+     "wrong": "F(lower) not subtracted"
+    },
+    {
+     "ref": "SL5.11.composite-region-area#0",
+     "text": "Using the curve's x-intercept as the end of the triangle instead of the tangent's",
+     "as": "distractor",
+     "in": [
+      "region-tangent"
+     ],
+     "wrong": "the triangle's base taken from the curve's x-intercept"
+    },
+    {
+     "ref": "SL5.11.composite-region-area#1",
+     "text": "Adding a piece that should be subtracted, counting the region under the line twice",
+     "as": "distractor",
+     "in": [
+      "region-tangent",
+      "region-line-curve"
+     ],
+     "wrong": "the triangle added, not subtracted"
+    },
+    {
+     "ref": "SL5.11.composite-region-area#2",
+     "text": "Forgetting that the lower boundary changes at the point of contact",
+     "as": "distractor",
+     "in": [
+      "region-tangent"
+     ],
+     "wrong": "the curve's area alone, with the boundary not changed at the point of contact"
+    },
+    {
+     "ref": "SL5.5.total-change-from-rate#0",
+     "text": "Evaluating the rate at the end time instead of integrating",
+     "as": "distractor",
+     "in": [
+      "total-from-rate"
+     ],
+     "wrong": "the rate at the end time"
+    },
+    {
+     "ref": "SL5.5.total-change-from-rate#1",
+     "text": "Adding the starting amount when only the change is asked for, or forgetting it when the total is asked for",
+     "as": "distractor",
+     "in": [
+      "amount-with-start"
+     ],
+     "wrong": "the change alone, with the start left out"
+    },
+    {
+     "ref": "SL5.5.total-change-from-rate#2",
+     "text": "Giving the answer in units per minute instead of units",
+     "as": "distractor",
+     "in": [
+      "total-from-rate",
+      "interpret-integral"
+     ],
+     "wrong": "the total in rate units"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p1-q08.b",
@@ -26895,8 +28379,9 @@
    "id": "t5-indefinite-integral",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Integrate standard functions and linear composites",
+   "summary": "Integrate sums of powers, standard functions and composites with ax + b, spot the reverse chain rule, and rewrite an integrand before integrating. Every answer is an expression with + C.",
    "syllabus": [
     "5.5",
     "5.10"
@@ -26907,6 +28392,630 @@
     "SL5.10.linear-composites",
     "SL5.10.inspection-substitution",
     "SL5.10.rewrite-before-integrating"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "integrate term by term, with + C",
+    "rewrite roots and fractions as powers",
+    "divide by a for a composite with ax + b",
+    "spot a function and a multiple of its derivative",
+    "expand or split an integrand first"
+   ],
+   "given": [
+    "an integrand as an equation",
+    "a sentence asking for every function with a given derivative"
+   ],
+   "asked": "An indefinite integral, as an expression with + C.",
+   "answerForms": [
+    "an expression with + C"
+   ],
+   "randomise": [
+    "whole-number coefficients",
+    "the powers in a sum",
+    "a and b in ax + b",
+    "the pattern: a bracket, e^, ln or a trig power"
+   ],
+   "constraints": [
+    "no x^(−1) reaches the power rule: 1/x always goes to ln|x|",
+    "a linear inside has |a| ≥ 2",
+    "each answer's coefficients are whole numbers or simple fractions",
+    "a wrong option never differentiates back to the integrand"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "integration",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "∫ (…) dx"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "every function whose derivative is the given expression"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "power-polynomial",
+     "given": [
+      "a polynomial"
+     ],
+     "asked": "its integral",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.5.antidiff-power"
+     ]
+    },
+    {
+     "id": "power-negative",
+     "given": [
+      "a sum with a/xⁿ"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.antidiff-power"
+     ]
+    },
+    {
+     "id": "power-product",
+     "given": [
+      "(x + p)(x + q)"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.antidiff-power"
+     ]
+    },
+    {
+     "id": "standard-exp-trig",
+     "given": [
+      "a e^x + b sin x + c cos x"
+     ],
+     "asked": "its integral",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.standard-integrals"
+     ]
+    },
+    {
+     "id": "standard-reciprocal",
+     "given": [
+      "ax + b + c/x"
+     ],
+     "asked": "its integral, with ln|x|",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.standard-integrals"
+     ]
+    },
+    {
+     "id": "standard-roots",
+     "given": [
+      "a root of x plus 1 over that root"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.standard-integrals"
+     ]
+    },
+    {
+     "id": "linear-exp",
+     "given": [
+      "e^(ax + b) + c"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.linear-composites"
+     ]
+    },
+    {
+     "id": "linear-trig",
+     "given": [
+      "k cos(ax + b) or k sin(ax + b)"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.linear-composites"
+     ]
+    },
+    {
+     "id": "linear-reciprocal",
+     "given": [
+      "k/(ax + b)"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.linear-composites"
+     ]
+    },
+    {
+     "id": "linear-power",
+     "given": [
+      "k(ax + b)ⁿ"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.linear-composites"
+     ]
+    },
+    {
+     "id": "linear-square",
+     "given": [
+      "(ax + b)²"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.linear-composites"
+     ]
+    },
+    {
+     "id": "inspection-power",
+     "given": [
+      "kx(x² + a)ⁿ or kx/(x² + a)ⁿ"
+     ],
+     "asked": "its integral",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.inspection-substitution"
+     ]
+    },
+    {
+     "id": "inspection-exp",
+     "given": [
+      "kx e^(x² + a)"
+     ],
+     "asked": "its integral",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.inspection-substitution"
+     ]
+    },
+    {
+     "id": "inspection-log",
+     "given": [
+      "kx/(x² + a)"
+     ],
+     "asked": "its integral",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.inspection-substitution"
+     ]
+    },
+    {
+     "id": "inspection-trig",
+     "given": [
+      "k sin x cosⁿ x or k cos x sinⁿ x"
+     ],
+     "asked": "its integral",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.inspection-substitution"
+     ]
+    },
+    {
+     "id": "rewrite-fraction",
+     "given": [
+      "(ax² + bx + c)/x"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.rewrite-before-integrating"
+     ]
+    },
+    {
+     "id": "rewrite-square",
+     "given": [
+      "(a + √x)² or (e^x + a)²"
+     ],
+     "asked": "its integral",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.rewrite-before-integrating"
+     ]
+    },
+    {
+     "id": "rewrite-trig-product",
+     "given": [
+      "k sin x cos x"
+     ],
+     "asked": "its integral",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.rewrite-before-integrating"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.5.antidiff-power",
+     "method": "reverse-power-rule",
+     "suits": [
+      "power-polynomial",
+      "power-negative"
+     ]
+    },
+    {
+     "skill": "SL5.5.antidiff-power",
+     "method": "differentiate-to-check",
+     "suits": [
+      "power-polynomial"
+     ]
+    },
+    {
+     "skill": "SL5.5.antidiff-power",
+     "method": "rewrite-first",
+     "suits": [
+      "power-negative",
+      "power-product"
+     ]
+    },
+    {
+     "skill": "SL5.10.standard-integrals",
+     "method": "booklet-results",
+     "suits": [
+      "standard-exp-trig",
+      "standard-reciprocal"
+     ]
+    },
+    {
+     "skill": "SL5.10.standard-integrals",
+     "method": "index-form",
+     "suits": [
+      "standard-roots"
+     ]
+    },
+    {
+     "skill": "SL5.10.standard-integrals",
+     "method": "differentiate-check",
+     "suits": [
+      "standard-exp-trig",
+      "standard-reciprocal",
+      "standard-roots"
+     ]
+    },
+    {
+     "skill": "SL5.10.linear-composites",
+     "method": "divide-by-a",
+     "suits": [
+      "linear-exp",
+      "linear-trig",
+      "linear-reciprocal",
+      "linear-power",
+      "linear-square"
+     ]
+    },
+    {
+     "skill": "SL5.10.linear-composites",
+     "method": "substitution",
+     "suits": [
+      "linear-exp",
+      "linear-trig",
+      "linear-reciprocal",
+      "linear-power"
+     ]
+    },
+    {
+     "skill": "SL5.10.linear-composites",
+     "method": "differentiate-check",
+     "suits": [
+      "linear-exp"
+     ]
+    },
+    {
+     "skill": "SL5.10.linear-composites",
+     "method": "expand-first",
+     "suits": [
+      "linear-square"
+     ]
+    },
+    {
+     "skill": "SL5.10.inspection-substitution",
+     "method": "inspection",
+     "suits": [
+      "inspection-power",
+      "inspection-exp",
+      "inspection-trig"
+     ]
+    },
+    {
+     "skill": "SL5.10.inspection-substitution",
+     "method": "u-substitution",
+     "suits": [
+      "inspection-power",
+      "inspection-exp",
+      "inspection-log",
+      "inspection-trig"
+     ]
+    },
+    {
+     "skill": "SL5.10.inspection-substitution",
+     "method": "log-pattern",
+     "suits": [
+      "inspection-log"
+     ]
+    },
+    {
+     "skill": "SL5.10.rewrite-before-integrating",
+     "method": "split-numerator",
+     "suits": [
+      "rewrite-fraction"
+     ]
+    },
+    {
+     "skill": "SL5.10.rewrite-before-integrating",
+     "method": "expand-brackets",
+     "suits": [
+      "rewrite-square"
+     ]
+    },
+    {
+     "skill": "SL5.10.rewrite-before-integrating",
+     "method": "identity-substitution",
+     "suits": [
+      "rewrite-trig-product"
+     ]
+    },
+    {
+     "skill": "SL5.10.rewrite-before-integrating",
+     "method": "inspection-alternative",
+     "suits": [
+      "rewrite-trig-product"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If F′(x) = f(x), then F(x) + 7 is also an antiderivative of f.",
+     "answer": "True: the 7 differentiates to 0. Every antiderivative of f is F(x) plus a constant, which is why an indefinite integral ends in + C.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "∫ 2 sin x cos x dx can be sin² x + C and also −cos² x + C.",
+     "answer": "True: the two differ by 1, since sin² x + cos² x = 1. Two correct answers can look different and still differ only by a constant.",
+     "level": 4
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "∫ f(x)g(x) dx equals (∫ f(x) dx)(∫ g(x) dx).",
+     "answer": "Sometimes at best, and not as a rule: for f(x) = g(x) = x it fails, since x³/3 is not (x²/2)². There is no product rule that splits an integral this way.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.5.antidiff-power#0",
+     "text": "Dividing by the old power n instead of n + 1",
+     "as": "distractor",
+     "in": [
+      "power-polynomial",
+      "power-negative"
+     ],
+     "wrong": "each power divided by n, not n + 1"
+    },
+    {
+     "ref": "SL5.5.antidiff-power#1",
+     "text": "Forgetting + C",
+     "as": "distractor",
+     "in": [
+      "power-polynomial",
+      "power-product",
+      "standard-exp-trig"
+     ],
+     "wrong": "the right terms with no + C"
+    },
+    {
+     "ref": "SL5.5.antidiff-power#2",
+     "text": "Integrating 3/x² as 3/(x³/3) or as 3 ln(x²)",
+     "as": "distractor",
+     "in": [
+      "power-negative"
+     ],
+     "wrong": "3/x² integrated as 3/(x³/3) or 3 ln(x²)"
+    },
+    {
+     "ref": "SL5.10.standard-integrals#0",
+     "text": "∫ sin x dx = cos x + C (wrong sign)",
+     "as": "distractor",
+     "in": [
+      "standard-exp-trig"
+     ],
+     "wrong": "−cos x written as cos x"
+    },
+    {
+     "ref": "SL5.10.standard-integrals#1",
+     "text": "Using the power rule on 1/x: ∫ x⁻¹ dx = x⁰/0",
+     "as": "distractor",
+     "in": [
+      "standard-reciprocal"
+     ],
+     "wrong": "the power rule on 1/x, giving x⁰/0"
+    },
+    {
+     "ref": "SL5.10.standard-integrals#2",
+     "text": "Multiplying by the new power instead of dividing: ∫ x^(1/2) dx = (3/2)x^(3/2)",
+     "as": "distractor",
+     "in": [
+      "standard-roots"
+     ],
+     "wrong": "each power multiplied by n + 1"
+    },
+    {
+     "ref": "SL5.10.linear-composites#0",
+     "text": "Multiplying by a as in differentiation: ∫ cos(4x) dx = 4 sin(4x) + C",
+     "as": "distractor",
+     "in": [
+      "linear-exp",
+      "linear-trig",
+      "linear-reciprocal",
+      "linear-power",
+      "linear-square"
+     ],
+     "wrong": "multiplied by a instead of divided"
+    },
+    {
+     "ref": "SL5.10.linear-composites#1",
+     "text": "Missing the factor ½: ∫ 1/(2x − 5) dx = ln|2x − 5| + C",
+     "as": "distractor",
+     "in": [
+      "linear-exp",
+      "linear-trig",
+      "linear-reciprocal",
+      "linear-power",
+      "linear-square"
+     ],
+     "wrong": "no division by a"
+    },
+    {
+     "ref": "SL5.10.linear-composites#2",
+     "text": "Dividing by the exponent: ∫ e^(3x + 1) dx = e^(3x + 1)/(3x + 1) + C",
+     "as": "distractor",
+     "in": [
+      "linear-exp"
+     ],
+     "wrong": "divided by the exponent"
+    },
+    {
+     "ref": "SL5.10.inspection-substitution#0",
+     "text": "Integrating the outer function but leaving the extra x in place",
+     "as": "distractor",
+     "in": [
+      "inspection-power",
+      "inspection-exp",
+      "inspection-log",
+      "inspection-trig"
+     ],
+     "wrong": "the extra x left outside"
+    },
+    {
+     "ref": "SL5.10.inspection-substitution#1",
+     "text": "Forgetting to divide by 2: ∫ 6x/(x² + 1) dx = 6 ln(x² + 1) + C",
+     "as": "distractor",
+     "in": [
+      "inspection-power",
+      "inspection-exp",
+      "inspection-log"
+     ],
+     "wrong": "no division by 2"
+    },
+    {
+     "ref": "SL5.10.inspection-substitution#2",
+     "text": "Forgetting to substitute back from u to x",
+     "as": "distractor",
+     "in": [
+      "inspection-power",
+      "inspection-exp",
+      "inspection-log",
+      "inspection-trig"
+     ],
+     "wrong": "the answer left in u"
+    },
+    {
+     "ref": "SL5.10.rewrite-before-integrating#0",
+     "text": "Integrating numerator and denominator separately: ∫ (x² + 3)/x dx = (x³/3 + 3x)/(x²/2)",
+     "as": "distractor",
+     "in": [
+      "rewrite-fraction"
+     ],
+     "wrong": "top and bottom integrated separately"
+    },
+    {
+     "ref": "SL5.10.rewrite-before-integrating#1",
+     "text": "Missing the middle term: (eˣ + 1)² = e^(2x) + 1",
+     "as": "distractor",
+     "in": [
+      "rewrite-square"
+     ],
+     "wrong": "the middle term of the square left out"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q01.a",

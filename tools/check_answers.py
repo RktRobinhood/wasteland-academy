@@ -11034,6 +11034,667 @@ def check_concavity(q):
     return None, None
 
 
+# ── Indefinite integrals (FAL-724) ───────────────────────────
+# Reads the integrand back from the question, then differentiates every option: the one
+# right option must give the integrand back and end in + C, and no wrong one may. Each
+# tagged wrong option is worked out again from its misconception, from the given's numbers,
+# which are first held to the integrand on screen. Shares nothing with the engine.
+
+IN_S = "SL5.10.standard-integrals#"
+IN_P = "SL5.5.antidiff-power#"
+IN_L = "SL5.10.linear-composites#"
+IN_I = "SL5.10.inspection-substitution#"
+IN_R = "SL5.10.rewrite-before-integrating#"
+IN_U = sp.Symbol("u")
+
+
+def in_expr(text):
+    """An option or integrand as SymPy; '+ C' is taken off first."""
+    t = re.sub(r" \+ C$", "", text.strip())
+    t = re.sub(r"ln\|([^|]+)\|", r"ln(\1)", t).replace("e^u", "exp(u)").replace("ln u", "log(u)")
+    t = re.sub(r"(sin|cos)([⁰¹²³⁴⁵⁶⁷⁸⁹]+) x", r"(\1 x)\2", t)
+    return calc_expr(t)
+
+
+def in_template(ans, values):
+    out = ""
+    for item in ans["template"]:
+        out += item if isinstance(item, str) else "(" + str(values[item["slot"]]) + ")"
+    return in_expr(out)
+
+
+def in_wrongs(u, g):
+    """(integrand, ref -> expressions) from the given's numbers. x is the only variable."""
+    x, half = CX, sp.Rational(1, 2)
+    v = {k: int(g[k]) for k in "abcknpq" if k in g and not isinstance(g[k], str)}
+    a, b, c, k, n = (v.get(s, 0) for s in "abckn")
+    p, q = v.get("p", 0), v.get("q", 0)
+    fam = g.get("fam", "")
+    lin = a * x + b
+    w = {}
+    if u == "power-polynomial":
+        f = a * x ** 2 + b * x + c
+        w[IN_P + "0"] = [a * x ** 3 / 2 + b * x ** 2 + c * x]
+    elif u == "power-negative":
+        f = a / x ** n + b * x
+        w[IN_P + "0"] = [a * x ** (1 - n) / (-n) + b * x ** 2]
+        w[IN_P + "2"] = [a * (n + 1) / x ** (n + 1) + b * x ** 2 / 2, a * sp.log(x ** n) + b * x ** 2 / 2]
+    elif u == "power-product":
+        f = (x + p) * (x + q)
+    elif u == "standard-exp-trig":
+        f = a * sp.exp(x) + b * sp.sin(x) + c * sp.cos(x)
+        w[IN_S + "0"] = [a * sp.exp(x) + b * sp.cos(x) + c * sp.sin(x)]
+    elif u == "standard-reciprocal":
+        f = a * x + b + c / x
+    elif u == "standard-roots":
+        e = half if fam == "sqrt" else sp.Rational(1, 3)
+        f = a * x ** e + b * x ** (-e)
+        w[IN_S + "2"] = [a * (e + 1) * x ** (e + 1) + b * (1 - e) * x ** (1 - e)]
+    elif u == "linear-exp":
+        f = sp.exp(lin) + c
+        w[IN_L + "0"] = [a * sp.exp(lin) + c * x]
+        w[IN_L + "1"] = [sp.exp(lin) + c * x]
+        w[IN_L + "2"] = [sp.exp(lin) / lin + c * x]
+    elif u == "linear-trig":
+        f = k * (sp.cos(lin) if fam == "cos" else sp.sin(lin))
+        body = sp.sin(lin) if fam == "cos" else -sp.cos(lin)
+        w[IN_L + "0"] = [k * a * body]
+        w[IN_L + "1"] = [k * body]
+    elif u == "linear-reciprocal":
+        f = k / lin
+        w[IN_L + "0"] = [k * a * sp.log(lin)]
+        w[IN_L + "1"] = [k * sp.log(lin)]
+    elif u in ("linear-power", "linear-square"):
+        n1 = 2 if u == "linear-square" else n
+        k1 = 1 if u == "linear-square" else k
+        f = k1 * lin ** n1
+        w[IN_L + "0"] = [k1 * a * lin ** (n1 + 1) / (n1 + 1)]
+        w[IN_L + "1"] = [k1 * lin ** (n1 + 1) / (n1 + 1)]
+    elif u == "inspection-power":
+        ins = x ** 2 + a
+        top = fam == "top"
+        f = k * x * ins ** (n if top else -n)
+        e = n + 1 if top else 1 - n
+        w[IN_I + "0"] = [sp.Rational(k, e) * x * ins ** e]
+        w[IN_I + "1"] = [sp.Rational(k, e) * ins ** e]
+        w[IN_I + "2"] = [sp.Rational(k, 2 * e) * IN_U ** e]
+    elif u == "inspection-exp":
+        ins = x ** 2 + a
+        f = k * x * sp.exp(ins)
+        w[IN_I + "0"] = [k * x * sp.exp(ins)]
+        w[IN_I + "1"] = [k * sp.exp(ins)]
+        w[IN_I + "2"] = [sp.Rational(k, 2) * sp.exp(IN_U)]
+    elif u == "inspection-log":
+        ins = x ** 2 + a
+        f = k * x / ins
+        w[IN_I + "0"] = [k * x * sp.log(ins)]
+        w[IN_I + "1"] = [k * sp.log(ins)]
+        w[IN_I + "2"] = [sp.Rational(k, 2) * sp.log(IN_U)]
+    elif u == "inspection-trig":
+        sc = fam == "sincos"
+        outer, inn = (sp.sin(x), sp.cos(x)) if sc else (sp.cos(x), sp.sin(x))
+        f = k * outer * inn ** n
+        c0 = sp.Rational(-k if sc else k, n + 1)
+        w[IN_I + "0"] = [c0 * outer * inn ** (n + 1)]
+        w[IN_I + "2"] = [c0 * IN_U ** (n + 1)]
+    elif u == "rewrite-fraction":
+        f = (a * x ** 2 + b * x + c) / x
+        w[IN_R + "0"] = [(sp.Rational(a, 3) * x ** 3 + sp.Rational(b, 2) * x ** 2 + c * x) / (x ** 2 / 2)]
+    elif u == "rewrite-square":
+        if fam == "root":
+            f = (a + sp.sqrt(x)) ** 2
+            w[IN_R + "1"] = [a ** 2 * x + x ** 2 / 2]
+        else:
+            f = (sp.exp(x) + a) ** 2
+            w[IN_R + "1"] = [sp.exp(2 * x) / 2 + a ** 2 * x]
+    elif u == "rewrite-trig-product":
+        f = k * sp.sin(x) * sp.cos(x)
+    else:
+        raise Fail(f"no check for {u}")
+    return f, w
+
+
+def check_integration(q):
+    g, u, L, rep = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    calc_options(q)
+    calc_steps(q)
+    ang = q["view"]["angle"]
+    if u.startswith("inspection-") or u == "rewrite-trig-product":
+        need(q["paper"] == 1, "a reverse chain rule question is Paper 1")
+    if rep == "words":
+        m = re.fullmatch(r"F′\(x\) = (.+)", L[0])
+        need("using C for the constant" in q["asked"], "the question doesn't ask for the constant")
+    else:
+        m = re.fullmatch(r"∫ (.+) dx", L[0])
+    need(m is not None, f"can't read the integrand {L[0]!r}")
+    shown = in_expr(m.group(1))
+    f, wr = in_wrongs(u, g)
+    need(calc_same(shown, f), f"the integrand shown is not the one in the given: {shown} vs {f}")
+    an = sp.integrate(sp.expand(f), CX) if f.is_polynomial(CX) else None
+    for o in q["choices"]:
+        t = o["text"]
+        if "x⁰/0" in t:                                  # the power rule run on 1/x
+            need(not o["correct"] and o["ref"] == IN_S + "1", f"{t!r} is not the misconception")
+            continue
+        e = in_expr(t)
+        right = t.endswith(" + C") and not e.has(IN_U) and calc_same(sp.diff(e, CX), f)
+        need(right == o["correct"], f"option {t!r} is {'wrong' if o['correct'] else 'also right'} by differentiating it")
+        if o["correct"] and an is not None:
+            d = sp.simplify(sp.expand(e) - an)
+            need(d.is_constant(), f"{t!r} is not the integral {an}")
+        if o["ref"] == IN_P + "1":
+            need(not t.endswith(" + C") and calc_same(sp.diff(e, CX), f), f"{t!r} is not the right terms without + C")
+        elif o["ref"]:
+            need(o["ref"] in wr, f"the checker can't confirm {o['ref']} on {u}")
+            need(any(calc_same(e.subs(IN_U, 1), w.subs(IN_U, 1)) if e.has(IN_U) else (not sp.sympify(w).has(IN_U) and calc_same(e, w)) for w in wr[o["ref"]]),
+                 f"option {t!r} is not what {o['ref']} gives ({wr[o['ref']]})")
+    ans = q["answer"]
+    need(calc_same(in_template(ans, ans["values"]), in_expr(q["answer_text"])), "the slots don't make the expression shown")
+    if u == "linear-square":
+        need((")³" in q["answer_text"]) == (ang == "divide-by-a"), "the answer's shape is not the method's")
+    if u == "rewrite-trig-product":
+        need(("cos(2x)" in q["answer_text"]) == (ang == "identity-substitution"), "the answer's shape is not the method's")
+    return None, None
+
+
+# ── Definite integrals and areas (FAL-724) ───────────────────
+# Reads the integrand, limits or story back from the question and works each answer out
+# again with SymPy, or mpmath for a Paper 2 model, splitting at the roots it finds itself.
+# A figure is held to its curve: the shaded strips must be the region the question asks for.
+
+DI_E = "SL5.11.evaluate-definite#"
+DI_N = "SL5.11.area-with-negative-regions#"
+DI_K = "SL5.11.unknown-limit-or-parameter#"
+DI_R = "SL5.11.composite-region-area#"
+DI_S = "SL5.5.total-change-from-rate#"
+DI_CONTEXTS = [("water", "in the tank", "litres", "minute", "minutes"), ("fuel", "in the tanker", "litres", "minute", "minutes"),
+               ("charge", "in the bank", "kilowatt-hours", "hour", "hours"), ("grain", "in the silo", "kilograms", "minute", "minutes")]
+DI_K_SYM = sp.Symbol("K")
+
+
+def di_num(text):
+    t = text.strip().replace("−", "-")
+    if t == "π":
+        return sp.pi
+    if t == "π/2":
+        return sp.pi / 2
+    return sp.Rational(t)
+
+
+def di_read(line):
+    """(lo, hi, f) from '∫ from lo to hi of f dx'."""
+    m = re.match(r"∫ from (.+?) to (.+?) of (.+?) d[xt]\b", line)
+    need(m is not None, f"can't read the integral {line!r}")
+    return m.group(1), m.group(2), in_expr(m.group(3))
+
+
+def di_text(v, sf):
+    return gc_s(v) if sf else dm_num(v)
+
+
+def di_exact_value(text):
+    """A value written with π, ln or e, as a number."""
+    t = re.sub(r"^(Area|k|m) = ", "", text)
+    t = re.sub(r"(?<=[\d)])π", "*pi", t).replace("π", "pi")
+    t = re.sub(r"(?<![a-z])e(?![a-z^⁰¹²³⁴⁵⁶⁷⁸⁹(])", "e^(1)", t)      # e¹ is written e
+    return in_expr(t)
+
+
+def di_same(a, b):
+    return abs(sp.N(a - b, 40)) < sp.Rational(1, 10 ** 25)
+
+
+def di_symbolic(q, v, wr=None):
+    """Options with π, ln or e: the option equal to v in value is the right one and no other is."""
+    wr = wr or {}
+    for o in q["choices"]:
+        if o["text"].endswith(" + C"):
+            need(not o["correct"], "an option with + C is right on a definite integral")
+            continue
+        e = di_exact_value(o["text"])
+        need(di_same(e, v) == o["correct"], f"option {o['text']!r} is {'wrong' if o['correct'] else 'also right'}: the value is {v}")
+        if o["ref"]:
+            need(o["ref"] in wr and any(di_same(e, w) for w in wr[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+
+
+def di_refs(q, wr):
+    """A + C option is the right value with + C after it."""
+    for o in q["choices"]:
+        if o["ref"] == DI_E + "2":
+            need(o["text"] == q["answer_text"] + " + C", f"{o['text']!r} is not the answer with + C")
+
+
+def di_common(q, want, wrongs):
+    gc_check_common(q, want, wrongs)
+
+
+def di_shade(q, top, bottom, a, b, region=0):
+    """Every shaded strip of a region sits between bottom and top, and it runs from a to b."""
+    strips = q["graph"]["shade"][region]
+    need(abs(strips[0][0] - float(a)) < 1e-6 and abs(strips[-1][0] - float(b)) < 1e-6, f"the shading runs {strips[0][0]} to {strips[-1][0]}, not {a} to {b}")
+    ft, fb = sp.lambdify(CX, top, "math"), sp.lambdify(CX, bottom, "math")
+    for x, lo, hi in strips:
+        need(abs(hi - max(ft(x), fb(x))) < 1e-6 and abs(lo - min(ft(x), fb(x))) < 1e-6, f"the shading at x = {x} is not the region")
+
+
+def di_figure(q, f):
+    dm_graph_curve(q, f)
+
+
+def di_area(f, a, b):
+    """The size of the area between f and the axis on [a, b], split at the rational roots inside."""
+    rs = sorted(r for r in sp.roots(sp.Poly(f, CX)) if r.is_real and a < r < b)
+    ends = [a] + rs + [b]
+    return sum(abs(sp.integrate(f, (CX, u, v))) for u, v in zip(ends, ends[1:]))
+
+
+def check_definite_integral(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    calc_options(q)
+    calc_steps(q)
+    ang = q["view"]["angle"]
+    sf = q["paper"] == 2
+    need(sf == ang.startswith("gdc-") or u == "area-gdc", "only a GDC method is Paper 2")
+    if sf and u != "unknown-upper-limit":      # there the GDC finds a whole k
+        need("3 s.f." in asked, "a Paper 2 answer doesn't ask for 3 s.f.")
+    x = CX
+    if u == "evaluate-polynomial":
+        lo, hi, f = di_read(L[0])
+        v = sp.integrate(f, (x, di_num(lo), di_num(hi)))
+        di_common(q, di_text(v, sf), {DI_E + "0": {di_text(-v, sf)}})
+    elif u == "evaluate-roots":
+        lo, hi, f = di_read(L[0])
+        a, b = di_num(lo), di_num(hi)
+        need(sp.sqrt(a).is_integer and sp.sqrt(b).is_integer and a < b, "the limits are not perfect squares")
+        v = sp.integrate(f, (x, a, b))
+        di_common(q, dm_num(v), {DI_E + "0": {dm_num(-v)}})
+    elif u == "evaluate-trig":
+        lo, hi, f = di_read(L[0])
+        a, b = di_num(lo), di_num(hi)
+        need(a == 0 and b in (sp.pi, sp.pi / 2), "the limits are not 0 and π or π/2")
+        v = sp.integrate(f, (x, a, b))
+        F = sp.integrate(f, x)
+        di_symbolic(q, v, {DI_E + "1": [F.subs(x, b)]})
+    elif u == "evaluate-log":
+        lo, hi, f = di_read(L[0])
+        a, b = di_num(lo), di_num(hi)
+        v = sp.integrate(f, (x, a, b))
+        di_symbolic(q, v, {DI_E + "0": [-v]})
+        di_refs(q, {})
+    elif u == "evaluate-exp":
+        lo, hi, f = di_read(L[0])
+        a, b = di_num(lo), di_num(hi)
+        v = sp.integrate(f, (x, a, b))
+        di_symbolic(q, v, {DI_E + "0": [-v], DI_E + "1": [sp.integrate(f, x).subs(x, b)]})
+    elif u == "evaluate-odd-even":
+        lo, hi, f = di_read(L[0])
+        need(di_num(lo) == -di_num(hi), "the limits are not −a and a")
+        di_common(q, dm_num(sp.integrate(f, (x, di_num(lo), di_num(hi)))), {})
+    elif u == "evaluate-linear":
+        lo, hi, f = di_read(L[0])
+        a, b = di_num(lo), di_num(hi)
+        need(f.subs(x, a) > 0 and f.subs(x, b) > 0, "the line is not above the axis")
+        v = sp.integrate(f, (x, a, b))
+        di_common(q, dm_num(v), {DI_E + "0": {dm_num(-v)}, DI_E + "2": {dm_num(v) + " + C"}})
+    elif u in ("area-above-axis", "area-below-axis"):
+        f = in_expr(re.search(r"curve y = (.+?)\. ", L[0]).group(1))
+        r, t = sorted(sp.roots(sp.Poly(f, x)))
+        mid = f.subs(x, (r + t) / 2)
+        need((mid > 0) == (u == "area-above-axis"), "the region is on the wrong side of the axis")
+        v = sp.integrate(f, (x, r, t))
+        if rep == "graph":
+            di_figure(q, f)
+            di_shade(q, f, sp.Integer(0), r, t)
+        di_common(q, f"Area = {dm_num(abs(v))}", {DI_N + "1": {f"Area = {dm_num(v)}"}} if u == "area-below-axis" else {})
+    elif u == "area-across-root":
+        f = in_expr(re.search(r"curve y = (.+?)\. ", L[0]).group(1))
+        r, t = sorted(sp.roots(sp.Poly(f, x)))
+        hi = di_num(re.search(r"line x = (−?\d+)", L[0]).group(1))
+        need(t < hi, "the root is not inside the interval")
+        v = di_area(f, r, hi)
+        h = (r + t) / 2
+        net = abs(sp.integrate(f, (x, r, hi)))
+        bad = abs(sp.integrate(f, (x, r, h))) + abs(sp.integrate(f, (x, h, hi)))
+        if rep == "graph":
+            di_figure(q, f)
+            di_shade(q, f, sp.Integer(0), r, t, 0)
+            di_shade(q, f, sp.Integer(0), t, hi, 1)
+        di_common(q, "Area = " + di_text(v, sf), {DI_N + "0": {"Area = " + di_text(net, sf)}, DI_N + "2": {"Area = " + di_text(bad, sf)}})
+    elif u == "area-gdc":
+        m = re.search(r"curve y = (.+?), for (\d+) ≤ x ≤ (\d+)\.", L[0])
+        f = in_expr(m.group(1))
+        lo, hi = int(m.group(2)), int(m.group(3))
+        zs = gc_zeros(sp.nsimplify(f, rational=True), lo + sp.Rational(1, 1000), hi - sp.Rational(1, 1000))
+        need(len(zs) == 1, f"the curve has {len(zs)} roots inside")
+        fn = sp.lambdify(x, f, "mpmath")
+        p1, p2 = mpmath.quad(fn, [lo, zs[0]]), mpmath.quad(fn, [zs[0], hi])
+        area, net = abs(p1) + abs(p2), abs(p1 + p2)
+        need(not on_edge(sp.Float(str(area), 30)) and not on_edge(sp.Float(str(net), 30)), "a value sits on a rounding edge")
+        di_figure(q, f)
+        di_shade(q, f, sp.Integer(0), lo, zs[0], 0)
+        di_shade(q, f, sp.Integer(0), zs[0], hi, 1)
+        di_common(q, "Area = " + gc_s(sp.Float(str(area), 30)), {DI_N + "0": {"Area = " + gc_s(sp.Float(str(net), 30))}})
+    elif u == "area-symmetry":
+        f = in_expr(re.search(r"curve y = (.+?)(, for|\. )", L[0]).group(1))
+        if f.has(sp.sin):
+            a, b = sp.Integer(0), 2 * sp.pi
+            v = 2 * abs(sp.integrate(f, (x, 0, sp.pi)))
+            di_shade(q, f, sp.Integer(0), 0, sp.pi, 0)
+            di_shade(q, f, sp.Integer(0), sp.pi, 2 * sp.pi, 1)
+        else:
+            rs = sorted(sp.roots(sp.Poly(f, x)))
+            need(len(rs) == 3 and rs[0] == -rs[2] and rs[1] == 0, "the cubic is not odd about its middle root")
+            v = di_area(f, rs[0], rs[2])
+            di_shade(q, f, sp.Integer(0), rs[0], 0, 0)
+            di_shade(q, f, sp.Integer(0), 0, rs[2], 1)
+        di_figure(q, f)
+        di_common(q, f"Area = {dm_num(v)}", {DI_N + "0": {"Area = 0"}})
+    elif u == "unknown-upper-limit":
+        lo, hi, f = di_read(L[0])
+        need(hi == "k", "the upper limit is not k")
+        m = re.search(r"dx = (−?[\d/]+), where k > (−?\d+)\.", L[0])
+        N_, p = di_num(m.group(1)), di_num(m.group(2))
+        F = sp.integrate(f, x)
+        rs = sp.solve(F.subs(x, DI_K_SYM) - F.subs(x, p) - N_, DI_K_SYM)
+        keep = [r for r in rs if r > p]
+        need(len(keep) == 1 and keep[0].is_rational, f"k is {rs}")
+        noL = [r for r in sp.solve(F.subs(x, DI_K_SYM) - N_, DI_K_SYM) if r.is_rational]
+        di_common(q, f"k = {dm_num(keep[0])}", {DI_K + "0": {f"k = {dm_num(r)}" for r in rs if r != keep[0]}, DI_K + "1": {f"k = {dm_num(r)}" for r in noL}})
+    elif u == "unknown-limit-log":
+        lo, hi, f = di_read(L[0])
+        need(lo == "0" and hi == "k", "the limits are not 0 and k")
+        m = re.search(r"\(1/2\) ln\((.+?)\), where k > 0", L[0])
+        M = di_num(m.group(1))
+        a = sp.denom(sp.together(f)).subs(x, 0)
+        y = sp.Symbol("y", positive=True)
+        check_F = sp.integrate(f, x)
+        sol = sp.solve((y ** 2 + a) / a - M, y)
+        need(len(sol) == 1 and sol[0].is_integer, f"k is {sol}")
+        need(di_same(check_F.subs(x, sol[0]) - check_F.subs(x, 0), sp.log(M) / 2), "the value shown is not the integral")
+        bad = [r for r in sp.solve(y ** 2 + a - M, y) if r.is_integer]
+        di_common(q, f"k = {sol[0]}", {DI_K + "1": {f"k = {r}" for r in bad}})
+    elif u == "unknown-limit-trig":
+        lo, hi, f = di_read(L[0])
+        need(lo == "0" and hi == "m", "the limits are not 0 and m")
+        V = di_num(re.search(r"dx = (.+?), where 0 < m", L[0]).group(1))
+        n = sp.degree(f.subs(sp.sin(x), sp.Symbol("y")).subs(sp.cos(x), 1), sp.Symbol("y"))
+        m_ = sp.asin((V * (n + 1)) ** sp.Rational(1, n + 1))
+        d = sp.pi / m_
+        need(sp.nsimplify(d).is_integer, f"m is {m_}")
+        want = f"m = π/{sp.nsimplify(d)}"
+        for o in q["choices"]:
+            need(di_same(sp.integrate(f, (x, 0, sp.pi / di_num(o["text"].split("/")[1]))), V) == o["correct"], f"{o['text']} against the integral")
+        di_common(q, want, {})
+    elif u == "unknown-stretch":
+        m = re.search(r"lines x = (\d+) and x = (\d+)\. Its area is (.+?)\.", L[0])
+        lo, hi, A = int(m.group(1)), int(m.group(2)), di_num(m.group(3))
+        k = A / sp.integrate(x ** 2, (x, lo, hi))
+        if rep == "graph":
+            di_figure(q, k * x ** 2)
+            di_shade(q, k * x ** 2, sp.Integer(0), lo, hi)
+        di_common(q, f"k = {dm_num(k)}", {DI_K + "1": {f"k = {dm_num(A / sp.integrate(x ** 2, (x, 0, hi)))}"}} if lo else {})
+    elif u == "region-tangent":
+        f = in_expr(re.search(r"curve y = (.+?) touches", L[0]).group(1))
+        pts = {p["label"][0]: p for p in q["graph"]["points"]}
+        px, py = sp.nsimplify(pts["P"]["x"]), sp.nsimplify(pts["P"]["y"])
+        need(f.subs(x, px) == py, "P is not on the curve")
+        r = [c for c in sp.roots(sp.Poly(f, x))]
+        need(len(r) == 1, "the curve doesn't touch the axis")
+        r = r[0]
+        slope = sp.diff(f, x).subs(x, px)
+        tan = py + slope * (x - px)
+        qx = sp.solve(tan, x)[0]
+        need(qx == sp.nsimplify(pts["Q"]["x"]) and r == sp.nsimplify(pts["R"]["x"]), "Q or R is not where it should be")
+        whole = sp.integrate(f, (x, r, px))
+        tri = (px - qx) * py / 2
+        v = sp.integrate(f, (x, r, qx)) + sp.integrate(f - tan, (x, qx, px))
+        need(v == whole - tri, "the two ways to the area disagree")
+        strips = q["graph"]["shade"][0]
+        ff, tf = sp.lambdify(x, f, "math"), sp.lambdify(x, tan, "math")
+        for s_, lo_, hi_ in strips:
+            need(abs(hi_ - ff(s_)) < 1e-6 and abs(lo_ - max(0.0, tf(s_))) < 1e-6, f"the shading at x = {s_} is not the region")
+        wr = {DI_R + "0": {"Area = " + di_text(abs(whole - (px - r) * py / 2), sf)}, DI_R + "1": {"Area = " + di_text(whole + tri, sf)}, DI_R + "2": {"Area = " + di_text(whole, sf)}}
+        di_common(q, "Area = " + di_text(v, sf), wr)
+    elif u == "region-line-curve":
+        m = re.search(r"The line y = (.+?) and the curve y = (.+?), for x > 0, meet at P\..*as far as x = (\d+)\.", L[0])
+        ln, cv, b = in_expr(m.group(1)), in_expr(m.group(2)), int(m.group(3))
+        ps = [r for r in sp.solve(ln - cv, x) if r > 0]
+        need(len(ps) == 1, "the line and the curve don't meet once")
+        p = ps[0]
+        tri, rest = sp.integrate(ln, (x, 0, p)), sp.integrate(cv, (x, p, b))
+        v = tri + rest
+        need(ang.startswith("gdc") == sf, "paper")
+        strips = q["graph"]["shade"][0]
+        fl, fc = sp.lambdify(x, ln, "math"), sp.lambdify(x, cv, "math")
+        for s_, lo_, hi_ in strips:
+            need(abs(hi_ - (fl(s_) if s_ <= p else fc(s_))) < 1e-6 and lo_ == 0, f"the shading at x = {s_} is not the region")
+        if sf:
+            di_common(q, "Area = " + gc_s(sp.N(v, 40)), {DI_R + "1": {"Area = " + gc_s(sp.N(rest - tri, 40))}})
+        else:
+            di_symbolic(q, v, {DI_R + "1": [rest - tri]})
+    elif u in ("total-from-rate", "amount-with-start", "interpret-integral"):
+        what, where, y, per, time = DI_CONTEXTS[int(g["ctx"])]
+        unit = f"{y} per {per}"
+        words = rep == "words"
+        src = L[0]
+        m = re.search(r"r\(t\) = ([^=]+?)\.?$", src)
+        need(m is not None, f"can't read the rate in {src!r}")
+        f = in_expr(m.group(1))
+        T = int(re.search(r"(?:first|from 0 to|at t =) (\d+)", asked if u != "interpret-integral" else L[1]).group(1))
+        need(float(sp.minimum(f, x, sp.Interval(0, T))) > 0 if f.is_polynomial(x) else True, "the rate is not positive")
+        if not f.is_polynomial(x):
+            need(sf or u == "interpret-integral", "a model is Paper 2")
+        total = sp.integrate(f, (x, 0, T))
+        end = f.subs(x, T)
+        if not total.is_rational:
+            total, end = sp.N(total, 40), sp.N(end, 40)
+        tx = (lambda v: gc_s(v)) if sf else dm_num
+        if u == "total-from-rate":
+            tail = f" {y}" if words else ""
+            wr = {DI_S + "0": {f"{tx(end)} {unit}"} if words else {tx(end)}}
+            if words:
+                wr[DI_S + "2"] = {f"{tx(total)} {unit}"}
+            di_common(q, tx(total) + tail, wr)
+        elif u == "amount-with-start":
+            need(not sf, "a start is a Paper 1 question")
+            st = int(re.search(r"there are (\d+) ", L[1]).group(1))
+            di_common(q, f"{dm_num(total + st)} {y}", {DI_S + "1": {f"{dm_num(total)} {y}"}})
+        else:
+            v = L[1].rsplit(" = ", 1)[1]
+            need(v == tx(total), f"the integral shown, {v}, is not {tx(total)}")
+            di_common(q, f"{v} {y} of {what} were added in the first {T} {time}.", {DI_S + "2": {f"At t = {T}, {what} was being added at {v} {unit}."}})
+    elif u == "total-from-rate-graph":
+        what, where, y, per, time = DI_CONTEXTS[int(g["ctx"])]
+        c = q["graph"]["curves"][0]
+        total = sum((sp.nsimplify(a[1]) + sp.nsimplify(b[1])) * (sp.nsimplify(b[0]) - sp.nsimplify(a[0])) / 2 for a, b in zip(c, c[1:]))
+        need(sp.nsimplify(c[0][0]) == 0 and sp.nsimplify(c[-1][0]) == int(re.search(r"first (\d+)", asked).group(1)), "the graph doesn't cover the time asked")
+        need(all(b[0] > a[0] and b[1] >= 0 for a, b in zip(c, c[1:])), "the rate graph is not a function above the axis")
+        di_common(q, f"{dm_num(total)} {y}", {DI_S + "2": {f"{dm_num(total)} {y} per {per}"}})
+    elif u == "time-to-reach":
+        what, where, y, per, time = DI_CONTEXTS[int(g["ctx"])]
+        f = in_expr(re.search(r"r\(t\) = (.+?)\. At", L[0]).group(1))
+        N_ = di_num(re.search(r"when (.+?) " + y, asked).group(1))
+        Y = sp.Symbol("Y", positive=True)
+        sol = sp.solve(sp.integrate(f, (x, 0, Y)) - N_, Y)
+        need(len(sol) == 1 and sol[0].is_integer, f"the time is {sol}")
+        di_common(q, f"t = {sol[0]} {time}", {})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+# ── Kinematics (FAL-724) ─────────────────────────────────────
+# Reads s(t) or v(t) back from the question, differentiates it, and finds rests, turning
+# points and extremes again: exactly for a Paper 1 polynomial, with mpmath for a Paper 2 model.
+# A motion graph is read from the corners drawn. Tagged wrong options are worked out again.
+
+MT_V = "SL5.9.velocity-acceleration#"
+MT_D = "SL5.9.rest-and-direction#"
+MT_X = "SL5.9.max-speed#"
+MT_G = "SL5.9.motion-graphs#"
+
+
+def mt_times(fn, T, exact):
+    """The times in (0, T) where fn is 0, in order."""
+    if exact:
+        return sorted(r for r in sp.roots(sp.Poly(fn, CX)) if r.is_real and 0 < r < T)
+    return gc_zeros(sp.nsimplify(fn, rational=True), sp.Rational(1, 100), T - sp.Rational(1, 100))
+
+
+def mt_at(fn, t):
+    return sp.N(fn.subs(CX, t), 40) if not fn.is_polynomial(CX) or not sp.sympify(t).is_rational else fn.subs(CX, t)
+
+
+def mt_read(q):
+    m = re.search(r"\b([vs])\(t\) = (.+?), for 0 ≤ t ≤ (\d+)\.", q["lines"][0])
+    need(m is not None, f"can't read the motion in {q['lines'][0]!r}")
+    return m.group(1), in_expr(m.group(2)), int(m.group(3))
+
+
+def mt_extremes(v, a, T, exact):
+    """[(t, v)] at the ends and the turning points of v."""
+    ts = [sp.Integer(0), sp.Integer(T)] + list(mt_times(a, T, exact))
+    return [(t, mt_at(v, t)) for t in ts]
+
+
+def mt_graph_corners(q):
+    c = q["graph"]["curves"][0]
+    return [(sp.nsimplify(p[0]), sp.nsimplify(p[1])) for p in c]
+
+
+def check_motion(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    calc_options(q)
+    calc_steps(q)
+    ang = q["view"]["angle"]
+    sf = q["paper"] == 2
+    if ang.startswith("gdc-"):
+        need(sf, "a GDC method is Paper 2")
+    tx = (lambda v: gc_s(sp.Float(v, 40) if not isinstance(v, sp.Rational) else v)) if sf else dm_num
+    x = CX
+    tail = lambda head, v, unit: f"{head}{tx(v)}{unit}"
+    if u in ("speed-from-graph", "acceleration-from-graph", "velocity-from-graph", "displacement-from-graph", "direction-from-graph"):
+        cs = mt_graph_corners(q)
+        need(all(b[0] > a[0] for a, b in zip(cs, cs[1:])), "the graph goes back in time")
+        if u == "speed-from-graph":
+            ys = [c[1] for c in cs]
+            top, spd = max(ys), max(abs(y) for y in ys)
+            need(top > 0 and min(ys) < 0, "the graph doesn't go both ways")
+            mk = lambda a, b: f"Maximum velocity {dm_num(a)} m/s, maximum speed {dm_num(b)} m/s"
+            gc_check_common(q, mk(top, spd), {MT_X + "0": {mk(top, top), mk(top, -min(ys))}})
+        elif u in ("acceleration-from-graph", "velocity-from-graph"):
+            t = R(re.search(r"when t = (.+?)\.$", asked).group(1))
+            for a, b in zip(cs, cs[1:]):
+                if a[0] < t < b[0]:
+                    grad = (b[1] - a[1]) / (b[0] - a[0])
+            head, unit = ("a = ", " m/s²") if u == "acceleration-from-graph" else ("v = ", " m/s")
+            gc_check_common(q, f"{head}{dm_num(grad)}{unit}", {})
+        elif u == "displacement-from-graph":
+            bits = [(a[1] + b[1]) * (b[0] - a[0]) / 2 for a, b in zip(cs, cs[1:])]
+            gc_check_common(q, f"{dm_num(sum(bits))} m", {MT_G + "0": {f"{dm_num(max(c[1] for c in cs))} m"}, MT_G + "2": {f"{dm_num(sum(abs(b) for b in bits))} m"}})
+        else:
+            below = [(a[0], b[0]) for a, b in zip(cs, cs[1:]) if a[1] + b[1] < 0]
+            falls = [(a[0], b[0]) for a, b in zip(cs, cs[1:]) if b[1] < a[1]]
+            gc_check_common(q, f"{dm_num(below[0][0])} < t < {dm_num(below[-1][1])}", {MT_G + "1": {f"{dm_num(falls[0][0])} < t < {dm_num(falls[-1][1])}"}})
+        return None, None
+    if u == "returns-to-start":
+        m = re.search(r"s\(t\) = (.+?), for 0 ≤ t ≤ (\d+)\.", L[0])
+        f = in_expr(m.group(1))
+        rs = sorted(r for r in sp.roots(sp.Poly(f, x)) if r > 0)
+        gc_check_common(q, f"t = {rs[-1]} s", {})
+        return None, None
+    name, f, T = mt_read(q)
+    s_ = f if name == "s" else None
+    v = sp.diff(f, x) if name == "s" else f
+    a = sp.diff(v, x)
+    exact = v.is_polynomial(x) and not sf
+    need(exact != sf, f"Paper {q['paper']} has the wrong kind of function")
+    Z = mt_times(v, T, exact)
+    A = mt_times(a, T, exact)
+    if rep == "words":
+        need("cart" in L[0], "the story is not in words")
+    if u in ("velocity-expression", "acceleration-expression"):
+        want = a if u == "acceleration-expression" else v
+        for o in q["choices"]:
+            need(calc_same(in_expr(o["text"].split(" = ", 1)[1]), want) == o["correct"], f"option {o['text']!r} against {want}")
+        return None, None
+    if u == "velocity-at-time":
+        t0 = int(re.search(r"t = (\d+)", asked).group(1))
+        V, P = mt_at(v, t0), mt_at(s_, t0)
+        gc_check_common(q, tail("v = ", V, " m/s"), {MT_V + "0": {tail("v = ", P, " m/s")}, MT_V + "1": {tail("v = ", P / t0, " m/s")}})
+    elif u == "acceleration-at-time":
+        t0 = int(re.search(r"t = (\d+)", asked).group(1))
+        V, A0 = mt_at(v, t0), mt_at(a, t0)
+        gc_check_common(q, tail("a = ", A0, " m/s²"), {MT_V + "0": {tail("a = ", V, " m/s²")}, MT_V + "2": {tail("a = ", (V - mt_at(v, 0)) / t0, " m/s²")}})
+    elif u == "time-from-acceleration":
+        c = R(re.search(r"acceleration is (−?[\d.]+) m/s²", asked).group(1).replace("−", "-"))
+        rs = mt_times(a - c, T, exact)
+        need(len(rs) == 1, f"the acceleration is {c} at {len(rs)} times")
+        gc_check_common(q, tail("t = ", rs[0], " s"), {})
+    elif u == "time-from-velocity":
+        need(sf, "time from velocity is Paper 2")
+        c = R(re.search(r"velocity is (−?[\d.]+) m/s", asked).group(1).replace("−", "-"))
+        rs = mt_times(v - c, T, False)
+        gc_check_common(q, tail("t = ", rs[0], " s"), {})
+    elif u == "first-at-rest":
+        gc_check_common(q, tail("t = ", Z[0], " s"), {MT_D + "0": {tail("t = ", t, " s") for t in A}})
+    elif u == "change-direction":
+        if exact:
+            mult = sp.roots(sp.Poly(v, x))
+            cross = [r for r in Z if mult[r] % 2 == 1]
+            touch = [r for r in Z if mult[r] % 2 == 0]
+            need(len(cross) == 1 and len(touch) == 1, f"crossings {cross}, touches {touch}")
+            w = {MT_D + "2": {tail("t = ", touch[0], " s")}, MT_D + "0": {tail("t = ", t, " s") for t in A}}
+            gc_check_common(q, tail("t = ", cross[0], " s"), w)
+        else:
+            gc_check_common(q, tail("t = ", Z[0], " s"), {MT_D + "0": {tail("t = ", t, " s") for t in A}})
+        if rep == "graph":
+            dm_graph_curve(q, v)
+    elif u == "moving-one-way":
+        lo, hi = Z[0], Z[1]
+        mid = mt_at(v, (lo + hi) / 2)
+        word = "positive" if mid > 0 else "negative"
+        need(f"the {word} direction" in asked, "the direction asked is not the sign of v")
+        gc_check_common(q, f"{tx(lo)} < t < {tx(hi)}", {})
+        if rep == "graph":
+            dm_graph_curve(q, v)
+    elif u == "acceleration-at-rest":
+        gc_check_common(q, tail("a = ", mt_at(a, Z[0]), " m/s²"), {})
+    elif u == "speeding-up":
+        t0 = int(re.search(r"t = (\d+)\?", asked).group(1))
+        V, A0 = mt_at(v, t0), mt_at(a, t0)
+        need(L[1] == f"When t = {t0}, v = {tx(V)} and a = {tx(A0)}.", f"the values shown in {L[1]!r}")
+        same = (V > 0) == (A0 > 0)
+        only = "Speeding up: a is positive." if A0 > 0 else "Slowing down: a is negative."
+        gc_check_common(q, "Speeding up: v and a have the same sign." if same else "Slowing down: v and a have opposite signs.", {MT_D + "1": {only}})
+    elif u == "max-velocity-quadratic":
+        need(sp.Poly(v, x).LC() < 0, "v doesn't open down")
+        ex = mt_extremes(v, a, T, exact)
+        gc_check_common(q, tail("v = ", max(y for _, y in ex), " m/s"), {MT_X + "2": {"v = 0 m/s"}})
+    elif u == "max-velocity":
+        ex = mt_extremes(v, a, T, exact)
+        top = max(ex, key=lambda p: p[1])
+        need(0 < top[0] < T, "the maximum is at an end")
+        gc_check_common(q, tail("v = ", top[1], " m/s"), {})
+    elif u == "max-speed":
+        ex = mt_extremes(v, a, T, exact)
+        spd = max(abs(y) for _, y in ex)
+        inner = [abs(y) for t, y in ex if 0 < t < T]
+        gc_check_common(q, tail("Speed = ", spd, " m/s"), {MT_X + "0": {tail("Speed = ", max(y for _, y in ex), " m/s")}, MT_X + "1": {tail("Speed = ", max(inner), " m/s")}})
+        if rep == "graph":
+            dm_graph_curve(q, v)
+    elif u == "acceleration-at-max-speed":
+        ex = mt_extremes(v, a, T, exact)
+        ts = max(ex, key=lambda p: abs(p[1]))[0]
+        gc_check_common(q, tail("a = ", mt_at(a, ts), " m/s²"), {})
+    elif u == "max-acceleration":
+        ex = mt_extremes(a, sp.diff(a, x), T, exact)
+        gc_check_common(q, tail("a = ", max(y for _, y in ex), " m/s²"), {})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -11055,7 +11716,9 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
-                    "monotonic": check_monotonic, "concavity": check_concavity}
+                    "monotonic": check_monotonic, "concavity": check_concavity,
+                    "integration": check_integration, "definite-integral": check_definite_integral,
+                    "motion": check_motion}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
