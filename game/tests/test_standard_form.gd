@@ -6,7 +6,7 @@ extends "res://tests/test_case.gd"
 ## (tools/check-answers) checks the maths.
 
 const TYPE := "t1-standard-form"
-const CELLS := 45
+const CELLS := 47
 
 
 func _make(c: Dictionary, seed: int, format: String = "mcq", paper: int = 0) -> Dictionary:

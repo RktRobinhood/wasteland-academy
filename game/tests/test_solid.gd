@@ -5,7 +5,7 @@ extends "res://tests/test_case.gd"
 ## misconception shows up. The SymPy checker (tools/check-answers) checks the maths.
 
 const TYPE := "t3-solid-volume-area"
-const CELLS := 58
+const CELLS := 70
 
 
 func _make(c: Dictionary, seed: int, format: String = "mcq", paper: int = 0) -> Dictionary:
