@@ -2,8 +2,10 @@ class_name SolidSituation
 extends RefCounted
 ## The `solid` situation (curriculum/question-types.json): one solid and its measurements
 ## (FAL-726). `shape` is cone, pyramid, sphere, hemisphere, cone-hemisphere (a cone on a
-## hemisphere), cone-cylinder, hemisphere-cylinder or cylinder-minus-hemisphere (a cylinder with
-## a hemisphere hollowed out of its top). sector is the flat sheet a cone unrolls into.
+## hemisphere), cone-cylinder, hemisphere-cylinder, cylinder-minus-hemisphere (a cylinder with
+## a hemisphere hollowed out of its top), capsule (a cylinder with a hemisphere on each end),
+## hollow (a cylinder with a smaller one taken out of its centre) or inscribed (a cylinder that
+## fits inside a sphere). sector is the flat sheet a cone unrolls into.
 ## Paper 1 measurements are whole, from Pythagorean triples wherever a slant comes in, so a
 ## volume or area is an exact multiple of π. Paper 2 measurements have one decimal place and
 ## answers are to 3 s.f.
@@ -14,8 +16,10 @@ extends RefCounted
 ##              a hemisphere or a cylinder), floats. Where one comes from the others it is exact
 ##   given      "h" or "l": which of the two a cone's question shows
 ##   dia        true: the question shows the diameter, not the radius
-##   c, big     the cylinder's height and, on cylinder-minus-hemisphere, its radius
-##   a, b, t    a pyramid's base edges and the slant height of a square pyramid's face
+##   c, big     the cylinder's height and, on cylinder-minus-hemisphere or inscribed, its radius
+##   a, b, t, e a pyramid's base edges, the slant height of a square pyramid's face and its
+##              slant edge
+##   area       the total surface given, on the unknowns that start from it, like vol
 ##   vol        the volume given, on the unknowns that start from it: on Paper 1 a multiple of π
 ##              (a plain number for a pyramid), on Paper 2 the whole number shown
 ##   theta      a sector's angle in degrees
@@ -23,6 +27,8 @@ extends RefCounted
 ##   rx, hx, lx, tail  in terms of x: r = rx·x, h = hx·x, l = lx·x and the cylinder's height a
 ##              plain number `tail`; x is only the size the solid is drawn at, and is never shown
 ##   total      on surface-in-terms: the cone's whole surface, not just the curved part
+##   k, m       hollow: the outer radius is k·r, and on the volume the total surface is mπ
+##   ends       surface-from-volume: hemispheres on the cylinder, 1 or 2, with vol its volume
 ##
 ## The clean limits are the numbers behind the catalogue's `clean` text. The checker holds its
 ## own copy.
@@ -30,8 +36,14 @@ extends RefCounted
 const TRIES := 6000
 const EDGE := 0.03
 const CONTEXTS := 6
+## The unknowns answered with an expression, on either paper.
+const EXPRESSIONS := ["volume-in-terms", "surface-in-terms", "hollow-surface", "hollow-volume-from-surface", "surface-from-volume"]
 const TRIPLES := [[3, 4, 5], [6, 8, 10], [5, 12, 13], [9, 12, 15], [8, 15, 17], [12, 16, 20]]
 const COMPOSITES := ["cone-hemisphere", "cone-cylinder", "hemisphere-cylinder", "cylinder-minus-hemisphere"]
+## [a, h, e]: a square pyramid's base edge, height and slant edge, all whole: a²/2 + h² = e².
+const EDGES := [[8, 7, 9], [12, 7, 11], [8, 2, 6], [12, 3, 9], [20, 5, 15], [24, 6, 18], [12, 17, 19]]
+## Cones whose unrolled sheet has a whole angle: [r, h, l].
+const SHEET_CONES := [[3, 4, 5], [4, 3, 5], [6, 8, 10], [8, 6, 10], [9, 12, 15], [12, 9, 15], [12, 16, 20]]
 ## Sheets that roll into a cone with a whole base radius on Paper 1: slant heights.
 const SHEETS := [6, 8, 9, 10, 12, 15, 18, 20, 24]
 
@@ -58,10 +70,14 @@ static func _draw(rng: Seeded, s: Dictionary) -> bool:
 			return _cone(rng, s, "h" if rng.chance(0.6) else "l")
 		"cone-total":
 			return _cone(rng, s, "h" if rng.chance(0.6) else "l")
+		"slant-from-total", "cone-volume-from-total":
+			return _cone_from_area(rng, s)
 		"pyramid-volume":
 			return _pyramid(rng, s, rng.chance(0.5))
 		"pyramid-volume-from-slant", "pyramid-surface":
 			return _square_pyramid(rng, s, "t" if s.ask == "pyramid-volume-from-slant" else "h")
+		"pyramid-volume-from-edge":
+			return _edge_pyramid(rng, s)
 		"sphere-volume", "sphere-surface":
 			s.shape = "sphere"
 			s.dia = rng.chance(0.5)
@@ -82,8 +98,16 @@ static func _draw(rng: Seeded, s: Dictionary) -> bool:
 			return _solve(rng, s)
 		"volume-in-terms", "surface-in-terms":
 			return _in_terms(rng, s)
-		"sector-cone-radius":
+		"sector-cone-radius", "sector-angle", "sector-curved":
 			return _sector(rng, s)
+		"sector-cone-volume":
+			return _sector_cone(rng, s)
+		"hollow-surface", "hollow-volume-from-surface":
+			return _hollow(rng, s)
+		"surface-from-volume":
+			return _from_volume(rng, s)
+		"inscribed-volume", "inscribed-surface":
+			return _inscribed(rng, s)
 	return false
 
 
@@ -116,6 +140,22 @@ static func _cone(rng: Seeded, s: Dictionary, given: String) -> bool:
 		s.h = tenth(rng, 3.0, 20.0)
 		s.l = sqrt(s.r * s.r + s.h * s.h)
 	return s.h / s.r >= 0.6 and s.h / s.r <= 3.5
+
+
+## A cone with its total surface given, r still shown: l comes from πrl + πr² and h after it.
+static func _cone_from_area(rng: Seeded, s: Dictionary) -> bool:
+	if not _cone(rng, s, "h"):
+		return false
+	s.given = "area"
+	if s.paper == 1:
+		s.area = surf_k(s)
+		return true
+	s.area = float(roundi(surf_k(s) * PI))
+	s.l = s.area / (PI * s.r) - s.r
+	if s.l <= s.r + 0.5:
+		return false
+	s.h = sqrt(s.l * s.l - s.r * s.r)
+	return true
 
 
 static func _pyramid(rng: Seeded, s: Dictionary, square: bool) -> bool:
@@ -152,6 +192,25 @@ static func _square_pyramid(rng: Seeded, s: Dictionary, given: String) -> bool:
 	else:
 		s.h = tenth(rng, 3.0, 18.0)
 		s.t = sqrt(s.h * s.h + s.a * s.a / 4.0)
+	return s.h >= 0.5 * s.a
+
+
+## A square pyramid with its slant edge shown: half the base's diagonal, the height and e make a
+## right triangle.
+static func _edge_pyramid(rng: Seeded, s: Dictionary) -> bool:
+	s.shape = "pyramid"
+	s.given = "e"
+	if s.paper == 1:
+		var p: Array = rng.pick(EDGES)
+		s.a = float(p[0])
+		s.h = float(p[1])
+		s.e = float(p[2])
+		s.b = s.a
+		return true
+	s.a = tenth(rng, 3.0, 16.0)
+	s.b = s.a
+	s.e = tenth(rng, s.a / sqrt(2.0) + 1.5, 22.0)
+	s.h = sqrt(s.e * s.e - s.a * s.a / 2.0)
 	return s.h >= 0.5 * s.a
 
 
@@ -296,9 +355,63 @@ static func _sector(rng: Seeded, s: Dictionary) -> bool:
 		s.theta = 360.0 * s.r / s.l
 		return is_equal_approx(s.theta, roundf(s.theta)) and s.theta >= 60.0 and s.theta <= 300.0
 	s.l = tenth(rng, 6.0, 30.0)
+	if s.ask == "sector-angle":
+		s.r = tenth(rng, 2.0, s.l - 1.0)
+		s.theta = 360.0 * s.r / s.l
+		return s.theta >= 60.0 and s.theta <= 300.0
 	s.theta = float(rng.int_in(60, 300))
 	s.r = s.l * s.theta / 360.0
 	return true
+
+
+## A cone from a sheet, with its height to find: on Paper 1 a whole angle and a triple.
+static func _sector_cone(rng: Seeded, s: Dictionary) -> bool:
+	s.shape = "sector"
+	if s.paper == 1:
+		var c: Array = rng.pick(SHEET_CONES)
+		s.r = float(c[0])
+		s.h = float(c[1])
+		s.l = float(c[2])
+		s.theta = 360.0 * s.r / s.l
+		return true
+	s.l = tenth(rng, 6.0, 30.0)
+	s.theta = float(rng.int_in(60, 300))
+	s.r = s.l * s.theta / 360.0
+	s.h = sqrt(s.l * s.l - s.r * s.r)
+	return true
+
+
+## A hollow cylinder with outer radius k·r. m is even, so V comes out in whole coefficients.
+static func _hollow(rng: Seeded, s: Dictionary) -> bool:
+	s.shape = "hollow"
+	s.k = int(rng.pick([2, 3, 5, 6]))
+	s.m = 2 * rng.int_in(30, 240)
+	return true
+
+
+## A cylinder of volume vol and radius x, with one or two hemispheres on it: h goes from S.
+static func _from_volume(rng: Seeded, s: Dictionary) -> bool:
+	s.ends = 2 if rng.chance(0.6) else 1
+	s.shape = "capsule" if s.ends == 2 else "hemisphere-cylinder"
+	s.vol = float(rng.int_in(10, 120))
+	return true
+
+
+## A cylinder that fits exactly inside a sphere of radius r: its radius, half its height and r
+## make a right triangle.
+static func _inscribed(rng: Seeded, s: Dictionary) -> bool:
+	s.shape = "inscribed"
+	if s.paper == 1:
+		var t: Array = rng.pick(TRIPLES)
+		var flip := rng.chance(0.5)
+		s.big = float(t[1] if flip else t[0])
+		s.h = 2.0 * (t[0] if flip else t[1])
+		s.r = float(t[2])
+		return s.r <= 15.0
+	s.r = tenth(rng, 4.0, 15.0)
+	s.h = tenth(rng, 2.0, 2.0 * s.r - 1.5)
+	s.big = sqrt(s.r * s.r - s.h * s.h / 4.0)
+	return s.big >= 1.0
 
 
 # ── The formulas ─────────────────────────────────────────────
@@ -327,6 +440,10 @@ static func vol_k(s: Dictionary) -> float:
 			return 2.0 * pow(s.r, 3.0) / 3.0 + s.r * s.r * s.c
 		"cylinder-minus-hemisphere":
 			return s.big * s.big * s.c - 2.0 * pow(s.r, 3.0) / 3.0
+		"inscribed":
+			return s.big * s.big * s.h
+		"sector":
+			return s.r * s.r * s.h / 3.0
 	return 0.0
 
 
@@ -347,6 +464,8 @@ static func surf_k(s: Dictionary) -> float:
 			return 2.0 * s.r * s.r + 2.0 * s.r * s.c + s.r * s.r
 		"cylinder-minus-hemisphere":
 			return 2.0 * s.r * s.r + 2.0 * s.big * s.c + s.big * s.big + (s.big * s.big - s.r * s.r)
+		"inscribed":
+			return 2.0 * s.big * s.big + 2.0 * s.big * s.h
 	return 0.0
 
 
@@ -362,6 +481,14 @@ static func value(s: Dictionary) -> float:
 			return PI * s.r * s.l
 		"cone-total", "hemisphere-surface", "sphere-surface", "composite-surface":
 			return PI * surf_k(s)
+		"inscribed-surface":
+			return PI * surf_k(s)
+		"sector-curved":
+			return PI * s.r * s.l
+		"sector-angle":
+			return s.theta
+		"slant-from-total":
+			return s.l
 		"pyramid-surface":
 			return s.a * s.a + 2.0 * s.a * s.t
 		"paint-cost":
@@ -379,7 +506,7 @@ static func value(s: Dictionary) -> float:
 
 ## Paper 2 answers stay off rounding edges and need a calculator.
 static func _clear(s: Dictionary) -> bool:
-	if s.paper == 1 or s.ask in ["volume-in-terms", "surface-in-terms"]:
+	if s.paper == 1 or s.ask in EXPRESSIONS:
 		return true
 	var v := value(s)
 	return Answer.rounds_clearly(v, EDGE) and Answer.needs_rounding(TriangleViews.qf(v))
