@@ -1,8 +1,8 @@
 # Wasteland Academy (Godot)
 
 The Godot 4.7.2 rebuild of Wasteland Academy, planned on FAL-274. It is played in the
-browser as a web build, published at `/next/` beside the HTML game. All code is
-GDScript (C# can't export to the web), and it uses the Compatibility renderer.
+browser as a web build, published at the main address, with the HTML game at
+`/classic/`. All code is GDScript (C# can't export to the web), and it uses the Compatibility renderer.
 
 The toolchain is copied from The Unruly Atlas.
 
@@ -16,7 +16,7 @@ game/
 ├── scenes/map.tscn      ← the map (ui/map.gd): world, island, region screen (see "The map")
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
 ├── scenes/fight.tscn    ← the fight screen (ui/fight.gd), on the practice screen's card
-├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /next/?explore
+├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /?explore
 ├── engine/              ← the question engine: situations, views, marking, planner, save
 ├── engine/run.gd        ← a run: floors, fights, bosses, outcomes, lifelines, the hooks (see "Combat")
 ├── engine/dungeon.gd    ← floors by level, tiers, boss chains, start floors (see "The dungeon")
@@ -637,25 +637,25 @@ The strip (FAL-331) isn't merged yet, so the fight screen keeps an empty
 ### Deep links
 
 The practice screen takes deep links, for screenshots and for sending someone a
-question: `/next/?view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, or
+question: `/?view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, or
 `<type>/probe/<n>` for a concept probe. Add `&autoplay=right` (or `wrong`) to answer it
 at once, and `&paper=1` or `2` for that paper where the cell can make it. On a Paper 2
 question, `&calc=sci` or `&calc=graph` opens the calculator, with `&do=expr;expr` worked
 out in Scientific mode, or `&y1=`, `&y2=`, `&win=xmin,xmax,ymin,ymax`,
 `&tool=zero|max|min|intersect` and `&deg=1` in Graph mode (the screenshots use these).
-The fight screen takes `/next/?play=quadratics&seed=3&floor=1`, with
+The fight screen takes `/?play=quadratics&seed=3&floor=1`, with
 `&autoplay=right`, `wrong`, or `lose` (wrong answers to the end, for the summary). `play`
 is a region id or `all`. `floor` must be one the save may start on, else the run starts
 on floor 1. `&fight=5` or `&fight=10` starts at the mini-boss or boss (such a run records
 no floors), and `&autoplay=carry` answers its first part wrong and opens the next, to show
 the value carried on. `&select=1` shows the floor select.
 
-The map takes a hash: `/next/#functions/quadratics` opens that region's screen,
-`/next/#functions` the island and `/next/#world` the world map (see "The map").
+The map takes a hash: `/#functions/quadratics` opens that region's screen,
+`/#functions` the island and `/#world` the world map (see "The map").
 
 ### The engine explorer
 
-`/next/?explore`, or "Engine" on the title screen (FAL-391). Pick a course, a topic and
+`/?explore`, or "Engine" on the title screen (FAL-391). Pick a course, a topic and
 a question class, then "Asked for", "Shown as", "Method" and the format, and play the
 question as on the practice screen. Nothing is saved. Question classes come from the
 catalogue: a type is live when its situation is built, so a new situation shows up
@@ -671,7 +671,7 @@ SL". A course the engine doesn't list shows the syllabus note and asks nothing. 
 show the choices and the question one at a time; landscape shows them side by side.
 
 The URL follows the screen, so a state can be bookmarked:
-`/next/?explore&view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, plus
+`/?explore&view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, plus
 `&ten=1` for ten versions or `&autoplay=right` (or `wrong`).
 
 ### The SymPy answer checker
@@ -983,8 +983,8 @@ section of `engine/tuning.gd`.
   `test_bazaar.gd` checks that such a player unlocks something every 2 or 3 runs. Print
   the price table with
   `godot --headless --path game --script res://tools/bazaar_balance.gd`.
-- Links: `/next/#bazaar` is its map link; `/next/?bazaar` opens it too, and
-  `/next/?bazaar=demo` opens it on a sample save and stores nothing (screenshots).
+- Links: `/#bazaar` is its map link; `/?bazaar` opens it too, and
+  `/?bazaar=demo` opens it on a sample save and stores nothing (screenshots).
 
 ## Tests
 
