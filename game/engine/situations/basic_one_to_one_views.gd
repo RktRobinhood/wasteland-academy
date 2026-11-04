@@ -10,6 +10,7 @@ const R_AXIS := "SL2.2.inverse-undo#1"
 const R_VALUE := "SL2.2.inverse-undo#2"
 const R_Y_INTERCEPT := "SL2.4.symmetry#0"
 const R_SIDE := "SL2.4.symmetry#1"
+const R_TURNING := "SL2.4.symmetry#2"
 
 
 func needs() -> Dictionary:
@@ -73,6 +74,38 @@ static func plot(s: Dictionary, dots: Array = []) -> Dictionary:
 ## A point with its coordinates.
 static func dot(p: int, q: int) -> Array:
 	return [p, q, Fmt.point(p, q)]
+
+
+## "(−1.5)" for a negative number in the working, a plain number otherwise.
+static func in_sum(v: Q) -> String:
+	return "(%s)" % BasicFunctionViews.W(v) if v.sign() < 0 else BasicFunctionViews.W(v)
+
+
+## f's steps undone in reverse order, from the output a back to the input.
+static func undo_steps(s: Dictionary, a: Q) -> Array:
+	var w := func(v: Q) -> String: return BasicFunctionViews.W(v)
+	var last := func(v: Q, c: Q) -> Array:
+		var u := v.sub(c)
+		return [u, "Undo the constant: %s − %s = %s" % [w.call(v), in_sum(c), w.call(u)]]
+	match s.get("form", "line"):
+		"root":
+			var first: Array = last.call(a, s.f.k)
+			var u2: Q = first[0].sq()
+			return [first[1], "Undo the root: square it, %s² = %s" % [in_sum(first[0]), w.call(u2)], "Undo the shift: %s − %s = %s" % [w.call(u2), in_sum(s.f.n), w.call(u2.sub(s.f.n))]]
+		"exp":
+			var first: Array = last.call(a, s.f.c)
+			return [first[1], "Undo 2^x: 2^x = %s gives x = %s" % [w.call(first[0]), w.call(Q.of(s.inv))]]
+		"half":
+			var top: Array = s.keys[0]
+			var first: Array = last.call(a, Q.new(top[1]))
+			var inv: Q = Q.of(s.inv)
+			var root: Q = inv.sub(top[0])
+			return [first[1], "Undo the square: x ≥ %s, so take the positive root of %s: %s" % [N(s.lo), w.call(first[0]), w.call(root)],
+				"Undo the shift: %s + %s = %s" % [w.call(root), in_sum(Q.new(top[0])), w.call(inv)]]
+	var c: Q = Q.of(s.f.co[0])
+	var m: Q = Q.of(s.f.co[1])
+	var first: Array = last.call(a, c)
+	return [first[1], "Undo the multiplier: %s ÷ %s = %s" % [w.call(first[0]), in_sum(m), w.call(first[0].div(m))]]
 
 
 # ── The sketch ───────────────────────────────────────────────
@@ -147,6 +180,7 @@ func u_image_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var last := "So %s." % Answer.text(ans)
 	var swap := "On f⁻¹ the input and the output change places: %s becomes %s" % [pt, Fmt.point(q, p)]
 	var mid := Q.new(p + q, 2)
+	out.titles = {"midpoint-of-pair": "Swap, then check the midpoint"}
 	out.methods = ways({"swap-coordinates": ["%s means f(%s) = %s" % [pt, N(p), N(q)], swap], "reflect-point": ["Reflecting in y = x keeps the distance to the line and swaps the coordinates", swap],
 		"midpoint-of-pair": [swap, "Check: the midpoint of the pair is (%s, %s), which is on y = x" % [N(mid), N(mid)]]}, last, ans)
 	return out
@@ -208,8 +242,7 @@ func u_inverse_from_rule(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		"generic": BasicFunctionViews.nums([a, GdcKit.qf(inv.to_float() + 1.0), inv.neg()], inv)}
 	var w := BasicFunctionViews.W(inv)
 	var solve := "f⁻¹(%s) is the x with f(x) = %s: %s = %s" % [N(a), N(a), BasicFunctionSituation.text(s.f), N(a)]
-	var undo := "Undo the steps of f in reverse order, starting from %s" % N(a)
-	out.methods = ways({"solve-f-equals": [solve, "Solve it: x = %s" % w], "reverse-flow": [undo, "That ends at x = %s" % w]}, "So %s." % Answer.text(ans), ans)
+	out.methods = ways({"solve-f-equals": [solve, "Solve it: x = %s" % w], "reverse-flow": undo_steps(s, a)}, "So %s." % Answer.text(ans), ans)
 	return out
 
 
@@ -268,9 +301,16 @@ func u_asymptotes_of_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 func u_meeting_on_y_equals_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var p: int = s.p
 	var ans := exact("point", {"x": Q.new(p), "y": Q.new(p)})
-	var at0: Q = Q.of(BasicFunctionSituation.at(s.f, 0))
-	var out := {"asked": "f is increasing. Find where the graphs of f and f⁻¹ meet.", "answer": ans,
-		"wrongs": [wrong({"x": Q.new(0), "y": at0}, R_Y_INTERCEPT)] if not at0.is_zero() and s.form == "line" else [],
+	# The y-intercept, as a mirror line through it would have it, where it is a clean number.
+	var wrongs: Array = []
+	if s.form == "line" and not s.c.is_zero():
+		wrongs = [wrong({"x": Q.new(0), "y": s.c}, R_Y_INTERCEPT)]
+	elif s.form == "root":
+		var start := roundi(sqrt(s.f.n.to_float()))
+		if start * start == s.f.n.n:
+			wrongs = [wrong({"x": Q.new(0), "y": Q.new(start)}, R_Y_INTERCEPT)]
+	var out := {"asked": "f is increasing. Find where the graphs of f and f⁻¹ meet.", "answer": ans, "wrongs": wrongs,
+		"titles": {"solve-f-equals": "Solve f(x) = x"},
 		"generic": [{"x": Q.new(-p), "y": Q.new(-p)}, {"x": Q.new(p), "y": Q.new(0)}, {"x": Q.new(p + 1), "y": Q.new(p + 1)}, {"x": Q.new(0), "y": Q.new(p)}]}
 	if rep == "graph":
 		out.lines = ["The graph of y = f(x) is shown."]
@@ -281,7 +321,7 @@ func u_meeting_on_y_equals_x(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 		out.given = {"x_y": true}
 	else:
 		out.lines = [eqn(s)]
-	var eq := "Solve f(x) = x: %s = x" % BasicFunctionSituation.text(s.f)
+	var eq: String = "Read where the curve crosses the line y = x" if rep == "graph" else "Solve f(x) = x: %s = x" % BasicFunctionSituation.text(s.f)
 	var why := "f is increasing, so f and f⁻¹ meet on y = x"
 	var sv := "That gives x = %s, and y = x there" % N(p)
 	out.methods = ways({"reflect-in-y-equals-x": [why, "Find where the curve crosses y = x: " + sv.to_lower()], "solve-f-equals": [why, eq, sv]}, "So %s." % Answer.text(ans), ans)
@@ -295,9 +335,12 @@ func u_is_self_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var no := "No: %s is on the graph, but %s is not" % [Fmt.point(p, q), Fmt.point(q, p)]
 	var right := yes if s.inverse else no
 	var wrong_verdict := "No: the graph is not a line through the origin" if s.inverse else "Yes: swapping x and y gives the same rule"
-	var other := no if s.inverse else yes
-	var out := {"asked": "Is f its own inverse?"}
-	out.merge(BasicFunctionViews.choose(right, [], [wrong_verdict, other if s.inverse == false else "No: f has no inverse", "Yes: it has a point on y = x, so it must be symmetric", "No: f(x) and 1/f(x) are different"]))
+	# The reciprocal reason says "no", which is the right verdict for a rule that isn't its own inverse.
+	var bad: Array = [BasicFunctionViews.tag("Yes: it has a point on y = x, so it must be symmetric", R_TURNING)]
+	if s.inverse:
+		bad.append(BasicFunctionViews.tag("No: f(x) and 1/f(x) are different", R_RECIPROCAL))
+	var out := {"asked": "Is f its own inverse?", "titles": {"midpoint-of-pair": "Check the midpoint of a point and its image"}}
+	out.merge(BasicFunctionViews.choose(right, bad, [wrong_verdict, yes if not s.inverse else "No: f has no inverse"]))
 	if rep == "graph":
 		out.lines = ["The graph of y = f(x) is shown."]
 		var curves: Array

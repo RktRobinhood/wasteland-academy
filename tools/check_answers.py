@@ -12277,16 +12277,19 @@ def check_one_to_one(q):
         fixed = [s_ for s_ in sp.solve(f - X, X) if s_.is_real and f.subs(X, s_) == s_]
         need(len(fixed) == 1 and fixed[0] == R(g["p"]) and fixed[0].q == 1, f"f meets y = x at {fixed}")
         want = f"({frac_text(fixed[0])}, {frac_text(fixed[0])})"
-        if g["form"] == "line":
-            wr = {"SL2.4.symmetry#0": {f"(0, {frac_text(f.subs(X, 0))})"}}
+        y0 = f.subs(X, 0)
+        if y0.is_Rational and y0 != 0:
+            wr = {"SL2.4.symmetry#0": {f"(0, {frac_text(y0)})"}}
     elif u == "is-self-inverse":
         ff = sp.simplify(f.subs(X, f))
         own = sp.simplify(ff - X) == 0
         need(own == g["inverse"], "the situation has it the wrong way round")
         p_, q_ = R(g["p"]), R(g["q"])
         need(f.subs(X, p_) == q_, "the point is not on f")
+        wr = {"SL2.4.symmetry#2": {"Yes: it has a point on y = x, so it must be symmetric"}}
         if own:
             want = "Yes: the graph is its own mirror image in y = x"
+            wr["SL2.2.inverse-undo#0"] = {"No: f(x) and 1/f(x) are different"}
         else:
             need(f.subs(X, q_) != p_, "the swapped point is on f too")
             want = f"No: {Fmt_point(p_, q_)} is on the graph, but {Fmt_point(q_, p_)} is not"
