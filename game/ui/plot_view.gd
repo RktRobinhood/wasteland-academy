@@ -372,7 +372,7 @@ func _cone_top(c: Vector2, rx: float, tall: float, plain: bool) -> void:
 	if spec.has("h"):
 		_dashes(top, c)
 		_square(c, Vector2.UP, Vector2.RIGHT)
-		_mark("h", c + Vector2(14, -tall * 0.34), -1)
+		_mark("h", c + Vector2(14, -tall * 0.26), -1)
 	_mark("l", (top + c + Vector2(rx, 0)) / 2.0 + Vector2(18, -8), -1)
 
 
@@ -402,7 +402,7 @@ func _circle_marks(c: Vector2, rx: float, ry: float, outside: bool) -> void:
 		_mark("d", c + Vector2(0, ry + 34.0) if outside else c + Vector2(0, 30.0))
 	elif spec.has("r"):
 		_dashes(c, c + Vector2(rx, 0), UiTheme.SAND)
-		_mark("r", c + Vector2(rx * 0.42, 26.0))
+		_mark("r", c + Vector2(rx * 0.42, ry + 30.0))
 
 
 func _pyramid() -> void:
@@ -450,9 +450,9 @@ func _scooped(c: Vector2, rx: float) -> void:
 	_rim(top, inner, inner * 0.26, 0.0, TAU, UiTheme.TEAL)
 	_rim(top, inner, inner, 0.0, PI, UiTheme.DIM, true)
 	_dashes(top, top + Vector2(inner, 0), UiTheme.SAND)
-	_mark("r", top + Vector2(inner * 0.5, 30.0))
+	_mark("r", top + Vector2(inner * 0.5, -ry - 28.0))
 	_dashes(low, low + Vector2(rx, 0), UiTheme.SAND)
-	_mark("big", low + Vector2(rx * 0.5, -22.0))
+	_mark("big", low + Vector2(rx * 0.5, ry + 30.0))
 	var x := rx + 28.0
 	_measure("c", top + Vector2(x, 0), low + Vector2(x, 0), c + Vector2(x + 12.0, 0))
 

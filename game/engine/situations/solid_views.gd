@@ -623,6 +623,11 @@ static func expr_wrong(head: String, terms: Array, ref: String, minus: bool = fa
 	return wrong(expr(head, terms, minus).values, ref)
 
 
+## A wrong option with the same coefficients on other powers: it can be picked, not typed.
+static func swapped(head: String, terms: Array, minus: bool = false) -> Dictionary:
+	return {"text": expr(head, terms, minus).values.text, "shape": "other"}
+
+
 ## "3x cm", "x cm".
 static func in_x(s: Dictionary, m: int) -> String:
 	return "%sx %s" % ["" if m == 1 else str(m), s.unit]
@@ -659,7 +664,7 @@ func u_volume_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			keys.append("c")
 			over.c = "%d %s" % [s.tail, s.unit]
 			out.wrongs = [expr_wrong(head, [[dome.mul(2), "πx³"], [drum, "πx²"]], R_THIRD)]
-			out.generic = [expr(head, [[dome, "πx³"], [drum.mul(2), "πx²"]]).values, expr(head, [[dome, "πx²"], [drum, "πx³"]]).values, expr(head, [[dome.mul(3), "πx³"], [drum, "πx²"]]).values]
+			out.generic = [expr(head, [[dome, "πx³"], [drum.mul(2), "πx²"]]).values, swapped(head, [[dome, "πx²"], [drum, "πx³"]]), expr(head, [[dome.mul(3), "πx³"], [drum, "πx²"]]).values]
 		"cone-cylinder":
 			var drum := Q.new(rx * rx * s.tail)
 			terms = [[third, "πx³"], [drum, "πx²"]]
@@ -668,7 +673,7 @@ func u_volume_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			over.h = in_x(s, s.hx)
 			over.c = "%d %s" % [s.tail, s.unit]
 			out.wrongs = [expr_wrong(head, [[third.mul(3), "πx³"], [drum, "πx²"]], R_THIRD)]
-			out.generic = [expr(head, [[third, "πx³"], [drum.mul(2), "πx²"]]).values, expr(head, [[third, "πx²"], [drum, "πx³"]]).values, expr(head, [[third.mul(2), "πx³"], [drum, "πx²"]]).values]
+			out.generic = [expr(head, [[third, "πx³"], [drum.mul(2), "πx²"]]).values, swapped(head, [[third, "πx²"], [drum, "πx³"]]), expr(head, [[third.mul(2), "πx³"], [drum, "πx²"]]).values]
 	out.answer = expr(head, terms)
 	show(out, s, rep, "%s is %s" % [thing(s, family(s.shape)), PHRASE[s.shape]], keys, [], over)
 	out.asked = "Find an expression for the volume V, in terms of x."
@@ -775,7 +780,7 @@ func u_hollow_volume_from_surface(rep: String, s: Dictionary, _rng: Seeded) -> D
 	var out := {"table": null, "answer": expr(head, [[lin, "πr"], [cub, "πr³"]], true)}
 	out.wrongs = []
 	out.generic = [expr(head, [[lin.mul(2), "πr"], [cub, "πr³"]], true).values, expr(head, [[lin, "πr"], [cub.mul(2), "πr³"]], true).values,
-		expr(head, [[lin, "πr²"], [cub, "πr³"]], true).values, expr(head, [[lin.add(1), "πr"], [cub.add(1), "πr³"]], true).values]
+		swapped(head, [[lin, "πr²"], [cub, "πr³"]], true), expr(head, [[lin.add(1), "πr"], [cub.add(1), "πr³"]], true).values]
 	var opening := "%s is %s" % [thing(s, "hollow"), PHRASE.hollow]
 	var line2 := "Its total surface area is %dπ cm²." % m
 	if rep == "diagram":
