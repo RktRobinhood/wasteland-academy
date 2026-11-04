@@ -13188,6 +13188,313 @@ def cd_check(q):
     return None, None
 
 
+# ── basic-relation (fn-ext-is-function, FAL-424) ─────────────
+# The relation is read back from what the student sees: an equation's text, a table's rows,
+# the words' listing, or the polylines of a graph. Whether it is a function, and whether it is
+# one-to-one, comes from there (exact solving in y, or lines crossed on the drawn curve), and
+# every option is then judged as a claim: exactly one must be true, and it must be the answer.
+
+RL_Y = sp.Symbol("y", real=True)
+RL_XS = [sp.Rational(i, 2) for i in range(-16, 17)]
+RL_GRID = [-7.9137 + 0.1 * i for i in range(160)]
+RL_TOL = 0.06
+RL_R0, RL_R1, RL_R2 = "SL2.2.is-function#0", "SL2.2.is-function#1", "SL2.2.is-function#2"
+RL_YES_GRAPH = "A function: every vertical line crosses it at most once"
+RL_YES_EQ = "Yes: no x gives two values of y"
+RL_YES_ONE = "Yes: every horizontal line crosses it at most once, so it has an inverse"
+RL_GIVES = re.compile(r"x = (−?\d+) gives y = (−?\d+) and y = (−?\d+)")
+RL_BOTH = re.compile(r"x = (−?\d+) and x = (−?\d+) both give y = (−?\d+)")
+
+
+def rl_eq(text):
+    """An equation in x and y as the expression L − R, and any domain after ', for'."""
+    body, _, dom = text.partition(", for ")
+    left, right = body.split(" = ")
+    conv = lambda s: re.sub(r"\|([^|]+)\|", r"Abs(\1)", s.strip()).replace("−", "-").replace("√", "sqrt").replace("²", "**2").replace("³", "**3").replace("^", "**").replace("xy", "x*y")
+    loc = {"x": X, "y": RL_Y, "Abs": sp.Abs, "sqrt": sp.sqrt}
+    return parse_expr(conv(left), local_dict=loc, transformations=TRANSFORMS) - parse_expr(conv(right), local_dict=loc, transformations=TRANSFORMS), dom
+
+
+def rl_real_y(g):
+    """The real y with g(y) = 0, for g free of Abs."""
+    p = sp.Poly(g, RL_Y)
+    if p.degree() < 1:
+        return []
+    if p.degree() == 1:
+        c1, c0 = p.all_coeffs()
+        return [-c0 / c1]
+    return sorted(set(sp.real_roots(p)), key=lambda v: float(v))
+
+
+def rl_ys(F, x0):
+    """The y on F = 0 at x0, each once."""
+    g = F.subs(X, x0)
+    if g.has(sp.zoo, sp.nan):
+        return []
+    ab = [a for a in g.atoms(sp.Abs) if a.has(RL_Y)]
+    if not ab:
+        return rl_real_y(sp.expand(g))
+    out = set()
+    for sign in (1, -1):
+        for v in rl_real_y(sp.expand(g.subs(ab[0], sign * ab[0].args[0]))):
+            if sp.simplify(g.subs(RL_Y, v)) == 0:
+                out.add(v)
+    return sorted(out, key=lambda v: float(v))
+
+
+def rl_points(F, dom):
+    """x -> the y's, on the half-integer inputs the rule allows."""
+    lo = sp.Integer(0) if dom == "x ≥ 0" else None
+    need(dom in ("", "x ≥ 0"), f"a domain {dom!r}")
+    out = {}
+    for x0 in RL_XS:
+        if lo is not None and x0 < lo:
+            continue
+        ys = [v for v in rl_ys(F, x0) if v.is_real]
+        if ys:
+            out[x0] = ys
+    return out
+
+
+def rl_cross(curves, x0):
+    """The y where the drawn curves cross x = x0."""
+    out = []
+    for c in curves:
+        for (xa, ya), (xb, yb) in zip(c, c[1:]):
+            if xa != xb and min(xa, xb) <= x0 <= max(xa, xb):
+                y = ya + (yb - ya) * (x0 - xa) / (xb - xa)
+                if not any(abs(y - o) < 1e-3 for o in out):
+                    out.append(y)
+    return out
+
+
+def rl_is_fn(curves):
+    """The vertical line test on what is drawn."""
+    for c in curves:
+        for (xa, ya), (xb, yb) in zip(c, c[1:]):
+            if abs(xa - xb) < 1e-9 and abs(ya - yb) > 1e-6:
+                return False
+    return all(len(rl_cross(curves, x0)) <= 1 for x0 in RL_GRID)
+
+
+def rl_is_one(curves):
+    """The horizontal line test on what is drawn."""
+    return rl_is_fn([[[y, x] for x, y in c] for c in curves])
+
+
+def rl_on_graph(curves, x0, y0):
+    return any(abs(y - y0) < RL_TOL for y in rl_cross(curves, x0))
+
+
+def rl_int(t):
+    return int(t.replace("−", "-"))
+
+
+def rl_function_claim(text, is_fn, on, yes):
+    """Whether an option on 'is it a function?' is true, for a relation with these points."""
+    if text == yes:
+        return is_fn
+    m = RL_GIVES.search(text)
+    if m:
+        a, b, c = map(rl_int, m.groups())
+        return not is_fn and b != c and on(a, b) and on(a, c)
+    return False
+
+
+def rl_many_ref(q, on):
+    """The options that say a true many-to-one fact and call it 'not a function'."""
+    out = set()
+    for o in q["choices"]:
+        m = RL_BOTH.search(o["text"])
+        if m:
+            a, b, y = map(rl_int, m.groups())
+            if a != b and on(a, y) and on(b, y):
+                out.add(o["text"])
+    return out
+
+
+def rl_finish(q, claim, wr):
+    true = [o["text"] for o in q["choices"] if claim(o["text"])]
+    need(len(true) == 1, f"{len(true)} true options: {true}")
+    gc_check_common(q, true[0], wr)
+
+
+def rl_words(q):
+    """name -> outputs, from the listing, and the input and output nouns from the question."""
+    m = re.fullmatch(r"Taking each (\w+) as the input and each (\w+) as the output, is this a function\?", q["asked"])
+    need(m is not None and q["lines"][0].endswith(":"), "can't read the words")
+    who, what = m.groups()
+    need(who in q["lines"][0].lower() and what in q["lines"][0].lower(), "the rule isn't about the question's nouns")
+    pairs = {}
+    for part in re.findall(r"(\w+): ([^.]+)\.", q["lines"][1]):
+        need(part[0] not in pairs, f"{part[0]} is listed twice")
+        pairs[part[0]] = part[1].split(" and ")
+    need(len(pairs) >= 4, "too few inputs")
+    return who, pairs
+
+
+def rl_mapping_claim(pairs, who):
+    """The claims on a mapping: pairs is input -> outputs."""
+    is_fn = all(len(set(v)) == 1 for v in pairs.values())
+
+    def claim(text):
+        if text == f"A function: each {who} has one output":
+            return is_fn
+        if text.startswith("A function:"):
+            return False
+        m = re.fullmatch(r"Not a function: (.+) has two outputs, (.+) and (.+)", text)
+        if m:
+            return m.group(1) in pairs and m.group(2) in pairs[m.group(1)] and m.group(3) in pairs[m.group(1)] and m.group(2) != m.group(3)
+        return False
+    return claim, is_fn
+
+
+def rl_share_ref(q, pairs):
+    out = set()
+    for o in q["choices"]:
+        m = re.fullmatch(r"Not a function: (.+) and (.+) share the output (.+)", o["text"])
+        if m:
+            need(m.group(1) != m.group(2) and m.group(3) in pairs[m.group(1)] and m.group(3) in pairs[m.group(2)], f"{o['text']!r} isn't so")
+            out.add(o["text"])
+    return out
+
+
+def rl_table(q):
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "x" and rows[1][0] == "y" and len(rows[0][1]) == 6 == len(rows[1][1]), "the table of pairs")
+    return [(rl_int(a), rl_int(b)) for a, b in zip(rows[0][1], rows[1][1])]
+
+
+def rl_restrict(F, text, pts):
+    """Whether 'Keep only …' leaves at most one y at every input, and keeps all the inputs."""
+    t = text.removeprefix("Keep only ").replace("−", "-")
+    m = re.fullmatch(r"(-?\d+) ≤ y ≤ (-?\d+)", t)
+    if m:
+        lo, hi = map(int, m.groups())
+        keep = lambda x, y: lo <= y <= hi
+    else:
+        m = re.fullmatch(r"([xy]) (≥|≤|≠) (-?\d+)", t)
+        need(m is not None, f"can't read {text!r}")
+        v, rel, c = m.group(1), m.group(2), int(m.group(3))
+        keep = lambda x, y: {"≥": (x if v == "x" else y) >= c, "≤": (x if v == "x" else y) <= c, "≠": (x if v == "x" else y) != c}[rel]
+    left = {x: [y for y in ys if keep(x, y)] for x, ys in pts.items()}
+    return all(len(ys) <= 1 for ys in left.values()) and all(left[x] for x in pts)
+
+
+def rl_lines_on(curves, a, b):
+    vert = [c for c in curves if all(abs(p[0] - a) < 1e-9 for p in c)]
+    horiz = [c for c in curves if all(abs(p[1] - b) < 1e-9 for p in c)]
+    need(len(curves) == 2 and len(vert) == 1 and len(horiz) == 1, "the graph is not the two lines")
+
+
+def rl_on_eq(F):
+    return lambda x0, y0: sp.simplify(F.subs({X: x0, RL_Y: y0})) == 0
+
+
+def check_relation(q):
+    rl_check(q)
+    return None, None
+
+
+def rl_check(q):
+    u, rep, L = q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    need(q["paper"] == 1, "an extension type is Paper 1")
+    bf_no_hyphens(q)
+    if u == "from-graph":
+        curves = q["graph"]["curves"]
+        is_fn = rl_is_fn(curves)
+        on = lambda a, b: rl_on_graph(curves, a, b)
+        wr = {RL_R0: rl_many_ref(q, on)}
+        wr[RL_R1] = {"A function: no horizontal line crosses it twice", "Not a function: a horizontal line crosses it twice"}
+        if is_fn:
+            need(rl_is_one(curves) or wr[RL_R0], "a many-to-one function with no many-to-one option")
+        return rl_finish(q, lambda t: rl_function_claim(t, is_fn, on, RL_YES_GRAPH), wr)
+    if u == "from-equation":
+        F, _ = rl_eq(L[0])
+        pts = rl_points(F, "")
+        is_fn = all(len(ys) == 1 for ys in pts.values())
+        on = rl_on_eq(F)
+        return rl_finish(q, lambda t: rl_function_claim(t, is_fn, on, RL_YES_EQ), {RL_R0: rl_many_ref(q, on)})
+    if u == "from-mapping":
+        if rep == "words":
+            who, pairs = rl_words(q)
+        else:
+            who, pairs = "x", defaultdict(list)
+            for a, b in rl_table(q):
+                pairs[f"x = {frac_text(a)}"].append(frac_text(b))
+        claim, _ = rl_mapping_claim(pairs, who)
+        return rl_finish(q, claim, {RL_R0: rl_share_ref(q, pairs)})
+    if u == "one-to-one":
+        if rep == "graph":
+            graphs, ch = q["graphs"], q["choices"]
+            need(len(graphs) == 4 and len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+            ones = [o["text"] for o, gr in zip(ch, graphs) if rl_is_fn(gr["curves"]) and rl_is_one(gr["curves"])]
+            need(len(ones) == 1, f"{ones} are one-to-one")
+            for o, gr in zip(ch, graphs):
+                need(rl_is_fn(gr["curves"]), f"{o['text']} is not a function")
+                if not o["correct"]:
+                    m = RL_BOTH.search(o["why"])
+                    need(o["mistake"] == "many-to-one" and m is not None, "a wrong graph doesn't say what is wrong")
+                    a, b, y = map(rl_int, m.groups())
+                    need(a != b and rl_on_graph(gr["curves"], a, y) and rl_on_graph(gr["curves"], b, y), f"{o['why']!r} is not on the graph")
+            return gc_check_common(q, ones[0], {})
+        if rep == "table":
+            ps = rl_table(q)
+            need(len({a for a, _ in ps}) == len(ps), "not a function: an input repeats")
+            on = lambda a, b: (a, b) in ps
+            one = len({b for _, b in ps}) == len(ps)
+        else:
+            F, dom = rl_eq(L[0])
+            pts = rl_points(F, dom)
+            need(all(len(ys) == 1 for ys in pts.values()), "not a function")
+            ys = [ys_[0] for ys_ in pts.values()]
+            one = len(set(ys)) == len(ys)
+            on = (lambda a, b: a >= 0 and rl_on_eq(F)(a, b)) if dom else rl_on_eq(F)
+
+        def claim(t):
+            if t == RL_YES_ONE:
+                return one
+            m = RL_BOTH.search(t)
+            if m and t.startswith("No: "):
+                a, b, y = map(rl_int, m.groups())
+                return not one and a != b and on(a, y) and on(b, y)
+            return False
+        return rl_finish(q, claim, {RL_R0: {"No: it is not a function, so it has no inverse"}})
+    if u == "vertical-line":
+        m = re.search(r"x = (−?\d+) and y = (−?\d+)\.$", L[0])
+        need(m is not None, "can't read the lines")
+        a, b = m.group(1), m.group(2)
+        if rep == "graph":
+            rl_lines_on(q["graph"]["curves"], rl_int(a), rl_int(b))
+        say = lambda xf, yf: f"x = {a} {'is' if xf else 'is not'} a function; y = {b} {'is' if yf else 'is not'} a function"
+        return gc_check_common(q, say(False, True), {RL_R2: {say(True, True), say(True, False)}, RL_R1: {say(False, False)}})
+    if u == "make-it-a-function":
+        eq = re.sub(r"^(Relation: |The graph shows the relation )", "", L[0]).rstrip(".")
+        F, _ = rl_eq(eq)
+        pts = rl_points(F, "")
+        need(any(len(ys) == 2 for ys in pts.values()), "the relation is already a function")
+        if q["format"] == "pick-the-graph":
+            graphs, ch = q["graphs"], q["choices"]
+            need(len(graphs) == 4 and len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+            on = rl_on_eq_close(F)
+            good = []
+            for o, gr in zip(ch, graphs):
+                for c in gr["curves"]:
+                    need(all(on(p) for p in c[::17]), f"{o['text']} is not part of the relation")
+                if rl_is_fn(gr["curves"]):
+                    good.append(o["text"])
+                need(o["correct"] or o["why"] != "", "a wrong graph doesn't say what is wrong")
+            need(len(good) == 1, f"{good} are functions")
+            return gc_check_common(q, good[0], {})
+        return rl_finish(q, lambda t: rl_restrict(F, t, pts), {})
+    raise Fail(f"no check for {u}")
+
+
+def rl_on_eq_close(F):
+    g = sp.lambdify((X, RL_Y), F, "math")
+    return lambda p: abs(g(p[0], p[1])) < 1e-6
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -13212,7 +13519,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
-                    "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one}
+                    "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
