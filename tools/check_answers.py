@@ -12616,7 +12616,7 @@ def sd_read(q):
                 out[k] = sd_len(v)
     else:
         text = " ".join(q["lines"])
-        for mt in re.finditer(r"[Tt]he ([a-z' ]+?) is (\d+(?:\.\d+)?(?: cm| m|°))(?=[ ,.])", text):
+        for mt in re.finditer(r"[Tt]he ((?:(?! is )[a-z' ])+) is (\d+(?:\.\d+)?(?: cm| m|°))(?=[ ,.])", text):
             if mt.group(1) not in ("volume", "total surface area"):
                 out[SD_NAMES[mt.group(1)]] = sd_len(mt.group(2))
     if "d" in out and out["d"] is not None:
@@ -12724,6 +12724,8 @@ def check_solid(q):
     V, S = SD_V, SD_S
     pi = True
     r, h, l, c = m.get("r"), m.get("h"), m.get("l"), m.get("c")
+    if shape == "inscribed":
+        h = h if h is not None else c
     if q["graph"] is None and u not in ("hollow-surface", "hollow-volume-from-surface", "surface-from-volume"):
         need(not any(x is None for x in m.values()), f"a letter in the words: {m}")
     table, want, trap, wrongs, x = {}, None, None, {}, None
@@ -12890,8 +12892,6 @@ def check_solid(q):
         Vv, has_pi = sd_given(q, "volume")
         need(not has_pi, "a Paper 2 volume is a number")
         cone = shape == "cone-hemisphere"
-        y = sp.Symbol("y", positive=True)
-        solve = lambda a, b: mpmath.findroot(lambda v: mpmath.pi * (mpmath.mpf(a) * v ** 3 + mpmath.mpf(b) * v * v) - mpmath.mpf(str(Vv)), 4)
         p23, p43 = sp.Rational(2, 3), sp.Rational(4, 3)
         b = sp.Rational(h) / 3 if cone else sp.Rational(c)
         roots = [sd_root(p23, b, Vv)]
@@ -12901,7 +12901,6 @@ def check_solid(q):
         want, trap, wrongs = sd_set(q, "r = ", x, unit, False, {V + "1": [slip]})
     elif u == "volume-in-terms":
         need("in terms of x" in q["asked"], q["asked"])
-        lab = {k: q["graph"][k] if q["graph"] else None for k in ("r", "h", "c") if q["graph"] and k in q["graph"]}
         rx, hx, cc = sd_x_measures(q)
         v = {"cone": [(sp.Rational(rx * rx * (hx or 0), 3), "πx³")], "sphere": [(sp.Rational(4 * rx ** 3, 3), "πx³")],
              "hemisphere": [(sp.Rational(2 * rx ** 3, 3), "πx³")],
@@ -13005,7 +13004,7 @@ def check_solid(q):
     expr_answer = q.pop("_expr", False)
     gc_check_common(q, want, wrongs, trap, steps=(2, 5))
     pairs = sd_steps(q)
-    need(pairs > 0 or expr_answer or u in ("slant-from-total", "composite-volume-solve", "radius-from-volume", "height-from-volume") or paper == 2 or True, "no working was read")
+    need(pairs > 0 or expr_answer or u in ("slant-from-total", "composite-volume-solve", "radius-from-volume", "height-from-volume"), "no working was read")
     return None, None
 
 

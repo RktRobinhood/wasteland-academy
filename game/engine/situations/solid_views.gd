@@ -644,7 +644,7 @@ func u_volume_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			keys.append("h")
 			over.h = in_x(s, s.hx)
 			out.wrongs = [expr_wrong(head, [[third.mul(3), "πx³"]], R_THIRD)]
-			out.generic = [expr(head, [[third.mul(2), "πx³"]]).values, expr(head, [[third.add(1), "πx³"]]).values, expr(head, [[third.add(2), "πx³"]]).values]
+			out.generic = [expr(head, [[third.mul(2), "πx³"]]).values, expr(head, [[third.add(1), "πx³"]]).values, expr(head, [[third.add(2), "πx³"]]).values, expr(head, [[third.add(4), "πx³"]]).values, expr(head, [[third.add(5), "πx³"]]).values]
 		"sphere":
 			terms = [[dome.mul(2), "πx³"]]
 			out.wrongs = []
