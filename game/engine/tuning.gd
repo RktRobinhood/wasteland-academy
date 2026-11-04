@@ -203,6 +203,10 @@ const CHAINS := {
 	# needs a whole midpoint and a line through it, so it stays a single question.)
 	"fn-line-from-conditions": ["gradient-from-two-points", "perpendicular-gradient", "perpendicular-through-point",
 		"unknown-coordinate", "triangle-area"],
+	# name the moves hidden in f(bx − e), then the moves that undo them, in order
+	"fn-transform-describe": ["describe-factor-inside", "describe-the-reverse"],
+	# a point through the moves, the new rule, its domain and range
+	"fn-transform-apply": ["image-point", "rule-from-moves", "domain-range-of-g"],
 }
 
 

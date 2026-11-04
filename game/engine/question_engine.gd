@@ -108,6 +108,9 @@ static var SITUATIONS := {
 	"fn-pre-linear-equations": [LinearEquationSituation, LinearEquationViews],
 	"fn-pre-simultaneous": [SimultaneousSituation, SimultaneousViews],
 	"fn-link-rate-of-change": [LinkRateSituation, LinkRateViews],
+	"transform-chain": [TransformChainSituation, TransformChainViews],
+	"fn-link-transformations": [LinkTransformationsSituation, LinkTransformationsViews],
+	"fn-link-vectors": [LinkVectorsSituation, LinkVectorsViews],
 }
 
 static var _cat: Dictionary = {}
