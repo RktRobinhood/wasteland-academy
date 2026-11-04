@@ -19669,7 +19669,7 @@
 					"kind": "true-false-reason",
 					"prompt": "If the bearing of B from A is 070°, the bearing of A from B is 290°.",
 					"answer": "False: 290° is 360° − 070°. The way back is the opposite direction, 070° + 180° = 250°.",
-					"level": 2
+					"level": 3
 				},
 				{
 					"kind": "always-sometimes-never",
@@ -20358,7 +20358,7 @@
 					"kind": "interpret-parameter",
 					"prompt": "What does 1 radian mean on a circle?",
 					"answer": "It is the angle at the centre where the arc is as long as the radius, because l = rθ gives l = r when θ = 1.",
-					"level": 2
+					"level": 3
 				}
 			],
 			"misconceptions": [
