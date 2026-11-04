@@ -259,17 +259,20 @@ func _cumfreq() -> void:
 	var y1 := float(spec.y1)
 	var dx := float(spec.dx)
 	var dy := float(spec.dy)
-	var r := Rect2(Vector2(PAD + 96, PAD + 10), size - Vector2(PAD * 2 + 120, PAD + 116))
+	var r := Rect2(Vector2(PAD + 96, PAD + 10), size - Vector2(PAD * 2 + 138, PAD + 116))
 	var to_px := func(x: float, yv: float) -> Vector2:
 		return Vector2(r.position.x + x / x1 * r.size.x, r.end.y - yv / y1 * r.size.y)
+	# The squares are read, so they are drawn stronger than a grid that is only a backdrop.
+	var fine := Color(1, 1, 1, 0.17)
+	var bold := Color(1, 1, 1, 0.42)
 	var across := roundi(x1 / dx)
 	var up := roundi(y1 / dy)
 	for k in across + 1:
-		draw_line(to_px.call(k * dx, 0.0), to_px.call(k * dx, y1), UiTheme.GRID_MAJOR if k % 5 == 0 else UiTheme.GRID, 2.0)
+		draw_line(to_px.call(k * dx, 0.0), to_px.call(k * dx, y1), bold if k % 5 == 0 else fine, 2.0)
 		if k % 5 == 0 and k > 0:
 			_text(_n(k * dx), to_px.call(k * dx, 0.0) + Vector2(0, 42), UiTheme.DIM, FONT_SIZE - 6)
 	for k in up + 1:
-		draw_line(to_px.call(0.0, k * dy), to_px.call(x1, k * dy), UiTheme.GRID_MAJOR if k % 5 == 0 else UiTheme.GRID, 2.0)
+		draw_line(to_px.call(0.0, k * dy), to_px.call(x1, k * dy), bold if k % 5 == 0 else fine, 2.0)
 		if k % 5 == 0 and k > 0:
 			var label := _n(k * dy)
 			var w := get_theme_default_font().get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 6).x

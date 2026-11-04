@@ -116,7 +116,7 @@ static func _knots(rng: Seeded, levels: Array, xs: Array) -> Array:
 			continue
 		used[h] = true
 		var t: float = h / float(SQUARES)
-		var i := roundi(mid + spread * log(t / (1.0 - t)) + rng.int_in(-1, 1) * 0.5)
+		var i := roundi(mid + spread * log(t / (1.0 - t)))
 		if i <= i0 or i >= i1 or at.has(i):
 			return []
 		at[i] = h
