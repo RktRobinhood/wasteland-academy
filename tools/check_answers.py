@@ -15,10 +15,13 @@ with the GDScript engine. It checks that:
 
 It also counts the catalogue's coverage cells straight from
 curriculum/question-types.json and fails if any cell has fewer than 50 questions or
-any type fewer than 1,000.
+any type fewer than 1,000. An export of one shard can't meet those on its own, so it
+writes summary.json beside the export instead, and --merge runs them on all the shards
+together (FAL-722). A shard that is missing or there twice is a failure.
 
     tools/check-answers            (exports, then runs this)
     python3 tools/check_answers.py questions.json
+    python3 tools/check_answers.py --merge dir   (every summary.json under dir)
 """
 
 import json
@@ -10899,9 +10902,8 @@ def check_chain(parts):
         need(c["part"] == "abcdefgh"[prev["part"]], f"part {q['part']} names the wrong part")
 
 
-def main():
-    path = Path(sys.argv[1] if len(sys.argv) > 1 else ROOT / "_scratch/check-answers/questions.json")
-    data = json.loads(path.read_text())
+def check_questions(data):
+    """Checks every question in an export. The summary is all the report needs."""
     qs = data["questions"]
     by_cell = defaultdict(lambda: [0, 0])
     by_type = defaultdict(lambda: [0, 0])
@@ -10936,16 +10938,68 @@ def main():
             chain_failures.append(f"{name}: {e}")
     failures += [f"chain {m}" for m in chain_failures]
 
+    return {
+        "shard": data.get("shard", [1, 1]),
+        "by_cell": by_cell,
+        "by_type": by_type,
+        "failures": failures,
+        "chains": len(chains),
+        "chain_parts": sum(len(v) for v in chains.values()),
+        "chain_failures": len(chain_failures),
+        "problems": [f"export error: {e['view']}: {e['error']}" for e in data.get("errors", [])],
+        "error_types": [e["view"]["type"] for e in data.get("errors", [])],
+    }
+
+
+def merged_summaries(root):
+    """All the shards' summaries as one, with a problem for any shard not there once."""
+    parts = [json.loads(p.read_text()) for p in sorted(Path(root).rglob("summary.json"))]
+    if not parts:
+        sys.exit(f"FAIL no summary.json under {root}")
+    n = parts[0]["shard"][1]
+    seen = sorted(p["shard"][0] for p in parts)
+    out = {
+        "shard": [1, 1],
+        "by_cell": defaultdict(lambda: [0, 0]),
+        "by_type": defaultdict(lambda: [0, 0]),
+        "failures": [],
+        "chains": 0,
+        "chain_parts": 0,
+        "chain_failures": 0,
+        "problems": [],
+        "error_types": [],
+    }
+    if seen != list(range(1, n + 1)) or any(p["shard"][1] != n for p in parts):
+        out["problems"].append(f"shards: have {[p['shard'] for p in parts]}, want each of 1 to {n} once")
+    for p in parts:
+        for key in ("by_cell", "by_type"):
+            for k, (made, bad) in p[key].items():
+                out[key][k][0] += made
+                out[key][k][1] += bad
+        for key in ("failures", "problems", "error_types"):
+            out[key] += p[key]
+        for key in ("chains", "chain_parts", "chain_failures"):
+            out[key] += p[key]
+    return out
+
+
+def report(s):
+    """Prints the tables. Coverage only counts when the summary is the whole catalogue."""
+    by_cell, by_type = s["by_cell"], s["by_type"]
+    failures, problems = s["failures"], s["problems"]
+    whole = s["shard"][1] == 1
+    if not whole:
+        print(f"Shard {s['shard'][0]} of {s['shard'][1]}: coverage is checked when the shards are merged")
+        print()
     types = sorted(by_type)
-    cat = catalogue_cells(set(types) | {e["view"]["type"] for e in data.get("errors", [])})
-    problems = [f"export error: {e['view']}: {e['error']}" for e in data.get("errors", [])]
+    cat = catalogue_cells(set(types) | set(s["error_types"]))
 
     print("Per type")
     print(f"  {'type':34} {'questions':>9} {'failed':>7} {'cells':>13}")
     for t in sorted(cat):
         made = sum(1 for c in cat[t] if by_cell[c][0] > 0)
         print(f"  {t:34} {by_type[t][0]:>9} {by_type[t][1]:>7} {made:>6} of {len(cat[t]):<4}")
-        if by_type[t][0] < MIN_PER_TYPE:
+        if whole and by_type[t][0] < MIN_PER_TYPE:
             problems.append(f"{t}: {by_type[t][0]} questions, fewer than {MIN_PER_TYPE}")
     print()
     print("Per cell (type | unknown | representation | angle)")
@@ -10953,15 +11007,16 @@ def main():
     for t in sorted(cat):
         for c in cat[t]:
             n, bad = by_cell[c]
-            print(f"  {c:100} {n:>9} {bad:>7}")
-            if n < MIN_PER_CELL:
+            if whole or n:
+                print(f"  {c:100} {n:>9} {bad:>7}")
+            if whole and n < MIN_PER_CELL:
                 problems.append(f"{c}: {n} questions, fewer than {MIN_PER_CELL}")
     extra = sorted(set(by_cell) - {c for cs in cat.values() for c in cs})
     for c in extra:
         problems.append(f"{c}: not a catalogue cell")
     print()
     total = sum(v[0] for v in by_type.values())
-    print(f"Boss chains: {len(chains)}, {sum(len(v) for v in chains.values())} parts, {len(chain_failures)} failed")
+    print(f"Boss chains: {s['chains']}, {s['chain_parts']} parts, {s['chain_failures']} failed")
     print(f"{total} questions, {len(failures)} failed, {sum(len(v) for v in cat.values())} catalogue cells")
     for msg in failures[:40]:
         print("FAIL " + msg)
@@ -10969,7 +11024,16 @@ def main():
         print(f"... and {len(failures) - 40} more")
     for msg in problems:
         print("FAIL " + msg)
-    sys.exit(1 if failures or problems else 0)
+    return 1 if failures or problems else 0
+
+
+def main():
+    if sys.argv[1:2] == ["--merge"]:
+        sys.exit(report(merged_summaries(sys.argv[2])))
+    path = Path(sys.argv[1] if len(sys.argv) > 1 else ROOT / "_scratch/check-answers/questions.json")
+    summary = check_questions(json.loads(path.read_text()))
+    path.with_name("summary.json").write_text(json.dumps(summary))
+    sys.exit(report(summary))
 
 
 if __name__ == "__main__":
