@@ -1783,7 +1783,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 6 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 10 exam types have them so far.
 
 #### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 11 bank parts)
 
@@ -1838,6 +1838,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): An event with probability 0.3 is expected 7.5 times in 25 trials, so the expected number should be given as 8. — False: an expected number is a long-run average and need not be a whole number, so 7.5 is the answer.
 - **Misconceptions used:** 2. Rounding the expected number to a whole number (it does not have to be one); Giving the probability instead of the expected number.
 
+#### Venn diagrams, two-way tables and the addition rule (`t4-venn-addition-rule`, exam, 11 bank parts)
+
+- **Situation:** Two events in one sample space.
+- **Representations:** **equation**, **words**, **diagram**, **table** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given P(A); P(B); P(A ∩ B) → P(A ∪ B)
+  - **exam** L2: given P(A); P(B); P(A ∪ B) → P(A ∩ B)
+  - **exam** L2: given P(A); P(B); P(A ∩ B) → P(A′ ∩ B′)
+  - **exam** L1: given a Venn diagram with all four regions → P(A ∪ B)
+  - **exam** L2: given a two-way table → the probability of A or B
+  - **exam** L2: given P(A) and P(A ∩ B), or a Venn diagram → P(A ∩ B′)
+  - new L2: given a Venn diagram or a story → the probability of exactly one of the events
+  - **exam** L2: given n(U), n(A), n(B) and n(A ∩ B) → the number outside both circles
+  - **exam** L3: given each region in terms of x, and the total → x
+  - **exam** L1: given a two-way table with a cell hidden → the hidden entry
+  - **exam** L4: given P(A) and P(B), adding to more than 1 → the least possible P(A ∩ B)
+  - **exam** L4: given P(A) and P(B) → the greatest possible P(A ∩ B)
+- **Angles:** Addition rule; Add the Venn diagram regions; 1 − P(neither); Two-way table; Fill from the middle outwards; Regions add up to the total; Set-notation identities.
+- **Concept probes:**
+  - *true-false-reason* (L3): If P(A) = 0.7 and P(B) = 0.6, then A and B must overlap. — True: the two add to 1.3, and a probability can't be above 1, so at least 0.3 has to be counted twice, in the overlap.
+  - *always-sometimes-never* (L3): P(A ∪ B) = P(A) + P(B). — Sometimes: it holds exactly when P(A ∩ B) = 0, so the events can't happen together. Otherwise the overlap is counted twice.
+  - *true-false-reason* (L3): P(A ∩ B′) is the probability that neither A nor B happens. — False: it is A happening without B, one crescent of the diagram. Neither is A′ ∩ B′, the region outside both circles.
+- **Misconceptions used:** 6. Adding P(A) + P(B) without subtracting the overlap (double counting); Multiplying P(A) × P(B) for 'A or B'; Confusing 'A or B' (the union) with 'exactly one of A and B'; Writing n(A) in the 'A only' region without subtracting the intersection; Forgetting the region outside both circles; Reading A ∩ B′ as 'neither A nor B'.
+
 #### Expected value of a discrete random variable, fair games (`t4-expected-value`, exam, 17 bank parts)
 
 - **Situation:** One discrete random variable with its probability distribution, shared with `t4-discrete-distribution`, `t4-expected-occurrences`.
@@ -1889,6 +1913,74 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): For X ~ B(n, p), the most likely value of X is the whole number nearest to np. — Sometimes: it usually is, but for X ~ B(7, 0.1) the most likely value is 0 (P(X = 0) = 0.478 and P(X = 1) = 0.372) while np = 0.7 is nearest to 1.
   - *true-false-reason* (L4): For any binomial distribution, Var(X) is smaller than E(X). — True: Var(X) = np(1 − p) = E(X)(1 − p), and 1 − p is less than 1, so the variance is always smaller than the mean. That is why Var(X) ÷ E(X) gives 1 − p.
 - **Misconceptions used:** 14. Writing B(p, n) instead of B(n, p); Leaving out the nCr factor and giving just p^r (1 − p)^(n − r); Swapping the powers: p^(n − r) (1 − p)^r; Using the cumulative function (binomcdf) for 'exactly r'; P(X ≥ 3) = 1 − P(X ≤ 3) (it should be 1 − P(X ≤ 2)); Using P(X ≤ 5) for P(X < 5); P(2 < X ≤ 6) = P(X ≤ 6) − P(X ≤ 3) (it should subtract P(X ≤ 2)); Var(X) = np (forgetting the factor 1 − p); Giving np(1 − p) when the standard deviation is asked for; Rounding E(X) to a whole number; Rounding n down instead of up to the next whole number; Taking p = Var(X) ÷ E(X) (that gives 1 − p); Finding P(X = 3) in 8 trials for 'the third success is on the eighth trial'; Multiplying the two probabilities in a conditional instead of dividing.
+
+#### Choose the right regression line; x on y; mean point on both (`t4-regression-x-on-y`, exam, 5 bank parts)
+
+- **Situation:** The two regression lines of paired data.
+- **Representations:** **table**, **equation**, **words**, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a table of x and y → the line x = cy + d, to 3 s.f.
+  - new L3: given the mean point; the gradient c of x = cy + d → d
+  - **exam** L2: given both lines; what is known and what is to be estimated → which line to use
+  - **exam** L3: given a table of x and y; a y inside the data → the estimate of x
+  - **exam** L2: given both lines to 3 s.f.; a y → the estimate of x
+  - new L3: given r; the range of y in the data; a y → whether the estimate of x is reliable
+  - **exam** L3: given both lines → the mean point
+  - **exam** L2: given one line; one of the two means → the other mean
+- **Angles:** LinReg with the lists swapped; Gradient plus the mean point; The variable you predict is the subject; Substitute y into x = cy + d; Interpolation and strength check; Solve the two lines simultaneously; Graph both lines and find the intersection; Substitute one known mean.
+- **Concept probes:**
+  - *true-false-reason* (L3): The line of x on y is the line of y on x with x made the subject. — False: they are different lines unless r = ±1. One makes the vertical gaps small and the other the horizontal gaps, though both pass through the mean point.
+  - *always-sometimes-never* (L3): The two regression lines of a set of data meet at the mean point. — Always: each line passes through (x̄, ȳ), so that point is on both.
+  - *predict-check* (L4): As r gets closer to 1, what happens to the two regression lines? — They close up on each other, and at r = ±1 they are the same line.
+- **Misconceptions used:** 7. Rearranging the y-on-x line to make x the subject (it is a different line unless r = ±1); Copying the GDC output as y = ax + b without swapping the variables back; The y-on-x line can always be used if you rearrange it; Choosing a line by which variable is on the horizontal axis, regardless of which one is being predicted; Substituting the y-value into the y-on-x line and solving for x; Calling an extrapolated estimate reliable because r is strong; Substituting x̄ into the x-on-y equation as if it were a y-value.
+
+#### Conditional probability from formula, table, tree or distribution (`t4-conditional-probability`, exam, 17 bank parts)
+
+- **Situation:** A conditional probability on events, a tree, or a distribution.
+- **Representations:** **equation**, **words**, **diagram**, **table** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given P(B) and P(A ∩ B) → P(A | B)
+  - **exam** L2: given a Venn diagram → P(A | B)
+  - **exam** L2: given a two-way table → the probability of one thing given another
+  - **exam** L3: given P(A), P(B) and P(A ∩ B) → P(A′ | B′)
+  - **exam** L3: given a table with an unknown n; a conditional probability → n
+  - **exam** L3: given P(A), P(B | A) and P(B | A′) → P(A | B)
+  - **exam** L4: given a bag of two colours; two draws without replacement → both the first colour, given that the two are the same colour
+  - **exam** L2: given P(A | B) and P(B) → P(A ∩ B)
+  - **exam** L3: given P(A), P(B) and P(A | B) → P(A ∪ B)
+  - **exam** L4: given P(A), P(A | B) and P(A ∪ B) → P(B)
+  - **exam** L4: given X ~ N(μ, σ²) and two bounds → P(X > b | X > a) and its relatives
+  - **exam** L4: given X ~ B(n, p) and two bounds → P(X ≤ k | X ≥ 1) and its relatives
+  - **exam** L3: given a probability distribution table → P(X ≥ a | X < b)
+- **Angles:** P(A ∩ B) ÷ P(B); Restrict to circle B on a Venn diagram; Imagine 100 people; Wanted path over all paths giving the condition; Formula, with P(B) found by adding branches; Imagine 1000 people; P(A ∩ B) = P(A | B) × P(B); Multiply along the tree branch; Fill a Venn diagram; Simplify the intersection, then divide; Shade both regions on a sketch; GDC for numerator and denominator.
+- **Concept probes:**
+  - *true-false-reason* (L3): P(A | B) and P(B | A) are always equal. — False: they share a numerator but divide by different things, P(B) and P(A). They are equal only if P(A) = P(B), or the overlap is empty.
+  - *always-sometimes-never* (L4): P(A | B) is greater than P(A ∩ B). — Sometimes: dividing by P(B) makes it bigger whenever P(B) < 1 and the overlap is not empty. If P(A ∩ B) = 0 both are 0, and if P(B) = 1 they are equal.
+  - *predict-check* (L4): X is normal. Without working it out, is P(X > 40 | X > 30) bigger or smaller than P(X > 40)? — Bigger: knowing X is above 30 cuts away the rest of the curve, so the same area over X > 40 is now a share of a smaller whole.
+- **Misconceptions used:** 10. Dividing by P(A) instead of P(B); Giving P(A ∩ B) as the answer without dividing; Computing P(A | B) as P(A) × P(B); Reading P(B | A) off a branch and giving it as P(A | B); Using only one path for P(B) in the denominator; P(A ∩ B) = P(A | B) ÷ P(B); Treating P(A | B) as if it were P(A ∩ B); Multiplying P(X > 35) × P(X > 30) for the numerator; Giving P(30 < X < 35) as the answer; Forgetting to divide by P(given).
+
+#### Find an unknown mean or standard deviation with z-scores (`t4-normal-unknown-parameter`, exam, 13 bank parts)
+
+- **Situation:** A normal variable with a parameter hidden.
+- **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given P(Z < k) or P(Z > k) → k
+  - **exam** L2: given X ~ N(μ, σ²) and an event for X → the same event for Z
+  - **exam** L3: given X is normal; a number of standard deviations k → P(μ − kσ < X < μ + kσ)
+  - **exam** L3: given μ; a tail area at x → σ
+  - **exam** L3: given σ; a tail area at x → μ
+  - **exam** L4: given the mean and the interquartile range → σ
+  - **exam** L4: given P(μ − a < X < μ + a) → σ
+  - **exam** L5: given two tail areas at two values → μ and σ
+  - new L2: given P(X < a) = P(X > b) → μ
+  - **exam** L4: given P(X < a) = P(X > b) = p → σ
+  - **exam** L3: given two values and their z-values → μ
+- **Angles:** invNorm on Z, then solve z = (x − μ)/σ; Solve normalcdf = p for the unknown; Standardise each bound; Check both sides on the GDC; Two equations x = μ + zσ, solved simultaneously; GDC simultaneous equation solver; Equal tails put μ in the middle.
+- **Concept probes:**
+  - *true-false-reason* (L3): If P(X < 30) = 0.2 and σ is unknown, invNorm(0.2, μ, σ) is the way to start. — False: invNorm needs σ. Use N(0, 1) first: invNorm(0.2, 0, 1) gives z, then z = (30 − μ)/σ.
+  - *interpret-parameter* (L3): X ~ N(μ, σ²) and the z-value of 62 is −1.5. What does the minus sign say? — 62 is below the mean, by one and a half standard deviations.
+  - *always-sometimes-never* (L3): Standardising P(X < a) reverses the inequality when a is below the mean. — Never: dividing by σ, which is positive, keeps the direction, wherever a is. Only the bound changes.
+- **Misconceptions used:** 7. Using the upper-tail area in invNorm without converting, so z has the wrong sign; Getting a negative σ and not noticing the sign error; Reversing the inequality sign when standardising; Standardising with the variance instead of the standard deviation; Giving both conditions a positive z when one value is below the mean; Writing (x − μ)/σ = probability instead of = z; Rounding the z-values to 1 decimal place and losing accuracy.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
