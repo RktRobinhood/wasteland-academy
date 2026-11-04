@@ -315,7 +315,8 @@ func u_input_from_output(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var ans := style(Answer.make("xs", Answer.xs_of(zs)), zs[0], s)
 	var out := {"asked": "Find every value of x for which f(x) = %s." % Fmt.num(k), "answer": ans,
 		"wrongs": [wrong(Answer.xs_of([k]), R_OUTPUT)],
-		"generic": [Answer.xs_of([zs[0]]), Answer.xs_of([zs[1]]), Answer.xs_of([zs[0].neg(), zs[1].neg()]), Answer.xs_of([s.f.co[0]])]}
+		# An option as long as the answer comes first, so a typed answer has a wrong one to match.
+		"generic": [Answer.xs_of([zs[0].neg(), zs[1].neg()]), Answer.xs_of([zs[0].add(1), zs[1].add(1)]), Answer.xs_of([zs[0]]), Answer.xs_of([zs[1]]), Answer.xs_of([s.f.co[0]])]}
 	var solve := "Solve f(x) = %s: %s = %s" % [Fmt.num(k), BasicFunctionSituation.text(s.f), Fmt.num(k)]
 	var read := "Look for %s in the outputs and read the inputs that give it" % Fmt.num(k)
 	var vals := "They are x = %s and x = %s" % [W(zs[0]), W(zs[1])]
@@ -377,7 +378,8 @@ func u_zeros(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var flipped: Array = zs.map(func(z): return z.neg())
 	var out := {"asked": "Find the zeros of f.", "answer": ans,
 		"wrongs": [wrong(Answer.xs_of(flipped), R_ZERO_SIGN), wrong(Answer.xs_of([s.y_int]), R_ZERO_YINT)],
-		"generic": [Answer.xs_of(zs.slice(0, zs.size() - 1)), Answer.xs_of(zs.slice(1)), Answer.xs_of([zs[0].add(1), zs[-1].add(1)])]}
+		# An option as long as the answer comes first, so a typed answer has a wrong one to match.
+		"generic": [Answer.xs_of(zs.map(func(z): return z.add(1))), Answer.xs_of(zs.slice(0, zs.size() - 1)), Answer.xs_of(zs.slice(1))]}
 	var has_form: bool = s.has("a") or s.fam == "cubic"
 	var form := "f(x) = " + BasicFunctionSituation.factorised(s) if has_form else ""
 	var vals := "The zeros are x = %s" % ", ".join(zs.map(func(z): return W(z)))

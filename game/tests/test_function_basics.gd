@@ -82,6 +82,18 @@ func test_every_distractor_misconception_is_an_option() -> void:
 				check(found, "%s never offers %s" % [u, ref])
 
 
+## A typed question logs a misconception by matching its wrong options, so at least one has to
+## fit the slots: a list of x-values needs a wrong list as long as the answer.
+func test_a_typed_question_has_a_wrong_option_that_can_be_typed() -> void:
+	for t in CELLS:
+		for c in _cells(t):
+			for seed in range(1, 21):
+				var q := _make(t, c, seed)
+				if QuestionEngine.is_choice(q):
+					continue
+				check(q.choices.any(func(o): return not o.correct and not o.get("trap", false) and Answer.typable(q.answer, o.values)), "%s seed %d" % [c.key, seed])
+
+
 func test_same_seed_same_question() -> void:
 	for t in CELLS:
 		for c in _cells(t):
