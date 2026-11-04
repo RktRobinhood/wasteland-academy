@@ -199,6 +199,24 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   f″ at a point, where a graph is concave up or down, and three matching questions played as
   pick the graph (f to f′, f′ to f″, and the signs of f′ and f″ to f). The Paper 2 value of f″ is
   at an x to 1 d.p.; f′(x) = a + bx − c e^x has b ≠ c, so ln(b/c) needs a calculator.
+- `engine/situations/integration.gd` (FAL-724) is `t5-indefinite-integral` (SL5.5 and SL5.10):
+  one integrand with whole-number coefficients. Its 18 unknowns ask sums of powers, the standard
+  results, composites with ax + b (a is never ±1), the reverse chain rule, and integrands to
+  rewrite first. An integral is a `form` answer and + C is part of it, so an option without it is
+  wrong. Where two shapes are both right, (ax + b)³/(3a) or the expanded polynomial, and
+  (k/2) sin² x or −(k/4) cos 2x, the method sets the shape and the other is never offered.
+- `engine/situations/definite_integral.gd` (FAL-724) is `t5-definite-integral-area` (SL5.11 and
+  SL5.5): 23 unknowns on exact values, areas with parts below the axis, an unknown limit or
+  stretch, a region cut by a tangent or a line, and a rate in a story. A value is a `form` answer
+  (`DefiniteIntegralViews.val`), so a wrong one can read differently, with + C or in rate units:
+  exact on Paper 1, and 3 s.f. on Paper 2, which only the GDC methods ask. A region is shaded on
+  its figure with the graph spec's `shade` (see `ui/graph_view.gd`).
+- `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
+  v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
+  Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found
+  numerically. Graphs are in straight pieces with whole-number corners, on axes named t and v
+  or s (`y_name`). The acceleration at maximum speed is only asked where that speed is at an end
+  of the interval, as it is 0 at a turning point of v.
 - `engine/situations/regression.gd` (FAL-695) is `t4-regression-gdc` (SL4.4, on all four
   syllabuses): paired data, 6 to 9 whole-number points near a line (x from 1 to 20, y from 8
   to 99, 0.8 ≤ |r| ≤ 0.99, up or down as the story says), so the means, the regression line
@@ -811,6 +829,12 @@ For the four FAL-723 situations it reads the function, model or graph back from 
 at 30 digits; each tagged wrong option is worked out again from its misconception, a `form`
 answer's slots must make the expression it shows, and a pick-the-graph card must be its named
 mistake (`dr_*`, `dm_*`, `mo_*`, `co_*`).
+For the three FAL-724 situations it reads the integrand, region, rate or motion back from the
+question. An indefinite integral is checked by differentiating every option, and + C counts; a
+definite integral or area is worked out again with SymPy, or mpmath for a model, split at the
+roots it finds itself, and each shaded strip must be the region asked for; rests and extremes are
+found again from v(t), exactly on Paper 1 (`check_integration`, `check_definite_integral`,
+`check_motion`).
 Each cell also gets 10 questions made on its family's shared situation, and 20 in each
 extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
@@ -1124,6 +1148,10 @@ script error happens while it runs. Run one file with
   the four FAL-723 types: built with every cell and every skill, no extra format, four
   different options, GDC methods on Paper 2 only, an expression marked by its numbers, an
   interval marked in either order, a limit graph with a gap, and matching as four graphs.
+- `test_integration.gd`, `test_definite_integral.gd`, `test_motion.gd`: the three FAL-724 types:
+  built with every cell and every skill, no extra format, four different options, GDC methods on
+  Paper 2 only, + C on every integral, the method setting the shape, a shaded region on every
+  figure, exact integrals and derivatives against hand values, and named axes.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a

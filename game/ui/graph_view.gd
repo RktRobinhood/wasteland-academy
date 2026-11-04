@@ -7,7 +7,9 @@ extends Control
 ## spec is the "graph" Dictionary of a question (quadratic_views.gd graph()). A spec
 ## with "curves" (Plot.spec(), FAL-418) draws those sampled curves instead of the
 ## parabola, plus its dashed asymptotes ("hlines", "vlines": {"at", "label"}). A spec's
-## "x_name" names the across axis ("t" for a model in time); "x" if it has none.
+## "x_name" names the across axis ("t" for a model in time) and "y_name" the up axis ("v" for
+## a velocity); "x" and "y" if it has none. "shade" fills regions under the curves (FAL-724):
+## each region is a list of strips [x, low, high] from left to right.
 
 const PAD := 18.0
 const DOT := 13.0
@@ -101,7 +103,8 @@ func _draw() -> void:
 			if not _near_point(p):
 				_text(font, _n(y), p, UiTheme.DIM, FONT_SIZE - 6, true)
 	_text(font, spec.get("x_name", "x"), Vector2(r.end.x - 14, origin.y - 12), UiTheme.DIM, FONT_SIZE, true)
-	_text(font, "y", Vector2(origin.x + 22, r.position.y + 26), UiTheme.DIM, FONT_SIZE, true)
+	_text(font, spec.get("y_name", "y"), Vector2(origin.x + 22, r.position.y + 26), UiTheme.DIM, FONT_SIZE, true)
+	_draw_shade()
 	# Axis of symmetry.
 	if spec.get("axis") != null:
 		var ax := float(spec.axis)
@@ -134,6 +137,22 @@ func _draw() -> void:
 		_text(font, p.label, at, UiTheme.TEXT, FONT_SIZE, false, true)
 	if spec.get("caption", "") != "":
 		_text(font, spec.caption, r.position + Vector2(14, 44), UiTheme.SAND, FONT_SIZE, false, true)
+
+
+## The regions in spec.shade, drawn under the curves. Neighbouring strips make a four-sided
+## piece, always convex enough to fill, and a strip off the window is clipped to it.
+func _draw_shade() -> void:
+	var col := Color(UiTheme.SAND, 0.32)
+	var y0 := float(spec.y0)
+	var y1 := float(spec.y1)
+	for region in spec.get("shade", []):
+		for i in range(1, region.size()):
+			var a: Array = region[i - 1]
+			var b: Array = region[i]
+			var quad := PackedVector2Array([to_px(Vector2(a[0], clampf(a[1], y0, y1))), to_px(Vector2(b[0], clampf(b[1], y0, y1))),
+				to_px(Vector2(b[0], clampf(b[2], y0, y1))), to_px(Vector2(a[0], clampf(a[2], y0, y1)))])
+			if absf(a[2] - a[1]) + absf(b[2] - b[1]) > 0.0:
+				draw_primitive(quad, PackedColorArray([col, col, col, col]), PackedVector2Array())
 
 
 ## Sampled curves (each [[x, y], ...]) clipped to the plot, and dashed asymptotes.
