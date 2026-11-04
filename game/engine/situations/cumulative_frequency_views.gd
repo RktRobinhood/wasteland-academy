@@ -545,7 +545,7 @@ static func card(s: Dictionary, curve: Array, win: Array) -> Dictionary:
 
 func u_pick_curve(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	# Room under the axis for its numbers.
-	var win: Array = [0, s.bs[-1] + (s.bs[1] - s.bs[0]) / 2, -s.n / 6, s.n + s.n / 10]
+	var win: Array = [0, s.bs[-1] + s.bs[1] - s.bs[0], -s.n / 6, s.n + s.n / 4]
 	var right: Array = [[s.bs[0], 0]]
 	var mids: Array = [[s.bs[0], 0]]
 	var bare: Array = [[s.bs[0], 0]]
