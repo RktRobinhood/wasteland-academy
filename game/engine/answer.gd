@@ -803,14 +803,15 @@ static func number_right(typed: Q, exact: Q) -> bool:
 	var t := exact.to_float()
 	var e := floori(log(absf(t)) / log(10.0) + 1e-12)
 	var unit := pow(10.0, e - 2)
-	var same := roundi(t / unit) == roundi(typed.to_float() / unit)
+	# An exact tie lands a hair low in binary, as in Fmt.sf: 1.025 is 1.03.
+	var same := roundi(t / unit * Fmt.TIE) == roundi(typed.to_float() / unit)
 	# Across a power of ten (0.997 against 1.002) the typed number's own 3 s.f. must
 	# agree too: 0.997 is not 1.00.
 	if same and typed.to_float() != 0.0:
 		var te := floori(log(absf(typed.to_float())) / log(10.0) + 1e-12)
 		if te != e:
 			var tu := pow(10.0, te - 2)
-			same = roundi(t / tu) == roundi(typed.to_float() / tu)
+			same = roundi(t / tu * Fmt.TIE) == roundi(typed.to_float() / tu)
 	return same or _rounded_to_own_figures(typed, t, unit)
 
 
@@ -838,7 +839,7 @@ static func _rounded_to_own_figures(typed: Q, t: float, unit: float) -> bool:
 			return false
 	if scale * unit < 1.0 - 1e-9:
 		return false
-	return roundi(t * scale) == typed.n * (scale / typed.d)
+	return roundi(t * scale * Fmt.TIE) == typed.n * (scale / typed.d)
 
 
 ## Q7 on the FAL-274 plan: the right value written with too few significant figures
@@ -860,7 +861,7 @@ static func number_glancing(typed: Q, exact: Q) -> bool:
 			return false
 	if scale * unit >= 1.0 - 1e-9:
 		return false
-	return roundi(t * scale) == typed.n * (scale / typed.d)
+	return roundi(t * scale * Fmt.TIE) == typed.n * (scale / typed.d)
 
 
 ## Whether a value can't be written exactly in 3 significant figures (2/3, 2.347), so

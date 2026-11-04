@@ -43,6 +43,64 @@ func _first(type: String, unknown: String, format: String = "value", seed: int =
 	return _make(type, unknown, c.rep, c.angle, seed, format)
 
 
+## Every table the student reads: a table without written rows is printed with Fmt.num, so its
+## values must be short fractions, and a written cell can't be a long one either.
+## 1296003119/500000000 stood in a row of f(x) until FAL-734.
+func test_no_table_shows_a_long_fraction() -> void:
+	var long := RegEx.create_from_string("/\\d{4,}")
+	for c: Dictionary in QuestionEngine.cells():
+		var q := _make(c.type, c.unknown, c.rep, c.angle, 1, "value")
+		if q.has("error") or q.table == null:
+			continue
+		var t: Dictionary = q.table
+		var values: Array = (t.xs + t.ys).map(func(v): return Fmt.num(v)) if not t.has("rows") else []
+		for row in t.get("rows", []):
+			values += row[1]
+		for v in values:
+			check(long.search(str(v)) == null, "%s: %s in the table" % [c.key, v])
+
+
+## The GDC tables are decimals to the 3 s.f. the question asks in, and the marked answer
+## (the sign change the table shows, then the zero) still agrees with them (FAL-734).
+func test_a_gdc_table_is_rounded_to_3_sf() -> void:
+	var seen := 0
+	for type_unknown in [["fn-sketch-gdc", "sketch-from-table"], ["fn-gdc-features", "zero-from-table"]]:
+		for c: Dictionary in QuestionEngine.cells(false, [type_unknown[0]]).filter(func(x): return x.unknown == type_unknown[1]):
+			for seed in range(1, 9):
+				var q := _make(c.type, c.unknown, c.rep, c.angle, seed, "value")
+				if q.has("error"):
+					continue
+				var t: Dictionary = q.table
+				check(t.has("rows"), c.key + ": the table has no written rows")
+				if not t.has("rows"):
+					continue
+				seen += 1
+				check_eq(t.rows[1][0], "f(x)", c.key)
+				check_eq(t.rows[0][1], t.xs.map(func(v): return Fmt.dec(v)), c.key)
+				check_eq(t.rows[1][1], t.ys.map(func(v): return Fmt.sf(v)), c.key)
+				for cell in t.rows[0][1] + t.rows[1][1]:
+					check(not cell.contains("/"), "%s: %s in the table" % [c.key, cell])
+				if c.unknown == "zero-from-table":
+					var i: int = t.xs.size() - 2
+					while t.ys[i].sign() == t.ys[i + 1].sign():
+						i -= 1
+					var z: float = q.answer.values.x0.to_float() if q.answer.values.has("x0") else q.answer.values.v.to_float()
+					check(t.xs[i].to_float() < z and z < t.xs[i + 1].to_float(), "%s: the zero isn't between the rows that change sign" % c.key)
+					for s in q.solutions:
+						check(s.steps[0].contains("= %s and" % t.rows[1][1][i]), "%s: the working doesn't quote the table: %s" % [c.key, s.steps[0]])
+	check(seen > 0, "a table was tried")
+
+
+## A cubic's table is exact, so its rows can land on a tie, which rounds away from zero.
+func test_an_exact_tie_rounds_away_from_zero() -> void:
+	check_eq(Fmt.sf(Q.new(-41, 40)), "−1.03", "−1.025")
+	check_eq(Fmt.sf(Q.new(71, 80)), "0.888", "0.8875")
+	check_eq(Fmt.sf(Q.new(-97, 40)), "−2.43", "−2.425")
+	check_eq(Fmt.sf(1.0249999), "1.02", "just under a tie")
+	check(Answer.number_right(Q.new(103, 100), Q.new(41, 40)), "the rounded tie is marked right")
+	check(not Answer.number_right(Q.new(102, 100), Q.new(41, 40)), "the tie rounded down is not")
+
+
 func test_the_types_are_built_with_every_cell() -> void:
 	var built := QuestionEngine.built_types()
 	for t in CELLS:

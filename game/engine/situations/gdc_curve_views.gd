@@ -93,6 +93,13 @@ static func qf(x: float) -> Q:
 	return GdcKit.qf(x)
 
 
+## The table as the student reads it: x as it ends, f(x) to the 3 s.f. the question asks
+## in. xs and ys stay exact for the checker.
+static func table_view(tb: Dictionary) -> Dictionary:
+	var rows := [["x", tb.xs.map(func(v): return Fmt.dec(v))], ["f(x)", tb.ys.map(func(v): return Fmt.sf(v))]]
+	return {"rows": rows, "xs": tb.xs, "ys": tb.ys}
+
+
 ## x rounded to n significant figures, as Q.
 static func sfq(x: float, n: int) -> Q:
 	return Answer.parse_number(Fmt.sf(x, n).replace("−", "-")).q
@@ -807,7 +814,7 @@ func u_sketch_from_table(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	var final: String = "So the sketch is %s." % out.answer.values.v
 	out.merge({
 		"asked": "The table shows values of f(x) = %s on %s. Which graph is the sketch of y = f(x)?" % [GdcCurveSituation.text(s), dom(s)],
-		"lines": [], "table": {"xs": tb.xs, "ys": tb.ys},
+		"lines": [], "table": table_view(tb),
 		"methods": {
 			"table-of-values": {"result": out.answer.values, "steps": [between,
 				"The values rise and fall as the sketch must: it has %s." % feature_list(s), final]},
@@ -1071,11 +1078,11 @@ func u_zero_from_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := num(z, "x = ")
 	var final := "So the largest zero is " + Answer.text(ans) + "."
 	var gen: Array = [{"v": a}, {"v": b}, {"v": a.add(b).div(Q.new(2))}, {"v": qf(s.zeros[0])} if s.zeros.size() > 1 else {"v": qf(s.turns[0].x)}]
-	var sign := "f(%s) = %s and f(%s) = %s have opposite signs, so the zero lies between x = %s and x = %s." % [Fmt.dec(a), Fmt.dec(tb.ys[i]),
-		Fmt.dec(b), Fmt.dec(tb.ys[i + 1]), Fmt.dec(a), Fmt.dec(b)]
+	var sign := "f(%s) = %s and f(%s) = %s have opposite signs, so the zero lies between x = %s and x = %s." % [Fmt.dec(a), Fmt.sf(tb.ys[i]),
+		Fmt.dec(b), Fmt.sf(tb.ys[i + 1]), Fmt.dec(a), Fmt.dec(b)]
 	return {
 		"asked": "The table shows values of f(x) = %s on %s. Find the interval holding the largest zero of f, then the zero to 3 s.f." % [GdcCurveSituation.text(s), dom(s)],
-		"lines": [], "table": {"xs": tb.xs, "ys": tb.ys}, "answer": ans, "generic": gen,
+		"lines": [], "table": table_view(tb), "answer": ans, "generic": gen,
 		"methods": {
 			"gdc-zero": {"result": ans.values, "steps": [sign, "Use the zero tool between them: x = %s." % W(z), final]},
 			"table-sign-change": {"result": ans.values, "steps": [sign,

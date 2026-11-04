@@ -6000,6 +6000,8 @@ def gc_table(q, f):
     need(t is not None, "no table")
     for xv, yv in zip(t["xs"], t["ys"]):
         need(gc_close(yv, f(mpmath.mpf(R(xv)))), f"the table's f({xv}) is wrong")
+    written = [["x", [dec_text(R(v)) for v in t["xs"]]], ["f(x)", [gc_s(R(v)) for v in t["ys"]]]]
+    need(t["rows"] == written, "the table's written rows are not its values to 3 s.f.")
     return [R(v) for v in t["xs"]], [R(v) for v in t["ys"]]
 
 
