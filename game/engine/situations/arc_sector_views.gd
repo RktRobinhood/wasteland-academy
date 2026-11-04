@@ -641,7 +641,7 @@ func u_major_sector(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var round_b := S(s, less(ab(0, 2), S(s, theta(s))))
 	var round_c := S(s, circle)
 	var round_t := S(s, theta(s))
-	var round_m := scale(round_t, half)
+	var round_m := S(s, scale(round_t, half))
 	var left := less(round_c, round_m)
 	out.methods = {"half-r-squared-theta": method(to_rad(s) + ["The reflex angle is 2π − %s = %s." % [W(s, theta(s)), W(s, round_b)], "A = ½r²θ = ½ × %s² × %s = %s" % [r, Br(s, round_b), W(s, scale(round_b, half))], say(ans)], ans.values),
 		"fraction-of-circle": method(["The minor sector is %s of the circle, so the major sector is what is left of 1." % part(s), "The circle's area is π × %s² = %s." % [r, W(s, round_c)], "A = %s − %s = %s" % [W(s, round_c), W(s, round_m), W(s, left)], say(ans)], ans.values),
@@ -680,7 +680,9 @@ func u_perimeter_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 
 func u_major_from_perimeter(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var big := reflex(s)
-	var half: Q = s.r.sq().div(2)
+	# A worked-back r on Paper 2 has nine places, too many to square as a Q.
+	var square: Q = s.r.sq() if s.paper == 1 else GdcKit.qf(pow(s.r.to_float(), 2))
+	var half: Q = square.div(2)
 	var v := scale(big, half)
 	var ans := ans_of(s, "A = ", v, unit2(s))
 	var t := Fmt.dec(s.t)
@@ -690,7 +692,7 @@ func u_major_from_perimeter(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	out.graph = figure(s, "minor", {"circle": true, "r_label": "r", "angle_label": t})
 	out.asked = finish(s, "Find the area of the part of the circle that isn't shaded.", ans)
 	var minor := ab(half.mul(s.t))
-	var circle := ab(0, s.r.sq())
+	var circle := ab(0, square)
 	out.wrongs = like(ans, s, minor, R_MINOR)
 	out.generic = others(ans, s, [circle, scale(circle, 2), plus(circle, minor), scale(v, 2), scale(v, Q.new(1, 2)), plus(v, ab(s.r))])
 	var rt := Fmt.sf(s.r, 5) if s.paper == 2 else R(s)
