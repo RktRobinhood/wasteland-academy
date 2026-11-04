@@ -247,7 +247,11 @@ func u_domain_sense(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c := ctx(s)
 	var dom: String = "0 ≤ %s ≤ %d" % [c.x, s.hi] if s.hi > 0 else "%s ≥ 0" % c.x
 	var pred := "%s = %s" % [c.x, str(s.xbad).replace("-", "−")]
-	var out := {"asked": "The model is used at %s. Does the prediction make sense? What is the sensible domain?" % pred, "lines": [story(s), "The model is %s." % model(s)]}
+	var lines := [story(s), "The model is %s." % model(s)]
+	# A tank being filled ends where it is full: the student needs its capacity to see that.
+	if c.limit == "full":
+		lines.append("The tank is full at %s." % amount(s, s.m.mul(s.hi).add(s.c)))
+	var out := {"asked": "The model is used at %s. Does the prediction make sense? What is the sensible domain?" % pred, "lines": lines}
 	var got := "%s = %s" % [c.y, amount(s, s.ybad)]
 	var yes := "Yes: it gives %s, and the sensible domain is %s" % [got, dom]
 	var reason: String

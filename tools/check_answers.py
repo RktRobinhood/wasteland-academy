@@ -12524,8 +12524,10 @@ def check_line_model(q):
         if ctx in (3, 5):
             end = -c / m
         elif ctx == 2:
-            end = sp.Integer(q["situation"]["hi"])
-            need(end > 0, "a tank has a full point")
+            f = re.fullmatch(rf"The tank is full at ({LC_NUM}) litres\.", L[2])
+            need(f is not None, f"can't read {L[2:]!r}")
+            end = (lc_q(f.group(1)) - c) / m
+            need(end > 0 and end.q == 1, "a tank is full at a whole number of minutes")
         dom = f"0 ≤ {x} ≤ {frac_text(end)}" if end is not None else f"{x} ≥ 0"
         out = m * v + c
         yes = f"Yes: it gives {y} = {lm_amount(ctx, out)}, and the sensible domain is {dom}"
@@ -12552,6 +12554,9 @@ def check_line_model(q):
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wr)
+    return None, None
+
+
 # ── regression-x-on-y (t4-regression-x-on-y, FAL-725) ────────
 # The `regression-x-on-y` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/regression_pair.gd. The data and the lines are read back from what the
