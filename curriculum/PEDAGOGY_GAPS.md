@@ -1731,7 +1731,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 5 exam types have them so far.
 
 #### Sine rule ambiguous case (`t3-ambiguous-case`, exam, 2 bank parts)
 
@@ -1775,6 +1775,71 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): In triangle ABC, if b² + c² − a² is negative then angle A is obtuse. — True: cos A = (b² + c² − a²)/(2bc) has the sign of the top, and a negative cosine means an angle between 90° and 180°.
   - *always-sometimes-never* (L4): Two sides and an angle opposite one of them fix exactly one triangle. — Sometimes: if the side opposite the given angle is the longer one, only one triangle fits; if it is the shorter one but longer than the altitude, the angle from sin⁻¹ and 180° minus it can both work.
 - **Misconceptions used:** 8. Evaluating (b² + c² − 2bc) cos A instead of b² + c² − (2bc cos A); Forgetting to square-root a²; Using (a² + b² − c²) / 2ab when the angle wanted is A; Thinking a negative cosine is an error, when it just means the angle is obtuse; Pairing a side with an angle that is not opposite it; Rearranging b / sin 40° = 8 / sin 65° as b = 8 sin 65° / sin 40°; Keeping B₂ = 180° − B₁ even when the angle sum then exceeds 180°; Calculator in radian mode when the angle is in degrees.
+
+#### Bearings, elevation and depression in context (`t3-bearings-elevation`, exam, 7 bank parts)
+
+- **Situation:** Journeys, sightings and connected triangles.
+- **Representations:** **words**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the bearing of B from A → the bearing of A from B
+  - **exam** L2: given B due east of A, the bearing of C from A, angle ABC → angle ACB
+  - **exam** L3: given two legs of a journey, each a distance and a bearing → the distance from the start
+  - new L4: given two legs of a journey → the bearing of the end from the start
+  - new L4: given two legs of a journey → the bearing of the start from the end
+  - **exam** L3: given B due east of A, C at a distance and bearing from A → BC
+  - **exam** L3: given B due east of A, the bearing of C from A, angle ABC → AC or BC
+  - **exam** L4: given C due west of B, the bearing of B from A, angle BAC, the length AC → angle ABC, then BC
+  - **exam** L1: given a distance along the ground and an angle of elevation → the height
+  - **exam** L2: given a height and an angle of depression → the horizontal distance
+  - new L2: given a height and a horizontal distance → the angle of depression
+  - new L2: given an observer's eye height, a distance and an angle of elevation → the height
+  - **exam** L3: given the height of a crane's arm from an angle of elevation, and a guard's height and clearance → the length of the chain
+  - **exam** L3: given a height, an angle of depression and a speed → the time to reach the point, in minutes
+  - **exam** L3: given two perpendicular distances and speeds → the time for a route
+  - new L4: given a right-angled triangle and a triangle sharing its long side → the far side
+  - new L3: given two sides and the angle between them on each side of a diagonal → the area of the quadrilateral
+  - new L3: given two sides of a triangle and the angle between them → the third side
+  - new L3: given what is known about a triangle → which rule to use first
+- **Angles:** Angle chase, then cosine and sine rules; East and north components; Back bearing ± 180°; One right triangle with tan; Move the angle of depression; Classify what each triangle gives you; Split into right triangles; Split a quadrilateral along a diagonal.
+- **Concept probes:**
+  - *true-false-reason* (L3): If the bearing of B from A is 070°, the bearing of A from B is 290°. — False: 290° is 360° − 070°. The way back is the opposite direction, 070° + 180° = 250°.
+  - *always-sometimes-never* (L3): An angle of depression from the top of a tower equals the angle of elevation of the top from the ground below. — Always: the two horizontals are parallel, so they are alternate angles.
+  - *true-false-reason* (L3): Two legs on bearings of 040° and 100° meet at an angle of 60° inside the triangle. — False: 60° is the turn. The north lines are parallel, so the angle inside is 180° − 60° = 120°.
+- **Misconceptions used:** 9. Measuring a bearing anticlockwise or from east instead of clockwise from north; Giving the bearing of A from B when asked for B from A; Using the bearings themselves as angles inside the triangle without angle chasing; Measuring the angle of depression from the vertical instead of the horizontal; Putting the angle of depression inside the triangle at the top vertex; Forgetting to add the observer's eye height; Rounding the shared side early and carrying the error into the next triangle; Assuming an angle is 90° because it looks like it; Using the sine rule in a triangle where no side–opposite angle pair is known.
+
+#### Arc length, sector area and perimeter, forwards or backwards (`t3-arc-sector`, exam, 16 bank parts)
+
+- **Situation:** One sector of a circle.
+- **Representations:** equation, **diagram**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given an angle in degrees → the angle in radians
+  - new L1: given an angle in radians → the angle in degrees
+  - **exam** L1: given r; θ → the arc length
+  - **exam** L2: given r; θ → the perimeter of the sector
+  - **exam** L2: given r; the arc length → θ
+  - **exam** L2: given θ; the arc length → r
+  - **exam** L3: given θ; the perimeter → r
+  - **exam** L3: given r; the perimeter → θ
+  - new L2: given r; the minor angle θ → the major arc
+  - **exam** L2: given the arc length, with θ unknown → an expression for r in terms of θ
+  - **exam** L3: given a strip's width, two straight sides and the radius of the curved part → θ
+  - **exam** L1: given r; θ → the area of the sector
+  - **exam** L2: given r; the area → θ
+  - **exam** L3: given θ; the area → r
+  - **exam** L2: given r; the minor angle θ → the area of the major sector
+  - **exam** L3: given r; the arc length → the area of the sector
+  - **exam** L3: given θ; the area → the perimeter of the sector
+  - **exam** L4: given θ; the perimeter of the minor sector → the exact area of the rest of the circle
+  - **exam** L3: given a sector's r and θ, rolled into a cone → the radius of the cone's base
+  - **exam** L4: given the outer radius, the angle and the area of a curved strip between two circles → the inner radius
+  - **exam** L3: given both radii and the angle of a curved strip → its perimeter
+  - **exam** L5: given a rectangular plate with two equal segments cut away, and its area → θ
+- **Angles:** Multiply by π/180 or 180/π; Fraction of a full turn; Count in landmark angles; l = rθ; Fraction of the circumference; A = ½r²θ; Fraction of the whole circle; Major sector by complement; Sector minus triangle.
+- **Concept probes:**
+  - *true-false-reason* (L3): If you double the radius of a sector and keep its angle, its area doubles. — False: A = ½r²θ, so the area goes up four times. The arc is what doubles.
+  - *always-sometimes-never* (L3): An arc is shorter than the radius of its circle. — Sometimes: l = rθ, so it holds exactly when θ is less than 1 radian.
+  - *interpret-parameter* (L3): What does 1 radian mean on a circle? — It is the angle at the centre where the arc is as long as the radius, because l = rθ gives l = r when θ = 1.
+- **Misconceptions used:** 10. Multiplying by 180/π when converting degrees to radians; Thinking π radians is 3.14° or that 1 radian is about 1°; Giving a decimal when an exact multiple of π is asked for; Using θ in degrees in l = rθ; Forgetting the two radii when finding the perimeter of a sector; Using the minor-arc angle when the major arc is asked for; Using θ in degrees in ½r²θ; Squaring θ instead of r: ½rθ²; Giving the minor sector when the major sector is asked for; Calculator in degree mode when evaluating sin θ for θ in radians.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

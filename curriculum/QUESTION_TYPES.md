@@ -553,6 +553,34 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq, method-pick, error-spot
 - **Bank parts:** 19.
 
+### t3-bearings-elevation
+
+**Bearings, elevation and depression in context.** Journeys, sightings and fields in the wasteland: back bearings, bearings and distances of a two-leg journey, angles inside a triangle from a bearing, heights and distances from angles of elevation and depression, with an observer's height and a speed where the story has them, and chains of connected triangles.
+
+- **Syllabus:** 3.3
+- **Skills:** `SL3.3.bearings`, `SL3.3.elevation-depression`, `SL3.3.multi-triangle`
+- **Where it appears:** P1 0, P2 7; Section A 1, B 6. Marks per part: usually 2 (2 to 5).
+- **Usual chain:** draw a north line at each point, or the horizontal at each eye → chase the bearings into angles inside the triangle, or move a depression to ground level → choose the rule each triangle allows: a right angle, SAS or SSS, or a side with its opposite angle → carry the exact shared side into the next triangle → turn the angle back into a bearing, or add what the triangle leaves out
+- **Given:** bearings and distances, an angle of elevation or depression and a height or a distance, two triangles sharing a side, speeds along a route. **Asked:** A bearing or back bearing, an angle inside a triangle, a distance, a height, an angle of depression, a time, an area of a quadrilateral, or the rule to use first. **Answer form:** 3 s.f., exact whole-number bearing or angle.
+- **A recipe can randomise:** the distances, bearings and angles; the story; whether a sketch is drawn; degrees or radians for an angle of elevation.
+- **Limits that keep answers clean:** every question is Paper 2; a bearing is written with three figures; an answer to 3 s.f. is clear of a rounding edge, and so is every wrong value offered; a sketch keeps the real shape, with a north line at each point that uses a bearing, unless it says it is not to scale.
+- **Game formats:** value, mcq
+- **Bank parts:** 7.
+
+### t3-arc-sector
+
+**Arc length, sector area and perimeter, forwards or backwards.** One sector of a circle, with its radius and its angle in radians, in degrees or as a multiple of π: convert the angle, find the arc, the perimeter or the area, or work back to r or θ from any of them. It also takes the major arc and major sector, a sector rolled into a cone, a curved strip between two circles and a plate with two segments cut away.
+
+- **Syllabus:** 3.4
+- **Skills:** `SL3.4.arc-length`, `SL3.4.sector-area`, `SL3.4.convert`
+- **Where it appears:** P1 9, P2 7; Section A 14, B 2. Marks per part: usually 3 (1 to 5).
+- **Usual chain:** see whether the angle is in radians, and convert it if it isn't → l = rθ for the arc, A = ½r²θ for the area → add the two radii for a perimeter → rearrange to work back to r or θ, taking the square root for r from an area → take the reflex angle or the rest of the circle for a major sector
+- **Given:** r and θ, on a labelled sector or in words, an arc, an area or a perimeter, with r or θ, a full circle with one sector cut out. **Asked:** An angle converted, the arc length, the perimeter, the area of a sector or major sector, r or θ, an expression for r in terms of θ, the radius of a cone made from a sector, or a length or area of a composite shape. **Answer form:** exact, in terms of π, exact fraction or decimal, 3 s.f..
+- **A recipe can randomise:** r and θ; radians, a multiple of π or degrees; the story; which quantity is hidden; which sector is shaded.
+- **Limits that keep answers clean:** Paper 1 is exact: r is whole, θ is a landmark multiple of π, a landmark in degrees or a simple decimal; Paper 2 has r to 1 d.p. and θ to 2 d.p. or in whole degrees, with answers to 3 s.f.; a sector is drawn to its real angle; every 3 s.f. value, right or wrong, is clear of a rounding edge.
+- **Game formats:** value, mcq
+- **Bank parts:** 16.
+
 ## Topic 4: Statistics and probability (catalogue level)
 
 | Type | Name | Syllabus | Skills | Parts | Where | Marks |

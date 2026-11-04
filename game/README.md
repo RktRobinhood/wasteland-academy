@@ -282,6 +282,24 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   where the curve starts, and pick the curve (GraphView cards, with the points at midpoints or lower
   boundaries, or the frequencies in place of the totals). A table's classes are equal, its estimates
   end in at most one decimal, and its counts are whole.
+- `engine/situations/arc_sector.gd` (FAL-726) is `t3-arc-sector` (SL3.4, AA only): one sector, with
+  θ in radians, degrees or as a multiple of π. Paper 1 is exact: every value is a + bπ, kept as
+  [a, b] and answered as a `form` whose slots follow its shape (`5π/6`, `12 + 3π`, `9π − 4.5`), and
+  a wrong option in another shape can be picked but not typed. Paper 2 is to 3 s.f., and a worked-back
+  r or θ comes from a given arc, area or perimeter to 1 d.p. Its views (`arc_sector_views.gd`) ask
+  22 unknowns: conversions, arcs, perimeters, areas, r and θ back from each, major arcs and sectors,
+  r in terms of θ, a bent strip, and a sector rolled into a cone. As the bank asks them, the curved
+  strip between two circles and the plate with two segments cut away are Paper 2 only; the plate
+  brings in `SL3.4.segment-shaded`, with θ found on the GDC. PlotView's `sector` draws the real
+  angle, and `plate` the cut plate.
+- `engine/situations/bearings_elevation.gd` (FAL-726) is `t3-bearings-elevation` (SL3.3, on all four
+  syllabuses). Every question is Paper 2. Its views (`bearings_elevation_views.gd`) ask 19 unknowns:
+  back bearings, angles from a bearing, two-leg journeys by the cosine rule or by components, due
+  east and due west triangles, elevation and depression with an eye height, a chain or a speed, a
+  route's time, connected triangles, and which rule to use (a `claim`). PlotView's `sketch` draws
+  the real coordinates, with a north line at each bearing and each label clear of the others; the
+  small angles of `time-from-depression` are marked not to scale. A bearing that is worked out stays
+  at 100° or more, so its 3 s.f. are three figures.
 - `engine/situations/data_summary.gd` (FAL-695) is `t4-summary-statistics` (SL4.3, on all four
   syllabuses): one discrete data set, shown as a list in no particular order (rep `terms`)
   or as a frequency table, all exact (`Q`). Its views (`data_summary_views.gd`) ask 11
@@ -905,6 +923,11 @@ a random draw) to find the technique, and holds each wrong disadvantage to being
 and meet the reading on a corner of the grid the scale line describes; a table's estimates come from
 its written rows, and a pick-the-graph card must hold the points its mistake says
 (`check_sampling`, `check_cumulative_frequency`).
+For the two FAL-726 situations it reads r, θ, the arc, the area, bearings and lengths back from
+the lines or the figure, and works each answer out from those, exactly with a + bπ on Paper 1, or
+at 40 digits. A sector must be drawn to the question's angle, and each length and bearing on a
+sketch must match the points drawn, to one scale. The working's arithmetic is checked from the
+figures shown (`check_arc_sector`, `check_bearings`).
 Each cell also gets 10 questions made on its family's shared situation, and 20 in each
 extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
@@ -1243,6 +1266,9 @@ script error happens while it runs. Run one file with
   one right option on each paper the type has, group sizes whole, a curve rising through grid corners
   with its class boundaries among them, a table's estimates ending, the figure drawn, every
   misconception as an option, and every course.
+- `test_arc_sector.gd`, `test_bearings.gd`: the two FAL-726 types: built with every cell and skill,
+  one right option on each paper, exact Paper 1 answers that keep π, a sector at its real angle, a
+  north line at each bearing, every misconception as an option, and the courses each is in.
 - `test_data_summary.gd`: t4-summary-statistics built with every cell and all four SL4.3
   skills; every cell in both formats with 2 to 5 steps per worked solution; the GDC cells
   Paper 2 and the by-hand unknowns Paper 1, and both papers where a cell can make both;

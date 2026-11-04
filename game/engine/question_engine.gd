@@ -43,6 +43,8 @@ const EXTRA_SHARE := 0.3
 static var SITUATIONS := {
 	"quadratic": [QuadraticSituation, QuadraticViews],
 	"triangle": [TriangleSituation, TriangleViews],
+	"arc-sector": [ArcSectorSituation, ArcSectorViews],
+	"bearings-elevation": [BearingsSituation, BearingsViews],
 	"arithmetic-sequence": [ArithmeticSequenceSituation, ArithmeticSequenceViews],
 	"distribution": [DistributionSituation, DistributionViews],
 	"quadratic-parameter": [QuadraticParameterSituation, QuadraticParameterViews],
