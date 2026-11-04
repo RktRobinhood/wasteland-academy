@@ -259,6 +259,27 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Its views (`conditional_views.gd`) ask 13 unknowns. A normal conditional on a curve shades the
   given and the wanted area, so the overlap shows darker. Answers are exact on Paper 1, in the
   numbers the question uses, and to 3 s.f. on Paper 2; normal and binomial ones are Paper 2 only.
+- `engine/situations/solid.gd` (FAL-726) is `t3-solid-volume-area` (SL3.1, on all four syllabuses):
+  one solid, as a labelled sketch (PlotView's `solid`, rep `diagram`) or in words: a cone, pyramid,
+  sphere, hemisphere, a composite of them, a hollow cylinder, a cylinder inside a sphere, or the flat
+  sector that rolls into a cone. Its views (`solid_views.gd`) ask 32 unknowns: volumes and surface
+  areas, a height from a slant height, slant height or slant edge, l and V from a total surface, r
+  and h from a volume, the cost of painting a tank, r from a composite's volume with the GDC's
+  solver (Paper 2 only), expressions in x or in r and h, and the sector's radius, angle and area.
+  Paper 1 measures are whole, from Pythagorean triples where a slant comes in, and a multiple of π
+  is a `form` answer with the multiple typed. Paper 2 measures have one decimal place and answers
+  are to 3 s.f. Expressions are Paper 1 only, except S from a cylinder's volume.
+- `engine/situations/standard_form.gd` (FAL-726) is `t1-standard-form` (SL1.1, on all four
+  syllabuses): numbers a × 10^k with a an exact `Q` and k an int, so nothing has to fit a float. Its
+  views (`standard_form_views.gd`) ask 19 unknowns: converting both ways, bringing a back between 1
+  and 10, the largest or smallest of four mixed forms, a GDC display, p × q, p/q and p²q, and
+  stories: how many times larger, a time, a total, a change of unit, a multiple of an amount and a
+  volume π(a × 10^k). An answer a × 10^k is a `form` answer with a and k typed, so 64 × 10⁵ can be
+  typed and is marked wrong, and a negative k is typed like any negative number. `form` has no
+  rounding trap of its own, so the views set one, with a to 2 s.f. E-notation is an option that can
+  be picked but never typed. The font draws every superscript digit and ⁻; `Fmt.sup` leaves a power
+  of 1 out, so `StandardFormViews.ten` writes 10¹ and 10⁰ itself. The GDC methods are Paper 2 and
+  the by-hand multiplying and dividing is Paper 1.
 - `engine/situations/data_summary.gd` (FAL-695) is `t4-summary-statistics` (SL4.3, on all four
   syllabuses): one discrete data set, shown as a list in no particular order (rep `terms`)
   or as a frequency table, all exact (`Q`). Its views (`data_summary_views.gd`) ask 11
@@ -876,6 +897,11 @@ sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and l
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
 back into erf, and a shaded area must be the area given (`check_regression_pair`,
 `check_normal_unknown`, `check_venn`, `check_conditional`).
+For the two FAL-726 situations it reads the measures back from a sketch's labels or the sentences,
+and the numbers back from the text, and finds each answer again with exact rationals and π, a
+composite's r from the roots of its cubic at 40 digits. Each number a × 10^k is normalised again
+without leaving exact numbers. Every step of the working that is plain numbers is evaluated, and
+its sides must agree to the figures shown (`check_solid`, `check_standard_form`).
 Each cell also gets 10 questions made on its family's shared situation, and 20 in each
 extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
@@ -1206,6 +1232,11 @@ script error happens while it runs. Run one file with
   early-rounding and rearranged-line slips reading differently; a line written with its
   sign; 3 s.f. marking and an exact mean point; every misconception as an option; r² as an
   option and r never 1 or more; the three concept probes; and every course having every cell.
+- `test_solid.gd`, `test_standard_form.gd`: the two FAL-726 types: each built with every cell and
+  all its skills, one right option on each paper it can make, sketches that label only what is
+  given, a right triangle in every cone and a sector that rolls into its cone, a × 10^k typed with
+  a negative k, the right value with a outside 1 to 10 marked wrong, E-notation never typed, the
+  superscripts' glyphs, and every misconception as an option.
 - `test_regression_pair.gd`, `test_normal_unknown.gd`, `test_venn.gd`, `test_conditional.gd`: the four
   FAL-725 types: each built with every cell and all its skills, one right option on each paper,
   the numbers against hand values, the figures drawn, every misconception as an option, and the
