@@ -16,6 +16,9 @@ extends Control
 ##               each region: A only, both, B only and outside
 ##   tree        {"first": [A, A′], "second": [B, B′], "p": [2 labels], "q": [[2 labels], [2 labels]]}:
 ##               a two-stage tree with the probability on every branch
+##   solid       {"shape", and the measures as text under r, d, h, l, c, big, a, b, t, e, theta}:
+##               a sketch of a cone, pyramid, sphere, hemisphere, composite, hollow cylinder,
+##               cylinder inside a sphere or flat sector, with only the given measures labelled
 
 const PAD := 26.0
 const FONT_SIZE := 32
@@ -32,7 +35,7 @@ func _init() -> void:
 
 func set_spec(s: Dictionary) -> void:
 	spec = s
-	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620}.get(s.get("kind"), 560))
+	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "solid": 640}.get(s.get("kind"), 560))
 	queue_redraw()
 
 
@@ -58,6 +61,8 @@ func _draw() -> void:
 			_venn()
 		"tree":
 			_tree()
+		"solid":
+			_solid()
 
 
 func _text(s: String, at: Vector2, col: Color, fs: int = FONT_SIZE, centred: bool = true) -> void:
@@ -246,3 +251,287 @@ func _tree() -> void:
 			var up := -28.0 if j == 0 else 40.0
 			_text(spec.q[i][j], (m + e) / 2.0 + Vector2(-10, up), UiTheme.SAND, FONT_SIZE - 2)
 			_text(second[j], e + Vector2(10, 12), UiTheme.TEXT)
+
+
+# ── Solids ───────────────────────────────────────────────────
+
+## Part of an ellipse from angle a to b, solid or dashed. Angles run clockwise from the right
+## on screen, so 0 to PI is the near side of a circle seen from above.
+func _rim(c: Vector2, rx: float, ry: float, a: float, b: float, col: Color, dashed: bool = false) -> void:
+	var n := 48
+	for i in n:
+		if dashed and i % 2 == 1:
+			continue
+		var t0 := a + (b - a) * i / n
+		var t1 := a + (b - a) * (i + 1) / n
+		draw_line(c + Vector2(cos(t0) * rx, sin(t0) * ry), c + Vector2(cos(t1) * rx, sin(t1) * ry), col, 4.0 if not dashed else 3.0, true)
+
+
+func _dashes(a: Vector2, b: Vector2, col: Color = UiTheme.DIM) -> void:
+	var n := maxi(2, int(a.distance_to(b) / 18.0))
+	for i in n:
+		if i % 2 == 0:
+			draw_line(a.lerp(b, float(i) / n), a.lerp(b, float(i + 1) / n), col, 3.0)
+
+
+func _edge(a: Vector2, b: Vector2) -> void:
+	draw_line(a, b, UiTheme.TEAL, 4.0, true)
+
+
+## A corner square at c, along the unit directions u and v.
+func _square(c: Vector2, u: Vector2, v: Vector2) -> void:
+	var s := 20.0
+	draw_polyline(PackedVector2Array([c + u * s, c + u * s + v * s, c + v * s]), UiTheme.DIM, 2.0)
+
+
+## spec[key] at a point: centred, or starting there or ending there (align -1, 0, 1).
+func _mark(key: String, at: Vector2, align: int = 0) -> void:
+	if not spec.has(key):
+		return
+	var s: String = spec[key]
+	var w := get_theme_default_font().get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 4).x
+	var x := at.x - w / 2.0 if align == 0 else (at.x if align < 0 else at.x - w)
+	_text(s, Vector2(clampf(x, 4.0, size.x - w - 4.0), at.y + 10.0), UiTheme.SAND, FONT_SIZE - 4, false)
+
+
+## A measuring line from a to b with arrow ends, and spec[key] beside it.
+func _measure(key: String, a: Vector2, b: Vector2, at: Vector2, align: int = -1) -> void:
+	if not spec.has(key):
+		return
+	draw_line(a, b, UiTheme.DIM, 3.0)
+	var u := (b - a).normalized()
+	var n := Vector2(-u.y, u.x)
+	for end in [[a, u], [b, -u]]:
+		var tip: Vector2 = end[0]
+		var dir: Vector2 = end[1]
+		draw_colored_polygon(PackedVector2Array([tip, tip + dir * 16 + n * 7, tip + dir * 16 - n * 7]), UiTheme.DIM)
+	_mark(key, at, align)
+
+
+func _solid() -> void:
+	var w := size.x
+	var h := size.y
+	var r := minf(w * 0.3, h * 0.3)
+	var mid := Vector2(w * 0.45, h * 0.5)
+	match spec.shape:
+		"cone":
+			_cone_top(Vector2(mid.x, h * 0.74), r * 1.15, h * 0.62, true)
+			_rim(Vector2(mid.x, h * 0.74), r * 1.15, r * 0.3, 0.0, PI, UiTheme.TEAL)
+			_circle_marks(Vector2(mid.x, h * 0.74), r * 1.15, r * 0.3, true)
+		"pyramid":
+			_pyramid()
+		"sphere":
+			draw_arc(mid, r * 1.2, 0.0, TAU, 96, UiTheme.TEAL, 4.0, true)
+			_rim(mid, r * 1.2, r * 0.3, 0.0, PI, UiTheme.DIM)
+			_rim(mid, r * 1.2, r * 0.3, PI, TAU, UiTheme.DIM, true)
+			_circle_marks(mid, r * 1.2, r * 0.3, false)
+		"hemisphere":
+			var c := Vector2(mid.x, h * 0.68)
+			_dome(c, r * 1.3, r * 0.34)
+			_rim(c, r * 1.3, r * 0.34, 0.0, PI, UiTheme.TEAL)
+			_circle_marks(c, r * 1.3, r * 0.34, false)
+		"cone-hemisphere":
+			var c := Vector2(mid.x, h * 0.54)
+			_cone_top(c, r, h * 0.46, false)
+			_rim(c, r, r, 0.0, PI, UiTheme.TEAL)
+			_rim(c, r, r * 0.26, 0.0, PI, UiTheme.DIM)
+			_circle_marks(c, r, r * 0.26, false)
+		"cone-cylinder":
+			var c := Vector2(mid.x, h * 0.46)
+			_cone_top(c, r, h * 0.38, false)
+			_drum(c, r, r * 0.26, h * 0.4, "c")
+			_circle_marks(c, r, r * 0.26, false)
+		"hemisphere-cylinder":
+			var c := Vector2(mid.x, h * 0.42)
+			_dome(c, r, r * 0.26)
+			_drum(c, r, r * 0.26, h * 0.42, "c")
+			_circle_marks(c, r, r * 0.26, false)
+		"cylinder-minus-hemisphere":
+			_scooped(mid, r * 1.2)
+		"capsule":
+			_capsule(mid, r * 0.8)
+		"hollow":
+			_hollow(mid, r * 1.15)
+		"inscribed":
+			_inscribed(mid, r * 1.3)
+		"sector":
+			_sector(mid, r * 1.3)
+
+
+## The slant sides of a cone over a base centred at c, with its back edge dashed. `plain` draws
+## the height from the apex and the slant label; a composite does too, but keeps its base.
+func _cone_top(c: Vector2, rx: float, tall: float, plain: bool) -> void:
+	var top := c - Vector2(0, tall)
+	_edge(top, c + Vector2(rx, 0))
+	_edge(top, c - Vector2(rx, 0))
+	var ry := rx * (0.3 if plain else 0.26)
+	_rim(c, rx, ry, PI, TAU, UiTheme.DIM, true)
+	if spec.has("h"):
+		_dashes(top, c)
+		_square(c, Vector2.UP, Vector2.RIGHT)
+		_mark("h", c + Vector2(-14, -tall * 0.42), 1)
+	_mark("l", (top + c + Vector2(rx, 0)) / 2.0 + Vector2(18, -8), -1)
+
+
+## A dome over a base centred at c, with its flat circle's back edge dashed.
+func _dome(c: Vector2, rx: float, ry: float) -> void:
+	_rim(c, rx, rx, PI, TAU, UiTheme.TEAL)
+	_rim(c, rx, ry, PI, TAU, UiTheme.DIM, true)
+
+
+## A cylinder hanging below a circle at c, and its height label.
+func _drum(c: Vector2, rx: float, ry: float, tall: float, key: String) -> void:
+	var low := c + Vector2(0, tall)
+	_edge(c + Vector2(rx, 0), low + Vector2(rx, 0))
+	_edge(c - Vector2(rx, 0), low - Vector2(rx, 0))
+	_rim(c, rx, ry, 0.0, PI, UiTheme.DIM)
+	_rim(low, rx, ry, 0.0, PI, UiTheme.TEAL)
+	_rim(low, rx, ry, PI, TAU, UiTheme.DIM, true)
+	var x := rx + 28.0
+	_measure(key, c + Vector2(x, 0), low + Vector2(x, 0), (c + low) / 2.0 + Vector2(x + 12.0, 0))
+
+
+## The radius or diameter drawn across a circle, with its label. `outside` puts a diameter's
+## label below the rim.
+func _circle_marks(c: Vector2, rx: float, ry: float, outside: bool) -> void:
+	if spec.has("d"):
+		_dashes(c - Vector2(rx, 0), c + Vector2(rx, 0), UiTheme.SAND)
+		_mark("d", c + Vector2(0, ry + 34.0) if outside else c + Vector2(0, 30.0))
+	elif spec.has("r"):
+		_dashes(c, c + Vector2(rx, 0), UiTheme.SAND)
+		_mark("r", c + Vector2(rx * 0.5, 30.0))
+
+
+func _pyramid() -> void:
+	var w := size.x
+	var h := size.y
+	var bl := Vector2(w * 0.12, h * 0.78)
+	var br := Vector2(w * 0.62, h * 0.86)
+	var tr := Vector2(w * 0.84, h * 0.66)
+	var tl := bl + tr - br
+	var centre := (bl + tr) / 2.0
+	var top := Vector2(centre.x, h * 0.06)
+	_edge(bl, br)
+	_edge(br, tr)
+	_edge(top, bl)
+	_edge(top, br)
+	_edge(top, tr)
+	_dashes(bl, tl)
+	_dashes(tl, tr)
+	_dashes(top, tl)
+	_mark("a", (bl + br) / 2.0 + Vector2(-10, 38))
+	_mark("b", (br + tr) / 2.0 + Vector2(20, 26), -1)
+	if spec.has("h"):
+		_dashes(top, centre)
+		_square(centre, Vector2.UP, Vector2.LEFT)
+		_mark("h", (top + centre) / 2.0 + Vector2(12, 40), -1)
+	if spec.has("t"):
+		var foot := (bl + br) / 2.0
+		_dashes(top, foot, UiTheme.SAND)
+		_mark("t", top.lerp(foot, 0.5) + Vector2(-12, 0), 1)
+	_mark("e", (top + tr) / 2.0 + Vector2(18, -6), -1)
+
+
+## A cylinder with a bowl in its top.
+func _scooped(c: Vector2, rx: float) -> void:
+	var ry := rx * 0.26
+	var tall := size.y * 0.56
+	var top := c - Vector2(0, tall * 0.5)
+	var low := top + Vector2(0, tall)
+	_edge(top + Vector2(rx, 0), low + Vector2(rx, 0))
+	_edge(top - Vector2(rx, 0), low - Vector2(rx, 0))
+	_rim(top, rx, ry, 0.0, TAU, UiTheme.TEAL)
+	_rim(low, rx, ry, 0.0, PI, UiTheme.TEAL)
+	_rim(low, rx, ry, PI, TAU, UiTheme.DIM, true)
+	var inner := rx * 0.62
+	_rim(top, inner, inner * 0.26, 0.0, TAU, UiTheme.TEAL)
+	_rim(top, inner, inner, 0.0, PI, UiTheme.DIM, true)
+	_dashes(top, top + Vector2(inner, 0), UiTheme.SAND)
+	_mark("r", top + Vector2(inner * 0.5, 30.0))
+	_dashes(low, low + Vector2(rx, 0), UiTheme.SAND)
+	_mark("big", low + Vector2(rx * 0.5, -22.0))
+	var x := rx + 28.0
+	_measure("c", top + Vector2(x, 0), low + Vector2(x, 0), c + Vector2(x + 12.0, 0))
+
+
+## A cylinder lying down with a hemisphere on each end.
+func _capsule(c: Vector2, rx: float) -> void:
+	var len := minf(rx * 1.5, size.x * 0.34)
+	var a := c - Vector2(len / 2.0, 0)
+	var b := c + Vector2(len / 2.0, 0)
+	draw_arc(a, rx, PI * 0.5, PI * 1.5, 48, UiTheme.TEAL, 4.0, true)
+	draw_arc(b, rx, -PI * 0.5, PI * 0.5, 48, UiTheme.TEAL, 4.0, true)
+	_edge(a - Vector2(0, rx), b - Vector2(0, rx))
+	_edge(a + Vector2(0, rx), b + Vector2(0, rx))
+	_rim(a, rx * 0.26, rx, -PI * 0.5, PI * 0.5, UiTheme.DIM, true)
+	_rim(b, rx * 0.26, rx, PI * 0.5, PI * 1.5, UiTheme.DIM, true)
+	_rim(a, rx * 0.26, rx, PI * 0.5, PI * 1.5, UiTheme.DIM)
+	_rim(b, rx * 0.26, rx, -PI * 0.5, PI * 0.5, UiTheme.DIM)
+	var y := rx + 28.0
+	_measure("c", a + Vector2(0, y), b + Vector2(0, y), c + Vector2(0, y + 40.0), 0)
+	_dashes(b, b - Vector2(0, rx), UiTheme.SAND)
+	_mark("r", b + Vector2(16, -rx * 0.5), -1)
+
+
+## A cylinder with a smaller one taken out of its centre.
+func _hollow(c: Vector2, rx: float) -> void:
+	var ry := rx * 0.3
+	var tall := size.y * 0.52
+	var top := c - Vector2(0, tall * 0.5)
+	var low := top + Vector2(0, tall)
+	var inner := rx * 0.42
+	_edge(top + Vector2(rx, 0), low + Vector2(rx, 0))
+	_edge(top - Vector2(rx, 0), low - Vector2(rx, 0))
+	_rim(top, rx, ry, 0.0, TAU, UiTheme.TEAL)
+	_rim(low, rx, ry, 0.0, PI, UiTheme.TEAL)
+	_rim(low, rx, ry, PI, TAU, UiTheme.DIM, true)
+	_rim(top, inner, inner * 0.3, 0.0, TAU, UiTheme.TEAL)
+	_dashes(top + Vector2(inner, 0), low + Vector2(inner, 0))
+	_dashes(top - Vector2(inner, 0), low - Vector2(inner, 0))
+	var up := top - Vector2(0, ry + 16.0)
+	_measure("r", up, up + Vector2(inner, 0), up + Vector2(inner * 0.5, -32.0), 0)
+	_measure("big", up, up + Vector2(rx, 0), up + Vector2(rx * 0.75, -32.0), 0)
+	if spec.has("big"):
+		draw_line(top, up, UiTheme.DIM, 2.0)
+	var x := rx + 28.0
+	_measure("h", top + Vector2(x, 0), low + Vector2(x, 0), c + Vector2(x + 12.0, 0))
+
+
+## A cylinder that fits exactly inside a sphere.
+func _inscribed(c: Vector2, rx: float) -> void:
+	draw_arc(c, rx, 0.0, TAU, 96, UiTheme.TEAL, 4.0, true)
+	var half := rx * 0.62
+	var wide := sqrt(rx * rx - half * half)
+	var ry := wide * 0.24
+	var top := c - Vector2(0, half)
+	var low := c + Vector2(0, half)
+	_edge(top + Vector2(wide, 0), low + Vector2(wide, 0))
+	_edge(top - Vector2(wide, 0), low - Vector2(wide, 0))
+	_rim(top, wide, ry, 0.0, TAU, UiTheme.DIM)
+	_rim(low, wide, ry, 0.0, PI, UiTheme.DIM)
+	_rim(low, wide, ry, PI, TAU, UiTheme.DIM, true)
+	var x := rx + 26.0
+	_measure("h", c - Vector2(x, half), c - Vector2(x, -half), c - Vector2(x - 14.0, 48.0 - half * 0.0), 1)
+	_dashes(c, c + Vector2(rx, 0).rotated(-0.32), UiTheme.SAND)
+	_mark("r", c + Vector2(rx * 0.5, -rx * 0.28))
+
+
+## A flat sector. The angle is drawn to size when the label gives it.
+func _sector(c: Vector2, rad: float) -> void:
+	var text: String = spec.get("theta", "")
+	var deg := text.to_float()
+	if deg <= 0.0:
+		deg = 216.0
+	var sweep := deg_to_rad(deg)
+	var start := -PI / 2.0 - sweep / 2.0
+	var o := c + Vector2(0, rad * 0.14)
+	var a := o + Vector2(cos(start), sin(start)) * rad
+	var b := o + Vector2(cos(start + sweep), sin(start + sweep)) * rad
+	_edge(o, a)
+	_edge(o, b)
+	draw_arc(o, rad, start, start + sweep, 96, UiTheme.TEAL, 4.0, true)
+	draw_arc(o, rad * 0.2, start, start + sweep, 32, UiTheme.SAND, 3.0, true)
+	var up := o + Vector2(0, -rad * 0.34)
+	_mark("theta", up)
+	var m := (o + b) / 2.0
+	_mark("l", m + Vector2(16, 30), -1)

@@ -35,7 +35,7 @@ const THINGS := {
 	"composite": ["A well float", "A drone's fuel pod", "A beacon's counterweight", "A signal buoy", "A salt mill's body", "A lamp stand"],
 	"tank": ["A water tank at the camp", "A fuel tank at the depot", "A grain silo", "A storage tower", "A rain tank on the ridge", "A watchtower"],
 	"hollow": ["A concrete well ring", "A section of old pipe", "A lead collar", "A pump sleeve", "A fuel line coupling", "A steel bushing"],
-	"sector": ["A sheet of scrap tin", "A square of old canvas, cut down,", "A piece of roofing metal", "A sheet of thin copper", "A piece of drone wing", "A sheet of plastic from a rain tank"],
+	"sector": ["A sheet of scrap tin", "A piece of old canvas", "A piece of roofing metal", "A sheet of thin copper", "A piece of drone wing", "A sheet of plastic from a rain tank"],
 }
 const PHRASE := {
 	"cone": "a right cone", "pyramid": "a right pyramid", "sphere": "a solid sphere", "hemisphere": "a solid hemisphere",
@@ -130,8 +130,8 @@ static func final_step(ans: Dictionary) -> String:
 	return "So " + Answer.text(ans) + "."
 
 
-static func thing(s: Dictionary, family: String) -> String:
-	return THINGS[family][s.ctx]
+static func thing(s: Dictionary, kind: String) -> String:
+	return THINGS[kind][s.ctx]
 
 
 static func family(shape: String) -> String:
@@ -154,8 +154,6 @@ static func measure(s: Dictionary, key: String) -> String:
 
 static func name_of(s: Dictionary, key: String) -> String:
 	if s.shape in SolidSituation.COMPOSITES and JOINED.has(key):
-		if key == "big":
-			return "cylinder's radius"
 		return JOINED[key]
 	if s.shape == "cylinder-minus-hemisphere" and key == "r":
 		return "hemisphere's radius"
@@ -187,6 +185,8 @@ static func show(out: Dictionary, s: Dictionary, rep: String, opening: String, k
 	if rep == "diagram":
 		out.lines = [opening + ", as in the diagram."] + extra
 		out.graph = fig
+	elif names.is_empty():
+		out.lines = [opening + "."] + extra
 	else:
 		out.lines = [opening + ".", say(names, shown)] + extra
 
@@ -214,7 +214,7 @@ static func h_step(s: Dictionary) -> String:
 	return "h = √(l² − r²) = √(%s² − %s²) = %s" % [M(s.l), M(s.r), M(s.h)]
 
 
-## Words for the unit of an area and a volume.
+## The unit of an area and of a volume.
 static func u2(s: Dictionary) -> String:
 	return " %s²" % s.unit
 
@@ -421,10 +421,9 @@ func u_radius_from_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		elif s.shape == "cone":
 			wrongs.append([sqrt(s.vol / (PI * s.h)), R_THIRD])
 	var out := pack(s, "r = ", unit, false, s.r, wrongs, [s.r * s.r, s.r + 1.0, s.r + 2.0, s.r + 3.0])
-	var keys: Array = ["h"] if s.shape == "cone" else []
-	show(out, s, rep, "%s is %s" % [thing(s, family(s.shape)), PHRASE[s.shape]], keys, [vol_line(s)], {})
-	if rep == "words" and keys.is_empty():
-		out.lines = [out.lines[0]] + out.lines.slice(1)
+	show(out, s, rep, "%s is %s" % [thing(s, family(s.shape)), PHRASE[s.shape]], ["h"] if s.shape == "cone" else [], [vol_line(s)])
+	if rep == "diagram":
+		out.graph.r = "r"
 	out.asked = "Find the radius."
 	var v: String = (Fmt.lead(qk(s.vol)) + "π") if s.paper == 1 else M(s.vol)
 	var steps: Array
@@ -447,6 +446,8 @@ func u_height_from_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var out := pack(s, "h = ", unit, false, s.h, wrongs, [s.h + 1.0, s.h + 2.0, s.h * 3.0])
 	var cone: bool = s.shape == "cone"
 	show(out, s, rep, "%s is %s%s" % [thing(s, family(s.shape)), PHRASE[s.shape], "" if cone else " with a square base"], [rk(s)] if cone else ["a"], [vol_line(s)])
+	if rep == "diagram":
+		out.graph.h = "h"
 	out.asked = "Find the perpendicular height."
 	var v: String = (Fmt.lead(qk(s.vol)) + "π") if s.paper == 1 and cone else M(s.vol)
 	var first: Array = half_step(s) if cone else []
@@ -501,8 +502,8 @@ func u_composite_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var steps: Array = [h_step(s)] if s.has("h") and s.get("given", "") == "l" and s.shape.begins_with("cone") else []
 	for p in ps:
 		steps.append("%s: %s = %s" % [p[0], p[1], E(s, p[2])])
-	var sign := "minus" if s.shape == "cylinder-minus-hemisphere" else "plus"
-	steps.append("The %s %s the %s gives %s." % [String(ps[0][0]).to_lower(), sign, String(ps[1][0]).to_lower(), E(s, x)])
+	var join := "minus" if s.shape == "cylinder-minus-hemisphere" else "plus"
+	steps.append("The %s %s the %s gives %s." % [String(ps[0][0]).to_lower(), join, String(ps[1][0]).to_lower(), E(s, x)])
 	steps.append(final_step(out.answer))
 	out.methods = {"decompose": method(steps, out.answer.values)}
 	return out
@@ -529,9 +530,10 @@ static func faces(s: Dictionary, open: bool) -> Array:
 static func face_steps(s: Dictionary, list: Array) -> Array:
 	var lead: Array = [l_step(s)] if s.shape.begins_with("cone") and s.given == "h" else []
 	var rows: Array = list.map(func(f): return "%s: %s = %s" % [f[0], f[1], E(s, f[2])])
-	# Five steps at most, with the sum and the answer: some faces share a line.
-	if lead.size() + rows.size() + 1 > 5:
-		rows = ["; ".join(rows.slice(0, 2))] + rows.slice(2)
+	# Three steps at most, before the sum and the answer: some faces share a line.
+	var spare := lead.size() + rows.size() - 3
+	if spare > 0:
+		rows = ["; ".join(rows.slice(0, spare + 1))] + rows.slice(spare + 1)
 	return lead + rows
 
 
@@ -548,7 +550,8 @@ func u_composite_surface(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	show(out, s, rep, "%s is %s" % [thing(s, "composite"), PHRASE[s.shape]], keys_of(s))
 	out.asked = "Find the total surface area of the solid."
 	var steps := face_steps(s, faces(s, false))
-	steps.append("Adding only the outer faces gives %s, and %s" % [E(s, x), final_step(out.answer).to_lower().replace("so ", "so ")])
+	steps.append("Adding only the outer faces gives %s." % E(s, x))
+	steps.append(final_step(out.answer))
 	out.methods = {"net-face-by-face": method(steps, out.answer.values)}
 	return out
 
@@ -556,7 +559,7 @@ func u_composite_surface(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 func u_paint_cost(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var open: float = SolidSituation.surf_k(s) - SolidSituation.base_k(s)
 	var x: float = open * s.price
-	var wrongs: Array = [[(open + SolidSituation.base_k(s)) * s.price, R_FLAT], [(open + 2.0 * s.r * s.r) * s.price, R_FLAT]]
+	var wrongs: Array = [[(open + SolidSituation.base_k(s)) * s.price, R_FLAT]]
 	if s.shape == "cone-cylinder" and s.given == "h":
 		wrongs.append([x + s.r * (s.h - s.l) * s.price, R_H_FOR_L])
 	if s.shape == "hemisphere-cylinder":
@@ -575,7 +578,6 @@ func u_paint_cost(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 func u_composite_volume_solve(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var unit := " " + s.unit
 	var cone: bool = s.shape == "cone-hemisphere"
-	var q: float = s.h / 3.0 if cone else s.c
 	var out := pack(s, "r = ", unit, false, s.r, [], [s.r + 1.0, s.r * 1.3, s.r * 0.8])
 	if cone:
 		# The cone's third missed: the same equation with h for h/3.
@@ -584,14 +586,13 @@ func u_composite_volume_solve(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	else:
 		var slip := SolidSituation.solve_r({"vol": s.vol}, 4.0 / 3.0, s.c)
 		out.wrongs.append(wrong(val(s, "r = ", slip, unit, false).values, R_THIRD))
-	show(out, s, rep, "%s is %s" % [thing(s, "composite"), PHRASE[s.shape]], ["r", "h" if cone else "c"], [vol_line(s)], {"r": "r"})
-	if rep == "words":
-		out.lines[1] = say([name_of(s, "h" if cone else "c")], [sized(s, s.h if cone else s.c)])
+	show(out, s, rep, "%s is %s" % [thing(s, "composite"), PHRASE[s.shape]], ["h" if cone else "c"], [vol_line(s)])
+	if rep == "diagram":
+		out.graph.r = "r"
 	out.asked = "Find r."
 	var eq: String = "(2/3)πr³ + (1/3)πr² × %s = %s" % [M(s.h), M(s.vol)] if cone else "(2/3)πr³ + πr² × %s = %s" % [M(s.c), M(s.vol)]
 	out.methods = {"gdc-solver": method(["The volume is the two pieces added: " + eq, "This has r³ and r² together, so graph both sides on the GDC, or use its solver.",
 		"The positive solution is r = %s." % w(s.r), final_step(out.answer)], out.answer.values)}
-	assert(q > 0.0)
 	return out
 
 
@@ -646,7 +647,7 @@ func u_volume_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			out.generic = [expr(head, [[third.mul(2), "πx³"]]).values, expr(head, [[third.add(1), "πx³"]]).values, expr(head, [[third.add(2), "πx³"]]).values]
 		"sphere":
 			terms = [[dome.mul(2), "πx³"]]
-			out.wrongs = [expr_wrong(head, [[dome.mul(16), "πx³"]], R_DIA)]
+			out.wrongs = []
 			out.generic = [expr(head, [[dome, "πx³"]]).values, expr(head, [[dome.mul(3), "πx³"]]).values, expr(head, [[dome.mul(4), "πx³"]]).values]
 		"hemisphere":
 			terms = [[dome, "πx³"]]
@@ -670,7 +671,7 @@ func u_volume_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			out.generic = [expr(head, [[third, "πx³"], [drum.mul(2), "πx²"]]).values, expr(head, [[third, "πx²"], [drum, "πx³"]]).values, expr(head, [[third.mul(2), "πx³"], [drum, "πx²"]]).values]
 	out.answer = expr(head, terms)
 	show(out, s, rep, "%s is %s" % [thing(s, family(s.shape)), PHRASE[s.shape]], keys, [], over)
-	out.asked = "Find an expression for the volume V, in terms of x. Write it in terms of πx³%s." % (" and πx²" if terms.size() > 1 else "")
+	out.asked = "Find an expression for the volume V, in terms of x."
 	var steps: Array = []
 	var r_t := "(%s)" % in_x(s, rx).trim_suffix(" " + s.unit)
 	if cones:
@@ -682,8 +683,7 @@ func u_volume_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if s.shape in ["hemisphere-cylinder", "cone-cylinder"]:
 		steps.append("Cylinder: π%s² × %d = %s" % [r_t, s.tail, Fmt.lead(Q.new(rx * rx * s.tail)) + "πx²"])
 	steps.append(final_step(out.answer))
-	var worked := method(steps, out.answer.values)
-	out.methods = {"booklet-formula": worked, "decompose": worked}
+	out.methods = {"booklet-formula": method(steps, out.answer.values)}
 	return out
 
 
@@ -739,8 +739,7 @@ func u_surface_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var what: String = "curved surface area" if s.shape == "cone" and not s.get("total", false) else "total surface area"
 	out.asked = "Find an expression for the %s S, in terms of x." % what
 	steps.append(final_step(out.answer))
-	var worked := method(steps, out.answer.values)
-	out.methods = {"booklet-formula": worked}
+	out.methods = {"booklet-formula": method(steps, out.answer.values)}
 	return out
 
 
@@ -774,10 +773,9 @@ func u_hollow_volume_from_surface(rep: String, s: Dictionary, _rng: Seeded) -> D
 	var lin := Q.new((k - 1) * m, 2)
 	var cub := Q.new((k - 1) * (k * k - 1))
 	var out := {"table": null, "answer": expr(head, [[lin, "πr"], [cub, "πr³"]], true)}
-	var noth := Q.new((k * k - 1) * m, 2 * (k + 1))
 	out.wrongs = []
 	out.generic = [expr(head, [[lin.mul(2), "πr"], [cub, "πr³"]], true).values, expr(head, [[lin, "πr"], [cub.mul(2), "πr³"]], true).values,
-		expr(head, [[lin, "πr²"], [cub, "πr³"]], true).values, expr(head, [[noth.add(1), "πr"], [cub.add(1), "πr³"]], true).values]
+		expr(head, [[lin, "πr²"], [cub, "πr³"]], true).values, expr(head, [[lin.add(1), "πr"], [cub.add(1), "πr³"]], true).values]
 	var opening := "%s is %s" % [thing(s, "hollow"), PHRASE.hollow]
 	var line2 := "Its total surface area is %dπ cm²." % m
 	if rep == "diagram":
@@ -812,9 +810,9 @@ func u_surface_from_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	else:
 		out.lines = [opening + ".", line2]
 	out.asked = "Find an expression for the total surface area S, in terms of x."
-	var round := "Two hemispheres make a sphere: 4πx²" if ends == 2 else "Hemisphere and base: 2πx² + πx² = 3πx²"
+	var dome_step := "Two hemispheres make a sphere: 4πx²" if ends == 2 else "Hemisphere and base: 2πx² + πx² = 3πx²"
 	out.methods = {"net-face-by-face": method(["πx²h = %d, so h = %d/(πx²)" % [roundi(s.vol), roundi(s.vol)], "Cylinder wall: 2πxh = 2πx × %d/(πx²) = %d/x" % [roundi(s.vol), 2 * roundi(s.vol)],
-		round, final_step(out.answer)], out.answer.values)}
+		dome_step, final_step(out.answer)], out.answer.values)}
 	return out
 
 
@@ -870,7 +868,7 @@ func u_sector_cone_radius(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 
 
 func u_sector_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var out := pack(s, "θ = ", "°", false, s.theta, [], [180.0 * s.r / s.l, 360.0 * s.l / s.r / 4.0, 360.0 - s.theta])
+	var out := pack(s, "θ = ", "°", false, s.theta, [], [s.theta / 2.0, 360.0 - s.theta, s.theta * 1.5])
 	var opening := "A cone with no base has %s and %s." % [("radius %s" % sized(s, s.r)), ("slant height %s" % sized(s, s.l))]
 	out.lines = [opening, "It is cut along a slant edge and opened out into a flat sector."]
 	if rep == "diagram":
