@@ -77,6 +77,7 @@ static var SITUATIONS := {
 	"binomial": [BinomialSituation, BinomialViews],
 	"regression": [RegressionSituation, RegressionViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
+	"compound-interest": [CompoundInterestSituation, CompoundInterestViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],
 	"inverse-rule": [InverseRuleSituation, InverseRuleViews],
 	"composite-graph-table": [GraphTableSituation, GraphTableViews],

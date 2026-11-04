@@ -247,6 +247,22 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   unordered list, the mean of the two means, p left out of Σf, the mean or the mode as the
   best average) and never read as a fraction (`DataSummaryViews.tidy`). As every exam type, it
   offers no extra format: `test_extension.gd` holds that rule.
+- `engine/situations/compound_interest.gd` (FAL-695) is `t1-compound-interest` (SL1.4, on all
+  four syllabuses): money invested at a nominal annual rate r %, compounded 1, 2, 4 or 12
+  times a year, for n years. Its views (`compound_interest_views.gd`) ask 6 unknowns, all
+  Paper 2 with the formula or the GDC's TVM solver: the value after n years, the interest
+  earned, the amount to invest now, the annual rate, the least whole number of years to pass a
+  target, and how much more one account is worth than another (as a sentence or as a table).
+  Values are floats, as a GDC computes them. Money is answered exactly to the cent, so every
+  value, and every wrong option offered, leaves a fraction of a cent at least 0.15 from the
+  rounding edge at 0.5 (`CompoundInterestSituation.cents_clear`). A rate is a quarter of a
+  per cent and is answered to 3 s.f. with the rounding trap, found from the FV as shown (a hair
+  off the quarter, so the trap's side is fixed); a time is the first whole number of years that
+  passes the target. Wrong options come from the SL1.4 misconceptions: the annual rate over kn
+  periods, simple interest, the total for the interest (and back), the root with no 1 taken
+  off, the total growth shared over n years, the time rounded to nearest, the periods given as
+  years, and two accounts compared on their nominal rates. As every exam type, it offers no
+  extra format: `test_extension.gd` holds that rule.
 - The rest of the Quadratics region (FAL-414) is four more situations. Three extend
   `quadratic` by calling its `generate()`: `quadratic_parameter.gd` (a quadratic with a
   constant k, given directly or as a line meeting a curve, for `fn-discriminant`),
@@ -674,6 +690,15 @@ only: nothing in the run waits on them, and a run plays the same with none conne
 | `run_ended(summary)` | death or quit, after the Scrap is banked |
 | `floor_started(floor)` | a floor opens: the start floor, then each one after its boss falls |
 | `boss_beaten(floor, kind)` | a mini-boss (`"mini"`) or boss (`"boss"`) falls, after its heal |
+
+### The question card's frame
+
+On the fight screen the question scrolls inside the reel's rusted metal frame
+(`ui/card_frame.gd`, art `assets/ui/question-card.png`, copied to `game/assets/ui/`). It is
+a 9-slice with 40 px slices and a transparent centre, drawn scaled over the card's colour:
+50 base units thick on a phone, 80 on a wide window. The floor select and the summary
+have no frame. A table wider than the card scrolls sideways by itself, and a word-choice
+answer wider than `PICK_WIDE` wraps on its own line (`ui/practice.gd`).
 
 ### The journey strip
 
@@ -1149,6 +1174,14 @@ script error happens while it runs. Run one file with
   mean that is not the mean of the means; the outlier dragging the mean; every misconception
   as an option; exact and 3 s.f. marking; the three concept probes; and every course having
   every cell.
+- `test_compound_interest.gd`: t1-compound-interest built with every cell and all four SL1.4
+  skills; every cell in both formats with 2 to 5 steps per worked solution; Paper 2 only; the
+  value, the doubling time and the rate against hand values; every money value clear of the
+  half-cent edge; the least years the first that works; a rate a quarter of a per cent that
+  reads differently from its two slips; two accounts that differ, with A worth 20 or more
+  above B and rounding first changing nothing; the table and words versions; every
+  misconception as an option; exact and 3 s.f. marking; the three concept probes; and every
+  course having every cell.
 - `test_quadratics.gd`: the four FAL-414 types: built with every cell, 2 to 5 steps per
   worked solution, every distractor misconception as an option (three that no answer
   shape can carry yet are listed with the reason), two rays typed as one interval caught

@@ -1668,7 +1668,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 1 exam type has them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 2 exam types have them so far.
 
 #### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 21 bank parts)
 
@@ -1692,6 +1692,24 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): If the common difference d is negative, the sum Sₙ is negative for every large enough n. — True. Sₙ = n/2 (2u₁ + (n − 1)d), and the bracket keeps falling by d for each extra term, so it becomes negative and stays negative.
   - *always-sometimes-never* (L3): For an arithmetic sequence of whole numbers, Sₙ is a multiple of n. — Sometimes: Sₙ = n × (u₁ + uₙ)/2, so it is a multiple of n exactly when u₁ + uₙ is even.
 - **Misconceptions used:** 12. Using u_1 + nd, which gives u_11 instead of u_10; Finding d as u_1 − u_2, so a decreasing sequence gets a positive d; Confusing the position n with the value u_n; Dividing by the number of terms instead of the number of gaps: d = 16/5; Treating the given term as u_1 when asked for the first term; Answering with n when the question asks for the term itself (or the reverse); Forgetting the + 1 when counting terms: (403 − 7)/4 = 99 terms; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Finding u_n when the question asks for S_n (or the reverse); Keeping the negative root of the quadratic as a number of terms; Answering with the value of the sum instead of the number of terms n.
+
+#### Compound interest: value, rate or time, with different compounding periods (`t1-compound-interest`, exam, 16 bank parts)
+
+- **Situation:** Money invested at a nominal annual rate, compounded k times a year.
+- **Representations:** **words**, **table** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the amount; the rate; the compounding; the years → the value after the years, to the nearest cent
+  - **exam** L2: given the amount; the rate; the compounding; the years → the interest earned, to the nearest cent
+  - **exam** L3: given the amount to reach; the rate; the compounding; the years → the amount to invest now, to the nearest cent
+  - **exam** L4: given the amount; the value it has grown to; the compounding; the years → the annual interest rate, to 3 s.f.
+  - **exam** L4: given the amount; a target; the rate; the compounding → the number of complete years to pass the target
+  - **exam** L4: given the amount; the years; two accounts' rates and compounding → how much more account A is worth than account B, to the nearest cent
+- **Angles:** Use FV = PV(1 + r/(100k))^(kn); Use the GDC TVM finance solver; Rearrange the compound interest formula; Solve for PV or I% in the TVM solver; Use logarithms to solve for the exponent; Solve for N in the TVM solver; Calculate each future value and compare; Compare the effective annual growth factors.
+- **Concept probes:**
+  - *always-sometimes-never* (L4): Compounding more often a year always gives a larger value than compounding annually, at the same annual rate. — Always: at the same nominal rate each period's interest starts earning interest sooner, so the yearly growth factor (1 + r/100k)^k rises with k. At 5% it is 1.0500 annually, 1.0509 quarterly and 1.0512 monthly.
+  - *true-false-reason* (L3): $1000 invested at 5% compounded annually for 10 years earns twice as much interest as $1000 invested at 5% for 5 years. — False: interest is earned on interest, so the second five years earn more than the first. The 10-year interest is $628.89 and the 5-year interest is $276.28, more than double.
+  - *true-false-reason* (L3): An investment that is worth $5000 after 3 years at 4% compounded annually is worth $5000 ÷ 1.04^3 now. — True: the value after 3 years is PV × 1.04^3, so the amount invested now is the future value divided by 1.04^3.
+- **Misconceptions used:** 8. Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Giving the total value when the question asks for the interest earned (or the reverse); Taking the root but not subtracting 1 and multiplying by 100, giving a rate of 1.1%; Halving the total growth instead of taking a root: 21% ÷ 2 = 10.5%; Rounding the number of periods to the nearest integer instead of up; Forgetting to convert N from months or quarters back into years; Comparing nominal rates only and ignoring the compounding frequency.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
