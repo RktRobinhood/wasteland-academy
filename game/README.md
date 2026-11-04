@@ -700,6 +700,13 @@ a 9-slice with 40 px slices and a transparent centre, drawn scaled over the card
 have no frame. A table wider than the card scrolls sideways by itself, and a word-choice
 answer wider than `PICK_WIDE` wraps on its own line (`ui/practice.gd`).
 
+On a touch screen a vertical swipe scrolls the card wherever it starts (FAL-735): anything
+on the card that would stop a touch passes it on (`_let_swipes_through()`), and a touch
+only counts as a swipe past `SWIPE_DEADZONE`, so a tap still picks. A Control that isn't a
+button uses `_tapped()`, not a press, or a swipe would pick it. After an answer,
+`_reveal_result()` scrolls to the result and Next; a result too tall to show with Next
+keeps the result in view. `tests/test_swipe.gd` drives this with real touch events.
+
 ### The journey strip
 
 The side-view scene at the top of the fight screen (FAL-331, plan on FAL-289): the
