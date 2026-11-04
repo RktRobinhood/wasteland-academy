@@ -2740,6 +2740,138 @@
 				"a missing value or frequency makes the mean end in at most one decimal place, and the answer is a whole number",
 				"a combined mean differs from the mean of the two means, because the group sizes and means are different"
 			]
+		},
+		"differentiation": {
+			"name": "A function to differentiate",
+			"summary": "Pick a function from one family (standard results, a composite, a product, a quotient, a form to show, a gradient at a point), with whole-number coefficients. Its derivative is then exact.",
+			"quantities": [
+				{
+					"name": "fam",
+					"is": "the family of the function",
+					"pick": "one per unknown: exponential, log, trig, root, bracket"
+				},
+				{
+					"name": "a, b, c, d",
+					"is": "the whole-number coefficients",
+					"pick": "from −9 to 9, not 0, with a root's coefficient a multiple of its index"
+				},
+				{
+					"name": "m, n",
+					"is": "the powers",
+					"pick": "whole numbers from 1 to 6"
+				},
+				{
+					"name": "k",
+					"is": "the x a gradient is asked at",
+					"pick": "a whole number on Paper 1, or a number to 1 d.p. from 1.1 to 3.9 on Paper 2"
+				}
+			],
+			"modes": [
+				"Paper 1: exact",
+				"Paper 2: a gradient to 3 s.f."
+			],
+			"clean": [
+				"a quotient of linear brackets is not a constant",
+				"a Paper 2 gradient is clear of a rounding edge"
+			]
+		},
+		"derivative-meaning": {
+			"name": "A quantity changing in time, and its limits",
+			"summary": "Pick a story and a model A + B e^(−kt) or A + B sin(wt), so its value and rate at a time come from the GDC; or a rational function with 0/0 at a point, whose limit is a whole number.",
+			"quantities": [
+				{
+					"name": "ctx",
+					"is": "the story",
+					"pick": "one of eight, each with a letter and units"
+				},
+				{
+					"name": "A, B, k, w",
+					"is": "the model",
+					"pick": "A a multiple of 5 from 20 to 90, B up to 60 either way, k from 0.04 to 0.4, w from 0.2 to 0.9"
+				},
+				{
+					"name": "t0",
+					"is": "the time",
+					"pick": "a whole number from 2 to 12"
+				},
+				{
+					"name": "a, r, m",
+					"is": "the rational function",
+					"pick": "m(x − a)(x − r)/(x − a), or (x³ − a³)/(x − a), with a and r different whole numbers"
+				}
+			],
+			"modes": [
+				"Paper 2: a rate from the GDC"
+			],
+			"clean": [
+				"a rate and a value are clear of a rounding edge",
+				"the limit is a whole number",
+				"the dot on a limit graph is not at the limit"
+			]
+		},
+		"monotonic": {
+			"name": "A function and where it rises or falls",
+			"summary": "A cubic built from its turning points, a quadratic from its roots, f′ with an exponential whose zeros come from the GDC, or a function with a letter that keeps f′ on one side of the axis.",
+			"quantities": [
+				{
+					"name": "A, p, q",
+					"is": "a cubic's leading coefficient and turning points",
+					"pick": "A from −2 to 2, not 0; p and q whole with q − p = 2 or 4"
+				},
+				{
+					"name": "a, r, s",
+					"is": "a quadratic's leading coefficient and roots",
+					"pick": "a from −2 to 3, not 0; r and s whole with r + s even"
+				},
+				{
+					"name": "a, b, c",
+					"is": "f′(x) = a + bx − c e^x",
+					"pick": "whole, with two zeros clear of a rounding edge"
+				},
+				{
+					"name": "n",
+					"is": "sets the bound on k",
+					"pick": "1 to 4: f′ has c = 3n², so −3n ≤ k ≤ 3n"
+				}
+			],
+			"modes": [
+				"Paper 1: whole-number intervals",
+				"Paper 2: GDC zeros to 3 s.f."
+			],
+			"clean": [
+				"turning points, roots and vertex are whole numbers",
+				"a parameter's bound is a whole number",
+				"on Paper 2 the zeros are clear of a rounding edge"
+			]
+		},
+		"concavity": {
+			"name": "A function, its second derivative and its shape",
+			"summary": "A cubic built from its turning points, a quartic whose f″ has whole-number roots, a function with an exponential, log or trig term, or f′ with an exponential, so f″ and the graphs of f, f′ and f″ are all known.",
+			"quantities": [
+				{
+					"name": "A, p, q",
+					"is": "a cubic's leading coefficient and turning points",
+					"pick": "as the monotonic situation, q − p even"
+				},
+				{
+					"name": "a to e",
+					"is": "the coefficients",
+					"pick": "whole numbers, not 0"
+				},
+				{
+					"name": "k",
+					"is": "the point",
+					"pick": "a whole number on Paper 1, a number to 1 d.p. on Paper 2"
+				}
+			],
+			"modes": [
+				"Paper 1: exact",
+				"Paper 2: a value to 3 s.f."
+			],
+			"clean": [
+				"f″ has whole-number coefficients and roots",
+				"each wrong graph is one mistake"
+			]
 		}
 	},
 	"skills": {
@@ -2831,6 +2963,11 @@
 		"SL4.8.mean-variance": "Find the mean, variance and standard deviation of a binomial distribution",
 		"SL4.8.find-n-or-p": "Find n or p from given information about a binomial distribution",
 		"SL4.8.binomial-in-context": "Build a binomial model from an earlier probability, including conditional and 'kth success' questions",
+		"SL5.1.interpret-derivative": "Interpret a derivative as a rate of change in context, with units and sign",
+		"SL5.1.estimate-limit": "Estimate a limit from a table, a graph or simple algebra",
+		"SL5.2.increasing-decreasing-intervals": "Find the intervals on which f is increasing or decreasing",
+		"SL5.2.sign-from-graph": "Read the sign of f′(x) from the graph of f",
+		"SL5.2.parameter-for-monotonic": "Find a parameter so that f is increasing (or decreasing) everywhere",
 		"SL5.3.power-rule": "Differentiate ax^n and sums of such terms",
 		"SL5.3.negative-powers": "Rewrite reciprocals and fractions as powers of x, then differentiate",
 		"SL5.3.gradient-at-point": "Find the gradient of a curve at a given point",
@@ -2844,6 +2981,14 @@
 		"SL5.8.classify-stationary-points": "Determine the nature of stationary points",
 		"SL5.8.points-of-inflexion": "Find points of inflexion, with zero or non-zero gradient",
 		"SL5.8.optimise-given-function": "Find a maximum or minimum of a given model in context",
+		"SL5.6.standard-derivatives": "Differentiate √x, x^(p/q), sin x, cos x, e^x and ln x, with sums and multiples",
+		"SL5.6.chain-rule": "Differentiate composite functions using the chain rule",
+		"SL5.6.product-rule": "Differentiate products using the product rule",
+		"SL5.6.quotient-rule": "Differentiate quotients using the quotient rule",
+		"SL5.6.show-derivative-form": "Show that a derivative simplifies to a given form",
+		"SL5.7.find-second-derivative": "Find and evaluate the second derivative",
+		"SL5.7.concavity": "Determine where a graph is concave up or concave down",
+		"SL5.7.sketch-match-graphs": "Match or sketch the graphs of f, f′ and f″",
 		"SL2.6.model": "Model and optimise with a quadratic in context",
 		"SL2.9.exp-graph": "Sketch and describe exponential graphs, including transformed ones such as e^(x − a) + b",
 		"SL2.1.line-model": "Model with a linear function and interpret its gradient and intercept",
@@ -2859,7 +3004,6 @@
 		"SL5.11.integral-properties": "Use properties of definite integrals",
 		"SL3.1.distance-3d": "Find the distance between two points in 3D",
 		"SL4.4.interpret-ab": "Interpret a and b in y = ax + b in context",
-		"SL5.1.interpret-derivative": "Interpret a derivative as a rate of change in context, with units and sign",
 		"SL5.1.chord-to-tangent": "Find the gradient of a curve as the limit of chord gradients",
 		"SL1.3.model": "Model growth and decay with geometric sequences",
 		"SL1.4.depreciation": "Model annual depreciation",
@@ -20482,6 +20626,366 @@
 			"topic": 5,
 			"source": "exam",
 			"name": "Interpret a derivative as a rate, or its limit",
+			"summary": "Read a derivative as a rate of change in a model, with its sign and units: find it with the GDC, say what it means, compare two rates, and write a rate in derivative notation. Estimate a limit from a model, a table or a graph, or find it by cancelling.",
+			"situation": "derivative-meaning",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the model, V(t) = 40 + 75e^(−0.08t), or a rational function"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story with units: the volume of water in a tank, in litres, t minutes after the start"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "the curve with a tangent marked, or a curve with a gap and a dot"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "values of f(x) close to a point, values for large t, or two rates side by side"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "rate-at-time",
+					"given": [
+						"a model",
+						"a time t"
+					],
+					"asked": "the rate of change at t, or V′(t), to 3 s.f.",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.1.interpret-derivative"
+					]
+				},
+				{
+					"id": "interpret-value",
+					"given": [
+						"a model",
+						"the value of V′(t)"
+					],
+					"asked": "what V′(t) means, in the story",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"graph"
+					],
+					"skills": [
+						"SL5.1.interpret-derivative"
+					]
+				},
+				{
+					"id": "units-of-rate",
+					"given": [
+						"the units of V and of t"
+					],
+					"asked": "the units of dV/dt",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL5.1.interpret-derivative"
+					]
+				},
+				{
+					"id": "write-in-notation",
+					"given": [
+						"a sentence about a rate"
+					],
+					"asked": "the sentence in derivative notation",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL5.1.interpret-derivative"
+					]
+				},
+				{
+					"id": "compare-rates",
+					"given": [
+						"two rates at one time"
+					],
+					"asked": "what the two rates say",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL5.1.interpret-derivative"
+					]
+				},
+				{
+					"id": "limit-of-model",
+					"given": [
+						"a model A + B e^(−kt)"
+					],
+					"asked": "the limit of the model as t → ∞",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"table"
+					],
+					"skills": [
+						"SL5.1.estimate-limit"
+					]
+				},
+				{
+					"id": "limit-of-rate",
+					"given": [
+						"a model A + B e^(−kt)"
+					],
+					"asked": "the limit of its derivative as t → ∞",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.1.estimate-limit"
+					]
+				},
+				{
+					"id": "limit-from-table",
+					"given": [
+						"a table of f(x) either side of a point"
+					],
+					"asked": "the limit at that point",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL5.1.estimate-limit"
+					]
+				},
+				{
+					"id": "limit-from-graph",
+					"given": [
+						"a graph with a gap at a point"
+					],
+					"asked": "the limit at that point",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.1.estimate-limit"
+					]
+				},
+				{
+					"id": "limit-cancel",
+					"given": [
+						"a rational function with 0/0 at a point"
+					],
+					"asked": "the limit at that point",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.1.estimate-limit"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.1.interpret-derivative",
+					"method": "units-ratio",
+					"suits": [
+						"rate-at-time",
+						"interpret-value",
+						"units-of-rate",
+						"write-in-notation"
+					],
+					"name": "Read dy/dx as 'units of y per unit of x'",
+					"about": "State how fast y changes per unit of x at that instant, with units such as cm² per second."
+				},
+				{
+					"skill": "SL5.1.interpret-derivative",
+					"method": "sign-direction",
+					"suits": [
+						"interpret-value",
+						"write-in-notation",
+						"compare-rates"
+					],
+					"name": "Use the sign for direction",
+					"about": "Positive means y increases as x increases, negative means it decreases; then quote the size of the rate."
+				},
+				{
+					"skill": "SL5.1.interpret-derivative",
+					"method": "tangent-picture",
+					"suits": [
+						"interpret-value",
+						"compare-rates"
+					],
+					"name": "Picture the tangent",
+					"about": "Imagine the tangent to the y-against-x graph at that point; its gradient is the rate."
+				},
+				{
+					"skill": "SL5.1.estimate-limit",
+					"method": "graph-read",
+					"suits": [
+						"limit-of-model",
+						"limit-of-rate",
+						"limit-from-graph"
+					],
+					"name": "Trace the graph towards x = a",
+					"about": "Follow the curve towards x = a (or out to large x) and read the height it approaches, even if there is a hole or an asymptote there."
+				},
+				{
+					"skill": "SL5.1.estimate-limit",
+					"method": "table-approach",
+					"suits": [
+						"limit-of-model",
+						"limit-from-table"
+					],
+					"name": "Read the trend in a table of values",
+					"about": "Look at f(x) as x gets closer to a from both sides and see which value the outputs settle towards."
+				},
+				{
+					"skill": "SL5.1.estimate-limit",
+					"method": "gdc-table",
+					"suits": [
+						"limit-of-rate",
+						"limit-from-table",
+						"limit-cancel"
+					],
+					"name": "Generate the table on the GDC",
+					"about": "Use the GDC table with x-values such as 1.9, 1.99, 2.01, 2.001 to produce the values yourself."
+				},
+				{
+					"skill": "SL5.1.estimate-limit",
+					"method": "cancel-factor",
+					"suits": [
+						"limit-cancel"
+					],
+					"name": "Factorise and cancel, then substitute",
+					"about": "Cancel the common factor that causes 0/0 (or divide through by the highest power of x for limits at infinity), then substitute."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If V′(5) = −3, then the volume at t = 5 is negative.",
+					"answer": "False: V′(5) is the rate of change, not the volume. The volume could be 40 litres and falling at 3 litres per minute.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If f(2) is not defined, then the limit of f(x) as x → 2 does not exist.",
+					"answer": "False: the limit depends on the values near 2, not at 2. (x² − 4)/(x − 2) is not defined at 2, but its limit there is 4.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "When a model levels off as t → ∞, its rate of change approaches 0.",
+					"answer": "Always: a curve that levels off is getting flatter, so its gradient approaches 0, whatever height it levels off at.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.1.interpret-derivative#0",
+					"text": "Reading f′(5) = 12 as 'the value of f at 5 is 12'",
+					"as": "distractor",
+					"in": [
+						"rate-at-time",
+						"interpret-value",
+						"write-in-notation",
+						"compare-rates"
+					],
+					"wrong": "the rate read as an amount"
+				},
+				{
+					"ref": "SL5.1.interpret-derivative#1",
+					"text": "Ignoring the negative sign, so dV/dt = −3 is read as increasing by 3",
+					"as": "distractor",
+					"in": [
+						"rate-at-time",
+						"interpret-value",
+						"write-in-notation",
+						"compare-rates"
+					],
+					"wrong": "the sign dropped or flipped"
+				},
+				{
+					"ref": "SL5.1.interpret-derivative#2",
+					"text": "Giving the units of y only (cm²) instead of y per unit x (cm² per second)",
+					"as": "distractor",
+					"in": [
+						"interpret-value",
+						"units-of-rate"
+					],
+					"wrong": "the units of y alone"
+				},
+				{
+					"ref": "SL5.1.estimate-limit#0",
+					"text": "The limit does not exist because f(a) itself is undefined (0/0)",
+					"as": "distractor",
+					"in": [
+						"limit-of-model",
+						"limit-of-rate",
+						"limit-from-table",
+						"limit-from-graph",
+						"limit-cancel"
+					],
+					"wrong": "does not exist"
+				},
+				{
+					"ref": "SL5.1.estimate-limit#1",
+					"text": "The limit always equals f(a), even when the graph has a hole or jump at x = a",
+					"as": "distractor",
+					"in": [
+						"limit-of-model",
+						"limit-of-rate",
+						"limit-from-graph"
+					],
+					"wrong": "the value at the point, or at the start"
+				},
+				{
+					"ref": "SL5.1.estimate-limit#2",
+					"text": "Checking values on one side of x = a only",
+					"as": "distractor",
+					"in": [
+						"limit-from-table"
+					],
+					"wrong": "the nearest value on one side"
+				}
+			],
+			"chain": [
+				"find the rate of change at a time with the GDC",
+				"say what a derivative means, with sign and units",
+				"write down the units of a derivative, or put a sentence into derivative notation",
+				"compare two rates",
+				"the limit of a model or of its rate as t → ∞",
+				"a limit at a point from a table, a graph or by cancelling"
+			],
 			"frequency": 6,
 			"marks": 2,
 			"section": {
@@ -20491,15 +20995,415 @@
 			"paper": {
 				"p1": 0,
 				"p2": 6
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-increasing-decreasing",
 			"topic": 5,
 			"source": "exam",
 			"name": "Where a function is increasing or decreasing",
+			"summary": "Find where a function is increasing or decreasing, from its equation, a table of f′ or the graph of f′, on Paper 2 with a GDC where f′ has an exponential; read the sign of f′ from the graph of f; and find a parameter that keeps f increasing everywhere.",
+			"situation": "monotonic",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "f(x) or f′(x) as an equation"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the graph of f′ with its intercepts marked, or the graph of f"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "a curve, and where y decreases as x increases"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "values of f′(x) with its zeros and the signs around them"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "interval-from-equation",
+					"given": [
+						"a cubic f(x)"
+					],
+					"asked": "where f is increasing or decreasing",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.2.increasing-decreasing-intervals"
+					]
+				},
+				{
+					"id": "interval-from-table",
+					"given": [
+						"a table of f′(x)"
+					],
+					"asked": "where f is increasing or decreasing",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL5.2.increasing-decreasing-intervals"
+					]
+				},
+				{
+					"id": "quadratic-interval",
+					"given": [
+						"a quadratic f(x)"
+					],
+					"asked": "where f is increasing or decreasing",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.2.increasing-decreasing-intervals"
+					]
+				},
+				{
+					"id": "interval-from-derivative-graph",
+					"given": [
+						"the graph of f′"
+					],
+					"asked": "where f is increasing or decreasing",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.2.increasing-decreasing-intervals"
+					]
+				},
+				{
+					"id": "interval-gdc",
+					"given": [
+						"f′(x) = a + bx − c e^x"
+					],
+					"asked": "where f is increasing or decreasing, to 3 s.f.",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.2.increasing-decreasing-intervals"
+					]
+				},
+				{
+					"id": "sign-at-points",
+					"given": [
+						"the graph of f, with two marked points"
+					],
+					"asked": "the sign of f′ at each point",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.2.sign-from-graph"
+					]
+				},
+				{
+					"id": "intervals-from-graph",
+					"given": [
+						"the graph of a quadratic f"
+					],
+					"asked": "where f′(x) > 0 or f′(x) < 0",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.2.sign-from-graph"
+					]
+				},
+				{
+					"id": "negative-and-increasing",
+					"given": [
+						"a quadratic with whole-number roots"
+					],
+					"asked": "where f is both negative and increasing, or positive and decreasing",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.2.increasing-decreasing-intervals"
+					]
+				},
+				{
+					"id": "parameter-discriminant",
+					"given": [
+						"a cubic with a letter k"
+					],
+					"asked": "the values of k for which f is increasing or decreasing for all x",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.2.parameter-for-monotonic"
+					]
+				},
+				{
+					"id": "parameter-shift",
+					"given": [
+						"f in vertex form",
+						"g′(x) = f(x) − d"
+					],
+					"asked": "the values of d for which g is an increasing function",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.2.parameter-for-monotonic"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.2.increasing-decreasing-intervals",
+					"method": "solve-inequality",
+					"suits": [
+						"interval-from-equation",
+						"quadratic-interval"
+					],
+					"name": "Solve f′(x) > 0 or f′(x) < 0",
+					"about": "Differentiate, solve f′(x) = 0 for the critical values, then use the shape of f′ (e.g. its parabola) to decide where it is positive or negative."
+				},
+				{
+					"skill": "SL5.2.increasing-decreasing-intervals",
+					"method": "sign-table",
+					"suits": [
+						"interval-from-equation",
+						"interval-from-table",
+						"negative-and-increasing"
+					],
+					"name": "Sign table for f′",
+					"about": "Mark the roots of f′ on a number line and test one x-value in each interval."
+				},
+				{
+					"skill": "SL5.2.increasing-decreasing-intervals",
+					"method": "graph-of-derivative",
+					"suits": [
+						"interval-from-derivative-graph",
+						"interval-gdc"
+					],
+					"name": "Read the graph of f′",
+					"about": "Plot or sketch y = f′(x); f increases where that graph is above the x-axis and decreases where it is below."
+				},
+				{
+					"skill": "SL5.2.increasing-decreasing-intervals",
+					"method": "gdc-turning-points",
+					"suits": [
+						"interval-from-equation",
+						"interval-gdc"
+					],
+					"name": "Find turning points of f on the GDC",
+					"about": "Graph f, find its maximum and minimum points, and read the intervals between them."
+				},
+				{
+					"skill": "SL5.2.increasing-decreasing-intervals",
+					"method": "vertex-shortcut",
+					"suits": [
+						"quadratic-interval",
+						"negative-and-increasing"
+					],
+					"name": "Use the vertex of a quadratic",
+					"about": "For f(x) = ax² + bx + c, f changes direction only at x = −b/(2a); with a > 0 it decreases to the left and increases to the right."
+				},
+				{
+					"skill": "SL5.2.sign-from-graph",
+					"method": "walk-the-curve",
+					"suits": [
+						"sign-at-points",
+						"intervals-from-graph"
+					],
+					"name": "Walk along the curve left to right",
+					"about": "Uphill means f′ > 0, flat at a turning point means f′ = 0, downhill means f′ < 0."
+				},
+				{
+					"skill": "SL5.2.sign-from-graph",
+					"method": "tangent-sketch",
+					"suits": [
+						"sign-at-points"
+					],
+					"name": "Lay a tangent at the point",
+					"about": "Hold a ruler as a tangent at the point and see whether it slopes up, slopes down or is horizontal."
+				},
+				{
+					"skill": "SL5.2.sign-from-graph",
+					"method": "sign-row",
+					"suits": [
+						"sign-at-points",
+						"intervals-from-graph"
+					],
+					"name": "Build a sign diagram",
+					"about": "Mark the turning points on the x-axis and write +, 0 or − under each stretch of the curve."
+				},
+				{
+					"skill": "SL5.2.parameter-for-monotonic",
+					"method": "discriminant-condition",
+					"suits": [
+						"parameter-discriminant",
+						"parameter-shift"
+					],
+					"name": "Require discriminant of f′ ≤ 0",
+					"about": "Differentiate, then require the quadratic f′(x) (positive leading coefficient) to have b² − 4ac ≤ 0, and solve the inequality in k."
+				},
+				{
+					"skill": "SL5.2.parameter-for-monotonic",
+					"method": "complete-square-condition",
+					"suits": [
+						"parameter-discriminant",
+						"parameter-shift"
+					],
+					"name": "Require the minimum of f′ to be ≥ 0",
+					"about": "Complete the square on f′(x) and require its minimum value to be at least zero."
+				},
+				{
+					"skill": "SL5.2.parameter-for-monotonic",
+					"method": "gdc-slider",
+					"suits": [
+						"parameter-discriminant"
+					],
+					"name": "Explore k on the GDC",
+					"about": "Graph f′ for several values of k (or use a slider) to find the boundary where the parabola just touches the x-axis, then confirm by algebra."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If f(x) < 0 for every x in an interval, then f is decreasing there.",
+					"answer": "False: being below the axis says nothing about direction. f(x) = x² − 9 is negative on 0 < x < 3, and it is increasing there.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If f′(a) = 0, then f changes from increasing to decreasing, or the other way, at x = a.",
+					"answer": "False: f(x) = x³ has f′(0) = 0, and it is increasing on both sides of 0.",
+					"level": 4
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "A cubic with a positive leading coefficient is increasing for all x.",
+					"answer": "Sometimes: x³ + x is, but x³ − 3x has turning points at x = ±1 and decreases between them. It depends on whether f′ has two roots.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.2.increasing-decreasing-intervals#0",
+					"text": "Giving an interval of y-values rather than x-values",
+					"as": "distractor",
+					"in": [
+						"interval-from-equation",
+						"quadratic-interval"
+					],
+					"wrong": "the same interval in the y-values"
+				},
+				{
+					"ref": "SL5.2.increasing-decreasing-intervals#1",
+					"text": "Solving f(x) < 0 (below the axis) instead of f′(x) < 0 (going down)",
+					"as": "distractor",
+					"in": [
+						"quadratic-interval",
+						"negative-and-increasing"
+					],
+					"wrong": "where f is below the axis"
+				},
+				{
+					"ref": "SL5.2.increasing-decreasing-intervals#2",
+					"text": "Getting the inequality the wrong way round when the leading coefficient of f′ is negative",
+					"as": "distractor",
+					"in": [
+						"interval-from-equation",
+						"interval-from-table",
+						"quadratic-interval",
+						"interval-from-derivative-graph",
+						"interval-gdc"
+					],
+					"wrong": "the other side of the roots"
+				},
+				{
+					"ref": "SL5.2.sign-from-graph#0",
+					"text": "Confusing f′(x) < 0 with f(x) < 0 (being below the axis)",
+					"as": "distractor",
+					"in": [
+						"sign-at-points",
+						"intervals-from-graph"
+					],
+					"wrong": "the sign of f, not of f′"
+				},
+				{
+					"ref": "SL5.2.sign-from-graph#1",
+					"text": "Thinking f′ = 0 at the x-intercepts rather than at the turning points",
+					"as": "distractor",
+					"in": [
+						"intervals-from-graph"
+					],
+					"wrong": "the intervals cut at the x-intercepts"
+				},
+				{
+					"ref": "SL5.2.parameter-for-monotonic#0",
+					"text": "Using the discriminant of f(x) instead of f′(x)",
+					"as": "distractor",
+					"in": [
+						"parameter-discriminant"
+					],
+					"wrong": "k² − 4c ≤ 0, with the coefficients of f"
+				},
+				{
+					"ref": "SL5.2.parameter-for-monotonic#1",
+					"text": "Using b² − 4ac > 0 (two roots) instead of ≤ 0",
+					"as": "distractor",
+					"in": [
+						"parameter-discriminant",
+						"parameter-shift"
+					],
+					"wrong": "the two-root case"
+				},
+				{
+					"ref": "SL5.2.parameter-for-monotonic#2",
+					"text": "Solving k² ≤ 9 as k ≤ 3 only, losing −3 ≤ k",
+					"as": "distractor",
+					"in": [
+						"parameter-discriminant"
+					],
+					"wrong": "the upper bound alone"
+				}
+			],
+			"chain": [
+				"differentiate, then solve f′(x) > 0 or f′(x) < 0",
+				"read the sign of f′ from a table or a graph",
+				"read the sign of f′ from the graph of f",
+				"both negative and increasing, on a quadratic",
+				"a parameter that keeps f′ on one side of the axis"
+			],
 			"frequency": 4,
 			"marks": 3,
 			"section": {
@@ -20509,9 +21413,7 @@
 			"paper": {
 				"p1": 3,
 				"p2": 1
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-differentiate-polynomial",
@@ -21356,6 +22258,638 @@
 			"topic": 5,
 			"source": "exam",
 			"name": "Chain, product and quotient rules",
+			"summary": "Differentiate standard functions, composites, products and quotients, written as an expression; show that a derivative takes a given form; find a gradient at a point, exactly on Paper 1 and to 3 s.f. on Paper 2.",
+			"situation": "differentiation",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the function as an equation: y = x² e^(3x), or f(x) = (ln x)/x⁴"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "a curve with an equation, and the gradient at the point where x = 2"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "standard-terms",
+					"given": [
+						"a e^x + b ln x + c sin x or c cos x, plus a constant"
+					],
+					"asked": "f′(x), term by term",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.standard-derivatives"
+					]
+				},
+				{
+					"id": "root-powers",
+					"given": [
+						"a root of x, or 1 over a root, plus b/x^n"
+					],
+					"asked": "f′(x), each term as a power of x",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.standard-derivatives"
+					]
+				},
+				{
+					"id": "log-power-terms",
+					"given": [
+						"a ln(x^n) or a ln(dx), plus b x^m"
+					],
+					"asked": "dy/dx",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.standard-derivatives",
+						"SL5.6.chain-rule"
+					]
+				},
+				{
+					"id": "chain-power",
+					"given": [
+						"c(a x^m + b)^n"
+					],
+					"asked": "dy/dx",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.chain-rule"
+					]
+				},
+				{
+					"id": "chain-small-power",
+					"given": [
+						"(ax + b)²"
+					],
+					"asked": "dy/dx, as px + q",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.chain-rule"
+					]
+				},
+				{
+					"id": "chain-function",
+					"given": [
+						"e, ln, sin, cos or a root of a linear or quadratic inside"
+					],
+					"asked": "dy/dx",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.chain-rule"
+					]
+				},
+				{
+					"id": "chain-log-split",
+					"given": [
+						"ln((ax + b)^n) or ln √(ax + b)"
+					],
+					"asked": "dy/dx",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.chain-rule"
+					]
+				},
+				{
+					"id": "product-functions",
+					"given": [
+						"x^n times e^(ax), ln x, sin x or cos x, or e^x sin x"
+					],
+					"asked": "dy/dx",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.product-rule"
+					]
+				},
+				{
+					"id": "product-polys",
+					"given": [
+						"(ax + b)(cx² + d)"
+					],
+					"asked": "dy/dx, as px² + qx + r",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.product-rule"
+					]
+				},
+				{
+					"id": "product-powers",
+					"given": [
+						"a x^m √x"
+					],
+					"asked": "dy/dx, as a power of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.product-rule"
+					]
+				},
+				{
+					"id": "quotient-linear",
+					"given": [
+						"(ax + b)/(cx + d)"
+					],
+					"asked": "dy/dx, as k/(cx + d)²",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.quotient-rule"
+					]
+				},
+				{
+					"id": "quotient-functions",
+					"given": [
+						"(ln x)/x^n, e^(ax)/x or (sin x)/x"
+					],
+					"asked": "dy/dx",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.quotient-rule"
+					]
+				},
+				{
+					"id": "quotient-split",
+					"given": [
+						"(ax² + bx + c)/x"
+					],
+					"asked": "dy/dx",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.quotient-rule"
+					]
+				},
+				{
+					"id": "show-form",
+					"given": [
+						"a function",
+						"a form for its derivative, with constants p, q, r"
+					],
+					"asked": "the constants: show that the derivative takes the form",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.show-derivative-form"
+					]
+				},
+				{
+					"id": "gradient-chain",
+					"given": [
+						"a composite function",
+						"x = k"
+					],
+					"asked": "the gradient at x = k",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.6.chain-rule"
+					]
+				},
+				{
+					"id": "gradient-product",
+					"given": [
+						"a product",
+						"x = k"
+					],
+					"asked": "the gradient at x = k",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.6.product-rule"
+					]
+				},
+				{
+					"id": "gradient-quotient",
+					"given": [
+						"a quotient",
+						"x = k"
+					],
+					"asked": "the gradient at x = k",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.6.quotient-rule"
+					]
+				},
+				{
+					"id": "parameter-derivative",
+					"given": [
+						"(ax + p)³/(x + c)², with the letter p"
+					],
+					"asked": "f′(x) in terms of p",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.6.quotient-rule",
+						"SL5.6.chain-rule"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.6.standard-derivatives",
+					"method": "booklet-rules",
+					"suits": [
+						"standard-terms"
+					],
+					"name": "Standard results term by term",
+					"about": "Apply the formula booklet results (d/dx sin x = cos x, d/dx cos x = −sin x, d/dx ln x = 1/x, d/dx e^x = e^x) to each term."
+				},
+				{
+					"skill": "SL5.6.standard-derivatives",
+					"method": "index-form",
+					"suits": [
+						"root-powers"
+					],
+					"name": "Rewrite roots as rational powers",
+					"about": "Write √x = x^(1/2) and 6/∛x = 6x^(−1/3) before using the power rule."
+				},
+				{
+					"skill": "SL5.6.standard-derivatives",
+					"method": "log-laws-first",
+					"suits": [
+						"log-power-terms"
+					],
+					"name": "Simplify logs first",
+					"about": "Use log laws, e.g. ln(x³) = 3 ln x and ln(5x) = ln 5 + ln x, so the derivative is immediate."
+				},
+				{
+					"skill": "SL5.6.chain-rule",
+					"method": "outer-times-inner",
+					"suits": [
+						"log-power-terms",
+						"chain-power",
+						"chain-small-power",
+						"chain-function",
+						"chain-log-split",
+						"gradient-chain"
+					],
+					"name": "Outer derivative × inner derivative",
+					"about": "Differentiate the outer function leaving the inside unchanged, then multiply by the derivative of the inside."
+				},
+				{
+					"skill": "SL5.6.chain-rule",
+					"method": "u-substitution",
+					"suits": [
+						"chain-power",
+						"chain-function"
+					],
+					"name": "Substitute u for the inside",
+					"about": "Let u be the inner function, find dy/du and du/dx, then dy/dx = dy/du × du/dx."
+				},
+				{
+					"skill": "SL5.6.chain-rule",
+					"method": "expand-first",
+					"suits": [
+						"chain-small-power"
+					],
+					"name": "Expand a small power first",
+					"about": "For something like (2x + 1)³, expand (binomial theorem) and differentiate term by term."
+				},
+				{
+					"skill": "SL5.6.chain-rule",
+					"method": "log-laws-first",
+					"suits": [
+						"chain-log-split"
+					],
+					"name": "Split logs before differentiating",
+					"about": "For ln of a product, power or quotient, use log laws first, e.g. ln((2x + 1)³) = 3 ln(2x + 1)."
+				},
+				{
+					"skill": "SL5.6.product-rule",
+					"method": "product-rule",
+					"suits": [
+						"product-functions",
+						"product-polys",
+						"product-powers",
+						"gradient-product"
+					],
+					"name": "Product rule",
+					"about": "With y = uv, use dy/dx = u dv/dx + v du/dx, then factorise common terms."
+				},
+				{
+					"skill": "SL5.6.product-rule",
+					"method": "expand-first",
+					"suits": [
+						"product-polys"
+					],
+					"name": "Multiply out first",
+					"about": "If both factors are polynomials, expand and use the power rule instead."
+				},
+				{
+					"skill": "SL5.6.product-rule",
+					"method": "combine-powers",
+					"suits": [
+						"product-powers"
+					],
+					"name": "Combine into one power",
+					"about": "Products like x²√x are just x^(5/2), so no product rule is needed."
+				},
+				{
+					"skill": "SL5.6.quotient-rule",
+					"method": "quotient-rule",
+					"suits": [
+						"quotient-linear",
+						"quotient-functions",
+						"quotient-split",
+						"gradient-quotient",
+						"parameter-derivative"
+					],
+					"name": "Quotient rule",
+					"about": "With y = u/v, use (v u′ − u v′)/v², keeping v u′ first."
+				},
+				{
+					"skill": "SL5.6.quotient-rule",
+					"method": "product-with-negative-power",
+					"suits": [
+						"quotient-linear",
+						"quotient-functions",
+						"parameter-derivative"
+					],
+					"name": "Rewrite as u × v⁻¹",
+					"about": "Use the product rule with the chain rule on v⁻¹, then simplify over a common denominator."
+				},
+				{
+					"skill": "SL5.6.quotient-rule",
+					"method": "split-fraction",
+					"suits": [
+						"quotient-split"
+					],
+					"name": "Split when the denominator is a single term",
+					"about": "If the denominator is a power of x, divide each term and use the power rule."
+				},
+				{
+					"skill": "SL5.6.show-derivative-form",
+					"method": "differentiate-simplify",
+					"suits": [
+						"show-form"
+					],
+					"name": "Differentiate, then simplify to the target",
+					"about": "Apply the right rule(s), then factorise or put over a common denominator until it matches the given form."
+				},
+				{
+					"skill": "SL5.6.show-derivative-form",
+					"method": "alternate-rule",
+					"suits": [
+						"show-form"
+					],
+					"name": "Pick the rule that lands nearest the target",
+					"about": "Choose the route that makes the target easiest to reach, e.g. product rule with a negative power instead of the quotient rule."
+				},
+				{
+					"skill": "SL5.6.show-derivative-form",
+					"method": "both-ends",
+					"suits": [
+						"show-form"
+					],
+					"name": "Meet in the middle",
+					"about": "Simplify your derivative and rearrange the given answer, showing both sides reach the same expression in an LHS = RHS layout."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The derivative of a product is the product of the derivatives.",
+					"answer": "False: for y = x · x = x², the product of the derivatives is 1 · 1 = 1, but dy/dx = 2x. The product rule has two terms.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Writing a function another way before differentiating changes its derivative.",
+					"answer": "Never: ln(x³) and 3 ln x are the same function for x > 0, so they have the same derivative. A rewrite only changes how much work it takes.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If f(x) = (2x + 1)/(2x − 3), then the derivative of the top divided by the derivative of the bottom gives f′(x).",
+					"answer": "False: that gives 2/2 = 1, a constant, but the quotient rule gives −8/(2x − 3)², which is always negative.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.6.standard-derivatives#0",
+					"text": "d/dx cos x = sin x (missing the minus sign)",
+					"as": "distractor",
+					"in": [
+						"standard-terms",
+						"chain-function"
+					],
+					"wrong": "cos x differentiated to sin x"
+				},
+				{
+					"ref": "SL5.6.standard-derivatives#1",
+					"text": "d/dx e^x = x e^(x−1), treating e^x as a power of x",
+					"as": "distractor",
+					"in": [
+						"standard-terms"
+					],
+					"wrong": "e^x differentiated as a power of x"
+				},
+				{
+					"ref": "SL5.6.standard-derivatives#2",
+					"text": "Getting a fractional power wrong: x^(−1/3) → −(1/3)x^(2/3) instead of −(1/3)x^(−4/3)",
+					"as": "distractor",
+					"in": [
+						"root-powers"
+					],
+					"wrong": "1 added to the power instead of taken off"
+				},
+				{
+					"ref": "SL5.6.chain-rule#0",
+					"text": "Forgetting the inner derivative: d/dx (3x² + 1)⁴ = 4(3x² + 1)³",
+					"as": "distractor",
+					"in": [
+						"log-power-terms",
+						"chain-power",
+						"chain-small-power",
+						"chain-function",
+						"chain-log-split",
+						"gradient-chain",
+						"parameter-derivative"
+					],
+					"wrong": "the outer derivative with no inner factor"
+				},
+				{
+					"ref": "SL5.6.chain-rule#1",
+					"text": "d/dx ln(3x) = 1/(3x) instead of 1/x",
+					"as": "distractor",
+					"in": [
+						"log-power-terms"
+					],
+					"wrong": "1 over the inside, with no inner factor"
+				},
+				{
+					"ref": "SL5.6.chain-rule#2",
+					"text": "Replacing the inside by its derivative: 4(6x)³",
+					"as": "distractor",
+					"in": [
+						"chain-power"
+					],
+					"wrong": "the inner derivative in the bracket"
+				},
+				{
+					"ref": "SL5.6.product-rule#0",
+					"text": "(uv)′ = u′v′",
+					"as": "distractor",
+					"in": [
+						"product-functions",
+						"product-polys",
+						"product-powers",
+						"gradient-product"
+					],
+					"wrong": "u′ times v′"
+				},
+				{
+					"ref": "SL5.6.product-rule#1",
+					"text": "Writing only one of the two terms",
+					"as": "distractor",
+					"in": [
+						"product-functions",
+						"product-polys",
+						"product-powers",
+						"gradient-product"
+					],
+					"wrong": "one term of the rule"
+				},
+				{
+					"ref": "SL5.6.product-rule#2",
+					"text": "Factorising wrongly, e.g. 2x ln x + x = x(2 ln x)",
+					"as": "distractor",
+					"in": [
+						"product-functions"
+					],
+					"wrong": "x(n ln x), losing the second term"
+				},
+				{
+					"ref": "SL5.6.quotient-rule#0",
+					"text": "Reversing the numerator to u v′ − v u′, which flips the sign of the answer",
+					"as": "distractor",
+					"in": [
+						"quotient-linear",
+						"quotient-functions",
+						"quotient-split",
+						"gradient-quotient",
+						"parameter-derivative"
+					],
+					"wrong": "the top with its sign flipped"
+				},
+				{
+					"ref": "SL5.6.quotient-rule#1",
+					"text": "Forgetting to square the denominator",
+					"as": "distractor",
+					"in": [
+						"quotient-linear",
+						"quotient-functions",
+						"quotient-split",
+						"gradient-quotient",
+						"parameter-derivative",
+						"show-form"
+					],
+					"wrong": "v for v²"
+				},
+				{
+					"ref": "SL5.6.quotient-rule#2",
+					"text": "(u/v)′ = u′/v′",
+					"as": "distractor",
+					"in": [
+						"quotient-linear",
+						"quotient-functions",
+						"quotient-split",
+						"gradient-quotient"
+					],
+					"wrong": "u′ over v′"
+				},
+				{
+					"ref": "SL5.6.show-derivative-form#2",
+					"text": "Sign slips when expanding −u v′ in the quotient rule",
+					"as": "distractor",
+					"in": [
+						"show-form"
+					],
+					"wrong": "a sign slipped on the top"
+				}
+			],
+			"chain": [
+				"differentiate e^x, ln x, sin x, cos x and rational powers of x, term by term",
+				"the chain rule on a bracket, an exponential, a log, a trig function or a root",
+				"the product rule, or a rewrite that avoids it",
+				"the quotient rule, or a rewrite that avoids it",
+				"show that a derivative simplifies to a given form",
+				"evaluate the derivative at a point"
+			],
 			"frequency": 8,
 			"marks": 3,
 			"section": {
@@ -21365,15 +22899,399 @@
 			"paper": {
 				"p1": 6,
 				"p2": 2
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-concavity",
 			"topic": 5,
 			"source": "exam",
 			"name": "Second derivative and concavity",
+			"summary": "Find and evaluate a second derivative; find where a graph is concave up or down, from f, f″, the graph of f′, or f′ with an exponential on Paper 2; and match the graphs of f, f′ and f″.",
+			"situation": "concavity",
+			"formats": [
+				"value",
+				"mcq",
+				"graph-pick"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "f(x), f′(x) or f″(x) as an equation"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the graph of f or f′ with its key points, four candidate graphs, or a curve with a tangent"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "a curve in words, or what f′ and f″ do on each stretch"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "the signs of f′ and f″ on each stretch"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "second-derivative",
+					"given": [
+						"f(x) or y"
+					],
+					"asked": "f″(x) or d²y/dx²",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.7.find-second-derivative"
+					]
+				},
+				{
+					"id": "second-derivative-value",
+					"given": [
+						"f(x) or f′(x)",
+						"x = k"
+					],
+					"asked": "f″(k), or the gradient of f′ at k",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.7.find-second-derivative"
+					]
+				},
+				{
+					"id": "concave-interval",
+					"given": [
+						"a cubic or a quartic"
+					],
+					"asked": "where the graph is concave up or down",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.7.concavity"
+					]
+				},
+				{
+					"id": "concave-exponential",
+					"given": [
+						"f″(x) = (ax + b)e^(cx)"
+					],
+					"asked": "where the graph is concave up or down",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.7.concavity"
+					]
+				},
+				{
+					"id": "concave-gdc",
+					"given": [
+						"f′(x) = a + bx − c e^x"
+					],
+					"asked": "where the graph is concave up or down, to 3 s.f.",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.7.concavity"
+					]
+				},
+				{
+					"id": "concave-from-derivative-graph",
+					"given": [
+						"the graph of f′"
+					],
+					"asked": "where the graph of f is concave up or down",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.7.concavity"
+					]
+				},
+				{
+					"id": "concave-at-point",
+					"given": [
+						"f(x)",
+						"x = k"
+					],
+					"asked": "f″(k), and whether the curve is concave up or down there",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.7.concavity"
+					]
+				},
+				{
+					"id": "match-derivative",
+					"given": [
+						"the graph of a cubic f"
+					],
+					"asked": "which graph could be y = f′(x)",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.7.sketch-match-graphs"
+					]
+				},
+				{
+					"id": "match-second-derivative",
+					"given": [
+						"the graph of f′"
+					],
+					"asked": "which graph could be y = f″(x)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.7.sketch-match-graphs"
+					]
+				},
+				{
+					"id": "match-from-signs",
+					"given": [
+						"the signs of f′ and f″"
+					],
+					"asked": "which graph could be y = f(x)",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL5.7.sketch-match-graphs"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.7.find-second-derivative",
+					"method": "differentiate-twice",
+					"suits": [
+						"second-derivative",
+						"second-derivative-value"
+					],
+					"name": "Differentiate f′(x) again",
+					"about": "Differentiate the first derivative with the same rules (often the product or chain rule a second time)."
+				},
+				{
+					"skill": "SL5.7.find-second-derivative",
+					"method": "gdc-gradient-of-derivative",
+					"suits": [
+						"second-derivative-value"
+					],
+					"name": "Gradient of the f′ graph on the GDC",
+					"about": "On P2, graph y = f′(x) (or nDeriv of f) and find its gradient at the point, giving f″(a)."
+				},
+				{
+					"skill": "SL5.7.concavity",
+					"method": "sign-of-second-derivative",
+					"suits": [
+						"concave-interval",
+						"concave-exponential",
+						"concave-gdc",
+						"concave-at-point"
+					],
+					"name": "Solve f″(x) > 0 or f″(x) < 0",
+					"about": "Concave up where f″(x) > 0, concave down where f″(x) < 0."
+				},
+				{
+					"skill": "SL5.7.concavity",
+					"method": "f-prime-increasing",
+					"suits": [
+						"concave-interval",
+						"concave-from-derivative-graph"
+					],
+					"name": "Is f′ increasing?",
+					"about": "Concave up exactly where f′ is increasing, which you can read from the graph of f′."
+				},
+				{
+					"skill": "SL5.7.concavity",
+					"method": "tangent-position",
+					"suits": [
+						"concave-at-point"
+					],
+					"name": "Curve above or below its tangents",
+					"about": "Concave up means the curve lies above its tangents (it holds water); concave down means it lies below them."
+				},
+				{
+					"skill": "SL5.7.concavity",
+					"method": "gdc-shape",
+					"suits": [
+						"concave-gdc"
+					],
+					"name": "Look at the GDC graph",
+					"about": "Plot f and look at the bending, confirming with the sign of f″ at test points."
+				},
+				{
+					"skill": "SL5.7.sketch-match-graphs",
+					"method": "turning-points-to-zeros",
+					"suits": [
+						"match-derivative"
+					],
+					"name": "Turning points become zeros",
+					"about": "Turning points of f are x-intercepts of f′; where f rises, f′ is above the axis; where f falls, f′ is below."
+				},
+				{
+					"skill": "SL5.7.sketch-match-graphs",
+					"method": "degree-drop",
+					"suits": [
+						"match-derivative",
+						"match-second-derivative"
+					],
+					"name": "Degree drops by one",
+					"about": "The derivative of a cubic is a parabola and the derivative of a parabola is a straight line."
+				},
+				{
+					"skill": "SL5.7.sketch-match-graphs",
+					"method": "sign-tables",
+					"suits": [
+						"match-second-derivative",
+						"match-from-signs"
+					],
+					"name": "Sign rows for f′ and f″",
+					"about": "Build sign rows for f′ and f″ from the shape of f, then draw graphs that fit the signs."
+				},
+				{
+					"skill": "SL5.7.sketch-match-graphs",
+					"method": "gdc-nderiv",
+					"suits": [
+						"match-second-derivative"
+					],
+					"name": "Graph the numerical derivative",
+					"about": "When f is given as a formula, graph nDeriv(f(x)) on the GDC to see f′."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A graph that is concave up must be increasing.",
+					"answer": "False: f(x) = x² is concave up everywhere, and it decreases for x < 0. Concave up says the gradient is increasing, not the function.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If f″(x) > 0 on an interval, then f′ is increasing on that interval.",
+					"answer": "True: f″ is the derivative of f′, so a positive f″ means f′ is increasing, whatever the sign of f′ itself.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "If f″(a) = 0, then the graph of f has a point of inflexion at x = a.",
+					"answer": "Sometimes: x³ does at x = 0, but x⁴ has f″(0) = 0 and is concave up on both sides, so it has none. f″ has to change sign.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.7.find-second-derivative#0",
+					"text": "Squaring f′(x) instead of differentiating it",
+					"as": "distractor",
+					"in": [
+						"second-derivative",
+						"second-derivative-value"
+					],
+					"wrong": "(f′(x))²"
+				},
+				{
+					"ref": "SL5.7.find-second-derivative#1",
+					"text": "Differentiating f(x) again instead of f′(x)",
+					"as": "distractor",
+					"in": [
+						"second-derivative",
+						"second-derivative-value"
+					],
+					"wrong": "stopping at f′"
+				},
+				{
+					"ref": "SL5.7.find-second-derivative#2",
+					"text": "Reading d²y/dx² as (dy/dx)²",
+					"as": "distractor",
+					"in": [
+						"second-derivative"
+					],
+					"wrong": "(dy/dx)²"
+				},
+				{
+					"ref": "SL5.7.concavity#0",
+					"text": "Confusing concave up (f″ > 0) with increasing (f′ > 0)",
+					"as": "distractor",
+					"in": [
+						"concave-interval",
+						"concave-gdc",
+						"concave-from-derivative-graph",
+						"concave-at-point"
+					],
+					"wrong": "where f′ > 0"
+				},
+				{
+					"ref": "SL5.7.concavity#1",
+					"text": "Thinking concave down means decreasing",
+					"as": "distractor",
+					"in": [
+						"concave-at-point"
+					],
+					"wrong": "concave down read from f falling"
+				},
+				{
+					"ref": "SL5.7.sketch-match-graphs#0",
+					"text": "Drawing f′ as a shifted copy of f",
+					"as": "distractor",
+					"in": [
+						"match-derivative",
+						"match-second-derivative",
+						"match-from-signs"
+					],
+					"wrong": "a copy of the graph, moved"
+				},
+				{
+					"ref": "SL5.7.sketch-match-graphs#1",
+					"text": "Putting the zeros of f′ at the x-intercepts of f instead of at its turning points",
+					"as": "distractor",
+					"in": [
+						"match-derivative",
+						"match-second-derivative"
+					],
+					"wrong": "zeros at the x-intercepts"
+				}
+			],
+			"chain": [
+				"differentiate twice",
+				"evaluate f″ at a point",
+				"solve f″(x) > 0 or f″(x) < 0",
+				"read concavity from the direction of f′",
+				"say whether a curve is concave up or down at a point",
+				"match f with f′, f′ with f″, or the signs with f"
+			],
 			"frequency": 5,
 			"marks": 3,
 			"section": {
@@ -21383,9 +23301,7 @@
 			"paper": {
 				"p1": 4,
 				"p2": 1
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-antiderivative-condition",

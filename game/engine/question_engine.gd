@@ -81,6 +81,10 @@ static var SITUATIONS := {
 	"inverse-rule": [InverseRuleSituation, InverseRuleViews],
 	"composite-graph-table": [GraphTableSituation, GraphTableViews],
 	"fn-pre-rearrange": [RearrangeSituation, RearrangeViews],
+	"differentiation": [DifferentiationSituation, DifferentiationViews],
+	"derivative-meaning": [DerivativeMeaningSituation, DerivativeMeaningViews],
+	"monotonic": [MonotonicSituation, MonotonicViews],
+	"concavity": [ConcavitySituation, ConcavityViews],
 }
 
 static var _cat: Dictionary = {}

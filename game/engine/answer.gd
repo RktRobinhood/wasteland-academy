@@ -31,7 +31,10 @@ extends RefCounted
 ##              for the Graphs and key features region (FAL-420) also xs (x-values in
 ##              any order; options may have other counts), pts (points in any order; a
 ##              wrong option may give only_x, the x-coordinates) and graph (pick the
-##              graph: "Graph A" to "Graph D")
+##              graph: "Graph A" to "Graph D");
+##              for Topic 5 (FAL-723) also form: an expression written by its builder.
+##              fixed.parts is the slot input, values.text the expression as it reads,
+##              and a wrong option in another shape carries "shape" and is never typed
 ##   template   the slot input: literal Strings, {"slot": id} for a typed number and
 ##              {"pick": id, "options": [...]} for a choice of words
 ##   values     slot id -> Q (typed number) or String (picked option)
@@ -238,6 +241,8 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			unordered = [ids]
 		"graph":
 			t = [{"pick": "v", "options": fixed.options}]
+		"form":
+			t = fixed.parts
 		"pts":
 			var n := int(str(values.n))
 			for i in n:
@@ -394,7 +399,7 @@ static func lnq_value(m: Variant, r: Variant, form: String = "") -> float:
 static func typable(ans: Dictionary, values: Dictionary) -> bool:
 	var ids: Array = slots(ans).map(func(item): return item.get("slot", item.get("pick", "")))
 	for key in values:
-		if key in ids:
+		if key in ids or (ans.kind == "form" and key == "text"):
 			continue
 		if not ans.values.has(key) or str(ans.values[key]) != str(values[key]):
 			return false
@@ -555,6 +560,8 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			return fx.get("var", "x") + " = " + xs_list(_sorted(xs_values(v)).map(func(x): return shown(ans, x)))
 		"graph":
 			return str(v.v)
+		"form":
+			return ans.label + v.text
 		"pts":
 			# A wrong option may give only the x-coordinates (SL2.4.intersection#0).
 			if v.get("only_x", false):
@@ -656,7 +663,7 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind in ["xs", "pts"]:
 		return ans.kind + ":" + text(ans, values)
 	# Shown to 3 s.f. or as decimals: two values that read the same are one option.
-	if ans.kind in ["pct", "expmodel", "limited", "fn", "xpow"]:
+	if ans.kind in ["pct", "expmodel", "limited", "fn", "xpow", "form"]:
 		return ans.kind + ":" + text(ans, values)
 	var v := values.duplicate()
 	if ans.kind == "points2":
