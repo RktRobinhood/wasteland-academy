@@ -1,7 +1,7 @@
 class_name TriangleViews
 extends RefCounted
-## The views on the `triangle` situation: one builder per unknown of t3-sine-cosine-rule
-## and t3-triangle-area (curriculum/question-types.json). A builder returns the same
+## The views on the `triangle` situation: one builder per unknown of t3-sine-cosine-rule,
+## t3-triangle-area and t3-ambiguous-case (curriculum/question-types.json). A builder returns the same
 ## fields as the quadratic ones (see quadratic_views.gd), plus
 ##   diagram   the triangle to draw (or null): vertices, side and angle labels
 ##
@@ -16,7 +16,8 @@ extends RefCounted
 ## uses the exact sines and cosines. A wrong option on Paper 1 is offered only where it
 ## is exact too: the calculator-only slips (radian mode) and the slips that give an
 ## angle no table of exact values has stay on Paper 2. The sine rule's ambiguous angle
-## is Paper 2 only (papers()).
+## is Paper 2 only (papers()), and so is every question on the ambiguous case, whose
+## answers are the two measures (kind measures) or the largest one.
 ##
 ## `given` holds what the student is shown, for the SymPy checker: the givens kind,
 ## sides (letter -> cm), angles (letter -> degrees), area, obtuse, and ask.
@@ -29,6 +30,9 @@ const NEED := {
 	"area-from-two-sides": {"givens": "sas", "ask": "area"},
 	"side-from-area": {"givens": "area-side"},
 	"angle-from-area": {"givens": "area-angle"},
+	"both-angles": {"givens": "ssa-two"},
+	"both-sides": {"givens": "ssa-two"},
+	"largest-angle": {"givens": "ssa-mix"},
 }
 
 const CM := " cm"
@@ -47,10 +51,10 @@ func need(unknown: String, _rep: String) -> Dictionary:
 
 
 ## The papers a cell can be asked on: every unknown on both, but the sine rule's angle
-## (only one triangle fits) on Paper 2, as no whole sides make its sine exact but a
-## right triangle's.
+## (one triangle or two) on Paper 2, as no whole sides make its sine exact but a right
+## triangle's.
 func papers(unknown: String, _rep: String, _angle: String) -> Array:
-	return [2] if unknown == "angle-sine-rule" else [1, 2]
+	return [2] if unknown in ["angle-sine-rule", "both-angles", "both-sides", "largest-angle"] else [1, 2]
 
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -206,6 +210,8 @@ static func show(rep: String, s: Dictionary, out: Dictionary) -> void:
 			out.lines = ["In triangle ABC, %s." % and_list(facts)]
 		return
 	var cap := "The diagram shows triangle ABC (not to scale)."
+	if s.has("second"):
+		cap = "The diagram shows the two triangles ABC that fit (not to scale)."
 	if sh.area != null:
 		cap += " Its area is %s cm².%s" % [area_text(sh), tail]
 	out.lines = [cap]
@@ -225,11 +231,19 @@ static func and_list(items: Array) -> String:
 
 ## The drawing: A at the origin, B along the x-axis, C above it, to scale; each side
 ## and angle carries its given value, ? when asked, or nothing.
+##
+## Two triangles (s.second): X at the origin, Y along the x-axis and Z above it, so the
+## side x swings from Z to Y on the line. "second" says where it lands the other time:
+## the same vertex Y, at the point `at` nearer X. The view labels the two Y₁ and Y₂.
 static func diagram(s: Dictionary) -> Dictionary:
 	var A: float = s.angles.A
 	var b: float = s.sides.b
 	var c: float = s.sides.c
 	var pts := {"A": [0.0, 0.0], "B": [c, 0.0], "C": [b * cos(rad(A)), b * sin(rad(A))]}
+	if s.has("second"):
+		var ax: float = s.angles[s.X]
+		var sy: float = s.sides[lo(s.Y)]
+		pts = {s.X: [0.0, 0.0], s.Y: [s.sides[lo(s.Z)], 0.0], s.Z: [sy * cos(rad(ax)), sy * sin(rad(ax))]}
 	var sides: Array = []
 	for L in ["A", "B", "C"]:
 		var label := ""
@@ -246,7 +260,10 @@ static func diagram(s: Dictionary) -> Dictionary:
 		elif s.ask == L:
 			label = "?"
 		angles.append({"at": L, "label": label})
-	return {"vertices": pts, "sides": sides, "angles": angles}
+	var out := {"vertices": pts, "sides": sides, "angles": angles}
+	if s.has("second"):
+		out.second = {"vertex": s.Y, "at": [s.second.sides[lo(s.Z)], 0.0]}
+	return out
 
 
 static func ask_side(letter: String) -> String:
@@ -460,6 +477,233 @@ func u_angle_sine_rule(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrong(out, deg(asin(swapped)), "SL3.2.sine-rule#0")
 	wrong(out, 180.0 - x, "SL3.5.ambiguous-case#1")
 	generic(out, [s.angles[Z], deg(asin(sy / sx)), ax * sy / sx])
+	return out
+
+
+# ── t3-ambiguous-case ────────────────────────────────────────
+
+static func two_measures(label: String, x: float, y: float, unit: String) -> Dictionary:
+	return Answer.make("measures", {"v1": qf(x), "v2": qf(y)}, {}, label, unit)
+
+
+static func res2(x: float, y: float) -> Dictionary:
+	return {"v1": qf(x), "v2": qf(y)}
+
+
+## A wrong pair of values, kept only when both are real positive numbers.
+static func wrong2(out: Dictionary, x: float, y: float, ref: String = "") -> void:
+	if is_finite(x) and x > 0.0 and is_finite(y) and y > 0.0:
+		out.wrongs.append({"values": res2(x, y), "ref": ref})
+
+
+static func generic2(out: Dictionary, pairs: Array) -> void:
+	for p in pairs:
+		if is_finite(p[0]) and p[0] > 0.0 and is_finite(p[1]) and p[1] > 0.0:
+			out.generic.append(res2(p[0], p[1]))
+
+
+## The option that stops at one value (SL3.5.ambiguous-case#0).
+static func only(out: Dictionary, x: float) -> void:
+	out.wrongs.append({"values": {"v1": qf(x), "v2": qf(x), "only": true}, "ref": "SL3.5.ambiguous-case#0"})
+
+
+## x to p decimal places, for values worked out from figures printed to p places.
+static func places(x: float, p: int) -> String:
+	return "%.*f" % [p, x]
+
+
+## How many decimal places a printed number has.
+static func dp(text: String) -> int:
+	return text.get_slice(".", 1).length() if text.contains(".") else 0
+
+
+## The figures for working from sin Y = ratio to the two angles: acute (the angle),
+## kr, tr (the sine and how many figures it needs), ta (the acute angle) and to
+## (180° − ta, to the same places, so exact). later lists [next, n] for each later step
+## worked from the acute angle, as figs() takes them.
+static func angle_figures(ratio: float, later: Array = []) -> Dictionary:
+	var acute := deg(asin(ratio))
+	var same := func(xs: Array) -> float: return xs[0]
+	var ka := maxi(maxi(figs([acute], supplement, 4), figs([acute], supplement, 3)), figs([acute], same, 3))
+	for e in later:
+		ka = maxi(ka, figs([acute], e[0], e[1]))
+	var ta := Fmt.sf(acute, ka)
+	var kr := figs([ratio], asin_deg, ka)
+	return {"acute": acute, "kr": kr, "tr": Fmt.sf(ratio, kr), "ta": ta, "to": places(180.0 - ta.to_float(), dp(ta))}
+
+
+## "A + B₂ = 40° + 138.77° = 178.77°, ...": does the obtuse angle leave room for a third?
+static func sum_step(X: String, Y: String, ax: float, f: Dictionary, room: bool) -> String:
+	return "%s + %s₂ = %s° + %s° = %s°, %s" % [X, Y, whole(ax), f.to, places(ax + (f.to as String).to_float(), dp(f.to)),
+		"less than 180°, so there is room for a third angle and both triangles fit." if room \
+		else "more than 180°, so %s₂ leaves no room for a third angle and only one triangle fits." % Y]
+
+
+## The first steps of the sine-rule-supplement method: Y₁, then Y₂.
+static func sine_steps(s: Dictionary, f: Dictionary) -> Array:
+	var X: String = s.X
+	var Y: String = s.Y
+	return [
+		names([X, Y]),
+		"sin %s / %s = sin %s / %s" % [Y, lo(Y), X, lo(X)],
+		"sin %s = %s sin %s / %s = %s sin %s° / %s = %s" % [Y, lo(Y), X, lo(X), whole(s.sides[lo(Y)]), whole(s.angles[X]),
+			whole(s.sides[lo(X)]), f.tr],
+		"%s₁ = sin⁻¹(%s) = %s°" % [Y, f.tr, f.ta],
+		"The other angle with this sine is %s₂ = 180° − %s° = %s°." % [Y, f.ta, f.to]]
+
+
+## The first steps of the altitude-test method: the altitude from Z, what comparing the
+## sides with it says, and sin Y from the height shown, to kr figures.
+static func altitude_steps(s: Dictionary, kr: int) -> Array:
+	var X: String = s.X
+	var Y: String = s.Y
+	var sx: float = s.sides[lo(X)]
+	var sy: float = s.sides[lo(Y)]
+	var ax: float = s.angles[X]
+	var h := sy * sin(rad(ax))
+	var th := Fmt.sf(h, figs([h], func(xs: Array) -> float: return xs[0] / sx, kr))
+	var verdict := "h < %s < %s: %s < %s < %s. %s is long enough to reach the line %s and can land on either side of the altitude, so two triangles fit." % [
+			lo(X), lo(Y), th, whole(sx), whole(sy), side(X), line(X, Y)]
+	if sx > sy:
+		verdict = "%s > %s: %s > %s. %s meets the line %s once on each side of %s, and only the one on %s's side makes a triangle, so one triangle fits." % [
+			lo(X), lo(Y), whole(sx), whole(sy), side(X), line(X, Y), X, Y]
+	return [
+		"Drop the altitude from %s to the line %s: h = %s sin %s = %s sin %s° = %s cm." % [s.Z, line(X, Y), lo(Y), X, whole(sy), whole(ax), th],
+		verdict,
+		"sin %s = h / %s = %s / %s = %s" % [Y, lo(X), th, whole(sx), Fmt.sf(h / sx, kr)]]
+
+
+func u_both_angles(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var X: String = s.X
+	var Y: String = s.Y
+	var Z: String = s.Z
+	var sx: float = s.sides[lo(X)]
+	var sy: float = s.sides[lo(Y)]
+	var ax: float = s.angles[X]
+	var f := angle_figures(sy * sin(rad(ax)) / sx)
+	var x: float = f.acute
+	var ans := two_measures(angle(Y) + " = ", x, 180.0 - x, DEG)
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var t := s.duplicate()
+	t.ask = Y
+	show(rep, t, out)
+	out.asked = "Find the two possible values of %s, to 3 significant figures." % angle(Y)
+	var sines := sine_steps(s, f)
+	sines.append_array([sum_step(X, Y, ax, f, true), "So %s." % Answer.text(ans)])
+	var alt := altitude_steps(s, f.kr)
+	alt.append_array([
+		"%s₁ = sin⁻¹(%s) = %s°" % [Y, f.tr, f.ta],
+		"%s₂ = 180° − %s° = %s°" % [Y, f.ta, f.to],
+		"So %s." % Answer.text(ans)])
+	out.methods = {"sine-rule-supplement": {"steps": sines, "result": ans.values},
+		"altitude-test": {"steps": alt, "result": ans.values}}
+	only(out, x)
+	var swapped := sx * sin(rad(ax)) / sy
+	var w := deg(asin(swapped))
+	wrong2(out, w, 180.0 - w, "SL3.2.sine-rule#0")
+	var az: float = s.angles[Z]
+	var az2: float = s.second.angles[Z]
+	generic2(out, [[x, az], [az2, 180.0 - az2], [az, az2], [x, 90.0 + x]])
+	return out
+
+
+## The figures of b and √(b² − 4c) in z² − bz + c = 0, so that (b ± the root) / 2 give
+## the two roots' 3 figures: [b, the root] as printed, the root worked from b as printed.
+static func quad_figs(b: float, c: int, lo_root: float, hi_root: float) -> Array:
+	for k in range(4, 10):
+		var tb := Fmt.sf(b, k)
+		var sb := tb.to_float()
+		var d := sqrt(sb * sb - 4.0 * c)
+		var td := Fmt.sf(d, k)
+		var sd := td.to_float()
+		if clear(b, k, tb) and clear(d, k, td) and clear((sb - sd) / 2.0, 3, sf(lo_root)) and clear((sb + sd) / 2.0, 3, sf(hi_root)):
+			return [tb, td]
+	return [Fmt.sf(b, 10), Fmt.sf(sqrt(b * b - 4.0 * c), 10)]
+
+
+func u_both_sides(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var X: String = s.X
+	var Y: String = s.Y
+	var Z: String = s.Z
+	var sx: float = s.sides[lo(X)]
+	var sy: float = s.sides[lo(Y)]
+	var ax: float = s.angles[X]
+	var z1: float = s.sides[lo(Z)]
+	var z2: float = s.second.sides[lo(Z)]
+	var ans := two_measures(side(Z) + " = ", z2, z1, CM)
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	var t := s.duplicate()
+	t.ask = lo(Z)
+	show(rep, t, out)
+	out.asked = "Find the two possible lengths of %s, to 3 significant figures." % side(Z)
+	var tx := whole(sx)
+	var ty := whole(sy)
+	var tX := whole(ax)
+	var zl := lo(Z)
+	# z² − bz + c = 0, from x² = y² + z² − 2yz cos X
+	var b := 2.0 * sy * cos(rad(ax))
+	var c := int(sy * sy - sx * sx)
+	var q := quad_figs(b, c, z2, z1)
+	var quadratic := [
+		names([X, Y, Z]),
+		"The third side %s is unknown, so the cosine rule on the given angle is a quadratic in %s." % [side(Z), zl],
+		"%s² = %s² + %s² − 2%s%s cos %s" % [lo(X), lo(Y), zl, lo(Y), zl, X],
+		"%s² = %s² + %s² − 2 × %s × %s × cos %s°" % [tx, ty, zl, ty, zl, tX],
+		"2 × %s × cos %s° = %s, so %s² − %s%s + %d = 0" % [ty, tX, q[0], zl, q[0], zl, c],
+		"√(%s² − 4 × %d) = %s" % [q[0], c, q[1]],
+		"%s = (%s − %s) / 2 = %s or %s = (%s + %s) / 2 = %s" % [zl, q[0], q[1], sf(z2), zl, q[0], q[1], sf(z1)],
+		"Both roots are positive, so two triangles fit.",
+		"So %s." % Answer.text(ans)]
+	var long_z := func(xs: Array) -> float: return sx * sin(rad(180.0 - ax - xs[0])) / sin(rad(ax))
+	var short_z := func(xs: Array) -> float: return sx * sin(rad(xs[0] - ax)) / sin(rad(ax))
+	var f := angle_figures(sy * sin(rad(ax)) / sx, [[long_z, 3], [short_z, 3]])
+	var p := dp(f.ta)
+	var tz1 := places(180.0 - ax - (f.ta as String).to_float(), p)
+	var tz2 := places(180.0 - ax - (f.to as String).to_float(), p)
+	var sines := sine_steps(s, f)
+	sines.append_array([
+		"%s₁ = 180° − %s° − %s° = %s°" % [Z, tX, f.ta, tz1],
+		"%s₂ = 180° − %s° − %s° = %s°" % [Z, tX, f.to, tz2],
+		"%s₁ = %s sin %s₁ / sin %s = %s sin %s° / sin %s° = %s" % [zl, lo(X), Z, X, tx, tz1, tX, sf(z1)],
+		"%s₂ = %s sin %s₂ / sin %s = %s sin %s° / sin %s° = %s" % [zl, lo(X), Z, X, tx, tz2, tX, sf(z2)],
+		"So %s." % Answer.text(ans)])
+	out.methods = {"cosine-rule-quadratic": {"steps": quadratic, "result": ans.values},
+		"sine-rule-supplement": {"steps": sines, "result": ans.values}}
+	only(out, z1)
+	var ay: float = s.angles[Y]
+	wrong2(out, sx * sin(rad(s.angles[Z])) / sin(rad(ay)), sx * sin(rad(s.second.angles[Z])) / sin(rad(ay)), "SL3.2.sine-rule#0")
+	generic2(out, [[z1 - z2, z1 + z2], [z1, sy], [z2, sy], [z1, sx], [z2, sx]])
+	return out
+
+
+func u_largest_angle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var X: String = s.X
+	var Y: String = s.Y
+	var sx: float = s.sides[lo(X)]
+	var sy: float = s.sides[lo(Y)]
+	var ax: float = s.angles[X]
+	var two: bool = s.has("second")
+	var f := angle_figures(sy * sin(rad(ax)) / sx)
+	var x: float = f.acute
+	var ans := angle_answer(Y, s.value)
+	var out := {"answer": ans, "wrongs": [], "generic": []}
+	show(rep, s, out)
+	out.asked = "Find the largest possible value of %s, to 3 significant figures." % angle(Y)
+	var pick := ("%s₂ is the larger of the two." % Y) if two else ("%s₁ is the only value of %s." % [Y, Y])
+	var sines := sine_steps(s, f)
+	sines.append_array([sum_step(X, Y, ax, f, two), pick, "So %s." % Answer.text(ans, res(s.value))])
+	var alt := altitude_steps(s, f.kr)
+	alt.append("%s₁ = sin⁻¹(%s) = %s°" % [Y, f.tr, f.ta])
+	if two:
+		alt.append("%s₂ = 180° − %s° = %s°, the larger of the two." % [Y, f.ta, f.to])
+	alt.append("So %s." % Answer.text(ans, res(s.value)))
+	out.methods = {"sine-rule-supplement": {"steps": sines, "result": res(s.value)},
+		"altitude-test": {"steps": alt, "result": res(s.value)}}
+	wrong(out, 180.0 - x if not two else x, "SL3.5.ambiguous-case#1" if not two else "SL3.5.ambiguous-case#0")
+	var swapped := sx * sin(rad(ax)) / sy
+	if swapped < 1.0:
+		wrong(out, deg(asin(swapped)), "SL3.2.sine-rule#0")
+	generic(out, [s.angles[s.Z], x + 90.0, 180.0 - ax, absf(x - ax) + 20.0])
 	return out
 
 

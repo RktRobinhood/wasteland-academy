@@ -2337,7 +2337,7 @@
   },
   "triangle": {
    "name": "One triangle with its sides, angles and area",
-   "summary": "Pick clean givens for the view (two sides and the angle between them, three sides, two angles and a side, two sides and a non-included angle, or an area with two of the rest), then solve the whole triangle from them, so every side, every angle and the area are known and any of them can be asked.",
+   "summary": "Pick clean givens for the view (two sides and the angle between them, three sides, two angles and a side, two sides and a non-included angle, or an area with two of the rest), then solve the whole triangle from them, so every side, every angle and the area are known and any of them can be asked. Where the givens fit two triangles, both are solved.",
    "quantities": [
     {
      "name": "A, B, C",
@@ -2368,7 +2368,7 @@
    "clean": [
     "every angle of the triangle from 20° to 140°, so no triangle is a sliver",
     "given sides are whole numbers from 3 to 20, and given angles whole numbers of degrees",
-    "the sine rule for an angle only when the side opposite the given angle is the longer of the two given sides, so exactly one triangle fits",
+    "the sine rule for one angle only when the side opposite the given angle is the longer of the two given sides, so exactly one triangle fits; the ambiguous case gives the shorter one, with both triangles inside these limits and the acute angle at least 10° from 90°",
     "an angle found from an area is at least 10° from 90°, so acute or obtuse is a real choice",
     "the answer is worked out from the givens as shown, and is at least 0.02 of a unit in its third significant figure away from a rounding edge, so its 3 s.f. value is not in doubt",
     "every wrong option differs from the answer to 3 s.f."
@@ -18906,7 +18906,7 @@
    "id": "t3-ambiguous-case",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Sine rule ambiguous case",
    "syllabus": [
     "3.2",
@@ -18915,6 +18915,185 @@
    "skills": [
     "SL3.5.ambiguous-case",
     "SL3.2.sine-rule"
+   ],
+   "summary": "Two sides and an angle opposite one of them, where the side opposite the angle may be the shorter one: find the two possible values of an angle, the two possible lengths of the third side, or the largest possible angle when one triangle or two may fit.",
+   "skillFit": "full",
+   "chain": [
+    "pair each given side with the angle opposite it",
+    "use the sine rule for the acute angle, or the cosine rule as a quadratic in the third side",
+    "take 180° minus the acute angle for the other angle with the same sine",
+    "check the angle sum: keep the obtuse angle only if it leaves room for a third angle",
+    "give both values to 3 s.f."
+   ],
+   "given": [
+    "two sides and an angle opposite the shorter of them, so two triangles fit",
+    "two sides and an angle opposite one of them, with one triangle or two fitting"
+   ],
+   "asked": "Both possible values of an angle, both possible lengths of the third side, or the largest possible angle, to 3 s.f.",
+   "answerForms": [
+    "3 s.f.",
+    "degrees",
+    "two values"
+   ],
+   "randomise": [
+    "whole-number sides from 3 to 20",
+    "whole-number angles in degrees",
+    "which vertex is A, B or C",
+    "whether one triangle or two fit, for the largest angle"
+   ],
+   "constraints": [
+    "every angle of both triangles from 20° to 140°",
+    "the acute angle is at least 10° from 90°, so the two triangles look different",
+    "Paper 2, so a calculator and 3 s.f."
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "triangle",
+   "sharesSituation": [
+    "t3-sine-cosine-rule",
+    "t3-triangle-area"
+   ],
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the two sides and the angle in words, with the standard labelling"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "both triangles drawn on one base line, not to scale, with the side that swings shown in both places and the asked angle or length marked ?"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "both-angles",
+     "given": [
+      "two sides",
+      "the angle opposite the shorter of them"
+     ],
+     "asked": "the two possible values of the angle opposite the longer side",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.5.ambiguous-case",
+      "SL3.2.sine-rule"
+     ]
+    },
+    {
+     "id": "both-sides",
+     "given": [
+      "two sides",
+      "the angle opposite the shorter of them"
+     ],
+     "asked": "the two possible lengths of the third side",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.5.ambiguous-case",
+      "SL3.2.sine-rule"
+     ]
+    },
+    {
+     "id": "largest-angle",
+     "given": [
+      "two sides",
+      "an angle opposite one of them"
+     ],
+     "asked": "the largest possible value of the angle opposite the other given side, where one triangle or two may fit",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL3.5.ambiguous-case",
+      "SL3.2.sine-rule"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.5.ambiguous-case",
+     "method": "sine-rule-supplement",
+     "suits": [
+      "both-angles",
+      "both-sides",
+      "largest-angle"
+     ]
+    },
+    {
+     "skill": "SL3.5.ambiguous-case",
+     "method": "altitude-test",
+     "suits": [
+      "both-angles",
+      "largest-angle"
+     ]
+    },
+    {
+     "skill": "SL3.5.ambiguous-case",
+     "method": "cosine-rule-quadratic",
+     "suits": [
+      "both-sides"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "If the side opposite a given angle is the shorter of two given sides, two triangles fit.",
+     "answer": "Sometimes: it also has to be longer than the altitude from the vertex between the two sides. If it is shorter than the altitude it never reaches the base line, and no triangle fits.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "Two sides and the angle between them can fit two different triangles.",
+     "answer": "False: the angle between the sides fixes where both ends of the third side are, so only one triangle fits. Only an angle opposite a given side can be ambiguous.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.5.ambiguous-case#0",
+     "text": "Giving only the calculator angle from sin⁻¹",
+     "as": "distractor",
+     "in": [
+      "both-angles",
+      "both-sides",
+      "largest-angle"
+     ],
+     "wrong": "only the value from the acute angle, or the acute angle where the obtuse one also fits"
+    },
+    {
+     "ref": "SL3.5.ambiguous-case#1",
+     "text": "Keeping B₂ = 180° − B₁ even when the angle sum then exceeds 180°",
+     "as": "distractor",
+     "in": [
+      "largest-angle"
+     ],
+     "wrong": "180° minus the angle, which leaves no room for the third angle"
+    },
+    {
+     "ref": "SL3.2.sine-rule#0",
+     "text": "Pairing a side with an angle that is not opposite it",
+     "as": "distractor",
+     "in": [
+      "both-angles",
+      "both-sides",
+      "largest-angle"
+     ],
+     "wrong": "the angle from the two sides swapped round, or the third side from the wrong pairing"
+    }
    ],
    "parts": [
     "aa-sl-2021-nov-tz0-p2-q03",
@@ -18990,6 +19169,7 @@
    ],
    "situation": "triangle",
    "sharesSituation": [
+    "t3-ambiguous-case",
     "t3-sine-cosine-rule"
    ],
    "representations": [
@@ -19263,6 +19443,7 @@
    ],
    "situation": "triangle",
    "sharesSituation": [
+    "t3-ambiguous-case",
     "t3-triangle-area"
    ],
    "representations": [

@@ -781,6 +781,12 @@ static func _usable(ans: Dictionary, values: Dictionary) -> bool:
 	if ans.kind == "measure":
 		var x: float = Q.of(values.v).to_float()
 		return (x > 0.0 or (ans.get("signed", false) and x != 0.0)) and Answer.rounds_clearly(x)
+	if ans.kind == "measures":
+		for id in ["v1", "v2"]:
+			var x: float = Q.of(values[id]).to_float()
+			if x <= 0.0 or not Answer.rounds_clearly(x):
+				return false
+		return values.get("only", false) or Fmt.sf(values.v1) != Fmt.sf(values.v2)
 	for id in ["a", "ga", "fa", "va"]:
 		if values.has(id) and values[id] is Q and values[id].is_zero():
 			return false

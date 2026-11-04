@@ -595,7 +595,7 @@ func autoplay(right: bool) -> void:
 							break
 			for id in _slots:
 				# A measure is typed as a student would, to 3 s.f., and a decimal or money as written.
-				if question.answer.kind == "measure":
+				if question.answer.kind in ["measure", "measures"]:
 					_slots[id].text = Fmt.sf(values[id]).replace("−", "-")
 				elif question.answer.get("show", "") != "":
 					_slots[id].text = Answer.shown(question.answer, values[id]).replace("−", "-")
