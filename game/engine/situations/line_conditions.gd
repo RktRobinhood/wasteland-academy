@@ -23,7 +23,9 @@ extends RefCounted
 ## gradient and the equation are answered to 3 s.f.
 ##
 ## need: mode, rel ("para", "perp" or "any"), mid, frac (a fractional new gradient), c_nz (the new
-## line misses the origin), rep, paper. The clean limits are the checker's too (LC_*).
+## line misses the origin), tidy (its intercepts are short: thirds at worst, 12 at most), graph
+## (it is drawn on the grid), paper.
+## The clean limits are the checker's too (LC_*).
 
 const TRIES := 4000
 const WIN := [-10, 10, -10, 10]
@@ -76,7 +78,7 @@ static func gen_text(a: Variant, b: Variant, d: Variant) -> String:
 
 
 static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:
-	var graph: bool = need.get("rep", "") == "graph"
+	var graph: bool = need.get("graph", false)
 	var p2: bool = int(need.get("paper", 1)) == 2 and mode in ["any-two", "intercepts-eq"]
 	var s := {}
 	if mode.begins_with("intercepts"):
@@ -198,6 +200,8 @@ static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:
 	if s.n.d > 5 or (need.get("frac", false) and s.n.is_int()):
 		return {}
 	if need.get("c_nz", false) and s.c.is_zero():
+		return {}
+	if need.get("tidy", false) and (s.c.d > 3 or s.c.neg().div(s.n).d > 3 or s.c.abs_q().to_float() > 12.0 or s.c.div(s.n).abs_q().to_float() > 12.0):
 		return {}
 	if s.c.abs_q().to_float() > 20.0:
 		return {}

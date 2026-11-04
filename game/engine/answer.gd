@@ -936,6 +936,11 @@ static func trap_text(ans: Dictionary, values: Dictionary) -> String:
 		"points2":
 			var ps := _pairs(values)
 			return "(%s, %s) and (%s, %s)" % [Fmt.dec(ps[0][0]), Fmt.dec(ps[0][1]), Fmt.dec(ps[1][0]), Fmt.dec(ps[1][1])]
+		"line":
+			var m := Q.of(values.m)
+			var c := Q.of(values.c)
+			var mag: String = "−" if m.sign() < 0 else ""
+			return "y = %s%sx%s" % [mag, "" if m.abs_q().eq(1) else Fmt.dec(m.abs_q()), "" if c.is_zero() else (" − " if c.sign() < 0 else " + ") + Fmt.dec(c.abs_q())]
 		"range2":
 			return "%s %s %s %s %s" % [Fmt.dec(values.lo), values.r1, fx_var(ans), values.r2, Fmt.dec(values.hi)]
 		"xs":

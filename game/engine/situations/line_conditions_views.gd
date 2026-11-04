@@ -39,8 +39,8 @@ func needs() -> Dictionary:
 		"perpendicular-bisector": {"mode": "bisector"},
 		"unknown-coordinate": {"mode": "line", "c_nz": true},
 		"general-form": {"mode": "line", "frac": true},
-		"intercepts-from-equation": {"mode": "line", "c_nz": true},
-		"triangle-area": {"mode": "line", "c_nz": true},
+		"intercepts-from-equation": {"mode": "line", "c_nz": true, "tidy": true},
+		"triangle-area": {"mode": "line", "c_nz": true, "tidy": true},
 		"check-perpendicular": {"mode": "line"},
 		"k-for-perpendicular": {"mode": "line"},
 	}
@@ -49,8 +49,11 @@ func needs() -> Dictionary:
 ## A graph's intercepts sit on grid points.
 func need(unknown: String, rep: String) -> Dictionary:
 	var n := super.need(unknown, rep)
-	if unknown in ["intercepts-from-equation", "triangle-area"] and rep == "graph":
-		n.mode = "intercepts"
+	n.erase("rep")
+	if rep == "graph":
+		n.graph = true
+		if unknown in ["intercepts-from-equation", "triangle-area"]:
+			n.mode = "intercepts"
 	return n
 
 
@@ -66,6 +69,8 @@ func papers(unknown: String, _rep: String, angle: String) -> Array:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
 	out.given = LineConditionsSituation.export(s)
+	if out.answer.kind == "line":
+		out.trap = Answer.rounding_trap_all(out.answer)
 	return out
 
 
@@ -102,6 +107,17 @@ static func gtext(a: Variant, b: Variant, d: Variant) -> String:
 ## A worked value: exact on Paper 1, six figures on Paper 2.
 static func G(s: Dictionary, v: Variant) -> String:
 	return Fmt.sf(v, 6) if s.paper == 2 else N(v)
+
+
+## G in brackets when negative, for substituting.
+static func GP(s: Dictionary, v: Variant) -> String:
+	return "(%s)" % G(s, v) if Q.of(v).sign() < 0 else G(s, v)
+
+
+## dy/dx as worked: the fraction, then its value where that reads differently.
+static func ratio(s: Dictionary) -> String:
+	var top := "%s/%s" % [D(s.dy), P(s.dx)]
+	return top if top == G(s, s.m) else "%s = %s" % [top, G(s, s.m)]
 
 
 static func line_text(form: String, n: Q, c: Q) -> String:
@@ -175,7 +191,10 @@ static func tag(text: String, ref: String) -> Dictionary:
 static func curve(m: Q, c: Q) -> Array:
 	var mf := m.to_float()
 	var cf := c.to_float()
-	return Plot.sample(func(x: float) -> float: return mf * x + cf, -10.0, 10.0)
+	var w: Array = LineConditionsSituation.WIN
+	return Plot.sample(func(x: float) -> float:
+		var y := mf * x + cf
+		return y if y >= w[2] and y <= w[3] else NAN, w[0], w[1])
 
 
 ## A graph of lines ([[m, c], ...]) with marked points ([[x, y, label], ...]).
@@ -202,11 +221,17 @@ static func show_ab(out: Dictionary, rep: String, s: Dictionary) -> void:
 
 static func two_point_steps(s: Dictionary) -> Array:
 	return ["Take (x₁, y₁) = %s and (x₂, y₂) = %s." % [pt(s.ax, s.ay), pt(s.bx, s.by)],
-		"m = (y₂ − y₁)/(x₂ − x₁) = (%s − %s)/(%s − %s) = %s/%s = %s." % [D(s.by), P(s.ay), D(s.bx), P(s.ax), D(s.dy), P(s.dx), G(s, s.m)]]
+		"m = (y₂ − y₁)/(x₂ − x₁) = (%s − %s)/(%s − %s) = %s." % [D(s.by), P(s.ay), D(s.bx), P(s.ax), ratio(s)]]
 
 
 static func rise_steps(s: Dictionary) -> Array:
 	return ["From A to B the run is %s and the rise is %s." % [D(s.dx), D(s.dy)], "m = rise ÷ run = %s ÷ %s = %s." % [D(s.dy), P(s.dx), G(s, s.m)]]
+
+
+## A method's name where the catalogue's says "on the graph" and the question has none.
+static func no_graph(out: Dictionary, rep: String) -> void:
+	if rep != "graph":
+		out.titles = {"rise-over-run": "Rise over run", "read-graph": "Read the two crossing points"}
 
 
 ## The steps of y − y₁ = m(x − x₁) to the answer.
@@ -231,6 +256,7 @@ func u_gradient_from_two_points(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var ans := number(s, s.m, "m = ")
 	var out := {"asked": "Find the gradient of the line through A and B.", "answer": ans}
 	show_ab(out, rep, s)
+	no_graph(out, rep)
 	out.wrongs = [wrong({"v": s.dx.div(s.dy)}, R_RUN_RISE), wrong({"v": s.m.neg()}, R_ORDER)]
 	out.generic = [{"v": s.dy}, {"v": s.dx}, {"v": s.dy.add(s.dx)}]
 	out.methods = {
@@ -248,9 +274,10 @@ func u_gradient_from_general(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var out := {"asked": "Find the gradient of the line.", "answer": ans, "lines": [gtext(a, b, d)]}
 	out.wrongs = [wrong({"v": Q.new(a)}, R_COEF), wrong({"v": Q.new(-a)}, R_COEF), wrong({"v": Q.new(b)}, R_COEF)]
 	out.generic = [{"v": Q.new(b, a)}, {"v": Q.new(d, b)}, {"v": Q.new(a, b)}]
+	var keep := "Keep the y term alone: %sy = %s." % [Fmt.lead(b), Fmt.poly([-a, -d])]
 	out.methods = {
-		"rearrange-to-slope-intercept": method(["Keep the y term alone: %sy = %s." % [Fmt.lead(b), Fmt.poly([-a, -d])], "Divide by %s: %s." % [N(b), yeq(s.m, s.c0)], fin(ans)], ans.values),
-		"coefficient-shortcut": method(["For ax + by + d = 0 the gradient is −a/b. Here a = %s and b = %s." % [N(a), N(b)], "m = −%s/%s = %s." % [P(a), P(b), N(s.m)], fin(ans)], ans.values),
+		"rearrange-to-slope-intercept": method(([keep] if b == 1 else [keep, "Divide by %s: %s." % [N(b), yeq(s.m, s.c0)]]) + [fin(ans)], ans.values),
+		"coefficient-shortcut": method(["For ax + by + d = 0 the gradient is −a/b. Here a = %s and b = %s." % [N(a), N(b)], "m = −(%s)/(%s) = %s." % [N(a), N(b), N(s.m)], fin(ans)], ans.values),
 	}
 	return out
 
@@ -268,6 +295,8 @@ func u_gradient_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 func u_missing_coordinate_from_gradient(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var m: Q = s.m
 	var hidden_y: bool = s.hide == "y" or rep == "graph"
+	var titled := {}
+	no_graph(titled, rep)
 	var v: Q = s.by if hidden_y else s.bx
 	var ans := number(s, v, "t = ")
 	var b_text := "(%s, t)" % D(s.bx) if hidden_y else "(t, %s)" % D(s.by)
@@ -288,6 +317,7 @@ func u_missing_coordinate_from_gradient(rep: String, s: Dictionary, _rng: Seeded
 		"two-point-formula": method([("%s = (t − %s)/(%s − %s)" % [N(m), P(s.ay), D(s.bx), P(s.ax)]) if hidden_y else ("%s = (%s − %s)/(t − %s)" % [N(m), D(s.by), P(s.ay), P(s.ax)]), "Solve: %s, so t = %s." % [change, D(v)], fin(ans)], ans.values),
 		"rise-over-run": method(["From A to B the %s." % change, "Add it to A's coordinate: t = %s + %s = %s." % [D(s.ay if hidden_y else s.ax), P(s.dy if hidden_y else s.dx), D(v)], fin(ans)], ans.values),
 	}
+	out.merge(titled)
 	return out
 
 
@@ -349,9 +379,9 @@ func u_equation_two_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var g_m: String = G(s, m)
 	var g_c: String = G(s, c)
 	out.methods = {
-		"two-point-formula": method(two_point_steps(s) + ["Then c = y₁ − mx₁ = %s − %s × %s = %s." % [D(s.ay), g_m, P(s.ax), g_c], form_step], ans.values),
+		"two-point-formula": method(two_point_steps(s) + ["Then c = y₁ − mx₁ = %s − %s × %s = %s." % [D(s.ay), GP(s, m), P(s.ax), g_c], form_step], ans.values),
 		"point-gradient": method(["The gradient is %s." % g_m, "y − %s = %s(x − %s)." % [P(s.ay), g_m, P(s.ax)], "Expand and collect: %s." % (yeq(m, c) if s.paper == 1 else "y = " + Answer.sf_line(m, c)), form_step], ans.values),
-		"solve-for-c": method(["The gradient is %s." % g_m, "Put A into y = mx + c: %s = %s × %s + c, so c = %s." % [D(s.ay), g_m, P(s.ax), g_c], form_step], ans.values),
+		"solve-for-c": method(["The gradient is %s." % g_m, "Put A into y = mx + c: %s = %s × %s + c, so c = %s." % [D(s.ay), GP(s, m), P(s.ax), g_c], form_step], ans.values),
 		"gdc-regression": method(["Put the x-values into L1 and the y-values into L2.", "LinReg(ax + b) gives a = %s and b = %s." % [g_m, g_c], form_step], ans.values),
 	}
 	return out
@@ -401,6 +431,7 @@ func u_equation_from_intercepts(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	out.generic = [eq_values(s.form, m, p), through(s, p.div(q), Q.new(0), q).values, eq_values(s.form, m, q.neg())]
 	var g_m: String = G(s, m)
 	var g_c: String = G(s, c)
+	no_graph(out, rep)
 	var points := "The line goes through (%s, 0) and (0, %s)." % [N(p), N(q)]
 	var slope := "m = (%s − 0)/(0 − %s) = %s." % [N(q), P(p), g_m]
 	out.methods = {
@@ -438,11 +469,11 @@ static func coef_steps(s: Dictionary, ans: Dictionary) -> Array:
 	var b: int = s.b0
 	var d: int = s.d0
 	var para: bool = s.rel == "para"
-	var a2: int = a if para else b
-	var b2: int = b if para else -a
+	var a2: int = a if para else absi(b)
+	var b2: int = b if para else -a * signi(b)
 	var k: Q = Q.new(a2).mul(s.px).add(Q.new(b2).mul(s.py))
 	var head := "The first line is %s." % gtext(a, b, d)
-	var keep := ("A parallel line keeps a and b: %sx%s = k." % [Fmt.lead(a2), Fmt.term(Q.new(b2), 1, false, "y")]) if para else ("A perpendicular line swaps a and b and changes one sign: %sx%s = k." % [Fmt.lead(a2), Fmt.term(Q.new(b2), 1, false, "y")])
+	var keep := ("A parallel line keeps a and b: %sx%s = k." % [Fmt.lead(a2), Fmt.term(Q.new(b2), 1, false, "y")]) if para else ("A perpendicular line swaps a and b and changes one sign, keeping a > 0: %sx%s = k." % [Fmt.lead(a2), Fmt.term(Q.new(b2), 1, false, "y")])
 	return [head, keep, "Put in P: k = %s × %s + %s × %s = %s." % [N(a2), P(s.px), P(b2), P(s.py), N(k)], "Rearranged, that is %s." % yeq(s.n, s.c), fin(ans)]
 
 
@@ -457,13 +488,14 @@ func u_parallel_through_point(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	else:
 		out.asked = "Line L₂ is parallel to L₁ and passes through %s. Find the equation of L₂." % name + form_ask(s.form)
 		out.lines = ["L₁: " + given_ab(s)]
+	out.titles = {"negative-reciprocal": "Same gradient for parallel, flip and change the sign for perpendicular"}
 	var perp := Q.new(-1).div(n)
 	out.wrongs = [through(s, perp, s.px, s.py, R_OTHER_M), through(s, n, s.px.neg(), s.py, R_PLUS)]
 	out.generic = [eq_values(s.form, n, s.c0), through(s, n.neg(), s.px, s.py).values, through(s, n, s.py, s.px).values]
 	var first := first_gradient(rep, s)
 	var extra := {
 		"rearrange-to-slope-intercept": method([first, "The new line has the same gradient: y = %sx + c." % Fmt.lead(n), "Put in P: c = %s − %s × %s = %s." % [D(s.py), PF(n), P(s.px), N(s.c)], fin(ans)], ans.values),
-		"negative-reciprocal": method([first, "Flipping and changing the sign is for a perpendicular line. Parallel lines keep the gradient %s." % N(n), "Through P: c = %s − %s × %s = %s." % [D(s.py), PF(n), P(s.px), N(s.c)], fin(ans)], ans.values),
+		"negative-reciprocal": method([first, "Parallel, so the gradient stays %s. Flipping it and changing the sign is for a perpendicular line." % N(n), "Through P: c = %s − %s × %s = %s." % [D(s.py), PF(n), P(s.px), N(s.c)], fin(ans)], ans.values),
 		"keep-coefficients": method(coef_steps(s, ans), ans.values),
 	}
 	_new_through(out, s, ans, ["point-gradient", "solve-for-c", "translate-origin-line"], extra)
@@ -559,7 +591,7 @@ func u_general_form(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var d: int = s.gd
 	var out := {"asked": "Write the line in the form ax + by + d = 0, where a, b and d are integers and a > 0.", "answer": ans}
 	out.lines = [yeq(n, c)] if rep == "equation" else ["A line passes through %s and has gradient %s." % [pt(s.px, s.py), N(n)]]
-	var scale: int = s.gb
+	var scale: int = absi(s.gb)
 	out.generic = [{"a": Q.new(a), "b": Q.new(b), "d": Q.new(-d)}, {"a": Q.new(a), "b": Q.new(-b), "d": Q.new(d)}, {"a": Q.new(a), "b": Q.new(-b), "d": Q.new(-d)}, {"a": Q.new(a), "b": Q.new(b), "d": Q.new(d + 1)}]
 	var first := "The line is %s." % yeq(n, c) if rep == "equation" else "y − %s = %s(x − %s), so the line is %s." % [P(s.py), Fmt.lead(n), P(s.px), yeq(n, c)]
 	out.methods = {"point-gradient": method([first, "Multiply every term by %s to clear the fractions: %sy = %s." % [N(scale), Fmt.lead(scale), Fmt.poly([n.mul(scale), c.mul(scale)])], "Move every term to one side, with a > 0.", fin(ans)], ans.values)}
@@ -652,26 +684,27 @@ func u_check_perpendicular(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 			m2 = Q.new(1).div(m)
 		_:
 			m2 = m.add(1) if not m.add(1).is_zero() else m.add(3)
-	var c2: Q = s.c.add(3)
+	# A small whole intercept keeps L₂'s coefficients small, and never the same line.
+	var c2: Q = Q.new(s.k_b) if not s.c.eq(s.k_b) else Q.new(s.k_b + 1)
 	var l1 := line_text("gen", m, s.c)
 	var l2 := line_text(s.gform, m2, c2)
-	var perp := "Perpendicular: the gradients multiply to −1"
-	var para := "Parallel: the gradients are equal"
-	var none := "Neither: the gradients are not equal and do not multiply to −1"
-	var one := "Perpendicular: the gradients multiply to 1"
+	var perp := "Perpendicular, because the gradients multiply to −1"
+	var para := "Parallel, because the gradients are equal"
+	var none := "Neither, because the gradients are not equal and do not multiply to −1"
+	var one := "Perpendicular, because the gradients multiply to 1"
 	var right: String = {"para": para, "perp": perp, "neither": none, "swap": none}[rel]
 	var bad: Array = [tag(one, R_PRODUCT_1)] if rel == "swap" else []
-	var plain: Array = [para, perp, none, one, "Neither: the lines have different y-intercepts"]
+	var plain: Array = [para, perp, none, one, "Neither, because the lines have different y-intercepts"]
 	var out := {"asked": "Are the two lines parallel, perpendicular or neither?", "lines": ["L₁: " + l1, "L₂: " + l2]}
 	out.merge(pick(right, bad, plain))
 	var g1 := "L₁ rearranges to %s, so its gradient is %s." % [yeq(m, s.c), N(m)]
 	var g2 := "L₂ has gradient %s." % N(m2)
 	var prod := m.mul(m2)
-	var fin_t := "So: %s." % right
+	var fin_t := right + "."
 	var cf := LineConditionsSituation.gen(m, s.c)
 	out.methods = {
 		"rearrange-to-slope-intercept": method([g1, g2, fin_t], {"v": right}),
-		"coefficient-shortcut": method(["For L₁, −a/b = −%s/%s = %s." % [N(cf[0]), P(cf[1]), N(m)], g2, fin_t], {"v": right}),
+		"coefficient-shortcut": method(["For L₁, −a/b = −(%s)/(%s) = %s." % [N(cf[0]), N(cf[1]), N(m)], g2, fin_t], {"v": right}),
 		"product-minus-one": method([g1 + " " + g2, "The product is %s × %s = %s." % [PF(m), PF(m2), N(prod)], fin_t], {"v": right}),
 	}
 	return out
@@ -680,7 +713,8 @@ func u_check_perpendicular(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 func u_k_for_perpendicular(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var m: Q = s.n
 	var b2: int = s.k_b
-	var para: bool = s.k_para
+	# "Use m₁ × m₂ = −1" only makes sense of a perpendicular pair.
+	var para: bool = s.k_para and angle != "product-minus-one"
 	# kx + b₂y + e = 0 has gradient −k/b₂.
 	var k: Q = m.mul(b2).neg() if para else Q.new(b2).div(m)
 	var wrong_k: Q = Q.new(b2).div(m).neg() if not para else m.mul(b2)
@@ -696,8 +730,8 @@ func u_k_for_perpendicular(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var cond := ("So −k/%s = %s." % [PF(b2), N(m)]) if para else ("So %s × (−k/%s) = −1." % [PF(m), PF(b2)])
 	var cf := LineConditionsSituation.gen(m, s.c)
 	out.methods = {
-		"coefficient-shortcut": method(["The gradient of L₁ is %s." % N(m), g2, cond, "So k = %s." % N(k), fin(ans)], ans.values),
-		"product-minus-one": method(["The gradient of L₁ is %s and of L₂ is −k/%s." % [N(m), PF(b2)], cond if not para else "Equal gradients are the condition here, not a product: " + cond, "So k = %s." % N(k), fin(ans)], ans.values),
-		"keep-coefficients": method(["Write L₁ as %s." % gtext(cf[0], cf[1], cf[2]), ("Parallel lines have a : b the same, so k/%s = %s/%s." % [PF(b2), N(cf[0]), PF(cf[1])]) if para else ("Perpendicular lines have aa′ + bb′ = 0, so %s·k + %s × %s = 0." % [PF(cf[0]), PF(cf[1]), PF(b2)]), "So k = %s." % N(k), fin(ans)], ans.values),
+		"coefficient-shortcut": method(["The gradient of L₁ is %s." % N(m), g2, cond, fin(ans)], ans.values),
+		"product-minus-one": method(["The gradient of L₁ is %s and of L₂ is −k/%s." % [N(m), PF(b2)], cond, fin(ans)], ans.values),
+		"keep-coefficients": method(["Write L₁ as %s." % gtext(cf[0], cf[1], cf[2]), ("Parallel lines have a : b the same, so k/%s = %s/%s." % [PF(b2), N(cf[0]), PF(cf[1])]) if para else ("Perpendicular lines have aa′ + bb′ = 0, so %sk + %s × %s = 0." % [Fmt.lead(cf[0]), PF(cf[1]), PF(b2)]), fin(ans)], ans.values),
 	}
 	return out

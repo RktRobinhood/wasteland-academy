@@ -90,6 +90,27 @@ func test_gdc_regression_is_paper_2_and_answers_to_3_sf() -> void:
 			check_eq(q.answer.get("show", ""), "sf", c.key)
 
 
+func test_a_paper_2_equation_offers_the_rounding_trap() -> void:
+	var seen := 0
+	for seed in range(1, 40):
+		var q := QuestionEngine.make({"type": "fn-line-from-conditions", "unknown": "equation-two-points", "rep": "words", "angle": "gdc-regression", "seed": seed, "format": "mcq"})
+		var trap: Array = q.choices.filter(func(o): return o.get("trap", false))
+		check_eq(trap.size(), 1, "seed %d: one rounding trap" % seed)
+		seen += trap.size()
+		check(QuestionEngine.mark(q, {"choice": q.choices.find(trap[0])}).glancing, "picking it is a glancing hit")
+	check(seen > 0, "no trap")
+
+
+func test_the_boss_chain_is_one_line() -> void:
+	var steps := Dungeon.chain_steps("fn-line-from-conditions")
+	check_eq(steps.size(), 5)
+	var c := QuestionEngine.make_chain(steps, 11)
+	check(not c.has("error"), str(c.get("error")))
+	check_eq(c.parts.size(), 5)
+	for q in c.parts:
+		check_eq(q.paper, 1, "the chain is Paper 1")
+
+
 func test_a_paper_1_equation_is_exact() -> void:
 	var t := "fn-line-from-conditions"
 	for seed in range(1, 40):

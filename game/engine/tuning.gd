@@ -191,6 +191,11 @@ const CHAINS := {
 	# the composite as one expression, then its value at an input. (The parameter, solve and
 	# reversed unknowns each need their own numbers, so they stay single questions.)
 	"fn-composite": ["expression", "value-inside-out"],
+	# the gradient of the segment, the perpendicular gradient, the new line through a point,
+	# then a coordinate on it and the area it makes with the axes. (The chain's midpoint part
+	# needs a whole midpoint and a line through it, so it stays a single question.)
+	"fn-line-from-conditions": ["gradient-from-two-points", "perpendicular-gradient", "perpendicular-through-point",
+		"unknown-coordinate", "triangle-area"],
 }
 
 
