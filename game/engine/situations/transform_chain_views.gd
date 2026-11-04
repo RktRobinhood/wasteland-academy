@@ -184,6 +184,17 @@ func u_inside_opposite(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return out
 
 
+## A key point that two maps send to different places, so a graph can mark which curve is
+## which: (0, 0) stays put under both stretches, and A and B would sit on one spot.
+static func marked_apart(s: Dictionary, m1: Dictionary, m2: Dictionary) -> Array:
+	for k in s.key:
+		var a := TC.image(m1, k[0], k[1])
+		var b := TC.image(m2, k[0], k[1])
+		if not (a[0].eq(b[0]) and a[1].eq(b[1])):
+			return k
+	return s.key[0]
+
+
 func u_inside_vs_outside(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var m: Dictionary = s.moves[0]
 	var one := TC.identity()
@@ -215,7 +226,7 @@ func u_inside_vs_outside(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		var a_inner := rng.chance(0.5)
 		var c0 := TC.curves(s, inner_map if a_inner else outer_map, win)
 		var c1 := TC.curves(s, outer_map if a_inner else inner_map, win)
-		var k: Array = s.key[0]
+		var k: Array = marked_apart(s, inner_map, outer_map)
 		var im0 := TC.image(inner_map if a_inner else outer_map, k[0], k[1])
 		var im1 := TC.image(outer_map if a_inner else inner_map, k[0], k[1])
 		var g := Plot.spec(c0 + c1, [[im0[0].to_float(), im0[1].to_float(), "A"], [im1[0].to_float(), im1[1].to_float(), "B"]], win[0], win[1], win[2], win[3])

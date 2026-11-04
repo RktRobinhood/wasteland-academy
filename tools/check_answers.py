@@ -11837,7 +11837,8 @@ def tc_curves_are(gr, curves, e):
         fn = sp.lambdify(X, e, "mpmath")
         for x, y in c[::9]:
             v = mpmath.mpc(fn(mpmath.mpf(x)))
-            need(abs(v.imag) < 1e-9 and abs(float(v.real) - y) < 1e-6 * max(1, abs(y)), f"a curve misses {e} at x = {x}")
+            # 1e-6: at a root's end a float rounds just outside the domain, so √(1e−17) is imaginary.
+            need(abs(v.imag) < 1e-6 and abs(float(v.real) - y) < 1e-6 * max(1, abs(y)), f"a curve misses {e} at x = {x}")
 
 
 def tc_piece_map(curve, nodes, M):
@@ -12313,7 +12314,8 @@ def tc_vs_outside(q, g, moves, M):
         gr = q["graph"]
         k = gr["sand_from"]
         pa, pb = [(sp.nsimplify(p["x"], rational=True), sp.nsimplify(p["y"], rational=True)) for p in gr["points"]]
-        key = (R(g["key"][0][0]), R(g["key"][0][1]))
+        need(pa != pb, "curves A and B are marked at one point")
+        key = next((R(p[0]), R(p[1])) for p in g["key"] if tc_image(inner, R(p[0]), R(p[1])) != tc_image(outer, R(p[0]), R(p[1])))
         a_inner = pa == tc_image(inner, *key)
         need(pa == tc_image(inner if a_inner else outer, *key) and pb == tc_image(outer if a_inner else inner, *key), "the marked points are not the images")
         tc_drawn(gr, gr["curves"][:k], g, inner if a_inner else outer)
