@@ -479,6 +479,8 @@ func _sketch() -> void:
 		_right_mark(n, at)
 	# Names first, then angles, then lengths: each label takes a place clear of those before it.
 	var taken: Array = []
+	for n in spec.north:
+		taken.append(_label_box("N", at[n] - Vector2(-26, NORTH_LEN - 8), FONT_SIZE - 6))
 	for n in names:
 		if String(n).begins_with("_"):
 			continue
