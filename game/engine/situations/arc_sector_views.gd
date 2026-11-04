@@ -348,7 +348,8 @@ func u_deg_to_rad(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong({"v": GdcKit.qf(s.t.to_float() * 180.0 / PI)}, R_FACTOR)]
 	out.generic = others(ans, s, [ab(0, s.t.div(90)), ab(0, s.t.div(360)), ab(GdcKit.qf(s.t.to_float() / 180.0)), ab(GdcKit.qf(s.t.to_float() / PI))])
 	out.methods = {"multiply-factor": method(["Multiply by π/180: %s × π/180 = %s" % [d, W(s, v)], say(ans)], ans.values),
-		"fraction-of-turn": method(["%s is %s/360 of a turn." % [d, Fmt.dec(s.t)], "A full turn is 2π: %s/360 × 2π = %s" % [Fmt.dec(s.t), W(s, v)], say(ans)], ans.values)}
+		"fraction-of-turn": method(["%s is %s/360 of a turn." % [d, Fmt.dec(s.t)], "A full turn is 2π: %s/360 × 2π = %s" % [Fmt.dec(s.t), W(s, v)], say(ans)], ans.values),
+		"landmarks": method(["180° = π, so %s is %s/180 of π." % [d, Fmt.dec(s.t)], "%s/180 × π = %s" % [Fmt.dec(s.t), W(s, v)], say(ans)], ans.values)}
 	return out
 
 
@@ -377,7 +378,8 @@ func u_rad_to_deg(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			"landmarks": method(["%s is %s°, and %s is %d lots of that." % [Fmt.pi(Q.new(1, s.t.d)), Fmt.dec(unit_d), d, s.t.n], "%d × %s° = %s°" % [s.t.n, Fmt.dec(unit_d), dd], say(ans)], ans.values)}
 	else:
 		out.methods = {"multiply-factor": method(["Multiply by 180/π: %s × 180/π = %s" % [d, Fmt.sf(deg, 5)], say(ans)], ans.values),
-			"fraction-of-turn": method(["%s is %s/2π of a full turn." % [d, d], "%s/2π × 360° = %s°" % [d, Fmt.sf(deg, 5)], say(ans)], ans.values)}
+			"fraction-of-turn": method(["%s is %s/2π of a full turn." % [d, d], "%s/2π × 360° = %s°" % [d, Fmt.sf(deg, 5)], say(ans)], ans.values),
+			"landmarks": method(["π is 180°, and %s is %s/π of that." % [d, d], "%s/π × 180° = %s°" % [d, Fmt.sf(deg, 5)], say(ans)], ans.values)}
 	return out
 
 
