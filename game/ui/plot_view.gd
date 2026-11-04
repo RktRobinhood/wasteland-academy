@@ -291,7 +291,10 @@ func _mark(key: String, at: Vector2, align: int = 0) -> void:
 	var s: String = spec[key]
 	var w := get_theme_default_font().get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 4).x
 	var x := at.x - w / 2.0 if align == 0 else (at.x if align < 0 else at.x - w)
-	_text(s, Vector2(clampf(x, 4.0, size.x - w - 4.0), at.y + 10.0), UiTheme.SAND, FONT_SIZE - 4, false)
+	var spot := Vector2(clampf(x, 4.0, size.x - w - 4.0), at.y + 10.0)
+	# A plate of the background, so a line behind the label doesn't run through it.
+	draw_rect(Rect2(spot + Vector2(-4, -FONT_SIZE + 2), Vector2(w + 8, FONT_SIZE + 6)), Color(0.08, 0.1, 0.14))
+	_text(s, spot, UiTheme.SAND, FONT_SIZE - 4, false)
 
 
 ## A measuring line from a to b with arrow ends, and spec[key] beside it.
@@ -351,9 +354,9 @@ func _solid() -> void:
 		"capsule":
 			_capsule(mid, r * 0.8)
 		"hollow":
-			_hollow(mid, r * 1.15)
+			_hollow(mid, r)
 		"inscribed":
-			_inscribed(mid, r * 1.3)
+			_inscribed(Vector2(w * 0.56, mid.y), r * 1.3)
 		"sector":
 			_sector(mid, r * 1.3)
 
@@ -369,7 +372,7 @@ func _cone_top(c: Vector2, rx: float, tall: float, plain: bool) -> void:
 	if spec.has("h"):
 		_dashes(top, c)
 		_square(c, Vector2.UP, Vector2.RIGHT)
-		_mark("h", c + Vector2(-14, -tall * 0.42), 1)
+		_mark("h", c + Vector2(14, -tall * 0.34), -1)
 	_mark("l", (top + c + Vector2(rx, 0)) / 2.0 + Vector2(18, -8), -1)
 
 
@@ -399,7 +402,7 @@ func _circle_marks(c: Vector2, rx: float, ry: float, outside: bool) -> void:
 		_mark("d", c + Vector2(0, ry + 34.0) if outside else c + Vector2(0, 30.0))
 	elif spec.has("r"):
 		_dashes(c, c + Vector2(rx, 0), UiTheme.SAND)
-		_mark("r", c + Vector2(rx * 0.5, 30.0))
+		_mark("r", c + Vector2(rx * 0.42, 26.0))
 
 
 func _pyramid() -> void:
@@ -475,9 +478,9 @@ func _capsule(c: Vector2, rx: float) -> void:
 
 ## A cylinder with a smaller one taken out of its centre.
 func _hollow(c: Vector2, rx: float) -> void:
-	var ry := rx * 0.3
-	var tall := size.y * 0.52
-	var top := c - Vector2(0, tall * 0.5)
+	var ry := rx * 0.28
+	var tall := size.y * 0.4
+	var top := c - Vector2(0, tall * 0.56)
 	var low := top + Vector2(0, tall)
 	var inner := rx * 0.42
 	_edge(top + Vector2(rx, 0), low + Vector2(rx, 0))
@@ -490,9 +493,10 @@ func _hollow(c: Vector2, rx: float) -> void:
 	_dashes(top - Vector2(inner, 0), low - Vector2(inner, 0))
 	var up := top - Vector2(0, ry + 16.0)
 	_measure("r", up, up + Vector2(inner, 0), up + Vector2(inner * 0.5, -32.0), 0)
-	_measure("big", up, up + Vector2(rx, 0), up + Vector2(rx * 0.75, -32.0), 0)
-	if spec.has("big"):
-		draw_line(top, up, UiTheme.DIM, 2.0)
+	draw_line(top, up, UiTheme.DIM, 2.0)
+	var under := low + Vector2(0, ry + 22.0)
+	_measure("big", under, under + Vector2(rx, 0), under + Vector2(rx * 0.5, 36.0), 0)
+	draw_line(low, under, UiTheme.DIM, 2.0)
 	var x := rx + 28.0
 	_measure("h", top + Vector2(x, 0), low + Vector2(x, 0), c + Vector2(x + 12.0, 0))
 
@@ -511,7 +515,7 @@ func _inscribed(c: Vector2, rx: float) -> void:
 	_rim(low, wide, ry, 0.0, PI, UiTheme.DIM)
 	_rim(low, wide, ry, PI, TAU, UiTheme.DIM, true)
 	var x := rx + 26.0
-	_measure("h", c - Vector2(x, half), c - Vector2(x, -half), c - Vector2(x - 14.0, 48.0 - half * 0.0), 1)
+	_measure("h", c - Vector2(x, half), c - Vector2(x, -half), c - Vector2(x + 12.0, 0), 1)
 	_dashes(c, c + Vector2(rx, 0).rotated(-0.32), UiTheme.SAND)
 	_mark("r", c + Vector2(rx * 0.5, -rx * 0.28))
 
@@ -533,5 +537,4 @@ func _sector(c: Vector2, rad: float) -> void:
 	draw_arc(o, rad * 0.2, start, start + sweep, 32, UiTheme.SAND, 3.0, true)
 	var up := o + Vector2(0, -rad * 0.34)
 	_mark("theta", up)
-	var m := (o + b) / 2.0
-	_mark("l", m + Vector2(16, 30), -1)
+	_mark("l", (o + b) / 2.0)

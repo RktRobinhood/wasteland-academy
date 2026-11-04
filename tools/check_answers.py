@@ -12592,7 +12592,7 @@ def sd_shape(q):
     """The solid named in the opening line, the longest name that fits."""
     found = [v for k, v in SD_SHAPES.items() if f" is {k}" in q["lines"][0]]
     if not found:
-        need("sector" in q["lines"][0], f"can't read the solid in {q['lines'][0]!r}")
+        need("sector" in q["lines"][0] or "cone with no base" in q["lines"][0], f"can't read the solid in {q['lines'][0]!r}")
         return "sector"
     need(len(found) == 1, f"two solids in {q['lines'][0]!r}")
     if q["graph"] is not None:
