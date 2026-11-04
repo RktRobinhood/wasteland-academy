@@ -19,6 +19,11 @@ const COLUMN_WIDE := 1500
 const PICK_WIDE := 900
 ## The answer keys (Keypad.ANSWER_KEYS): the calculator shares them (FAL-419).
 const KEYS := Keypad.ANSWER_KEYS
+## How far a finger moves, in base units, before a touch is a swipe and not a tap: about
+## 10 px on a phone. Any less and the wobble in a tap scrolls the card and loses the tap.
+const SWIPE_DEADZONE := 28
+## Frames for the card to lay out its new height before an answer's result is scrolled to.
+const LAYOUT_FRAMES := 3
 
 ## The region the map asked for, read once by _ready().
 static var launch_region := ""
@@ -37,6 +42,7 @@ var _pick_buttons := {} # pick id -> Array of Buttons
 var _choice := -1
 var _choice_buttons: Array = []
 var _focus: LineEdit
+var _press_at := Vector2.ZERO
 
 var margin: MarginContainer
 var hud_gap: Control
@@ -134,6 +140,7 @@ func _build() -> void:
 	scroll.name = "Scroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.scroll_deadzone = SWIPE_DEADZONE
 	col.add_child(scroll)
 	card = VBoxContainer.new()
 	card.name = "Card"
@@ -228,6 +235,26 @@ func render_question() -> void:
 	working.visible = false
 	card.add_child(working)
 	_add_next()
+	_let_swipes_through()
+
+
+## Touch (FAL-735): buttons, panels and graph cards stop a touch by default, so a swipe
+## that starts on one never reaches the scroller. Letting it through keeps tapping: a
+## button still presses, and the scroller cancels that press once the touch is a swipe.
+func _let_swipes_through() -> void:
+	for c: Control in card.find_children("*", "Control", true, false):
+		if c.mouse_filter == Control.MOUSE_FILTER_STOP and not c is ScrollBar:
+			c.mouse_filter = Control.MOUSE_FILTER_PASS
+
+
+## True when `e` lifts the finger from a touch that didn't become a swipe.
+func _tapped(e: InputEvent) -> bool:
+	if not e is InputEventMouseButton or e.button_index != MOUSE_BUTTON_LEFT:
+		return false
+	if e.pressed:
+		_press_at = e.global_position
+		return false
+	return e.global_position.distance_to(_press_at) <= SWIPE_DEADZONE
 
 
 ## Empties the card and forgets the last question's inputs.
@@ -311,6 +338,7 @@ func _table(t: Dictionary) -> Control:
 	var wrap := ScrollContainer.new()
 	wrap.name = "TableScroll"
 	wrap.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	wrap.scroll_deadzone = SWIPE_DEADZONE
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	wrap.add_child(box)
 	return wrap
@@ -336,6 +364,9 @@ func _add_slots() -> void:
 			e.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			e.placeholder_text = "?"
 			e.virtual_keyboard_enabled = false
+			# A LineEdit keeps every touch, so on a touch screen the row hears it instead.
+			if DisplayServer.is_touchscreen_available():
+				e.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			e.focus_entered.connect(func(): _focus = e)
 			e.text_submitted.connect(func(_t): check_answer())
 			flow.add_child(e)
@@ -354,6 +385,11 @@ func _add_slots() -> void:
 				flow.add_child(b)
 				buttons.append(b)
 			_pick_buttons[item.pick] = buttons
+	flow.gui_input.connect(func(e: InputEvent):
+		if _tapped(e):
+			for box: LineEdit in _slots.values():
+				if box.get_rect().has_point(e.position):
+					box.grab_focus())
 	card.add_child(flow)
 	# A long answer wraps on a line of its own, not off the side of a phone. Measured
 	# here, in the card, where the buttons have their font.
@@ -437,7 +473,7 @@ func _add_graph_options() -> void:
 		b.add_theme_font_size_override("font_size", UiTheme.BODY)
 		b.pressed.connect(func(): _choice = i)
 		g.gui_input.connect(func(e: InputEvent):
-			if e is InputEventMouseButton and e.pressed and not b.disabled:
+			if _tapped(e) and not b.disabled:
 				b.button_pressed = true
 				_choice = i)
 		cell.add_child(g)
@@ -486,6 +522,28 @@ func check_answer() -> void:
 	for bs in _pick_buttons.values():
 		for b in bs:
 			b.disabled = true
+	_reveal_result()
+
+
+## Scrolls the card to the result and Next, once the card has laid out: the student
+## just pressed a button that has gone, and the result may be below the fold. A result
+## and solution too tall to show with Next keep the result in view; a swipe reaches Next.
+func _reveal_result(frames := LAYOUT_FRAMES) -> void:
+	if frames > 0:
+		# autoplay=lose answers several questions in one frame.
+		var later := _reveal_result.bind(frames - 1)
+		if not get_tree().process_frame.is_connected(later):
+			get_tree().process_frame.connect(later, CONNECT_ONE_SHOT)
+		return
+	if not answered:
+		return
+	var top := feedback
+	for i in range(check_button.get_index() + 1, card.get_child_count()):
+		var c: Control = card.get_child(i)
+		if c.visible:
+			top = c
+			break
+	scroll.scroll_vertical = mini(int(next_button.get_rect().end.y - scroll.size.y), int(top.position.y))
 
 
 ## Keeps the answer in the save, for the planner. The explorer screen keeps nothing.
@@ -562,6 +620,7 @@ func _show_working() -> void:
 		working.add_child(tabs)
 	working.add_child(steps)
 	_show_steps(steps, 0)
+	_let_swipes_through()
 
 
 func _show_steps(box: VBoxContainer, i: int) -> void:

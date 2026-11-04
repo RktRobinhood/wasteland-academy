@@ -12,10 +12,15 @@ extends Control
 ##               or cos x on [0, 2π] with π ticks, a level line and marked points
 ##   bars        {"xs", "ys", "hide": [index]}: one bar per x, its value on top (a row
 ##               of Pascal's triangle); hidden values show "?"
+##   venn        {"names": [A, B], "a", "i", "b", "o"}: two circles in a box, with the text of
+##               each region: A only, both, B only and outside
+##   tree        {"first": [A, A′], "second": [B, B′], "p": [2 labels], "q": [[2 labels], [2 labels]]}:
+##               a two-stage tree with the probability on every branch
 
 const PAD := 26.0
 const FONT_SIZE := 32
 const DOT := 13.0
+const LABEL_GAP := 90.0
 
 var spec: Dictionary = {}
 
@@ -27,7 +32,7 @@ func _init() -> void:
 
 func set_spec(s: Dictionary) -> void:
 	spec = s
-	custom_minimum_size = Vector2(0, 260 if s.get("kind") == "numberline" else 560)
+	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620}.get(s.get("kind"), 560))
 	queue_redraw()
 
 
@@ -49,6 +54,10 @@ func _draw() -> void:
 			_trig()
 		"bars":
 			_bars()
+		"venn":
+			_venn()
+		"tree":
+			_tree()
 
 
 func _text(s: String, at: Vector2, col: Color, fs: int = FONT_SIZE, centred: bool = true) -> void:
@@ -101,7 +110,7 @@ func _normal() -> void:
 	var x0 := float(spec.x0)
 	var x1 := float(spec.x1)
 	var top := 1.0 / (sigma * sqrt(TAU))
-	var r := Rect2(Vector2(PAD, PAD + 20), size - Vector2(PAD * 2, PAD * 2 + 90))
+	var r := Rect2(Vector2(PAD, PAD + 20), size - Vector2(PAD * 2, PAD * 2 + 110))
 	var to_px := func(x: float, yv: float) -> Vector2:
 		return Vector2(r.position.x + (x - x0) / (x1 - x0) * r.size.x, r.end.y - yv / (top * 1.1) * r.size.y)
 	var pdf := func(x: float) -> float: return top * exp(-0.5 * pow((x - mu) / sigma, 2))
@@ -126,10 +135,14 @@ func _normal() -> void:
 	while t < r.size.y:
 		draw_line(mx - Vector2(0, t), mx - Vector2(0, minf(t + dash * 0.5, r.size.y)), UiTheme.DIM, 3.0)
 		t += dash
+	# Two values close together: the second label drops a row, so they don't run into each other.
+	var placed: Array = []
 	for m in spec.get("marks", []):
 		var p: Vector2 = to_px.call(float(m.at), 0.0)
+		var drop := 34.0 if placed.any(func(x): return absf(x - p.x) < LABEL_GAP) else 0.0
+		placed.append(p.x)
 		draw_line(p, p + Vector2(0, 16), UiTheme.TEXT, 3.0)
-		_text(m.label, p + Vector2(0, 54), UiTheme.TEXT, FONT_SIZE - 4)
+		_text(m.label, p + Vector2(0, 54 + drop), UiTheme.TEXT, FONT_SIZE - 4)
 
 
 # ── sin x or cos x ───────────────────────────────────────────
@@ -186,3 +199,50 @@ func _bars() -> void:
 		_text("?" if i in hide else _n(float(ys[i])), Vector2(rect.get_center().x, rect.position.y - 10), UiTheme.TEXT, FONT_SIZE - 8)
 		_text(_n(float(xs[i])), Vector2(rect.get_center().x, r.end.y + 40), UiTheme.DIM, FONT_SIZE - 6)
 	draw_line(Vector2(r.position.x, r.end.y), Vector2(r.end.x, r.end.y), UiTheme.DIM, 4.0)
+
+
+# ── Venn diagram ─────────────────────────────────────────────
+
+func _venn() -> void:
+	var box := Rect2(Vector2(PAD, PAD), size - Vector2(PAD, PAD) * 2.0)
+	draw_rect(box, UiTheme.DIM, false, 4.0)
+	var mid := box.position + box.size / 2.0
+	var r := minf(box.size.x * 0.27, box.size.y * 0.4)
+	var left := mid - Vector2(r * 0.62, 0)
+	var right := mid + Vector2(r * 0.62, 0)
+	draw_circle(left, r, Color(UiTheme.TEAL, 0.14))
+	draw_circle(right, r, Color(UiTheme.SAND, 0.14))
+	draw_arc(left, r, 0.0, TAU, 96, UiTheme.TEAL, 5.0, true)
+	draw_arc(right, r, 0.0, TAU, 96, UiTheme.SAND, 5.0, true)
+	var names: Array = spec.get("names", ["A", "B"])
+	_text(names[0], left + Vector2(-r * 0.72, -r * 0.82), UiTheme.TEAL)
+	_text(names[1], right + Vector2(r * 0.72, -r * 0.82), UiTheme.SAND)
+	var base := Vector2(0, FONT_SIZE * 0.35)
+	_text(spec.a, left + Vector2(-r * 0.42, 0) + base, UiTheme.TEXT, FONT_SIZE - 2)
+	_text(spec.i, mid + base, UiTheme.TEXT, FONT_SIZE - 2)
+	_text(spec.b, right + Vector2(r * 0.42, 0) + base, UiTheme.TEXT, FONT_SIZE - 2)
+	_text(spec.o, box.end - Vector2(96, 26), UiTheme.TEXT, FONT_SIZE - 2)
+
+
+# ── Tree diagram ─────────────────────────────────────────────
+
+func _tree() -> void:
+	var w := size.x
+	var h := size.y
+	var root := Vector2(PAD + 10, h / 2.0)
+	var mids: Array = [Vector2(w * 0.42, h * 0.26), Vector2(w * 0.42, h * 0.74)]
+	var ends: Array = [[Vector2(w * 0.86, h * 0.1), Vector2(w * 0.86, h * 0.38)], [Vector2(w * 0.86, h * 0.62), Vector2(w * 0.86, h * 0.9)]]
+	var first: Array = spec.first
+	var second: Array = spec.second
+	for i in 2:
+		var m: Vector2 = mids[i]
+		draw_line(root, m - Vector2(30, 0), UiTheme.TEAL, 4.0, true)
+		var lift := -30.0 if i == 0 else 42.0
+		_text(spec.p[i], (root + m) / 2.0 + Vector2(-16, lift), UiTheme.SAND, FONT_SIZE - 2)
+		_text(first[i], m + Vector2(0, 12), UiTheme.TEXT)
+		for j in 2:
+			var e: Vector2 = ends[i][j]
+			draw_line(m + Vector2(30, 0), e - Vector2(30, 0), UiTheme.TEAL, 4.0, true)
+			var up := -28.0 if j == 0 else 40.0
+			_text(spec.q[i][j], (m + e) / 2.0 + Vector2(-10, up), UiTheme.SAND, FONT_SIZE - 2)
+			_text(second[j], e + Vector2(10, 12), UiTheme.TEXT)
