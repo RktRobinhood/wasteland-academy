@@ -125,7 +125,9 @@ func _draw() -> void:
 			continue
 		var c := to_px(Vector2(p.x, p.y))
 		draw_circle(c, dot, UiTheme.PINK)
-		draw_circle(c, dot * 0.45, UiTheme.BG)
+		# An end of a domain (FAL-424): "open" is left out, "filled" is included.
+		if not p.get("filled", false):
+			draw_circle(c, dot * (0.7 if p.get("open", false) else 0.45), UiTheme.BG)
 		if p.label == "":
 			continue
 		var w := font.get_string_size(p.label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x

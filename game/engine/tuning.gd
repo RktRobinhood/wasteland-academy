@@ -191,6 +191,13 @@ const CHAINS := {
 	# the composite as one expression, then its value at an input. (The parameter, solve and
 	# reversed unknowns each need their own numbers, so they stay single questions.)
 	"fn-composite": ["expression", "value-inside-out"],
+	# the start value, a value later on, then the input that reaches a target
+	"fn-evaluate-function": ["value-at-zero", "value-at-input", "time-for-target"],
+	# the range from the vertex, then a change that uses it. (The other parts of the chain
+	# each need their own function, so they stay single questions.)
+	"fn-domain-range": ["range-quadratic", "restrict-for-inverse"],
+	# the sketch by swapping key points, then a point of f⁻¹ by the same symmetry
+	"fn-inverse-reflection": ["sketch-inverse", "image-point"],
 }
 
 

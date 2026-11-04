@@ -97,6 +97,11 @@ static var SITUATIONS := {
 	"integration": [IntegrationSituation, IntegrationViews],
 	"definite-integral": [DefiniteIntegralSituation, DefiniteIntegralViews],
 	"motion": [MotionSituation, MotionViews],
+	"basic-function": [BasicFunctionSituation, BasicFunctionViews],
+	"basic-restricted": [BasicRestrictedSituation, BasicRestrictedViews],
+	"basic-one-to-one": [BasicOneToOneSituation, BasicOneToOneViews],
+	"basic-relation": [BasicRelationSituation, BasicRelationViews],
+	"fn-pre-substitute": [SubstituteSituation, SubstituteViews],
 }
 
 static var _cat: Dictionary = {}
