@@ -15,24 +15,29 @@ extends RefCounted
 ## generate() returns, by need.kind:
 ##   plain     rule f; x0 an input, y0 = f(x0), y_int = f(0)
 ##   grid      rule f (a line or a parabola) that fits the window GRID, x0 and y0 whole
-##   roots     rule f with zeros zs (sorted), offset k (f(x) = k has solutions zs; 0 for zeros),
-##             y_int = f(0). Paper 1: a(x − p)(x − q) + k or x³ − p²x, on whole numbers
+##   roots     rule f with zeros zs (sorted), y_int = f(0). Paper 1: a(x − p)(x − q) or
+##             x³ − p²x, on whole numbers. need.grid keeps it whole and small on any paper
+##   levels    the same with an offset k: f(x) = k has solutions zs
 ##   model     a context: ctx "ball", "cost", "pop" or "cool", name, v (the input's letter), rule f,
 ##             x0, y0, y_int = the start value, target, tstar (the input that reaches it),
 ##             tneg (a ball's other, negative root), dom_end (when a ball lands; 0 otherwise)
 ##   notation  rule f (a whole-number line or parabola), a (the value to put in)
+##   expression  rule f, a parabola with b ≠ 0
+##   inverse   rule f, a line, and a value a with f(inv) = a, both whole
 ## Paper 1 outputs are whole numbers or simple fractions (exact Qs). Paper 2 (a calculator)
 ## has decimal coefficients and inputs; a value is a Q, exact for a polynomial, and to 9 d.p.
 ## otherwise. It is on no rounding edge, and is answered to 3 s.f.
 ##
-## need: kind ("any" is plain or model), fams (plain), ctx, offset (roots: k ≠ 0), linear
-## (notation), paper. A type with no paper counts gets Paper 1. The clean limits are the
-## checker's too (tools/check_answers.py, BF_*).
+## need: kind ("any" is plain or model), fams (plain), ctx, grid (roots, levels), paper.
+## A type with no paper counts gets Paper 1. The clean limits are the checker's too
+## (tools/check_answers.py, BF_*).
 
 const TRIES := 600
 const GRID := [-6, 6, -10, 10]
 const PLAIN := ["line", "quad", "cubic", "root", "rat", "exp"]
 const CTXS := ["ball", "cost", "pop", "cool"]
+const SIGNS := [1, 1, -1, 2, -2]
+const STEEP := [2, 3, -2, -3]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
@@ -55,11 +60,17 @@ static func _draw(rng: Seeded, need: Dictionary, paper: int) -> Dictionary:
 		"grid":
 			s = _grid(rng)
 		"roots":
-			s = _roots(rng, paper, need.get("offset", false))
+			s = _roots(rng, paper, false, need.get("grid", false))
+		"levels":
+			s = _roots(rng, paper, true, need.get("grid", false))
 		"model":
 			s = _model(rng, paper, need.get("ctx", "any"))
 		"notation":
-			s = _notation(rng, need.get("linear", false))
+			s = _notation(rng)
+		"expression":
+			s = _expression(rng)
+		"inverse":
+			s = _inverse(rng)
 		_:
 			var fams: Array = need.get("fams", PLAIN)
 			s = _plain(rng, paper, rng.pick(fams))
@@ -252,57 +263,71 @@ static func _grid(rng: Seeded) -> Dictionary:
 	return {"f": f, "x0": x0, "y0": y0, "y_int": at(f, 0), "fam": "grid"}
 
 
-static func _notation(rng: Seeded, linear: bool) -> Dictionary:
+static func _notation(rng: Seeded) -> Dictionary:
 	var f: Dictionary
-	if linear or rng.chance(0.5):
-		f = poly([ExtensionViews.nonzero(rng, -7, 7), [2, 3, 4, 5, -2, -3][rng.int_in(0, 5)]])
+	if rng.chance(0.5):
+		f = poly([ExtensionViews.nonzero(rng, -7, 7), rng.pick(STEEP)])
 	else:
 		f = poly([rng.int_in(-5, 6), ExtensionViews.nonzero(rng, -4, 4), 1])
 	var a := rng.int_in(1, 3)
+	# f(a + 1) and f(a) + 1, and f(2a) and 2f(a), differ, so the slip gives another value.
+	if at(f, a + 1).eq(at(f, a).add(1)) or at(f, 2 * a).eq(at(f, a).mul(2)):
+		return {}
 	return {"f": f, "a": Q.new(a), "x0": Q.new(a), "y0": at(f, a), "y_int": at(f, 0), "fam": "notation"}
+
+
+static func _expression(rng: Seeded) -> Dictionary:
+	var f := poly([rng.int_in(-5, 6), ExtensionViews.nonzero(rng, -4, 4), [1, 1, -1, 2][rng.int_in(0, 3)]])
+	return {"f": f, "x0": Q.new(1), "y0": at(f, 1), "y_int": at(f, 0), "fam": "expression"}
+
+
+## A line with f(inv) = a, and a small and positive, so f(a), f(2a) and 1/f(a) are easy too.
+static func _inverse(rng: Seeded) -> Dictionary:
+	var m: int = rng.pick(STEEP)
+	var k := rng.int_in(-2, 2)
+	var a := rng.int_in(1, 3)
+	var c := a - m * k
+	var f := poly([c, m])
+	if k == a or c == 0 or at(f, a).is_zero() or at(f, a).eq(at(f, a + 1).sub(1)):
+		return {}
+	return {"f": f, "a": Q.new(a), "inv": Q.new(k), "x0": Q.new(a), "y0": at(f, a), "y_int": Q.new(c), "fam": "inverse"}
 
 
 # ── roots ────────────────────────────────────────────────────
 
-static func _roots(rng: Seeded, paper: int, offset: bool) -> Dictionary:
-	var f: Dictionary
-	var zs: Array
-	var k := Q.new(0)
-	if paper == 2:
-		var a := tenths(rng, -25, 25)
-		var b := tenths(rng, -60, 60)
-		var c := tenths(rng, -60, 60)
-		if offset:
-			k = Q.new(ExtensionViews.nonzero(rng, -6, 9))
-		var disc: float = b.to_float() * b.to_float() - 4.0 * a.to_float() * (c.to_float() - k.to_float())
-		if a.is_zero() or disc < 1.0:
+static func _roots(rng: Seeded, paper: int, offset: bool, grid: bool) -> Dictionary:
+	var k := Q.new(ExtensionViews.nonzero(rng, -6, 9) if offset else 0)
+	if paper == 2 and not grid:
+		var a2 := tenths(rng, -25, 25)
+		var b2 := tenths(rng, -60, 60)
+		var c2 := tenths(rng, -60, 60)
+		var disc: float = b2.to_float() * b2.to_float() - 4.0 * a2.to_float() * (c2.to_float() - k.to_float())
+		if disc < 1.0:
 			return {}
 		var rt := sqrt(disc)
-		var r1 := (-b.to_float() - rt) / (2.0 * a.to_float())
-		var r2 := (-b.to_float() + rt) / (2.0 * a.to_float())
-		zs = [GdcKit.qf(minf(r1, r2)), GdcKit.qf(maxf(r1, r2))]
-		if not (fair(zs[0]) and fair(zs[1])) or zs[1].sub(zs[0]).to_float() < 0.5 or c.is_zero():
+		var r1 := (-b2.to_float() - rt) / (2.0 * a2.to_float())
+		var r2 := (-b2.to_float() + rt) / (2.0 * a2.to_float())
+		var low := GdcKit.qf(minf(r1, r2))
+		var high := GdcKit.qf(maxf(r1, r2))
+		if not (fair(low) and fair(high)) or high.to_float() - low.to_float() < 0.5:
 			return {}
-		f = poly([c, b, a])
-		return {"f": f, "zs": zs, "k": k, "y_int": c, "fam": "quad", "x0": zs[0], "y0": k}
-	var a := [1, 1, -1, 2, -2][rng.int_in(0, 4)]
-	if not offset and rng.chance(0.25):
-		var p := rng.int_in(1, 4)
-		return {"f": poly([0, -p * p, 0, 1]), "zs": [Q.new(-p), Q.new(0), Q.new(p)], "k": k, "y_int": Q.new(0), "fam": "cubic", "p": p, "x0": Q.new(p), "y0": k}
-	var p := ExtensionViews.nonzero(rng, -5, 5)
-	var q := ExtensionViews.nonzero(rng, -5, 6)
-	if p >= q:
+		return {"f": poly([c2, b2, a2]), "zs": [low, high], "k": k, "y_int": c2, "fam": "quad", "x0": low, "y0": k}
+	if not offset and not grid and rng.chance(0.25):
+		var c := rng.int_in(1, 4)
+		return {"f": poly([0, -c * c, 0, 1]), "zs": [Q.new(-c), Q.new(0), Q.new(c)], "k": k, "y_int": Q.new(0), "fam": "cubic", "c": c, "x0": Q.new(c), "y0": k}
+	var a: int = [1, -1][rng.int_in(0, 1)] if grid else SIGNS[rng.int_in(0, 4)]
+	var p := ExtensionViews.nonzero(rng, -4, 4) if grid else ExtensionViews.nonzero(rng, -5, 5)
+	var q := ExtensionViews.nonzero(rng, -4, 5) if grid else ExtensionViews.nonzero(rng, -5, 6)
+	if p >= q or (grid and (q - p > 5 or absi(a * p * q + k.n) > 12 or absi(k.n) > 6)):
 		return {}
-	if offset:
-		k = Q.new(ExtensionViews.nonzero(rng, -6, 9))
-	f = poly([a * p * q + k.n, -a * (p + q), a])
+	var f := poly([a * p * q + k.n, -a * (p + q), a])
 	return {"f": f, "zs": [Q.new(p), Q.new(q)], "k": k, "y_int": at(f, 0), "fam": "quad", "a": Q.new(a), "p": Q.new(p), "q": Q.new(q), "x0": Q.new(p), "y0": k}
 
 
 ## a(x − p)(x − q) as written: "2(x + 1)(x − 3)".
 static func factorised(s: Dictionary) -> String:
 	if s.fam == "cubic":
-		return "%s(%s)(%s)" % [s.v, Answer.x_minus(Q.new(-s.p)), Answer.x_minus(Q.new(s.p))]
+		return "%s(%s)(%s)" % [s.v, Answer.x_minus(Q.new(-s.c)), Answer.x_minus(Q.new(s.c))]
 	return Fmt.factorised(s.a, s.p, s.q)
 
 
@@ -332,8 +357,7 @@ static func _model(rng: Seeded, paper: int, want: String) -> Dictionary:
 				s.target = Q.new(roundi(s.f.A.to_float() * rng.int_in(21, 45) / 100.0) * 10)
 				s.tstar = GdcKit.qf(log(s.target.to_float() / s.f.A.to_float()) / log(s.f.b.to_float()))
 			else:
-				var b: int = [2, 3][rng.int_in(0, 1)]
-				s.f = {"fam": "exp", "A": Q.new([50, 100, 200, 300][rng.int_in(0, 3)]), "b": Q.new(b), "c": Q.new(0)}
+				s.f = {"fam": "exp", "A": Q.new([50, 100, 200, 300][rng.int_in(0, 3)]), "b": Q.new(rng.int_in(2, 3)), "c": Q.new(0)}
 				s.x0 = Q.new(rng.int_in(1, 3))
 				s.tstar = Q.new(rng.int_in(2, 4))
 				s.target = at(s.f, s.tstar)
@@ -389,6 +413,43 @@ static func _ball(rng: Seeded, paper: int, s: Dictionary) -> bool:
 	s.target = at(s.f, t1)
 	s.x0 = Q.new(rng.int_in(1, t_end - 1))
 	return s.tneg.sign() < 0
+
+
+## The sentence that sets up a model, its rule inside it.
+static func setup(s: Dictionary) -> String:
+	var rule := eqn(s)
+	match s.ctx:
+		"ball":
+			return "A ball is thrown upwards. Its height, in metres, t seconds later is %s." % rule
+		"cost":
+			return "A print shop charges a set-up fee and a price for each T-shirt. An order of n T-shirts costs %s dollars." % rule
+		"pop":
+			return "A colony of bacteria grows. After t hours it has %s bacteria." % rule
+	return "A hot drink cools in a room. After t minutes its temperature, in °C, is %s." % rule
+
+
+## "h(3) = 12" said in the context.
+static func said(s: Dictionary, x: String, y: String) -> String:
+	match s.ctx:
+		"ball":
+			return "%s seconds after it is thrown, the ball is %s m high" % [x, y]
+		"cost":
+			return "An order of %s T-shirts costs $%s" % [x, y]
+		"pop":
+			return "After %s hours there are %s bacteria" % [x, y]
+	return "After %s minutes the drink is at %s °C" % [x, y]
+
+
+## The start value said in the context.
+static func start(s: Dictionary, y: String) -> String:
+	match s.ctx:
+		"ball":
+			return "The ball leaves the hand %s m above the ground" % y
+		"cost":
+			return "The set-up fee is $%s, before any T-shirts" % y
+		"pop":
+			return "The colony starts with %s bacteria" % y
+	return "The drink starts at %s °C" % y
 
 
 ## The two roots of h(t) = y, smaller first.

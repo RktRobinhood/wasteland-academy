@@ -191,6 +191,8 @@ const CHAINS := {
 	# the composite as one expression, then its value at an input. (The parameter, solve and
 	# reversed unknowns each need their own numbers, so they stay single questions.)
 	"fn-composite": ["expression", "value-inside-out"],
+	# the start value, a value later on, then the input that reaches a target
+	"fn-evaluate-function": ["value-at-zero", "value-at-input", "time-for-target"],
 }
 
 

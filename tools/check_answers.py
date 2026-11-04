@@ -1688,6 +1688,11 @@ def dec_text(v):
     return s.replace("-", "−")
 
 
+def bf_forms(v):
+    """Every way an option may write v: exact, as a decimal, or to 3 s.f."""
+    return {gc_s(v)} if not v.is_Rational else {frac_text(v), dec_text(v), gc_s(v)}
+
+
 def money_text(v):
     v = sp.Rational(v)
     if v.q == 1:
@@ -11697,6 +11702,333 @@ def check_motion(q):
     return None, None
 
 
+# ── Function basics (FAL-424) ────────────────────────────────
+# basic-function, basic-restricted, basic-one-to-one, basic-relation and fn-pre-substitute.
+# The rule a question shows is read back from its text and every value is worked out again
+# here; the situation's clean limits are the checker's own copy (BF_*).
+
+BF_LOCALS = {"x": X, "exp": sp.exp, "log": sp.log, "sqrt": sp.sqrt}
+BF_MODEL = {"h": ("t", "ball"), "C": ("n", "cost"), "P": ("t", "pop"), "T": ("t", "cool")}
+BF_P1_D = 12
+BF_R_SQUARE, BF_R_SHIFT, BF_R_TIMES = "SL2.2.evaluate-notation#1", "SL2.2.evaluate-notation#2", "SL2.2.evaluate-notation#0"
+BF_R_NOTHING, BF_R_NEG, BF_R_OUT = "SL2.2.function-model#0", "SL2.2.function-model#1", "SL2.2.function-model#2"
+BF_R_ZY, BF_R_ZS = "SL2.4.zeros-intercepts#0", "SL2.4.zeros-intercepts#1"
+
+
+def bf_expr(text, v="x"):
+    """A rule as the game writes it, as SymPy in x: '2(1.5)^t + 3', '3√(2x + 1) − 4', '4e^(−0.05t) + 20'."""
+    t = text.strip().replace("−", "-").replace("√(", "sqrt(").replace("e^(", "exp(").replace("ln(", "log(")
+    if v != "x":
+        t = re.sub(rf"(?<![a-z]){v}(?![a-z])", "x", t)
+    t = t.replace("e^x", "exp(x)").replace("x³", "x**3").replace("x²", "x**2").replace(")²", ")**2").replace("^", "**")
+    t = re.sub(r"([0-9x)])(exp|log|sqrt)\(", r"\1*\2(", t)
+    t = re.sub(r"(?<=[0-9x)])\(", "*(", t).replace("sqrt*(", "sqrt(").replace("exp*(", "exp(").replace("log*(", "log(")
+    need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the function {text!r}")
+    return sp.nsimplify(parse_expr(t, transformations=TRANSFORMS, local_dict=BF_LOCALS), rational=True)
+
+
+def bf_rule(q):
+    """(name, letter, f) from the first 'f(x) = …' the question shows, ended by a comma or a full stop and a space or the end."""
+    for t in q["lines"] + [q["asked"]]:
+        m = re.search(r"\b([fhCPTg])\(([xtn])\) = (.+?)(?:,? dollars| bacteria|\.\s|\.$|, for |, where |$)", t)
+        if m:
+            return m.group(1), m.group(2), bf_expr(m.group(3), m.group(2))
+    raise Fail("can't find the rule")
+
+
+def bf_given(g):
+    """The situation's rule as SymPy, from its numbers."""
+    r = g["f"]
+    fam = r["fam"]
+    if fam == "poly":
+        return sum(R(c) * X**i for i, c in enumerate(r["co"]))
+    if fam == "root":
+        return R(r["A"]) * sp.sqrt(R(r["m"]) * X + R(r["n"])) + R(r["k"])
+    if fam == "rat":
+        return (R(r["a"]) * X + R(r["b"])) / (R(r["c"]) * X + R(r["d"]))
+    if fam == "exp":
+        return R(r["A"]) * R(r["b"])**X + R(r["c"])
+    if fam == "expe":
+        return R(r["A"]) * sp.exp(R(r["k"]) * X) + R(r["c"])
+    if fam == "ln":
+        return R(r["A"]) * sp.log(R(r["m"]) * X + R(r["n"])) + R(r["k"])
+    raise Fail(f"unknown family {fam}")
+
+
+def bf_at(f, x):
+    """f at x, exact where SymPy can keep it so."""
+    v = f.subs(X, x)
+    return v if v.is_Rational else sp.N(v, 30)
+
+
+def bf_n(v, paper, money=False):
+    """A value as the answer writes it: exact on Paper 1, a decimal or 3 s.f. on Paper 2."""
+    if money:
+        return money_text(R(v))
+    if paper == 1:
+        return frac_text(v)
+    return gc_s(v) if gc_rounds(v) else dec_text(R(v))
+
+
+def bf_forms(v):
+    """Every way an option may write v: exact, as a decimal, or to 3 s.f."""
+    return {gc_s(v)} if not v.is_Rational else {frac_text(v), dec_text(v), gc_s(v)}
+
+
+def money_text(v):
+    return str(v) if v.q == 1 else f"{float(v):.2f}"
+
+
+def bf_no_hyphens(q):
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def bf_real_roots(f, want=0):
+    """The real solutions of f(x) = want for a polynomial, sorted."""
+    rs = sp.real_roots(sp.Poly(sp.nsimplify(f - want), X))
+    return sorted((r if r.is_Rational else sp.N(r, 30) for r in rs), key=lambda r: float(r))
+
+
+def bf_xs(vs, paper):
+    names = [bf_n(v, paper) for v in sorted(vs, key=lambda r: float(r))]
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def bf_graph(q, f):
+    gr = q.get("graph")
+    need(gr is not None, "no graph")
+    need(gc_curve_is(gr["curves"][0], gc_f(f)), "the graph drawn is not f")
+
+
+def bf_trap_num(paper, label, v, unit=""):
+    return f"{label}{gc_s2(v)}{unit}" if paper == 2 and gc_rounds(v) else None
+
+
+def bf_table(q, f):
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "x", "the table's heads")
+    for xs, ys in zip(rows[0][1], rows[1][1]):
+        xv = R(xs.replace("−", "-"))
+        need(R(ys.replace("−", "-")) == f.subs(X, xv), f"the table's f({xs}) is {ys}")
+
+
+def check_basic(q):
+    u, rep, paper, L, asked = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["lines"], q["asked"]
+    g = q["given"]
+    bf_no_hyphens(q)
+    if q["view"]["type"] == "fn-concept-function-notation":
+        need(paper == 1, "an extension type on this situation is Paper 1")
+        return bf_concept(q)
+    f = bf_given(g)
+    if rep in ("equation", "words") or u in ("time-for-target", "value-at-zero", "interpret-value", "model-domain"):
+        name, v, shown = bf_rule(q)
+        need(all(abs(sp.N((shown - f).subs(X, x_), 20)) < 1e-9 for x_ in (sp.Rational(7, 5), sp.Rational(23, 10))), f"the rule shown {shown} is not the situation's {f}")
+    else:
+        name, v = "f", "x"
+    money = g.get("ctx") == "cost"
+    n = lambda w: bf_n(w, paper, money)
+    if paper == 1 and g.get("fam") not in ("model",):
+        need(g["x0"] is not None, "no input")
+    if rep == "graph":
+        bf_graph(q, f)
+    if rep == "table":
+        bf_table(q, f)
+    if u == "value-at-zero":
+        y = bf_at(f, 0)
+        need(R(g["y_int"]) == y, "the start value is wrong")
+        if rep == "words":
+            starts = {"ball": f"The ball leaves the hand {n(y)} m above the ground", "cost": f"The set-up fee is ${n(y)}, before any T-shirts",
+                      "pop": f"The colony starts with {n(y)} bacteria", "cool": f"The drink starts at {n(y)} °C"}
+            gc_check_common(q, starts[g["ctx"]], {BF_R_NOTHING: {"There is nothing yet at the start"}})
+        else:
+            gc_check_common(q, f"{name}(0) = {n(y)}", {BF_R_NOTHING: {f"{name}(0) = 0"}}, bf_trap_num(paper, f"{name}(0) = ", y) if not money else None)
+    elif u == "value-at-input":
+        x0 = R(g["x0"])
+        y = bf_at(f, x0)
+        need(gc_close(g["y0"], y), "y0 is not f(x0)")
+        label = f"{name}({dec_text(x0)}) = "
+        wr = {}
+        if x0 < 0 and f.is_polynomial(X) and sp.Poly(f, X).coeff_monomial(X**2) < 0:
+            wr[BF_R_SQUARE] = {label + n(y - 2 * sp.Poly(f, X).coeff_monomial(X**2) * x0**2)}
+        if money:
+            gc_check_common(q, label + n(y), wr)
+        else:
+            gc_check_common(q, label + n(y), wr, bf_trap_num(paper, label, y))
+    elif u == "y-intercept":
+        y = bf_at(f, 0)
+        zs = bf_real_roots(f)
+        gc_check_common(q, f"(0, {n(y)})", {BF_R_ZY: {f"(0, {dec_text(sp.Rational(sig3(z)))})" if paper == 2 else f"(0, {n(z)})" for z in zs}})
+    elif u == "above-or-below":
+        x0, py = R(g["px"]), R(g["py"])
+        y = bf_at(f, x0)
+        need(y != py, "the point is on the graph")
+        need(abs(y - py) <= (2 if paper == 2 else 3), "the point is not close to the curve")
+        side = "Above" if py > y else "Below"
+        got = q["answer_text"]
+        need(got.startswith(side + ": f(" + dec_text(x0) + ") = "), f"{got!r} is the wrong side")
+        need(got.endswith(f"which is {'less' if py > y else 'more'} than {dec_text(py)}"), f"{got!r} compares wrongly")
+        val = sp.Rational(re.search(r" = (−?[\d./]+),", got).group(1).replace("−", "-"))
+        need(abs(val - y) <= abs(y) * sp.Rational(1, 10**4) + sp.Rational(1, 10**4), f"{got!r} misstates f")
+        gc_check_common(q, got, {})
+    elif u in ("read-from-table", "read-from-graph"):
+        x0 = R(g["x0"])
+        need(x0.q == 1 and f.subs(X, x0).q == 1, "not a reading on whole numbers")
+        need(f"f({frac_text(x0)})" in asked, "the question asks another input")
+        gc_check_common(q, f"f({frac_text(x0)}) = {frac_text(f.subs(X, x0))}", {})
+    elif u == "interpret-value":
+        m = re.search(r"mean", asked)
+        h = re.search(rf"{name}\((−?[\d.]+)\) = (.+?) mean here", asked)
+        need(m and h, "can't read the statement")
+        x0 = R(sp.nsimplify(h.group(1)))
+        y = bf_at(f, x0)
+        need(h.group(2) == n(y), f"{name}({x0}) is not {h.group(2)}")
+        xt = dec_text(x0)
+        says = {"ball": f"{xt} seconds after it is thrown, the ball is {n(y)} m high", "cost": f"An order of {xt} T-shirts costs ${n(y)}",
+                "pop": f"After {xt} hours there are {n(y)} bacteria", "cool": f"After {xt} minutes the drink is at {n(y)} °C"}
+        starts = {"ball": f"The ball leaves the hand {n(y)} m above the ground", "cost": f"The set-up fee is ${n(y)}, before any T-shirts",
+                  "pop": f"The colony starts with {n(y)} bacteria", "cool": f"The drink starts at {n(y)} °C"}
+        gc_check_common(q, (starts if x0 == 0 else says)[g["ctx"]], {BF_R_NOTHING: {"There is nothing yet at the start"}})
+    elif u == "input-from-output":
+        k = R(g["k"])
+        need(k != 0, "no target")
+        zs = bf_real_roots(f, k)
+        need(len(zs) == 2, "f(x) = k needs two solutions")
+        gc_check_common(q, bf_xs(zs, paper), {BF_R_OUT: {f"x = {t}" for t in bf_forms(k)}}, gc_xs2(zs) if paper == 2 and any(gc_rounds(z) for z in zs) else None)
+    elif u == "expression-input":
+        head = re.search(r"Write (f\(.+?\)) in the form", asked).group(1)
+        inner = bf_expr(head[2:-1])
+        e = sp.Poly(sp.expand(f.subs(X, inner)), X)
+        want = f"{head} = {qr_poly([e.coeff_monomial(X**2), e.coeff_monomial(X), e.coeff_monomial(1)])}"
+        shift = inner - X
+        wr = {BF_R_SHIFT: {f"{head} = {qr_poly(sp.Poly(f + shift, X).all_coeffs())}"}} if shift.is_number else {}
+        gc_check_common(q, want, wr)
+    elif u == "zeros":
+        zs = bf_real_roots(f)
+        need(len(zs) >= 2, "too few zeros")
+        if q["view"]["angle"] == "factorised-read" and paper == 1 and rep == "equation":
+            shown = bf_factors(L[0])
+            need(sp.expand(shown - f) == 0, f"{L[0]!r} is not the rule")
+        wr = {BF_R_ZS: {bf_xs([-z for z in zs], paper)}, BF_R_ZY: {f"x = {t}" for t in bf_forms(f.subs(X, 0))}}
+        gc_check_common(q, bf_xs(zs, paper), wr, gc_xs2(zs) if paper == 2 and any(gc_rounds(z) for z in zs) else None)
+    elif u == "time-for-target":
+        goal = R(g["target"])
+        ctx = g["ctx"]
+        ts = sp.nsolve(f - goal, X, float(R(g["tstar"]))) if not f.is_polynomial(X) else None
+        if f.is_polynomial(X):
+            roots = bf_real_roots(f, goal)
+            pos = [r for r in roots if r >= 0]
+            need(len(pos) == 1, f"{len(pos)} possible times")
+            ts = pos[0]
+            neg = [r for r in roots if r < 0]
+        else:
+            neg = []
+            ts = sp.nsimplify(ts, rational=True, tolerance=1e-12) if paper == 1 else ts
+        unit = {"ball": " s", "cost": "", "pop": " h", "cool": " min"}[ctx]
+        label = f"{v} = "
+        n = lambda w: bf_n(w, 1 if money else paper)
+        wr = {BF_R_OUT: {label + t + unit for t in bf_forms(goal)}}
+        if neg:
+            wr[BF_R_NEG] = {label + t + unit for t in bf_forms(neg[0])}
+        gc_check_common(q, label + n(ts) + unit, wr, bf_trap_num(paper, label, ts, unit) if not money else None)
+    elif u == "model-domain":
+        ctx = g["ctx"]
+        wr = {"ball": None}
+        if ctx == "ball":
+            roots = bf_real_roots(f)
+            end = max(roots)
+            top = f.subs(X, -sp.Poly(f, X).coeff_monomial(X) / (2 * sp.Poly(f, X).coeff_monomial(X**2)))
+            want, bad = f"0 ≤ t ≤ {n(end)}", f"0 ≤ h ≤ {n(top)}"
+        elif ctx == "cost":
+            want, bad = "n = 0, 1, 2, 3, ...", f"C ≥ {n(f.subs(X, 0))}"
+        else:
+            want = "t ≥ 0"
+            bad = f"P ≥ {n(f.subs(X, 0))}" if ctx == "pop" else f"T ≤ {n(f.subs(X, 0))}"
+        gc_check_common(q, want, {"SL2.2.domain#2": {bad}})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+def bf_factors(line):
+    t = rhs(line).replace("−", "-")
+    t = re.sub(r"(?<=[0-9x)])\(", "*(", t)
+    return parse_expr(t, transformations=TRANSFORMS, local_dict={"x": X})
+
+
+def bf_concept(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    if u == "when-equal":
+        m_ = sp.Symbol("m")
+        c = bf_expr(rhs(L[0]).replace("mx", "0"))
+        mm = re.search(r"f\(x \+ (\d)\) = f\(x\) ([+−]) (\d) for every x", asked)
+        need(mm is not None, "can't read when-equal")
+        h, d = int(mm.group(1)), int(mm.group(3)) * (1 if mm.group(2) == "+" else -1)
+        sol = sp.solve(sp.expand(m_ * (X + h) + c - (m_ * X + c + d)), m_)
+        gc_check_common(q, f"m = {frac_text(sol[0])}", {})
+        return None, None
+    if rep == "equation":
+        _, _, f = bf_rule(q)
+    else:
+        f = bf_given(q["given"])
+        need(f.is_polynomial(X), "the situation's rule")
+    if rep == "table":
+        bf_table(q, f)
+    if rep == "graph":
+        bf_graph(q, f)
+        for p in q["graph"]["points"]:
+            need(sp.nsimplify(p["y"]) == f.subs(X, sp.nsimplify(p["x"])), "a marked point is not on f")
+    v = lambda e: frac_text(e)
+    a = R(q["given"]["a"])
+    if u == "inside-or-outside-shift":
+        i, o = f.subs(X, a + 1), f.subs(X, a) + 1
+        need(i != o, "the two are equal, so the slip is no slip")
+        gc_check_common(q, f"f({a} + 1) = {v(i)}, f({a}) + 1 = {v(o)}", {BF_R_SHIFT: {f"f({a} + 1) = {v(o)}, f({a}) + 1 = {v(o)}"}})
+    elif u == "inside-or-outside-scale":
+        i, o = f.subs(X, 2 * a), 2 * f.subs(X, a)
+        need(i != o, "the two are equal, so the slip is no slip")
+        gc_check_common(q, f"f(2 × {a}) = {v(i)}, 2f({a}) = {v(o)}", {BF_R_TIMES: {f"f(2 × {a}) = {v(o)}, 2f({a}) = {v(o)}"}})
+    elif u == "inverse-or-reciprocal":
+        inv = sp.solve(f - a, X)
+        need(len(inv) == 1 and inv[0].q == 1, "the inverse value is not whole")
+        rec = 1 / f.subs(X, a)
+        gc_check_common(q, f"f⁻¹({a}) = {v(inv[0])}, 1/f({a}) = {v(rec)}", {"SL2.2.inverse-undo#0": {f"f⁻¹({a}) = {v(rec)}, 1/f({a}) = {v(rec)}"}})
+    elif u == "match-expressions":
+        target = R(re.search(r"the value (−?[\d/]+)\?", asked).group(1).replace("−", "-"))
+        inv = sp.solve(f - a, X)[0]
+        worth = {f"f({a + 1})": f.subs(X, a + 1), f"f({a}) + 1": f.subs(X, a) + 1, f"2f({a})": 2 * f.subs(X, a), f"f({2 * a})": f.subs(X, 2 * a),
+                 f"f⁻¹({a})": inv, f"1/f({a})": 1 / f.subs(X, a)}
+        for o in q["choices"]:
+            need(o["text"] in worth, f"option {o['text']!r} is not an expression")
+            need((worth[o["text"]] == target) == o["correct"], f"option {o['text']!r} is {worth[o['text']]}")
+        gc_check_common(q, q["answer_text"], {})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+def bf_spot(q, lines):
+    """The first false line of a student's working on f(2a)."""
+    f = bf_given(q["given"])
+    a = R(q["given"]["a"])
+    last = None
+    for i, line in enumerate(lines):
+        sides = [p.strip() for p in line.split(" = ") if p.strip()]
+        if line.startswith("f(2 × "):
+            if 2 * f.subs(X, a) != f.subs(X, 2 * a):
+                return i
+            continue
+        if line.startswith("= "):
+            val = sp.nsimplify(parse(line[2:]))
+            continue
+        if f.subs(X, a) != parse(sides[1]):
+            return i
+    return None
+
+
+SPOT_CHECKS["basic-function"] = bf_spot
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -11720,7 +12052,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
-                    "motion": check_motion}
+                    "motion": check_motion,
+                    "basic-function": check_basic}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
