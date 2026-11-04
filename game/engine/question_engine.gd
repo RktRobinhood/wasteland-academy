@@ -95,6 +95,7 @@ static var SITUATIONS := {
 	"motion": [MotionSituation, MotionViews],
 	"line-conditions": [LineConditionsSituation, LineConditionsViews],
 	"line-crossing": [LineCrossingSituation, LineCrossingViews],
+	"line-model": [LineModelSituation, LineModelViews],
 }
 
 static var _cat: Dictionary = {}

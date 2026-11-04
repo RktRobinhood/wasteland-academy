@@ -12280,6 +12280,208 @@ def lc_lead(t):
     return lc_terms(t + "x")[0]
 
 
+# ── Lines (FAL-424): line-model ──────────────────────────────
+# The model is read back from what the student sees: the equation, the story, the graph's two
+# marked points or the readings. Outputs, inputs and the meaning of each number are worked out
+# from it, and the sentences are the checker's own copy of each context's.
+
+LM_MODEL = "SL2.1.line-model#"
+LM_TOTAL, LM_SWAP, LM_DOMAIN = LM_MODEL + "0", LM_MODEL + "1", LM_MODEL + "2"
+LM_OUTPUT = "SL2.2.function-model#2"
+# unit, rate, total, start, per, the end of the domain
+LM_CTX = [
+    ("", "Each extra km adds {} to the cost", "A whole trip costs {}", "{} is the fixed charge, paid even for a trip of 0 km", "dollars per km"),
+    ("", "Each extra minute adds {} to the bill", "A whole month's bill is {}", "{} is the monthly charge, paid even with no calls", "dollars per minute"),
+    ("litres", "Each minute adds {} to the tank", "The tank holds {} in all", "{} is in the tank at the start", "litres per minute"),
+    ("litres", "Each minute takes {} out of the tank", "The tank holds {} in all", "{} is in the tank at the start", "litres per minute"),
+    ("cm", "Each extra kg adds {} to the length", "The spring is {} long in all", "{} is the length with no load", "cm per kg"),
+    ("cm", "Each hour takes {} off the height", "The candle is {} tall in all", "{} is the height when it is lit", "cm per hour"),
+]
+LM_STORY = [
+    (r"A taxi charges a fixed \$(.+), plus \$(.+) for each km\.", 1),
+    (r"A phone plan costs a fixed \$(.+) a month, plus \$(.+) for each minute of calls\.", 1),
+    (r"A tank holds (.+) litres and is being filled by (.+) litres each minute\.", 1),
+    (r"A tank holds (.+) litres and drains by (.+) litres each minute\.", -1),
+    (r"A spring is (.+) cm long with no load and stretches by (.+) cm for each kg hung on it\.", 1),
+    (r"A candle is (.+) cm tall and burns down by (.+) cm each hour\.", -1),
+]
+
+
+def lm_amount(i, v):
+    unit = LM_CTX[i][0]
+    if unit == "":
+        return ("−$" if v < 0 else "$") + lm_money(abs(v))
+    return f"{dec_text(v)} {unit}"
+
+
+def lm_money(v):
+    v = sp.Rational(v)
+    if v.q == 1:
+        return str(v.p)
+    cents = v * 100
+    need(cents.q == 1, f"{v} is not a whole number of cents")
+    return f"{cents.p // 100}.{cents.p % 100:02d}"
+
+
+def lm_story(t):
+    """(context, m, c) from a story."""
+    for i, (rx, sign) in enumerate(LM_STORY):
+        f = re.fullmatch(rx, t)
+        if f:
+            return i, sign * lc_q(f.group(2)), lc_q(f.group(1))
+    return None
+
+
+def lm_equation(t):
+    """(m, c, input letter, output letter) from 'C = 1.8d + 4', with anything after it."""
+    f = re.match(r"(?:The model is )?([A-Z]) = (.+?)(?:, where .*|\.)?$", t)
+    need(f is not None, f"can't read the model {t!r}")
+    letters = set(re.findall(r"[a-z]", f.group(2)))
+    need(len(letters) == 1, f"can't read the model {t!r}")
+    x = letters.pop()
+    a, b, d = lc_terms(f.group(2).replace(x, "x"))
+    return a, d, x, f.group(1)
+
+
+def lm_model(q):
+    """(m, c) of the model in a question, in the three ways it can be shown."""
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "graph":
+        pts = lc_coords(q["graph"])
+        need(len(pts) == 2 and pts[0][0] == 0, "the graph marks its start and one reading")
+        c = pts[0][1]
+        m = (pts[1][1] - c) / pts[1][0]
+        cv = q["graph"]["curves"][0]
+        need(len(cv) > 5, "no line")
+        for x, y in cv[::17]:
+            need(abs(float(m) * x + float(c) - y) < 1e-6, "the line drawn is not through the marked points")
+            need(y >= q["graph"]["y0"] and y <= q["graph"]["y1"], "the line leaves the plot")
+        return m, c
+    for t in L:
+        if t.startswith("The model is ") or ", where " in t:
+            m, c, _, _ = lm_equation(t)
+            return m, c
+    found = lm_story(L[0])
+    need(found is not None, f"can't read {L[0]!r}")
+    return found[1], found[2]
+
+
+def lm_clean(i, m, c):
+    need(m != 0 and (m > 0) == (i not in (3, 5)), "the rate has the wrong sign for its context")
+    need(c > 0, "the start is not positive")
+    if LM_CTX[i][0] == "":
+        need((m * 100).q == 1 and (c * 100).q == 1, "money does not end in cents")
+
+
+def lm_mc(m, c):
+    return f"m = {dec_text(m)}, c = {dec_text(c)}"
+
+
+def check_line_model(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    i = q["situation"]["ctx"]
+    lc_style(q)
+    need(q["paper"] == 1, "a line model has no calculator")
+    wr = {}
+    if u == "build-from-words":
+        ctx, m, c = lm_story(L[0])
+        need(ctx == i, "the story is another context")
+        want = lm_mc(m, c)
+        wr = {LM_SWAP: {lm_mc(c, m)}}
+    elif u == "build-from-two-points":
+        if rep == "table":
+            rows = q["table"]["rows"]
+            (x1, x2), (y1, y2) = [lc_q(v) for v in rows[0][1]], [lc_q(v) for v in rows[1][1]]
+        else:
+            f = re.fullmatch(rf"When [a-z] = ({LC_NUM}), [A-Z] = ({LC_NUM})\. When [a-z] = ({LC_NUM}), [A-Z] = ({LC_NUM})\.", L[0])
+            need(f is not None, f"can't read {L[0]!r}")
+            x1, y1, x2, y2 = (lc_q(v) for v in f.groups())
+        m = (y2 - y1) / (x2 - x1)
+        c = y1 - m * x1
+        lm_clean(i, m, c)
+        want = lm_mc(m, c)
+    elif u in ("interpret-gradient", "interpret-intercept"):
+        m, c = lm_model(q)
+        lm_clean(i, m, c)
+        _, rate, total, start, _ = LM_CTX[i]
+        if u == "interpret-gradient":
+            v = lm_amount(i, abs(m))
+            want, wr = rate.format(v), {LM_TOTAL: {total.format(v)}}
+        else:
+            v = lm_amount(i, c)
+            want, wr = start.format(v), {LM_SWAP: {rate.format(v)}}
+    elif u == "predict":
+        m, c = lm_model(q)
+        lm_clean(i, m, c)
+        f = re.fullmatch(r"Find ([A-Z]) when ([a-z]) = (\d+)\.", asked)
+        need(f is not None, f"asked {asked!r}")
+        v = m * int(f.group(3)) + c
+        unit = LM_CTX[i][0]
+        want = f"{f.group(1)} = ${lm_money(v)}" if unit == "" else f"{f.group(1)} = {dec_text(v)} {unit}"
+    elif u == "input-for-output":
+        if rep == "words":
+            _, m, c = lm_story(L[0])
+            f = re.search(r"the input ([a-z]) when .* is (.+?)(?: cm| litres)?, using", asked)
+        else:
+            m, c = lm_model(q)
+            f = re.search(r"Find ([a-z]) when [A-Z] = (.+?)(?: cm| litres)?\.$", asked)
+        need(f is not None, f"asked {asked!r}")
+        y = lc_q(f.group(2).replace("$", ""))
+        x = (y - c) / m
+        need(x.q == 1 and x > 0, f"the input {x} is not whole and positive")
+        want = f"{f.group(1)} = {frac_text(x)}"
+        wr = {LM_OUTPUT: {f"{f.group(1)} = {dec_text(y)}"}}
+    elif u == "check-linear-table":
+        rows = q["table"]["rows"]
+        xs, ys = [lc_q(v) for v in rows[0][1]], [lc_q(v) for v in rows[1][1]]
+        need(len({xs[k + 1] - xs[k] for k in range(4)}) == 1, "the inputs are not equally spaced")
+        ds = {ys[k + 1] - ys[k] for k in range(4)}
+        if len(ds) == 1:
+            want = f"Yes: {dec_text(ds.pop() / (xs[1] - xs[0]))} {LM_CTX[i][4]}"
+        else:
+            want = "No: the outputs do not change by equal amounts"
+    elif u == "domain-sense":
+        found = lm_story(L[0])
+        m, c, x, y = lm_equation(L[1])
+        need(found is not None and (found[1], found[2]) == (m, c), "the story and the model disagree")
+        f = re.fullmatch(rf"The model is used at [a-z] = ({LC_NUM})\. Does the prediction make sense\? What is the sensible domain\?", asked)
+        v = lc_q(f.group(1))
+        ctx = found[0]
+        end = None
+        if ctx in (3, 5):
+            end = -c / m
+        elif ctx == 2:
+            end = sp.Integer(q["situation"]["hi"])
+            need(end > 0, "a tank has a full point")
+        dom = f"0 ≤ {x} ≤ {frac_text(end)}" if end is not None else f"{x} ≥ 0"
+        out = m * v + c
+        yes = f"Yes: it gives {y} = {lm_amount(ctx, out)}, and the sensible domain is {dom}"
+        if v >= 0 and (end is None or v <= end):
+            want = yes
+        else:
+            reason = f"{x} cannot be negative"
+            if v > 0:
+                reason = {2: f"the tank is full after {end} minutes", 3: f"the tank is empty after {end} minutes", 5: f"the candle is gone after {end} hours"}[ctx]
+            want = f"No: {reason}, so the sensible domain is {dom}"
+            wr = {LM_DOMAIN: {yes}}
+    elif u == "compare-plans":
+        if rep == "words":
+            pa, pb = [re.fullmatch(r"Plan [AB] costs \$(.+), plus \$(.+) for each .+\.", t) for t in L]
+            ca, ma, cb, mb = lc_q(pa.group(1)), lc_q(pa.group(2)), lc_q(pb.group(1)), lc_q(pb.group(2))
+            letter = re.search(r"Equal at ([a-z]) =", q["choices"][0]["text"]).group(1)
+        else:
+            ma, ca, letter, _ = lm_equation(L[0].split(": ")[1])
+            mb, cb, _, _ = lm_equation(L[1].split(": ")[1])
+        need(ma != mb, "the plans never meet")
+        x = (cb - ca) / (ma - mb)
+        need(x.q == 1 and x > 0, f"the plans meet at {x}, not a whole input")
+        want = f"Equal at {letter} = {x}, then Plan {'A' if ma < mb else 'B'} is cheaper"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -12304,7 +12506,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion,
-                    "line-conditions": check_line_conditions, "line-crossing": check_line_crossing}
+                    "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

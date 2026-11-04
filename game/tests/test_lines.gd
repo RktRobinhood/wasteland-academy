@@ -4,7 +4,7 @@ extends "res://tests/test_case.gd"
 ## (tools/check-answers) checks the maths.
 
 ## Cells per type: every catalogue cell (the type's unknown × rep × method).
-const CELLS := {"fn-line-from-conditions": 102, "fn-ext-intersection-lines": 21}
+const CELLS := {"fn-line-from-conditions": 102, "fn-ext-intersection-lines": 21, "fn-ext-line-model": 22}
 ## Distractor misconceptions no option can carry ("type|ref"), and why.
 const NOT_BUILT := {}
 
