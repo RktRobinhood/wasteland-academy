@@ -5,6 +5,10 @@ extends RefCounted
 ## fraction in front of x. tools/check_answers.py parses these strings back with SymPy,
 ## so a formatting slip is caught as a wrong question.
 
+## Multiply by this before rounding a scaled value: an exact tie lands a hair low in binary
+## (1.025 ÷ 0.01 = 102.49999…) and must still round away from zero.
+const TIE := 1.0 + 1e-14
+
 
 static func num(v: Variant) -> String:
 	return Q.of(v).text()
@@ -17,7 +21,7 @@ static func sf(v: Variant, n: int = 3) -> String:
 	if x == 0.0:
 		return "0"
 	var e := floori(log(absf(x)) / log(10.0) + 1e-12)
-	var r := roundf(x / pow(10.0, e - n + 1)) * pow(10.0, e - n + 1)
+	var r := roundf(x / pow(10.0, e - n + 1) * TIE) * pow(10.0, e - n + 1)
 	if absf(r) >= pow(10.0, e + 1):
 		e += 1
 	var places := maxi(0, n - 1 - e)
