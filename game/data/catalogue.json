@@ -2352,7 +2352,7 @@
 		},
 		"triangle": {
 			"name": "One triangle with its sides, angles and area",
-			"summary": "Pick clean givens for the view (two sides and the angle between them, three sides, two angles and a side, two sides and a non-included angle, or an area with two of the rest), then solve the whole triangle from them, so every side, every angle and the area are known and any of them can be asked.",
+			"summary": "Pick clean givens for the view (two sides and the angle between them, three sides, two angles and a side, two sides and a non-included angle, or an area with two of the rest), then solve the whole triangle from them, so every side, every angle and the area are known and any of them can be asked. Where the givens fit two triangles, both are solved.",
 			"quantities": [
 				{
 					"name": "A, B, C",
@@ -2383,7 +2383,7 @@
 			"clean": [
 				"every angle of the triangle from 20° to 140°, so no triangle is a sliver",
 				"given sides are whole numbers from 3 to 20, and given angles whole numbers of degrees",
-				"the sine rule for an angle only when the side opposite the given angle is the longer of the two given sides, so exactly one triangle fits",
+				"the sine rule for one angle only when the side opposite the given angle is the longer of the two given sides, so exactly one triangle fits; the ambiguous case gives the shorter one, with both triangles inside these limits and the acute angle at least 10° from 90°",
 				"an angle found from an area is at least 10° from 90°, so acute or obtuse is a real choice",
 				"the answer is worked out from the givens as shown, and is at least 0.02 of a unit in its third significant figure away from a rounding edge, so its 3 s.f. value is not in doubt",
 				"every wrong option differs from the answer to 3 s.f."
@@ -2938,10 +2938,11 @@
 		"SL1.2.find-n": "Find which term has a given value, or the number of terms",
 		"SL1.2.sum": "Find the sum of a finite arithmetic series",
 		"SL1.2.sum-unknown": "Use a given sum to find n, u_1 or d",
+		"SL3.5.ambiguous-case": "Resolve the ambiguous case of the sine rule (two possible triangles)",
+		"SL3.2.sine-rule": "Use the sine rule to find a side or an angle",
 		"SL3.2.area-sine": "Find the area of a triangle using ½ab sin C, or work backwards from the area",
 		"SL3.2.cosine-rule-side": "Use the cosine rule to find a side from two sides and the included angle",
 		"SL3.2.cosine-rule-angle": "Use the cosine rule to find an angle from three sides",
-		"SL3.2.sine-rule": "Use the sine rule to find a side or an angle",
 		"SL4.3.mean-median-mode": "Find the mean, median and mode of a data set or a discrete frequency table",
 		"SL4.3.quartiles-discrete": "Find quartiles, range and IQR of discrete data",
 		"SL4.3.mean-totals": "Use total = mean × n to find a missing value, a missing frequency or a combined mean",
@@ -17845,6 +17846,165 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Sine rule ambiguous case",
+			"summary": "Two sides and an angle opposite one of them, where the side opposite the angle may be the shorter one: find the two possible values of an angle, the two possible lengths of the third side, or the largest possible angle when one triangle or two may fit.",
+			"situation": "triangle",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "the two sides and the angle in words, with the standard labelling"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "both triangles drawn on one base line, not to scale, with the side that swings shown in both places and the asked angle or length marked ?"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "both-angles",
+					"given": [
+						"two sides",
+						"the angle opposite the shorter of them"
+					],
+					"asked": "the two possible values of the angle opposite the longer side",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.5.ambiguous-case",
+						"SL3.2.sine-rule"
+					]
+				},
+				{
+					"id": "both-sides",
+					"given": [
+						"two sides",
+						"the angle opposite the shorter of them"
+					],
+					"asked": "the two possible lengths of the third side",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.5.ambiguous-case",
+						"SL3.2.sine-rule"
+					]
+				},
+				{
+					"id": "largest-angle",
+					"given": [
+						"two sides",
+						"an angle opposite one of them"
+					],
+					"asked": "the largest possible value of the angle opposite the other given side, where one triangle or two may fit",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.5.ambiguous-case",
+						"SL3.2.sine-rule"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.5.ambiguous-case",
+					"method": "sine-rule-supplement",
+					"suits": [
+						"both-angles",
+						"both-sides",
+						"largest-angle"
+					],
+					"name": "Sine rule, then 180° minus",
+					"about": "Get the acute angle B₁ from sin⁻¹, then B₂ = 180° − B₁; keep B₂ only if A + B₂ < 180°."
+				},
+				{
+					"skill": "SL3.5.ambiguous-case",
+					"method": "altitude-test",
+					"suits": [
+						"both-angles",
+						"largest-angle"
+					],
+					"name": "Compare with the altitude",
+					"about": "Find the altitude h = c sin A; if h < a < c there are two triangles, if a = h exactly one (right-angled)."
+				},
+				{
+					"skill": "SL3.5.ambiguous-case",
+					"method": "cosine-rule-quadratic",
+					"suits": [
+						"both-sides"
+					],
+					"name": "Cosine rule as a quadratic",
+					"about": "With the unknown side x, a² = x² + c² − 2xc cos A is a quadratic in x; two positive roots mean two triangles."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "If the side opposite a given angle is the shorter of two given sides, two triangles fit.",
+					"answer": "Sometimes: it also has to be longer than the altitude from the vertex between the two sides. If it is shorter than the altitude it never reaches the base line, and no triangle fits.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "Two sides and the angle between them can fit two different triangles.",
+					"answer": "False: the angle between the sides fixes where both ends of the third side are, so only one triangle fits. Only an angle opposite a given side can be ambiguous.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.5.ambiguous-case#0",
+					"text": "Giving only the calculator angle from sin⁻¹",
+					"as": "distractor",
+					"in": [
+						"both-angles",
+						"both-sides",
+						"largest-angle"
+					],
+					"wrong": "only the value from the acute angle, or the acute angle where the obtuse one also fits"
+				},
+				{
+					"ref": "SL3.5.ambiguous-case#1",
+					"text": "Keeping B₂ = 180° − B₁ even when the angle sum then exceeds 180°",
+					"as": "distractor",
+					"in": [
+						"largest-angle"
+					],
+					"wrong": "180° minus the angle, which leaves no room for the third angle"
+				},
+				{
+					"ref": "SL3.2.sine-rule#0",
+					"text": "Pairing a side with an angle that is not opposite it",
+					"as": "distractor",
+					"in": [
+						"both-angles",
+						"both-sides",
+						"largest-angle"
+					],
+					"wrong": "the angle from the two sides swapped round, or the third side from the wrong pairing"
+				}
+			],
+			"chain": [
+				"pair each given side with the angle opposite it",
+				"use the sine rule for the acute angle, or the cosine rule as a quadratic in the third side",
+				"take 180° minus the acute angle for the other angle with the same sine",
+				"check the angle sum: keep the obtuse angle only if it leaves room for a third angle",
+				"give both values to 3 s.f."
+			],
 			"frequency": 2,
 			"marks": 5,
 			"section": {
@@ -17854,9 +18014,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 2
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-triangle-area",
