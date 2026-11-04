@@ -101,6 +101,8 @@ static var SITUATIONS := {
 	"integration": [IntegrationSituation, IntegrationViews],
 	"definite-integral": [DefiniteIntegralSituation, DefiniteIntegralViews],
 	"motion": [MotionSituation, MotionViews],
+	"solid": [SolidSituation, SolidViews],
+	"standard-form": [StandardFormSituation, StandardFormViews],
 }
 
 static var _cat: Dictionary = {}

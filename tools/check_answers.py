@@ -13915,6 +13915,707 @@ def be_check(q):
     return None, None
 
 
+# ── solid (t3-solid-volume-area, FAL-726) ────────────────────
+# The `solid` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/solid.gd. Each question's measures are read back from its sketch or its
+# sentences, the shape from its opening line, and every value is worked out again with exact
+# rationals and π. The working's arithmetic is evaluated wherever a step is plain numbers.
+
+SD_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+SD_V = "SL3.1.volume-solids#"
+SD_S = "SL3.1.surface-area#"
+SD_SHAPES = {"a right cone": "cone", "a right pyramid": "pyramid", "a solid sphere": "sphere", "a solid hemisphere": "hemisphere",
+             "a solid made of a cone on a hemisphere with the same radius": "cone-hemisphere",
+             "a solid made of a cone on a cylinder with the same radius": "cone-cylinder",
+             "a solid made of a hemisphere on a cylinder with the same radius": "hemisphere-cylinder",
+             "a solid cylinder with a hemisphere hollowed out of its top": "cylinder-minus-hemisphere",
+             "a solid made of a cylinder with a hemisphere on each end": "capsule",
+             "a solid cylinder with a smaller cylinder removed from its centre": "hollow",
+             "a solid cylinder that fits exactly inside a hollow sphere": "inscribed"}
+SD_NAMES = {"radius": "r", "diameter": "d", "height": "h", "slant height": "l", "slant height of each face": "t", "slant edge": "e",
+            "base edge": "a", "other base edge": "b", "cone's height": "h", "cone's slant height": "l", "cylinder's height": "c",
+            "cylinder's radius": "big", "hemisphere's radius": "r", "sphere's radius": "r", "sector's radius": "l", "sector's angle": "theta"}
+
+
+def sd_shape(q):
+    """The solid named in the opening line, the longest name that fits."""
+    found = [v for k, v in SD_SHAPES.items() if f" is {k}" in q["lines"][0]]
+    if not found:
+        need("sector" in q["lines"][0] or "cone with no base" in q["lines"][0], f"can't read the solid in {q['lines'][0]!r}")
+        return "sector"
+    need(len(found) == 1, f"two solids in {q['lines'][0]!r}")
+    if q["graph"] is not None:
+        need(q["graph"]["shape"] == found[0], "the sketch is not the solid in the words")
+    return found[0]
+
+
+def sd_len(text):
+    """"5.2 cm", "127°" as a Rational, or None for a letter."""
+    mt = re.fullmatch(r"(\d+(?:\.\d+)?)(?: cm| m|°)", text)
+    return sp.Rational(mt.group(1)) if mt else None
+
+
+def sd_read(q):
+    """The measures the student is shown, as Rationals, by key: r, h, l and so on."""
+    out = {}
+    if q["graph"] is not None:
+        need(q["graph"]["kind"] == "solid", "not a solid sketch")
+        for k, v in q["graph"].items():
+            if k not in ("kind", "shape"):
+                out[k] = sd_len(v)
+    else:
+        text = " ".join(q["lines"])
+        for mt in re.finditer(r"[Tt]he ((?:(?! is )[a-z' ])+) is (\d+(?:\.\d+)?(?: cm| m|°))(?=[ ,.])", text):
+            if mt.group(1) not in ("volume", "total surface area"):
+                out[SD_NAMES[mt.group(1)]] = sd_len(mt.group(2))
+    if "d" in out and out["d"] is not None:
+        out["r"] = out["d"] / 2
+    return out
+
+
+def sd_given(q, name):
+    """A total shown in a line: Rational, and whether it has π."""
+    mt = re.search(rf"The {name} is (?:\((\d+/\d+)\)|(\d+))?(π)? ?(?:cm|m)", " ".join(q["lines"]))
+    need(mt is not None, f"can't read the {name}")
+    return sp.Rational(mt.group(1) or mt.group(2) or 1), mt.group(3) is not None
+
+
+def sd_lead(c):
+    """A coefficient as Fmt.lead writes it: (2/3), 5, and nothing for 1."""
+    c = sp.Rational(c)
+    return "" if c == 1 else (str(c.p) if c.q == 1 else f"({c.p}/{c.q})")
+
+
+def sd_text(head, x, unit, paper, pi):
+    """An answer x (times π where `pi`) as the game writes it."""
+    if paper == 2:
+        return head + rg_s(sp.N(x * (sp.pi if pi else 1), 40)) + unit
+    x = sp.Rational(x)
+    return head + (sd_lead(x) + "π" if pi else frac_text(x)) + unit
+
+
+def sd_trap(head, x, unit, pi):
+    v = sp.N(x * (sp.pi if pi else 1), 40)
+    return head + dec_text(sp.Rational(sig3(v, 2))) + unit
+
+
+def sd_set(q, head, x, unit, pi, table):
+    """want, trap and wrongs for x; `table` is ref -> the values that mistake gives."""
+    paper = q["paper"]
+    wrongs = {ref: {sd_text(head, v, unit, paper, pi) for v in vals} for ref, vals in table.items()}
+    return sd_text(head, x, unit, paper, pi), (sd_trap(head, x, unit, pi) if paper == 2 else None), wrongs
+
+
+def sd_terms(head, terms, minus=False):
+    return head + (" − " if minus else " + ").join(sd_lead(c) + body for c, body in terms)
+
+
+def sd_edge(q, x):
+    """On Paper 2 the answer is clear of a rounding edge and needs rounding."""
+    if q["paper"] != 2:
+        return
+    v = abs(sp.N(x, 40))
+    e = int(sp.floor(sp.log(v, 10)))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    need(abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= SD_EDGE, f"{v} is too close to a rounding edge")
+    need(sp.Rational(sig3(v)) != v, f"{v} needs no rounding")
+
+
+def sd_measures(q, m):
+    """Paper 1 measures are whole, Paper 2 measures have one decimal place."""
+    for k, v in m.items():
+        if v is None or (k == "r" and "d" in m):
+            continue
+        if q["paper"] == 1:
+            need(v.q == 1 or k == "theta", f"{k} = {v} is not whole on Paper 1")
+        else:
+            need((v * 10).q == 1, f"{k} = {v} has more than one decimal place on Paper 2")
+
+
+SD_UNIT = re.compile(r"(?:cm|m)(?:²|³)?(?![a-zA-Z])")
+
+
+def sd_value(text):
+    """A step's piece as a number, or None if it has letters or words in it."""
+    t = SD_UNIT.sub("", text).strip().rstrip(".")
+    if not t or not re.fullmatch(r"[0-9.()+−×÷/π²³√ ]+", t):
+        return None
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("²", "**2").replace("³", "**3")
+    t = re.sub(r"(\d|\))π", r"\1*pi", t).replace("π", "pi")
+    t = re.sub(r"√\(", "sqrt(", t)
+    if "√" in t:
+        return None
+    return sp.N(sp.sympify(t, rational=True), 30)
+
+
+def sd_steps(q):
+    """Each pair of neighbouring plain-number sides of a step agree, to the figures shown. Returns
+    how many pairs were read."""
+    pairs = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            sides = [sd_value(p) for p in re.split(r" = ", re.sub(r"^.*: ", "", st))]
+            for a, b in zip(sides, sides[1:]):
+                if a is None or b is None:
+                    continue
+                pairs += 1
+                need(abs(a - b) <= max(abs(b) * sp.Rational(3, 10000), sp.Rational(6, 1000)), f"{sol['name']}: {st!r} doesn't add up ({a} and {b})")
+    return pairs
+
+
+def check_solid(q):
+    u, paper, L = q["view"]["unknown"], q["paper"], q["lines"]
+    shape = sd_shape(q)
+    m = sd_read(q)
+    sd_measures(q, m)
+    unit = " " + ("m" if u == "paint-cost" else "cm")
+    u2, u3 = unit + "²", unit + "³"
+    V, S = SD_V, SD_S
+    pi = True
+    r, h, l, c = m.get("r"), m.get("h"), m.get("l"), m.get("c")
+    if shape == "inscribed":
+        h = h if h is not None else c
+    if q["graph"] is None and u not in ("hollow-surface", "hollow-volume-from-surface", "surface-from-volume"):
+        need(not any(x is None for x in m.values()), f"a letter in the words: {m}")
+    table, want, trap, wrongs, x = {}, None, None, {}, None
+    pyth = lambda a, b: sp.sqrt(a * a + b * b)
+    leg = lambda hyp, a: sp.sqrt(hyp * hyp - a * a)
+    if paper == 1 and u in ("cone-volume", "cone-curved", "cone-total", "cone-volume-from-slant", "height-from-slant"):
+        have = [v for v in (r, h, l) if v is not None]
+        need(len(have) == 2, "a cone shows two lengths")
+    if u in ("cone-volume", "cone-volume-from-slant", "cone-volume-from-total", "sector-cone-volume", "height-from-slant", "slant-from-total"):
+        if u in ("cone-volume-from-total", "slant-from-total"):
+            A, has_pi = sd_given(q, "total surface area")
+            need(has_pi == (paper == 1), "the area's form is not this paper's")
+            l = A / r - r if paper == 1 else A / (sp.pi * r) - r
+        if u == "sector-cone-volume":
+            l, th = m["l"], m["theta"]
+            r = l * th / 360
+        if u != "cone-volume":
+            need(l > r, "the slant height is not the longest side")
+            h = leg(l, r)
+        if paper == 1:
+            need(sp.Rational(h).q == 1 if h.is_rational else False, f"h = {h} is not whole")
+        x = r * r * h / 3
+        if u == "cone-volume":
+            table = {V + "1": [3 * x]}
+            if "d" in m:
+                table[V + "2"] = [4 * x]
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, table)
+        elif u == "height-from-slant":
+            x, pi = h, False
+            want, trap, wrongs = sd_set(q, "h = ", h, unit, False, {})
+        elif u == "slant-from-total":
+            x, pi = l, False
+            want, trap, wrongs = sd_set(q, "l = ", l, unit, False, {})
+        else:
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * l / 3], V + "1": [3 * x]})
+    elif u in ("cone-curved", "cone-total"):
+        if l is None:
+            l = pyth(r, h)
+        else:
+            h = None
+        need(paper == 2 or l.q == 1, "l is not whole")
+        x = r * l + (r * r if u == "cone-total" else 0)
+        table = {S + "0": [r * h + (r * r if u == "cone-total" else 0)]} if h is not None else {}
+        want, trap, wrongs = sd_set(q, "area = ", x, u2, True, table)
+    elif u == "pyramid-volume":
+        a, b = m["a"], m.get("b", m["a"])
+        x, pi = a * b * h / 3, False
+        need(paper == 2 or x.q == 1, "a Paper 1 pyramid's volume is whole")
+        want, trap, wrongs = sd_set(q, "V = ", x, u3, False, {V + "1": [3 * x]})
+    elif u in ("pyramid-volume-from-slant", "pyramid-volume-from-edge"):
+        a = m["a"]
+        sl = m["t"] if "slant" in u else m["e"]
+        h = leg(sl, a / 2) if "slant" in u else sp.sqrt(sl * sl - a * a / 2)
+        need(paper == 2 or h.is_integer, f"h = {h} is not whole")
+        x, pi = a * a * h / 3, False
+        want, trap, wrongs = sd_set(q, "V = ", x, u3, False, {V + "0": [a * a * sl / 3], V + "1": [3 * x]})
+    elif u == "pyramid-surface":
+        a = m["a"]
+        t = pyth(a / 2, h)
+        need(paper == 2 or t.is_integer, f"t = {t} is not whole")
+        x, pi = a * a + 2 * a * t, False
+        want, trap, wrongs = sd_set(q, "area = ", x, u2, False, {S + "0": [a * a + 2 * a * h]})
+    elif u in ("sphere-volume", "sphere-surface", "hemisphere-volume", "hemisphere-surface"):
+        if u == "sphere-volume":
+            x = 4 * r ** 3 / 3
+        elif u == "sphere-surface":
+            x = 4 * r * r
+        elif u == "hemisphere-volume":
+            x = 2 * r ** 3 / 3
+        else:
+            x = 3 * r * r
+        table = {V + "2": [x * (8 if "volume" in u else 4)]} if "d" in m else {}
+        if u == "hemisphere-volume":
+            table[V + "1"] = [2 * x]
+        if u == "hemisphere-surface":
+            table[S + "1"] = [2 * r * r]
+            table[S + "2"] = [4 * r * r]
+        want, trap, wrongs = sd_set(q, "V = " if "volume" in u else "area = ", x, u3 if "volume" in u else u2, True, table)
+    elif u == "radius-from-volume":
+        Vv, has_pi = sd_given(q, "volume")
+        need(has_pi == (paper == 1), "the volume's form is not this paper's")
+        W = Vv * sp.pi if has_pi else Vv
+        if shape == "sphere":
+            x = sp.real_root(3 * W / (4 * sp.pi), 3)
+        elif shape == "hemisphere":
+            x = sp.real_root(3 * W / (2 * sp.pi), 3)
+        else:
+            x = sp.sqrt(3 * W / (sp.pi * h))
+        x = sp.nsimplify(x) if paper == 1 else x
+        pi = False
+        need(paper == 2 or x.is_integer, f"r = {x} is not whole")
+        table = {V + "2": [2 * x]}
+        if paper == 2 and shape == "hemisphere":
+            table[V + "1"] = [sp.real_root(3 * W / (4 * sp.pi), 3)]
+        if paper == 2 and shape == "cone":
+            table[V + "1"] = [sp.sqrt(W / (sp.pi * h))]
+        want, trap, wrongs = sd_set(q, "r = ", x, unit, False, table)
+    elif u == "height-from-volume":
+        Vv, has_pi = sd_given(q, "volume")
+        cone = shape == "cone"
+        W = Vv * sp.pi if has_pi else Vv
+        x = 3 * W / (sp.pi * r * r) if cone else 3 * W / (m["a"] ** 2)
+        pi = False
+        table = {V + "1": [x / 3]}
+        if "d" in m:
+            table[V + "2"] = [x / 4]
+        want, trap, wrongs = sd_set(q, "h = ", x, unit, False, table)
+    elif u in ("composite-volume", "composite-surface", "paint-cost"):
+        big = m.get("big")
+        if shape.startswith("cone"):
+            if l is None:
+                l = pyth(r, h)
+            elif h is None:
+                h = leg(l, r)
+        shown_h = "h" in m
+        cone_v = r * r * h / 3 if shape.startswith("cone") else 0
+        dome_v = 2 * r ** 3 / 3
+        cone_s = r * l if shape.startswith("cone") else 0
+        if shape == "cone-hemisphere":
+            vol, surf, base = cone_v + dome_v, cone_s + 2 * r * r, 0
+        elif shape == "cone-cylinder":
+            vol, surf, base = cone_v + r * r * c, cone_s + 2 * r * c + r * r, r * r
+        elif shape == "hemisphere-cylinder":
+            vol, surf, base = dome_v + r * r * c, 2 * r * r + 2 * r * c + r * r, r * r
+        else:
+            need(shape == "cylinder-minus-hemisphere", f"{shape} is not a composite")
+            need(r <= big - sp.Rational(2, 5) and c >= r + sp.Rational(9, 10), "the hemisphere doesn't fit")
+            vol, surf, base = big * big * c - dome_v, 2 * r * r + 2 * big * c + big * big + big * big - r * r, big * big
+        if u == "composite-volume":
+            x = vol
+            table = {}
+            if shape.startswith("cone"):
+                table[V + "1"] = [x + 2 * cone_v]
+                if "l" in m:
+                    table.setdefault(V + "0", []).append(x + (l - h) * r * r / 3)
+            if shape in ("cone-hemisphere", "hemisphere-cylinder"):
+                table.setdefault(V + "1", []).append(x + dome_v)
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, table)
+        elif u == "composite-surface":
+            x = surf
+            table = {S + "1": [x + (r * r if shape == "cylinder-minus-hemisphere" else 2 * r * r)]}
+            if shape.startswith("cone") and shown_h:
+                table[S + "0"] = [x + r * (h - l)]
+            if shape != "cone-cylinder":
+                table[S + "2"] = [x + 2 * r * r]
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, table)
+        else:
+            mt = re.fullmatch(r"Paint costs \$(\d+(?:\.\d\d)?) per m²\.", L[-1])
+            need(mt is not None, f"can't read {L[-1]!r}")
+            price = sp.Rational(mt.group(1))
+            need(q["asked"] == "Find the cost of painting the outside of the tank. The base is not painted.", q["asked"])
+            need(shape in ("cone-cylinder", "hemisphere-cylinder"), "a tank is a cone or hemisphere on a cylinder")
+            op = surf - base
+            x = op * price
+            table = {S + "1": [surf * price]}
+            if shape == "cone-cylinder" and shown_h:
+                table[S + "0"] = [x + r * (h - l) * price]
+            if shape == "hemisphere-cylinder":
+                table[S + "2"] = [x + 2 * r * r * price]
+            want, trap, wrongs = sd_set(q, "cost = $", x, "", True, table)
+    elif u == "composite-volume-solve":
+        need(paper == 2, "the GDC solver is Paper 2")
+        need(q["asked"] == "Find r.", q["asked"])
+        Vv, has_pi = sd_given(q, "volume")
+        need(not has_pi, "a Paper 2 volume is a number")
+        cone = shape == "cone-hemisphere"
+        p23, p43 = sp.Rational(2, 3), sp.Rational(4, 3)
+        b = sp.Rational(h) / 3 if cone else sp.Rational(c)
+        roots = [sd_root(p23, b, Vv)]
+        x = roots[0]
+        pi = False
+        slip = sd_root(p23, sp.Rational(h), Vv) if cone else sd_root(p43, sp.Rational(c), Vv)
+        want, trap, wrongs = sd_set(q, "r = ", x, unit, False, {V + "1": [slip]})
+    elif u == "volume-in-terms":
+        need("in terms of x" in q["asked"], q["asked"])
+        rx, hx, cc = sd_x_measures(q)
+        v = {"cone": [(sp.Rational(rx * rx * (hx or 0), 3), "πx³")], "sphere": [(sp.Rational(4 * rx ** 3, 3), "πx³")],
+             "hemisphere": [(sp.Rational(2 * rx ** 3, 3), "πx³")],
+             "hemisphere-cylinder": [(sp.Rational(2 * rx ** 3, 3), "πx³"), (rx * rx * (cc or 0), "πx²")],
+             "cone-cylinder": [(sp.Rational(rx * rx * (hx or 0), 3), "πx³"), (rx * rx * (cc or 0), "πx²")]}[shape]
+        want = sd_terms("V = ", v)
+        wrongs = {}
+        if shape != "sphere":
+            first = 2 if shape.startswith("hemi") else 3
+            wrongs[V + "1"] = {sd_terms("V = ", [(v[0][0] * first, "πx³")] + v[1:])}
+        q["_expr"] = True
+    elif u == "surface-in-terms":
+        rx, hx, cc = sd_x_measures(q)
+        if shape == "cone":
+            lx = sp.sqrt(rx * rx + hx * hx)
+            need(lx.is_integer, "l is not a whole multiple of x")
+            whole = "total" in q["asked"]
+            base = rx * rx if whole else 0
+            want = sd_terms("S = ", [(rx * lx + base, "πx²")])
+            wrongs = {S + "0": {sd_terms("S = ", [(rx * hx + base, "πx²")])}}
+        elif shape == "hemisphere":
+            want = sd_terms("S = ", [(3 * rx * rx, "πx²")])
+            wrongs = {S + "1": {sd_terms("S = ", [(2 * rx * rx, "πx²")])}, S + "2": {sd_terms("S = ", [(4 * rx * rx, "πx²")])}}
+        else:
+            need(shape == "hemisphere-cylinder", shape)
+            wall = 2 * rx * cc
+            want = sd_terms("S = ", [(3 * rx * rx, "πx²"), (wall, "πx")])
+            wrongs = {S + "1": {sd_terms("S = ", [(2 * rx * rx, "πx²"), (wall, "πx")])}, S + "2": {sd_terms("S = ", [(5 * rx * rx, "πx²"), (wall, "πx")])}}
+        q["_expr"] = True
+    elif u in ("hollow-surface", "hollow-volume-from-surface"):
+        need(shape == "hollow", shape)
+        txt = q["graph"]["big"] if q["graph"] else re.search(r"outer radius is (\d+)r", " ".join(L)).group(1) + "r"
+        k = int(txt[:-1])
+        if u == "hollow-surface":
+            r_s, h_s = sp.symbols("r h", positive=True)
+            S_e = sp.expand(2 * sp.pi * k * r_s * h_s + 2 * sp.pi * r_s * h_s + 2 * sp.pi * ((k * r_s) ** 2 - r_s ** 2))
+            a2, a1 = S_e.coeff(r_s, 2) / sp.pi, S_e.coeff(r_s, 1).coeff(h_s, 1) / sp.pi
+            want = sd_terms("S = ", [(a2, "πr²"), (a1, "πrh")])
+            wrongs = {S + "1": {sd_terms("S = ", [(2 * a2, "πr²"), (a1, "πrh")])}}
+        else:
+            mt = re.search(r"total surface area is (\d+)π cm²", " ".join(L))
+            need(mt is not None, "can't read S")
+            M_ = int(mt.group(1))
+            r_s, h_s = sp.symbols("r h", positive=True)
+            hh = sp.solve(2 * (k * k - 1) * r_s ** 2 + 2 * (k + 1) * r_s * h_s - M_, h_s)[0]
+            Vx = sp.expand((k * k - 1) * r_s ** 2 * hh)
+            want = "V = " + f"{sd_lead(Vx.coeff(r_s, 1))}πr − {sd_lead(-Vx.coeff(r_s, 3))}πr³"
+            need(Vx.coeff(r_s, 1) > 0 and Vx.coeff(r_s, 3) < 0, "the expression's signs")
+        q["_expr"] = True
+    elif u == "surface-from-volume":
+        mt = re.search(r"its volume is (\d+) cm³", " ".join(L))
+        need(mt is not None, "can't read the volume")
+        W = int(mt.group(1))
+        need(shape in ("capsule", "hemisphere-cylinder"), shape)
+        two = shape == "capsule"
+        want = sd_terms("S = ", [(2 * W, "/x"), (4 if two else 3, "πx²")])
+        wrongs = {S + "1": {sd_terms("S = ", [(2 * W, "/x"), (6 if two else 2, "πx²")])}}
+        if not two:
+            wrongs[S + "2"] = {sd_terms("S = ", [(2 * W, "/x"), (5, "πx²")])}
+        q["_expr"] = True
+    elif u in ("inscribed-volume", "inscribed-surface"):
+        need(h < 2 * r, "the cylinder doesn't fit")
+        R_ = leg(r, h / 2)
+        need(paper == 2 or R_.is_integer, f"R = {R_} is not whole")
+        if u == "inscribed-volume":
+            x = R_ * R_ * h
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * h], V + "1": [x / 3]})
+        else:
+            x = 2 * R_ * R_ + 2 * R_ * h
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {S + "0": [2 * r * r + 2 * r * h], S + "1": [R_ * R_ + 2 * R_ * h]})
+    elif u in ("sector-cone-radius", "sector-curved"):
+        l, th = m["l"], m["theta"]
+        need(60 <= th <= 300, f"θ = {th}")
+        rr = l * th / 360
+        if u == "sector-cone-radius":
+            x, pi = rr, False
+            need(paper == 2 or rr.q == 1, "r is not whole")
+            want, trap, wrongs = sd_set(q, "r = ", rr, unit, False, {})
+        else:
+            x = th / 360 * l * l
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {})
+    elif u == "sector-angle":
+        if q["graph"] is not None:
+            need(q["graph"]["theta"] == "θ", "the angle is the unknown")
+            l = sd_len(q["graph"]["l"])
+            mt = re.search(r"base radius is (\S+ cm)\.", L[-1])
+            rr = sd_len(mt.group(1))
+        else:
+            mt = re.search(r"has radius (\S+ cm) and slant height (\S+ cm)\.", L[0])
+            rr, l = sd_len(mt.group(1)), sd_len(mt.group(2))
+        x, pi = 360 * rr / l, False
+        need(60 <= x <= 300, f"θ = {x}")
+        need(paper == 2 or x.q == 1, "θ is not whole")
+        want, trap, wrongs = sd_set(q, "θ = ", x, "°", False, {})
+    else:
+        raise Fail(f"no check for {u}")
+    if x is not None:
+        sd_edge(q, x * (sp.pi if pi else 1))
+        if paper == 2:
+            need(not trap or not q["answer"].get("exact", False), "a Paper 2 answer is not exact-only")
+    expr_answer = q.pop("_expr", False)
+    gc_check_common(q, want, wrongs, trap, steps=(2, 5))
+    pairs = sd_steps(q)
+    need(pairs > 0 or expr_answer or u in ("slant-from-total", "composite-volume-solve", "radius-from-volume", "height-from-volume"), "no working was read")
+    return None, None
+
+
+def sd_root(a, b, W):
+    """The positive root of π(a r³ + b r²) = W, to 40 figures."""
+    y = sp.Symbol("y")
+    poly = sp.Poly(a * y ** 3 + b * y ** 2 - sp.Rational(W) / sp.pi, y)
+    roots = [t for t in poly.nroots(n=40, maxsteps=200) if abs(sp.im(t)) < 1e-30 and sp.re(t) > 0]
+    need(len(roots) == 1, f"{len(roots)} positive roots")
+    return sp.re(roots[0])
+
+
+def sd_x_measures(q):
+    """rx, hx and the whole cylinder height of a solid given in terms of x."""
+    if q["graph"] is not None:
+        g = q["graph"]
+        r_t, h_t, c_t = g["r"], g.get("h"), g.get("c")
+    else:
+        text = " ".join(q["lines"])
+        find = lambda n: (lambda mt: mt.group(1) if mt else None)(re.search(rf"[Tt]he {n} is (\d*x? cm)", text))
+        r_t = find("radius")
+        h_t = find("height") or find("cone's height")
+        c_t = find("cylinder's height")
+    coef = lambda t: None if t is None else (lambda b: 1 if b == "" else int(b))(t.replace(" cm", "").replace("x", ""))
+    need(r_t is not None and "x" in r_t, f"can't read r = {r_t!r}")
+    return coef(r_t), coef(h_t), coef(c_t)
+
+
+# ── standard-form (t1-standard-form, FAL-726) ────────────────
+# The `standard-form` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/standard_form.gd. Numbers are read back from the question's text as exact
+# Rationals, so a power of ten never has to fit a float, and each answer is normalised again here.
+
+SF_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+SF_C = "SL1.1.convert#"
+SF_M = "SL1.1.multiply-divide#"
+SF_X = "SL1.1.context#"
+SF_SUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
+SF_NUM = re.compile(r"(?:(\d+(?:\.\d+)?) × )?10([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)")
+SF_PLAIN = re.compile(r"\d+(?: \d{3})*(?:\.\d+)?")
+
+
+def sf_read(text):
+    """Every a × 10^k in a piece of text, as [(a, k)]."""
+    return [(sp.Rational(mt.group(1) or 1), int(mt.group(2).translate(SF_SUP))) for mt in SF_NUM.finditer(text)]
+
+
+def sf_v(pair):
+    return pair[0] * sp.Rational(10) ** pair[1]
+
+
+def sf_norm(v):
+    """v as (a, k) with 1 ≤ a < 10, without leaving exact numbers."""
+    k = 0
+    while v >= 10:
+        v, k = v / 10, k + 1
+    while v < 1:
+        v, k = v * 10, k - 1
+    return v, k
+
+
+def sf_ten(k):
+    return "10" + str(k).translate(str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"))
+
+
+def sf_a(a, rounded, figs=3):
+    a = sp.Rational(a)
+    q = a.q
+    for f in (2, 5):
+        while q % f == 0:
+            q //= f
+    return sig3(a, figs) if rounded or q != 1 else dec_text(a)
+
+
+def sf_text(a, k, rounded, head="", tail=""):
+    return f"{head}{sf_a(a, rounded)} × {sf_ten(k)}{tail}"
+
+
+def sf_answer(q, v, head="", tail=""):
+    """want and trap for the value v: rounded on Paper 2, where it needs it."""
+    a, k = sf_norm(v)
+    rounded = q["paper"] == 2
+    if q["paper"] == 1:
+        need(sp.Rational(a * 1000).q == 1, f"a = {a} has too many figures for Paper 1")
+    if abs(k) < 2:
+        raise Fail(f"k = {k} is too small an answer power")
+    if rounded:
+        scaled = a * 100
+        need(a < sp.Rational(99, 10), f"a = {a} is too near 10")
+        need(abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= SF_EDGE, f"a = {a} is too close to a rounding edge")
+    trap = None
+    if rounded and sp.Rational(sig3(a)) != a:
+        trap = f"{head}{sig3(a, 2)} × {sf_ten(k)}{tail}"
+    return sf_text(a, k, rounded, head, tail), trap, a, k
+
+
+def sf_raw(a, k):
+    return f"{sig3(a)}E{str(k).replace('-', '−')}"
+
+
+def sf_value(text):
+    """A step's side as a number, or None if it has words or letters in it."""
+    t = re.sub(r",.*$", "", text).strip().rstrip(".")
+    t = re.sub(r"(?<=\d) (?=\d{3})", "", t)
+    if not t or not re.fullmatch(r"[0-9.()+−×÷^ ⁰¹²³⁴⁵⁶⁷⁸⁹⁻²³]+", t):
+        return None
+    t = re.sub(r"([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)", lambda mt: f"**({mt.group(1).translate(SF_SUP)})", t)
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    return sp.sympify(t, rational=True)
+
+
+def sf_steps(q):
+    pairs = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            sides = [sf_value(p) for p in re.sub(r"^.*: ", "", st).split(" = ")]
+            for a, b in zip(sides, sides[1:]):
+                if a is None or b is None:
+                    continue
+                pairs += 1
+                need(abs(a - b) <= abs(b) * sp.Rational(3, 10000), f"{sol['name']}: {st!r} doesn't add up ({a} and {b})")
+    return pairs
+
+
+def check_standard_form(q):
+    u, paper, L, asked = q["view"]["unknown"], q["paper"], q["lines"], q["asked"]
+    C, M, X = SF_C, SF_M, SF_X
+    rounded = paper == 2
+    text = " ".join(L)
+    want, trap, wrongs = None, None, {}
+    T = lambda a, k: sf_text(a, k, rounded)
+    pq = sf_read(L[0]) + sf_read(L[1]) if u in ("multiply", "multiply-renormalise", "divide", "divide-renormalise", "power-product") else None
+    if pq is not None:
+        need(L[0].startswith("p = ") and L[1].startswith("q = "), "p and q")
+        (a, m), (b, n) = pq
+        need(m != 0 and n != 0, "a power of 0")
+    if u in ("to-form-large", "to-form-small"):
+        src = L[0] if L else asked
+        mt = re.search(r"\d[\d ]*\d(?:\.\d+)?|0\.\d+|\d+", src.replace("10^k", "").replace("1 ≤ a < 10", ""))
+        need(mt is not None, "can't read the number")
+        v = sp.Rational(mt.group(0).replace(" ", ""))
+        want, trap, a, k = sf_answer(q, v)
+        need((v > 1) == (u == "to-form-large"), "the number is on the wrong side of 1")
+        digit = k + 1 if k > 0 else k - 1
+        wrongs = {C + "0": {T(a, -k)}, C + "1": {T(a, digit)}, C + "2": {T(a * 10, k - 1), T(a / 10, k + 1)}}
+        if paper == 2:
+            wrongs[X + "0"] = {sf_raw(a, k)}
+    elif u in ("to-ordinary-large", "to-ordinary-small"):
+        (a, k), = sf_read(text if L else asked)
+        need((k > 0) == (u == "to-ordinary-large"), "the power is on the wrong side of 0")
+        lab = "number = "
+        want = lab + dec_text(a * sp.Rational(10) ** k)
+        d = k + 1 if k > 0 else k - 1
+        wrongs = {C + "0": {lab + dec_text(a * sp.Rational(10) ** -k)}, C + "1": {lab + dec_text(a * sp.Rational(10) ** d)}}
+    elif u == "renormalise":
+        rd = sf_read(asked)
+        need(len(rd) == 1, "one number")
+        a0, k0 = rd[0]
+        need(not (1 <= a0 < 10), "the number is already in standard form")
+        a, k = sf_norm(sf_v(rd[0]))
+        want = sf_text(a, k, False)
+        wrongs = {C + "2": {sf_text(a * 10 if a0 < 1 else a / 10, k - 1 if a0 < 1 else k + 1, False)}}
+    elif u == "order-mixed":
+        mt = re.fullmatch(r"The four numbers are (.+)\.", L[0])
+        need(mt is not None, "can't read the list")
+        items = mt.group(1).split(",  ")
+        need(len(items) == 4, "four numbers")
+        vals = {}
+        for it in items:
+            rd = sf_read(it)
+            vals[it] = sf_v(rd[0]) if rd else sp.Rational(it.replace(" ", ""))
+        need(len(set(vals.values())) == 4, "two numbers are equal")
+        big = "largest" in asked
+        best = (max if big else min)(vals, key=lambda i: vals[i])
+        lab = "largest: " if big else "smallest: "
+        want = lab + best
+        tricks = {lab + it for it in items if it != best and sf_read(it) and ((sf_read(it)[0][0] < 1) if big else (sf_read(it)[0][0] >= 10))}
+        wrongs = {C + "2": tricks}
+    elif u == "display-to-form":
+        need(paper == 2, "a display is Paper 2")
+        mt = re.fullmatch(r"A GDC shows (\d\.\d+)E(−?\d+)\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        a, k = sp.Rational(mt.group(1)), int(mt.group(2).replace("−", "-"))
+        want = sf_text(a, k, False)
+        wrongs = {X + "0": {mt.group(1) + "E" + mt.group(2)}, C + "0": {sf_text(a, -k, False)}}
+    elif u in ("multiply", "multiply-renormalise"):
+        need(m * n != m + n and m != n, "the powers are a degenerate pair")
+        want, trap, r, k = sf_answer(q, a * b * sp.Rational(10) ** (m + n))
+        need((a * b >= 10) == (u == "multiply-renormalise"), "the product is on the wrong side of 10")
+        wrongs = {M + "0": {T(r, k - m - n + m * n)}, M + "2": {T(r, k - m - n + m - n)}}
+        if a * b >= 10:
+            wrongs[M + "1"] = {T(a * b, m + n)}
+    elif u in ("divide", "divide-renormalise"):
+        need(m != n, "the powers are equal")
+        want, trap, r, k = sf_answer(q, a / b * sp.Rational(10) ** (m - n))
+        need((a < b) == (u == "divide-renormalise"), "the quotient is on the wrong side of 1")
+        wrongs = {M + "2": {T(r, k - m + n + m + n)}}
+        if a < b:
+            wrongs[M + "1"] = {T(a / b, m - n)}
+    elif u == "power-product":
+        e = 2 * m + n
+        want, trap, r, k = sf_answer(q, a * a * b * sp.Rational(10) ** e)
+        wrongs = {M + "0": {T(r, k - e + m * m + n)}}
+        if a * a * b >= 10:
+            wrongs[M + "1"] = {T(a * a * b, e)}
+    elif u in ("times-larger", "time-from-rate", "total-from-unit", "rate-unit-shift"):
+        rd = sf_read(L[0])
+        need(len(rd) == 2, "two numbers in the story")
+        (a, m), (b, n) = rd
+        if u == "times-larger":
+            need(sf_v(rd[0]) > sf_v(rd[1]), "the first is not the larger")
+            v = sf_v(rd[0]) / sf_v(rd[1])
+            slip = sig_v2(a) / sig_v2(b) * sp.Rational(10) ** (m - n)
+            fr, fk = sf_norm(1 / v)
+            wrongs[X + "2"] = {T(fr, fk)}
+        elif u == "total-from-unit":
+            v = sf_v(rd[0]) * sf_v(rd[1])
+            slip = sig_v2(a) * sig_v2(b) * sp.Rational(10) ** (m + n)
+        else:
+            need("m s⁻¹" in L[0] and ("kilometres away" if u == "rate-unit-shift" else "metres away") in L[0], "the units")
+            shift = 3 if u == "rate-unit-shift" else 0
+            v = sf_v((b, n + shift)) / sf_v((a, m))
+            slip = sig_v2(b) / sig_v2(a) * sp.Rational(10) ** (n + shift - m)
+        want, trap, r, k = sf_answer(q, v)
+        if paper == 2:
+            sr, sk = sf_norm(slip)
+            wrongs[X + "1"] = {T(sr, sk)}
+            wrongs[X + "0"] = {sf_raw(r, k)}
+    elif u == "unit-shift":
+        (a, m), = sf_read(L[0])
+        pairs = [("grams", "kilograms", -3), ("kilometres", "metres", 3), ("millimetres", "metres", -3), ("kilowatts", "watts", 3), ("kilograms", "grams", 3), ("metres", "kilometres", -3)]
+        found = [s for f, to, s in pairs if re.search(rf"\b{f}\b", L[0]) and f"in {to}." in asked]
+        need(len(found) == 1, "can't read the units")
+        want = sf_text(a, m + found[0], False)
+        need(1 <= a < 10 and abs(m + found[0]) >= 2, "the amount's a or power")
+    elif u == "scale-value":
+        (a, m), = sf_read(L[0])
+        mt = re.search(r" (\d) times ", L[0])
+        need(mt is not None, "can't read the multiplier")
+        f = int(mt.group(1))
+        want, trap, r, k = sf_answer(q, a * f * sp.Rational(10) ** m)
+        if a * f >= 10:
+            wrongs[M + "1"] = {T(a * f, m)}
+    elif u == "sphere-volume-pi":
+        (d, m), = sf_read(L[0])
+        need("diameter" in L[0], "a diameter")
+        c = (d / 2) ** 3 * sp.Rational(4, 3)
+        want, trap, r, k = sf_answer(q, c * sp.Rational(10) ** (3 * m), "V = π(", ") m³")
+        if not (1 <= c < 10):
+            wrongs[M + "1"] = {sf_text(c, 3 * m, rounded, "V = π(", ") m³")}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap, steps=(2, 5))
+    sf_steps(q)
+    return None, None
+
+
+def sig_v2(x):
+    """x rounded early, to 2 s.f."""
+    return sp.Rational(sig3(x, 2))
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -13941,6 +14642,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
                     "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
                     "arc-sector": check_arc_sector, "bearings-elevation": check_bearings}
+                    "solid": check_solid, "standard-form": check_standard_form}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

@@ -457,6 +457,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 | `t1-binomial-find-unknown` | Binomial expansion: find an unknown from a given coefficient | 1.9 | find-unknown | 9 | P1 4, P2 5; Section A 9, B 0 | usually 5 (4 to 7) |
 | `t1-binomial-term` | Binomial expansion: a coefficient, a term or the full expansion | 1.9 | ncr-pascal, full-expansion, specific-term | 6 | P1 2, P2 4; Section A 6, B 0 | usually 2 (1 to 4) |
 
+### t1-standard-form
+
+**Calculate with numbers in standard form.** Numbers a × 10^k: convert both ways, bring a back between 1 and 10, order mixed forms, read a GDC display, multiply and divide with and without a calculator, and solve problems with very large or very small amounts.
+
+- **Syllabus:** 1.1
+- **Skills:** `SL1.1.convert`, `SL1.1.multiply-divide`, `SL1.1.context`
+- **Where it appears:** P1 2, P2 1; Section A 3, B 0. Marks per part: usually 1 (1 to 3).
+- **Usual chain:** read the numbers, turning ordinary numbers or a display into a × 10^k → decide what the words ask: multiply, divide or change a unit → work on the a-values and the powers of ten apart → bring a back so that 1 ≤ a < 10, changing k to balance → write a × 10^k, never E-notation, to 3 s.f. if asked
+- **Given:** an ordinary number or a number a × 10^k, p and q, a GDC display, a story with amounts in standard form. **Asked:** A number in standard form, an ordinary number, p × q, p/q or p²q, the largest of four, how many times larger, a time, a total, an amount in another unit, or a volume π(a × 10^k). **Answer form:** a × 10^k, ordinary number, a × 10^k with a to 3 s.f..
+- **A recipe can randomise:** a and k; positive and negative powers; the story; the four forms of a list.
+- **Limits that keep answers clean:** Paper 1 exact, by hand; Paper 2 three-figure values, with a to 3 s.f.; the GDC methods are Paper 2 only; a wrong option may have a outside 1 ≤ a < 10: it can be typed and is marked wrong.
+- **Game formats:** value, mcq
+- **Bank parts:** 3.
+
 ### t1-arithmetic-sequence
 
 **Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums.** From u₁ and d, two terms, the first few terms or a sum, find a term, d, u₁, the term number n or a sum Sₙ.
@@ -510,6 +524,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 | `t3-trig-quadratic` | Trig equation that is a quadratic in sin or cos | 3.8, 2.7 | quadratic-in-trig | 3 | P1 3, P2 0; Section A 3, B 0 | 5 |
 | `t3-trig-model-equation` | Solve a trig model equation or inequality for times | 3.8, 2.10 | graphical | 5 | P1 1, P2 4; Section A 0, B 5 | usually 3 (2 to 5) |
 | `t3-trig-equation` | Solve a trig equation exactly in an interval | 3.8 | solve-basic, compound-angle, factorise-not-divide | 8 | P1 8, P2 0; Section A 5, B 3 | usually 4 (3 to 6) |
+
+### t3-solid-volume-area
+
+**Volume and surface area of solids, including in terms of a variable.** One solid, shown by a labelled sketch or in words: a cone, pyramid, sphere, hemisphere or a composite. Find its volume or surface area, a height by Pythagoras, a radius or height from a given volume, a composite's r with the GDC, an expression in terms of a variable, the cost of painting it, or the sector that rolls into a cone.
+
+- **Syllabus:** 3.1
+- **Skills:** `SL3.1.volume-solids`, `SL3.1.surface-area`
+- **Where it appears:** P1 8, P2 5; Section A 2, B 11. Marks per part: usually 3 (2 to 6).
+- **Usual chain:** read the shape and which lengths are given → halve a diameter; find the height or slant height with Pythagoras if it is the other one that is given → split a composite into pieces, and list only the outer faces → substitute into the booklet formula, or rearrange it for the unknown length → give it exactly on Paper 1, or to 3 s.f. on Paper 2
+- **Given:** a labelled sketch of a solid, a solid in words, a volume or surface area to work back from, measures in terms of a variable, a sector and its angle. **Asked:** A volume, a curved or total surface area, the height, slant height or radius, the cost of painting, an expression in terms of a variable, or a sector's angle. **Answer form:** exact multiple of π, exact number, 3 s.f., expression in the variable.
+- **A recipe can randomise:** the solid and its story; the lengths; radius or diameter, height or slant height; the letter's coefficients; the sector's angle.
+- **Limits that keep answers clean:** Paper 1 exact, from Pythagorean triples wherever a slant comes in; Paper 2 measures to 1 d.p. and answers to 3 s.f.; a diagram labels only what is given; GDC solving is Paper 2 only, and letters are Paper 1 as in the bank.
+- **Game formats:** value, mcq
+- **Bank parts:** 13.
 
 ### t3-ambiguous-case
 

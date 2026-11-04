@@ -1668,7 +1668,38 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 2 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+
+#### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
+
+- **Situation:** Numbers in standard form.
+- **Representations:** **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given an ordinary large number → a × 10^k
+  - **exam** L1: given an ordinary small number → a × 10^k with a negative k
+  - **exam** L1: given a × 10^k with a positive k → the ordinary number
+  - **exam** L1: given a × 10^k with a negative k → the ordinary number
+  - **exam** L2: given a number such as 64 × 10^5 or 0.64 × 10^7 → correct standard form
+  - **exam** L2: given four numbers in mixed forms → the largest or the smallest
+  - **exam** L1: given a GDC display such as 4.73E−5 → a × 10^k
+  - **exam** L2: given p and q → p × q, with a product below 10
+  - **exam** L3: given p and q → p × q, with a product of 10 or more to bring back
+  - **exam** L2: given p and q → p/q, with a quotient of 1 or more
+  - **exam** L3: given p and q → p/q, with a quotient below 1 to bring back
+  - **exam** L3: given p and q → p²q
+  - **exam** L3: given two amounts in a story → how many times larger one is
+  - **exam** L3: given a speed and a distance → the time
+  - **exam** L3: given an amount for each and how many → the total
+  - **exam** L2: given an amount in one unit → the amount in another unit
+  - **exam** L4: given a speed in m s⁻¹ and a distance in km → the time in seconds
+  - **exam** L2: given an amount; how many times as much → the new amount
+  - **exam** L4: given a sphere's diameter → the volume as π(a × 10^k)
+- **Angles:** Move the decimal point and count the places; Factor out a power of ten with index laws; Use the GDC in scientific mode; Group the a-values and the powers of ten; Convert to ordinary numbers and back; Use the GDC ×10^x (EE) key; Translate the words into a calculation, then use index laws; Calculate on the GDC and rewrite the display; Convert units as exponent shifts first.
+- **Concept probes:**
+  - *true-false-reason* (L3): 0.64 × 10^7 is in standard form, because 0.64 × 10^7 = 6 400 000. — False: the value is right, but standard form needs 1 ≤ a < 10, so it is 6.4 × 10^6.
+  - *always-sometimes-never* (L3): Multiplying two numbers in standard form gives an answer already in standard form. — Sometimes: it holds when the product of the a-values is below 10. Otherwise a has to be brought back and k raised by 1.
+  - *true-false-reason* (L3): A GDC showing 3.1E−4 is an acceptable final answer. — False: calculator notation isn't accepted. Write 3.1 × 10^−4.
+- **Misconceptions used:** 9. Giving small numbers a positive power: 0.000052 = 5.2 × 10^5; Counting digits instead of places moved: 6 400 000 = 6.4 × 10^7; Leaving a outside 1 ≤ a < 10 (64 × 10^5 or 0.64 × 10^7) as a final answer; Multiplying the powers of ten: 10^4 × 10^3 = 10^12; Forgetting to renormalise, leaving 0.7 × 10^−8 or 12 × 10^5 as the answer; Sign slip with negative exponents: 10^−3 ÷ 10^5 = 10^2; Writing the GDC display 5E2 as the final answer; Rounding a at an early step so the third significant figure is wrong; Dividing the wrong way round when asked 'how many times larger'.
 
 #### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 21 bank parts)
 
@@ -1731,7 +1762,51 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 5 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 4 exam types have them so far.
+
+#### Volume and surface area of solids, including in terms of a variable (`t3-solid-volume-area`, exam, 13 bank parts)
+
+- **Situation:** One solid and its measurements.
+- **Representations:** **diagram**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given r or the diameter; h → the volume of a cone
+  - **exam** L2: given r; l → the volume of a cone
+  - **exam** L2: given r; l → the perpendicular height of a cone
+  - **exam** L2: given r; h or l → the curved surface area of a cone
+  - **exam** L2: given r; h or l → the total surface area of a cone
+  - **exam** L3: given r; the total surface area → the slant height l
+  - **exam** L4: given r; the total surface area → the volume of the cone
+  - **exam** L1: given base edges; h → the volume of a pyramid
+  - **exam** L3: given the base edge; the slant height of a face → the volume of a square pyramid
+  - **exam** L3: given the base edge; the slant edge → the volume of a square pyramid
+  - **exam** L3: given the base edge; h → the total surface area of a square pyramid
+  - **exam** L1: given r or the diameter → the volume of a sphere
+  - **exam** L1: given r or the diameter → the surface area of a sphere
+  - **exam** L1: given r or the diameter → the volume of a hemisphere
+  - **exam** L2: given r or the diameter → the total surface area of a solid hemisphere
+  - **exam** L3: given the volume; h for a cone → the radius of a sphere, hemisphere or cone
+  - **exam** L3: given the volume; the radius or base edge → the perpendicular height of a cone or square pyramid
+  - **exam** L3: given the measures of a composite solid → the volume
+  - **exam** L4: given the measures of a composite solid → the total surface area, leaving out hidden faces
+  - **exam** L4: given a tank's measures; the cost per m² → the cost of painting all but the base
+  - **exam** L4: given the volume of a composite solid; the height of one piece → r, from an equation with r³ and r²
+  - **exam** L3: given measures in terms of x → an expression for the volume
+  - **exam** L3: given measures in terms of x → an expression for the surface area
+  - **exam** L4: given a hollow cylinder's radii in terms of r; h → S in terms of r and h
+  - **exam** L5: given a hollow cylinder's radii in terms of r; S as a multiple of π → V in terms of r only
+  - **exam** L4: given a cylinder's volume; hemispheres on one or both ends → S in terms of x
+  - **exam** L4: given a sphere's radius; the height of a cylinder inside it → the volume of the cylinder
+  - **exam** L4: given a sphere's radius; the height of a cylinder inside it → the total surface area of the cylinder
+  - **exam** L3: given a sector's radius and angle → the radius of the cone it rolls into
+  - **exam** L3: given a cone's radius and slant height → the angle of its unrolled sector
+  - **exam** L3: given a sector's radius and angle → the curved surface area of the cone
+  - **exam** L4: given a sector's radius and angle → the volume of the cone it rolls into
+- **Angles:** Substitute into the booklet formula; Split a composite solid into standard pieces; Find the perpendicular height first; Rearrange for a missing dimension; Solve a composite volume equation on the GDC; Booklet formulas for each surface; Sketch the net and add exposed faces; Unroll the cone into a sector.
+- **Concept probes:**
+  - *true-false-reason* (L3): A cone and a cylinder have the same radius and the same height. The cone's volume is a third of the cylinder's. — True: V = ⅓πr²h for the cone and πr²h for the cylinder, with the same r and h.
+  - *always-sometimes-never* (L3): The slant height of a right cone is longer than its perpendicular height. — Always: the slant height is the longest side of the right triangle made with the radius and the height.
+  - *true-false-reason* (L3): When a hemisphere sits on a cylinder of the same radius, the total surface area is the two solids' surface areas added. — False: the circle where they join is inside the solid, so it is counted out of both.
+- **Misconceptions used:** 6. Using the slant height instead of the perpendicular height in V = ⅓πr²h; Forgetting the ⅓ for a cone or pyramid, or using (4/3)πr³ for a hemisphere; Using the diameter as the radius; Using the vertical height h in πrl instead of the slant height l; Giving a solid hemisphere's surface as 2πr², forgetting the flat face πr² (or counting a face hidden at a join); Using 4πr² for a hemisphere.
 
 #### Sine rule ambiguous case (`t3-ambiguous-case`, exam, 2 bank parts)
 
@@ -1776,71 +1851,6 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): Two sides and an angle opposite one of them fix exactly one triangle. — Sometimes: if the side opposite the given angle is the longer one, only one triangle fits; if it is the shorter one but longer than the altitude, the angle from sin⁻¹ and 180° minus it can both work.
 - **Misconceptions used:** 8. Evaluating (b² + c² − 2bc) cos A instead of b² + c² − (2bc cos A); Forgetting to square-root a²; Using (a² + b² − c²) / 2ab when the angle wanted is A; Thinking a negative cosine is an error, when it just means the angle is obtuse; Pairing a side with an angle that is not opposite it; Rearranging b / sin 40° = 8 / sin 65° as b = 8 sin 65° / sin 40°; Keeping B₂ = 180° − B₁ even when the angle sum then exceeds 180°; Calculator in radian mode when the angle is in degrees.
 
-#### Bearings, elevation and depression in context (`t3-bearings-elevation`, exam, 7 bank parts)
-
-- **Situation:** Journeys, sightings and connected triangles.
-- **Representations:** **words**, **diagram** (bold: the exam uses it)
-- **Unknowns:**
-  - **exam** L1: given the bearing of B from A → the bearing of A from B
-  - **exam** L2: given B due east of A, the bearing of C from A, angle ABC → angle ACB
-  - **exam** L3: given two legs of a journey, each a distance and a bearing → the distance from the start
-  - new L4: given two legs of a journey → the bearing of the end from the start
-  - new L4: given two legs of a journey → the bearing of the start from the end
-  - **exam** L3: given B due east of A, C at a distance and bearing from A → BC
-  - **exam** L3: given B due east of A, the bearing of C from A, angle ABC → AC or BC
-  - **exam** L4: given C due west of B, the bearing of B from A, angle BAC, the length AC → angle ABC, then BC
-  - **exam** L1: given a distance along the ground and an angle of elevation → the height
-  - **exam** L2: given a height and an angle of depression → the horizontal distance
-  - new L2: given a height and a horizontal distance → the angle of depression
-  - new L2: given an observer's eye height, a distance and an angle of elevation → the height
-  - **exam** L3: given the height of a crane's arm from an angle of elevation, and a guard's height and clearance → the length of the chain
-  - **exam** L3: given a height, an angle of depression and a speed → the time to reach the point, in minutes
-  - **exam** L3: given two perpendicular distances and speeds → the time for a route
-  - new L4: given a right-angled triangle and a triangle sharing its long side → the far side
-  - new L3: given two sides and the angle between them on each side of a diagonal → the area of the quadrilateral
-  - new L3: given two sides of a triangle and the angle between them → the third side
-  - new L3: given what is known about a triangle → which rule to use first
-- **Angles:** Angle chase, then cosine and sine rules; East and north components; Back bearing ± 180°; One right triangle with tan; Move the angle of depression; Classify what each triangle gives you; Split into right triangles; Split a quadrilateral along a diagonal.
-- **Concept probes:**
-  - *true-false-reason* (L3): If the bearing of B from A is 070°, the bearing of A from B is 290°. — False: 290° is 360° − 070°. The way back is the opposite direction, 070° + 180° = 250°.
-  - *always-sometimes-never* (L3): An angle of depression from the top of a tower equals the angle of elevation of the top from the ground below. — Always: the two horizontals are parallel, so they are alternate angles.
-  - *true-false-reason* (L3): Two legs on bearings of 040° and 100° meet at an angle of 60° inside the triangle. — False: 60° is the turn. The north lines are parallel, so the angle inside is 180° − 60° = 120°.
-- **Misconceptions used:** 9. Measuring a bearing anticlockwise or from east instead of clockwise from north; Giving the bearing of A from B when asked for B from A; Using the bearings themselves as angles inside the triangle without angle chasing; Measuring the angle of depression from the vertical instead of the horizontal; Putting the angle of depression inside the triangle at the top vertex; Forgetting to add the observer's eye height; Rounding the shared side early and carrying the error into the next triangle; Assuming an angle is 90° because it looks like it; Using the sine rule in a triangle where no side–opposite angle pair is known.
-
-#### Arc length, sector area and perimeter, forwards or backwards (`t3-arc-sector`, exam, 16 bank parts)
-
-- **Situation:** One sector of a circle.
-- **Representations:** equation, **diagram**, **words** (bold: the exam uses it)
-- **Unknowns:**
-  - new L1: given an angle in degrees → the angle in radians
-  - new L1: given an angle in radians → the angle in degrees
-  - **exam** L1: given r; θ → the arc length
-  - **exam** L2: given r; θ → the perimeter of the sector
-  - **exam** L2: given r; the arc length → θ
-  - **exam** L2: given θ; the arc length → r
-  - **exam** L3: given θ; the perimeter → r
-  - **exam** L3: given r; the perimeter → θ
-  - new L2: given r; the minor angle θ → the major arc
-  - **exam** L2: given the arc length, with θ unknown → an expression for r in terms of θ
-  - **exam** L3: given a strip's width, two straight sides and the radius of the curved part → θ
-  - **exam** L1: given r; θ → the area of the sector
-  - **exam** L2: given r; the area → θ
-  - **exam** L3: given θ; the area → r
-  - **exam** L2: given r; the minor angle θ → the area of the major sector
-  - **exam** L3: given r; the arc length → the area of the sector
-  - **exam** L3: given θ; the area → the perimeter of the sector
-  - **exam** L4: given θ; the perimeter of the minor sector → the exact area of the rest of the circle
-  - **exam** L3: given a sector's r and θ, rolled into a cone → the radius of the cone's base
-  - **exam** L4: given the outer radius, the angle and the area of a curved strip between two circles → the inner radius
-  - **exam** L3: given both radii and the angle of a curved strip → its perimeter
-  - **exam** L5: given a rectangular plate with two equal segments cut away, and its area → θ
-- **Angles:** Multiply by π/180 or 180/π; Fraction of a full turn; Count in landmark angles; l = rθ; Fraction of the circumference; A = ½r²θ; Fraction of the whole circle; Major sector by complement; Sector minus triangle.
-- **Concept probes:**
-  - *true-false-reason* (L3): If you double the radius of a sector and keep its angle, its area doubles. — False: A = ½r²θ, so the area goes up four times. The arc is what doubles.
-  - *always-sometimes-never* (L3): An arc is shorter than the radius of its circle. — Sometimes: l = rθ, so it holds exactly when θ is less than 1 radian.
-  - *interpret-parameter* (L3): What does 1 radian mean on a circle? — It is the angle at the centre where the arc is as long as the radius, because l = rθ gives l = r when θ = 1.
-- **Misconceptions used:** 10. Multiplying by 180/π when converting degrees to radians; Thinking π radians is 3.14° or that 1 radian is about 1°; Giving a decimal when an exact multiple of π is asked for; Using θ in degrees in l = rθ; Forgetting the two radii when finding the perimeter of a sector; Using the minor-arc angle when the major arc is asked for; Using θ in degrees in ½r²θ; Squaring θ instead of r: ½rθ²; Giving the minor sector when the major sector is asked for; Calculator in degree mode when evaluating sin θ for θ in radians.
-
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
 | `t3-ext-two-observations` A height from two angles of elevation | skill | two-observations | 3–5 | Bank elevation parts (t3-right-angle-trig, t3-bearings-elevation) use one observation point; none needs two. | Find a height from two angles of elevation taken a known distance apart, with two right-angled triangles or with the sine rule in the triangle between them. |
@@ -1848,78 +1858,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
-
-#### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
-
-- **Situation:** A population, its groups and a sample.
-- **Representations:** **words**, table (bold: the exam uses it)
-- **Unknowns:**
-  - **exam** L1: given the population; the surveyor's method → the sampling technique
-  - **exam** L2: given the population; the surveyor's method → a disadvantage of this method
-  - **exam** L2: given the population; the sample size or percentage → how to take a systematic sample
-  - new L1: given the size of the list; the sample size or percentage → the interval
-  - new L2: given the start and the interval → the number of a later pick
-  - **exam** L2: given what the survey needs; whether there is a list → the technique that fits best
-  - new L2: given the surveyor's method → whether it is a simple random sample
-  - new L2: given the group sizes; the sample size → a group's number in a sample in proportion
-  - new L2: given the group sizes; the sample's numbers → how far a group falls short of its share
-  - new L3: given the group sizes; the sample's numbers → the most under-represented group
-  - **exam** L2: given the population; a sample from one group → why it may not represent the population
-  - new L3: given a sample from an untypical place → which way the estimate leans
-  - **exam** L2: given the population; a sample from one group → the change that would fix it
-  - new L2: given a biased sample; a plan to ask more → whether that removes the bias
-  - new L3: given the population; a random sample that misses the mix → what that shows
-  - new L2: given a small random sample whose result keeps changing → what would make it more reliable
-  - new L2: given a figure and where it comes from → why it may not be reliable
-- **Angles:** Run the feature checklist; Eliminate by what could go wrong; Who is left out or over-represented?; Compare the sample's make-up with the population's.
-- **Concept probes:**
-  - *true-false-reason* (L3): A quota sample and a stratified sample of the same size contain the same numbers from each group, so they are the same method. — False: the numbers match, but a stratified sample draws at random inside each group, and a quota sample takes whoever comes by until each group is full.
-  - *always-sometimes-never* (L3): A larger sample gets rid of bias. — Never by itself: more people from the same biased method makes the result steadier, not fairer. Only changing who can be chosen removes the bias.
-  - *true-false-reason* (L3): If a sample is random, its mix of groups matches the population. — False: a random method gives everyone a fair chance, but chance can still move any one sample away from the true mix.
-- **Misconceptions used:** 5. Quota sampling and stratified sampling are the same (quota fills each group without random selection); Systematic sampling is fully random (only the starting point is random; the rest follows the interval); Stopping people in the street is simple random sampling; A larger sample removes bias (it improves reliability, but a biased method stays biased); A random sample is always perfectly representative.
-
-#### Read and use a cumulative frequency graph (`t4-cumulative-frequency`, exam, 6 bank parts)
-
-- **Situation:** Grouped data as a cumulative frequency curve or table.
-- **Representations:** **graph**, **table** (bold: the exam uses it)
-- **Unknowns:**
-  - **exam** L1: given the curve → the median
-  - new L1: given the curve → a quartile
-  - new L2: given the curve → the interquartile range
-  - **exam** L2: given the curve → a percentile
-  - new L1: given the curve → the range, from where the curve starts and ends
-  - new L2: given a table of classes → the median, by interpolating
-  - new L2: given a table of classes → a quartile, by interpolating
-  - new L3: given a table of classes → the interquartile range, by interpolating
-  - new L3: given a table of classes → a percentile, by interpolating
-  - new L1: given the curve; a value → how many are at or below it
-  - **exam** L2: given the curve; a value → how many are above it
-  - new L2: given the curve; two values → how many are between them
-  - new L2: given the curve; a value → the percentage above it
-  - new L2: given the curve; a value → which percentile it is
-  - **exam** L3: given the curve; how many are at the top → the lowest value at the top
-  - **exam** L3: given the curve; the percentage above k → k
-  - **exam** L3: given the curve; a limit and a percentage of it → how many are above that
-  - **exam** L3: given the curve of a sample; the size of the whole group → how many of the whole group are above a value
-  - new L2: given a table of classes; a value inside a class → how many are at or below it, by interpolating
-  - new L3: given a table of classes; a value inside a class → how many are above it, by interpolating
-  - new L3: given a table of classes; two values inside classes → how many are between them, by interpolating
-  - new L3: given a table of classes; how many are at the top → the lowest value at the top, by interpolating
-  - new L1: given the frequencies and the totals so far → a cumulative frequency
-  - new L2: given the frequencies but one, and the last total → the missing frequency
-  - new L1: given a table of running totals → a class's frequency
-  - new L2: given the curve → a class's frequency
-  - **exam** L3: given the curve; a frequency table with p and q → p and q
-  - new L1: given a table of classes → the point plotted for a class
-  - new L1: given a table of classes → where the curve starts
-  - new L2: given a table of classes → which of four curves is right
-- **Angles:** Across from the cumulative frequency, down to the value; Interpolate within the cumulative frequency table; Up to the curve, across, then subtract from n; Interpolate in the table; Running total; Subtract consecutive cumulative values; Plot at upper class boundaries.
-- **Concept probes:**
-  - *true-false-reason* (L3): A cumulative frequency of 30 at x = 20 means that 30 values are equal to 20. — False: it is a running total, so 30 values are at or below 20.
-  - *always-sometimes-never* (L3): The 90th percentile is read across from 90 on the vertical axis. — Sometimes: only when n is 100. Otherwise it is across from 90% of n.
-  - *predict-check* (L4): The curve is steepest between 20 and 30. What does that say about the data? — More values lie in that stretch than in any other of the same width: steep means many, flat means few.
-- **Misconceptions used:** 7. Reading the median halfway along the horizontal axis instead of from n/2 on the vertical axis; Finding Q3 − Q1 on the cumulative frequency axis instead of on the data axis; Reading the 90th percentile from 90 on the vertical axis when n is not 100; Giving the cumulative frequency at 65 as the number who scored more than 65 (it is the number at or below); For the top 30, reading across from 30 on the vertical axis instead of from n − 30; Plotting cumulative frequencies at class midpoints instead of upper boundaries; Reading a cumulative frequency as the frequency of that single class.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 10 exam types have them so far.
 
 #### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 11 bank parts)
 
