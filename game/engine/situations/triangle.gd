@@ -19,6 +19,10 @@ extends RefCounted
 ##   "sss"         all three sides; asks angle X
 ##   "aas"         side x, angle X and angle Y ("pair") or Z ("sum"); asks side y
 ##   "ssa"         sides x > y and angle X, so one triangle fits; asks angle Y
+##   "ssa-two"     sides y > x and angle X, with x above the altitude from Z, so two
+##                 triangles fit; asks angle Y or side z, each with two values
+##   "ssa-mix"     the same givens as "ssa" or "ssa-two", half and half; asks the
+##                 largest possible angle Y, so the student decides how many fit
 ##   "area-side"   the area, side y and angle X; asks side z
 ##   "area-angle"  the area, sides y and z, and whether X is obtuse; asks angle X
 ## need.ask: "area" makes "sas" ask the area.
@@ -32,6 +36,9 @@ extends RefCounted
 ##   shown              what the question shows: {"sides": {"b": 7}, "angles": {"A": 50},
 ##                      "area": 30 or null, "obtuse": true/false or null} (whole numbers)
 ##   value              the asked quantity (float)
+##   second             where two triangles fit: the other one, {"angles", "sides",
+##                      "area"}. Its angle Y is the obtuse 180° − Y, and side z its own.
+##                      The fields above are the triangle with the acute Y.
 ##
 ## Paper 1 or 2 (FAL-419): need.paper 2 (or none) gives the numbers above, which need a
 ## calculator; a value that comes out rational (a whole side, a whole area) is drawn
@@ -44,8 +51,8 @@ extends RefCounted
 ##   paper              1 (Paper 2 says 2)
 ##   exact              the asked value as [m (Q), r (int)]: m√r, r square-free
 ##   shown.area_root    r when the shown area is m√r (area-angle), else absent
-## The ambiguous sine-rule angle (ssa) is Paper 2 only: from whole sides and a nice
-## angle, sin B is only nice when B is 30° opposite half the side opposite 90°.
+## The sine rule's angle (ssa, ssa-two, ssa-mix) is Paper 2 only: from whole sides and a
+## nice angle, sin B is only nice when B is 30° opposite half the side opposite 90°.
 ##
 ## The clean limits below are the numbers behind the catalogue's `clean` text. The
 ## SymPy checker (tools/check_answers.py) holds its own copy and fails on any breach.
@@ -54,7 +61,7 @@ const SIDE_MIN := 3
 const SIDE_MAX := 20
 const ANGLE_MIN := 20.0
 const ANGLE_MAX := 140.0
-const RIGHT_GAP := 10.0    ## an angle found from an area is at least this far from 90°
+const RIGHT_GAP := 10.0    ## an angle found from an area, or the ambiguous angle, is at least this far from 90°
 const EDGE := 0.02         ## the answer (and every option) is this far, in units of its 3rd s.f., from a rounding edge
 const AREA_MIN := 3
 const TRIES := 4000
@@ -76,11 +83,17 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 			return s1
 		push_error("TriangleSituation: no Paper 1 situation for %s" % need)
 		return {}
+	# Decided once, not per try: two triangles are refused more often, and would be rare.
+	var draw := givens
+	if givens == "ssa-mix":
+		draw = "ssa-two" if rng.chance(0.5) else "ssa"
 	for i in TRIES:
-		var s := _draw(rng, givens, need)
+		var s := _draw(rng, draw, need)
 		if s.is_empty():
 			continue
 		s.paper = 2
+		if givens == "ssa-mix":
+			_mix(s)
 		if not _clean(s):
 			continue
 		return s
@@ -155,6 +168,18 @@ static func _draw(rng: Seeded, givens: String, need: Dictionary) -> Dictionary:
 			shown.sides = {lower(X): int(sx), lower(Y): int(sy)}
 			shown.angles = {X: int(ax)}
 			ask = Y
+		"ssa-two":
+			# The obtuse Y leaves Z = Y₁ − X, so X has to sit ANGLE_MIN below the acute Y.
+			sy = rng.int_in(SIDE_MIN + 1, SIDE_MAX)
+			sx = rng.int_in(SIDE_MIN, int(sy) - 1)
+			ax = rng.int_in(int(ANGLE_MIN), int(90.0 - RIGHT_GAP - ANGLE_MIN))
+			var ratio := sy * sin(rad(ax)) / sx
+			if ratio >= 1.0:
+				return {}
+			ay = rad_to_deg(asin(ratio))
+			shown.sides = {lower(X): int(sx), lower(Y): int(sy)}
+			shown.angles = {X: int(ax)}
+			ask = Y
 		"area-side":
 			sy = rng.int_in(SIDE_MIN, SIDE_MAX)
 			ax = rng.int_in(int(ANGLE_MIN), int(ANGLE_MAX))
@@ -190,7 +215,29 @@ static func _draw(rng: Seeded, givens: String, need: Dictionary) -> Dictionary:
 		_:
 			push_error("TriangleSituation: unknown givens %s" % givens)
 			return {}
-	return _finish(givens, ask, variant, [X, Y, Z], [sx, sy, sz], ax, ay, shown)
+	var out := _finish(givens, ask, variant, [X, Y, Z], [sx, sy, sz], ax, ay, shown)
+	if givens == "ssa-two" and not out.is_empty():
+		_add_second(out)
+	return out
+
+
+## An ssa or ssa-two as an ssa-mix: it asks the largest angle Y that fits.
+static func _mix(s: Dictionary) -> void:
+	s.givens = "ssa-mix"
+	if s.has("second"):
+		s.value = s.second.angles[s.Y]
+
+
+## The other triangle of an ssa-two: Y swings to 180° − Y and Z shrinks to make room.
+static func _add_second(s: Dictionary) -> void:
+	var ax: float = s.angles[s.X]
+	var sx: float = s.sides[lower(s.X)]
+	var sy: float = s.sides[lower(s.Y)]
+	var ay: float = 180.0 - s.angles[s.Y]
+	var az := 180.0 - ax - ay
+	var sz := sx * sin(rad(az)) / sin(rad(ax))
+	s.second = {"angles": {s.X: ax, s.Y: ay, s.Z: az}, "sides": {lower(s.X): sx, lower(s.Y): sy, lower(s.Z): sz},
+		"area": 0.5 * sy * sz * sin(rad(ax))}
 
 
 ## The whole triangle from what a draw found: the third angle, and every side not yet
@@ -235,7 +282,28 @@ static func _clean(s: Dictionary) -> bool:
 		return false
 	if s.paper == 1:
 		return true
+	if s.has("second") and not _clean_second(s):
+		return false
+	# One triangle: 180° − Y is the tempting wrong option, so it has to be able to show.
+	if s.givens == "ssa-mix" and not s.has("second") and not Answer.rounds_clearly(180.0 - s.angles[s.Y]):
+		return false
 	return not _rational(s.value) and Answer.rounds_clearly(s.value, EDGE)
+
+
+## Two triangles that both fit the limits and look different, with both values of the
+## asked angle and the third side clear of a rounding edge and in need of a calculator.
+static func _clean_second(s: Dictionary) -> bool:
+	if absf(s.angles[s.Y] - 90.0) < RIGHT_GAP:
+		return false
+	for L in LETTERS:
+		var a: float = s.second.angles[L]
+		if a < ANGLE_MIN or a > ANGLE_MAX:
+			return false
+	var z := lower(s.Z)
+	for v in [s.angles[s.Y], s.second.angles[s.Y], s.sides[z], s.second.sides[z]]:
+		if _rational(v) or not Answer.rounds_clearly(v, EDGE):
+			return false
+	return true
 
 
 ## Whether x is (to the engine's precision) a fraction with a small denominator: a

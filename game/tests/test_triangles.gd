@@ -8,6 +8,8 @@ extends "res://tests/test_case.gd"
 const TYPES := ["t3-sine-cosine-rule", "t3-triangle-area"]
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
 const CATALOGUE_CELLS := {"t3-sine-cosine-rule": 16, "t3-triangle-area": 14}
+## The ambiguous case (FAL-412).
+const AMBIGUOUS := "t3-ambiguous-case"
 
 
 ## A question on Paper 2 (3 s.f. measures) unless another paper is asked for.
@@ -251,3 +253,88 @@ func test_working_figures_reach_the_next_step() -> void:
 	check_eq(TriangleViews.figs([12.0], half_base, 3), 4, "12.00 is enough")
 	check(not TriangleViews.clear(39.0 / 64.0, 5, Fmt.sf(39.0 / 64.0, 5)), "0.609375 is a tie to 5 figures")
 	check(TriangleViews.clear(39.0 / 64.0, 6, "0.609375"), "and clear to 6")
+
+
+# ── The ambiguous case (FAL-412) ─────────────────────────────
+
+func _ambiguous(unknown: String, rep: String, angle: String, seed: int, format: String = "value") -> Dictionary:
+	return QuestionEngine.make({"type": AMBIGUOUS, "unknown": unknown, "rep": rep, "angle": angle, "seed": seed, "format": format})
+
+
+func test_ambiguous_case_is_built_on_paper_2() -> void:
+	check(AMBIGUOUS in QuestionEngine.built_types(), "t3-ambiguous-case is not built")
+	var cells := QuestionEngine.cells(false, [AMBIGUOUS])
+	check_eq(cells.size(), 10, "cells")
+	for c in cells:
+		check_eq(_papers(c), [2], c.key)
+
+
+func test_two_triangles_both_keep_to_the_limits() -> void:
+	for seed in range(1, 41):
+		var q := _ambiguous("both-angles", "words", "sine-rule-supplement", seed)
+		var s: Dictionary = q.situation
+		check(s.has("second"), "seed %d: no second triangle" % seed)
+		var y: String = s.Y
+		check_eq(snappedf(float(s.angles[y]) + float(s.second.angles[y]), 1e-6), 180.0, "the two angles are supplements")
+		var total := 0.0
+		for L in ["A", "B", "C"]:
+			var a := float(s.second.angles[L])
+			total += a
+			check(a >= 20.0 and a <= 140.0, "seed %d: second angle %s = %s" % [seed, L, a])
+		check(absf(total - 180.0) < 1e-6, "seed %d: the second triangle adds to %s" % [seed, total])
+
+
+func test_measures_take_either_order_each_to_3_sf() -> void:
+	var q := _ambiguous("both-angles", "words", "sine-rule-supplement", 3)
+	var lo := Fmt.sf(q.answer.values.v1)
+	var hi := Fmt.sf(q.answer.values.v2)
+	check(QuestionEngine.mark(q, {"v1": lo, "v2": hi}).correct, "in order")
+	check(QuestionEngine.mark(q, {"v1": hi, "v2": lo}).correct, "swapped")
+	check(not QuestionEngine.mark(q, {"v1": lo, "v2": lo}).correct, "the same value twice")
+	check(not QuestionEngine.mark(q, {"v1": lo, "v2": ""}).complete, "one box empty")
+
+
+func test_stopping_at_one_value_is_a_tagged_option() -> void:
+	for unknown in ["both-angles", "both-sides"]:
+		var found := false
+		for seed in range(1, 11):
+			var q := _ambiguous(unknown, "words", "sine-rule-supplement", seed, "mcq")
+			for c in q.choices:
+				if c.ref == "SL3.5.ambiguous-case#0":
+					found = true
+					check(not c.text.contains(" or "), "%s: %s gives both" % [unknown, c.text])
+		check(found, "%s never offers the one value" % unknown)
+
+
+func test_largest_angle_mixes_one_triangle_and_two() -> void:
+	var counts := {1: 0, 2: 0}
+	for seed in range(1, 61):
+		var q := _ambiguous("largest-angle", "words", "altitude-test", seed, "mcq")
+		var s: Dictionary = q.situation
+		var two: bool = s.has("second")
+		counts[2 if two else 1] += 1
+		check_eq(q.answer.kind, "measure", "largest-angle answer")
+		var y := float(s.angles[s.Y])
+		check_eq(Fmt.sf(q.answer.values.v), Fmt.sf(180.0 - y if two else y), "seed %d" % seed)
+		# The tempting wrong answer is the other way round each time.
+		var want := "SL3.5.ambiguous-case#0" if two else "SL3.5.ambiguous-case#1"
+		check(q.choices.any(func(c): return c.ref == want), "seed %d: no %s" % [seed, want])
+	check(counts[1] >= 15 and counts[2] >= 15, "the mix is %s" % counts)
+
+
+func test_the_diagram_shows_both_triangles() -> void:
+	for unknown in ["both-angles", "both-sides"]:
+		var angle := "sine-rule-supplement"
+		var q := _ambiguous(unknown, "diagram", angle, 5)
+		var d: Dictionary = q.diagram
+		var s: Dictionary = q.situation
+		check_eq(d.second.vertex, s.Y, unknown)
+		check_eq(snappedf(float(d.vertices[s.X][0]), 1e-9), 0.0, unknown)
+		check(float(d.second.at[0]) < float(d.vertices[s.Y][0]), "%s: the second place is not nearer X" % unknown)
+		var view := TriangleView.new()
+		view.size = Vector2(800, 560)
+		view.set_spec(d)
+		var c := view.corners()
+		check(c.second.y == c[s.Y].y, "%s: the two places are not on one line" % unknown)
+		check_eq(view._measures_base(), unknown == "both-sides", unknown)
+		view.free()

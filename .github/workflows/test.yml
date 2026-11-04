@@ -85,16 +85,48 @@ jobs:
           retention-days: 14
 
   # The SymPy answer checker, in its own job like the sweep so the godot job keeps its
-  # time: with the Exponentials and logs region (FAL-418) it checks about 70,000
-  # questions, and the godot job had been at 13 of its 15 minutes without it.
-  answers:
+  # time. About 115,000 questions took 35 minutes in one job, most of it one Python
+  # process (FAL-722), and the AA SL rollout adds more, so it runs as six shards side by
+  # side (--shard=k/6: every sixth cell and chain, each with all its questions). The
+  # limit is the 20 minutes a shard is allowed: past that, add shards.
+  answers-shard:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh
       # pip installs requirements.txt into .venv first.
-      - run: tools/check-answers
+      - run: tools/check-answers --shard=${{ matrix.shard }}/6
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: check-answers-${{ matrix.shard }}
+          path: |
+            _scratch/check-answers/report.txt
+            _scratch/check-answers/summary.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # The checks only the whole catalogue can pass: every shard ran, every cell has 50
+  # questions and every type 1,000. Runs when a shard fails too, because a job that
+  # needs a failed job is otherwise skipped, and a skipped check doesn't fail anything.
+  answers:
+    needs: answers-shard
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: test "${{ needs.answers-shard.result }}" = success
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: check-answers-*
+          path: _scratch/shards
+      - run: tools/check-answers --merge _scratch/shards
       - uses: actions/upload-artifact@v7
         if: always()
         with:
