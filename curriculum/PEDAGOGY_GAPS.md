@@ -1783,7 +1783,78 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 10 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
+
+#### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
+
+- **Situation:** A population, its groups and a sample.
+- **Representations:** **words**, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the population; the surveyor's method → the sampling technique
+  - **exam** L2: given the population; the surveyor's method → a disadvantage of this method
+  - **exam** L2: given the population; the sample size or percentage → how to take a systematic sample
+  - new L1: given the size of the list; the sample size or percentage → the interval
+  - new L2: given the start and the interval → the number of a later pick
+  - **exam** L2: given what the survey needs; whether there is a list → the technique that fits best
+  - new L2: given the surveyor's method → whether it is a simple random sample
+  - new L2: given the group sizes; the sample size → a group's number in a sample in proportion
+  - new L2: given the group sizes; the sample's numbers → how far a group falls short of its share
+  - new L3: given the group sizes; the sample's numbers → the most under-represented group
+  - **exam** L2: given the population; a sample from one group → why it may not represent the population
+  - new L3: given a sample from an untypical place → which way the estimate leans
+  - **exam** L2: given the population; a sample from one group → the change that would fix it
+  - new L2: given a biased sample; a plan to ask more → whether that removes the bias
+  - new L3: given the population; a random sample that misses the mix → what that shows
+  - new L2: given a small random sample whose result keeps changing → what would make it more reliable
+  - new L2: given a figure and where it comes from → why it may not be reliable
+- **Angles:** Run the feature checklist; Eliminate by what could go wrong; Who is left out or over-represented?; Compare the sample's make-up with the population's.
+- **Concept probes:**
+  - *true-false-reason* (L3): A quota sample and a stratified sample of the same size contain the same numbers from each group, so they are the same method. — False: the numbers match, but a stratified sample draws at random inside each group, and a quota sample takes whoever comes by until each group is full.
+  - *always-sometimes-never* (L3): A larger sample gets rid of bias. — Never by itself: more people from the same biased method makes the result steadier, not fairer. Only changing who can be chosen removes the bias.
+  - *true-false-reason* (L3): If a sample is random, its mix of groups matches the population. — False: a random method gives everyone a fair chance, but chance can still move any one sample away from the true mix.
+- **Misconceptions used:** 5. Quota sampling and stratified sampling are the same (quota fills each group without random selection); Systematic sampling is fully random (only the starting point is random; the rest follows the interval); Stopping people in the street is simple random sampling; A larger sample removes bias (it improves reliability, but a biased method stays biased); A random sample is always perfectly representative.
+
+#### Read and use a cumulative frequency graph (`t4-cumulative-frequency`, exam, 6 bank parts)
+
+- **Situation:** Grouped data as a cumulative frequency curve or table.
+- **Representations:** **graph**, **table** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the curve → the median
+  - new L1: given the curve → a quartile
+  - new L2: given the curve → the interquartile range
+  - **exam** L2: given the curve → a percentile
+  - new L1: given the curve → the range, from where the curve starts and ends
+  - new L2: given a table of classes → the median, by interpolating
+  - new L2: given a table of classes → a quartile, by interpolating
+  - new L3: given a table of classes → the interquartile range, by interpolating
+  - new L3: given a table of classes → a percentile, by interpolating
+  - new L1: given the curve; a value → how many are at or below it
+  - **exam** L2: given the curve; a value → how many are above it
+  - new L2: given the curve; two values → how many are between them
+  - new L2: given the curve; a value → the percentage above it
+  - new L2: given the curve; a value → which percentile it is
+  - **exam** L3: given the curve; how many are at the top → the lowest value at the top
+  - **exam** L3: given the curve; the percentage above k → k
+  - **exam** L3: given the curve; a limit and a percentage of it → how many are above that
+  - **exam** L3: given the curve of a sample; the size of the whole group → how many of the whole group are above a value
+  - new L2: given a table of classes; a value inside a class → how many are at or below it, by interpolating
+  - new L3: given a table of classes; a value inside a class → how many are above it, by interpolating
+  - new L3: given a table of classes; two values inside classes → how many are between them, by interpolating
+  - new L3: given a table of classes; how many are at the top → the lowest value at the top, by interpolating
+  - new L1: given the frequencies and the totals so far → a cumulative frequency
+  - new L2: given the frequencies but one, and the last total → the missing frequency
+  - new L1: given a table of running totals → a class's frequency
+  - new L2: given the curve → a class's frequency
+  - **exam** L3: given the curve; a frequency table with p and q → p and q
+  - new L1: given a table of classes → the point plotted for a class
+  - new L1: given a table of classes → where the curve starts
+  - new L2: given a table of classes → which of four curves is right
+- **Angles:** Across from the cumulative frequency, down to the value; Interpolate within the cumulative frequency table; Up to the curve, across, then subtract from n; Interpolate in the table; Running total; Subtract consecutive cumulative values; Plot at upper class boundaries.
+- **Concept probes:**
+  - *true-false-reason* (L3): A cumulative frequency of 30 at x = 20 means that 30 values are equal to 20. — False: it is a running total, so 30 values are at or below 20.
+  - *always-sometimes-never* (L3): The 90th percentile is read across from 90 on the vertical axis. — Sometimes: only when n is 100. Otherwise it is across from 90% of n.
+  - *predict-check* (L4): The curve is steepest between 20 and 30. What does that say about the data? — More values lie in that stretch than in any other of the same width: steep means many, flat means few.
+- **Misconceptions used:** 7. Reading the median halfway along the horizontal axis instead of from n/2 on the vertical axis; Finding Q3 − Q1 on the cumulative frequency axis instead of on the data axis; Reading the 90th percentile from 90 on the vertical axis when n is not 100; Giving the cumulative frequency at 65 as the number who scored more than 65 (it is the number at or below); For the top 30, reading across from 30 on the vertical axis instead of from n − 30; Plotting cumulative frequencies at class midpoints instead of upper boundaries; Reading a cumulative frequency as the frequency of that single class.
 
 #### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 11 bank parts)
 

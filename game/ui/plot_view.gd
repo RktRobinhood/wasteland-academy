@@ -16,6 +16,8 @@ extends Control
 ##               each region: A only, both, B only and outside
 ##   tree        {"first": [A, A′], "second": [B, B′], "p": [2 labels], "q": [[2 labels], [2 labels]]}:
 ##               a two-stage tree with the probability on every branch
+##   cumfreq     {"x1", "dx", "y1", "dy", "curve": [[x, y], ...], "x_name", "y_name"}: a cumulative
+##               frequency curve on a grid of dx by dy squares, with every fifth line bold and labelled
 
 const PAD := 26.0
 const FONT_SIZE := 32
@@ -32,7 +34,7 @@ func _init() -> void:
 
 func set_spec(s: Dictionary) -> void:
 	spec = s
-	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620}.get(s.get("kind"), 560))
+	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900}.get(s.get("kind"), 560))
 	queue_redraw()
 
 
@@ -58,6 +60,8 @@ func _draw() -> void:
 			_venn()
 		"tree":
 			_tree()
+		"cumfreq":
+			_cumfreq()
 
 
 func _text(s: String, at: Vector2, col: Color, fs: int = FONT_SIZE, centred: bool = true) -> void:
@@ -246,3 +250,41 @@ func _tree() -> void:
 			var up := -28.0 if j == 0 else 40.0
 			_text(spec.q[i][j], (m + e) / 2.0 + Vector2(-10, up), UiTheme.SAND, FONT_SIZE - 2)
 			_text(second[j], e + Vector2(10, 12), UiTheme.TEXT)
+
+
+# ── Cumulative frequency curve ───────────────────────────────
+
+func _cumfreq() -> void:
+	var x1 := float(spec.x1)
+	var y1 := float(spec.y1)
+	var dx := float(spec.dx)
+	var dy := float(spec.dy)
+	var r := Rect2(Vector2(PAD + 96, PAD + 10), size - Vector2(PAD * 2 + 138, PAD + 116))
+	var to_px := func(x: float, yv: float) -> Vector2:
+		return Vector2(r.position.x + x / x1 * r.size.x, r.end.y - yv / y1 * r.size.y)
+	# The squares are read, so they are drawn stronger than a grid that is only a backdrop.
+	var fine := Color(1, 1, 1, 0.17)
+	var bold := Color(1, 1, 1, 0.42)
+	var across := roundi(x1 / dx)
+	var up := roundi(y1 / dy)
+	for k in across + 1:
+		draw_line(to_px.call(k * dx, 0.0), to_px.call(k * dx, y1), bold if k % 5 == 0 else fine, 2.0)
+		if k % 5 == 0 and k > 0:
+			_text(_n(k * dx), to_px.call(k * dx, 0.0) + Vector2(0, 42), UiTheme.DIM, FONT_SIZE - 6)
+	for k in up + 1:
+		draw_line(to_px.call(0.0, k * dy), to_px.call(x1, k * dy), bold if k % 5 == 0 else fine, 2.0)
+		if k % 5 == 0 and k > 0:
+			var label := _n(k * dy)
+			var w := get_theme_default_font().get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 6).x
+			_text(label, to_px.call(0.0, k * dy) + Vector2(-w - 10, 9), UiTheme.DIM, FONT_SIZE - 6, false)
+	_text("0", to_px.call(0.0, 0.0) + Vector2(-20, 34), UiTheme.DIM, FONT_SIZE - 6)
+	draw_line(to_px.call(0.0, 0.0), to_px.call(x1, 0.0), UiTheme.DIM, 4.0)
+	draw_line(to_px.call(0.0, 0.0), to_px.call(0.0, y1), UiTheme.DIM, 4.0)
+	var line := PackedVector2Array()
+	for p in spec.curve:
+		line.append(to_px.call(float(p[0]), float(p[1])))
+	draw_polyline(line, UiTheme.TEAL, 5.0, true)
+	_text(spec.x_name, Vector2(r.get_center().x, size.y - 12), UiTheme.TEXT, FONT_SIZE - 4)
+	draw_set_transform(Vector2(PAD + 8, r.get_center().y), -PI / 2.0)
+	_text(spec.y_name, Vector2.ZERO, UiTheme.TEXT, FONT_SIZE - 4)
+	draw_set_transform(Vector2.ZERO)
