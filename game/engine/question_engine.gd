@@ -95,6 +95,7 @@ static var SITUATIONS := {
 	"motion": [MotionSituation, MotionViews],
 	"basic-function": [BasicFunctionSituation, BasicFunctionViews],
 	"basic-restricted": [BasicRestrictedSituation, BasicRestrictedViews],
+	"basic-one-to-one": [BasicOneToOneSituation, BasicOneToOneViews],
 }
 
 static var _cat: Dictionary = {}

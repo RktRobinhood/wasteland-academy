@@ -12182,6 +12182,120 @@ def br_bars(f, lo, hi, open_at):
     return br_iv("y", ymin, ymax, o1, o2)
 
 
+def bo_card_is(card, base, fx):
+    """Whether a card's curve is the shown curve with every point moved by fx."""
+    got = card["curves"][0]
+    return len(got) == len(base) and all(abs(a - b) < 1e-9 for p, c in zip(got, base) for a, b in zip(p, fx(c)))
+
+
+def check_one_to_one(q):
+    u, rep, paper, L, asked = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["lines"], q["asked"]
+    g = q["given"]
+    bf_no_hyphens(q)
+    f = bf_given(g)
+    if rep == "equation" and u != "area-by-symmetry":
+        _, _, shown = bf_rule(q)
+        need(all(abs(sp.N((shown - f).subs(X, x_), 20)) < 1e-9 for x_ in (sp.Rational(29, 10), sp.Rational(71, 10))), f"the rule shown {shown} is not the situation's {f}")
+    n = lambda w: bf_n(w, paper)
+    trap = None
+    wr = {}
+    if u in ("image-point", "point-from-inverse", "inverse-from-graph", "sketch-inverse"):
+        p_, q_ = R(g.get("p", 0)), R(g.get("q", 0))
+        need(f.subs(X, p_) == q_, "the key point is not on f")
+    if u == "sketch-inverse":
+        base = q["graph"]["curves"][0]
+        need(gc_curve_is(base, gc_f(f)), "the graph drawn is not f")
+        graphs, ch = q["graphs"], q["choices"]
+        need(len(graphs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+        need(len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+        moves = {"x-axis": lambda c: (c[0], -c[1]), "y-axis": lambda c: (-c[0], c[1]), "y=-x": lambda c: (-c[1], -c[0])}
+        for o, gr in zip(ch, graphs):
+            if o["correct"]:
+                need(bo_card_is(gr, base, lambda c: (c[1], c[0])), "the right graph is not f with its coordinates swapped")
+            else:
+                mk = o["mistake"]
+                need(mk in moves and bo_card_is(gr, base, moves[mk]), f"the {mk} graph is not that reflection")
+                need(o["why"] != "", "a wrong graph doesn't say what is wrong")
+                need(o["ref"] == ("SL2.2.inverse-undo#1" if mk != "y=-x" else ""), "a wrong graph has the wrong ref")
+        gc_check_common(q, next(o["text"] for o in ch if o["correct"]), {o["ref"]: {o["text"], "Graph A", "Graph B", "Graph C", "Graph D"} for o in ch if o["ref"]})
+        return None, None
+    if u == "area-by-symmetry":
+        need(L[0].endswith(", for x ≥ 0"), "no domain")
+        a = sp.Poly(bf_expr(L[0].split(" = ")[1].rsplit(",", 1)[0]), X).coeff_monomial(X**2)
+        m = 1 / a
+        need(f"meet at (0, 0) and ({dec_text(m)}, {dec_text(m)})." in L[1], "the meeting point is wrong")
+        half = sp.integrate(X - a * X**2, (X, 0, m))
+        whole = sp.integrate(sp.sqrt(X / a) - a * X**2, (X, 0, m))
+        need(whole == 2 * half, "the region is not twice the half")
+        if len(L) > 2 and "area between the graph of f" in L[2]:
+            need(n(half) in L[2], "the given half is wrong")
+        want = f"Area = {n(whole)}"
+        trap = bf_trap_num(paper, "Area = ", whole)
+    elif u == "image-point":
+        want, wr = f"({frac_text(q_)}, {frac_text(p_)})", {"SL2.4.symmetry#1": {f"({frac_text(-q_)}, {frac_text(-p_)})", f"({frac_text(q_)}, {frac_text(-p_)})"}}
+        if rep == "graph":
+            bf_graph(q, f)
+    elif u == "point-from-inverse":
+        want = f"({frac_text(p_)}, {frac_text(q_)})"
+        need(f"({frac_text(q_)}, {frac_text(p_)})" in asked, "the point asked is not on the inverse")
+        if rep == "graph":
+            c = q["graph"]["curves"][0]
+            need(gc_curve_is([[y, x] for x, y in c], gc_f(f)), "the graph drawn is not f⁻¹")
+    elif u == "inverse-from-table":
+        bf_table(q, f)
+        a = R(g["a"])
+        xs = sp.solve(f - a, X)
+        need(len(xs) == 1, "not one-to-one")
+        want, wr = f"f⁻¹({frac_text(a)}) = {frac_text(xs[0])}", {"SL2.2.inverse-undo#2": {f"f⁻¹({frac_text(a)}) = {frac_text(f.subs(X, a))}"}}
+    elif u == "inverse-from-graph":
+        bf_graph(q, f)
+        want = f"f⁻¹({frac_text(q_)}) = {frac_text(p_)}"
+    elif u == "inverse-from-rule":
+        a = R(g["a"])
+        inv = R(g["inv"]) if paper == 1 else sp.solve(f - a, X)[0]
+        need(abs(sp.N(f.subs(X, inv) - a, 20)) < 1e-6, "f(f⁻¹(a)) is not a")
+        need(g.get("form") == "half" or sp.diff(f, X).subs(X, inv) != 0, "f is not one-to-one here")
+        label = f"f⁻¹({frac_text(a)}) = "
+        want = label + n(inv)
+        trap = bf_trap_num(paper, label, inv)
+        v = f.subs(X, a)
+        if v.is_Rational and v != 0:
+            wr = {"SL2.2.inverse-undo#2": {label + t for t in bf_forms(v)}, "SL2.2.inverse-undo#0": {label + t for t in bf_forms(1 / v)}}
+    elif u == "intercepts-of-inverse":
+        xi = sp.solve(f, X)[0]
+        yi = f.subs(X, 0)
+        want = f"x-intercept ({frac_text(yi)}, 0), y-intercept (0, {frac_text(xi)})"
+    elif u == "asymptotes-of-inverse":
+        if g["form"] == "rat":
+            h = sp.solve(sp.denom(sp.together(f)), X)[0]
+            A = sp.limit(f, X, sp.oo)
+            want = f"x = {frac_text(A)} and y = {frac_text(h)}"
+        else:
+            want = f"x = {frac_text(sp.limit(f, X, -sp.oo))}"
+    elif u == "meeting-on-y-equals-x":
+        need(sp.diff(f, X).subs(X, R(g["p"])) > 0, "f is not increasing")
+        fixed = [s_ for s_ in sp.solve(f - X, X) if s_.is_real and f.subs(X, s_) == s_]
+        need(len(fixed) == 1 and fixed[0] == R(g["p"]) and fixed[0].q == 1, f"f meets y = x at {fixed}")
+        want = f"({frac_text(fixed[0])}, {frac_text(fixed[0])})"
+        if g["form"] == "line":
+            wr = {"SL2.4.symmetry#0": {f"(0, {frac_text(f.subs(X, 0))})"}}
+    elif u == "is-self-inverse":
+        ff = sp.simplify(f.subs(X, f))
+        own = sp.simplify(ff - X) == 0
+        need(own == g["inverse"], "the situation has it the wrong way round")
+        p_, q_ = R(g["p"]), R(g["q"])
+        need(f.subs(X, p_) == q_, "the point is not on f")
+        if own:
+            want = "Yes: the graph is its own mirror image in y = x"
+        else:
+            need(f.subs(X, q_) != p_, "the swapped point is on f too")
+            want = f"No: {Fmt_point(p_, q_)} is on the graph, but {Fmt_point(q_, p_)} is not"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
 def bf_spot(q, lines):
     """The first false line of a student's working on f(2a)."""
     f = bf_given(q["given"])
@@ -12228,7 +12342,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion,
-                    "basic-function": check_basic, "basic-restricted": check_restricted}
+                    "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
