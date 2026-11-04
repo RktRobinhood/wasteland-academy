@@ -21,15 +21,15 @@ const R_SINGLE := SB + "1"
 ## The stories, in the order of CumulativeFrequencySituation.DX: who is counted, what the curve
 ## shows, its axis, a letter, the units, and how to say more than or at most.
 const CONTEXTS := [
-	{"who": "scavengers", "of": "the hours worked last week by %d scavengers", "axis": "hours worked", "noun": "hours worked", "sym": "h", "unit": "hours", "more": "worked more than %d hours", "most": "worked at most %d hours"},
-	{"who": "wells", "of": "the depth of %d wells", "axis": "depth (m)", "noun": "depth", "sym": "d", "unit": "m", "more": "are deeper than %d m", "most": "are at most %d m deep"},
-	{"who": "crates", "of": "the mass of %d salvage crates", "axis": "mass (kg)", "noun": "mass", "sym": "m", "unit": "kg", "more": "are heavier than %d kg", "most": "are at most %d kg"},
-	{"who": "drones", "of": "the flight time of %d drones", "axis": "flight time (minutes)", "noun": "flight time", "sym": "t", "unit": "minutes", "more": "flew for more than %d minutes", "most": "flew for at most %d minutes"},
-	{"who": "patrols", "of": "the distance walked by %d patrols", "axis": "distance (km)", "noun": "distance", "sym": "d", "unit": "km", "more": "walked more than %d km", "most": "walked at most %d km"},
-	{"who": "traders", "of": "the takings of %d traders last week", "axis": "takings (caps)", "noun": "takings", "sym": "c", "unit": "caps", "more": "took more than %d caps", "most": "took at most %d caps"},
-	{"who": "bean plants", "of": "the height of %d bean plants", "axis": "height (cm)", "noun": "height", "sym": "h", "unit": "cm", "more": "are taller than %d cm", "most": "are at most %d cm tall"},
-	{"who": "tanks", "of": "the water held in %d tanks", "axis": "water (litres)", "noun": "water held", "sym": "w", "unit": "litres", "more": "hold more than %d litres", "most": "hold at most %d litres", "limit": "Each tank holds at most %d litres."},
-	{"who": "trucks", "of": "the load carried by %d trucks", "axis": "load (kg)", "noun": "load", "sym": "l", "unit": "kg", "more": "carry more than %d kg", "most": "carry at most %d kg", "limit": "Each truck can carry at most %d kg."},
+	{"who": "scavengers", "of": "the hours worked last week by %d scavengers", "axis": "hours worked", "noun": "hours worked", "sym": "h", "unit": "hours", "more": "worked more than %s hours", "most": "worked at most %s hours"},
+	{"who": "wells", "of": "the depth of %d wells", "axis": "depth (m)", "noun": "depth", "sym": "d", "unit": "m", "more": "are deeper than %s m", "most": "are at most %s m deep"},
+	{"who": "crates", "of": "the mass of %d salvage crates", "axis": "mass (kg)", "noun": "mass", "sym": "m", "unit": "kg", "more": "are heavier than %s kg", "most": "are at most %s kg"},
+	{"who": "drones", "of": "the flight time of %d drones", "axis": "flight time (minutes)", "noun": "flight time", "sym": "t", "unit": "minutes", "more": "flew for more than %s minutes", "most": "flew for at most %s minutes"},
+	{"who": "patrols", "of": "the distance walked by %d patrols", "axis": "distance (km)", "noun": "distance", "sym": "d", "unit": "km", "more": "walked more than %s km", "most": "walked at most %s km"},
+	{"who": "traders", "of": "the takings of %d traders last week", "axis": "takings (caps)", "noun": "takings", "sym": "c", "unit": "caps", "more": "took more than %s caps", "most": "took at most %s caps"},
+	{"who": "bean plants", "of": "the height of %d bean plants", "axis": "height (cm)", "noun": "height", "sym": "h", "unit": "cm", "more": "are taller than %s cm", "most": "are at most %s cm tall"},
+	{"who": "tanks", "of": "the water held in %d tanks", "axis": "water (litres)", "noun": "water held", "sym": "w", "unit": "litres", "more": "hold more than %s litres", "most": "hold at most %s litres", "limit": "Each tank holds at most %d litres."},
+	{"who": "trucks", "of": "the load carried by %d trucks", "axis": "load (kg)", "noun": "load", "sym": "l", "unit": "kg", "more": "carry more than %s kg", "most": "carry at most %s kg", "limit": "Each truck can carry at most %s kg."},
 ]
 
 const UNKNOWNS := ["median-from-graph", "quartile-from-graph", "iqr-from-graph", "percentile-from-graph", "range-from-graph",
@@ -157,7 +157,7 @@ static func interp_steps(s: Dictionary, t: int) -> Array:
 	while t > s.cf[j]:
 		j += 1
 	var before: int = s.cf[j] - s.fs[j]
-	return ["Cumulative frequency %d is in the class %s, which starts at %d." % [t, class_text(s, j), before],
+	return ["Cumulative frequency %d is in the class %s, with %d before it." % [t, class_text(s, j), before],
 		"%d + (%d − %d) ÷ %d × %d = %s" % [s.bs[j], t, before, s.fs[j], s.bs[j + 1] - s.bs[j], Fmt.dec(v)]]
 
 
@@ -347,8 +347,8 @@ func u_cutoff_top(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c := ctx(s)
 	var v := CumulativeFrequencySituation.x_at(s, s.n - s.top)
 	var ans := ans_of(s, "%s = " % c.noun, v)
-	var out := graph_q(s, "Estimate the lowest %s that still gets it." % c.noun, ans)
-	out.lines = out.lines + ["A reward goes to the %d %s with the highest %s." % [s.top, c.who, c.noun]]
+	var out := graph_q(s, "Estimate the lowest %s of those set aside." % c.noun, ans)
+	out.lines = out.lines + ["The %d %s with the highest %s are set aside." % [s.top, c.who, c.noun]]
 	out.wrongs = wr(CumulativeFrequencySituation.x_at(s, s.top), R_TOP)
 	out.generic = nums([s.med]) + near(s, v)
 	out.methods = {"read-and-subtract": method(["The top %d leave %d − %d = %d below them." % [s.top, s.n, s.top, s.n - s.top],
@@ -361,7 +361,7 @@ func u_cutoff_percent(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var top: int = s.pct * s.n / 100
 	var v := CumulativeFrequencySituation.x_at(s, s.n - top)
 	var ans := ans_of(s, "k = ", v)
-	var out := graph_q(s, "%d%% of the %s have a %s above k %s. Find k." % [s.pct, c.who, c.noun, c.unit], ans)
+	var out := graph_q(s, "%d%% of the %s %s. Find k." % [s.pct, c.who, c.more % "k"], ans)
 	out.wrongs = wr(CumulativeFrequencySituation.x_at(s, top), R_TOP)
 	out.generic = nums([s.med]) + near(s, v)
 	out.methods = {"read-and-subtract": method(["%d%% of %d is %d, which leaves %d − %d = %d below k." % [s.pct, s.n, top, s.n, top, s.n - top],
@@ -440,7 +440,7 @@ func u_cutoff_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var t: int = s.n - s.top
 	var v := CumulativeFrequencySituation.interp(s, t)
 	var ans := ans_of(s, "%s = " % c.noun, v)
-	var out := table_q(s, "A reward goes to the %d %s with the highest %s. Estimate the lowest %s that still gets it." % [s.top, c.who, c.noun, c.noun], ans)
+	var out := table_q(s, "The %d %s with the highest %s are set aside. Estimate the lowest %s of those set aside." % [s.top, c.who, c.noun, c.noun], ans)
 	out.wrongs = wr(CumulativeFrequencySituation.interp(s, s.top), R_TOP)
 	out.generic = nums([v.add(Q.new(s.dx)), v.sub(Q.new(s.dx)), v.add(Q.new(2 * s.dx)), v.sub(Q.new(2 * s.dx)), v.add(Q.new(3 * s.dx))])
 	out.methods = {"interpolate-table": method(["The top %d leave %d − %d = %d below them." % [s.top, s.n, s.top, t]] + interp_steps(s, t) + [final_step(ans)], ans.values)}
@@ -536,18 +536,14 @@ func u_curve_start(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 
 ## A card for the points, joined as PlotView's curve is, on the window of a card.
-static func card(points: Array, win: Array) -> Dictionary:
-	var g := GdcKit.card([CumulativeFrequencySituation.smooth(points)], [], win)
-	g.x_name = ctx_axis
+static func card(s: Dictionary, curve: Array, win: Array) -> Dictionary:
+	var g := GdcKit.card([curve], [], win)
+	g.x_name = ctx(s).sym
 	g.y_name = "cf"
 	return g
 
 
-static var ctx_axis := ""
-
-
 func u_pick_curve(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
-	ctx_axis = ctx(s).sym
 	var win: Array = [0, s.bs[-1] + s.bs[1] - s.bs[0], 0, Plot.nice_top(s.n)]
 	var right: Array = [[s.bs[0], 0]]
 	var mids: Array = [[s.bs[0], 0]]
@@ -558,10 +554,10 @@ func u_pick_curve(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		mids.append([Q.new(s.bs[j] + s.bs[j + 1], 2).to_float(), s.cf[j]])
 		bare.append([s.bs[j + 1], s.fs[j]])
 		lows.append([s.bs[j], s.cf[j]])
-	var pk := GdcKit.pick(card(right, win), [
-		{"graph": card(mids, win), "mistake": "midpoints", "ref": R_MIDPOINT, "why": "its points are at the middles of the classes, not at their upper boundaries"},
-		{"graph": GdcKit.card([bare.map(func(p): return [float(p[0]), float(p[1])])], [], win).merged({"x_name": ctx_axis, "y_name": "cf"}), "mistake": "frequencies", "ref": R_SINGLE, "why": "its points are the frequencies, not the running totals"},
-		{"graph": card(lows, win), "mistake": "lower", "ref": "", "why": "its points are at the lower boundaries"}], rng)
+	var pk := GdcKit.pick(card(s, CumulativeFrequencySituation.smooth(right), win), [
+		{"graph": card(s, CumulativeFrequencySituation.smooth(mids), win), "mistake": "midpoints", "ref": R_MIDPOINT, "why": "its points are at the middles of the classes, not at their upper boundaries"},
+		{"graph": card(s, bare.map(func(p): return [float(p[0]), float(p[1])]), win), "mistake": "frequencies", "ref": R_SINGLE, "why": "its points are the frequencies, not the running totals"},
+		{"graph": card(s, CumulativeFrequencySituation.smooth(lows), win), "mistake": "lower", "ref": "", "why": "its points are at the lower boundaries"}], rng)
 	var ans: Dictionary = pk.answer
 	return {"lines": [table_line(s), "On each graph, cf is the cumulative frequency."], "table": class_table(s, false), "asked": "Which graph is the cumulative frequency curve?", "answer": ans, "graphs": pk.graphs,
 		"methods": {"plot-upper-bounds": method(["Keep a running total: %s." % ", ".join(s.cf.map(func(v): return str(v))), "Plot each total at the upper boundary of its class, starting from (%d, 0)." % s.bs[0], Answer.text(ans)], ans.values)}}

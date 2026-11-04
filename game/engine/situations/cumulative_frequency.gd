@@ -38,6 +38,8 @@ const SHARES := [60, 70, 75, 80, 90]
 const TOP_SQUARES := [1, 2, 3, 4, 6, 8]
 const TOP_PCTS := [5, 10, 15, 20, 30, 40]
 const PERCENTS := [10, 20, 30, 40, 60, 70, 80, 90]
+## Percentiles to read off a curve: on each total, k itself is a grid line for some of these.
+const READ_PERCENTS := [10, 15, 20, 30, 40, 45, 60, 65, 70, 80, 90]
 ## A curve is no flatter or steeper than this between knots, in squares up per square across.
 const SLOPE := [0.25, 6.0]
 
@@ -72,8 +74,7 @@ static func _graph(rng: Seeded, s: Dictionary) -> bool:
 		"percentile-from-graph":
 			if s.n == 100:
 				return false
-			var pcts: Array = PERCENTS.filter(func(p): return p % s.dy == 0 and p < s.n and p % 5 == 0 and not p in [25, 50, 75])
-			pcts = pcts + [15, 45, 65].filter(func(p): return p % s.dy == 0 and p < s.n)
+			var pcts: Array = READ_PERCENTS.filter(func(p): return p % s.dy == 0 and p < s.n)
 			if pcts.is_empty():
 				return false
 			s.pct = rng.pick(pcts)
@@ -220,7 +221,7 @@ static func _graph_ask(rng: Seeded, s: Dictionary) -> bool:
 			s.v2 = maxi(a[0][0], a[1][0])
 		"share-of-limit":
 			s.v = cut(s.pct * SQUARES * s.dx, 100)
-			return y_at(s, s.v) > 0
+			return y_at(s, s.v) > 0 and y_at(s, s.v) < s.n
 		"frequency-from-graph":
 			s.j = rng.int_in(1, s.fs.size() - 1)
 		"p-q-from-graph":
@@ -239,11 +240,12 @@ static func _table(rng: Seeded, s: Dictionary) -> bool:
 	var first: int = rng.int_in(1, 2) * w if s.ask == "curve-start" or rng.chance(0.2) else 0
 	var fs: Array = []
 	var left: int = s.n
+	var most := cut(2 * s.n, k)
 	for i in k - 1:
-		var f := rng.int_in(2, cut(s.n, 3))
+		var f := rng.int_in(2, most)
 		fs.append(f)
 		left -= f
-	if left < 2:
+	if left < 2 or left > most:
 		return false
 	fs.append(left)
 	s.fs = fs

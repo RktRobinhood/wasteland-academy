@@ -12876,6 +12876,383 @@ def check_sampling(q):
     return None, None
 
 
+# ── cumulative-frequency (t4-cumulative-frequency, FAL-726) ──
+# The `cumulative-frequency` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/cumulative_frequency.gd. A curve's readings come from the drawn curve in
+# the question's figure, a table's from its written rows, never from the situation. Every reading
+# must be a corner of the grid, so Paper 1 has one right value.
+
+CF_Q = "SL4.2.cumfreq-quartiles#"
+CF_C = "SL4.2.cumfreq-count#"
+CF_B = "SL4.2.cumfreq-build#"
+CF_SQUARES = 20
+# (who, what the curve shows, the axis, the noun, letter, unit, more than, at most, square across, limit)
+CF_CTX = [("scavengers", "the hours worked last week by {} scavengers", "hours worked", "hours worked", "h", "hours", "worked more than {} hours", "worked at most {} hours", 2, None),
+          ("wells", "the depth of {} wells", "depth (m)", "depth", "d", "m", "are deeper than {} m", "are at most {} m deep", 1, None),
+          ("crates", "the mass of {} salvage crates", "mass (kg)", "mass", "m", "kg", "are heavier than {} kg", "are at most {} kg", 5, None),
+          ("drones", "the flight time of {} drones", "flight time (minutes)", "flight time", "t", "minutes", "flew for more than {} minutes", "flew for at most {} minutes", 10, None),
+          ("patrols", "the distance walked by {} patrols", "distance (km)", "distance", "d", "km", "walked more than {} km", "walked at most {} km", 2, None),
+          ("traders", "the takings of {} traders last week", "takings (caps)", "takings", "c", "caps", "took more than {} caps", "took at most {} caps", 20, None),
+          ("bean plants", "the height of {} bean plants", "height (cm)", "height", "h", "cm", "are taller than {} cm", "are at most {} cm tall", 5, None),
+          ("tanks", "the water held in {} tanks", "water (litres)", "water held", "w", "litres", "hold more than {} litres", "hold at most {} litres", 10, "Each tank holds at most {} litres."),
+          ("trucks", "the load carried by {} trucks", "load (kg)", "load", "l", "kg", "carry more than {} kg", "carry at most {} kg", 20, "Each truck can carry at most {} kg.")]
+
+
+def cf_curve(q, c):
+    """(n, dx, dy, points): the figure, held to the grid its scale line describes."""
+    who, of, axis, noun, sym, unit, more, most, dx0, _ = c
+    gr = q["graph"]
+    need(gr is not None and gr["kind"] == "cumfreq", "no cumulative frequency curve")
+    mt = re.fullmatch(re.escape("The curve shows " + of).replace(r"\{\}", r"(\d+)") + r"\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    n = int(mt.group(1))
+    m2 = re.fullmatch(rf"Each small square is (\d+) {unit} across and (\d+) {who} up\.", q["lines"][1])
+    need(m2 is not None, f"can't read {q['lines'][1]!r}")
+    dx, dy = int(m2.group(1)), int(m2.group(2))
+    need(dx == dx0 and n % CF_SQUARES == 0 and dy * CF_SQUARES == n and 40 <= n <= 240, f"n = {n}, dy = {dy}")
+    need(gr["dx"] == dx and gr["dy"] == dy and gr["y1"] == n and gr["x1"] == CF_SQUARES * dx, "the grid isn't the one the line describes")
+    need(gr["x_name"] == axis and gr["y_name"] == "cumulative frequency", "the axes aren't labelled")
+    pts = [(sp.Rational(str(a)), sp.Rational(str(b))) for a, b in gr["curve"]]
+    need(pts[0][1] == 0 and pts[-1][1] == n, "the curve doesn't run from 0 to n")
+    for (a, b), (e, f) in zip(pts, pts[1:]):
+        need(e > a and f > b, "the curve isn't strictly rising")
+    return n, dx, dy, pts
+
+
+def cf_read_x(pts, y, dx, dy):
+    """The value at height y: a point of the curve on a corner of the grid."""
+    hit = [a for a, b in pts if b == y]
+    need(len(hit) == 1, f"the curve has no point at height {y}")
+    need(hit[0] % dx == 0 and sp.Rational(y) % dy == 0, f"({hit[0]}, {y}) is not on a corner of the grid")
+    return hit[0]
+
+
+def cf_read_y(pts, x, dx, dy):
+    """The height at value x: a point of the curve on a corner of the grid."""
+    hit = [b for a, b in pts if a == x]
+    need(len(hit) == 1, f"the curve has no point at {x}")
+    need(sp.Rational(x) % dx == 0 and hit[0] % dy == 0, f"({x}, {hit[0]}) is not on a corner of the grid")
+    return hit[0]
+
+
+def cf_val(v, c):
+    return f"{dec_text(sp.Rational(v))} {c[5]}"
+
+
+def cf_classes(rows, c, cum_col=None, freq_col=0):
+    """Boundaries and the frequencies from a table's written rows; None for a hidden frequency."""
+    bs, fs = [], []
+    for row in rows[1:]:
+        mt = re.fullmatch(rf"(\d+) < {c[4]} ≤ (\d+)", row[0])
+        need(mt is not None, f"can't read the class {row[0]!r}")
+        a, b = int(mt.group(1)), int(mt.group(2))
+        need(not bs or bs[-1] == a, "the classes don't join up")
+        bs += [a] if not bs else []
+        bs.append(b)
+        fs.append(row[1][freq_col])
+    w = {bs[i + 1] - bs[i] for i in range(len(bs) - 1)}
+    return bs, fs, w
+
+
+def cf_running(fs):
+    out, total = [], 0
+    for f in fs:
+        total += f
+        out.append(total)
+    return out
+
+
+def cf_table(q, c):
+    """(n, boundaries, frequencies, running totals) from a table with both columns shown."""
+    rows = q["table"]["rows"]
+    need(rows[0][1] == ["frequency", "cumulative"], "table heads")
+    bs, fs, w = cf_classes(rows, c)
+    need(len(w) == 1, "the classes aren't equal")
+    fs = [int(f) for f in fs]
+    run = cf_running(fs)
+    need([r[1][1] for r in rows[1:]] == [str(x) for x in run], "the cumulative column isn't the running total")
+    mt = re.fullmatch(re.escape("The table shows " + c[1]).replace(r"\{\}", r"(\d+)") + r"\.", q["lines"][0])
+    need(mt is not None and int(mt.group(1)) == run[-1], "the table's total isn't n")
+    return run[-1], bs, fs, run
+
+
+def cf_interp(bs, fs, run, t):
+    for j, r in enumerate(run):
+        if t <= r:
+            before = r - fs[j]
+            return bs[j] + sp.Rational((t - before) * (bs[j + 1] - bs[j]), fs[j])
+    raise Fail(f"{t} is above the table")
+
+
+def cf_count(bs, fs, run, v):
+    for j in range(len(fs)):
+        if v <= bs[j + 1]:
+            return run[j] - fs[j] + sp.Rational(fs[j] * (v - bs[j]), bs[j + 1] - bs[j])
+    raise Fail(f"{v} is above the table")
+
+
+def cf_clean(v):
+    need((v * 10).q == 1, f"the estimate {v} has more than one decimal")
+    return v
+
+
+def cf_arith(q):
+    """Every sum the working writes, worked again."""
+    num = r"\d+(?:\.\d+)?"
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for a, b, c, d, e, r in re.findall(rf"({num}) \+ \(({num}) − ({num})\) ÷ ({num}) × ({num}) = ({num})", st):
+                need(R(a) + (R(b) - R(c)) / R(d) * R(e) == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"(?<![÷×(] )\b({num}) − ({num}) = ({num})", st):
+                need(R(a) - R(b) == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"\b({num}) \+ ({num}) = ({num})", st):
+                need(R(a) + R(b) == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"\b({num}) ÷ ({num}) = ({num})", st):
+                need(R(a) / R(b) == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"\b({num}) ÷ ({num}) × 100 = ({num})", st):
+                need(R(a) / R(b) * 100 == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"\b({num}) × ({num}) = ({num})", st):
+                if "÷" not in st:
+                    need(R(a) * R(b) == R(r), f"{st!r}")
+
+
+def cf_near_curve(curve, want):
+    return any(abs(a - want[0]) < 1e-9 and abs(b - want[1]) < 1e-9 for a, b in curve)
+
+
+def cf_pick(q, c):
+    """Pick the curve: each card holds the points its mistake says, and only the right one is right."""
+    rows = q["table"]["rows"]
+    need(rows[0][1] == ["frequency"], "table heads")
+    bs, fs, w = cf_classes(rows, c)
+    fs = [int(f) for f in fs]
+    run = cf_running(fs)
+    sets = {"": [(bs[0], 0)] + [(bs[i + 1], run[i]) for i in range(len(fs))],
+            "midpoints": [(bs[0], 0)] + [(sp.Rational(bs[i] + bs[i + 1], 2), run[i]) for i in range(len(fs))],
+            "frequencies": [(bs[0], 0)] + [(bs[i + 1], fs[i]) for i in range(len(fs))],
+            "lower": [(bs[i], run[i]) for i in range(len(fs))]}
+    refs = {"": "", "midpoints": CF_B + "0", "frequencies": CF_B + "1", "lower": ""}
+    need(sorted(o["mistake"] for o in q["choices"]) == sorted(sets), "the four cards aren't the four curves")
+    want = None
+    for o, gr in zip(q["choices"], q["graphs"]):
+        need(o["ref"] == refs[o["mistake"]], f"the {o['mistake']} graph is mistagged")
+        for p in sets[o["mistake"]]:
+            need(cf_near_curve(gr["curves"][0], (float(p[0]), float(p[1]))), f"the {o['mistake']!r} card misses {p}")
+        need(gr["x_name"] == c[4] and gr["y_name"] == "cf", "the card's axes aren't named")
+        if o["correct"]:
+            want = o["text"]
+    need(q["answer_text"] == want and want is not None, "the right graph isn't the answer")
+    return want
+
+
+def check_cumulative_frequency(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 1, "cumulative frequency is Paper 1")
+    c = CF_CTX[int(g["ctx"])]
+    who, of, axis, noun, sym, unit, more, most, dx0, limit = c
+    wrongs, want = {}, None
+    spread = ", taking each class as evenly spread."
+    if u == "pick-curve":
+        want = cf_pick(q, c)
+        gc_check_common(q, want, {CF_B + "0": {o["text"] for o in q["choices"]}, CF_B + "1": {o["text"] for o in q["choices"]}})
+        return None, None
+    if rep == "graph":
+        n, dx, dy, pts = cf_curve(q, c)
+        rx = lambda y: cf_read_x(pts, y, dx, dy)
+        ry = lambda x: cf_read_y(pts, x, dx, dy)
+        v_more = re.escape(more).replace(r"\{\}", r"(\d+)")
+        if u == "median-from-graph":
+            need(asked == f"Use the curve to estimate the median {noun}.", f"asked {asked!r}")
+            med = rx(sp.Rational(n, 2))
+            need(med != 10 * dx, "the median is at the middle of the axis")
+            want = "median = " + cf_val(med, c)
+            wrongs = {CF_Q + "0": {"median = " + cf_val(10 * dx, c)}}
+        elif u == "quartile-from-graph":
+            low = "lower quartile" in asked
+            want = ("Q1 = " if low else "Q3 = ") + cf_val(rx(sp.Rational(n, 4) * (1 if low else 3)), c)
+        elif u == "iqr-from-graph":
+            want = "IQR = " + cf_val(rx(sp.Rational(3 * n, 4)) - rx(sp.Rational(n, 4)), c)
+            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)}}
+        elif u == "percentile-from-graph":
+            k = int(re.match(r"Use the curve to estimate the (\d+)", asked).group(1))
+            need(n != 100, "k and k% of n are the same when n is 100")
+            want = "percentile = " + cf_val(rx(sp.Rational(k * n, 100)), c)
+            wrongs = {CF_Q + "2": {"percentile = " + cf_val(rx(k), c)}}
+        elif u == "range-from-graph":
+            want = "range = " + cf_val(pts[-1][0] - pts[0][0], c)
+        elif u in ("count-below", "count-above", "percent-above", "scale-to-population"):
+            if u == "count-below":
+                mt = re.fullmatch(rf"Estimate how many {who} " + re.escape(most).replace(r"\{\}", r"(\d+)") + r"\.", asked)
+            elif u == "count-above":
+                mt = re.fullmatch(rf"Estimate how many {who} {v_more}\.", asked)
+            elif u == "percent-above":
+                mt = re.fullmatch(rf"Estimate the percentage of the {who} that {v_more}\.", asked)
+            else:
+                mt = re.fullmatch(rf"Estimate how many of all \d+ {who} {v_more}\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            f = ry(int(mt.group(1)))
+            if u == "count-below":
+                want = f"number = {f}"
+            elif u == "count-above":
+                want = f"number = {n - f}"
+                wrongs = {CF_C + "0": {f"number = {f}"}}
+            elif u == "percent-above":
+                p = sp.Rational((n - f) * 100, n)
+                need(p.q == 1, "the percentage isn't whole")
+                want = f"percentage = {p}%"
+                wrongs = {CF_C + "0": {f"percentage = {100 - p}%"}}
+            else:
+                m2 = re.fullmatch(rf"They were chosen at random from (\d+) {who}\.", L[2])
+                need(m2 is not None, f"can't read {L[2]!r}")
+                whole = int(m2.group(1))
+                need(whole % n == 0 and f"all {whole} " in asked, "the whole group isn't a multiple of the sample")
+                want = f"number = {(n - f) * whole // n}"
+                wrongs = {CF_C + "0": {f"number = {f * whole // n}"}}
+        elif u == "count-between":
+            mt = re.fullmatch(rf"Estimate how many {who} are between (\d+) {unit} and (\d+) {unit}\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            want = f"number = {ry(int(mt.group(2))) - ry(int(mt.group(1)))}"
+        elif u == "percentile-of-value":
+            mt = re.fullmatch(rf"Which percentile of the {noun} is (\d+) {unit}\?", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            p = sp.Rational(ry(int(mt.group(1))) * 100, n)
+            need(p.q == 1, "the percentile isn't whole")
+            want = f"percentile = {p}"
+        elif u == "cutoff-top":
+            mt = re.fullmatch(rf"The (\d+) {who} with the highest {noun} are set aside\.", L[2])
+            need(mt is not None, f"can't read {L[2]!r}")
+            t = int(mt.group(1))
+            want = f"{noun} = " + cf_val(rx(n - t), c)
+            wrongs = {CF_C + "1": {f"{noun} = " + cf_val(rx(t), c)}}
+        elif u == "cutoff-percent":
+            mt = re.fullmatch(r"(\d+)% of the " + who + " " + re.escape(more).replace(r"\{\}", "k") + r"\. Find k\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            t = sp.Rational(int(mt.group(1)) * n, 100)
+            want = "k = " + cf_val(rx(n - t), c)
+            wrongs = {CF_C + "1": {"k = " + cf_val(rx(t), c)}}
+        elif u == "share-of-limit":
+            need(limit is not None and L[2] == limit.format(gr_x1 := q["graph"]["x1"]), f"can't read {L[2]!r}")
+            mt = re.fullmatch(rf"Estimate how many {who} are above (\d+)% of that limit\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            f = ry(sp.Rational(int(mt.group(1)) * gr_x1, 100))
+            need(0 < f < n, "nobody or everybody is above it")
+            want = f"number = {n - f}"
+            wrongs = {CF_C + "0": {f"number = {f}"}}
+        elif u == "frequency-from-graph":
+            mt = re.fullmatch(rf"Find the number of {who} in the class (\d+) < {sym} ≤ (\d+)\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            a, b = ry(int(mt.group(1))), ry(int(mt.group(2)))
+            want = f"number = {b - a}"
+            wrongs = {CF_B + "1": {f"number = {b}"}}
+        elif u == "p-q-from-graph":
+            need(q["asked"] == "Use the curve to find p and q.", f"asked {asked!r}")
+            rows = q["table"]["rows"]
+            bs, fs, w = cf_classes(rows, c)
+            need(sorted(x for x in fs if x in "pq") == ["p", "q"], "the table doesn't hide p and q")
+            vals, tops = {}, {}
+            for j, f in enumerate(fs):
+                got = ry(bs[j + 1]) - (ry(bs[j]) if j else 0)
+                if j == 0:
+                    need(bs[0] == pts[0][0], "the first class doesn't start where the curve does")
+                if f in "pq":
+                    vals[f], tops[f] = got, ry(bs[j + 1])
+                else:
+                    need(int(f) == got, f"the table's {f} isn't what the curve gives ({got})")
+            want = f"p = {vals['p']}, q = {vals['q']}"
+            wrongs = {CF_B + "1": {f"p = {tops['p']}, q = {tops['q']}"}}
+        else:
+            raise Fail(f"no check for {u}")
+    elif u == "frequency-from-cf":
+        rows = q["table"]["rows"]
+        vals = {}
+        for row in rows[1:]:
+            mt = re.fullmatch(rf"{sym} ≤ (\d+)", row[0])
+            need(mt is not None, f"can't read {row[0]!r}")
+            vals[int(mt.group(1))] = int(row[1][0])
+        keys = list(vals)
+        need(all(vals[a] < vals[b] for a, b in zip(keys, keys[1:])) and vals[keys[0]] == 0, "the totals don't rise from 0")
+        mt = re.fullmatch(rf"Find the number of {who} in the class (\d+) < {sym} ≤ (\d+)\.", asked)
+        a, b = vals[int(mt.group(1))], vals[int(mt.group(2))]
+        need(a > 0, "the class is the first one")
+        want = f"number = {b - a}"
+        wrongs = {CF_B + "1": {f"number = {b}"}}
+    elif u == "cf-entry":
+        rows = q["table"]["rows"]
+        need(asked == "Find the cumulative frequency marked ?.", f"asked {asked!r}")
+        fs = [int(r[1][0]) for r in rows[1:]]
+        cum = [r[1][1] for r in rows[1:]]
+        j = cum.index("?")
+        run = cf_running(fs)
+        need(j >= 1 and all(cum[i] == str(run[i]) for i in range(j)) and all(x == "–" for x in cum[j + 1:]), "the shown totals are wrong")
+        want = f"? = {run[j]}"
+        wrongs = {CF_B + "1": {f"? = {fs[j]}"}}
+    elif u == "last-frequency":
+        rows = q["table"]["rows"]
+        fs = [r[1][0] for r in rows[1:]]
+        n = int(rows[-1][1][1])
+        need(fs.count("p") == 1, "no p")
+        want = f"p = {n - sum(int(f) for f in fs if f != 'p')}"
+    else:
+        n, bs, fs, run = cf_table(q, c)
+        val_more = re.escape(more).replace(r"\{\}", r"(\d+)")
+        if u == "median-from-table":
+            need(asked == f"Estimate the median {noun}{spread}", f"asked {asked!r}")
+            want = "median = " + cf_val(cf_clean(cf_interp(bs, fs, run, sp.Rational(n, 2))), c)
+            wrongs = {CF_Q + "0": {"median = " + cf_val(sp.Rational(bs[0] + bs[-1], 2), c)}}
+        elif u == "quartile-from-table":
+            low = "lower quartile" in asked
+            want = ("Q1 = " if low else "Q3 = ") + cf_val(cf_clean(cf_interp(bs, fs, run, sp.Rational(n, 4) * (1 if low else 3))), c)
+        elif u == "iqr-from-table":
+            a, b = cf_interp(bs, fs, run, sp.Rational(n, 4)), cf_interp(bs, fs, run, sp.Rational(3 * n, 4))
+            want = "IQR = " + cf_val(cf_clean(b - a), c)
+            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)}}
+        elif u == "percentile-from-table":
+            k = int(re.match(r"Estimate the (\d+)", asked).group(1))
+            need(n != 100, "k and k% of n are the same when n is 100")
+            want = "percentile = " + cf_val(cf_clean(cf_interp(bs, fs, run, sp.Rational(k * n, 100))), c)
+            wrongs = {CF_Q + "2": {"percentile = " + cf_val(cf_interp(bs, fs, run, k), c)}}
+        elif u == "count-below-table":
+            mt = re.fullmatch(rf"Estimate how many {who} " + re.escape(most).replace(r"\{\}", r"(\d+)") + re.escape(spread), asked)
+            need(mt is not None, f"can't read {asked!r}")
+            f = cf_count(bs, fs, run, int(mt.group(1)))
+            need(f.q == 1, "the count isn't whole")
+            want = f"number = {f}"
+        elif u == "count-above-table":
+            mt = re.fullmatch(rf"Estimate how many {who} {val_more}" + re.escape(spread), asked)
+            need(mt is not None, f"can't read {asked!r}")
+            f = cf_count(bs, fs, run, int(mt.group(1)))
+            need(f.q == 1, "the count isn't whole")
+            want = f"number = {n - f}"
+            wrongs = {CF_C + "0": {f"number = {f}"}}
+        elif u == "count-between-table":
+            mt = re.fullmatch(rf"Estimate how many {who} are between (\d+) {unit} and (\d+) {unit}" + re.escape(spread), asked)
+            need(mt is not None, f"can't read {asked!r}")
+            a, b = cf_count(bs, fs, run, int(mt.group(1))), cf_count(bs, fs, run, int(mt.group(2)))
+            need(a.q == 1 and b.q == 1 and b > a, "the counts aren't whole")
+            want = f"number = {b - a}"
+        elif u == "cutoff-table":
+            mt = re.match(rf"The (\d+) {who} with the highest {noun} are set aside\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            t = int(mt.group(1))
+            want = f"{noun} = " + cf_val(cf_clean(cf_interp(bs, fs, run, n - t)), c)
+            wrongs = {CF_C + "1": {f"{noun} = " + cf_val(cf_interp(bs, fs, run, t), c)}}
+        elif u == "plot-point":
+            mt = re.fullmatch(rf"Which point is plotted on the curve for the class (\d+) < {sym} ≤ (\d+)\?", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            a, b = int(mt.group(1)), int(mt.group(2))
+            j = bs.index(b) - 1
+            want = f"({b}, {run[j]})"
+            wrongs = {CF_B + "0": {f"({dec_text(sp.Rational(a + b, 2))}, {run[j]})"}, CF_B + "1": {f"({b}, {fs[j]})"}}
+        elif u == "curve-start":
+            need(bs[0] > 0, "the curve starts at the origin, so (0, 0) is no wrong option")
+            want = f"({bs[0]}, 0)"
+        else:
+            raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs)
+    cf_arith(q)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -12900,7 +13277,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
-                    "sampling": check_sampling}
+                    "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
