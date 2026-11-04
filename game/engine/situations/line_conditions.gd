@@ -18,6 +18,11 @@ extends RefCounted
 ##   midline    tx, ty (the origin or another point) and the new line through M and T; hx, hy (the
 ##            point half the differences gives, the slip)
 ## mx, my is the midpoint, whole where need.mid or a mode asks it.
+##   rate     (fn-concept-gradient-meaning) a LineModelSituation context, its table straight
+##   steep    ms, cs: three lines with different steepness; top (the index of the steepest)
+##   parallel m, c1, c2: two lines with one gradient; same: they are one line
+##   turn     p, r: a step "right p, up r" (r may be negative), turned a quarter
+##   upright  ky, hx: the lines y = ky and x = hx
 ## Paper 2 (any-two and intercepts-eq only): the gradient's denominator is more than 5 and its
 ## decimal doesn't end, with whole grid points on a graph and one decimal place elsewhere, so the
 ## gradient and the equation are answered to 3 s.f.
@@ -77,7 +82,41 @@ static func gen_text(a: Variant, b: Variant, d: Variant) -> String:
 	return Answer.gline_text(a, b, d)
 
 
+## The concept questions' pictures, which need no segment.
+static func _concept(rng: Seeded, mode: String) -> Dictionary:
+	match mode:
+		"rate":
+			return LineModelSituation.draw(rng, {"linear": true})
+		"steep":
+			var pool: Array = [[1, 3], [1, 2], [1, 1], [3, 2], [2, 1], [3, 1], [4, 1]]
+			var picks: Array = rng.shuffled(pool).slice(0, 3)
+			var ms: Array = picks.map(func(g): return Q.new(g[0] * (1 if rng.chance(0.5) else -1), g[1]))
+			var cs: Array = ms.map(func(_m): return Q.new(_nonzero(rng, -4, 4)))
+			var top := 0
+			for i in 3:
+				if ms[top].abs_q().lt(ms[i].abs_q()):
+					top = i
+			return {"ms": ms, "cs": cs, "top": top}
+		"parallel":
+			var g: Array = [[1, 1], [2, 1], [3, 1], [1, 2], [3, 2], [2, 3]][rng.int_in(0, 5)]
+			var c1 := _nonzero(rng, -5, 5)
+			var c2 := _nonzero(rng, -5, 5)
+			var same := rng.chance(0.25)
+			if c1 == c2 and not same:
+				return {}
+			return {"m": Q.new(g[0] * (1 if rng.chance(0.5) else -1), g[1]), "c1": Q.new(c1), "c2": Q.new(c1 if same else c2), "same": same}
+		"turn":
+			var p := rng.int_in(1, 5)
+			var r := _nonzero(rng, -5, 5)
+			if p == absi(r) or Q.gcd(p, absi(r)) != 1:
+				return {}
+			return {"p": p, "r": r}
+	return {"ky": _nonzero(rng, -6, 6), "hx": _nonzero(rng, -6, 6)}
+
+
 static func _draw(rng: Seeded, mode: String, need: Dictionary) -> Dictionary:
+	if mode in ["rate", "steep", "parallel", "turn", "upright"]:
+		return _concept(rng, mode)
 	var graph: bool = need.get("graph", false)
 	var p2: bool = int(need.get("paper", 1)) == 2 and mode in ["any-two", "intercepts-eq"]
 	var s := {}

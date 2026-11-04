@@ -12071,9 +12071,82 @@ def lc_k(q):
     return f"k = {frac_text(b / m)}", {LC_PRODUCT_1: {f"k = {frac_text(-b / m)}"}}
 
 
+def lc_concept(q, u):
+    """(want, wrongs) of fn-concept-gradient-meaning, from the numbers the student sees."""
+    rep, L = q["view"]["rep"], q["lines"]
+    if u == "gradient-as-rate":
+        i = q["situation"]["ctx"]
+        unit, _, _, _, per = LM_CTX[i]
+        unit = unit or "dollars"
+        each = per.rsplit(" ", 1)[1]
+        if rep == "table":
+            rows = q["table"]["rows"]
+            x, y = rows[0][0], rows[1][0]
+            xs, ys = [lc_q(v) for v in rows[0][1]], [lc_q(v) for v in rows[1][1]]
+            need(len({(ys[k + 1] - ys[k]) / (xs[k + 1] - xs[k]) for k in range(4)}) == 1, "the table is not straight")
+        else:
+            f = re.fullmatch(rf"When ([a-z]) = ({LC_NUM}), ([A-Z]) = ({LC_NUM})\. When [a-z] = ({LC_NUM}), [A-Z] = ({LC_NUM})\.", L[1])
+            need(f is not None, f"can't read {L[1]!r}")
+            x, y = f.group(1), f.group(3)
+            xs, ys = [lc_q(f.group(2)), lc_q(f.group(5))], [lc_q(f.group(4)), lc_q(f.group(6))]
+        m = (ys[-1] - ys[0]) / (xs[-1] - xs[0])
+        want = f"{dec_text(m)} {per}: the change in {y} for each {each}"
+        return want, {LM_TOTAL: {f"{dec_text(ys[-1] - ys[0])} {unit}: the total change in {y} from the first point to the last"}}
+    if u == "steepness-compare":
+        names = ["L₁", "L₂", "L₃"]
+        if rep == "graph":
+            g = q["graph"]
+            need(len(g["curves"]) == 3, "three lines are drawn")
+            ms = []
+            for cv in g["curves"]:
+                (x0, y0), (x1, y1) = cv[0], cv[-1]
+                ms.append(sp.nsimplify((y1 - y0) / (x1 - x0), rational=True, tolerance=1e-6))
+            for p, m_, cv in zip(g["points"], ms, g["curves"]):
+                need(abs(float(m_) * p["x"] + (cv[0][1] - float(m_) * cv[0][0]) - p["y"]) < 1e-6, f"the label {p['label']} is not on its line")
+            need([p["label"] for p in g["points"]] == names, "the lines are not labelled")
+        else:
+            ms = [lc_line(t)[0] for t in L]
+        sizes = [abs(v) for v in ms]
+        need(len(set(sizes)) == 3, "two lines are as steep")
+        top = sizes.index(max(sizes))
+        low = sizes.index(min(sizes))
+        say = lambda k: f"{names[k]}, and it {'rises' if ms[k] > 0 else 'falls'} from left to right"
+        return say(top), {LC_RUN_RISE: {say(low)}}
+    if u == "parallel-why":
+        text = L if rep != "graph" else re.fullmatch(r"L₁ and L₂ are drawn on the grid: (L₁: .*) and (L₂: .*)\.", L[0]).groups()
+        (m1, c1), (m2, c2) = lc_line(text[0]), lc_line(text[1])
+        need(m1 == m2, "the gradients differ")
+        if rep == "graph":
+            need(len(q["graph"]["curves"]) == 2, "two lines are drawn")
+        if c1 == c2:
+            return "They are the same line, so they share every point", {}
+        return f"Both change by {frac_text(m1)} for each step of 1, so the gap of {frac_text(abs(c1 - c2))} between them never changes", {}
+    if u == "perpendicular-why":
+        if rep == "graph":
+            f = re.fullmatch(rf"L₁ goes through O\(0, 0\) and P\(({LC_NUM}), ({LC_NUM})\); L₂ goes through O and Q\(({LC_NUM}), ({LC_NUM})\)\.", L[0])
+            p, r, qx, qy = (lc_q(v) for v in f.groups())
+            need((qx, qy) == (-r, p), "Q is not P turned a quarter-turn")
+        else:
+            f = re.fullmatch(rf"A step along L₁ is ({LC_NUM}) across and ({LC_NUM}) up\. L₂ goes through the same point\.", L[0])
+            p, r = (lc_q(v) for v in f.groups())
+        m1, m2 = r / p, p / -r
+        need(m1 * m2 == -1, "not perpendicular")
+        return (f"A quarter-turn sends the step ({frac_text(p)}, {frac_text(r)}) to ({frac_text(-r)}, {frac_text(p)}), so the gradients are {frac_text(m1)} and {frac_text(m2)}, and their product is −1",
+                {LC_PRODUCT_1: {f"The gradients are {frac_text(m1)} and {frac_text(1 / m1)}, a number and its reciprocal, so their product is 1"}})
+    return "The vertical line has no gradient, so there is no product to work out", {}
+
+
+LC_CONCEPT = {"gradient-as-rate", "steepness-compare", "parallel-why", "perpendicular-why", "vertical-exception"}
+
+
 def check_line_conditions(q):
     u, rep = q["view"]["unknown"], q["view"]["rep"]
     lc_style(q)
+    if u in LC_CONCEPT:
+        need(q["paper"] == 1, "a concept question has no calculator")
+        want, wr = lc_concept(q, u)
+        gc_check_common(q, want, wr)
+        return None, None
     lc_tick_cells(q)
     if q["paper"] == 2:
         need(u in LC_PAPER2, f"{u} is Paper 1")

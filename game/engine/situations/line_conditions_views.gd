@@ -5,7 +5,7 @@ extends ExtensionViews
 ## a typed number, an equation is the `line` kind (y = mx + c) or the `gline` kind (ax + by + d = 0,
 ## as the situation's `form` says), and a reason is a pick of four written statements (`choice`).
 ## Paper 1 is exact. Paper 2 is the gradient and the equation of a line through two points, to
-## 3 s.f.; GDC regression only makes Paper 2 (`papers()`).
+## 3 s.f.; GDC regression only makes Paper 2 (`papers()`). The concept unknowns ask for a reason.
 
 const R_RUN_RISE := "SL2.1.gradient#0"
 const R_ORDER := "SL2.1.gradient#1"
@@ -21,6 +21,12 @@ const R_BISECT := "SL2.1.parallel-perpendicular#2"
 const R_MID := "SL3.1.midpoint-3d#0"
 const R_TOTAL := "SL2.1.line-model#0"
 const GDC_ONLY := ["equation-two-points", "equation-from-intercepts"]
+## Ways of reading a line that don't say what its gradient means, for method-pick.
+const NOT_RATE := [
+	{"name": "Read the y-intercept", "why": "that is the value at the start, not the change for each step"},
+	{"name": "Add up the outputs", "why": "a total says nothing about the change for each step"},
+	{"name": "Divide the last output by the last input", "why": "that only works for a line through the origin"},
+]
 
 
 func needs() -> Dictionary:
@@ -43,7 +49,20 @@ func needs() -> Dictionary:
 		"triangle-area": {"mode": "line", "c_nz": true, "tidy": true},
 		"check-perpendicular": {"mode": "line"},
 		"k-for-perpendicular": {"mode": "line"},
+		"gradient-as-rate": {"mode": "rate"},
+		"steepness-compare": {"mode": "steep"},
+		"parallel-why": {"mode": "parallel"},
+		"perpendicular-why": {"mode": "turn"},
+		"vertical-exception": {"mode": "upright"},
 	}
+
+
+## fn-concept-gradient-meaning plays as true-false-reason, and as method-pick where a method can
+## be told from another. fn-line-from-conditions is an exam type, so it offers no extra format.
+func extra() -> Dictionary:
+	var tfr := ["true-false-reason"]
+	var mp := ["true-false-reason", "method-pick"]
+	return {"gradient-as-rate": mp, "steepness-compare": tfr, "parallel-why": tfr, "perpendicular-why": mp, "vertical-exception": mp}
 
 
 ## A graph's intercepts sit on grid points.
@@ -733,5 +752,163 @@ func u_k_for_perpendicular(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 		"coefficient-shortcut": method(["The gradient of L₁ is %s." % N(m), g2, cond, fin(ans)], ans.values),
 		"product-minus-one": method(["The gradient of L₁ is %s and of L₂ is −k/%s." % [N(m), PF(b2)], cond, fin(ans)], ans.values),
 		"keep-coefficients": method(["Write L₁ as %s." % gtext(cf[0], cf[1], cf[2]), ("Parallel lines have a : b the same, so k/%s = %s/%s." % [PF(b2), N(cf[0]), PF(cf[1])]) if para else ("Perpendicular lines have aa′ + bb′ = 0, so %sk + %s × %s = 0." % [Fmt.lead(cf[0]), PF(cf[1]), PF(b2)]), fin(ans)], ans.values),
+	}
+	return out
+
+
+# ── fn-concept-gradient-meaning ──────────────────────────────
+
+func u_gradient_as_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var c := LineModelViews.ctx(s)
+	var m: Q = s.m
+	var out := {"asked": "What does the gradient of the line measure?", "pick_wrongs": NOT_RATE}
+	var per: String = c.per
+	var unit: String = "dollars" if c.unit == "" else c.unit
+	var total: Q
+	if rep == "table":
+		out.lines = ["The table gives points on a straight line: %s (in %s) against %s (in %s)." % [c.out, unit, c.name, c.each + ("" if c.each in ["km", "kg"] else "s")]]
+		out.table = {"rows": [[c.x, s.tx.map(func(x): return str(x))], [c.y, s.ty.map(func(y): return D(y))]]}
+		total = s.ty[4].sub(s.ty[0])
+	else:
+		out.lines = ["A straight line shows %s (in %s) against %s (in %s)." % [c.out, unit, c.name, c.each + ("" if c.each in ["km", "kg"] else "s")],
+			"When %s = %d, %s = %s. When %s = %d, %s = %s." % [c.x, s.x1, c.y, D(s.y1), c.x, s.x2, c.y, D(s.y2)]]
+		total = s.y2.sub(s.y1)
+	var say := func(v: Q) -> String: return "%s %s: the change in %s for each %s" % [D(v), per, c.y, c.each]
+	var right: String = say.call(m)
+	var bad := tag("%s %s: the total change in %s from the first point to the last" % [D(total), unit, c.y], R_TOTAL)
+	var plain: Array = ["%s %s: the value of %s when %s = 0" % [D(s.c), unit, c.y, c.x], say.call(m.neg()), say.call(m.add(1))]
+	out.merge(pick(right, [bad], plain))
+	var x1: int = s.tx[1] if rep == "table" else s.x1
+	var x2: int = s.tx[3] if rep == "table" else s.x2
+	var y1: Q = s.ty[1] if rep == "table" else s.y1
+	var y2: Q = s.ty[3] if rep == "table" else s.y2
+	var rise := "From %s = %d to %s = %d, %s changes by %s." % [c.x, x1, c.x, x2, c.y, D(y2.sub(y1))]
+	out.methods = {
+		"rise-over-run": method([rise, "Rise ÷ run = %s ÷ %d = %s, in %s." % [D(y2.sub(y1)), x2 - x1, D(m), per], right + "."], {"v": right}),
+		"table-differences": method([rise, "That is %d steps of 1, so each step of 1 changes %s by %s." % [x2 - x1, c.y, D(m)], right + "."], {"v": right}),
+	}
+	return out
+
+
+func u_steepness_compare(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var names := ["L₁", "L₂", "L₃"]
+	var ms: Array = s.ms
+	var top: int = s.top
+	var way := func(i: int, flip: bool = false) -> String:
+		var up: bool = (ms[i].sign() > 0) != flip
+		return "%s, and it %s from left to right" % [names[i], "rises" if up else "falls"]
+	var right: String = way.call(top)
+	# Run over rise makes the flattest line look the steepest.
+	var low := 0
+	var high := 0
+	for i in 3:
+		if ms[i].abs_q().lt(ms[low].abs_q()):
+			low = i
+		if ms[high].lt(ms[i]):
+			high = i
+	var plain: Array = [way.call(top, true), way.call((top + 1) % 3), way.call((top + 2) % 3)]
+	if high != top:
+		plain.push_front(way.call(high))
+	var out := {"asked": "Which line is the steepest, and which way does it slope?"}
+	out.merge(pick(right, [tag(way.call(low), R_RUN_RISE)], plain))
+	var lines: Array = []
+	for i in 3:
+		lines.append("%s: %s" % [names[i], yeq(ms[i], s.cs[i])])
+	if rep == "graph":
+		out.lines = ["The three lines are drawn on the grid."]
+		var marks: Array = []
+		for i in 3:
+			var at := _label_point(ms[i], s.cs[i], i)
+			marks.append([at[0], at[1], names[i]])
+		var ls: Array = []
+		for i in 3:
+			ls.append([ms[i], s.cs[i]])
+		out.graph = plot(ls, marks)
+	else:
+		out.lines = lines
+	var sizes: Array = []
+	for i in 3:
+		sizes.append("%s has gradient %s" % [names[i], N(ms[i])])
+	out.methods = {"rise-over-run": method([", ".join(sizes) + ".", "The steepest has the biggest size of gradient, whatever its sign: %s. Its sign says which way it slopes." % N(ms[top]), right + "."], {"v": right})}
+	no_graph(out, rep)
+	return out
+
+
+## A point of the line inside the window for its label, apart from the other lines' labels.
+static func _label_point(m: Q, c: Q, i: int) -> Array:
+	for x in [[7, 6, 5, 4, 3], [-7, -6, -5, -4, -3], [2, 1, -1, -2, 3]][i]:
+		var y: Q = m.mul(x).add(c)
+		if y.abs_q().to_float() <= 9.0:
+			return [Q.new(x), y]
+	return [Q.new(0), c]
+
+
+func u_parallel_why(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var m: Q = s.m
+	var gap: Q = s.c2.sub(s.c1).abs_q()
+	var right: String = "They are the same line, so they share every point" if s.same else "Both change by %s for each step of 1, so the gap of %s between them never changes" % [N(m), N(gap)]
+	var plain: Array = ["They meet far off the grid, because every pair of lines crosses somewhere", "Their gradients multiply to −1, so they never meet",
+		"Both change by %s for each step of 1, so the gap of %s between them never changes" % [N(m), N(gap.add(1))] if s.same else "They are the same line, so they share every point",
+		"The gap between them grows by %s for each step of 1" % N(m.abs_q())]
+	var out := {"asked": "L₁ and L₂ have the same gradient. What does that say about them, and why?"}
+	out.merge(pick(right, [], plain))
+	var l2 := line_text("gen" if m.d > 1 or s.c2.d > 1 else "sl", m, s.c2)
+	if rep == "graph":
+		out.lines = ["L₁ and L₂ are drawn on the grid: L₁: %s and L₂: %s." % [yeq(m, s.c1), l2]]
+		out.graph = plot([[m, s.c1], [m, s.c2]], [])
+	else:
+		out.lines = ["L₁: " + yeq(m, s.c1), "L₂: " + l2]
+	out.titles = {"negative-reciprocal": "Same gradient for parallel, flip and change the sign for perpendicular"}
+	out.methods = {"negative-reciprocal": method(["L₂ rearranges to %s, so both gradients are %s. Parallel lines keep the gradient; flipping is for a perpendicular line." % [yeq(m, s.c2), N(m)],
+		"The two y-intercepts are %s and %s, %s." % [N(s.c1), N(s.c2), "the same" if s.same else "%s apart" % N(gap)], right + "."], {"v": right})}
+	return out
+
+
+func u_perpendicular_why(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var p: int = s.p
+	var r: int = s.r
+	var m1 := Q.new(r, p)
+	var m2 := Q.new(p, -r)
+	var right := "A quarter-turn sends the step (%d, %s) to (%s, %d), so the gradients are %s and %s, and their product is −1" % [p, N(r), N(-r), p, N(m1), N(m2)]
+	var ones := "The gradients are %s and %s, a number and its reciprocal, so their product is 1" % [N(m1), N(Q.new(1).div(m1))]
+	var plain: Array = ["The gradients are %s and %s, opposite numbers, so they add up to 0" % [N(m1), N(m1.neg())],
+		"Any two lines through one point have gradients with a product of −1",
+		"The quarter-turn keeps the gradient at %s, so the lines stay the same" % N(m1)]
+	var out := {"asked": "L₂ is L₁ turned a quarter-turn anticlockwise. Why do their gradients multiply to −1?",
+		"pick_wrongs": [{"name": "Measure the angle with a protractor", "why": "an angle on a sketch shows nothing about the gradients"},
+			{"name": "Add the two gradients", "why": "the sum of perpendicular gradients is nothing special"},
+			{"name": "Compare the y-intercepts", "why": "turning about a point says nothing about where the lines meet the y-axis"}]}
+	out.merge(pick(right, [tag(ones, R_PRODUCT_1)], plain))
+	if rep == "graph":
+		out.lines = ["L₁ goes through O(0, 0) and P%s; L₂ goes through O and Q%s." % [pt(p, r), pt(-r, p)]]
+		out.graph = plot([[m1, Q.new(0)], [m2, Q.new(0)]], [[Q.new(p), Q.new(r), "P"], [Q.new(-r), Q.new(p), "Q"]])
+	else:
+		out.lines = ["A step along L₁ is %d across and %s up. L₂ goes through the same point." % [p, N(r)]]
+	var slopes := "Rise ÷ run gives %s for L₁ and %d ÷ %s = %s for L₂." % [N(m1), p, P(-r), N(m2)]
+	var turn := "A quarter-turn sends (a, b) to (−b, a), so (%d, %s) becomes (%s, %d)." % [p, N(r), N(-r), p]
+	var prod := "%s × %s = −1." % [PF(m1), PF(m2)]
+	out.methods = {
+		"rise-over-run": method([turn, slopes, prod, right + "."], {"v": right}),
+		"rotate-direction": method([turn, "The new gradient is %d ÷ %s = %s, the old one flipped with its sign changed." % [p, P(-r), N(m2)], right + "."], {"v": right}),
+		"product-minus-one": method(["The gradients are %s and %s." % [N(m1), N(m2)], prod + " The turn swaps rise and run and changes one sign, so the product is always −1.", right + "."], {"v": right}),
+	}
+	return out
+
+
+func u_vertical_exception(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var right := "The vertical line has no gradient, so there is no product to work out"
+	var plain: Array = ["The gradients are 0 and 0, so their product is 0, not −1", "They are not perpendicular, because the product is not −1",
+		"The gradients are 0 and 1, so their product is 0, not −1", "A horizontal line has no gradient, so there is no product to work out"]
+	var out := {"asked": "These lines are perpendicular. Why can't m₁ × m₂ = −1 be used on them?",
+		"pick_wrongs": [{"name": "Rearrange both to y = mx + c", "why": "x = %s has no y to make the subject" % N(s.hx)}, {"name": "Compare the y-intercepts", "why": "the vertical line has none"}, {"name": "Count rise over run", "why": "the run of a vertical line is 0, and nothing can be divided by 0"}]}
+	out.merge(pick(right, [], plain))
+	if rep == "graph":
+		out.lines = ["The lines y = %s and x = %s are drawn on the grid." % [N(s.ky), N(s.hx)]]
+		out.graph = plot([[Q.new(0), Q.new(s.ky)]], [], [[float(s.hx), "x = %s" % N(s.hx)]])
+	else:
+		out.lines = ["One line is y = %s, across the page. The other is x = %s, up the page." % [N(s.ky), N(s.hx)]]
+	out.methods = {
+		"rotate-direction": method(["A step along y = %s is (1, 0)." % N(s.ky), "A quarter-turn sends it to (0, 1): a run of 0, and rise ÷ 0 has no value.", right + "."], {"v": right}),
+		"product-minus-one": method(["y = %s has gradient 0." % N(s.ky), "x = %s has no gradient, so m₁ × m₂ has nothing to multiply." % N(s.hx), right + "."], {"v": right}),
 	}
 	return out

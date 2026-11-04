@@ -110,7 +110,7 @@ static func draw(rng: Seeded, need: Dictionary) -> Dictionary:
 	s.tstep = step
 	s.tx = range(0, 5).map(func(i): return step * i)
 	s.ty = s.tx.map(func(x): return at.call(x))
-	s.linear = rng.chance(0.6)
+	s.linear = need.get("linear", false) or rng.chance(0.6)
 	if not s.linear:
 		var bump := rng.int_in(1, 3)
 		s.ty[bump] = s.ty[bump].add(s.m.abs_q().mul(step).mul(rng.int_in(1, 3)).div(2))
