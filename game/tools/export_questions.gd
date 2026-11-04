@@ -3,7 +3,8 @@ extends SceneTree
 ## SymPy answer checker (tools/check_answers.py). Used by tools/check-answers.
 ##
 ##   godot --headless --path game --script res://tools/export_questions.gd -- \
-##       --out=/abs/questions.json [--per-cell=50] [--per-type=1000] [--types=id,id]
+##       --out=/abs/questions.json [--per-cell=50] [--per-type=1000] [--types=id,id] \
+##       [--shard=k/n]
 ##
 ## Every coverage cell of every built type gets at least --per-cell questions, and
 ## every type at least --per-type. Seeds run 1, 2, 3, ...; odd seeds are multiple
@@ -20,6 +21,10 @@ extends SceneTree
 ## A worked solution's steps are exported as text (Step.text), so the checker reads
 ## them the same whether a step carries a move tag or not; each solution's "moves"
 ## lists the step's move id, or null, per step (FAL-426).
+##
+## --shard=k/n exports every n-th cell and boss chain from the k-th, each with all its
+## questions, so CI can share the check between jobs (FAL-722). Together the n shards
+## export the same questions as a run without it.
 
 
 func _initialize() -> void:
@@ -39,6 +44,10 @@ func _run() -> void:
 	var errors: Array = []
 	var types: Array = []
 	var only: Array = Array(args.get("types", "").split(",", false))
+	var shard := str(args.get("shard", "1/1")).split("/")
+	var shard_k := int(shard[0]) - 1
+	var shard_n := maxi(1, int(shard[1]))
+	var cell_no := 0
 	for id in QuestionEngine.built_types():
 		if not only.is_empty() and not id in only:
 			continue
@@ -46,6 +55,9 @@ func _run() -> void:
 		var n := maxi(per_cell, ceili(float(per_type) / cells.size()))
 		types.append({"type": id, "cells": cells.size(), "per_cell": n})
 		for c in cells:
+			cell_no += 1
+			if (cell_no - 1) % shard_n != shard_k:
+				continue
 			var views: Array = []
 			for seed in range(1, n + 1):
 				views.append({"type": id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle,
@@ -63,10 +75,14 @@ func _run() -> void:
 					continue
 				questions.append(exported(q))
 	var chains := 0
+	var window_no := 0
 	for id in QuestionEngine.built_types():
 		if not only.is_empty() and not id in only:
 			continue
 		for steps in Dungeon.chain_windows(id):
+			window_no += 1
+			if (window_no - 1) % shard_n != shard_k:
+				continue
 			var name := "%s: %s" % [id, " > ".join(steps.map(func(st): return st.unknown))]
 			for seed in range(1, int(args["per-chain"]) + 1):
 				var c := QuestionEngine.make_chain(steps.map(func(st): return st.merged({"format": "mcq" if seed % 2 == 1 else "value"})), seed)
@@ -79,6 +95,7 @@ func _run() -> void:
 					e.chain = "%s seed %d" % [name, seed]
 					questions.append(e)
 	var out := {"types": types, "questions": questions, "errors": errors, "chains": chains,
+		"shard": [shard_k + 1, shard_n],
 		"cells": QuestionEngine.cells().map(func(c): return c.key)}
 	var f := FileAccess.open(args.out, FileAccess.WRITE)
 	if f == null:

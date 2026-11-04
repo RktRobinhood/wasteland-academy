@@ -3,13 +3,17 @@
 # fixed seeds, then solves each one again in Python and prints a table per type and
 # per cell. Exits non-zero on any failure.
 #
-#   tools/check-answers [--per-cell=50] [--per-type=1000]
+#   tools/check-answers [--per-cell=50] [--per-type=1000] [--shard=k/n]
+#   tools/check-answers --merge dir
+#
+# --shard=k/n exports and checks every n-th cell and boss chain from the k-th, and
+# leaves summary.json in _scratch/check-answers. --merge reads every summary.json under
+# dir and checks that together they are all the shards and all the catalogue (FAL-722).
 #
 # Needs SymPy from requirements.txt. Locally it is installed into a gitignored .venv/
 # on first use; set PYTHON to use another interpreter (CI uses its own pip install).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-source "$ROOT/scripts/godot-env.sh"
 
 if [ -z "${PYTHON:-}" ]; then
 	if [ ! -x "$ROOT/.venv/bin/python" ]; then
@@ -22,6 +26,12 @@ fi
 
 out="$ROOT/_scratch/check-answers"
 mkdir -p "$out"
+if [ "${1:-}" = "--merge" ]; then
+	"$PYTHON" -I "$ROOT/tools/check_answers.py" "$@" | tee "$out/report.txt"
+	exit
+fi
+
+source "$ROOT/scripts/godot-env.sh"
 echo "== export questions =="
 import_project
 timeout 600 "$GODOT" --headless --path "$GAME" --script res://tools/export_questions.gd -- \
