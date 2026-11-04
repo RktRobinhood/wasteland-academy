@@ -6,8 +6,10 @@ extends "res://tests/test_case.gd"
 
 const TC := preload("res://engine/situations/transform_chain.gd")
 ## Cells per type (the catalogue's own count, every unknown × rep × method).
-const CELLS := {"fn-transform-describe": 51, "fn-transform-apply": 72, "fn-concept-transform-order": 21}
-const SITUATIONS := {"fn-transform-describe": "transform-chain", "fn-transform-apply": "transform-chain", "fn-concept-transform-order": "transform-chain"}
+const CELLS := {"fn-transform-describe": 51, "fn-transform-apply": 72, "fn-concept-transform-order": 21,
+	"fn-link-transformations": 66}
+const SITUATIONS := {"fn-transform-describe": "transform-chain", "fn-transform-apply": "transform-chain", "fn-concept-transform-order": "transform-chain",
+	"fn-link-transformations": "fn-link-transformations"}
 
 
 func _make(type: String, unknown: String, rep: String, angle: String, seed: int, format: String = "value") -> Dictionary:
@@ -156,3 +158,41 @@ func test_a_boss_chain_is_one_situation() -> void:
 			for seed in [1, 2, 3]:
 				var c := QuestionEngine.make_chain(steps, seed)
 				check(not c.has("error"), "%s: %s" % [id, c.get("error")])
+
+
+# ── The two link types ───────────────────────────────────────
+
+func test_the_link_types_offer_what_their_catalogue_lists() -> void:
+	for c in QuestionEngine.cells(false, ["fn-link-transformations"]):
+		var extra := QuestionEngine.extra_formats(c.type, c.unknown, c.angle)
+		check("true-false-reason" in extra, c.key)
+		check("error-spot" not in extra, c.key + ": the type doesn't list error-spot")
+
+
+func test_the_data_pool_has_whole_statistics() -> void:
+	for dev in LinkTransformationsSituation.DEVIATIONS:
+		var total := 0
+		var squares := 0
+		for d in dev:
+			total += d
+			squares += d * d
+		check_eq(total, 0, "deviations %s" % [dev])
+		check_eq(squares % dev.size(), 0, "variance of %s" % [dev])
+		var sd := roundi(sqrt(float(squares) / dev.size()))
+		check_eq(sd * sd * dev.size(), squares, "standard deviation of %s" % [dev])
+
+
+func test_standardising_bounds_is_paper_2_with_a_z_of_2_dp() -> void:
+	for seed in range(1, 40):
+		var q := _make("fn-link-transformations", "standardise-bounds", "words", "gdc-both", seed)
+		check_eq(q.paper, 2, "paper")
+		var z := Q.new(q.given.x - q.given.mu, q.given.sigma)
+		check(z.mul(100).is_int(), "z = %s" % z.text())
+
+
+func test_a_histogram_outline_keeps_its_data() -> void:
+	var xs: Array = [Q.new(3), Q.new(3), Q.new(5)]
+	var c := LinkTransformationsViews.outline(xs, 2)
+	check_eq(c[0], [4.5, 0.0], "starts on the axis")
+	check_eq(c[1], [4.5, 2.0], "two values of 5")
+	check_eq(c[c.size() - 1], [7.5, 0.0], "ends on the axis")

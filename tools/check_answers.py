@@ -13279,6 +13279,364 @@ def cd_check(q):
     return None, None
 
 
+# ── Transformations: the two link types (FAL-424) ────────────
+# fn-link-transformations and fn-link-vectors. Nothing is taken from the situation: each
+# parent, vector, data set, normal model, area, wave and point is read back from what the
+# student sees, then the move is applied here with SymPy, and every option is read back
+# and tested on the mathematics (a wave's option is right if it is the same curve, one
+# period along or not).
+
+LT_NUM = r"−?\d+(?:\.\d+)?(?:/\d+)?"
+
+
+def lt_d(v):
+    return dec_text(v).replace("-", "−")
+
+
+def lt_vec(text):
+    m = re.search(rf"\(({LT_NUM}), ({LT_NUM})\)", text)
+    need(m is not None, f"no vector in {text!r}")
+    return tc_num(m[1]), tc_num(m[2])
+
+
+def lt_moved_by(text):
+    """(a, b) from "by the vector (a, b)" or "moved 3 to the left and 2 up"."""
+    m = re.search(rf"(\d+) to the (left|right) and (up|down) (\d+)", text)
+    if m:
+        return R(m[1]) * (1 if m[2] == "right" else -1), R(m[4]) * (1 if m[3] == "up" else -1)
+    return lt_vec(re.search(r"vector (.+)", text)[1])
+
+
+def lt_pts(text):
+    return [(tc_num(a), tc_num(b)) for a, b in re.findall(rf"\(({LT_NUM}), ({LT_NUM})\)", text)]
+
+
+def lt_move(e, a, b):
+    return e.subs(X, X - a) + b
+
+
+def lt_sand(q, first, second):
+    """Both curves of a two-colour graph, the first in teal and the second in sand."""
+    gr = q["graph"]
+    need(gr is not None, "no graph")
+    k = gr["sand_from"]
+    need(0 < k < len(gr["curves"]), "the graph doesn't show two curves")
+    tc_curves_are(gr, gr["curves"][:k], first)
+    tc_curves_are(gr, gr["curves"][k:], second)
+
+
+def lt_feature(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        m = re.fullmatch(r"The graphs of y = (.+) and its image are shown\. The image is the graph translated by the (vector .+)\.", L[0])
+        par, (a, b) = tc_expr(m[1]), lt_moved_by(m[2])
+    elif rep == "words":
+        m = re.fullmatch(r"The graph of y = (.+) is moved (.+)\.", L[0])
+        par, (a, b) = tc_expr(m[1]), lt_moved_by(m[2])
+    else:
+        par, (a, b) = tc_expr(rhs(L[0])), lt_moved_by(L[1])
+    need(a != 0 and b != 0, "a vector with a zero part")
+    g = lt_move(par, a, b)
+    if rep == "graph":
+        lt_sand(q, par, g)
+    d = lt_d
+    pair = lambda x, y: f"({d(x)}, {d(y)})"
+    if par == X**2:
+        x0 = sp.solve(sp.diff(g, X), X)[0]
+        want = pair(x0, g.subs(X, x0))
+        wr = {"SL2.11.translate#0": {pair(-a, b)}, "SL2.11.translate#1": {pair(a - b, 0)}}
+    elif par == 1 / X:
+        x0 = sp.solve(sp.denom(sp.together(g)), X)[0]
+        y0 = sp.limit(g, X, sp.oo)
+        named = lambda u, v: f"x = {d(u)}, y = {d(v)}"
+        want = named(x0, y0)
+        wr = {"SL2.11.translate#0": {named(-a, b)}, "SL2.11.translate#1": {named(a - b, 0)}, "SL2.11.translate#2": {named(a, 0)}}
+    elif par == sp.exp(X):
+        want = f"y = {d(sp.limit(g, X, -sp.oo))}"
+        wr = {"SL2.11.translate#2": {"y = 0"}}
+    else:
+        need(par == sp.sin(X), f"parent {par}")
+        need("(π/2, 1)" in q["asked"] and sp.diff(par, X).subs(X, sp.pi / 2) == 0 and par.subs(X, sp.pi / 2) == 1, "(π/2, 1) is not the maximum")
+        x0 = sp.pi / 2 + a
+        need(sp.simplify(sp.diff(g, X).subs(X, x0)) == 0 and sp.diff(g, X, 2).subs(X, x0).evalf() < 0, "the image is not a maximum")
+        tail = lambda v: "π/2" + ("" if v == 0 else f" {'+' if v > 0 else '−'} {d(abs(v))}")
+        pip = lambda v, y: f"({tail(v)}, {d(y)})"
+        want = pip(a, 1 + b)
+        wr = {"SL3.7.transformations#2": {pip(-a, 1 + b)}, "SL2.11.translate#1": {pip(a - b, 1)}}
+    gc_check_common(q, want, wr)
+
+
+def lt_gap(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        m = re.search(r"antiderivatives of f\(x\) = (.+)\.$", L[0])
+        f = parse(m[1])
+        pts = q["graph"]["points"]
+        need(len(pts) == 2 and all(p["x"] == 0 for p in pts), "the graph doesn't mark two y-intercepts")
+        c1, c2 = sp.nsimplify(pts[0]["y"]), sp.nsimplify(pts[1]["y"])
+        F = sp.integrate(f, X)
+        G, H = F + c1, F + c2
+        lt_sand(q, G, H)
+        for p, c in zip(pts, (c1, c2)):
+            need(p["label"] == f"(0, {lt_d(c)})", "a label is not its point")
+    else:
+        G, H, f = parse(rhs(L[0])), parse(rhs(L[1])), parse(L[2][L[2].index("f(x) = ") + 7:-1])
+        need(sp.expand(sp.diff(G, X) - f) == 0 and sp.expand(sp.diff(H, X) - f) == 0, "G and H are not antiderivatives of f")
+        c1, c2 = G.subs(X, 0), H.subs(X, 0)
+    gap = sp.expand(H - G)
+    need(gap.is_number and gap != 0, "the two curves are not a vertical move apart")
+    gc_check_common(q, f"(0, {lt_d(gap)})", {"SL5.5.boundary-condition#1": {f"(0, {lt_d(c2)})"}})
+
+
+def lt_through(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        fd = parse(rhs(L[1]))
+        m = re.search(r"y = F\(x\) = (.+) is shown", L[0])
+        F = parse(m[1])
+        need(sp.expand(sp.diff(F, X) - fd) == 0, "F is not the antiderivative")
+        tc_curves_are(q["graph"], q["graph"]["curves"], F)
+        px, py = lt_pts(L[0])[0]
+    elif rep == "words":
+        fd = parse(re.search(r"at any point is (.+)\.$", L[0])[1])
+        px, py = lt_pts(L[1])[0]
+    else:
+        fd = parse(rhs(L[0]))
+        px, py = lt_pts(L[1])[0]
+    F = sp.integrate(fd, X)
+    need(F.subs(X, 0) == 0, "F has a constant term")
+    c = py - F.subs(X, px)
+    need(c != 0, "C is 0")
+    t = lambda v: f"C = {lt_d(v)}"
+    gc_check_common(q, t(c), {"SL5.5.boundary-condition#1": {t(0)}, "SL5.5.boundary-condition#0": {t(py - fd.subs(X, px))}})
+
+
+def lt_stats_line(text, names):
+    out = []
+    for n in names:
+        m = re.search(rf"{n} ({LT_NUM})", text)
+        need(m is not None, f"no {n} in {text!r}")
+        out.append(tc_num(m[1]))
+    return out
+
+
+def lt_data_stats(xs):
+    """Mean, median, population SD and IQR, with the median left out of odd halves."""
+    n = len(xs)
+    xs = sorted(xs)
+    med = lambda v: v[len(v) // 2] if len(v) % 2 else (v[len(v) // 2 - 1] + v[len(v) // 2]) / 2
+    mean = sum(xs) / n
+    sd = sp.sqrt(sum((x - mean)**2 for x in xs) / n)
+    return mean, med(xs), sd, med(xs[n - n // 2:]) - med(xs[:n // 2])
+
+
+LT_STATS = ("mean", "median", "standard deviation", "IQR")
+
+
+def lt_table_stats(q, names):
+    rows = q["table"]["rows"]
+    need(rows[0] == ["Statistic", list(names)], "the table's head")
+    return [[tc_num(v) for v in r[1]] for r in rows[1:]]
+
+
+def lt_hist(curve):
+    """The whole values and frequencies of a histogram's outline, read off its bars."""
+    out = []
+    need(curve[0][1] == 0 and curve[-1][1] == 0, "the outline doesn't start and end on the axis")
+    for (x0, y0), (x1, y1) in zip(curve[1:-1], curve[2:-1]):
+        if x1 > x0 and y0 == y1:
+            v = sp.nsimplify((x0 + x1) / 2)
+            need(x1 - x0 == 1 and v.is_integer and float(y0).is_integer(), "a bar is not a whole value of width 1")
+            out += [v] * int(y0)
+    return out
+
+
+def lt_shifted(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "table":
+        before = lt_table_stats(q, LT_STATS)[0]
+        k = tc_num(re.fullmatch(rf"Every value is increased by ({LT_NUM})\.", L[1])[1])
+    elif rep == "graph":
+        k = tc_num(re.search(rf"increased by ({LT_NUM})\.", L[0])[1])
+        before = lt_stats_line(L[1], LT_STATS)
+        c = q["graph"]["curves"]
+        need(len(c) == 2, "two histograms")
+        xs, ys = lt_hist(c[0]), lt_hist(c[1])
+        need(sorted(x + k for x in xs) == sorted(ys), "the second histogram is not the first moved by k")
+        need(list(lt_data_stats(xs)) == before, "the statistics are not the histogram's")
+    else:
+        before = lt_stats_line(L[0], LT_STATS)
+        k = tc_num(re.fullmatch(rf"Every value is increased by ({LT_NUM})\.", L[1])[1])
+    need(k != 0, "k is 0")
+    xs = [R(v) for v in q["given"]["xs"]]
+    need(5 <= len(xs) <= 8 and list(lt_data_stats(xs)) == before, "the statistics are not the data's")
+    moved = [x + k for x in xs]
+    say = lambda v: ", ".join(f"{n} = {lt_d(x)}" for n, x in zip(LT_STATS, v))
+    mean, med, sd, iqr = lt_data_stats(moved)
+    gc_check_common(q, say((mean, med, sd, iqr)), {"SL4.3.constant-changes#0": {say((mean, med, sd + k, iqr))}, "SL4.3.constant-changes#2": {say((mean, med, sd, iqr + k))}})
+
+
+def lt_stretched(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    how = L[-1]
+    m = re.fullmatch(rf"Every value is multiplied by ({LT_NUM}), then increased by ({LT_NUM})\.", how)
+    f, k = tc_num(m[1]), tc_num(m[2])
+    if rep == "table":
+        mean, sd = lt_table_stats(q, ("mean", "standard deviation"))[0]
+    else:
+        mean, sd = lt_stats_line(L[0], ("mean", "standard deviation"))
+    # A two-value data set with this mean and SD, worked directly.
+    a, b = (mean - sd) * f + k, (mean + sd) * f + k
+    nm, ns = (a + b) / 2, abs(b - a) / 2
+    say = lambda u, v, w: f"mean = {lt_d(u)}, standard deviation = {lt_d(v)}, variance = {lt_d(w)}"
+    gc_check_common(q, say(nm, ns, ns**2), {"SL4.3.constant-changes#1": {say(nm, ns, sd**2 * f)}, "SL4.3.constant-changes#0": {say(nm, ns + k, ns**2)}})
+
+
+def lt_change(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "table":
+        (m1, s1), (m2, s2) = lt_table_stats(q, ("mean", "standard deviation"))
+    else:
+        m1, s1 = tc_num(re.search(rf"mean ({LT_NUM})", L[0])[1]), tc_num(re.search(rf"deviation ({LT_NUM})", L[0])[1])
+        m2, s2 = tc_num(re.search(rf"mean is ({LT_NUM})", L[1])[1]), tc_num(re.search(rf"deviation is ({LT_NUM})", L[1])[1])
+
+    def rd(t):
+        m = re.fullmatch(rf"every value was (increased by|decreased by|multiplied by) ({LT_NUM})", t)
+        need(m is not None, f"can't read {t!r}")
+        v = tc_num(m[2])
+        return {"increased by": (m1 + v, s1), "decreased by": (m1 - v, s1), "multiplied by": (m1 * v, s1 * v)}[m[1]]
+    tc_opts(q, rd, lambda v: v == (m2, s2), {})
+
+
+def lt_standardise_moves(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.search(r"X ~ N\((\d+), (\d+)\)", L[0])
+    mu, var = R(m[1]), R(m[2])
+    sg = sp.sqrt(var)
+    need(sg.is_rational and sg > 0, "the variance is not a square")
+    t = L[-1] if rep == "graph" else L[0]
+    need(f"the mean is {mu} and the standard deviation is {sg}" in t.lower().replace("so ", ""), f"{t!r} doesn't give μ and σ")
+    keep = "each x goes to its own z, so the area between two values is the same"
+    want = f"a translation by the vector ({lt_d(-mu)}, 0), then a horizontal stretch with scale factor 1/{sg}; {keep}"
+    vague = f"a translation by the vector ({lt_d(-mu)}, 0), then a stretch; {keep}"
+    factor = f"a translation by the vector ({lt_d(-mu)}, 0), then a horizontal stretch with scale factor {sg}; {keep}"
+
+    def rd(text):
+        moves, why = text.split("; ")
+        if moves.endswith("a stretch"):
+            return None
+        A, B, C, D = tc_compose(tc_moves(moves))
+        # z = B⁻¹-free: the map sends x to x/B + C, which must be (x − μ)/σ at every x.
+        z = sp.Symbol("z")
+        return (sp.expand(z / B + C - (z - mu) / sg) == 0 and A == 1 and D == 0, why == keep)
+    tc_opts(q, rd, lambda v: v == (True, True), {"SL2.11.stretch#0": lambda v: v == (False, True), "SL2.11.stretch#2": lambda v: v is None})
+    need(any(o["text"] == want for o in q["choices"]), "no option says the moves")
+    for o in q["choices"]:
+        if o["ref"] == "SL2.11.stretch#0":
+            need(o["text"] == factor, f"{o['text']!r} is not a stretch by σ")
+        if o["ref"] == "SL2.11.stretch#2":
+            need(o["text"] == vague, f"{o['text']!r} is not a stretch with nothing said")
+    if rep == "graph":
+        Xpdf = lambda u, s: sp.exp(-((X - u) / s)**2 / 2) / (s * sp.sqrt(2 * sp.pi))
+        lt_sand(q, Xpdf(mu, sg), Xpdf(0, 1))
+
+
+def lt_standardise_bounds(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    need(q["paper"] == 2, "the GDC's probability is Paper 2")
+    if rep == "words":
+        m = re.search(r"mean (\d+) and standard deviation (\d+)", L[0])
+        mu, sg = R(m[1]), R(m[2])
+        m = re.search(r"that X is (less|more) than (\d+)\.", L[1])
+        rel, x = "<" if m[1] == "less" else ">", R(m[2])
+    else:
+        m = re.fullmatch(r"X ~ N\((\d+), (\d+)\)", L[0])
+        mu, sg = R(m[1]), sp.sqrt(R(m[2]))
+        m = re.fullmatch(r"P\(X ([<>]) (\d+)\)", L[1])
+        rel, x = m[1], R(m[2])
+    z = (x - mu) / sg
+    need((z * 100).q == 1, f"z = {z} doesn't end in 2 d.p.")
+    p = lambda r, v: f"P(Z {r} {lt_d(v)})"
+    gc_check_common(q, p(rel, z), {"SL4.12.standardise#1": {p(rel, (x - mu) / sg**2)}, "SL4.12.standardise#0": {p(">" if rel == "<" else "<", z)}})
+    ph = nu_phi(z) if rel == "<" else 1 - nu_phi(z)
+    gdc = next(s for s in q["solutions"] if s["angle"] == "gdc-both")
+    for st in gdc["steps"][1:3]:
+        need(gc_s(ph) in st, f"the GDC's value in {st!r} is not {gc_s(ph)}")
+
+
+def lt_int(text):
+    m = re.fullmatch(rf"∫ from ({LT_NUM}) to ({LT_NUM}) of (.+) dx", text)
+    need(m is not None, f"can't read the integral {text!r}")
+    return tc_num(m[1]), tc_num(m[2]), m[3]
+
+
+def lt_translated(q):
+    L, rep, asked = q["lines"], q["view"]["rep"], q["asked"]
+    if rep == "words":
+        m = re.fullmatch(rf"The area under y = (.+) from x = ({LT_NUM}) to x = ({LT_NUM}) is ({LT_NUM})\.", L[0])
+        f, p, r, area = tc_expr(m[1]), tc_num(m[2]), tc_num(m[3]), tc_num(m[4])
+        need(sp.integrate(f, (X, p, r)) == area, "the given area is wrong")
+        m = re.fullmatch(rf"Find the area under the moved curve y = (.+), from x = ({LT_NUM}) to x = ({LT_NUM})\.", asked)
+        g, lo, hi = tc_expr(m[1]), tc_num(m[2]), tc_num(m[3])
+        mv = re.fullmatch(r"The curve and the two limits are all moved (\d+) to the (left|right)\.", L[1])
+        a = R(mv[1]) * (1 if mv[2] == "right" else -1)
+    else:
+        given = L[0] if rep == "equation" else L[1]
+        left, right = given.rsplit(" = ", 1)
+        p, r, body = lt_int(left)
+        f, area = tc_expr(body), tc_num(right)
+        need(sp.integrate(f, (X, p, r)) == area, "the given area is wrong")
+        m = re.fullmatch(r"Find (.+), without integrating\.", asked)
+        lo, hi, body = lt_int(m[1])
+        g = tc_expr(body)
+        a = lo - p
+    need(a != 0 and lo == p + a and hi == r + a and sp.expand(g - f.subs(X, X - a)) == 0, "the limits and the curve aren't one move")
+    if rep == "graph":
+        gr = q["graph"]
+        lt_sand(q, f, g)
+        need(sorted(v["at"] for v in gr["vlines"]) == sorted(float(v) for v in (p, r, lo, hi)), "the limits drawn")
+    gc_check_common(q, f"Area = {lt_d(sp.integrate(g, (X, lo, hi)))}", {})
+
+
+def lt_raised(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    given = L[0] if rep == "equation" else L[1]
+    left, right = given.rsplit(" = ", 1)
+    p, r, body = lt_int(left)
+    need(body == "f(x)", "the given integral")
+    area = tc_num(right)
+    names = q["answer"]["fixed"]["names"]
+    lo1, hi1, b1 = lt_int(names[0])
+    lo2, hi2, b2 = lt_int(names[1])
+    need((lo1, hi1, lo2, hi2) == (p, r, p, r), "other limits")
+    m = re.fullmatch(rf"\(f\(x\) ([+−]) (\d+)\)", b1)
+    b = R(m[2]) * (1 if m[1] == "+" else -1)
+    m = re.fullmatch(r"(½|\d+)f\(x\)", b2)
+    f = sp.Rational(1, 2) if m[1] == "½" else R(m[1])
+    if rep == "graph":
+        gr = q["graph"]
+        c = gr["curves"][0]
+        trap = sum((c[i + 1][0] - c[i][0]) * (c[i + 1][1] + c[i][1]) / 2 for i in range(len(c) - 1))
+        need(c[0][0] == float(p) and c[-1][0] == float(r) and abs(trap - float(area)) < 1e-2 * max(1, float(area)), f"the curve drawn has area {trap}")
+    say = lambda u, v: f"{names[0]} = {lt_d(u)}, {names[1]} = {lt_d(v)}"
+    gc_check_common(q, say(area + b * (r - p), f * area), {"SL5.11.integral-properties#0": {say(area + b, f * area)}})
+
+
+LT_CHECKS = {"moved-feature": lt_feature, "antiderivative-gap": lt_gap, "curve-through-point": lt_through, "shifted-data": lt_shifted,
+             "stretched-data": lt_stretched, "change-from-statistics": lt_change, "standardise-moves": lt_standardise_moves,
+             "standardise-bounds": lt_standardise_bounds, "translated-area": lt_translated, "raised-area": lt_raised}
+
+
+def check_link_transformations(q):
+    u = q["view"]["unknown"]
+    le_no_hyphen(q)
+    if u != "standardise-bounds" and not (u == "standardise-moves" and q.get("view", {}).get("shared")):
+        need(q["paper"] == 1, f"{u} is Paper 1")
+    need(u in LT_CHECKS, f"no check for {u}")
+    LT_CHECKS[u](q)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -13303,7 +13661,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
-                    "transform-chain": check_transform}
+                    "transform-chain": check_transform, "fn-link-transformations": check_link_transformations}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
