@@ -11764,18 +11764,13 @@ def bf_at(f, x):
 def bf_n(v, paper, money=False):
     """A value as the answer writes it: exact on Paper 1, a decimal or 3 s.f. on Paper 2."""
     if money:
-        return money_text(R(v))
+        return bf_money(R(v))
     if paper == 1:
         return frac_text(v)
     return gc_s(v) if gc_rounds(v) else dec_text(R(v))
 
 
-def bf_forms(v):
-    """Every way an option may write v: exact, as a decimal, or to 3 s.f."""
-    return {gc_s(v)} if not v.is_Rational else {frac_text(v), dec_text(v), gc_s(v)}
-
-
-def money_text(v):
+def bf_money(v):
     return str(v) if v.q == 1 else f"{float(v):.2f}"
 
 
@@ -13724,7 +13719,7 @@ def tc_num(t):
     return R(t.replace("−", "-"))
 
 
-def tc_expr(text):
+def tm_expr(text):
     """A function as the game writes it, with the letter f or a rule, as SymPy."""
     t = text.strip().replace("−", "-").replace("½", "(1/2)").replace("²", "**2").replace("³", "**3")
     t = t.replace("√(", "sqrt(").replace("√x", "sqrt(x)").replace("e^(", "exp(").replace("e^x", "exp(x)")
@@ -13881,8 +13876,8 @@ def tc_lines_pair(q, g, M):
     else:
         L = q["lines"]
         need(L[0].startswith("f(x) = ") and L[1].startswith("g(x) = "), f"lines {L!r}")
-        need(tc_same(tc_expr(rhs(L[0])), tc_base(g)), "the line shows another f")
-        need(tc_same(tc_expr(rhs(L[1])), tc_curve(g, M)), f"the line {L[1]!r} is not g")
+        need(tc_same(tm_expr(rhs(L[0])), tc_base(g)), "the line shows another f")
+        need(tc_same(tm_expr(rhs(L[1])), tc_curve(g, M)), f"the line {L[1]!r} is not g")
 
 
 def tc_f_said(q, g):
@@ -13892,7 +13887,7 @@ def tc_f_said(q, g):
         need(g["fam"] == "poly" or TC_NAMES[g["fam"]] in line, f"f is not named in {line!r}")
     else:
         need(line.startswith("f(x) = "), f"line {line!r}")
-        need(tc_same(tc_expr(line[7:].split(", for")[0]), tc_base(g)), "the line shows another f")
+        need(tc_same(tm_expr(line[7:].split(", for")[0]), tc_base(g)), "the line shows another f")
 
 
 TC_NAMES = {"sq": "x²", "cube": "x³", "root": "√x", "recip": "1/x", "exp": "e^x", "ln": "ln x", "log2": "log₂ x", "sin": "sin x"}
@@ -13931,7 +13926,7 @@ def tc_rule_opts(q, g, M, refs, strip="g(x) = "):
 
     def read(t):
         need(t.startswith(strip), f"option {t!r}")
-        return tc_expr(t[len(strip):])
+        return tm_expr(t[len(strip):])
     tc_opts(q, read, lambda e: tc_same(e, truth), {r: (lambda e, c=c: tc_same(e, c)) for r, c in refs.items()})
 
 
@@ -14055,10 +14050,10 @@ def tc_order_text(q, g, M1, M2, text):
     """"stretch first, g(x) = …; translation first, g(x) = …" as two curves, or one."""
     m = re.fullmatch(r"stretch first, g\(x\) = (.+); translation first, g\(x\) = (.+)", text)
     if m:
-        return (tc_expr(m[1]), tc_expr(m[2]))
+        return (tm_expr(m[1]), tm_expr(m[2]))
     m = re.fullmatch(r"the same graph either way, g\(x\) = (.+)", text)
     need(m is not None, f"can't read {text!r}")
-    e = tc_expr(m[1])
+    e = tm_expr(m[1])
     return (e, e)
 
 
@@ -14095,7 +14090,7 @@ def check_transform(q):
         tc_chain_opts(q, g, M, {"SL2.11.describe#0": lambda o: o == tc_compose([{"k": "tr", "c": -C, "d": D}])})
     elif u == "describe-factor-inside":
         m = re.fullmatch(r"g\(x\) = f\((.+)\)", L[0])
-        need(m is not None and tc_same(tc_expr(m[1]), B * (X - C)), f"{L[0]!r} is not the moves")
+        need(m is not None and tc_same(tm_expr(m[1]), B * (X - C)), f"{L[0]!r} is not the moves")
         k = moves[0]["a"]
         tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M, {"SL2.11.stretch#0": lambda o: o == tc_compose([{"k": "hs", "a": 1 / k}, {"k": "tr", "c": C, "d": 0}])})
     elif u == "stretch-and-shift-parameters":
@@ -14115,7 +14110,7 @@ def check_transform(q):
         tc_opts(q, tc_moves, lambda o: tc_compose(moves + o) == (1, 1, 0, 0), {})
     elif u == "sketch-stretch-shift":
         a, d = moves[0]["a"], moves[1]["d"]
-        need(tc_same(tc_expr(q["asked"][len("Which graph is y = "):-1]), a * TC_F(X) + d), "the asked rule is not a·f(x) + d")
+        need(tc_same(tm_expr(q["asked"][len("Which graph is y = "):-1]), a * TC_F(X) + d), "the asked rule is not a·f(x) + d")
         tc_f_plot(q, g)
         tc_cards(q, g, M, {"bracket": ((a, 1, 0, a * d), "SL2.11.composite-transform#1"), "wrong-way": ((a, 1, 0, -d), ""), "sideways": ((1, 1 / a, 0, d), ""), "inverted": ((1 / a, 1, 0, d), "")})
     elif u == "sketch-reflection":
@@ -14161,9 +14156,9 @@ def check_transform(q):
     elif u == "undo-moves":
         need(tc_moves(re.search(r" (?:by|through) (.+)\.$", L[1 if rep == "equation" else 0])[1]) == moves, "the moves shown are not the chain")
         gl = L[0] if rep == "equation" else L[1]
-        need(tc_same(tc_expr(re.search(r"= (.+?)\.?$", gl)[1]), tc_curve(g, M)), f"{gl!r} is not g")
+        need(tc_same(tm_expr(re.search(r"= (.+?)\.?$", gl)[1]), tc_curve(g, M)), f"{gl!r} is not g")
         truth = tc_base(g)
-        tc_opts(q, lambda t: tc_expr(t[len("f(x) = "):]), lambda e: tc_same(e, truth), {})
+        tc_opts(q, lambda t: tm_expr(t[len("f(x) = "):]), lambda e: tc_same(e, truth), {})
     elif u == "order-changes-rule":
         tc_f_said(q, g)
         tc_two_ways(q, g, moves)
@@ -14194,7 +14189,7 @@ def tc_reflect_translate(q, g, moves, M):
 
     def rd(text):
         m = re.fullmatch(r"g\(x\) = (.+), with domain (.+)", text)
-        return tc_expr(m[1]), tc_set(m[2])
+        return tm_expr(m[1]), tc_set(m[2])
     openset = {k: (False if k.endswith("_in") else v) for k, v in dom.items()}
     tc_opts(q, rd, lambda v: tc_same(v[0], truth) and v[1] == dom, {
         "SL2.11.translate#0": lambda v: tc_same(v[0], tc_curve(g, sign)) and v[1] == tc_moved(fd, 1 / sign[1], sign[2]),
@@ -14205,7 +14200,7 @@ def tc_reflect_translate(q, g, moves, M):
 def tc_point(q, g, M, rep, u):
     A, B, C, D = M
     L = q["lines"]
-    need(tc_same(tc_expr(rhs(L[-1])), A * TC_F(B * (X - C)) + D), f"{L[-1]!r} is not the moves")
+    need(tc_same(tm_expr(rhs(L[-1])), A * TC_F(B * (X - C)) + D), f"{L[-1]!r} is not the moves")
     if rep == "table":
         rows = q["table"]["rows"]
         pts = list(zip(rows[0][1], rows[1][1]))
@@ -14271,7 +14266,7 @@ def tc_two_orders(q, g, moves):
         if m is None:
             need(t.startswith("the order never matters"), f"can't read {t!r}")
             return None
-        return (tc_expr(m[1]), (tc_num(m[2]), tc_num(m[3])), tc_expr(m[4]), (tc_num(m[5]), tc_num(m[6])))
+        return (tm_expr(m[1]), (tc_num(m[2]), tc_num(m[3])), tm_expr(m[4]), (tc_num(m[5]), tc_num(m[6])))
     tc_opts(q, rd, lambda v: v is not None and tc_same(v[0], a) and tc_same(v[2], b) and v[1] == p1 and v[3] == p2,
             {"SL2.11.composite-transform#2": lambda v: v is None})
 
@@ -14334,7 +14329,7 @@ def tc_vs_outside(q, g, moves, M):
             mt = re.fullmatch(r"A is (.+), B is (.+)", t)
             if mt is None:
                 return None
-            return (tc_expr(mt[1]), tc_expr(mt[2]))
+            return (tm_expr(mt[1]), tm_expr(mt[2]))
         want = (ins, outs) if a_inner else (outs, ins)
         tc_opts(q, rd, lambda v: v is not None and tc_same(v[0], want[0]) and tc_same(v[1], want[1]), {})
         return
@@ -14343,7 +14338,7 @@ def tc_vs_outside(q, g, moves, M):
         mt = re.fullmatch(r"(.+?) ((?:moves|stretches) .+); (.+?) ((?:moves|stretches) .+)", t)
         if mt is None:
             return None
-        return mt[2], mt[4], tc_same(tc_expr(mt[1]), ins), tc_same(tc_expr(mt[3]), outs)
+        return mt[2], mt[4], tc_same(tm_expr(mt[1]), ins), tc_same(tm_expr(mt[3]), outs)
     says = lambda axis: (f"along the {axis}-axis" if m["k"] == "tr" else f"parallel to the {axis}-axis")
     tc_opts(q, rd2, lambda v: v is not None and v[2] and v[3] and says("x") in v[0] and says("y") in v[1], {})
 
@@ -14352,7 +14347,7 @@ def tc_bracket(q, g, moves, M):
     L = q["lines"]
     A, B, C, D = M
     m = re.fullmatch(r"g\(x\) = (.+)", L[0])
-    need(tc_same(tc_expr(m[1]), tc_curve({"fam": "pts"}, M)), f"{L[0]!r} is not the moves")
+    need(tc_same(tm_expr(m[1]), tc_curve({"fam": "pts"}, M)), f"{L[0]!r} is not the moves")
     e = C * B
     tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M,
             {"SL2.11.composite-transform#0": lambda o: o == tc_compose([moves[0], {"k": "tr", "c": e, "d": 0}])})
@@ -15767,12 +15762,12 @@ def lt_feature(q):
     L, rep = q["lines"], q["view"]["rep"]
     if rep == "graph":
         m = re.fullmatch(r"The graphs of y = (.+) and its image are shown\. The image is the graph translated by the (vector .+)\.", L[0])
-        par, (a, b) = tc_expr(m[1]), lt_moved_by(m[2])
+        par, (a, b) = tm_expr(m[1]), lt_moved_by(m[2])
     elif rep == "words":
         m = re.fullmatch(r"The graph of y = (.+) is moved (.+)\.", L[0])
-        par, (a, b) = tc_expr(m[1]), lt_moved_by(m[2])
+        par, (a, b) = tm_expr(m[1]), lt_moved_by(m[2])
     else:
-        par, (a, b) = tc_expr(rhs(L[0])), lt_moved_by(L[1])
+        par, (a, b) = tm_expr(rhs(L[0])), lt_moved_by(L[1])
     need(a != 0 and b != 0, "a vector with a zero part")
     g = lt_move(par, a, b)
     if rep == "graph":
@@ -16012,21 +16007,21 @@ def lt_translated(q):
     L, rep, asked = q["lines"], q["view"]["rep"], q["asked"]
     if rep == "words":
         m = re.fullmatch(rf"The area under y = (.+) from x = ({LT_NUM}) to x = ({LT_NUM}) is ({LT_NUM})\.", L[0])
-        f, p, r, area = tc_expr(m[1]), tc_num(m[2]), tc_num(m[3]), tc_num(m[4])
+        f, p, r, area = tm_expr(m[1]), tc_num(m[2]), tc_num(m[3]), tc_num(m[4])
         need(sp.integrate(f, (X, p, r)) == area, "the given area is wrong")
         m = re.fullmatch(rf"Find the area under the moved curve y = (.+), from x = ({LT_NUM}) to x = ({LT_NUM})\.", asked)
-        g, lo, hi = tc_expr(m[1]), tc_num(m[2]), tc_num(m[3])
+        g, lo, hi = tm_expr(m[1]), tc_num(m[2]), tc_num(m[3])
         mv = re.fullmatch(r"The curve and the two limits are all moved (\d+) to the (left|right)\.", L[1])
         a = R(mv[1]) * (1 if mv[2] == "right" else -1)
     else:
         given = L[0] if rep == "equation" else L[1]
         left, right = given.rsplit(" = ", 1)
         p, r, body = lt_int(left)
-        f, area = tc_expr(body), tc_num(right)
+        f, area = tm_expr(body), tc_num(right)
         need(sp.integrate(f, (X, p, r)) == area, "the given area is wrong")
         m = re.fullmatch(r"Find (.+), without integrating\.", asked)
         lo, hi, body = lt_int(m[1])
-        g = tc_expr(body)
+        g = tm_expr(body)
         a = lo - p
     need(a != 0 and lo == p + a and hi == r + a and sp.expand(g - f.subs(X, X - a)) == 0, "the limits and the curve aren't one move")
     if rep == "graph":
@@ -16076,7 +16071,7 @@ def check_link_transformations(q):
 
 
 def lv_read_parent(text):
-    return tc_expr(text)
+    return tm_expr(text)
 
 
 def lv_point_on(par, x, y):
@@ -16086,16 +16081,16 @@ def lv_point_on(par, x, y):
 def lv_eq_vector(q):
     L, rep = q["lines"], q["view"]["rep"]
     m = re.fullmatch(r"The graph of y = (.+) is moved (.+)\.", L[0]) if rep == "words" else None
-    par, (a, b) = (tc_expr(m[1]), lt_moved_by(m[2])) if m else (tc_expr(rhs(L[0])), lt_moved_by(L[1]))
+    par, (a, b) = (tm_expr(m[1]), lt_moved_by(m[2])) if m else (tm_expr(rhs(L[0])), lt_moved_by(L[1]))
     g = lt_move(par, a, b)
-    tc_opts(q, lambda t: tc_expr(rhs(t)), lambda e: tc_same(e, g),
+    tc_opts(q, lambda t: tm_expr(rhs(t)), lambda e: tc_same(e, g),
             {"SL2.11.translate#0": lambda e: tc_same(e, lt_move(par, -a, b)), "SL2.11.translate#1": lambda e: tc_same(e, par.subs(X, X - a + b))})
 
 
 def lv_image_undo(q):
     L, rep = q["lines"], q["view"]["rep"]
     m = re.fullmatch(rf"(?:The graph of y = (.+) is shown, with the point P|The point P)\(({LT_NUM}), ({LT_NUM})\)(?: is on y = (.+))?\.", L[0])
-    par = tc_expr(m[1] or m[4])
+    par = tm_expr(m[1] or m[4])
     x, y = tc_num(m[2]), tc_num(m[3])
     lv_point_on(par, x, y)
     a, b = lt_moved_by(L[1])
@@ -16123,7 +16118,7 @@ def lv_image_eq(q):
 def lv_from_images(q):
     L, rep = q["lines"], q["view"]["rep"]
     m = re.search(r"y = (.+?) (?:goes to|and its image)", L[0])
-    par = tc_expr(m[1])
+    par = tm_expr(m[1])
     (x, y), (ix, iy) = lt_pts(L[0])[:2]
     lv_point_on(par, x, y)
     a, b = ix - x, iy - y
@@ -16133,7 +16128,7 @@ def lv_from_images(q):
 
     def rd(t):
         m = re.fullmatch(r"the vector is (\(.+\)), so y = (.+)", t)
-        return lt_vec(m[1]), tc_expr(m[2])
+        return lt_vec(m[1]), tm_expr(m[2])
     tc_opts(q, rd, lambda v: v[0] == (a, b) and tc_same(v[1], g), {})
 
 
@@ -16173,7 +16168,7 @@ def lv_direction(q):
         m = tc_num(re.search(rf"gradient ({LT_NUM})\.", L[0])[1])
     else:
         t = re.search(r"y = (.+?)(?:\.| is shown|$)", L[0])[1].replace("The line ", "")
-        e = tc_expr(t)
+        e = tm_expr(t)
         m = sp.diff(e, X)
         if rep == "graph":
             tc_curves_are(q["graph"], q["graph"]["curves"], e)
@@ -16198,7 +16193,7 @@ def lv_gradient(q):
 
     def rd(text):
         k = re.fullmatch(rf"gradient ({LT_NUM}), and y = (.+)", text)
-        return tc_num(k[1]), tc_expr(k[2])
+        return tc_num(k[1]), tm_expr(k[2])
     tc_opts(q, rd, lambda o: o[0] == m and tc_same(o[1], line), {"SL2.1.gradient#1": lambda o: o[0] == -m})
 
 
@@ -16271,7 +16266,7 @@ def lv_endpoint(q):
 
 
 def lv_time(t):
-    return tc_expr(t.replace("t", "x"))
+    return tm_expr(t.replace("t", "x"))
 
 
 def lv_delay(q):
