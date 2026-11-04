@@ -508,6 +508,7 @@ func check_answer() -> void:
 		var msgs: Array = result.errors.values()
 		feedback.text = msgs[0] if msgs.size() == 1 else "Fill in every box."
 		feedback.add_theme_color_override("font_color", UiTheme.SAND)
+		_reveal_result()
 		return
 	answered = true
 	_record(result)
@@ -528,6 +529,7 @@ func check_answer() -> void:
 ## Scrolls the card to the result and Next, once the card has laid out: the student
 ## just pressed a button that has gone, and the result may be below the fold. A result
 ## and solution too tall to show with Next keep the result in view; a swipe reaches Next.
+## An incomplete answer only needs its message shown: Attack stays, and Next is hidden.
 func _reveal_result(frames := LAYOUT_FRAMES) -> void:
 	if frames > 0:
 		# autoplay=lose answers several questions in one frame.
@@ -536,6 +538,8 @@ func _reveal_result(frames := LAYOUT_FRAMES) -> void:
 			get_tree().process_frame.connect(later, CONNECT_ONE_SHOT)
 		return
 	if not answered:
+		if feedback.visible:
+			scroll.ensure_control_visible(feedback)
 		return
 	var top := feedback
 	for i in range(check_button.get_index() + 1, card.get_child_count()):

@@ -747,6 +747,7 @@ func check_answer() -> void:
 		feedback.visible = true
 		feedback.text = msgs[0] if msgs.size() == 1 else "Fill in every box."
 		feedback.add_theme_color_override("font_color", UiTheme.SAND)
+		_reveal_result()
 		return
 	_show_result(r)
 
