@@ -217,7 +217,7 @@ func test_the_matching_is_one_pick_of_all_four_kinds() -> void:
 	var t := "fn-link-rate-of-change"
 	for rep in ["equation", "words"]:
 		for seed in range(1, 30):
-			var q := _make(t, "match-rate-kind", rep, "rate-and-start", seed)
+			var q := _make(t, "match-rate-kind", rep, "rate-and-start", seed, "mcq")
 			check_eq(q.format, "mcq", "the match format isn't built")
 			check_eq(q.lines.size(), 4, rep)
 			for kind in [LinkRateViews.KIND_WHOLE, LinkRateViews.KIND_ALL, LinkRateViews.KIND_FIT, LinkRateViews.KIND_NOW]:

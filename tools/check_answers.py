@@ -12486,7 +12486,7 @@ def lc_p(asked):
 
 def lc_coords(g):
     """Every marked point's (x, y) of a graph."""
-    return [(lc_q(str(sp.nsimplify(p["x"]))), lc_q(str(sp.nsimplify(p["y"])))) for p in g["points"]]
+    return [(sp.nsimplify(p["x"], rational=True), sp.nsimplify(p["y"], rational=True)) for p in g["points"]]
 
 
 def lc_first_line(q):
