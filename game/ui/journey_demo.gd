@@ -135,9 +135,7 @@ func _fit() -> void:
 	margin.add_theme_constant_override("margin_right", int(side))
 	margin.add_theme_constant_override("margin_top", 30)
 	margin.add_theme_constant_override("margin_bottom", 30)
-	# Tall enough to read, but never so tall the 360-unit action window doesn't fit.
-	var h := minf(size.x * JourneyStage.H / 380.0, size.y * (0.32 if wide else 0.27))
-	stage.custom_minimum_size.y = maxf(240.0, h)
+	stage.custom_minimum_size.y = JourneyStage.fit_height(size.x, size.y, 0.3)
 
 
 func restart() -> void:

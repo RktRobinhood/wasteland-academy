@@ -53,7 +53,6 @@ const SCRIPT := [
 ## The reel's pacing: a question stays open this long, then its beat plays.
 const OPEN := 2.0
 const BEAT := 1.9
-const LEAD_IN := JourneyStage.APPROACH + JourneyStage.ENTER
 const OUTRO := 2.6
 const MISS := {1: 8, 2: 15, 3: 25, 4: 35, 5: 50}
 const SCRAP := {1: 30, 2: 22, 3: 15, 4: 10, 5: 5}
@@ -91,7 +90,7 @@ func _plan() -> void:
 			continue
 		var qs: Array = f.questions
 		_events.append([t, "fight_started", [f.fight, f.tier, qs.size(), f.encounter]])
-		t += LEAD_IN if f.encounter.get("kind") in ["fight", "boss"] else JourneyStage.APPROACH
+		t += JourneyStage.APPROACH + (JourneyStage.ENTER if f.encounter.get("ambush", false) else 0.0)
 		for i in qs.size():
 			_events.append([t, "question_opened", [f.fight, i, qs[i]]])
 			t += OPEN

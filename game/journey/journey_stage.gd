@@ -1,7 +1,7 @@
 class_name JourneyStage
 extends Control
-## The journey strip (FAL-331, plan on FAL-289): a band of side-view scene above the
-## question card. The Learner walks right with Spark beside them over the region's
+## The journey scene (FAL-331, plan on FAL-289): the band of side-view scene at the top
+## of the fight screen. The Learner walks right with Spark beside them over the region's
 ## parallax, and each answer plays out as a beat: Explore, Puzzle, Fight or Boss.
 ##
 ## View only. The run calls the methods below and never reads anything back; nothing
@@ -10,8 +10,9 @@ extends Control
 ## reach the run.
 ##
 ##   start_run(region, avatar, weapon, seed)   hides the strip if the avatar has no sheet
+##   fight_ahead(fight, tier, questions)        the next encounter, known once a fight is won
 ##   fight_started(fight, tier, questions)      tier 1-5, or 0 if the run has none yet
-##   question_opened(index)                     calm: whatever is playing jumps to its end
+##   question_opened(index)                     calm: everything stops where it is
 ##   answer_resolved(outcome, info)             right, wrong, timeout, late or partial
 ##   fight_ended()                              victory or retreat, then walk on
 ##   run_ended()
@@ -21,15 +22,28 @@ extends Control
 ## beat per answer), in strip units: the band is H units tall and as wide as it needs
 ## to be, with the action centred in a 360-unit window. The beat timings are the
 ## FAL-293 reel's (_scratch/FAL-293/tools/reel.py).
+##
+## Nothing pops in. An encounter starts past the right edge at its place in the world
+## and comes on as the party walks to it (the leg). A question stops the leg where it
+## is, because only idle loops play while one is open; the next answer finishes it at
+## CATCH_UP, then plays its beat. The next question can cut that short too, so the run
+## never waits. The only encounter that is simply there is the first, which opens the
+## screen. With reduced motion the encounter stands in place: there is no scroll.
 
 const H := 200.0
 const ACTION_W := 360.0
+## The narrowest band the party and three monsters fit in, in strip units.
+const MIN_W := 342.0
 const LX := 112.0              # the Learner's feet x
 const SX := 54.0               # Spark's
 const SLOTS := [214.0, 262.0, 314.0]   # monster feet x, front to back
-const WALK_FPS := 12.0
-const APPROACH := 2.6          # the walk that brings an encounter into view
-const ENTER := 1.6             # monsters walking in
+const STRIDE := 36.0 / 880.0   # ground per walk frame, per unit of figure height (README)
+const CATCH_UP := 2.0          # a leg finishing after an answer, times the walk
+const APPROACH := 8.0          # long enough for a leg on a phone or a PC (the demo waits this)
+const PAST_EDGE := 8.0         # how far past the right edge an encounter starts
+const PROP_GAP := 64.0         # the Learner's feet to a prop's left edge, at the end of a leg
+const AMBUSH_WALK := 1.0       # the walk before raiders drop in
+const ENTER := 1.2             # raiders dropping in
 const LAYER_K := {"far": 1.0, "mid": 0.5, "near": 0.62}
 const FLASH := 0.08            # one white flash per hit, 80 ms
 const FLASH_GLOW := 0.55
@@ -80,6 +94,11 @@ var _speed := 0.0            # ground speed, strip units per second
 var _queue: Array = []
 var _seg := {}
 var _cam := 0.0              # the camera after every queued segment
+var _goal := 0.0             # the camera at the end of the leg, where the encounter is met
+var _entered := true         # false until an ambush's raiders have dropped in
+var _dropping := false       # their drop is queued
+var _ahead := false          # fight_ahead() has set up the encounter fight_started() opens
+var _opening := false        # no frame has played since start_run()
 var _monsters: Array = []    # alive, front to back: {sheet, hits, stage, stages, done}
 var _props: Array = []       # in the world: {name, x, state, progress, steps}
 var _answered := 0
@@ -129,16 +148,21 @@ func start_run(p_region: String, p_avatar: String, p_weapon: String = "rebar", p
 	encounter = {}
 	question_open = false
 	_cam = 0.0
+	_goal = 0.0
+	_entered = true
+	_ahead = false
+	_opening = true
 	_roster = assets.roster(region)
 	_build_layers()
-	var lh: float = LEARNER_H
-	_speed = 36.0 / 880.0 * lh * WALK_FPS
 	if active:
+		_speed = STRIDE * LEARNER_H * float(assets.sheets[avatar].anims.walk.fps)
 		_push({"kind": "travel", "d": INF})
 	queue_redraw()
 
 
-func fight_started(fight: int, tier: int = 0, questions: int = 3, override: Dictionary = {}) -> void:
+## The encounter of the next fight, as soon as it is known: it comes on while the
+## player reads the result, so it is on its way before the question opens.
+func fight_ahead(fight: int, tier: int = 0, questions: int = 3, override: Dictionary = {}) -> void:
 	if not _live():
 		return
 	_cut_travel()
@@ -161,20 +185,74 @@ func fight_started(fight: int, tier: int = 0, questions: int = 3, override: Dict
 					"stage": 0, "stages": maxi(1, st)})
 	if _monsters.is_empty() and encounter.kind in ["fight", "boss"]:
 		encounter.kind = "travel"
-	var after := _cam + _speed * APPROACH
-	if encounter.kind in ["explore", "puzzle"] and assets.sheets.has(encounter.prop):
-		var w := _prop_half_w(encounter.prop)
-		_props.append({"name": encounter.prop, "x": after + LX + 64.0 + w, "state": "start", "progress": 0,
-				"steps": int(encounter.questions), "temp": ""})
-	_push({"kind": "travel", "d": APPROACH})
+	_ahead = true
+	_goal = _cam
+	_entered = reduced_motion or _monsters.is_empty() or not encounter.ambush
+	var prop: bool = encounter.kind in ["explore", "puzzle"] and assets.sheets.has(encounter.prop)
+	if reduced_motion:
+		if prop:
+			_props.clear()
+			_props.append(_new_prop(_goal + LX + PROP_GAP + _half_w(encounter.prop)))
+		return
+	if prop:
+		var w := _half_w(encounter.prop)
+		_goal += _leg(LX + PROP_GAP + w, w)
+		_props.append(_new_prop(_goal + LX + PROP_GAP + w))
+	elif not _entered:
+		_goal += _speed * AMBUSH_WALK
+	elif not _monsters.is_empty():
+		_goal += _leg(SLOTS[0], _half_w(_monsters[0].sheet))
+	if _goal > _cam:
+		_push({"kind": "travel", "until": _goal})
+	if not _entered:
+		_push({"kind": "enter", "d": ENTER})
+
+
+## How far the camera has to go for something that ends at screen x `to` to start
+## fully past the right edge, and past whatever the party hasn't reached yet.
+func _leg(to: float, half: float) -> float:
+	var from := _right() + half + PAST_EDGE
+	if not _props.is_empty():
+		var last: Dictionary = _props[-1]
+		from = maxf(from, last.x + _half_w(last.name) + half + PAST_EDGE - _cam)
+	return from - to
+
+
+func _new_prop(x: float) -> Dictionary:
+	return {"name": encounter.prop, "x": x, "state": "start", "progress": 0, "steps": int(encounter.questions), "temp": ""}
+
+
+func fight_started(fight: int, tier: int = 0, questions: int = 3, override: Dictionary = {}) -> void:
+	if not _live():
+		return
+	if not _ahead:
+		fight_ahead(fight, tier, questions, override)
+	_ahead = false
+	if questions != int(encounter.get("questions", questions)):
+		_set_questions(questions)
+
+
+## A boss's parts are only known once the fight opens.
+func _set_questions(questions: int) -> void:
+	var more := questions - int(encounter.questions)
+	encounter.questions = questions
 	if not _monsters.is_empty():
-		_push({"kind": "enter", "d": ENTER, "ambush": encounter.ambush})
+		var lead: Dictionary = _monsters[-1]
+		lead.hits = maxi(1, lead.hits + more)
+		lead.total = lead.hits
+	elif not _props.is_empty():
+		_props[-1].steps = questions
 
 
 func question_opened(_index: int = 0) -> void:
 	if not _live():
 		return
-	_skip_to_rest()
+	if _opening:
+		_seg = {}
+		_queue.clear()
+		_cam = _goal
+		_entered = true
+	_stop_here()
 	question_open = true
 
 
@@ -184,6 +262,7 @@ func answer_resolved(outcome: String, info: Dictionary = {}) -> void:
 	question_open = false
 	if encounter.is_empty() or encounter.kind == "travel":
 		return
+	_walk_up()
 	_answered += 1
 	var final := _answered >= int(encounter.questions)
 	var good := outcome in ["right", "late", "partial"]
@@ -196,12 +275,16 @@ func answer_resolved(outcome: String, info: Dictionary = {}) -> void:
 			return
 		if good:
 			var m: Dictionary = _monsters[0]
-			var seg := {"kind": "strike", "d": 1.9, "glance": glance, "hit": 20 * int(encounter.tier)}
+			var seg := {"kind": "strike", "d": 1.9, "glance": glance, "hit": 20 * int(encounter.tier), "fade": 0.9}
 			m.hits -= 1
 			var done: int = m.total - m.hits
 			var stage := mini(m.stages - 1, done * m.stages / maxi(1, m.total))
 			seg.kills = m.hits <= 0
 			seg.stage_to = stage if stage > m.stage and not seg.kills else -1
+			if seg.kills and _monsters.size() == 1 and encounter.kind == "fight":
+				# the road ahead is waiting: the last monster goes down quicker
+				seg.d = 1.5
+				seg.fade = 0.5
 			_push(seg)
 			if seg.stage_to >= 0:
 				m.stage = stage
@@ -241,10 +324,12 @@ func fight_ended() -> void:
 		_push({"kind": "retreat", "d": 1.2})
 		_monsters.clear()
 	elif encounter.kind in ["fight", "boss"]:
-		_push({"kind": "victory", "d": 2.3, "loot": true})
+		_push({"kind": "victory", "d": 2.3 if encounter.kind == "boss" else 1.1, "loot": true})
 	elif not _props.is_empty() and _props[-1].state == "cleared":
-		_push({"kind": "victory", "d": 1.2, "loot": false})
+		_push({"kind": "victory", "d": 0.6, "loot": false})
 	encounter = {}
+	_goal = _cam
+	_entered = true
 	_push({"kind": "travel", "d": INF})
 
 
@@ -254,6 +339,9 @@ func run_ended() -> void:
 	_cut_travel()
 	encounter = {}
 	_monsters.clear()
+	_goal = _cam
+	_entered = true
+	_ahead = false
 	_push({"kind": "travel", "d": INF})
 
 
@@ -272,6 +360,8 @@ func advance(dt: float) -> void:
 	if not _live():
 		return
 	clock += dt
+	if dt > 0.0:
+		_opening = false
 	while true:
 		if _seg.is_empty():
 			if _queue.is_empty():
@@ -280,6 +370,8 @@ func advance(dt: float) -> void:
 		var end: float = _seg.t0 + _seg.d
 		if clock < end:
 			break
+		if _seg.kind == "enter":
+			_entered = true
 		_seg = {}
 		if not _queue.is_empty():
 			_begin(_queue.pop_front(), end)
@@ -301,17 +393,34 @@ func snapshot() -> Dictionary:
 			"fx": _state.fx.map(func(f): return f.k), "cam": _state.cam, "sprites": sprites}
 
 
+## The screen x of a sprite's left edge, in the snapshot's units, and of the right edge
+## of the band. Tests use them to catch anything that appears on screen.
+func left_edge(s: Dictionary) -> float:
+	var sheet: Dictionary = assets.sheets[s.sheet]
+	return s.x + float(sheet.by_id[s.fid].ox) * _disp_h(s.sheet) / sheet.figure_height
+
+
+func right_edge() -> float:
+	return _right()
+
+
 func _live() -> bool:
 	return active and not fail_animations
 
 
 func _push(seg: Dictionary) -> void:
 	seg.cam0 = _cam
-	if seg.kind == "travel" and seg.d != INF:
-		_cam += _speed * seg.d
+	seg.goal = _goal
+	_dropping = _dropping or seg.kind == "enter"
+	seg.entered = _entered or _dropping
+	if seg.has("until"):
+		seg.rate = seg.get("rate", 1.0)
+		seg.d = (seg.until - _cam) / (_speed * seg.rate)
+		_cam = seg.until
 	seg.monsters = _monsters.map(func(m): return {"sheet": m.sheet, "stage": m.stage})
 	if not _props.is_empty():
 		var p: Dictionary = _props[-1]
+		seg.target = p
 		seg.prop = {"state": p.state, "progress": p.progress}
 	_queue.append(seg)
 
@@ -340,32 +449,41 @@ func _flash_offsets(seg: Dictionary) -> Array:
 	return []
 
 
+## Where the camera is now, part way along a walk or not.
+func _cam_now() -> float:
+	var s: Dictionary = _seg if not _seg.is_empty() else (_queue[0] if not _queue.is_empty() else {})
+	if s.is_empty():
+		return _cam
+	if s.kind != "travel" or not s.has("t0") or reduced_motion:
+		return s.cam0
+	return s.cam0 + _speed * s.get("rate", 1.0) * minf(clock - s.t0, s.d)
+
+
 ## Ends an open-ended walk: the camera stops where it is now.
 func _cut_travel() -> void:
 	if not _seg.is_empty() and _seg.kind == "travel" and _seg.d == INF:
-		_seg.d = clock - _seg.t0
-		_cam = _seg.cam0 + (0.0 if reduced_motion else _speed * _seg.d)
-		_cam = maxf(_cam, _seg.cam0)
+		_cam = _cam_now()
 		_seg = {}
-		_requeue_cams()
-	_queue = _queue.filter(func(s): return not (s.kind == "travel" and s.d == INF))
+	_queue = _queue.filter(func(s): return s.d != INF)
 
 
-## A walk cut short moved the camera less than planned: re-plan what is queued after it.
-func _requeue_cams() -> void:
-	var c := _cam
-	for s in _queue:
-		s.cam0 = c
-		if s.kind == "travel" and s.d != INF:
-			c += _speed * s.d
-	_cam = c
-
-
-## Calm: a question opened, so whatever is playing jumps to where it would end.
-func _skip_to_rest() -> void:
-	_cut_travel()
+## Calm: a question opened, so a walk stops where it is and a beat jumps to where it
+## would end. An encounter still on its way stays where it is, in the world.
+func _stop_here() -> void:
+	_cam = _cam_now()
+	if _seg.get("kind") == "enter":
+		_entered = true
+	_dropping = false
 	_seg = {}
 	_queue.clear()
+
+
+## An answer with the encounter not reached yet: the party finishes the leg first.
+func _walk_up() -> void:
+	if _goal > _cam + 0.01:
+		_push({"kind": "travel", "until": _goal, "rate": CATCH_UP})
+	if not _entered:
+		_push({"kind": "enter", "d": ENTER})
 
 
 ## The props of an encounter the party is leaving keep their last state.
@@ -409,10 +527,12 @@ func _disp_h(name: String) -> float:
 	return 64.0
 
 
-func _prop_half_w(name: String) -> float:
+## How far a sheet reaches left of its feet, in strip units: half its width, or more
+## if it isn't drawn centred on them.
+func _half_w(name: String) -> float:
 	var s: Dictionary = assets.sheets[name]
 	var fr: Dictionary = s.by_id.get(s.states.get("start", ""), s.frames[0])
-	return float(fr.w) * _disp_h(name) / s.figure_height / 2.0
+	return maxf(float(fr.w) / 2.0, -float(fr.ox)) * _disp_h(name) / s.figure_height
 
 
 func _anim_frame(sheet: Dictionary, anim: String, t: float, fallback: String = "") -> String:
@@ -463,47 +583,52 @@ func _compose() -> Dictionary:
 	var u := clock - float(seg.get("t0", clock))
 	var t := clock
 	var walking: bool = kind == "travel" and not reduced_motion
+	var rate: float = seg.get("rate", 1.0)
 	var cam: float = seg.get("cam0", _cam)
 	if walking:
-		cam += _speed * u
+		cam += _speed * rate * u
 	var L := _sprite(avatar, "", LX, "idle")
 	var lsheet: Dictionary = assets.sheets[avatar]
-	L.fid = _anim_frame(lsheet, "walk", u) if walking else _anim_frame(lsheet, "idle", 0.0)
+	L.fid = _anim_frame(lsheet, "walk", u * rate) if walking else _anim_frame(lsheet, "idle", 0.0)
 	L.anim = "walk" if walking else "idle"
 	L.weapon = weapon
 	if not walking:
 		L.scale = 1.0 + 0.01 * (1.0 + sin(t * TAU / BREATH))
 	var SP := _sprite(assets.spark, "idle", SX, "idle")
 	if walking:
-		SP.dy = -1.0 if int(t * 8.0) % 2 == 1 else 0.0
+		SP.dy = -1.0 if int(u * rate * 6.0) % 2 == 1 else 0.0
 	var st := {"cam": cam, "learner": L, "spark": SP, "enemies": [], "props": [], "fx": [], "flash": false}
-	# monsters, front to back: as they were when this segment began, or now if resting
+	# monsters, front to back: as they were when this segment began, or now if resting.
+	# Past the end of the leg they stand further along the road.
 	var ms: Array = seg.get("monsters", _monsters.map(func(m): return {"sheet": m.sheet, "stage": m.stage}))
-	if kind == "travel":
+	var along := maxf(0.0, float(seg.get("goal", _goal)) - cam)
+	if not seg.get("entered", _entered):
 		ms = []
 	for i in ms.size():
 		var m: Dictionary = ms[i]
 		var idle := _monster_idle(m)
-		var e := _sprite(m.sheet, idle[0], SLOTS[mini(i, SLOTS.size() - 1)], "idle")
+		var e := _sprite(m.sheet, idle[0], SLOTS[mini(i, SLOTS.size() - 1)] + along, "idle")
 		e.m = m
 		e.scale = 1.0 + 0.01 * (1.0 + sin(t * PI + i))
 		st.enemies.append(e)
 	# props in the world
+	var target: Dictionary = seg.get("target", _props[-1] if seg.is_empty() and not _props.is_empty() else {})
 	for j in _props.size():
 		var p: Dictionary = _props[j]
 		var x: float = p.x - cam
-		if x < -160.0 or x > _width() - _action_x() + 160.0:
+		if x < -160.0 or x > _right() + 160.0:
 			continue
 		var state: String = p.state
 		var progress: int = p.progress
-		if j == _props.size() - 1 and seg.has("prop") and kind != "rest":
+		var aimed := is_same(p, target)
+		if aimed and seg.has("prop") and kind != "rest":
 			state = seg.prop.state
 			progress = seg.prop.progress
 		var sheet: Dictionary = assets.sheets[p.name]
 		var o := _sprite(p.name, sheet.states.get(state, sheet.states.get("start", sheet.frames[0].id)), x, "state")
 		o.steps = p.steps
 		o.progress = progress
-		o.current = j == _props.size() - 1 and not encounter.is_empty()
+		o.current = aimed and (kind in ["work", "slip"] or encounter.get("kind") in ["explore", "puzzle"])
 		st.props.append(o)
 	match kind:
 		"enter":
@@ -562,31 +687,35 @@ func _width() -> float:
 	return size.x / maxf(0.001, size.y / H) if size.y > 0.0 else ACTION_W
 
 
+## The 360-unit action window, centred. In a band narrower than that its empty margins
+## overhang: the party and the monsters still fit from MIN_W up.
 func _action_x() -> float:
-	return maxf(0.0, (_width() - ACTION_W) / 2.0)
+	return (_width() - ACTION_W) / 2.0
+
+
+## The right edge of the band, in the action's x.
+func _right() -> float:
+	return _width() - _action_x()
+
+
+## The band's height on a screen: `share` of its height, or less if that would leave
+## the band narrower than MIN_W.
+static func fit_height(band_w: float, screen_h: float, share: float) -> float:
+	return minf(screen_h * share, band_w * H / MIN_W)
 
 
 # ------------------------------------------------------------------ beats (u: seconds in)
 
+## An ambush: raiders drop in from the top of the frame.
 func _enter(st: Dictionary, u: float) -> void:
-	var right := _width() - _action_x()
 	for i in st.enemies.size():
 		var e: Dictionary = st.enemies[i]
-		var p := _ease(u / (ENTER - 0.2))
-		var sheet: Dictionary = assets.sheets[e.sheet]
-		if _seg.get("ambush", false):
-			var drop := _ease((u - 0.12 * i) / 0.7)
-			e.dy = lerpf(-H, 0.0, drop) - (6.0 * sin(PI * clampf((u - 0.12 * i - 0.7) / 0.3, 0.0, 1.0)) if drop >= 1.0 else 0.0)
-			if drop < 1.0:
-				e.anim = "drop"
-			if u > 0.12 * i + 0.7 and u < 0.12 * i + 1.1:
-				st.fx.append({"k": "dust", "x": e.x, "p": (u - 0.12 * i - 0.7) / 0.4})
-		else:
-			e.x = lerpf(right + 30.0 + 50.0 * i, e.home, p)
-			if p < 1.0:
-				e.fid = _anim_frame(sheet, "walk", u, e.fid)
-				e.anim = "walk"
-				e.scale = 1.0
+		var drop := _ease((u - 0.12 * i) / 0.7)
+		e.dy = lerpf(-H, 0.0, drop) - (6.0 * sin(PI * clampf((u - 0.12 * i - 0.7) / 0.3, 0.0, 1.0)) if drop >= 1.0 else 0.0)
+		if drop < 1.0:
+			e.anim = "drop"
+		if u > 0.12 * i + 0.7 and u < 0.12 * i + 1.1:
+			st.fx.append({"k": "dust", "x": e.x, "p": (u - 0.12 * i - 0.7) / 0.4})
 
 
 func _strike(st: Dictionary, u: float) -> void:
@@ -634,7 +763,7 @@ func _strike(st: Dictionary, u: float) -> void:
 		tgt.x = tx + 6.0 + (3.0 * sin(u * 60.0) if u < 0.72 else 0.0)
 		tgt.scale = 1.0
 	if _seg.kills and u >= 0.95:
-		var p := (u - 0.95) / 0.9
+		var p: float = (u - 0.95) / _seg.fade
 		tgt.fid = _anim_frame(tsheet, "defeated", 0.0, tgt.fid)
 		tgt.anim = "defeated"
 		tgt.x = tx + 6.0
@@ -716,7 +845,7 @@ func _current_prop(st: Dictionary) -> Dictionary:
 func _work_pose(st: Dictionary, u: float, from: float, to: float, o: Dictionary) -> void:
 	var L: Dictionary = st.learner
 	var lsheet: Dictionary = assets.sheets[avatar]
-	var spot: float = o.x - _prop_half_w(o.sheet) - 18.0
+	var spot: float = o.x - _half_w(o.sheet) - 18.0
 	var heave: bool = o.sheet in HEAVE_PROPS and lsheet.anims.has("heave")
 	var anim := "heave" if heave else "work"
 	if u < from:
@@ -764,7 +893,7 @@ func _work(st: Dictionary, u: float) -> void:
 	if u >= 0.45 and u < 0.95:
 		o.x += 2.0 * sin(u * 50.0)
 		if int(u * 10.0) % 3 == 0:
-			st.fx.append({"k": "dust", "x": o.x - _prop_half_w(o.sheet) * 0.5, "p": fmod(u * 2.0, 1.0)})
+			st.fx.append({"k": "dust", "x": o.x - _half_w(o.sheet) * 0.5, "p": fmod(u * 2.0, 1.0)})
 	if not assets.sheets[o.sheet].dials.is_empty() and u < 0.9:
 		o.spin = u
 	if u >= 0.9:
@@ -777,7 +906,7 @@ func _work(st: Dictionary, u: float) -> void:
 	if _seg.glance and u >= 1.0:
 		# scraped: the hurt pose with a small zap (Puzzle) or a scrape (Explore)
 		if puzzle and u < 1.2:
-			st.fx.append({"k": "zap", "x0": o.x - _prop_half_w(o.sheet), "x1": st.learner.x, "a": 1.0 - (u - 1.0) / 0.2, "s": 0.5})
+			st.fx.append({"k": "zap", "x0": o.x - _half_w(o.sheet), "x1": st.learner.x, "a": 1.0 - (u - 1.0) / 0.2, "s": 0.5})
 		_hurt(st, u, 1.0, 1.35, _seg.cost, 0.5)
 	if _seg.loot:
 		_loot_burst(st, u - 0.95, o.x, 6)
@@ -806,7 +935,7 @@ func _slip(st: Dictionary, u: float) -> void:
 		if puzzle and not sheet.dials.is_empty():
 			o.buzz = 1.0 - clampf((u - 0.5) / 0.45, 0.0, 1.0)
 		elif puzzle and u < 0.85:
-			st.fx.append({"k": "zap", "x0": o.x - _prop_half_w(o.sheet), "x1": st.learner.x, "a": 1.0 - (u - 0.55) / 0.3, "s": 1.0})
+			st.fx.append({"k": "zap", "x0": o.x - _half_w(o.sheet), "x1": st.learner.x, "a": 1.0 - (u - 0.55) / 0.3, "s": 1.0})
 		if puzzle and u >= 0.6 and u < 1.0:
 			st.spark.fid = _anim_frame(assets.sheets[assets.spark], "hurt", 0.0, "idle")
 			st.spark.anim = "hurt"
@@ -826,7 +955,7 @@ func _victory(st: Dictionary, u: float) -> void:
 		st.spark.fid = _anim_frame(assets.sheets[assets.spark], "victory", 0.0, "idle")
 		st.spark.anim = "victory"
 	if _seg.loot:
-		_loot_burst(st, u - 0.2, SLOTS[0] + 6.0, 3)
+		_loot_burst(st, (u - 0.1) * 1.9 / _seg.d, SLOTS[0] + 6.0, 3)
 
 
 func _loot_burst(st: Dictionary, u: float, x0: float, n: int) -> void:
@@ -1019,7 +1148,7 @@ func _draw_loot(base: Transform2D, f: Dictionary, ax: float) -> void:
 			draw_line(c - Vector2(0, 4), c + Vector2(0, 4), Color(1, 1, 0.86, 0.8), 1.0)
 	else:
 		var q := _ease((p - 1.2) / 0.5)
-		x = lerpf(f.x0 + f.dx, _width() - _action_x() - 30.0, q)
+		x = lerpf(f.x0 + f.dx, _right() - 30.0, q)
 		y = lerpf(-4.0, -_ground + 10.0, q)
 	_draw_sprite(base, _sprite(f.sheet, f.id, x, "loot").merged({"dy": y}, true), ax)
 

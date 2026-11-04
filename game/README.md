@@ -464,8 +464,8 @@ the skills missed, and the Scrap goes into the save.
 `Run` has no UI, so a test plays a whole run: `start()`, `tick(delta)`,
 `answer(response)`, `next()`, `quit()`, and the lifelines `use_fifty()`, `use_hint()`
 and `use_freeze()`. The fight screen (`ui/fight.gd`) extends the practice screen and
-draws the run: enemy and player HP, the timer bar, the lifelines, the card, and the
-summary, with the journey strip (FAL-331, below) above the card. The lifeline row
+draws the run: the player's HP, the enemy in the scene, the timer bar, the lifelines, the card and the
+summary, with the journey scene (FAL-331, below) at the top. The lifeline row
 ends with the question's paper: "No calculator", or on Paper 2 the Calculator button.
 
 - **One settings file.** Every number is in `engine/tuning.gd` (`Tuning`): HP, the
@@ -572,7 +572,7 @@ only: nothing in the run waits on them, and a run plays the same with none conne
 
 ### The journey strip
 
-A band of side-view scene above the fight screen's card (FAL-331, plan on FAL-289): the
+The side-view scene at the top of the fight screen (FAL-331, plan on FAL-289): the
 Learner walks right with Spark over the region's parallax, and each answer plays out as
 a beat: Explore, Puzzle, Fight or Boss. It is a view only. It never sends anything back,
 never takes input (`mouse_filter` is IGNORE), and every call reaches it deferred, so the
@@ -588,8 +588,9 @@ run plays the same with the strip on, off or broken (`test_journey.gd` checks al
   | Call | When |
   |---|---|
   | `start_run(region, avatar, weapon, seed)` | the run starts; hides the strip if the avatar has no sheet |
-  | `fight_started(fight, tier, questions)` | a fight opens; tier 1 to 5 (0: none yet, taken as D1 to D2) |
-  | `question_opened(index)` | a question opens: whatever is playing jumps to its end, then only idle loops play |
+  | `fight_ahead(fight, tier, questions)` | a fight is won: the next encounter starts past the right edge and comes on |
+  | `fight_started(fight, tier, questions)` | a fight opens; tier 1 to 5 (0: none yet, taken as D1 to D2). Sets up the encounter if `fight_ahead` didn't |
+  | `question_opened(index)` | a question opens: a walk stops where it is, a beat jumps to its end, then only idle loops play |
   | `answer_resolved(outcome, info)` | right, wrong, timeout, late or partial; `info.damage` sets the damage number |
   | `fight_ended()` | the fight is won or left: victory or retreat, then walk on |
   | `run_ended()` | death or quit |
@@ -604,7 +605,15 @@ run plays the same with the strip on, off or broken (`test_journey.gd` checks al
   (above) into these calls: the run's region goes to its island's journey region
   (`functions` is `signal-tower`), a glancing hit is `partial`, and the avatar is the
   save's `profile.avatar` ("female" when there is none, as the HTML game does). A region
-  with no journey art, or an avatar with no sheet, hides the strip.
+  with no journey art, or an avatar with no sheet, hides the strip. A won fight names
+  the next one from `Dungeon.tier_for()`, which doesn't touch the run.
+- **Nothing pops in.** An encounter starts past the right edge (`_width()`, not a fixed
+  distance) and comes on with the ground at walking speed, a leg of about 6 s on a
+  phone. A question stops the leg where it is. The next answer finishes it at
+  `CATCH_UP` before its beat plays, and the next question can cut that short, so the
+  strip never delays the run. The first encounter of a run opens the screen already in
+  place. Raiders in an ambush drop from the top of the frame. With reduced motion the
+  encounter stands in place.
 - **Calm and reduced motion.** While a question is open only idle loops play. A hit
   gets one 80 ms flash, at most 3 a second. `reduced_motion` swaps poses and stops the
   scroll.

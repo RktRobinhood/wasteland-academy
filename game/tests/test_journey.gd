@@ -273,6 +273,149 @@ func test_reduced_motion() -> void:
 	s.free()
 
 
+## Band sizes in base units: the 390 px phone, a 360 px phone's scene at 9:16, the PC's
+## left column, and a stacked landscape window.
+const BANDS := [Vector2(1080, 631), Vector2(1080, 576), Vector2(1300, 652), Vector2(2000, 576)]
+
+
+## Plays ten fights the way a run does: a won fight names the next, the player reads the
+## result for `read` seconds and spends `think` on each question. each(s, open) runs on
+## every frame.
+func _drive(s: JourneyStage, run_seed: int, read: float, think: float, each: Callable) -> void:
+	var wait := func(t: float, open: bool):
+		for i in int(t / DT):
+			s.advance(DT)
+			each.call(s, open)
+	s.start_run("signal-tower", "learner-female", "rebar", run_seed)
+	for fight in range(1, 11):
+		var tier: int = [1, 2, 3, 4, 1, 3, 4, 2, 4, 5][fight - 1]
+		s.fight_started(fight, tier, 3)
+		for q in 3:
+			s.question_opened(q)
+			wait.call(think, true)
+			s.answer_resolved("wrong" if (fight + q) % 4 == 0 else "right", {})
+			if q == 2:
+				s.fight_ended()
+				if fight < 10:
+					s.fight_ahead(fight + 1, [1, 2, 3, 4, 1, 3, 4, 2, 4, 5][fight], 3)
+			wait.call(read, false)
+
+
+## Each sheet's count on screen, and the x of its rightmost sprite's left edge.
+func _on_screen(s: JourneyStage) -> Dictionary:
+	var seen := {}
+	var snap := s.snapshot()
+	for sp in snap.sprites.slice(2):
+		if sp.a <= 0.0 or s.left_edge(sp) >= s.right_edge():
+			continue
+		var e: Array = seen.get(sp.sheet, [0, -INF])
+		# raiders dropping in come from the top of the frame, not the right
+		seen[sp.sheet] = [e[0] + 1, INF if sp.anim == "drop" else maxf(e[1], s.left_edge(sp))]
+	return seen
+
+
+func test_nothing_pops_in() -> void:
+	for band in BANDS:
+		for pace in [[0.2, 0.2], [1.0, 1.5], [2.5, 2.0], [4.0, 3.0], [10.0, 3.0]]:
+			var s := _stage()
+			s.size = band
+			tree.root.add_child(s)
+			var last := [{}]
+			var first := [true]
+			var step: float = 90.0 * DT * JourneyStage.CATCH_UP + 8.0   # a frame's walk, and a sprite's frame change
+			_drive(s, 7, pace[0], pace[1], func(st: JourneyStage, _open: bool):
+				var now := _on_screen(st)
+				if first[0]:
+					first[0] = false   # the first encounter opens the screen
+				else:
+					for sheet in now:
+						if now[sheet][0] > last[0].get(sheet, [0])[0] and now[sheet][1] < st.right_edge() - step:
+							fail("%s pace %s %.2f s: %s appeared at %.0f of %.0f" % [band, pace, st.clock, sheet, now[sheet][1], st.right_edge()])
+				last[0] = now)
+			s.free()
+
+
+func test_everything_starts_past_the_right_edge() -> void:
+	for band in BANDS:
+		for tier in [1, 2, 3, 4, 5]:
+			for run_seed in range(1, 12):
+				var s := _stage()
+				s.size = band
+				tree.root.add_child(s)
+				s.start_run("signal-tower", "learner-female", "rebar", run_seed)
+				s.advance(DT)
+				s.fight_ahead(3, tier, 3)
+				s.advance(DT)
+				var snap := s.snapshot()
+				for sp in snap.sprites.slice(2):
+					check(s.left_edge(sp) >= s.right_edge(), "%s tier %d: %s starts at %.0f of %.0f" % [band, tier, sp.sheet, s.left_edge(sp), s.right_edge()])
+				s.free()
+
+
+## Nothing happens from afar: a beat waits until the party has walked up.
+func test_the_learner_walks_up_first() -> void:
+	for band in BANDS:
+		for pace in [[0.2, 0.2], [1.0, 1.5], [4.0, 3.0]]:
+			var s := _stage()
+			s.size = band
+			tree.root.add_child(s)
+			var beats := [0]
+			_drive(s, 11, pace[0], pace[1], func(st: JourneyStage, _open: bool):
+				var snap := st.snapshot()
+				var who: Dictionary = snap.sprites[0]
+				if not who.anim in ["attack", "work", "heave", "hurt"]:
+					return
+				beats[0] += 1
+				for sp in snap.sprites.slice(2):
+					if sp.get("current", true) and sp.anim in ["idle", "state"]:
+						check(st.left_edge(sp) < st.right_edge(), "%.2f s: %s beat with %s off screen" % [st.clock, who.anim, sp.sheet]))
+			if pace[0] >= 4.0:
+				check(beats[0] > 100, "%s: beats played (%d frames)" % [band, beats[0]])
+			s.free()
+
+
+## An encounter a question stopped halfway stays where it is, in the world.
+func test_a_question_stops_the_leg_where_it_is() -> void:
+	var s := _stage()
+	s.size = BANDS[0]
+	tree.root.add_child(s)
+	s.start_run("signal-tower", "learner-female", "rebar", 1)
+	s.advance(DT)
+	s.fight_started(1, 1, 3, {"kind": "explore", "prop": "cache-vending"})
+	for i in 120:
+		s.advance(DT)
+	s.question_opened(0)
+	s.advance(DT)
+	var held: float = s.snapshot().sprites[-1].x
+	check(held > JourneyStage.LX + JourneyStage.PROP_GAP + 20.0, "still on its way at %.0f" % held)
+	var cam: float = s.snapshot().cam
+	for i in 200:
+		s.advance(DT)
+	check_eq(s.snapshot().sprites[-1].x, held, "nothing moves while the question is open")
+	check_eq(s.snapshot().cam, cam, "the camera waits too")
+	s.answer_resolved("right", {})
+	for i in 30:
+		s.advance(DT)
+	check(s.snapshot().anims[0] == "walk", "the answer finishes the leg")
+	check(s.snapshot().sprites[-1].x < held, "at a walk: it comes closer")
+	s.free()
+
+
+func test_the_walk_matches_the_ground() -> void:
+	for avatar in ["learner-female", "learner-male"]:
+		var s := _stage()
+		tree.root.add_child(s)
+		s.start_run("signal-tower", avatar, "rebar", 1)
+		var walk: Dictionary = s.assets.sheets[avatar].anims.walk
+		check_eq(float(walk.fps), 8.0, "%s: a full step every 0.75 s" % avatar)
+		check(is_equal_approx(s._speed, 36.0 / 880.0 * JourneyStage.LEARNER_H * 8.0), "the README's ground speed: %.2f" % s._speed)
+		s.advance(1.0)
+		var c0: float = s.snapshot().cam
+		s.advance(1.0)
+		check(is_equal_approx(s.snapshot().cam - c0, s._speed), "the camera follows it")
+		s.free()
+
+
 func test_no_sheet_for_the_avatar_hides_the_strip() -> void:
 	var s := _stage()
 	tree.root.add_child(s)
@@ -313,6 +456,8 @@ func test_every_beat_plays() -> void:
 					"boss":
 						enc.group = ["d5-overseer"]
 				s.fight_started(fight, tier, 5, enc)
+				for i in int(JourneyStage.APPROACH / DT):
+					s.advance(DT)
 				for outcome in ["right", "wrong", "timeout", "late", "partial"]:
 					s.question_opened(0)
 					s.advance(0.1)
@@ -354,12 +499,12 @@ func test_demo_fits_a_phone_and_a_pc_window() -> void:
 		frame.add_child(demo)
 		for i in 3:
 			await tree.process_frame
-		demo.seek(9.0)
+		demo.seek(10.0)
 		await tree.process_frame
 		var strip: JourneyStage = demo.stage
 		var screen := Rect2(Vector2.ZERO, area)
 		check(strip.active, "%s: strip shown" % window)
-		check(strip._width() >= JourneyStage.ACTION_W, "%s: the strip is %.0f units wide" % [window, strip._width()])
+		check(strip._width() >= JourneyStage.MIN_W - 1.0, "%s: the strip is %.0f units wide" % [window, strip._width()])
 		var card := demo.get_node("Column/Margin").get_child(0).get_child(0) as Control
 		check(screen.encloses(card.get_global_rect()), "%s: card %s outside %s" % [window, card.get_global_rect(), screen])
 		check(screen.encloses(strip.get_global_rect()), "%s: strip outside the screen" % window)
@@ -376,6 +521,9 @@ class Recorder:
 
 	func start_run(r: String, a: String, w: String, s: int) -> void:
 		calls.append(["start_run", r, a, w, s])
+
+	func fight_ahead(f: int, t: int, q: int) -> void:
+		calls.append(["fight_ahead", f, t, q])
 
 	func fight_started(f: int, t: int, q: int) -> void:
 		calls.append(["fight_started", f, t, q])
@@ -420,6 +568,15 @@ func test_the_run_drives_the_strip() -> void:
 		fights["%d|%d" % [a.floor, a.fight]] = true
 	check_eq(names.count("fight_started"), fights.size(), "one encounter per fight")
 	check_eq(names.count("fight_ended"), fights.size(), "every encounter ends")
+	var said := []
+	for c in rec.calls:
+		if c[0] == "fight_ahead":
+			said = c
+		elif c[0] == "fight_started":
+			if not said.is_empty():
+				check_eq(c.slice(1, 3), said.slice(1, 3), "fight_ahead named the fight that opened")
+			said = []
+	check(names.count("fight_ahead") > 0, "a won fight names the next")
 	for c in rec.calls:
 		if c[0] == "answer_resolved":
 			check(c[1] in ["right", "wrong", "timeout", "late", "partial"], "outcome %s" % c[1])

@@ -10,6 +10,9 @@ extends RefCounted
 ## and the avatar is the save's profile.avatar, "female" when there is none, as the HTML
 ## game does (js/router.js). A run region whose island has no journey art yet, or an
 ## avatar with no sheet, hides the strip (JourneyStage.start_run()).
+##
+## A won fight names the next one at once (fight_ahead), from what Dungeon works out
+## without the run, so its encounter can scroll on before the next question opens.
 
 ## Island -> the journey region folder in assets/journey/.
 const ISLAND_REGION := {"functions": "signal-tower"}
@@ -73,6 +76,20 @@ func _on_resolved(outcome: String) -> void:
 	if int(run.enemy.hp) <= 0 and (run.boss.is_empty() or run.hp > 0):
 		_call("fight_ended", [])
 		_fight = -2
+		if run.hp > 0:
+			_call_ahead()
+
+
+## The fight after this one, as Run._next_fight() will make it. A boss's parts aren't
+## known yet, so it is sized by its tier until fight_started() says.
+func _call_ahead() -> void:
+	var on_floor: int = run.floor_no
+	var next: int = run.fight + 1
+	if run.fight >= Tuning.FIGHTS_PER_FLOOR:
+		on_floor += 1
+		next = 1
+	var tier := Dungeon.tier_for(run.run_seed, on_floor, next)
+	_call("fight_ahead", [next, tier, int(Tuning.ENEMIES[tier].hits)])
 
 
 func _on_ended(_summary: Dictionary) -> void:
