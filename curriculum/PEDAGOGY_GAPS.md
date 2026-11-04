@@ -1731,7 +1731,51 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 4 exam types have them so far.
+
+#### Volume and surface area of solids, including in terms of a variable (`t3-solid-volume-area`, exam, 13 bank parts)
+
+- **Situation:** One solid and its measurements.
+- **Representations:** **diagram**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given r or the diameter; h → the volume of a cone
+  - **exam** L2: given r; l → the volume of a cone
+  - **exam** L2: given r; l → the perpendicular height of a cone
+  - **exam** L2: given r; h or l → the curved surface area of a cone
+  - **exam** L2: given r; h or l → the total surface area of a cone
+  - **exam** L3: given r; the total surface area → the slant height l
+  - **exam** L4: given r; the total surface area → the volume of the cone
+  - **exam** L1: given base edges; h → the volume of a pyramid
+  - **exam** L3: given the base edge; the slant height of a face → the volume of a square pyramid
+  - **exam** L3: given the base edge; the slant edge → the volume of a square pyramid
+  - **exam** L3: given the base edge; h → the total surface area of a square pyramid
+  - **exam** L1: given r or the diameter → the volume of a sphere
+  - **exam** L1: given r or the diameter → the surface area of a sphere
+  - **exam** L1: given r or the diameter → the volume of a hemisphere
+  - **exam** L2: given r or the diameter → the total surface area of a solid hemisphere
+  - **exam** L3: given the volume; h for a cone → the radius of a sphere, hemisphere or cone
+  - **exam** L3: given the volume; the radius or base edge → the perpendicular height of a cone or square pyramid
+  - **exam** L3: given the measures of a composite solid → the volume
+  - **exam** L4: given the measures of a composite solid → the total surface area, leaving out hidden faces
+  - **exam** L4: given a tank's measures; the cost per m² → the cost of painting all but the base
+  - **exam** L4: given the volume of a composite solid; the height of one piece → r, from an equation with r³ and r²
+  - **exam** L3: given measures in terms of x → an expression for the volume
+  - **exam** L3: given measures in terms of x → an expression for the surface area
+  - **exam** L4: given a hollow cylinder's radii in terms of r; h → S in terms of r and h
+  - **exam** L5: given a hollow cylinder's radii in terms of r; S as a multiple of π → V in terms of r only
+  - **exam** L4: given a cylinder's volume; hemispheres on one or both ends → S in terms of x
+  - **exam** L4: given a sphere's radius; the height of a cylinder inside it → the volume of the cylinder
+  - **exam** L4: given a sphere's radius; the height of a cylinder inside it → the total surface area of the cylinder
+  - **exam** L3: given a sector's radius and angle → the radius of the cone it rolls into
+  - **exam** L3: given a cone's radius and slant height → the angle of its unrolled sector
+  - **exam** L3: given a sector's radius and angle → the curved surface area of the cone
+  - **exam** L4: given a sector's radius and angle → the volume of the cone it rolls into
+- **Angles:** Substitute into the booklet formula; Split a composite solid into standard pieces; Find the perpendicular height first; Rearrange for a missing dimension; Solve a composite volume equation on the GDC; Booklet formulas for each surface; Sketch the net and add exposed faces; Unroll the cone into a sector.
+- **Concept probes:**
+  - *true-false-reason* (L3): A cone and a cylinder have the same radius and the same height. The cone's volume is a third of the cylinder's. — True: V = ⅓πr²h for the cone and πr²h for the cylinder, with the same r and h.
+  - *always-sometimes-never* (L3): The slant height of a right cone is longer than its perpendicular height. — Always: the slant height is the longest side of the right triangle made with the radius and the height.
+  - *true-false-reason* (L3): When a hemisphere sits on a cylinder of the same radius, the total surface area is the two solids' surface areas added. — False: the circle where they join is inside the solid, so it is counted out of both.
+- **Misconceptions used:** 6. Using the slant height instead of the perpendicular height in V = ⅓πr²h; Forgetting the ⅓ for a cone or pyramid, or using (4/3)πr³ for a hemisphere; Using the diameter as the radius; Using the vertical height h in πrl instead of the slant height l; Giving a solid hemisphere's surface as 2πr², forgetting the flat face πr² (or counting a face hidden at a join); Using 4πr² for a hemisphere.
 
 #### Sine rule ambiguous case (`t3-ambiguous-case`, exam, 2 bank parts)
 

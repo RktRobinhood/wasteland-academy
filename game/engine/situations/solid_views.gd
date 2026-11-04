@@ -247,7 +247,7 @@ func u_cone_volume_from_slant(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 
 
 func u_height_from_slant(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var unit := " " + s.unit
+	var unit: String = " " + s.unit
 	var out := pack(s, "h = ", unit, false, s.h, [], [s.l + s.r, s.l - s.r, sqrt(s.l * s.l + s.r * s.r) if s.paper == 2 else s.l])
 	show(out, s, rep, "%s is %s" % [thing(s, "cone"), PHRASE.cone], ["r", "l"])
 	out.asked = "Find the perpendicular height of the cone."
@@ -289,7 +289,7 @@ static func area_line(s: Dictionary) -> String:
 
 
 func u_slant_from_total(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var unit := " " + s.unit
+	var unit: String = " " + s.unit
 	var out := pack(s, "l = ", unit, false, s.l, [], [s.h, s.l + s.r, absf(s.l - s.r)])
 	show(out, s, rep, "%s is %s, closed by a flat circular base" % [thing(s, "cone"), PHRASE.cone], ["r"], [area_line(s)])
 	out.asked = "Find the slant height of the cone."
@@ -412,7 +412,7 @@ static func vol_line(s: Dictionary) -> String:
 
 
 func u_radius_from_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var unit := " " + s.unit
+	var unit: String = " " + s.unit
 	var wrongs: Array = [[2.0 * s.r, R_DIA]]
 	if s.paper == 2:
 		# With the hemisphere's or the cone's fraction missed, r doesn't come out whole.
@@ -439,7 +439,7 @@ func u_radius_from_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 
 
 func u_height_from_volume(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var unit := " " + s.unit
+	var unit: String = " " + s.unit
 	var wrongs: Array = [[s.h / 3.0, R_THIRD]]
 	if s.get("dia", false):
 		wrongs.append([s.h / 4.0, R_DIA])
@@ -576,7 +576,7 @@ func u_paint_cost(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 
 func u_composite_volume_solve(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var unit := " " + s.unit
+	var unit: String = " " + s.unit
 	var cone: bool = s.shape == "cone-hemisphere"
 	var out := pack(s, "r = ", unit, false, s.r, [], [s.r + 1.0, s.r * 1.3, s.r * 0.8])
 	if cone:
@@ -858,7 +858,7 @@ const ROLL := "its straight edges are joined to make a cone with no base."
 
 
 func u_sector_cone_radius(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var unit := " " + s.unit
+	var unit: String = " " + s.unit
 	var out := pack(s, "r = ", unit, false, s.r, [], [s.l * s.theta / 180.0, s.l - s.r, s.l * s.theta / 720.0])
 	sheet(out, s, rep, ["l", "theta"], ROLL)
 	out.asked = "Find the base radius of the cone."

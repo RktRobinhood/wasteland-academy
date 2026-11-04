@@ -3205,6 +3205,65 @@
 				"every 3 s.f. answer is at least 0.03 of a unit of its third figure from a rounding edge",
 				"rearranging the line of y on x reads differently from the line of x on y at 3 s.f."
 			]
+		},
+		"solid": {
+			"name": "One solid and its measurements",
+			"summary": "A cone, pyramid, sphere, hemisphere or a composite of them, with a sketch or in words, or the flat sector that rolls into a cone. Its radius, height, slant height and base edges fix every volume and area, and any of them can be asked, or found back from a given volume or area.",
+			"quantities": [
+				{
+					"name": "shape",
+					"is": "the solid",
+					"pick": "cone, pyramid, sphere, hemisphere, a cone on a hemisphere, a cone or hemisphere on a cylinder, a cylinder with a hemisphere hollowed out, a capsule, a hollow cylinder, a cylinder inside a sphere, or a sector"
+				},
+				{
+					"name": "r, h, l",
+					"is": "radius, perpendicular height and slant height",
+					"pick": "Paper 1: a Pythagorean triple with r at most 12; Paper 2: r and h or l to 1 d.p., with h/r from 0.6 to 3.5"
+				},
+				{
+					"name": "a, b, t, e",
+					"is": "a pyramid's base edges, the slant height of a face and its slant edge",
+					"pick": "Paper 1: whole numbers, or half a base edge, h and t from a triple, with a, h and e from a²/2 + h² = e²; Paper 2: to 1 d.p."
+				},
+				{
+					"name": "c, big",
+					"is": "a cylinder's height and, where it differs from r, its radius",
+					"pick": "Paper 1: whole numbers; Paper 2: to 1 d.p."
+				},
+				{
+					"name": "vol, area",
+					"is": "a volume or a total surface given, to work back from",
+					"pick": "Paper 1: an exact multiple of π, from whole measures; Paper 2: a whole number, so the length found needs a calculator"
+				},
+				{
+					"name": "theta",
+					"is": "a sector's angle",
+					"pick": "whole, from 60° to 300°, and on Paper 1 such that the base radius is whole"
+				},
+				{
+					"name": "rx, hx, lx, tail",
+					"is": "measures in terms of x",
+					"pick": "whole multiples of x, a triple where the slant height is needed, and a whole cylinder height"
+				},
+				{
+					"name": "k, m",
+					"is": "a hollow cylinder's outer radius kr, and its total surface mπ",
+					"pick": "k is 2, 3, 5 or 6, and m is even, from 60 to 480"
+				},
+				{
+					"name": "price",
+					"is": "the cost of paint per m²",
+					"pick": "Paper 1: $2 to $9; Paper 2: $1.50 to $9.50 to 1 d.p."
+				}
+			],
+			"clean": [
+				"Paper 1 answers are exact: a volume or area is a multiple of π with a whole measure behind it, and a pyramid's is a whole number or a fraction",
+				"Paper 2 measures have one decimal place, and each answer is to 3 s.f. and needs rounding",
+				"every 3 s.f. answer is at least 0.03 of a unit of its third figure from a rounding edge",
+				"a hemisphere hollowed out of a cylinder fits: r ≤ R − 0.4 and r ≤ c − 0.9",
+				"a cylinder inside a sphere has height less than the sphere's diameter",
+				"a sector's angle stays from 60° to 300°, and its cone's radius is less than the sector's radius"
+			]
 		}
 	},
 	"skills": {
@@ -3275,6 +3334,8 @@
 		"SL1.4.find-rate-or-pv": "Find the present value or the interest rate",
 		"SL1.4.find-time": "Find the time needed to reach a target value",
 		"SL1.4.compare-options": "Compare investment options and compounding frequencies",
+		"SL3.1.volume-solids": "Find volumes of pyramids, cones, spheres, hemispheres and composite solids",
+		"SL3.1.surface-area": "Find surface areas of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.5.ambiguous-case": "Resolve the ambiguous case of the sine rule (two possible triangles)",
 		"SL3.2.sine-rule": "Use the sine rule to find a side or an angle",
 		"SL3.2.area-sine": "Find the area of a triangle using ½ab sin C, or work backwards from the area",
@@ -18496,6 +18557,784 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Volume and surface area of solids, including in terms of a variable",
+			"summary": "One solid, shown by a labelled sketch or in words: a cone, pyramid, sphere, hemisphere or a composite. Find its volume or surface area, a height by Pythagoras, a radius or height from a given volume, a composite's r with the GDC, an expression in terms of a variable, the cost of painting it, or the sector that rolls into a cone.",
+			"situation": "solid",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a labelled sketch of the solid"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "the solid and its measures in sentences"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "cone-volume",
+					"given": [
+						"r or the diameter",
+						"h"
+					],
+					"asked": "the volume of a cone",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "cone-volume-from-slant",
+					"given": [
+						"r",
+						"l"
+					],
+					"asked": "the volume of a cone",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "height-from-slant",
+					"given": [
+						"r",
+						"l"
+					],
+					"asked": "the perpendicular height of a cone",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "cone-curved",
+					"given": [
+						"r",
+						"h or l"
+					],
+					"asked": "the curved surface area of a cone",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "cone-total",
+					"given": [
+						"r",
+						"h or l"
+					],
+					"asked": "the total surface area of a cone",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "slant-from-total",
+					"given": [
+						"r",
+						"the total surface area"
+					],
+					"asked": "the slant height l",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "cone-volume-from-total",
+					"given": [
+						"r",
+						"the total surface area"
+					],
+					"asked": "the volume of the cone",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids",
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "pyramid-volume",
+					"given": [
+						"base edges",
+						"h"
+					],
+					"asked": "the volume of a pyramid",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "pyramid-volume-from-slant",
+					"given": [
+						"the base edge",
+						"the slant height of a face"
+					],
+					"asked": "the volume of a square pyramid",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "pyramid-volume-from-edge",
+					"given": [
+						"the base edge",
+						"the slant edge"
+					],
+					"asked": "the volume of a square pyramid",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "pyramid-surface",
+					"given": [
+						"the base edge",
+						"h"
+					],
+					"asked": "the total surface area of a square pyramid",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "sphere-volume",
+					"given": [
+						"r or the diameter"
+					],
+					"asked": "the volume of a sphere",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "sphere-surface",
+					"given": [
+						"r or the diameter"
+					],
+					"asked": "the surface area of a sphere",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "hemisphere-volume",
+					"given": [
+						"r or the diameter"
+					],
+					"asked": "the volume of a hemisphere",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "hemisphere-surface",
+					"given": [
+						"r or the diameter"
+					],
+					"asked": "the total surface area of a solid hemisphere",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "radius-from-volume",
+					"given": [
+						"the volume",
+						"h for a cone"
+					],
+					"asked": "the radius of a sphere, hemisphere or cone",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "height-from-volume",
+					"given": [
+						"the volume",
+						"the radius or base edge"
+					],
+					"asked": "the perpendicular height of a cone or square pyramid",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "composite-volume",
+					"given": [
+						"the measures of a composite solid"
+					],
+					"asked": "the volume",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "composite-surface",
+					"given": [
+						"the measures of a composite solid"
+					],
+					"asked": "the total surface area, leaving out hidden faces",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "paint-cost",
+					"given": [
+						"a tank's measures",
+						"the cost per m²"
+					],
+					"asked": "the cost of painting all but the base",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "composite-volume-solve",
+					"given": [
+						"the volume of a composite solid",
+						"the height of one piece"
+					],
+					"asked": "r, from an equation with r³ and r²",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "volume-in-terms",
+					"given": [
+						"measures in terms of x"
+					],
+					"asked": "an expression for the volume",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "surface-in-terms",
+					"given": [
+						"measures in terms of x"
+					],
+					"asked": "an expression for the surface area",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "hollow-surface",
+					"given": [
+						"a hollow cylinder's radii in terms of r",
+						"h"
+					],
+					"asked": "S in terms of r and h",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "hollow-volume-from-surface",
+					"given": [
+						"a hollow cylinder's radii in terms of r",
+						"S as a multiple of π"
+					],
+					"asked": "V in terms of r only",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "surface-from-volume",
+					"given": [
+						"a cylinder's volume",
+						"hemispheres on one or both ends"
+					],
+					"asked": "S in terms of x",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "inscribed-volume",
+					"given": [
+						"a sphere's radius",
+						"the height of a cylinder inside it"
+					],
+					"asked": "the volume of the cylinder",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				},
+				{
+					"id": "inscribed-surface",
+					"given": [
+						"a sphere's radius",
+						"the height of a cylinder inside it"
+					],
+					"asked": "the total surface area of the cylinder",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "sector-cone-radius",
+					"given": [
+						"a sector's radius and angle"
+					],
+					"asked": "the radius of the cone it rolls into",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "sector-angle",
+					"given": [
+						"a cone's radius and slant height"
+					],
+					"asked": "the angle of its unrolled sector",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "sector-curved",
+					"given": [
+						"a sector's radius and angle"
+					],
+					"asked": "the curved surface area of the cone",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.surface-area"
+					]
+				},
+				{
+					"id": "sector-cone-volume",
+					"given": [
+						"a sector's radius and angle"
+					],
+					"asked": "the volume of the cone it rolls into",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.1.volume-solids"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.1.volume-solids",
+					"method": "booklet-formula",
+					"suits": [
+						"cone-volume",
+						"pyramid-volume",
+						"sphere-volume",
+						"hemisphere-volume",
+						"volume-in-terms"
+					],
+					"name": "Substitute into the booklet formula",
+					"about": "Choose V = ⅓Bh, ⅓πr²h, (4/3)πr³ or (2/3)πr³ for a hemisphere and substitute."
+				},
+				{
+					"skill": "SL3.1.volume-solids",
+					"method": "decompose",
+					"suits": [
+						"composite-volume"
+					],
+					"name": "Split a composite solid into standard pieces",
+					"about": "Break the solid into cones, hemispheres, cylinders or pyramids, find each volume, then add (or subtract a removed piece)."
+				},
+				{
+					"skill": "SL3.1.volume-solids",
+					"method": "height-by-pythagoras",
+					"suits": [
+						"cone-volume-from-slant",
+						"height-from-slant",
+						"cone-volume-from-total",
+						"pyramid-volume-from-slant",
+						"pyramid-volume-from-edge",
+						"inscribed-volume",
+						"sector-cone-volume"
+					],
+					"name": "Find the perpendicular height first",
+					"about": "When only a slant height or slant edge is given, use a right triangle through the apex to get h before using ⅓Bh."
+				},
+				{
+					"skill": "SL3.1.volume-solids",
+					"method": "rearrange",
+					"suits": [
+						"radius-from-volume",
+						"height-from-volume",
+						"hollow-volume-from-surface"
+					],
+					"name": "Rearrange for a missing dimension",
+					"about": "Set the formula equal to the given volume and rearrange, e.g. r³ = 3V/(4π) then cube-root."
+				},
+				{
+					"skill": "SL3.1.volume-solids",
+					"method": "gdc-solver",
+					"suits": [
+						"composite-volume-solve"
+					],
+					"name": "Solve a composite volume equation on the GDC",
+					"about": "When the equation mixes r² and r³ terms, graph V(r) against the target volume or use the solver."
+				},
+				{
+					"skill": "SL3.1.surface-area",
+					"method": "booklet-formula",
+					"suits": [
+						"cone-curved",
+						"cone-total",
+						"slant-from-total",
+						"sphere-surface",
+						"hemisphere-surface",
+						"surface-in-terms"
+					],
+					"name": "Booklet formulas for each surface",
+					"about": "Use πrl for a cone's curved surface, 4πr² for a sphere and 2πr² for a hemisphere's curved part, finding l = √(r² + h²) first if needed."
+				},
+				{
+					"skill": "SL3.1.surface-area",
+					"method": "net-face-by-face",
+					"suits": [
+						"cone-total",
+						"hemisphere-surface",
+						"pyramid-surface",
+						"composite-surface",
+						"paint-cost",
+						"hollow-surface",
+						"surface-from-volume",
+						"inscribed-surface"
+					],
+					"name": "Sketch the net and add exposed faces",
+					"about": "List every exposed face (base, triangles, curved surfaces), leave out faces hidden where solids join, and add their areas."
+				},
+				{
+					"skill": "SL3.1.surface-area",
+					"method": "unrolled-sector",
+					"suits": [
+						"cone-curved",
+						"sector-cone-radius",
+						"sector-angle",
+						"sector-curved"
+					],
+					"name": "Unroll the cone into a sector",
+					"about": "The curved surface opens into a sector of radius l with arc 2πr, so its area is ½ × l × 2πr = πrl."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A cone and a cylinder have the same radius and the same height. The cone's volume is a third of the cylinder's.",
+					"answer": "True: V = ⅓πr²h for the cone and πr²h for the cylinder, with the same r and h.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The slant height of a right cone is longer than its perpendicular height.",
+					"answer": "Always: the slant height is the longest side of the right triangle made with the radius and the height.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "When a hemisphere sits on a cylinder of the same radius, the total surface area is the two solids' surface areas added.",
+					"answer": "False: the circle where they join is inside the solid, so it is counted out of both.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.1.volume-solids#0",
+					"text": "Using the slant height instead of the perpendicular height in V = ⅓πr²h",
+					"as": "distractor",
+					"in": [
+						"cone-volume-from-slant",
+						"cone-volume-from-total",
+						"pyramid-volume-from-slant",
+						"pyramid-volume-from-edge",
+						"composite-volume",
+						"inscribed-volume",
+						"sector-cone-volume"
+					],
+					"wrong": "the slant height, slant edge or the sphere's radius used as the height"
+				},
+				{
+					"ref": "SL3.1.volume-solids#1",
+					"text": "Forgetting the ⅓ for a cone or pyramid, or using (4/3)πr³ for a hemisphere",
+					"as": "distractor",
+					"in": [
+						"cone-volume",
+						"cone-volume-from-slant",
+						"cone-volume-from-total",
+						"pyramid-volume",
+						"pyramid-volume-from-slant",
+						"pyramid-volume-from-edge",
+						"hemisphere-volume",
+						"radius-from-volume",
+						"height-from-volume",
+						"composite-volume",
+						"composite-volume-solve",
+						"volume-in-terms",
+						"inscribed-volume",
+						"sector-cone-volume"
+					],
+					"wrong": "the volume with the ⅓ left out, or a whole sphere's (4/3)πr³ for a hemisphere"
+				},
+				{
+					"ref": "SL3.1.volume-solids#2",
+					"text": "Using the diameter as the radius",
+					"as": "distractor",
+					"in": [
+						"cone-volume",
+						"sphere-volume",
+						"sphere-surface",
+						"hemisphere-volume",
+						"hemisphere-surface",
+						"radius-from-volume",
+						"height-from-volume"
+					],
+					"wrong": "the diameter put where the radius goes, or the diameter given for the radius"
+				},
+				{
+					"ref": "SL3.1.surface-area#0",
+					"text": "Using the vertical height h in πrl instead of the slant height l",
+					"as": "distractor",
+					"in": [
+						"cone-curved",
+						"cone-total",
+						"pyramid-surface",
+						"composite-surface",
+						"paint-cost",
+						"inscribed-surface",
+						"surface-in-terms"
+					],
+					"wrong": "h, or the longest length shown, in place of the slant height or the cylinder's radius"
+				},
+				{
+					"ref": "SL3.1.surface-area#1",
+					"text": "Giving a solid hemisphere's surface as 2πr², forgetting the flat face πr² (or counting a face hidden at a join)",
+					"as": "distractor",
+					"in": [
+						"hemisphere-surface",
+						"composite-surface",
+						"paint-cost",
+						"surface-in-terms",
+						"hollow-surface",
+						"surface-from-volume",
+						"inscribed-surface"
+					],
+					"wrong": "a flat face left out, or a hidden face or the unpainted base counted"
+				},
+				{
+					"ref": "SL3.1.surface-area#2",
+					"text": "Using 4πr² for a hemisphere",
+					"as": "distractor",
+					"in": [
+						"hemisphere-surface",
+						"composite-surface",
+						"paint-cost",
+						"surface-in-terms",
+						"surface-from-volume"
+					],
+					"wrong": "4πr² in place of the hemisphere's 2πr²"
+				}
+			],
+			"chain": [
+				"read the shape and which lengths are given",
+				"halve a diameter; find the height or slant height with Pythagoras if it is the other one that is given",
+				"split a composite into pieces, and list only the outer faces",
+				"substitute into the booklet formula, or rearrange it for the unknown length",
+				"give it exactly on Paper 1, or to 3 s.f. on Paper 2"
+			],
 			"frequency": 13,
 			"marks": 3,
 			"section": {
@@ -18505,9 +19344,7 @@
 			"paper": {
 				"p1": 8,
 				"p2": 5
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-ambiguous-case",
