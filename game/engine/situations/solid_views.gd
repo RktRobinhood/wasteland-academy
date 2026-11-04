@@ -89,7 +89,7 @@ static func w(x: float) -> String:
 
 ## A length as the working writes it: as given where it has one decimal place.
 static func M(x: float) -> String:
-	return Fmt.dec(Q.new(roundi(x * 10.0), 10)) if absf(x * 10.0 - roundf(x * 10.0)) < 1e-9 else w(x)
+	return Fmt.dec(Q.new(roundi(x * 100.0), 100)) if absf(x * 100.0 - roundf(x * 100.0)) < 1e-9 else w(x)
 
 
 ## A value in the working: a multiple of π, exact, or a number on Paper 2.
@@ -566,7 +566,7 @@ func u_paint_cost(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs.append([(open + 2.0 * s.r * s.r) * s.price, R_FOUR])
 	var out := pack(s, "cost = $", "", true, x, wrongs, [open])
 	show(out, s, rep, "%s is %s, with its base on the ground" % [thing(s, "tank"), PHRASE[s.shape]], keys_of(s),
-		["Paint costs $%s per m²." % M(s.price)])
+		["Paint costs $%s per m²." % ("%d" % s.price if s.paper == 1 else "%.2f" % s.price)])
 	out.asked = "Find the cost of painting the outside of the tank. The base is not painted."
 	var steps := face_steps(s, faces(s, true))
 	steps.append("Area to paint: %s m². Cost: %s × %s = %s" % [E(s, open), E(s, open), M(s.price), E(s, x)])
@@ -709,7 +709,7 @@ func u_surface_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			steps.append("l = √((%dx)² + (%dx)²) = %dx" % [rx, hx, lx])
 			steps.append("Curved surface: π%s(%dx) = %dπx²" % [r_t, lx, rx * lx])
 			if total:
-				steps.append("Base: π%s² = %dπx²" % [r_t, rx * rx])
+				steps.append("Base: π%s² = %sπx²" % [r_t, Fmt.lead(Q.new(rx * rx))])
 			out.wrongs = [expr_wrong(head, [[Q.new(rx * hx + extra), "πx²"]], R_H_FOR_L)]
 			out.generic = [expr(head, [[c.add(1), "πx²"]]).values, expr(head, [[c.add(2), "πx²"]]).values, expr(head, [[c.mul(2), "πx²"]]).values]
 			if not total:
@@ -718,7 +718,7 @@ func u_surface_in_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			var r2 := Q.new(rx * rx)
 			terms = [[r2.mul(3), "πx²"]]
 			steps.append("Curved part: 2π%s² = %dπx²" % [r_t, 2 * rx * rx])
-			steps.append("Flat circle: π%s² = %dπx²" % [r_t, rx * rx])
+			steps.append("Flat circle: π%s² = %sπx²" % [r_t, Fmt.lead(r2)])
 			out.wrongs = [expr_wrong(head, [[r2.mul(2), "πx²"]], R_FLAT), expr_wrong(head, [[r2.mul(4), "πx²"]], R_FOUR)]
 			out.generic = [expr(head, [[r2, "πx²"]]).values, expr(head, [[r2.mul(5), "πx²"]]).values]
 		_:
