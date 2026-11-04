@@ -13637,6 +13637,238 @@ def check_link_transformations(q):
     return None, None
 
 
+def lv_read_parent(text):
+    return tc_expr(text)
+
+
+def lv_point_on(par, x, y):
+    need(par.subs(X, x) == y, f"({x}, {y}) is not on {par}")
+
+
+def lv_eq_vector(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(r"The graph of y = (.+) is moved (.+)\.", L[0]) if rep == "words" else None
+    par, (a, b) = (tc_expr(m[1]), lt_moved_by(m[2])) if m else (tc_expr(rhs(L[0])), lt_moved_by(L[1]))
+    g = lt_move(par, a, b)
+    tc_opts(q, lambda t: tc_expr(rhs(t)), lambda e: tc_same(e, g),
+            {"SL2.11.translate#0": lambda e: tc_same(e, lt_move(par, -a, b)), "SL2.11.translate#1": lambda e: tc_same(e, par.subs(X, X - a + b))})
+
+
+def lv_image_undo(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(rf"(?:The graph of y = (.+) is shown, with the point P|The point P)\(({LT_NUM}), ({LT_NUM})\)(?: is on y = (.+))?\.", L[0])
+    par = tc_expr(m[1] or m[4])
+    x, y = tc_num(m[2]), tc_num(m[3])
+    lv_point_on(par, x, y)
+    a, b = lt_moved_by(L[1])
+    if rep == "graph":
+        tc_curves_are(q["graph"], q["graph"]["curves"], par)
+    want = ((x + a, y + b), (-a, -b))
+
+    def rd(t):
+        p = lt_pts(t)
+        need(len(p) == 2, f"can't read {t!r}")
+        return tuple(p)
+    tc_opts(q, rd, lambda v: v == want, {})
+
+
+def lv_image_eq(q):
+    L = q["lines"]
+    x, y = lt_pts(L[0])[0]
+    m = re.fullmatch(rf"The new graph is y = f\(x ([+−]) (\d+)\)(?: ([+−]) (\d+))?\.", L[1])
+    a = R(m[2]) * (1 if m[1] == "−" else -1)
+    b = R(m[4]) * (1 if m[3] == "+" else -1)
+    pair = lambda u, v: f"({lt_d(u)}, {lt_d(v)})"
+    gc_check_common(q, pair(x + a, y + b), {"SL2.11.image-point#0": {pair(x - a, y + b)}})
+
+
+def lv_from_images(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.search(r"y = (.+?) (?:goes to|and its image)", L[0])
+    par = tc_expr(m[1])
+    (x, y), (ix, iy) = lt_pts(L[0])[:2]
+    lv_point_on(par, x, y)
+    a, b = ix - x, iy - y
+    g = lt_move(par, a, b)
+    if rep == "graph":
+        lt_sand(q, par, g)
+
+    def rd(t):
+        m = re.fullmatch(r"the vector is (\(.+\)), so y = (.+)", t)
+        return lt_vec(m[1]), tc_expr(m[2])
+    tc_opts(q, rd, lambda v: v[0] == (a, b) and tc_same(v[1], g), {})
+
+
+def lv_from_vertex(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    plain = parse(re.search(r"carries y = (.+) onto", q["asked"])[1])
+    if rep == "graph":
+        m = re.fullmatch(r"The graphs of y = (.+) and y = (.+) are shown, with the new vertex marked\.", L[0])
+        need(parse(m[1]) == plain, "the plain parabola")
+        e = parse(m[2])
+        lt_sand(q, plain, e)
+    else:
+        e = parse(rhs(L[0]))
+    h = sp.solve(sp.diff(e, X), X)[0]
+    c = e.subs(X, h)
+    need(sp.expand(lt_move(plain, h, c) - e) == 0, "it isn't the plain parabola moved")
+    pair = lambda u, v: f"({lt_d(u)}, {lt_d(v)})"
+    gc_check_common(q, pair(h, c), {"SL2.6.vertex#0": {pair(-h, c)}})
+
+
+def lv_vertex_form(q):
+    m = re.fullmatch(r"The graph of y = (.+) is moved by the vector (\(.+\))\.", q["lines"][0])
+    plain = parse(m[1])
+    h, c = lt_vec(m[2])
+    g = lt_move(plain, h, c)
+
+    def rd(t):
+        m = re.fullmatch(r"y = (.+), with vertex (\(.+\))", t)
+        return parse(m[1]), lt_vec(m[2])
+    tc_opts(q, rd, lambda v: sp.expand(v[0] - g) == 0 and v[1] == (h, c),
+            {"SL2.11.translate#0": lambda v: sp.expand(v[0] - lt_move(plain, -h, c)) == 0, "SL2.6.vertex#0": lambda v: sp.expand(v[0] - g) == 0 and v[1] == (-h, c)})
+
+
+def lv_direction(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "words":
+        m = tc_num(re.search(rf"gradient ({LT_NUM})\.", L[0])[1])
+    else:
+        t = re.search(r"y = (.+?)(?:\.| is shown|$)", L[0])[1].replace("The line ", "")
+        e = tc_expr(t)
+        m = sp.diff(e, X)
+        if rep == "graph":
+            tc_curves_are(q["graph"], q["graph"]["curves"], e)
+            p = q["graph"]["points"]
+            need(len(p) == 2 and all(e.subs(X, sp.nsimplify(u["x"])) == sp.nsimplify(u["y"]) for u in p), "the marked points are not on the line")
+    tc_opts(q, lt_vec, lambda v: v[0] != 0 and v[1] / v[0] == m, {"SL2.1.gradient#0": lambda v: v[0] != 0 and v[1] / v[0] == 1 / m})
+
+
+def lv_gradient(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    t = L[0]
+    pts = lt_pts(t)
+    if "direction vector" in t:
+        (x0, y0), (u, v) = pts
+        m = v / u
+    else:
+        (x0, y0), (x1, y1) = pts
+        m = (y1 - y0) / (x1 - x0)
+    line = m * (X - x0) + y0
+    if rep == "graph":
+        tc_curves_are(q["graph"], q["graph"]["curves"], line)
+
+    def rd(text):
+        k = re.fullmatch(rf"gradient ({LT_NUM}), and y = (.+)", text)
+        return tc_num(k[1]), tc_expr(k[2])
+    tc_opts(q, rd, lambda o: o[0] == m and tc_same(o[1], line), {"SL2.1.gradient#1": lambda o: o[0] == -m})
+
+
+def lv_pi(t):
+    m = re.fullmatch(r"(−?)(\d*)π(?:/(\d+))?", t)
+    need(m is not None, f"can't read {t!r}")
+    v = sp.Rational(int(m[2] or 1), int(m[3] or 1))
+    return -v if m[1] else v
+
+
+def lv_wave(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    t = L[0] if rep == "equation" else re.search(r"and (y = .+) are shown", L[0])[1]
+    m = re.fullmatch(r"y = (\d+) sin\((\d+)x ([+−]) ([^)]+)\)(?: ([+−]) (\d+))?", t)
+    A, B = R(m[1]), R(m[2])
+    E = lv_pi(m[4]) * (1 if m[3] == "+" else -1)
+    D = R(m[6]) * (1 if m[5] == "+" else -1)
+    b = re.search(r"The graph of y = (\d+) sin\((\d+)x\) is mapped", q["asked"])
+    need((R(b[1]), R(b[2])) == (A, B), "the base wave is not this wave's")
+    f = A * sp.sin(B * X + E * sp.pi) + D
+    base = A * sp.sin(B * X)
+    if rep == "graph":
+        lt_sand(q, base, f)
+
+    def rd(text):
+        k = re.fullmatch(rf"\(([^,]+), ({LT_NUM})\)", text)
+        return lv_pi(k[1]), tc_num(k[2])
+
+    def same(v):
+        moved = lt_move(base, v[0] * sp.pi, v[1])
+        return all(abs(sp.N((moved - f).subs(X, sp.Rational(n, 7)))) < 1e-9 for n in (1, 5, 9, 13, 22))
+    tc_opts(q, rd, same, {"SL3.7.transformations#0": lambda v: v == (-E, D), "SL3.7.transformations#2": lambda v: v == (E / B, D)})
+    need(rd(q["answer_text"]) == (-E / B, D), "the answer is not −E/B")
+
+
+def lv_p3(text):
+    m = re.fullmatch(rf"([A-Z]?)\(({LT_NUM}), ({LT_NUM}), ({LT_NUM})\)", text)
+    need(m is not None, f"can't read {text!r}")
+    return tuple(tc_num(m[i]) for i in (2, 3, 4))
+
+
+def lv_step(q):
+    L = q["lines"]
+    m = re.fullmatch(r"A(\(.+\)) and B(\(.+\)) are points in 3D\.", L[0])
+    A, B = lv_p3(m[1]), lv_p3(m[2])
+    st = tuple(v - u for u, v in zip(A, B))
+    mid = tuple((u + v) / 2 for u, v in zip(A, B))
+    d = sp.sqrt(sum(v**2 for v in st))
+    need(d.is_integer and all(v % 2 == 0 for v in st), f"step {st} has odd parts or a surd length")
+    t3 = lambda v: "(" + ", ".join(lt_d(x) for x in v) + ")"
+    root = lambda n: lt_d(sp.sqrt(n)) if sp.sqrt(n).is_rational else f"√{n}"
+    say = lambda s, c, w: f"step {t3(s)}, midpoint {t3(c)}, distance {w}"
+    bad = set()
+    for i in range(3):
+        if A[i] < 0 < B[i]:
+            w = list(st)
+            w[i] = B[i] + A[i]
+            bad.add(say(w, [u + v / 2 for u, v in zip(A, w)], root(sum(v**2 for v in w))))
+    need(bad, "no coordinate where a negative can be mishandled")
+    gc_check_common(q, say(st, mid, lt_d(d)), {"SL3.1.distance-3d#0": {say(st, mid, lt_d(abs(sum(st))))}, "SL3.1.distance-3d#1": bad})
+
+
+def lv_endpoint(q):
+    L = q["lines"]
+    m = re.fullmatch(r"A(\(.+\)) and M(\(.+\)) are points in 3D\.", L[0])
+    A, M = lv_p3(m[1]), lv_p3(m[2])
+    B = tuple(2 * w - u for u, w in zip(A, M))
+    say = lambda v: f"x = {lt_d(v[0])}, y = {lt_d(v[1])}, z = {lt_d(v[2])}"
+    gc_check_common(q, say(B), {"SL3.1.midpoint-3d#1": {say([(u + w) / 2 for u, w in zip(A, M)])}, "SL3.1.midpoint-3d#2": {say([w / 2 for w in M])}})
+
+
+def lv_time(t):
+    return tc_expr(t.replace("t", "x"))
+
+
+def lv_delay(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        m = re.fullmatch(r"The graphs show A's displacement s_A\(t\) = (.+), and B's, which is A's moved by the vector \((\d+), 0\)\.", L[0])
+    else:
+        m = re.fullmatch(r"s_A\(t\) = (.+), in metres, for t seconds after the start\.", L[0])
+        m = (None, m[1], re.search(r"\((\d+), 0\)", L[1])[1])
+    sa, d = lv_time(m[1]), R(m[2])
+    need(d > 0, "no delay")
+    sb = sa.subs(X, X - d)
+    if rep == "graph":
+        lt_sand(q, sa, sb)
+
+    def rd(text):
+        k = re.fullmatch(r"s_B\(t\) = (.+): B reaches each position (\d+) seconds? (after|before) A", text)
+        return lv_time(k[1]), R(k[2]), k[3]
+    tc_opts(q, rd, lambda v: tc_same(v[0], sb) and v[1] == d and v[2] == "after", {})
+
+
+LV_CHECKS = {"equation-from-vector": lv_eq_vector, "image-and-undo": lv_image_undo, "image-from-equation": lv_image_eq, "vector-from-images": lv_from_images,
+             "vector-from-vertex-form": lv_from_vertex, "vertex-form-from-vector": lv_vertex_form, "direction-from-gradient": lv_direction,
+             "gradient-from-vector": lv_gradient, "wave-shift-vector": lv_wave, "step-in-3d": lv_step, "endpoint-from-midpoint": lv_endpoint, "time-delay": lv_delay}
+
+
+def check_link_vectors(q):
+    u = q["view"]["unknown"]
+    le_no_hyphen(q)
+    need(q["paper"] == 1, "fn-link-vectors is Paper 1")
+    need(u in LV_CHECKS, f"no check for {u}")
+    LV_CHECKS[u](q)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -13661,7 +13893,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
-                    "transform-chain": check_transform, "fn-link-transformations": check_link_transformations}
+                    "transform-chain": check_transform, "fn-link-transformations": check_link_transformations,
+                    "fn-link-vectors": check_link_vectors}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

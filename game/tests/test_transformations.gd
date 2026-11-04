@@ -7,9 +7,9 @@ extends "res://tests/test_case.gd"
 const TC := preload("res://engine/situations/transform_chain.gd")
 ## Cells per type (the catalogue's own count, every unknown × rep × method).
 const CELLS := {"fn-transform-describe": 51, "fn-transform-apply": 72, "fn-concept-transform-order": 21,
-	"fn-link-transformations": 66}
+	"fn-link-transformations": 66, "fn-link-vectors": 46}
 const SITUATIONS := {"fn-transform-describe": "transform-chain", "fn-transform-apply": "transform-chain", "fn-concept-transform-order": "transform-chain",
-	"fn-link-transformations": "fn-link-transformations"}
+	"fn-link-transformations": "fn-link-transformations", "fn-link-vectors": "fn-link-vectors"}
 
 
 func _make(type: String, unknown: String, rep: String, angle: String, seed: int, format: String = "value") -> Dictionary:
@@ -167,6 +167,8 @@ func test_the_link_types_offer_what_their_catalogue_lists() -> void:
 		var extra := QuestionEngine.extra_formats(c.type, c.unknown, c.angle)
 		check("true-false-reason" in extra, c.key)
 		check("error-spot" not in extra, c.key + ": the type doesn't list error-spot")
+	for c in QuestionEngine.cells(false, ["fn-link-vectors"]):
+		check(QuestionEngine.extra_formats(c.type, c.unknown, c.angle).is_empty(), c.key + ": no misconception of this type is an error-spot")
 
 
 func test_the_data_pool_has_whole_statistics() -> void:
@@ -180,6 +182,19 @@ func test_the_data_pool_has_whole_statistics() -> void:
 		check_eq(squares % dev.size(), 0, "variance of %s" % [dev])
 		var sd := roundi(sqrt(float(squares) / dev.size()))
 		check_eq(sd * sd * dev.size(), squares, "standard deviation of %s" % [dev])
+
+
+func test_every_3d_step_has_a_whole_length() -> void:
+	for st in LinkVectorsSituation.STEPS:
+		check_eq(st[0] * st[0] + st[1] * st[1] + st[2] * st[2], st[3] * st[3], "step %s" % [st])
+		check(st[0] % 2 == 0 and st[1] % 2 == 0 and st[2] % 2 == 0, "step %s has an odd part" % [st])
+
+
+## A wave's shifts one period apart are one curve, so E = ±π would make a sign slip right.
+func test_a_wave_is_never_moved_half_a_turn() -> void:
+	for seed in range(1, 200):
+		var s := LinkVectorsSituation.generate(Seeded.new("wave %d" % seed), {"kind": "wave"})
+		check(not s.E.abs_q().eq(1), "E = ±π")
 
 
 func test_standardising_bounds_is_paper_2_with_a_z_of_2_dp() -> void:

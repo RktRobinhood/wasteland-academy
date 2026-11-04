@@ -99,6 +99,7 @@ static var SITUATIONS := {
 	"motion": [MotionSituation, MotionViews],
 	"transform-chain": [TransformChainSituation, TransformChainViews],
 	"fn-link-transformations": [LinkTransformationsSituation, LinkTransformationsViews],
+	"fn-link-vectors": [LinkVectorsSituation, LinkVectorsViews],
 }
 
 static var _cat: Dictionary = {}
