@@ -3024,6 +3024,187 @@
 				"Paper 2 values are clear of a rounding edge",
 				"a corner of a motion graph is at whole numbers"
 			]
+		},
+		"venn": {
+			"name": "Two events in one sample space",
+			"summary": "Split a sample space into the four regions of a Venn diagram: A only, both, B only and neither. Every probability and count of the two events is then known, and any of them can be asked, from the rule, from a story, from a diagram or from a two-way table.",
+			"quantities": [
+				{
+					"name": "a, i, b, o",
+					"is": "the four regions: A only, A and B, B only, neither",
+					"pick": "whole numbers that add to u, each at least 1; a + b + 2i < u where P(A) + P(B) has to stay below 1"
+				},
+				{
+					"name": "u",
+					"is": "the size of the sample space",
+					"pick": "Paper 1: 20, 50 or 100 for decimals, or 12 to 40 for fractions or counts; Paper 2: 1000 for decimals, or 60 to 300 for counts"
+				},
+				{
+					"name": "kind",
+					"is": "what is shown",
+					"pick": "probabilities or counts of people in a story"
+				},
+				{
+					"name": "x",
+					"is": "the unknown in a diagram or a list of regions",
+					"pick": "a whole number from 2 to 12, with each region a x + c"
+				},
+				{
+					"name": "missing",
+					"is": "the cell hidden in a two-way table",
+					"pick": "a cell inside the table"
+				},
+				{
+					"name": "pa, pb",
+					"is": "two probabilities for the least and greatest overlap",
+					"pick": "each from 0.3 to 0.9, adding to more than 1"
+				}
+			],
+			"clean": [
+				"Paper 1 answers are exact, as fractions in lowest terms or decimals that end",
+				"Paper 2 uses decimals to 3 places, or counts whose probabilities are answered to 3 s.f. where they need rounding",
+				"every region is at least 1 and the regions add to the total",
+				"every 3 s.f. answer is at least 0.03 of a unit of its third figure from a rounding edge",
+				"the least overlap is above 0, and the greatest is less than the smaller event's whole probability only when an event is not a subset: it equals the smaller of P(A) and P(B)"
+			]
+		},
+		"conditional": {
+			"name": "A conditional probability on events, a tree, or a distribution",
+			"summary": "Two events with their overlap, a two-stage tree, two draws without replacement, or a normal, binomial or discrete variable with two conditions on it. The probability of one thing given another is then a ratio, and it can be asked forwards, reversed through a tree, or rearranged to find what was missing.",
+			"quantities": [
+				{
+					"name": "a, i, b, o, u",
+					"is": "the four regions of two events and their total",
+					"pick": "as the venn situation: decimals, fractions or counts"
+				},
+				{
+					"name": "pa, pba, pbn",
+					"is": "a tree: P(A), P(B | A) and P(B | A′)",
+					"pick": "Paper 1 in tenths or twentieths, Paper 2 in hundredths"
+				},
+				{
+					"name": "r, g",
+					"is": "the two colours in a bag for two draws without replacement",
+					"pick": "3 to 9 of each on Paper 1, 5 to 15 on Paper 2, not equal"
+				},
+				{
+					"name": "pcond, pb, pa",
+					"is": "P(A | B), P(B) and P(A) for the multiplication rule",
+					"pick": "P(B) and P(A | B) in steps that give an exact overlap, and an event A that fits"
+				},
+				{
+					"name": "mu, sigma, lo, hi",
+					"is": "a normal variable and two bounds",
+					"pick": "whole numbers, with the wanted region inside the given one and both probabilities at least 0.02"
+				},
+				{
+					"name": "n, p, k",
+					"is": "a binomial variable and two bounds",
+					"pick": "as the binomial situation, n from 5 to 15"
+				},
+				{
+					"name": "xs, ps",
+					"is": "a discrete distribution",
+					"pick": "3 to 6 values with probabilities in hundredths adding to 1"
+				}
+			],
+			"clean": [
+				"Paper 1 answers are exact",
+				"Paper 2 answers need rounding to 3 s.f. or are exact where the value ends",
+				"a normal, binomial or conditional-on-a-distribution answer is clear of a rounding edge by 0.03 of a unit of the third figure",
+				"the given event has a probability of at least 0.1, so dividing by it matters",
+				"the wrong options are between 0 and 1"
+			]
+		},
+		"normal-unknown": {
+			"name": "A normal variable with a parameter hidden",
+			"summary": "Pick the facts a student is given (a tail area at a value, a central area, a quartile gap, two tails, two z-values) so that the unknown mean, standard deviation or z-value is what those facts force. The unknowns come out of the facts, so the facts are what stay clean.",
+			"quantities": [
+				{
+					"name": "mu, sigma",
+					"is": "the mean and standard deviation shown, where one is given",
+					"pick": "whole numbers: μ from 20 to 400, σ from 2 to 40"
+				},
+				{
+					"name": "x, p",
+					"is": "a value and a tail area at it",
+					"pick": "x a whole number or tenth, p in hundredths from 0.02 to 0.48 (or 0.52 to 0.98 for the tail holding the mean)"
+				},
+				{
+					"name": "x1, p1, x2, p2",
+					"is": "two values and their tails, for μ and σ together",
+					"pick": "x1 < x2, whole numbers; both sides of the mean or both on one side"
+				},
+				{
+					"name": "z",
+					"is": "a z-value worked out from the area",
+					"pick": "invNorm of the left-tail area"
+				},
+				{
+					"name": "k",
+					"is": "the number of standard deviations in a within-kσ question",
+					"pick": "1.2 to 2.8 in tenths, avoiding 2"
+				},
+				{
+					"name": "c",
+					"is": "a central area",
+					"pick": "from 0.5 to 0.95 in steps of 0.01"
+				},
+				{
+					"name": "iqr",
+					"is": "an interquartile range",
+					"pick": "a whole number or a value to 1 d.p."
+				},
+				{
+					"name": "z1, z2",
+					"is": "two z-values given",
+					"pick": "to 1 or 2 d.p., with μ and σ whole, so the answer is exact"
+				}
+			],
+			"clean": [
+				"Paper 2 only: every part in the bank is",
+				"answers are to 3 s.f. and at least 0.03 of a unit of the third figure from a rounding edge, except a mean from equal tails, μ from two z-values and a standardised bound, which are exact",
+				"σ comes out positive and at most a quarter of μ in a story with a measure that can't be negative",
+				"the wrong options are all different and σ's are positive unless a negative σ is the mistake"
+			]
+		},
+		"regression-x-on-y": {
+			"name": "The two regression lines of paired data",
+			"summary": "Paired data as in the regression situation, now with both lines: y on x to estimate y, and x on y to estimate x. Both pass through the mean point, so the lines can be given and the point found, or one mean given and the other found.",
+			"quantities": [
+				{
+					"name": "c, d",
+					"is": "the regression line x = cy + d of x on y",
+					"pick": "exact from Sxy ÷ Syy and x̄ − cȳ; clear of a rounding edge where asked"
+				},
+				{
+					"name": "y0, x0",
+					"is": "the y an estimate is made at, and the estimate of x",
+					"pick": "y0 a whole number strictly inside the data's y-values and not in the table"
+				},
+				{
+					"name": "lines",
+					"is": "both lines given",
+					"pick": "y = ax + b and x = cy + d to 3 s.f. or fewer"
+				},
+				{
+					"name": "mx, my",
+					"is": "a whole-number mean point the given lines pass through",
+					"pick": "x̄ from 3 to 20 and ȳ from 5 to 60, with a and c to 1 d.p. and 0 < ac < 1"
+				},
+				{
+					"name": "r, range",
+					"is": "the correlation and the range of y, for judging an estimate",
+					"pick": "r from 0.3 to 0.98, y0 inside or outside the range"
+				}
+			],
+			"clean": [
+				"the table rep is Paper 2: the GDC finds both lines",
+				"a mean point from two lines is a whole-number point and is exact, on either paper",
+				"choosing a line needs no arithmetic and is on either paper",
+				"every 3 s.f. answer is at least 0.03 of a unit of its third figure from a rounding edge",
+				"rearranging the line of y on x reads differently from the line of x on y at 3 s.f."
+			]
 		}
 	},
 	"skills": {
@@ -3108,6 +3289,8 @@
 		"SL4.4.mean-point": "Find the mean point and use it with lines of best fit",
 		"SL4.4.predict": "Use the regression line to predict, and judge whether the prediction is reliable",
 		"SL4.5.expected-occurrences": "Find the expected number of occurrences",
+		"SL4.6.union": "Find P(A ∪ B) for combined events",
+		"SL4.6.venn": "Complete and use a Venn diagram, including finding an unknown",
 		"SL4.7.expected-value": "Calculate and interpret E(X)",
 		"SL4.7.unknowns-from-mean": "Find unknown probabilities or values given E(X)",
 		"SL4.7.fair-game": "Model a game with a random variable and decide whether it is fair",
@@ -3120,6 +3303,17 @@
 		"SL4.8.mean-variance": "Find the mean, variance and standard deviation of a binomial distribution",
 		"SL4.8.find-n-or-p": "Find n or p from given information about a binomial distribution",
 		"SL4.8.binomial-in-context": "Build a binomial model from an earlier probability, including conditional and 'kth success' questions",
+		"SL4.10.x-on-y-line": "Find the regression line of x on y",
+		"SL4.10.choose-line": "Choose the correct regression line for a prediction",
+		"SL4.10.predict-x": "Predict x from y with the x-on-y line and judge reliability",
+		"SL4.10.mean-point-intersection": "Use the fact that both regression lines pass through the mean point",
+		"SL4.11.conditional-formula": "Calculate P(A | B) using the formula",
+		"SL4.11.reverse-conditional": "Find a 'reversed' conditional probability from a tree diagram",
+		"SL4.11.multiplication-rule": "Rearrange the conditional formula to find P(A ∩ B) or another unknown",
+		"SL4.11.conditional-distributions": "Find conditional probabilities involving normal, binomial or discrete distributions",
+		"SL4.12.standardise": "Rewrite a probability for X as an equivalent probability for Z",
+		"SL4.12.unknown-mean-or-sd": "Find an unknown mean or standard deviation from one probability",
+		"SL4.12.unknown-mean-and-sd": "Find both μ and σ from two probabilities",
 		"SL5.1.interpret-derivative": "Interpret a derivative as a rate of change in context, with units and sign",
 		"SL5.1.estimate-limit": "Estimate a limit from a table, a graph or simple algebra",
 		"SL5.2.increasing-decreasing-intervals": "Find the intervals on which f is increasing or decreasing",
@@ -3171,7 +3365,6 @@
 		"SL3.7.transformations": "Describe or apply the transformations that map sin x or cos x to a sin(b(x + c)) + d",
 		"SL5.5.boundary-condition": "Use a boundary condition to find the constant of integration",
 		"SL4.3.constant-changes": "Find the effect of adding or multiplying every value by a constant",
-		"SL4.12.standardise": "Rewrite a probability for X as an equivalent probability for Z",
 		"SL5.11.integral-properties": "Use properties of definite integrals",
 		"SL3.1.distance-3d": "Find the distance between two points in 3D",
 		"SL4.4.interpret-ab": "Interpret a and b in y = ax + b in context",
@@ -20199,6 +20392,400 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Venn diagrams, two-way tables and the addition rule",
+			"summary": "Two events in a sample space, from the addition rule, a story, a Venn diagram or a two-way table: find the union, the intersection, neither, one event only, exactly one, a region or an unknown x, a missing table entry, and the least and greatest overlap.",
+			"situation": "venn",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "P(A) = 0.4, P(B) = 0.35 and P(A ∩ B) = 0.1"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: of 120 scavengers, 70 carry a radio and 50 a filter, and 20 carry both"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a Venn diagram with a number or an expression in each region"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a two-way table with totals"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "union-from-rule",
+					"given": [
+						"P(A)",
+						"P(B)",
+						"P(A ∩ B)"
+					],
+					"asked": "P(A ∪ B)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.6.union"
+					]
+				},
+				{
+					"id": "intersection-from-rule",
+					"given": [
+						"P(A)",
+						"P(B)",
+						"P(A ∪ B)"
+					],
+					"asked": "P(A ∩ B)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.6.union"
+					]
+				},
+				{
+					"id": "neither-from-rule",
+					"given": [
+						"P(A)",
+						"P(B)",
+						"P(A ∩ B)"
+					],
+					"asked": "P(A′ ∩ B′)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.6.union"
+					]
+				},
+				{
+					"id": "union-from-regions",
+					"given": [
+						"a Venn diagram with all four regions"
+					],
+					"asked": "P(A ∪ B)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.union",
+						"SL4.6.venn"
+					]
+				},
+				{
+					"id": "union-from-table",
+					"given": [
+						"a two-way table"
+					],
+					"asked": "the probability of A or B",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.6.union"
+					]
+				},
+				{
+					"id": "one-event-only",
+					"given": [
+						"P(A) and P(A ∩ B), or a Venn diagram"
+					],
+					"asked": "P(A ∩ B′)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.venn"
+					]
+				},
+				{
+					"id": "exactly-one",
+					"given": [
+						"a Venn diagram or a story"
+					],
+					"asked": "the probability of exactly one of the events",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.venn"
+					]
+				},
+				{
+					"id": "region-from-totals",
+					"given": [
+						"n(U), n(A), n(B) and n(A ∩ B)"
+					],
+					"asked": "the number outside both circles",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.venn"
+					]
+				},
+				{
+					"id": "x-from-total",
+					"given": [
+						"each region in terms of x, and the total"
+					],
+					"asked": "x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.venn"
+					]
+				},
+				{
+					"id": "table-missing-entry",
+					"given": [
+						"a two-way table with a cell hidden"
+					],
+					"asked": "the hidden entry",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.6.union"
+					]
+				},
+				{
+					"id": "least-overlap",
+					"given": [
+						"P(A) and P(B), adding to more than 1"
+					],
+					"asked": "the least possible P(A ∩ B)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.6.union"
+					]
+				},
+				{
+					"id": "greatest-overlap",
+					"given": [
+						"P(A) and P(B)"
+					],
+					"asked": "the greatest possible P(A ∩ B)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.6.union"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.6.union",
+					"method": "addition-rule",
+					"suits": [
+						"union-from-rule",
+						"intersection-from-rule",
+						"least-overlap",
+						"greatest-overlap"
+					],
+					"name": "Addition rule",
+					"about": "P(A ∪ B) = P(A) + P(B) − P(A ∩ B): add both, then subtract the overlap that was counted twice."
+				},
+				{
+					"skill": "SL4.6.union",
+					"method": "venn-regions",
+					"suits": [
+						"union-from-rule",
+						"intersection-from-rule",
+						"neither-from-rule",
+						"union-from-regions"
+					],
+					"name": "Add the Venn diagram regions",
+					"about": "Fill in the intersection first, then 'A only' and 'B only', and add the three regions inside the circles."
+				},
+				{
+					"skill": "SL4.6.union",
+					"method": "one-minus-neither",
+					"suits": [
+						"neither-from-rule",
+						"union-from-regions"
+					],
+					"name": "1 − P(neither)",
+					"about": "If the region outside both circles is known, P(A ∪ B) = 1 − P(A′ ∩ B′)."
+				},
+				{
+					"skill": "SL4.6.union",
+					"method": "two-way-table",
+					"suits": [
+						"union-from-table",
+						"table-missing-entry"
+					],
+					"name": "Two-way table",
+					"about": "Add every cell in row A or column B, counting the shared cell only once, and divide by the grand total."
+				},
+				{
+					"skill": "SL4.6.venn",
+					"method": "fill-from-middle",
+					"suits": [
+						"one-event-only",
+						"exactly-one",
+						"region-from-totals"
+					],
+					"name": "Fill from the middle outwards",
+					"about": "Put the intersection in first, subtract it from each set total to get the 'only' regions, and put whatever is left of n(U) outside both circles."
+				},
+				{
+					"skill": "SL4.6.venn",
+					"method": "unknown-total",
+					"suits": [
+						"x-from-total"
+					],
+					"name": "Regions add up to the total",
+					"about": "Write each region in terms of x, set their sum equal to n(U) (or to 1), and solve."
+				},
+				{
+					"skill": "SL4.6.venn",
+					"method": "set-notation",
+					"suits": [
+						"one-event-only",
+						"exactly-one"
+					],
+					"name": "Set-notation identities",
+					"about": "Use identities such as P(A ∩ B′) = P(A) − P(A ∩ B) without drawing every region."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If P(A) = 0.7 and P(B) = 0.6, then A and B must overlap.",
+					"answer": "True: the two add to 1.3, and a probability can't be above 1, so at least 0.3 has to be counted twice, in the overlap.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "P(A ∪ B) = P(A) + P(B).",
+					"answer": "Sometimes: it holds exactly when P(A ∩ B) = 0, so the events can't happen together. Otherwise the overlap is counted twice.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "P(A ∩ B′) is the probability that neither A nor B happens.",
+					"answer": "False: it is A happening without B, one crescent of the diagram. Neither is A′ ∩ B′, the region outside both circles.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.6.union#0",
+					"text": "Adding P(A) + P(B) without subtracting the overlap (double counting)",
+					"as": "distractor",
+					"in": [
+						"union-from-rule",
+						"neither-from-rule",
+						"union-from-regions",
+						"union-from-table"
+					],
+					"wrong": "P(A) + P(B) with the overlap counted twice"
+				},
+				{
+					"ref": "SL4.6.union#1",
+					"text": "Multiplying P(A) × P(B) for 'A or B'",
+					"as": "distractor",
+					"in": [
+						"union-from-rule",
+						"intersection-from-rule",
+						"least-overlap",
+						"greatest-overlap"
+					],
+					"wrong": "P(A) × P(B)"
+				},
+				{
+					"ref": "SL4.6.union#2",
+					"text": "Confusing 'A or B' (the union) with 'exactly one of A and B'",
+					"as": "distractor",
+					"in": [
+						"union-from-rule",
+						"union-from-regions",
+						"union-from-table",
+						"exactly-one"
+					],
+					"wrong": "exactly one in place of the union, or the union in place of exactly one"
+				},
+				{
+					"ref": "SL4.6.venn#0",
+					"text": "Writing n(A) in the 'A only' region without subtracting the intersection",
+					"as": "distractor",
+					"in": [
+						"one-event-only",
+						"region-from-totals"
+					],
+					"wrong": "n(A) written where A only belongs"
+				},
+				{
+					"ref": "SL4.6.venn#1",
+					"text": "Forgetting the region outside both circles",
+					"as": "distractor",
+					"in": [
+						"region-from-totals",
+						"x-from-total"
+					],
+					"wrong": "no region outside the circles: the total shared among the rest"
+				},
+				{
+					"ref": "SL4.6.venn#2",
+					"text": "Reading A ∩ B′ as 'neither A nor B'",
+					"as": "distractor",
+					"in": [
+						"one-event-only"
+					],
+					"wrong": "P(A′ ∩ B′) given for P(A ∩ B′)"
+				}
+			],
+			"chain": [
+				"read what is known about A, B and the overlap",
+				"put the overlap in the middle of a Venn diagram, or use P(A ∪ B) = P(A) + P(B) − P(A ∩ B)",
+				"subtract to get the 'only' regions",
+				"the region outside is what is left of the total",
+				"add the regions the question asks for"
+			],
 			"frequency": 11,
 			"marks": 2,
 			"section": {
@@ -20208,9 +20795,7 @@
 			"paper": {
 				"p1": 8,
 				"p2": 3
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-expected-value",
@@ -21187,6 +21772,334 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Choose the right regression line; x on y; mean point on both",
+			"summary": "Find the regression line of x on y, choose the right line for an estimate, estimate x from y, judge that estimate, and use the fact that both lines meet at the mean point.",
+			"situation": "regression-x-on-y",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a table of x against y, with a story line"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "both regression lines, or one line and a mean, or a mean point and a gradient"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story naming the two lines and what is to be estimated"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "both lines drawn, crossing at the mean point"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "x-on-y-line",
+					"given": [
+						"a table of x and y"
+					],
+					"asked": "the line x = cy + d, to 3 s.f.",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.10.x-on-y-line"
+					]
+				},
+				{
+					"id": "d-from-mean-point",
+					"given": [
+						"the mean point",
+						"the gradient c of x = cy + d"
+					],
+					"asked": "d",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.10.x-on-y-line"
+					]
+				},
+				{
+					"id": "choose-line",
+					"given": [
+						"both lines",
+						"what is known and what is to be estimated"
+					],
+					"asked": "which line to use",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.10.choose-line"
+					]
+				},
+				{
+					"id": "predict-x-from-data",
+					"given": [
+						"a table of x and y",
+						"a y inside the data"
+					],
+					"asked": "the estimate of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.10.predict-x"
+					]
+				},
+				{
+					"id": "predict-x-from-lines",
+					"given": [
+						"both lines to 3 s.f.",
+						"a y"
+					],
+					"asked": "the estimate of x",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.10.predict-x"
+					]
+				},
+				{
+					"id": "judge-estimate",
+					"given": [
+						"r",
+						"the range of y in the data",
+						"a y"
+					],
+					"asked": "whether the estimate of x is reliable",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.10.predict-x"
+					]
+				},
+				{
+					"id": "mean-point-from-lines",
+					"given": [
+						"both lines"
+					],
+					"asked": "the mean point",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL4.10.mean-point-intersection"
+					]
+				},
+				{
+					"id": "mean-from-one-mean",
+					"given": [
+						"one line",
+						"one of the two means"
+					],
+					"asked": "the other mean",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.10.mean-point-intersection"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.10.x-on-y-line",
+					"method": "gdc-swap-lists",
+					"suits": [
+						"x-on-y-line"
+					],
+					"name": "LinReg with the lists swapped",
+					"about": "Run LinReg with the y-data as the first list and the x-data as the second, then write the result as x = cy + d."
+				},
+				{
+					"skill": "SL4.10.x-on-y-line",
+					"method": "gradient-mean-point",
+					"suits": [
+						"d-from-mean-point"
+					],
+					"name": "Gradient plus the mean point",
+					"about": "If the gradient c is given, use x − x̄ = c(y − ȳ), because the line passes through (x̄, ȳ)."
+				},
+				{
+					"skill": "SL4.10.choose-line",
+					"method": "predicted-on-left",
+					"suits": [
+						"choose-line"
+					],
+					"name": "The variable you predict is the subject",
+					"about": "Identify which variable is given and which is to be estimated, and use the line that has the estimated variable as its subject (x on y to estimate x)."
+				},
+				{
+					"skill": "SL4.10.predict-x",
+					"method": "substitute-y",
+					"suits": [
+						"predict-x-from-data",
+						"predict-x-from-lines"
+					],
+					"name": "Substitute y into x = cy + d",
+					"about": "Put the given y-value straight into the x-on-y equation."
+				},
+				{
+					"skill": "SL4.10.predict-x",
+					"method": "reliability-check",
+					"suits": [
+						"judge-estimate"
+					],
+					"name": "Interpolation and strength check",
+					"about": "The estimate is reliable only if y lies within the range of the y-data and the correlation is strong."
+				},
+				{
+					"skill": "SL4.10.mean-point-intersection",
+					"method": "solve-simultaneously",
+					"suits": [
+						"mean-point-from-lines"
+					],
+					"name": "Solve the two lines simultaneously",
+					"about": "Substitute one equation into the other; the solution (x, y) is the mean point (x̄, ȳ)."
+				},
+				{
+					"skill": "SL4.10.mean-point-intersection",
+					"method": "gdc-intersect",
+					"suits": [
+						"mean-point-from-lines"
+					],
+					"name": "Graph both lines and find the intersection",
+					"about": "Rearrange x = cy + d to y = (x − d)/c, graph both lines and use the intersect tool."
+				},
+				{
+					"skill": "SL4.10.mean-point-intersection",
+					"method": "substitute-known-mean",
+					"suits": [
+						"mean-from-one-mean"
+					],
+					"name": "Substitute one known mean",
+					"about": "If x̄ is known, substitute it into either regression line to get ȳ."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The line of x on y is the line of y on x with x made the subject.",
+					"answer": "False: they are different lines unless r = ±1. One makes the vertical gaps small and the other the horizontal gaps, though both pass through the mean point.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The two regression lines of a set of data meet at the mean point.",
+					"answer": "Always: each line passes through (x̄, ȳ), so that point is on both.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "As r gets closer to 1, what happens to the two regression lines?",
+					"answer": "They close up on each other, and at r = ±1 they are the same line.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.10.x-on-y-line#0",
+					"text": "Rearranging the y-on-x line to make x the subject (it is a different line unless r = ±1)",
+					"as": "distractor",
+					"in": [
+						"x-on-y-line"
+					],
+					"wrong": "y = ax + b rearranged: c = 1/a and d = −b/a"
+				},
+				{
+					"ref": "SL4.10.x-on-y-line#1",
+					"text": "Copying the GDC output as y = ax + b without swapping the variables back",
+					"as": "distractor",
+					"in": [
+						"x-on-y-line"
+					],
+					"wrong": "the lists left as they were: c = a and d = b"
+				},
+				{
+					"ref": "SL4.10.choose-line#0",
+					"text": "The y-on-x line can always be used if you rearrange it",
+					"as": "distractor",
+					"in": [
+						"choose-line"
+					],
+					"wrong": "the other line, rearranged"
+				},
+				{
+					"ref": "SL4.10.choose-line#1",
+					"text": "Choosing a line by which variable is on the horizontal axis, regardless of which one is being predicted",
+					"as": "distractor",
+					"in": [
+						"choose-line"
+					],
+					"wrong": "the line of y on x because x is the horizontal axis"
+				},
+				{
+					"ref": "SL4.10.predict-x#0",
+					"text": "Substituting the y-value into the y-on-x line and solving for x",
+					"as": "distractor",
+					"in": [
+						"predict-x-from-data",
+						"predict-x-from-lines"
+					],
+					"wrong": "y put into y = ax + b and solved for x"
+				},
+				{
+					"ref": "SL4.10.predict-x#1",
+					"text": "Calling an extrapolated estimate reliable because r is strong",
+					"as": "distractor",
+					"in": [
+						"judge-estimate"
+					],
+					"wrong": "reliable because r is strong, though y is outside the data"
+				},
+				{
+					"ref": "SL4.10.mean-point-intersection#1",
+					"text": "Substituting x̄ into the x-on-y equation as if it were a y-value",
+					"as": "distractor",
+					"in": [
+						"d-from-mean-point",
+						"mean-from-one-mean"
+					],
+					"wrong": "x̄ put in where y goes"
+				}
+			],
+			"chain": [
+				"decide which variable is being estimated: that one is the subject of the line",
+				"enter the data with y as the independent list for x on y",
+				"write the result as x = cy + d",
+				"substitute the given y",
+				"both lines pass through (x̄, ȳ), so solve them together for the mean point"
+			],
 			"frequency": 5,
 			"marks": 3,
 			"section": {
@@ -21196,9 +22109,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 4
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-independence",
@@ -21223,6 +22134,495 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Conditional probability from formula, table, tree or distribution",
+			"summary": "P(A | B) by the formula, from a Venn diagram or a two-way table, with complements, reversed through a tree or two draws, rearranged to find P(A ∩ B), P(A ∪ B) or P(B), and with normal, binomial and discrete variables.",
+			"situation": "conditional",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "P(A) = 0.5, P(B) = 0.4 and P(A ∩ B) = 0.2, or X ~ N(50, 8²)"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story about scavengers, a test or a machine"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a Venn diagram, a tree diagram or a shaded normal curve"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a two-way table or a probability distribution"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "conditional-from-probabilities",
+					"given": [
+						"P(B) and P(A ∩ B)"
+					],
+					"asked": "P(A | B)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.11.conditional-formula"
+					]
+				},
+				{
+					"id": "conditional-from-venn",
+					"given": [
+						"a Venn diagram"
+					],
+					"asked": "P(A | B)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL4.11.conditional-formula"
+					]
+				},
+				{
+					"id": "conditional-from-table",
+					"given": [
+						"a two-way table"
+					],
+					"asked": "the probability of one thing given another",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.11.conditional-formula"
+					]
+				},
+				{
+					"id": "conditional-complement",
+					"given": [
+						"P(A), P(B) and P(A ∩ B)"
+					],
+					"asked": "P(A′ | B′)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.11.conditional-formula"
+					]
+				},
+				{
+					"id": "unknown-from-conditional",
+					"given": [
+						"a table with an unknown n",
+						"a conditional probability"
+					],
+					"asked": "n",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.11.conditional-formula"
+					]
+				},
+				{
+					"id": "reverse-from-tree",
+					"given": [
+						"P(A), P(B | A) and P(B | A′)"
+					],
+					"asked": "P(A | B)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.11.reverse-conditional"
+					]
+				},
+				{
+					"id": "reverse-two-draws",
+					"given": [
+						"a bag of two colours",
+						"two draws without replacement"
+					],
+					"asked": "both the first colour, given that the two are the same colour",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.11.reverse-conditional"
+					]
+				},
+				{
+					"id": "intersection-from-conditional",
+					"given": [
+						"P(A | B) and P(B)"
+					],
+					"asked": "P(A ∩ B)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.11.multiplication-rule"
+					]
+				},
+				{
+					"id": "union-from-conditional",
+					"given": [
+						"P(A), P(B) and P(A | B)"
+					],
+					"asked": "P(A ∪ B)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.11.multiplication-rule"
+					]
+				},
+				{
+					"id": "marginal-from-union",
+					"given": [
+						"P(A), P(A | B) and P(A ∪ B)"
+					],
+					"asked": "P(B)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.11.multiplication-rule"
+					]
+				},
+				{
+					"id": "conditional-normal",
+					"given": [
+						"X ~ N(μ, σ²) and two bounds"
+					],
+					"asked": "P(X > b | X > a) and its relatives",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.11.conditional-distributions"
+					]
+				},
+				{
+					"id": "conditional-binomial",
+					"given": [
+						"X ~ B(n, p) and two bounds"
+					],
+					"asked": "P(X ≤ k | X ≥ 1) and its relatives",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.11.conditional-distributions"
+					]
+				},
+				{
+					"id": "conditional-discrete",
+					"given": [
+						"a probability distribution table"
+					],
+					"asked": "P(X ≥ a | X < b)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.11.conditional-distributions"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.11.conditional-formula",
+					"method": "formula",
+					"suits": [
+						"conditional-from-probabilities",
+						"conditional-from-venn",
+						"conditional-from-table",
+						"conditional-complement",
+						"unknown-from-conditional"
+					],
+					"name": "P(A ∩ B) ÷ P(B)",
+					"about": "Find the probability of both happening and divide by the probability of the given event."
+				},
+				{
+					"skill": "SL4.11.conditional-formula",
+					"method": "venn-restrict",
+					"suits": [
+						"conditional-from-venn",
+						"conditional-complement"
+					],
+					"name": "Restrict to circle B on a Venn diagram",
+					"about": "Fill in the Venn diagram; within circle B, the share that is also in A is the answer."
+				},
+				{
+					"skill": "SL4.11.conditional-formula",
+					"method": "natural-frequencies",
+					"suits": [
+						"conditional-from-probabilities",
+						"conditional-from-table"
+					],
+					"name": "Imagine 100 people",
+					"about": "Turn the probabilities into counts out of 100, then divide the count in both by the count in the given group."
+				},
+				{
+					"skill": "SL4.11.reverse-conditional",
+					"method": "path-over-paths",
+					"suits": [
+						"reverse-from-tree",
+						"reverse-two-draws"
+					],
+					"name": "Wanted path over all paths giving the condition",
+					"about": "On the tree, add every path that ends in the given event for the denominator; the path that is also in the wanted event is the numerator."
+				},
+				{
+					"skill": "SL4.11.reverse-conditional",
+					"method": "formula-total-probability",
+					"suits": [
+						"reverse-from-tree",
+						"reverse-two-draws"
+					],
+					"name": "Formula, with P(B) found by adding branches",
+					"about": "P(A | B) = P(A ∩ B) ÷ P(B), where P(B) = P(A ∩ B) + P(A′ ∩ B) is read from the tree."
+				},
+				{
+					"skill": "SL4.11.reverse-conditional",
+					"method": "natural-frequencies",
+					"suits": [
+						"reverse-from-tree",
+						"reverse-two-draws"
+					],
+					"name": "Imagine 1000 people",
+					"about": "Push 1000 people through the tree to get counts, then divide the count of 'A and B' by the count of 'B'."
+				},
+				{
+					"skill": "SL4.11.multiplication-rule",
+					"method": "rearrange",
+					"suits": [
+						"intersection-from-conditional",
+						"union-from-conditional",
+						"marginal-from-union"
+					],
+					"name": "P(A ∩ B) = P(A | B) × P(B)",
+					"about": "Rearrange the definition to get the intersection, then use it in the addition rule or a Venn diagram."
+				},
+				{
+					"skill": "SL4.11.multiplication-rule",
+					"method": "tree-multiply",
+					"suits": [
+						"intersection-from-conditional"
+					],
+					"name": "Multiply along the tree branch",
+					"about": "Draw B first and then A given B on a tree; the path probability P(B) × P(A | B) is P(A ∩ B)."
+				},
+				{
+					"skill": "SL4.11.multiplication-rule",
+					"method": "venn-fill",
+					"suits": [
+						"union-from-conditional",
+						"marginal-from-union"
+					],
+					"name": "Fill a Venn diagram",
+					"about": "Place P(A ∩ B) in the middle, then complete the other regions to read off whatever else is asked."
+				},
+				{
+					"skill": "SL4.11.conditional-distributions",
+					"method": "simplify-intersection",
+					"suits": [
+						"conditional-normal",
+						"conditional-binomial",
+						"conditional-discrete"
+					],
+					"name": "Simplify the intersection, then divide",
+					"about": "Work out the overlap of the two conditions (X > 35 and X > 30 is just X > 35), then divide its probability by P(given)."
+				},
+				{
+					"skill": "SL4.11.conditional-distributions",
+					"method": "shade-regions",
+					"suits": [
+						"conditional-normal"
+					],
+					"name": "Shade both regions on a sketch",
+					"about": "Shade the 'given' region and the part of it that is also wanted; the answer is the smaller area as a fraction of the larger."
+				},
+				{
+					"skill": "SL4.11.conditional-distributions",
+					"method": "gdc-values",
+					"suits": [
+						"conditional-normal",
+						"conditional-binomial"
+					],
+					"name": "GDC for numerator and denominator",
+					"about": "Use normalcdf or binomcdf for each probability separately, keeping full accuracy before dividing."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "P(A | B) and P(B | A) are always equal.",
+					"answer": "False: they share a numerator but divide by different things, P(B) and P(A). They are equal only if P(A) = P(B), or the overlap is empty.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "P(A | B) is greater than P(A ∩ B).",
+					"answer": "Sometimes: dividing by P(B) makes it bigger whenever P(B) < 1 and the overlap is not empty. If P(A ∩ B) = 0 both are 0, and if P(B) = 1 they are equal.",
+					"level": 4
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "X is normal. Without working it out, is P(X > 40 | X > 30) bigger or smaller than P(X > 40)?",
+					"answer": "Bigger: knowing X is above 30 cuts away the rest of the curve, so the same area over X > 40 is now a share of a smaller whole.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.11.conditional-formula#0",
+					"text": "Dividing by P(A) instead of P(B)",
+					"as": "distractor",
+					"in": [
+						"conditional-from-probabilities",
+						"conditional-from-venn",
+						"conditional-from-table",
+						"conditional-complement"
+					],
+					"wrong": "dividing by P(A), or the row, in place of P(B)"
+				},
+				{
+					"ref": "SL4.11.conditional-formula#1",
+					"text": "Giving P(A ∩ B) as the answer without dividing",
+					"as": "distractor",
+					"in": [
+						"conditional-from-probabilities",
+						"conditional-from-venn",
+						"conditional-from-table",
+						"conditional-complement"
+					],
+					"wrong": "P(A ∩ B), not divided"
+				},
+				{
+					"ref": "SL4.11.conditional-formula#2",
+					"text": "Computing P(A | B) as P(A) × P(B)",
+					"as": "distractor",
+					"in": [
+						"conditional-from-probabilities"
+					],
+					"wrong": "P(A) × P(B)"
+				},
+				{
+					"ref": "SL4.11.reverse-conditional#0",
+					"text": "Reading P(B | A) off a branch and giving it as P(A | B)",
+					"as": "distractor",
+					"in": [
+						"reverse-from-tree"
+					],
+					"wrong": "P(B | A) read off the branch"
+				},
+				{
+					"ref": "SL4.11.reverse-conditional#1",
+					"text": "Using only one path for P(B) in the denominator",
+					"as": "distractor",
+					"in": [
+						"reverse-from-tree",
+						"reverse-two-draws"
+					],
+					"wrong": "the wanted path alone, or its share of one path"
+				},
+				{
+					"ref": "SL4.11.multiplication-rule#0",
+					"text": "P(A ∩ B) = P(A | B) ÷ P(B)",
+					"as": "distractor",
+					"in": [
+						"intersection-from-conditional"
+					],
+					"wrong": "P(A | B) ÷ P(B)"
+				},
+				{
+					"ref": "SL4.11.multiplication-rule#1",
+					"text": "Treating P(A | B) as if it were P(A ∩ B)",
+					"as": "distractor",
+					"in": [
+						"intersection-from-conditional",
+						"union-from-conditional"
+					],
+					"wrong": "P(A | B) used as P(A ∩ B)"
+				},
+				{
+					"ref": "SL4.11.conditional-distributions#0",
+					"text": "Multiplying P(X > 35) × P(X > 30) for the numerator",
+					"as": "distractor",
+					"in": [
+						"conditional-normal",
+						"conditional-binomial"
+					],
+					"wrong": "the numerator multiplied by P(given)"
+				},
+				{
+					"ref": "SL4.11.conditional-distributions#1",
+					"text": "Giving P(30 < X < 35) as the answer",
+					"as": "distractor",
+					"in": [
+						"conditional-normal"
+					],
+					"wrong": "the probability between the two bounds"
+				},
+				{
+					"ref": "SL4.11.conditional-distributions#2",
+					"text": "Forgetting to divide by P(given)",
+					"as": "distractor",
+					"in": [
+						"conditional-normal",
+						"conditional-binomial",
+						"conditional-discrete"
+					],
+					"wrong": "the wanted probability, not divided"
+				}
+			],
+			"chain": [
+				"name the event you are told has happened",
+				"restrict to it: that is the denominator",
+				"find the part of it that is also wanted: the numerator",
+				"divide, and for a reversed conditional add every path into the given event"
+			],
 			"frequency": 17,
 			"marks": 4,
 			"section": {
@@ -21232,15 +22632,395 @@
 			"paper": {
 				"p1": 6,
 				"p2": 11
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-normal-unknown-parameter",
 			"topic": 4,
 			"source": "exam",
 			"name": "Find an unknown mean or standard deviation with z-scores",
+			"summary": "X is normal with something hidden: rewrite an event for Z, find a z-value from an area, find P(within kσ of the mean), and find σ, μ or both from a tail, a central area, an interquartile range, equal tails or two z-values.",
+			"situation": "normal-unknown",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "X ~ N(35, σ²) and P(X < 30) = 0.2"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: the masses of cans are normal with mean 35 kg, and 20% are below 30 kg"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a normal curve with the given area shaded and the values marked"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "z-from-area",
+					"given": [
+						"P(Z < k) or P(Z > k)"
+					],
+					"asked": "k",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL4.12.standardise"
+					]
+				},
+				{
+					"id": "standardise-event",
+					"given": [
+						"X ~ N(μ, σ²) and an event for X"
+					],
+					"asked": "the same event for Z",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.12.standardise"
+					]
+				},
+				{
+					"id": "within-k-sd",
+					"given": [
+						"X is normal",
+						"a number of standard deviations k"
+					],
+					"asked": "P(μ − kσ < X < μ + kσ)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.12.standardise"
+					]
+				},
+				{
+					"id": "unknown-sd",
+					"given": [
+						"μ",
+						"a tail area at x"
+					],
+					"asked": "σ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.12.unknown-mean-or-sd"
+					]
+				},
+				{
+					"id": "unknown-mean",
+					"given": [
+						"σ",
+						"a tail area at x"
+					],
+					"asked": "μ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.12.unknown-mean-or-sd"
+					]
+				},
+				{
+					"id": "sd-from-iqr",
+					"given": [
+						"the mean and the interquartile range"
+					],
+					"asked": "σ",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.12.unknown-mean-or-sd"
+					]
+				},
+				{
+					"id": "sd-from-central-area",
+					"given": [
+						"P(μ − a < X < μ + a)"
+					],
+					"asked": "σ",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.12.unknown-mean-or-sd"
+					]
+				},
+				{
+					"id": "mean-and-sd",
+					"given": [
+						"two tail areas at two values"
+					],
+					"asked": "μ and σ",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.12.unknown-mean-and-sd"
+					]
+				},
+				{
+					"id": "mean-from-equal-tails",
+					"given": [
+						"P(X < a) = P(X > b)"
+					],
+					"asked": "μ",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.12.unknown-mean-and-sd"
+					]
+				},
+				{
+					"id": "sd-from-equal-tails",
+					"given": [
+						"P(X < a) = P(X > b) = p"
+					],
+					"asked": "σ",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.12.unknown-mean-and-sd"
+					]
+				},
+				{
+					"id": "mean-from-two-z",
+					"given": [
+						"two values and their z-values"
+					],
+					"asked": "μ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.12.unknown-mean-and-sd"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.12.unknown-mean-or-sd",
+					"method": "invnorm-z-then-solve",
+					"suits": [
+						"z-from-area",
+						"unknown-sd",
+						"unknown-mean",
+						"sd-from-iqr",
+						"sd-from-central-area"
+					],
+					"name": "invNorm on Z, then solve z = (x − μ)/σ",
+					"about": "Find z = invNorm(left-tail area, 0, 1), substitute x and the known parameter into z = (x − μ)/σ, and solve for the unknown."
+				},
+				{
+					"skill": "SL4.12.unknown-mean-or-sd",
+					"method": "gdc-solver",
+					"suits": [
+						"z-from-area",
+						"unknown-sd",
+						"unknown-mean",
+						"sd-from-iqr",
+						"sd-from-central-area"
+					],
+					"name": "Solve normalcdf = p for the unknown",
+					"about": "Use the GDC solver, or graph y = normalcdf(−10^99, 30, 35, s) against y = 0.2, to find the unknown parameter numerically."
+				},
+				{
+					"skill": "SL4.12.standardise",
+					"method": "standardise-bounds",
+					"suits": [
+						"standardise-event",
+						"within-k-sd"
+					],
+					"name": "Standardise each bound",
+					"about": "Replace each x in the inequality by (x − μ)/σ; the inequality keeps its direction because σ > 0."
+				},
+				{
+					"skill": "SL4.12.standardise",
+					"method": "gdc-both",
+					"suits": [
+						"standardise-event",
+						"within-k-sd"
+					],
+					"name": "Check both sides on the GDC",
+					"about": "Compute normalcdf for X with μ and σ and for Z with 0 and 1; equal areas confirm the conversion."
+				},
+				{
+					"skill": "SL4.12.unknown-mean-and-sd",
+					"method": "simultaneous",
+					"suits": [
+						"mean-and-sd",
+						"sd-from-equal-tails",
+						"mean-from-two-z"
+					],
+					"name": "Two equations x = μ + zσ, solved simultaneously",
+					"about": "Find each z with invNorm, write μ + z₁σ = x₁ and μ + z₂σ = x₂, then subtract to eliminate μ."
+				},
+				{
+					"skill": "SL4.12.unknown-mean-and-sd",
+					"method": "gdc-solver",
+					"suits": [
+						"mean-and-sd",
+						"mean-from-two-z"
+					],
+					"name": "GDC simultaneous equation solver",
+					"about": "Enter the two linear equations in μ and σ into the solver."
+				},
+				{
+					"skill": "SL4.12.unknown-mean-and-sd",
+					"method": "symmetric-tails",
+					"suits": [
+						"mean-from-equal-tails",
+						"sd-from-equal-tails"
+					],
+					"name": "Equal tails put μ in the middle",
+					"about": "If P(X < a) = P(X > b), the mean is exactly (a + b)/2, which leaves only σ to find."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If P(X < 30) = 0.2 and σ is unknown, invNorm(0.2, μ, σ) is the way to start.",
+					"answer": "False: invNorm needs σ. Use N(0, 1) first: invNorm(0.2, 0, 1) gives z, then z = (30 − μ)/σ.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "X ~ N(μ, σ²) and the z-value of 62 is −1.5. What does the minus sign say?",
+					"answer": "62 is below the mean, by one and a half standard deviations.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Standardising P(X < a) reverses the inequality when a is below the mean.",
+					"answer": "Never: dividing by σ, which is positive, keeps the direction, wherever a is. Only the bound changes.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.12.unknown-mean-or-sd#1",
+					"text": "Using the upper-tail area in invNorm without converting, so z has the wrong sign",
+					"as": "distractor",
+					"in": [
+						"z-from-area",
+						"unknown-mean"
+					],
+					"wrong": "invNorm of the upper-tail area used as it stands: z with the wrong sign"
+				},
+				{
+					"ref": "SL4.12.unknown-mean-or-sd#2",
+					"text": "Getting a negative σ and not noticing the sign error",
+					"as": "distractor",
+					"in": [
+						"unknown-sd"
+					],
+					"wrong": "σ left negative after a sign slip"
+				},
+				{
+					"ref": "SL4.12.standardise#0",
+					"text": "Reversing the inequality sign when standardising",
+					"as": "distractor",
+					"in": [
+						"standardise-event"
+					],
+					"wrong": "the inequality reversed"
+				},
+				{
+					"ref": "SL4.12.standardise#1",
+					"text": "Standardising with the variance instead of the standard deviation",
+					"as": "distractor",
+					"in": [
+						"standardise-event"
+					],
+					"wrong": "dividing by σ²"
+				},
+				{
+					"ref": "SL4.12.unknown-mean-and-sd#0",
+					"text": "Giving both conditions a positive z when one value is below the mean",
+					"as": "distractor",
+					"in": [
+						"mean-and-sd"
+					],
+					"wrong": "both z-values taken as positive"
+				},
+				{
+					"ref": "SL4.12.unknown-mean-and-sd#1",
+					"text": "Writing (x − μ)/σ = probability instead of = z",
+					"as": "distractor",
+					"in": [
+						"mean-and-sd"
+					],
+					"wrong": "the probabilities used in place of z"
+				},
+				{
+					"ref": "SL4.12.unknown-mean-and-sd#2",
+					"text": "Rounding the z-values to 1 decimal place and losing accuracy",
+					"as": "distractor",
+					"in": [
+						"mean-and-sd"
+					],
+					"wrong": "z rounded to 1 d.p. first"
+				}
+			],
+			"chain": [
+				"sketch the curve and shade what is given",
+				"turn each area into a left-tail area",
+				"invNorm of that area with 0 and 1 gives z",
+				"write x = μ + zσ for each value",
+				"solve for the unknown, or the two together"
+			],
 			"frequency": 13,
 			"marks": 4,
 			"section": {
@@ -21250,9 +23030,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 13
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-derivative-meaning",

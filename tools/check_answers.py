@@ -12552,6 +12552,872 @@ def check_line_model(q):
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wr)
+# ── regression-x-on-y (t4-regression-x-on-y, FAL-725) ────────
+# The `regression-x-on-y` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/regression_pair.gd. The data and the lines are read back from what the
+# student sees, and every line and estimate is found again with exact rationals.
+
+RP_SKILL = "SL4.10."
+RP_YBAR = "ȳ"
+RP_P2_ONLY = ("x-on-y-line", "d-from-mean-point", "predict-x-from-data", "predict-x-from-lines", "judge-estimate")
+RP_NUM = r"−?\d+(?:\.\d+)?"
+RP_LINE = rf"({RP_NUM})([xy]) ([+−]) (\d+(?:\.\d+)?)"
+
+
+def rp_read(line, left):
+    """m and k from "<left> = mv + k", in the sentence or bare."""
+    mt = re.search(rf"{left} = {RP_LINE}", line)
+    need(mt is not None, f"can't read a line for {left} in {line!r}")
+    need(mt.group(2) == ("x" if left == "y" else "y"), f"the line in {line!r} is in the wrong letter")
+    m, k = R(mt.group(1).replace("−", "-")), R(mt.group(4))
+    return m, k if mt.group(3) == "+" else -k
+
+
+def rp_table(q):
+    """The table back: the regression sums, the line y = ax + b and the line x = cy + d."""
+    g, L = q["given"], q["lines"]
+    need(q["table"] is not None, "a table")
+    mt = re.fullmatch(r"The table shows the (.+) \(x\) and the (.+) \(y\) for (\d+) (.+)\.", L[0])
+    need(mt is not None, f"can't read {L[0]!r}")
+    ctx = next((c for c in RG_CONTEXTS if c[:2] == (mt.group(1), mt.group(2)) and c[2] == mt.group(4)), None)
+    need(ctx is not None, f"no story matches {L[0]!r}")
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "x" and rows[1][0] == "y", "table heads")
+    xs, ys = [int(v) for v in rows[0][1]], [int(v) for v in rows[1][1]]
+    n = len(xs)
+    need(n == len(ys) == int(mt.group(3)) and 6 <= n <= 9, f"n = {n}")
+    sx, sy = sum(xs), sum(ys)
+    mx, my = sp.Rational(sx, n), sp.Rational(sy, n)
+    sxx = sp.Rational(n * sum(x * x for x in xs) - sx * sx, n)
+    sxy = sp.Rational(n * sum(x * y for x, y in zip(xs, ys)) - sx * sy, n)
+    syy = sp.Rational(n * sum(y * y for y in ys) - sy * sy, n)
+    a, c = sxy / sxx, sxy / syy
+    r = sxy / sp.sqrt(sxx * syy)
+    need(sp.Rational(8, 10) <= abs(r) <= sp.Rational(99, 100), f"|r| = {float(abs(r)):.4f} is outside 0.8 to 0.99")
+    need((r > 0) == (ctx[3] > 0), "the sign of r does not match the story")
+    return xs, ys, a, my - a * mx, c, mx - c * my
+
+
+def check_regression_pair(q):
+    g, u, L, rep = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    asked, paper = q["asked"], q["paper"]
+    need(paper == 2 if u in RP_P2_ONLY else paper in (1, 2), f"paper {paper} for {u}")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    if u == "x-on-y-line":
+        xs, ys, a, b, c, d = rp_table(q)
+        need(asked == "Find the equation of the regression line of x on y, in the form x = cy + d, with c and d to 3 s.f.", f"asked {asked!r}")
+        ra, rb = 1 / a, -b / a
+        need(all(rg_clear(v) for v in (a, b, c, d, ra, rb)), "a value is on a rounding edge")
+        need(sig3(c) != sig3(ra) and sig3(d) != sig3(rb) and sig3(c) != sig3(a) and sig3(d) != sig3(b), "the wrong lines read the same as the right one")
+        want = f"c = {rg_s(c)}, d = {rg_s(d)}"
+        wrongs[RP_SKILL + "x-on-y-line#0"] = {f"c = {rg_s(ra)}, d = {rg_s(rb)}"}
+        wrongs[RP_SKILL + "x-on-y-line#1"] = {f"c = {rg_s(a)}, d = {rg_s(b)}"}
+    elif u == "predict-x-from-data":
+        xs, ys, a, b, c, d = rp_table(q)
+        mt = re.fullmatch(r"Use the appropriate regression line to estimate x when y = (\d+)\. Give your answer to 3 s\.f\.", asked)
+        need(mt is not None, f"asked {asked!r}")
+        y0 = int(mt.group(1))
+        need(min(ys) < y0 < max(ys) and y0 not in ys, f"y = {y0} is not strictly inside the data and off the table")
+        x0, xr = c * y0 + d, (y0 - b) / a
+        need(x0 > 0 and xr > 0 and rg_clear(x0) and rg_clear(xr) and sig3(x0) != sig3(xr), "an estimate is not positive, on an edge, or the slip reads the same")
+        want, trap = rg_num(x0, "x = ")
+        wrongs[RP_SKILL + "predict-x#0"] = {"x = " + rg_s(xr)}
+    elif u == "d-from-mean-point":
+        mt = re.fullmatch(rf"The mean point of a set of data is \(({RP_NUM}), ({RP_NUM})\)\.", L[0])
+        ml = re.fullmatch(rf"The regression line of x on y is x = ({RP_NUM})y \+ d\.", L[1])
+        need(mt is not None and ml is not None and asked == "The line passes through the mean point. Find d.", f"can't read {L}")
+        mx, my, c = R(mt.group(1)), R(mt.group(2).replace("−", "-")), R(ml.group(1).replace("−", "-"))
+        d = mx - c * my
+        need(1 <= abs(d) <= 900 and rg_clear(d), f"d = {d}")
+        want, trap = rg_num(d, "d = ")
+        need(sp.Rational(sig3(d)) != d, "d needs no rounding")
+        wrongs[RP_SKILL + "mean-point-intersection#1"] = {"d = " + rg_s(my - c * mx)}
+    elif u == "choose-line":
+        a, b = rp_read(L[-2], "y")
+        c, d = rp_read(L[-1], "x")
+        need(0 < a * c < 1, "the two lines are not a regression pair")
+        est = None
+        if rep == "equation":
+            mt = re.fullmatch(r"Which line should be used to estimate ([xy]) when ([xy]) = (\d+)\?", asked)
+            need(mt is not None and mt.group(1) != mt.group(2), f"asked {asked!r}")
+            est = mt.group(1)
+        else:
+            mt = re.fullmatch(r"The data are the (.+) \(x\) and the (.+) \(y\) for some (.+)\.", L[0])
+            ma = re.fullmatch(r"Which line should be used to estimate the (.+) when the (.+) is (\d+)\?", asked)
+            need(mt is not None and ma is not None, f"can't read {L[0]!r} and {asked!r}")
+            need({ma.group(1), ma.group(2)} == {mt.group(1), mt.group(2)}, "the question is not about the story's two variables")
+            est = "x" if ma.group(1) == mt.group(1) else "y"
+        want = "The line of x on y, since x is being estimated" if est == "x" else "The line of y on x, since y is being estimated"
+        wrongs[RP_SKILL + "choose-line#0"] = {"The line of y on x, rearranged to make x the subject" if est == "x" else "The line of x on y, rearranged to make y the subject"}
+        wrongs[RP_SKILL + "choose-line#1"] = {"The line of y on x, since x is on the horizontal axis" if est == "x" else "The line of x on y, since y is on the vertical axis"}
+        gc_check_common(q, want, wrongs)
+        for sol in q["solutions"]:
+            need(want in sol["steps"][-1], "the working doesn't end at the right line")
+        return None, None
+    elif u == "predict-x-from-lines":
+        a, b = rp_read(L[0], "y")
+        c, d = rp_read(L[1], "x")
+        need(0 < a * c < 1, "the two lines are not a regression pair")
+        mt = re.fullmatch(r"Estimate x when y = (\d+)\. Give your answer to 3 s\.f\.", asked)
+        need(mt is not None, f"asked {asked!r}")
+        y0 = int(mt.group(1))
+        x0, xr = c * y0 + d, (y0 - b) / a
+        need(x0 > 0 and xr > 0 and rg_clear(x0) and rg_clear(xr) and sig3(x0) != sig3(xr), "the estimate is not clean")
+        want, trap = rg_num(x0, "x = ")
+        wrongs[RP_SKILL + "predict-x#0"] = {"x = " + rg_s(xr)}
+    elif u == "judge-estimate":
+        mr = re.search(rf"have r = ({RP_NUM})\.", L[0])
+        my = re.fullmatch(r"The values of y in the data run from (\d+) to (\d+)\.", L[1])
+        ma = re.fullmatch(r"The line of x on y is used to estimate x when y = (\d+)\. How reliable is this estimate\?", asked)
+        need(mr is not None and my is not None and ma is not None, f"can't read {L} / {asked!r}")
+        r, lo, hi, y0 = R(mr.group(1).replace("−", "-")), int(my.group(1)), int(my.group(2)), int(ma.group(1))
+        strong, inside = abs(r) >= sp.Rational(9, 10), lo <= y0 <= hi
+        need(strong or abs(r) <= sp.Rational(45, 100), f"r = {r} is neither strong nor weak")
+        need(strong or inside, "both weak and outside: two reasons at once")
+        want = ("Reliable: y is inside the data and the correlation is strong" if inside else "Not reliable: y is outside the range of the data") if strong else "Not reliable: the correlation is weak"
+        wrongs[RP_SKILL + "predict-x#1"] = {"Reliable: r is strong, so the line can be used for any y"}
+        gc_check_common(q, want, wrongs)
+        need(want in q["solutions"][0]["steps"][-1], "the working doesn't end at the verdict")
+        return None, None
+    elif u == "mean-point-from-lines":
+        a, b = rp_read(L[0], "y")
+        c, d = rp_read(L[1], "x")
+        need(0 < a * c < 1, "the two lines are not a regression pair")
+        x, y = sp.symbols("x y")
+        sol = sp.solve([y - a * x - b, x - c * y - d], [x, y])
+        mx, my = sol[x], sol[y]
+        need(mx.q == 1 and my.q == 1 and mx > 0 and my > 0, f"the mean point ({mx}, {my}) is not a positive whole point")
+        need(asked == f"Find the mean point (x̄, {RP_YBAR}).", f"asked {asked!r}")
+        want = f"({mx}, {my})"
+        if rep == "graph":
+            pts = q["graph"]["points"]
+            need(len(pts) == 1 and R(str(pts[0]["x"])) == mx and R(str(pts[0]["y"])) == my, "the point marked is not where the lines cross")
+            for curve, f in zip(q["graph"]["curves"], (lambda t: a * t + b, lambda t: (t - d) / c)):
+                for px, py in curve[:: max(1, len(curve) // 5)]:
+                    need(abs(float(f(sp.Rational(str(px)))) - py) < 1e-6, "a curve drawn is not its line")
+    elif u == "mean-from-one-mean":
+        which = "y" if "of y on x" in L[0] else "x"
+        m, k = rp_read(L[0], which)
+        mk = re.fullmatch(rf"(x̄|{RP_YBAR}) = ({RP_NUM})", L[1])
+        need(mk is not None, f"can't read {L[1]!r}")
+        known = "x" if mk.group(1) == "x̄" else "y"
+        v = R(mk.group(2))
+        need(asked == f"Find {RP_YBAR if known == 'x' else 'x̄'}.", f"asked {asked!r}")
+        # The line: subject = m × other + k. The known mean is the subject's or the other's.
+        val = m * v + k if known != which else (v - k) / m
+        slip = (v - k) / m if known != which else m * v + k
+        need(val == sp.Rational(int(val)) and val > 0, f"the other mean is {val}")
+        lab = (RP_YBAR if known == "x" else "x̄") + " = "
+        want = lab + dec_text(val)
+        wrongs[RP_SKILL + "mean-point-intersection#1"] = {lab + dec_text(slip)}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    for sol in q["solutions"]:
+        need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
+# ── normal-unknown (t4-normal-unknown-parameter, FAL-725) ────
+# The `normal-unknown` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/normal_unknown.gd. The facts are read back from what the student sees;
+# z comes from mpmath's erfinv, and each parameter is then checked by putting it back into erf.
+
+NU_SKILL = "SL4.12."
+NU_NUM = r"−?\d+(?:\.\d+)?"
+NU_CONTEXTS = [("The masses of the grain sacks at a depot", " kg"), ("The lengths of the copper pipes in a yard", " cm"),
+               ("The times couriers take to cross the flats", " minutes"), ("The volumes of water in the filled cans", " ml"),
+               ("The heights of the fence posts at a camp", " cm"), ("The lifetimes of the lamp batteries", " hours"),
+               ("The distances the patrols cover in a day", " km"), ("The masses of the salvaged engine parts", " kg")]
+
+
+def nu_phi(z):
+    with mpmath.workdps(40):
+        return mpmath.mpf("0.5") * mpmath.erfc(-mpmath.mpf(z) / mpmath.sqrt(2))
+
+
+def nu_inv(p):
+    with mpmath.workdps(40):
+        return mpmath.sqrt(2) * mpmath.erfinv(2 * mpmath.mpf(sp.Rational(p).p) / sp.Rational(p).q - 1)
+
+
+def nu_f(x):
+    return sp.Float(mpmath.nstr(mpmath.mpf(x), 35), 35)
+
+
+def nu_clear(x):
+    return x != 0 and rg_clear(nu_f(x))
+
+
+def nu_val(t):
+    return R(t.replace("−", "-"))
+
+
+def nu_text(label, x):
+    return label + rg_s(nu_f(x))
+
+
+def nu_model(q):
+    """(mu, sigma) from the first line: a Rational, or None where it is hidden."""
+    line = q["lines"][0]
+    if q["view"]["rep"] != "words":
+        mt = re.fullmatch(rf"X ~ N\((μ|{NU_NUM}), (σ|{NU_NUM})²\)", line)
+        need(mt is not None, f"can't read {line!r}")
+        return None if mt.group(1) == "μ" else nu_val(mt.group(1)), None if mt.group(2) == "σ" else nu_val(mt.group(2))
+    what, unit = NU_CONTEXTS[int(q["given"]["ctx"])]
+    mu = re.search(rf"with mean ({NU_NUM}){unit}", line)
+    sg = re.search(rf"standard deviation ({NU_NUM}){unit}", line)
+    need(line.startswith(what + " are normally distributed"), f"the story {line!r} is not the one given")
+    return nu_val(mu.group(1)) if mu else None, nu_val(sg.group(1)) if sg else None
+
+
+def nu_tail(q, i):
+    """x, the side and the area from line i: ("lt" or "gt")."""
+    line = q["lines"][i]
+    if q["view"]["rep"] != "words":
+        mt = re.fullmatch(rf"P\(X ([<>]) ({NU_NUM})\) = ({NU_NUM})", line)
+        need(mt is not None, f"can't read {line!r}")
+        return nu_val(mt.group(2)), "lt" if mt.group(1) == "<" else "gt", nu_val(mt.group(3))
+    unit = NU_CONTEXTS[int(q["given"]["ctx"])][1]
+    mt = re.fullmatch(rf"({NU_NUM})% of them are (below|above) ({NU_NUM}){unit}\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return nu_val(mt.group(3)), "lt" if mt.group(2) == "below" else "gt", nu_val(mt.group(1)) / 100
+
+
+def nu_shaded(q, want):
+    """The curve drawn: each shaded area adds up to `want`, under the mean and σ it is drawn with."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "normal", "no normal curve")
+    mu, sg = mpmath.mpf(g["mu"]), mpmath.mpf(g["sigma"])
+    total = 0
+    for a, b in g["shade"]:
+        hi = nu_phi((mpmath.mpf(b) - mu) / sg) if b is not None else 1
+        lo = nu_phi((mpmath.mpf(a) - mu) / sg) if a is not None else 0
+        total += hi - lo
+    need(abs(total - want) < mpmath.mpf("1e-5"), f"the shaded area is {total}, not {want}")
+
+
+def check_normal_unknown(q):
+    with mpmath.workdps(40):
+        return nu_check(q)
+
+
+def nu_check(q):
+    g, u, L, rep = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"]
+    asked = q["asked"]
+    need(q["paper"] == 2, "these are Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z^])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    sq = "standard deviation" if rep == "words" else "σ"
+
+    def sd_answer(x):
+        need(x > 0 and nu_clear(x), f"σ = {x} is not positive, or on a rounding edge")
+        return nu_text("σ = ", x), bn_trap("σ = ", nu_f(x))
+
+    if u == "z-from-area":
+        need(L[0] == "Z ~ N(0, 1)" and asked == "Find k.", f"{L[0]!r} {asked!r}")
+        mt = re.fullmatch(rf"P\(Z ([<>]) k\) = ({NU_NUM})", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        p = nu_val(mt.group(2))
+        left = p if mt.group(1) == "<" else 1 - p
+        z = nu_inv(left)
+        need(abs(z) >= mpmath.mpf("0.1") and nu_clear(z), f"z = {z}")
+        want, trap = nu_text("k = ", z), bn_trap("k = ", nu_f(z))
+        if mt.group(1) == ">":
+            wrongs[NU_SKILL + "unknown-mean-or-sd#1"] = {nu_text("k = ", -z)}
+        if rep == "diagram":
+            nu_shaded(q, mpmath.mpf(p.p) / p.q)
+    elif u == "standardise-event":
+        mu, sg = nu_model(q)
+        mt = re.search(rf"P\(X ([<>]) ({NU_NUM})\)", asked)
+        need(mt is not None and mu is not None and sg is not None, f"can't read {asked!r}")
+        r, x = mt.group(1), nu_val(mt.group(2))
+        z = (x - mu) / sg
+        zv = (x - mu) / sg**2
+        need((z * 100).q == 1, f"z = {z} doesn't end within two places")
+        want = f"P(Z {r} {dec_text(z)})"
+        other = ">" if r == "<" else "<"
+        wrongs[NU_SKILL + "standardise#0"] = {f"P(Z {other} {dec_text(z)})"}
+        wrongs[NU_SKILL + "standardise#1"] = {f"P(Z {r} {dec_text(zv)})"}
+        if rep == "diagram":
+            a = nu_phi(mpmath.mpf(z.p) / z.q)
+            nu_shaded(q, a if r == "<" else 1 - a)
+    elif u == "within-k-sd":
+        mt = re.search(r"(\d\.\d)σ < X < μ \+ (\d\.\d)σ", asked) if rep != "words" else re.search(r"within (\d\.\d) standard deviations", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        k = R(mt.group(1))
+        need(sp.Rational(6, 5) <= k <= sp.Rational(14, 5) and k != 2, f"k = {k}")
+        x = nu_phi(k.p / mpmath.mpf(k.q)) - nu_phi(-k.p / mpmath.mpf(k.q))
+        need(nu_clear(x), "on a rounding edge")
+        want, trap = nu_text("probability = ", x), bn_trap("probability = ", nu_f(x))
+    elif u in ("unknown-sd", "unknown-mean"):
+        mu, sg = nu_model(q)
+        x, side, p = nu_tail(q, 1)
+        left = p if side == "lt" else 1 - p
+        z = nu_inv(left)
+        need(sp.Rational(2, 100) <= p <= sp.Rational(48, 100) and (p * 100).q == 1, f"the tail {p}")
+        xf = mpmath.mpf(x.p) / x.q
+        if u == "unknown-sd":
+            need(mu is not None and sg is None and asked == f"Find {'the ' if rep == 'words' else ''}{sq}.", f"asked {asked!r}")
+            s_ = (xf - mpmath.mpf(mu.p) / mu.q) / z
+            need(abs(nu_phi((xf - mpmath.mpf(mu.p) / mu.q) / s_) - left) < mpmath.mpf("1e-25"), "σ does not give the area")
+            need(1 <= s_ <= mpmath.mpf(mu.p) / mu.q / 4, f"σ = {s_} is outside the limits")
+            want, trap = sd_answer(s_)
+            wrongs[NU_SKILL + "unknown-mean-or-sd#2"] = {nu_text("σ = ", -s_)}
+            if rep == "diagram":
+                nu_shaded(q, mpmath.mpf(p.p) / p.q)
+        else:
+            need(mu is None and sg is not None and asked == f"Find {'the mean' if rep == 'words' else 'μ'}.", f"asked {asked!r}")
+            sf_ = mpmath.mpf(sg.p) / sg.q
+            m = xf - z * sf_
+            need(abs(nu_phi((xf - m) / sf_) - left) < mpmath.mpf("1e-25"), "μ does not give the area")
+            need(m >= 4 * sf_ and nu_clear(m) and nu_clear(xf + z * sf_), f"μ = {m}")
+            want, trap = nu_text("μ = ", m), bn_trap("μ = ", nu_f(m))
+            wrongs[NU_SKILL + "unknown-mean-or-sd#1"] = {nu_text("μ = ", xf + z * sf_)}
+            if rep == "diagram":
+                nu_shaded(q, mpmath.mpf(p.p) / p.q)
+    elif u == "sd-from-iqr":
+        mu, sg = nu_model(q)
+        mt = re.search(rf"interquartile range (?:of X )?is ({NU_NUM})", L[1])
+        need(mt is not None and mu is not None and sg is None, f"can't read {L[1]!r}")
+        iqr = nu_val(mt.group(1))
+        s_ = (mpmath.mpf(iqr.p) / iqr.q) / (2 * nu_inv(sp.Rational(3, 4)))
+        need(abs(nu_phi(mpmath.mpf(iqr.p) / iqr.q / 2 / s_) - mpmath.mpf("0.75")) < mpmath.mpf("1e-25"), "σ does not put 75% below Q₃")
+        want, trap = sd_answer(s_)
+    elif u == "sd-from-central-area":
+        mu, sg = nu_model(q)
+        need(mu is not None and sg is None, "μ is given")
+        if rep == "words":
+            unit = NU_CONTEXTS[int(g["ctx"])][1]
+            mt = re.fullmatch(rf"({NU_NUM})% of them are between ({NU_NUM}){unit} and ({NU_NUM}){unit}\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            c, lo, hi = nu_val(mt.group(1)) / 100, nu_val(mt.group(2)), nu_val(mt.group(3))
+        else:
+            mt = re.fullmatch(rf"P\(({NU_NUM}) < X < ({NU_NUM})\) = ({NU_NUM})", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            lo, hi, c = nu_val(mt.group(1)), nu_val(mt.group(2)), nu_val(mt.group(3))
+        need(mu - lo == hi - mu > 0, "the interval is not centred on the mean")
+        z = nu_inv((1 + c) / 2)
+        s_ = (mpmath.mpf((hi - mu).p) / (hi - mu).q) / z
+        want, trap = sd_answer(s_)
+        if rep == "diagram":
+            nu_shaded(q, mpmath.mpf(c.p) / c.q)
+    elif u == "mean-and-sd":
+        x1, s1, p1 = nu_tail(q, 1)
+        x2, s2, p2 = nu_tail(q, 2)
+        need(s1 == "lt" and x1 < x2, "the first fact is the lower tail")
+        a1, a2 = p1, (p2 if s2 == "lt" else 1 - p2)
+        need(a1 < a2, "the areas are out of order")
+        m, s_ = sp.symbols("m s")
+        z1, z2 = nu_inv(a1), nu_inv(a2)
+        xa, xb = mpmath.mpf(x1.p) / x1.q, mpmath.mpf(x2.p) / x2.q
+
+        def solve2(u1, u2):
+            ss = (xb - xa) / (u2 - u1)
+            return xa - u1 * ss, ss
+
+        mu, sg = solve2(z1, z2)
+        need(sg > 0 and nu_clear(mu) and nu_clear(sg) and sg <= mu / 3, f"μ = {mu}, σ = {sg}")
+        need(abs(nu_phi((xa - mu) / sg) - mpmath.mpf(a1.p) / a1.q) < mpmath.mpf("1e-25"), "μ and σ don't give the first area")
+        need(abs(nu_phi((xb - mu) / sg) - mpmath.mpf(a2.p) / a2.q) < mpmath.mpf("1e-25"), "μ and σ don't give the second area")
+        pair = lambda a, b: f"μ = {rg_s(nu_f(a))}, σ = {rg_s(nu_f(b))}"
+        want = pair(mu, sg)
+        if abs(z2) != abs(z1):
+            pm, ps = solve2(abs(z1), abs(z2))
+            wrongs[NU_SKILL + "unknown-mean-and-sd#0"] = {pair(pm, ps)}
+        pm, ps = solve2(mpmath.mpf(a1.p) / a1.q, mpmath.mpf(a2.p) / a2.q)
+        wrongs[NU_SKILL + "unknown-mean-and-sd#1"] = {pair(pm, ps)}
+        round1 = lambda v: mpmath.floor(v * 10 + mpmath.mpf("0.5")) / 10
+        pm, ps = solve2(round1(z1), round1(z2))
+        wrongs[NU_SKILL + "unknown-mean-and-sd#2"] = {pair(pm, ps)}
+        if rep == "diagram":
+            nu_shaded(q, mpmath.mpf(a1.p) / a1.q + 1 - mpmath.mpf(a2.p) / a2.q if s2 == "gt" else mpmath.mpf(a2.p) / a2.q)
+    elif u in ("mean-from-equal-tails", "sd-from-equal-tails"):
+        unit = NU_CONTEXTS[int(g["ctx"])][1]
+        p = None
+        if u == "mean-from-equal-tails":
+            mt = re.fullmatch(rf"The percentage below ({NU_NUM}){unit} equals the percentage above ({NU_NUM}){unit}\.", L[1]) if rep == "words" else re.fullmatch(rf"P\(X < ({NU_NUM})\) = P\(X > ({NU_NUM})\)", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            a, b = nu_val(mt.group(1)), nu_val(mt.group(2))
+            need(a < b and ((a + b) / 2).q == 1, "the mean is not a whole number")
+            want = f"μ = {dec_text((a + b) / 2)}"
+            if rep == "diagram":
+                ga = q["graph"]
+                mid = (mpmath.mpf(a.p) / a.q + mpmath.mpf(b.p) / b.q) / 2
+                need(abs(mpmath.mpf(ga["mu"]) - mid) < mpmath.mpf("1e-6"), "the curve is not centred between the two values")
+        else:
+            if rep == "words":
+                mt = re.fullmatch(rf"({NU_NUM})% of them are below ({NU_NUM}){unit}, and ({NU_NUM})% are above ({NU_NUM}){unit}\.", L[1])
+                need(mt is not None and mt.group(1) == mt.group(3), f"can't read {L[1]!r}")
+                p, a, b = nu_val(mt.group(1)) / 100, nu_val(mt.group(2)), nu_val(mt.group(4))
+            else:
+                mt = re.fullmatch(rf"P\(X < ({NU_NUM})\) = P\(X > ({NU_NUM})\) = ({NU_NUM})", L[1])
+                need(mt is not None, f"can't read {L[1]!r}")
+                a, b, p = nu_val(mt.group(1)), nu_val(mt.group(2)), nu_val(mt.group(3))
+            half = (b - a) / 2
+            s_ = (mpmath.mpf(half.p) / half.q) / nu_inv(1 - p)
+            want, trap = sd_answer(s_)
+    elif u == "mean-from-two-z":
+        if rep == "words":
+            unit = NU_CONTEXTS[int(g["ctx"])][1]
+            ms = [re.fullmatch(rf"A value of ({NU_NUM}){unit} has z-value ({NU_NUM})\.", ln) for ln in L[1:3]]
+        else:
+            ms = [re.fullmatch(rf"x = ({NU_NUM}) has z = ({NU_NUM})", ln) for ln in L[1:3]]
+        need(all(ms), f"can't read {L}")
+        (x1, z1), (x2, z2) = [(nu_val(mt.group(1)), nu_val(mt.group(2))) for mt in ms]
+        m, s_ = sp.symbols("m s")
+        sol = sp.solve([m + z1 * s_ - x1, m + z2 * s_ - x2], [m, s_])
+        need(sol[m].q == 1 and sol[s_].q == 1 and sol[s_] > 0, f"μ = {sol[m]}, σ = {sol[s_]}")
+        want = f"μ = {sol[m]}"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    for sol in q["solutions"]:
+        last = sol["steps"][-1]
+        need(want in last or (u == "standardise-event" and last.endswith(f"= {want}.")), f"{sol['name']}: the last step {last!r} doesn't state {want!r}")
+    return None, None
+
+
+# ── venn (t4-venn-addition-rule, FAL-725) ────────────────────
+# The `venn` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/venn.gd. The regions are read back from the lines, the diagram or the
+# table, by working out the unknown region from what is shown, never from the situation.
+
+VN_SKILL = "SL4.6."
+VN_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+VN_NUM = r"\d+(?:/\d+)?(?:\.\d+)?"
+VN_CONTEXTS = [("scavengers", "scavenger", "carry a radio", "carry a water filter", "carries a radio", "carries a water filter"),
+               ("traders", "trader", "sell fuel", "sell salt", "sells fuel", "sells salt"),
+               ("guards", "guard", "own a crossbow", "own a shield", "owns a crossbow", "owns a shield"),
+               ("settlers", "settler", "keep goats", "grow beans", "keeps goats", "grows beans"),
+               ("mechanics", "mechanic", "repair engines", "repair radios", "repairs engines", "repairs radios"),
+               ("drivers", "driver", "hold a permit", "carry a spare wheel", "holds a permit", "carries a spare wheel"),
+               ("medics", "medic", "carry bandages", "carry painkillers", "carries bandages", "carries painkillers"),
+               ("farmers", "farmer", "use a well", "use a rain tank", "uses a well", "uses a rain tank")]
+
+
+def vn_p(line, name):
+    mt = re.fullmatch(rf"P\({name}\) = ({VN_NUM})", line)
+    need(mt is not None, f"can't read P({name}) in {line!r}")
+    return R(mt.group(1))
+
+
+def vn_prob_shown(v, dec, paper):
+    """How a probability answer is written: exact, except a Paper 2 count that needs rounding."""
+    if dec:
+        return dec_text(v), None
+    if paper == 1:
+        return frac_text(v), None
+    return rg_s(v), bn_trap("", v)
+
+
+def vn_opts(q, label, v, dec, paper, table):
+    """want, trap and wrongs for a probability v with its misconception values in `table`."""
+    w, tr = vn_prob_shown(v, dec, paper)
+    wrongs = {}
+    for ref, x in table.items():
+        wrongs[VN_SKILL + ref] = {label + vn_prob_shown(x, dec, paper)[0]}
+    return label + w, (label + tr if tr else None), wrongs
+
+
+def vn_story(q):
+    """u, n(A), n(B) and n(both) from "Of the u who in a camp, ..."."""
+    c = VN_CONTEXTS[int(q["given"]["ctx"])]
+    mt = re.fullmatch(rf"Of the (\d+) {c[0]} in a camp, (\d+) {c[2]}, (\d+) {c[3]} and (\d+) do both\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    return [int(mt.group(i)) for i in (1, 2, 3, 4)]
+
+
+def vn_diagram(q):
+    """The four regions as Rationals out of u: probabilities, or counts with the total in the line."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "venn" and g["names"] == ["A", "B"], "no Venn diagram")
+    a, i, b, o = [R(g[k]) for k in ("a", "i", "b", "o")]
+    if "." in g["a"] or "." in g["i"] or "." in g["b"] or "." in g["o"]:
+        need(a + i + b + o == 1, "the diagram's probabilities don't add to 1")
+        need(q["lines"][0] == "The Venn diagram shows the probability of each region for events A and B.", f"{q['lines'][0]!r}")
+        return a, i, b, o, True
+    mt = re.match(r"The Venn diagram shows how many of (\d+) outcomes", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    u = int(mt.group(1))
+    need(a + i + b + o == u, "the diagram's numbers don't add to the total")
+    return a / u, i / u, b / u, o / u, False
+
+
+def vn_table(q):
+    rows = q["table"]["rows"]
+    need(rows[0][1] == ["B", "B′", "Total"] and [r[0] for r in rows[1:]] == ["A", "A′", "Total"], "table heads")
+    return rows
+
+
+def check_venn(q):
+    g, u, L, rep, asked, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    wrongs, want, trap = {}, None, None
+    words = rep == "words"
+    if u in ("union-from-rule", "intersection-from-rule", "neither-from-rule"):
+        c = VN_CONTEXTS[int(g["ctx"])]
+        lab = "probability = " if words else {"union-from-rule": "P(A ∪ B) = ", "intersection-from-rule": "P(A ∩ B) = ", "neither-from-rule": "P(A′ ∩ B′) = "}[u]
+        if words:
+            if u == "intersection-from-rule":
+                mt = re.fullmatch(rf"Of the (\d+) {c[0]} in a camp, (\d+) {c[2]} and (\d+) {c[3]}\. In all, (\d+) do at least one of these\.", L[0])
+                need(mt is not None, f"can't read {L[0]!r}")
+                n, na, nb, nu = [int(mt.group(i)) for i in (1, 2, 3, 4)]
+                pa, pb, pu = sp.Rational(na, n), sp.Rational(nb, n), sp.Rational(nu, n)
+                pi = pa + pb - pu
+            else:
+                n, na, nb, ni = vn_story(q)
+                pa, pb, pi = sp.Rational(na, n), sp.Rational(nb, n), sp.Rational(ni, n)
+                pu = pa + pb - pi
+            dec = False
+        else:
+            pa, pb = vn_p(L[0], "A"), vn_p(L[1], "B")
+            if u == "intersection-from-rule":
+                pu = vn_p(L[2], "A ∪ B")
+                pi = pa + pb - pu
+            else:
+                pi = vn_p(L[2], "A ∩ B")
+                pu = pa + pb - pi
+            dec = "." in L[0] or "." in L[1] or "." in L[2]
+            need(dec or paper == 1, "fractions are Paper 1 only")
+        need(0 < pi < min(pa, pb) and pu < 1, f"P(A ∩ B) = {pi}, P(A ∪ B) = {pu}")
+        if u == "union-from-rule":
+            need(words or asked == "Find P(A ∪ B).", f"asked {asked!r}")
+            need(pa + pb < 1, "P(A) + P(B) is not below 1")
+            want, trap, wrongs = vn_opts(q, lab, pu, dec, paper, {"union#0": pa + pb, "union#1": pa * pb, "union#2": pu - pi})
+        elif u == "intersection-from-rule":
+            want, trap, wrongs = vn_opts(q, lab, pi, dec, paper, {"union#1": pa * pb})
+        else:
+            want, trap, wrongs = vn_opts(q, lab, 1 - pu, dec, paper, {"union#0": 1 - pa - pb})
+    elif u == "union-from-regions":
+        a, i, b, o, dec = vn_diagram(q)
+        need(asked == "Find P(A ∪ B).", f"asked {asked!r}")
+        want, trap, wrongs = vn_opts(q, "P(A ∪ B) = ", a + i + b, dec, paper, {"union#0": a + b + 2 * i, "union#2": a + b})
+    elif u == "union-from-table":
+        rows = vn_table(q)
+        i, a, na = [int(v) for v in rows[1][1]]
+        b, o, nn = [int(v) for v in rows[2][1]]
+        nb, nbn, n = [int(v) for v in rows[3][1]]
+        need(i + a == na and b + o == nn and i + b == nb and a + o == nbn and na + nn == n, "the table doesn't add up")
+        want, trap, wrongs = vn_opts(q, "P(A ∪ B) = ", sp.Rational(a + i + b, n), False, paper, {"union#0": sp.Rational(a + b + 2 * i, n), "union#2": sp.Rational(a + b, n)})
+    elif u == "table-missing-entry":
+        rows = vn_table(q)
+        T = {(ri, ci): rows[ri + 1][1][ci] for ri in range(3) for ci in range(3)}
+        mt = re.fullmatch(r"The two-way table shows (\d+) outcomes\.", L[0])
+        need(mt is not None and T[(2, 2)] == mt.group(1), "the total is not the one in the table")
+        need(sum(v == "?" for v in T.values()) == 1, "one entry is asked")
+        i, na, nb, n = int(T[(0, 0)]), int(T[(0, 2)]), int(T[(2, 0)]), int(T[(2, 2)])
+        full = {(0, 1): na - i, (1, 0): nb - i, (1, 1): n - na - nb + i, (1, 2): n - na, (2, 1): n - nb}
+        pos = next(k for k, v in T.items() if v == "?")
+        need(full[pos] > 0, "the entry is not positive")
+        want = f"? = {full[pos]}"
+    elif u == "one-event-only":
+        need(asked == "Find P(A ∩ B′).", f"asked {asked!r}")
+        if rep == "diagram":
+            a, i, b, o, dec = vn_diagram(q)
+        else:
+            pa, pb, i = vn_p(L[0], "A"), vn_p(L[1], "B"), vn_p(L[2], "A ∩ B")
+            a, b, o, dec = pa - i, pb - i, 1 - pa - pb + i, "." in L[0] or "." in L[1] or "." in L[2]
+        want, trap, wrongs = vn_opts(q, "P(A ∩ B′) = ", a, dec, paper, {"venn#2": o, "venn#0": a + i})
+    elif u == "exactly-one":
+        if rep == "diagram":
+            a, i, b, o, dec = vn_diagram(q)
+        else:
+            n, na, nb, ni = vn_story(q)
+            a, i, b, dec = sp.Rational(na - ni, n), sp.Rational(ni, n), sp.Rational(nb - ni, n), False
+        want, trap, wrongs = vn_opts(q, "probability = ", a + b, dec, paper, {"union#2": a + b + i})
+    elif u == "region-from-totals":
+        if rep == "diagram":
+            mt = re.fullmatch(r"n\(U\) = (\d+), n\(A\) = (\d+) and n\(B\) = (\d+)", L[0])
+            need(mt is not None and q["graph"]["o"] == "?", f"can't read {L[0]!r}")
+            n, na, nb, ni = int(mt.group(1)), int(mt.group(2)), int(mt.group(3)), int(q["graph"]["i"])
+        else:
+            n, na, nb, ni = vn_story(q)
+        o = n - (na + nb - ni)
+        need(o > 0, "nothing is outside the circles")
+        want = f"number = {o}"
+        wrongs[VN_SKILL + "venn#0"] = {f"number = {n - na - nb - ni}"}
+        wrongs[VN_SKILL + "venn#1"] = {"number = 0"}
+    elif u == "x-from-total":
+        x = sp.symbols("x")
+        if rep == "diagram":
+            gr = q["graph"]
+            mt = re.fullmatch(r"The Venn diagram shows the number in each region\. The total is (\d+)\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            exprs, o, n = [sp.sympify(re.sub(r"(\d)x", r"\1*x", gr[k]).replace("−", "-")) for k in "aib"], int(gr["o"]), int(mt.group(1))
+        else:
+            c = VN_CONTEXTS[int(g["ctx"])]
+            mt = re.fullmatch(rf"Of the (\d+) {c[0]} in a camp, (.+) only {c[2]}, (.+) only {c[3]}, (.+) do both and (\d+) do neither\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            exprs = [sp.sympify(re.sub(r"(\d)x", r"\1*x", mt.group(k)).replace("−", "-")) for k in (2, 4, 3)]
+            n, o = int(mt.group(1)), int(mt.group(5))
+        sols = sp.solve(sum(exprs) + o - n, sp.Symbol("x"))
+        need(len(sols) == 1 and sols[0].q == 1, f"x = {sols}")
+        xv = sols[0]
+        need(all(e.subs(sp.Symbol("x"), xv) >= 1 for e in exprs), "a region isn't positive")
+        want = f"x = {xv}"
+        slip = sp.solve(sum(exprs) - n, sp.Symbol("x"))[0]
+        need(slip.q == 1, "forgetting the outside doesn't give a whole number")
+        wrongs[VN_SKILL + "venn#1"] = {f"x = {slip}"}
+    elif u in ("least-overlap", "greatest-overlap"):
+        pa, pb = vn_p(L[0], "A"), vn_p(L[1], "B")
+        need(pa + pb > 1 and pa != pb, "the events need not overlap")
+        v = pa + pb - 1 if u == "least-overlap" else min(pa, pb)
+        need(asked == f"Find the {'least' if u == 'least-overlap' else 'greatest'} possible value of P(A ∩ B).", f"asked {asked!r}")
+        want = "P(A ∩ B) = " + dec_text(v)
+        wrongs[VN_SKILL + "union#1"] = {"P(A ∩ B) = " + dec_text(pa * pb)}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    for o in q["choices"]:
+        if u not in ("region-from-totals", "x-from-total", "table-missing-entry"):
+            m = re.search(r"= (.+)$", o["text"])
+            need(0 < R(m.group(1).replace("−", "-")) < 1, f"option {o['text']!r} is not a probability")
+    for sol in q["solutions"]:
+        need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
+# ── conditional (t4-conditional-probability, FAL-725) ────────
+# The `conditional` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/conditional.gd. Each question's facts are read back from what the
+# student sees, and the ratio is found again with exact rationals, or mpmath for a normal.
+
+CD_SKILL = "SL4.11."
+CD_TREES = [("crates", "are spoiled", "the scanner flags", "A crate", "spoiled", "flagged"),
+            ("fuel cans", "are watered down", "the tester rejects", "A can", "watered down", "rejected"),
+            ("water samples", "are unsafe", "the filter test marks red", "A sample", "unsafe", "marked red"),
+            ("coins in a till", "are fake", "the scales reject", "A coin", "fake", "rejected"),
+            ("seed packets", "are old stock", "the sorter sets aside", "A packet", "old stock", "set aside"),
+            ("batteries", "are worn out", "the meter fails", "A battery", "worn out", "failed"),
+            ("travellers", "are carrying fever", "the medic's strip marks", "A traveller", "carrying fever", "marked"),
+            ("parts in a bin", "are cracked", "the inspector rejects", "A part", "cracked", "rejected")]
+CD_COLOURS = [("red", "blue"), ("green", "white"), ("black", "yellow"), ("red", "green")]
+CD_THINGS = ["tokens", "marbles", "fuses", "tags"]
+
+
+def cd_shown(v, paper, dec):
+    """Paper 2 to 3 s.f.; Paper 1 as the question writes its numbers. A decimal of more than nine
+    places is written as a fraction, as the game's Fmt.dec does."""
+    if paper == 2:
+        return rg_s(v)
+    if not dec:
+        return frac_text(v)
+    return dec_text(v) if len(dec_text(v).split(".")[-1]) <= 9 else frac_text(v)
+
+
+def cd_set(q, label, v, table, dec=True):
+    """want, trap and wrongs for a probability v; `table` is ref -> the value that mistake gives."""
+    paper = q["paper"]
+    want = label + cd_shown(v, paper, dec)
+    trap = bn_trap(label, v) if paper == 2 else None
+    wrongs = {CD_SKILL + ref: {label + cd_shown(x, paper, dec)} for ref, x in table.items()}
+    return want, trap, wrongs
+
+
+def cd_dec(q):
+    """Whether an event question writes its numbers as decimals."""
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "diagram":
+        return vn_diagram(q)[4]
+    return rep == "equation" and any("." in ln for ln in L)
+
+
+def cd_regions(q):
+    """a, i, b, o as probabilities, read from the lines, the story, the diagram or the table."""
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "diagram":
+        return vn_diagram(q)[:4]
+    if rep == "table":
+        rows = vn_table(q)
+        i, a, na = [int(v) for v in rows[1][1]]
+        b, o, nn = [int(v) for v in rows[2][1]]
+        nb, nbn, n = [int(v) for v in rows[3][1]]
+        need(i + a == na and b + o == nn and i + b == nb and a + o == nbn and na + nn == n, "the table doesn't add up")
+        return sp.Rational(a, n), sp.Rational(i, n), sp.Rational(b, n), sp.Rational(o, n)
+    if rep == "words":
+        n, na, nb, ni = vn_story(q)
+        return sp.Rational(na - ni, n), sp.Rational(ni, n), sp.Rational(nb - ni, n), sp.Rational(n - na - nb + ni, n)
+    pa, pb, i = vn_p(L[0], "A"), vn_p(L[1], "B"), vn_p(L[2], "A ∩ B")
+    return pa - i, i, pb - i, 1 - pa - pb + i
+
+
+def cd_pct(t):
+    return R(t) / 100
+
+
+def cd_lines_rule(q, u):
+    """P(A), P(B), P(A | B) (some None), from the lines or the percentages."""
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "equation":
+        vals = {}
+        for ln in L:
+            mt = re.fullmatch(rf"P\((A|B|A \| B|A ∪ B)\) = ({VN_NUM})", ln)
+            need(mt is not None, f"can't read {ln!r}")
+            vals[mt.group(1)] = R(mt.group(2))
+        return vals.get("A"), vals.get("B"), vals.get("A | B"), vals.get("A ∪ B")
+    c = VN_CONTEXTS[int(q["given"]["ctx"])]
+    if u == "intersection-from-conditional":
+        m1 = re.fullmatch(rf"(\d+(?:\.\d+)?)% of the {c[0]} in a camp {c[3]}\.", L[0])
+        m2 = re.fullmatch(rf"Of those, (\d+(?:\.\d+)?)% also {c[2]}\.", L[1])
+        need(m1 is not None and m2 is not None, f"can't read {L}")
+        return None, cd_pct(m1.group(1)), cd_pct(m2.group(1)), None
+    m1 = re.fullmatch(rf"(\d+(?:\.\d+)?)% of the {c[0]} in a camp {c[2]} and (\d+(?:\.\d+)?)% {c[3]}\.", L[0])
+    m2 = re.fullmatch(rf"Of those who {c[3]}, (\d+(?:\.\d+)?)% also {c[2]}\.", L[1])
+    need(m1 is not None and m2 is not None, f"can't read {L}")
+    return cd_pct(m1.group(1)), cd_pct(m1.group(2)), cd_pct(m2.group(1)), None
+
+
+def check_conditional(q):
+    with mpmath.workdps(40):
+        return cd_check(q)
+
+
+def cd_check(q):
+    g, u, L, rep, asked, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    need(paper == 2 or u not in ("conditional-normal", "conditional-binomial"), "normal and binomial conditionals are Paper 2")
+    wrongs, want, trap = {}, None, None
+    if u in ("conditional-from-probabilities", "conditional-from-venn", "conditional-from-table"):
+        a, i, b, o = cd_regions(q)
+        need(i + b >= sp.Rational(1, 10), "the given event is below 0.1")
+        label = "P(A | B) = " if rep in ("equation", "diagram") else "probability = "
+        table = {"conditional-formula#0": i / (a + i), "conditional-formula#1": i}
+        if u == "conditional-from-probabilities":
+            table["conditional-formula#2"] = (a + i) * (b + i)
+        want, trap, wrongs = cd_set(q, label, i / (i + b), table, cd_dec(q))
+    elif u == "conditional-complement":
+        a, i, b, o = cd_regions(q)
+        label = "P(A′ | B′) = " if rep == "equation" else "probability = "
+        want, trap, wrongs = cd_set(q, label, o / (a + o), {"conditional-formula#0": o / (b + o), "conditional-formula#1": o}, cd_dec(q))
+    elif u == "unknown-from-conditional":
+        rows = q["table"]["rows"]
+        need(rows[0][1] == ["B", "B′"] and rows[2][1][1] == "n", "the table")
+        a = int(rows[1][1][1])
+        r = R(re.fullmatch(r"P\(A′ \| B′\) = (\d+/\d+)", L[1]).group(1))
+        n = sp.Symbol("n")
+        sol = sp.solve(n / (a + n) - r, n)
+        need(len(sol) == 1 and sol[0].q == 1 and sol[0] > 0, f"n = {sol}")
+        want = f"n = {sol[0]}"
+    elif u == "reverse-from-tree":
+        if rep == "diagram":
+            t = q["graph"]
+            need(t["kind"] == "tree", "no tree")
+            pa, pan = R(t["p"][0]), R(t["p"][1])
+            pba, pbna, pbn, pbnn = [R(v) for v in t["q"][0] + t["q"][1]]
+            need(pa + pan == 1 and pba + pbna == 1 and pbn + pbnn == 1, "the branches don't add to 1")
+            label = "P(A | B) = "
+        else:
+            c = CD_TREES[int(g["ctx"])]
+            m1 = re.fullmatch(rf"Of the {c[0]} at a depot, (\d+(?:\.\d+)?)% {c[1]}\.", L[0])
+            m2 = re.fullmatch(rf"A check: {c[2]} (\d+(?:\.\d+)?)% of those, and (\d+(?:\.\d+)?)% of the others\.", L[1])
+            need(m1 is not None and m2 is not None, f"can't read {L}")
+            need(asked == f"{c[3]} is {c[5]}. Find the probability that it is {c[4]}.", f"asked {asked!r}")
+            pa, pba, pbn = cd_pct(m1.group(1)), cd_pct(m2.group(1)), cd_pct(m2.group(2))
+            label = "probability = "
+        both = pa * pba
+        total = both + (1 - pa) * pbn
+        need(total >= sp.Rational(1, 10), "the given event is below 0.1")
+        want, trap, wrongs = cd_set(q, label, both / total, {"reverse-conditional#0": pba, "reverse-conditional#1": both})
+    elif u == "reverse-two-draws":
+        mt = re.fullmatch(r"A bag holds (\d+) (\w+) and (\d+) (\w+) (\w+)\.", L[0])
+        need(mt is not None and L[1] == "Two are drawn at random, without replacement.", f"can't read {L}")
+        r, gg = int(mt.group(1)), int(mt.group(3))
+        need((mt.group(2), mt.group(4)) in CD_COLOURS and mt.group(5) in CD_THINGS, "the colours or things")
+        need(asked == f"Given that the two are the same colour, find the probability that both are {mt.group(2)}.", f"asked {asked!r}")
+        t = r + gg
+        rr = sp.Rational(r, t) * sp.Rational(r - 1, t - 1)
+        same = rr + sp.Rational(gg, t) * sp.Rational(gg - 1, t - 1)
+        want, trap, wrongs = cd_set(q, "probability = ", rr / same, {"reverse-conditional#1": rr}, False)
+    elif u == "intersection-from-conditional":
+        _, pb, pc, _ = cd_lines_rule(q, u)
+        label = "P(A ∩ B) = " if rep == "equation" else "probability = "
+        want, trap, wrongs = cd_set(q, label, pc * pb, {"multiplication-rule#0": pc / pb, "multiplication-rule#1": pc})
+    elif u == "union-from-conditional":
+        pa, pb, pc, _ = cd_lines_rule(q, u)
+        need(pc * pb < pa, "the overlap is bigger than A")
+        label = "P(A ∪ B) = " if rep == "equation" else "probability = "
+        want, trap, wrongs = cd_set(q, label, pa + pb - pc * pb, {"multiplication-rule#1": pa + pb - pc})
+    elif u == "marginal-from-union":
+        pa, _, pc, pu = cd_lines_rule(q, u)
+        x = sp.Symbol("x")
+        sol = sp.solve(pa + x - pc * x - pu, x)
+        need(len(sol) == 1 and 0 < sol[0] < 1, f"P(B) = {sol}")
+        want, trap, wrongs = cd_set(q, "P(B) = ", sol[0], {})
+    elif u == "conditional-normal":
+        if rep == "words":
+            c = NU_CONTEXTS[int(g["ctx"])]
+            mt = re.fullmatch(rf"{re.escape(c[0])} are normally distributed with mean (\d+){c[1]} and standard deviation (\d+){c[1]}\.", L[0])
+            ma = re.fullmatch(rf"Given that one of them is (below|above) (\d+){c[1]}, find the probability that it is (below|above) (\d+){c[1]}\.", asked)
+            need(mt is not None and ma is not None, f"can't read {L[0]!r} or {asked!r}")
+            mu, sg = int(mt.group(1)), int(mt.group(2))
+            gv = ("<" if ma.group(1) == "below" else ">", int(ma.group(2)))
+            wn = ("<" if ma.group(3) == "below" else ">", int(ma.group(4)))
+        else:
+            mt = re.fullmatch(r"X ~ N\((\d+), (\d+)²\)", L[0])
+            ma = re.fullmatch(r"Find P\(X ([<>]) (\d+) \| X ([<>]) (\d+)\)\.", asked)
+            need(mt is not None and ma is not None, f"can't read {L[0]!r} or {asked!r}")
+            mu, sg = int(mt.group(1)), int(mt.group(2))
+            wn, gv = (ma.group(1), int(ma.group(2))), (ma.group(3), int(ma.group(4)))
+        lim = lambda v: nu_phi(mpmath.mpf(v - mu) / sg)
+        below = lambda e: (0, lim(e[1])) if e[0] == "<" else (lim(e[1]), 1)
+        l1, h1 = below(wn)
+        l2, h2 = below(gv)
+        lo, hi = max(l1, l2), min(h1, h2)
+        need(hi > lo, "the two events don't overlap")
+        num, den = hi - lo, h2 - l2
+        need(den >= mpmath.mpf("0.1") and den <= mpmath.mpf("0.9") and num >= mpmath.mpf("0.02"), f"num {num} den {den}")
+        v = nu_f(num / den)
+        lv, hv = sorted((wn[1], gv[1]))
+        between = lim(hv) - lim(lv)
+        need(rg_clear(v), "on a rounding edge")
+        want, trap, wrongs = cd_set(q, "probability = ", v, {"conditional-distributions#0": nu_f(num * den), "conditional-distributions#1": nu_f(between), "conditional-distributions#2": nu_f(num)})
+        if rep == "diagram":
+            shades = q["graph"]["shade"]
+            need(len(shades) == 2 and abs(mpmath.mpf(q["graph"]["mu"]) - mu) < 1e-9, "the curve drawn")
+            area = lambda sh: (nu_phi((mpmath.mpf(sh[1]) - mu) / sg) if sh[1] is not None else 1) - (nu_phi((mpmath.mpf(sh[0]) - mu) / sg) if sh[0] is not None else 0)
+            need(abs(area(shades[0]) - den) < mpmath.mpf("1e-12") and abs(area(shades[1]) - num) < mpmath.mpf("1e-12"), "the shaded areas are not the given and the wanted")
+    elif u == "conditional-binomial":
+        if rep == "equation":
+            mt = re.fullmatch(r"X ~ B\((\d+), (0\.\d+)\)", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            n, p = int(mt.group(1)), R(mt.group(2))
+        else:
+            mp_ = re.search(r"probability (0\.\d+)", L[0])
+            mn = re.search(r"(\d+) [a-z]", L[0].split("others.")[1])
+            need(mp_ is not None and mn is not None, f"can't read {L[0]!r}")
+            n, p = int(mn.group(1)), R(mp_.group(1))
+        ma = re.fullmatch(r"Find P\(X (≤|=|≥) (\d+) \| X ≥ (\d+)\)\.", asked)
+        need(ma is not None, f"asked {asked!r}")
+        k, j = int(ma.group(2)), int(ma.group(3))
+        need(k < n and j >= 1, "the bounds")
+        lo, hi = {"≤": (j, k), "=": (k, k), "≥": (k, n)}[ma.group(1)]
+        num = bn_cdf(n, p, hi) - bn_cdf(n, p, lo - 1)
+        den = bn_cdf(n, p, n) - bn_cdf(n, p, j - 1)
+        need(sp.Rational(1, 10) <= den <= sp.Rational(97, 100) and num >= sp.Rational(1, 50), f"num {float(num)} den {float(den)}")
+        need(rg_clear(num / den), "on a rounding edge")
+        want, trap, wrongs = cd_set(q, "probability = ", num / den, {"conditional-distributions#0": num * den, "conditional-distributions#2": num})
+    elif u == "conditional-discrete":
+        rows = q["table"]["rows"]
+        xs, ps = [int(v) for v in rows[0][1]], [R(v) for v in rows[1][1]]
+        need(rows[0][0] == "x" and rows[1][0] == "P(X = x)" and sum(ps) == 1 and all(p > 0 for p in ps), "the distribution doesn't add to 1")
+        ma = re.fullmatch(r"Find P\(X ≥ (\d+) \| X < (\d+)\)\.", asked)
+        need(ma is not None, f"asked {asked!r}")
+        a, b = int(ma.group(1)), int(ma.group(2))
+        num = sum(p for x, p in zip(xs, ps) if a <= x < b)
+        den = sum(p for x, p in zip(xs, ps) if x < b)
+        need(den >= sp.Rational(1, 10), "the given event is below 0.1")
+        want, trap, wrongs = cd_set(q, "probability = ", num / den, {"conditional-distributions#2": num})
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    if u != "unknown-from-conditional":
+        for o in q["choices"]:
+            v = R(o["text"].split(" = ")[1].replace("−", "-"))
+            need(0 < v < 1, f"option {o['text']!r} is not a probability")
+    for sol in q["solutions"]:
+        need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
     return None, None
 
 
@@ -12578,7 +13444,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
-                    "motion": check_motion,
+                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
                     "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model}
 
 

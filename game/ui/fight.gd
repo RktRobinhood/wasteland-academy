@@ -339,6 +339,7 @@ func _build() -> void:
 	scroll.name = "Scroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.scroll_deadzone = SWIPE_DEADZONE
 	card_frame.add_child(scroll)
 	card = VBoxContainer.new()
 	card.name = "Card"
@@ -646,6 +647,7 @@ func _show_boss_part() -> void:
 		box.add_child(l)
 		card.add_child(box)
 		card.move_child(box, at)
+		_let_swipes_through()
 
 
 func _update_progress() -> void:
@@ -817,6 +819,7 @@ func _show_result(r: Dictionary) -> void:
 		for b in bs:
 			b.disabled = true
 	_update_hud()
+	_reveal_result()
 	if r.enemy_damage > 0:
 		flash_hurt()
 
