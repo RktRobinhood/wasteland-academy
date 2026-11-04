@@ -85,6 +85,10 @@ static var SITUATIONS := {
 	"fn-pre-algebraic-fractions": [AlgebraicFractionSituation, AlgebraicFractionViews],
 	"rational-asymptote-gallery": [AsymptoteGallerySituation, AsymptoteGalleryViews],
 	"rational-model": [RationalModelSituation, RationalModelViews],
+	"differentiation": [DifferentiationSituation, DifferentiationViews],
+	"derivative-meaning": [DerivativeMeaningSituation, DerivativeMeaningViews],
+	"monotonic": [MonotonicSituation, MonotonicViews],
+	"concavity": [ConcavitySituation, ConcavityViews],
 }
 
 static var _cat: Dictionary = {}

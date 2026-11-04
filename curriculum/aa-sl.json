@@ -15023,7 +15023,7 @@
               "misconceptions": [
                 "d/dx cos x = sin x (missing the minus sign)",
                 "d/dx eˣ = x eˣ⁻¹, treating eˣ as a power of x",
-                "Getting a fractional power wrong: x^(−1/3) → −⅓x^(2/3) instead of −⅓x^(−4/3)"
+                "Getting a fractional power wrong: x^(−1/3) → −(1/3)x^(2/3) instead of −(1/3)x^(−4/3)"
               ],
               "threads": [
                 {

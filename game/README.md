@@ -173,6 +173,32 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a range, Var = np, σ = Var, E(X) rounded, n rounded down, p = Var ÷ E, a kth success
   read as k in m trials, a conditional multiplied). As every exam type, it offers no extra
   format (error-spot, method-pick, true-false-reason): `test_extension.gd` holds that rule.
+- `engine/situations/differentiation.gd` (FAL-723) is `t5-differentiation-rules` (SL5.6, AA only):
+  one function to differentiate, with whole-number coefficients. Its views ask 18 unknowns:
+  standard results and rational powers, the chain rule on a bracket, an exponential, a log, a
+  trig function or a root, the product and quotient rules, each with a rewrite beside it where
+  the map lists one, a derivative shown to take a given form, a gradient at a point (one unknown
+  per rule, so each keeps its one route) and a derivative with the letter p left in, which is
+  Paper 2 only. A derivative is a `form` answer (see `engine/answer.gd`): the student types the
+  numbers into the expression and it is marked exactly; a wrong option in another shape carries
+  `shape`, so it can be picked but never typed. A Paper 1 gradient is exact (a whole number, a
+  fraction, or −2e³), and a Paper 2 gradient is at an x to 1 d.p., to 3 s.f.
+- `engine/situations/derivative_meaning.gd` (FAL-723) is `t5-derivative-meaning` (SL5.1, on all
+  four syllabuses): a quantity in one of eight stories, modelled by A + B e^(−kt) or A + B sin(wt),
+  and rational functions with 0/0 at a point. Every question is Paper 2, as every bank part is.
+  It asks a rate from the GDC, what a rate means, its units, a sentence in derivative notation,
+  a comparison of two rates, the limit of a model or of its rate as t → ∞, and a limit from a
+  table, from a graph with a gap and a dot, or by cancelling. A reading in words is a `claim`.
+- `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
+  syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
+  roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
+  An interval is a `form` answer with a between/outside pick and two typed ends in either order,
+  so the shape isn't given away; the ends being open or closed isn't asked, except for a
+  parameter, where the boundary is the point of the question.
+- `engine/situations/concavity.gd` (FAL-723) is `t5-concavity` (SL5.7, AA only): second derivatives,
+  f″ at a point, where a graph is concave up or down, and three matching questions played as
+  pick the graph (f to f′, f′ to f″, and the signs of f′ and f″ to f). The Paper 2 value of f″ is
+  at an x to 1 d.p.; f′(x) = a + bx − c e^x has b ≠ c, so ln(b/c) needs a calculator.
 - `engine/situations/regression.gd` (FAL-695) is `t4-regression-gdc` (SL4.4, on all four
   syllabuses): paired data, 6 to 9 whole-number points near a line (x from 1 to 20, y from 8
   to 99, 0.8 ≤ |r| ≤ 0.99, up or down as the story says), so the means, the regression line
@@ -707,6 +733,11 @@ each card of a pick-the-graph question is tested: the right card is the function
 its domain with every feature marked, and each wrong card is exactly its named mistake
 (−f, f past the domain, f with a turning point moved onto the axis, a V at the vertex,
 and so on).
+For the four FAL-723 situations it reads the function, model or graph back from the question
+(`calc_expr`), differentiates with SymPy and compares every option with that at three points
+at 30 digits; each tagged wrong option is worked out again from its misconception, a `form`
+answer's slots must make the expression it shows, and a pick-the-graph card must be its named
+mistake (`dr_*`, `dm_*`, `mo_*`, `co_*`).
 Each cell also gets 10 questions made on its family's shared situation, and 20 in each
 extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
@@ -1016,6 +1047,10 @@ script error happens while it runs. Run one file with
   slots, strict events, every misconception appears as an option (on Paper 2 too);
   Paper 2 has awkward decimals and 3 s.f. answers where a calculator gives them, with
   the rounding trap, and Paper 1's numbers are unchanged.
+- `test_differentiation.gd`, `test_derivative_meaning.gd`, `test_monotonic.gd`, `test_concavity.gd`:
+  the four FAL-723 types: built with every cell and every skill, no extra format, four
+  different options, GDC methods on Paper 2 only, an expression marked by its numbers, an
+  interval marked in either order, a limit graph with a gap, and matching as four graphs.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a
