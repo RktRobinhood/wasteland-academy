@@ -94,6 +94,7 @@ static var SITUATIONS := {
 	"definite-integral": [DefiniteIntegralSituation, DefiniteIntegralViews],
 	"motion": [MotionSituation, MotionViews],
 	"basic-function": [BasicFunctionSituation, BasicFunctionViews],
+	"basic-restricted": [BasicRestrictedSituation, BasicRestrictedViews],
 }
 
 static var _cat: Dictionary = {}

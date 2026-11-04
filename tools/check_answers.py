@@ -12007,6 +12007,181 @@ def bf_concept(q):
     return None, None
 
 
+def br_say(v):
+    v = sp.Rational(v)
+    if gc_rounds(v) and v.q > 12:
+        return gc_s(v)
+    return dec_text(v) if v.q % 3 else frac_text(v)
+
+
+def br_iv(letter, lo, hi, lo_open=False, hi_open=False):
+    return f"{br_say(lo)} {'<' if lo_open else '≤'} {letter} {'<' if hi_open else '≤'} {br_say(hi)}"
+
+
+def br_trap(*vals):
+    return any(gc_rounds(v) and v.q > 12 for v in vals)
+
+
+def br_domain(q, g):
+    """(lo, hi) as the question states them, and the same as the situation's."""
+    for t in q["lines"]:
+        m = re.search(r"for (−?[\d./]+) ≤ x ≤ (−?[\d./]+)", t)
+        if m:
+            lo, hi = (R(p.replace("−", "-")) for p in m.groups())
+            need(lo == R(g["lo"]) and hi == R(g["hi"]), "the domain shown is not the situation's")
+            return lo, hi
+    return R(g["lo"]), R(g["hi"])
+
+
+def br_extremes(f, lo, hi):
+    """The least and greatest of a polynomial on [lo, hi], with its turning points."""
+    turns = [t for t in sp.real_roots(sp.Poly(sp.diff(f, X), X)) if lo < t < hi]
+    vals = [f.subs(X, t) for t in turns + [lo, hi]]
+    return min(vals), max(vals), turns
+
+
+def check_restricted(q):
+    u, rep, paper, L, asked = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["lines"], q["asked"]
+    g = q["given"]
+    bf_no_hyphens(q)
+    f = bf_given(g)
+    if rep == "equation":
+        _, _, shown = bf_rule(q)
+        need(all(abs(sp.N((shown - f).subs(X, x_), 20)) < 1e-9 for x_ in (sp.Rational(29, 10), sp.Rational(71, 10))), f"the rule shown {shown} is not the situation's {f}")
+    W = "SL2.2.range#"
+    trap = None
+    if rep == "graph" and u not in ("range-rational",):
+        bf_graph(q, f)
+    if u == "range-quadratic":
+        p = sp.Poly(f, X)
+        a, b = p.coeff_monomial(X**2), p.coeff_monomial(X)
+        h = -b / (2 * a)
+        k = f.subs(X, h)
+        if rep == "words":
+            need(Fmt_point(h, k) in L[0] and ("upwards" in L[0]) == (a > 0), "the words describe another parabola")
+        rel = "≥" if a > 0 else "≤"
+        want, wr = f"y {rel} {br_say(k)}", {W + "2": {f"x {rel} {br_say(k)}"}}
+        if br_trap(k):
+            trap = f"y {rel} {gc_s2(k)}"
+    elif u == "range-rational":
+        A = sp.limit(f, X, sp.oo)
+        if rep == "graph":
+            for c in q["graph"]["curves"]:
+                need(gc_curve_is(c, gc_f(f), 1e-5) or len(c) <= 10, "the graph drawn is not f")
+        want, wr = f"y ≠ {br_say(A)}", {W + "1": {"all real numbers"}}
+        if br_trap(A):
+            trap = f"y ≠ {gc_s2(A)}"
+    elif u == "range-exponential":
+        c = sp.limit(f, X, -sp.oo)
+        up = f.subs(X, 0) > c
+        want = f"y {'>' if up else '<'} {br_say(c)}"
+        wr = {W + "1": {f"y {'≥' if up else '≤'} {br_say(c)}"}}
+    elif u in ("range-restricted", "range-reflected"):
+        lo, hi = br_domain(q, g)
+        ymin, ymax, turns = br_extremes(f, lo, hi)
+        need(len(turns) == 1, "the vertex is not inside the domain")
+        if u == "range-restricted":
+            a_, b_ = sorted([f.subs(X, lo), f.subs(X, hi)])
+            need(a_ != b_, "both ends have one height")
+            want, wr = br_iv("y", ymin, ymax), {W + "0": {br_iv("y", a_, b_)}}
+            if br_trap(ymin, ymax):
+                trap = f"{gc_s2(ymin)} ≤ y ≤ {gc_s2(ymax)}"
+        else:
+            want, wr = br_iv("y", -ymax, -ymin), {}
+            if br_trap(ymin, ymax):
+                trap = f"{gc_s2(-ymax)} ≤ y ≤ {gc_s2(-ymin)}"
+    elif u == "composite-condition":
+        need(L[1] in ("g(x) = √(x − c)", "g(x) = ln(x − c)"), f"can't read {L[1]!r}")
+        root = "√" in L[1]
+        reached = f.is_polynomial(X)
+        if reached:
+            p = sp.Poly(f, X)
+            need(p.coeff_monomial(X**2) > 0, "f has no least value")
+            m = f.subs(X, -p.coeff_monomial(X) / (2 * p.coeff_monomial(X**2)))
+        else:
+            m = sp.limit(f, X, -sp.oo)
+        rel = "≤" if root or not reached else "<"
+        want, wr = f"c {rel} {br_say(m)}", {}
+        if br_trap(m):
+            trap = f"c {rel} {gc_s2(m)}"
+    elif u == "domain-root":
+        inner = next(a.base for a in f.atoms(sp.Pow) if a.exp == sp.Rational(1, 2))
+        c = sp.solve(inner, X)[0]
+        left = sp.diff(inner, X) < 0
+        rel, strict = ("≤", "<") if left else ("≥", ">")
+        want, wr = f"x {rel} {br_say(c)}", {"SL2.2.domain#0": {f"x {strict} {br_say(c)}"}, "SL2.2.domain#1": {f"x {rel} 0"}}
+    elif u == "domain-log-or-fraction":
+        logs = list(f.atoms(sp.log))
+        if logs:
+            want = f"x > {br_say(sp.solve(logs[0].args[0], X)[0])}"
+        else:
+            want = f"x ≠ {br_say(sp.solve(sp.denom(sp.together(f)), X)[0])}"
+        wr = {}
+    elif u in ("domain-from-graph", "range-from-graph"):
+        lo, hi = R(g["lo"]), R(g["hi"])
+        pts = q["graph"]["points"]
+        need(len(pts) == 2 and sorted(float(p["x"]) for p in pts) == [float(lo), float(hi)], "the dots are not the ends")
+        open_at = {sp.nsimplify(p["x"]): p["open"] for p in pts}
+        need(all(p["filled"] != p["open"] for p in pts), "a dot is neither open nor filled")
+        c = q["graph"]["curves"][0]
+        need(abs(c[0][0] - float(lo)) < 1e-6 and abs(c[-1][0] - float(hi)) < 1e-6, "the curve doesn't stop at the dots")
+        if u == "domain-from-graph":
+            want = br_iv("x", lo, hi, open_at[lo], open_at[hi])
+            ymin, ymax, _ = br_extremes(f, lo, hi)
+            wr = {"SL2.2.domain#2": {br_bars(f, lo, hi, open_at)}}
+        else:
+            want, wr = br_bars(f, lo, hi, open_at), {}
+    elif u == "domain-from-range":
+        m = re.search(r"range(?: of f on its domain)? is (−?\d+) ≤ y ≤ (−?\d+)", " ".join(L))
+        need(m is not None, "can't read the range")
+        p, r = (R(t.replace("−", "-")) for t in m.groups())
+        xs = sorted([sp.solve(f - p, X)[0], sp.solve(f - r, X)[0]])
+        if rep == "words":
+            need(f"gradient {frac_text(sp.diff(f, X))} and y-intercept {frac_text(f.subs(X, 0))}" in L[0], "the words describe another line")
+        want, wr = br_iv("x", xs[0], xs[1]), {}
+    elif u == "inverse-domain":
+        d1 = R(g["d1"])
+        bounded = g["d2"] is not None
+        if bounded:
+            d2 = R(g["d2"])
+            r1, r2 = sorted([f.subs(X, d1), f.subs(X, d2)])
+            dom, ran, dom_i, ran_i = br_iv("x", d1, d2), br_iv("y", r1, r2), br_iv("x", r1, r2), br_iv("y", d1, d2)
+        else:
+            need(sp.diff(f, X).subs(X, d1 + 1) > 0, "f is not increasing on its domain")
+            r1 = f.subs(X, d1)
+            dom, ran, dom_i, ran_i = f"x ≥ {br_say(d1)}", f"y ≥ {br_say(r1)}", f"x ≥ {br_say(r1)}", f"y ≥ {br_say(d1)}"
+        need(("for " + dom) in " ".join(L), "the domain shown is not the situation's")
+        want, wr = f"domain {dom_i}, range {ran_i}", {"SL2.5.inverse-domain-range#0": {f"domain {dom}, range {ran}"}}
+    elif u == "restrict-for-inverse":
+        p = sp.Poly(f, X)
+        h = -p.coeff_monomial(X) / (2 * p.coeff_monomial(X**2))
+        m = re.search(r"\((−?\d+), (−?\d+)\)", asked)
+        px, py = (R(t.replace("−", "-")) for t in m.groups())
+        need(f.subs(X, px) == py and px != h and h != 0, "the point is not a clean point on the curve")
+        rel = "≥" if px > h else "≤"
+        want, wr = f"x {rel} {br_say(h)}", {"SL2.5.inverse-domain-range#1": {f"x {rel} 0"}}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
+def Fmt_point(x, y):
+    return f"({frac_text(x)}, {frac_text(y)})"
+
+
+def br_bars(f, lo, hi, open_at):
+    """The range of a polynomial on a domain with open or filled ends."""
+    a, b = f.subs(X, lo), f.subs(X, hi)
+    lows = [(a, open_at[lo]), (b, open_at[hi])]
+    for t in sp.real_roots(sp.Poly(sp.diff(f, X), X)):
+        if lo < t < hi:
+            lows.append((f.subs(X, t), False))
+    ymin, o1 = min(lows, key=lambda p: (p[0], p[1]))
+    ymax, o2 = max(lows, key=lambda p: (p[0], not p[1]))
+    return br_iv("y", ymin, ymax, o1, o2)
+
+
 def bf_spot(q, lines):
     """The first false line of a student's working on f(2a)."""
     f = bf_given(q["given"])
@@ -12053,7 +12228,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion,
-                    "basic-function": check_basic}
+                    "basic-function": check_basic, "basic-restricted": check_restricted}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

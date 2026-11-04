@@ -193,6 +193,9 @@ const CHAINS := {
 	"fn-composite": ["expression", "value-inside-out"],
 	# the start value, a value later on, then the input that reaches a target
 	"fn-evaluate-function": ["value-at-zero", "value-at-input", "time-for-target"],
+	# the range from the vertex, then a change that uses it. (The other parts of the chain
+	# each need their own function, so they stay single questions.)
+	"fn-domain-range": ["range-quadratic", "fn-domain-range:restrict-for-inverse"],
 }
 
 

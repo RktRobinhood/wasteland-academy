@@ -151,9 +151,10 @@ static func tag(text: String, ref: String) -> Dictionary:
 	return InverseRuleViews.tag(text, ref)
 
 
-## The first few usable wrong numbers as generic options.
-static func nums(vals: Array) -> Array:
-	return vals.map(func(v): return {"v": v})
+## Wrong numbers as generic options, leaving out any that read as `right` does.
+static func nums(vals: Array, right: Variant = null) -> Array:
+	var kept := vals if right == null else vals.filter(func(v): return Fmt.sf(v) != Fmt.sf(right))
+	return kept.map(func(v): return {"v": v})
 
 
 ## The graph of f, in a window round it, with its dots and the axes' names.
@@ -187,7 +188,7 @@ func u_value_at_zero(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		return out
 	var ans := value(head + " = ", y, s)
 	var out2 := {"asked": "Find %s." % head, "lines": [BasicFunctionSituation.setup(s)], "answer": ans,
-		"wrongs": [wrong({"v": Q.new(0)}, R_NOTHING)], "generic": nums([BasicFunctionSituation.at(s.f, s.x0), y.add(1), y.neg()])}
+		"wrongs": [wrong({"v": Q.new(0)}, R_NOTHING)], "generic": nums([BasicFunctionSituation.at(s.f, s.x0), y.add(1), y.neg()], y)}
 	out2.methods = ways({"direct-substitution": [sub], "substitute-interpret": [sub, "%s = 0 is the start, so this is the start value" % s.v]}, final(ans), ans)
 	return out2
 
@@ -206,7 +207,7 @@ func u_value_at_input(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var plain: Array = [s.y_int, y0.neg(), y0.add(1)]
 	if not is_nan(BasicFunctionSituation.fl(f, x0.neg().to_float())):
 		plain.push_front(BasicFunctionSituation.at(f, x0.neg()))
-	var out := {"asked": "Find %s." % head, "lines": lines, "answer": ans, "wrongs": wrongs, "generic": nums(plain)}
+	var out := {"asked": "Find %s." % head, "lines": lines, "answer": ans, "wrongs": wrongs, "generic": nums(plain, y0)}
 	var sub := "Replace each %s with (%s): %s = %s" % [s.v, Fmt.dec(x0), head, put_in(s, x0)]
 	var work := "Work it out: %s = %s" % [head, W(y0)]
 	var mean: Array = ["In context: " + BasicFunctionSituation.said(s, Fmt.dec(x0), say(y0, s))] if s.has("ctx") else ["That is the height of the graph at %s = %s" % [s.v, Fmt.dec(x0)]]
@@ -416,7 +417,7 @@ func u_time_for_target(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"pop": "When does the colony reach %s bacteria?", "cool": "When does the drink reach %s °C?"}[s.ctx]
 	var target_text := Fmt.money(goal) if s.ctx == "cost" else say(goal, {"paper": 1}) if goal.is_int() else Fmt.dec(goal)
 	var out := {"asked": ask % target_text, "answer": ans, "wrongs": wrongs,
-		"generic": nums([t.add(1), s.x0, t.add(2), BasicFunctionSituation.at(s.f, t.add(1))])}
+		"generic": nums([GdcKit.qf(t.to_float() + 1.0), s.x0, GdcKit.qf(t.to_float() + 2.0)], t)}
 	if rep == "graph":
 		out.lines = [BasicFunctionSituation.setup(s), "Its graph is shown, with the target dashed."]
 		var hi: float = s.dom_end.to_float() if s.ctx == "ball" else t.to_float() * 1.3
