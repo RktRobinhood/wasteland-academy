@@ -198,6 +198,11 @@ const CHAINS := {
 	"fn-domain-range": ["range-quadratic", "restrict-for-inverse"],
 	# the sketch by swapping key points, then a point of f⁻¹ by the same symmetry
 	"fn-inverse-reflection": ["sketch-inverse", "image-point"],
+	# the gradient of the segment, the perpendicular gradient, the new line through a point,
+	# then a coordinate on it and the area it makes with the axes. (The chain's midpoint part
+	# needs a whole midpoint and a line through it, so it stays a single question.)
+	"fn-line-from-conditions": ["gradient-from-two-points", "perpendicular-gradient", "perpendicular-through-point",
+		"unknown-coordinate", "triangle-area"],
 }
 
 

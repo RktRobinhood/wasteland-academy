@@ -102,6 +102,12 @@ static var SITUATIONS := {
 	"basic-one-to-one": [BasicOneToOneSituation, BasicOneToOneViews],
 	"basic-relation": [BasicRelationSituation, BasicRelationViews],
 	"fn-pre-substitute": [SubstituteSituation, SubstituteViews],
+	"line-conditions": [LineConditionsSituation, LineConditionsViews],
+	"line-crossing": [LineCrossingSituation, LineCrossingViews],
+	"line-model": [LineModelSituation, LineModelViews],
+	"fn-pre-linear-equations": [LinearEquationSituation, LinearEquationViews],
+	"fn-pre-simultaneous": [SimultaneousSituation, SimultaneousViews],
+	"fn-link-rate-of-change": [LinkRateSituation, LinkRateViews],
 }
 
 static var _cat: Dictionary = {}
