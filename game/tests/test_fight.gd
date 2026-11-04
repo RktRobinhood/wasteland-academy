@@ -186,6 +186,72 @@ func _check_fits(window: Vector2i) -> void:
 	_done(made)
 
 
+# ── The scroller is the fight screen (FAL-331) ───────────────
+
+func test_the_scene_is_the_fight_screen() -> void:
+	for spec in [[Vector2i(390, 844), 0.25, 1150], [Vector2i(360, 780), 0.25, 1150], [Vector2i(1280, 800), 0.3, 1400]]:
+		var area := _area(spec[0])
+		var made: Array = await _screen(area)
+		var f: Control = made[1]
+		for i in 3:
+			await tree.process_frame
+		var what := str(spec[0])
+		var scene: Rect2 = f.scene_box.get_global_rect()
+		check(scene.size.y / area.y >= spec[1] and scene.size.y / area.y <= 0.35, "%s: the scene takes %.2f of the height" % [what, scene.size.y / area.y])
+		check(f.strip.is_visible_in_tree(), "%s: the strip shows" % what)
+		check(f.strip._width() >= JourneyStage.MIN_W - 1.0, "%s: the party and monsters fit (%.0f units)" % [what, f.strip._width()])
+		check(f.find_child("Status", true, false) == null, "%s: no enemy panel under the scene" % what)
+		check(not f.enemy_art.visible, "%s: the enemy stands in the scene" % what)
+		var tag: Rect2 = f.enemy_bar.get_parent().get_parent().get_global_rect()
+		check(scene.encloses(tag), "%s: the enemy's name and HP are over the scene (%s)" % [what, tag])
+		check(tag.size.y <= scene.size.y * 0.25, "%s: and small (%s)" % [what, tag])
+		var head: Rect2 = f.title.get_parent().get_parent().get_global_rect()
+		check(head.size.y <= 200, "%s: a slim header (%s)" % [what, head])
+		check(f.player_bar.is_visible_in_tree() and f.scrap_label.is_visible_in_tree(), "%s: HP and Scrap" % what)
+		check(f.scroll.size.y >= spec[2], "%s: room for the question (%.0f)" % [what, f.scroll.size.y])
+		_done(made)
+
+
+func test_the_phone_scene_runs_edge_to_edge() -> void:
+	var area := _area(Vector2i(390, 844))
+	var made: Array = await _screen(area)
+	var f: Control = made[1]
+	for i in 3:
+		await tree.process_frame
+	check_eq(f.scene_box.size.x, area.x)
+	_done(made)
+
+
+func test_no_sheet_keeps_the_enemy_on_the_screen() -> void:
+	var save := SaveData.blank()
+	save.profile = {"avatar": "robot"}
+	var area := _area(Vector2i(390, 844))
+	var made: Array = await _screen(area, 3, false, save)
+	var f: Control = made[1]
+	for i in 3:
+		await tree.process_frame
+	check(not f.strip.visible, "no strip")
+	check(f.enemy_art.is_visible_in_tree() and f.enemy_art.texture != null, "the portrait stands in")
+	check(f.enemy_name.is_visible_in_tree(), "the name and HP stay")
+	f.autoplay(true)
+	check_eq(f.result.outcome in ["right", "late"], true, "the fight plays the same")
+	_done(made)
+
+
+## A long question scrolls in the card at the size students use.
+func test_a_long_question_scrolls() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)))
+	var f: Control = made[1]
+	var filler := Control.new()
+	filler.custom_minimum_size.y = 3000
+	f.card.add_child(filler)
+	for i in 3:
+		await tree.process_frame
+	check(f.card.size.y > f.scroll.size.y, "taller than its room")
+	check(f.scroll.get_v_scroll_bar().max_value >= 3000, "and it scrolls")
+	_done(made)
+
+
 # ── The dungeon (FAL-415) ────────────────────────────────────
 
 func test_the_floor_select_offers_beaten_floors() -> void:
