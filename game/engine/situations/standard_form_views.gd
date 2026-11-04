@@ -103,8 +103,9 @@ static func ten(k: int) -> String:
 	return "10" + Fmt.sup(k) if k != 0 else "10⁰"
 
 
+## a as an option writes it. A wrong a that doesn't end is rounded, even on Paper 1.
 static func written(a: Q, rounded: bool, figs: int = 3) -> String:
-	return Fmt.sf(a, figs) if rounded else Fmt.dec(a)
+	return Fmt.sf(a, figs) if rounded or Fmt.dec(a).contains("/") else Fmt.dec(a)
 
 
 ## "3.2 × 10⁵", or 10⁵ for a = 1, as the question writes a number.
@@ -225,9 +226,10 @@ func _to_form(rep: String, s: Dictionary, big: bool) -> Dictionary:
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
 	var tail: Array = [say(ans)]
 	var round_it: Array = ["To 3 s.f., a = %s." % Fmt.sf(a)] if s.paper == 2 else []
-	out.methods = {"place-shift": method([moved(s, big), "Each place %s %s k by 1, so k = %s." % ["left raises" if big else "right lowers", "", N(k)]] + round_it + tail, ans.values),
-		"factor-powers": method(["%s = %s × %s" % [number, Fmt.dec(a), ten(k)]] + round_it + tail, ans.values),
-		"gdc-sci": method(["In SCI mode the GDC shows %s." % display(a, k), "The display is not a final answer: write it as a × 10^k."] + tail, ans.values)}
+	out.methods = {"place-shift": method([moved(s, big), "Each place %s k by 1, so k = %s." % ["left raises" if big else "right lowers", N(k)]] + round_it + tail, ans.values),
+		"factor-powers": method(["%s = %s × %s" % [number, Fmt.dec(a), ten(k)]] + round_it + tail, ans.values)}
+	if s.paper == 2:
+		out.methods["gdc-sci"] = method(["In SCI mode the GDC shows %s." % display(a, k), "The display is not a final answer: write it as a × 10^k."] + tail, ans.values)
 	return out
 
 
@@ -348,8 +350,11 @@ static func tidy(v: Q, e: int, r: Q, k: int) -> Array:
 	return [] if v.eq(r) and e == k else ["%s × %s = %s × %s, so that 1 ≤ a < 10" % [Fmt.dec(v), ten(e), Fmt.dec(r), ten(k)]]
 
 
-static func gdc_steps(s: Dictionary, entry: String, ans: Dictionary) -> Array:
-	return ["Enter %s with the EE key, in brackets." % entry, "The GDC shows %s." % display(s.r, s.k), "Write the display as a × 10^k, to 3 s.f.", say(ans)]
+## Adds the GDC's working, on Paper 2.
+static func gdc(out: Dictionary, s: Dictionary, entry: String) -> void:
+	if s.paper == 2:
+		out.methods["gdc-ee"] = method(["Enter %s with the EE key, in brackets." % entry, "The GDC shows %s." % display(s.r, s.k),
+			"Write the display as a × 10^k, to 3 s.f.", say(out.answer)], out.answer.values)
 
 
 func _times(_rep: String, s: Dictionary) -> Dictionary:
@@ -369,8 +374,8 @@ func _times(_rep: String, s: Dictionary) -> Dictionary:
 		out.wrongs += options(ans, [[s.r, e]])
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
 	var group := ["(%s × %s) × (%s × %s) = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), ten(s.m), ten(s.n), Fmt.dec(v), ten(e)]]
-	out.methods = {"group-and-index": method(["Multiply the a-values and add the powers of ten."] + group + tidy(v, e, s.r, s.k) + [say(ans)], ans.values),
-		"gdc-ee": method(gdc_steps(s, "(%s) × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)], ans), ans.values)}
+	out.methods = {"group-and-index": method(["Multiply the a-values and add the powers of ten."] + group + tidy_sf(s, v, e) + [say(ans)], ans.values)}
+	gdc(out, s, "(%s) × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
 	if s.paper == 1:
 		out.methods["ordinary-numbers"] = method(["%s × %s = %s" % [plain(s.a, s.m), plain(s.b, s.n), plain(s.r, s.k)], say(ans)], ans.values)
 	return out
@@ -389,8 +394,8 @@ func _over(_rep: String, s: Dictionary) -> Dictionary:
 	out.wrongs += options(ans, [[s.r, e + 1 if v.lt(Q.new(1)) else e - 1]])
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
 	var group := "(%s ÷ %s) × 10^(%s − %s) = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), N(s.m), P(s.n), written(v, s.paper == 2, 5), ten(e)]
-	out.methods = {"group-and-index": method(["Divide the a-values and subtract the powers of ten.", group] + tidy(v, e, s.r, s.k) + [say(ans)], ans.values),
-		"gdc-ee": method(gdc_steps(s, "(%s) ÷ (%s)" % [sci(s.a, s.m), sci(s.b, s.n)], ans), ans.values)}
+	out.methods = {"group-and-index": method(["Divide the a-values and subtract the powers of ten.", group] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
+	gdc(out, s, "(%s) ÷ (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
 	if s.paper == 1:
 		out.methods["ordinary-numbers"] = method(["%s ÷ %s = %s" % [plain(s.a, s.m), plain(s.b, s.n), plain(s.r, s.k)], say(ans)], ans.values)
 	return out
@@ -409,8 +414,8 @@ func u_power_product(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = options(ans, list)
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
 	out.methods = {"group-and-index": method(["p² = %s² × (%s)² = %s × %s" % [Fmt.dec(s.a), ten(s.m), Fmt.dec(sq), ten(2 * s.m)],
-		"p²q = (%s × %s) × %s = %s × %s" % [Fmt.dec(sq), Fmt.dec(s.b), ten(2 * s.m + s.n), Fmt.dec(v), ten(e)]] + tidy(v, e, s.r, s.k) + [say(ans)], ans.values),
-		"gdc-ee": method(gdc_steps(s, "(%s)² × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)], ans), ans.values)}
+		"p²q = (%s × %s) × %s = %s × %s" % [Fmt.dec(sq), Fmt.dec(s.b), ten(2 * s.m + s.n), Fmt.dec(v), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
+	gdc(out, s, "(%s)² × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
 	return out
 
 
@@ -421,29 +426,29 @@ static func early(x: Q) -> Q:
 	return Answer.parse_number(Fmt.sf(x, 2)).q
 
 
-## The same sum from early figures, as an option, if it reads differently.
-static func early_wrong(s: Dictionary, ans: Dictionary, v: Q, e: int) -> Array:
+## Paper 2's two slips, in either order so each gets a turn beside the trap: the sum v × 10^e
+## done from early figures, and the display left as it is.
+static func slips(s: Dictionary, ans: Dictionary, v: Q, e: int, rng: Seeded) -> Array:
 	if s.paper == 1:
 		return []
 	var pair := StandardFormSituation.norm(v, e)
-	return options(ans, [[pair[0], pair[1], R_EARLY]])
+	var list: Array = options(ans, [[pair[0], pair[1], R_EARLY]]) + [raw(s)]
+	return rng.shuffled(list)
 
 
-func u_times_larger(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_times_larger(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := res(s)
 	var story: Array = LARGER[s.ctx]
 	var out := {"answer": ans, "table": null, "lines": [story[0] % [sci(s.a, s.m), sci(s.b, s.n)]]}
 	out.asked = story[1] + " " + FORM + (THREE if s.paper == 2 else "")
 	var flip := StandardFormSituation.norm(s.b.div(s.a), s.n - s.m)
-	out.wrongs = options(ans, [[flip[0], flip[1], R_WRONG_WAY]]) + early_wrong(s, ans, early(s.a).div(early(s.b)), s.m - s.n)
-	if s.paper == 2:
-		out.wrongs.append(raw(s))
+	out.wrongs = options(ans, [[flip[0], flip[1], R_WRONG_WAY]]) + slips(s, ans, early(s.a).div(early(s.b)), s.m - s.n, rng)
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
 	var v: Q = s.a.div(s.b)
 	var e: int = s.m - s.n
 	out.methods = {"form-expression": method(["How many times larger means divide the larger by the smaller: (%s) ÷ (%s)" % [sci(s.a, s.m), sci(s.b, s.n)],
-		"(%s ÷ %s) × %s = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), ten(e), written(v, s.paper == 2, 5), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values),
-		"gdc-ee": method(gdc_steps(s, "(%s) ÷ (%s)" % [sci(s.a, s.m), sci(s.b, s.n)], ans), ans.values)}
+		"(%s ÷ %s) × %s = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), ten(e), written(v, s.paper == 2, 5), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
+	gdc(out, s, "(%s) ÷ (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
 	return out
 
 
@@ -454,40 +459,36 @@ static func tidy_sf(s: Dictionary, v: Q, e: int) -> Array:
 	return ["In standard form that is %s × %s." % [Fmt.sf(s.r, 5), ten(s.k)]]
 
 
-func u_time_from_rate(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_time_from_rate(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := res(s)
 	var out := {"answer": ans, "table": null}
 	out.lines = ["%s travels at %s m s⁻¹. It has to reach %s, %s metres away." % [SIGNALS[s.ctx], sci(s.a, s.m), PROBES[s.ctx], sci(s.b, s.n)]]
 	out.asked = "Find the time it takes, in seconds. " + FORM + (THREE if s.paper == 2 else "")
 	var flip := StandardFormSituation.norm(s.a.div(s.b), s.m - s.n)
 	var times := StandardFormSituation.norm(s.a.mul(s.b), s.m + s.n)
-	out.wrongs = options(ans, [[flip[0], flip[1]], [times[0], times[1]]]) + early_wrong(s, ans, early(s.b).div(early(s.a)), s.n - s.m)
-	if s.paper == 2:
-		out.wrongs.insert(0, raw(s))
+	out.wrongs = slips(s, ans, early(s.b).div(early(s.a)), s.n - s.m, rng) + options(ans, [[flip[0], flip[1]], [times[0], times[1]]])
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
 	var v: Q = s.b.div(s.a)
 	var e: int = s.n - s.m
 	out.methods = {"form-expression": method(["Time = distance ÷ speed = (%s) ÷ (%s)" % [sci(s.b, s.n), sci(s.a, s.m)],
-		"(%s ÷ %s) × %s = %s × %s" % [Fmt.dec(s.b), Fmt.dec(s.a), ten(e), written(v, s.paper == 2, 5), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values),
-		"gdc-ee": method(gdc_steps(s, "(%s) ÷ (%s)" % [sci(s.b, s.n), sci(s.a, s.m)], ans), ans.values)}
+		"(%s ÷ %s) × %s = %s × %s" % [Fmt.dec(s.b), Fmt.dec(s.a), ten(e), written(v, s.paper == 2, 5), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
+	gdc(out, s, "(%s) ÷ (%s)" % [sci(s.b, s.n), sci(s.a, s.m)])
 	return out
 
 
-func u_total_from_unit(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_total_from_unit(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := res(s)
 	var story: Array = UNITS[s.ctx]
 	var out := {"answer": ans, "table": null, "lines": [story[0] % [sci(s.b, s.n), sci(s.a, s.m)]]}
 	out.asked = story[1] + " " + FORM + (THREE if s.paper == 2 else "")
 	var flip := StandardFormSituation.norm(s.a.div(s.b), s.m - s.n)
-	out.wrongs = options(ans, [[flip[0], flip[1]]]) + early_wrong(s, ans, early(s.a).mul(early(s.b)), s.m + s.n)
-	if s.paper == 2:
-		out.wrongs.insert(0, raw(s))
+	out.wrongs = slips(s, ans, early(s.a).mul(early(s.b)), s.m + s.n, rng) + options(ans, [[flip[0], flip[1]]])
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
 	var v: Q = s.a.mul(s.b)
 	var e: int = s.m + s.n
 	out.methods = {"form-expression": method(["The total is the number times each one: (%s) × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)],
-		"(%s × %s) × %s = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), ten(e), Fmt.dec(v), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values),
-		"gdc-ee": method(gdc_steps(s, "(%s) × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)], ans), ans.values)}
+		"(%s × %s) × %s = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), ten(e), Fmt.dec(v), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
+	gdc(out, s, "(%s) × (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
 	return out
 
 
@@ -502,22 +503,20 @@ func u_unit_shift(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return out
 
 
-func u_rate_unit_shift(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+func u_rate_unit_shift(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var ans := res(s)
 	var out := {"answer": ans, "table": null}
 	out.lines = ["%s travels at %s m s⁻¹. It has to reach %s, %s kilometres away." % [SIGNALS[s.ctx], sci(s.a, s.m), PROBES[s.ctx], sci(s.b, s.n)]]
 	out.asked = "Find the time it takes, in seconds. " + FORM + (THREE if s.paper == 2 else "")
 	var same := StandardFormSituation.norm(s.b.div(s.a), s.n - s.m)
-	out.wrongs = options(ans, [[same[0], same[1]]]) + early_wrong(s, ans, early(s.b).div(early(s.a)), s.n + 3 - s.m)
-	if s.paper == 2:
-		out.wrongs.insert(0, raw(s))
+	out.wrongs = slips(s, ans, early(s.b).div(early(s.a)), s.n + 3 - s.m, rng) + options(ans, [[same[0], same[1]]])
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
 	var metres := "%s metres" % sci(s.b, s.n + 3)
 	var v: Q = s.b.div(s.a)
 	var e: int = s.n + 3 - s.m
 	out.methods = {"unit-shift": method(["Change km to m first: 1 km = 10³ m, so the distance is " + metres + ".", "Time = (%s) ÷ (%s)" % [sci(s.b, s.n + 3), sci(s.a, s.m)],
-		"(%s ÷ %s) × %s = %s × %s" % [Fmt.dec(s.b), Fmt.dec(s.a), ten(e), written(v, s.paper == 2, 5), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values),
-		"gdc-ee": method(gdc_steps(s, "(%s) ÷ (%s)" % [sci(s.b, s.n + 3), sci(s.a, s.m)], ans), ans.values)}
+		"(%s ÷ %s) × %s = %s × %s" % [Fmt.dec(s.b), Fmt.dec(s.a), ten(e), written(v, s.paper == 2, 5), ten(e)]] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
+	gdc(out, s, "(%s) ÷ (%s)" % [sci(s.b, s.n + 3), sci(s.a, s.m)])
 	return out
 
 
@@ -551,5 +550,5 @@ func u_sphere_volume_pi(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.wrongs = options(ans, list)
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
 	out.methods = {"form-expression": method(["The radius is half the diameter: %s × %s" % [Fmt.dec(r), ten(s.m)], "V = (4/3)πr³, and r³ = %s × %s" % [written(r.mul(r).mul(r), s.paper == 2, 5), ten(e)],
-		"(4/3) × %s = %s, so V = π(%s × %s)" % [written(r.mul(r).mul(r), s.paper == 2, 5), written(cube, s.paper == 2, 5), written(cube, s.paper == 2, 5), ten(e)], "Bring a between 1 and 10.", "So " + Answer.text(ans) + "."], ans.values)}
+		"(4/3) × %s = %s, so V = π(%s × %s)" % [written(r.mul(r).mul(r), s.paper == 2, 5), written(cube, s.paper == 2, 5), written(cube, s.paper == 2, 5), ten(e)], say(ans)], ans.values)}
 	return out

@@ -13033,6 +13033,240 @@ def sd_x_measures(q):
     return coef(r_t), coef(h_t), coef(c_t)
 
 
+# ── standard-form (t1-standard-form, FAL-726) ────────────────
+# The `standard-form` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/standard_form.gd. Numbers are read back from the question's text as exact
+# Rationals, so a power of ten never has to fit a float, and each answer is normalised again here.
+
+SF_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+SF_C = "SL1.1.convert#"
+SF_M = "SL1.1.multiply-divide#"
+SF_X = "SL1.1.context#"
+SF_SUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
+SF_NUM = re.compile(r"(?:(\d+(?:\.\d+)?) × )?10([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)")
+SF_PLAIN = re.compile(r"\d+(?: \d{3})*(?:\.\d+)?")
+
+
+def sf_read(text):
+    """Every a × 10^k in a piece of text, as [(a, k)]."""
+    return [(sp.Rational(mt.group(1) or 1), int(mt.group(2).translate(SF_SUP))) for mt in SF_NUM.finditer(text)]
+
+
+def sf_v(pair):
+    return pair[0] * sp.Rational(10) ** pair[1]
+
+
+def sf_norm(v):
+    """v as (a, k) with 1 ≤ a < 10, without leaving exact numbers."""
+    k = 0
+    while v >= 10:
+        v, k = v / 10, k + 1
+    while v < 1:
+        v, k = v * 10, k - 1
+    return v, k
+
+
+def sf_ten(k):
+    return "10" + str(k).translate(str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"))
+
+
+def sf_a(a, rounded, figs=3):
+    a = sp.Rational(a)
+    q = a.q
+    for f in (2, 5):
+        while q % f == 0:
+            q //= f
+    return sig3(a, figs) if rounded or q != 1 else dec_text(a)
+
+
+def sf_text(a, k, rounded, head="", tail=""):
+    return f"{head}{sf_a(a, rounded)} × {sf_ten(k)}{tail}"
+
+
+def sf_answer(q, v, head="", tail=""):
+    """want and trap for the value v: rounded on Paper 2, where it needs it."""
+    a, k = sf_norm(v)
+    rounded = q["paper"] == 2
+    if q["paper"] == 1:
+        need(sp.Rational(a * 1000).q == 1, f"a = {a} has too many figures for Paper 1")
+    if abs(k) < 2:
+        raise Fail(f"k = {k} is too small an answer power")
+    if rounded:
+        scaled = a * 100
+        need(a < sp.Rational(99, 10), f"a = {a} is too near 10")
+        need(abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= SF_EDGE, f"a = {a} is too close to a rounding edge")
+    trap = None
+    if rounded and sp.Rational(sig3(a)) != a:
+        trap = f"{head}{sig3(a, 2)} × {sf_ten(k)}{tail}"
+    return sf_text(a, k, rounded, head, tail), trap, a, k
+
+
+def sf_raw(a, k):
+    return f"{sig3(a)}E{str(k).replace('-', '−')}"
+
+
+def sf_value(text):
+    """A step's side as a number, or None if it has words or letters in it."""
+    t = re.sub(r",.*$", "", text).strip().rstrip(".")
+    t = re.sub(r"(?<=\d) (?=\d{3})", "", t)
+    if not t or not re.fullmatch(r"[0-9.()+−×÷^ ⁰¹²³⁴⁵⁶⁷⁸⁹⁻²³]+", t):
+        return None
+    t = re.sub(r"([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)", lambda mt: f"**({mt.group(1).translate(SF_SUP)})", t)
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    return sp.sympify(t, rational=True)
+
+
+def sf_steps(q):
+    pairs = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            sides = [sf_value(p) for p in re.sub(r"^.*: ", "", st).split(" = ")]
+            for a, b in zip(sides, sides[1:]):
+                if a is None or b is None:
+                    continue
+                pairs += 1
+                need(abs(a - b) <= abs(b) * sp.Rational(3, 10000), f"{sol['name']}: {st!r} doesn't add up ({a} and {b})")
+    return pairs
+
+
+def check_standard_form(q):
+    u, paper, L, asked = q["view"]["unknown"], q["paper"], q["lines"], q["asked"]
+    C, M, X = SF_C, SF_M, SF_X
+    rounded = paper == 2
+    text = " ".join(L)
+    want, trap, wrongs = None, None, {}
+    T = lambda a, k: sf_text(a, k, rounded)
+    pq = sf_read(L[0]) + sf_read(L[1]) if u in ("multiply", "multiply-renormalise", "divide", "divide-renormalise", "power-product") else None
+    if pq is not None:
+        need(L[0].startswith("p = ") and L[1].startswith("q = "), "p and q")
+        (a, m), (b, n) = pq
+        need(m != 0 and n != 0, "a power of 0")
+    if u in ("to-form-large", "to-form-small"):
+        src = L[0] if L else asked
+        mt = re.search(r"\d[\d ]*\d(?:\.\d+)?|0\.\d+|\d+", src.replace("10^k", "").replace("1 ≤ a < 10", ""))
+        need(mt is not None, "can't read the number")
+        v = sp.Rational(mt.group(0).replace(" ", ""))
+        want, trap, a, k = sf_answer(q, v)
+        need((v > 1) == (u == "to-form-large"), "the number is on the wrong side of 1")
+        digit = k + 1 if k > 0 else k - 1
+        wrongs = {C + "0": {T(a, -k)}, C + "1": {T(a, digit)}, C + "2": {T(a * 10, k - 1), T(a / 10, k + 1)}}
+        if paper == 2:
+            wrongs[X + "0"] = {sf_raw(a, k)}
+    elif u in ("to-ordinary-large", "to-ordinary-small"):
+        (a, k), = sf_read(text if L else asked)
+        need((k > 0) == (u == "to-ordinary-large"), "the power is on the wrong side of 0")
+        lab = "number = "
+        want = lab + dec_text(a * sp.Rational(10) ** k)
+        d = k + 1 if k > 0 else k - 1
+        wrongs = {C + "0": {lab + dec_text(a * sp.Rational(10) ** -k)}, C + "1": {lab + dec_text(a * sp.Rational(10) ** d)}}
+    elif u == "renormalise":
+        rd = sf_read(asked)
+        need(len(rd) == 1, "one number")
+        a0, k0 = rd[0]
+        need(not (1 <= a0 < 10), "the number is already in standard form")
+        a, k = sf_norm(sf_v(rd[0]))
+        want = sf_text(a, k, False)
+        wrongs = {C + "2": {sf_text(a * 10 if a0 < 1 else a / 10, k - 1 if a0 < 1 else k + 1, False)}}
+    elif u == "order-mixed":
+        mt = re.fullmatch(r"The four numbers are (.+)\.", L[0])
+        need(mt is not None, "can't read the list")
+        items = mt.group(1).split(",  ")
+        need(len(items) == 4, "four numbers")
+        vals = {}
+        for it in items:
+            rd = sf_read(it)
+            vals[it] = sf_v(rd[0]) if rd else sp.Rational(it.replace(" ", ""))
+        need(len(set(vals.values())) == 4, "two numbers are equal")
+        big = "largest" in asked
+        best = (max if big else min)(vals, key=lambda i: vals[i])
+        lab = "largest: " if big else "smallest: "
+        want = lab + best
+        tricks = {lab + it for it in items if it != best and sf_read(it) and ((sf_read(it)[0][0] < 1) if big else (sf_read(it)[0][0] >= 10))}
+        wrongs = {C + "2": tricks}
+    elif u == "display-to-form":
+        need(paper == 2, "a display is Paper 2")
+        mt = re.fullmatch(r"A GDC shows (\d\.\d+)E(−?\d+)\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        a, k = sp.Rational(mt.group(1)), int(mt.group(2).replace("−", "-"))
+        want = sf_text(a, k, False)
+        wrongs = {X + "0": {mt.group(1) + "E" + mt.group(2)}, C + "0": {sf_text(a, -k, False)}}
+    elif u in ("multiply", "multiply-renormalise"):
+        need(m * n != m + n and m != n, "the powers are a degenerate pair")
+        want, trap, r, k = sf_answer(q, a * b * sp.Rational(10) ** (m + n))
+        need((a * b >= 10) == (u == "multiply-renormalise"), "the product is on the wrong side of 10")
+        wrongs = {M + "0": {T(r, k - m - n + m * n)}, M + "2": {T(r, k - m - n + m - n)}}
+        if a * b >= 10:
+            wrongs[M + "1"] = {T(a * b, m + n)}
+    elif u in ("divide", "divide-renormalise"):
+        need(m != n, "the powers are equal")
+        want, trap, r, k = sf_answer(q, a / b * sp.Rational(10) ** (m - n))
+        need((a < b) == (u == "divide-renormalise"), "the quotient is on the wrong side of 1")
+        wrongs = {M + "2": {T(r, k - m + n + m + n)}}
+        if a < b:
+            wrongs[M + "1"] = {T(a / b, m - n)}
+    elif u == "power-product":
+        e = 2 * m + n
+        want, trap, r, k = sf_answer(q, a * a * b * sp.Rational(10) ** e)
+        wrongs = {M + "0": {T(r, k - e + m * m + n)}}
+        if a * a * b >= 10:
+            wrongs[M + "1"] = {T(a * a * b, e)}
+    elif u in ("times-larger", "time-from-rate", "total-from-unit", "rate-unit-shift"):
+        rd = sf_read(L[0])
+        need(len(rd) == 2, "two numbers in the story")
+        (a, m), (b, n) = rd
+        if u == "times-larger":
+            need(sf_v(rd[0]) > sf_v(rd[1]), "the first is not the larger")
+            v = sf_v(rd[0]) / sf_v(rd[1])
+            slip = sig_v2(a) / sig_v2(b) * sp.Rational(10) ** (m - n)
+            fr, fk = sf_norm(1 / v)
+            wrongs[X + "2"] = {T(fr, fk)}
+        elif u == "total-from-unit":
+            v = sf_v(rd[0]) * sf_v(rd[1])
+            slip = sig_v2(a) * sig_v2(b) * sp.Rational(10) ** (m + n)
+        else:
+            need("m s⁻¹" in L[0] and ("kilometres away" if u == "rate-unit-shift" else "metres away") in L[0], "the units")
+            shift = 3 if u == "rate-unit-shift" else 0
+            v = sf_v((b, n + shift)) / sf_v((a, m))
+            slip = sig_v2(b) / sig_v2(a) * sp.Rational(10) ** (n + shift - m)
+        want, trap, r, k = sf_answer(q, v)
+        if paper == 2:
+            sr, sk = sf_norm(slip)
+            wrongs[X + "1"] = {T(sr, sk)}
+            wrongs[X + "0"] = {sf_raw(r, k)}
+    elif u == "unit-shift":
+        (a, m), = sf_read(L[0])
+        pairs = [("grams", "kilograms", -3), ("kilometres", "metres", 3), ("millimetres", "metres", -3), ("kilowatts", "watts", 3), ("kilograms", "grams", 3), ("metres", "kilometres", -3)]
+        found = [s for f, to, s in pairs if re.search(rf"\b{f}\b", L[0]) and f"in {to}." in asked]
+        need(len(found) == 1, "can't read the units")
+        want = sf_text(a, m + found[0], False)
+        need(1 <= a < 10 and abs(m + found[0]) >= 2, "the amount's a or power")
+    elif u == "scale-value":
+        (a, m), = sf_read(L[0])
+        mt = re.search(r" (\d) times ", L[0])
+        need(mt is not None, "can't read the multiplier")
+        f = int(mt.group(1))
+        want, trap, r, k = sf_answer(q, a * f * sp.Rational(10) ** m)
+        if a * f >= 10:
+            wrongs[M + "1"] = {T(a * f, m)}
+    elif u == "sphere-volume-pi":
+        (d, m), = sf_read(L[0])
+        need("diameter" in L[0], "a diameter")
+        c = (d / 2) ** 3 * sp.Rational(4, 3)
+        want, trap, r, k = sf_answer(q, c * sp.Rational(10) ** (3 * m), "V = π(", ") m³")
+        if not (1 <= c < 10):
+            wrongs[M + "1"] = {sf_text(c, 3 * m, rounded, "V = π(", ") m³")}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap, steps=(2, 5))
+    sf_steps(q)
+    return None, None
+
+
+def sig_v2(x):
+    """x rounded early, to 2 s.f."""
+    return sp.Rational(sig3(x, 2))
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -13057,7 +13291,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
-                    "solid": check_solid}
+                    "solid": check_solid, "standard-form": check_standard_form}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

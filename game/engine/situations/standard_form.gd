@@ -27,8 +27,10 @@ const CONTEXTS := 6
 const NICE := [12, 15, 16, 20, 24, 25, 30, 32, 40, 45, 50, 60, 75, 80, 90]
 const SQUARES := [12, 15, 20, 25, 30, 40, 50, 60]
 ## Diameters, in tenths, whose (4/3)π(d/2)³ ends.
-const DIAMETERS := [12, 18, 24, 30, 48, 60, 90]
+const DIAMETERS := [12, 18, 24, 30, 60, 90]
+## Each unit story's change of power, and the powers its amount can have.
 const SHIFTS := [-3, 3, -3, 3, 3, -3]
+const POWERS := [[4, 9], [2, 4], [-4, -2], [4, 9], [2, 5], [5, 8]]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
@@ -130,7 +132,7 @@ static func _draw(rng: Seeded, s: Dictionary) -> bool:
 			return answer(s, s.a.mul(s.b), s.m + s.n)
 		"unit-shift":
 			s.a = Q.new(rng.int_in(101, 999), 100)
-			s.m = rng.pick([rng.int_in(4, 9), rng.int_in(-8, -4)])
+			s.m = rng.int_in(POWERS[s.ctx][0], POWERS[s.ctx][1])
 			s.shift = SHIFTS[s.ctx]
 			s.r = s.a
 			s.k = s.m + s.shift
