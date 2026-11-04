@@ -277,7 +277,7 @@ static func _equation(rng: Seeded) -> Dictionary:
 		3:
 			var c := ExtensionViews.nonzero(rng, -4, 4)
 			var w := rng.int_in(1, 3)
-			return {"form": "minus", "fn": true, "many": true, "solved": false, "eq": "y − x² = %d" % c, "wa": -w, "wb": w, "wy": c + w * w}
+			return {"form": "minus", "fn": true, "many": true, "solved": false, "eq": "y − x² = %s" % Fmt.num(c), "wa": -w, "wb": w, "wy": c + w * w}
 	var r := rule(rng, rng.pick(MANY))
 	r.solved = true
 	r.eq = "y = " + r.text
