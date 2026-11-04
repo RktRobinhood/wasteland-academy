@@ -1668,7 +1668,38 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 2 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+
+#### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
+
+- **Situation:** Numbers in standard form.
+- **Representations:** **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given an ordinary large number → a × 10^k
+  - **exam** L1: given an ordinary small number → a × 10^k with a negative k
+  - **exam** L1: given a × 10^k with a positive k → the ordinary number
+  - **exam** L1: given a × 10^k with a negative k → the ordinary number
+  - **exam** L2: given a number such as 64 × 10^5 or 0.64 × 10^7 → correct standard form
+  - **exam** L2: given four numbers in mixed forms → the largest or the smallest
+  - **exam** L1: given a GDC display such as 4.73E−5 → a × 10^k
+  - **exam** L2: given p and q → p × q, with a product below 10
+  - **exam** L3: given p and q → p × q, with a product of 10 or more to bring back
+  - **exam** L2: given p and q → p/q, with a quotient of 1 or more
+  - **exam** L3: given p and q → p/q, with a quotient below 1 to bring back
+  - **exam** L3: given p and q → p²q
+  - **exam** L3: given two amounts in a story → how many times larger one is
+  - **exam** L3: given a speed and a distance → the time
+  - **exam** L3: given an amount for each and how many → the total
+  - **exam** L2: given an amount in one unit → the amount in another unit
+  - **exam** L4: given a speed in m s⁻¹ and a distance in km → the time in seconds
+  - **exam** L2: given an amount; how many times as much → the new amount
+  - **exam** L4: given a sphere's diameter → the volume as π(a × 10^k)
+- **Angles:** Move the decimal point and count the places; Factor out a power of ten with index laws; Use the GDC in scientific mode; Group the a-values and the powers of ten; Convert to ordinary numbers and back; Use the GDC ×10^x (EE) key; Translate the words into a calculation, then use index laws; Calculate on the GDC and rewrite the display; Convert units as exponent shifts first.
+- **Concept probes:**
+  - *true-false-reason* (L3): 0.64 × 10^7 is in standard form, because 0.64 × 10^7 = 6 400 000. — False: the value is right, but standard form needs 1 ≤ a < 10, so it is 6.4 × 10^6.
+  - *always-sometimes-never* (L3): Multiplying two numbers in standard form gives an answer already in standard form. — Sometimes: it holds when the product of the a-values is below 10. Otherwise a has to be brought back and k raised by 1.
+  - *true-false-reason* (L3): A GDC showing 3.1E−4 is an acceptable final answer. — False: calculator notation isn't accepted. Write 3.1 × 10^−4.
+- **Misconceptions used:** 9. Giving small numbers a positive power: 0.000052 = 5.2 × 10^5; Counting digits instead of places moved: 6 400 000 = 6.4 × 10^7; Leaving a outside 1 ≤ a < 10 (64 × 10^5 or 0.64 × 10^7) as a final answer; Multiplying the powers of ten: 10^4 × 10^3 = 10^12; Forgetting to renormalise, leaving 0.7 × 10^−8 or 12 × 10^5 as the answer; Sign slip with negative exponents: 10^−3 ÷ 10^5 = 10^2; Writing the GDC display 5E2 as the final answer; Rounding a at an early step so the third significant figure is wrong; Dividing the wrong way round when asked 'how many times larger'.
 
 #### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 21 bank parts)
 

@@ -3264,6 +3264,54 @@
 				"a cylinder inside a sphere has height less than the sphere's diameter",
 				"a sector's angle stays from 60° to 300°, and its cone's radius is less than the sector's radius"
 			]
+		},
+		"standard-form": {
+			"name": "Numbers in standard form",
+			"summary": "One or two numbers a × 10^k. Convert them to and from ordinary numbers, multiply and divide them, bring a back between 1 and 10, or use them in a story with large or small amounts.",
+			"quantities": [
+				{
+					"name": "a, m",
+					"is": "the first number, a × 10^m",
+					"pick": "Paper 1: a from a list of friendly values; Paper 2: three figures"
+				},
+				{
+					"name": "b, n",
+					"is": "the second number, b × 10^n",
+					"pick": "as a, with m and n nonzero and different"
+				},
+				{
+					"name": "r, k",
+					"is": "the answer, r × 10^k",
+					"pick": "worked out, with 1 ≤ r < 10"
+				},
+				{
+					"name": "j",
+					"is": "how far a shown number's a is outside 1 to 10",
+					"pick": "±1 or ±2"
+				},
+				{
+					"name": "list",
+					"is": "four numbers in mixed forms for order-mixed",
+					"pick": "one standard, one ordinary, and one each with a above 10 and below 1, all with the same real power"
+				},
+				{
+					"name": "f",
+					"is": "a whole multiplier",
+					"pick": "2 to 9"
+				},
+				{
+					"name": "shift",
+					"is": "a change of unit",
+					"pick": "±3, as km to m or g to kg"
+				}
+			],
+			"clean": [
+				"Paper 1 answers are exact, with a at most three figures",
+				"Paper 2 answers that need rounding have a to 3 s.f., at least 0.03 of a unit of its third figure from a rounding edge, and a stays below 9.9",
+				"k is at least 2 from 0 in size wherever it is an answer",
+				"m and n are nonzero and different, and mn ≠ m + n, so multiplying the powers is a different answer",
+				"the four numbers of order-mixed have different values"
+			]
 		}
 	},
 	"skills": {
@@ -3325,6 +3373,9 @@
 		"SL2.11.sketch-transformed": "Sketch a transformed graph from the graph of f",
 		"SL2.11.composite-transform": "Apply a sequence of transformations and write the resulting function",
 		"SL2.11.image-point": "Find the image of a point, or the original point, under transformations",
+		"SL1.1.convert": "Convert between ordinary numbers and standard form",
+		"SL1.1.multiply-divide": "Multiply and divide numbers in standard form",
+		"SL1.1.context": "Solve contextual problems with very large or very small quantities",
 		"SL1.2.nth-term": "Find a term or the general term of an arithmetic sequence",
 		"SL1.2.find-u1-d": "Find u_1 and d from given terms or conditions",
 		"SL1.2.find-n": "Find which term has a given value, or the number of terms",
@@ -17460,6 +17511,562 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Calculate with numbers in standard form",
+			"summary": "Numbers a × 10^k: convert both ways, bring a back between 1 and 10, order mixed forms, read a GDC display, multiply and divide with and without a calculator, and solve problems with very large or very small amounts.",
+			"situation": "standard-form",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the numbers alone: p = 3.2 × 10^5"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story with an amount in it"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "to-form-large",
+					"given": [
+						"an ordinary large number"
+					],
+					"asked": "a × 10^k",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.1.convert"
+					]
+				},
+				{
+					"id": "to-form-small",
+					"given": [
+						"an ordinary small number"
+					],
+					"asked": "a × 10^k with a negative k",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.1.convert"
+					]
+				},
+				{
+					"id": "to-ordinary-large",
+					"given": [
+						"a × 10^k with a positive k"
+					],
+					"asked": "the ordinary number",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.1.convert"
+					]
+				},
+				{
+					"id": "to-ordinary-small",
+					"given": [
+						"a × 10^k with a negative k"
+					],
+					"asked": "the ordinary number",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.1.convert"
+					]
+				},
+				{
+					"id": "renormalise",
+					"given": [
+						"a number such as 64 × 10^5 or 0.64 × 10^7"
+					],
+					"asked": "correct standard form",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.1.convert"
+					]
+				},
+				{
+					"id": "order-mixed",
+					"given": [
+						"four numbers in mixed forms"
+					],
+					"asked": "the largest or the smallest",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.1.convert"
+					]
+				},
+				{
+					"id": "display-to-form",
+					"given": [
+						"a GDC display such as 4.73E−5"
+					],
+					"asked": "a × 10^k",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.1.convert"
+					]
+				},
+				{
+					"id": "multiply",
+					"given": [
+						"p and q"
+					],
+					"asked": "p × q, with a product below 10",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.1.multiply-divide"
+					]
+				},
+				{
+					"id": "multiply-renormalise",
+					"given": [
+						"p and q"
+					],
+					"asked": "p × q, with a product of 10 or more to bring back",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.1.multiply-divide"
+					]
+				},
+				{
+					"id": "divide",
+					"given": [
+						"p and q"
+					],
+					"asked": "p/q, with a quotient of 1 or more",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.1.multiply-divide"
+					]
+				},
+				{
+					"id": "divide-renormalise",
+					"given": [
+						"p and q"
+					],
+					"asked": "p/q, with a quotient below 1 to bring back",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.1.multiply-divide"
+					]
+				},
+				{
+					"id": "power-product",
+					"given": [
+						"p and q"
+					],
+					"asked": "p²q",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.1.multiply-divide"
+					]
+				},
+				{
+					"id": "times-larger",
+					"given": [
+						"two amounts in a story"
+					],
+					"asked": "how many times larger one is",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.1.context"
+					]
+				},
+				{
+					"id": "time-from-rate",
+					"given": [
+						"a speed and a distance"
+					],
+					"asked": "the time",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.1.context"
+					]
+				},
+				{
+					"id": "total-from-unit",
+					"given": [
+						"an amount for each and how many"
+					],
+					"asked": "the total",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.1.context"
+					]
+				},
+				{
+					"id": "unit-shift",
+					"given": [
+						"an amount in one unit"
+					],
+					"asked": "the amount in another unit",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.1.context"
+					]
+				},
+				{
+					"id": "rate-unit-shift",
+					"given": [
+						"a speed in m s⁻¹ and a distance in km"
+					],
+					"asked": "the time in seconds",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.1.context"
+					]
+				},
+				{
+					"id": "scale-value",
+					"given": [
+						"an amount",
+						"how many times as much"
+					],
+					"asked": "the new amount",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.1.context"
+					]
+				},
+				{
+					"id": "sphere-volume-pi",
+					"given": [
+						"a sphere's diameter"
+					],
+					"asked": "the volume as π(a × 10^k)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.1.context"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.1.convert",
+					"method": "place-shift",
+					"suits": [
+						"to-form-large",
+						"to-form-small",
+						"to-ordinary-large",
+						"to-ordinary-small",
+						"renormalise",
+						"order-mixed"
+					],
+					"name": "Move the decimal point and count the places",
+					"about": "Move the point until 1 ≤ a < 10; each place moved left raises k by 1 and each place moved right lowers k by 1."
+				},
+				{
+					"skill": "SL1.1.convert",
+					"method": "factor-powers",
+					"suits": [
+						"to-form-large",
+						"to-form-small",
+						"to-ordinary-large",
+						"to-ordinary-small",
+						"renormalise"
+					],
+					"name": "Factor out a power of ten with index laws",
+					"about": "Write 64 × 10^5 = 6.4 × 10^1 × 10^5 = 6.4 × 10^6, adjusting k to balance the change in a."
+				},
+				{
+					"skill": "SL1.1.convert",
+					"method": "gdc-sci",
+					"suits": [
+						"to-form-large",
+						"to-form-small",
+						"display-to-form"
+					],
+					"name": "Use the GDC in scientific mode",
+					"about": "Enter the number in SCI mode, then translate the display 6.4E6 into 6.4 × 10^6 for the written answer."
+				},
+				{
+					"skill": "SL1.1.multiply-divide",
+					"method": "group-and-index",
+					"suits": [
+						"multiply",
+						"multiply-renormalise",
+						"divide",
+						"divide-renormalise",
+						"power-product"
+					],
+					"name": "Group the a-values and the powers of ten",
+					"about": "Multiply or divide the coefficients, add or subtract the exponents, then renormalise so 1 ≤ a < 10 (0.7 × 10^−8 becomes 7 × 10^−9)."
+				},
+				{
+					"skill": "SL1.1.multiply-divide",
+					"method": "ordinary-numbers",
+					"suits": [
+						"multiply",
+						"divide"
+					],
+					"name": "Convert to ordinary numbers and back",
+					"about": "For friendly values, write the numbers out, calculate, then convert back; a useful check on the exponent."
+				},
+				{
+					"skill": "SL1.1.multiply-divide",
+					"method": "gdc-ee",
+					"suits": [
+						"multiply",
+						"multiply-renormalise",
+						"divide",
+						"divide-renormalise",
+						"power-product"
+					],
+					"name": "Use the GDC ×10^x (EE) key",
+					"about": "Enter each number with the EE key inside brackets, then rewrite the E-notation output in standard form."
+				},
+				{
+					"skill": "SL1.1.context",
+					"method": "form-expression",
+					"suits": [
+						"times-larger",
+						"time-from-rate",
+						"total-from-unit",
+						"scale-value",
+						"sphere-volume-pi"
+					],
+					"name": "Translate the words into a calculation, then use index laws",
+					"about": "Decide whether the context needs ×, ÷ or a rate formula, then combine coefficients and powers of ten by hand."
+				},
+				{
+					"skill": "SL1.1.context",
+					"method": "gdc-ee",
+					"suits": [
+						"times-larger",
+						"time-from-rate",
+						"total-from-unit",
+						"rate-unit-shift"
+					],
+					"name": "Calculate on the GDC and rewrite the display",
+					"about": "Use bracketed EE entries, round a to the required significant figures and write × 10^k, never E-notation."
+				},
+				{
+					"skill": "SL1.1.context",
+					"method": "unit-shift",
+					"suits": [
+						"unit-shift",
+						"rate-unit-shift"
+					],
+					"name": "Convert units as exponent shifts first",
+					"about": "Treat km → m as × 10^3 and g → kg as × 10^−3, adjusting k before the main calculation."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "0.64 × 10^7 is in standard form, because 0.64 × 10^7 = 6 400 000.",
+					"answer": "False: the value is right, but standard form needs 1 ≤ a < 10, so it is 6.4 × 10^6.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Multiplying two numbers in standard form gives an answer already in standard form.",
+					"answer": "Sometimes: it holds when the product of the a-values is below 10. Otherwise a has to be brought back and k raised by 1.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "A GDC showing 3.1E−4 is an acceptable final answer.",
+					"answer": "False: calculator notation isn't accepted. Write 3.1 × 10^−4.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.1.convert#0",
+					"text": "Giving small numbers a positive power: 0.000052 = 5.2 × 10^5",
+					"as": "distractor",
+					"in": [
+						"to-form-small",
+						"to-form-large",
+						"to-ordinary-small",
+						"to-ordinary-large",
+						"display-to-form"
+					],
+					"wrong": "the power with its sign changed"
+				},
+				{
+					"ref": "SL1.1.convert#1",
+					"text": "Counting digits instead of places moved: 6 400 000 = 6.4 × 10^7",
+					"as": "distractor",
+					"in": [
+						"to-form-large",
+						"to-form-small",
+						"to-ordinary-large",
+						"to-ordinary-small"
+					],
+					"wrong": "a power one too far, from counting digits"
+				},
+				{
+					"ref": "SL1.1.convert#2",
+					"text": "Leaving a outside 1 ≤ a < 10 (64 × 10^5 or 0.64 × 10^7) as a final answer",
+					"as": "distractor",
+					"in": [
+						"to-form-large",
+						"to-form-small",
+						"renormalise",
+						"order-mixed"
+					],
+					"wrong": "the right value with a outside 1 ≤ a < 10, or a number chosen for its power without bringing a back"
+				},
+				{
+					"ref": "SL1.1.multiply-divide#0",
+					"text": "Multiplying the powers of ten: 10^4 × 10^3 = 10^12",
+					"as": "distractor",
+					"in": [
+						"multiply",
+						"multiply-renormalise",
+						"power-product"
+					],
+					"wrong": "the powers multiplied, not added"
+				},
+				{
+					"ref": "SL1.1.multiply-divide#1",
+					"text": "Forgetting to renormalise, leaving 0.7 × 10^−8 or 12 × 10^5 as the answer",
+					"as": "distractor",
+					"in": [
+						"multiply-renormalise",
+						"divide-renormalise",
+						"power-product",
+						"scale-value",
+						"sphere-volume-pi"
+					],
+					"wrong": "the right value with a outside 1 ≤ a < 10"
+				},
+				{
+					"ref": "SL1.1.multiply-divide#2",
+					"text": "Sign slip with negative exponents: 10^−3 ÷ 10^5 = 10^2",
+					"as": "distractor",
+					"in": [
+						"multiply",
+						"divide",
+						"divide-renormalise"
+					],
+					"wrong": "the powers subtracted for a product, or added for a quotient"
+				},
+				{
+					"ref": "SL1.1.context#0",
+					"text": "Writing the GDC display 5E2 as the final answer",
+					"as": "distractor",
+					"in": [
+						"display-to-form",
+						"times-larger",
+						"time-from-rate",
+						"total-from-unit",
+						"rate-unit-shift"
+					],
+					"wrong": "the display, E-notation and all"
+				},
+				{
+					"ref": "SL1.1.context#1",
+					"text": "Rounding a at an early step so the third significant figure is wrong",
+					"as": "distractor",
+					"in": [
+						"times-larger",
+						"time-from-rate",
+						"total-from-unit",
+						"rate-unit-shift"
+					],
+					"wrong": "the sum done from both numbers rounded to 2 s.f."
+				},
+				{
+					"ref": "SL1.1.context#2",
+					"text": "Dividing the wrong way round when asked 'how many times larger'",
+					"as": "distractor",
+					"in": [
+						"times-larger"
+					],
+					"wrong": "the smaller divided by the larger"
+				}
+			],
+			"chain": [
+				"read the numbers, turning ordinary numbers or a display into a × 10^k",
+				"decide what the words ask: multiply, divide or change a unit",
+				"work on the a-values and the powers of ten apart",
+				"bring a back so that 1 ≤ a < 10, changing k to balance",
+				"write a × 10^k, never E-notation, to 3 s.f. if asked"
+			],
 			"frequency": 3,
 			"marks": 1,
 			"section": {
@@ -17469,9 +18076,7 @@
 			"paper": {
 				"p1": 2,
 				"p2": 1
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-sequence-proof",

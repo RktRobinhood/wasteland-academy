@@ -89,7 +89,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	out.given = StandardFormSituation.export(s)
 	# A rounded a: the trap writes it to 2 s.f.
 	if out.answer.kind == "form" and not out.answer.exact and Answer.needs_rounding(out.answer.values.a):
-		var two := Answer.parse_number(Fmt.sf(out.answer.values.a, 2)).q
+		var two: Q = Answer.parse_number(Fmt.sf(out.answer.values.a, 2)).q
 		out.trap = form_ans(two, s.k, true, _head(out.answer), _tail(out.answer), 2).values
 	return out
 
