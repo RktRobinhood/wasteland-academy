@@ -13250,6 +13250,9 @@ def check_cumulative_frequency(q):
             raise Fail(f"no check for {u}")
     gc_check_common(q, want, wrongs)
     cf_arith(q)
+    return None, None
+
+
 # ── arc-sector (t3-arc-sector, FAL-726) ──────────────────────
 # The `arc-sector` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/arc_sector.gd. r, θ, the arc, the area and the perimeter are read back
