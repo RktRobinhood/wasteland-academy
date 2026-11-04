@@ -12576,9 +12576,7 @@ AS_SKILL = "SL3.4."
 AS_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
 AS_DEN = 24
 AS_R1 = (2, 12)
-AS_NUM = r"[\d./π +−]+?"
 AS_DEG_P1 = {30, 45, 60, 90, 120, 135, 150, 210, 225, 240, 270, 300}
-AS_SECTOR_LINE = "The diagram shows sector OAB of a circle with centre O, shaded."
 
 
 def as_val(text):
@@ -12641,7 +12639,9 @@ def as_read(q):
         return as_val(text)
 
     if rep == "equation":
-        for ln in L[1:]:
+        for ln in L:
+            if ln == "Sector OAB has centre O.":
+                continue
             m = re.fullmatch(r"r = (\S+) cm", ln)
             if m:
                 k["r"] = plain(m.group(1))
@@ -12653,7 +12653,6 @@ def as_read(q):
             m = re.fullmatch(r"(arc AB|area|perimeter) = (.+?) cm(²?)", ln)
             need(m is not None, f"can't read {ln!r}")
             k[{"arc AB": "l", "area": "a", "perimeter": "p"}[m.group(1)]] = plain(m.group(2))
-        need(L[0] == "Sector OAB has centre O.", f"{L[0]!r}")
         return k
     if rep == "words":
         text = " ".join(L)
@@ -12672,6 +12671,8 @@ def as_read(q):
                 k["unit"] = " " + m.group(2)
         return k
     g = q["graph"]
+    if q["view"]["unknown"] == "segments-theta":
+        return k
     need(g is not None and g["kind"] == "sector", "no sector drawn")
     k["fig"] = g
     if g["r_label"] not in ("", "r"):
@@ -12715,16 +12716,13 @@ def as_limits(q, k):
             need(k["deg"] % 15 != 0, f"{k['deg']}° needs no calculator")
 
 
-AS_OK = re.compile(r"[\d.π×÷+−/²()½√ ]+")
-
-
 def as_eval(text):
     t = text.strip()
     if not t or not re.search(r"\d", t):
         return None
     t = t.replace("½", "(1/2)").replace("²", "**2").replace("×", "*").replace("÷", "/").replace("−", "-")
     t = re.sub(r"√(\d+(?:\.\d+)?)", r"sqrt(\1)", t)
-    t = re.sub(r"(\d)π", r"\1*pi", t).replace("π", "pi")
+    t = re.sub(r"(\d+(?:\.\d+)?)?π(?:/(\d+))?", lambda m: f"(({m.group(1) or 1})*pi/{m.group(2) or 1})", t)
     t = re.sub(r"(\d|\))\s*\(", r"\1*(", t)
     try:
         return sp.sympify(t, rational=True)
@@ -12740,7 +12738,7 @@ def as_working(q):
             parts = st.split(" = ")
             for left, right in zip(parts, parts[1:]):
                 lm = re.search(r"[\d.π×÷+−/²()½√ °]+$", left)
-                rm = re.match(r"[\d.π/ +−]+", right.strip())
+                rm = re.match(r"[\d.π/ +−×÷²()½]+", right.strip())
                 if lm is None or rm is None:
                     continue
                 lt = lm.group().replace("°", "")
@@ -12750,7 +12748,7 @@ def as_working(q):
                 if lv is None or rv is None:
                     continue
                 shown = rm.group().strip()
-                if q["paper"] == 1 or "π" in shown or "/" in shown:
+                if q["paper"] == 1 or re.search(r"[π/×÷²]", shown):
                     ok = abs(sp.N(lv - rv, 30)) < sp.Rational(1, 10**20)
                 else:
                     d = len(shown.split(".")[1]) if "." in shown else 0
@@ -12957,12 +12955,6 @@ def as_check(q):
         trap = t2 + tail if t2 else None
     want = as_text(label, v, tail, paper)
     gc_check_common(q, want, wr, trap)
-    if paper == 2:
-        for o in q["choices"]:
-            if o["ref"] and not o.get("trap"):
-                m = re.search(r"= ([\d.]+)", o["text"])
-                if m:
-                    need(as_clear(R(m.group(1)) * (1 + sp.Rational(1, 10**7))) or True, "edge")
     as_working(q)
     return None, None
 

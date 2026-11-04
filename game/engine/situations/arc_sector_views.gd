@@ -116,6 +116,23 @@ static func W(s: Dictionary, v: Array) -> String:
 	return exact(v) if s.paper == 1 else Fmt.sf(fl(v), 5)
 
 
+## A value as the working shows it, so the next step works from what is on the page.
+static func S(s: Dictionary, v: Array) -> Array:
+	return v if s.paper == 1 else ab(Answer.parse_number(W(s, v)).q)
+
+
+## That share of a circle's [0, b]: θ ÷ 2π of it. Exact on Paper 1, from the figure shown on Paper 2.
+static func share(s: Dictionary, whole: Array) -> Array:
+	if s.paper == 1:
+		return scale(theta(s), whole[1].div(2))
+	return ab(GdcKit.qf(fl(whole) * radians(s) / TAU))
+
+
+## A value in the working, in brackets where it has two terms and is about to be multiplied.
+static func Br(s: Dictionary, v: Array) -> String:
+	return "(%s)" % W(s, v) if s.paper == 1 and shape(v) in ["+", "−"] else W(s, v)
+
+
 ## A value as it is given: exact on Paper 1, as drawn on Paper 2.
 static func G(v: Array) -> String:
 	return exact(v) if not v[0].is_zero() or not v[1].is_zero() else "0"
@@ -357,7 +374,7 @@ func u_rad_to_deg(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var unit_d: Q = Q.new(180, s.t.d)
 		out.methods = {"multiply-factor": method(["Multiply by 180/π: %s × 180/π = %s × 180" % [d, Fmt.num(s.t)], "= %s" % dd, say(ans)], ans.values),
 			"fraction-of-turn": method(["%s is %s of a full turn of 2π." % [d, Fmt.num(turn)], "%s × 360° = %s°" % [Fmt.num(turn), dd], say(ans)], ans.values),
-			"landmarks": method(["%s = %s°, and %s is %d lots of that." % [Fmt.pi(Q.new(1, s.t.d)), Fmt.dec(unit_d), d, s.t.n], "%d × %s° = %s°" % [s.t.n, Fmt.dec(unit_d), dd], say(ans)], ans.values)}
+			"landmarks": method(["%s is %s°, and %s is %d lots of that." % [Fmt.pi(Q.new(1, s.t.d)), Fmt.dec(unit_d), d, s.t.n], "%d × %s° = %s°" % [s.t.n, Fmt.dec(unit_d), dd], say(ans)], ans.values)}
 	else:
 		out.methods = {"multiply-factor": method(["Multiply by 180/π: %s × 180/π = %s" % [d, Fmt.sf(deg, 5)], say(ans)], ans.values),
 			"fraction-of-turn": method(["%s is %s/2π of a full turn." % [d, d], "%s/2π × 360° = %s°" % [d, Fmt.sf(deg, 5)], say(ans)], ans.values)}
@@ -379,8 +396,9 @@ func u_arc_length(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = like(ans, s, ab(s.r.mul(s.t)), R_ARC_DEG) if s.form == "deg" else []
 	out.generic = others(ans, s, [scale(v, 2), scale(v, Q.new(1, 2)), scale(th, s.r.sq()), scale(th, s.r.sq().div(2)), plus(v, ab(s.r)), plus(v, ab(s.r.mul(2)))])
 	var r := R(s)
-	out.methods = {"l-equals-r-theta": method(to_rad(s) + ["l = rθ = %s × %s = %s" % [r, W(s, th), W(s, v)], say(ans)], ans.values),
-		"fraction-of-circumference": method(["The arc is %s of the circumference." % part(s), "2π × %s = %s" % [r, W(s, ab(0, s.r.mul(2)))], "l = %s × %s = %s" % [_frac(s), W(s, ab(0, s.r.mul(2))), W(s, v)], say(ans)], ans.values)}
+	var turn := S(s, ab(0, s.r.mul(2)))
+	out.methods = {"l-equals-r-theta": method(to_rad(s) + ["l = rθ = %s × %s = %s" % [r, W(s, th), W(s, scale(S(s, th), s.r))], say(ans)], ans.values),
+		"fraction-of-circumference": method(["The arc is %s of the circumference." % part(s), "2π × %s = %s" % [r, W(s, turn)], "l = %s × %s = %s" % [_frac(s), W(s, turn), W(s, share(s, turn))], say(ans)], ans.values)}
 	return out
 
 
@@ -405,8 +423,11 @@ func u_perimeter(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.generic = others(ans, s, [plus(arc, ab(s.r)), plus(scale(arc, 2), ab(s.r.mul(2))), plus(scale(th, s.r.sq()), ab(s.r.mul(2))), plus(v, ab(s.r)), plus(arc, ab(s.r.mul(4)))])
 	var r := R(s)
 	var two := Fmt.dec(s.r.mul(2))
-	out.methods = {"l-equals-r-theta": method(to_rad(s) + ["l = rθ = %s × %s = %s" % [r, W(s, th), W(s, arc)], "Add the two radii: P = %s + %s" % [W(s, arc), two], say(ans)], ans.values),
-		"fraction-of-circumference": method(["The arc is %s of the circumference, 2π × %s." % [part(s), r], "l = %s × %s = %s" % [_frac(s), W(s, ab(0, s.r.mul(2))), W(s, arc)], "Add the two radii: P = %s + %s" % [W(s, arc), two], say(ans)], ans.values)}
+	var turn := S(s, ab(0, s.r.mul(2)))
+	var a1 := scale(S(s, th), s.r)
+	var a2 := share(s, turn)
+	out.methods = {"l-equals-r-theta": method(to_rad(s) + ["l = rθ = %s × %s = %s" % [r, W(s, th), W(s, a1)], "Add the two radii: P = %s + %s" % [W(s, a1), two], say(ans)], ans.values),
+		"fraction-of-circumference": method(["The arc is %s of the circumference, 2π × %s." % [part(s), r], "l = %s × %s = %s" % [_frac(s), W(s, turn), W(s, a2)], "Add the two radii: P = %s + %s" % [W(s, a2), two], say(ans)], ans.values)}
 	return out
 
 
@@ -419,7 +440,7 @@ func u_theta_from_arc(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.generic = others(ans, s, [scale(l, s.r), scale(v, 2), scale(v, Q.new(1, 2)), scale(l, Q.new(1).div(s.r.sq())), scale(l, s.r.mul(Q.new(1, 2))), plus(v, ab(1))])
 	var r := R(s)
 	out.methods = {"l-equals-r-theta": method(["l = rθ, so θ = l ÷ r", "θ = %s ÷ %s = %s" % [G(l), r, W(s, v)], say(ans)], ans.values),
-		"fraction-of-circumference": method(["The circumference is 2π × %s = %s." % [r, W(s, ab(0, s.r.mul(2)))], "The arc is %s ÷ %s of it, and θ is that much of 2π." % [G(l), W(s, ab(0, s.r.mul(2)))], "θ = %s" % W(s, v), say(ans)], ans.values)}
+		"fraction-of-circumference": method(["The circumference is 2π × %s = %s." % [r, W(s, ab(0, s.r.mul(2)))], "The arc is %s ÷ %s of it, and θ is that much of 2π." % [G(l), W(s, ab(0, s.r.mul(2)))], say(ans)], ans.values)}
 	return out
 
 
@@ -433,7 +454,8 @@ func u_r_from_arc(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ls := fl(l)
 	out.wrongs = []
 	out.generic = _whole(ans, s, s.r) if s.paper == 1 else others(ans, s, [ab(GdcKit.qf(ls * size)), ab(GdcKit.qf(ls / size * 2.0)), ab(GdcKit.qf(ls / size / 2.0)), ab(GdcKit.qf(ls / size * ls / size)), ab(GdcKit.qf(ls / size + 1.0))])
-	out.methods = {"l-equals-r-theta": method(to_rad(s) + ["l = rθ, so r = l ÷ θ", "r = %s ÷ %s = %s" % [G(l), W(s, th), W(s, v)], say(ans)], ans.values)}
+	var worked := Fmt.sf(ls / fl(S(s, th)), 5) if s.paper == 2 else W(s, v)
+	out.methods = {"l-equals-r-theta": method(to_rad(s) + ["l = rθ, so r = l ÷ θ", "r = %s ÷ %s = %s" % [G(l), W(s, th), worked], say(ans)], ans.values)}
 	return out
 
 
@@ -489,8 +511,11 @@ func u_major_arc(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = like(ans, s, minor, R_MINOR_ARC)
 	out.generic = others(ans, s, [ab(0, s.r.mul(2)), ab(0, s.r), scale(big, s.r.mul(2)), scale(big, s.r.div(2)), plus(v, ab(s.r.mul(2))), plus(v, minor)])
 	var r := R(s)
-	out.methods = {"l-equals-r-theta": method(to_rad(s) + ["The major arc has the reflex angle: 2π − %s = %s" % [W(s, theta(s)), W(s, big)], "l = rθ = %s × %s = %s" % [r, W(s, big), W(s, v)], say(ans)], ans.values),
-		"fraction-of-circumference": method(["The circumference is 2π × %s = %s." % [r, W(s, ab(0, s.r.mul(2)))], "The minor arc is %s of it, which is %s." % [part(s), W(s, minor)], "l = %s − %s = %s" % [W(s, ab(0, s.r.mul(2))), W(s, minor), W(s, v)], say(ans)], ans.values)}
+	var round_c := S(s, ab(0, s.r.mul(2)))
+	var round_m := S(s, minor)
+	var round_b := S(s, less(ab(0, 2), S(s, theta(s))))
+	out.methods = {"l-equals-r-theta": method(to_rad(s) + ["The major arc has the reflex angle: 2π − %s = %s" % [W(s, theta(s)), W(s, round_b)], "l = rθ = %s × %s = %s" % [r, Br(s, round_b), W(s, scale(round_b, s.r))], say(ans)], ans.values),
+		"fraction-of-circumference": method(["The circumference is 2π × %s = %s." % [r, W(s, round_c)], "The minor arc is %s of it, which is %s." % [part(s), W(s, round_m)], "l = %s − %s = %s" % [W(s, round_c), W(s, round_m), W(s, less(round_c, round_m))], say(ans)], ans.values)}
 	return out
 
 
@@ -553,8 +578,9 @@ func u_sector_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.wrongs += like(ans, s, ab(s.r.mul(th[0].sq()).div(2)), R_THETA_SQ)
 	out.generic = others(ans, s, [scale(th, s.r.sq()), scale(th, s.r), scale(th, s.r.div(2)), ab(0, s.r.sq()), scale(v, 2), plus(v, ab(s.r))])
 	var r := R(s)
-	out.methods = {"half-r-squared-theta": method(to_rad(s) + ["A = ½r²θ = ½ × %s² × %s = %s" % [r, W(s, th), W(s, v)], say(ans)], ans.values),
-		"fraction-of-circle": method(["The sector is %s of the circle." % part(s), "π × %s² = %s" % [r, W(s, ab(0, s.r.sq()))], "A = %s × %s = %s" % [_frac(s), W(s, ab(0, s.r.sq())), W(s, v)], say(ans)], ans.values)}
+	var disc := S(s, ab(0, s.r.sq()))
+	out.methods = {"half-r-squared-theta": method(to_rad(s) + ["A = ½r²θ = ½ × %s² × %s = %s" % [r, W(s, th), W(s, scale(S(s, th), half))], say(ans)], ans.values),
+		"fraction-of-circle": method(["The sector is %s of the circle." % part(s), "π × %s² = %s" % [r, W(s, disc)], "A = %s × %s = %s" % [_frac(s), W(s, disc), W(s, share(s, disc))], say(ans)], ans.values)}
 	return out
 
 
@@ -568,7 +594,7 @@ func u_theta_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.generic = others(ans, s, [scale(a, Q.new(1).div(r2)), scale(a, Q.new(2).div(s.r)), scale(v, 2), scale(a, Q.new(1).div(s.r)), plus(v, ab(1)), scale(v, Q.new(3, 2))])
 	var r := R(s)
 	out.methods = {"half-r-squared-theta": method(["A = ½r²θ, so θ = 2A ÷ r²", "θ = 2 × %s ÷ %s² = %s" % [G(a), r, W(s, v)], say(ans)], ans.values),
-		"fraction-of-circle": method(["The circle's area is π × %s² = %s." % [r, W(s, ab(0, r2))], "θ is the same fraction of 2π as the sector is of the circle: (%s ÷ %s) × 2π" % [G(a), W(s, ab(0, r2))], "θ = %s" % W(s, v), say(ans)], ans.values)}
+		"fraction-of-circle": method(["The circle's area is π × %s² = %s." % [r, W(s, ab(0, r2))], "θ is the same fraction of 2π as the sector is of the circle: (%s ÷ %s) × 2π" % [G(a), W(s, ab(0, r2))], say(ans)], ans.values)}
 	return out
 
 
@@ -586,7 +612,7 @@ func u_r_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.generic = others(ans, s, [ab(GdcKit.qf(rs)), ab(GdcKit.qf(sqrt(af / size))), ab(GdcKit.qf(sqrt(rs) * 2.0)), ab(GdcKit.qf(rs / 2.0)), ab(GdcKit.qf(sqrt(rs) + 1.0))])
 	else:
 		out.generic = others(ans, s, [ab(s.r.sq())]) + _whole(ans, s, s.r)
-	var r2 := Fmt.sf(rs, 5) if s.paper == 2 else Fmt.dec(s.r.sq())
+	var r2 := Fmt.sf(2.0 * af / fl(S(s, th)), 5) if s.paper == 2 else Fmt.dec(s.r.sq())
 	var rt := Fmt.sf(sqrt(float(r2)), 5) if s.paper == 2 else R(s)
 	out.methods = {"half-r-squared-theta": method(to_rad(s) + ["A = ½r²θ, so r² = 2A ÷ θ = 2 × %s ÷ %s = %s" % [G(a), W(s, th), r2], "r = √%s = %s" % [r2, rt], say(ans)], ans.values)}
 	return out
@@ -612,9 +638,14 @@ func u_major_sector(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = like(ans, s, minor, R_MINOR)
 	out.generic = others(ans, s, [circle, scale(big, s.r), scale(big, s.r.sq()), scale(circle, 2), plus(circle, minor), scale(v, Q.new(1, 2))])
 	var r := R(s)
-	out.methods = {"half-r-squared-theta": method(to_rad(s) + ["The reflex angle is 2π − %s = %s." % [W(s, theta(s)), W(s, big)], "A = ½r²θ = ½ × %s² × %s = %s" % [r, W(s, big), W(s, v)], say(ans)], ans.values),
-		"fraction-of-circle": method(["The minor sector is %s of the circle, so the major sector is what is left of 1." % part(s), "The circle's area is π × %s² = %s." % [r, W(s, circle)], "A = %s − %s = %s" % [W(s, circle), W(s, minor), W(s, v)], say(ans)], ans.values),
-		"complement": method(to_rad(s) + ["The circle is π × %s² = %s and the minor sector is ½ × %s² × %s = %s." % [r, W(s, circle), r, W(s, theta(s)), W(s, minor)], "A = %s − %s = %s" % [W(s, circle), W(s, minor), W(s, v)], say(ans)], ans.values)}
+	var round_b := S(s, less(ab(0, 2), S(s, theta(s))))
+	var round_c := S(s, circle)
+	var round_t := S(s, theta(s))
+	var round_m := scale(round_t, half)
+	var left := less(round_c, round_m)
+	out.methods = {"half-r-squared-theta": method(to_rad(s) + ["The reflex angle is 2π − %s = %s." % [W(s, theta(s)), W(s, round_b)], "A = ½r²θ = ½ × %s² × %s = %s" % [r, Br(s, round_b), W(s, scale(round_b, half))], say(ans)], ans.values),
+		"fraction-of-circle": method(["The minor sector is %s of the circle, so the major sector is what is left of 1." % part(s), "The circle's area is π × %s² = %s." % [r, W(s, round_c)], "A = %s − %s = %s" % [W(s, round_c), W(s, round_m), W(s, left)], say(ans)], ans.values),
+		"complement": method(to_rad(s) + ["The circle is π × %s² = %s and the minor sector is ½ × %s² × %s = %s." % [r, W(s, round_c), r, W(s, round_t), W(s, round_m)], "A = %s − %s = %s" % [W(s, round_c), W(s, round_m), W(s, left)], say(ans)], ans.values)}
 	return out
 
 
@@ -626,7 +657,7 @@ func u_area_from_arc(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var l: Q = s.l[0]
 	out.wrongs = []
 	out.generic = others(ans, s, [ab(l.mul(s.r)), ab(l.mul(s.r).div(4)), ab(l.sq().div(2)), ab(s.r.sq().mul(s.t)), ab(half), ab(half.mul(s.t).add(s.r))])
-	out.methods = {"l-equals-r-theta": method(["θ = l ÷ r = %s ÷ %s = %s" % [Fmt.dec(l), R(s), W(s, ab(s.t))], "A = ½r²θ = ½ × %s² × %s = %s" % [R(s), W(s, ab(s.t)), W(s, v)], say(ans)], ans.values)}
+	out.methods = {"l-equals-r-theta": method(["θ = l ÷ r = %s ÷ %s = %s" % [Fmt.dec(l), R(s), W(s, ab(s.t))], "A = ½r²θ = ½ × %s² × %s = %s" % [R(s), W(s, ab(s.t)), W(s, scale(S(s, ab(s.t)), half))], say(ans)], ans.values)}
 	return out
 
 
@@ -640,8 +671,10 @@ func u_perimeter_from_area(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	out.wrongs = []
 	out.generic = others(ans, s, [arc, ab(s.r.mul(2)), ab(s.r.mul(s.t.add(1))), ab(s.r.mul(s.t.add(4))), ab(s.r.mul(s.t).mul(2).add(s.r)), scale(v, 2)])
 	var r2: Q = a[0].mul(2).div(s.t)
-	var rt := Fmt.sf(sqrt(r2.to_float()), 5) if s.paper == 2 else R(s)
-	out.methods = {"l-equals-r-theta": method(["A = ½r²θ, so r² = 2 × %s ÷ %s = %s" % [G(a), t, Fmt.sf(r2, 5) if s.paper == 2 else Fmt.dec(r2)], "r = %s" % rt, "P = 2r + rθ = %s × (2 + %s) = %s" % [rt, t, W(s, v)], say(ans)], ans.values)}
+	var r2t := Fmt.sf(r2, 5) if s.paper == 2 else Fmt.dec(r2)
+	var rt := Fmt.sf(sqrt(float(r2t)), 5) if s.paper == 2 else R(s)
+	var whole := W(s, ab(Answer.parse_number(rt).q.mul(s.t.add(2))))
+	out.methods = {"l-equals-r-theta": method(["A = ½r²θ, so r² = 2 × %s ÷ %s = %s" % [G(a), t, r2t], "r = √%s = %s" % [r2t, rt], "P = 2r + rθ = %s × (2 + %s) = %s" % [rt, t, whole], say(ans)], ans.values)}
 	return out
 
 
@@ -661,7 +694,10 @@ func u_major_from_perimeter(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	out.wrongs = like(ans, s, minor, R_MINOR)
 	out.generic = others(ans, s, [circle, scale(circle, 2), plus(circle, minor), scale(v, 2), scale(v, Q.new(1, 2)), plus(v, ab(s.r))])
 	var rt := Fmt.sf(s.r, 5) if s.paper == 2 else R(s)
-	out.methods = {"l-equals-r-theta": method(["P = 2r + rθ, so r = %s ÷ (2 + %s) = %s" % [G(per), t, rt], "The circle is π × %s² = %s." % [rt, W(s, circle)], "The shaded sector is ½ × %s² × %s = %s." % [rt, t, W(s, minor)], "A = %s − %s" % [W(s, circle), W(s, minor)], say(ans)], ans.values)}
+	var rq: Q = Answer.parse_number(rt).q
+	var whole := S(s, ab(0, rq.sq()))
+	var part_m := S(s, ab(rq.sq().mul(s.t).div(2)))
+	out.methods = {"l-equals-r-theta": method(["P = 2r + rθ, so r = %s ÷ (2 + %s) = %s" % [G(per), t, rt], "The circle is π × %s² = %s." % [rt, W(s, whole)], "The shaded sector is ½ × %s² × %s = %s." % [rt, t, W(s, part_m)], "A = %s − %s" % [W(s, whole), W(s, part_m)], say(ans)], ans.values)}
 	return out
 
 
@@ -684,8 +720,9 @@ func u_cone_radius(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = []
 	out.generic = others(ans, s, [arc, scale(arc, Q.new(1, 2)), ab(s.r), scale(v, 2), scale(v, Q.new(1, 2)), plus(v, ab(1))])
 	var r := R(s)
-	var rim := "The rim is the arc: %s × %s = %s" % [r, W(s, th), W(s, arc)]
-	out.methods = {"l-equals-r-theta": method(to_rad(s) + [rim, "2π × radius = %s, so radius = %s ÷ 2π" % [W(s, arc), W(s, arc)], say(ans)], ans.values),
+	var worked := scale(S(s, th), s.r)
+	var rim := "The rim is the arc: %s × %s = %s" % [r, W(s, th), W(s, worked)]
+	out.methods = {"l-equals-r-theta": method(to_rad(s) + [rim, "2π × radius = %s, so radius = %s ÷ 2π" % [W(s, worked), W(s, worked)], say(ans)], ans.values),
 		"fraction-of-circumference": method(["The arc is %s of a circle of radius %s." % [part(s), r], "The rim is that arc, so its radius is that fraction of %s." % r, say(ans)], ans.values)}
 	return out
 

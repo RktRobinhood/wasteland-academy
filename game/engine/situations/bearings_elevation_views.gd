@@ -283,8 +283,8 @@ func u_two_leg_distance(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var e2: Array = step(s.b2, d2)
 	var east := W(e1[0] + e2[0])
 	var north := W(e1[1] + e2[1])
-	var parts := "East: %s sin %d° + %s sin %d° = %s" % [D(s.d1), s.b1, D(s.d2), s.b2, east]
-	var parts2 := "North: %s cos %d° + %s cos %d° = %s" % [D(s.d1), s.b1, D(s.d2), s.b2, north]
+	var parts := "East: %s sin %d° + %s sin %d° gives %s" % [D(s.d1), s.b1, D(s.d2), s.b2, east]
+	var parts2 := "North: %s cos %d° + %s cos %d° gives %s" % [D(s.d1), s.b1, D(s.d2), s.b2, north]
 	out.methods = {"angle-chase-cosine": method(["The north lines are parallel and the turn is %d°, so angle ABC = 180° − %d° = %d°" % [t, t, b], line + " = " + sq2, say(ans)], ans.values),
 		"components": method([parts, parts2, "Distance = √(%s² + %s²)" % [_par(east), _par(north)], say(ans)], ans.values)}
 	return out
@@ -367,7 +367,7 @@ func u_due_east_distance(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var north := W(cx[1])
 	out.methods = {"angle-chase-cosine": method(["East is 90° from north, so angle CAB = 90° − %d° = %d°" % [s.b1, at_a],
 		"BC² = %s² + %s² − 2 × %s × %s × cos %d° = %s" % [D(s.d1), D(s.d2), D(s.d1), D(s.d2), at_a, sq2], say(ans)], ans.values),
-		"components": method(["From B, C is %s sin %d° − %s = %s east" % [D(s.d2), s.b1, D(s.d1), east], "and %s cos %d° = %s north." % [D(s.d2), s.b1, north], "BC = √(%s² + %s²)" % [_par(east), _par(north)], say(ans)], ans.values)}
+		"components": method(["From B, C is east by %s sin %d° − %s, which is %s" % [D(s.d2), s.b1, D(s.d1), east], "and north by %s cos %d°, which is %s." % [D(s.d2), s.b1, north], "BC = √(%s² + %s²)" % [_par(east), _par(north)], say(ans)], ans.values)}
 	return out
 
 
