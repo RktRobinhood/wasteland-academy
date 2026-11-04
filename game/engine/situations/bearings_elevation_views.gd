@@ -189,8 +189,8 @@ static func quad(s: Dictionary) -> Dictionary:
 
 # ── Sketches ─────────────────────────────────────────────────
 
-static func side(a: String, b: String, label: String = "", dash: bool = false, flip: int = 0) -> Dictionary:
-	return {"a": a, "b": b, "label": label, "dash": dash, "flip": flip}
+static func side(a: String, b: String, label: String = "", dash: bool = false) -> Dictionary:
+	return {"a": a, "b": b, "label": label, "dash": dash}
 
 
 static func arc(at: String, from: String, to: String, label: String) -> Dictionary:
@@ -404,7 +404,7 @@ func u_due_west_side(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"AC = %s m, the bearing of B from A is %s and angle BAC is %d°." % [D(s.d1), B(s.b1), s.phi]]
 	var a := [0.0, 0.0]
 	var c := step(s.b1 + s.phi, ac)
-	var ab: float = -c[1] / cos(rad(s.b1))
+	var ab: float = c[1] / cos(rad(s.b1))
 	var b := step(s.b1, ab)
 	var out := frame(rep, lines, sf3("A fence runs straight from B to C. Find its length."), ans,
 		sketch({"A": a, "B": b, "C": c}, [side("A", "B"), side("A", "C", D(s.d1) + " m"), side("B", "C", "?", true)], [arc("A", "N", "B", B(s.b1)), arc("A", "B", "C", "%d°" % s.phi)], ["A"]))
@@ -511,7 +511,7 @@ func u_chain_below_hook(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var lines := ["From a point P on level ground, %s m from the foot of a crane, the angle of elevation of the end T of its arm is %s." % [D(s.x), angle_words(s)],
 		"A chain hangs straight down from T. A guard %s m tall stands under it, and the hook on the chain is %s m above the guard's head." % [D(s.eye), D(s.gap)]]
 	var g := sketch({"T": [0.0, top], "F": [0.0, 0.0], "P": [x, 0.0], "H": [0.0, eye + gp], "G": [0.0, eye]},
-		[side("F", "G", D(s.eye) + " m", false, -1), side("G", "H", D(s.gap) + " m", false, 1), side("H", "T", "?", false, -1), side("F", "P", D(s.x) + " m"), side("P", "T", "", true)], [arc("P", "F", "T", _angle_label(s))])
+		[side("F", "G", D(s.eye) + " m"), side("G", "H", D(s.gap) + " m"), side("H", "T", "?"), side("F", "P", D(s.x) + " m"), side("P", "T", "", true)], [arc("P", "F", "T", _angle_label(s))])
 	var out := frame(rep, lines, sf3("Find the length of the chain."), ans, g)
 	out.wrongs = bad(top - gp, R_NO_EYE)
 	out.generic = gens([top - eye, top, x * sin(t) - eye - gp, top + eye + gp, v + 2.0])

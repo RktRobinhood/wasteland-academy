@@ -22,7 +22,7 @@ extends Control
 ##               radius) makes it a curved strip of angle theta, and `cone` draws the cone it rolls up into
 ##   plate       {"w", "h", "rho", "theta", "w_label", "h_label", "rho_label", "angle_label"}: a
 ##               rectangle with a segment of a circle cut from each of two opposite edges
-##   sketch      {"pts": {name: [x, y]}, "lines": [{"a", "b", "label", "dash", "flip"}],
+##   sketch      {"pts": {name: [x, y]}, "lines": [{"a", "b", "label", "dash"}],
 ##               "arcs": [{"at", "from", "to", "label"}], "north": [names], "right": [names], "note"}:
 ##               points kept to their real shape (a name starting _ isn't written), with a north
 ##               line at each name in `north`; an arc's `from` is "N" (a bearing, clockwise) or a point
@@ -368,7 +368,9 @@ func _sector() -> void:
 	var out_dir := Vector2(cos(edge + PI / 2.0), -sin(edge + PI / 2.0))
 	if major and ring == 0.0:
 		out_dir = -out_dir
-	_chip(spec.r_label, along + out_dir * 34.0 + Vector2(0, 10), UiTheme.PINK if spec.r_label == "r" else UiTheme.SAND)
+	var r_w := get_theme_default_font().get_string_size(spec.r_label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
+	var r_gap := 18.0 + absf(out_dir.x) * r_w / 2.0 + absf(out_dir.y) * FONT_SIZE / 2.0
+	_chip(spec.r_label, along + out_dir * r_gap + Vector2(0, 10), UiTheme.PINK if spec.r_label == "r" else UiTheme.SAND)
 	if ring > 0.0:
 		_chip(spec.get("inner_label", ""), _on_circle(c, inner_r * 0.62, a0) - Vector2(0, 26), UiTheme.PINK if spec.get("inner_label", "") == "r" else UiTheme.SAND)
 	_chip(spec.arc_label, _on_circle(c, k + 34.0, a0 + sweep / 2.0) + Vector2(0, 10), UiTheme.SAND)
@@ -475,23 +477,8 @@ func _sketch() -> void:
 			draw_line(p, q, UiTheme.TEAL, 5.0, true)
 	for n in spec.get("right", []):
 		_right_mark(n, at)
-	var used := {}
-	for a in spec.arcs:
-		_sketch_arc(a, at, used)
-	for ln in spec.lines:
-		if ln.label == "":
-			continue
-		var p: Vector2 = at[ln.a]
-		var q: Vector2 = at[ln.b]
-		var m := (p + q) / 2.0
-		var normal := (q - p).orthogonal().normalized()
-		if normal.dot(m - mid) < 0.0:
-			normal = -normal
-		if ln.flip != 0:
-			normal = Vector2(float(ln.flip), 0)
-		var w := get_theme_default_font().get_string_size(ln.label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 2).x
-		var gap := 20.0 + absf(normal.x) * w / 2.0 + absf(normal.y) * FONT_SIZE / 2.0
-		_chip(ln.label, m + normal * gap + Vector2(0, 10), UiTheme.PINK if ln.label == "?" else UiTheme.SAND, FONT_SIZE - 2)
+	# Names first, then angles, then lengths: each label takes a place clear of those before it.
+	var taken: Array = []
 	for n in names:
 		if String(n).begins_with("_"):
 			continue
@@ -500,9 +487,59 @@ func _sketch() -> void:
 		var away := (p - mid).normalized()
 		if n in spec.north and away.y < 0.0:
 			away = Vector2(signf(away.x) if away.x != 0.0 else 1.0, 0.3).normalized()
-		_chip(n, p + away * 36.0 + Vector2(0, 12), UiTheme.TEXT)
+		var spot := p + away * 36.0 + Vector2(0, 12)
+		_chip(n, spot, UiTheme.TEXT)
+		taken.append(_label_box(n, spot, FONT_SIZE))
+	var used := {}
+	for a in spec.arcs:
+		_sketch_arc(a, at, used, taken)
+	for ln in spec.lines:
+		if ln.label == "":
+			continue
+		var p: Vector2 = at[ln.a]
+		var q: Vector2 = at[ln.b]
+		var normal := (q - p).orthogonal().normalized()
+		if normal.dot((p + q) / 2.0 - mid) < 0.0:
+			normal = -normal
+		var w := get_theme_default_font().get_string_size(ln.label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 2).x
+		var gap := 20.0 + absf(normal.x) * w / 2.0 + absf(normal.y) * FONT_SIZE / 2.0
+		var tries: Array = []
+		for t in [0.5, 0.35, 0.65, 0.22, 0.78]:
+			tries.append(p.lerp(q, t) + normal * gap + Vector2(0, 10))
+		for t in [0.5, 0.35, 0.65]:
+			tries.append(p.lerp(q, t) - normal * gap + Vector2(0, 10))
+		var spot := _clear_spot(tries, ln.label, FONT_SIZE - 2, at, taken, ln)
+		_chip(ln.label, spot, UiTheme.PINK if ln.label == "?" else UiTheme.SAND, FONT_SIZE - 2)
+		taken.append(_label_box(ln.label, spot, FONT_SIZE - 2))
 	if spec.has("note"):
 		_chip(spec.note, Vector2(size.x - 120, 34), UiTheme.DIM, FONT_SIZE - 8)
+
+
+## The box a chip takes up at `at`, with a little room around it.
+func _label_box(s: String, at: Vector2, fs: int) -> Rect2:
+	var w := get_theme_default_font().get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+	return Rect2(Vector2(at.x - w / 2.0 - 8.0, at.y - fs * 0.85), Vector2(w + 16.0, fs * 1.2))
+
+
+## The first of `tries` clear of every label and line but `own`, or else the first.
+func _clear_spot(tries: Array, s: String, fs: int, at: Dictionary, taken: Array, own: Variant = null) -> Vector2:
+	for spot in tries:
+		var box := _label_box(s, spot, fs)
+		if box.position.x < 4.0 or box.end.x > size.x - 4.0 or box.position.y < 4.0 or box.end.y > size.y - 4.0:
+			continue
+		if taken.any(func(r): return r.intersects(box)):
+			continue
+		var hit := false
+		for ln in spec.lines:
+			if ln == own:
+				continue
+			for i in 41:
+				if box.has_point(at[ln.a].lerp(at[ln.b], i / 40.0)):
+					hit = true
+					break
+		if not hit:
+			return spot
+	return tries[0]
 
 
 ## A small square in the corner at point n, between the two lines that meet there.
@@ -522,9 +559,9 @@ func _right_mark(n: String, at: Dictionary) -> void:
 
 
 ## An angle at a point: a bearing clockwise from north, or the shorter way between two points.
-func _sketch_arc(a: Dictionary, at: Dictionary, used: Dictionary) -> void:
+func _sketch_arc(a: Dictionary, at: Dictionary, used: Dictionary, taken: Array) -> void:
 	var p: Vector2 = at[a.at]
-	var r := SKETCH_ARC + 34.0 * used.get(a.at, 0)
+	var r: float = SKETCH_ARC + 34.0 * used.get(a.at, 0)
 	used[a.at] = used.get(a.at, 0) + 1
 	var to: Vector2 = at[a.to] - p
 	var a1 := atan2(-to.y, to.x)
@@ -536,5 +573,10 @@ func _sketch_arc(a: Dictionary, at: Dictionary, used: Dictionary) -> void:
 		sweep = wrapf(a1 - a0, -PI, PI)
 	draw_polyline(_arc_points(p, r, a0, sweep), UiTheme.SAND, 3.0, true)
 	var half := minf(absf(sweep), PI) / 2.0
-	var reach := r + 38.0 + 10.0 / maxf(sin(half), 0.12)
-	_chip(a.label, _on_circle(p, reach, a0 + sweep / 2.0) + Vector2(0, 10), UiTheme.PINK if a.label == "?" else UiTheme.SAND, FONT_SIZE - 4)
+	var reach: float = r + 38.0 + 10.0 / maxf(sin(half), 0.12)
+	var tries: Array = []
+	for pair in [[0.5, 0.0], [0.5, 34.0], [0.35, 0.0], [0.65, 0.0], [0.5, 70.0], [0.25, 20.0], [0.75, 20.0]]:
+		tries.append(_on_circle(p, reach + pair[1], a0 + sweep * pair[0]) + Vector2(0, 10))
+	var spot := _clear_spot(tries, a.label, FONT_SIZE - 4, at, taken)
+	_chip(a.label, spot, UiTheme.PINK if a.label == "?" else UiTheme.SAND, FONT_SIZE - 4)
+	taken.append(_label_box(a.label, spot, FONT_SIZE - 4))
