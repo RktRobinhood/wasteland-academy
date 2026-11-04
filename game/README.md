@@ -651,8 +651,11 @@ extra format it offers (`--per-format`). Every mini-boss and boss chain is expor
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
 chain: one situation, and each part's `carried` value is the part before's answer. It
 prints a table per type and per cell. SymPy is pinned in
-`requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it
-as its own `answers` job.
+`requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it in
+six `answers-shard` jobs (`--shard=k/6`: every sixth cell and boss chain, each with all
+its questions). Each leaves a `summary.json`, and the `answers` job merges them
+(`tools/check-answers --merge dir`) and fails unless every shard is there once, passed,
+and together they give every cell 50 questions and every type 1,000.
 
 ### The seed sweep
 
