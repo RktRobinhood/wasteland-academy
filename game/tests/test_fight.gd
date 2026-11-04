@@ -189,7 +189,7 @@ func _check_fits(window: Vector2i) -> void:
 # ── The scroller is the fight screen (FAL-331) ───────────────
 
 func test_the_scene_is_the_fight_screen() -> void:
-	for spec in [[Vector2i(390, 844), 0.25, 1080], [Vector2i(360, 780), 0.25, 1080], [Vector2i(1280, 800), 0.3, 1400]]:
+	for spec in [[Vector2i(390, 844), 0.25, 1240], [Vector2i(360, 780), 0.25, 1240], [Vector2i(1280, 800), 0.3, 1400]]:
 		var area := _area(spec[0])
 		var made: Array = await _screen(area)
 		var f: Control = made[1]
@@ -209,7 +209,128 @@ func test_the_scene_is_the_fight_screen() -> void:
 		check(head.size.y <= 200, "%s: a slim header (%s)" % [what, head])
 		check(f.player_bar.is_visible_in_tree() and f.scrap_label.is_visible_in_tree(), "%s: HP and Scrap" % what)
 		check(f.scroll.size.y >= spec[2], "%s: room for the question (%.0f)" % [what, f.scroll.size.y])
+		var floor_line: Rect2 = f.progress.get_parent().get_global_rect()
+		check(scene.encloses(floor_line), "%s: the floor line is over the scene (%s)" % [what, floor_line])
+		check(not floor_line.intersects(tag), "%s: and clear of the enemy's name (%s)" % [what, floor_line])
 		_done(made)
+
+
+## The first seed whose fight 1 is that kind of beat, on floor 1 of the journey's region.
+func _seed_for(kinds: Array) -> Dictionary:
+	var assets := JourneyStage.shared_assets()
+	var roster := assets.roster("signal-tower")
+	for s in range(1, 2000):
+		var tier := Dungeon.tier_for(s, 1, 1)
+		var e := JourneyBeats.encounter(s, 1, tier, roster, Tuning.ENEMIES[tier].hits)
+		if e.kind in kinds:
+			return {"seed": s, "encounter": e, "sheet": assets.sheets.get(e.prop, {})}
+	return {}
+
+
+## Every label on an Explore or Puzzle beat is the job the strip draws (FAL-733).
+func test_a_job_talks_about_the_job() -> void:
+	for kind in ["explore", "puzzle"]:
+		var pick := _seed_for([kind])
+		var made: Array = await _screen(_area(Vector2i(390, 844)), pick.seed)
+		var f: Control = made[1]
+		for i in 3:
+			await tree.process_frame
+		check_eq(f.strip.encounter.prop, pick.encounter.prop, "the strip draws this prop")
+		check_eq(f.enemy_name.text, pick.sheet.label, "the overlay names the job")
+		check(not f.enemy_name.text.contains("·"), "no tier tag")
+		check_eq(f.check_button.text, pick.sheet.verb, "the button says the job")
+		check(f.enemy_bar.is_visible_in_tree(), "the bar stays")
+		f.autoplay(true)
+		check(f.feedback.text.begins_with(pick.sheet.hit), f.feedback.text)
+		check(f.feedback.text.contains("+%d Scrap" % f.result.scrap), f.feedback.text)
+		check(not f.feedback.text.contains("enemy") and not f.feedback.text.contains("Hit!"), f.feedback.text)
+		while f.run.state != "ended" and not f.result.get("defeated", false):
+			f.next_question()
+			f.autoplay(true)
+		check(f.feedback.text.contains(pick.sheet.done), f.feedback.text)
+		check(not f.feedback.text.contains("falls"), f.feedback.text)
+		check_eq(f.next_button.text, "Walk on")
+		_done(made)
+
+
+## Fight after fight, the overlay names what the strip has come to, with no strip call
+## read back.
+func test_the_label_follows_the_strip_through_a_run() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)), 11)
+	var f: Control = made[1]
+	var jobs := 0
+	var monsters := 0
+	for i in 60:
+		if f.run.state == "ended":
+			break
+		await tree.process_frame
+		await tree.process_frame
+		var e: Dictionary = f.strip.encounter
+		if e.kind in ["explore", "puzzle"]:
+			jobs += 1
+			check_eq(f.enemy_name.text, f.strip.assets.sheets[e.prop].label, "fight %d" % f.run.fight)
+		else:
+			monsters += 1
+			check_eq(f.enemy_name.text, "%s · D%d" % [f.run.enemy.name, f.run.tier], "fight %d" % f.run.fight)
+		f.autoplay(true)
+		await tree.process_frame
+		await tree.process_frame
+		f.next_question()
+	check(jobs > 0 and monsters > 0, "both kinds played: %d jobs, %d monsters" % [jobs, monsters])
+	_done(made)
+
+
+func test_a_part_hit_and_a_late_one_stay_on_the_job() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)), _seed_for(["explore"]).seed)
+	var f: Control = made[1]
+	f.answered = false
+	f._show_result({"outcome": "glancing", "note": "", "enemy_damage": 5, "player_damage": 0, "scrap": 5, "bonus": 0,
+		"solution": [], "dead": false, "defeated": false})
+	check(f.feedback.text.begins_with("It barely moves"), f.feedback.text)
+	f._show_result({"outcome": "late", "note": "", "enemy_damage": 10, "player_damage": 5, "scrap": 5, "bonus": 0,
+		"solution": [], "dead": false, "defeated": false})
+	check(f.feedback.text.begins_with("Late, but it gives"), f.feedback.text)
+	_done(made)
+
+
+## A monster's beat reads as it always did.
+func test_a_fight_reads_as_a_fight() -> void:
+	var pick := _seed_for(["fight"])
+	var made: Array = await _screen(_area(Vector2i(390, 844)), pick.seed)
+	var f: Control = made[1]
+	check_eq(f.check_button.text, "Attack")
+	check_eq(f.enemy_name.text, "%s · D%d" % [f.run.enemy.name, f.run.tier])
+	f.autoplay(true)
+	check(f.feedback.text.begins_with("Hit!"), f.feedback.text)
+	while f.run.state != "ended" and not f.result.get("defeated", false):
+		f.next_question()
+		f.autoplay(true)
+	check(f.feedback.text.contains("The %s falls." % f.run.enemy.name), f.feedback.text)
+	check_eq(f.next_button.text, "Next fight")
+	_done(made)
+
+
+## With no strip showing nothing names a job, and the run plays the same.
+func test_no_strip_keeps_the_fight_labels() -> void:
+	var pick := _seed_for(["explore"])
+	var on: Array = await _screen(_area(Vector2i(390, 844)), pick.seed)
+	var save := SaveData.blank()
+	save.profile = {"avatar": "robot"}
+	var off: Array = await _screen(_area(Vector2i(390, 844)), pick.seed, false, save)
+	var g: Control = off[1]
+	check_eq(g.check_button.text, "Attack")
+	check_eq(g.enemy_name.text, "%s · D%d" % [g.run.enemy.name, g.run.tier])
+	var f: Control = on[1]
+	check_eq(f.run.question.view, g.run.question.view, "the same question")
+	f.autoplay(true)
+	g.autoplay(true)
+	check_eq(g.next_button.text, "Next question")
+	check(g.feedback.text.begins_with("Hit!"), g.feedback.text)
+	for k in ["outcome", "scrap", "enemy_damage", "player_damage", "defeated"]:
+		check_eq(g.result[k], f.result[k], k)
+	check_eq(g.run.hp, f.run.hp, "the same HP")
+	_done(on)
+	_done(off)
 
 
 func test_the_phone_scene_runs_edge_to_edge() -> void:
@@ -250,6 +371,24 @@ func test_a_long_question_scrolls() -> void:
 	check(f.card.size.y > f.scroll.size.y, "taller than its room")
 	check(f.scroll.get_v_scroll_bar().max_value >= 3000, "and it scrolls")
 	_done(made)
+
+
+## The top edge is one stripe at any width: only the whole stripes repeat (FAL-733).
+func test_the_stripe_repeats_whole() -> void:
+	for width in [100.0, 360.0, 500.0, 760.0, 1168.0]:
+		var pieces: Array = CardFrame.stripe_pieces(width)
+		check_eq(pieces[0].from, CardFrame.SLICE, "it leaves the left corner as the art does")
+		check_eq(pieces[-1].from + pieces[-1].span, 360 - CardFrame.SLICE, "and meets the right corner")
+		var drawn := 0.0
+		for p in pieces:
+			drawn += p.width
+		check(absf(drawn - (width - CardFrame.SLICE * 2)) < 0.01, "%s: fills the edge (%s)" % [width, drawn])
+		var middle := pieces.slice(1, -1)
+		for p in middle:
+			check_eq([p.from, p.span], [CardFrame.STRIPE_FROM, CardFrame.STRIPE_SPAN], "a whole run of stripes")
+		if width >= 500.0:
+			var stretch: float = pieces[0].width / pieces[0].span
+			check(stretch >= 0.7 and stretch <= 1.3, "%s: not squashed (%.2f)" % [width, stretch])
 
 
 ## The reel's metal frame stays put around the card; the question scrolls inside it.

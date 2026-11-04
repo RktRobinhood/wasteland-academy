@@ -52,6 +52,26 @@ static func region_for(run_region: String) -> String:
 	return String(ISLAND_REGION.get(MapLink.island_of(run_region), ""))
 
 
+## The questions the run's open fight takes: its parts, or the hits to beat the enemy.
+static func questions_of(p_run: Run) -> int:
+	var questions: int = p_run.boss.parts.size() if not p_run.boss.is_empty() else ceili(float(p_run.enemy.max_hp) / Tuning.HIT)
+	return maxi(1, questions)
+
+
+## The words of the job the strip shows for the run's open fight, from the prop's JSON
+## ({label, verb, hit, done}), or {} on a monster or with no strip. It works out the
+## encounter as the strip does, from the same inputs, so the strip sends nothing back.
+static func job_words(p_run: Run, save: Dictionary = {}) -> Dictionary:
+	var assets := JourneyStage.shared_assets()
+	if not assets.has_avatar(avatar_for(save)):
+		return {}
+	var e := JourneyBeats.encounter(p_run.run_seed, p_run.fight, p_run.tier,
+			assets.roster(region_for(p_run.region)), questions_of(p_run))
+	if not e.kind in ["explore", "puzzle"]:
+		return {}
+	return assets.sheets[e.prop]
+
+
 func _on_started(region: String, _avatar: String, run_seed: int) -> void:
 	_fight = -1
 	_call("start_run", [region_for(region), avatar, "rebar", run_seed])
@@ -62,8 +82,7 @@ func _on_opened(fight: int, tier: int) -> void:
 		if _fight >= 0:
 			_call("fight_ended", [])
 		_fight = run.fights
-		var questions: int = run.boss.parts.size() if not run.boss.is_empty() else ceili(float(run.enemy.max_hp) / Tuning.HIT)
-		_call("fight_started", [fight, tier, maxi(1, questions)])
+		_call("fight_started", [fight, tier, questions_of(run)])
 	_call("question_opened", [run.question_no])
 
 

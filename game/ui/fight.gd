@@ -8,8 +8,8 @@ extends "res://ui/practice.gd"
 ## From the top (FAL-331, the FAL-293 reel): one slim header with the region, the
 ## player's HP and Scrap, Quit, and the speaker and gear above it; the journey scene
 ## (journey/journey_stage.gd), driven from the run's view signals by JourneyLink, with
-## the enemy standing in it and the enemy's name and HP over it; the timer, the lifelines
-## and the fight's progress; then the practice screen's question card, which this screen
+## the enemy standing in it, with the enemy's name and HP and the fight's progress over
+## it; the timer with the name plate, and the lifelines; then the practice screen's question card, which this screen
 ## reuses, in the reel's metal frame (ui/card_frame.gd). On a window wide enough the scene and those rows stand left of the card, so
 ## the card has the window's height. An avatar with no journey sheet gets the enemy's
 ## portrait in the scene's place. The lifeline row ends with the question's paper
@@ -34,6 +34,10 @@ extends "res://ui/practice.gd"
 ## screen, its mini-boss and boss (with a hurt frame that flashes on a hit) and their
 ## taunts, the shared enemy pool, and the run banners and best-floor medals. Each one
 ## missing keeps the look from before.
+##
+## On an Explore or Puzzle beat (FAL-733) the overlay, the button and the result lines
+## talk about the job the strip shows, in its prop's words (JourneyLink.job_words()), not
+## about an enemy. The run is the same. With no strip showing they read as a fight.
 
 const MONO := preload("res://assets/fonts/share-tech-mono-latin.woff2")
 const GREEN := Color(0.36, 0.8, 0.42)
@@ -53,6 +57,8 @@ const PAD := 30
 const FRAME_SCALE := 1.25
 const FRAME_SCALE_WIDE := 2.0
 const FRAME_GAP := 6
+## Between the rows and the card's frame on a phone.
+const STACK_GAP := 16
 const ENEMY_TAG_WIDTH := 350
 const JOURNEY_STAGE := "res://scenes/journey_stage.tscn"
 const LIFELINE_NAMES := {"fifty": "50-50", "hint": "Hint", "freeze": "Freeze"}
@@ -115,6 +121,10 @@ var first_fight := 1
 var select_first := true
 ## The fight (run.fights) whose taunt was shown, so it shows once a fight.
 var _taunted := -1
+## The words of the job the strip shows for the open fight, or {} on a monster.
+var job := {}
+## The fight (run.fights) `job` is for.
+var _job_fight := -1
 
 
 func _ready() -> void:
@@ -180,6 +190,7 @@ func _fit() -> void:
 	margin.add_theme_constant_override("margin_bottom", 20 if wide else FRAME_GAP)
 	hud_gap.custom_minimum_size.x = maxf(0.0, AudioHud.RESERVED_RIGHT - side - PAD)
 	body.vertical = not wide
+	body.add_theme_constant_override("separation", PAD * 2 if wide else STACK_GAP)
 	left.custom_minimum_size.x = left_w if wide else 0.0
 	var band: float = left_w if wide else size.x
 	scene_box.custom_minimum_size.y = JourneyStage.fit_height(band, size.y, SCENE_SHARE_WIDE if wide else SCENE_SHARE)
@@ -191,6 +202,7 @@ func start_run() -> void:
 		run_seed = int(Time.get_unix_time_from_system()) % 1000000 + 1
 	run = Run.new(save, region, start_floor, run_seed)
 	_taunted = -1
+	_job_fight = -1
 	if first_fight > 1:
 		run.first_fight = first_fight
 		run.records = false
@@ -314,7 +326,6 @@ func _build() -> void:
 	body = BoxContainer.new()
 	body.name = "Body"
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", PAD * 2)
 	col.add_child(body)
 	left = VBoxContainer.new()
 	left.name = "Left"
@@ -377,7 +388,7 @@ func _padded(c: Control) -> MarginContainer:
 func _head() -> Control:
 	var head := HBoxContainer.new()
 	head.name = "Head"
-	head.custom_minimum_size.y = 136
+	head.custom_minimum_size.y = 124
 	head.add_theme_constant_override("separation", 20)
 	var text := VBoxContainer.new()
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -442,6 +453,7 @@ func _scene() -> Control:
 	strip.visibility_changed.connect(func(): enemy_art.visible = not strip.visible)
 	scene_box.add_child(strip)
 	scene_box.add_child(_enemy_tag())
+	scene_box.add_child(_progress_tag())
 	return scene_box
 
 
@@ -455,11 +467,7 @@ func _enemy_tag() -> Control:
 	box.offset_right = -12
 	box.offset_top = 12
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(UiTheme.BG, 0.72)
-	style.set_corner_radius_all(10)
-	style.set_content_margin_all(12)
-	box.add_theme_stylebox_override("panel", style)
+	box.add_theme_stylebox_override("panel", _tag_style())
 	var bars := VBoxContainer.new()
 	bars.add_theme_constant_override("separation", 4)
 	box.add_child(bars)
@@ -483,21 +491,39 @@ func _enemy_tag() -> Control:
 	return box
 
 
-## Under the scene: the timer, the lifelines, then the plate, the perk and the progress.
+func _tag_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(UiTheme.BG, 0.72)
+	style.set_corner_radius_all(10)
+	style.set_content_margin_all(12)
+	return style
+
+
+## The floor, the fight and what a miss costs, small, in the scene's top-left corner, so
+## the rows under the scene leave the question its room (FAL-733).
+func _progress_tag() -> Control:
+	var box := PanelContainer.new()
+	box.name = "ProgressTag"
+	box.anchor_right = 1.0
+	box.offset_left = 12
+	box.offset_right = -ENEMY_TAG_WIDTH - 24
+	box.offset_top = 12
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	box.add_theme_stylebox_override("panel", _tag_style())
+	# _update_progress() writes here; the fight shows the fight and question number.
+	progress = UiTheme.label("", UiTheme.SMALL, UiTheme.TEXT)
+	progress.name = "Progress"
+	box.add_child(progress)
+	return box
+
+
+## Under the scene: the timer with the plate and the perk, then the lifelines.
 func _rows() -> Control:
 	var rows := VBoxContainer.new()
 	rows.name = "Rows"
 	rows.add_theme_constant_override("separation", 10)
 	rows.add_child(_timer())
 	rows.add_child(_lifelines())
-	plate_row = HBoxContainer.new()
-	plate_row.name = "Plate"
-	plate_row.add_theme_constant_override("separation", 16)
-	rows.add_child(plate_row)
-	# _update_progress() writes here; the fight shows the fight and question number.
-	progress = UiTheme.label("", UiTheme.SMALL, UiTheme.DIM)
-	progress.name = "Progress"
-	rows.add_child(progress)
 	return rows
 
 
@@ -538,6 +564,10 @@ func _timer() -> Control:
 	timer_label.custom_minimum_size.x = 130
 	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(timer_label)
+	plate_row = HBoxContainer.new()
+	plate_row.name = "Plate"
+	plate_row.add_theme_constant_override("separation", 16)
+	row.add_child(plate_row)
 	return row
 
 
@@ -588,8 +618,11 @@ func _process(delta: float) -> void:
 func _show_question() -> void:
 	question = run.question
 	result = {}
+	if _job_fight != run.fights:
+		_job_fight = run.fights
+		job = JourneyLink.job_words(run, save)
 	render_question()
-	check_button.text = "Attack"
+	check_button.text = job.get("verb", "Attack")
 	next_button.text = "Next question"
 	if run.another_way:
 		var tag := UiTheme.label("Another way: the same question, by this method. Bonus Scrap if you get it.", UiTheme.SMALL, UiTheme.SAND)
@@ -664,7 +697,7 @@ func _update_progress() -> void:
 
 func _update_hud() -> void:
 	title.text = "%s · Floor %d" % [Dungeon.region_name(region), run.floor_no]
-	enemy_name.text = "%s · D%d" % [run.enemy.name, run.tier]
+	enemy_name.text = job.get("label", "%s · D%d" % [run.enemy.name, run.tier])
 	enemy_art.texture = load(run.enemy.art)
 	enemy_bar.max_value = run.enemy.max_hp
 	enemy_bar.value = run.enemy.hp
@@ -759,12 +792,19 @@ func _show_result(r: Dictionary) -> void:
 	var color := UiTheme.TEAL
 	match r.outcome:
 		"right":
-			feedback.text = "Hit! −%d enemy HP · +%d Scrap" % [r.enemy_damage, r.scrap + r.bonus]
+			if job.is_empty():
+				feedback.text = "Hit! −%d enemy HP · +%d Scrap" % [r.enemy_damage, r.scrap + r.bonus]
+			else:
+				feedback.text = "%s +%d Scrap" % [job.hit, r.scrap + r.bonus]
 		"glancing":
-			feedback.text = "Glancing hit: half damage. %s The answer is %s." % [r.note, right_text(question)]
+			feedback.text = "%s %s The answer is %s." % ["Glancing hit: half damage." if job.is_empty() else "It barely moves: half the work.",
+				r.note, right_text(question)]
 			color = UiTheme.SAND
 		"late":
-			feedback.text = "Late hit! It lands, but you take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
+			if job.is_empty():
+				feedback.text = "Late hit! It lands, but you take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
+			else:
+				feedback.text = "Late, but it gives. You take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
 			color = UiTheme.SAND
 		"wrong":
 			feedback.text = "Missed. −%d HP. The answer is %s." % [r.player_damage, right_text(question)]
@@ -782,7 +822,7 @@ func _show_result(r: Dictionary) -> void:
 	if r.get("carry", "") != "" and r.outcome in ["wrong", "timeout", "glancing"]:
 		feedback.text += "\nPart (%s) carries on from %s." % [QuestionEngine.part_letter(r.part + 1), r.carry]
 	if r.defeated:
-		feedback.text += "\nThe %s falls." % run.enemy.name
+		feedback.text += "\n" + job.get("done", "The %s falls." % run.enemy.name)
 		if r.get("healed", 0) > 0:
 			feedback.text += " +%d HP." % r.healed
 		if r.get("floor_cleared", false):
@@ -808,7 +848,7 @@ func _show_result(r: Dictionary) -> void:
 	elif r.get("floor_cleared", false):
 		next_button.text = "Next floor"
 	elif r.defeated:
-		next_button.text = "Next fight"
+		next_button.text = "Next fight" if job.is_empty() else "Walk on"
 	else:
 		next_button.text = "Next part" if not run.boss.is_empty() else "Next question"
 	for e in _slots.values():

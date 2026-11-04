@@ -3,6 +3,10 @@
  "image": "mud-stuck.webp",
  "facing": "none",
  "beat": "explore",
+ "label": "Stuck cart",
+ "verb": "Heave",
+ "hit": "It shifts.",
+ "done": "The cart rolls free.",
  "states": {
   "start": "stuck",
   "cleared": "free"
