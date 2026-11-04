@@ -641,7 +641,7 @@ func _rim(c: Vector2, rx: float, ry: float, a: float, b: float, col: Color, dash
 		draw_line(c + Vector2(cos(t0) * rx, sin(t0) * ry), c + Vector2(cos(t1) * rx, sin(t1) * ry), col, 4.0 if not dashed else 3.0, true)
 
 
-func _dashes(a: Vector2, b: Vector2, col: Color = UiTheme.DIM) -> void:
+func _solid_dashes(a: Vector2, b: Vector2, col: Color = UiTheme.DIM) -> void:
 	var n := maxi(2, int(a.distance_to(b) / 18.0))
 	for i in n:
 		if i % 2 == 0:
@@ -732,7 +732,7 @@ func _solid() -> void:
 		"inscribed":
 			_inscribed(Vector2(w * 0.56, mid.y), r * 1.3)
 		"sector":
-			_sector(mid, r * 1.3)
+			_solid_sector(mid, r * 1.3)
 
 
 ## The slant sides of a cone over a base centred at c, with its back edge dashed. `plain` draws
@@ -744,7 +744,7 @@ func _cone_top(c: Vector2, rx: float, tall: float, plain: bool) -> void:
 	var ry := rx * (0.3 if plain else 0.26)
 	_rim(c, rx, ry, PI, TAU, UiTheme.DIM, true)
 	if spec.has("h"):
-		_dashes(top, c)
+		_solid_dashes(top, c)
 		_square(c, Vector2.UP, Vector2.RIGHT)
 		_mark("h", c + Vector2(14, -tall * 0.26), -1)
 	_mark("l", (top + c + Vector2(rx, 0)) / 2.0 + Vector2(18, -8), -1)
@@ -772,10 +772,10 @@ func _drum(c: Vector2, rx: float, ry: float, tall: float, key: String) -> void:
 ## label below the rim.
 func _circle_marks(c: Vector2, rx: float, ry: float, outside: bool) -> void:
 	if spec.has("d"):
-		_dashes(c - Vector2(rx, 0), c + Vector2(rx, 0), UiTheme.SAND)
+		_solid_dashes(c - Vector2(rx, 0), c + Vector2(rx, 0), UiTheme.SAND)
 		_mark("d", c + Vector2(0, ry + 34.0) if outside else c + Vector2(0, 30.0))
 	elif spec.has("r"):
-		_dashes(c, c + Vector2(rx, 0), UiTheme.SAND)
+		_solid_dashes(c, c + Vector2(rx, 0), UiTheme.SAND)
 		_mark("r", c + Vector2(rx * 0.42, ry + 30.0))
 
 
@@ -793,18 +793,18 @@ func _pyramid() -> void:
 	_edge(top, bl)
 	_edge(top, br)
 	_edge(top, tr)
-	_dashes(bl, tl)
-	_dashes(tl, tr)
-	_dashes(top, tl)
+	_solid_dashes(bl, tl)
+	_solid_dashes(tl, tr)
+	_solid_dashes(top, tl)
 	_mark("a", (bl + br) / 2.0 + Vector2(-10, 38))
 	_mark("b", (br + tr) / 2.0 + Vector2(20, 26), -1)
 	if spec.has("h"):
-		_dashes(top, centre)
+		_solid_dashes(top, centre)
 		_square(centre, Vector2.UP, Vector2.LEFT)
 		_mark("h", (top + centre) / 2.0 + Vector2(12, 40), -1)
 	if spec.has("t"):
 		var foot := (bl + br) / 2.0
-		_dashes(top, foot, UiTheme.SAND)
+		_solid_dashes(top, foot, UiTheme.SAND)
 		_mark("t", top.lerp(foot, 0.5) + Vector2(-12, 0), 1)
 	_mark("e", (top + tr) / 2.0 + Vector2(18, -6), -1)
 
@@ -823,9 +823,9 @@ func _scooped(c: Vector2, rx: float) -> void:
 	var inner := rx * 0.62
 	_rim(top, inner, inner * 0.26, 0.0, TAU, UiTheme.TEAL)
 	_rim(top, inner, inner, 0.0, PI, UiTheme.DIM, true)
-	_dashes(top, top + Vector2(inner, 0), UiTheme.SAND)
+	_solid_dashes(top, top + Vector2(inner, 0), UiTheme.SAND)
 	_mark("r", top + Vector2(inner * 0.5, -ry - 28.0))
-	_dashes(low, low + Vector2(rx, 0), UiTheme.SAND)
+	_solid_dashes(low, low + Vector2(rx, 0), UiTheme.SAND)
 	_mark("big", low + Vector2(rx * 0.5, ry + 30.0))
 	var x := rx + 28.0
 	_measure("c", top + Vector2(x, 0), low + Vector2(x, 0), c + Vector2(x + 12.0, 0))
@@ -846,7 +846,7 @@ func _capsule(c: Vector2, rx: float) -> void:
 	_rim(b, rx * 0.26, rx, -PI * 0.5, PI * 0.5, UiTheme.DIM)
 	var y := rx + 28.0
 	_measure("c", a + Vector2(0, y), b + Vector2(0, y), c + Vector2(0, y + 40.0), 0)
-	_dashes(b, b - Vector2(0, rx), UiTheme.SAND)
+	_solid_dashes(b, b - Vector2(0, rx), UiTheme.SAND)
 	_mark("r", b + Vector2(16, -rx * 0.5), -1)
 
 
@@ -863,8 +863,8 @@ func _hollow(c: Vector2, rx: float) -> void:
 	_rim(low, rx, ry, 0.0, PI, UiTheme.TEAL)
 	_rim(low, rx, ry, PI, TAU, UiTheme.DIM, true)
 	_rim(top, inner, inner * 0.3, 0.0, TAU, UiTheme.TEAL)
-	_dashes(top + Vector2(inner, 0), low + Vector2(inner, 0))
-	_dashes(top - Vector2(inner, 0), low - Vector2(inner, 0))
+	_solid_dashes(top + Vector2(inner, 0), low + Vector2(inner, 0))
+	_solid_dashes(top - Vector2(inner, 0), low - Vector2(inner, 0))
 	var up := top - Vector2(0, ry + 16.0)
 	_measure("r", up, up + Vector2(inner, 0), up + Vector2(inner * 0.5, -32.0), 0)
 	draw_line(top, up, UiTheme.DIM, 2.0)
@@ -890,12 +890,12 @@ func _inscribed(c: Vector2, rx: float) -> void:
 	_rim(low, wide, ry, PI, TAU, UiTheme.DIM, true)
 	var x := rx + 26.0
 	_measure("h", c - Vector2(x, half), c - Vector2(x, -half), c - Vector2(x + 12.0, 0), 1)
-	_dashes(c, c + Vector2(rx, 0).rotated(-0.32), UiTheme.SAND)
+	_solid_dashes(c, c + Vector2(rx, 0).rotated(-0.32), UiTheme.SAND)
 	_mark("r", c + Vector2(rx * 0.5, -rx * 0.28))
 
 
 ## A flat sector. The angle is drawn to size when the label gives it.
-func _sector(c: Vector2, rad: float) -> void:
+func _solid_sector(c: Vector2, rad: float) -> void:
 	var text: String = spec.get("theta", "")
 	var deg := text.to_float()
 	if deg <= 0.0:
