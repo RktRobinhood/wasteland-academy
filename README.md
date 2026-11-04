@@ -21,7 +21,7 @@ IB Math AA SL gamified review tool. Post-apocalyptic roguelite. Static GitHub Pa
 ├── js/                 ← Game engine modules (js/platform.js is the only file that touches browser storage, links and files)
 ├── content/            ← Question packs (one file per topic)
 ├── vendor/             ← KaTeX and the two fonts, copied in (see vendor/LICENSES.md)
-├── game/               ← Godot 4.7.2 version, published at /next/ (see game/README.md)
+├── game/               ← Godot 4.7.2 version, published at the main address (see game/README.md)
 └── assets/             ← Art assets (avatars, enemies, UI, maps)
 ```
 
@@ -66,15 +66,16 @@ GitHub Actions runs `npm test` on every PR and on pushes to `main`.
 
 ## Godot version (`game/`)
 
-The Godot 4.7.2 rebuild lives in `game/` and is published at `/next/`, beside this
-HTML game. See [`game/README.md`](game/README.md) for how to run, test, export,
+The Godot 4.7.2 rebuild lives in `game/` and is published at the main address, with
+this HTML game at `/classic/`. See [`game/README.md`](game/README.md) for how to run, test, export,
 screenshot it and use the Godot MCP. In short: `./test.sh`, `./export.sh`, `./run.sh`.
 `.github/workflows/pages.yml` publishes the site and the export on every push to `main`.
 
 ## Switching to Godot
 
 One switch decides which game is at the main address: the repository variable
-`GODOT_AT_ROOT`, which `.github/workflows/pages.yml` reads. Unset counts as off.
+`GODOT_AT_ROOT`, which `.github/workflows/pages.yml` reads. Unset counts as off. It
+has been on since November 4, 2026 (FAL-721).
 
 | Switch | `/` | `/classic/` | `/next/` |
 |---|---|---|---|

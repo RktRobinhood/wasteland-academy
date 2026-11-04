@@ -2,11 +2,11 @@
 
 The order of work and the target dates. The Paperclip tasks named in each row hold the detail. Dates are targets, and each one is checked at the milestone before it.
 
-Last updated 2026-10-28 (FAL-375).
+Last updated 2026-11-04 (FAL-722).
 
 ## Now to November 15: the Functions island in Godot
 
-Matt asked for the Godot rebuild after the student trial (GitHub issue #8, planned on FAL-274). The HTML game stays live at the main address until the takeover.
+Matt asked for the Godot rebuild after the student trial (GitHub issue #8, planned on FAL-274). Godot took over the main address on November 4 (FAL-721), and the HTML game moved to `/classic/`.
 
 | By | What | Task |
 |---|---|---|
@@ -14,7 +14,7 @@ Matt asked for the Godot rebuild after the student trial (GitHub issue #8, plann
 | Nov 4 | Exponentials and logs, Graphs and key features with the in-game calculator, Composite and inverse, Rational functions | FAL-274 |
 | Nov 8 | Progress check. It decides whether class phase 1 makes the November 15 build | FAL-291 |
 | Nov 11 | Function basics, Lines and Transformations, the calculator skin, then the 9 extra skills | FAL-274 |
-| Nov 13 | Takeover decision: does the Godot build replace the HTML game at the main address? | FAL-274 |
+| Nov 13 | Planning check: the island order and the split between the tracks (see After November 15) | FAL-274 |
 | Nov 15 | The Functions island in Godot, for mid-term review | FAL-274 |
 
 Art runs alongside: icon animation loops (FAL-323) and a one-region slice of the side-scrolling journey scene (FAL-289, FAL-293).
@@ -23,7 +23,7 @@ Explainer prep also runs alongside, after Thursday's demo: the move list, Spark'
 
 ## After November 15
 
-The explainer player comes first, November 16–22. Then two tracks run side by side: the four remaining islands, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them, and so does the soundtrack below. The island order and the split between the tracks are set at the November 13 decision. After the explainer player, Coder builds the Male Learner two ways, as a 3D model and as a 2D cut-out rig, and CEO compares them at strip size (FAL-368). The result decides how new characters are posed, including B0-LT's cutout in L3.
+The explainer player comes first, November 16–22. Then two tracks run side by side: the four remaining islands, and The Relic lessons below. Class skill trees (FAL-291, phases 2 and 3), the journey scene (FAL-289) and encounters, the rare talking events on the road (FAL-347, code in FAL-349), fit around them, and so does the soundtrack below. The island order and the split between the tracks are set at the November 13 planning check. After the explainer player, Coder builds the Male Learner two ways, as a 3D model and as a 2D cut-out rig, and CEO compares them at strip size (FAL-368). The result decides how new characters are posed, including B0-LT's cutout in L3.
 
 ### Explainers: chalkboard "videos" that are really the engine
 
@@ -35,7 +35,7 @@ Matt's idea is FAL-375, and the plan there is approved. An explainer looks like 
 | Oct 30 – Nov 6 | **E0 Move list.** The shared moves, a plain line for each, and the share of today's worked steps they cover. The target is 9 in 10 (FAL-425). | Curriculum Author |
 | By Nov 9 | **Spark's lines** for every move (FAL-427). | Writer |
 | By Nov 13 | **Voices.** Two takes of every line, made with VoxCPM2 on the local GPU (FAL-428). | Audio Designer |
-| Nov 16–22 | **E1 Player** at `/next/?explain`, with "Watch it" on every worked solution and a "Your turn" question at the end (FAL-429). | Coder |
+| Nov 16–22 | **E1 Player** at `/?explain`, with "Watch it" on every worked solution and a "Your turn" question at the end (FAL-429). | Coder |
 | Ongoing | Each new question class ships with move tags. | Coder |
 
 ### The Relic: playable lessons
