@@ -134,17 +134,8 @@ static func method_line(s: Dictionary, tech: String) -> String:
 	return "A surveyor stands %s and asks whoever comes by until there are %d %s and %d %s." % [c.spot, s.q[0], group(s, 0), s.q[1], group(s, 1)]
 
 
-static func claim(tag: String, text: String) -> Dictionary:
-	return {"form": tag, "vals": [], "text": text}
-
-
-## The right sentence and the wrong ones: [[text, ref], ...], each with the misconception it shows.
 static func claims(right: String, wrongs_in: Array) -> Dictionary:
-	var ans := Answer.make("claim", claim("right", right))
-	var ws: Array = []
-	for i in wrongs_in.size():
-		ws.append(wrong(claim("w%d" % i, wrongs_in[i][0]), wrongs_in[i][1]))
-	return {"answer": ans, "wrongs": ws}
+	return DerivativeMeaningViews.claim_answer(right, wrongs_in)
 
 
 static func count_ans(label: String, n: int) -> Dictionary:
@@ -243,7 +234,7 @@ func u_best_technique(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			why = ["The mix must match, so the groups are filled in proportion.", "With no list there can be no random draw inside a group."]
 			flawed = ["With no list, a random draw inside a group can't be done, and asking the first to come by could miss the mix.", "Filling each group as people come by is what is left."]
 		"systematic":
-			lines = ["The %d %s pass %s one at a time during a shift." % [s.N, c.who, c.spot], "There is no list. The surveyor wants %d of them, spread evenly along the line, from a random start." % s.n]
+			lines = ["The %d %s come by %s one at a time during a shift." % [s.N, c.who, c.spot], "There is no list. The surveyor wants %d of them, spread evenly along the line, from a random start." % s.n]
 			wrongs = [[NAMES.simple, R_INTERVAL], [NAMES.stratified, ""], [NAMES.quota, ""]]
 			why = ["Spread evenly along a line means a fixed interval: every %s." % ordinal(s.k), "A random start then fixes the rest."]
 			flawed = ["With no list there is nothing to draw numbers from.", "No groups are asked for, so a fixed interval from a random start is what is left."]

@@ -96,7 +96,7 @@ static func _ask_clear(rng: Seeded, s: Dictionary) -> bool:
 			return _uneven(rng, s)
 		"random-not-perfect":
 			s.g = rng.int_in(0, 1)
-			var off := rng.int_in(2, maxi(2, n / 4))
+			var off := rng.int_in(2, maxi(2, n / 8))
 			if s.q[s.g] - off < 1:
 				return false
 			s.got = [s.q[0] - off, s.q[1] + off] if s.g == 0 else [s.q[0] + off, s.q[1] - off]

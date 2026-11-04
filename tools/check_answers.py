@@ -12731,7 +12731,7 @@ def check_sampling(q):
     elif u == "best-technique":
         text = " ".join(L)
         if "There is no list. " in text:
-            mt = re.fullmatch(rf"The (\d+) {who} pass {spot} one at a time during a shift\.", L[0])
+            mt = re.fullmatch(rf"The (\d+) {who} come by {spot} one at a time during a shift\.", L[0])
             need(mt is not None, f"can't read {L[0]!r}")
             need("spread evenly along the line, from a random start" in L[1], f"{L[1]!r}")
             want, wrongs = SM_NAMES["systematic"], {SM_T + "1": {SM_NAMES["simple"]}}

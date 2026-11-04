@@ -3234,6 +3234,45 @@
     "the most under-represented group falls short by the most and by the largest share, and is not the group with the fewest in the sample",
     "a sample that misses the mix misses it by at least 2"
    ]
+  },
+  "cumulative-frequency": {
+   "name": "Grouped data as a cumulative frequency curve or table",
+   "summary": "A data set known by its running totals. On a curve, on a grid of 20 squares by 20, the total is a multiple of 20 and every value read, right or wrong, sits on a corner of the grid. In a table, classes are equal and estimates from them are clean. Any reading, count, cut-off or frequency can be asked of either.",
+   "quantities": [
+    {
+     "name": "n",
+     "is": "the total",
+     "pick": "a multiple of 20 from 40 to 240"
+    },
+    {
+     "name": "dx, dy",
+     "is": "one square across and up",
+     "pick": "dx from the story: 1, 2, 5, 10 or 20; dy = n/20"
+    },
+    {
+     "name": "knots",
+     "is": "the grid points the curve goes through",
+     "pick": "rising strictly from height 0 to n on an S shape, at the quartiles and at every level or value a question reads"
+    },
+    {
+     "name": "bs, fs, cf",
+     "is": "the class boundaries, the frequencies and the running totals",
+     "pick": "on a curve, boundaries at knots; in a table, four or five equal classes"
+    },
+    {
+     "name": "pct, top, v",
+     "is": "what a question reads",
+     "pick": "a percentage, a number at the top, or a value"
+    }
+   ],
+   "clean": [
+    "every reading of a curve, right or wrong, is a corner of the grid",
+    "the curve rises strictly, between 0.25 and 6 squares up per square across between knots",
+    "the median is not at the middle of the axis",
+    "an estimate from a table ends in at most one decimal, and a count from a table is whole",
+    "a percentile is never asked on n = 100, where k and k% of n are the same",
+    "all Paper 1"
+   ]
   }
  },
  "types": [
@@ -21676,8 +21715,9 @@
    "id": "t4-cumulative-frequency",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Read and use a cumulative frequency graph",
+   "summary": "Grouped data as a cumulative frequency curve on a grid, or as a table of classes: read the median, quartiles, percentiles, IQR and range, count how many lie above, below or between values, find a cut-off, estimate by interpolating the table, and build the running totals from the frequencies and back, including which points are plotted.",
    "syllabus": [
     "4.2"
    ],
@@ -21685,6 +21725,698 @@
     "SL4.2.cumfreq-quartiles",
     "SL4.2.cumfreq-count",
     "SL4.2.cumfreq-build"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "find the height on the vertical axis: n/2, n/4, 3n/4, k% of n, or n minus the top",
+    "go across to the curve and down to the value, or up from a value and across",
+    "subtract from n for 'more than', or two readings for 'between'",
+    "with only a table, take each class as evenly spread and interpolate",
+    "keep a running total, or subtract consecutive totals, to move between frequencies and cumulative frequencies"
+   ],
+   "given": [
+    "a cumulative frequency curve on a grid, with its scale",
+    "a table of classes with frequencies and cumulative frequencies",
+    "a table of running totals",
+    "a limit, or the size of the whole group the data came from"
+   ],
+   "asked": "The median, a quartile, the IQR, a percentile or the range; how many or what percentage lie above, below or between values; a cut-off for the top; a cumulative frequency, a frequency, or p and q in a table; the point plotted for a class, where the curve starts, or which curve is right.",
+   "answerForms": [
+    "exact",
+    "exact decimal",
+    "pick the graph",
+    "a point"
+   ],
+   "randomise": [
+    "the story, with its units and scale",
+    "the total, a multiple of 20",
+    "the shape of the curve",
+    "the class boundaries",
+    "the value, percentage or top asked"
+   ],
+   "constraints": [
+    "all Paper 1, so every reading of the curve is a corner of the grid, right or wrong",
+    "one square up is n/20, so every 5% of n is a grid line",
+    "an estimate from a table ends in at most one decimal, and a count from a table is whole"
+   ],
+   "formats": [
+    "value",
+    "mcq",
+    "graph-pick"
+   ],
+   "situation": "cumulative-frequency",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "a cumulative frequency curve on a grid fine enough to read, with its scale in words"
+    },
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "classes as inequalities with frequencies, cumulative frequencies, or both"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "median-from-graph",
+     "given": [
+      "the curve"
+     ],
+     "asked": "the median",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-quartiles"
+     ]
+    },
+    {
+     "id": "quartile-from-graph",
+     "given": [
+      "the curve"
+     ],
+     "asked": "a quartile",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-quartiles"
+     ]
+    },
+    {
+     "id": "iqr-from-graph",
+     "given": [
+      "the curve"
+     ],
+     "asked": "the interquartile range",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-quartiles"
+     ]
+    },
+    {
+     "id": "percentile-from-graph",
+     "given": [
+      "the curve"
+     ],
+     "asked": "a percentile",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-quartiles"
+     ]
+    },
+    {
+     "id": "range-from-graph",
+     "given": [
+      "the curve"
+     ],
+     "asked": "the range, from where the curve starts and ends",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-quartiles"
+     ]
+    },
+    {
+     "id": "median-from-table",
+     "given": [
+      "a table of classes"
+     ],
+     "asked": "the median, by interpolating",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-quartiles"
+     ]
+    },
+    {
+     "id": "quartile-from-table",
+     "given": [
+      "a table of classes"
+     ],
+     "asked": "a quartile, by interpolating",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-quartiles"
+     ]
+    },
+    {
+     "id": "iqr-from-table",
+     "given": [
+      "a table of classes"
+     ],
+     "asked": "the interquartile range, by interpolating",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-quartiles"
+     ]
+    },
+    {
+     "id": "percentile-from-table",
+     "given": [
+      "a table of classes"
+     ],
+     "asked": "a percentile, by interpolating",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-quartiles"
+     ]
+    },
+    {
+     "id": "count-below",
+     "given": [
+      "the curve",
+      "a value"
+     ],
+     "asked": "how many are at or below it",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "count-above",
+     "given": [
+      "the curve",
+      "a value"
+     ],
+     "asked": "how many are above it",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "count-between",
+     "given": [
+      "the curve",
+      "two values"
+     ],
+     "asked": "how many are between them",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "percent-above",
+     "given": [
+      "the curve",
+      "a value"
+     ],
+     "asked": "the percentage above it",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "percentile-of-value",
+     "given": [
+      "the curve",
+      "a value"
+     ],
+     "asked": "which percentile it is",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "cutoff-top",
+     "given": [
+      "the curve",
+      "how many are at the top"
+     ],
+     "asked": "the lowest value at the top",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "cutoff-percent",
+     "given": [
+      "the curve",
+      "the percentage above k"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "share-of-limit",
+     "given": [
+      "the curve",
+      "a limit and a percentage of it"
+     ],
+     "asked": "how many are above that",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "scale-to-population",
+     "given": [
+      "the curve of a sample",
+      "the size of the whole group"
+     ],
+     "asked": "how many of the whole group are above a value",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "count-below-table",
+     "given": [
+      "a table of classes",
+      "a value inside a class"
+     ],
+     "asked": "how many are at or below it, by interpolating",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "count-above-table",
+     "given": [
+      "a table of classes",
+      "a value inside a class"
+     ],
+     "asked": "how many are above it, by interpolating",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "count-between-table",
+     "given": [
+      "a table of classes",
+      "two values inside classes"
+     ],
+     "asked": "how many are between them, by interpolating",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "cutoff-table",
+     "given": [
+      "a table of classes",
+      "how many are at the top"
+     ],
+     "asked": "the lowest value at the top, by interpolating",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-count"
+     ]
+    },
+    {
+     "id": "cf-entry",
+     "given": [
+      "the frequencies and the totals so far"
+     ],
+     "asked": "a cumulative frequency",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-build"
+     ]
+    },
+    {
+     "id": "last-frequency",
+     "given": [
+      "the frequencies but one, and the last total"
+     ],
+     "asked": "the missing frequency",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-build"
+     ]
+    },
+    {
+     "id": "frequency-from-cf",
+     "given": [
+      "a table of running totals"
+     ],
+     "asked": "a class's frequency",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-build"
+     ]
+    },
+    {
+     "id": "frequency-from-graph",
+     "given": [
+      "the curve"
+     ],
+     "asked": "a class's frequency",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-build"
+     ]
+    },
+    {
+     "id": "p-q-from-graph",
+     "given": [
+      "the curve",
+      "a frequency table with p and q"
+     ],
+     "asked": "p and q",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-build"
+     ]
+    },
+    {
+     "id": "plot-point",
+     "given": [
+      "a table of classes"
+     ],
+     "asked": "the point plotted for a class",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-build"
+     ]
+    },
+    {
+     "id": "curve-start",
+     "given": [
+      "a table of classes"
+     ],
+     "asked": "where the curve starts",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-build"
+     ]
+    },
+    {
+     "id": "pick-curve",
+     "given": [
+      "a table of classes"
+     ],
+     "asked": "which of four curves is right",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.cumfreq-build"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.2.cumfreq-quartiles",
+     "method": "across-and-down",
+     "suits": [
+      "median-from-graph",
+      "quartile-from-graph",
+      "iqr-from-graph",
+      "percentile-from-graph",
+      "range-from-graph"
+     ]
+    },
+    {
+     "skill": "SL4.2.cumfreq-quartiles",
+     "method": "interpolate-table",
+     "suits": [
+      "median-from-table",
+      "quartile-from-table",
+      "iqr-from-table",
+      "percentile-from-table"
+     ]
+    },
+    {
+     "skill": "SL4.2.cumfreq-count",
+     "method": "read-and-subtract",
+     "suits": [
+      "count-below",
+      "count-above",
+      "count-between",
+      "percent-above",
+      "percentile-of-value",
+      "cutoff-top",
+      "cutoff-percent",
+      "share-of-limit",
+      "scale-to-population"
+     ]
+    },
+    {
+     "skill": "SL4.2.cumfreq-count",
+     "method": "interpolate-table",
+     "suits": [
+      "count-below-table",
+      "count-above-table",
+      "count-between-table",
+      "cutoff-table"
+     ]
+    },
+    {
+     "skill": "SL4.2.cumfreq-build",
+     "method": "running-total",
+     "suits": [
+      "cf-entry",
+      "last-frequency"
+     ]
+    },
+    {
+     "skill": "SL4.2.cumfreq-build",
+     "method": "difference-back",
+     "suits": [
+      "frequency-from-cf",
+      "frequency-from-graph",
+      "p-q-from-graph"
+     ]
+    },
+    {
+     "skill": "SL4.2.cumfreq-build",
+     "method": "plot-upper-bounds",
+     "suits": [
+      "plot-point",
+      "curve-start",
+      "pick-curve"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A cumulative frequency of 30 at x = 20 means that 30 values are equal to 20.",
+     "answer": "False: it is a running total, so 30 values are at or below 20.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The 90th percentile is read across from 90 on the vertical axis.",
+     "answer": "Sometimes: only when n is 100. Otherwise it is across from 90% of n.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "The curve is steepest between 20 and 30. What does that say about the data?",
+     "answer": "More values lie in that stretch than in any other of the same width: steep means many, flat means few.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.2.cumfreq-quartiles#0",
+     "text": "Reading the median halfway along the horizontal axis instead of from n/2 on the vertical axis",
+     "as": "distractor",
+     "in": [
+      "median-from-graph",
+      "median-from-table"
+     ],
+     "wrong": "the middle of the axis"
+    },
+    {
+     "ref": "SL4.2.cumfreq-quartiles#1",
+     "text": "Finding Q3 − Q1 on the cumulative frequency axis instead of on the data axis",
+     "as": "distractor",
+     "in": [
+      "iqr-from-graph",
+      "iqr-from-table"
+     ],
+     "wrong": "3n/4 − n/4 = n/2"
+    },
+    {
+     "ref": "SL4.2.cumfreq-quartiles#2",
+     "text": "Reading the 90th percentile from 90 on the vertical axis when n is not 100",
+     "as": "distractor",
+     "in": [
+      "percentile-from-graph",
+      "percentile-from-table"
+     ],
+     "wrong": "the value at k on the vertical axis"
+    },
+    {
+     "ref": "SL4.2.cumfreq-count#0",
+     "text": "Giving the cumulative frequency at 65 as the number who scored more than 65 (it is the number at or below)",
+     "as": "distractor",
+     "in": [
+      "count-above",
+      "percent-above",
+      "share-of-limit",
+      "scale-to-population",
+      "count-above-table"
+     ],
+     "wrong": "the reading itself, without subtracting from n"
+    },
+    {
+     "ref": "SL4.2.cumfreq-count#1",
+     "text": "For the top 30, reading across from 30 on the vertical axis instead of from n − 30",
+     "as": "distractor",
+     "in": [
+      "cutoff-top",
+      "cutoff-percent",
+      "cutoff-table"
+     ],
+     "wrong": "the value at t on the vertical axis, not at n − t"
+    },
+    {
+     "ref": "SL4.2.cumfreq-build#0",
+     "text": "Plotting cumulative frequencies at class midpoints instead of upper boundaries",
+     "as": "distractor",
+     "in": [
+      "plot-point",
+      "pick-curve"
+     ],
+     "wrong": "the point at the middle of the class"
+    },
+    {
+     "ref": "SL4.2.cumfreq-build#1",
+     "text": "Reading a cumulative frequency as the frequency of that single class",
+     "as": "distractor",
+     "in": [
+      "cf-entry",
+      "frequency-from-cf",
+      "frequency-from-graph",
+      "p-q-from-graph",
+      "plot-point",
+      "pick-curve"
+     ],
+     "wrong": "the running total for the frequency, or the frequency for the running total"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p1-q07.a",
