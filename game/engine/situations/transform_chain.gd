@@ -18,35 +18,91 @@ extends RefCounted
 ##   key     key points of f on the grid [[x, y], ...] (with their images on the grid on
 ##           Paper 1), and win, a window [x0, x1, y0, y1] that holds f and g
 ##   paper   1, or 2: decimal moves and three-move chains, worked with a calculator
+## need.kind "models" makes two waves instead (relate-two-models): w, a1, d1, a2, d2, as Q,
+## and need.kind "log" a log-law disguise (describe-log-rewrite): lb, le and lform, "shift"
+## for log_b(bⁿx) or "power" for log_b(xⁿ).
 ##
 ## need: fams (the bases allowed), pat (the shape of the chain, see _moves), rep and paper.
-## A graph or table needs two key points, so only a base with grid points can show one.
+## A graph or table needs two key points (one with `marks: 1`), so only a base with grid
+## points can show one, and a graph's key points are cut to those two, in a window that
+## stays readable.
 ## A reflection is only asked of a base that is neither even nor odd (`ASYM`), or −f and
 ## f(−x) would be the same graph. A horizontal stretch isn't asked of 1/x or a log, where
 ## it is also a vertical stretch or a translation; describe-log-rewrite is about just that.
 
 const ALL := ["sq", "cube", "root", "recip", "exp", "ln", "log2", "sin"]
-const ASYM := ["root", "exp", "ln", "log2", "vert", "pts"]
+const ASYM := ["root", "exp", "ln", "log2", "vert", "poly", "pts"]
 const GRID := ["pts", "sq", "cube", "root", "recip", "log2", "vert"]
 const NO_HS := ["recip", "ln", "log2"]
 const STRETCH_P1 := [[2, 1], [3, 1], [1, 2]]
 const V_P2 := [[3, 2], [5, 2], [2, 5], [3, 5], [6, 5]]
 const H_P2 := [[5, 2], [2, 5], [4, 5], [5, 4]]
+## The widest window, in units, a graph may need.
+const SPAN := 26
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var paper := maxi(int(need.get("paper", 1)), 1)
+	match need.get("kind", ""):
+		"models":
+			return _models(rng, paper)
+		"log":
+			return _log(rng)
 	var fams: Array = need.get("fams", ALL)
 	var rep: String = need.get("rep", "equation")
-	if rep in ["graph", "table"]:
+	var drawn: bool = rep in ["graph", "table"]
+	if drawn:
 		var on_grid: Array = fams.filter(func(f): return f in GRID)
 		fams = on_grid if not on_grid.is_empty() else ["pts"]
+	else:
+		# A graph in straight pieces has no rule to write down.
+		var ruled: Array = fams.filter(func(f): return f != "pts")
+		if not ruled.is_empty():
+			fams = ruled
+	var marks := int(need.get("marks", 2))
 	for i in 500:
 		var s := _try(rng, fams, str(need.get("pat", "tr")), paper)
-		if s.is_empty() or (rep in ["graph", "table"] and two_apart(s.key).is_empty()):
+		if s.is_empty():
 			continue
-		return s
+		if not drawn:
+			return s
+		var two := two_apart(s.key)
+		if marks == 2 and two.is_empty():
+			continue
+		s.key = two if marks == 2 else [s.key[0]]
+		s.win = window(s, [s.map])
+		if s.win[1] - s.win[0] <= SPAN and s.win[3] - s.win[2] <= SPAN:
+			return s
 	return {}
+
+
+## Two waves of one period. Paper 1: q's amplitude a whole multiple or half of p's. Paper 2:
+## a ratio that needs a calculator, so the answers are to 3 s.f.
+static func _models(rng: Seeded, paper: int) -> Dictionary:
+	for i in 500:
+		var a1 := rng.int_in(1, 4) if paper == 1 else rng.int_in(3, 9)
+		var a2 := rng.int_in(1, 12) if paper == 2 else 0
+		if paper == 1:
+			var pick: Array = rng.pick([[2, 1], [3, 1], [1, 2]])
+			if a1 * pick[0] % pick[1] != 0:
+				continue
+			a2 = a1 * pick[0] / pick[1]
+		var d1 := ExtensionViews.nonzero(rng, -6, 6)
+		var d2 := ExtensionViews.nonzero(rng, -9, 9)
+		var a := Q.new(a2, a1)
+		var d := Q.new(d2).sub(a.mul(d1))
+		if a.eq(1) or d.is_zero():
+			continue
+		if paper == 2 and (Fmt.dec(a) != a.text() or not Answer.rounds_clearly(a.to_float()) or not Answer.rounds_clearly(absf(d.to_float()))):
+			continue
+		return {"kind": "models", "paper": paper, "w": Q.new(rng.int_in(2, 5)), "a1": Q.new(a1), "d1": Q.new(d1), "a2": Q.new(a2), "d2": Q.new(d2)}
+	return {}
+
+
+static func _log(rng: Seeded) -> Dictionary:
+	var b: int = rng.pick([2, 3, 5, 10])
+	var top := 4 if b == 2 else (3 if b == 3 else 2)
+	return {"kind": "log", "paper": 1, "lb": b, "le": rng.int_in(2, top), "lform": "shift" if rng.chance(0.5) else "power"}
 
 
 static func _try(rng: Seeded, fams: Array, pat: String, paper: int) -> Dictionary:
@@ -121,7 +177,7 @@ static func hs(rng: Seeded, paper: int) -> Dictionary:
 	return {"k": "hs", "a": h_factor(rng, paper)}
 
 
-static func tr(c: Variant, d: Variant) -> Dictionary:
+static func slide(c: Variant, d: Variant) -> Dictionary:
 	return {"k": "tr", "c": Q.of(c), "d": Q.of(d)}
 
 
@@ -130,13 +186,19 @@ static func tr(c: Variant, d: Variant) -> Dictionary:
 ##   hs-vt, vs-vt, vs-tr, hs-ht  two moves, in that order
 ##   ref, ref-one (and one other move), ref-tr
 ##   chain   two moves on Paper 1, three on Paper 2, stretches before the translation
+##   two     a stretch or a reflection, then a translation
+##   factor  hs by 1/b for a whole b on Paper 1, then ht: f(bx − e) with b whole
+##   pair    a stretch and a translation in the same direction (their order matters)
+##   mixed   pair, or a stretch and a translation in the other direction (it doesn't)
+##   asym    a vertical stretch or nothing, then a translation
+##   bracket factor, or an upward translation then a vertical stretch: a(f(x) + d)
 static func _moves(rng: Seeded, s: Dictionary, pat: String) -> Array:
 	var p: int = s.paper
 	var can_hs: bool = not s.fam in NO_HS
 	var refl: Dictionary = {"k": "ry" if rng.chance(0.5) else "rx"}
-	var both := tr(shift(rng, p), shift(rng, p))
-	var up := tr(0, shift(rng, p))
-	var across := tr(shift(rng, p), 0)
+	var both := slide(shift(rng, p), shift(rng, p))
+	var up := slide(0, shift(rng, p))
+	var across := slide(shift(rng, p), 0)
 	match pat:
 		"tr":
 			return [both]
@@ -169,12 +231,41 @@ static func _moves(rng: Seeded, s: Dictionary, pat: String) -> Array:
 			if can_hs:
 				other.append(hs(rng, p))
 			return [refl, rng.pick(other)]
-		"chain":
+		"chain", "any-chain":
 			var stretch: Dictionary = hs(rng, p) if can_hs and rng.chance(0.5) else vs(rng, p)
 			if p == 1:
 				return [stretch, both]
 			var second: Dictionary = refl if s.fam in ASYM else (vs(rng, p) if stretch.k == "hs" else (hs(rng, p) if can_hs else {}))
 			return [stretch, second, both] if not second.is_empty() else [stretch, both]
+		"two":
+			var pool: Array = [vs(rng, p)]
+			if can_hs:
+				pool.append(hs(rng, p))
+			if s.fam in ASYM:
+				pool.append(refl)
+			return [rng.pick(pool), both]
+		"factor":
+			if not can_hs:
+				return []
+			if p == 2:
+				return [hs(rng, p), across]
+			return [{"k": "hs", "a": Q.new(1, rng.int_in(2, 4))}, across]
+		"pair":
+			if can_hs and rng.chance(0.5):
+				return [hs(rng, p), across]
+			return [vs(rng, p), up]
+		"mixed":
+			if rng.chance(0.25):
+				return [hs(rng, p), up] if can_hs and rng.chance(0.5) else [vs(rng, p), across]
+			if can_hs and rng.chance(0.5):
+				return [hs(rng, p), across]
+			return [vs(rng, p), up]
+		"asym":
+			return [vs(rng, p), both] if rng.chance(0.5) else [both]
+		"bracket":
+			if can_hs and rng.chance(0.5):
+				return [{"k": "hs", "a": Q.new(1, rng.int_in(2, 4))}, across]
+			return [up, vs(rng, p)]
 	return []
 
 
@@ -219,8 +310,13 @@ static func inverse(m: Dictionary) -> Dictionary:
 		"vs", "hs":
 			return {"k": m.k, "a": Q.new(1).div(m.a)}
 		"tr":
-			return tr(m.c.neg(), m.d.neg())
+			return slide(m.c.neg(), m.d.neg())
 	return m
+
+
+## The map that leaves everything where it is.
+static func identity() -> Dictionary:
+	return {"A": Q.new(1), "B": Q.new(1), "C": Q.new(0), "D": Q.new(0)}
 
 
 ## Where (x, y) lands under a map: [x / B + C, A·y + D].
@@ -422,20 +518,29 @@ static func f_of(s: Dictionary, x: String) -> String:
 
 ## A·f(B(x − C)) + D with the rule written in, for any map.
 static func rule(s: Dictionary, map: Dictionary) -> String:
-	var body := f_of(s, inner(s, map))
-	var a: Q = map.A
+	return rule_inner(s, map.A, inner(s, map), map.D)
+
+
+## The same with the input written by the caller.
+static func rule_inner(s: Dictionary, a: Q, input: String, d: Q) -> String:
+	var body := f_of(s, input)
+	var plain: bool = input == "x"
+	var map_d := d
 	if s.fam == "pts":
-		return lead(s, a) + body + plus(s, map.D)
+		return lead(s, a) + body + plus(s, map_d)
 	if a.eq(1):
-		return body + plus(s, map.D)
+		return body + plus(s, map_d)
 	if s.fam in ["vert", "poly"]:
-		return "%s(%s)%s" % [lead(s, a), body, plus(s, map.D)]
+		return "%s(%s)%s" % [lead(s, a), body, plus(s, map_d)]
 	if s.fam == "recip":
-		var num := n(s, a)
-		return num + body.trim_prefix("1") + plus(s, map.D)
+		# 1/(2(x − 3)) for a half, never 1/2/(x − 3).
+		if s.get("paper", 1) == 1 and not a.is_int():
+			var sized: String = "%dx" % a.d if plain else "%d(%s)" % [a.d, input]
+			return "%s/(%s)%s" % [n(s, a.n), sized, plus(s, map_d)]
+		return n(s, a) + body.trim_prefix("1") + plus(s, map_d)
 	var gap := " " if s.fam in ["ln", "log2", "sin"] else ""
 	var head := lead(s, a)
-	return head + (gap if head != "−" else "") + body + plus(s, map.D)
+	return head + (gap if head != "−" and head != "" else "") + body + plus(s, map_d)
 
 
 static func f_rule(s: Dictionary) -> String:
@@ -456,6 +561,12 @@ static func vs_text(s: Dictionary, a: Variant) -> String:
 
 static func hs_text(s: Dictionary, a: Variant) -> String:
 	return "a horizontal stretch with scale factor %s" % n(s, a)
+
+
+## f in words, for a words view.
+const NAMES := {"sq": "the squaring function x²", "cube": "the cubing function x³", "root": "the square root function √x",
+	"recip": "the reciprocal function 1/x", "exp": "the exponential function e^x", "ln": "the natural log function ln x",
+	"log2": "the base 2 log function log₂ x", "sin": "the sine function sin x"}
 
 
 const RX := "a reflection in the x-axis"

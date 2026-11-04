@@ -93,6 +93,7 @@ static var SITUATIONS := {
 	"integration": [IntegrationSituation, IntegrationViews],
 	"definite-integral": [DefiniteIntegralSituation, DefiniteIntegralViews],
 	"motion": [MotionSituation, MotionViews],
+	"transform-chain": [TransformChainSituation, TransformChainViews],
 }
 
 static var _cat: Dictionary = {}

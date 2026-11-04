@@ -11697,6 +11697,719 @@ def check_motion(q):
     return None, None
 
 
+# ── Transformations: the transform-chain situation (FAL-424) ─
+# Everything is worked again from the situation's base and moves: the chain is composed
+# here, every rule and every sentence an option writes is read back into a curve or a
+# chain, and an option is right only if it is the same curve as the truth. A graph in
+# straight pieces has no rule, so the letter f stands for a cubic with no symmetry.
+
+TC_NUM = r"−?\d+(?:\.\d+)?(?:/\d+)?"
+TC_F = lambda t: t**3 + 2 * t**2 + t + 7
+TC_P1_FACTORS = {sp.Rational(*p) for p in [(2, 1), (3, 1), (1, 2), (1, 3), (1, 4)]}
+TC_LOCALS = {"x": X, "sqrt": sp.sqrt, "exp": sp.exp, "log": sp.log, "sin": sp.sin,
+             "log2": lambda t: sp.log(t) / sp.log(2), "f": TC_F}
+TC_PROBES = [sp.Rational(n, 7) for n in range(-61, 62, 8)] + [sp.Rational(n, 3) for n in (100, 151, -103, -160)]
+
+
+def tc_num(t):
+    return R(t.replace("−", "-"))
+
+
+def tc_expr(text):
+    """A function as the game writes it, with the letter f or a rule, as SymPy."""
+    t = text.strip().replace("−", "-").replace("½", "(1/2)").replace("²", "**2").replace("³", "**3")
+    t = t.replace("√(", "sqrt(").replace("√x", "sqrt(x)").replace("e^(", "exp(").replace("e^x", "exp(x)")
+    t = t.replace("ln(", "log(").replace("ln x", "log(x)").replace("log₂(", "log2(").replace("log₂ x", "log2(x)").replace("sin x", "sin(x)")
+    need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the function {text!r}")
+    return parse_expr(t, transformations=TRANSFORMS, local_dict=TC_LOCALS)
+
+
+def tc_moves(text):
+    """A chain of moves as a sentence."""
+    out = []
+    for part in text.split(", then "):
+        m = re.fullmatch(rf"a (vertical|horizontal) stretch with scale factor ({TC_NUM})", part)
+        if m:
+            out.append({"k": "vs" if m[1] == "vertical" else "hs", "a": tc_num(m[2])})
+            continue
+        m = re.fullmatch(rf"a translation by the vector \(({TC_NUM}), ({TC_NUM})\)", part)
+        if m:
+            out.append({"k": "tr", "c": tc_num(m[1]), "d": tc_num(m[2])})
+            continue
+        if re.fullmatch(rf"a stretch with scale factor {TC_NUM}", part):
+            out.append({"k": "vs", "a": sp.Integer(0)})  # no direction: the wrong curve whatever it is
+            continue
+        m = re.fullmatch(r"a reflection in the (x|y)-axis", part)
+        need(m is not None, f"can't read the move {part!r}")
+        out.append({"k": "r" + m[1]})
+    return out
+
+
+def tc_given_moves(g):
+    return [{k: (R(v) if k != "k" else v) for k, v in m.items()} for m in g["moves"]]
+
+
+def tc_compose(moves):
+    """(A, B, C, D) of g(x) = A f(B(x − C)) + D, the chain walked one move at a time."""
+    px, qx, py, qy = sp.Integer(1), sp.Integer(0), sp.Integer(1), sp.Integer(0)
+    for m in moves:
+        if m["k"] == "vs":
+            py, qy = py * m["a"], qy * m["a"]
+        elif m["k"] == "hs":
+            px, qx = px * m["a"], qx * m["a"]
+        elif m["k"] == "rx":
+            py, qy = -py, -qy
+        elif m["k"] == "ry":
+            px, qx = -px, -qx
+        else:
+            qx, qy = qx + m["c"], qy + m["d"]
+    return (py, 1 / px, qx, qy)
+
+
+def tc_image(M, x, y):
+    A, B, C, D = M
+    return (x / B + C, A * y + D)
+
+
+def tc_base(g):
+    fam = g["fam"]
+    return {"sq": X**2, "cube": X**3, "root": sp.sqrt(X), "recip": 1 / X, "exp": sp.exp(X), "ln": sp.log(X),
+            "log2": sp.log(X) / sp.log(2), "sin": sp.sin(X), "pts": TC_F(X),
+            "vert": (X - R(g.get("u", 0)))**2 + R(g.get("v", 0)),
+            "poly": X**2 + R(g.get("u", 0)) * X + R(g.get("v", 0))}[fam]
+
+
+def tc_curve(g, M):
+    A, B, C, D = M
+    return A * tc_base(g).subs(X, B * (X - C)) + D
+
+
+def tc_same(e1, e2):
+    """Whether two functions are one curve, on the same x-values, at the probes."""
+    f1, f2 = sp.lambdify(X, e1, "mpmath"), sp.lambdify(X, e2, "mpmath")
+    hit = 0
+    for x in TC_PROBES:
+        vals = []
+        for f in (f1, f2):
+            try:
+                v = mpmath.mpc(f(mpmath.mpf(x.p) / x.q))
+                vals.append(v.real if abs(v.imag) < 1e-20 else None)
+            except (ZeroDivisionError, ValueError):
+                vals.append(None)
+        if (vals[0] is None) != (vals[1] is None):
+            return False
+        if vals[0] is not None:
+            hit += 1
+            if abs(vals[0] - vals[1]) > 1e-9 * max(1, abs(vals[0])):
+                return False
+    return hit > 0
+
+
+def tc_clean(q, g):
+    moves = tc_given_moves(g)
+    need(1 <= len(moves) <= (2 if q["paper"] == 1 else 3), f"{len(moves)} moves on Paper {q['paper']}")
+    M = tc_compose(moves)
+    need(tuple(R(g["map"][k]) for k in "ABCD") == M, "the situation's map is not its moves")
+    for m in moves:
+        if q["paper"] == 1:
+            if "a" in m:
+                need(m["a"] in TC_P1_FACTORS, f"scale factor {m['a']} on Paper 1")
+            if m["k"] == "tr":
+                need(m["c"].q == 1 and m["d"].q == 1, "a Paper 1 translation is not whole")
+    for k in g["key"]:
+        x, y = R(k[0]), R(k[1])
+        if g["fam"] != "pts":
+            need(abs(sp.N(tc_base(g).subs(X, x) - y)) < 1e-12, f"key point ({x}, {y}) is not on f")
+        if q["paper"] == 1:
+            ix, iy = tc_image(M, x, y)
+            need(ix.q == 1 and iy.q == 1, f"the image of ({x}, {y}) is off the grid")
+    return moves, M
+
+
+def tc_pts_in(gr, want):
+    """The graph's marked points are the wanted ones, each with its coordinates in its label."""
+    got = sorted((round(p["x"], 6), round(p["y"], 6)) for p in gr["points"])
+    need(got == sorted((round(float(x), 6), round(float(y), 6)) for x, y in want), f"marked points {got}")
+
+
+def tc_curves_are(gr, curves, e):
+    for c in curves:
+        fn = sp.lambdify(X, e, "mpmath")
+        for x, y in c[::9]:
+            v = mpmath.mpc(fn(mpmath.mpf(x)))
+            need(abs(v.imag) < 1e-9 and abs(float(v.real) - y) < 1e-6 * max(1, abs(y)), f"a curve misses {e} at x = {x}")
+
+
+def tc_piece_map(curve, nodes, M):
+    want = sorted(tc_image(M, R(n[0]), R(n[1])) for n in nodes)
+    got = sorted((sp.Float(p[0]), sp.Float(p[1])) for p in curve)
+    need(len(got) == len(want) and all(abs(a - float(u)) + abs(b - float(v)) < 1e-9 for (a, b), (u, v) in zip(got, want)), "the drawn corners are not the images")
+
+
+def tc_drawn(gr, curves, g, M):
+    """Curves are f moved by M: its pieces' corners, or its rule at the samples."""
+    if g["fam"] == "pts":
+        need(len(curves) == 1, "a straight-piece graph in pieces")
+        tc_piece_map(curves[0], g["nodes"], M)
+    else:
+        tc_curves_are(gr, curves, tc_curve(g, M))
+
+
+def tc_lines_pair(q, g, M):
+    """The question shows f and g, as rules or on a graph, and P, Q move as the chain says."""
+    I = (1, 1, 0, 0)
+    if q["view"]["rep"] == "graph":
+        gr = q["graph"]
+        k = gr["sand_from"]
+        tc_drawn(gr, gr["curves"][:k], g, I)
+        tc_drawn(gr, gr["curves"][k:], g, M)
+        want = []
+        for p in g["key"][:2]:
+            x, y = R(p[0]), R(p[1])
+            want += [(x, y), tc_image(M, x, y)]
+        tc_pts_in(gr, want)
+    else:
+        L = q["lines"]
+        need(L[0].startswith("f(x) = ") and L[1].startswith("g(x) = "), f"lines {L!r}")
+        need(tc_same(tc_expr(rhs(L[0])), tc_base(g)), "the line shows another f")
+        need(tc_same(tc_expr(rhs(L[1])), tc_curve(g, M)), f"the line {L[1]!r} is not g")
+
+
+def tc_f_said(q, g):
+    """f as an equation or a name, in the question's first line."""
+    line = q["lines"][0]
+    if q["view"]["rep"] == "words":
+        need(g["fam"] == "poly" or TC_NAMES[g["fam"]] in line, f"f is not named in {line!r}")
+    else:
+        need(line.startswith("f(x) = "), f"line {line!r}")
+        need(tc_same(tc_expr(line[7:].split(", for")[0]), tc_base(g)), "the line shows another f")
+
+
+TC_NAMES = {"sq": "x²", "cube": "x³", "root": "√x", "recip": "1/x", "exp": "e^x", "ln": "ln x", "log2": "log₂ x", "sin": "sin x"}
+
+
+def tc_opts(q, read, right, refs):
+    """Every option read with read(): right only if right(value) holds. refs: ref ->
+    test on the value, the mistake that ref names."""
+    for o in q["choices"]:
+        v = read(o["text"])
+        need(right(v) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+        if o["ref"]:
+            need(o["ref"] in refs, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(refs[o["ref"]](v), f"option {o['text']!r} is not {o['ref']}")
+    right_text = q["answer_text"]
+    wr = defaultdict(set)
+    for o in q["choices"]:
+        if o["ref"]:
+            wr[o["ref"]].add(o["text"])
+    gc_check_common(q, right_text, wr, trap=tc_trap(q))
+
+
+def tc_trap(q):
+    ts = [o["text"] for o in q["choices"] if o.get("trap")]
+    return ts[0] if ts else None
+
+
+def tc_chain_opts(q, g, M, refs=None):
+    """Options that are chains of moves: right if they are the true curve."""
+    truth = tc_curve(g, M)
+    tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda m: tc_same(tc_curve(g, m), truth), refs or {})
+
+
+def tc_rule_opts(q, g, M, refs, strip="g(x) = "):
+    truth = tc_curve(g, M)
+
+    def read(t):
+        need(t.startswith(strip), f"option {t!r}")
+        return tc_expr(t[len(strip):])
+    tc_opts(q, read, lambda e: tc_same(e, truth), {r: (lambda e, c=c: tc_same(e, c)) for r, c in refs.items()})
+
+
+def tc_with(M, **kw):
+    A, B, C, D = M
+    v = {"A": A, "B": B, "C": C, "D": D}
+    v.update(kw)
+    return (v["A"], v["B"], v["C"], v["D"])
+
+
+def tc_set_is(text, st):
+    """A set of reals as the game writes it, read back and compared with {lo, hi, ...}."""
+    return tc_set(text) == st
+
+
+def tc_set(text):
+    t = text.strip()
+    if t.startswith("all real"):
+        return {}
+    m = re.fullmatch(rf"[xy] ≠ ({TC_NUM})", t)
+    if m:
+        return {"hole": tc_num(m[1])}
+    m = re.fullmatch(rf"({TC_NUM}) (≤|<) [xy] (≤|<) ({TC_NUM})", t)
+    if m:
+        return {"lo": tc_num(m[1]), "hi": tc_num(m[4]), "lo_in": m[2] == "≤", "hi_in": m[3] == "≤"}
+    m = re.fullmatch(rf"[xy] (≥|>|≤|<) ({TC_NUM})", t)
+    need(m is not None, f"can't read the set {text!r}")
+    if m[1] in "≥>":
+        return {"lo": tc_num(m[2]), "lo_in": m[1] == "≥"}
+    return {"hi": tc_num(m[2]), "hi_in": m[1] == "≤"}
+
+
+def tc_moved(st, m, q):
+    """A set under t -> m·t + q."""
+    if "hole" in st:
+        return {"hole": m * st["hole"] + q}
+    out = {}
+    if "lo" in st:
+        k, inc = ("hi", "hi_in") if m < 0 else ("lo", "lo_in")
+        out[k], out[inc] = m * st["lo"] + q, st["lo_in"]
+    if "hi" in st:
+        k, inc = ("lo", "lo_in") if m < 0 else ("hi", "hi_in")
+        out[k], out[inc] = m * st["hi"] + q, st["hi_in"]
+    return out
+
+
+def tc_f_domain(g):
+    fam = g["fam"]
+    if fam == "root":
+        return {"lo": sp.Integer(0), "lo_in": True}
+    if fam == "recip":
+        return {"hole": sp.Integer(0)}
+    if fam in ("ln", "log2"):
+        return {"lo": sp.Integer(0), "lo_in": False}
+    if fam == "pts":
+        return {"lo": R(g["nodes"][0][0]), "hi": R(g["nodes"][-1][0]), "lo_in": True, "hi_in": True}
+    return {}
+
+
+def tc_f_range(g):
+    fam = g["fam"]
+    if fam in ("sq", "root"):
+        return {"lo": sp.Integer(0), "lo_in": True}
+    if fam == "recip":
+        return {"hole": sp.Integer(0)}
+    if fam == "exp":
+        return {"lo": sp.Integer(0), "lo_in": False}
+    if fam == "sin":
+        return {"lo": sp.Integer(-1), "hi": sp.Integer(1), "lo_in": True, "hi_in": True}
+    if fam == "vert":
+        return {"lo": R(g["v"]), "lo_in": True}
+    if fam == "pts":
+        ys = [R(n[1]) for n in g["nodes"]]
+        return {"lo": min(ys), "hi": max(ys), "lo_in": True, "hi_in": True}
+    return {}
+
+
+def tc_cards(q, g, M, wrong):
+    """Pick the graph: each card is f under the map of what it names. wrong: mistake ->
+    (map, ref)."""
+    graphs, ch = q["graphs"], q["choices"]
+    need(len(graphs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+    need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the graphs are not lettered A to D")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right graph")
+    need(all(gr.get("card") for gr in graphs), "a graph is not drawn as a card")
+    need(len({(gr["x0"], gr["x1"], gr["y0"], gr["y1"]) for gr in graphs}) == 1, "the cards don't share one window")
+    need(len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+    truth = tc_curve(g, M)
+    seen = [truth]
+    for o, gr in zip(ch, graphs):
+        m = M if o["correct"] else wrong[o["mistake"]][0]
+        if o["correct"]:
+            need(o["mistake"] == "", "the right graph names a mistake")
+        else:
+            need(o["ref"] == wrong[o["mistake"]][1], f"the {o['mistake']} card is tagged {o['ref']!r}")
+            need(not tc_same(tc_curve(g, m), truth), f"the {o['mistake']} card is the right curve")
+        tc_drawn(gr, gr["curves"], g, m)
+        keys = [tc_image(m, R(k[0]), R(k[1])) for k in g["key"]]
+        tc_pts_in(gr, keys)
+        for x, y in keys:
+            need(gr["x0"] <= x <= gr["x1"] and gr["y0"] <= y <= gr["y1"], "a marked point is outside the card")
+    gc_check_common(q, next(o["text"] for o in ch if o["correct"]), {o["ref"]: {o["text"]} for o in ch if o["ref"]})
+
+
+def tc_f_plot(q, g):
+    gr = q["graph"]
+    need(gr is not None, "no graph of f")
+    tc_drawn(gr, gr["curves"], g, (1, 1, 0, 0))
+    for p in gr["points"]:
+        px, py = sp.nsimplify(p["x"]), sp.nsimplify(p["y"])
+        need([px, py] in [[R(k[0]), R(k[1])] for k in g["key"]], f"marked point {p['label']} is not a key point")
+
+
+def tc_point_opts(q, want, refs):
+    """A point answer: its values, its text, and each tagged option the mistake it names."""
+    tc_opts(q, lambda t: (lambda m: (tc_num(m[1]), tc_num(m[2])))(re.fullmatch(rf"\(({TC_NUM}), ({TC_NUM})\)", t)),
+            lambda p: p == want, {r: (lambda p, w=w: p == w) for r, w in refs.items()})
+
+
+def tc_order_text(q, g, M1, M2, text):
+    """"stretch first, g(x) = …; translation first, g(x) = …" as two curves, or one."""
+    m = re.fullmatch(r"stretch first, g\(x\) = (.+); translation first, g\(x\) = (.+)", text)
+    if m:
+        return (tc_expr(m[1]), tc_expr(m[2]))
+    m = re.fullmatch(r"the same graph either way, g\(x\) = (.+)", text)
+    need(m is not None, f"can't read {text!r}")
+    e = tc_expr(m[1])
+    return (e, e)
+
+
+def check_transform(q):
+    g, u, rep, L = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    if q["view"]["angle"].startswith("gdc"):
+        need(q["paper"] == 2, "a GDC method on Paper 1")
+    for t in [q["asked"]] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+        need(not re.search(r"[+−] [+−]", t), f"two signs in a row in {t!r}")
+    if u == "relate-two-models":
+        return tc_models(q)
+    if u == "describe-log-rewrite":
+        return tc_log(q)
+    moves, M = tc_clean(q, g)
+    A, B, C, D = M
+    if u in ("describe-translation", "describe-stretch", "describe-from-graphs", "describe-with-reflection", "vector-from-key-point"):
+        tc_lines_pair(q, g, M) if u != "vector-from-key-point" or rep == "graph" else None
+    if u == "describe-translation":
+        m = moves[0]
+        tc_chain_opts(q, g, M, {"SL2.11.describe#0": lambda o: o == tc_compose([dict(m, c=-m["c"])])})
+    elif u == "describe-stretch":
+        a = moves[0]["a"]
+        tc_chain_opts(q, g, M, {"SL2.11.stretch#0": lambda o: o == tc_compose([{"k": "hs", "a": 1 / a}])})
+    elif u == "describe-from-graphs":
+        tc_chain_opts(q, g, M)
+    elif u == "describe-with-reflection":
+        other = {"k": "ry" if moves[0]["k"] == "rx" else "rx"}
+        tc_chain_opts(q, g, M, {"SL2.11.reflect#1": lambda o: o == tc_compose([other, moves[1]])})
+    elif u == "describe-after-completing-square":
+        need(g["fam"] == "sq" and L[0] == "y = x²", "the base is not y = x²")
+        e = parse(rhs(L[1]))
+        need(sp.expand(e - (X - C)**2 - D) == 0, f"{L[1]!r} is not the translated parabola")
+        tc_chain_opts(q, g, M, {"SL2.11.describe#0": lambda o: o == tc_compose([{"k": "tr", "c": -C, "d": D}])})
+    elif u == "describe-factor-inside":
+        m = re.fullmatch(r"g\(x\) = f\((.+)\)", L[0])
+        need(m is not None and tc_same(tc_expr(m[1]), B * (X - C)), f"{L[0]!r} is not the moves")
+        k = moves[0]["a"]
+        tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M, {"SL2.11.stretch#0": lambda o: o == tc_compose([{"k": "hs", "a": 1 / k}, {"k": "tr", "c": C, "d": 0}])})
+    elif u == "stretch-and-shift-parameters":
+        tc_lines_pair(q, g, M)
+        k, d = moves[0]["a"], moves[1]["d"]
+        fx = lambda t: tuple(tc_num(v) for v in re.fullmatch(rf"horizontal scale factor = ({TC_NUM}), vertical translation = ({TC_NUM})", t).groups())
+        tc_opts(q, fx, lambda v: v == (k, d), {"SL2.11.stretch#0": lambda v: v == (1 / k, d)})
+    elif u == "vector-from-key-point":
+        if rep == "words":
+            p = re.findall(rf"\(({TC_NUM}), ({TC_NUM})\)", " ".join(L))
+            need(tuple(tc_num(v) for v in p[1]) == tc_image(M, tc_num(p[0][0]), tc_num(p[0][1])), "the second point is not the image")
+        tc_point_opts(q, (C, D), {})
+    elif u in ("describe-the-reverse", "undo-in-reverse"):
+        if rep == "equation":
+            tc_lines_pair(q, g, M)
+        need(tc_moves(re.search(r" by (.+)\.$", L[-1])[1]) == moves, "the moves shown are not the chain")
+        tc_opts(q, tc_moves, lambda o: tc_compose(moves + o) == (1, 1, 0, 0), {})
+    elif u == "sketch-stretch-shift":
+        a, d = moves[0]["a"], moves[1]["d"]
+        need(tc_same(tc_expr(q["asked"][len("Which graph is y = "):-1]), a * TC_F(X) + d), "the asked rule is not a·f(x) + d")
+        tc_f_plot(q, g)
+        tc_cards(q, g, M, {"bracket": ((a, 1, 0, a * d), "SL2.11.composite-transform#1"), "wrong-way": ((a, 1, 0, -d), ""), "sideways": ((1, 1 / a, 0, d), ""), "inverted": ((1 / a, 1, 0, d), "")})
+    elif u == "sketch-reflection":
+        tc_f_plot(q, g)
+        rx = moves[0]["k"] == "rx"
+        tc_cards(q, g, M, {"other-axis": ((1, -1, 0, 0) if rx else (-1, 1, 0, 0), "SL2.11.reflect#1"), "both": ((-1, -1, 0, 0), ""), "unchanged": ((1, 1, 0, 0), "")})
+    elif u == "sketch-horizontal":
+        tc_f_plot(q, g)
+        if moves[0]["k"] == "hs":
+            k = moves[0]["a"]
+            tc_cards(q, g, M, {"up-down": ((1 / k, 1, 0, 0), "SL2.11.sketch-transformed#1"), "inverted": ((1, k, 0, 0), ""), "vertical": ((k, 1, 0, 0), "")})
+        else:
+            c = moves[0]["c"]
+            tc_cards(q, g, M, {"other-way": ((1, 1, -c, 0), "SL2.11.sketch-transformed#2"), "up": ((1, 1, 0, c), ""), "down": ((1, 1, 0, -c), "")})
+    elif u == "rule-single-translation":
+        tc_f_said(q, g)
+        need(re.search(rf"by the vector \({TC_NUM}, {TC_NUM}\)", L[1]) is not None, "no vector")
+        tc_rule_opts(q, g, M, {"SL2.11.translate#0": tc_curve(g, (1, 1, -C, D)), "SL2.11.translate#1": tc_curve(g, (1, 1, C - D, 0))})
+    elif u == "rule-from-moves":
+        tc_f_said(q, g)
+        need(tc_moves(re.search(r" by (.+), to give", L[1])[1]) == moves, "the moves shown are not the chain")
+        tc_rule_opts(q, g, M, {"SL2.11.composite-transform#0": tc_curve(g, (A, B, C / B, D)),
+                               "SL2.11.composite-transform#1": tc_curve(g, (A, B, C, A * D))})
+    elif u == "reflect-translate-rule":
+        tc_f_said(q, g)
+        tc_reflect_translate(q, g, moves, M)
+    elif u == "reflect-rule":
+        tc_f_said(q, g)
+        other = (1, -1, 0, 0) if moves[0]["k"] == "rx" else (-1, 1, 0, 0)
+        refs = {"SL2.11.reflect#1": tc_curve(g, other)}
+        if g["fam"] == "poly":
+            refs["SL2.11.reflect#0"] = -X**2 + R(g["u"]) * X + R(g["v"])
+        tc_rule_opts(q, g, M, refs)
+    elif u in ("image-point", "original-point"):
+        tc_point(q, g, M, rep, u)
+    elif u == "moved-asymptote":
+        tc_asymptote(q, g, M, rep)
+    elif u == "domain-range-of-g":
+        tc_f_said(q, g) if rep != "graph" else tc_f_plot(q, g)
+        dom, ran = tc_moved(tc_f_domain(g), 1 / B, C), tc_moved(tc_f_range(g), A, D)
+        rd = lambda t: tuple(tc_set(p) for p in re.fullmatch(r"domain (.+); range (.+)", t).groups())
+        tc_opts(q, rd, lambda v: v == (dom, ran), {"SL2.2.domain#2": lambda v: v == (ran, dom)})
+    elif u == "undo-moves":
+        need(tc_moves(re.search(r" (?:by|through) (.+)\.$", L[1 if rep == "equation" else 0])[1]) == moves, "the moves shown are not the chain")
+        gl = L[0] if rep == "equation" else L[1]
+        need(tc_same(tc_expr(re.search(r"= (.+?)\.?$", gl)[1]), tc_curve(g, M)), f"{gl!r} is not g")
+        truth = tc_base(g)
+        tc_opts(q, lambda t: tc_expr(t[len("f(x) = "):]), lambda e: tc_same(e, truth), {})
+    elif u == "order-changes-rule":
+        tc_f_said(q, g)
+        tc_two_ways(q, g, moves)
+    elif u == "two-orders":
+        tc_f_said(q, g)
+        tc_two_orders(q, g, moves)
+    elif u == "which-pairs-commute":
+        tc_commute(q)
+    elif u == "inside-opposite":
+        tc_inside(q, g, moves, M)
+    elif u == "inside-vs-outside":
+        tc_vs_outside(q, g, moves, M)
+    elif u == "order-from-bracket":
+        tc_bracket(q, g, moves, M)
+    elif u == "point-both-orders":
+        tc_both_points(q, g, moves)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+def tc_reflect_translate(q, g, moves, M):
+    refl, t = moves
+    sign = tc_compose([refl, {"k": "tr", "c": -t["c"], "d": t["d"]}])
+    fd = tc_f_domain(g)
+    dom = tc_moved(fd, 1 / M[1], M[2])
+    truth = tc_curve(g, M)
+
+    def rd(text):
+        m = re.fullmatch(r"g\(x\) = (.+), with domain (.+)", text)
+        return tc_expr(m[1]), tc_set(m[2])
+    openset = {k: (False if k.endswith("_in") else v) for k, v in dom.items()}
+    tc_opts(q, rd, lambda v: tc_same(v[0], truth) and v[1] == dom, {
+        "SL2.11.translate#0": lambda v: tc_same(v[0], tc_curve(g, sign)) and v[1] == tc_moved(fd, 1 / sign[1], sign[2]),
+        "SL2.2.domain#0": lambda v: tc_same(v[0], truth) and v[1] == openset,
+        "SL2.2.domain#1": lambda v: tc_same(v[0], truth) and v[1] == fd})
+
+
+def tc_point(q, g, M, rep, u):
+    A, B, C, D = M
+    L = q["lines"]
+    need(tc_same(tc_expr(rhs(L[-1])), A * TC_F(B * (X - C)) + D), f"{L[-1]!r} is not the moves")
+    if rep == "table":
+        rows = q["table"]["rows"]
+        pts = list(zip(rows[0][1], rows[1][1]))
+        x0 = tc_num(re.search(rf"x = ({TC_NUM})\.", L[0])[1])
+        ys = [tc_num(y) for x, y in pts if tc_num(x) == x0]
+        need(len(ys) == 1, "the table has no such point")
+        p = (x0, ys[0])
+    else:
+        m = re.search(rf"\(({TC_NUM}), ({TC_NUM})\)", L[0])
+        p = (tc_num(m[1]), tc_num(m[2]))
+        if rep == "graph":
+            gp = q["graph"]["points"][0]
+            need((sp.nsimplify(gp["x"], rational=True), sp.nsimplify(gp["y"], rational=True)) == p, "the marked point is not the one named")
+    x, y = p
+    if u == "image-point":
+        tc_point_opts(q, tc_image(M, x, y), {"SL2.11.image-point#0": (x / B - C, A * y + D), "SL2.11.image-point#1": (x / B + C, A * (y + D)),
+                                             "SL2.11.image-point#2": (x * B + C, A * y + D), "SL2.11.stretch#1": (x * A + C, A * y + D)})
+    else:
+        tc_point_opts(q, ((x - C) * B, (y - D) / A), {"SL2.11.image-point#0": ((x + C) * B, (y - D) / A), "SL2.11.image-point#2": ((x - C) / B, (y - D) / A)})
+
+
+def tc_asymptote(q, g, M, rep):
+    A, B, C, D = M
+    fam = g["fam"]
+    hasx = fam in ("recip", "ln", "log2")
+    hasy = fam in ("recip", "exp")
+    if rep == "graph":
+        tc_f_plot(q, g)
+        gr = q["graph"]
+        need(len(gr["vlines"]) == int(hasx) and len(gr["hlines"]) == int(hasy), "the asymptotes are not dashed")
+    else:
+        tc_f_said(q, g)
+    x, y = tc_image(M, 0, 0)[0] if hasx else None, tc_image(M, 0, 0)[1] if hasy else None
+    if hasx and hasy:
+        rd = lambda t: tuple(tc_num(v) for v in re.fullmatch(rf"x = ({TC_NUM}), y = ({TC_NUM})", t).groups())
+        tc_opts(q, rd, lambda v: v == (x, y), {"SL2.11.sketch-transformed#0": lambda v: v == (0, y), "SL2.11.translate#2": lambda v: v == (x, 0)})
+    else:
+        name, val = ("x", x) if hasx else ("y", y)
+        rd = lambda t: (t[0], tc_num(t[4:]))
+        tc_opts(q, rd, lambda v: v == (name, val), {"SL2.11.sketch-transformed#0": lambda v: v == (name, 0), "SL2.11.translate#2": lambda v: v == (name, 0)})
+
+
+def tc_two_ways(q, g, moves):
+    a = tc_curve(g, tc_compose(moves))
+    b = tc_curve(g, tc_compose([moves[1], moves[0]]))
+    same = tc_same(a, b)
+
+    def rd(t):
+        return (tc_order_text(q, g, None, None, t), t.startswith("the same graph"))
+    right = lambda v: tc_same(v[0][0], a) and tc_same(v[0][1], b) and v[1] == same
+    tc_opts(q, rd, right, {"SL2.11.composite-transform#2": lambda v: v[1] and not same})
+
+
+def tc_two_orders(q, g, moves):
+    m1, m2 = tc_compose(moves), tc_compose([moves[1], moves[0]])
+    a, b = tc_curve(g, m1), tc_curve(g, m2)
+    k = (R(g["key"][0][0]), R(g["key"][0][1]))
+    p1, p2 = tc_image(m1, *k), tc_image(m2, *k)
+    need(p1 != p2, "the point lands in one place both ways")
+
+    def rd(t):
+        m = re.fullmatch(rf"stretch first, g\(x\) = (.+) and \({TC_NUM}, {TC_NUM}\) goes to \(({TC_NUM}), ({TC_NUM})\); translation first, g\(x\) = (.+) and it goes to \(({TC_NUM}), ({TC_NUM})\)", t)
+        if m is None:
+            need(t.startswith("the order never matters"), f"can't read {t!r}")
+            return None
+        return (tc_expr(m[1]), (tc_num(m[2]), tc_num(m[3])), tc_expr(m[4]), (tc_num(m[5]), tc_num(m[6])))
+    tc_opts(q, rd, lambda v: v is not None and tc_same(v[0], a) and tc_same(v[2], b) and v[1] == p1 and v[3] == p2,
+            {"SL2.11.composite-transform#2": lambda v: v is None})
+
+
+def tc_commute(q):
+    def rd(t):
+        if t.startswith("any two moves"):
+            return None
+        pair = t.split(": ")[0]
+        a, b = pair.split(" and ")
+        return tc_moves(a) + tc_moves(b)
+
+    def right(v):
+        return v is not None and tc_compose(v) == tc_compose([v[1], v[0]])
+    tc_opts(q, rd, right, {"SL2.11.composite-transform#2": lambda v: v is None})
+
+
+def tc_inside(q, g, moves, M):
+    if q["view"]["rep"] == "graph":
+        tc_lines_pair(q, g, M)
+    m = moves[0]
+    if m["k"] == "tr":
+        c = m["c"]
+
+        def rd(t):
+            h = t.split(":")[0]
+            mt = re.fullmatch(rf"({TC_NUM}) to the (left|right)", h)
+            if mt:
+                return ("x", tc_num(mt[1]) * (1 if mt[2] == "right" else -1))
+            mt = re.fullmatch(rf"(up|down) ({TC_NUM})", h)
+            return ("y", tc_num(mt[2]) * (1 if mt[1] == "up" else -1))
+        tc_opts(q, rd, lambda v: v == ("x", c), {"SL2.11.describe#0": lambda v: v == ("x", -c)})
+    else:
+        k = m["a"]
+        tc_opts(q, lambda t: tc_moves(t.split(":")[0])[0]["k"] + str(tc_moves(t.split(":")[0])[0]["a"]), lambda v: v == "hs" + str(k),
+                {"SL2.11.stretch#0": lambda v: v == "hs" + str(1 / k)})
+
+
+def tc_vs_outside(q, g, moves, M):
+    m = moves[0]
+    if m["k"] == "tr":
+        c = -m["c"]
+        inner, outer = (1, 1, -c, 0), (1, 1, 0, c)
+    else:
+        b = M[1]
+        inner, outer = (1, b, 0, 0), (b, 1, 0, 0)
+    ins, outs = (lambda M1: M1[0] * TC_F(M1[1] * (X - M1[2])) + M1[3])(inner), (lambda M1: M1[0] * TC_F(M1[1] * (X - M1[2])) + M1[3])(outer)
+    if q["view"]["rep"] == "graph":
+        gr = q["graph"]
+        k = gr["sand_from"]
+        pa, pb = [(sp.nsimplify(p["x"], rational=True), sp.nsimplify(p["y"], rational=True)) for p in gr["points"]]
+        key = (R(g["key"][0][0]), R(g["key"][0][1]))
+        a_inner = pa == tc_image(inner, *key)
+        need(pa == tc_image(inner if a_inner else outer, *key) and pb == tc_image(outer if a_inner else inner, *key), "the marked points are not the images")
+        tc_drawn(gr, gr["curves"][:k], g, inner if a_inner else outer)
+        tc_drawn(gr, gr["curves"][k:], g, outer if a_inner else inner)
+
+        def rd(t):
+            mt = re.fullmatch(r"A is (.+), B is (.+)", t)
+            if mt is None:
+                return None
+            return (tc_expr(mt[1]), tc_expr(mt[2]))
+        want = (ins, outs) if a_inner else (outs, ins)
+        tc_opts(q, rd, lambda v: v is not None and tc_same(v[0], want[0]) and tc_same(v[1], want[1]), {})
+        return
+
+    def rd2(t):
+        mt = re.fullmatch(r"(.+?) ((?:moves|stretches) .+); (.+?) ((?:moves|stretches) .+)", t)
+        if mt is None:
+            return None
+        return mt[2], mt[4], tc_same(tc_expr(mt[1]), ins), tc_same(tc_expr(mt[3]), outs)
+    says = lambda axis: (f"along the {axis}-axis" if m["k"] == "tr" else f"parallel to the {axis}-axis")
+    tc_opts(q, rd2, lambda v: v is not None and v[2] and v[3] and says("x") in v[0] and says("y") in v[1], {})
+
+
+def tc_bracket(q, g, moves, M):
+    L = q["lines"]
+    A, B, C, D = M
+    m = re.fullmatch(r"g\(x\) = (.+)", L[0])
+    need(tc_same(tc_expr(m[1]), tc_curve({"fam": "pts"}, M)), f"{L[0]!r} is not the moves")
+    e = C * B
+    tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M,
+            {"SL2.11.composite-transform#0": lambda o: o == tc_compose([moves[0], {"k": "tr", "c": e, "d": 0}])})
+
+
+def tc_both_points(q, g, moves):
+    k = (R(g["key"][0][0]), R(g["key"][0][1]))
+    p1, p2 = tc_image(tc_compose(moves), *k), tc_image(tc_compose([moves[1], moves[0]]), *k)
+    need(f"{frac_or_dec(k[0], q)}, {frac_or_dec(k[1], q)}" in q["lines"][0], "the point shown is not the key point")
+    rd = lambda t: tuple((tc_num(a), tc_num(b)) for a, b in re.findall(rf"\(({TC_NUM}), ({TC_NUM})\)", t))
+    tc_opts(q, rd, lambda v: v == (p1, p2), {"SL2.11.image-point#1": lambda v: v == (p2, p1)})
+    if q["view"]["rep"] == "graph":
+        tc_f_plot(q, g)
+
+
+def frac_or_dec(v, q):
+    return frac_text(v).replace("-", "−")
+
+
+def tc_models(q):
+    g, rep, L = q["given"], q["view"]["rep"], q["lines"]
+    a1, d1, a2, d2, w = (R(g[k]) for k in ("a1", "d1", "a2", "d2", "w"))
+    if rep == "equation":
+        nums = [tc_num(v) for v in re.fullmatch(rf"p\(t\) = ({TC_NUM}) sin\(({TC_NUM})t\) ([+−]) ({TC_NUM})", L[0]).group(1, 2, 4)]
+        need(nums == [a1, w, abs(d1)], "p is not the situation's")
+        nums = [tc_num(v) for v in re.fullmatch(rf"q\(t\) = ({TC_NUM}) sin\(({TC_NUM})t\) ([+−]) ({TC_NUM})", L[1]).group(1, 2, 4)]
+        need(nums == [a2, w, abs(d2)], "q is not the situation's")
+    else:
+        need(tc_num(re.search(rf"amplitude ({TC_NUM})", L[0])[1]) == a1 and tc_num(re.search(rf"amplitude ({TC_NUM})", L[1])[1]) == a2, "the amplitudes")
+        need(tc_num(re.search(rf"y = ({TC_NUM})", L[0])[1]) == d1 and tc_num(re.search(rf"y = ({TC_NUM})", L[1])[1]) == d2, "the centre lines")
+    a = a2 / a1
+    d = d2 - a * d1
+    t = sp.Symbol("t")
+    need(sp.expand(a * (a1 * sp.sin(w * t) + d1) + d - (a2 * sp.sin(w * t) + d2)) == 0, "a and d don't map p onto q")
+    if q["paper"] == 1:
+        want = f"a = {frac_text(a)}, d = {frac_text(d)}".replace("-", "−")
+        trap = None
+    else:
+        want = f"a = {gc_s(a)}, d = {gc_s(d)}"
+        trap = f"a = {gc_s2(a)}, d = {gc_s2(d)}"
+    gc_check_common(q, want, {}, trap=trap)
+    return None, None
+
+
+def tc_log(q):
+    g, L = q["given"], q["lines"]
+    need(q["paper"] == 1, "a log law is Paper 1")
+    b, e = g["lb"], g["le"]
+    p = b**e
+    x = sp.Symbol("x", positive=True)
+    lg = lambda v: sp.log(v) / sp.log(b)
+    new = lg(p * x) if g["lform"] == "shift" else lg(x**e)
+    name = L[0][len("y = "):-2]
+
+    def rd(t):
+        m = re.fullmatch(rf".+? = (.+?), (.+)", t)
+        rhs_, mv = m[1], tc_moves(m[2])[0]
+        mp = re.fullmatch(rf"(\d+) {re.escape(name)} x", rhs_)
+        if mp:
+            val = int(mp[1]) * lg(x)
+        else:
+            val = lg(x) + int(re.fullmatch(rf"{re.escape(name)} x \+ (\d+)", rhs_)[1])
+        A, _, _, D = tc_compose([mv])
+        return val, A * lg(x) + D
+    tc_opts(q, rd, lambda v: abs(sp.N((v[0] - new).subs(x, 3))) < 1e-12 and abs(sp.N((v[1] - new).subs(x, 3))) < 1e-12, {})
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -11720,7 +12433,8 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
-                    "motion": check_motion}
+                    "motion": check_motion,
+                    "transform-chain": check_transform}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

@@ -191,6 +191,10 @@ const CHAINS := {
 	# the composite as one expression, then its value at an input. (The parameter, solve and
 	# reversed unknowns each need their own numbers, so they stay single questions.)
 	"fn-composite": ["expression", "value-inside-out"],
+	# name the moves hidden in f(bx − e), then the moves that undo them, in order
+	"fn-transform-describe": ["describe-factor-inside", "describe-the-reverse"],
+	# a point through the moves, the new rule, its domain and range
+	"fn-transform-apply": ["image-point", "rule-from-moves", "domain-range-of-g"],
 }
 
 
