@@ -12407,6 +12407,9 @@ def tc_log(q):
         A, _, _, D = tc_compose([mv])
         return val, A * lg(x) + D
     tc_opts(q, rd, lambda v: abs(sp.N((v[0] - new).subs(x, 3))) < 1e-12 and abs(sp.N((v[1] - new).subs(x, 3))) < 1e-12, {})
+    return None, None
+
+
 # ── regression-x-on-y (t4-regression-x-on-y, FAL-725) ────────
 # The `regression-x-on-y` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/regression_pair.gd. The data and the lines are read back from what the

@@ -6,7 +6,7 @@ extends "res://tests/test_case.gd"
 
 const TC := preload("res://engine/situations/transform_chain.gd")
 ## Cells per type (the catalogue's own count, every unknown × rep × method).
-const CELLS := {"fn-transform-describe": 37, "fn-transform-apply": 47, "fn-concept-transform-order": 15}
+const CELLS := {"fn-transform-describe": 51, "fn-transform-apply": 72, "fn-concept-transform-order": 21}
 const SITUATIONS := {"fn-transform-describe": "transform-chain", "fn-transform-apply": "transform-chain", "fn-concept-transform-order": "transform-chain"}
 
 
