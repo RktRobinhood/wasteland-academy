@@ -1,8 +1,8 @@
 # Wasteland Academy (Godot)
 
 The Godot 4.7.2 rebuild of Wasteland Academy, planned on FAL-274. It is played in the
-browser as a web build, published at `/next/` beside the HTML game. All code is
-GDScript (C# can't export to the web), and it uses the Compatibility renderer.
+browser as a web build, published at the main address, with the HTML game at
+`/classic/`. All code is GDScript (C# can't export to the web), and it uses the Compatibility renderer.
 
 The toolchain is copied from The Unruly Atlas.
 
@@ -16,7 +16,7 @@ game/
 ├── scenes/map.tscn      ← the map (ui/map.gd): world, island, region screen (see "The map")
 ├── scenes/practice.tscn ← the practice screen (ui/practice.gd)
 ├── scenes/fight.tscn    ← the fight screen (ui/fight.gd), on the practice screen's card
-├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /next/?explore
+├── scenes/explorer.tscn ← the engine explorer (ui/explorer.gd), at /?explore
 ├── engine/              ← the question engine: situations, views, marking, planner, save
 ├── engine/run.gd        ← a run: floors, fights, bosses, outcomes, lifelines, the hooks (see "Combat")
 ├── engine/dungeon.gd    ← floors by level, tiers, boss chains, start floors (see "The dungeon")
@@ -125,6 +125,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   worked from four would be off in its last place (FAL-412: h = 10.465, not 10.47, so
   ½ × 16 × h gives the 83.7 shown); `tools/check-answers` works out every step's
   arithmetic from the figures shown. Every cell makes both papers but the sine rule's angle, which is Paper 2 only.
+  `t3-ambiguous-case` (FAL-412) is on the same situation, Paper 2 only. Its `ssa-two`
+  givens fit two triangles (`second` on the situation), both inside the limits, and its
+  questions ask both values of the angle or both lengths of the third side. The answer
+  is the `measures` kind: two 3 s.f. measures in either order, each marked like
+  `measure`, with an option that stops at one (`only`). Its diagram draws both triangles
+  on one base line, lettered B₁ and B₂ (`second` in the diagram spec), with a measuring
+  line under the base for each asked length. `largest-angle` uses `ssa-mix`, one triangle
+  or two half and half, in words only since a drawing would show how many fit, so the
+  student has to decide before answering: the acute angle is right only when the obtuse
+  one has no room. The checker solves each question from the sine rule and from the
+  cosine rule as a quadratic, and the two must agree.
 - `engine/situations/arithmetic_sequence.gd` (FAL-392) is the Topic 1
   situation: one arithmetic sequence with u₁, d, n, uₙ, Sₙ, two later terms and the
   first four terms, for `t1-arithmetic-sequence`. Its representations are `notation`
@@ -331,6 +342,85 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   method-pick; the concept type and graph-match offer true-false-reason. Not built yet:
   error-spot (fn-ext-inequality-graphical, fn-pre-graph-reading) and method-pick for
   fn-concept-solutions-as-intersections.
+- **The Composite and inverse region** (FAL-422) adds three exam situations. `composite_pair.gd`
+  is two rules chained, f and g, as `{"t", "co"}` polynomials (a line, x² + c, (x − h)², x³ + c,
+  or sin x on Paper 2, with a generic quadratic for an outer rule to find), with modes for
+  the forward composites and a value, a constant k from a value or from a stated coefficient,
+  an equation (f∘g)(x) = t, f∘f, f∘g against g∘f, a chain of steps in words, a rule split in
+  two, and the two reversed composites (find g given f and f∘g, find f given g and f∘g). Its
+  views (`composite_pair_views.gd`) say each rule as f(x) = … or in steps ("double, then
+  subtract 3"); an expression is the `poly` kind, k a `kvals` pair or a number, the solutions
+  an `xs` list and the order-of-composition and decompose questions a pick of four sentences.
+  The one Paper 2 value is (f∘g)(x₀) with f = sin x in radians, to 3 s.f. with the rounding
+  trap, and a k from (a·x₀ + k)² = r with r not a square, to 3 s.f. `inverse_rule.gd` is a rule
+  from a family with its domain: a line, (ax + b)/(cx + d) with whole-number asymptotes,
+  √(px + q) + r, a quadratic on one side of its vertex, or b^x + q. Students can't type a
+  function of x, so its views (`inverse_rule_views.gd`) offer an inverse, a domain, an
+  asymptote pair or a reflection claim as four written options (the `choice` kind), and a
+  constant, a value or a k as a number. The checker reads each option back with SymPy and
+  tests it as maths, so the right one is the inverse and every wrong one is shown not to be.
+  `graph_table.gd` is f (and g) at six consecutive whole numbers, drawn as dots joined by
+  lines (so a one-to-one f is always rising or falling) or written as a table or a sentence
+  of values, with a rule mode for the views that print the rule beside the graph. Its views
+  (`graph_table_views.gd`) read a value, a composite, an inverse value, a domain or range,
+  the matching points of f⁻¹ (the `pts` kind), every solution of f(x) = k on a graph that
+  turns back, and why it has no inverse. The checker rebuilds f and g from the table, the
+  graph's dots or the sentence, never from the engine's givens. Paper: the algebra of
+  `fn-inverse-algebraic` is exact on both papers, so its Paper 2 questions (four in five, as
+  the exam has them) have the same exact numbers and the calculator on offer; the graph and
+  table readings are all Paper 1. A mini-boss on `fn-composite` asks the composite and then
+  its value (`Tuning.CHAINS`); the other unknowns each need their own numbers, so they are
+  single questions.
+- **The Rational functions region** (FAL-423): `rational_function.gd` is one
+  linear-over-linear function f(x) = (ax + b)/(cx + d) = A + B/(x − h), built from its asymptotes
+  and stretch so its intercepts are never none (a, d ≠ 0) and ad − bc ≠ 0. Paper 1 keeps
+  c = 1, 2 or 3 and intercepts that are whole numbers, halves or thirds; a graph or card needs c = 1
+  with the asymptotes and both intercepts whole and inside the plot. Paper 2 (`papers()`) gives
+  a, b, c, d that need a calculator, so the asymptotes and intercepts of `fn-rational-asymptotes-
+  intercepts` are decimals that don't end, asked to 3 s.f. with the rounding trap, and `fn-rational-
+  sketch`'s reciprocal of f is Paper 2 (as in the bank) with asymptotes between the grid lines. Its
+  extras, asked by a view's need, are a line y = mx + n that meets f 0, 1 (a tangent) or 2 times, a
+  parabola that meets it 1 to 3 times (a count by the cubic's discriminant, found again numerically;
+  a restricted domain `x > 0` changes the count), a horizontal line y = k, k = A or not, a relation
+  and a k (0, or a value whose boundary is whole) for an inequality, and the 1, 2 or 3 of y = k/x.
+  `rational_cards.gd` draws every graph: a curve is a triple (A, B, h), drawn as two branches that
+  run to the edge of the plot and stop, so **no line is drawn across x = h** (a card with such a
+  line is the wrong one, `through`). The views (`rational_function_views.gd`) are 24 unknowns:
+  asymptotes and intercepts are typed (`axis`, `xint`, `yint`, `named`, `number`), the rest are
+  a pick of four written options (`choice`), a pick of four graphs (Q13) or a count. Each wrong
+  graph changes one thing of the right one (`flipped`: B's sign, `zero-at-h`: the asymptote and the
+  zero swapped, `through`, `mirrored`: x = −h, `swapped`: the asymptotes swapped), tagged with its
+  misconception. `axis` answers honour `show` and a wrong option may be the number alone (var ""), the
+  asymptote written as a number. The checker reads each card back as a triple from its dashed lines
+  and its curve and tests it against the change it names, and finds every asymptote, intercept,
+  solution set and count again with SymPy. `ui/graph_view.gd` draws a rational function's branches in
+  one colour (`one_colour`) and a second curve (the line or the parabola) in the other
+  (`sand_from`). The exam types offer no extra format.
+  **The Rational functions extension types** (FAL-423): `fn-ext-transformed-reciprocal` is seven more
+  unknowns on the same `rational-function` situation (mode `split`: f = A + k/(cx + d) with A and k
+  whole and c = 2 or 3, for the scaled split), asked as `named` constants (A and B, A and k, or A, B and
+  h read off a graph with one marked point), a pick of four translations ("3 right and 2 up"), of a
+  stretch and a translation in order, or of single fractions. `algebraic_fraction.gd`
+  (`fn-pre-algebraic-fractions`, the level-0 prior learning, so the dungeon's warm-ups can play it) is
+  built from its answer: an excluded value, a fraction simplified by cancelling a factor (or one that
+  can't be, where cancelling terms is the slip), a sum of two fractions, an equation a + k/(x − h) = c
+  whose solution is whole and never excluded, and a missing numerator. The answers are written options
+  (`choice`) checked as functions by SymPy, and an equation's solution is a typed number. Its
+  misconceptions have no ref, so they are logged as `fn-pre-algebraic-fractions#<index>`.
+  `asymptote_gallery.gd` (`fn-concept-asymptote-meaning`) is curves with asymptotes side by side: a
+  linear-over-linear one, a curve that meets its horizontal asymptote (x/(x² + 1), x·e^(−x), A + x/(x²
+  + 1)) or does not, (ax + b)/(cx + d) with ad = bc (a gap, not an asymptote) and a level that settles.
+  What an asymptote means is an explanation, so each answer is one of four statements, and the
+  type's true-false-reason format plays them as a student's claim. `rational_model.gd`
+  (`fn-ext-rational-model`) is a model (αx + β)/(x + γ) in a context: an average cost
+  (F + vn)/n, a mixture topped up (s + px)/(V + x) or a level that settles (Lt + P₀k)/(t + k), with an input
+  where the value ends, a table, a whole input and its value, a target whose input is not whole (so the
+  least whole number rounds up: rounding down and giving the output are the slips) and one data point
+  for a constant. Every answer is exact (Paper 1): the catalogue's Paper 2 versions, to 3 s.f., and
+  its `multipart` format are not built. Built formats of the extension types: error-spot on
+  `split-to-form` and on `clear-and-solve` (the catalogue's one error-spot slip of each),
+  true-false-reason on every unknown of the gallery and the model. Not built: method-pick, order-steps
+  and match (see the formats above).
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
@@ -563,25 +653,25 @@ The strip (FAL-331) isn't merged yet, so the fight screen keeps an empty
 ### Deep links
 
 The practice screen takes deep links, for screenshots and for sending someone a
-question: `/next/?view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, or
+question: `/?view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, or
 `<type>/probe/<n>` for a concept probe. Add `&autoplay=right` (or `wrong`) to answer it
 at once, and `&paper=1` or `2` for that paper where the cell can make it. On a Paper 2
 question, `&calc=sci` or `&calc=graph` opens the calculator, with `&do=expr;expr` worked
 out in Scientific mode, or `&y1=`, `&y2=`, `&win=xmin,xmax,ymin,ymax`,
 `&tool=zero|max|min|intersect` and `&deg=1` in Graph mode (the screenshots use these).
-The fight screen takes `/next/?play=quadratics&seed=3&floor=1`, with
+The fight screen takes `/?play=quadratics&seed=3&floor=1`, with
 `&autoplay=right`, `wrong`, or `lose` (wrong answers to the end, for the summary). `play`
 is a region id or `all`. `floor` must be one the save may start on, else the run starts
 on floor 1. `&fight=5` or `&fight=10` starts at the mini-boss or boss (such a run records
 no floors), and `&autoplay=carry` answers its first part wrong and opens the next, to show
 the value carried on. `&select=1` shows the floor select.
 
-The map takes a hash: `/next/#functions/quadratics` opens that region's screen,
-`/next/#functions` the island and `/next/#world` the world map (see "The map").
+The map takes a hash: `/#functions/quadratics` opens that region's screen,
+`/#functions` the island and `/#world` the world map (see "The map").
 
 ### The engine explorer
 
-`/next/?explore`, or "Engine" on the title screen (FAL-391). Pick a course, a topic and
+`/?explore`, or "Engine" on the title screen (FAL-391). Pick a course, a topic and
 a question class, then "Asked for", "Shown as", "Method" and the format, and play the
 question as on the practice screen. Nothing is saved. Question classes come from the
 catalogue: a type is live when its situation is built, so a new situation shows up
@@ -597,7 +687,7 @@ SL". A course the engine doesn't list shows the syllabus note and asks nothing. 
 show the choices and the question one at a time; landscape shows them side by side.
 
 The URL follows the screen, so a state can be bookmarked:
-`/next/?explore&view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, plus
+`/?explore&view=<type>/<unknown>/<rep>/<angle>/<value|mcq>&seed=3`, plus
 `&ten=1` for ten versions or `&autoplay=right` (or `wrong`).
 
 ### The SymPy answer checker
@@ -638,8 +728,11 @@ extra format it offers (`--per-format`). Every mini-boss and boss chain is expor
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
 chain: one situation, and each part's `carried` value is the part before's answer. It
 prints a table per type and per cell. SymPy is pinned in
-`requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it
-as its own `answers` job.
+`requirements.txt` and installed into a gitignored `.venv/` on first run. CI runs it in
+six `answers-shard` jobs (`--shard=k/6`: every sixth cell and boss chain, each with all
+its questions). Each leaves a `summary.json`, and the `answers` job merges them
+(`tools/check-answers --merge dir`) and fails unless every shard is there once, passed,
+and together they give every cell 50 questions and every type 1,000.
 
 ### The seed sweep
 
@@ -909,8 +1002,8 @@ section of `engine/tuning.gd`.
   `test_bazaar.gd` checks that such a player unlocks something every 2 or 3 runs. Print
   the price table with
   `godot --headless --path game --script res://tools/bazaar_balance.gd`.
-- Links: `/next/#bazaar` is its map link; `/next/?bazaar` opens it too, and
-  `/next/?bazaar=demo` opens it on a sample save and stores nothing (screenshots).
+- Links: `/#bazaar` is its map link; `/?bazaar` opens it too, and
+  `/?bazaar=demo` opens it on a sample save and stores nothing (screenshots).
 
 ## Tests
 

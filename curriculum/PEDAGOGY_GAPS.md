@@ -1731,11 +1731,25 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 2 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+
+#### Sine rule ambiguous case (`t3-ambiguous-case`, exam, 2 bank parts)
+
+- **Situation:** One triangle with its sides, angles and area, shared with `t3-sine-cosine-rule`, `t3-triangle-area`.
+- **Representations:** **words**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L3: given two sides; the angle opposite the shorter of them → the two possible values of the angle opposite the longer side
+  - **exam** L4: given two sides; the angle opposite the shorter of them → the two possible lengths of the third side
+  - new L4: given two sides; an angle opposite one of them → the largest possible value of the angle opposite the other given side, where one triangle or two may fit
+- **Angles:** Sine rule, then 180° minus; Compare with the altitude; Cosine rule as a quadratic.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): If the side opposite a given angle is the shorter of two given sides, two triangles fit. — Sometimes: it also has to be longer than the altitude from the vertex between the two sides. If it is shorter than the altitude it never reaches the base line, and no triangle fits.
+  - *true-false-reason* (L3): Two sides and the angle between them can fit two different triangles. — False: the angle between the sides fixes where both ends of the third side are, so only one triangle fits. Only an angle opposite a given side can be ambiguous.
+- **Misconceptions used:** 3. Giving only the calculator angle from sin⁻¹; Keeping B₂ = 180° − B₁ even when the angle sum then exceeds 180°; Pairing a side with an angle that is not opposite it.
 
 #### Triangle area with 1/2 ab sin C, forwards or backwards (`t3-triangle-area`, exam, 11 bank parts)
 
-- **Situation:** One triangle with its sides, angles and area, shared with `t3-sine-cosine-rule`.
+- **Situation:** One triangle with its sides, angles and area, shared with `t3-ambiguous-case`, `t3-sine-cosine-rule`.
 - **Representations:** **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given two sides; the angle between them → the area
@@ -1749,7 +1763,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Sine rule and cosine rule for a side or an angle (`t3-sine-cosine-rule`, exam, 19 bank parts)
 
-- **Situation:** One triangle with its sides, angles and area, shared with `t3-triangle-area`.
+- **Situation:** One triangle with its sides, angles and area, shared with `t3-ambiguous-case`, `t3-triangle-area`.
 - **Representations:** **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L2: given two sides; the angle between them → the third side

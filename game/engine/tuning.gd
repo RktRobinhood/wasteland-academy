@@ -188,6 +188,9 @@ const CHAINS := {
 	"fn-gdc-solve-equation": ["root-in-interval", "reject-a-root"],
 	# the sketch from its features, then what is wrong with a student's sketch of it
 	"fn-sketch-from-features": ["sketch-quadratic", "judge-a-sketch"],
+	# the composite as one expression, then its value at an input. (The parameter, solve and
+	# reversed unknowns each need their own numbers, so they stay single questions.)
+	"fn-composite": ["expression", "value-inside-out"],
 }
 
 

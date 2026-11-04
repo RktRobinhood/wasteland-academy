@@ -78,6 +78,14 @@ static var SITUATIONS := {
 	"regression": [RegressionSituation, RegressionViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
 	"compound-interest": [CompoundInterestSituation, CompoundInterestViews],
+	"composite-pair": [CompositePairSituation, CompositePairViews],
+	"inverse-rule": [InverseRuleSituation, InverseRuleViews],
+	"composite-graph-table": [GraphTableSituation, GraphTableViews],
+	"fn-pre-rearrange": [RearrangeSituation, RearrangeViews],
+	"rational-function": [RationalFunctionSituation, RationalFunctionViews],
+	"fn-pre-algebraic-fractions": [AlgebraicFractionSituation, AlgebraicFractionViews],
+	"rational-asymptote-gallery": [AsymptoteGallerySituation, AsymptoteGalleryViews],
+	"rational-model": [RationalModelSituation, RationalModelViews],
 }
 
 static var _cat: Dictionary = {}
@@ -165,11 +173,18 @@ static func covers_type(course: String, t: Dictionary) -> bool:
 	return false
 
 
-static func angle_info(t: Dictionary, unknown: String, method: String) -> Dictionary:
+## The catalogue's entry for a method on an unknown. A method can be listed twice for one
+## unknown under two skills (gdc-table, for a table's asymptotes: SL2.8 and SL2.4); with a
+## course, the entry it covers comes first (FAL-423).
+static func angle_info(t: Dictionary, unknown: String, method: String, course: String = "") -> Dictionary:
+	var found := {}
 	for a in t.get("angles", []):
 		if a.method == method and unknown in a.suits:
-			return a
-	return {}
+			if Courses.covers_method(course, a):
+				return a
+			if found.is_empty():
+				found = a
+	return found
 
 
 ## A method's name on one question: the view's title for it where it names the
@@ -767,6 +782,12 @@ static func _usable(ans: Dictionary, values: Dictionary) -> bool:
 	if ans.kind == "measure":
 		var x: float = Q.of(values.v).to_float()
 		return (x > 0.0 or (ans.get("signed", false) and x != 0.0)) and Answer.rounds_clearly(x)
+	if ans.kind == "measures":
+		for id in ["v1", "v2"]:
+			var x: float = Q.of(values[id]).to_float()
+			if x <= 0.0 or not Answer.rounds_clearly(x):
+				return false
+		return values.get("only", false) or Fmt.sf(values.v1) != Fmt.sf(values.v2)
 	for id in ["a", "ga", "fa", "va"]:
 		if values.has(id) and values[id] is Q and values[id].is_zero():
 			return false
