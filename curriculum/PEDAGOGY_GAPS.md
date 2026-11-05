@@ -339,7 +339,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): If f(m − d) = f(m + d) for one value of d, the graph of f is symmetric about x = m. — Sometimes. For a parabola any two equal outputs sit either side of the axis. But f(x) = x³ − x has f(−1) = f(1) = 0 and is not symmetric about x = 0: f(−2) = −6 while f(2) = 6.
   - *true-false-reason* (L3): X ~ N(120, σ²) and P(X > 135) = 0.15, so P(105 < X < 135) = 0.3. — False. 105 and 135 are both 15 from the mean, so each tail is 0.15. 0.3 is the two tails together; the middle is 1 − 0.3 = 0.7.
   - *predict-check* (L3): Predict the other value of r with 9Cr = 9C2, then check. — r = 7. Choosing 2 items to take is the same as choosing 7 to leave behind, so 9C2 = 9C7 = 36.
-- **Misconceptions used:** 12. Writes the axis as y = h, or just the number h, instead of x = h; Thinks the line of symmetry passes through the y-intercept; Reflects a point the wrong distance or to the wrong side; Assumes every curve with a turning point is symmetric (e.g. a cubic); Getting the size right but the sign wrong for the quadrant; Measuring the reference angle from the y-axis; P(7 < X < 13) = 0.2 + 0.2 (adding the tails instead of subtracting them from 1); Forgetting that P(X < μ) = 0.5; Applying symmetry about 0 instead of about μ; Using invNorm(0.9) for the upper endpoint instead of invNorm(0.95); Giving the endpoint μ + k when k is asked for; Using n!/r! and forgetting the (n − r)! factor.
+- **Misconceptions used:** 12. Writes the axis as y = h, or just the number h, instead of x = h; Thinks the line of symmetry passes through the y-intercept; Reflects a point the wrong distance or to the wrong side; Assumes every curve with a turning point is symmetric (e.g. a cubic); Getting the size right but the sign wrong for the quadrant; Measuring the reference angle from the y-axis; Using the sum of the tails as the middle, instead of subtracting them from the whole area; Forgetting that the mean cuts the area into two equal halves; Using the origin as the mirror instead of μ; Using the central area as the left-tail area in invNorm; Using the endpoint μ + k as the answer when k is asked for; Using n!/r! and forgetting the (n − r)! factor.
 
 #### Same object, different forms (`fn-link-equivalent-forms`, link, level 3–4)
 
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 7 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 8 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1821,6 +1821,34 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): If u₁ > 0, then S∞ is greater than u₁. — Sometimes: it is for r > 0, but for r < 0 the denominator 1 − r is more than 1, so S∞ is less than u₁.
   - *true-false-reason* (L4): 0.999… is exactly equal to 1. — True: it is 9/10 + 9/100 + …, with u₁ = 9/10 and r = 1/10, so S∞ = (9/10)/(9/10) = 1.
 - **Misconceptions used:** 12. Thinking r below one is enough, so a large negative ratio seems to converge; Solving only the upper inequality and forgetting the lower one when r depends on x; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity; Putting a plus in the formula's denominator, or dropping the sign of a negative r; Taking the coefficient as u₁ instead of the value at the lower limit; Applying the formula when the size of r is one or more, which gives a meaningless sum; Inverting the rearrangement of the formula, so S∞ and u₁ swap places; Keeping a root too large in size for a sum to infinity to exist; Substituting u₂ as if it were u₁; Doubling the first drop of a bouncing ball as well as the rebounds; Using one tenth as r for a recurring block of more than one digit; Using S∞ in context without checking that r is small enough.
+
+#### Binomial expansion: find an unknown from a given coefficient (`t1-binomial-find-unknown`, exam, 9 bank parts)
+
+- **Situation:** An expansion with a letter missing, and a coefficient given.
+- **Representations:** **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a bracket with k, and a coefficient that holds an odd power of k → k: one real value
+  - **exam** L3: given a bracket with k, and a coefficient that holds k² or k⁴ → the two values of k, whole numbers
+  - **exam** L3: given a bracket with k, and a coefficient that leaves a root → the two values of k: a surd on Paper 1, 3 s.f. on Paper 2
+  - **exam** L3: given a bracket with k, k > 0, and a coefficient that holds an even power of k → the one positive value of k
+  - **exam** L3: given (c + ax^p)^n or (cx^p + a)^n with a > 0, and a coefficient → a, a whole number or a fraction
+  - **exam** L3: given (1 + kx)^n with k known, and the coefficient of x² → n, from a quadratic with the negative root rejected
+  - **exam** L4: given (c + x^p)^(n + s), and a coefficient → n, which is in the power of c too, so by GDC
+  - **exam** L4: given the first terms of (1 + kx)^n, with k² left as a letter → n and k
+  - **exam** L4: given the coefficients of x and x² in (1 + ax)^n → n and a
+  - **exam** L3: given two neighbouring coefficients of (1 + kx)^n are equal, n known and k ≠ 0 → k
+  - **exam** L3: given two neighbouring coefficients of (1 + kx)^n or (c + x)^n are equal → n
+  - **exam** L3: given the ratio of two neighbouring coefficients of (1 + kx)^n, n known → k
+  - **exam** L3: given the ratio of two neighbouring coefficients of (1 + kx)^n, k known → n
+  - **exam** L4: given the same coefficient in (ax^p + b)^n and in a second power of the same bracket → a and b, both positive
+  - **exam** L4: given (ax + 1)^n ÷ (cx^p), and a coefficient that holds a power of a → a, with a ≠ 0
+  - **exam** L4: given (x + c)^n, and that one term is the mean of the terms beside it → the possible values of x, with x ≠ 0
+- **Angles:** Write the relevant term and equate its coefficient; Form two equations from two coefficients; Solve or search on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): If the coefficient of x³ in (1 + kx)⁶ is given, k can have two values. — False: the coefficient holds k³, and an odd power has one real root.
+  - *true-false-reason* (L3): If the coefficient of x² in (1 + kx)ⁿ is positive, k must be positive. — False: the coefficient holds k², which can't show the sign of k. The coefficient of x, nk, does.
+  - *always-sometimes-never* (L4): The coefficients of x^r and x^(r + 1) in (1 + x)^n are equal. — Sometimes: nCr = nC(r + 1) only when r + 1 = n − r, so n has to be odd and r the middle.
+- **Misconceptions used:** 19. Using the letter to the first power, so the term's power reaches x and not the letter; Taking only the positive value of a letter that is squared, when the negative one works too; Keeping the zero root, although the question rules it out; Ignoring the sign: treating a negative term raised to an odd power as positive; Forgetting to raise the other term to its power; Using plus or minus on an odd power, which has one real root; Using both signs, although the question says the letter is positive; Using a square root where the letter is to the fourth power; Keeping the negative root of the quadratic in n, though n is a positive integer; Using n for nCr in the term, as if every coefficient had n in front of it; Stopping at the product on top of nCr and giving that as n; Giving the power of the bracket as n, when the power is n and a number; Using the ratio of the two coefficients upside down; Dividing n by the coefficient of x to find k, which is the wrong way round; Leaving r out of the ratio of two neighbouring nCr values, so n is on top and not n − r; Reading the term on top at the power asked, without adding the power of x that the divisor takes off; Leaving out the number in the divisor; Stopping at a power of b, without taking its root; Using the place of the term as r, when r starts from 0.
 
 #### Binomial expansion: a coefficient, a term or the full expansion (`t1-binomial-term`, exam, 6 bank parts)
 
@@ -2219,7 +2247,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 20 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2249,6 +2277,28 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): A larger sample gets rid of bias. — Never by itself: more people from the same biased method makes the result steadier, not fairer. Only changing who can be chosen removes the bias.
   - *true-false-reason* (L3): If a sample is random, its mix of groups matches the population. — False: a random method gives everyone a fair chance, but chance can still move any one sample away from the true mix.
 - **Misconceptions used:** 5. Thinking quota sampling and stratified sampling are the same: quota fills each group without random selection; Mixing up systematic and simple random sampling: systematic has a random start, then follows the interval; Treating whoever happens to be nearby as a simple random sample; Thinking a larger sample removes bias: it improves reliability, but a biased method stays biased; Thinking a random sample is always perfectly representative.
+
+#### The 1.5 x IQR outlier rule (`t4-outlier-rule`, exam, 4 bank parts)
+
+- **Situation:** One or two data sets, summarised by a box plot, and the outlier rule on them, shared with `t4-box-plot`.
+- **Representations:** **graph**, **terms**, **table**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - new L2: given a box plot, a list or the five numbers → Q1 − 1.5 × IQR and Q3 + 1.5 × IQR
+  - **exam** L3: given a box plot, a list or the five numbers, and a value → whether the value is an outlier, with the two numbers
+  - **exam** L2: given a box plot, a list or the five numbers → the two numbers that show the greatest value is an outlier
+  - **exam** L3: given a box plot or the five numbers → the largest value that would not be an outlier
+  - **exam** L3: given a box plot or the five numbers, in whole numbers → the smallest value that would be an outlier
+  - **exam** L4: given the IQR, the median, the extremes and no outliers → the minimum possible U or L
+  - **exam** L3: given a list or a frequency table → how many values are outliers
+  - **exam** L2: given an outlier and a limit from the story → whether to remove it, with the reason
+  - **exam** L3: given a list and its outlier → the mean and the median of what is left
+  - **exam** L2: given a list and its outlier → the statement that describes the effect on two measures
+- **Angles:** Compute both fences; Compare the distance from the nearest quartile; Modified box plot on the GDC; Is it a mistake or a genuine extreme?; Reason about which measures it affects.
+- **Concept probes:**
+  - *true-false-reason* (L3): An outlier should always be removed from the data. — False: remove a value only if it can't be true, such as a recording error. A genuine extreme is part of the data.
+  - *always-sometimes-never* (L3): A value exactly on the upper fence is an outlier. — Never: an outlier is greater than Q3 + 1.5 × IQR, so a value on the fence is not beyond it.
+  - *predict-check* (L3): Predict what removing a very high value does to the mean and to the median, then say why. — The mean falls noticeably and the median hardly moves: the mean uses how far out each value is, but the median uses only the middle.
+- **Misconceptions used:** 15. Using 1.5 × Q3 as the upper fence instead of Q3 + 1.5 × IQR; Measuring 1.5 × IQR from the median instead of from the nearest quartile; Calling any value that looks far from the rest an outlier without doing the test; Using the fence on the far side from the value; Reading the comparison backwards, so a value inside the fences is called an outlier or one beyond them is not; Leaving the factor out of the fence, so that it sits one IQR from the quartile; Using the fence itself as the smallest outlier, though a value on the fence is not beyond it; Using the quartile, not the IQR, as the distance to multiply; Assuming every outlier must be deleted; Assuming removing an outlier changes the median or the IQR as much as the mean or the range; Assuming every outlier must stay in the data, even an impossible value; Using the old number of values to find the new mean; Assuming the median stays exactly the same when a value is removed; Reversing which measure an outlier drags and which it leaves alone; Getting the direction of the change wrong.
 
 #### Read and use a cumulative frequency graph (`t4-cumulative-frequency`, exam, 6 bank parts)
 
@@ -2291,6 +2341,71 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): The 90th percentile is read across from 90 on the vertical axis. — Sometimes: only when n is 100. Otherwise it is across from 90% of n.
   - *predict-check* (L4): The curve is steepest between 20 and 30. What does that say about the data? — More values lie in that stretch than in any other of the same width: steep means many, flat means few.
 - **Misconceptions used:** 7. Taking the middle of the data's range for the median, instead of the value halfway through the cumulative frequency; Subtracting the quartile positions on the cumulative frequency instead of the quartile values of the data; Using the percentile number as the cumulative frequency, when it is a percentage of the total; Giving the cumulative frequency itself, which counts those at or below the value, not those above it; Using the size of the top group as the cumulative frequency, instead of taking it from the total; Plotting cumulative frequencies at class midpoints instead of upper boundaries; Mixing up the running total with the frequency of a single class.
+
+#### Read, interpret and compare box plots (`t4-box-plot`, exam, 7 bank parts)
+
+- **Situation:** One or two data sets, summarised by a box plot, and the outlier rule on them, shared with `t4-outlier-rule`.
+- **Representations:** **graph**, **terms**, **table**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a box plot, with one or two boxes → the median
+  - **exam** L1: given a box plot → Q1 or Q3
+  - **exam** L1: given a box plot, with one or two boxes → the IQR
+  - **exam** L1: given a box plot, perhaps with a cross → the range
+  - **exam** L2: given a box plot, with one or two boxes → the median and the IQR together
+  - **exam** L2: given a list or a frequency table → the five-number summary
+  - new L3: given a cumulative frequency curve → the five numbers of its box plot
+  - **exam** L2: given a list or a frequency table, and four box plots on one axis → the plot that shows the data
+  - **exam** L3: given a list with an outlier, and four box plots on one axis → the plot that shows the data, with the outlier as a cross
+  - **exam** L2: given a box plot or its five numbers, and n → how many values lie between two marks
+  - new L1: given a box plot → the percentage of values between two marks
+  - **exam** L2: given a box plot; a share above or below a → the value a
+  - **exam** L3: given a box plot, symmetric or skewed → whether the data could be normal, with the two gaps in the box
+  - **exam** L3: given a skewed box plot → how the mean is likely to compare with the median, with a reason
+  - **exam** L3: given two box plots → a comparison of centre and spread in context
+  - **exam** L3: given the mean, standard deviation and maximum of two groups → a comparison of centre and spread in context
+  - **exam** L3: given two box plots and a claim → whether the plots support the claim, with the two medians
+- **Angles:** Five-number summary from the data; Read the five values from a cumulative frequency graph; 1-Var Stats or a box plot on the GDC; Compare medians and IQRs from the box plots; Compare means and standard deviations.
+- **Concept probes:**
+  - *true-false-reason* (L3): In a box plot, the longest whisker holds the most data. — False: each whisker and each half of the box holds about a quarter of the data. A long section means those values are spread out, not that there are more of them.
+  - *always-sometimes-never* (L3): The median is in the middle of the box. — Sometimes: it is only when the data between the quartiles are symmetric. The median splits the data in two by count, not the box by length.
+  - *predict-check* (L3): A box plot has a long upper whisker. Predict whether the mean is above or below the median, then say why. — Above: the median depends only on the middle of the data, but the mean uses every value, so the few high values pull it up.
+- **Misconceptions used:** 22. Assuming a longer section of the box or a longer whisker holds more of the data; Drawing the whisker out to an outlier instead of marking the outlier separately with a cross; Using the median in both halves when n is odd; Using the values in the order shown, without sorting them first; Using each value of a frequency table once, ignoring its frequency; Using the middle of the box as the median; Using the whole length of the plot as the IQR, or the IQR as the range; Using the end of the whisker as the greatest value, leaving the cross out; Using a quarter of the horizontal axis as a quartile, instead of a quarter of the frequency; Using the cumulative frequency levels as the values themselves; Using the ends of the axis as the least and greatest values; Using the share below a value when the question gives the share above it, or the other way round; Using the range to judge the shape of the data; Reading the gaps backwards, so equal gaps seem skewed and unequal gaps symmetric; Assuming the mean equals the median because half of the data lie on each side of the median; Using the values a quarter and three quarters of the way along the list as the quartiles, not the medians of the halves; Drawing the whisker out to the fence, not to the furthest value inside it; Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1; Comparing only the maximum or minimum values; Using a larger spread as a sign of a higher average; Quoting the numbers without saying what they mean in context; Reading the comparison backwards, so the verdict is the opposite of what the medians show.
+
+#### Grouped and frequency-table data: missing frequency, modal class, estimates (`t4-grouped-data`, exam, 9 bank parts)
+
+- **Situation:** A frequency table, a small list, or groups with means.
+- **Representations:** **table**, **terms**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a grouped frequency table of equal classes → the modal class
+  - **exam** L2: given a grouped frequency table with one frequency p; the total → the modal class, once p is found
+  - **exam** L1: given a grouped frequency table → the mid-interval value of one class
+  - **exam** L1: given a grouped frequency table of unequal classes → the mid-interval value of every class
+  - **exam** L2: given a grouped frequency table → an estimate of the mean
+  - new L2: given a grouped frequency table; the mean found from it → why that mean is an estimate
+  - **exam** L2: given a grouped frequency table → an estimate of the standard deviation
+  - **exam** L3: given a grouped frequency table → an estimate of the variance
+  - **exam** L2: given a frequency table of single values → the standard deviation
+  - **exam** L2: given a frequency table of single values → the variance
+  - **exam** L3: given a short list of values → the standard deviation
+  - **exam** L3: given a short list of values → the variance
+  - **exam** L1: given the standard deviation of some data → the variance
+  - **exam** L1: given the variance of some data → the standard deviation
+  - **exam** L2: given the means and standard deviations of two groups → what the figures show
+  - **exam** L1: given a grouped frequency table with one frequency p; the total → p
+  - **exam** L4: given a grouped frequency table with one frequency p; the estimate of the mean → p
+  - **exam** L4: given a frequency table with two frequencies p and q; the total and the mean → p and q
+  - **exam** L3: given a frequency table with one frequency x; the median → x
+  - **exam** L3: given a frequency table with one value k; the mean → k
+  - **exam** L3: given the size and mean of a group; the mean once one value joins it → the new value
+  - **exam** L2: given the sizes and means of two or three groups → the mean of the whole group
+  - **exam** L2: given a table of the sizes and means of three groups → the total of the whole group
+  - **exam** L3: given the size and mean of the whole group; the size and mean of one part of it → the mean of the other part
+- **Angles:** Σfx ÷ Σf with mid-interval values; Midpoints and frequencies in GDC lists; σx from GDC 1-Var Stats; From the mean squared deviation; Variance is the square of the SD; Work with totals; Set Σfx ÷ Σf equal to the mean; Deviations from the mean add to zero; Median at position (n + 1)/2.
+- **Concept probes:**
+  - *true-false-reason* (L3): The mean found from a grouped table is the exact mean of the data. — False: the table hides where in each class the values lie, so every value is replaced by its mid-interval value. The result is an estimate.
+  - *true-false-reason* (L3): A standard deviation can be negative when most of the values are below the mean. — False: the deviations are squared before they are added, and the standard deviation is the positive root of the result.
+  - *always-sometimes-never* (L3): The mean of two groups together is the average of their two means. — Sometimes: only when the groups are the same size, or have the same mean. Otherwise the larger group pulls the mean its way.
+- **Misconceptions used:** 28. Dividing by the number of classes instead of the total frequency; Using the upper class boundary instead of the mid-interval value; Calling the estimate the exact mean; Using the lower class boundary instead of the mid-interval value; Using the class width instead of the mid-interval value; Assuming each value counts once, leaving the frequencies out; Using the class that holds the median as the modal class; Assuming the class with an unknown frequency cannot be the modal class; Assuming every class is as wide as the first when listing mid-interval values; Using Sx, which divides by one less than n, instead of σx; Using the standard deviation for the variance, or the variance for the standard deviation; Assuming the standard deviation can be negative because some values are below the mean; Using the mean of the deviations without their signs, with no squaring; Using twice the standard deviation as the variance; Using half of the variance as the standard deviation; Assuming a larger standard deviation means a larger mean; Reading a larger standard deviation as less spread; Assuming every value lies within one standard deviation of the mean; Averaging the two group means for a combined mean when the groups are different sizes; Forgetting that the unknown frequency p also appears in the denominator Σf; Using the sum of the known frequencies as the missing frequency; Assuming every class has the same frequency; Using each solved frequency in the row of the other; Using the old number of values for the new total; Using the missing value once, ignoring its frequency; Dividing the rest of the total by the size of the whole group; Using the equation for the mean when the median is given; Using the count on one side of the median as the missing frequency.
 
 #### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 11 bank parts)
 
@@ -2477,6 +2592,45 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): For any binomial distribution, Var(X) is smaller than E(X). — True: Var(X) = np(1 − p) = E(X)(1 − p), and 1 − p is less than 1, so the variance is always smaller than the mean. That is why Var(X) ÷ E(X) gives 1 − p.
 - **Misconceptions used:** 14. Writing B(p, n) instead of B(n, p); Leaving out the nCr factor and giving just p^r (1 − p)^(n − r); Swapping the powers: p^(n − r) (1 − p)^r; Using the cumulative function (binomcdf) for 'exactly r'; P(X ≥ 3) = 1 − P(X ≤ 3) (it should be 1 − P(X ≤ 2)); Using P(X ≤ 5) for P(X < 5); P(2 < X ≤ 6) = P(X ≤ 6) − P(X ≤ 3) (it should subtract P(X ≤ 2)); Var(X) = np (forgetting the factor 1 − p); Giving np(1 − p) when the standard deviation is asked for; Rounding E(X) to a whole number; Rounding n down instead of up to the next whole number; Taking p = Var(X) ÷ E(X) (that gives 1 − p); Finding P(X = 3) in 8 trials for 'the third success is on the eighth trial'; Multiplying the two probabilities in a conditional instead of dividing.
 
+#### Normal curve properties: symmetry, sigma intervals, matching curves (`t4-normal-properties`, exam, 8 bank parts)
+
+- **Situation:** What the shape of a normal curve gives.
+- **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given μ and σ, or X ~ N(μ, a²); a band μ ± kσ for k = 1, 2 or 3 → the approximate probability or percentage in the band
+  - new L2: given μ, σ and how many there are; a band μ ± kσ → about how many are inside, or outside, the band
+  - **exam** L2: given μ and σ; a bound k standard deviations from the mean → the approximate area below or above the bound
+  - new L3: given μ and σ; a band whose ends are different numbers of σ from the mean → the approximate area of the band
+  - new L3: given a band centred on the mean and the share of the rule it holds → σ
+  - **exam** L1: given μ, σ and one end of the band within k standard deviations of the mean → the other end
+  - new L1: given μ, σ and a single value → P(X = a)
+  - new L2: given two normal curves, or one and a change in μ or σ → how the curve changes
+  - **exam** L2: given four curves on one figure; one distribution, with σ² as a square or as the variance → which curve it is
+  - **exam** L3: given two distributions, with the second parameter as a square or as the variance → which of four graphs shows both
+  - **exam** L1: given X ~ N(μ, σ²) and an event → which of four graphs shades the event
+  - **exam** L3: given X and Y with different means and the same σ; P(X > b) = P(Y > y) → b
+  - new L4: given X and Y with different means and the same σ; P(X < b) = P(Y > y) → b
+  - **exam** L2: given μ and σ; a number of standard deviations that is not whole → the probability of being more than that far above, below or from the mean
+  - **exam** L1: given X ~ N(μ, σ²) → P(X < μ) or P(X > μ)
+  - **exam** L2: given μ and one tail → the mirror tail
+  - new L3: given μ and a large area past the mean → the small tail on the other side
+  - **exam** L2: given μ and one tail → the area between the tail's bound and its mirror
+  - **exam** L2: given a band centred on μ and its area → one tail
+  - new L2: given a band centred on μ and its area → the area from μ to one end
+  - new L3: given μ and one tail → the area between μ and the tail's bound
+  - **exam** L2: given two different tails, with μ and σ hidden → the area between them
+  - **exam** L3: given μ, σ, the upper end of a band and the band's area → the tail below the band
+  - **exam** L2: given μ and one of two values that cut off equal tails → the other value
+  - **exam** L3: given μ, σ and P(μ − k < X < μ + k) → k
+  - **exam** L3: given μ, σ and the area of a central interval → both ends of the interval
+  - new L4: given μ, σ and the area within k standard deviations of the mean → k
+- **Angles:** 68-95-99.7 rule; Sketch, label μ and shade; μ moves the curve, σ stretches it; Mirror the tail; Total area 1, each half 0.5; Sketch and shade; Split what is left into two equal tails; GDC centre-tail inverse normal; Solve normalcdf(μ − k, μ + k, μ, σ) = the given area.
+- **Concept probes:**
+  - *true-false-reason* (L3): For a normal variable, P(X < a) and P(X ≤ a) are equal. — True: X is continuous, so P(X = a) = 0, and adding one value adds no area.
+  - *always-sometimes-never* (L3): Doubling σ doubles the height of a normal curve's peak. — Never: the total area stays 1, so a curve twice as wide has half the height.
+  - *interpret-parameter* (L3): Two normal curves have the same σ and different means. What is the same about them, and what is different? — They are the same shape, so one slides onto the other. Only their positions differ.
+- **Misconceptions used:** 35. Using the wrong figure of the rule for how many standard deviations the band reaches; Assuming a larger σ gives a taller curve; Assuming a single value of a continuous variable has a non-zero probability; Using the sum of the tails as the middle, instead of subtracting them from the whole area; Forgetting that the mean cuts the area into two equal halves; Using the origin as the mirror instead of μ; Using the central area as the left-tail area in invNorm; Using the endpoint μ + k as the answer when k is asked for; Giving the area on the wrong side of the bound or the band; Using the share of the whole band for a region that is not that band; Using half of the band where another area is asked for; Keeping both tails when one is asked for; Using one tail where there are two; Leaving a share as a share instead of multiplying by the total; Using the width of the band ÷ k, when the band reaches k standard deviations each side; Stepping from the given end only as far as the mean; Stepping one standard deviation from the mean when the band reaches further; Assuming a change in μ changes the shape of the curve; Assuming a change in σ moves the curve along; Assuming a larger σ makes the curve narrower; Moving the curve the wrong way along the axis; Using the wrong mean for the curve; Shading from the mean to the bound instead of the region asked for; Centring the curve somewhere other than the mean; Using k in place of kσ, so the bound is k from the mean; Using the complement where the mirror is needed; Using the large area as the mirror of itself, without taking it from the whole area; Measuring the area from the mean instead of the tail; Assuming two different tails are equal; Keeping the value unchanged when the curve has moved; Moving the value the wrong way, by the difference of the means; Using the same side of the mean when the two tails point opposite ways; Using the sum of the value and the mean instead of a reflection; Using z without multiplying by σ; Multiplying by σ when k already counts standard deviations.
+
 #### Normal probability for an interval on the GDC (`t4-normal-probability`, exam, 12 bank parts)
 
 - **Situation:** A normal variable with a region asked for, shared with `t4-normal-unknown-parameter`.
@@ -2608,7 +2762,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 13 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -2851,6 +3005,39 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): If f″(x) > 0 on an interval, then f′ is increasing on that interval. — True: f″ is the derivative of f′, so a positive f″ means f′ is increasing, whatever the sign of f′ itself.
   - *always-sometimes-never* (L4): If f″(a) = 0, then the graph of f has a point of inflexion at x = a. — Sometimes: x³ does at x = 0, but x⁴ has f″(0) = 0 and is concave up on both sides, so it has none. f″ has to change sign.
 - **Misconceptions used:** 7. Squaring f′(x) instead of differentiating it; Stopping at f′ instead of differentiating again; Reading d²y/dx² as (dy/dx)²; Confusing concave up with increasing: looking at the sign of f′ instead of f″; Thinking concave down means decreasing; Going by the curve's general shape instead of checking its zeros, turning points and signs; Putting the zeros of a derivative at the x-intercepts instead of at the turning points.
+
+#### Integrate, then find the constant from a point or initial value (`t5-antiderivative-condition`, exam, 9 bank parts)
+
+- **Situation:** A derivative and a condition that fixes the constant.
+- **Representations:** **equation**, **words**, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given f′(x) as a polynomial; f(a) = b → f(x)
+  - **exam** L2: given f′(x) = ax + b; f at a point in decimals → f(x), with a decimal constant
+  - **exam** L2: given dy/dx as a polynomial; a point on the curve → the equation of the curve
+  - **exam** L2: given f′(x); f(a) = b; the integrated form with + C → the value of C
+  - **exam** L3: given f′(x); f(a) = b → a further value f(c)
+  - **exam** L3: given f′(x) with a negative power of x; f(a) = b → f(x)
+  - **exam** L3: given f′(x) = k cos(ax) or k sin(ax); f at a multiple of π → f(x)
+  - **exam** L3: given dy/dx = k cos(x + c) or k sin(x + c); y at a multiple of π → y in terms of x
+  - **exam** L3: given a gradient k/(ax + b); a point on the curve → f(x) or the equation of the curve
+  - **exam** L3: given f′(x) with a power of x and an exponential; f(0) or the curve's y-intercept → f(x)
+  - **exam** L3: given f′(x) with cos x or sin x and an exponential; f(0) → f(x)
+  - **exam** L3: given f′(x) = e^(ax) + b; f at a decimal point → f(x), with the constant to 3 s.f.
+  - **exam** L4: given f′(x) = 2kx/(x² + a); a point on the graph → f(x), with a log in the constant
+  - **exam** L4: given f′(x) = k(2x + b)/(x² + bx + c); a value of f with a log in it → f(x)
+  - **exam** L4: given a rate that decays exponentially; the amount at the start → the amount at a later time, to 3 s.f.
+  - **exam** L3: given f″(x) as a polynomial; f′ and f at a point → f(x)
+  - **exam** L4: given f″(x) = ax + be^x; f′(0) and f(0) → f(x)
+  - **exam** L4: given f″(x) as a polynomial; f′ and f at a point → a further value f(c)
+  - **exam** L3: given dy/dx with a constant a; the gradient at one point; a point on the curve → y in terms of x
+  - new L2: given f′(x); a point; a family y = F(x) + C on one figure → the C of the curve through the point
+  - new L3: given the graph of f′ in straight pieces; f(a) = b → a further value f(c)
+- **Angles:** Integrate, then substitute the point; Start value plus accumulated change; Choose the right vertical shift; Integrate and fit the constant(s); Start value plus GDC integral.
+- **Concept probes:**
+  - *true-false-reason* (L3): Knowing f′(x) for every x is enough to know f(x) for every x. — False: f′ fixes the shape, and any vertical shift has the same derivative. One value of f is needed to pick the shift.
+  - *always-sometimes-never* (L3): Two different antiderivatives of the same function on one interval cross each other. — Never: they differ by a constant, so one curve is the other moved up or down, and the gap never closes.
+  - *true-false-reason* (L4): From f″(x), one condition is enough to find f(x). — False: there are two integrations, so two constants, and each needs a condition of its own.
+- **Misconceptions used:** 23. Substituting the point into f′(x) instead of f(x); Substituting the y-value in place of x; Leaving + C in the final answer; Dropping the constant of integration; Adding F(a) to the given value instead of subtracting it when solving for C; Taking C to be the y-value of the given point; Differentiating f′ instead of integrating it; Giving f′ at the point asked for instead of f; Using the gradient as a height on the curve when fixing C; Counting every area under f′ as positive; Using a single constant for both integrations from f″; Using a wrong exact value of sin, cos, e or ln when finding C; Substituting the point into f′ instead of f; Assuming the rate stays at its starting value for the whole time; Using the two conditions at the wrong stages; Stopping at f′ after one integration when f is asked for; Dividing by the old power instead of the new one; Integrating sin x to cos x, with the wrong sign; Multiplying by the coefficient of x, as in differentiation, instead of dividing; Forgetting to divide by the coefficient of x; Forgetting to divide by the number that comes from differentiating the inside; Evaluating the rate at the end time instead of integrating; Adding the starting amount when only the change is asked for, or forgetting it when the total is asked for.
 
 #### Definite integrals and areas, including regions below the axis and unknown limits (`t5-definite-integral-area`, exam, 9 bank parts)
 

@@ -4247,6 +4247,298 @@
     "two options of a test end in each verdict",
     "the quadratic for P(B) has one root that makes P(A) at most 1, and the quadratic for x has one repeated root"
    ]
+  },
+  "grouped-data": {
+   "name": "A frequency table, a small list, or groups with means",
+   "summary": "Draw the classes or values and the frequencies first, and work every total, mean and variance out of them exactly. A missing row is hidden only after the table is drawn, so its value is always a clean frequency. A short list is drawn around a whole mean, and groups by their sizes and means.",
+   "quantities": [
+    {
+     "name": "lo, hi",
+     "is": "the class boundaries",
+     "pick": "a width of 5, 10, 20 or 50 from a multiple of it, one or two widths each if unequal, with four or five classes"
+    },
+    {
+     "name": "xs",
+     "is": "the mid-interval values, or the values of a table or list",
+     "pick": "halfway across each class; consecutive values or a step of 2 or 5; a list around a whole mean"
+    },
+    {
+     "name": "fs",
+     "is": "the frequencies",
+     "pick": "at least 1, adding to 10, 20, 25, 40, 50 or 100 on Paper 1 and to 30 to 150 on Paper 2, tenths in a table in thousands"
+    },
+    {
+     "name": "at, at2",
+     "is": "the row asked about or hidden",
+     "pick": "any row"
+    },
+    {
+     "name": "p_top",
+     "is": "whether the hidden frequency is the greatest",
+     "pick": "a fair coin, drawn before anything else"
+    },
+    {
+     "name": "sizes, means",
+     "is": "the groups",
+     "pick": "all sizes different and all means different"
+    },
+    {
+     "name": "sd, variance",
+     "is": "the spread, when it is given",
+     "pick": "one decimal place on Paper 1, two on Paper 2; a variance from a square on Paper 1"
+    }
+   ],
+   "clean": [
+    "Paper 1 answers are exact and end within two decimal places; a Paper 1 standard deviation of a small set is a whole number",
+    "Paper 2 answers that need rounding are clear of a rounding edge by 0.03 of a unit of the third figure",
+    "σx and Sx read differently to 3 s.f. in every table that offers the slip",
+    "the modal class is unique; in modal-class it is not the class of the median",
+    "p and q differ, and an estimate or mean given for a hidden frequency ends within two decimal places",
+    "every frequency is at least 1 and every class boundary is positive"
+   ]
+  },
+  "binomial-unknown": {
+   "name": "An expansion with a letter missing, and a coefficient given",
+   "summary": "Draw the letter's value, or n, first, and work every given out from it exactly. The same (u + vx)^n carries a letter in either place, and two coefficients are compared by their neighbouring nCr values.",
+   "quantities": [
+    {
+     "name": "n",
+     "is": "the power",
+     "pick": "4 to 8 on Paper 1 and 6 to 12 on Paper 2, or to 14 where two coefficients are compared"
+    },
+    {
+     "name": "shape, c, flip",
+     "is": "the bracket: (1 + kx), (c + kx), (x + k) or (cx + k), and which part comes first",
+     "pick": "c from 2 to 3 on Paper 1, up to 4 on Paper 2"
+    },
+    {
+     "name": "e, m",
+     "is": "the power of the letter in the term, and of x",
+     "pick": "e of 2 or 4 for two signs, 3 or 5 for one"
+    },
+    {
+     "name": "val, d",
+     "is": "the letter's value, or the d of a surd ±√d",
+     "pick": "a whole number to 5 in size, a fraction from a short list, or d from 2, 3, 5, 6, 7, 10"
+    },
+    {
+     "name": "k, j, ratio",
+     "is": "the known k, the lower power compared, and the ratio of the two coefficients",
+     "pick": "j from 1 to 5, with the ratio's two numbers to 40"
+    },
+    {
+     "name": "N, shift",
+     "is": "n-from-power-bracket: the bracket's power is n + shift = N",
+     "pick": "N from 5 to 9, shift of 2, 1 or −1"
+    },
+    {
+     "name": "a, b, t, n2",
+     "is": "two-brackets: the numbers in the bracket, the brackets giving x, and the second power",
+     "pick": "a a half, a third, 2 or 3, b from 2 to 4, n2 one or two above n"
+    },
+    {
+     "name": "top, R",
+     "is": "quotient-coefficient: nCt ÷ c, and the number before a^(t − 1) in the given coefficient",
+     "pick": "c divides nCt, and R·c is that nCt × a"
+    },
+    {
+     "name": "r, x1, x2",
+     "is": "term-mean: the middle term's r, and the two values of x",
+     "pick": "Paper 1 from the n and r whose quadratic has rational roots, Paper 2 any with two positive roots"
+    }
+   ],
+   "clean": [
+    "Paper 1 coefficients are at most 20000 in size, Paper 2 at most 200000000, and a coefficient's denominator is at most 100",
+    "a surd is exact on Paper 1, and 3 s.f. on Paper 2 is clear of a rounding edge",
+    "the two values of term-mean differ to 3 s.f.",
+    "the bank's brackets and the skill's examples are left out",
+    "an even power asks for both signs unless the question says the letter is positive"
+   ]
+  },
+  "antiderivative-condition": {
+   "name": "A derivative and a condition that fixes the constant",
+   "summary": "Draw a derivative from one of the bank's families, then a point, value or start amount. The right constant follows from the integrated function; the wrong ones come from the slips. Exact wherever the exam is, with landmark angles and a point that makes e⁰ or ln 1 fall out; the decimal e^(ax) and the rate model are worked to 3 s.f.",
+   "quantities": [
+    {
+     "name": "fp, fpp",
+     "is": "the derivative or second derivative as a sum of powers",
+     "pick": "whole coefficients, chosen so most integrals have whole coefficients"
+    },
+    {
+     "name": "x0, y0",
+     "is": "the condition",
+     "pick": "small whole numbers; tenths and hundredths on the decimal cell; a multiple of π at a landmark for trig"
+    },
+    {
+     "name": "k",
+     "is": "the constant",
+     "pick": "worked out from the condition, and never 0"
+    },
+    {
+     "name": "K, a, sh",
+     "is": "the coefficient, the inside and the shift of a trig or reciprocal term",
+     "pick": "a from 2 to 4, or ax + b = 1 at the point; sh a multiple of π/6 or π/4"
+    },
+    {
+     "name": "A, B, e",
+     "is": "a power or trig term beside B e^(ex)",
+     "pick": "the condition is at x = 0"
+    },
+    {
+     "name": "p, q, c1, c2",
+     "is": "f′ and f at a point and the two constants",
+     "pick": "both constants not 0, and p and q differ"
+    },
+    {
+     "name": "A, kq, P0, T, sign",
+     "is": "the rate ±A e^(−kq t) and the start",
+     "pick": "kq in steps of 0.005 from 0.01 to 0.09; P0 a whole number of tens"
+    },
+    {
+     "name": "cs",
+     "is": "the four curves of a family",
+     "pick": "the right C and three slips, at least 2 apart"
+    },
+    {
+     "name": "xs, ys, from",
+     "is": "the corners of f′ and the corner the start is at",
+     "pick": "whole corners, with pieces above and below the axis"
+    }
+   ],
+   "clean": [
+    "the constant is not 0",
+    "Paper 2's 3 s.f. values are clear of a rounding edge by 0.05 of a unit of the third figure, and are not whole",
+    "the constant of the decimal e^(ax) is at least 1 in size",
+    "a family's four values of C are at least 2 apart and at most 16 in size",
+    "the rate model's result is above 500 and its change is at least 100"
+   ]
+  },
+  "normal-properties": {
+   "name": "What the shape of a normal curve gives",
+   "summary": "A normal variable where the shape does the work: the rule's bands, the mirror about μ, and total area 1, and on Paper 2 a central area with invNorm. Facts are clean and the answers exact, apart from values a GDC gives. A figure draws the σ its areas force.",
+   "quantities": [
+    {
+     "name": "mu, sg",
+     "is": "the mean and the standard deviation",
+     "pick": "whole on Paper 1; tenths half of the time on Paper 2; σ at most μ ÷ 5"
+    },
+    {
+     "name": "k",
+     "is": "how many standard deviations a band reaches",
+     "pick": "1, 2 or 3"
+    },
+    {
+     "name": "z1, z2",
+     "is": "the ends of an unequal band, in σ from the mean",
+     "pick": "whole numbers from −3 to 3, never centred on the mean"
+    },
+    {
+     "name": "n",
+     "is": "how many there are",
+     "pick": "a multiple of 100, or of 1000 for the third band"
+    },
+    {
+     "name": "p, c",
+     "is": "a tail and a central area",
+     "pick": "hundredths on Paper 1 and thousandths on Paper 2, a tail up to 0.27 on a figure and 0.45 otherwise"
+    },
+    {
+     "name": "p1, p2",
+     "is": "two different tails",
+     "pick": "0.05 to 0.42, adding to at most 0.8"
+    },
+    {
+     "name": "curves",
+     "is": "four curves on one figure",
+     "pick": "two means and two spreads, lettered in a random order"
+    },
+    {
+     "name": "h",
+     "is": "a number of standard deviations that is not whole",
+     "pick": "tenths from 0.5 to 2.5"
+    },
+    {
+     "name": "level",
+     "is": "a central area",
+     "pick": "0.6 to 0.99"
+    }
+   ],
+   "clean": [
+    "Answers from the rule, symmetry and area are exact. A value from a GDC is to 3 s.f. and 0.03 of a unit of the third figure from a rounding edge",
+    "a figure's marks stay at least 0.6 σ apart, and a figure with a hidden σ draws the σ the areas force",
+    "σ is at most μ ÷ 5, so three standard deviations below the mean is still a real measurement",
+    "a count by the rule is a whole number: n is a multiple of 100, or of 1000 for the third band",
+    "two tails that are meant to differ differ, and no two tails add to more than 0.8",
+    "a central area is not 0.5, so a slip on the left tail gives a value"
+   ]
+  },
+  "box-plot": {
+   "name": "One or two data sets, summarised by a box plot, and the outlier rule on them",
+   "summary": "Pick the five numbers of a box plot on a scaled axis, or a list or frequency table and find them, or take them from a cumulative frequency curve. Everything else follows: each section's quarter of the data, the shape, a comparison of two groups, the fences of the 1.5 × IQR rule, and a value tested against them.",
+   "quantities": [
+    {
+     "name": "tick, x0, x1",
+     "is": "the figure's axis",
+     "pick": "25 ticks, a number every fifth; a tick is 1, 2, 5 or 10, and on Paper 2 also 0.5, 0.2, 0.1 or 0.02, as suits the story"
+    },
+    {
+     "name": "min, q1, med, q3, max",
+     "is": "the five numbers of a box",
+     "pick": "on ticks and at least two ticks apart, symmetric or skewed; or worked out from the data"
+    },
+    {
+     "name": "xs, fs, data",
+     "is": "a list as shown, a table's values and frequencies, and every value in order",
+     "pick": "9 to 13 whole numbers on Paper 1, in order; 11 to 17 on Paper 2, as they came, some in tenths; a table has 4 to 7 values"
+    },
+    {
+     "name": "Q1, Q3",
+     "is": "the medians of the two halves, the median left out when n is odd",
+     "pick": "as DataSummarySituation.quartiles"
+    },
+    {
+     "name": "n",
+     "is": "how many values a plot stands for",
+     "pick": "a multiple of 4, and of the plot's length in ticks where a share is asked"
+    },
+    {
+     "name": "ka, kb",
+     "is": "the two marks a share runs between",
+     "pick": "two of the five numbers"
+    },
+    {
+     "name": "outl, x, side",
+     "is": "whether the tested value is an outlier, the value, and which end it is at",
+     "pick": "a fair coin, drawn first; one or two ticks from the fence either way, on the same quartiles"
+    },
+    {
+     "name": "lo_f, hi_f, iqr",
+     "is": "the fences and the IQR",
+     "pick": "worked out"
+    },
+    {
+     "name": "limit, error",
+     "is": "the most a story allows, and whether the value is past it",
+     "pick": "a fair coin"
+    },
+    {
+     "name": "ma, mb, sa, sb, ta, tb",
+     "is": "two groups' means, standard deviations and maxima",
+     "pick": "one decimal; the group with the lower mean has the higher maximum"
+    }
+   ],
+   "clean": [
+    "every number read off a figure is on a tick, and a figure's numbers are in order and at least two ticks apart",
+    "a section's share by length is a whole count or percentage, and differs from its true share",
+    "symmetric means both halves and both whiskers match exactly; skewed differs in both",
+    "two groups' medians and IQRs differ by at least two ticks, and the lower median has the higher maximum",
+    "a test is an outlier half of the time, and no tested value is on a fence",
+    "two options of a test end in each verdict",
+    "the slips on the fence lead to their own verdicts: the median's fence always says outlier, the other always says not",
+    "a list's other values have no outlier",
+    "a Paper 2 new mean is clear of a rounding edge by 0.03 of a unit of the third figure; on Paper 1 it ends in at most one decimal",
+    "removing an outlier moves the mean or the range at least three times as far as the median or the IQR"
+   ]
   }
  },
  "types": [
@@ -22901,13 +23193,563 @@
    "id": "t1-binomial-find-unknown",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Binomial expansion: find an unknown from a given coefficient",
+   "summary": "Run the expansion backwards: a coefficient, two coefficients or the first terms are given, and a letter in the bracket, n or x is found. Both signs are kept where the power is even, a negative n is rejected, and a power with n in it goes to the GDC.",
    "syllabus": [
     "1.9"
    ],
    "skills": [
     "SL1.9.find-unknown"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "write the term with the power of x asked, nCr with each part in brackets and raised",
+    "set its coefficient equal to the number given",
+    "solve for the letter, keeping both signs of an even power unless the question rules one out",
+    "with two unknowns, divide or eliminate, or use the working from each coefficient",
+    "with n in a power, table the coefficient against n on the GDC"
+   ],
+   "given": [
+    "a bracket with a letter in it, and one coefficient",
+    "(1 + kx)^n with n as a letter, and a coefficient",
+    "the first terms of an expansion",
+    "two coefficients, equal or in a ratio",
+    "the same coefficient in two powers of one bracket",
+    "a bracket over cx^p",
+    "a term that is the mean of the terms beside it"
+   ],
+   "asked": "The value or values of k, a or x, or n, or n with k, or a with b.",
+   "answerForms": [
+    "exact",
+    "two values, either order",
+    "exact surd on Paper 1",
+    "3 s.f. on Paper 2 where the value is a surd",
+    "two letters"
+   ],
+   "randomise": [
+    "the power n, and which power of x is given",
+    "where the letter is: (1 + kx), (c + kx), (x + k) or (cx + k), and which is written first",
+    "the size and sign of the letter, a whole number, a fraction or a surd",
+    "whether the power of the letter is odd or even, and whether the question says it's positive",
+    "the bracket's number and x or x²",
+    "which neighbouring coefficients are compared, and the ratio",
+    "which term is the mean of the terms beside it"
+   ],
+   "constraints": [
+    "Paper 1 keeps coefficients to 20000 and writes a surd exactly; Paper 2 goes to 200000000 and gives a surd to 3 s.f.",
+    "every GDC method is Paper 2 only, and n in a power of the bracket's number is Paper 2 only",
+    "even powers ask for both signs unless the question says the letter is positive",
+    "the bank's own brackets, and the skill's worked examples, are left out"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "binomial-unknown",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the bracket and a coefficient, the first terms, or two brackets"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "k-odd-power",
+     "given": [
+      "a bracket with k, and a coefficient that holds an odd power of k"
+     ],
+     "asked": "k: one real value",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "k-both-signs",
+     "given": [
+      "a bracket with k, and a coefficient that holds k² or k⁴"
+     ],
+     "asked": "the two values of k, whole numbers",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "k-surd-both-signs",
+     "given": [
+      "a bracket with k, and a coefficient that leaves a root"
+     ],
+     "asked": "the two values of k: a surd on Paper 1, 3 s.f. on Paper 2",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "k-positive-condition",
+     "given": [
+      "a bracket with k, k > 0, and a coefficient that holds an even power of k"
+     ],
+     "asked": "the one positive value of k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "a-in-bracket",
+     "given": [
+      "(c + ax^p)^n or (cx^p + a)^n with a > 0, and a coefficient"
+     ],
+     "asked": "a, a whole number or a fraction",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "n-from-coefficient",
+     "given": [
+      "(1 + kx)^n with k known, and the coefficient of x²"
+     ],
+     "asked": "n, from a quadratic with the negative root rejected",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "n-from-power-bracket",
+     "given": [
+      "(c + x^p)^(n + s), and a coefficient"
+     ],
+     "asked": "n, which is in the power of c too, so by GDC",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "n-and-k-from-expansion",
+     "given": [
+      "the first terms of (1 + kx)^n, with k² left as a letter"
+     ],
+     "asked": "n and k",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "n-and-k-two-coefficients",
+     "given": [
+      "the coefficients of x and x² in (1 + ax)^n"
+     ],
+     "asked": "n and a",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "equal-find-k",
+     "given": [
+      "two neighbouring coefficients of (1 + kx)^n are equal, n known and k ≠ 0"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "equal-find-n",
+     "given": [
+      "two neighbouring coefficients of (1 + kx)^n or (c + x)^n are equal"
+     ],
+     "asked": "n",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "ratio-find-k",
+     "given": [
+      "the ratio of two neighbouring coefficients of (1 + kx)^n, n known"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "ratio-find-n",
+     "given": [
+      "the ratio of two neighbouring coefficients of (1 + kx)^n, k known"
+     ],
+     "asked": "n",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "two-brackets",
+     "given": [
+      "the same coefficient in (ax^p + b)^n and in a second power of the same bracket"
+     ],
+     "asked": "a and b, both positive",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "quotient-coefficient",
+     "given": [
+      "(ax + 1)^n ÷ (cx^p), and a coefficient that holds a power of a"
+     ],
+     "asked": "a, with a ≠ 0",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    },
+    {
+     "id": "term-mean",
+     "given": [
+      "(x + c)^n, and that one term is the mean of the terms beside it"
+     ],
+     "asked": "the possible values of x, with x ≠ 0",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.find-unknown"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.9.find-unknown",
+     "method": "coefficient-equation",
+     "suits": [
+      "k-odd-power",
+      "k-both-signs",
+      "k-surd-both-signs",
+      "k-positive-condition",
+      "a-in-bracket",
+      "n-from-coefficient",
+      "equal-find-k",
+      "equal-find-n",
+      "ratio-find-k",
+      "ratio-find-n",
+      "quotient-coefficient",
+      "term-mean"
+     ]
+    },
+    {
+     "skill": "SL1.9.find-unknown",
+     "method": "simultaneous",
+     "suits": [
+      "n-and-k-from-expansion",
+      "n-and-k-two-coefficients",
+      "two-brackets"
+     ]
+    },
+    {
+     "skill": "SL1.9.find-unknown",
+     "method": "gdc-search",
+     "suits": [
+      "k-odd-power",
+      "k-both-signs",
+      "k-surd-both-signs",
+      "k-positive-condition",
+      "a-in-bracket",
+      "n-from-coefficient",
+      "n-from-power-bracket",
+      "n-and-k-from-expansion",
+      "n-and-k-two-coefficients",
+      "equal-find-k",
+      "equal-find-n",
+      "ratio-find-k",
+      "ratio-find-n",
+      "two-brackets",
+      "quotient-coefficient",
+      "term-mean"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If the coefficient of x³ in (1 + kx)⁶ is given, k can have two values.",
+     "answer": "False: the coefficient holds k³, and an odd power has one real root.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "If the coefficient of x² in (1 + kx)ⁿ is positive, k must be positive.",
+     "answer": "False: the coefficient holds k², which can't show the sign of k. The coefficient of x, nk, does.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The coefficients of x^r and x^(r + 1) in (1 + x)^n are equal.",
+     "answer": "Sometimes: nCr = nC(r + 1) only when r + 1 = n − r, so n has to be odd and r the middle.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.9.find-unknown#0",
+     "text": "Using the letter to the first power, so the term's power reaches x and not the letter",
+     "as": "distractor",
+     "in": [
+      "k-odd-power",
+      "k-both-signs",
+      "k-surd-both-signs",
+      "k-positive-condition",
+      "a-in-bracket",
+      "n-and-k-two-coefficients",
+      "two-brackets"
+     ],
+     "wrong": "the letter taken to its first power in the term, so the coefficient ÷ the number is given as the letter"
+    },
+    {
+     "ref": "SL1.9.find-unknown#1",
+     "text": "Taking only the positive value of a letter that is squared, when the negative one works too",
+     "as": "distractor",
+     "in": [
+      "k-both-signs",
+      "k-surd-both-signs"
+     ],
+     "wrong": "the positive value alone"
+    },
+    {
+     "ref": "SL1.9.find-unknown#2",
+     "text": "Keeping the zero root, although the question rules it out",
+     "as": "distractor",
+     "in": [
+      "equal-find-k",
+      "quotient-coefficient",
+      "term-mean"
+     ],
+     "wrong": "the zero root listed with the others"
+    },
+    {
+     "ref": "SL1.9.specific-term#0",
+     "text": "Ignoring the sign: treating a negative term raised to an odd power as positive",
+     "as": "distractor",
+     "in": [
+      "k-odd-power",
+      "n-and-k-from-expansion",
+      "n-and-k-two-coefficients"
+     ],
+     "wrong": "the size of a negative k or a, with the minus sign lost"
+    },
+    {
+     "ref": "SL1.9.specific-term#1",
+     "text": "Forgetting to raise the other term to its power",
+     "as": "distractor",
+     "in": [
+      "k-odd-power",
+      "k-both-signs",
+      "term-mean"
+     ],
+     "wrong": "the number in the bracket used once in each term, so it never reaches its power"
+    },
+    {
+     "text": "Using plus or minus on an odd power, which has one real root",
+     "as": "distractor",
+     "in": [
+      "k-odd-power"
+     ],
+     "wrong": "both signs"
+    },
+    {
+     "text": "Using both signs, although the question says the letter is positive",
+     "as": "distractor",
+     "in": [
+      "k-positive-condition",
+      "a-in-bracket"
+     ],
+     "wrong": "both signs"
+    },
+    {
+     "text": "Using a square root where the letter is to the fourth power",
+     "as": "distractor",
+     "in": [
+      "k-both-signs",
+      "k-surd-both-signs",
+      "k-positive-condition"
+     ],
+     "wrong": "the root of the fourth power taken once only, so k² is given as k"
+    },
+    {
+     "text": "Keeping the negative root of the quadratic in n, though n is a positive integer",
+     "as": "distractor",
+     "in": [
+      "n-from-coefficient"
+     ],
+     "wrong": "both roots"
+    },
+    {
+     "text": "Using n for nCr in the term, as if every coefficient had n in front of it",
+     "as": "distractor",
+     "in": [
+      "n-from-coefficient",
+      "n-and-k-from-expansion",
+      "n-and-k-two-coefficients"
+     ],
+     "wrong": "the value of nCr given as n"
+    },
+    {
+     "text": "Stopping at the product on top of nCr and giving that as n",
+     "as": "distractor",
+     "in": [
+      "n-from-coefficient"
+     ],
+     "wrong": "n(n − 1), or n(n − 1)(n − 2), as n"
+    },
+    {
+     "text": "Giving the power of the bracket as n, when the power is n and a number",
+     "as": "distractor",
+     "in": [
+      "n-from-power-bracket"
+     ],
+     "wrong": "the bracket's whole power"
+    },
+    {
+     "text": "Using the ratio of the two coefficients upside down",
+     "as": "distractor",
+     "in": [
+      "equal-find-k",
+      "equal-find-n",
+      "ratio-find-k",
+      "ratio-find-n"
+     ],
+     "wrong": "the value the inverted ratio gives"
+    },
+    {
+     "text": "Dividing n by the coefficient of x to find k, which is the wrong way round",
+     "as": "distractor",
+     "in": [
+      "n-and-k-from-expansion"
+     ],
+     "wrong": "n ÷ the coefficient of x"
+    },
+    {
+     "text": "Leaving r out of the ratio of two neighbouring nCr values, so n is on top and not n − r",
+     "as": "distractor",
+     "in": [
+      "equal-find-k",
+      "equal-find-n",
+      "ratio-find-k",
+      "ratio-find-n"
+     ],
+     "wrong": "(r + 1) ÷ n for k, or n − r for n"
+    },
+    {
+     "text": "Reading the term on top at the power asked, without adding the power of x that the divisor takes off",
+     "as": "distractor",
+     "in": [
+      "quotient-coefficient"
+     ],
+     "wrong": "the a from nCm, not from nC(m + p)"
+    },
+    {
+     "text": "Leaving out the number in the divisor",
+     "as": "distractor",
+     "in": [
+      "quotient-coefficient"
+     ],
+     "wrong": "the a with no division by c"
+    },
+    {
+     "text": "Stopping at a power of b, without taking its root",
+     "as": "distractor",
+     "in": [
+      "two-brackets"
+     ],
+     "wrong": "b²"
+    },
+    {
+     "text": "Using the place of the term as r, when r starts from 0",
+     "as": "distractor",
+     "in": [
+      "term-mean"
+     ],
+     "wrong": "the values for the terms one place along"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q06",
@@ -31310,8 +32152,9 @@
    "id": "t4-outlier-rule",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "The 1.5 x IQR outlier rule",
+   "summary": "Use the 1.5 × IQR rule: find the fences, decide with two numbers whether a value is an outlier, show that the greatest value is one, find the largest value that isn't and the smallest that is, find a quartile from knowing there are no outliers, count the outliers in a data set by hand or with a modified box plot, then decide in context whether to keep or remove a value and what removing it does to the measures.",
    "syllabus": [
     "4.1",
     "4.2",
@@ -31320,6 +32163,460 @@
    "skills": [
     "SL4.1.outlier-decision",
     "SL4.2.outlier-test"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "find Q1, Q3 and the IQR, from a box plot, the five numbers or the data",
+    "work out 1.5 × IQR",
+    "add it to Q3 and take it from Q1 for the fences, or compare it with the value's distance from its nearest quartile",
+    "a value beyond a fence is an outlier, and one on the fence is not",
+    "remove a value only if it can't be true; the mean and the range feel it, the median and the IQR hardly do"
+   ],
+   "given": [
+    "a box plot on a scale, or not to scale with L and U marked",
+    "a list of values, or a frequency table",
+    "the five numbers in a sentence",
+    "the IQR, the median, the extremes and no outliers",
+    "a limit from the story"
+   ],
+   "asked": "The fences, a verdict on a value with the two numbers, the two numbers that show it, the largest value that isn't an outlier, the smallest that is, a quartile from the no-outliers condition, how many outliers there are, whether to keep a value, or the effect of removing it.",
+   "answerForms": [
+    "exact",
+    "3 s.f.",
+    "a whole number",
+    "two numbers and a verdict",
+    "two numbers",
+    "a statement picked"
+   ],
+   "randomise": [
+    "the quartiles and the extremes",
+    "the value tested and which end it is at",
+    "whether the value is an outlier, on a fair coin",
+    "whether a story's value is past its limit, on a fair coin",
+    "the list or the table, and how many outliers it has",
+    "which measures are asked about",
+    "the story"
+   ],
+   "constraints": [
+    "Q1 and Q3 leave the median out of the halves when n is odd, as in t4-summary-statistics",
+    "a value on a fence is not an outlier, and no tested value is on a fence",
+    "a tested value is one or two ticks from the fence, on the same quartiles in both cases, so the numbers don't give it away",
+    "two options of a test end in each verdict",
+    "a GDC method is Paper 2 only",
+    "Paper 1 exact; a new mean on Paper 2 to 3 s.f."
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "box-plot",
+   "sharesSituation": [
+    "t4-box-plot"
+   ],
+   "representations": [
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "a box plot to scale, or a sketch not to scale with L and U marked"
+    },
+    {
+     "rep": "terms",
+     "exam": true,
+     "how": "a list of values"
+    },
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "a frequency table"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the five numbers in a sentence, or a story with a limit"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "find-fences",
+     "given": [
+      "a box plot, a list or the five numbers"
+     ],
+     "asked": "Q1 − 1.5 × IQR and Q3 + 1.5 × IQR",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph",
+      "terms",
+      "words"
+     ],
+     "skills": [
+      "SL4.2.outlier-test"
+     ]
+    },
+    {
+     "id": "decide-outlier",
+     "given": [
+      "a box plot, a list or the five numbers, and a value"
+     ],
+     "asked": "whether the value is an outlier, with the two numbers",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph",
+      "terms",
+      "words"
+     ],
+     "skills": [
+      "SL4.2.outlier-test"
+     ]
+    },
+    {
+     "id": "show-max-outlier",
+     "given": [
+      "a box plot, a list or the five numbers"
+     ],
+     "asked": "the two numbers that show the greatest value is an outlier",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "terms",
+      "words"
+     ],
+     "skills": [
+      "SL4.2.outlier-test"
+     ]
+    },
+    {
+     "id": "largest-not-outlier",
+     "given": [
+      "a box plot or the five numbers"
+     ],
+     "asked": "the largest value that would not be an outlier",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL4.2.outlier-test"
+     ]
+    },
+    {
+     "id": "smallest-outlier",
+     "given": [
+      "a box plot or the five numbers, in whole numbers"
+     ],
+     "asked": "the smallest value that would be an outlier",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL4.2.outlier-test"
+     ]
+    },
+    {
+     "id": "quartile-from-no-outliers",
+     "given": [
+      "the IQR, the median, the extremes and no outliers"
+     ],
+     "asked": "the minimum possible U or L",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL4.2.outlier-test"
+     ]
+    },
+    {
+     "id": "outliers-in-data",
+     "given": [
+      "a list or a frequency table"
+     ],
+     "asked": "how many values are outliers",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "terms",
+      "table"
+     ],
+     "skills": [
+      "SL4.2.outlier-test"
+     ]
+    },
+    {
+     "id": "keep-or-remove",
+     "given": [
+      "an outlier and a limit from the story"
+     ],
+     "asked": "whether to remove it, with the reason",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.1.outlier-decision"
+     ]
+    },
+    {
+     "id": "effect-of-removing",
+     "given": [
+      "a list and its outlier"
+     ],
+     "asked": "the mean and the median of what is left",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "terms"
+     ],
+     "skills": [
+      "SL4.1.outlier-decision"
+     ]
+    },
+    {
+     "id": "which-measure-moves",
+     "given": [
+      "a list and its outlier"
+     ],
+     "asked": "the statement that describes the effect on two measures",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "terms"
+     ],
+     "skills": [
+      "SL4.1.outlier-decision"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.2.outlier-test",
+     "method": "fences",
+     "suits": [
+      "find-fences",
+      "decide-outlier",
+      "show-max-outlier",
+      "largest-not-outlier",
+      "smallest-outlier",
+      "quartile-from-no-outliers",
+      "outliers-in-data"
+     ]
+    },
+    {
+     "skill": "SL4.2.outlier-test",
+     "method": "distance-from-quartile",
+     "suits": [
+      "decide-outlier",
+      "show-max-outlier",
+      "largest-not-outlier",
+      "smallest-outlier",
+      "quartile-from-no-outliers"
+     ]
+    },
+    {
+     "skill": "SL4.2.outlier-test",
+     "method": "gdc-modified-box",
+     "suits": [
+      "outliers-in-data"
+     ]
+    },
+    {
+     "skill": "SL4.1.outlier-decision",
+     "method": "plausibility",
+     "suits": [
+      "keep-or-remove"
+     ]
+    },
+    {
+     "skill": "SL4.1.outlier-decision",
+     "method": "effect-on-measures",
+     "suits": [
+      "effect-of-removing",
+      "which-measure-moves"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "An outlier should always be removed from the data.",
+     "answer": "False: remove a value only if it can't be true, such as a recording error. A genuine extreme is part of the data.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A value exactly on the upper fence is an outlier.",
+     "answer": "Never: an outlier is greater than Q3 + 1.5 × IQR, so a value on the fence is not beyond it.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Predict what removing a very high value does to the mean and to the median, then say why.",
+     "answer": "The mean falls noticeably and the median hardly moves: the mean uses how far out each value is, but the median uses only the middle.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.2.outlier-test#0",
+     "text": "Using 1.5 × Q3 as the upper fence instead of Q3 + 1.5 × IQR",
+     "as": "distractor",
+     "in": [
+      "find-fences",
+      "decide-outlier",
+      "show-max-outlier",
+      "largest-not-outlier",
+      "smallest-outlier",
+      "quartile-from-no-outliers",
+      "outliers-in-data"
+     ],
+     "wrong": "1.5 × Q3"
+    },
+    {
+     "ref": "SL4.2.outlier-test#1",
+     "text": "Measuring 1.5 × IQR from the median instead of from the nearest quartile",
+     "as": "distractor",
+     "in": [
+      "find-fences",
+      "decide-outlier",
+      "show-max-outlier",
+      "largest-not-outlier",
+      "smallest-outlier",
+      "outliers-in-data"
+     ],
+     "wrong": "the median plus or minus 1.5 × IQR"
+    },
+    {
+     "ref": "SL4.2.outlier-test#2",
+     "text": "Calling any value that looks far from the rest an outlier without doing the test",
+     "as": "distractor",
+     "in": [
+      "outliers-in-data"
+     ],
+     "wrong": "the count with the far-looking value inside the fence added"
+    },
+    {
+     "ref": "SL4.2.outlier-test#3",
+     "text": "Using the fence on the far side from the value",
+     "as": "distractor",
+     "in": [
+      "decide-outlier"
+     ],
+     "wrong": "a low value held against the upper fence"
+    },
+    {
+     "ref": "SL4.2.outlier-test#4",
+     "text": "Reading the comparison backwards, so a value inside the fences is called an outlier or one beyond them is not",
+     "as": "distractor",
+     "in": [
+      "decide-outlier"
+     ],
+     "wrong": "the right numbers with the other verdict"
+    },
+    {
+     "ref": "SL4.2.outlier-test#5",
+     "text": "Leaving the factor out of the fence, so that it sits one IQR from the quartile",
+     "as": "distractor",
+     "in": [
+      "find-fences",
+      "show-max-outlier",
+      "largest-not-outlier",
+      "smallest-outlier",
+      "quartile-from-no-outliers"
+     ],
+     "wrong": "Q3 + IQR and Q1 − IQR"
+    },
+    {
+     "ref": "SL4.2.outlier-test#6",
+     "text": "Using the fence itself as the smallest outlier, though a value on the fence is not beyond it",
+     "as": "distractor",
+     "in": [
+      "smallest-outlier"
+     ],
+     "wrong": "the fence, or the whole number just under it"
+    },
+    {
+     "ref": "SL4.2.outlier-test#7",
+     "text": "Using the quartile, not the IQR, as the distance to multiply",
+     "as": "distractor",
+     "in": [
+      "decide-outlier"
+     ],
+     "wrong": "1.5 × Q1 for the distance"
+    },
+    {
+     "ref": "SL4.1.outlier-decision#0",
+     "text": "Assuming every outlier must be deleted",
+     "as": "distractor",
+     "in": [
+      "keep-or-remove"
+     ],
+     "wrong": "remove it, whatever it is"
+    },
+    {
+     "ref": "SL4.1.outlier-decision#1",
+     "text": "Assuming removing an outlier changes the median or the IQR as much as the mean or the range",
+     "as": "distractor",
+     "in": [
+      "effect-of-removing",
+      "which-measure-moves"
+     ],
+     "wrong": "the median moved by the mean's change"
+    },
+    {
+     "ref": "SL4.1.outlier-decision#2",
+     "text": "Assuming every outlier must stay in the data, even an impossible value",
+     "as": "distractor",
+     "in": [
+      "keep-or-remove"
+     ],
+     "wrong": "keep it, whatever it is"
+    },
+    {
+     "ref": "SL4.1.outlier-decision#3",
+     "text": "Using the old number of values to find the new mean",
+     "as": "distractor",
+     "in": [
+      "effect-of-removing"
+     ],
+     "wrong": "the new total over the old n"
+    },
+    {
+     "ref": "SL4.1.outlier-decision#4",
+     "text": "Assuming the median stays exactly the same when a value is removed",
+     "as": "distractor",
+     "in": [
+      "effect-of-removing"
+     ],
+     "wrong": "the old median"
+    },
+    {
+     "ref": "SL4.1.outlier-decision#5",
+     "text": "Reversing which measure an outlier drags and which it leaves alone",
+     "as": "distractor",
+     "in": [
+      "which-measure-moves"
+     ],
+     "wrong": "the two measures swapped"
+    },
+    {
+     "ref": "SL4.1.outlier-decision#6",
+     "text": "Getting the direction of the change wrong",
+     "as": "distractor",
+     "in": [
+      "which-measure-moves"
+     ],
+     "wrong": "the change in the other direction"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q04.a",
@@ -32086,8 +33383,9 @@
    "id": "t4-box-plot",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Read, interpret and compare box plots",
+   "summary": "Read the median, a quartile, the IQR and the range off a box plot drawn to scale, with one or two boxes and outliers as crosses; find the five numbers from a list, a frequency table or a cumulative frequency curve; pick the box plot of a data set; use the fact that each section holds a quarter of the data; judge the shape, and how the mean compares with the median; and compare two groups in context, by medians and IQRs or by means and standard deviations.",
    "syllabus": [
     "4.2",
     "4.3"
@@ -32095,6 +33393,619 @@
    "skills": [
     "SL4.2.box-plot",
     "SL4.2.compare-distributions"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read the five numbers off the plot, or find them from the data: Q1 and Q3 are the medians of the two halves, with the median left out when n is odd",
+    "IQR = Q3 − Q1, range = greatest − least, and a cross is still a value",
+    "each section holds a quarter of the data, however long it looks",
+    "equal halves and whiskers are symmetric; a long whisker pulls the mean that way",
+    "compare the centre and the spread, each said in the words of the story"
+   ],
+   "given": [
+    "a box plot on a scale, with one or two boxes",
+    "a box plot with an outlier marked as a cross",
+    "a list of values, or a frequency table",
+    "a cumulative frequency curve",
+    "four box plots on one axis",
+    "a table of means, standard deviations and maxima",
+    "how many values a plot stands for"
+   ],
+   "asked": "The median, a quartile, the IQR, the range, the five-number summary, the plot that shows the data, a count or a percentage in a section, a value at a share, whether the data could be normal, how the mean compares with the median, or a comparison of two groups in context.",
+   "answerForms": [
+    "exact",
+    "a whole number",
+    "five numbers",
+    "two numbers and a verdict",
+    "a statement picked",
+    "a plot picked"
+   ],
+   "randomise": [
+    "the five numbers, on ticks of an axis of 25 ticks",
+    "the tick, among those that suit the story: 1, 2, 5 or 10, and on Paper 2 also 0.5, 0.2, 0.1 or 0.02",
+    "one box or two, and which is asked about",
+    "whether a cross is drawn",
+    "which two marks a share runs between",
+    "the shape: symmetric or skewed either way, on a fair coin",
+    "which group has the higher median, and which the claim favours",
+    "the list or the table: an odd or even number of values",
+    "the story: patrols, crates, drones, wells, tanks, traders, bean plants and radios"
+   ],
+   "constraints": [
+    "every number read off a plot is on a tick, labelled every fifth tick",
+    "Q1 and Q3 leave the median out of the halves when n is odd, as in t4-summary-statistics, and the question says so",
+    "a GDC method is Paper 2 only",
+    "the group with the lower median has the higher maximum, so the ends alone mislead",
+    "a section's share by length differs from its true share"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "box-plot",
+   "sharesSituation": [
+    "t4-outlier-rule"
+   ],
+   "representations": [
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "a box plot to scale, one or two boxes, four to pick from, or a cumulative frequency curve"
+    },
+    {
+     "rep": "terms",
+     "exam": true,
+     "how": "a list of values, in order on Paper 1 and as it came on Paper 2"
+    },
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "a frequency table, or a table of summary statistics for two groups"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the five numbers in a sentence, and how many values there are"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "read-median",
+     "given": [
+      "a box plot, with one or two boxes"
+     ],
+     "asked": "the median",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "read-quartile",
+     "given": [
+      "a box plot"
+     ],
+     "asked": "Q1 or Q3",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "read-iqr",
+     "given": [
+      "a box plot, with one or two boxes"
+     ],
+     "asked": "the IQR",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "read-range",
+     "given": [
+      "a box plot, perhaps with a cross"
+     ],
+     "asked": "the range",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "read-median-iqr",
+     "given": [
+      "a box plot, with one or two boxes"
+     ],
+     "asked": "the median and the IQR together",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "five-number-from-data",
+     "given": [
+      "a list or a frequency table"
+     ],
+     "asked": "the five-number summary",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "terms",
+      "table"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "five-number-from-cumfreq",
+     "given": [
+      "a cumulative frequency curve"
+     ],
+     "asked": "the five numbers of its box plot",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "pick-box-from-data",
+     "given": [
+      "a list or a frequency table, and four box plots on one axis"
+     ],
+     "asked": "the plot that shows the data",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "terms",
+      "table"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "pick-box-with-outlier",
+     "given": [
+      "a list with an outlier, and four box plots on one axis"
+     ],
+     "asked": "the plot that shows the data, with the outlier as a cross",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "terms"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "count-in-section",
+     "given": [
+      "a box plot or its five numbers, and n"
+     ],
+     "asked": "how many values lie between two marks",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph",
+      "words"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "percent-in-section",
+     "given": [
+      "a box plot"
+     ],
+     "asked": "the percentage of values between two marks",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "value-at-share",
+     "given": [
+      "a box plot",
+      "a share above or below a"
+     ],
+     "asked": "the value a",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "could-be-normal",
+     "given": [
+      "a box plot, symmetric or skewed"
+     ],
+     "asked": "whether the data could be normal, with the two gaps in the box",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "mean-against-median",
+     "given": [
+      "a skewed box plot"
+     ],
+     "asked": "how the mean is likely to compare with the median, with a reason",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.box-plot"
+     ]
+    },
+    {
+     "id": "compare-box-plots",
+     "given": [
+      "two box plots"
+     ],
+     "asked": "a comparison of centre and spread in context",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.compare-distributions"
+     ]
+    },
+    {
+     "id": "compare-summary",
+     "given": [
+      "the mean, standard deviation and maximum of two groups"
+     ],
+     "asked": "a comparison of centre and spread in context",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.2.compare-distributions"
+     ]
+    },
+    {
+     "id": "claim-from-box-plots",
+     "given": [
+      "two box plots and a claim"
+     ],
+     "asked": "whether the plots support the claim, with the two medians",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL4.2.compare-distributions"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.2.box-plot",
+     "method": "five-number-summary",
+     "suits": [
+      "five-number-from-data",
+      "pick-box-from-data",
+      "pick-box-with-outlier"
+     ]
+    },
+    {
+     "skill": "SL4.2.box-plot",
+     "method": "from-cumfreq",
+     "suits": [
+      "five-number-from-cumfreq"
+     ]
+    },
+    {
+     "skill": "SL4.2.box-plot",
+     "method": "gdc-stats",
+     "suits": [
+      "five-number-from-data",
+      "pick-box-from-data",
+      "pick-box-with-outlier"
+     ]
+    },
+    {
+     "skill": "SL4.2.compare-distributions",
+     "method": "median-iqr",
+     "suits": [
+      "compare-box-plots",
+      "claim-from-box-plots"
+     ]
+    },
+    {
+     "skill": "SL4.2.compare-distributions",
+     "method": "mean-sd",
+     "suits": [
+      "compare-summary"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "In a box plot, the longest whisker holds the most data.",
+     "answer": "False: each whisker and each half of the box holds about a quarter of the data. A long section means those values are spread out, not that there are more of them.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The median is in the middle of the box.",
+     "answer": "Sometimes: it is only when the data between the quartiles are symmetric. The median splits the data in two by count, not the box by length.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "A box plot has a long upper whisker. Predict whether the mean is above or below the median, then say why.",
+     "answer": "Above: the median depends only on the middle of the data, but the mean uses every value, so the few high values pull it up.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.2.box-plot#0",
+     "text": "Assuming a longer section of the box or a longer whisker holds more of the data",
+     "as": "distractor",
+     "in": [
+      "count-in-section",
+      "percent-in-section",
+      "mean-against-median"
+     ],
+     "wrong": "the count or percentage in proportion to the section's length"
+    },
+    {
+     "ref": "SL4.2.box-plot#1",
+     "text": "Drawing the whisker out to an outlier instead of marking the outlier separately with a cross",
+     "as": "distractor",
+     "in": [
+      "pick-box-with-outlier"
+     ],
+     "wrong": "a plot whose whisker reaches the outlier, with no cross"
+    },
+    {
+     "ref": "SL4.2.box-plot#2",
+     "text": "Using the median in both halves when n is odd",
+     "as": "distractor",
+     "in": [
+      "five-number-from-data",
+      "pick-box-from-data"
+     ],
+     "wrong": "quartiles from halves that keep the median"
+    },
+    {
+     "ref": "SL4.2.box-plot#3",
+     "text": "Using the values in the order shown, without sorting them first",
+     "as": "distractor",
+     "in": [
+      "five-number-from-data",
+      "pick-box-from-data"
+     ],
+     "wrong": "the five numbers read off the unsorted list"
+    },
+    {
+     "ref": "SL4.2.box-plot#4",
+     "text": "Using each value of a frequency table once, ignoring its frequency",
+     "as": "distractor",
+     "in": [
+      "five-number-from-data",
+      "pick-box-from-data"
+     ],
+     "wrong": "the five numbers of the values column"
+    },
+    {
+     "ref": "SL4.2.box-plot#5",
+     "text": "Using the middle of the box as the median",
+     "as": "distractor",
+     "in": [
+      "read-median",
+      "read-median-iqr",
+      "value-at-share",
+      "pick-box-from-data"
+     ],
+     "wrong": "the point halfway between Q1 and Q3"
+    },
+    {
+     "ref": "SL4.2.box-plot#6",
+     "text": "Using the whole length of the plot as the IQR, or the IQR as the range",
+     "as": "distractor",
+     "in": [
+      "read-iqr",
+      "read-range",
+      "read-median-iqr"
+     ],
+     "wrong": "greatest − least for the IQR, or Q3 − Q1 for the range"
+    },
+    {
+     "ref": "SL4.2.box-plot#7",
+     "text": "Using the end of the whisker as the greatest value, leaving the cross out",
+     "as": "distractor",
+     "in": [
+      "read-range"
+     ],
+     "wrong": "the whisker's end minus the least value"
+    },
+    {
+     "ref": "SL4.2.box-plot#8",
+     "text": "Using a quarter of the horizontal axis as a quartile, instead of a quarter of the frequency",
+     "as": "distractor",
+     "in": [
+      "five-number-from-cumfreq"
+     ],
+     "wrong": "a quarter, half and three quarters of the way along the axis"
+    },
+    {
+     "ref": "SL4.2.box-plot#9",
+     "text": "Using the cumulative frequency levels as the values themselves",
+     "as": "distractor",
+     "in": [
+      "five-number-from-cumfreq"
+     ],
+     "wrong": "n/4, n/2 and 3n/4 as Q1, the median and Q3"
+    },
+    {
+     "ref": "SL4.2.box-plot#10",
+     "text": "Using the ends of the axis as the least and greatest values",
+     "as": "distractor",
+     "in": [
+      "five-number-from-cumfreq"
+     ],
+     "wrong": "0 and the end of the axis as min and max"
+    },
+    {
+     "ref": "SL4.2.box-plot#11",
+     "text": "Using the share below a value when the question gives the share above it, or the other way round",
+     "as": "distractor",
+     "in": [
+      "value-at-share"
+     ],
+     "wrong": "the other quartile"
+    },
+    {
+     "ref": "SL4.2.box-plot#12",
+     "text": "Using the range to judge the shape of the data",
+     "as": "distractor",
+     "in": [
+      "could-be-normal"
+     ],
+     "wrong": "a verdict from the range alone"
+    },
+    {
+     "ref": "SL4.2.box-plot#13",
+     "text": "Reading the gaps backwards, so equal gaps seem skewed and unequal gaps symmetric",
+     "as": "distractor",
+     "in": [
+      "could-be-normal"
+     ],
+     "wrong": "the right gaps with the other verdict"
+    },
+    {
+     "ref": "SL4.2.box-plot#14",
+     "text": "Assuming the mean equals the median because half of the data lie on each side of the median",
+     "as": "distractor",
+     "in": [
+      "mean-against-median"
+     ],
+     "wrong": "the two called equal"
+    },
+    {
+     "ref": "SL4.2.box-plot#15",
+     "text": "Using the values a quarter and three quarters of the way along the list as the quartiles, not the medians of the halves",
+     "as": "distractor",
+     "in": [
+      "five-number-from-data",
+      "pick-box-from-data"
+     ],
+     "wrong": "the values at those positions"
+    },
+    {
+     "ref": "SL4.2.box-plot#16",
+     "text": "Drawing the whisker out to the fence, not to the furthest value inside it",
+     "as": "distractor",
+     "in": [
+      "pick-box-with-outlier"
+     ],
+     "wrong": "a plot whose whisker ends at the upper fence"
+    },
+    {
+     "ref": "SL4.3.quartiles-discrete#0",
+     "text": "Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1",
+     "as": "distractor",
+     "in": [
+      "read-iqr"
+     ],
+     "wrong": "Q1 + Q3"
+    },
+    {
+     "ref": "SL4.2.compare-distributions#0",
+     "text": "Comparing only the maximum or minimum values",
+     "as": "distractor",
+     "in": [
+      "compare-box-plots",
+      "compare-summary",
+      "claim-from-box-plots"
+     ],
+     "wrong": "a comparison of the maxima, which point the other way"
+    },
+    {
+     "ref": "SL4.2.compare-distributions#1",
+     "text": "Using a larger spread as a sign of a higher average",
+     "as": "distractor",
+     "in": [
+      "compare-box-plots",
+      "compare-summary",
+      "claim-from-box-plots"
+     ],
+     "wrong": "the wider group called typically higher"
+    },
+    {
+     "ref": "SL4.2.compare-distributions#2",
+     "text": "Quoting the numbers without saying what they mean in context",
+     "as": "distractor",
+     "in": [
+      "compare-box-plots",
+      "compare-summary"
+     ],
+     "wrong": "the four numbers and no comparison"
+    },
+    {
+     "ref": "SL4.2.compare-distributions#3",
+     "text": "Reading the comparison backwards, so the verdict is the opposite of what the medians show",
+     "as": "distractor",
+     "in": [
+      "claim-from-box-plots"
+     ],
+     "wrong": "the right medians with the other verdict"
+    }
    ],
    "parts": [
     "aa-sl-2022-may-tz2-p2-q05.a",
@@ -32166,15 +34077,837 @@
    "id": "t4-grouped-data",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Grouped and frequency-table data: missing frequency, modal class, estimates",
+   "summary": "Read a frequency table, grouped into classes or of single values: find a missing frequency from the total, the mean or the median, the modal class and mid-interval values, and estimate the mean, standard deviation and variance. Also the link between variance and standard deviation, and totals and means of groups.",
    "syllabus": [
     "4.3"
    ],
    "skills": [
     "SL4.3.grouped-mean",
     "SL4.3.sd-variance",
-    "SL4.3.mean-totals"
+    "SL4.3.mean-totals",
+    "SL4.3.mean-median-mode"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read the classes or values and the frequencies from the table",
+    "find any missing frequency from the total, the mean or the median",
+    "replace each class by its mid-interval value",
+    "compute Σfx ÷ Σf by hand or read x̄ and σx from the GDC lists",
+    "square or square-root to move between σ and the variance"
+   ],
+   "given": [
+    "a grouped frequency table, equal or unequal classes",
+    "a frequency table of single values",
+    "a missing frequency with a total, a mean or a median",
+    "a short list of values",
+    "the sizes and means of groups",
+    "a standard deviation or a variance"
+   ],
+   "asked": "A modal class, a mid-interval value or list of them, a missing frequency or value, an estimate of the mean, the standard deviation or variance, a mean or total of groups, or what the figures show.",
+   "answerForms": [
+    "a class",
+    "whole numbers",
+    "exact decimal",
+    "3 s.f.",
+    "two frequencies p and q",
+    "a statement"
+   ],
+   "randomise": [
+    "the classes: their width, whether equal, which end is closed",
+    "the frequencies and the total",
+    "which row is missing",
+    "the values of a table and the gap between them",
+    "the list of a small set",
+    "the groups' sizes and means",
+    "the story: caravans, rats, crates, scouts, water, radios, traps, fuses, camps, depots, wells and bunkers"
+   ],
+   "constraints": [
+    "Paper 1 exact, Paper 2 to 3 s.f. where it needs rounding",
+    "a standard deviation from a table is Paper 2, on a GDC",
+    "a Paper 1 standard deviation of a small set is a whole number",
+    "GDC methods are Paper 2 only",
+    "a modal class question has one modal class, not the class of the median"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "grouped-data",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "a frequency table running down the card, with classes such as 10 ≤ t < 20 or single values on the left"
+    },
+    {
+     "rep": "terms",
+     "exam": true,
+     "how": "a short list of values"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story giving group sizes, means, a standard deviation or a variance"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "modal-class",
+     "given": [
+      "a grouped frequency table of equal classes"
+     ],
+     "asked": "the modal class",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "modal-class-after-frequency",
+     "given": [
+      "a grouped frequency table with one frequency p",
+      "the total"
+     ],
+     "asked": "the modal class, once p is found",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "mid-interval-value",
+     "given": [
+      "a grouped frequency table"
+     ],
+     "asked": "the mid-interval value of one class",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "mid-interval-list",
+     "given": [
+      "a grouped frequency table of unequal classes"
+     ],
+     "asked": "the mid-interval value of every class",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "estimate-mean",
+     "given": [
+      "a grouped frequency table"
+     ],
+     "asked": "an estimate of the mean",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "estimate-why",
+     "given": [
+      "a grouped frequency table",
+      "the mean found from it"
+     ],
+     "asked": "why that mean is an estimate",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "estimate-sd",
+     "given": [
+      "a grouped frequency table"
+     ],
+     "asked": "an estimate of the standard deviation",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "estimate-variance",
+     "given": [
+      "a grouped frequency table"
+     ],
+     "asked": "an estimate of the variance",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "sd-from-table",
+     "given": [
+      "a frequency table of single values"
+     ],
+     "asked": "the standard deviation",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "variance-from-table",
+     "given": [
+      "a frequency table of single values"
+     ],
+     "asked": "the variance",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "sd-of-small-set",
+     "given": [
+      "a short list of values"
+     ],
+     "asked": "the standard deviation",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "terms"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "variance-of-small-set",
+     "given": [
+      "a short list of values"
+     ],
+     "asked": "the variance",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "terms"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "variance-from-sd",
+     "given": [
+      "the standard deviation of some data"
+     ],
+     "asked": "the variance",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "sd-from-variance",
+     "given": [
+      "the variance of some data"
+     ],
+     "asked": "the standard deviation",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "interpret-sd",
+     "given": [
+      "the means and standard deviations of two groups"
+     ],
+     "asked": "what the figures show",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "missing-frequency-from-total",
+     "given": [
+      "a grouped frequency table with one frequency p",
+      "the total"
+     ],
+     "asked": "p",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "missing-frequency-from-estimate",
+     "given": [
+      "a grouped frequency table with one frequency p",
+      "the estimate of the mean"
+     ],
+     "asked": "p",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "two-frequencies-from-mean",
+     "given": [
+      "a frequency table with two frequencies p and q",
+      "the total and the mean"
+     ],
+     "asked": "p and q",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "missing-frequency-from-median",
+     "given": [
+      "a frequency table with one frequency x",
+      "the median"
+     ],
+     "asked": "x",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-median-mode"
+     ]
+    },
+    {
+     "id": "missing-value-from-table-mean",
+     "given": [
+      "a frequency table with one value k",
+      "the mean"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "new-value-from-new-mean",
+     "given": [
+      "the size and mean of a group",
+      "the mean once one value joins it"
+     ],
+     "asked": "the new value",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "whole-mean-from-groups",
+     "given": [
+      "the sizes and means of two or three groups"
+     ],
+     "asked": "the mean of the whole group",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "whole-total-from-groups",
+     "given": [
+      "a table of the sizes and means of three groups"
+     ],
+     "asked": "the total of the whole group",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "group-mean-from-whole",
+     "given": [
+      "the size and mean of the whole group",
+      "the size and mean of one part of it"
+     ],
+     "asked": "the mean of the other part",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.3.grouped-mean",
+     "method": "midpoint-formula",
+     "suits": [
+      "estimate-mean"
+     ]
+    },
+    {
+     "skill": "SL4.3.grouped-mean",
+     "method": "gdc-lists",
+     "suits": [
+      "estimate-mean",
+      "estimate-sd",
+      "estimate-variance"
+     ]
+    },
+    {
+     "skill": "SL4.3.sd-variance",
+     "method": "gdc-sigma",
+     "suits": [
+      "estimate-sd",
+      "estimate-variance",
+      "sd-from-table",
+      "variance-from-table",
+      "sd-of-small-set",
+      "variance-of-small-set"
+     ]
+    },
+    {
+     "skill": "SL4.3.sd-variance",
+     "method": "definition-formula",
+     "suits": [
+      "sd-of-small-set",
+      "variance-of-small-set"
+     ]
+    },
+    {
+     "skill": "SL4.3.sd-variance",
+     "method": "variance-sd-link",
+     "suits": [
+      "variance-from-sd",
+      "sd-from-variance"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-totals",
+     "method": "total-from-mean",
+     "suits": [
+      "missing-value-from-table-mean",
+      "new-value-from-new-mean",
+      "whole-mean-from-groups",
+      "whole-total-from-groups",
+      "group-mean-from-whole"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-totals",
+     "method": "frequency-equation",
+     "suits": [
+      "missing-frequency-from-estimate",
+      "two-frequencies-from-mean"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-totals",
+     "method": "deviations-sum-zero",
+     "suits": [
+      "missing-frequency-from-estimate",
+      "two-frequencies-from-mean",
+      "missing-value-from-table-mean",
+      "new-value-from-new-mean"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-median-mode",
+     "method": "ordered-position",
+     "suits": [
+      "missing-frequency-from-median"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "The mean found from a grouped table is the exact mean of the data.",
+     "answer": "False: the table hides where in each class the values lie, so every value is replaced by its mid-interval value. The result is an estimate.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "A standard deviation can be negative when most of the values are below the mean.",
+     "answer": "False: the deviations are squared before they are added, and the standard deviation is the positive root of the result.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The mean of two groups together is the average of their two means.",
+     "answer": "Sometimes: only when the groups are the same size, or have the same mean. Otherwise the larger group pulls the mean its way.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.3.grouped-mean#0",
+     "text": "Dividing by the number of classes instead of the total frequency",
+     "as": "distractor",
+     "in": [
+      "estimate-mean"
+     ],
+     "wrong": "Σfx ÷ the number of classes"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#1",
+     "text": "Using the upper class boundary instead of the mid-interval value",
+     "as": "distractor",
+     "in": [
+      "mid-interval-value",
+      "mid-interval-list",
+      "estimate-mean",
+      "estimate-sd",
+      "estimate-variance"
+     ],
+     "wrong": "the upper boundaries in place of the mid-interval values"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#2",
+     "text": "Calling the estimate the exact mean",
+     "as": "distractor",
+     "in": [
+      "estimate-why"
+     ],
+     "wrong": "the exact mean, because every row was used"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#3",
+     "text": "Using the lower class boundary instead of the mid-interval value",
+     "as": "distractor",
+     "in": [
+      "mid-interval-value",
+      "mid-interval-list",
+      "estimate-mean"
+     ],
+     "wrong": "the lower boundaries in place of the mid-interval values"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#4",
+     "text": "Using the class width instead of the mid-interval value",
+     "as": "distractor",
+     "in": [
+      "mid-interval-value"
+     ],
+     "wrong": "upper boundary − lower boundary"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#5",
+     "text": "Assuming each value counts once, leaving the frequencies out",
+     "as": "distractor",
+     "in": [
+      "estimate-mean",
+      "estimate-sd",
+      "estimate-variance",
+      "sd-from-table",
+      "variance-from-table"
+     ],
+     "wrong": "the mean or spread of the values alone"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#6",
+     "text": "Using the class that holds the median as the modal class",
+     "as": "distractor",
+     "in": [
+      "modal-class",
+      "modal-class-after-frequency"
+     ],
+     "wrong": "the class holding the middle value"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#7",
+     "text": "Assuming the class with an unknown frequency cannot be the modal class",
+     "as": "distractor",
+     "in": [
+      "modal-class-after-frequency"
+     ],
+     "wrong": "the greatest of the known frequencies"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#8",
+     "text": "Assuming every class is as wide as the first when listing mid-interval values",
+     "as": "distractor",
+     "in": [
+      "mid-interval-list"
+     ],
+     "wrong": "the first mid-interval value, then steps of the first width"
+    },
+    {
+     "ref": "SL4.3.sd-variance#0",
+     "text": "Using Sx, which divides by one less than n, instead of σx",
+     "as": "distractor",
+     "in": [
+      "estimate-sd",
+      "estimate-variance",
+      "sd-from-table",
+      "variance-from-table",
+      "sd-of-small-set",
+      "variance-of-small-set"
+     ],
+     "wrong": "Sx, or Sx squared"
+    },
+    {
+     "ref": "SL4.3.sd-variance#1",
+     "text": "Using the standard deviation for the variance, or the variance for the standard deviation",
+     "as": "distractor",
+     "in": [
+      "estimate-sd",
+      "estimate-variance",
+      "sd-from-table",
+      "variance-from-table",
+      "sd-of-small-set",
+      "variance-of-small-set",
+      "variance-from-sd",
+      "sd-from-variance"
+     ],
+     "wrong": "the other one of the two"
+    },
+    {
+     "ref": "SL4.3.sd-variance#2",
+     "text": "Assuming the standard deviation can be negative because some values are below the mean",
+     "as": "distractor",
+     "in": [
+      "sd-from-variance"
+     ],
+     "wrong": "the negative root"
+    },
+    {
+     "ref": "SL4.3.sd-variance#3",
+     "text": "Using the mean of the deviations without their signs, with no squaring",
+     "as": "distractor",
+     "in": [
+      "sd-of-small-set",
+      "variance-of-small-set"
+     ],
+     "wrong": "Σ|x − mean| ÷ n"
+    },
+    {
+     "ref": "SL4.3.sd-variance#4",
+     "text": "Using twice the standard deviation as the variance",
+     "as": "distractor",
+     "in": [
+      "variance-from-sd"
+     ],
+     "wrong": "2σ"
+    },
+    {
+     "ref": "SL4.3.sd-variance#5",
+     "text": "Using half of the variance as the standard deviation",
+     "as": "distractor",
+     "in": [
+      "sd-from-variance"
+     ],
+     "wrong": "variance ÷ 2"
+    },
+    {
+     "ref": "SL4.3.sd-variance#6",
+     "text": "Assuming a larger standard deviation means a larger mean",
+     "as": "distractor",
+     "in": [
+      "interpret-sd"
+     ],
+     "wrong": "the group with the larger sd has the larger values"
+    },
+    {
+     "ref": "SL4.3.sd-variance#7",
+     "text": "Reading a larger standard deviation as less spread",
+     "as": "distractor",
+     "in": [
+      "interpret-sd"
+     ],
+     "wrong": "the group with the smaller sd varies more"
+    },
+    {
+     "ref": "SL4.3.sd-variance#8",
+     "text": "Assuming every value lies within one standard deviation of the mean",
+     "as": "distractor",
+     "in": [
+      "interpret-sd"
+     ],
+     "wrong": "every value is within one sd of the mean"
+    },
+    {
+     "ref": "SL4.3.mean-totals#0",
+     "text": "Averaging the two group means for a combined mean when the groups are different sizes",
+     "as": "distractor",
+     "in": [
+      "new-value-from-new-mean",
+      "whole-mean-from-groups",
+      "whole-total-from-groups",
+      "group-mean-from-whole"
+     ],
+     "wrong": "the plain average of the means"
+    },
+    {
+     "ref": "SL4.3.mean-totals#1",
+     "text": "Forgetting that the unknown frequency p also appears in the denominator Σf",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-estimate",
+      "two-frequencies-from-mean"
+     ],
+     "wrong": "the known Σf in the equation for the mean"
+    },
+    {
+     "ref": "SL4.3.mean-totals#2",
+     "text": "Using the sum of the known frequencies as the missing frequency",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-total"
+     ],
+     "wrong": "the known sum, not subtracted from the total"
+    },
+    {
+     "ref": "SL4.3.mean-totals#3",
+     "text": "Assuming every class has the same frequency",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-total"
+     ],
+     "wrong": "total ÷ the number of classes"
+    },
+    {
+     "ref": "SL4.3.mean-totals#4",
+     "text": "Using each solved frequency in the row of the other",
+     "as": "distractor",
+     "in": [
+      "two-frequencies-from-mean"
+     ],
+     "wrong": "p and q swapped"
+    },
+    {
+     "ref": "SL4.3.mean-totals#5",
+     "text": "Using the old number of values for the new total",
+     "as": "distractor",
+     "in": [
+      "new-value-from-new-mean"
+     ],
+     "wrong": "n × (new mean − old mean)"
+    },
+    {
+     "ref": "SL4.3.mean-totals#6",
+     "text": "Using the missing value once, ignoring its frequency",
+     "as": "distractor",
+     "in": [
+      "missing-value-from-table-mean"
+     ],
+     "wrong": "the rest of the total, not divided by the frequency"
+    },
+    {
+     "ref": "SL4.3.mean-totals#7",
+     "text": "Dividing the rest of the total by the size of the whole group",
+     "as": "distractor",
+     "in": [
+      "group-mean-from-whole"
+     ],
+     "wrong": "the rest ÷ the whole group"
+    },
+    {
+     "ref": "SL4.3.mean-median-mode#3",
+     "text": "Using the equation for the mean when the median is given",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-median"
+     ],
+     "wrong": "x from Σfx ÷ Σf = the median"
+    },
+    {
+     "ref": "SL4.3.mean-median-mode#4",
+     "text": "Using the count on one side of the median as the missing frequency",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-median"
+     ],
+     "wrong": "the known side, with the other known rows forgotten"
+    }
    ],
    "parts": [
     "aa-sl-2022-may-tz1-p2-q02.a",
@@ -36079,8 +38812,9 @@
    "id": "t4-normal-properties",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Normal curve properties: symmetry, sigma intervals, matching curves",
+   "summary": "Read the normal curve: the 68-95-99.7 rule as a share, a count, a tail or a band, what μ and σ do to the curve, which curves match, P(X = a) = 0, a mirror tail or value, area bookkeeping from given tails, and, on Paper 2, the central interval with invNorm or a solver.",
    "syllabus": [
     "4.9"
    ],
@@ -36088,6 +38822,978 @@
     "SL4.9.properties",
     "SL4.9.symmetry-probability",
     "SL4.9.central-interval"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "mark μ and the bounds on a sketch of the curve",
+    "count the standard deviations, or find the mirror point",
+    "use the rule, or symmetry and total area 1, to write the region in terms of what is known",
+    "on Paper 2, split a central area into two equal tails and use invNorm",
+    "state the area, the value or the curve"
+   ],
+   "given": [
+    "X ~ N(μ, σ²), with σ a number, a letter or hidden",
+    "one tail, or two, or a band and its area",
+    "a story with percentages",
+    "a curve with a region shaded, or four curves on one figure"
+   ],
+   "asked": "An approximate share or count by the rule, a probability from symmetry, a mirror value, an end of a band, σ, which curve or graph fits, how a curve changes, or a central interval.",
+   "answerForms": [
+    "exact decimal",
+    "percentage",
+    "a whole count",
+    "a curve or graph",
+    "a description of a change",
+    "3 s.f.",
+    "an interval"
+   ],
+   "randomise": [
+    "μ and σ",
+    "how many standard deviations a band reaches, and whether it is said in numbers or words",
+    "which side a tail is on, and which side is asked",
+    "the tails and central areas",
+    "which parameter changes, and which way",
+    "the curve asked for, and the order of the letters",
+    "the story: grain sacks, copper pipes, couriers, cans, fence posts, batteries, patrols and engine parts"
+   ],
+   "constraints": [
+    "Paper 1 has no calculator work; beyond-sd, tail-from-band and the central intervals are Paper 2",
+    "the rest make both papers, so the type can reach the exam's split",
+    "a tail on Paper 1 is in hundredths and on Paper 2 in thousandths"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "normal-properties",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "X ~ N(10, σ²) and P(X > 13) = 0.2, or X ~ N(7, a²)"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story in percentages or with a mean and a standard deviation"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "the curve with a region shaded, four curves on one figure, or four graph cards"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "empirical-share",
+     "given": [
+      "μ and σ, or X ~ N(μ, a²)",
+      "a band μ ± kσ for k = 1, 2 or 3"
+     ],
+     "asked": "the approximate probability or percentage in the band",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "empirical-count",
+     "given": [
+      "μ, σ and how many there are",
+      "a band μ ± kσ"
+     ],
+     "asked": "about how many are inside, or outside, the band",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "empirical-tail",
+     "given": [
+      "μ and σ",
+      "a bound k standard deviations from the mean"
+     ],
+     "asked": "the approximate area below or above the bound",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "empirical-band",
+     "given": [
+      "μ and σ",
+      "a band whose ends are different numbers of σ from the mean"
+     ],
+     "asked": "the approximate area of the band",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "sd-from-rule",
+     "given": [
+      "a band centred on the mean and the share of the rule it holds"
+     ],
+     "asked": "σ",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "other-sd-end",
+     "given": [
+      "μ, σ and one end of the band within k standard deviations of the mean"
+     ],
+     "asked": "the other end",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "point-probability",
+     "given": [
+      "μ, σ and a single value"
+     ],
+     "asked": "P(X = a)",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "effect-of-change",
+     "given": [
+      "two normal curves, or one and a change in μ or σ"
+     ],
+     "asked": "how the curve changes",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "match-curve",
+     "given": [
+      "four curves on one figure",
+      "one distribution, with σ² as a square or as the variance"
+     ],
+     "asked": "which curve it is",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "pick-two-curves",
+     "given": [
+      "two distributions, with the second parameter as a square or as the variance"
+     ],
+     "asked": "which of four graphs shows both",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "pick-shaded",
+     "given": [
+      "X ~ N(μ, σ²) and an event"
+     ],
+     "asked": "which of four graphs shades the event",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "same-sd-shift",
+     "given": [
+      "X and Y with different means and the same σ",
+      "P(X > b) = P(Y > y)"
+     ],
+     "asked": "b",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "shifted-mirror",
+     "given": [
+      "X and Y with different means and the same σ",
+      "P(X < b) = P(Y > y)"
+     ],
+     "asked": "b",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "beyond-sd",
+     "given": [
+      "μ and σ",
+      "a number of standard deviations that is not whole"
+     ],
+     "asked": "the probability of being more than that far above, below or from the mean",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "half-below-mean",
+     "given": [
+      "X ~ N(μ, σ²)"
+     ],
+     "asked": "P(X < μ) or P(X > μ)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "mirror-tail",
+     "given": [
+      "μ and one tail"
+     ],
+     "asked": "the mirror tail",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "mirror-complement",
+     "given": [
+      "μ and a large area past the mean"
+     ],
+     "asked": "the small tail on the other side",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "middle-from-tail",
+     "given": [
+      "μ and one tail"
+     ],
+     "asked": "the area between the tail's bound and its mirror",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "tail-from-middle",
+     "given": [
+      "a band centred on μ and its area"
+     ],
+     "asked": "one tail",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "half-of-middle",
+     "given": [
+      "a band centred on μ and its area"
+     ],
+     "asked": "the area from μ to one end",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "mean-to-point",
+     "given": [
+      "μ and one tail"
+     ],
+     "asked": "the area between μ and the tail's bound",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "between-from-two-tails",
+     "given": [
+      "two different tails, with μ and σ hidden"
+     ],
+     "asked": "the area between them",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "tail-from-band",
+     "given": [
+      "μ, σ, the upper end of a band and the band's area"
+     ],
+     "asked": "the tail below the band",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "mirror-value",
+     "given": [
+      "μ and one of two values that cut off equal tails"
+     ],
+     "asked": "the other value",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "central-k",
+     "given": [
+      "μ, σ and P(μ − k < X < μ + k)"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.central-interval"
+     ]
+    },
+    {
+     "id": "central-endpoints",
+     "given": [
+      "μ, σ and the area of a central interval"
+     ],
+     "asked": "both ends of the interval",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.central-interval"
+     ]
+    },
+    {
+     "id": "central-k-sd",
+     "given": [
+      "μ, σ and the area within k standard deviations of the mean"
+     ],
+     "asked": "k",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.central-interval"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.9.properties",
+     "method": "empirical-rule",
+     "suits": [
+      "empirical-share",
+      "empirical-count",
+      "empirical-tail",
+      "empirical-band",
+      "sd-from-rule",
+      "other-sd-end"
+     ]
+    },
+    {
+     "skill": "SL4.9.properties",
+     "method": "sketch-and-shade",
+     "suits": [
+      "empirical-share",
+      "empirical-tail",
+      "empirical-band",
+      "other-sd-end",
+      "point-probability",
+      "pick-shaded",
+      "beyond-sd"
+     ]
+    },
+    {
+     "skill": "SL4.9.properties",
+     "method": "parameter-effect",
+     "suits": [
+      "effect-of-change",
+      "match-curve",
+      "pick-two-curves",
+      "same-sd-shift",
+      "shifted-mirror"
+     ]
+    },
+    {
+     "skill": "SL4.9.symmetry-probability",
+     "method": "mirror-tails",
+     "suits": [
+      "half-below-mean",
+      "mirror-tail",
+      "mirror-complement",
+      "middle-from-tail",
+      "tail-from-middle",
+      "half-of-middle",
+      "mirror-value",
+      "shifted-mirror"
+     ]
+    },
+    {
+     "skill": "SL4.9.symmetry-probability",
+     "method": "area-bookkeeping",
+     "suits": [
+      "half-below-mean",
+      "mirror-complement",
+      "middle-from-tail",
+      "tail-from-middle",
+      "half-of-middle",
+      "mean-to-point",
+      "between-from-two-tails",
+      "tail-from-band"
+     ]
+    },
+    {
+     "skill": "SL4.9.symmetry-probability",
+     "method": "shaded-sketch",
+     "suits": [
+      "mirror-tail",
+      "mirror-complement",
+      "middle-from-tail",
+      "tail-from-middle",
+      "mean-to-point",
+      "between-from-two-tails",
+      "tail-from-band",
+      "mirror-value"
+     ]
+    },
+    {
+     "skill": "SL4.9.central-interval",
+     "method": "split-tails",
+     "suits": [
+      "central-k",
+      "central-endpoints",
+      "central-k-sd"
+     ]
+    },
+    {
+     "skill": "SL4.9.central-interval",
+     "method": "gdc-center",
+     "suits": [
+      "central-k",
+      "central-endpoints",
+      "central-k-sd"
+     ]
+    },
+    {
+     "skill": "SL4.9.central-interval",
+     "method": "gdc-solver",
+     "suits": [
+      "central-k",
+      "central-endpoints",
+      "central-k-sd"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "For a normal variable, P(X < a) and P(X ≤ a) are equal.",
+     "answer": "True: X is continuous, so P(X = a) = 0, and adding one value adds no area.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Doubling σ doubles the height of a normal curve's peak.",
+     "answer": "Never: the total area stays 1, so a curve twice as wide has half the height.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "Two normal curves have the same σ and different means. What is the same about them, and what is different?",
+     "answer": "They are the same shape, so one slides onto the other. Only their positions differ.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.9.properties#0",
+     "text": "Using the wrong figure of the rule for how many standard deviations the band reaches",
+     "as": "distractor",
+     "in": [
+      "empirical-share",
+      "empirical-count",
+      "empirical-tail",
+      "empirical-band",
+      "sd-from-rule"
+     ],
+     "wrong": "the figure of the rule for another number of standard deviations"
+    },
+    {
+     "ref": "SL4.9.properties#1",
+     "text": "Assuming a larger σ gives a taller curve",
+     "as": "distractor",
+     "in": [
+      "effect-of-change",
+      "match-curve",
+      "pick-two-curves"
+     ],
+     "wrong": "a larger σ drawn taller, or a smaller σ drawn lower"
+    },
+    {
+     "ref": "SL4.9.properties#2",
+     "text": "Assuming a single value of a continuous variable has a non-zero probability",
+     "as": "distractor",
+     "in": [
+      "point-probability"
+     ],
+     "wrong": "the area on one side of a, as if it were P(X = a)"
+    },
+    {
+     "ref": "SL4.9.symmetry-probability#0",
+     "text": "Using the sum of the tails as the middle, instead of subtracting them from the whole area",
+     "as": "distractor",
+     "in": [
+      "middle-from-tail",
+      "between-from-two-tails"
+     ],
+     "wrong": "the two tails added"
+    },
+    {
+     "ref": "SL4.9.symmetry-probability#1",
+     "text": "Forgetting that the mean cuts the area into two equal halves",
+     "as": "distractor",
+     "in": [
+      "empirical-tail",
+      "half-below-mean",
+      "mean-to-point"
+     ],
+     "wrong": "a value that loses or misplaces the half on one side of the mean"
+    },
+    {
+     "ref": "SL4.9.symmetry-probability#2",
+     "text": "Using the origin as the mirror instead of μ",
+     "as": "distractor",
+     "in": [
+      "mirror-value"
+     ],
+     "wrong": "−x, the mirror in 0"
+    },
+    {
+     "ref": "SL4.9.central-interval#0",
+     "text": "Using the central area as the left-tail area in invNorm",
+     "as": "distractor",
+     "in": [
+      "central-k",
+      "central-endpoints",
+      "central-k-sd"
+     ],
+     "wrong": "invNorm of the central area, with no tail added"
+    },
+    {
+     "ref": "SL4.9.central-interval#1",
+     "text": "Using the endpoint μ + k as the answer when k is asked for",
+     "as": "distractor",
+     "in": [
+      "central-k",
+      "central-k-sd"
+     ],
+     "wrong": "μ + k, or the upper end, for k"
+    },
+    {
+     "text": "Giving the area on the wrong side of the bound or the band",
+     "as": "distractor",
+     "in": [
+      "empirical-share",
+      "empirical-count",
+      "empirical-tail",
+      "empirical-band",
+      "beyond-sd",
+      "pick-shaded",
+      "tail-from-middle",
+      "half-of-middle",
+      "mean-to-point",
+      "tail-from-band"
+     ],
+     "wrong": "the area on the other side"
+    },
+    {
+     "text": "Using the share of the whole band for a region that is not that band",
+     "as": "distractor",
+     "in": [
+      "empirical-tail",
+      "empirical-band",
+      "half-below-mean",
+      "half-of-middle",
+      "mean-to-point",
+      "mirror-complement"
+     ],
+     "wrong": "the band's full share"
+    },
+    {
+     "text": "Using half of the band where another area is asked for",
+     "as": "distractor",
+     "in": [
+      "empirical-share",
+      "empirical-tail",
+      "empirical-band",
+      "half-below-mean",
+      "tail-from-middle"
+     ],
+     "wrong": "half of the band's share"
+    },
+    {
+     "text": "Keeping both tails when one is asked for",
+     "as": "distractor",
+     "in": [
+      "empirical-tail",
+      "mirror-tail",
+      "tail-from-middle"
+     ],
+     "wrong": "the two tails together"
+    },
+    {
+     "text": "Using one tail where there are two",
+     "as": "distractor",
+     "in": [
+      "empirical-count",
+      "beyond-sd",
+      "middle-from-tail",
+      "between-from-two-tails",
+      "tail-from-band"
+     ],
+     "wrong": "one tail left out, or only one counted"
+    },
+    {
+     "text": "Leaving a share as a share instead of multiplying by the total",
+     "as": "distractor",
+     "in": [
+      "empirical-count"
+     ],
+     "wrong": "the share, not multiplied by n"
+    },
+    {
+     "text": "Using the width of the band ÷ k, when the band reaches k standard deviations each side",
+     "as": "distractor",
+     "in": [
+      "sd-from-rule"
+     ],
+     "wrong": "the width ÷ k, not the width ÷ 2k"
+    },
+    {
+     "text": "Stepping from the given end only as far as the mean",
+     "as": "distractor",
+     "in": [
+      "other-sd-end"
+     ],
+     "wrong": "μ, for the other end"
+    },
+    {
+     "text": "Stepping one standard deviation from the mean when the band reaches further",
+     "as": "distractor",
+     "in": [
+      "other-sd-end"
+     ],
+     "wrong": "μ ± σ"
+    },
+    {
+     "text": "Assuming a change in μ changes the shape of the curve",
+     "as": "distractor",
+     "in": [
+      "effect-of-change"
+     ],
+     "wrong": "the curve wider or narrower when only μ moves"
+    },
+    {
+     "text": "Assuming a change in σ moves the curve along",
+     "as": "distractor",
+     "in": [
+      "effect-of-change"
+     ],
+     "wrong": "the curve slides when only σ changes"
+    },
+    {
+     "text": "Assuming a larger σ makes the curve narrower",
+     "as": "distractor",
+     "in": [
+      "effect-of-change"
+     ],
+     "wrong": "the width the wrong way round"
+    },
+    {
+     "text": "Moving the curve the wrong way along the axis",
+     "as": "distractor",
+     "in": [
+      "effect-of-change"
+     ],
+     "wrong": "a slide in the other direction"
+    },
+    {
+     "text": "Using the wrong mean for the curve",
+     "as": "distractor",
+     "in": [
+      "match-curve",
+      "pick-two-curves"
+     ],
+     "wrong": "a curve at another centre"
+    },
+    {
+     "text": "Shading from the mean to the bound instead of the region asked for",
+     "as": "distractor",
+     "in": [
+      "pick-shaded"
+     ],
+     "wrong": "the mean to the bound"
+    },
+    {
+     "text": "Centring the curve somewhere other than the mean",
+     "as": "distractor",
+     "in": [
+      "pick-shaded"
+     ],
+     "wrong": "a peak that is not at μ"
+    },
+    {
+     "text": "Using k in place of kσ, so the bound is k from the mean",
+     "as": "distractor",
+     "in": [
+      "beyond-sd"
+     ],
+     "wrong": "the area beyond μ + k"
+    },
+    {
+     "text": "Using the complement where the mirror is needed",
+     "as": "distractor",
+     "in": [
+      "mirror-tail"
+     ],
+     "wrong": "1 − p"
+    },
+    {
+     "text": "Using the large area as the mirror of itself, without taking it from the whole area",
+     "as": "distractor",
+     "in": [
+      "mirror-complement"
+     ],
+     "wrong": "the large area, unchanged"
+    },
+    {
+     "text": "Measuring the area from the mean instead of the tail",
+     "as": "distractor",
+     "in": [
+      "mirror-tail",
+      "mirror-complement",
+      "middle-from-tail"
+     ],
+     "wrong": "the area between the mean and the bound"
+    },
+    {
+     "text": "Assuming two different tails are equal",
+     "as": "distractor",
+     "in": [
+      "between-from-two-tails"
+     ],
+     "wrong": "1 − 2 × the first tail"
+    },
+    {
+     "text": "Keeping the value unchanged when the curve has moved",
+     "as": "distractor",
+     "in": [
+      "same-sd-shift",
+      "shifted-mirror"
+     ],
+     "wrong": "y, for b"
+    },
+    {
+     "text": "Moving the value the wrong way, by the difference of the means",
+     "as": "distractor",
+     "in": [
+      "same-sd-shift",
+      "shifted-mirror"
+     ],
+     "wrong": "y minus the slide"
+    },
+    {
+     "text": "Using the same side of the mean when the two tails point opposite ways",
+     "as": "distractor",
+     "in": [
+      "shifted-mirror"
+     ],
+     "wrong": "the slid value, not its mirror"
+    },
+    {
+     "text": "Using the sum of the value and the mean instead of a reflection",
+     "as": "distractor",
+     "in": [
+      "mirror-value"
+     ],
+     "wrong": "x + μ"
+    },
+    {
+     "text": "Using z without multiplying by σ",
+     "as": "distractor",
+     "in": [
+      "central-k",
+      "central-endpoints"
+     ],
+     "wrong": "z, for a distance in the units of X"
+    },
+    {
+     "text": "Multiplying by σ when k already counts standard deviations",
+     "as": "distractor",
+     "in": [
+      "central-k-sd"
+     ],
+     "wrong": "z × σ"
+    }
    ],
    "parts": [
     "aa-sl-2023-may-tz2-p2-q04.b",
@@ -43819,8 +47525,9 @@
    "id": "t5-antiderivative-condition",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Integrate, then find the constant from a point or initial value",
+   "summary": "Integrate f′ or f″, and use a point, a value or a start amount to fix the constant. The result is f(x), the equation of a curve, the constant itself, or a further value. It covers polynomials, negative powers, trig with a chain or a shift, 1/(ax + b), e^(ax), logs by inspection, a gradient that fixes a parameter, two conditions from f″, a family of curves on one figure, the graph of f′ read as areas, and a decaying rate in a story.",
    "syllabus": [
     "5.5",
     "5.10"
@@ -43828,6 +47535,769 @@
    "skills": [
     "SL5.5.boundary-condition",
     "SL5.10.find-function-from-derivative"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "integrate f′ (or f″), with + C",
+    "put the condition into the integrated function, not into its derivative",
+    "solve for C, keeping exact values",
+    "from f″, integrate again with a new constant and use the second condition",
+    "write the function with no C left, or put in the further value",
+    "or go straight to f(b) = f(a) + ∫ f′ dx from a to b"
+   ],
+   "given": [
+    "f′(x) and a value of f",
+    "a gradient function and a point on the curve",
+    "f″(x) with f′ and f at a point",
+    "a gradient with a constant in it, and the gradient at a point",
+    "a family of curves on one figure",
+    "the graph of f′ in straight pieces",
+    "a rate in a story and the start amount"
+   ],
+   "asked": "An expression for f(x) or y, the constant C, or a further value of f.",
+   "answerForms": [
+    "expression with no constant left",
+    "exact value",
+    "decimal constant",
+    "3 s.f."
+   ],
+   "randomise": [
+    "the family of the derivative: powers, trig, 1/(ax + b), e^(ax) or a quotient that reverses to a log",
+    "the coefficients, the inside ax + b and the shift",
+    "the given point or value",
+    "the letter of the function",
+    "the value asked for",
+    "the corners of the graph of f′",
+    "the story: rats, reservoirs, ration tins, settlers, ridges, pipes, cables and riverbeds"
+   ],
+   "constraints": [
+    "Paper 1 exact, with landmark angles, e⁰ and ln 1 or a log left in the constant",
+    "decimals and the rate model are Paper 2, to 3 s.f.",
+    "the GDC method is Paper 2 only",
+    "the constant is never 0, so dropping it is always wrong"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "antiderivative-condition",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "f′(x) = 3x² − 2 and f(1) = 5, or dy/dx with a point, or f″(x) with two conditions"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a curve on a map with its gradient, or a rate in a story with a start amount"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "a family y = F(x) + C with the point marked, or the graph of f′ in straight pieces"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "poly-function",
+     "given": [
+      "f′(x) as a polynomial",
+      "f(a) = b"
+     ],
+     "asked": "f(x)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.boundary-condition"
+     ]
+    },
+    {
+     "id": "poly-decimal-point",
+     "given": [
+      "f′(x) = ax + b",
+      "f at a point in decimals"
+     ],
+     "asked": "f(x), with a decimal constant",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.boundary-condition"
+     ]
+    },
+    {
+     "id": "curve-through-point",
+     "given": [
+      "dy/dx as a polynomial",
+      "a point on the curve"
+     ],
+     "asked": "the equation of the curve",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.5.boundary-condition"
+     ]
+    },
+    {
+     "id": "find-constant",
+     "given": [
+      "f′(x)",
+      "f(a) = b",
+      "the integrated form with + C"
+     ],
+     "asked": "the value of C",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.boundary-condition"
+     ]
+    },
+    {
+     "id": "further-value",
+     "given": [
+      "f′(x)",
+      "f(a) = b"
+     ],
+     "asked": "a further value f(c)",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.5.boundary-condition",
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "negative-power",
+     "given": [
+      "f′(x) with a negative power of x",
+      "f(a) = b"
+     ],
+     "asked": "f(x)",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "trig-chain",
+     "given": [
+      "f′(x) = k cos(ax) or k sin(ax)",
+      "f at a multiple of π"
+     ],
+     "asked": "f(x)",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "trig-shift",
+     "given": [
+      "dy/dx = k cos(x + c) or k sin(x + c)",
+      "y at a multiple of π"
+     ],
+     "asked": "y in terms of x",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "reciprocal-linear",
+     "given": [
+      "a gradient k/(ax + b)",
+      "a point on the curve"
+     ],
+     "asked": "f(x) or the equation of the curve",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "exp-and-power",
+     "given": [
+      "f′(x) with a power of x and an exponential",
+      "f(0) or the curve's y-intercept"
+     ],
+     "asked": "f(x)",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "trig-and-exp",
+     "given": [
+      "f′(x) with cos x or sin x and an exponential",
+      "f(0)"
+     ],
+     "asked": "f(x)",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "exp-linear-decimal",
+     "given": [
+      "f′(x) = e^(ax) + b",
+      "f at a decimal point"
+     ],
+     "asked": "f(x), with the constant to 3 s.f.",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "log-inspection",
+     "given": [
+      "f′(x) = 2kx/(x² + a)",
+      "a point on the graph"
+     ],
+     "asked": "f(x), with a log in the constant",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "log-given-log",
+     "given": [
+      "f′(x) = k(2x + b)/(x² + bx + c)",
+      "a value of f with a log in it"
+     ],
+     "asked": "f(x)",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "rate-model",
+     "given": [
+      "a rate that decays exponentially",
+      "the amount at the start"
+     ],
+     "asked": "the amount at a later time, to 3 s.f.",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.5.boundary-condition",
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "second-derivative",
+     "given": [
+      "f″(x) as a polynomial",
+      "f′ and f at a point"
+     ],
+     "asked": "f(x)",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "second-derivative-exp",
+     "given": [
+      "f″(x) = ax + be^x",
+      "f′(0) and f(0)"
+     ],
+     "asked": "f(x)",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "second-derivative-value",
+     "given": [
+      "f″(x) as a polynomial",
+      "f′ and f at a point"
+     ],
+     "asked": "a further value f(c)",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL5.10.find-function-from-derivative"
+     ]
+    },
+    {
+     "id": "parameter-from-gradient",
+     "given": [
+      "dy/dx with a constant a",
+      "the gradient at one point",
+      "a point on the curve"
+     ],
+     "asked": "y in terms of x",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.5.boundary-condition"
+     ]
+    },
+    {
+     "id": "family-pick",
+     "given": [
+      "f′(x)",
+      "a point",
+      "a family y = F(x) + C on one figure"
+     ],
+     "asked": "the C of the curve through the point",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.5.boundary-condition"
+     ]
+    },
+    {
+     "id": "accumulate-graph",
+     "given": [
+      "the graph of f′ in straight pieces",
+      "f(a) = b"
+     ],
+     "asked": "a further value f(c)",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.5.boundary-condition"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.5.boundary-condition",
+     "method": "integrate-then-substitute",
+     "suits": [
+      "poly-function",
+      "poly-decimal-point",
+      "curve-through-point",
+      "find-constant",
+      "further-value",
+      "family-pick",
+      "parameter-from-gradient"
+     ]
+    },
+    {
+     "skill": "SL5.5.boundary-condition",
+     "method": "accumulate-from-point",
+     "suits": [
+      "further-value",
+      "rate-model",
+      "accumulate-graph"
+     ]
+    },
+    {
+     "skill": "SL5.5.boundary-condition",
+     "method": "pick-from-family",
+     "suits": [
+      "family-pick"
+     ]
+    },
+    {
+     "skill": "SL5.10.find-function-from-derivative",
+     "method": "integrate-and-fit",
+     "suits": [
+      "negative-power",
+      "trig-chain",
+      "trig-shift",
+      "reciprocal-linear",
+      "exp-and-power",
+      "trig-and-exp",
+      "exp-linear-decimal",
+      "log-inspection",
+      "log-given-log",
+      "rate-model",
+      "second-derivative",
+      "second-derivative-exp",
+      "second-derivative-value"
+     ]
+    },
+    {
+     "skill": "SL5.10.find-function-from-derivative",
+     "method": "gdc-start-plus-change",
+     "suits": [
+      "further-value",
+      "rate-model"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Knowing f′(x) for every x is enough to know f(x) for every x.",
+     "answer": "False: f′ fixes the shape, and any vertical shift has the same derivative. One value of f is needed to pick the shift.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Two different antiderivatives of the same function on one interval cross each other.",
+     "answer": "Never: they differ by a constant, so one curve is the other moved up or down, and the gap never closes.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "From f″(x), one condition is enough to find f(x).",
+     "answer": "False: there are two integrations, so two constants, and each needs a condition of its own.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.5.boundary-condition#0",
+     "text": "Substituting the point into f′(x) instead of f(x)",
+     "as": "distractor",
+     "in": [
+      "poly-function",
+      "poly-decimal-point",
+      "curve-through-point",
+      "find-constant",
+      "further-value",
+      "parameter-from-gradient",
+      "family-pick"
+     ],
+     "wrong": "the constant from f′ at the point"
+    },
+    {
+     "ref": "SL5.5.boundary-condition#2",
+     "text": "Substituting the y-value in place of x",
+     "as": "distractor",
+     "in": [
+      "poly-function",
+      "curve-through-point",
+      "find-constant"
+     ],
+     "wrong": "the point's coordinates swapped"
+    },
+    {
+     "ref": "SL5.5.boundary-condition#3",
+     "text": "Leaving + C in the final answer",
+     "as": "distractor",
+     "in": [
+      "poly-function",
+      "poly-decimal-point",
+      "curve-through-point",
+      "parameter-from-gradient",
+      "negative-power",
+      "trig-chain",
+      "trig-shift",
+      "reciprocal-linear",
+      "exp-and-power",
+      "trig-and-exp",
+      "exp-linear-decimal",
+      "log-inspection",
+      "log-given-log",
+      "second-derivative",
+      "second-derivative-exp"
+     ],
+     "wrong": "the right terms, with + C left in"
+    },
+    {
+     "ref": "SL5.5.boundary-condition#4",
+     "text": "Dropping the constant of integration",
+     "as": "distractor",
+     "in": [
+      "poly-function",
+      "poly-decimal-point",
+      "curve-through-point",
+      "further-value",
+      "parameter-from-gradient",
+      "trig-shift",
+      "exp-linear-decimal"
+     ],
+     "wrong": "the right terms with no constant"
+    },
+    {
+     "ref": "SL5.5.boundary-condition#5",
+     "text": "Adding F(a) to the given value instead of subtracting it when solving for C",
+     "as": "distractor",
+     "in": [
+      "poly-function",
+      "poly-decimal-point",
+      "curve-through-point",
+      "find-constant",
+      "family-pick"
+     ],
+     "wrong": "the given value plus F(a) as the constant"
+    },
+    {
+     "ref": "SL5.5.boundary-condition#6",
+     "text": "Taking C to be the y-value of the given point",
+     "as": "distractor",
+     "in": [
+      "find-constant",
+      "family-pick",
+      "log-inspection",
+      "log-given-log"
+     ],
+     "wrong": "the given value as the constant"
+    },
+    {
+     "ref": "SL5.5.boundary-condition#7",
+     "text": "Differentiating f′ instead of integrating it",
+     "as": "distractor",
+     "in": [
+      "poly-function",
+      "negative-power"
+     ],
+     "wrong": "the derivative of f′, with a constant fitted to the point"
+    },
+    {
+     "ref": "SL5.5.boundary-condition#8",
+     "text": "Giving f′ at the point asked for instead of f",
+     "as": "distractor",
+     "in": [
+      "further-value"
+     ],
+     "wrong": "f′ at the point asked for"
+    },
+    {
+     "ref": "SL5.5.boundary-condition#9",
+     "text": "Using the gradient as a height on the curve when fixing C",
+     "as": "distractor",
+     "in": [
+      "parameter-from-gradient"
+     ],
+     "wrong": "the constant fitted as if the gradient were a height"
+    },
+    {
+     "ref": "SL5.5.boundary-condition#10",
+     "text": "Counting every area under f′ as positive",
+     "as": "distractor",
+     "in": [
+      "accumulate-graph"
+     ],
+     "wrong": "the start plus the areas, all counted as positive"
+    },
+    {
+     "ref": "SL5.10.find-function-from-derivative#0",
+     "text": "Using a single constant for both integrations from f″",
+     "as": "distractor",
+     "in": [
+      "second-derivative",
+      "second-derivative-exp",
+      "second-derivative-value"
+     ],
+     "wrong": "one constant used at both stages"
+    },
+    {
+     "ref": "SL5.10.find-function-from-derivative#1",
+     "text": "Using a wrong exact value of sin, cos, e or ln when finding C",
+     "as": "distractor",
+     "in": [
+      "trig-chain",
+      "trig-shift",
+      "reciprocal-linear",
+      "exp-and-power",
+      "trig-and-exp",
+      "second-derivative-exp"
+     ],
+     "wrong": "the constant from a wrong value of sin, cos, e⁰ or ln 1"
+    },
+    {
+     "ref": "SL5.10.find-function-from-derivative#2",
+     "text": "Substituting the point into f′ instead of f",
+     "as": "distractor",
+     "in": [
+      "negative-power",
+      "trig-chain",
+      "trig-shift",
+      "reciprocal-linear",
+      "exp-and-power",
+      "trig-and-exp",
+      "exp-linear-decimal",
+      "log-inspection"
+     ],
+     "wrong": "the constant from f′ at the point"
+    },
+    {
+     "ref": "SL5.10.find-function-from-derivative#3",
+     "text": "Assuming the rate stays at its starting value for the whole time",
+     "as": "distractor",
+     "in": [
+      "rate-model"
+     ],
+     "wrong": "the start plus the starting rate times the time"
+    },
+    {
+     "ref": "SL5.10.find-function-from-derivative#4",
+     "text": "Using the two conditions at the wrong stages",
+     "as": "distractor",
+     "in": [
+      "second-derivative",
+      "second-derivative-exp",
+      "second-derivative-value"
+     ],
+     "wrong": "the f value used for f′, and the f′ value for f"
+    },
+    {
+     "ref": "SL5.10.find-function-from-derivative#5",
+     "text": "Stopping at f′ after one integration when f is asked for",
+     "as": "distractor",
+     "in": [
+      "second-derivative-value"
+     ],
+     "wrong": "f′ at the point asked for"
+    },
+    {
+     "ref": "SL5.5.antidiff-power#0",
+     "text": "Dividing by the old power instead of the new one",
+     "as": "distractor",
+     "in": [
+      "poly-function",
+      "negative-power"
+     ],
+     "wrong": "each term divided by its old power"
+    },
+    {
+     "ref": "SL5.10.standard-integrals#0",
+     "text": "Integrating sin x to cos x, with the wrong sign",
+     "as": "distractor",
+     "in": [
+      "trig-chain",
+      "trig-shift",
+      "trig-and-exp"
+     ],
+     "wrong": "the integral of sin with a plus sign"
+    },
+    {
+     "ref": "SL5.10.linear-composites#0",
+     "text": "Multiplying by the coefficient of x, as in differentiation, instead of dividing",
+     "as": "distractor",
+     "in": [
+      "trig-chain",
+      "reciprocal-linear",
+      "exp-and-power",
+      "trig-and-exp"
+     ],
+     "wrong": "multiplied by the inner coefficient"
+    },
+    {
+     "ref": "SL5.10.linear-composites#1",
+     "text": "Forgetting to divide by the coefficient of x",
+     "as": "distractor",
+     "in": [
+      "trig-chain",
+      "reciprocal-linear",
+      "exp-and-power",
+      "trig-and-exp",
+      "exp-linear-decimal",
+      "rate-model"
+     ],
+     "wrong": "not divided by the inner coefficient"
+    },
+    {
+     "ref": "SL5.10.inspection-substitution#1",
+     "text": "Forgetting to divide by the number that comes from differentiating the inside",
+     "as": "distractor",
+     "in": [
+      "log-inspection",
+      "log-given-log"
+     ],
+     "wrong": "the coefficient of x on top kept as the coefficient of ln"
+    },
+    {
+     "ref": "SL5.5.total-change-from-rate#0",
+     "text": "Evaluating the rate at the end time instead of integrating",
+     "as": "distractor",
+     "in": [
+      "rate-model",
+      "accumulate-graph"
+     ],
+     "wrong": "the rate at the end time"
+    },
+    {
+     "ref": "SL5.5.total-change-from-rate#1",
+     "text": "Adding the starting amount when only the change is asked for, or forgetting it when the total is asked for",
+     "as": "distractor",
+     "in": [
+      "further-value",
+      "rate-model",
+      "accumulate-graph"
+     ],
+     "wrong": "the change alone, with the start left out"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q01.b",
@@ -55284,7 +59754,7 @@
     },
     {
      "ref": "SL4.9.symmetry-probability#0",
-     "text": "P(7 < X < 13) = 0.2 + 0.2 (adding the tails instead of subtracting them from 1)",
+     "text": "Using the sum of the tails as the middle, instead of subtracting them from the whole area",
      "as": "distractor",
      "in": [
       "normal-middle"
@@ -55293,7 +59763,7 @@
     },
     {
      "ref": "SL4.9.symmetry-probability#1",
-     "text": "Forgetting that P(X < μ) = 0.5",
+     "text": "Forgetting that the mean cuts the area into two equal halves",
      "as": "distractor",
      "in": [
       "normal-other-tail"
@@ -55302,7 +59772,7 @@
     },
     {
      "ref": "SL4.9.symmetry-probability#2",
-     "text": "Applying symmetry about 0 instead of about μ",
+     "text": "Using the origin as the mirror instead of μ",
      "as": "distractor",
      "in": [
       "normal-other-tail"
@@ -55311,7 +59781,7 @@
     },
     {
      "ref": "SL4.9.central-interval#0",
-     "text": "Using invNorm(0.9) for the upper endpoint instead of invNorm(0.95)",
+     "text": "Using the central area as the left-tail area in invNorm",
      "as": "distractor",
      "in": [
       "central-interval"
@@ -55320,7 +59790,7 @@
     },
     {
      "ref": "SL4.9.central-interval#1",
-     "text": "Giving the endpoint μ + k when k is asked for",
+     "text": "Using the endpoint μ + k as the answer when k is asked for",
      "as": "distractor",
      "in": [
       "central-interval"

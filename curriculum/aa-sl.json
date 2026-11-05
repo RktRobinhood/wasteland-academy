@@ -3216,9 +3216,9 @@
                 }
               ],
               "misconceptions": [
-                "Squaring x but not k: 28k = 112",
-                "Taking only k = 2 when k² = 4 also allows k = −2",
-                "Dividing by k without noting k ≠ 0"
+                "Using the letter to the first power, so the term's power reaches x and not the letter",
+                "Taking only the positive value of a letter that is squared, when the negative one works too",
+                "Keeping the zero root, although the question rules it out"
               ],
               "threads": []
             },
@@ -10164,8 +10164,13 @@
                 }
               ],
               "misconceptions": [
-                "Every outlier must be deleted",
-                "Removing an outlier changes the median as much as it changes the mean"
+                "Assuming every outlier must be deleted",
+                "Assuming removing an outlier changes the median or the IQR as much as the mean or the range",
+                "Assuming every outlier must stay in the data, even an impossible value",
+                "Using the old number of values to find the new mean",
+                "Assuming the median stays exactly the same when a value is removed",
+                "Reversing which measure an outlier drags and which it leaves alone",
+                "Getting the direction of the change wrong"
               ],
               "threads": []
             }
@@ -10412,8 +10417,23 @@
                 }
               ],
               "misconceptions": [
-                "A longer section of the box or a longer whisker contains more data values (each quarter holds about 25% of the data)",
-                "Drawing the whisker out to an outlier instead of marking the outlier separately with a cross"
+                "Assuming a longer section of the box or a longer whisker holds more of the data",
+                "Drawing the whisker out to an outlier instead of marking the outlier separately with a cross",
+                "Using the median in both halves when n is odd",
+                "Using the values in the order shown, without sorting them first",
+                "Using each value of a frequency table once, ignoring its frequency",
+                "Using the middle of the box as the median",
+                "Using the whole length of the plot as the IQR, or the IQR as the range",
+                "Using the end of the whisker as the greatest value, leaving the cross out",
+                "Using a quarter of the horizontal axis as a quartile, instead of a quarter of the frequency",
+                "Using the cumulative frequency levels as the values themselves",
+                "Using the ends of the axis as the least and greatest values",
+                "Using the share below a value when the question gives the share above it, or the other way round",
+                "Using the range to judge the shape of the data",
+                "Reading the gaps backwards, so equal gaps seem skewed and unequal gaps symmetric",
+                "Assuming the mean equals the median because half of the data lie on each side of the median",
+                "Using the values a quarter and three quarters of the way along the list as the quartiles, not the medians of the halves",
+                "Drawing the whisker out to the fence, not to the furthest value inside it"
               ],
               "threads": [
                 {
@@ -10469,7 +10489,12 @@
               "misconceptions": [
                 "Using 1.5 × Q3 as the upper fence instead of Q3 + 1.5 × IQR",
                 "Measuring 1.5 × IQR from the median instead of from the nearest quartile",
-                "Calling any value that looks far from the rest an outlier without doing the test"
+                "Calling any value that looks far from the rest an outlier without doing the test",
+                "Using the fence on the far side from the value",
+                "Reading the comparison backwards, so a value inside the fences is called an outlier or one beyond them is not",
+                "Leaving the factor out of the fence, so that it sits one IQR from the quartile",
+                "Using the fence itself as the smallest outlier, though a value on the fence is not beyond it",
+                "Using the quartile, not the IQR, as the distance to multiply"
               ],
               "threads": []
             },
@@ -10510,8 +10535,9 @@
               ],
               "misconceptions": [
                 "Comparing only the maximum or minimum values",
-                "Saying a larger IQR means a higher average",
-                "Quoting the numbers without saying what they mean in context"
+                "Using a larger spread as a sign of a higher average",
+                "Quoting the numbers without saying what they mean in context",
+                "Reading the comparison backwards, so the verdict is the opposite of what the medians show"
               ],
               "threads": []
             }
@@ -10576,7 +10602,9 @@
               "misconceptions": [
                 "Taking the middle value of the unordered list as the median",
                 "Giving the position (n + 1)/2 as the median instead of the value in that position",
-                "Giving the highest frequency as the mode instead of the value that has that frequency"
+                "Giving the highest frequency as the mode instead of the value that has that frequency",
+                "Using the equation for the mean when the median is given",
+                "Using the count on one side of the median as the missing frequency"
               ],
               "threads": []
             },
@@ -10620,7 +10648,13 @@
               "misconceptions": [
                 "Dividing by the number of classes instead of the total frequency",
                 "Using the upper class boundary instead of the mid-interval value",
-                "Calling the estimate the exact mean"
+                "Calling the estimate the exact mean",
+                "Using the lower class boundary instead of the mid-interval value",
+                "Using the class width instead of the mid-interval value",
+                "Assuming each value counts once, leaving the frequencies out",
+                "Using the class that holds the median as the modal class",
+                "Assuming the class with an unknown frequency cannot be the modal class",
+                "Assuming every class is as wide as the first when listing mid-interval values"
               ],
               "threads": []
             },
@@ -10670,7 +10704,13 @@
               ],
               "misconceptions": [
                 "Averaging the two group means for a combined mean when the groups are different sizes",
-                "Forgetting that the unknown frequency p also appears in the denominator Σf"
+                "Forgetting that the unknown frequency p also appears in the denominator Σf",
+                "Using the sum of the known frequencies as the missing frequency",
+                "Assuming every class has the same frequency",
+                "Using each solved frequency in the row of the other",
+                "Using the old number of values for the new total",
+                "Using the missing value once, ignoring its frequency",
+                "Dividing the rest of the total by the size of the whole group"
               ],
               "threads": []
             },
@@ -10750,7 +10790,7 @@
                 {
                   "id": "definition-formula",
                   "approach": "formula",
-                  "name": "Square root of the mean squared deviation",
+                  "name": "From the mean squared deviation",
                   "summary": "For a small set, find each deviation from the mean, square, average and square-root: σ = √(Σ(x − x̄)² ÷ n)."
                 },
                 {
@@ -10761,9 +10801,15 @@
                 }
               ],
               "misconceptions": [
-                "Reading Sx (which divides by n − 1) from the GDC instead of σx",
-                "Giving the standard deviation when the variance is asked for, or vice versa",
-                "Thinking the standard deviation can be negative because some values are below the mean"
+                "Using Sx, which divides by one less than n, instead of σx",
+                "Using the standard deviation for the variance, or the variance for the standard deviation",
+                "Assuming the standard deviation can be negative because some values are below the mean",
+                "Using the mean of the deviations without their signs, with no squaring",
+                "Using twice the standard deviation as the variance",
+                "Using half of the variance as the standard deviation",
+                "Assuming a larger standard deviation means a larger mean",
+                "Reading a larger standard deviation as less spread",
+                "Assuming every value lies within one standard deviation of the mean"
               ],
               "threads": []
             },
@@ -12453,9 +12499,9 @@
                 }
               ],
               "misconceptions": [
-                "95% of the values lie within one standard deviation of the mean",
-                "A larger σ gives a taller curve",
-                "P(X = a) is non-zero for a continuous normal variable"
+                "Using the wrong figure of the rule for how many standard deviations the band reaches",
+                "Assuming a larger σ gives a taller curve",
+                "Assuming a single value of a continuous variable has a non-zero probability"
               ],
               "threads": [
                 {
@@ -12513,9 +12559,9 @@
                 }
               ],
               "misconceptions": [
-                "P(7 < X < 13) = 0.2 + 0.2 (adding the tails instead of subtracting them from 1)",
-                "Forgetting that P(X < μ) = 0.5",
-                "Applying symmetry about 0 instead of about μ"
+                "Using the sum of the tails as the middle, instead of subtracting them from the whole area",
+                "Forgetting that the mean cuts the area into two equal halves",
+                "Using the origin as the mirror instead of μ"
               ],
               "threads": [
                 {
@@ -12679,13 +12725,13 @@
                 {
                   "id": "gdc-solver",
                   "approach": "gdc",
-                  "name": "Solve normalcdf(μ − k, μ + k, μ, σ) = 0.9",
+                  "name": "Solve normalcdf(μ − k, μ + k, μ, σ) = the given area",
                   "summary": "Solve the equation in k numerically with the GDC solver or by intersecting graphs."
                 }
               ],
               "misconceptions": [
-                "Using invNorm(0.9) for the upper endpoint instead of invNorm(0.95)",
-                "Giving the endpoint μ + k when k is asked for"
+                "Using the central area as the left-tail area in invNorm",
+                "Using the endpoint μ + k as the answer when k is asked for"
               ],
               "threads": [
                 {
@@ -14789,7 +14835,15 @@
               "misconceptions": [
                 "Substituting the point into f′(x) instead of f(x)",
                 "Leaving + C in the final answer, or setting C = 0",
-                "Substituting the y-value in place of x"
+                "Substituting the y-value in place of x",
+                "Leaving + C in the final answer",
+                "Dropping the constant of integration",
+                "Adding F(a) to the given value instead of subtracting it when solving for C",
+                "Taking C to be the y-value of the given point",
+                "Differentiating f′ instead of integrating it",
+                "Giving f′ at the point asked for instead of f",
+                "Using the gradient as a height on the curve when fixing C",
+                "Counting every area under f′ as positive"
               ],
               "threads": [
                 {
@@ -16767,8 +16821,11 @@
               ],
               "misconceptions": [
                 "Using a single constant for both integrations from f″",
-                "Mis-evaluating exact values when finding C, e.g. taking sin(π/2) = 0",
-                "Substituting the point into f′ instead of f"
+                "Using a wrong exact value of sin, cos, e or ln when finding C",
+                "Substituting the point into f′ instead of f",
+                "Assuming the rate stays at its starting value for the whole time",
+                "Using the two conditions at the wrong stages",
+                "Stopping at f′ after one integration when f is asked for"
               ],
               "threads": [
                 {

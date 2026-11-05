@@ -243,6 +243,40 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   (`DefiniteIntegralViews.val`), so a wrong one can read differently, with + C or in rate units:
   exact on Paper 1, and 3 s.f. on Paper 2, which only the GDC methods ask. A region is shaded on
   its figure with the graph spec's `shade` (see `ui/graph_view.gd`).
+- `engine/situations/antiderivative_condition.gd` (FAL-740) is `t5-antiderivative-condition` (SL5.5
+  and SL5.10), the `antiderivative-condition` situation: a derivative and a condition that fixes
+  the constant. Its 21 unknowns ask f(x), a curve's equation, C or a further value, from powers,
+  negative powers, cos and sin with a chain or a shift, 1/(ax + b), e^(ax), quotients that reverse
+  to a log, a constant in the gradient fixed by a gradient at a point, two conditions from f″, a
+  family y = F(x) + C drawn on one figure (its curves are the right C and three slips, labelled
+  at their right-hand ends), the graph of f′ in straight pieces, and a decaying rate in a story.
+  A function is a `form` answer with a slot for each coefficient and for the constant, which is
+  never 0, so dropping it is always wrong; an option with + C left in can be picked but not
+  typed. A log in C is typed around a fixed "ln n". Numbers are exact except the decimal e^(ax)
+  and the rate model, to 3 s.f. Landmark angles, logs in C and sin or cos beside e^(ax) are Paper 1,
+  decimals and the rate model Paper 2, and the GDC method Paper 2 only.
+- `engine/situations/grouped_data.gd` (FAL-740) is `t4-grouped-data` (SL4.3), the `grouped-data`
+  situation: a frequency table in classes or single values, a short list, or the sizes and means
+  of a few groups. The table is drawn first and everything is worked out of it, exact with `Q`,
+  except a standard deviation that isn't a perfect square, to 3 s.f. Its 24 unknowns ask the modal
+  class, mid-interval values, an estimated mean, σ or variance and why it is an estimate, a missing
+  frequency or value from a total, a mean or a median, and the totals of combined groups.
+- `engine/situations/binomial_unknown.gd` (FAL-740) is `t1-binomial-find-unknown` (SL1.9), the
+  `binomial-unknown` situation: `t1-binomial-term` run backwards. The letter is drawn first and the
+  coefficient worked out from it, so its 16 unknowns (a letter in the bracket, n, both, equal or
+  ratio coefficients, two brackets, a quotient, x from three terms in arithmetic mean) always come
+  out. `gdc-search` is Paper 2 only.
+- `engine/situations/normal_properties.gd` (FAL-740) is `t4-normal-properties` (SL4.9), the
+  `normal-properties` situation: what the shape of the curve gives without finding an area from
+  nothing: the 68-95-99.7 rule, mirrored tails, a shift between two curves with the same σ, and
+  the central interval. Its 27 unknowns are exact, except a value a GDC gives, to 3 s.f. Two of
+  them are `pick-the-graph`: four cards that share one window and one set of axis marks, so only
+  the curves and the shading differ.
+- `engine/situations/box_plot.gd` (FAL-740) is `t4-box-plot` (SL4.2) and `t4-outlier-rule` (SL4.1,
+  SL4.2), the `box-plot` situation: one or two data sets, the five numbers of a box plot and the
+  1.5 × IQR rule. A figure uses `PlotView`'s `box` on an axis of 25 ticks, labelled every fifth, and
+  every number read from it is on a tick. A list or a table follows `data_summary`'s quartiles.
+  A test of a value puts it just beyond or just inside a fence on the same quartiles.
 - `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
   v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
   Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found
@@ -1179,6 +1213,20 @@ sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and l
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
 back into erf, and a shaded area must be the area given (`check_regression_pair`,
 `check_normal_unknown`, `check_venn`, `check_conditional`).
+For `antiderivative-condition` it reads f′ (or f″) and the condition back from the lines, works
+the antiderivative again with SymPy, and differentiates every option: only the right one may give
+f′ back, meet the condition and have no C left in it (`check_antiderivative_condition`). Each
+tagged wrong option is worked out from its slip. A family's curves are held to F + C and their
+labels to the options, the corners of a graph of f′ give the areas again, the rate model is
+integrated both exactly and numerically, and the sums in the working are evaluated.
+
+For `grouped-data` it reads the table, list or groups back, works the frequencies, Σfx and the spread
+again exactly, and solves for each missing value (`check_grouped_data`). For `binomial-unknown` it
+reads the bracket and the condition, builds the expansion with SymPy and solves for the letter, so
+every other option must fail (`check_binomial_unknown`). For `normal-properties` it reads the curve
+or the given areas back and finds each area with mpmath (`check_normal_properties`). For `box-plot`
+it reads the five numbers off the figure or the data, and applies the 1.5 × IQR rule itself
+(`check_box_plot`).
 For `independence` it reads the facts back the same way and decides each test itself. Each of the
 four comparisons must agree, and all four option texts are rebuilt from true values, so a false
 number or a verdict that doesn't follow fails. It also multiplies and divides every plain step of
