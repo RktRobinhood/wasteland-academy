@@ -56,10 +56,11 @@ func test_given_lines_cross_at_a_whole_mean_point() -> void:
 		check(ac > 0.0 and ac < 1.0, "draw %d: 0 < ac < 1" % i)
 
 
-func test_a_table_or_an_estimate_is_paper_2() -> void:
+func test_a_table_an_estimate_or_a_gdc_is_paper_2() -> void:
 	var t := QuestionEngine.type_of(TYPE)
 	for c in QuestionEngine.cells(false, [TYPE]):
-		var want: Array = [1, 2] if c.unknown in ["choose-line", "mean-point-from-lines", "mean-from-one-mean"] else [2]
+		var either: bool = c.unknown in ["choose-line", "mean-point-from-lines", "mean-from-one-mean"] and not c.angle.begins_with("gdc-")
+		var want: Array = [1, 2] if either else [2]
 		check_eq(QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle), want, c.key)
 
 

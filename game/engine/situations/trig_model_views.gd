@@ -303,7 +303,7 @@ func u_q_from_minimum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = [eq, "The graph of f has its lowest points on the dashed line y = %s." % N(s.m)]
 		out.graph = g
 	var wrong_q := TrigKit.plus(TrigKit.times(TrigKit.of(fn, s.phi), s.p), TrigKit.V(s.m))
-	out.wrongs = TrigKit.like(a, wrong_q, R_NO_HALF)
+	out.wrongs = TrigKit.like(a, wrong_q)
 	out.generic = TrigKit.others(a, [TrigKit.plus(TrigKit.neg(TrigKit.times(TrigKit.of(fn, s.phi), s.p)), TrigKit.V(s.q0)), TrigKit.plus(TrigKit.of(fn, s.phi), TrigKit.V(s.q0)), TrigKit.V(s.q0), TrigKit.plus(v, TrigKit.V(1)), TrigKit.plus(v, TrigKit.V(2))])
 	var first := "The minimum of f is q − %d, so q − %d = %s and q = %s." % [s.p, s.p, N(s.m), N(s.q0)]
 	var at0 := "f(0) = %d %s(%s) + %s" % [s.p, fn, Fmt.pi(s.phi), P(s.q0)]
@@ -363,7 +363,7 @@ func u_tan_two_points(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var g := Plot.spec(TrigKit.branches(Plot.sample(f, 0.0, float(span))), [[s.h.to_float(), s.v.to_float(), pt_], [s.z.to_float(), 0.0, zt]], 0, span, -top, top)
 		out.lines = [eq, "The graph of f is shown, with two points on it. The point on the x-axis is the first x-intercept to the right of the origin."]
 		out.graph = g
-	out.wrongs = [wrong(named_vals([s.v.to_float() / tan(TAU / s.z.to_float() * s.h.to_float()), TAU / s.z.to_float()]), R_PERIOD_GAP)]
+	out.wrongs = [wrong(named_vals([s.v.to_float() / tan(TAU / s.z.to_float() * s.h.to_float()), TAU / s.z.to_float()]))]
 	var deg: float = s.v.to_float() / tan(deg_to_rad(b * s.h.to_float()))
 	out.generic = [named_vals([s.v.to_float() / s.h.to_float(), b]), named_vals([av, b * 2.0 + 0.1]), named_vals([av + 1.0, b]), named_vals([deg, b])]
 	var f1 := "tan has period π, and the first x-intercept is one period along: π ÷ b = %s, so b = %s" % [D(s.z), GdcKit.W(b)]

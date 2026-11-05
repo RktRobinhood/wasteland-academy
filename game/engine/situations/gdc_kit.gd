@@ -66,7 +66,7 @@ static func S(x: Variant) -> String:
 
 ## 6 significant figures: a GDC's screen, for the working.
 static func W(x: Variant) -> String:
-	return Fmt.sf(x, 6)
+	return Fmt.work(x, 6)
 
 
 ## Whether a GDC value is a fair 3 s.f. answer: it needs rounding clearly (not on a

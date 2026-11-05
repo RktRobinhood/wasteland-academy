@@ -103,6 +103,13 @@ static func _ask_clear(rng: Seeded, s: Dictionary) -> bool:
 		"improve-reliability":
 			s.n = rng.pick(SMALL)
 			s.k = 0
+		# These ask the first group alone, or more of it, so it must hold that many.
+		"why-biased":
+			return s.G[0] >= n
+		"better-method":
+			return s.G[0] >= 2 * n
+		"bigger-sample":
+			return s.G[0] >= 3 * n
 		"bias-direction":
 			s.story = rng.int_in(0, STORIES - 1)
 		"source-reliability":

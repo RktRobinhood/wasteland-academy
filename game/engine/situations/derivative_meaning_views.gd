@@ -35,7 +35,7 @@ const CONTEXTS := [
 func needs() -> Dictionary:
 	var out := {}
 	for u in ["rate-at-time", "interpret-value", "units-of-rate", "write-in-notation", "compare-rates", "limit-of-model",
-			"limit-of-rate", "limit-from-table", "limit-from-graph", "limit-cancel"]:
+			"limit-of-rate", "limit-from-table", "limit-from-graph"]:
 		out[u] = {"ask": u}
 	return out
 
@@ -244,7 +244,9 @@ func u_compare_rates(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 # ── Limits ───────────────────────────────────────────────────
 
 static func limit_ans(v: Q, label: String = "The limit is ") -> Dictionary:
-	return DifferentiationViews.form(label + Fmt.num(v), [label, {"slot": "v"}], {"v": v})
+	var ans := DifferentiationViews.form(label + Fmt.num(v), [label, {"slot": "v"}], {"v": v})
+	ans.short = Fmt.num(v)
+	return ans
 
 
 static func lim_alt(v: Q, ref: String = "", label: String = "The limit is ") -> Dictionary:
@@ -262,8 +264,9 @@ func u_limit_of_model(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"lines": ["%s(t) = %s, t ≥ 0" % [c.sym, model(s)]], "asked": "Find the limit of %s(t) as t → ∞." % c.sym, "answer": ans,
 		"wrongs": [lim_alt(first, R_F_AT_A), dne()],
 		"generic": [lim_alt(Q.new(0)).values, lim_alt(s.B).values, lim_alt(s.A.add(1)).values, lim_alt(s.A.sub(s.B)).values],
+		"titles": {"graph-read": "Trace the graph as t grows" if rep == "graph" else "Follow the values as t grows"},
 		"methods": {"graph-read": method([
-			"Follow the curve to large t: it levels off.",
+			"Follow the curve to large t: it levels off." if rep == "graph" else "Let t grow large: the values level off.",
 			"e^(−%st) gets closer and closer to 0, so the height it levels off at is %s." % [Fmt.dec(s.k), Fmt.num(s.A)],
 			Answer.text(ans)], ans.values),
 		"table-approach": method([
@@ -285,11 +288,12 @@ func u_limit_of_rate(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := limit_ans(Q.new(0))
 	var start: Q = s.B.mul(s.k).neg()
 	return {"lines": ["%s(t) = %s, t ≥ 0" % [c.sym, model(s)]], "asked": "Find the limit of %s′(t) as t → ∞." % c.sym, "answer": ans,
-		"wrongs": [lim_alt(s.A, R_F_AT_A), dne()],
+		"wrongs": [lim_alt(s.A), dne()],
 		"generic": [lim_alt(start).values, lim_alt(s.A.add(s.B)).values, lim_alt(s.k.neg()).values, lim_alt(Q.new(1)).values],
+		"titles": {"graph-read": "Follow the values as t grows"},
 		"methods": {"graph-read": method([
-			"The graph of %s levels off at large t, so its gradient flattens out." % c.sym,
-			"A flat curve has gradient 0, whatever height it levels off at.",
+			"%s levels off at large t, so its rate of change dies away." % c.sym,
+			"Something that has levelled off has gradient 0, whatever height it levels off at.",
 			Answer.text(ans)], ans.values),
 		"gdc-table": method([
 			"%s′(t) = %s × e^(−%st). Make a table for t = 100, 200, 300." % [c.sym, Fmt.dec(start), Fmt.dec(s.k)],
@@ -352,28 +356,4 @@ func u_limit_from_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"methods": {"graph-read": method([
 			"Trace the curve towards x = %s from both sides; ignore the dot." % Fmt.num(a),
 			"The curve heads for the gap at height %s, from the left and from the right." % Fmt.num(lim),
-			Answer.text(ans)], ans.values)}}
-
-
-func u_limit_cancel(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
-	var a: int = s.a
-	var rr: int = s.rr
-	var m: int = s.m
-	var lim := DerivativeMeaningSituation.limit_value(s)
-	var ans := limit_ans(lim)
-	var wr: Array = [dne()]
-	var eps := Q.new(1, 1000)
-	var yl := DerivativeMeaningSituation.near(s, Q.new(a).sub(eps))
-	var yr := DerivativeMeaningSituation.near(s, Q.new(a).add(eps))
-	var other := Fmt.poly([m, -m * rr])
-	return {"lines": [rational(s)], "asked": "Find the limit of f(x) as x → %s." % Fmt.num(a), "answer": ans, "wrongs": wr,
-		"generic": [lim_alt(lim.add(1)).values, lim_alt(lim.sub(1)).values, lim_alt(Q.new(m * rr)).values, lim_alt(Q.new(m * (a + rr))).values, lim_alt(lim.mul(2)).values],
-		"methods": {"cancel-factor": method([
-			"At x = %s the top and bottom are both 0: 0/0, so cancel the factor that causes it." % Fmt.num(a),
-			"The top is (x%s)(%s), so f(x) = %s for x ≠ %s." % [Fmt.plus(-a), other, other, Fmt.num(a)],
-			"Put x = %s into %s." % [Fmt.num(a), other],
-			Answer.text(ans)], ans.values),
-		"gdc-table": method([
-			"GDC table, either side of x = %s: f(%s) = %s and f(%s) = %s." % [Fmt.num(a), Fmt.dec(Q.new(a).sub(eps)), Fmt.dec(yl), Fmt.dec(Q.new(a).add(eps)), Fmt.dec(yr)],
-			"Both sides close in on %s." % Fmt.num(lim),
 			Answer.text(ans)], ans.values)}}

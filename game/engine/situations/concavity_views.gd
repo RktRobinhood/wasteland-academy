@@ -375,8 +375,14 @@ static func card_win(s: Dictionary) -> Array:
 
 
 static func card_of(f: Callable, win: Array) -> Dictionary:
-	var c: Array = GdcKit.curve(f, float(win[0]), float(win[1])).filter(func(p): return p[1] >= win[2] and p[1] <= win[3])
-	return GdcKit.card([c], [], win)
+	var pieces: Array = [[]]
+	for p in GdcKit.curve(f, float(win[0]), float(win[1])):
+		if p[1] >= win[2] and p[1] <= win[3]:
+			pieces[-1].append(p)
+		elif not pieces[-1].is_empty():
+			pieces.append([])
+	pieces.sort_custom(func(a, b): return a.size() > b.size())
+	return GdcKit.card(pieces.filter(func(c): return c.size() > 1), [], win)
 
 
 static func one_wrong(graph: Dictionary, mistake: String, ref: String, why: String) -> Dictionary:

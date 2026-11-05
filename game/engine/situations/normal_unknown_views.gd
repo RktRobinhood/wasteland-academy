@@ -275,7 +275,8 @@ func u_sd_from_central_area(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var out := {"lines": [model(rep, s, s.mu, null), line], "asked": find(rep, "σ", "standard deviation"), "answer": ans, "table": null}
 	if rep == "diagram":
 		out.graph = curve(float(s.mu), sg, [[float(lo), float(hi)]], [{"at": float(lo), "label": str(lo)}, {"at": float(s.mu), "label": str(s.mu)}, {"at": float(hi), "label": str(hi)}])
-	out.generic = vs([s.sw, sg * 2.0, s.a * s.z, sg * 1.1, sg * 0.9])
+	# With a central area of 0.5 the one-tail slip divides by z = 0, up to rounding.
+	out.generic = vs(([s.sw] if not s.c.eq(Q.new(1, 2)) else []) + [sg * 2.0, s.a * s.z, sg * 1.1, sg * 0.9])
 	var tails: Q = Q.new(1).sub(s.c).div(Q.new(2))
 	var left: Q = Q.new(1).sub(tails)
 	out.methods = {"invnorm-z-then-solve": method(["The two tails share 1 − %s, so each is %s, and the area to the left of %d is %s." % [D(s.c), D(tails), hi, D(left)],

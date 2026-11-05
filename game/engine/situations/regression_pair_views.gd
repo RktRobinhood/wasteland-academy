@@ -29,10 +29,10 @@ func needs() -> Dictionary:
 	return out
 
 
-func papers(unknown: String, _rep: String, _angle: String) -> Array:
+func papers(unknown: String, _rep: String, angle: String) -> Array:
 	if not has(unknown):
 		return []
-	return [2] if unknown in P2_ONLY else [1, 2]
+	return [2] if unknown in P2_ONLY or angle.begins_with("gdc-") else [1, 2]
 
 
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:

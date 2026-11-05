@@ -28,6 +28,12 @@ static func sf(v: Variant, n: int = 3) -> String:
 	return ("−" if r < 0.0 else "") + ("%.*f" % [places, absf(r)])
 
 
+## A working value to n s.f., without the zeros a GDC doesn't show: "1.5708", not "1.57080".
+static func work(v: Variant, n: int) -> String:
+	var t := sf(v, n)
+	return t.rstrip("0").rstrip(".") if t.contains(".") else t
+
+
 ## A number as a decimal when it ends ("0.35", "−2.5", "3"), else as a fraction ("1/6").
 static func dec(v: Variant) -> String:
 	var q := Q.of(v)
