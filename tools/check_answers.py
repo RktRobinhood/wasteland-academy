@@ -24225,14 +24225,18 @@ def npr_is_curve(pts, mu, sg, tallest):
     return True
 
 
-def npr_cards(q):
+def npr_cards(q, ticks):
+    """ticks: the values every card must mark on its axis, value -> label."""
     gs, ch = q["graphs"], q["choices"]
     need(q["format"] == "pick-the-graph" and len(gs) == 4 and len(ch) == 4, "four cards")
     need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the cards are lettered A to D")
     need(all(g.get("card") and g.get("y_bare") for g in gs), "a card, with no numbers up its side")
     need(len({json.dumps(g["curves"]) + json.dumps(g.get("shade", [])) for g in gs}) == 4, "two cards are the same")
     need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in gs}) == 1, "the cards don't share one window")
-    need(len({json.dumps(g["x_ticks"]) for g in gs}) == 1, "the cards don't share their marks")
+    want = sorted((float(k), v) for k, v in ticks.items())
+    for g in gs:
+        got = sorted((float(t[0]), t[1]) for t in g["x_ticks"])
+        need(all(a[1] == b[1] and abs(a[0] - b[0]) < 1e-6 for a, b in zip(got, want)) and len(got) == len(want), f"the card marks {got}, not {want}")
     return gs, ch
 
 
@@ -24243,12 +24247,12 @@ def npr_two_curves(q):
     need(a is not None and b is not None, f"can't read {L}")
     mx, my, sx, sy = int(a.group(1)), int(b.group(1)), int(npr_spread(a.group(2))), int(npr_spread(b.group(2)))
     need(sx != sy, "two spreads")
-    gs, ch = npr_cards(q)
     big, small = max(sx, sy), min(sx, sy)
     d = 2 * big
+    gs, ch = npr_cards(q, {mx: str(mx), mx + d: str(mx + d)} if mx == my else {mx: str(mx), my: str(my)})
     if mx == my:
-        cases = {"": (mx, sx, my, sy), "taller": (mx, sy, my, sx), "moved": (mx, sx, mx + d, sy), "same-spread": (mx, sx, my, sx)}
-        refs = {"taller": NPR_SKP + "1", "moved": npr_mine(21), "same-spread": ""}
+        cases = {"": (mx, sx, my, sy), "taller": (mx, sy, my, sx), "moved": (mx, sx, mx + d, sy), "moved-x": (mx + d, sx, my, sy)}
+        refs = {"taller": NPR_SKP + "1", "moved": npr_mine(21), "moved-x": ""}
     else:
         cases = {"": (mx, sx, my, sy), "taller": (mx, sy, my, sx), "moved": (my, sx, mx, sy), "both": (my, sy, mx, sx)}
         refs = {"taller": NPR_SKP + "1", "moved": npr_mine(21), "both": ""}
@@ -24271,9 +24275,9 @@ def npr_two_curves(q):
 def npr_shaded_cards(q):
     mu, sg = npr_model(q)
     kind, lo, hi = npr_event(q)
-    gs, ch = npr_cards(q)
+    gs, ch = npr_cards(q, {x: dec_text(x) for x in (mu, lo, hi) if x is not None})
     M, S = float(mu), float(sg)
-    win = [M - 5.6 * S, M + 5.6 * S]
+    win = [M - 4.4 * S, M + 4.4 * S]
     a = float(lo) if lo is not None else None
     b = float(hi) if hi is not None else None
     if kind == "in":

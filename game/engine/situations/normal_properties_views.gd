@@ -613,7 +613,7 @@ func u_pick_two_curves(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if s.same:
 		wrongs = [{"graph": pair.call(mx, sy, my, sx), "mistake": "taller", "ref": M_TALLER, "why": "the larger σ is drawn as the taller curve"},
 			{"graph": pair.call(mx, sx, mx + d, sy), "mistake": "moved", "ref": M_WRONG_MEAN, "why": "the two curves have the same mean, so they share a centre"},
-			{"graph": pair.call(mx, sx, my, sx), "mistake": "same-spread", "ref": "", "why": "the two curves are drawn with the same σ"}]
+			{"graph": pair.call(mx + d, sx, my, sy), "mistake": "moved-x", "ref": "", "why": "the two curves have the same mean, so they share a centre"}]
 	else:
 		wrongs = [{"graph": pair.call(mx, sy, my, sx), "mistake": "taller", "ref": M_TALLER, "why": "the larger σ is drawn as the taller curve"},
 			{"graph": pair.call(my, sx, mx, sy), "mistake": "moved", "ref": M_WRONG_MEAN, "why": "the two means are the wrong way round"},
@@ -640,8 +640,12 @@ func u_pick_shaded(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var sg: float = s.sgf
 	var ticks: Array
 	var event_text: String
-	var win: Array = [mu - 5.6 * sg, mu + 5.6 * sg]
+	var win: Array = [mu - 4.4 * sg, mu + 4.4 * sg]
 	var plain := {"mu": mu, "sg": sg}
+	if s.kind == "in":
+		ticks = [[s.lo.to_float(), D(s.lo)], [s.hi.to_float(), D(s.hi)], [mu, D(s.mu)]]
+	else:
+		ticks = [[s.x.to_float(), D(s.x)], [mu, D(s.mu)]]
 	var one := func(c: Dictionary, shade: Array) -> Dictionary: return card_of([c], win, sg, ticks, shade)
 	var wrongs: Array
 	var right: Array
@@ -649,7 +653,6 @@ func u_pick_shaded(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if s.kind == "in":
 		var a: float = s.lo.to_float()
 		var b: float = s.hi.to_float()
-		ticks = [[a, D(s.lo)], [mu, D(s.mu)], [b, D(s.hi)]] if a < mu and mu < b else ([[mu, D(s.mu)], [a, D(s.lo)], [b, D(s.hi)]] if a > mu else [[a, D(s.lo)], [b, D(s.hi)], [mu, D(s.mu)]])
 		event_text = "%s < X < %s" % [D(s.lo), D(s.hi)]
 		right = [[a, b]]
 		var mid := (a + b) / 2.0
@@ -660,7 +663,6 @@ func u_pick_shaded(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		words = "the region between %s and %s" % [D(s.lo), D(s.hi)]
 	else:
 		var a: float = s.x.to_float()
-		ticks = [[minf(a, mu), D(s.x if a < mu else s.mu)], [maxf(a, mu), D(s.mu if a < mu else s.x)]]
 		event_text = "X %s %s" % [rel(s.kind), D(s.x)]
 		right = side_shade(a, s.kind)
 		var opposite: Array = side_shade(a, "lt" if s.kind == "gt" else "gt")
@@ -731,7 +733,7 @@ func u_beyond_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var wrongs: Array = [wrong_x(s.other, M_OTHER_SIDE)]
 	if s.kind == "out":
 		wrongs.append(wrong_x(s.prob / 2.0, M_ONE_TAIL_LEFT))
-		wrongs.append(wrong_x(s.no_sd * 2.0, M_NO_SD))
+		wrongs.append(wrong_x(s.no_sd, M_NO_SD))
 	else:
 		wrongs.append(wrong_x(s.no_sd, M_NO_SD))
 	out.wrongs = wrongs

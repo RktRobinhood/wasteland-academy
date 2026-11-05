@@ -277,7 +277,7 @@ static func _two_curves(rng: Seeded, s: Dictionary) -> bool:
 static func _shaded(rng: Seeded, s: Dictionary) -> bool:
 	var sg: int = rng.pick(PICK_SD)
 	s.sg = Q.new(sg)
-	s.mu = Q.new(rng.int_in(maxi(20, sg * 5), 80))
+	s.mu = Q.new(rng.int_in(maxi(20, sg * 5), 99 - 2 * sg))
 	s.muf = s.mu.to_float()
 	s.sgf = float(sg)
 	s.kind = rng.pick(["gt", "lt", "in"])
@@ -315,7 +315,7 @@ static func _beyond(rng: Seeded, s: Dictionary) -> bool:
 	s.prob = tail * 2.0 if s.kind == "out" else tail
 	# The two slips: the area on the other side, and h added on without σ.
 	s.other = 1.0 - s.prob
-	s.no_sd = phi(-h / s.sgf)
+	s.no_sd = phi(-h / s.sgf) * (2.0 if s.kind == "out" else 1.0)
 	return clear(s.prob) and clear(s.other) and clear(s.no_sd) and clear(tail) and s.sgf > 1.0
 
 
