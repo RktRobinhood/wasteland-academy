@@ -7,7 +7,7 @@ extends "res://tests/test_case.gd"
 ## The SymPy checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-composite": 31, "fn-graph-table-composite-inverse": 75, "fn-inverse-algebraic": 63, "fn-pre-rearrange": 17}
+const CELLS := {"fn-composite": 31, "fn-graph-table-composite-inverse": 73, "fn-inverse-algebraic": 63, "fn-pre-rearrange": 17}
 const SITUATION := {"fn-composite": "composite-pair", "fn-graph-table-composite-inverse": "composite-graph-table",
 	"fn-inverse-algebraic": "inverse-rule", "fn-pre-rearrange": "fn-pre-rearrange"}
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.

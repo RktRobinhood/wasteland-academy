@@ -34,6 +34,9 @@ func needs() -> Dictionary:
 	}
 
 
+## With no graph on the card, the student draws the one these methods read.
+const SKETCH_TITLES := {"graph-height": "Sketch f and read its vertical extent", "graph-extent": "Sketch f and read its horizontal extent"}
+
 ## A graph is read from grid points, whatever the paper.
 func need(unknown: String, rep: String) -> Dictionary:
 	var n := super.need(unknown, rep)
@@ -202,6 +205,7 @@ func u_range_exponential(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		out.methods = ways({"graph-height": [read, hit], "vertex-or-asymptote": [read, why, hit]}, right, out.answer)
 		return out
 	out.lines = [eqn(s)]
+	out.titles = SKETCH_TITLES
 	out.methods = ways({"graph-height": ["Sketch it: the curve flattens out towards y = %s" % N(c), hit], "vertex-or-asymptote": [why, hit]}, right, out.answer)
 	return out
 
@@ -221,11 +225,13 @@ func u_range_restricted(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.graph = arc_graph(s)
 	else:
 		out.lines = [on(s)]
+		out.titles = SKETCH_TITLES
 	var W := BasicFunctionViews.W
 	var ends := "End values: f(%s) = %s and f(%s) = %s" % [N(s.lo), W.call(s.fa), N(s.hi), W.call(s.fb)]
 	var turn := "The vertex at x = %s is inside the domain, so its height %s counts too" % [W.call(s.h), W.call(s.k)]
 	var pick := "The least of these is %s and the greatest is %s" % [W.call(s.ymin), W.call(s.ymax)]
-	out.methods = ways({"graph-height": ["Look for the lowest and highest points of the curve on the domain", turn, ends, pick], "endpoint-evaluation": [ends, turn, pick],
+	var look := "Look for the lowest and highest points of the curve on the domain" if rep == "graph" else "Sketch f on its domain and look for its lowest and highest points"
+	out.methods = ways({"graph-height": [look, turn, ends, pick], "endpoint-evaluation": [ends, turn, pick],
 		"gdc-max-min": ["Graph f on its domain and use the turning point tool", turn, ends, pick]}, right, out.answer)
 	return out
 
@@ -242,11 +248,13 @@ func u_range_reflected(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.graph = arc_graph(s)
 	else:
 		out.lines = [on(s)]
+		out.titles = SKETCH_TITLES
 	var W := BasicFunctionViews.W
 	var f_range := "The range of f is %s" % iv("y", s.ymin, s.ymax)
 	var flip := "Every output changes sign, so the greatest of f becomes the least of g: %s to %s" % [W.call(lo), W.call(hi)]
 	var ends := "End values: f(%s) = %s and f(%s) = %s, and the vertex has height %s" % [N(s.lo), W.call(s.fa), N(s.hi), W.call(s.fb), W.call(s.k)]
-	out.methods = ways({"graph-height": ["Reflecting in the x-axis turns the heights upside down", f_range, flip], "endpoint-evaluation": [ends, f_range, flip]}, right, out.answer)
+	var look := "Reflecting in the x-axis turns the heights upside down" if rep == "graph" else "Sketch f on its domain: reflecting it in the x-axis turns the heights upside down"
+	out.methods = ways({"graph-height": [look, f_range, flip], "endpoint-evaluation": [ends, f_range, flip]}, right, out.answer)
 	return out
 
 
@@ -279,9 +287,9 @@ func u_domain_root(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var strict := "<" if s.left else ">"
 	var right := "x %s %s" % [rel, N(c)]
 	var inside := "The number under the root must not be negative: %s ≥ 0" % Fmt.terms([s.f.m, s.f.n], [1, 0], "x", true)
-	var out := {"asked": "State the largest possible domain of f.", "lines": [eqn(s)]}
+	var out := {"asked": "State the largest possible domain of f.", "lines": [eqn(s)], "titles": SKETCH_TITLES}
 	out.merge(choose(right, [tag("x %s %s" % [strict, N(c)], R_OPEN_END), tag("x %s 0" % rel, R_NO_SHIFT)], ["x %s %s" % [rel, N(c.neg())], "x %s %s" % ["≥" if s.left else "≤", N(c)], "all real numbers"]))
-	out.methods = ways({"restriction-rules": [inside, "Solve it: x %s %s, and 0 under the root is allowed" % [rel, N(c)]], "graph-extent": ["The graph starts at x = %s, where the root is 0" % N(c), "It runs off to the %s from there, with that end included" % ("left" if s.left else "right")]}, right, out.answer)
+	out.methods = ways({"restriction-rules": [inside, "Solve it: x %s %s, and 0 under the root is allowed" % [rel, N(c)]], "graph-extent": ["Sketch f: the graph starts at x = %s, where the root is 0" % N(c), "It runs off to the %s from there, with that end included" % ("left" if s.left else "right")]}, right, out.answer)
 	return out
 
 

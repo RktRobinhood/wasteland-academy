@@ -407,7 +407,7 @@ func u_max_after_rewrite(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var out := {"answer": a, "lines": ["f(x) = %d sin %s cos %s%s" % [two, u, u, tail]], "asked": "Find the maximum value of f."}
 	out.wrongs = [wrong({"v": Q.new(two + s.d)}, R_PRODUCT)]
 	out.generic = [{"v": Q.new(s.d)}, {"v": Q.new(k)}, {"v": Q.new(two)}, {"v": Q.new(top + 1)}, {"v": Q.new(top - 1)}, {"v": Q.new(top + 2)}, {"v": Q.new(s.d - k)}].filter(func(g): return g.v.to_float() != float(top))
-	var rewrite := "%d sin %s cos %s = %d sin %dx" % [two, u, u, k, 2 * w]
+	var rewrite := "%d sin %s cos %s = %ssin %dx" % [two, u, u, "" if k == 1 else "%d " % k, 2 * w]
 	out.methods = {"pattern-match": method(["Rewrite with sin 2u = 2 sin u cos u: %s" % rewrite, "The sine has maximum 1, so f has maximum %d + %s." % [k, P(s.d)], say(a)], a.values),
-		"test-value": method(["Rewrite: %s, which is largest where sin %dx = 1." % [rewrite, 2 * w], "Test x = %s: f = %d × 1%s = %s" % [Fmt.pi(Q.new(1, 4 * w)), k, tail, N(top)], say(a)], a.values)}
+		"test-value": method(["Rewrite: %s, which is largest where sin %dx = 1." % [rewrite, 2 * w], "Test x = %s: f = %s%s = %s" % [Fmt.pi(Q.new(1, 4 * w)), "1" if k == 1 else "%d × 1" % k, tail, N(top)], say(a)], a.values)}
 	return out

@@ -614,6 +614,16 @@ func _process(delta: float) -> void:
 	_update_timer()
 
 
+## An exam-style question doesn't name its method in a fight: the exam leaves that to the
+## student. An "Another way" follow-up is about the method, so it keeps the line, and so
+## do the two integrals whose answer's form the method sets (t5-indefinite-integral's
+## linear-square and rewrite-trig-product), which aren't exam-style unknowns (FAL-758).
+func prompt_text() -> String:
+	if question.get("exam", false) and not run.another_way:
+		return QuestionEngine.shown_prompt(question).get_slice("\nMethod: ", 0)
+	return QuestionEngine.shown_prompt(question)
+
+
 ## Draws the run's open question, with the practice screen's card.
 func _show_question() -> void:
 	question = run.question
@@ -798,8 +808,8 @@ func _show_result(r: Dictionary) -> void:
 			else:
 				feedback.text = "%s +%d Scrap" % [job.hit, r.scrap + r.bonus]
 		"glancing":
-			feedback.text = "%s %s The answer is %s." % ["Glancing hit: half damage." if job.is_empty() else "It barely moves: half the work.",
-				r.note, right_text(question)]
+			feedback.text = "%s %s %s" % ["Glancing hit: half damage." if job.is_empty() else "It barely moves: half the work.",
+				r.note, QuestionEngine.answer_sentence(question)]
 			color = UiTheme.SAND
 		"late":
 			if job.is_empty():
@@ -808,10 +818,10 @@ func _show_result(r: Dictionary) -> void:
 				feedback.text = "Late, but it gives. You take %d damage · +%d Scrap" % [r.player_damage, r.scrap]
 			color = UiTheme.SAND
 		"wrong":
-			feedback.text = "Missed. −%d HP. The answer is %s." % [r.player_damage, right_text(question)]
+			feedback.text = "Missed. −%d HP. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]
 			color = UiTheme.PINK
 		"timeout":
-			feedback.text = "Time's up. −%d HP. The answer is %s." % [r.player_damage, right_text(question)]
+			feedback.text = "Time's up. −%d HP. %s" % [r.player_damage, QuestionEngine.answer_sentence(question)]
 			color = UiTheme.PINK
 	if r.bonus > 0:
 		feedback.text += " Another way: +%d bonus Scrap." % r.bonus

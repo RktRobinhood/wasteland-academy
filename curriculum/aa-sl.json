@@ -3815,8 +3815,8 @@
                 }
               ],
               "misconceptions": [
-                "Writes x > 3 instead of x ≥ 3 for √(x − 3), excluding a valid endpoint",
-                "Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift",
+                "Using > instead of ≥ for a root, which leaves out a valid endpoint",
+                "Copying the domain of √x without the shift",
                 "Describes the y-values (range) when the domain is asked for"
               ],
               "threads": [
@@ -4708,7 +4708,7 @@
               ],
               "misconceptions": [
                 "Gives only the x-coordinate when coordinates are asked for",
-                "Finds one intersection and misses others hidden outside the GDC window",
+                "Finds one intersection and misses the others",
                 "Rounds x early and substitutes, giving an inaccurate y-coordinate"
               ],
               "threads": [
@@ -6627,7 +6627,7 @@
                 }
               ],
               "misconceptions": [
-                "Misses a solution outside the default GDC window",
+                "Looks at too small a range of x and misses a solution",
                 "Rounds intermediate values or gives answers to fewer than 3 s.f.",
                 "Takes ln of both sides of e^x = x + 3 and writes x = ln x + ln 3"
               ],
@@ -6746,6 +6746,12 @@
                   "approach": "gdc",
                   "name": "Graph and count on the GDC",
                   "summary": "Graph y = f(x) and y = k for trial values and count the intersections."
+                },
+                {
+                  "id": "sketch-and-count",
+                  "approach": "graphical",
+                  "name": "Sketch both graphs and count the crossings",
+                  "summary": "A sketch with the asymptotes drawn shows how many times the graphs meet, with no calculator."
                 }
               ],
               "misconceptions": [
@@ -7081,7 +7087,7 @@
                 }
               ],
               "misconceptions": [
-                "Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2)",
+                "Using b as the scale factor of f(bx) (it is 1/b)",
                 "Thinks 2f(x) moves the x-intercepts",
                 "Describes a stretch without its direction or scale factor"
               ],
@@ -7148,7 +7154,7 @@
               ],
               "misconceptions": [
                 "Writes f(2x − 3) for 'horizontal stretch by 1/2, then translate 3 right' (it is f(2(x − 3)))",
-                "Writes 2(f(x) + 3) for 'vertical stretch by 2, then translate up 3' (it is 2f(x) + 3)",
+                "Putting the translation inside the bracket, so the stretch scales it too",
                 "Assumes the order of transformations never matters"
               ],
               "threads": [
@@ -7781,12 +7787,20 @@
                   "approach": "structural",
                   "name": "Scale to hypotenuse 1",
                   "summary": "Divide every side by the hypotenuse; in the scaled triangle sin θ is the height and cos θ the base, just as on the unit circle."
+                },
+                {
+                  "id": "gradient-tan",
+                  "approach": "structural",
+                  "name": "Gradient is tan θ",
+                  "summary": "Gradient is rise ÷ run, which is opposite ÷ adjacent in the right-angled triangle under the slope, so it is the tangent of the angle with the horizontal."
                 }
               ],
               "misconceptions": [
                 "Labelling opposite and adjacent relative to the wrong angle",
                 "Writing the ratio upside down, e.g. sin θ = hypotenuse / opposite",
-                "Treating the longer leg as the hypotenuse when the right angle is drawn in an unusual position"
+                "Treating the longer leg as the hypotenuse",
+                "Using rise ÷ sloping length for the gradient",
+                "Using run ÷ rise for the gradient"
               ],
               "threads": []
             },
@@ -7841,9 +7855,10 @@
                 }
               ],
               "misconceptions": [
-                "Rearranging sin θ = 12/x as x = 12 sin θ instead of x = 12 / sin θ",
-                "Using the hypotenuse as the adjacent side",
-                "Calculator in radian mode when the angle is in degrees"
+                "Rearranging by multiplying when the unknown side is underneath the ratio",
+                "Using the hypotenuse as if it were one of the shorter sides",
+                "Calculator in radian mode when the angle is in degrees",
+                "Stopping at half of a length that the symmetry doubles"
               ],
               "threads": []
             },
@@ -7889,12 +7904,20 @@
                   "approach": "structural",
                   "name": "Recognise an exact ratio",
                   "summary": "Ratios such as 1/2, √3/2, 1/√2 or 1 give 30°, 60° or 45° with no calculator."
+                },
+                {
+                  "id": "gradient-inverse-tan",
+                  "approach": "structural",
+                  "name": "Inverse tan of the gradient",
+                  "summary": "The gradient is tan θ, so tan⁻¹ of the gradient is the angle with the horizontal."
                 }
               ],
               "misconceptions": [
-                "Writing θ = tan(5/12) instead of θ = tan⁻¹(5/12)",
-                "Reading tan⁻¹ x as 1 / tan x",
-                "Using adjacent / opposite for tan θ, which gives the other acute angle"
+                "Applying the ratio function to the fraction instead of its inverse",
+                "Reading the inverse function as one over the function",
+                "Using adjacent / opposite for tan θ, which gives the other acute angle",
+                "Treating a gradient as a sine",
+                "Giving the angle with the horizontal when the vertical is asked for"
               ],
               "threads": [
                 {
@@ -8187,6 +8210,12 @@
                   "approach": "geometric",
                   "name": "Move the angle of depression",
                   "summary": "An angle of depression from the top equals the angle of elevation from the bottom (alternate angles between horizontals), so place it inside the triangle at ground level."
+                },
+                {
+                  "id": "angle-from-horizontal",
+                  "approach": "geometric",
+                  "name": "Measure from the horizontal at the eye",
+                  "summary": "Find the eye and the horizontal through it; the angle runs from that horizontal to the line of sight, up for elevation and down for depression."
                 }
               ],
               "misconceptions": [
@@ -8576,12 +8605,24 @@
                   "approach": "formula",
                   "name": "Chord by cosine rule or 2r sin(θ/2)",
                   "summary": "For a perimeter, find the straight chord with the cosine rule or 2r sin(θ/2), then add the arc rθ."
+                },
+                {
+                  "id": "angle-facts",
+                  "approach": "geometric",
+                  "name": "Angle facts in the figure",
+                  "summary": "Use isosceles triangles, tangents at right angles and angles on a straight line to find the angle a region needs."
                 }
               ],
               "misconceptions": [
                 "Leaving the calculator in degree mode when evaluating sin θ for θ in radians",
                 "Adding the two radii instead of the chord to the perimeter of a segment",
-                "Using ½r² sin θ with θ in degrees in one term and radians in the other"
+                "Using ½r² sin θ with θ in degrees in one term and radians in the other",
+                "Using the whole sector where only the segment belongs in the region",
+                "Adding the hidden join between two shapes to a perimeter",
+                "Using the angle between two tangents as the angle at the centre",
+                "Reading a ratio of two areas the wrong way round",
+                "Using the diameter as the radius of a semicircle",
+                "Leaving the triangle out of a region made of a sector and a triangle"
               ],
               "threads": []
             },
@@ -8621,6 +8662,24 @@
                   "approach": "gdc",
                   "name": "Intersect the two conditions on the GDC",
                   "summary": "Write θ from each condition as a function of r, graph both, and read the intersection(s)."
+                },
+                {
+                  "id": "area-half-rl",
+                  "approach": "algebraic",
+                  "name": "A = ½rl",
+                  "summary": "With the arc and the area, A = ½r²θ = ½r(rθ) = ½rl, so r = 2A ÷ l, with no quadratic."
+                },
+                {
+                  "id": "rearrange-perimeter",
+                  "approach": "algebraic",
+                  "name": "Rearrange the perimeter",
+                  "summary": "Write the perimeter as 2r + rθ and make θ the subject."
+                },
+                {
+                  "id": "eliminate-theta",
+                  "approach": "algebraic",
+                  "name": "Eliminate θ",
+                  "summary": "Make θ the subject of the perimeter equation and substitute into the area equation, to leave a quadratic in r."
                 }
               ],
               "misconceptions": [
@@ -9596,7 +9655,7 @@
                 }
               ],
               "misconceptions": [
-                "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
+                "Stopping at one solution instead of finding them all",
                 "Finding a cosine equation's second solution the way you would for sine",
                 "Missing the solutions below zero in the interval"
               ],
@@ -9831,7 +9890,7 @@
                 }
               ],
               "misconceptions": [
-                "Using a GDC window that cuts off part of the interval and missing solutions",
+                "Looking at only part of the interval and missing solutions",
                 "Including the boundary values of k where the line only touches at a maximum or minimum",
                 "Leaving the GDC in degree mode"
               ],
@@ -11465,12 +11524,24 @@
                   "approach": "structural",
                   "name": "Use the complement paths",
                   "summary": "When many paths qualify (different colours, at least one), find the few that do not and subtract from 1."
+                },
+                {
+                  "id": "branches-add-to-one",
+                  "approach": "structural",
+                  "name": "Branches at a fork add to 1",
+                  "summary": "The outcomes at a fork cover everything once, so a missing branch is 1 minus the other branches at that fork."
+                },
+                {
+                  "id": "recount-after-draw",
+                  "approach": "counting",
+                  "name": "Recount what is left after each draw",
+                  "summary": "Before each branch, work out what is left: the count of each colour and the new total. Then write the branch as a fraction."
                 }
               ],
               "misconceptions": [
                 "Not reducing the numerator and denominator on the second-stage branches when sampling without replacement",
                 "Adding along a path instead of multiplying",
-                "Counting only RB for 'different colours' and forgetting BR"
+                "Counting only one order of the two colours and forgetting the other"
               ],
               "threads": [
                 {
@@ -11682,7 +11753,8 @@
               "misconceptions": [
                 "Adding P(A) + P(B) for 'A and B'",
                 "Giving P(A) + P(B) − P(A)P(B), which is P(A ∪ B), when the intersection is asked for",
-                "Taking P(A ∩ B) = 0 for independent events (that is mutually exclusive)"
+                "Taking P(A ∩ B) = 0 for independent events (that is mutually exclusive)",
+                "Leaving out the complement: using P(A) × P(B) when an event with a dash is asked for"
               ],
               "threads": []
             }
@@ -13010,7 +13082,7 @@
                 {
                   "id": "conditional-test",
                   "approach": "formula",
-                  "name": "Compare P(A | B) with P(A)",
+                  "name": "See whether the given event changes the probability",
                   "summary": "Independent means knowing B does not change the probability of A: P(A | B) = P(A), equivalently P(A | B) = P(A | B′)."
                 },
                 {
@@ -13021,9 +13093,10 @@
                 }
               ],
               "misconceptions": [
-                "Events that overlap cannot be independent",
-                "Mutually exclusive events (with non-zero probabilities) are independent",
-                "Concluding 'not independent' without quoting both numbers being compared"
+                "Assuming that events that overlap cannot be independent",
+                "Mixing up independent with mutually exclusive: being independent is not about whether the events overlap",
+                "Giving a verdict from one number, when the test compares two",
+                "Reading the test backwards: equal values mean independent, and different values mean not"
               ],
               "threads": []
             },
@@ -13072,7 +13145,9 @@
               ],
               "misconceptions": [
                 "Using P(A ∪ B) = P(A) + P(B) as if the events were mutually exclusive",
-                "Setting P(A ∩ B) = 0 because the events are independent"
+                "Setting P(A ∩ B) = 0 because the events are independent",
+                "Multiplying the two 'only' regions, when independence multiplies P(A) by P(B)",
+                "Giving the probability of both events, when a conditional is asked for"
               ],
               "threads": []
             },
@@ -15878,6 +15953,12 @@
                   "summary": "Use the fixed quantity (volume, perimeter, area) to write one variable in terms of the other, giving a function of a single variable."
                 },
                 {
+                  "id": "model-from-figure",
+                  "approach": "geometric",
+                  "name": "Read the lengths off the figure",
+                  "summary": "Write each length in terms of the free variable from the figure, using Pythagoras or a curve's equation where needed, then multiply or add them."
+                },
+                {
                   "id": "differentiate-and-test",
                   "approach": "calculus",
                   "name": "Differentiate and justify",
@@ -15898,7 +15979,7 @@
               ],
               "misconceptions": [
                 "Differentiating before eliminating the second variable",
-                "Ignoring the feasible domain, e.g. allowing x > 10 on a 20 cm sheet",
+                "Ignoring the feasible domain, such as a cut too big for the sheet",
                 "Giving the constraint value or the optimal x when the optimal value is asked for"
               ],
               "threads": [

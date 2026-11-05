@@ -11707,6 +11707,334 @@ def check_motion(q):
     return None, None
 
 
+# ── Kinematics: displacement and distance (FAL-739) ──────────
+# Reads v(t), s(t) or a graph back from the question and integrates it again: exactly with
+# SymPy on Paper 1, with mpmath and its own rests on Paper 2. A distance is summed over the
+# stretches between rests. An expression for a distance is checked by working out what every
+# option comes to. Tagged wrong options are worked out again from what the slip does.
+
+KD_D = "SL5.9.displacement-from-velocity#"
+KD_T = "SL5.9.total-distance#"
+KD_ME = "t5-kinematics-distance#"
+KD_S_MAX, KD_T_MAX = 300, 8
+KD_READ_V = re.compile(r"\bv\(t\) = (.+?), for 0 ≤ t ≤ (\d+)\.")
+KD_READ_S = re.compile(r"\bs\(t\) = (.+?), for 0 ≤ t ≤ (\d+)\.")
+KD_INT = re.compile(r"∫ from (\d+) to (\d+) of v\(t\) dt")
+KD_S_UNKNOWNS = ("displacement-at-turn", "distance-from-origin", "total-distance-positions", "initial-displacement", "distance-from-position")
+
+
+def kd_expr(text):
+    return sp.nsimplify(in_expr(text), rational=True)
+
+
+def kd_integral(fn, a, b, exact):
+    """∫ fn from a to b: exact, or to 30 digits."""
+    if exact:
+        return sp.integrate(fn, (CX, a, b))
+    mpmath.mp.dps = 30
+    f = sp.lambdify(CX, fn, "mpmath")
+    return sp.Float(str(mpmath.quad(f, [mpmath.mpf(str(sp.N(a, 40))), mpmath.mpf(str(sp.N(b, 40)))])), 30)
+
+
+def kd_cuts(a, b, rests):
+    return [a] + [z for z in rests if a < z < b] + [b]
+
+
+def kd_legs(fn, a, b, rests, exact):
+    """The signed integral over each stretch of [a, b] between rests."""
+    c = kd_cuts(a, b, rests)
+    return [kd_integral(fn, p, r, exact) for p, r in zip(c, c[1:])]
+
+
+def kd_fair(*vals):
+    for v in vals:
+        need(v != 0 and gc_fair(sp.Rational(str(sp.N(abs(v), 25)))), f"{sp.N(v, 8)} is not a fair 3 s.f. value")
+
+
+def kd_template(ans):
+    out = ""
+    for item in ans["template"]:
+        out += item if isinstance(item, str) else "(" + str(ans["values"][item["slot"]]) + ")"
+    return kd_expr(out.split(" = ", 1)[1])
+
+
+def kd_option_value(text, v):
+    """What an option for an expression comes to, as a number: ± each ∫ in turn."""
+    body = text.split(" = ", 1)[1]
+    need(re.fullmatch(r"∫ from \d+ to \d+ of v\(t\) dt( [−+] ∫ from \d+ to \d+ of v\(t\) dt)?", body) is not None, f"can't read the option {text!r}")
+    bits = KD_INT.findall(body)
+    total = kd_integral(v, int(bits[0][0]), int(bits[0][1]), True)
+    if len(bits) == 2:
+        one = kd_integral(v, int(bits[1][0]), int(bits[1][1]), True)
+        total = total + one if " + " in body else total - one
+    return total
+
+
+def kd_expressions(q, v, want, tagged):
+    """An option is right exactly when it comes to the distance; each tag's text is checked."""
+    came = [kd_option_value(o["text"], v) for o in q["choices"]]
+    need(len(set(came)) == len(came), f"two options come to the same value: {came}")
+    for o, y in zip(q["choices"], came):
+        need((y == want) == o["correct"], f"option {o['text']!r} against {want}")
+    gc_check_common(q, q["answer_text"], tagged)
+
+
+def kd_story(q, rep):
+    need(("A particle" in q["lines"][0]) == (rep != "words"), "the story is not in this representation")
+
+
+def kd_graph_case(q, u):
+    cs = mt_graph_corners(q)
+    need(all(b[0] > a[0] for a, b in zip(cs, cs[1:])), "the graph goes back in time")
+    need(all(a[1] * b[1] >= 0 for a, b in zip(cs, cs[1:])), "a piece crosses the axis away from a corner")
+    bits = [(a[1] + b[1]) * (b[0] - a[0]) / 2 for a, b in zip(cs, cs[1:])]
+    net, dist = sum(bits), sum(abs(b) for b in bits)
+    need(net.is_integer and dist.is_integer and dist != abs(net), "a graph's areas are not clean")
+    need(any(c[1] > 0 for c in cs) and any(c[1] < 0 for c in cs), "the graph doesn't go both ways")
+    need(f"t = {dm_num(cs[-1][0])}" in q["asked"] or f"{dm_num(cs[-1][0])} seconds" in q["asked"], "the question doesn't go to the end of the graph")
+    if u == "distance-from-graph":
+        gc_check_common(q, f"Distance = {dm_num(dist)} m", {KD_T + "2": {f"Distance = {dm_num(net)} m"}})
+    else:
+        s0 = R(re.search(r"s = (\d+) when t = 0", q["lines"][1]).group(1))
+        gc_check_common(q, f"s = {dm_num(s0 + net)} m", {KD_D + "0": {f"s = {dm_num(net)} m"}, "SL5.9.motion-graphs#2": {f"s = {dm_num(s0 + dist)} m"}})
+
+
+def kd_ridge(q):
+    m = re.search(r"v\(t\) = ([\d.]+) − ([\d.]+) cos\(π\(t − (\d+)\)/(\d+)\)\.", q["lines"][1])
+    need(m is not None, f"can't read the ridges in {q['lines'][1]!r}")
+    B, A, c, k = R(m.group(1)), R(m.group(2)), int(m.group(3)), int(m.group(4))
+    need(0 < A < B, "the velocity is not always positive")
+    need(f"first ridge at t = {c}." in q["lines"][0], "the first ridge is not at the model's slowest time")
+    v = B - A * sp.cos(sp.pi * (CX - c) / k)
+    # One period from a slowest point: its next minimum, found from v itself.
+    need(sp.diff(v, CX).subs(CX, c) == 0 and sp.diff(v, CX, 2).subs(CX, c) > 0, "the model isn't slowest there")
+    period = sp.periodicity(v, CX)
+    need(period == 2 * k, f"the period is {period}")
+    gap = kd_integral(v, c, c + period, True)
+    need(gap.is_integer, "the distance is not whole")
+    gc_check_common(q, f"Distance = {dm_num(gap)} m", {KD_ME + "12": {f"Distance = {dm_num(gap / 2)} m"}, KD_ME + "9": {f"Distance = {dm_num((A + B) * period)} m"}})
+
+
+def kd_race(q):
+    m = re.search(r"race (\d+) metres .* is v\(t\) = ([\d.]+)\(1 − e\^\(−([\d.]+)t\)\) and .* is w\(t\) = ([\d.]+)\(1 − e\^\(−([\d.]+)t\)\)\.", q["lines"][0])
+    need(m is not None, f"can't read the race in {q['lines'][0]!r}")
+    D, A, k, A2, k2 = int(m.group(1)), R(m.group(2)), R(m.group(3)), R(m.group(4)), R(m.group(5))
+    v = A * (1 - sp.exp(-k * CX))
+    w = A2 * (1 - sp.exp(-k2 * CX))
+    mpmath.mp.dps = 30
+    run = lambda fn: sp.lambdify(CX, sp.integrate(fn, (CX, 0, CX)) - D, "mpmath")
+    first = run(v)
+    tf = mpmath.findroot(first, (mpmath.mpf(1), mpmath.mpf(600)), solver="anderson")
+    need(abs(first(tf)) < mpmath.mpf(10) ** -15, "no finishing time")
+    tf = sp.Float(str(tf), 30)
+    x2 = kd_integral(w, 0, tf, False)
+    gap = D - x2
+    need(gap > 0, "Q finishes first")
+    kd_fair(tf, x2, gap)
+    flat = D - A2 * tf
+    txt = lambda y: f"Distance = {gc_s(sp.Float(y, 30))} m"
+    gc_check_common(q, txt(gap), {KD_ME + "13": {txt(x2)}, KD_ME + "9": {txt(flat)}})
+
+
+def kd_return(q, v, T):
+    Z = mt_times(v, T, True)
+    need(len(Z) == 1, f"{len(Z)} rests")
+    r = Z[0]
+    first, net = kd_integral(v, 0, r, True), kd_integral(v, 0, T, True)
+    s = sp.integrate(v, (CX, 0, CX))
+    # The roots of s itself decide, not the sign test the working uses.
+    back = any(abs(sp.im(t)) < 1e-20 and 0 < sp.re(t) <= T for t in sp.Poly(s, CX).nroots(n=30))
+    need(net != 0, "s(T) = 0 is on the edge")
+    dist = abs(first) + abs(net - first)
+    yes = f"Yes: its displacement from the start is {dm_num(first)} m at t = {r} and {dm_num(net)} m at t = {T}, so it passes the start."
+    no = f"No: at t = {T}, the end of the interval, its displacement from the start is still {dm_num(net)} m."
+    turn = f"it changes direction at t = {r}, so it "
+    gc_check_common(q, yes if back else no, {
+        KD_ME + "14": set() if back else {f"Yes: {turn}comes back to where it began."},
+        KD_ME + "15": {f"No: it travels {dist} m in all, not 0 m." if back else f"Yes: it travels {dist} m in all, more than the {abs(first)} m out, so it is back."}}, steps=(2, 5))
+
+
+def kd_from_s(q, u, f, T, sf, rep):
+    x = CX
+    v = sp.diff(f, x)
+    tx = lambda y: gc_s(sp.Float(y, 40)) if sf else dm_num(y)
+    Z = mt_times(v, T, not sf)
+    if u == "initial-displacement":
+        need(sf, "this model is Paper 2")
+        s0 = f.subs(x, 0)
+        need(s0.is_integer, "s(0) is not whole")
+        gc_check_common(q, f"s = {s0} m", {})
+    elif u == "distance-from-position":
+        need(len(Z) >= 2, "fewer than two rests")
+        sq = [mt_at(f, 0), mt_at(f, Z[0]), mt_at(f, Z[1])]
+        net = sq[2] - sq[0]
+        dist = abs(sq[1] - sq[0]) + abs(sq[2] - sq[1])
+        kd_fair(dist, net, Z[0], Z[1])
+        # The same trip again, as ∫|v|.
+        check = sum(abs(y) for y in kd_legs(v, sp.Integer(0), sp.Float(Z[1], 30), [sp.Float(Z[0], 30)], False))
+        need(abs(check - dist) < 1e-15, "the positions and ∫|v| disagree")
+        gc_check_common(q, f"Distance = {tx(dist)} m", {KD_ME + "18": {f"Distance = {tx(net)} m"}, KD_ME + "19": {f"Distance = {tx(abs(net))} m"}})
+    else:
+        need(not sf and sp.Poly(f, x).degree() == 2, "this is a quadratic on Paper 1")
+        need(f.subs(x, 0) == 0 and len(Z) == 1, "not a trip out from the origin with one turn")
+        q0 = Z[0]
+        top, end = f.subs(x, q0), f.subs(x, T)
+        need(end < 0, "it doesn't pass the origin")
+        dist = abs(top) + abs(end - top)
+        if u == "displacement-at-turn":
+            gc_check_common(q, f"s = {top} m", {})
+        elif u == "distance-from-origin":
+            gc_check_common(q, f"Distance = {abs(end)} m", {KD_ME + "7": {f"Distance = {dm_num(end)} m"}, KD_ME + "8": {f"Distance = {dist} m"}})
+        else:
+            gc_check_common(q, f"Distance = {dist} m", {KD_ME + "18": {f"Distance = {dm_num(end)} m"}, KD_ME + "19": {f"Distance = {abs(end)} m"}})
+    if rep == "graph":
+        dm_graph_curve(q, f)
+
+
+def check_motion_distance(q):
+    u, L, rep, asked, ang = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["view"]["angle"]
+    x = CX
+    calc_options(q)
+    calc_steps(q)
+    sf = q["paper"] == 2
+    if ang.startswith("gdc-"):
+        need(sf, "a GDC method is Paper 2")
+    if ang == "integrate-with-constant":
+        need(not sf, "integrating by hand is Paper 1")
+    if u in ("distance-from-graph", "position-from-graph"):
+        need(not sf, "a graph of straight pieces is Paper 1")
+        return kd_graph_case(q, u) or (None, None)
+    if u == "ridge-distance":
+        need(sf, "the ridges are Paper 2")
+        return kd_ridge(q) or (None, None)
+    if u == "race-gap":
+        need(sf, "the race is Paper 2")
+        return kd_race(q) or (None, None)
+    kd_story(q, rep)
+    if u == "velocity-from-acceleration":
+        m = re.search(r"a\(t\) = (.+?), and v = (−?\d+) when t = (\d+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        a, V, t0 = kd_expr(m.group(1)), el_num(m.group(2)), int(m.group(3))
+        anti = sp.integrate(a, x)
+        want = anti + V - anti.subs(x, t0)
+        for o in q["choices"]:
+            need(calc_same(in_expr(calc_rhs(o["text"])), want) == o["correct"], f"option {o['text']!r} against {want}")
+            if o["ref"]:
+                need(o["ref"] == KD_ME + "16" and calc_same(in_expr(calc_rhs(o["text"])), anti), f"{o['ref']} on {o['text']!r}")
+        need(calc_same(kd_template(q["answer"]), want), "the slots don't make the expression shown")
+        return None, None
+    if u == "time-for-distance":
+        m = re.search(r"v\(t\) = (.+?), for t ≥ 0\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        v, d = kd_expr(m.group(1)), int(re.search(r"distance it has travelled is (\d+) m", L[1]).group(1))
+        r = sp.solve(v, x)[0]
+        D = kd_integral(v, 0, r, True)
+        need(d > D, "the distance stops short of the rest")
+        ks = [k for k in sp.solve(D - sp.integrate(v, (x, r, x)) - d, x) if k > r]
+        need(len(ks) == 1 and ks[0].is_integer, f"k is {ks}")
+        gc_check_common(q, f"k = {ks[0]}", {})
+        return None, None
+    if u in KD_S_UNKNOWNS:
+        m = KD_READ_S.search(L[0])
+        need(m is not None, f"can't read s in {L[0]!r}")
+        return kd_from_s(q, u, kd_expr(m.group(1)), int(m.group(2)), sf, rep) or (None, None)
+    m = KD_READ_V.search(L[0])
+    need(m is not None, f"can't read v in {L[0]!r}")
+    v, T = kd_expr(m.group(1)), int(m.group(2))
+    exact = v.is_polynomial(x) and not sf
+    need(exact != sf, f"Paper {q['paper']} has the wrong kind of function")
+    if exact:
+        need(T <= KD_T_MAX, "T is too large for Paper 1")
+        need(all(abs(sp.integrate(v, (x, 0, t))) <= KD_S_MAX + 9 for t in range(T + 1)), "s is too large for Paper 1")
+    a = sp.diff(v, x)
+    Z, A = mt_times(v, T, exact), mt_times(a, T, exact)
+    if not exact:
+        Z, A = [sp.Float(str(z), 30) for z in Z], [sp.Float(str(t), 30) for t in A]
+    I = lambda p, r: kd_integral(v, p, r, exact)
+    tx = lambda y: gc_s(sp.Float(y, 40)) if sf else dm_num(y)
+    S0 = re.search(r"s = (\d+) when t = 0", L[1]) if len(L) > 1 else None
+    no_split = KD_ME + "20" if rep == "words" else KD_T + "1"
+    s0 = int(S0.group(1)) if S0 else 0
+    if u == "position-expression":
+        m = re.search(r"s = (−?\d+) when t = (\d+)\.", L[1])
+        K, t0 = el_num(m.group(1)), int(m.group(2))
+        anti = sp.integrate(v, x)
+        want = anti + K - anti.subs(x, t0)
+        tags = {KD_D + "0" if t0 == 0 else KD_ME + "16": anti, KD_D + "1": a}
+        for o in q["choices"]:
+            e = in_expr(calc_rhs(o["text"]))
+            need(calc_same(e, want) == o["correct"], f"option {o['text']!r} against {want}")
+            if o["ref"]:
+                need(o["ref"] in tags and calc_same(e, tags[o["ref"]]), f"{o['ref']} on {o['text']!r}")
+        need(calc_same(kd_template(q["answer"]), want), "the slots don't make the expression shown")
+    elif u == "position-at-time":
+        need(S0 is not None, "no start")
+        t0 = int(re.search(r"t = (\d+)", asked).group(1))
+        net = I(0, t0)
+        if sf:
+            kd_fair(net, s0 + net)
+        gc_check_common(q, f"s = {tx(s0 + net)} m", {KD_D + "0": {f"s = {tx(net)} m"}, KD_D + "1": {f"s = {tx(mt_at(a, t0))} m"}})
+    elif u == "displacement-between":
+        p, r = (int(g) for g in re.search(r"between t = (\d+) and t = (\d+)", asked).groups())
+        need(0 < p < r <= T, "the times are out of order")
+        net = I(p, r)
+        gc_check_common(q, f"Displacement = {tx(net)} m", {KD_D + "2": {f"Displacement = {tx(s0 + I(0, r))} m"}})
+    elif u == "position-at-max-velocity":
+        ex = mt_extremes(v, a, T, exact)
+        tm = max(ex, key=lambda p: p[1])[0]
+        need(0 < tm < T, "the greatest velocity is at an end")
+        net = I(0, tm)
+        gc_check_common(q, f"s = {tx(s0 + net)} m", {KD_D + "0": {f"s = {tx(net)} m"}})
+    elif u == "does-it-return":
+        need(exact, "this is Paper 1")
+        kd_return(q, v, T)
+    elif u == "displacement-increasing":
+        need(len(Z) == 2, f"{len(Z)} rests")
+        lo, hi = Z
+        need(mt_at(v, 0) < 0 and mt_at(v, (lo + hi) / 2) > 0 and mt_at(v, T) < 0, "v is not negative, positive, negative")
+        gc_check_common(q, f"{tx(lo)} < t < {tx(hi)}", {KD_ME + "10": {f"0 < t < {tx(A[0])}"}})
+    elif u == "distance-before-turning":
+        t1 = Z[0]
+        net = I(0, t1)
+        gc_check_common(q, f"Distance = {tx(abs(net))} m", {KD_ME + "9": {f"Distance = {tx(abs(mt_at(v, 0)) * t1)} m"}})
+    elif u in ("total-distance-split", "total-distance-gdc"):
+        need(len(Z) >= 1, "no rest to split at")
+        legs = kd_legs(v, sp.Integer(0), sp.Integer(T), Z, exact)
+        net, dist = sum(legs), sum(abs(y) for y in legs)
+        if sf:
+            kd_fair(dist, net)
+        no = {tx(abs(net))}
+        if len(legs) == 3:
+            no.add(tx(abs(legs[0]) + abs(legs[1] + legs[2])))
+        gc_check_common(q, f"Distance = {tx(dist)} m", {KD_T + "0": {f"Distance = {tx(net)} m"}, no_split: {f"Distance = {y} m" for y in no}})
+    elif u == "distance-between-times":
+        nth = ["first", "second", "third"].index(re.search(r"t₂ the (\w+) time", L[1]).group(1))
+        t1, t2 = A[0], Z[nth]
+        legs = kd_legs(v, t1, t2, Z, False)
+        need(len(legs) >= 2, "no rest between t₁ and t₂")
+        net, dist = sum(legs), sum(abs(y) for y in legs)
+        kd_fair(dist, net, t1)
+        gc_check_common(q, f"Distance = {tx(dist)} m", {KD_T + "0": {f"Distance = {tx(net)} m"}, no_split: {f"Distance = {tx(abs(net))} m"}})
+    elif u == "distance-expression":
+        need(len(Z) == 1, "one rest")
+        r = Z[0]
+        dist = abs(I(0, r)) + abs(I(r, T))
+        kd_expressions(q, v, dist, {KD_T + "0": {f"Distance = ∫ from 0 to {T} of v(t) dt"}})
+    elif u == "speeding-distance-expression":
+        need(len(Z) == 1 and len(A) == 1, "one rest and one turn")
+        cuts = sorted([sp.Integer(0), sp.Integer(T), Z[0], A[0]])
+        rising = [(p, r) for p, r in zip(cuts, cuts[1:]) if v.subs(x, (p + r) / 2) * a.subs(x, (p + r) / 2) > 0]
+        need(len(rising) == 2, f"speed rises on {rising}")
+        dist = sum(abs(I(p, r)) for p, r in rising)
+        (p0, r0), (p1, r1) = rising
+        kd_expressions(q, v, dist, {KD_ME + "11": {f"Distance = ∫ from {p0} to {r0} of v(t) dt"}, KD_ME + "17": {f"Distance = ∫ from {p0} to {r0} of v(t) dt + ∫ from {p1} to {r1} of v(t) dt"}})
+    else:
+        raise Fail(f"no check for {u}")
+    if rep == "graph":
+        dm_graph_curve(q, v)
+    return None, None
+
+
 # ── Function basics (FAL-424) ────────────────────────────────
 # basic-function, basic-restricted, basic-one-to-one, basic-relation and fn-pre-substitute.
 # The rule a question shows is read back from its text and every value is worked out again
@@ -17076,7 +17404,7 @@ def as_read(q):
             if m:
                 k["r"] = plain(m.group(1))
                 continue
-            m = re.fullmatch(r"θ = (\S+?)(°| radians)", ln)
+            m = re.fullmatch(r"θ = (\S+?)(°| radians?)", ln)
             if m:
                 angle(m.group(1), m.group(2) == "°")
                 continue
@@ -17090,7 +17418,7 @@ def as_read(q):
         if m:
             k["r"] = plain(m.group(1))
             k["unit"] = " " + m.group(2)
-        m = re.search(r"(?:with an angle of|a gap with an angle of) (\S+?)(°| radians) at the centre", text)
+        m = re.search(r"(?:with an angle of|a gap with an angle of) (\S+?)(°| radians?) at the centre", text)
         if m:
             angle(m.group(1), m.group(2) == "°")
         for key, pat in (("l", r"The curved edge of the sector is (.+?) (cm|km|m) long\."), ("a", r"The area of the sector is (.+?) (cm|km|m)²\."),
@@ -17307,7 +17635,7 @@ def as_check(q):
         W("sector-area#2", label, tail, rr**2 * t0 / 2)
     elif u == "cone-radius":
         if rep == "words":
-            mt = re.fullmatch(r"A sheet of tin is cut into a sector of radius ([\d.]+) cm and angle (\S+?)(°| radians)\. Its two straight edges are joined to make a funnel, with the arc as the rim\.", L[0].replace(" m ", " cm ").replace(" km ", " cm "))
+            mt = re.fullmatch(r"A sheet of tin is cut into a sector of radius ([\d.]+) cm and angle (\S+?)(°| radians?)\. Its two straight edges are joined to make a funnel, with the arc as the rim\.", L[0].replace(" m ", " cm ").replace(" km ", " cm "))
             need(mt is not None, f"can't read {L[0]!r}")
             r = R(mt.group(1))
             d = as_val(mt.group(2))
@@ -17386,6 +17714,442 @@ def as_check(q):
     want = as_text(label, v, tail, paper)
     gc_check_common(q, want, wr, trap)
     as_working(q)
+    return None, None
+
+
+# ── circular-region (t3-composite-circular-region, FAL-739) ──
+# The `circular-region` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/circular_region.gd. The numbers are read back from the lines and the
+# figure, and each answer is worked out from those alone with mpmath at 40 digits, or exactly on
+# Paper 1. A root of θ = k sin θ comes from its own halving, and the two roots of a sector's
+# quadratic from the conditions. A figure is held to the shape it says it draws.
+
+CR_SKILL = "SL3.4."
+CR_T = "t3-composite-circular-region#"
+CR_DEG_SECTOR, CR_ANY_SINE = CR_T + "13", CR_T + "14"
+CR_LETTERS = "r is the radius of the sector and θ is its angle at the centre, in radians."
+CR_DEN = 24
+CR_BOTH = ("theta-in-r", "two-conditions-quadratic", "two-conditions-r", "two-conditions-theta", "two-conditions-both", "arc-area-radius")
+CR_RATIOS_OUT = ((1, 1), (3, 5))        # the bank's own ratios
+
+
+def cr_mp(x):
+    x = sp.Rational(x)
+    return mpmath.mpf(x.p) / x.q
+
+
+def cr_root(k):
+    """θ on (0, π) with θ = k sin θ, k > 1, by halving: θ/sin θ only rises."""
+    lo, hi = mpmath.mpf(10) ** -30, mpmath.pi - mpmath.mpf(10) ** -30
+    for _ in range(160):
+        mid = (lo + hi) / 2
+        if mid / mpmath.sin(mid) < k:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def cr_num(text):
+    return R(text.replace(",", ""))
+
+
+def cr_fig(q, shape, **labels):
+    g = q["graph"]
+    need(g is not None and g["kind"] == "region" and g["shape"] == shape, f"no {shape} drawn")
+    for key, want in labels.items():
+        need(g.get(key) == want, f"the figure's {key} is {g.get(key)!r}, not {want!r}")
+    return g
+
+
+def cr_drawn(g, th):
+    need(abs(mpmath.mpf(g["theta"]) - th) < mpmath.mpf(10) ** -6, f"the figure's angle {g['theta']} is not {th}")
+
+
+def cr_angle(text):
+    """An angle as a label or a story writes it: (radians, degrees or None)."""
+    if text.endswith("°"):
+        d = cr_num(text[:-1])
+        need(d.q == 1 and d % 15 != 0 and 0 < d < 180, f"{text} on Paper 2")
+        return cr_mp(d) * mpmath.pi / 180, d
+    t = cr_num(text)
+    need(0 < t < sp.pi and (t * 100).q == 1, f"θ = {t}")
+    return cr_mp(t), None
+
+
+def cr_segment(q):
+    """r, θ in radians, the degrees or None, and the unit, of a segment."""
+    if q["view"]["rep"] == "words":
+        m = re.fullmatch(r"(?:The floor of a round silo|A round pond at the bean farm|A round camp on the flats) has radius ([\d.]+) m\. A straight (wall|dam|fence) joins points A and B on its edge, and angle AOB at the centre O is (\S+?)(°| radians?)\. The smaller part, behind the \2, is the (grain bay|fish pen|goat yard)\.", q["lines"][0])
+        need(m is not None, f"can't read {q['lines'][0]!r}")
+        th, d = cr_angle(m.group(3) + ("°" if m.group(4) == "°" else ""))
+        return cr_num(m.group(1)), th, d, " m"
+    g = cr_fig(q, "segment")
+    need(g["r_label"].endswith(" cm"), "the radius isn't labelled")
+    th, d = cr_angle(g["angle_label"])
+    cr_drawn(g, th)
+    return cr_num(g["r_label"].removesuffix(" cm")), th, d, " cm"
+
+
+def cr_eval(text):
+    """A step's expression, with its sines worked out, or None."""
+    def fn(m):
+        arg = m.group(2).strip()
+        deg = arg.endswith("°")
+        v = as_eval(arg.rstrip("°"))
+        if v is None:
+            return "x"
+        v = mpmath.mpf(str(sp.N(v, 45)))
+        v = mpmath.radians(v) if deg else v
+        return "(" + mpmath.nstr({"sin": mpmath.sin, "cos": mpmath.cos, "tan": mpmath.tan}[m.group(1)](v), 38) + ")"
+    t = re.sub(r"(sin|cos|tan) ((?:\d+π?|π)(?:\.\d+)?(?:/\d+)?°?)", fn, text)
+    if "x" in t:
+        return None
+    t = re.sub(r"(\d)√", r"\1*√", t)
+    t = re.sub(r"(\d|\))\s*(\()", r"\1*\2", t)
+    return as_eval(t.replace("e-", "E-"))
+
+
+def cr_working(q):
+    """Each "expr = value" of plain numbers holds, within the last figure shown."""
+    n = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            parts = st.split(" = ")
+            for left, right in zip(parts, parts[1:]):
+                lm = re.search(r"(?:sin |cos |tan |[\d.π×÷+−/²()½√ °])+$", left)
+                rm = re.match(r"(?:sin |cos |tan |[\d.π/ +−×÷²()½√°])+", right.strip())
+                if lm is None or rm is None:
+                    continue
+                lt, rt = lm.group().strip(), rm.group().strip().rstrip(" +−.")
+                if not re.search(r"[×÷+−/²½√π]|sin|cos|tan", lt) or not rt or lt.startswith(("²", "+", "−", "×", "÷", "/")) or rt.endswith(("×", "÷", "/", "(")):
+                    continue
+                lv, rv = cr_eval(lt), cr_eval(rt)
+                if lv is None or rv is None:
+                    continue
+                gap = abs(sp.N(lv - rv, 30))
+                if re.fullmatch(r"[\d.]+", rt):
+                    d = len(rt.split(".")[1]) if "." in rt else 0
+                    ok = gap <= sp.Rational(6, 10) * sp.Rational(1, 10**d) if q["paper"] == 2 else gap < sp.Rational(1, 10**20)
+                else:
+                    ok = gap < (sp.Rational(1, 10**20) if q["paper"] == 1 else sp.Rational(1, 500))
+                need(ok, f"{sol['name']}: in {st!r}, {lt} is {sp.N(lv, 10)}, not {rt}")
+                n += 1
+    return n
+
+
+def cr_exact_pi(b):
+    return as_pi(sp.Rational(b))
+
+
+def cr_pi_x2(b):
+    return ("πx²" if b.p == 1 else f"{b.p}πx²") + ("" if b.q == 1 else f"/{b.q}")
+
+
+def check_circular_region(q):
+    with mpmath.workdps(40):
+        return cr_check(q)
+
+
+def cr_check(q):
+    u, L, rep, asked, paper = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    pi = mpmath.pi
+    sin, cos, tan, sqrt = mpmath.sin, mpmath.cos, mpmath.tan, mpmath.sqrt
+    need(paper == 2 or u in CR_BOTH + ("segment-exact",), f"{u} on Paper {paper}")
+    wr = {}
+
+    def W(ref, x):
+        if x > 0:
+            wr.setdefault(ref if ref.startswith(CR_T) else CR_SKILL + ref, set()).add(label + rg_s(nu_f(x)) + tail)
+
+    label, tail, x = None, "", None
+    if u == "segment-area":
+        r, th, d, un = cr_segment(q)
+        rr = cr_mp(r)
+        label, tail, x = "A = ", un + "²", rr**2 * (th - sin(th)) / 2
+        W("segment-shaded#3", rr**2 * th / 2)
+        if d is None:
+            W("segment-shaded#0", rr**2 * (th - sin(mpmath.radians(th))) / 2)
+        else:
+            W(CR_DEG_SECTOR, rr**2 * (cr_mp(d) - sin(th)) / 2)
+    elif u == "segment-perimeter":
+        r, th, d, un = cr_segment(q)
+        rr = cr_mp(r)
+        label, tail, x = "P = ", un, rr * th + 2 * rr * sin(th / 2)
+        W("segment-shaded#1", rr * th + 2 * rr)
+        if d is None:
+            W(CR_ANY_SINE, rr * th + 2 * rr * sin(mpmath.radians(th / 2)))
+        else:
+            W("arc-length#0", rr * cr_mp(d) + 2 * rr * sin(th / 2))
+    elif u == "segment-exact":
+        need(paper == 1, "an exact landmark segment is Paper 1")
+        g = cr_fig(q, "segment")
+        r = cr_num(g["r_label"].removesuffix(" cm"))
+        need(r.q == 1 and r % 2 == 0 and 4 <= r <= 12, f"r = {r}")
+        t = as_val(g["angle_label"])
+        need(t / sp.pi in [sp.Rational(a, b) for a, b in ((1, 6), (1, 3), (1, 2), (2, 3), (5, 6))], f"θ = {t}")
+        cr_drawn(g, mpmath.mpf(str(sp.N(t, 45))))
+        area = r**2 * t / 2 - r**2 * sp.sin(t) / 2
+        b = r**2 * (t / sp.pi) / 2
+        c = sp.nsimplify(b * sp.pi - area)
+        surd = c.has(sp.sqrt(3))
+        c0 = c / sp.sqrt(3) if surd else c
+        root = "√3" if surd else ""
+        want = f"A = {cr_exact_pi(b)} − {dec_text(c0)}{root} cm²"
+        need(asked == "Find the exact area of the shaded segment.", f"asked {asked!r}")
+        gc_check_common(q, want, {CR_SKILL + "segment-shaded#3": {f"A = {cr_exact_pi(b)} cm²"}})
+        cr_working(q)
+        return None, None
+    elif u == "segment-in-terms-of-theta":
+        g = cr_fig(q, "segment", angle_label="θ")
+        r = cr_num(g["r_label"].removesuffix(" cm"))
+        m = re.fullmatch(r"A and B lie on a circle with centre O and radius ([\d.]+) cm\. Chord AB cuts off the shaded segment, and angle AOB is θ radians, where 0 < θ < π\.", L[0])
+        need(m and cr_num(m.group(1)) == r and r.q == 1, f"can't read {L[0]!r}")
+        a = dec_text(r**2 / 2)
+        gc_check_common(q, f"A = {a}θ − {a} sin θ cm²", {CR_SKILL + "segment-shaded#3": {f"A = {a}θ cm²"}})
+        cr_working(q)
+        return None, None
+    elif u == "segment-radius":
+        g = cr_fig(q, "segment", r_label="r")
+        th, _ = cr_angle(g["angle_label"])
+        cr_drawn(g, th)
+        m = re.fullmatch(r"The area of the segment is ([\d.]+) cm²\.", L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        a = cr_mp(cr_num(m.group(1)))
+        label, tail, x = "r = ", " cm", sqrt(2 * a / (th - sin(th)))
+        W("segment-shaded#3", sqrt(2 * a / th))
+        W("segment-shaded#0", sqrt(2 * a / (th - sin(mpmath.radians(th)))))
+    elif u in ("tether-area", "tether-expression", "tether-angle"):
+        if rep == "words":
+            m = re.fullmatch(r"Two straight walls meet at a corner A\. A rover is tied to a stake O on one wall by a cable ([\d.]+) m long, and the stake is ([\d.]+) m from A\. Stretched out, the cable reaches D further along that wall and E on the other wall, and angle DOE is ([\d.]+) radians?\.", L[0])
+            need(m and m.group(1) == m.group(2), f"can't read {L[0]!r}")
+            rr, th = cr_mp(cr_num(m.group(1))), cr_mp(cr_num(m.group(3)))
+        else:
+            head = "Two straight walls meet at A. A rover is tied by a cable to a stake O on one wall, with OA = OD = OE, where D is further along that wall and E is on the other wall. "
+            need(L[0].startswith(head), f"can't read {L[0]!r}")
+            rest = L[0][len(head):]
+            g = cr_fig(q, "tether")
+            if u == "tether-area":
+                m = re.fullmatch(r"OA = ([\d.]+) m and angle DOE is ([\d.]+) radians?\.", rest)
+                need(m is not None, f"can't read {rest!r}")
+                rr, th = cr_mp(cr_num(m.group(1))), cr_mp(cr_num(m.group(2)))
+                need(g["r_label"] == m.group(1) + " m" and g["angle_label"] == m.group(2), "the figure's labels")
+                cr_drawn(g, th)
+            elif u == "tether-angle":
+                m = re.fullmatch(r"OA = ([\d.]+) m, arc DE is ([\d.]+) m long, and angle DOE is θ radians\.", rest)
+                need(m is not None and g.get("mark_a") is True, f"can't read {rest!r}")
+                rr, l = cr_mp(cr_num(m.group(1))), cr_mp(cr_num(m.group(2)))
+                need(g["r_label"] == m.group(1) + " m" and g["arc_label"] == m.group(2) + " m", "the figure's labels")
+                th = l / rr
+                cr_drawn(g, th)
+            else:
+                need(rest == "OA = r m and angle DOE is θ radians.", f"can't read {rest!r}")
+                m = re.fullmatch(r"Arc DE is (\d+) m long\. The rover can reach the shaded ground: sector ODE and triangle OEA\.", L[1])
+                need(m is not None and g["arc_label"] == m.group(1) + " m", f"can't read {L[1]!r}")
+                k = R(m.group(1)) ** 2 / 2
+                gc_check_common(q, f"A = ({dec_text(k)}/θ²)(θ + sin θ) m²", {CR_SKILL + "segment-shaded#8": {f"A = {dec_text(k)}/θ m²"}})
+                cr_working(q)
+                return None, None
+        if u == "tether-angle":
+            # The triangle OEA is isosceles with π − θ at O.
+            label, tail, x = "angle DAE = ", " radians", (pi - (pi - th)) / 2
+        else:
+            # Sector ODE and triangle OEA, whose angle at O is π − θ.
+            label, tail, x = "A = ", " m²", rr**2 * th / 2 + rr**2 * sin(pi - th) / 2
+            W("segment-shaded#8", rr**2 * th / 2)
+            W("segment-shaded#0", rr**2 * (th + sin(mpmath.radians(th))) / 2)
+    elif u in ("ratio-equation", "ratio-theta"):
+        m = re.fullmatch(r"The shaded segment on chord RQ and the shaded triangle POR have areas in the ratio (\d+) : (\d+)\.", L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        a, b = int(m.group(1)), int(m.group(2))
+        need((a, b) not in CR_RATIOS_OUT, "the bank's own ratio")
+        g = cr_fig(q, "semi", angle_label="θ", r_label="r")
+        k = sp.Rational(a + b, b)
+        flip = sp.Rational(a + b, a)
+        th = cr_root(cr_mp(k))
+        need(abs((th - sin(th)) / sin(pi - th) - mpmath.mpf(a) / b) < mpmath.mpf(10) ** -25, "the root doesn't fit the ratio")
+        cr_drawn(g, th)
+        if u == "ratio-equation":
+            kt = lambda v: dec_text(v) if v.q == 1 else f"({frac_text(v)})"
+            gc_check_common(q, f"θ = {kt(k)} sin θ", {CR_SKILL + "segment-shaded#6": {f"θ = {kt(flip)} sin θ"}})
+            cr_working(q)
+            return None, None
+        label, x = "θ = ", th
+        W("segment-shaded#6", cr_root(cr_mp(flip)))
+    elif u == "ratio-radius":
+        m = re.fullmatch(r"P has an area of ([\d.]+) cm², and area P : area Q = (\d+) : (\d+)\.", L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        area, a, b = cr_mp(cr_num(m.group(1))), int(m.group(2)), int(m.group(3))
+        need((a, b) not in CR_RATIOS_OUT, "the bank's own ratio")
+        g = cr_fig(q, "segment", r_label="r", angle_label="θ", circle=True, parts=True)
+        th = cr_root(1 + mpmath.mpf(a) / b)
+        cr_drawn(g, th)
+        tri = area * b / a
+        label, tail, x = "r = ", " cm", sqrt(2 * tri / sin(th))
+        W("segment-shaded#3", sqrt(2 * area / th))
+        W("segment-shaded#0", sqrt(2 * tri / sin(mpmath.radians(th))))
+        th2 = cr_root(1 + mpmath.mpf(b) / a)
+        W("segment-shaded#6", sqrt(2 * area * a / b / sin(th2)))
+    elif u == "arch-area":
+        m = re.fullmatch(r"The shaded end of a shelter is a rectangle with arc AB on top\. Each vertical side is ([\d.]+) cm high\.", L[0])
+        m2 = re.fullmatch(r"Arc AB is part of a circle with centre O and radius ([\d.]+) cm, and angle AOB is ([\d.]+) radians\.", L[1])
+        need(m and m2, "can't read the arch")
+        h, rr, th = cr_mp(cr_num(m.group(1))), cr_mp(cr_num(m2.group(1))), cr_mp(cr_num(m2.group(2)))
+        g = cr_fig(q, "arch", r_label=m2.group(1) + " cm", h_label=m.group(1) + " cm", angle_label=m2.group(2))
+        cr_drawn(g, th)
+        need(abs(mpmath.mpf(g["r"]) - rr) < 1e-6 and abs(mpmath.mpf(g["h"]) - h) < 1e-6, "the arch drawn is another arch")
+        need(h > rr * cos(th / 2), "O is below the rectangle")
+        wide = sqrt(2 * rr**2 * (1 - cos(th)))
+        seg = rr**2 * (th - sin(th)) / 2
+        label, tail, x = "A = ", " cm²", wide * h + seg
+        W("segment-shaded#3", wide * h + rr**2 * th / 2)
+        dg = mpmath.radians
+        W(CR_ANY_SINE, 2 * rr * sin(dg(th / 2)) * h + rr**2 * (th - sin(dg(th))) / 2)
+    elif u in ("ring-area", "ring-expression"):
+        g = q["graph"]
+        need(g is not None and g["kind"] == "sector" and g["inner"] > 0, "no curved strip drawn")
+        m = re.fullmatch(r"A curved shield lies between two circles with centre O, as shaded\. The reflex angle at O is ([\d.]+) radians, the outer radius is ([\d.]+) cm and the inner radius is (r cm, where r < [\d.]+|[\d.]+ cm)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        t0, big = cr_num(m.group(1)), cr_num(m.group(2))
+        need(sp.pi < t0 < 2 * sp.pi, "the angle is not reflex")
+        need(g["angle_label"] == m.group(1) and g["r_label"] == m.group(2) + " cm", "the figure's labels")
+        cr_drawn(g, cr_mp(t0))
+        if u == "ring-expression":
+            need(m.group(3) == f"r cm, where r < {m.group(2)}", "r has no limit")
+            need(g["inner_label"] == "r", "the figure's r")
+            a, b = t0 * big**2 / 2, t0 / 2
+            gc_check_common(q, f"A = {dec_text(a)} − {dec_text(b)}r² cm²", {})
+            cr_working(q)
+            return None, None
+        small = cr_num(m.group(3).removesuffix(" cm"))
+        need(0 < small < big and abs(g["inner"] - float(small / big)) < 1e-6, "the inner circle drawn")
+        tt, bb, ss = cr_mp(t0), cr_mp(big), cr_mp(small)
+        label, tail, x = "A = ", " cm²", tt * (bb**2 - ss**2) / 2
+        W("sector-area#2", (2 * pi - tt) * (bb**2 - ss**2) / 2)
+    elif u in ("hatch-area", "hatch-height"):
+        m = re.fullmatch(r"A bunker hatch is a rectangle (\d+)x m wide and h m high with a semicircle on top\. The semicircle's diameter is the top of the rectangle\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        k = int(m.group(1))
+        need(k in (2, 4, 6), f"k = {k}")
+        g = cr_fig(q, "hatch", w_label=f"{k}x m", h_label="h m")
+        if u == "hatch-area":
+            b = sp.Rational(k**2, 8)
+            gc_check_common(q, f"A = {k}xh + {cr_pi_x2(b)} m²", {CR_SKILL + "segment-shaded#7": {f"A = {k}xh + {cr_pi_x2(4 * b)} m²"}})
+        else:
+            m = re.fullmatch(r"The perimeter of the whole hatch is (\d+) m\.", L[1])
+            need(m is not None, f"can't read {L[1]!r}")
+            per = R(m.group(1))
+            need(abs(2 * mpmath.mpf(g["rho"]) + 2 * mpmath.mpf(g["h"]) + pi * mpmath.mpf(g["rho"]) - cr_mp(per)) < 1e-6, "the hatch drawn doesn't have that perimeter")
+            arc = "πx" if k == 2 else f"{k // 2}πx"
+            gc_check_common(q, f"h = ½({per} − {k}x − {arc})", {CR_SKILL + "segment-shaded#4": {f"h = ½({per} − {2 * k}x − {arc})"}})
+        cr_working(q)
+        return None, None
+    elif u in ("tangent-region", "tangent-expression"):
+        m = re.fullmatch(r"AD and AE are tangents to a circle with centre O and radius ([\d.]+) cm, touching it at D and E\. Angle DAE is (\S+) radians?\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        need(L[1] == "The shaded region lies between the tangents and minor arc DE.", f"can't read {L[1]!r}")
+        r = cr_num(m.group(1))
+        g = cr_fig(q, "tangent", r_label=m.group(1) + " cm", angle_label=m.group(2))
+        if u == "tangent-expression":
+            need(m.group(2) == "2α" and r.q == 1, "the angle is 2α")
+            a = dec_text(r**2)
+            c = dec_text(r**2 / 2)
+            gc_check_common(q, f"A = {a}/tan α − {c}(π − 2α) cm²", {CR_SKILL + "segment-shaded#5": {f"A = {a}/tan α − {a}α cm²"}})
+            cr_working(q)
+            return None, None
+        th = cr_mp(cr_num(m.group(2)))
+        cr_drawn(g, th)
+        rr = cr_mp(r)
+        # Two right triangles with legs r and r/tan(θ/2), less the sector with the angle left at O.
+        kite = 2 * rr * (rr / tan(th / 2)) / 2
+        label, tail, x = "A = ", " cm²", kite - rr**2 * (pi - th) / 2
+        W("segment-shaded#5", kite - rr**2 * th / 2)
+    elif u == "cone-from-area":
+        m = re.fullmatch(r"The sector in the diagram, with centre O and radius ([\d.]+) cm, has an area of ([\d.]+) cm²\. It is rolled up so that OA meets OB, to make a cone, and the arc becomes the rim\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        g = q["graph"]
+        need(g is not None and g["kind"] == "sector" and g.get("cone") is True and g["r_label"] == m.group(1) + " cm", "the cone isn't drawn")
+        rr, a = cr_mp(cr_num(m.group(1))), cr_mp(cr_num(m.group(2)))
+        th = 2 * a / rr**2
+        need(0 < th < 2 * pi, f"θ = {th}")
+        cr_drawn(g, th)
+        label, tail, x = "radius = ", " cm", rr * th / (2 * pi)
+    else:
+        if rep != "diagram":
+            need(L[1] == CR_LETTERS, "r and θ aren't said")
+            L = L[:1] + L[2:]
+        k = as_read({**q, "lines": L})
+        un = k["unit"]
+        if u == "arc-area-radius":
+            l, a = k["l"], k["a"]
+            need(l is not None and a is not None, "no arc or no area")
+            r = 2 * a / l
+            th = l / r
+            need(0 < sp.N(th) < 2 * sp.pi, f"θ = {th}")
+            as_figure(k, th)
+            label, tail = "r = ", un
+            if paper == 1:
+                need(r.q == 1, f"r = {r}")
+                gc_check_common(q, as_text(label, r, tail, 1), {})
+                cr_working(q)
+                return None, None
+            x = cr_mp(r)
+        else:
+            p, a = k["p"], k["a"]
+            need(p is not None, "no perimeter")
+            if u == "theta-in-r":
+                gc_check_common(q, f"θ = ({dec_text(p)} − 2r)/r", {CR_SKILL + "sector-two-conditions#0": {f"θ = {dec_text(p)}/r"}}, steps=(2, 5))
+                cr_working(q)
+                return None, None
+            need(a is not None, "no area")
+            b = p / 2
+            if u == "two-conditions-quadratic":
+                gc_check_common(q, f"r² − {dec_text(b)}r + {dec_text(a)} = 0", {CR_SKILL + "sector-two-conditions#0": {f"r − {frac_text(2 * a / p)} = 0"}})
+                cr_working(q)
+                return None, None
+            disc = b**2 - 4 * a
+            need(disc > 0, "no two roots")
+            roots = [(b - sp.sqrt(disc)) / 2, (b + sp.sqrt(disc)) / 2]
+            if paper == 1:
+                need(all(v.is_integer for v in roots), f"roots {roots}")
+            else:
+                need((p * 10).q == 1 and (a * 10).q == 1, "Paper 2 gives 1 d.p.")
+            thetas = [(p - 2 * v) / v for v in roots]
+            good = [sp.N(t) > 0 and sp.N(t) < sp.N(2 * sp.pi) for t in thetas]
+            no_ref, big_ref, one_ref = (CR_SKILL + f"sector-two-conditions#{i}" for i in range(3))
+
+            def T(lb, v, tl):
+                return as_text(lb, sp.nsimplify(v) if paper == 1 else v, tl, paper)
+
+            if u == "two-conditions-both":
+                need(all(good), "a root is no sector")
+                as_figure(k, thetas[1])
+                if paper == 1:
+                    want = f"r = {dec_text(roots[0])}{un} or {dec_text(roots[1])}{un}"
+                else:
+                    want = f"r = {rg_s(sp.N(roots[0], 40))}{un} or {rg_s(sp.N(roots[1], 40))}{un}"
+                    need(asked.endswith(" Give your answers to 3 significant figures."), f"asked {asked!r}")
+                gc_check_common(q, want, {one_ref: {T("r = ", roots[0], un), T("r = ", roots[1], un)}})
+                cr_working(q)
+                return None, None
+            need(good == [False, True], "not exactly the larger root is a sector")
+            as_figure(k, thetas[1])
+            if u == "two-conditions-r":
+                label, tail, v, slips = "r = ", un, roots[1], {big_ref: roots[0], no_ref: 2 * a / p}
+            else:
+                label, tail, v, slips = "θ = ", "", thetas[1], {big_ref: thetas[0], no_ref: p**2 / (2 * a)}
+            wr = {ref: {T(label, s, tail)} for ref, s in slips.items()}
+            if paper == 1:
+                gc_check_common(q, T(label, v, tail), wr)
+                cr_working(q)
+                return None, None
+            x = mpmath.mpf(str(sp.N(v, 45)))
+    n = nu_f(x)
+    need(asked.endswith(" Give your answer to 3 significant figures."), f"asked {asked!r}")
+    need(as_clear(n), f"{n} is on a rounding edge")
+    t2 = bn_trap(label, n)
+    gc_check_common(q, label + rg_s(n) + tail, wr, t2 + tail if t2 else None)
+    cr_working(q)
     return None, None
 
 
@@ -17656,6 +18420,444 @@ def be_check(q):
     gc_check_common(q, want, wr, trap)
     if rep == "diagram":
         be_figure(q, scaled)
+    for sol in q["solutions"]:
+        tri_working(q, sol)
+    return None, None
+
+
+# ── right-triangle (t3-right-angle-trig, FAL-739) ────────────
+# Reads the sides, angles and gradients back from the lines and works each answer out again, with
+# exact surds where the question is exact and mpmath at 40 digits where it isn't. A figure is held
+# to the story, and an angle of elevation or depression to the horizontal at the eye.
+
+RT_EITHER = ("ratio-from-sides", "ratio-needs-pythagoras", "ratio-in-letters", "side-in-letters", "side-special", "angle-special")
+RT_FIGURE = ("side-in-letters", "side-special", "angle-special", "edge-from-span", "upper-edge", "height-from-angle",
+             "elevation-after-walk", "equal-elevations", "cone-from-eye-level", "depression-sight-line",
+             "depression-from-sight-line", "depression-two-points", "name-the-angle")
+RT_A = "SL3.2.right-angle#"
+RT_R = "SL3.2.right-ratio#"
+RT_S = "SL3.2.right-side#"
+RT_E = "SL3.3.elevation-depression#"
+RT_T = "t3-right-angle-trig#"
+RT_NUM = r"(\d+(?:\.\d+)?)"
+RT_AWAY = 5                             # the engine's: an acute angle this far from 45°
+
+
+def rt_exact(v):
+    """A fraction or a surd as the game writes it: 5/13, 3√13/13, 5√3, √2/2."""
+    v = sp.nsimplify(v)
+    if v.is_Rational:
+        return str(v.p) if v.q == 1 else f"{v.p}/{v.q}"
+    c, rd = v.as_coeff_Mul()
+    root = rd**2
+    need(c.is_Rational and root.is_Integer, f"{v} is not one surd")
+    c = sp.Rational(c)
+    return ("" if c.p == 1 else str(c.p)) + f"√{root}" + ("" if c.q == 1 else f"/{c.q}")
+
+
+def rt_value(t):
+    """5, 3/4, √2, 3√5 as the game writes a side."""
+    m = re.fullmatch(r"(\d*)√(\d+)", t)
+    if m:
+        return (int(m.group(1)) if m.group(1) else 1) * sp.sqrt(int(m.group(2)))
+    return sp.Rational(t)
+
+
+def rt_triangle(L):
+    """The right angle R, the vertex T with θ and the third vertex O, and the sides by name."""
+    m = re.fullmatch(r"Triangle ([A-Z]{3}) has a right angle at ([A-Z])\.", L[0])
+    m2 = re.fullmatch(r"θ is angle ([A-Z])([A-Z])([A-Z])\.", L[2])
+    need(m and m2, f"can't read {L!r}")
+    need(m2.group(1) == m.group(2) and sorted(m2.groups()) == sorted(m.group(1)), "θ is not an angle of the triangle at a vertex with no right angle")
+    R, T, O = m2.groups()
+    sides = {}
+    for a, val in re.findall(r"([A-Z]{2}) = ([^ ,.]+)", L[1]):
+        sides[frozenset(a)] = val
+    return T, R, O, sides
+
+
+def rt_pick(fn, o, a, h):
+    return {"sin": (o, h), "cos": (a, h), "tan": (o, a)}[fn]
+
+
+def rt_mpf(v):
+    return mpmath.mpf(str(sp.N(v, 45)))
+
+
+def rt_e(deg):
+    need(deg == int(deg) and 8 <= deg <= 75 and abs(deg - 45) >= RT_AWAY, f"the angle {deg} is out of limits")
+    return mpmath.radians(deg)
+
+
+def rt_mode(fn, deg):
+    """fn of an angle in degrees, on a calculator in radians."""
+    return {"sin": mpmath.sin, "cos": mpmath.cos, "tan": mpmath.tan}[fn](deg)
+
+
+def rt_ratio_wrongs(fn, o, a, h, longer):
+    """Tag -> (top, bottom), for the three slips of a written ratio."""
+    top, bot = rt_pick(fn, o, a, h)
+    out = {RT_R + "1": (bot, top)}
+    if fn != "tan":
+        other = a if fn == "sin" else o
+        out[RT_R + "0"] = (other, h)
+        if longer:
+            out[RT_R + "2"] = (top, other)
+    return out
+
+
+def rt_gradient(text):
+    m = re.search(r"gradient of (\d+)/(\d+)", text)
+    need(m, f"can't read a gradient in {text!r}")
+    p, q_ = int(m.group(1)), int(m.group(2))
+    need(sp.gcd(p, q_) == 1, "the gradient is not in lowest terms")
+    deg = mpmath.degrees(mpmath.atan(mpmath.mpf(p) / q_))
+    need(10 < deg < 60 and abs(deg - 45) >= RT_AWAY, "the gradient is out of limits")
+    return p, q_
+
+
+def rt_arcs_at_eye(q, u):
+    """An angle of elevation or depression runs from the horizontal through its vertex."""
+    pts = {n: tuple(mpmath.mpf(c) for c in p) for n, p in q["graph"]["pts"].items()}
+    for a in q["graph"]["arcs"] if u in RT_FIGURE[3:] else ():
+        if a["label"] == "θ" or u == "equal-elevations" and a["label"].endswith("°"):
+            continue
+        need(abs(pts[a["from"]][1] - pts[a["at"]][1]) < mpmath.mpf("1e-9"), f"the angle at {a['at']} is not measured from the horizontal")
+        if a["label"] != "?" and not a["label"].endswith("°"):
+            need(abs(be_angle(pts[a["at"]], pts[a["from"]], pts[a["to"]]) - mpmath.degrees(be_mp(R(a["label"])))) < mpmath.mpf("1e-5"), f"the angle {a['label']} isn't drawn")
+    for n in q["graph"].get("right", []):
+        near = [ln["a"] if ln["b"] == n else ln["b"] for ln in q["graph"]["lines"] if n in (ln["a"], ln["b"])]
+        need(abs(be_angle(pts[n], pts[near[0]], pts[near[1]]) - 90) < mpmath.mpf("1e-5"), f"no right angle at {n}")
+
+
+def check_right_triangle(q):
+    with mpmath.workdps(40):
+        return rt_check(q)
+
+
+def rt_check(q):
+    u, L, rep, asked, paper = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    need(paper == 2 or u in RT_EITHER, "this needs a calculator: Paper 2")
+    need(rep == "diagram" or u not in RT_FIGURE, "this unknown needs its figure")
+    if rep == "words":
+        need(q["graph"] is None, "words have no sketch")
+    text = " ".join(L)
+    wr = {}
+    pi = mpmath.pi
+    tan, sin, cos, atan, asin, acos = mpmath.tan, mpmath.sin, mpmath.cos, mpmath.atan, mpmath.asin, mpmath.acos
+    sqrt, deg = mpmath.sqrt, mpmath.degrees
+    label, tail, x, want = None, "", None, None
+
+    def W(ref, val):
+        if val > 0:
+            need(be_clear(val), f"the slip {ref} is on a rounding edge")
+            wr.setdefault(ref, set()).add(be_text(label, val, tail))
+
+    def n(pattern, group=1):
+        m = re.search(pattern, text)
+        need(m, f"can't read {pattern!r} in {text!r}")
+        return be_mp(R(m.group(group)))
+
+    if u == "ratio-from-sides":
+        T, Rt, O, _ = rt_triangle(L)
+        o = R(re.search(rf"{sorted(Rt + O)[0]}{sorted(Rt + O)[1]} = (\d+) m", text).group(1))
+        a = R(re.search(rf"{sorted(T + Rt)[0]}{sorted(T + Rt)[1]} = (\d+) m", text).group(1))
+        h = R(re.search(rf"{sorted(T + O)[0]}{sorted(T + O)[1]} = (\d+) m", text).group(1))
+        need(o**2 + a**2 == h**2 and h <= 60, "the sides are not a right-angled triangle within the limits")
+        fn = re.search(r"value of (sin|cos|tan) θ as a fraction", asked).group(1)
+        top, bot = rt_pick(fn, o, a, h)
+        want = f"{fn} θ = {rt_exact(top / bot)}"
+        mine, other = (o, a) if fn == "sin" else (a, o)
+        for ref, (p_, q_) in rt_ratio_wrongs(fn, o, a, h, fn != "tan" and mine < other).items():
+            wr[ref] = {f"{fn} θ = {rt_exact(p_ / q_)}"}
+    elif u == "ratio-needs-pythagoras":
+        T, Rt, O, _ = rt_triangle(L)
+        o = R(re.search(rf"{sorted(Rt + O)[0]}{sorted(Rt + O)[1]} = (\d+) m", text).group(1))
+        a = R(re.search(rf"{sorted(T + Rt)[0]}{sorted(T + Rt)[1]} = (\d+) m", text).group(1))
+        h = sp.sqrt(o**2 + a**2)
+        need(not h.is_Rational, "the hypotenuse is whole")
+        fn = re.search(r"exact value of (sin|cos) θ\.", asked).group(1)
+        top, bot = rt_pick(fn, o, a, h)
+        want = f"{fn} θ = {rt_exact(top / bot)}"
+        mine, other = (o, a) if fn == "sin" else (a, o)
+        for ref, (p_, q_) in rt_ratio_wrongs(fn, o, a, h, mine < other).items():
+            wr[ref] = {f"{fn} θ = {rt_exact(p_ / q_)}"}
+    elif u == "ratio-in-letters":
+        T, Rt, O, sd = rt_triangle(L)
+        o, a, h = sd[frozenset(Rt + O)], sd[frozenset(T + Rt)], sd[frozenset(T + O)]
+        need(sorted((o, a, h)) == ["p", "q", "r"], "the sides are not p, q and r")
+        fn = re.search(r"Write down (sin|cos|tan) θ in terms", asked).group(1)
+        top, bot = rt_pick(fn, o, a, h)
+        want = f"{fn} θ = {top}/{bot}"
+        longer = False
+        if rep == "diagram" and fn != "tan":
+            pts = {k: tuple(mpmath.mpf(c) for c in p) for k, p in q["graph"]["pts"].items()}
+            dist_o = mpmath.hypot(pts[Rt][0] - pts[O][0], pts[Rt][1] - pts[O][1])
+            dist_a = mpmath.hypot(pts[Rt][0] - pts[T][0], pts[Rt][1] - pts[T][1])
+            longer = dist_a > dist_o if fn == "sin" else dist_o > dist_a
+        for ref, (p_, q_) in rt_ratio_wrongs(fn, o, a, h, longer).items():
+            wr[ref] = {f"{fn} θ = {p_}/{q_}"}
+    elif u == "side-in-letters":
+        m = re.fullmatch(r"Write down an expression for (PS|RS) in terms of r and θ\.", asked)
+        need(m and "Angle PRS = θ." in text and "radius r" in text, f"can't read {asked!r}")
+        fn = "sin" if m.group(1) == "PS" else "cos"
+        other = "cos" if fn == "sin" else "sin"
+        head = m.group(1) + " = "
+        want = f"{head}2r {fn} θ"
+        wr[RT_T + "25"] = {f"{head}r {fn} θ"}
+        wr[RT_R + "0"] = {f"{head}2r {other} θ"}
+        wr[RT_S + "1"] = {f"{head}2r tan θ"}
+        if q["graph"] is not None:
+            pts = {k: tuple(mpmath.mpf(c) for c in p) for k, p in q["graph"]["pts"].items()}
+            th = mpmath.radians(be_angle(pts["R"], pts["S"], pts["P"]))
+            r_ = mpmath.hypot(*pts["R"])
+            for k in "PQRS":
+                need(abs(mpmath.hypot(*pts[k]) - r_) < mpmath.mpf("1e-9"), "a corner is off the circle")
+            need(abs(mpmath.hypot(pts["P"][0] - pts["S"][0], pts["P"][1] - pts["S"][1]) - 2 * r_ * sin(th)) < mpmath.mpf("1e-9"), "PS is not 2r sin θ on the figure")
+            need(abs(mpmath.hypot(pts["R"][0] - pts["S"][0], pts["R"][1] - pts["S"][1]) - 2 * r_ * cos(th)) < mpmath.mpf("1e-9"), "RS is not 2r cos θ on the figure")
+    elif u == "side-from-angle":
+        e = rt_e(int(n(r"angle of (\d+)° with the ground")))
+        dg = int(n(r"angle of (\d+)° with the ground"))
+        m = re.fullmatch(r"Find ([A-Z]{2}), the (height|distance) .+ Give your answer to 3 significant figures\.", asked)
+        need(m, f"can't read {asked!r}")
+        tail = " m"
+        label = m.group(1) + " = "
+        if "cable" in text:
+            fn, d = "tan", n(r", " + RT_NUM + r" m from [A-Z]\.")
+        else:
+            fn, d = ("sin" if m.group(2) == "height" else "cos"), n(r"is " + RT_NUM + r" m long")
+        x = d * {"sin": sin, "cos": cos, "tan": tan}[fn](e)
+        W(RT_T + "7", d * rt_mode(fn, dg))
+        if fn == "sin":
+            W(RT_S + "1", d * tan(e))
+    elif u == "side-under-ratio":
+        dg = int(n(r"at an angle of (\d+)°\."))
+        e = rt_e(dg)
+        m = re.fullmatch(r"Find ([A-Z]{2}), the length of the .+ Give your answer to 3 significant figures\.", asked)
+        need(m, f"can't read {asked!r}")
+        tail, label = " m", m.group(1) + " = "
+        sn_ = re.search(r"Its top [A-Z] is " + RT_NUM + r" m above", text)
+        fn = "sin" if sn_ else "cos"
+        d = be_mp(R(sn_.group(1))) if sn_ else n(r"[A-Z]{2} = " + RT_NUM + r" m\.")
+        f = {"sin": sin, "cos": cos}[fn]
+        x = d / f(e)
+        W(RT_S + "0", d * f(e))
+        W(RT_T + "7", d / rt_mode(fn, dg))
+        if fn == "sin":
+            W(RT_S + "1", d / tan(e))
+    elif u == "side-either-angle":
+        dg = int(n(r"angle of (\d+)° with the ground"))
+        e = rt_e(dg)
+        d = n(r"its top [A-Z] " + RT_NUM + r" m high")
+        m = re.match(r"Find ([A-Z]{2}), ", asked)
+        tail, label = " m", m.group(1) + " = "
+        x = d / tan(e)
+        W(RT_S + "0", d * tan(e))
+        W(RT_T + "7", d / rt_mode("tan", dg))
+    elif u == "chord-length":
+        r_, d = n(r"within (\d+) km"), n(r"passes (\d+) km from S")
+        need(3 * r_ <= 10 * d <= 8 * r_, "the road is too near or too far")
+        tail, label = " km", "AB = "
+        x = 2 * sqrt(r_**2 - d**2)
+        W(RT_S + "3", x / 2)
+        W(RT_S + "1", 2 * sqrt(r_**2 + d**2))
+        if rep == "diagram":
+            pts = {k: tuple(mpmath.mpf(c) for c in p) for k, p in q["graph"]["pts"].items()}
+            for k in "AB":
+                need(abs(mpmath.hypot(*pts[k]) - r_) < mpmath.mpf("1e-9"), "the road's ends are off the circle")
+            need(q["graph"]["circles"] == [{"at": "S", "through": "A"}], "the range isn't drawn")
+    elif u == "side-special":
+        m = re.fullmatch(r"Triangle [A-Z]{3} has a right angle at ([A-Z]), and angle ([A-Z])([A-Z])([A-Z]) = (\d+)°\.", L[0])
+        m2 = re.fullmatch(r"([A-Z]{2}) = (\d+) m\.", L[1])
+        m3 = re.fullmatch(r"Find the exact length of ([A-Z]{2})\.", asked)
+        need(m and m2 and m3 and m.group(1) == m.group(2), f"can't read {L!r}")
+        T, O, dg = m.group(3), m.group(4), int(m.group(5))
+        need(dg in (30, 45, 60), "not a special angle")
+        Rt = m.group(1)
+        th = sp.rad(dg)
+        size = {frozenset(Rt + O): sp.sin(th), frozenset(T + Rt): sp.cos(th), frozenset(T + O): sp.Integer(1)}
+        known, have, name = int(m2.group(2)), size[frozenset(m2.group(1))], m3.group(1)
+        wanted = size[frozenset(name)]
+        want = f"{name} = {rt_exact(known * wanted / have)} m"
+        if frozenset(name) == frozenset(T + O):
+            wr[RT_S + "0"] = {f"{name} = {rt_exact(known * have)} m"}
+    elif u == "angle-from-sides":
+        tail, label = "°", "angle = "
+        if re.search(r"It is .+ long, and [A-Z] is", text):
+            fn, hh, s_ = "sin", n(r"It is " + RT_NUM + " m long"), n(r"and [A-Z] is " + RT_NUM + " m above")
+            r_ = s_ / hh
+            t = asin(r_)
+        elif "long" in " ".join(L[1:]):
+            fn, hh, s_ = "cos", n(r"It is " + RT_NUM + " m long"), n(r"[A-Z]{2} = " + RT_NUM + r" m\.")
+            r_ = s_ / hh
+            t = acos(r_)
+        else:
+            fn, s_, hh = "tan", n(r"[A-Z] is " + RT_NUM + " m above"), n(r"[A-Z]{2} = " + RT_NUM + r" m\.")
+            r_ = s_ / hh
+            t = atan(r_)
+        x = deg(t)
+        need(12 < x < 75 and abs(x - 45) >= RT_AWAY, "the angle is out of limits")
+        f = {"sin": sin, "cos": cos, "tan": tan}[fn]
+        W(RT_A + "0", f(mpmath.radians(r_)))
+        W(RT_A + "1", 1 / f(mpmath.radians(r_)))
+        if fn == "tan":
+            W(RT_A + "2", 90 - x)
+    elif u == "angle-special":
+        T, Rt, O, _ = rt_triangle(L)
+        got = {frozenset(a): rt_value(v) for a, v in re.findall(r"([A-Z]{2}) = (\d*√?\d+) m", L[1])}
+        need(len(got) == 2, "not two sides")
+        ko, ka, kh = frozenset(Rt + O), frozenset(T + Rt), frozenset(T + O)
+        if ko in got and kh in got:
+            fn, val, f = "sin", got[ko] / got[kh], sp.asin
+        elif ka in got and kh in got:
+            fn, val, f = "cos", got[ka] / got[kh], sp.acos
+        else:
+            fn, val, f = "tan", got[ko] / got[ka], sp.atan
+        dg = sp.simplify(f(val) * 180 / sp.pi)
+        need(dg in (30, 45, 60), f"the sides give {dg}°")
+        want = f"θ = {dg}°"
+        if fn == "tan" and dg != 45:
+            wr[RT_A + "2"] = {f"θ = {90 - dg}°"}
+    elif u == "gradient-from-angle":
+        dg = int(n(r"at an angle of (\d+)° above"))
+        e = rt_e(dg)
+        label = "gradient = "
+        x = tan(e)
+        W(RT_R + "3", sin(e))
+        W(RT_R + "4", 1 / tan(e))
+    elif u == "angle-from-gradient":
+        p_, q_ = rt_gradient(text)
+        r_ = mpmath.mpf(p_) / q_
+        tail, label = "°", "angle = "
+        x = deg(atan(r_))
+        if r_ < 1:
+            W(RT_A + "3", deg(asin(r_)))
+        W(RT_A + "2", deg(atan(1 / r_)))
+        W(RT_A + "0", tan(mpmath.radians(r_)))
+        if rep == "diagram":
+            pts = {k: tuple(mpmath.mpf(c) for c in p) for k, p in q["graph"]["pts"].items()}
+            ln = next(ln for ln in q["graph"]["lines"] if ln["label"].startswith("gradient"))
+            need(ln["label"] == f"gradient {p_}/{q_}", "the figure shows another gradient")
+            a_, b_ = sorted((pts[ln["a"]], pts[ln["b"]]))
+            need(abs((b_[1] - a_[1]) / (b_[0] - a_[0]) - r_) < mpmath.mpf("1e-9"), "the slope isn't drawn to its gradient")
+    elif u == "angle-with-vertical":
+        p_, q_ = rt_gradient(text)
+        tail, label = "°", "angle BAM = "
+        x = deg(atan(mpmath.mpf(q_) / p_))
+        W(RT_A + "4", 90 - x)
+        W(RT_T + "26", 2 * x)
+    elif u in ("edge-from-span", "upper-edge"):
+        p_, q_ = rt_gradient(text)
+        m = re.search(r"PQ = " + RT_NUM + r" m\. M and N are level points on the lower edges, with MN = " + RT_NUM + r" m and QM = " + RT_NUM + r" m\.", text)
+        need(m, f"can't read {text!r}")
+        t_, span, over = [be_mp(R(m.group(i))) for i in (1, 2, 3)]
+        r_ = mpmath.mpf(p_) / q_
+        sec = sqrt(1 + r_**2)
+        lower = span / 2 * sec + over
+        tail = " m"
+        if u == "edge-from-span":
+            label = "QV = "
+            x = lower
+            W(RT_T + "17", span * sec + over)
+            W(RT_T + "18", span / 2 * sec)
+            W(RT_R + "0", span / 2 * sec / r_ + over)
+        else:
+            label = "PU = "
+            x = lower + t_ * r_
+            W(RT_T + "19", lower)
+            W(RT_T + "20", lower + t_)
+            W(RT_R + "0", lower + t_ / r_)
+        pts = {k: tuple(mpmath.mpf(c) for c in p) for k, p in q["graph"]["pts"].items()}
+        for a_, b_ in (("Q", "V"), ("P", "U")):
+            need(abs((pts[b_][1] - pts[a_][1]) / (pts[b_][0] - pts[a_][0]) - r_) < mpmath.mpf("1e-9"), "the edge isn't drawn to its gradient")
+    elif u == "height-from-angle":
+        t, is_deg = be_angle_read(text)
+        d = n(RT_NUM + r" m from the foot F")
+        tail, label = " m", "height = "
+        x = d * tan(t)
+        size = R(re.search(r"is ([\d.]+)(°| radians)", text).group(1))
+        W(RT_T + "7", d * (tan(be_mp(size)) if is_deg else tan(mpmath.radians(be_mp(size)))))
+    elif u == "elevation-after-walk":
+        t, is_deg = be_angle_read(L[0])
+        d, w = n(RT_NUM + r" m from the foot F"), n(r"walks " + RT_NUM + " m straight")
+        need(0 < w < d, "the walk passes the foot")
+        hh = d * tan(t)
+        tail, label = ("°", "angle = ") if is_deg else (" radians", "angle = ")
+        c = deg if is_deg else (lambda z: z)
+        x = c(atan(hh / (d - w)))
+        W(RT_T + "21", c(atan(hh / w)))
+    elif u == "equal-elevations":
+        m = re.search(r"PA = " + RT_NUM + r" m, PB = " + RT_NUM + r" m and angle APB = (\d+)°\.", text)
+        need(m, f"can't read {text!r}")
+        la, lb, phi = be_mp(R(m.group(1))), be_mp(R(m.group(2))), int(m.group(3))
+        need(la > lb and phi % 2 == 0 and phi != 90, "the towers or the angle are out of limits")
+        th = mpmath.radians(mpmath.mpf(180 - phi) / 2)
+        tail, label = " m", "height = "
+        x = la * sin(th)
+        W(RT_T + "22", la * sin(mpmath.radians(mpmath.mpf(phi) / 2)))
+        W(RT_T + "27", lb * sin(th))
+    elif u == "cone-from-eye-level":
+        t, _ = be_angle_read(text)
+        hh, d, eye = n(r", " + RT_NUM + r" m high"), n(r"at Q, " + RT_NUM + " m from the edge"), n(r"eyes E " + RT_NUM + " m above")
+        tail, label = " m", "radius = "
+        x = (hh - eye) / tan(t) - d
+        need(x > 3, "the cone is too small")
+        W(RT_E + "2", hh / tan(t) - d)
+        W(RT_T + "23", (hh - eye) / tan(t))
+    elif u == "depression-sight-line":
+        t, _ = be_angle_read(L[1])
+        hh = n(r"is " + RT_NUM + " m above level ground")
+        tail, label = " m", "TP = "
+        x = hh / sin(t)
+        W(RT_E + "1", hh / cos(t))
+    elif u == "depression-from-sight-line":
+        hh, l_ = n(r"is " + RT_NUM + " m above level ground"), n(r"TP = " + RT_NUM + r" m\.")
+        tail, label = "°", "angle = "
+        x = deg(asin(hh / l_))
+        need(14 < x < 70 and abs(x - 45) >= RT_AWAY, "the angle is out of limits")
+        W(RT_E + "0", 90 - x)
+    elif u == "depression-two-points":
+        m = re.search(r"angle of depression of P is (\d+)° and of Q is (\d+)°\.", text)
+        need(m, f"can't read {text!r}")
+        hh = n(r"is " + RT_NUM + " m above level ground")
+        a1, a2 = mpmath.radians(int(m.group(1))), mpmath.radians(int(m.group(2)))
+        need(int(m.group(1)) - int(m.group(2)) >= 8, "the two angles are too close")
+        tail, label = " m", "PQ = "
+        x = hh / tan(a2) - hh / tan(a1)
+        W(RT_E + "1", hh * tan(a1) - hh * tan(a2))
+        W(RT_T + "28", hh / tan(a2) + hh / tan(a1))
+    elif u == "name-the-angle":
+        need(q["graph"] is not None, "no figure")
+        pts = {k: tuple(mpmath.mpf(c) for c in p) for k, p in q["graph"]["pts"].items()}
+        dep = "depression" in asked
+        eye, seen = ("T", "P") if dep else ("P", "T")
+        names = [o["text"] for o in q["choices"]]
+        good = []
+        for nm in names:
+            a_, v_, b_ = nm[-3:]
+            if v_ == eye and b_ == seen and abs(pts[a_][1] - pts[eye][1]) < mpmath.mpf("1e-9"):
+                good.append(nm)
+            elif v_ == eye and a_ == seen and abs(pts[b_][1] - pts[eye][1]) < mpmath.mpf("1e-9"):
+                good.append(nm)
+        need(len(good) == 1, f"{len(good)} options are the angle at the eye from the horizontal")
+        want = good[0]
+        wr[RT_T + "24"] = {"angle FPT" if dep else "angle HTP"}
+        if dep:
+            wr[RT_E + "0"] = {"angle FTP"}
+    else:
+        raise Fail(f"no check for {u}")
+    trap = None
+    if x is not None:
+        need(x > 0 and be_clear(x), f"{x} is on a rounding edge")
+        need(asked.endswith(" Give your answer to 3 significant figures."), f"asked {asked!r}")
+        want = be_text(label, x, tail)
+        t2 = bn_trap(label, nu_f(x))
+        trap = t2 + tail if t2 else None
+    gc_check_common(q, want, wr, trap)
+    if rep == "diagram":
+        be_figure(q, "note" not in q["graph"])
+        need(u in ("edge-from-span", "upper-edge", "cone-from-eye-level") or "note" not in q["graph"], "only a crowded figure is not to scale")
+        rt_arcs_at_eye(q, u)
     for sol in q["solutions"]:
         tri_working(q, sol)
     return None, None
@@ -20964,6 +22166,357 @@ def pf_never(q, g, rep):
     pf_steps(q, {"S": e})
 
 
+# ── independence (t4-independence, FAL-739) ──────────────────
+# The `independence` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/independence.gd. The facts are read back from what the student sees
+# (lines, a story, a Venn diagram, a table or a tree) and every value is found again with exact
+# rationals. A test's verdict is decided here from those facts, and every option's text is
+# rebuilt from them, so a false number or a verdict that doesn't follow fails.
+
+IDP_EDGE = sp.Rational(3, 100)
+IDP_GAP = sp.Rational(2, 1000)
+IDP_YES = "independent"
+IDP_NO = "not independent"
+IDP_CLASSES = ["mutually exclusive", "independent", "mutually exclusive and independent", "neither mutually exclusive nor independent"]
+IDP_PAIRS = [("the pump", "the generator", "breaks down", "break down"),
+             ("the north sensor", "the south sensor", "trips", "trip"),
+             ("the first scout", "the second scout", "finds water", "find water"),
+             ("the east radio tower", "the west radio tower", "loses signal", "lose signal"),
+             ("Mara's trap", "Jonas's trap", "catches a rat", "catch a rat"),
+             ("the lead caravan", "the rear caravan", "reaches camp by dark", "reach camp by dark"),
+             ("the rain tank", "the well", "runs dry", "run dry"),
+             ("the day guard", "the night guard", "spots raiders", "spot raiders")]
+IDP_SOURCES = [("crate", "fuses", "working", "dead", "takes out one fuse", "the fuse is working", "crates"),
+               ("barrel", "water flasks", "clean", "dirty", "takes out one flask", "the flask is clean", "barrels"),
+               ("sack", "seed packets", "fresh", "stale", "takes out one packet", "the packet is fresh", "sacks"),
+               ("bin", "batteries", "charged", "flat", "takes out one battery", "the battery is charged", "bins"),
+               ("locker", "gas masks", "sealed", "cracked", "takes out one mask", "the mask is sealed", "lockers"),
+               ("shelf", "ration tins", "sound", "dented", "takes down one tin", "the tin is sound", "shelves"),
+               ("toolbox", "spark plugs", "new", "worn", "takes out one plug", "the plug is new", "toolboxes"),
+               ("trunk", "radio valves", "good", "burnt", "takes out one valve", "the valve is good", "trunks")]
+IDP_NUM = r"\d+(?:\.\d+)?(?:/\d+)?"
+IDP_PAPER2_ONLY = ("ratio-from-union", "overlap-from-only-regions")
+
+
+def idp_clear(q, v):
+    """A value written to 3 s.f. is clear of a rounding edge."""
+    if q["paper"] == 2 and v != 0:
+        x = abs(sp.N(v, 40))
+        e = int(sp.floor(sp.log(x, 10)))
+        scaled = x / sp.Integer(10) ** (e - 2)
+        need(abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= IDP_EDGE, f"{x} is on a rounding edge")
+
+
+def idp_text(q, v, dec):
+    if v == 0:
+        return "0"
+    return cd_shown(v, q["paper"], dec)
+
+
+def idp_num_set(q, label, v, table, dec):
+    """want, trap and wrongs for a probability; table is ref -> the value that mistake gives."""
+    idp_clear(q, v)
+    want = label + idp_text(q, v, dec)
+    trap = bn_trap(label, v) if q["paper"] == 2 else None
+    return want, trap, {ref: {label + idp_text(q, x, dec)} for ref, x in table.items()}
+
+
+def idp_kv(lines):
+    """The lines "P(X) = v" as a dict, the rest ignored."""
+    out = {}
+    for ln in lines:
+        mt = re.fullmatch(rf"P\((.+)\) = ({IDP_NUM})", ln)
+        if mt:
+            out[mt.group(1)] = R(mt.group(2))
+    return out
+
+
+def idp_dec(q):
+    return any("." in ln for ln in q["lines"] if "=" in ln and ln.startswith("P("))
+
+
+def idp_flat_tree(q):
+    """P(A) and P(B) from a tree whose B branches are the same after A and A′."""
+    t = q["graph"]
+    need(t is not None and t["kind"] == "tree", "no tree")
+    need(t["q"][0] == t["q"][1], "the tree's second branches differ, so it isn't independent")
+    pa, pan, pb, pbn = R(t["p"][0]), R(t["p"][1]), R(t["q"][0][0]), R(t["q"][0][1])
+    need(pa + pan == 1 and pb + pbn == 1, "the branches don't add to 1")
+    need(q["lines"] == ["The tree shows two independent events, A and B."], f"{q['lines']!r}")
+    return pa, pb, "." in t["p"][0] or "." in t["p"][1] or "." in t["q"][0][0] or "." in t["q"][0][1]
+
+
+def idp_pair_story(q, u):
+    """P(A) and P(B), or P(A) and the union, from a pair story."""
+    c = IDP_PAIRS[int(q["given"]["ctx"])]
+    L = q["lines"]
+    need(len(L) == 3 and L[2] == f"A is the event that {c[0]} {c[2]}, and B the event that {c[1]} {c[2]}.", f"A and B aren't named: {L}")
+    if u == "unknown-from-union":
+        m1 = re.fullmatch(rf"On any one day, {re.escape(c[0])} {c[2]} with probability ({IDP_NUM}), independently of {re.escape(c[1])}\.", L[0])
+        m2 = re.fullmatch(rf"The probability that at least one of them {c[2]} on a given day is ({IDP_NUM})\.", L[1])
+        need(m1 is not None and m2 is not None, f"can't read {L}")
+        return R(m1.group(1)), R(m2.group(1)), "." in m1.group(1) or "." in m2.group(1)
+    m1 = re.fullmatch(rf"On any one day, {re.escape(c[0])} {c[2]} with probability ({IDP_NUM})\.", L[0])
+    m2 = re.fullmatch(rf"On any one day, {re.escape(c[1])} {c[2]} with probability ({IDP_NUM}), independently of {re.escape(c[0])}\.", L[1])
+    need(m1 is not None and m2 is not None, f"can't read {L}")
+    return R(m1.group(1)), R(m2.group(1)), "." in m1.group(1) or "." in m2.group(1)
+
+
+def idp_test_said(q, ln, l, rn, r, verdict, dec):
+    return f"{ln} = {idp_text(q, l, dec)} and {rn} = {idp_text(q, r, dec)}, so A and B are {verdict}"
+
+
+def idp_test_facts(q):
+    """pa, pb, pi, pbgiven (P(B | A)), pbn (P(B | A′)) and whether the numbers are decimals."""
+    u, L, rep, g = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["given"]
+    if u == "test-from-probabilities":
+        form = g["form"]
+        c = VN_CONTEXTS[int(g["ctx"])]
+        if form in ("inter", "union"):
+            need(rep == "equation", "a form for words")
+            kv = idp_kv(L)
+            pa, pb = kv["A"], kv["B"]
+            pi = kv["A ∩ B"] if form == "inter" else pa + pb - kv["A ∪ B"]
+            dec = idp_dec(q)
+        elif form == "pct":
+            mt = re.fullmatch(rf"In a camp, (\d+)% of the {c[0]} {c[2]}, (\d+)% {c[3]} and (\d+)% do both\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            pa, pb, pi = [cd_pct(mt.group(i)) for i in (1, 2, 3)]
+            dec = True
+        else:
+            m1 = re.fullmatch(rf"In a camp, (\d+)% of the {c[0]} {c[2]} and (\d+)% {c[3]}\.", L[0])
+            m2 = re.fullmatch(rf"Of those who {c[2]}, (\d+)% also {c[3]}\.", L[1])
+            need(m1 is not None and m2 is not None, f"can't read {L}")
+            pa, pb = cd_pct(m1.group(1)), cd_pct(m1.group(2))
+            pi = pa * cd_pct(m2.group(1))
+            dec = True
+    elif u in ("test-from-venn", "test-from-table"):
+        a, i, b, o = cd_regions(q)
+        need(a + i + b + o == 1, "the regions don't add to 1")
+        need(min(a, i, b, o) > 0, "a region is empty")
+        pa, pb, pi = a + i, b + i, i
+        dec = u == "test-from-venn" and vn_diagram(q)[4]
+    elif u == "test-from-tree":
+        c = IDP_SOURCES[int(g["ctx"])]
+        pick = L[0] if rep == "diagram" else L[1]
+        pkt = re.fullmatch(rf"A scavenger picks {c[0]} 1 with probability ({IDP_NUM}), or else {c[0]} 2, and {c[4]}\.", pick)
+        if pkt:
+            pa = R(pkt.group(1))
+        else:
+            need(pick == f"A scavenger picks one of the two {c[6]} at random and {c[4]}.", f"can't read {pick!r}")
+            pa = sp.Rational(1, 2)
+        if rep == "diagram":
+            t = q["graph"]
+            need(t["kind"] == "tree" and R(t["p"][0]) == pa and R(t["p"][1]) == 1 - pa, "the tree's first branches")
+            n1, n2 = int(t["q"][0][0].split("/")[1]), int(t["q"][1][0].split("/")[1])
+            g1, g2 = int(t["q"][0][0].split("/")[0]), int(t["q"][1][0].split("/")[0])
+            need(t["q"] == [[f"{g1}/{n1}", f"{n1 - g1}/{n1}"], [f"{g2}/{n2}", f"{n2 - g2}/{n2}"]], "the tree's branches don't add to 1")
+        else:
+            mt = re.fullmatch(rf"{c[0].capitalize()} 1 holds (\d+) {c[2]} and (\d+) {c[3]} {c[1]}\. {c[0].capitalize()} 2 holds (\d+) {c[2]} and (\d+) {c[3]} {c[1]}\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            g1, d1, g2, d2 = [int(mt.group(i)) for i in (1, 2, 3, 4)]
+            n1, n2 = g1 + d1, g2 + d2
+        need(n1 != n2, "the two sources are the same size")
+        pba, pbn = sp.Rational(g1, n1), sp.Rational(g2, n2)
+        pi = pa * pba
+        pb = pi + (1 - pa) * pbn
+        return pa, pb, pi, pba, pbn, q["paper"] == 2
+    else:
+        kv = idp_kv(L)
+        pa, pu, pba = kv["A"], kv["A ∪ B"], kv["B | A"]
+        pi = pa * pba
+        pb = pu - pa + pi
+        dec = idp_dec(q)
+    need(0 < pi < min(pa, pb) and max(pa, pb) < 1, f"P(A) = {pa}, P(B) = {pb}, P(A ∩ B) = {pi}")
+    return pa, pb, pi, pi / pa, (pb - pi) / (1 - pa), dec
+
+
+def idp_steps(q):
+    """Every plain a × b = c and a ÷ b = c in the working is right to the figures shown."""
+    pat = re.compile(rf"(?<![\w(/.])(?<!\+ )(?<!− )({IDP_NUM}) ([×÷]) ({IDP_NUM}) = ({IDP_NUM})(?![\w/])")
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in pat.finditer(step):
+                a, op, b, c = R(mt.group(1)), mt.group(2), R(mt.group(3)), mt.group(4)
+                v = a * b if op == "×" else a / b
+                if "." in c:
+                    tol = sp.Rational(1, 10 ** len(c.split(".")[1])) * sp.Rational(6, 10)
+                    need(abs(v - R(c)) <= tol, f"{step!r}: {mt.group(0)} is really {v}")
+                else:
+                    need(v == R(c), f"{step!r}: {mt.group(0)} is really {v}")
+
+
+def idp_test(q):
+    u, angle, g = q["view"]["unknown"], q["view"]["angle"], q["given"]
+    pa, pb, pi, pba, pbn, dec = idp_test_facts(q)
+    prod = pa * pb
+    indep = pi == prod
+    need(bool(g["indep"]) == indep, "the situation's verdict is not the numbers'")
+    # The four ways to say it agree: with non-zero probabilities they are the same test.
+    pairs = {"product": ("P(A ∩ B)", pi, "P(A) × P(B)", prod), "given": ("P(A | B)", pi / pb, "P(A)", pa),
+             "rows": ("P(B | A)", pba, "P(B | A′)", pbn), "marginal": ("P(B | A)", pba, "P(B)", pb)}
+    for ln, l, rn, r in pairs.values():
+        need((l == r) == indep, f"{ln} and {rn} disagree with the product test")
+        idp_clear(q, l)
+        idp_clear(q, r)
+        if not indep and q["paper"] == 2:
+            need(abs(l - r) >= IDP_GAP and rg_s(l) != rg_s(r), f"{ln} and {rn} are too close to tell apart")
+    if angle == "product-test":
+        use = "product"
+    elif angle == "table-proportions" or u == "test-from-tree":
+        use = "rows"
+    elif u == "test-from-conditional":
+        use = "marginal"
+    else:
+        use = "given"
+    ln, l, rn, r = pairs[use]
+    verdict = IDP_YES if indep else IDP_NO
+    want = idp_test_said(q, ln, l, rn, r, verdict, dec)
+    other = idp_test_said(q, ln, l, rn, r, IDP_NO if indep else IDP_YES, dec)
+    one = f"P(A ∩ B) = {idp_text(q, pi, dec)}, which is not 0, so A and B are "
+    wrongs = {"SL4.11.test-independence#3": {other}, "SL4.11.test-independence#1": {one + IDP_YES}}
+    wrongs["SL4.11.test-independence#0" if indep else "SL4.11.test-independence#2"] = {one + IDP_NO}
+    gc_check_common(q, want, wrongs, None)
+    need(sum(o["text"].endswith(" " + IDP_NO) for o in q["choices"]) == 2, "two options must end in each verdict")
+    need({o["text"] for o in q["choices"]} == {want, other, one + IDP_YES, one + IDP_NO}, "an option states something else")
+    v = q["answer"]["values"]
+    need(R(v["l"]) == l and R(v["r"]) == r and v["verdict"] == verdict, "the typed answer is not the two numbers and the verdict")
+
+
+def idp_classify(q):
+    g, L = q["given"], q["lines"]
+    if q["view"]["rep"] == "diagram":
+        a, i, b, o, dec = vn_diagram(q)
+        need(min(a, b, o) > 0, "a region is empty")
+        pa, pb, pu = a + i, b + i, a + i + b
+    elif g["form"] == "pct":
+        c = VN_CONTEXTS[int(g["ctx"])]
+        mt = re.fullmatch(rf"In a camp, (\d+)% of the {c[0]} {c[2]} and (\d+)% {c[3]}\. In all, (\d+)% do at least one of these\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        pa, pb, pu = [cd_pct(mt.group(i)) for i in (1, 2, 3)]
+        dec = True
+    else:
+        kv = idp_kv(L)
+        pa, pb, pu = kv["A"], kv["B"], kv["A ∪ B"]
+        dec = idp_dec(q)
+    pi = pa + pb - pu
+    prod = pa * pb
+    need(0 < pa < 1 and 0 < pb < 1 and pu < 1 and pi >= 0, "not two events")
+    idp_clear(q, pi)
+    idp_clear(q, prod)
+    right = IDP_CLASSES[0] if pi == 0 else IDP_CLASSES[1] if pi == prod else IDP_CLASSES[3]
+    if pi != prod and q["paper"] == 2:
+        need(abs(pi - prod) >= IDP_GAP, "the two values are too close")
+    say = lambda name: idp_test_said(q, "P(A ∩ B)", pi, "P(A) × P(B)", prod, name, dec)
+    wrongs = {"SL4.11.test-independence#1": {say(IDP_CLASSES[1])}}
+    if pi not in (0, prod):
+        wrongs = {"SL4.11.test-independence#3": {say(IDP_CLASSES[1])}}
+    if pi == prod:
+        wrongs = {"SL4.11.test-independence#1": {say(IDP_CLASSES[0])}, "SL4.11.test-independence#0": {say(IDP_CLASSES[3])}}
+    gc_check_common(q, say(right), wrongs, None)
+    need({o["text"] for o in q["choices"]} == {say(n) for n in IDP_CLASSES}, "an option states something else")
+    need(q["answer"]["values"]["verdict"] == right, "the verdict")
+
+
+def check_independence(q):
+    g, u, L, rep, asked, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    need(paper == 2 or u not in IDP_PAPER2_ONLY, f"{u} is Paper 2")
+    idp_steps(q)
+    if u.startswith("test-"):
+        need(asked == "Determine whether A and B are independent, with a valid reason.", f"asked {asked!r}")
+        idp_test(q)
+        return None, None
+    if u == "classify-events":
+        idp_classify(q)
+        return None, None
+    wrongs, want, trap = {}, None, None
+    ind = "SL4.6.independent#"
+    unk = "SL4.11.independence-unknown#"
+    if u == "both-from-probabilities":
+        if rep == "words":
+            pa, pb, dec = idp_pair_story(q, u)
+        elif rep == "diagram":
+            pa, pb, dec = idp_flat_tree(q)
+        else:
+            kv = idp_kv(L)
+            pa, pb, dec = kv["A"], kv["B"], idp_dec(q)
+        label = "probability = " if rep == "words" else "P(A ∩ B) = "
+        want, trap, wrongs = idp_num_set(q, label, pa * pb, {ind + "0": pa + pb, ind + "1": pa + pb - pa * pb, ind + "2": sp.Integer(0)}, dec)
+    elif u == "one-region-from-independence":
+        if rep == "diagram":
+            pa, pb, dec = idp_flat_tree(q)
+        else:
+            kv = idp_kv(L)
+            pa, pb, dec = kv["A"], kv["B"], idp_dec(q)
+        mt = re.fullmatch(r"Find P\((A′?) ∩ (B′?)\)\.", asked)
+        need(mt is not None and mt.group(0) != "Find P(A ∩ B).", f"asked {asked!r}")
+        x = 1 - pa if mt.group(1) == "A′" else pa
+        y = 1 - pb if mt.group(2) == "B′" else pb
+        table = {ind + "3": pa * pb}
+        if mt.group(1) == "A′" and mt.group(2) == "B′":
+            table[unk + "0"] = 1 - pa - pb
+        want, trap, wrongs = idp_num_set(q, f"P({mt.group(1)} ∩ {mt.group(2)}) = ", x * y, table, dec)
+    elif u == "union-from-independence":
+        if rep == "words":
+            pa, pb, dec = idp_pair_story(q, u)
+        else:
+            kv = idp_kv(L)
+            pa, pb, dec = kv["A"], kv["B"], idp_dec(q)
+        label = "probability = " if rep == "words" else "P(A ∪ B) = "
+        want, trap, wrongs = idp_num_set(q, label, 1 - (1 - pa) * (1 - pb), {unk + "0": pa + pb}, dec)
+    elif u == "conditional-from-independence":
+        kv = idp_kv(L)
+        pb, pi = kv["B"], kv["A ∩ B"]
+        pa = pi / pb
+        mt = re.fullmatch(r"Find P\((A′?) \| (B′?)\)\.", asked)
+        need(mt is not None, f"asked {asked!r}")
+        v = 1 - pa if mt.group(1) == "A′" else pa
+        given = 1 - pb if mt.group(2) == "B′" else pb
+        # By the definition of a conditional, to be sure independence was used rightly.
+        top = {("A", "B"): pa * pb, ("A′", "B"): (1 - pa) * pb, ("A", "B′"): pa * (1 - pb), ("A′", "B′"): (1 - pa) * (1 - pb)}[(mt.group(1), mt.group(2))]
+        need(top / given == v, "the conditional")
+        want, trap, wrongs = idp_num_set(q, f"P({mt.group(1)} | {mt.group(2)}) = ", v, {unk + "3": v * given}, idp_dec(q))
+    elif u == "unknown-from-union":
+        if rep == "words":
+            pa, pu, dec = idp_pair_story(q, u)
+            label = "probability = "
+        else:
+            kv = idp_kv(L)
+            pa, pu, dec = kv["A"], kv["A ∪ B"], idp_dec(q)
+            label = "P(B) = "
+        x = sp.Symbol("x")
+        sol = sp.solve(pa + x - pa * x - pu, x)
+        need(len(sol) == 1 and 0 < sol[0] < 1, f"P(B) = {sol}")
+        want, trap, wrongs = idp_num_set(q, label, sol[0], {unk + "0": pu - pa}, dec)
+    elif u == "ratio-from-union":
+        k = int(re.fullmatch(r"P\(A\) = (\d)P\(B\)", L[0]).group(1))
+        pu = idp_kv(L[1:])["A ∪ B"]
+        x = sp.Symbol("x")
+        sol = [r for r in sp.solve(k * x + x - k * x * x - pu, x) if r.is_real and 0 < r and k * r <= 1]
+        need(len(sol) == 1, f"P(B) = {sol}")
+        want, trap, wrongs = idp_num_set(q, "P(B) = ", sol[0], {unk + "1": pu / (k + 1)}, True)
+    elif u == "overlap-from-only-regions":
+        if rep == "diagram":
+            t = q["graph"]
+            need(t["kind"] == "venn" and t["i"] == "x" and t["o"] == "", "the diagram")
+            a, b = R(t["a"]), R(t["b"])
+        else:
+            kv = idp_kv(L)
+            a, b = kv["A ∩ B′"], kv["A′ ∩ B"]
+        x = sp.Symbol("x")
+        sol = [r for r in sp.solve((a + x) * (b + x) - x, x) if 0 < r < 1 and a + b + 2 * r == 1]
+        need(len(sol) == 1, f"x = {sol}")
+        want, trap, wrongs = idp_num_set(q, "x = ", sol[0], {unk + "2": a * b}, True)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    for o in q["choices"]:
+        m = re.search(r"= (.+)$", o["text"])
+        v = R(m.group(1).replace("−", "-"))
+        need(0 < v < 1 or (v == 0 and o["ref"] == ind + "2"), f"option {o['text']!r} is not a probability")
+    return None, None
+
+
 # ── basic-probability (t4-probability-basic, FAL-728) ────────
 # The `basic-probability` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/basic_probability.gd. Each question's facts are read back from what the
@@ -21375,7 +22928,988 @@ def check_basic_probability(q):
     return None, None
 
 
-SITUATION_CHECKS = {"basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── optimisation-model (t5-optimisation-modelling, FAL-739) ──
+# The `optimisation-model` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/optimisation.gd. The shape is read back from the words or the figure and
+# the function built again, or read from its line, then differentiated and solved with SymPy, or
+# with mpmath at 40 digits for a route. Each tagged wrong option is worked out again from its slip.
+
+OM_T = "t5-optimisation-modelling#"
+OM_M = "SL5.8.optimisation-modelling#"
+OM_ROOT = "SL5.8.find-stationary-points#0"
+OM_SWAP = OM_T + "4"
+OM_SIGN_F = "SL5.8.classify-stationary-points#2"
+OM_EDGE = sp.Rational(29, 1000)     # the engine's is 0.03; a hair under it, so no float-vs-exact tie fails
+OM_X = sp.Symbol("x", positive=True)
+OM_Y = sp.Symbol("y", positive=True)
+OM_H = sp.Symbol("h", positive=True)
+OM_FIT = sp.Rational(3, 20), sp.Rational(4, 5)   # a route's best point, as a share of the road
+OM_MIN = {"pen": False, "paddock": True, "can": True, "bin": False, "box": False, "arch": False, "route": True, "closest": True}
+OM_NATURES = ("local maximum", "local minimum")
+
+
+def om_expr(text):
+    """The game's way of writing these functions as SymPy, with r read as x."""
+    t = text.strip().replace("−", "-").replace("½", "(1/2)").replace("×", "*").replace("r", "x")
+    t = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", lambda m: "**" + m.group(0).translate(SUP_DIGITS), t)
+    t = re.sub(r"√(\d+)", r"sqrt(\1)", t).replace("√(", "sqrt(").replace("∛(", "cbrt(").replace("π", " pi ")
+    need(re.fullmatch(r"[0-9xyh+\-*/(). a-z]+", t) is not None, f"can't read the expression {text!r}")
+    t = t.replace("cbxt", "cbrt").replace("sqxt", "sqrt")
+    return parse_expr(t, transformations=TRANSFORMS, local_dict={"x": OM_X, "y": OM_Y, "h": OM_H, "pi": sp.pi, "sqrt": sp.sqrt, "cbrt": lambda e: e ** sp.Rational(1, 3)})
+
+
+def om_same(a, b):
+    return sp.simplify(sp.sympify(a) - sp.sympify(b)) == 0
+
+
+def om_num(v):
+    """An exact number as the game writes it: a whole number or a fraction."""
+    return str(sp.Rational(v)).replace("-", "−")
+
+
+def om_pi(v):
+    """v π as the game writes it: 54π, (37/8)π, −(19/2)π, ½π."""
+    v = sp.Rational(v)
+    sign, m = ("−" if v < 0 else ""), abs(v)
+    if m == 1:
+        return sign + "π"
+    if m == sp.Rational(1, 2):
+        return sign + "½π"
+    return sign + (str(m) if m.q == 1 else f"({m})") + "π"
+
+
+def om_root(v):
+    """√v as the game writes it."""
+    v = sp.Rational(v)
+    s = sp.sqrt(v)
+    if s.is_rational:
+        return om_num(s)
+    return f"√{v}" if v.q == 1 else f"√({v})"
+
+
+def om_sf(v):
+    return gc_s(sp.N(v, 40))
+
+
+def om_clear(v):
+    """v reads clearly at 3 s.f.: at least OM_EDGE of a unit of its 3rd figure from a rounding edge."""
+    w = abs(sp.N(v, 40))
+    e = sp.floor(sp.log(w, 10))
+    scaled = w / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= OM_EDGE
+
+
+def om_sketch_labels(q):
+    return [ln["label"] for ln in q["graph"]["lines"] if ln["label"]]
+
+
+def om_read(q):
+    """The question's shape, read back from the words or the figure: a dict of what is shown,
+    with F the function, Y the second length and dom the domain's two ends."""
+    g, L, rep = q["given"], q["lines"], q["view"]["rep"]
+    fam = g["fam"]
+    text = " ".join(L)
+    x = OM_X
+    p = {"fam": fam, "Y": None}
+    fline = next((l for l in L if re.match(r"[A-Z] = .*, for ", l)), None)
+    if rep == "equation":
+        need(fam != "route", "a route is never given as a bare function")
+        p["F"] = om_expr(fline.split(",")[0].split(" = ", 1)[1])
+        mt = re.search(r"for 0 < x < (.+?)\.?$", fline.split(", ", 1)[1])
+        p["dom"] = (0, om_expr(mt.group(1)) if mt else sp.oo)
+        if fam == "box":
+            w, h = sorted(2 * r for r in sp.roots(sp.Poly(p["F"], x)) if r > 0)
+            p.update(w=w, h=h)
+        return p
+    if q["view"]["unknown"] == "derivative-of-objective":
+        # The two-variable function and its constraint: eliminate, as the student must.
+        two, cons = L[1].split(", where ")
+        te = om_expr(two.split(" = ", 1)[1])
+        lhs, rhs_ = (om_expr(s) for s in cons.split(" = "))
+        sec = next(iter(te.free_symbols - {OM_X}))
+        p.update(F=te.subs(sec, sp.solve(lhs - rhs_, sec)[0]), dom=(0, sp.oo), two=te)
+        if fam == "bin":
+            p["dom"] = (0, sp.sqrt(rhs_))
+        return p
+    if rep == "diagram":
+        need(q["graph"] is not None, "the diagram representation has no figure")
+    else:
+        need(q["graph"] is None, "a figure on a question with no diagram")
+    if fam in ("pen", "paddock"):
+        if rep == "diagram":
+            n = sum(1 for ln in q["graph"]["lines"] if ln["a"].startswith("_t"))
+            need(set(om_sketch_labels(q)) == {"wall", "x m", "y m"}, f"labels {om_sketch_labels(q)}")
+            need(q["graph"]["kind"] == "sketch", "the figure is not a sketch")
+        else:
+            n = int(re.search(r"(?:makes|is) (\d+) straight sections", text).group(1))
+        if fam == "pen":
+            T = int(re.search(r"(\d+) m of fence", text).group(1))
+            p.update(n=n, T=T, F=x * (T - n * x), Y=T - n * x, dom=(0, sp.Rational(T, n)))
+            mt = re.search(r"split into (\d+) pens", text)
+            need(n > 2 and int(mt.group(1)) == n - 1 if mt else n == 2, "the pens don't match the sections")
+        else:
+            A = int(re.search(r"area (?:is )?(\d+) m²", text).group(1))
+            p.update(n=n, T=A, F=n * x + A / x, Y=A / x, dom=(0, sp.oo))
+    elif fam == "can":
+        mt = re.search(r"Its volume is (\d+)(π?) (cm|m)³", text)
+        V = int(mt.group(1)) * (sp.pi if mt.group(2) else 1)
+        need(("closed at both ends" in text) != ("with a base and no lid" in text), "the cylinder's ends aren't said")
+        ends = 2 if "closed at both ends" in text else 1
+        cost = re.search(r"costs (\d+) scrap per m² to make, and the curved side costs (\d+)", text)
+        re_, rs = (int(cost.group(1)), int(cost.group(2))) if cost else (1, 1)
+        need((mt.group(3) == "m") == (cost is not None), "the unit doesn't fit the story")
+        if rep == "diagram":
+            need(q["graph"]["shape"] == ("cylinder" if ends == 2 else "open-cylinder"), "the wrong cylinder is drawn")
+        h = V / (sp.pi * x**2)
+        p.update(F=re_ * ends * sp.pi * x**2 + rs * 2 * sp.pi * x * h, Y=h, dom=(0, sp.oo), V=V, ends=ends, re=re_, rs=rs, unit=mt.group(3), cost=cost is not None)
+    elif fam == "bin":
+        A = int(re.search(r"exactly (\d+) cm²", text).group(1))
+        if rep == "diagram":
+            need(q["graph"]["shape"] == "open-bin", "the wrong solid is drawn")
+        h = (A - x**2) / (4 * x)
+        p.update(T=A, F=x**2 * h, Y=h, dom=(0, sp.sqrt(A)))
+    elif fam == "box":
+        if rep == "diagram":
+            ls = [int(re.fullmatch(r"(\d+) cm", t).group(1)) for t in om_sketch_labels(q) if t != "x"]
+            need(len(ls) == 2 and om_sketch_labels(q).count("x") == 2, f"labels {om_sketch_labels(q)}")
+            pts = q["graph"]["pts"]
+            need(sp.Rational(str(pts["_b"][0])) == ls[0] and sp.Rational(str(pts["_c"][1])) == ls[1], "the sheet isn't drawn to its size")
+            w, h = sorted(ls)
+        else:
+            w, h = sorted(int(v) for v in re.search(r"measures (\d+) cm by (\d+) cm", text).groups())
+        p.update(w=w, h=h, F=x * (w - 2 * x) * (h - 2 * x), dom=(0, sp.Rational(min(w, h), 2)))
+    elif fam == "arch":
+        mt = re.search(r"y = (\d+) − (\d*)x²", text)
+        c, a = int(mt.group(1)), int(mt.group(2) or 1)
+        if rep == "diagram":
+            f = lambda v: c - a * v * v
+            for v, y in q["graph"]["curves"][0][:: 15]:
+                need(abs(f(v) - y) < 1e-6, "the arch drawn is not the arch in the question")
+            pts = q["graph"]["points"]
+            need(abs(pts[0]["x"] + pts[1]["x"]) < 1e-9 and abs(pts[0]["y"] - f(pts[0]["x"])) < 1e-6, "the corners are not on the arch")
+            strip = q["graph"]["shade"][0]
+            need(abs(strip[0][2] - pts[0]["y"]) < 1e-6 and abs(strip[0][0]) - abs(pts[0]["x"]) < 1e-6, "the shaded rectangle isn't the door")
+        p.update(c=c, a=a, F=2 * x * (c - a * x**2), Y=None, dom=(0, sp.sqrt(sp.Rational(c, a))))
+    elif fam == "route":
+        if rep == "diagram":
+            ls = [t for t in om_sketch_labels(q)]
+            need(ls.count("x km") == 1 and len(ls) == 3, f"labels {ls}")
+            a, b = (int(t.split()[0]) for t in ls if t != "x km")
+            pts = q["graph"]["pts"]
+            need(sp.Rational(str(pts["M"][1])) == a and sp.Rational(str(pts["B"][0])) == b, "the route isn't drawn to its lengths")
+        else:
+            a = int(re.search(r"(\d+) km from a straight highway", text).group(1))
+            b = int(re.search(r"on the highway, (\d+) km from P", text).group(1))
+        cost = re.search(r"for (\d+) scrap per km, then along the highway to B for (\d+) scrap per km", text)
+        speed = re.search(r"at (\d+) km/h to a point D.*at (\d+) km/h", text)
+        need((cost is None) != (speed is None), "neither speeds nor costs")
+        leg = sp.sqrt(a**2 + x**2)
+        f, v = (int(t) for t in (cost or speed).groups())
+        Fn = f * leg + v * (b - x) if cost else leg / f + (b - x) / v
+        p.update(a=a, b=b, f=f, v=v, leg=leg, cost=cost is not None, F=Fn, dom=(0, b))
+    elif fam == "closest":
+        root = re.search(r"P\((\d+), 0\).*y = √\((\d*)x\)", text)
+        logc = re.search(r"y = √\((\d+) − (\d*) ln x\)", text)
+        need((root is None) != (logc is None), "no curve to read")
+        if root:
+            a, k = int(root.group(1)), int(root.group(2) or 1)
+            yy, pt = k * x, a
+            p.update(a=a, k=k, kind="root", F=(x - a)**2 + yy)
+        else:
+            c, k = int(logc.group(1)), int(logc.group(2) or 1)
+            yy, pt = c - k * sp.log(x), 0
+            p.update(c=c, k=k, kind="log", F=x**2 + yy)
+        p["dom"] = (0, sp.oo if root else sp.exp(sp.Rational(c, k)))
+        if rep == "diagram":
+            f = sp.lambdify(OM_X, sp.sqrt(yy), "math")
+            for v, y in q["graph"]["curves"][0][1::15]:
+                need(abs(f(v) - y) < 1e-6, "the curve drawn is not the curve in the question")
+            need(q["graph"]["points"][0]["x"] == float(pt), "the fixed point is drawn elsewhere")
+    if fline is not None:
+        need(om_same(om_expr(fline.split(", for")[0].split(" = ", 1)[1]), p["F"]), f"the function shown, {fline!r}, is not this shape's")
+    return p
+
+
+def om_stationary(F, dom):
+    """The stationary points inside the domain, exactly, and the other positive ones."""
+    d = sp.together(sp.diff(F, OM_X))
+    sols = [s for s in sp.solve(sp.numer(d), OM_X) if s.is_real and s > 0]
+    inside = [s for s in sols if sp.N(s, 30) < (dom[1] if dom[1] == sp.oo else sp.N(dom[1], 30))]
+    return inside, [s for s in sols if s not in inside]
+
+
+def om_route_best(F, dom):
+    """A route's turning point: found by bisection on F′ at 40 digits."""
+    d = sp.lambdify(OM_X, sp.diff(F, OM_X), "mpmath")
+    with mpmath.workdps(40):
+        lo, hi = mpmath.mpf(0) + mpmath.mpf(1) / 1000, mpmath.mpf(int(dom[1]))
+        need(d(lo) < 0 < d(hi), "the route's function has no minimum inside the road")
+        return sp.Float(str(mpmath.findroot(d, (lo, hi), solver="anderson", tol=mpmath.mpf(10) ** -32)), 40)
+
+
+def check_optimisation(q):
+    g, u, rep, asked, paper = q["given"], q["view"]["unknown"], q["view"]["rep"], q["asked"], q["paper"]
+    ang = q["view"]["angle"]
+    calc_steps(q, (2, 7))
+    calc_options(q)
+    p = om_read(q)
+    fam, F, dom, Y = p["fam"], p["F"], p["dom"], p["Y"]
+    x = OM_X
+    sf = paper == 2
+    need(g.get("mode", "clean") == ("surd" if u == "exact-stationary" else "clean"), "the wrong mode for this unknown")
+    if ang == "gdc-graph-optimum":
+        need(sf, "a GDC method is Paper 2")
+    if fam == "route":
+        need(sf, "a route is Paper 2")
+    if fam == "closest":
+        need(not sf, "a closest point is Paper 1")
+    letter = "r" if fam == "can" else "x"
+    O = {"pen": "A", "arch": "A", "paddock": "L", "bin": "V", "box": "V"}.get(fam, "")
+    if fam == "route":
+        O = "C" if p["cost"] else "T"
+    if fam == "can":
+        O = "C" if p.get("cost") else "S"
+        if "cost" not in p:      # a line naming the cost or surface area is all that says which
+            O = "C" if q["lines"][0].startswith("The cost") else "S"
+            need(q["lines"][0].startswith("The cost" if O == "C" else "The surface area"), "the function isn't named")
+    if rep == "equation" and fam != "can":
+        need(next(l for l in q["lines"] if re.match(r"[A-Z] = ", l))[0] == O, "the function has the wrong letter")
+    least = OM_MIN[fam]
+    word = "minimum" if least else "maximum"
+    # The optimum, from the function. A route's is found numerically.
+    x0, others = None, []
+    if fam == "route":
+        x0 = om_route_best(F, dom)
+        need(OM_FIT[0] * p["b"] <= x0 <= OM_FIT[1] * p["b"], f"x = {x0} is too near an end of the road")
+        best = F.subs(x, x0)
+    else:
+        inside, others = om_stationary(F, dom)
+        need(len(inside) == 1, f"{len(inside)} stationary points in the domain")
+        x0 = sp.nsimplify(inside[0]) if inside[0].is_rational else inside[0]
+        d2 = sp.diff(F, x, 2).subs(x, x0)
+        need((sp.N(d2, 30) > 0) == least, "the stationary point is the wrong kind")
+        best = sp.simplify(F.subs(x, x0))
+    if not sf and u != "exact-stationary" and fam != "closest":
+        need(x0.is_rational, f"Paper 1 x = {x0} is not exact")
+        need((2 * x0).is_integer, f"Paper 1 x = {x0} is not a whole number or a half")
+        need((best / sp.pi if fam == "can" else best).is_rational, f"Paper 1 value {best} is not exact")
+    if sf and u != "exact-stationary":
+        need(om_clear(x0) and om_clear(best), f"x = {sp.N(x0, 8)} or the value {sp.N(best, 8)} is on a rounding edge")
+    if fam == "box":
+        d = p["w"]**2 - p["w"] * p["h"] + p["h"]**2
+        need(sp.sqrt(d).is_rational != sf, "the sheet's roots are the wrong kind for this paper")
+        need(len(others) == 1 and others[0] > sp.Rational(min(p["w"], p["h"]), 2), "the second root is not outside the sheet")
+    val = (lambda v: om_sf(v)) if sf else (lambda v: om_pi(v / sp.pi) if fam == "can" and sp.simplify(v / sp.pi).is_rational else om_num(v))
+    unit = {"pen": "m", "paddock": "m", "bin": "cm", "box": "cm", "arch": "m", "route": "km"}.get(fam, p.get("unit", ""))
+    tail = {"pen": " m²", "arch": " m²", "paddock": " m", "bin": " cm³", "box": " cm³"}.get(fam, "")
+    if fam == "can":
+        tail, unit = (" scrap", "m") if O == "C" else (" cm²", "cm")
+    if fam == "route":
+        tail = " scrap" if p["cost"] else " hours"
+    w = {}
+    steps = (2, 7)
+
+    def forms(want, tagged):
+        """Each option's expression is the function asked, or for a tag, what its slip gives."""
+        for o in q["choices"]:
+            e = om_expr(o["text"].split(" = ", 1)[1])
+            need(om_same(e, want) == o["correct"], f"option {o['text']!r} against {want}")
+            if o["ref"]:
+                need(o["ref"] in tagged, f"the checker can't confirm {o['ref']} on {u}")
+                need(any(om_same(e, t) for t in tagged[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+            if o["correct"]:
+                body = ""
+                for item in q["answer"]["template"]:
+                    body += item if isinstance(item, str) else "(" + str(q["answer"]["values"][item["slot"]]) + ")"
+                need(om_same(om_expr(body.split(" = ", 1)[1]), want), f"the answer's slots make {body!r}, not {want}")
+        need(om_same(om_expr(q["answer_text"].split(" = ", 1)[1]), want), "the answer's text is not the answer")
+
+    if u == "constraint-rearrange":
+        need(fam in ("pen", "paddock", "can", "bin"), "no constraint on this family")
+        slips = {}
+        if fam == "pen":
+            slips = {OM_T + "6": [(p["T"] - p["n"] * x) / 2], OM_T + "7": [p["T"] - x]}
+        elif fam == "paddock":
+            slips = {OM_T + "8": [x / p["T"]]}
+        elif fam == "can":
+            slips = {OM_T + "9": [p["V"] / (2 * sp.pi * x)]}
+        else:
+            slips = {OM_T + "10": [(p["T"] - x**2) / (2 * x)], OM_T + "11": [(p["T"] - 2 * x**2) / (4 * x)]}
+        forms(Y, slips)
+    elif u == "build-objective":
+        need(asked.startswith(f"Find an expression for {O}"), f"asked {asked!r}")
+        if fam == "box":
+            forms(F, {OM_T + "14": [x * (p["w"] - x) * (p["h"] - x)], OM_T + "15": [(p["w"] - 2 * x) * (p["h"] - 2 * x)]})
+        elif fam == "arch":
+            forms(F, {OM_T + "16": [F / 2]})
+        else:
+            b, a, f, v = p["b"], p["a"], p["f"], p["v"]
+            if p["cost"]:
+                forms(F, {OM_T + "17": [f * (a + x) + v * (b - x)], OM_T + "19": [f * p["leg"] + v * x]})
+            else:
+                forms(F, {OM_T + "17": [(a + x) / f + (b - x) / v], OM_T + "18": [f * p["leg"] + v * (b - x)], OM_T + "19": [p["leg"] / f + x / v]})
+    elif u == "show-objective":
+        line = next(l for l in q["lines"] if l.startswith("Show that "))
+        tgt = re.match(r"Show that . = (.+), where p and q are whole numbers\.", line).group(1)
+        tt = tgt.replace("p", " P_ ").replace("q", " Q_ ")
+        P_, Q_ = sp.symbols("P_ Q_")
+        tt = re.sub(r"[⁰¹²³⁴⁵⁶⁷⁸⁹]+", lambda m: "**" + m.group(0).translate(SUP_DIGITS), tt.replace("−", "-").replace("π", " pi ").replace("r", "x"))
+        te = parse_expr(tt, transformations=TRANSFORMS, local_dict={"x": OM_X, "P_": P_, "Q_": Q_, "pi": sp.pi})
+        got = sp.solve([te.subs(x, 1) - F.subs(x, 1), te.subs(x, 2) - F.subs(x, 2)], [P_, Q_], dict=True)
+        need(len(got) == 1, f"p and q are not fixed by {line!r}")
+        pv, qv = got[0][P_], got[0][Q_]
+        need(om_same(te.subs({P_: pv, Q_: qv}), F), f"no p and q make {line!r} this function")
+        need(pv.is_integer and qv.is_integer and pv > 0 and qv > 0, f"p = {pv}, q = {qv} are not whole numbers")
+        nm = lambda a, b: f"p = {om_num(a)}, q = {om_num(b)}"
+        if fam == "pen":
+            w[OM_T + "6"] = {nm(pv / 2, qv / 2)}
+        elif fam == "paddock":
+            w[OM_T + "6"] = {nm(pv, 2 * qv)}
+        elif fam == "can":
+            w[OM_T + "12"] = {nm(p["re"] * (3 - p["ends"]), qv)}
+            w[OM_T + "13"] = {nm(pv, qv / 2)}
+        else:
+            w[OM_T + "10"] = {nm(pv, 2)}
+        gc_check_common(q, nm(pv, qv), w, None, steps)
+        return None, None
+    elif u == "derivative-of-objective":
+        dF = sp.diff(F, x)
+        terms = sp.Add.make_args(sp.expand(F))
+        slips = {OM_T + "22": [sum(t.as_coeff_exponent(x)[0] * t.as_coeff_exponent(x)[1] * x**t.as_coeff_exponent(x)[1] for t in terms)]}
+        neg = [t for t in terms if t.as_coeff_exponent(x)[1] < 0]
+        if neg:
+            t = neg[0]
+            c, e = t.as_coeff_exponent(x)
+            slips[OM_T + "20"] = [dF - 2 * sp.diff(t, x)]
+            slips[OM_T + "21"] = [dF - sp.diff(t, x) + c * e * x**(e + 1)]
+        if rep == "words":
+            slips[OM_M + "0"] = [sp.diff(p["two"], x)]
+            need(asked == f"Write {O} in terms of {letter} only, then find d{O}/d{letter}.", f"asked {asked!r}")
+        forms(dF, slips)
+    elif u in ("solve-stationary", "box-best-cut"):
+        head, tl = ("x = ", " cm") if u == "box-best-cut" else (letter + " = ", " " + unit)
+        want = head + val(x0) + tl
+        stop = x0**3 if fam == "can" else x0**2
+        if u == "box-best-cut":
+            half = sp.Rational(min(p["w"], p["h"]), 2)
+            w[OM_M + "1"] = {head + val(others[0]) + tl}
+            w[OM_ROOT] = {head + val(half) + tl}
+        else:
+            w[OM_T + "23"] = {head + val(stop) + tl}
+            if fam in ("bin", "arch"):
+                z = dom[1]**2
+                w[OM_ROOT] = {head + (om_sf(sp.sqrt(z)) if sf else om_root(z)) + tl}
+        gc_check_common(q, want, w, None, steps)
+        return None, None
+    elif u == "exact-stationary":
+        if sf:
+            need(fam == "can", "a Paper 2 exact value is a cube root")
+            cube = sp.nsimplify(x0**3 * sp.pi)
+            a_, b_ = cube.p, cube.q
+            ins = f"{a_}/π" if b_ == 1 else f"{a_}/({b_}π)"
+            w[OM_T + "24"] = {f"r = √({ins}) {unit}"}
+            w[OM_T + "23"] = {f"r = {ins} {unit}"}
+            gc_check_common(q, f"r = ∛({ins}) {unit}", w, None, steps)
+            return None, None
+        need(fam in ("paddock", "bin", "arch"), "a Paper 1 exact value is a surd")
+        sq = sp.nsimplify(x0**2)
+        need(sq.is_integer and not sp.sqrt(sq).is_rational, f"x² = {sq} is no surd")
+        m, t = sp.sqrt(sq).as_coeff_Mul()
+        t = t**2
+        need(sp.sqrt(t).as_coeff_Mul()[0] == 1 and m >= 2, f"{m}√{t} is not in its simplest form")
+        w[OM_T + "23"] = {f"x = {sq} {unit}"}
+        if fam != "paddock":
+            w[OM_ROOT] = {"x = " + om_root(dom[1]**2) + " " + unit}
+        gc_check_common(q, f"x = {m}√{t} {unit}", w, None, steps)
+        return None, None
+    elif u == "justify-second-derivative":
+        name = f"d²{O}/d{letter}²"
+        v2 = sp.diff(F, x, 2).subs(x, x0)
+        ok_ = OM_NATURES[1] if least else OM_NATURES[0]
+        no = OM_NATURES[0] if least else OM_NATURES[1]
+        if sf:
+            need(om_clear(v2), "the second derivative is on a rounding edge")
+        line = q["lines"][-1]
+        mt = re.fullmatch(r"(\w) has a stationary point at \w = (.+)\.", line)
+        need(sp.simplify(om_expr(mt.group(2)) - x0) == 0, f"the point shown, {line!r}, is not the stationary point")
+        w[OM_SWAP] = {f"{name} = {val(v2)}, a {no}"}
+        gc_check_common(q, f"{name} = {val(v2)}, a {ok_}", w, None, steps)
+        return None, None
+    elif u == "justify-sign-change":
+        name = f"d{O}/d{letter}"
+        mt = re.fullmatch(rf"Find {name} at \w = (.+) and at \w = (.+), and decide what kind of point it is\.", asked)
+        lo, hi = R(mt.group(1)), R(mt.group(2))
+        need(lo < x0 < hi and lo > 0 and sp.N(hi, 30) < (dom[1] if dom[1] == sp.oo else sp.N(dom[1], 30)), "the steps aren't either side of the point, inside the domain")
+        dF = sp.diff(F, x)
+        dl, dh = dF.subs(x, lo), dF.subs(x, hi)
+        need((dl < 0 < dh) == least and (dh < 0 < dl) != least, "the derivative doesn't change sign the right way")
+        ok_ = OM_NATURES[1] if least else OM_NATURES[0]
+        no = OM_NATURES[0] if least else OM_NATURES[1]
+        mk = lambda a, b, n: f"at {letter} = {om_num(lo)}: {name} = {val(a)}; at {letter} = {om_num(hi)}: {name} = {val(b)}; a {n}"
+        if sf:
+            need(om_clear(dl) and om_clear(dh), "a derivative is on a rounding edge")
+        w[OM_SWAP] = {mk(dl, dh, no)}
+        w[OM_SIGN_F] = {mk(F.subs(x, lo), F.subs(x, hi), ok_)}
+        gc_check_common(q, mk(dl, dh, ok_), w, None, steps)
+        return None, None
+    elif u in ("optimum-value", "quadratic-optimum", "route-least-value"):
+        need(word in asked or "maximum" in asked, f"asked {asked!r}")
+        want = f"{O} = {val(best)}{tail}"
+        w[OM_M + "2"] = {f"{letter} = {(om_sf(x0) if sf else om_num(x0))} {unit}"}
+        if rep != "equation":
+            if fam == "pen":
+                w[OM_M + "2"].add(f"{p['T']} m of fence")
+            elif fam == "paddock":
+                w[OM_M + "2"].add(f"{p['T']} m²")
+            elif fam == "bin":
+                w[OM_M + "2"].add(f"{p['T']} cm²")
+            elif fam == "can":
+                vol = f"{p['V'] / sp.pi}π" if sp.sympify(p["V"]).has(sp.pi) else str(p["V"])
+                w[OM_M + "2"].add(f"{vol} {unit}³")
+        if u == "quadratic-optimum":
+            w[OM_T + "6"] = {f"{O} = {val(best / 2)}{tail}"}
+            need(asked == "Find the maximum area of the yard.", f"asked {asked!r}")
+        if u == "route-least-value":
+            w[OM_T + "26"] = {f"{O} = {val(F.subs(x, p['b']))}{tail}"}
+        gc_check_common(q, want, w, None, steps)
+        return None, None
+    elif u == "other-dimension":
+        letter2 = "y" if fam == "paddock" else "h"
+        head = letter2 + " = "
+        y0 = sp.simplify(Y.subs(x, x0))
+        if sf:
+            need(om_clear(y0), "the second length is on a rounding edge")
+        w[OM_T + "29"] = {f"{head}{(om_sf(x0) if sf else om_num(x0))} {unit}"}
+        gc_check_common(q, f"{head}{(om_sf(y0) if sf else om_num(y0))} {unit}", w, None, steps)
+        return None, None
+    elif u == "route-best-point":
+        w[OM_T + "25"] = {f"x = {om_sf(p['b'] - x0)} km"}
+        gc_check_common(q, f"x = {om_sf(x0)} km", w, None, steps)
+        return None, None
+    elif u == "closest-point":
+        need(x0.is_integer, "the closest point's x is not whole")
+        if p["kind"] == "root":
+            w[OM_T + "27"] = {f"x = {p['a']}"}
+            w[OM_T + "28"] = {f"x = {om_num(p['a'] - p['k'])}"}
+        else:
+            w[OM_T + "23"] = {f"x = {om_num(x0**2)}"}
+            need(sp.simplify(p["c"] - p["k"] * sp.log(x0)).is_positive, "the closest point is off the curve")
+        gc_check_common(q, f"x = {om_num(x0)}", w, None, steps)
+        return None, None
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+# ── tree-diagram (t4-tree-diagram, FAL-739) ──────────────────
+# Reads the tree off the figure, or the tin, crates, tries, groups or game off the words, finds
+# every path again with exact rationals and each normal area with mpmath, then works out each
+# tagged slip from what it says. No value comes from the engine's situation.
+
+TD_REF = "SL4.6.tree#"
+TD_OWN = "t4-tree-diagram#"
+TD_CHAINS = [
+    (("Road", "Trip"), ("north", "ridge", "tunnel"), ("safe", "raided", "delayed"), "the scout takes the {} road", "the trip is {}"),
+    (("Weather", "Caravan"), ("storm", "dust", "clear"), ("on time", "late", "lost"), "the weather is {}", "the caravan is {}"),
+    (("Tower", "Signal"), ("A", "B", "C"), ("clear", "static", "silent"), "the call goes through tower {}", "the signal is {}"),
+    (("Source", "Test"), ("well", "river", "tank"), ("safe", "cloudy", "unsafe"), "the water comes from the {}", "the water tests {}"),
+    (("Supplier", "Meter"), ("forge", "depot", "yard"), ("full", "weak", "dead"), "the battery comes from the {}", "the battery reads {}"),
+    (("Stock", "Seed"), ("old", "new", "wild"), ("sprouts", "rots", "sleeps"), "the seed is {} stock", "the seed {}"),
+    (("Traveller", "Gate"), ("trader", "nomad", "medic"), ("cleared", "searched", "held"), "the traveller is a {}", "the traveller is {}"),
+    (("Made", "Engine"), ("cast", "forged", "welded"), ("fits", "jams", "snaps"), "the part is {}", "the part {}"),
+]
+TD_THINGS = ("tokens", "marbles", "fuses", "tags")
+TD_COLOUR_WORDS = "red|blue|green|white|black|yellow"
+TD_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
+TD_NTH = {"first": 1, "second": 2, "third": 3, "fourth": 4, "fifth": 5}
+TD_K, TD_N = sp.Symbol("k"), sp.Symbol("n")
+TD_P1_ONLY = ("branch-in-terms-of-k", "parameter-on-branch", "selections-find-n")
+TD_P2_ONLY = ("draws-in-terms-of-n", "total-from-normals", "rounds-exceed-total")
+TD_NOT_PROB = TD_P1_ONLY + ("draws-in-terms-of-n",)
+TD_DRAW3 = re.compile(r"Three (\w+) are drawn at random, one after the other, without replacement\.")
+TD_SUM = re.compile(r"(?<![\d./^])(\d[\d./]*(?: [×+−] \d[\d./]*)+) = (\d[\d./]*)(?! [×+−÷])(?![\d^])")
+
+
+def td_num(t):
+    return R(t.rstrip("."))
+
+
+def td_tin(line):
+    """The counts by colour and the thing, from 'A tin holds 5 red, 3 blue and 4 white fuses.'"""
+    mt = re.fullmatch(r"A tin holds (.+) (\w+)\.", line)
+    need(mt is not None, f"can't read the tin {line!r}")
+    pairs = re.findall(rf"(\d+) ({TD_COLOUR_WORDS})", mt.group(1))
+    need(len(pairs) in (2, 3) and mt.group(2) in TD_THINGS, f"the tin {line!r}")
+    need(len({c for _, c in pairs}) == len(pairs), "a colour twice")
+    return {c: int(n) for n, c in pairs}, mt.group(2)
+
+
+def td_mode(line, thing):
+    """wo, w or add, from the sentence that says how the tin is drawn from."""
+    it = thing[:-1]
+    if line == f"Two {thing} are drawn at random, one after the other, without replacement." or TD_DRAW3.fullmatch(line):
+        return "wo"
+    if line == f"A {it} is drawn at random and put back, and then a second {it} is drawn.":
+        return "w"
+    need(line == f"A {it} is drawn at random and put back with one more of the same colour, and then a second {it} is drawn.", f"can't read {line!r}")
+    return "add"
+
+
+def td_seq(counts, mode, seq):
+    """The probability of these colours in this order."""
+    c, p = dict(counts), sp.Integer(1)
+    for col in seq:
+        t = sum(c.values())
+        p *= sp.Rational(c[col], t)
+        c[col] += {"wo": -1, "w": 0, "add": 1}[mode]
+    return p
+
+
+def td_tree(q):
+    """heads, first, second, p, q from the figure; a letter stays a string."""
+    t = q["graph"]
+    need(t is not None and t["kind"] == "tree", "no tree")
+    val = lambda s: s if s in ("x", "y", "?") else R(s)
+    a, b = t["first"], t["second"]
+    need(len(a) in (2, 3) and len(b) in (2, 3), "2 or 3 branches at a fork")
+    need(len(t["p"]) == len(a) and len(t["q"]) == len(a) and all(len(r) == len(b) for r in t["q"]), "the tree's shape")
+    return tuple(t["heads"]), a, b, [val(v) for v in t["p"]], [[val(v) for v in r] for r in t["q"]]
+
+
+def td_fork(xs):
+    """A fork with no letters adds to 1 and has no empty branch."""
+    if all(not isinstance(v, str) for v in xs):
+        need(sum(xs) == 1 and all(v > 0 for v in xs), f"a fork {xs} doesn't add to 1")
+
+
+def td_chain(q):
+    """The story's tree: the figure must be one of the stories, with forks that add to 1."""
+    heads, a, b, p, r = td_tree(q)
+    ch = [c for c in TD_CHAINS if c[0] == heads]
+    need(len(ch) == 1, f"no story has the stages {heads}")
+    c = ch[0]
+    need(tuple(a) == c[1][:len(a)] and tuple(b) == c[2][:len(b)], "the branches are not the story's")
+    td_fork(p)
+    for row in r:
+        td_fork(row)
+    return c, a, b, p, r
+
+
+def td_bag_tree(q, counts, mode):
+    """A tin's tree must be the tin: every number on it is the recount."""
+    heads, a, b, p, r = td_tree(q)
+    need(heads == ("First draw", "Second draw"), f"stages {heads}")
+    cols = list(counts)
+    need(a == cols and b == cols, "the branches are not the tin's colours")
+    for i, x in enumerate(cols):
+        if not isinstance(p[i], str):
+            need(p[i] == td_seq(counts, mode, [x]), f"the branch {x} is {p[i]}")
+        for j, y in enumerate(cols):
+            if not isinstance(r[i][j], str):
+                need(r[i][j] == td_seq(counts, mode, [x, y]) / td_seq(counts, mode, [x]), f"the branch {x}, {y} is {r[i][j]}")
+    return cols
+
+
+def td_set(q, label, v, table, dec=False):
+    """want, trap and wrongs for an exact probability; `table` is ref -> the values that slip gives."""
+    paper = q["paper"]
+    want = label + cd_shown(v, paper, dec)
+    trap = bn_trap(label, v) if paper == 2 else None
+    return want, trap, {ref: {label + cd_shown(x, paper, dec) for x in xs} for ref, xs in table.items()}
+
+
+def td_clear(q, v):
+    if q["paper"] == 2:
+        need(rg_clear(v), f"{v} sits on a rounding edge")
+
+
+def td_expr(text, sym):
+    """A branch or a draw as written: 1 − k/2, 2k/3, 90/(n(n − 1)), 10/n + 9/(n − 1)."""
+    t = text.replace("−", "-").replace("²", "**2")
+    t = re.sub(r"(\d)([kn])", r"\1*\2", t).replace(f"{sym}({sym}", f"{sym}*({sym}")
+    return sp.sympify(t, locals={sym: sp.Symbol(sym)})
+
+
+def td_arith(q):
+    """Every plain sum and product the working writes is right, to the figures it shows."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for left, right in TD_SUM.findall(st):
+                val = sp.sympify(left.replace("×", "*").replace("−", "-"), rational=True)
+                r = R(right.rstrip("."))
+                if max(len(x.replace(".", "").lstrip("0")) for x in re.findall(r"[\d.]+", left)) >= 5:
+                    need(abs(val - r) <= abs(r) * sp.Rational(1, 5000), f"{sol['name']}: {left} is not {right}")
+                else:
+                    need(val == r, f"{sol['name']}: {left} = {val}, not {right}")
+
+
+def td_counted(q, want, wrongs, trap=None):
+    gc_check_common(q, want, wrongs, trap)
+    td_arith(q)
+    if q["view"]["unknown"] not in TD_NOT_PROB:
+        for o in q["choices"]:
+            v = R(o["text"].split(" = ")[1].replace("−", "-"))
+            need(0 < v < 1, f"option {o['text']!r} is not a probability")
+
+
+def td_exprs(q, sym, label, expected, table):
+    """Options that are expressions: each is parsed, and the right one is the one equal to expected."""
+    z = {}
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r}")
+        z[o["text"]] = sp.simplify(td_expr(o["text"][len(label):], sym) - expected) == 0
+        need(z[o["text"]] == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+    want = [t for t, ok in z.items() if ok]
+    need(len(want) == 1, "not exactly one right option")
+    need(want[0] == q["answer_text"], "the answer is not the right option")
+    wrongs = {}
+    for ref, xs in table.items():
+        wrongs[ref] = {t for t in z for x in xs if sp.simplify(td_expr(t[len(label):], sym) - x) == 0}
+    parts = q["answer"]["fixed"]["parts"]
+    slot = [p["slot"] for p in parts if isinstance(p, dict)]
+    need(len(slot) == 1, "one typed slot")
+    typed = "".join(p if isinstance(p, str) else f"({q['answer']['values'][p['slot']]})" for p in parts)
+    typed = typed.split(" = ")[-1] if " = " in typed else typed
+    if sym == "k" and typed.endswith("k"):
+        typed = typed[:-1] + "*k"
+    need(sp.simplify(td_expr(typed, sym) - expected) == 0, f"typing the slot gives {typed!r}")
+    return want[0], wrongs
+
+
+def check_tree_diagram(q):
+    with mpmath.workdps(40):
+        return td_check(q)
+
+
+def td_check(q):
+    u, L, rep, asked, paper = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    need(paper == 1 or u not in TD_P1_ONLY, "this unknown is Paper 1")
+    need(paper == 2 or u not in TD_P2_ONLY, "this unknown is Paper 2")
+    need(rep != "diagram" or (q["graph"] or {}).get("kind") == "tree", "a diagram question shows its tree")
+    one = sp.Integer(1)
+    trap = None
+    if u == "complete-branch":
+        c, a, b, p, r = td_chain(q)
+        hit = [(i, None) for i, v in enumerate(p) if v == "x"] + [(i, j) for i, row in enumerate(r) for j, v in enumerate(row) if v == "x"]
+        need(len(hit) == 1, "one branch is x")
+        i, j = hit[0]
+        fork = p if j is None else r[i]
+        others = [v for v in fork if v != "x"]
+        v = one - sum(others)
+        need(0 < v < 1, f"x = {v}")
+        dec = any("." in str(t) for t in q["graph"]["p"] + sum(q["graph"]["q"], []))
+        table = {}
+        if j is not None:
+            table[TD_OWN + "3"] = [one - p[i]]
+        if len(others) == 2:
+            table[TD_OWN + "4"] = [one - w for w in others]
+        q2 = dict(q, paper=1)
+        want, _, wrongs = td_set(q2, "x = ", v, table, dec)
+        need(q["answer"].get("exact"), "a branch is exact on both papers")
+        td_counted(q, want, wrongs)
+    elif u == "branch-in-terms-of-k":
+        t = q["graph"]
+        need(tuple(t["heads"]) in [c[0] for c in TD_CHAINS], "the stages")
+        kx = lambda s: td_expr(s, "k")
+        at_first = "x" in t["p"]
+        fork = t["p"] if at_first else t["q"][0]
+        need(sum(1 for f in fork if f == "x") == 1, "x is on the fork")
+        need(at_first or t["q"][0] == t["q"][1], "the second stage is the same on both forks")
+        other = kx([f for f in fork if f != "x"][0])
+        expected = 1 - other
+        for row in [t["p"]] + t["q"]:
+            if "x" not in row:
+                need(sp.simplify(kx(row[0]) + kx(row[1]) - 1) == 0, f"the fork {row} doesn't add to 1")
+        table = {TD_OWN + "5": [other - 1]}
+        if not at_first:
+            table[TD_OWN + "3"] = [1 - kx(t["p"][0])]
+        want, wrongs = td_exprs(q, "k", "x = ", expected, table)
+        td_counted(q, want, wrongs)
+    elif u == "branch-after-draw":
+        counts, thing = td_tin(L[0])
+        mode = td_mode(L[1], thing)
+        need(mode in ("wo", "add"), "the tin changes")
+        cols = td_bag_tree(q, counts, mode)
+        _, _, _, p, r = td_tree(q)
+        spot = [(i, j) for i in (0, 1) for j in (0, 1) if r[i][j] == "x"]
+        need(len(spot) == 1 and "y" in r[spot[0][0]], "x and y are at one fork")
+        i, j = spot[0]
+        x, y = cols[i], cols[j]
+        t = sum(counts.values())
+        cj = counts[y]
+        v = td_seq(counts, mode, [x, y]) / td_seq(counts, mode, [x])
+        table = {}
+        if mode == "wo":
+            if i == j:
+                table[TD_REF + "0"] = [sp.Rational(cj, t)]
+                table[TD_OWN + "25"] = [sp.Rational(cj - 1, t)]
+                table[TD_OWN + "24"] = [sp.Rational(cj, t - 1)]
+            else:
+                table[TD_OWN + "25"] = [sp.Rational(cj, t)]
+                table[TD_OWN + "6"] = [sp.Rational(cj - 1, t - 1)]
+        else:
+            table[TD_OWN + "7"] = [sp.Rational(cj + 1, t), sp.Rational(cj, t + 1)] if i == j else [sp.Rational(cj, t)]
+        want, trap, wrongs = td_set(q, "x = ", v, table)
+        td_clear(q, v)
+        td_counted(q, want, wrongs, trap)
+    elif u == "path-probability":
+        if L[0].startswith("A tin"):
+            counts, thing = td_tin(L[0])
+            mode = td_mode(L[1], thing)
+            if rep == "diagram":
+                td_bag_tree(q, counts, mode)
+            mt = re.fullmatch(rf"Find the probability that the first {thing[:-1]} is (\w+) and the second is (\w+)\.", asked)
+            need(mt is not None, f"asked {asked!r}")
+            x, y = mt.group(1), mt.group(2)
+            f = td_seq(counts, mode, [x])
+            s2 = td_seq(counts, mode, [x, y]) / f
+            dec = False
+            table = {TD_OWN + "8": [s2]}
+            if mode == "wo":
+                table[TD_REF + "0" if x == y else TD_OWN + "25"] = [td_seq(counts, "w", [x, y])]
+        else:
+            c, a, b, p, r = td_chain(q)
+            hit = [(i, j) for i, x in enumerate(a) for j, y in enumerate(b) if asked == f"Find the probability that {c[3].format(x)} and {c[4].format(y)}."]
+            need(len(hit) == 1, f"asked {asked!r}")
+            i, j = hit[0]
+            f, s2 = p[i], r[i][j]
+            dec = any("." in str(t) for t in q["graph"]["p"] + sum(q["graph"]["q"], []))
+            table = {TD_OWN + "8": [s2]}
+        v = f * s2
+        table[TD_REF + "1"] = [f + s2]
+        want, trap, wrongs = td_set(q, "probability = ", v, table, dec)
+        td_clear(q, v)
+        td_counted(q, want, wrongs, trap)
+    elif u == "total-over-paths":
+        if rep == "words":
+            crates = []
+            for ln in L:
+                mt = re.fullmatch(rf"Crate ([ABC]) holds (\d+) (\w+) and (\d+) (\w+) (\w+)\.", ln)
+                if mt:
+                    crates.append((int(mt.group(2)), int(mt.group(4))))
+                    colour = mt.group(3)
+                    it = mt.group(6)
+            need(len(crates) in (2, 3) and it in TD_THINGS, "the crates")
+            pick = L[len(crates)]
+            if paper == 1:
+                need(pick == f"A crate is chosen at random, and a {it[:-1]} is then drawn at random from it.", f"can't read {pick!r}")
+                first = [sp.Rational(1, len(crates))] * len(crates)
+            else:
+                first = [R(x) for x in re.findall(r"[ABC] with probability (\d+(?:\.\d+)?)", pick)]
+                need(len(first) == len(crates) and sum(first) == 1, f"the chances in {pick!r}")
+            need(asked == f"Find the probability that the {it[:-1]} is {colour}.", f"asked {asked!r}")
+            need(not any(x + y == 7 and x in (4, 5) for x, y in crates), "a past paper's crate")
+            wanted = [sp.Rational(x, x + y) for x, y in crates]
+            dec = False
+        else:
+            c, a, b, p, r = td_chain(q)
+            hit = [j for j, y in enumerate(b) if asked == f"Find the probability that {c[4].format(y)}."]
+            need(len(hit) == 1, f"asked {asked!r}")
+            first = p
+            wanted = [row[hit[0]] for row in r]
+            dec = any("." in str(t) for t in q["graph"]["p"] + sum(q["graph"]["q"], []))
+        ps = [x * y for x, y in zip(first, wanted)]
+        v = sum(ps)
+        table = {TD_OWN + "9": ps}
+        if rep == "diagram" or paper == 2:
+            table[TD_OWN + "10"] = [sum(wanted)]
+        want, trap, wrongs = td_set(q, "probability = ", v, table, dec)
+        td_clear(q, v)
+        td_counted(q, want, wrongs, trap)
+    elif u == "same-or-different":
+        counts, thing = td_tin(L[0])
+        mode = td_mode(L[1], thing)
+        if rep == "diagram":
+            td_bag_tree(q, counts, mode)
+        cols = list(counts)
+        same = sum(td_seq(counts, mode, [c, c]) for c in cols)
+        plain = sum(td_seq(counts, "w", [c, c]) for c in cols)
+        want_same = asked.endswith("are the same colour.")
+        need(want_same or asked.endswith("are different colours."), f"asked {asked!r}")
+        v = same if want_same else 1 - same
+        table = {TD_OWN + "11": [1 - v]}
+        if mode == "wo":
+            table[TD_REF + "0" if want_same else TD_OWN + "25"] = [plain if want_same else 1 - plain]
+        if not want_same and len(cols) == 2:
+            table[TD_REF + "2"] = [td_seq(counts, mode, [cols[0], cols[1]])]
+        want, trap, wrongs = td_set(q, "probability = ", v, table)
+        td_clear(q, v)
+        td_counted(q, want, wrongs, trap)
+    elif u == "at-least-one":
+        counts, thing = td_tin(L[0])
+        need(td_mode(L[1], thing) == "wo", "without replacement")
+        draws = 3 if TD_DRAW3.fullmatch(L[1]) else 2
+        need(len(counts) == 2 and draws == (3 if rep == "words" else 2), "draws and colours")
+        if rep == "diagram":
+            td_bag_tree(q, counts, "wo")
+        mt = re.fullmatch(rf"Find the probability that at least one of the {thing} is (\w+)\.", asked)
+        need(mt is not None, f"asked {asked!r}")
+        hit = mt.group(1)
+        other = [c for c in counts if c != hit][0]
+        space = list(product(list(counts), repeat=draws))
+        v = sum(td_seq(counts, "wo", s) for s in space if hit in s)
+        none = td_seq(counts, "wo", [other] * draws)
+        need(v == 1 - none, "at least one and none are not complements")
+        once = sum(td_seq(counts, "wo", s) for s in space if s.count(hit) == 1)
+        table = {TD_OWN + "12": [none], TD_REF + "0": [1 - td_seq(counts, "w", [other] * draws)], TD_OWN + "13": [once]}
+        want, trap, wrongs = td_set(q, "probability = ", v, table)
+        td_clear(q, v)
+        td_counted(q, want, wrongs, trap)
+    elif u == "all-without-replacement":
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0][0] == "Job" and rows[1][0] == "People", "the table's heads")
+            counts = dict(zip(rows[0][1], [int(v) for v in rows[1][1]]))
+            need(len(counts) == 3, "three jobs")
+        else:
+            counts, thing = td_tin(L[0])
+            need(TD_DRAW3.fullmatch(L[1]) is not None, f"can't read {L[1]!r}")
+        mt = re.fullmatch(r"Find the probability that all three are (\w+)\.", asked)
+        need(mt is not None and mt.group(1) in counts, f"asked {asked!r}")
+        n, t = counts[mt.group(1)], sum(counts.values())
+        v = sp.Rational(n, t) * sp.Rational(n - 1, t - 1) * sp.Rational(n - 2, t - 2)
+        table = {TD_REF + "0": [sp.Rational(n, t) ** 3], TD_OWN + "25": [sp.Rational(n * (n - 1) * (n - 2), t ** 3)],
+                 TD_REF + "1": [sp.Rational(n, t) + sp.Rational(n - 1, t - 1) + sp.Rational(n - 2, t - 2)]}
+        want, trap, wrongs = td_set(q, "probability = ", v, table)
+        td_clear(q, v)
+        td_counted(q, want, wrongs, trap)
+    elif u == "draws-in-terms-of-n":
+        mt = re.fullmatch(rf"A tin holds n (\w+)\. Of these, (\d+) are (\w+) and the rest are ({TD_COLOUR_WORDS})\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        g = int(mt.group(2))
+        need(g != 10, "a past paper's tin")
+        n = TD_N
+        if "the first two" in asked:
+            expected = g * (g - 1) / (n * (n - 1))
+            table = {TD_REF + "0": [g * g / n ** 2], TD_OWN + "25": [g * (g - 1) / n ** 2], TD_REF + "1": [g / n + (g - 1) / (n - 1)]}
+        else:
+            expected = g / n
+            table = {TD_OWN + "26": [g / (n - 1)]}
+        want, wrongs = td_exprs(q, "n", "probability = ", expected, table)
+        td_counted(q, want, wrongs)
+    elif u == "first-success-on-trial":
+        mp = re.fullmatch(r"Each .+ with probability ([\d./]+), independently of the others\.", L[0])
+        ma = re.search(r"the first .+ is the (\w+)(?: one checked)?\.$|the (\w+) is the only one", asked)
+        need(ma is not None, f"asked {asked!r}")
+        k = TD_NTH[ma.group(1) or ma.group(2)]
+        if mp:
+            p = R(mp.group(1))
+            pq = one - p
+            v = pq ** (k - 1) * p
+            table = {TD_OWN + "14": [p ** (k - 1) * pq], TD_OWN + "15": [v * k], TD_OWN + "16": [v * pq]}
+            dec = False
+            want, trap, wrongs = td_set(q, "probability = ", v, table, dec)
+            td_clear(q, v)
+        else:
+            need(paper == 2, "a normal branch is Paper 2")
+            mn = re.fullmatch(r".+ are normally distributed with mean (\d+)(?: \w+) and standard deviation (\d+)(?: \w+)\.", L[0])
+            ml = re.search(r"more than (\d+)", asked)
+            need(mn is not None and ml is not None, f"can't read {L[0]!r} or {asked!r}")
+            mu, sg, lim = int(mn.group(1)), int(mn.group(2)), int(ml.group(1))
+            pm = 1 - nu_phi(mpmath.mpf(lim - mu) / sg)
+            v = (1 - pm) ** (k - 1) * pm
+            want = nu_text("probability = ", v)
+            need(nu_clear(v), "the answer sits on a rounding edge")
+            wrongs = {TD_OWN + "14": {nu_text("probability = ", pm ** (k - 1) * (1 - pm))}, TD_OWN + "15": {nu_text("probability = ", v * k)},
+                      TD_OWN + "16": {nu_text("probability = ", v * (1 - pm))}}
+            trap = "probability = " + dec_text(sp.Rational(sig3(nu_f(v), 2)))
+        if "only one" in asked:
+            word = re.search(r"tries (\w+) of them|^(\w+) .+ are chosen at random", " ".join(L[1:]))
+            need(word is not None, f"can't read how many in {L!r}")
+            need(TD_WORDS[(word.group(1) or word.group(2)).lower()] == k, "the last try is the one asked")
+        td_counted(q, want, wrongs, trap)
+    elif u == "total-from-normals":
+        ms = re.fullmatch(r"Workshop A makes (\d+)% of the (.+) at a camp, and workshop B makes the rest\.", L[0])
+        ma = re.fullmatch(r"For A, the .+ is normally distributed with mean (\d+)(?: \w+) and standard deviation (\d+)(?: \w+)\.", L[1])
+        mb = re.fullmatch(r"For B, the .+ is normally distributed with mean (\d+)(?: \w+) and standard deviation (\d+)(?: \w+)\.", L[2])
+        ml = re.search(r"is less than (\d+)", asked)
+        need(all(x is not None for x in (ms, ma, mb, ml)), f"can't read {L} or {asked!r}")
+        share = mpmath.mpf(int(ms.group(1))) / 100
+        lim = int(ml.group(1))
+        area = lambda m: nu_phi(mpmath.mpf(lim - int(m.group(1))) / int(m.group(2)))
+        a0, a1 = area(ma), area(mb)
+        p0, p1 = share * a0, (1 - share) * a1
+        total = p0 + p1
+        if "came from workshop A" in asked:
+            v = p0 / total
+            table = {TD_OWN + "17": [p0]}
+        else:
+            v = total
+            table = {TD_OWN + "9": [p0], TD_OWN + "10": [a0 + a1]}
+        need(nu_clear(v), "the answer sits on a rounding edge")
+        want = nu_text("probability = ", v)
+        wrongs = {ref: {nu_text("probability = ", x) for x in xs} for ref, xs in table.items()}
+        trap = "probability = " + dec_text(sp.Rational(sig3(nu_f(v), 2)))
+        td_counted(q, want, wrongs, trap)
+    elif u == "parameter-on-branch":
+        t = q["graph"]
+        need(t["p"] == ["k", "?"] and t["q"][0] == t["q"][1] and t["q"][0][1] == "?", "the tree of unknowns")
+        c = td_expr(t["q"][0][0], "k") / TD_K
+        mr = re.search(r" is (\d+/\d+|\d+)\. Find the value of k\.$", asked)
+        need(mr is not None, f"asked {asked!r}")
+        r = R(mr.group(1))
+        roots = sp.solve((1 - TD_K) * (1 - c * TD_K) - r, TD_K)
+        good = [x for x in roots if x.is_rational and 0 < x < 1 and 0 < c * x < 1]
+        need(len(roots) == 2 and len(good) == 1, f"the roots {roots}")
+        need((c, good[0]) != (sp.Rational(1, 2), sp.Rational(1, 3)), "a past paper's tree")
+        bad = [x for x in roots if x != good[0]][0]
+        table = {TD_OWN + "18": [bad], TD_REF + "1": [(2 - r) / (1 + c)]}
+        want, _, wrongs = td_set(q, "k = ", good[0], table)
+        td_counted(q, want, wrongs)
+    elif u == "rounds-exceed-total":
+        mr = re.search(r"exactly (\w+) rounds.*more than (\d+) points", L[1])
+        need(mr is not None, f"can't read {L[1]!r}")
+        n, lim = TD_WORDS[mr.group(1)], int(mr.group(2))
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[0][0] == "Points" and rows[1][0] == "Probability", "the table's heads")
+            sc = [int(x) for x in rows[0][1]]
+            pr = [R(x) for x in rows[1][1]]
+        else:
+            mt = re.search(r"scores (\d+) points with probability ([\d.]+), (\d+) points with probability ([\d.]+), and otherwise 0\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            sc = [int(mt.group(1)), int(mt.group(3)), 0]
+            pr = [R(mt.group(2)), R(mt.group(4))]
+            pr.append(1 - sum(pr))
+        need(sum(pr) == 1 and all(x > 0 for x in pr), "the scores' chances")
+        v, atl = sp.Integer(0), sp.Integer(0)
+        kinds = set()
+        for game in product(range(3), repeat=n):
+            tot = sum(sc[g] for g in game)
+            pg = sp.prod([pr[g] for g in game])
+            if tot > lim:
+                v += pg
+                kinds.add(tuple(sorted(game)))
+            if tot >= lim:
+                atl += pg
+        need(len(kinds) == 2, f"{len(kinds)} kinds of winning game, not the two the working says")
+        table = {TD_OWN + "21": [pr[0] ** n + pr[0] ** (n - 1) * pr[1]], TD_OWN + "22": [pr[0] ** n], TD_OWN + "23": [atl]}
+        want, trap, wrongs = td_set(q, "probability = ", v, table, True)
+        td_clear(q, v)
+        td_counted(q, want, wrongs, trap)
+    elif u == "selections-find-n":
+        mt = re.fullmatch(rf"A tin holds (\d+) ({TD_COLOUR_WORDS}) (\w+) and 1 ({TD_COLOUR_WORDS}) (\w+)\.", L[0])
+        mp = re.search(r"comes on selection n is (\d+/\d+)\. Find n\.$", asked)
+        need(mt is not None and mp is not None, f"can't read {L[0]!r} or {asked!r}")
+        r0, target = int(mt.group(1)), R(mp.group(1))
+        need(r0 != 3, "a past paper's tin")
+        hits = []
+        red, p = r0, sp.Integer(1)
+        for sel in range(1, 60):
+            if p * sp.Rational(1, red + 1) == target:
+                hits.append(sel)
+            p *= sp.Rational(red, red + 1)
+            red += 1
+        need(len(hits) == 1, f"selections {hits}")
+        n = hits[0]
+        wrongs = {TD_OWN + "19": {f"n = {n + r0}"}, TD_OWN + "20": {f"n = {n - 1}"}}
+        td_counted(q, f"n = {n}", wrongs)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+SITUATION_CHECKS = {"motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
@@ -21398,7 +23932,7 @@ SITUATION_CHECKS = {"basic-probability": check_basic_probability, "quadratic": c
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
-                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional,
+                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional, "independence": check_independence,
                     "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation, "fn-pre-substitute": check_substitute,
                     "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model,
                     "fn-pre-linear-equations": check_linear_equation, "fn-pre-simultaneous": check_simultaneous,
