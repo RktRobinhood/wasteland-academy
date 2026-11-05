@@ -20341,6 +20341,623 @@ def np_check(q):
     return None, None
 
 
+# ── algebraic-proof (t1-algebraic-proof, FAL-728) ────────────
+# The `algebraic-proof` situation's clean limits and exam exclusions, the checker's own copy: the
+# engine's is in game/engine/situations/algebraic_proof.gd. Every statement is built here from
+# its numbers with SymPy and proved: an identity by simplifying LHS − RHS to zero, and a claim
+# about every integer by the residues, since an integer polynomial's value mod m depends only on n
+# mod m. Each misconception's wrong value comes from doing that wrong maths here. Lines and
+# options are read back as expressions, so a wrong line can't be the right value written otherwise.
+
+PF_ID, PF_INT, PF_T = "SL1.6.identity-lhs-rhs#", "SL1.6.integer-proof#", "t1-algebraic-proof#"
+PF_ASSUME, PF_VALUES, PF_NO_END = PF_ID + "0", PF_ID + "1", PF_ID + "2"
+PF_SAME, PF_EXAMPLES, PF_BRACKET = PF_T + "3", PF_INT + "1", PF_INT + "2"
+PF_MID, PF_SQ, PF_SIGN, PF_PART, PF_SPLIT, PF_TOP, PF_GAPS, PF_COEF, PF_DOTS = (PF_T + str(i) for i in range(6, 15))
+PF_IDENTITY = ("simplify-left-side", "common-expression", "missing-line", "next-step", "valid-proof")
+PF_FACTOR = ("square-diff", "sym", "sym-mult")
+PF_N, PF_XV, PF_K = sp.Symbol("n"), sp.Symbol("x"), sp.Symbol("k")
+
+
+def pf_read(text):
+    """A line of working or an option, as an expression."""
+    s = text.strip().replace("−", "-").replace("²", "**2").replace("³", "**3").replace("⁴", "**4")
+    s = s.replace("½", "(1/2)").replace("[", "(").replace("]", ")")
+    return parse_expr(s, local_dict={"n": PF_N, "x": PF_XV, "k": PF_K}, transformations=TRANSFORMS)
+
+
+def pf_same(a, b):
+    return sp.simplify(a - b) == 0
+
+
+def pf_int_coeffs(e, *vs):
+    p = sp.Poly(sp.expand(e), *vs)
+    return all(c.is_integer for c in p.coeffs())
+
+
+def pf_divides_all(e, m, v):
+    """m divides e for every integer: e has whole coefficients, so its residues repeat mod m."""
+    need(pf_int_coeffs(e, v), f"{e} has a fraction in it")
+    return all(sp.expand(e).subs(v, r) % m == 0 for r in range(m))
+
+
+def pf_sq_mid(a, b):
+    return a**2 + a * b + b**2
+
+
+def pf_sq_kept(a, sign, b):
+    """(a ± b)² with each term squared and keeping its sign."""
+    return a**2 + sign * b**2
+
+
+def pf_poly(e, v):
+    """A polynomial as the game writes it, from its coefficients."""
+    p = sp.Poly(sp.expand(e), v)
+    out = ""
+    for (pw,), c in p.terms():
+        mag = abs(c)
+        name = {0: "", 1: v.name, 2: v.name + "²", 3: v.name + "³", 4: v.name + "⁴"}[pw]
+        body = str(mag) if pw == 0 else ("" if mag == 1 else str(mag)) + name
+        out += ("−" if c < 0 else "") + body if out == "" else (" − " if c < 0 else " + ") + body
+    return out or "0"
+
+
+def pf_plus(c):
+    return f" − {-c}" if c < 0 else f" + {c}"
+
+
+def pf_lead(c):
+    return "" if c == 1 else str(c)
+
+
+def pf_statement(g):
+    """(variable, left side as text, LHS, RHS or None, the simplified form as text or None), with the
+    statement's limits. The sides are built from the numbers alone."""
+    fam = g["fam"]
+    i = lambda k: int(g[k])
+    if fam == "square-diff":
+        d = i("d")
+        need(2 <= d <= 9, f"d = {d}")
+        n = PF_N
+        return n, f"(n{pf_plus(d)})² − n²", (n + d)**2 - n**2, d * (2 * n + d), pf_poly(2 * d * n + d**2, n)
+    if fam in ("sym", "sym-mult"):
+        p, q = i("p"), i("q")
+        need(2 <= p <= 7 and 1 <= q <= 7 and p != q and (p, q) not in ((2, 5), (3, 2)), f"p, q = {p}, {q}")
+        v = PF_XV if fam == "sym" else PF_N
+        text = f"({p}{v.name}{pf_plus(q)})² − ({p}{v.name}{pf_plus(-q)})²"
+        return v, text, (p * v + q)**2 - (p * v - q)**2, 4 * p * q * v, pf_poly(4 * p * q * v, v)
+    x = PF_XV
+    if fam == "shift":
+        a, b = i("a"), i("b")
+        need(a != 0 and b != 0 and abs(a) <= 8 and abs(b) <= 9 and a**2 + b != 0, f"a, b = {a}, {b}")
+        r = x**2 - 2 * a * x + a**2 + b
+        return x, f"(x{pf_plus(-a)})²{pf_plus(b)}", (x - a)**2 + b, r, pf_poly(r, x)
+    if fam == "combine":
+        p, q, c, d = i("p"), i("q"), i("c"), i("d")
+        need(1 <= p <= 6 and 1 <= c <= 15 and q != 0 and d != 0 and (p, q, c, d) != (2, -3, 6, 1), "the numbers are out of range")
+        top = sp.expand((p * x + q) * (x - d) - c)
+        need(all(c_ != 0 for c_ in sp.Poly(top, x).all_coeffs()), f"a term of {top} is missing")
+        den = f"(x{pf_plus(-d)})"
+        return x, f"{pf_lead(p)}x{pf_plus(q)} − {c}/{den}", p * x + q - c / (x - d), top / (x - d), f"({pf_poly(top, x)})/{den}"
+    if fam == "split":
+        a = i("a")
+        need(a not in (0, 1) and abs(a) <= 9, f"a = {a}")
+        return x, f"(x{pf_plus(-a)})²/x", (x - a)**2 / x, x - 2 * a + a**2 / x, f"x{pf_plus(-2 * a)} + {a**2}/x"
+    if fam == "triple":
+        k = i("k")
+        need(2 <= k <= 6, f"k = {k}")
+        kk = k * k
+        l_ = x**2 + ((x**2 - kk) / (2 * k))**2
+        r = ((x**2 + kk) / (2 * k))**2
+        return x, f"x² + ((x² − {kk})/{2 * k})²", l_, r, f"({pf_poly(x**4 + 2 * kk * x**2 + kk**2, x)})/{4 * kk}"
+    if fam == "reciprocal":
+        a, d = i("a"), i("d")
+        n = PF_N
+        need(2 <= a <= 7 and 2 <= d <= 9, f"a, d = {a}, {d}")
+        return n, f"{a}/n − {a}/(n + {d})", sp.Rational(a) / n - sp.Rational(a) / (n + d), sp.Rational(a * d) / (n * (n + d)), f"{a * d}/(n(n + {d}))"
+    if fam == "ap":
+        n = PF_N
+        u, v, w, c = i("u"), i("v"), i("w"), i("c")
+        kind = g["kind"]
+        need(u == w and (u, v) == {"integers": (1, 0), "evens": (2, 0), "odds": (2, 1)}.get(kind, (u, v)), "the list is not its kind")
+        need(kind != "steps" or (u in (3, 4, 5) and 1 <= v < u), "the list is out of range")
+        terms = [u * n + v + t * w for t in range(c)]
+        head = pf_lead(u) + "n"
+        text = " + ".join(head if v + t * w == 0 else f"({head}{pf_plus(v + t * w)})" for t in range(c))
+        return n, text, sum(terms), None, pf_poly(sum(terms), n)
+    need(False, f"no statement {fam}")
+
+
+def pf_ap_numbers(g):
+    """The list's sum as big·n + tail, hcf and all, solved from the terms."""
+    _, _, s, _, _ = pf_statement(g)
+    big, tail = sp.Poly(s, PF_N).all_coeffs()
+    # The largest whole number that divides every value, from the values themselves.
+    m = sp.gcd([s.subs(PF_N, t) for t in range(1, 30)])
+    need(m == sp.gcd(big, tail) and m > 1, "the sum has no common factor")
+    need(int(g["big"]) == big and int(g["tail"]) == tail and int(g["m"]) == m, "the sum's numbers are wrong")
+    return s, int(big), int(tail), int(m)
+
+
+def pf_slips(g, factor=False):
+    """ref -> the value that wrong move gives, each worked out here by making the move."""
+    fam = g["fam"]
+    i = lambda k: int(g[k])
+    if factor:
+        if fam == "square-diff":
+            a, b = PF_N + i("d"), PF_N
+        else:
+            v = PF_XV if fam == "sym" else PF_N
+            a, b = i("p") * v + i("q"), i("p") * v - i("q")
+        return {PF_DOTS: (a + b) * (a + b)}
+    if fam == "square-diff":
+        n, d = PF_N, i("d")
+        return {PF_MID: pf_sq_mid(n, d) - n**2, PF_SQ: pf_sq_kept(n, 1, d) - n**2}
+    if fam in ("sym", "sym-mult"):
+        v = PF_XV if fam == "sym" else PF_N
+        a, b = i("p") * v, i("q")
+        return {PF_MID: pf_sq_mid(a, b) - pf_sq_mid(a, -b), PF_SQ: pf_sq_kept(a, 1, b) - pf_sq_kept(a, -1, b),
+                # The minus misses the last term of the second bracket.
+                PF_SIGN: (a + b)**2 - (a**2 - 2 * a * b) + b**2}
+    x = PF_XV
+    if fam == "shift":
+        a, b = i("a"), i("b")
+        return {PF_MID: pf_sq_mid(x, -a) + b, PF_SQ: pf_sq_kept(x, -sp.sign(a), a) + b, PF_SIGN: (x + a)**2 + b}
+    if fam == "combine":
+        p, q, c, d = i("p"), i("q"), i("c"), i("d")
+        return {PF_PART: (p * x * (x - d) + q - c) / (x - d), PF_SIGN: (p * x * (x - d) + q * x + q * d - c) / (x - d)}
+    if fam == "split":
+        a = i("a")
+        return {PF_SPLIT: x - 2 * a + a**2, PF_MID: pf_sq_mid(x, -a) / x, PF_SQ: pf_sq_kept(x, -sp.sign(a), a) / x}
+    if fam == "triple":
+        k = i("k")
+        kk = k * k
+        return {PF_SQ: x**2 + pf_sq_kept(x**2, -1, kk) / (4 * kk), PF_TOP: x**2 + (x**2 - kk)**2 / (2 * k)}
+    if fam == "reciprocal":
+        a, d, n = i("a"), i("d"), PF_N
+        den = n * (n + d)
+        return {PF_PART: (a * n + d - a * n) / den, PF_SIGN: (a * n + a * d + a * n) / den}
+    if fam == "ap":
+        n, u, v, w, c = PF_N, i("u"), i("v"), i("w"), i("c")
+        return {PF_GAPS: sum(u * n + v + (t + 1) * w for t in range(c))}
+    need(False, f"no slips for {fam}")
+
+
+def pf_options(q, label, value, slips, want, steps=(2, 14), read=pf_read, side_steps=True):
+    """Every option read back: the right one has the value, a tagged one the value its slip gives,
+    and an untagged one any other value. want is the answer's text, from the checker's own numbers."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = read(o["text"][len(label):])
+        if o["correct"]:
+            need(pf_same(v, value), f"the right option {o['text']!r} has the wrong value")
+        else:
+            need(not pf_same(v, value), f"the wrong option {o['text']!r} has the right value")
+            if o["ref"]:
+                need(o["ref"] in slips, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+                need(pf_same(v, slips[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives ({slips[o['ref']]})")
+    pf_shared(q, want, steps)
+
+
+def pf_shared(q, want, steps=(2, 14)):
+    tr_hyphens(q)
+    ch = q["choices"]
+    gc_check_common(q, want, {o["ref"]: {o["text"]} for o in ch if o["ref"]}, steps=steps)
+
+
+def pf_steps(q, sides):
+    """Every line of working: 'NAME = expression' has the value of that name."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            tail = st.rsplit(": ", 1)[-1]
+            m = re.fullmatch(r"(L|LHS|RHS|E|S) = ([^,]+?)\.?", tail)
+            if m and m.group(1) in sides:
+                need(pf_same(pf_read(m.group(2)), sides[m.group(1)]), f"{sol['name']}: {st!r} has the wrong value")
+
+
+def pf_shown_proof(q, lhs, name="LHS"):
+    """The numbered lines of a proof: [(line number, text)], in order, from 1."""
+    out = []
+    for ln_ in q["lines"]:
+        m = re.fullmatch(r"Line (\d+): (.*)", ln_)
+        if not m:
+            continue
+        no, body = int(m.group(1)), m.group(2)
+        need(no == len(out) + 1, f"line {no} is out of order")
+        if no == 1:
+            need(body.startswith(f"{name} = "), f"can't read {ln_!r}")
+            body = body[len(name) + 3:]
+            need(pf_same(pf_read(body), lhs), f"line 1 is not the statement: {ln_!r}")
+        elif body != "?":
+            need(body.startswith("= "), f"can't read {ln_!r}")
+            body = body[2:]
+        out.append((no, body))
+    need(out, "no proof is shown")
+    return out
+
+
+def pf_claim(g, left_text, right_text, dom=""):
+    return f"Prove that {left_text} ≡ {right_text}{dom}."
+
+
+def pf_domain(g):
+    if g["fam"] == "combine":
+        return ", for x ≠ " + frac_text(int(g["d"]))
+    if g["fam"] == "split":
+        return ", for x ≠ 0"
+    if g["fam"] == "reciprocal":
+        return ", for n ≠ 0 and n ≠ −" + str(g["d"])
+    return ""
+
+
+def pf_two(g, v):
+    return f"{g['p']}{v}{pf_plus(int(g['q']))}", f"{g['p']}{v}{pf_plus(-int(g['q']))}"
+
+
+def pf_claim_in_words(g):
+    """Words for the two statements a sentence can prove."""
+    if g["fam"] == "square-diff":
+        d = g["d"]
+        return [f"Two integers differ by {d}: n and n + {d}.", f"Prove that the difference of their squares is {d} times their sum."]
+    a, b = pf_two(g, "x")
+    return [f"Two numbers are {a} and {b}.", f"Prove that the square of the first minus the square of the second is {4 * int(g['p']) * int(g['q'])}x."]
+
+
+def pf_named(g, rep, nm, left_text):
+    """The expression named, as the question shows it."""
+    if rep != "words":
+        return [f"{nm} = {left_text}"]
+    fam = g["fam"]
+    if fam == "square-diff":
+        d = g["d"]
+        return [f"Two integers differ by {d}: n and n + {d}.", f"{nm} is the square of the larger minus the square of the smaller."]
+    if fam == "sym":
+        a, b = pf_two(g, "x")
+        return [f"Two numbers are {a} and {b}.", f"{nm} is the square of the first minus the square of the second."]
+    if fam == "sym-mult":
+        a, b = pf_two(g, "n")
+        return [f"Two numbers are {a} and {b}, where n is a positive integer.", f"{nm} is the square of the first minus the square of the second."]
+    u, v, w, c, kind = int(g["u"]), int(g["v"]), int(g["w"]), int(g["c"]), g["kind"]
+    first = pf_lead(u) + "n" + (pf_plus(v) if v else "")
+    noun = {"integers": "integers", "evens": "even numbers", "odds": "odd numbers"}.get(kind)
+    what = f"{c} consecutive {noun}" if noun else f"{c} numbers, each {w} more than the one before"
+    return [f"{nm} is the sum of {what}, and the smallest is {first}, where n is a positive integer."]
+
+
+def pf_identity(q, g, u, rep, angle):
+    v, left_text, lhs, rhs, simple = pf_statement(g)
+    fam, paper = g["fam"], q["paper"]
+    need(pf_same(lhs, rhs), f"{fam}: LHS and RHS are not identical")
+    factor = angle == "factorise" and fam in PF_FACTOR
+    slips = pf_slips(g, factor)
+    # The right side as the statement writes it.
+    right_text = {"square-diff": f"{g.get('d')}(2n + {g.get('d')})", "triple": f"((x² + {int(g.get('k', 0))**2})/{2 * int(g.get('k', 0))})²"}.get(fam, simple)
+    # Each proof shown ends on the right side.
+    claim = pf_claim(g, left_text, right_text, pf_domain(g))
+    if u == "simplify-left-side":
+        need(q["lines"] == pf_named(g, rep, "L", left_text), f"can't read {q['lines']}")
+        pf_options(q, "L = ", lhs, slips, "L = " + simple)
+        pf_steps(q, {"L": lhs})
+    elif u == "common-expression":
+        need(fam in ("square-diff", "shift", "split", "triple"), "no common form to reach")
+        left_form = {"square-diff": simple, "shift": simple, "split": f"(x²{pf_plus(-2 * int(g.get('a', 0)))}x + {int(g.get('a', 0))**2})/x", "triple": simple}[fam]
+        right_shown = {"shift": f"x(x{pf_plus(-2 * int(g.get('a', 0)))}){pf_plus(int(g.get('a', 0))**2 + int(g.get('b', 0)))}"}.get(fam, right_text)
+        need(q["lines"] == [pf_claim(g, left_text, right_shown, pf_domain(g))], f"can't read {q['lines']}")
+        need(pf_same(pf_read(right_shown), rhs), "the shown right side is another expression")
+        pf_options(q, "", lhs, slips, left_form)
+        pf_steps(q, {"LHS": lhs, "RHS": rhs})
+    elif u == "missing-line":
+        head = pf_claim_in_words(g) if rep == "words" else [claim]
+        need(q["lines"][:len(head)] == head, f"can't read {q['lines']}")
+        shown = pf_shown_proof(q, lhs)
+        hide = int(g["hide"])
+        need(0 < hide < len(shown) - 1, "the hidden line is the first or the last")
+        for no, body in shown:
+            need((body == "?") == (no == hide + 1), f"line {no} is {body!r}")
+            if body != "?":
+                need(pf_same(pf_read(body), lhs), f"line {no} is not the left side: {body}")
+        need(shown[-1][1] == right_text, f"the proof ends on {shown[-1][1]!r}, not the right side")
+        label = f"Line {hide + 1}: "
+        need(q["answer_text"].startswith(label), f"the answer is {q['answer_text']!r}")
+        pf_options(q, label, lhs, slips, q["answer_text"])
+        pf_steps(q, {"LHS": lhs})
+    elif u == "next-step":
+        need(q["lines"][0] == claim, f"can't read {q['lines']}")
+        shown = pf_shown_proof(q, lhs)
+        at = int(g["at"])
+        need(len(shown) == at, "the proof stops at the wrong line")
+        for no, body in shown:
+            need(pf_same(pf_read(body), lhs), f"line {no} is not the left side")
+        lit = sp.Symbol(v.name)
+        for o in q["choices"]:
+            t = o["text"]
+            if o["ref"] == PF_ASSUME:
+                need(t == f"{left_text} − ({right_text}) = 0", f"can't read {t!r}")
+                continue
+            if o["ref"] == PF_VALUES:
+                m = re.fullmatch(rf"Put {v.name} = (\d+): both sides equal (.+)\.", t)
+                need(m, f"can't read {t!r}")
+                pt, val = int(m.group(1)), pf_read(m.group(2))
+                need(lhs.subs(v, pt) == val and sp.nsimplify(rhs).subs(v, pt) == val, f"{t!r}: the values are not the sides'")
+                continue
+            need(t.startswith("= "), f"can't read {t!r}")
+            val = pf_read(t[2:])
+            if o["correct"]:
+                need(pf_same(val, lhs), f"the next line {t!r} is not the left side")
+                need(t[2:] not in [b for _, b in shown], f"{t!r} is a line already there")
+            else:
+                need(not pf_same(val, lhs), f"the wrong line {t!r} is equal to the left side")
+                if o["ref"]:
+                    need(o["ref"] in slips and pf_same(val, slips[o["ref"]]), f"{t!r} is not what {o['ref']} gives")
+        need(all(o["ref"] in (PF_ASSUME, PF_VALUES) or o["correct"] or o["text"].startswith("= ") for o in q["choices"]), "an option has another shape")
+        pf_shared(q, q["answer_text"])
+        pf_steps(q, {"LHS": lhs})
+    elif u == "valid-proof":
+        need(fam in ("square-diff", "sym", "shift"), f"{fam} in a whole proof")
+        need(q["lines"] == [claim], f"can't read {q['lines']}")
+        m = re.fullmatch(r"LHS = (.+?) = (.+?) = RHS, so LHS ≡ RHS\.", q["answer_text"])
+        need(m, f"can't read {q['answer_text']!r}")
+        need(pf_same(pf_read(m.group(1)), lhs) and m.group(2) == right_text, "the proof doesn't run from the left side to the right")
+        need(sorted(o["ref"] for o in q["choices"]) == sorted(["", PF_ASSUME, PF_VALUES, PF_NO_END]), "the options are not the three false proofs")
+        for o in q["choices"]:
+            t = o["text"]
+            if o["ref"] == PF_ASSUME:
+                need(t == "Assume LHS = RHS. Take the RHS from both sides: 0 = 0, so LHS ≡ RHS.", f"can't read {t!r}")
+            elif o["ref"] == PF_VALUES:
+                nm = v.name
+                m2 = re.fullmatch(rf"At {nm} = 1 both sides are (.+) and at {nm} = 2 both are (.+), so LHS ≡ RHS\.", t)
+                need(m2 and lhs.subs(v, 1) == pf_read(m2.group(1)) and rhs.subs(v, 2) == pf_read(m2.group(2)), f"{t!r}: the values are not the sides'")
+            elif o["ref"] == PF_NO_END:
+                need(t == f"LHS = {m.group(1)}", f"{t!r} is not the proof stopped early")
+                need(not t.endswith(right_text), "it reached the right side")
+        pf_shared(q, q["answer_text"])
+        pf_steps(q, {"LHS": lhs})
+
+
+def pf_flawed(q, g, angle):
+    v, left_text, lhs, rhs, simple = pf_statement(g)
+    fam = g["fam"]
+    nm = {"sym-mult": "E", "ap": "S"}.get(fam, "LHS")
+    if fam in ("sym-mult", "ap"):
+        s_ = lhs
+        m_ = int(g["m"])
+        need(pf_divides_all(s_, m_, v), f"{m_} does not divide {s_} for every integer")
+        need(q["lines"][:2] == [f"{nm} = {left_text}", f"Prove that {nm} is a multiple of {m_} for every positive integer n."], f"can't read {q['lines']}")
+    else:
+        need(pf_same(lhs, rhs), "the identity does not hold")
+    slips = pf_slips(g)
+    shown = pf_shown_proof(q, lhs, nm)
+    # The first line that isn't the left side, found here.
+    bad = [no for no, body in shown if not pf_same(pf_read(body), lhs)]
+    need(bad, "every line of the proof is right")
+    first = bad[0]
+    need(all(no in bad for no, _ in shown if no > first), "a later line goes back to being right")
+    ref = [r for r, e in slips.items() if pf_same(pf_read(dict(shown)[first]), e)]
+    need(ref, f"line {first} is no slip the type names: {dict(shown)[first]}")
+    need(int(g["at"]) == first - 1, "the situation names another line")
+    need(q["answer_text"].startswith(f"Line {first} should read: "), f"the answer is {q['answer_text']!r}, but line {first} is the first wrong line")
+    read = lambda t: re.fullmatch(r"Line (\d+) should read: (.+)", t)
+    for o in q["choices"]:
+        m = read(o["text"])
+        need(m, f"can't read {o['text']!r}")
+        no, val = int(m.group(1)), pf_read(m.group(2))
+        if o["correct"]:
+            need(no == first and pf_same(val, lhs), f"the right option {o['text']!r} doesn't correct line {first}")
+        else:
+            need(no != first or not pf_same(val, lhs), f"the wrong option {o['text']!r} is a correction of line {first}")
+            if o["ref"]:
+                need(o["ref"] in slips and pf_same(val, slips[o["ref"]]), f"{o['text']!r} is not what {o['ref']} gives")
+    pf_shared(q, q["answer_text"])
+    pf_steps(q, {nm: lhs})
+
+
+def pf_multiple(q, g, rep, angle):
+    n = PF_N
+    _, left_text, e, _, _ = pf_statement(g)
+    p, q0, m = int(g["p"]), int(g["q"]), int(g["m"])
+    total = 4 * p * q0
+    need(total % m == 0 and 2 < m < total, f"m = {m} is not a proper divisor of {total}")
+    need(pf_divides_all(e, m, n), f"{m} does not divide E for every integer")
+    k = sp.expand(e) / m
+    need(pf_int_coeffs(k, n), "k has a fraction in it")
+    need(q["lines"] == pf_named(g, rep, "E", left_text) + [f"E is a multiple of {m}: E = {m}k."], f"can't read {q['lines']}")
+    slips = {r: sp.expand(v) / m for r, v in pf_slips(g, angle == "factorise").items()}
+    pf_options(q, "k = ", k, slips, "k = " + pf_poly(k, n))
+    pf_steps(q, {"E": e})
+
+
+def pf_divides_text(q, g, rep):
+    s, big, tail, m = pf_ap_numbers(g)
+    _, left_text, _, _, _ = pf_statement(g)
+    return s, big, tail, m, pf_named(g, rep, "S", left_text)
+
+
+def check_algebraic_proof(q):
+    g, u, rep, angle, paper = q["given"], q["view"]["unknown"], q["view"]["rep"], q["view"]["angle"], q["paper"]
+    if u in PF_IDENTITY or (u == "flawed-step" and angle == "expand-simplify"):
+        need(paper in (1, 2), f"paper {paper}")
+    else:
+        need(paper == 1, f"{u} is Paper 1 in the bank, not Paper {paper}")
+    if u in PF_IDENTITY:
+        pf_identity(q, g, u, rep, angle)
+    elif u == "flawed-step":
+        pf_flawed(q, g, angle)
+    elif u == "multiple-k":
+        pf_multiple(q, g, rep, angle)
+    elif u in ("consecutive-sum", "greatest-divisor", "finish-divisibility"):
+        s, big, tail, m, shown = pf_divides_text(q, g, rep)
+        n = PF_N
+        need(pf_divides_all(s, m, n), f"{m} does not divide S for every integer")
+        need(q["lines"][:len(shown)] == shown, f"can't read {q['lines']}")
+        if u == "consecutive-sum":
+            pf_options(q, "S = ", s, pf_slips(g), f"S = {m}({pf_poly(s / m, n)})")
+            pf_steps(q, {"S": s})
+        elif u == "greatest-divisor":
+            need(big > m, "the coefficient of n is the answer")
+            label = "greatest divisor = "
+            for o in q["choices"]:
+                x = int(o["text"][len(label):])
+                need(o["correct"] == (x == m), f"option {x}: the greatest divisor is {m}")
+                # Anything larger than m fails for some n.
+                need(x <= m or not pf_divides_all(s, x, n), f"{x} divides every value too")
+                if o["ref"] == PF_BRACKET:
+                    need(x == big and tail % big != 0, f"{x} is not the coefficient that leaves a fraction")
+                elif o["ref"] == PF_EXAMPLES:
+                    need(x == s.subs(n, 1), f"{x} is not the value at n = 1")
+            pf_shared(q, label + str(m))
+            pf_steps(q, {"S": s})
+        else:
+            need(big > m, "no fraction is left by the coefficient of n")
+            need(q["lines"][len(shown):] == [f"S = {pf_poly(s, n)}"], f"can't read {q['lines']}")
+            for o in q["choices"]:
+                t = o["text"]
+                if o["ref"] == PF_BRACKET:
+                    r = re.fullmatch(rf"S = {big}\(n \+ (\d+/\d+)\), and {big} is a multiple of {m}\.", t)
+                    need(r, f"can't read {t!r}")
+                    f = sp.Rational(r.group(1))
+                    need(pf_same(big * (n + f), s) and f.q != 1, f"{t!r}: the bracket is an integer or the line is false")
+                elif o["ref"] == PF_EXAMPLES:
+                    r = re.fullmatch(rf"S = (\d+) when n = 1 and (\d+) when n = 2, and both are multiples of {m}\.", t)
+                    need(r and s.subs(n, 1) == int(r.group(1)) and s.subs(n, 2) == int(r.group(2)), f"{t!r}: the values are not S's")
+                else:
+                    r = re.fullmatch(rf"S = {m}\((.+)\), and (.+) is an integer\.", t)
+                    need(r and r.group(1) == r.group(2), f"can't read {t!r}")
+                    inner = pf_read(r.group(1))
+                    need(pf_int_coeffs(inner, n), f"{t!r}: the bracket has a fraction")
+                    need(pf_same(m * inner, s) == o["correct"], f"{t!r} is marked {o['correct']}")
+            pf_shared(q, q["answer_text"])
+            pf_steps(q, {"S": s})
+    elif u == "represent-integers":
+        pf_represent(q, g)
+    elif u == "case-bracket":
+        pf_cases(q, g, rep)
+    elif u == "consecutive-factors":
+        pf_product(q, g, rep)
+    elif u == "remainder-form":
+        pf_never(q, g, rep)
+    else:
+        need(False, f"no check for {u}")
+    return None, None
+
+
+def pf_represent(q, g):
+    m, r, claim, a, b = int(g["m"]), int(g["r"]), g["claim"], g["l1"], g["l2"]
+    need(2 <= m <= 9 and 0 <= r < m and a != b, "the numbers are out of range")
+    # The claim, tried on every pair in a range wide enough to cover all residues.
+    holds = {"sum-even": lambda x, y: (x + y) % 2 == 0, "product-odd": lambda x, y: (x * y) % 2 == 1, "product-four": lambda x, y: (x * y) % 4 == 0,
+             "sum-multiple": lambda x, y: (x + y) % m == 0, "difference-multiple": lambda x, y: (x - y) % m == 0}[claim]
+    need(claim not in ("product-odd",) or (m, r) == (2, 1), "the claim is on another kind")
+    need(claim != "product-four" or (m, r) == (2, 0), "the claim is on another kind")
+    need(claim != "sum-even" or m == 2, "the claim is on another kind")
+    need(claim != "sum-multiple" or r == 0, "the claim is on another kind")
+    pool = [m * t + r for t in range(-20, 21)]
+    need(all(holds(x, y) for x in pool for y in pool), f"the claim {claim} is false for {m}k + {r}")
+    tx = lambda letter, shift=0: f"{'' if m == 1 else m}{letter}" + (pf_plus(r + shift) if r + shift else "")
+    want = f"Let them be {tx(a)} and {tx(b)}, for integers {a} and {b}."
+    wrongs = {PF_SAME: f"Let them be {tx(a)} and {tx(a)}, for an integer {a}.", PF_EXAMPLES: f"Take {m + r} and {2 * m + r}, and check that the claim holds for them."}
+    for o in q["choices"]:
+        if o["ref"]:
+            need(o["text"] == wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+        elif not o["correct"]:
+            need(o["text"] == f"Let them be {tx(a)} and {tx(a, m)}, for an integer {a}.", f"can't read {o['text']!r}")
+    # Which pairs each opening reaches. Only two letters reach every pair of this kind.
+    need({o["ref"] for o in q["choices"]} == {"", PF_SAME, PF_EXAMPLES}, "the options are not the three openings")
+    pairs = [(x, y) for x in pool for y in pool]
+    need(all((x - r) % m == 0 and (y - r) % m == 0 for x, y in pairs), "two letters miss a pair")
+    need(any(x != y for x, y in pairs) and any(y - x not in (0, m) for x, y in pairs), "the one-letter openings reach every pair")
+    pf_shared(q, want)
+    need(any(tx(a) in s_ for s_ in q["solutions"][0]["steps"]), "the working doesn't use the numbers")
+    last = q["solutions"][0]["steps"][2]
+    t0 = sp.Symbol(a)
+    t1 = sp.Symbol(b)
+    e1, e2 = m * t0 + r, m * t1 + r
+    need(pf_two_step(last, claim, e1, e2, m, a, b), f"can't confirm the working: {last!r}")
+
+
+def pf_two_step(step, claim, e1, e2, m, a, b):
+    """The proof the working gives, read by its equals signs, from the two letters."""
+    syms = {a: sp.Symbol(a), b: sp.Symbol(b)}
+    body = step.removeprefix("Then the proof runs: ").split(", and ")[0]
+    read = lambda t: parse_expr(re.sub(rf"(?<=[{a}{b}\d])(?=[{a}{b}(])", "*", t.strip().replace("−", "-")), local_dict=syms, transformations=TRANSFORMS)
+    parts = [read(p) for p in body.split(" = ")]
+    want = {"sum-even": e1 + e2, "sum-multiple": e1 + e2, "difference-multiple": e1 - e2}.get(claim, e1 * e2)
+    return all(pf_same(p, want) for p in parts)
+
+
+def pf_cases(q, g, rep):
+    a, b, part = int(g["a"]), int(g["b"]), g["part"]
+    n, k = PF_N, PF_K
+    need(a % 2 == 1 and b % 2 == 0 and abs(a) <= 9 and -8 <= b <= 12, f"a, b = {a}, {b}")
+    e = n**2 + a * n + b
+    need(pf_divides_all(e, 2, n), "E is not always even")
+    sub = 2 * k if part == "even" else 2 * k + 1
+    ek = sp.expand(e.subs(n, sub))
+    need(pf_int_coeffs(ek / 2, k), "the bracket has a fraction")
+    if part == "even":
+        slips = {PF_COEF: 2 * k**2 + a * sub + b}
+    else:
+        slips = {PF_SQ: pf_sq_kept(2 * k, 1, 1) + a * sub + b, PF_MID: pf_sq_mid(2 * k, 1) + a * sub + b}
+    name = "2k" if part == "even" else "2k + 1"
+    first = f"E = {pf_poly(e, n)}, where n is an integer." if rep != "words" else f"Take an integer n. Square it, add {frac_text(a)} times n, and add {frac_text(b)}. Call the result E."
+    need(q["lines"] == [first, f"Case: n is {part}, so n = {name} for an integer k."], f"can't read {q['lines']}")
+    pf_options(q, "E = ", ek, slips, f"E = 2({pf_poly(ek / 2, k)})")
+    pf_steps(q, {"E": ek})
+
+
+def pf_product(q, g, rep):
+    m, n = int(g["m"]), PF_N
+    need(0 < abs(m) <= 8 and m != -1, f"m = {m}")
+    e = sp.expand((n + m) * (n + m + 1))
+    a, b = sp.Poly(e, n).all_coeffs()[1:]
+    first = f"E = {pf_poly(e, n)}, where n is an integer." if rep != "words" else f"Take an integer n. Square it, add {frac_text(a)} times n, and add {frac_text(b)}. Call the result E."
+    need(q["lines"] == [first], f"can't read {q['lines']}")
+    need(pf_divides_all(e, 2, n), "E is not always even")
+    pf_options(q, "E = ", e, {}, f"E = (n{pf_plus(m)})(n{pf_plus(m + 1)})")
+    need(q["answer"]["unordered"] == [["p", "q"]], "the brackets can't be typed in either order")
+
+
+def pf_never(q, g, rep):
+    n, d, m, shape = PF_N, int(g["d"]), int(g["m"]), g["shape"]
+    if shape == "three":
+        need(m == 3 and d in (2, 4, 5, 7), f"d = {d}")
+        e = (n - d)**2 + n**2 + (n + d)**2
+        text = f"(n − {d})² + n² + (n + {d})²"
+        who = f"the three integers n − {d}, n and n + {d}"
+        slips = {PF_SQ: pf_sq_kept(n, -1, d) + n**2 + pf_sq_kept(n, 1, d)}
+        bracket = n**2
+    else:
+        need(m == 2 and d in (3, 5, 7), f"d = {d}")
+        e = n**2 + (n + d)**2
+        text = f"n² + (n + {d})²"
+        who = f"the two integers n and n + {d}"
+        slips = {PF_SQ: n**2 + pf_sq_kept(n, 1, d)}
+        bracket = n**2 + d * n
+    e = sp.expand(e)
+    # Never divisible: no residue of n gives 0, and so no integer does.
+    residues = {e.subs(n, t) % m for t in range(m)}
+    need(0 not in residues and len(residues) == 1, f"{m} divides S for some n, or the remainder changes")
+    r = residues.pop()
+    q0 = sp.Rational(sp.expand(e - m * bracket - r), m)
+    need(q0.q == 1, "the bracket has a fraction")
+    need(q["lines"] == ([f"S is the sum of the squares of {who}, where n is an integer."] if rep == "words" else [f"S = {text}, where n is an integer."]), f"can't read {q['lines']}")
+    want = f"S = {m}({pf_poly(bracket + q0, n)}){pf_plus(r)}"
+    # A bracket with a fraction has S's value, and that is its fault.
+    for o in q["choices"]:
+        if o["ref"] == PF_BRACKET:
+            v = pf_read(o["text"][4:])
+            need(pf_same(v, e), f"{o['text']!r} is not S")
+            inner = sp.expand(v / m)
+            need(not pf_int_coeffs(inner, n), f"{o['text']!r} has a whole bracket")
+    rest = dict(q, choices=[o for o in q["choices"] if o["ref"] != PF_BRACKET])
+    for o in rest["choices"]:
+        need(o["text"].startswith("S = "), f"{o['text']!r} has another shape")
+        v = pf_read(o["text"][4:])
+        need(pf_same(v, e) == o["correct"], f"{o['text']!r} is marked {o['correct']}")
+        if o["ref"]:
+            need(pf_same(v, slips[o["ref"]]), f"{o['text']!r} is not what {o['ref']} gives")
+    pf_shared(q, want)
+    pf_steps(q, {"S": e})
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
 # ── basic-probability (t4-probability-basic, FAL-728) ────────
 # The `basic-probability` situation's clean limits, the checker's own copy: the engine's is in
@@ -20772,6 +21389,7 @@ SITUATION_CHECKS = {"basic-probability": check_basic_probability, "quadratic": c
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "geometric-sequence": check_geometric, "data-summary": check_data_summary, "regression": check_regression,
                     "binomial": check_binomial, "binomial-expansion": check_binomial_expansion, "data-summary": check_data_summary, "regression": check_regression,
+                    "binomial": check_binomial, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
