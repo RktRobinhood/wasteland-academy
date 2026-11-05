@@ -3665,6 +3665,53 @@
 				"Paper 2 answers are to 3 s.f., clear of a rounding edge",
 				"the range is even on Paper 1, so a and d are whole"
 			]
+		},
+		"geometric-sequence": {
+			"name": "One geometric sequence and its sums",
+			"summary": "Pick u₁ and r (or the two terms, the expressions in k, the Σ, the story), then derive every term, Sₙ and S∞, so any of them can be hidden and any shown.",
+			"quantities": [
+				{
+					"name": "u₁",
+					"is": "the first term",
+					"pick": "a non-zero whole number on Paper 1, a multiple of 20 on Paper 2"
+				},
+				{
+					"name": "r",
+					"is": "the common ratio",
+					"pick": "a whole number or simple fraction on Paper 1, a decimal such as 0.85 or 1.25 on Paper 2; |r| < 1 for a sum to infinity, or above 1 in size where one must not exist"
+				},
+				{
+					"name": "n",
+					"is": "a term number or the number of terms",
+					"pick": "5 to 9 for a term, 4 to 10 for a sum"
+				},
+				{
+					"name": "uₙ, Sₙ, S∞",
+					"is": "a term, a finite sum and the sum to infinity",
+					"pick": "u₁r^(n − 1), u₁(1 − r^n)/(1 − r) and u₁/(1 − r)"
+				},
+				{
+					"name": "u_p, u_q",
+					"is": "two given terms",
+					"pick": "p from 2 to 4 and a gap of 2 to 5; an odd gap fixes r, and an even gap gives ±r"
+				},
+				{
+					"name": "k, h, x",
+					"is": "an unknown inside the terms",
+					"pick": "three linear terms in k, three binomial coefficients in h, or r as a line in x"
+				},
+				{
+					"name": "story",
+					"is": "what the series counts",
+					"pick": "a ball's path, a well's yield, a growing store, a recurring block, or squares"
+				}
+			],
+			"clean": [
+				"Paper 1: every value exact, with denominators no larger than 6561 and sizes up to 200 000",
+				"Paper 2: sizes up to 5 000 000, each clear of a rounding edge at 3 s.f.",
+				"terms shown are whole on Paper 1 and end in decimals on Paper 2",
+				"a graph's dots are small whole numbers"
+			]
 		}
 	},
 	"skills": {
@@ -3734,10 +3781,18 @@
 		"SL1.2.find-n": "Find which term has a given value, or the number of terms",
 		"SL1.2.sum": "Find the sum of a finite arithmetic series",
 		"SL1.2.sum-unknown": "Use a given sum to find n, u_1 or d",
+		"SL1.3.nth-term": "Find a term or the general term of a geometric sequence",
+		"SL1.3.find-r-u1": "Find r and u_1 from given terms or conditions",
+		"SL1.3.sum": "Find the sum of a finite geometric series",
+		"SL1.3.sigma": "Interpret and evaluate sigma notation for geometric series",
 		"SL1.4.future-value": "Find the future value of a compound interest investment",
 		"SL1.4.find-rate-or-pv": "Find the present value or the interest rate",
 		"SL1.4.find-time": "Find the time needed to reach a target value",
 		"SL1.4.compare-options": "Compare investment options and compounding frequencies",
+		"SL1.8.convergence": "Decide whether a geometric series converges and find the condition for convergence",
+		"SL1.8.sum-to-infinity": "Find the sum to infinity of a convergent geometric series",
+		"SL1.8.find-unknown": "Use a given sum to infinity to find r, u_1 or another unknown",
+		"SL1.8.applications": "Apply sums to infinity in context",
 		"SL3.1.volume-solids": "Find volumes of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.1.surface-area": "Find surface areas of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.5.ambiguous-case": "Resolve the ambiguous case of the sine rule (two possible triangles)",
@@ -3859,8 +3914,6 @@
 		"SL5.1.chord-to-tangent": "Find the gradient of a curve as the limit of chord gradients",
 		"SL1.3.model": "Model growth and decay with geometric sequences",
 		"SL1.4.depreciation": "Model annual depreciation",
-		"SL1.3.nth-term": "Find a term or the general term of a geometric sequence",
-		"SL1.8.convergence": "Decide whether a geometric series converges and find the condition for convergence",
 		"SL4.9.inverse-normal": "Find a value of X from a given probability (inverse normal)",
 		"SL4.9.symmetry-probability": "Find normal probabilities from given ones using symmetry, without a calculator",
 		"SL1.9.ncr-pascal": "Evaluate nCr and use Pascal's triangle",
@@ -18994,6 +19047,717 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Geometric sequence: find r, u1, a term or S_n",
+			"summary": "Find the common ratio, a term or the general term of a geometric sequence, find r and u₁ from given terms, including expressions in k and coefficients of a binomial expansion, and find finite sums from terms, the last term, a closed form or sigma notation.",
+			"situation": "geometric-sequence",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "notation",
+					"exam": true,
+					"how": "u₁ = 5,  r = 3, or two terms: u₃ = 12,  u₆ = 96"
+				},
+				{
+					"rep": "terms",
+					"exam": true,
+					"how": "the first terms, 5, 15, 45, 135, …, a series with a last term, or three terms in k"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "the same in a sentence: the third term is 12 and the sixth is 96, or a bouncing ball"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "Σ (k = 1 to 6) 5(2)^k, or (1 + hx)⁸"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "n against uₙ"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "dots at (n, uₙ), each with its value"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the path of a bouncing ball, with the drop marked"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "r-from-terms",
+					"given": [
+						"the first terms, as a list, a table or dots on a graph"
+					],
+					"asked": "the common ratio r",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"terms",
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL1.3.nth-term"
+					]
+				},
+				{
+					"id": "term-from-u1-r",
+					"given": [
+						"u₁ and r, or the first terms"
+					],
+					"asked": "a later term uₙ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL1.3.nth-term"
+					]
+				},
+				{
+					"id": "term-exact",
+					"given": [
+						"u₁ and a fractional r, or the first terms"
+					],
+					"asked": "the exact value of a later term",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.3.nth-term"
+					]
+				},
+				{
+					"id": "general-term",
+					"given": [
+						"u₁ and r, or the first terms"
+					],
+					"asked": "an expression for uₙ in terms of n",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"table"
+					],
+					"skills": [
+						"SL1.3.nth-term"
+					]
+				},
+				{
+					"id": "r-odd-gap",
+					"given": [
+						"two terms an odd number of steps apart"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "r-even-gap",
+					"given": [
+						"two terms an even number of steps apart"
+					],
+					"asked": "both possible values of r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "u1-from-two-terms",
+					"given": [
+						"two terms an odd number of steps apart"
+					],
+					"asked": "u₁",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "term-choose-sign",
+					"given": [
+						"two terms an even number of steps apart",
+						"the sign of a far term"
+					],
+					"asked": "the next term",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "interior-terms",
+					"given": [
+						"the outer two of four consecutive terms"
+					],
+					"asked": "the two terms between them",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"terms",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "k-consecutive",
+					"given": [
+						"three consecutive terms, each linear in k"
+					],
+					"asked": "the possible values of k",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"terms",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "coefficients-geometric",
+					"given": [
+						"(1 + hx)^n and three powers of x whose coefficients are geometric"
+					],
+					"asked": "h",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "sum-from-u1-r",
+					"given": [
+						"u₁ and r, or the first terms"
+					],
+					"asked": "Sₙ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-exact",
+					"given": [
+						"u₁ and a fractional r, or the first terms"
+					],
+					"asked": "the exact value of Sₙ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-last-term",
+					"given": [
+						"a series with its first and last terms"
+					],
+					"asked": "its sum",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-closed-form",
+					"given": [
+						"u₁ and a whole-number r"
+					],
+					"asked": "the numbers in a closed form for Sₙ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-of-sums",
+					"given": [
+						"u₁ = 1 and a whole-number r"
+					],
+					"asked": "the numbers in a closed form for S₁ + S₂ + … + Sₙ",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"notation"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-alternating",
+					"given": [
+						"a sequence with r = −1"
+					],
+					"asked": "the sum of the first 2m or 2m + 1 terms",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "bounce-before",
+					"given": [
+						"a ball's drop height and its rebound fraction"
+					],
+					"asked": "the distance travelled when it lands for the nth time",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sigma-first-r",
+					"given": [
+						"a series in Σ notation"
+					],
+					"asked": "u₁ and r",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.3.sigma"
+					]
+				},
+				{
+					"id": "sigma-evaluate",
+					"given": [
+						"a series in Σ notation"
+					],
+					"asked": "its value",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.3.sigma"
+					]
+				},
+				{
+					"id": "sigma-write",
+					"given": [
+						"a series with its first and last terms"
+					],
+					"asked": "the same series in Σ notation",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sigma"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.3.nth-term",
+					"method": "nth-formula",
+					"suits": [
+						"r-from-terms",
+						"term-from-u1-r",
+						"term-exact",
+						"general-term"
+					],
+					"name": "Substitute into u_n = u_1 r^(n − 1)",
+					"about": "Find r = u_2/u_1, raise r to the number of steps n − 1, then multiply by u_1."
+				},
+				{
+					"skill": "SL1.3.nth-term",
+					"method": "repeated-multiply",
+					"suits": [
+						"r-from-terms",
+						"term-from-u1-r",
+						"term-exact"
+					],
+					"name": "Multiply by r repeatedly",
+					"about": "For small n keep multiplying by r; a table makes the sign changes from a negative r obvious."
+				},
+				{
+					"skill": "SL1.3.nth-term",
+					"method": "exponential-form",
+					"suits": [
+						"term-from-u1-r",
+						"general-term"
+					],
+					"name": "Rewrite as u_n = (u_1/r) × r^n",
+					"about": "Recognise the sequence as an exponential function of n sampled at whole numbers."
+				},
+				{
+					"skill": "SL1.3.nth-term",
+					"method": "gdc-seq",
+					"suits": [
+						"term-from-u1-r"
+					],
+					"name": "Use the GDC sequence or table mode",
+					"about": "Enter u_n = u_1 r^(n − 1), or the recursive rule u_(n+1) = r u_n, and read off the term."
+				},
+				{
+					"skill": "SL1.3.find-r-u1",
+					"method": "divide-terms",
+					"suits": [
+						"r-odd-gap",
+						"r-even-gap",
+						"u1-from-two-terms",
+						"term-choose-sign",
+						"interior-terms"
+					],
+					"name": "Divide one term equation by the other",
+					"about": "u_6/u_3 = u_1r^5/(u_1r^2) = r^3 = 8, which cancels u_1 and leaves a power of r to solve."
+				},
+				{
+					"skill": "SL1.3.find-r-u1",
+					"method": "step-count",
+					"suits": [
+						"r-odd-gap",
+						"r-even-gap",
+						"u1-from-two-terms",
+						"term-choose-sign",
+						"interior-terms"
+					],
+					"name": "Count multiplicative steps between terms",
+					"about": "Three steps from u_3 to u_6 means multiplying by r three times, so r^3 = 96/12 directly."
+				},
+				{
+					"skill": "SL1.3.find-r-u1",
+					"method": "equal-ratios",
+					"suits": [
+						"k-consecutive",
+						"coefficients-geometric"
+					],
+					"name": "Equate consecutive ratios",
+					"about": "For consecutive terms a, b, c use b/a = c/b, i.e. b² = ac (the middle term is the geometric mean), then solve the quadratic: (k + 6)² = 4k² gives k = 6 or k = −2."
+				},
+				{
+					"skill": "SL1.3.find-r-u1",
+					"method": "gdc-solver",
+					"suits": [
+						"r-odd-gap",
+						"r-even-gap",
+						"k-consecutive",
+						"coefficients-geometric"
+					],
+					"name": "Solve with the GDC",
+					"about": "Use the polynomial or numerical solver for r^3 = 8 or (k + 6)² = 4k²."
+				},
+				{
+					"skill": "SL1.3.sum",
+					"method": "sum-formula",
+					"suits": [
+						"sum-from-u1-r",
+						"sum-exact",
+						"sum-last-term",
+						"sum-closed-form",
+						"sum-of-sums",
+						"sum-alternating",
+						"bounce-before"
+					],
+					"name": "Use S_n = u_1(r^n − 1)/(r − 1) or u_1(1 − r^n)/(1 − r)",
+					"about": "Pick the version that keeps the numerator and denominator positive: the first for r > 1, the second for r < 1."
+				},
+				{
+					"skill": "SL1.3.sum",
+					"method": "shift-subtract",
+					"suits": [
+						"sum-from-u1-r",
+						"sum-exact",
+						"sum-closed-form"
+					],
+					"name": "Multiply by r and subtract (S − rS)",
+					"about": "Writing S_n and rS_n one above the other cancels every middle term, leaving S_n(1 − r) = u_1(1 − r^n)."
+				},
+				{
+					"skill": "SL1.3.sum",
+					"method": "direct-add",
+					"suits": [
+						"sum-from-u1-r",
+						"sum-exact",
+						"sum-last-term",
+						"sum-alternating",
+						"bounce-before"
+					],
+					"name": "Add the terms directly",
+					"about": "For a handful of terms, listing and adding is quick and checks the formula."
+				},
+				{
+					"skill": "SL1.3.sum",
+					"method": "gdc-sum-seq",
+					"suits": [
+						"sum-from-u1-r",
+						"sum-last-term",
+						"bounce-before"
+					],
+					"name": "Use sum(seq(…)) or Σ on the GDC",
+					"about": "Evaluate Σ u_1 r^(k − 1) from k = 1 to n directly."
+				},
+				{
+					"skill": "SL1.3.sigma",
+					"method": "list-and-formula",
+					"suits": [
+						"sigma-first-r",
+						"sigma-evaluate",
+						"sigma-write"
+					],
+					"name": "Substitute the limits, identify u_1, r and n, then use S_n",
+					"about": "The first term comes from the lower limit (3 × 2^1 = 6, not 3), r is the base of the power, and n = upper − lower + 1."
+				},
+				{
+					"skill": "SL1.3.sigma",
+					"method": "factor-out",
+					"suits": [
+						"sigma-evaluate"
+					],
+					"name": "Take the constant factor outside the sigma",
+					"about": "Σ 3(2)^r = 3 Σ 2^r, which reduces the problem to a simpler standard series."
+				},
+				{
+					"skill": "SL1.3.sigma",
+					"method": "gdc-sigma",
+					"suits": [
+						"sigma-evaluate"
+					],
+					"name": "Use the GDC Σ template",
+					"about": "Type the expression and limits exactly as given and evaluate."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If r² = 9 for a geometric sequence, then r = 3.",
+					"answer": "False: r = −3 fits as well, because a square hides the sign. The sequence needs another fact to settle which.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The terms of a geometric sequence get bigger as n gets bigger.",
+					"answer": "Sometimes: they do for u₁ = 1 and r = 2, but they shrink for r = 1/2 and flip sign for r = −2.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "uₙ = 3 × 2^n is a geometric sequence, even though it isn't written as u₁r^(n − 1).",
+					"answer": "True: each term is 2 times the one before, so r = 2. It is the same as u₁ = 6 and r = 2.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.3.nth-term#0",
+					"text": "Using r^n in the term formula, one power of r too many",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-r",
+						"term-exact",
+						"general-term"
+					],
+					"wrong": "the term one further along, u₁r^n"
+				},
+				{
+					"ref": "SL1.3.nth-term#1",
+					"text": "Multiplying u₁ and r first and raising the product to the power, instead of raising r alone",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-r",
+						"term-exact",
+						"general-term"
+					],
+					"wrong": "(u₁r)^(n − 1)"
+				},
+				{
+					"ref": "SL1.3.nth-term#2",
+					"text": "Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁",
+					"as": "distractor",
+					"in": [
+						"r-from-terms"
+					],
+					"wrong": "u₁ ÷ u₂, or u₂ − u₁"
+				},
+				{
+					"ref": "SL1.3.find-r-u1#0",
+					"text": "Subtracting terms as if the sequence were arithmetic",
+					"as": "distractor",
+					"in": [
+						"r-odd-gap",
+						"r-even-gap",
+						"interior-terms",
+						"k-consecutive"
+					],
+					"wrong": "the common difference between the two terms, or a value of k or the terms from it"
+				},
+				{
+					"ref": "SL1.3.find-r-u1#1",
+					"text": "Taking only the positive root of an even power and losing the negative ratio",
+					"as": "distractor",
+					"in": [
+						"r-even-gap",
+						"term-choose-sign"
+					],
+					"wrong": "the positive root alone"
+				},
+				{
+					"ref": "SL1.3.find-r-u1#2",
+					"text": "Counting terms instead of steps, so the power of r is one too high",
+					"as": "distractor",
+					"in": [
+						"u1-from-two-terms",
+						"r-odd-gap",
+						"interior-terms"
+					],
+					"wrong": "a power of r one too high"
+				},
+				{
+					"ref": "SL1.3.sum#0",
+					"text": "Using a power one lower than n in the sum formula",
+					"as": "distractor",
+					"in": [
+						"sum-from-u1-r",
+						"sum-exact"
+					],
+					"wrong": "the sum of one term fewer"
+				},
+				{
+					"ref": "SL1.3.sum#1",
+					"text": "Slipping on the sign of a negative r raised to an odd power",
+					"as": "distractor",
+					"in": [
+						"sum-from-u1-r",
+						"sum-exact",
+						"sum-last-term",
+						"sum-alternating"
+					],
+					"wrong": "(−r)^n read as positive, for odd n"
+				},
+				{
+					"ref": "SL1.3.sum#2",
+					"text": "Miscounting the terms when the last term is given",
+					"as": "distractor",
+					"in": [
+						"sum-last-term"
+					],
+					"wrong": "the sum of one term fewer"
+				},
+				{
+					"ref": "SL1.3.sigma#0",
+					"text": "Taking the coefficient as the first term, whatever the lower limit gives",
+					"as": "distractor",
+					"in": [
+						"sigma-first-r",
+						"sigma-evaluate"
+					],
+					"wrong": "the coefficient used as u₁"
+				},
+				{
+					"ref": "SL1.3.sigma#1",
+					"text": "Taking r to be the coefficient instead of the base of the power",
+					"as": "distractor",
+					"in": [
+						"sigma-first-r"
+					],
+					"wrong": "the coefficient given as r"
+				},
+				{
+					"ref": "SL1.3.sigma#2",
+					"text": "Counting the terms as upper minus lower, which is one too few",
+					"as": "distractor",
+					"in": [
+						"sigma-evaluate"
+					],
+					"wrong": "the sum of one term fewer"
+				},
+				{
+					"ref": "SL1.8.applications#0",
+					"text": "Doubling the first drop of a bouncing ball as well as the rebounds",
+					"as": "distractor",
+					"in": [
+						"bounce-before"
+					],
+					"wrong": "the first drop counted twice"
+				}
+			],
+			"chain": [
+				"read r and u₁ from the terms",
+				"a term or uₙ from u₁r^(n − 1)",
+				"r from two terms, by dividing out u₁ or counting steps, with both signs for an even gap",
+				"equal ratios for terms that are expressions: the middle term squared is the product of its neighbours",
+				"Sₙ from the formula, a count of terms, S − rS or sigma notation",
+				"the total distance of a bouncing ball, up to one landing"
+			],
 			"frequency": 9,
 			"marks": 3,
 			"section": {
@@ -19003,9 +19767,7 @@
 			"paper": {
 				"p1": 6,
 				"p2": 3
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-depreciation",
@@ -19445,6 +20207,662 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Sum to infinity: convergence, value, or an unknown from it",
+			"summary": "Decide whether a sum to infinity exists, by the ratio, a table of partial sums or a band on a graph, find S∞ from terms, sigma notation or a shaded square, use it to find u₁, r or x, and apply it to a bouncing ball, a recurring decimal, nested squares and a running total with or without a target.",
+			"situation": "geometric-sequence",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "notation",
+					"exam": true,
+					"how": "u₁ = 18,  r = −2/3, or u₂ = 6,  S∞ = 27"
+				},
+				{
+					"rep": "terms",
+					"exam": true,
+					"how": "the first terms, 18, −12, 8, …, or a recurring decimal"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "an infinite Σ, a series of logs, or r = (2x + 1)/3"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a sentence or a story: a ball, a well, a store of scrap"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "n against uₙ, or partial sums Sₙ from a GDC"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "r as a line in x, with the band between y = −1 and y = 1"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a ball's path, a square shaded in pieces, or squares inside squares"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "exists-claim",
+					"given": [
+						"the first terms, or u₁ and r"
+					],
+					"asked": "whether S∞ exists, and why",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.8.convergence"
+					]
+				},
+				{
+					"id": "exists-table",
+					"given": [
+						"a table of partial sums"
+					],
+					"asked": "what the table shows about S∞",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL1.8.convergence"
+					]
+				},
+				{
+					"id": "x-interval",
+					"given": [
+						"r as a line in x, as an expression or a graph"
+					],
+					"asked": "the values of x for which S∞ exists",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL1.8.convergence"
+					]
+				},
+				{
+					"id": "sinf-value",
+					"given": [
+						"u₁ and r, the first terms, or a table of terms"
+					],
+					"asked": "S∞",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"table"
+					],
+					"skills": [
+						"SL1.8.sum-to-infinity"
+					]
+				},
+				{
+					"id": "sinf-sigma",
+					"given": [
+						"an infinite series in Σ notation"
+					],
+					"asked": "S∞",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.8.sum-to-infinity"
+					]
+				},
+				{
+					"id": "sinf-shaded",
+					"given": [
+						"a square shaded in shrinking pieces"
+					],
+					"asked": "the total shaded area",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL1.8.sum-to-infinity"
+					]
+				},
+				{
+					"id": "x-from-log-series",
+					"given": [
+						"a series of multiples of log x, with one multiple hidden",
+						"S∞"
+					],
+					"asked": "x",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "u1-from-sinf",
+					"given": [
+						"r and S∞"
+					],
+					"asked": "u₁",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "r-from-sinf",
+					"given": [
+						"u₁ and S∞"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "r-from-multiple",
+					"given": [
+						"S∞ as a multiple of u₁"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "r-from-u2-reject",
+					"given": [
+						"u₂ and S∞, with one root of the quadratic too large"
+					],
+					"asked": "r",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "r-from-u2-both",
+					"given": [
+						"u₂ and S∞, with both roots of the quadratic allowed"
+					],
+					"asked": "both possible values of r",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "bounce-total",
+					"given": [
+						"a ball's drop height and its rebound fraction"
+					],
+					"asked": "the total distance before it comes to rest",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "bounce-multiple",
+					"given": [
+						"a rebound fraction, for a drop of x metres"
+					],
+					"asked": "k, where the total distance is kx",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "recurring-decimal",
+					"given": [
+						"a recurring decimal"
+					],
+					"asked": "the same number as a fraction",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "nested-squares",
+					"given": [
+						"a square, and how each next square sits inside the last"
+					],
+					"asked": "the total area of all the squares",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "story-total",
+					"given": [
+						"a story in which each amount is a fixed share of the last"
+					],
+					"asked": "the total if it goes on for ever",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "story-target",
+					"given": [
+						"a story, with a target for the running total"
+					],
+					"asked": "whether the total ever reaches the target",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "deposit-for-target",
+					"given": [
+						"the share kept each round, a target and a number of rounds"
+					],
+					"asked": "the first amount",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.8.convergence",
+					"method": "test-ratio",
+					"suits": [
+						"exists-claim"
+					],
+					"name": "Find r and check |r| < 1",
+					"about": "Compute r = u_2/u_1 and state |r| < 1 explicitly as the justification."
+				},
+				{
+					"skill": "SL1.8.convergence",
+					"method": "partial-sums",
+					"suits": [
+						"exists-claim",
+						"exists-table"
+					],
+					"name": "Watch the partial sums on the GDC",
+					"about": "Tabulate S_n for large n: if the values settle the series converges, if they grow or flip without settling it does not (evidence, not proof)."
+				},
+				{
+					"skill": "SL1.8.convergence",
+					"method": "double-inequality",
+					"suits": [
+						"x-interval"
+					],
+					"name": "Solve −1 < r < 1 as a double inequality",
+					"about": "With r = 2x/3, solve −1 < 2x/3 < 1 to get −3/2 < x < 3/2."
+				},
+				{
+					"skill": "SL1.8.convergence",
+					"method": "graph-band",
+					"suits": [
+						"x-interval"
+					],
+					"name": "Graph r as a function of x inside the band −1 < y < 1",
+					"about": "Plot y = r(x) with y = −1 and y = 1 and find where the graph lies strictly between them."
+				},
+				{
+					"skill": "SL1.8.sum-to-infinity",
+					"method": "formula",
+					"suits": [
+						"sinf-value",
+						"sinf-sigma",
+						"sinf-shaded"
+					],
+					"name": "Use S∞ = u_1/(1 − r)",
+					"about": "Identify u_1 and r, state that |r| < 1, then substitute."
+				},
+				{
+					"skill": "SL1.8.sum-to-infinity",
+					"method": "limit-of-sn",
+					"suits": [
+						"sinf-value",
+						"sinf-sigma"
+					],
+					"name": "Let n → ∞ in the S_n formula",
+					"about": "S_n = u_1(1 − r^n)/(1 − r), and r^n → 0 when |r| < 1, leaving u_1/(1 − r)."
+				},
+				{
+					"skill": "SL1.8.sum-to-infinity",
+					"method": "partial-sums",
+					"suits": [
+						"sinf-value"
+					],
+					"name": "Tabulate partial sums on the GDC",
+					"about": "Compute S_10, S_20 and S_50 and watch them approach a limit, confirming the formula's answer."
+				},
+				{
+					"skill": "SL1.8.sum-to-infinity",
+					"method": "shaded-square",
+					"suits": [
+						"sinf-shaded"
+					],
+					"name": "Shade a shape in shrinking pieces",
+					"about": "Shading half a square, then half of what is left, and so on, shows 1/2 + 1/4 + 1/8 + … fills exactly 1."
+				},
+				{
+					"skill": "SL1.8.find-unknown",
+					"method": "rearrange",
+					"suits": [
+						"u1-from-sinf",
+						"r-from-sinf",
+						"r-from-multiple",
+						"x-from-log-series"
+					],
+					"name": "Substitute into S∞ = u_1/(1 − r) and rearrange",
+					"about": "20 = 8/(1 − r) gives 1 − r = 0.4, so r = 0.6."
+				},
+				{
+					"skill": "SL1.8.find-unknown",
+					"method": "form-quadratic",
+					"suits": [
+						"r-from-u2-reject",
+						"r-from-u2-both"
+					],
+					"name": "Combine two conditions into a quadratic in r",
+					"about": "Substitute u_1 = 6/r into S∞ = 27 to get 9r² − 9r + 2 = 0, solve, and keep only roots with |r| < 1."
+				},
+				{
+					"skill": "SL1.8.find-unknown",
+					"method": "ratio-structure",
+					"suits": [
+						"r-from-multiple"
+					],
+					"name": "Use S∞/u_1 = 1/(1 − r)",
+					"about": "If S∞ = 3u_1 then 1/(1 − r) = 3, so r = 2/3, without ever needing u_1."
+				},
+				{
+					"skill": "SL1.8.find-unknown",
+					"method": "gdc-solver",
+					"suits": [
+						"u1-from-sinf",
+						"r-from-sinf",
+						"r-from-u2-reject",
+						"r-from-u2-both"
+					],
+					"name": "Solve with the GDC",
+					"about": "Enter the equation in r into the solver, or graph both sides and intersect."
+				},
+				{
+					"skill": "SL1.8.applications",
+					"method": "model-series",
+					"suits": [
+						"bounce-total",
+						"bounce-multiple",
+						"recurring-decimal",
+						"nested-squares",
+						"story-total",
+						"story-target",
+						"deposit-for-target"
+					],
+					"name": "Identify the series hiding in the context and use S∞",
+					"about": "Write the first few distances, areas or digits as terms, find u_1 and r, check |r| < 1, then apply the formula."
+				},
+				{
+					"skill": "SL1.8.applications",
+					"method": "split-series",
+					"suits": [
+						"bounce-total",
+						"bounce-multiple"
+					],
+					"name": "Split the motion into separate series",
+					"about": "For a bouncing ball, add the first drop to twice the sum of the rebound heights, since each rebound goes up and comes back down."
+				},
+				{
+					"skill": "SL1.8.applications",
+					"method": "draw-stages",
+					"suits": [
+						"bounce-total",
+						"nested-squares"
+					],
+					"name": "Draw the first few stages",
+					"about": "Sketching the nested shapes or the bounce path shows what each term represents, so nothing is double counted or missed."
+				},
+				{
+					"skill": "SL1.8.applications",
+					"method": "partial-sums",
+					"suits": [
+						"bounce-total",
+						"recurring-decimal",
+						"story-total",
+						"story-target"
+					],
+					"name": "Check with partial sums on the GDC",
+					"about": "Summing the first 30 terms numerically should already be very close to the formula's answer."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A geometric series with r = −1 has a sum to infinity of u₁/2, because the formula gives that.",
+					"answer": "False: the partial sums flip between u₁ and 0 and never settle. The formula only holds for |r| < 1.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "If u₁ > 0, then S∞ is greater than u₁.",
+					"answer": "Sometimes: it is for r > 0, but for r < 0 the denominator 1 − r is more than 1, so S∞ is less than u₁.",
+					"level": 4
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "0.999… is exactly equal to 1.",
+					"answer": "True: it is 9/10 + 9/100 + …, with u₁ = 9/10 and r = 1/10, so S∞ = (9/10)/(9/10) = 1.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.8.convergence#0",
+					"text": "Thinking r below one is enough, so a large negative ratio seems to converge",
+					"as": "distractor",
+					"in": [
+						"exists-claim"
+					],
+					"wrong": "a yes for a ratio below −1"
+				},
+				{
+					"ref": "SL1.8.convergence#1",
+					"text": "Solving only the upper inequality and forgetting the lower one when r depends on x",
+					"as": "distractor",
+					"in": [
+						"x-interval"
+					],
+					"wrong": "one end of the interval only"
+				},
+				{
+					"ref": "SL1.8.convergence#2",
+					"text": "Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity",
+					"as": "distractor",
+					"in": [
+						"exists-claim",
+						"x-interval"
+					],
+					"wrong": "a yes for |r| = 1, or an interval with its ends included"
+				},
+				{
+					"ref": "SL1.8.sum-to-infinity#0",
+					"text": "Putting a plus in the formula's denominator, or dropping the sign of a negative r",
+					"as": "distractor",
+					"in": [
+						"sinf-value",
+						"sinf-sigma",
+						"sinf-shaded",
+						"story-total"
+					],
+					"wrong": "u₁/(1 + r)"
+				},
+				{
+					"ref": "SL1.8.sum-to-infinity#1",
+					"text": "Taking the coefficient as u₁ instead of the value at the lower limit",
+					"as": "distractor",
+					"in": [
+						"sinf-sigma"
+					],
+					"wrong": "the coefficient used as u₁"
+				},
+				{
+					"ref": "SL1.8.sum-to-infinity#2",
+					"text": "Applying the formula when the size of r is one or more, which gives a meaningless sum",
+					"as": "distractor",
+					"in": [
+						"exists-claim",
+						"exists-table"
+					],
+					"wrong": "a value from the formula for |r| > 1"
+				},
+				{
+					"ref": "SL1.8.find-unknown#0",
+					"text": "Inverting the rearrangement of the formula, so S∞ and u₁ swap places",
+					"as": "distractor",
+					"in": [
+						"u1-from-sinf",
+						"r-from-sinf",
+						"r-from-multiple"
+					],
+					"wrong": "S∞ and u₁ swapped in the rearrangement"
+				},
+				{
+					"ref": "SL1.8.find-unknown#1",
+					"text": "Keeping a root too large in size for a sum to infinity to exist",
+					"as": "distractor",
+					"in": [
+						"r-from-u2-reject"
+					],
+					"wrong": "the root with |r| > 1 kept"
+				},
+				{
+					"ref": "SL1.8.find-unknown#2",
+					"text": "Substituting u₂ as if it were u₁",
+					"as": "distractor",
+					"in": [
+						"r-from-u2-reject",
+						"r-from-u2-both"
+					],
+					"wrong": "r found from S∞ = u₂/(1 − r)"
+				},
+				{
+					"ref": "SL1.8.applications#0",
+					"text": "Doubling the first drop of a bouncing ball as well as the rebounds",
+					"as": "distractor",
+					"in": [
+						"bounce-total",
+						"bounce-multiple"
+					],
+					"wrong": "the first drop counted twice"
+				},
+				{
+					"ref": "SL1.8.applications#1",
+					"text": "Using one tenth as r for a recurring block of more than one digit",
+					"as": "distractor",
+					"in": [
+						"recurring-decimal"
+					],
+					"wrong": "r taken as one tenth for a longer block"
+				},
+				{
+					"ref": "SL1.8.applications#2",
+					"text": "Using S∞ in context without checking that r is small enough",
+					"as": "distractor",
+					"in": [
+						"story-target"
+					],
+					"wrong": "S∞ read as a ceiling when r > 1"
+				}
+			],
+			"chain": [
+				"find r and test |r| < 1",
+				"solve −1 < r < 1 when r depends on x",
+				"S∞ = u₁/(1 − r), with u₁ taken from the lower limit of a sigma",
+				"u₁ or r back from S∞, and a quadratic in r from u₂ and S∞, keeping |r| < 1",
+				"a story: split a ball's path, write a recurring block as a series, or compare S∞ with a target"
+			],
 			"frequency": 5,
 			"marks": 3,
 			"section": {
@@ -19454,9 +20872,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 4
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-binomial-find-unknown",
@@ -42994,7 +44410,7 @@
 				},
 				{
 					"ref": "SL1.3.nth-term#0",
-					"text": "Using r^n instead of r^(n − 1)",
+					"text": "Using r^n in the term formula, one power of r too many",
 					"as": "distractor",
 					"in": [
 						"sequence-vs-function"
@@ -43058,7 +44474,7 @@
 				},
 				{
 					"ref": "SL1.8.convergence#0",
-					"text": "Thinking r < 1 is enough, so a series with r = −2 'converges'",
+					"text": "Thinking r below one is enough, so a large negative ratio seems to converge",
 					"as": "distractor",
 					"in": [
 						"sum-to-infinity-link"
@@ -43067,7 +44483,7 @@
 				},
 				{
 					"ref": "SL1.8.convergence#2",
-					"text": "Including the endpoints: thinking r = 1 or r = −1 gives a sum to infinity",
+					"text": "Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity",
 					"as": "distractor",
 					"in": [
 						"sum-to-infinity-link"

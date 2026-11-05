@@ -821,9 +821,9 @@
                 }
               ],
               "misconceptions": [
-                "Using r^n instead of r^(n − 1)",
-                "Computing (u_1 r)^(n − 1), e.g. 6^4 instead of 2 × 3^4",
-                "Finding r as u_1/u_2 (upside down) or as u_2 − u_1 (arithmetic thinking)"
+                "Using r^n in the term formula, one power of r too many",
+                "Multiplying u₁ and r first and raising the product to the power, instead of raising r alone",
+                "Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁"
               ],
               "threads": [
                 {
@@ -883,9 +883,9 @@
                 }
               ],
               "misconceptions": [
-                "Subtracting terms as if the sequence were arithmetic: 3d = 84",
-                "Taking only the positive root of r² = 9 and losing r = −3",
-                "Counting terms instead of steps: writing r^4 = 96/12"
+                "Subtracting terms as if the sequence were arithmetic",
+                "Taking only the positive root of an even power and losing the negative ratio",
+                "Counting terms instead of steps, so the power of r is one too high"
               ],
               "threads": [
                 {
@@ -946,9 +946,9 @@
                 }
               ],
               "misconceptions": [
-                "Using r^(n − 1) in the sum formula instead of r^n",
-                "Sign errors with negative r, e.g. treating (−2)^5 as 32",
-                "Miscounting n when the last term is given: 3 + 6 + … + 384 has 8 terms, not 7"
+                "Using a power one lower than n in the sum formula",
+                "Slipping on the sign of a negative r raised to an odd power",
+                "Miscounting the terms when the last term is given"
               ],
               "threads": [
                 {
@@ -1070,9 +1070,9 @@
                 }
               ],
               "misconceptions": [
-                "Taking the coefficient 3 as the first term when the lower limit is r = 1",
+                "Taking the coefficient as the first term, whatever the lower limit gives",
                 "Taking r to be the coefficient instead of the base of the power",
-                "Counting terms as upper − lower"
+                "Counting the terms as upper minus lower, which is one too few"
               ],
               "threads": []
             },
@@ -2646,9 +2646,9 @@
                 }
               ],
               "misconceptions": [
-                "Thinking r < 1 is enough, so a series with r = −2 'converges'",
-                "Solving only r < 1 and forgetting r > −1 when r depends on x",
-                "Including the endpoints: thinking r = 1 or r = −1 gives a sum to infinity"
+                "Thinking r below one is enough, so a large negative ratio seems to converge",
+                "Solving only the upper inequality and forgetting the lower one when r depends on x",
+                "Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity"
               ],
               "threads": [
                 {
@@ -2714,9 +2714,9 @@
                 }
               ],
               "misconceptions": [
-                "Using u_1/(1 + r), or using 1 − |r| when r is negative",
-                "Taking u_1 = 5 for the sum of 5(0.8)^r from r = 1, instead of 5 × 0.8 = 4",
-                "Applying the formula when |r| ≥ 1 and getting a meaningless (often negative) 'sum'"
+                "Putting a plus in the formula's denominator, or dropping the sign of a negative r",
+                "Taking the coefficient as u₁ instead of the value at the lower limit",
+                "Applying the formula when the size of r is one or more, which gives a meaningless sum"
               ],
               "threads": [
                 {
@@ -2776,9 +2776,9 @@
                 }
               ],
               "misconceptions": [
-                "Inverting the rearrangement: 1 − r = 20/8",
-                "Keeping a root with |r| ≥ 1 that convergence rules out",
-                "Substituting u_2 as if it were u_1"
+                "Inverting the rearrangement of the formula, so S∞ and u₁ swap places",
+                "Keeping a root too large in size for a sum to infinity to exist",
+                "Substituting u₂ as if it were u₁"
               ],
               "threads": []
             },
@@ -2902,9 +2902,9 @@
                 }
               ],
               "misconceptions": [
-                "Bouncing ball: doubling the first drop as well as the rebounds",
-                "Recurring decimal: using r = 0.1 instead of r = 0.01 for a two-digit repeating block",
-                "Using S∞ in context without checking |r| < 1"
+                "Doubling the first drop of a bouncing ball as well as the rebounds",
+                "Using one tenth as r for a recurring block of more than one digit",
+                "Using S∞ in context without checking that r is small enough"
               ],
               "threads": [
                 {

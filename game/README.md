@@ -219,6 +219,19 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   numerically. Graphs are in straight pieces with whole-number corners, on axes named t and v
   or s (`y_name`). The acceleration at maximum speed is only asked where that speed is at an end
   of the interval, as it is 0 at a turning point of v.
+- `engine/situations/geometric_sequence.gd` (FAL-728) is `t1-geometric-sequence` (SL1.3, on all four
+  syllabuses) and `t1-sum-to-infinity` (SL1.8), one situation for both. Paper 1 is whole numbers and
+  simple fractions, marked exactly; Paper 2 is decimals that end, marked exactly when whole or within
+  3 figures and otherwise to 3 s.f. Its views (`geometric_sequence_views.gd`) ask 21 and 19 unknowns:
+  r, a term and uₙ (a `form` answer, where the method sets u₁r^(n − 1) or (u₁/r)r^n), r and u₁ from two
+  terms, both signs for an even gap, a far term's sign, the terms between two terms, three terms in k,
+  coefficients of (1 + hx)ⁿ, Sₙ by each map method, closed forms, a Σ read, evaluated and written, and
+  a ball's distance to a landing; then whether S∞ exists (a `claim`), x from −1 < r < 1 (a `form`
+  answer; a wrong option in another shape can be picked but not typed), S∞, u₁ or r from it, a log
+  series, a quadratic in r with a root to reject, and a ball, a recurring block, nested squares, a
+  shaded square, a running total against a target and the first amount for a target. GDC and
+  partial-sums methods are Paper 2 only, and their working isn't shown on Paper 1. PlotView's
+  `bounce` and `squares` draw the figures; a sequence's dots and the band −1 < y < 1 use GraphView.
 - `engine/situations/regression.gd` (FAL-695) is `t4-regression-gdc` (SL4.4, on all four
   syllabuses): paired data, 6 to 9 whole-number points near a line (x from 1 to 20, y from 8
   to 99, 0.8 ≤ |r| ≤ 0.99, up or down as the story says), so the means, the regression line

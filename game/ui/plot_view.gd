@@ -31,6 +31,11 @@ extends Control
 ##   solid       {"shape", and the measures as text under r, d, h, l, c, big, a, b, t, e, theta}:
 ##               a sketch of a cone, pyramid, sphere, hemisphere, composite, hollow cylinder,
 ##               cylinder inside a sphere or flat sector, with only the given measures labelled
+##   bounce      {"peaks": [heights, each a share of the first], "h_label"}: a ball's height against
+##               time, a parabola for each rebound, with the drop marked
+##   squares     {"style": "shaded", "cut", "shaded", "area"}: a square cut into cut × cut, with
+##               `shaded` of them shaded and the rest repeated in the top right corner, or
+##               {"style": "nested", "t", "side"}: squares inside squares, each corner t along a side
 
 const PAD := 26.0
 const FONT_SIZE := 32
@@ -47,7 +52,7 @@ func _init() -> void:
 
 func set_spec(s: Dictionary) -> void:
 	spec = s
-	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "unit-circle": 640, "straight-angle": 420, "solid": 640}.get(s.get("kind"), 560))
+	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "unit-circle": 640, "straight-angle": 420, "solid": 640, "bounce": 520, "squares": 660}.get(s.get("kind"), 560))
 	queue_redraw()
 
 
@@ -87,6 +92,10 @@ func _draw() -> void:
 			_unit_circle()
 		"straight-angle":
 			_straight_angle()
+		"bounce":
+			_bounce()
+		"squares":
+			_squares()
 
 
 func _text(s: String, at: Vector2, col: Color, fs: int = FONT_SIZE, centred: bool = true) -> void:
@@ -1006,3 +1015,77 @@ func _solid_sector(c: Vector2, rad: float) -> void:
 	var up := o + Vector2(0, -rad * 0.34)
 	_mark("theta", up)
 	_mark("l", (o + b) / 2.0)
+
+
+# ── Sequences ────────────────────────────────────────────────
+
+## A ball's path: half a parabola for the drop, then a whole one for each rebound. A flight takes
+## time in step with the square root of its height, so the arcs narrow as they should.
+func _bounce() -> void:
+	var box := Rect2(Vector2(96, 56), size - Vector2(140, 124))
+	var ground := box.end.y
+	draw_line(Vector2(box.position.x, box.position.y - 24), Vector2(box.position.x, ground + 16), UiTheme.DIM, 4.0)
+	draw_line(Vector2(box.position.x - 16, ground), Vector2(box.end.x + 16, ground), UiTheme.DIM, 4.0)
+	_text("h", Vector2(box.position.x - 34, box.position.y + 2), UiTheme.DIM, FONT_SIZE - 4)
+	_text("t", Vector2(box.end.x + 12, ground + 42), UiTheme.DIM, FONT_SIZE - 4)
+	var peaks: Array = spec.peaks
+	var span := 1.0
+	for i in range(1, peaks.size()):
+		span += 2.0 * sqrt(float(peaks[i]))
+	var unit := box.size.x / span
+	var at := box.position.x
+	for i in peaks.size():
+		var top: float = float(peaks[i]) * box.size.y
+		var half := sqrt(float(peaks[i])) * unit
+		var pts := PackedVector2Array()
+		for j in 25:
+			var u := float(j) / 24.0
+			var x := u if i == 0 else 2.0 * u - 1.0
+			var dx := at + (half * x if i == 0 else half * (x + 1.0))
+			pts.append(Vector2(dx, ground - top * (1.0 - x * x)))
+		draw_polyline(pts, UiTheme.TEAL, 5.0, true)
+		at += half if i == 0 else 2.0 * half
+	_dashes(Vector2(box.position.x, box.position.y), Vector2(box.position.x + 110, box.position.y), UiTheme.SAND, 3.0)
+	_chip(spec.h_label, Vector2(box.position.x + 190, box.position.y + 12), UiTheme.SAND)
+
+
+func _squares() -> void:
+	var side := minf(size.x - 120.0, size.y - 110.0)
+	var box := Rect2(Vector2((size.x - side) / 2.0, 54.0), Vector2(side, side))
+	if spec.style == "nested":
+		_nested(box)
+		_text(spec.side, Vector2(box.get_center().x, box.end.y + 44), UiTheme.SAND, FONT_SIZE - 4)
+		return
+	_cut(box, int(spec.cut), int(spec.shaded), 3)
+	_text("Area %s" % spec.area, Vector2(box.get_center().x, box.end.y + 44), UiTheme.SAND, FONT_SIZE - 4)
+
+
+## One grid: the bottom left cells shaded first, the top right cell always left to cut again.
+func _cut(box: Rect2, cut: int, shaded: int, depth: int) -> void:
+	var cell := box.size.x / cut
+	var done := 0
+	for row in range(cut - 1, -1, -1):
+		for col in cut:
+			var r := Rect2(box.position + Vector2(col, row) * cell, Vector2(cell, cell))
+			if row == 0 and col == cut - 1:
+				if depth > 0:
+					_cut(r, cut, shaded, depth - 1)
+				draw_rect(r, UiTheme.DIM, false, 2.0)
+				continue
+			if done < shaded:
+				draw_rect(r, Color(UiTheme.TEAL, 0.55))
+				done += 1
+			draw_rect(r, UiTheme.DIM, false, 2.0)
+
+
+func _nested(box: Rect2) -> void:
+	var t: float = spec.t
+	var corners := PackedVector2Array([box.position, Vector2(box.end.x, box.position.y), box.end, Vector2(box.position.x, box.end.y)])
+	for k in 6:
+		var loop := corners.duplicate()
+		loop.append(corners[0])
+		draw_polyline(loop, UiTheme.TEAL if k == 0 else Color(UiTheme.TEAL, 0.75), 4.0 if k == 0 else 3.0, true)
+		var inner := PackedVector2Array()
+		for i in 4:
+			inner.append(corners[i].lerp(corners[(i + 1) % 4], t))
+		corners = inner

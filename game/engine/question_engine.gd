@@ -81,6 +81,7 @@ static var SITUATIONS := {
 	"fn-link-extremes": [LinkExtremesSituation, LinkExtremesViews],
 	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
 	"binomial": [BinomialSituation, BinomialViews],
+	"geometric-sequence": [GeometricSequenceSituation, GeometricSequenceViews],
 	"sampling": [SamplingSituation, SamplingViews],
 	"cumulative-frequency": [CumulativeFrequencySituation, CumulativeFrequencyViews],
 	"regression": [RegressionSituation, RegressionViews],
