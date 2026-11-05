@@ -175,6 +175,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a range, Var = np, σ = Var, E(X) rounded, n rounded down, p = Var ÷ E, a kth success
   read as k in m trials, a conditional multiplied). As every exam type, it offers no extra
   format (error-spot, method-pick, true-false-reason): `test_extension.gd` holds that rule.
+- `engine/situations/binomial_expansion.gd` (FAL-728) is `t1-binomial-term` (SL1.9, on the AA
+  courses): one bracket (ax^p + b)^n, or nCr alone, with every coefficient a whole number worked
+  out exactly. Binomial expansion, not the distribution above. Its views
+  (`binomial_expansion_views.gd`) show the bracket or nCr, or Pascal's triangle as a staggered
+  grid with no row numbers (a table, as reading the row is the skill), and ask 28 unknowns: nCr by
+  formula, from the triangle, by symmetry, at the edges and with n to find, nC2 as a polynomial,
+  a row of the triangle, the next row and n from a row, the number of terms, full expansions
+  (small n, (x + b)^n, a negative term, a number beside x, x², b/x), the first three terms, one
+  coefficient in the same shapes, a coefficient in terms of a letter, the term in x^k, a coefficient
+  left as a letter, and the term in a given place. The GDC's nCr is Paper 2 only; the other cells
+  make both papers, with Paper 2 having the longer rows. A question that reads the triangle stays
+  at row 7. An expansion is typed term by term, and a row without its ends. Wrong options come
+  from the SL1.9 misconceptions and the type's own five (no r!, the negative root for n, n terms,
+  the place taken as r, (1/x)^r read as falling by one power).
 - `engine/situations/differentiation.gd` (FAL-723) is `t5-differentiation-rules` (SL5.6, AA only):
   one function to differentiate, with whole-number coefficients. Its views ask 18 unknowns:
   standard results and rational powers, the chain rule on a bracket, an exponential, a log, a
@@ -1348,6 +1362,10 @@ script error happens while it runs. Run one file with
   built with every cell and every skill, no extra format, four different options, GDC methods on
   Paper 2 only, + C on every integral, the method setting the shape, a shaded region on every
   figure, exact integrals and derivatives against hand values, and named axes.
+- `test_binomial_expansion.gd`: t1-binomial-term built with every cell and all three skills, no
+  extra format, four different options, the GDC on Paper 2 only, hand values, the bracket as the
+  exam writes it, the staggered triangle, a term against a coefficient, a typed expansion and row,
+  every misconception as an option, the three concept probes and AA courses only.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a

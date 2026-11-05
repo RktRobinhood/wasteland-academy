@@ -48,7 +48,7 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var small: bool = rep == "table" or angle in READS_A_ROW
 	for i in TRIES:
 		var s := {"paper": paper, "ask": ask, "rep": rep, "small": small, "n": 0, "a": 1, "p": 1, "b": 1, "first": false, "over": false, "j": 0, "r": 0, "pick": 0, "pos": 0, "shift": 0, "letter": ""}
-		if _draw(rng, s):
+		if _draw(rng, s) and _no_factor(s):
 			return s
 	return {}
 
@@ -95,6 +95,14 @@ static func largest(s: Dictionary) -> int:
 	for j in s.n + 1:
 		most = maxi(most, absi(coef(s, j)))
 	return most
+
+
+## (2x − 2) and (3 − 3x) would be a common factor away from a smaller bracket.
+static func _no_factor(s: Dictionary) -> bool:
+	for d in [2, 3]:
+		if s.a % d == 0 and s.b % d == 0:
+			return false
+	return true
 
 
 # ── Drawing ──────────────────────────────────────────────────

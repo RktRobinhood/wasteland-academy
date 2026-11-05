@@ -2659,7 +2659,7 @@
 				"Paper 1 coefficients are at most 20000 in size, Paper 2 at most 200000000",
 				"a row read from the triangle is row 7 at most (row 8 shown for reading nC2)",
 				"a negative is only ever in the second term written",
-				"the numbers are not those of the bank"
+				"the numbers are not those of the bank, and the two numbers in a bracket share no factor"
 			]
 		},
 		"regression": {
@@ -20186,14 +20186,11 @@
 					"as": "distractor",
 					"in": [
 						"expand-small",
-						"expand-negative",
 						"expand-raised",
 						"expand-from-triangle",
 						"expand-power",
-						"first-three-terms",
 						"expand-reciprocal",
-						"coefficient-plain",
-						"coefficient-negative",
+						"first-three-terms",
 						"coefficient-raised",
 						"coefficient-from-triangle",
 						"coefficient-power",
@@ -20234,9 +20231,9 @@
 						"coefficient-raised",
 						"coefficient-from-triangle",
 						"coefficient-power",
+						"coefficient-letter",
 						"specific-term",
-						"term-by-position",
-						"coefficient-letter"
+						"term-by-position"
 					],
 					"wrong": "the same power on both terms of the bracket"
 				},
@@ -20245,7 +20242,6 @@
 					"text": "Ignoring the sign: treating a negative term raised to an odd power as positive",
 					"as": "distractor",
 					"in": [
-						"coefficient-plain",
 						"coefficient-negative",
 						"coefficient-raised",
 						"coefficient-from-triangle",
@@ -20270,10 +20266,10 @@
 						"coefficient-raised",
 						"coefficient-from-triangle",
 						"coefficient-power",
-						"specific-term",
-						"term-by-position",
 						"coefficient-letter",
-						"missing-coefficient"
+						"specific-term",
+						"missing-coefficient",
+						"term-by-position"
 					],
 					"wrong": "the number or letter in the bracket used once, not raised to its power"
 				},
@@ -20287,9 +20283,9 @@
 						"coefficient-raised",
 						"coefficient-from-triangle",
 						"coefficient-power",
+						"coefficient-letter",
 						"specific-term",
-						"term-by-position",
-						"coefficient-letter"
+						"term-by-position"
 					],
 					"wrong": "the term with its x for a coefficient, or the number alone for a term"
 				},

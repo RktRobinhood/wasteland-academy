@@ -362,7 +362,7 @@ func u_ncr_large_r(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"wrongs": rng.shuffled([wn(fact(n) / fact(r), R_NO_DENOM)]),
 		"generic": pad(v, [C(n, r - 1), C(n, r + 1), n, C(n - 1, r)]),
 		"methods": {
-			"symmetry": method(["Use nCr = nC(n − r) to choose the smaller r: %dC%d = %dC%d." % [n, r, n, small], out[1], out[2], final], ans.values),
+			"symmetry": method(["Use nCr = nC(n − r) to choose the smaller r: %dC%d = %dC%d." % [n, r, n, small]] + out + [final], ans.values),
 			"factorial-formula": method(formula_steps(n, r) + [final], ans.values),
 			"gdc-ncr": method(["Use the nCr function on the GDC: enter %d nCr %d." % [n, r], "%d nCr %d = %d" % [n, r, v], final], ans.values),
 		}}
@@ -406,7 +406,7 @@ func u_ncr_find_n(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"wrongs": rng.shuffled(w), "generic": pad(n, [n + 1, n - 1, v, 2 * v]),
 		"methods": {
 			"factorial-formula": method(["nC2 = n!/(2! × (n − 2)!) = n(n − 1)/2", "n(n − 1)/2 = %d, so n² − n − %d = 0" % [v, 2 * v],
-				"(n − %d)(n + %d) = 0, so n = %d or n = %d" % [n, n - 1, n, 1 - n], "n counts brackets, so it can't be negative. " + final], ans.values),
+				"(n − %d)(n + %d) = 0, so n = %d or n = %s" % [n, n - 1, n, N(1 - n)], "n counts brackets, so it can't be negative. " + final], ans.values),
 			"gdc-ncr": method(["Tabulate x nCr 2 on the GDC against x.", "The table gives %d at x = %d." % [v, n], final], ans.values),
 			"pascal-build": method(["nC2 is entry 2 of row n, counting from 0.", "Entry 2 of rows 2, 3, 4 and on is %s." % ", ".join(entries),
 				"%d is in row %d. " % [v, n] + final], ans.values),
@@ -552,17 +552,22 @@ static func by_row(s: Dictionary, order: Array, final: String, ans: Dictionary) 
 	var bits: Array = order.map(func(j): return product(s, j, j, asc).replace("%dC%d" % [s.n, j], str(C(s.n, j))))
 	var falls: String = term_b(s) if asc else term_a(s)
 	var rises: String = term_a(s) if asc else term_b(s)
-	var head := "The power of %s falls from %d as the power of %s rises from 0." % [falls, s.n, rises]
+	var head := turned(s, asc) + "The power of %s falls from %d as the power of %s rises from 0." % [falls, s.n, rises]
 	return method(["Row %d of Pascal's triangle is %s." % [s.n, row_text(s.n)], head + " Term by term: " + " + ".join(bits),
-		" + ".join(order.map(func(j): return worked(s, j, asc))),
+		"= " + " + ".join(order.map(func(j): return worked(s, j, asc))),
 		"= " + Fmt.terms(order.map(func(j): return Q.new(coef(s, j))), order.map(func(j): return power_of(s, j))), final], ans.values)
+
+
+## With the powers of x rising, the number has to come first in the working.
+static func turned(s: Dictionary, asc: bool) -> String:
+	return "The powers of x rise, so take the number first. " if asc and not s.first else ""
 
 
 static func by_theorem(s: Dictionary, order: Array, final: String, ans: Dictionary) -> Dictionary:
 	var asc: bool = order[0] == 0
 	var a: String = term_b(s) if asc else term_a(s)
 	var b: String = term_a(s) if asc else term_b(s)
-	var steps: Array = ["Each term is nCr × a^(%d − r) × b^r, with a = %s and b = %s." % [s.n, a, b]]
+	var steps: Array = [turned(s, asc) + "Each term is nCr × a^(%d − r) × b^r, with a = %s and b = %s." % [s.n, a, b]]
 	for i in order.size():
 		var j: int = order[i]
 		steps.append("r = %d: %s = %s = %s" % [i, product(s, j, i, asc), worked(s, j, asc), full(s, j)])
@@ -581,7 +586,7 @@ static func by_choosing(s: Dictionary, order: Array, final: String, ans: Diction
 	for j in order:
 		var k: int = s.n - j
 		var each := term(pw(s.a, j) * pw(s.b, k), power_of(s, j))
-		steps.append("%s from %s and %s from %s: %dC%d = %d ways of %s each, so %s" % [a, brackets(j), b, brackets(k), s.n, j, C(s.n, j), each, full(s, j)])
+		steps.append("%s from %s and %s from %s: %dC%d = %d, and each choice gives %s, so %s" % [a, brackets(j), b, brackets(k), s.n, j, C(s.n, j), each, full(s, j)])
 	steps.append(final)
 	return method(steps, ans.values)
 

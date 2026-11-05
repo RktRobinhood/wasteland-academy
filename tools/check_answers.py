@@ -19389,6 +19389,7 @@ def be_limits(q, terms, n, cs, u):
     need(sp.Integer(a) == a and sp.Integer(b) == b, "the bracket is not whole numbers")
     need(not (p == 1 and a == 2 and e == 0 and b == -5 and not letter), "the bank's own bracket")
     need(a != 0 and b != 0, "a term is zero")
+    need(sp.gcd(a, b) == 1, "the two numbers in the bracket share a factor")
 
 
 def be_expansion(q, u, paper):

@@ -509,7 +509,7 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Usual chain:** evaluate nCr, or read the row of Pascal's triangle → write each term as nCr a^(n − r) b^r, with brackets round each part → raise the numbers and the signs too, then simplify → for one term, choose the r that gives the power asked → state the term or its coefficient, whichever is asked
 - **Given:** n and r, Pascal's triangle, a bracket and its power, a power of x or a place in the expansion. **Asked:** nCr, n, a row of the triangle, the number of terms, the full expansion, the first three terms, or one term or coefficient. **Answer form:** exact.
 - **A recipe can randomise:** n from 2 to 12, by how long the row is; the number beside x from 1 to 3, and the number in the bracket up to 4 in size; which term is written first, and whether the second is negative; x or x², b/x, or a letter in the bracket; the power or the place asked.
-- **Limits that keep answers clean:** a question that shows or builds the triangle stops at row 7 or 8; Paper 1 keeps coefficients to 20000 and Paper 2 to 200000000; nCr by GDC is Paper 2 only; a term asked has at least two brackets giving each part, so both powers are real powers; the bank's own brackets are left out.
+- **Limits that keep answers clean:** a question that shows or builds the triangle stops at row 7 or 8; Paper 1 keeps coefficients to 20000 and Paper 2 to 200000000; nCr by GDC is Paper 2 only; a term asked has at least two brackets giving each part, so both powers are real powers; the bank's own brackets are left out, and the two numbers in a bracket share no factor.
 - **Game formats:** value, mcq
 - **Bank parts:** 6.
 
