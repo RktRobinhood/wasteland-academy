@@ -6,7 +6,7 @@ extends RefCounted
 ## an encounter without the strip sending anything back.
 ##
 ##   D1  explore                    small jobs on the road
-##   D2  explore or puzzle
+##   D2  fight half the time (1-3 monsters, the Raider leading), else explore or puzzle
 ##   D3  fight (1-2 monsters, the Enforcer leading), now and then a puzzle
 ##   D4  fight (2-3 monsters or a bandit ambush, the Warlord leading)
 ##   D5  boss
@@ -20,6 +20,7 @@ extends RefCounted
 
 const MINI_BOSS_FIGHT := 5
 const BOSS_FIGHT := 10
+const FIGHT_ON_D2 := 0.5
 const PUZZLE_ON_D2 := 0.5
 const PUZZLE_ON_D3 := 0.25
 const AMBUSH_ON_D4 := 0.4
@@ -67,7 +68,10 @@ static func encounter(run_seed: int, fight: int, tier: int, roster: Dictionary, 
 	var kind := "explore"
 	match tier:
 		2:
-			kind = "puzzle" if rng.chance(PUZZLE_ON_D2) else "explore"
+			if rng.chance(FIGHT_ON_D2):
+				kind = "fight"
+			elif rng.chance(PUZZLE_ON_D2):
+				kind = "puzzle"
 		3:
 			kind = "puzzle" if rng.chance(PUZZLE_ON_D3) else "fight"
 		4, 5:
@@ -110,7 +114,9 @@ static func _group(rng: Seeded, tier: int, enemies: Dictionary, creatures: Array
 	var fill: Array = bandits + creatures
 	var ambush := tier >= 4 and not bandits.is_empty() and rng.chance(AMBUSH_ON_D4)
 	var extra := 0
-	if tier == 3:
+	if tier == 2:
+		extra = rng.int_in(0, 2)
+	elif tier == 3:
 		extra = rng.int_in(0, 1)
 	elif tier >= 4:
 		extra = rng.int_in(1, 2)

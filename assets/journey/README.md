@@ -69,13 +69,16 @@ height per sheet.
 inside, the neon dead) and `mimic` (the machine turns on you; code does its lunge). All four stand on one feet point.
 
 **Props: `beat` and `states` (FAL-346).** Every prop JSON (the objects in a region folder: caches, obstacles and the
-Explore and Puzzle props) has two more fields, so code finds a new prop by its folder and needs no code change:
+Explore and Puzzle props) has these fields, so code finds a new prop by its folder and needs no code change:
 
 - `beat`: `"explore"` or `"puzzle"`, the kind of beat the prop belongs to (the plan's "Three kinds of beat").
 - `states`: `{state: frame id}`. Every prop has `start` (shown while the question is open) and `cleared` (after the
   last right answer). Extras: `failed` (a miss code cannot show well on its own, such as the pile caving in), `empty`
   and `mimic` (the cache). Code draws everything else: dust, zaps, shakes, the red buzz, the progress tick for each
   right answer, and the loot burst (`loot.json`). All states of a prop stand on one feet point.
+- `label`, `verb`, `hit`, `done`: the fight screen's words for the job (FAL-733): its name over the scene ("Vault
+  door"), the button ("Turn"), the line after a right answer ("A dial clicks home.") and the line when the job is done
+  ("The door swings wide."). Keep the verb to one short word. With none, the screen uses the sheet's name and plain words.
 - `dials` (`vault-dials` only): the three blank dial faces on the `start` frame, left to right, as `{x, y, r}` in
   shipped px from the feet point. Code draws and spins the digits there.
 

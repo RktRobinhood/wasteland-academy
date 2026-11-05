@@ -18,10 +18,12 @@ extends RefCounted
 const ROOT := "res://assets/journey"
 ## Folders that aren't regions.
 const SHARED := ["party", "enemies", "weapons", "cast", "encounters"]
+## The fight screen's words for a prop whose JSON has none of its own.
+const DEFAULT_WORDS := {"verb": "Work", "hit": "It gives.", "done": "Job done."}
 
 var root: String
 ## name -> sheet: {name, folder, json, image, figure_height, facing, frames: Array,
-## by_id: {id: frame}, anims, stages, states, beat}. Frame rects are atlas px; ox, oy and
+## by_id: {id: frame}, anims, stages, states, beat, label, verb, hit, done}. Frame rects are atlas px; ox, oy and
 ## hand are shipped px from the feet point.
 var sheets := {}
 ## name -> {name, image, grip: Vector2, size: Vector2}
@@ -93,7 +95,9 @@ func _add(dir: String, rel: String, file: String) -> void:
 			"figure_height": float(data.get("figure_height", 1)), "facing": data.get("facing", "none"),
 			"frames": data.frames, "by_id": {}, "anims": data.get("anims", {}),
 			"stages": data.get("stages", []), "states": data.get("states", {}),
-			"beat": data.get("beat", ""), "dials": data.get("dials", [])}
+			"beat": data.get("beat", ""), "dials": data.get("dials", []),
+			"label": data.get("label", name.capitalize()), "verb": data.get("verb", DEFAULT_WORDS.verb),
+			"hit": data.get("hit", DEFAULT_WORDS.hit), "done": data.get("done", DEFAULT_WORDS.done)}
 	for fr in data.frames:
 		s.by_id[fr.id] = fr
 	if s.beat == "" and region != "":

@@ -136,7 +136,7 @@ func test_tier_picks_the_kind() -> void:
 			check(not JourneyBeats.has_monster(d1), "a D1 fight shows no monster (seed %d)" % s)
 			check_eq(d1.kind, "explore", "D1 is Explore")
 			var d2 := JourneyBeats.encounter(s, fight, 2, r)
-			check(d2.kind in ["explore", "puzzle"], "D2 is Explore or Puzzle")
+			check(d2.kind in ["explore", "puzzle", "fight"], "D2 is a job or a Fight, not a boss")
 			var d4 := JourneyBeats.encounter(s, fight, 4, r)
 			check(JourneyBeats.has_monster(d4), "a D4 fight always shows a monster (seed %d)" % s)
 			check_eq(d4.group[-1], "d4-warlord", "the Warlord leads D4")
@@ -166,13 +166,56 @@ func test_beat_mix_is_mostly_explore_and_puzzle() -> void:
 	for run in 1000:
 		var run_seed := rng.int_in(1, 1 << 30)
 		for fight in range(1, 11):
-			var tier := 5 if fight == 10 else (3 if fight % 5 == 0 else rng.int_in(1, 2))
+			var tier := Dungeon.tier_for(run_seed, 1, fight)
 			for q in 3:
 				var b := JourneyBeats.pick(run_seed, fight, q, tier, r)
 				all += 1
 				if b.kind in ["explore", "puzzle"]:
 					calm += 1
-	check(calm >= 0.7 * all, "%d of %d beats are Explore or Puzzle" % [calm, all])
+	check(calm > 0.5 * all, "%d of %d beats are Explore or Puzzle" % [calm, all])
+	check(calm < 0.75 * all, "and the monsters still show: %d of %d" % [all - calm, all])
+
+
+## Half of D2 fights are real fights (FAL-733), so floor 1 shows monsters, even three.
+func test_d2_fights_show_on_floor_1() -> void:
+	var r := JourneyAssets.scan().roster("signal-tower")
+	var counts := {"fight": 0, "explore": 0, "puzzle": 0}
+	var sizes := {1: 0, 2: 0, 3: 0}
+	var d2 := 0
+	for s in range(1, 1000):
+		for fight in [1, 2, 3, 4, 6, 7, 8, 9]:
+			var tier := Dungeon.tier_for(s, 1, fight)
+			if tier != 2:
+				continue
+			d2 += 1
+			var e := JourneyBeats.encounter(s, fight, tier, r, Tuning.ENEMIES[tier].hits)
+			counts[e.kind] += 1
+			if e.kind == "fight":
+				sizes[e.group.size()] += 1
+				check_eq(e.group[-1], "d2-raider", "the Raider leads")
+				check(not e.ambush, "ambushes stay on D4")
+				check_eq(e.hits.reduce(func(a, b): return a + b), Tuning.ENEMIES[2].hits, "one hit per question")
+	check(absf(float(counts.fight) / d2 - JourneyBeats.FIGHT_ON_D2) < 0.03, "about half are Fights: %s of %d" % [counts.fight, d2])
+	check(absf(float(counts.puzzle) / maxi(1, counts.puzzle + counts.explore) - JourneyBeats.PUZZLE_ON_D2) < 0.03, "the rest split as before: %s" % [counts])
+	check(sizes[1] > 0 and sizes[2] > 0 and sizes[3] > 0, "groups of one, two and three: %s" % [sizes])
+
+
+func test_two_questions_still_cap_the_d2_group() -> void:
+	var r := JourneyAssets.scan().roster("signal-tower")
+	for s in range(1, 300):
+		var e := JourneyBeats.encounter(s, 1, 2, r, 2)
+		check(e.group.size() <= 2, "at most one monster a question and the lead's last (seed %d)" % s)
+
+
+## Every prop brings its own words, so a new one needs no code (FAL-733).
+func test_props_carry_their_words() -> void:
+	var a := JourneyAssets.scan()
+	var r := a.roster("signal-tower")
+	for prop in r.explore + r.puzzle:
+		var data = JSON.parse_string(FileAccess.get_file_as_string(a.sheets[prop].json))
+		for k in ["label", "verb", "hit", "done"]:
+			check(String(data.get(k, "")) != "", "%s has %s" % [prop, k])
+		check(data.verb.length() <= 8 and not data.verb.contains(" "), "%s: a short verb" % prop)
 
 
 func test_only_sheets_that_exist() -> void:
@@ -487,6 +530,19 @@ func _area(window: Vector2i) -> Vector2:
 	var base := Vector2(1080, 1920)
 	var scale := minf(window.x / base.x, window.y / base.y)
 	return Vector2(window) / scale
+
+
+## The script's start doesn't put the default sheet back over the one asked for.
+func test_demo_keeps_the_avatar() -> void:
+	for spec in [["learner-male", true], ["no-such-sheet", false]]:
+		var demo: Control = (load(DEMO) as PackedScene).instantiate()
+		demo.avatar = spec[0]
+		tree.root.add_child(demo)
+		for i in 3:
+			await tree.process_frame
+		check_eq(demo.stage.avatar, spec[0])
+		check_eq(demo.stage.active, spec[1], "%s: the strip shows only with a sheet" % spec[0])
+		demo.free()
 
 
 func test_demo_fits_a_phone_and_a_pc_window() -> void:

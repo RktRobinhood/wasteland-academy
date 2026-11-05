@@ -3,6 +3,10 @@
  "image": "vault-dials.webp",
  "facing": "none",
  "beat": "puzzle",
+ "label": "Vault door",
+ "verb": "Turn",
+ "hit": "A dial clicks home.",
+ "done": "The door swings wide.",
  "states": {
   "start": "shut",
   "cleared": "open"
