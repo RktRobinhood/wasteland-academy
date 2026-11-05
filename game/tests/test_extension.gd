@@ -78,6 +78,16 @@ func test_the_not_built_misconceptions_are_distractors() -> void:
 		check_eq(refs.get(ref, ""), "distractor", ref)
 
 
+func test_missing_term_equation_can_be_true() -> void:
+	# The stem once read (x + r)² = x + 6 + c, which no r and c can make true.
+	for c in QuestionEngine.cells(false, ["fn-pre-expand"]):
+		if c.unknown != "missing-term":
+			continue
+		for seed in range(1, 6):
+			var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed})
+			check(q.lines[0].contains(" = x² "), "%s: %s" % [c.key, q.lines[0]])
+
+
 ## A misconception without a catalogue ref is logged as <type id>#<index>.
 func test_a_misconception_without_a_ref_has_one() -> void:
 	var t := QuestionEngine.type_of("fn-pre-expand")

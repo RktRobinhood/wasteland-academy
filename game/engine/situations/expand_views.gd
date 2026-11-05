@@ -242,7 +242,7 @@ func u_missing_term(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := Answer.make("named", {"v0": s.r, "v1": c}, {"names": ["r", "c"]})
 	var steps := ["(x + r)² = x² + 2rx + r², so the x terms give 2r = %s" % N(b),
 		"r = %s ÷ 2 = %s, and c = r² = %s² = %s" % [N(b), N(s.r), P(s.r), N(c)], "So %s." % Answer.text(ans)]
-	return {"asked": "Find r and c.", "lines": ["(x + r)² = %s + c" % Fmt.poly([1, b])],
+	return {"asked": "Find r and c.", "lines": ["(x + r)² = %s + c" % Fmt.poly([1, b, 0])],
 		"given": {"form": "missing", "b": b.key()}, "answer": ans,
 		"generic": [{"v0": b, "v1": b.sq()}, {"v0": s.r, "v1": b}, {"v0": s.r.neg(), "v1": c}, {"v0": s.r, "v1": s.r.mul(2)}],
 		"methods": {"square-pattern": method(steps, ans.values)}}
