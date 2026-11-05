@@ -20748,8 +20748,7 @@
      "wrong": "the expansion, with no last line and no conclusion"
     },
     {
-     "ref": "SL1.6.integer-proof#0",
-     "text": "Writing two different odd numbers as 2n + 1 and 2n + 1, which only covers the case where they are equal",
+     "text": "Using one letter for two different numbers, which only covers the case where they are equal",
      "as": "distractor",
      "in": [
       "represent-integers"
@@ -20765,7 +20764,7 @@
       "finish-divisibility",
       "represent-integers"
      ],
-     "wrong": "the value at n = 1, or two chosen numbers, in place of a general argument"
+     "wrong": "the value at one n, or two chosen numbers, in place of a general argument"
     },
     {
      "ref": "SL1.6.integer-proof#2",
@@ -20779,7 +20778,7 @@
      "wrong": "the leading number taken out, which leaves a fraction in the bracket"
     },
     {
-     "text": "Leaving the 2 out of the middle term when squaring a bracket",
+     "text": "Forgetting to double the middle term when squaring a bracket",
      "as": "distractor",
      "in": [
       "simplify-left-side",
@@ -20836,8 +20835,7 @@
      "in": [
       "simplify-left-side",
       "missing-line",
-      "next-step",
-      "flawed-step"
+      "next-step"
      ],
      "wrong": "the last term of the numerator not divided"
     },
@@ -20857,8 +20855,7 @@
      "text": "Adding one gap too many when summing a list of terms",
      "as": "distractor",
      "in": [
-      "consecutive-sum",
-      "flawed-step"
+      "consecutive-sum"
      ],
      "wrong": "the gaps counted up to c, not c − 1"
     },
@@ -20868,7 +20865,7 @@
      "in": [
       "case-bracket"
      ],
-     "wrong": "(2k)² written as 2k²"
+     "wrong": "the letter squared and the number in front left as it is"
     },
     {
      "text": "Writing a² − b² as (a + b)(a + b)",

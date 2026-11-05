@@ -317,6 +317,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   13 unknowns on one ratio and a quadrant (the other ratio, tan, sin 2θ, cos 2θ, each with the map's
   methods), cos θ from cos 2θ, written or from a triangle's cosine rule, and expressions to rewrite
   (in sin x or cos x alone, as a cos bx, as a sin bx, a + b sin cx, and a maximum after rewriting).
+- `engine/situations/algebraic_proof.gd` (FAL-728) is `t1-algebraic-proof` (SL1.6, AA only): 14
+  unknowns on one statement to prove, an identity (a difference of squares, (x − a)² + b, a fraction
+  to combine or split, a reciprocal difference, a Pythagorean triple in x) or a claim about integers
+  (a multiple of m, a sum of consecutive terms, n² + an + b always even, a sum of squares never
+  divisible). A phone can't read a written proof, so each unknown is one decision a proof turns on,
+  typed in slots (a `form`) or picked (a `claim`): the simplified form, what both sides reach, a
+  hidden line, the next line, the first wrong line and its correction, k in E = mk, the integer
+  bracket, the greatest divisor, a remainder, the opening with two letters, or which of four
+  arguments is a proof. `AlgebraicProofViews.chain()` writes every proof as lines from the numbers,
+  and a slip is that chain with one wrong move carried on, so wrong options are what the slip gives.
+  Identities are Paper 1 or 2 and integer proofs Paper 1, as in the bank.
 - `engine/situations/trig_model.gd` (FAL-727) is `t3-trig-model-parameters` (SL3.7, AA only): 15
   unknowns on one wave from its turning points. Paper 1 has x in multiples of π and whole a, b and d;
   Paper 2 is a story in t, or a decimal phase, to 3 s.f., six parts in seven as in the bank. It also
@@ -1348,6 +1359,11 @@ script error happens while it runs. Run one file with
   built with every cell and every skill, no extra format, four different options, GDC methods on
   Paper 2 only, + C on every integral, the method setting the shape, a shaded region on every
   figure, exact integrals and derivatives against hand values, and named axes.
+- `test_algebraic_proof.gd`: t1-algebraic-proof built with every cell, both SL1.6 skills and
+  14 unknowns; every cell in both formats, with the answer ending the working; the bank's paper
+  split; each statement against values worked out by hand; a hidden line and a spoiled line
+  where the chain says; the fix typed on the wrong line marked wrong; a typed slip detected;
+  the factors in either order; every misconception as an option; no statement with the exam's numbers.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a

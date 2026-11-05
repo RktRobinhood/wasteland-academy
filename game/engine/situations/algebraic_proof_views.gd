@@ -19,11 +19,13 @@ const SKILL_INT := "SL1.6.integer-proof#"
 const R_ASSUME := SKILL_ID + "0"
 const R_VALUES := SKILL_ID + "1"
 const R_NO_END := SKILL_ID + "2"
-const R_SAME_LETTER := SKILL_INT + "0"
 const R_EXAMPLES := SKILL_INT + "1"
 const R_BRACKET := SKILL_INT + "2"
 ## The type's own slips, by their place in the catalogue's misconceptions.
 const TYPE := "t1-algebraic-proof#"
+## The map's own text for this one quotes an odd number's form, which a question about
+## multiples of 7 doesn't show, so the type has its own.
+const R_SAME_LETTER := TYPE + "3"
 const R_MID := TYPE + "6"
 const R_SQ := TYPE + "7"
 const R_SIGN := TYPE + "8"
@@ -412,7 +414,7 @@ static func _triple(s: Dictionary, slip: int) -> Array:
 	var mid: int = 0 if slip == 1 else -2 * kk
 	var tail: int = -kk * kk if slip == 1 else kk * kk
 	var out := [ln([left(s)]),
-		ln(["x² + (x⁴", T("u", mid, "x²"), T("b", tail), ")/", T("c", den)], "Square the bracket: top and bottom"),
+		ln(["x² + (x⁴", T("u", mid, "x²"), T("b", tail), ")/", T("c", den)], "Square the top and the bottom of the bracket"),
 		ln(["(", T("u", den, "x²"), " + x⁴", T("b", mid, "x²"), T("c", tail), ")/", T("d", den)], "Write x² over %d" % den),
 		ln(["(x⁴", T("u", den + mid, "x²"), T("b", tail), ")/", T("c", den)], "Collect the x² terms")]
 	if slip == 0:
@@ -506,12 +508,14 @@ static func line_option(line: Dictionary, good: Dictionary, ref: String = "") ->
 	return alt(line.text, ref, line.v if line.parts == good.parts else {})
 
 
-## What each slip gives on line i of a chain.
-static func slip_options(s: Dictionary, angle: String, i: int, good: Dictionary) -> Array:
+## What each slip gives on line i of a chain. With made_here, only the slips made on that line:
+## with the lines before it shown right, an earlier slip isn't what a wrong line there did.
+static func slip_options(s: Dictionary, angle: String, i: int, good: Dictionary, made_here: bool = false) -> Array:
+	var clean := steps_of(s, angle)
 	var out: Array = []
 	for k in range(1, slips_of(s, angle) + 1):
 		var c := steps_of(s, angle, k)
-		if c.size() > i and c[i].text != good.text:
+		if c.size() > i and c[i].text != good.text and (not made_here or c[i - 1].text == clean[i - 1].text):
 			out.append(line_option(c[i], good, slip_ref(s, angle, k)))
 	return out
 
@@ -639,8 +643,8 @@ func u_missing_line(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var good: Dictionary = c[hide]
 	var ans := form(good, "Line %d: " % (hide + 1))
 	return {"asked": "Line %d of this proof is missing. What does it say?" % (hide + 1), "lines": statement(s, rep) + numbered(c, "LHS", hide), "answer": ans,
-		"wrongs": slip_options(s, angle, hide, good), "generic": bumps(good).map(func(w): return w.values),
-		"methods": asked_method(s, walk(c, c.size() - 1, "LHS") + [say(ans)], ans), "shown": {"hide": hide}}
+		"wrongs": slip_options(s, angle, hide, good, true), "generic": bumps(good).map(func(w): return w.values),
+		"methods": asked_method(s, walk(c, c.size() - 1, "LHS") + [picked("So the missing line is", ans)], ans), "shown": {"hide": hide}}
 
 
 func u_next_step(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
@@ -649,18 +653,13 @@ func u_next_step(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var good: Dictionary = c[at]
 	var x: String = s.letter
 	var rhs: String = c.back().text
-	var wrongs_in: Array = []
-	for w in slip_options(s, angle, at, good):
-		wrongs_in.append(["= " + str(w.values.text), w.ref])
-	wrongs_in.append(["%s − (%s) = 0" % [left(s), rhs], R_ASSUME])
 	var at_x := test_point(s)
-	wrongs_in.append(["Put %s = %d: both sides equal %s." % [x, at_x, Fmt.num(side_value(s, at_x))], R_VALUES])
-	for w in bumps(good):
-		wrongs_in.append(["= " + str(w.values.text), ""])
-	# The two slips of reasoning come first, and one slip of algebra.
-	var head := wrongs_in.filter(func(w): return w[1] == R_ASSUME or w[1] == R_VALUES)
-	var algebra := wrongs_in.filter(func(w): return w[1] != R_ASSUME and w[1] != R_VALUES)
-	var out := pick_answer("= " + good.text, head + algebra)
+	# The two slips of reasoning, and one slip of algebra: any that shows on this line.
+	var wrongs_in: Array = [["%s − (%s) = 0" % [left(s), rhs], R_ASSUME],
+		["Put %s = %d: both sides equal %s." % [x, at_x, Fmt.num(side_value(s, at_x))], R_VALUES]]
+	for w in rng.shuffled(slip_options(s, angle, at, good, true)) + bumps(good):
+		wrongs_in.append(["= " + str(w.values.text), w.ref])
+	var out := pick_answer("= " + good.text, wrongs_in.slice(0, 3))
 	var ans: Dictionary = out.answer
 	out.asked = "Which line comes next in this proof?"
 	out.lines = [claim_line(s, rhs)] + numbered(c, "LHS", -1, at - 1)
@@ -745,7 +744,7 @@ func u_flawed_step(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var wrongs: Array = []
 	for k in range(1, slips_of(s, how) + 1):
 		var other := chain(s, k)
-		if k != slip and other.size() > at and other[at].text != good.text and other[at].text != bad[at].text:
+		if k != slip and other.size() > at and other[at].text != good.text and other[at].text != bad[at].text and other[at - 1].text == c[at - 1].text:
 			wrongs.append(fix.call(at, other[at], slip_ref(s, how, k)))
 	# A later line is wrong too, but it only follows the first mistake.
 	if at + 1 < bad.size() and at + 1 < c.size():
@@ -972,10 +971,10 @@ static func never_chain(s: Dictionary) -> Array:
 		return [ln(["%s² + n² + %s²" % [br("n", -d), br("n", d)]]),
 			ln(["n²", T("u", -2 * d, "n"), T("b", dd), " + n² + n²", T("c", 2 * d, "n"), T("d", dd)], "Expand both squares"),
 			ln([K(3, "n²"), T("u", 2 * dd)], "The n terms cancel"),
-			ln(["3(n²", T("u", s.q0), ")", T("b", s.r)], "Take out the factor 3, which leaves a remainder")]
+			ln(["3(n²", T("u", s.q0), ")", T("b", s.r)], "%d = 3 × %d + %d, so take out the factor 3" % [2 * dd, s.q0, s.r])]
 	return [ln(["n² + %s²" % br("n", d)]), ln(["n² + n²", T("u", 2 * d, "n"), T("b", dd)], "Expand the square"),
 		ln([K(2, "n²"), T("u", 2 * d, "n"), T("b", dd)], "Collect the n² terms"),
-		ln(["2(n²", T("u", d, "n"), T("b", s.q0), ")", T("c", s.r)], "Take out the factor 2, which leaves a remainder")]
+		ln(["2(n²", T("u", d, "n"), T("b", s.q0), ")", T("c", s.r)], "%d = 2 × %d + %d, so take out the factor 2" % [dd, s.q0, s.r])]
 
 
 func u_remainder_form(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
