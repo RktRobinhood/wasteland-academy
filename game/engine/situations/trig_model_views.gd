@@ -22,7 +22,7 @@ const CONTEXTS := [
 	{"thing": "The temperature inside the grain store", "sym": "T", "unit": "°C", "time": "hours"},
 	{"thing": "The height of a seat on the salvage-yard wheel", "sym": "h", "unit": "m", "time": "minutes"},
 	{"thing": "The water level behind the dam", "sym": "L", "unit": "m", "time": "days"},
-	{"thing": "The hum from the generator shed", "sym": "P", "unit": "kW", "time": "minutes"},
+	{"thing": "The power draw of the generator shed", "sym": "P", "unit": "kW", "time": "minutes"},
 	{"thing": "The length of a mooring rope", "sym": "R", "unit": "m", "time": "hours"},
 ]
 const UNKNOWNS := ["amp-axis", "b-from-period", "c-cos-from-max", "c-sine-shift", "all-four", "q-from-minimum", "sum-as-cos", "tan-two-points",

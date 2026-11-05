@@ -105,8 +105,8 @@ static func _q_from_minimum(rng: Seeded, s: Dictionary) -> bool:
 
 ## h(x) = p sin kx + q cos kx: a cos(b(x − c)) with a = √(p² + q²).
 static func _sum_as_cos(rng: Seeded, s: Dictionary) -> bool:
-	s.p = rng.int_in(1, 7)
-	s.q0 = rng.int_in(1, 7)
+	s.p = rng.int_in(2, 7)
+	s.q0 = rng.int_in(2, 7)
 	s.k = rng.int_in(1, 3)
 	return Q.gcd(s.p, s.q0) == 1
 
