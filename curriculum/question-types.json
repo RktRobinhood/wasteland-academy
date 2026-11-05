@@ -3650,6 +3650,50 @@
     "Paper 2 answers are to 3 s.f., clear of a rounding edge",
     "the range is even on Paper 1, so a and d are whole"
    ]
+  },
+  "normal-probability": {
+   "name": "A normal variable with a region asked for",
+   "extends": "normal-unknown",
+   "summary": "The base normal variable, now with μ and σ known and a region of it asked for: a tail, a band, two tails, a rule that rejects some items, a sample count, or a value recorded to a rounding unit. It adds only the region; the normal function, the stories and the curve are the base situation's.",
+   "quantities": [
+    {
+     "name": "lo, hi",
+     "is": "the bounds of the region",
+     "pick": "whole numbers, or tenths when σ is under 3, up to 2.3 standard deviations from μ; an open end is left out"
+    },
+    {
+     "name": "kind",
+     "is": "the shape of the region",
+     "pick": "below, above, between, or outside two bounds"
+    },
+    {
+     "name": "n",
+     "is": "a sample size",
+     "pick": "50 to 1000, so the expected count is at least 10"
+    },
+    {
+     "name": "sigma squared",
+     "is": "the variance, written where σ would be",
+     "pick": "a square, or a whole number up to 400 that is not one"
+    },
+    {
+     "name": "u",
+     "is": "a rounding unit",
+     "pick": "1 or 0.1, with the recorded value on that grid"
+    },
+    {
+     "name": "x1, p1, x2, p2",
+     "is": "two tails, for a middle found without μ or σ",
+     "pick": "x1 < x2 whole, tails in thousandths from 0.04 to 0.45, and μ and σ whatever they force"
+    }
+   ],
+   "clean": [
+    "Paper 2 only: every part in the bank is",
+    "probabilities and expected counts are to 3 s.f. and at least 0.03 of a unit of the third figure from a rounding edge; a middle from two tails is exact",
+    "a bound is at least a tenth of a standard deviation from μ, except a recorded value, which can sit on it",
+    "every region has an area of at least 0.005 on each side, and an expected count stays a decimal unless the 3 s.f. make it whole",
+    "a variable that can be negative has a real area below 0, so using 0 as the lower bound changes the answer"
+   ]
   }
  },
  "types": [
@@ -30139,13 +30183,475 @@
    "id": "t4-normal-probability",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Normal probability for an interval on the GDC",
+   "summary": "X is normal with μ and σ known, and a region is asked for: below, above, between or outside values, a percentage in a story, an expected count in a sample, a rejection rule, a variable that can be negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle from two given tails.",
    "syllabus": [
     "4.9"
    ],
    "skills": [
     "SL4.9.normal-probability"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "pick out μ and σ, taking the root if the variance is written",
+    "mark the bounds and shade the region",
+    "use normalcdf, with a very large number for an open end",
+    "take the area from 1 for a region left out",
+    "multiply by n for a count"
+   ],
+   "given": [
+    "X ~ N(μ, σ²) or a story with a mean and a standard deviation",
+    "one or two values, or a rule",
+    "a sample size",
+    "a rounding unit",
+    "two tail areas"
+   ],
+   "asked": "A probability, a percentage or proportion, or an expected number.",
+   "answerForms": [
+    "3 s.f.",
+    "exact"
+   ],
+   "randomise": [
+    "the mean and the standard deviation",
+    "the bounds and which side of the mean they sit on",
+    "the shape of the region",
+    "the sample size",
+    "the story and its units"
+   ],
+   "constraints": [
+    "Paper 2 only",
+    "no bound within a tenth of a standard deviation of μ, except a recorded value",
+    "an expected count is not rounded to a whole number"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "normal-probability",
+   "sharesSituation": [
+    "t4-normal-unknown-parameter"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "X ~ N(35, 5²) and an event, P(X < 30), or tails given as P(X < 30) = 0.2"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story with a mean and a standard deviation, and a chosen item or a sample"
+    },
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "a normal curve with the region shaded and its bounds and the mean marked; the stem does not say the region again"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "prob-below",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "a value a"
+     ],
+     "asked": "P(X < a)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "prob-above",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "a value a"
+     ],
+     "asked": "P(X > a)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "prob-between",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "two values a and b"
+     ],
+     "asked": "P(a < X < b)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "percentage-in-range",
+     "given": [
+      "a story with a mean and a standard deviation",
+      "a region"
+     ],
+     "asked": "the percentage or proportion in the region",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "expected-number",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "a sample size n",
+      "a region"
+     ],
+     "asked": "the expected number in the region, not rounded to a whole number",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "outside-interval",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "two values a and b"
+     ],
+     "asked": "P(X < a or X > b)",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "rejected-rule",
+     "given": [
+      "a story with a mean and a standard deviation",
+      "a rule that rejects a tail, or all but a band"
+     ],
+     "asked": "the probability that a chosen item is rejected",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "expected-rejected",
+     "given": [
+      "a story with a mean and a standard deviation",
+      "a rule that rejects a tail, or all but a band",
+      "a sample size n"
+     ],
+     "asked": "the expected number rejected",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "negative-lower-tail",
+     "given": [
+      "X ~ N(μ, σ²) for a measure that can be negative",
+      "a value a above 0"
+     ],
+     "asked": "P(X < a)",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "variance-given",
+     "given": [
+      "X ~ N(μ, σ²) with the variance written as a number",
+      "a region"
+     ],
+     "asked": "the probability of the region",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "recorded-value",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "a rounding unit",
+      "a recorded value"
+     ],
+     "asked": "the probability of that recorded value",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    },
+    {
+     "id": "between-from-tails",
+     "given": [
+      "P(X < a)",
+      "P(X > b)"
+     ],
+     "asked": "P(a < X < b), with μ and σ unknown",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.normal-probability"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.9.normal-probability",
+     "method": "gdc-normalcdf",
+     "suits": [
+      "prob-below",
+      "prob-above",
+      "prob-between",
+      "percentage-in-range",
+      "expected-number",
+      "outside-interval",
+      "rejected-rule",
+      "expected-rejected",
+      "negative-lower-tail",
+      "variance-given",
+      "recorded-value"
+     ]
+    },
+    {
+     "skill": "SL4.9.normal-probability",
+     "method": "sketch-check",
+     "suits": [
+      "prob-below",
+      "prob-above",
+      "prob-between",
+      "percentage-in-range",
+      "expected-number",
+      "outside-interval",
+      "rejected-rule",
+      "expected-rejected",
+      "negative-lower-tail",
+      "variance-given",
+      "recorded-value",
+      "between-from-tails"
+     ]
+    },
+    {
+     "skill": "SL4.9.normal-probability",
+     "method": "standardise-first",
+     "suits": [
+      "prob-below",
+      "prob-above",
+      "prob-between",
+      "percentage-in-range",
+      "expected-number",
+      "outside-interval",
+      "rejected-rule",
+      "expected-rejected",
+      "negative-lower-tail",
+      "variance-given",
+      "recorded-value"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "For X ~ N(10, 16), the GDC needs 16 as its last number.",
+     "answer": "False: 16 is the variance. normalcdf takes the standard deviation, which is 4.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "P(X < a) can be found with 0 as the lower bound.",
+     "answer": "Sometimes: only where X cannot be negative, or nearly so. A temperature can go below 0, so use a very large negative number as the lower end.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "An expected number in a sample must be a whole number.",
+     "answer": "False: it is n × p, a long-run average, so 31.7 is a fine expected number.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.9.normal-probability#0",
+     "text": "Entering the variance instead of the standard deviation into the GDC",
+     "as": "distractor",
+     "in": [
+      "variance-given"
+     ],
+     "wrong": "the variance entered as σ"
+    },
+    {
+     "ref": "SL4.9.normal-probability#1",
+     "text": "Using 0 as the lower bound for P(X < a) when the variable can be negative (for example temperatures)",
+     "as": "distractor",
+     "in": [
+      "negative-lower-tail"
+     ],
+     "wrong": "normalcdf from 0 instead of from a very large negative number"
+    },
+    {
+     "ref": "SL4.9.normal-probability#2",
+     "text": "Leaving an expected number as a probability instead of multiplying by n",
+     "as": "distractor",
+     "in": [
+      "expected-number",
+      "expected-rejected"
+     ],
+     "wrong": "the probability, not multiplied by n"
+    },
+    {
+     "text": "Finding the area left out instead of the area asked for",
+     "as": "distractor",
+     "in": [
+      "prob-below",
+      "prob-above",
+      "prob-between",
+      "percentage-in-range",
+      "expected-number",
+      "outside-interval",
+      "rejected-rule",
+      "expected-rejected",
+      "negative-lower-tail",
+      "variance-given"
+     ],
+     "wrong": "1 minus the area asked for, or n times that"
+    },
+    {
+     "text": "Using only the upper bound, so the area below the lower bound is counted too",
+     "as": "distractor",
+     "in": [
+      "prob-between"
+     ],
+     "wrong": "P(X < b)"
+    },
+    {
+     "text": "Counting one tail only when the event has two",
+     "as": "distractor",
+     "in": [
+      "outside-interval",
+      "rejected-rule"
+     ],
+     "wrong": "the lower tail alone"
+    },
+    {
+     "text": "Leaving a probability as a decimal when a percentage is asked for",
+     "as": "distractor",
+     "in": [
+      "percentage-in-range"
+     ],
+     "wrong": "the probability written as the percentage, not multiplied by 100"
+    },
+    {
+     "text": "Using a whole rounding unit either side of the recorded value instead of half a unit",
+     "as": "distractor",
+     "in": [
+      "recorded-value"
+     ],
+     "wrong": "the interval one unit either side of the value"
+    },
+    {
+     "text": "Using only the half unit above the recorded value, and not the half unit below it",
+     "as": "distractor",
+     "in": [
+      "recorded-value"
+     ],
+     "wrong": "the area from the value up to half a unit above"
+    },
+    {
+     "text": "Rounding an expected number to a whole number when it need not be one",
+     "as": "distractor",
+     "in": [
+      "expected-number",
+      "expected-rejected"
+     ],
+     "wrong": "the count to a whole number, on the rounding trap"
+    },
+    {
+     "text": "Taking off one tail only, so the other tail stays in the answer",
+     "as": "distractor",
+     "in": [
+      "between-from-tails"
+     ],
+     "wrong": "1 minus the lower tail"
+    },
+    {
+     "text": "Adding the two tails instead of taking them from 1",
+     "as": "distractor",
+     "in": [
+      "between-from-tails"
+     ],
+     "wrong": "the sum of the tails"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p2-q03.a",
@@ -31206,7 +31712,9 @@
     "mcq"
    ],
    "situation": "normal-unknown",
-   "sharesSituation": null,
+   "sharesSituation": [
+    "t4-normal-probability"
+   ],
    "representations": [
     {
      "rep": "equation",

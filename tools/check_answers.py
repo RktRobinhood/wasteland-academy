@@ -19164,7 +19164,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
-                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
+                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional,
                     "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation, "fn-pre-substitute": check_substitute,
                     "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model,
                     "fn-pre-linear-equations": check_linear_equation, "fn-pre-simultaneous": check_simultaneous,
@@ -19174,6 +19174,201 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
                     "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-model": check_trig_model,
                     "solid": check_solid, "standard-form": check_standard_form}
+
+
+# ── normal-probability (t4-normal-probability, FAL-728) ──────
+# The checker's own reading of what the student sees: μ and σ from the first line, the region
+# from the stem or from the curve's shade and marks, and the areas from mpmath through nu_phi
+# (the normal-unknown section's). It shares nothing with the engine.
+
+NP_SKILL = "SL4.9.normal-probability#"
+NP_TYPE = "t4-normal-probability#"
+NP_NEG = [("The night temperatures at the north camp", " °C"), ("The temperatures in the cold store", " °C"),
+          ("The daily changes in the depot's water level", " cm")]
+NP_LOOK = re.compile(r"so the area must be (under|over) (\d+(?:\.\d+)?)\.")
+
+
+def np_mp(x):
+    return mpmath.mpf(x.p) / x.q
+
+
+def np_story(q):
+    i = int(q["given"]["ctx"])
+    return NP_NEG[i] if q["given"].get("neg") else NU_CONTEXTS[i]
+
+
+def np_model(q):
+    """μ and σ as mpmath numbers, and whether the variance was the number written."""
+    line = q["lines"][0]
+    mt = re.search(rf"X ~ N\(({NU_NUM}), ({NU_NUM})\)", line)
+    if mt:
+        return np_mp(nu_val(mt.group(1))), mpmath.sqrt(np_mp(nu_val(mt.group(2)))), nu_val(mt.group(2))
+    mt = re.fullmatch(rf"X ~ N\(({NU_NUM}), ({NU_NUM})²\)", line)
+    if mt:
+        return np_mp(nu_val(mt.group(1))), np_mp(nu_val(mt.group(2))), None
+    what, unit = np_story(q)
+    mt = re.fullmatch(rf"{re.escape(what)} are normally distributed with mean ({NU_NUM}){unit} and standard deviation ({NU_NUM}){unit}\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return np_mp(nu_val(mt.group(1))), np_mp(nu_val(mt.group(2))), None
+
+
+def np_from_text(tx, unit):
+    """(kind, lo, hi) from an event or a story's words."""
+    n = NU_NUM
+    for pat, kind in [(rf"X < ({n}) or X > ({n})", "out"), (rf"({n}) < X < ({n})", "in"), (rf"X > ({n})", "gt"), (rf"X < ({n})", "lt"),
+                      (rf"not between ({n}){unit} and ({n}){unit}", "out"), (rf"unless .* between ({n}){unit} and ({n}){unit}", "out"),
+                      (rf"between ({n}){unit} and ({n}){unit}", "in"), (rf"less than ({n}){unit}", "lt"), (rf"more than ({n}){unit}", "gt")]:
+        mt = re.search(pat, tx)
+        if mt:
+            v = [nu_val(x) for x in mt.groups()]
+            return (kind, v[0], v[1]) if len(v) == 2 else (kind, None, v[0]) if kind == "lt" else (kind, v[0], None)
+    raise Fail(f"can't read a region in {tx!r}")
+
+
+def np_from_curve(q, mu, sg):
+    """(kind, lo, hi) from the shaded curve: each end is a marked value, and the curve is X's."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "normal", "no normal curve")
+    need(abs(mpmath.mpf(g["mu"]) - mu) < mpmath.mpf("1e-6") and abs(mpmath.mpf(g["sigma"]) - sg) < mpmath.mpf("1e-6"), "the curve is not X's")
+    labels = {float(nu_val(m["label"])): nu_val(m["label"]) for m in g["marks"]}
+    need(any(abs(k - float(mu)) < 1e-6 for k in labels), "the mean is not marked")
+
+    def at(x):
+        hit = [v for k, v in labels.items() if abs(k - float(x)) < 1e-6]
+        need(len(hit) == 1, f"the bound {x} is not marked")
+        return hit[0]
+
+    sh = g["shade"]
+    if len(sh) == 2:
+        need(sh[0][0] is None and sh[1][1] is None, "two tails are shaded from the ends")
+        return "out", at(sh[0][1]), at(sh[1][0])
+    a, b = sh[0]
+    if a is None:
+        return "lt", None, at(b)
+    if b is None:
+        return "gt", at(a), None
+    return "in", at(a), at(b)
+
+
+def np_inside(lo, hi, mu, sg):
+    top = 1 if hi is None else nu_phi((np_mp(hi) - mu) / sg)
+    low = 0 if lo is None else nu_phi((np_mp(lo) - mu) / sg)
+    return top - low
+
+
+def check_normal_probability(q):
+    with mpmath.workdps(40):
+        return np_check(q)
+
+
+def np_check(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 2, "these are Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z^])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    for sol in q["solutions"]:
+        if rep != "diagram":
+            need(not re.search(r"\b(shown|shaded region|the curve:|the drawn)\b", " ".join(sol["steps"])), f"{sol['name']}: talks about a figure the stem doesn't draw")
+        else:
+            need(not any(st.startswith("Sketch") for st in sol["steps"]), f"{sol['name']}: asks for a sketch of a drawn curve")
+    need((q["graph"] is not None) == (rep == "diagram"), "the figure belongs to the diagram representation, and only there")
+    side = NP_TYPE + "3"
+    wrongs, trap = {}, None
+
+    if u == "between-from-tails":
+        need(L[0] == "X ~ N(μ, σ²)" or L[0].endswith("are normally distributed."), f"{L[0]!r}")
+        x1, s1, p1 = nu_tail(q, 1)
+        x2, s2, p2 = nu_tail(q, 2)
+        need(s1 == "lt" and s2 == "gt" and x1 < x2 and p1 + p2 < 1, "two tails, the lower first")
+        mid = 1 - p1 - p2
+        if rep == "diagram":
+            nu_shaded(q, np_mp(mid))
+        else:
+            kind, lo, hi = np_from_text(asked, np_story(q)[1])
+            need((kind, lo, hi) == ("in", x1, x2), f"asked {asked!r}")
+        want = f"probability = {dec_text(mid)}"
+        wrongs[NP_TYPE + "10"] = {f"probability = {dec_text(1 - p1)}"}
+        wrongs[NP_TYPE + "11"] = {f"probability = {dec_text(p1 + p2)}"}
+        gc_check_common(q, want, wrongs, None)
+        return None, None
+
+    mu, sg, var = np_model(q)
+    need(sg <= mu / 4 or g.get("neg"), f"σ = {sg} is too large for a measure")
+    unit = np_story(q)[1]
+    if u == "recorded-value":
+        tx = " ".join(L[1:])
+        mt = re.search(rf"to the nearest ({NU_NUM})", tx)
+        mv = re.search(rf"recorded as ({NU_NUM})", asked)
+        need(mt is not None and mv is not None, f"can't read {tx!r} {asked!r}")
+        w, v = nu_val(mt.group(1)), nu_val(mv.group(1))
+        need(w in (1, sp.Rational(1, 10)) and (v / w).q == 1, f"{v} is not on the grid of {w}")
+        kind, lo, hi = "in", v - w / 2, v + w / 2
+    elif rep == "diagram":
+        kind, lo, hi = np_from_curve(q, mu, sg)
+    else:
+        src = L[1] if u in ("rejected-rule", "expected-rejected") else asked
+        kind, lo, hi = np_from_text(src, unit)
+    if lo is not None and hi is not None:
+        need(lo < hi, "the bounds are out of order")
+    inside = np_inside(lo, hi, mu, sg)
+    p = 1 - inside if kind == "out" else inside
+    other = 1 - p
+    need(nu_clear(p) and nu_clear(other), f"{p} is on a rounding edge")
+    need(mpmath.mpf("0.005") <= p <= mpmath.mpf("0.995"), f"the area {p}")
+    if u != "recorded-value":
+        for b in (lo, hi):
+            if b is not None:
+                need(abs(np_mp(b) - mu) >= sg / 10, f"{b} is within a tenth of σ of μ")
+    expect = {"prob-below": ("lt",), "prob-above": ("gt",), "prob-between": ("in",), "outside-interval": ("out",), "negative-lower-tail": ("lt",),
+              "rejected-rule": ("lt", "gt", "out"), "expected-rejected": ("lt", "gt", "out"), "percentage-in-range": ("lt", "gt", "in"),
+              "expected-number": ("lt", "gt", "in"), "variance-given": ("lt", "gt", "in"), "recorded-value": ("in",)}
+    need(kind in expect[u], f"{u} with a region of kind {kind}")
+    label = "probability = "
+    if u in ("expected-number", "expected-rejected"):
+        mt = re.search(r"A random sample of (\d+) ", " ".join(L))
+        need(mt is not None, f"no sample size in {L}")
+        n = int(mt.group(1))
+        x = n * p
+        need(x >= 10 and nu_clear(x) and nu_clear(n * other), f"the count {x}")
+        want, trap = nu_text("expected number = ", x), bn_trap("expected number = ", nu_f(x))
+        wrongs[NP_SKILL + "2"] = {nu_text("expected number = ", p)}
+        wrongs[side] = {nu_text("expected number = ", n * other)}
+    elif u == "percentage-in-range":
+        pc = "percentage" in asked
+        need(pc or "proportion" in asked, f"asked {asked!r}")
+        label = "percentage = " if pc else "proportion = "
+        tail = "%" if pc else ""
+        x = p * 100 if pc else p
+        want, trap = nu_text(label, x) + tail, bn_trap(label, nu_f(x))
+        trap = trap + tail if trap else None
+        wrongs[side] = {nu_text(label, other * 100 if pc else other) + tail}
+        if pc:
+            wrongs[NP_TYPE + "6"] = {nu_text(label, p) + tail}
+    else:
+        want, trap = nu_text(label, p), bn_trap(label, nu_f(p))
+        wrongs[side] = {nu_text(label, other)}
+    if u == "prob-between":
+        wrongs[NP_TYPE + "4"] = {nu_text(label, np_inside(None, hi, mu, sg))}
+    if kind == "out" and u in ("outside-interval", "rejected-rule"):
+        wrongs[NP_TYPE + "5"] = {nu_text(label, np_inside(None, lo, mu, sg))}
+    if u == "negative-lower-tail":
+        need(mu != 0 and hi > 0 and nu_phi(-mu / sg) > mpmath.mpf("0.05"), "X has no real area below 0")
+        wrongs[NP_SKILL + "1"] = {nu_text(label, np_inside(sp.Integer(0), hi, mu, sg))}
+    if u == "variance-given":
+        need(var is not None, "the variance is not written")
+        wrongs[NP_SKILL + "0"] = {nu_text(label, np_inside(lo, hi, mu, np_mp(var)))}
+    if u == "recorded-value":
+        wrongs[NP_TYPE + "7"] = {nu_text(label, np_inside(v - w, v + w, mu, sg))}
+        wrongs[NP_TYPE + "8"] = {nu_text(label, np_inside(v, hi, mu, sg))}
+    gc_check_common(q, want, wrongs, trap)
+    # A sketch's claim about the area must hold.
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            mt = NP_LOOK.search(st)
+            if mt:
+                b = mpmath.mpf(mt.group(2))
+                need(p < b if mt.group(1) == "under" else p > b, f"{sol['name']}: {st!r} is false for {p}")
+    return None, None
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────
