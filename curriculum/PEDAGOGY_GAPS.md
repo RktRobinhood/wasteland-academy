@@ -2682,7 +2682,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 13 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -2925,6 +2925,39 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): If f″(x) > 0 on an interval, then f′ is increasing on that interval. — True: f″ is the derivative of f′, so a positive f″ means f′ is increasing, whatever the sign of f′ itself.
   - *always-sometimes-never* (L4): If f″(a) = 0, then the graph of f has a point of inflexion at x = a. — Sometimes: x³ does at x = 0, but x⁴ has f″(0) = 0 and is concave up on both sides, so it has none. f″ has to change sign.
 - **Misconceptions used:** 7. Squaring f′(x) instead of differentiating it; Stopping at f′ instead of differentiating again; Reading d²y/dx² as (dy/dx)²; Confusing concave up with increasing: looking at the sign of f′ instead of f″; Thinking concave down means decreasing; Going by the curve's general shape instead of checking its zeros, turning points and signs; Putting the zeros of a derivative at the x-intercepts instead of at the turning points.
+
+#### Integrate, then find the constant from a point or initial value (`t5-antiderivative-condition`, exam, 9 bank parts)
+
+- **Situation:** A derivative and a condition that fixes the constant.
+- **Representations:** **equation**, **words**, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given f′(x) as a polynomial; f(a) = b → f(x)
+  - **exam** L2: given f′(x) = ax + b; f at a point in decimals → f(x), with a decimal constant
+  - **exam** L2: given dy/dx as a polynomial; a point on the curve → the equation of the curve
+  - **exam** L2: given f′(x); f(a) = b; the integrated form with + C → the value of C
+  - **exam** L3: given f′(x); f(a) = b → a further value f(c)
+  - **exam** L3: given f′(x) with a negative power of x; f(a) = b → f(x)
+  - **exam** L3: given f′(x) = k cos(ax) or k sin(ax); f at a multiple of π → f(x)
+  - **exam** L3: given dy/dx = k cos(x + c) or k sin(x + c); y at a multiple of π → y in terms of x
+  - **exam** L3: given a gradient k/(ax + b); a point on the curve → f(x) or the equation of the curve
+  - **exam** L3: given f′(x) with a power of x and an exponential; f(0) or the curve's y-intercept → f(x)
+  - **exam** L3: given f′(x) with cos x or sin x and an exponential; f(0) → f(x)
+  - **exam** L3: given f′(x) = e^(ax) + b; f at a decimal point → f(x), with the constant to 3 s.f.
+  - **exam** L4: given f′(x) = 2kx/(x² + a); a point on the graph → f(x), with a log in the constant
+  - **exam** L4: given f′(x) = k(2x + b)/(x² + bx + c); a value of f with a log in it → f(x)
+  - **exam** L4: given a rate that decays exponentially; the amount at the start → the amount at a later time, to 3 s.f.
+  - **exam** L3: given f″(x) as a polynomial; f′ and f at a point → f(x)
+  - **exam** L4: given f″(x) = ax + be^x; f′(0) and f(0) → f(x)
+  - **exam** L4: given f″(x) as a polynomial; f′ and f at a point → a further value f(c)
+  - **exam** L3: given dy/dx with a constant a; the gradient at one point; a point on the curve → y in terms of x
+  - new L2: given f′(x); a point; a family y = F(x) + C on one figure → the C of the curve through the point
+  - new L3: given the graph of f′ in straight pieces; f(a) = b → a further value f(c)
+- **Angles:** Integrate, then substitute the point; Start value plus accumulated change; Choose the right vertical shift; Integrate and fit the constant(s); Start value plus GDC integral.
+- **Concept probes:**
+  - *true-false-reason* (L3): Knowing f′(x) for every x is enough to know f(x) for every x. — False: f′ fixes the shape, and any vertical shift has the same derivative. One value of f is needed to pick the shift.
+  - *always-sometimes-never* (L3): Two different antiderivatives of the same function on one interval cross each other. — Never: they differ by a constant, so one curve is the other moved up or down, and the gap never closes.
+  - *true-false-reason* (L4): From f″(x), one condition is enough to find f(x). — False: there are two integrations, so two constants, and each needs a condition of its own.
+- **Misconceptions used:** 23. Substituting the point into f′(x) instead of f(x); Substituting the y-value in place of x; Leaving + C in the final answer; Dropping the constant of integration; Adding F(a) to the given value instead of subtracting it when solving for C; Taking C to be the y-value of the given point; Differentiating f′ instead of integrating it; Giving f′ at the point asked for instead of f; Using the gradient as a height on the curve when fixing C; Counting every area under f′ as positive; Using a single constant for both integrations from f″; Using a wrong exact value of sin, cos, e or ln when finding C; Substituting the point into f′ instead of f; Assuming the rate stays at its starting value for the whole time; Using the two conditions at the wrong stages; Stopping at f′ after one integration when f is asked for; Dividing by the old power instead of the new one; Integrating sin x to cos x, with the wrong sign; Multiplying by the coefficient of x, as in differentiation, instead of dividing; Forgetting to divide by the coefficient of x; Forgetting to divide by the number that comes from differentiating the inside; Evaluating the rate at the end time instead of integrating; Adding the starting amount when only the change is asked for, or forgetting it when the total is asked for.
 
 #### Definite integrals and areas, including regions below the axis and unknown limits (`t5-definite-integral-area`, exam, 9 bank parts)
 

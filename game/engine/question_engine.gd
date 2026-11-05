@@ -98,6 +98,7 @@ static var SITUATIONS := {
 	"tree-diagram": [TreeDiagramSituation, TreeDiagramViews],
 	"independence": [IndependenceSituation, IndependenceViews],
 	"grouped-data": [GroupedDataSituation, GroupedDataViews],
+	"antiderivative-condition": [AntiderivativeConditionSituation, AntiderivativeConditionViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
 	"compound-interest": [CompoundInterestSituation, CompoundInterestViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],

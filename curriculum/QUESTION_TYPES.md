@@ -1207,6 +1207,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq, graph-pick
 - **Bank parts:** 5.
 
+### t5-antiderivative-condition
+
+**Integrate, then find the constant from a point or initial value.** Integrate f′ or f″, and use a point, a value or a start amount to fix the constant. The result is f(x), the equation of a curve, the constant itself, or a further value. It covers polynomials, negative powers, trig with a chain or a shift, 1/(ax + b), e^(ax), logs by inspection, a gradient that fixes a parameter, two conditions from f″, a family of curves on one figure, the graph of f′ read as areas, and a decaying rate in a story.
+
+- **Syllabus:** 5.5, 5.10
+- **Skills:** `SL5.5.boundary-condition`, `SL5.10.find-function-from-derivative`
+- **Where it appears:** P1 4, P2 5; Section A 8, B 1. Marks per part: usually 4 (3 to 6).
+- **Usual chain:** integrate f′ (or f″), with + C → put the condition into the integrated function, not into its derivative → solve for C, keeping exact values → from f″, integrate again with a new constant and use the second condition → write the function with no C left, or put in the further value → or go straight to f(b) = f(a) + ∫ f′ dx from a to b
+- **Given:** f′(x) and a value of f, a gradient function and a point on the curve, f″(x) with f′ and f at a point, a gradient with a constant in it, and the gradient at a point, a family of curves on one figure, the graph of f′ in straight pieces, a rate in a story and the start amount. **Asked:** An expression for f(x) or y, the constant C, or a further value of f. **Answer form:** expression with no constant left, exact value, decimal constant, 3 s.f..
+- **A recipe can randomise:** the family of the derivative: powers, trig, 1/(ax + b), e^(ax) or a quotient that reverses to a log; the coefficients, the inside ax + b and the shift; the given point or value; the letter of the function; the value asked for; the corners of the graph of f′; the story: rats, reservoirs, ration tins, settlers, ridges, pipes, cables and riverbeds.
+- **Limits that keep answers clean:** Paper 1 exact, with landmark angles, e⁰ and ln 1 or a log left in the constant; decimals and the rate model are Paper 2, to 3 s.f.; the GDC method is Paper 2 only; the constant is never 0, so dropping it is always wrong.
+- **Game formats:** value, mcq
+- **Bank parts:** 9.
+
 ### t5-definite-integral-area
 
 **Definite integrals and areas, including regions below the axis and unknown limits.** Evaluate a definite integral exactly, find an area with a region below the x-axis, find an unknown limit or stretch from a given value, find a region cut by a tangent or a line, and turn a rate in a story into a total.
