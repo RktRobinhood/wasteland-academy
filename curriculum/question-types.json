@@ -4247,6 +4247,65 @@
     "two options of a test end in each verdict",
     "the quadratic for P(B) has one root that makes P(A) at most 1, and the quadratic for x has one repeated root"
    ]
+  },
+  "normal-properties": {
+   "name": "What the shape of a normal curve gives",
+   "summary": "A normal variable where the shape does the work: the rule's bands, the mirror about μ, and total area 1, and on Paper 2 a central area with invNorm. Facts are clean and the answers exact, apart from values a GDC gives. A figure draws the σ its areas force.",
+   "quantities": [
+    {
+     "name": "mu, sg",
+     "is": "the mean and the standard deviation",
+     "pick": "whole on Paper 1; tenths half of the time on Paper 2; σ at most μ ÷ 5"
+    },
+    {
+     "name": "k",
+     "is": "how many standard deviations a band reaches",
+     "pick": "1, 2 or 3"
+    },
+    {
+     "name": "z1, z2",
+     "is": "the ends of an unequal band, in σ from the mean",
+     "pick": "whole numbers from −3 to 3, never centred on the mean"
+    },
+    {
+     "name": "n",
+     "is": "how many there are",
+     "pick": "a multiple of 100, or of 1000 for the third band"
+    },
+    {
+     "name": "p, c",
+     "is": "a tail and a central area",
+     "pick": "hundredths on Paper 1 and thousandths on Paper 2, a tail up to 0.27 on a figure and 0.45 otherwise"
+    },
+    {
+     "name": "p1, p2",
+     "is": "two different tails",
+     "pick": "0.05 to 0.42, adding to at most 0.8"
+    },
+    {
+     "name": "curves",
+     "is": "four curves on one figure",
+     "pick": "two means and two spreads, lettered in a random order"
+    },
+    {
+     "name": "h",
+     "is": "a number of standard deviations that is not whole",
+     "pick": "tenths from 0.5 to 2.5"
+    },
+    {
+     "name": "level",
+     "is": "a central area",
+     "pick": "0.6 to 0.99"
+    }
+   ],
+   "clean": [
+    "Answers from the rule, symmetry and area are exact. A value from a GDC is to 3 s.f. and 0.03 of a unit of the third figure from a rounding edge",
+    "a figure's marks stay at least 0.6 σ apart, and a figure with a hidden σ draws the σ the areas force",
+    "σ is at most μ ÷ 5, so three standard deviations below the mean is still a real measurement",
+    "a count by the rule is a whole number: n is a multiple of 100, or of 1000 for the third band",
+    "two tails that are meant to differ differ, and no two tails add to more than 0.8",
+    "a central area is not 0.5, so a slip on the left tail gives a value"
+   ]
   }
  },
  "types": [
@@ -36160,8 +36219,9 @@
    "id": "t4-normal-properties",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Normal curve properties: symmetry, sigma intervals, matching curves",
+   "summary": "Read the normal curve: the 68-95-99.7 rule as a share, a count, a tail or a band, what μ and σ do to the curve, which curves match, P(X = a) = 0, a mirror tail or value, area bookkeeping from given tails, and, on Paper 2, the central interval with invNorm or a solver.",
    "syllabus": [
     "4.9"
    ],
@@ -36169,6 +36229,979 @@
     "SL4.9.properties",
     "SL4.9.symmetry-probability",
     "SL4.9.central-interval"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "mark μ and the bounds on a sketch of the curve",
+    "count the standard deviations, or find the mirror point",
+    "use the rule, or symmetry and total area 1, to write the region in terms of what is known",
+    "on Paper 2, split a central area into two equal tails and use invNorm",
+    "state the area, the value or the curve"
+   ],
+   "given": [
+    "X ~ N(μ, σ²), with σ a number, a letter or hidden",
+    "one tail, or two, or a band and its area",
+    "a story with percentages",
+    "a curve with a region shaded, or four curves on one figure"
+   ],
+   "asked": "An approximate share or count by the rule, a probability from symmetry, a mirror value, an end of a band, σ, which curve or graph fits, how a curve changes, or a central interval.",
+   "answerForms": [
+    "exact decimal",
+    "percentage",
+    "a whole count",
+    "a curve or graph",
+    "a description of a change",
+    "3 s.f.",
+    "an interval"
+   ],
+   "randomise": [
+    "μ and σ",
+    "how many standard deviations a band reaches, and whether it is said in numbers or words",
+    "which side a tail is on, and which side is asked",
+    "the tails and central areas",
+    "which parameter changes, and which way",
+    "the curve asked for, and the order of the letters",
+    "the story: grain sacks, copper pipes, couriers, cans, fence posts, batteries, patrols and engine parts"
+   ],
+   "constraints": [
+    "Paper 1 has no calculator work; beyond-sd, tail-from-band and the central intervals are Paper 2",
+    "the rest make both papers, so the type can reach the exam's split",
+    "a tail on Paper 1 is in hundredths and on Paper 2 in thousandths"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "normal-properties",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "X ~ N(10, σ²) and P(X > 13) = 0.2, or X ~ N(7, a²)"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story in percentages or with a mean and a standard deviation"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "the curve with a region shaded, four curves on one figure, or four graph cards"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "empirical-share",
+     "given": [
+      "μ and σ, or X ~ N(μ, a²)",
+      "a band μ ± kσ for k = 1, 2 or 3"
+     ],
+     "asked": "the approximate probability or percentage in the band",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "empirical-count",
+     "given": [
+      "μ, σ and how many there are",
+      "a band μ ± kσ"
+     ],
+     "asked": "about how many are inside, or outside, the band",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "empirical-tail",
+     "given": [
+      "μ and σ",
+      "a bound k standard deviations from the mean"
+     ],
+     "asked": "the approximate area below or above the bound",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "empirical-band",
+     "given": [
+      "μ and σ",
+      "a band whose ends are different numbers of σ from the mean"
+     ],
+     "asked": "the approximate area of the band",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "sd-from-rule",
+     "given": [
+      "a band centred on the mean and the share of the rule it holds"
+     ],
+     "asked": "σ",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "other-sd-end",
+     "given": [
+      "μ, σ and one end of the band within k standard deviations of the mean"
+     ],
+     "asked": "the other end",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "point-probability",
+     "given": [
+      "μ, σ and a single value"
+     ],
+     "asked": "P(X = a)",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "effect-of-change",
+     "given": [
+      "two normal curves, or one and a change in μ or σ"
+     ],
+     "asked": "how the curve changes",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "match-curve",
+     "given": [
+      "four curves on one figure",
+      "one distribution, with σ² as a square or as the variance"
+     ],
+     "asked": "which curve it is",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "pick-two-curves",
+     "given": [
+      "two distributions, with the second parameter as a square or as the variance"
+     ],
+     "asked": "which of four graphs shows both",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "pick-shaded",
+     "given": [
+      "X ~ N(μ, σ²) and an event"
+     ],
+     "asked": "which of four graphs shades the event",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "same-sd-shift",
+     "given": [
+      "X and Y with different means and the same σ",
+      "P(X > b) = P(Y > y)"
+     ],
+     "asked": "b",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "shifted-mirror",
+     "given": [
+      "X and Y with different means and the same σ",
+      "P(X < b) = P(Y > y)"
+     ],
+     "asked": "b",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "beyond-sd",
+     "given": [
+      "μ and σ",
+      "a number of standard deviations that is not whole"
+     ],
+     "asked": "the probability of being more than that far above, below or from the mean",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.properties"
+     ]
+    },
+    {
+     "id": "half-below-mean",
+     "given": [
+      "X ~ N(μ, σ²)"
+     ],
+     "asked": "P(X < μ) or P(X > μ)",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "mirror-tail",
+     "given": [
+      "μ and one tail"
+     ],
+     "asked": "the mirror tail",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "mirror-complement",
+     "given": [
+      "μ and a large area past the mean"
+     ],
+     "asked": "the small tail on the other side",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "middle-from-tail",
+     "given": [
+      "μ and one tail"
+     ],
+     "asked": "the area between the tail's bound and its mirror",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "tail-from-middle",
+     "given": [
+      "a band centred on μ and its area"
+     ],
+     "asked": "one tail",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "half-of-middle",
+     "given": [
+      "a band centred on μ and its area"
+     ],
+     "asked": "the area from μ to one end",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "mean-to-point",
+     "given": [
+      "μ and one tail"
+     ],
+     "asked": "the area between μ and the tail's bound",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "between-from-two-tails",
+     "given": [
+      "two different tails, with μ and σ hidden"
+     ],
+     "asked": "the area between them",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "tail-from-band",
+     "given": [
+      "μ, σ, the upper end of a band and the band's area"
+     ],
+     "asked": "the tail below the band",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "mirror-value",
+     "given": [
+      "μ and one of two values that cut off equal tails"
+     ],
+     "asked": "the other value",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.symmetry-probability"
+     ]
+    },
+    {
+     "id": "central-k",
+     "given": [
+      "μ, σ and P(μ − k < X < μ + k)"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.central-interval"
+     ]
+    },
+    {
+     "id": "central-endpoints",
+     "given": [
+      "μ, σ and the area of a central interval"
+     ],
+     "asked": "both ends of the interval",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.central-interval"
+     ]
+    },
+    {
+     "id": "central-k-sd",
+     "given": [
+      "μ, σ and the area within k standard deviations of the mean"
+     ],
+     "asked": "k",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.central-interval"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.9.properties",
+     "method": "empirical-rule",
+     "suits": [
+      "empirical-share",
+      "empirical-count",
+      "empirical-tail",
+      "empirical-band",
+      "sd-from-rule",
+      "other-sd-end"
+     ]
+    },
+    {
+     "skill": "SL4.9.properties",
+     "method": "sketch-and-shade",
+     "suits": [
+      "empirical-share",
+      "empirical-tail",
+      "empirical-band",
+      "other-sd-end",
+      "point-probability",
+      "pick-shaded",
+      "beyond-sd"
+     ]
+    },
+    {
+     "skill": "SL4.9.properties",
+     "method": "parameter-effect",
+     "suits": [
+      "effect-of-change",
+      "match-curve",
+      "pick-two-curves",
+      "same-sd-shift",
+      "shifted-mirror"
+     ]
+    },
+    {
+     "skill": "SL4.9.symmetry-probability",
+     "method": "mirror-tails",
+     "suits": [
+      "half-below-mean",
+      "mirror-tail",
+      "mirror-complement",
+      "middle-from-tail",
+      "tail-from-middle",
+      "half-of-middle",
+      "mirror-value",
+      "shifted-mirror"
+     ]
+    },
+    {
+     "skill": "SL4.9.symmetry-probability",
+     "method": "area-bookkeeping",
+     "suits": [
+      "half-below-mean",
+      "mirror-complement",
+      "middle-from-tail",
+      "tail-from-middle",
+      "half-of-middle",
+      "mean-to-point",
+      "between-from-two-tails",
+      "tail-from-band"
+     ]
+    },
+    {
+     "skill": "SL4.9.symmetry-probability",
+     "method": "shaded-sketch",
+     "suits": [
+      "mirror-tail",
+      "mirror-complement",
+      "middle-from-tail",
+      "tail-from-middle",
+      "mean-to-point",
+      "between-from-two-tails",
+      "tail-from-band",
+      "mirror-value"
+     ]
+    },
+    {
+     "skill": "SL4.9.central-interval",
+     "method": "split-tails",
+     "suits": [
+      "central-k",
+      "central-endpoints",
+      "central-k-sd"
+     ]
+    },
+    {
+     "skill": "SL4.9.central-interval",
+     "method": "gdc-center",
+     "suits": [
+      "central-k",
+      "central-endpoints",
+      "central-k-sd"
+     ]
+    },
+    {
+     "skill": "SL4.9.central-interval",
+     "method": "gdc-solver",
+     "suits": [
+      "central-k",
+      "central-endpoints",
+      "central-k-sd"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "For a normal variable, P(X < a) and P(X ≤ a) are equal.",
+     "answer": "True: X is continuous, so P(X = a) = 0, and adding one value adds no area.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Doubling σ doubles the height of a normal curve's peak.",
+     "answer": "Never: the total area stays 1, so a curve twice as wide has half the height.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "Two normal curves have the same σ and different means. What is the same about them, and what is different?",
+     "answer": "They are the same shape, so one slides onto the other. Only their positions differ.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.9.properties#0",
+     "text": "Using the wrong figure of the rule for how many standard deviations the band reaches",
+     "as": "distractor",
+     "in": [
+      "empirical-share",
+      "empirical-count",
+      "empirical-tail",
+      "empirical-band",
+      "sd-from-rule"
+     ],
+     "wrong": "the figure of the rule for another number of standard deviations"
+    },
+    {
+     "ref": "SL4.9.properties#1",
+     "text": "Assuming a larger σ gives a taller curve",
+     "as": "distractor",
+     "in": [
+      "effect-of-change",
+      "match-curve",
+      "pick-two-curves"
+     ],
+     "wrong": "a larger σ drawn taller, or a smaller σ drawn lower"
+    },
+    {
+     "ref": "SL4.9.properties#2",
+     "text": "Assuming a single value of a continuous variable has a non-zero probability",
+     "as": "distractor",
+     "in": [
+      "point-probability"
+     ],
+     "wrong": "the area on one side of a, as if it were P(X = a)"
+    },
+    {
+     "ref": "SL4.9.symmetry-probability#0",
+     "text": "Using the sum of the tails as the middle, instead of subtracting them from the whole area",
+     "as": "distractor",
+     "in": [
+      "middle-from-tail",
+      "between-from-two-tails"
+     ],
+     "wrong": "the two tails added"
+    },
+    {
+     "ref": "SL4.9.symmetry-probability#1",
+     "text": "Assuming the mean does not cut the area into two equal halves",
+     "as": "distractor",
+     "in": [
+      "empirical-tail",
+      "half-below-mean",
+      "half-of-middle",
+      "mean-to-point"
+     ],
+     "wrong": "a value that loses or misplaces the half on one side of the mean"
+    },
+    {
+     "ref": "SL4.9.symmetry-probability#2",
+     "text": "Using the origin as the mirror instead of μ",
+     "as": "distractor",
+     "in": [
+      "mirror-value"
+     ],
+     "wrong": "−x, the mirror in 0"
+    },
+    {
+     "ref": "SL4.9.central-interval#0",
+     "text": "Using the central area as the left-tail area in invNorm",
+     "as": "distractor",
+     "in": [
+      "central-k",
+      "central-endpoints",
+      "central-k-sd"
+     ],
+     "wrong": "invNorm of the central area, with no tail added"
+    },
+    {
+     "ref": "SL4.9.central-interval#1",
+     "text": "Using the endpoint μ + k as the answer when k is asked for",
+     "as": "distractor",
+     "in": [
+      "central-k",
+      "central-k-sd"
+     ],
+     "wrong": "μ + k, or the upper end, for k"
+    },
+    {
+     "text": "Giving the area on the wrong side of the bound or the band",
+     "as": "distractor",
+     "in": [
+      "empirical-share",
+      "empirical-count",
+      "empirical-tail",
+      "empirical-band",
+      "beyond-sd",
+      "pick-shaded",
+      "tail-from-middle",
+      "half-of-middle",
+      "mean-to-point",
+      "tail-from-band"
+     ],
+     "wrong": "the area on the other side"
+    },
+    {
+     "text": "Using the whole band where only part of it is in the region",
+     "as": "distractor",
+     "in": [
+      "empirical-tail",
+      "empirical-band",
+      "half-below-mean",
+      "half-of-middle",
+      "mean-to-point",
+      "mirror-complement"
+     ],
+     "wrong": "the band's full share"
+    },
+    {
+     "text": "Using half of the band where another area is asked for",
+     "as": "distractor",
+     "in": [
+      "empirical-share",
+      "empirical-tail",
+      "empirical-band",
+      "half-below-mean",
+      "tail-from-middle"
+     ],
+     "wrong": "half of the band's share"
+    },
+    {
+     "text": "Keeping both tails when one is asked for",
+     "as": "distractor",
+     "in": [
+      "empirical-tail",
+      "mirror-tail",
+      "tail-from-middle"
+     ],
+     "wrong": "the two tails together"
+    },
+    {
+     "text": "Using one tail where there are two",
+     "as": "distractor",
+     "in": [
+      "empirical-count",
+      "beyond-sd",
+      "middle-from-tail",
+      "between-from-two-tails",
+      "tail-from-band"
+     ],
+     "wrong": "one tail left out, or only one counted"
+    },
+    {
+     "text": "Leaving a share as a share instead of multiplying by the total",
+     "as": "distractor",
+     "in": [
+      "empirical-count"
+     ],
+     "wrong": "the share, not multiplied by n"
+    },
+    {
+     "text": "Using the whole width of the band as if the rule's standard deviations reached only one way",
+     "as": "distractor",
+     "in": [
+      "sd-from-rule"
+     ],
+     "wrong": "the width ÷ k, not the width ÷ 2k"
+    },
+    {
+     "text": "Stepping from the given end only as far as the mean",
+     "as": "distractor",
+     "in": [
+      "other-sd-end"
+     ],
+     "wrong": "μ, for the other end"
+    },
+    {
+     "text": "Stepping one standard deviation from the mean when the band reaches further",
+     "as": "distractor",
+     "in": [
+      "other-sd-end"
+     ],
+     "wrong": "μ ± σ"
+    },
+    {
+     "text": "Assuming a change in μ changes the shape of the curve",
+     "as": "distractor",
+     "in": [
+      "effect-of-change"
+     ],
+     "wrong": "the curve wider or narrower when only μ moves"
+    },
+    {
+     "text": "Assuming a change in σ moves the curve along",
+     "as": "distractor",
+     "in": [
+      "effect-of-change"
+     ],
+     "wrong": "the curve slides when only σ changes"
+    },
+    {
+     "text": "Assuming a larger σ makes the curve narrower",
+     "as": "distractor",
+     "in": [
+      "effect-of-change"
+     ],
+     "wrong": "the width the wrong way round"
+    },
+    {
+     "text": "Moving the curve the wrong way along the axis",
+     "as": "distractor",
+     "in": [
+      "effect-of-change"
+     ],
+     "wrong": "a slide in the other direction"
+    },
+    {
+     "text": "Using the wrong mean for the curve",
+     "as": "distractor",
+     "in": [
+      "match-curve",
+      "pick-two-curves"
+     ],
+     "wrong": "a curve at another centre"
+    },
+    {
+     "text": "Shading from the mean to the bound instead of the region asked for",
+     "as": "distractor",
+     "in": [
+      "pick-shaded"
+     ],
+     "wrong": "the mean to the bound"
+    },
+    {
+     "text": "Centring the curve somewhere other than the mean",
+     "as": "distractor",
+     "in": [
+      "pick-shaded"
+     ],
+     "wrong": "a peak that is not at μ"
+    },
+    {
+     "text": "Using k in place of kσ, so the bound is k from the mean",
+     "as": "distractor",
+     "in": [
+      "beyond-sd"
+     ],
+     "wrong": "the area beyond μ + k"
+    },
+    {
+     "text": "Using the complement where the mirror is needed",
+     "as": "distractor",
+     "in": [
+      "mirror-tail"
+     ],
+     "wrong": "1 − p"
+    },
+    {
+     "text": "Using the large area as the mirror of itself, without taking it from the whole area",
+     "as": "distractor",
+     "in": [
+      "mirror-complement"
+     ],
+     "wrong": "the large area, unchanged"
+    },
+    {
+     "text": "Measuring the area from the mean instead of the tail",
+     "as": "distractor",
+     "in": [
+      "mirror-tail",
+      "mirror-complement",
+      "middle-from-tail"
+     ],
+     "wrong": "the area between the mean and the bound"
+    },
+    {
+     "text": "Assuming two different tails are equal",
+     "as": "distractor",
+     "in": [
+      "between-from-two-tails"
+     ],
+     "wrong": "1 − 2 × the first tail"
+    },
+    {
+     "text": "Keeping the value unchanged when the curve has moved",
+     "as": "distractor",
+     "in": [
+      "same-sd-shift",
+      "shifted-mirror"
+     ],
+     "wrong": "y, for b"
+    },
+    {
+     "text": "Moving the value the wrong way, by the difference of the means",
+     "as": "distractor",
+     "in": [
+      "same-sd-shift",
+      "shifted-mirror"
+     ],
+     "wrong": "y minus the slide"
+    },
+    {
+     "text": "Using the same side of the mean when the two tails point opposite ways",
+     "as": "distractor",
+     "in": [
+      "shifted-mirror"
+     ],
+     "wrong": "the slid value, not its mirror"
+    },
+    {
+     "text": "Using the sum of the value and the mean instead of a reflection",
+     "as": "distractor",
+     "in": [
+      "mirror-value"
+     ],
+     "wrong": "x + μ"
+    },
+    {
+     "text": "Using z without multiplying by σ",
+     "as": "distractor",
+     "in": [
+      "central-k",
+      "central-endpoints"
+     ],
+     "wrong": "z, for a distance in the units of X"
+    },
+    {
+     "text": "Multiplying by σ when k already counts standard deviations",
+     "as": "distractor",
+     "in": [
+      "central-k-sd"
+     ],
+     "wrong": "z × σ"
+    }
    ],
    "parts": [
     "aa-sl-2023-may-tz2-p2-q04.b",
@@ -55425,7 +56458,7 @@
     },
     {
      "ref": "SL4.9.symmetry-probability#0",
-     "text": "P(7 < X < 13) = 0.2 + 0.2 (adding the tails instead of subtracting them from 1)",
+     "text": "Using the sum of the tails as the middle, instead of subtracting them from the whole area",
      "as": "distractor",
      "in": [
       "normal-middle"
@@ -55434,7 +56467,7 @@
     },
     {
      "ref": "SL4.9.symmetry-probability#1",
-     "text": "Forgetting that P(X < μ) = 0.5",
+     "text": "Assuming the mean does not cut the area into two equal halves",
      "as": "distractor",
      "in": [
       "normal-other-tail"
@@ -55443,7 +56476,7 @@
     },
     {
      "ref": "SL4.9.symmetry-probability#2",
-     "text": "Applying symmetry about 0 instead of about μ",
+     "text": "Using the origin as the mirror instead of μ",
      "as": "distractor",
      "in": [
       "normal-other-tail"
@@ -55452,7 +56485,7 @@
     },
     {
      "ref": "SL4.9.central-interval#0",
-     "text": "Using invNorm(0.9) for the upper endpoint instead of invNorm(0.95)",
+     "text": "Using the central area as the left-tail area in invNorm",
      "as": "distractor",
      "in": [
       "central-interval"
@@ -55461,7 +56494,7 @@
     },
     {
      "ref": "SL4.9.central-interval#1",
-     "text": "Giving the endpoint μ + k when k is asked for",
+     "text": "Using the endpoint μ + k as the answer when k is asked for",
      "as": "distractor",
      "in": [
       "central-interval"

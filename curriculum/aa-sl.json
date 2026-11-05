@@ -12447,9 +12447,9 @@
                 }
               ],
               "misconceptions": [
-                "95% of the values lie within one standard deviation of the mean",
-                "A larger σ gives a taller curve",
-                "P(X = a) is non-zero for a continuous normal variable"
+                "Using the wrong figure of the rule for how many standard deviations the band reaches",
+                "Assuming a larger σ gives a taller curve",
+                "Assuming a single value of a continuous variable has a non-zero probability"
               ],
               "threads": [
                 {
@@ -12507,9 +12507,9 @@
                 }
               ],
               "misconceptions": [
-                "P(7 < X < 13) = 0.2 + 0.2 (adding the tails instead of subtracting them from 1)",
-                "Forgetting that P(X < μ) = 0.5",
-                "Applying symmetry about 0 instead of about μ"
+                "Using the sum of the tails as the middle, instead of subtracting them from the whole area",
+                "Assuming the mean does not cut the area into two equal halves",
+                "Using the origin as the mirror instead of μ"
               ],
               "threads": [
                 {
@@ -12678,8 +12678,8 @@
                 }
               ],
               "misconceptions": [
-                "Using invNorm(0.9) for the upper endpoint instead of invNorm(0.95)",
-                "Giving the endpoint μ + k when k is asked for"
+                "Using the central area as the left-tail area in invNorm",
+                "Using the endpoint μ + k as the answer when k is asked for"
               ],
               "threads": [
                 {

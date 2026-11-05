@@ -10,7 +10,8 @@ extends Control
 ## "x_name" names the across axis ("t" for a model in time) and "y_name" the up axis ("v" for
 ## a velocity); "x" and "y" if it has none. "shade" fills regions under the curves (FAL-724):
 ## each region is a list of strips [x, low, high] from left to right. "x_ticks" (FAL-727) is
-## [[x, label], ...]: the across axis is marked there instead, in multiples of π, say.
+## [[x, label], ...]: the across axis is marked there instead, in multiples of π, say. "y_bare"
+## (FAL-740) leaves the numbers off the up axis, for curves whose height is only a picture.
 
 const PAD := 18.0
 const DOT := 13.0
@@ -103,7 +104,7 @@ func _draw() -> void:
 			if not _near_point(p):
 				_text(font, _n(x), p, UiTheme.DIM, FONT_SIZE - 6, true)
 	for y in range(y0 + 1, y1):
-		if y % ly == 0 and y != 0:
+		if y % ly == 0 and y != 0 and not spec.get("y_bare", false):
 			var p := to_px(Vector2(clampi(0, x0, x1), y)) + Vector2(-34, 10)
 			# A y-axis at the plot's left edge (a model from t = 0) keeps its labels inside.
 			if p.x < r.position.x + 30:
