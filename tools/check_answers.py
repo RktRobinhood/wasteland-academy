@@ -65,6 +65,9 @@ NO_AXIS = {"roots-from-factorised", "y-intercept-from-factorised", "factorised-f
 FORM_KINDS = {"vertex_form", "vertex_form_a", "general", "general_a", "factorised", "deriv", "line"}
 # Answer slots that hold a picked word, not a number.
 WORD_SLOTS = ("var", "rel", "kind", "k1", "k2")
+# Method-pick cells keyed by a view's title, not the catalogue's name: (type, unknown,
+# rep, angle). This is the checker's own copy, so a title in the engine can't vouch for itself.
+METHOD_PICK_TITLES = {("fn-ext-intersection-lines", "do-they-meet", "words", "coefficient-shortcut"): "Compare the gradients and intercepts"}
 
 
 class Fail(Exception):
@@ -3497,8 +3500,7 @@ def check_format(q):
         failing = {a["name"] for a in t["angles"] if a.get("weak", {}).get("kind") == "fails" and u in a["weak"]["unknowns"]}
         works = {a["name"] for a in t["angles"] if u in a["suits"]} - failing
         need(right["text"] not in failing, f"the right method {right['text']!r} fails for {u}")
-        # The name on the asked method's own solution: the catalogue's, or the view's title for it.
-        name = next(s["name"] for s in q["solutions"] if s["angle"] == view_angle)
+        name = METHOD_PICK_TITLES.get((t["id"], u, q["view"]["rep"], view_angle)) or next(a["name"] for a in t["angles"] if a["method"] == view_angle and u in a["suits"])
         need(right["text"] == name, f"the right method is {right['text']!r}, not the view's {name!r}")
         need("Which method works for this question?" in q["prompt"] and "Method:" not in q["prompt"], "the prompt gives the method away")
         for o in ch:
