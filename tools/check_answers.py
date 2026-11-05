@@ -23393,6 +23393,11 @@ def check_optimisation(q):
             need(sp.simplify(p["c"] - p["k"] * sp.log(x0)).is_positive, "the closest point is off the curve")
         gc_check_common(q, f"x = {om_num(x0)}", w, None, steps)
         return None, None
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
 # ── tree-diagram (t4-tree-diagram, FAL-739) ──────────────────
 # Reads the tree off the figure, or the tin, crates, tries, groups or game off the words, finds
 # every path again with exact rationals and each normal area with mpmath, then works out each

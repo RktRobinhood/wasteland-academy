@@ -22,7 +22,8 @@ func test_the_type_is_built_with_every_cell_and_skill() -> void:
 	for u in QuestionEngine.type_of(TYPE).unknowns:
 		for s in u.skills:
 			skills[s] = true
-	check_eq(skills.size(), 4, "every skill the catalogue lists has a question")
+	for s in QuestionEngine.type_of(TYPE).skills:
+		check(skills.has(s), s + " has no unknown")
 
 
 func test_every_cell_has_one_right_option_and_no_extra_format() -> void:
