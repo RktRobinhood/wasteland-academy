@@ -2985,7 +2985,7 @@
               ],
               "misconceptions": [
                 "Using n!/r! and forgetting the (n − r)! factor",
-                "Numbering rows from 1, so the row 1 4 6 4 1 is taken as n = 5",
+                "Numbering the rows of Pascal's triangle from 1 instead of from 0",
                 "Thinking nC0 = 0"
               ],
               "threads": [
@@ -3050,9 +3050,9 @@
                 }
               ],
               "misconceptions": [
-                "Not raising the coefficient: writing (2x)³ as 2x³ instead of 8x³",
+                "Not raising the coefficient: applying the power to x alone, so (ax)^r becomes ax^r",
                 "Losing the alternating signs when the second term is negative",
-                "Powers in a term that do not add up to n"
+                "Writing a term whose two powers do not add up to n"
               ],
               "threads": [
                 {
@@ -3105,9 +3105,9 @@
                 }
               ],
               "misconceptions": [
-                "Ignoring the sign: treating (−x)³ as +x³",
-                "Forgetting to raise the other term: 7C3 × 2 instead of 7C3 × 2^4",
-                "Giving the term (−560x³) when asked for the coefficient (−560), or the reverse"
+                "Ignoring the sign: treating a negative term raised to an odd power as positive",
+                "Forgetting to raise the other term to its power",
+                "Giving the whole term when the coefficient is asked for, or the coefficient when the term is asked for"
               ],
               "threads": [
                 {

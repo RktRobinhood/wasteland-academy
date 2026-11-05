@@ -19753,6 +19753,387 @@ def gs_xs_text_as(show, name, vals):
     return f"{name} = " + " or ".join(gs_text(show, v) for v in vals)
 
 
+# ── binomial-expansion (t1-binomial-term, FAL-728) ───────────
+# The checker's own copy of the clean limits: the engine's is in
+# game/engine/situations/binomial_expansion.gd. Every answer and every tagged slip is worked out
+# again from what the question shows: the bracket is read from the text, expanded with SymPy, and
+# each option's text is read back into an expression, so nothing is taken from the engine.
+
+BE_X = sp.Symbol("x")
+BE_N = sp.Symbol("n")
+BE_S = "SL1.9."
+BE_T = "t1-binomial-term#"
+BE_HAND, BE_MOST, BE_ROW = 20000, 200000000, 7
+BE_ROWS = {"ncr-find-n": 8}
+BE_ROMAN = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
+BE_TERM = re.compile(r"([+-]?)(\(\d+/\d+\)|\d+/\d+|\d+)?((?:[a-z](?:[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)?)*)(/x)?")
+BE_POWER = re.compile(r"(\([^()]*\))([⁰¹²³⁴⁵⁶⁷⁸⁹]+)")
+
+
+def be_terms(text):
+    """A sum read as [(coefficient, {letter: power})], in the order written."""
+    t = text.replace("−", "-").replace(" ", "").replace("½", "(1/2)")
+    out, at = [], 0
+    while at < len(t):
+        m = BE_TERM.match(t, at)
+        need(m is not None and m.end() > at, f"can't read {text!r}")
+        sign, c, letters, over = m.groups()
+        coef = sp.Integer(1)
+        if c:
+            coef = sp.Rational(c.strip("()"))
+        if sign == "-":
+            coef = -coef
+        powers = {}
+        for lm in re.finditer(r"([a-z])([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]*)", letters):
+            powers[lm.group(1)] = powers.get(lm.group(1), 0) + (int(lm.group(2).translate(BE_ROMAN)) if lm.group(2) else 1)
+        if over:
+            powers["x"] = powers.get("x", 0) - 1
+        out.append((coef, powers))
+        at = m.end()
+    return out
+
+
+def be_expr(text):
+    """A sum as a SymPy expression."""
+    out = sp.Integer(0)
+    for c, powers in be_terms(text):
+        for k, p in powers.items():
+            c *= sp.Symbol(k)**p
+        out += c
+    return out
+
+
+def be_bracket(asked):
+    """The (…)ⁿ in a question: its two terms as written, and n."""
+    m = BE_POWER.search(asked)
+    need(m is not None, f"no bracket in {asked!r}")
+    terms = be_terms(m.group(1)[1:-1])
+    need(len(terms) == 2, f"{m.group(1)} is not two terms")
+    return terms, int(m.group(2).translate(BE_ROMAN)), m.group(0)
+
+
+def be_is_x(term):
+    return term[1].get("x", 0) > 0
+
+
+def be_parts(terms):
+    """(a, p, b, e, letter): the x term a·x^p and the other term b·x^e, or a letter."""
+    xt = [t for t in terms if be_is_x(t)]
+    need(len(xt) == 1, f"{terms} has no one term in x")
+    other = [t for t in terms if t is not xt[0]][0]
+    a, p = xt[0][0], xt[0][1]["x"]
+    b, e = other[0], other[1].get("x", 0)
+    letter = next((k for k in other[1] if k != "x"), None)
+    return a, p, b, e, letter
+
+
+def be_coefs(a, p, b, e, n):
+    """{power of x: coefficient} of the true expansion, from SymPy alone."""
+    f = sp.expand((a * BE_X**p + b * BE_X**e)**n)
+    return {int(k): v for k, v in (t.as_coeff_exponent(BE_X)[::-1] for t in sp.Add.make_args(f))}
+
+
+def be_sum(n, a, p, b, e, js, coef, power=None):
+    """The sum of coef(j)·x^power(j) over js: a slip's whole expansion."""
+    return sum((coef(j) * BE_X**(power(j) if power else p * j + e * (n - j)) for j in js), sp.Integer(0))
+
+
+def be_table_rows(table):
+    """The numbers of each row of a table, blanks dropped."""
+    return [[int(c) for c in cells if c != ""] for _, cells in table["rows"]]
+
+
+def be_triangle(q, last):
+    """The table is Pascal's triangle down to row `last`, staggered, with no row numbers."""
+    t = q["table"]
+    need(t is not None, "no triangle shown")
+    need(len(t["rows"]) == last + 1, f"{len(t['rows'])} rows, not {last + 1}")
+    for i, (head, cells) in enumerate(t["rows"]):
+        need(head == "", "a row is numbered")
+        need(len(cells) == 2 * last + 1, "the rows are not one width")
+        want = [""] * (2 * last + 1)
+        for r in range(i + 1):
+            want[last - i + 2 * r] = str(sp.binomial(i, r))
+        need(cells == want, f"row {i} of the triangle is {cells}")
+
+
+def be_row(text):
+    return tuple(int(v) for v in text.split(", "))
+
+
+def be_row_of(n):
+    return tuple(int(sp.binomial(n, r)) for r in range(n + 1))
+
+
+def be_check_options(q, label, want, read, wrongs):
+    """Four options, each read back from its text. One is `want`; a tagged one is that slip."""
+    ans = q["answer"]
+    fx = ans["fixed"]
+    need(ans["kind"] == "form" and ans.get("exact"), "a binomial answer is an exact form")
+    need(q["answer_text"].startswith(label), f"answer {q['answer_text']!r} has no {label!r}")
+    need(read(q["answer_text"][len(label):]) == want, f"engine answer {q['answer_text']!r} is wrong (expected {want})")
+
+    def typed(values):
+        out = ""
+        for item in fx["parts"]:
+            if isinstance(item, str):
+                out += item
+            else:
+                need(item["slot"] in values, f"no value for slot {item['slot']}")
+                v = R(values[item["slot"]])
+                out += str(v) if v.q == 1 else f"{'-' if v < 0 else ''}({abs(v)})"
+        return out.replace("+ -", "- ")
+
+    tv = typed(ans["values"])
+    need(read(tv[len(label):]) == want, f"the typed answer {tv!r} is not the answer")
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    seen, texts = [], set()
+    for o in ch:
+        need(o["text"].startswith(label), f"option {o['text']!r} has no {label!r}")
+        v = read(o["text"][len(label):])
+        need(v not in seen, f"two options are the same: {o['text']!r}")
+        seen.append(v)
+        need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
+        texts.add(o["text"])
+        need((v == want) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+        if "shape" not in o["values"]:
+            tv = typed(o["values"])
+            need(read(tv[len(label):]) == v, f"option {o['text']!r} types as {tv!r}")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrongs, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(v in wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(sol["result"]["text"] == ans["values"]["text"], f"{sol['name']}: gives {sol['result']['text']}, not the answer")
+        need(ans["values"]["text"] in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+
+
+def be_ncr(q, u, paper):
+    asked, angle = q["asked"], q["view"]["angle"]
+    fct = sp.factorial
+    if u in ("ncr-value", "ncr-read-triangle", "ncr-large-r", "ncr-edge"):
+        m = re.search(r"(\d+)C(\d+)\.$", asked)
+        need(m is not None, f"can't read {asked!r}")
+        n, r = int(m.group(1)), int(m.group(2))
+        need(n <= 12, "n is above 12")
+        if u != "ncr-edge" and (angle == "pascal-build" or u == "ncr-read-triangle"):
+            need(n <= BE_ROW, f"row {n} is read from the triangle")
+        wrongs = {}
+        if u in ("ncr-value", "ncr-large-r"):
+            wrongs[BE_S + "ncr-pascal#0"] = {fct(n) / fct(r)}
+        if u == "ncr-value":
+            wrongs[BE_T + "9"] = {fct(n) / fct(n - r)}
+        if u == "ncr-read-triangle":
+            be_triangle(q, n + 1)
+            wrongs[BE_S + "ncr-pascal#1"] = {sp.binomial(n - 1, r)}
+        if u == "ncr-edge":
+            need(r in (0, n), "not an edge of the row")
+            if r == 0:
+                wrongs[BE_S + "ncr-pascal#2"] = {sp.Integer(0)}
+        if u == "ncr-large-r":
+            need(n - r <= 4 and r > n - r, "r is not the large one")
+        if paper == 1 and u == "ncr-value" and angle != "pascal-build":
+            need(min(r, n - r) <= 3, "too long by hand")
+        return f"{n}C{r} = ", sp.binomial(n, r), be_expr, wrongs
+    if u == "ncr-symmetry":
+        m = re.fullmatch(r"(\d+)C(\d+) = (\d+)Cm, where m ≠ (\d+)\. Find m\.", asked)
+        need(m is not None and m.group(1) == m.group(3) and m.group(2) == m.group(4), f"can't read {asked!r}")
+        n, r = int(m.group(1)), int(m.group(2))
+        sol = [v for v in range(n + 1) if v != r and sp.binomial(n, v) == sp.binomial(n, r)]
+        need(len(sol) == 1, f"m has {sol}")
+        return "m = ", sp.Integer(sol[0]), be_expr, {}
+    if u == "ncr-find-n":
+        m = re.fullmatch(r"nC2 = (\d+), where n is a whole number\. Find n\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        v = int(m.group(1))
+        roots = sp.solve(BE_N * (BE_N - 1) / 2 - v, BE_N)
+        pos = [t for t in roots if t > 0]
+        neg = [t for t in roots if t < 0]
+        need(len(pos) == 1 and pos[0].is_integer and len(neg) == 1, f"roots {roots}")
+        n = pos[0]
+        need(n <= (BE_ROWS[u] if angle == "pascal-build" else 12), "n is too long for the method")
+        wrongs = {BE_T + "10": set(neg)}
+        if angle == "pascal-build":
+            wrongs[BE_S + "ncr-pascal#1"] = {n + 1}
+        return "n = ", n, be_expr, wrongs
+    if u == "ncr-formula-in-n":
+        m = re.fullmatch(r"Write \(?(n(?: [+−] \d+)?)\)?C2 as a polynomial in n, for whole numbers n ≥ 3\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        top = be_expr(m.group(1))
+        want = sp.expand(sp.expand_func(sp.binomial(top, 2)))
+        return "", want, be_expr, {BE_T + "9": {sp.expand(top * (top - 1))}}
+    raise AssertionError(u)
+
+
+def be_rows(q, u, paper):
+    asked, angle = q["asked"], q["view"]["angle"]
+    if u == "pascal-row":
+        m = re.fullmatch(r"Write down the row of Pascal's triangle for n = (\d+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        n = int(m.group(1))
+        need(n <= BE_ROW, "the row is too long")
+        return "", be_row_of(n), be_row, {BE_S + "ncr-pascal#1": {be_row_of(n - 1)}}
+    if u == "pascal-next-row":
+        n = len(q["table"]["rows"]) - 1
+        be_triangle(q, n)
+        return "", be_row_of(n + 1), be_row, {}
+    if u == "row-from-entries":
+        rows = be_table_rows(q["table"])
+        need(len(rows) == 1, "one row is shown")
+        n = rows[0][1]
+        need(tuple(rows[0]) == be_row_of(n), f"{rows[0]} is not a row")
+        return "n = ", sp.Integer(n), be_expr, {BE_S + "ncr-pascal#1": {sp.Integer(n + 1)}}
+    raise AssertionError(u)
+
+
+def be_limits(q, terms, n, cs, u):
+    """What a bracket question has to be."""
+    need(q["paper"] in (1, 2), "no paper")
+    need(terms[0][0] > 0, "a negative in the first term written")
+    a, p, b, e, letter = be_parts(terms)
+    most = max(abs(v) for v in cs.values())
+    need(most <= (BE_HAND if q["paper"] == 1 else BE_MOST), f"a coefficient of {most} on Paper {q['paper']}")
+    need(sp.Integer(a) == a and sp.Integer(b) == b, "the bracket is not whole numbers")
+    need(not (p == 1 and a == 2 and e == 0 and b == -5 and not letter), "the bank's own bracket")
+    need(a != 0 and b != 0, "a term is zero")
+    need(sp.gcd(a, b) == 1, "the two numbers in the bracket share a factor")
+
+
+def be_expansion(q, u, paper):
+    asked, angle = q["asked"], q["view"]["angle"]
+    terms, n, shown = be_bracket(asked)
+    a, p, b, e, _ = be_parts(terms)
+    cs = be_coefs(a, p, b, e, n)
+    js = range(n + 1)
+    want = sp.expand((a * BE_X**p + b * BE_X**e)**n)
+    if u == "first-three-terms":
+        need(p == 1 and e == 0, "the first three terms are of a linear bracket")
+        js = range(3)
+        want = sum((cs[k] * BE_X**k for k in sorted(cs)[:3]), sp.Integer(0))
+    be_limits(q, terms, n, {k: v for k, v in cs.items()} if u != "first-three-terms" else {k: cs[k] for k in sorted(cs)[:3]}, u)
+    if u == "expand-from-triangle":
+        be_triangle(q, n)
+    if angle in ("pascal-row",) or u == "expand-from-triangle":
+        need(n <= BE_ROW, "the row is too long")
+    if u == "expand-small":
+        need(n in (2, 3), "n is not 2 or 3")
+    bn = lambda j: sp.binomial(n, j)
+    pow_ = lambda j: p * j + e * (n - j)
+    wrongs = {}
+    if abs(a) > 1:
+        wrongs[BE_S + "full-expansion#0"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * (a if j > 0 else 1) * b**(n - j))}
+    elif e == -1 and abs(b) > 1:
+        wrongs[BE_S + "full-expansion#0"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * (b if n > j else 1))}
+    elif abs(b) > 1:
+        wrongs[BE_S + "specific-term#1"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * (b if n > j else 1))}
+    if a < 0 or b < 0:
+        wrongs[BE_S + "full-expansion#1"] = {be_sum(n, a, p, b, e, js, lambda j: abs(bn(j) * a**j * b**(n - j)))}
+    if e == -1:
+        wrongs[BE_T + "13"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * b**(n - j), lambda j: j)}
+    else:
+        wrongs[BE_S + "full-expansion#2"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * b**j)}
+    return "", want, be_expr, wrongs
+
+
+def be_one(q, u, paper):
+    """One term or coefficient."""
+    asked, angle, L = q["asked"], q["view"]["angle"], q["lines"]
+    terms, n, shown = be_bracket(L[0] if u == "missing-coefficient" else asked)
+    a, p, b, e, letter = be_parts(terms)
+    if letter:
+        k = sp.Symbol(letter)
+        m = re.search(r"coefficient of (x\S*) in the expansion", asked)
+        j = be_terms(m.group(1))[0][1]["x"]
+        need(asked.endswith(f"in terms of {letter}."), "the letter asked is not the bracket's")
+        need(a == 1 and p == 1 and b == 1 and terms[0][1] == {"x": 1}, "the bracket is (x + k)")
+        need(n != 8, "the bank's own bracket")
+        c = sp.expand((BE_X + k)**n).coeff(BE_X, j)
+        cn = sp.binomial(n, j)
+        return "", c, be_expr, {BE_S + "full-expansion#2": {cn * k**j}, BE_S + "specific-term#2": {c * BE_X**j},
+                                BE_S + "specific-term#1": {cn * k}}
+    cs = be_coefs(a, p, b, e, n)
+    if u == "term-by-position":
+        need("descending powers of x" in asked and not be_is_x(terms[1]), "the term is counted highest power first, x first")
+        m = re.search(r"Find the (\d+)(?:st|nd|rd|th) term\.", asked)
+        pos = int(m.group(1))
+        powers = sorted(cs, reverse=True)
+        need(2 <= pos <= n - 1, "the place is at an end")
+        power = powers[pos - 1]
+    elif u == "missing-coefficient":
+        m = re.fullmatch(r"\(x \+ (\d+)\)([⁰¹²³⁴⁵⁶⁷⁸⁹]+) = x\S+ \+ px\S+ \+ qx\S+ \+ \.\.\. \+ (\d+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        need(int(m.group(3)) == cs[0], "the last term shown is wrong")
+        name = {"Find the value of p.": "p", "Find the value of q.": "q"}[asked]
+        power = n - (1 if name == "p" else 2)
+    else:
+        m = re.search(r"(?:coefficient of|term in) (x\S*) in the expansion", asked)
+        need(m is not None, f"can't read {asked!r}")
+        power = be_terms(m.group(1))[0][1]["x"]
+    need(power in cs, f"no term in x^{power}")
+    be_limits(q, terms, n, {power: cs[power]}, u)
+    if u == "coefficient-from-triangle":
+        be_triangle(q, n)
+    if angle == "pascal-select" or u == "coefficient-from-triangle":
+        need(n <= BE_ROW, "the row is too long")
+    j = power // p
+    c = cs[power]
+    bn = sp.binomial(n, j)
+    is_term = u in ("specific-term", "term-by-position")
+    wrap = (lambda v: v * BE_X**power) if is_term else (lambda v: v)
+    wrongs = {}
+    if u == "missing-coefficient":
+        pick = n - power
+        wrongs[BE_S + "ncr-pascal#1"] = {sp.binomial(n - 1, pick) * b**pick}
+        if pick == 2 and b > 1:
+            wrongs[BE_S + "specific-term#1"] = {sp.binomial(n, pick) * b}
+        return f"{name} = ", c, be_expr, wrongs
+    if c < 0:
+        wrongs[BE_S + "specific-term#0"] = {wrap(-c)}
+    if abs(b) > 1 and n - j >= 2:
+        wrongs[BE_S + "specific-term#1"] = {wrap(bn * a**j * b)}
+    if abs(a) > 1 and j >= 2:
+        wrongs[BE_S + "full-expansion#0"] = {wrap(bn * a * b**(n - j))}
+    if j != n - j and abs(b) > 1:
+        wrongs[BE_S + "full-expansion#2"] = {wrap(bn * a**j * b**j)}
+    wrongs[BE_S + "specific-term#2"] = {c if is_term else c * BE_X**power}
+    if u == "term-by-position":
+        lower = powers[pos]
+        wrongs[BE_T + "12"] = {cs[lower] * BE_X**lower}
+    return "", (c * BE_X**power if is_term else c), be_expr, wrongs
+
+
+def be_number_of_terms(q):
+    terms, n, shown = be_bracket(q["asked"])
+    a, p, b, e, letter = be_parts(terms)
+    need(letter and q["asked"].endswith(f"where {letter} > 0."), "the letter is not positive")
+    k = sp.Symbol(letter, positive=True)
+    need(not (n == 11 and a == 1), "the bank's own bracket")
+    f = sp.expand((a * BE_X + b * k)**n)
+    return "", sp.Integer(len(sp.Add.make_args(f))), be_expr, {BE_T + "11": {sp.Integer(n)}}
+
+
+def check_binomial_expansion(q):
+    u, paper = q["view"]["unknown"], q["paper"]
+    need(not (q["view"]["angle"] == "gdc-ncr" and paper == 1), "the GDC on Paper 1")
+    if u.startswith("ncr-"):
+        label, want, read, wrongs = be_ncr(q, u, paper)
+    elif u in ("pascal-row", "pascal-next-row", "row-from-entries"):
+        label, want, read, wrongs = be_rows(q, u, paper)
+    elif u == "number-of-terms":
+        label, want, read, wrongs = be_number_of_terms(q)
+    elif u.startswith("expand-") or u == "first-three-terms":
+        label, want, read, wrongs = be_expansion(q, u, paper)
+    else:
+        label, want, read, wrongs = be_one(q, u, paper)
+    be_check_options(q, label, want, read, wrongs)
+    return None, None
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -19771,6 +20152,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "binomial": check_binomial, "geometric-sequence": check_geometric, "data-summary": check_data_summary, "regression": check_regression,
+                    "binomial": check_binomial, "binomial-expansion": check_binomial_expansion, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,

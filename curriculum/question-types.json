@@ -2604,6 +2604,49 @@
     "the least number of trials is found from P(X ≥ 1) > c, with N − 1 failing and N working"
    ]
   },
+  "binomial-expansion": {
+   "name": "One bracket (ax^p + b)^n, or nCr on its own",
+   "summary": "Pick the power n, then the bracket, then which term is asked. Every coefficient is a whole number, worked out exactly. The same numbers give nCr, a row of Pascal's triangle, the full expansion or one term.",
+   "quantities": [
+    {
+     "name": "n",
+     "is": "the power, and the row of the triangle",
+     "pick": "2 to 12, by the unknown: up to 7 where a row is read, up to 6 for a coefficient on Paper 1 and 10 on Paper 2"
+    },
+    {
+     "name": "r",
+     "is": "nCr's r",
+     "pick": "from 2 up to n − 2 for a value, 0 or n for an edge"
+    },
+    {
+     "name": "a, p",
+     "is": "the term with x, ax^p",
+     "pick": "a from 1 to 3, p of 1 or 2"
+    },
+    {
+     "name": "b",
+     "is": "the number in the bracket, a letter, or b/x",
+     "pick": "up to 4 in size, either sign"
+    },
+    {
+     "name": "first",
+     "is": "whether the number is written first, (3 − 2x) or (2x + 3)",
+     "pick": "at random, with a negative only in the second term written"
+    },
+    {
+     "name": "j",
+     "is": "how many brackets give the x term, so the term asked is in x^(p·j)",
+     "pick": "at least 2, and at least 2 left for the other term"
+    }
+   ],
+   "clean": [
+    "every coefficient is a whole number",
+    "Paper 1 coefficients are at most 20000 in size, Paper 2 at most 200000000",
+    "a row read from the triangle is row 7 at most (row 8 shown for reading nC2)",
+    "a negative is only ever in the second term written",
+    "the numbers are not those of the bank, and the two numbers in a bracket share no factor"
+   ]
+  },
   "regression": {
    "name": "Paired data and the line fitted to it",
    "summary": "Pick x-values and y-values that lie near a straight line, in a story where the correlation is positive or negative. The means, the regression line of y on x and Pearson's r are then known. The same line is used backwards (a constant from the mean point) and forwards (an estimate at an x inside the data, or from a line given to 3 s.f.).",
@@ -21960,7 +22003,7 @@
    "id": "t1-binomial-term",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Binomial expansion: a coefficient, a term or the full expansion",
    "syllabus": [
     "1.9"
@@ -21969,6 +22012,822 @@
     "SL1.9.ncr-pascal",
     "SL1.9.full-expansion",
     "SL1.9.specific-term"
+   ],
+   "summary": "Evaluate nCr, read and build Pascal's triangle, expand (a + b)^n in full, and find one term or coefficient: with a negative term, a number beside x, x², a letter in the bracket, or by its place in the expansion.",
+   "skillFit": "full",
+   "chain": [
+    "evaluate nCr, or read the row of Pascal's triangle",
+    "write each term as nCr a^(n − r) b^r, with brackets round each part",
+    "raise the numbers and the signs too, then simplify",
+    "for one term, choose the r that gives the power asked",
+    "state the term or its coefficient, whichever is asked"
+   ],
+   "given": [
+    "n and r",
+    "Pascal's triangle",
+    "a bracket and its power",
+    "a power of x or a place in the expansion"
+   ],
+   "asked": "nCr, n, a row of the triangle, the number of terms, the full expansion, the first three terms, or one term or coefficient.",
+   "answerForms": [
+    "exact"
+   ],
+   "randomise": [
+    "n from 2 to 12, by how long the row is",
+    "the number beside x from 1 to 3, and the number in the bracket up to 4 in size",
+    "which term is written first, and whether the second is negative",
+    "x or x², b/x, or a letter in the bracket",
+    "the power or the place asked"
+   ],
+   "constraints": [
+    "a question that shows or builds the triangle stops at row 7 or 8",
+    "Paper 1 keeps coefficients to 20000 and Paper 2 to 200000000",
+    "nCr by GDC is Paper 2 only",
+    "a term asked has at least two brackets giving each part, so both powers are real powers",
+    "the bank's own brackets are left out, and the two numbers in a bracket share no factor"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "binomial-expansion",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the bracket and its power, (2x − 3)⁵, or nCr as 8C3"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "Pascal's triangle drawn as a staggered grid with no row numbers, or one row of it"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "ncr-value",
+     "given": [
+      "n",
+      "r"
+     ],
+     "asked": "the value of nCr",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "ncr-read-triangle",
+     "given": [
+      "Pascal's triangle",
+      "n",
+      "r"
+     ],
+     "asked": "nCr, read from the triangle",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "ncr-large-r",
+     "given": [
+      "n",
+      "an r close to n"
+     ],
+     "asked": "the value of nCr",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "ncr-symmetry",
+     "given": [
+      "nCr = nCm with m ≠ r"
+     ],
+     "asked": "m",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "ncr-edge",
+     "given": [
+      "n",
+      "r of 0 or n"
+     ],
+     "asked": "the value of nC0 or nCn",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "ncr-find-n",
+     "given": [
+      "the value of nC2"
+     ],
+     "asked": "n",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "ncr-formula-in-n",
+     "given": [
+      "a top of n, or n plus or minus a whole number"
+     ],
+     "asked": "nC2 as a polynomial in n, which is the show-that nC2 = n(n − 1)/2",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "pascal-row",
+     "given": [
+      "n"
+     ],
+     "asked": "the row of Pascal's triangle for n",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "pascal-next-row",
+     "given": [
+      "the first rows of Pascal's triangle"
+     ],
+     "asked": "the next row",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "row-from-entries",
+     "given": [
+      "one row of Pascal's triangle"
+     ],
+     "asked": "n",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL1.9.ncr-pascal"
+     ]
+    },
+    {
+     "id": "number-of-terms",
+     "given": [
+      "a bracket with a letter in it, and its power"
+     ],
+     "asked": "the number of terms",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.full-expansion"
+     ]
+    },
+    {
+     "id": "expand-small",
+     "given": [
+      "the bracket and its power, which is 2 or 3"
+     ],
+     "asked": "the expansion",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.full-expansion"
+     ]
+    },
+    {
+     "id": "expand-unit",
+     "given": [
+      "(x + b)^n or (b + x)^n, with n of 4 or 5"
+     ],
+     "asked": "the expansion",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.full-expansion"
+     ]
+    },
+    {
+     "id": "expand-negative",
+     "given": [
+      "a bracket with a negative term"
+     ],
+     "asked": "the expansion",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.full-expansion"
+     ]
+    },
+    {
+     "id": "expand-raised",
+     "given": [
+      "a bracket with a number beside x"
+     ],
+     "asked": "the expansion",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.full-expansion"
+     ]
+    },
+    {
+     "id": "expand-from-triangle",
+     "given": [
+      "Pascal's triangle",
+      "the bracket and its power"
+     ],
+     "asked": "the expansion",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL1.9.full-expansion"
+     ]
+    },
+    {
+     "id": "expand-power",
+     "given": [
+      "a bracket in x²"
+     ],
+     "asked": "the expansion",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.full-expansion"
+     ]
+    },
+    {
+     "id": "expand-reciprocal",
+     "given": [
+      "(x + b/x)^n"
+     ],
+     "asked": "the expansion, with each term simplified",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.full-expansion"
+     ]
+    },
+    {
+     "id": "first-three-terms",
+     "given": [
+      "the bracket and its power"
+     ],
+     "asked": "the first three terms, in ascending powers of x",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.full-expansion"
+     ]
+    },
+    {
+     "id": "coefficient-plain",
+     "given": [
+      "the bracket and its power",
+      "a power of x"
+     ],
+     "asked": "the coefficient",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.specific-term"
+     ]
+    },
+    {
+     "id": "coefficient-negative",
+     "given": [
+      "a bracket with a negative term",
+      "a power of x"
+     ],
+     "asked": "the coefficient",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.specific-term"
+     ]
+    },
+    {
+     "id": "coefficient-raised",
+     "given": [
+      "a bracket with a number beside x",
+      "a power of x"
+     ],
+     "asked": "the coefficient",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.specific-term"
+     ]
+    },
+    {
+     "id": "coefficient-from-triangle",
+     "given": [
+      "Pascal's triangle",
+      "the bracket and its power",
+      "a power of x"
+     ],
+     "asked": "the coefficient",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL1.9.specific-term"
+     ]
+    },
+    {
+     "id": "coefficient-power",
+     "given": [
+      "a bracket in x²",
+      "a power of x"
+     ],
+     "asked": "the coefficient",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.specific-term"
+     ]
+    },
+    {
+     "id": "coefficient-letter",
+     "given": [
+      "(x + k)^n",
+      "a power of x"
+     ],
+     "asked": "the coefficient in terms of k",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.specific-term"
+     ]
+    },
+    {
+     "id": "specific-term",
+     "given": [
+      "the bracket and its power",
+      "a power of x"
+     ],
+     "asked": "the term, with its x",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.specific-term"
+     ]
+    },
+    {
+     "id": "missing-coefficient",
+     "given": [
+      "an expansion with two coefficients written as letters"
+     ],
+     "asked": "the value of one of the letters",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.specific-term"
+     ]
+    },
+    {
+     "id": "term-by-position",
+     "given": [
+      "the bracket and its power",
+      "the term's place, in descending powers"
+     ],
+     "asked": "that term",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.9.specific-term"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.9.ncr-pascal",
+     "method": "factorial-formula",
+     "suits": [
+      "ncr-value",
+      "ncr-large-r",
+      "ncr-edge",
+      "ncr-find-n",
+      "ncr-formula-in-n",
+      "pascal-row"
+     ]
+    },
+    {
+     "skill": "SL1.9.ncr-pascal",
+     "method": "pascal-build",
+     "suits": [
+      "ncr-value",
+      "ncr-read-triangle",
+      "ncr-edge",
+      "ncr-find-n",
+      "pascal-row",
+      "pascal-next-row",
+      "row-from-entries"
+     ]
+    },
+    {
+     "skill": "SL1.9.ncr-pascal",
+     "method": "symmetry",
+     "suits": [
+      "ncr-large-r",
+      "ncr-symmetry"
+     ]
+    },
+    {
+     "skill": "SL1.9.ncr-pascal",
+     "method": "gdc-ncr",
+     "suits": [
+      "ncr-value",
+      "ncr-large-r",
+      "ncr-find-n",
+      "pascal-row"
+     ]
+    },
+    {
+     "skill": "SL1.9.full-expansion",
+     "method": "pascal-row",
+     "suits": [
+      "expand-small",
+      "expand-unit",
+      "expand-negative",
+      "expand-raised",
+      "expand-from-triangle",
+      "expand-power",
+      "expand-reciprocal",
+      "first-three-terms"
+     ]
+    },
+    {
+     "skill": "SL1.9.full-expansion",
+     "method": "binomial-theorem",
+     "suits": [
+      "number-of-terms",
+      "expand-small",
+      "expand-unit",
+      "expand-negative",
+      "expand-raised",
+      "expand-power",
+      "expand-reciprocal",
+      "first-three-terms"
+     ]
+    },
+    {
+     "skill": "SL1.9.full-expansion",
+     "method": "repeated-multiply",
+     "suits": [
+      "expand-small"
+     ]
+    },
+    {
+     "skill": "SL1.9.full-expansion",
+     "method": "choose-brackets",
+     "suits": [
+      "number-of-terms",
+      "expand-unit"
+     ]
+    },
+    {
+     "skill": "SL1.9.specific-term",
+     "method": "general-term",
+     "suits": [
+      "coefficient-plain",
+      "coefficient-negative",
+      "coefficient-raised",
+      "coefficient-power",
+      "coefficient-letter",
+      "specific-term",
+      "missing-coefficient",
+      "term-by-position"
+     ]
+    },
+    {
+     "skill": "SL1.9.specific-term",
+     "method": "pascal-select",
+     "suits": [
+      "coefficient-plain",
+      "coefficient-negative",
+      "coefficient-from-triangle",
+      "missing-coefficient",
+      "term-by-position"
+     ]
+    },
+    {
+     "skill": "SL1.9.specific-term",
+     "method": "choose-brackets",
+     "suits": [
+      "coefficient-plain",
+      "coefficient-negative",
+      "coefficient-raised",
+      "coefficient-letter",
+      "specific-term"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "The expansion of (a + b)^n has n terms.",
+     "answer": "False: r runs from 0 to n, which is n + 1 values, so there are n + 1 terms. (a + b)² has three.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "In (1 + x)^n the coefficient of x^r equals the coefficient of x^(n − r).",
+     "answer": "Always: both are nCr, as choosing r brackets to give x is the same as choosing n − r to give 1.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "The coefficients of (1 + x)^n add up to 2^n.",
+     "answer": "True: put x = 1 in the expansion. The sum of the coefficients is then (1 + 1)^n.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.9.ncr-pascal#0",
+     "text": "Using n!/r! and forgetting the (n − r)! factor",
+     "as": "distractor",
+     "in": [
+      "ncr-value",
+      "ncr-large-r"
+     ],
+     "wrong": "n!/r!"
+    },
+    {
+     "ref": "SL1.9.ncr-pascal#1",
+     "text": "Numbering the rows of Pascal's triangle from 1 instead of from 0",
+     "as": "distractor",
+     "in": [
+      "ncr-read-triangle",
+      "ncr-find-n",
+      "pascal-row",
+      "row-from-entries",
+      "missing-coefficient"
+     ],
+     "wrong": "the row before or after the right one"
+    },
+    {
+     "ref": "SL1.9.ncr-pascal#2",
+     "text": "Thinking nC0 = 0",
+     "as": "distractor",
+     "in": [
+      "ncr-edge"
+     ],
+     "wrong": "0 for nC0"
+    },
+    {
+     "ref": "SL1.9.full-expansion#0",
+     "text": "Not raising the coefficient: applying the power to x alone, so (ax)^r becomes ax^r",
+     "as": "distractor",
+     "in": [
+      "expand-small",
+      "expand-raised",
+      "expand-from-triangle",
+      "expand-power",
+      "expand-reciprocal",
+      "first-three-terms",
+      "coefficient-raised",
+      "coefficient-from-triangle",
+      "coefficient-power",
+      "specific-term",
+      "term-by-position"
+     ],
+     "wrong": "the number beside x, or on x, used once however high the power"
+    },
+    {
+     "ref": "SL1.9.full-expansion#1",
+     "text": "Losing the alternating signs when the second term is negative",
+     "as": "distractor",
+     "in": [
+      "expand-small",
+      "expand-negative",
+      "expand-raised",
+      "expand-from-triangle",
+      "expand-power",
+      "expand-reciprocal",
+      "first-three-terms"
+     ],
+     "wrong": "every term positive"
+    },
+    {
+     "ref": "SL1.9.full-expansion#2",
+     "text": "Writing a term whose two powers do not add up to n",
+     "as": "distractor",
+     "in": [
+      "expand-small",
+      "expand-unit",
+      "expand-negative",
+      "expand-raised",
+      "expand-from-triangle",
+      "expand-power",
+      "first-three-terms",
+      "coefficient-plain",
+      "coefficient-negative",
+      "coefficient-raised",
+      "coefficient-from-triangle",
+      "coefficient-power",
+      "coefficient-letter",
+      "specific-term",
+      "term-by-position"
+     ],
+     "wrong": "the same power on both terms of the bracket"
+    },
+    {
+     "ref": "SL1.9.specific-term#0",
+     "text": "Ignoring the sign: treating a negative term raised to an odd power as positive",
+     "as": "distractor",
+     "in": [
+      "coefficient-negative",
+      "coefficient-raised",
+      "coefficient-from-triangle",
+      "coefficient-power",
+      "specific-term",
+      "term-by-position"
+     ],
+     "wrong": "the size of the coefficient with its minus sign lost"
+    },
+    {
+     "ref": "SL1.9.specific-term#1",
+     "text": "Forgetting to raise the other term to its power",
+     "as": "distractor",
+     "in": [
+      "expand-small",
+      "expand-unit",
+      "expand-negative",
+      "expand-power",
+      "first-three-terms",
+      "coefficient-plain",
+      "coefficient-negative",
+      "coefficient-raised",
+      "coefficient-from-triangle",
+      "coefficient-power",
+      "coefficient-letter",
+      "specific-term",
+      "missing-coefficient",
+      "term-by-position"
+     ],
+     "wrong": "the number or letter in the bracket used once, not raised to its power"
+    },
+    {
+     "ref": "SL1.9.specific-term#2",
+     "text": "Giving the whole term when the coefficient is asked for, or the coefficient when the term is asked for",
+     "as": "distractor",
+     "in": [
+      "coefficient-plain",
+      "coefficient-negative",
+      "coefficient-raised",
+      "coefficient-from-triangle",
+      "coefficient-power",
+      "coefficient-letter",
+      "specific-term",
+      "term-by-position"
+     ],
+     "wrong": "the term with its x for a coefficient, or the number alone for a term"
+    },
+    {
+     "text": "Leaving out the r! in the formula for nCr",
+     "as": "distractor",
+     "in": [
+      "ncr-value",
+      "ncr-formula-in-n"
+     ],
+     "wrong": "n!/(n − r)!, so n(n − 1) with no halving"
+    },
+    {
+     "text": "Keeping the negative root of the quadratic, though n counts brackets",
+     "as": "distractor",
+     "in": [
+      "ncr-find-n"
+     ],
+     "wrong": "the root 1 − n"
+    },
+    {
+     "text": "Counting n terms in the expansion, leaving out the term where r = 0",
+     "as": "distractor",
+     "in": [
+      "number-of-terms"
+     ],
+     "wrong": "n"
+    },
+    {
+     "text": "Using the place of the term as r, when r starts from 0",
+     "as": "distractor",
+     "in": [
+      "term-by-position"
+     ],
+     "wrong": "the term one place along"
+    },
+    {
+     "text": "Forgetting that (1/x)^r is x^(−r), so the power of x falls by one each term, not by two",
+     "as": "distractor",
+     "in": [
+      "expand-reciprocal"
+     ],
+     "wrong": "the powers of x run n, n − 1 and so on down to 0"
+    }
    ],
    "parts": [
     "aa-sl-2022-may-tz2-p1-q06.a",
