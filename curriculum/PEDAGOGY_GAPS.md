@@ -2229,7 +2229,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 17 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2301,6 +2301,42 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): The 90th percentile is read across from 90 on the vertical axis. — Sometimes: only when n is 100. Otherwise it is across from 90% of n.
   - *predict-check* (L4): The curve is steepest between 20 and 30. What does that say about the data? — More values lie in that stretch than in any other of the same width: steep means many, flat means few.
 - **Misconceptions used:** 7. Taking the middle of the data's range for the median, instead of the value halfway through the cumulative frequency; Subtracting the quartile positions on the cumulative frequency instead of the quartile values of the data; Using the percentile number as the cumulative frequency, when it is a percentage of the total; Giving the cumulative frequency itself, which counts those at or below the value, not those above it; Using the size of the top group as the cumulative frequency, instead of taking it from the total; Plotting cumulative frequencies at class midpoints instead of upper boundaries; Mixing up the running total with the frequency of a single class.
+
+#### Grouped and frequency-table data: missing frequency, modal class, estimates (`t4-grouped-data`, exam, 9 bank parts)
+
+- **Situation:** A frequency table, a small list, or groups with means.
+- **Representations:** **table**, **terms**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a grouped frequency table of equal classes → the modal class
+  - **exam** L2: given a grouped frequency table with one frequency p; the total → the modal class, once p is found
+  - **exam** L1: given a grouped frequency table → the mid-interval value of one class
+  - **exam** L1: given a grouped frequency table of unequal classes → the mid-interval value of every class
+  - **exam** L2: given a grouped frequency table → an estimate of the mean
+  - new L2: given a grouped frequency table; the mean found from it → why that mean is an estimate
+  - **exam** L2: given a grouped frequency table → an estimate of the standard deviation
+  - **exam** L3: given a grouped frequency table → an estimate of the variance
+  - **exam** L2: given a frequency table of single values → the standard deviation
+  - **exam** L2: given a frequency table of single values → the variance
+  - **exam** L3: given a short list of values → the standard deviation
+  - **exam** L3: given a short list of values → the variance
+  - **exam** L1: given the standard deviation of some data → the variance
+  - **exam** L1: given the variance of some data → the standard deviation
+  - **exam** L2: given the means and standard deviations of two groups → what the figures show
+  - **exam** L1: given a grouped frequency table with one frequency p; the total → p
+  - **exam** L4: given a grouped frequency table with one frequency p; the estimate of the mean → p
+  - **exam** L4: given a frequency table with two frequencies p and q; the total and the mean → p and q
+  - **exam** L3: given a frequency table with one frequency x; the median → x
+  - **exam** L3: given a frequency table with one value k; the mean → k
+  - **exam** L3: given the size and mean of a group; the mean once one value joins it → the new value
+  - **exam** L2: given the sizes and means of two or three groups → the mean of the whole group
+  - **exam** L2: given a table of the sizes and means of three groups → the total of the whole group
+  - **exam** L3: given the size and mean of the whole group; the size and mean of one part of it → the mean of the other part
+- **Angles:** Σfx ÷ Σf with mid-interval values; Midpoints and frequencies in GDC lists; σx from GDC 1-Var Stats; Square root of the mean squared deviation; Variance is the square of the SD; Work with totals; Set Σfx ÷ Σf equal to the mean; Deviations from the mean add to zero; Median at position (n + 1)/2.
+- **Concept probes:**
+  - *true-false-reason* (L3): The mean found from a grouped table is the exact mean of the data. — False: the table hides where in each class the values lie, so every value is replaced by its mid-interval value. The result is an estimate.
+  - *true-false-reason* (L3): A standard deviation can be negative when most of the values are below the mean. — False: the deviations are squared before they are added, and the standard deviation is the positive root of the result.
+  - *always-sometimes-never* (L3): The mean of two groups together is the average of their two means. — Sometimes: only when the groups are the same size, or have the same mean. Otherwise the larger group pulls the mean its way.
+- **Misconceptions used:** 28. Dividing by the number of classes instead of the total frequency; Using the upper class boundary instead of the mid-interval value; Calling the estimate the exact mean; Using the lower class boundary instead of the mid-interval value; Using the class width instead of the mid-interval value; Assuming each value counts once, leaving the frequencies out; Using the class that holds the median as the modal class; Assuming the class with an unknown frequency cannot be the modal class; Assuming every class is as wide as the first when listing mid-interval values; Using Sx, which divides by one less than n, instead of σx; Using the standard deviation for the variance, or the variance for the standard deviation; Assuming the standard deviation can be negative because some values are below the mean; Using the mean of the deviations without their signs, with no squaring; Using twice the standard deviation as the variance; Using half of the variance as the standard deviation; Assuming a larger standard deviation means a larger mean; Reading a larger standard deviation as less spread; Assuming every value lies within one standard deviation of the mean; Averaging the two group means for a combined mean when the groups are different sizes; Forgetting that the unknown frequency p also appears in the denominator Σf; Using the sum of the known frequencies as the missing frequency; Assuming every class has the same frequency; Using each solved frequency in the row of the other; Using the old number of values for the new total; Using the missing value once, ignoring its frequency; Dividing the rest of the total by the size of the whole group; Using the equation for the mean when the median is given; Using the count on one side of the median as the missing frequency.
 
 #### Mean, median, mode, quartiles and spread of a data set (`t4-summary-statistics`, exam, 11 bank parts)
 

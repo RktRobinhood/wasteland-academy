@@ -4247,6 +4247,55 @@
     "two options of a test end in each verdict",
     "the quadratic for P(B) has one root that makes P(A) at most 1, and the quadratic for x has one repeated root"
    ]
+  },
+  "grouped-data": {
+   "name": "A frequency table, a small list, or groups with means",
+   "summary": "Draw the classes or values and the frequencies first, and work every total, mean and variance out of them exactly. A missing row is hidden only after the table is drawn, so its value is always a clean frequency. A short list is drawn around a whole mean, and groups by their sizes and means.",
+   "quantities": [
+    {
+     "name": "lo, hi",
+     "is": "the class boundaries",
+     "pick": "a width of 5, 10, 20 or 50 from a multiple of it, one or two widths each if unequal, with four or five classes"
+    },
+    {
+     "name": "xs",
+     "is": "the mid-interval values, or the values of a table or list",
+     "pick": "halfway across each class; consecutive values or a step of 2 or 5; a list around a whole mean"
+    },
+    {
+     "name": "fs",
+     "is": "the frequencies",
+     "pick": "at least 1, adding to 10, 20, 25, 40, 50 or 100 on Paper 1 and to 30 to 150 on Paper 2, tenths in a table in thousands"
+    },
+    {
+     "name": "at, at2",
+     "is": "the row asked about or hidden",
+     "pick": "any row"
+    },
+    {
+     "name": "p_top",
+     "is": "whether the hidden frequency is the greatest",
+     "pick": "a fair coin, drawn before anything else"
+    },
+    {
+     "name": "sizes, means",
+     "is": "the groups",
+     "pick": "all sizes different and all means different"
+    },
+    {
+     "name": "sd, variance",
+     "is": "the spread, when it is given",
+     "pick": "one decimal place on Paper 1, two on Paper 2; a variance from a square on Paper 1"
+    }
+   ],
+   "clean": [
+    "Paper 1 answers are exact and end within two decimal places; a Paper 1 standard deviation of a small set is a whole number",
+    "Paper 2 answers that need rounding are clear of a rounding edge by 0.03 of a unit of the third figure",
+    "σx and Sx read differently to 3 s.f. in every table that offers the slip",
+    "the modal class is unique; in modal-class it is not the class of the median",
+    "p and q differ, and an estimate or mean given for a hidden frequency ends within two decimal places",
+    "every frequency is at least 1 and every class boundary is positive"
+   ]
   }
  },
  "types": [
@@ -32247,15 +32296,837 @@
    "id": "t4-grouped-data",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Grouped and frequency-table data: missing frequency, modal class, estimates",
+   "summary": "Read a frequency table, grouped into classes or of single values: find a missing frequency from the total, the mean or the median, the modal class and mid-interval values, and estimate the mean, standard deviation and variance. Also the link between variance and standard deviation, and totals and means of groups.",
    "syllabus": [
     "4.3"
    ],
    "skills": [
     "SL4.3.grouped-mean",
     "SL4.3.sd-variance",
-    "SL4.3.mean-totals"
+    "SL4.3.mean-totals",
+    "SL4.3.mean-median-mode"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read the classes or values and the frequencies from the table",
+    "find any missing frequency from the total, the mean or the median",
+    "replace each class by its mid-interval value",
+    "compute Σfx ÷ Σf by hand or read x̄ and σx from the GDC lists",
+    "square or square-root to move between σ and the variance"
+   ],
+   "given": [
+    "a grouped frequency table, equal or unequal classes",
+    "a frequency table of single values",
+    "a missing frequency with a total, a mean or a median",
+    "a short list of values",
+    "the sizes and means of groups",
+    "a standard deviation or a variance"
+   ],
+   "asked": "A modal class, a mid-interval value or list of them, a missing frequency or value, an estimate of the mean, the standard deviation or variance, a mean or total of groups, or what the figures show.",
+   "answerForms": [
+    "a class",
+    "whole numbers",
+    "exact decimal",
+    "3 s.f.",
+    "two frequencies p and q",
+    "a statement"
+   ],
+   "randomise": [
+    "the classes: their width, whether equal, which end is closed",
+    "the frequencies and the total",
+    "which row is missing",
+    "the values of a table and the gap between them",
+    "the list of a small set",
+    "the groups' sizes and means",
+    "the story: caravans, rats, crates, scouts, water, radios, traps, fuses, camps, depots, wells and bunkers"
+   ],
+   "constraints": [
+    "Paper 1 exact, Paper 2 to 3 s.f. where it needs rounding",
+    "a standard deviation from a table is Paper 2, on a GDC",
+    "a Paper 1 standard deviation of a small set is a whole number",
+    "GDC methods are Paper 2 only",
+    "a modal class question has one modal class, not the class of the median"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "grouped-data",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "a frequency table running down the card, with classes such as 10 ≤ t < 20 or single values on the left"
+    },
+    {
+     "rep": "terms",
+     "exam": true,
+     "how": "a short list of values"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story giving group sizes, means, a standard deviation or a variance"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "modal-class",
+     "given": [
+      "a grouped frequency table of equal classes"
+     ],
+     "asked": "the modal class",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "modal-class-after-frequency",
+     "given": [
+      "a grouped frequency table with one frequency p",
+      "the total"
+     ],
+     "asked": "the modal class, once p is found",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "mid-interval-value",
+     "given": [
+      "a grouped frequency table"
+     ],
+     "asked": "the mid-interval value of one class",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "mid-interval-list",
+     "given": [
+      "a grouped frequency table of unequal classes"
+     ],
+     "asked": "the mid-interval value of every class",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "estimate-mean",
+     "given": [
+      "a grouped frequency table"
+     ],
+     "asked": "an estimate of the mean",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "estimate-why",
+     "given": [
+      "a grouped frequency table",
+      "the mean found from it"
+     ],
+     "asked": "why that mean is an estimate",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.grouped-mean"
+     ]
+    },
+    {
+     "id": "estimate-sd",
+     "given": [
+      "a grouped frequency table"
+     ],
+     "asked": "an estimate of the standard deviation",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "estimate-variance",
+     "given": [
+      "a grouped frequency table"
+     ],
+     "asked": "an estimate of the variance",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "sd-from-table",
+     "given": [
+      "a frequency table of single values"
+     ],
+     "asked": "the standard deviation",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "variance-from-table",
+     "given": [
+      "a frequency table of single values"
+     ],
+     "asked": "the variance",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "sd-of-small-set",
+     "given": [
+      "a short list of values"
+     ],
+     "asked": "the standard deviation",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "terms"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "variance-of-small-set",
+     "given": [
+      "a short list of values"
+     ],
+     "asked": "the variance",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "terms"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "variance-from-sd",
+     "given": [
+      "the standard deviation of some data"
+     ],
+     "asked": "the variance",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "sd-from-variance",
+     "given": [
+      "the variance of some data"
+     ],
+     "asked": "the standard deviation",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "interpret-sd",
+     "given": [
+      "the means and standard deviations of two groups"
+     ],
+     "asked": "what the figures show",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.sd-variance"
+     ]
+    },
+    {
+     "id": "missing-frequency-from-total",
+     "given": [
+      "a grouped frequency table with one frequency p",
+      "the total"
+     ],
+     "asked": "p",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "missing-frequency-from-estimate",
+     "given": [
+      "a grouped frequency table with one frequency p",
+      "the estimate of the mean"
+     ],
+     "asked": "p",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "two-frequencies-from-mean",
+     "given": [
+      "a frequency table with two frequencies p and q",
+      "the total and the mean"
+     ],
+     "asked": "p and q",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "missing-frequency-from-median",
+     "given": [
+      "a frequency table with one frequency x",
+      "the median"
+     ],
+     "asked": "x",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-median-mode"
+     ]
+    },
+    {
+     "id": "missing-value-from-table-mean",
+     "given": [
+      "a frequency table with one value k",
+      "the mean"
+     ],
+     "asked": "k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "new-value-from-new-mean",
+     "given": [
+      "the size and mean of a group",
+      "the mean once one value joins it"
+     ],
+     "asked": "the new value",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "whole-mean-from-groups",
+     "given": [
+      "the sizes and means of two or three groups"
+     ],
+     "asked": "the mean of the whole group",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "whole-total-from-groups",
+     "given": [
+      "a table of the sizes and means of three groups"
+     ],
+     "asked": "the total of the whole group",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    },
+    {
+     "id": "group-mean-from-whole",
+     "given": [
+      "the size and mean of the whole group",
+      "the size and mean of one part of it"
+     ],
+     "asked": "the mean of the other part",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL4.3.mean-totals"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.3.grouped-mean",
+     "method": "midpoint-formula",
+     "suits": [
+      "estimate-mean"
+     ]
+    },
+    {
+     "skill": "SL4.3.grouped-mean",
+     "method": "gdc-lists",
+     "suits": [
+      "estimate-mean",
+      "estimate-sd",
+      "estimate-variance"
+     ]
+    },
+    {
+     "skill": "SL4.3.sd-variance",
+     "method": "gdc-sigma",
+     "suits": [
+      "estimate-sd",
+      "estimate-variance",
+      "sd-from-table",
+      "variance-from-table",
+      "sd-of-small-set",
+      "variance-of-small-set"
+     ]
+    },
+    {
+     "skill": "SL4.3.sd-variance",
+     "method": "definition-formula",
+     "suits": [
+      "sd-of-small-set",
+      "variance-of-small-set"
+     ]
+    },
+    {
+     "skill": "SL4.3.sd-variance",
+     "method": "variance-sd-link",
+     "suits": [
+      "variance-from-sd",
+      "sd-from-variance"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-totals",
+     "method": "total-from-mean",
+     "suits": [
+      "missing-value-from-table-mean",
+      "new-value-from-new-mean",
+      "whole-mean-from-groups",
+      "whole-total-from-groups",
+      "group-mean-from-whole"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-totals",
+     "method": "frequency-equation",
+     "suits": [
+      "missing-frequency-from-estimate",
+      "two-frequencies-from-mean"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-totals",
+     "method": "deviations-sum-zero",
+     "suits": [
+      "missing-frequency-from-estimate",
+      "two-frequencies-from-mean",
+      "missing-value-from-table-mean",
+      "new-value-from-new-mean"
+     ]
+    },
+    {
+     "skill": "SL4.3.mean-median-mode",
+     "method": "ordered-position",
+     "suits": [
+      "missing-frequency-from-median"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "The mean found from a grouped table is the exact mean of the data.",
+     "answer": "False: the table hides where in each class the values lie, so every value is replaced by its mid-interval value. The result is an estimate.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "A standard deviation can be negative when most of the values are below the mean.",
+     "answer": "False: the deviations are squared before they are added, and the standard deviation is the positive root of the result.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The mean of two groups together is the average of their two means.",
+     "answer": "Sometimes: only when the groups are the same size, or have the same mean. Otherwise the larger group pulls the mean its way.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.3.grouped-mean#0",
+     "text": "Dividing by the number of classes instead of the total frequency",
+     "as": "distractor",
+     "in": [
+      "estimate-mean"
+     ],
+     "wrong": "Σfx ÷ the number of classes"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#1",
+     "text": "Using the upper class boundary instead of the mid-interval value",
+     "as": "distractor",
+     "in": [
+      "mid-interval-value",
+      "mid-interval-list",
+      "estimate-mean",
+      "estimate-sd",
+      "estimate-variance"
+     ],
+     "wrong": "the upper boundaries in place of the mid-interval values"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#2",
+     "text": "Calling the estimate the exact mean",
+     "as": "distractor",
+     "in": [
+      "estimate-why"
+     ],
+     "wrong": "the exact mean, because every row was used"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#3",
+     "text": "Using the lower class boundary instead of the mid-interval value",
+     "as": "distractor",
+     "in": [
+      "mid-interval-value",
+      "mid-interval-list",
+      "estimate-mean"
+     ],
+     "wrong": "the lower boundaries in place of the mid-interval values"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#4",
+     "text": "Using the class width instead of the mid-interval value",
+     "as": "distractor",
+     "in": [
+      "mid-interval-value"
+     ],
+     "wrong": "upper boundary − lower boundary"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#5",
+     "text": "Assuming each value counts once, leaving the frequencies out",
+     "as": "distractor",
+     "in": [
+      "estimate-mean",
+      "estimate-sd",
+      "estimate-variance",
+      "sd-from-table",
+      "variance-from-table"
+     ],
+     "wrong": "the mean or spread of the values alone"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#6",
+     "text": "Using the class that holds the median as the modal class",
+     "as": "distractor",
+     "in": [
+      "modal-class",
+      "modal-class-after-frequency"
+     ],
+     "wrong": "the class holding the middle value"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#7",
+     "text": "Assuming the class with an unknown frequency cannot be the modal class",
+     "as": "distractor",
+     "in": [
+      "modal-class-after-frequency"
+     ],
+     "wrong": "the greatest of the known frequencies"
+    },
+    {
+     "ref": "SL4.3.grouped-mean#8",
+     "text": "Assuming every class is as wide as the first when listing mid-interval values",
+     "as": "distractor",
+     "in": [
+      "mid-interval-list"
+     ],
+     "wrong": "the first mid-interval value, then steps of the first width"
+    },
+    {
+     "ref": "SL4.3.sd-variance#0",
+     "text": "Using Sx, which divides by one less than n, instead of σx",
+     "as": "distractor",
+     "in": [
+      "estimate-sd",
+      "estimate-variance",
+      "sd-from-table",
+      "variance-from-table",
+      "sd-of-small-set",
+      "variance-of-small-set"
+     ],
+     "wrong": "Sx, or Sx squared"
+    },
+    {
+     "ref": "SL4.3.sd-variance#1",
+     "text": "Using the standard deviation for the variance, or the variance for the standard deviation",
+     "as": "distractor",
+     "in": [
+      "estimate-sd",
+      "estimate-variance",
+      "sd-from-table",
+      "variance-from-table",
+      "sd-of-small-set",
+      "variance-of-small-set",
+      "variance-from-sd",
+      "sd-from-variance"
+     ],
+     "wrong": "the other one of the two"
+    },
+    {
+     "ref": "SL4.3.sd-variance#2",
+     "text": "Assuming the standard deviation can be negative because some values are below the mean",
+     "as": "distractor",
+     "in": [
+      "sd-from-variance"
+     ],
+     "wrong": "the negative root"
+    },
+    {
+     "ref": "SL4.3.sd-variance#3",
+     "text": "Using the mean of the deviations without their signs, with no squaring",
+     "as": "distractor",
+     "in": [
+      "sd-of-small-set",
+      "variance-of-small-set"
+     ],
+     "wrong": "Σ|x − mean| ÷ n"
+    },
+    {
+     "ref": "SL4.3.sd-variance#4",
+     "text": "Using twice the standard deviation as the variance",
+     "as": "distractor",
+     "in": [
+      "variance-from-sd"
+     ],
+     "wrong": "2σ"
+    },
+    {
+     "ref": "SL4.3.sd-variance#5",
+     "text": "Using half of the variance as the standard deviation",
+     "as": "distractor",
+     "in": [
+      "sd-from-variance"
+     ],
+     "wrong": "variance ÷ 2"
+    },
+    {
+     "ref": "SL4.3.sd-variance#6",
+     "text": "Assuming a larger standard deviation means a larger mean",
+     "as": "distractor",
+     "in": [
+      "interpret-sd"
+     ],
+     "wrong": "the group with the larger sd has the larger values"
+    },
+    {
+     "ref": "SL4.3.sd-variance#7",
+     "text": "Reading a larger standard deviation as less spread",
+     "as": "distractor",
+     "in": [
+      "interpret-sd"
+     ],
+     "wrong": "the group with the smaller sd varies more"
+    },
+    {
+     "ref": "SL4.3.sd-variance#8",
+     "text": "Assuming every value lies within one standard deviation of the mean",
+     "as": "distractor",
+     "in": [
+      "interpret-sd"
+     ],
+     "wrong": "every value is within one sd of the mean"
+    },
+    {
+     "ref": "SL4.3.mean-totals#0",
+     "text": "Averaging the two group means for a combined mean when the groups are different sizes",
+     "as": "distractor",
+     "in": [
+      "new-value-from-new-mean",
+      "whole-mean-from-groups",
+      "whole-total-from-groups",
+      "group-mean-from-whole"
+     ],
+     "wrong": "the plain average of the means"
+    },
+    {
+     "ref": "SL4.3.mean-totals#1",
+     "text": "Forgetting that the unknown frequency p also appears in the denominator Σf",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-estimate",
+      "two-frequencies-from-mean"
+     ],
+     "wrong": "the known Σf in the equation for the mean"
+    },
+    {
+     "ref": "SL4.3.mean-totals#2",
+     "text": "Using the sum of the known frequencies as the missing frequency",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-total"
+     ],
+     "wrong": "the known sum, not subtracted from the total"
+    },
+    {
+     "ref": "SL4.3.mean-totals#3",
+     "text": "Assuming every class has the same frequency",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-total"
+     ],
+     "wrong": "total ÷ the number of classes"
+    },
+    {
+     "ref": "SL4.3.mean-totals#4",
+     "text": "Using each solved frequency in the row of the other",
+     "as": "distractor",
+     "in": [
+      "two-frequencies-from-mean"
+     ],
+     "wrong": "p and q swapped"
+    },
+    {
+     "ref": "SL4.3.mean-totals#5",
+     "text": "Using the old number of values for the new total",
+     "as": "distractor",
+     "in": [
+      "new-value-from-new-mean"
+     ],
+     "wrong": "n × (new mean − old mean)"
+    },
+    {
+     "ref": "SL4.3.mean-totals#6",
+     "text": "Using the missing value once, ignoring its frequency",
+     "as": "distractor",
+     "in": [
+      "missing-value-from-table-mean"
+     ],
+     "wrong": "the rest of the total, not divided by the frequency"
+    },
+    {
+     "ref": "SL4.3.mean-totals#7",
+     "text": "Dividing the rest of the total by the size of the whole group",
+     "as": "distractor",
+     "in": [
+      "group-mean-from-whole"
+     ],
+     "wrong": "the rest ÷ the whole group"
+    },
+    {
+     "ref": "SL4.3.mean-median-mode#3",
+     "text": "Using the equation for the mean when the median is given",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-median"
+     ],
+     "wrong": "x from Σfx ÷ Σf = the median"
+    },
+    {
+     "ref": "SL4.3.mean-median-mode#4",
+     "text": "Using the count on one side of the median as the missing frequency",
+     "as": "distractor",
+     "in": [
+      "missing-frequency-from-median"
+     ],
+     "wrong": "the known side, with the other known rows forgotten"
+    }
    ],
    "parts": [
     "aa-sl-2022-may-tz1-p2-q02.a",
