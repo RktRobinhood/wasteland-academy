@@ -1668,7 +1668,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 7 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 8 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1831,6 +1831,34 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): If u₁ > 0, then S∞ is greater than u₁. — Sometimes: it is for r > 0, but for r < 0 the denominator 1 − r is more than 1, so S∞ is less than u₁.
   - *true-false-reason* (L4): 0.999… is exactly equal to 1. — True: it is 9/10 + 9/100 + …, with u₁ = 9/10 and r = 1/10, so S∞ = (9/10)/(9/10) = 1.
 - **Misconceptions used:** 12. Thinking r below one is enough, so a large negative ratio seems to converge; Solving only the upper inequality and forgetting the lower one when r depends on x; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity; Putting a plus in the formula's denominator, or dropping the sign of a negative r; Taking the coefficient as u₁ instead of the value at the lower limit; Applying the formula when the size of r is one or more, which gives a meaningless sum; Inverting the rearrangement of the formula, so S∞ and u₁ swap places; Keeping a root too large in size for a sum to infinity to exist; Substituting u₂ as if it were u₁; Doubling the first drop of a bouncing ball as well as the rebounds; Using one tenth as r for a recurring block of more than one digit; Using S∞ in context without checking that r is small enough.
+
+#### Binomial expansion: find an unknown from a given coefficient (`t1-binomial-find-unknown`, exam, 9 bank parts)
+
+- **Situation:** An expansion with a letter missing, and a coefficient given.
+- **Representations:** **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a bracket with k, and a coefficient that holds an odd power of k → k: one real value
+  - **exam** L3: given a bracket with k, and a coefficient that holds k² or k⁴ → the two values of k, whole numbers
+  - **exam** L3: given a bracket with k, and a coefficient that leaves a root → the two values of k: a surd on Paper 1, 3 s.f. on Paper 2
+  - **exam** L3: given a bracket with k, k > 0, and a coefficient that holds an even power of k → the one positive value of k
+  - **exam** L3: given (c + ax^p)^n or (cx^p + a)^n with a > 0, and a coefficient → a, a whole number or a fraction
+  - **exam** L3: given (1 + kx)^n with k known, and the coefficient of x² → n, from a quadratic with the negative root rejected
+  - **exam** L4: given (c + x^p)^(n + s), and a coefficient → n, which is in the power of c too, so by GDC
+  - **exam** L4: given the first terms of (1 + kx)^n, with k² left as a letter → n and k
+  - **exam** L4: given the coefficients of x and x² in (1 + ax)^n → n and a
+  - **exam** L3: given two neighbouring coefficients of (1 + kx)^n are equal, n known and k ≠ 0 → k
+  - **exam** L3: given two neighbouring coefficients of (1 + kx)^n or (c + x)^n are equal → n
+  - **exam** L3: given the ratio of two neighbouring coefficients of (1 + kx)^n, n known → k
+  - **exam** L3: given the ratio of two neighbouring coefficients of (1 + kx)^n, k known → n
+  - **exam** L4: given the same coefficient in (ax^p + b)^n and in a second power of the same bracket → a and b, both positive
+  - **exam** L4: given (ax + 1)^n ÷ (cx^p), and a coefficient that holds a power of a → a, with a ≠ 0
+  - **exam** L4: given (x + c)^n, and that one term is the mean of the terms beside it → the possible values of x, with x ≠ 0
+- **Angles:** Write the relevant term and equate its coefficient; Form two equations from two coefficients; Solve or search on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): If the coefficient of x³ in (1 + kx)⁶ is given, k can have two values. — False: the coefficient holds k³, and an odd power has one real root.
+  - *true-false-reason* (L3): If the coefficient of x² in (1 + kx)ⁿ is positive, k must be positive. — False: the coefficient holds k², which can't show the sign of k. The coefficient of x, nk, does.
+  - *always-sometimes-never* (L4): The coefficients of x^r and x^(r + 1) in (1 + x)^n are equal. — Sometimes: nCr = nC(r + 1) only when r + 1 = n − r, so n has to be odd and r the middle.
+- **Misconceptions used:** 19. Using the letter to the first power, so the term's power reaches x and not the letter; Taking only the positive value of a letter that is squared, when the negative one works too; Keeping the zero root, although the question rules it out; Ignoring the sign: treating a negative term raised to an odd power as positive; Forgetting to raise the other term to its power; Using plus or minus on an odd power, which has one real root; Using both signs, although the question says the letter is positive; Using a square root where the letter is to the fourth power; Keeping the negative root of the quadratic in n, though n is a positive integer; Using n for nCr in the term, as if every coefficient had n in front of it; Stopping at the product on top of nCr and giving that as n; Giving the power of the bracket as n, when the power is n and a number; Using the ratio of the two coefficients upside down; Dividing n by the coefficient of x to find k, which is the wrong way round; Leaving r out of the ratio of two neighbouring nCr values, so n is on top and not n − r; Reading the term on top at the power asked, without adding the power of x that the divisor takes off; Leaving out the number in the divisor; Stopping at a power of b, without taking its root; Using the place of the term as r, when r starts from 0.
 
 #### Binomial expansion: a coefficient, a term or the full expansion (`t1-binomial-term`, exam, 6 bank parts)
 

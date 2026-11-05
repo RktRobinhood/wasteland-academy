@@ -23906,7 +23906,536 @@ def td_check(q):
     return None, None
 
 
-SITUATION_CHECKS = {"motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── binomial-unknown (t1-binomial-find-unknown, FAL-740) ──────
+# The checker's own copy of the clean limits: the engine's is in
+# game/engine/situations/binomial_unknown.gd. The bracket and the coefficient are read from what
+# the student sees, expanded with SymPy, and solved again for the letter, so nothing is taken from
+# the engine. Each tagged option is worked out from its slip. The arithmetic and the nCr terms in
+# the working are evaluated, and so are the GDC's keys and what it is said to show.
+
+BFU_S = "SL1.9."
+BFU_F = "SL1.9.find-unknown#"
+BFU_T = "t1-binomial-find-unknown#"
+BFU_HAND, BFU_MOST = 20000, 200000000
+BFU_SURDS = (2, 3, 5, 6, 7, 10)
+BFU_BANK = (("x", 7, 2), ("x", 11, 4), ("2x", 10, 4), ("1", 8, 2), ("2", 5, 3))
+BFU_X = sp.Symbol("x")
+BFU_SUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
+BFU_POW = "[⁰¹²³⁴⁵⁶⁷⁸⁹]"
+BFU_NUM = r"(?:\(−?\d+/\d+\)|\(−\d+\)|−?\d+/\d+|−?\d+)"
+BFU_PLACES = ("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth",
+              "thirteenth", "fourteenth", "fifteenth")
+
+
+def bfu_v(t):
+    """A number as the game writes it."""
+    return sp.Rational(t.strip("()").replace("−", "-"))
+
+
+def bfu_p(t):
+    """A superscript as a whole number; none is 1."""
+    return int(t.translate(BFU_SUP)) if t else 1
+
+
+def bfu_expr(t, name_x="x"):
+    """A product or sum as the working writes it, with implied multiplication."""
+    s = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    s = re.sub(rf"({BFU_POW}+)", lambda m: "**" + m.group(1).translate(BFU_SUP), s)
+    s = re.sub(r"(?<=[0-9a-zA-Z)])(?=[a-zA-Z(])", "*", s)
+    s = re.sub(r"(?<=[a-zA-Z)])(?=[0-9])", "*", s)
+    return sp.sympify(s, locals={"x": BFU_X, "k": sp.Symbol("k"), "a": sp.Symbol("a"), "b": sp.Symbol("b"), "X": sp.Symbol("X")})
+
+
+def bfu_t(v):
+    v = sp.Rational(v)
+    return ("−" if v < 0 else "") + (f"{abs(v.p)}/{v.q}" if v.q != 1 else str(abs(v.p)))
+
+
+def bfu_sf(v):
+    return gc_s(v if v.is_Rational else sp.N(v, 30))
+
+
+def bfu_list(vals):
+    if len(vals) == 1:
+        return vals[0]
+    return ", ".join(vals[:-1]) + " or " + vals[-1]
+
+
+def bfu_xs(letter, vals, sf=False):
+    out = sorted(vals, key=lambda v: float(v))
+    return f"{letter} = " + bfu_list([bfu_sf(v) if sf else bfu_t(v) for v in out])
+
+
+def bfu_named(names, vals):
+    return ", ".join(f"{n} = {bfu_t(v)}" for n, v in zip(names, vals))
+
+
+def bfu_root(v, e):
+    """The positive e-th root of a positive Rational when it is Rational, else None."""
+    r = sp.root(v, e)
+    return r if r.is_Rational else None
+
+
+def bfu_coef(bracket, n, m):
+    """The coefficient of x^m in bracket^n, by expanding it."""
+    return sp.expand(bracket ** n).coeff(BFU_X, m)
+
+
+def bfu_bracket(text):
+    """(1 + kx) as an expression."""
+    mt = re.fullmatch(r"\((.+) \+ (.+)\)", text)
+    need(mt is not None, f"can't read {text!r}")
+    return bfu_expr(mt.group(1)) + bfu_expr(mt.group(2))
+
+
+def bfu_steps(q):
+    """Plain arithmetic, and every nCr term, in the working."""
+    pat = re.compile(rf"(?<![\w(/^.+−])({BFU_NUM}(?: [×÷] {BFU_NUM})+) = ({BFU_NUM})(?![\w/^(])")
+    term = re.compile(r"(\d+)C(\d+) × ([^=]+?) = ([^=,.]+)")
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in pat.finditer(step):
+                bits = mt.group(1).split(" ")
+                v = bfu_v(bits[0])
+                for op, b in zip(bits[1::2], bits[2::2]):
+                    v = v * bfu_v(b) if op == "×" else v / bfu_v(b)
+                need(v == bfu_v(mt.group(2)), f"{step!r}: {mt.group(0)} is really {v}")
+            for mt in term.finditer(step):
+                lhs = sp.binomial(int(mt.group(1)), int(mt.group(2))) * bfu_expr(mt.group(3).strip())
+                need(sp.expand(lhs - bfu_expr(mt.group(4).strip())) == 0, f"{step!r}: the term is wrong")
+    if q["paper"] == 1:
+        for sol in q["solutions"]:
+            need(sol["angle"] != "gdc-search", "a GDC method on Paper 1")
+            need(not any("Y1" in st for st in sol["steps"]), "a GDC's keys on Paper 1")
+
+
+def bfu_keys(text):
+    """What is keyed in, as an expression in X."""
+    s = re.sub(r"\(X \+ (\d+)\) nCr (\d+)", r"binomial(X + \1, \2)", text)
+    s = re.sub(r"\(X − (\d+)\) nCr (\d+)", r"binomial(X - \1, \2)", s)
+    s = re.sub(r"X nCr (\d+)", r"binomial(X, \1)", s)
+    s = s.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    s = re.sub(rf"({BFU_POW}+)", lambda m: "**" + m.group(1).translate(BFU_SUP), s)
+    s = re.sub(r"(?<=[0-9)])(?=X)", "*", s)
+    return sp.sympify(s, locals={"X": sp.Symbol("X"), "binomial": sp.Function("B")})
+
+
+def bfu_at(e, x):
+    """A keyed expression at X = x."""
+    v = e.subs(sp.Symbol("X"), x).replace(sp.Function("B"), lambda a, b: sp.binomial(a, b))
+    return sp.N(v, 30)
+
+
+def bfu_close(a, b):
+    return abs(sp.N(a, 30) - sp.N(b, 30)) <= sp.Rational(1, 10 ** 3) * max(1, abs(sp.N(b, 30)))
+
+
+def bfu_gdc(q, want):
+    """The GDC's keys are evaluated at what it is said to show. want: the roots, or n."""
+    for sol in q["solutions"]:
+        if sol["angle"] != "gdc-search":
+            continue
+        text = " ".join(sol["steps"])
+        need("Y1" in text, f"{sol['name']}: names no keys")
+        mt = re.search(r"Table Y1 = (.+?), with X going up in ones", text)
+        if mt:
+            e = bfu_keys(mt.group(1))
+            reads = re.findall(rf"(\d+\.\d+|{BFU_NUM}) at X = (\d+)", text)
+            need(reads and int(reads[-1][1]) == want[0], f"{sol['name']}: reads nothing at n from the table")
+            for v, x in reads:
+                need(bfu_close(bfu_at(e, int(x)), sp.Rational(v.replace("−", "-"))), f"{sol['name']}: the table at X = {x} isn't {v}")
+            continue
+        mt = re.search(r"Graph Y1 = (.+?) and Y2 = (.+?)\. ", text)
+        if mt:
+            e = bfu_keys(mt.group(1)) - bfu_keys(mt.group(2))
+        else:
+            mt = re.search(r"Graph Y1 = (.+?) and find its zeros", text)
+            need(mt is not None, f"{sol['name']}: can't read the keys")
+            e = bfu_keys(mt.group(1))
+        shown = [sp.Rational(t.replace("−", "-").rstrip(".")) for t in re.findall(r"X = (−?[\d.]+)", text)]
+        for v in want:
+            need(abs(bfu_at(e, v)) <= sp.Rational(1, 10 ** 15), f"{sol['name']}: {v} is not a root of what is keyed in")
+            need(any(abs(t - sp.N(v, 30)) <= sp.Rational(1, 1000) * max(1, abs(sp.N(v, 30))) for t in shown), f"{sol['name']}: doesn't read {v}")
+
+
+def bfu_typed(q, vals, names=None):
+    """The answer's typed values are the solved ones."""
+    v, a = q["answer"]["values"], q["answer"]
+    if a["kind"] == "named":
+        need([R(v["v0"]), R(v["v1"])] == list(vals), "the typed values are not the answer")
+    elif a["kind"] == "xs":
+        got = sorted(float(R(v[f"x{i}"])) for i in range(int(v["n"])))
+        wanted = sorted(float(x) for x in vals)
+        need(len(got) == len(wanted) and all(abs(g - w) < 1e-6 * max(1, abs(w)) for g, w in zip(got, wanted)), "the typed values are not the answer")
+
+
+def bfu_clean(q, *coefs):
+    most = BFU_HAND if q["paper"] == 1 else BFU_MOST
+    for c in coefs:
+        need(abs(c) <= most, f"the coefficient {c} is past the limit")
+        need(sp.Rational(c).q <= 100, f"the coefficient {c} has a large denominator")
+
+
+def bfu_letter(q):
+    """A letter in the bracket, and one coefficient."""
+    u, paper, L = q["view"]["unknown"], q["paper"], q["lines"]
+    mt = re.fullmatch(rf"In the expansion of (\(.+\))({BFU_POW}+)(?:, where ([ka]) > 0)?, the coefficient of x({BFU_POW}*) is ({BFU_NUM})\.", L[0])
+    need(mt is not None, f"can't read {L[0]!r}")
+    bt, n, cond, m, target = mt.group(1), bfu_p(mt.group(2)), mt.group(3), bfu_p(mt.group(4)), bfu_v(mt.group(5))
+    letter = "a" if u == "a-in-bracket" else "k"
+    need(cond in (None, letter) and (cond is not None) == (u in ("k-positive-condition", "a-in-bracket")), "the condition on the letter")
+    sym = sp.Symbol(letter)
+    br = bfu_bracket(bt)
+    full = bfu_coef(br, n, m)
+    e = sp.degree(full, sym)
+    mult = full / sym ** e
+    need(mult.is_Rational, f"the coefficient is {full}")
+    c = br.subs({sym: 0, BFU_X: 1})
+    c = c if c != 0 else 1
+    roots = [r for r in sp.roots(sp.Poly(full - target, sym)) if r.is_real]
+    if cond:
+        roots = [r for r in roots if r > 0]
+    bfu_clean(q, target)
+    other = [t for t in bt.strip("()").split(" + ") if letter not in t]
+    need(len(other) == 1 and (other[0], n, e) not in BFU_BANK, "a bank bracket")
+    wrongs = {}
+    rat = all(r.is_Rational for r in roots)
+    if u == "k-odd-power":
+        need(e % 2 == 1 and len(roots) == 1 and rat, f"k-odd-power: {roots}")
+    elif u == "k-both-signs":
+        need(e % 2 == 0 and len(roots) == 2 and rat and "possible values" in q["asked"], f"k-both-signs: {roots}")
+    elif u == "k-surd-both-signs":
+        need(len(roots) == 2 and not rat and "possible values" in q["asked"], f"k-surd: {roots}")
+    else:
+        need(len(roots) == 1, f"{u}: {roots}")
+    mag = abs(roots[0])
+    sign = -1 if len(roots) == 1 and roots[0] < 0 else 1
+    surd = not rat
+    power = target / mult
+    if surd:
+        d = mag ** 2
+        need(d in BFU_SURDS, f"the surd's d is {d}")
+    if surd and paper == 1:
+        head = f"{letter} = "
+        want = f"{head}{'±' if len(roots) == 2 else ''}√{d}"
+        wrongs[BFU_F + "0"] = {head + bfu_t(power)}
+        if len(roots) == 2:
+            wrongs[BFU_F + "1"] = {f"{head}√{d}"}
+        else:
+            wrongs[BFU_T + "6"] = {f"{head}±√{d}"}
+        if e == 4:
+            wrongs[BFU_T + "7"] = {f"{head}{'±' if len(roots) == 2 else ''}{d}"}
+        need(R(q["answer"]["values"]["r"]) == d, "the typed number under the root")
+    else:
+        text = lambda vals: bfu_xs(letter, vals, surd)
+        pattern = lambda v: [-v, v] if len(roots) == 2 else [sign * v]
+        want = text(roots)
+        wrongs[BFU_F + "0"] = {text([power])}
+        wrongs[BFU_F + "1"] = {text([mag])}
+        wrongs[BFU_T + "5"] = {text([-mag, mag])}
+        wrongs[BFU_T + "6"] = {text([-mag, mag])}
+        if sign < 0:
+            wrongs[BFU_S + "specific-term#0"] = {text([mag])}
+        if e == 4:
+            wrongs[BFU_T + "7"] = {text(pattern(sp.sqrt(abs(power))))}
+        if c > 1 and n - e >= 2:
+            once = abs(target) / (sp.binomial(n, e) * c)
+            root = bfu_root(once, e)
+            if root is not None:
+                wrongs[BFU_S + "specific-term#1"] = {text(pattern(root))}
+        bfu_typed(q, roots)
+        if u == "k-odd-power":
+            wrongs.pop(BFU_F + "1"), wrongs.pop(BFU_T + "6")
+        elif u in ("k-both-signs", "k-surd-both-signs"):
+            wrongs.pop(BFU_T + "5"), wrongs.pop(BFU_T + "6")
+        else:
+            wrongs.pop(BFU_F + "1"), wrongs.pop(BFU_T + "5")
+            if e % 2:
+                wrongs.pop(BFU_T + "6")
+    gc_check_common(q, want, wrongs)
+    bfu_gdc(q, [r for r in roots if not cond or r > 0])
+
+
+def bfu_n(q, want_n, wrongs):
+    gc_check_common(q, f"n = {want_n}", wrongs)
+    bfu_typed(q, [sp.Integer(want_n)])
+    bfu_gdc(q, [want_n])
+
+
+def bfu_read_known(text):
+    mt = re.fullmatch(r"\(1 ([+−]) (\d*)x\)", text)
+    need(mt is not None, f"can't read {text!r}")
+    k = sp.Integer(mt.group(2) or 1)
+    return -k if mt.group(1) == "−" else k
+
+
+def bfu_n_coefficient(q):
+    mt = re.fullmatch(rf"In the expansion of (\(.+\))\^n, where n is a positive integer, the coefficient of x({BFU_POW}) is ({BFU_NUM})\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    k, j, v = bfu_read_known(mt.group(1)), bfu_p(mt.group(2)), bfu_v(mt.group(3))
+    sol = [nn for nn in range(j, 41) if sp.binomial(nn, j) * k ** j == v]
+    need(len(sol) == 1, f"n = {sol}")
+    n = sol[0]
+    need(v == bfu_coef(1 + k * BFU_X, n, j), "the coefficient")
+    need(j == 2 or q["view"]["angle"] == "gdc-search", "the cubic in n is for the GDC")
+    bfu_clean(q, v)
+    w = {BFU_T + "9": {f"n = {sp.binomial(n, j)}"}, BFU_T + "10": {f"n = {n * (n - 1) if j == 2 else n * (n - 1) * (n - 2)}"}}
+    if j == 2:
+        w[BFU_T + "8"] = {f"n = −{n - 1} or {n}"}
+    bfu_n(q, n, w)
+
+
+def bfu_n_power(q):
+    need(q["paper"] == 2, "n in a power is Paper 2")
+    mt = re.fullmatch(r"Consider the expansion of \((\d) \+ x(²?)\)\^\(n ([+−]) (\d)\), where n is a positive integer\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    c, p = int(mt.group(1)), 2 if mt.group(2) else 1
+    shift = int(mt.group(4)) * (-1 if mt.group(3) == "−" else 1)
+    at = re.fullmatch(rf"Given that the coefficient of x({BFU_POW}) is (\d+), find the value of n\.", q["asked"])
+    need(at is not None and bfu_p(at.group(1)) == 2 * p, f"asked {q['asked']!r}")
+    v = int(at.group(2))
+    sol = [nn for nn in range(1, 41) if nn + shift >= 2 and sp.binomial(nn + shift, 2) * c ** (nn + shift - 2) == v]
+    need(len(sol) == 1, f"n = {sol}")
+    n = sol[0]
+    need(not (c == 3 and n + shift == 8), "the bank's numbers")
+    need(bfu_coef(c + BFU_X ** p, n + shift, 2 * p) == v, "the coefficient")
+    bfu_clean(q, v)
+    bfu_n(q, n, {BFU_T + "11": {f"n = {n + shift}"}})
+
+
+def bfu_n_and_k(q):
+    mt = re.fullmatch(rf"The expansion of \(1 \+ kx\)\^n begins 1 ([+−]) (.+)x \+ (\d+)k²x² \+ \.\.\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    p = bfu_v(mt.group(2)) * (-1 if mt.group(1) == "−" else 1)
+    two = int(mt.group(3))
+    sol = [nn for nn in range(2, 41) if sp.binomial(nn, 2) == two]
+    need(len(sol) == 1, f"n = {sol}")
+    n = sol[0]
+    k = p / n
+    need(k.is_Rational and (n, p) not in ((8, 12), (6, sp.Rational(9, 2))), "the bank's numbers")
+    expansion = sp.expand((1 + k * BFU_X) ** n)
+    need(expansion.coeff(BFU_X, 1) == p and expansion.coeff(BFU_X, 2) == two * k ** 2, "the first terms")
+    w = {BFU_T + "13": {bfu_named("nk", [n, n / p])}, BFU_T + "9": {bfu_named("nk", [two, p / two])}}
+    if k < 0:
+        w[BFU_S + "specific-term#0"] = {bfu_named("nk", [n, abs(k)])}
+    gc_check_common(q, bfu_named("nk", [n, k]), w)
+    bfu_typed(q, [sp.Integer(n), k])
+    bfu_gdc(q, [n])
+
+
+def bfu_two_coefficients(q):
+    mt = re.fullmatch(rf"In the expansion of \(1 \+ ax\)\^n, where n is a positive integer, the coefficient of x is ({BFU_NUM}) and the coefficient of x² is ({BFU_NUM})\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    p, c2 = bfu_v(mt.group(1)), bfu_v(mt.group(2))
+    a = p - 2 * c2 / p
+    n = p / a
+    need(n.is_Integer and n > 0, f"n = {n}")
+    n = int(n)
+    need((n, a) != (6, 2), "the skill's example")
+    expansion = sp.expand((1 + a * BFU_X) ** n)
+    need(expansion.coeff(BFU_X, 1) == p and expansion.coeff(BFU_X, 2) == c2, "the coefficients")
+    bfu_clean(q, p, c2)
+    w = {}
+    n1 = 2 * c2 / p + 1
+    if n1 != 0:
+        w[BFU_F + "0"] = {bfu_named("na", [n1, p / n1])}
+    n2 = p ** 2 / c2
+    w[BFU_T + "9"] = {bfu_named("na", [n2, c2 / p])}
+    if a < 0:
+        w[BFU_S + "specific-term#0"] = {bfu_named("na", [n, abs(a)])}
+    gc_check_common(q, bfu_named("na", [n, a]), w)
+    bfu_typed(q, [sp.Integer(n), a])
+    bfu_gdc(q, [n])
+
+
+def bfu_compared(q):
+    """(j, the second power, n or None, the bracket's text)."""
+    u, L = q["view"]["unknown"], q["lines"][0]
+    if u.startswith("equal"):
+        mt = re.fullmatch(rf"In the expansion of (\(.+\))(\^n|{BFU_POW}+), where (?:k ≠ 0|n is a positive integer), the coefficient of x({BFU_POW}*) equals the coefficient of x({BFU_POW}+)\.", L)
+        need(mt is not None, f"can't read {L!r}")
+        return mt.group(1), mt.group(2), bfu_p(mt.group(3)), bfu_p(mt.group(4)), sp.Integer(1)
+    mt = re.fullmatch(rf"In the expansion of (\(.+\))(\^n|{BFU_POW}+)(?:, where n is a positive integer)?, the coefficient of x({BFU_POW}*) and the coefficient of x({BFU_POW}*) are in the ratio (\d+) : (\d+)\.", L)
+    need(mt is not None, f"can't read {L!r}")
+    return mt.group(1), mt.group(2), bfu_p(mt.group(4)), bfu_p(mt.group(3)), sp.Rational(int(mt.group(5)), int(mt.group(6)))
+
+
+def bfu_find_k(q):
+    u = q["view"]["unknown"]
+    bt, ns, j, hi, ratio = bfu_compared(q)
+    need(bt == "(1 + kx)" and hi == j + 1 and ns != "^n", f"the bracket {bt}")
+    n = bfu_p(ns)
+    k = sp.Symbol("k")
+    br = 1 + k * BFU_X
+    low, high = bfu_coef(br, n, j), bfu_coef(br, n, hi)
+    sol = [r for r in sp.roots(sp.Poly(high - ratio * low, k)) if r != 0]
+    need(len(sol) == 1 and sol[0].is_Rational, f"k = {sol}")
+    v = sol[0]
+    if u == "equal-find-k":
+        need(not (n == 6 and j == 1) and v != 1, "the skill's example, or k = 1")
+        w = {BFU_F + "2": {f"k = 0 or {bfu_t(v)}"}, BFU_T + "12": {f"k = {bfu_t(sp.Rational(n - j, j + 1))}"},
+             BFU_T + "14": {f"k = {bfu_t(sp.Rational(j + 1, n))}"}}
+    else:
+        size = sp.binomial(n, hi) / sp.binomial(n, j)
+        w = {BFU_T + "12": {f"k = {bfu_t(1 / ratio / size)}"}, BFU_T + "14": {f"k = {bfu_t(ratio * sp.Rational(j + 1, n))}"}}
+    gc_check_common(q, f"k = {bfu_t(v)}", w)
+    bfu_typed(q, [v])
+    roots = [v] if u == "ratio-find-k" else [sp.Integer(0), v]
+    bfu_gdc(q, roots)
+
+
+def bfu_find_n(q):
+    bt, ns, j, hi, ratio = bfu_compared(q)
+    need(ns == "^n" and hi == j + 1, "the powers")
+    mt = re.fullmatch(r"\(1 \+ (\d)x\)|\((\d) \+ x\)", bt)
+    need(mt is not None, f"can't read {bt!r}")
+    k, c = (sp.Integer(mt.group(1)), 1) if mt.group(1) else (sp.Integer(1), int(mt.group(2)))
+    br = c + k * BFU_X
+    sol = [nn for nn in range(hi, 41) if bfu_coef(br, nn, hi) == ratio * bfu_coef(br, nn, j)]
+    need(len(sol) == 1, f"n = {sol}")
+    n = sol[0]
+    w = {BFU_T + "14": {f"n = {n - j}"}}
+    if ratio != 1:
+        flip = j + (1 / ratio) * (j + 1) / k
+    else:
+        flip = j + (j + 1) * k if c == 1 else j + sp.Rational(j + 1, c)
+    w[BFU_T + "12"] = {f"n = {bfu_t(flip)}"}
+    bfu_n(q, n, w)
+
+
+def bfu_two_brackets(q):
+    L, asked = q["lines"], q["asked"]
+    need(asked == "Find the value of a and the value of b, where a > 0 and b > 0.", f"asked {asked!r}")
+    pat = rf"The coefficient of x({BFU_POW}) in the expansion of \(ax({BFU_POW}) \+ b\)({BFU_POW}+) is (\d+)\."
+    m1, m2 = re.fullmatch(pat, L[0]), re.fullmatch(pat, L[1])
+    need(m1 is not None and m2 is not None and m1.group(1) == m2.group(1) and m1.group(2) == m2.group(2), f"can't read {L}")
+    mx, p, n1, v1, n2, v2 = bfu_p(m1.group(1)), bfu_p(m1.group(2)), bfu_p(m1.group(3)), int(m1.group(4)), bfu_p(m2.group(3)), int(m2.group(4))
+    a, b = sp.Symbol("a"), sp.Symbol("b")
+    t = mx // p
+    e1, e2 = sp.expand((a * BFU_X ** p + b) ** n1).coeff(BFU_X, mx), sp.expand((a * BFU_X ** p + b) ** n2).coeff(BFU_X, mx)
+    d = n2 - n1
+    bp = sp.Rational(v2, v1) * sp.binomial(n1, t) / sp.binomial(n2, t)
+    vb = bfu_root(bp, d)
+    need(vb is not None, f"b^{d} = {bp}")
+    at = v1 / e1.subs({a: 1, b: vb})
+    va = bfu_root(at, t)
+    need(va is not None, f"a^{t} = {at}")
+    need(e1.subs({a: va, b: vb}) == v1 and e2.subs({a: va, b: vb}) == v2, "a and b don't fit both coefficients")
+    need((n1, n2, mx, p) != (8, 10, 6, 3), "the bank's numbers")
+    bfu_clean(q, sp.Integer(v1), sp.Integer(v2))
+    w = {BFU_F + "0": {bfu_named("ab", [at, vb])}}
+    if d == 2:
+        w[BFU_T + "17"] = {bfu_named("ab", [va, bp])}
+    gc_check_common(q, bfu_named("ab", [va, vb]), w)
+    bfu_typed(q, [va, vb])
+    for sol in q["solutions"]:
+        if sol["angle"] == "gdc-search":
+            text = " ".join(sol["steps"])
+            mk = re.search(r"Y1 = \((\d+) ÷ \((\d+)X(\S*)\)\)\^\(1/(\d)\) from the first and Y2 = \((\d+) ÷ \((\d+)X(\S*)\)\)\^\(1/\d\) from the second", text)
+            need(mk is not None, "can't read the keys")
+            y1 = (sp.Integer(mk.group(1)) / (sp.Integer(mk.group(2)) * vb ** bfu_p(mk.group(3)))) ** sp.Rational(1, int(mk.group(4)))
+            y2 = (sp.Integer(mk.group(5)) / (sp.Integer(mk.group(6)) * vb ** bfu_p(mk.group(7)))) ** sp.Rational(1, int(mk.group(4)))
+            need(sp.simplify(y1 - va) == 0 and sp.simplify(y2 - va) == 0, "the keys don't meet at b and a")
+
+
+def bfu_quotient(q):
+    L = q["lines"]
+    m1 = re.fullmatch(rf"Consider the expansion of (\(.+\))({BFU_POW}+)/\((\d+)x({BFU_POW})\), where a ≠ 0\.", L[0])
+    m2 = re.fullmatch(rf"The coefficient of the term in x({BFU_POW}*) is (\(\d+/\d+\)|\d+)?a({BFU_POW}*)\.", L[1])
+    need(m1 is not None and m2 is not None, f"can't read {L}")
+    a = sp.Symbol("a")
+    br = bfu_bracket(m1.group(1))
+    n, c, p, m, r, e = bfu_p(m1.group(2)), int(m1.group(3)), bfu_p(m1.group(4)), bfu_p(m2.group(1)), bfu_v(m2.group(2) or "1"), bfu_p(m2.group(3))
+    need((n, c) != (9, 21), "the bank's numbers")
+    full = bfu_coef(br, n, m + p) / c
+    sol = [v for v in sp.roots(sp.Poly(full - r * a ** e, a)) if v != 0 and v.is_real]
+    need(len(sol) == 1 and sol[0].is_Rational, f"a = {sol}")
+    v = sol[0]
+    w = {BFU_F + "2": {f"a = 0 or {bfu_t(v)}"}, BFU_T + "16": {f"a = {bfu_t(r / sp.binomial(n, m + p))}"}}
+    plain = sp.binomial(n, m) / (c * r)
+    root = plain if p == 2 else bfu_root(plain, p - 1)
+    if root is not None:
+        w[BFU_T + "15"] = {f"a = {bfu_t(root)}"}
+    gc_check_common(q, f"a = {bfu_t(v)}", w)
+    bfu_typed(q, [v])
+    bfu_gdc(q, [sp.Integer(0), v])
+
+
+def bfu_mean_roots(n, c, place):
+    """The x making term `place` (from 0) the mean of the terms beside it, in (x + c)^n."""
+    x = BFU_X
+    poly = sp.Poly(sp.expand((x + c) ** n), x)
+    ts = [co * x ** mo[0] for mo, co in poly.terms()]
+    if place < 1 or place + 1 >= len(ts):
+        return None
+    return sorted(sp.roots(sp.Poly(sp.cancel((ts[place - 1] + ts[place + 1] - 2 * ts[place]) / x ** (n - place - 1)), x)), key=sp.default_sort_key)
+
+
+def bfu_term_mean(q):
+    L, paper = q["lines"], q["paper"]
+    m1 = re.fullmatch(rf"Consider the expansion of \(x \+ (\d)\)({BFU_POW}+), where x ≠ 0, with its terms in descending powers of x\.", L[0])
+    m2 = re.fullmatch(r"The (\w+) term is the mean of the (\w+) term and the (\w+) term\.", L[1])
+    need(m1 is not None and m2 is not None, f"can't read {L}")
+    c, n = int(m1.group(1)), bfu_p(m1.group(2))
+    place = BFU_PLACES.index(m2.group(1))
+    need(BFU_PLACES.index(m2.group(2)) == place - 1 and BFU_PLACES.index(m2.group(3)) == place + 1, "the terms are not neighbours")
+    need((n, c, place) != (7, 1, 2), "the bank's numbers")
+    roots = bfu_mean_roots(n, c, place)
+    need(roots is not None and len(roots) == 2 and all(sp.im(r) == 0 and r > 0 for r in roots), f"x = {roots}")
+    exact = paper == 1
+    need(not exact or all(r.is_Rational for r in roots), "Paper 1 has rational roots")
+    w = {BFU_F + "2": {bfu_xs("x", [sp.Integer(0)] + list(roots), not exact)}}
+    if c > 1:
+        w[BFU_S + "specific-term#1"] = {bfu_xs("x", [r / c for r in roots], not exact)}
+    nx = bfu_mean_roots(n, c, place + 1)
+    if nx is not None and len(nx) == 2 and not exact and all(sp.im(r) == 0 for r in nx):
+        w[BFU_T + "18"] = {bfu_xs("x", nx, True)}
+    if not exact:
+        need(bfu_sf(roots[0]) != bfu_sf(roots[1]), "the two values read the same")
+    gc_check_common(q, bfu_xs("x", roots, not exact), w)
+    bfu_typed(q, roots)
+    bfu_gdc(q, [sp.Integer(0)])
+    for sol in q["solutions"]:
+        if sol["angle"] == "gdc-search":
+            mt = re.search(r"The zeros are X = 0, X = (\S+) and X = (\S+), and", " ".join(sol["steps"]))
+            need(mt is not None, "can't read the zeros")
+            for t, r in zip(mt.groups(), roots):
+                need(abs(sp.Rational(t) - sp.N(r, 30)) <= sp.Rational(1, 100) * max(1, sp.N(r, 30)), f"the zero {t} is not {r}")
+
+
+def check_binomial_unknown(q):
+    u, angle = q["view"]["unknown"], q["view"]["angle"]
+    need(not (angle == "gdc-search" and q["paper"] == 1), "the GDC on Paper 1")
+    bfu_steps(q)
+    if u in ("k-odd-power", "k-both-signs", "k-surd-both-signs", "k-positive-condition", "a-in-bracket"):
+        bfu_letter(q)
+    elif u == "n-from-coefficient":
+        bfu_n_coefficient(q)
+    elif u == "n-from-power-bracket":
+        bfu_n_power(q)
+    elif u == "n-and-k-from-expansion":
+        bfu_n_and_k(q)
+    elif u == "n-and-k-two-coefficients":
+        bfu_two_coefficients(q)
+    elif u in ("equal-find-k", "ratio-find-k"):
+        bfu_find_k(q)
+    elif u in ("equal-find-n", "ratio-find-n"):
+        bfu_find_n(q)
+    elif u == "two-brackets":
+        bfu_two_brackets(q)
+    elif u == "quotient-coefficient":
+        bfu_quotient(q)
+    elif u == "term-mean":
+        bfu_term_mean(q)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+# ── end binomial-unknown ──
+
+
+SITUATION_CHECKS = {"binomial-unknown": check_binomial_unknown, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,

@@ -4262,6 +4262,64 @@
 				"two options of a test end in each verdict",
 				"the quadratic for P(B) has one root that makes P(A) at most 1, and the quadratic for x has one repeated root"
 			]
+		},
+		"binomial-unknown": {
+			"name": "An expansion with a letter missing, and a coefficient given",
+			"summary": "Draw the letter's value, or n, first, and work every given out from it exactly. The same (u + vx)^n carries a letter in either place, and two coefficients are compared by their neighbouring nCr values.",
+			"quantities": [
+				{
+					"name": "n",
+					"is": "the power",
+					"pick": "4 to 8 on Paper 1 and 6 to 12 on Paper 2, or to 14 where two coefficients are compared"
+				},
+				{
+					"name": "shape, c, flip",
+					"is": "the bracket: (1 + kx), (c + kx), (x + k) or (cx + k), and which part comes first",
+					"pick": "c from 2 to 3 on Paper 1, up to 4 on Paper 2"
+				},
+				{
+					"name": "e, m",
+					"is": "the power of the letter in the term, and of x",
+					"pick": "e of 2 or 4 for two signs, 3 or 5 for one"
+				},
+				{
+					"name": "val, d",
+					"is": "the letter's value, or the d of a surd ±√d",
+					"pick": "a whole number to 5 in size, a fraction from a short list, or d from 2, 3, 5, 6, 7, 10"
+				},
+				{
+					"name": "k, j, ratio",
+					"is": "the known k, the lower power compared, and the ratio of the two coefficients",
+					"pick": "j from 1 to 5, with the ratio's two numbers to 40"
+				},
+				{
+					"name": "N, shift",
+					"is": "n-from-power-bracket: the bracket's power is n + shift = N",
+					"pick": "N from 5 to 9, shift of 2, 1 or −1"
+				},
+				{
+					"name": "a, b, t, n2",
+					"is": "two-brackets: the numbers in the bracket, the brackets giving x, and the second power",
+					"pick": "a a half, a third, 2 or 3, b from 2 to 4, n2 one or two above n"
+				},
+				{
+					"name": "top, R",
+					"is": "quotient-coefficient: nCt ÷ c, and the number before a^(t − 1) in the given coefficient",
+					"pick": "c divides nCt, and R·c is that nCt × a"
+				},
+				{
+					"name": "r, x1, x2",
+					"is": "term-mean: the middle term's r, and the two values of x",
+					"pick": "Paper 1 from the n and r whose quadratic has rational roots, Paper 2 any with two positive roots"
+				}
+			],
+			"clean": [
+				"Paper 1 coefficients are at most 20000 in size, Paper 2 at most 200000000, and a coefficient's denominator is at most 100",
+				"a surd is exact on Paper 1, and 3 s.f. on Paper 2 is clear of a rounding edge",
+				"the two values of term-mean differ to 3 s.f.",
+				"the bank's brackets and the skill's examples are left out",
+				"an even power asks for both signs unless the question says the letter is positive"
+			]
 		}
 	},
 	"skills": {
@@ -4345,6 +4403,7 @@
 		"SL1.8.sum-to-infinity": "Find the sum to infinity of a convergent geometric series",
 		"SL1.8.find-unknown": "Use a given sum to infinity to find r, u_1 or another unknown",
 		"SL1.8.applications": "Apply sums to infinity in context",
+		"SL1.9.find-unknown": "Find an unknown constant or n from a given coefficient",
 		"SL1.9.ncr-pascal": "Evaluate nCr and use Pascal's triangle",
 		"SL1.9.full-expansion": "Expand (a + b)^n fully",
 		"SL1.9.specific-term": "Find a specific term or coefficient in an expansion",
@@ -21944,6 +22003,528 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Binomial expansion: find an unknown from a given coefficient",
+			"summary": "Run the expansion backwards: a coefficient, two coefficients or the first terms are given, and a letter in the bracket, n or x is found. Both signs are kept where the power is even, a negative n is rejected, and a power with n in it goes to the GDC.",
+			"situation": "binomial-unknown",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the bracket and a coefficient, the first terms, or two brackets"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "k-odd-power",
+					"given": [
+						"a bracket with k, and a coefficient that holds an odd power of k"
+					],
+					"asked": "k: one real value",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "k-both-signs",
+					"given": [
+						"a bracket with k, and a coefficient that holds k² or k⁴"
+					],
+					"asked": "the two values of k, whole numbers",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "k-surd-both-signs",
+					"given": [
+						"a bracket with k, and a coefficient that leaves a root"
+					],
+					"asked": "the two values of k: a surd on Paper 1, 3 s.f. on Paper 2",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "k-positive-condition",
+					"given": [
+						"a bracket with k, k > 0, and a coefficient that holds an even power of k"
+					],
+					"asked": "the one positive value of k",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "a-in-bracket",
+					"given": [
+						"(c + ax^p)^n or (cx^p + a)^n with a > 0, and a coefficient"
+					],
+					"asked": "a, a whole number or a fraction",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "n-from-coefficient",
+					"given": [
+						"(1 + kx)^n with k known, and the coefficient of x²"
+					],
+					"asked": "n, from a quadratic with the negative root rejected",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "n-from-power-bracket",
+					"given": [
+						"(c + x^p)^(n + s), and a coefficient"
+					],
+					"asked": "n, which is in the power of c too, so by GDC",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "n-and-k-from-expansion",
+					"given": [
+						"the first terms of (1 + kx)^n, with k² left as a letter"
+					],
+					"asked": "n and k",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "n-and-k-two-coefficients",
+					"given": [
+						"the coefficients of x and x² in (1 + ax)^n"
+					],
+					"asked": "n and a",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "equal-find-k",
+					"given": [
+						"two neighbouring coefficients of (1 + kx)^n are equal, n known and k ≠ 0"
+					],
+					"asked": "k",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "equal-find-n",
+					"given": [
+						"two neighbouring coefficients of (1 + kx)^n or (c + x)^n are equal"
+					],
+					"asked": "n",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "ratio-find-k",
+					"given": [
+						"the ratio of two neighbouring coefficients of (1 + kx)^n, n known"
+					],
+					"asked": "k",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "ratio-find-n",
+					"given": [
+						"the ratio of two neighbouring coefficients of (1 + kx)^n, k known"
+					],
+					"asked": "n",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "two-brackets",
+					"given": [
+						"the same coefficient in (ax^p + b)^n and in a second power of the same bracket"
+					],
+					"asked": "a and b, both positive",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "quotient-coefficient",
+					"given": [
+						"(ax + 1)^n ÷ (cx^p), and a coefficient that holds a power of a"
+					],
+					"asked": "a, with a ≠ 0",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				},
+				{
+					"id": "term-mean",
+					"given": [
+						"(x + c)^n, and that one term is the mean of the terms beside it"
+					],
+					"asked": "the possible values of x, with x ≠ 0",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.find-unknown"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.9.find-unknown",
+					"method": "coefficient-equation",
+					"suits": [
+						"k-odd-power",
+						"k-both-signs",
+						"k-surd-both-signs",
+						"k-positive-condition",
+						"a-in-bracket",
+						"n-from-coefficient",
+						"equal-find-k",
+						"equal-find-n",
+						"ratio-find-k",
+						"ratio-find-n",
+						"quotient-coefficient",
+						"term-mean"
+					],
+					"name": "Write the relevant term and equate its coefficient",
+					"about": "8C2 (kx)² = 28k²x², so 28k² = 112 and k = ±2."
+				},
+				{
+					"skill": "SL1.9.find-unknown",
+					"method": "simultaneous",
+					"suits": [
+						"n-and-k-from-expansion",
+						"n-and-k-two-coefficients",
+						"two-brackets"
+					],
+					"name": "Form two equations from two coefficients",
+					"about": "na = 12 and n(n − 1)a²/2 = 60; eliminate a to get n = 6, then a = 2."
+				},
+				{
+					"skill": "SL1.9.find-unknown",
+					"method": "gdc-search",
+					"suits": [
+						"k-odd-power",
+						"k-both-signs",
+						"k-surd-both-signs",
+						"k-positive-condition",
+						"a-in-bracket",
+						"n-from-coefficient",
+						"n-from-power-bracket",
+						"n-and-k-from-expansion",
+						"n-and-k-two-coefficients",
+						"equal-find-k",
+						"equal-find-n",
+						"ratio-find-k",
+						"ratio-find-n",
+						"two-brackets",
+						"quotient-coefficient",
+						"term-mean"
+					],
+					"name": "Solve or search on the GDC",
+					"about": "Use the solver for the resulting equation, or tabulate nC2 a² against n to find which n works."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If the coefficient of x³ in (1 + kx)⁶ is given, k can have two values.",
+					"answer": "False: the coefficient holds k³, and an odd power has one real root.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If the coefficient of x² in (1 + kx)^n is positive, k must be positive.",
+					"answer": "False: the coefficient holds k², which can't show the sign of k. The coefficient of x, nk, does.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The coefficients of x^r and x^(r + 1) in (1 + x)^n are equal.",
+					"answer": "Sometimes: nCr = nC(r + 1) only when r + 1 = n − r, so n has to be odd and r the middle.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.9.find-unknown#0",
+					"text": "Using the letter to the first power, so the term's power reaches x and not the letter",
+					"as": "distractor",
+					"in": [
+						"k-odd-power",
+						"k-both-signs",
+						"k-surd-both-signs",
+						"k-positive-condition",
+						"a-in-bracket",
+						"n-and-k-two-coefficients",
+						"two-brackets"
+					],
+					"wrong": "the letter taken to its first power in the term, so the coefficient ÷ the number is given as the letter"
+				},
+				{
+					"ref": "SL1.9.find-unknown#1",
+					"text": "Taking only the positive value of a letter that is squared, when the negative one works too",
+					"as": "distractor",
+					"in": [
+						"k-both-signs",
+						"k-surd-both-signs"
+					],
+					"wrong": "the positive value alone"
+				},
+				{
+					"ref": "SL1.9.find-unknown#2",
+					"text": "Keeping the zero root, although the question rules it out",
+					"as": "distractor",
+					"in": [
+						"equal-find-k",
+						"quotient-coefficient",
+						"term-mean"
+					],
+					"wrong": "the zero root listed with the others"
+				},
+				{
+					"ref": "SL1.9.specific-term#0",
+					"text": "Ignoring the sign: treating a negative term raised to an odd power as positive",
+					"as": "distractor",
+					"in": [
+						"k-odd-power",
+						"n-and-k-from-expansion",
+						"n-and-k-two-coefficients"
+					],
+					"wrong": "the size of a negative k or a, with the minus sign lost"
+				},
+				{
+					"ref": "SL1.9.specific-term#1",
+					"text": "Forgetting to raise the other term to its power",
+					"as": "distractor",
+					"in": [
+						"k-odd-power",
+						"k-both-signs",
+						"term-mean"
+					],
+					"wrong": "the number in the bracket used once in each term, so it never reaches its power"
+				},
+				{
+					"text": "Using plus or minus on an odd power, which has one real root",
+					"as": "distractor",
+					"in": [
+						"k-odd-power"
+					],
+					"wrong": "both signs"
+				},
+				{
+					"text": "Using both signs, although the question says the letter is positive",
+					"as": "distractor",
+					"in": [
+						"k-positive-condition",
+						"a-in-bracket"
+					],
+					"wrong": "both signs"
+				},
+				{
+					"text": "Using a square root where the letter is to the fourth power",
+					"as": "distractor",
+					"in": [
+						"k-both-signs",
+						"k-surd-both-signs",
+						"k-positive-condition"
+					],
+					"wrong": "the root of the fourth power taken once only, so k² is given as k"
+				},
+				{
+					"text": "Keeping the negative root of the quadratic in n, though n is a positive integer",
+					"as": "distractor",
+					"in": [
+						"n-from-coefficient"
+					],
+					"wrong": "both roots"
+				},
+				{
+					"text": "Using n for nCr in the term, as if every coefficient had n in front of it",
+					"as": "distractor",
+					"in": [
+						"n-from-coefficient",
+						"n-and-k-from-expansion",
+						"n-and-k-two-coefficients"
+					],
+					"wrong": "the value of nCr given as n"
+				},
+				{
+					"text": "Stopping at the product on top of nCr and giving that as n",
+					"as": "distractor",
+					"in": [
+						"n-from-coefficient"
+					],
+					"wrong": "n(n − 1), or n(n − 1)(n − 2), as n"
+				},
+				{
+					"text": "Giving the power of the bracket as n, when the power is n and a number",
+					"as": "distractor",
+					"in": [
+						"n-from-power-bracket"
+					],
+					"wrong": "the bracket's whole power"
+				},
+				{
+					"text": "Using the ratio of the two coefficients upside down",
+					"as": "distractor",
+					"in": [
+						"equal-find-k",
+						"equal-find-n",
+						"ratio-find-k",
+						"ratio-find-n"
+					],
+					"wrong": "the value the inverted ratio gives"
+				},
+				{
+					"text": "Dividing n by the coefficient of x to find k, which is the wrong way round",
+					"as": "distractor",
+					"in": [
+						"n-and-k-from-expansion"
+					],
+					"wrong": "n ÷ the coefficient of x"
+				},
+				{
+					"text": "Leaving r out of the ratio of two neighbouring nCr values, so n is on top and not n − r",
+					"as": "distractor",
+					"in": [
+						"equal-find-k",
+						"equal-find-n",
+						"ratio-find-k",
+						"ratio-find-n"
+					],
+					"wrong": "(r + 1) ÷ n for k, or n − r for n"
+				},
+				{
+					"text": "Reading the term on top at the power asked, without adding the power of x that the divisor takes off",
+					"as": "distractor",
+					"in": [
+						"quotient-coefficient"
+					],
+					"wrong": "the a from nCm, not from nC(m + p)"
+				},
+				{
+					"text": "Leaving out the number in the divisor",
+					"as": "distractor",
+					"in": [
+						"quotient-coefficient"
+					],
+					"wrong": "the a with no division by c"
+				},
+				{
+					"text": "Stopping at a power of b, without taking its root",
+					"as": "distractor",
+					"in": [
+						"two-brackets"
+					],
+					"wrong": "b²"
+				},
+				{
+					"text": "Using the place of the term as r, when r starts from 0",
+					"as": "distractor",
+					"in": [
+						"term-mean"
+					],
+					"wrong": "the values for the terms one place along"
+				}
+			],
+			"chain": [
+				"write the term with the power of x asked, nCr with each part in brackets and raised",
+				"set its coefficient equal to the number given",
+				"solve for the letter, keeping both signs of an even power unless the question rules one out",
+				"with two unknowns, divide or eliminate, or use the working from each coefficient",
+				"with n in a power, table the coefficient against n on the GDC"
+			],
 			"frequency": 9,
 			"marks": 5,
 			"section": {
@@ -21953,9 +22534,7 @@
 			"paper": {
 				"p1": 4,
 				"p2": 5
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-binomial-term",

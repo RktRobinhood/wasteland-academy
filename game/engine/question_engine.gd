@@ -85,6 +85,7 @@ static var SITUATIONS := {
 	"binomial": [BinomialSituation, BinomialViews],
 	"geometric-sequence": [GeometricSequenceSituation, GeometricSequenceViews],
 	"binomial-expansion": [BinomialExpansionSituation, BinomialExpansionViews],
+	"binomial-unknown": [BinomialUnknownSituation, BinomialUnknownViews],
 	"algebraic-proof": [AlgebraicProofSituation, AlgebraicProofViews],
 	"sampling": [SamplingSituation, SamplingViews],
 	"cumulative-frequency": [CumulativeFrequencySituation, CumulativeFrequencyViews],
