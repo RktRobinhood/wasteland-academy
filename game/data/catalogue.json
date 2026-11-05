@@ -6939,7 +6939,7 @@
 				},
 				{
 					"ref": "SL2.2.domain#0",
-					"text": "Writes x > 3 instead of x ≥ 3 for √(x − 3), excluding a valid endpoint",
+					"text": "Using > instead of ≥ for a root, which leaves out a valid endpoint",
 					"as": "distractor",
 					"in": [
 						"domain-root"
@@ -6948,7 +6948,7 @@
 				},
 				{
 					"ref": "SL2.2.domain#1",
-					"text": "Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift",
+					"text": "Copying the domain of √x without the shift",
 					"as": "distractor",
 					"in": [
 						"domain-root"
@@ -8425,7 +8425,7 @@
 				},
 				{
 					"ref": "SL2.10.solve-gdc#0",
-					"text": "Misses a solution outside the default GDC window",
+					"text": "Looks at too small a range of x and misses a solution",
 					"as": "distractor",
 					"in": [
 						"count-zeros",
@@ -8809,7 +8809,7 @@
 				},
 				{
 					"ref": "SL2.4.intersection#1",
-					"text": "Finds one intersection and misses others hidden outside the GDC window",
+					"text": "Finds one intersection and misses the others",
 					"as": "distractor",
 					"in": [
 						"count-crossings",
@@ -8829,7 +8829,7 @@
 				},
 				{
 					"ref": "SL2.10.solve-gdc#0",
-					"text": "Misses a solution outside the default GDC window",
+					"text": "Looks at too small a range of x and misses a solution",
 					"as": "distractor",
 					"in": [
 						"solve-f-equals-g",
@@ -9618,7 +9618,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL2.10.solve-gdc#0",
-					"text": "Misses a solution outside the default GDC window",
+					"text": "Looks at too small a range of x and misses a solution",
 					"as": "distractor",
 					"in": [
 						"count-roots",
@@ -13823,7 +13823,7 @@
 				},
 				{
 					"ref": "SL2.4.intersection#1",
-					"text": "Finds one intersection and misses others hidden outside the GDC window",
+					"text": "Finds one intersection and misses the others",
 					"as": "distractor",
 					"in": [
 						"count-from-sketch"
@@ -16973,7 +16973,7 @@
 				},
 				{
 					"ref": "SL2.2.domain#1",
-					"text": "Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift",
+					"text": "Copying the domain of √x without the shift",
 					"as": "distractor",
 					"in": [
 						"domain-from-equation"
@@ -17442,7 +17442,7 @@
 				},
 				{
 					"ref": "SL2.11.stretch#0",
-					"text": "Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2)",
+					"text": "Using b as the scale factor of f(bx) (it is 1/b)",
 					"as": "distractor",
 					"in": [
 						"describe-stretch",
@@ -18007,7 +18007,7 @@
 				},
 				{
 					"ref": "SL2.11.composite-transform#1",
-					"text": "Writes 2(f(x) + 3) for 'vertical stretch by 2, then translate up 3' (it is 2f(x) + 3)",
+					"text": "Putting the translation inside the bracket, so the stretch scales it too",
 					"as": "distractor",
 					"in": [
 						"sketch-stretch-shift",
@@ -18120,7 +18120,7 @@
 				},
 				{
 					"ref": "SL2.2.domain#0",
-					"text": "Writes x > 3 instead of x ≥ 3 for √(x − 3), excluding a valid endpoint",
+					"text": "Using > instead of ≥ for a root, which leaves out a valid endpoint",
 					"as": "distractor",
 					"in": [
 						"reflect-translate-rule"
@@ -18129,7 +18129,7 @@
 				},
 				{
 					"ref": "SL2.2.domain#1",
-					"text": "Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift",
+					"text": "Copying the domain of √x without the shift",
 					"as": "distractor",
 					"in": [
 						"reflect-translate-rule"
@@ -27112,7 +27112,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL3.8.solve-basic#0",
-					"text": "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
+					"text": "Stopping at one solution instead of finding them all",
 					"as": "distractor",
 					"in": [
 						"basic-exact",
@@ -40626,7 +40626,7 @@
 				},
 				{
 					"ref": "SL2.10.solve-gdc#0",
-					"text": "Misses a solution outside the default GDC window",
+					"text": "Looks at too small a range of x and misses a solution",
 					"as": "distractor",
 					"in": [
 						"count-from-sketch"
@@ -44857,7 +44857,7 @@
 				},
 				{
 					"ref": "SL2.11.stretch#0",
-					"text": "Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2)",
+					"text": "Using b as the scale factor of f(bx) (it is 1/b)",
 					"as": "distractor",
 					"in": [
 						"inside-opposite"
@@ -45332,7 +45332,7 @@
 				},
 				{
 					"ref": "SL2.11.stretch#0",
-					"text": "Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2)",
+					"text": "Using b as the scale factor of f(bx) (it is 1/b)",
 					"as": "distractor",
 					"in": [
 						"standardise-moves"
@@ -47513,7 +47513,7 @@
 				},
 				{
 					"ref": "SL3.8.solve-basic#0",
-					"text": "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
+					"text": "Stopping at one solution instead of finding them all",
 					"as": "distractor",
 					"in": [
 						"one-answer-only"
@@ -49392,7 +49392,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL2.10.solve-gdc#0",
-					"text": "Misses a solution outside the default GDC window",
+					"text": "Looks at too small a range of x and misses a solution",
 					"as": "distractor",
 					"in": [
 						"solve-by-intersection"
@@ -49455,7 +49455,7 @@
 				},
 				{
 					"ref": "SL2.4.intersection#1",
-					"text": "Finds one intersection and misses others hidden outside the GDC window",
+					"text": "Finds one intersection and misses the others",
 					"as": "distractor",
 					"in": [
 						"limits-first"
@@ -49464,7 +49464,7 @@
 				},
 				{
 					"ref": "SL3.8.graphical#0",
-					"text": "Using a GDC window that cuts off part of the interval and missing solutions",
+					"text": "Looking at only part of the interval and missing solutions",
 					"as": "distractor",
 					"in": [
 						"count-trig-solutions"

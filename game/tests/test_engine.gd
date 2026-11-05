@@ -65,9 +65,8 @@ func test_every_suited_method_has_working() -> void:
 		var t := QuestionEngine.type_of(c.type)
 		var q := QuestionEngine.make({"type": c.type, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": 4})
 		var have: Array = q.solutions.map(func(s): return s.angle)
-		for a in QuestionEngine.angles_for(t, c.unknown):
-			# A method can't be shown on a paper it isn't asked on: no GDC on Paper 1.
-			if a != "any" and q.paper in QuestionEngine.cell_papers(t, c.unknown, c.rep, a):
+		for a in QuestionEngine.angles_on_paper(t, c.unknown, q.paper):
+			if a != "any":
 				check(a in have, "%s: no working for %s" % [c.key, a])
 
 

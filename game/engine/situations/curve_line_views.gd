@@ -329,6 +329,6 @@ func u_count_from_sketch(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary
 	out.generic = [0, 1, 2, 3].filter(func(v): return v != count).map(func(v): return {"v": Q.new(v)})
 	out.methods = {
 		"sketch-and-count": {"result": ans.values, "steps": [seen, alg + (", so the second point is off the window" if hidden else ""), final]},
-		"graph-check": {"result": ans.values, "steps": [alg, "Zoom out on the GDC graph so every meeting point shows.", final]},
+		"graph-check": {"result": ans.values, "steps": [alg, "Sketch both graphs, far enough out to show every meeting point.", final]},
 	}
 	return out

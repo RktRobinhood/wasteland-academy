@@ -3815,8 +3815,8 @@
                 }
               ],
               "misconceptions": [
-                "Writes x > 3 instead of x ≥ 3 for √(x − 3), excluding a valid endpoint",
-                "Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift",
+                "Using > instead of ≥ for a root, which leaves out a valid endpoint",
+                "Copying the domain of √x without the shift",
                 "Describes the y-values (range) when the domain is asked for"
               ],
               "threads": [
@@ -4708,7 +4708,7 @@
               ],
               "misconceptions": [
                 "Gives only the x-coordinate when coordinates are asked for",
-                "Finds one intersection and misses others hidden outside the GDC window",
+                "Finds one intersection and misses the others",
                 "Rounds x early and substitutes, giving an inaccurate y-coordinate"
               ],
               "threads": [
@@ -6627,7 +6627,7 @@
                 }
               ],
               "misconceptions": [
-                "Misses a solution outside the default GDC window",
+                "Looks at too small a range of x and misses a solution",
                 "Rounds intermediate values or gives answers to fewer than 3 s.f.",
                 "Takes ln of both sides of e^x = x + 3 and writes x = ln x + ln 3"
               ],
@@ -7081,7 +7081,7 @@
                 }
               ],
               "misconceptions": [
-                "Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2)",
+                "Using b as the scale factor of f(bx) (it is 1/b)",
                 "Thinks 2f(x) moves the x-intercepts",
                 "Describes a stretch without its direction or scale factor"
               ],
@@ -7148,7 +7148,7 @@
               ],
               "misconceptions": [
                 "Writes f(2x − 3) for 'horizontal stretch by 1/2, then translate 3 right' (it is f(2(x − 3)))",
-                "Writes 2(f(x) + 3) for 'vertical stretch by 2, then translate up 3' (it is 2f(x) + 3)",
+                "Putting the translation inside the bracket, so the stretch scales it too",
                 "Assumes the order of transformations never matters"
               ],
               "threads": [
@@ -9596,7 +9596,7 @@
                 }
               ],
               "misconceptions": [
-                "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
+                "Stopping at one solution instead of finding them all",
                 "Finding a cosine equation's second solution the way you would for sine",
                 "Missing the solutions below zero in the interval"
               ],
@@ -9831,7 +9831,7 @@
                 }
               ],
               "misconceptions": [
-                "Using a GDC window that cuts off part of the interval and missing solutions",
+                "Looking at only part of the interval and missing solutions",
                 "Including the boundary values of k where the line only touches at a maximum or minimum",
                 "Leaving the GDC in degree mode"
               ],

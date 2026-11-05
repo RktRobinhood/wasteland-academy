@@ -109,6 +109,11 @@ static func point(x: Variant, y: Variant) -> String:
 	return "(%s, %s)" % [num(x), num(y)]
 
 
+## Text with one full stop at its end: an answer can be a sentence of its own.
+static func stop(text: String) -> String:
+	return text.rstrip(".") + "."
+
+
 ## The coefficient in front of a bracket or x: "" for 1, "−" for −1, "½", "−½", "2",
 ## "(3/2)".
 static func lead(v: Variant) -> String:

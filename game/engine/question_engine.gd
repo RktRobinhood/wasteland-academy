@@ -395,8 +395,33 @@ static func merge_need(a: Dictionary, b: Dictionary) -> Variant:
 # recipe is told it as need.paper. A situation that sets its own `paper` has the last
 # word, so the badge always matches the numbers. A type with no exam counts (an
 # extension type) gets no need.paper, and its recipe decides as before.
+#
+# Paper 1 has no calculator, so a calculator method never appears on it (FAL-758): a cell
+# asked by one is Paper 2 whatever its views say (cell_papers), and a Paper 1 question
+# drops the others from its worked solutions and its "Another way" (angles_on_paper).
+# Where a cell's views build only Paper 1 numbers, it keeps them and is still Paper 2:
+# a calculator paper can ask exact numbers (_recipe_paper).
+
+## Methods that use a calculator with no GDC in their id or name. gdc_method() finds
+## the rest.
+const CALCULATOR_METHODS := ["difference-sign", "graph-intersect", "intersect-two-graphs", "split-tails", "tvm"]
 
 static var _paper_chance := {}
+
+
+## Whether a method needs a calculator, so Paper 1 can't offer it.
+static func gdc_method(t: Dictionary, unknown: String, method: String) -> bool:
+	# "Any method" needs one when the unknown has no other kind.
+	if method == "any":
+		return angles_for(t, unknown).all(func(a): return a != "any" and gdc_method(t, unknown, a))
+	return method.begins_with("gdc-") or method in CALCULATOR_METHODS \
+		or angle_info(t, unknown, method).get("name", "").contains("GDC")
+
+
+## An unknown's methods (angles_for) that a question on this paper can show.
+static func angles_on_paper(t: Dictionary, unknown: String, paper: int, course: String = "") -> Array:
+	var out := angles_for(t, unknown, course)
+	return out if paper != 1 else out.filter(func(a): return not gdc_method(t, unknown, a))
 
 
 ## The Paper 2 share of a type's exam parts, or -1.0 when the catalogue has none.
@@ -409,8 +434,13 @@ static func paper_share(t: Dictionary) -> float:
 ## The papers a cell can be asked on. Views say (papers(unknown, rep, angle)); where
 ## they don't, a type the exam asks on one paper only gets that paper, a type with no
 ## exam counts gets [] (its recipe decides, and sets the situation's `paper`), and any
-## other gets Paper 1.
+## other gets Paper 1. A calculator method is always Paper 2.
 static func cell_papers(t: Dictionary, unknown: String, rep: String, angle: String) -> Array:
+	return [2] if gdc_method(t, unknown, angle) else view_papers(t, unknown, rep, angle)
+
+
+## The papers a cell's views can build numbers for, calculator methods aside.
+static func view_papers(t: Dictionary, unknown: String, rep: String, angle: String) -> Array:
 	var views = views_for(t)
 	if views != null and views.has_method("papers"):
 		var own: Array = views.papers(unknown, rep, angle)
@@ -460,6 +490,21 @@ static func _pick_paper(t: Dictionary, papers: Array, key: String, forced: Varia
 	return 2 if rng.chance(paper_chance(t)) else 1
 
 
+## The paper to tell a recipe for a question on `paper`: Paper 2 only if every cell in
+## `cells` ([unknown, rep, angle]) has views that build its numbers, else what they do
+## build (0 for a recipe that decides).
+static func _recipe_paper(t: Dictionary, paper: int, cells_asked: Array) -> int:
+	if paper != 2:
+		return paper
+	for c in cells_asked:
+		var own := view_papers(t, c[0], c[1], c[2])
+		if own.is_empty():
+			return 0
+		if not 2 in own:
+			return 1
+	return 2
+
+
 ## Makes the question for a view. Returns {"error": "..."} if the view can't be made.
 static func make(view: Dictionary) -> Dictionary:
 	var v := _resolve(view)
@@ -482,8 +527,9 @@ static func make(view: Dictionary) -> Dictionary:
 			both = both.filter(func(p): return p in cell_papers(v.t, id, v.rep, v.angle))
 		paper = _pick_paper(v.t, both if not both.is_empty() else [1], fam_key, view.get("paper", 0))
 		var fn: Dictionary = fam.need.duplicate()
-		if paper > 0:
-			fn["paper"] = paper
+		var told := _recipe_paper(v.t, paper, fam.unknowns.map(func(id): return [id, v.rep, v.angle]))
+		if told > 0:
+			fn["paper"] = told
 		s = recipe.generate(Seeded.new(fam_key), fn)
 	else:
 		# The method that made the numbers rides along, for recipes whose numbers depend
@@ -495,13 +541,14 @@ static func make(view: Dictionary) -> Dictionary:
 		nd["angle"] = rng_angle
 		var key := "%s|%d" % [cell_key(v.t.id, v.u.id, v.rep, rng_angle), v.seed]
 		paper = _pick_paper(v.t, cell_papers(v.t, v.u.id, v.rep, rng_angle), key, view.get("paper", 0))
-		if paper > 0:
-			nd["paper"] = paper
+		var told := _recipe_paper(v.t, paper, [[v.u.id, v.rep, rng_angle]])
+		if told > 0:
+			nd["paper"] = told
 		s = recipe.generate(rng, nd)
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % cell_key(v.t.id, v.u.id, v.rep, v.angle)}
-	var q := _build(v, s, rng)
-	q.paper = int(s.get("paper", paper if paper > 0 else 1))
+	var calculator := gdc_method(v.t, v.u.id, v.angle) or gdc_method(v.t, v.u.id, rng_angle)
+	var q := _build(v, s, rng, 2 if calculator else _final_paper(s, paper))
 	if rng_angle != v.angle:
 		q.view.same_angle = rng_angle
 	if shared:
@@ -546,16 +593,20 @@ static func make_chain(steps: Array, seed: int) -> Dictionary:
 	for v in vs:
 		both = both.filter(func(p): return p in cell_papers(v.t, v.u.id, v.rep, v.angle))
 	var paper := _pick_paper(vs[0].t, both if not both.is_empty() else [1], chain_key, 0)
-	if paper > 0:
-		need["paper"] = paper
+	var told := paper
+	for v in vs:
+		told = _recipe_paper(v.t, told, [[v.u.id, v.rep, v.angle]])
+	if told > 0:
+		need["paper"] = told
 	var s: Dictionary = SITUATIONS[sit][0].generate(Seeded.new(chain_key), need)
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % chain_key}
+	# A part asked by a calculator method puts the whole chain on Paper 2.
+	var final := 2 if vs.any(func(v): return gdc_method(v.t, v.u.id, v.angle)) else _final_paper(s, paper)
 	var parts: Array = []
 	for i in vs.size():
-		var q := _build(vs[i], s, Seeded.new("%s|part %d" % [chain_key, i]))
+		var q := _build(vs[i], s, Seeded.new("%s|part %d" % [chain_key, i]), final)
 		q.part = i
-		q.paper = int(s.get("paper", paper if paper > 0 else 1))
 		if i > 0:
 			var before: Dictionary = parts[i - 1]
 			q.carried = {"part": part_letter(i - 1), "asked": before.asked, "values": before.answer.values,
@@ -632,8 +683,29 @@ static func _resolve(view: Dictionary) -> Dictionary:
 		"seed": int(view.get("seed", 0)), "marks": int(view.get("marks", t.get("marks", 0)))}
 
 
-## The question for a resolved view on a situation.
-static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
+## A question's paper when no calculator method settles it: the situation's own, else
+## the one picked, else Paper 1.
+static func _final_paper(s: Dictionary, paper: int) -> int:
+	return int(s.get("paper", paper if paper > 0 else 1))
+
+
+## The right answer as feedback names it: the answer, or for an extra format the right
+## option (Line 3, a method, True).
+static func right_text(q: Dictionary) -> String:
+	if q.format in EXTRA_FORMATS:
+		for c in q.choices:
+			if c.correct:
+				return c.text
+	return q.answer.get("short", q.answer_text)
+
+
+## "The answer is ...", with one full stop even when the answer is a sentence.
+static func answer_sentence(q: Dictionary) -> String:
+	return "The answer is " + Fmt.stop(right_text(q))
+
+
+## The question for a resolved view on a situation, on a paper.
+static func _build(v: Dictionary, s: Dictionary, rng: Seeded, paper: int) -> Dictionary:
 	var t: Dictionary = v.t
 	var u: Dictionary = v.u
 	var angle: String = v.angle
@@ -664,13 +736,14 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 		if not order.has(a):
 			order.append(a)
 	for a in order:
-		if b.methods.has(a):
+		if b.methods.has(a) and (paper != 1 or not gdc_method(t, u.id, a)):
 			solutions.append({"angle": a, "name": method_name(t, u.id, a, b, "Worked solution"), "steps": b.methods[a].steps,
 				"result": b.methods[a].result})
 	var choices := _choices(ans, b, rng) if fmt != "pick-the-graph" else _graph_choices(b)
 	var out_view := {"type": t.id, "unknown": u.id, "rep": v.rep, "angle": angle, "format": fmt, "seed": v.seed}
 	var q := {
 		"view": out_view,
+		"paper": paper,
 		"marks": v.marks,
 		"cell": cell_key(t.id, u.id, v.rep, angle),
 		"type_name": t.name, "level": int(u.level),
@@ -775,12 +848,12 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 				if opts.size() < CHOICES and w != claim:
 					opts.append({"text": "False: it should be %s" % w.text, "correct": false, "ref": ""})
 			q.claim = claim.text
-			q.prompt = "%s\nA student's answer: %s. True or false?" % [b.asked, claim.text]
+			q.prompt = "%s\nA student's answer: %s True or false?" % [b.asked, Fmt.stop(claim.text)]
 			var why := misconception_text(t, claim.ref) if not claim.correct else ""
 			if claim.correct:
-				q.reason = "The student is right: the answer is %s." % right.text
+				q.reason = "The student is right: the answer is %s" % Fmt.stop(right.text)
 			else:
-				q.reason = "The answer is %s, not %s." % [right.text, claim.text] + (" The mistake: %s." % why.rstrip(".") if why != "" else "")
+				q.reason = "The answer is %s, not %s" % [right.text.rstrip("."), Fmt.stop(claim.text)] + (" The mistake: %s" % Fmt.stop(why) if why != "" else "")
 		"method-pick":
 			var right_name := method_name(t, v.u.id, v.angle, b, v.angle)
 			var works: Array = v.angles.filter(func(a): return not fails(t, v.u.id, a)).map(func(a): return method_name(t, v.u.id, a, b, a))
@@ -789,6 +862,9 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 				if fails(t, v.u.id, a.method):
 					pool.append({"name": a.name, "why": a.weak.why})
 			pool.append_array(b.get("pick_wrongs", []))
+			# Paper 1 doesn't name a calculator method, even as a wrong option.
+			if q.paper == 1:
+				pool = pool.filter(func(w): return not w.name.contains("GDC"))
 			opts.append({"text": right_name, "correct": true, "ref": ""})
 			var whys: Array = []
 			for w in pool:

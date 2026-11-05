@@ -129,10 +129,10 @@ func test_every_cell_makes_a_question_on_its_situation() -> void:
 ## The GDC types are Paper 2; sketching from exact features is Paper 1 (stats.paper).
 func test_each_type_is_on_its_paper() -> void:
 	for t in CELLS.keys().filter(func(id): return QuestionEngine.type_of(id).source == "exam"):
-		var want := 1 if t == "fn-sketch-from-features" else 2
 		for c in QuestionEngine.cells(false, [t]):
 			var q := _make(t, c.unknown, c.rep, c.angle, 4, "mcq")
-			check_eq(q.paper, want, c.key)
+			var by_hand: bool = t == "fn-sketch-from-features" and not QuestionEngine.gdc_method(QuestionEngine.type_of(t), c.unknown, c.angle)
+			check_eq(q.paper, 1 if by_hand else 2, c.key)
 
 
 func test_every_distractor_misconception_is_an_option() -> void:

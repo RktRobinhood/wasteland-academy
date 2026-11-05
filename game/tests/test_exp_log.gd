@@ -197,7 +197,8 @@ func test_exp_log_pair_paper_2_needs_a_calculator() -> void:
 	var p2 := 0
 	for c in QuestionEngine.cells(false, [t.id]):
 		var papers := QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle)
-		if papers == [1]:
+		# A calculator method is Paper 2 even where the numbers are the Paper 1 ones.
+		if papers == [1] or (QuestionEngine.gdc_method(t, c.unknown, c.angle) and not c.unknown in ExpLogPairViews.PAPER2):
 			continue
 		p2 += 1
 		check(c.rep == "equation" and c.unknown in ExpLogPairViews.PAPER2, c.key)
@@ -223,6 +224,8 @@ func test_exp_log_pair_paper_2_needs_a_calculator() -> void:
 			if not two.eq(three) and not two.is_int():
 				var r := QuestionEngine.mark(typed, {"v": two.key()})
 				check(not r.correct and r.glancing, "%s: %s typed is not glancing" % [c.key, Fmt.sf(v, 2)])
+			if QuestionEngine.gdc_method(t, c.unknown, c.angle):
+				continue
 			var p1 := QuestionEngine.make({"type": t.id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed,
 				"format": "mcq", "paper": 1})
 			check(p1.paper == 1 and p1.answer.get("exact", false), "%s: Paper 1 is not exact" % c.key)
@@ -231,7 +234,7 @@ func test_exp_log_pair_paper_2_needs_a_calculator() -> void:
 	check_eq(p2, 11)
 	var ext := QuestionEngine.type_of("fn-ext-exp-graph")
 	for c in QuestionEngine.cells(false, [ext.id]):
-		check_eq(QuestionEngine.cell_papers(ext, c.unknown, c.rep, c.angle), [1], c.key)
+		check_eq(QuestionEngine.view_papers(ext, c.unknown, c.rep, c.angle), [1], c.key)
 
 
 func test_exp_log_pair_paper_1_numbers_do_not_change() -> void:

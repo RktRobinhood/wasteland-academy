@@ -564,3 +564,21 @@ func test_title_screen_has_play() -> void:
 	var main := (load("res://scenes/main.tscn") as PackedScene).instantiate()
 	check(main.get_node_or_null("Center/Column/Buttons/Play") is Button, "no Play button")
 	main.free()
+
+
+func test_the_method_line_shows_only_where_it_matters() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)))
+	var f: Control = made[1]
+	f.question = QuestionEngine.make({"type": "fn-quadratic-features", "unknown": "vertex-from-general", "rep": "equation",
+		"angle": "complete-square", "seed": 7})
+	check(f.question.exam and f.question.prompt.contains("Method:"), "an exam-style question with the line")
+	check(not f.prompt_text().contains("Method:"), "hidden in a fight")
+	check(f.prompt_text().contains(f.question.asked), "the question stays")
+	f.run.another_way = true
+	check(f.prompt_text().contains("Method:"), "kept on Another way")
+	f.run.another_way = false
+	# The method sets these answers' form: (2x + 1)³ or a polynomial, sin²x or cos 2x.
+	for u in ["linear-square", "rewrite-trig-product"]:
+		f.question = QuestionEngine.make({"type": "t5-indefinite-integral", "unknown": u, "seed": 2})
+		check(f.prompt_text().contains("Method:"), u + " keeps its line")
+	_done(made)

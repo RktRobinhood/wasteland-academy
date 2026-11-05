@@ -181,6 +181,11 @@ func show_view(view: Dictionary) -> void:
 	render_question()
 
 
+## The question's words on the card.
+func prompt_text() -> String:
+	return question.prompt
+
+
 ## Draws `question` on the card: the fight screen (ui/fight.gd) uses this too.
 func render_question() -> void:
 	_clear_card()
@@ -207,7 +212,7 @@ func render_question() -> void:
 	meta_row.add_child(paper_box)
 	card.add_child(meta_row)
 	show_paper()
-	var prompt := UiTheme.math(question.prompt, UiTheme.BODY)
+	var prompt := UiTheme.math(prompt_text(), UiTheme.BODY)
 	prompt.name = "Prompt"
 	card.add_child(prompt)
 
@@ -569,11 +574,11 @@ func _show_feedback(result: Dictionary) -> void:
 		if probe:
 			feedback.text = "Not quite." if question.verdict != "" else "Here is the answer:"
 		else:
-			feedback.text = "Not quite. The answer is %s." % right_text(question)
+			feedback.text = "Not quite. " + QuestionEngine.answer_sentence(question)
 		feedback.add_theme_color_override("font_color", UiTheme.PINK)
 		var why := QuestionEngine.misconception_text(QuestionEngine.type_of(question.view.type), result.get("misconception", ""))
 		if why != "":
-			feedback.text += "\nWatch out: " + why + "."
+			feedback.text += "\nWatch out: " + Fmt.stop(why)
 	# An error-spot, method-pick or true-false-reason question says why.
 	if question.has("reason"):
 		feedback.text += "\n" + question.reason
@@ -585,16 +590,6 @@ func _show_feedback(result: Dictionary) -> void:
 			elif i == _choice:
 				_choice_buttons[i].add_theme_color_override("font_disabled_color", UiTheme.PINK)
 	_show_working()
-
-
-## The right answer as feedback names it: the answer, or for an extra format the right
-## option (Line 3, a method, True).
-static func right_text(q: Dictionary) -> String:
-	if q.format in QuestionEngine.EXTRA_FORMATS:
-		for c in q.choices:
-			if c.correct:
-				return c.text
-	return q.answer.get("short", q.answer_text)
 
 
 ## The worked solution, with a tab per method (or a probe's reveal).
