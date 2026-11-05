@@ -34,7 +34,7 @@ from pathlib import Path
 
 import mpmath
 import sympy as sp
-from sympy.parsing.sympy_parser import (implicit_multiplication_application, parse_expr,
+from sympy.parsing.sympy_parser import (implicit_multiplication_application, parse_expr, rationalize,
                                         standard_transformations)
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -13182,40 +13182,40 @@ def check_line_model(q):
 # worked with the catalogue's mistake. A line of a student's working is right when the solution
 # of the question fits it, which a linear equation can only do if it is the same equation.
 
-LE = "fn-pre-linear-equations#"
-LE_BRACKET, LE_SIGN, LE_FRACTION, LE_DIVIDE = (LE + str(i) for i in range(4))
-LE_LIM = 9
-LE_DEN = 6
+LEQ = "fn-pre-linear-equations#"
+LEQ_BRACKET, LEQ_SIGN, LEQ_FRACTION, LEQ_DIVIDE = (LEQ + str(i) for i in range(4))
+LEQ_LIM = 9
+LEQ_DEN = 6
 
 
-def le_n(t):
+def leq_n(t):
     return sp.Integer(t.replace("−", "-"))
 
 
-def le_side(side):
+def leq_side(side):
     """a and d of ax + d."""
     a, b, d = lc_terms(side)
     need(b == 0, f"a y in {side!r}")
     return a, d
 
 
-def le_x(v):
+def leq_x(v):
     return f"x = {frac_text(v)}"
 
 
-def le_small(*vs):
-    need(all(abs(v) <= LE_LIM for v in vs), f"a coefficient outside ±9 in {vs}")
+def leq_small(*vs):
+    need(all(abs(v) <= LEQ_LIM for v in vs), f"a coefficient outside ±9 in {vs}")
 
 
-def le_sides(line):
+def leq_sides(line):
     need(line.count(" = ") == 1, f"not one equation: {line!r}")
     return [parse(t) for t in line.split(" = ")]
 
 
-def le_read_fractions(t):
+def leq_read_fractions(t):
     f = re.fullmatch(r"x/(\d) \+ x/(\d) = (−?\d+)", t)
     if f:
-        return "sum", int(f.group(1)), int(f.group(2)), le_n(f.group(3)), None
+        return "sum", int(f.group(1)), int(f.group(2)), leq_n(f.group(3)), None
     f = re.fullmatch(r"\(x \+ (\d+)\)/(\d) = \(x − (\d+)\)/(\d)", t)
     need(f is not None, f"can't read {t!r}")
     return "eq", int(f.group(2)), int(f.group(4)), sp.Integer(f.group(1)), sp.Integer(f.group(3))
@@ -13232,81 +13232,81 @@ def check_linear_equation(q):
             need(f is not None and q["asked"] == "Call the number x. Find x.", f"can't read {L[0]!r}")
             a = sp.Integer(2 if f.group(3) == "twice" else f.group(3)[0])
             b = sp.Integer(f.group(1)) * (1 if f.group(2) == "more" else -1)
-            c = le_n(f.group(4))
+            c = leq_n(f.group(4))
         else:
             left, right = L[0].split(" = ")
-            a, b = le_side(left)
-            c = le_n(right)
-        le_small(a, b)
+            a, b = leq_side(left)
+            c = leq_n(right)
+        leq_small(a, b)
         x = (c - b) / a
         need(x.q == 1 and x != 0, f"x = {x} is not whole")
-        want, wr[LE_SIGN] = le_x(x), {le_x((c + b) / a)}
+        want, wr[LEQ_SIGN] = leq_x(x), {leq_x((c + b) / a)}
     elif u == "both-sides":
         left, right = L[0].split(" = ")
-        (a, b), (c, d) = le_side(left), le_side(right)
-        le_small(a, b, c, d)
+        (a, b), (c, d) = leq_side(left), leq_side(right)
+        leq_small(a, b, c, d)
         need(a != c, "no x left")
         x = (d - b) / (a - c)
-        wr[LE_SIGN] = {le_x((d + b) / (a - c))} | ({le_x((d - b) / (a + c))} if a + c != 0 else set())
-        need(x != 0 and abs(x) <= LE_LIM and x.q <= LE_DEN, f"x = {x}")
-        want = le_x(x)
+        wr[LEQ_SIGN] = {leq_x((d + b) / (a - c))} | ({leq_x((d - b) / (a + c))} if a + c != 0 else set())
+        need(x != 0 and abs(x) <= LEQ_LIM and x.q <= LEQ_DEN, f"x = {x}")
+        want = leq_x(x)
     elif u == "brackets":
         f = re.fullmatch(r"(−?\d)\(x ([+−]) (\d)\) = (−?\d)\(x ([+−]) (\d)\)", L[0])
         need(f is not None, f"can't read {L[0]!r}")
-        p, r = le_n(f.group(1)), le_n(f.group(4))
+        p, r = leq_n(f.group(1)), leq_n(f.group(4))
         a, t = sp.Integer(f.group(3)) * (1 if f.group(2) == "+" else -1), sp.Integer(f.group(6)) * (1 if f.group(5) == "+" else -1)
         need(p != r and a != t, "no x left, or the same bracket on both sides")
         x = (r * t - p * a) / (p - r)
-        need(x != 0 and abs(x) <= LE_LIM and x.q <= LE_DEN, f"x = {x}")
-        want = le_x(x)
-        wr[LE_BRACKET] = {le_x((t - a) / (p - r)), le_x((r * t - a) / (p - r))}
+        need(x != 0 and abs(x) <= LEQ_LIM and x.q <= LEQ_DEN, f"x = {x}")
+        want = leq_x(x)
+        wr[LEQ_BRACKET] = {leq_x((t - a) / (p - r)), leq_x((r * t - a) / (p - r))}
     elif u == "fractions":
-        shape, p, r, e1, e2 = le_read_fractions(L[0])
-        need(2 <= p <= LE_DEN and 2 <= r <= LE_DEN and p != r, "the denominators")
+        shape, p, r, e1, e2 = leq_read_fractions(L[0])
+        need(2 <= p <= LEQ_DEN and 2 <= r <= LEQ_DEN and p != r, "the denominators")
         lcm = sp.ilcm(p, r)
         l, w = lcm // p, lcm // r
         if shape == "sum":
-            le_small(e1)
+            leq_small(e1)
             x = e1 * sp.Rational(p * r, p + r)
             slip = e1 / (l + w)
         else:
             x = (p * e2 + r * e1) / sp.Integer(p - r)
             slip = (-e1 - e2) / sp.Integer(l - w)
         need(x.q == 1 and x != 0, f"x = {x}")
-        want, wr[LE_FRACTION] = le_x(x), {le_x(slip)}
+        want, wr[LEQ_FRACTION] = leq_x(x), {leq_x(slip)}
     elif u == "make-y-subject":
         a, b, k = lx_terms(L[0])
-        le_small(a, b)
+        leq_small(a, b)
         c = k / b
         need(abs(b) >= 2 and c.q == 1 and c != 0 and a != 0, f"c = {c}")
-        want, wr[LE_DIVIDE] = lc_sl(-a / b, c), {lc_sl(-a / b, k)}
+        want, wr[LEQ_DIVIDE] = lc_sl(-a / b, c), {lc_sl(-a / b, k)}
     elif u == "missing-number":
         f = re.fullmatch(r"The solution is x = (−?\d+)\.", L[1])
         need(f is not None and q["asked"] == "Find the missing number.", f"can't read {L[1]!r}")
-        x = le_n(f.group(1))
+        x = leq_n(f.group(1))
         left, right = L[0].split(" = ")
         need(L[0].count("□") == 1 and x != 0, "one blank, and a solution that isn't 0")
         if right == "□":
-            a, b = le_side(left)
+            a, b = leq_side(left)
             v = a * x + b
         elif "□x" in left:
             b = lc_terms(left.replace("□x", "0"))[2]
-            v = (le_n(right) - b) / x
+            v = (leq_n(right) - b) / x
             need(v.q == 1, f"□ = {v}")
         else:
             a = lc_terms(left.replace(" + □", ""))[0]
-            v = le_n(right) - a * x
+            v = leq_n(right) - a * x
         want = f"□ = {frac_text(v)}"
     else:
         raise Fail(f"no check for {u}")
     gc_check_common(q, want, wr)
     for sol in q["solutions"]:
         for st in sol["steps"]:
-            le_check_step(st)
+            leq_check_step(st)
     return None, None
 
 
-def le_check_step(st):
+def leq_check_step(st):
     """A worked check is true arithmetic: both sides, and the value they are said to reach."""
     f = re.fullmatch(r"Check: (.+) = (.+), as it should\.", st) or re.fullmatch(r"Check: the left side is (.+) and the right side is (.+), both (.+)\.", st) \
         or re.fullmatch(r"Check: (.+) and (.+) are both (.+)\.", st)
@@ -13314,18 +13314,18 @@ def le_check_step(st):
         need(len({parse(t) for t in f.groups()}) == 1, f"the check {st!r} is not true")
 
 
-def le_spot(q, lines):
-    a, b = le_sides(q["lines"][0])
+def leq_spot(q, lines):
+    a, b = leq_sides(q["lines"][0])
     sol = sp.solve(a - b, X)
     need(len(sol) == 1, "the equation has not one solution")
     for i, line in enumerate(lines):
-        l, r = le_sides(line.removeprefix("So "))
+        l, r = leq_sides(line.removeprefix("So "))
         if sp.simplify((l - r).subs(X, sol[0])) != 0:
             return i
     return None
 
 
-SPOT_CHECKS["fn-pre-linear-equations"] = le_spot
+SPOT_CHECKS["fn-pre-linear-equations"] = leq_spot
 
 
 # ── Lines (FAL-424): fn-pre-simultaneous ─────────────────────
@@ -13725,7 +13725,9 @@ def tm_expr(text):
     t = t.replace("√(", "sqrt(").replace("√x", "sqrt(x)").replace("e^(", "exp(").replace("e^x", "exp(x)")
     t = t.replace("ln(", "log(").replace("ln x", "log(x)").replace("log₂(", "log2(").replace("log₂ x", "log2(x)").replace("sin x", "sin(x)")
     need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the function {text!r}")
-    return parse_expr(t, transformations=TRANSFORMS, local_dict=TC_LOCALS)
+    # Exactly, not as floats: 0.8x + 2.4 is 0 at x = −3, where a float can land just under the
+    # edge of a root's domain, and whether it does depends on the mpmath precision in force.
+    return parse_expr(t, transformations=TRANSFORMS + (rationalize,), local_dict=TC_LOCALS)
 
 
 def tc_moves(text):
@@ -16302,6 +16304,2059 @@ def check_link_vectors(q):
     return None, None
 
 
+# ── sampling (t4-sampling, FAL-726) ──────────────────────────
+# The `sampling` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/sampling.gd. The technique is worked out from what the surveyor does, by
+# the checklist (a fixed interval, groups filled, a random draw), never from the situation.
+
+SM_T = "SL4.1.sampling-technique#"
+SM_B = "SL4.1.bias-reliability#"
+SM_CTX = [("settlers", "camp", ("farmers", "guards", "cooks"), "at the well", "the camp register", "how much water they use"),
+          ("traders", "market", ("salt sellers", "fuel sellers", "scrap dealers"), "at the market gate", "the traders' ledger", "how far they travel"),
+          ("scavengers", "depot", ("day crew", "night crew", "drivers"), "at the depot door", "the crew roster", "how many hours they work"),
+          ("miners", "mine", ("diggers", "haulers", "blasters"), "at the pit head", "the pay book", "how often they fall ill"),
+          ("drivers", "convoy", ("truck drivers", "bike riders", "tanker drivers"), "at the fuel pump", "the convoy log", "how much fuel they burn"),
+          ("medics", "hospital", ("nurses", "surgeons", "porters"), "at the supply tent", "the duty rota", "how many hours they sleep"),
+          ("farmers", "settlement", ("goat keepers", "bean growers", "fish farmers"), "at the grain store", "the land register", "how much they harvest"),
+          ("mechanics", "workshop", ("welders", "wirers", "fitters"), "at the tool hatch", "the workshop roll", "how many repairs they finish")]
+SM_NAMES = {"simple": "Simple random sampling", "systematic": "Systematic sampling", "convenience": "Convenience sampling",
+            "quota": "Quota sampling", "stratified": "Stratified sampling"}
+# A disadvantage is true of the techniques listed: anything else offered is false of the method.
+SM_FLAWS = {"It needs a complete list of everyone in the {}.": {"simple", "systematic", "stratified"},
+            "A repeating pattern in the list could match the interval.": {"systematic"},
+            "The size of each group must be known before starting.": {"stratified", "quota"},
+            "Those who come by first may differ from the rest of the {}.": {"convenience", "quota"},
+            "Nobody is drawn at random within a group, so the surveyor's choices can skew it.": {"quota"},
+            "Only the starting point is chosen at random.": {"systematic"}}
+SM_MAIN = {"simple": "It needs a complete list of everyone in the {}.", "systematic": "A repeating pattern in the list could match the interval.",
+           "stratified": "The size of each group must be known before starting.", "convenience": "Those who come by first may differ from the rest of the {}.",
+           "quota": "Nobody is drawn at random within a group, so the surveyor's choices can skew it."}
+# Where they were asked, and what a mean from those people does.
+SM_LEAN = {"in the queue at the well": "Too high: people in that queue fetch more water than most.",
+           "in the sick bay": "Too low: people in the sick bay walk less than most.",
+           "in the line at the fuel pump": "Too high: people in that line burn more fuel than most.",
+           "on the night watch": "Too low: people on the night watch sleep less than most.",
+           "at the largest stalls": "Too high: people at the largest stalls take more than most.",
+           "in the hunger ward": "Too low: people in the hunger ward eat less than most.",
+           "at their benches at midnight": "Too high: people at their benches at midnight work longer than most.",
+           "in the schoolroom": "Too low: people in the schoolroom are younger than most."}
+SM_WHY = {"thank-you notes from": "He hears only from his own happy customers, and he gains if the figure is high.",
+          "her own test of": "She tested her own jars, and she gains if the figure is high.",
+          "letters from": "Buyers whose filters failed are unlikely to have written in.",
+          "a show of hands from": "People may not say what they think in front of her guards.",
+          "people who called the show": "Only people who feel strongly enough to call are counted.",
+          "before the floods": "The survey is old, and the floods may have changed the ruins."}
+
+
+def sm_ord(k):
+    if 11 <= k % 100 <= 13:
+        return f"{k}th"
+    return f"{k}" + {1: "st", 2: "nd", 3: "rd"}.get(k % 10, "th")
+
+
+def sm_cap(t):
+    return t[0].upper() + t[1:]
+
+
+def sm_camp(line, c):
+    """N and the group sizes from "A camp has 240 settlers: 160 farmers and 80 guards."."""
+    mt = re.fullmatch(rf"A {c[1]} has (\d+) {c[0]}: (.+)\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    G = []
+    for i, part in enumerate(re.split(r", | and (?=\d)", mt.group(2))):
+        m2 = re.fullmatch(rf"(\d+) {c[2][i]}", part)
+        need(m2 is not None, f"can't read the group {part!r}")
+        G.append(int(m2.group(1)))
+    need(sum(G) == int(mt.group(1)), "the groups don't add to the population")
+    need(len(set(G)) == len(G), "two groups are the same size")
+    return int(mt.group(1)), G
+
+
+def sm_table(q, c, cols):
+    """Columns of the groups table as ints, with the Total row checked."""
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "group" and len(rows[0][1]) == cols, "table heads")
+    need([r[0] for r in rows[1:-1]] == list(c[2][:len(rows) - 2]) and rows[-1][0] == "Total", "table groups")
+    out = [[int(r[1][j]) for r in rows[1:-1]] for j in range(cols)]
+    for j in range(cols):
+        need(sum(out[j]) == int(rows[-1][1][j]), "a column doesn't add to its total")
+    return out
+
+
+def sm_scale(q, N, G, n=None):
+    """The interval for a sample of n, with each group whole at that scale."""
+    need(n is not None and n > 0 and N % n == 0, f"{N} is not a whole number of samples of {n}")
+    k = N // n
+    p1 = q["paper"] == 1
+    need(k != n, "the interval is the sample size")
+    need((4 if p1 else 6) <= k <= (20 if p1 else 40) and (10 if p1 else 40) <= n <= (40 if p1 else 150), f"n = {n}, k = {k} is outside the limits")
+    for g in G:
+        need(g % k == 0, f"the group of {g} isn't a whole multiple of {k}")
+    return k
+
+
+def sm_technique(line, c, G):
+    """The checklist on a surveyor's method: (technique, sample size, interval)."""
+    every = re.search(r"every (\d+)(?:st|nd|rd|th) name", line)
+    random = "at random" in line or "random start" in line
+    filled = re.search(rf"(\d+) {c[2][0]} and (\d+) {c[2][1]}", line)
+    if every:
+        k = int(every.group(1))
+        need(random and f"among the first {k} names" in line and every.group(0) == f"every {sm_ord(k)} name", f"can't read the interval in {line!r}")
+        return "systematic", sum(G) // k
+    if filled:
+        a, b = int(filled.group(1)), int(filled.group(2))
+        need(a * G[1] == b * G[0], f"the groups in {line!r} are not in proportion")
+        return ("stratified" if random else "quota"), a + b
+    n = int(re.search(r"\b(\d+)\b", line).group(1))
+    return ("simple" if random else "convenience"), n
+
+
+def sm_size(line, N):
+    mt = re.fullmatch(r"The surveyor wants a sample of (\d+)(%?) of them\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    v = int(mt.group(1))
+    if mt.group(2):
+        need(N * v % 100 == 0, "the percentage isn't a whole number of people")
+        return N * v // 100
+    return v
+
+
+def sm_arith(q):
+    """The working's sums, wherever a step writes one."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for a, b, r in re.findall(r"(\d+) ÷ (\d+) = (\d+)", st):
+                need(int(a) == int(b) * int(r), f"{st!r}")
+            for a, b, r in re.findall(r"(\d+) − (\d+) = (\d+)", st):
+                need(int(a) - int(b) == int(r), f"{st!r}")
+
+
+def check_sampling(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    c = SM_CTX[int(g["ctx"])]
+    who, place, names, spot, lst, topic = c
+    a, b = names[0], names[1]
+    wrongs, want = {}, None
+    if u in ("name-technique", "technique-disadvantage", "is-it-random"):
+        N, G = sm_camp(L[0], c)
+        tech, n = sm_technique(L[1], c, G)
+        sm_scale(q, N, G, n)
+        if u == "name-technique":
+            need(asked == "Which sampling technique is this?", f"asked {asked!r}")
+            want = SM_NAMES[tech]
+            wrongs = {"quota": {SM_T + "0": {SM_NAMES["stratified"]}}, "stratified": {SM_T + "0": {SM_NAMES["quota"]}},
+                      "systematic": {SM_T + "1": {SM_NAMES["simple"]}}, "convenience": {SM_T + "2": {SM_NAMES["simple"]}}, "simple": {}}[tech]
+            need(all(o["text"] in SM_NAMES.values() for o in q["choices"]), "an option is not a technique")
+        elif u == "technique-disadvantage":
+            want = SM_MAIN[tech].format(place)
+            for o in q["choices"]:
+                key = next((f for f in SM_FLAWS if f.format(place) == o["text"]), None)
+                need(key is not None, f"{o['text']!r} is not a known flaw")
+                need(o["correct"] or tech not in SM_FLAWS[key], f"{o['text']!r} is true of {tech}, so it is no wrong option")
+        else:
+            need(asked == "Is this a simple random sample?", f"asked {asked!r}")
+            if tech == "systematic":
+                want = "No: only the start is random, and the interval fixes every pick after it."
+                wrongs = {SM_T + "1": {"Yes: the start is random, so the whole sample is random."}}
+            elif tech == "convenience":
+                want = "No: anyone who doesn't come by has no chance of being chosen."
+                wrongs = {SM_T + "2": {"Yes: whoever comes by is a random person."}}
+            else:
+                need(tech == "simple", f"{tech} isn't asked here")
+                want = f"Yes: every set of {n} people has the same chance."
+                wrongs = {SM_T + "1": {"No: only the start is random."}}
+    elif u == "best-technique":
+        text = " ".join(L)
+        if "There is no list. " in text:
+            mt = re.fullmatch(rf"The (\d+) {who} come by {spot} one at a time during a shift\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            need("spread evenly along the line, from a random start" in L[1], f"{L[1]!r}")
+            want, wrongs = SM_NAMES["systematic"], {SM_T + "1": {SM_NAMES["simple"]}}
+        elif "There is no list," in text:
+            sm_camp(L[0], c)
+            need(f"can only reach people {spot}" in L[1], f"{L[1]!r}")
+            want, wrongs = SM_NAMES["quota"], {SM_T + "0": {SM_NAMES["stratified"]}}
+        elif "must have an equal chance" in text:
+            sm_camp(L[0], c)
+            want, wrongs = SM_NAMES["stratified"], {SM_T + "0": {SM_NAMES["quota"]}}
+        else:
+            need("The groups don't matter here" in text, f"{text!r}")
+            want = SM_NAMES["simple"]
+            wrongs = {SM_T + "1": {SM_NAMES["systematic"]}, SM_T + "2": {SM_NAMES["convenience"]}}
+    elif u == "describe-systematic":
+        N, G = sm_camp(L[0], c)
+        n = sm_size(L[1], N)
+        k = sm_scale(q, N, G, n)
+        want = f"Go down {lst}, pick a random start among the first {k} names, then take every {sm_ord(k)} name."
+        wrongs = {SM_T + "1": {f"Draw {n} names at random from {lst}."}}
+    elif u == "systematic-interval":
+        mt = re.fullmatch(rf"{re.escape(sm_cap(lst))} lists (\d+) {who}\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        N = int(mt.group(1))
+        n = sm_size(L[1], N)
+        k = sm_scale(q, N, [], n)
+        want = f"interval = {k}"
+    elif u == "systematic-member":
+        mt = re.fullmatch(rf"{re.escape(sm_cap(lst))} numbers (\d+) {who} from 1 to (\d+)\.", L[0])
+        m2 = re.fullmatch(r"A systematic sample starts at number (\d+) and takes every (\d+)(?:st|nd|rd|th) name\.", L[1])
+        m3 = re.fullmatch(r"Find the number of the (\d+)(?:st|nd|rd|th) person chosen\.", asked)
+        need(mt and m2 and m3 and mt.group(1) == mt.group(2), "can't read the sample")
+        N, start, k, j = int(mt.group(1)), int(m2.group(1)), int(m2.group(2)), int(m3.group(1))
+        v = start + (j - 1) * k
+        need(1 <= start <= k and v <= N, "the pick is off the list")
+        want = f"number {v}"
+    elif u == "quota-number":
+        mt = re.search(r"A (quota|stratified) sample of (\d+) must match", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        n = int(mt.group(2))
+        if rep == "table":
+            m2 = re.fullmatch(rf"The table shows the (\d+) {who} in a {place}\.", L[0])
+            need(m2 is not None, f"can't read {L[0]!r}")
+            G = sm_table(q, c, 1)[0]
+            N = int(m2.group(1))
+            need(N == sum(G), "the table's total isn't the population")
+        else:
+            N, G = sm_camp(L[0], c)
+        sm_scale(q, N, G, n)
+        m3 = re.fullmatch(r"Find how many (.+) go in the sample\.", asked)
+        i = names.index(m3.group(1))
+        v = sp.Rational(G[i] * n, N)
+        need(v.q == 1, "the number isn't whole")
+        want = f"number = {v}"
+    elif u in ("fair-share", "under-represented"):
+        if rep == "table":
+            mt = re.fullmatch(rf"The table shows a {place} of (\d+) {who} and a sample of (\d+) of them\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            N, n = int(mt.group(1)), int(mt.group(2))
+            G, got = sm_table(q, c, 2)
+            need(sum(G) == N and sum(got) == n, "totals")
+        else:
+            N, G = sm_camp(L[0], c)
+            mt = re.fullmatch(rf"A sample of (\d+) holds (\d+) {names[0]}, (\d+) {names[1]} and (\d+) {names[2]}\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            n, got = int(mt.group(1)), [int(mt.group(i)) for i in (2, 3, 4)]
+            need(sum(got) == n, "the sample doesn't add up")
+        sm_scale(q, N, G, n)
+        fair = [sp.Rational(x * n, N) for x in G]
+        need(all(f.q == 1 for f in fair), "a fair share isn't whole")
+        if u == "fair-share":
+            m3 = re.fullmatch(rf"By how many does the number of (.+) fall short of the mix of the {place}\?", asked)
+            i = names.index(m3.group(1))
+            need(got[i] < fair[i] and got[i] > 0, "the group doesn't fall short")
+            want = f"number = {fair[i] - got[i]}"
+        else:
+            ratio = [sp.Rational(x, f) for x, f in zip(got, fair)]
+            short = [f - x for x, f in zip(got, fair)]
+            i = ratio.index(min(ratio))
+            need(short[i] == max(short) and short.count(short[i]) == 1 and sorted(ratio)[1] > ratio[i], "no one group is clearly the most under-represented")
+            need(got[i] != min(got), "the smallest count gives the answer away")
+            want = sm_cap(names[i])
+            wrongs = {SM_B + "1": {f"None: the sample matches the {place}."}}
+    elif u in ("why-biased", "better-method"):
+        N, G = sm_camp(L[0], c)
+        mt = re.fullmatch(rf"To learn {topic} across the whole {place}, a surveyor draws (\d+) {a} at random and asks only them\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        n = int(mt.group(1))
+        if u == "why-biased":
+            want = f"Only {a} were asked, so the {b} had no chance of being chosen."
+            wrongs = {SM_B + "0": {f"The sample is too small: with more {a} it would have no bias."},
+                      SM_B + "1": {f"Nothing: a random draw always represents the whole {place}."}}
+        else:
+            want = f"Stratified sampling: draw at random from both the {a} and the {b}, in proportion to their numbers."
+            wrongs = {SM_B + "0": {f"Keep to the {a}, and ask {2 * n} of them instead."},
+                      SM_B + "1": {f"Change nothing: a random draw from the {a} is enough."},
+                      SM_T + "2": {f"Ask the first {n} {who} who come by {spot}."}}
+    elif u == "bias-direction":
+        mt = re.fullmatch(r"She asks (\d+) of them, all (.+)\.", L[1])
+        need(mt is not None and mt.group(2) in SM_LEAN, f"can't read {L[1]!r}")
+        n, want = int(mt.group(1)), SM_LEAN[mt.group(2)]
+        wrongs = {SM_B + "0": {f"Neither: asking {n} people cancels out any bias."}, SM_B + "1": {"Neither: a sample is always a fair picture of everyone."}}
+    elif u == "bigger-sample":
+        N, G = sm_camp(L[0], c)
+        mt = re.fullmatch(rf"A surveyor asks (\d+) {a} about {topic}, and none of the {b}\.", L[1])
+        need(mt is not None and L[2] == f"She plans to ask {3 * int(mt.group(1))} {a} instead.", f"can't read {L[1:]!r}")
+        want = f"No: the result gets steadier, but the {b} are still left out."
+        wrongs = {SM_B + "0": {"Yes: a larger sample removes bias."}}
+    elif u == "random-not-perfect":
+        if rep == "table":
+            mt = re.fullmatch(rf"The table shows a {place} of (\d+) {who} and a simple random sample of (\d+) of them\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            N, n = int(mt.group(1)), int(mt.group(2))
+            G, got = sm_table(q, c, 2)
+        else:
+            N, G = sm_camp(L[0], c)
+            mt = re.fullmatch(rf"A simple random sample of (\d+) holds (\d+) {a} and (\d+) {b}\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            n, got = int(mt.group(1)), [int(mt.group(2)), int(mt.group(3))]
+        need(sum(got) == n, "the sample doesn't add up")
+        sm_scale(q, N, G, n)
+        need(all(abs(sp.Rational(x * n, N) - y) >= 2 for x, y in zip(G, got)), "the sample doesn't miss the mix")
+        want = "The draw can be fair and still miss the mix: chance alone moves a sample."
+        wrongs = {SM_B + "1": {f"The draw can't have been random: a random sample always matches the {place}.", f"The {place}'s numbers must be wrong: a sample shows the true mix."}}
+    elif u == "improve-reliability":
+        mt = re.fullmatch(rf"A surveyor wants to learn {topic}, so she draws (\d+) of all the {who} at random\.", L[0])
+        need(mt is not None and 5 <= int(mt.group(1)) <= 12, f"can't read {L[0]!r}")
+        want = "Take a larger random sample, so that one person counts for less."
+        wrongs = {SM_B + "1": {f"Keep the {mt.group(1)}: a random sample is always exact."}}
+    elif u == "source-reliability":
+        mt = re.fullmatch(r"The figure comes from (.+)\.", L[1])
+        key = next((k for k in SM_WHY if k in mt.group(1)), None)
+        need(key is not None, f"can't read {L[1]!r}")
+        want = SM_WHY[key]
+        wrongs = {SM_B + "0": {f"It is reliable: {re.search(r'[0-9]+', L[1]).group()} is enough to remove any bias."}}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs)
+    sm_arith(q)
+    for sol in q["solutions"]:
+        need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
+# ── cumulative-frequency (t4-cumulative-frequency, FAL-726) ──
+# The `cumulative-frequency` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/cumulative_frequency.gd. A curve's readings come from the drawn curve in
+# the question's figure, a table's from its written rows, never from the situation. Every reading
+# must be a corner of the grid, so Paper 1 has one right value.
+
+CF_Q = "SL4.2.cumfreq-quartiles#"
+CF_C = "SL4.2.cumfreq-count#"
+CF_B = "SL4.2.cumfreq-build#"
+CF_SQUARES = 20
+# (who, what the curve shows, the axis, the noun, letter, unit, more than, at most, square across, limit)
+CF_CTX = [("scavengers", "the hours worked last week by {} scavengers", "hours worked", "hours worked", "h", "hours", "worked more than {} hours", "worked at most {} hours", 2, None),
+          ("wells", "the depth of {} wells", "depth (m)", "depth", "d", "m", "are deeper than {} m", "are at most {} m deep", 1, None),
+          ("crates", "the mass of {} salvage crates", "mass (kg)", "mass", "m", "kg", "are heavier than {} kg", "are at most {} kg", 5, None),
+          ("drones", "the flight time of {} drones", "flight time (minutes)", "flight time", "t", "minutes", "flew for more than {} minutes", "flew for at most {} minutes", 10, None),
+          ("patrols", "the distance walked by {} patrols", "distance (km)", "distance", "d", "km", "walked more than {} km", "walked at most {} km", 2, None),
+          ("traders", "the takings of {} traders last week", "takings (caps)", "takings", "c", "caps", "took more than {} caps", "took at most {} caps", 20, None),
+          ("bean plants", "the height of {} bean plants", "height (cm)", "height", "h", "cm", "are taller than {} cm", "are at most {} cm tall", 5, None),
+          ("tanks", "the water held in {} tanks", "water (litres)", "water held", "w", "litres", "hold more than {} litres", "hold at most {} litres", 10, "Each tank holds at most {} litres."),
+          ("trucks", "the load carried by {} trucks", "load (kg)", "load", "l", "kg", "carry more than {} kg", "carry at most {} kg", 20, "Each truck can carry at most {} kg.")]
+
+
+def cf_curve(q, c):
+    """(n, dx, dy, points): the figure, held to the grid its scale line describes."""
+    who, of, axis, noun, sym, unit, more, most, dx0, _ = c
+    gr = q["graph"]
+    need(gr is not None and gr["kind"] == "cumfreq", "no cumulative frequency curve")
+    mt = re.fullmatch(re.escape("The curve shows " + of).replace(r"\{\}", r"(\d+)") + r"\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    n = int(mt.group(1))
+    m2 = re.fullmatch(rf"Each small square is (\d+) {unit} across and (\d+) {who} up\.", q["lines"][1])
+    need(m2 is not None, f"can't read {q['lines'][1]!r}")
+    dx, dy = int(m2.group(1)), int(m2.group(2))
+    need(dx == dx0 and n % CF_SQUARES == 0 and dy * CF_SQUARES == n and 40 <= n <= 240, f"n = {n}, dy = {dy}")
+    need(gr["dx"] == dx and gr["dy"] == dy and gr["y1"] == n and gr["x1"] == CF_SQUARES * dx, "the grid isn't the one the line describes")
+    need(gr["x_name"] == axis and gr["y_name"] == "cumulative frequency", "the axes aren't labelled")
+    pts = [(sp.Rational(str(a)), sp.Rational(str(b))) for a, b in gr["curve"]]
+    need(pts[0][1] == 0 and pts[-1][1] == n, "the curve doesn't run from 0 to n")
+    for (a, b), (e, f) in zip(pts, pts[1:]):
+        need(e > a and f > b, "the curve isn't strictly rising")
+    return n, dx, dy, pts
+
+
+def cf_read_x(pts, y, dx, dy):
+    """The value at height y: a point of the curve on a corner of the grid."""
+    hit = [a for a, b in pts if b == y]
+    need(len(hit) == 1, f"the curve has no point at height {y}")
+    need(hit[0] % dx == 0 and sp.Rational(y) % dy == 0, f"({hit[0]}, {y}) is not on a corner of the grid")
+    return hit[0]
+
+
+def cf_read_y(pts, x, dx, dy):
+    """The height at value x: a point of the curve on a corner of the grid."""
+    hit = [b for a, b in pts if a == x]
+    need(len(hit) == 1, f"the curve has no point at {x}")
+    need(sp.Rational(x) % dx == 0 and hit[0] % dy == 0, f"({x}, {hit[0]}) is not on a corner of the grid")
+    return hit[0]
+
+
+def cf_val(v, c):
+    return f"{dec_text(sp.Rational(v))} {c[5]}"
+
+
+def cf_classes(rows, c, cum_col=None, freq_col=0):
+    """Boundaries and the frequencies from a table's written rows; None for a hidden frequency."""
+    bs, fs = [], []
+    for row in rows[1:]:
+        mt = re.fullmatch(rf"(\d+) < {c[4]} ≤ (\d+)", row[0])
+        need(mt is not None, f"can't read the class {row[0]!r}")
+        a, b = int(mt.group(1)), int(mt.group(2))
+        need(not bs or bs[-1] == a, "the classes don't join up")
+        bs += [a] if not bs else []
+        bs.append(b)
+        fs.append(row[1][freq_col])
+    w = {bs[i + 1] - bs[i] for i in range(len(bs) - 1)}
+    return bs, fs, w
+
+
+def cf_running(fs):
+    out, total = [], 0
+    for f in fs:
+        total += f
+        out.append(total)
+    return out
+
+
+def cf_table(q, c):
+    """(n, boundaries, frequencies, running totals) from a table with both columns shown."""
+    rows = q["table"]["rows"]
+    need(rows[0][1] == ["frequency", "cumulative"], "table heads")
+    bs, fs, w = cf_classes(rows, c)
+    need(len(w) == 1, "the classes aren't equal")
+    fs = [int(f) for f in fs]
+    run = cf_running(fs)
+    need([r[1][1] for r in rows[1:]] == [str(x) for x in run], "the cumulative column isn't the running total")
+    mt = re.fullmatch(re.escape("The table shows " + c[1]).replace(r"\{\}", r"(\d+)") + r"\.", q["lines"][0])
+    need(mt is not None and int(mt.group(1)) == run[-1], "the table's total isn't n")
+    return run[-1], bs, fs, run
+
+
+def cf_interp(bs, fs, run, t):
+    for j, r in enumerate(run):
+        if t <= r:
+            before = r - fs[j]
+            return bs[j] + sp.Rational((t - before) * (bs[j + 1] - bs[j]), fs[j])
+    raise Fail(f"{t} is above the table")
+
+
+def cf_count(bs, fs, run, v):
+    for j in range(len(fs)):
+        if v <= bs[j + 1]:
+            return run[j] - fs[j] + sp.Rational(fs[j] * (v - bs[j]), bs[j + 1] - bs[j])
+    raise Fail(f"{v} is above the table")
+
+
+def cf_clean(v):
+    need((v * 10).q == 1, f"the estimate {v} has more than one decimal")
+    return v
+
+
+def cf_arith(q):
+    """Every sum the working writes, worked again."""
+    num = r"\d+(?:\.\d+)?"
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for a, b, c, d, e, r in re.findall(rf"({num}) \+ \(({num}) − ({num})\) ÷ ({num}) × ({num}) = ({num})", st):
+                need(R(a) + (R(b) - R(c)) / R(d) * R(e) == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"(?<![÷×(] )\b({num}) − ({num}) = ({num})", st):
+                need(R(a) - R(b) == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"\b({num}) \+ ({num}) = ({num})", st):
+                need(R(a) + R(b) == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"\b({num}) ÷ ({num}) = ({num})", st):
+                need(R(a) / R(b) == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"\b({num}) ÷ ({num}) × 100 = ({num})", st):
+                need(R(a) / R(b) * 100 == R(r), f"{st!r}")
+            for a, b, r in re.findall(rf"\b({num}) × ({num}) = ({num})", st):
+                if "÷" not in st:
+                    need(R(a) * R(b) == R(r), f"{st!r}")
+
+
+def cf_near_curve(curve, want):
+    return any(abs(a - want[0]) < 1e-9 and abs(b - want[1]) < 1e-9 for a, b in curve)
+
+
+def cf_pick(q, c):
+    """Pick the curve: each card holds the points its mistake says, and only the right one is right."""
+    rows = q["table"]["rows"]
+    need(rows[0][1] == ["frequency"], "table heads")
+    bs, fs, w = cf_classes(rows, c)
+    fs = [int(f) for f in fs]
+    run = cf_running(fs)
+    sets = {"": [(bs[0], 0)] + [(bs[i + 1], run[i]) for i in range(len(fs))],
+            "midpoints": [(bs[0], 0)] + [(sp.Rational(bs[i] + bs[i + 1], 2), run[i]) for i in range(len(fs))],
+            "frequencies": [(bs[0], 0)] + [(bs[i + 1], fs[i]) for i in range(len(fs))],
+            "lower": [(bs[i], run[i]) for i in range(len(fs))]}
+    refs = {"": "", "midpoints": CF_B + "0", "frequencies": CF_B + "1", "lower": ""}
+    need(sorted(o["mistake"] for o in q["choices"]) == sorted(sets), "the four cards aren't the four curves")
+    want = None
+    for o, gr in zip(q["choices"], q["graphs"]):
+        need(o["ref"] == refs[o["mistake"]], f"the {o['mistake']} graph is mistagged")
+        for p in sets[o["mistake"]]:
+            need(cf_near_curve(gr["curves"][0], (float(p[0]), float(p[1]))), f"the {o['mistake']!r} card misses {p}")
+        need(gr["x_name"] == c[4] and gr["y_name"] == "cf", "the card's axes aren't named")
+        if o["correct"]:
+            want = o["text"]
+    need(q["answer_text"] == want and want is not None, "the right graph isn't the answer")
+    return want
+
+
+def check_cumulative_frequency(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 1, "cumulative frequency is Paper 1")
+    c = CF_CTX[int(g["ctx"])]
+    who, of, axis, noun, sym, unit, more, most, dx0, limit = c
+    wrongs, want = {}, None
+    spread = ", taking each class as evenly spread."
+    if u == "pick-curve":
+        want = cf_pick(q, c)
+        gc_check_common(q, want, {CF_B + "0": {o["text"] for o in q["choices"]}, CF_B + "1": {o["text"] for o in q["choices"]}})
+        return None, None
+    if rep == "graph":
+        n, dx, dy, pts = cf_curve(q, c)
+        rx = lambda y: cf_read_x(pts, y, dx, dy)
+        ry = lambda x: cf_read_y(pts, x, dx, dy)
+        v_more = re.escape(more).replace(r"\{\}", r"(\d+)")
+        if u == "median-from-graph":
+            need(asked == f"Use the curve to estimate the median {noun}.", f"asked {asked!r}")
+            med = rx(sp.Rational(n, 2))
+            need(med != 10 * dx, "the median is at the middle of the axis")
+            want = "median = " + cf_val(med, c)
+            wrongs = {CF_Q + "0": {"median = " + cf_val(10 * dx, c)}}
+        elif u == "quartile-from-graph":
+            low = "lower quartile" in asked
+            want = ("Q1 = " if low else "Q3 = ") + cf_val(rx(sp.Rational(n, 4) * (1 if low else 3)), c)
+        elif u == "iqr-from-graph":
+            want = "IQR = " + cf_val(rx(sp.Rational(3 * n, 4)) - rx(sp.Rational(n, 4)), c)
+            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)}}
+        elif u == "percentile-from-graph":
+            k = int(re.match(r"Use the curve to estimate the (\d+)", asked).group(1))
+            need(n != 100, "k and k% of n are the same when n is 100")
+            want = "percentile = " + cf_val(rx(sp.Rational(k * n, 100)), c)
+            wrongs = {CF_Q + "2": {"percentile = " + cf_val(rx(k), c)}}
+        elif u == "range-from-graph":
+            want = "range = " + cf_val(pts[-1][0] - pts[0][0], c)
+        elif u in ("count-below", "count-above", "percent-above", "scale-to-population"):
+            if u == "count-below":
+                mt = re.fullmatch(rf"Estimate how many {who} " + re.escape(most).replace(r"\{\}", r"(\d+)") + r"\.", asked)
+            elif u == "count-above":
+                mt = re.fullmatch(rf"Estimate how many {who} {v_more}\.", asked)
+            elif u == "percent-above":
+                mt = re.fullmatch(rf"Estimate the percentage of the {who} that {v_more}\.", asked)
+            else:
+                mt = re.fullmatch(rf"Estimate how many of all \d+ {who} {v_more}\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            f = ry(int(mt.group(1)))
+            if u == "count-below":
+                want = f"number = {f}"
+            elif u == "count-above":
+                want = f"number = {n - f}"
+                wrongs = {CF_C + "0": {f"number = {f}"}}
+            elif u == "percent-above":
+                p = sp.Rational((n - f) * 100, n)
+                need(p.q == 1, "the percentage isn't whole")
+                want = f"percentage = {p}%"
+                wrongs = {CF_C + "0": {f"percentage = {100 - p}%"}}
+            else:
+                m2 = re.fullmatch(rf"They were chosen at random from (\d+) {who}\.", L[2])
+                need(m2 is not None, f"can't read {L[2]!r}")
+                whole = int(m2.group(1))
+                need(whole % n == 0 and f"all {whole} " in asked, "the whole group isn't a multiple of the sample")
+                want = f"number = {(n - f) * whole // n}"
+                wrongs = {CF_C + "0": {f"number = {f * whole // n}"}}
+        elif u == "count-between":
+            mt = re.fullmatch(rf"Estimate how many {who} are between (\d+) {unit} and (\d+) {unit}\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            want = f"number = {ry(int(mt.group(2))) - ry(int(mt.group(1)))}"
+        elif u == "percentile-of-value":
+            mt = re.fullmatch(rf"Which percentile of the {noun} is (\d+) {unit}\?", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            p = sp.Rational(ry(int(mt.group(1))) * 100, n)
+            need(p.q == 1, "the percentile isn't whole")
+            want = f"percentile = {p}"
+        elif u == "cutoff-top":
+            mt = re.fullmatch(rf"The (\d+) {who} with the highest {noun} are set aside\.", L[2])
+            need(mt is not None, f"can't read {L[2]!r}")
+            t = int(mt.group(1))
+            want = f"{noun} = " + cf_val(rx(n - t), c)
+            wrongs = {CF_C + "1": {f"{noun} = " + cf_val(rx(t), c)}}
+        elif u == "cutoff-percent":
+            mt = re.fullmatch(r"(\d+)% of the " + who + " " + re.escape(more).replace(r"\{\}", "k") + r"\. Find k\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            t = sp.Rational(int(mt.group(1)) * n, 100)
+            want = "k = " + cf_val(rx(n - t), c)
+            wrongs = {CF_C + "1": {"k = " + cf_val(rx(t), c)}}
+        elif u == "share-of-limit":
+            need(limit is not None and L[2] == limit.format(gr_x1 := q["graph"]["x1"]), f"can't read {L[2]!r}")
+            mt = re.fullmatch(rf"Estimate how many {who} are above (\d+)% of that limit\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            f = ry(sp.Rational(int(mt.group(1)) * gr_x1, 100))
+            need(0 < f < n, "nobody or everybody is above it")
+            want = f"number = {n - f}"
+            wrongs = {CF_C + "0": {f"number = {f}"}}
+        elif u == "frequency-from-graph":
+            mt = re.fullmatch(rf"Find the number of {who} in the class (\d+) < {sym} ≤ (\d+)\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            a, b = ry(int(mt.group(1))), ry(int(mt.group(2)))
+            want = f"number = {b - a}"
+            wrongs = {CF_B + "1": {f"number = {b}"}}
+        elif u == "p-q-from-graph":
+            need(q["asked"] == "Use the curve to find p and q.", f"asked {asked!r}")
+            rows = q["table"]["rows"]
+            bs, fs, w = cf_classes(rows, c)
+            need(sorted(x for x in fs if x in "pq") == ["p", "q"], "the table doesn't hide p and q")
+            vals, tops = {}, {}
+            for j, f in enumerate(fs):
+                got = ry(bs[j + 1]) - (ry(bs[j]) if j else 0)
+                if j == 0:
+                    need(bs[0] == pts[0][0], "the first class doesn't start where the curve does")
+                if f in "pq":
+                    vals[f], tops[f] = got, ry(bs[j + 1])
+                else:
+                    need(int(f) == got, f"the table's {f} isn't what the curve gives ({got})")
+            want = f"p = {vals['p']}, q = {vals['q']}"
+            wrongs = {CF_B + "1": {f"p = {tops['p']}, q = {tops['q']}"}}
+        else:
+            raise Fail(f"no check for {u}")
+    elif u == "frequency-from-cf":
+        rows = q["table"]["rows"]
+        vals = {}
+        for row in rows[1:]:
+            mt = re.fullmatch(rf"{sym} ≤ (\d+)", row[0])
+            need(mt is not None, f"can't read {row[0]!r}")
+            vals[int(mt.group(1))] = int(row[1][0])
+        keys = list(vals)
+        need(all(vals[a] < vals[b] for a, b in zip(keys, keys[1:])) and vals[keys[0]] == 0, "the totals don't rise from 0")
+        mt = re.fullmatch(rf"Find the number of {who} in the class (\d+) < {sym} ≤ (\d+)\.", asked)
+        a, b = vals[int(mt.group(1))], vals[int(mt.group(2))]
+        need(a > 0, "the class is the first one")
+        want = f"number = {b - a}"
+        wrongs = {CF_B + "1": {f"number = {b}"}}
+    elif u == "cf-entry":
+        rows = q["table"]["rows"]
+        need(asked == "Find the cumulative frequency marked ?.", f"asked {asked!r}")
+        fs = [int(r[1][0]) for r in rows[1:]]
+        cum = [r[1][1] for r in rows[1:]]
+        j = cum.index("?")
+        run = cf_running(fs)
+        need(j >= 1 and all(cum[i] == str(run[i]) for i in range(j)) and all(x == "–" for x in cum[j + 1:]), "the shown totals are wrong")
+        want = f"? = {run[j]}"
+        wrongs = {CF_B + "1": {f"? = {fs[j]}"}}
+    elif u == "last-frequency":
+        rows = q["table"]["rows"]
+        fs = [r[1][0] for r in rows[1:]]
+        n = int(rows[-1][1][1])
+        need(fs.count("p") == 1, "no p")
+        want = f"p = {n - sum(int(f) for f in fs if f != 'p')}"
+    else:
+        n, bs, fs, run = cf_table(q, c)
+        val_more = re.escape(more).replace(r"\{\}", r"(\d+)")
+        if u == "median-from-table":
+            need(asked == f"Estimate the median {noun}{spread}", f"asked {asked!r}")
+            want = "median = " + cf_val(cf_clean(cf_interp(bs, fs, run, sp.Rational(n, 2))), c)
+            wrongs = {CF_Q + "0": {"median = " + cf_val(sp.Rational(bs[0] + bs[-1], 2), c)}}
+        elif u == "quartile-from-table":
+            low = "lower quartile" in asked
+            want = ("Q1 = " if low else "Q3 = ") + cf_val(cf_clean(cf_interp(bs, fs, run, sp.Rational(n, 4) * (1 if low else 3))), c)
+        elif u == "iqr-from-table":
+            a, b = cf_interp(bs, fs, run, sp.Rational(n, 4)), cf_interp(bs, fs, run, sp.Rational(3 * n, 4))
+            want = "IQR = " + cf_val(cf_clean(b - a), c)
+            wrongs = {CF_Q + "1": {"IQR = " + cf_val(sp.Rational(n, 2), c)}}
+        elif u == "percentile-from-table":
+            k = int(re.match(r"Estimate the (\d+)", asked).group(1))
+            need(n != 100, "k and k% of n are the same when n is 100")
+            want = "percentile = " + cf_val(cf_clean(cf_interp(bs, fs, run, sp.Rational(k * n, 100))), c)
+            wrongs = {CF_Q + "2": {"percentile = " + cf_val(cf_interp(bs, fs, run, k), c)}}
+        elif u == "count-below-table":
+            mt = re.fullmatch(rf"Estimate how many {who} " + re.escape(most).replace(r"\{\}", r"(\d+)") + re.escape(spread), asked)
+            need(mt is not None, f"can't read {asked!r}")
+            f = cf_count(bs, fs, run, int(mt.group(1)))
+            need(f.q == 1, "the count isn't whole")
+            want = f"number = {f}"
+        elif u == "count-above-table":
+            mt = re.fullmatch(rf"Estimate how many {who} {val_more}" + re.escape(spread), asked)
+            need(mt is not None, f"can't read {asked!r}")
+            f = cf_count(bs, fs, run, int(mt.group(1)))
+            need(f.q == 1, "the count isn't whole")
+            want = f"number = {n - f}"
+            wrongs = {CF_C + "0": {f"number = {f}"}}
+        elif u == "count-between-table":
+            mt = re.fullmatch(rf"Estimate how many {who} are between (\d+) {unit} and (\d+) {unit}" + re.escape(spread), asked)
+            need(mt is not None, f"can't read {asked!r}")
+            a, b = cf_count(bs, fs, run, int(mt.group(1))), cf_count(bs, fs, run, int(mt.group(2)))
+            need(a.q == 1 and b.q == 1 and b > a, "the counts aren't whole")
+            want = f"number = {b - a}"
+        elif u == "cutoff-table":
+            mt = re.match(rf"The (\d+) {who} with the highest {noun} are set aside\.", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            t = int(mt.group(1))
+            want = f"{noun} = " + cf_val(cf_clean(cf_interp(bs, fs, run, n - t)), c)
+            wrongs = {CF_C + "1": {f"{noun} = " + cf_val(cf_interp(bs, fs, run, t), c)}}
+        elif u == "plot-point":
+            mt = re.fullmatch(rf"Which point is plotted on the curve for the class (\d+) < {sym} ≤ (\d+)\?", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            a, b = int(mt.group(1)), int(mt.group(2))
+            j = bs.index(b) - 1
+            want = f"({b}, {run[j]})"
+            wrongs = {CF_B + "0": {f"({dec_text(sp.Rational(a + b, 2))}, {run[j]})"}, CF_B + "1": {f"({b}, {fs[j]})"}}
+        elif u == "curve-start":
+            need(bs[0] > 0, "the curve starts at the origin, so (0, 0) is no wrong option")
+            want = f"({bs[0]}, 0)"
+        else:
+            raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs)
+    cf_arith(q)
+    return None, None
+
+
+# ── arc-sector (t3-arc-sector, FAL-726) ──────────────────────
+# The `arc-sector` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/arc_sector.gd. r, θ, the arc, the area and the perimeter are read back
+# from the lines or the figure, and each answer is worked out from those alone, exactly, or to
+# 40 digits where it holds a root. A figure is held to its real angle.
+
+AS_SKILL = "SL3.4."
+AS_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+AS_DEN = 24
+AS_R1 = (2, 12)
+AS_DEG_P1 = {30, 45, 60, 90, 120, 135, 150, 210, 225, 240, 270, 300}
+
+
+def as_val(text):
+    """An exact value as the game writes it: "12 + 3π", "9π − 4.5", "5π/6", "7.5", "1/6"."""
+    t = text.strip().replace("−", "-")
+    t = re.sub(r"(\d)π", r"\1*pi", t).replace("π", "pi")
+    return sp.nsimplify(sp.sympify(t, rational=True), rational=True) if "pi" not in t else sp.sympify(t, rational=True)
+
+
+def as_pair(v):
+    """a and b of a + bπ."""
+    e = sp.expand(v)
+    b = e.coeff(sp.pi)
+    a = e - b * sp.pi
+    need(a.is_Rational and b.is_Rational, f"{v} is not a + bπ")
+    return a, b
+
+
+def as_pi(b):
+    n, d = abs(b.p), b.q
+    return ("−" if b < 0 else "") + ("π" if n == 1 else f"{n}π") + ("" if d == 1 else f"/{d}")
+
+
+def as_exact(v):
+    a, b = as_pair(v)
+    if b == 0:
+        return dec_text(a)
+    if a == 0:
+        return as_pi(b)
+    if a < 0:
+        return f"{as_pi(b)} − {dec_text(-a)}"
+    return f"{dec_text(a)} + {as_pi(b)}"
+
+
+def as_text(label, v, tail, paper):
+    return label + (as_exact(v) if paper == 1 else rg_s(sp.N(v, 40))) + tail
+
+
+def as_clear(x):
+    v = abs(num(x))
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= AS_EDGE
+
+
+def as_read(q):
+    """r, θ in radians and as written, the arc, the area and the perimeter, and the unit."""
+    L, rep = q["lines"], q["view"]["rep"]
+    k = {"r": None, "th": None, "tt": None, "form": None, "l": None, "a": None, "p": None, "unit": " cm"}
+
+    def angle(text, deg):
+        k["tt"] = text
+        k["form"] = "deg" if deg else ("pi" if "π" in text else "rad")
+        v = as_val(text)
+        k["th"] = v * sp.pi / 180 if deg else v
+        if deg:
+            k["deg"] = v
+
+    def plain(text):
+        return as_val(text)
+
+    if rep == "equation":
+        for ln in L:
+            if ln == "Sector OAB has centre O.":
+                continue
+            m = re.fullmatch(r"r = (\S+) cm", ln)
+            if m:
+                k["r"] = plain(m.group(1))
+                continue
+            m = re.fullmatch(r"θ = (\S+?)(°| radians)", ln)
+            if m:
+                angle(m.group(1), m.group(2) == "°")
+                continue
+            m = re.fullmatch(r"(arc AB|area|perimeter) = (.+?) cm(²?)", ln)
+            need(m is not None, f"can't read {ln!r}")
+            k[{"arc AB": "l", "area": "a", "perimeter": "p"}[m.group(1)]] = plain(m.group(2))
+        return k
+    if rep == "words":
+        text = " ".join(L)
+        m = re.search(r"has a reach of ([\d.]+) (cm|km|m)\b", text)
+        if m:
+            k["r"] = plain(m.group(1))
+            k["unit"] = " " + m.group(2)
+        m = re.search(r"(?:with an angle of|a gap with an angle of) (\S+?)(°| radians) at the centre", text)
+        if m:
+            angle(m.group(1), m.group(2) == "°")
+        for key, pat in (("l", r"The curved edge of the sector is (.+?) (cm|km|m) long\."), ("a", r"The area of the sector is (.+?) (cm|km|m)²\."),
+                         ("p", r"The perimeter of the sector is (.+?) (cm|km|m)\.")):
+            m = re.search(pat, text)
+            if m:
+                k[key] = plain(m.group(1))
+                k["unit"] = " " + m.group(2)
+        return k
+    g = q["graph"]
+    if q["view"]["unknown"] == "segments-theta":
+        return k
+    need(g is not None and g["kind"] == "sector", "no sector drawn")
+    k["fig"] = g
+    if g["r_label"] not in ("", "r"):
+        k["r"] = plain(g["r_label"].removesuffix(" cm"))
+    if g["angle_label"] not in ("", "θ"):
+        t = g["angle_label"]
+        angle(t.rstrip("°"), t.endswith("°"))
+    if g["arc_label"]:
+        k["l"] = plain(g["arc_label"].removesuffix(" cm"))
+    for ln in L:
+        m = re.fullmatch(r"The area of the sector is (.+) cm²\.", ln)
+        if m:
+            k["a"] = plain(m.group(1))
+        m = re.fullmatch(r"The perimeter of the sector is (.+) cm\.", ln)
+        if m:
+            k["p"] = plain(m.group(1))
+    return k
+
+
+def as_figure(k, th):
+    """The sector is drawn to the angle of the question."""
+    g = k.get("fig")
+    if g is not None:
+        need(abs(sp.Float(g["theta"], 30) - sp.N(th, 30)) < sp.Rational(1, 10**6), f"the figure's angle {g['theta']} is not {th}")
+
+
+def as_limits(q, k):
+    """Paper 1 numbers are simple; Paper 2 numbers are to 1 or 2 places."""
+    r, paper = k["r"], q["paper"]
+    if r is not None:
+        if paper == 1:
+            need(r.q == 1 and AS_R1[0] <= r <= AS_R1[1], f"r = {r} on Paper 1")
+        else:
+            need((r * 10).q == 1, f"r = {r} is not to 1 d.p.")
+    th = k["th"]
+    if th is not None:
+        need(0 < sp.N(th) < 2 * sp.pi, f"θ = {th}")
+        if paper == 1 and k["form"] == "deg":
+            need(k["deg"] in AS_DEG_P1, f"{k['deg']}° is no landmark")
+        if paper == 2 and k["form"] == "deg":
+            need(k["deg"] % 15 != 0, f"{k['deg']}° needs no calculator")
+
+
+def as_eval(text):
+    t = text.strip()
+    if not t or not re.search(r"\d", t):
+        return None
+    t = t.replace("½", "(1/2)").replace("²", "**2").replace("×", "*").replace("÷", "/").replace("−", "-")
+    t = re.sub(r"√(\d+(?:\.\d+)?)", r"sqrt(\1)", t)
+    t = re.sub(r"(\d+(?:\.\d+)?)?π(?:/(\d+))?", lambda m: f"(({m.group(1) or 1})*pi/{m.group(2) or 1})", t)
+    t = re.sub(r"(\d|\))\s*\(", r"\1*(", t)
+    try:
+        return sp.sympify(t, rational=True)
+    except (sp.SympifyError, SyntaxError, TypeError):
+        return None
+
+
+def as_working(q):
+    """Each "expr = value" whose two sides are plain numbers holds for the figures shown."""
+    n = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            parts = st.split(" = ")
+            for left, right in zip(parts, parts[1:]):
+                lm = re.search(r"[\d.π×÷+−/²()½√ °]+$", left)
+                rm = re.match(r"[\d.π/ +−×÷²()½]+", right.strip())
+                if lm is None or rm is None:
+                    continue
+                lt = lm.group().replace("°", "")
+                if not re.search(r"[×÷+−/²½√π]", lt):
+                    continue
+                lv, rv = as_eval(lt), as_eval(rm.group().rstrip(" +−"))
+                if lv is None or rv is None:
+                    continue
+                shown = rm.group().strip()
+                if q["paper"] == 1 or re.search(r"[π/×÷²]", shown):
+                    ok = abs(sp.N(lv - rv, 30)) < sp.Rational(1, 10**20)
+                else:
+                    d = len(shown.split(".")[1]) if "." in shown else 0
+                    ok = abs(sp.N(lv - rv, 30)) <= sp.Rational(6, 10) * sp.Rational(1, 10**d)
+                need(ok, f"{sol['name']}: in {st!r}, {lt.strip()} is {sp.N(lv, 10)}, not {shown}")
+                n += 1
+    return n
+
+
+def as_plate_root(goal, deg=False):
+    """θ with θ − sin θ = goal on (0, 2π), by halving (it only rises)."""
+    lo, hi = mpmath.mpf(0), 2 * mpmath.pi
+    for _ in range(140):
+        mid = (lo + hi) / 2
+        if mid - mpmath.sin(mpmath.radians(mid) if deg else mid) < goal:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2
+
+
+def check_arc_sector(q):
+    with mpmath.workdps(40):
+        return as_check(q)
+
+
+def as_check(q):
+    u, L, rep, asked, paper = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    k = as_read(q)
+    r, th, l, a, p, un = k["r"], k["th"], k["l"], k["a"], k["p"], k["unit"]
+    un2 = un + "²"
+    wr = {}
+    pi = sp.pi
+
+    def W(ref, label, tail, v):
+        if sp.N(v) > 0:
+            wr.setdefault(AS_SKILL + ref, set()).add(as_text(label, v, tail, paper))
+
+    label, tail, v = None, "", None
+    if u == "deg-to-rad":
+        d = k["deg"]
+        label, v = "θ = ", d * pi / 180
+        need(paper == 2 or (d % 30 == 0 or d % 45 == 0), f"{d}° is no landmark")
+        if paper == 1:
+            wr[AS_SKILL + "convert#0"] = {"θ = " + sig3(d * 180 / pi)}
+            wr[AS_SKILL + "convert#2"] = {"θ = " + sig3(v)}
+        else:
+            W("convert#0", label, "", d * 180 / pi)
+    elif u == "rad-to-deg":
+        label, tail, v = "θ = ", "°", th * 180 / pi
+        if paper == 1:
+            need(k["form"] == "pi", "Paper 1 converts a multiple of π")
+            wr[AS_SKILL + "convert#1"] = {f"θ = {sig3(th)}°"}
+        else:
+            wr[AS_SKILL + "convert#1"] = {f"θ = {sig3(th)}°"}
+    elif u == "arc-length":
+        label, tail, v = "l = ", un, r * th
+        if k["form"] == "deg":
+            W("arc-length#0", label, tail, r * k["deg"])
+    elif u == "perimeter":
+        label, tail, v = "P = ", un, 2 * r + r * th
+        W("arc-length#1", label, tail, r * th)
+        if k["form"] == "deg":
+            W("arc-length#0", label, tail, 2 * r + r * k["deg"])
+    elif u == "theta-from-arc":
+        label, v = "θ = ", l / r
+    elif u == "r-from-arc":
+        label, tail, v = "r = ", un, l / th
+    elif u == "r-from-perimeter":
+        label, tail, v = "r = ", un, p / (2 + th)
+        W("arc-length#1", label, tail, p / th)
+    elif u == "theta-from-perimeter":
+        label, v = "θ = ", (p - 2 * r) / r
+        W("arc-length#1", label, "", p / r)
+    elif u == "major-arc":
+        label, tail, v = "l = ", un, r * (2 * pi - th)
+        need(sp.N(th) < sp.N(pi), "the given angle is not the minor angle")
+        W("arc-length#2", label, tail, r * th)
+    elif u == "r-in-terms-of-theta":
+        if rep == "words":
+            mt = re.search(r"is ([\d.]+) (cm|km|m) long", L[0])
+        else:
+            mt = re.fullmatch(r"([\d.]+) (cm)", k["fig"]["arc_label"])
+        need(mt is not None, "can't read the arc")
+        ls = mt.group(1)
+        want = f"r = {dec_text(R(ls))}/θ"
+        gc_check_common(q, want, {})
+        return None, None
+    elif u == "theta-from-bent-strip":
+        mt = re.fullmatch(r"A water trough is bent from a strip of tin ([\d.]+) cm wide\. Across the strip it has a straight side ([\d.]+) cm long, a curved part, then another straight side ([\d.]+) cm long\.", L[0])
+        need(mt is not None and mt.group(2) == mt.group(3), f"can't read {L[0]!r}")
+        mr = re.fullmatch(r"The curved part is an arc of a circle of radius ([\d.]+) cm\.", L[1])
+        need(mr is not None, f"can't read {L[1]!r}")
+        label, v = "θ = ", (R(mt.group(1)) - 2 * R(mt.group(2))) / R(mr.group(1))
+    elif u == "sector-area":
+        label, tail, v = "A = ", un2, r**2 * th / 2
+        if k["form"] == "deg":
+            W("sector-area#0", label, tail, r**2 * k["deg"] / 2)
+        slip = r * th**2 / 2
+        if paper == 2 or k["form"] == "rad":
+            W("sector-area#1", label, tail, slip)
+        else:
+            b = sp.expand(slip / pi**2)
+            wr[AS_SKILL + "sector-area#1"] = {f"A = {frac_text(b)}π²{un2}"}
+    elif u == "theta-from-area":
+        label, v = "θ = ", 2 * a / r**2
+    elif u == "r-from-area":
+        label, tail, v = "r = ", un, sp.sqrt(2 * a / th)
+    elif u == "major-sector":
+        label, tail, v = "A = ", un2, r**2 * (2 * pi - th) / 2
+        need(sp.N(th) < sp.N(pi), "the given angle is not the minor angle")
+        W("sector-area#2", label, tail, r**2 * th / 2)
+    elif u == "area-from-arc":
+        label, tail, v = "A = ", un2, r * l / 2
+    elif u == "perimeter-from-area":
+        rr = sp.sqrt(2 * a / th)
+        label, tail, v = "P = ", un, rr * (2 + th)
+    elif u == "major-from-perimeter":
+        mt = re.fullmatch(r"The diagram shows a circle with centre O\. Angle AOB is ([\d.]+) radians, and the perimeter of the small shaded sector is ([\d.]+) cm\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        t0, per = R(mt.group(1)), R(mt.group(2))
+        th = t0
+        k["th"] = None
+        rr = per / (2 + t0)
+        label, tail, v = "A = ", un2, rr**2 * (2 * pi - t0) / 2
+        W("sector-area#2", label, tail, rr**2 * t0 / 2)
+    elif u == "cone-radius":
+        if rep == "words":
+            mt = re.fullmatch(r"A sheet of tin is cut into a sector of radius ([\d.]+) cm and angle (\S+?)(°| radians)\. Its two straight edges are joined to make a funnel, with the arc as the rim\.", L[0].replace(" m ", " cm ").replace(" km ", " cm "))
+            need(mt is not None, f"can't read {L[0]!r}")
+            r = R(mt.group(1))
+            d = as_val(mt.group(2))
+            th = d * pi / 180 if mt.group(3) == "°" else d
+            un = re.search(r"radius [\d.]+( \w+) and", L[0]).group(1)
+        else:
+            need(k["fig"].get("cone") is True, "the cone isn't drawn")
+        label, tail, v = "radius = ", un, r * th / (2 * pi)
+        if paper == 1:
+            need(v.is_Rational, f"radius {v}")
+    elif u in ("ring-inner-radius", "ring-perimeter"):
+        need(paper == 2, "a curved strip is Paper 2")
+        g = q["graph"]
+        need(g is not None and g["kind"] == "sector" and g["inner"] > 0, "no curved strip drawn")
+        mt = re.search(r"The reflex angle at O is ([\d.]+) radians, the outer radius is ([\d.]+) cm and the inner radius is (r cm|[\d.]+ cm)\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        t0, big = R(mt.group(1)), R(mt.group(2))
+        need(t0 > 3 and t0 < 2 * pi, "the angle is not reflex")
+        need(g["angle_label"] == mt.group(1) and g["r_label"] == mt.group(2) + " cm", "the figure's labels")
+        as_figure({"fig": g}, t0)
+        if u == "ring-inner-radius":
+            ma = re.fullmatch(r"The area of the strip is ([\d.]+) cm²\.", L[1])
+            need(ma is not None, f"can't read {L[1]!r}")
+            ar = R(ma.group(1))
+            label, tail, v = "r = ", " cm", sp.sqrt(big**2 - 2 * ar / t0)
+            need(0 < sp.N(v) < big, f"r = {sp.N(v)}")
+        else:
+            small = R(mt.group(3).removesuffix(" cm"))
+            label, tail, v = "P = ", " cm", t0 * (big + small) + 2 * (big - small)
+        th = None
+    elif u == "segments-theta":
+        need(paper == 2, "a plate is Paper 2")
+        g = q["graph"]
+        need(g is not None and g["kind"] == "plate", "no plate drawn")
+        mt = re.fullmatch(r"A steel plate is a rectangle (\d+) cm by (\d+) cm\. An equal segment is cut from each of two opposite edges, as in the diagram\.", L[0])
+        mr = re.fullmatch(r"Each segment is part of a circle of radius (\d+) cm, with angle θ at its centre O, where θ is in radians and 0 < θ < π\.", L[1])
+        ma = re.fullmatch(r"The area of the plate that is left is ([\d.]+) cm²\.", L[2])
+        need(mt and mr and ma, "can't read the plate")
+        w, h, rho, ar = int(mt.group(1)), int(mt.group(2)), int(mr.group(1)), R(ma.group(1))
+        need(g["w"] == w and g["h"] == h and g["rho"] == rho, "the plate drawn is another plate")
+        goal = mpmath.mpf((w * h - ar).p) / (w * h - ar).q / rho**2
+        root = as_plate_root(goal)
+        need(0 < root < mpmath.pi, f"θ = {root}")
+        chord = 2 * rho * mpmath.sin(root / 2)
+        need(chord < h, "the cut is longer than the edge")
+        need(abs(g["theta"] - float(root)) < 1e-6, "the figure's angle")
+        v = nu_f(root)
+        label = "θ = "
+        wr[AS_SKILL + "segment-shaded#0"] = {"θ = " + rg_s(nu_f(as_plate_root(goal, True)))}
+        th = None
+    else:
+        raise Fail(f"no check for {u}")
+    # What the question drew or said matches the angle, once the angle is known.
+    if u in ("theta-from-arc", "theta-from-perimeter", "theta-from-area"):
+        as_figure(k, v)
+    elif u == "area-from-arc":
+        as_figure(k, l / r)
+    elif u in ("r-from-arc", "r-from-perimeter", "r-from-area", "perimeter-from-area", "arc-length", "perimeter", "sector-area", "deg-to-rad", "rad-to-deg", "major-arc", "major-sector", "cone-radius"):
+        if th is not None:
+            as_figure(k, th)
+    as_limits(q, k)
+    trap = None
+    if paper == 1:
+        a0, b0 = as_pair(v)
+        need(a0.q <= AS_DEN and b0.q <= AS_DEN, f"{v} has a big denominator")
+        if b0 != 0:
+            need(asked.endswith(" Give your answer in terms of π."), f"asked {asked!r}")
+        if u in ("r-from-arc", "r-from-perimeter", "r-from-area"):
+            need(v.is_integer, f"r = {v} is not whole on Paper 1")
+    else:
+        need(asked.endswith(" Give your answer to 3 significant figures."), f"asked {asked!r}")
+        x = sp.N(v, 40)
+        need(as_clear(x), f"{x} is on a rounding edge")
+        t2 = bn_trap(label, x)
+        trap = t2 + tail if t2 else None
+    want = as_text(label, v, tail, paper)
+    gc_check_common(q, want, wr, trap)
+    as_working(q)
+    return None, None
+
+
+# ── bearings-elevation (t3-bearings-elevation, FAL-726) ──────
+# Reads the distances, bearings and angles back from the lines and works each answer out again
+# with mpmath at 40 digits. A sketch is held to the story: each length to one scale, each bearing
+# and angle to the points drawn.
+
+BE_SKILL = "SL3.3."
+BE_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+
+
+def be_c(d):
+    return mpmath.cos(mpmath.radians(d))
+
+
+def be_s(d):
+    return mpmath.sin(mpmath.radians(d))
+
+
+def be_t(d):
+    return mpmath.tan(mpmath.radians(d))
+
+
+def be_mp(x):
+    x = sp.Rational(x)
+    return mpmath.mpf(x.p) / x.q
+
+
+def be_text(label, x, tail=""):
+    return label + rg_s(nu_f(x)) + tail
+
+
+def be_bearing(b):
+    return f"{int(b) % 360:03d}°"
+
+
+def be_angle(p, a, b):
+    """The angle at p between the directions to a and b, in degrees."""
+    u = (a[0] - p[0], a[1] - p[1])
+    v = (b[0] - p[0], b[1] - p[1])
+    dot = u[0] * v[0] + u[1] * v[1]
+    return mpmath.degrees(mpmath.acos(dot / (mpmath.hypot(*u) * mpmath.hypot(*v))))
+
+
+def be_clear(x):
+    v = abs(num(nu_f(x)))
+    if v == 0:
+        return True
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= BE_EDGE
+
+
+def be_figure(q, to_scale=True):
+    """Every label on the sketch says what the points drawn say."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "sketch", "no sketch")
+    pts = {n: tuple(mpmath.mpf(c) for c in p) for n, p in g["pts"].items()}
+    scale = None
+    for ln in g["lines"]:
+        m = re.fullmatch(r"([\d.]+) (km|m)", ln["label"])
+        if m and to_scale:
+            d = mpmath.hypot(pts[ln["a"]][0] - pts[ln["b"]][0], pts[ln["a"]][1] - pts[ln["b"]][1])
+            ratio = d / be_mp(R(m.group(1)))
+            scale = scale if scale is not None else ratio
+            need(abs(ratio / scale - 1) < mpmath.mpf(10) ** -6, f"{ln['a']}{ln['b']} is not to scale")
+    for a in g["arcs"]:
+        if a["label"] == "?" or not to_scale:
+            continue
+        p, to = pts[a["at"]], pts[a["to"]]
+        if a["from"] == "N":
+            b = mpmath.degrees(mpmath.atan2(to[0] - p[0], to[1] - p[1])) % 360
+            need(a["at"] in g["north"], f"no north line at {a['at']}")
+            need(abs(b - int(a["label"].rstrip("°"))) < mpmath.mpf("1e-5"), f"the bearing {a['label']} isn't drawn ({b})")
+        elif a["label"].endswith("°"):
+            ang = be_angle(p, pts[a["from"]], to)
+            need(abs(ang - be_mp(R(a["label"].rstrip("°")))) < mpmath.mpf("1e-5"), f"the angle {a['label']} isn't drawn ({ang})")
+    return pts
+
+
+def be_journey(L):
+    m1 = re.fullmatch(r".+ leaves camp A and travels ([\d.]+) km on a bearing of (\d{3})° to a well at B\.", L[0])
+    m2 = re.fullmatch(r"It then travels ([\d.]+) km on a bearing of (\d{3})° to a depot at C\.", L[1])
+    need(m1 and m2, f"can't read {L[:2]!r}")
+    return R(m1.group(1)), int(m1.group(2)), R(m2.group(1)), int(m2.group(2))
+
+
+def be_angle_read(text):
+    """An angle of elevation or depression in radians, and its size."""
+    m = re.search(r"(?:elevation|depression)[^.]*? is ([\d.]+)(°| radians)", text)
+    need(m is not None, f"can't read an angle in {text!r}")
+    v = be_mp(R(m.group(1)))
+    return (mpmath.radians(v), True) if m.group(2) == "°" else (v, False)
+
+
+def check_bearings(q):
+    with mpmath.workdps(40):
+        return be_check(q)
+
+
+def be_check(q):
+    u, L, rep, asked = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 2, "these are Paper 2")
+    text = " ".join(L)
+    wr = {}
+    pi = mpmath.pi
+    tan, sin, cos = mpmath.tan, mpmath.sin, mpmath.cos
+    label, tail, x, want = None, "", None, None
+
+    def W(ref, val):
+        wr.setdefault(BE_SKILL + ref, set()).add(be_text(label, val, tail))
+
+    if rep == "words":
+        need(q["graph"] is None, "words have no sketch")
+    scaled = True
+    if u == "back-bearing":
+        m = re.fullmatch(r"From a camp at A, a tower at B is on a bearing of (\d{3})°\.", L[0])
+        need(m is not None and asked == "Find the bearing of A from B.", f"{L[0]!r}")
+        b = int(m.group(1))
+        want = "bearing = " + be_bearing(b + 180)
+        wr[BE_SKILL + "bearings#1"] = {"bearing = " + be_bearing(b)}
+        wr[BE_SKILL + "bearings#0"] = {"bearing = " + be_bearing(360 - b)}
+    elif u == "angle-from-bearing":
+        m = re.search(r"due east.*on a bearing of (\d{3})°\. Angle ABC is (\d+)°\.", text)
+        need(m is not None, f"{text!r}")
+        b, phi = int(m.group(1)), int(m.group(2))
+        want = f"angle ACB = {180 - (90 - b) - phi}°"
+        wr[BE_SKILL + "bearings#2"] = {f"angle ACB = {180 - b - phi}°"}
+    elif u in ("two-leg-distance", "two-leg-bearing", "return-bearing"):
+        d1, b1, d2, b2 = be_journey(L)
+        need((d1 * 10).q == 1 and (d2 * 10).q == 1, "distances to 1 d.p.")
+        d1m, d2m = be_mp(d1), be_mp(d2)
+        e = d1m * be_s(b1) + d2m * be_s(b2)
+        n = d1m * be_c(b1) + d2m * be_c(b2)
+        if u == "two-leg-distance":
+            label, tail, x = "distance = ", " km", mpmath.hypot(e, n)
+            t = abs(b2 - b1)
+            t = 360 - t if t > 180 else t
+            need(30 <= t <= 150, f"the turn is {t}°")
+            # The same distance from the cosine rule, with the angle inside.
+            again = mpmath.sqrt(d1m**2 + d2m**2 - 2 * d1m * d2m * be_c(180 - t))
+            need(abs(again - x) < mpmath.mpf(10) ** -25, "the cosine rule disagrees with the components")
+            W("bearings#2", mpmath.sqrt(d1m**2 + d2m**2 - 2 * d1m * d2m * be_c(t)))
+        else:
+            there = mpmath.degrees(mpmath.atan2(e, n)) % 360
+            label, tail = "bearing = ", "°"
+            if u == "two-leg-bearing":
+                x = there
+                W("bearings#1", (there + 180) % 360)
+                W("bearings#0", 360 - there)
+            else:
+                x = (there + 180) % 360
+                W("bearings#1", there)
+            need(100 <= x < 360, f"a bearing of {x} isn't three figures at 3 s.f.")
+    elif u == "due-east-distance":
+        m = re.search(r"An outpost B is ([\d.]+) km due east of a camp at A\. A signal fire at C is ([\d.]+) km from A, on a bearing of (\d{3})°\.", text)
+        need(m is not None, f"{text!r}")
+        ab, ac, b = be_mp(R(m.group(1))), be_mp(R(m.group(2))), int(m.group(3))
+        label, tail = "BC = ", " km"
+        x = mpmath.sqrt(ab**2 + ac**2 - 2 * ab * ac * be_c(90 - b))
+        W("bearings#2", mpmath.sqrt(ab**2 + ac**2 - 2 * ab * ac * be_c(b)))
+    elif u == "sine-rule-distance":
+        m = re.search(r"An outpost B is ([\d.]+) km due east of a camp at A\. From A, a signal fire at C is on a bearing of (\d{3})°\. Angle ABC is (\d+)°\.", text)
+        wh = re.fullmatch(r"Find the distance (AC|BC)\. Give your answer to 3 significant figures\.", asked)
+        need(m and wh, f"{text!r} {asked!r}")
+        ab, b, phi = be_mp(R(m.group(1))), int(m.group(2)), int(m.group(3))
+        at_a = 90 - b
+        c = 180 - at_a - phi
+        opp = phi if wh.group(1) == "AC" else at_a
+        label, tail = wh.group(1) + " = ", " km"
+        x = ab * be_s(opp) / be_s(c)
+        W("bearings#2", ab * be_s(phi if wh.group(1) == "AC" else b) / be_s(180 - b - phi))
+    elif u == "due-west-side":
+        m = re.search(r"AC = ([\d.]+) m, the bearing of B from A is (\d{3})° and angle BAC is (\d+)°\.", text)
+        need(m is not None, f"{text!r}")
+        ac, b, phi = be_mp(R(m.group(1))), int(m.group(2)), int(m.group(3))
+        # From coordinates, not from the angle chase: A at the origin, BC on a line due west.
+        c = (ac * be_s(b + phi), ac * be_c(b + phi))
+        ab = c[1] / be_c(b)
+        bpt = (ab * be_s(b), ab * be_c(b))
+        need(abs(bpt[1] - c[1]) < mpmath.mpf(10) ** -25 and c[0] < bpt[0] and c[1] < 0, "C is not due west of B")
+        label, tail, x = "BC = ", " m", bpt[0] - c[0]
+    elif u == "height-from-elevation":
+        m = re.search(r"([\d.]+) m from the foot", text)
+        t, deg = be_angle_read(text)
+        label, tail, x = "height = ", " m", be_mp(R(m.group(1))) * tan(t)
+    elif u == "distance-from-depression":
+        m = re.search(r"From the top T of a .+? ([\d.]+) m high", text)
+        t, deg = be_angle_read(text)
+        h = be_mp(R(m.group(1)))
+        label, tail, x = "distance = ", " m", h / tan(t)
+        W("elevation-depression#1", h * tan(t))
+    elif u == "angle-of-depression":
+        m = re.search(r"From the top T of a .+? ([\d.]+) m high", text)
+        m2 = re.search(r"P is ([\d.]+) m from the foot", text)
+        h, d = be_mp(R(m.group(1))), be_mp(R(m2.group(1)))
+        label, tail, x = "angle = ", "°", mpmath.degrees(mpmath.atan(h / d))
+        W("elevation-depression#0", mpmath.degrees(mpmath.atan(d / h)))
+    elif u == "height-with-eye-level":
+        m = re.search(r"eyes are ([\d.]+) m above the level ground stands ([\d.]+) m from", text)
+        t, deg = be_angle_read(text)
+        eye, d = be_mp(R(m.group(1))), be_mp(R(m.group(2)))
+        label, tail, x = "height = ", " m", eye + d * tan(t)
+        W("elevation-depression#2", d * tan(t))
+    elif u == "chain-below-hook":
+        m = re.search(r"([\d.]+) m from the foot of a crane", text)
+        m2 = re.search(r"A guard ([\d.]+) m tall stands under it, and the hook on the chain is ([\d.]+) m above", text)
+        t, deg = be_angle_read(text)
+        d, eye, gp = be_mp(R(m.group(1))), be_mp(R(m2.group(1))), be_mp(R(m2.group(2)))
+        label, tail, x = "length = ", " m", d * tan(t) - eye - gp
+        need(x > 0, "the chain has no length")
+        W("elevation-depression#2", d * tan(t) - gp)
+    elif u == "time-from-depression":
+        m = re.search(r"From the top of a .+? ([\d.]+) m high", text)
+        m2 = re.search(r"at (\d+) km/h", text)
+        t, deg = be_angle_read(text)
+        h, v = be_mp(R(m.group(1))), int(m2.group(1))
+        label, tail, x = "time = ", " minutes", h / tan(t) / 1000 / v * 60
+        W("elevation-depression#1", h * tan(t) / 1000 / v * 60)
+        scaled = False
+    elif u == "route-time":
+        m = re.search(r"PB = ([\d.]+) km\. A camp at A is ([\d.]+) km from P", text)
+        m2 = re.search(r"at (\d+) km/h, and a truck drives along the road at (\d+) km/h", text)
+        b, a = be_mp(R(m.group(1))), be_mp(R(m.group(2)))
+        v1, v2 = int(m2.group(1)), int(m2.group(2))
+        label, tail = "time = ", " hours"
+        x = mpmath.hypot(a, b) / v1 if "straight across" in asked else a / v1 + b / v2
+    elif u == "shared-side":
+        m = re.search(r"AB = ([\d.]+) km, AD = ([\d.]+) km and angle BAD = 90°\. BC = ([\d.]+) km and angle DBC = (\d+)°", text)
+        ab, ad, bc, phi = [be_mp(R(m.group(i))) for i in (1, 2, 3, 4)]
+        bd = mpmath.hypot(ab, ad)
+        label, tail, x = "CD = ", " km", mpmath.sqrt(bd**2 + bc**2 - 2 * bd * bc * mpmath.cos(mpmath.radians(phi)))
+        rough = be_mp(R(sig3(nu_f(bd), 2)))
+        W("multi-triangle#0", mpmath.sqrt(rough**2 + bc**2 - 2 * rough * bc * mpmath.cos(mpmath.radians(phi))))
+        W("multi-triangle#1", mpmath.hypot(bd, bc))
+    elif u == "quadrilateral-area":
+        m = re.search(r"AB = ([\d.]+) km, AD = ([\d.]+) km and angle BAD = (\d+)°\. BC = ([\d.]+) km and angle DBC = (\d+)°", text)
+        ab, ad, a0, bc, phi = [be_mp(R(m.group(i))) for i in range(1, 6)]
+        bd = mpmath.sqrt(ab**2 + ad**2 - 2 * ab * ad * mpmath.cos(mpmath.radians(a0)))
+        label, tail = "area = ", " km²"
+        x = ab * ad * mpmath.sin(mpmath.radians(a0)) / 2 + bd * bc * mpmath.sin(mpmath.radians(phi)) / 2
+    elif u == "perpendicular-split":
+        m = re.search(r"to a depot B, ([\d.]+) km away\. A well at C is ([\d.]+) km from A, and angle BAC is (\d+)°\.", text)
+        ab, ac, phi = be_mp(R(m.group(1))), be_mp(R(m.group(2))), int(m.group(3))
+        label, tail = "BC = ", " km"
+        x = mpmath.sqrt(ab**2 + ac**2 - 2 * ab * ac * be_c(phi))
+        W("multi-triangle#1", mpmath.hypot(ab, ac))
+        need(phi != 90, "the angle is a right angle")
+    elif u == "rule-to-use":
+        sas = re.fullmatch(r"In triangle PQR, PQ = \d+ km, PR = \d+ km and angle QPR = \d+°\.", L[0])
+        sss = re.fullmatch(r"In triangle PQR, PQ = \d+ km, PR = \d+ km and QR = \d+ km\.", L[0])
+        aas = re.fullmatch(r"In triangle PQR, PQ = \d+ km, angle QPR = \d+° and angle PQR = \d+°\.", L[0])
+        rt = re.fullmatch(r"In triangle PQR, angle PQR = 90°, PQ = \d+ km and angle QPR = \d+°\.", L[0])
+        need(sum(1 for z in (sas, sss, aas, rt) if z) == 1, f"can't read {L[0]!r}")
+        want = "The sine rule" if aas else ("A right-angle ratio such as tan" if rt else "The cosine rule")
+        if sas or sss:
+            wr[BE_SKILL + "multi-triangle#2"] = {"The sine rule"}
+    else:
+        raise Fail(f"no check for {u}")
+    trap = None
+    if x is not None:
+        need(x > 0 and be_clear(x), f"{x} is on a rounding edge")
+        need(asked.endswith(" Give your answer to 3 significant figures."), f"asked {asked!r}")
+        want = be_text(label, x, tail)
+        t2 = bn_trap(label, nu_f(x))
+        trap = t2 + tail if t2 else None
+    gc_check_common(q, want, wr, trap)
+    if rep == "diagram":
+        be_figure(q, scaled)
+    for sol in q["solutions"]:
+        tri_working(q, sol)
+    return None, None
+
+
+# ── solid (t3-solid-volume-area, FAL-726) ────────────────────
+# The `solid` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/solid.gd. Each question's measures are read back from its sketch or its
+# sentences, the shape from its opening line, and every value is worked out again with exact
+# rationals and π. The working's arithmetic is evaluated wherever a step is plain numbers.
+
+SD_EDGE = sp.Rational(29, 1000)         # the engine's is 0.03
+SD_V = "SL3.1.volume-solids#"
+SD_S = "SL3.1.surface-area#"
+SD_SHAPES = {"a right cone": "cone", "a right pyramid": "pyramid", "a solid sphere": "sphere", "a solid hemisphere": "hemisphere",
+             "a solid made of a cone on a hemisphere with the same radius": "cone-hemisphere",
+             "a solid made of a cone on a cylinder with the same radius": "cone-cylinder",
+             "a solid made of a hemisphere on a cylinder with the same radius": "hemisphere-cylinder",
+             "a solid cylinder with a hemisphere hollowed out of its top": "cylinder-minus-hemisphere",
+             "a solid made of a cylinder with a hemisphere on each end": "capsule",
+             "a solid cylinder with a smaller cylinder removed from its centre": "hollow",
+             "a solid cylinder that fits exactly inside a hollow sphere": "inscribed"}
+SD_NAMES = {"radius": "r", "diameter": "d", "height": "h", "slant height": "l", "slant height of each face": "t", "slant edge": "e",
+            "base edge": "a", "other base edge": "b", "cone's height": "h", "cone's slant height": "l", "cylinder's height": "c",
+            "cylinder's radius": "big", "hemisphere's radius": "r", "sphere's radius": "r", "sector's radius": "l", "sector's angle": "theta"}
+
+
+def sd_shape(q):
+    """The solid named in the opening line, the longest name that fits."""
+    found = [v for k, v in SD_SHAPES.items() if f" is {k}" in q["lines"][0]]
+    if not found:
+        need("sector" in q["lines"][0] or "cone with no base" in q["lines"][0], f"can't read the solid in {q['lines'][0]!r}")
+        return "sector"
+    need(len(found) == 1, f"two solids in {q['lines'][0]!r}")
+    if q["graph"] is not None:
+        need(q["graph"]["shape"] == found[0], "the sketch is not the solid in the words")
+    return found[0]
+
+
+def sd_len(text):
+    """"5.2 cm", "127°" as a Rational, or None for a letter."""
+    mt = re.fullmatch(r"(\d+(?:\.\d+)?)(?: cm| m|°)", text)
+    return sp.Rational(mt.group(1)) if mt else None
+
+
+def sd_read(q):
+    """The measures the student is shown, as Rationals, by key: r, h, l and so on."""
+    out = {}
+    if q["graph"] is not None:
+        need(q["graph"]["kind"] == "solid", "not a solid sketch")
+        for k, v in q["graph"].items():
+            if k not in ("kind", "shape"):
+                out[k] = sd_len(v)
+    else:
+        text = " ".join(q["lines"])
+        for mt in re.finditer(r"[Tt]he ((?:(?! is )[a-z' ])+) is (\d+(?:\.\d+)?(?: cm| m|°))(?=[ ,.])", text):
+            if mt.group(1) not in ("volume", "total surface area"):
+                out[SD_NAMES[mt.group(1)]] = sd_len(mt.group(2))
+    if "d" in out and out["d"] is not None:
+        out["r"] = out["d"] / 2
+    return out
+
+
+def sd_given(q, name):
+    """A total shown in a line: Rational, and whether it has π."""
+    mt = re.search(rf"The {name} is (?:\((\d+/\d+)\)|(\d+))?(π)? ?(?:cm|m)", " ".join(q["lines"]))
+    need(mt is not None, f"can't read the {name}")
+    return sp.Rational(mt.group(1) or mt.group(2) or 1), mt.group(3) is not None
+
+
+def sd_lead(c):
+    """A coefficient as Fmt.lead writes it: (2/3), 5, and nothing for 1."""
+    c = sp.Rational(c)
+    return "" if c == 1 else (str(c.p) if c.q == 1 else f"({c.p}/{c.q})")
+
+
+def sd_text(head, x, unit, paper, pi):
+    """An answer x (times π where `pi`) as the game writes it."""
+    if paper == 2:
+        return head + rg_s(sp.N(x * (sp.pi if pi else 1), 40)) + unit
+    x = sp.Rational(x)
+    return head + (sd_lead(x) + "π" if pi else frac_text(x)) + unit
+
+
+def sd_trap(head, x, unit, pi):
+    v = sp.N(x * (sp.pi if pi else 1), 40)
+    return head + dec_text(sp.Rational(sig3(v, 2))) + unit
+
+
+def sd_set(q, head, x, unit, pi, table):
+    """want, trap and wrongs for x; `table` is ref -> the values that mistake gives."""
+    paper = q["paper"]
+    wrongs = {ref: {sd_text(head, v, unit, paper, pi) for v in vals} for ref, vals in table.items()}
+    return sd_text(head, x, unit, paper, pi), (sd_trap(head, x, unit, pi) if paper == 2 else None), wrongs
+
+
+def sd_terms(head, terms, minus=False):
+    return head + (" − " if minus else " + ").join(sd_lead(c) + body for c, body in terms)
+
+
+def sd_edge(q, x):
+    """On Paper 2 the answer is clear of a rounding edge and needs rounding."""
+    if q["paper"] != 2:
+        return
+    v = abs(sp.N(x, 40))
+    e = int(sp.floor(sp.log(v, 10)))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    need(abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= SD_EDGE, f"{v} is too close to a rounding edge")
+    need(sp.Rational(sig3(v)) != v, f"{v} needs no rounding")
+
+
+def sd_measures(q, m):
+    """Paper 1 measures are whole, Paper 2 measures have one decimal place."""
+    for k, v in m.items():
+        if v is None or (k == "r" and "d" in m):
+            continue
+        if q["paper"] == 1:
+            need(v.q == 1 or k == "theta", f"{k} = {v} is not whole on Paper 1")
+        else:
+            need((v * 10).q == 1, f"{k} = {v} has more than one decimal place on Paper 2")
+
+
+SD_UNIT = re.compile(r"(?:cm|m)(?:²|³)?(?![a-zA-Z])")
+
+
+def sd_value(text):
+    """A step's piece as a number, or None if it has letters or words in it."""
+    t = SD_UNIT.sub("", text).strip().rstrip(".")
+    if not t or not re.fullmatch(r"[0-9.()+−×÷/π²³√ ]+", t):
+        return None
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("²", "**2").replace("³", "**3")
+    t = re.sub(r"(\d|\))π", r"\1*pi", t).replace("π", "pi")
+    t = re.sub(r"√\(", "sqrt(", t)
+    if "√" in t:
+        return None
+    return sp.N(sp.sympify(t, rational=True), 30)
+
+
+def sd_steps(q):
+    """Each pair of neighbouring plain-number sides of a step agree, to the figures shown. Returns
+    how many pairs were read."""
+    pairs = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            sides = [sd_value(p) for p in re.split(r" = ", re.sub(r"^.*: ", "", st))]
+            for a, b in zip(sides, sides[1:]):
+                if a is None or b is None:
+                    continue
+                pairs += 1
+                need(abs(a - b) <= max(abs(b) * sp.Rational(3, 10000), sp.Rational(6, 1000)), f"{sol['name']}: {st!r} doesn't add up ({a} and {b})")
+    return pairs
+
+
+def check_solid(q):
+    u, paper, L = q["view"]["unknown"], q["paper"], q["lines"]
+    shape = sd_shape(q)
+    m = sd_read(q)
+    sd_measures(q, m)
+    unit = " " + ("m" if u == "paint-cost" else "cm")
+    u2, u3 = unit + "²", unit + "³"
+    V, S = SD_V, SD_S
+    pi = True
+    r, h, l, c = m.get("r"), m.get("h"), m.get("l"), m.get("c")
+    if shape == "inscribed":
+        h = h if h is not None else c
+    if q["graph"] is None and u not in ("hollow-surface", "hollow-volume-from-surface", "surface-from-volume"):
+        need(not any(x is None for x in m.values()), f"a letter in the words: {m}")
+    table, want, trap, wrongs, x = {}, None, None, {}, None
+    pyth = lambda a, b: sp.sqrt(a * a + b * b)
+    leg = lambda hyp, a: sp.sqrt(hyp * hyp - a * a)
+    if paper == 1 and u in ("cone-volume", "cone-curved", "cone-total", "cone-volume-from-slant", "height-from-slant"):
+        have = [v for v in (r, h, l) if v is not None]
+        need(len(have) == 2, "a cone shows two lengths")
+    if u in ("cone-volume", "cone-volume-from-slant", "cone-volume-from-total", "sector-cone-volume", "height-from-slant", "slant-from-total"):
+        if u in ("cone-volume-from-total", "slant-from-total"):
+            A, has_pi = sd_given(q, "total surface area")
+            need(has_pi == (paper == 1), "the area's form is not this paper's")
+            l = A / r - r if paper == 1 else A / (sp.pi * r) - r
+        if u == "sector-cone-volume":
+            l, th = m["l"], m["theta"]
+            r = l * th / 360
+        if u != "cone-volume":
+            need(l > r, "the slant height is not the longest side")
+            h = leg(l, r)
+        if paper == 1:
+            need(sp.Rational(h).q == 1 if h.is_rational else False, f"h = {h} is not whole")
+        x = r * r * h / 3
+        if u == "cone-volume":
+            table = {V + "1": [3 * x]}
+            if "d" in m:
+                table[V + "2"] = [4 * x]
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, table)
+        elif u == "height-from-slant":
+            x, pi = h, False
+            want, trap, wrongs = sd_set(q, "h = ", h, unit, False, {})
+        elif u == "slant-from-total":
+            x, pi = l, False
+            want, trap, wrongs = sd_set(q, "l = ", l, unit, False, {})
+        else:
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * l / 3], V + "1": [3 * x]})
+    elif u in ("cone-curved", "cone-total"):
+        if l is None:
+            l = pyth(r, h)
+        else:
+            h = None
+        need(paper == 2 or l.q == 1, "l is not whole")
+        x = r * l + (r * r if u == "cone-total" else 0)
+        table = {S + "0": [r * h + (r * r if u == "cone-total" else 0)]} if h is not None else {}
+        want, trap, wrongs = sd_set(q, "area = ", x, u2, True, table)
+    elif u == "pyramid-volume":
+        a, b = m["a"], m.get("b", m["a"])
+        x, pi = a * b * h / 3, False
+        need(paper == 2 or x.q == 1, "a Paper 1 pyramid's volume is whole")
+        want, trap, wrongs = sd_set(q, "V = ", x, u3, False, {V + "1": [3 * x]})
+    elif u in ("pyramid-volume-from-slant", "pyramid-volume-from-edge"):
+        a = m["a"]
+        sl = m["t"] if "slant" in u else m["e"]
+        h = leg(sl, a / 2) if "slant" in u else sp.sqrt(sl * sl - a * a / 2)
+        need(paper == 2 or h.is_integer, f"h = {h} is not whole")
+        x, pi = a * a * h / 3, False
+        want, trap, wrongs = sd_set(q, "V = ", x, u3, False, {V + "0": [a * a * sl / 3], V + "1": [3 * x]})
+    elif u == "pyramid-surface":
+        a = m["a"]
+        t = pyth(a / 2, h)
+        need(paper == 2 or t.is_integer, f"t = {t} is not whole")
+        x, pi = a * a + 2 * a * t, False
+        want, trap, wrongs = sd_set(q, "area = ", x, u2, False, {S + "0": [a * a + 2 * a * h]})
+    elif u in ("sphere-volume", "sphere-surface", "hemisphere-volume", "hemisphere-surface"):
+        if u == "sphere-volume":
+            x = 4 * r ** 3 / 3
+        elif u == "sphere-surface":
+            x = 4 * r * r
+        elif u == "hemisphere-volume":
+            x = 2 * r ** 3 / 3
+        else:
+            x = 3 * r * r
+        table = {V + "2": [x * (8 if "volume" in u else 4)]} if "d" in m else {}
+        if u == "hemisphere-volume":
+            table[V + "1"] = [2 * x]
+        if u == "hemisphere-surface":
+            table[S + "1"] = [2 * r * r]
+            table[S + "2"] = [4 * r * r]
+        want, trap, wrongs = sd_set(q, "V = " if "volume" in u else "area = ", x, u3 if "volume" in u else u2, True, table)
+    elif u == "radius-from-volume":
+        Vv, has_pi = sd_given(q, "volume")
+        need(has_pi == (paper == 1), "the volume's form is not this paper's")
+        W = Vv * sp.pi if has_pi else Vv
+        if shape == "sphere":
+            x = sp.real_root(3 * W / (4 * sp.pi), 3)
+        elif shape == "hemisphere":
+            x = sp.real_root(3 * W / (2 * sp.pi), 3)
+        else:
+            x = sp.sqrt(3 * W / (sp.pi * h))
+        x = sp.nsimplify(x) if paper == 1 else x
+        pi = False
+        need(paper == 2 or x.is_integer, f"r = {x} is not whole")
+        table = {V + "2": [2 * x]}
+        if paper == 2 and shape == "hemisphere":
+            table[V + "1"] = [sp.real_root(3 * W / (4 * sp.pi), 3)]
+        if paper == 2 and shape == "cone":
+            table[V + "1"] = [sp.sqrt(W / (sp.pi * h))]
+        want, trap, wrongs = sd_set(q, "r = ", x, unit, False, table)
+    elif u == "height-from-volume":
+        Vv, has_pi = sd_given(q, "volume")
+        cone = shape == "cone"
+        W = Vv * sp.pi if has_pi else Vv
+        x = 3 * W / (sp.pi * r * r) if cone else 3 * W / (m["a"] ** 2)
+        pi = False
+        table = {V + "1": [x / 3]}
+        if "d" in m:
+            table[V + "2"] = [x / 4]
+        want, trap, wrongs = sd_set(q, "h = ", x, unit, False, table)
+    elif u in ("composite-volume", "composite-surface", "paint-cost"):
+        big = m.get("big")
+        if shape.startswith("cone"):
+            if l is None:
+                l = pyth(r, h)
+            elif h is None:
+                h = leg(l, r)
+        shown_h = "h" in m
+        cone_v = r * r * h / 3 if shape.startswith("cone") else 0
+        dome_v = 2 * r ** 3 / 3
+        cone_s = r * l if shape.startswith("cone") else 0
+        if shape == "cone-hemisphere":
+            vol, surf, base = cone_v + dome_v, cone_s + 2 * r * r, 0
+        elif shape == "cone-cylinder":
+            vol, surf, base = cone_v + r * r * c, cone_s + 2 * r * c + r * r, r * r
+        elif shape == "hemisphere-cylinder":
+            vol, surf, base = dome_v + r * r * c, 2 * r * r + 2 * r * c + r * r, r * r
+        else:
+            need(shape == "cylinder-minus-hemisphere", f"{shape} is not a composite")
+            need(r <= big - sp.Rational(2, 5) and c >= r + sp.Rational(9, 10), "the hemisphere doesn't fit")
+            vol, surf, base = big * big * c - dome_v, 2 * r * r + 2 * big * c + big * big + big * big - r * r, big * big
+        if u == "composite-volume":
+            x = vol
+            table = {}
+            if shape.startswith("cone"):
+                table[V + "1"] = [x + 2 * cone_v]
+                if "l" in m:
+                    table.setdefault(V + "0", []).append(x + (l - h) * r * r / 3)
+            if shape in ("cone-hemisphere", "hemisphere-cylinder"):
+                table.setdefault(V + "1", []).append(x + dome_v)
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, table)
+        elif u == "composite-surface":
+            x = surf
+            table = {S + "1": [x + (r * r if shape == "cylinder-minus-hemisphere" else 2 * r * r)]}
+            if shape.startswith("cone") and shown_h:
+                table[S + "0"] = [x + r * (h - l)]
+            if shape != "cone-cylinder":
+                table[S + "2"] = [x + 2 * r * r]
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, table)
+        else:
+            mt = re.fullmatch(r"Paint costs \$(\d+(?:\.\d\d)?) per m²\.", L[-1])
+            need(mt is not None, f"can't read {L[-1]!r}")
+            price = sp.Rational(mt.group(1))
+            need(q["asked"] == "Find the cost of painting the outside of the tank. The base is not painted.", q["asked"])
+            need(shape in ("cone-cylinder", "hemisphere-cylinder"), "a tank is a cone or hemisphere on a cylinder")
+            op = surf - base
+            x = op * price
+            table = {S + "1": [surf * price]}
+            if shape == "cone-cylinder" and shown_h:
+                table[S + "0"] = [x + r * (h - l) * price]
+            if shape == "hemisphere-cylinder":
+                table[S + "2"] = [x + 2 * r * r * price]
+            want, trap, wrongs = sd_set(q, "cost = $", x, "", True, table)
+    elif u == "composite-volume-solve":
+        need(paper == 2, "the GDC solver is Paper 2")
+        need(q["asked"] == "Find r.", q["asked"])
+        Vv, has_pi = sd_given(q, "volume")
+        need(not has_pi, "a Paper 2 volume is a number")
+        cone = shape == "cone-hemisphere"
+        p23, p43 = sp.Rational(2, 3), sp.Rational(4, 3)
+        b = sp.Rational(h) / 3 if cone else sp.Rational(c)
+        roots = [sd_root(p23, b, Vv)]
+        x = roots[0]
+        pi = False
+        slip = sd_root(p23, sp.Rational(h), Vv) if cone else sd_root(p43, sp.Rational(c), Vv)
+        want, trap, wrongs = sd_set(q, "r = ", x, unit, False, {V + "1": [slip]})
+    elif u == "volume-in-terms":
+        need("in terms of x" in q["asked"], q["asked"])
+        rx, hx, cc = sd_x_measures(q)
+        v = {"cone": [(sp.Rational(rx * rx * (hx or 0), 3), "πx³")], "sphere": [(sp.Rational(4 * rx ** 3, 3), "πx³")],
+             "hemisphere": [(sp.Rational(2 * rx ** 3, 3), "πx³")],
+             "hemisphere-cylinder": [(sp.Rational(2 * rx ** 3, 3), "πx³"), (rx * rx * (cc or 0), "πx²")],
+             "cone-cylinder": [(sp.Rational(rx * rx * (hx or 0), 3), "πx³"), (rx * rx * (cc or 0), "πx²")]}[shape]
+        want = sd_terms("V = ", v)
+        wrongs = {}
+        if shape != "sphere":
+            first = 2 if shape.startswith("hemi") else 3
+            wrongs[V + "1"] = {sd_terms("V = ", [(v[0][0] * first, "πx³")] + v[1:])}
+        q["_expr"] = True
+    elif u == "surface-in-terms":
+        rx, hx, cc = sd_x_measures(q)
+        if shape == "cone":
+            lx = sp.sqrt(rx * rx + hx * hx)
+            need(lx.is_integer, "l is not a whole multiple of x")
+            whole = "total" in q["asked"]
+            base = rx * rx if whole else 0
+            want = sd_terms("S = ", [(rx * lx + base, "πx²")])
+            wrongs = {S + "0": {sd_terms("S = ", [(rx * hx + base, "πx²")])}}
+        elif shape == "hemisphere":
+            want = sd_terms("S = ", [(3 * rx * rx, "πx²")])
+            wrongs = {S + "1": {sd_terms("S = ", [(2 * rx * rx, "πx²")])}, S + "2": {sd_terms("S = ", [(4 * rx * rx, "πx²")])}}
+        else:
+            need(shape == "hemisphere-cylinder", shape)
+            wall = 2 * rx * cc
+            want = sd_terms("S = ", [(3 * rx * rx, "πx²"), (wall, "πx")])
+            wrongs = {S + "1": {sd_terms("S = ", [(2 * rx * rx, "πx²"), (wall, "πx")])}, S + "2": {sd_terms("S = ", [(5 * rx * rx, "πx²"), (wall, "πx")])}}
+        q["_expr"] = True
+    elif u in ("hollow-surface", "hollow-volume-from-surface"):
+        need(shape == "hollow", shape)
+        txt = q["graph"]["big"] if q["graph"] else re.search(r"outer radius is (\d+)r", " ".join(L)).group(1) + "r"
+        k = int(txt[:-1])
+        if u == "hollow-surface":
+            r_s, h_s = sp.symbols("r h", positive=True)
+            S_e = sp.expand(2 * sp.pi * k * r_s * h_s + 2 * sp.pi * r_s * h_s + 2 * sp.pi * ((k * r_s) ** 2 - r_s ** 2))
+            a2, a1 = S_e.coeff(r_s, 2) / sp.pi, S_e.coeff(r_s, 1).coeff(h_s, 1) / sp.pi
+            want = sd_terms("S = ", [(a2, "πr²"), (a1, "πrh")])
+            wrongs = {S + "1": {sd_terms("S = ", [(2 * a2, "πr²"), (a1, "πrh")])}}
+        else:
+            mt = re.search(r"total surface area is (\d+)π cm²", " ".join(L))
+            need(mt is not None, "can't read S")
+            M_ = int(mt.group(1))
+            r_s, h_s = sp.symbols("r h", positive=True)
+            hh = sp.solve(2 * (k * k - 1) * r_s ** 2 + 2 * (k + 1) * r_s * h_s - M_, h_s)[0]
+            Vx = sp.expand((k * k - 1) * r_s ** 2 * hh)
+            want = "V = " + f"{sd_lead(Vx.coeff(r_s, 1))}πr − {sd_lead(-Vx.coeff(r_s, 3))}πr³"
+            need(Vx.coeff(r_s, 1) > 0 and Vx.coeff(r_s, 3) < 0, "the expression's signs")
+        q["_expr"] = True
+    elif u == "surface-from-volume":
+        mt = re.search(r"its volume is (\d+) cm³", " ".join(L))
+        need(mt is not None, "can't read the volume")
+        W = int(mt.group(1))
+        need(shape in ("capsule", "hemisphere-cylinder"), shape)
+        two = shape == "capsule"
+        want = sd_terms("S = ", [(2 * W, "/x"), (4 if two else 3, "πx²")])
+        wrongs = {S + "1": {sd_terms("S = ", [(2 * W, "/x"), (6 if two else 2, "πx²")])}}
+        if not two:
+            wrongs[S + "2"] = {sd_terms("S = ", [(2 * W, "/x"), (5, "πx²")])}
+        q["_expr"] = True
+    elif u in ("inscribed-volume", "inscribed-surface"):
+        need(h < 2 * r, "the cylinder doesn't fit")
+        R_ = leg(r, h / 2)
+        need(paper == 2 or R_.is_integer, f"R = {R_} is not whole")
+        if u == "inscribed-volume":
+            x = R_ * R_ * h
+            want, trap, wrongs = sd_set(q, "V = ", x, u3, True, {V + "0": [r * r * h], V + "1": [x / 3]})
+        else:
+            x = 2 * R_ * R_ + 2 * R_ * h
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {S + "0": [2 * r * r + 2 * r * h], S + "1": [R_ * R_ + 2 * R_ * h]})
+    elif u in ("sector-cone-radius", "sector-curved"):
+        l, th = m["l"], m["theta"]
+        need(60 <= th <= 300, f"θ = {th}")
+        rr = l * th / 360
+        if u == "sector-cone-radius":
+            x, pi = rr, False
+            need(paper == 2 or rr.q == 1, "r is not whole")
+            want, trap, wrongs = sd_set(q, "r = ", rr, unit, False, {})
+        else:
+            x = th / 360 * l * l
+            want, trap, wrongs = sd_set(q, "area = ", x, u2, True, {})
+    elif u == "sector-angle":
+        if q["graph"] is not None:
+            need(q["graph"]["theta"] == "θ", "the angle is the unknown")
+            l = sd_len(q["graph"]["l"])
+            mt = re.search(r"base radius is (\S+ cm)\.", L[-1])
+            rr = sd_len(mt.group(1))
+        else:
+            mt = re.search(r"has radius (\S+ cm) and slant height (\S+ cm)\.", L[0])
+            rr, l = sd_len(mt.group(1)), sd_len(mt.group(2))
+        x, pi = 360 * rr / l, False
+        need(60 <= x <= 300, f"θ = {x}")
+        need(paper == 2 or x.q == 1, "θ is not whole")
+        want, trap, wrongs = sd_set(q, "θ = ", x, "°", False, {})
+    else:
+        raise Fail(f"no check for {u}")
+    if x is not None:
+        sd_edge(q, x * (sp.pi if pi else 1))
+        if paper == 2:
+            need(not trap or not q["answer"].get("exact", False), "a Paper 2 answer is not exact-only")
+    expr_answer = q.pop("_expr", False)
+    gc_check_common(q, want, wrongs, trap, steps=(2, 5))
+    pairs = sd_steps(q)
+    need(pairs > 0 or expr_answer or u in ("slant-from-total", "composite-volume-solve", "radius-from-volume", "height-from-volume"), "no working was read")
+    return None, None
+
+
+def sd_root(a, b, W):
+    """The positive root of π(a r³ + b r²) = W, to 40 figures."""
+    y = sp.Symbol("y")
+    poly = sp.Poly(a * y ** 3 + b * y ** 2 - sp.Rational(W) / sp.pi, y)
+    roots = [t for t in poly.nroots(n=40, maxsteps=200) if abs(sp.im(t)) < 1e-30 and sp.re(t) > 0]
+    need(len(roots) == 1, f"{len(roots)} positive roots")
+    return sp.re(roots[0])
+
+
+def sd_x_measures(q):
+    """rx, hx and the whole cylinder height of a solid given in terms of x."""
+    if q["graph"] is not None:
+        g = q["graph"]
+        r_t, h_t, c_t = g["r"], g.get("h"), g.get("c")
+    else:
+        text = " ".join(q["lines"])
+        find = lambda n: (lambda mt: mt.group(1) if mt else None)(re.search(rf"[Tt]he {n} is (\d*x? cm)", text))
+        r_t = find("radius")
+        h_t = find("height") or find("cone's height")
+        c_t = find("cylinder's height")
+    coef = lambda t: None if t is None else (lambda b: 1 if b == "" else int(b))(t.replace(" cm", "").replace("x", ""))
+    need(r_t is not None and "x" in r_t, f"can't read r = {r_t!r}")
+    return coef(r_t), coef(h_t), coef(c_t)
+
+
+# ── standard-form (t1-standard-form, FAL-726) ────────────────
+# The `standard-form` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/standard_form.gd. Numbers are read back from the question's text as exact
+# Rationals, so a power of ten never has to fit a float, and each answer is normalised again here.
+
+SF_EDGE = sp.Rational(59, 1000)         # the engine's is 0.06
+SF_C = "SL1.1.convert#"
+SF_M = "SL1.1.multiply-divide#"
+SF_X = "SL1.1.context#"
+SF_SUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
+SF_NUM = re.compile(r"(?:(\d+(?:\.\d+)?) × )?10([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)")
+SF_PLAIN = re.compile(r"\d+(?: \d{3})*(?:\.\d+)?")
+
+
+def sf_read(text):
+    """Every a × 10^k in a piece of text, as [(a, k)]."""
+    return [(sp.Rational(mt.group(1) or 1), int(mt.group(2).translate(SF_SUP))) for mt in SF_NUM.finditer(text)]
+
+
+def sf_v(pair):
+    return pair[0] * sp.Rational(10) ** pair[1]
+
+
+def sf_norm(v):
+    """v as (a, k) with 1 ≤ a < 10, without leaving exact numbers."""
+    k = 0
+    while v >= 10:
+        v, k = v / 10, k + 1
+    while v < 1:
+        v, k = v * 10, k - 1
+    return v, k
+
+
+def sf_ten(k):
+    return "10" + str(k).translate(str.maketrans("0123456789-", "⁰¹²³⁴⁵⁶⁷⁸⁹⁻"))
+
+
+def sf_a(a, rounded, figs=3):
+    a = sp.Rational(a)
+    q = a.q
+    for f in (2, 5):
+        while q % f == 0:
+            q //= f
+    return sig3(a, figs) if rounded or q != 1 else dec_text(a)
+
+
+def sf_text(a, k, rounded, head="", tail=""):
+    return f"{head}{sf_a(a, rounded)} × {sf_ten(k)}{tail}"
+
+
+def sf_answer(q, v, head="", tail=""):
+    """want and trap for the value v: rounded on Paper 2, where it needs it."""
+    a, k = sf_norm(v)
+    rounded = q["paper"] == 2
+    if q["paper"] == 1:
+        need(sp.Rational(a * 1000).q == 1, f"a = {a} has too many figures for Paper 1")
+    if abs(k) < 2:
+        raise Fail(f"k = {k} is too small an answer power")
+    if rounded:
+        scaled = a * 100
+        need(a < sp.Rational(99, 10), f"a = {a} is too near 10")
+        need(abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= SF_EDGE, f"a = {a} is too close to a rounding edge")
+    trap = None
+    if rounded and sp.Rational(sig3(a)) != a:
+        trap = f"{head}{sig3(a, 2)} × {sf_ten(k)}{tail}"
+    return sf_text(a, k, rounded, head, tail), trap, a, k
+
+
+def sf_raw(a, k):
+    return f"{sig3(a)}E{str(k).replace('-', '−')}"
+
+
+def sf_value(text):
+    """A step's side as a number, or None if it has words or letters in it."""
+    t = re.sub(r",.*$", "", text).strip().rstrip(".")
+    t = re.sub(r"(?<=\d) (?=\d{3})", "", t)
+    if not t or not re.fullmatch(r"[0-9.()+−×÷^ ⁰¹²³⁴⁵⁶⁷⁸⁹⁻²³]+", t):
+        return None
+    t = re.sub(r"([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)", lambda mt: f"**({mt.group(1).translate(SF_SUP)})", t)
+    t = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    return sp.sympify(t, rational=True)
+
+
+def sf_steps(q):
+    pairs = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            sides = [sf_value(p) for p in re.sub(r"^.*: ", "", st).split(" = ")]
+            for a, b in zip(sides, sides[1:]):
+                if a is None or b is None:
+                    continue
+                pairs += 1
+                need(abs(a - b) <= abs(b) * sp.Rational(3, 10000), f"{sol['name']}: {st!r} doesn't add up ({a} and {b})")
+    return pairs
+
+
+def check_standard_form(q):
+    u, paper, L, asked = q["view"]["unknown"], q["paper"], q["lines"], q["asked"]
+    C, M, X = SF_C, SF_M, SF_X
+    rounded = paper == 2
+    text = " ".join(L)
+    want, trap, wrongs = None, None, {}
+    T = lambda a, k: sf_text(a, k, rounded)
+    pq = sf_read(L[0]) + sf_read(L[1]) if u in ("multiply", "multiply-renormalise", "divide", "divide-renormalise", "power-product") else None
+    if pq is not None:
+        need(L[0].startswith("p = ") and L[1].startswith("q = "), "p and q")
+        (a, m), (b, n) = pq
+        need(m != 0 and n != 0, "a power of 0")
+    if u in ("to-form-large", "to-form-small"):
+        src = L[0] if L else asked
+        mt = re.search(r"\d[\d ]*\d(?:\.\d+)?|0\.\d+|\d+", src.replace("10^k", "").replace("1 ≤ a < 10", ""))
+        need(mt is not None, "can't read the number")
+        v = sp.Rational(mt.group(0).replace(" ", ""))
+        want, trap, a, k = sf_answer(q, v)
+        need((v > 1) == (u == "to-form-large"), "the number is on the wrong side of 1")
+        digit = k + 1 if k > 0 else k - 1
+        wrongs = {C + "0": {T(a, -k)}, C + "1": {T(a, digit)}, C + "2": {T(a * 10, k - 1), T(a / 10, k + 1)}}
+        if paper == 2:
+            wrongs[X + "0"] = {sf_raw(a, k)}
+    elif u in ("to-ordinary-large", "to-ordinary-small"):
+        (a, k), = sf_read(text if L else asked)
+        need((k > 0) == (u == "to-ordinary-large"), "the power is on the wrong side of 0")
+        lab = "number = "
+        want = lab + dec_text(a * sp.Rational(10) ** k)
+        d = k + 1 if k > 0 else k - 1
+        wrongs = {C + "0": {lab + dec_text(a * sp.Rational(10) ** -k)}, C + "1": {lab + dec_text(a * sp.Rational(10) ** d)}}
+    elif u == "renormalise":
+        rd = sf_read(asked)
+        need(len(rd) == 1, "one number")
+        a0, k0 = rd[0]
+        need(not (1 <= a0 < 10), "the number is already in standard form")
+        a, k = sf_norm(sf_v(rd[0]))
+        want = sf_text(a, k, False)
+        wrongs = {C + "2": {sf_text(a * 10 if a0 < 1 else a / 10, k - 1 if a0 < 1 else k + 1, False)}}
+    elif u == "order-mixed":
+        mt = re.fullmatch(r"The four numbers are (.+)\.", L[0])
+        need(mt is not None, "can't read the list")
+        items = mt.group(1).split(",  ")
+        need(len(items) == 4, "four numbers")
+        vals = {}
+        for it in items:
+            rd = sf_read(it)
+            vals[it] = sf_v(rd[0]) if rd else sp.Rational(it.replace(" ", ""))
+        need(len(set(vals.values())) == 4, "two numbers are equal")
+        big = "largest" in asked
+        best = (max if big else min)(vals, key=lambda i: vals[i])
+        lab = "largest: " if big else "smallest: "
+        want = lab + best
+        tricks = {lab + it for it in items if it != best and sf_read(it) and ((sf_read(it)[0][0] < 1) if big else (sf_read(it)[0][0] >= 10))}
+        wrongs = {C + "2": tricks}
+    elif u == "display-to-form":
+        need(paper == 2, "a display is Paper 2")
+        mt = re.fullmatch(r"A GDC shows (\d\.\d+)E(−?\d+)\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        a, k = sp.Rational(mt.group(1)), int(mt.group(2).replace("−", "-"))
+        want = sf_text(a, k, False)
+        wrongs = {X + "0": {mt.group(1) + "E" + mt.group(2)}, C + "0": {sf_text(a, -k, False)}}
+    elif u in ("multiply", "multiply-renormalise"):
+        need(m * n != m + n and m != n, "the powers are a degenerate pair")
+        want, trap, r, k = sf_answer(q, a * b * sp.Rational(10) ** (m + n))
+        need((a * b >= 10) == (u == "multiply-renormalise"), "the product is on the wrong side of 10")
+        wrongs = {M + "0": {T(r, k - m - n + m * n)}, M + "2": {T(r, k - m - n + m - n)}}
+        if a * b >= 10:
+            wrongs[M + "1"] = {T(a * b, m + n)}
+    elif u in ("divide", "divide-renormalise"):
+        need(m != n, "the powers are equal")
+        want, trap, r, k = sf_answer(q, a / b * sp.Rational(10) ** (m - n))
+        need((a < b) == (u == "divide-renormalise"), "the quotient is on the wrong side of 1")
+        wrongs = {M + "2": {T(r, k - m + n + m + n)}}
+        if a < b:
+            wrongs[M + "1"] = {T(a / b, m - n)}
+    elif u == "power-product":
+        e = 2 * m + n
+        want, trap, r, k = sf_answer(q, a * a * b * sp.Rational(10) ** e)
+        wrongs = {M + "0": {T(r, k - e + m * m + n)}}
+        if a * a * b >= 10:
+            wrongs[M + "1"] = {T(a * a * b, e)}
+    elif u in ("times-larger", "time-from-rate", "total-from-unit", "rate-unit-shift"):
+        rd = sf_read(L[0])
+        need(len(rd) == 2, "two numbers in the story")
+        (a, m), (b, n) = rd
+        if u == "times-larger":
+            need(sf_v(rd[0]) > sf_v(rd[1]), "the first is not the larger")
+            v = sf_v(rd[0]) / sf_v(rd[1])
+            slip = sig_v2(a) / sig_v2(b) * sp.Rational(10) ** (m - n)
+            fr, fk = sf_norm(1 / v)
+            wrongs[X + "2"] = {T(fr, fk)}
+        elif u == "total-from-unit":
+            v = sf_v(rd[0]) * sf_v(rd[1])
+            slip = sig_v2(a) * sig_v2(b) * sp.Rational(10) ** (m + n)
+        else:
+            need("m s⁻¹" in L[0] and ("kilometres away" if u == "rate-unit-shift" else "metres away") in L[0], "the units")
+            shift = 3 if u == "rate-unit-shift" else 0
+            v = sf_v((b, n + shift)) / sf_v((a, m))
+            slip = sig_v2(b) / sig_v2(a) * sp.Rational(10) ** (n + shift - m)
+        want, trap, r, k = sf_answer(q, v)
+        if paper == 2:
+            sr, sk = sf_norm(slip)
+            wrongs[X + "1"] = {T(sr, sk)}
+            wrongs[X + "0"] = {sf_raw(r, k)}
+    elif u == "unit-shift":
+        (a, m), = sf_read(L[0])
+        pairs = [("grams", "kilograms", -3), ("kilometres", "metres", 3), ("millimetres", "metres", -3), ("kilowatts", "watts", 3), ("kilograms", "grams", 3), ("metres", "kilometres", -3)]
+        found = [s for f, to, s in pairs if re.search(rf"\b{f}\b", L[0]) and f"in {to}." in asked]
+        need(len(found) == 1, "can't read the units")
+        want = sf_text(a, m + found[0], False)
+        need(1 <= a < 10 and abs(m + found[0]) >= 2, "the amount's a or power")
+    elif u == "scale-value":
+        (a, m), = sf_read(L[0])
+        mt = re.search(r" (\d) times ", L[0])
+        need(mt is not None, "can't read the multiplier")
+        f = int(mt.group(1))
+        want, trap, r, k = sf_answer(q, a * f * sp.Rational(10) ** m)
+        if a * f >= 10:
+            wrongs[M + "1"] = {T(a * f, m)}
+    elif u == "sphere-volume-pi":
+        (d, m), = sf_read(L[0])
+        need("diameter" in L[0], "a diameter")
+        c = (d / 2) ** 3 * sp.Rational(4, 3)
+        want, trap, r, k = sf_answer(q, c * sp.Rational(10) ** (3 * m), "V = π(", ") m³")
+        if not (1 <= c < 10):
+            wrongs[M + "1"] = {sf_text(c, 3 * m, rounded, "V = π(", ") m³")}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap, steps=(2, 5))
+    sf_steps(q)
+    return None, None
+
+
+def sig_v2(x):
+    """x rounded early, to 2 s.f."""
+    return sp.Rational(sig3(x, 2))
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -16331,7 +18386,10 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "fn-pre-linear-equations": check_linear_equation, "fn-pre-simultaneous": check_simultaneous,
                     "fn-link-rate-of-change": check_link_rate,
                     "transform-chain": check_transform, "fn-link-transformations": check_link_transformations,
-                    "fn-link-vectors": check_link_vectors}
+                    "fn-link-vectors": check_link_vectors,
+                    "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
+                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings,
+                    "solid": check_solid, "standard-form": check_standard_form}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

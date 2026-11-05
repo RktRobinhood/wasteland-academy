@@ -43,6 +43,8 @@ const EXTRA_SHARE := 0.3
 static var SITUATIONS := {
 	"quadratic": [QuadraticSituation, QuadraticViews],
 	"triangle": [TriangleSituation, TriangleViews],
+	"arc-sector": [ArcSectorSituation, ArcSectorViews],
+	"bearings-elevation": [BearingsSituation, BearingsViews],
 	"arithmetic-sequence": [ArithmeticSequenceSituation, ArithmeticSequenceViews],
 	"distribution": [DistributionSituation, DistributionViews],
 	"quadratic-parameter": [QuadraticParameterSituation, QuadraticParameterViews],
@@ -75,6 +77,8 @@ static var SITUATIONS := {
 	"fn-link-extremes": [LinkExtremesSituation, LinkExtremesViews],
 	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
 	"binomial": [BinomialSituation, BinomialViews],
+	"sampling": [SamplingSituation, SamplingViews],
+	"cumulative-frequency": [CumulativeFrequencySituation, CumulativeFrequencyViews],
 	"regression": [RegressionSituation, RegressionViews],
 	"regression-x-on-y": [RegressionPairSituation, RegressionPairViews],
 	"normal-unknown": [NormalUnknownSituation, NormalUnknownViews],
@@ -111,6 +115,8 @@ static var SITUATIONS := {
 	"transform-chain": [TransformChainSituation, TransformChainViews],
 	"fn-link-transformations": [LinkTransformationsSituation, LinkTransformationsViews],
 	"fn-link-vectors": [LinkVectorsSituation, LinkVectorsViews],
+	"solid": [SolidSituation, SolidViews],
+	"standard-form": [StandardFormSituation, StandardFormViews],
 }
 
 static var _cat: Dictionary = {}

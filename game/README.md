@@ -259,6 +259,68 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Its views (`conditional_views.gd`) ask 13 unknowns. A normal conditional on a curve shades the
   given and the wanted area, so the overlap shows darker. Answers are exact on Paper 1, in the
   numbers the question uses, and to 3 s.f. on Paper 2; normal and binomial ones are Paper 2 only.
+- `engine/situations/sampling.gd` (FAL-726) is `t4-sampling` (SL4.1, on all four syllabuses): a
+  population in named groups and a surveyor's method, on both papers, Paper 2 with larger numbers.
+  Each group is the interval times its share of the sample, so numbers in proportion are whole.
+  Its views (`sampling_views.gd`) ask 17 unknowns: the technique, a disadvantage (a wrong one is
+  false of that technique), a systematic sample, its interval and a later pick, the best technique,
+  whether a sample is simple random, a group's number in proportion, a shortfall, the most
+  under-represented group, and why a sample is biased, which way it leans, what fixes it, what a
+  larger sample can't do, why a random sample can miss the mix, how to improve reliability and why
+  a source may not be reliable. A reading in words is a `claim`. Representations are a story and a
+  table of the groups. The separate `t4-ext-stratified-numbers` still owns rounding to strata.
+- `engine/situations/cumulative_frequency.gd` (FAL-726) is `t4-cumulative-frequency` (SL4.2, on all
+  four syllabuses), Paper 1 only, as every bank part is. A curve is on a grid of 20 squares by 20
+  (PlotView's `cumfreq`): a square up is n ÷ 20, so every 5% of n is a grid line, and a square
+  across is set by the story. The curve goes through knots at grid corners, and every value a
+  question reads, right or wrong, is a knot, so a reading has one value. Knots are joined by a
+  cubic on each stretch whose gradients can't overshoot. Its views (`cumulative_frequency_views.gd`)
+  ask 30 unknowns: the median, quartiles, IQR, percentiles and range from the curve or by
+  interpolating a table; how many or what percentage lie below, above or between values, a cut-off
+  for the top or a top percentage, a share of a limit, and a sample scaled to its whole group; a
+  table's running totals and frequencies, p and q from the curve, the point plotted for a class,
+  where the curve starts, and pick the curve (GraphView cards, with the points at midpoints or lower
+  boundaries, or the frequencies in place of the totals). A table's classes are equal, its estimates
+  end in at most one decimal, and its counts are whole.
+- `engine/situations/arc_sector.gd` (FAL-726) is `t3-arc-sector` (SL3.4, AA only): one sector, with
+  θ in radians, degrees or as a multiple of π. Paper 1 is exact: every value is a + bπ, kept as
+  [a, b] and answered as a `form` whose slots follow its shape (`5π/6`, `12 + 3π`, `9π − 4.5`), and
+  a wrong option in another shape can be picked but not typed. Paper 2 is to 3 s.f., and a worked-back
+  r or θ comes from a given arc, area or perimeter to 1 d.p. Its views (`arc_sector_views.gd`) ask
+  22 unknowns: conversions, arcs, perimeters, areas, r and θ back from each, major arcs and sectors,
+  r in terms of θ, a bent strip, and a sector rolled into a cone. As the bank asks them, the curved
+  strip between two circles and the plate with two segments cut away are Paper 2 only; the plate
+  brings in `SL3.4.segment-shaded`, with θ found on the GDC. PlotView's `sector` draws the real
+  angle, and `plate` the cut plate.
+- `engine/situations/bearings_elevation.gd` (FAL-726) is `t3-bearings-elevation` (SL3.3, on all four
+  syllabuses). Every question is Paper 2. Its views (`bearings_elevation_views.gd`) ask 19 unknowns:
+  back bearings, angles from a bearing, two-leg journeys by the cosine rule or by components, due
+  east and due west triangles, elevation and depression with an eye height, a chain or a speed, a
+  route's time, connected triangles, and which rule to use (a `claim`). PlotView's `sketch` draws
+  the real coordinates, with a north line at each bearing and each label clear of the others; the
+  small angles of `time-from-depression` are marked not to scale. A bearing that is worked out stays
+  at 100° or more, so its 3 s.f. are three figures.
+- `engine/situations/solid.gd` (FAL-726) is `t3-solid-volume-area` (SL3.1, on all four syllabuses):
+  one solid, as a labelled sketch (PlotView's `solid`, rep `diagram`) or in words: a cone, pyramid,
+  sphere, hemisphere, a composite of them, a hollow cylinder, a cylinder inside a sphere, or the flat
+  sector that rolls into a cone. Its views (`solid_views.gd`) ask 32 unknowns: volumes and surface
+  areas, a height from a slant height, slant height or slant edge, l and V from a total surface, r
+  and h from a volume, the cost of painting a tank, r from a composite's volume with the GDC's
+  solver (Paper 2 only), expressions in x or in r and h, and the sector's radius, angle and area.
+  Paper 1 measures are whole, from Pythagorean triples where a slant comes in, and a multiple of π
+  is a `form` answer with the multiple typed. Paper 2 measures have one decimal place and answers
+  are to 3 s.f. Expressions are Paper 1 only, except S from a cylinder's volume.
+- `engine/situations/standard_form.gd` (FAL-726) is `t1-standard-form` (SL1.1, on all four
+  syllabuses): numbers a × 10^k with a an exact `Q` and k an int, so nothing has to fit a float. Its
+  views (`standard_form_views.gd`) ask 19 unknowns: converting both ways, bringing a back between 1
+  and 10, the largest or smallest of four mixed forms, a GDC display, p × q, p/q and p²q, and
+  stories: how many times larger, a time, a total, a change of unit, a multiple of an amount and a
+  volume π(a × 10^k). An answer a × 10^k is a `form` answer with a and k typed, so 64 × 10⁵ can be
+  typed and is marked wrong, and a negative k is typed like any negative number. `form` has no
+  rounding trap of its own, so the views set one, with a to 2 s.f. E-notation is an option that can
+  be picked but never typed. The font draws every superscript digit and ⁻; `Fmt.sup` leaves a power
+  of 1 out, so `StandardFormViews.ten` writes 10¹ and 10⁰ itself. The GDC methods are Paper 2 and
+  the by-hand multiplying and dividing is Paper 1.
 - `engine/situations/data_summary.gd` (FAL-695) is `t4-summary-statistics` (SL4.3, on all four
   syllabuses): one discrete data set, shown as a list in no particular order (rep `terms`)
   or as a frequency table, all exact (`Q`). Its views (`data_summary_views.gd`) ask 11
@@ -910,6 +972,22 @@ sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and l
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
 back into erf, and a shaded area must be the area given (`check_regression_pair`,
 `check_normal_unknown`, `check_venn`, `check_conditional`).
+For `sampling` it runs the checklist on the surveyor's sentence (a fixed interval, groups filled,
+a random draw) to find the technique, and holds each wrong disadvantage to being false of it. For
+`cumulative-frequency` it reads every value off the curve in the figure, which must rise strictly
+and meet the reading on a corner of the grid the scale line describes; a table's estimates come from
+its written rows, and a pick-the-graph card must hold the points its mistake says
+(`check_sampling`, `check_cumulative_frequency`).
+For the two FAL-726 situations it reads r, θ, the arc, the area, bearings and lengths back from
+the lines or the figure, and works each answer out from those, exactly with a + bπ on Paper 1, or
+at 40 digits. A sector must be drawn to the question's angle, and each length and bearing on a
+sketch must match the points drawn, to one scale. The working's arithmetic is checked from the
+figures shown (`check_arc_sector`, `check_bearings`).
+For the two FAL-726 situations it reads the measures back from a sketch's labels or the sentences,
+and the numbers back from the text, and finds each answer again with exact rationals and π, a
+composite's r from the roots of its cubic at 40 digits. Each number a × 10^k is normalised again
+without leaving exact numbers. Every step of the working that is plain numbers is evaluated, and
+its sides must agree to the figures shown (`check_solid`, `check_standard_form`).
 Each cell also gets 10 questions made on its family's shared situation, and 20 in each
 extra format it offers (`--per-format`). Every mini-boss and boss chain is exported too
 (`--per-chain`, 50 seeds), each part as a question checked like the rest, and then as a
@@ -1240,10 +1318,22 @@ script error happens while it runs. Run one file with
   early-rounding and rearranged-line slips reading differently; a line written with its
   sign; 3 s.f. marking and an exact mean point; every misconception as an option; r² as an
   option and r never 1 or more; the three concept probes; and every course having every cell.
+- `test_solid.gd`, `test_standard_form.gd`: the two FAL-726 types: each built with every cell and
+  all its skills, one right option on each paper it can make, sketches that label only what is
+  given, a right triangle in every cone and a sector that rolls into its cone, a × 10^k typed with
+  a negative k, the right value with a outside 1 to 10 marked wrong, E-notation never typed, the
+  superscripts' glyphs, and every misconception as an option.
 - `test_regression_pair.gd`, `test_normal_unknown.gd`, `test_venn.gd`, `test_conditional.gd`: the four
   FAL-725 types: each built with every cell and all its skills, one right option on each paper,
   the numbers against hand values, the figures drawn, every misconception as an option, and the
   courses each is in.
+- `test_sampling.gd`, `test_cumulative_frequency.gd`: the two FAL-726 types: every cell and skill,
+  one right option on each paper the type has, group sizes whole, a curve rising through grid corners
+  with its class boundaries among them, a table's estimates ending, the figure drawn, every
+  misconception as an option, and every course.
+- `test_arc_sector.gd`, `test_bearings.gd`: the two FAL-726 types: built with every cell and skill,
+  one right option on each paper, exact Paper 1 answers that keep π, a sector at its real angle, a
+  north line at each bearing, every misconception as an option, and the courses each is in.
 - `test_data_summary.gd`: t4-summary-statistics built with every cell and all four SL4.3
   skills; every cell in both formats with 2 to 5 steps per worked solution; the GDC cells
   Paper 2 and the by-hand unknowns Paper 1, and both papers where a cell can make both;
