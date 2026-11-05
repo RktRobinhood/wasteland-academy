@@ -3531,7 +3531,7 @@ def check_expand(q):
     T = "fn-pre-expand"
     if u == "missing-term":
         b = R(g["b"])
-        need(L[0] == f"(x + r)² = {qr_poly([1, b])} + c", "the identity shown is not the givens")
+        need(L[0] == f"(x + r)² = {qr_poly([1, b, 0])} + c", "the identity shown is not the givens")
         r = b / 2
         need(r.q == 1 and r != 0 and abs(r) <= EXP_LIMIT, "r is not a small whole number")
         qr_check_common(q, qr_norm(ans, {"v0": str(r), "v1": str(r**2)}))
