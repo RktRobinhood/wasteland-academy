@@ -113,7 +113,7 @@ static func exact(v: Array) -> String:
 
 ## A value in the working: exact on Paper 1, to 5 figures on Paper 2.
 static func W(s: Dictionary, v: Array) -> String:
-	return exact(v) if s.paper == 1 else Fmt.sf(fl(v), 5)
+	return exact(v) if s.paper == 1 else Fmt.work(fl(v), 5)
 
 
 ## A value as the working shows it, so the next step works from what is on the page.
@@ -342,7 +342,9 @@ func u_deg_to_rad(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var m: Dictionary = {"fraction-of-turn": method(["%s is %s/360 = %s of a turn." % [d, Fmt.dec(s.t), Fmt.num(turn)], "A full turn is 2π: %s × 2π = %s" % [Fmt.num(turn), Fmt.pi(v[1])], say(ans)], ans.values),
 			"multiply-factor": method(["Multiply by π/180: %s × π/180 = %sπ/180" % [Fmt.dec(s.t), Fmt.dec(s.t)], "Cancel: %s" % Fmt.pi(v[1]), say(ans)], ans.values)}
 		var base := 30 if int(s.t.n) % 30 == 0 else 45
-		m["landmarks"] = method(["%d° = %s, and %s is %d lots of %d°." % [base, Fmt.pi(Q.new(base, 180)), d, int(s.t.n) / base, base], "%d × %s = %s" % [int(s.t.n) / base, Fmt.pi(Q.new(base, 180)), Fmt.pi(v[1])], say(ans)], ans.values)
+		var lots: int = int(s.t.n) / base
+		m["landmarks"] = method(["%d° is itself a landmark angle: %d° = %s." % [base, base, Fmt.pi(Q.new(base, 180))], say(ans)] if lots == 1 else
+			["%d° = %s, and %s is %d lots of %d°." % [base, Fmt.pi(Q.new(base, 180)), d, lots, base], "%d × %s = %s" % [lots, Fmt.pi(Q.new(base, 180)), Fmt.pi(v[1])], say(ans)], ans.values)
 		out.methods = m
 		return out
 	out.wrongs = [wrong({"v": GdcKit.qf(s.t.to_float() * 180.0 / PI)}, R_FACTOR)]
@@ -375,7 +377,8 @@ func u_rad_to_deg(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var unit_d: Q = Q.new(180, s.t.d)
 		out.methods = {"multiply-factor": method(["Multiply by 180/π: %s × 180/π = %s × 180" % [d, Fmt.num(s.t)], "= %s" % dd, say(ans)], ans.values),
 			"fraction-of-turn": method(["%s is %s of a full turn of 2π." % [d, Fmt.num(turn)], "%s × 360° = %s°" % [Fmt.num(turn), dd], say(ans)], ans.values),
-			"landmarks": method(["%s is %s°, and %s is %d lots of that." % [Fmt.pi(Q.new(1, s.t.d)), Fmt.dec(unit_d), d, s.t.n], "%d × %s° = %s°" % [s.t.n, Fmt.dec(unit_d), dd], say(ans)], ans.values)}
+			"landmarks": method(["%s is itself a landmark angle: %s°." % [d, dd], say(ans)] if s.t.n == 1 else
+				["%s is %s°, and %s is %d lots of that." % [Fmt.pi(Q.new(1, s.t.d)), Fmt.dec(unit_d), d, s.t.n], "%d × %s° = %s°" % [s.t.n, Fmt.dec(unit_d), dd], say(ans)], ans.values)}
 	else:
 		out.methods = {"multiply-factor": method(["Multiply by 180/π: %s × 180/π = %s" % [d, Fmt.sf(deg, 5)], say(ans)], ans.values),
 			"fraction-of-turn": method(["%s is %s/2π of a full turn." % [d, d], "%s/2π × 360° = %s°" % [d, Fmt.sf(deg, 5)], say(ans)], ans.values),
@@ -409,7 +412,7 @@ static func _frac(s: Dictionary) -> String:
 	if s.form == "deg":
 		return "(%s/360)" % Fmt.dec(s.t)
 	if s.form == "pi":
-		return "(%s/2)" % Fmt.num(s.t)
+		return "(%s)" % Fmt.num(s.t.div(2))
 	return "(%s ÷ 2π)" % Fmt.dec(s.t)
 
 

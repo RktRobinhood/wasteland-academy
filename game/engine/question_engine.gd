@@ -651,7 +651,8 @@ static func _build(v: Dictionary, s: Dictionary, rng: Seeded) -> Dictionary:
 
 	var prompt: String = b.asked
 	if angle != "any":
-		prompt += "\nMethod: %s." % method_name(t, u.id, angle, b, angle)
+		var named := method_name(t, u.id, angle, b, angle)
+		prompt += "\nMethod: %s%s" % [named, "" if named.ends_with("?") else "."]
 	var solutions: Array = []
 	var order: Array = [angle] if angle != "any" else []
 	for a in v.angles:

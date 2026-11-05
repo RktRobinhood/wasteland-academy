@@ -4,7 +4,7 @@ extends "res://tests/test_case.gd"
 ## units, and a limit graph has a gap. The SymPy checker (tools/check-answers) checks the maths.
 
 const TYPE := "t5-derivative-meaning"
-const CELLS := 28
+const CELLS := 26
 const SKILLS := 2
 
 
@@ -58,7 +58,7 @@ func test_a_limit_graph_has_a_gap_at_the_point() -> void:
 
 
 func test_does_not_exist_can_be_picked_but_never_typed() -> void:
-	var q := _make("limit-cancel", "equation", "cancel-factor", 3)
+	var q := _make("limit-from-table", "table", "table-approach", 3)
 	var dne: Array = q.choices.filter(func(o): return o.text == "The limit does not exist")
 	check_eq(dne.size(), 1)
 	check_eq(dne[0].ref, DerivativeMeaningViews.R_DNE)

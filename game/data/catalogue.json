@@ -3804,7 +3804,7 @@
 		"SL4.12.unknown-mean-or-sd": "Find an unknown mean or standard deviation from one probability",
 		"SL4.12.unknown-mean-and-sd": "Find both μ and σ from two probabilities",
 		"SL5.1.interpret-derivative": "Interpret a derivative as a rate of change in context, with units and sign",
-		"SL5.1.estimate-limit": "Estimate a limit from a table, a graph or simple algebra",
+		"SL5.1.estimate-limit": "Estimate a limit from a table or a graph",
 		"SL5.2.increasing-decreasing-intervals": "Find the intervals on which f is increasing or decreasing",
 		"SL5.2.sign-from-graph": "Read the sign of f′(x) from the graph of f",
 		"SL5.2.parameter-for-monotonic": "Find a parameter so that f is increasing (or decreasing) everywhere",
@@ -18328,7 +18328,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL1.1.convert#0",
-					"text": "Giving small numbers a positive power: 0.000052 = 5.2 × 10^5",
+					"text": "Getting the sign of the power wrong: a large number needs a positive power and a small one a negative power",
 					"as": "distractor",
 					"in": [
 						"to-form-small",
@@ -18341,7 +18341,7 @@
 				},
 				{
 					"ref": "SL1.1.convert#1",
-					"text": "Counting digits instead of places moved: 6 400 000 = 6.4 × 10^7",
+					"text": "Counting the digits instead of the places the point moves",
 					"as": "distractor",
 					"in": [
 						"to-form-large",
@@ -18353,7 +18353,7 @@
 				},
 				{
 					"ref": "SL1.1.convert#2",
-					"text": "Leaving a outside 1 ≤ a < 10 (64 × 10^5 or 0.64 × 10^7) as a final answer",
+					"text": "Leaving or comparing a number whose first part isn't between one and ten",
 					"as": "distractor",
 					"in": [
 						"to-form-large",
@@ -18365,7 +18365,7 @@
 				},
 				{
 					"ref": "SL1.1.multiply-divide#0",
-					"text": "Multiplying the powers of ten: 10^4 × 10^3 = 10^12",
+					"text": "Multiplying the powers of ten instead of adding them",
 					"as": "distractor",
 					"in": [
 						"multiply",
@@ -18376,7 +18376,7 @@
 				},
 				{
 					"ref": "SL1.1.multiply-divide#1",
-					"text": "Forgetting to renormalise, leaving 0.7 × 10^−8 or 12 × 10^5 as the answer",
+					"text": "Forgetting to renormalise, which leaves the first part outside one to ten",
 					"as": "distractor",
 					"in": [
 						"multiply-renormalise",
@@ -18389,7 +18389,7 @@
 				},
 				{
 					"ref": "SL1.1.multiply-divide#2",
-					"text": "Sign slip with negative exponents: 10^−3 ÷ 10^5 = 10^2",
+					"text": "Slipping on the powers: subtracting them for a product, or adding them for a quotient",
 					"as": "distractor",
 					"in": [
 						"multiply",
@@ -18400,7 +18400,7 @@
 				},
 				{
 					"ref": "SL1.1.context#0",
-					"text": "Writing the GDC display 5E2 as the final answer",
+					"text": "Writing the GDC display, E-notation and all, as the final answer",
 					"as": "distractor",
 					"in": [
 						"display-to-form",
@@ -20212,7 +20212,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL3.1.volume-solids#0",
-					"text": "Using the slant height instead of the perpendicular height in V = (1/3)πr²h",
+					"text": "Using a longer length as the perpendicular height: a slant height, a slant edge or the sphere's radius",
 					"as": "distractor",
 					"in": [
 						"cone-volume-from-slant",
@@ -20227,7 +20227,7 @@
 				},
 				{
 					"ref": "SL3.1.volume-solids#1",
-					"text": "Forgetting the 1/3 for a cone or pyramid, or using (4/3)πr³ for a hemisphere",
+					"text": "Using the wrong fraction in the volume formula: a third for a cone or pyramid, none for a cylinder, half a sphere for a hemisphere",
 					"as": "distractor",
 					"in": [
 						"cone-volume",
@@ -20249,7 +20249,7 @@
 				},
 				{
 					"ref": "SL3.1.volume-solids#2",
-					"text": "Using the diameter as the radius",
+					"text": "Mixing up the diameter and the radius",
 					"as": "distractor",
 					"in": [
 						"cone-volume",
@@ -20264,7 +20264,7 @@
 				},
 				{
 					"ref": "SL3.1.surface-area#0",
-					"text": "Using the vertical height h in πrl instead of the slant height l",
+					"text": "Using the wrong length in the surface formula: the vertical height or the longest length shown, instead of the slant height or the radius",
 					"as": "distractor",
 					"in": [
 						"cone-curved",
@@ -20279,7 +20279,7 @@
 				},
 				{
 					"ref": "SL3.1.surface-area#1",
-					"text": "Giving a solid hemisphere's surface as 2πr², forgetting the flat face πr² (or counting a face hidden at a join)",
+					"text": "Leaving out a flat face, or counting a face that is hidden or not painted",
 					"as": "distractor",
 					"in": [
 						"hemisphere-surface",
@@ -20294,7 +20294,7 @@
 				},
 				{
 					"ref": "SL3.1.surface-area#2",
-					"text": "Using 4πr² for a hemisphere",
+					"text": "Using the whole sphere's surface for a hemisphere's curved part",
 					"as": "distractor",
 					"in": [
 						"hemisphere-surface",
@@ -21415,7 +21415,7 @@
 				},
 				{
 					"ref": "SL3.3.bearings#1",
-					"text": "Giving the bearing of A from B when asked for B from A",
+					"text": "Giving the bearing the other way: the way back, not the way asked for",
 					"as": "distractor",
 					"in": [
 						"back-bearing",
@@ -21457,7 +21457,7 @@
 				},
 				{
 					"ref": "SL3.3.elevation-depression#2",
-					"text": "Forgetting to add the observer's eye height",
+					"text": "Leaving the observer's eye height out of the calculation",
 					"as": "distractor",
 					"in": [
 						"height-with-eye-level",
@@ -21476,7 +21476,7 @@
 				},
 				{
 					"ref": "SL3.3.multi-triangle#1",
-					"text": "Assuming an angle is 90° because it looks like it",
+					"text": "Assuming a right angle because it looks like one",
 					"as": "distractor",
 					"in": [
 						"shared-side",
@@ -22091,7 +22091,7 @@
 				},
 				{
 					"ref": "SL3.4.convert#1",
-					"text": "Thinking π radians is 3.14° or that 1 radian is about 1°",
+					"text": "Writing the size in radians as if it were degrees",
 					"as": "distractor",
 					"in": [
 						"rad-to-deg"
@@ -22167,7 +22167,7 @@
 				},
 				{
 					"ref": "SL3.4.segment-shaded#0",
-					"text": "Calculator in degree mode when evaluating sin θ for θ in radians",
+					"text": "Leaving the calculator in degree mode when evaluating sin θ for θ in radians",
 					"as": "distractor",
 					"in": [
 						"segments-theta"
@@ -22549,7 +22549,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL3.5.exact-special#0",
-					"text": "Swapping sin(π/6) = 1/2 and cos(π/6) = √3/2",
+					"text": "Swapping the sine and cosine values of a special angle",
 					"as": "distractor",
 					"in": [
 						"special-value",
@@ -22559,7 +22559,7 @@
 				},
 				{
 					"ref": "SL3.5.exact-special#1",
-					"text": "Writing tan(π/6) = √3 instead of 1/√3",
+					"text": "Inverting the value of tan at a special angle",
 					"as": "distractor",
 					"in": [
 						"special-value"
@@ -22568,7 +22568,7 @@
 				},
 				{
 					"ref": "SL3.5.exact-special#2",
-					"text": "Thinking sin(π/4) = 1/2",
+					"text": "Thinking the angle of an isosceles right triangle has a sine or cosine of one half",
 					"as": "distractor",
 					"in": [
 						"special-value",
@@ -22578,7 +22578,7 @@
 				},
 				{
 					"ref": "SL3.5.related-angles#0",
-					"text": "Correct size but wrong sign for the quadrant, e.g. cos(2π/3) = 1/2",
+					"text": "Getting the size right but the sign wrong for the quadrant",
 					"as": "distractor",
 					"in": [
 						"related-value",
@@ -22589,7 +22589,7 @@
 				},
 				{
 					"ref": "SL3.5.related-angles#1",
-					"text": "Measuring the reference angle from the y-axis, e.g. using π/3 for 5π/6",
+					"text": "Measuring the reference angle from the y-axis",
 					"as": "distractor",
 					"in": [
 						"related-value"
@@ -22598,7 +22598,7 @@
 				},
 				{
 					"ref": "SL3.5.related-angles#2",
-					"text": "Treating a negative angle as positive, e.g. sin(−π/6) = 1/2",
+					"text": "Treating a negative angle as positive",
 					"as": "distractor",
 					"in": [
 						"related-value"
@@ -22628,7 +22628,7 @@
 				},
 				{
 					"ref": "SL3.5.unit-circle#2",
-					"text": "Thinking tan(π/2) = 0 or 1 instead of undefined",
+					"text": "Thinking tan has a value where cos is zero",
 					"as": "distractor",
 					"in": [
 						"tan-undefined"
@@ -23034,7 +23034,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL3.6.ratio-from-ratio#0",
-					"text": "Ignoring the quadrant and giving cos θ = +4/5 when θ is obtuse",
+					"text": "Ignoring the quadrant and giving the wrong sign",
 					"as": "distractor",
 					"in": [
 						"cos-from-sin",
@@ -23046,7 +23046,7 @@
 				},
 				{
 					"ref": "SL3.6.ratio-from-ratio#1",
-					"text": "Writing cos θ = 1 − sin θ, dropping the squares",
+					"text": "Dropping the squares from the Pythagorean identity",
 					"as": "distractor",
 					"in": [
 						"cos-from-sin"
@@ -23055,7 +23055,7 @@
 				},
 				{
 					"ref": "SL3.6.ratio-from-ratio#2",
-					"text": "Taking √(1 − 9/25) as 1 − 3/5",
+					"text": "Taking the square root of a difference term by term",
 					"as": "distractor",
 					"in": [
 						"sin-from-cos"
@@ -23064,7 +23064,7 @@
 				},
 				{
 					"ref": "SL3.6.double-angle-values#0",
-					"text": "sin 2θ = 2 sin θ",
+					"text": "Doubling sin θ to get sin 2θ",
 					"as": "distractor",
 					"in": [
 						"sin2-from-ratio"
@@ -23073,7 +23073,7 @@
 				},
 				{
 					"ref": "SL3.6.double-angle-values#1",
-					"text": "cos 2θ = 2 cos θ, or cos 2θ = 1 − sin²θ",
+					"text": "Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ",
 					"as": "distractor",
 					"in": [
 						"cos2-from-sin",
@@ -23103,7 +23103,7 @@
 				},
 				{
 					"ref": "SL3.6.simplify#1",
-					"text": "Writing 4 sin x cos x as 4 sin 2x instead of 2 sin 2x",
+					"text": "Keeping the number in front the same when rewriting as the sine of a double angle, instead of halving it",
 					"as": "distractor",
 					"in": [
 						"product-sine",
@@ -23610,7 +23610,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL3.7.equation-from-graph#0",
-					"text": "Taking the period as the gap from a maximum to the next minimum",
+					"text": "Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum",
 					"as": "distractor",
 					"in": [
 						"b-from-period",
@@ -23634,7 +23634,7 @@
 				},
 				{
 					"ref": "SL3.7.equation-from-graph#2",
-					"text": "Getting the sign of c wrong in a cos(b(x − c)) + d",
+					"text": "Getting the sign of c wrong in the bracket",
 					"as": "distractor",
 					"in": [
 						"c-cos-from-max",
@@ -23646,7 +23646,7 @@
 				},
 				{
 					"ref": "SL3.7.transformations#0",
-					"text": "Reading sin(2x + π/3) as a shift of π/3 left instead of π/6",
+					"text": "Reading the shift before taking b out of the bracket",
 					"as": "distractor",
 					"in": [
 						"shift-from-bracket",
@@ -23657,7 +23657,7 @@
 				},
 				{
 					"ref": "SL3.7.transformations#1",
-					"text": "Using scale factor b for the horizontal stretch instead of 1/b",
+					"text": "Using b as the scale factor of the horizontal stretch instead of its reciprocal",
 					"as": "distractor",
 					"in": [
 						"image-equation",
@@ -23667,7 +23667,7 @@
 				},
 				{
 					"ref": "SL3.7.transformations#2",
-					"text": "Translating right for a +c inside the bracket",
+					"text": "Getting the direction of the shift wrong: a plus inside the bracket moves the graph left",
 					"as": "distractor",
 					"in": [
 						"shift-from-bracket",
@@ -23679,7 +23679,7 @@
 				},
 				{
 					"ref": "SL3.7.model-context#0",
-					"text": "Calculator in degree mode for a radian model",
+					"text": "Leaving the calculator in degree mode for a radian model",
 					"as": "distractor",
 					"in": [
 						"c-from-crossing",
@@ -23689,7 +23689,7 @@
 				},
 				{
 					"ref": "SL3.7.model-context#2",
-					"text": "Reading the period as b rather than 2π/b, e.g. b = π/6 means a 12-hour cycle",
+					"text": "Taking b itself as the period, instead of working out b from the period",
 					"as": "distractor",
 					"in": [
 						"b-from-period",
@@ -24174,7 +24174,7 @@
 				},
 				{
 					"ref": "SL3.8.solve-basic#1",
-					"text": "Using 180° − α for cos instead of 360° − α",
+					"text": "Finding a cosine equation's second solution the way you would for sine",
 					"as": "distractor",
 					"in": [
 						"basic-exact",
@@ -24185,7 +24185,7 @@
 				},
 				{
 					"ref": "SL3.8.solve-basic#2",
-					"text": "Missing solutions in a negative interval such as −π ≤ x ≤ π",
+					"text": "Missing the solutions below zero in the interval",
 					"as": "distractor",
 					"in": [
 						"wide-interval"
@@ -24194,7 +24194,7 @@
 				},
 				{
 					"ref": "SL3.8.compound-angle#0",
-					"text": "Solving for 2x without extending the interval, losing half the solutions",
+					"text": "Solving for the multiple angle without extending the interval, which loses solutions",
 					"as": "distractor",
 					"in": [
 						"multiple-angle",
@@ -24204,7 +24204,7 @@
 				},
 				{
 					"ref": "SL3.8.compound-angle#1",
-					"text": "Dividing only the principal value by 2 and forgetting the others",
+					"text": "Undoing only the principal value and forgetting the other solutions",
 					"as": "distractor",
 					"in": [
 						"multiple-angle",
@@ -24215,7 +24215,7 @@
 				},
 				{
 					"ref": "SL3.8.compound-angle#2",
-					"text": "Undoing x + π/4 by adding π/4 instead of subtracting",
+					"text": "Undoing a shift by adding it instead of subtracting, or the other way round",
 					"as": "distractor",
 					"in": [
 						"shifted-angle",
@@ -24226,7 +24226,7 @@
 				},
 				{
 					"ref": "SL3.8.factorise-not-divide#0",
-					"text": "Cancelling cos x from 2 sin x cos x = cos x and losing x = π/2 and 3π/2",
+					"text": "Cancelling a factor that can be zero, which loses its solutions",
 					"as": "distractor",
 					"in": [
 						"double-equals-cos",
@@ -24237,7 +24237,7 @@
 				},
 				{
 					"ref": "SL3.8.factorise-not-divide#1",
-					"text": "Getting tan x = 1/√3 from sin x = √3 cos x (it is √3)",
+					"text": "Inverting the number when dividing to get tan x",
 					"as": "distractor",
 					"in": [
 						"k-cos-to-tan",
@@ -24256,7 +24256,7 @@
 				},
 				{
 					"ref": "SL3.8.quadratic-in-trig#1",
-					"text": "Taking only the positive root of tan²x = 1/3",
+					"text": "Taking only the positive root of tan²x",
 					"as": "distractor",
 					"in": [
 						"squares-to-tan"
@@ -24657,7 +24657,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL4.1.sampling-technique#0",
-					"text": "Quota sampling and stratified sampling are the same (quota fills each group without random selection)",
+					"text": "Thinking quota sampling and stratified sampling are the same: quota fills each group without random selection",
 					"as": "distractor",
 					"in": [
 						"name-technique",
@@ -24667,7 +24667,7 @@
 				},
 				{
 					"ref": "SL4.1.sampling-technique#1",
-					"text": "Systematic sampling is fully random (only the starting point is random; the rest follows the interval)",
+					"text": "Mixing up systematic and simple random sampling: systematic has a random start, then follows the interval",
 					"as": "distractor",
 					"in": [
 						"name-technique",
@@ -24679,7 +24679,7 @@
 				},
 				{
 					"ref": "SL4.1.sampling-technique#2",
-					"text": "Stopping people in the street is simple random sampling",
+					"text": "Treating whoever happens to be nearby as a simple random sample",
 					"as": "distractor",
 					"in": [
 						"name-technique",
@@ -24690,7 +24690,7 @@
 				},
 				{
 					"ref": "SL4.1.bias-reliability#0",
-					"text": "A larger sample removes bias (it improves reliability, but a biased method stays biased)",
+					"text": "Thinking a larger sample removes bias: it improves reliability, but a biased method stays biased",
 					"as": "distractor",
 					"in": [
 						"why-biased",
@@ -24703,7 +24703,7 @@
 				},
 				{
 					"ref": "SL4.1.bias-reliability#1",
-					"text": "A random sample is always perfectly representative",
+					"text": "Thinking a random sample is always perfectly representative",
 					"as": "distractor",
 					"in": [
 						"why-biased",
@@ -25352,7 +25352,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL4.2.cumfreq-quartiles#0",
-					"text": "Reading the median halfway along the horizontal axis instead of from n/2 on the vertical axis",
+					"text": "Taking the middle of the data's range for the median, instead of the value halfway through the cumulative frequency",
 					"as": "distractor",
 					"in": [
 						"median-from-graph",
@@ -25362,7 +25362,7 @@
 				},
 				{
 					"ref": "SL4.2.cumfreq-quartiles#1",
-					"text": "Finding Q3 − Q1 on the cumulative frequency axis instead of on the data axis",
+					"text": "Subtracting the quartile positions on the cumulative frequency instead of the quartile values of the data",
 					"as": "distractor",
 					"in": [
 						"iqr-from-graph",
@@ -25372,7 +25372,7 @@
 				},
 				{
 					"ref": "SL4.2.cumfreq-quartiles#2",
-					"text": "Reading the 90th percentile from 90 on the vertical axis when n is not 100",
+					"text": "Using the percentile number as the cumulative frequency, when it is a percentage of the total",
 					"as": "distractor",
 					"in": [
 						"percentile-from-graph",
@@ -25382,7 +25382,7 @@
 				},
 				{
 					"ref": "SL4.2.cumfreq-count#0",
-					"text": "Giving the cumulative frequency at 65 as the number who scored more than 65 (it is the number at or below)",
+					"text": "Giving the cumulative frequency itself, which counts those at or below the value, not those above it",
 					"as": "distractor",
 					"in": [
 						"count-above",
@@ -25395,7 +25395,7 @@
 				},
 				{
 					"ref": "SL4.2.cumfreq-count#1",
-					"text": "For the top 30, reading across from 30 on the vertical axis instead of from n − 30",
+					"text": "Using the size of the top group as the cumulative frequency, instead of taking it from the total",
 					"as": "distractor",
 					"in": [
 						"cutoff-top",
@@ -25416,7 +25416,7 @@
 				},
 				{
 					"ref": "SL4.2.cumfreq-build#1",
-					"text": "Reading a cumulative frequency as the frequency of that single class",
+					"text": "Mixing up the running total with the frequency of a single class",
 					"as": "distractor",
 					"in": [
 						"cf-entry",
@@ -26724,7 +26724,7 @@
 				},
 				{
 					"ref": "SL4.6.union#1",
-					"text": "Multiplying P(A) × P(B) for 'A or B'",
+					"text": "Multiplying P(A) × P(B): that gives P(A ∩ B), and only when the events are independent",
 					"as": "distractor",
 					"in": [
 						"union-from-rule",
@@ -26748,7 +26748,7 @@
 				},
 				{
 					"ref": "SL4.6.venn#0",
-					"text": "Writing n(A) in the 'A only' region without subtracting the intersection",
+					"text": "Using the whole of A for the 'A only' region, without subtracting the intersection",
 					"as": "distractor",
 					"in": [
 						"one-event-only",
@@ -28026,7 +28026,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL4.10.x-on-y-line#0",
-					"text": "Rearranging the y-on-x line to make x the subject (it is a different line unless r = ±1)",
+					"text": "Rearranging the y-on-x line to make x the subject: it is a different line unless the fit is perfect",
 					"as": "distractor",
 					"in": [
 						"x-on-y-line"
@@ -28044,7 +28044,7 @@
 				},
 				{
 					"ref": "SL4.10.choose-line#0",
-					"text": "The y-on-x line can always be used if you rearrange it",
+					"text": "Thinking the other line can always be used if you rearrange it",
 					"as": "distractor",
 					"in": [
 						"choose-line"
@@ -28514,7 +28514,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL4.11.conditional-formula#0",
-					"text": "Dividing by P(A) instead of P(B)",
+					"text": "Dividing by the probability of the wrong event, not the one that is given",
 					"as": "distractor",
 					"in": [
 						"conditional-from-probabilities",
@@ -28526,7 +28526,7 @@
 				},
 				{
 					"ref": "SL4.11.conditional-formula#1",
-					"text": "Giving P(A ∩ B) as the answer without dividing",
+					"text": "Giving the probability of both events as the answer, without dividing",
 					"as": "distractor",
 					"in": [
 						"conditional-from-probabilities",
@@ -28556,7 +28556,7 @@
 				},
 				{
 					"ref": "SL4.11.reverse-conditional#1",
-					"text": "Using only one path for P(B) in the denominator",
+					"text": "Not dividing by all the paths that lead to the condition",
 					"as": "distractor",
 					"in": [
 						"reverse-from-tree",
@@ -28566,7 +28566,7 @@
 				},
 				{
 					"ref": "SL4.11.multiplication-rule#0",
-					"text": "P(A ∩ B) = P(A | B) ÷ P(B)",
+					"text": "Dividing by P(B) instead of multiplying: P(A ∩ B) is P(A | B) × P(B)",
 					"as": "distractor",
 					"in": [
 						"intersection-from-conditional"
@@ -28585,7 +28585,7 @@
 				},
 				{
 					"ref": "SL4.11.conditional-distributions#0",
-					"text": "Multiplying P(X > 35) × P(X > 30) for the numerator",
+					"text": "Multiplying the wanted probability by the given one instead of dividing",
 					"as": "distractor",
 					"in": [
 						"conditional-normal",
@@ -28595,7 +28595,7 @@
 				},
 				{
 					"ref": "SL4.11.conditional-distributions#1",
-					"text": "Giving P(30 < X < 35) as the answer",
+					"text": "Giving the probability between the two bounds as the answer",
 					"as": "distractor",
 					"in": [
 						"conditional-normal"
@@ -28985,7 +28985,7 @@
 				},
 				{
 					"ref": "SL4.12.unknown-mean-and-sd#0",
-					"text": "Giving both conditions a positive z when one value is below the mean",
+					"text": "Taking both z-values as positive, when a value below the mean needs a negative z",
 					"as": "distractor",
 					"in": [
 						"mean-and-sd"
@@ -29003,7 +29003,7 @@
 				},
 				{
 					"ref": "SL4.12.unknown-mean-and-sd#2",
-					"text": "Rounding the z-values to 1 decimal place and losing accuracy",
+					"text": "Rounding the z-values too early and losing accuracy",
 					"as": "distractor",
 					"in": [
 						"mean-and-sd"
@@ -29204,21 +29204,6 @@
 					"skills": [
 						"SL5.1.estimate-limit"
 					]
-				},
-				{
-					"id": "limit-cancel",
-					"given": [
-						"a rational function with 0/0 at a point"
-					],
-					"asked": "the limit at that point",
-					"level": 2,
-					"exam": false,
-					"reps": [
-						"equation"
-					],
-					"skills": [
-						"SL5.1.estimate-limit"
-					]
 				}
 			],
 			"angles": [
@@ -29281,20 +29266,10 @@
 					"method": "gdc-table",
 					"suits": [
 						"limit-of-rate",
-						"limit-from-table",
-						"limit-cancel"
+						"limit-from-table"
 					],
 					"name": "Generate the table on the GDC",
 					"about": "Use the GDC table with x-values such as 1.9, 1.99, 2.01, 2.001 to produce the values yourself."
-				},
-				{
-					"skill": "SL5.1.estimate-limit",
-					"method": "cancel-factor",
-					"suits": [
-						"limit-cancel"
-					],
-					"name": "Factorise and cancel, then substitute",
-					"about": "Cancel the common factor that causes 0/0 (or divide through by the highest power of x for limits at infinity), then substitute."
 				}
 			],
 			"concepts": [
@@ -29320,7 +29295,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL5.1.interpret-derivative#0",
-					"text": "Reading f′(5) = 12 as 'the value of f at 5 is 12'",
+					"text": "Reading the rate of change as the amount itself",
 					"as": "distractor",
 					"in": [
 						"rate-at-time",
@@ -29332,7 +29307,7 @@
 				},
 				{
 					"ref": "SL5.1.interpret-derivative#1",
-					"text": "Ignoring the negative sign, so dV/dt = −3 is read as increasing by 3",
+					"text": "Ignoring a negative sign, so a falling quantity is read as rising",
 					"as": "distractor",
 					"in": [
 						"rate-at-time",
@@ -29344,7 +29319,7 @@
 				},
 				{
 					"ref": "SL5.1.interpret-derivative#2",
-					"text": "Giving the units of y only (cm²) instead of y per unit x (cm² per second)",
+					"text": "Giving the units of y only, instead of units of y per unit of x",
 					"as": "distractor",
 					"in": [
 						"interpret-value",
@@ -29354,24 +29329,22 @@
 				},
 				{
 					"ref": "SL5.1.estimate-limit#0",
-					"text": "The limit does not exist because f(a) itself is undefined (0/0)",
+					"text": "Thinking a limit can't exist when the function never reaches the value",
 					"as": "distractor",
 					"in": [
 						"limit-of-model",
 						"limit-of-rate",
 						"limit-from-table",
-						"limit-from-graph",
-						"limit-cancel"
+						"limit-from-graph"
 					],
 					"wrong": "does not exist"
 				},
 				{
 					"ref": "SL5.1.estimate-limit#1",
-					"text": "The limit always equals f(a), even when the graph has a hole or jump at x = a",
+					"text": "Giving the function's value at one point as the limit, instead of where its values are heading",
 					"as": "distractor",
 					"in": [
 						"limit-of-model",
-						"limit-of-rate",
 						"limit-from-graph"
 					],
 					"wrong": "the value at the point, or at the start"
@@ -29736,7 +29709,7 @@
 				},
 				{
 					"ref": "SL5.2.increasing-decreasing-intervals#1",
-					"text": "Solving f(x) < 0 (below the axis) instead of f′(x) < 0 (going down)",
+					"text": "Reading where f is above or below the axis, instead of where f′ is positive or negative",
 					"as": "distractor",
 					"in": [
 						"quadratic-interval",
@@ -29746,7 +29719,7 @@
 				},
 				{
 					"ref": "SL5.2.increasing-decreasing-intervals#2",
-					"text": "Getting the inequality the wrong way round when the leading coefficient of f′ is negative",
+					"text": "Taking the side of the roots where f′ has the opposite sign to the one asked for",
 					"as": "distractor",
 					"in": [
 						"interval-from-equation",
@@ -29759,7 +29732,7 @@
 				},
 				{
 					"ref": "SL5.2.sign-from-graph#0",
-					"text": "Confusing f′(x) < 0 with f(x) < 0 (being below the axis)",
+					"text": "Using the sign of f instead of the sign of f′: being above the axis is not the same as going up",
 					"as": "distractor",
 					"in": [
 						"sign-at-points",
@@ -29769,7 +29742,7 @@
 				},
 				{
 					"ref": "SL5.2.sign-from-graph#1",
-					"text": "Thinking f′ = 0 at the x-intercepts rather than at the turning points",
+					"text": "Thinking f′ is zero at the x-intercepts rather than at the turning points",
 					"as": "distractor",
 					"in": [
 						"intervals-from-graph"
@@ -29787,7 +29760,7 @@
 				},
 				{
 					"ref": "SL5.2.parameter-for-monotonic#1",
-					"text": "Using b² − 4ac > 0 (two roots) instead of ≤ 0",
+					"text": "Asking f′ for two roots, when a monotonic f allows at most one",
 					"as": "distractor",
 					"in": [
 						"parameter-discriminant",
@@ -29797,7 +29770,7 @@
 				},
 				{
 					"ref": "SL5.2.parameter-for-monotonic#2",
-					"text": "Solving k² ≤ 9 as k ≤ 3 only, losing −3 ≤ k",
+					"text": "Keeping only the upper bound when solving an inequality in k², and losing the lower bound",
 					"as": "distractor",
 					"in": [
 						"parameter-discriminant"
@@ -31168,7 +31141,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL5.9.velocity-acceleration#0",
-					"text": "Substituting t into s to get the velocity",
+					"text": "Substituting t into the function you were given, instead of differentiating it",
 					"as": "distractor",
 					"in": [
 						"velocity-at-time",
@@ -31196,7 +31169,7 @@
 				},
 				{
 					"ref": "SL5.9.rest-and-direction#0",
-					"text": "At rest means a = 0",
+					"text": "Looking for zero acceleration instead of zero velocity",
 					"as": "distractor",
 					"in": [
 						"first-at-rest",
@@ -31206,7 +31179,7 @@
 				},
 				{
 					"ref": "SL5.9.rest-and-direction#1",
-					"text": "Speeding up means a > 0, even when v < 0",
+					"text": "Thinking speeding up only needs positive acceleration, whatever the sign of the velocity",
 					"as": "distractor",
 					"in": [
 						"speeding-up"
@@ -31243,7 +31216,7 @@
 				},
 				{
 					"ref": "SL5.9.max-speed#2",
-					"text": "Setting v = 0 to find the maximum velocity",
+					"text": "Setting the velocity to zero to find its maximum",
 					"as": "distractor",
 					"in": [
 						"max-velocity-quadratic"
@@ -31809,7 +31782,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL5.6.standard-derivatives#0",
-					"text": "d/dx cos x = sin x (missing the minus sign)",
+					"text": "Differentiating cos x to sin x and missing the minus sign",
 					"as": "distractor",
 					"in": [
 						"standard-terms",
@@ -31819,7 +31792,7 @@
 				},
 				{
 					"ref": "SL5.6.standard-derivatives#1",
-					"text": "d/dx e^x = x e^(x−1), treating e^x as a power of x",
+					"text": "Treating e^x as a power of x and bringing the power down",
 					"as": "distractor",
 					"in": [
 						"standard-terms"
@@ -31828,7 +31801,7 @@
 				},
 				{
 					"ref": "SL5.6.standard-derivatives#2",
-					"text": "Getting a fractional power wrong: x^(−1/3) → −(1/3)x^(2/3) instead of −(1/3)x^(−4/3)",
+					"text": "Adding one to a fractional power instead of taking one off",
 					"as": "distractor",
 					"in": [
 						"root-powers"
@@ -31837,7 +31810,7 @@
 				},
 				{
 					"ref": "SL5.6.chain-rule#0",
-					"text": "Forgetting the inner derivative: d/dx (3x² + 1)⁴ = 4(3x² + 1)³",
+					"text": "Forgetting the inner derivative",
 					"as": "distractor",
 					"in": [
 						"log-power-terms",
@@ -31852,7 +31825,7 @@
 				},
 				{
 					"ref": "SL5.6.chain-rule#1",
-					"text": "d/dx ln(3x) = 1/(3x) instead of 1/x",
+					"text": "Differentiating ln(kx) to one over kx, with no inner factor to cancel the k",
 					"as": "distractor",
 					"in": [
 						"log-power-terms"
@@ -31861,7 +31834,7 @@
 				},
 				{
 					"ref": "SL5.6.chain-rule#2",
-					"text": "Replacing the inside by its derivative: 4(6x)³",
+					"text": "Replacing the inside of the bracket by its derivative",
 					"as": "distractor",
 					"in": [
 						"chain-power"
@@ -31870,7 +31843,7 @@
 				},
 				{
 					"ref": "SL5.6.product-rule#0",
-					"text": "(uv)′ = u′v′",
+					"text": "Multiplying the two derivatives: taking (uv)′ as u′v′",
 					"as": "distractor",
 					"in": [
 						"product-functions",
@@ -31894,7 +31867,7 @@
 				},
 				{
 					"ref": "SL5.6.product-rule#2",
-					"text": "Factorising wrongly, e.g. 2x ln x + x = x(2 ln x)",
+					"text": "Losing a term when taking out the common factor",
 					"as": "distractor",
 					"in": [
 						"product-functions"
@@ -31923,14 +31896,13 @@
 						"quotient-functions",
 						"quotient-split",
 						"gradient-quotient",
-						"parameter-derivative",
-						"show-form"
+						"parameter-derivative"
 					],
 					"wrong": "v for v²"
 				},
 				{
 					"ref": "SL5.6.quotient-rule#2",
-					"text": "(u/v)′ = u′/v′",
+					"text": "Dividing the two derivatives: taking (u/v)′ as u′/v′",
 					"as": "distractor",
 					"in": [
 						"quotient-linear",
@@ -31942,7 +31914,7 @@
 				},
 				{
 					"ref": "SL5.6.show-derivative-form#2",
-					"text": "Sign slips when expanding −u v′ in the quotient rule",
+					"text": "Slipping a sign when expanding −u v′ in the quotient rule",
 					"as": "distractor",
 					"in": [
 						"show-form"
@@ -32292,7 +32264,7 @@
 				},
 				{
 					"ref": "SL5.7.find-second-derivative#1",
-					"text": "Differentiating f(x) again instead of f′(x)",
+					"text": "Stopping at f′ instead of differentiating again",
 					"as": "distractor",
 					"in": [
 						"second-derivative",
@@ -32311,7 +32283,7 @@
 				},
 				{
 					"ref": "SL5.7.concavity#0",
-					"text": "Confusing concave up (f″ > 0) with increasing (f′ > 0)",
+					"text": "Confusing concave up with increasing: looking at the sign of f′ instead of f″",
 					"as": "distractor",
 					"in": [
 						"concave-interval",
@@ -32332,7 +32304,7 @@
 				},
 				{
 					"ref": "SL5.7.sketch-match-graphs#0",
-					"text": "Drawing f′ as a shifted copy of f",
+					"text": "Going by the curve's general shape instead of checking its zeros, turning points and signs",
 					"as": "distractor",
 					"in": [
 						"match-derivative",
@@ -32343,7 +32315,7 @@
 				},
 				{
 					"ref": "SL5.7.sketch-match-graphs#1",
-					"text": "Putting the zeros of f′ at the x-intercepts of f instead of at its turning points",
+					"text": "Putting the zeros of a derivative at the x-intercepts instead of at the turning points",
 					"as": "distractor",
 					"in": [
 						"match-derivative",
@@ -32990,7 +32962,7 @@
 				},
 				{
 					"ref": "SL5.11.evaluate-definite#1",
-					"text": "Assuming the lower limit contributes 0, e.g. treating e⁰ or cos 0 as 0",
+					"text": "Taking the lower limit's term as zero when it isn't",
 					"as": "distractor",
 					"in": [
 						"evaluate-trig",
@@ -33068,7 +33040,7 @@
 				},
 				{
 					"ref": "SL5.11.composite-region-area#1",
-					"text": "Adding a piece that should be subtracted, counting the region under the line twice",
+					"text": "Using the wrong sign for the triangle: adding a piece that should be subtracted, or subtracting one that should be added",
 					"as": "distractor",
 					"in": [
 						"region-tangent",
@@ -33105,7 +33077,7 @@
 				},
 				{
 					"ref": "SL5.5.total-change-from-rate#2",
-					"text": "Giving the answer in units per minute instead of units",
+					"text": "Giving the total in the units of the rate",
 					"as": "distractor",
 					"in": [
 						"total-from-rate",
@@ -33623,7 +33595,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL5.5.antidiff-power#0",
-					"text": "Dividing by the old power n instead of n + 1",
+					"text": "Dividing by the old power instead of the new one",
 					"as": "distractor",
 					"in": [
 						"power-polynomial",
@@ -33644,7 +33616,7 @@
 				},
 				{
 					"ref": "SL5.5.antidiff-power#2",
-					"text": "Integrating 3/x² as 3/(x³/3) or as 3 ln(x²)",
+					"text": "Integrating a fraction in x without first rewriting it as a negative power",
 					"as": "distractor",
 					"in": [
 						"power-negative"
@@ -33653,7 +33625,7 @@
 				},
 				{
 					"ref": "SL5.10.standard-integrals#0",
-					"text": "∫ sin x dx = cos x + C (wrong sign)",
+					"text": "Integrating sin x to cos x, with the wrong sign",
 					"as": "distractor",
 					"in": [
 						"standard-exp-trig"
@@ -33662,7 +33634,7 @@
 				},
 				{
 					"ref": "SL5.10.standard-integrals#1",
-					"text": "Using the power rule on 1/x: ∫ x⁻¹ dx = x⁰/0",
+					"text": "Using the power rule on a reciprocal term, which would mean dividing by zero",
 					"as": "distractor",
 					"in": [
 						"standard-reciprocal"
@@ -33671,7 +33643,7 @@
 				},
 				{
 					"ref": "SL5.10.standard-integrals#2",
-					"text": "Multiplying by the new power instead of dividing: ∫ x^(1/2) dx = (3/2)x^(3/2)",
+					"text": "Multiplying by the new power instead of dividing",
 					"as": "distractor",
 					"in": [
 						"standard-roots"
@@ -33680,7 +33652,7 @@
 				},
 				{
 					"ref": "SL5.10.linear-composites#0",
-					"text": "Multiplying by a as in differentiation: ∫ cos(4x) dx = 4 sin(4x) + C",
+					"text": "Multiplying by the coefficient of x, as in differentiation, instead of dividing",
 					"as": "distractor",
 					"in": [
 						"linear-exp",
@@ -33693,7 +33665,7 @@
 				},
 				{
 					"ref": "SL5.10.linear-composites#1",
-					"text": "Missing the factor ½: ∫ 1/(2x − 5) dx = ln|2x − 5| + C",
+					"text": "Forgetting to divide by the coefficient of x",
 					"as": "distractor",
 					"in": [
 						"linear-exp",
@@ -33706,7 +33678,7 @@
 				},
 				{
 					"ref": "SL5.10.linear-composites#2",
-					"text": "Dividing by the exponent: ∫ e^(3x + 1) dx = e^(3x + 1)/(3x + 1) + C",
+					"text": "Dividing by the whole exponent instead of the coefficient of x",
 					"as": "distractor",
 					"in": [
 						"linear-exp"
@@ -33727,7 +33699,7 @@
 				},
 				{
 					"ref": "SL5.10.inspection-substitution#1",
-					"text": "Forgetting to divide by 2: ∫ 6x/(x² + 1) dx = 6 ln(x² + 1) + C",
+					"text": "Forgetting to divide by the number that comes from differentiating the inside",
 					"as": "distractor",
 					"in": [
 						"inspection-power",
@@ -33750,7 +33722,7 @@
 				},
 				{
 					"ref": "SL5.10.rewrite-before-integrating#0",
-					"text": "Integrating numerator and denominator separately: ∫ (x² + 3)/x dx = (x³/3 + 3x)/(x²/2)",
+					"text": "Integrating the numerator and denominator separately",
 					"as": "distractor",
 					"in": [
 						"rewrite-fraction"
@@ -33759,7 +33731,7 @@
 				},
 				{
 					"ref": "SL5.10.rewrite-before-integrating#1",
-					"text": "Missing the middle term: (e^x + 1)² = e^(2x) + 1",
+					"text": "Missing the middle term when squaring a bracket",
 					"as": "distractor",
 					"in": [
 						"rewrite-square"
@@ -41389,7 +41361,7 @@
 				},
 				{
 					"ref": "SL3.7.transformations#2",
-					"text": "Translating right for a +c inside the bracket",
+					"text": "Getting the direction of the shift wrong: a plus inside the bracket moves the graph left",
 					"as": "distractor",
 					"in": [
 						"moved-feature"
@@ -41988,7 +41960,7 @@
 				},
 				{
 					"ref": "SL3.7.transformations#0",
-					"text": "Reading sin(2x + π/3) as a shift of π/3 left instead of π/6",
+					"text": "Reading the shift before taking b out of the bracket",
 					"as": "distractor",
 					"in": [
 						"wave-shift-vector"
@@ -41997,7 +41969,7 @@
 				},
 				{
 					"ref": "SL3.7.transformations#2",
-					"text": "Translating right for a +c inside the bracket",
+					"text": "Getting the direction of the shift wrong: a plus inside the bracket moves the graph left",
 					"as": "distractor",
 					"in": [
 						"wave-shift-vector"
@@ -42508,7 +42480,7 @@
 				},
 				{
 					"ref": "SL5.1.interpret-derivative#1",
-					"text": "Ignoring the negative sign, so dV/dt = −3 is read as increasing by 3",
+					"text": "Ignoring a negative sign, so a falling quantity is read as rising",
 					"as": "distractor",
 					"in": [
 						"derivative-in-context"
@@ -42517,7 +42489,7 @@
 				},
 				{
 					"ref": "SL5.1.interpret-derivative#2",
-					"text": "Giving the units of y only (cm²) instead of y per unit x (cm² per second)",
+					"text": "Giving the units of y only, instead of units of y per unit of x",
 					"as": "distractor",
 					"in": [
 						"derivative-in-context"
@@ -43561,7 +43533,7 @@
 				},
 				{
 					"ref": "SL3.8.solve-basic#1",
-					"text": "Using 180° − α for cos instead of 360° − α",
+					"text": "Finding a cosine equation's second solution the way you would for sine",
 					"as": "distractor",
 					"in": [
 						"one-answer-only"
@@ -43588,7 +43560,7 @@
 				},
 				{
 					"ref": "SL5.5.antidiff-power#0",
-					"text": "Dividing by the old power n instead of n + 1",
+					"text": "Dividing by the old power instead of the new one",
 					"as": "distractor",
 					"in": [
 						"integrate-to-undo"
@@ -43976,7 +43948,7 @@
 				},
 				{
 					"ref": "SL3.5.related-angles#0",
-					"text": "Correct size but wrong sign for the quadrant, e.g. cos(2π/3) = 1/2",
+					"text": "Getting the size right but the sign wrong for the quadrant",
 					"as": "distractor",
 					"in": [
 						"related-angle"
@@ -43985,7 +43957,7 @@
 				},
 				{
 					"ref": "SL3.5.related-angles#1",
-					"text": "Measuring the reference angle from the y-axis, e.g. using π/3 for 5π/6",
+					"text": "Measuring the reference angle from the y-axis",
 					"as": "distractor",
 					"in": [
 						"related-angle"
@@ -44490,7 +44462,7 @@
 				},
 				{
 					"ref": "SL3.6.double-angle-values#1",
-					"text": "cos 2θ = 2 cos θ, or cos 2θ = 1 − sin²θ",
+					"text": "Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ",
 					"as": "distractor",
 					"in": [
 						"cos2x-form"

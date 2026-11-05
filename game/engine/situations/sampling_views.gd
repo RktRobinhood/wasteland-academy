@@ -240,7 +240,7 @@ func u_best_technique(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			flawed = ["With no list there is nothing to draw numbers from.", "No groups are asked for, so a fixed interval from a random start is what is left."]
 		_:
 			lines = ["%s lists all %d %s by number." % [cap(c.list), s.N, c.who], "The groups don't matter here. The surveyor wants every set of %d to have the same chance." % s.n]
-			wrongs = [[NAMES.systematic, R_INTERVAL], [NAMES.convenience, R_STREET], [NAMES.quota, ""]]
+			wrongs = [[NAMES.systematic, R_INTERVAL], [NAMES.convenience, ""], [NAMES.quota, ""]]
 			why = ["Every set of %d has the same chance only if the names are drawn freely." % s.n, "A fixed interval would rule out most sets, and no group is needed."]
 			flawed = ["A fixed interval rules out most sets of %d, and a spot leaves out whoever doesn't come by." % s.n, "A draw from the full list has neither flaw."]
 	var right: String = NAMES[s.tech]

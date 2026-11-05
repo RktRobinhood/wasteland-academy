@@ -45,6 +45,7 @@ game/
 ├── tools/export_questions.gd  ← used by ../tools/check-answers
 ├── tools/course_report.gd  ← used by ../tools/course-audit
 ├── tools/stress_questions.gd  ← used by ../tools/stress-questions
+├── tools/feedback_check.gd    ← used by ../tools/feedback-check
 ├── tools/bazaar_sim.gd, bazaar_balance.gd  ← the Bazaar's balance check and price table
 ├── addons/godot_mcp_toolkit/  ← editor plugin for the Godot MCP (see docs/MCP-NOTES.md)
 └── docs/MCP-NOTES.md
@@ -98,6 +99,7 @@ Godot is found on `PATH`, at `~/.local/bin/godot`, or from `GODOT=/path/to/godot
 | `node scripts/web-screenshot.mjs [export dir] [out dir] [name=?query ...]` | Serves an export at `/wasteland-academy/next/` and screenshots it in headless Chromium at 390x844 and 1280x800, plus each named deep link. Fails if the page logs an error |
 | `tools/check-answers` | The SymPy answer checker (see below) |
 | `tools/stress-questions [--from=51] [--to=2250]` | The seed sweep (see below) |
+| `tools/feedback-check [--seeds=12] [--rows=file.tsv] [--all]` | What a student reads after a wrong answer (see below). `./test.sh` runs it |
 | `tools/course-audit` | Where the engine stands for each IB course: skills, types and built questions (see below) |
 | `scripts/mcp-editor.sh start\|stop` | Headless editor on `game/` for the Godot MCP |
 | `python3 -I scripts/mcp_call.py <tool> '<json>' ...` | Calls Godot MCP tools through that editor |
@@ -1027,6 +1029,14 @@ its questions). Each leaves a `summary.json`, and the `answers` job merges them
 and together they give every cell 50 questions and every type 1,000.
 
 ### The seed sweep
+
+`tools/feedback-check` takes every wrong option with a misconception tag and fails if
+its "Watch out" text shows a number the question doesn't, states the false belief as if it
+were true (each string opens by naming the slip: "Assuming ...", "Using ..."), or has no
+text. It also fails on an absurdly large option. So strings carry no numbers of their own:
+one string serves every question with that tag. Whether a tag fits its option has to be
+read: `--rows=file.tsv` writes one row per type, unknown, representation and tag. A new type
+is enforced from its first commit; the older types in `REPORT_ONLY` are only counted.
 
 The checker only exports seeds 1 to 50. `tools/stress-questions` makes every cell with
 seeds 51 to 2250 (about 258,000 questions, a few minutes) and checks that each question

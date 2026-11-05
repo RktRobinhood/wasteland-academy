@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# The feedback check (FAL-742): fails when a misconception's feedback shows numbers from
+# another question or states the false belief as true. See game/tools/feedback_check.gd.
+# Exits non-zero on any failure in an enforced type.
+#
+#   tools/feedback-check [--seeds=12] [--types=id,id] [--rows=/abs/file.tsv] [--all]
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+source "$ROOT/scripts/godot-env.sh"
+
+import_project
+log="$ROOT/_scratch/feedback-check.log"
+mkdir -p "$(dirname "$log")"
+set +e
+"$GODOT" --headless --path "$GAME" --script res://tools/feedback_check.gd -- "$@" 2>&1 \
+	| grep -v "^\[MCP" | tee "$log"
+status=${PIPESTATUS[0]}
+set -e
+if grep -q "SCRIPT ERROR" "$log"; then
+	echo "feedback-check: script errors (see $log)" >&2
+	exit 1
+fi
+exit "$status"
