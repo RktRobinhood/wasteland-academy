@@ -671,8 +671,10 @@ func autoplay(right: bool) -> void:
 		"value":
 			var values: Dictionary = question.answer.values
 			if not right:
+				# A wrong option in another shape can be picked but not typed.
+				var typed: Array = _slots.keys() + _picks.keys()
 				for c in question.choices:
-					if not c.correct:
+					if not c.correct and typed.all(func(id): return c.values.has(id)):
 						values = c.values
 						if c.ref != "":
 							break

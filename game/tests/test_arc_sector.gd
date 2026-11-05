@@ -65,6 +65,12 @@ func test_a_paper_1_answer_keeps_pi() -> void:
 	check(seen, "no perimeter in terms of π")
 
 
+func test_an_angle_of_one_is_one_radian() -> void:
+	check_eq(ArcSectorViews.angle_words({"form": "rad", "t": Q.new(1)}), "1 radian")
+	check_eq(ArcSectorViews.angle_words({"form": "rad", "t": Q.new(6, 5)}), "1.2 radians")
+	check_eq(ArcSectorViews.angle_words({"form": "pi", "t": Q.new(1)}), "π radians")
+
+
 func test_a_sector_is_drawn_to_its_real_angle() -> void:
 	for seed in range(1, 30):
 		var q := QuestionEngine.make({"type": TYPE, "unknown": "arc-length", "rep": "diagram", "angle": "l-equals-r-theta", "seed": seed})

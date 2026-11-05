@@ -3934,6 +3934,334 @@
 				"the divisor is more than 1, and the bracket has whole-number coefficients",
 				"a greatest divisor is smaller than the coefficient of n, so a fraction is left if that is taken out"
 			]
+		},
+		"motion-distance": {
+			"name": "A particle's journey, added up",
+			"extends": "motion",
+			"summary": "The motion situation with its velocity integrated: a start, a change in displacement and a total distance, split at each rest. It adds families the base does not have: a velocity with one rest, a quadratic displacement, a straight velocity, a position model, a repeating velocity and two racers. The rest finder, the Paper 2 models and the graph drawing are the base situation's.",
+			"quantities": [
+				{
+					"name": "A, u, r",
+					"is": "Paper 1: v(t) = 3A(t + u)(r − t), positive and then negative",
+					"pick": "u and r whole, with r − u even, so s(t) has whole coefficients and the top of v is at a whole time"
+				},
+				{
+					"name": "c, q",
+					"is": "Paper 1: s(t) = ct(2q − t), from the origin, turning at t = q",
+					"pick": "c and q whole, T past t = 2q"
+				},
+				{
+					"name": "b, r, j",
+					"is": "Paper 1: v(t) = b(r − t) for t ≥ 0, with the total distance reached j seconds after the rest at t = r",
+					"pick": "whole, with b r² and b j² even, so each leg is a whole distance"
+				},
+				{
+					"name": "s0",
+					"is": "the displacement from O when t = 0",
+					"pick": "whole, from 1 to 9"
+				},
+				{
+					"name": "A, w, B, C",
+					"is": "Paper 2: s(t) = A cos(wt) + Bt + C, for a distance found from s",
+					"pick": "Aw clearly above B, so v changes sign"
+				},
+				{
+					"name": "A, B, c, k",
+					"is": "Paper 2: v(t) = B − A cos(π(t − c)/k), always positive, slowest at each ridge",
+					"pick": "A < B, k whole, so the period is 2k and the distance a whole number"
+				},
+				{
+					"name": "D, A, k, A2, k2",
+					"is": "Paper 2: two racers, v(t) = A(1 − e^(−kt)), over D metres",
+					"pick": "the first home is ahead by a clear gap"
+				},
+				{
+					"name": "corners",
+					"is": "a v–t graph in straight pieces",
+					"pick": "whole-number corners, and a corner at each zero of v"
+				}
+			],
+			"modes": [
+				"Paper 1: whole-number polynomials, exact",
+				"Paper 2: a GDC value to 3 s.f."
+			],
+			"clean": [
+				"Paper 1 answers are whole numbers, with |s| at most 300 and T at most 8",
+				"Paper 2 answers are clear of a rounding edge",
+				"the distance differs from the size of the net displacement wherever the question is about distance",
+				"a motion graph's distance and displacement are whole numbers"
+			]
+		},
+		"optimisation-model": {
+			"name": "One shape or journey with a fixed amount and one free length",
+			"summary": "Pick a family and numbers with a clean optimum: a yard or plot against a wall, a cylinder, an open bin, a tray cut from a sheet, a rectangle under an arch, a route off a road or the closest point on a curve. The fixed amount, the free length, the function, its derivatives and the optimum are then all known, and any stage can be asked.",
+			"quantities": [
+				{
+					"name": "family",
+					"is": "the shape or journey",
+					"pick": "pen, paddock, can, bin, box, arch, route or closest, as the unknown allows"
+				},
+				{
+					"name": "fixed amount",
+					"is": "the fence, area, volume, sheet or curve that holds the shape to one free length",
+					"pick": "so Paper 1 gives an exact optimum, and Paper 2 an awkward one"
+				},
+				{
+					"name": "x or r",
+					"is": "the free length",
+					"pick": "a whole number or a half on Paper 1, except in an exact question, where it is m√t; a decimal to 3 s.f. on Paper 2"
+				},
+				{
+					"name": "y or h",
+					"is": "the second length",
+					"pick": "from the constraint"
+				},
+				{
+					"name": "objective",
+					"is": "the area, fence, surface area, cost, volume or time",
+					"pick": "built from the family, a sum of powers of x with or without π"
+				},
+				{
+					"name": "optimum",
+					"is": "the maximum or minimum value",
+					"pick": "from the stationary point"
+				}
+			],
+			"modes": [
+				"clean",
+				"surd"
+			],
+			"clean": [
+				"Paper 1 optima are exact, and on a cylinder a whole multiple of π",
+				"a tray's sheet on Paper 1 has w² − wh + h² a square, so V′ has rational roots, and the second root is outside the sheet",
+				"Paper 2 values read clearly at 3 s.f.: at least 0.03 of a unit of the 3rd figure from a rounding edge",
+				"a route's best point is between 15% and 80% of the way along the road",
+				"the steps either side of the optimum stay inside the domain"
+			]
+		},
+		"tree-diagram": {
+			"name": "A multi-stage event on a tree, or draws from a tin",
+			"extends": "conditional",
+			"summary": "The base situation's two-stage tree and draws without replacement, asked for their own sake: a missing branch, a path, a total over several paths, at least one by the complement, draws in terms of n, an unknown k on a branch, repeated independent tries, normal groups as the branches and a repeated game. It adds trees of 2 or 3 branches at each fork and tins that change between draws; the fit test, the colours and the answers are the base situation's.",
+			"quantities": [
+				{
+					"name": "n1, n2",
+					"is": "the branches at the first fork and at each later fork",
+					"pick": "2 or 3 at each"
+				},
+				{
+					"name": "first, second",
+					"is": "the probability on every branch",
+					"pick": "Paper 1 in tenths or small fractions, Paper 2 in hundredths"
+				},
+				{
+					"name": "counts, mode",
+					"is": "a tin of 2 or 3 colours, and what happens after a draw",
+					"pick": "2 to 7 of each on Paper 1, 4 to 15 on Paper 2, all different; no replacement, put back, or put back with one more of that colour"
+				},
+				{
+					"name": "a1, a2",
+					"is": "the multiples of k on a tree of unknowns",
+					"pick": "1, 2 or 1/2 at the first fork; 1/2, 1/3, 2, 3 or 2/3 at the second"
+				},
+				{
+					"name": "crates",
+					"is": "two or three crates chosen between, and what each holds",
+					"pick": "1 to 7 of each on Paper 1 with an equal choice, 3 to 18 on Paper 2 with chances in twentieths"
+				},
+				{
+					"name": "big, n",
+					"is": "the known colour in a tin of n, and the selection in a growing tin",
+					"pick": "5 to 16; 3 to 8"
+				},
+				{
+					"name": "p, k",
+					"is": "the chance on each try and the try it comes on",
+					"pick": "fractions on Paper 1, hundredths or a normal tail on Paper 2; try 2 to 5"
+				},
+				{
+					"name": "mu, sg, share, lim",
+					"is": "two normal groups, the first group's share and the limit",
+					"pick": "whole numbers, with a share from 25% to 75%"
+				},
+				{
+					"name": "hi, lo, a, b, rounds",
+					"is": "a game's scores, their chances and the rounds played",
+					"pick": "a low score of at most half the high one, chances in twentieths, 3 to 5 rounds"
+				}
+			],
+			"clean": [
+				"Paper 1 answers are exact, in the numbers the question uses",
+				"Paper 2 answers are to 3 s.f. at least 0.03 of a unit of the third figure from a rounding edge; a branch read off the tree is exact",
+				"every branch is above 0 and the branches at a fork add to 1",
+				"k has exactly one root that keeps every branch at most 1",
+				"n in a growing tin has one positive root, and it is a whole number",
+				"the wrong options are between 0 and 1, except the rejected root of k"
+			]
+		},
+		"circular-region": {
+			"name": "A region of sectors, triangles and rectangles, or a sector from two conditions",
+			"summary": "Pick the pieces of a region and their sizes, so the region can be drawn to its real shape. Or pick a sector's perimeter and area, so its quadratic in r has one root or two that make a real sector.",
+			"quantities": [
+				{
+					"name": "r",
+					"is": "the radius, a rope or a slant",
+					"pick": "Paper 2: 2.0 to 30.0 to 1 d.p., or worked back from a given area; Paper 1: an even number from 4 to 12, or a root"
+				},
+				{
+					"name": "t",
+					"is": "the angle θ",
+					"pick": "0.60 to 3.00 radians to 2 d.p., whole degrees that are no landmark, a landmark multiple of π on Paper 1, or the root of an equation"
+				},
+				{
+					"name": "form",
+					"is": "how the angle is written",
+					"pick": "rad, deg or pi"
+				},
+				{
+					"name": "h",
+					"is": "the height of a rectangle",
+					"pick": "1 d.p., tall enough to hold the arc's centre"
+				},
+				{
+					"name": "rin",
+					"is": "the inner radius of a curved strip",
+					"pick": "0.3 to 0.9 of r"
+				},
+				{
+					"name": "k",
+					"is": "a hatch's width is kx",
+					"pick": "2, 4 or 6"
+				},
+				{
+					"name": "m, n",
+					"is": "the ratio of a segment to a triangle",
+					"pick": "small whole numbers, not 1 : 1 or 3 : 5"
+				},
+				{
+					"name": "per, area, l",
+					"is": "a sector's perimeter, area and arc",
+					"pick": "from whole-number roots on Paper 1; to 1 d.p. on Paper 2"
+				},
+				{
+					"name": "r1, r2",
+					"is": "the roots of r² − (P/2)r + A = 0",
+					"pick": "r2 ÷ r1 at least 3.3 for one real sector, at most 2.9 for two"
+				}
+			],
+			"clean": [
+				"Paper 2 answers are to 3 s.f. and every value offered, right or wrong, is at least 0.03 of a unit of its third figure from a rounding edge",
+				"any exact fraction has a denominator of at most 24",
+				"a segment has 0 < θ < π",
+				"on two conditions, θ is less than 2π on a root that is kept, and at least about 6.6 on a root that is thrown out"
+			]
+		},
+		"right-triangle": {
+			"name": "One right-angled triangle, or a side view built from one",
+			"summary": "Pick a triangle, a gradient or a side view from clean numbers, deal the vertex letters and turn it on the page, then work everything else out. Any ratio, side, angle or height can be asked, with the figure drawn to the real shape.",
+			"quantities": [
+				{
+					"name": "a, b, c",
+					"is": "the opposite side, the adjacent side and the hypotenuse",
+					"pick": "whole numbers from a Pythagorean triple up to 60 for a ratio, or 2.0 to 40.0 to 1 d.p."
+				},
+				{
+					"name": "e",
+					"is": "an angle, of a slope or of elevation or depression",
+					"pick": "whole degrees from 8° to 75°, or radians to 2 d.p. from 0.25 to 1.20"
+				},
+				{
+					"name": "p, q",
+					"is": "a gradient p/q in lowest terms",
+					"pick": "whole numbers, with the angle from 10° to 60°"
+				},
+				{
+					"name": "h, x, l",
+					"is": "a height, a horizontal distance and a sloping length",
+					"pick": "whole metres or 1 d.p."
+				},
+				{
+					"name": "r, d",
+					"is": "a radius and the distance of a line from the centre",
+					"pick": "whole numbers, with d from 0.3r to 0.8r"
+				},
+				{
+					"name": "k",
+					"is": "the scale of a special triangle",
+					"pick": "a whole number, so every side is whole or a whole multiple of √2 or √3"
+				},
+				{
+					"name": "span, over, t",
+					"is": "the level span, the overhang and the thickness of a sloping beam",
+					"pick": "1 d.p., in metres"
+				},
+				{
+					"name": "eye",
+					"is": "an observer's eye height",
+					"pick": "1.5 to 1.9 m"
+				}
+			],
+			"modes": [
+				"a triangle in any position, with its vertices lettered at random",
+				"a slope on the ground, given by an angle or a gradient",
+				"a tower, a heap or a beam seen from the side",
+				"a chord or a rectangle inside a circle"
+			],
+			"clean": [
+				"a question on Paper 1 has an exact answer: a fraction, a surd, a special angle or an expression in r and θ",
+				"every 3 s.f. value, right or wrong, is at least 0.03 of a unit of its third figure from a rounding edge",
+				"an acute angle is at least 5° from 45°, so θ and 90° − θ differ",
+				"every angle in a triangle comes from the sides shown, and each length on a figure is to one scale unless it says not to scale"
+			]
+		},
+		"independence": {
+			"name": "Two events, known to be independent or to be tested",
+			"summary": "Draw P(A) and P(B), so that their product is exact. Either the events are independent and the product gives the overlap, the union, a region or a conditional, or the overlap is the product or sits just off it, and the student must test which. Numbers come as probabilities, percentages, a Venn diagram, a two-way table or a tree.",
+			"quantities": [
+				{
+					"name": "pa, pb",
+					"is": "P(A) and P(B)",
+					"pick": "Paper 1: tenths, quarters or simple fractions; Paper 2: hundredths from 0.05 to 0.95, or the margins of a test"
+				},
+				{
+					"name": "a, i, b, o, u",
+					"is": "the four regions of a test and their total",
+					"pick": "as the venn situation, or u = 100 for percentages; P(A) × P(B) is a whole count of u"
+				},
+				{
+					"name": "indep",
+					"is": "whether a test's events are independent",
+					"pick": "a fair coin, drawn before anything else; if not independent, the overlap moves by a little and P(A) and P(B) stay"
+				},
+				{
+					"name": "kind",
+					"is": "what classify-events finds",
+					"pick": "mutually exclusive, independent or neither, a third each, on the same kind of margins"
+				},
+				{
+					"name": "g1, n1, g2, n2",
+					"is": "the good items and the size of two sources",
+					"pick": "different sizes, with the same share of good items, or one item more or fewer in the second"
+				},
+				{
+					"name": "k",
+					"is": "P(A) = k P(B)",
+					"pick": "a whole number from 2 to 5, with P(B) in hundredths"
+				},
+				{
+					"name": "only_a, only_b",
+					"is": "P(A ∩ B′) and P(A′ ∩ B)",
+					"pick": "t² and (1 − t)², the pairs that give one repeated root"
+				}
+			],
+			"clean": [
+				"Paper 1 answers are exact; Paper 2 answers are to 3 s.f. and clear of a rounding edge by 0.03 of a unit of the third figure",
+				"a test is independent half of the time, and the two cases are drawn from the same margins",
+				"two values compared on Paper 2 differ by at least 0.002 and read differently to 3 s.f. unless they are exactly equal",
+				"every region of a test is at least 1, and every option quotes the question's true values",
+				"two options of a test end in each verdict",
+				"the quadratic for P(B) has one root that makes P(A) at most 1, and the quadratic for x has one repeated root"
+			]
 		}
 	},
 	"skills": {
@@ -4025,15 +4353,19 @@
 		"SL3.5.ambiguous-case": "Resolve the ambiguous case of the sine rule (two possible triangles)",
 		"SL3.2.sine-rule": "Use the sine rule to find a side or an angle",
 		"SL3.2.area-sine": "Find the area of a triangle using ½ab sin C, or work backwards from the area",
+		"SL3.2.right-ratio": "Write down a trig ratio from a right-angled triangle",
+		"SL3.2.right-side": "Find a side in a right-angled triangle",
+		"SL3.2.right-angle": "Find an angle in a right-angled triangle",
+		"SL3.3.elevation-depression": "Use angles of elevation and depression to find heights and distances",
 		"SL3.2.cosine-rule-side": "Use the cosine rule to find a side from two sides and the included angle",
 		"SL3.2.cosine-rule-angle": "Use the cosine rule to find an angle from three sides",
 		"SL3.3.bearings": "Interpret bearings, draw the journey diagram, and find distances and bearings",
-		"SL3.3.elevation-depression": "Use angles of elevation and depression to find heights and distances",
 		"SL3.3.multi-triangle": "Solve multi-step problems across connected triangles, choosing the right rule at each step",
+		"SL3.4.segment-shaded": "Find the area or perimeter of a segment or composite shaded region",
+		"SL3.4.sector-two-conditions": "Solve sector problems with two conditions (perimeter and area, or arc and area)",
 		"SL3.4.convert": "Convert between degrees and radians",
 		"SL3.4.arc-length": "Find arc length or sector perimeter, or work back to r or θ",
 		"SL3.4.sector-area": "Find sector area, or work back to r or θ",
-		"SL3.4.segment-shaded": "Find the area or perimeter of a segment or composite shaded region",
 		"SL3.5.exact-special": "Write down exact values at 0, π/6, π/4, π/3 and π/2",
 		"SL3.5.related-angles": "Find exact values for any multiple of π/6, π/4 or π/3, including negative and reflex angles",
 		"SL3.5.unit-circle": "Use unit-circle definitions: coordinates, signs by quadrant, tan as gradient",
@@ -4063,6 +4395,7 @@
 		"SL4.5.equally-likely": "Find a probability by counting equally likely outcomes",
 		"SL4.5.complement": "Use complementary events, including 'at least one'",
 		"SL4.5.relative-frequency": "Estimate a probability from relative frequency",
+		"SL4.6.tree": "Use a tree diagram for multi-stage events, with and without replacement",
 		"SL4.6.union": "Find P(A ∪ B) for combined events",
 		"SL4.6.venn": "Complete and use a Venn diagram, including finding an unknown",
 		"SL4.7.expected-value": "Calculate and interpret E(X)",
@@ -4082,6 +4415,9 @@
 		"SL4.10.choose-line": "Choose the correct regression line for a prediction",
 		"SL4.10.predict-x": "Predict x from y with the x-on-y line and judge reliability",
 		"SL4.10.mean-point-intersection": "Use the fact that both regression lines pass through the mean point",
+		"SL4.6.independent": "Use P(A ∩ B) = P(A)P(B) for independent events",
+		"SL4.11.independence-unknown": "Use independence to find an unknown probability",
+		"SL4.11.test-independence": "Determine whether two events are independent, with justification",
 		"SL4.11.conditional-formula": "Calculate P(A | B) using the formula",
 		"SL4.11.reverse-conditional": "Find a 'reversed' conditional probability from a tree diagram",
 		"SL4.11.multiplication-rule": "Rearrange the conditional formula to find P(A ∩ B) or another unknown",
@@ -4107,6 +4443,9 @@
 		"SL5.8.classify-stationary-points": "Determine the nature of stationary points",
 		"SL5.8.points-of-inflexion": "Find points of inflexion, with zero or non-zero gradient",
 		"SL5.8.optimise-given-function": "Find a maximum or minimum of a given model in context",
+		"SL5.8.optimisation-modelling": "Set up and solve an optimisation problem from a description",
+		"SL5.9.displacement-from-velocity": "Find displacement (or velocity) by integrating with initial conditions",
+		"SL5.9.total-distance": "Find the total distance travelled",
 		"SL5.9.velocity-acceleration": "Find velocity and acceleration from displacement",
 		"SL5.9.rest-and-direction": "Find when a particle is at rest, changes direction, or is speeding up",
 		"SL5.9.max-speed": "Find the maximum or minimum velocity, or the maximum speed",
@@ -23631,6 +23970,852 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Right-angled trigonometry, including elevation and gradients",
+			"summary": "One right-angled triangle, in any position or in a story: write a ratio, find a side or an angle, link a gradient to tan θ, and use angles of elevation and depression in side views. It reaches a rectangle in a circle, a chord, a sloping beam, a walk towards a tower, two towers, and a cone seen from eye level.",
+			"situation": "right-triangle",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story or a triangle described in words, with no sketch"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the same with a sketch to the real shape: a triangle in any position with the right angle squared, a circle, a beam, or a side view with the ground, the line of sight and the horizontal at the eye"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "ratio-from-sides",
+					"given": [
+						"the three sides of a right-angled triangle, θ at one vertex"
+					],
+					"asked": "sin θ, cos θ or tan θ as a fraction",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-ratio"
+					]
+				},
+				{
+					"id": "ratio-needs-pythagoras",
+					"given": [
+						"the two shorter sides of a right-angled triangle"
+					],
+					"asked": "the exact value of sin θ or cos θ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-ratio"
+					]
+				},
+				{
+					"id": "ratio-in-letters",
+					"given": [
+						"the sides of a right-angled triangle as the letters p, q and r"
+					],
+					"asked": "sin θ, cos θ or tan θ in terms of the letters",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-ratio"
+					]
+				},
+				{
+					"id": "side-in-letters",
+					"given": [
+						"a rectangle inside a circle of radius r, and the angle θ between its diagonal and a side"
+					],
+					"asked": "a side of the rectangle in terms of r and θ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-side"
+					]
+				},
+				{
+					"id": "side-from-angle",
+					"given": [
+						"one side and an angle, with the side asked on top of the ratio"
+					],
+					"asked": "the side",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-side"
+					]
+				},
+				{
+					"id": "side-under-ratio",
+					"given": [
+						"one shorter side and an angle"
+					],
+					"asked": "the hypotenuse",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-side"
+					]
+				},
+				{
+					"id": "side-either-angle",
+					"given": [
+						"the side opposite an angle"
+					],
+					"asked": "the side adjacent to it",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-side"
+					]
+				},
+				{
+					"id": "chord-length",
+					"given": [
+						"the radius of a circle and the distance of a straight line from its centre"
+					],
+					"asked": "the length of the line inside the circle",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-side"
+					]
+				},
+				{
+					"id": "side-special",
+					"given": [
+						"one side and an angle of 30°, 45° or 60°"
+					],
+					"asked": "the exact length of another side",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-side"
+					]
+				},
+				{
+					"id": "angle-from-sides",
+					"given": [
+						"two sides of a right-angled triangle"
+					],
+					"asked": "the angle with the ground",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-angle"
+					]
+				},
+				{
+					"id": "angle-special",
+					"given": [
+						"two sides with an exact ratio"
+					],
+					"asked": "the angle, with no calculator",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-angle"
+					]
+				},
+				{
+					"id": "gradient-from-angle",
+					"given": [
+						"the angle a slope makes with the horizontal"
+					],
+					"asked": "the gradient",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-ratio"
+					]
+				},
+				{
+					"id": "angle-from-gradient",
+					"given": [
+						"a gradient as a fraction"
+					],
+					"asked": "the angle with the horizontal",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-angle"
+					]
+				},
+				{
+					"id": "angle-with-vertical",
+					"given": [
+						"the gradient of the sloping edge of a symmetrical shape"
+					],
+					"asked": "the angle between that edge and the vertical",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-angle"
+					]
+				},
+				{
+					"id": "edge-from-span",
+					"given": [
+						"the gradient of a beam, a level span and an overhang"
+					],
+					"asked": "the length of the lower edge of the beam",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-side"
+					]
+				},
+				{
+					"id": "upper-edge",
+					"given": [
+						"the gradient of a beam, a level span, an overhang and the thickness of the beam"
+					],
+					"asked": "the length of the top edge of the beam",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.2.right-side"
+					]
+				},
+				{
+					"id": "height-from-angle",
+					"given": [
+						"a distance along the ground and an angle of elevation, in degrees or radians"
+					],
+					"asked": "the height",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "elevation-after-walk",
+					"given": [
+						"a distance and an angle of elevation, then a walk towards the foot"
+					],
+					"asked": "the new angle of elevation",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "equal-elevations",
+					"given": [
+						"two sloping lengths to the tops of two towers with equal angles of elevation, and the angle between the lengths"
+					],
+					"asked": "the height of the taller tower",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "cone-from-eye-level",
+					"given": [
+						"the height of a cone, an eye height, a distance from the edge and an angle of elevation"
+					],
+					"asked": "the radius of the base",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "depression-sight-line",
+					"given": [
+						"a height and an angle of depression"
+					],
+					"asked": "the length of the line of sight",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "depression-from-sight-line",
+					"given": [
+						"a height and the length of the line of sight"
+					],
+					"asked": "the angle of depression",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "depression-two-points",
+					"given": [
+						"a height and two angles of depression"
+					],
+					"asked": "the distance between the two points on the ground",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				},
+				{
+					"id": "name-the-angle",
+					"given": [
+						"a side view with a horizontal drawn at the top"
+					],
+					"asked": "which marked angle is the angle of elevation or depression",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.3.elevation-depression"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.2.right-ratio",
+					"method": "label-soh-cah-toa",
+					"suits": [
+						"ratio-from-sides",
+						"ratio-in-letters"
+					],
+					"name": "Label the sides, then SOH CAH TOA",
+					"about": "Mark the hypotenuse, then the opposite and adjacent sides relative to θ, and pick the matching ratio."
+				},
+				{
+					"skill": "SL3.2.right-ratio",
+					"method": "pythagoras-third-side",
+					"suits": [
+						"ratio-needs-pythagoras"
+					],
+					"name": "Pythagoras for the missing side",
+					"about": "If the side you need is not given, find it with Pythagoras first, then form the ratio (exact surds allowed)."
+				},
+				{
+					"skill": "SL3.2.right-ratio",
+					"method": "scale-to-unit",
+					"suits": [
+						"ratio-from-sides"
+					],
+					"name": "Scale to hypotenuse 1",
+					"about": "Divide every side by the hypotenuse; in the scaled triangle sin θ is the height and cos θ the base, just as on the unit circle."
+				},
+				{
+					"skill": "SL3.2.right-ratio",
+					"method": "gradient-tan",
+					"suits": [
+						"gradient-from-angle"
+					],
+					"name": "Gradient is tan θ",
+					"about": "Gradient is rise ÷ run, which is opposite ÷ adjacent in the right-angled triangle under the slope, so it is the tangent of the angle with the horizontal."
+				},
+				{
+					"skill": "SL3.2.right-side",
+					"method": "choose-ratio-rearrange",
+					"suits": [
+						"side-in-letters",
+						"side-from-angle",
+						"side-under-ratio",
+						"side-either-angle",
+						"chord-length",
+						"side-special",
+						"edge-from-span",
+						"upper-edge",
+						"equal-elevations",
+						"depression-sight-line",
+						"depression-two-points"
+					],
+					"name": "Choose the ratio and rearrange",
+					"about": "Pick the ratio linking the known side, the unknown side and θ; multiply if the unknown is on top, divide if it is underneath."
+				},
+				{
+					"skill": "SL3.2.right-side",
+					"method": "other-acute-angle",
+					"suits": [
+						"side-either-angle"
+					],
+					"name": "Use the other acute angle",
+					"about": "Switch to the angle 90° − θ so the unknown side is on top of the ratio and no division is needed."
+				},
+				{
+					"skill": "SL3.2.right-side",
+					"method": "pythagoras",
+					"suits": [
+						"chord-length"
+					],
+					"name": "Pythagoras",
+					"about": "If two sides are already known, use a² + b² = c² and skip trig."
+				},
+				{
+					"skill": "SL3.2.right-side",
+					"method": "special-triangle",
+					"suits": [
+						"side-special"
+					],
+					"name": "Scale a special triangle",
+					"about": "For 30°, 45° or 60° on Paper 1, scale the 1 : 1 : √2 or 1 : √3 : 2 triangle to get an exact length."
+				},
+				{
+					"skill": "SL3.2.right-angle",
+					"method": "inverse-ratio",
+					"suits": [
+						"angle-from-sides",
+						"angle-special",
+						"angle-with-vertical",
+						"elevation-after-walk",
+						"depression-from-sight-line"
+					],
+					"name": "Inverse trig on the ratio",
+					"about": "Form the ratio from the two known sides and apply sin⁻¹, cos⁻¹ or tan⁻¹."
+				},
+				{
+					"skill": "SL3.2.right-angle",
+					"method": "pythagoras-then-other-ratio",
+					"suits": [
+						"angle-from-sides"
+					],
+					"name": "Find the third side, use another ratio",
+					"about": "Get the third side by Pythagoras and use a different ratio, useful as a check or when the given pair is awkward."
+				},
+				{
+					"skill": "SL3.2.right-angle",
+					"method": "recognise-special",
+					"suits": [
+						"angle-special"
+					],
+					"name": "Recognise an exact ratio",
+					"about": "Ratios such as 1/2, √3/2, 1/√2 or 1 give 30°, 60° or 45° with no calculator."
+				},
+				{
+					"skill": "SL3.2.right-angle",
+					"method": "gradient-inverse-tan",
+					"suits": [
+						"angle-from-gradient",
+						"angle-with-vertical"
+					],
+					"name": "Inverse tan of the gradient",
+					"about": "The gradient is tan θ, so tan⁻¹ of the gradient is the angle with the horizontal."
+				},
+				{
+					"skill": "SL3.3.elevation-depression",
+					"method": "right-triangle",
+					"suits": [
+						"height-from-angle",
+						"cone-from-eye-level"
+					],
+					"name": "One right triangle with tan",
+					"about": "Sketch the horizontal, the vertical height and the line of sight, then use tan θ = height / horizontal distance (or sin/cos if the sloping length is involved)."
+				},
+				{
+					"skill": "SL3.3.elevation-depression",
+					"method": "alternate-angles",
+					"suits": [
+						"depression-sight-line",
+						"depression-from-sight-line",
+						"depression-two-points"
+					],
+					"name": "Move the angle of depression",
+					"about": "An angle of depression from the top equals the angle of elevation from the bottom (alternate angles between horizontals), so place it inside the triangle at ground level."
+				},
+				{
+					"skill": "SL3.3.elevation-depression",
+					"method": "angle-from-horizontal",
+					"suits": [
+						"name-the-angle"
+					],
+					"name": "Measure from the horizontal at the eye",
+					"about": "Find the eye and the horizontal through it; the angle runs from that horizontal to the line of sight, up for elevation and down for depression."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The gradient of a slope is the sine of its angle with the horizontal.",
+					"answer": "False: gradient is rise ÷ run, which is opposite ÷ adjacent, so it is the tangent. The sine uses the sloping length.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "In a right-angled triangle, sin θ equals the cosine of the other acute angle.",
+					"answer": "Always: the side opposite θ is the side adjacent to the other angle, and the hypotenuse is the same.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "The angle of depression from the top of a tower sits inside the triangle at the top.",
+					"answer": "False: it is measured down from the horizontal at the eye, so it is outside the triangle. It equals the angle at the ground, because the horizontals are parallel.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.2.right-ratio#0",
+					"text": "Labelling opposite and adjacent relative to the wrong angle",
+					"as": "distractor",
+					"in": [
+						"ratio-from-sides",
+						"ratio-needs-pythagoras",
+						"ratio-in-letters",
+						"side-in-letters",
+						"edge-from-span",
+						"upper-edge"
+					],
+					"wrong": "the ratio of the other acute angle, or the sine and cosine swapped"
+				},
+				{
+					"ref": "SL3.2.right-ratio#1",
+					"text": "Writing the ratio upside down, e.g. sin θ = hypotenuse / opposite",
+					"as": "distractor",
+					"in": [
+						"ratio-from-sides",
+						"ratio-needs-pythagoras",
+						"ratio-in-letters"
+					],
+					"wrong": "the ratio with its top and bottom swapped"
+				},
+				{
+					"ref": "SL3.2.right-ratio#2",
+					"text": "Treating the longer leg as the hypotenuse",
+					"as": "distractor",
+					"in": [
+						"ratio-from-sides",
+						"ratio-needs-pythagoras",
+						"ratio-in-letters"
+					],
+					"wrong": "the side over the longer shorter side"
+				},
+				{
+					"ref": "SL3.2.right-ratio#3",
+					"text": "Using rise ÷ sloping length for the gradient",
+					"as": "distractor",
+					"in": [
+						"gradient-from-angle"
+					],
+					"wrong": "sin θ"
+				},
+				{
+					"ref": "SL3.2.right-ratio#4",
+					"text": "Using run ÷ rise for the gradient",
+					"as": "distractor",
+					"in": [
+						"gradient-from-angle"
+					],
+					"wrong": "1 ÷ tan θ"
+				},
+				{
+					"ref": "SL3.2.right-side#0",
+					"text": "Rearranging by multiplying when the unknown side is underneath the ratio",
+					"as": "distractor",
+					"in": [
+						"side-under-ratio",
+						"side-either-angle",
+						"side-special"
+					],
+					"wrong": "the known side × the ratio"
+				},
+				{
+					"ref": "SL3.2.right-side#1",
+					"text": "Using the hypotenuse as if it were one of the shorter sides",
+					"as": "distractor",
+					"in": [
+						"side-in-letters",
+						"side-from-angle",
+						"side-under-ratio",
+						"chord-length"
+					],
+					"wrong": "tan in place of sin, or the squares added"
+				},
+				{
+					"text": "Using the calculator in the wrong angle mode",
+					"as": "distractor",
+					"in": [
+						"side-from-angle",
+						"side-under-ratio",
+						"side-either-angle",
+						"height-from-angle"
+					],
+					"wrong": "degrees read as radians, or radians read as degrees"
+				},
+				{
+					"ref": "SL3.2.right-side#3",
+					"text": "Stopping at half of a length that the symmetry doubles",
+					"as": "distractor",
+					"in": [
+						"chord-length"
+					],
+					"wrong": "half the chord"
+				},
+				{
+					"ref": "SL3.2.right-angle#0",
+					"text": "Applying the ratio function to the fraction instead of its inverse",
+					"as": "distractor",
+					"in": [
+						"angle-from-sides",
+						"angle-from-gradient"
+					],
+					"wrong": "tan(fraction), in degree mode"
+				},
+				{
+					"ref": "SL3.2.right-angle#1",
+					"text": "Reading the inverse function as one over the function",
+					"as": "distractor",
+					"in": [
+						"angle-from-sides"
+					],
+					"wrong": "1 ÷ tan(fraction), in degree mode"
+				},
+				{
+					"ref": "SL3.2.right-angle#2",
+					"text": "Using adjacent / opposite for tan θ, which gives the other acute angle",
+					"as": "distractor",
+					"in": [
+						"angle-from-sides",
+						"angle-special",
+						"angle-from-gradient"
+					],
+					"wrong": "90° less the angle"
+				},
+				{
+					"ref": "SL3.2.right-angle#3",
+					"text": "Treating a gradient as a sine",
+					"as": "distractor",
+					"in": [
+						"angle-from-gradient"
+					],
+					"wrong": "sin⁻¹ of the gradient"
+				},
+				{
+					"ref": "SL3.2.right-angle#4",
+					"text": "Giving the angle with the horizontal when the vertical is asked for",
+					"as": "distractor",
+					"in": [
+						"angle-with-vertical"
+					],
+					"wrong": "tan⁻¹ of the gradient"
+				},
+				{
+					"ref": "SL3.3.elevation-depression#0",
+					"text": "Measuring the angle of depression from the vertical instead of the horizontal",
+					"as": "distractor",
+					"in": [
+						"depression-from-sight-line",
+						"name-the-angle"
+					],
+					"wrong": "90° less the angle, or the angle at the top of the triangle"
+				},
+				{
+					"ref": "SL3.3.elevation-depression#1",
+					"text": "Putting the angle of depression inside the triangle at the top vertex",
+					"as": "distractor",
+					"in": [
+						"depression-sight-line",
+						"depression-two-points"
+					],
+					"wrong": "the height ÷ cos θ, or the height × tan θ"
+				},
+				{
+					"ref": "SL3.3.elevation-depression#2",
+					"text": "Leaving the person's height or eye level out of the calculation",
+					"as": "distractor",
+					"in": [
+						"cone-from-eye-level"
+					],
+					"wrong": "the eye height left out"
+				},
+				{
+					"text": "Using the whole span where the symmetry gives half of it",
+					"as": "distractor",
+					"in": [
+						"edge-from-span"
+					],
+					"wrong": "the whole span in the triangle"
+				},
+				{
+					"text": "Leaving out the overhang past the level point",
+					"as": "distractor",
+					"in": [
+						"edge-from-span"
+					],
+					"wrong": "the sloping length to the level point only"
+				},
+				{
+					"text": "Taking the top edge to be as long as the lower edge",
+					"as": "distractor",
+					"in": [
+						"upper-edge"
+					],
+					"wrong": "the lower edge"
+				},
+				{
+					"text": "Adding the thickness of the beam to the length",
+					"as": "distractor",
+					"in": [
+						"upper-edge"
+					],
+					"wrong": "the lower edge + the thickness"
+				},
+				{
+					"text": "Using the distance walked in place of the distance left",
+					"as": "distractor",
+					"in": [
+						"elevation-after-walk"
+					],
+					"wrong": "tan⁻¹(height ÷ distance walked)"
+				},
+				{
+					"text": "Halving the angle between the lines of sight to get θ",
+					"as": "distractor",
+					"in": [
+						"equal-elevations"
+					],
+					"wrong": "half the angle, not half of what is left"
+				},
+				{
+					"text": "Stopping at the distance to the centre of the base",
+					"as": "distractor",
+					"in": [
+						"cone-from-eye-level"
+					],
+					"wrong": "the distance from the axis to the guard"
+				},
+				{
+					"text": "Choosing the equal angle at the other end of the line of sight",
+					"as": "distractor",
+					"in": [
+						"name-the-angle"
+					],
+					"wrong": "the angle at the other point"
+				},
+				{
+					"text": "Using the radius in place of the diameter as the hypotenuse",
+					"as": "distractor",
+					"in": [
+						"side-in-letters"
+					],
+					"wrong": "r in place of 2r"
+				},
+				{
+					"text": "Giving the whole angle at the top instead of the angle on one side",
+					"as": "distractor",
+					"in": [
+						"angle-with-vertical"
+					],
+					"wrong": "twice the angle"
+				},
+				{
+					"text": "Using the shorter line of sight in place of the longer one",
+					"as": "distractor",
+					"in": [
+						"equal-elevations"
+					],
+					"wrong": "the shorter length × sin θ"
+				},
+				{
+					"text": "Adding the two distances when both points are on the same side",
+					"as": "distractor",
+					"in": [
+						"depression-two-points"
+					],
+					"wrong": "the sum of the two distances"
+				}
+			],
+			"chain": [
+				"mark the right angle and the angle you need, or the horizontal at the eye",
+				"label the hypotenuse, then the opposite and adjacent sides from that angle",
+				"choose the ratio, or Pythagoras, that links what you know to what you want",
+				"rearrange, or use the inverse for an angle, in the right angle mode",
+				"add back any eye height, overhang or second half of a symmetrical shape"
+			],
 			"frequency": 10,
 			"marks": 3,
 			"section": {
@@ -23640,9 +24825,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 9
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-sine-cosine-rule",
@@ -24487,6 +25670,716 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Segments and composite regions built from sectors, triangles and rectangles",
+			"summary": "A region made by adding and taking away sectors, triangles, rectangles and circles: a segment, a sector with a triangle beside it, an arch, a curved strip, the part between two tangents and a circle, a semicircle on a rectangle. Or one sector fixed by two conditions, where θ is taken out to leave a quadratic in r and each root has to be tested.",
+			"situation": "circular-region",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "the conditions listed: perimeter and area of sector OAB"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the region drawn to its real shape with its numbers labelled and the region shaded"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a straight dam across a round pond, or a rover on a cable between two walls"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "segment-area",
+					"given": [
+						"r",
+						"θ"
+					],
+					"asked": "the area of a segment",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "segment-exact",
+					"given": [
+						"r",
+						"a landmark multiple of π"
+					],
+					"asked": "the exact area of a segment",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "segment-perimeter",
+					"given": [
+						"r",
+						"θ"
+					],
+					"asked": "the perimeter of a segment",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "segment-in-terms-of-theta",
+					"given": [
+						"r"
+					],
+					"asked": "the area of a segment in terms of θ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "segment-radius",
+					"given": [
+						"θ",
+						"the area of the segment"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "tether-area",
+					"given": [
+						"r",
+						"the angle between a radius and a straight wall"
+					],
+					"asked": "the area of a sector and a triangle together",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "tether-expression",
+					"given": [
+						"the arc of the sector, with θ unknown"
+					],
+					"asked": "the area of the sector and triangle in terms of θ",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "tether-angle",
+					"given": [
+						"r",
+						"the arc of the sector"
+					],
+					"asked": "the angle at the far end of the isosceles triangle",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "ratio-equation",
+					"given": [
+						"the ratio of a segment to a triangle in a semicircle"
+					],
+					"asked": "the equation θ = k sin θ",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "ratio-theta",
+					"given": [
+						"the ratio of a segment to a triangle in a semicircle"
+					],
+					"asked": "θ, on the GDC",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "ratio-radius",
+					"given": [
+						"the area of a segment",
+						"its ratio to the triangle in the same sector"
+					],
+					"asked": "r",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "arch-area",
+					"given": [
+						"r",
+						"θ",
+						"the height of the rectangle under the arc"
+					],
+					"asked": "the area of the rectangle and segment",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "ring-area",
+					"given": [
+						"both radii",
+						"a reflex angle"
+					],
+					"asked": "the area of a curved strip",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "ring-expression",
+					"given": [
+						"the outer radius",
+						"a reflex angle"
+					],
+					"asked": "the area of a curved strip in terms of the inner radius",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "hatch-area",
+					"given": [
+						"a rectangle's width and height, in letters, with a semicircle on it"
+					],
+					"asked": "the area in terms of x and h",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "hatch-height",
+					"given": [
+						"the same shape and its perimeter"
+					],
+					"asked": "h in terms of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "tangent-region",
+					"given": [
+						"r",
+						"the angle between two tangents"
+					],
+					"asked": "the area between the tangents and the circle",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "tangent-expression",
+					"given": [
+						"r",
+						"the angle between two tangents, as 2α"
+					],
+					"asked": "that area in terms of α",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.segment-shaded"
+					]
+				},
+				{
+					"id": "theta-in-r",
+					"given": [
+						"the perimeter of a sector"
+					],
+					"asked": "θ in terms of r",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-two-conditions"
+					]
+				},
+				{
+					"id": "two-conditions-quadratic",
+					"given": [
+						"the perimeter and area of a sector"
+					],
+					"asked": "the quadratic in r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-two-conditions"
+					]
+				},
+				{
+					"id": "two-conditions-r",
+					"given": [
+						"the perimeter and area of a sector, where one root gives θ > 2π"
+					],
+					"asked": "r",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-two-conditions"
+					]
+				},
+				{
+					"id": "two-conditions-theta",
+					"given": [
+						"the perimeter and area of a sector, where one root gives θ > 2π"
+					],
+					"asked": "θ",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-two-conditions"
+					]
+				},
+				{
+					"id": "two-conditions-both",
+					"given": [
+						"the perimeter and area of a sector, where both roots work"
+					],
+					"asked": "both values of r",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-two-conditions"
+					]
+				},
+				{
+					"id": "arc-area-radius",
+					"given": [
+						"the arc and area of a sector"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL3.4.sector-two-conditions"
+					]
+				},
+				{
+					"id": "cone-from-area",
+					"given": [
+						"the radius and area of a sector rolled into a cone"
+					],
+					"asked": "the radius of the cone's base",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.sector-two-conditions"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.4.segment-shaded",
+					"method": "sector-minus-triangle",
+					"suits": [
+						"segment-area",
+						"segment-exact",
+						"segment-in-terms-of-theta",
+						"segment-radius",
+						"ratio-radius"
+					],
+					"name": "Sector minus triangle",
+					"about": "Segment = ½r²θ − ½r² sin θ = ½r²(θ − sin θ)."
+				},
+				{
+					"skill": "SL3.4.segment-shaded",
+					"method": "add-subtract-regions",
+					"suits": [
+						"tether-area",
+						"tether-expression",
+						"ratio-equation",
+						"ratio-theta",
+						"arch-area",
+						"ring-area",
+						"ring-expression",
+						"hatch-area",
+						"hatch-height",
+						"tangent-region",
+						"tangent-expression"
+					],
+					"name": "Build from standard pieces",
+					"about": "Make the shaded region by adding and subtracting sectors, triangles, rectangles and circles."
+				},
+				{
+					"skill": "SL3.4.segment-shaded",
+					"method": "chord-length",
+					"suits": [
+						"segment-perimeter",
+						"arch-area"
+					],
+					"name": "Chord by cosine rule or 2r sin(θ/2)",
+					"about": "For a perimeter, find the straight chord with the cosine rule or 2r sin(θ/2), then add the arc rθ."
+				},
+				{
+					"skill": "SL3.4.segment-shaded",
+					"method": "angle-facts",
+					"suits": [
+						"tether-angle"
+					],
+					"name": "Angle facts in the figure",
+					"about": "Use isosceles triangles, tangents at right angles and angles on a straight line to find the angle a region needs."
+				},
+				{
+					"skill": "SL3.4.sector-two-conditions",
+					"method": "rearrange-perimeter",
+					"suits": [
+						"theta-in-r"
+					],
+					"name": "Rearrange the perimeter",
+					"about": "Write the perimeter as 2r + rθ and make θ the subject."
+				},
+				{
+					"skill": "SL3.4.sector-two-conditions",
+					"method": "eliminate-theta",
+					"suits": [
+						"two-conditions-quadratic"
+					],
+					"name": "Eliminate θ",
+					"about": "Make θ the subject of the perimeter equation and substitute into the area equation, to leave a quadratic in r."
+				},
+				{
+					"skill": "SL3.4.sector-two-conditions",
+					"method": "substitute-eliminate",
+					"suits": [
+						"two-conditions-r",
+						"two-conditions-theta",
+						"two-conditions-both"
+					],
+					"name": "Eliminate θ and solve a quadratic",
+					"about": "Make θ the subject of the perimeter equation, substitute into the area equation and solve the quadratic in r, then check each θ is between 0 and 2π."
+				},
+				{
+					"skill": "SL3.4.sector-two-conditions",
+					"method": "gdc-intersection",
+					"suits": [
+						"two-conditions-r",
+						"two-conditions-theta",
+						"two-conditions-both"
+					],
+					"name": "Intersect the two conditions on the GDC",
+					"about": "Write θ from each condition as a function of r, graph both, and read the intersection(s)."
+				},
+				{
+					"skill": "SL3.4.sector-two-conditions",
+					"method": "area-half-rl",
+					"suits": [
+						"arc-area-radius",
+						"cone-from-area"
+					],
+					"name": "A = ½rl",
+					"about": "With the arc and the area, A = ½r²θ = ½r(rθ) = ½rl, so r = 2A ÷ l, with no quadratic."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If you double the angle of a segment and keep its radius, its area doubles.",
+					"answer": "False: the area is ½r²(θ − sin θ), and θ − sin θ is not in proportion to θ. A sector doubles; a segment does not.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The perimeter of a minor segment is less than the perimeter of its sector.",
+					"answer": "Always: both have the arc, and the chord is shorter than the two radii, which go the long way round through O.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "A sector with angle θ sits on a straight line beside a triangle with angle π − θ at the same centre. Why does the triangle's area use sin θ?",
+					"answer": "Because sin(π − θ) = sin θ, so ½r² sin(π − θ) is ½r² sin θ, and the two pieces share the factor ½r².",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.4.segment-shaded#0",
+					"text": "Leaving the calculator in degree mode when evaluating sin θ for θ in radians",
+					"as": "distractor",
+					"in": [
+						"segment-area",
+						"segment-radius",
+						"tether-area",
+						"ratio-radius"
+					],
+					"wrong": "the same working with sin taken in degrees"
+				},
+				{
+					"ref": "SL3.4.segment-shaded#1",
+					"text": "Adding the two radii instead of the chord to the perimeter of a segment",
+					"as": "distractor",
+					"in": [
+						"segment-perimeter"
+					],
+					"wrong": "the arc plus 2r"
+				},
+				{
+					"ref": "SL3.4.segment-shaded#3",
+					"text": "Using the whole sector where only the segment belongs in the region",
+					"as": "distractor",
+					"in": [
+						"segment-area",
+						"segment-exact",
+						"segment-in-terms-of-theta",
+						"segment-radius",
+						"ratio-radius",
+						"arch-area"
+					],
+					"wrong": "½r²θ in place of the segment"
+				},
+				{
+					"ref": "SL3.4.segment-shaded#4",
+					"text": "Adding the hidden join between two shapes to a perimeter",
+					"as": "distractor",
+					"in": [
+						"hatch-height"
+					],
+					"wrong": "the width counted twice"
+				},
+				{
+					"ref": "SL3.4.segment-shaded#5",
+					"text": "Using the angle between two tangents as the angle at the centre",
+					"as": "distractor",
+					"in": [
+						"tangent-region",
+						"tangent-expression"
+					],
+					"wrong": "a sector with the angle at A"
+				},
+				{
+					"ref": "SL3.4.segment-shaded#6",
+					"text": "Reading a ratio of two areas the wrong way round",
+					"as": "distractor",
+					"in": [
+						"ratio-equation",
+						"ratio-theta",
+						"ratio-radius"
+					],
+					"wrong": "the working with m and n swapped"
+				},
+				{
+					"ref": "SL3.4.segment-shaded#7",
+					"text": "Using the diameter as the radius of a semicircle",
+					"as": "distractor",
+					"in": [
+						"hatch-area"
+					],
+					"wrong": "½π(kx)²"
+				},
+				{
+					"ref": "SL3.4.segment-shaded#8",
+					"text": "Leaving the triangle out of a region made of a sector and a triangle",
+					"as": "distractor",
+					"in": [
+						"tether-area",
+						"tether-expression"
+					],
+					"wrong": "the sector alone"
+				},
+				{
+					"ref": "SL3.4.arc-length#0",
+					"text": "Using θ in degrees in l = rθ",
+					"as": "distractor",
+					"in": [
+						"segment-perimeter"
+					],
+					"wrong": "r × the angle in degrees, plus the chord"
+				},
+				{
+					"ref": "SL3.4.sector-area#2",
+					"text": "Giving the minor sector when the major sector is asked for",
+					"as": "distractor",
+					"in": [
+						"ring-area"
+					],
+					"wrong": "the strip with the angle 2π − θ"
+				},
+				{
+					"ref": "SL3.4.sector-two-conditions#0",
+					"text": "Using perimeter = rθ, forgetting the 2r",
+					"as": "distractor",
+					"in": [
+						"theta-in-r",
+						"two-conditions-quadratic",
+						"two-conditions-r",
+						"two-conditions-theta"
+					],
+					"wrong": "the working from P = rθ"
+				},
+				{
+					"ref": "SL3.4.sector-two-conditions#1",
+					"text": "Accepting a solution with θ > 2π",
+					"as": "distractor",
+					"in": [
+						"two-conditions-r",
+						"two-conditions-theta"
+					],
+					"wrong": "the other root"
+				},
+				{
+					"ref": "SL3.4.sector-two-conditions#2",
+					"text": "Keeping only one root when both give a valid sector",
+					"as": "distractor",
+					"in": [
+						"two-conditions-both"
+					],
+					"wrong": "one root alone"
+				},
+				{
+					"text": "Using θ in degrees in the sector term of a segment's area",
+					"as": "distractor",
+					"in": [
+						"segment-area"
+					],
+					"wrong": "½r² × the angle in degrees − ½r² sin θ"
+				},
+				{
+					"text": "Leaving the calculator in degree mode when evaluating the sine of an angle in radians",
+					"as": "distractor",
+					"in": [
+						"segment-perimeter",
+						"arch-area"
+					],
+					"wrong": "the same working with sin(θ/2) taken in degrees"
+				}
+			],
+			"chain": [
+				"see which standard pieces make the region",
+				"use radians, in the sector and in the sine",
+				"find any length or angle the pieces need: a chord, π − θ, the angle at a centre",
+				"add and take away the pieces",
+				"for two conditions, take out θ, solve for r, and keep each root whose θ is between 0 and 2π"
+			],
 			"frequency": 13,
 			"marks": 3,
 			"section": {
@@ -24496,9 +26389,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 12
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-arc-sector",
@@ -29872,6 +31763,582 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Tree diagrams and selection without replacement",
+			"summary": "Fill in a tree of two stages with 2 or 3 branches at each fork, multiply along a path and add between paths, use the complement for different colours or at least one, draw with and without replacement, write a branch or a draw in terms of k or n, and solve for an unknown on a branch. The tree can also carry normal groups, repeated tries and a repeated game.",
+			"situation": "tree-diagram",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a tree with two stages, 2 or 3 branches at each fork and a probability on each branch; a missing branch shows x, y or ?"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a tin and how it is drawn from, crates, tries, normal groups or a game"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a table of the people at a camp, or a game's scores and their probabilities"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "complete-branch",
+					"given": [
+						"a tree with one branch marked x"
+					],
+					"asked": "x",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "branch-in-terms-of-k",
+					"given": [
+						"a tree in terms of k, with a branch marked x"
+					],
+					"asked": "x in terms of k",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "branch-after-draw",
+					"given": [
+						"a tin and how it changes",
+						"its tree with x and y on the second stage"
+					],
+					"asked": "x",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "path-probability",
+					"given": [
+						"a tree, or a tin and two draws"
+					],
+					"asked": "the probability of one path",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "total-over-paths",
+					"given": [
+						"a tree, or crates to choose between"
+					],
+					"asked": "the probability of an outcome over all its paths",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "same-or-different",
+					"given": [
+						"a tin and two draws"
+					],
+					"asked": "the probability of the same colour, or of different colours",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "at-least-one",
+					"given": [
+						"a tin and two or three draws without replacement"
+					],
+					"asked": "the probability of at least one of a colour",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "all-without-replacement",
+					"given": [
+						"a tin or a table",
+						"three chosen without replacement"
+					],
+					"asked": "the probability that all three are of one kind",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "draws-in-terms-of-n",
+					"given": [
+						"a tin of n with a known number of one colour"
+					],
+					"asked": "the probability of a first draw or two in terms of n",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "first-success-on-trial",
+					"given": [
+						"the chance on each try, or a normal tail",
+						"the try"
+					],
+					"asked": "the probability that a first or only success comes on that try",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "total-from-normals",
+					"given": [
+						"two normal groups and their shares",
+						"a limit"
+					],
+					"asked": "the probability of being under the limit, or which group it came from",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "parameter-on-branch",
+					"given": [
+						"a tree in terms of k",
+						"the probability of a path"
+					],
+					"asked": "k",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "rounds-exceed-total",
+					"given": [
+						"the scores of one round",
+						"the number of rounds and a total to beat"
+					],
+					"asked": "the probability of beating the total",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				},
+				{
+					"id": "selections-find-n",
+					"given": [
+						"a tin that grows with each selection",
+						"the probability that the first of a colour comes on selection n"
+					],
+					"asked": "n",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.6.tree"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.6.tree",
+					"method": "branches-add-to-one",
+					"suits": [
+						"complete-branch",
+						"branch-in-terms-of-k"
+					],
+					"name": "Branches at a fork add to 1",
+					"about": "The outcomes at a fork cover everything once, so a missing branch is 1 minus the other branches at that fork."
+				},
+				{
+					"skill": "SL4.6.tree",
+					"method": "recount-after-draw",
+					"suits": [
+						"branch-after-draw",
+						"all-without-replacement",
+						"draws-in-terms-of-n"
+					],
+					"name": "Recount what is left after each draw",
+					"about": "Before each branch, work out what is left: the count of each colour and the new total. Then write the branch as a fraction."
+				},
+				{
+					"skill": "SL4.6.tree",
+					"method": "multiply-add",
+					"suits": [
+						"path-probability",
+						"total-over-paths",
+						"same-or-different",
+						"at-least-one",
+						"all-without-replacement",
+						"first-success-on-trial",
+						"total-from-normals",
+						"parameter-on-branch",
+						"rounds-exceed-total",
+						"selections-find-n"
+					],
+					"name": "Multiply along, add between",
+					"about": "Multiply the probabilities along each path to get that outcome, then add the paths that belong to the event."
+				},
+				{
+					"skill": "SL4.6.tree",
+					"method": "list-outcomes",
+					"suits": [
+						"path-probability",
+						"total-over-paths",
+						"same-or-different",
+						"first-success-on-trial",
+						"rounds-exceed-total"
+					],
+					"name": "List the ordered outcomes",
+					"about": "For small cases, list the ordered outcomes (RR, RB, BR, BB) with their probabilities and add the ones you need."
+				},
+				{
+					"skill": "SL4.6.tree",
+					"method": "complement-paths",
+					"suits": [
+						"total-over-paths",
+						"same-or-different",
+						"at-least-one"
+					],
+					"name": "Use the complement paths",
+					"about": "When many paths qualify (different colours, at least one), find the few that do not and subtract from 1."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "On any tree, the probabilities at the ends of all the paths add to 1.",
+					"answer": "True: the paths cover every outcome once and no two can both happen. It is a quick check on a finished tree.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Drawing without replacement changes the probability on a second-stage branch.",
+					"answer": "Always: one item has gone, so the total on the bottom of the fraction changes, whichever colour was drawn.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "P(at least one) is the same as 1 minus P(none).",
+					"answer": "True: at least one and none are complements, so together they cover everything. With many paths it is much the shorter way.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.6.tree#0",
+					"text": "Not reducing the numerator and denominator on the second-stage branches when sampling without replacement",
+					"as": "distractor",
+					"in": [
+						"branch-after-draw",
+						"path-probability",
+						"same-or-different",
+						"at-least-one",
+						"all-without-replacement",
+						"draws-in-terms-of-n"
+					],
+					"wrong": "the first draw's fraction used again, with neither number reduced"
+				},
+				{
+					"ref": "SL4.6.tree#1",
+					"text": "Adding along a path instead of multiplying",
+					"as": "distractor",
+					"in": [
+						"path-probability",
+						"all-without-replacement",
+						"draws-in-terms-of-n",
+						"parameter-on-branch"
+					],
+					"wrong": "the branches on a path added"
+				},
+				{
+					"ref": "SL4.6.tree#2",
+					"text": "Counting only one order of the two colours and forgetting the other",
+					"as": "distractor",
+					"in": [
+						"same-or-different"
+					],
+					"wrong": "one order of the two colours"
+				},
+				{
+					"text": "Subtracting the branch before the fork instead of a branch at the fork",
+					"as": "distractor",
+					"in": [
+						"complete-branch",
+						"branch-in-terms-of-k"
+					],
+					"wrong": "1 minus the first-stage branch"
+				},
+				{
+					"text": "Leaving out one branch of a three-way fork",
+					"as": "distractor",
+					"in": [
+						"complete-branch"
+					],
+					"wrong": "1 minus only one of the other two branches"
+				},
+				{
+					"text": "Subtracting one from the branch instead of the branch from one",
+					"as": "distractor",
+					"in": [
+						"branch-in-terms-of-k"
+					],
+					"wrong": "the branch minus 1"
+				},
+				{
+					"text": "Reducing the count of the colour that was not drawn",
+					"as": "distractor",
+					"in": [
+						"branch-after-draw"
+					],
+					"wrong": "the other colour's count reduced as well as the total"
+				},
+				{
+					"text": "Leaving out the extra item added after the first draw",
+					"as": "distractor",
+					"in": [
+						"branch-after-draw"
+					],
+					"wrong": "the count or the total not raised by one"
+				},
+				{
+					"text": "Giving the last branch alone instead of multiplying along the path",
+					"as": "distractor",
+					"in": [
+						"path-probability"
+					],
+					"wrong": "the second-stage branch"
+				},
+				{
+					"text": "Stopping after one path into the event",
+					"as": "distractor",
+					"in": [
+						"total-over-paths",
+						"total-from-normals"
+					],
+					"wrong": "one path's probability"
+				},
+				{
+					"text": "Adding the branches that end in the outcome without multiplying along each path",
+					"as": "distractor",
+					"in": [
+						"total-over-paths",
+						"total-from-normals"
+					],
+					"wrong": "the second-stage branches added"
+				},
+				{
+					"text": "Giving the probability of the opposite event",
+					"as": "distractor",
+					"in": [
+						"same-or-different"
+					],
+					"wrong": "1 minus the answer"
+				},
+				{
+					"text": "Stopping at the complement without subtracting it from one",
+					"as": "distractor",
+					"in": [
+						"at-least-one"
+					],
+					"wrong": "the probability of none"
+				},
+				{
+					"text": "Counting exactly one and leaving out the paths with more",
+					"as": "distractor",
+					"in": [
+						"at-least-one"
+					],
+					"wrong": "the probability of exactly one"
+				},
+				{
+					"text": "Swapping the success and failure probabilities on the path",
+					"as": "distractor",
+					"in": [
+						"first-success-on-trial"
+					],
+					"wrong": "failure once and success on the other tries"
+				},
+				{
+					"text": "Multiplying by the number of orders when the order is fixed",
+					"as": "distractor",
+					"in": [
+						"first-success-on-trial"
+					],
+					"wrong": "the path multiplied by the number of tries"
+				},
+				{
+					"text": "Counting one failure too many before the success",
+					"as": "distractor",
+					"in": [
+						"first-success-on-trial"
+					],
+					"wrong": "one more failure on the path"
+				},
+				{
+					"text": "Giving the path without dividing by the total of the paths",
+					"as": "distractor",
+					"in": [
+						"total-from-normals"
+					],
+					"wrong": "the wanted path, not divided"
+				},
+				{
+					"text": "Keeping the root that makes a branch greater than one",
+					"as": "distractor",
+					"in": [
+						"parameter-on-branch"
+					],
+					"wrong": "the other root of the quadratic"
+				},
+				{
+					"text": "Giving the number in the tin instead of the number of selections",
+					"as": "distractor",
+					"in": [
+						"selections-find-n"
+					],
+					"wrong": "n plus the starting count"
+				},
+				{
+					"text": "Leaving the last selection out of the count",
+					"as": "distractor",
+					"in": [
+						"selections-find-n"
+					],
+					"wrong": "n minus 1"
+				},
+				{
+					"text": "Leaving out the orders of the rounds",
+					"as": "distractor",
+					"in": [
+						"rounds-exceed-total"
+					],
+					"wrong": "one order of the low round"
+				},
+				{
+					"text": "Counting only the games with the top score in every round",
+					"as": "distractor",
+					"in": [
+						"rounds-exceed-total"
+					],
+					"wrong": "the path of all top scores"
+				},
+				{
+					"text": "Including the totals equal to the limit",
+					"as": "distractor",
+					"in": [
+						"rounds-exceed-total"
+					],
+					"wrong": "the probability of at least the limit"
+				},
+				{
+					"text": "Leaving the count of the colour drawn unchanged after the first draw",
+					"as": "distractor",
+					"in": [
+						"branch-after-draw"
+					],
+					"wrong": "the total reduced but the count of the colour drawn kept"
+				},
+				{
+					"text": "Leaving the total unchanged after an item is drawn",
+					"as": "distractor",
+					"in": [
+						"branch-after-draw",
+						"path-probability",
+						"same-or-different",
+						"all-without-replacement",
+						"draws-in-terms-of-n"
+					],
+					"wrong": "every later branch over the first total"
+				},
+				{
+					"text": "Reducing the total before anything has been drawn",
+					"as": "distractor",
+					"in": [
+						"draws-in-terms-of-n"
+					],
+					"wrong": "the first draw over n − 1"
+				}
+			],
+			"chain": [
+				"read or complete the branches: those at a fork add to 1",
+				"after a draw, recount what is left before the next branch",
+				"multiply along a path",
+				"add the paths that belong to the event, or subtract the others from 1",
+				"solve for an unknown on a branch and reject a value that is no probability"
+			],
 			"frequency": 14,
 			"marks": 3,
 			"section": {
@@ -29881,9 +32348,7 @@
 			"paper": {
 				"p1": 6,
 				"p2": 8
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-sample-space",
@@ -32102,6 +34567,492 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Use or test independence of events",
+			"summary": "Use P(A ∩ B) = P(A)P(B) to find an overlap, a union, a region, a conditional or an unknown probability, and decide with two numbers whether events are independent, from probabilities, a story, a Venn diagram, a two-way table or a tree. Independent is kept apart from mutually exclusive.",
+			"situation": "independence",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "P(A) = 0.4, P(B) = 0.3 and P(A ∩ B) = 0.12, or P(A) = 3P(B)"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story in percentages, two things that fail independently, or two crates and a random pick"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a Venn diagram with its regions, or a tree of two stages"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a two-way table with totals"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "both-from-probabilities",
+					"given": [
+						"P(A) and P(B), independent"
+					],
+					"asked": "P(A ∩ B)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.independent"
+					]
+				},
+				{
+					"id": "one-region-from-independence",
+					"given": [
+						"P(A) and P(B), independent"
+					],
+					"asked": "P(A′ ∩ B), P(A ∩ B′) or P(A′ ∩ B′)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.independent"
+					]
+				},
+				{
+					"id": "union-from-independence",
+					"given": [
+						"P(A) and P(B), independent"
+					],
+					"asked": "P(A ∪ B)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.11.independence-unknown"
+					]
+				},
+				{
+					"id": "conditional-from-independence",
+					"given": [
+						"P(B) and P(A ∩ B), independent"
+					],
+					"asked": "a conditional such as P(A′ | B′)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.11.independence-unknown"
+					]
+				},
+				{
+					"id": "unknown-from-union",
+					"given": [
+						"P(A) and P(A ∪ B), independent"
+					],
+					"asked": "P(B)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.11.independence-unknown"
+					]
+				},
+				{
+					"id": "ratio-from-union",
+					"given": [
+						"P(A) = k P(B)",
+						"P(A ∪ B), independent"
+					],
+					"asked": "P(B), from a quadratic with one root rejected",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.11.independence-unknown"
+					]
+				},
+				{
+					"id": "overlap-from-only-regions",
+					"given": [
+						"P(A ∩ B′) and P(A′ ∩ B), independent"
+					],
+					"asked": "x = P(A ∩ B)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL4.11.independence-unknown"
+					]
+				},
+				{
+					"id": "test-from-probabilities",
+					"given": [
+						"P(A), P(B) and P(A ∩ B) or P(A ∪ B), or a story in percentages"
+					],
+					"asked": "whether A and B are independent, with the two numbers",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.11.test-independence"
+					]
+				},
+				{
+					"id": "test-from-venn",
+					"given": [
+						"a Venn diagram"
+					],
+					"asked": "whether A and B are independent, with the two numbers",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL4.11.test-independence"
+					]
+				},
+				{
+					"id": "test-from-table",
+					"given": [
+						"a two-way table"
+					],
+					"asked": "whether A and B are independent, with the two numbers",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.11.test-independence"
+					]
+				},
+				{
+					"id": "test-from-tree",
+					"given": [
+						"two sources and a random pick, in words or on a tree"
+					],
+					"asked": "whether the source and the result are independent, with the two numbers",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.11.test-independence"
+					]
+				},
+				{
+					"id": "test-from-conditional",
+					"given": [
+						"P(A), P(A ∪ B) and P(B | A)"
+					],
+					"asked": "whether A and B are independent, with the two numbers",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL4.11.test-independence"
+					]
+				},
+				{
+					"id": "classify-events",
+					"given": [
+						"P(A), P(B) and P(A ∪ B)"
+					],
+					"asked": "whether A and B are mutually exclusive, independent or neither",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.11.test-independence"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.6.independent",
+					"method": "multiply",
+					"suits": [
+						"both-from-probabilities",
+						"one-region-from-independence"
+					],
+					"name": "Multiply the probabilities",
+					"about": "For independent events, P(A ∩ B) = P(A) × P(B)."
+				},
+				{
+					"skill": "SL4.6.independent",
+					"method": "tree-unchanged",
+					"suits": [
+						"both-from-probabilities",
+						"one-region-from-independence"
+					],
+					"name": "Tree with identical second-stage branches",
+					"about": "Because B does not depend on A, the branches for B are the same after A and after A′; multiply along the path you need."
+				},
+				{
+					"skill": "SL4.11.independence-unknown",
+					"method": "addition-with-product",
+					"suits": [
+						"union-from-independence",
+						"unknown-from-union",
+						"ratio-from-union"
+					],
+					"name": "Substitute P(A)P(B) into the addition rule",
+					"about": "Write P(A ∪ B) = P(A) + P(B) − P(A)P(B) with P(B) = x and solve the linear equation."
+				},
+				{
+					"skill": "SL4.11.independence-unknown",
+					"method": "complement-product",
+					"suits": [
+						"union-from-independence",
+						"unknown-from-union",
+						"ratio-from-union"
+					],
+					"name": "Use independence of the complements",
+					"about": "If A and B are independent then so are A′ and B′, so 1 − P(A ∪ B) = P(A′)P(B′); solve for P(B′)."
+				},
+				{
+					"skill": "SL4.11.independence-unknown",
+					"method": "venn-unknown",
+					"suits": [
+						"unknown-from-union",
+						"ratio-from-union",
+						"overlap-from-only-regions"
+					],
+					"name": "Venn diagram in terms of x",
+					"about": "Let P(B) = x, put 0.3x in the intersection, and set the total inside the circles equal to P(A ∪ B)."
+				},
+				{
+					"skill": "SL4.11.test-independence",
+					"method": "product-test",
+					"suits": [
+						"test-from-probabilities",
+						"test-from-venn",
+						"test-from-table",
+						"test-from-tree",
+						"test-from-conditional",
+						"classify-events"
+					],
+					"name": "Compare P(A ∩ B) with P(A)P(B)",
+					"about": "A and B are independent exactly when P(A ∩ B) = P(A) × P(B); show both numbers."
+				},
+				{
+					"skill": "SL4.11.test-independence",
+					"method": "conditional-test",
+					"suits": [
+						"test-from-probabilities",
+						"test-from-venn",
+						"test-from-table",
+						"test-from-tree",
+						"test-from-conditional",
+						"conditional-from-independence"
+					],
+					"name": "See whether the given event changes the probability",
+					"about": "Independent means knowing B does not change the probability of A: P(A | B) = P(A), equivalently P(A | B) = P(A | B′)."
+				},
+				{
+					"skill": "SL4.11.test-independence",
+					"method": "table-proportions",
+					"suits": [
+						"test-from-table"
+					],
+					"name": "Compare proportions across the rows of a table",
+					"about": "In a two-way table, if the proportion in A is the same in row B and in row B′, the events are independent."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If A and B are mutually exclusive and neither has probability 0, then they are independent.",
+					"answer": "False: if A happens then B can't, so knowing A changes the probability of B completely. P(A ∩ B) = 0, but P(A) × P(B) is not 0.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "Two independent events can't happen together.",
+					"answer": "False: that describes mutually exclusive events. Independent events with non-zero probabilities always overlap, because P(A ∩ B) = P(A) × P(B) is not 0.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "If A and B are independent, then A′ and B′ are independent.",
+					"answer": "Always: P(A′ ∩ B′) = 1 − P(A) − P(B) + P(A)P(B), which factorises to (1 − P(A))(1 − P(B)).",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.6.independent#0",
+					"text": "Adding P(A) + P(B) for 'A and B'",
+					"as": "distractor",
+					"in": [
+						"both-from-probabilities"
+					],
+					"wrong": "P(A) + P(B)"
+				},
+				{
+					"ref": "SL4.6.independent#1",
+					"text": "Giving P(A) + P(B) − P(A)P(B), which is P(A ∪ B), when the intersection is asked for",
+					"as": "distractor",
+					"in": [
+						"both-from-probabilities"
+					],
+					"wrong": "P(A ∪ B) for P(A ∩ B)"
+				},
+				{
+					"ref": "SL4.6.independent#2",
+					"text": "Taking P(A ∩ B) = 0 for independent events (that is mutually exclusive)",
+					"as": "distractor",
+					"in": [
+						"both-from-probabilities"
+					],
+					"wrong": "0 for P(A ∩ B)"
+				},
+				{
+					"ref": "SL4.6.independent#3",
+					"text": "Leaving out the complement: using P(A) × P(B) when an event with a dash is asked for",
+					"as": "distractor",
+					"in": [
+						"one-region-from-independence"
+					],
+					"wrong": "P(A) × P(B) for a region with a complement"
+				},
+				{
+					"ref": "SL4.11.test-independence#0",
+					"text": "Assuming that events that overlap cannot be independent",
+					"as": "distractor",
+					"in": [
+						"test-from-probabilities",
+						"test-from-venn",
+						"test-from-table",
+						"test-from-tree",
+						"test-from-conditional",
+						"classify-events"
+					],
+					"wrong": "not independent, because P(A ∩ B) is not 0, when the events are independent"
+				},
+				{
+					"ref": "SL4.11.test-independence#1",
+					"text": "Mixing up independent with mutually exclusive: being independent is not about whether the events overlap",
+					"as": "distractor",
+					"in": [
+						"test-from-probabilities",
+						"test-from-venn",
+						"test-from-table",
+						"test-from-tree",
+						"test-from-conditional",
+						"classify-events"
+					],
+					"wrong": "judging independence from P(A ∩ B) alone, or calling independent events mutually exclusive"
+				},
+				{
+					"ref": "SL4.11.test-independence#2",
+					"text": "Giving a verdict from one number, when the test compares two",
+					"as": "distractor",
+					"in": [
+						"test-from-probabilities",
+						"test-from-venn",
+						"test-from-table",
+						"test-from-tree",
+						"test-from-conditional"
+					],
+					"wrong": "not independent, with only P(A ∩ B) quoted"
+				},
+				{
+					"ref": "SL4.11.test-independence#3",
+					"text": "Reading the test backwards: equal values mean independent, and different values mean not",
+					"as": "distractor",
+					"in": [
+						"test-from-probabilities",
+						"test-from-venn",
+						"test-from-table",
+						"test-from-tree",
+						"test-from-conditional",
+						"classify-events"
+					],
+					"wrong": "the true comparison with the opposite verdict"
+				},
+				{
+					"ref": "SL4.11.independence-unknown#0",
+					"text": "Using P(A ∪ B) = P(A) + P(B) as if the events were mutually exclusive",
+					"as": "distractor",
+					"in": [
+						"union-from-independence",
+						"unknown-from-union",
+						"one-region-from-independence"
+					],
+					"wrong": "P(A) + P(B) in place of the union"
+				},
+				{
+					"ref": "SL4.11.independence-unknown#1",
+					"text": "Setting P(A ∩ B) = 0 because the events are independent",
+					"as": "distractor",
+					"in": [
+						"ratio-from-union"
+					],
+					"wrong": "P(A ∪ B) ÷ (k + 1): the addition rule with no overlap"
+				},
+				{
+					"ref": "SL4.11.independence-unknown#2",
+					"text": "Multiplying the two 'only' regions, when independence multiplies P(A) by P(B)",
+					"as": "distractor",
+					"in": [
+						"overlap-from-only-regions"
+					],
+					"wrong": "P(A ∩ B′) × P(A′ ∩ B)"
+				},
+				{
+					"ref": "SL4.11.independence-unknown#3",
+					"text": "Giving the probability of both events, when a conditional is asked for",
+					"as": "distractor",
+					"in": [
+						"conditional-from-independence"
+					],
+					"wrong": "P(want ∩ given)"
+				}
+			],
+			"chain": [
+				"read P(A), P(B) and P(A ∩ B) from what is given",
+				"if the events are independent, multiply: P(A ∩ B) = P(A)P(B)",
+				"put that into the addition rule, or use the complements, to find what is missing",
+				"to test, work out both sides of P(A ∩ B) = P(A)P(B), or compare P(A | B) with P(A)",
+				"state the verdict and quote the two numbers"
+			],
 			"frequency": 9,
 			"marks": 2,
 			"section": {
@@ -32111,9 +35062,7 @@
 			"paper": {
 				"p1": 3,
 				"p2": 6
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-conditional-probability",
@@ -34556,6 +37505,632 @@
 			"topic": 5,
 			"source": "exam",
 			"name": "Optimisation: build a function from a constraint, then maximise or minimise",
+			"summary": "A shape or journey with a fixed amount: get the second length from the constraint, build or show the function of one variable, differentiate, solve, justify the maximum or minimum, and give the optimum. Yards against a wall, cylinders, open bins, trays cut from a sheet, rectangles under an arch, routes off a road and the closest point on a curve.",
+			"situation": "optimisation-model",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a labelled figure with the question's numbers on it: a yard against a wall, a cylinder, an open bin, a sheet with its corners marked, an arch with a shaded rectangle, a mast and a highway, or a curve and a point"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "the shape and the fixed amount in sentences"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the function of one variable, given, with a line saying what it measures"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "constraint-rearrange",
+					"given": [
+						"the fixed amount",
+						"a shape with lengths x and y"
+					],
+					"asked": "the second length in terms of the first",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "build-objective",
+					"given": [
+						"a figure or story with one free length"
+					],
+					"asked": "the function in terms of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "show-objective",
+					"given": [
+						"the fixed amount",
+						"the target form with letters p and q"
+					],
+					"asked": "p and q, the numbers a 'show that' lands on",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "derivative-of-objective",
+					"given": [
+						"the function, or the function in two variables and its constraint"
+					],
+					"asked": "the derivative",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "solve-stationary",
+					"given": [
+						"the function"
+					],
+					"asked": "the value of x at the maximum or minimum",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "exact-stationary",
+					"given": [
+						"the function"
+					],
+					"asked": "the exact value of x, as m√t or a cube root",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "justify-second-derivative",
+					"given": [
+						"the function",
+						"the stationary point"
+					],
+					"asked": "the second derivative there, and the nature of the point",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "justify-sign-change",
+					"given": [
+						"the function",
+						"the stationary point"
+					],
+					"asked": "the derivative either side, and the nature of the point",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "optimum-value",
+					"given": [
+						"the function",
+						"the shape"
+					],
+					"asked": "the maximum or minimum value",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "other-dimension",
+					"given": [
+						"the fixed amount"
+					],
+					"asked": "the second length at the optimum",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "quadratic-optimum",
+					"given": [
+						"a fixed fence against a wall"
+					],
+					"asked": "the maximum area",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "box-best-cut",
+					"given": [
+						"a sheet",
+						"the volume of its tray"
+					],
+					"asked": "the cut that gives the greatest volume, with the second root rejected",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "route-best-point",
+					"given": [
+						"a route off a road, with its time or cost function"
+					],
+					"asked": "the point that gives the least time or cost",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "route-least-value",
+					"given": [
+						"a route off a road, with its time or cost function"
+					],
+					"asked": "the least time or cost",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				},
+				{
+					"id": "closest-point",
+					"given": [
+						"a curve and a fixed point"
+					],
+					"asked": "the x-coordinate of the closest point on the curve",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL5.8.optimisation-modelling"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.8.optimisation-modelling",
+					"method": "constraint-substitution",
+					"suits": [
+						"constraint-rearrange",
+						"show-objective"
+					],
+					"name": "Eliminate a variable with the constraint",
+					"about": "Use the fixed quantity (volume, perimeter, area) to write one variable in terms of the other, giving a function of a single variable."
+				},
+				{
+					"skill": "SL5.8.optimisation-modelling",
+					"method": "model-from-figure",
+					"suits": [
+						"build-objective"
+					],
+					"name": "Read the lengths off the figure",
+					"about": "Write each length in terms of the free variable from the figure, using Pythagoras or a curve's equation where needed, then multiply or add them."
+				},
+				{
+					"skill": "SL5.8.optimisation-modelling",
+					"method": "differentiate-and-test",
+					"suits": [
+						"derivative-of-objective",
+						"solve-stationary",
+						"exact-stationary",
+						"optimum-value",
+						"other-dimension",
+						"quadratic-optimum",
+						"box-best-cut",
+						"closest-point"
+					],
+					"name": "Differentiate and justify",
+					"about": "Differentiate the one-variable function, solve = 0, and justify the maximum or minimum."
+				},
+				{
+					"skill": "SL5.8.optimisation-modelling",
+					"method": "gdc-graph-optimum",
+					"suits": [
+						"solve-stationary",
+						"optimum-value",
+						"box-best-cut",
+						"route-best-point",
+						"route-least-value"
+					],
+					"name": "Graph on the feasible domain",
+					"about": "Graph the single-variable function over the values that make physical sense and read the optimum with the max/min tool."
+				},
+				{
+					"skill": "SL5.8.optimisation-modelling",
+					"method": "quadratic-vertex",
+					"suits": [
+						"quadratic-optimum"
+					],
+					"name": "Midpoint of the roots for a quadratic model",
+					"about": "If the function is quadratic, e.g. A = x(50 − x), the optimum is midway between its roots (x = 25)."
+				},
+				{
+					"skill": "SL5.8.classify-stationary-points",
+					"method": "second-derivative-test",
+					"suits": [
+						"justify-second-derivative"
+					],
+					"name": "Second derivative test",
+					"about": "Evaluate f″ at the point: f″ > 0 gives a local minimum, f″ < 0 a local maximum, and f″ = 0 is inconclusive."
+				},
+				{
+					"skill": "SL5.8.classify-stationary-points",
+					"method": "first-derivative-sign-table",
+					"suits": [
+						"justify-sign-change"
+					],
+					"name": "First derivative sign table",
+					"about": "Check the sign of f′ just either side: + then − is a maximum, − then + is a minimum, no change is a point of inflexion."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A stationary point of a function on a domain must be where the function takes its largest value on that domain.",
+					"answer": "False: a stationary point can be a local minimum or an inflexion, and the largest value can be at an end of the domain. That is why the point has to be justified and the ends considered.",
+					"level": 4
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "When a quantity depends on two lengths tied by a constraint, it can be differentiated before one length is eliminated.",
+					"answer": "Never by the plain power rule: the second length changes with the first, so it can't be held constant. Eliminate it first, so the function has one variable.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.8.optimisation-modelling#0",
+					"text": "Differentiating before eliminating the second variable",
+					"as": "distractor",
+					"in": [
+						"derivative-of-objective"
+					],
+					"wrong": "the derivative with the second letter held constant"
+				},
+				{
+					"ref": "SL5.8.optimisation-modelling#1",
+					"text": "Ignoring the feasible domain, such as a cut too big for the sheet",
+					"as": "distractor",
+					"in": [
+						"box-best-cut"
+					],
+					"wrong": "the second root of the derivative, outside the sheet"
+				},
+				{
+					"ref": "SL5.8.optimisation-modelling#2",
+					"text": "Giving the constraint value or the optimal x when the optimal value is asked for",
+					"as": "distractor",
+					"in": [
+						"optimum-value",
+						"quadratic-optimum",
+						"route-least-value"
+					],
+					"wrong": "the optimal x, or the fixed amount"
+				},
+				{
+					"ref": "SL5.8.find-stationary-points#0",
+					"text": "Solving f(x) = 0 instead of f′(x) = 0",
+					"as": "distractor",
+					"in": [
+						"solve-stationary",
+						"exact-stationary",
+						"box-best-cut"
+					],
+					"wrong": "a root of the function"
+				},
+				{
+					"text": "Reading maximum and minimum the wrong way round",
+					"as": "distractor",
+					"in": [
+						"justify-second-derivative",
+						"justify-sign-change"
+					],
+					"wrong": "maximum and minimum swapped"
+				},
+				{
+					"ref": "SL5.8.classify-stationary-points#2",
+					"text": "Checking the sign of f rather than f′ either side of the point",
+					"as": "distractor",
+					"in": [
+						"justify-sign-change"
+					],
+					"wrong": "the function's values either side, not the derivative's"
+				},
+				{
+					"text": "Counting a fence along the wall as well",
+					"as": "distractor",
+					"in": [
+						"constraint-rearrange",
+						"show-objective",
+						"quadratic-optimum"
+					],
+					"wrong": "the wall side fenced too, so two sides of length y"
+				},
+				{
+					"text": "Counting only one of the sections of length x",
+					"as": "distractor",
+					"in": [
+						"constraint-rearrange"
+					],
+					"wrong": "y = F − x"
+				},
+				{
+					"text": "Dividing the fixed amount the wrong way up",
+					"as": "distractor",
+					"in": [
+						"constraint-rearrange"
+					],
+					"wrong": "y = x/A"
+				},
+				{
+					"text": "Using the circumference in place of the base area",
+					"as": "distractor",
+					"in": [
+						"constraint-rearrange"
+					],
+					"wrong": "2πr where πr² belongs"
+				},
+				{
+					"text": "Counting only some of the side faces",
+					"as": "distractor",
+					"in": [
+						"constraint-rearrange",
+						"show-objective"
+					],
+					"wrong": "two side faces, not four"
+				},
+				{
+					"text": "Counting a lid on an open shape",
+					"as": "distractor",
+					"in": [
+						"constraint-rearrange"
+					],
+					"wrong": "two faces of area x²"
+				},
+				{
+					"text": "Counting the wrong number of flat ends",
+					"as": "distractor",
+					"in": [
+						"show-objective"
+					],
+					"wrong": "one end for a closed cylinder, or two for an open one"
+				},
+				{
+					"text": "Using half the curved surface",
+					"as": "distractor",
+					"in": [
+						"show-objective"
+					],
+					"wrong": "πrh for the curved side"
+				},
+				{
+					"text": "Cutting x from only one end of each edge",
+					"as": "distractor",
+					"in": [
+						"build-objective"
+					],
+					"wrong": "w − x and h − x for the base"
+				},
+				{
+					"text": "Leaving the height out of the volume",
+					"as": "distractor",
+					"in": [
+						"build-objective"
+					],
+					"wrong": "the base area alone"
+				},
+				{
+					"text": "Taking x as the full width of the rectangle",
+					"as": "distractor",
+					"in": [
+						"build-objective"
+					],
+					"wrong": "width x instead of 2x"
+				},
+				{
+					"text": "Adding the two legs instead of using Pythagoras",
+					"as": "distractor",
+					"in": [
+						"build-objective"
+					],
+					"wrong": "a + x for the straight stretch"
+				},
+				{
+					"text": "Multiplying distance by speed to get a time",
+					"as": "distractor",
+					"in": [
+						"build-objective"
+					],
+					"wrong": "speed × distance on each stretch"
+				},
+				{
+					"text": "Using x for the stretch along the road",
+					"as": "distractor",
+					"in": [
+						"build-objective"
+					],
+					"wrong": "x where b − x belongs"
+				},
+				{
+					"text": "Losing the minus sign when differentiating a negative power",
+					"as": "distractor",
+					"in": [
+						"derivative-of-objective"
+					],
+					"wrong": "+q/x² from q/x"
+				},
+				{
+					"text": "Adding one to a negative power instead of subtracting one",
+					"as": "distractor",
+					"in": [
+						"derivative-of-objective"
+					],
+					"wrong": "the power of x moved towards zero"
+				},
+				{
+					"text": "Keeping the old power after multiplying by it",
+					"as": "distractor",
+					"in": [
+						"derivative-of-objective"
+					],
+					"wrong": "each term's power left as it was"
+				},
+				{
+					"text": "Stopping before taking the root",
+					"as": "distractor",
+					"in": [
+						"solve-stationary",
+						"exact-stationary",
+						"closest-point"
+					],
+					"wrong": "the value of x² or r³ given as x or r"
+				},
+				{
+					"text": "Taking a square root where a cube root is needed",
+					"as": "distractor",
+					"in": [
+						"exact-stationary"
+					],
+					"wrong": "√ of r³"
+				},
+				{
+					"text": "Measuring x from the depot instead of from P",
+					"as": "distractor",
+					"in": [
+						"route-best-point"
+					],
+					"wrong": "b − x"
+				},
+				{
+					"text": "Taking the straight line to the depot without minimising",
+					"as": "distractor",
+					"in": [
+						"route-least-value"
+					],
+					"wrong": "the function at x = b"
+				},
+				{
+					"text": "Taking the point straight above P as the closest",
+					"as": "distractor",
+					"in": [
+						"closest-point"
+					],
+					"wrong": "x equal to P's own x-coordinate"
+				},
+				{
+					"text": "Leaving out the factor from the power when differentiating the squared bracket",
+					"as": "distractor",
+					"in": [
+						"closest-point"
+					],
+					"wrong": "(x − a) + k = 0, without the 2"
+				},
+				{
+					"text": "Giving the length found first instead of the one asked for",
+					"as": "distractor",
+					"in": [
+						"other-dimension"
+					],
+					"wrong": "the free length x or r given as y or h"
+				}
+			],
+			"chain": [
+				"a second length in terms of the first, from the constraint",
+				"the function in one variable, built from a figure or shown to take a given form",
+				"its derivative",
+				"the stationary point, exact or to 3 s.f.",
+				"why it is a maximum or a minimum",
+				"the second length, or the optimum value there"
+			],
 			"frequency": 18,
 			"marks": 4,
 			"section": {
@@ -34565,15 +38140,773 @@
 			"paper": {
 				"p1": 11,
 				"p2": 7
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-kinematics-distance",
 			"topic": 5,
 			"source": "exam",
 			"name": "Kinematics: displacement and distance by integrating velocity",
+			"summary": "Integrate a velocity for a displacement or a position, with a start value, and find the total distance travelled, splitting at each rest or using ∫|v| dt on the GDC. Also distance from a displacement, an expression for a distance, the distance read as areas on a v–t graph, whether a particle gets back to its start, the gap between evenly spaced points, and a race between two velocities.",
+			"situation": "motion-distance",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "v(t) or s(t) with its interval"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the graph of v or s against t, as a curve with its equation, or a v–t graph in straight pieces read as areas"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a cart, drone, buggy or sled on a straight line, or two buggies in a race"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "position-expression",
+					"given": [
+						"v(t), a polynomial",
+						"s at one time"
+					],
+					"asked": "s(t)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "velocity-from-acceleration",
+					"given": [
+						"a(t), linear",
+						"v at one time"
+					],
+					"asked": "v(t)",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "position-at-time",
+					"given": [
+						"v(t)",
+						"s when t = 0",
+						"a time"
+					],
+					"asked": "the displacement from O at that time",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "displacement-between",
+					"given": [
+						"v(t)",
+						"s when t = 0",
+						"two times"
+					],
+					"asked": "the displacement between the two times",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "position-at-max-velocity",
+					"given": [
+						"v(t)",
+						"s when t = 0"
+					],
+					"asked": "the displacement from O when the velocity is greatest",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "does-it-return",
+					"given": [
+						"v(t), positive then negative"
+					],
+					"asked": "whether the particle gets back to its start on the interval",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "initial-displacement",
+					"given": [
+						"s(t) with cos"
+					],
+					"asked": "the displacement when t = 0",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "displacement-increasing",
+					"given": [
+						"v(t), negative then positive then negative"
+					],
+					"asked": "the interval on which the displacement increases",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "ridge-distance",
+					"given": [
+						"a repeating v(t), always positive",
+						"a story of evenly spaced ridges"
+					],
+					"asked": "the distance between two ridges",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "race-gap",
+					"given": [
+						"two velocities with e",
+						"the length of a race"
+					],
+					"asked": "how far the second racer is from the line when the first finishes",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "position-from-graph",
+					"given": [
+						"a v–t graph in straight pieces",
+						"s when t = 0"
+					],
+					"asked": "the displacement from O at the end",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.9.displacement-from-velocity"
+					]
+				},
+				{
+					"id": "displacement-at-turn",
+					"given": [
+						"s(t), a quadratic"
+					],
+					"asked": "the displacement when the particle changes direction",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "distance-from-origin",
+					"given": [
+						"s(t), a quadratic",
+						"a time past its return"
+					],
+					"asked": "the distance from the origin at that time",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "total-distance-positions",
+					"given": [
+						"s(t), a quadratic"
+					],
+					"asked": "the total distance on the interval",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "distance-before-turning",
+					"given": [
+						"v(t)"
+					],
+					"asked": "the distance travelled before the first change of direction",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "total-distance-split",
+					"given": [
+						"v(t), a polynomial with rests"
+					],
+					"asked": "the total distance on the interval",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "total-distance-gdc",
+					"given": [
+						"v(t) with e or sin"
+					],
+					"asked": "the total distance on the interval, to 3 s.f.",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "distance-between-times",
+					"given": [
+						"v(t) with sin or cos"
+					],
+					"asked": "the distance between a time when a = 0 and a time at rest, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "distance-from-position",
+					"given": [
+						"s(t) with cos"
+					],
+					"asked": "the total distance up to the second rest, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "distance-expression",
+					"given": [
+						"v(t) with one rest"
+					],
+					"asked": "an expression for the total distance, not evaluated",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "speeding-distance-expression",
+					"given": [
+						"v(t) with one rest"
+					],
+					"asked": "an expression for the distance travelled while the speed increases, not evaluated",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "time-for-distance",
+					"given": [
+						"v(t), linear",
+						"a total distance past the rest"
+					],
+					"asked": "the time when that distance has been travelled",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				},
+				{
+					"id": "distance-from-graph",
+					"given": [
+						"a v–t graph in straight pieces"
+					],
+					"asked": "the total distance",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.9.total-distance"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.9.displacement-from-velocity",
+					"method": "integrate-with-constant",
+					"suits": [
+						"position-expression",
+						"velocity-from-acceleration",
+						"position-at-time"
+					],
+					"name": "Integrate and use the initial condition",
+					"about": "Integrate v (or a) with + C, then use the given starting value to find C."
+				},
+				{
+					"skill": "SL5.9.displacement-from-velocity",
+					"method": "start-plus-change",
+					"suits": [
+						"position-at-time",
+						"position-at-max-velocity",
+						"does-it-return",
+						"position-from-graph"
+					],
+					"name": "Start position plus definite integral",
+					"about": "Use s(T) = s(0) + ∫ from 0 to T of v dt to get the position at a given time directly."
+				},
+				{
+					"skill": "SL5.9.displacement-from-velocity",
+					"method": "gdc-integral",
+					"suits": [
+						"position-at-time",
+						"displacement-between",
+						"position-at-max-velocity",
+						"ridge-distance",
+						"race-gap"
+					],
+					"name": "GDC definite integral of v",
+					"about": "Evaluate ∫ v dt numerically for the change in displacement over the interval."
+				},
+				{
+					"skill": "SL5.9.total-distance",
+					"method": "split-at-rest",
+					"suits": [
+						"total-distance-split",
+						"total-distance-gdc",
+						"distance-expression",
+						"speeding-distance-expression",
+						"time-for-distance"
+					],
+					"name": "Split where v = 0",
+					"about": "Find the times the particle is at rest, integrate v over each piece separately, and add the absolute values."
+				},
+				{
+					"skill": "SL5.9.total-distance",
+					"method": "track-positions",
+					"suits": [
+						"displacement-at-turn",
+						"distance-from-origin",
+						"total-distance-positions",
+						"total-distance-split",
+						"distance-from-position"
+					],
+					"name": "Track the positions",
+					"about": "Find s at the start, at each turning time and at the end, and add the distances between consecutive positions."
+				},
+				{
+					"skill": "SL5.9.total-distance",
+					"method": "gdc-abs-integral",
+					"suits": [
+						"distance-before-turning",
+						"total-distance-gdc",
+						"distance-between-times",
+						"distance-from-position"
+					],
+					"name": "Integrate |v| on the GDC",
+					"about": "Evaluate ∫ from t₁ to t₂ of |v(t)| dt in one step."
+				},
+				{
+					"skill": "SL5.9.total-distance",
+					"method": "area-under-v-t",
+					"suits": [
+						"distance-from-graph"
+					],
+					"name": "Add areas on the v–t graph",
+					"about": "For a piecewise-linear v–t graph, add the areas of the triangles and trapezia, all counted as positive."
+				},
+				{
+					"method": "substitute-zero",
+					"suits": [
+						"initial-displacement"
+					],
+					"name": "Substitute t = 0",
+					"about": "The displacement at the start is s(0): put t = 0 in s(t), with cos 0 = 1."
+				},
+				{
+					"method": "positive-velocity",
+					"suits": [
+						"displacement-increasing"
+					],
+					"name": "Read the sign of v",
+					"about": "Displacement increases where v > 0: find the rests and take the interval where v is above the t-axis."
+				},
+				{
+					"method": "change-integral",
+					"suits": [
+						"displacement-between"
+					],
+					"name": "Definite integral of v",
+					"about": "The displacement between two times is ∫ v dt between them. The start position plays no part."
+				},
+				{
+					"method": "first-leg-integral",
+					"suits": [
+						"distance-before-turning"
+					],
+					"name": "Integrate up to the first rest",
+					"about": "Find the first time v changes sign. The motion is one way until then, so the distance is the size of ∫ v dt up to that time."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The total distance travelled equals the size of the displacement.",
+					"answer": "Sometimes: only when the particle never changes direction. After a turn, distance keeps adding while displacement goes back.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If ∫ v dt from 0 to T is 0, the particle did not move.",
+					"answer": "False: it only means the particle ended where it started. It may have gone out and come back.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "s(t) = t³ − 4t + C for a moving particle. What does C tell you, and what does it not change?",
+					"answer": "C is the displacement when t = 0. It shifts the graph of s up or down, so it changes no velocity and no distance travelled.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.9.displacement-from-velocity#0",
+					"text": "Assuming the constant is 0 (or that s = 0 at t = 0) without being told",
+					"as": "distractor",
+					"in": [
+						"position-expression",
+						"position-at-time",
+						"position-at-max-velocity",
+						"position-from-graph"
+					],
+					"wrong": "the change in s, with the start left out"
+				},
+				{
+					"ref": "SL5.9.displacement-from-velocity#1",
+					"text": "Differentiating v instead of integrating to get s",
+					"as": "distractor",
+					"in": [
+						"position-expression",
+						"position-at-time"
+					],
+					"wrong": "v′(t), or its value"
+				},
+				{
+					"ref": "SL5.9.displacement-from-velocity#2",
+					"text": "Confusing the displacement over an interval with the position at the end of it",
+					"as": "distractor",
+					"in": [
+						"displacement-between"
+					],
+					"wrong": "s at the later time"
+				},
+				{
+					"ref": "SL5.9.total-distance#0",
+					"text": "Using ∫ v dt (the displacement) as the distance",
+					"as": "distractor",
+					"in": [
+						"total-distance-split",
+						"total-distance-gdc",
+						"distance-between-times",
+						"distance-expression"
+					],
+					"wrong": "the signed integral over the whole interval"
+				},
+				{
+					"ref": "SL5.9.total-distance#1",
+					"text": "Not splitting the integral where the particle changes direction",
+					"as": "distractor",
+					"in": [
+						"total-distance-split",
+						"total-distance-gdc",
+						"distance-between-times"
+					],
+					"wrong": "the size of one integral across a rest, or a rest missed"
+				},
+				{
+					"ref": "SL5.9.total-distance#2",
+					"text": "Subtracting the area below the t-axis instead of adding it",
+					"as": "distractor",
+					"in": [
+						"distance-from-graph"
+					],
+					"wrong": "the areas with their signs"
+				},
+				{
+					"ref": "SL5.9.motion-graphs#2",
+					"text": "Counting area below the axis as positive displacement",
+					"as": "distractor",
+					"in": [
+						"position-from-graph"
+					],
+					"wrong": "every area added, then the start"
+				},
+				{
+					"text": "Giving the signed displacement as a distance from the origin",
+					"as": "distractor",
+					"in": [
+						"distance-from-origin"
+					],
+					"wrong": "s at the time, with its minus sign"
+				},
+				{
+					"text": "Using the total distance travelled as the distance from the origin",
+					"as": "distractor",
+					"in": [
+						"distance-from-origin"
+					],
+					"wrong": "the length of the whole trip"
+				},
+				{
+					"text": "Using distance = speed × time with a velocity that changes",
+					"as": "distractor",
+					"in": [
+						"distance-before-turning",
+						"race-gap",
+						"ridge-distance"
+					],
+					"wrong": "one velocity times the time"
+				},
+				{
+					"text": "Looking for where v is increasing instead of where v is positive",
+					"as": "distractor",
+					"in": [
+						"displacement-increasing"
+					],
+					"wrong": "the times where a > 0"
+				},
+				{
+					"text": "Thinking speed increases only while a is positive, whatever the sign of v",
+					"as": "distractor",
+					"in": [
+						"speeding-distance-expression"
+					],
+					"wrong": "the first part only"
+				},
+				{
+					"text": "Taking half a period as the time between two ridges",
+					"as": "distractor",
+					"in": [
+						"ridge-distance"
+					],
+					"wrong": "the slowest point to the fastest point"
+				},
+				{
+					"text": "Giving how far the second racer has gone, not how far it has left",
+					"as": "distractor",
+					"in": [
+						"race-gap"
+					],
+					"wrong": "the integral of its velocity"
+				},
+				{
+					"text": "Assuming a change of direction means the particle is back at its start",
+					"as": "distractor",
+					"in": [
+						"does-it-return"
+					],
+					"wrong": "a rest read as a return"
+				},
+				{
+					"text": "Using the total distance to decide whether a particle gets back to its start",
+					"as": "distractor",
+					"in": [
+						"does-it-return"
+					],
+					"wrong": "distance in place of displacement"
+				},
+				{
+					"text": "Leaving out + C after integrating",
+					"as": "distractor",
+					"in": [
+						"position-expression",
+						"velocity-from-acceleration"
+					],
+					"wrong": "the integral with no constant"
+				},
+				{
+					"text": "Adding the integral over the part where v is negative instead of subtracting it",
+					"as": "distractor",
+					"in": [
+						"speeding-distance-expression"
+					],
+					"wrong": "both integrals added, with the second one negative"
+				},
+				{
+					"text": "Using the overall change in position as the distance",
+					"as": "distractor",
+					"in": [
+						"total-distance-positions",
+						"distance-from-position"
+					],
+					"wrong": "the last position minus the first"
+				},
+				{
+					"text": "Using the size of the overall change in position as the distance",
+					"as": "distractor",
+					"in": [
+						"total-distance-positions",
+						"distance-from-position"
+					],
+					"wrong": "the size of the last position minus the first"
+				},
+				{
+					"text": "Not splitting the integral where the direction changes",
+					"as": "distractor",
+					"in": [
+						"total-distance-gdc",
+						"distance-between-times"
+					],
+					"wrong": "the size of one integral across a rest, in a story"
+				}
+			],
+			"methods": [
+				{
+					"id": "substitute-zero",
+					"name": "Substitute t = 0",
+					"summary": "The displacement at the start is s(0): put t = 0 in s(t), with cos 0 = 1."
+				},
+				{
+					"id": "positive-velocity",
+					"name": "Read the sign of v",
+					"summary": "Displacement increases where v > 0: find the rests and take the interval where v is above the t-axis."
+				},
+				{
+					"id": "change-integral",
+					"name": "Definite integral of v",
+					"summary": "The displacement between two times is ∫ v dt between them. The start position plays no part."
+				},
+				{
+					"id": "first-leg-integral",
+					"name": "Integrate up to the first rest",
+					"summary": "Find the first time v changes sign. The motion is one way until then, so the distance is the size of ∫ v dt up to that time."
+				}
+			],
+			"chain": [
+				"integrate v, using the start value for + C",
+				"find the rests by solving v = 0",
+				"integrate over each piece and add the sizes, or use ∫|v| dt on the GDC",
+				"add areas on a v–t graph, all counted as positive"
+			],
 			"frequency": 23,
 			"marks": 3,
 			"section": {
@@ -34583,9 +38916,7 @@
 			"paper": {
 				"p1": 10,
 				"p2": 13
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-kinematics-motion",
