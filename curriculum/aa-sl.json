@@ -10159,12 +10159,12 @@
               ],
               "misconceptions": [
                 "Assuming every outlier must be deleted",
-                "Assuming removing an outlier changes the median as much as the mean",
+                "Assuming removing an outlier changes the median or the IQR as much as the mean or the range",
                 "Assuming every outlier must stay in the data, even an impossible value",
                 "Using the old number of values to find the new mean",
                 "Assuming the median stays exactly the same when a value is removed",
                 "Reversing which measure an outlier drags and which it leaves alone",
-                "Getting the direction wrong: removing a high value lowers the mean, and removing a low one raises it"
+                "Getting the direction of the change wrong"
               ],
               "threads": []
             }
@@ -10426,7 +10426,7 @@
                 "Using the range to judge the shape of the data",
                 "Reading the gaps backwards, so equal gaps seem skewed and unequal gaps symmetric",
                 "Assuming the mean equals the median because half of the data lie on each side of the median",
-                "Using the n/4th and 3n/4th values as the quartiles, not the medians of the halves",
+                "Using the values a quarter and three quarters of the way along the list as the quartiles, not the medians of the halves",
                 "Drawing the whisker out to the fence, not to the furthest value inside it"
               ],
               "threads": [

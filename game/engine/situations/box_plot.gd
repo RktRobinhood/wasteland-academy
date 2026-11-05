@@ -43,8 +43,11 @@ const EVERY := 5
 const MIN_GAP := 2
 const STORIES := 8
 const LIMITS := 6
-const TICKS := {1: [[1, 1], [2, 1], [5, 1], [10, 1]], 2: [[1, 1], [2, 1], [5, 1], [1, 2], [1, 5], [1, 10], [1, 50]]}
-const WHOLE_TICKS := [[1, 1], [2, 1], [5, 1]]
+## The ticks that suit each story (BoxPlotViews.STORIES), so a well is never 0.3 m deep. A tick of 1
+## or more is whole; only Paper 2 uses the rest.
+const TICKS := [[[1, 5], [1, 2], [1, 1]], [[1, 50], [1, 10], [1, 1], [2, 1], [5, 1], [10, 1]], [[1, 1], [2, 1], [5, 1], [10, 1]],
+	[[1, 2], [1, 1], [2, 1], [5, 1]], [[1, 1], [2, 1], [5, 1], [10, 1]], [[1, 1], [2, 1], [5, 1], [10, 1]],
+	[[1, 2], [1, 1], [2, 1], [5, 1]], [[1, 10], [1, 2], [1, 1], [2, 1]]]
 const PAIRS := [[0, 1], [1, 2], [2, 3], [3, 4], [0, 2], [1, 3], [2, 4], [0, 3], [1, 4]]
 const SHARES := [["Half", "below", "med"], ["Half", "above", "med"], ["A quarter", "below", "q1"], ["A quarter", "above", "q3"],
 	["Three quarters", "below", "q3"], ["Three quarters", "above", "q1"]]
@@ -132,7 +135,10 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 # ── The axis and a box ───────────────────────────────────────
 
 static func _axis(rng: Seeded, s: Dictionary, whole: bool = false) -> void:
-	var t: Array = rng.pick(WHOLE_TICKS if whole else TICKS[s.paper])
+	var pool: Array = TICKS[s.ctx]
+	if whole or s.paper == 1:
+		pool = pool.filter(func(p): return p[1] == 1)
+	var t: Array = rng.pick(pool)
 	s.tick = Q.new(t[0], t[1])
 	s.x0 = s.tick.mul(Q.new(EVERY * rng.int_in(0, 6)))
 	s.x1 = s.x0.add(s.tick.mul(Q.new(SPAN)))
@@ -595,7 +601,7 @@ static func _count(rng: Seeded, s: Dictionary) -> bool:
 	s.k = count_beyond(s.data, s.lo_f, s.hi_f)
 	var a: Dictionary = s.a
 	var d: Q = s.iqr.mul(Q.new(3, 2))
-	s.k_q = count_beyond(s.data, a.q1.mul(Q.new(1, 2)), a.q3.mul(Q.new(3, 2)))
+	s.k_q = count_beyond(s.data, s.lo_f, a.q3.mul(Q.new(3, 2)))
 	s.k_m = count_beyond(s.data, a.med.sub(d), a.med.add(d))
 	# The value that looks far: inside the fence, more than one IQR past Q3.
 	var far: Array = s.data.filter(func(v): return a.q3.add(s.iqr.mul(Q.new(LOOKS_FAR))).lt(v) and not s.hi_f.lt(v))
@@ -618,7 +624,7 @@ static func _keep(rng: Seeded, s: Dictionary) -> bool:
 	_fences(s)
 	s.limit = Q.new(lim)
 	s.error = s.outl
-	s.x = Q.new(lim + rng.int_in(2, 9) if s.error else rng.int_in(f + 1, lim))
+	s.x = Q.new(lim + rng.int_in(2, 9) if s.error else rng.int_in(f + 1, lim - 1))
 	s.n = rng.pick([12, 16, 20, 24, 30])
 	return true
 
@@ -656,7 +662,9 @@ static func _effect(rng: Seeded, s: Dictionary) -> bool:
 	if s.med0.eq(s.med1) or dm < 3.0 * dd or dr < 3.0 * di or dr <= 0.0:
 		return false
 	if p1:
-		return DataSummarySituation.ends_in_one_place(s.mean1)
+		# Every mean an option shows ends too, so a slip's mean is no fraction.
+		return DataSummarySituation.ends_in_one_place(s.mean1) and DataSummarySituation.ends_in_one_place(s.mean0) \
+				and DataSummarySituation.ends_in_one_place(DataSummarySituation.total_of(rest).div(Q.new(s.n)))
 	return Answer.rounds_clearly(s.mean1.to_float(), EDGE)
 
 

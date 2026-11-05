@@ -4270,7 +4270,7 @@
 				{
 					"name": "tick, x0, x1",
 					"is": "the figure's axis",
-					"pick": "25 ticks, a number every fifth; a tick is 1, 2, 5 or 10, and on Paper 2 also 0.5, 0.2, 0.1 or 0.02"
+					"pick": "25 ticks, a number every fifth; a tick is 1, 2, 5 or 10, and on Paper 2 also 0.5, 0.2, 0.1 or 0.02, as suits the story"
 				},
 				{
 					"name": "min, q1, med, q3, max",
@@ -30017,7 +30017,7 @@
 				},
 				{
 					"ref": "SL4.1.outlier-decision#1",
-					"text": "Assuming removing an outlier changes the median as much as the mean",
+					"text": "Assuming removing an outlier changes the median or the IQR as much as the mean or the range",
 					"as": "distractor",
 					"in": [
 						"effect-of-removing",
@@ -30063,7 +30063,7 @@
 				},
 				{
 					"ref": "SL4.1.outlier-decision#6",
-					"text": "Getting the direction wrong: removing a high value lowers the mean, and removing a low one raises it",
+					"text": "Getting the direction of the change wrong",
 					"as": "distractor",
 					"in": [
 						"which-measure-moves"
@@ -31299,7 +31299,7 @@
 				},
 				{
 					"ref": "SL4.2.box-plot#15",
-					"text": "Using the n/4th and 3n/4th values as the quartiles, not the medians of the halves",
+					"text": "Using the values a quarter and three quarters of the way along the list as the quartiles, not the medians of the halves",
 					"as": "distractor",
 					"in": [
 						"five-number-from-data",

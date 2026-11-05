@@ -23917,27 +23917,28 @@ BXP_B, BXP_C, BXP_T, BXP_D = "SL4.2.box-plot#", "SL4.2.compare-distributions#", 
 BXP_SPAN, BXP_EVERY = 25, 5
 BXP_EDGE = sp.Rational(3, 100)
 BXP_IS, BXP_NOT = "is an outlier", "is not an outlier"
-BXP_NORMAL, BXP_SKEWED = "are symmetric, so could be normal", "are skewed, so are unlikely to be normal"
+BXP_NORMAL, BXP_SKEWED = "are symmetric and could be normal", "are skewed and unlikely to be normal"
 BXP_SUPPORT, BXP_OPPOSE = "support", "do not support"
 BXP_RULE = "An outlier is a value less than Q1 − 1.5 × IQR or greater than Q3 + 1.5 × IQR."
 BXP_HALVES = "Q1 and Q3 are the medians of the lower and upper halves, leaving out the median when n is odd."
 BXP_NAMES = ("min", "q1", "med", "q3", "max")
 BXP_PLOTS = ("Plot A", "Plot B", "Plot C", "Plot D")
-# who, the words before them, the noun, the unit, the axis, the two groups, the typical verb
-BXP_STORIES = [("patrols", "the distance walked in a day by", "distance walked", "km", "distance walked (km)", ("north patrols", "south patrols"), "walked further"),
-               ("crates", "the mass of", "mass", "kg", "mass (kg)", ("salvage crates", "market crates"), "were heavier"),
-               ("drones", "the flight time of", "flight time", "minutes", "flight time (minutes)", ("old drones", "new drones"), "flew for longer"),
-               ("wells", "the depth of", "depth", "m", "depth (m)", ("hill wells", "valley wells"), "were deeper"),
-               ("tanks", "the water held in", "water held", "litres", "water held (litres)", ("roof tanks", "yard tanks"), "held more"),
-               ("traders", "the takings of", "takings", "caps", "takings (caps)", ("gate traders", "market traders"), "took more"),
-               ("bean plants", "the height of", "height", "cm", "height (cm)", ("shaded plants", "sunlit plants"), "grew taller"),
-               ("radios", "the battery life of", "battery life", "hours", "battery life (hours)", ("scrap radios", "trade radios"), "lasted longer")]
-BXP_LIMITS = [("the water, in litres, read from one tank each morning", "The tank holds at most {} litres.", "the tank can't hold that much"),
-              ("the depth to the water, in m, sounded in one well each week", "The well is {} m deep.", "the well isn't that deep"),
-              ("the hours worked in a week by each scavenger", "The camp's rule stops a week at {} hours.", "the rule stops the week before that"),
-              ("the charge, in amp hours, of each radio battery", "A full battery holds {} amp hours.", "a battery can't hold that much"),
-              ("the top speed, in km/h, of each drone", "These drones are built to fly at no more than {} km/h.", "the drones can't fly that fast"),
-              ("the mass, in kg, of each truck's load", "The bridge scale reads up to {} kg and every truck crossed it.", "the scale can't read that high")]
+# who, the words before them, the noun, the unit, the axis, the two groups, the typical verb,
+# the noun with its article, the unit in words
+BXP_STORIES = [("patrols", "the distance walked in a day by", "distance walked", "km", "distance walked (km)", ("north patrols", "south patrols"), "walked further", "a distance walked", "km"),
+               ("crates", "the mass of", "mass", "kg", "mass (kg)", ("salvage crates", "market crates"), "were heavier", "a mass", "kg"),
+               ("drones", "the flight time of", "flight time", "min", "flight time (minutes)", ("old drones", "new drones"), "flew for longer", "a flight time", "minutes"),
+               ("wells", "the depth of", "depth", "m", "depth (m)", ("hill wells", "valley wells"), "were deeper", "a depth", "m"),
+               ("tanks", "the water held in", "water held", "L", "water held (litres)", ("roof tanks", "yard tanks"), "held more", "water held", "litres"),
+               ("traders", "the takings of", "takings", "caps", "takings (caps)", ("gate traders", "market traders"), "took more", "takings", "caps"),
+               ("bean plants", "the height of", "height", "cm", "height (cm)", ("shaded plants", "sunlit plants"), "grew taller", "a height", "cm"),
+               ("radios", "the battery life of", "battery life", "h", "battery life (hours)", ("scrap radios", "trade radios"), "lasted longer", "a battery life", "hours")]
+BXP_LIMITS = [("the water in one tank, in litres", "The tank holds at most {} litres.", "the tank can't hold that much"),
+              ("the depth to the water in one well, in m", "The well is {} m deep.", "the well isn't that deep"),
+              ("the hours a scavenger worked in a week", "The camp's rule stops a week at {} hours.", "the rule stops the week before that"),
+              ("the charge of a radio battery, in amp hours", "A full battery holds {} amp hours.", "a battery can't hold that much"),
+              ("the top speed of a drone, in km/h", "These drones are built to fly at no more than {} km/h.", "the drones can't fly that fast"),
+              ("the mass of a cart's load, in kg", "The bridge scale reads up to {} kg and every cart crossed it.", "the scale can't read that high")]
 BXP_NUM = r"−?\d+(?:\.\d+)?"
 BXP_ARITH = rf"\(?{BXP_NUM}(?:/\d+)?\)?(?: [+−×÷] \(?{BXP_NUM}\)?)*"
 
@@ -24056,10 +24057,10 @@ def bxp_data(q):
         need(rows[0][0] == "x" and rows[1][0] == "Frequency", "table heads")
         xs, fs = [R(v) for v in rows[0][1]], [int(v) for v in rows[1][1]]
         n = sum(fs)
-        need(L[0] == f"The table shows {c[1]} {n} {c[0]}, in {c[3]}.", f"can't read {L[0]!r}")
+        need(L[0] == f"The table shows {c[1]} {n} {c[0]}, in {c[8]}.", f"can't read {L[0]!r}")
         need(xs == sorted(xs) and len(set(xs)) == len(xs), "a table's values are distinct and ascending")
         return xs, fs, [x for x, f in zip(xs, fs) for _ in range(f)]
-    mt = re.fullmatch(rf"{re.escape(bxp_cap(c[1]))} (\d+) {c[0]}, in {c[3]}:", L[0])
+    mt = re.fullmatch(rf"{re.escape(bxp_cap(c[1]))} (\d+) {c[0]}, in {c[8]}:", L[0])
     need(mt is not None, f"can't read {L[0]!r}")
     xs = [R(v) for v in L[1].split(", ")]
     need(len(xs) == int(mt.group(1)), "the list's length")
@@ -24318,7 +24319,7 @@ def bxp_box_plot(q):
             n, f = int(mt.group(1)), bxp_five_words(q, L[1])
         else:
             n, f = bxp_plot_line(q), bxp_fig(q)[0]
-        mt = re.search(rf"with a {re.escape(c[2])} between ({BXP_NUM}) and ({BXP_NUM})\.$", asked)
+        mt = re.search(rf"with {re.escape(c[7])} between ({BXP_NUM}) and ({BXP_NUM})\.$", asked)
         need(mt is not None, f"asked {asked!r}")
         a, b = R(mt.group(1)), R(mt.group(2))
         vals = [f[k] for k in BXP_NAMES]
@@ -24339,7 +24340,7 @@ def bxp_box_plot(q):
     elif u == "value-at-share":
         f = bxp_fig(q)[0]
         bxp_plot_line(q)
-        mt = re.fullmatch(rf"(Half|A quarter|Three quarters) of the {c[0]} have a {re.escape(c[2])} (below|above) a {c[3]}\. Estimate the value of a\.", asked)
+        mt = re.fullmatch(rf"(Half|A quarter|Three quarters) of the {c[0]} have {re.escape(c[7])} (below|above) a {c[3]}\. Estimate the value of a\.", asked)
         need(mt is not None, f"asked {asked!r}")
         below = {"Half": sp.Rational(1, 2), "A quarter": sp.Rational(1, 4), "Three quarters": sp.Rational(3, 4)}[mt.group(1)]
         if mt.group(2) == "above":
@@ -24469,11 +24470,11 @@ def bxp_outlier(q):
         near = sum(1 for e in v if f["q3"] + iq < e <= hi)
         need(k <= 3 and near >= 1, "the data")
         s = lambda n: f"number of outliers = {n}"
-        wrongs = {BXP_T + "2": {s(k + near)}, BXP_T + "1": {s(beyond(f["med"] - d, f["med"] + d))}, BXP_T + "0": {s(beyond(f["q1"] / 2, sp.Rational(3, 2) * f["q3"]))}}
+        wrongs = {BXP_T + "2": {s(k + near)}, BXP_T + "1": {s(beyond(f["med"] - d, f["med"] + d))}, BXP_T + "0": {s(beyond(lo, sp.Rational(3, 2) * f["q3"]))}}
         bxp_common(q, s(k), wrongs)
     elif u == "keep-or-remove":
         l = BXP_LIMITS[int(g["ctx"])]
-        mt = re.fullmatch(rf"A camp records {re.escape(l[0])}, (\d+) times in all\.", L[0])
+        mt = re.fullmatch(rf"A camp has (\d+) readings of {re.escape(l[0])}\.", L[0])
         need(mt is not None, f"can't read {L[0]!r}")
         mt = re.fullmatch(re.escape(l[1]).replace(r"\{\}", rf"({BXP_NUM})"), L[1])
         need(mt is not None, f"can't read {L[1]!r}")
@@ -24484,9 +24485,11 @@ def bxp_outlier(q):
         need(x > q3 + sp.Rational(3, 2) * (q3 - q1), "the value is no outlier")
         remove = f"Remove it: {dec_text(x)} is above {dec_text(lim)}, so {l[2]}, and it must be a recording error."
         keep = f"Keep it: {dec_text(x)} is unusually high but it is possible, so it is a genuine value."
+        far = f"Remove it: {dec_text(x)} is far above the rest of the data, so it must be a recording error."
+        need(x != lim, "the value is on the limit")
         bxp_common(q, remove if x > lim else keep, {BXP_D + "0": {"Remove it: every outlier must be deleted, because it fails the test."},
                                                     BXP_D + "2": {"Keep it: an outlier is always part of the data, whatever its value."}})
-        need({keep, remove} <= {o["text"] for o in q["choices"]}, "both verdicts on the facts must be options")
+        need({keep, remove if x > lim else far} <= {o["text"] for o in q["choices"]}, "both verdicts must be options")
     elif u in ("effect-of-removing", "which-measure-moves"):
         _, _, v = bxp_data(q)
         mt = re.fullmatch(rf"The value ({BXP_NUM}) is an outlier and is removed\.", L[2])
@@ -24509,7 +24512,7 @@ def bxp_outlier(q):
             if paper == 2:
                 need(ds_clear(m1), "the new mean is on a rounding edge")
             else:
-                need((10 * m1).q == 1, "a Paper 1 mean ends in one decimal")
+                need(all((10 * e).q == 1 for e in (m1, m0, sum(rest) / len(v))), "a Paper 1 mean ends in one decimal")
             sh = (lambda e: dec_text(e)) if paper == 1 else (lambda e: dec_text(e) if sp.Rational(sig3(e)) == e else sig3(e))
             s = lambda a, b: f"new mean = {sh(a)}, new median = {sh(b)}"
             wrongs = {BXP_D + "4": {s(m1, d0)}, BXP_D + "1": {s(m1, d0 + m1 - m0)}, BXP_D + "3": {s(sum(rest) / len(v), d1)}}
@@ -24519,8 +24522,8 @@ def bxp_outlier(q):
             big, small = ("mean", "median") if centre else ("range", "IQR")
             falls = x > m1 if centre else True
             way, back = ("falls", "rises") if falls else ("rises", "falls")
-            t = lambda a, w, b: f"The {a} {w} a lot and the {b} hardly moves: only the {a} feels how far out a value is."
-            wrongs = {BXP_D + "1": {f"The {big} and the {small} {way} by about the same amount: they both describe the same data."},
+            t = lambda a, w, b: f"The {a} {w} by far more than the {b} moves: only the {a} feels how far out a value is."
+            wrongs = {BXP_D + "1": {f"The {big} and the {small} {way[:-1]} by about the same amount: they both describe the same data."},
                       BXP_D + "5": {t(small, way, big)}, BXP_D + "6": {t(big, back, small)}}
             bxp_common(q, t(big, way, small), wrongs)
     else:

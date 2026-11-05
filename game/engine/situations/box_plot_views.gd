@@ -55,8 +55,8 @@ const R_DIRECTION := DEC + "6"
 
 const IS := "is an outlier"
 const NOT := "is not an outlier"
-const NORMAL := "are symmetric, so could be normal"
-const SKEWED := "are skewed, so are unlikely to be normal"
+const NORMAL := "are symmetric and could be normal"
+const SKEWED := "are skewed and unlikely to be normal"
 const SUPPORT := "support"
 const OPPOSE := "do not support"
 const NAMES := ["min", "q1", "med", "q3", "max"]
@@ -66,25 +66,26 @@ const RULE := "An outlier is a value less than Q1 − 1.5 × IQR or greater than
 const HALVES := "Q1 and Q3 are the medians of the lower and upper halves, leaving out the median when n is odd."
 
 ## The stories: who is measured, the words before them, the short noun, the unit, the axis, the two
-## groups, and how to say the first of two is higher in a typical case.
+## groups, how to say the first of two is higher in a typical case, the noun with its article, and
+## the unit in words.
 const STORIES := [
-	{"who": "patrols", "by": "the distance walked in a day by", "noun": "distance walked", "unit": "km", "axis": "distance walked (km)", "groups": ["north patrols", "south patrols"], "typ": "walked further"},
-	{"who": "crates", "by": "the mass of", "noun": "mass", "unit": "kg", "axis": "mass (kg)", "groups": ["salvage crates", "market crates"], "typ": "were heavier"},
-	{"who": "drones", "by": "the flight time of", "noun": "flight time", "unit": "minutes", "axis": "flight time (minutes)", "groups": ["old drones", "new drones"], "typ": "flew for longer"},
-	{"who": "wells", "by": "the depth of", "noun": "depth", "unit": "m", "axis": "depth (m)", "groups": ["hill wells", "valley wells"], "typ": "were deeper"},
-	{"who": "tanks", "by": "the water held in", "noun": "water held", "unit": "litres", "axis": "water held (litres)", "groups": ["roof tanks", "yard tanks"], "typ": "held more"},
-	{"who": "traders", "by": "the takings of", "noun": "takings", "unit": "caps", "axis": "takings (caps)", "groups": ["gate traders", "market traders"], "typ": "took more"},
-	{"who": "bean plants", "by": "the height of", "noun": "height", "unit": "cm", "axis": "height (cm)", "groups": ["shaded plants", "sunlit plants"], "typ": "grew taller"},
-	{"who": "radios", "by": "the battery life of", "noun": "battery life", "unit": "hours", "axis": "battery life (hours)", "groups": ["scrap radios", "trade radios"], "typ": "lasted longer"},
+	{"who": "patrols", "by": "the distance walked in a day by", "noun": "distance walked", "unit": "km", "axis": "distance walked (km)", "groups": ["north patrols", "south patrols"], "typ": "walked further", "a": "a distance walked", "in": "km"},
+	{"who": "crates", "by": "the mass of", "noun": "mass", "unit": "kg", "axis": "mass (kg)", "groups": ["salvage crates", "market crates"], "typ": "were heavier", "a": "a mass", "in": "kg"},
+	{"who": "drones", "by": "the flight time of", "noun": "flight time", "unit": "min", "axis": "flight time (minutes)", "groups": ["old drones", "new drones"], "typ": "flew for longer", "a": "a flight time", "in": "minutes"},
+	{"who": "wells", "by": "the depth of", "noun": "depth", "unit": "m", "axis": "depth (m)", "groups": ["hill wells", "valley wells"], "typ": "were deeper", "a": "a depth", "in": "m"},
+	{"who": "tanks", "by": "the water held in", "noun": "water held", "unit": "L", "axis": "water held (litres)", "groups": ["roof tanks", "yard tanks"], "typ": "held more", "a": "water held", "in": "litres"},
+	{"who": "traders", "by": "the takings of", "noun": "takings", "unit": "caps", "axis": "takings (caps)", "groups": ["gate traders", "market traders"], "typ": "took more", "a": "takings", "in": "caps"},
+	{"who": "bean plants", "by": "the height of", "noun": "height", "unit": "cm", "axis": "height (cm)", "groups": ["shaded plants", "sunlit plants"], "typ": "grew taller", "a": "a height", "in": "cm"},
+	{"who": "radios", "by": "the battery life of", "noun": "battery life", "unit": "h", "axis": "battery life (hours)", "groups": ["scrap radios", "trade radios"], "typ": "lasted longer", "a": "a battery life", "in": "hours"},
 ]
 ## keep-or-remove: what is recorded, the limit in words, and the reason a value past it can't be.
 const LIMITS := [
-	["the water, in litres, read from one tank each morning", "The tank holds at most %s litres.", "the tank can't hold that much"],
-	["the depth to the water, in m, sounded in one well each week", "The well is %s m deep.", "the well isn't that deep"],
-	["the hours worked in a week by each scavenger", "The camp's rule stops a week at %s hours.", "the rule stops the week before that"],
-	["the charge, in amp hours, of each radio battery", "A full battery holds %s amp hours.", "a battery can't hold that much"],
-	["the top speed, in km/h, of each drone", "These drones are built to fly at no more than %s km/h.", "the drones can't fly that fast"],
-	["the mass, in kg, of each truck's load", "The bridge scale reads up to %s kg and every truck crossed it.", "the scale can't read that high"],
+	["the water in one tank, in litres", "The tank holds at most %s litres.", "the tank can't hold that much"],
+	["the depth to the water in one well, in m", "The well is %s m deep.", "the well isn't that deep"],
+	["the hours a scavenger worked in a week", "The camp's rule stops a week at %s hours.", "the rule stops the week before that"],
+	["the charge of a radio battery, in amp hours", "A full battery holds %s amp hours.", "a battery can't hold that much"],
+	["the top speed of a drone, in km/h", "These drones are built to fly at no more than %s km/h.", "the drones can't fly that fast"],
+	["the mass of a cart's load, in kg", "The bridge scale reads up to %s kg and every cart crossed it.", "the scale can't read that high"],
 ]
 
 const UNKNOWNS := ["read-median", "read-quartile", "read-iqr", "read-range", "read-median-iqr", "five-number-from-data", "five-number-from-cumfreq",
@@ -205,7 +206,7 @@ static func data_lines(s: Dictionary, name_of: String) -> Array:
 
 static func data_name(s: Dictionary) -> String:
 	var c := story(s)
-	return "%s %d %s, in %s" % [c.by, s.n, c.who, c.unit]
+	return "%s %d %s, in %s" % [c.by, s.n, c.who, c["in"]]
 
 
 static func data_table(s: Dictionary) -> Variant:
@@ -275,7 +276,7 @@ func u_read_quartile(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var word := "lower" if low else "upper"
 	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Write down the %s quartile of the %s." % [word, story(s).noun],
 		"wrongs": [], "generic": nums([f.q3 if low else f.q1, f.med, f.min if low else f.max, f.max if low else f.min]),
-		"methods": {"any": method(["The %s quartile is the %s edge of the box: the %s end of it, at %s." % [word, "left" if low else "right", "lower" if low else "upper", D(v)], final_step(ans)], ans.values)}}
+		"methods": {"any": method(["The %s quartile is the %s edge of the box, at %s." % [word, "left" if low else "right", D(v)], final_step(ans)], ans.values)}}
 
 
 func u_read_iqr(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -462,7 +463,7 @@ func u_count_in_section(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	ans.exact = true
 	ans.show = "dec"
 	var slip: Q = hi.sub(lo).div(s.a.max.sub(s.a.min)).mul(Q.new(s.n))
-	var out := {"answer": ans, "asked": "Estimate the number of %s with a %s between %s and %s." % [c.who, c.noun, D(lo), D(hi)],
+	var out := {"answer": ans, "asked": "Estimate the number of %s with %s between %s and %s." % [c.who, c.a, D(lo), D(hi)],
 		"wrongs": wr(slip, R_LONGER), "generic": nums([Q.new(s.n * ((k % 4) + 1), 4), Q.new(25 * k), Q.new(s.n, 4), Q.new(s.n * (4 - k), 4), Q.new(s.n, 2)])}
 	if rep == "words":
 		out.lines = ["For %s %d %s:" % [c.by, s.n, c.who], five_line(s.a)]
@@ -484,7 +485,7 @@ func u_percent_in_section(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var ans := Answer.make("number", {"v": v}, {}, "percentage = ", "%")
 	ans.exact = true
 	var slip: Q = hi.sub(lo).div(s.a.max.sub(s.a.min)).mul(Q.new(100))
-	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Estimate the percentage of the %s with a %s between %s and %s." % [c.who, c.noun, D(lo), D(hi)],
+	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "Estimate the percentage of the %s with %s between %s and %s." % [c.who, c.a, D(lo), D(hi)],
 		"wrongs": wr(slip, R_LONGER), "generic": nums([Q.new(25 * ((k % 4) + 1)), Q.new(25 * (4 - k)), Q.new(10), Q.new(100 - 10 * k)]),
 		"methods": {"any": method(["Each section of a box plot holds a quarter of the data, however long it looks.",
 			"From %s to %s is %d section%s, so %d × 25 = %d" % [D(lo), D(hi), k, "" if k == 1 else "s", k, 25 * k], final_step(ans)], ans.values)}}
@@ -505,7 +506,7 @@ func u_value_at_share(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		w = wr(f.q3 if mark == "q1" else f.q1, R_SIDE)
 	var name: String = {"med": "the median", "q1": "the lower quartile", "q3": "the upper quartile"}[mark]
 	var share_words: String = {"Half": "half", "A quarter": "a quarter", "Three quarters": "three quarters"}[words]
-	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "%s of the %s have a %s %s a %s. Estimate the value of a." % [words, c.who, c.noun, side, c.unit],
+	return {"answer": ans, "lines": [plot_line(s)], "graph": figure(s), "asked": "%s of the %s have %s %s a %s. Estimate the value of a." % [words, c.who, c.a, side, c.unit],
 		"wrongs": w, "generic": nums([f.med, f.q1, f.q3, f.min.add(f.max).div(Q.new(2)), f.min, f.max]),
 		"methods": {"any": method(["%s lies with %s of the data %s it." % [cap(name), share_words, side], "On the plot, %s is at %s." % [name, D(v)], final_step(ans)], ans.values)}}
 
@@ -600,7 +601,7 @@ func u_compare_summary(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var cl := compare_claims(s, "mean", "standard deviation", [s.ma, s.mb, s.sa, s.sb, s.ta, s.tb])
 	var ans: Dictionary = cl.made.answer
 	var table := {"rows": [["", [g[0], g[1]]], ["Mean", [D(s.ma), D(s.mb)]], ["Standard deviation", [D(s.sa), D(s.sb)]], ["Maximum", [D(s.ta), D(s.tb)]]]}
-	return {"answer": ans, "lines": ["The table summarises %s two groups, in %s." % [c.by, c.unit]], "table": table, "asked": "Compare the two groups, in context.", "wrongs": cl.made.wrongs, "generic": [],
+	return {"answer": ans, "lines": ["The table summarises %s two groups, in %s." % [c.by, c["in"]]], "table": table, "asked": "Compare the two groups, in context.", "wrongs": cl.made.wrongs, "generic": [],
 		"methods": {"mean-sd": method(["The means, for the centre, are %s and %s." % [U(s, s.ma), U(s, s.mb)],
 			"The standard deviations, for the spread, are %s and %s." % [U(s, s.sa), U(s, s.sb)],
 			"A higher mean means a higher typical value, and a smaller standard deviation means more consistent values. The maximum is one value and says little about either.", cl.right], ans.values)}}
@@ -841,7 +842,7 @@ func u_quartile_from_no_outliers(rep: String, s: Dictionary, _rng: Seeded) -> Di
 	else:
 		out.lines = ["For %s a group of %s, the least value is %s, the median is %s and the greatest value is %s. %s" % [c.by, c.who, D(a.min), D(a.med), D(a.max), names], facts, RULE]
 	var slip_u: Q = a.max.div(Q.new(3, 2))
-	out.wrongs = (wr(a.max.sub(iq), R_NO_FACTOR) + (wr(slip_u, R_THREE) if slip_u.d <= 10 else [])) if is_u else (wr(a.max.sub(iq).sub(iq), R_NO_FACTOR))
+	out.wrongs = (wr(a.max.sub(iq), R_NO_FACTOR) + (wr(slip_u, R_THREE) if not D(slip_u).contains("/") else [])) if is_u else (wr(a.max.sub(iq).sub(iq), R_NO_FACTOR))
 	out.generic = nums([low_l if is_u else low_u, a.max.sub(iq.mul(2)), low_u.add(iq), a.med.add(d), v.add(a.med.sub(a.min))])
 	var hence := [] if is_u else ["L = U − IQR, and the smallest U gives the smallest L: %s − %s = %s" % [D(low_u), D(iq), D(low_l)]]
 	out.methods = {"fences": method(["The greatest value, %s, is no outlier, so it is at most the upper fence: %s ≤ U + 1.5 × %s." % [D(a.max), D(a.max), D(iq)],
@@ -888,12 +889,12 @@ func u_keep_or_remove(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var remove := "Remove it: %s is above %s, so %s, and it must be a recording error." % [x, lim, l[2]]
 	var keep := "Keep it: %s is unusually high but it is possible, so it is a genuine value." % x
 	var right: String = remove if s.error else keep
-	var other: String = keep if s.error else remove
+	var other: String = keep if s.error else "Remove it: %s is far above the rest of the data, so it must be a recording error." % x
 	var w: Array = [[other, ""], ["Remove it: every outlier must be deleted, because it fails the test.", R_DELETE], ["Keep it: an outlier is always part of the data, whatever its value.", R_KEEP_ALL]]
 	var made := DerivativeMeaningViews.claim_answer(right, w)
 	var ans: Dictionary = made.answer
 	var why := "%s is above that limit, so it can't be a true reading." % x if s.error else "%s is within that limit, so nothing says it is a mistake." % x
-	return {"answer": ans, "lines": ["A camp records %s, %d times in all." % [l[0], s.n], l[1] % lim, "Q1 = %s and Q3 = %s, and the value %s is an outlier by the 1.5 × IQR rule." % [D(a.q1), D(a.q3), x]],
+	return {"answer": ans, "lines": ["A camp has %d readings of %s." % [s.n, l[0]], l[1] % lim, "Q1 = %s and Q3 = %s, and the value %s is an outlier by the 1.5 × IQR rule." % [D(a.q1), D(a.q3), x]],
 		"asked": "Suggest whether %s should be removed. Justify your answer." % x, "wrongs": made.wrongs, "generic": [], "table": null,
 		"methods": {"plausibility": method(["An outlier is removed only if it can't be true. The limit here is %s." % lim, why, right], ans.values)}}
 
@@ -922,7 +923,7 @@ func u_effect_of_removing(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var w: Array = [wrong(effect_said(s, s.mean1, s.med0), R_MEDIAN_FIXED), wrong(effect_said(s, s.mean1, s.med0.add(moved)), R_SAME_MOVE),
 		wrong(effect_said(s, total.div(Q.new(s.n)), s.med1), R_OLD_N)]
 	var lines: Array = data_lines(s, data_name(s)) + ["The value %s is an outlier and is removed." % D(s.x)]
-	return {"answer": ans, "lines": lines, "table": null, "asked": "Find the mean and the median of the %d values left%s." % [m, " to 3 s.f." if s.paper == 2 else ""], "wrongs": w, "generic": [],
+	return {"answer": ans, "lines": lines, "table": null, "asked": "Find the mean and the median of the %d values left%s." % [m, ", to 3 s.f." if s.paper == 2 else ""], "wrongs": w, "generic": [],
 		"methods": {"effect-on-measures": method(["%d values are left, and their total is %s." % [m, D(total)], "The new mean is %s ÷ %d = %s." % [D(total), m, short(s, s.mean1)],
 			"In order, the values left are %s, so the new median is %s: %s." % [", ".join(s.rest.map(func(x): return D(x))), place(1, m), D(s.med1)], final_step(ans)], ans.values)}}
 
@@ -934,10 +935,12 @@ func u_which_measure_moves(_rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	# Removing a high outlier lowers the mean, and a low one raises it; removing either cuts the range.
 	var way: String = ("falls" if s.side == "up" else "rises") if centre else "falls"
 	var back: String = ("rises" if s.side == "up" else "falls") if centre else "rises"
-	var right := "The %s %s a lot and the %s hardly moves: only the %s feels how far out a value is." % [big, way, small, big]
-	var w: Array = [["The %s and the %s %s by about the same amount: they both describe the same data." % [big, small, way], R_SAME_MOVE],
-		["The %s %s a lot and the %s hardly moves: only the %s feels how far out a value is." % [small, way, big, small], R_SWAP_MEASURES],
-		["The %s %s a lot and the %s hardly moves: only the %s feels how far out a value is." % [big, back, small, big], R_DIRECTION]]
+	var plural: String = {"falls": "fall", "rises": "rise"}[way]
+	var said := func(one: String, verb: String, other: String) -> String:
+		return "The %s %s by far more than the %s moves: only the %s feels how far out a value is." % [one, verb, other, one]
+	var right: String = said.call(big, way, small)
+	var w: Array = [["The %s and the %s %s by about the same amount: they both describe the same data." % [big, small, plural], R_SAME_MOVE],
+		[said.call(small, way, big), R_SWAP_MEASURES], [said.call(big, back, small), R_DIRECTION]]
 	var made := DerivativeMeaningViews.claim_answer(right, w)
 	var ans: Dictionary = made.answer
 	var before: Q = s.mean0 if centre else s.a.max.sub(s.a.min)
