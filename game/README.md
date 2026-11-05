@@ -243,6 +243,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   (`DefiniteIntegralViews.val`), so a wrong one can read differently, with + C or in rate units:
   exact on Paper 1, and 3 s.f. on Paper 2, which only the GDC methods ask. A region is shaded on
   its figure with the graph spec's `shade` (see `ui/graph_view.gd`).
+- `engine/situations/antiderivative_condition.gd` (FAL-740) is `t5-antiderivative-condition` (SL5.5
+  and SL5.10), the `antiderivative-condition` situation: a derivative and a condition that fixes
+  the constant. Its 21 unknowns ask f(x), a curve's equation, C or a further value, from powers,
+  negative powers, cos and sin with a chain or a shift, 1/(ax + b), e^(ax), quotients that reverse
+  to a log, a constant in the gradient fixed by a gradient at a point, two conditions from f″, a
+  family y = F(x) + C drawn on one figure (its curves are the right C and three slips, labelled
+  at their right-hand ends), the graph of f′ in straight pieces, and a decaying rate in a story.
+  A function is a `form` answer with a slot for each coefficient and for the constant, which is
+  never 0, so dropping it is always wrong; an option with + C left in can be picked but not
+  typed. A log in C is typed around a fixed "ln n". Numbers are exact except the decimal e^(ax)
+  and the rate model, to 3 s.f. Landmark angles, logs in C and sin or cos beside e^(ax) are Paper 1,
+  decimals and the rate model Paper 2, and the GDC method Paper 2 only.
 - `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
   v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
   Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found
@@ -1169,6 +1181,13 @@ sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and l
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
 back into erf, and a shaded area must be the area given (`check_regression_pair`,
 `check_normal_unknown`, `check_venn`, `check_conditional`).
+For `antiderivative-condition` it reads f′ (or f″) and the condition back from the lines, works
+the antiderivative again with SymPy, and differentiates every option: only the right one may give
+f′ back, meet the condition and have no C left in it (`check_antiderivative_condition`). Each
+tagged wrong option is worked out from its slip. A family's curves are held to F + C and their
+labels to the options, the corners of a graph of f′ give the areas again, the rate model is
+integrated both exactly and numerically, and the sums in the working are evaluated.
+
 For `independence` it reads the facts back the same way and decides each test itself. Each of the
 four comparisons must agree, and all four option texts are rebuilt from true values, so a false
 number or a verdict that doesn't follow fails. It also multiplies and divides every plain step of
