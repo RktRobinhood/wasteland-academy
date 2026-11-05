@@ -3497,7 +3497,8 @@ def check_format(q):
         failing = {a["name"] for a in t["angles"] if a.get("weak", {}).get("kind") == "fails" and u in a["weak"]["unknowns"]}
         works = {a["name"] for a in t["angles"] if u in a["suits"]} - failing
         need(right["text"] not in failing, f"the right method {right['text']!r} fails for {u}")
-        name = next(a["name"] for a in t["angles"] if a["method"] == view_angle and u in a["suits"])
+        # The name on the asked method's own solution: the catalogue's, or the view's title for it.
+        name = next(s["name"] for s in q["solutions"] if s["angle"] == view_angle)
         need(right["text"] == name, f"the right method is {right['text']!r}, not the view's {name!r}")
         need("Which method works for this question?" in q["prompt"] and "Method:" not in q["prompt"], "the prompt gives the method away")
         for o in ch:
