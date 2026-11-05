@@ -7,10 +7,10 @@ extends "res://tests/test_case.gd"
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
 const CELLS := {"fn-sketch-gdc": 42, "fn-gdc-features": 36, "fn-gdc-intersection": 29, "fn-gdc-optimise-combined": 27,
-	"fn-gdc-solve-equation": 33, "fn-sketch-from-features": 30,
-	"fn-concept-solutions-as-intersections": 17, "fn-ext-inequality-graphical": 11,
-	"fn-pre-graph-reading": 10, "fn-ext-match-graph": 17,
-	"fn-link-extremes": 45, "fn-link-graph-vs-algebra": 42}
+	"fn-gdc-solve-equation": 33, "fn-sketch-from-features": 28,
+	"fn-concept-solutions-as-intersections": 16, "fn-ext-inequality-graphical": 11,
+	"fn-pre-graph-reading": 10, "fn-ext-match-graph": 14,
+	"fn-link-extremes": 43, "fn-link-graph-vs-algebra": 30}
 const SITUATION := {"fn-sketch-gdc": "gdc-curve", "fn-gdc-features": "gdc-curve", "fn-gdc-intersection": "gdc-two-curves",
 	"fn-gdc-optimise-combined": "gdc-combined", "fn-gdc-solve-equation": "gdc-context-equation",
 	"fn-sketch-from-features": "graph-from-features", "fn-concept-solutions-as-intersections": "gdc-two-curves",

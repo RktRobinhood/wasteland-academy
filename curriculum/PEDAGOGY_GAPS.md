@@ -10,8 +10,8 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 - **Types:** 106 exam and 75 extension (45 skill, 11 prior-learning, 8 concept, 11 link).
 - **Skills with a type:** 286 of 286.
-- **Functions:** 141 unknowns the exam asks and 434 it doesn't; 589 angles, 203 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
-- **Coverage cells** (one unknown in one representation by one method): 2144 in Functions, of which 531 are reachable with "Exam-style only" on.
+- **Functions:** 141 unknowns the exam asks and 434 it doesn't; 574 angles, 193 of them with a weak spot for method-pick questions; 160 concept probes; 186 of 186 misconceptions used as wrong options or error-spots.
+- **Coverage cells** (one unknown in one representation by one method): 2102 in Functions, of which 528 are reachable with "Exam-style only" on.
 
 ## Levels
 
@@ -26,18 +26,18 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 | Region | Exam types | Extension types | Unknowns (exam + new) | Representations (new) | Angles (weak) | Concepts | Cells (exam-only) |
 |---|---|---|---|---|---|---|---|
-| Quadratics | 6 | 8 | 37 + 76 | 42 (30) | 103 (36) | 32 | 359 (126) |
-| Exponentials and logs | 4 | 4 | 26 + 59 | 28 (22) | 97 (31) | 20 | 355 (122) |
-| Graphs and key features | 6 | 6 | 25 + 71 | 40 (30) | 118 (47) | 32 | 340 (78) |
-| Composite and inverse | 3 | 3 | 18 + 48 | 17 (13) | 66 (20) | 16 | 248 (66) |
-| Rational functions | 2 | 4 | 9 + 40 | 21 (18) | 43 (15) | 15 | 144 (30) |
+| Quadratics | 6 | 8 | 37 + 76 | 42 (30) | 102 (35) | 32 | 353 (125) |
+| Exponentials and logs | 4 | 4 | 26 + 59 | 28 (22) | 95 (29) | 20 | 353 (121) |
+| Graphs and key features | 6 | 6 | 25 + 71 | 40 (30) | 110 (43) | 32 | 320 (78) |
+| Composite and inverse | 3 | 3 | 18 + 48 | 17 (13) | 65 (19) | 16 | 246 (66) |
+| Rational functions | 2 | 4 | 9 + 40 | 21 (18) | 40 (13) | 15 | 132 (29) |
 | Function basics | 3 | 3 | 10 + 43 | 21 (15) | 40 (17) | 15 | 188 (36) |
 | Lines | 1 | 6 | 10 + 50 | 23 (21) | 57 (18) | 15 | 253 (45) |
 | Transformations | 2 | 3 | 6 + 47 | 17 (13) | 65 (19) | 15 | 257 (28) |
 
 ### 1. Quadratics (syllabus 2.6, 2.7)
 
-6 exam types, 8 extension types; 37 exam unknowns and 76 new ones; 359 coverage cells (126 with "Exam-style only" on).
+6 exam types, 8 extension types; 37 exam unknowns and 76 new ones; 353 coverage cells (125 with "Exam-style only" on).
 
 #### Read and convert quadratic forms (`fn-quadratic-features`, exam, 11 bank parts)
 
@@ -145,9 +145,8 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - **exam** L3: given a quadratic in x with a parameter, inside a log or a square root → the values of k that keep it positive for all x
   - **exam** L4: given the quadratic in k → k for two distinct roots of the same sign
   - new L3: given the line and curve and the tangency condition → k and the point of contact
-- **Angles:** Compute Δ = b² − 4ac and compare with 0; Compare the vertex with the x-axis; Count x-intercepts on a GDC graph; Set Δ = 0, Δ > 0 or Δ < 0 and solve for k; Complete the square and place the vertex; Match gradients for tangency; Vary the parameter on the GDC; Find the roots and sketch the parabola; Sign table of the factors; Test a point in each interval.
+- **Angles:** Compute Δ = b² − 4ac and compare with 0; Compare the vertex with the x-axis; Set Δ = 0, Δ > 0 or Δ < 0 and solve for k; Complete the square and place the vertex; Match gradients for tangency; Vary the parameter on the GDC; Find the roots and sketch the parabola; Sign table of the factors; Test a point in each interval.
   - *Slow:* Compare the vertex with the x-axis: from general form the vertex has to be found first.
-  - *Fails:* Count x-intercepts on a GDC graph: counting crossings is a check, not a proof, so it cannot answer a show-that.
   - *Slow:* Complete the square and place the vertex: awkward when k is in b, because h then depends on k.
   - *Fails:* Match gradients for tangency: only finds the tangent case, not the intervals either side.
   - *Fails:* Vary the parameter on the GDC: shows the change but cannot give the exact boundary.
@@ -368,7 +367,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 2. Exponentials and logs (syllabus 2.9)
 
-4 exam types, 4 extension types; 26 exam unknowns and 59 new ones; 355 coverage cells (122 with "Exam-style only" on).
+4 exam types, 4 extension types; 26 exam unknowns and 59 new ones; 353 coverage cells (121 with "Exam-style only" on).
 
 #### Exponential and log functions as inverses and composites (`fn-exp-log-inverse-composite`, exam, 12 bank parts)
 
@@ -391,13 +390,11 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L2: given the graph of the exponential → the graph of the inverse, with its asymptote and intercept
   - new L3: given log_b(x²) or ln((x − h)²) on a domain x > h → the inverse, choosing the right sign
   - new L2: given f⁻¹ as a log, such as log₂(x − 1) + 3 → f itself *(reversed)*
-- **Angles:** Swap x and y, then make y the subject; Undo the operations in reverse order; Check the reflection on the GDC; Use log_a x = y ⇔ a^y = x; Take ln of both sides; Write x = log_a b and evaluate as ln b / ln a; Intersect y = e^(2x) with y = 7; Ask 'what power of the base gives this number?'; Rewrite as an exponential equation; Use log_a(a^x) = x and a^(log_a x) = x; Replace every x in f with g(x); Check with a test value; Write both numbers as powers of a common base; Apply log_a b = log_c b / log_c a; Use the GDC log-base template; Rewrite g in terms of f and read each change; Compare where key points and asymptotes moved; Apply inverse operations to both sides.
+- **Angles:** Swap x and y, then make y the subject; Undo the operations in reverse order; Use log_a x = y ⇔ a^y = x; Take ln of both sides; Write x = log_a b and evaluate as ln b / ln a; Intersect y = e^(2x) with y = 7; Ask 'what power of the base gives this number?'; Rewrite as an exponential equation; Use log_a(a^x) = x and a^(log_a x) = x; Replace every x in f with g(x); Check with a test value; Write both numbers as powers of a common base; Apply log_a b = log_c b / log_c a; Rewrite g in terms of f and read each change; Compare where key points and asymptotes moved; Apply inverse operations to both sides.
   - *Slow:* Undo the operations in reverse order: squaring is not one step to undo: the ± has to be settled by the domain.
-  - *Fails:* Check the reflection on the GDC: a graph checks the inverse but cannot write its rule.
   - *Fails:* Intersect y = e^(2x) with y = 7: Paper 1 wants the exact value, not a decimal.
   - *Fails:* Check with a test value: one test value checks a point, not the whole set of solutions.
   - *Slow:* Apply log_a b = log_c b / log_c a: ln 8/ln 4 still has to be simplified; writing both as powers of 2 gives 3/2 at once.
-  - *Fails:* Use the GDC log-base template: gives 1.5 but cannot show why on a no-calculator paper.
 - **Concept probes:**
   - *true-false-reason* (L3): log₂ x and log₄ x have the same graph. — False. log₄ x = (log₂ x)/2, so it is log₂ x squashed to half the height. They share only the point (1, 0) and the asymptote x = 0.
   - *always-sometimes-never* (L4): If f(x) = eˣ and g(x) = ln x, then f(g(x)) = g(f(x)). — Sometimes. Both simplify to x, but f(g(x)) only exists for x > 0, while g(f(x)) = x for every x. They agree only for x > 0.
@@ -589,7 +586,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 3. Graphs and key features (syllabus 2.3, 2.4, 2.10)
 
-6 exam types, 6 extension types; 25 exam unknowns and 71 new ones; 340 coverage cells (78 with "Exam-style only" on).
+6 exam types, 6 extension types; 25 exam unknowns and 71 new ones; 320 coverage cells (78 with "Exam-style only" on).
 
 #### Sketch a graph from the GDC on a given domain (`fn-sketch-gdc`, exam, 7 bank parts)
 
@@ -638,9 +635,8 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L2: given a context in words, such as a cooling drink → the graph that fits the story
   - new L1: given a sketch of a parabola with points labelled → the vertex, intercepts and which way it opens *(reversed)*
   - new L3: given the equation; a sketch → what is wrong with the sketch *(error-spot)*
-- **Angles:** Plot the intercepts, vertex and axis, then join; Transform y = x²; Graph on the GDC and transfer; Midpoint of the roots, then substitute; Plot the given facts first; Reason from the context; Pick a function family with the right features.
+- **Angles:** Plot the intercepts, vertex and axis, then join; Transform y = x²; Midpoint of the roots, then substitute; Plot the given facts first; Reason from the context; Pick a function family with the right features.
   - *Slow:* Transform y = x²: the equation is given factorised, so the vertex form has to be built first.
-  - *Fails:* Graph on the GDC and transfer: these are Paper 1 parts: no calculator.
   - *Slow:* Pick a function family with the right features: the family is already known; plotting the given points is quicker.
 - **Concept probes:**
   - *predict-check* (L3): v(t) = (t − 1)(t − 5) for 0 ≤ t ≤ 6. Predict the values at both ends and the lowest point before sketching. — Both ends give 5: v(0) = (−1)(−5) = 5 and v(6) = (5)(1) = 5. They match because 0 and 6 are the same distance from the axis t = 3. The lowest point is the vertex (3, −4).
@@ -768,9 +764,8 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L3: given an equation; a graph that does not fit → a reason the graph cannot be the equation
   - new L2: given a graph of y = a·bˣ + c or a parabola → the signs of the parameters (a > 0? b > 1?)
   - new L1: given the facts in words → the graph that has them all
-- **Angles:** Check intercepts; Check shape, sign and asymptotes; Substitute a convenient point; Plot on the GDC and compare.
+- **Angles:** Check intercepts; Check shape, sign and asymptotes; Substitute a convenient point.
   - *Slow:* Substitute a convenient point: one point per graph per equation is many checks; intercepts and shape sort them faster.
-  - *Fails:* Plot on the GDC and compare: a GDC picture is not a reason, and Paper 1 has no calculator.
 - **Concept probes:**
   - *true-false-reason* (L3): y = 2^(−x) and y = (1/2)ˣ have the same graph. — True. 2^(−x) = (2⁻¹)ˣ = (1/2)ˣ, so both pass through (0, 1) and decay towards y = 0 as x grows.
   - *predict-check* (L3): Without plotting, decide where y = −(x − 1)(x + 3) crosses the y-axis and which way it opens. Then check against a graph. — It crosses at (0, 3), since −(−1)(3) = 3, and it opens downwards, because expanding gives −x² − 2x + 3.
@@ -808,8 +803,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L4: given the graphs of f and g; three graphs of possible f − g → the graph of f − g, whose zeros are the meeting x-values
   - new L4: given two arrangements of one equation → whether both give the same solutions, and why
   - new L4: given a sketch with turning values → the values of k for which f(x) = k has a given number of solutions
-- **Angles:** Sketch both graphs to count and locate crossings; Zeros of f(x) − g(x); Graph each side and use intersect; Rearrange to h(x) = 0 and find the zeros; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries; Graph and count on the GDC.
-  - *Fails:* Graph and count on the GDC: trying values of k cannot pin down the boundary values.
+- **Angles:** Sketch both graphs to count and locate crossings; Zeros of f(x) − g(x); Graph each side and use intersect; Rearrange to h(x) = 0 and find the zeros; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries.
 - **Concept probes:**
   - *true-false-reason* (L3): The solutions of eˣ = 4 − x² are the y-values where the two graphs meet. — False. The solutions are the x-values, x ≈ −1.96 and x ≈ 1.06. The y-value at each meeting point is the common output of both sides.
   - *always-sometimes-never* (L4): Rearranging an equation before graphing it changes its solutions. — Sometimes. Adding or subtracting a term on both sides changes the pictures but not the meeting x-values: eˣ = x + 3 and eˣ − x = 3 both give x ≈ −2.95 and 1.51. Dividing both sides by x can lose the solution x = 0.
@@ -851,7 +845,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L4: given a line y = mx + n with m unknown; a parabola → m for the line to be a tangent, and the point of contact *(y = mx − 1 and y = x² + 3: x² − mx + 4 = 0, m² = 16, m = ±4, contact (±2, 7))*
   - new L4: given a function on a closed interval → the greatest and least values, and the range *(x² − 4x + 1 on [0, 5]: least −3 at x = 2, greatest 6 at x = 5)*
   - new L4: given a cubic → its turning points, where the vertex methods no longer apply *(x³ − 3x² − 9x + 2: (−1, 7) and (3, −25))*
-- **Angles:** Complete the square; x = −b/(2a), then substitute for y; Midpoint of the roots, then substitute; GDC maximum/minimum; Solve f′(x) = 0; Read the turning point from the equation's form; Read from the graph; Evaluate at endpoints and turning points; Use the vertex or asymptote; Read the parameters; Transform the base graph's features; Solve f′(x) = 0; Vertex of a quadratic; Set Δ = 0, Δ > 0 or Δ < 0 and solve for k; Discriminant = 0; Match gradients to find the point of contact; Compare stationary values and endpoints; No turning points means endpoints.
+- **Angles:** Complete the square; x = −b/(2a), then substitute for y; Midpoint of the roots, then substitute; Solve f′(x) = 0; Read the turning point from the equation's form; Read from the graph; Evaluate at endpoints and turning points; Use the vertex or asymptote; Read the parameters; Transform the base graph's features; Solve f′(x) = 0; Vertex of a quadratic; Set Δ = 0, Δ > 0 or Δ < 0 and solve for k; Discriminant = 0; Match gradients to find the point of contact; Compare stationary values and endpoints; No turning points means endpoints.
   - *Slow:* Complete the square: a = −5 brings fractions in early.
   - *Slow:* Midpoint of the roots, then substitute: the roots of −5t² + 30t + 8 are 3 ± √10.6; their midpoint is 3, but finding them is long.
   - *Fails:* Use the vertex or asymptote: the vertex gives the least value, but the greatest is at the endpoint x = 5.
@@ -877,10 +871,9 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L4: given two curves that enclose a region → the meeting x-values (the limits), found two ways, then the area *(y = x² and y = 2x + 3 meet at x = −1 and 3; area 32/3)*
   - new L4: given a log equation such as ln x + ln(x + 3) = ln 10 → the solution, and the graph that shows why one algebraic root is rejected *(x² + 3x − 10 = 0 gives 2 and −5; only x = 2)*
   - new L3: given an equation such as eˣ = 20 → x exactly with logs and to 3 s.f. with the GDC, and that the two agree *(ln 20 ≈ 3.00)*
-- **Angles:** Graph each side and use intersect; Rearrange to h(x) = 0 and find the zeros; Find a sign change in a table, then refine; Apply inverse operations to both sides; Combine and rearrange into a polynomial; Sketch or graph both sides to check; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries; Graph and count on the GDC; Set f(x) = g(x) and solve; GDC intersect; Sketch and count crossings; GDC intersect; Integrate top minus bottom; GDC with |f − g|; Combine into one log, then rewrite in exponential form; Graph both sides and intersect; Rewrite in log form and use the log or ln key; Graph both sides and find the intersection.
+- **Angles:** Graph each side and use intersect; Rearrange to h(x) = 0 and find the zeros; Find a sign change in a table, then refine; Apply inverse operations to both sides; Combine and rearrange into a polynomial; Sketch or graph both sides to check; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries; Set f(x) = g(x) and solve; GDC intersect; Sketch and count crossings; Integrate top minus bottom; Combine into one log, then rewrite in exponential form; Rewrite in log form and use the log or ln key; Graph both sides and find the intersection.
   - *Slow:* Find a sign change in a table, then refine: refining a sign change to 3 s.f. takes many rows.
   - *Fails:* Apply inverse operations to both sides: in eˣ = 4 − x, x is both in the exponent and outside it, so no inverse isolates it.
-  - *Fails:* Graph and count on the GDC: a graph for one k gives one count; the boundary values need the turning points.
 - **Concept probes:**
   - *true-false-reason* (L3): eˣ = 4 − x can be solved exactly by taking ln of both sides: x = ln(4 − x). — False. x is still on both sides, so nothing has been solved. There is no algebraic method; the graphs of y = eˣ and y = 4 − x meet once, at x ≈ 1.07.
   - *predict-check* (L3): Sketch y = cos x and y = 1/2 for 0 ≤ x ≤ 3π and predict how many solutions 2 cos x = 1 has. Then list them. — Three: π/3, 5π/3 and 7π/3. The next one, 11π/3, is beyond 3π.
@@ -889,7 +882,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 4. Composite and inverse (syllabus 2.5)
 
-3 exam types, 3 extension types; 18 exam unknowns and 48 new ones; 248 coverage cells (66 with "Exam-style only" on).
+3 exam types, 3 extension types; 18 exam unknowns and 48 new ones; 246 coverage cells (66 with "Exam-style only" on).
 
 #### Values, composites and inverse values read from a graph or a table (`fn-graph-table-composite-inverse`, exam, 8 bank parts)
 
@@ -912,10 +905,9 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L2: given a graph of f that turns back; a value k → every solution of f(x) = k
   - new L2: given a graph of f that turns back → why f has no inverse on the shown domain
   - new L2: given a graph of f that turns back → the largest k for which f on x ≤ k has an inverse
-- **Angles:** Read the output from a graph or table; Substitute the input in brackets; For f(a) = k, solve for the input; Up from x, across to y; Draw y = k and read off x; GDC trace, value or intersect; Chain two readings from graphs or tables; Work from the inside out; Find f(g(x)) first, then substitute; Swap the coordinates; Solve f(x) = a; Reflect the graph in y = x; Domain of f⁻¹ = range of f, and vice versa; Horizontal line test on the graph; Use f(f⁻¹(x)) = x directly; Horizontal line test for one-to-one.
+- **Angles:** Read the output from a graph or table; Substitute the input in brackets; For f(a) = k, solve for the input; Up from x, across to y; Draw y = k and read off x; Chain two readings from graphs or tables; Work from the inside out; Find f(g(x)) first, then substitute; Swap the coordinates; Solve f(x) = a; Reflect the graph in y = x; Domain of f⁻¹ = range of f, and vice versa; Horizontal line test on the graph; Use f(f⁻¹(x)) = x directly; Horizontal line test for one-to-one.
   - *Fails:* Substitute the input in brackets: only a graph or table is given, so there is no rule to substitute into.
   - *Fails:* Up from x, across to y: going up from x = b finds f(b); f⁻¹(b) needs the reading that starts on the y-axis.
-  - *Fails:* GDC trace, value or intersect: no equation is given, so there is nothing to enter.
   - *Fails:* Find f(g(x)) first, then substitute: a table has no rule to build an expression from.
   - *Slow:* Reflect the graph in y = x: sketching the whole reflected graph to read one value.
 - **Concept probes:**
@@ -1056,7 +1048,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ### 5. Rational functions (syllabus 2.8)
 
-2 exam types, 4 extension types; 9 exam unknowns and 40 new ones; 144 coverage cells (30 with "Exam-style only" on).
+2 exam types, 4 extension types; 9 exam unknowns and 40 new ones; 132 coverage cells (29 with "Exam-style only" on).
 
 #### Asymptotes and intercepts of (ax + b)/(cx + d) (`fn-rational-asymptotes-intercepts`, exam, 12 bank parts)
 
@@ -1074,7 +1066,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L2: given the equation with one unknown constant; one intercept → the constant *(reversed)*
   - new L3: given both asymptotes; one intercept → the equation as (ax + b)/(x + d) *(reversed: B comes from the intercept)*
   - new L2: given the equation or the graph → the domain and the range *(the exam asks this in fn-domain-range)*
-- **Angles:** x = −d/c and y = a/c; Rewrite as a/c + k/(cx + d); Divide top and bottom by x and let x grow; Check with a GDC table; Find where the function is undefined; Look at large |x|; Move the parent's asymptote; Check with a GDC table; Solve f(x) = 0 and evaluate f(0); Read crossings from a given graph; GDC zero/root function; Use the vertex or asymptote; Read the vertical extent of the graph.
+- **Angles:** x = −d/c and y = a/c; Rewrite as a/c + k/(cx + d); Divide top and bottom by x and let x grow; Check with a GDC table; Find where the function is undefined; Look at large |x|; Move the parent's asymptote; Solve f(x) = 0 and evaluate f(0); Read crossings from a given graph; GDC zero/root function; Use the vertex or asymptote; Read the vertical extent of the graph.
   - *Slow:* Rewrite as a/c + k/(cx + d): splitting the numerator takes several lines when y = a/c can be read off at once.
   - *Fails:* Divide top and bottom by x and let x grow: large x says where the curve levels off, not where it blows up.
   - *Fails:* Check with a GDC table: a table needs numbers; with letters in the equation there is nothing to tabulate.
@@ -1104,7 +1096,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - **exam** L4: given the equation or graph of a rational f → which graph is y = 1/f(x), with its asymptotes and intercepts *(Paper 2 in the bank)*
   - new L1: given y = 1/x or y = k/x → which graph it is, and its asymptotes
   - new L2: given y = k/x → its inverse, and why
-- **Angles:** Draw the asymptotes, mark the intercepts, add the branches; Transform y = 1/x; Graph on the GDC and transfer; Find the intersections, then read which graph is above; Solve the equality, then test the intervals; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries; Use the discriminant for a quadratic; Graph and count on the GDC; Plot a table including fractions and negatives; Use symmetry about y = x; Find the inverse algebraically.
+- **Angles:** Draw the asymptotes, mark the intercepts, add the branches; Transform y = 1/x; Graph on the GDC and transfer; Find the intersections, then read which graph is above; Solve the equality, then test the intervals; Slide a horizontal line y = k across the graph; Use turning-point values and asymptotes as boundaries; Use the discriminant for a quadratic; Sketch both graphs and count the crossings; Plot a table including fractions and negatives; Use symmetry about y = x; Find the inverse algebraically.
   - *Slow:* Transform y = 1/x: f must first be split into A + B/(x − h), which takes longer than finding two intercepts.
   - *Fails:* Graph on the GDC and transfer: Paper 1 has no calculator, and a GDC can join the two branches with a steep line that looks like part of the curve.
   - *Slow:* Solve the equality, then test the intervals: the asymptote x = h is a boundary that solving f(x) = k does not find; it must be added by hand.
@@ -1150,8 +1142,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L3: given a fixed cost and a cost per item, in words → the average cost model A(n)
   - new L3: given the model and its graph → why the vertical asymptote is outside the sensible domain
   - new L4: given the long-run value; one data point → the constants in the model *(reversed)*
-- **Angles:** Read the horizontal asymptote as the long-run value; Set the model equal to the target and solve; Graph the model and the target line; Substitute and attach units; Substitute the input in brackets.
-  - *Fails:* Graph the model and the target line: a graph or table only suggests the level the curve settles at; it cannot show it is never reached.
+- **Angles:** Read the horizontal asymptote as the long-run value; Set the model equal to the target and solve; Substitute and attach units; Substitute the input in brackets.
 - **Concept probes:**
   - *interpret-parameter* (L3): The average cost of making n items is A(n) = 4 + 500/n dollars. What do 4 and 500 mean? — 500 is the fixed cost in dollars, shared over n items, and 4 is the cost of each extra item. As n grows the fixed cost is spread thinner, so A(n) falls towards 4.
   - *true-false-reason* (L3): If A(n) = 4 + 500/n, enough items will bring the average cost down to exactly $4. — False. 500/n is positive for every n, so A(n) > 4 always. It gets as close as you like to 4 but never reaches it.
@@ -1171,9 +1162,8 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L3: given a claim about a graph crossing its vertical asymptote → whether it can, with a reason
   - new L4: given (ax + b)/(cx + d) with ad = bc → why there is no asymptote, only a gap
   - new L4: given a model that settles → what the horizontal asymptote means, and why it is not reached
-- **Angles:** Divide top and bottom by x and let x grow; Rewrite as a/c + k/(cx + d); Find where the function is undefined; Check with a GDC table; Read the horizontal asymptote as the long-run value.
+- **Angles:** Divide top and bottom by x and let x grow; Rewrite as a/c + k/(cx + d); Find where the function is undefined; Read the horizontal asymptote as the long-run value.
   - *Fails:* Find where the function is undefined: the denominator is zero at x = h, but so is the numerator, so there is a gap, not an asymptote.
-  - *Fails:* Check with a GDC table: a table shows values near the asymptote but cannot rule out a crossing between the rows.
 - **Concept probes:**
   - *always-sometimes-never* (L4): A graph can cross its horizontal asymptote. — Sometimes. y = x/(x² + 1) has asymptote y = 0 and passes through (0, 0). But y = A + B/(x − h) never does, because B/(x − h) is never 0.
   - *true-false-reason* (L3): A graph can cross its vertical asymptote. — False for every function in this course. At x = h the function is not defined, so no point of the graph is on that line, and close to it y grows without limit.

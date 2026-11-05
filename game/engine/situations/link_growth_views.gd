@@ -264,7 +264,8 @@ func u_compounding_factor(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var out := {"asked": "Find the value after %d years." % N, "answer": measure("V = ", x), "wrongs": [], "generic": [],
 		"lines": ["%s is invested at %d%% a year, compounded %s." % [D(P0), R, how]],
 		"pick_wrongs": [{"name": "Use the annual rate %d times" % (k * N), "why": "each period earns %d%%/%d, not %d%%" % [R, k, R]},
-			{"name": "Simple interest", "why": "interest is added to the balance and earns interest itself"}]}
+			{"name": "Simple interest", "why": "interest is added to the balance and earns interest itself"},
+			{"name": "Add the interest once a year", "why": "it is added %s, so the balance earns interest sooner" % how}]}
 	wrong_x(out, P0.to_float() * pow(1.0 + R / 100.0, k * N), "SL1.4.future-value#0")
 	wrong_x(out, P0.to_float() * (1.0 + R * N / 100.0), "SL1.4.future-value#1")
 	ExpModelViews.generic_x(out, [P0.to_float() * pow(1.0 + R / 100.0, N), P0.to_float() * pow(per, N), x * 1.1, x * 0.9,

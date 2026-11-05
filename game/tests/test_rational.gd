@@ -7,7 +7,7 @@ extends "res://tests/test_case.gd"
 
 ## Cells per type: the catalogue lists the method gdc-table twice for asymptotes-from-table
 ## (under two skills), and the engine counts it once, so the first type has 38.
-const CELLS := {"fn-rational-asymptotes-intercepts": 38, "fn-rational-sketch": 40, "fn-ext-transformed-reciprocal": 12}
+const CELLS := {"fn-rational-asymptotes-intercepts": 37, "fn-rational-sketch": 39, "fn-ext-transformed-reciprocal": 12}
 const SITUATION := "rational-function"
 ## Distractor misconceptions no option can carry yet ("type|ref"), and why.
 const NOT_BUILT := {}
@@ -244,7 +244,7 @@ func test_every_slip_of_algebraic_fractions_is_an_option() -> void:
 func test_the_asymptote_gallery_is_built_and_plays_true_false_reason() -> void:
 	var t := "fn-concept-asymptote-meaning"
 	check(t in QuestionEngine.built_types(), "%s is not built" % t)
-	check_eq(QuestionEngine.cells(false, [t]).size(), 18, t)
+	check_eq(QuestionEngine.cells(false, [t]).size(), 14, t)
 	var tf := 0
 	for c in QuestionEngine.cells(false, [t]):
 		for seed in [1, 2, 3, 4]:
@@ -290,7 +290,7 @@ func test_every_slip_of_the_gallery_is_an_option() -> void:
 func test_the_rational_model_is_built_with_every_cell() -> void:
 	var t := "fn-ext-rational-model"
 	check(t in QuestionEngine.built_types(), "%s is not built" % t)
-	check_eq(QuestionEngine.cells(false, [t]).size(), 25, t)
+	check_eq(QuestionEngine.cells(false, [t]).size(), 20, t)
 	for c in QuestionEngine.cells(false, [t]):
 		for seed in [1, 2, 3, 4]:
 			var q := _make(t, c.unknown, c.rep, c.angle, seed)

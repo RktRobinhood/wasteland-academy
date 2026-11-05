@@ -737,7 +737,8 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   starting `gdc-`, a name with GDC in it, or `CALCULATOR_METHODS`) never shows on Paper 1. A cell asked by one is
   always Paper 2, in `cell_papers`, so a shared family or a boss chain can't fall back to Paper 1. A Paper 1
   question drops the rest from its solution tabs and from "Another way" (`angles_on_paper`). A cell whose views
-  build only Paper 1 numbers keeps them on Paper 2. `test_paper.gd` scans every Paper 1 question for calculator
+  build only Paper 1 numbers keeps them on Paper 2, unless `tools/check_answers.py` holds it to Paper 1: the
+  catalogue then doesn't list that method for its unknown. `test_paper.gd` scans every Paper 1 question for calculator
   words. `OVER_SHARE` there lists the types this puts above their exam's Paper 2 share.
 - **The Method line** (FAL-758): a fight hides it on exam-style questions, as the exam leaves the method to the
   student. "Another way" follow-ups, other questions and the explorer keep it. Two integrals keep it because the

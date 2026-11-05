@@ -399,8 +399,9 @@ static func merge_need(a: Dictionary, b: Dictionary) -> Variant:
 # Paper 1 has no calculator, so a calculator method never appears on it (FAL-758): a cell
 # asked by one is Paper 2 whatever its views say (cell_papers), and a Paper 1 question
 # drops the others from its worked solutions and its "Another way" (angles_on_paper).
-# Where a cell's views build only Paper 1 numbers, it keeps them and is still Paper 2:
-# a calculator paper can ask exact numbers (_recipe_paper).
+# Where a cell's views build only Paper 1 numbers, it keeps them and is still Paper 2
+# (_recipe_paper), unless the answer checker holds it to Paper 1: the catalogue then
+# doesn't list that method for its unknown.
 
 ## Methods that use a calculator with no GDC in their id or name. gdc_method() finds
 ## the rest.
@@ -518,6 +519,8 @@ static func make(view: Dictionary) -> Dictionary:
 	var recipe = SITUATIONS[v.t.situation][0]
 	var s: Dictionary
 	var paper := 0
+	# "Another way" keeps the numbers, so the method that made them picks their paper.
+	var calculator := gdc_method(v.t, v.u.id, rng_angle)
 	if shared:
 		var fam := family_of(v.t.id, v.u.id, v.rep)
 		var fam_key := "%s|%s|%s|%d" % [v.t.id, v.rep, ",".join(fam.unknowns), v.seed]
@@ -525,9 +528,12 @@ static func make(view: Dictionary) -> Dictionary:
 		var both := [1, 2]
 		for id in fam.unknowns:
 			both = both.filter(func(p): return p in cell_papers(v.t, id, v.rep, v.angle))
-		paper = _pick_paper(v.t, both if not both.is_empty() else [1], fam_key, view.get("paper", 0))
+		paper = 2 if calculator else _pick_paper(v.t, both if not both.is_empty() else [1], fam_key, view.get("paper", 0))
 		var fn: Dictionary = fam.need.duplicate()
-		var told := _recipe_paper(v.t, paper, fam.unknowns.map(func(id): return [id, v.rep, v.angle]))
+		# A calculator method is the exception to the note below: its numbers have to need one.
+		if calculator:
+			fn["angle"] = v.angle
+		var told := _recipe_paper(v.t, paper, [[v.u.id, v.rep, v.angle]])
 		if told > 0:
 			fn["paper"] = told
 		s = recipe.generate(Seeded.new(fam_key), fn)
@@ -540,15 +546,14 @@ static func make(view: Dictionary) -> Dictionary:
 		var nd: Dictionary = v.views.need(v.u.id, v.rep)
 		nd["angle"] = rng_angle
 		var key := "%s|%d" % [cell_key(v.t.id, v.u.id, v.rep, rng_angle), v.seed]
-		paper = _pick_paper(v.t, cell_papers(v.t, v.u.id, v.rep, rng_angle), key, view.get("paper", 0))
+		paper = 2 if calculator else _pick_paper(v.t, cell_papers(v.t, v.u.id, v.rep, rng_angle), key, view.get("paper", 0))
 		var told := _recipe_paper(v.t, paper, [[v.u.id, v.rep, rng_angle]])
 		if told > 0:
 			nd["paper"] = told
 		s = recipe.generate(rng, nd)
 	if s.is_empty():
 		return {"error": "no clean situation for %s" % cell_key(v.t.id, v.u.id, v.rep, v.angle)}
-	var calculator := gdc_method(v.t, v.u.id, v.angle) or gdc_method(v.t, v.u.id, rng_angle)
-	var q := _build(v, s, rng, 2 if calculator else _final_paper(s, paper))
+	var q := _build(v, s, rng, 2 if calculator or gdc_method(v.t, v.u.id, v.angle) else _final_paper(s, paper))
 	if rng_angle != v.angle:
 		q.view.same_angle = rng_angle
 	if shared:
@@ -687,6 +692,12 @@ static func _resolve(view: Dictionary) -> Dictionary:
 ## the one picked, else Paper 1.
 static func _final_paper(s: Dictionary, paper: int) -> int:
 	return int(s.get("paper", paper if paper > 0 else 1))
+
+
+## The question as the student reads it: a true-false-reason question quotes its option,
+## and an option can be a sentence with its own full stop.
+static func shown_prompt(q: Dictionary) -> String:
+	return q.prompt.replace(".. True or false?", ". True or false?")
 
 
 ## The right answer as feedback names it: the answer, or for an extra format the right
@@ -848,7 +859,7 @@ static func _reformat(q: Dictionary, v: Dictionary, b: Dictionary, fmt: String) 
 				if opts.size() < CHOICES and w != claim:
 					opts.append({"text": "False: it should be %s" % w.text, "correct": false, "ref": ""})
 			q.claim = claim.text
-			q.prompt = "%s\nA student's answer: %s True or false?" % [b.asked, Fmt.stop(claim.text)]
+			q.prompt = "%s\nA student's answer: %s. True or false?" % [b.asked, claim.text]
 			var why := misconception_text(t, claim.ref) if not claim.correct else ""
 			if claim.correct:
 				q.reason = "The student is right: the answer is %s" % Fmt.stop(right.text)

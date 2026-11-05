@@ -6,7 +6,7 @@ extends "res://tests/test_case.gd"
 ## checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-discriminant": 45, "fn-curve-intersection-quadratic": 36, "fn-solve-quadratic": 20, "fn-quadratic-inequality": 19}
+const CELLS := {"fn-discriminant": 42, "fn-curve-intersection-quadratic": 36, "fn-solve-quadratic": 20, "fn-quadratic-inequality": 19}
 const SITUATION := {"fn-discriminant": "quadratic-parameter", "fn-curve-intersection-quadratic": "curve-and-line",
 	"fn-solve-quadratic": "quadratic-equation", "fn-quadratic-inequality": "quadratic-inequality"}
 ## Distractor misconceptions no option can carry yet, and why.

@@ -27,7 +27,7 @@ const TREES := [
 	{"what": "water samples", "a": "are unsafe", "b": "the filter test marks red", "one": "A sample", "ga": "unsafe", "gb": "marked red"},
 	{"what": "coins in a till", "a": "are fake", "b": "the scales reject", "one": "A coin", "ga": "fake", "gb": "rejected"},
 	{"what": "seed packets", "a": "are old stock", "b": "the sorter sets aside", "one": "A packet", "ga": "old stock", "gb": "set aside"},
-	{"what": "batteries", "a": "are worn out", "b": "the meter fails", "one": "A battery", "ga": "worn out", "gb": "failed by the meter"},
+	{"what": "batteries", "a": "are worn out", "b": "the meter fails", "one": "A battery", "ga": "worn out", "gb": "failed"},
 	{"what": "travellers", "a": "are carrying fever", "b": "the medic's strip marks", "one": "A traveller", "ga": "carrying fever", "gb": "marked"},
 	{"what": "parts in a bin", "a": "are cracked", "b": "the inspector rejects", "one": "A part", "ga": "cracked", "gb": "rejected"},
 ]

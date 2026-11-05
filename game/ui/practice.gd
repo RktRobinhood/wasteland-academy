@@ -183,7 +183,7 @@ func show_view(view: Dictionary) -> void:
 
 ## The question's words on the card.
 func prompt_text() -> String:
-	return question.prompt
+	return QuestionEngine.shown_prompt(question)
 
 
 ## Draws `question` on the card: the fight screen (ui/fight.gd) uses this too.

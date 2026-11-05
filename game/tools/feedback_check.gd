@@ -213,7 +213,7 @@ func _stem(q: Dictionary) -> String:
 
 ## Everything of a question a student can read: stem, table, diagram, options and working.
 func _seen_text(q: Dictionary) -> String:
-	var parts: Array = [q.prompt, q.get("reason", "")]
+	var parts: Array = [QuestionEngine.shown_prompt(q), q.get("reason", "")]
 	parts.append_array(q.get("lines", []))
 	parts.append(_flat(q.get("table")))
 	parts.append(_flat(q.get("diagram")))

@@ -6,7 +6,7 @@ extends "res://tests/test_case.gd"
 ## would type them. The SymPy checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 49, "fn-log-of-quadratic": 71,
+const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 47, "fn-log-of-quadratic": 71,
 	"fn-log-function-features": 38, "fn-pre-percent-multiplier": 22, "fn-ext-exp-graph": 28,
 	"fn-concept-growth-patterns": 17, "fn-link-multiplicative-growth": 53}
 const SITUATION := {"fn-exponential-model": "exp-model", "fn-exp-log-inverse-composite": "exp-log-pair",
@@ -176,7 +176,7 @@ func test_a_point_is_named_once_when_the_two_key_points_meet() -> void:
 				for m in pt.search_all(t):
 					check(not seen.has(m.get_string()), "%s seed %d: %s" % [c.key, seed, t])
 					seen[m.get_string()] = true
-			if (c.unknown == "pick-graph" and q.situation.h == 0) or (c.unknown == "inverse-graph" and texts.any(func(t): return t.contains("origin"))):
+			if (c.unknown == "pick-graph" and q.situation.h == 0) or (c.unknown == "inverse-graph" and texts.any(func(t): return t.contains("(0, 0)"))):
 				met[c.unknown] += 1
 	for u in met:
 		check(met[u] > 0, "%s: no seed puts the two key points together" % u)

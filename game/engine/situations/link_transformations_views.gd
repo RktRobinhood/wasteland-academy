@@ -386,7 +386,8 @@ func u_standardise_moves(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 			"standardise-bounds": ["z = (x − %d)/%d: take off the mean first, then divide." % [mu, sg], moved, squeezed, same],
 		}, "So: %s." % right, [pick("Compare the two curves on the GDC", "equal answers show the probabilities match, not which moves made them match"),
 			pick("Divide by the variance", "the spread is the standard deviation, so that is what must become 1"),
-			pick("Divide first, then subtract the mean", "that gives x/σ − μ, not (x − μ)/σ")])
+			pick("Divide first, then subtract the mean", "that gives x/σ − μ, not (x − μ)/σ"),
+			pick("Multiply by the standard deviation", "that widens the curve, and it must narrow to a standard deviation of 1")])
 	if rep == "graph":
 		var a := GdcKit.curve(pdf(mu, sg), mu - 4.0 * sg, mu + 4.0 * sg)
 		var b := GdcKit.curve(pdf(0.0, 1.0), -4.0, 4.0)

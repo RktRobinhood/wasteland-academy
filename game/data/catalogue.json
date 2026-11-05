@@ -5263,22 +5263,6 @@
 					"about": "Draw the horizontal line y = k; each crossing with the curve gives a solution of f(x) = k."
 				},
 				{
-					"skill": "SL2.3.read-graph",
-					"method": "gdc-trace",
-					"suits": [
-						"value-from-rule"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"read-value"
-						],
-						"why": "no equation is given, so there is nothing to enter"
-					},
-					"name": "GDC trace, value or intersect",
-					"about": "If the equation is known, use the GDC to read values precisely and confirm the graph reading."
-				},
-				{
 					"skill": "SL2.5.composite-value",
 					"method": "chain-readings",
 					"suits": [
@@ -7813,23 +7797,6 @@
 					},
 					"name": "Transform y = x²",
 					"about": "Stretch by a (reflecting if a < 0), then translate by the vector (h, k)."
-				},
-				{
-					"skill": "SL2.6.sketch",
-					"method": "gdc-transfer",
-					"suits": [
-						"judge-a-sketch"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"sketch-quadratic",
-							"sketch-on-interval"
-						],
-						"why": "these are Paper 1 parts: no calculator"
-					},
-					"name": "Graph on the GDC and transfer",
-					"about": "Graph f, find the key points with the GDC and copy them onto the axes."
 				},
 				{
 					"skill": "SL2.6.vertex",
@@ -11117,22 +11084,6 @@
 					"about": "List what f does to x (×2, then +1), then undo each step in the reverse order (−1, then ÷2)."
 				},
 				{
-					"skill": "SL2.5.find-inverse",
-					"method": "graph-check",
-					"suits": [
-						"inverse-graph"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"inverse-of-log"
-						],
-						"why": "a graph checks the inverse but cannot write its rule"
-					},
-					"name": "Check the reflection on the GDC",
-					"about": "Graph f, your f⁻¹ and y = x; the two curves must be mirror images in y = x."
-				},
-				{
 					"skill": "SL2.9.exp-log-inverse",
 					"method": "convert-form",
 					"suits": [
@@ -11268,22 +11219,6 @@
 					},
 					"name": "Apply log_a b = log_c b / log_c a",
 					"about": "Convert to base 10 or e: log_5 8 = log 8/log 5 = 3 log 2/log 5."
-				},
-				{
-					"skill": "SL1.7.change-of-base",
-					"method": "gdc-logbase",
-					"suits": [
-						"inverse-awkward-base"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"inverse-awkward-base"
-						],
-						"why": "gives 1.5 but cannot show why on a no-calculator paper"
-					},
-					"name": "Use the GDC log-base template",
-					"about": "Evaluate log_3 20 directly, or as log 20/log 3."
 				},
 				{
 					"skill": "SL2.11.describe",
@@ -13280,22 +13215,6 @@
 					"about": "With a > 0, a vertex above the axis means no real roots, on the axis means equal roots, below means two roots."
 				},
 				{
-					"skill": "SL2.7.discriminant",
-					"method": "gdc-graph",
-					"suits": [
-						"nature-from-equation"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"nature-from-equation"
-						],
-						"why": "counting crossings is a check, not a proof, so it cannot answer a show-that"
-					},
-					"name": "Count x-intercepts on a GDC graph",
-					"about": "Graph the quadratic and count how many times it meets the x-axis (a check, not a proof)."
-				},
-				{
 					"skill": "SL2.7.discriminant-parameter",
 					"method": "discriminant-condition",
 					"suits": [
@@ -13347,8 +13266,7 @@
 					"skill": "SL2.7.discriminant-parameter",
 					"method": "gdc-slider",
 					"suits": [
-						"k-interval",
-						"roots-from-k"
+						"k-interval"
 					],
 					"weak": {
 						"kind": "fails",
@@ -15098,7 +15016,6 @@
 					"skill": "SL2.8.asymptotes",
 					"method": "gdc-table",
 					"suits": [
-						"asymptotes-from-table",
 						"ha-from-equation"
 					],
 					"weak": {
@@ -15148,15 +15065,6 @@
 					},
 					"name": "Move the parent's asymptote",
 					"about": "e^x has y = 0, so e^x + 2 has y = 2; ln x has x = 0, so ln(x − 4) has x = 4."
-				},
-				{
-					"skill": "SL2.4.asymptotes",
-					"method": "gdc-table",
-					"suits": [
-						"asymptotes-from-table"
-					],
-					"name": "Check with a GDC table",
-					"about": "Tabulate f at very large x and close to the suspected gap to confirm where the curve levels off or blows up."
 				},
 				{
 					"skill": "SL2.4.zeros-intercepts",
@@ -15630,7 +15538,6 @@
 					"skill": "SL2.8.sketch-rational",
 					"method": "gdc-transfer",
 					"suits": [
-						"sketch-from-equation",
 						"reciprocal-of-f"
 					],
 					"weak": {
@@ -15705,13 +15612,13 @@
 				},
 				{
 					"skill": "SL2.10.number-of-solutions",
-					"method": "gdc-graph",
+					"method": "sketch-and-count",
 					"suits": [
 						"count-with-curve",
 						"count-with-line"
 					],
-					"name": "Graph and count on the GDC",
-					"about": "Graph y = f(x) and y = k for trial values and count the intersections."
+					"name": "Sketch both graphs and count the crossings",
+					"about": "A sketch with the asymptotes drawn shows how many times the graphs meet, with no calculator."
 				},
 				{
 					"skill": "SL2.8.reciprocal",
@@ -37941,8 +37848,7 @@
 					"skill": "SL2.6.model",
 					"method": "gdc-max",
 					"suits": [
-						"max-value",
-						"time-of-max"
+						"max-value"
 					],
 					"weak": {
 						"kind": "fails",
@@ -40098,23 +40004,6 @@
 					},
 					"name": "Substitute a convenient point",
 					"about": "Evaluate f at an easy x-value and see which graph contains that point."
-				},
-				{
-					"skill": "SL2.3.match-graph",
-					"method": "gdc-plot",
-					"suits": [
-						"graph-from-equation",
-						"match-several"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"rule-out-graph"
-						],
-						"why": "a GDC picture is not a reason, and Paper 1 has no calculator"
-					},
-					"name": "Plot on the GDC and compare",
-					"about": "When a calculator is allowed, graph the equation and pick the matching picture."
 				}
 			],
 			"concepts": [
@@ -40566,22 +40455,6 @@
 					],
 					"name": "Use turning-point values and asymptotes as boundaries",
 					"about": "The number of solutions only changes at a maximum or minimum value or at an asymptote, so those y-values bound the intervals for k."
-				},
-				{
-					"skill": "SL2.10.number-of-solutions",
-					"method": "gdc-graph",
-					"suits": [
-						"count-from-sketch"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"k-for-count"
-						],
-						"why": "trying values of k cannot pin down the boundary values"
-					},
-					"name": "Graph and count on the GDC",
-					"about": "Graph y = f(x) and y = k for trial values and count the intersections."
 				}
 			],
 			"concepts": [
@@ -41937,23 +41810,6 @@
 					"about": "Multiply through by the denominator, solve the linear equation, and round in the direction the context needs."
 				},
 				{
-					"skill": "SL2.8.rational-model",
-					"method": "gdc-intersect",
-					"suits": [
-						"least-n-for-target",
-						"input-for-value"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"long-run-value"
-						],
-						"why": "a graph or table only suggests the level the curve settles at; it cannot show it is never reached"
-					},
-					"name": "Graph the model and the target line",
-					"about": "Use intersect, or a table, to find where the model crosses the target value."
-				},
-				{
 					"skill": "SL2.2.function-model",
 					"method": "substitute-interpret",
 					"suits": [
@@ -42208,23 +42064,6 @@
 					},
 					"name": "Find where the function is undefined",
 					"about": "A vertical asymptote sits where a denominator is zero or where a log's argument reaches zero."
-				},
-				{
-					"skill": "SL2.4.asymptotes",
-					"method": "gdc-table",
-					"suits": [
-						"why-vertical",
-						"why-horizontal"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"crosses-horizontal"
-						],
-						"why": "a table shows values near the asymptote but cannot rule out a crossing between the rows"
-					},
-					"name": "Check with a GDC table",
-					"about": "Tabulate f at very large x and close to the suspected gap to confirm where the curve levels off or blows up."
 				},
 				{
 					"skill": "SL2.8.rational-model",
@@ -48696,15 +48535,6 @@
 					"about": "The vertex lies on the axis halfway between the zeros, so average them and evaluate f."
 				},
 				{
-					"skill": "SL2.6.vertex",
-					"method": "gdc-max-min",
-					"suits": [
-						"max-height-methods"
-					],
-					"name": "GDC maximum/minimum",
-					"about": "Graph f and use max or min to read the vertex."
-				},
-				{
 					"skill": "SL2.4.max-min",
 					"method": "derivative-zero",
 					"suits": [
@@ -49175,8 +49005,7 @@
 					"method": "intersect-two-graphs",
 					"suits": [
 						"which-method",
-						"solve-by-intersection",
-						"log-equation-check"
+						"solve-by-intersection"
 					],
 					"name": "Graph each side and use intersect",
 					"about": "Enter the left side as Y1 and the right side as Y2 and find every intersection in the domain."
@@ -49262,22 +49091,6 @@
 					"about": "The number of solutions only changes at a maximum or minimum value or at an asymptote, so those y-values bound the intervals for k."
 				},
 				{
-					"skill": "SL2.10.number-of-solutions",
-					"method": "gdc-graph",
-					"suits": [
-						"count-trig-solutions"
-					],
-					"weak": {
-						"kind": "fails",
-						"unknowns": [
-							"k-for-count"
-						],
-						"why": "a graph for one k gives one count; the boundary values need the turning points"
-					},
-					"name": "Graph and count on the GDC",
-					"about": "Graph y = f(x) and y = k for trial values and count the intersections."
-				},
-				{
 					"skill": "SL2.4.intersection",
 					"method": "equate-and-solve",
 					"suits": [
@@ -49290,7 +49103,6 @@
 					"skill": "SL2.4.intersection",
 					"method": "gdc-intersect",
 					"suits": [
-						"limits-first",
 						"solve-by-intersection"
 					],
 					"name": "GDC intersect",
@@ -49306,15 +49118,6 @@
 					"about": "Sketch both graphs by hand and count the crossings to give the number of solutions without solving."
 				},
 				{
-					"skill": "SL3.8.graphical",
-					"method": "gdc-intersect",
-					"suits": [
-						"count-trig-solutions"
-					],
-					"name": "GDC intersect",
-					"about": "Graph both sides in radian mode with a window matching the interval and use intersect for every crossing."
-				},
-				{
 					"skill": "SL5.11.area-between-curves",
 					"method": "top-minus-bottom",
 					"suits": [
@@ -49324,15 +49127,6 @@
 					"about": "Find the intersections, then integrate (upper curve − lower curve) between them."
 				},
 				{
-					"skill": "SL5.11.area-between-curves",
-					"method": "gdc-abs-difference",
-					"suits": [
-						"limits-first"
-					],
-					"name": "GDC with |f − g|",
-					"about": "Find the intersections on the GDC, then evaluate ∫ |f(x) − g(x)| dx between them."
-				},
-				{
 					"skill": "SL1.7.log-equations",
 					"method": "combine-then-exponentiate",
 					"suits": [
@@ -49340,15 +49134,6 @@
 					],
 					"name": "Combine into one log, then rewrite in exponential form",
 					"about": "log_2 x(x − 2) = 3 becomes x(x − 2) = 2³ = 8; solve the quadratic and reject x = −2."
-				},
-				{
-					"skill": "SL1.7.log-equations",
-					"method": "graph-intersect",
-					"suits": [
-						"log-equation-check"
-					],
-					"name": "Graph both sides and intersect",
-					"about": "Plot y = log_2 x + log_2(x − 2) and y = 3; the graph only exists for x > 2, so the rejected root never appears."
 				},
 				{
 					"skill": "SL1.5.evaluate-tech",

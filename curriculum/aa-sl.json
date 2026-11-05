@@ -6746,6 +6746,12 @@
                   "approach": "gdc",
                   "name": "Graph and count on the GDC",
                   "summary": "Graph y = f(x) and y = k for trial values and count the intersections."
+                },
+                {
+                  "id": "sketch-and-count",
+                  "approach": "graphical",
+                  "name": "Sketch both graphs and count the crossings",
+                  "summary": "A sketch with the asymptotes drawn shows how many times the graphs meet, with no calculator."
                 }
               ],
               "misconceptions": [

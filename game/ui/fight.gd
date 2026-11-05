@@ -620,8 +620,8 @@ func _process(delta: float) -> void:
 ## linear-square and rewrite-trig-product), which aren't exam-style unknowns (FAL-758).
 func prompt_text() -> String:
 	if question.get("exam", false) and not run.another_way:
-		return question.prompt.get_slice("\nMethod: ", 0)
-	return question.prompt
+		return QuestionEngine.shown_prompt(question).get_slice("\nMethod: ", 0)
+	return QuestionEngine.shown_prompt(question)
 
 
 ## Draws the run's open question, with the practice screen's card.
