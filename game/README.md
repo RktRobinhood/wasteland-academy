@@ -916,6 +916,20 @@ run plays the same with the strip on, off or broken (`test_journey.gd` checks al
   Add `&motion=reduced` for reduced motion, or `&avatar=learner-male` for that sheet (an
   avatar with no sheet hides the strip, as it does in a run).
 
+### Powers and answer boxes on the card
+
+Questions are written with a caret (`e^(4x − 3)`, `a × 10^k`), as `tools/check_answers.py`
+parses them back and Unicode has no superscript `.` or `/`. `UiTheme.math()` (FAL-743) cuts the
+powers out with `Fmt.power_runs()` and draws them raised, in a `RichTextLabel` with a
+`FontVariation` over the default font. Text with no power stays a plain `Label`. It is used for the
+prompt, the question's lines, the worked solution and the explorer's versions. Options, the
+text around an answer box and graph labels still show the caret: a `Button`, a `LineEdit`'s row
+and `draw_string` can't take rich text.
+
+An answer box starts 150 wide and grows as it's typed in, up to `Practice.SLOT_CHARS`, which still
+fits the fight's card on a 360 px phone. It isn't sized from the answer, as that would give away
+how long the answer is.
+
 ### Deep links
 
 The practice screen takes deep links, for screenshots and for sending someone a
