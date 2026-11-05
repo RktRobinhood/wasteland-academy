@@ -127,6 +127,7 @@ func _draw() -> void:
 		_draw_parabola()
 	# Marked points with their coordinates.
 	var dot := DOT * (0.75 if _card() else 1.0)
+	var placed: Array[Rect2] = []
 	for p in spec.points:
 		# A point outside the window (a wrong card's endpoint carried off it) isn't drawn.
 		if p.x < float(spec.x0) or p.x > float(spec.x1) or p.y < float(spec.y0) or p.y > float(spec.y1):
@@ -144,6 +145,14 @@ func _draw() -> void:
 			at.x = c.x - 20 - w
 		if at.y - FONT_SIZE < r.position.y:
 			at.y = c.y + FONT_SIZE + 16
+		# Two points close together: a later label takes another side of its dot.
+		var below := c.y + FONT_SIZE + 16
+		var left := c.x - 20 - w
+		for spot in [at, Vector2(at.x, below), Vector2(left, at.y), Vector2(left, below)]:
+			if spot.x >= r.position.x and not placed.any(func(o): return o.intersects(_label_box(spot, w))):
+				at = spot
+				break
+		placed.append(_label_box(at, w))
 		_text(font, p.label, at, UiTheme.TEXT, FONT_SIZE, false, true)
 	if spec.get("caption", "") != "":
 		_text(font, spec.caption, r.position + Vector2(14, 44), UiTheme.SAND, FONT_SIZE, false, true)
@@ -260,6 +269,11 @@ func _text(font: Font, s: String, at: Vector2, col: Color, fs: int, centred: boo
 	if backed:
 		draw_rect(Rect2(pos + Vector2(-6, -fs + 2), Vector2(w + 12, fs + 10)), Color(0.08, 0.1, 0.14, 0.85))
 	draw_string(font, pos, s, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, col)
+
+
+## The space a marked point's label takes, written at `at`.
+func _label_box(at: Vector2, w: float) -> Rect2:
+	return Rect2(at - Vector2(0, FONT_SIZE), Vector2(w, FONT_SIZE + 8))
 
 
 ## Whether a curve passes under the backed label s would draw at `at`.

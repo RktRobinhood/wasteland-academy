@@ -871,7 +871,7 @@ func u_count_with_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var methods := {
 		"discriminant": method(["Put the line equal to the curve and clear the fraction: (%s)(%s) = %s, which is %s." % [Fmt.poly([m, n]), den(s), num_(s), quad],
 			"Δ = %s² − 4(%s)(%s) = %s." % [Fmt.num(Q.new(qb)), Fmt.num(Q.new(qa)), Fmt.num(Q.new(qc)), Fmt.num(Q.new(disc))], verdict + ".", fin], ans.values),
-		"gdc-graph": method(["Graph y = f(x) and %s on the GDC." % line_text(m, n), "Count the points where the line meets the curve, not across the gap at x = %s." % Fmt.num(s.h), fin], ans.values),
+		"sketch-and-count": method(["Sketch y = f(x), with its asymptotes, and %s." % line_text(m, n), "Count the points where the line meets the curve, not across the gap at x = %s." % Fmt.num(s.h), fin], ans.values),
 	}
 	return {
 		"asked": "How many times does the line %s meet the graph of y = f(x)?" % line_text(m, n), "lines": lines, "answer": ans,
@@ -904,12 +904,12 @@ func u_count_with_curve(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		graph.curves = graph.curves + [_sampled(fn_curve)]
 		graph.sand_from = graph.curves.size() - 1
 	var fin := "So " + Answer.text(ans) + "."
-	var steps := ["Graph y = f(x) and %s on the GDC." % curve,
-		"Use the intersection tool, or read the graphs: the curves meet %d time%s%s." % [s.count_all, "" if s.count_all == 1 else "s", ", and %d of them have %s" % [count, dom] if dom != "" else ""], fin]
+	var steps := ["Sketch y = f(x), with its asymptotes, and %s." % curve,
+		"Read the sketch: the curves meet %d time%s%s." % [s.count_all, "" if s.count_all == 1 else "s", ", and %d of them have %s" % [count, dom] if dom != "" else ""], fin]
 	return {
 		"asked": "How many times does the parabola %s meet the graph of y = f(x)%s?" % [curve, where], "lines": lines, "answer": ans,
 		"wrongs": wrongs, "generic": generic, "graph": graph,
-		"methods": {"gdc-graph": method(steps, ans.values)},
+		"methods": {"sketch-and-count": method(steps, ans.values)},
 	}
 
 

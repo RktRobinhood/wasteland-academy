@@ -6,7 +6,7 @@ extends "res://tests/test_case.gd"
 ## checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-discriminant": 45, "fn-curve-intersection-quadratic": 36, "fn-solve-quadratic": 20, "fn-quadratic-inequality": 19}
+const CELLS := {"fn-discriminant": 42, "fn-curve-intersection-quadratic": 36, "fn-solve-quadratic": 20, "fn-quadratic-inequality": 19}
 const SITUATION := {"fn-discriminant": "quadratic-parameter", "fn-curve-intersection-quadratic": "curve-and-line",
 	"fn-solve-quadratic": "quadratic-equation", "fn-quadratic-inequality": "quadratic-inequality"}
 ## Distractor misconceptions no option can carry yet, and why.
@@ -158,7 +158,8 @@ func test_forced_papers_are_exact_or_need_a_calculator() -> void:
 					if p == 1:
 						check(ans.get("show", "") != "sf" and ans.kind != "measure", key + ": a Paper 1 answer is written to 3 s.f.")
 						continue
-					if c.unknown == "largest-integer":
+					# A GDC method on Paper 1-only numbers is Paper 2 with those numbers.
+					if c.unknown == "largest-integer" or not 2 in QuestionEngine.view_papers(ty, c.unknown, c.rep, c.angle):
 						continue
 					check(ans.get("show", "") == "sf" or ans.kind == "measure", key + ": not written to 3 s.f.")
 					check(rounded and not ans.get("exact", false), key + ": the answer doesn't need a calculator")
@@ -185,13 +186,13 @@ func _sf_typed(ans: Dictionary) -> Dictionary:
 func test_a_quadratic_model_takes_a_forced_paper() -> void:
 	var ty := QuestionEngine.type_of("fn-ext-quadratic-model")
 	for c in QuestionEngine.cells(false, ["fn-ext-quadratic-model"]):
-		var ps := QuestionEngine.cell_papers(ty, c.unknown, c.rep, c.angle)
-		check(ps == [1] if c.rep == "table" or c.unknown == "form-area-model" else ps == [1, 2], c.key)
+		var own := QuestionEngine.view_papers(ty, c.unknown, c.rep, c.angle)
+		check(own == [1] if c.rep == "table" or c.unknown == "form-area-model" else own == [1, 2], c.key)
 		for seed in [1, 2, 3]:
-			for p in ps:
+			for p in QuestionEngine.cell_papers(ty, c.unknown, c.rep, c.angle):
 				var q := QuestionEngine.make({"type": ty.id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed, "paper": p})
 				check_eq(q.paper, p, c.key)
-				check_eq(q.situation.a == "-49/10", p == 2, "%s seed %d: Paper %d with a = %s" % [c.key, seed, p, q.situation.a])
+				check_eq(q.situation.a == "-49/10", p == 2 and 2 in own, "%s seed %d: Paper %d with a = %s" % [c.key, seed, p, q.situation.a])
 
 
 ## "Another way" (FAL-310) keeps the numbers: a same_angle view of every

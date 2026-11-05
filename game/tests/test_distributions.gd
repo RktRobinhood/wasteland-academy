@@ -181,6 +181,8 @@ func test_paper_1_numbers_are_unchanged() -> void:
 			check_eq(str(DistributionSituation.export(after).ps), str(DistributionSituation.export(before).ps), key)
 			check_eq(str(after.xs), str(before.xs), key)
 			check_eq(after.paper, 1, key)
+			if QuestionEngine.gdc_method(t, c.unknown, c.angle):
+				continue
 			var q := _make(c.type, c.unknown, c.rep, c.angle, seed)
 			check(q.answer.get("show", "") != "sf", "%s: a Paper 1 answer to 3 s.f." % c.key)
 			check(q.situation.style != "calc", "%s: Paper 1 has awkward decimals" % c.key)

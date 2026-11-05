@@ -6,7 +6,7 @@ extends "res://tests/test_case.gd"
 ## would type them. The SymPy checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 49, "fn-log-of-quadratic": 71,
+const CELLS := {"fn-exponential-model": 77, "fn-exp-log-inverse-composite": 47, "fn-log-of-quadratic": 71,
 	"fn-log-function-features": 38, "fn-pre-percent-multiplier": 22, "fn-ext-exp-graph": 28,
 	"fn-concept-growth-patterns": 17, "fn-link-multiplicative-growth": 53}
 const SITUATION := {"fn-exponential-model": "exp-model", "fn-exp-log-inverse-composite": "exp-log-pair",
@@ -176,7 +176,7 @@ func test_a_point_is_named_once_when_the_two_key_points_meet() -> void:
 				for m in pt.search_all(t):
 					check(not seen.has(m.get_string()), "%s seed %d: %s" % [c.key, seed, t])
 					seen[m.get_string()] = true
-			if (c.unknown == "pick-graph" and q.situation.h == 0) or (c.unknown == "inverse-graph" and texts.any(func(t): return t.contains("origin"))):
+			if (c.unknown == "pick-graph" and q.situation.h == 0) or (c.unknown == "inverse-graph" and texts.any(func(t): return t.contains("(0, 0)"))):
 				met[c.unknown] += 1
 	for u in met:
 		check(met[u] > 0, "%s: no seed puts the two key points together" % u)
@@ -197,7 +197,8 @@ func test_exp_log_pair_paper_2_needs_a_calculator() -> void:
 	var p2 := 0
 	for c in QuestionEngine.cells(false, [t.id]):
 		var papers := QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle)
-		if papers == [1]:
+		# A calculator method is Paper 2 even where the numbers are the Paper 1 ones.
+		if papers == [1] or (QuestionEngine.gdc_method(t, c.unknown, c.angle) and not c.unknown in ExpLogPairViews.PAPER2):
 			continue
 		p2 += 1
 		check(c.rep == "equation" and c.unknown in ExpLogPairViews.PAPER2, c.key)
@@ -223,6 +224,8 @@ func test_exp_log_pair_paper_2_needs_a_calculator() -> void:
 			if not two.eq(three) and not two.is_int():
 				var r := QuestionEngine.mark(typed, {"v": two.key()})
 				check(not r.correct and r.glancing, "%s: %s typed is not glancing" % [c.key, Fmt.sf(v, 2)])
+			if QuestionEngine.gdc_method(t, c.unknown, c.angle):
+				continue
 			var p1 := QuestionEngine.make({"type": t.id, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed,
 				"format": "mcq", "paper": 1})
 			check(p1.paper == 1 and p1.answer.get("exact", false), "%s: Paper 1 is not exact" % c.key)
@@ -231,7 +234,7 @@ func test_exp_log_pair_paper_2_needs_a_calculator() -> void:
 	check_eq(p2, 11)
 	var ext := QuestionEngine.type_of("fn-ext-exp-graph")
 	for c in QuestionEngine.cells(false, [ext.id]):
-		check_eq(QuestionEngine.cell_papers(ext, c.unknown, c.rep, c.angle), [1], c.key)
+		check_eq(QuestionEngine.view_papers(ext, c.unknown, c.rep, c.angle), [1], c.key)
 
 
 func test_exp_log_pair_paper_1_numbers_do_not_change() -> void:

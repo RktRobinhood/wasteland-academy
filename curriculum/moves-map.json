@@ -315,9 +315,6 @@
     "fn-exp-log-inverse-composite/inverse-awkward-base/cob-formula": {
       "3": ["change-of-base", "use-log-law", "state-answer"]
     },
-    "fn-exp-log-inverse-composite/inverse-awkward-base/gdc-logbase": {
-      "3": ["evaluate", "rewrite-form", "state-answer"]
-    },
     "fn-exp-log-inverse-composite/simplify-composite/inverse-identities": {
       "3": ["compose", "use-identity", "state-answer"]
     },
@@ -379,9 +376,6 @@
     },
     "fn-exp-log-inverse-composite/composite-order/numeric-check": {
       "3": ["test-point", "compose", "state-answer"]
-    },
-    "fn-exp-log-inverse-composite/inverse-graph/graph-check": {
-      "3": ["transform-point", "transform-point", "state-answer"]
     },
     "fn-exp-log-inverse-composite/inverse-graph/compare-key-points": {
       "3": ["read-givens", "swap-x-and-y", "state-answer"]
@@ -606,9 +600,6 @@
     },
     "fn-discriminant/nature-from-equation/vertex-position": {
       "4": ["complete-square", "reason-from-shape", "interpret", "compute-discriminant"]
-    },
-    "fn-discriminant/nature-from-equation/gdc-graph": {
-      "3": ["gdc-graph", "compute-discriminant", "state-answer"]
     },
     "fn-discriminant/delta-sign-from-graph/vertex-position": {
       "3": ["reason-from-shape", "reason-from-shape", "state-answer"]

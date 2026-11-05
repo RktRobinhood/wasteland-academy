@@ -217,7 +217,7 @@ func u_standard_exp_trig(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 			"Add + C."],
 		"differentiate-check": [
 			"Try %s." % DifferentiationViews.SUM(terms),
-			"Its derivative is %s, the integrand, because the derivative of −cos x is sin x." % f,
+			"Its derivative is %s, the integrand, because the derivative of cos x is −sin x and of sin x is cos x." % f,
 			"Add + C."]})
 
 

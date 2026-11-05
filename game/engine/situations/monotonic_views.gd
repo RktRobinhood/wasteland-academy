@@ -392,6 +392,7 @@ func u_parameter_discriminant(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 	var dfp := "%sx² + 2kx%s" % [Fmt.lead(3 * sgn), (" + " if sgn > 0 else " − ") + Fmt.num(c)]
 	var text := Answer.text(ans)
 	return {"lines": ["f(x) = " + f], "asked": "Find the values of k for which f is %s for all x." % s.want, "answer": ans, "wrongs": wr,
+		"titles": {"complete-square-condition": "Require the maximum of f′ to be ≤ 0"} if sgn < 0 else {},
 		"generic": [sl.call(-m - 1, m + 1).values, sl.call(-c, c).values, sl.call(-m, m + 1).values],
 		"methods": {"discriminant-condition": method([
 			"f′(x) = %s. It must not change sign, so it has at most one root." % dfp,

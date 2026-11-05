@@ -403,13 +403,14 @@ func _boss_down() -> int:
 
 
 ## The "Another way" follow-up for the question just answered right (FAL-310 plan): the
-## same numbers, asked by the next angle the type lists for that unknown. {} unless the
-## floor is deep enough, the type lists more than one angle and the chance comes up.
+## same numbers, asked by the next angle the type lists for that unknown that the
+## question's paper allows. {} unless the floor is deep enough, there is more than one
+## such angle and the chance comes up.
 func _another_way_view() -> Dictionary:
 	if floor_no < Tuning.ANOTHER_WAY_FLOOR:
 		return {}
 	var v: Dictionary = question.view
-	var angles := QuestionEngine.angles_for(QuestionEngine.type_of(v.type), v.unknown, course)
+	var angles := QuestionEngine.angles_on_paper(QuestionEngine.type_of(v.type), v.unknown, question.paper, course)
 	if angles.size() < 2 or not v.angle in angles:
 		return {}
 	if not Seeded.new("another|%d|%d" % [run_seed, question_no]).chance(Tuning.ANOTHER_WAY_CHANCE):

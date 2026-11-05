@@ -238,7 +238,7 @@ func u_inside_vs_outside(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		var pair := "%s %s; %s %s." % [in_name, in_says, out_name, out_says]
 		out = ask(right, [], [swapped, same, "neither is a move of f", "A is %s, B is %s" % [TC.f_rule(s), TC.f_rule(s)]], "Which curve is which, in the graph shown?", lines + ["Curve A goes through the marked point A, and curve B through B."], {
 			"scale-rule": [reading, pair],
-			"rewrite-in-f": ["Compare each with f(x): %s." % pair, reading],
+			"rewrite-in-f": ["Compare each with f(x): %s" % pair, reading],
 		})
 		out.graph = g
 		return out

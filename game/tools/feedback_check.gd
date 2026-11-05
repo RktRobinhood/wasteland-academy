@@ -12,6 +12,8 @@ extends SceneTree
 ##   overflow  an option's number is absurdly large, as when a slip divides by next to nothing
 ##             and the size overflows (FAL-729's σ = −9220000000). The answer checker doesn't
 ##             look at an untagged option's size: it only confirms that the option is wrong.
+##   stop      two full stops in a row, in anything the student reads, the "The answer is"
+##             line included: an answer can be a sentence of its own. Enforced on every type.
 ##
 ## It can't judge whether a tag matches its option, so --rows=/abs/file.tsv also writes one
 ## row per type, unknown, representation and tag (stem, picked option, feedback) to read.
@@ -54,6 +56,8 @@ const REPORT_ONLY := [
 	"t5-stationary-points", "t5-tangent-condition", "t5-tangent-normal-equation",
 ]
 
+## Two full stops, but not an ellipsis.
+const DOUBLE_STOP := "(?<!\\.)\\.\\.(?!\\.)"
 ## Words that open a sentence and aren't a slip.
 const NOT_A_SLIP := ["thing", "nothing", "everything", "something", "anything", "string", "during", "king", "ring", "wing"]
 ## Vulgar fractions, as a question may write them instead.
@@ -119,6 +123,11 @@ func _run() -> void:
 func _check(q: Dictionary) -> void:
 	var t := QuestionEngine.type_of(q.view.type)
 	var seen := {}
+	var read := "%s\n%s" % [QuestionEngine.answer_sentence(q), _seen_text(q)]
+	var stop := RegEx.create_from_string(DOUBLE_STOP).search(read)
+	if stop != null:
+		var at := stop.get_start()
+		_fault(t.id, "stop", "", "", read.substr(maxi(0, at - 40), 44), q)
 	for c in q.choices:
 		if not c.correct and _size(c.values) >= WILD and _size(q.answer.values) < WILD:
 			_fault(t.id, "overflow", "", c.text, "", q)
@@ -204,7 +213,7 @@ func _stem(q: Dictionary) -> String:
 
 ## Everything of a question a student can read: stem, table, diagram, options and working.
 func _seen_text(q: Dictionary) -> String:
-	var parts: Array = [q.prompt, q.get("reason", "")]
+	var parts: Array = [QuestionEngine.shown_prompt(q), q.get("reason", "")]
 	parts.append_array(q.get("lines", []))
 	parts.append(_flat(q.get("table")))
 	parts.append(_flat(q.get("diagram")))
@@ -254,7 +263,7 @@ func _report(enforce_all: bool) -> int:
 	keys.sort()
 	for key in keys:
 		var f: Dictionary = faults[key]
-		if not enforce_all and f.type in REPORT_ONLY:
+		if not enforce_all and f.type in REPORT_ONLY and f.fault != "stop":
 			var row: Dictionary = counted.get_or_add(f.type, {"numbers": 0, "claim": 0, "no text": 0, "overflow": 0})
 			row[f.fault] += 1
 			continue

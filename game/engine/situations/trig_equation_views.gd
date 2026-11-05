@@ -199,7 +199,9 @@ static func angle_steps(id: String, fn: String, k: Array, name: String, s: Dicti
 		return ["%s = %s at one point of the unit circle, once a turn." % [name, T(k)]]
 	if id == "unit-circle-cast":
 		return ["The reference angle is %s, as %s(%s) = %s." % [A(s, principal(fn, size)), fn, A(s, principal(fn, size)), T(size)], "%s has this sign in quadrants %s." % [fn, quadrants(fn, k)]]
-	return ["The principal value is α = %s." % A(s, al), "%s, and all of it repeats every %s." % [mirror_rule(fn), A(s, Q.new(1 if fn == "tan" else 2))]]
+	if fn == "tan":
+		return ["The principal value is α = %s." % A(s, al), "%s." % mirror_rule(fn)]
+	return ["The principal value is α = %s." % A(s, al), "%s, and all of it repeats every %s." % [mirror_rule(fn), A(s, Q.new(2))]]
 
 
 ## Every value of u = bx + φ on the transformed interval, for the working.
@@ -446,8 +448,15 @@ func u_k_cos_to_tan(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var mid := "tan x = %s" % T(s.k)
 	var tail := "On %s: x = %s" % [interval(s), list_text(s, s.xs)]
 	out.methods = {"divide-to-tan": method([head, mid, tail, say(a)], a.values),
-		"graphical-check": method([head, mid, tail, "The two graphs cross %d times on the interval, so no solution is lost." % s.xs.size(), say(a)], a.values)}
+		"graphical-check": method(graph_first(rep, "sin x", times_text(s.k, "cos x"), s) + [head, mid, tail, say(a)], a.values)}
 	return out
+
+
+## The first lines of "Graph both sides": the graph says how many solutions there are,
+## and the algebra after it finds them exactly.
+static func graph_first(rep: String, left: String, right: String, s: Dictionary) -> Array:
+	var look := "The graph shows both sides." if rep == "graph" else "Sketch y = %s and y = %s on %s." % [left, right, interval(s)]
+	return [look, "They meet at %d points, so the equation has %d solutions." % [s.xs.size(), s.xs.size()]]
 
 
 ## m cos x, or m sin x: "cos x", "√3 cos x", "−cos x".
@@ -481,7 +490,7 @@ func u_double_equals_cos(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var head := "Use sin 2x = 2 sin x cos x and bring it to one side: cos x(2 sin x %s) = 0" % _minus(s.m)
 	var parts := "cos x = 0 gives x = %s, and sin x = %s gives x = %s" % [list_text(s, zeros), T(s.k), list_text(s, kept)]
 	out.methods = {"factorise": method([head, parts, say(a)], a.values),
-		"graphical-check": method([head, parts, "The two graphs meet at %d points on the interval, which is every solution." % s.xs.size(), say(a)], a.values)}
+		"graphical-check": method(graph_first(rep, "sin 2x", side, s) + [head, parts, say(a)], a.values)}
 	return out
 
 
@@ -512,7 +521,7 @@ func u_double_equals_sin(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var head := "Use sin 2x = 2 sin x cos x and bring it to one side: sin x(2 cos x %s) = 0" % _minus(s.m)
 	var parts := "sin x = 0 gives x = %s, and cos x = %s gives x = %s" % [list_text(s, zeros), T(s.k), list_text(s, kept)]
 	out.methods = {"factorise": method([head, parts, say(a)], a.values),
-		"graphical-check": method([head, parts, "The two graphs meet at %d points on the interval, which is every solution." % s.xs.size(), say(a)], a.values)}
+		"graphical-check": method(graph_first(rep, "sin 2x", side, s) + [head, parts, say(a)], a.values)}
 	return out
 
 

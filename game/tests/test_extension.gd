@@ -6,7 +6,7 @@ extends "res://tests/test_case.gd"
 ## checker (tools/check-answers) checks the maths.
 
 ## Cells per type, counted as tools/pedagogy.mjs counts them.
-const CELLS := {"fn-ext-quadratic-model": 27, "fn-pre-expand": 17, "fn-pre-factorise": 16, "fn-pre-surds": 8,
+const CELLS := {"fn-ext-quadratic-model": 24, "fn-pre-expand": 17, "fn-pre-factorise": 16, "fn-pre-surds": 8,
 	"fn-pre-linear-inequalities": 10, "fn-link-symmetry": 38, "fn-link-equivalent-forms": 28}
 ## Distractor misconceptions no option carries, and why.
 const NOT_BUILT := {

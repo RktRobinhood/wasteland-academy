@@ -5413,20 +5413,6 @@
      ]
     },
     {
-     "skill": "SL2.3.read-graph",
-     "method": "gdc-trace",
-     "suits": [
-      "value-from-rule"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "read-value"
-      ],
-      "why": "no equation is given, so there is nothing to enter"
-     }
-    },
-    {
      "skill": "SL2.5.composite-value",
      "method": "chain-readings",
      "suits": [
@@ -7171,7 +7157,7 @@
     },
     {
      "ref": "SL2.2.domain#0",
-     "text": "Writes x > 3 instead of x ≥ 3 for √(x − 3), excluding a valid endpoint",
+     "text": "Using > instead of ≥ for a root, which leaves out a valid endpoint",
      "as": "distractor",
      "in": [
       "domain-root"
@@ -7180,7 +7166,7 @@
     },
     {
      "ref": "SL2.2.domain#1",
-     "text": "Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift",
+     "text": "Copying the domain of √x without the shift",
      "as": "distractor",
      "in": [
       "domain-root"
@@ -8105,21 +8091,6 @@
      }
     },
     {
-     "skill": "SL2.6.sketch",
-     "method": "gdc-transfer",
-     "suits": [
-      "judge-a-sketch"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "sketch-quadratic",
-       "sketch-on-interval"
-      ],
-      "why": "these are Paper 1 parts: no calculator"
-     }
-    },
-    {
      "skill": "SL2.6.vertex",
      "method": "midpoint-of-roots",
      "suits": [
@@ -8732,7 +8703,7 @@
     },
     {
      "ref": "SL2.10.solve-gdc#0",
-     "text": "Misses a solution outside the default GDC window",
+     "text": "Looks at too small a range of x and misses a solution",
      "as": "distractor",
      "in": [
       "count-zeros",
@@ -9159,7 +9130,7 @@
     },
     {
      "ref": "SL2.4.intersection#1",
-     "text": "Finds one intersection and misses others hidden outside the GDC window",
+     "text": "Finds one intersection and misses the others",
      "as": "distractor",
      "in": [
       "count-crossings",
@@ -9179,7 +9150,7 @@
     },
     {
      "ref": "SL2.10.solve-gdc#0",
-     "text": "Misses a solution outside the default GDC window",
+     "text": "Looks at too small a range of x and misses a solution",
      "as": "distractor",
      "in": [
       "solve-f-equals-g",
@@ -10036,7 +10007,7 @@
    "misconceptions": [
     {
      "ref": "SL2.10.solve-gdc#0",
-     "text": "Misses a solution outside the default GDC window",
+     "text": "Looks at too small a range of x and misses a solution",
      "as": "distractor",
      "in": [
       "count-roots",
@@ -11665,20 +11636,6 @@
      }
     },
     {
-     "skill": "SL2.5.find-inverse",
-     "method": "graph-check",
-     "suits": [
-      "inverse-graph"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "inverse-of-log"
-      ],
-      "why": "a graph checks the inverse but cannot write its rule"
-     }
-    },
-    {
      "skill": "SL2.9.exp-log-inverse",
      "method": "convert-form",
      "suits": [
@@ -11791,20 +11748,6 @@
        "inverse-awkward-base"
       ],
       "why": "ln 8/ln 4 still has to be simplified; writing both as powers of 2 gives 3/2 at once"
-     }
-    },
-    {
-     "skill": "SL1.7.change-of-base",
-     "method": "gdc-logbase",
-     "suits": [
-      "inverse-awkward-base"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "inverse-awkward-base"
-      ],
-      "why": "gives 1.5 but cannot show why on a no-calculator paper"
      }
     },
     {
@@ -13987,20 +13930,6 @@
      }
     },
     {
-     "skill": "SL2.7.discriminant",
-     "method": "gdc-graph",
-     "suits": [
-      "nature-from-equation"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "nature-from-equation"
-      ],
-      "why": "counting crossings is a check, not a proof, so it cannot answer a show-that"
-     }
-    },
-    {
      "skill": "SL2.7.discriminant-parameter",
      "method": "discriminant-condition",
      "suits": [
@@ -14046,8 +13975,7 @@
      "skill": "SL2.7.discriminant-parameter",
      "method": "gdc-slider",
      "suits": [
-      "k-interval",
-      "roots-from-k"
+      "k-interval"
      ],
      "weak": {
       "kind": "fails",
@@ -14550,7 +14478,7 @@
     },
     {
      "ref": "SL2.4.intersection#1",
-     "text": "Finds one intersection and misses others hidden outside the GDC window",
+     "text": "Finds one intersection and misses the others",
      "as": "distractor",
      "in": [
       "count-from-sketch"
@@ -15925,7 +15853,6 @@
      "skill": "SL2.8.asymptotes",
      "method": "gdc-table",
      "suits": [
-      "asymptotes-from-table",
       "ha-from-equation"
      ],
      "weak": {
@@ -15967,13 +15894,6 @@
       ],
       "why": "the function has to be rewritten as A + B/(x − h) before the moved asymptotes can be read"
      }
-    },
-    {
-     "skill": "SL2.4.asymptotes",
-     "method": "gdc-table",
-     "suits": [
-      "asymptotes-from-table"
-     ]
     },
     {
      "skill": "SL2.4.zeros-intercepts",
@@ -16493,7 +16413,6 @@
      "skill": "SL2.8.sketch-rational",
      "method": "gdc-transfer",
      "suits": [
-      "sketch-from-equation",
       "reciprocal-of-f"
      ],
      "weak": {
@@ -16556,7 +16475,7 @@
     },
     {
      "skill": "SL2.10.number-of-solutions",
-     "method": "gdc-graph",
+     "method": "sketch-and-count",
      "suits": [
       "count-with-curve",
       "count-with-line"
@@ -17888,7 +17807,7 @@
     },
     {
      "ref": "SL2.2.domain#1",
-     "text": "Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift",
+     "text": "Copying the domain of √x without the shift",
      "as": "distractor",
      "in": [
       "domain-from-equation"
@@ -18387,7 +18306,7 @@
     },
     {
      "ref": "SL2.11.stretch#0",
-     "text": "Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2)",
+     "text": "Using b as the scale factor of f(bx) (it is 1/b)",
      "as": "distractor",
      "in": [
       "describe-stretch",
@@ -18978,7 +18897,7 @@
     },
     {
      "ref": "SL2.11.composite-transform#1",
-     "text": "Writes 2(f(x) + 3) for 'vertical stretch by 2, then translate up 3' (it is 2f(x) + 3)",
+     "text": "Putting the translation inside the bracket, so the stretch scales it too",
      "as": "distractor",
      "in": [
       "sketch-stretch-shift",
@@ -19091,7 +19010,7 @@
     },
     {
      "ref": "SL2.2.domain#0",
-     "text": "Writes x > 3 instead of x ≥ 3 for √(x − 3), excluding a valid endpoint",
+     "text": "Using > instead of ≥ for a root, which leaves out a valid endpoint",
      "as": "distractor",
      "in": [
       "reflect-translate-rule"
@@ -19100,7 +19019,7 @@
     },
     {
      "ref": "SL2.2.domain#1",
-     "text": "Writes x ≥ 0 for √(x − 3), copying the domain of √x without the shift",
+     "text": "Copying the domain of √x without the shift",
      "as": "distractor",
      "in": [
       "reflect-translate-rule"
@@ -30763,7 +30682,7 @@
    "misconceptions": [
     {
      "ref": "SL3.8.solve-basic#0",
-     "text": "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
+     "text": "Stopping at one solution instead of finding them all",
      "as": "distractor",
      "in": [
       "basic-exact",
@@ -45611,8 +45530,7 @@
      "skill": "SL2.6.model",
      "method": "gdc-max",
      "suits": [
-      "max-value",
-      "time-of-max"
+      "max-value"
      ],
      "weak": {
       "kind": "fails",
@@ -47734,21 +47652,6 @@
       ],
       "why": "one point per graph per equation is many checks; intercepts and shape sort them faster"
      }
-    },
-    {
-     "skill": "SL2.3.match-graph",
-     "method": "gdc-plot",
-     "suits": [
-      "graph-from-equation",
-      "match-several"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "rule-out-graph"
-      ],
-      "why": "a GDC picture is not a reason, and Paper 1 has no calculator"
-     }
     }
    ],
    "concepts": [
@@ -48202,20 +48105,6 @@
      "suits": [
       "k-for-count"
      ]
-    },
-    {
-     "skill": "SL2.10.number-of-solutions",
-     "method": "gdc-graph",
-     "suits": [
-      "count-from-sketch"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "k-for-count"
-      ],
-      "why": "trying values of k cannot pin down the boundary values"
-     }
     }
    ],
    "concepts": [
@@ -48260,7 +48149,7 @@
     },
     {
      "ref": "SL2.10.solve-gdc#0",
-     "text": "Misses a solution outside the default GDC window",
+     "text": "Looks at too small a range of x and misses a solution",
      "as": "distractor",
      "in": [
       "count-from-sketch"
@@ -49551,21 +49440,6 @@
      ]
     },
     {
-     "skill": "SL2.8.rational-model",
-     "method": "gdc-intersect",
-     "suits": [
-      "least-n-for-target",
-      "input-for-value"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "long-run-value"
-      ],
-      "why": "a graph or table only suggests the level the curve settles at; it cannot show it is never reached"
-     }
-    },
-    {
      "skill": "SL2.2.function-model",
      "method": "substitute-interpret",
      "suits": [
@@ -49815,21 +49689,6 @@
        "gap-not-asymptote"
       ],
       "why": "the denominator is zero at x = h, but so is the numerator, so there is a gap, not an asymptote"
-     }
-    },
-    {
-     "skill": "SL2.4.asymptotes",
-     "method": "gdc-table",
-     "suits": [
-      "why-vertical",
-      "why-horizontal"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "crosses-horizontal"
-      ],
-      "why": "a table shows values near the asymptote but cannot rule out a crossing between the rows"
      }
     },
     {
@@ -52414,7 +52273,7 @@
     },
     {
      "ref": "SL2.11.stretch#0",
-     "text": "Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2)",
+     "text": "Using b as the scale factor of f(bx) (it is 1/b)",
      "as": "distractor",
      "in": [
       "inside-opposite"
@@ -52879,7 +52738,7 @@
     },
     {
      "ref": "SL2.11.stretch#0",
-     "text": "Thinks f(2x) is a horizontal stretch with scale factor 2 (it is 1/2)",
+     "text": "Using b as the scale factor of f(bx) (it is 1/b)",
      "as": "distractor",
      "in": [
       "standardise-moves"
@@ -54993,7 +54852,7 @@
     },
     {
      "ref": "SL3.8.solve-basic#0",
-     "text": "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
+     "text": "Stopping at one solution instead of finding them all",
      "as": "distractor",
      "in": [
       "one-answer-only"
@@ -56164,13 +56023,6 @@
      }
     },
     {
-     "skill": "SL2.6.vertex",
-     "method": "gdc-max-min",
-     "suits": [
-      "max-height-methods"
-     ]
-    },
-    {
      "skill": "SL2.4.max-min",
      "method": "derivative-zero",
      "suits": [
@@ -56630,8 +56482,7 @@
      "method": "intersect-two-graphs",
      "suits": [
       "which-method",
-      "solve-by-intersection",
-      "log-equation-check"
+      "solve-by-intersection"
      ]
     },
     {
@@ -56701,20 +56552,6 @@
      ]
     },
     {
-     "skill": "SL2.10.number-of-solutions",
-     "method": "gdc-graph",
-     "suits": [
-      "count-trig-solutions"
-     ],
-     "weak": {
-      "kind": "fails",
-      "unknowns": [
-       "k-for-count"
-      ],
-      "why": "a graph for one k gives one count; the boundary values need the turning points"
-     }
-    },
-    {
      "skill": "SL2.4.intersection",
      "method": "equate-and-solve",
      "suits": [
@@ -56725,20 +56562,12 @@
      "skill": "SL2.4.intersection",
      "method": "gdc-intersect",
      "suits": [
-      "limits-first",
       "solve-by-intersection"
      ]
     },
     {
      "skill": "SL3.8.graphical",
      "method": "sketch-and-count",
-     "suits": [
-      "count-trig-solutions"
-     ]
-    },
-    {
-     "skill": "SL3.8.graphical",
-     "method": "gdc-intersect",
      "suits": [
       "count-trig-solutions"
      ]
@@ -56751,22 +56580,8 @@
      ]
     },
     {
-     "skill": "SL5.11.area-between-curves",
-     "method": "gdc-abs-difference",
-     "suits": [
-      "limits-first"
-     ]
-    },
-    {
      "skill": "SL1.7.log-equations",
      "method": "combine-then-exponentiate",
-     "suits": [
-      "log-equation-check"
-     ]
-    },
-    {
-     "skill": "SL1.7.log-equations",
-     "method": "graph-intersect",
      "suits": [
       "log-equation-check"
      ]
@@ -56809,7 +56624,7 @@
    "misconceptions": [
     {
      "ref": "SL2.10.solve-gdc#0",
-     "text": "Misses a solution outside the default GDC window",
+     "text": "Looks at too small a range of x and misses a solution",
      "as": "distractor",
      "in": [
       "solve-by-intersection"
@@ -56872,7 +56687,7 @@
     },
     {
      "ref": "SL2.4.intersection#1",
-     "text": "Finds one intersection and misses others hidden outside the GDC window",
+     "text": "Finds one intersection and misses the others",
      "as": "distractor",
      "in": [
       "limits-first"
@@ -56881,7 +56696,7 @@
     },
     {
      "ref": "SL3.8.graphical#0",
-     "text": "Using a GDC window that cuts off part of the interval and missing solutions",
+     "text": "Looking at only part of the interval and missing solutions",
      "as": "distractor",
      "in": [
       "count-trig-solutions"
