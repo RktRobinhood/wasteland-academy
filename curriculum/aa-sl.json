@@ -12508,7 +12508,7 @@
               ],
               "misconceptions": [
                 "Using the sum of the tails as the middle, instead of subtracting them from the whole area",
-                "Assuming the mean does not cut the area into two equal halves",
+                "Forgetting that the mean cuts the area into two equal halves",
                 "Using the origin as the mirror instead of μ"
               ],
               "threads": [

@@ -23906,7 +23906,696 @@ def td_check(q):
     return None, None
 
 
-SITUATION_CHECKS = {"motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── normal-properties (t4-normal-properties, FAL-740) ──────
+# The `normal-properties` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/normal_properties.gd. The facts are read back from what the student sees
+# (lines, a story, the curve, the cards) and every area is found again: the rule, symmetry and total
+# area 1 with exact rationals, the erf function at 40 digits for a GDC value.
+
+NPR_SKP, NPR_SKS, NPR_SKC, NPR_OWN = "SL4.9.properties#", "SL4.9.symmetry-probability#", "SL4.9.central-interval#", "t4-normal-properties#"
+NPR_RULE = {1: sp.Rational(68, 100), 2: sp.Rational(95, 100), 3: sp.Rational(997, 1000)}
+NPR_HALF = sp.Rational(1, 2)
+NPR_P2_ONLY = ("beyond-sd", "tail-from-band", "central-k", "central-endpoints", "central-k-sd")
+NPR_GDC = re.compile(r"normalcdf|invNorm|inverse normal|solver|Key ")
+NPR_N = r"\d+(?:\.\d+)?"
+NPR_TAKE = re.compile(rf"(?<![\w.|])(\(?−?{NPR_N}\)?(?: [+−×÷] \(?−?{NPR_N}\)?)+) = (−?{NPR_N})(?![\w/])")
+
+
+def npr_mine(i):
+    return NPR_OWN + str(i)
+
+
+def npr_steps(q):
+    """Every plain sum in the working is right to the figures shown, and its inputs' figures."""
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in NPR_TAKE.finditer(step):
+                left, right = mt.group(1), mt.group(2)
+                if left.count("(") != left.count(")"):
+                    continue
+                expr = re.sub(NPR_N, lambda m: f"Rational('{m.group(0)}')", left.replace("−", "-").replace("×", "*").replace("÷", "/"))
+                got = sp.sympify(expr, locals={"Rational": sp.Rational})
+                res = nu_val(right)
+                unit = sp.Integer(0)
+                for t in re.findall(NPR_N, left + " " + right):
+                    if "." in t:
+                        unit = max(unit, sp.Rational(1, 10 ** len(t.split(".")[1])))
+                need(abs(got - res) <= unit * sp.Rational(11, 10), f"{step!r}: {mt.group(0)} is really {got}")
+
+
+def npr_model(q):
+    if re.fullmatch(rf"X ~ N\({NPR_N}, a²\), where a > 0", q["lines"][0]):
+        return nu_val(re.search(NPR_N, q["lines"][0]).group(0)), None
+    # A count on a figure keeps its story, so the line decides how to read it, not the representation.
+    return nu_model({**q, "view": {**q["view"], "rep": "equation" if q["lines"][0].startswith("X ~") else "words"}})
+
+
+def npr_unit(q):
+    return NU_CONTEXTS[int(q["given"]["ctx"])][1]
+
+
+def npr_event(q, tx=None):
+    """(kind, lo, hi) from "P(X < 3)", "P(3 < X < 5)" or a story's words, with no "lt"/"gt" end given as None."""
+    tx = q["asked"] if tx is None else tx
+    u = npr_unit(q)
+    n = NU_NUM
+    for pat, kind in [(rf"({n}) < X < ({n})", "in"), (rf"X > ({n})", "gt"), (rf"X < ({n})", "lt"), (rf"between ({n}){u} and ({n}){u}", "in"),
+                      (rf"outside the range ({n}){u} to ({n}){u}", "out"), (rf"above ({n}){u}", "gt"), (rf"below ({n}){u}", "lt")]:
+        mt = re.search(pat, tx)
+        if mt:
+            v = [nu_val(x) for x in mt.groups()]
+            return (kind, v[0], v[1]) if len(v) == 2 else (kind, None, v[0]) if kind == "lt" else (kind, v[0], None)
+    raise Fail(f"can't read an event in {tx!r}")
+
+
+def npr_curve(q, mu, sg):
+    """The event read off a shaded curve, with μ and σ the ones written."""
+    return np_from_curve(q, np_mp(mu), np_mp(sg))
+
+
+def npr_marks(q, want):
+    """The marks under a figure are the values and labels in `want` (value -> label)."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "normal", "no normal curve")
+    got = sorted((round(float(m["at"]), 6), m["label"]) for m in g["marks"])
+    exp = sorted((round(float(k), 6), v) for k, v in want.items())
+    need(got == exp, f"the marks are {got}, not {exp}")
+
+
+def npr_txt(q, v):
+    return f"percentage ≈ {dec_text(v * 100)}%" if "percentage" in q["asked"] else f"probability ≈ {dec_text(v)}"
+
+
+def npr_sd_count(lo, hi, mu, sg):
+    k = (hi - mu) / sg
+    need(k in (1, 2, 3) and mu - lo == hi - mu, f"the band {lo} to {hi} is not μ ± kσ")
+    return int(k)
+
+
+def npr_wr(table, f):
+    """ref -> a value or list of values, as the texts f writes."""
+    return {ref: {f(x) for x in (vs if isinstance(vs, (list, tuple)) else [vs])} for ref, vs in table.items()}
+
+
+def npr_half(z):
+    return sp.Integer(0) if z == 0 else NPR_RULE[abs(z)] / 2 * (1 if z > 0 else -1)
+
+
+def npr_other(k):
+    return 1 if k == 2 else 2
+
+
+def npr_share(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    mu, sg = npr_model(q)
+    if sg is None:
+        mt = re.search(rf"P\(({NPR_N}) − (\d?)a < X < ({NPR_N}) \+ (\d?)a\)", asked)
+        need(mt is not None and nu_val(mt.group(1)) == mu and mt.group(1) == mt.group(3) and mt.group(2) == mt.group(4), f"can't read {asked!r}")
+        k = int(mt.group(2) or 1)
+    else:
+        mk = re.search(r"within (\d) standard deviation", asked)
+        if mk:
+            k = int(mk.group(1))
+        else:
+            kind, lo, hi = npr_curve(q, mu, sg) if rep == "diagram" else npr_event(q)
+            need(kind == "in", "a band")
+            k = npr_sd_count(lo, hi, mu, sg)
+    c = NPR_RULE[k]
+    f = lambda x: npr_txt(q, x)
+    gc_check_common(q, f(c), npr_wr({NPR_SKP + "0": NPR_RULE[npr_other(k)], npr_mine(8): 1 - c, npr_mine(10): c / 2}, f))
+
+
+def npr_count(q):
+    rep, L, asked = q["view"]["rep"], q["lines"], q["asked"]
+    mu, sg = npr_model(q)
+    mt = re.fullmatch(r"There are (\d+) .+ in all\.", L[1])
+    need(mt is not None, f"can't read {L[1]!r}")
+    n = sp.Integer(mt.group(1))
+    if rep == "diagram":
+        kind, lo, hi = npr_curve(q, mu, sg)
+    else:
+        kind, lo, hi = npr_event(q)
+    need(kind in ("in", "out"), "a band or its two tails")
+    k = npr_sd_count(lo, hi, mu, sg)
+    c = NPR_RULE[k]
+    o = NPR_RULE[npr_other(k)]
+    keep = c if kind == "in" else 1 - c
+    need((n * keep).q == 1, f"{n * keep} is no count")
+    f = lambda x: f"number ≈ {dec_text(x)}"
+    tb = {NPR_SKP + "0": n * (o if kind == "in" else 1 - o), npr_mine(8): n * (1 - keep), npr_mine(13): keep}
+    if kind == "out":
+        tb[npr_mine(12)] = n * keep / 2
+    gc_check_common(q, f(n * keep), npr_wr(tb, f))
+
+
+def npr_tail_rule(q):
+    rep = q["view"]["rep"]
+    mu, sg = npr_model(q)
+    kind, lo, hi = npr_curve(q, mu, sg) if rep == "diagram" else npr_event(q)
+    x = hi if kind == "lt" else lo
+    z = (x - mu) / sg
+    need(z in (-3, -2, -1, 1, 2, 3), f"{x} is not a whole number of σ from the mean")
+    z = int(z)
+    k = abs(z)
+    c = NPR_RULE[k]
+    inner = (kind == "lt") == (z > 0)
+    tail, big = (1 - c) / 2, NPR_HALF + c / 2
+    # The area below x, from the rule, agrees with the case above.
+    below = NPR_HALF + npr_half(z)
+    need((below if kind == "lt" else 1 - below) == (big if inner else tail), "the two ways of adding up disagree")
+    o = NPR_RULE[npr_other(k)]
+    if inner:
+        tb = {npr_mine(9): c, NPR_SKS + "1": c / 2, npr_mine(8): tail, NPR_SKP + "0": NPR_HALF + o / 2}
+    else:
+        tb = {npr_mine(11): 1 - c, npr_mine(8): big, npr_mine(10): c / 2, NPR_SKP + "0": (1 - o) / 2}
+    f = lambda v: npr_txt(q, v)
+    gc_check_common(q, f(big if inner else tail), npr_wr(tb, f))
+
+
+def npr_band_rule(q):
+    rep = q["view"]["rep"]
+    mu, sg = npr_model(q)
+    kind, lo, hi = npr_curve(q, mu, sg) if rep == "diagram" else npr_event(q)
+    need(kind == "in", "a band")
+    a, b = (lo - mu) / sg, (hi - mu) / sg
+    need(a.q == 1 and b.q == 1 and -3 <= a < b <= 3 and a + b != 0, f"the band {a}σ to {b}σ")
+    a, b = int(a), int(b)
+    v = npr_half(b) - npr_half(a)
+
+    def swapped(z):
+        return npr_half(z) if abs(z) in (0, 3) else npr_half((3 - abs(z)) * (1 if z > 0 else -1))
+
+    tb = {npr_mine(9): 2 * v, npr_mine(8): 1 - v, NPR_SKP + "0": swapped(b) - swapped(a)}
+    if a != 0 and b != 0 and (a < 0) != (b < 0):
+        tb[npr_mine(10)] = max(abs(npr_half(a)), abs(npr_half(b)))
+    f = lambda x: npr_txt(q, x)
+    gc_check_common(q, f(v), npr_wr(tb, f))
+
+
+def npr_sd_from_rule(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "words":
+        u = npr_unit(q)
+        mt = re.fullmatch(rf"About ({NU_NUM})% of them are between ({NU_NUM}){u} and ({NU_NUM}){u}, in a band centred on the mean\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        c, lo, hi = nu_val(mt.group(1)) / 100, nu_val(mt.group(2)), nu_val(mt.group(3))
+    elif rep == "diagram":
+        mt = re.fullmatch(rf"The shaded band is centred on the mean and holds about ({NU_NUM})% of the area\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        c = nu_val(mt.group(1)) / 100
+        (a, b), = q["graph"]["shade"]
+        lo, hi = R(sp.nsimplify(a)), R(sp.nsimplify(b))
+        need(nu_val(L[0].split("(")[1].split(",")[0]) == (lo + hi) / 2, "the mean is not the middle of the band")
+    else:
+        mt = re.fullmatch(rf"P\(({NU_NUM}) < X < ({NU_NUM})\) ≈ ({NU_NUM})", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        lo, hi, c = nu_val(mt.group(1)), nu_val(mt.group(2)), nu_val(mt.group(3))
+    ks = [k for k, v in NPR_RULE.items() if v == c]
+    need(len(ks) == 1, f"{c} is no figure of the rule")
+    k = ks[0]
+    width = hi - lo
+    lab = "standard deviation = " if rep == "words" else "σ = "
+    f = lambda x: lab + dec_text(x)
+    gc_check_common(q, f(width / (2 * k)), npr_wr({npr_mine(14): width / k, NPR_SKP + "0": width / (2 * npr_other(k))}, f))
+
+
+def npr_other_end(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    mu, sg = npr_model(q)
+    n, u = NU_NUM, npr_unit(q) if rep == "words" else ""
+    mt = re.fullmatch(rf"(?:The values|Those) between (k|{n}){u} and (k|{n}){u} lie within (\d) standard deviations? of the mean\.", L[1])
+    need(mt is not None, f"can't read {L[1]!r}")
+    k = int(mt.group(3))
+    need((mt.group(1) == "k") != (mt.group(2) == "k"), "one end is k")
+    low_given = mt.group(2) == "k"
+    given = nu_val(mt.group(1) if low_given else mt.group(2))
+    need(given == (mu - k * sg if low_given else mu + k * sg), f"{given} is not {k}σ from the mean")
+    v = mu + k * sg if low_given else mu - k * sg
+    if rep == "diagram":
+        npr_marks(q, {mu: dec_text(mu), given: dec_text(given), v: "k"})
+    f = lambda x: "k = " + dec_text(x)
+    tb = {npr_mine(15): mu}
+    if k > 1:
+        tb[npr_mine(16)] = mu + sg if low_given else mu - sg
+    gc_check_common(q, f(v), npr_wr(tb, f))
+
+
+def npr_point(q):
+    mu, sg = npr_model(q)
+    n = NU_NUM
+    mt = re.search(rf"P\(X = ({n})\)|is exactly ({n})", q["asked"])
+    need(mt is not None, f"can't read {q['asked']!r}")
+    x = nu_val(mt.group(1) or mt.group(2))
+    z = (x - mu) / sg
+    need(z.q == 1 and abs(z) <= 2, "x is a whole number of σ from the mean")
+    below = NPR_HALF + npr_half(int(z))
+    lab = "probability = " if q["view"]["rep"] == "words" else f"P(X = {dec_text(x)}) = "
+    f = lambda v: lab + dec_text(v)
+    tab = [below, 1 - below] + ([sp.Rational(34, 100)] if z == 0 else [])
+    gc_check_common(q, f(0), npr_wr({NPR_SKP + "2": tab}, f))
+
+
+NPR_SHAPES = {"wl": "It is wider and lower, with the same centre.", "nt": "It is narrower and taller, with the same centre.",
+              "wt": "It is wider and taller, with the same centre.", "nl": "It is narrower and lower, with the same centre."}
+
+
+def npr_slide(d, right):
+    return f"It slides {dec_text(d)} to the {'right' if right else 'left'}, with the same shape."
+
+
+def npr_effect(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "words":
+        mu, sg = npr_model(q)
+        u = npr_unit(q)
+        m1 = re.fullmatch(rf"Later, the mean (rises|falls) by ({NU_NUM}){u} and the standard deviation stays the same\.", L[1])
+        m2 = re.fullmatch(rf"Later, the standard deviation changes to ({NU_NUM}){u} and the mean stays the same\.", L[1])
+        need(m1 is not None or m2 is not None, f"can't read {L[1]!r}")
+        mu2 = mu if m2 else mu + nu_val(m1.group(2)) * (1 if m1.group(1) == "rises" else -1)
+        sg2 = nu_val(m2.group(1)) if m2 else sg
+    else:
+        p = [re.fullmatch(rf"[XY] ~ N\(({NU_NUM}), ({NU_NUM})²\)", ln) for ln in L]
+        need(all(p) and len(p) == 2, f"can't read {L}")
+        mu, sg, mu2, sg2 = [nu_val(p[i].group(j)) for i in (0, 1) for j in (1, 2)]
+    need((mu == mu2) != (sg == sg2), "exactly one parameter changes")
+    mo, mw, sl, ws, wb = npr_mine(20), npr_mine(17), npr_mine(18), NPR_SKP + "1", npr_mine(19)
+    if mu != mu2:
+        d = abs(mu2 - mu)
+        up = mu2 > mu
+        want = npr_slide(d, up)
+        wr = {mo: {npr_slide(d, not up)}, mw: {NPR_SHAPES["wl"], NPR_SHAPES["nt"]}}
+    elif sg2 > sg:
+        want = NPR_SHAPES["wl"]
+        wr = {ws: {NPR_SHAPES["wt"]}, wb: {NPR_SHAPES["nt"]}, sl: {npr_slide(sg2 - sg, True)}}
+    else:
+        want = NPR_SHAPES["nt"]
+        wr = {ws: {NPR_SHAPES["nl"]}, wb: {NPR_SHAPES["wl"]}, sl: {npr_slide(sg - sg2, False)}}
+    gc_check_common(q, want, wr)
+
+
+def npr_spread(t):
+    """σ from a question's second parameter: "4²", or the variance 16."""
+    return R(t[:-1]) if t.endswith("²") else sp.sqrt(R(t))
+
+
+def npr_match(q):
+    g = q["graph"]
+    need(g is not None and g["kind"] == "normal" and len(g["curves"]) == 4, "four curves")
+    cs = [(R(sp.nsimplify(c["mu"])), R(sp.nsimplify(c["sigma"])), c["label"]) for c in g["curves"]]
+    mus, sgs = sorted({c[0] for c in cs}), sorted({c[1] for c in cs})
+    need(len(mus) == 2 and len(sgs) == 2 and len({c[:2] for c in cs}) == 4, "two means and two spreads, each pair once")
+    need(sorted(c[2] for c in cs) == ["A", "B", "C", "D"], "the curves are lettered A to D")
+    need(q["lines"] == ["The diagram shows four normal curves, A, B, C and D, on the same axes."], f"{q['lines']}")
+    npr_marks(q, {m: dec_text(m) for m in mus})
+    mt = re.fullmatch(rf"Which curve is the graph of X ~ N\(({NU_NUM}), (\d+²?)\)\?", q["asked"])
+    need(mt is not None, f"can't read {q['asked']!r}")
+    mu, sg = nu_val(mt.group(1)), npr_spread(mt.group(2))
+    hit = [c for c in cs if c[0] == mu and c[1] == sg]
+    need(len(hit) == 1, "the curve asked for is not drawn")
+    wr = {NPR_SKP + "1": {f"Curve {c[2]}" for c in cs if c[0] == mu and c[1] != sg}, npr_mine(21): {f"Curve {c[2]}" for c in cs if c[0] != mu and c[1] == sg}}
+    gc_check_common(q, f"Curve {hit[0][2]}", wr)
+
+
+def npr_is_curve(pts, mu, sg, tallest):
+    """The card's curve is the normal shape at μ and σ, scaled so the narrowest of the question is 6 high."""
+    for x, y in pts[::8]:
+        want = 6 * tallest / sg * math.exp(-0.5 * ((x - mu) / sg) ** 2)
+        if abs(y - want) > 1e-6:
+            return False
+    return True
+
+
+def npr_cards(q):
+    gs, ch = q["graphs"], q["choices"]
+    need(q["format"] == "pick-the-graph" and len(gs) == 4 and len(ch) == 4, "four cards")
+    need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the cards are lettered A to D")
+    need(all(g.get("card") and g.get("y_bare") for g in gs), "a card, with no numbers up its side")
+    need(len({json.dumps(g["curves"]) + json.dumps(g.get("shade", [])) for g in gs}) == 4, "two cards are the same")
+    need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in gs}) == 1, "the cards don't share one window")
+    need(len({json.dumps(g["x_ticks"]) for g in gs}) == 1, "the cards don't share their marks")
+    return gs, ch
+
+
+def npr_two_curves(q):
+    L = q["lines"]
+    a = re.fullmatch(r"X ~ N\((\d+), (\d+²)\)", L[0])
+    b = re.fullmatch(r"Y ~ N\((\d+), (\d+²?)\)", L[1])
+    need(a is not None and b is not None, f"can't read {L}")
+    mx, my, sx, sy = int(a.group(1)), int(b.group(1)), int(npr_spread(a.group(2))), int(npr_spread(b.group(2)))
+    need(sx != sy, "two spreads")
+    gs, ch = npr_cards(q)
+    big, small = max(sx, sy), min(sx, sy)
+    d = 2 * big
+    if mx == my:
+        cases = {"": (mx, sx, my, sy), "taller": (mx, sy, my, sx), "moved": (mx, sx, mx + d, sy), "same-spread": (mx, sx, my, sx)}
+        refs = {"taller": NPR_SKP + "1", "moved": npr_mine(21), "same-spread": ""}
+    else:
+        cases = {"": (mx, sx, my, sy), "taller": (mx, sy, my, sx), "moved": (my, sx, mx, sy), "both": (my, sy, mx, sx)}
+        refs = {"taller": NPR_SKP + "1", "moved": npr_mine(21), "both": ""}
+    right = None
+    for o, g in zip(ch, gs):
+        mk = "" if o["correct"] else o.get("mistake", "")
+        need(mk in cases, f"a card names no mistake ({mk!r})")
+        ma, sa, mb, sb = cases[mk]
+        need(len(g["curves"]) == 2 and npr_is_curve(g["curves"][0], ma, sa, small) and npr_is_curve(g["curves"][1], mb, sb, small), f"the {mk or 'right'} card is not what it says")
+        pts = {p["label"]: p["x"] for p in g["points"]}
+        need(pts == {"X": ma, "Y": mb}, "the letters are not at the peaks")
+        if o["correct"]:
+            right = o["text"]
+        else:
+            need(o["ref"] == refs[mk], f"the {mk} card is tagged {o['ref']!r}")
+            need(o.get("why", "") != "", f"the {mk} card doesn't say what is wrong")
+    gc_check_common(q, right, {o["ref"]: {o["text"]} for o in ch if o["ref"]})
+
+
+def npr_shaded_cards(q):
+    mu, sg = npr_model(q)
+    kind, lo, hi = npr_event(q)
+    gs, ch = npr_cards(q)
+    M, S = float(mu), float(sg)
+    win = [M - 5.6 * S, M + 5.6 * S]
+    a = float(lo) if lo is not None else None
+    b = float(hi) if hi is not None else None
+    if kind == "in":
+        far = b if abs(b - M) >= abs(a - M) else a
+        cases = {"": (M, [(a, b)]), "outside": (M, [(win[0], a), (b, win[1])]), "from-mean": (M, [(min(M, far), max(M, far))]), "centred": ((a + b) / 2, [(a, b)])}
+        refs = {"outside": npr_mine(8), "from-mean": npr_mine(22), "centred": npr_mine(23)}
+    else:
+        x = a if kind == "gt" else b
+        here = [(x, win[1])] if kind == "gt" else [(win[0], x)]
+        there = [(win[0], x)] if kind == "gt" else [(x, win[1])]
+        cases = {"": (M, here), "other-side": (M, there), "from-mean": (M, [(min(M, x), max(M, x))]), "centred": (x, here)}
+        refs = {"other-side": npr_mine(8), "from-mean": npr_mine(22), "centred": npr_mine(23)}
+    right = None
+    for o, g in zip(ch, gs):
+        mk = "" if o["correct"] else o.get("mistake", "")
+        need(mk in cases, f"a card names no mistake ({mk!r})")
+        c, rg = cases[mk]
+        need(len(g["curves"]) == 1 and npr_is_curve(g["curves"][0], c, S, S), f"the {mk or 'right'} card's curve is wrong")
+        got = [(r[0][0], r[-1][0]) for r in g["shade"]]
+        need(len(got) == len(rg) and all(abs(p[0] - w[0]) < 1e-6 and abs(p[1] - w[1]) < 1e-6 for p, w in zip(got, rg)), f"the {mk or 'right'} card shades {got}, not {rg}")
+        if o["correct"]:
+            right = o["text"]
+        else:
+            need(o["ref"] == refs[mk] and o.get("why", "") != "", f"the {mk} card's tag")
+    gc_check_common(q, right, {o["ref"]: {o["text"]} for o in ch if o["ref"]})
+
+
+def npr_shift(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    a = re.fullmatch(rf"X ~ N\(({NU_NUM}), a²\) and Y ~ N\(({NU_NUM}), a²\), where a > 0", L[0])
+    b = re.fullmatch(rf"P\(X ([<>]) b\) = P\(Y > ({NU_NUM})\)", L[1])
+    need(a is not None and b is not None, f"can't read {L}")
+    m1, m2, y = nu_val(a.group(1)), nu_val(a.group(2)), nu_val(b.group(2))
+    d = m1 - m2
+    f = lambda x: "b = " + dec_text(x)
+    if u == "same-sd-shift":
+        need(b.group(1) == ">", "same side")
+        gc_check_common(q, f(y + d), npr_wr({npr_mine(29): y, npr_mine(30): y - d}, f))
+    else:
+        need(b.group(1) == "<", "opposite tails")
+        gc_check_common(q, f(m1 - (y - m2)), npr_wr({npr_mine(31): y + d, npr_mine(29): y, npr_mine(30): y - d}, f))
+
+
+def npr_beyond(q):
+    rep, asked = q["view"]["rep"], q["asked"]
+    mu, sg = npr_model(q)
+    mt = re.search(rf"more than ({NU_NUM}) standard deviations? (above the mean|below the mean|from the mean)", asked)
+    need(mt is not None, f"can't read {asked!r}")
+    h, where = nu_val(mt.group(1)), mt.group(2)
+    M, S, H = np_mp(mu), np_mp(sg), np_mp(h)
+    tail = nu_phi(-H)
+    p = 2 * tail if where == "from the mean" else tail
+    # The slip: h added on without σ.
+    slip = nu_phi(-H / S) * (2 if where == "from the mean" else 1)
+    if rep == "diagram":
+        kind, lo, hi = npr_curve(q, mu, sg)
+        need(kind == {"above the mean": "gt", "below the mean": "lt", "from the mean": "out"}[where], "the shading")
+        nu_shaded(q, p)
+    need(sg > 1 and h.q != 1 and nu_clear(p) and nu_clear(1 - p) and nu_clear(slip), f"{p} is on a rounding edge")
+    f = lambda x: nu_text("probability = ", x)
+    tb = {npr_mine(8): {f(1 - p)}, npr_mine(24): {f(slip)}}
+    if where == "from the mean":
+        tb[npr_mine(12)] = {f(tail)}
+    gc_check_common(q, f(p), tb, bn_trap("probability = ", nu_f(p)))
+
+
+def npr_half_mean(q):
+    rep, asked = q["view"]["rep"], q["asked"]
+    mu, sg = npr_model(q)
+    if rep == "diagram":
+        kind, lo, hi = npr_curve(q, mu, sg)
+        lab = None
+        x = hi if kind == "lt" else lo
+        lab = f"P(X {'<' if kind == 'lt' else '>'} {dec_text(x)}) = "
+    else:
+        kind, lo, hi = npr_event(q)
+        x = hi if kind == "lt" else lo
+        lab = "probability = " if rep == "words" else f"P(X {'<' if kind == 'lt' else '>'} {dec_text(x)}) = "
+    need(x == mu, "the bound is the mean")
+    f = lambda v: lab + dec_text(v)
+    gc_check_common(q, f(NPR_HALF), npr_wr({npr_mine(9): sp.Rational(68, 100), npr_mine(10): sp.Rational(34, 100), NPR_SKS + "1": sp.Rational(1, 4)}, f))
+
+
+def npr_lab(q, kind, lo, hi):
+    if q["view"]["rep"] == "words":
+        return "probability = "
+    if kind == "in":
+        return f"P({dec_text(lo)} < X < {dec_text(hi)}) = "
+    return f"P(X < {dec_text(hi)}) = " if kind == "lt" else f"P(X > {dec_text(lo)}) = "
+
+
+def npr_band_fact(q, i):
+    """(lo, hi, c) from a line: "P(9 < X < 15) = 0.6", or a story's percentage."""
+    ln, n = q["lines"][i], NU_NUM
+    if q["view"]["rep"] == "words":
+        u = npr_unit(q)
+        mt = re.fullmatch(rf"({n})% of them are between ({n}){u} and ({n}){u}\.", ln)
+        need(mt is not None, f"can't read {ln!r}")
+        return nu_val(mt.group(2)), nu_val(mt.group(3)), nu_val(mt.group(1)) / 100
+    mt = re.fullmatch(rf"P\(({n}) < X < ({n})\) = ({n})", ln)
+    need(mt is not None, f"can't read {ln!r}")
+    return nu_val(mt.group(1)), nu_val(mt.group(2)), nu_val(mt.group(3))
+
+
+def npr_symmetric(q):
+    """Everything worked out from a mirror about μ, with σ hidden."""
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    mu, sg = npr_model(q)
+    need(sg is None, "σ is hidden here")
+    kind, lo, hi = npr_event(q)
+    half = NPR_HALF
+    if u in ("tail-from-middle", "half-of-middle"):
+        a, b, c = npr_band_fact(q, 1)
+        need(mu - a == b - mu and a < mu, "the band is centred on the mean")
+        tail = (1 - c) / 2
+        if rep == "diagram":
+            nu_shaded(q, np_mp(c))
+            npr_marks(q, {a: dec_text(a), mu: dec_text(mu), b: dec_text(b)})
+        if u == "tail-from-middle":
+            need(kind in ("lt", "gt") and (hi == a if kind == "lt" else lo == b), "the tail asked is the band's")
+            f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+            gc_check_common(q, f(tail), npr_wr({npr_mine(11): 1 - c, npr_mine(10): c / 2, npr_mine(8): c / 2 + half}, f))
+        else:
+            need(kind == "in" and ((lo, hi) == (mu, b) or (lo, hi) == (a, mu)), "from the mean to one end")
+            f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+            gc_check_common(q, f(c / 2), npr_wr({npr_mine(9): c, npr_mine(8): tail}, f))
+        return
+    x, side, area = nu_tail(q, 1)
+    need(x != mu, "a bound off the mean")
+    if u == "mirror-complement":
+        need((side == "lt") == (x > mu) and area > half, "the fact is the large area past the mean")
+        p = 1 - area
+        need(kind in ("lt", "gt"), "a tail is asked")
+        y = hi if kind == "lt" else lo
+        need(y == 2 * mu - x and (kind == "lt") == (y < mu), "the tail asked is on the far side of the mirror")
+        if rep == "diagram":
+            nu_shaded(q, np_mp(area))
+        f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+        gc_check_common(q, f(p), npr_wr({npr_mine(26): area, npr_mine(27): area - half, npr_mine(9): 1 - 2 * p}, f))
+        return
+    need((side == "gt") == (x > mu), "the fact is the tail beyond the bound")
+    p = area
+    if rep == "diagram":
+        nu_shaded(q, np_mp(p))
+    f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+    m = 2 * mu - x
+    if u == "mirror-tail":
+        need(kind in ("lt", "gt") and (hi if kind == "lt" else lo) == m and kind != side, "the mirror tail")
+        gc_check_common(q, f(p), npr_wr({npr_mine(25): 1 - p, npr_mine(27): half - p, npr_mine(11): 2 * p}, f))
+    elif u == "middle-from-tail":
+        need(kind == "in" and {lo, hi} == {x, m}, "the band between the bound and its mirror")
+        gc_check_common(q, f(1 - 2 * p), npr_wr({NPR_SKS + "0": 2 * p, npr_mine(12): 1 - p, npr_mine(27): half - p}, f))
+    else:
+        need(kind == "in" and {lo, hi} == {mu, x}, "from the mean to the bound")
+        gc_check_common(q, f(half - p), npr_wr({npr_mine(8): p, NPR_SKS + "1": 1 - p, npr_mine(9): 1 - 2 * p}, f))
+
+
+def npr_two_tails(q):
+    rep = q["view"]["rep"]
+    need(npr_model(q) == (None, None), "μ and σ are hidden here")
+    x1, s1, p1 = nu_tail(q, 1)
+    x2, s2, p2 = nu_tail(q, 2)
+    need(s1 == "lt" and s2 == "gt" and x1 < x2 and p1 != p2 and p1 + p2 <= sp.Rational(8, 10), "two different tails, the lower first")
+    kind, lo, hi = npr_event(q)
+    need((kind, lo, hi) == ("in", x1, x2), f"asked {q['asked']!r}")
+    if rep == "diagram":
+        nu_shaded(q, np_mp(p1 + p2))
+    f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+    gc_check_common(q, f(1 - p1 - p2), npr_wr({NPR_SKS + "0": p1 + p2, npr_mine(12): [1 - p1, 1 - p2], npr_mine(28): 1 - 2 * p1}, f))
+
+
+def npr_tail_band(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    mu, sg = npr_model(q)
+    if rep == "words":
+        u = npr_unit(q)
+        mt = re.fullmatch(rf"({NU_NUM})% of them are between w{u} and ({NU_NUM}){u}\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        c, b = nu_val(mt.group(1)) / 100, nu_val(mt.group(2))
+    else:
+        mt = re.fullmatch(rf"P\(w < X < ({NU_NUM})\) = ({NU_NUM})", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        b, c = nu_val(mt.group(1)), nu_val(mt.group(2))
+    up = 1 - nu_phi((np_mp(b) - np_mp(mu)) / np_mp(sg))
+    p = 1 - np_mp(c) - up
+    need(p > 0 and nu_clear(p) and nu_clear(up) and nu_clear(1 - np_mp(c)) and nu_clear(1 - up), f"{p} is not a clean tail")
+    lab = "probability = " if rep == "words" else "P(X < w) = "
+    f = lambda v: nu_text(lab, v)
+    gc_check_common(q, f(p), {npr_mine(12): {f(1 - np_mp(c))}, npr_mine(8): {f(up)}}, bn_trap(lab, nu_f(p)))
+
+
+def npr_mirror_value(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    mu, sg = npr_model(q)
+    n = NU_NUM
+    u = npr_unit(q) if rep == "words" else ""
+    if rep == "words":
+        mt = re.fullmatch(rf"The share of them (below|above) ({n}){u} equals the share (above|below) b{u}\.", L[1])
+    else:
+        mt = re.fullmatch(rf"P\(X ([<>]) ({n})\) = P\(X ([<>]) b\)", L[1])
+    need(mt is not None, f"can't read {L[1]!r}")
+    need({mt.group(1), mt.group(3)} in ({"<", ">"}, {"below", "above"}), "opposite tails")
+    x = nu_val(mt.group(2))
+    v = 2 * mu - x
+    need((x < mu) == (mt.group(1) in ("<", "below")), "the given bound cuts off a tail, not the main part")
+    if rep == "diagram":
+        npr_marks(q, {mu: dec_text(mu), x: dec_text(x), v: "b"})
+    f = lambda t: "b = " + dec_text(t)
+    gc_check_common(q, f(v), npr_wr({NPR_SKS + "2": -x, npr_mine(32): x + mu}, f))
+
+
+def npr_central(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    mu, sg = npr_model(q)
+    n = NU_NUM
+    if u == "central-endpoints":
+        mt = re.search(rf"holds an area of ({n}) under|contains ({n})% of them", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        c = nu_val(mt.group(1)) if mt.group(1) else nu_val(mt.group(2)) / 100
+    elif u == "central-k":
+        mt = re.fullmatch(rf"P\(({n}) − k < X < ({n}) \+ k\) = ({n})", L[1])
+        need(mt is not None and nu_val(mt.group(1)) == mu == nu_val(mt.group(2)), f"can't read {L[1]!r}")
+        c = nu_val(mt.group(3))
+    elif rep == "words":
+        mt = re.fullmatch(rf"({n})% of them lie within k standard deviations of the mean\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        c = nu_val(mt.group(1)) / 100
+    else:
+        mt = re.fullmatch(rf"P\(({n}) − ({n})k < X < ({n}) \+ ({n})k\) = ({n})", L[1])
+        need(mt is not None and nu_val(mt.group(1)) == mu == nu_val(mt.group(3)) and nu_val(mt.group(2)) == sg == nu_val(mt.group(4)), f"can't read {L[1]!r}")
+        c = nu_val(mt.group(5))
+    M, S, C = np_mp(mu), np_mp(sg), np_mp(c)
+    z = nu_inv((1 + c) / 2)
+    zc = nu_inv(c)
+    # Back through the area, so the z is the one the question needs.
+    need(abs(nu_phi(z) - nu_phi(-z) - C) < mpmath.mpf("1e-25"), "the z does not give the central area")
+    need(zc > mpmath.mpf("0.15"), "the left-tail slip must give a value")
+    w = z * S
+    f = lambda v: nu_text("k = ", v)
+    if u == "central-k":
+        if rep == "diagram":
+            nu_shaded(q, C)
+        need(all(nu_clear(v) for v in (z, zc, w, zc * S)), "a value is on a rounding edge")
+        gc_check_common(q, f(w), {NPR_SKC + "0": {f(zc * S)}, NPR_SKC + "1": {f(M + w)}, npr_mine(33): {f(z)}}, bn_trap("k = ", nu_f(w)))
+    elif u == "central-k-sd":
+        need(all(nu_clear(v) for v in (z, zc, w, M + w)), "a value is on a rounding edge")
+        gc_check_common(q, f(z), {NPR_SKC + "0": {f(zc)}, npr_mine(34): {f(w)}, NPR_SKC + "1": {f(M + w)}}, bn_trap("k = ", nu_f(z)))
+    else:
+        g = lambda a, b: f"{rg_s(nu_f(a))} < X < {rg_s(nu_f(b))}"
+        need(all(nu_clear(v) for v in (M - w, M + w, M - zc * S, M + zc * S, M - z, M + z)), "a value is on a rounding edge")
+        gc_check_common(q, g(M - w, M + w), {NPR_SKC + "0": {g(M - zc * S, M + zc * S)}, npr_mine(33): {g(M - z, M + z)}})
+
+
+def check_normal_properties(q):
+    with mpmath.workdps(40):
+        return npr_check(q)
+
+
+def npr_check(q):
+    u, rep, paper, angle = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["view"]["angle"]
+    need(paper == 2 or u not in NPR_P2_ONLY, f"{u} is Paper 2")
+    words = [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]
+    for tx in words:
+        need(not re.search(r"(?<![A-Za-z^\d])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if paper == 1:
+        for sol in q["solutions"]:
+            need(not any(NPR_GDC.search(st) for st in sol["steps"]), f"{sol['name']}: a calculator on Paper 1")
+    need(angle not in ("gdc-center", "gdc-solver") or paper == 2, "a GDC method on Paper 1")
+    if u not in ("pick-two-curves", "pick-shaded"):
+        need((q["graph"] is not None) == (rep == "diagram"), "the figure belongs to the diagram representation")
+    for sol in q["solutions"]:
+        if rep != "diagram":
+            need(not any(st.startswith("Read the curve") for st in sol["steps"]), f"{sol['name']}: reads a curve the question doesn't draw")
+        elif q["graph"] is not None:
+            need(not any(st.startswith("Sketch") for st in sol["steps"]), f"{sol['name']}: asks for a sketch of a drawn curve")
+    npr_steps(q)
+    if u == "empirical-share":
+        npr_share(q)
+    elif u == "empirical-count":
+        npr_count(q)
+    elif u == "empirical-tail":
+        npr_tail_rule(q)
+    elif u == "empirical-band":
+        npr_band_rule(q)
+    elif u == "sd-from-rule":
+        npr_sd_from_rule(q)
+    elif u == "other-sd-end":
+        npr_other_end(q)
+    elif u == "point-probability":
+        npr_point(q)
+    elif u == "effect-of-change":
+        npr_effect(q)
+    elif u == "match-curve":
+        npr_match(q)
+    elif u == "pick-two-curves":
+        npr_two_curves(q)
+    elif u == "pick-shaded":
+        npr_shaded_cards(q)
+    elif u in ("same-sd-shift", "shifted-mirror"):
+        npr_shift(q)
+    elif u == "beyond-sd":
+        npr_beyond(q)
+    elif u == "half-below-mean":
+        npr_half_mean(q)
+    elif u in ("mirror-tail", "mirror-complement", "middle-from-tail", "tail-from-middle", "half-of-middle", "mean-to-point"):
+        npr_symmetric(q)
+    elif u == "between-from-two-tails":
+        npr_two_tails(q)
+    elif u == "tail-from-band":
+        npr_tail_band(q)
+    elif u == "mirror-value":
+        npr_mirror_value(q)
+    elif u in ("central-k", "central-endpoints", "central-k-sd"):
+        npr_central(q)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+# ── end normal-properties ──
+
+SITUATION_CHECKS = {"normal-properties": check_normal_properties, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,

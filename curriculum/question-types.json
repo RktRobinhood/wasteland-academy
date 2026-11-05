@@ -36916,12 +36916,11 @@
     },
     {
      "ref": "SL4.9.symmetry-probability#1",
-     "text": "Assuming the mean does not cut the area into two equal halves",
+     "text": "Forgetting that the mean cuts the area into two equal halves",
      "as": "distractor",
      "in": [
       "empirical-tail",
       "half-below-mean",
-      "half-of-middle",
       "mean-to-point"
      ],
      "wrong": "a value that loses or misplaces the half on one side of the mean"
@@ -36974,7 +36973,7 @@
      "wrong": "the area on the other side"
     },
     {
-     "text": "Using the whole band where only part of it is in the region",
+     "text": "Using the share of the whole band for a region that is not that band",
      "as": "distractor",
      "in": [
       "empirical-tail",
@@ -37029,7 +37028,7 @@
      "wrong": "the share, not multiplied by n"
     },
     {
-     "text": "Using the whole width of the band as if the rule's standard deviations reached only one way",
+     "text": "Using the width of the band ÷ k, when the band reaches k standard deviations each side",
      "as": "distractor",
      "in": [
       "sd-from-rule"
@@ -56467,7 +56466,7 @@
     },
     {
      "ref": "SL4.9.symmetry-probability#1",
-     "text": "Assuming the mean does not cut the area into two equal halves",
+     "text": "Forgetting that the mean cuts the area into two equal halves",
      "as": "distractor",
      "in": [
       "normal-other-tail"

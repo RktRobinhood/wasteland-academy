@@ -146,7 +146,7 @@ static func pic(s: Dictionary, shade: Array, marks: Array) -> Dictionary:
 ## The first line of a sketch: what to draw, or what to read off the figure.
 static func sketch_line(rep: String, s: Dictionary, marked: String, shaded: String) -> String:
 	if rep == "diagram":
-		return "Read the curve: the mean %s is in the middle, %s are marked, and the region is %s." % [D(s.mu), marked, shaded]
+		return "Read the curve: the mean %s is in the middle, with %s marked, and the region is %s." % [D(s.mu), marked, shaded]
 	return "Sketch the curve with the mean %s in the middle, mark %s, and shade %s." % [D(s.mu), marked, shaded]
 
 
@@ -200,10 +200,6 @@ static func band_fact(rep: String, s: Dictionary, c: Q) -> String:
 		var u: String = scene(s).unit
 		return "%s%% of them are between %s%s and %s%s." % [pct(c), D(s.lo), u, D(s.hi), u]
 	return "P(%s < X < %s) = %s" % [D(s.lo), D(s.hi), D(c)]
-
-
-static func curve_of(s: Dictionary) -> String:
-	return "X ~ N(%s, σ²)" % D(s.mu)
 
 
 # ── The 68-95-99.7 rule ──────────────────────────────────────
@@ -385,8 +381,9 @@ func u_empirical_band(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	elif (a < 0) != (b < 0):
 		sum_line = "The ends are on opposite sides of the mean, so add: %s + %s = %s" % [D(ha.abs_q()), D(hb.abs_q()), D(v)]
 	else:
-		var big: Q = ha.abs_q() if ha.abs_q().sub(hb.abs_q()).sign() > 0 else hb.abs_q()
-		var small: Q = ha.abs_q() if big == hb.abs_q() else hb.abs_q()
+		var a_big: bool = absi(a) > absi(b)
+		var big: Q = ha.abs_q() if a_big else hb.abs_q()
+		var small: Q = hb.abs_q() if a_big else ha.abs_q()
 		sum_line = "The ends are on the same side of the mean, so subtract: %s − %s = %s" % [D(big), D(small), D(v)]
 	var ending := "So %s" % final_text(ans)
 	out.methods = {"empirical-rule": method(["%s." % first, halves, sum_line, ending], ans.values),
@@ -474,7 +471,7 @@ func u_point_probability(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.wrongs = wrongs
 	out.generic = [{"v": Q.new(1)}, {"v": Q.new(68, 100)}, {"v": Q.new(95, 100)}]
 	var first := "Sketch the curve and mark %s." % D(s.x)
-	out.methods = {"sketch-and-shade": method([first, "X is continuous, so a probability is an area under the curve, and a single value is a line with no width.", "The area of a line is 0.", "So %s" % final_text(ans)], ans.values)}
+	out.methods = {"sketch-and-shade": method([first, "The variable is continuous, so a probability is an area under the curve, and a single value is a line with no width.", "The area of a line is 0.", "So %s" % final_text(ans)], ans.values)}
 	return out
 
 
@@ -690,7 +687,7 @@ func u_same_sd_shift(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {"lines": _shift_lines(s, ">"), "asked": "Find b.", "answer": ans, "table": null, "generic": [{"v": s.mu}, {"v": s.mu2}, {"v": v.add(1)}, {"v": v.sub(1)}],
 		"wrongs": [wrong({"v": s.x}, M_NO_SHIFT), wrong({"v": s.x.sub(d)}, M_SHIFT_BACK)],
 		"methods": {"parameter-effect": method(["X and Y have the same σ, so they are the same curve, and the curve of Y slides onto the curve of X.", "The slide is %s − %s = %s, which is %s to the %s." % [D(s.mu), D(s.mu2), D(d), D(d.abs_q()), move],
-			"The point %s slides with the curve, so b = %s + (%s) = %s" % [D(s.x), D(s.x), D(d), D(v)], "So %s" % final_text(ans)], ans.values)}}
+			"The point %s slides with the curve, so b = %s %s %s = %s" % [D(s.x), D(s.x), "+" if d.sign() > 0 else "−", D(d.abs_q()), D(v)], "So %s" % final_text(ans)], ans.values)}}
 
 
 func u_shifted_mirror(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -790,10 +787,8 @@ func _tail_lines(rep: String, s: Dictionary, up: bool, p: Q) -> Array:
 func u_mirror_tail(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var p: Q = s.p
 	var ans := exact_ans("probability = " if rep == "words" else "P(%s) = " % tail_event(s, not s.up), p)
-	var asked := "Find the area below %s." % D(s.lo) if not s.up else "Find the area above %s." % D(s.hi)
-	var out := {"lines": _tail_lines(rep, s, s.up, p), "asked": ask_tail(rep, s, not s.up) if rep != "diagram" else "The shaded area is %s. %s" % [D(p), asked.replace("Find the area", "Find the area on the other side,")], "answer": ans, "table": null, "near_p": p}
+	var out := {"lines": _tail_lines(rep, s, s.up, p), "asked": ask_tail(rep, s, not s.up), "answer": ans, "table": null, "near_p": p}
 	if rep == "diagram":
-		out.lines = [curve_of(s)]
 		out.graph = pic(s, tail_shade(s, s.up), [mk(s.lo), mk(s.hi)])
 	out.wrongs = pw(s, one_minus(p), M_COMPLEMENT) + pw(s, Q.new(1, 2).sub(p), M_MEASURED_FROM_MEAN) + pw(s, p.mul(2), M_BOTH_TAILS)
 	out.generic = []
@@ -810,7 +805,7 @@ func u_mirror_complement(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var up: bool = s.up
 	var given_text := "P(X < %s) = %s" % [D(s.hi), D(big)] if up else "P(X > %s) = %s" % [D(s.lo), D(big)]
 	var ask_up: bool = not up
-	var lines: Array = [model(rep, s, s.mu, null), tail_line(rep, s, tail_x(s, up), "lt" if up else "gt", big)] if rep == "words" else [curve_of(s), given_text]
+	var lines: Array = [model(rep, s, s.mu, null), tail_line(rep, s, tail_x(s, up), "lt" if up else "gt", big)] if rep == "words" else [model(rep, s, s.mu, null), given_text]
 	var ans := exact_ans("probability = " if rep == "words" else "P(%s) = " % ("X < %s" % D(s.lo) if up else "X > %s" % D(s.hi)), s.p)
 	var asked_event: String = "X < %s" % D(s.lo) if up else "X > %s" % D(s.hi)
 	var asked: String = ask_tail(rep, s, ask_up) if rep == "words" else "Find P(%s)." % asked_event
@@ -823,7 +818,7 @@ func u_mirror_complement(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var near_end := "X > %s" % D(s.hi) if up else "X < %s" % D(s.lo)
 	var past := "1 − %s = %s" % [D(big), D(s.p)]
 	out.methods = {"mirror-tails": method(["The tail on the far side of that end is P(%s) = %s." % [near_end, past], "%s and %s are both %s from the mean, so P(%s) is the same tail mirrored." % [D(s.lo), D(s.hi), D(s.a), asked_event], ending], ans.values),
-		"area-bookkeeping": method(["The half of the curve up to the mean holds 0.5, so the piece from the mean to %s is %s − 0.5 = %s." % [D(tail_x(s, up)), D(big), D(big.sub(Q.new(1, 2)))],
+		"area-bookkeeping": method(["The half of the curve on one side of the mean holds 0.5, so the piece from the mean to %s is %s − 0.5 = %s." % [D(tail_x(s, up)), D(big), D(big.sub(Q.new(1, 2)))],
 			"The mirrored piece on the other side of the mean is the same size, %s, and it leaves 0.5 − %s = %s." % [D(big.sub(Q.new(1, 2))), D(big.sub(Q.new(1, 2))), D(s.p)], ending], ans.values),
 		"shaded-sketch": method([sketch_line(rep, s, both_ends(s), "the area of %s" % D(big)), "What is left over is 1 − %s = %s, in the tail beyond %s." % [D(big), D(s.p), D(tail_x(s, up))], "Flip that tail about the mean to reach P(%s)." % asked_event, ending], ans.values)}
 	return out
@@ -841,7 +836,7 @@ func u_middle_from_tail(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ending := "So %s" % final_text(ans)
 	out.methods = {"mirror-tails": method(["%s and %s are both %s from the mean, so the two tails are equal: each is %s." % [D(s.lo), D(s.hi), D(s.a), D(p)], "Take both tails from the whole area: 1 − 2 × %s = %s" % [D(p), D(v)], ending], ans.values),
 		"area-bookkeeping": method(["The whole area is 1, and P(%s) is %s by symmetry." % [tail_event(s, not s.up), D(p)], "The area below %s is 1 − %s = %s." % [D(s.hi), D(p), D(one_minus(p))], "Take off the lower tail: %s − %s = %s" % [D(one_minus(p)), D(p), D(v)], ending], ans.values),
-		"shaded-sketch": method([sketch_line(rep, s, both_ends(s), "both tails"), "Each shaded tail is %s, and the middle is what is left." % D(p), "1 − %s − %s = %s" % [D(p), D(p), D(v)], ending], ans.values)}
+		"shaded-sketch": method([sketch_line(rep, s, both_ends(s), tail_words(s, s.up)), "Flip that tail about the mean: the other tail is also %s, and the middle is what is left." % D(p), "1 − %s − %s = %s" % [D(p), D(p), D(v)], ending], ans.values)}
 	return out
 
 
@@ -871,8 +866,8 @@ func u_half_of_middle(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var out := {"lines": [model(rep, s, s.mu, null), band_fact(rep, s, c)], "asked": ask_range(rep, s, a, b), "answer": ans, "table": null, "near_p": v}
 	if rep == "diagram":
 		out.graph = pic(s, [[s.lo.to_float(), s.hi.to_float()]], [mk(s.lo), mk(s.hi)])
-	out.wrongs = pw(s, c, M_WHOLE_BAND) + pw(s, half(one_minus(c)), M_OTHER_SIDE) + pw(s, v.add(Q.new(1, 2)), M_HALF)
-	out.generic = []
+	out.wrongs = pw(s, c, M_WHOLE_BAND) + pw(s, half(one_minus(c)), M_OTHER_SIDE)
+	out.generic = [{"v": v.add(Q.new(1, 2))}]
 	var ending := "So %s" % final_text(ans)
 	out.methods = {"mirror-tails": method(["Both ends are %s from the mean %s, so the mean cuts the band into two mirror halves." % [D(s.a), D(s.mu)], "Each half is %s ÷ 2 = %s" % [D(c), D(v)], ending], ans.values),
 		"area-bookkeeping": method(["The band's area is the two pieces either side of the mean: piece + piece = %s." % D(c), "The pieces are equal, so piece = %s ÷ 2 = %s" % [D(c), D(v)], ending], ans.values)}
