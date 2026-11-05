@@ -118,12 +118,13 @@ static func _split(rng: Seeded, total: int, k: int, lo: int) -> Array:
 	var out: Array = []
 	for i in k:
 		out.append(lo)
-	for i in 3 * k:
-		var add := rng.int_in(0, left)
-		out[rng.int_in(0, k - 1)] += add
+	# Each share is up to twice the even share of what is left, so no one group swamps the rest.
+	for i in k - 1:
+		var add := rng.int_in(0, 2 * left / (k - i))
+		out[i] += add
 		left -= add
-	out[rng.int_in(0, k - 1)] += left
-	return out
+	out[k - 1] += left
+	return rng.shuffled(out)
 
 
 # ── Equally likely ───────────────────────────────────────────

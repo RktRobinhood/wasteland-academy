@@ -102,6 +102,11 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var unit := near_unit(s, v)
 	for k in [1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6, -6, 7, -7]:
 		out.generic.append_array(fair(s, [v.add(unit.mul(Q.new(k)))]))
+	# A small denominator has few near values, so nearby denominators fill in.
+	if s.form == "frac":
+		for den in [v.d + 1, v.d + 2, v.d * 2, v.d + 3]:
+			for k in range(1, den):
+				out.generic.append_array(fair(s, [Q.new(k, den)]))
 	return out
 
 
@@ -250,7 +255,7 @@ func u_bag_after_change(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.generic = fair(s, [Q.new(had, total), Q.new(total + step - left, total + step), Q.new(left, total + step + 1)])
 	var new_total := total + step
 	var count_step := "The %s stay at %d." % [colour(s, s.target) + " " + b[1], had] if s.target != s.changed else "The %s go from %d to %d." % [colour(s, s.target) + " " + b[1], had, left]
-	out.methods = {"count-ratio": method(["The bag held %s = %d, and now holds %d %s %d = %d %s." % [plus(s.counts), total, total, "−" if step < 0 else "+", absi(step), new_total, b[1]],
+	out.methods = {"count-ratio": method(["There were %s = %d %s, and now there are %d %s %d = %d." % [plus(s.counts), total, b[1], total, "−" if step < 0 else "+", absi(step), new_total],
 		count_step, "P = n(A) ÷ n(U): " + ratio(s, left, new_total), final_step(ans)], ans.values)}
 	return out
 
@@ -389,7 +394,7 @@ func _grid_methods(rep: String, s: Dictionary, ans: Dictionary, n: int, all: int
 	var size_step := "%d × %d = %d equally likely outcomes." % [s.xs.size(), s.ys.size(), all]
 	var space := "The table has %d rows of %d cells: %s" % [s.xs.size(), s.ys.size(), size_step] if rep == "diagram" \
 		else "Draw a grid with the %s down the side and the second across the top: %s" % [first_name(s), size_step]
-	return {"list-sample-space": method([space, "Row by row, the cells in the event number %s = %d." % [plus(rows), n], "P = n(A) ÷ n(U): " + ratio(s, n, all), final_step(ans)], ans.values),
+	return {"list-sample-space": method([space, "Row by row, the event has %s = %d cells." % [plus(rows), n], "P = n(A) ÷ n(U): " + ratio(s, n, all), final_step(ans)], ans.values),
 		"count-ratio": method(["n(U) = %s" % size_step, listed, "n(A) = %d, so " % n + ratio(s, n, all), final_step(ans)], ans.values)}
 
 
@@ -460,7 +465,7 @@ func u_list_then_count(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			var c := coin_out(s)
 			hit = c.hits.size()
 			all = c.all.size()
-			lines = ["%d fair coins are tossed." % s.n]
+			lines = ["%s fair coins are tossed." % ("Two" if s.n == 2 else "Three")]
 			asked = "List the outcomes and find the probability of exactly %d %s." % [s.h, "head" if s.h == 1 else "heads"]
 			space = "The outcomes are %s: %d equally likely, in order." % [", ".join(c.all), all]
 			hits_text = "Exactly %d %s: %s." % [s.h, "head" if s.h == 1 else "heads", ", ".join(c.hits)]
@@ -665,17 +670,10 @@ func _at_least_one(s: Dictionary, ps: Array, out: Dictionary) -> Dictionary:
 		product = product.mul(p)
 	out.generic = fair(s, [product, ps[0], Q.new(1).sub(ps[0])])
 	var qs: Array = ps.map(func(p): return T(s, Q.new(1).sub(p)))
+	var miss := "The chance that it doesn't happen on one go is %s" % qs[0] if s.ask == "at-least-one-same" else "The chances that it doesn't happen are %s" % listing(qs)
 	out.methods = {"at-least-one": method(["'At least one' is every case except 'none', so P(at least one) = 1 − P(none).",
-		"Each trial fails with probability %s, and the trials are independent, so P(none) = %s = %s" % [listing(_unique(qs)), " × ".join(qs), T(s, none)],
+		"%s. The goes are independent, so multiply: P(none) = %s = %s" % [miss, " × ".join(qs), T(s, none)],
 		"1 − %s = %s" % [T(s, none), T(s, v)], final_step(ans)], ans.values)}
-	return out
-
-
-static func _unique(xs: Array) -> Array:
-	var out: Array = []
-	for x in xs:
-		if not x in out:
-			out.append(x)
 	return out
 
 
@@ -702,7 +700,8 @@ func u_at_least_one_different(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var parts: Array = []
 	for i in s.n:
 		parts.append("%s with probability %s" % [who[i], T(s, s.ps[i])])
-	out.lines = ["%s each try once, independently of each other." % listing(who), "The chance that each one %s is: %s." % [verb, listing(parts)]]
+	parts[0] = "%s %s" % [who[0], verb] + parts[0].trim_prefix(who[0])
+	out.lines = ["%s each try once, independently of each other." % listing(who), listing(parts) + "."]
 	if rep == "diagram":
 		var a := T(s, s.ps[0])
 		var b := T(s, s.ps[1])

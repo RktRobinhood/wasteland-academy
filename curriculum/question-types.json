@@ -29041,12 +29041,12 @@
      "wrong": "n(A) ÷ (n(U) − n(A))"
     },
     {
-     "text": "Changing the count of the colour but leaving the total at its old size",
+     "text": "Leaving the total at its old size after the bag changes",
      "as": "distractor",
      "in": [
       "bag-after-change"
      ],
-     "wrong": "the new count over the old total"
+     "wrong": "the count now over the total before the change"
     },
     {
      "text": "Changing the total but leaving the colour's count at its old size",
