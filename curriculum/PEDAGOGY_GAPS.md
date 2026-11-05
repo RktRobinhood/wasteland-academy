@@ -1882,7 +1882,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 10 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
 
 #### Volume and surface area of solids, including in terms of a variable (`t3-solid-volume-area`, exam, 13 bank parts)
 
@@ -1956,6 +1956,42 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): In Area = ½ab sin C, what length is b sin C? — The perpendicular height from A onto side a (the line BC): the side b is the hypotenuse of a right triangle with angle C, so the height opposite C is b sin C. Then the area is ½ × base a × height.
 - **Misconceptions used:** 3. Finding only the acute angle when working back from an area; Forgetting the ½; Calculator in radian mode when the angle is in degrees.
 
+#### Right-angled trigonometry, including elevation and gradients (`t3-right-angle-trig`, exam, 10 bank parts)
+
+- **Situation:** One right-angled triangle, or a side view built from one.
+- **Representations:** **words**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the three sides of a right-angled triangle, θ at one vertex → sin θ, cos θ or tan θ as a fraction
+  - **exam** L2: given the two shorter sides of a right-angled triangle → the exact value of sin θ or cos θ
+  - **exam** L2: given the sides of a right-angled triangle as the letters p, q and r → sin θ, cos θ or tan θ in terms of the letters
+  - **exam** L2: given a rectangle inside a circle of radius r, and the angle θ between its diagonal and a side → a side of the rectangle in terms of r and θ
+  - **exam** L1: given one side and an angle, with the side asked on top of the ratio → the side
+  - **exam** L2: given one shorter side and an angle → the hypotenuse
+  - **exam** L2: given the side opposite an angle → the side adjacent to it
+  - **exam** L2: given the radius of a circle and the distance of a straight line from its centre → the length of the line inside the circle
+  - **exam** L2: given one side and an angle of 30°, 45° or 60° → the exact length of another side
+  - **exam** L1: given two sides of a right-angled triangle → the angle with the ground
+  - **exam** L2: given two sides with an exact ratio → the angle, with no calculator
+  - new L1: given the angle a slope makes with the horizontal → the gradient
+  - **exam** L2: given a gradient as a fraction → the angle with the horizontal
+  - **exam** L3: given the gradient of the sloping edge of a symmetrical shape → the angle between that edge and the vertical
+  - **exam** L3: given the gradient of a beam, a level span and an overhang → the length of the lower edge of the beam
+  - **exam** L4: given the gradient of a beam, a level span, an overhang and the thickness of the beam → the length of the top edge of the beam
+  - **exam** L1: given a distance along the ground and an angle of elevation, in degrees or radians → the height
+  - **exam** L3: given a distance and an angle of elevation, then a walk towards the foot → the new angle of elevation
+  - **exam** L3: given two sloping lengths to the tops of two towers with equal angles of elevation, and the angle between the lengths → the height of the taller tower
+  - **exam** L3: given the height of a cone, an eye height, a distance from the edge and an angle of elevation → the radius of the base
+  - **exam** L2: given a height and an angle of depression → the length of the line of sight
+  - **exam** L2: given a height and the length of the line of sight → the angle of depression
+  - **exam** L3: given a height and two angles of depression → the distance between the two points on the ground
+  - new L1: given a side view with a horizontal drawn at the top → which marked angle is the angle of elevation or depression
+- **Angles:** Label the sides, then SOH CAH TOA; Pythagoras for the missing side; Scale to hypotenuse 1; Gradient is tan θ; Choose the ratio and rearrange; Use the other acute angle; Pythagoras; Scale a special triangle; Inverse trig on the ratio; Find the third side, use another ratio; Recognise an exact ratio; Inverse tan of the gradient; One right triangle with tan; Move the angle of depression; Measure from the horizontal at the eye.
+- **Concept probes:**
+  - *true-false-reason* (L3): The gradient of a slope is the sine of its angle with the horizontal. — False: gradient is rise ÷ run, which is opposite ÷ adjacent, so it is the tangent. The sine uses the sloping length.
+  - *always-sometimes-never* (L3): In a right-angled triangle, sin θ equals the cosine of the other acute angle. — Always: the side opposite θ is the side adjacent to the other angle, and the hypotenuse is the same.
+  - *true-false-reason* (L3): The angle of depression from the top of a tower sits inside the triangle at the top. — False: it is measured down from the horizontal at the eye, so it is outside the triangle. It equals the angle at the ground, because the horizontals are parallel.
+- **Misconceptions used:** 29. Labelling opposite and adjacent relative to the wrong angle; Writing the ratio upside down, e.g. sin θ = hypotenuse / opposite; Treating the longer leg as the hypotenuse; Using rise ÷ sloping length for the gradient; Using run ÷ rise for the gradient; Rearranging by multiplying when the unknown side is underneath the ratio; Using the hypotenuse as if it were one of the shorter sides; Using the calculator in the wrong angle mode; Stopping at half of a length that the symmetry doubles; Applying the ratio function to the fraction instead of its inverse; Reading the inverse function as one over the function; Using adjacent / opposite for tan θ, which gives the other acute angle; Treating a gradient as a sine; Giving the angle with the horizontal when the vertical is asked for; Measuring the angle of depression from the vertical instead of the horizontal; Putting the angle of depression inside the triangle at the top vertex; Leaving the person's height or eye level out of the calculation; Using the whole span where the symmetry gives half of it; Leaving out the overhang past the level point; Taking the top edge to be as long as the lower edge; Adding the thickness of the beam to the length; Using the distance walked in place of the distance left; Halving the angle between the lines of sight to get θ; Stopping at the distance to the centre of the base; Choosing the equal angle at the other end of the line of sight; Using the radius in place of the diameter as the hypotenuse; Giving the whole angle at the top instead of the angle on one side; Using the shorter line of sight in place of the longer one; Adding the two distances when both points are on the same side.
+
 #### Sine rule and cosine rule for a side or an angle (`t3-sine-cosine-rule`, exam, 19 bank parts)
 
 - **Situation:** One triangle with its sides, angles and area, shared with `t3-ambiguous-case`, `t3-triangle-area`.
@@ -2001,6 +2037,43 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): An angle of depression from the top of a tower equals the angle of elevation of the top from the ground below. — Always: the two horizontals are parallel, so they are alternate angles.
   - *true-false-reason* (L3): Two legs on bearings of 040° and 100° meet at an angle of 60° inside the triangle. — False: 60° is the turn. The north lines are parallel, so the angle inside is 180° − 60° = 120°.
 - **Misconceptions used:** 9. Measuring a bearing anticlockwise or from east instead of clockwise from north; Giving the bearing the other way: the way back, not the way asked for; Using the bearings themselves as angles inside the triangle without angle chasing; Measuring the angle of depression from the vertical instead of the horizontal; Putting the angle of depression inside the triangle at the top vertex; Leaving the person's height or eye level out of the calculation; Rounding the shared side early and carrying the error into the next triangle; Assuming a right angle because it looks like one; Using the sine rule in a triangle where no side–opposite angle pair is known.
+
+#### Segments and composite regions built from sectors, triangles and rectangles (`t3-composite-circular-region`, exam, 13 bank parts)
+
+- **Situation:** A region of sectors, triangles and rectangles, or a sector from two conditions.
+- **Representations:** equation, **diagram**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given r; θ → the area of a segment
+  - **exam** L3: given r; a landmark multiple of π → the exact area of a segment
+  - **exam** L2: given r; θ → the perimeter of a segment
+  - **exam** L2: given r → the area of a segment in terms of θ
+  - **exam** L3: given θ; the area of the segment → r
+  - **exam** L3: given r; the angle between a radius and a straight wall → the area of a sector and a triangle together
+  - **exam** L4: given the arc of the sector, with θ unknown → the area of the sector and triangle in terms of θ
+  - **exam** L3: given r; the arc of the sector → the angle at the far end of the isosceles triangle
+  - **exam** L4: given the ratio of a segment to a triangle in a semicircle → the equation θ = k sin θ
+  - **exam** L4: given the ratio of a segment to a triangle in a semicircle → θ, on the GDC
+  - **exam** L5: given the area of a segment; its ratio to the triangle in the same sector → r
+  - **exam** L4: given r; θ; the height of the rectangle under the arc → the area of the rectangle and segment
+  - **exam** L2: given both radii; a reflex angle → the area of a curved strip
+  - **exam** L3: given the outer radius; a reflex angle → the area of a curved strip in terms of the inner radius
+  - **exam** L2: given a rectangle's width and height, in letters, with a semicircle on it → the area in terms of x and h
+  - **exam** L3: given the same shape and its perimeter → h in terms of x
+  - **exam** L4: given r; the angle between two tangents → the area between the tangents and the circle
+  - **exam** L4: given r; the angle between two tangents, as 2α → that area in terms of α
+  - **exam** L2: given the perimeter of a sector → θ in terms of r
+  - **exam** L3: given the perimeter and area of a sector → the quadratic in r
+  - **exam** L4: given the perimeter and area of a sector, where one root gives θ > 2π → r
+  - **exam** L4: given the perimeter and area of a sector, where one root gives θ > 2π → θ
+  - **exam** L4: given the perimeter and area of a sector, where both roots work → both values of r
+  - **exam** L3: given the arc and area of a sector → r
+  - **exam** L3: given the radius and area of a sector rolled into a cone → the radius of the cone's base
+- **Angles:** Sector minus triangle; Build from standard pieces; Chord by cosine rule or 2r sin(θ/2); Angle facts in the figure; Rearrange the perimeter; Eliminate θ; Eliminate θ and solve a quadratic; Intersect the two conditions on the GDC; A = ½rl.
+- **Concept probes:**
+  - *true-false-reason* (L3): If you double the angle of a segment and keep its radius, its area doubles. — False: the area is ½r²(θ − sin θ), and θ − sin θ is not in proportion to θ. A sector doubles; a segment does not.
+  - *always-sometimes-never* (L3): The perimeter of a minor segment is less than the perimeter of its sector. — Always: both have the arc, and the chord is shorter than the two radii, which go the long way round through O.
+  - *interpret-parameter* (L3): A sector with angle θ sits on a straight line beside a triangle with angle π − θ at the same centre. Why does the triangle's area use sin θ? — Because sin(π − θ) = sin θ, so ½r² sin(π − θ) is ½r² sin θ, and the two pieces share the factor ½r².
+- **Misconceptions used:** 15. Leaving the calculator in degree mode when evaluating sin θ for θ in radians; Adding the two radii instead of the chord to the perimeter of a segment; Using the whole sector where only the segment belongs in the region; Adding the hidden join between two shapes to a perimeter; Using the angle between two tangents as the angle at the centre; Reading a ratio of two areas the wrong way round; Using the diameter as the radius of a semicircle; Leaving the triangle out of a region made of a sector and a triangle; Using θ in degrees in l = rθ; Giving the minor sector when the major sector is asked for; Using perimeter = rθ, forgetting the 2r; Accepting a solution with θ > 2π; Keeping only one root when both give a valid sector; Using θ in degrees in the sector term of a segment's area; Leaving the calculator in degree mode when evaluating the sine of an angle in radians.
 
 #### Arc length, sector area and perimeter, forwards or backwards (`t3-arc-sector`, exam, 16 bank parts)
 
@@ -2146,7 +2219,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2302,6 +2375,32 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): P(at least one success) is more than the probability of success on one trial. — Sometimes: it is more when there are two or more trials and each can succeed, but with one trial, or a probability of 0 on every later trial, the two are equal.
 - **Misconceptions used:** 13. Treating outcomes that are not equally likely as if they were, giving each kind of outcome the same share; Dividing by a row total when the person is chosen from the whole group; Finding P(exactly one) when 'at least one' is asked for; Adding the trials' probabilities for 'at least one', which counts the overlaps more than once; Taking the relative frequency from a handful of trials as the true probability; Letting a run change the chance, as if a result were 'due': past trials don't change it; Dividing by the rest instead of the whole, leaving the event's own count out of the total; Leaving the total at its old size after the bag changes; Changing the total but leaving the colour's count at its old size; Giving the probability of the event itself, or of 'none', instead of the one asked for; Getting the boundary wrong, counting a value that doesn't belong or leaving out one that does; Taking away only one of the two prizes from the whole; Working out the chance of the whole run instead of the next toss alone.
 
+#### Tree diagrams and selection without replacement (`t4-tree-diagram`, exam, 14 bank parts)
+
+- **Situation:** A multi-stage event on a tree, or draws from a tin, shared with `t4-conditional-probability`.
+- **Representations:** **diagram**, **words**, **table** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a tree with one branch marked x → x
+  - **exam** L2: given a tree in terms of k, with a branch marked x → x in terms of k
+  - **exam** L2: given a tin and how it changes; its tree with x and y on the second stage → x
+  - **exam** L2: given a tree, or a tin and two draws → the probability of one path
+  - **exam** L3: given a tree, or crates to choose between → the probability of an outcome over all its paths
+  - **exam** L3: given a tin and two draws → the probability of the same colour, or of different colours
+  - **exam** L3: given a tin and two or three draws without replacement → the probability of at least one of a colour
+  - **exam** L3: given a tin or a table; three chosen without replacement → the probability that all three are of one kind
+  - **exam** L3: given a tin of n with a known number of one colour → the probability of a first draw or two in terms of n
+  - **exam** L3: given the chance on each try, or a normal tail; the try → the probability that a first or only success comes on that try
+  - **exam** L4: given two normal groups and their shares; a limit → the probability of being under the limit, or which group it came from
+  - **exam** L4: given a tree in terms of k; the probability of a path → k
+  - **exam** L5: given the scores of one round; the number of rounds and a total to beat → the probability of beating the total
+  - **exam** L5: given a tin that grows with each selection; the probability that the first of a colour comes on selection n → n
+- **Angles:** Branches at a fork add to 1; Recount what is left after each draw; Multiply along, add between; List the ordered outcomes; Use the complement paths.
+- **Concept probes:**
+  - *true-false-reason* (L3): On any tree, the probabilities at the ends of all the paths add to 1. — True: the paths cover every outcome once and no two can both happen. It is a quick check on a finished tree.
+  - *always-sometimes-never* (L3): Drawing without replacement changes the probability on a second-stage branch. — Always: one item has gone, so the total on the bottom of the fraction changes, whichever colour was drawn.
+  - *true-false-reason* (L3): P(at least one) is the same as 1 minus P(none). — True: at least one and none are complements, so together they cover everything. With many paths it is much the shorter way.
+- **Misconceptions used:** 27. Not reducing the numerator and denominator on the second-stage branches when sampling without replacement; Adding along a path instead of multiplying; Counting only one order of the two colours and forgetting the other; Subtracting the branch before the fork instead of a branch at the fork; Leaving out one branch of a three-way fork; Subtracting one from the branch instead of the branch from one; Reducing the count of the colour that was not drawn; Leaving out the extra item added after the first draw; Giving the last branch alone instead of multiplying along the path; Stopping after one path into the event; Adding the branches that end in the outcome without multiplying along each path; Giving the probability of the opposite event; Stopping at the complement without subtracting it from one; Counting exactly one and leaving out the paths with more; Swapping the success and failure probabilities on the path; Multiplying by the number of orders when the order is fixed; Counting one failure too many before the success; Giving the path without dividing by the total of the paths; Keeping the root that makes a branch greater than one; Giving the number in the tin instead of the number of selections; Leaving the last selection out of the count; Leaving out the orders of the rounds; Counting only the games with the top score in every round; Including the totals equal to the limit; Leaving the count of the colour drawn unchanged after the first draw; Leaving the total unchanged after an item is drawn; Reducing the total before anything has been drawn.
+
 #### Venn diagrams, two-way tables and the addition rule (`t4-venn-addition-rule`, exam, 11 bank parts)
 
 - **Situation:** Two events in one sample space.
@@ -2423,9 +2522,34 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L4): As r gets closer to 1, what happens to the two regression lines? — They close up on each other, and at r = ±1 they are the same line.
 - **Misconceptions used:** 7. Rearranging the y-on-x line to make x the subject: it is a different line unless the fit is perfect; Copying the GDC output as y = ax + b without swapping the variables back; Thinking the other line can always be used if you rearrange it; Choosing a line by which variable is on the horizontal axis, regardless of which one is being predicted; Substituting the y-value into the y-on-x line and solving for x; Calling an extrapolated estimate reliable because r is strong; Substituting x̄ into the x-on-y equation as if it were a y-value.
 
+#### Use or test independence of events (`t4-independence`, exam, 9 bank parts)
+
+- **Situation:** Two events, known to be independent or to be tested.
+- **Representations:** **equation**, **words**, **diagram**, **table** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given P(A) and P(B), independent → P(A ∩ B)
+  - **exam** L2: given P(A) and P(B), independent → P(A′ ∩ B), P(A ∩ B′) or P(A′ ∩ B′)
+  - **exam** L2: given P(A) and P(B), independent → P(A ∪ B)
+  - **exam** L3: given P(B) and P(A ∩ B), independent → a conditional such as P(A′ | B′)
+  - **exam** L3: given P(A) and P(A ∪ B), independent → P(B)
+  - **exam** L4: given P(A) = k P(B); P(A ∪ B), independent → P(B), from a quadratic with one root rejected
+  - **exam** L4: given P(A ∩ B′) and P(A′ ∩ B), independent → x = P(A ∩ B)
+  - **exam** L2: given P(A), P(B) and P(A ∩ B) or P(A ∪ B), or a story in percentages → whether A and B are independent, with the two numbers
+  - **exam** L2: given a Venn diagram → whether A and B are independent, with the two numbers
+  - **exam** L3: given a two-way table → whether A and B are independent, with the two numbers
+  - **exam** L3: given two sources and a random pick, in words or on a tree → whether the source and the result are independent, with the two numbers
+  - **exam** L4: given P(A), P(A ∪ B) and P(B | A) → whether A and B are independent, with the two numbers
+  - **exam** L3: given P(A), P(B) and P(A ∪ B) → whether A and B are mutually exclusive, independent or neither
+- **Angles:** Multiply the probabilities; Tree with identical second-stage branches; Substitute P(A)P(B) into the addition rule; Use independence of the complements; Venn diagram in terms of x; Compare P(A ∩ B) with P(A)P(B); See whether the given event changes the probability; Compare proportions across the rows of a table.
+- **Concept probes:**
+  - *true-false-reason* (L3): If A and B are mutually exclusive and neither has probability 0, then they are independent. — False: if A happens then B can't, so knowing A changes the probability of B completely. P(A ∩ B) = 0, but P(A) × P(B) is not 0.
+  - *true-false-reason* (L3): Two independent events can't happen together. — False: that describes mutually exclusive events. Independent events with non-zero probabilities always overlap, because P(A ∩ B) = P(A) × P(B) is not 0.
+  - *always-sometimes-never* (L4): If A and B are independent, then A′ and B′ are independent. — Always: P(A′ ∩ B′) = 1 − P(A) − P(B) + P(A)P(B), which factorises to (1 − P(A))(1 − P(B)).
+- **Misconceptions used:** 12. Adding P(A) + P(B) for 'A and B'; Giving P(A) + P(B) − P(A)P(B), which is P(A ∪ B), when the intersection is asked for; Taking P(A ∩ B) = 0 for independent events (that is mutually exclusive); Leaving out the complement: using P(A) × P(B) when an event with a dash is asked for; Assuming that events that overlap cannot be independent; Mixing up independent with mutually exclusive: being independent is not about whether the events overlap; Giving a verdict from one number, when the test compares two; Reading the test backwards: equal values mean independent, and different values mean not; Using P(A ∪ B) = P(A) + P(B) as if the events were mutually exclusive; Setting P(A ∩ B) = 0 because the events are independent; Multiplying the two 'only' regions, when independence multiplies P(A) by P(B); Giving the probability of both events, when a conditional is asked for.
+
 #### Conditional probability from formula, table, tree or distribution (`t4-conditional-probability`, exam, 17 bank parts)
 
-- **Situation:** A conditional probability on events, a tree, or a distribution.
+- **Situation:** A conditional probability on events, a tree, or a distribution, shared with `t4-tree-diagram`.
 - **Representations:** **equation**, **words**, **diagram**, **table** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L2: given P(B) and P(A ∩ B) → P(A | B)
@@ -2484,7 +2608,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 11 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 13 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -2581,9 +2705,70 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): A point where f″(x) = 0 is a point of inflexion. — Sometimes: f″ must also change sign there. For f(x) = x⁴, f″(0) = 0 but (0, 0) is a minimum.
 - **Misconceptions used:** 3. Substituting the x-value into f′ instead of f to get the y-coordinate; f″ > 0 means a maximum (sign reversed); Giving the x-value when the maximum value is asked for (or the other way round).
 
+#### Optimisation: build a function from a constraint, then maximise or minimise (`t5-optimisation-modelling`, exam, 18 bank parts)
+
+- **Situation:** One shape or journey with a fixed amount and one free length.
+- **Representations:** **diagram**, **words**, **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L3: given the fixed amount; a shape with lengths x and y → the second length in terms of the first
+  - **exam** L3: given a figure or story with one free length → the function in terms of x
+  - **exam** L4: given the fixed amount; the target form with letters p and q → p and q, the numbers a 'show that' lands on
+  - **exam** L3: given the function, or the function in two variables and its constraint → the derivative
+  - **exam** L4: given the function → the value of x at the maximum or minimum
+  - **exam** L4: given the function → the exact value of x, as m√t or a cube root
+  - **exam** L4: given the function; the stationary point → the second derivative there, and the nature of the point
+  - **exam** L4: given the function; the stationary point → the derivative either side, and the nature of the point
+  - **exam** L4: given the function; the shape → the maximum or minimum value
+  - **exam** L4: given the fixed amount → the second length at the optimum
+  - **exam** L3: given a fixed fence against a wall → the maximum area
+  - **exam** L4: given a sheet; the volume of its tray → the cut that gives the greatest volume, with the second root rejected
+  - **exam** L4: given a route off a road, with its time or cost function → the point that gives the least time or cost
+  - **exam** L4: given a route off a road, with its time or cost function → the least time or cost
+  - **exam** L5: given a curve and a fixed point → the x-coordinate of the closest point on the curve
+- **Angles:** Eliminate a variable with the constraint; Read the lengths off the figure; Differentiate and justify; Graph on the feasible domain; Midpoint of the roots for a quadratic model; Second derivative test; First derivative sign table.
+- **Concept probes:**
+  - *true-false-reason* (L4): A stationary point of a function on a domain must be where the function takes its largest value on that domain. — False: a stationary point can be a local minimum or an inflexion, and the largest value can be at an end of the domain. That is why the point has to be justified and the ends considered.
+  - *always-sometimes-never* (L4): When a quantity depends on two lengths tied by a constraint, it can be differentiated before one length is eliminated. — Never by the plain power rule: the second length changes with the first, so it can't be held constant. Eliminate it first, so the function has one variable.
+- **Misconceptions used:** 30. Differentiating before eliminating the second variable; Ignoring the feasible domain, such as a cut too big for the sheet; Giving the constraint value or the optimal x when the optimal value is asked for; Solving f(x) = 0 instead of f′(x) = 0; Reading maximum and minimum the wrong way round; Checking the sign of f rather than f′ either side of the point; Counting a fence along the wall as well; Counting only one of the sections of length x; Dividing the fixed amount the wrong way up; Using the circumference in place of the base area; Counting only some of the side faces; Counting a lid on an open shape; Counting the wrong number of flat ends; Using half the curved surface; Cutting x from only one end of each edge; Leaving the height out of the volume; Taking x as the full width of the rectangle; Adding the two legs instead of using Pythagoras; Multiplying distance by speed to get a time; Using x for the stretch along the road; Losing the minus sign when differentiating a negative power; Adding one to a negative power instead of subtracting one; Keeping the old power after multiplying by it; Stopping before taking the root; Taking a square root where a cube root is needed; Measuring x from the depot instead of from P; Taking the straight line to the depot without minimising; Taking the point straight above P as the closest; Leaving out the factor from the power when differentiating the squared bracket; Giving the length found first instead of the one asked for.
+
+#### Kinematics: displacement and distance by integrating velocity (`t5-kinematics-distance`, exam, 23 bank parts)
+
+- **Situation:** A particle's journey, added up, shared with `t5-kinematics-motion`.
+- **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given v(t), a polynomial; s at one time → s(t)
+  - new L2: given a(t), linear; v at one time → v(t)
+  - **exam** L2: given v(t); s when t = 0; a time → the displacement from O at that time
+  - **exam** L3: given v(t); s when t = 0; two times → the displacement between the two times
+  - **exam** L3: given v(t); s when t = 0 → the displacement from O when the velocity is greatest
+  - **exam** L4: given v(t), positive then negative → whether the particle gets back to its start on the interval
+  - **exam** L1: given s(t) with cos → the displacement when t = 0
+  - **exam** L3: given v(t), negative then positive then negative → the interval on which the displacement increases
+  - **exam** L4: given a repeating v(t), always positive; a story of evenly spaced ridges → the distance between two ridges
+  - **exam** L5: given two velocities with e; the length of a race → how far the second racer is from the line when the first finishes
+  - **exam** L3: given a v–t graph in straight pieces; s when t = 0 → the displacement from O at the end
+  - **exam** L2: given s(t), a quadratic → the displacement when the particle changes direction
+  - **exam** L2: given s(t), a quadratic; a time past its return → the distance from the origin at that time
+  - **exam** L3: given s(t), a quadratic → the total distance on the interval
+  - **exam** L3: given v(t) → the distance travelled before the first change of direction
+  - **exam** L3: given v(t), a polynomial with rests → the total distance on the interval
+  - **exam** L3: given v(t) with e or sin → the total distance on the interval, to 3 s.f.
+  - **exam** L4: given v(t) with sin or cos → the distance between a time when a = 0 and a time at rest, to 3 s.f.
+  - **exam** L4: given s(t) with cos → the total distance up to the second rest, to 3 s.f.
+  - **exam** L3: given v(t) with one rest → an expression for the total distance, not evaluated
+  - **exam** L4: given v(t) with one rest → an expression for the distance travelled while the speed increases, not evaluated
+  - **exam** L4: given v(t), linear; a total distance past the rest → the time when that distance has been travelled
+  - **exam** L2: given a v–t graph in straight pieces → the total distance
+- **Angles:** Integrate and use the initial condition; Start position plus definite integral; GDC definite integral of v; Split where v = 0; Track the positions; Integrate |v| on the GDC; Add areas on the v–t graph; Substitute t = 0; Read the sign of v; Definite integral of v; Integrate up to the first rest.
+- **Concept probes:**
+  - *always-sometimes-never* (L3): The total distance travelled equals the size of the displacement. — Sometimes: only when the particle never changes direction. After a turn, distance keeps adding while displacement goes back.
+  - *true-false-reason* (L3): If ∫ v dt from 0 to T is 0, the particle did not move. — False: it only means the particle ended where it started. It may have gone out and come back.
+  - *interpret-parameter* (L4): s(t) = t³ − 4t + C for a moving particle. What does C tell you, and what does it not change? — C is the displacement when t = 0. It shifts the graph of s up or down, so it changes no velocity and no distance travelled.
+- **Misconceptions used:** 21. Assuming the constant is 0 (or that s = 0 at t = 0) without being told; Differentiating v instead of integrating to get s; Confusing the displacement over an interval with the position at the end of it; Using ∫ v dt (the displacement) as the distance; Not splitting the integral where the particle changes direction; Subtracting the area below the t-axis instead of adding it; Counting area below the axis as positive displacement; Giving the signed displacement as a distance from the origin; Using the total distance travelled as the distance from the origin; Using distance = speed × time with a velocity that changes; Looking for where v is increasing instead of where v is positive; Thinking speed increases only while a is positive, whatever the sign of v; Taking half a period as the time between two ridges; Giving how far the second racer has gone, not how far it has left; Assuming a change of direction means the particle is back at its start; Using the total distance to decide whether a particle gets back to its start; Leaving out + C after integrating; Adding the integral over the part where v is negative instead of subtracting it; Using the overall change in position as the distance; Using the size of the overall change in position as the distance; Not splitting the integral where the direction changes.
+
 #### Kinematics: rest, direction change, acceleration, maximum speed (`t5-kinematics-motion`, exam, 29 bank parts)
 
-- **Situation:** A particle on a straight line.
+- **Situation:** A particle on a straight line, shared with `t5-kinematics-distance`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given s(t), a polynomial → v(t)

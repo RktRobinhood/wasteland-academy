@@ -153,7 +153,9 @@ static func angle_text(s: Dictionary) -> String:
 
 
 static func angle_words(s: Dictionary) -> String:
-	return angle_text(s) if s.form == "deg" else angle_text(s) + " radians"
+	if s.form == "deg":
+		return angle_text(s)
+	return angle_text(s) + (" radian" if angle_text(s) == "1" else " radians")
 
 
 static func unit(s: Dictionary) -> String:
@@ -365,7 +367,7 @@ func u_rad_to_deg(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.graph = figure(s, "minor", {"angle_label": d})
 		out.asked = finish(s, "Write angle AOB in degrees.", ans)
 	else:
-		out.lines = ["θ = %s radians" % d]
+		out.lines = ["θ = " + angle_words(s)]
 		out.asked = finish(s, "Write θ in degrees.", ans)
 	var size := radians(s)
 	var wrong_deg: Array = said("θ = %s°" % Fmt.sf(size), R_ONE_DEGREE) if s.paper == 1 else [wrong({"v": s.t}, R_ONE_DEGREE)]

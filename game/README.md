@@ -205,6 +205,22 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   It asks a rate from the GDC, what a rate means, its units, a sentence in derivative notation,
   a comparison of two rates, the limit of a model or of its rate as t → ∞, and a limit from a
   table, from a graph with a gap and a dot, or by cancelling. A reading in words is a `claim`.
+- `engine/situations/optimisation.gd` (FAL-739) is `t5-optimisation-modelling` (SL5.8): one shape or
+  journey with a fixed amount and one free length, in eight families: a yard against a wall with fixed
+  fence, a plot against a wall with fixed area, a cylinder (closed or open, area or cost), an open
+  square-based bin from a fixed sheet, a tray cut from a sheet, a rectangle under an arch, a route off
+  a road (time or cost) and the closest point on a curve. Its 15 unknowns are the exam's stages: a
+  second length from the constraint, a function built from a figure, a "show that", the derivative
+  (from the one-variable function, or from two variables and a constraint, where the option that
+  doesn't eliminate is the trap), the stationary point, an exact value (m√t on Paper 1, a cube root
+  on Paper 2), the second-derivative and sign-change justifications, the optimum value, the second
+  length, a quadratic by the vertex, a tray whose second root is outside the sheet, and a route's
+  best point and least value. A "show that" follows `show-form`: the target has letters where its
+  numbers go, and the student states them. Paper 1 is exact, with π left in; Paper 2 is to 3 s.f., and
+  the GDC is a method there. A route is Paper 2 and a closest point Paper 1, as in the bank. Figures
+  are PlotView's `sketch` and `solid` (which gained a cylinder, an open cylinder and an open bin) or a
+  graph with its rectangle shaded. The checker reads the shape back from the words or the figure,
+  builds the function again, and solves it with SymPy, or mpmath for a route (`check_optimisation`).
 - `engine/situations/monotonic.gd` (FAL-723) is `t5-increasing-decreasing` (SL5.2, on all four
   syllabuses): a cubic built from whole-number turning points, a quadratic from whole-number
   roots, f′(x) = a + bx − c e^x on Paper 2, and a letter that keeps f′ on one side of the axis.
@@ -233,6 +249,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   numerically. Graphs are in straight pieces with whole-number corners, on axes named t and v
   or s (`y_name`). The acceleration at maximum speed is only asked where that speed is at an end
   of the interval, as it is 0 at a turning point of v.
+- `engine/situations/motion_distance.gd` (FAL-739) is `t5-kinematics-distance` (SL5.9), the
+  `motion-distance` situation, which extends `motion`: it keeps that situation's Paper 2 models,
+  rest finder and graphs, and adds an antiderivative, the legs of a trip between rests, and its
+  own families. Paper 1 is v(t) = 3A(t + u)(r − t) with one rest, the two-rest quadratic, s(t) =
+  ct(2q − t) and a straight v(t); s(t) stays whole, at most 300, up to T = 8. Paper 2 is the base
+  models, s(t) = A cos(wt) + Bt + C, a repeating v that is always positive and a race between
+  two A(1 − e^(−kt)). Its views (`motion_distance_views.gd`) ask 23 unknowns: s(t) and v(t) with
+  + C, a position, a displacement over a stretch, the position at the top of v, whether a
+  particle gets back to its start, s(0), where the displacement rises, a distance split at rests
+  or by ∫|v| dt on the GDC, from s(t), up to the first turn or between two times, a distance's
+  expression left unevaluated (a `form` answer with four limits to type), a time from a distance,
+  the gap between ridges, a race, and areas on a v–t graph with a corner at every zero. A curve
+  in the `graph` representation sits under its equation, as in the exam. Integrating with + C is
+  Paper 1 only, since a Paper 2 model can't be integrated by hand at SL.
 - `engine/situations/geometric_sequence.gd` (FAL-728) is `t1-geometric-sequence` (SL1.3, on all four
   syllabuses) and `t1-sum-to-infinity` (SL1.8), one situation for both. Paper 1 is whole numbers and
   simple fractions, marked exactly; Paper 2 is decimals that end, marked exactly when whole or within
@@ -307,6 +337,33 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Its views (`conditional_views.gd`) ask 13 unknowns. A normal conditional on a curve shades the
   given and the wanted area, so the overlap shows darker. Answers are exact on Paper 1, in the
   numbers the question uses, and to 3 s.f. on Paper 2; normal and binomial ones are Paper 2 only.
+- `engine/situations/tree_diagram.gd` (FAL-739) is `t4-tree-diagram` (SL4.6, AA only). It extends
+  `conditional`: the fit test, colours and answers are shared, and its trees are PlotView's `tree`
+  with `heads` (stage names), which allows 2 or 3 branches at each fork and a letter (x, y, ?) on a
+  missing branch. Its views (`tree_diagram_views.gd`) ask 14 unknowns: a missing branch, a branch in
+  terms of k, a branch after a draw from a tin that loses or gains one, a path, a total over paths
+  (a tree, or crates in a story), same or different colours, at least one by the complement, three
+  in a row from a tin or a table, a draw in terms of n, the try a first or only success comes on,
+  normal groups as the branches (a total, or which group), k on a branch from a path with its other
+  root rejected, the rounds of a game that beat a total, and n in a tin that grows. Paper 1 is exact;
+  Paper 2 is to 3 s.f., except a branch read off the tree. k and a growing tin are Paper 1; n, normal
+  groups and games are Paper 2. Set-ups that repeat a past paper's numbers are left out.
+- `engine/situations/independence.gd` (FAL-739) is `t4-independence` (SL4.6, SL4.11, AA only). P(A)
+  and P(B) are drawn first, with an exact product. Then the events are known to be independent, or
+  they are tested: a fair coin, drawn before anything else, either keeps the overlap at that
+  product or moves it a little, with P(A) and P(B) unchanged. So the two cases look alike, and on
+  Paper 2 values that differ stay 0.002 apart and read differently to 3 s.f. Its views
+  (`independence_views.gd`) ask 13 unknowns: P(A ∩ B), a region such as P(A′ ∩ B), P(A ∪ B), a
+  conditional such as P(A′ | B′), P(B) from the union, P(B) from P(A) = kP(B) with a root rejected,
+  x = P(A ∩ B) from the two "only" regions (with one repeated root), and five tests, from
+  probabilities or percentages, a Venn diagram, a two-way table, two sources on a tree or in words,
+  and P(B | A) with the union. `classify-events` picks mutually exclusive, independent or neither,
+  a third each, so the two ideas are kept apart. A test's answer is a `form`: the two numbers of the
+  method asked are typed and the verdict picked. Every option quotes true values, and two end in
+  each verdict, so an option can have the right verdict and still be wrong for its reason: "P(A ∩ B)
+  is not 0, so not independent". The quadratics are Paper 2 only; the rest make both papers, exact
+  on Paper 1 and to 3 s.f. on Paper 2. Figures reuse PlotView's `venn` and `tree` and the two-way
+  table of `VennViews`.
 - `engine/situations/sampling.gd` (FAL-726) is `t4-sampling` (SL4.1, on all four syllabuses): a
   population in named groups and a surveyor's method, on both papers, Paper 2 with larger numbers.
   Each group is the interval times its share of the sample, so numbers in proportion are whole.
@@ -340,6 +397,21 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   strip between two circles and the plate with two segments cut away are Paper 2 only; the plate
   brings in `SL3.4.segment-shaded`, with θ found on the GDC. PlotView's `sector` draws the real
   angle, and `plate` the cut plate.
+- `engine/situations/circular_region.gd` (FAL-739) is `t3-composite-circular-region` (SL3.4, AA only):
+  a region added up from sectors, triangles, rectangles and circles, or one sector fixed by two
+  conditions. Its views (`circular_region_views.gd`) ask 25 unknowns: a segment's area (to 3 s.f. with
+  θ in radians or degrees, exact with a landmark angle, and in terms of θ), its perimeter and r worked
+  back; a sector and a triangle on a straight wall, its area, its area in terms of θ and an angle in
+  the isosceles triangle; a segment and a triangle in a ratio, for the equation θ = k sin θ, θ on the
+  GDC and r; a rectangle under a segment; a curved strip's area and its area in terms of r; a semicircle
+  on a rectangle, in letters; the part between two tangents and a circle; and θ in terms of r, the
+  quadratic in r, r, θ and both roots from a perimeter and an area, r from an arc and an area, and a
+  cone from a sector's area. On two conditions the roots r1 < r2 give θ = 2r2/r1 and 2r1/r2, so r2/r1
+  above π throws out the small root: `two-conditions-r` and `-theta` keep r2/r1 at 3.3 or more, and
+  `two-conditions-both` at 2.9 or less. `ui/region_plot.gd` draws PlotView's `region` kind, each shape
+  to its real proportions with the region shaded; a curved strip and a cone use PlotView's `sector`.
+  As in the bank the type is nearly all Paper 2: only `segment-exact` is Paper 1 alone, and the
+  sector from two conditions makes both papers, with whole-number roots on Paper 1.
 - `engine/situations/bearings_elevation.gd` (FAL-726) is `t3-bearings-elevation` (SL3.3, on all four
   syllabuses). Every question is Paper 2. Its views (`bearings_elevation_views.gd`) ask 19 unknowns:
   back bearings, angles from a bearing, two-leg journeys by the cosine rule or by components, due
@@ -353,6 +425,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   and the `form` answer whose slots follow the value's shape. `ui/plot_view.gd` adds `unit-circle`
   (points, an angle, a shaded quadrant, a dashed line y = k or x = k) and `straight-angle`, and a
   GraphView spec's `x_ticks` marks the across axis in multiples of π.
+- `engine/situations/right_triangle.gd` (FAL-739) is `t3-right-angle-trig` (SL3.2 and SL3.3, on all
+  four syllabuses): 24 unknowns, 50 cells, about 1 in 10 Paper 1. A triangle has its letters dealt at
+  random and is turned on the page, so the right angle is not always at the bottom (no vertex is
+  called N: a sketch reads an arc from "N" as a bearing). A ratio can be a fraction, a surd or in
+  the letters p, q and r. A side is on top of the ratio or under it, by the other acute angle, from
+  a special triangle, a chord from a radius, or a rectangle's side in terms of r and θ. An angle
+  comes from two sides, an exact ratio or a gradient, because gradient is tan θ, and a symmetrical
+  frame asks for the angle with the vertical and the lengths of a sloping beam's two edges.
+  Elevation and depression are always drawn, with the horizontal at the eye, in degrees or radians:
+  a walk towards a tower, two towers with equal angles, a cone seen from eye level, the line of
+  sight, two points below, and which angle in the figure is the one named. `RightTriangleViews`
+  extends `BearingsViews` for its writing and sketch helpers; a sketch gained `circles`.
+  `check_right_triangle` reads the numbers back and works everything out again, with exact surds
+  or mpmath, and holds each angle of elevation or depression to the horizontal in the figure.
 - `engine/situations/exact_trig.gd` (FAL-727) is `t3-exact-values` (SL3.5, AA only, all Paper 1): 11
   unknowns on landmark values, a number in front, sums, related angles past the first quadrant,
   negative or on the second turn, a ratio of π − θ, π + θ or −θ from a given ratio, and the unit
@@ -1083,20 +1169,36 @@ definite integral or area is worked out again with SymPy, or mpmath for a model,
 roots it finds itself, and each shaded strip must be the region asked for; rests and extremes are
 found again from v(t), exactly on Paper 1 (`check_integration`, `check_definite_integral`,
 `check_motion`).
+For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
+Paper 2, summed over the stretches between rests it finds itself, so a distance is not the
+engine's. A return is decided by the roots of s itself, a ridge's gap by the model's own period,
+a race by solving for the winner's time, and every option of an expression is worked out and
+must equal the distance only if it is the right one (`check_motion_distance`, `kd_*`).
 For the four FAL-725 situations it reads the facts back from the question: lines, percentages,
 sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and lines again with
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
 back into erf, and a shaded area must be the area given (`check_regression_pair`,
 `check_normal_unknown`, `check_venn`, `check_conditional`).
+For `independence` it reads the facts back the same way and decides each test itself. Each of the
+four comparisons must agree, and all four option texts are rebuilt from true values, so a false
+number or a verdict that doesn't follow fails. It also multiplies and divides every plain step of
+the working again (`check_independence`).
 For `basic-probability` it reads the story, table, bar chart, tree or curve back, counts the outcomes
 again by listing every one, and checks that a curve is real counts settling on its answer
 (`check_basic_probability`).
+For `tree-diagram` it reads the tree off the figure, or the tin, crates, tries, groups or game off
+the words. Every fork must add to 1 and every branch of a tin's tree must be the recount. Paths are
+found again exactly, normal areas with mpmath, a game by listing every game, and a growing tin by
+walking its selections. Each plain sum and product in the working is evaluated (`check_tree_diagram`).
 For `sampling` it runs the checklist on the surveyor's sentence (a fixed interval, groups filled,
 a random draw) to find the technique, and holds each wrong disadvantage to being false of it. For
 `cumulative-frequency` it reads every value off the curve in the figure, which must rise strictly
 and meet the reading on a corner of the grid the scale line describes; a table's estimates come from
 its written rows, and a pick-the-graph card must hold the points its mistake says
 (`check_sampling`, `check_cumulative_frequency`).
+For `optimisation-model` it reads the shape back from the words or the figure, or the function from
+its line, solves F′ = 0 with SymPy and takes the root in the domain, or finds a route's turning point
+with mpmath, and works each tagged wrong option out from its slip (`check_optimisation`).
 For the two FAL-726 situations it reads r, θ, the arc, the area, bearings and lengths back from
 the lines or the figure, and works each answer out from those, exactly with a + bπ on Paper 1, or
 at 40 digits. A sector must be drawn to the question's angle, and each length and bearing on a
@@ -1428,6 +1530,9 @@ script error happens while it runs. Run one file with
   the four FAL-723 types: built with every cell and every skill, no extra format, four
   different options, GDC methods on Paper 2 only, an expression marked by its numbers, an
   interval marked in either order, a limit graph with a gap, and matching as four graphs.
+- `test_motion_distance.gd`: t5-kinematics-distance built with every cell and both skills, four
+  different options, GDC methods on Paper 2 and integrating by hand on Paper 1, the antiderivatives
+  against v, a worked trip, graphs with a corner at each zero, and a return that goes both ways.
 - `test_integration.gd`, `test_definite_integral.gd`, `test_motion.gd`: the three FAL-724 types:
   built with every cell and every skill, no extra format, four different options, GDC methods on
   Paper 2 only, + C on every integral, the method setting the shape, a shaded region on every
@@ -1454,6 +1559,9 @@ script error happens while it runs. Run one file with
   early-rounding and rearranged-line slips reading differently; a line written with its
   sign; 3 s.f. marking and an exact mean point; every misconception as an option; r² as an
   option and r never 1 or more; the three concept probes; and every course having every cell.
+- `test_right_triangle.gd`: `t3-right-angle-trig` (FAL-739): every cell and skill, one right option
+  in both formats, a figure for every elevation and depression, the horizontal at the top, a turned
+  triangle keeps its right angle, exact answers stay exact, and every misconception is offered.
 - `test_solid.gd`, `test_standard_form.gd`: the two FAL-726 types: each built with every cell and
   all its skills, one right option on each paper it can make, sketches that label only what is
   given, a right triangle in every cone and a sector that rolls into its cone, a × 10^k typed with
@@ -1466,6 +1574,9 @@ script error happens while it runs. Run one file with
   FAL-725 types: each built with every cell and all its skills, one right option on each paper,
   the numbers against hand values, the figures drawn, every misconception as an option, and the
   courses each is in.
+- `test_tree_diagram.gd` (FAL-739): `t4-tree-diagram`: every cell with one right option, its papers,
+  forks that add to 1, a tree of each shape, a tin's branches as the recount, one valid k, n back from
+  a growing tin, a game's two ways to win, past-paper set-ups left out and every misconception shown.
 - `test_normal_probability.gd` (FAL-728): `t4-normal-probability`: every cell on Paper 2 with one
   right option, the one normal distribution it shares with `normal-unknown`, regions that add up,
   bands wide enough for their labels, the shaded curve, the root of a variance, half a unit either
