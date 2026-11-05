@@ -15,7 +15,8 @@ extends Control
 ##   venn        {"names": [A, B], "a", "i", "b", "o"}: two circles in a box, with the text of
 ##               each region: A only, both, B only and outside
 ##   tree        {"first": [A, A′], "second": [B, B′], "p": [2 labels], "q": [[2 labels], [2 labels]]}:
-##               a two-stage tree with the probability on every branch
+##               a two-stage tree with the probability on every branch; with "heads": [2 stage
+##               names], any 2 or 3 branches at a fork, and a label may be a letter for a missing branch
 ##   cumfreq     {"x1", "dx", "y1", "dy", "curve": [[x, y], ...], "x_name", "y_name"}: a cumulative
 ##               frequency curve on a grid of dx by dy squares, with every fifth line bold and labelled
 ##   sector      {"theta", "shade": "minor" or "major", "names": [O, A, B], "r_label", "angle_label",
@@ -24,13 +25,17 @@ extends Control
 ##               radius) makes it a curved strip of angle theta, and `cone` draws the cone it rolls up into
 ##   plate       {"w", "h", "rho", "theta", "w_label", "h_label", "rho_label", "angle_label"}: a
 ##               rectangle with a segment of a circle cut from each of two opposite edges
+##   region      {"shape", ...}: a region built from a sector, a triangle, a rectangle and a
+##               circle, shaded, drawn by RegionPlot (see ui/region_plot.gd)
 ##   sketch      {"pts": {name: [x, y]}, "lines": [{"a", "b", "label", "dash"}],
-##               "arcs": [{"at", "from", "to", "label"}], "north": [names], "right": [names], "note"}:
+##               "arcs": [{"at", "from", "to", "label"}], "north": [names], "right": [names], "note",
+##               "circles": [{"at", "through"}]}:
 ##               points kept to their real shape (a name starting _ isn't written), with a north
 ##               line at each name in `north`; an arc's `from` is "N" (a bearing, clockwise) or a point
 ##   solid       {"shape", and the measures as text under r, d, h, l, c, big, a, b, t, e, theta}:
 ##               a sketch of a cone, pyramid, sphere, hemisphere, composite, hollow cylinder,
-##               cylinder inside a sphere or flat sector, with only the given measures labelled
+##               cylinder inside a sphere or flat sector, with only the given measures labelled;
+##               also a cylinder, an open cylinder (no lid) and an open bin with a square base
 ##   bounce      {"peaks": [heights, each a share of the first], "h_label"}: a ball's height against
 ##               time, a parabola for each rebound, with the drop marked
 ##   squares     {"style": "shaded", "cut", "shaded", "area"}: a square cut into cut × cut, with
@@ -41,6 +46,8 @@ const PAD := 26.0
 const FONT_SIZE := 32
 const DOT := 13.0
 const LABEL_GAP := 90.0
+const TREE_TOP := 64.0
+const TREE_LEAF := 84.0
 
 var spec: Dictionary = {}
 
@@ -53,6 +60,8 @@ func _init() -> void:
 func set_spec(s: Dictionary) -> void:
 	spec = s
 	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "unit-circle": 640, "straight-angle": 420, "solid": 640, "bounce": 520, "squares": 660}.get(s.get("kind"), 560))
+	if s.get("kind") == "tree" and s.has("heads"):
+		custom_minimum_size.y = maxf(620.0, TREE_TOP + 26.0 + s.first.size() * s.second.size() * TREE_LEAF)
 	queue_redraw()
 
 
@@ -77,13 +86,18 @@ func _draw() -> void:
 		"venn":
 			_venn()
 		"tree":
-			_tree()
+			if spec.has("heads"):
+				_tree_stages()
+			else:
+				_tree()
 		"cumfreq":
 			_cumfreq()
 		"sector":
 			_sector()
 		"plate":
 			_plate()
+		"region":
+			RegionPlot.draw(self)
 		"sketch":
 			_sketch()
 		"solid":
@@ -376,6 +390,41 @@ func _tree() -> void:
 			_text(second[j], e + Vector2(10, 12), UiTheme.TEXT)
 
 
+## A tree with named stages and 2 or 3 branches at a fork, its leaves evenly spaced, and each
+## probability on a patch on its branch. A branch's letter (x, y, ?) stands out from the numbers.
+func _tree_stages() -> void:
+	var first: Array = spec.first
+	var second: Array = spec.second
+	var font := get_theme_default_font()
+	var half := func(t: String) -> float: return font.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 2).x / 2.0
+	var step := (size.y - TREE_TOP - 16.0) / (first.size() * second.size())
+	var mid_x := size.x * 0.42
+	var end_x := size.x * 0.74
+	var root := Vector2(PAD, 0)
+	var ys: Array = []
+	for i in first.size():
+		ys.append(TREE_TOP + step * second.size() * (i + 0.5))
+	root.y = (ys[0] + ys[-1]) / 2.0
+	_text(spec.heads[0], Vector2(mid_x * 0.72, 40), UiTheme.DIM, FONT_SIZE - 6)
+	_text(spec.heads[1], Vector2(size.x * 0.76, 40), UiTheme.DIM, FONT_SIZE - 6)
+	for i in first.size():
+		var m := Vector2(mid_x, ys[i])
+		var gap: float = half.call(first[i]) + 8.0
+		draw_line(root, m - Vector2(gap, 0), UiTheme.TEAL, 4.0, true)
+		_tree_label(spec.p[i], root.lerp(m - Vector2(gap, 0), 0.6))
+		_text(first[i], m + Vector2(0, 11), UiTheme.TEXT, FONT_SIZE - 2)
+		for j in second.size():
+			var e := Vector2(end_x, TREE_TOP + step * (i * second.size() + j + 0.5))
+			draw_line(m + Vector2(gap, 0), e, UiTheme.TEAL, 4.0, true)
+			_tree_label(spec.q[i][j], (m + Vector2(gap, 0)).lerp(e, 0.62))
+			_text(second[j], e + Vector2(10, 11), UiTheme.TEXT, FONT_SIZE - 2, false)
+
+
+func _tree_label(s: String, at: Vector2) -> void:
+	var letter := s.is_valid_identifier() or s == "?"
+	_chip(s, at + Vector2(0, 11), UiTheme.TEXT if letter else UiTheme.SAND, FONT_SIZE + 4 if letter else FONT_SIZE - 2)
+
+
 # ── Cumulative frequency curve ───────────────────────────────
 
 func _cumfreq() -> void:
@@ -616,6 +665,8 @@ func _sketch() -> void:
 		_dashes(p, tip, UiTheme.DIM)
 		draw_colored_polygon(PackedVector2Array([tip - Vector2(0, 10), tip + Vector2(-8, 8), tip + Vector2(8, 8)]), UiTheme.DIM)
 		_text("N", tip + Vector2(26, 8), UiTheme.DIM, FONT_SIZE - 6)
+	for c in spec.get("circles", []):
+		draw_arc(at[c.at], at[c.at].distance_to(at[c.through]), 0.0, TAU, 96, UiTheme.DIM, 3.0, true)
 	for ln in spec.lines:
 		var p: Vector2 = at[ln.a]
 		var q: Vector2 = at[ln.b]
@@ -836,6 +887,10 @@ func _solid() -> void:
 			_inscribed(Vector2(w * 0.56, mid.y), r * 1.3)
 		"sector":
 			_solid_sector(mid, r * 1.3)
+		"cylinder", "open-cylinder":
+			_cylinder(mid, r * 1.05, spec.shape == "cylinder")
+		"open-bin":
+			_open_bin(mid, r * 1.05)
 
 
 ## The slant sides of a cone over a base centred at c, with its back edge dashed. `plain` draws
@@ -976,6 +1031,54 @@ func _hollow(c: Vector2, rx: float) -> void:
 	draw_line(low, under, UiTheme.DIM, 2.0)
 	var x := rx + 28.0
 	_measure("h", top + Vector2(x, 0), low + Vector2(x, 0), c + Vector2(x + 12.0, 0))
+
+
+## A cylinder, closed or with no lid: an open one shows the back of its rim and its inside.
+func _cylinder(c: Vector2, rx: float, closed: bool) -> void:
+	var ry := rx * 0.28
+	var tall := size.y * 0.46
+	var top := c - Vector2(0, tall * 0.5)
+	var low := top + Vector2(0, tall)
+	_edge(top + Vector2(rx, 0), low + Vector2(rx, 0))
+	_edge(top - Vector2(rx, 0), low - Vector2(rx, 0))
+	_rim(top, rx, ry, 0.0, TAU, UiTheme.TEAL)
+	_rim(low, rx, ry, 0.0, PI, UiTheme.TEAL)
+	_rim(low, rx, ry, PI, TAU, UiTheme.DIM, true)
+	if not closed:
+		_chip("no lid", low + Vector2(0, ry + 44.0), UiTheme.DIM, FONT_SIZE - 8)
+	_solid_dashes(top, top + Vector2(rx, 0), UiTheme.SAND)
+	_mark("r", top + Vector2(rx * 0.5, -40.0), 0)
+	var x := rx + 28.0
+	_measure("h", top + Vector2(x, 0), low + Vector2(x, 0), c + Vector2(x + 12.0, 0))
+
+
+## An open box with a square base, seen from above and to one side.
+func _open_bin(c: Vector2, rx: float) -> void:
+	var u := Vector2(rx * 0.95, rx * 0.26)
+	var v := Vector2(rx * 0.75, -rx * 0.34)
+	var tall := Vector2(0, size.y * 0.32)
+	var front := c + Vector2(-rx * 0.85, -tall.y * 0.2)
+	var a := front
+	var b := a + u
+	var d := a + v
+	var e := b + v
+	for p in [a, b, e]:
+		_edge(p, p + tall)
+	_edge(a, b)
+	_edge(b, e)
+	_edge(e, d)
+	_edge(d, a)
+	_edge(a + tall, b + tall)
+	_edge(b + tall, e + tall)
+	_solid_dashes(d, d + tall)
+	_solid_dashes(a + tall, d + tall)
+	_solid_dashes(d + tall, e + tall)
+	var under := Vector2(-10, 26)
+	_measure("a", a + tall + under, b + tall + under, (a + b) / 2.0 + tall + Vector2(-34, 58), 0)
+	var x := Vector2(36, 0)
+	_measure("h", e + x, e + tall + x, e + tall * 0.5 + x + Vector2(12, 0))
+	if spec.has("a2"):
+		_mark("a2", (b + e) / 2.0 + tall + Vector2(40, 34), 0)
 
 
 ## A cylinder that fits exactly inside a sphere.
