@@ -520,7 +520,7 @@ func u_describe_transformations(rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var fac := "Take %d out of the bracket: %s = %d(x %s %s)" % [s.bw, raw_bracket(s), s.bw, "−" if s.right else "+", ph(s, c)]
 	var right: String = "So " + a.values.text + "."
 	out.methods = {"factor-b-first": method([fac, "So the stretches are %d up and 1/%d across, and the shift is %s across, %s up." % [s.amp, s.bw, ph(s, signed_c), N(s.lift)], right], a.values),
-		"track-key-points": method(["Track the point at x = 0: the stretches leave it, and %s sends it to x = %s." % [raw_bracket(s), ph(s, signed_c)], "The height of the wave grows by %d, and the whole wave moves %s up." % [s.amp, N(s.lift)], right], a.values)}
+		"track-key-points": method(["Track the point at x = 0: the stretches leave it, and %s sends it to x = %s." % [raw_bracket(s), ph(s, signed_c)], "The height of the wave is multiplied by %d, and the whole wave moves %s up." % [s.amp, N(s.lift)], right], a.values)}
 	return out
 
 

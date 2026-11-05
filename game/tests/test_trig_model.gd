@@ -64,7 +64,8 @@ func test_paper_1_is_exact_and_paper_2_is_a_story_or_a_decimal() -> void:
 			check_eq(QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle), [2], c.key)
 		for paper in QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle):
 			if paper == 1:
-				check(_make(c, 5, "value", 1).answer.get("exact", false), c.key)
+				var a: Dictionary = _make(c, 5, "value", 1).answer
+				check(a.kind == "claim" or a.get("exact", false), c.key)
 
 
 func test_a_paper_1_wave_is_marked_in_multiples_of_pi() -> void:

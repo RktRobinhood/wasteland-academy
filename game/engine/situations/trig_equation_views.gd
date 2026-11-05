@@ -330,7 +330,7 @@ func u_compound_decimal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var out := {"answer": a, "lines": ["%s = %s, for %s" % [call_of(s), Fmt.dec(s.k), interval(s)]], "asked": "Find every solution, to 3 significant figures."}
 	var top: float = s.hi.to_float() * PI
 	var first: Array = s.xs.filter(func(x): return x.to_float() * s.b.to_float() <= top)
-	out.wrongs = [wrong(Answer.xs_of(first), R_NO_EXTEND)] if first.size() < s.xs.size() else []
+	out.wrongs = [wrong(Answer.xs_of(first), R_NO_EXTEND)] if not first.is_empty() and first.size() < s.xs.size() else []
 	out.generic = dec_others(s)
 	out.methods = {"gdc-intersection": method(gdc_steps(s, a, s.xs.map(func(x): return GdcKit.W(x))), a.values)}
 	return out

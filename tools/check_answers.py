@@ -15145,7 +15145,7 @@ def check_trig_equation(q):
             w[B0] = {f"x = {names[0]}"}
         if u == "compound-decimal":
             kept = [gc_s(v) for v, x in zip(vals, xs) if x * b <= hi + 1e-9]
-            if len(kept) < len(names):
+            if 0 < len(kept) < len(names):
                 w[K0] = {"x = " + (kept[0] if len(kept) == 1 else ", ".join(kept[:-1]) + " or " + kept[-1])}
         gc_check_common(q, want, w, gc_trap(vals, gc_xs2(vals)), steps=(2, 6))
         return None, None

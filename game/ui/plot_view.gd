@@ -221,11 +221,8 @@ func _unit_circle() -> void:
 	var px := func(x: float, y: float) -> Vector2: return c + Vector2(x, -y) * k
 	var q: int = spec.get("quadrant", 0)
 	if q > 0:
-		var a0 := (q - 1) * PI / 2.0
-		var pts := _arc_points(Vector2.ZERO, 1.0, a0, PI / 2.0)
-		pts.append(Vector2.ZERO)
 		var poly := PackedVector2Array()
-		for p in pts:
+		for p in quadrant_points(q):
 			poly.append(px.call(p.x, p.y))
 		draw_colored_polygon(poly, Color(UiTheme.TEAL, 0.22))
 	draw_line(px.call(-1.25, 0.0), px.call(1.25, 0.0), UiTheme.DIM, 4.0)
@@ -233,8 +230,10 @@ func _unit_circle() -> void:
 	draw_arc(c, k, 0.0, TAU, 128, UiTheme.TEAL, 5.0, true)
 	_text("x", px.call(1.25, 0.0) + Vector2(-8, -14), UiTheme.DIM, FONT_SIZE - 6)
 	_text("y", px.call(0.0, 1.25) + Vector2(22, 10), UiTheme.DIM, FONT_SIZE - 6)
+	var points: Array = spec.get("points", [])
 	for lab in [[1.0, 0.0, "1"], [-1.0, 0.0, "−1"], [0.0, 1.0, "1"], [0.0, -1.0, "−1"]]:
-		_text(lab[2], px.call(lab[0], lab[1]) + Vector2(22 if lab[0] == 0.0 else -18, 34 if lab[0] != 0.0 else -8), UiTheme.DIM, FONT_SIZE - 8)
+		if not points.any(func(p): return Vector2(p.x, p.y).distance_to(Vector2(lab[0], lab[1])) < 0.2):
+			_text(lab[2], px.call(lab[0], lab[1]) + Vector2(22 if lab[0] == 0.0 else -18, 34 if lab[0] != 0.0 else -8), UiTheme.DIM, FONT_SIZE - 8)
 	if spec.get("level") != null:
 		var lv := float(spec.level)
 		var x := -1.2
@@ -247,7 +246,6 @@ func _unit_circle() -> void:
 		while y < 1.2:
 			draw_line(px.call(lx, y), px.call(lx, minf(y + 0.05, 1.2)), UiTheme.SAND, 4.0)
 			y += 0.1
-	var points: Array = spec.get("points", [])
 	if spec.get("angle") != null and not points.is_empty():
 		var th := float(spec.angle)
 		var arc := PackedVector2Array()
@@ -264,7 +262,18 @@ func _unit_circle() -> void:
 		draw_circle(at, DOT, UiTheme.PINK)
 		draw_circle(at, DOT * 0.45, UiTheme.BG)
 		var out: Vector2 = (at - c).normalized() * 46.0
-		_text(p.label, at + out + Vector2(0, 12), UiTheme.TEXT, FONT_SIZE - 4)
+		# A point on the x-axis has its letter above the axis, clear of the "x".
+		_text(p.label, at + out + (Vector2(0, -32) if absf(float(p.y)) < 0.05 else Vector2(0, 12)), UiTheme.TEXT, FONT_SIZE - 4)
+
+
+## The corners of quadrant q of the unit circle, with y up: the arc, then the origin.
+static func quadrant_points(q: int) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for i in 33:
+		var a := (q - 1 + i / 32.0) * PI / 2.0
+		out.append(Vector2(cos(a), sin(a)))
+	out.append(Vector2.ZERO)
+	return out
 
 
 ## A straight line through A, with C above it: two angles that add up to π. spec: "theta" (the

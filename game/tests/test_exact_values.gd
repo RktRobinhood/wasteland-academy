@@ -88,3 +88,10 @@ func test_a_special_triangle_is_a_diagram() -> void:
 func test_the_type_is_in_the_courses_with_sl35() -> void:
 	for course in ["aa-sl", "aa-hl"]:
 		check(TYPE in QuestionEngine.built_types(course), course)
+
+
+func test_a_shaded_quadrant_is_the_one_it_names() -> void:
+	var signs := [Vector2(1, 1), Vector2(-1, 1), Vector2(-1, -1), Vector2(1, -1)]
+	for q in range(1, 5):
+		var mid: Vector2 = PlotView.quadrant_points(q)[16]
+		check_eq(Vector2(signf(mid.x), signf(mid.y)), signs[q - 1], "quadrant %d" % q)
