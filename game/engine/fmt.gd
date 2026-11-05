@@ -10,6 +10,52 @@ extends RefCounted
 const TIE := 1.0 + 1e-14
 
 
+## s cut at its powers, for a label that can raise them: "e^(4x − 3)" is
+## [["e", false], ["4x − 3", true]]. The brackets round a power go, as on paper. A ^ with
+## no power after it stays as it is.
+static func power_runs(s: String) -> Array:
+	var out := []
+	var plain := ""
+	var i := 0
+	while i < s.length():
+		var end := _power_end(s, i + 1) if s[i] == "^" else 0
+		if end <= i + 1:
+			plain += s[i]
+			i += 1
+			continue
+		if plain != "":
+			out.append([plain, false])
+			plain = ""
+		var bracketed := s[i + 1] == "("
+		out.append([s.substr(i + 2, end - i - 3) if bracketed else s.substr(i + 1, end - i - 1), true])
+		i = end
+	if plain != "":
+		out.append([plain, false])
+	return out
+
+
+## Where the power that starts at index at ends, or at if there isn't one: a bracket with
+## its match, or a number or letters. A full stop after them ends the sentence, not the power.
+static func _power_end(s: String, at: int) -> int:
+	if at >= s.length():
+		return at
+	if s[at] == "(":
+		var depth := 0
+		for j in range(at, s.length()):
+			depth += int(s[j] == "(") - int(s[j] == ")")
+			if depth == 0:
+				return j + 1
+		return at
+	var j := at + 1 if s[at] in ["−", "-"] else at
+	var start := j
+	while j < s.length():
+		var dot: bool = s[j] == "." and j > start and j + 1 < s.length() and s[j + 1].is_valid_int()
+		if not dot and not s[j].is_valid_int() and s[j] != "½" and s[j].to_lower() == s[j].to_upper():
+			break
+		j += 1
+	return j if j > start else at
+
+
 static func num(v: Variant) -> String:
 	return Q.of(v).text()
 
