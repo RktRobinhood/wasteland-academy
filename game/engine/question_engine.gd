@@ -124,6 +124,7 @@ static var SITUATIONS := {
 	"fn-link-vectors": [LinkVectorsSituation, LinkVectorsViews],
 	"solid": [SolidSituation, SolidViews],
 	"standard-form": [StandardFormSituation, StandardFormViews],
+	"basic-probability": [BasicProbabilitySituation, BasicProbabilityViews],
 }
 
 static var _cat: Dictionary = {}

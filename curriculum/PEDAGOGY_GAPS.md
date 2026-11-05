@@ -2256,6 +2256,36 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): An event with probability 0.3 is expected 7.5 times in 25 trials, so the expected number should be given as 8. — False: an expected number is a long-run average and need not be a whole number, so 7.5 is the answer.
 - **Misconceptions used:** 2. Rounding the expected number to a whole number (it does not have to be one); Giving the probability instead of the expected number.
 
+#### Probability from a table, a count or the complement (`t4-probability-basic`, exam, 4 bank parts)
+
+- **Situation:** One chance set-up, counted or measured.
+- **Representations:** **words**, **table**, **equation**, terms, **diagram**, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the counts of each colour → the probability of a colour, or of either of two
+  - **exam** L2: given the counts of each colour; how many of one colour leave or join the bag → the probability of a colour on the next draw
+  - **exam** L2: given a two-way table with totals → the probability that someone chosen from the whole table is in a cell or a column
+  - new L1: given a list of data values; a boundary → the probability that a value chosen at random is more than, at least or fewer than it
+  - **exam** L2: given two dice or spinners → the probability of one total
+  - **exam** L2: given two dice or spinners → the probability of a total of at least k
+  - **exam** L2: given a small experiment → the probability of an event, by listing the sample space
+  - **exam** L1: given P(A) → P(A′)
+  - **exam** L1: given a table of counts or of probabilities → the probability of not landing on, or not being, one colour
+  - **exam** L2: given numbered items and a multiple, or two dice or spinners and a total → the probability of not being a multiple, or of not getting that total
+  - **exam** L3: given two dice or spinners; two prize rules that can't both happen → the probability of winning nothing
+  - **exam** L3: given p; the number of independent trials → the probability of at least one success
+  - **exam** L3: given a probability for each independent trial → the probability of at least one success
+  - **exam** L1: given a frequency table or bar chart; the number of trials → the relative frequency of a score
+  - **exam** L2: given a frequency table with no total, by score or in groups → the probability of a score, or of a value from a boundary up
+  - new L2: given a graph of relative frequency against trials → the estimate of the probability
+  - **exam** L2: given two tests of different sizes → the estimate from the more reliable test
+  - new L2: given a fair coin, die or spinner; a run of results → the probability on the next trial
+- **Angles:** n(A) ÷ n(U); List or tabulate the sample space; P(A′) = 1 − P(A); Count the outcomes not in A; At least one = 1 − none; Frequency ÷ number of trials; Read the long-run value.
+- **Concept probes:**
+  - *true-false-reason* (L3): Rain tomorrow either happens or it doesn't, so the probability of rain is one half. — False: two outcomes are only worth one half each if they are equally likely, and nothing says these are.
+  - *true-false-reason* (L3): A relative frequency from a thousand trials can still differ from the true probability. — True: more trials make the estimate more reliable, not exact. It settles near the probability and need not land on it.
+  - *always-sometimes-never* (L4): P(at least one success) is more than the probability of success on one trial. — Sometimes: it is more when there are two or more trials and each can succeed, but with one trial, or a probability of 0 on every later trial, the two are equal.
+- **Misconceptions used:** 13. Treating outcomes that are not equally likely as if they were, giving each kind of outcome the same share; Dividing by a row total when the person is chosen from the whole group; Finding P(exactly one) when 'at least one' is asked for; Adding the trials' probabilities for 'at least one', which counts the overlaps more than once; Taking the relative frequency from a handful of trials as the true probability; Treating the result as 'due' after a run, when past trials don't change the chance; Dividing by the rest instead of the whole, leaving the event's own count out of the total; Leaving the total at its old size after the bag changes; Changing the total but leaving the colour's count at its old size; Giving the probability of the event itself, or of 'none', instead of the one asked for; Getting the boundary wrong, counting a value that doesn't belong or leaving out one that does; Taking away only one of the two prizes from the whole; Working out the chance of the whole run instead of the next toss alone.
+
 #### Venn diagrams, two-way tables and the addition rule (`t4-venn-addition-rule`, exam, 11 bank parts)
 
 - **Situation:** Two events in one sample space.

@@ -291,6 +291,16 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   and greatest overlap. Paper 1 is exact; Paper 2 has decimals to 3 places or counts answered to
   3 s.f. An option that should be a probability is one: `build()` adds near values, because the
   engine's last-resort nudges add 1.
+- `engine/situations/basic_probability.gd` (FAL-728) is `t4-probability-basic` (SL4.5): one chance
+  set-up for each unknown. Its views (`basic_probability_views.gd`) ask 18 unknowns: a bag and a bag
+  after a change, a two-way table (rep `table`, with totals), a list of data, a total on two dice or
+  spinners in words or as a sample space table (rep `diagram`), a listed sample space, the complement
+  of a given probability, table, count or two prize rules, at least one with a tree for two trials
+  (PlotView's `tree`), a relative frequency from a table or bars (`bars`), a grouped table with no
+  total, a long-run value from a running relative frequency (`cumfreq`, every point a real count),
+  the more reliable of two tests, and a run of results. Paper 1 is exact; Paper 2 counts and
+  products are answered to 3 s.f. Every option is a probability written as the answer is: a decimal
+  question drops a slip that doesn't end, and `build()` adds near values.
 - `engine/situations/conditional.gd` (FAL-725) is `t4-conditional-probability` (SL4.11, AA only). The
   events come from `VennSituation`; it also draws a two-stage tree (PlotView's `tree`), two draws
   without replacement, the multiplication rule, and normal, binomial and discrete conditionals.
@@ -1043,6 +1053,9 @@ sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and l
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
 back into erf, and a shaded area must be the area given (`check_regression_pair`,
 `check_normal_unknown`, `check_venn`, `check_conditional`).
+For `basic-probability` it reads the story, table, bar chart, tree or curve back, counts the outcomes
+again by listing every one, and checks that a curve is real counts settling on its answer
+(`check_basic_probability`).
 For `sampling` it runs the checklist on the surveyor's sentence (a fixed interval, groups filled,
 a random draw) to find the technique, and holds each wrong disadvantage to being false of it. For
 `cumulative-frequency` it reads every value off the curve in the figure, which must rise strictly
@@ -1406,6 +1419,9 @@ script error happens while it runs. Run one file with
   given, a right triangle in every cone and a sector that rolls into its cone, a × 10^k typed with
   a negative k, the right value with a outside 1 to 10 marked wrong, E-notation never typed, the
   superscripts' glyphs, and every misconception as an option.
+- `test_basic_probability.gd`: `t4-probability-basic`: every cell and skill, one right option on each
+  paper, every option a probability, hand values, the figures drawn, a curve of real counts, a
+  complement that differs from its event, and every misconception as an option.
 - `test_regression_pair.gd`, `test_normal_unknown.gd`, `test_venn.gd`, `test_conditional.gd`: the four
   FAL-725 types: each built with every cell and all its skills, one right option on each paper,
   the numbers against hand values, the figures drawn, every misconception as an option, and the

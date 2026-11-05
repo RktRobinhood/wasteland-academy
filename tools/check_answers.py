@@ -31,6 +31,7 @@ import sys
 from collections import defaultdict
 from decimal import ROUND_HALF_UP, Decimal
 from functools import lru_cache
+from itertools import combinations, permutations, product
 from pathlib import Path
 
 import mpmath
@@ -20341,6 +20342,418 @@ def np_check(q):
 
 
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── basic-probability (t4-probability-basic, FAL-728) ────────
+# The `basic-probability` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/basic_probability.gd. Each question's facts are read back from what the
+# student sees (the story, the table, the bar chart, the tree, the curve); only the story's index
+# comes from `given`. Outcomes are enumerated or counted again with exact rationals.
+
+PB_EL, PB_CO, PB_RF = "SL4.5.equally-likely#", "SL4.5.complement#", "SL4.5.relative-frequency#"
+PB_T = "t4-probability-basic#"
+PB_REST, PB_OLD_TOTAL, PB_OLD_COUNT, PB_EVENT, PB_BOUNDARY, PB_ONE_RULE, PB_WHOLE_RUN = [PB_T + str(i) for i in range(6, 13)]
+PB_EDGE = sp.Rational(3, 100)
+PB_P1_TOTALS = {20, 25, 40, 50, 80, 100, 200}
+PB_COLOURS = "red|blue|green|white|black"
+PB_TWO_WAY = [(["is from the camp", "is from the road"], ["carries a knife", "carries a bow", "carries a rifle"]),
+              (["works the north road", "works the south road"], ["sells salt", "sells fuel", "sells seed"]),
+              (["works days", "works nights"], ["stands at the gate", "stands on the wall", "stands in the tower"]),
+              (["drives a truck", "rides a bike"], ["carries fuel", "carries water", "carries parts"])]
+PB_NUM = r"\d+(?:\.\d+)?(?:/\d+)?"
+
+
+def pb_clear(v):
+    """A 3 s.f. answer: it needs rounding, and sits clear of a rounding edge."""
+    v = sp.Rational(v)
+    e = 0
+    while sp.Rational(10) ** e > v:
+        e -= 1
+    scaled = v / sp.Rational(10) ** (e - 2)
+    return sp.Rational(sig3(v)) != v and abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= PB_EDGE
+
+
+def pb_shown(v, form):
+    return {"frac": frac_text, "dec": dec_text, "sf": rg_s}[form](v)
+
+
+def pb_set(q, v, table, label="probability = "):
+    """want, trap and wrongs for a probability v; `table` is ref -> the values that mistake gives."""
+    form = q["given"]["form"]
+    need(form in ("frac", "dec", "sf"), f"form {form}")
+    need(0 < v < 1, f"the answer {v} is not a probability")
+    if form == "sf":
+        need(q["paper"] == 2, "3 s.f. is Paper 2 only")
+        need(pb_clear(v), f"{v} needs no rounding, or sits on a rounding edge")
+    if form == "dec":
+        need("/" not in dec_text(v), f"{v} doesn't end as a decimal")
+    wrongs = {ref: {label + pb_shown(x, form) for x in xs if 0 < x < 1} for ref, xs in table.items()}
+    trap = bn_trap(label, v) if form == "sf" else None
+    return label + pb_shown(v, form), trap, wrongs
+
+
+def pb_two_cols(q):
+    """The first row's heads and the second row's values of a two-row table."""
+    rows = q["table"]["rows"]
+    need(len(rows) == 2 and len(rows[0][1]) == len(rows[1][1]), "not a two-row table")
+    return rows[0][1], rows[1][1]
+
+
+def pb_colours(q):
+    """colour -> count, from the story or the table."""
+    if q["table"] is not None:
+        heads, vals = pb_two_cols(q)
+        need(q["table"]["rows"][0][0] == "Colour", "table heads")
+        return {h.lower(): int(v) for h, v in zip(heads, vals)}
+    return {c: int(n) for n, c in re.findall(rf"(\d+) ({PB_COLOURS})\b", q["lines"][0])}
+
+
+def pb_rest(n, u):
+    """The slip of leaving the event's own count out of the total."""
+    return [sp.Rational(n, u - n)] if u != n else []
+
+
+def pb_faces(q):
+    """The two sets of faces, from the story or from the table's edges."""
+    if q["table"] is not None:
+        rows = q["table"]["rows"]
+        xs, ys = [int(r[0]) for r in rows[1:]], [int(v) for v in rows[0][1]]
+    else:
+        text = " ".join(q["lines"])
+        if "Two fair six-sided dice" in text:
+            return list(range(1, 7)), list(range(1, 7))
+        mt = re.search(r"The first shows ([\d, and]+) and the second shows ([\d, and]+)\. Both are spun\.", text)
+        need(mt is not None, f"can't read the faces in {text!r}")
+        xs, ys = [int(v) for v in re.findall(r"\d+", mt.group(1))], [int(v) for v in re.findall(r"\d+", mt.group(2))]
+    if "dice" in " ".join(q["lines"]):
+        need(xs == list(range(1, 7)) and ys == xs, "dice have six faces")
+    need(len(set(xs)) == len(xs) and len(set(ys)) == len(ys), "a spinner repeats a number")
+    return xs, ys
+
+
+def pb_grid_check(q, xs, ys, cell):
+    """Every cell of a shown sample space table says what `cell` says it should."""
+    if q["table"] is None:
+        return
+    rows = q["table"]["rows"]
+    for i, x in enumerate(xs):
+        need(rows[i + 1][1] == [str(cell(x, y)) for y in ys], f"the table's row {x} is wrong")
+
+
+def pb_trial_values(ps):
+    """P(none), P(exactly one) and the sum, counted over every outcome of the trials."""
+    none, one = sp.Integer(0), sp.Integer(0)
+    for hits in product([0, 1], repeat=len(ps)):
+        pr = sp.Integer(1)
+        for h, p in zip(hits, ps):
+            pr *= p if h else 1 - p
+        if sum(hits) == 0:
+            none += pr
+        if sum(hits) == 1:
+            one += pr
+    return none, one, sum(ps)
+
+
+def pb_tree(q, pa, pb_):
+    g = q["graph"]
+    need(g is not None and g["kind"] == "tree", "no tree")
+    for got, want in ((g["p"], pa), (g["q"][0], pb_), (g["q"][1], pb_)):
+        need(R(got[0]) == want and R(got[1]) == 1 - want, f"the tree's branches {got} don't add to 1 at {want}")
+
+
+def check_basic_probability(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    label, table = "probability = ", {}
+    if u == "bag-counter":
+        cs = pb_colours(q)
+        need(len(cs) in (3, 4), f"{len(cs)} colours")
+        mt = re.search(rf"it is ({PB_COLOURS})(?: or ({PB_COLOURS}))?\.$", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        want = [c for c in mt.groups() if c]
+        n, t = sum(cs[c] for c in want), sum(cs.values())
+        v = sp.Rational(n, t)
+        need(v != sp.Rational(len(want), len(cs)), "counting colours gives the answer")
+        table = {PB_EL + "0": [sp.Rational(len(want), len(cs))], PB_REST: pb_rest(n, t)}
+    elif u == "bag-after-change":
+        cs = pb_colours(q)
+        mt = re.fullmatch(rf"(\d+) ({PB_COLOURS}) .+ (?:is|are) (taken out and not put back|added)\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        m, c = int(mt.group(1)), mt.group(2)
+        sign = -1 if mt.group(3).startswith("taken") else 1
+        ask = re.search(rf"it is ({PB_COLOURS})\.$", asked).group(1)
+        t0 = sum(cs.values())
+        after = dict(cs)
+        after[c] += sign * m
+        need(after[c] >= 1, "the bag ran out of the colour")
+        v = sp.Rational(after[ask], t0 + sign * m)
+        table = {PB_OLD_TOTAL: [sp.Rational(after[ask], t0)]}
+        if ask == c:
+            table[PB_OLD_COUNT] = [sp.Rational(cs[ask], t0 + sign * m)]
+    elif u == "two-way-whole":
+        rows = q["table"]["rows"]
+        need(len(rows) == 4 and rows[3][0] == "Total" and rows[0][1][3] == "Total", "table heads")
+        C = [[int(v) for v in rows[i][1]] for i in (1, 2, 3)]
+        need(all(C[i][0] + C[i][1] + C[i][2] == C[i][3] for i in range(3)), "a row doesn't add up")
+        need(all(C[0][j] + C[1][j] == C[2][j] for j in range(4)), "a column doesn't add up")
+        need("from the whole table" in asked, f"{asked!r}")
+        rw, cw = PB_TWO_WAY[int(g["ctx"]) % 4]
+        grand = C[2][3]
+        found = None
+        for j, c in enumerate(cw):
+            if asked.endswith(f" {c}."):
+                found = j
+        need(found is not None, f"can't read the column in {asked!r}")
+        rowi = next((i for i, r in enumerate(rw) if f" {r} and " in asked), None)
+        if rowi is None:
+            v = sp.Rational(C[2][found], grand)
+            table = {PB_REST: pb_rest(C[2][found], grand)}
+        else:
+            cell = C[rowi][found]
+            v = sp.Rational(cell, grand)
+            table = {PB_EL + "1": [sp.Rational(cell, C[rowi][3])], PB_REST: pb_rest(cell, grand)}
+    elif u == "list-data":
+        vals = [int(x) for x in L[1].split(", ")]
+        need(f"each of {len(vals)} " in L[0], "the list isn't the length the story says")
+        mt = re.search(r"that (more than|at least|fewer than) (\d+) ", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        op, k = mt.group(1), int(mt.group(2))
+        need(k in vals, "the boundary is not in the list")
+        test = {"more than": lambda x: x > k, "at least": lambda x: x >= k, "fewer than": lambda x: x < k}[op]
+        slip = {"more than": lambda x: x >= k, "at least": lambda x: x > k, "fewer than": lambda x: x <= k}[op]
+        n, kinds = sum(1 for x in vals if test(x)), set(vals)
+        v = sp.Rational(n, len(vals))
+        table = {PB_EL + "0": [sp.Rational(sum(1 for x in kinds if test(x)), len(kinds))], PB_REST: pb_rest(n, len(vals)),
+                 PB_BOUNDARY: [sp.Rational(sum(1 for x in vals if slip(x)), len(vals))]}
+    elif u in ("grid-total-equals", "grid-total-at-least", "complement-count") and (u != "complement-count" or rep == "diagram"):
+        xs, ys = pb_faces(q)
+        pb_grid_check(q, xs, ys, lambda a, b: a + b)
+        ts = [a + b for a, b in product(xs, ys)]
+        ds = set(ts)
+        mt = re.search(r"the total is (at least |not )?(\d+)\.$", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        k = int(mt.group(2))
+        need(k in ds, "that total can't happen")
+        if u == "grid-total-at-least":
+            n = sum(1 for t in ts if t >= k)
+            v = sp.Rational(n, len(ts))
+            need(v != sp.Rational(sum(1 for t in ds if t >= k), len(ds)), "counting totals gives the answer")
+            table = {PB_EL + "0": [sp.Rational(sum(1 for t in ds if t >= k), len(ds))], PB_REST: pb_rest(n, len(ts)),
+                     PB_BOUNDARY: [sp.Rational(sum(1 for t in ts if t > k), len(ts))]}
+        else:
+            n = ts.count(k)
+            need(sp.Rational(n, len(ts)) != sp.Rational(1, len(ds)), "counting totals gives the answer")
+            if u == "grid-total-equals":
+                v = sp.Rational(n, len(ts))
+                table = {PB_EL + "0": [sp.Rational(1, len(ds))], PB_REST: pb_rest(n, len(ts))}
+            else:
+                v = 1 - sp.Rational(n, len(ts))
+                table = {PB_EL + "0": [1 - sp.Rational(1, len(ds))], PB_EVENT: [sp.Rational(n, len(ts))]}
+    elif u == "complement-count":
+        mt = re.search(r"numbered 1 to (\d+), one of each\.", L[0])
+        mm = re.search(r"not a multiple of (\d+)\.$", asked)
+        need(mt is not None and mm is not None, "can't read the numbers")
+        big, m = int(mt.group(1)), int(mm.group(1))
+        n = sum(1 for i in range(1, big + 1) if i % m == 0)
+        v = sp.Rational(big - n, big)
+        table = {PB_EVENT: [sp.Rational(n, big)]}
+    elif u == "list-then-count":
+        text = " ".join(L)
+        mc = re.match(r"(Two|Three) fair coins are tossed\.", text)
+        if mc:
+            nc = {"Two": 2, "Three": 3}[mc.group(1)]
+            h = int(re.search(r"exactly (\d+) heads?\.$", asked).group(1))
+            space = list(product("HT", repeat=nc))
+            n, all_ = sum(1 for w in space if w.count("H") == h), len(space)
+            table = {PB_EL + "0": [sp.Rational(1, nc + 1)]}
+        elif text.startswith("A fair coin is tossed and a fair six-sided die"):
+            mt = re.search(r"a (head|tail) and (?:an (even|odd) number|a number greater than (\d))\.$", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            test = {"even": lambda f: f % 2 == 0, "odd": lambda f: f % 2 == 1}.get(mt.group(2), lambda f: f > int(mt.group(3)))
+            space = list(product("HT", range(1, 7)))
+            n, all_ = sum(1 for c, f in space if c == mt.group(1)[0].upper() and test(f)), len(space)
+        elif "are on a crew" in text:
+            who = re.findall(r"[A-Z][a-z]+", L[0].split(" are on")[0])
+            space = list(combinations(who, 2))
+            both = re.search(r"that (\w+) and (\w+) are both chosen\.$", asked)
+            one = re.search(r"that (\w+) is chosen\.$", asked)
+            n = sum(1 for p in space if (both and both.group(1) in p and both.group(2) in p) or (one and one.group(1) in p))
+            all_ = len(space)
+        else:
+            ds = re.findall(r"\d", L[0])
+            need(len(ds) == 3 and len(set(ds)) == 3, f"can't read the cards in {L[0]!r}")
+            space = [int("".join(p)) for p in permutations(ds)]
+            ab = re.search(r"greater than (\d+)\.$", asked)
+            if ab:
+                need(int(ab.group(1)) in space, "the boundary isn't one of the numbers")
+            n = sum(1 for x in space if (x > int(ab.group(1)) if ab else x % 2 == 0))
+            all_ = len(space)
+        v = sp.Rational(n, all_)
+        table.update({PB_REST: pb_rest(n, all_)})
+    elif u == "complement-given":
+        p = R(re.search(rf"({PB_NUM})\.?$", L[0]).group(1))
+        need(p != sp.Rational(1, 2), "the event and its complement are equal")
+        if rep == "equation":
+            label = "P(A′) = "
+        v = 1 - p
+        table = {PB_EVENT: [p]}
+    elif u == "complement-table":
+        heads, vals = pb_two_cols(q)
+        mt = re.search(rf"not (?:land on )?({PB_COLOURS})\.$", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        i = [h.lower() for h in heads].index(mt.group(1))
+        ps = [R(x) for x in vals]
+        k = len(ps)
+        if q["table"]["rows"][1][0] == "Probability":
+            need(sum(ps) == 1, "the probabilities don't add to 1")
+            p = ps[i]
+        else:
+            p = ps[i] / sum(ps)
+        need(p != sp.Rational(1, 2), "the event and its complement are equal")
+        v = 1 - p
+        table = {PB_EVENT: [p], PB_EL + "0": [sp.Rational(k - 1, k)]}
+    elif u == "complement-two-rules":
+        xs, ys = pb_faces(q)
+        rules = " ".join(L)
+        ends = re.search(r"A total of (\d+) or less wins a big prize\. A total of (\d+) or more wins a small prize\.", rules)
+        gap = re.search(r"Equal numbers win a big prize\. Numbers that differ by (\d+) win a small prize\.", rules)
+        need((ends is None) != (gap is None), "can't read the rules")
+        if ends:
+            lo, hi = int(ends.group(1)), int(ends.group(2))
+            need(lo < hi, "the prizes overlap")
+            big, small = (lambda a, b: a + b <= lo), (lambda a, b: a + b >= hi)
+            pb_grid_check(q, xs, ys, lambda a, b: a + b)
+        else:
+            d = int(gap.group(1))
+            need(d > 0, "the prizes overlap")
+            big, small = (lambda a, b: a == b), (lambda a, b: abs(a - b) == d)
+            pb_grid_check(q, xs, ys, lambda a, b: abs(a - b))
+        space = list(product(xs, ys))
+        nb, ns = sum(1 for a, b in space if big(a, b)), sum(1 for a, b in space if small(a, b))
+        need(not any(big(a, b) and small(a, b) for a, b in space), "an outcome wins both")
+        u_ = len(space)
+        v = sp.Rational(u_ - nb - ns, u_)
+        table = {PB_ONE_RULE: [1 - sp.Rational(nb, u_), 1 - sp.Rational(ns, u_)], PB_EVENT: [sp.Rational(nb + ns, u_)]}
+    elif u in ("at-least-one-same", "at-least-one-different"):
+        text = " ".join(L)
+        need("independently" in text, "the trials aren't said to be independent")
+        if u == "at-least-one-same":
+            p = R(re.search(rf"with probability ({PB_NUM}),", text).group(1))
+            if rep == "diagram":
+                n = 2
+                pb_tree(q, p, p)
+            else:
+                n = int(re.search(r"\b(\d+) [a-z]+\.$", L[1]).group(1))
+            ps = [p] * n
+        elif rep == "diagram":
+            gr = q["graph"]
+            ps = [R(gr["p"][0]), R(gr["q"][0][0])]
+            pb_tree(q, ps[0], ps[1])
+        else:
+            ps = [R(x) for x in re.findall(rf"with probability ({PB_NUM})", text)]
+            need(len(ps) == len(re.findall(r"[A-Z][a-z]+", L[0].split(" each try")[0])), "a probability for each person")
+        need(all(0 < p < 1 for p in ps) and len(ps) in (2, 3), f"trials {ps}")
+        none, one, added = pb_trial_values(ps)
+        need(added < 1, "adding the trials passes 1")
+        v = 1 - none
+        table = {PB_CO + "0": [one], PB_CO + "1": [added], PB_EVENT: [none]}
+    elif u == "rf-from-table":
+        label = "relative frequency = "
+        if rep == "graph":
+            gr = q["graph"]
+            need(gr["kind"] == "bars" and gr["xs"] == list(range(1, len(gr["ys"]) + 1)), "no bar chart")
+            fs = [int(y) for y in gr["ys"]]
+        else:
+            heads, vals = pb_two_cols(q)
+            need(heads == [str(i + 1) for i in range(len(vals))], "table heads")
+            fs = [int(x) for x in vals]
+        t = int(re.search(r" (\d+) times\.", L[0]).group(1))
+        need(sum(fs) == t, "the frequencies don't add to the trials")
+        if q["paper"] == 1:
+            need(t in PB_P1_TOTALS, f"Paper 1 total {t}")
+        s_ = int(re.search(r"a score of (\d+)\.$", asked).group(1))
+        f = fs[s_ - 1]
+        v = sp.Rational(f, t)
+        table = {PB_EL + "0": [sp.Rational(1, len(fs))], PB_REST: pb_rest(f, t)}
+    elif u == "rf-total-to-find":
+        rows = q["table"]["rows"]
+        if rows[0][0] == "Score":
+            heads, vals = pb_two_cols(q)
+            need(heads == [str(i + 1) for i in range(len(vals))], "table heads")
+            fs = [int(x) for x in vals]
+            mt = re.search(r"scores (exactly|at least) (\d+)\.$", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            k = int(mt.group(2))
+            f, first = (sum(fs[k - 1:]), fs[k - 1]) if mt.group(1) == "at least" else (fs[k - 1], None)
+        else:
+            bounds = [re.fullmatch(r"(\d+) ≤ [a-z] < (\d+)", r[0]) for r in rows[1:]]
+            need(all(bounds), "class heads")
+            edges = [(int(b.group(1)), int(b.group(2))) for b in bounds]
+            need(all(edges[i][1] == edges[i + 1][0] for i in range(len(edges) - 1)), "the classes don't join")
+            fs = [int(r[1][0]) for r in rows[1:]]
+            mt = re.search(r"is (\d+) [a-z]+ or more\.$", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            k = [e[0] for e in edges].index(int(mt.group(1)))
+            f, first = sum(fs[k:]), fs[k]
+        t = sum(fs)
+        v = sp.Rational(f, t)
+        table = {PB_REST: pb_rest(f, t)}
+        if first is not None:
+            table[PB_BOUNDARY] = [sp.Rational(f - first, t)]
+    elif u == "rf-graph-estimate":
+        gr = q["graph"]
+        need(gr["kind"] == "cumfreq" and gr["y_name"] == "relative frequency", "no graph of relative frequency")
+        step = int(gr["curve"][0][0])
+        hits, prev = [], 0
+        for i, (x, y) in enumerate(gr["curve"]):
+            need(int(x) == step * (i + 1), "the trials don't go up in equal steps")
+            h = round(float(y) * int(x))
+            need(abs(float(y) * int(x) - h) < 1e-6, f"{y} of {x} is not a count")
+            need(0 <= h - prev <= step, "more hits than trials, or hits falling")
+            hits.append(h)
+            prev = h
+        last = gr["curve"][-10:]
+        mean = sum(sp.Rational(int(hits[len(hits) - 10 + i]), int(p[0])) for i, p in enumerate(last)) / 10
+        v = sp.Rational(round(mean * 50), 50)
+        need(all(abs(sp.Rational(int(hits[len(hits) - 10 + i]), int(p[0])) - v) < sp.Rational(3, 100) for i, p in enumerate(last)), "the curve hasn't settled")
+        need(v != sp.Rational(1, 2), "the estimate and its complement are equal")
+        table = {PB_RF + "0": [sp.Rational(hits[0], step)]}
+    elif u == "more-reliable":
+        if rep == "table":
+            rows = q["table"]["rows"]
+            ns, hs = [int(rows[1][1][0]), int(rows[2][1][0])], [int(rows[1][1][1]), int(rows[2][1][1])]
+        else:
+            ns, hs = [], []
+            for line in L[1:3]:
+                a, b = re.findall(r"\d+", line)
+                ns.append(int(a))
+                hs.append(int(b))
+        need(all(0 < h < n for h, n in zip(hs, ns)) and ns[0] != ns[1], f"tests {ns} {hs}")
+        i = 0 if ns[0] > ns[1] else 1
+        v = sp.Rational(hs[i], ns[i])
+        table = {PB_RF + "0": [sp.Rational(hs[1 - i], ns[1 - i])]}
+    elif u == "gamblers-fallacy":
+        mt = re.match(r"A fair coin lands on (heads|tails) (\d+) times in a row\.", L[0])
+        if mt:
+            run = int(mt.group(2))
+            v = sp.Rational(1, 2)
+            whole = sp.Rational(1, 2) ** (run + 1)
+            table = {PB_WHOLE_RUN: [whole]} if asked.endswith(f"lands on {mt.group(1)}.") else {PB_RF + "1": [1 - whole]}
+        else:
+            md = re.match(r"A fair six-sided die has been rolled (\d+) times and has not shown a (\d)\.", L[0])
+            ms = re.match(r"A fair spinner has (\d+) equal sectors, one of them red\. It has been spun (\d+) times", L[0])
+            need(md is not None or ms is not None, f"can't read {L[0]!r}")
+            m, run = (6, int(md.group(1))) if md else (int(ms.group(1)), int(ms.group(2)))
+            v = sp.Rational(1, m)
+            table = {PB_RF + "1": [sp.Rational(run + 1, m)]}
+    else:
+        raise Fail(f"no check for {u}")
+    want, trap, wrongs = pb_set(q, v, table, label)
+    gc_check_common(q, want, wrongs, trap)
+    for o in q["choices"]:
+        m = re.search(r"= (.+)$", o["text"])
+        need(0 < R(m.group(1)) < 1, f"option {o['text']!r} is not a probability")
+    return None, None
+
+
+SITUATION_CHECKS = {"basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
