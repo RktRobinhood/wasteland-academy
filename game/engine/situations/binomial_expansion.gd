@@ -110,7 +110,7 @@ static func _draw(rng: Seeded, s: Dictionary) -> bool:
 		"ncr-large-r":
 			s.n = rng.int_in(7, 10 if s.paper == 1 else 12)
 			s.r = s.n - rng.int_in(2, 3 if s.paper == 1 else 4)
-			return true
+			return s.r > s.n - s.r
 		"ncr-symmetry":
 			s.n = rng.int_in(6, 12)
 			s.r = rng.int_in(2, s.n - 2)

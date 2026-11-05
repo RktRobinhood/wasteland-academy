@@ -308,7 +308,7 @@ static func formula_steps(n: int, r: int) -> Array:
 		top_v *= x
 	var low_v := BinomialExpansionSituation.factorial(small)
 	return ["%dC%d = %d!/(%d! × %d!)" % [n, r, n, r, n - r],
-		"Cancel the %d! from the top: %s/(%s) = %d/%d" % [big, times(top), times(low), top_v, low_v],
+		"Cancel the %d! from the top: (%s)/(%s) = %d/%d" % [big, times(top), times(low), top_v, low_v],
 		"%d/%d = %d" % [top_v, low_v, C(n, r)]]
 
 
