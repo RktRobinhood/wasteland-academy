@@ -8,6 +8,3 @@ import_project
 
 echo "== tests =="
 "$GODOT" --headless --path "$GAME" --script res://tests/run_tests.gd
-
-echo "== feedback =="
-"$(dirname "$0")/tools/feedback-check"

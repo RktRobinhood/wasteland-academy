@@ -111,6 +111,23 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
+  # What a student reads after a wrong answer (FAL-742). Its own job so the godot job
+  # keeps its time: about 2.5 minutes inside ./test.sh took that job past its 25.
+  feedback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - run: scripts/ci-install-godot.sh
+      - run: tools/feedback-check
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: feedback-check
+          path: _scratch/feedback-check.log
+          if-no-files-found: ignore
+          retention-days: 14
+
   # The checks only the whole catalogue can pass: every shard ran, every cell has 50
   # questions and every type 1,000. Runs when a shard fails too, because a job that
   # needs a failed job is otherwise skipped, and a skipped check doesn't fail anything.

@@ -99,7 +99,7 @@ Godot is found on `PATH`, at `~/.local/bin/godot`, or from `GODOT=/path/to/godot
 | `node scripts/web-screenshot.mjs [export dir] [out dir] [name=?query ...]` | Serves an export at `/wasteland-academy/next/` and screenshots it in headless Chromium at 390x844 and 1280x800, plus each named deep link. Fails if the page logs an error |
 | `tools/check-answers` | The SymPy answer checker (see below) |
 | `tools/stress-questions [--from=51] [--to=2250]` | The seed sweep (see below) |
-| `tools/feedback-check [--seeds=12] [--rows=file.tsv] [--all]` | What a student reads after a wrong answer (see below). `./test.sh` runs it |
+| `tools/feedback-check [--seeds=12] [--rows=file.tsv] [--all]` | What a student reads after a wrong answer (see below). CI runs it in its own job |
 | `tools/course-audit` | Where the engine stands for each IB course: skills, types and built questions (see below) |
 | `scripts/mcp-editor.sh start\|stop` | Headless editor on `game/` for the Godot MCP |
 | `python3 -I scripts/mcp_call.py <tool> '<json>' ...` | Calls Godot MCP tools through that editor |
