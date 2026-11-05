@@ -257,8 +257,12 @@ static func style(ans: Dictionary, s: Dictionary, vals: Array) -> Dictionary:
 	return ans
 
 
+## One number. A rounded Paper 2 value keeps a GDC's nine places, so it can be typed back whole.
 static func val(s: Dictionary, label: String, v: Q, unit: String = "") -> Dictionary:
-	return style(Answer.make("number", {"v": v}, {}, label, unit), s, [v])
+	var ans := style(Answer.make("number", {"v": v}, {}, label, unit), s, [v])
+	if ans.get("show", "") == "sf":
+		ans.values.v = GeometricSequenceSituation.gdc(v.to_float())
+	return ans
 
 
 ## An exact fraction on either paper (a recurring decimal is a fraction).
