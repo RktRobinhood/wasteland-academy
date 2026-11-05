@@ -90,12 +90,30 @@ func papers(unknown: String, _rep: String, method_id: String) -> Array:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
 	out.given = GeometricSequenceSituation.export(s)
+	_tidy(out)
 	# No calculator on Paper 1, so a calculator's working isn't shown there.
 	if s.paper == 1:
 		for m in P2_ANGLES:
 			if m != angle:
 				out.methods.erase(m)
 	return out
+
+
+## A Paper 2 option reads like the decimals beside it: 162/7 becomes 23.1, and 0.561231024 becomes 0.561.
+static func _tidy(out: Dictionary) -> void:
+	if out.answer.get("show", "") != "dec":
+		return
+	for w in out.wrongs:
+		w.values = _decimals(w.values)
+	out.generic = out.generic.map(func(g): return _decimals(g))
+
+
+static func _decimals(values: Dictionary) -> Dictionary:
+	var v := values.duplicate()
+	for key in v:
+		if v[key] is Q and not v[key].is_int() and (Fmt.dec(v[key]).contains("/") or Fmt.dec(v[key]).length() > 8):
+			v[key] = Answer.parse_number(Fmt.sf(v[key]).replace("−", "-")).q
+	return v
 
 
 # ── Writing things ───────────────────────────────────────────
@@ -300,9 +318,9 @@ static func root_word(gap: int) -> String:
 static func sum_formula(s: Dictionary, u1: Q, r: Q, n: int) -> Array:
 	var name := SS(n) if n > 0 else "S"
 	if r.to_float() > 1.0:
-		return ["%s = u₁(rⁿ − 1)/(r − 1)" % name,
+		return ["Sₙ = u₁(r^n − 1)/(r − 1)",
 			"%s = %s(%s − 1)/(%s − 1)" % [name, B(s, u1), pow_text(s, r, n), X(s, r)]]
-	return ["%s = u₁(1 − rⁿ)/(1 − r)" % name,
+	return ["Sₙ = u₁(1 − r^n)/(1 − r)",
 		"%s = %s(1 − %s)/(1 − %s)" % [name, B(s, u1), pow_text(s, r, n), B(s, r)]]
 
 
@@ -321,8 +339,8 @@ static func gdc_sum(s: Dictionary, u1: Q, r: Q, n: int) -> String:
 
 ## The steps of S − rS, in this order: both rows, the subtraction, the numbers.
 static func shift_steps(s: Dictionary, u1: Q, r: Q, n: int, final: String) -> Array:
-	return ["Write Sₙ = u₁ + u₁r + … + u₁r^(n − 1) and rSₙ = u₁r + u₁r² + … + u₁rⁿ.",
-		"Subtract: every middle term cancels, so Sₙ − rSₙ = u₁ − u₁rⁿ, and Sₙ = u₁(1 − rⁿ)/(1 − r).",
+	return ["Write Sₙ = u₁ + u₁r + … + u₁r^(n − 1) and rSₙ = u₁r + u₁r² + … + u₁r^n.",
+		"Subtract: every middle term cancels, so Sₙ − rSₙ = u₁ − u₁r^n, and Sₙ = u₁(1 − r^n)/(1 − r).",
 		"With n = %d: %s(1 − %s)/(1 − %s) = %s" % [n, B(s, u1), pow_text(s, r, n), B(s, r), X(s, partial(u1, r, n))], final]
 
 
@@ -359,7 +377,7 @@ func _term_methods(rep: String, s: Dictionary, n: int, ans: Dictionary) -> Dicti
 			"The table at n = %d shows %s." % [n, X(s, v)], say(ans)], ans.values),
 	}
 	if a.mul(20).is_int():
-		out["exponential-form"] = method([first, "Rewrite uₙ = u₁r^(n − 1) as (u₁/r) × rⁿ: u₁/r = %s ÷ %s = %s" % [X(s, s.u1), B(s, s.r), X(s, a)],
+		out["exponential-form"] = method([first, "Rewrite uₙ = u₁r^(n − 1) as (u₁/r) × r^n: u₁/r = %s ÷ %s = %s" % [X(s, s.u1), B(s, s.r), X(s, a)],
 			"%s = %s × %s = %s" % [U(n), B(s, a), pow_text(s, s.r, n), X(s, v)], say(ans)], ans.values)
 	return out
 
@@ -419,7 +437,7 @@ func u_general_term(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"answer": ans, "wrongs": wrongs, "generic": generic,
 		"methods": {
 			"nth-formula": method([first, "uₙ = u₁r^(n − 1), so put in u₁ and r.", say(ans)], ans.values),
-			"exponential-form": method([first, "uₙ = u₁r^(n − 1) = (u₁/r) × rⁿ, and u₁/r = %s ÷ %s = %s." % [X(s, s.u1), B(s, s.r), X(s, s.u1.div(s.r))],
+			"exponential-form": method([first, "uₙ = u₁r^(n − 1) = (u₁/r) × r^n, and u₁/r = %s ÷ %s = %s." % [X(s, s.u1), B(s, s.r), X(s, s.u1.div(s.r))],
 				say(ans)], ans.values),
 		}})
 
@@ -583,10 +601,19 @@ func u_k_consecutive(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"methods": {
 			"equal-ratios": method(["Consecutive terms share a ratio, so the middle term squared is the product of its neighbours: (%s)² = (%s)(%s)." % [t2, t1, t3],
 				"Expand: %s = %s" % [left, right], "Collect the terms: %s = 0" % quad,
-				"Δ = %d, so k = (%s ± √%d)/%d" % [disc, Fmt.num(-big_b), disc, 2 * big_a], say(ans)], ans.values),
+				_roots_line(disc, big_a, big_b), say(ans)], ans.values),
 			"gdc-solver": method(["Consecutive terms share a ratio, so (%s)² = (%s)(%s)." % [t2, t1, t3],
 				"Solve it on the GDC, or enter %s = 0 in the polynomial solver." % quad, "The solutions are k = %s and k = %s." % [X(s, k1), X(s, k2)], say(ans)], ans.values),
 		}}
+
+
+## The quadratic formula's line: "Δ = 1764 = 42², so k = (42 ± 42)/2", or with the surd left in.
+static func _roots_line(disc: int, a: int, b: int) -> String:
+	var root := roundi(sqrt(float(disc)))
+	var top := Fmt.num(-b)
+	if root * root == disc:
+		return "Δ = %d = %d², so k = (%s ± %d)/%d" % [disc, root, top, root, 2 * a]
+	return "Δ = %d, so k = (%s ± √%d)/%d" % [disc, top, disc, 2 * a]
 
 
 func u_coefficients_geometric(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -670,15 +697,17 @@ func u_sum_closed_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var names: Array = ["a", "b"] if one else ["a", "k"]
 	var second: Q = r.sub(1) if one else s.v
 	var ans := named(s, names, [r, second])
-	var shape := "(aⁿ − 1)/b" if one else "k(aⁿ − 1)"
-	var line := "Sₙ = %s(%sⁿ − 1)/%s" % ["" if one else X(s, s.u1), X(s, r), X(s, r.sub(1))]
-	var read := "Sₙ = (%sⁿ − 1)/%s" % [X(s, r), X(s, r.sub(1))] if one else "Sₙ = %s(%sⁿ − 1)" % [X(s, s.v), X(s, r)]
+	var shape := "(a^n − 1)/b" if one else "k(a^n − 1)"
+	var line := "Sₙ = %s(%s^n − 1)/%s" % ["" if one else X(s, s.u1), X(s, r), X(s, r.sub(1))]
+	var read := "Sₙ = (%s^n − 1)/%s" % [X(s, r), X(s, r.sub(1))] if one else "Sₙ = %s(%s^n − 1)" % [X(s, s.v), X(s, r)]
+	if r.eq(2):
+		line = "r − 1 = 1, so the bottom of the fraction goes."
 	return {"asked": "Sₙ is the sum of the first n terms. Find %s and %s, where Sₙ = %s." % [names[0], names[1], shape],
 		"lines": [notation(s)], "answer": ans,
 		"generic": [vals_of([second, r]), vals_of([r, r if one else s.u1]), vals_of([r.add(1), second]), vals_of([r, second.add(1)]), vals_of([r, second.mul(2)])],
 		"methods": {
-			"sum-formula": method(["r > 1, so use Sₙ = u₁(rⁿ − 1)/(r − 1).", line, read, say(ans)], ans.values),
-			"shift-subtract": method(["Write Sₙ = u₁ + u₁r + … + u₁r^(n − 1) and rSₙ = u₁r + … + u₁rⁿ.", "Subtract: rSₙ − Sₙ = u₁rⁿ − u₁, so Sₙ = u₁(rⁿ − 1)/(r − 1).", read, say(ans)], ans.values),
+			"sum-formula": method(["r > 1, so use Sₙ = u₁(r^n − 1)/(r − 1).", line, read, say(ans)], ans.values),
+			"shift-subtract": method(["Write Sₙ = u₁ + u₁r + … + u₁r^(n − 1) and rSₙ = u₁r + … + u₁r^n.", "Subtract: rSₙ − Sₙ = u₁r^n − u₁, so Sₙ = u₁(r^n − 1)/(r − 1).", read, say(ans)], ans.values),
 		}}
 
 
@@ -688,14 +717,14 @@ func u_sum_of_sums(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := named(s, ["a", "b", "c"], [r, d, d.sq()])
 	var rt := X(s, r)
 	var dt := X(s, d)
-	return {"asked": "Sₙ is the sum of the first n terms. Find a, b and c, where S₁ + S₂ + … + Sₙ = (a(aⁿ − 1) − bn)/c.",
+	return {"asked": "Sₙ is the sum of the first n terms. Find a, b and c, where S₁ + S₂ + … + Sₙ = (a(a^n − 1) − bn)/c.",
 		"lines": [notation(s)], "answer": ans,
 		"generic": [vals_of([r, d, d]), vals_of([r, Q.new(1), d.sq()]), vals_of([d, r, d.sq()]), vals_of([r, d, r.sq()])],
 		"methods": {
 			"sum-formula": method(["u₁ = 1, so each sum is Sₖ = (%s^k − 1)/%s, for k = 1 to n." % [rt, dt],
-				"Add them: S₁ + … + Sₙ = ((%s + %s² + … + %sⁿ) − n)/%s, as −1 comes n times." % [rt, rt, rt, dt],
-				"%s + %s² + … + %sⁿ is geometric, with first term %s: its sum is %s(%sⁿ − 1)/%s." % [rt, rt, rt, rt, rt, rt, dt],
-				"So the total is (%s(%sⁿ − 1)/%s − n)/%s = (%s(%sⁿ − 1) − %sn)/%s." % [rt, rt, dt, dt, rt, rt, "" if d.eq(1) else dt, X(s, d.sq())], say(ans)], ans.values),
+				"Add them: S₁ + … + Sₙ = ((%s + %s² + … + %s^n) − n)/%s, as −1 comes n times." % [rt, rt, rt, dt],
+				"%s + %s² + … + %s^n is geometric, with first term %s: its sum is %s(%s^n − 1)/%s." % [rt, rt, rt, rt, rt, rt, dt],
+				"So the total is (%s(%s^n − 1)/%s − n)/%s = (%s(%s^n − 1) − %sn)/%s." % [rt, rt, dt, dt, rt, rt, "" if d.eq(1) else dt, X(s, d.sq())], say(ans)], ans.values),
 		}}
 
 
@@ -838,6 +867,7 @@ func u_exists_claim(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var r: Q = s.r
 	var mag := X(s, r.abs_q())
 	var bad: Q = inf(s.u1, r) if not r.eq(1) else Q.new(0)
+	var formula := claim("sum", "Yes: S∞ = u₁/(1 − r) = %s" % X(s, bad))
 	var right: String
 	var wrongs: Array = []
 	var generic: Array = []
@@ -847,20 +877,22 @@ func u_exists_claim(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			generic = [claim("a", "No: |r| = %s, and |r| has to be more than 1" % mag), claim("b", "No: the terms never reach 0"), claim("c", "No: an infinite sum can't be finite")]
 		"big", "neg-big":
 			right = "No: |r| = %s, which is more than 1" % mag
-			wrongs.append(wrong(claim("sum", "Yes: S∞ = u₁/(1 − r) = %s" % X(s, bad)), R_NO_LIMIT))
+			wrongs.append(wrong(formula, R_NO_LIMIT))
 			if s.kind == "neg-big":
 				wrongs.append(wrong(claim("below", "Yes: r = %s, which is less than 1" % X(s, r)), R_R_BELOW_ONE))
-			generic = [claim("a", "Yes: the first term is less than r"), claim("b", "Yes: r is not 1"), claim("c", "No: r is not a whole number")]
+			generic = [claim("a", "Yes: r is not 1"), claim("b", "Yes: S∞ exists for any r except 1"), claim("c", "No: r is not a whole number")]
 		_:
 			right = "No: |r| = 1, and |r| has to be less than 1"
 			wrongs.append(wrong(claim("ends", "Yes: |r| ≤ 1 is enough"), R_ENDS))
-			generic = [claim("a", "Yes: the terms stay the same size"), claim("b", "Yes: S∞ = %s" % X(s, s.u1.div(2))), claim("c", "No: u₁ is not 1")]
+			if s.kind == "neg-one":
+				wrongs.append(wrong(formula, R_NO_LIMIT))
+			generic = [claim("a", "Yes: the terms stay the same size"), claim("b", "No: S∞ only exists when r is negative"), claim("c", "Yes: S∞ = %s" % X(s, s.u1))]
 	var ans := Answer.make("claim", claim("right", right))
 	var u2 := term(s, 2)
 	var conv: bool = s.kind == "conv"
 	var read := "r = u₂ ÷ u₁ = %s ÷ %s = %s" % [X(s, u2), B(s, s.u1), X(s, r)] if rep == "terms" else "r = %s" % X(s, r)
 	var seen := "The sums settle." if conv else "The sums never settle."
-	return with(shown(rep, s), {"asked": "Does the sum to infinity of this geometric series exist?", "answer": ans, "wrongs": wrongs, "generic": generic.map(func(g): return g),
+	return with(shown(rep, s), {"asked": "Does the sum to infinity of this geometric series exist?", "answer": ans, "wrongs": wrongs, "generic": generic,
 		"methods": {
 			"test-ratio": method([read, "S∞ exists only when |r| < 1, and here |r| = %s." % mag, "%s." % right], ans.values),
 			"partial-sums": method([read, "On the GDC: %s" % table_line(s, s.u1, r, [10, 20, 30]), seen, "%s." % right], ans.values),
@@ -894,7 +926,10 @@ func u_exists_table(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 ## "(2x + 1)/3"
 static func r_text(s: Dictionary) -> String:
-	return "(%s)/%d" % [Fmt.poly([s.ax, s.bx]), s.cx]
+	var top := Fmt.poly([s.ax, s.bx])
+	if s.cx == 1:
+		return top
+	return "(%s)/%d" % [top, s.cx] if s.bx != 0 else "%s/%d" % [top, s.cx]
 
 
 static func band_graph(s: Dictionary) -> Dictionary:
@@ -935,8 +970,9 @@ func u_x_interval(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.graph = band_graph(s)
 		plain = "The line goes through (%s, %s) and (%s, %s), so r = %s." % [lo, "−1" if s.ax > 0 else "1", hi, "1" if s.ax > 0 else "−1", r_text(s)]
 	var left := "−1 < %s < 1" % r_text(s)
-	var times := "%d < %s < %d" % [-s.cx, Fmt.poly([s.ax, s.bx]), s.cx]
-	var solved := "Subtract %s, then divide by %d%s." % [Fmt.num(s.bx), s.ax, ", which flips both signs" if s.ax < 0 else ""]
+	var times := "%s < %s < %s" % [Fmt.num(-s.cx), Fmt.poly([s.ax, s.bx]), Fmt.num(s.cx)]
+	var shift := "" if s.bx == 0 else ("Add %d, then " % -s.bx if s.bx < 0 else "Subtract %d, then " % s.bx)
+	var solved := "%s%s by %s%s." % [shift, "divide" if s.bx != 0 else "Divide", Fmt.num(s.ax), ", which flips both signs" if s.ax < 0 else ""]
 	out.methods = {
 		"double-inequality": method([plain, "S∞ exists when %s, so %s." % [left, times], solved, say(ans)], ans.values),
 		"graph-band": method([plain if graph_rep else "Graph y = %s with the lines y = 1 and y = −1." % r_text(s), "The line is inside the band between x = %s and x = %s." % [lo, hi],
@@ -953,7 +989,7 @@ func _inf_methods(s: Dictionary, first: String, ans: Dictionary, u1: Q, r: Q) ->
 	var mag := "|r| = %s < 1, so S∞ exists." % X(s, r.abs_q())
 	return {
 		"formula": method([first, mag, top, say(ans)], ans.values),
-		"limit-of-sn": method([first, "Sₙ = u₁(1 − rⁿ)/(1 − r), and |r| < 1, so rⁿ → 0 as n grows.", "Sₙ → u₁/(1 − r) = %s" % X(s, v), say(ans)], ans.values),
+		"limit-of-sn": method([first, "Sₙ = u₁(1 − r^n)/(1 − r), and |r| < 1, so r^n → 0 as n grows.", "Sₙ → u₁/(1 − r) = %s" % X(s, v), say(ans)], ans.values),
 		"partial-sums": method([first, "On the GDC: %s" % table_line(s, u1, r, [20, 50, 100]), "They settle at the limit %s." % Fmt.work(v, 6), say(ans)], ans.values),
 	}
 
@@ -984,7 +1020,7 @@ func u_sinf_shaded(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var grid := "%d by %d" % [s.cut, s.cut]
 	var left := "%d" % (cut2 - s.shaded)
 	var lines := ["A square of area %s is cut into a %s grid, and %d of the small squares are shaded." % [X(s, s.area), grid, s.shaded],
-		"The corner square that is not shaded is then cut the same way, and so on for ever."]
+		"The top right square, which is not shaded, is then cut the same way, and so on for ever."]
 	var first := "The first shading is %d/%d of %s = %s." % [s.shaded, cut2, X(s, s.area), X(s, s.u1)]
 	return {"asked": "Find the total shaded area.", "lines": lines, "answer": ans,
 		"graph": {"kind": "squares", "style": "shaded", "cut": s.cut, "shaded": s.shaded, "area": X(s, s.area)},
@@ -1042,7 +1078,7 @@ func u_u1_from_sinf(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"wrongs": [wrong({"v": s.sinf.div(gap)}, R_INVERT)],
 		"generic": vs([s.sinf.mul(s.r), s.sinf.mul(Q.new(1).add(s.r)), s.sinf.sub(s.r), s.u1.neg()]),
 		"methods": {
-			"rearrange": method(["S∞ = u₁/(1 − r), so u₁ = S∞(1 − r).", "u₁ = %s × (1 − %s) = %s × %s" % [B(s, s.sinf), B(s, s.r), B(s, s.sinf), B(s, gap)], say(ans)], ans.values),
+			"rearrange": method(["S∞ = u₁/(1 − r), so u₁ = S∞(1 − r).", "u₁ = %s × (1 − %s) = %s × %s = %s" % [B(s, s.sinf), B(s, s.r), B(s, s.sinf), B(s, gap), X(s, s.u1)], say(ans)], ans.values),
 			"gdc-solver": method(["Solve %s = x/(1 − %s) on the GDC." % [X(s, s.sinf), B(s, s.r)], "The solver gives x = %s." % X(s, s.u1), say(ans)], ans.values),
 		}}
 
@@ -1154,9 +1190,14 @@ func u_bounce_multiple(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"generic": vs([Q.new(1).div(one), r.mul(2).div(one), top, s.v.mul(2)]),
 		"methods": {
 			"split-series": method(["Down: x/(1 − %s). Up: %sx/(1 − %s)." % [B(s, r), B(s, r), B(s, r)], "Total = x(1 + %s)/(1 − %s) = x × %s/%s" % [B(s, r), B(s, r), B(s, top), B(s, one)], "k = %s ÷ %s = %s" % [X(s, top), B(s, one), X(s, s.v)], say(ans)], ans.values),
-			"model-series": method(["The path is x + 2%sx + 2%sx × %s + …: one drop, then a geometric series." % [B(s, r), B(s, r), B(s, r)], "|r| < 1, so the rebounds add to 2%sx/(1 − %s)." % [B(s, r), B(s, r)],
+			"model-series": method(["The path is x + 2 × %sx + 2 × %s²x + …: one drop, then a geometric series." % [B(s, r), B(s, r)], "|r| < 1, so the rebounds add to 2 × %sx/(1 − %s)." % [B(s, r), B(s, r)],
 				"Total = x(1 + 2 × %s/%s) = %sx" % [B(s, r), B(s, one), X(s, s.v)], say(ans)], ans.values),
 		}})
+
+
+## A partial sum with the figures a recurring block needs.
+static func _long(u1: Q, r: Q, n: int) -> String:
+	return "%s = %s" % [SS(n), Fmt.dec(partial(u1, r, n))]
 
 
 func u_recurring_decimal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -1173,8 +1214,8 @@ func u_recurring_decimal(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	return {"asked": "Write this recurring decimal as a fraction.", "lines": [shown_digits], "answer": ans, "wrongs": wrongs,
 		"generic": vs([s.u1, s.u1.mul(9).div(10), Q.new(s.digits, top + 1), s.v.mul(2), s.v.add(Q.new(1, top))]),
 		"methods": {
-			"model-series": method([first, firsts + ", and |r| < 1.", "S∞ = (%d/%d)/(1 − 1/%d) = %d/%d = %s" % [s.digits, top, top, s.digits, top - 1, s.v.text()], say(ans)], ans.values),
-			"partial-sums": method([first, "On the GDC: %s" % table_line(s, s.u1, r, [1, 2, 3, 4]), "The sums settle at %s, the fraction %s." % [shown_digits, s.v.text()], say(ans)], ans.values),
+			"model-series": method([first, firsts + ", and |r| < 1.", "S∞ = (%d/%d)/(1 − 1/%d) = %s" % [s.digits, top, top, s.v.text() if s.v.d == top - 1 else "%d/%d = %s" % [s.digits, top - 1, s.v.text()]], say(ans)], ans.values),
+			"partial-sums": method([first, "On the GDC: %s, %s, %s" % [_long(s.u1, r, 1), _long(s.u1, r, 2), _long(s.u1, r, 3)], "The sums settle at %s, which the formula gives as %s." % [shown_digits, s.v.text()], say(ans)], ans.values),
 		}}
 
 
@@ -1186,7 +1227,7 @@ func u_nested_squares(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var away := Q.new(1).sub(t)
 	var lines := ["A square has side %s cm. A second square is drawn inside it, with each corner %s of the way along a side." % [X(s, side), Fmt.num(t)],
 		"A third square is drawn inside the second in the same way, and so on for ever."]
-	var pyth := "Each new side is the long side of a right triangle: side² = (%s)² + (%s)² = %s of the last." % [Fmt.num(t), Fmt.num(away), Fmt.num(r)]
+	var pyth := "Each new side is the long side of a right triangle, so its square is (%s)² + (%s)² = %s of the last side's square." % [Fmt.num(t), Fmt.num(away), Fmt.num(r)]
 	var first := "The areas start at %s² = %s." % [X(s, side), X(s, s.u1)]
 	var total := "S∞ = %s/(1 − %s) = %s" % [X(s, s.u1), B(s, r), X(s, s.v)]
 	var angle_r: float = atan2(t.to_float(), away.to_float())
@@ -1227,22 +1268,21 @@ func u_story_target(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c: Dictionary = SAVERS[s.ctx]
 	var goal := "%s%s" % [X(s, s.target), c.unit]
 	var limit: Q = s.sinf
-	var lim := Fmt.work(limit, 6)
+	var lim := X(s, limit)
 	var right: String
 	var wrongs: Array = []
 	var generic: Array
-	var reach := "Yes: the total keeps rising, so it passes %s in the end" % goal
-	var never := "No: the total can never pass %s" % lim
+	var stops := claim("b", "No: the total stops once the amounts are small")
 	if s.kind == "under":
 		right = "No: the total stays below S∞ = %s, and that is less than %s" % [lim, goal]
-		generic = [claim("a", reach), claim("b", "Yes: S∞ = %s, which is more than %s" % [Fmt.work(s.u1.div(Q.new(1).add(s.r)).mul(4), 6), goal]), claim("c", "No: the amounts added fall below 1")]
+		generic = [claim("a", "Yes: the total keeps rising, so it passes %s in the end" % goal), stops, claim("c", "Yes: an endless run of additions has no limit")]
 	elif s.kind == "over":
 		right = "Yes: S∞ = %s, which is more than %s" % [lim, goal]
-		generic = [claim("a", "No: the amounts shrink, so a total can't grow past %s" % X(s, s.u1)), claim("b", "No: the total stops at %s" % X(s, s.u1.mul(2))), claim("c", "Yes: only after exactly %d rounds" % 2)]
+		generic = [claim("a", "No: the amounts shrink, so the total can't pass %s" % X(s, s.u1)), stops, claim("c", "No: S∞ = %s, and the total never gets near it" % lim)]
 	else:
 		right = "Yes: r > 1, so the total grows without limit"
 		wrongs.append(wrong(claim("sum", "No: S∞ = %s, so it stops there" % lim), R_NO_CHECK))
-		generic = [claim("a", never.replace(lim, goal)), claim("b", "No: the amounts added shrink"), claim("c", "Yes: but only after S∞ = %s" % goal)]
+		generic = [claim("a", "No: the amounts added shrink"), claim("b", "No: the total can never pass %s" % goal), claim("c", "Yes: but only if the amounts stay the same")]
 	var ans := Answer.make("claim", claim("right", right))
 	var seen: String = "S∞ = %s/(1 − %s) = %s" % [X(s, s.u1), B(s, s.r), lim]
 	var check_r := "|r| = %s, %s" % [X(s, s.r), "so a sum to infinity exists." if s.kind != "grow" else "more than 1, so there is no sum to infinity."]
@@ -1266,7 +1306,7 @@ func u_deposit_for_target(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	return {"asked": "The total after %d %ss is %s. Find the first amount, to 3 s.f." % [s.n, c.per, goal],
 		"lines": [line + " " + String(c.next) % share_text(s, r)], "answer": ans,
 		"wrongs": [],
-		"generic": vs([s.target.mul(one), s.target.div(s.n), s.target.div(partial(Q.new(1), r, s.n + 1)), s.target.div(partial(Q.new(1), r, s.n - 1))]),
+		"generic": vs([s.target.mul(one), s.target.div(s.n), s.target.div(partial(Q.new(1), r, s.n + 1)), s.target.div(partial(Q.new(1), r, s.n - 1)), s.v.mul(2), s.v.div(2)]),
 		"methods": {
 			"model-series": method(["The amounts are geometric, with r = %s and %d terms." % [X(s, r), s.n],
 				"S%s = u₁(1 − %s)/(1 − %s) = %s" % [sub(s.n), pow_text(s, r, s.n), B(s, r), X(s, s.target)],

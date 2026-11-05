@@ -19698,6 +19698,7 @@
 					"in": [
 						"sum-from-u1-r",
 						"sum-exact",
+						"sum-last-term",
 						"sum-alternating"
 					],
 					"wrong": "(−r)^n read as positive, for odd n"

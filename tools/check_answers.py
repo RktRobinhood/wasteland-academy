@@ -19141,6 +19141,618 @@ def check_trig_model(q):
     return None, None
 
 
+# ── geometric-sequence (t1-geometric-sequence, t1-sum-to-infinity, FAL-728) ──
+# The `geometric-sequence` situation's clean limits, the checker's own copy: the engine's is
+# in game/engine/situations/geometric_sequence.gd. Each answer is found again from the numbers
+# with exact rationals or SymPy's solvers, with no code shared with the engine, and each
+# misconception's wrong value is worked out from what the slip does.
+
+GS13, GS18 = "SL1.3.", "SL1.8."
+GS_LIMIT = {1: 200000, 2: 5000000}
+GS_DEN_MAX = 6561
+GS_EDGE = sp.Rational(19, 1000)         # the engine's is 0.02; a hair under it, for float ties
+GS_BALLS = ["rubber ball", "steel spring", "salvaged drone shell", "scrap tyre"]
+GS_P2 = ("gdc-seq", "gdc-solver", "gdc-sum-seq", "gdc-sigma", "partial-sums")
+
+
+def gs_work(v, n=6):
+    t = sig3(v, n).replace("-", "−")
+    return t.rstrip("0").rstrip(".") if "." in t else t
+
+
+def gs_x(p, v):
+    """A number as the question writes it."""
+    v = sp.Rational(v)
+    if p == 1:
+        return frac_text(v)
+    t = dec_text(v)
+    return t if len(t) <= 9 and "/" not in t else gs_work(v)
+
+
+def gs_ends(v):
+    """v is whole, or 3 s.f. write it exactly."""
+    return v.is_rational and (v.q == 1 or sp.Rational(sig3(v)) == v)
+
+
+def gs_show(p, vals):
+    if p == 1:
+        return "frac"
+    return "dec" if all(gs_ends(v) for v in vals) else "sf"
+
+
+def gs_text(show, v):
+    if v == 0:
+        return "0"
+    if show == "frac":
+        return frac_text(v)
+    if show == "dec":
+        t = dec_text(v) if v.is_rational else "/"
+        # A Paper 2 option never reads as a fraction or a long decimal.
+        return t if v.is_rational and (v.q == 1 or ("/" not in t and len(t) <= 8)) else dec_text(sp.Rational(sig3(v)))
+    return sig3(v).replace("-", "−")
+
+
+def gs_clear(x):
+    v = abs(num(x))
+    if v == 0:
+        return True
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= GS_EDGE
+
+
+def gs_num(paper, vals):
+    """The clean limits on an answer."""
+    for v in vals:
+        need(abs(num(v)) <= GS_LIMIT[paper], f"{float(v)} is too large for Paper {paper}")
+        if paper == 1:
+            need(v.is_rational and v.q <= GS_DEN_MAX, f"{v} is not a clean Paper 1 value")
+        elif not gs_ends(v):
+            need(gs_clear(v), f"{float(v):.6f} is on a rounding edge")
+
+
+def gs_trap(show, label, v, unit=""):
+    if show != "sf":
+        return None
+    return label + dec_text(sp.Rational(sig3(v, 2))) + unit
+
+
+def gs_u(k):
+    return "u" + str(k).translate(str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉"))
+
+
+def gs_s(k):
+    return "S" + str(k).translate(str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉"))
+
+
+def gs_sum(u1, r, n):
+    """Added term by term, not from the formula."""
+    return sum((u1 * r ** i for i in range(n)), sp.Integer(0))
+
+
+def gs_inf(u1, r):
+    """The limit of the partial sums, as SymPy finds it."""
+    m = sp.Symbol("m", positive=True, integer=True)
+    return sp.limit(u1 * (1 - abs(r) ** m) / (1 - r), m, sp.oo)
+
+
+def gs_xs_text(p, name, vals):
+    vals = sorted(vals, key=lambda v: num(v))
+    show = gs_show(p, vals)
+    return f"{name} = " + " or ".join(gs_text(show, v) for v in vals), show
+
+
+def gs_named(show, names, vals):
+    return ", ".join(f"{n} = {gs_text(show, v)}" for n, v in zip(names, vals))
+
+
+def gs_terms(p, u1, r, k=4):
+    return ", ".join(gs_x(p, u1 * r ** i) for i in range(k)) + ", …"
+
+
+def gs_expr(a, b):
+    """a·k + b as the game writes it, read back with SymPy for the checker's own use."""
+    return a * sp.Symbol("k") + b
+
+
+def gs_seq_shown(q, u1, r, k=4):
+    """What is shown is the sequence: notation, terms, table or dots."""
+    rep, L, p = q["view"]["rep"], q["lines"], q["paper"]
+    if rep == "notation":
+        need(L[0] == f"u₁ = {gs_x(p, u1)},  r = {gs_x(p, r)}", f"the notation shows {L[0]!r}")
+    elif rep == "terms":
+        need(L[0] == gs_terms(p, u1, r, k), f"the terms show {L[0]!r}")
+    elif rep == "table":
+        rows = q["table"]["rows"]
+        need(rows == [["n", [str(i + 1) for i in range(k)]], ["uₙ", [gs_x(p, u1 * r ** i) for i in range(k)]]], "the table is not the sequence")
+    elif rep == "graph":
+        pts = q["graph"]["points"]
+        need(len(pts) == k and all(sp.nsimplify(pt["y"]) == u1 * r ** i and pt["x"] == i + 1 for i, pt in enumerate(pts)), "the dots are not the sequence")
+        need(q["graph"]["y1"] >= max(pt["y"] for pt in pts), "a dot is off the graph")
+
+
+def gs_series_shown(q, u1, r, last):
+    p = q["paper"]
+    second, third = u1 * r, u1 * r ** 2
+    bits = gs_x(p, u1) + "".join((" − " if v < 0 else " + ") + gs_x(p, abs(v)) for v in (second, third))
+    want = bits + " + … " + ("− " if last < 0 else "+ ") + gs_x(p, abs(last))
+    need(q["lines"][0] == want, f"the series shows {q['lines'][0]!r}, not {want!r}")
+
+
+def gs_sigma_text(p, c, b, lower, shift, upper):
+    tail = "k" if shift == 0 else (f"(k − {-shift})" if shift < 0 else f"(k + {shift})")
+    top = "∞" if upper < 0 else str(upper)
+    return f"Σ (k = {lower} to {top}) {gs_x(p, c)}({gs_x(p, b)})^{tail}"
+
+
+def check_geometric(q):
+    g, v, L, asked, paper = q["given"], q["view"], q["lines"], q["asked"], q["paper"]
+    u, rep, angle = v["unknown"], v["rep"], v["angle"]
+    need(angle not in GS_P2 or paper == 2, f"{angle} is Paper 2 only")
+    if u in ("term-exact", "sum-exact", "sum-closed-form", "sum-of-sums", "sum-alternating", "x-from-log-series"):
+        need(paper == 1, f"{u} is Paper 1")
+    if u in ("coefficients-geometric", "exists-table", "deposit-for-target"):
+        need(paper == 2, f"{u} is Paper 2")
+    has = lambda k: k in g
+    u1 = R(g["u1"]) if has("u1") else None
+    r = R(g["r"]) if has("r") else None
+    n = int(g["n"]) if has("n") else None
+    wrongs, trap, want = {}, None, None
+
+    def one(label, x, unit=""):
+        """The answer as one number: its text, trap and how a wrong value reads."""
+        nonlocal want, trap
+        gs_num(paper, [x])
+        show = gs_show(paper, [x])
+        want = label + gs_text(show, x) + unit
+        trap = gs_trap(show, label, x, unit)
+        return lambda w: label + gs_text(show, w) + unit
+
+    if u == "r-from-terms":
+        gs_seq_shown(q, u1, r)
+        need(asked == "Find the common ratio r.", f"asked {asked!r}")
+        t = one("r = ", (u1 * r) / u1)
+        wrongs[GS13 + "nth-term#2"] = {t(u1 / (u1 * r)), t(u1 * r - u1)}
+    elif u in ("term-from-u1-r", "term-exact"):
+        gs_seq_shown(q, u1, r)
+        need(asked == (f"Find {gs_u(n)}." if u == "term-from-u1-r" else f"Find the exact value of {gs_u(n)}."), f"asked {asked!r}")
+        need(5 <= n <= 9, "n is outside 5 to 9")
+        val = u1
+        for _ in range(n - 1):
+            val *= r
+        t = one(gs_u(n) + " = ", val)
+        wrongs[GS13 + "nth-term#0"] = {t(val * r)}
+        wrongs[GS13 + "nth-term#1"] = {t((u1 * r) ** (n - 1))}
+    elif u == "general-term":
+        gs_seq_shown(q, u1, r)
+        exp_form = angle == "exponential-form"
+        need(asked == ("Find an expression for uₙ in the form a × b^n." if exp_form else "Find an expression for uₙ in terms of n."), f"asked {asked!r}")
+        a = u1 / r if exp_form else u1
+        tail = "n" if exp_form else "(n − 1)"
+        br = lambda x: f"({gs_x(paper, x)})" if x < 0 or "/" in gs_x(paper, x) else gs_x(paper, x)
+        rl = lambda c, b, e: f"{gs_x(paper, c)} × {br(b)}^{e}"
+        want = "uₙ = " + rl(a, r, tail)
+        # The rule is right: it gives the first three terms.
+        for k in (1, 2, 3):
+            need(a * r ** (k if exp_form else k - 1) == u1 * r ** (k - 1), "the rule misses a term")
+        wrongs[GS13 + "nth-term#0"] = {"uₙ = " + rl(u1, r, "n")}
+        wrongs[GS13 + "nth-term#1"] = {f"uₙ = {br(u1 * r)}^(n − 1)"}
+    elif u in ("r-odd-gap", "r-even-gap", "u1-from-two-terms", "term-choose-sign"):
+        pp, qq = int(g["p"]), int(g["q"])
+        up, uq = R(g["up"]), R(g["uq"])
+        gap = qq - pp
+        need(gap % 2 == (0 if u in ("r-even-gap", "term-choose-sign") else 1), f"the gap {gap} is the wrong parity")
+        need(up == u1 * r ** (pp - 1) and uq == u1 * r ** (qq - 1), "the given terms are not the sequence's")
+        x = sp.Symbol("x", real=True)
+        roots = sorted(sp.real_roots(sp.Poly(x ** gap * up - uq, x)), key=num)
+        need(all(ro.is_rational for ro in roots), "r is not rational")
+        if u == "term-choose-sign":
+            m = int(g["m"])
+            need((m - pp) % 2 == 1 and up > 0, "the far term doesn't settle the sign")
+            neg = r < 0
+            want_line = f"{gs_u(pp)} = {gs_x(paper, up)},  {gs_u(qq)} = {gs_x(paper, uq)},  {gs_u(m)} {'<' if neg else '>'} 0"
+            if rep == "notation":
+                need(L[0] == want_line, f"line {L[0]!r}")
+            else:
+                need(L[0].endswith(f"term is {'negative' if neg else 'positive'}."), f"line {L[0]!r}")
+            # The far term's sign picks one root.
+            keep = [ro for ro in roots if (ro < 0) == neg]
+            need(len(keep) == 1, "the sign doesn't pick one root")
+            need(n == qq + 1 and asked == f"Find {gs_u(n)}.", f"asked {asked!r}")
+            val = uq * keep[0]
+            t = one(gs_u(n) + " = ", val)
+            if neg:
+                wrongs[GS13 + "find-r-u1#1"] = {t(-val)}
+        else:
+            if rep == "notation":
+                need(L[0] == f"{gs_u(pp)} = {gs_x(paper, up)},  {gs_u(qq)} = {gs_x(paper, uq)}", f"line {L[0]!r}")
+            else:
+                need(L[0] == f"The {bn_ordinal(pp)} term of a geometric sequence is {gs_x(paper, up)} and the {bn_ordinal(qq)} term is {gs_x(paper, uq)}.", f"line {L[0]!r}")
+            if u == "r-odd-gap":
+                need(len(roots) == 1 and asked == "Find r.", "an odd gap has one r")
+                t = one("r = ", roots[0])
+                wrongs[GS13 + "find-r-u1#0"] = {t((uq - up) / gap)}
+                if paper == 2 and uq / up > 0:
+                    wrongs[GS13 + "find-r-u1#2"] = {t(sp.Rational(str(round(float(num((uq / up) ** sp.Rational(1, gap + 1))), 9))))}
+            elif u == "r-even-gap":
+                need(len(roots) == 2 and roots[0] == -roots[1] and asked == "Find the possible values of r.", "an even gap has ±r")
+                gs_num(paper, roots)
+                want, show = gs_xs_text(paper, "r", roots)
+                wrongs[GS13 + "find-r-u1#1"] = {f"r = {gs_text(show, roots[1])}"}
+                wrongs[GS13 + "find-r-u1#0"] = {f"r = {gs_text(show, (uq - up) / gap)}"}
+            else:
+                need(len(roots) == 1 and asked == "Find u₁.", "an odd gap has one r")
+                val = up / roots[0] ** (pp - 1)
+                t = one("u₁ = ", val)
+                wrongs[GS13 + "find-r-u1#2"] = {t(up / roots[0] ** pp)}
+    elif u == "interior-terms":
+        a, b = R(g["first"]), R(g["fourth"])
+        need(a > 0 and b > 0, "the outer terms are not positive")
+        root = sp.real_root(b / a, 3)
+        p1, p2 = a * root, a * root ** 2
+        ax, bx = gs_x(paper, a), gs_x(paper, b)
+        need(L[0] == (f"{ax}, p, q, {bx}" if rep == "terms" else f"The numbers {ax}, p, q and {bx} are four consecutive terms of a geometric sequence."), f"line {L[0]!r}")
+        if paper == 1:
+            need(root.is_rational and p1.q == 1 and p2.q == 1, "Paper 1's four terms are not whole")
+        else:
+            need(not root.is_rational, "Paper 2's ratio is not a surd")
+        gs_num(paper, [p1, p2])
+        show = gs_show(paper, [sp.nsimplify(p1), sp.nsimplify(p2)])
+        names = ["p", "q"]
+        want = gs_named(show, names, [p1, p2])
+        third = (b - a) / 3
+        wrongs[GS13 + "find-r-u1#0"] = {gs_named(show, names, [a + third, a + 2 * third])}
+        if paper == 2:
+            r4 = (b / a) ** sp.Rational(1, 4)
+            wrongs[GS13 + "find-r-u1#2"] = {gs_named(show, names, [a * r4, a * r4 ** 2])}
+    elif u == "k-consecutive":
+        e = [int(t) for t in g["e"]]
+        k = sp.Symbol("k")
+        t1, t2, t3 = e[0] * k + e[1], e[2] * k + e[3], e[4] * k + e[5]
+        roots = sp.solve(sp.Eq(t2 ** 2, t1 * t3), k)
+        need(len(roots) == 2, "not two values of k")
+        for ro in roots:
+            need(all(sp.simplify(t.subs(k, ro)) != 0 for t in (t1, t2, t3)), "a term is 0")
+            need(sp.simplify(t2.subs(k, ro) ** 2 - t1.subs(k, ro) * t3.subs(k, ro)) == 0, "k doesn't make it geometric")
+        if paper == 1:
+            need(all(ro.is_rational and ro.q <= 6 for ro in roots), "Paper 1's k are not simple")
+        else:
+            need(not any(ro.is_rational for ro in roots), "Paper 2's k are not surds")
+        gs_num(paper, roots)
+        want, show = gs_xs_text(paper, "k", roots)
+        if e[0] + e[4] != 2 * e[2]:
+            wrongs[GS13 + "find-r-u1#0"] = {f"k = {gs_text(show, sp.solve(2 * t2 - t1 - t3, k)[0])}"}
+    elif u == "coefficients-geometric":
+        nn = int(g["n"])
+        a, b, d = [int(t) for t in g["pow"]]
+        need(L[0] == "(1 + hx)" + "".join("⁰¹²³⁴⁵⁶⁷⁸⁹"[int(c)] for c in str(nn)) + ", where h > 0", f"line {L[0]!r}")
+        need(a < b < d <= nn, "the powers are out of order")
+        h = sp.Symbol("h", positive=True)
+        co = [sp.binomial(nn, j) * h ** j for j in (a, b, d)]
+        sols = sp.solve(sp.Eq(co[1] ** 2, co[0] * co[2]), h)
+        need(len(sols) == 1, "not one positive h")
+        t = one("h = ", sols[0])
+    elif u in ("sum-from-u1-r", "sum-exact"):
+        gs_seq_shown(q, u1, r)
+        ex = "the exact value of " if u == "sum-exact" else ""
+        need(asked == f"Find {ex}{gs_s(n)}, the sum of the first {n} terms.", f"asked {asked!r}")
+        val = gs_sum(u1, r, n)
+        t = one(gs_s(n) + " = ", val)
+        wrongs[GS13 + "sum#0"] = {t(u1 * (1 - r ** (n - 1)) / (1 - r))}
+        if r < 0 and n % 2 == 1:
+            wrongs[GS13 + "sum#1"] = {t(u1 * (1 - abs(r) ** n) / (1 - r))}
+    elif u == "sum-last-term":
+        last = R(g["last"])
+        need(last == u1 * r ** (n - 1), "the last term is not the nth")
+        gs_series_shown(q, u1, r, last)
+        val = gs_sum(u1, r, n)
+        t = one("Sum = ", val)
+        wrongs[GS13 + "sum#2"] = {t(gs_sum(u1, r, n - 1))}
+        if r < 0 and n % 2 == 1:
+            wrongs[GS13 + "sum#1"] = {t(u1 * (1 - abs(r) ** n) / (1 - r))}
+    elif u == "sum-closed-form":
+        need(L[0] == f"u₁ = {frac_text(u1)},  r = {frac_text(r)}", f"line {L[0]!r}")
+        need(r > 1 and r.q == 1, "r is not a whole number above 1")
+        if u1 == 1:
+            a, b = r, r - 1
+            need(all((a ** m - 1) / b == gs_sum(u1, r, m) for m in range(1, 7)), "the closed form is wrong")
+            want = f"a = {a}, b = {b}"
+        else:
+            a, b = r, u1 / (r - 1)
+            need(all(b * (a ** m - 1) == gs_sum(u1, r, m) for m in range(1, 7)), "the closed form is wrong")
+            want = f"a = {a}, k = {frac_text(b)}"
+    elif u == "sum-of-sums":
+        need(u1 == 1 and r >= 3, "the sequence is out of range")
+        a, b, c = r, r - 1, (r - 1) ** 2
+        for m in range(1, 8):
+            total = sum(gs_sum(u1, r, j) for j in range(1, m + 1))
+            need((a * (a ** m - 1) - b * m) / c == total, "the closed form is wrong")
+        want = f"a = {a}, b = {b}, c = {c}"
+    elif u == "sum-alternating":
+        need(r == -1 and L[0] == gs_terms(paper, u1, r), f"line {L[0]!r}")
+        odd = g["odd"]
+        count = "2m + 1" if odd else "2m"
+        need(asked == f"Find the sum of the first {count} terms, where m is a positive whole number.", f"asked {asked!r}")
+        vals = {gs_sum(u1, r, 2 * m + (1 if odd else 0)) for m in (1, 2, 3, 4, 5)}
+        need(len(vals) == 1, "the sum depends on m")
+        t = one("Sum = ", vals.pop())
+        if odd:
+            wrongs[GS13 + "sum#1"] = {t(sp.Integer(0))}
+    elif u in ("bounce-before", "bounce-total", "bounce-multiple"):
+        ctx = GS_BALLS[int(g["ctx"])]
+        need(ctx in L[0], f"the story {L[0]!r}")
+        rate = gs_x(paper, r) if paper == 1 else dec_text(r * 100) + "%"
+        need(f"rebounds to {rate} of" in L[0], f"the story {L[0]!r} doesn't give r")
+        if rep == "diagram":
+            gr = q["graph"]
+            need(gr["kind"] == "bounce" and abs(gr["peaks"][2] - float(r ** 2)) < 1e-9, "the figure is not this ball")
+        if u == "bounce-multiple":
+            total = 1 + 2 * sum((r ** i for i in range(1, 400)), sp.Integer(0))  # a check on the closed form below
+            exact = (1 + r) / (1 - r)
+            need(abs(num(exact - total)) < 1e-6 * exact, "the distance is wrong")
+            need(asked == "The total distance it travels before it comes to rest is kx metres. Find k.", f"asked {asked!r}")
+            t = one("k = ", exact)
+            wrongs[GS18 + "applications#0"] = {t(2 / (1 - r))}
+        else:
+            h = R(g["h"])
+            need(f"height of {gs_x(paper, h)} m" in L[0], f"the story {L[0]!r} doesn't give the height")
+            if u == "bounce-before":
+                need(asked == f"Find the total distance it has travelled at the moment it lands for the {bn_ordinal(n)} time.", f"asked {asked!r}")
+                # The path, leg by leg: down, then up and down n − 1 times.
+                height, dist = h, h
+                for _ in range(n - 1):
+                    height *= r
+                    dist += 2 * height
+                t = one("Distance = ", dist, " m")
+                wrongs[GS18 + "applications#0"] = {t(dist + h)}
+            else:
+                need(asked == "Find the total distance it travels before it comes to rest.", f"asked {asked!r}")
+                t = one("Total distance = ", h + 2 * gs_inf(h * r, r), " m")
+                wrongs[GS18 + "applications#0"] = {t(2 * gs_inf(h, r))}
+    elif u in ("sigma-first-r", "sigma-evaluate"):
+        c, b, lo, sh, up = R(g["c"]), R(g["b"]), int(g["lower"]), int(g["shift"]), int(g["upper"])
+        need(L[0] == gs_sigma_text(paper, c, b, lo, sh, up), f"the Σ shows {L[0]!r}")
+        k = sp.Symbol("k")
+        f = c * b ** (k + sh)
+        first, second = f.subs(k, lo), f.subs(k, lo + 1)
+        if u == "sigma-first-r":
+            need(asked == "Write down u₁ and r for this series.", f"asked {asked!r}")
+            show = gs_show(paper, [first, second / first])
+            names = ["u₁", "r"]
+            gs_num(paper, [first])
+            want = gs_named(show, names, [first, second / first])
+            if first != c:
+                wrongs[GS13 + "sigma#0"] = {gs_named(show, names, [c, second / first])}
+            wrongs[GS13 + "sigma#1"] = {gs_named(show, names, [first, c])}
+        else:
+            count = up - lo + 1
+            need(asked == "Find the value of this sum.", f"asked {asked!r}")
+            val = sum(f.subs(k, j) for j in range(lo, up + 1))
+            t = one("Sum = ", val)
+            if first != c:
+                wrongs[GS13 + "sigma#0"] = {t(gs_sum(c, b, count))}
+            wrongs[GS13 + "sigma#2"] = {t(gs_sum(first, b, up - lo))}
+    elif u == "sigma-write":
+        last = R(g["last"])
+        need(last == u1 * r ** (n - 1), "the last term is not the nth")
+        gs_series_shown(q, u1, r, last)
+        need(sum(u1 * r ** (j - 1) for j in range(1, n + 1)) == gs_sum(u1, r, n), "the Σ is not the series")
+        want = f"a = {frac_text(u1)}, b = {frac_text(r)}, n = {n}"
+    elif u == "exists-claim":
+        gs_seq_shown(q, u1, r)
+        ar = abs(r)
+        kind = g["kind"]
+        need(kind == ("conv" if ar < 1 else "one" if r == 1 else "neg-one" if r == -1 else "big" if r > 0 else "neg-big"), f"kind {kind} for r = {r}")
+        mag = gs_x(paper, ar)
+        if ar < 1:
+            want = f"Yes: |r| = {mag}, which is less than 1"
+        elif ar > 1:
+            want = f"No: |r| = {mag}, which is more than 1"
+            wrongs[GS18 + "sum-to-infinity#2"] = {f"Yes: S∞ = u₁/(1 − r) = {gs_x(paper, u1 / (1 - r))}"}
+            if r < 0:
+                wrongs[GS18 + "convergence#0"] = {f"Yes: r = {gs_x(paper, r)}, which is less than 1"}
+        else:
+            want = "No: |r| = 1, and |r| has to be less than 1"
+            wrongs[GS18 + "convergence#2"] = {"Yes: |r| ≤ 1 is enough"}
+            if r == -1:
+                wrongs[GS18 + "sum-to-infinity#2"] = {f"Yes: S∞ = u₁/(1 − r) = {gs_x(paper, u1 / 2)}"}
+    elif u == "exists-table":
+        rows = q["table"]["rows"]
+        ns = [int(t) for t in rows[0][1]]
+        need(rows[1][1] == [gs_work(gs_sum(u1, r, m)) for m in ns], "the table is not the partial sums")
+        lim = u1 / (1 - r)
+        settles = abs(r) < 1
+        need(g["kind"] == ("conv" if settles else "big" if r > 0 else "neg-big"), "the kind is wrong")
+        if settles:
+            want = f"S∞ exists: the sums settle near {gs_text('sf', lim)}"
+        else:
+            want = "S∞ does not exist: the sums never settle"
+            wrongs[GS18 + "sum-to-infinity#2"] = {f"S∞ exists: u₁/(1 − r) = {gs_text('sf', lim)}"}
+    elif u == "x-interval":
+        a, b, c = int(g["ax"]), int(g["bx"]), int(g["cx"])
+        x = sp.Symbol("x", real=True)
+        ex = sp.Rational(a, c) * x + sp.Rational(b, c)
+        sol = sp.solve_univariate_inequality(sp.Abs(ex) < 1, x, relational=False)
+        need(isinstance(sol, sp.Interval) and sol.left_open and sol.right_open, f"|r| < 1 gives {sol}")
+        lo, hi = sol.start, sol.end
+        need(lo == R(g["lo"]) and hi == R(g["hi"]), "the ends are not where |r| = 1")
+        want = f"{frac_text(lo)} < x < {frac_text(hi)}"
+        one_end = sp.solve(sp.Eq(ex, 1), x)[0]
+        wrongs[GS18 + "convergence#1"] = {f"x {'<' if a > 0 else '>'} {frac_text(one_end)}"}
+        wrongs[GS18 + "convergence#2"] = {f"{frac_text(lo)} ≤ x ≤ {frac_text(hi)}"}
+        if rep == "graph":
+            gr = q["graph"]
+            need(lo.q == 1 and hi.q == 1, "a graph's ends are whole")
+            need(any(h_["at"] == 1 for h_ in gr["hlines"]) and any(h_["at"] == -1 for h_ in gr["hlines"]), "the band is missing")
+            for px, py in gr["curves"][0][::40]:
+                need(abs(float(ex.subs(x, sp.Float(px))) - py) < 1e-6, "the line is not r(x)")
+            need(gr["x0"] < lo and hi < gr["x1"], "an end is off the graph")
+        else:
+            shown = re.fullmatch(r"A geometric series has common ratio r = (.+), where x is a real number\.", L[0])
+            need(shown is not None and sp.simplify(parse(shown.group(1)).subs(X, x) - ex) == 0, f"line {L[0]!r} is not r = {ex}")
+    elif u == "sinf-value":
+        gs_seq_shown(q, u1, r)
+        need(abs(r) < 1, "no sum to infinity")
+        if paper == 1:
+            need((u1 / (1 - r)).q <= 30, "a Paper 1 S∞ has a large denominator")
+        t = one("S∞ = ", gs_inf(u1, r))
+        wrongs[GS18 + "sum-to-infinity#0"] = {t(u1 / (1 + r))}
+    elif u == "sinf-sigma":
+        c, b, lo, sh = R(g["c"]), R(g["b"]), int(g["lower"]), int(g["shift"])
+        need(L[0] == gs_sigma_text(paper, c, b, lo, sh, -1), f"the Σ shows {L[0]!r}")
+        k = sp.Symbol("k", integer=True)
+        first = c * b ** (lo + sh)
+        val = sp.summation(c * b ** (k + sh), (k, lo, sp.oo))
+        need(val == first / (1 - b), "the sum is not the closed form")
+        t = one("S∞ = ", val)
+        wrongs[GS18 + "sum-to-infinity#0"] = {t(first / (1 + b))}
+        if first != c:
+            wrongs[GS18 + "sum-to-infinity#1"] = {t(c / (1 - b))}
+    elif u == "sinf-shaded":
+        cut, shaded, area = int(g["cut"]), int(g["shaded"]), R(g["area"])
+        need(f"{cut} by {cut} grid" in L[0] and f"area {gs_x(paper, area)} " in L[0] and f"{shaded} of the" in L[0], f"line {L[0]!r}")
+        gr = q["graph"]
+        need(gr["kind"] == "squares" and gr["style"] == "shaded" and gr["cut"] == cut and gr["shaded"] == shaded, "the figure is another")
+        # What stays unshaded: one cell of each grid, down to nothing. The rest is shaded in the ratio s : 1 cell's remainder.
+        cells = cut * cut
+        need(0 < shaded < cells, "the shaded count is out of range")
+        m = sp.Symbol("m", positive=True, integer=True)
+        val = sp.limit(area * sp.Rational(shaded, cells) * (1 - sp.Rational(1, cells) ** m) / (1 - sp.Rational(1, cells)), m, sp.oo)
+        t = one("Total shaded area = ", val)
+        wrongs[GS18 + "sum-to-infinity#0"] = {t(area * sp.Rational(shaded, cells) / (1 + sp.Rational(1, cells)))}
+    elif u == "x-from-log-series":
+        m, base, ln, tt = int(g["m2"]), int(g["base"]), int(g["ln"]), int(g["t"])
+        log_name = f"log{str(base).translate(str.maketrans('0123456789', '₀₁₂₃₄₅₆₇₈₉'))}"
+        need(L[0] == f"{log_name} x + p {log_name} x + (1/{m}) {log_name} x + …, where x > 1 and p > 0", f"line {L[0]!r}")
+        p = sp.Symbol("p", positive=True)
+        ps = sp.solve(sp.Eq(p / 1, sp.Rational(1, m) / p), p)
+        need(len(ps) == 1, "not one ratio")
+        S = ln / (1 - ps[0])
+        sq = sp.sqrt(m)
+        if tt:
+            need(sp.simplify(S - tt * (m + sq)) == 0, "S∞ is not t(m + √m)")
+            head = f"{tt * m} + {'' if tt == 1 else tt}√{m}"
+        else:
+            need(S == R(g["sinf"]), "the S∞ given is wrong")
+            head = frac_text(S)
+        need(asked == f"The series is geometric, with S∞ = {head}. Find x.", f"asked {asked!r}")
+        val = sp.Integer(base) ** sp.simplify(S * (1 - ps[0]))
+        t = one("x = ", val)
+    elif u in ("u1-from-sinf", "r-from-sinf"):
+        S = R(g["sinf"])
+        need(abs(r) < 1, "no sum to infinity")
+        need(S == u1 / (1 - r), "S∞ is not the sequence's")
+        x = sp.Symbol("x")
+        if u == "u1-from-sinf":
+            shown = f"r = {gs_x(paper, r)},  S∞ = {gs_x(paper, S)}" if rep == "notation" else f"A geometric series has common ratio {gs_x(paper, r)} and sum to infinity {gs_x(paper, S)}."
+            need(L[0] == shown, f"line {L[0]!r}")
+            sol = sp.solve(sp.Eq(x / (1 - r), S), x)
+            t = one("u₁ = ", sol[0])
+            wrongs[GS18 + "find-unknown#0"] = {t(S / (1 - r))}
+        else:
+            shown = f"u₁ = {gs_x(paper, u1)},  S∞ = {gs_x(paper, S)}" if rep == "notation" else f"A geometric series has first term {gs_x(paper, u1)} and sum to infinity {gs_x(paper, S)}."
+            need(L[0] == shown, f"line {L[0]!r}")
+            sol = sp.solve(sp.Eq(u1 / (1 - x), S), x)
+            t = one("r = ", sol[0])
+            wrongs[GS18 + "find-unknown#0"] = {t(1 - S / u1)}
+    elif u == "r-from-multiple":
+        mult = R(g["mult"])
+        tm = gs_x(paper, mult)
+        br = f"({tm})" if mult < 0 or "/" in tm else tm
+        need(L[0] == (f"S∞ = {br} × u₁,  u₁ ≠ 0" if rep == "notation" else f"The sum to infinity of a geometric series is {tm} times its first term."), f"line {L[0]!r}")
+        x = sp.Symbol("x")
+        sol = sp.solve(sp.Eq(1 / (1 - x), mult), x)
+        need(abs(sol[0]) < 1, "|r| is not below 1")
+        t = one("r = ", sol[0])
+        wrongs[GS18 + "find-unknown#0"] = {t(1 - mult)}
+    elif u in ("r-from-u2-reject", "r-from-u2-both"):
+        S, u2 = R(g["sinf"]), R(g["u2"])
+        shown = f"u₂ = {gs_x(paper, u2)},  S∞ = {gs_x(paper, S)}" if rep == "notation" else f"The second term of a geometric series is {gs_x(paper, u2)} and its sum to infinity is {gs_x(paper, S)}."
+        need(L[0] == shown, f"line {L[0]!r}")
+        x = sp.Symbol("x", real=True)
+        roots = sorted(sp.solve(sp.Eq(u2 / x / (1 - x), S), x), key=num)
+        need(len(roots) == 2, "not two roots")
+        need(all(ro.is_rational for ro in roots) if paper == 1 else not any(ro.is_rational for ro in roots), "the roots don't suit the paper")
+        good = [ro for ro in roots if abs(num(ro)) < 1]
+        gs_num(paper, good)
+        if u == "r-from-u2-reject":
+            need(len(good) == 1 and asked == "Find r.", "one root should be rejected")
+            want, show = gs_xs_text(paper, "r", good)
+            bad = [ro for ro in roots if ro not in good]
+            wrongs[GS18 + "find-unknown#1"] = {gs_xs_text_as(show, "r", roots), gs_xs_text_as(show, "r", bad)}
+        else:
+            need(len(good) == 2 and asked == "Find the possible values of r.", "both roots should stay")
+            want, show = gs_xs_text(paper, "r", good)
+        wrongs[GS18 + "find-unknown#2"] = {f"r = {gs_text(show, 1 - u2 / S)}"}
+    elif u == "recurring-decimal":
+        digits, ln = int(g["digits"]), int(g["len"])
+        block = str(digits).rjust(ln, "0")
+        need(L[0] == "0." + block * 3 + "…", f"line {L[0]!r}")
+        need(block != block[0] * ln or ln == 1, "the block is a shorter block repeated")
+        top = 10 ** ln
+        d = sp.Symbol("d")
+        val = sp.solve(sp.Eq(top * d - d, digits), d)[0]     # 10ᵏd − d cancels the tail
+        need(val == gs_inf(sp.Rational(digits, top), sp.Rational(1, top)), "the series and the algebra disagree")
+        want = frac_text(val)
+        if ln > 1:
+            wrongs[GS18 + "applications#1"] = {frac_text(sp.Rational(digits, top) / sp.Rational(9, 10))}
+    elif u == "nested-squares":
+        tt, side = R(g["t"]), R(g["h"])
+        need(f"side {gs_x(paper, side)} cm" in L[0] and f"corner {frac_text(tt)} of the way" in L[0], f"line {L[0]!r}")
+        gr = q["graph"]
+        need(gr["kind"] == "squares" and gr["style"] == "nested" and abs(gr["t"] - float(tt)) < 1e-9, "the figure is another")
+        # The next side by Pythagoras, on coordinates of one corner triangle.
+        rr = sp.Matrix([tt * side, (1 - tt) * side]).dot(sp.Matrix([tt * side, (1 - tt) * side])) / side ** 2
+        t = one("Total area = ", gs_inf(side ** 2, rr), " cm²")
+    elif u == "story-total":
+        need(gs_x(paper, u1) in L[0], f"story {L[0]!r}")
+        rate = gs_x(paper, r) if paper == 1 else dec_text(r * 100) + "%"
+        need(f" {rate} of" in L[0], f"story {L[0]!r} doesn't give the share")
+        unit = re.search(r"\d ([A-Za-z]+) ", L[0]).group(1)
+        t = one("Total = ", gs_inf(u1, r), " " + unit)
+        wrongs[GS18 + "sum-to-infinity#0"] = {t(u1 / (1 + r))}
+    elif u == "story-target":
+        target, kind = R(g["target"]), g["kind"]
+        need(gs_x(paper, u1) in L[0], f"story {L[0]!r}")
+        rate = gs_x(paper, r) if paper == 1 else dec_text(r * 100) + "%"
+        need(f" {rate} of" in L[0], f"story {L[0]!r} doesn't give the share")
+        need(asked.startswith(f"Does the total ever reach {gs_x(paper, target)} "), f"asked {asked!r}")
+        goal = asked[len("Does the total ever reach "):-1]
+        lim = gs_x(paper, u1 / (1 - r))
+        if abs(r) < 1:
+            s_inf = gs_inf(u1, r)
+            if s_inf < target:
+                need(kind == "under", "the total stops short")
+                want = f"No: the total stays below S∞ = {lim}, and that is less than {goal}"
+            else:
+                need(kind == "over" and s_inf > target, "the total passes the target")
+                need(next(m for m in range(1, 900) if gs_sum(u1, r, m) > target) > 1, "the first amount passes it")
+                want = f"Yes: S∞ = {lim}, which is more than {goal}"
+        else:
+            need(kind == "grow" and r > 1, "r is not above 1")
+            need(next(m for m in range(1, 900) if gs_sum(u1, r, m) > target) > 1, "the target is too low")
+            want = "Yes: r > 1, so the total grows without limit"
+            wrongs[GS18 + "applications#2"] = {f"No: S∞ = {lim}, so it stops there"}
+    elif u == "deposit-for-target":
+        target = R(g["target"])
+        rate = dec_text(r * 100) + "%"
+        need(f" {rate} of" in L[0], f"story {L[0]!r} doesn't give the share")
+        need(f"after {n} " in asked and f" is {gs_x(paper, target)} " in asked, f"asked {asked!r}")
+        x = sp.Symbol("x")
+        sol = sp.solve(sp.Eq(gs_sum(x, r, n), target), x)
+        unit = asked[asked.index(f" is {gs_x(paper, target)}") + len(f" is {gs_x(paper, target)}"):].split(".")[0]
+        t = one("First amount = ", sol[0], unit)
+    else:
+        need(False, f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+def gs_xs_text_as(show, name, vals):
+    vals = sorted(vals, key=lambda v: num(v))
+    return f"{name} = " + " or ".join(gs_text(show, v) for v in vals)
+
+
 SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
@@ -19158,7 +19770,7 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
-                    "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
+                    "binomial": check_binomial, "geometric-sequence": check_geometric, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,

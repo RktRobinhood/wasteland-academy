@@ -648,7 +648,7 @@ static func _story_target(rng: Seeded, paper: int) -> Dictionary:
 	var limit: Q = to_infinity(u1, r)
 	var near: float = limit.abs_q().to_float()
 	var target := Q.new(snappedi(near * (0.8 if kind == "over" else 1.25), 100))
-	if target.is_zero() or target.to_float() <= u1.to_float():
+	if target.to_float() <= u1.to_float() or (kind == "under" and target.to_float() <= near) or (kind == "over" and target.to_float() >= near):
 		return {}
 	return {"u1": u1, "r": r, "kind": kind, "target": target, "sinf": limit, "v": Q.new(1)}
 

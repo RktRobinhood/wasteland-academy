@@ -20440,14 +20440,14 @@
    "misconceptions": [
     {
      "ref": "SL1.3.nth-term#0",
-     "text": "Using rⁿ in the term formula, one power of r too many",
+     "text": "Using r^n in the term formula, one power of r too many",
      "as": "distractor",
      "in": [
       "term-from-u1-r",
       "term-exact",
       "general-term"
      ],
-     "wrong": "the term one further along, u₁rⁿ"
+     "wrong": "the term one further along, u₁r^n"
     },
     {
      "ref": "SL1.3.nth-term#1",
@@ -20519,9 +20519,10 @@
      "in": [
       "sum-from-u1-r",
       "sum-exact",
+      "sum-last-term",
       "sum-alternating"
      ],
-     "wrong": "(−r)ⁿ read as positive, for odd n"
+     "wrong": "(−r)^n read as positive, for odd n"
     },
     {
      "ref": "SL1.3.sum#2",
@@ -47427,7 +47428,7 @@
     },
     {
      "ref": "SL1.3.nth-term#0",
-     "text": "Using rⁿ in the term formula, one power of r too many",
+     "text": "Using r^n in the term formula, one power of r too many",
      "as": "distractor",
      "in": [
       "sequence-vs-function"

@@ -821,7 +821,7 @@
                 }
               ],
               "misconceptions": [
-                "Using rⁿ in the term formula, one power of r too many",
+                "Using r^n in the term formula, one power of r too many",
                 "Multiplying u₁ and r first and raising the product to the power, instead of raising r alone",
                 "Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁"
               ],
