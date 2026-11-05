@@ -216,6 +216,21 @@ func test_the_factors_can_be_typed_in_either_order() -> void:
 	check(QuestionEngine.mark(q, {"p": r.key(), "q": p.key()}).correct, "swapped")
 
 
+## "Another way" keeps the numbers, and where a method doesn't suit them the working says so.
+func test_another_way_keeps_the_numbers() -> void:
+	for c in QuestionEngine.cells(false, [TYPE]):
+		var t := QuestionEngine.type_of(TYPE)
+		for other in QuestionEngine.angles_for(t, c.unknown):
+			if other == c.angle:
+				continue
+			for seed in range(1, 12):
+				var q := QuestionEngine.make({"type": TYPE, "unknown": c.unknown, "rep": c.rep, "angle": other, "same_angle": c.angle, "seed": seed, "format": "mcq"})
+				var first := _make(c.unknown, c.rep, c.angle, seed, "mcq")
+				check(not q.has("error"), "%s as %s seed %d" % [c.key, other, seed])
+				check_eq(q.lines[0], first.lines[0], "%s as %s seed %d" % [c.key, other, seed])
+				check(not q.solutions.is_empty() and q.solutions[0].angle == other, "%s as %s seed %d: the working" % [c.key, other, seed])
+
+
 func test_probes_are_served() -> void:
 	var mine := QuestionEngine.probes().filter(func(x): return x.type == TYPE)
 	check_eq(mine.size(), 3)
