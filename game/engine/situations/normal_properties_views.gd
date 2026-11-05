@@ -1013,5 +1013,5 @@ func u_central_k_sd(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var last := "k counts standard deviations: (%s − %s) ÷ %s = %s" % [W(s.hif), D(s.mu), D(s.sg), W(s.z)]
 	out.methods = {"split-tails": method(split_lines(s) + [last, final_step(ans)], ans.values),
 		"gdc-center": method([center_line(s), last, final_step(ans)], ans.values),
-		"gdc-solver": method(["Graph y = normalcdf(%s − %s x, %s + %s x, %s, %s) and y = %s, or use the solver for x." % [D(s.mu), D(s.sg), D(s.mu), D(s.sg), D(s.mu), D(s.sg), D(s.level)], "The graphs meet at x = %s, so k = %s." % [W(s.z), W(s.z)], final_step(ans)], ans.values)}
+		"gdc-solver": method(["Graph y = normalcdf(%s − %sx, %s + %sx, %s, %s) and y = %s, or use the solver for x." % [D(s.mu), D(s.sg), D(s.mu), D(s.sg), D(s.mu), D(s.sg), D(s.level)], "The graphs meet at x = %s, so k = %s." % [W(s.z), W(s.z)], final_step(ans)], ans.values)}
 	return out

@@ -2257,7 +2257,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 17 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 20 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2287,6 +2287,28 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): A larger sample gets rid of bias. — Never by itself: more people from the same biased method makes the result steadier, not fairer. Only changing who can be chosen removes the bias.
   - *true-false-reason* (L3): If a sample is random, its mix of groups matches the population. — False: a random method gives everyone a fair chance, but chance can still move any one sample away from the true mix.
 - **Misconceptions used:** 5. Thinking quota sampling and stratified sampling are the same: quota fills each group without random selection; Mixing up systematic and simple random sampling: systematic has a random start, then follows the interval; Treating whoever happens to be nearby as a simple random sample; Thinking a larger sample removes bias: it improves reliability, but a biased method stays biased; Thinking a random sample is always perfectly representative.
+
+#### The 1.5 x IQR outlier rule (`t4-outlier-rule`, exam, 4 bank parts)
+
+- **Situation:** One or two data sets, summarised by a box plot, and the outlier rule on them, shared with `t4-box-plot`.
+- **Representations:** **graph**, **terms**, **table**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - new L2: given a box plot, a list or the five numbers → Q1 − 1.5 × IQR and Q3 + 1.5 × IQR
+  - **exam** L3: given a box plot, a list or the five numbers, and a value → whether the value is an outlier, with the two numbers
+  - **exam** L2: given a box plot, a list or the five numbers → the two numbers that show the greatest value is an outlier
+  - **exam** L3: given a box plot or the five numbers → the largest value that would not be an outlier
+  - **exam** L3: given a box plot or the five numbers, in whole numbers → the smallest value that would be an outlier
+  - **exam** L4: given the IQR, the median, the extremes and no outliers → the minimum possible U or L
+  - **exam** L3: given a list or a frequency table → how many values are outliers
+  - **exam** L2: given an outlier and a limit from the story → whether to remove it, with the reason
+  - **exam** L3: given a list and its outlier → the mean and the median of what is left
+  - **exam** L2: given a list and its outlier → the statement that describes the effect on two measures
+- **Angles:** Compute both fences; Compare the distance from the nearest quartile; Modified box plot on the GDC; Is it a mistake or a genuine extreme?; Reason about which measures it affects.
+- **Concept probes:**
+  - *true-false-reason* (L3): An outlier should always be removed from the data. — False: remove a value only if it can't be true, such as a recording error. A genuine extreme is part of the data.
+  - *always-sometimes-never* (L3): A value exactly on the upper fence is an outlier. — Never: an outlier is greater than Q3 + 1.5 × IQR, so a value on the fence is not beyond it.
+  - *predict-check* (L3): Predict what removing a very high value does to the mean and to the median, then say why. — The mean falls noticeably and the median hardly moves: the mean uses how far out each value is, but the median uses only the middle.
+- **Misconceptions used:** 15. Using 1.5 × Q3 as the upper fence instead of Q3 + 1.5 × IQR; Measuring 1.5 × IQR from the median instead of from the nearest quartile; Calling any value that looks far from the rest an outlier without doing the test; Using the fence on the far side from the value; Reading the comparison backwards, so a value inside the fences is called an outlier or one beyond them is not; Leaving the factor out of the fence, so that it sits one IQR from the quartile; Using the fence itself as the smallest outlier, though a value on the fence is not beyond it; Using the quartile, not the IQR, as the distance to multiply; Assuming every outlier must be deleted; Assuming removing an outlier changes the median or the IQR as much as the mean or the range; Assuming every outlier must stay in the data, even an impossible value; Using the old number of values to find the new mean; Assuming the median stays exactly the same when a value is removed; Reversing which measure an outlier drags and which it leaves alone; Getting the direction of the change wrong.
 
 #### Read and use a cumulative frequency graph (`t4-cumulative-frequency`, exam, 6 bank parts)
 
@@ -2330,6 +2352,35 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *predict-check* (L4): The curve is steepest between 20 and 30. What does that say about the data? — More values lie in that stretch than in any other of the same width: steep means many, flat means few.
 - **Misconceptions used:** 7. Taking the middle of the data's range for the median, instead of the value halfway through the cumulative frequency; Subtracting the quartile positions on the cumulative frequency instead of the quartile values of the data; Using the percentile number as the cumulative frequency, when it is a percentage of the total; Giving the cumulative frequency itself, which counts those at or below the value, not those above it; Using the size of the top group as the cumulative frequency, instead of taking it from the total; Plotting cumulative frequencies at class midpoints instead of upper boundaries; Mixing up the running total with the frequency of a single class.
 
+#### Read, interpret and compare box plots (`t4-box-plot`, exam, 7 bank parts)
+
+- **Situation:** One or two data sets, summarised by a box plot, and the outlier rule on them, shared with `t4-outlier-rule`.
+- **Representations:** **graph**, **terms**, **table**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a box plot, with one or two boxes → the median
+  - **exam** L1: given a box plot → Q1 or Q3
+  - **exam** L1: given a box plot, with one or two boxes → the IQR
+  - **exam** L1: given a box plot, perhaps with a cross → the range
+  - **exam** L2: given a box plot, with one or two boxes → the median and the IQR together
+  - **exam** L2: given a list or a frequency table → the five-number summary
+  - new L3: given a cumulative frequency curve → the five numbers of its box plot
+  - **exam** L2: given a list or a frequency table, and four box plots on one axis → the plot that shows the data
+  - **exam** L3: given a list with an outlier, and four box plots on one axis → the plot that shows the data, with the outlier as a cross
+  - **exam** L2: given a box plot or its five numbers, and n → how many values lie between two marks
+  - new L1: given a box plot → the percentage of values between two marks
+  - **exam** L2: given a box plot; a share above or below a → the value a
+  - **exam** L3: given a box plot, symmetric or skewed → whether the data could be normal, with the two gaps in the box
+  - **exam** L3: given a skewed box plot → how the mean is likely to compare with the median, with a reason
+  - **exam** L3: given two box plots → a comparison of centre and spread in context
+  - **exam** L3: given the mean, standard deviation and maximum of two groups → a comparison of centre and spread in context
+  - **exam** L3: given two box plots and a claim → whether the plots support the claim, with the two medians
+- **Angles:** Five-number summary from the data; Read the five values from a cumulative frequency graph; 1-Var Stats or a box plot on the GDC; Compare medians and IQRs from the box plots; Compare means and standard deviations.
+- **Concept probes:**
+  - *true-false-reason* (L3): In a box plot, the longest whisker holds the most data. — False: each whisker and each half of the box holds about a quarter of the data. A long section means those values are spread out, not that there are more of them.
+  - *always-sometimes-never* (L3): The median is in the middle of the box. — Sometimes: it is only when the data between the quartiles are symmetric. The median splits the data in two by count, not the box by length.
+  - *predict-check* (L3): A box plot has a long upper whisker. Predict whether the mean is above or below the median, then say why. — Above: the median depends only on the middle of the data, but the mean uses every value, so the few high values pull it up.
+- **Misconceptions used:** 22. Assuming a longer section of the box or a longer whisker holds more of the data; Drawing the whisker out to an outlier instead of marking the outlier separately with a cross; Using the median in both halves when n is odd; Using the values in the order shown, without sorting them first; Using each value of a frequency table once, ignoring its frequency; Using the middle of the box as the median; Using the whole length of the plot as the IQR, or the IQR as the range; Using the end of the whisker as the greatest value, leaving the cross out; Using a quarter of the horizontal axis as a quartile, instead of a quarter of the frequency; Using the cumulative frequency levels as the values themselves; Using the ends of the axis as the least and greatest values; Using the share below a value when the question gives the share above it, or the other way round; Using the range to judge the shape of the data; Reading the gaps backwards, so equal gaps seem skewed and unequal gaps symmetric; Assuming the mean equals the median because half of the data lie on each side of the median; Using the values a quarter and three quarters of the way along the list as the quartiles, not the medians of the halves; Drawing the whisker out to the fence, not to the furthest value inside it; Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1; Comparing only the maximum or minimum values; Using a larger spread as a sign of a higher average; Quoting the numbers without saying what they mean in context; Reading the comparison backwards, so the verdict is the opposite of what the medians show.
+
 #### Grouped and frequency-table data: missing frequency, modal class, estimates (`t4-grouped-data`, exam, 9 bank parts)
 
 - **Situation:** A frequency table, a small list, or groups with means.
@@ -2359,7 +2410,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - **exam** L2: given the sizes and means of two or three groups → the mean of the whole group
   - **exam** L2: given a table of the sizes and means of three groups → the total of the whole group
   - **exam** L3: given the size and mean of the whole group; the size and mean of one part of it → the mean of the other part
-- **Angles:** Σfx ÷ Σf with mid-interval values; Midpoints and frequencies in GDC lists; σx from GDC 1-Var Stats; Square root of the mean squared deviation; Variance is the square of the SD; Work with totals; Set Σfx ÷ Σf equal to the mean; Deviations from the mean add to zero; Median at position (n + 1)/2.
+- **Angles:** Σfx ÷ Σf with mid-interval values; Midpoints and frequencies in GDC lists; σx from GDC 1-Var Stats; From the mean squared deviation; Variance is the square of the SD; Work with totals; Set Σfx ÷ Σf equal to the mean; Deviations from the mean add to zero; Median at position (n + 1)/2.
 - **Concept probes:**
   - *true-false-reason* (L3): The mean found from a grouped table is the exact mean of the data. — False: the table hides where in each class the values lie, so every value is replaced by its mid-interval value. The result is an estimate.
   - *true-false-reason* (L3): A standard deviation can be negative when most of the values are below the mean. — False: the deviations are squared before they are added, and the standard deviation is the positive root of the result.
@@ -2583,7 +2634,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - **exam** L3: given μ, σ and P(μ − k < X < μ + k) → k
   - **exam** L3: given μ, σ and the area of a central interval → both ends of the interval
   - new L4: given μ, σ and the area within k standard deviations of the mean → k
-- **Angles:** 68-95-99.7 rule; Sketch, label μ and shade; μ moves the curve, σ stretches it; Mirror the tail; Total area 1, each half 0.5; Sketch and shade; Split what is left into two equal tails; GDC centre-tail inverse normal; Solve normalcdf(μ − k, μ + k, μ, σ) = 0.9.
+- **Angles:** 68-95-99.7 rule; Sketch, label μ and shade; μ moves the curve, σ stretches it; Mirror the tail; Total area 1, each half 0.5; Sketch and shade; Split what is left into two equal tails; GDC centre-tail inverse normal; Solve normalcdf(μ − k, μ + k, μ, σ) = the given area.
 - **Concept probes:**
   - *true-false-reason* (L3): For a normal variable, P(X < a) and P(X ≤ a) are equal. — True: X is continuous, so P(X = a) = 0, and adding one value adds no area.
   - *always-sometimes-never* (L3): Doubling σ doubles the height of a normal curve's peak. — Never: the total area stays 1, so a curve twice as wide has half the height.

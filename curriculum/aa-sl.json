@@ -10784,7 +10784,7 @@
                 {
                   "id": "definition-formula",
                   "approach": "formula",
-                  "name": "Square root of the mean squared deviation",
+                  "name": "From the mean squared deviation",
                   "summary": "For a small set, find each deviation from the mean, square, average and square-root: σ = √(Σ(x − x̄)² ÷ n)."
                 },
                 {
@@ -12719,7 +12719,7 @@
                 {
                   "id": "gdc-solver",
                   "approach": "gdc",
-                  "name": "Solve normalcdf(μ − k, μ + k, μ, σ) = 0.9",
+                  "name": "Solve normalcdf(μ − k, μ + k, μ, σ) = the given area",
                   "summary": "Solve the equation in k numerically with the GDC solver or by intersecting graphs."
                 }
               ],

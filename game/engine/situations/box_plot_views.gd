@@ -923,7 +923,7 @@ func u_effect_of_removing(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	var w: Array = [wrong(effect_said(s, s.mean1, s.med0), R_MEDIAN_FIXED), wrong(effect_said(s, s.mean1, s.med0.add(moved)), R_SAME_MOVE),
 		wrong(effect_said(s, total.div(Q.new(s.n)), s.med1), R_OLD_N)]
 	var lines: Array = data_lines(s, data_name(s)) + ["The value %s is an outlier and is removed." % D(s.x)]
-	return {"answer": ans, "lines": lines, "table": null, "asked": "Find the mean and the median of the %d values left%s." % [m, ", to 3 s.f." if s.paper == 2 else ""], "wrongs": w, "generic": [],
+	return {"answer": ans, "lines": lines, "table": null, "asked": "Find the mean and the median of the %d values left%s" % [m, ", to 3 s.f." if s.paper == 2 else "."], "wrongs": w, "generic": [],
 		"methods": {"effect-on-measures": method(["%d values are left, and their total is %s." % [m, D(total)], "The new mean is %s ÷ %d = %s." % [D(total), m, short(s, s.mean1)],
 			"In order, the values left are %s, so the new median is %s: %s." % [", ".join(s.rest.map(func(x): return D(x))), place(1, m), D(s.med1)], final_step(ans)], ans.values)}}
 

@@ -221,7 +221,12 @@ static func shows(ans: Dictionary, v: Q) -> bool:
 
 
 static func wr(ans: Dictionary, v: Q, ref: String) -> Array:
-	return [wrong({"v": v}, ref)] if v.sign() != 0 and shows(ans, v) else []
+	return [wrong({"v": v}, ref)] if v.sign() != 0 and shows(ans, v) and not too_close(ans, v) else []
+
+
+## A wrong value this near a 3 s.f. answer would be marked right when typed.
+static func too_close(ans: Dictionary, v: Q) -> bool:
+	return ans.show == "sf" and absf(v.to_float() - ans.values.v.to_float()) < 0.01 * absf(ans.values.v.to_float())
 
 
 ## Fillers: positive numbers an option can show.
@@ -698,7 +703,7 @@ func u_two_frequencies_from_mean(_rep: String, s: Dictionary, _rng: Seeded) -> D
 	var dev := ["The frequencies add to %s, so p + q = %s − %s = %s." % [D(s.n), D(s.n), D(f_known), D(left)],
 		"The deviations balance: Σf(x − %s) = 0. The known rows give %s." % [D(s.mean), D(kd)],
 		"So %s = %s." % [two_terms(da, db), D(kd.neg())],
-		"With p = %s − q, the q terms leave %sq = %s, so q = %s ÷ %s = %s and p = %s − %s = %s" % [D(left), D(coef), D(rest), D(rest), D(coef), D(s.q), D(left), D(s.q), D(s.p)], final_step(ans)]
+		"With p = %s − q, the q terms leave %s, so p = %s − %s = %s" % [D(left), ("q = %s" % D(rest)) if coef.eq(Q.new(1)) else "%sq = %s, so q = %s ÷ %s = %s" % [D(coef), D(rest), D(rest), D(coef), D(s.q)], D(left), D(s.q), D(s.p)], final_step(ans)]
 	out.methods = {"frequency-equation": method(eq, ans.values), "deviations-sum-zero": method(dev, ans.values)}
 	return out
 
@@ -781,7 +786,7 @@ func u_new_value_from_new_mean(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var ans := exact_ans("new value = ", k)
 	var one: String = String(g.things).trim_suffix("s")
 	var out := {"lines": ["%d %s %s %s%s." % [c, g.things, g.verb, D(old), g.tail], "One more %s joins them, and the mean of all %d becomes %s%s." % [one, c + 1, D(new_m), g.tail]],
-		"table": null, "answer": ans, "asked": "Find the %s for the new %s." % [g.what, one]}
+		"table": null, "answer": ans, "asked": "Find the %s by the new %s." % [g.what, one]}
 	var before := old.mul(Q.new(c))
 	var after := new_m.mul(Q.new(c + 1))
 	out.wrongs = wr(ans, new_m.mul(Q.new(2)).sub(old), R_AVERAGE) + (wr(ans, new_m.sub(old).mul(Q.new(c)), R_OLD_COUNT) if new_m.sub(old).sign() > 0 else [])
@@ -818,7 +823,7 @@ func u_whole_mean_from_groups(rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 		out.table = {"rows": group_rows(g, s)}
 	else:
 		out.lines = [group_line(g, s.sizes[0], g.names[0], s.means[0]), group_line(g, s.sizes[1], g.names[1], s.means[1])]
-	out.asked = to_sf(ans, "Find the mean %s for all %s %s" % [g.what, D(s.n), g.things])
+	out.asked = to_sf(ans, "Find the mean %s by all %s %s" % [g.what, D(s.n), g.things])
 	var flat := total(s.means).div(Q.new(count))
 	out.wrongs = wr(ans, flat, R_AVERAGE)
 	out.generic = gen(ans, nudges(s.whole) + [s.total.div(Q.new(count)), s.means[0]])
@@ -846,7 +851,7 @@ func u_group_mean_from_whole(_rep: String, s: Dictionary, _rng: Seeded) -> Dicti
 	var n2: int = s.sizes[1]
 	var ans := exact_ans("mean = ", s.means[1])
 	var out := {"lines": ["%s %s %s %s%s." % [D(s.n), g.things, g.verb, D(s.whole), g.tail], "Of these, %s" % group_line(g, n1, g.names[0], s.means[0])],
-		"table": null, "answer": ans, "asked": "Find the mean %s for the other %d %s." % [g.what, n2, g.things]}
+		"table": null, "answer": ans, "asked": "Find the mean %s by the other %d %s." % [g.what, n2, g.things]}
 	var t: Q = s.whole.mul(s.n)
 	var t1: Q = s.means[0].mul(Q.new(n1))
 	var rest := t.sub(t1)

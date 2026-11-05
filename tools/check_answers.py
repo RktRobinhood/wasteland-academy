@@ -24414,7 +24414,7 @@ def check_grouped_data(q):
         m2 = re.fullmatch(rf"One more {one} joins them, and the mean of all (\d+) becomes ({GPD_NUM}){c[4]}\.", L[1])
         need(m1 is not None and m2 is not None and int(m2.group(1)) == int(m1.group(1)) + 1, f"{L!r}")
         n, old, new = int(m1.group(1)), R(m1.group(2)), R(m2.group(2))
-        need(asked == f"Find the {c[5]} for the new {one}.", f"asked {asked!r}")
+        need(asked == f"Find the {c[5]} by the new {one}.", f"asked {asked!r}")
         k = new * (n + 1) - old * n
         need(k > 0, f"k = {k}")
         want = f"new value = {dec_text(k)}"
@@ -24423,7 +24423,7 @@ def check_grouped_data(q):
         c, sizes, means = gpd_groups(q)
         total = sum(n * m for n, m in zip(sizes, means))
         whole = total / sum(sizes)
-        word(f"Find the mean {c[5]} for all {sum(sizes)} {c[2]}", whole)
+        word(f"Find the mean {c[5]} by all {sum(sizes)} {c[2]}", whole)
         want, trap, wrongs = gpd_set(q, "mean = ", whole, {mt_ + "0": [sum(means) / len(means)]})
         need(sum(means) / len(means) != whole, "the plain average is right here")
     elif u == "whole-total-from-groups":
@@ -24441,7 +24441,7 @@ def check_grouped_data(q):
         need(m1 is not None and m2 is not None, f"{L!r}")
         n, whole, n1, m = int(m1.group(1)), R(m1.group(2)), int(m2.group(1)), R(m2.group(2))
         need(0 < n1 < n, f"{n1} of {n}")
-        need(asked == f"Find the mean {c[5]} for the other {n - n1} {c[2]}.", f"asked {asked!r}")
+        need(asked == f"Find the mean {c[5]} by the other {n - n1} {c[2]}.", f"asked {asked!r}")
         rest = whole * n - m * n1
         v = rest / (n - n1)
         need(v > 0, f"the mean {v}")
@@ -24455,7 +24455,2295 @@ def check_grouped_data(q):
 
 # ── end grouped-data ──
 
-SITUATION_CHECKS = {"grouped-data": check_grouped_data, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── binomial-unknown (t1-binomial-find-unknown, FAL-740) ──────
+# The checker's own copy of the clean limits: the engine's is in
+# game/engine/situations/binomial_unknown.gd. The bracket and the coefficient are read from what
+# the student sees, expanded with SymPy, and solved again for the letter, so nothing is taken from
+# the engine. Each tagged option is worked out from its slip. The arithmetic and the nCr terms in
+# the working are evaluated, and so are the GDC's keys and what it is said to show.
+
+BFU_S = "SL1.9."
+BFU_F = "SL1.9.find-unknown#"
+BFU_T = "t1-binomial-find-unknown#"
+BFU_HAND, BFU_MOST = 20000, 200000000
+BFU_SURDS = (2, 3, 5, 6, 7, 10)
+BFU_BANK = (("x", 7, 2), ("x", 11, 4), ("2x", 10, 4), ("1", 8, 2), ("2", 5, 3))
+BFU_X = sp.Symbol("x")
+BFU_SUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789")
+BFU_POW = "[⁰¹²³⁴⁵⁶⁷⁸⁹]"
+BFU_NUM = r"(?:\(−?\d+/\d+\)|\(−\d+\)|−?\d+/\d+|−?\d+)"
+BFU_PLACES = ("first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth",
+              "thirteenth", "fourteenth", "fifteenth")
+
+
+def bfu_v(t):
+    """A number as the game writes it."""
+    return sp.Rational(t.strip("()").replace("−", "-"))
+
+
+def bfu_p(t):
+    """A superscript as a whole number; none is 1."""
+    return int(t.translate(BFU_SUP)) if t else 1
+
+
+def bfu_expr(t, name_x="x"):
+    """A product or sum as the working writes it, with implied multiplication."""
+    s = t.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    s = re.sub(rf"({BFU_POW}+)", lambda m: "**" + m.group(1).translate(BFU_SUP), s)
+    s = re.sub(r"(?<=[0-9a-zA-Z)])(?=[a-zA-Z(])", "*", s)
+    s = re.sub(r"(?<=[a-zA-Z)])(?=[0-9])", "*", s)
+    return sp.sympify(s, locals={"x": BFU_X, "k": sp.Symbol("k"), "a": sp.Symbol("a"), "b": sp.Symbol("b"), "X": sp.Symbol("X")})
+
+
+def bfu_t(v):
+    v = sp.Rational(v)
+    return ("−" if v < 0 else "") + (f"{abs(v.p)}/{v.q}" if v.q != 1 else str(abs(v.p)))
+
+
+def bfu_sf(v):
+    return gc_s(v if v.is_Rational else sp.N(v, 30))
+
+
+def bfu_list(vals):
+    if len(vals) == 1:
+        return vals[0]
+    return ", ".join(vals[:-1]) + " or " + vals[-1]
+
+
+def bfu_xs(letter, vals, sf=False):
+    out = sorted(vals, key=lambda v: float(v))
+    return f"{letter} = " + bfu_list([bfu_sf(v) if sf else bfu_t(v) for v in out])
+
+
+def bfu_named(names, vals):
+    return ", ".join(f"{n} = {bfu_t(v)}" for n, v in zip(names, vals))
+
+
+def bfu_root(v, e):
+    """The positive e-th root of a positive Rational when it is Rational, else None."""
+    r = sp.root(v, e)
+    return r if r.is_Rational else None
+
+
+def bfu_coef(bracket, n, m):
+    """The coefficient of x^m in bracket^n, by expanding it."""
+    return sp.expand(bracket ** n).coeff(BFU_X, m)
+
+
+def bfu_bracket(text):
+    """(1 + kx) as an expression."""
+    mt = re.fullmatch(r"\((.+) \+ (.+)\)", text)
+    need(mt is not None, f"can't read {text!r}")
+    return bfu_expr(mt.group(1)) + bfu_expr(mt.group(2))
+
+
+def bfu_steps(q):
+    """Plain arithmetic, and every nCr term, in the working."""
+    pat = re.compile(rf"(?<![\w(/^.+−])({BFU_NUM}(?: [×÷] {BFU_NUM})+) = ({BFU_NUM})(?![\w/^(])")
+    term = re.compile(r"(\d+)C(\d+) × ([^=]+?) = ([^=,.]+)")
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in pat.finditer(step):
+                bits = mt.group(1).split(" ")
+                v = bfu_v(bits[0])
+                for op, b in zip(bits[1::2], bits[2::2]):
+                    v = v * bfu_v(b) if op == "×" else v / bfu_v(b)
+                need(v == bfu_v(mt.group(2)), f"{step!r}: {mt.group(0)} is really {v}")
+            for mt in term.finditer(step):
+                lhs = sp.binomial(int(mt.group(1)), int(mt.group(2))) * bfu_expr(mt.group(3).strip())
+                need(sp.expand(lhs - bfu_expr(mt.group(4).strip())) == 0, f"{step!r}: the term is wrong")
+    if q["paper"] == 1:
+        for sol in q["solutions"]:
+            need(sol["angle"] != "gdc-search", "a GDC method on Paper 1")
+            need(not any("Y1" in st for st in sol["steps"]), "a GDC's keys on Paper 1")
+
+
+def bfu_keys(text):
+    """What is keyed in, as an expression in X."""
+    s = re.sub(r"\(X \+ (\d+)\) nCr (\d+)", r"binomial(X + \1, \2)", text)
+    s = re.sub(r"\(X − (\d+)\) nCr (\d+)", r"binomial(X - \1, \2)", s)
+    s = re.sub(r"X nCr (\d+)", r"binomial(X, \1)", s)
+    s = s.replace("−", "-").replace("×", "*").replace("÷", "/").replace("^", "**")
+    s = re.sub(rf"({BFU_POW}+)", lambda m: "**" + m.group(1).translate(BFU_SUP), s)
+    s = re.sub(r"(?<=[0-9)])(?=X)", "*", s)
+    return sp.sympify(s, locals={"X": sp.Symbol("X"), "binomial": sp.Function("B")})
+
+
+def bfu_at(e, x):
+    """A keyed expression at X = x."""
+    v = e.subs(sp.Symbol("X"), x).replace(sp.Function("B"), lambda a, b: sp.binomial(a, b))
+    return sp.N(v, 30)
+
+
+def bfu_close(a, b):
+    return abs(sp.N(a, 30) - sp.N(b, 30)) <= sp.Rational(1, 10 ** 3) * max(1, abs(sp.N(b, 30)))
+
+
+def bfu_gdc(q, want):
+    """The GDC's keys are evaluated at what it is said to show. want: the roots, or n."""
+    for sol in q["solutions"]:
+        if sol["angle"] != "gdc-search":
+            continue
+        text = " ".join(sol["steps"])
+        need("Y1" in text, f"{sol['name']}: names no keys")
+        mt = re.search(r"Table Y1 = (.+?), with X going up in ones", text)
+        if mt:
+            e = bfu_keys(mt.group(1))
+            reads = re.findall(rf"(\d+\.\d+|{BFU_NUM}) at X = (\d+)", text)
+            need(reads and int(reads[-1][1]) == want[0], f"{sol['name']}: reads nothing at n from the table")
+            for v, x in reads:
+                need(bfu_close(bfu_at(e, int(x)), sp.Rational(v.replace("−", "-"))), f"{sol['name']}: the table at X = {x} isn't {v}")
+            continue
+        mt = re.search(r"Graph Y1 = (.+?) and Y2 = (.+?)\. ", text)
+        if mt:
+            e = bfu_keys(mt.group(1)) - bfu_keys(mt.group(2))
+        else:
+            mt = re.search(r"Graph Y1 = (.+?) and find its zeros", text)
+            need(mt is not None, f"{sol['name']}: can't read the keys")
+            e = bfu_keys(mt.group(1))
+        shown = [sp.Rational(t.replace("−", "-").rstrip(".")) for t in re.findall(r"X = (−?[\d.]+)", text)]
+        for v in want:
+            need(abs(bfu_at(e, v)) <= sp.Rational(1, 10 ** 15), f"{sol['name']}: {v} is not a root of what is keyed in")
+            need(any(abs(t - sp.N(v, 30)) <= sp.Rational(1, 1000) * max(1, abs(sp.N(v, 30))) for t in shown), f"{sol['name']}: doesn't read {v}")
+
+
+def bfu_typed(q, vals, names=None):
+    """The answer's typed values are the solved ones."""
+    v, a = q["answer"]["values"], q["answer"]
+    if a["kind"] == "named":
+        need([R(v["v0"]), R(v["v1"])] == list(vals), "the typed values are not the answer")
+    elif a["kind"] == "xs":
+        got = sorted(float(R(v[f"x{i}"])) for i in range(int(v["n"])))
+        wanted = sorted(float(x) for x in vals)
+        need(len(got) == len(wanted) and all(abs(g - w) < 1e-6 * max(1, abs(w)) for g, w in zip(got, wanted)), "the typed values are not the answer")
+
+
+def bfu_clean(q, *coefs):
+    most = BFU_HAND if q["paper"] == 1 else BFU_MOST
+    for c in coefs:
+        need(abs(c) <= most, f"the coefficient {c} is past the limit")
+        need(sp.Rational(c).q <= 100, f"the coefficient {c} has a large denominator")
+
+
+def bfu_letter(q):
+    """A letter in the bracket, and one coefficient."""
+    u, paper, L = q["view"]["unknown"], q["paper"], q["lines"]
+    mt = re.fullmatch(rf"In the expansion of (\(.+\))({BFU_POW}+)(?:, where ([ka]) > 0)?, the coefficient of x({BFU_POW}*) is ({BFU_NUM})\.", L[0])
+    need(mt is not None, f"can't read {L[0]!r}")
+    bt, n, cond, m, target = mt.group(1), bfu_p(mt.group(2)), mt.group(3), bfu_p(mt.group(4)), bfu_v(mt.group(5))
+    letter = "a" if u == "a-in-bracket" else "k"
+    need(cond in (None, letter) and (cond is not None) == (u in ("k-positive-condition", "a-in-bracket")), "the condition on the letter")
+    sym = sp.Symbol(letter)
+    br = bfu_bracket(bt)
+    full = bfu_coef(br, n, m)
+    e = sp.degree(full, sym)
+    mult = full / sym ** e
+    need(mult.is_Rational, f"the coefficient is {full}")
+    c = br.subs({sym: 0, BFU_X: 1})
+    c = c if c != 0 else 1
+    roots = [r for r in sp.roots(sp.Poly(full - target, sym)) if r.is_real]
+    if cond:
+        roots = [r for r in roots if r > 0]
+    bfu_clean(q, target)
+    other = [t for t in bt.strip("()").split(" + ") if letter not in t]
+    need(len(other) == 1 and (other[0], n, e) not in BFU_BANK, "a bank bracket")
+    wrongs = {}
+    rat = all(r.is_Rational for r in roots)
+    if u == "k-odd-power":
+        need(e % 2 == 1 and len(roots) == 1 and rat, f"k-odd-power: {roots}")
+    elif u == "k-both-signs":
+        need(e % 2 == 0 and len(roots) == 2 and rat and "possible values" in q["asked"], f"k-both-signs: {roots}")
+    elif u == "k-surd-both-signs":
+        need(len(roots) == 2 and not rat and "possible values" in q["asked"], f"k-surd: {roots}")
+    else:
+        need(len(roots) == 1, f"{u}: {roots}")
+    mag = abs(roots[0])
+    sign = -1 if len(roots) == 1 and roots[0] < 0 else 1
+    surd = not rat
+    power = target / mult
+    if surd:
+        d = mag ** 2
+        need(d in BFU_SURDS, f"the surd's d is {d}")
+    if surd and paper == 1:
+        head = f"{letter} = "
+        want = f"{head}{'±' if len(roots) == 2 else ''}√{d}"
+        wrongs[BFU_F + "0"] = {head + bfu_t(power)}
+        if len(roots) == 2:
+            wrongs[BFU_F + "1"] = {f"{head}√{d}"}
+        else:
+            wrongs[BFU_T + "6"] = {f"{head}±√{d}"}
+        if e == 4:
+            wrongs[BFU_T + "7"] = {f"{head}{'±' if len(roots) == 2 else ''}{d}"}
+        need(R(q["answer"]["values"]["r"]) == d, "the typed number under the root")
+    else:
+        text = lambda vals: bfu_xs(letter, vals, surd)
+        pattern = lambda v: [-v, v] if len(roots) == 2 else [sign * v]
+        want = text(roots)
+        wrongs[BFU_F + "0"] = {text([power])}
+        wrongs[BFU_F + "1"] = {text([mag])}
+        wrongs[BFU_T + "5"] = {text([-mag, mag])}
+        wrongs[BFU_T + "6"] = {text([-mag, mag])}
+        if sign < 0:
+            wrongs[BFU_S + "specific-term#0"] = {text([mag])}
+        if e == 4:
+            wrongs[BFU_T + "7"] = {text(pattern(sp.sqrt(abs(power))))}
+        if c > 1 and n - e >= 2:
+            once = abs(target) / (sp.binomial(n, e) * c)
+            root = bfu_root(once, e)
+            if root is not None:
+                wrongs[BFU_S + "specific-term#1"] = {text(pattern(root))}
+        bfu_typed(q, roots)
+        if u == "k-odd-power":
+            wrongs.pop(BFU_F + "1"), wrongs.pop(BFU_T + "6")
+        elif u in ("k-both-signs", "k-surd-both-signs"):
+            wrongs.pop(BFU_T + "5"), wrongs.pop(BFU_T + "6")
+        else:
+            wrongs.pop(BFU_F + "1"), wrongs.pop(BFU_T + "5")
+            if e % 2:
+                wrongs.pop(BFU_T + "6")
+    gc_check_common(q, want, wrongs)
+    bfu_gdc(q, [r for r in roots if not cond or r > 0])
+
+
+def bfu_n(q, want_n, wrongs):
+    gc_check_common(q, f"n = {want_n}", wrongs)
+    bfu_typed(q, [sp.Integer(want_n)])
+    bfu_gdc(q, [want_n])
+
+
+def bfu_read_known(text):
+    mt = re.fullmatch(r"\(1 ([+−]) (\d*)x\)", text)
+    need(mt is not None, f"can't read {text!r}")
+    k = sp.Integer(mt.group(2) or 1)
+    return -k if mt.group(1) == "−" else k
+
+
+def bfu_n_coefficient(q):
+    mt = re.fullmatch(rf"In the expansion of (\(.+\))\^n, where n is a positive integer, the coefficient of x({BFU_POW}) is ({BFU_NUM})\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    k, j, v = bfu_read_known(mt.group(1)), bfu_p(mt.group(2)), bfu_v(mt.group(3))
+    sol = [nn for nn in range(j, 41) if sp.binomial(nn, j) * k ** j == v]
+    need(len(sol) == 1, f"n = {sol}")
+    n = sol[0]
+    need(v == bfu_coef(1 + k * BFU_X, n, j), "the coefficient")
+    need(j == 2 or q["view"]["angle"] == "gdc-search", "the cubic in n is for the GDC")
+    bfu_clean(q, v)
+    w = {BFU_T + "9": {f"n = {sp.binomial(n, j)}"}, BFU_T + "10": {f"n = {n * (n - 1) if j == 2 else n * (n - 1) * (n - 2)}"}}
+    if j == 2:
+        w[BFU_T + "8"] = {f"n = −{n - 1} or {n}"}
+    bfu_n(q, n, w)
+
+
+def bfu_n_power(q):
+    need(q["paper"] == 2, "n in a power is Paper 2")
+    mt = re.fullmatch(r"Consider the expansion of \((\d) \+ x(²?)\)\^\(n ([+−]) (\d)\), where n is a positive integer\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    c, p = int(mt.group(1)), 2 if mt.group(2) else 1
+    shift = int(mt.group(4)) * (-1 if mt.group(3) == "−" else 1)
+    at = re.fullmatch(rf"Given that the coefficient of x({BFU_POW}) is (\d+), find the value of n\.", q["asked"])
+    need(at is not None and bfu_p(at.group(1)) == 2 * p, f"asked {q['asked']!r}")
+    v = int(at.group(2))
+    sol = [nn for nn in range(1, 41) if nn + shift >= 2 and sp.binomial(nn + shift, 2) * c ** (nn + shift - 2) == v]
+    need(len(sol) == 1, f"n = {sol}")
+    n = sol[0]
+    need(not (c == 3 and n + shift == 8), "the bank's numbers")
+    need(bfu_coef(c + BFU_X ** p, n + shift, 2 * p) == v, "the coefficient")
+    bfu_clean(q, v)
+    bfu_n(q, n, {BFU_T + "11": {f"n = {n + shift}"}})
+
+
+def bfu_n_and_k(q):
+    mt = re.fullmatch(rf"The expansion of \(1 \+ kx\)\^n begins 1 ([+−]) (.+)x \+ (\d+)k²x² \+ \.\.\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    p = bfu_v(mt.group(2)) * (-1 if mt.group(1) == "−" else 1)
+    two = int(mt.group(3))
+    sol = [nn for nn in range(2, 41) if sp.binomial(nn, 2) == two]
+    need(len(sol) == 1, f"n = {sol}")
+    n = sol[0]
+    k = p / n
+    need(k.is_Rational and (n, p) not in ((8, 12), (6, sp.Rational(9, 2))), "the bank's numbers")
+    expansion = sp.expand((1 + k * BFU_X) ** n)
+    need(expansion.coeff(BFU_X, 1) == p and expansion.coeff(BFU_X, 2) == two * k ** 2, "the first terms")
+    w = {BFU_T + "13": {bfu_named("nk", [n, n / p])}, BFU_T + "9": {bfu_named("nk", [two, p / two])}}
+    if k < 0:
+        w[BFU_S + "specific-term#0"] = {bfu_named("nk", [n, abs(k)])}
+    gc_check_common(q, bfu_named("nk", [n, k]), w)
+    bfu_typed(q, [sp.Integer(n), k])
+    bfu_gdc(q, [n])
+
+
+def bfu_two_coefficients(q):
+    mt = re.fullmatch(rf"In the expansion of \(1 \+ ax\)\^n, where n is a positive integer, the coefficient of x is ({BFU_NUM}) and the coefficient of x² is ({BFU_NUM})\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    p, c2 = bfu_v(mt.group(1)), bfu_v(mt.group(2))
+    a = p - 2 * c2 / p
+    n = p / a
+    need(n.is_Integer and n > 0, f"n = {n}")
+    n = int(n)
+    need((n, a) != (6, 2), "the skill's example")
+    expansion = sp.expand((1 + a * BFU_X) ** n)
+    need(expansion.coeff(BFU_X, 1) == p and expansion.coeff(BFU_X, 2) == c2, "the coefficients")
+    bfu_clean(q, p, c2)
+    w = {}
+    n1 = 2 * c2 / p + 1
+    if n1 != 0:
+        w[BFU_F + "0"] = {bfu_named("na", [n1, p / n1])}
+    n2 = p ** 2 / c2
+    w[BFU_T + "9"] = {bfu_named("na", [n2, c2 / p])}
+    if a < 0:
+        w[BFU_S + "specific-term#0"] = {bfu_named("na", [n, abs(a)])}
+    gc_check_common(q, bfu_named("na", [n, a]), w)
+    bfu_typed(q, [sp.Integer(n), a])
+    bfu_gdc(q, [n])
+
+
+def bfu_compared(q):
+    """(j, the second power, n or None, the bracket's text)."""
+    u, L = q["view"]["unknown"], q["lines"][0]
+    if u.startswith("equal"):
+        mt = re.fullmatch(rf"In the expansion of (\(.+\))(\^n|{BFU_POW}+), where (?:k ≠ 0|n is a positive integer), the coefficient of x({BFU_POW}*) equals the coefficient of x({BFU_POW}+)\.", L)
+        need(mt is not None, f"can't read {L!r}")
+        return mt.group(1), mt.group(2), bfu_p(mt.group(3)), bfu_p(mt.group(4)), sp.Integer(1)
+    mt = re.fullmatch(rf"In the expansion of (\(.+\))(\^n|{BFU_POW}+)(?:, where n is a positive integer)?, the coefficient of x({BFU_POW}*) and the coefficient of x({BFU_POW}*) are in the ratio (\d+) : (\d+)\.", L)
+    need(mt is not None, f"can't read {L!r}")
+    return mt.group(1), mt.group(2), bfu_p(mt.group(4)), bfu_p(mt.group(3)), sp.Rational(int(mt.group(5)), int(mt.group(6)))
+
+
+def bfu_find_k(q):
+    u = q["view"]["unknown"]
+    bt, ns, j, hi, ratio = bfu_compared(q)
+    need(bt == "(1 + kx)" and hi == j + 1 and ns != "^n", f"the bracket {bt}")
+    n = bfu_p(ns)
+    k = sp.Symbol("k")
+    br = 1 + k * BFU_X
+    low, high = bfu_coef(br, n, j), bfu_coef(br, n, hi)
+    sol = [r for r in sp.roots(sp.Poly(high - ratio * low, k)) if r != 0]
+    need(len(sol) == 1 and sol[0].is_Rational, f"k = {sol}")
+    v = sol[0]
+    if u == "equal-find-k":
+        need(not (n == 6 and j == 1) and v != 1, "the skill's example, or k = 1")
+        w = {BFU_F + "2": {f"k = 0 or {bfu_t(v)}"}, BFU_T + "12": {f"k = {bfu_t(sp.Rational(n - j, j + 1))}"},
+             BFU_T + "14": {f"k = {bfu_t(sp.Rational(j + 1, n))}"}}
+    else:
+        size = sp.binomial(n, hi) / sp.binomial(n, j)
+        w = {BFU_T + "12": {f"k = {bfu_t(1 / ratio / size)}"}, BFU_T + "14": {f"k = {bfu_t(ratio * sp.Rational(j + 1, n))}"}}
+    gc_check_common(q, f"k = {bfu_t(v)}", w)
+    bfu_typed(q, [v])
+    roots = [v] if u == "ratio-find-k" else [sp.Integer(0), v]
+    bfu_gdc(q, roots)
+
+
+def bfu_find_n(q):
+    bt, ns, j, hi, ratio = bfu_compared(q)
+    need(ns == "^n" and hi == j + 1, "the powers")
+    mt = re.fullmatch(r"\(1 \+ (\d)x\)|\((\d) \+ x\)", bt)
+    need(mt is not None, f"can't read {bt!r}")
+    k, c = (sp.Integer(mt.group(1)), 1) if mt.group(1) else (sp.Integer(1), int(mt.group(2)))
+    br = c + k * BFU_X
+    sol = [nn for nn in range(hi, 41) if bfu_coef(br, nn, hi) == ratio * bfu_coef(br, nn, j)]
+    need(len(sol) == 1, f"n = {sol}")
+    n = sol[0]
+    w = {BFU_T + "14": {f"n = {n - j}"}}
+    if ratio != 1:
+        flip = j + (1 / ratio) * (j + 1) / k
+    else:
+        flip = j + (j + 1) * k if c == 1 else j + sp.Rational(j + 1, c)
+    w[BFU_T + "12"] = {f"n = {bfu_t(flip)}"}
+    bfu_n(q, n, w)
+
+
+def bfu_two_brackets(q):
+    L, asked = q["lines"], q["asked"]
+    need(asked == "Find the value of a and the value of b, where a > 0 and b > 0.", f"asked {asked!r}")
+    pat = rf"The coefficient of x({BFU_POW}) in the expansion of \(ax({BFU_POW}) \+ b\)({BFU_POW}+) is (\d+)\."
+    m1, m2 = re.fullmatch(pat, L[0]), re.fullmatch(pat, L[1])
+    need(m1 is not None and m2 is not None and m1.group(1) == m2.group(1) and m1.group(2) == m2.group(2), f"can't read {L}")
+    mx, p, n1, v1, n2, v2 = bfu_p(m1.group(1)), bfu_p(m1.group(2)), bfu_p(m1.group(3)), int(m1.group(4)), bfu_p(m2.group(3)), int(m2.group(4))
+    a, b = sp.Symbol("a"), sp.Symbol("b")
+    t = mx // p
+    e1, e2 = sp.expand((a * BFU_X ** p + b) ** n1).coeff(BFU_X, mx), sp.expand((a * BFU_X ** p + b) ** n2).coeff(BFU_X, mx)
+    d = n2 - n1
+    bp = sp.Rational(v2, v1) * sp.binomial(n1, t) / sp.binomial(n2, t)
+    vb = bfu_root(bp, d)
+    need(vb is not None, f"b^{d} = {bp}")
+    at = v1 / e1.subs({a: 1, b: vb})
+    va = bfu_root(at, t)
+    need(va is not None, f"a^{t} = {at}")
+    need(e1.subs({a: va, b: vb}) == v1 and e2.subs({a: va, b: vb}) == v2, "a and b don't fit both coefficients")
+    need((n1, n2, mx, p) != (8, 10, 6, 3), "the bank's numbers")
+    bfu_clean(q, sp.Integer(v1), sp.Integer(v2))
+    w = {BFU_F + "0": {bfu_named("ab", [at, vb])}}
+    if d == 2:
+        w[BFU_T + "17"] = {bfu_named("ab", [va, bp])}
+    gc_check_common(q, bfu_named("ab", [va, vb]), w)
+    bfu_typed(q, [va, vb])
+    for sol in q["solutions"]:
+        if sol["angle"] == "gdc-search":
+            text = " ".join(sol["steps"])
+            mk = re.search(r"Y1 = \((\d+) ÷ \((\d+)X(\S*)\)\)\^\(1/(\d)\) from the first and Y2 = \((\d+) ÷ \((\d+)X(\S*)\)\)\^\(1/\d\) from the second", text)
+            need(mk is not None, "can't read the keys")
+            y1 = (sp.Integer(mk.group(1)) / (sp.Integer(mk.group(2)) * vb ** bfu_p(mk.group(3)))) ** sp.Rational(1, int(mk.group(4)))
+            y2 = (sp.Integer(mk.group(5)) / (sp.Integer(mk.group(6)) * vb ** bfu_p(mk.group(7)))) ** sp.Rational(1, int(mk.group(4)))
+            need(sp.simplify(y1 - va) == 0 and sp.simplify(y2 - va) == 0, "the keys don't meet at b and a")
+
+
+def bfu_quotient(q):
+    L = q["lines"]
+    m1 = re.fullmatch(rf"Consider the expansion of (\(.+\))({BFU_POW}+)/\((\d+)x({BFU_POW})\), where a ≠ 0\.", L[0])
+    m2 = re.fullmatch(rf"The coefficient of the term in x({BFU_POW}*) is (\(\d+/\d+\)|\d+)?a({BFU_POW}*)\.", L[1])
+    need(m1 is not None and m2 is not None, f"can't read {L}")
+    a = sp.Symbol("a")
+    br = bfu_bracket(m1.group(1))
+    n, c, p, m, r, e = bfu_p(m1.group(2)), int(m1.group(3)), bfu_p(m1.group(4)), bfu_p(m2.group(1)), bfu_v(m2.group(2) or "1"), bfu_p(m2.group(3))
+    need((n, c) != (9, 21), "the bank's numbers")
+    full = bfu_coef(br, n, m + p) / c
+    sol = [v for v in sp.roots(sp.Poly(full - r * a ** e, a)) if v != 0 and v.is_real]
+    need(len(sol) == 1 and sol[0].is_Rational, f"a = {sol}")
+    v = sol[0]
+    w = {BFU_F + "2": {f"a = 0 or {bfu_t(v)}"}, BFU_T + "16": {f"a = {bfu_t(r / sp.binomial(n, m + p))}"}}
+    plain = sp.binomial(n, m) / (c * r)
+    root = plain if p == 2 else bfu_root(plain, p - 1)
+    if root is not None:
+        w[BFU_T + "15"] = {f"a = {bfu_t(root)}"}
+    gc_check_common(q, f"a = {bfu_t(v)}", w)
+    bfu_typed(q, [v])
+    bfu_gdc(q, [sp.Integer(0), v])
+
+
+def bfu_mean_roots(n, c, place):
+    """The x making term `place` (from 0) the mean of the terms beside it, in (x + c)^n."""
+    x = BFU_X
+    poly = sp.Poly(sp.expand((x + c) ** n), x)
+    ts = [co * x ** mo[0] for mo, co in poly.terms()]
+    if place < 1 or place + 1 >= len(ts):
+        return None
+    return sorted(sp.roots(sp.Poly(sp.cancel((ts[place - 1] + ts[place + 1] - 2 * ts[place]) / x ** (n - place - 1)), x)), key=sp.default_sort_key)
+
+
+def bfu_term_mean(q):
+    L, paper = q["lines"], q["paper"]
+    m1 = re.fullmatch(rf"Consider the expansion of \(x \+ (\d)\)({BFU_POW}+), where x ≠ 0, with its terms in descending powers of x\.", L[0])
+    m2 = re.fullmatch(r"The (\w+) term is the mean of the (\w+) term and the (\w+) term\.", L[1])
+    need(m1 is not None and m2 is not None, f"can't read {L}")
+    c, n = int(m1.group(1)), bfu_p(m1.group(2))
+    place = BFU_PLACES.index(m2.group(1))
+    need(BFU_PLACES.index(m2.group(2)) == place - 1 and BFU_PLACES.index(m2.group(3)) == place + 1, "the terms are not neighbours")
+    need((n, c, place) != (7, 1, 2), "the bank's numbers")
+    roots = bfu_mean_roots(n, c, place)
+    need(roots is not None and len(roots) == 2 and all(sp.im(r) == 0 and r > 0 for r in roots), f"x = {roots}")
+    exact = paper == 1
+    need(not exact or all(r.is_Rational for r in roots), "Paper 1 has rational roots")
+    w = {BFU_F + "2": {bfu_xs("x", [sp.Integer(0)] + list(roots), not exact)}}
+    if c > 1:
+        w[BFU_S + "specific-term#1"] = {bfu_xs("x", [r / c for r in roots], not exact)}
+    nx = bfu_mean_roots(n, c, place + 1)
+    if nx is not None and len(nx) == 2 and not exact and all(sp.im(r) == 0 for r in nx):
+        w[BFU_T + "18"] = {bfu_xs("x", nx, True)}
+    if not exact:
+        need(bfu_sf(roots[0]) != bfu_sf(roots[1]), "the two values read the same")
+    gc_check_common(q, bfu_xs("x", roots, not exact), w)
+    bfu_typed(q, roots)
+    bfu_gdc(q, [sp.Integer(0)])
+    for sol in q["solutions"]:
+        if sol["angle"] == "gdc-search":
+            mt = re.search(r"The zeros are X = 0, X = (\S+) and X = (\S+), and", " ".join(sol["steps"]))
+            need(mt is not None, "can't read the zeros")
+            for t, r in zip(mt.groups(), roots):
+                need(abs(sp.Rational(t) - sp.N(r, 30)) <= sp.Rational(1, 100) * max(1, sp.N(r, 30)), f"the zero {t} is not {r}")
+
+
+def check_binomial_unknown(q):
+    u, angle = q["view"]["unknown"], q["view"]["angle"]
+    need(not (angle == "gdc-search" and q["paper"] == 1), "the GDC on Paper 1")
+    bfu_steps(q)
+    if u in ("k-odd-power", "k-both-signs", "k-surd-both-signs", "k-positive-condition", "a-in-bracket"):
+        bfu_letter(q)
+    elif u == "n-from-coefficient":
+        bfu_n_coefficient(q)
+    elif u == "n-from-power-bracket":
+        bfu_n_power(q)
+    elif u == "n-and-k-from-expansion":
+        bfu_n_and_k(q)
+    elif u == "n-and-k-two-coefficients":
+        bfu_two_coefficients(q)
+    elif u in ("equal-find-k", "ratio-find-k"):
+        bfu_find_k(q)
+    elif u in ("equal-find-n", "ratio-find-n"):
+        bfu_find_n(q)
+    elif u == "two-brackets":
+        bfu_two_brackets(q)
+    elif u == "quotient-coefficient":
+        bfu_quotient(q)
+    elif u == "term-mean":
+        bfu_term_mean(q)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+# ── end binomial-unknown ──
+
+
+# ── antiderivative-condition (t5-antiderivative-condition, FAL-740) ──────
+# The `antiderivative-condition` situation's clean limits, the checker's own copy: the engine's is
+# in game/engine/situations/antiderivative_condition.gd. The derivative and the condition are read
+# back from what the student sees, the function is integrated again with SymPy, and every option is
+# differentiated: the one right option must give the derivative back, pass through the condition
+# and have no C left in it, and no other may. Each tagged wrong option is worked out from its slip.
+# A figure is read back too: the family's curves and labels, or the corners of f′.
+
+ADC_BC = "SL5.5.boundary-condition#"
+ADC_FF = "SL5.10.find-function-from-derivative#"
+ADC_POINT, ADC_Y_AS_X, ADC_KEPT, ADC_NO_C, ADC_SIGN, ADC_Y_IS_C, ADC_DIFF, ADC_F_PRIME, ADC_GRAD, ADC_ALL_POS = [
+    ADC_BC + str(i) for i in (0, 2, 3, 4, 5, 6, 7, 8, 9, 10)]
+ADC_ONE_C, ADC_EXACT, ADC_POINT_F, ADC_SAME_RATE, ADC_STAGES, ADC_STOPPED = [ADC_FF + str(i) for i in range(6)]
+ADC_OLD_POWER = "SL5.5.antidiff-power#0"
+ADC_SIN_SIGN = "SL5.10.standard-integrals#0"
+ADC_MULT_A = "SL5.10.linear-composites#0"
+ADC_NO_A = "SL5.10.linear-composites#1"
+ADC_NO_HALF = "SL5.10.inspection-substitution#1"
+ADC_AT_END = "SL5.5.total-change-from-rate#0"
+ADC_NO_START = "SL5.5.total-change-from-rate#1"
+ADC_P1_ONLY = ("trig-chain", "trig-shift", "trig-and-exp", "log-inspection", "log-given-log")
+ADC_P2_ONLY = ("poly-decimal-point", "exp-linear-decimal", "rate-model")
+ADC_FAMILY_GAP = 2
+ADC_FAMILY_MAX = 16
+ADC_RATE_MIN = 500
+ADC_CHANGE_MIN = 100
+ADC_STEP_NUM = r"\(?−?\d+(?:\.\d+)?(?:/\d+)?\)?"
+
+
+def adc_num(text):
+    """A number as the question writes it, with π if it has one."""
+    t = text.strip()
+    if "π" in t:
+        return adc_expr(t)
+    return R(t.replace("−", "-"))
+
+
+def adc_expr(text):
+    """An option, derivative or value as SymPy; 'f(x) = ' and a trailing '+ C' are taken off."""
+    t = re.sub(r"^(?:[fgh]\(x\)|y) = ", "", text.strip())
+    t = re.sub(r"(?<=[\dx)])π", "*pi", t).replace("π", "pi")
+    return in_expr(t)
+
+
+def adc_template(ans):
+    out = ""
+    for item in ans["template"]:
+        out += item if isinstance(item, str) else "(" + str(ans["values"][item["slot"]]) + ")"
+    return adc_expr(out)
+
+
+def adc_fit(F, x0, y0):
+    """The function F + C through (x0, y0)."""
+    return F + y0 - F.subs(CX, x0)
+
+
+def adc_steps(q, fp=None):
+    """The plain sums in the working are right, and every 'f(x) = … + C' integrates f′."""
+    pat = re.compile(rf"(?<![\w)^/.(])({ADC_STEP_NUM}(?: [+−] {ADC_STEP_NUM})+) = (−?\d+(?:\.\d+)?(?:/\d+)?)(?![\w/])")
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in pat.finditer(step):
+                sign, total = 1, sp.Integer(0)
+                for tok in re.split(r" ([+−]) ", mt.group(1)):
+                    if tok in "+−":
+                        sign = 1 if tok == "+" else -1
+                    else:
+                        total += sign * R(tok.strip("()").replace("−", "-"))
+                got = R(mt.group(2).replace("−", "-"))
+                if "." in mt.group(0) and "s.f." in step:
+                    need(abs(total - got) <= abs(got) * sp.Rational(6, 1000) + sp.Rational(1, 10 ** 3), f"{step!r}: {mt.group(0)} is really {total}")
+                else:
+                    need(total == got, f"{step!r}: {mt.group(0)} is really {total}")
+            if fp is not None:
+                for mt in re.finditer(r"(?:[fgh]\(x\)|\by) = ([^:=]+) \+ C\.", step):
+                    need(calc_same(sp.diff(adc_expr(mt.group(1)), CX), fp), f"{step!r} does not integrate the derivative")
+
+
+def adc_function(q, fp, x0, y0, wr, tol=sp.Rational(1, 10 ** 12), order=1):
+    """Differentiates every option. wr: ref -> the expressions that slip gives."""
+    calc_options(q)
+    calc_steps(q)
+    for o in q["choices"]:
+        t, e = o["text"], adc_expr(o["text"])
+        has_c = t.endswith(" + C")
+        at = abs(sp.N(e.subs(CX, x0) - y0, 30))
+        right = not has_c and calc_same(sp.diff(e, CX), fp) and at <= tol
+        need(right == o["correct"], f"option {t!r} is {'wrong' if o['correct'] else 'also right'} by differentiating it")
+        if o["ref"] == ADC_KEPT:
+            need(has_c and calc_same(sp.diff(e, CX), fp), f"{t!r} is not the right terms with + C")
+        elif o["ref"]:
+            need(o["ref"] in wr, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(any(calc_same(e, w) for w in wr[o["ref"]]), f"option {t!r} is not what {o['ref']} gives ({wr[o['ref']]})")
+    gap = sp.N(adc_template(q["answer"]) - adc_expr(q["answer_text"]), 30)
+    need(gap.is_number and abs(gap) <= tol, "the slots don't make the expression shown")
+    need(not q["answer_text"].endswith("+ C"), "the answer has C left in it")
+
+
+def adc_read(q):
+    """(the derivative's text, x0 as text, y0 as text): from the two lines of the stem."""
+    L = q["lines"]
+    m = re.fullmatch(r"dy/dx = (.+)", L[0]) or re.fullmatch(r"[fgh]′\(x\) = (.+?)(?:, for x > 0)?", L[0]) \
+        or re.search(r"gradient dy/dx = (.+) at any point \(x, y\)\.$", L[0])
+    need(m is not None, f"can't read the derivative in {L[0]!r}")
+    c = re.fullmatch(r"(?:The curve|The graph of y = [fgh]\(x\)) passes through \((.+), (.+)\)\.", L[1])
+    if c:
+        return m.group(1), c.group(1), c.group(2)
+    c = re.fullmatch(r"y = (.+) when x = (.+)", L[1])
+    if c:
+        return m.group(1), c.group(2), c.group(1)
+    c = re.fullmatch(r"[fgh]\((.+?)\) = (.+)", L[1])
+    need(c is not None, f"can't read the condition in {L[1]!r}")
+    return m.group(1), c.group(1), c.group(2)
+
+
+def adc_values(q, label, v, table):
+    """A value answer: table is ref -> the values that slip gives."""
+    wrongs = {r: {label + dm_num(x) for x in xs} for r, xs in table.items()}
+    gc_check_common(q, label + dm_num(v), wrongs)
+
+
+def adc_old_power(fp):
+    out = sp.Integer(0)
+    for t in sp.Add.make_args(sp.expand(fp)):
+        c, p = t.as_coeff_exponent(CX)
+        out += (c / p if p != 0 else c) * CX ** (p + 1)
+    return out
+
+
+def adc_powers(q, fp, x0, y0):
+    F = sp.integrate(sp.expand(fp), CX)
+    d = sp.diff(fp, CX)
+    wr = {ADC_POINT: [F + y0 - fp.subs(CX, x0)], ADC_POINT_F: [F + y0 - fp.subs(CX, x0)], ADC_NO_C: [F], ADC_SIGN: [F + y0 + F.subs(CX, x0)],
+          ADC_DIFF: [adc_fit(d, x0, y0)], ADC_OLD_POWER: [adc_fit(adc_old_power(fp), x0, y0)], ADC_Y_AS_X: [F + x0 - F.subs(CX, y0)]}
+    return F, wr
+
+
+def adc_trig(q, text, x0, y0):
+    m = re.fullmatch(r"(−?\d*) ?(cos|sin)\((.+)\)", text)
+    need(m is not None, f"can't read {text!r}")
+    K = sp.Integer({"": "1", "−": "-1"}.get(m.group(1), m.group(1).replace("−", "-")))
+    fam = m.group(2)
+    inner = adc_expr(m.group(3))
+    a = sp.diff(inner, CX)
+    sign = 1 if fam == "cos" else -1
+    int_fn, other = (sp.sin, sp.cos) if fam == "cos" else (sp.cos, sp.sin)
+    c0 = sign * K / a
+    F = c0 * int_fn(inner)
+    fp = K * (sp.cos(inner) if fam == "cos" else sp.sin(inner))
+    at = inner.subs(CX, x0)
+    wr = {ADC_EXACT: [F + y0 - c0 * other(at)], ADC_POINT_F: [F + y0 - fp.subs(CX, x0)], ADC_NO_C: [F],
+          ADC_MULT_A: [adc_fit(sign * K * a * int_fn(inner), x0, y0)], ADC_NO_A: [adc_fit(sign * K * int_fn(inner), x0, y0)]}
+    if fam == "sin":
+        wr[ADC_SIN_SIGN] = [adc_fit(-F, x0, y0)]
+    need(at.is_rational is False and F.subs(CX, x0).is_rational, f"the angle {at} is not a landmark")
+    need((F + y0 - F.subs(CX, x0)).subs(CX, x0) == y0, "the point is not on the curve")
+    need(y0 - F.subs(CX, x0) != 0, "the constant is 0")
+    return fp, wr
+
+
+def adc_exp_sum(q, fp, x0, y0):
+    need(x0 == 0, "an exponential's condition is at x = 0")
+    F = sp.integrate(fp, CX)
+    ex = [t for t in sp.Add.make_args(fp) if t.has(sp.exp)]
+    need(len(ex) == 1, "one exponential term")
+    arg = ex[0].atoms(sp.exp).pop().args[0]
+    e, B = sp.diff(arg, CX), ex[0] / sp.exp(arg)
+    base = F - B / e * sp.exp(arg)
+    wr = {ADC_EXACT: [F + y0], ADC_POINT_F: [F + y0 - fp.subs(CX, 0)], ADC_NO_C: [F], ADC_NO_A: [adc_fit(base + B * sp.exp(arg), 0, y0)],
+          ADC_MULT_A: [adc_fit(base + B * e * sp.exp(arg), 0, y0)]}
+    if "sin x" in q["lines"][0]:
+        wr[ADC_SIN_SIGN] = [adc_fit(base.subs(sp.cos(CX), -sp.cos(CX)) + B / e * sp.exp(arg), 0, y0)]
+    need(y0 - F.subs(CX, 0) != 0, "the constant is 0")
+    return wr
+
+
+def adc_second(q):
+    L = q["lines"]
+    m = re.fullmatch(r"[fgh]″\(x\) = (.+)", L[0])
+    c = re.fullmatch(r"[fgh]′\((.+)\) = (.+) and [fgh]\((.+)\) = (.+)", L[1])
+    need(m is not None and c is not None and c.group(1) == c.group(3), f"can't read {L[:2]!r}")
+    fpp, x0, p, r = adc_expr(m.group(1)), adc_num(c.group(1)), adc_num(c.group(2)), adc_num(c.group(4))
+    need(p != r, "the two conditions are the same number")
+    G = sp.integrate(fpp, CX)
+    H = sp.integrate(G, CX)
+    c1 = p - G.subs(CX, x0)
+    c2 = r - H.subs(CX, x0) - c1 * x0
+    need(c1 != 0 and c2 != 0, "a constant is 0")
+    b1 = r - G.subs(CX, x0)
+    b2 = p - H.subs(CX, x0) - b1 * x0
+    return fpp, x0, p, r, G, H, c1, c2, b1, b2
+
+
+def adc_family(q, fp, x0, y0):
+    g = q["graph"]
+    need(g is not None and len(g["curves"]) == 4, "a family has four curves")
+    F = sp.integrate(fp, CX)
+    pts = g["points"]
+    need(R(pts[0]["x"]) == x0 and R(pts[0]["y"]) == y0, "the given point is not marked")
+    need(pts[0]["label"] == f"({dm_num(x0)}, {dm_num(y0)})", f"the point reads {pts[0]['label']!r}")
+    cs = []
+    for curve, mark in zip(g["curves"], pts[1:]):
+        m = re.fullmatch(r"C = (−?\d+)", mark["label"])
+        need(m is not None, f"the label {mark['label']!r}")
+        c = sp.Integer(m.group(1).replace("−", "-"))
+        cs.append(c)
+        f = sp.lambdify(CX, F + c, "math")
+        need(all(abs(f(x) - y) < 1e-6 for x, y in curve), f"the curve labelled C = {c} is not F + C")
+        need(abs(f(mark["x"]) - mark["y"]) < 1e-6, "a label is not on its curve")
+    k = y0 - F.subs(CX, x0)
+    need(k in cs, "no curve passes through the point")
+    gaps = sorted(cs)
+    need(all(v - u >= ADC_FAMILY_GAP for u, v in zip(gaps, gaps[1:])), f"labels {gaps} are too close")
+    need(max(abs(c) for c in cs) <= ADC_FAMILY_MAX and k != 0, f"the constants {cs}")
+    fv = F.subs(CX, x0)
+    wr = {ADC_Y_IS_C: [y0], ADC_SIGN: [y0 + fv], ADC_POINT: [y0 - fp.subs(CX, x0)]}
+    need({o["text"] for o in q["choices"]} == {f"C = {dm_num(c)}" for c in cs}, "the options are not the curves on the figure")
+    return k, wr
+
+
+def adc_pieces(q):
+    g = q["graph"]
+    need(g is not None and len(g["curves"]) == 1, "no graph of f′")
+    pts = [(R(p["x"]), R(p["y"])) for p in g["points"]]
+    need(len(pts) == 4 and [(R(x), R(y)) for x, y in g["curves"][0]] == pts, "the corners are not the graph")
+    for p, xy in zip(g["points"], pts):
+        need(p["label"] == f"({dm_num(xy[0])}, {dm_num(xy[1])})", f"a corner reads {p['label']!r}")
+    c = re.fullmatch(r"[fgh]\((.+)\) = (.+)", q["lines"][1])
+    m = re.fullmatch(r"Find [fgh]\((.+)\)\.", q["asked"])
+    need(c is not None and m is not None, "can't read the condition")
+    a, y0, b = adc_num(c.group(1)), adc_num(c.group(2)), adc_num(m.group(1))
+    need(b == pts[3][0], "the value asked is not the end of the graph")
+    x = CX
+    signed, whole = sp.Integer(0), sp.Integer(0)
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        if x1 < a:
+            continue
+        line = y1 + (y2 - y1) * (x - x1) / (x2 - x1)
+        signed += sp.integrate(line, (x, x1, x2))
+        whole += sp.integrate(sp.Abs(line).rewrite(sp.Piecewise), (x, x1, x2))
+    need(signed != 0, "the signed area is 0")
+    return a, y0, b, signed, whole, pts[3][1]
+
+
+def adc_rate(q):
+    m = re.fullmatch(r"The number of (.+) changes at the rate d([A-Z])/dt = (−?)(\d+)e\^\(−([\d.]+)t\) per (\w+), where t is measured in (\w+) from the moment (.+)\.", q["lines"][0])
+    c = re.fullmatch(r"At that moment ([A-Z])\(0\) = (\d+)\.", q["lines"][1])
+    a = re.fullmatch(r"Use the model to find ([A-Z])\((\d+)\), to 3 s\.f\.", q["asked"])
+    need(m is not None and c is not None and a is not None, f"can't read {q['lines']!r}")
+    need(m.group(2) == c.group(1) == a.group(1), "the letters differ")
+    sign = -1 if m.group(3) else 1
+    A, k, P0, T = sign * R(m.group(4)), R(m.group(5)), R(c.group(2)), R(a.group(2))
+    t = sp.Symbol("t")
+    rate = A * sp.exp(-k * t)
+    change = sp.N(sp.integrate(rate, (t, 0, T)), 40)
+    # Added up numerically too, as the GDC would.
+    need(abs(mpmath.quad(lambda u: mpmath.mpf(A.p) / A.q * mpmath.exp(-mpmath.mpf(k.p) / k.q * u), [0, int(T)]) - mpmath.mpf(str(change))) < 1e-9, "the integral")
+    v = P0 + change
+    need(v > ADC_RATE_MIN and P0 + A * T > 0 and abs(change) >= ADC_CHANGE_MIN, f"the amount {v}, the change {change}")
+    need(gc_fair(v) and gc_fair(change), f"{v} or {change} sits on a rounding edge")
+    decay = sp.N(sp.exp(-k * T), 40)
+    return c.group(1), T, P0, A, k, v, change, decay
+
+
+def check_antiderivative_condition(q):
+    u, L, paper, ang = q["view"]["unknown"], q["lines"], q["paper"], q["view"]["angle"]
+    if u in ADC_P1_ONLY:
+        need(paper == 1, f"{u} is Paper 1")
+    if u in ADC_P2_ONLY or ang.startswith("gdc-"):
+        need(paper == 2, f"{u} with {ang} is Paper 2")
+    if ang.startswith("gdc-"):
+        need(any("Key in" in st for st in q["solutions"][0]["steps"]), "a GDC method names what is keyed in")
+        need(any("GDC reads" in st for st in q["solutions"][0]["steps"]), "a GDC method names what is read off")
+    x = CX
+    if u in ("poly-function", "poly-decimal-point", "curve-through-point", "negative-power"):
+        ft, xt, yt = adc_read(q)
+        fp, x0, y0 = adc_expr(ft), adc_num(xt), adc_num(yt)
+        F, wr = adc_powers(q, fp, x0, y0)
+        need(y0 != F.subs(x, x0), "the constant is 0")
+        if u == "poly-decimal-point":
+            need(x0 != int(x0) and "/" not in xt + yt, "a decimal point")
+        adc_function(q, fp, x0, y0, wr)
+        adc_steps(q, fp)
+        return None, None
+    if u in ("find-constant", "further-value"):
+        ft, xt, yt = adc_read(q)
+        fp, x0, y0 = adc_expr(ft), adc_num(xt), adc_num(yt)
+        F = sp.integrate(sp.expand(fp), x)
+        k = y0 - F.subs(x, x0)
+        need(k != 0, "the constant is 0")
+        if u == "find-constant":
+            need(q["asked"] == "Find the value of C." and calc_same(adc_expr(L[2].rstrip(".").split(" = ", 1)[1]), F), "the integrated form shown is wrong")
+            adc_values(q, "C = ", k, {ADC_POINT: [y0 - fp.subs(x, x0)], ADC_SIGN: [y0 + F.subs(x, x0)], ADC_Y_IS_C: [y0], ADC_Y_AS_X: [x0 - F.subs(x, y0)]})
+        else:
+            m = re.fullmatch(r"Find ([fgh])\((.+)\)\.", q["asked"])
+            need(m is not None, f"asked {q['asked']!r}")
+            b = adc_num(m.group(2))
+            v = F.subs(x, b) + k
+            need(v == y0 + sp.integrate(sp.expand(fp), (x, x0, b)), "the start plus the change disagrees")
+            adc_values(q, f"{m.group(1)}({dm_num(b)}) = ", v, {ADC_NO_C: [F.subs(x, b)], ADC_POINT: [F.subs(x, b) + y0 - fp.subs(x, x0)], ADC_F_PRIME: [fp.subs(x, b)],
+                                                              ADC_NO_START: [F.subs(x, b) - F.subs(x, x0)]})
+        adc_steps(q, fp)
+        return None, None
+    if u in ("trig-chain", "trig-shift"):
+        ft, xt, yt = adc_read(q)
+        x0, y0 = adc_num(xt), adc_num(yt)
+        fp, wr = adc_trig(q, ft, x0, y0)
+        adc_function(q, fp, x0, y0, wr)
+        adc_steps(q, fp)
+        return None, None
+    if u == "reciprocal-linear":
+        ft, xt, yt = adc_read(q)
+        x0, y0 = adc_num(xt), adc_num(yt)
+        m = re.fullmatch(r"(−?\d+)/\((.+)\)", ft)
+        need(m is not None, f"can't read {ft!r}")
+        K, inner = sp.Integer(m.group(1).replace("−", "-")), adc_expr(m.group(2))
+        a = sp.diff(inner, x)
+        need(inner.subs(x, x0) == 1, "ax + b is not 1 at the point")
+        F = K / a * sp.log(inner)
+        fp = K / inner
+        adc_function(q, fp, x0, y0, {ADC_EXACT: [F + y0 - K / a], ADC_POINT_F: [F + y0 - K], ADC_MULT_A: [K * a * sp.log(inner) + y0], ADC_NO_A: [K * sp.log(inner) + y0]})
+        adc_steps(q, fp)
+        return None, None
+    if u in ("exp-and-power", "trig-and-exp"):
+        ft, xt, yt = adc_read(q)
+        fp, x0, y0 = adc_expr(ft), adc_num(xt), adc_num(yt)
+        adc_function(q, fp, x0, y0, adc_exp_sum(q, fp, x0, y0))
+        adc_steps(q, fp)
+        return None, None
+    if u == "exp-linear-decimal":
+        ft, xt, yt = adc_read(q)
+        fp, x0, y0 = adc_expr(ft), adc_num(xt), adc_num(yt)
+        m = re.fullmatch(r"e\^\((\d)x\) \+ (\d+)", ft)
+        need(m is not None, f"can't read {ft!r}")
+        a, b = int(m.group(1)), int(m.group(2))
+        F = sp.exp(a * x) / a + b * x
+        k = sp.N(y0 - F.subs(x, x0), 40)
+        need(gc_fair(k) and abs(k) >= 1, f"the constant {k} is not clean")
+        sf = lambda v: R(gc_s(sp.N(v, 40)).replace("−", "-"))
+        tol = sp.Rational(6, 10) * sp.Integer(10) ** (sp.floor(sp.log(abs(k), 10)) - 2)
+        no_a = sp.exp(a * x) + b * x
+        adc_function(q, fp, x0, y0, {ADC_NO_A: [no_a + sf(y0 - no_a.subs(x, x0))], ADC_POINT_F: [F + sf(y0 - fp.subs(x, x0))], ADC_NO_C: [F]}, tol=tol)
+        adc_steps(q, fp)
+        return None, None
+    if u == "log-inspection":
+        ft, xt, yt = adc_read(q)
+        x0, y0 = adc_num(xt), adc_num(yt)
+        m = re.fullmatch(r"(\d*)x/\((.+)\)", ft)
+        need(m is not None, f"can't read {ft!r}")
+        top, inner = sp.Integer(m.group(1)), adc_expr(m.group(2))
+        need(top % 2 == 0, "the top is not a multiple of 2x")
+        fp = top * x / inner
+        K = top / 2
+        F = K * sp.log(inner)
+        at = inner.subs(x, x0)
+        adc_function(q, fp, x0, y0, {ADC_NO_HALF: [adc_fit(top * sp.log(inner), x0, y0)], ADC_Y_IS_C: [F + y0], ADC_POINT_F: [F + y0 - fp.subs(x, x0)]})
+        need(f"ln {at}" in q["answer_text"], "the constant's log is not at the point")
+        adc_steps(q, fp)
+        return None, None
+    if u == "log-given-log":
+        ft, xt, yt = adc_read(q)
+        x0, y0 = adc_num(xt), adc_expr(yt)
+        m = re.fullmatch(r"\((.+)\)/\((.+)\)", ft)
+        need(m is not None, f"can't read {ft!r}")
+        top, inner = adc_expr(m.group(1)), adc_expr(m.group(2))
+        K = sp.simplify(top / sp.diff(inner, x))
+        need(K.is_integer and K > 0, "the top is not a multiple of the bottom's derivative")
+        need(sp.discriminant(inner, x) < 0, "the bottom has a root")
+        fp = top / inner
+        F = K * sp.log(inner)
+        at = F.subs(x, x0)
+        adc_function(q, fp, x0, y0, {ADC_NO_HALF: [2 * F + y0 - 2 * at], ADC_Y_IS_C: [F + y0]})
+        adc_steps(q, fp)
+        return None, None
+    if u in ("second-derivative", "second-derivative-exp", "second-derivative-value"):
+        fpp, x0, p, r, G, H, c1, c2, b1, b2 = adc_second(q)
+        f = H + c1 * x + c2
+        need(calc_same(sp.diff(f, x, 2), fpp), "two integrations")
+        if u == "second-derivative-value":
+            m = re.fullmatch(r"Find ([fgh])\((.+)\)\.", q["asked"])
+            need(m is not None, f"asked {q['asked']!r}")
+            b = adc_num(m.group(2))
+            adc_values(q, f"{m.group(1)}({dm_num(b)}) = ", f.subs(x, b), {ADC_STOPPED: [(G + c1).subs(x, b)], ADC_ONE_C: [(H + c1 * x + c1).subs(x, b)], ADC_STAGES: [(H + b1 * x + b2).subs(x, b)]})
+        else:
+            wr = {ADC_ONE_C: [H + c1 * x + c1, H + r - H.subs(x, x0)], ADC_STAGES: [H + b1 * x + b2], ADC_EXACT: [H + p * x + r]}
+            # f′ and f both hold: the option's derivative must meet f′(x0) = p.
+            adc_function(q, sp.diff(f, x), x0, r, wr)
+        adc_steps(q, None)
+        need(any("+ D" in st or "D =" in st for st in q["solutions"][0]["steps"]), "the second integration has its own constant")
+        return None, None
+    if u == "parameter-from-gradient":
+        m = re.search(r"dy/dx = a(x²?) ([+−]) (\d+)", L[0])
+        g = re.fullmatch(r"The gradient of the curve at x = (.+) is (.+)\.", L[1])
+        c = re.fullmatch(r"The curve passes through \((.+), (.+)\)\.", L[2])
+        need(m is not None and g is not None and c is not None, f"can't read {L!r}")
+        n = 2 if "²" in m.group(1) else 1
+        con = int(m.group(3)) * (1 if m.group(2) == "+" else -1)
+        x1, grad, x0, y0 = adc_num(g.group(1)), adc_num(g.group(2)), adc_num(c.group(1)), adc_num(c.group(2))
+        K = (grad - con) / x1 ** n
+        fp = K * x ** n + con
+        F = sp.integrate(fp, x)
+        K2 = (y0 - con) / x0 ** n
+        need(K2 != K, "the slip gives the right a")
+        adc_function(q, fp, x0, y0, {ADC_POINT: [adc_fit(sp.integrate(K2 * x ** n + con, x), x0, y0)], ADC_GRAD: [F + grad - F.subs(x, x1)], ADC_NO_C: [F]})
+        adc_steps(q, fp)
+        return None, None
+    if u == "family-pick":
+        m = re.fullmatch(r"[fgh]′\(x\) = (.+)", L[0])
+        c = re.search(r"passes through \((.+), (.+)\)\.", L[1])
+        need(m is not None and c is not None, f"can't read {L!r}")
+        fp, x0, y0 = adc_expr(m.group(1)), adc_num(c.group(1)), adc_num(c.group(2))
+        k, wr = adc_family(q, fp, x0, y0)
+        adc_values(q, "C = ", k, wr)
+        adc_steps(q, fp)
+        return None, None
+    if u == "accumulate-graph":
+        a, y0, b, signed, whole, last = adc_pieces(q)
+        name = q["asked"][5]
+        adc_values(q, f"{name}({dm_num(b)}) = ", y0 + signed, {ADC_NO_START: [signed], ADC_AT_END: [last], ADC_ALL_POS: [y0 + whole]})
+        adc_steps(q)
+        return None, None
+    if u == "rate-model":
+        sym, T, P0, A, k, v, change, decay = adc_rate(q)
+        label = f"{sym}({T}) = "
+        gc_check_common(q, label + gc_s(v), {ADC_SAME_RATE: {label + gc_s(sp.Float(P0 + A * T, 40))}, ADC_NO_START: {label + gc_s(change)},
+                                             ADC_AT_END: {label + gc_s(sp.Float(A * decay, 40))}, ADC_NO_A: {label + gc_s(sp.Float(P0 + A * (1 - decay), 40))}})
+        adc_steps(q)
+        return None, None
+    raise Fail(f"no check for {u}")
+# ── end antiderivative-condition ──
+
+
+# ── normal-properties (t4-normal-properties, FAL-740) ──────
+# The `normal-properties` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/normal_properties.gd. The facts are read back from what the student sees
+# (lines, a story, the curve, the cards) and every area is found again: the rule, symmetry and total
+# area 1 with exact rationals, the erf function at 40 digits for a GDC value.
+
+NPR_SKP, NPR_SKS, NPR_SKC, NPR_OWN = "SL4.9.properties#", "SL4.9.symmetry-probability#", "SL4.9.central-interval#", "t4-normal-properties#"
+NPR_RULE = {1: sp.Rational(68, 100), 2: sp.Rational(95, 100), 3: sp.Rational(997, 1000)}
+NPR_HALF = sp.Rational(1, 2)
+NPR_P2_ONLY = ("beyond-sd", "tail-from-band", "central-k", "central-endpoints", "central-k-sd")
+NPR_GDC = re.compile(r"normalcdf|invNorm|inverse normal|solver|Key ")
+NPR_N = r"\d+(?:\.\d+)?"
+NPR_TAKE = re.compile(rf"(?<![\w.|])(\(?−?{NPR_N}\)?(?: [+−×÷] \(?−?{NPR_N}\)?)+) = (−?{NPR_N})(?![\w/])")
+
+
+def npr_mine(i):
+    return NPR_OWN + str(i)
+
+
+def npr_steps(q):
+    """Every plain sum in the working is right to the figures shown, and its inputs' figures."""
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in NPR_TAKE.finditer(step):
+                left, right = mt.group(1), mt.group(2)
+                if left.count("(") != left.count(")"):
+                    continue
+                expr = re.sub(NPR_N, lambda m: f"Rational('{m.group(0)}')", left.replace("−", "-").replace("×", "*").replace("÷", "/"))
+                got = sp.sympify(expr, locals={"Rational": sp.Rational})
+                res = nu_val(right)
+                unit = sp.Integer(0)
+                for t in re.findall(NPR_N, left + " " + right):
+                    if "." in t:
+                        unit = max(unit, sp.Rational(1, 10 ** len(t.split(".")[1])))
+                need(abs(got - res) <= unit * sp.Rational(11, 10), f"{step!r}: {mt.group(0)} is really {got}")
+
+
+def npr_model(q):
+    if re.fullmatch(rf"X ~ N\({NPR_N}, a²\), where a > 0", q["lines"][0]):
+        return nu_val(re.search(NPR_N, q["lines"][0]).group(0)), None
+    # A count on a figure keeps its story, so the line decides how to read it, not the representation.
+    return nu_model({**q, "view": {**q["view"], "rep": "equation" if q["lines"][0].startswith("X ~") else "words"}})
+
+
+def npr_unit(q):
+    return NU_CONTEXTS[int(q["given"]["ctx"])][1]
+
+
+def npr_event(q, tx=None):
+    """(kind, lo, hi) from "P(X < 3)", "P(3 < X < 5)" or a story's words, with no "lt"/"gt" end given as None."""
+    tx = q["asked"] if tx is None else tx
+    u = npr_unit(q)
+    n = NU_NUM
+    for pat, kind in [(rf"({n}) < X < ({n})", "in"), (rf"X > ({n})", "gt"), (rf"X < ({n})", "lt"), (rf"between ({n}){u} and ({n}){u}", "in"),
+                      (rf"outside the range ({n}){u} to ({n}){u}", "out"), (rf"above ({n}){u}", "gt"), (rf"below ({n}){u}", "lt")]:
+        mt = re.search(pat, tx)
+        if mt:
+            v = [nu_val(x) for x in mt.groups()]
+            return (kind, v[0], v[1]) if len(v) == 2 else (kind, None, v[0]) if kind == "lt" else (kind, v[0], None)
+    raise Fail(f"can't read an event in {tx!r}")
+
+
+def npr_curve(q, mu, sg):
+    """The event read off a shaded curve, with μ and σ the ones written."""
+    return np_from_curve(q, np_mp(mu), np_mp(sg))
+
+
+def npr_marks(q, want):
+    """The marks under a figure are the values and labels in `want` (value -> label)."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "normal", "no normal curve")
+    got = sorted((round(float(m["at"]), 6), m["label"]) for m in g["marks"])
+    exp = sorted((round(float(k), 6), v) for k, v in want.items())
+    need(got == exp, f"the marks are {got}, not {exp}")
+
+
+def npr_txt(q, v):
+    return f"percentage ≈ {dec_text(v * 100)}%" if "percentage" in q["asked"] else f"probability ≈ {dec_text(v)}"
+
+
+def npr_sd_count(lo, hi, mu, sg):
+    k = (hi - mu) / sg
+    need(k in (1, 2, 3) and mu - lo == hi - mu, f"the band {lo} to {hi} is not μ ± kσ")
+    return int(k)
+
+
+def npr_wr(table, f):
+    """ref -> a value or list of values, as the texts f writes."""
+    return {ref: {f(x) for x in (vs if isinstance(vs, (list, tuple)) else [vs])} for ref, vs in table.items()}
+
+
+def npr_half(z):
+    return sp.Integer(0) if z == 0 else NPR_RULE[abs(z)] / 2 * (1 if z > 0 else -1)
+
+
+def npr_other(k):
+    return 1 if k == 2 else 2
+
+
+def npr_share(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    mu, sg = npr_model(q)
+    if sg is None:
+        mt = re.search(rf"P\(({NPR_N}) − (\d?)a < X < ({NPR_N}) \+ (\d?)a\)", asked)
+        need(mt is not None and nu_val(mt.group(1)) == mu and mt.group(1) == mt.group(3) and mt.group(2) == mt.group(4), f"can't read {asked!r}")
+        k = int(mt.group(2) or 1)
+    else:
+        mk = re.search(r"within (\d) standard deviation", asked)
+        if mk:
+            k = int(mk.group(1))
+        else:
+            kind, lo, hi = npr_curve(q, mu, sg) if rep == "diagram" else npr_event(q)
+            need(kind == "in", "a band")
+            k = npr_sd_count(lo, hi, mu, sg)
+    c = NPR_RULE[k]
+    f = lambda x: npr_txt(q, x)
+    gc_check_common(q, f(c), npr_wr({NPR_SKP + "0": NPR_RULE[npr_other(k)], npr_mine(8): 1 - c, npr_mine(10): c / 2}, f))
+
+
+def npr_count(q):
+    rep, L, asked = q["view"]["rep"], q["lines"], q["asked"]
+    mu, sg = npr_model(q)
+    mt = re.fullmatch(r"There are (\d+) .+ in all\.", L[1])
+    need(mt is not None, f"can't read {L[1]!r}")
+    n = sp.Integer(mt.group(1))
+    if rep == "diagram":
+        kind, lo, hi = npr_curve(q, mu, sg)
+    else:
+        kind, lo, hi = npr_event(q)
+    need(kind in ("in", "out"), "a band or its two tails")
+    k = npr_sd_count(lo, hi, mu, sg)
+    c = NPR_RULE[k]
+    o = NPR_RULE[npr_other(k)]
+    keep = c if kind == "in" else 1 - c
+    need((n * keep).q == 1, f"{n * keep} is no count")
+    f = lambda x: f"number ≈ {dec_text(x)}"
+    tb = {NPR_SKP + "0": n * (o if kind == "in" else 1 - o), npr_mine(8): n * (1 - keep), npr_mine(13): keep}
+    if kind == "out":
+        tb[npr_mine(12)] = n * keep / 2
+    gc_check_common(q, f(n * keep), npr_wr(tb, f))
+
+
+def npr_tail_rule(q):
+    rep = q["view"]["rep"]
+    mu, sg = npr_model(q)
+    kind, lo, hi = npr_curve(q, mu, sg) if rep == "diagram" else npr_event(q)
+    x = hi if kind == "lt" else lo
+    z = (x - mu) / sg
+    need(z in (-3, -2, -1, 1, 2, 3), f"{x} is not a whole number of σ from the mean")
+    z = int(z)
+    k = abs(z)
+    c = NPR_RULE[k]
+    inner = (kind == "lt") == (z > 0)
+    tail, big = (1 - c) / 2, NPR_HALF + c / 2
+    # The area below x, from the rule, agrees with the case above.
+    below = NPR_HALF + npr_half(z)
+    need((below if kind == "lt" else 1 - below) == (big if inner else tail), "the two ways of adding up disagree")
+    o = NPR_RULE[npr_other(k)]
+    if inner:
+        tb = {npr_mine(9): c, NPR_SKS + "1": c / 2, npr_mine(8): tail, NPR_SKP + "0": NPR_HALF + o / 2}
+    else:
+        tb = {npr_mine(11): 1 - c, npr_mine(8): big, npr_mine(10): c / 2, NPR_SKP + "0": (1 - o) / 2}
+    f = lambda v: npr_txt(q, v)
+    gc_check_common(q, f(big if inner else tail), npr_wr(tb, f))
+
+
+def npr_band_rule(q):
+    rep = q["view"]["rep"]
+    mu, sg = npr_model(q)
+    kind, lo, hi = npr_curve(q, mu, sg) if rep == "diagram" else npr_event(q)
+    need(kind == "in", "a band")
+    a, b = (lo - mu) / sg, (hi - mu) / sg
+    need(a.q == 1 and b.q == 1 and -3 <= a < b <= 3 and a + b != 0, f"the band {a}σ to {b}σ")
+    a, b = int(a), int(b)
+    v = npr_half(b) - npr_half(a)
+
+    def swapped(z):
+        return npr_half(z) if abs(z) in (0, 3) else npr_half((3 - abs(z)) * (1 if z > 0 else -1))
+
+    tb = {npr_mine(9): 2 * v, npr_mine(8): 1 - v, NPR_SKP + "0": swapped(b) - swapped(a)}
+    if a != 0 and b != 0 and (a < 0) != (b < 0):
+        tb[npr_mine(10)] = max(abs(npr_half(a)), abs(npr_half(b)))
+    f = lambda x: npr_txt(q, x)
+    gc_check_common(q, f(v), npr_wr(tb, f))
+
+
+def npr_sd_from_rule(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "words":
+        u = npr_unit(q)
+        mt = re.fullmatch(rf"About ({NU_NUM})% of them are between ({NU_NUM}){u} and ({NU_NUM}){u}, in a band centred on the mean\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        c, lo, hi = nu_val(mt.group(1)) / 100, nu_val(mt.group(2)), nu_val(mt.group(3))
+    elif rep == "diagram":
+        mt = re.fullmatch(rf"The shaded band is centred on the mean and holds about ({NU_NUM})% of the area\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        c = nu_val(mt.group(1)) / 100
+        (a, b), = q["graph"]["shade"]
+        lo, hi = R(sp.nsimplify(a)), R(sp.nsimplify(b))
+        need(nu_val(L[0].split("(")[1].split(",")[0]) == (lo + hi) / 2, "the mean is not the middle of the band")
+    else:
+        mt = re.fullmatch(rf"P\(({NU_NUM}) < X < ({NU_NUM})\) ≈ ({NU_NUM})", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        lo, hi, c = nu_val(mt.group(1)), nu_val(mt.group(2)), nu_val(mt.group(3))
+    ks = [k for k, v in NPR_RULE.items() if v == c]
+    need(len(ks) == 1, f"{c} is no figure of the rule")
+    k = ks[0]
+    width = hi - lo
+    lab = "standard deviation = " if rep == "words" else "σ = "
+    f = lambda x: lab + dec_text(x)
+    gc_check_common(q, f(width / (2 * k)), npr_wr({npr_mine(14): width / k, NPR_SKP + "0": width / (2 * npr_other(k))}, f))
+
+
+def npr_other_end(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    mu, sg = npr_model(q)
+    n, u = NU_NUM, npr_unit(q) if rep == "words" else ""
+    mt = re.fullmatch(rf"(?:The values|Those) between (k|{n}){u} and (k|{n}){u} lie within (\d) standard deviations? of the mean\.", L[1])
+    need(mt is not None, f"can't read {L[1]!r}")
+    k = int(mt.group(3))
+    need((mt.group(1) == "k") != (mt.group(2) == "k"), "one end is k")
+    low_given = mt.group(2) == "k"
+    given = nu_val(mt.group(1) if low_given else mt.group(2))
+    need(given == (mu - k * sg if low_given else mu + k * sg), f"{given} is not {k}σ from the mean")
+    v = mu + k * sg if low_given else mu - k * sg
+    if rep == "diagram":
+        npr_marks(q, {mu: dec_text(mu), given: dec_text(given), v: "k"})
+    f = lambda x: "k = " + dec_text(x)
+    tb = {npr_mine(15): mu}
+    if k > 1:
+        tb[npr_mine(16)] = mu + sg if low_given else mu - sg
+    gc_check_common(q, f(v), npr_wr(tb, f))
+
+
+def npr_point(q):
+    mu, sg = npr_model(q)
+    n = NU_NUM
+    mt = re.search(rf"P\(X = ({n})\)|is exactly ({n})", q["asked"])
+    need(mt is not None, f"can't read {q['asked']!r}")
+    x = nu_val(mt.group(1) or mt.group(2))
+    z = (x - mu) / sg
+    need(z.q == 1 and abs(z) <= 2, "x is a whole number of σ from the mean")
+    below = NPR_HALF + npr_half(int(z))
+    lab = "probability = " if q["view"]["rep"] == "words" else f"P(X = {dec_text(x)}) = "
+    f = lambda v: lab + dec_text(v)
+    tab = [below, 1 - below] + ([sp.Rational(34, 100)] if z == 0 else [])
+    gc_check_common(q, f(0), npr_wr({NPR_SKP + "2": tab}, f))
+
+
+NPR_SHAPES = {"wl": "It is wider and lower, with the same centre.", "nt": "It is narrower and taller, with the same centre.",
+              "wt": "It is wider and taller, with the same centre.", "nl": "It is narrower and lower, with the same centre."}
+
+
+def npr_slide(d, right):
+    return f"It slides {dec_text(d)} to the {'right' if right else 'left'}, with the same shape."
+
+
+def npr_effect(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "words":
+        mu, sg = npr_model(q)
+        u = npr_unit(q)
+        m1 = re.fullmatch(rf"Later, the mean (rises|falls) by ({NU_NUM}){u} and the standard deviation stays the same\.", L[1])
+        m2 = re.fullmatch(rf"Later, the standard deviation changes to ({NU_NUM}){u} and the mean stays the same\.", L[1])
+        need(m1 is not None or m2 is not None, f"can't read {L[1]!r}")
+        mu2 = mu if m2 else mu + nu_val(m1.group(2)) * (1 if m1.group(1) == "rises" else -1)
+        sg2 = nu_val(m2.group(1)) if m2 else sg
+    else:
+        p = [re.fullmatch(rf"[XY] ~ N\(({NU_NUM}), ({NU_NUM})²\)", ln) for ln in L]
+        need(all(p) and len(p) == 2, f"can't read {L}")
+        mu, sg, mu2, sg2 = [nu_val(p[i].group(j)) for i in (0, 1) for j in (1, 2)]
+    need((mu == mu2) != (sg == sg2), "exactly one parameter changes")
+    mo, mw, sl, ws, wb = npr_mine(20), npr_mine(17), npr_mine(18), NPR_SKP + "1", npr_mine(19)
+    if mu != mu2:
+        d = abs(mu2 - mu)
+        up = mu2 > mu
+        want = npr_slide(d, up)
+        wr = {mo: {npr_slide(d, not up)}, mw: {NPR_SHAPES["wl"], NPR_SHAPES["nt"]}}
+    elif sg2 > sg:
+        want = NPR_SHAPES["wl"]
+        wr = {ws: {NPR_SHAPES["wt"]}, wb: {NPR_SHAPES["nt"]}, sl: {npr_slide(sg2 - sg, True)}}
+    else:
+        want = NPR_SHAPES["nt"]
+        wr = {ws: {NPR_SHAPES["nl"]}, wb: {NPR_SHAPES["wl"]}, sl: {npr_slide(sg - sg2, False)}}
+    gc_check_common(q, want, wr)
+
+
+def npr_spread(t):
+    """σ from a question's second parameter: "4²", or the variance 16."""
+    return R(t[:-1]) if t.endswith("²") else sp.sqrt(R(t))
+
+
+def npr_match(q):
+    g = q["graph"]
+    need(g is not None and g["kind"] == "normal" and len(g["curves"]) == 4, "four curves")
+    cs = [(R(sp.nsimplify(c["mu"])), R(sp.nsimplify(c["sigma"])), c["label"]) for c in g["curves"]]
+    mus, sgs = sorted({c[0] for c in cs}), sorted({c[1] for c in cs})
+    need(len(mus) == 2 and len(sgs) == 2 and len({c[:2] for c in cs}) == 4, "two means and two spreads, each pair once")
+    need(sorted(c[2] for c in cs) == ["A", "B", "C", "D"], "the curves are lettered A to D")
+    need(q["lines"] == ["The diagram shows four normal curves, A, B, C and D, on the same axes."], f"{q['lines']}")
+    npr_marks(q, {m: dec_text(m) for m in mus})
+    mt = re.fullmatch(rf"Which curve is the graph of X ~ N\(({NU_NUM}), (\d+²?)\)\?", q["asked"])
+    need(mt is not None, f"can't read {q['asked']!r}")
+    mu, sg = nu_val(mt.group(1)), npr_spread(mt.group(2))
+    hit = [c for c in cs if c[0] == mu and c[1] == sg]
+    need(len(hit) == 1, "the curve asked for is not drawn")
+    wr = {NPR_SKP + "1": {f"Curve {c[2]}" for c in cs if c[0] == mu and c[1] != sg}, npr_mine(21): {f"Curve {c[2]}" for c in cs if c[0] != mu and c[1] == sg}}
+    gc_check_common(q, f"Curve {hit[0][2]}", wr)
+
+
+def npr_is_curve(pts, mu, sg, tallest):
+    """The card's curve is the normal shape at μ and σ, scaled so the narrowest of the question is 6 high."""
+    for x, y in pts[::8]:
+        want = 6 * tallest / sg * math.exp(-0.5 * ((x - mu) / sg) ** 2)
+        if abs(y - want) > 1e-6:
+            return False
+    return True
+
+
+def npr_cards(q, ticks):
+    """ticks: the values every card must mark on its axis, value -> label."""
+    gs, ch = q["graphs"], q["choices"]
+    need(q["format"] == "pick-the-graph" and len(gs) == 4 and len(ch) == 4, "four cards")
+    need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the cards are lettered A to D")
+    need(all(g.get("card") and g.get("y_bare") for g in gs), "a card, with no numbers up its side")
+    need(len({json.dumps(g["curves"]) + json.dumps(g.get("shade", [])) for g in gs}) == 4, "two cards are the same")
+    need(len({(g["x0"], g["x1"], g["y0"], g["y1"]) for g in gs}) == 1, "the cards don't share one window")
+    want = sorted((float(k), v) for k, v in ticks.items())
+    for g in gs:
+        got = sorted((float(t[0]), t[1]) for t in g["x_ticks"])
+        need(all(a[1] == b[1] and abs(a[0] - b[0]) < 1e-6 for a, b in zip(got, want)) and len(got) == len(want), f"the card marks {got}, not {want}")
+    return gs, ch
+
+
+def npr_two_curves(q):
+    L = q["lines"]
+    a = re.fullmatch(r"X ~ N\((\d+), (\d+²)\)", L[0])
+    b = re.fullmatch(r"Y ~ N\((\d+), (\d+²?)\)", L[1])
+    need(a is not None and b is not None, f"can't read {L}")
+    mx, my, sx, sy = int(a.group(1)), int(b.group(1)), int(npr_spread(a.group(2))), int(npr_spread(b.group(2)))
+    need(sx != sy, "two spreads")
+    big, small = max(sx, sy), min(sx, sy)
+    d = 2 * big
+    gs, ch = npr_cards(q, {mx: str(mx), mx + d: str(mx + d)} if mx == my else {mx: str(mx), my: str(my)})
+    if mx == my:
+        cases = {"": (mx, sx, my, sy), "taller": (mx, sy, my, sx), "moved": (mx, sx, mx + d, sy), "moved-x": (mx + d, sx, my, sy)}
+        refs = {"taller": NPR_SKP + "1", "moved": npr_mine(21), "moved-x": ""}
+    else:
+        cases = {"": (mx, sx, my, sy), "taller": (mx, sy, my, sx), "moved": (my, sx, mx, sy), "both": (my, sy, mx, sx)}
+        refs = {"taller": NPR_SKP + "1", "moved": npr_mine(21), "both": ""}
+    right = None
+    for o, g in zip(ch, gs):
+        mk = "" if o["correct"] else o.get("mistake", "")
+        need(mk in cases, f"a card names no mistake ({mk!r})")
+        ma, sa, mb, sb = cases[mk]
+        need(len(g["curves"]) == 2 and npr_is_curve(g["curves"][0], ma, sa, small) and npr_is_curve(g["curves"][1], mb, sb, small), f"the {mk or 'right'} card is not what it says")
+        pts = {p["label"]: p["x"] for p in g["points"]}
+        need(pts == {"X": ma, "Y": mb}, "the letters are not at the peaks")
+        if o["correct"]:
+            right = o["text"]
+        else:
+            need(o["ref"] == refs[mk], f"the {mk} card is tagged {o['ref']!r}")
+            need(o.get("why", "") != "", f"the {mk} card doesn't say what is wrong")
+    gc_check_common(q, right, {o["ref"]: {o["text"]} for o in ch if o["ref"]})
+
+
+def npr_shaded_cards(q):
+    mu, sg = npr_model(q)
+    kind, lo, hi = npr_event(q)
+    gs, ch = npr_cards(q, {x: dec_text(x) for x in (mu, lo, hi) if x is not None})
+    M, S = float(mu), float(sg)
+    win = [M - 4.4 * S, M + 4.4 * S]
+    a = float(lo) if lo is not None else None
+    b = float(hi) if hi is not None else None
+    if kind == "in":
+        far = b if abs(b - M) >= abs(a - M) else a
+        cases = {"": (M, [(a, b)]), "outside": (M, [(win[0], a), (b, win[1])]), "from-mean": (M, [(min(M, far), max(M, far))]), "centred": ((a + b) / 2, [(a, b)])}
+        refs = {"outside": npr_mine(8), "from-mean": npr_mine(22), "centred": npr_mine(23)}
+    else:
+        x = a if kind == "gt" else b
+        here = [(x, win[1])] if kind == "gt" else [(win[0], x)]
+        there = [(win[0], x)] if kind == "gt" else [(x, win[1])]
+        cases = {"": (M, here), "other-side": (M, there), "from-mean": (M, [(min(M, x), max(M, x))]), "centred": (x, here)}
+        refs = {"other-side": npr_mine(8), "from-mean": npr_mine(22), "centred": npr_mine(23)}
+    right = None
+    for o, g in zip(ch, gs):
+        mk = "" if o["correct"] else o.get("mistake", "")
+        need(mk in cases, f"a card names no mistake ({mk!r})")
+        c, rg = cases[mk]
+        need(len(g["curves"]) == 1 and npr_is_curve(g["curves"][0], c, S, S), f"the {mk or 'right'} card's curve is wrong")
+        got = [(r[0][0], r[-1][0]) for r in g["shade"]]
+        need(len(got) == len(rg) and all(abs(p[0] - w[0]) < 1e-6 and abs(p[1] - w[1]) < 1e-6 for p, w in zip(got, rg)), f"the {mk or 'right'} card shades {got}, not {rg}")
+        if o["correct"]:
+            right = o["text"]
+        else:
+            need(o["ref"] == refs[mk] and o.get("why", "") != "", f"the {mk} card's tag")
+    gc_check_common(q, right, {o["ref"]: {o["text"]} for o in ch if o["ref"]})
+
+
+def npr_shift(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    a = re.fullmatch(rf"X ~ N\(({NU_NUM}), a²\) and Y ~ N\(({NU_NUM}), a²\), where a > 0", L[0])
+    b = re.fullmatch(rf"P\(X ([<>]) b\) = P\(Y > ({NU_NUM})\)", L[1])
+    need(a is not None and b is not None, f"can't read {L}")
+    m1, m2, y = nu_val(a.group(1)), nu_val(a.group(2)), nu_val(b.group(2))
+    d = m1 - m2
+    f = lambda x: "b = " + dec_text(x)
+    if u == "same-sd-shift":
+        need(b.group(1) == ">", "same side")
+        gc_check_common(q, f(y + d), npr_wr({npr_mine(29): y, npr_mine(30): y - d}, f))
+    else:
+        need(b.group(1) == "<", "opposite tails")
+        gc_check_common(q, f(m1 - (y - m2)), npr_wr({npr_mine(31): y + d, npr_mine(29): y, npr_mine(30): y - d}, f))
+
+
+def npr_beyond(q):
+    rep, asked = q["view"]["rep"], q["asked"]
+    mu, sg = npr_model(q)
+    mt = re.search(rf"more than ({NU_NUM}) standard deviations? (above the mean|below the mean|from the mean)", asked)
+    need(mt is not None, f"can't read {asked!r}")
+    h, where = nu_val(mt.group(1)), mt.group(2)
+    M, S, H = np_mp(mu), np_mp(sg), np_mp(h)
+    tail = nu_phi(-H)
+    p = 2 * tail if where == "from the mean" else tail
+    # The slip: h added on without σ.
+    slip = nu_phi(-H / S) * (2 if where == "from the mean" else 1)
+    if rep == "diagram":
+        kind, lo, hi = npr_curve(q, mu, sg)
+        need(kind == {"above the mean": "gt", "below the mean": "lt", "from the mean": "out"}[where], "the shading")
+        nu_shaded(q, p)
+    need(sg > 1 and h.q != 1 and nu_clear(p) and nu_clear(1 - p) and nu_clear(slip), f"{p} is on a rounding edge")
+    f = lambda x: nu_text("probability = ", x)
+    tb = {npr_mine(8): {f(1 - p)}, npr_mine(24): {f(slip)}}
+    if where == "from the mean":
+        tb[npr_mine(12)] = {f(tail)}
+    gc_check_common(q, f(p), tb, bn_trap("probability = ", nu_f(p)))
+
+
+def npr_half_mean(q):
+    rep, asked = q["view"]["rep"], q["asked"]
+    mu, sg = npr_model(q)
+    if rep == "diagram":
+        kind, lo, hi = npr_curve(q, mu, sg)
+        lab = None
+        x = hi if kind == "lt" else lo
+        lab = f"P(X {'<' if kind == 'lt' else '>'} {dec_text(x)}) = "
+    else:
+        kind, lo, hi = npr_event(q)
+        x = hi if kind == "lt" else lo
+        lab = "probability = " if rep == "words" else f"P(X {'<' if kind == 'lt' else '>'} {dec_text(x)}) = "
+    need(x == mu, "the bound is the mean")
+    f = lambda v: lab + dec_text(v)
+    gc_check_common(q, f(NPR_HALF), npr_wr({npr_mine(9): sp.Rational(68, 100), npr_mine(10): sp.Rational(34, 100), NPR_SKS + "1": sp.Rational(1, 4)}, f))
+
+
+def npr_lab(q, kind, lo, hi):
+    if q["view"]["rep"] == "words":
+        return "probability = "
+    if kind == "in":
+        return f"P({dec_text(lo)} < X < {dec_text(hi)}) = "
+    return f"P(X < {dec_text(hi)}) = " if kind == "lt" else f"P(X > {dec_text(lo)}) = "
+
+
+def npr_band_fact(q, i):
+    """(lo, hi, c) from a line: "P(9 < X < 15) = 0.6", or a story's percentage."""
+    ln, n = q["lines"][i], NU_NUM
+    if q["view"]["rep"] == "words":
+        u = npr_unit(q)
+        mt = re.fullmatch(rf"({n})% of them are between ({n}){u} and ({n}){u}\.", ln)
+        need(mt is not None, f"can't read {ln!r}")
+        return nu_val(mt.group(2)), nu_val(mt.group(3)), nu_val(mt.group(1)) / 100
+    mt = re.fullmatch(rf"P\(({n}) < X < ({n})\) = ({n})", ln)
+    need(mt is not None, f"can't read {ln!r}")
+    return nu_val(mt.group(1)), nu_val(mt.group(2)), nu_val(mt.group(3))
+
+
+def npr_symmetric(q):
+    """Everything worked out from a mirror about μ, with σ hidden."""
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    mu, sg = npr_model(q)
+    need(sg is None, "σ is hidden here")
+    kind, lo, hi = npr_event(q)
+    half = NPR_HALF
+    if u in ("tail-from-middle", "half-of-middle"):
+        a, b, c = npr_band_fact(q, 1)
+        need(mu - a == b - mu and a < mu, "the band is centred on the mean")
+        tail = (1 - c) / 2
+        if rep == "diagram":
+            nu_shaded(q, np_mp(c))
+            npr_marks(q, {a: dec_text(a), mu: dec_text(mu), b: dec_text(b)})
+        if u == "tail-from-middle":
+            need(kind in ("lt", "gt") and (hi == a if kind == "lt" else lo == b), "the tail asked is the band's")
+            f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+            gc_check_common(q, f(tail), npr_wr({npr_mine(11): 1 - c, npr_mine(10): c / 2, npr_mine(8): c / 2 + half}, f))
+        else:
+            need(kind == "in" and ((lo, hi) == (mu, b) or (lo, hi) == (a, mu)), "from the mean to one end")
+            f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+            gc_check_common(q, f(c / 2), npr_wr({npr_mine(9): c, npr_mine(8): tail}, f))
+        return
+    x, side, area = nu_tail(q, 1)
+    need(x != mu, "a bound off the mean")
+    if u == "mirror-complement":
+        need((side == "lt") == (x > mu) and area > half, "the fact is the large area past the mean")
+        p = 1 - area
+        need(kind in ("lt", "gt"), "a tail is asked")
+        y = hi if kind == "lt" else lo
+        need(y == 2 * mu - x and (kind == "lt") == (y < mu), "the tail asked is on the far side of the mirror")
+        if rep == "diagram":
+            nu_shaded(q, np_mp(area))
+        f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+        gc_check_common(q, f(p), npr_wr({npr_mine(26): area, npr_mine(27): area - half, npr_mine(9): 1 - 2 * p}, f))
+        return
+    need((side == "gt") == (x > mu), "the fact is the tail beyond the bound")
+    p = area
+    if rep == "diagram":
+        nu_shaded(q, np_mp(p))
+    f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+    m = 2 * mu - x
+    if u == "mirror-tail":
+        need(kind in ("lt", "gt") and (hi if kind == "lt" else lo) == m and kind != side, "the mirror tail")
+        gc_check_common(q, f(p), npr_wr({npr_mine(25): 1 - p, npr_mine(27): half - p, npr_mine(11): 2 * p}, f))
+    elif u == "middle-from-tail":
+        need(kind == "in" and {lo, hi} == {x, m}, "the band between the bound and its mirror")
+        gc_check_common(q, f(1 - 2 * p), npr_wr({NPR_SKS + "0": 2 * p, npr_mine(12): 1 - p, npr_mine(27): half - p}, f))
+    else:
+        need(kind == "in" and {lo, hi} == {mu, x}, "from the mean to the bound")
+        gc_check_common(q, f(half - p), npr_wr({npr_mine(8): p, NPR_SKS + "1": 1 - p, npr_mine(9): 1 - 2 * p}, f))
+
+
+def npr_two_tails(q):
+    rep = q["view"]["rep"]
+    need(npr_model(q) == (None, None), "μ and σ are hidden here")
+    x1, s1, p1 = nu_tail(q, 1)
+    x2, s2, p2 = nu_tail(q, 2)
+    need(s1 == "lt" and s2 == "gt" and x1 < x2 and p1 != p2 and p1 + p2 <= sp.Rational(8, 10), "two different tails, the lower first")
+    kind, lo, hi = npr_event(q)
+    need((kind, lo, hi) == ("in", x1, x2), f"asked {q['asked']!r}")
+    if rep == "diagram":
+        nu_shaded(q, np_mp(p1 + p2))
+    f = lambda v: npr_lab(q, kind, lo, hi) + dec_text(v)
+    gc_check_common(q, f(1 - p1 - p2), npr_wr({NPR_SKS + "0": p1 + p2, npr_mine(12): [1 - p1, 1 - p2], npr_mine(28): 1 - 2 * p1}, f))
+
+
+def npr_tail_band(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    mu, sg = npr_model(q)
+    if rep == "words":
+        u = npr_unit(q)
+        mt = re.fullmatch(rf"({NU_NUM})% of them are between w{u} and ({NU_NUM}){u}\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        c, b = nu_val(mt.group(1)) / 100, nu_val(mt.group(2))
+    else:
+        mt = re.fullmatch(rf"P\(w < X < ({NU_NUM})\) = ({NU_NUM})", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        b, c = nu_val(mt.group(1)), nu_val(mt.group(2))
+    up = 1 - nu_phi((np_mp(b) - np_mp(mu)) / np_mp(sg))
+    p = 1 - np_mp(c) - up
+    need(p > 0 and nu_clear(p) and nu_clear(up) and nu_clear(1 - np_mp(c)) and nu_clear(1 - up), f"{p} is not a clean tail")
+    lab = "probability = " if rep == "words" else "P(X < w) = "
+    f = lambda v: nu_text(lab, v)
+    gc_check_common(q, f(p), {npr_mine(12): {f(1 - np_mp(c))}, npr_mine(8): {f(up)}}, bn_trap(lab, nu_f(p)))
+
+
+def npr_mirror_value(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    mu, sg = npr_model(q)
+    n = NU_NUM
+    u = npr_unit(q) if rep == "words" else ""
+    if rep == "words":
+        mt = re.fullmatch(rf"The share of them (below|above) ({n}){u} equals the share (above|below) b{u}\.", L[1])
+    else:
+        mt = re.fullmatch(rf"P\(X ([<>]) ({n})\) = P\(X ([<>]) b\)", L[1])
+    need(mt is not None, f"can't read {L[1]!r}")
+    need({mt.group(1), mt.group(3)} in ({"<", ">"}, {"below", "above"}), "opposite tails")
+    x = nu_val(mt.group(2))
+    v = 2 * mu - x
+    need((x < mu) == (mt.group(1) in ("<", "below")), "the given bound cuts off a tail, not the main part")
+    if rep == "diagram":
+        npr_marks(q, {mu: dec_text(mu), x: dec_text(x), v: "b"})
+    f = lambda t: "b = " + dec_text(t)
+    gc_check_common(q, f(v), npr_wr({NPR_SKS + "2": -x, npr_mine(32): x + mu}, f))
+
+
+def npr_central(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    mu, sg = npr_model(q)
+    n = NU_NUM
+    if u == "central-endpoints":
+        mt = re.search(rf"holds an area of ({n}) under|contains ({n})% of them", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        c = nu_val(mt.group(1)) if mt.group(1) else nu_val(mt.group(2)) / 100
+    elif u == "central-k":
+        mt = re.fullmatch(rf"P\(({n}) − k < X < ({n}) \+ k\) = ({n})", L[1])
+        need(mt is not None and nu_val(mt.group(1)) == mu == nu_val(mt.group(2)), f"can't read {L[1]!r}")
+        c = nu_val(mt.group(3))
+    elif rep == "words":
+        mt = re.fullmatch(rf"({n})% of them lie within k standard deviations of the mean\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        c = nu_val(mt.group(1)) / 100
+    else:
+        mt = re.fullmatch(rf"P\(({n}) − ({n})k < X < ({n}) \+ ({n})k\) = ({n})", L[1])
+        need(mt is not None and nu_val(mt.group(1)) == mu == nu_val(mt.group(3)) and nu_val(mt.group(2)) == sg == nu_val(mt.group(4)), f"can't read {L[1]!r}")
+        c = nu_val(mt.group(5))
+    M, S, C = np_mp(mu), np_mp(sg), np_mp(c)
+    z = nu_inv((1 + c) / 2)
+    zc = nu_inv(c)
+    # Back through the area, so the z is the one the question needs.
+    need(abs(nu_phi(z) - nu_phi(-z) - C) < mpmath.mpf("1e-25"), "the z does not give the central area")
+    need(zc > mpmath.mpf("0.15"), "the left-tail slip must give a value")
+    w = z * S
+    f = lambda v: nu_text("k = ", v)
+    if u == "central-k":
+        if rep == "diagram":
+            nu_shaded(q, C)
+        need(all(nu_clear(v) for v in (z, zc, w, zc * S)), "a value is on a rounding edge")
+        gc_check_common(q, f(w), {NPR_SKC + "0": {f(zc * S)}, NPR_SKC + "1": {f(M + w)}, npr_mine(33): {f(z)}}, bn_trap("k = ", nu_f(w)))
+    elif u == "central-k-sd":
+        need(all(nu_clear(v) for v in (z, zc, w, M + w)), "a value is on a rounding edge")
+        gc_check_common(q, f(z), {NPR_SKC + "0": {f(zc)}, npr_mine(34): {f(w)}, NPR_SKC + "1": {f(M + w)}}, bn_trap("k = ", nu_f(z)))
+    else:
+        g = lambda a, b: f"{rg_s(nu_f(a))} < X < {rg_s(nu_f(b))}"
+        need(all(nu_clear(v) for v in (M - w, M + w, M - zc * S, M + zc * S, M - z, M + z)), "a value is on a rounding edge")
+        gc_check_common(q, g(M - w, M + w), {NPR_SKC + "0": {g(M - zc * S, M + zc * S)}, npr_mine(33): {g(M - z, M + z)}})
+
+
+def check_normal_properties(q):
+    with mpmath.workdps(40):
+        return npr_check(q)
+
+
+def npr_check(q):
+    u, rep, paper, angle = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["view"]["angle"]
+    need(paper == 2 or u not in NPR_P2_ONLY, f"{u} is Paper 2")
+    words = [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]
+    for tx in words:
+        need(not re.search(r"(?<![A-Za-z^\d])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if paper == 1:
+        for sol in q["solutions"]:
+            need(not any(NPR_GDC.search(st) for st in sol["steps"]), f"{sol['name']}: a calculator on Paper 1")
+    need(angle not in ("gdc-center", "gdc-solver") or paper == 2, "a GDC method on Paper 1")
+    if u not in ("pick-two-curves", "pick-shaded"):
+        need((q["graph"] is not None) == (rep == "diagram"), "the figure belongs to the diagram representation")
+    for sol in q["solutions"]:
+        if rep != "diagram":
+            need(not any(st.startswith("Read the curve") for st in sol["steps"]), f"{sol['name']}: reads a curve the question doesn't draw")
+        elif q["graph"] is not None:
+            need(not any(st.startswith("Sketch") for st in sol["steps"]), f"{sol['name']}: asks for a sketch of a drawn curve")
+    npr_steps(q)
+    if u == "empirical-share":
+        npr_share(q)
+    elif u == "empirical-count":
+        npr_count(q)
+    elif u == "empirical-tail":
+        npr_tail_rule(q)
+    elif u == "empirical-band":
+        npr_band_rule(q)
+    elif u == "sd-from-rule":
+        npr_sd_from_rule(q)
+    elif u == "other-sd-end":
+        npr_other_end(q)
+    elif u == "point-probability":
+        npr_point(q)
+    elif u == "effect-of-change":
+        npr_effect(q)
+    elif u == "match-curve":
+        npr_match(q)
+    elif u == "pick-two-curves":
+        npr_two_curves(q)
+    elif u == "pick-shaded":
+        npr_shaded_cards(q)
+    elif u in ("same-sd-shift", "shifted-mirror"):
+        npr_shift(q)
+    elif u == "beyond-sd":
+        npr_beyond(q)
+    elif u == "half-below-mean":
+        npr_half_mean(q)
+    elif u in ("mirror-tail", "mirror-complement", "middle-from-tail", "tail-from-middle", "half-of-middle", "mean-to-point"):
+        npr_symmetric(q)
+    elif u == "between-from-two-tails":
+        npr_two_tails(q)
+    elif u == "tail-from-band":
+        npr_tail_band(q)
+    elif u == "mirror-value":
+        npr_mirror_value(q)
+    elif u in ("central-k", "central-endpoints", "central-k-sd"):
+        npr_central(q)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+# ── end normal-properties ──
+
+# ── box-plot (t4-box-plot and t4-outlier-rule, FAL-740) ──────
+# The `box-plot` situation's clean limits and stories, the checker's own copy: the engine's is in
+# game/engine/situations/box_plot.gd. The five numbers are read back from the figure spec, the
+# list, the table, the sentence or the curve; quartiles are worked out here from the data with the
+# median left out of the halves when n is odd. Every option's text is rebuilt from those facts, so
+# a false number or a verdict that doesn't follow fails. The arithmetic in the working is evaluated.
+
+BXP_B, BXP_C, BXP_T, BXP_D = "SL4.2.box-plot#", "SL4.2.compare-distributions#", "SL4.2.outlier-test#", "SL4.1.outlier-decision#"
+BXP_SPAN, BXP_EVERY = 25, 5
+BXP_EDGE = sp.Rational(3, 100)
+BXP_IS, BXP_NOT = "is an outlier", "is not an outlier"
+BXP_NORMAL, BXP_SKEWED = "are symmetric and could be normal", "are skewed and unlikely to be normal"
+BXP_SUPPORT, BXP_OPPOSE = "support", "do not support"
+BXP_RULE = "An outlier is a value less than Q1 − 1.5 × IQR or greater than Q3 + 1.5 × IQR."
+BXP_HALVES = "Q1 and Q3 are the medians of the lower and upper halves, leaving out the median when n is odd."
+BXP_NAMES = ("min", "q1", "med", "q3", "max")
+BXP_PLOTS = ("Plot A", "Plot B", "Plot C", "Plot D")
+# who, the words before them, the noun, the unit, the axis, the two groups, the typical verb,
+# the noun with its article, the unit in words
+BXP_STORIES = [("patrols", "the distance walked in a day by", "distance walked", "km", "distance walked (km)", ("north patrols", "south patrols"), "walked further", "a distance walked", "km"),
+               ("crates", "the mass of", "mass", "kg", "mass (kg)", ("salvage crates", "market crates"), "were heavier", "a mass", "kg"),
+               ("drones", "the flight time of", "flight time", "min", "flight time (minutes)", ("old drones", "new drones"), "flew for longer", "a flight time", "minutes"),
+               ("wells", "the depth of", "depth", "m", "depth (m)", ("hill wells", "valley wells"), "were deeper", "a depth", "m"),
+               ("tanks", "the water held in", "water held", "L", "water held (litres)", ("roof tanks", "yard tanks"), "held more", "water held", "litres"),
+               ("traders", "the takings of", "takings", "caps", "takings (caps)", ("gate traders", "market traders"), "took more", "takings", "caps"),
+               ("bean plants", "the height of", "height", "cm", "height (cm)", ("shaded plants", "sunlit plants"), "grew taller", "a height", "cm"),
+               ("radios", "the battery life of", "battery life", "h", "battery life (hours)", ("scrap radios", "trade radios"), "lasted longer", "a battery life", "hours")]
+BXP_LIMITS = [("the water in one tank, in litres", "The tank holds at most {} litres.", "the tank can't hold that much"),
+              ("the depth to the water in one well, in m", "The well is {} m deep.", "the well isn't that deep"),
+              ("the hours a scavenger worked in a week", "The camp's rule stops a week at {} hours.", "the rule stops the week before that"),
+              ("the charge of a radio battery, in amp hours", "A full battery holds {} amp hours.", "a battery can't hold that much"),
+              ("the top speed of a drone, in km/h", "These drones are built to fly at no more than {} km/h.", "the drones can't fly that fast"),
+              ("the mass of a cart's load, in kg", "The bridge scale reads up to {} kg and every cart crossed it.", "the scale can't read that high")]
+BXP_NUM = r"−?\d+(?:\.\d+)?"
+BXP_ARITH = rf"\(?{BXP_NUM}(?:/\d+)?\)?(?: [+−×÷] \(?{BXP_NUM}\)?)*"
+
+
+def bxp_val(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def bxp_eval(t):
+    """A plain sum in the game's signs, with exact rationals: × and ÷ before + and −."""
+    return sp.sympify(re.sub(r"(?<![\d.])(\d+(?:\.\d+)?)", r"Rational('\1')", t.replace("−", "-").replace("×", "*").replace("÷", "/")),
+                      locals={"Rational": sp.Rational})
+
+
+def bxp_steps(q):
+    """Every chain a = b = c of plain numbers in the working is true, to the figures shown."""
+    pat = re.compile(rf"(?<![\w.,−+×÷/] )(?<![\w./]){BXP_ARITH}(?: = {BXP_ARITH})+(?![\w/])")
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in pat.finditer(step):
+                parts = mt.group(0).split(" = ")
+                first = bxp_eval(parts[0])
+                for p in parts[1:]:
+                    v = bxp_eval(p)
+                    if q["paper"] == 2 and re.fullmatch(r"\d+\.\d+", p):
+                        places = len(p.split(".")[1])
+                        need(abs(first - v) <= sp.Rational(6, 10) / 10 ** places, f"{step!r}: {mt.group(0)}")
+                    else:
+                        need(first == v, f"{step!r}: {mt.group(0)} is really {first}")
+
+
+def bxp_story(q):
+    return BXP_STORIES[int(q["given"]["ctx"])]
+
+
+def bxp_cap(t):
+    return t[0].upper() + t[1:]
+
+
+def bxp_u(c, v):
+    return f"{dec_text(v)} {c[3]}"
+
+
+def bxp_row(b):
+    out = {k: R(b[k]) for k in BXP_NAMES}
+    out["out"] = [R(x) for x in b["out"]]
+    return out
+
+
+def bxp_ok(f):
+    need(f["min"] < f["q1"] < f["med"] < f["q3"] < f["max"], f"the five numbers aren't in order: {f}")
+
+
+def bxp_fig(q, on_ticks=True):
+    """The box figure, held to its axis: 25 ticks, a number every fifth, values on ticks."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "box", "no box plot")
+    x0, x1, t = R(g["x0"]), R(g["x1"]), R(g["tick"])
+    need((x1 - x0) == BXP_SPAN * t and g["every"] == BXP_EVERY and x0 % (BXP_EVERY * t) == 0, "the axis isn't 25 ticks from a labelled tick")
+    need(x0 >= 0 and t >= sp.Rational(1, 50), "the axis")
+    need(g["name"] == bxp_story(q)[4], "the axis isn't named")
+    rows = [bxp_row(b) for b in g["boxes"]]
+    for f in rows:
+        vals = [f[k] for k in BXP_NAMES] + f["out"]
+        for v in vals:
+            need(x0 <= v <= x1, f"{v} is off the axis")
+            if on_ticks:
+                need((v - x0) % t == 0, f"{v} is not on a tick")
+        if on_ticks:
+            for a, b in zip(BXP_NAMES, BXP_NAMES[1:]):
+                need(f[b] - f[a] >= 2 * t, f"{a} and {b} are less than two ticks apart")
+    return rows
+
+
+def bxp_plot_line(q):
+    """n, from the sentence above a single plot."""
+    c = bxp_story(q)
+    mt = re.fullmatch(rf"The box plot shows {re.escape(c[1])} (\d+) {c[0]}\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    return int(mt.group(1))
+
+
+def bxp_two(q):
+    c = bxp_story(q)
+    need(q["lines"][0] == f"The box plots show {c[1]} the {c[5][0]} and the {c[5][1]}.", f"can't read {q['lines'][0]!r}")
+    rows = bxp_fig(q)
+    need(len(rows) == 2 and [b["name"] for b in q["graph"]["boxes"]] == list(c[5]), "two named boxes")
+    return rows
+
+
+def bxp_chosen(q):
+    """The box asked about, and the words that name it."""
+    c = bxp_story(q)
+    rows = bxp_fig(q)
+    if len(rows) == 2:
+        bxp_two(q)
+        for i in (0, 1):
+            if q["asked"].endswith(f" of the {c[5][i]}."):
+                return rows[i], f" of the {c[5][i]}"
+        raise Fail(f"which box? {q['asked']!r}")
+    bxp_plot_line(q)
+    return rows[0], ""
+
+
+def bxp_five_words(q, line):
+    mt = re.fullmatch(rf"The least value is ({BXP_NUM}), Q1 = ({BXP_NUM}), the median is ({BXP_NUM}), Q3 = ({BXP_NUM}) and the greatest value is ({BXP_NUM})\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return dict(zip(BXP_NAMES, [R(mt.group(i)) for i in range(1, 6)]), out=[])
+
+
+def bxp_data(q):
+    """(values as shown, frequencies or None, every value in order)."""
+    c, rep, L = bxp_story(q), q["view"]["rep"], q["lines"]
+    if rep == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "Frequency", "table heads")
+        xs, fs = [R(v) for v in rows[0][1]], [int(v) for v in rows[1][1]]
+        n = sum(fs)
+        need(L[0] == f"The table shows {c[1]} {n} {c[0]}, in {c[8]}.", f"can't read {L[0]!r}")
+        need(xs == sorted(xs) and len(set(xs)) == len(xs), "a table's values are distinct and ascending")
+        return xs, fs, [x for x, f in zip(xs, fs) for _ in range(f)]
+    mt = re.fullmatch(rf"{re.escape(bxp_cap(c[1]))} (\d+) {c[0]}, in {c[8]}:", L[0])
+    need(mt is not None, f"can't read {L[0]!r}")
+    xs = [R(v) for v in L[1].split(", ")]
+    need(len(xs) == int(mt.group(1)), "the list's length")
+    if q["paper"] == 1:
+        need(xs == sorted(xs), "a Paper 1 list is shown in order")
+    else:
+        need(xs != sorted(xs), "a Paper 2 list comes as it came")
+    return xs, None, sorted(xs)
+
+
+def bxp_summary(v):
+    a, b = ds_quartiles(v)
+    return {"min": v[0], "q1": a, "med": ds_median(v), "q3": b, "max": v[-1], "out": []}
+
+
+def bxp_keep_median(v):
+    n, h = len(v), len(v) // 2
+    return {"min": v[0], "q1": ds_median(v[:h + 1]), "med": ds_median(v), "q3": ds_median(v[h:]), "max": v[-1], "out": []}
+
+
+def bxp_positions(v):
+    n = len(v)
+    return {"min": v[0], "q1": v[sp.ceiling(sp.Rational(n, 4)) - 1], "med": ds_median(v), "q3": v[sp.ceiling(sp.Rational(3 * n, 4)) - 1], "max": v[-1], "out": []}
+
+
+def bxp_five_text(f):
+    return "min = {}, Q1 = {}, median = {}, Q3 = {}, max = {}".format(*[dec_text(f[k]) for k in BXP_NAMES])
+
+
+def bxp_same(a, b):
+    return all(a[k] == b[k] for k in BXP_NAMES) and a["out"] == b["out"]
+
+
+def bxp_data_slips(q, xs, fs, v):
+    """ref -> the summary that slip gives."""
+    out = {BXP_B + "15": bxp_positions(v)}
+    if len(v) % 2 == 1:
+        out[BXP_B + "2"] = bxp_keep_median(v)
+    if fs is not None:
+        out[BXP_B + "4"] = bxp_summary(xs)
+    elif q["paper"] == 2:
+        a, b = ds_quartiles(xs)
+        out[BXP_B + "3"] = {"min": xs[0], "q1": a, "med": ds_median(xs), "q3": b, "max": xs[-1], "out": []}
+    return out
+
+
+def bxp_common(q, want, wrongs):
+    gc_check_common(q, want, wrongs, None)
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z\d])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def bxp_pick(q, right, slips):
+    """Rows A to D on one axis: the one right row, every row different, every tag its slip."""
+    rows = bxp_fig(q, on_ticks=False)
+    need(len(rows) == 4 and [b["name"] for b in q["graph"]["boxes"]] == ["A", "B", "C", "D"], "four rows, A to D")
+    hits = [i for i, f in enumerate(rows) if bxp_same(f, right)]
+    need(len(hits) == 1, f"{len(hits)} rows are the right plot")
+    need(all(not bxp_same(rows[i], rows[j]) for i in range(4) for j in range(i)), "two rows are the same")
+    wrongs = {ref: {BXP_PLOTS[i] for i, f in enumerate(rows) if bxp_same(f, s)} for ref, s in slips.items()}
+    bxp_common(q, BXP_PLOTS[hits[0]], wrongs)
+
+
+def bxp_rule_facts(q, rep):
+    """The five numbers a question on the rule shows, and the data if it shows them."""
+    L = q["lines"]
+    need(BXP_RULE in L, "the rule isn't stated")
+    if rep == "graph":
+        rows = bxp_fig(q)
+        bxp_plot_line(q)
+        return rows[0], None
+    if rep == "terms":
+        need(BXP_HALVES in L, "the quartile convention isn't stated")
+        _, _, v = bxp_data(q)
+        return bxp_summary(v), v
+    return bxp_five_words(q, L[1]), None
+
+
+def bxp_fence(f):
+    iq = f["q3"] - f["q1"]
+    d = sp.Rational(3, 2) * iq
+    return iq, f["q1"] - d, f["q3"] + d, d
+
+
+def bxp_test_said(l_name, l, r_name, r, x, verdict):
+    return f"{l_name} = {dec_text(l)} and {r_name} = {dec_text(r)}, so {dec_text(x)} {verdict}"
+
+
+def bxp_test(q, rep):
+    angle, asked = q["view"]["angle"], q["asked"]
+    mt = re.fullmatch(rf"Determine whether ({BXP_NUM}) is an outlier, with a valid reason\.", asked)
+    need(mt is not None, f"asked {asked!r}")
+    x = R(mt.group(1))
+    f, v = bxp_rule_facts(q, rep)
+    iq, lo, hi, d = bxp_fence(f)
+    need(x in (f["min"], f["max"]), "the value tested is not an end of the data")
+    up = x == f["max"]
+    fence = hi if up else lo
+    need(x != fence, "the value is on the fence")
+    beyond = x > hi if up else x < lo
+    if v is not None:
+        rest = list(v)
+        rest.remove(x)
+        need(all(lo <= e <= hi for e in rest), "another value is an outlier")
+    if rep == "graph":
+        t = R(q["graph"]["tick"])
+        need(abs(x - fence) <= 2 * t, "the value is more than two ticks from the fence")
+    verdict, other = (BXP_IS, BXP_NOT) if beyond else (BXP_NOT, BXP_IS)
+    if angle == "fences":
+        ln, lv, rn, rv = "IQR", iq, "upper fence" if up else "lower fence", fence
+    else:
+        ln, lv, rn, rv = (f"{dec_text(x)} − Q3", x - f["q3"], "1.5 × IQR", d) if up else (f"Q1 − {dec_text(x)}", f["q1"] - x, "1.5 × IQR", d)
+    say = lambda l, r, w: bxp_test_said(ln, l, rn, r, x, w)
+    wrongs = {BXP_T + "4": {say(lv, rv, other)}}
+    if angle == "fences":
+        fm = f["med"] + d if up else f["med"] - d
+        need((x > fm) if up else (x < fm), "the median's fence must say outlier")
+        wrongs[BXP_T + "1"] = {say(iq, fm, BXP_IS)}
+        if up:
+            f3 = sp.Rational(3, 2) * f["q3"]
+            need(x <= f3, "1.5 × Q3 must say not")
+            wrongs[BXP_T + "0"] = {say(iq, f3, BXP_NOT)}
+        else:
+            wrongs[BXP_T + "3"] = {f"IQR = {dec_text(iq)} and upper fence = {dec_text(hi)}, so {dec_text(x)} {BXP_NOT}"}
+    else:
+        dm = x - f["med"] if up else f["med"] - x
+        need(dm > d, "the distance from the median must say outlier")
+        wrongs[BXP_T + "1"] = {say(dm, d, BXP_IS)}
+        far = sp.Rational(3, 2) * (f["q3"] if up else f["q1"])
+        need(lv <= far, "1.5 × the quartile must say not")
+        wrongs[BXP_T + ("0" if up else "7")] = {say(lv, far, BXP_NOT)}
+    bxp_common(q, say(lv, rv, verdict), wrongs)
+    need(sum(o["text"].endswith(" " + BXP_NOT) for o in q["choices"]) == 2, "two options must end in each verdict")
+    a = q["answer"]["values"]
+    need(R(a["l"]) == lv and R(a["r"]) == rv and a["verdict"] == verdict, "the typed answer")
+
+
+def bxp_show(q, rep):
+    angle, asked = q["view"]["angle"], q["asked"]
+    mt = re.fullmatch(rf"Show that the greatest value, ({BXP_NUM}), is an outlier\.", asked)
+    need(mt is not None, f"asked {asked!r}")
+    x = R(mt.group(1))
+    f, _ = bxp_rule_facts(q, rep)
+    need(x == f["max"], "that is not the greatest value")
+    iq, lo, hi, d = bxp_fence(f)
+    need(x > hi, "the greatest value is not an outlier")
+    f3, fm = sp.Rational(3, 2) * f["q3"], f["med"] + d
+    if angle == "fences":
+        ln, lv, rn, rv = "IQR", iq, "upper fence", hi
+        slips = {BXP_T + "1": (iq, fm), BXP_T + "0": (iq, f3), BXP_T + "5": (iq, f["q3"] + iq)}
+    else:
+        ln, lv, rn, rv = f"{dec_text(x)} − Q3", x - f["q3"], "1.5 × IQR", d
+        slips = {BXP_T + "1": (x - f["med"], d), BXP_T + "0": (lv, f3), BXP_T + "5": (lv, iq)}
+    say = lambda l, r: f"{ln} = {dec_text(l)} and {rn} = {dec_text(r)}, so {dec_text(x)} {BXP_IS}"
+    bxp_common(q, say(lv, rv), {k: {say(*p)} for k, p in slips.items()})
+
+
+def bxp_whole_above(x):
+    return sp.floor(x) + 1
+
+
+def bxp_compare_set(q, c, word, spread, v):
+    """The four options of a comparison: v is [centre, centre, spread, spread, max, max]."""
+    g = c[5]
+    hi = 0 if v[0] > v[1] else 1
+    steady = 0 if v[2] < v[3] else 1
+    wide, top = 1 - steady, 0 if v[4] > v[5] else 1
+    need(v[0] != v[1] and v[2] != v[3] and v[4] != v[5], "the two groups tie")
+    need(top != hi, "the higher maximum belongs to the higher centre")
+    cap_g = [f"The {g[0]}", f"The {g[1]}"]
+    u = lambda x: bxp_u(c, x)
+    want = f"{cap_g[hi]} typically {c[6]}: {word} {u(v[hi])} against {u(v[1 - hi])}. {cap_g[steady]} were more consistent: {spread} {u(v[2 + steady])} against {u(v[2 + wide])}."
+    wrongs = {BXP_C + "0": {f"{cap_g[top]} typically {c[6]}: maximum {u(v[4 + top])} against {u(v[5 - top])}. {cap_g[steady]} were more consistent: {spread} {u(v[2 + steady])} against {u(v[2 + wide])}."},
+              BXP_C + "1": {f"{cap_g[wide]} typically {c[6]}: {spread} {u(v[2 + wide])} against {u(v[2 + steady])}. {cap_g[wide]} were less consistent: {spread} {u(v[2 + wide])} against {u(v[2 + steady])}."},
+              BXP_C + "2": {f"The {word}s are {u(v[0])} and {u(v[1])}, and the {spread}s are {u(v[2])} and {u(v[3])}."}}
+    bxp_common(q, want, wrongs)
+    need({o["text"] for o in q["choices"]} == {want} | set().union(*wrongs.values()), "an option states something else")
+
+
+def bxp_box_plot(q):
+    g, u, L, rep, asked, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    c = bxp_story(q) if u != "five-number-from-cumfreq" else None
+    if u == "read-median":
+        f, name = bxp_chosen(q)
+        need(asked == f"Write down the median {c[2]}{name}.", f"asked {asked!r}")
+        bxp_common(q, f"median = {bxp_u(c, f['med'])}", {BXP_B + "5": {f"median = {bxp_u(c, (f['q1'] + f['q3']) / 2)}"}})
+    elif u == "read-quartile":
+        f, _ = bxp_chosen(q)
+        low = "lower quartile" in asked
+        bxp_common(q, f"{'Q1' if low else 'Q3'} = {bxp_u(c, f['q1'] if low else f['q3'])}", {})
+    elif u == "read-iqr":
+        f, name = bxp_chosen(q)
+        need(asked == f"Find the interquartile range{name}.", f"asked {asked!r}")
+        s = lambda v: f"IQR = {bxp_u(c, v)}"
+        bxp_common(q, s(f["q3"] - f["q1"]), {BXP_B + "6": {s(f["max"] - f["min"])}, "SL4.3.quartiles-discrete#0": {s(f["q1"] + f["q3"])}})
+    elif u == "read-range":
+        rows = bxp_fig(q)
+        bxp_plot_line(q)
+        f = rows[0]
+        s = lambda v: f"range = {bxp_u(c, v)}"
+        wrongs = {BXP_B + "6": {s(f["q3"] - f["q1"])}}
+        top = f["max"]
+        if f["out"]:
+            need(L[1] == "A cross marks an outlier.", "the cross isn't explained")
+            iq, lo, hi, _ = bxp_fence(f)
+            top = f["out"][0]
+            need(top > hi and lo <= f["min"] and f["max"] <= hi, "the cross is not the one outlier")
+            wrongs[BXP_B + "7"] = {s(f["max"] - f["min"])}
+        bxp_common(q, s(top - f["min"]), wrongs)
+    elif u == "read-median-iqr":
+        f, name = bxp_chosen(q)
+        need(asked == f"Write down the median and the interquartile range{name}.", f"asked {asked!r}")
+        s = lambda a, b: f"median = {bxp_u(c, a)}, IQR = {bxp_u(c, b)}"
+        iq = f["q3"] - f["q1"]
+        bxp_common(q, s(f["med"], iq), {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2, iq)}, BXP_B + "6": {s(f["med"], f["max"] - f["min"])}})
+    elif u == "five-number-from-data":
+        need(BXP_HALVES in L, "the quartile convention isn't stated")
+        xs, fs, v = bxp_data(q)
+        f = bxp_summary(v)
+        bxp_ok(f)
+        bxp_common(q, bxp_five_text(f), {r: {bxp_five_text(s)} for r, s in bxp_data_slips(q, xs, fs, v).items()})
+    elif u == "five-number-from-cumfreq":
+        cc = CF_CTX[int(g["ctx"])]
+        n, dx, dy, pts = cf_curve(q, cc)
+        q1 = cf_read_x(pts, sp.Rational(n, 4), dx, dy)
+        med = cf_read_x(pts, sp.Rational(n, 2), dx, dy)
+        q3 = cf_read_x(pts, sp.Rational(3 * n, 4), dx, dy)
+        lo, hi = pts[0][0], pts[-1][0]
+        x1 = CF_SQUARES * dx
+        need(0 < lo and hi < x1, "the curve must start and end inside the axis")
+        f = {"min": lo, "q1": q1, "med": med, "q3": q3, "max": hi}
+        wrongs = {BXP_B + "8": {bxp_five_text(dict(f, q1=sp.Rational(x1, 4), med=sp.Rational(x1, 2), q3=sp.Rational(3 * x1, 4)))},
+                  BXP_B + "9": {bxp_five_text(dict(f, q1=sp.Rational(n, 4), med=sp.Rational(n, 2), q3=sp.Rational(3 * n, 4)))},
+                  BXP_B + "10": {bxp_five_text(dict(f, min=0, max=x1))}}
+        bxp_common(q, bxp_five_text(f), wrongs)
+    elif u == "pick-box-from-data":
+        need(BXP_HALVES in L, "the quartile convention isn't stated")
+        xs, fs, v = bxp_data(q)
+        f = bxp_summary(v)
+        bxp_ok(f)
+        slips = bxp_data_slips(q, xs, fs, v)
+        slips[BXP_B + "5"] = dict(f, med=(f["q1"] + f["q3"]) / 2)
+        bxp_pick(q, f, slips)
+    elif u == "pick-box-with-outlier":
+        need(BXP_HALVES in L and BXP_RULE in L, "the rule isn't stated")
+        _, _, v = bxp_data(q)
+        f = bxp_summary(v)
+        iq, lo, hi, _ = bxp_fence(f)
+        need(v[-1] > hi and v[-2] <= hi and v[0] >= lo, "one high outlier")
+        right = dict(f, max=v[-2], out=[v[-1]])
+        bxp_pick(q, right, {BXP_B + "1": dict(f, max=v[-1]), BXP_B + "16": dict(f, max=hi, out=[v[-1]])})
+    elif u in ("count-in-section", "percent-in-section"):
+        if rep == "words":
+            mt = re.fullmatch(rf"For {re.escape(c[1])} (\d+) {c[0]}:", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            n, f = int(mt.group(1)), bxp_five_words(q, L[1])
+        else:
+            n, f = bxp_plot_line(q), bxp_fig(q)[0]
+        mt = re.search(rf"with {re.escape(c[7])} between ({BXP_NUM}) and ({BXP_NUM})\.$", asked)
+        need(mt is not None, f"asked {asked!r}")
+        a, b = R(mt.group(1)), R(mt.group(2))
+        vals = [f[k] for k in BXP_NAMES]
+        need(a in vals and b in vals and a < b, "the marks aren't two of the five numbers")
+        k = vals.index(b) - vals.index(a)
+        whole = f["max"] - f["min"]
+        if u == "count-in-section":
+            need(n % 4 == 0 and n != 100, f"n = {n}")
+            slip = sp.Rational(n) * (b - a) / whole
+            need(slip.q == 1 and slip != sp.Rational(n * k, 4), "the slip by length")
+            s = lambda v: f"number = {dec_text(v)} {c[0]}"
+            bxp_common(q, s(sp.Rational(n * k, 4)), {BXP_B + "0": {s(slip)}})
+        else:
+            slip = 100 * (b - a) / whole
+            need(slip.q == 1 and slip != 25 * k, "the slip by length")
+            s = lambda v: f"percentage = {dec_text(v)}%"
+            bxp_common(q, s(sp.Integer(25 * k)), {BXP_B + "0": {s(slip)}})
+    elif u == "value-at-share":
+        f = bxp_fig(q)[0]
+        bxp_plot_line(q)
+        mt = re.fullmatch(rf"(Half|A quarter|Three quarters) of the {c[0]} have {re.escape(c[7])} (below|above) a {c[3]}\. Estimate the value of a\.", asked)
+        need(mt is not None, f"asked {asked!r}")
+        below = {"Half": sp.Rational(1, 2), "A quarter": sp.Rational(1, 4), "Three quarters": sp.Rational(3, 4)}[mt.group(1)]
+        if mt.group(2) == "above":
+            below = 1 - below
+        key = {sp.Rational(1, 4): "q1", sp.Rational(1, 2): "med", sp.Rational(3, 4): "q3"}[below]
+        s = lambda v: f"a = {bxp_u(c, v)}"
+        wrongs = {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2)}} if key == "med" else {BXP_B + "11": {s(f["q3" if key == "q1" else "q1"])}}
+        bxp_common(q, s(f[key]), wrongs)
+    elif u == "could-be-normal":
+        f = bxp_fig(q)[0]
+        bxp_plot_line(q)
+        a, b = f["med"] - f["q1"], f["q3"] - f["med"]
+        w1, w2 = f["q1"] - f["min"], f["max"] - f["q3"]
+        need((a == b) == (w1 == w2), "the box and the whiskers disagree about the shape")
+        right, other = (BXP_NORMAL, BXP_SKEWED) if a == b else (BXP_SKEWED, BXP_NORMAL)
+        s = lambda w: f"median − Q1 = {dec_text(a)} and Q3 − median = {dec_text(b)}, so the data {w}"
+        one = f"range = {dec_text(f['max'] - f['min'])}, so the data "
+        wrongs = {BXP_B + "13": {s(other)}, BXP_B + "12": {one + BXP_NORMAL, one + BXP_SKEWED}}
+        bxp_common(q, s(right), wrongs)
+        need({o["text"] for o in q["choices"]} == {s(right), s(other), one + BXP_NORMAL, one + BXP_SKEWED}, "an option states something else")
+    elif u == "mean-against-median":
+        f = bxp_fig(q)[0]
+        bxp_plot_line(q)
+        up = f["max"] - f["q3"] > f["q1"] - f["min"]
+        need(up == (f["q3"] - f["med"] > f["med"] - f["q1"]) and f["max"] - f["q3"] != f["q1"] - f["min"], "the shape is mixed")
+        more, less, tail, pull = ("greater", "less", "upper", "high") if up else ("less", "greater", "lower", "low")
+        want = f"The mean is likely to be {more} than the median: the long {tail} whisker holds a few {pull} values, which pull the mean that way."
+        wrongs = {BXP_B + "0": {f"The mean is likely to be {less} than the median: the long {tail} whisker holds more of the data."},
+                  BXP_B + "14": {"The mean and the median are likely to be equal: half of the data lie on each side of the median."}}
+        bxp_common(q, want, wrongs)
+    elif u == "compare-box-plots":
+        a, b = bxp_two(q)
+        t = R(q["graph"]["tick"])
+        ia, ib = a["q3"] - a["q1"], b["q3"] - b["q1"]
+        need(abs(a["med"] - b["med"]) >= 2 * t and abs(ia - ib) >= 2 * t, "the groups are too alike")
+        bxp_compare_set(q, c, "median", "IQR", [a["med"], b["med"], ia, ib, a["max"], b["max"]])
+    elif u == "compare-summary":
+        rows = q["table"]["rows"]
+        need(rows[0][1] == list(c[5]) and [r[0] for r in rows[1:]] == ["Mean", "Standard deviation", "Maximum"], "table heads")
+        m, sd, top = [[R(v) for v in r[1]] for r in rows[1:]]
+        need(all(top[i] > m[i] for i in (0, 1)), "a maximum is below its mean")
+        bxp_compare_set(q, c, "mean", "standard deviation", [m[0], m[1], sd[0], sd[1], top[0], top[1]])
+    elif u == "claim-from-box-plots":
+        a, b = bxp_two(q)
+        rows = (a, b)
+        mt = re.fullmatch(rf"Mara claims that the (.+) typically {re.escape(c[6])} than the (.+)\.", L[1])
+        need(mt is not None and {mt.group(1), mt.group(2)} == set(c[5]), f"can't read {L[1]!r}")
+        i = c[5].index(mt.group(1))
+        holds = rows[i]["med"] > rows[1 - i]["med"]
+        need(rows[0]["med"] != rows[1]["med"], "the medians tie")
+        ia, ib = a["q3"] - a["q1"], b["q3"] - b["q1"]
+        right, flip = (BXP_SUPPORT, BXP_OPPOSE) if holds else (BXP_OPPOSE, BXP_SUPPORT)
+        s = lambda w, x, y, v: f"The {w} is {dec_text(x)} for the {c[5][0]} and {dec_text(y)} for the {c[5][1]}, so the plots {v} the claim"
+        # Each end-only or spread-only reading points the way its option says.
+        need((rows[i]["max"] > rows[1 - i]["max"]) != holds, "the maxima must mislead")
+        wide = (ia > ib) == (i == 0)
+        need(wide == holds, "the IQRs must mislead the other way")
+        wrongs = {BXP_C + "3": {s("median", a["med"], b["med"], flip)}, BXP_C + "0": {s("maximum", a["max"], b["max"], flip)}, BXP_C + "1": {s("IQR", ia, ib, right)}}
+        bxp_common(q, s("median", a["med"], b["med"], right), wrongs)
+        need(sum(o["text"].endswith(f" {BXP_OPPOSE} the claim") for o in q["choices"]) == 2, "two options must end in each verdict")
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def bxp_outlier(q):
+    g, u, L, rep, asked, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    c = bxp_story(q)
+    if u == "find-fences":
+        f, _ = bxp_rule_facts(q, rep)
+        iq, lo, hi, d = bxp_fence(f)
+        s = lambda a, b: f"lower fence = {dec_text(a)}, upper fence = {dec_text(b)}"
+        wrongs = {BXP_T + "1": {s(f["med"] - d, f["med"] + d)}, BXP_T + "5": {s(f["q1"] - iq, f["q3"] + iq)}, BXP_T + "0": {s(lo, sp.Rational(3, 2) * f["q3"])}}
+        bxp_common(q, s(lo, hi), wrongs)
+    elif u == "decide-outlier":
+        bxp_test(q, rep)
+    elif u == "show-max-outlier":
+        bxp_show(q, rep)
+    elif u == "largest-not-outlier":
+        f, _ = bxp_rule_facts(q, rep)
+        iq, lo, hi, d = bxp_fence(f)
+        s = lambda v: f"largest value = {bxp_u(c, v)}"
+        bxp_common(q, s(hi), {BXP_T + "0": {s(sp.Rational(3, 2) * f["q3"])}, BXP_T + "1": {s(f["med"] + d)}, BXP_T + "5": {s(f["q3"] + iq)}})
+    elif u == "smallest-outlier":
+        need(asked.startswith("Every value is a whole number."), "the values aren't said to be whole")
+        f, _ = bxp_rule_facts(q, rep)
+        need(all(f[k].q == 1 for k in BXP_NAMES), "the data aren't whole numbers")
+        iq, lo, hi, d = bxp_fence(f)
+        s = lambda v: f"smallest outlier = {bxp_u(c, v)}"
+        wa = bxp_whole_above
+        bxp_common(q, s(wa(hi)), {BXP_T + "6": {s(sp.floor(hi))}, BXP_T + "0": {s(wa(sp.Rational(3, 2) * f["q3"]))}, BXP_T + "1": {s(wa(f["med"] + d))}, BXP_T + "5": {s(wa(f["q3"] + iq))}})
+    elif u == "quartile-from-no-outliers":
+        mt = re.fullmatch(rf"The interquartile range is ({BXP_NUM}) {c[3]} and there are no outliers\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        iq = R(mt.group(1))
+        d = sp.Rational(3, 2) * iq
+        if rep == "graph":
+            spec = q["graph"]
+            need(spec["scale"] is False, "the sketch must say it is not to scale")
+            need("not drawn to scale" in L[0], "the sketch must say it is not to scale")
+            lab = spec["labels"]
+            need(lab[1] == "L" and lab[3] == "U", "L and U aren't marked")
+            lo, med, hi = R(lab[0]), R(lab[2]), R(lab[4])
+        else:
+            mt = re.search(rf"the least value is ({BXP_NUM}), the median is ({BXP_NUM}) and the greatest value is ({BXP_NUM})\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            lo, med, hi = R(mt.group(1)), R(mt.group(2)), R(mt.group(3))
+        need(BXP_RULE in L, "the rule isn't stated")
+        umin = hi - d
+        lmin = umin - iq
+        need(lo < lmin < med < umin < hi, "the bound leaves no room for the median")
+        need(lmin - d <= lo, "the least value would be an outlier")
+        which = re.fullmatch(r"Find the minimum possible value of ([UL])\.", asked).group(1)
+        s = lambda v: f"{which} = {bxp_u(c, v)}"
+        if which == "U":
+            wrongs = {BXP_T + "5": {s(hi - iq)}, BXP_T + "0": {s(hi / sp.Rational(3, 2))}}
+            bxp_common(q, s(umin), wrongs)
+        else:
+            bxp_common(q, s(lmin), {BXP_T + "5": {s(hi - 2 * iq)}})
+    elif u == "outliers-in-data":
+        need(BXP_HALVES in L and BXP_RULE in L, "the rule isn't stated")
+        xs, fs, v = bxp_data(q)
+        f = bxp_summary(v)
+        iq, lo, hi, d = bxp_fence(f)
+        need(lo not in v and hi not in v, "a value is on a fence")
+        beyond = lambda a, b: sum(1 for e in v if e < a or e > b)
+        k = beyond(lo, hi)
+        near = sum(1 for e in v if f["q3"] + iq < e <= hi)
+        need(k <= 3 and near >= 1, "the data")
+        s = lambda n: f"number of outliers = {n}"
+        wrongs = {BXP_T + "2": {s(k + near)}, BXP_T + "1": {s(beyond(f["med"] - d, f["med"] + d))}, BXP_T + "0": {s(beyond(lo, sp.Rational(3, 2) * f["q3"]))}}
+        bxp_common(q, s(k), wrongs)
+    elif u == "keep-or-remove":
+        l = BXP_LIMITS[int(g["ctx"])]
+        mt = re.fullmatch(rf"A camp has (\d+) readings of {re.escape(l[0])}\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        mt = re.fullmatch(re.escape(l[1]).replace(r"\{\}", rf"({BXP_NUM})"), L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        lim = R(mt.group(1))
+        mt = re.fullmatch(rf"Q1 = ({BXP_NUM}) and Q3 = ({BXP_NUM}), and the value ({BXP_NUM}) is an outlier by the 1\.5 × IQR rule\.", L[2])
+        need(mt is not None, f"can't read {L[2]!r}")
+        q1, q3, x = [R(mt.group(i)) for i in (1, 2, 3)]
+        need(x > q3 + sp.Rational(3, 2) * (q3 - q1), "the value is no outlier")
+        remove = f"Remove it: {dec_text(x)} is above {dec_text(lim)}, so {l[2]}, and it must be a recording error."
+        keep = f"Keep it: {dec_text(x)} is unusually high but it is possible, so it is a genuine value."
+        far = f"Remove it: {dec_text(x)} is far above the rest of the data, so it must be a recording error."
+        need(x != lim, "the value is on the limit")
+        bxp_common(q, remove if x > lim else keep, {BXP_D + "0": {"Remove it: every outlier must be deleted, because it fails the test."},
+                                                    BXP_D + "2": {"Keep it: an outlier is always part of the data, whatever its value."}})
+        need({keep, remove if x > lim else far} <= {o["text"] for o in q["choices"]}, "both verdicts must be options")
+    elif u in ("effect-of-removing", "which-measure-moves"):
+        _, _, v = bxp_data(q)
+        mt = re.fullmatch(rf"The value ({BXP_NUM}) is an outlier and is removed\.", L[2])
+        need(mt is not None, f"can't read {L[2]!r}")
+        x = R(mt.group(1))
+        f = bxp_summary(v)
+        iq, lo, hi, d = bxp_fence(f)
+        need(x > hi or x < lo, "the value is no outlier")
+        need(x in (v[0], v[-1]), "the value is not an end")
+        rest = list(v)
+        rest.remove(x)
+        m0, m1 = sum(v) / len(v), sum(rest) / len(rest)
+        d0, d1 = ds_median(v), ds_median(rest)
+        need(d0 != d1 and abs(m0 - m1) >= 3 * abs(d0 - d1), "the mean must move far more than the median")
+        h = bxp_summary(rest)
+        r0, r1 = v[-1] - v[0], rest[-1] - rest[0]
+        i1 = h["q3"] - h["q1"]
+        need(r0 - r1 >= 3 * abs(iq - i1), "the range must move far more than the IQR")
+        if u == "effect-of-removing":
+            if paper == 2:
+                need(ds_clear(m1), "the new mean is on a rounding edge")
+            else:
+                need(all((10 * e).q == 1 for e in (m1, m0, sum(rest) / len(v))), "a Paper 1 mean ends in one decimal")
+            sh = (lambda e: dec_text(e)) if paper == 1 else (lambda e: dec_text(e) if sp.Rational(sig3(e)) == e else sig3(e))
+            s = lambda a, b: f"new mean = {sh(a)}, new median = {sh(b)}"
+            wrongs = {BXP_D + "4": {s(m1, d0)}, BXP_D + "1": {s(m1, d0 + m1 - m0)}, BXP_D + "3": {s(sum(rest) / len(v), d1)}}
+            bxp_common(q, s(m1, d1), wrongs)
+        else:
+            centre = "mean and the median" in asked
+            big, small = ("mean", "median") if centre else ("range", "IQR")
+            falls = x > m1 if centre else True
+            way, back = ("falls", "rises") if falls else ("rises", "falls")
+            t = lambda a, w, b: f"The {a} {w} by far more than the {b} moves: only the {a} feels how far out a value is."
+            wrongs = {BXP_D + "1": {f"The {big} and the {small} {way[:-1]} by about the same amount: they both describe the same data."},
+                      BXP_D + "5": {t(small, way, big)}, BXP_D + "6": {t(big, back, small)}}
+            bxp_common(q, t(big, way, small), wrongs)
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def check_box_plot(q):
+    bxp_steps(q)
+    for sol in q["solutions"]:
+        if sol["angle"] in ("gdc-stats", "gdc-modified-box"):
+            need(q["paper"] == 2 or q["view"]["angle"] not in ("gdc-stats", "gdc-modified-box"), "a GDC method is Paper 2")
+    (bxp_box_plot if q["view"]["type"] == "t4-box-plot" else bxp_outlier)(q)
+    return None, None
+# ── end box-plot ──
+
+
+SITUATION_CHECKS = {"grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
