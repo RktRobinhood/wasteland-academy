@@ -20,6 +20,8 @@ const MAX_SOLUTIONS := 8
 ## Every landmark on the first turn.
 const TURN := [[0, 1], [1, 6], [1, 4], [1, 3], [1, 2], [2, 3], [3, 4], [5, 6], [1, 1], [7, 6], [5, 4], [4, 3], [3, 2], [5, 3], [7, 4], [11, 6]]
 
+static var _marks := {}
+
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var ask: String = need.get("ask", "basic-exact")
@@ -41,18 +43,34 @@ static func _clean(s: Dictionary) -> bool:
 ## Every multiple of π that fn(bx + φπ) = k gives on the interval.
 static func solve(fn: String, k: Array, b: Q, phi: Q, lo: Q, hi: Q, open_hi: bool = false) -> Array:
 	var seen := {}
-	for p in TURN:
-		var u := Q.new(p[0], p[1])
-		var v := TrigKit.of(fn, u)
-		if v.is_empty() or not TrigKit.same(v, k):
+	var lo_f := lo.to_float() - 0.001
+	var hi_f := hi.to_float() + 0.001
+	var phi_f := phi.to_float()
+	var b_f := b.to_float()
+	for mark in _landmarks(fn):
+		if mark[1].is_empty() or not TrigKit.same(mark[1], k):
 			continue
+		var u: Q = mark[0]
 		for n in range(-12, 13):
+			# The sweep solves millions of these, so a float rules out most of the turns first.
+			var near := (u.to_float() + n * 2 - phi_f) / b_f
+			if near < lo_f or near > hi_f:
+				continue
 			var x: Q = u.add(n * 2).sub(phi).div(b)
 			if not x.lt(lo) and (x.lt(hi) or (x.eq(hi) and not open_hi)):
 				seen[x.key()] = x
 	var out: Array = seen.values()
 	out.sort_custom(func(a, c): return a.lt(c))
 	return out
+
+
+## TURN with its values for fn: [[u, value], ...], made once for each fn.
+static func _landmarks(fn: String) -> Array:
+	if not _marks.has(fn):
+		_marks[fn] = TURN.map(func(p):
+			var u := Q.new(p[0], p[1])
+			return [u, TrigKit.of(fn, u)])
+	return _marks[fn]
 
 
 ## A landmark value for a sine or a cosine.
