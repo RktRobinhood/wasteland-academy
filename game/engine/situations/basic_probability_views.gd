@@ -776,7 +776,7 @@ func u_rf_total_to_find(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		out.wrongs += wr(s, Q.new(f - first, total), R_BOUNDARY)
 	out.generic = fair(s, [Q.new(total - f, total), Q.new(first, total), Q.new(f + 1, total), Q.new(f, total + 1)])
 	out.methods = {"freq-over-trials": method(["The table has no total, so add the frequencies: %s = %d." % [plus(s.counts), total], hit_step,
-		"The estimate is frequency ÷ trials: " + ratio(s, f, total), final_step(ans)], ans.values)}
+		("Frequency ÷ total: " if s.grouped else "The estimate is frequency ÷ trials: ") + ratio(s, f, total), final_step(ans)], ans.values)}
 	return out
 
 
