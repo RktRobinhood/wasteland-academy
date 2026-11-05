@@ -1011,7 +1011,7 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 		"errors": {}, "values": got}
 
 
-## Whether typed values match the answer, slot by slot, trying each order of an
+## Whether typed values match the answer, slot by slot, in any order within an
 ## unordered group. With glancing, a number with too few figures counts too.
 static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
 	if ans.kind == "lnq":
@@ -1057,19 +1057,24 @@ static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = fals
 		if not _slot_right(want[id], got.get(id), exact, glancing):
 			return false
 	for group in ans.unordered:
-		var ok := false
-		for perm in _perms(group):
-			var all := true
-			for i in group.size():
-				if not _slot_right(want[group[i]], got.get(perm[i]), exact, glancing):
-					all = false
-					break
-			if all:
-				ok = true
-				break
-		if not ok:
-			return false
+		var fits: Array = group.map(func(w): return group.map(func(g): return _slot_right(want[w], got.get(g), exact, glancing)))
+		var taken := {}
+		for w in group.size():
+			if not _place(w, fits, taken, {}):
+				return false
 	return true
+
+
+## An unordered group's matching: finds slot w a typed value that fits (fits[w][g]), moving an
+## earlier slot along if it holds one. Trying each order is 40320 checks for eight solutions.
+static func _place(w: int, fits: Array, taken: Dictionary, seen: Dictionary) -> bool:
+	for g in fits[w].size():
+		if fits[w][g] and not seen.has(g):
+			seen[g] = true
+			if not taken.has(g) or _place(taken[g], fits, taken, seen):
+				taken[g] = w
+				return true
+	return false
 
 
 static func _slot_right(want: Variant, got: Variant, exact: bool = false, glancing: bool = false) -> bool:

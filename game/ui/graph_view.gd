@@ -9,7 +9,8 @@ extends Control
 ## parabola, plus its dashed asymptotes ("hlines", "vlines": {"at", "label"}). A spec's
 ## "x_name" names the across axis ("t" for a model in time) and "y_name" the up axis ("v" for
 ## a velocity); "x" and "y" if it has none. "shade" fills regions under the curves (FAL-724):
-## each region is a list of strips [x, low, high] from left to right.
+## each region is a list of strips [x, low, high] from left to right. "x_ticks" (FAL-727) is
+## [[x, label], ...]: the across axis is marked there instead, in multiples of π, say.
 
 const PAD := 18.0
 const DOT := 13.0
@@ -76,9 +77,12 @@ func _draw() -> void:
 	var lx := step_for(x1 - x0, r.size.x, 90.0 if _card() else 70.0)
 	var ly := step_for(y1 - y0, r.size.y, 90.0 if _card() else 56.0)
 	# Grid: every unit (or step) faint, labelled steps brighter.
+	var ticks: Array = spec.get("x_ticks", [])
 	for x in range(x0, x1 + 1):
-		if x % sx == 0:
+		if x % sx == 0 and ticks.is_empty():
 			draw_line(to_px(Vector2(x, y0)), to_px(Vector2(x, y1)), UiTheme.GRID_MAJOR if x % lx == 0 else UiTheme.GRID, 2.0)
+	for tick in ticks:
+		draw_line(to_px(Vector2(tick[0], y0)), to_px(Vector2(tick[0], y1)), UiTheme.GRID_MAJOR, 2.0)
 	for y in range(y0, y1 + 1):
 		if y % sy == 0:
 			draw_line(to_px(Vector2(x0, y)), to_px(Vector2(x1, y)), UiTheme.GRID_MAJOR if y % ly == 0 else UiTheme.GRID, 2.0)
@@ -89,8 +93,12 @@ func _draw() -> void:
 	if x0 <= 0 and 0 <= x1:
 		draw_line(to_px(Vector2(0, y0)), to_px(Vector2(0, y1)), axis_col, 4.0)
 	var origin := to_px(Vector2(clampi(0, x0, x1), clampi(0, y0, y1)))
+	for tick in ticks:
+		var p := to_px(Vector2(tick[0], clampi(0, y0, y1))) + Vector2(0, 30)
+		if not _near_point(p):
+			_text(font, tick[1], p, UiTheme.DIM, FONT_SIZE - 6, true)
 	for x in range(x0 + 1, x1):
-		if x % lx == 0 and x != 0:
+		if x % lx == 0 and x != 0 and ticks.is_empty():
 			var p := to_px(Vector2(x, clampi(0, y0, y1))) + Vector2(0, 30)
 			if not _near_point(p):
 				_text(font, _n(x), p, UiTheme.DIM, FONT_SIZE - 6, true)

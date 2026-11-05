@@ -300,6 +300,33 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   the real coordinates, with a north line at each bearing and each label clear of the others; the
   small angles of `time-from-depression` are marked not to scale. A bearing that is worked out stays
   at 100° or more, so its 3 s.f. are three figures.
+- `engine/situations/trig_kit.gd` (FAL-727) holds what the exact trig types share: a value is
+  [a, b, r], which is a + b√r, with the landmark table, the writing ("(1 + √3)/2", root on top)
+  and the `form` answer whose slots follow the value's shape. `ui/plot_view.gd` adds `unit-circle`
+  (points, an angle, a shaded quadrant, a dashed line y = k or x = k) and `straight-angle`, and a
+  GraphView spec's `x_ticks` marks the across axis in multiples of π.
+- `engine/situations/exact_trig.gd` (FAL-727) is `t3-exact-values` (SL3.5, AA only, all Paper 1): 11
+  unknowns on landmark values, a number in front, sums, related angles past the first quadrant,
+  negative or on the second turn, a ratio of π − θ, π + θ or −θ from a given ratio, and the unit
+  circle (P's coordinates, sin, cos and tan from a point, signs by quadrant, why tan has no value).
+  Representations are the written value, a special triangle or the unit circle, a wave, and a
+  table of landmark values with one cell to fill. A reading in words is a `claim`.
+- `engine/situations/trig_identity.gd` (FAL-727) is `t3-identity-values` (SL3.6, AA only, all Paper 1):
+  13 unknowns on one ratio and a quadrant (the other ratio, tan, sin 2θ, cos 2θ, each with the map's
+  methods), cos θ from cos 2θ, written or from a triangle's cosine rule, and expressions to rewrite
+  (in sin x or cos x alone, as a cos bx, as a sin bx, a + b sin cx, and a maximum after rewriting).
+- `engine/situations/trig_model.gd` (FAL-727) is `t3-trig-model-parameters` (SL3.7, AA only): 15
+  unknowns on one wave from its turning points. Paper 1 has x in multiples of π and whole a, b and d;
+  Paper 2 is a story in t, or a decimal phase, to 3 s.f., six parts in seven as in the bank. It also
+  asks p sin kx + q cos kx as one cosine, a tan graph's a and b, the shift with b taken out, an
+  image's equation, the transformations (a `claim`), p and q of f(x − p) + q, a wheel starting at
+  the bottom, c from a rising crossing, and a level from the time above it.
+- `engine/situations/trig_equation.gd` (FAL-727) is `t3-trig-equation` (SL3.8, AA only): 16 unknowns
+  on one equation on an interval. Every solution comes from `solve()`, on the landmarks; each is a
+  slot of a `form` answer in any order, and a wrong option with another count can be picked but not
+  typed. Paper 2 is the two decimal unknowns only, as the GDC method needs one (4 cells in 100),
+  so the type stays on the bank's Paper 1. Factorising, dividing to tan and rejecting a factor
+  each have their own unknowns, with the lost solutions as their wrong options.
 - `engine/situations/solid.gd` (FAL-726) is `t3-solid-volume-area` (SL3.1, on all four syllabuses):
   one solid, as a labelled sketch (PlotView's `solid`, rep `diagram`) or in words: a cone, pyramid,
   sphere, hemisphere, a composite of them, a hollow cylinder, a cylinder inside a sphere, or the flat
