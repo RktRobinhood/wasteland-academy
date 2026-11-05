@@ -37,6 +37,9 @@ extends RefCounted
 ##              for the Rational functions region (FAL-423) also xint (the x-intercept,
 ##              (x, 0)), and axis honours show and may carry var "" (the number alone, a
 ##              wrong option for an asymptote written as an equation);
+##              for the Lines region (FAL-424) also gline (ax + by + d = 0: a whole-number
+##              multiple of the line with a > 0 is right too), and point may carry alone
+##              (x with no y, a wrong option that can be picked but never typed);
 ##              for Topic 5 (FAL-723) also form: an expression written by its builder.
 ##              fixed.parts is the slot input, values.text the expression as it reads,
 ##              and a wrong option in another shape carries "shape" and is never typed
@@ -156,6 +159,8 @@ static func make(kind: String, values: Dictionary, fixed: Dictionary = {}, label
 			t = [label if label != "" else "f′(x) = ", {"slot": "u2"}, "x² + ", {"slot": "u1"}, "x + ", {"slot": "u0"}]
 		"line":
 			t = ["y = ", {"slot": "m"}, "x + ", {"slot": "c"}]
+		"gline":
+			t = [{"slot": "a"}, "x + ", {"slot": "b"}, "y + ", {"slot": "d"}, " = 0"]
 		"tangent_read":
 			t = ["f′(%s) = " % Fmt.num(fixed.x0), {"slot": "m"}, ",  f(%s) = " % Fmt.num(fixed.x0), {"slot": "y"}]
 		"points2":
@@ -454,6 +459,9 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			var rs := _sorted([v.r1, v.r2])
 			return "x = %s and x = %s" % [shown(ans, rs[0]), shown(ans, rs[1])]
 		"point":
+			# A wrong option may stop at x, with no y (FAL-424).
+			if v.get("alone", false):
+				return "x = " + shown(ans, v.x)
 			return "(%s, %s)" % [shown(ans, v.x), shown(ans, v.y)]
 		"yint":
 			return "(0, %s)" % shown(ans, v.y)
@@ -524,6 +532,8 @@ static func text(ans: Dictionary, values: Dictionary = {}) -> String:
 			if ans.get("show", "") == "sf":
 				return "y = " + sf_line(v.m, v.c)
 			return "y = " + Fmt.poly([v.m, v.c])
+		"gline":
+			return gline_text(v.a, v.b, v.d)
 		"tangent_read":
 			return "f′(%s) = %s,  f(%s) = %s" % [Fmt.num(fx.x0), Fmt.num(v.m), Fmt.num(fx.x0), Fmt.num(v.y)]
 		"points2":
@@ -637,6 +647,18 @@ static func xs_of(xs: Array) -> Dictionary:
 	return out
 
 
+## ax + by + d = 0 as a student writes it: "2x − 3y + 6 = 0", "x + 2y = 0" when d is 0.
+static func gline_text(a: Variant, b: Variant, d: Variant) -> String:
+	var out := ""
+	if not Q.of(a).is_zero():
+		out = Fmt.term(Q.of(a), 1, true)
+	if not Q.of(b).is_zero():
+		out += Fmt.term(Q.of(b), 1, out == "", "y")
+	if not Q.of(d).is_zero():
+		out += Fmt.term(Q.of(d), 0, out == "")
+	return out + " = 0"
+
+
 ## mx + c with both numbers to 3 s.f. (a Paper 2 line): "2.31x − 0.552", "−4.70x".
 static func sf_line(m: Variant, c: Variant) -> String:
 	var mq := Q.of(m)
@@ -681,7 +703,7 @@ static func canon(ans: Dictionary, values: Dictionary) -> String:
 	if ans.kind == "measure":
 		return "measure:" + Fmt.sf(values.v)
 	# So is any answer written to 3 s.f. (FAL-459): it is told apart by its text.
-	if ans.get("show", "") == "sf":
+	if ans.get("show", "") == "sf" or values.get("alone", false):
 		return "sf:" + text(ans, values)
 	if ans.kind == "lnq":
 		return "lnq:%.9f" % lnq_value(values.m, values.r, values.get("form", ""))
@@ -918,6 +940,11 @@ static func trap_text(ans: Dictionary, values: Dictionary) -> String:
 		"points2":
 			var ps := _pairs(values)
 			return "(%s, %s) and (%s, %s)" % [Fmt.dec(ps[0][0]), Fmt.dec(ps[0][1]), Fmt.dec(ps[1][0]), Fmt.dec(ps[1][1])]
+		"line":
+			var m := Q.of(values.m)
+			var c := Q.of(values.c)
+			var mag: String = "−" if m.sign() < 0 else ""
+			return "y = %s%sx%s" % [mag, "" if m.abs_q().eq(1) else Fmt.dec(m.abs_q()), "" if c.is_zero() else (" − " if c.sign() < 0 else " + ") + Fmt.dec(c.abs_q())]
 		"range2":
 			return "%s %s %s %s %s" % [Fmt.dec(values.lo), values.r1, fx_var(ans), values.r2, Fmt.dec(values.hi)]
 		"xs":
@@ -984,7 +1011,7 @@ static func mark(ans: Dictionary, response: Dictionary) -> Dictionary:
 		"errors": {}, "values": got}
 
 
-## Whether typed values match the answer, slot by slot, trying each order of an
+## Whether typed values match the answer, slot by slot, in any order within an
 ## unordered group. With glancing, a number with too few figures counts too.
 static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = false) -> bool:
 	if ans.kind == "lnq":
@@ -992,6 +1019,15 @@ static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = fals
 		var want := lnq_value(ans.values.m, ans.values.r)
 		var have := lnq_value(got.get("m", Q.new(0)), got.get("r", Q.new(0))) if got.get("m") is Q and got.get("r") is Q else NAN
 		return is_finite(have) and absf(have - want) <= 1e-9 * maxf(1.0, absf(want))
+	if ans.kind == "gline":
+		# Any whole-number multiple of the line with a > 0 is that line (FAL-424).
+		for id in ["a", "b", "d"]:
+			if not got.get(id) is Q or not got[id].is_int():
+				return false
+		if got.a.sign() != ans.values.a.sign() or got.a.is_zero():
+			return false
+		var scale: Q = got.a.div(ans.values.a)
+		return got.b.eq(ans.values.b.mul(scale)) and got.d.eq(ans.values.d.mul(scale))
 	if ans.kind == "points2" and not got.is_empty():
 		var swapped := {"x1": got.get("x2"), "y1": got.get("y2"), "x2": got.get("x1"), "y2": got.get("y1")}
 		var plain := ans.duplicate()
@@ -1021,19 +1057,24 @@ static func values_right(ans: Dictionary, got: Dictionary, glancing: bool = fals
 		if not _slot_right(want[id], got.get(id), exact, glancing):
 			return false
 	for group in ans.unordered:
-		var ok := false
-		for perm in _perms(group):
-			var all := true
-			for i in group.size():
-				if not _slot_right(want[group[i]], got.get(perm[i]), exact, glancing):
-					all = false
-					break
-			if all:
-				ok = true
-				break
-		if not ok:
-			return false
+		var fits: Array = group.map(func(w): return group.map(func(g): return _slot_right(want[w], got.get(g), exact, glancing)))
+		var taken := {}
+		for w in group.size():
+			if not _place(w, fits, taken, {}):
+				return false
 	return true
+
+
+## An unordered group's matching: finds slot w a typed value that fits (fits[w][g]), moving an
+## earlier slot along if it holds one. Trying each order is 40320 checks for eight solutions.
+static func _place(w: int, fits: Array, taken: Dictionary, seen: Dictionary) -> bool:
+	for g in fits[w].size():
+		if fits[w][g] and not seen.has(g):
+			seen[g] = true
+			if not taken.has(g) or _place(taken[g], fits, taken, seen):
+				taken[g] = w
+				return true
+	return false
 
 
 static func _slot_right(want: Variant, got: Variant, exact: bool = false, glancing: bool = false) -> bool:

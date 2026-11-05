@@ -1762,7 +1762,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 6 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 10 exam types have them so far.
 
 #### Volume and surface area of solids, including in terms of a variable (`t3-solid-volume-area`, exam, 13 bank parts)
 
@@ -1915,6 +1915,109 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): An arc is shorter than the radius of its circle. — Sometimes: l = rθ, so it holds exactly when θ is less than 1 radian.
   - *interpret-parameter* (L3): What does 1 radian mean on a circle? — It is the angle at the centre where the arc is as long as the radius, because l = rθ gives l = r when θ = 1.
 - **Misconceptions used:** 10. Multiplying by 180/π when converting degrees to radians; Thinking π radians is 3.14° or that 1 radian is about 1°; Giving a decimal when an exact multiple of π is asked for; Using θ in degrees in l = rθ; Forgetting the two radii when finding the perimeter of a sector; Using the minor-arc angle when the major arc is asked for; Using θ in degrees in ½r²θ; Squaring θ instead of r: ½rθ²; Giving the minor sector when the major sector is asked for; Calculator in degree mode when evaluating sin θ for θ in radians.
+
+#### Exact trig values and related angles (`t3-exact-values`, exam, 3 bank parts)
+
+- **Situation:** Landmark angles and the unit circle.
+- **Representations:** **equation**, words, **diagram**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a landmark angle from 0 to π/2; which ratio → the exact value
+  - **exam** L1: given f(x) = k sin x or k cos x, or the same formula in a story; a landmark angle → the exact value of f at the angle
+  - new L2: given a sum with a squared ratio, such as sin²(π/4) + cos(π/3) → its exact value
+  - **exam** L2: given a multiple of π/6, π/4 or π/3 past the first quadrant, negative or on the second turn → the exact value of its sin, cos or tan
+  - new L3: given a sum of two related ratios → its exact value
+  - **exam** L2: given a ratio of an acute θ, or of one angle on a straight line → the ratio of π − θ, π + θ or −θ
+  - new L1: given an angle on the unit circle → the exact coordinates of P
+  - new L1: given a point on the unit circle → sin θ or cos θ
+  - new L2: given a point on the unit circle → tan θ
+  - new L1: given an interval for θ → the signs of two ratios
+  - new L2: given an angle where the radius is vertical → why tan has no value there
+- **Angles:** Special triangles; Unit-circle coordinates; The √n / 2 pattern; Reflect on the unit circle; Reference angle plus CAST; Symmetry of the graph; Related-angle identities; Read coordinates off the circle; CAST diagram; tan as the gradient of the radius; Read from the sin and cos graphs.
+- **Concept probes:**
+  - *true-false-reason* (L3): sin(2π/3) = −sin(π/3), because 2π/3 is past π/2. — False: 2π/3 is in the second quadrant, where sin is positive, so sin(2π/3) = sin(π/3).
+  - *always-sometimes-never* (L3): For an angle θ, sin(π − θ) = sin θ. — Always: θ and π − θ are mirror images in the y-axis, so their points on the unit circle have the same height.
+  - *interpret-parameter* (L3): Why is the cos list of the landmark angles the sin list read backwards? — Because cos θ = sin(π/2 − θ): reflecting the unit circle in y = x swaps x and y.
+- **Misconceptions used:** 9. Swapping sin(π/6) = 1/2 and cos(π/6) = √3/2; Writing tan(π/6) = √3 instead of 1/√3; Thinking sin(π/4) = 1/2; Correct size but wrong sign for the quadrant, e.g. cos(2π/3) = 1/2; Measuring the reference angle from the y-axis, e.g. using π/3 for 5π/6; Treating a negative angle as positive, e.g. sin(−π/6) = 1/2; Swapping coordinates: taking sin θ as the x-coordinate; Measuring θ clockwise or from the y-axis; Thinking tan(π/2) = 0 or 1 instead of undefined.
+
+#### Use Pythagorean and double-angle identities to find exact values or rewrite (`t3-identity-values`, exam, 5 bank parts)
+
+- **Situation:** One angle fixed by a ratio, or one expression to rewrite.
+- **Representations:** **equation**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given sin θ; the quadrant → cos θ
+  - **exam** L2: given cos θ; the quadrant → sin θ
+  - new L3: given sin θ or cos θ; the quadrant → tan θ
+  - new L3: given tan θ; the quadrant → cos θ
+  - **exam** L3: given sin θ or cos θ; the quadrant → sin 2θ
+  - new L2: given sin θ; the quadrant → cos 2θ
+  - new L2: given cos θ; the quadrant → cos 2θ
+  - **exam** L3: given cos 2θ with θ acute, or a triangle with the angle 2θ → cos θ
+  - **exam** L1: given an expression with cos²x or cos 2x and sin x, or the same in cos x → the expression in one ratio
+  - new L2: given 3 − 6 sin²x, or 6 cos²x − 3 → the form a cos bx
+  - new L2: given 6 sin x cos x → the form a sin bx
+  - new L3: given k(sin x ± cos x)² → the form a + b sin cx
+  - new L3: given f(x) = 2k sin x cos x + d → the maximum value of f
+- **Angles:** Pythagorean identity; Sketch a right triangle; Point on the unit circle; Pick the cos 2θ form that fits; Find both ratios, then substitute; Read ratios from a triangle; Expand, then apply identities; Spot a known pattern; Check with a test value.
+- **Concept probes:**
+  - *true-false-reason* (L3): If sin θ = 3/5, then cos θ = 4/5. — False: the size is 4/5, but the sign depends on the quadrant. In the second quadrant cos θ = −4/5.
+  - *always-sometimes-never* (L3): sin 2θ = 2 sin θ. — Sometimes: only when cos θ = 1 or sin θ = 0, because sin 2θ = 2 sin θ cos θ.
+  - *interpret-parameter* (L3): Why does 1 − 2 sin²θ suit a question that gives sin θ? — Because it is cos 2θ written with sin θ alone, so the other ratio is never needed.
+- **Misconceptions used:** 8. Ignoring the quadrant and giving cos θ = +4/5 when θ is obtuse; Writing cos θ = 1 − sin θ, dropping the squares; Taking √(1 − 9/25) as 1 − 3/5; sin 2θ = 2 sin θ; cos 2θ = 2 cos θ, or cos 2θ = 1 − sin²θ; Losing the negative sign of cos θ for an obtuse θ before substituting into sin 2θ; Expanding (sin x + cos x)² as sin²x + cos²x; Writing 4 sin x cos x as 4 sin 2x instead of 2 sin 2x.
+
+#### Find the parameters of a trig model from a graph, data or context (`t3-trig-model-parameters`, exam, 7 bank parts)
+
+- **Situation:** One wave and the model behind it.
+- **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a maximum and a minimum → a and d
+  - **exam** L2: given a maximum and the next minimum → b
+  - **exam** L2: given a, b and d, and a maximum → c in a cos(b(x − c)) + d
+  - **exam** L3: given a, b and d, and a maximum → c in a sin(b(x − c)) + d
+  - **exam** L4: given a maximum and the next minimum → a, b, c and d
+  - **exam** L3: given f(x) = p sin(x + φ) + q and its minimum → the exact y-intercept
+  - **exam** L4: given p sin kx + q cos kx, with a GDC → a, b and c in a cos(b(x − c))
+  - **exam** L3: given f(x) = a tan(bx), its first x-intercept and one point → a and b
+  - new L2: given y = a sin(bx − φ) + d → c, in the form with b taken out
+  - new L3: given f(x), and a translation or a horizontal stretch → the equation of the image
+  - new L3: given y = a sin(bx − φ) + d → the transformations from y = sin x
+  - new L3: given f(x) and g(x) = f(x − p) + q → p and q
+  - **exam** L3: given a wheel's diameter, height and time for one turn, starting at the bottom → a, b and d
+  - **exam** L4: given a sine model and when it rises through a level → c
+  - new L4: given a cosine model and how long it stays above a level → the level
+- **Angles:** Half-range and average; Use cosine so c is a maximum; Substitute a known point; Plot the model to check; Factor b out of the bracket; Track key points; Read the translation vector; Overlay on the GDC; Substitute the time; Intersect with y = k on the GDC; Rearrange and solve; Use symmetry about the peak.
+- **Concept probes:**
+  - *true-false-reason* (L3): A wave has a maximum at x = 2 and the next minimum at x = 5, so its period is 3. — False: from a maximum to the next minimum is half a period, so the period is 6.
+  - *always-sometimes-never* (L3): sin(2x − π/3) is sin 2x moved π/3 to the right. — Never: the bracket is 2(x − π/6), so the move is π/6. The 2 stretches the shift as well.
+  - *interpret-parameter* (L3): In h(t) = −10 cos(πt/6) + 12, what does the minus sign tell you? — The wave starts at its lowest point: at t = 0 it is 12 − 10 = 2, then it rises.
+- **Misconceptions used:** 8. Taking the period as the gap from a maximum to the next minimum; Using a = max − min, forgetting to halve; Getting the sign of c wrong in a cos(b(x − c)) + d; Reading sin(2x + π/3) as a shift of π/3 left instead of π/6; Using scale factor b for the horizontal stretch instead of 1/b; Translating right for a +c inside the bracket; Calculator in degree mode for a radian model; Reading the period as b rather than 2π/b, e.g. b = π/6 means a 12-hour cycle.
+
+#### Solve a trig equation exactly in an interval (`t3-trig-equation`, exam, 8 bank parts)
+
+- **Situation:** One trig equation on an interval.
+- **Representations:** **equation**, graph, diagram (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a ratio equal to a landmark value; 0 to 2π → every solution, exactly
+  - **exam** L2: given a ratio equal to a landmark value; an interval such as −π to π or 0 to 4π → every solution, exactly
+  - new L2: given a ratio equal to a landmark value; an interval in degrees → every solution in degrees
+  - new L3: given a ratio equal to a decimal; 0 to 2π → every solution, to 3 s.f.
+  - **exam** L3: given sin bx, cos bx or tan bx equal to a landmark value → every solution, exactly
+  - **exam** L3: given sin(x + φ), cos(x + φ) or tan(x + φ) equal to a landmark value → every solution, exactly
+  - **exam** L3: given fn(bx + φ) equal to a landmark value → the least positive solution
+  - **exam** L3: given fn(bx − α°) equal to a landmark value; an interval in degrees → every solution in degrees
+  - new L4: given sin bx or cos bx equal to a decimal → every solution, to 3 s.f.
+  - **exam** L4: given √3 sin 2x = cos 2x and the like → every solution, exactly
+  - new L2: given sin x = k cos x → every solution, exactly
+  - **exam** L3: given sin 2x = m cos x → every solution, exactly
+  - new L3: given sin 2x = m sin x → every solution, exactly
+  - new L2: given a product of a ratio and a bracket, equal to 0 → every solution, exactly
+  - **exam** L4: given a cos²x − b sin²x = 0 → every solution, exactly
+  - **exam** L3: given sin²θ = m sin θ cos θ on 0 to π → tan θ
+- **Angles:** Reference angle in every valid quadrant; Symmetry of the graph; Intersect on the GDC; Substitute u and change the interval; Add multiples of the new period; Intersect on the GDC; Collect and factorise; Divide to get tan x; Graph both sides.
+- **Concept probes:**
+  - *true-false-reason* (L3): sin x = 0.5 has one solution for 0 ≤ x ≤ 2π, x = π/6. — False: the calculator gives one value, but sin x = 0.5 again at x = 5π/6, the mirror image in x = π/2.
+  - *always-sometimes-never* (L3): sin 2x = k has twice as many solutions as sin x = k on the same interval. — Sometimes: usually the graph fits twice the waves, but at k = ±1 or at the ends of the interval the count can differ.
+  - *predict-check* (L3): If you cancel cos x from 2 sin x cos x = cos x, what do you lose? — The solutions of cos x = 0: x = π/2 and 3π/2 on 0 to 2π. The graphs cross there, so factorise instead of dividing.
+- **Misconceptions used:** 10. Stopping at the calculator's principal value; Using 180° − α for cos instead of 360° − α; Missing solutions in a negative interval such as −π ≤ x ≤ π; Solving for 2x without extending the interval, losing half the solutions; Dividing only the principal value by 2 and forgetting the others; Undoing x + π/4 by adding π/4 instead of subtracting; Cancelling cos x from 2 sin x cos x = cos x and losing x = π/2 and 3π/2; Getting tan x = 1/√3 from sin x = √3 cos x (it is √3); Turning sin 2x = sin x into 2x = x; Taking only the positive root of tan²x = 1/3.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

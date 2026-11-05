@@ -75,3 +75,11 @@ func test_formatting() -> void:
 	check_eq(Fmt.factorised(Q.new(-1), Q.new(-1), Q.new(5)), "−(x + 1)(x − 5)")
 	check_eq(Fmt.vertex(Q.new(2), Q.new(3), Q.new(-4)), "2(x − 3)² − 4")
 	check_eq(Fmt.point(Q.new(-3, 2), Q.new(0)), "(−3/2, 0)")
+
+
+func test_an_unordered_group_is_matched_one_to_one() -> void:
+	var ans := {"kind": "form", "values": {"a": Q.new(1), "b": Q.new(2), "c": Q.new(3)}, "exact": true, "unordered": [["a", "b", "c"]]}
+	ans.template = [{"slot": "a"}, {"slot": "b"}, {"slot": "c"}]
+	check(Answer.values_right(ans, {"a": Q.new(3), "b": Q.new(1), "c": Q.new(2)}), "any order")
+	check(not Answer.values_right(ans, {"a": Q.new(1), "b": Q.new(1), "c": Q.new(2)}), "one typed value can't fill two slots")
+	check(not Answer.values_right(ans, {"a": Q.new(1), "b": Q.new(2)}), "every slot needs a value")

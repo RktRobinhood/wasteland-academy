@@ -140,8 +140,8 @@ func test_coverage_matches_a_hand_count_with_the_switch_off_and_on() -> void:
 	check_eq(on, {"checked": 2, "total": _hand_count("quadratics", true)}, "switch on")
 	check(on.total < off.total, "the switch drops the extension cells")
 	# A region with nothing built still counts its catalogue cells.
+	save.settings.exam_only = false
 	if unbuilt != "":
-		save.settings.exam_only = false
 		check_eq(Progress.coverage(save, unbuilt), {"checked": 0, "total": _hand_count(unbuilt, false)}, unbuilt)
 	# The island: every region's cells.
 	var island := 0

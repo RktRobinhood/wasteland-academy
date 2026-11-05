@@ -47,7 +47,7 @@ func _init() -> void:
 
 func set_spec(s: Dictionary) -> void:
 	spec = s
-	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "solid": 640}.get(s.get("kind"), 560))
+	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "unit-circle": 640, "straight-angle": 420, "solid": 640}.get(s.get("kind"), 560))
 	queue_redraw()
 
 
@@ -83,6 +83,10 @@ func _draw() -> void:
 			_sketch()
 		"solid":
 			_solid()
+		"unit-circle":
+			_unit_circle()
+		"straight-angle":
+			_straight_angle()
 
 
 func _text(s: String, at: Vector2, col: Color, fs: int = FONT_SIZE, centred: bool = true) -> void:
@@ -204,6 +208,96 @@ func _trig() -> void:
 		draw_circle(c, DOT, UiTheme.PINK)
 		draw_circle(c, DOT * 0.45, UiTheme.BG)
 		_text(p.label, c + Vector2(0, -24 if float(p.y) >= 0.0 else 50), UiTheme.TEXT, FONT_SIZE - 4)
+
+
+# ── Unit circle (FAL-727) ────────────────────────────────────
+
+## x² + y² = 1 with its axes. spec: "points" [{x, y, label}], "angle" (drawn from the positive
+## x-axis to the first point, with "angle_label"), "quadrant" (1 to 4, shaded), "level" and
+## "level_x" (a dashed line y = level or x = level_x) and "radius" (the line from O to each point).
+func _unit_circle() -> void:
+	var c := size / 2.0
+	var k := minf(size.x, size.y) / 2.0 - 96.0
+	var px := func(x: float, y: float) -> Vector2: return c + Vector2(x, -y) * k
+	var q: int = spec.get("quadrant", 0)
+	if q > 0:
+		var poly := PackedVector2Array()
+		for p in quadrant_points(q):
+			poly.append(px.call(p.x, p.y))
+		draw_colored_polygon(poly, Color(UiTheme.TEAL, 0.22))
+	draw_line(px.call(-1.25, 0.0), px.call(1.25, 0.0), UiTheme.DIM, 4.0)
+	draw_line(px.call(0.0, -1.25), px.call(0.0, 1.25), UiTheme.DIM, 4.0)
+	draw_arc(c, k, 0.0, TAU, 128, UiTheme.TEAL, 5.0, true)
+	_text("x", px.call(1.25, 0.0) + Vector2(-8, -14), UiTheme.DIM, FONT_SIZE - 6)
+	_text("y", px.call(0.0, 1.25) + Vector2(22, 10), UiTheme.DIM, FONT_SIZE - 6)
+	var points: Array = spec.get("points", [])
+	for lab in [[1.0, 0.0, "1"], [-1.0, 0.0, "−1"], [0.0, 1.0, "1"], [0.0, -1.0, "−1"]]:
+		if not points.any(func(p): return Vector2(p.x, p.y).distance_to(Vector2(lab[0], lab[1])) < 0.2):
+			_text(lab[2], px.call(lab[0], lab[1]) + Vector2(22 if lab[0] == 0.0 else -18, 34 if lab[0] != 0.0 else -8), UiTheme.DIM, FONT_SIZE - 8)
+	if spec.get("level") != null:
+		var lv := float(spec.level)
+		var x := -1.2
+		while x < 1.2:
+			draw_line(px.call(x, lv), px.call(minf(x + 0.05, 1.2), lv), UiTheme.SAND, 4.0)
+			x += 0.1
+	if spec.get("level_x") != null:
+		var lx := float(spec.level_x)
+		var y := -1.2
+		while y < 1.2:
+			draw_line(px.call(lx, y), px.call(lx, minf(y + 0.05, 1.2)), UiTheme.SAND, 4.0)
+			y += 0.1
+	if spec.get("angle") != null and not points.is_empty():
+		var th := float(spec.angle)
+		var arc := PackedVector2Array()
+		for i in 41:
+			var a := th * i / 40.0
+			arc.append(px.call(0.26 * cos(a), 0.26 * sin(a)))
+		draw_polyline(arc, UiTheme.SAND, 4.0, true)
+		var mid := th / 2.0
+		_text(spec.get("angle_label", ""), px.call(0.44 * cos(mid), 0.44 * sin(mid)) + Vector2(0, 12), UiTheme.SAND, FONT_SIZE - 4)
+	for p in points:
+		var at: Vector2 = px.call(float(p.x), float(p.y))
+		if spec.get("radius", false):
+			draw_line(c, at, UiTheme.PINK, 4.0)
+		draw_circle(at, DOT, UiTheme.PINK)
+		draw_circle(at, DOT * 0.45, UiTheme.BG)
+		var out: Vector2 = (at - c).normalized() * 46.0
+		# A point on the x-axis has its letter above the axis, clear of the "x".
+		_text(p.label, at + out + (Vector2(0, -32) if absf(float(p.y)) < 0.05 else Vector2(0, 12)), UiTheme.TEXT, FONT_SIZE - 4)
+
+
+## The corners of quadrant q of the unit circle, with y up: the arc, then the origin.
+static func quadrant_points(q: int) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	for i in 33:
+		var a := (q - 1 + i / 32.0) * PI / 2.0
+		out.append(Vector2(cos(a), sin(a)))
+	out.append(Vector2.ZERO)
+	return out
+
+
+## A straight line through A, with C above it: two angles that add up to π. spec: "theta" (the
+## angle at A on the right), "names" [left end, A, right end, C], "right_label", "left_label".
+func _straight_angle() -> void:
+	var th := float(spec.theta)
+	var a := Vector2(size.x / 2.0, size.y - 90.0)
+	var run := size.x / 2.0 - 90.0
+	var names: Array = spec.names
+	var top: Vector2 = a + Vector2(cos(th), -sin(th)) * minf(run, size.y - 170.0)
+	draw_line(a - Vector2(run, 0), a + Vector2(run, 0), UiTheme.TEAL, 5.0)
+	draw_line(a, top, UiTheme.TEAL, 5.0)
+	for i in names.size():
+		var at: Vector2 = [a - Vector2(run, 0), a, a + Vector2(run, 0), top][i]
+		var off: Vector2 = Vector2(0, -22) if i == 3 else Vector2(0, 46)
+		draw_circle(at, DOT * 0.6, UiTheme.PINK)
+		_text(names[i], at + off, UiTheme.TEXT)
+	var r := 62.0
+	var r2 := 92.0
+	draw_arc(a, r, -th, 0.0, 32, UiTheme.SAND, 4.0, true)
+	draw_arc(a, r2, -PI, -th, 48, UiTheme.PINK, 4.0, true)
+	_text(spec.get("right_label", ""), a + Vector2(cos(th / 2.0), -sin(th / 2.0)) * (r + 50.0) + Vector2(0, 10), UiTheme.SAND)
+	var mid := (PI + th) / 2.0
+	_text(spec.get("left_label", ""), a + Vector2(cos(mid), -sin(mid)) * (r2 + 40.0) + Vector2(0, 10), UiTheme.PINK)
 
 
 # ── Bars ─────────────────────────────────────────────────────
