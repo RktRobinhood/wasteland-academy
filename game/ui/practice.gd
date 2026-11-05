@@ -594,7 +594,7 @@ static func right_text(q: Dictionary) -> String:
 		for c in q.choices:
 			if c.correct:
 				return c.text
-	return q.answer_text
+	return q.answer.get("short", q.answer_text)
 
 
 ## The worked solution, with a tab per method (or a probe's reveal).

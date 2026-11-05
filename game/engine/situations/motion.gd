@@ -316,6 +316,9 @@ static func _target(ask: String, paper: int, rng: Seeded) -> Dictionary:
 	var roots := GdcKit.zeros(g, 0.01, float(s.T) - 0.01)
 	if roots.is_empty() or (ask == "time-from-acceleration" and roots.size() != 1) or not _fair_all(roots):
 		return {}
+	# zeros() looks inside the interval, so a value also met at t = 0 or T needs its own check.
+	if absf(g.call(0.0)) < 0.01 or absf(g.call(float(s.T))) < 0.01:
+		return {}
 	s.target = c
 	s.roots = roots
 	return s

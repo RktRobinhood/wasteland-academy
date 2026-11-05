@@ -53,6 +53,9 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 	var paper: int = int(need.get("paper", 1))
 	for i in TRIES:
 		var s := {"paper": paper, "ask": ask, "rep": rep, "ctx": rng.int_in(0, CONTEXTS - 1)}
+		# A funnel from a sheet of tin is no job for the radio mast's kilometres.
+		if ask == "cone-radius" and ArcSectorViews.CONTEXTS[s.ctx].unit == "km":
+			s.ctx = 0
 		var ok := false
 		match ask:
 			"ring-inner-radius", "ring-perimeter":

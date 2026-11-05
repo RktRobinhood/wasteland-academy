@@ -225,7 +225,7 @@ func u_quadratic_interval(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			Answer.text(ans)], ans.values),
 		"solve-inequality": method([
 			"f′(x) = %s." % df,
-			"f′(x) %s gives %s %s." % [r, Fmt.poly([2 * a, 0]), ("> " if (2 * a > 0) == (word == "increasing") else "< ") + Fmt.num(2 * a * h)],
+			"f′(x) %s gives %s %s." % [r, Fmt.poly([2 * a, 0]), ("> " if word == "increasing" else "< ") + Fmt.num(2 * a * h)],
 			"Divide by %s%s." % [Fmt.num(2 * a), ", which turns the sign round" if a < 0 else ""],
 			Answer.text(ans)], ans.values)}}
 
@@ -400,7 +400,7 @@ func u_parameter_discriminant(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 			text], ans.values),
 		"complete-square-condition": method([
 			"f′(x) = %s(x %s k/%d)² %s, on completing the square." % [Fmt.lead(3 * sgn), "+" if sgn > 0 else "−", 3, "+ %d − k²/3" % c if sgn > 0 else "− %d + k²/3" % c],
-			"Its turning value must be %s 0: %d − k²/3 ≥ 0." % ["≥" if sgn > 0 else "≤", c],
+			("Its turning value must be ≥ 0: %d − k²/3 ≥ 0." if sgn > 0 else "Its turning value must be ≤ 0: k²/3 − %d ≤ 0.") % c,
 			"k² ≤ %d, which is −%d ≤ k ≤ %d." % [m * m, m, m],
 			text], ans.values),
 		"gdc-slider": method([
@@ -433,6 +433,6 @@ func u_parameter_shift(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			Answer.text(ans)], ans.values),
 		"discriminant-condition": method([
 			"g′(x) = f(x) − d must have at most one root.",
-			"Its discriminant is 4%s(d − %s), which must be ≤ 0." % [Fmt.lead(a), Fmt.paren(k)],
-			"Since %s > 0, d − %s ≤ 0." % [Fmt.num(a), Fmt.paren(k)],
+			"Its discriminant is %s(d%s), which must be ≤ 0." % [Fmt.num(4 * a), Fmt.plus(-k)],
+			"Since %s > 0, d%s ≤ 0." % [Fmt.num(4 * a), Fmt.plus(-k)],
 			Answer.text(ans)], ans.values)}}

@@ -755,7 +755,7 @@ func u_show_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			target = "dy/dx = (p + q ln x)/x^r"
 			names = ["p", "q", "r"]
 			vals = [1, -n, n + 1]
-			wr = [[[1, n, n + 1], R_SIGN], [[1, -n, 2 * n], R_NOT_SQUARED]]
+			wr = [[[1, n, n + 1], R_SIGN], [[1, -n, 2 * n], ""]]
 			gen = [[1, -n, n], [n, -1, n + 1], [-1, n, n + 1], [1, -n - 1, n + 1]]
 			ds = ["The quotient rule, with u = ln x and v = %s: dy/dx = (%s × 1/x − %s ln x)/%s." % [X(n), X(n), T(n, X(n - 1)), X(2 * n)],
 				"Take out %s on top: (%s)/%s." % [X(n - 1), SUM([[1, ""], [-n, "ln x"]]), X(n + 1)]]
@@ -784,7 +784,7 @@ func u_show_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			target = "f′(x) = %d(p − qx²)/(x² + %d)^r" % [a, b]
 			names = ["p", "q", "r"]
 			vals = [b, 2 * n - 1, n + 1]
-			wr = [[[b, -2 * n - 1, n + 1], R_SIGN], [[b, 2 * n - 1, 2 * n], R_NOT_SQUARED]]
+			wr = [[[b, -2 * n - 1, n + 1], R_SIGN], [[b, 2 * n - 1, 2 * n], ""]]
 			gen = [[b, 2 * n, n + 1], [b, n, n + 1], [2 * b, 2 * n - 1, n + 1], [b + 1, 2 * n - 1, n + 1]]
 			ds = ["The quotient rule, with u = %s and v = (x² + %d)%s: v′ = %s(x² + %d)%s." % [T(a, "x"), b, Fmt.sup(n), T(2 * n, "x"), b, Fmt.sup(n - 1)],
 				"Take out %d(x² + %d)%s on top, leaving x² + %d − %s." % [a, b, Fmt.sup(n - 1), b, T(2 * n, "x²")],
@@ -922,10 +922,10 @@ func _gradient_at_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var asked: String
 	if rep == "words":
 		line = "A curve has equation y = %s%s." % [f, ", for x > 0" if f.contains("ln") else ""]
-		asked = "Find the gradient of the curve at the point where x = %s%s." % [kt, ", to 3 s.f." if p2 else ""]
+		asked = "Find the gradient of the curve at the point where x = %s%s." % [kt, ", to 3 s.f" if p2 else ""]
 	else:
 		line = "f(x) = %s%s" % [f, ", for x > 0" if f.contains("ln") else ""]
-		asked = "Find f′(%s)%s." % [kt, ", to 3 s.f." if p2 else ""]
+		asked = "Find f′(%s)%s." % [kt, ", to 3 s.f" if p2 else ""]
 	var st: Array = steps + [say(ans)]
 	var key: String = {"chain": "outer-times-inner", "product": "product-rule", "quotient": "quotient-rule"}[s.fam]
 	return {"lines": [line], "asked": asked, "answer": ans, "wrongs": wr, "generic": gen, "methods": {key: method(st, ans.values)}}

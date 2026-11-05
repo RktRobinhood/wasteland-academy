@@ -74,9 +74,9 @@
                 }
               ],
               "misconceptions": [
-                "Giving small numbers a positive power: 0.000052 = 5.2 × 10^5",
-                "Counting digits instead of places moved: 6 400 000 = 6.4 × 10^7",
-                "Leaving a outside 1 ≤ a < 10 (64 × 10^5 or 0.64 × 10^7) as a final answer"
+                "Getting the sign of the power wrong: a large number needs a positive power and a small one a negative power",
+                "Moving the point one place too many, by counting digits instead of the places it moves",
+                "Leaving or comparing a number whose first part isn't between one and ten"
               ],
               "threads": [
                 {
@@ -128,9 +128,9 @@
                 }
               ],
               "misconceptions": [
-                "Multiplying the powers of ten: 10^4 × 10^3 = 10^12",
-                "Forgetting to renormalise, leaving 0.7 × 10^−8 or 12 × 10^5 as the answer",
-                "Sign slip with negative exponents: 10^−3 ÷ 10^5 = 10^2"
+                "Multiplying the powers of ten instead of adding them",
+                "Forgetting to renormalise, which leaves the first part outside one to ten",
+                "Slipping on the powers: subtracting them for a product, or adding them for a quotient"
               ],
               "threads": []
             },
@@ -274,7 +274,7 @@
                 }
               ],
               "misconceptions": [
-                "Writing the GDC display 5E2 as the final answer",
+                "Writing the GDC display, E-notation and all, as the final answer",
                 "Rounding a at an early step so the third significant figure is wrong",
                 "Dividing the wrong way round when asked 'how many times larger'"
               ],
@@ -7547,9 +7547,9 @@
                 }
               ],
               "misconceptions": [
-                "Using the slant height instead of the perpendicular height in V = (1/3)πr²h",
-                "Forgetting the 1/3 for a cone or pyramid, or using (4/3)πr³ for a hemisphere",
-                "Using the diameter as the radius"
+                "Using a longer length as the perpendicular height: a slant height, a slant edge or the sphere's radius",
+                "Using the wrong fraction in the volume formula: a third for a cone or pyramid, none for a cylinder, half a sphere for a hemisphere",
+                "Mixing up the diameter and the radius"
               ],
               "threads": [
                 {
@@ -7605,9 +7605,9 @@
                 }
               ],
               "misconceptions": [
-                "Using the vertical height h in πrl instead of the slant height l",
-                "Giving a solid hemisphere's surface as 2πr², forgetting the flat face πr² (or counting a face hidden at a join)",
-                "Using 4πr² for a hemisphere"
+                "Using the wrong length in the surface formula: the vertical height or the longest length shown, instead of the slant height or the radius",
+                "Leaving out a flat face, or counting a face that is hidden or not painted",
+                "Using the whole sphere's surface for a hemisphere's curved part"
               ],
               "threads": []
             },
@@ -8192,7 +8192,7 @@
               "misconceptions": [
                 "Measuring the angle of depression from the vertical instead of the horizontal",
                 "Putting the angle of depression inside the triangle at the top vertex",
-                "Forgetting to add the observer's eye height"
+                "Leaving the person's height or eye level out of the calculation"
               ],
               "threads": [
                 {
@@ -8308,7 +8308,7 @@
               ],
               "misconceptions": [
                 "Measuring a bearing anticlockwise or from east instead of clockwise from north",
-                "Giving the bearing of A from B when asked for B from A",
+                "Giving the bearing the other way: the way back, not the way asked for",
                 "Using the bearings themselves as angles inside the triangle without angle chasing"
               ],
               "threads": [
@@ -8366,7 +8366,7 @@
               ],
               "misconceptions": [
                 "Rounding the shared side early and carrying the error into the next triangle",
-                "Assuming an angle is 90° because it looks like it",
+                "Assuming a right angle because it looks like one",
                 "Using the sine rule in a triangle where no side–opposite angle pair is known"
               ],
               "threads": []
@@ -8428,7 +8428,7 @@
               ],
               "misconceptions": [
                 "Multiplying by 180/π when converting degrees to radians",
-                "Thinking π radians is 3.14° or that 1 radian is about 1°",
+                "Writing the size in radians as if it were degrees",
                 "Giving a decimal when an exact multiple of π is asked for"
               ],
               "threads": []
@@ -8579,7 +8579,7 @@
                 }
               ],
               "misconceptions": [
-                "Calculator in degree mode when evaluating sin θ for θ in radians",
+                "Leaving the calculator in degree mode when evaluating sin θ for θ in radians",
                 "Adding the two radii instead of the chord to the perimeter of a segment",
                 "Using ½r² sin θ with θ in degrees in one term and radians in the other"
               ],
@@ -8704,7 +8704,7 @@
               "misconceptions": [
                 "Swapping coordinates: taking sin θ as the x-coordinate",
                 "Measuring θ clockwise or from the y-axis",
-                "Thinking tan(π/2) = 0 or 1 instead of undefined"
+                "Thinking tan has a value where cos is zero"
               ],
               "threads": [
                 {
@@ -8762,9 +8762,9 @@
                 }
               ],
               "misconceptions": [
-                "Swapping sin(π/6) = 1/2 and cos(π/6) = √3/2",
-                "Writing tan(π/6) = √3 instead of 1/√3",
-                "Thinking sin(π/4) = 1/2"
+                "Swapping the sine and cosine values of a special angle",
+                "Inverting the value of tan at a special angle",
+                "Thinking the angle of an isosceles right triangle has a sine or cosine of one half"
               ],
               "threads": [
                 {
@@ -8826,9 +8826,9 @@
                 }
               ],
               "misconceptions": [
-                "Correct size but wrong sign for the quadrant, e.g. cos(2π/3) = 1/2",
-                "Measuring the reference angle from the y-axis, e.g. using π/3 for 5π/6",
-                "Treating a negative angle as positive, e.g. sin(−π/6) = 1/2"
+                "Getting the size right but the sign wrong for the quadrant",
+                "Measuring the reference angle from the y-axis",
+                "Treating a negative angle as positive"
               ],
               "threads": [
                 {
@@ -9015,9 +9015,9 @@
                 }
               ],
               "misconceptions": [
-                "Ignoring the quadrant and giving cos θ = +4/5 when θ is obtuse",
-                "Writing cos θ = 1 − sin θ, dropping the squares",
-                "Taking √(1 − 9/25) as 1 − 3/5"
+                "Ignoring the quadrant and giving the wrong sign",
+                "Dropping the squares from the Pythagorean identity",
+                "Taking the square root of a difference term by term"
               ],
               "threads": [
                 {
@@ -9071,8 +9071,8 @@
                 }
               ],
               "misconceptions": [
-                "sin 2θ = 2 sin θ",
-                "cos 2θ = 2 cos θ, or cos 2θ = 1 − sin²θ",
+                "Doubling sin θ to get sin 2θ",
+                "Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ",
                 "Losing the negative sign of cos θ for an obtuse θ before substituting into sin 2θ"
               ],
               "threads": [
@@ -9128,7 +9128,7 @@
               ],
               "misconceptions": [
                 "Expanding (sin x + cos x)² as sin²x + cos²x",
-                "Writing 4 sin x cos x as 4 sin 2x instead of 2 sin 2x",
+                "Keeping the number in front the same when rewriting as the sine of a double angle, instead of halving it",
                 "Reading sin²x as sin(x²)"
               ],
               "threads": [
@@ -9327,9 +9327,9 @@
                 }
               ],
               "misconceptions": [
-                "Reading sin(2x + π/3) as a shift of π/3 left instead of π/6",
-                "Using scale factor b for the horizontal stretch instead of 1/b",
-                "Translating right for a +c inside the bracket"
+                "Reading the shift before taking b out of the bracket",
+                "Treating b as the horizontal scale factor: a stretch with scale factor k divides b by k",
+                "Getting the direction of the shift wrong: a plus inside the bracket moves the graph left"
               ],
               "threads": [
                 {
@@ -9394,9 +9394,9 @@
                 }
               ],
               "misconceptions": [
-                "Taking the period as the gap from a maximum to the next minimum",
+                "Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum",
                 "Using a = max − min, forgetting to halve",
-                "Getting the sign of c wrong in a cos(b(x − c)) + d"
+                "Getting the sign of c wrong in the bracket"
               ],
               "threads": [
                 {
@@ -9518,9 +9518,9 @@
                 }
               ],
               "misconceptions": [
-                "Calculator in degree mode for a radian model",
+                "Leaving the calculator in degree mode for a radian model",
                 "Giving only the first intersection when all times in the interval are asked for",
-                "Reading the period as b rather than 2π/b, e.g. b = π/6 means a 12-hour cycle"
+                "Taking b itself as the period, instead of working out b from the period"
               ],
               "threads": [
                 {
@@ -9596,9 +9596,9 @@
                 }
               ],
               "misconceptions": [
-                "Stopping at the calculator's principal value",
-                "Using 180° − α for cos instead of 360° − α",
-                "Missing solutions in a negative interval such as −π ≤ x ≤ π"
+                "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
+                "Finding a cosine equation's second solution the way you would for sine",
+                "Missing the solutions below zero in the interval"
               ],
               "threads": [
                 {
@@ -9656,9 +9656,9 @@
                 }
               ],
               "misconceptions": [
-                "Solving for 2x without extending the interval, losing half the solutions",
-                "Dividing only the principal value by 2 and forgetting the others",
-                "Undoing x + π/4 by adding π/4 instead of subtracting"
+                "Solving for the multiple angle without extending the interval, which loses solutions",
+                "Undoing only the principal value and forgetting the other solutions",
+                "Undoing a shift by adding it instead of subtracting, or the other way round"
               ],
               "threads": [
                 {
@@ -9714,7 +9714,7 @@
               ],
               "misconceptions": [
                 "Accepting sin x = 2 as giving solutions",
-                "Taking only the positive root of tan²x = 1/3",
+                "Taking only the positive root of tan²x",
                 "Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions"
               ],
               "threads": [
@@ -9774,8 +9774,8 @@
                 }
               ],
               "misconceptions": [
-                "Cancelling cos x from 2 sin x cos x = cos x and losing x = π/2 and 3π/2",
-                "Getting tan x = 1/√3 from sin x = √3 cos x (it is √3)",
+                "Cancelling a factor that can be zero, which loses its solutions",
+                "Inverting the number when dividing to get tan x",
                 "Turning sin 2x = sin x into 2x = x"
               ],
               "threads": [
@@ -9981,9 +9981,9 @@
                 }
               ],
               "misconceptions": [
-                "Quota sampling and stratified sampling are the same (quota fills each group without random selection)",
-                "Systematic sampling is fully random (only the starting point is random; the rest follows the interval)",
-                "Stopping people in the street is simple random sampling"
+                "Thinking quota sampling and stratified sampling are the same: quota fills each group without random selection",
+                "Mixing up systematic and simple random sampling: systematic has a random start, then follows the interval",
+                "Treating whoever happens to be nearby as a simple random sample"
               ],
               "threads": []
             },
@@ -10064,8 +10064,8 @@
                 }
               ],
               "misconceptions": [
-                "A larger sample removes bias (it improves reliability, but a biased method stays biased)",
-                "A random sample is always perfectly representative"
+                "Thinking a larger sample removes bias: it improves reliability, but a biased method stays biased",
+                "Thinking a random sample is always perfectly representative"
               ],
               "threads": []
             },
@@ -10214,7 +10214,7 @@
               ],
               "misconceptions": [
                 "Plotting cumulative frequencies at class midpoints instead of upper boundaries",
-                "Reading a cumulative frequency as the frequency of that single class"
+                "Mixing up the running total with the frequency of a single class"
               ],
               "threads": [
                 {
@@ -10260,9 +10260,9 @@
                 }
               ],
               "misconceptions": [
-                "Reading the median halfway along the horizontal axis instead of from n/2 on the vertical axis",
-                "Finding Q3 − Q1 on the cumulative frequency axis instead of on the data axis",
-                "Reading the 90th percentile from 90 on the vertical axis when n is not 100"
+                "Taking the middle of the data's range for the median, instead of the value halfway through the cumulative frequency",
+                "Subtracting the quartile positions on the cumulative frequency instead of the quartile values of the data",
+                "Using the percentile number as the cumulative frequency, when it is a percentage of the total"
               ],
               "threads": []
             },
@@ -10303,8 +10303,8 @@
                 }
               ],
               "misconceptions": [
-                "Giving the cumulative frequency at 65 as the number who scored more than 65 (it is the number at or below)",
-                "For the top 30, reading across from 30 on the vertical axis instead of from n − 30"
+                "Giving the cumulative frequency itself, which counts those at or below the value, not those above it",
+                "Using the size of the top group as the cumulative frequency, instead of taking it from the total"
               ],
               "threads": []
             },
@@ -11362,7 +11362,7 @@
               ],
               "misconceptions": [
                 "Adding P(A) + P(B) without subtracting the overlap (double counting)",
-                "Multiplying P(A) × P(B) for 'A or B'",
+                "Multiplying P(A) × P(B): that gives P(A ∩ B), and only when the events are independent",
                 "Confusing 'A or B' (the union) with 'exactly one of A and B'"
               ],
               "threads": []
@@ -11415,7 +11415,7 @@
                 }
               ],
               "misconceptions": [
-                "Writing n(A) in the 'A only' region without subtracting the intersection",
+                "Using the whole of A for the 'A only' region, without subtracting the intersection",
                 "Forgetting the region outside both circles",
                 "Reading A ∩ B′ as 'neither A nor B'"
               ],
@@ -12672,7 +12672,7 @@
                 }
               ],
               "misconceptions": [
-                "Rearranging the y-on-x line to make x the subject (it is a different line unless r = ±1)",
+                "Rearranging the y-on-x line to make x the subject: it is a different line unless the fit is perfect",
                 "Copying the GDC output as y = ax + b without swapping the variables back"
               ],
               "threads": []
@@ -12709,7 +12709,7 @@
               ],
               "singleMethod": true,
               "misconceptions": [
-                "The y-on-x line can always be used if you rearrange it",
+                "Thinking the other line can always be used if you rearrange it",
                 "Choosing a line by which variable is on the horizontal axis, regardless of which one is being predicted"
               ],
               "threads": []
@@ -12870,8 +12870,8 @@
                 }
               ],
               "misconceptions": [
-                "Dividing by P(A) instead of P(B)",
-                "Giving P(A ∩ B) as the answer without dividing",
+                "Dividing by the probability of the wrong event, not the one that is given",
+                "Giving the probability of both events as the answer, without dividing",
                 "Computing P(A | B) as P(A) × P(B)"
               ],
               "threads": []
@@ -12922,7 +12922,7 @@
               ],
               "misconceptions": [
                 "Reading P(B | A) off a branch and giving it as P(A | B)",
-                "Using only one path for P(B) in the denominator"
+                "Not dividing by all the paths that lead to the condition"
               ],
               "threads": []
             },
@@ -12970,7 +12970,7 @@
                 }
               ],
               "misconceptions": [
-                "P(A ∩ B) = P(A | B) ÷ P(B)",
+                "Dividing by P(B) instead of multiplying: P(A ∩ B) is P(A | B) × P(B)",
                 "Treating P(A | B) as if it were P(A ∩ B)"
               ],
               "threads": []
@@ -13122,8 +13122,8 @@
                 }
               ],
               "misconceptions": [
-                "Multiplying P(X > 35) × P(X > 30) for the numerator",
-                "Giving P(30 < X < 35) as the answer",
+                "Multiplying the wanted probability by the given one instead of dividing",
+                "Giving the probability between the two bounds as the answer",
                 "Forgetting to divide by P(given)"
               ],
               "threads": [
@@ -13388,9 +13388,9 @@
                 }
               ],
               "misconceptions": [
-                "Giving both conditions a positive z when one value is below the mean",
+                "Taking both z-values as positive, when a value below the mean needs a negative z",
                 "Writing (x − μ)/σ = probability instead of = z",
-                "Rounding the z-values to 1 decimal place and losing accuracy"
+                "Rounding the z-values too early and losing accuracy"
               ],
               "threads": [
                 {
@@ -13430,11 +13430,10 @@
           "skills": [
             {
               "id": "SL5.1.estimate-limit",
-              "name": "Estimate a limit from a table, a graph or simple algebra",
+              "name": "Estimate a limit from a table or a graph",
               "examTypes": [
                 "Use the table to estimate the value of lim (x→2) f(x)",
-                "Use the graph to write down lim (x→∞) f(x)",
-                "Find lim (x→3) (x² − 9)/(x − 3)"
+                "Use the graph to write down lim (x→∞) f(x)"
               ],
               "difficulty": [
                 1,
@@ -13469,17 +13468,11 @@
                   "approach": "gdc",
                   "name": "Generate the table on the GDC",
                   "summary": "Use the GDC table with x-values such as 1.9, 1.99, 2.01, 2.001 to produce the values yourself."
-                },
-                {
-                  "id": "cancel-factor",
-                  "approach": "algebraic",
-                  "name": "Factorise and cancel, then substitute",
-                  "summary": "Cancel the common factor that causes 0/0 (or divide through by the highest power of x for limits at infinity), then substitute."
                 }
               ],
               "misconceptions": [
-                "The limit does not exist because f(a) itself is undefined (0/0)",
-                "The limit always equals f(a), even when the graph has a hole or jump at x = a",
+                "Thinking a limit can't exist when the function never reaches the value",
+                "Giving the function's value at one point as the limit, instead of where its values are heading",
                 "Checking values on one side of x = a only"
               ],
               "threads": []
@@ -13596,9 +13589,9 @@
                 }
               ],
               "misconceptions": [
-                "Reading f′(5) = 12 as 'the value of f at 5 is 12'",
-                "Ignoring the negative sign, so dV/dt = −3 is read as increasing by 3",
-                "Giving the units of y only (cm²) instead of y per unit x (cm² per second)"
+                "Reading the rate of change as the amount itself",
+                "Ignoring a negative sign, so a falling quantity is read as rising",
+                "Giving the units of y only, instead of units of y per unit of x"
               ],
               "threads": [
                 {
@@ -13745,8 +13738,8 @@
               ],
               "misconceptions": [
                 "Giving an interval of y-values rather than x-values",
-                "Solving f(x) < 0 (below the axis) instead of f′(x) < 0 (going down)",
-                "Getting the inequality the wrong way round when the leading coefficient of f′ is negative"
+                "Reading where f is above or below the axis, instead of where f′ is positive or negative",
+                "Taking the side of the roots where f′ has the opposite sign to the one asked for"
               ],
               "threads": [
                 {
@@ -13804,8 +13797,8 @@
                 }
               ],
               "misconceptions": [
-                "Confusing f′(x) < 0 with f(x) < 0 (being below the axis)",
-                "Thinking f′ = 0 at the x-intercepts rather than at the turning points",
+                "Using the sign of f instead of the sign of f′: being above the axis is not the same as going up",
+                "Thinking f′ is zero at the x-intercepts rather than at the turning points",
                 "Thinking f′(x) = 0 means the function value is zero"
               ],
               "threads": [
@@ -13977,8 +13970,8 @@
               ],
               "misconceptions": [
                 "Using the discriminant of f(x) instead of f′(x)",
-                "Using b² − 4ac > 0 (two roots) instead of ≤ 0",
-                "Solving k² ≤ 9 as k ≤ 3 only, losing −3 ≤ k"
+                "Asking f′ for two roots, when a monotonic f allows at most one",
+                "Keeping only the upper bound when solving an inequality in k², and losing the lower bound"
               ],
               "threads": [
                 {
@@ -14659,9 +14652,9 @@
                 }
               ],
               "misconceptions": [
-                "Dividing by the old power n instead of n + 1",
+                "Dividing by the old power instead of the new one",
                 "Forgetting + C",
-                "Integrating 3/x² as 3/(x³/3) or as 3 ln(x²)"
+                "Integrating a fraction in x without first rewriting it as a negative power"
               ],
               "threads": [
                 {
@@ -14948,7 +14941,7 @@
               "misconceptions": [
                 "Evaluating the rate at the end time instead of integrating",
                 "Adding the starting amount when only the change is asked for, or forgetting it when the total is asked for",
-                "Giving the answer in units per minute instead of units"
+                "Giving the total in the units of the rate"
               ],
               "threads": [
                 {
@@ -15021,9 +15014,9 @@
                 }
               ],
               "misconceptions": [
-                "d/dx cos x = sin x (missing the minus sign)",
-                "d/dx eˣ = x eˣ⁻¹, treating eˣ as a power of x",
-                "Getting a fractional power wrong: x^(−1/3) → −(1/3)x^(2/3) instead of −(1/3)x^(−4/3)"
+                "Differentiating cos x to sin x and missing the minus sign",
+                "Treating e^x as a power of x and bringing the power down",
+                "Adding one to a fractional power instead of taking one off"
               ],
               "threads": [
                 {
@@ -15086,9 +15079,9 @@
                 }
               ],
               "misconceptions": [
-                "Forgetting the inner derivative: d/dx (3x² + 1)⁴ = 4(3x² + 1)³",
-                "d/dx ln(3x) = 1/(3x) instead of 1/x",
-                "Replacing the inside by its derivative: 4(6x)³"
+                "Forgetting the inner derivative",
+                "Differentiating ln(kx) to one over kx, with no inner factor to cancel the k",
+                "Replacing the inside of the bracket by its derivative"
               ],
               "threads": [
                 {
@@ -15140,9 +15133,9 @@
                 }
               ],
               "misconceptions": [
-                "(uv)′ = u′v′",
+                "Multiplying the two derivatives: taking (uv)′ as u′v′",
                 "Writing only one of the two terms",
-                "Factorising wrongly, e.g. 2x ln x + x = x(2 ln x)"
+                "Losing a term when taking out the common factor"
               ],
               "threads": []
             },
@@ -15191,7 +15184,7 @@
               "misconceptions": [
                 "Reversing the numerator to u v′ − v u′, which flips the sign of the answer",
                 "Forgetting to square the denominator",
-                "(u/v)′ = u′/v′"
+                "Dividing the two derivatives: taking (u/v)′ as u′/v′"
               ],
               "threads": []
             },
@@ -15239,7 +15232,7 @@
               "misconceptions": [
                 "Working backwards from the given answer without actually differentiating",
                 "Cancelling single terms across a sum in the numerator and denominator",
-                "Sign slips when expanding −u v′ in the quotient rule"
+                "Slipping a sign when expanding −u v′ in the quotient rule"
               ],
               "threads": [
                 {
@@ -15345,7 +15338,7 @@
               ],
               "misconceptions": [
                 "Squaring f′(x) instead of differentiating it",
-                "Differentiating f(x) again instead of f′(x)",
+                "Stopping at f′ instead of differentiating again",
                 "Reading d²y/dx² as (dy/dx)²"
               ],
               "threads": [
@@ -15406,7 +15399,7 @@
                 }
               ],
               "misconceptions": [
-                "Confusing concave up (f″ > 0) with increasing (f′ > 0)",
+                "Confusing concave up with increasing: looking at the sign of f′ instead of f″",
                 "Thinking concave down means decreasing",
                 "Using f(x) > 0 instead of f″(x) > 0"
               ],
@@ -15468,8 +15461,8 @@
                 }
               ],
               "misconceptions": [
-                "Drawing f′ as a shifted copy of f",
-                "Putting the zeros of f′ at the x-intercepts of f instead of at its turning points",
+                "Going by the curve's general shape instead of checking its zeros, turning points and signs",
+                "Putting the zeros of a derivative at the x-intercepts instead of at the turning points",
                 "Thinking f′ must be positive wherever f is above the x-axis"
               ],
               "threads": [
@@ -16087,7 +16080,7 @@
                 }
               ],
               "misconceptions": [
-                "Substituting t into s to get the velocity",
+                "Substituting t into the function you were given, instead of differentiating it",
                 "Computing average velocity s/t instead of ds/dt",
                 "Assuming acceleration is constant when it depends on t"
               ],
@@ -16150,8 +16143,8 @@
                 }
               ],
               "misconceptions": [
-                "At rest means a = 0",
-                "Speeding up means a > 0, even when v < 0",
+                "Looking for zero acceleration instead of zero velocity",
+                "Thinking speeding up only needs positive acceleration, whatever the sign of the velocity",
                 "Counting every zero of v as a change of direction, even where v touches zero without changing sign"
               ],
               "threads": [
@@ -16334,7 +16327,7 @@
               "misconceptions": [
                 "Treating maximum speed as maximum velocity (a large negative velocity is a high speed)",
                 "Ignoring the endpoints of the time interval",
-                "Setting v = 0 to find the maximum velocity"
+                "Setting the velocity to zero to find its maximum"
               ],
               "threads": [
                 {
@@ -16457,9 +16450,9 @@
                 }
               ],
               "misconceptions": [
-                "∫ sin x dx = cos x + C (wrong sign)",
-                "Using the power rule on 1/x: ∫ x⁻¹ dx = x⁰/0",
-                "Multiplying by the new power instead of dividing: ∫ x^(1/2) dx = (3/2)x^(3/2)"
+                "Integrating sin x to cos x, with the wrong sign",
+                "Using the power rule on a reciprocal term, which would mean dividing by zero",
+                "Multiplying by the new power instead of dividing"
               ],
               "threads": [
                 {
@@ -16518,9 +16511,9 @@
                 }
               ],
               "misconceptions": [
-                "Multiplying by a as in differentiation: ∫ cos(4x) dx = 4 sin(4x) + C",
-                "Missing the factor ½: ∫ 1/(2x − 5) dx = ln|2x − 5| + C",
-                "Dividing by the exponent: ∫ e^(3x + 1) dx = e^(3x + 1)/(3x + 1) + C"
+                "Multiplying by the coefficient of x, as in differentiation, instead of dividing",
+                "Forgetting to divide by the coefficient of x",
+                "Dividing by the whole exponent instead of the coefficient of x"
               ],
               "threads": [
                 {
@@ -16577,8 +16570,8 @@
                 }
               ],
               "misconceptions": [
-                "Integrating the outer function but leaving the extra x in place",
-                "Forgetting to divide by 2: ∫ 6x/(x² + 1) dx = 6 ln(x² + 1) + C",
+                "Integrating the outer function but leaving the extra factor in place",
+                "Forgetting to divide by the number that comes from differentiating the inside",
                 "Forgetting to substitute back from u to x"
               ],
               "threads": [
@@ -16638,8 +16631,8 @@
                 }
               ],
               "misconceptions": [
-                "Integrating numerator and denominator separately: ∫ (x² + 3)/x dx = (x³/3 + 3x)/(x²/2)",
-                "Missing the middle term: (eˣ + 1)² = e^(2x) + 1",
+                "Integrating the numerator and denominator separately",
+                "Missing the middle term when squaring a bracket",
                 "Thinking two answers that differ by a constant cannot both be correct"
               ],
               "threads": [
@@ -16817,7 +16810,7 @@
               ],
               "misconceptions": [
                 "Computing F(lower) − F(upper)",
-                "Assuming the lower limit contributes 0, e.g. treating e⁰ or cos 0 as 0",
+                "Taking the lower limit's term as zero when it isn't",
                 "Writing + C in the answer to a definite integral"
               ],
               "threads": [
@@ -17111,7 +17104,7 @@
               ],
               "misconceptions": [
                 "Using the curve's x-intercept as the end of the triangle instead of the tangent's",
-                "Adding a piece that should be subtracted, counting the region under the line twice",
+                "Using the wrong sign for the triangle: adding a piece that should be subtracted, or subtracting one that should be added",
                 "Forgetting that the lower boundary changes at the point of contact"
               ],
               "threads": [

@@ -13,7 +13,7 @@ extends RefCounted
 ##     limit-of-model and limit-of-rate use this
 ##   n  a whole-number rate, for write-in-notation
 ##   b, c  two rates and p, q two values, for compare-rates
-##   a, rr, m  f(x) = m(x − a)(x − rr)/(x − a), for limit-cancel and limit-from-graph;
+##   a, rr, m  f(x) = m(x − a)(x − rr)/(x − a), for limit-from-graph and limit-from-table;
 ##     fam "cubic" for f(x) = (x³ − a³)/(x − a), in limit-from-table;  y the value drawn at x = a
 
 const TRIES := 600
@@ -80,7 +80,7 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 			s.t0 = rng.int_in(2, 12) * 5
 			s.p = float(rng.int_in(20, 60) * 10)
 			s.q = float(rng.int_in(20, 60) * 10 + 5)
-		"limit-cancel", "limit-from-graph", "limit-from-table":
+		"limit-from-graph", "limit-from-table":
 			s.fam = "cubic" if ask == "limit-from-table" and rng.chance(0.5) else "quad"
 			s.a = ExtensionViews.nonzero(rng, -4, 4)
 			s.m = rng.pick([1, 1, 2, 3, -1, -2])
