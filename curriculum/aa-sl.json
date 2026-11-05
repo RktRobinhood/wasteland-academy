@@ -3216,9 +3216,9 @@
                 }
               ],
               "misconceptions": [
-                "Squaring x but not k: 28k = 112",
-                "Taking only k = 2 when k² = 4 also allows k = −2",
-                "Dividing by k without noting k ≠ 0"
+                "Using the letter to the first power, so the term's power reaches x and not the letter",
+                "Taking only the positive value of a letter that is squared, when the negative one works too",
+                "Keeping the zero root, although the question rules it out"
               ],
               "threads": []
             },

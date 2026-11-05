@@ -541,6 +541,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 5.
 
+### t1-binomial-find-unknown
+
+**Binomial expansion: find an unknown from a given coefficient.** Run the expansion backwards: a coefficient, two coefficients or the first terms are given, and a letter in the bracket, n or x is found. Both signs are kept where the power is even, a negative n is rejected, and a power with n in it goes to the GDC.
+
+- **Syllabus:** 1.9
+- **Skills:** `SL1.9.find-unknown`
+- **Where it appears:** P1 4, P2 5; Section A 9, B 0. Marks per part: usually 5 (4 to 7).
+- **Usual chain:** write the term with the power of x asked, nCr with each part in brackets and raised → set its coefficient equal to the number given → solve for the letter, keeping both signs of an even power unless the question rules one out → with two unknowns, divide or eliminate, or use the working from each coefficient → with n in a power, table the coefficient against n on the GDC
+- **Given:** a bracket with a letter in it, and one coefficient, (1 + kx)^n with n as a letter, and a coefficient, the first terms of an expansion, two coefficients, equal or in a ratio, the same coefficient in two powers of one bracket, a bracket over cx^p, a term that is the mean of the terms beside it. **Asked:** The value or values of k, a or x, or n, or n with k, or a with b. **Answer form:** exact, two values, either order, exact surd on Paper 1, 3 s.f. on Paper 2 where the value is a surd, two letters.
+- **A recipe can randomise:** the power n, and which power of x is given; where the letter is: (1 + kx), (c + kx), (x + k) or (cx + k), and which is written first; the size and sign of the letter, a whole number, a fraction or a surd; whether the power of the letter is odd or even, and whether the question says it's positive; the bracket's number and x or x²; which neighbouring coefficients are compared, and the ratio; which term is the mean of the terms beside it.
+- **Limits that keep answers clean:** Paper 1 keeps coefficients to 20000 and writes a surd exactly; Paper 2 goes to 200000000 and gives a surd to 3 s.f.; every GDC method is Paper 2 only, and n in a power of the bracket's number is Paper 2 only; even powers ask for both signs unless the question says the letter is positive; the bank's own brackets, and the skill's worked examples, are left out.
+- **Game formats:** value, mcq
+- **Bank parts:** 9.
+
 ### t1-binomial-term
 
 **Binomial expansion: a coefficient, a term or the full expansion.** Evaluate nCr, read and build Pascal's triangle, expand (a + b)^n in full, and find one term or coefficient: with a negative term, a number beside x, x², a letter in the bracket, or by its place in the expansion.
