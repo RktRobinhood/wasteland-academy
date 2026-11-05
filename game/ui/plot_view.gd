@@ -7,7 +7,9 @@ extends Control
 ##               a number line with a thick segment (null at an end runs off as an
 ##               arrow) and open or closed circles
 ##   normal      {"mu", "sigma", "x0", "x1", "shade": [[from, to]], "marks": [{"at", "label"}]}:
-##               a normal curve with its areas shaded (null is an open end)
+##               a normal curve with its areas shaded (null is an open end); with "curves":
+##               [{"mu", "sigma", "label"}], those curves on one pair of axes, each lettered at its
+##               peak, instead of the one (FAL-740)
 ##   trig        {"fn": "sin" or "cos", "line", "points": [{"x", "y", "label"}]}: y = sin x
 ##               or cos x on [0, 2π] with π ticks, a level line and marked points
 ##   bars        {"xs", "ys", "hide": [index]}: one bar per x, its value on top (a row
@@ -162,6 +164,8 @@ func _normal() -> void:
 	var x0 := float(spec.x0)
 	var x1 := float(spec.x1)
 	var top := 1.0 / (sigma * sqrt(TAU))
+	for c in spec.get("curves", []):
+		top = maxf(top, 1.0 / (float(c.sigma) * sqrt(TAU)))
 	var r := Rect2(Vector2(PAD, PAD + 20), size - Vector2(PAD * 2, PAD * 2 + 110))
 	var to_px := func(x: float, yv: float) -> Vector2:
 		return Vector2(r.position.x + (x - x0) / (x1 - x0) * r.size.x, r.end.y - yv / (top * 1.1) * r.size.y)
@@ -175,18 +179,32 @@ func _normal() -> void:
 			poly.append(to_px.call(x, pdf.call(x)))
 		poly.append(to_px.call(b, 0.0))
 		draw_colored_polygon(poly, Color(UiTheme.SAND, 0.45))
-	var curve := PackedVector2Array()
-	for i in 241:
-		var x := x0 + (x1 - x0) * i / 240.0
-		curve.append(to_px.call(x, pdf.call(x)))
-	draw_polyline(curve, UiTheme.TEAL, 6.0, true)
-	draw_line(to_px.call(x0, 0.0), to_px.call(x1, 0.0), UiTheme.DIM, 4.0)
+	var many: Array = spec.get("curves", [])
+	var cols := [UiTheme.TEAL, UiTheme.SAND, UiTheme.PINK, UiTheme.TEXT]
+	if many.is_empty():
+		many = [{"mu": mu, "sigma": sigma, "label": ""}]
 	var dash := r.size.y / 24.0
-	var mx: Vector2 = to_px.call(mu, 0.0)
-	var t := 0.0
-	while t < r.size.y:
-		draw_line(mx - Vector2(0, t), mx - Vector2(0, minf(t + dash * 0.5, r.size.y)), UiTheme.DIM, 3.0)
-		t += dash
+	var centres := {}
+	for c in many:
+		centres[float(c.mu)] = true
+	for m in centres:
+		var mx: Vector2 = to_px.call(m, 0.0)
+		var t := 0.0
+		while t < r.size.y:
+			draw_line(mx - Vector2(0, t), mx - Vector2(0, minf(t + dash * 0.5, r.size.y)), UiTheme.DIM, 3.0)
+			t += dash
+	for j in many.size():
+		var cm := float(many[j].mu)
+		var cs := float(many[j].sigma)
+		var height := 1.0 / (cs * sqrt(TAU))
+		var line := PackedVector2Array()
+		for i in 241:
+			var x := x0 + (x1 - x0) * i / 240.0
+			line.append(to_px.call(x, height * exp(-0.5 * pow((x - cm) / cs, 2))))
+		draw_polyline(line, cols[j % cols.size()], 6.0, true)
+		if many[j].label != "":
+			_text(many[j].label, to_px.call(cm, height) + Vector2(30, -8), cols[j % cols.size()], FONT_SIZE)
+	draw_line(to_px.call(x0, 0.0), to_px.call(x1, 0.0), UiTheme.DIM, 4.0)
 	# Two values close together: the second label drops a row, so they don't run into each other.
 	var placed: Array = []
 	for m in spec.get("marks", []):

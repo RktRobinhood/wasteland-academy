@@ -960,6 +960,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq, error-spot, method-pick, true-false-reason
 - **Bank parts:** 18.
 
+### t4-normal-properties
+
+**Normal curve properties: symmetry, sigma intervals, matching curves.** Read the normal curve: the 68-95-99.7 rule as a share, a count, a tail or a band, what μ and σ do to the curve, which curves match, P(X = a) = 0, a mirror tail or value, area bookkeeping from given tails, and, on Paper 2, the central interval with invNorm or a solver.
+
+- **Syllabus:** 4.9
+- **Skills:** `SL4.9.properties`, `SL4.9.symmetry-probability`, `SL4.9.central-interval`
+- **Where it appears:** P1 2, P2 6; Section A 4, B 4. Marks per part: usually 2 (1 to 3).
+- **Usual chain:** mark μ and the bounds on a sketch of the curve → count the standard deviations, or find the mirror point → use the rule, or symmetry and total area 1, to write the region in terms of what is known → on Paper 2, split a central area into two equal tails and use invNorm → state the area, the value or the curve
+- **Given:** X ~ N(μ, σ²), with σ a number, a letter or hidden, one tail, or two, or a band and its area, a story with percentages, a curve with a region shaded, or four curves on one figure. **Asked:** An approximate share or count by the rule, a probability from symmetry, a mirror value, an end of a band, σ, which curve or graph fits, how a curve changes, or a central interval. **Answer form:** exact decimal, percentage, a whole count, a curve or graph, a description of a change, 3 s.f., an interval.
+- **A recipe can randomise:** μ and σ; how many standard deviations a band reaches, and whether it is said in numbers or words; which side a tail is on, and which side is asked; the tails and central areas; which parameter changes, and which way; the curve asked for, and the order of the letters; the story: grain sacks, copper pipes, couriers, cans, fence posts, batteries, patrols and engine parts.
+- **Limits that keep answers clean:** Paper 1 has no calculator work; beyond-sd, tail-from-band and the central intervals are Paper 2; the rest make both papers, so the type can reach the exam's split; a tail on Paper 1 is in hundredths and on Paper 2 in thousandths.
+- **Game formats:** value, mcq
+- **Bank parts:** 8.
+
 ### t4-normal-probability
 
 **Normal probability for an interval on the GDC.** X is normal with μ and σ known, and a region is asked for: below, above, between or outside values, a percentage in a story, an expected count in a sample, exactly k of a sample in the region, a rejection rule, a variable that can be negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle from two given tails.

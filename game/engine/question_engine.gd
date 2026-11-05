@@ -99,6 +99,7 @@ static var SITUATIONS := {
 	"independence": [IndependenceSituation, IndependenceViews],
 	"grouped-data": [GroupedDataSituation, GroupedDataViews],
 	"antiderivative-condition": [AntiderivativeConditionSituation, AntiderivativeConditionViews],
+	"normal-properties": [NormalPropertiesSituation, NormalPropertiesViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
 	"compound-interest": [CompoundInterestSituation, CompoundInterestViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],

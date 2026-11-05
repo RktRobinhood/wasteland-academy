@@ -340,7 +340,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): If f(m − d) = f(m + d) for one value of d, the graph of f is symmetric about x = m. — Sometimes. For a parabola any two equal outputs sit either side of the axis. But f(x) = x³ − x has f(−1) = f(1) = 0 and is not symmetric about x = 0: f(−2) = −6 while f(2) = 6.
   - *true-false-reason* (L3): X ~ N(120, σ²) and P(X > 135) = 0.15, so P(105 < X < 135) = 0.3. — False. 105 and 135 are both 15 from the mean, so each tail is 0.15. 0.3 is the two tails together; the middle is 1 − 0.3 = 0.7.
   - *predict-check* (L3): Predict the other value of r with 9Cr = 9C2, then check. — r = 7. Choosing 2 items to take is the same as choosing 7 to leave behind, so 9C2 = 9C7 = 36.
-- **Misconceptions used:** 12. Writes the axis as y = h, or just the number h, instead of x = h; Thinks the line of symmetry passes through the y-intercept; Reflects a point the wrong distance or to the wrong side; Assumes every curve with a turning point is symmetric (e.g. a cubic); Getting the size right but the sign wrong for the quadrant; Measuring the reference angle from the y-axis; P(7 < X < 13) = 0.2 + 0.2 (adding the tails instead of subtracting them from 1); Forgetting that P(X < μ) = 0.5; Applying symmetry about 0 instead of about μ; Using invNorm(0.9) for the upper endpoint instead of invNorm(0.95); Giving the endpoint μ + k when k is asked for; Using n!/r! and forgetting the (n − r)! factor.
+- **Misconceptions used:** 12. Writes the axis as y = h, or just the number h, instead of x = h; Thinks the line of symmetry passes through the y-intercept; Reflects a point the wrong distance or to the wrong side; Assumes every curve with a turning point is symmetric (e.g. a cubic); Getting the size right but the sign wrong for the quadrant; Measuring the reference angle from the y-axis; Using the sum of the tails as the middle, instead of subtracting them from the whole area; Forgetting that the mean cuts the area into two equal halves; Using the origin as the mirror instead of μ; Using the central area as the left-tail area in invNorm; Using the endpoint μ + k as the answer when k is asked for; Using n!/r! and forgetting the (n − r)! factor.
 
 #### Same object, different forms (`fn-link-equivalent-forms`, link, level 3–4)
 
@@ -2550,6 +2550,45 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): For X ~ B(n, p), the most likely value of X is the whole number nearest to np. — Sometimes: it usually is, but for X ~ B(7, 0.1) the most likely value is 0 (P(X = 0) = 0.478 and P(X = 1) = 0.372) while np = 0.7 is nearest to 1.
   - *true-false-reason* (L4): For any binomial distribution, Var(X) is smaller than E(X). — True: Var(X) = np(1 − p) = E(X)(1 − p), and 1 − p is less than 1, so the variance is always smaller than the mean. That is why Var(X) ÷ E(X) gives 1 − p.
 - **Misconceptions used:** 14. Writing B(p, n) instead of B(n, p); Leaving out the nCr factor and giving just p^r (1 − p)^(n − r); Swapping the powers: p^(n − r) (1 − p)^r; Using the cumulative function (binomcdf) for 'exactly r'; P(X ≥ 3) = 1 − P(X ≤ 3) (it should be 1 − P(X ≤ 2)); Using P(X ≤ 5) for P(X < 5); P(2 < X ≤ 6) = P(X ≤ 6) − P(X ≤ 3) (it should subtract P(X ≤ 2)); Var(X) = np (forgetting the factor 1 − p); Giving np(1 − p) when the standard deviation is asked for; Rounding E(X) to a whole number; Rounding n down instead of up to the next whole number; Taking p = Var(X) ÷ E(X) (that gives 1 − p); Finding P(X = 3) in 8 trials for 'the third success is on the eighth trial'; Multiplying the two probabilities in a conditional instead of dividing.
+
+#### Normal curve properties: symmetry, sigma intervals, matching curves (`t4-normal-properties`, exam, 8 bank parts)
+
+- **Situation:** What the shape of a normal curve gives.
+- **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given μ and σ, or X ~ N(μ, a²); a band μ ± kσ for k = 1, 2 or 3 → the approximate probability or percentage in the band
+  - new L2: given μ, σ and how many there are; a band μ ± kσ → about how many are inside, or outside, the band
+  - **exam** L2: given μ and σ; a bound k standard deviations from the mean → the approximate area below or above the bound
+  - new L3: given μ and σ; a band whose ends are different numbers of σ from the mean → the approximate area of the band
+  - new L3: given a band centred on the mean and the share of the rule it holds → σ
+  - **exam** L1: given μ, σ and one end of the band within k standard deviations of the mean → the other end
+  - new L1: given μ, σ and a single value → P(X = a)
+  - new L2: given two normal curves, or one and a change in μ or σ → how the curve changes
+  - **exam** L2: given four curves on one figure; one distribution, with σ² as a square or as the variance → which curve it is
+  - **exam** L3: given two distributions, with the second parameter as a square or as the variance → which of four graphs shows both
+  - **exam** L1: given X ~ N(μ, σ²) and an event → which of four graphs shades the event
+  - **exam** L3: given X and Y with different means and the same σ; P(X > b) = P(Y > y) → b
+  - new L4: given X and Y with different means and the same σ; P(X < b) = P(Y > y) → b
+  - **exam** L2: given μ and σ; a number of standard deviations that is not whole → the probability of being more than that far above, below or from the mean
+  - **exam** L1: given X ~ N(μ, σ²) → P(X < μ) or P(X > μ)
+  - **exam** L2: given μ and one tail → the mirror tail
+  - new L3: given μ and a large area past the mean → the small tail on the other side
+  - **exam** L2: given μ and one tail → the area between the tail's bound and its mirror
+  - **exam** L2: given a band centred on μ and its area → one tail
+  - new L2: given a band centred on μ and its area → the area from μ to one end
+  - new L3: given μ and one tail → the area between μ and the tail's bound
+  - **exam** L2: given two different tails, with μ and σ hidden → the area between them
+  - **exam** L3: given μ, σ, the upper end of a band and the band's area → the tail below the band
+  - **exam** L2: given μ and one of two values that cut off equal tails → the other value
+  - **exam** L3: given μ, σ and P(μ − k < X < μ + k) → k
+  - **exam** L3: given μ, σ and the area of a central interval → both ends of the interval
+  - new L4: given μ, σ and the area within k standard deviations of the mean → k
+- **Angles:** 68-95-99.7 rule; Sketch, label μ and shade; μ moves the curve, σ stretches it; Mirror the tail; Total area 1, each half 0.5; Sketch and shade; Split what is left into two equal tails; GDC centre-tail inverse normal; Solve normalcdf(μ − k, μ + k, μ, σ) = 0.9.
+- **Concept probes:**
+  - *true-false-reason* (L3): For a normal variable, P(X < a) and P(X ≤ a) are equal. — True: X is continuous, so P(X = a) = 0, and adding one value adds no area.
+  - *always-sometimes-never* (L3): Doubling σ doubles the height of a normal curve's peak. — Never: the total area stays 1, so a curve twice as wide has half the height.
+  - *interpret-parameter* (L3): Two normal curves have the same σ and different means. What is the same about them, and what is different? — They are the same shape, so one slides onto the other. Only their positions differ.
+- **Misconceptions used:** 35. Using the wrong figure of the rule for how many standard deviations the band reaches; Assuming a larger σ gives a taller curve; Assuming a single value of a continuous variable has a non-zero probability; Using the sum of the tails as the middle, instead of subtracting them from the whole area; Forgetting that the mean cuts the area into two equal halves; Using the origin as the mirror instead of μ; Using the central area as the left-tail area in invNorm; Using the endpoint μ + k as the answer when k is asked for; Giving the area on the wrong side of the bound or the band; Using the share of the whole band for a region that is not that band; Using half of the band where another area is asked for; Keeping both tails when one is asked for; Using one tail where there are two; Leaving a share as a share instead of multiplying by the total; Using the width of the band ÷ k, when the band reaches k standard deviations each side; Stepping from the given end only as far as the mean; Stepping one standard deviation from the mean when the band reaches further; Assuming a change in μ changes the shape of the curve; Assuming a change in σ moves the curve along; Assuming a larger σ makes the curve narrower; Moving the curve the wrong way along the axis; Using the wrong mean for the curve; Shading from the mean to the bound instead of the region asked for; Centring the curve somewhere other than the mean; Using k in place of kσ, so the bound is k from the mean; Using the complement where the mirror is needed; Using the large area as the mirror of itself, without taking it from the whole area; Measuring the area from the mean instead of the tail; Assuming two different tails are equal; Keeping the value unchanged when the curve has moved; Moving the value the wrong way, by the difference of the means; Using the same side of the mean when the two tails point opposite ways; Using the sum of the value and the mean instead of a reflection; Using z without multiplying by σ; Multiplying by σ when k already counts standard deviations.
 
 #### Normal probability for an interval on the GDC (`t4-normal-probability`, exam, 12 bank parts)
 
