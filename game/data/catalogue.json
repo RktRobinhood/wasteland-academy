@@ -3665,6 +3665,80 @@
 				"Paper 2 answers are to 3 s.f., clear of a rounding edge",
 				"the range is even on Paper 1, so a and d are whole"
 			]
+		},
+		"basic-probability": {
+			"name": "One chance set-up, counted or measured",
+			"summary": "Pick a set-up with outcomes that can be counted or results that can be read: a bag, a two-way table, a list of data, two dice or spinners, a short sample space, one event, independent trials, a results table, a running relative frequency, two tests or a run of results. The probability of an event, of its complement, or an estimate from results is then known, and any of them can be asked.",
+			"quantities": [
+				{
+					"name": "counts, cols, target",
+					"is": "the colours in a bag or the groups of a table, and which is asked",
+					"pick": "Paper 1: 2 to 12 each; Paper 2: 5 to 70 each"
+				},
+				{
+					"name": "mode, changed, m",
+					"is": "a change to the bag before the draw",
+					"pick": "1 to 3 of one colour taken out or added"
+				},
+				{
+					"name": "cells, what",
+					"is": "a 2 by 3 table with totals, and whether one cell or a whole column is asked",
+					"pick": "Paper 1: 2 to 12 a cell; Paper 2: 6 to 60"
+				},
+				{
+					"name": "vals, op, k",
+					"is": "a list of data, a word (more than, at least, fewer than) and a boundary that is in the list",
+					"pick": "10 to 24 values from 2 to 12"
+				},
+				{
+					"name": "xs, ys, k",
+					"is": "the faces of two dice or spinners, and the total asked",
+					"pick": "dice 1 to 6, or 3 to 5 sectors numbered 1 to 9"
+				},
+				{
+					"name": "kind",
+					"is": "a sample space short enough to list",
+					"pick": "coins, a coin and a die, pairs from a crew, or three digit cards"
+				},
+				{
+					"name": "rule, lo, hi, d",
+					"is": "two prizes that can't both happen",
+					"pick": "a low or a high total, or equal numbers or numbers that differ by d, from 1 to 3"
+				},
+				{
+					"name": "p, ps, n",
+					"is": "the probabilities of independent trials",
+					"pick": "2 or 3 trials (2 on a tree), in tenths, unit fractions or hundredths"
+				},
+				{
+					"name": "edges",
+					"is": "class boundaries of a grouped table",
+					"pick": "4 to 6 classes of width 5, 10 or 20"
+				},
+				{
+					"name": "curve, settle, early",
+					"is": "a running relative frequency of real counts, its long-run value and its first point",
+					"pick": "40 points that settle on a multiple of 0.02 from 0.2 to 0.8, not 0.5"
+				},
+				{
+					"name": "ns, hits, large",
+					"is": "two tests of the same thing",
+					"pick": "10 to 60 trials against 200 to 1500"
+				},
+				{
+					"name": "streak",
+					"is": "a run of results before the next trial",
+					"pick": "3 to 6 for a coin, 2 to m − 2 for m sectors or faces"
+				}
+			],
+			"clean": [
+				"Paper 1 answers are exact, as a fraction in lowest terms or a decimal that ends",
+				"Paper 2 counts and products are answered to 3 s.f., need rounding, and sit at least 0.03 of a unit of the third figure from a rounding edge",
+				"every option is a probability between 0 and 1, written the way the answer is",
+				"a frequency chart's relative frequency on Paper 1 has a total of 20, 25, 40, 50, 80, 100 or 200, so it ends",
+				"a running relative frequency comes from real counts: hits never fall, and rise by no more than the trials added",
+				"an event's probability is never one half where its complement is asked, so the two are always different"
+			]
 		}
 	},
 	"skills": {
@@ -3778,6 +3852,9 @@
 		"SL4.4.mean-point": "Find the mean point and use it with lines of best fit",
 		"SL4.4.predict": "Use the regression line to predict, and judge whether the prediction is reliable",
 		"SL4.5.expected-occurrences": "Find the expected number of occurrences",
+		"SL4.5.equally-likely": "Find a probability by counting equally likely outcomes",
+		"SL4.5.complement": "Use complementary events, including 'at least one'",
+		"SL4.5.relative-frequency": "Estimate a probability from relative frequency",
 		"SL4.6.union": "Find P(A ∪ B) for combined events",
 		"SL4.6.venn": "Complete and use a Venn diagram, including finding an unknown",
 		"SL4.7.expected-value": "Calculate and interpret E(X)",
@@ -26332,6 +26409,578 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Probability from a table, a count or the complement",
+			"summary": "Find a probability by counting equally likely outcomes (a bag, a two-way table, a list of data, a grid of two dice, a listed sample space), by the complement (1 − P(A), counting what is left, or at least one = 1 − none), or estimate one from results: a table, a bar chart, a graph settling to its long-run value, the more reliable of two tests, and a run of results that changes nothing.",
+			"situation": "basic-probability",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a bag of tokens, two dice, independent trials, a run of results"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a table of counts, a two-way table with totals, or a frequency table, grouped or not"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the probability in symbols: P(A) = 0.37"
+				},
+				{
+					"rep": "terms",
+					"exam": false,
+					"how": "a list of data values"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a sample space table of totals or gaps, one outcome in each cell, or a tree of two independent trials"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "a bar chart of frequencies, or relative frequency drawn against the number of trials"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "bag-counter",
+					"given": [
+						"the counts of each colour"
+					],
+					"asked": "the probability of a colour, or of either of two",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "bag-after-change",
+					"given": [
+						"the counts of each colour",
+						"how many of one colour leave or join the bag"
+					],
+					"asked": "the probability of a colour on the next draw",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "two-way-whole",
+					"given": [
+						"a two-way table with totals"
+					],
+					"asked": "the probability that someone chosen from the whole table is in a cell or a column",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "list-data",
+					"given": [
+						"a list of data values",
+						"a boundary"
+					],
+					"asked": "the probability that a value chosen at random is more than, at least or fewer than it",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "grid-total-equals",
+					"given": [
+						"two dice or spinners"
+					],
+					"asked": "the probability of one total",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "grid-total-at-least",
+					"given": [
+						"two dice or spinners"
+					],
+					"asked": "the probability of a total of at least k",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "list-then-count",
+					"given": [
+						"a small experiment"
+					],
+					"asked": "the probability of an event, by listing the sample space",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "complement-given",
+					"given": [
+						"P(A)"
+					],
+					"asked": "P(A′)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "complement-table",
+					"given": [
+						"a table of counts or of probabilities"
+					],
+					"asked": "the probability of not landing on, or not being, one colour",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "complement-count",
+					"given": [
+						"numbered items and a multiple, or two dice or spinners and a total"
+					],
+					"asked": "the probability of not being a multiple, or of not getting that total",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "complement-two-rules",
+					"given": [
+						"two dice or spinners",
+						"two prize rules that can't both happen"
+					],
+					"asked": "the probability of winning nothing",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "at-least-one-same",
+					"given": [
+						"p",
+						"the number of independent trials"
+					],
+					"asked": "the probability of at least one success",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "at-least-one-different",
+					"given": [
+						"a probability for each independent trial"
+					],
+					"asked": "the probability of at least one success",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "rf-from-table",
+					"given": [
+						"a frequency table or bar chart",
+						"the number of trials"
+					],
+					"asked": "the relative frequency of a score",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL4.5.relative-frequency"
+					]
+				},
+				{
+					"id": "rf-total-to-find",
+					"given": [
+						"a frequency table with no total, by score or in groups"
+					],
+					"asked": "the probability of a score, or of a value from a boundary up",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.5.relative-frequency"
+					]
+				},
+				{
+					"id": "rf-graph-estimate",
+					"given": [
+						"a graph of relative frequency against trials"
+					],
+					"asked": "the estimate of the probability",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.5.relative-frequency"
+					]
+				},
+				{
+					"id": "more-reliable",
+					"given": [
+						"two tests of different sizes"
+					],
+					"asked": "the estimate from the more reliable test",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.5.relative-frequency"
+					]
+				},
+				{
+					"id": "gamblers-fallacy",
+					"given": [
+						"a fair coin, die or spinner",
+						"a run of results"
+					],
+					"asked": "the probability on the next trial",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.5.relative-frequency",
+						"SL4.5.equally-likely"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.5.equally-likely",
+					"method": "count-ratio",
+					"suits": [
+						"bag-counter",
+						"bag-after-change",
+						"two-way-whole",
+						"list-data",
+						"grid-total-equals",
+						"grid-total-at-least",
+						"gamblers-fallacy"
+					],
+					"name": "n(A) ÷ n(U)",
+					"about": "Count the outcomes in the event and divide by the total number of equally likely outcomes."
+				},
+				{
+					"skill": "SL4.5.equally-likely",
+					"method": "list-sample-space",
+					"suits": [
+						"grid-total-equals",
+						"grid-total-at-least",
+						"list-then-count"
+					],
+					"name": "List or tabulate the sample space",
+					"about": "Write out every equally likely outcome systematically (or read the totals from a table), then pick out those in the event."
+				},
+				{
+					"skill": "SL4.5.complement",
+					"method": "one-minus",
+					"suits": [
+						"complement-given",
+						"complement-table",
+						"complement-count",
+						"complement-two-rules"
+					],
+					"name": "P(A′) = 1 − P(A)",
+					"about": "A and A′ cover every outcome without overlapping, so their probabilities add to 1."
+				},
+				{
+					"skill": "SL4.5.complement",
+					"method": "count-complement",
+					"suits": [
+						"complement-table",
+						"complement-count",
+						"complement-two-rules"
+					],
+					"name": "Count the outcomes not in A",
+					"about": "Count n(A′) directly and divide by n(U); a useful check on 1 − P(A)."
+				},
+				{
+					"skill": "SL4.5.complement",
+					"method": "at-least-one",
+					"suits": [
+						"at-least-one-same",
+						"at-least-one-different"
+					],
+					"name": "At least one = 1 − none",
+					"about": "Instead of adding every case with one or more, find the single case 'none' and subtract it from 1."
+				},
+				{
+					"skill": "SL4.5.relative-frequency",
+					"method": "freq-over-trials",
+					"suits": [
+						"rf-from-table",
+						"rf-total-to-find",
+						"more-reliable"
+					],
+					"name": "Frequency ÷ number of trials",
+					"about": "The relative frequency of an event is the number of times it happened divided by the number of trials."
+				},
+				{
+					"skill": "SL4.5.relative-frequency",
+					"method": "long-run",
+					"suits": [
+						"rf-graph-estimate"
+					],
+					"name": "Read the long-run value",
+					"about": "On a graph of relative frequency against number of trials, the value it settles towards is the best estimate of the probability."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Rain tomorrow either happens or it doesn't, so the probability of rain is one half.",
+					"answer": "False: two outcomes are only worth one half each if they are equally likely, and nothing says these are.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "A relative frequency from a thousand trials can still differ from the true probability.",
+					"answer": "True: more trials make the estimate more reliable, not exact. It settles near the probability and need not land on it.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "P(at least one success) is more than the probability of success on one trial.",
+					"answer": "Sometimes: it is more when there are two or more trials and each can succeed, but with one trial, or a probability of 0 on every later trial, the two are equal.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.5.equally-likely#0",
+					"text": "Treating outcomes that are not equally likely as if they were, giving each kind of outcome the same share",
+					"as": "distractor",
+					"in": [
+						"bag-counter",
+						"list-data",
+						"grid-total-equals",
+						"grid-total-at-least",
+						"list-then-count",
+						"complement-table",
+						"complement-count",
+						"rf-from-table"
+					],
+					"wrong": "one share per colour, value, total or score, not per equally likely outcome"
+				},
+				{
+					"ref": "SL4.5.equally-likely#1",
+					"text": "Dividing by a row total when the person is chosen from the whole group",
+					"as": "distractor",
+					"in": [
+						"two-way-whole"
+					],
+					"wrong": "the cell over its row total"
+				},
+				{
+					"ref": "SL4.5.complement#0",
+					"text": "Finding P(exactly one) when 'at least one' is asked for",
+					"as": "distractor",
+					"in": [
+						"at-least-one-same",
+						"at-least-one-different"
+					],
+					"wrong": "the probability of exactly one success"
+				},
+				{
+					"ref": "SL4.5.complement#1",
+					"text": "Adding the trials' probabilities for 'at least one', which counts the overlaps more than once",
+					"as": "distractor",
+					"in": [
+						"at-least-one-same",
+						"at-least-one-different"
+					],
+					"wrong": "the sum of the trials' probabilities"
+				},
+				{
+					"ref": "SL4.5.relative-frequency#0",
+					"text": "Taking the relative frequency from a handful of trials as the true probability",
+					"as": "distractor",
+					"in": [
+						"rf-graph-estimate",
+						"more-reliable"
+					],
+					"wrong": "the first point of the graph, or the smaller test's value"
+				},
+				{
+					"ref": "SL4.5.relative-frequency#1",
+					"text": "Treating the result as 'due' after a run, when past trials don't change the chance",
+					"as": "distractor",
+					"in": [
+						"gamblers-fallacy"
+					],
+					"wrong": "a chance raised by the run"
+				},
+				{
+					"text": "Dividing by the rest instead of the whole, leaving the event's own count out of the total",
+					"as": "distractor",
+					"in": [
+						"bag-counter",
+						"two-way-whole",
+						"list-data",
+						"grid-total-equals",
+						"grid-total-at-least",
+						"list-then-count",
+						"rf-from-table",
+						"rf-total-to-find"
+					],
+					"wrong": "n(A) ÷ (n(U) − n(A))"
+				},
+				{
+					"text": "Changing the count of the colour but leaving the total at its old size",
+					"as": "distractor",
+					"in": [
+						"bag-after-change"
+					],
+					"wrong": "the new count over the old total"
+				},
+				{
+					"text": "Changing the total but leaving the colour's count at its old size",
+					"as": "distractor",
+					"in": [
+						"bag-after-change"
+					],
+					"wrong": "the old count over the new total"
+				},
+				{
+					"text": "Giving the probability of the event itself, or of 'none', instead of the one asked for",
+					"as": "distractor",
+					"in": [
+						"complement-given",
+						"complement-table",
+						"complement-count",
+						"complement-two-rules",
+						"at-least-one-same",
+						"at-least-one-different"
+					],
+					"wrong": "P(A) for P(A′), or P(none) for P(at least one)"
+				},
+				{
+					"text": "Getting the boundary wrong, counting a value that doesn't belong or leaving out one that does",
+					"as": "distractor",
+					"in": [
+						"list-data",
+						"grid-total-at-least",
+						"rf-total-to-find"
+					],
+					"wrong": "the count with the boundary value on the wrong side"
+				},
+				{
+					"text": "Taking away only one of the two prizes from the whole",
+					"as": "distractor",
+					"in": [
+						"complement-two-rules"
+					],
+					"wrong": "1 minus one prize's probability"
+				},
+				{
+					"text": "Working out the chance of the whole run instead of the next toss alone",
+					"as": "distractor",
+					"in": [
+						"gamblers-fallacy"
+					],
+					"wrong": "the chance of the run with the next toss on the end"
+				}
+			],
+			"chain": [
+				"count the equally likely outcomes, not the kinds of outcome",
+				"divide by the whole group, whatever row the event sits in",
+				"list or tabulate a sample space, then count the event",
+				"use the complement: 1 − P(A), or count what is left",
+				"at least one = 1 − none",
+				"estimate from results: frequency ÷ trials, the long-run value, the bigger test"
+			],
 			"frequency": 4,
 			"marks": 1,
 			"section": {
@@ -26341,9 +26990,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 3
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-tree-diagram",

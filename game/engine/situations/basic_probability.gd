@@ -3,8 +3,8 @@ extends RefCounted
 ## The `basic-probability` situation (curriculum/question-types.json): one chance set-up, for
 ## t4-probability-basic (SL4.5, FAL-728). Each unknown has its own: a bag, a two-way table, a list
 ## of data, two dice or two spinners, a small sample space, one event, independent trials, a
-## results table or bar chart, a running relative frequency, two tests or a streak. `form` says how
-## the answer is written:
+## results table or bar chart, a running relative frequency, two tests or a run of results. `form`
+## says how the answer is written:
 ##   frac   an exact fraction: Paper 1 counts
 ##   dec    a decimal that ends: the question writes decimals, or a graph is read
 ##   sf     Paper 2 counts and products, to 3 s.f. These answers need rounding, and sit at least
@@ -12,13 +12,17 @@ extends RefCounted
 ## A Paper 2 label needs no GDC here: it gives bigger counts and awkward values, nothing more.
 ##
 ## need.ask is the unknown (see BasicProbabilityViews). generate() returns a Dictionary with paper,
-## ask, rep, form and ctx (an index into a list of stories), and:
-##   counts, cols, target, others   bags, frequency tables and bar charts
-##   cells, r, c                    two-way-whole: 2 by 3 counts and the cell asked
+## ask, rep, form and ctx (an index the views wrap into their lists of stories), and:
+##   counts, cols, target           bags and frequency tables; cols are colours (see COLOURS)
+##   mode, changed, m               bag-after-change: "out" or "in", which colour, how many
+##   cells, what, r, c              two-way-whole: 2 by 3 counts; "cell" or "col", and which
 ##   vals, op, k                    list-data: the list, "more", "least" or "less", the boundary
 ##   kind, xs, ys, k                grids: the two sets of faces and the total asked
 ##   kind, ...                      list-then-count: coins, coin-die, pairs or cards
+##   rule, lo, hi, d                complement-two-rules: "ends" (a total up to lo or from hi) or
+##                                  "gap" (scores equal, or differing by d)
 ##   p, ps, n                       trials: the probability, or one each, and how many
+##   edges, least, from_score       rf-total-to-find: class boundaries if it is grouped
 ##   curve, early, settle           rf-graph-estimate: [[trials, relative frequency], ...]
 ##   ns, hits, large                more-reliable: two tests and which is the larger
 ##   kind, streak, p                gamblers-fallacy
@@ -28,6 +32,7 @@ extends RefCounted
 
 const TRIES := 4000
 const EDGE := 0.03
+## How many stories generate() draws from; the views wrap ctx into their shorter lists.
 const CONTEXTS := 8
 ## Totals whose relative frequencies end, on Paper 1.
 const P1_TOTALS := [20, 25, 40, 50, 80, 100, 200]
@@ -47,7 +52,7 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 		match ask:
 			"bag-counter":
 				ok = _bag(rng, s)
-			"bag-after-removal":
+			"bag-after-change":
 				ok = _bag_after(rng, s)
 			"two-way-whole":
 				ok = _two_way(rng, s)
@@ -65,6 +70,8 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 				ok = _complement_table(rng, s)
 			"complement-count":
 				ok = _complement_count(rng, s)
+			"complement-two-rules":
+				ok = _complement_two(rng, s)
 			"at-least-one-same":
 				ok = _same_trials(rng, s)
 			"at-least-one-different":
@@ -138,20 +145,41 @@ static func _bag_after(rng: Seeded, s: Dictionary) -> bool:
 	var k := rng.int_in(2, 3)
 	s.counts = _counts(rng, k, 3, 10) if s.paper == 1 else _counts(rng, k, 6, 40)
 	s.cols = rng.shuffled(range(5)).slice(0, k)
-	s.removed = rng.int_in(0, k - 1)
+	s.mode = rng.pick(["out", "in"])
+	s.changed = rng.int_in(0, k - 1)
 	s.m = rng.int_in(1, 3)
 	s.target = rng.int_in(0, k - 1)
-	var left: int = int(s.counts[s.target]) - (s.m if s.target == s.removed else 0)
-	return left >= 1 and left < sum(s.counts) - s.m and clear(s, Q.new(left, sum(s.counts) - s.m))
+	if s.mode == "out" and int(s.counts[s.changed]) <= s.m:
+		return false
+	var v := after_change(s)
+	return v.lt(Q.new(1)) and clear(s, v)
+
+
+## The bag after the change: the signed change, and the chance of the colour asked.
+static func step_size(s: Dictionary) -> int:
+	return -int(s.m) if s.mode == "out" else int(s.m)
+
+
+static func after_change(s: Dictionary) -> Q:
+	var left: int = int(s.counts[s.target]) + (step_size(s) if s.target == s.changed else 0)
+	return Q.new(left, sum(s.counts) + step_size(s))
 
 
 static func _two_way(rng: Seeded, s: Dictionary) -> bool:
 	s.cells = [_counts(rng, 3, 2, 12), _counts(rng, 3, 2, 12)] if s.paper == 1 else [_counts(rng, 3, 6, 60), _counts(rng, 3, 6, 60)]
 	s.r = rng.int_in(0, 1)
 	s.c = rng.int_in(0, 2)
-	var cell: int = int(s.cells[s.r][s.c])
+	s.what = "col" if rng.chance(0.3) else "cell"
+	return sum(s.cells[0]) != sum(s.cells[1]) and sum(s.cells[s.r]) != col_total(s) and clear(s, two_way_answer(s))
+
+
+static func col_total(s: Dictionary) -> int:
+	return int(s.cells[0][s.c]) + int(s.cells[1][s.c])
+
+
+static func two_way_answer(s: Dictionary) -> Q:
 	var total: int = sum(s.cells[0]) + sum(s.cells[1])
-	return sum(s.cells[0]) != sum(s.cells[1]) and sum(s.cells[s.r]) != int(s.cells[0][s.c]) + int(s.cells[1][s.c]) and clear(s, Q.new(cell, total))
+	return Q.new(int(s.cells[s.r][s.c]) if s.what == "cell" else col_total(s), total)
 
 
 static func _list_data(rng: Seeded, s: Dictionary) -> bool:
@@ -267,10 +295,9 @@ static func _list_then_count(rng: Seeded, s: Dictionary) -> bool:
 		"cards":
 			s.digits = _sorted_pick(rng, CARD_DIGITS, 3)
 			s.cond = rng.pick(["even", "above"])
-			var a: int = s.digits[0]
-			var b: int = s.digits[1]
-			var c: int = s.digits[2]
-			s.above = 100 * b + 10 * a + c
+			# The boundary is one of the six numbers, so 'greater than' splits them unevenly.
+			var nums := card_numbers(s)
+			s.above = nums[rng.int_in(1, 4)]
 			all = 6
 			hit = card_numbers(s).filter(func(x): return card_hit(s, x)).size()
 	return hit >= 1 and hit < all and clear(s, Q.new(hit, all))
@@ -345,6 +372,41 @@ static func _complement_count(rng: Seeded, s: Dictionary) -> bool:
 	return s.big % s.m != 0 and clear(s, Q.new(s.big - hits, s.big))
 
 
+## Two prizes that can't both happen, and a third outcome that wins nothing. "ends" wins on a low
+## total or a high one; "gap" on equal scores or scores that differ by d.
+static func _complement_two(rng: Seeded, s: Dictionary) -> bool:
+	_faces(rng, s)
+	s.rule = rng.pick(["ends", "gap"])
+	s.d = rng.int_in(1, 3)
+	var ds := distinct(totals(s))
+	var i := rng.int_in(0, ds.size() - 1)
+	var j := rng.int_in(0, ds.size() - 1)
+	if i + 2 > j:
+		return false
+	s.lo = ds[i]
+	s.hi = ds[j]
+	var w := rule_counts(s)
+	var all: int = s.xs.size() * s.ys.size()
+	return w[0] >= 2 and w[1] >= 2 and w[0] != w[1] and all - w[0] - w[1] >= 2 and clear(s, Q.new(all - w[0] - w[1], all))
+
+
+## How many outcomes win each prize: [big, small].
+static func rule_counts(s: Dictionary) -> Array:
+	var big := 0
+	var small := 0
+	for x in s.xs:
+		for y in s.ys:
+			var a: int = int(x)
+			var b: int = int(y)
+			if s.rule == "ends":
+				big += 1 if a + b <= s.lo else 0
+				small += 1 if a + b >= s.hi else 0
+			else:
+				big += 1 if a == b else 0
+				small += 1 if absi(a - b) == s.d else 0
+	return [big, small]
+
+
 # ── At least one ─────────────────────────────────────────────
 
 static func none_of(ps: Array) -> Q:
@@ -400,7 +462,7 @@ static func _same_trials(rng: Seeded, s: Dictionary) -> bool:
 
 
 static func _different_trials(rng: Seeded, s: Dictionary) -> bool:
-	s.n = rng.int_in(2, 3)
+	s.n = 2 if s.rep == "diagram" else rng.int_in(2, 3)
 	s.ps = []
 	for i in s.n:
 		s.ps.append(Q.new(rng.int_in(1, 5), 10) if s.paper == 1 else Q.new(rng.int_in(5, 45), 100))
@@ -431,9 +493,18 @@ static func _rf_total(rng: Seeded, s: Dictionary) -> bool:
 	if s.counts.is_empty():
 		return false
 	s.from_score = rng.int_in(1, k)
-	s.least = rng.chance(0.4) and s.from_score > 1
+	s.grouped = rng.chance(0.5)
+	s.least = s.from_score > 1 and (s.grouped or rng.chance(0.4))
+	s.edges = []
+	if s.grouped:
+		if s.from_score == 1:
+			return false
+		var width: int = rng.pick([5, 10, 20])
+		var start := width * rng.int_in(0, 2)
+		for i in k + 1:
+			s.edges.append(start + i * width)
 	var f := rf_hits(s)
-	return f * 2 < total and clear(s, Q.new(f, total))
+	return f * 2 < total and f > int(s.counts[s.from_score - 1]) * int(s.least) and clear(s, Q.new(f, total))
 
 
 static func rf_hits(s: Dictionary) -> int:
@@ -457,6 +528,7 @@ static func _rf_graph(rng: Seeded, s: Dictionary) -> bool:
 	var size := 0.14 + 0.02 * rng.int_in(0, 6)
 	var turn := 0.8 + 0.1 * rng.int_in(0, 4)
 	var hits := 0
+	var first := 0
 	var trials := 0
 	s.curve = []
 	for i in range(1, 41):
@@ -465,9 +537,10 @@ static func _rf_graph(rng: Seeded, s: Dictionary) -> bool:
 		if now < hits or now - hits > step:
 			return false
 		hits = now
+		first = hits if i == 1 else first
 		trials = step * i
 		s.curve.append([trials, Q.new(hits, trials).to_float()])
-	s.early = Q.new(roundi(float(s.curve[0][1]) * step), step)
+	s.early = Q.new(first, step)
 	return absf(s.early.to_float() - float(settle) / 100.0) >= 0.12
 
 
@@ -484,7 +557,7 @@ static func _reliable(rng: Seeded, s: Dictionary) -> bool:
 	var a := Q.new(hit_few, few)
 	var b := Q.new(hit_many, many)
 	var gap := absf(a.to_float() - b.to_float())
-	return gap >= 0.02 and gap <= 0.3 and clear_or_end(s, a) and clear_or_end(s, b)
+	return gap >= 0.02 and gap <= 0.3 and clear_or_end(s, a) and clear(s, b)
 
 
 ## A value shown but not answered: clear of a rounding edge, whether or not it is rounded.
@@ -492,19 +565,25 @@ static func clear_or_end(s: Dictionary, v: Q) -> bool:
 	return s.form != "sf" or not Answer.needs_rounding(v) or Answer.rounds_clearly(v.to_float(), EDGE)
 
 
+## A fair coin after a run of one side, or a die or spinner after a run without one value. The run
+## is short enough that (run + 1) ÷ sectors, the 'due' value, stays a probability.
 static func _streak(rng: Seeded, s: Dictionary) -> bool:
+	s.form = "frac"
 	s.kind = rng.pick(["coin", "die", "spinner"])
-	s.streak = rng.int_in(5, 12)
 	match s.kind:
 		"coin":
-			s.p = Q.new(1, 2)
+			s.m = 2
+			s.streak = rng.int_in(3, 6)
 			s.heads = rng.chance(0.5)
+			s.same = rng.chance(0.5)
 		"die":
-			s.p = Q.new(1, 6)
+			s.m = 6
 			s.face = rng.int_in(1, 6)
 		"spinner":
-			s.sectors = rng.int_in(3, 8)
-			s.p = Q.new(1, s.sectors)
+			s.m = rng.pick([4, 5, 8, 10])
+	if s.kind != "coin":
+		s.streak = rng.int_in(2, s.m - 2)
+	s.p = Q.new(1, s.m)
 	return true
 
 

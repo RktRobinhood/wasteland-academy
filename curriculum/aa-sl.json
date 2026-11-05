@@ -11153,7 +11153,7 @@
                 }
               ],
               "misconceptions": [
-                "Treating outcomes that are not equally likely as if they were (for example, giving each total from 2 to 12 on two dice a probability of 1/11)",
+                "Treating outcomes that are not equally likely as if they were, giving each kind of outcome the same share",
                 "Dividing by a row total when the person is chosen from the whole group"
               ],
               "threads": []
@@ -11203,7 +11203,7 @@
               ],
               "misconceptions": [
                 "Finding P(exactly one) when 'at least one' is asked for",
-                "P(at least one six in 3 rolls) = 3 × 1/6"
+                "Adding the trials' probabilities for 'at least one', which counts the overlaps more than once"
               ],
               "threads": []
             },
@@ -11245,8 +11245,8 @@
                 }
               ],
               "misconceptions": [
-                "The relative frequency from a handful of trials equals the true probability",
-                "After several heads in a row, a tail is 'due' (the gambler's fallacy)"
+                "Taking the relative frequency from a handful of trials as the true probability",
+                "Treating the result as 'due' after a run, when past trials don't change the chance"
               ],
               "threads": []
             },
