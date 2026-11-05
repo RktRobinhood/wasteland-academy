@@ -3,6 +3,10 @@
  "image": "scrap-pile.webp",
  "facing": "none",
  "beat": "explore",
+ "label": "Scrap pile",
+ "verb": "Dig",
+ "hit": "It gives.",
+ "done": "The pile comes apart.",
  "states": {
   "start": "heap",
   "cleared": "dug",

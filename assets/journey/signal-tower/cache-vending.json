@@ -3,6 +3,10 @@
  "image": "cache-vending.webp",
  "facing": "none",
  "beat": "explore",
+ "label": "Vending cache",
+ "verb": "Thump",
+ "hit": "Something rattles loose.",
+ "done": "The door drops open.",
  "states": {
   "start": "closed",
   "cleared": "open",

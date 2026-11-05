@@ -888,8 +888,8 @@ run plays the same with the strip on, off or broken (`test_journey.gd` checks al
   | `set_weapon(name)` | cosmetic; the Learner isn't redrawn |
 
 - **Choosing the beat.** `JourneyBeats.encounter(seed, fight, tier, roster, questions)`
-  is a pure function: D1 Explore, D2 Explore or Puzzle, D3 a fight with 1 to 2 monsters
-  (now and then a Puzzle), D4 a fight (a bandit ambush or 2 to 3 monsters), D5 the boss.
+  is a pure function: D1 Explore, D2 a fight with 1 to 3 monsters half the time and
+  otherwise Explore or Puzzle, D3 a fight with 1 to 2 monsters (now and then a Puzzle), D4 a fight (a bandit ambush or 2 to 3 monsters), D5 the boss.
   Fight 5 is the mini-boss and fight 10 the boss, whatever the tier. It uses only sheets
   that exist.
 - **The fight screen.** `JourneyLink.attach(run, stage, save)` turns the run's signals
@@ -908,9 +908,15 @@ run plays the same with the strip on, off or broken (`test_journey.gd` checks al
 - **Calm and reduced motion.** While a question is open only idle loops play. A hit
   gets one 80 ms flash, at most 3 a second. `reduced_motion` swaps poses and stops the
   scroll.
-- **The demo.** `/next/?journey=demo` (desktop: `-- --journey=demo`) replays the FAL-293
+- **Jobs, not enemies.** On an Explore or Puzzle beat the fight screen talks about the
+  job: the overlay, the button, the result lines and "Walk on" come from `label`, `verb`,
+  `hit` and `done` in the prop's JSON, so a new prop needs no code. The screen gets them
+  from `JourneyLink.job_words()`, which works out the encounter from the same inputs as
+  the strip, so the strip sends nothing back. With no strip showing they read as a fight.
+- **The demo.** `/?journey=demo` (desktop: `-- --journey=demo`) replays the FAL-293
   reel's script with a dummy question card under the strip (`ui/journey_demo.gd`).
-  Add `&motion=reduced` for reduced motion.
+  Add `&motion=reduced` for reduced motion, or `&avatar=learner-male` for that sheet (an
+  avatar with no sheet hides the strip, as it does in a run).
 
 ### Deep links
 

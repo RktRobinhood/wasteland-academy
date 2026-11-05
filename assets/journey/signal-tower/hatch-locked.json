@@ -3,6 +3,10 @@
  "image": "hatch-locked.webp",
  "facing": "none",
  "beat": "explore",
+ "label": "Locked hatch",
+ "verb": "Pry",
+ "hit": "The lid lifts an inch.",
+ "done": "The hatch swings open.",
  "states": {
   "start": "locked",
   "cleared": "open"

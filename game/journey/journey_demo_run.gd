@@ -60,6 +60,7 @@ const SCRAP := {1: 30, 2: 22, 3: 15, 4: 10, 5: 5}
 ## Whatever listens: a JourneyStage, or null. Told everything with call_deferred.
 var listener: Object
 var run_seed := 7
+var avatar := "learner-female"
 var hp := 100
 var scrap := 0
 var results: Array = []
@@ -75,14 +76,15 @@ var _events: Array = []     # [time, method, args]
 var _next := 0
 
 
-func _init(p_seed: int = 7) -> void:
+func _init(p_seed: int = 7, p_avatar: String = "learner-female") -> void:
 	run_seed = p_seed
+	avatar = p_avatar
 	_plan()
 
 
 func _plan() -> void:
 	var t := 0.0
-	_events.append([t, "start_run", [REGION, "learner-female", "rebar", run_seed]])
+	_events.append([t, "start_run", [REGION, avatar, "rebar", run_seed]])
 	for f in SCRIPT:
 		if f.has("weapon"):
 			_events.append([t, "set_weapon", [f.weapon]])

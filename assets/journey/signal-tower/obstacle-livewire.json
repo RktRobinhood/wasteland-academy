@@ -3,6 +3,10 @@
  "image": "obstacle-livewire.webp",
  "facing": "none",
  "beat": "puzzle",
+ "label": "Live wire",
+ "verb": "Cut",
+ "hit": "One strand down.",
+ "done": "The wire goes dead.",
  "states": {
   "start": "armed",
   "cleared": "cleared"

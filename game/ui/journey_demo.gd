@@ -3,7 +3,7 @@ extends Control
 ## then one encounter of each kind the reel didn't show, with a dummy question card
 ## under the strip. It loops.
 ##
-##   web:      /next/?journey=demo            add &motion=reduced, &avatar=learner-male, &t=12.5
+##   web:      /?journey=demo            add &motion=reduced, &avatar=learner-male, &t=12.5
 ##   desktop:  -- --journey=demo
 ##
 ## t= jumps the script to that second (for screenshots).
@@ -139,10 +139,11 @@ func _fit() -> void:
 
 
 func restart() -> void:
-	run = JourneyDemoRun.new()
+	run = JourneyDemoRun.new(7, avatar)
 	run.listener = stage
-	stage.start_run(JourneyDemoRun.REGION, avatar, "rebar", run.run_seed)
+	run.direct = true
 	run.step(0.0)
+	run.direct = false
 	_show()
 
 
