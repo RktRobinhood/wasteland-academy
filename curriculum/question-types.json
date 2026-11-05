@@ -3650,6 +3650,62 @@
     "Paper 2 answers are to 3 s.f., clear of a rounding edge",
     "the range is even on Paper 1, so a and d are whole"
    ]
+  },
+  "algebraic-proof": {
+   "name": "One statement to prove, as a chain of lines",
+   "summary": "Pick the shape of an identity or a divisibility claim and its numbers, and every line of the proof follows, with the slip each wrong line makes.",
+   "quantities": [
+    {
+     "name": "fam",
+     "is": "the shape of the statement",
+     "pick": "what the unknown, the representation and the method allow"
+    },
+    {
+     "name": "d",
+     "is": "the gap in a difference of squares or a sum of squares",
+     "pick": "whole numbers from 2 to 9, not a multiple of 3 in a sum of three squares"
+    },
+    {
+     "name": "p, q",
+     "is": "(px + q)² − (px − q)²",
+     "pick": "different whole numbers from 1 to 7, with p at least 2"
+    },
+    {
+     "name": "a, b",
+     "is": "the numbers of (x − a)² + b, n² + an + b or a/n − a/(n + d)",
+     "pick": "small whole numbers, a odd and b even for n² + an + b"
+    },
+    {
+     "name": "p, q, c, d",
+     "is": "px + q − c/(x − d)",
+     "pick": "small whole numbers"
+    },
+    {
+     "name": "k",
+     "is": "the number in the Pythagorean triple in x",
+     "pick": "2 to 6"
+    },
+    {
+     "name": "kind, c",
+     "is": "a sum of c consecutive integers, even numbers or odd numbers",
+     "pick": "2 to 7 terms"
+    },
+    {
+     "name": "m",
+     "is": "the divisor",
+     "pick": "from the factors of the expression, or the hcf of the sum's two numbers"
+    },
+    {
+     "name": "m, r",
+     "is": "two numbers of the form mk + r",
+     "pick": "m from 2 to 9, r from 0 to m − 1"
+    }
+   ],
+   "clean": [
+    "every statement is true for every value of its letter",
+    "the divisor is more than 1, and the bracket has whole-number coefficients",
+    "a greatest divisor is smaller than the coefficient of n, so a fraction is left if that is taken out"
+   ]
   }
  },
  "types": [
@@ -20299,14 +20355,532 @@
    "id": "t1-algebraic-proof",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Prove an algebraic identity or a divisibility result",
+   "summary": "Prove an identity from one side to the other, or that an integer expression is always a multiple of a number. A phone can't read a written proof, so each question is one decision a proof turns on: the simplified form, a hidden line, the next line, the first wrong line, the factor k, the integer bracket, a remainder, or which of four arguments is a proof.",
    "syllabus": [
     "1.6"
    ],
    "skills": [
     "SL1.6.identity-lhs-rhs",
     "SL1.6.integer-proof"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "simplify one side, or both to a common expression",
+    "take each line from the one before, and name the line that breaks",
+    "write the number as m times an integer expression, and show the bracket is an integer",
+    "split into cases, or factorise into consecutive integers",
+    "show a remainder that rules out a divisor"
+   ],
+   "given": [
+    "an identity, with its sides simplified or not",
+    "a proof with a line hidden or wrong",
+    "a sum of consecutive integers, even numbers or odd numbers",
+    "a difference of two squares",
+    "a quadratic in n, or a sum of squares",
+    "a claim about any two numbers of one kind"
+   ],
+   "asked": "A simplified form, a line of a proof, the first wrong line and its correction, the factor k, an integer bracket, the greatest divisor, a remainder, or which argument proves the claim.",
+   "answerForms": [
+    "an expression with whole-number coefficients, typed in slots",
+    "a whole number",
+    "a line of a proof, picked"
+   ],
+   "randomise": [
+    "the statement: a difference of squares, a square plus a number, a fraction to combine or split, a reciprocal difference, a Pythagorean triple in x, a sum of consecutive terms, n² + an + b, a sum of squares",
+    "every number in the statement",
+    "which line is hidden, reached or spoiled, and by which slip",
+    "the letters of a pair of integers"
+   ],
+   "constraints": [
+    "every identity holds for every value of its letter and every divisibility claim for every integer n",
+    "every term of a simplified form is there to see: no coefficient is zero",
+    "a wrong line is the same algebra with one slip, carried to the end",
+    "no statement is an exam's: the numbers the bank uses are left out",
+    "Paper 1, except that an identity can be Paper 2, as the bank's one Paper 2 part is"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "algebraic-proof",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the statement written out: (x − 3)² + 5 ≡ x² − 6x + 14, or S = n + (n + 1) + (n + 2)"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a sentence about numbers: two integers that differ by 3, or the sum of five consecutive odd numbers"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "simplify-left-side",
+     "given": [
+      "the left side of an identity"
+     ],
+     "asked": "the simplified form or single fraction it reaches",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.identity-lhs-rhs"
+     ]
+    },
+    {
+     "id": "common-expression",
+     "given": [
+      "both sides of an identity, neither simplified"
+     ],
+     "asked": "the expression both sides reach",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.identity-lhs-rhs"
+     ]
+    },
+    {
+     "id": "missing-line",
+     "given": [
+      "a proof with one line hidden"
+     ],
+     "asked": "the hidden line",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.identity-lhs-rhs"
+     ]
+    },
+    {
+     "id": "next-step",
+     "given": [
+      "the first lines of a proof"
+     ],
+     "asked": "which line comes next",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.identity-lhs-rhs"
+     ]
+    },
+    {
+     "id": "valid-proof",
+     "given": [
+      "an identity and four arguments"
+     ],
+     "asked": "which argument is a complete proof",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.identity-lhs-rhs"
+     ]
+    },
+    {
+     "id": "flawed-step",
+     "given": [
+      "a proof with one slip carried to the end"
+     ],
+     "asked": "the first wrong line and its correction",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.identity-lhs-rhs",
+      "SL1.6.integer-proof"
+     ]
+    },
+    {
+     "id": "multiple-k",
+     "given": [
+      "a difference of two squares and the claim that it is m times k"
+     ],
+     "asked": "k in terms of n",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.integer-proof"
+     ]
+    },
+    {
+     "id": "consecutive-sum",
+     "given": [
+      "a sum of consecutive integers, even numbers or odd numbers"
+     ],
+     "asked": "the sum as m times an integer expression",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.integer-proof"
+     ]
+    },
+    {
+     "id": "greatest-divisor",
+     "given": [
+      "a sum of consecutive integers, even numbers or odd numbers"
+     ],
+     "asked": "the largest whole number that always divides it",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.integer-proof"
+     ]
+    },
+    {
+     "id": "finish-divisibility",
+     "given": [
+      "a simplified sum and a divisor"
+     ],
+     "asked": "which line proves the divisibility",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.integer-proof"
+     ]
+    },
+    {
+     "id": "represent-integers",
+     "given": [
+      "a claim about any two numbers of one kind"
+     ],
+     "asked": "which opening covers every pair",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.6.integer-proof"
+     ]
+    },
+    {
+     "id": "case-bracket",
+     "given": [
+      "n² + an + b with a odd and b even, and one parity of n"
+     ],
+     "asked": "the expression as 2 times an integer expression in k",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.integer-proof"
+     ]
+    },
+    {
+     "id": "consecutive-factors",
+     "given": [
+      "a quadratic in n that is a product of consecutive integers"
+     ],
+     "asked": "the two factors",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.integer-proof"
+     ]
+    },
+    {
+     "id": "remainder-form",
+     "given": [
+      "a sum of squares that is never divisible by m"
+     ],
+     "asked": "the sum as m times an integer expression plus a remainder",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.integer-proof"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.6.identity-lhs-rhs",
+     "method": "expand-simplify",
+     "suits": [
+      "simplify-left-side",
+      "missing-line",
+      "next-step",
+      "valid-proof",
+      "flawed-step"
+     ]
+    },
+    {
+     "skill": "SL1.6.identity-lhs-rhs",
+     "method": "factorise",
+     "suits": [
+      "simplify-left-side",
+      "missing-line",
+      "next-step",
+      "multiple-k"
+     ]
+    },
+    {
+     "skill": "SL1.6.identity-lhs-rhs",
+     "method": "common-form",
+     "suits": [
+      "common-expression"
+     ]
+    },
+    {
+     "skill": "SL1.6.integer-proof",
+     "method": "algebraic-form",
+     "suits": [
+      "flawed-step",
+      "multiple-k",
+      "consecutive-sum",
+      "greatest-divisor",
+      "finish-divisibility",
+      "represent-integers",
+      "remainder-form"
+     ]
+    },
+    {
+     "skill": "SL1.6.integer-proof",
+     "method": "cases",
+     "suits": [
+      "case-bracket"
+     ]
+    },
+    {
+     "skill": "SL1.6.integer-proof",
+     "method": "consecutive-product",
+     "suits": [
+      "consecutive-factors"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "n² + n + 41 is prime for n = 1, 2, 3, 4 and 5, so it is prime for every positive integer n.",
+     "answer": "False: examples can't prove a claim about every n. At n = 41 it is 41² + 41 + 41 = 41 × 43, which is not prime.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The sum of three consecutive integers is divisible by 6.",
+     "answer": "Sometimes: the sum is 3(n + 1), a multiple of 3 every time, but it needs n + 1 even to be a multiple of 6. 1 + 2 + 3 = 6 works and 2 + 3 + 4 = 9 does not.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "6n + 9 = 6(n + 3/2), so 6n + 9 is a multiple of 6 for every integer n.",
+     "answer": "False: n + 3/2 is not an integer, so the 6 outside proves nothing. At n = 1, 6n + 9 = 15, which is not a multiple of 6.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.6.identity-lhs-rhs#0",
+     "text": "Starting from LHS = RHS and operating on both sides, which assumes what is to be proved",
+     "as": "distractor",
+     "in": [
+      "next-step",
+      "valid-proof"
+     ],
+     "wrong": "a line that takes the right side from both sides and reaches zero"
+    },
+    {
+     "ref": "SL1.6.identity-lhs-rhs#1",
+     "text": "Checking a few values of n and calling it a proof",
+     "as": "distractor",
+     "in": [
+      "next-step",
+      "valid-proof"
+     ],
+     "wrong": "the two sides compared at one or two values, each worked out truly"
+    },
+    {
+     "ref": "SL1.6.identity-lhs-rhs#2",
+     "text": "Stopping without a concluding statement, or writing = where ≡ is required",
+     "as": "distractor",
+     "in": [
+      "valid-proof"
+     ],
+     "wrong": "the expansion, with no last line and no conclusion"
+    },
+    {
+     "ref": "SL1.6.integer-proof#0",
+     "text": "Writing two different odd numbers as 2n + 1 and 2n + 1, which only covers the case where they are equal",
+     "as": "distractor",
+     "in": [
+      "represent-integers"
+     ],
+     "wrong": "one letter for both numbers"
+    },
+    {
+     "ref": "SL1.6.integer-proof#1",
+     "text": "Verifying examples instead of arguing for a general n",
+     "as": "distractor",
+     "in": [
+      "greatest-divisor",
+      "finish-divisibility",
+      "represent-integers"
+     ],
+     "wrong": "the value at n = 1, or two chosen numbers, in place of a general argument"
+    },
+    {
+     "ref": "SL1.6.integer-proof#2",
+     "text": "Concluding divisibility without showing the bracket is an integer",
+     "as": "distractor",
+     "in": [
+      "greatest-divisor",
+      "finish-divisibility",
+      "remainder-form"
+     ],
+     "wrong": "the leading number taken out, which leaves a fraction in the bracket"
+    },
+    {
+     "text": "Leaving the 2 out of the middle term when squaring a bracket",
+     "as": "distractor",
+     "in": [
+      "simplify-left-side",
+      "common-expression",
+      "missing-line",
+      "next-step",
+      "flawed-step",
+      "multiple-k",
+      "case-bracket"
+     ],
+     "wrong": "(a + b)² written as a² + ab + b²"
+    },
+    {
+     "text": "Squaring each term of a bracket and keeping its sign, with no middle term",
+     "as": "distractor",
+     "in": [
+      "simplify-left-side",
+      "common-expression",
+      "missing-line",
+      "next-step",
+      "flawed-step",
+      "multiple-k",
+      "case-bracket",
+      "remainder-form"
+     ],
+     "wrong": "(a + b)² written as a² + b², and (a − b)² as a² − b²"
+    },
+    {
+     "text": "Getting a sign wrong when multiplying out or removing a bracket",
+     "as": "distractor",
+     "in": [
+      "simplify-left-side",
+      "missing-line",
+      "next-step",
+      "flawed-step",
+      "multiple-k"
+     ],
+     "wrong": "one term with the opposite sign, carried to the end"
+    },
+    {
+     "text": "Multiplying only the first term of a bracket",
+     "as": "distractor",
+     "in": [
+      "simplify-left-side",
+      "missing-line",
+      "next-step",
+      "flawed-step"
+     ],
+     "wrong": "the other terms of the bracket left unmultiplied"
+    },
+    {
+     "text": "Dividing only part of a numerator by x",
+     "as": "distractor",
+     "in": [
+      "simplify-left-side",
+      "missing-line",
+      "next-step",
+      "flawed-step"
+     ],
+     "wrong": "the last term of the numerator not divided"
+    },
+    {
+     "text": "Squaring only the numerator of a fraction",
+     "as": "distractor",
+     "in": [
+      "simplify-left-side",
+      "common-expression",
+      "missing-line",
+      "next-step",
+      "flawed-step"
+     ],
+     "wrong": "the denominator left unsquared"
+    },
+    {
+     "text": "Adding one gap too many when summing a list of terms",
+     "as": "distractor",
+     "in": [
+      "consecutive-sum",
+      "flawed-step"
+     ],
+     "wrong": "the gaps counted up to c, not c − 1"
+    },
+    {
+     "text": "Squaring the letter but not its coefficient",
+     "as": "distractor",
+     "in": [
+      "case-bracket"
+     ],
+     "wrong": "(2k)² written as 2k²"
+    },
+    {
+     "text": "Writing a² − b² as (a + b)(a + b)",
+     "as": "distractor",
+     "in": [
+      "simplify-left-side",
+      "missing-line",
+      "next-step",
+      "multiple-k"
+     ],
+     "wrong": "both brackets written with the plus"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p1-q02",

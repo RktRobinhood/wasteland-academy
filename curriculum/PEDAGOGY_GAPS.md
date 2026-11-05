@@ -1668,7 +1668,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 4 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1741,6 +1741,32 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): $1000 invested at 5% compounded annually for 10 years earns twice as much interest as $1000 invested at 5% for 5 years. — False: interest is earned on interest, so the second five years earn more than the first. The 10-year interest is $628.89 and the 5-year interest is $276.28, more than double.
   - *true-false-reason* (L3): An investment that is worth $5000 after 3 years at 4% compounded annually is worth $5000 ÷ 1.04^3 now. — True: the value after 3 years is PV × 1.04^3, so the amount invested now is the future value divided by 1.04^3.
 - **Misconceptions used:** 8. Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Giving the total value when the question asks for the interest earned (or the reverse); Taking the root but not subtracting 1 and multiplying by 100, giving a rate of 1.1%; Halving the total growth instead of taking a root: 21% ÷ 2 = 10.5%; Rounding the number of periods to the nearest integer instead of up; Forgetting to convert N from months or quarters back into years; Comparing nominal rates only and ignoring the compounding frequency.
+
+#### Prove an algebraic identity or a divisibility result (`t1-algebraic-proof`, exam, 8 bank parts)
+
+- **Situation:** One statement to prove, as a chain of lines.
+- **Representations:** **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the left side of an identity → the simplified form or single fraction it reaches
+  - **exam** L3: given both sides of an identity, neither simplified → the expression both sides reach
+  - new L3: given a proof with one line hidden → the hidden line
+  - new L2: given the first lines of a proof → which line comes next
+  - new L3: given an identity and four arguments → which argument is a complete proof
+  - new L4: given a proof with one slip carried to the end → the first wrong line and its correction
+  - **exam** L2: given a difference of two squares and the claim that it is m times k → k in terms of n
+  - **exam** L2: given a sum of consecutive integers, even numbers or odd numbers → the sum as m times an integer expression
+  - new L4: given a sum of consecutive integers, even numbers or odd numbers → the largest whole number that always divides it
+  - **exam** L3: given a simplified sum and a divisor → which line proves the divisibility
+  - new L3: given a claim about any two numbers of one kind → which opening covers every pair
+  - new L4: given n² + an + b with a odd and b even, and one parity of n → the expression as 2 times an integer expression in k
+  - new L3: given a quadratic in n that is a product of consecutive integers → the two factors
+  - **exam** L4: given a sum of squares that is never divisible by m → the sum as m times an integer expression plus a remainder
+- **Angles:** Start from the LHS and simplify to the RHS; Spot a structure and factorise; Reduce both sides separately to the same expression; Represent the integers algebraically and factor out the divisor; Split into cases; Factorise into consecutive integers.
+- **Concept probes:**
+  - *true-false-reason* (L3): n² + n + 41 is prime for n = 1, 2, 3, 4 and 5, so it is prime for every positive integer n. — False: examples can't prove a claim about every n. At n = 41 it is 41² + 41 + 41 = 41 × 43, which is not prime.
+  - *always-sometimes-never* (L3): The sum of three consecutive integers is divisible by 6. — Sometimes: the sum is 3(n + 1), a multiple of 3 every time, but it needs n + 1 even to be a multiple of 6. 1 + 2 + 3 = 6 works and 2 + 3 + 4 = 9 does not.
+  - *true-false-reason* (L4): 6n + 9 = 6(n + 3/2), so 6n + 9 is a multiple of 6 for every integer n. — False: n + 3/2 is not an integer, so the 6 outside proves nothing. At n = 1, 6n + 9 = 15, which is not a multiple of 6.
+- **Misconceptions used:** 15. Starting from LHS = RHS and operating on both sides, which assumes what is to be proved; Checking a few values of n and calling it a proof; Stopping without a concluding statement, or writing = where ≡ is required; Writing two different odd numbers as 2n + 1 and 2n + 1, which only covers the case where they are equal; Verifying examples instead of arguing for a general n; Concluding divisibility without showing the bracket is an integer; Leaving the 2 out of the middle term when squaring a bracket; Squaring each term of a bracket, with no middle term; Getting a sign wrong when multiplying out or removing a bracket; Multiplying only the first term of a bracket; Dividing only part of a numerator by x; Squaring only the numerator of a fraction; Adding one gap too many when summing a list of terms; Squaring the letter but not its coefficient; Writing a² − b² as (a + b)(a + b).
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
