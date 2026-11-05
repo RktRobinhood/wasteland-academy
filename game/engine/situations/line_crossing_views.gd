@@ -228,6 +228,8 @@ func u_do_they_meet(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		out.lines = ["L₁: " + L1(s), "L₂: " + gk(s.a2, s.b2, s.k2)]
 	else:
 		out.lines = ["L₁ has gradient %s and y-intercept %s." % [N(s.m1), N(s.c1)], "L₂ goes through (%s, %s) and (%s, %s)." % [N(s.qx), N(s.qy), N(s.rx), N(s.ry)]]
+		# Neither line is in general form here, so the working has no −a/b to use.
+		out.titles = {"coefficient-shortcut": "Compare the gradients and intercepts"}
 	var bad: Array = [InverseRuleViews.tag(far, R_FAR)] if s.rel == "para" else []
 	out.merge(InverseRuleViews.choose(right, bad, [meet, never, same, far]))
 	var second := "L₂ rearranges to %s." % L2(s) if rep == "equation" else "L₂ has gradient (%s − %s)/(%s − %s) = %s, so it is %s." % [N(s.ry), PF(s.qy), N(s.rx), PF(s.qx), N(s.m2), L2(s)]

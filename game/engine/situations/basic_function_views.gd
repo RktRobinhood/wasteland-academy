@@ -517,7 +517,8 @@ func u_inverse_or_reciprocal(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var out := concept_lines(rep, s, xs)
 	out.merge({"asked": "Find f⁻¹(%d) and 1/f(%d)." % [a, a], "answer": ans,
 		"wrongs": [wrong({"v0": rec, "v1": rec}, R_RECIPROCAL)], "generic": [{"v0": s.y0, "v1": rec}, {"v0": k, "v1": s.y0}, {"v0": rec, "v1": k}]})
-	var rcp := "1/f(%d) = 1/%s = %s: one over the output" % [a, Fmt.paren(s.y0), Fmt.num(rec)]
+	var over := "1/%s" % Fmt.paren(s.y0)
+	var rcp := "1/f(%d) = %s%s: one over the output" % [a, over, "" if over == Fmt.num(rec) else " = " + Fmt.num(rec)]
 	var hit := "f(%s) = %d, so f⁻¹(%d) = %s" % [Fmt.num(k), a, a, Fmt.num(k)]
 	var sv := "Solve f(x) = %d: %s = %d gives x = %s" % [a, BasicFunctionSituation.text(s.f), a, Fmt.num(k)]
 	out.methods = ways({"read-graph-table": ["f⁻¹(%d) asks which input gives the output %d" % [a, a], hit, rcp], "solve-f-equals": [sv, rcp],

@@ -658,7 +658,7 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   curve from conditions) and the sketch that shows them, for `fn-sketch-from-features`.
   Each recipe draws its family once and looks at 48 samples before it finds roots, so a
   question takes about 7 ms, about ten times the rest of the sweep; CI runs the sweep in
-  four shards (`tools/stress-questions --shard=k/4`). New answer kinds: `xs` (a
+  eight shards (`tools/stress-questions --shard=k/8`). New answer kinds: `xs` (a
   list of x-values, any order; options may have other counts), `pts` (a list of points,
   any order; a wrong option may give only the x-coordinates) and `graph` (pick the
   graph). A view's rounding trap can carry a misconception (`trap_ref`) where the

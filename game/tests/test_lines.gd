@@ -224,6 +224,19 @@ func test_the_matching_is_one_pick_of_all_four_kinds() -> void:
 				check_eq(q.answer_text.count(kind), 1, kind)
 
 
+func test_lines_in_words_never_key_the_general_form_method() -> void:
+	var t := "fn-ext-intersection-lines"
+	var shortcut: String = QuestionEngine.angle_info(QuestionEngine.type_of(t), "do-they-meet", "coefficient-shortcut").name
+	for seed in range(1, 30):
+		var q := _make(t, "do-they-meet", "words", "coefficient-shortcut", seed, "method-pick")
+		check(not shortcut in q.prompt, "seed %d: %s" % [seed, q.prompt])
+		check(q.choices.filter(func(o): return o.correct)[0].text == q.solutions[0].name, "seed %d: the key is the working's method" % seed)
+		check("gradient" in Step.text(q.solutions[0].steps[0]), "seed %d: the working finds the gradient" % seed)
+		check(not q.solutions.any(func(sol): return sol.name == shortcut), "seed %d: a solution still names it" % seed)
+	# The general form stays: L₂ really is ax + by = k there.
+	check_eq(_make(t, "do-they-meet", "equation", "coefficient-shortcut", 1, "method-pick").solutions[0].name, shortcut, "equation")
+
+
 func test_the_bare_gradient_slip_is_logged_though_the_type_has_no_error_spot() -> void:
 	var seen := false
 	for seed in range(1, 30):

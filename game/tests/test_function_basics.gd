@@ -174,6 +174,19 @@ func test_a_graph_cell_can_be_picked_from_four() -> void:
 		check(q.reason != "", p[0] + ": wrong graphs say why")
 
 
+func test_a_reciprocal_step_says_each_value_once() -> void:
+	var repeat := RegEx.create_from_string("= ([^ :]+) = \\1(?![\\w/.])")
+	var seen := 0
+	for c in QuestionEngine.cells(false, ["fn-concept-function-notation"]).filter(func(x): return x.unknown == "inverse-or-reciprocal"):
+		for seed in range(1, 41):
+			var q := QuestionEngine.make({"type": "fn-concept-function-notation", "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed, "format": "value"})
+			for sol in q.solutions:
+				for st in sol.steps:
+					seen += 1
+					check(repeat.search(Step.text(st)) == null, "%s seed %d: %s" % [c.key, seed, Step.text(st)])
+	check(seen > 0, "no steps looked at")
+
+
 func test_the_chains_hold_together() -> void:
 	for t in ["fn-evaluate-function", "fn-domain-range", "fn-inverse-reflection"]:
 		var steps: Array = Tuning.CHAINS[t].map(func(id): return {"type": t, "unknown": id})
