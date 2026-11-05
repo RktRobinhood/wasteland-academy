@@ -34,7 +34,7 @@ from pathlib import Path
 
 import mpmath
 import sympy as sp
-from sympy.parsing.sympy_parser import (implicit_multiplication_application, parse_expr,
+from sympy.parsing.sympy_parser import (implicit_multiplication_application, parse_expr, rationalize,
                                         standard_transformations)
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -1686,6 +1686,11 @@ def dec_text(v):
     d = Decimal(v.p) / Decimal(v.q)
     s = format(d.normalize(), "f")
     return s.replace("-", "−")
+
+
+def bf_forms(v):
+    """Every way an option may write v: exact, as a decimal, or to 3 s.f."""
+    return {gc_s(v)} if not v.is_Rational else {frac_text(v), dec_text(v), gc_s(v)}
 
 
 def money_text(v):
@@ -11697,6 +11702,2722 @@ def check_motion(q):
     return None, None
 
 
+# ── Function basics (FAL-424) ────────────────────────────────
+# basic-function, basic-restricted, basic-one-to-one, basic-relation and fn-pre-substitute.
+# The rule a question shows is read back from its text and every value is worked out again
+# here; the situation's clean limits are the checker's own copy (BF_*).
+
+BF_LOCALS = {"x": X, "exp": sp.exp, "log": sp.log, "sqrt": sp.sqrt}
+BF_MODEL = {"h": ("t", "ball"), "C": ("n", "cost"), "P": ("t", "pop"), "T": ("t", "cool")}
+BF_P1_D = 12
+BF_R_SQUARE, BF_R_SHIFT, BF_R_TIMES = "SL2.2.evaluate-notation#1", "SL2.2.evaluate-notation#2", "SL2.2.evaluate-notation#0"
+BF_R_NOTHING, BF_R_NEG, BF_R_OUT = "SL2.2.function-model#0", "SL2.2.function-model#1", "SL2.2.function-model#2"
+BF_R_ZY, BF_R_ZS = "SL2.4.zeros-intercepts#0", "SL2.4.zeros-intercepts#1"
+
+
+def bf_expr(text, v="x"):
+    """A rule as the game writes it, as SymPy in x: '2(1.5)^t + 3', '3√(2x + 1) − 4', '4e^(−0.05t) + 20'."""
+    t = text.strip().replace("−", "-").replace("√(", "sqrt(").replace("e^(", "exp(").replace("ln(", "log(")
+    if v != "x":
+        t = re.sub(rf"(?<![a-z]){v}(?![a-z])", "x", t)
+    t = t.replace("e^x", "exp(x)").replace("x³", "x**3").replace("x²", "x**2").replace(")²", ")**2").replace("^", "**")
+    t = re.sub(r"([0-9x)])(exp|log|sqrt)\(", r"\1*\2(", t)
+    t = re.sub(r"(?<=[0-9x)])\(", "*(", t).replace("sqrt*(", "sqrt(").replace("exp*(", "exp(").replace("log*(", "log(")
+    need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the function {text!r}")
+    return sp.nsimplify(parse_expr(t, transformations=TRANSFORMS, local_dict=BF_LOCALS), rational=True)
+
+
+def bf_rule(q):
+    """(name, letter, f) from the first 'f(x) = …' the question shows, ended by a comma or a full stop and a space or the end."""
+    for t in q["lines"] + [q["asked"]]:
+        m = re.search(r"\b([fhCPTg])\(([xtn])\) = (.+?)(?:,? dollars| bacteria|\.\s|\.$|, for |, where |$)", t)
+        if m:
+            return m.group(1), m.group(2), bf_expr(m.group(3), m.group(2))
+    raise Fail("can't find the rule")
+
+
+def bf_given(g):
+    """The situation's rule as SymPy, from its numbers."""
+    r = g["f"]
+    fam = r["fam"]
+    if fam == "poly":
+        return sum(R(c) * X**i for i, c in enumerate(r["co"]))
+    if fam == "root":
+        return R(r["A"]) * sp.sqrt(R(r["m"]) * X + R(r["n"])) + R(r["k"])
+    if fam == "rat":
+        return (R(r["a"]) * X + R(r["b"])) / (R(r["c"]) * X + R(r["d"]))
+    if fam == "exp":
+        return R(r["A"]) * R(r["b"])**X + R(r["c"])
+    if fam == "expe":
+        return R(r["A"]) * sp.exp(R(r["k"]) * X) + R(r["c"])
+    if fam == "ln":
+        return R(r["A"]) * sp.log(R(r["m"]) * X + R(r["n"])) + R(r["k"])
+    raise Fail(f"unknown family {fam}")
+
+
+def bf_at(f, x):
+    """f at x, exact where SymPy can keep it so."""
+    v = f.subs(X, x)
+    return v if v.is_Rational else sp.N(v, 30)
+
+
+def bf_n(v, paper, money=False):
+    """A value as the answer writes it: exact on Paper 1, a decimal or 3 s.f. on Paper 2."""
+    if money:
+        return bf_money(R(v))
+    if paper == 1:
+        return frac_text(v)
+    return gc_s(v) if gc_rounds(v) else dec_text(R(v))
+
+
+def bf_money(v):
+    return str(v) if v.q == 1 else f"{float(v):.2f}"
+
+
+def bf_no_hyphens(q):
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def bf_real_roots(f, want=0):
+    """The real solutions of f(x) = want for a polynomial, sorted."""
+    rs = sp.real_roots(sp.Poly(sp.nsimplify(f - want), X))
+    return sorted((r if r.is_Rational else sp.N(r, 30) for r in rs), key=lambda r: float(r))
+
+
+def bf_xs(vs, paper):
+    names = [bf_n(v, paper) for v in sorted(vs, key=lambda r: float(r))]
+    return "x = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def bf_graph(q, f):
+    gr = q.get("graph")
+    need(gr is not None, "no graph")
+    need(gc_curve_is(gr["curves"][0], gc_f(f)), "the graph drawn is not f")
+
+
+def bf_trap_num(paper, label, v, unit=""):
+    return f"{label}{gc_s2(v)}{unit}" if paper == 2 and gc_rounds(v) else None
+
+
+def bf_table(q, f):
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "x", "the table's heads")
+    for xs, ys in zip(rows[0][1], rows[1][1]):
+        xv = R(xs.replace("−", "-"))
+        need(R(ys.replace("−", "-")) == f.subs(X, xv), f"the table's f({xs}) is {ys}")
+
+
+def check_basic(q):
+    u, rep, paper, L, asked = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["lines"], q["asked"]
+    g = q["given"]
+    bf_no_hyphens(q)
+    if q["view"]["type"] == "fn-concept-function-notation":
+        need(paper == 1, "an extension type on this situation is Paper 1")
+        return bf_concept(q)
+    f = bf_given(g)
+    if rep in ("equation", "words") or u in ("time-for-target", "value-at-zero", "interpret-value", "model-domain"):
+        name, v, shown = bf_rule(q)
+        need(all(abs(sp.N((shown - f).subs(X, x_), 20)) < 1e-9 for x_ in (sp.Rational(7, 5), sp.Rational(23, 10))), f"the rule shown {shown} is not the situation's {f}")
+    else:
+        name, v = "f", "x"
+    money = g.get("ctx") == "cost"
+    n = lambda w: bf_n(w, paper, money)
+    if paper == 1 and g.get("fam") not in ("model",):
+        need(g["x0"] is not None, "no input")
+    if rep == "graph":
+        bf_graph(q, f)
+    if rep == "table":
+        bf_table(q, f)
+    if u == "value-at-zero":
+        y = bf_at(f, 0)
+        need(R(g["y_int"]) == y, "the start value is wrong")
+        if rep == "words":
+            starts = {"ball": f"The ball leaves the hand {n(y)} m above the ground", "cost": f"The set-up fee is ${n(y)}, before any T-shirts",
+                      "pop": f"The colony starts with {n(y)} bacteria", "cool": f"The drink starts at {n(y)} °C"}
+            gc_check_common(q, starts[g["ctx"]], {BF_R_NOTHING: {"There is nothing yet at the start"}})
+        else:
+            gc_check_common(q, f"{name}(0) = {n(y)}", {BF_R_NOTHING: {f"{name}(0) = 0"}}, bf_trap_num(paper, f"{name}(0) = ", y) if not money else None)
+    elif u == "value-at-input":
+        x0 = R(g["x0"])
+        y = bf_at(f, x0)
+        need(gc_close(g["y0"], y), "y0 is not f(x0)")
+        label = f"{name}({dec_text(x0)}) = "
+        wr = {}
+        if x0 < 0 and f.is_polynomial(X) and sp.Poly(f, X).coeff_monomial(X**2) < 0:
+            wr[BF_R_SQUARE] = {label + n(y - 2 * sp.Poly(f, X).coeff_monomial(X**2) * x0**2)}
+        if money:
+            gc_check_common(q, label + n(y), wr)
+        else:
+            gc_check_common(q, label + n(y), wr, bf_trap_num(paper, label, y))
+    elif u == "y-intercept":
+        y = bf_at(f, 0)
+        zs = bf_real_roots(f)
+        gc_check_common(q, f"(0, {n(y)})", {BF_R_ZY: {f"(0, {dec_text(sp.Rational(sig3(z)))})" if paper == 2 else f"(0, {n(z)})" for z in zs}})
+    elif u == "above-or-below":
+        x0, py = R(g["px"]), R(g["py"])
+        y = bf_at(f, x0)
+        need(y != py, "the point is on the graph")
+        need(abs(y - py) <= (2 if paper == 2 else 3), "the point is not close to the curve")
+        side = "Above" if py > y else "Below"
+        got = q["answer_text"]
+        need(got.startswith(side + ": f(" + dec_text(x0) + ") = "), f"{got!r} is the wrong side")
+        need(got.endswith(f"which is {'less' if py > y else 'more'} than {dec_text(py)}"), f"{got!r} compares wrongly")
+        val = sp.Rational(re.search(r" = (−?[\d./]+),", got).group(1).replace("−", "-"))
+        need(abs(val - y) <= abs(y) * sp.Rational(1, 10**4) + sp.Rational(1, 10**4), f"{got!r} misstates f")
+        gc_check_common(q, got, {})
+    elif u in ("read-from-table", "read-from-graph"):
+        x0 = R(g["x0"])
+        need(x0.q == 1 and f.subs(X, x0).q == 1, "not a reading on whole numbers")
+        need(f"f({frac_text(x0)})" in asked, "the question asks another input")
+        gc_check_common(q, f"f({frac_text(x0)}) = {frac_text(f.subs(X, x0))}", {})
+    elif u == "interpret-value":
+        m = re.search(r"mean", asked)
+        h = re.search(rf"{name}\((−?[\d.]+)\) = (.+?) mean here", asked)
+        need(m and h, "can't read the statement")
+        x0 = R(sp.nsimplify(h.group(1)))
+        y = bf_at(f, x0)
+        need(h.group(2) == n(y), f"{name}({x0}) is not {h.group(2)}")
+        xt = dec_text(x0)
+        says = {"ball": f"{xt} seconds after it is thrown, the ball is {n(y)} m high", "cost": f"An order of {xt} T-shirts costs ${n(y)}",
+                "pop": f"After {xt} hours there are {n(y)} bacteria", "cool": f"After {xt} minutes the drink is at {n(y)} °C"}
+        starts = {"ball": f"The ball leaves the hand {n(y)} m above the ground", "cost": f"The set-up fee is ${n(y)}, before any T-shirts",
+                  "pop": f"The colony starts with {n(y)} bacteria", "cool": f"The drink starts at {n(y)} °C"}
+        gc_check_common(q, (starts if x0 == 0 else says)[g["ctx"]], {BF_R_NOTHING: {"There is nothing yet at the start"}})
+    elif u == "input-from-output":
+        k = R(g["k"])
+        need(k != 0, "no target")
+        zs = bf_real_roots(f, k)
+        need(len(zs) == 2, "f(x) = k needs two solutions")
+        gc_check_common(q, bf_xs(zs, paper), {BF_R_OUT: {f"x = {t}" for t in bf_forms(k)}}, gc_xs2(zs) if paper == 2 and any(gc_rounds(z) for z in zs) else None)
+    elif u == "expression-input":
+        head = re.search(r"Write (f\(.+?\)) in the form", asked).group(1)
+        inner = bf_expr(head[2:-1])
+        e = sp.Poly(sp.expand(f.subs(X, inner)), X)
+        want = f"{head} = {qr_poly([e.coeff_monomial(X**2), e.coeff_monomial(X), e.coeff_monomial(1)])}"
+        shift = inner - X
+        wr = {BF_R_SHIFT: {f"{head} = {qr_poly(sp.Poly(f + shift, X).all_coeffs())}"}} if shift.is_number else {}
+        gc_check_common(q, want, wr)
+    elif u == "zeros":
+        zs = bf_real_roots(f)
+        need(len(zs) >= 2, "too few zeros")
+        if q["view"]["angle"] == "factorised-read" and paper == 1 and rep == "equation":
+            shown = bf_factors(L[0])
+            need(sp.expand(shown - f) == 0, f"{L[0]!r} is not the rule")
+        wr = {BF_R_ZS: {bf_xs([-z for z in zs], paper)}, BF_R_ZY: {f"x = {t}" for t in bf_forms(f.subs(X, 0))}}
+        gc_check_common(q, bf_xs(zs, paper), wr, gc_xs2(zs) if paper == 2 and any(gc_rounds(z) for z in zs) else None)
+    elif u == "time-for-target":
+        goal = R(g["target"])
+        ctx = g["ctx"]
+        ts = sp.nsolve(f - goal, X, float(R(g["tstar"]))) if not f.is_polynomial(X) else None
+        if f.is_polynomial(X):
+            roots = bf_real_roots(f, goal)
+            pos = [r for r in roots if r >= 0]
+            need(len(pos) == 1, f"{len(pos)} possible times")
+            ts = pos[0]
+            neg = [r for r in roots if r < 0]
+        else:
+            neg = []
+            ts = sp.nsimplify(ts, rational=True, tolerance=1e-12) if paper == 1 else ts
+        unit = {"ball": " s", "cost": "", "pop": " h", "cool": " min"}[ctx]
+        label = f"{v} = "
+        n = lambda w: bf_n(w, 1 if money else paper)
+        wr = {BF_R_OUT: {label + t + unit for t in bf_forms(goal)}}
+        if neg:
+            wr[BF_R_NEG] = {label + t + unit for t in bf_forms(neg[0])}
+        gc_check_common(q, label + n(ts) + unit, wr, bf_trap_num(paper, label, ts, unit) if not money else None)
+    elif u == "model-domain":
+        ctx = g["ctx"]
+        wr = {"ball": None}
+        if ctx == "ball":
+            roots = bf_real_roots(f)
+            end = max(roots)
+            top = f.subs(X, -sp.Poly(f, X).coeff_monomial(X) / (2 * sp.Poly(f, X).coeff_monomial(X**2)))
+            want, bad = f"0 ≤ t ≤ {n(end)}", f"0 ≤ h ≤ {n(top)}"
+        elif ctx == "cost":
+            want, bad = "n = 0, 1, 2, 3, ...", f"C ≥ {n(f.subs(X, 0))}"
+        else:
+            want = "t ≥ 0"
+            bad = f"P ≥ {n(f.subs(X, 0))}" if ctx == "pop" else f"T ≤ {n(f.subs(X, 0))}"
+        gc_check_common(q, want, {"SL2.2.domain#2": {bad}})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+def bf_factors(line):
+    t = rhs(line).replace("−", "-")
+    t = re.sub(r"(?<=[0-9x)])\(", "*(", t)
+    return parse_expr(t, transformations=TRANSFORMS, local_dict={"x": X})
+
+
+def bf_concept(q):
+    u, rep, asked, L = q["view"]["unknown"], q["view"]["rep"], q["asked"], q["lines"]
+    if u == "when-equal":
+        m_ = sp.Symbol("m")
+        c = bf_expr(rhs(L[0]).replace("mx", "0"))
+        mm = re.search(r"f\(x \+ (\d)\) = f\(x\) ([+−]) (\d) for every x", asked)
+        need(mm is not None, "can't read when-equal")
+        h, d = int(mm.group(1)), int(mm.group(3)) * (1 if mm.group(2) == "+" else -1)
+        sol = sp.solve(sp.expand(m_ * (X + h) + c - (m_ * X + c + d)), m_)
+        gc_check_common(q, f"m = {frac_text(sol[0])}", {})
+        return None, None
+    if rep == "equation":
+        _, _, f = bf_rule(q)
+    else:
+        f = bf_given(q["given"])
+        need(f.is_polynomial(X), "the situation's rule")
+    if rep == "table":
+        bf_table(q, f)
+    if rep == "graph":
+        bf_graph(q, f)
+        for p in q["graph"]["points"]:
+            need(sp.nsimplify(p["y"]) == f.subs(X, sp.nsimplify(p["x"])), "a marked point is not on f")
+    v = lambda e: frac_text(e)
+    a = R(q["given"]["a"])
+    if u == "inside-or-outside-shift":
+        i, o = f.subs(X, a + 1), f.subs(X, a) + 1
+        need(i != o, "the two are equal, so the slip is no slip")
+        gc_check_common(q, f"f({a} + 1) = {v(i)}, f({a}) + 1 = {v(o)}", {BF_R_SHIFT: {f"f({a} + 1) = {v(o)}, f({a}) + 1 = {v(o)}"}})
+    elif u == "inside-or-outside-scale":
+        i, o = f.subs(X, 2 * a), 2 * f.subs(X, a)
+        need(i != o, "the two are equal, so the slip is no slip")
+        gc_check_common(q, f"f(2 × {a}) = {v(i)}, 2f({a}) = {v(o)}", {BF_R_TIMES: {f"f(2 × {a}) = {v(o)}, 2f({a}) = {v(o)}"}})
+    elif u == "inverse-or-reciprocal":
+        inv = sp.solve(f - a, X)
+        need(len(inv) == 1 and inv[0].q == 1, "the inverse value is not whole")
+        rec = 1 / f.subs(X, a)
+        gc_check_common(q, f"f⁻¹({a}) = {v(inv[0])}, 1/f({a}) = {v(rec)}", {"SL2.2.inverse-undo#0": {f"f⁻¹({a}) = {v(rec)}, 1/f({a}) = {v(rec)}"}})
+    elif u == "match-expressions":
+        target = R(re.search(r"the value (−?[\d/]+)\?", asked).group(1).replace("−", "-"))
+        inv = sp.solve(f - a, X)[0]
+        worth = {f"f({a + 1})": f.subs(X, a + 1), f"f({a}) + 1": f.subs(X, a) + 1, f"2f({a})": 2 * f.subs(X, a), f"f({2 * a})": f.subs(X, 2 * a),
+                 f"f⁻¹({a})": inv, f"1/f({a})": 1 / f.subs(X, a)}
+        for o in q["choices"]:
+            need(o["text"] in worth, f"option {o['text']!r} is not an expression")
+            need((worth[o["text"]] == target) == o["correct"], f"option {o['text']!r} is {worth[o['text']]}")
+        gc_check_common(q, q["answer_text"], {})
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+def br_say(v):
+    v = sp.Rational(v)
+    if gc_rounds(v) and v.q > 12:
+        return gc_s(v)
+    return dec_text(v) if v.q % 3 else frac_text(v)
+
+
+def br_iv(letter, lo, hi, lo_open=False, hi_open=False):
+    return f"{br_say(lo)} {'<' if lo_open else '≤'} {letter} {'<' if hi_open else '≤'} {br_say(hi)}"
+
+
+def br_trap(*vals):
+    return any(gc_rounds(v) and v.q > 12 for v in vals)
+
+
+def br_domain(q, g):
+    """(lo, hi) as the question states them, and the same as the situation's."""
+    for t in q["lines"]:
+        m = re.search(r"for (−?[\d./]+) ≤ x ≤ (−?[\d./]+)", t)
+        if m:
+            lo, hi = (R(p.replace("−", "-")) for p in m.groups())
+            need(lo == R(g["lo"]) and hi == R(g["hi"]), "the domain shown is not the situation's")
+            return lo, hi
+    return R(g["lo"]), R(g["hi"])
+
+
+def br_extremes(f, lo, hi):
+    """The least and greatest of a polynomial on [lo, hi], with its turning points."""
+    turns = [t for t in sp.real_roots(sp.Poly(sp.diff(f, X), X)) if lo < t < hi]
+    vals = [f.subs(X, t) for t in turns + [lo, hi]]
+    return min(vals), max(vals), turns
+
+
+def check_restricted(q):
+    u, rep, paper, L, asked = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["lines"], q["asked"]
+    g = q["given"]
+    bf_no_hyphens(q)
+    f = bf_given(g)
+    if rep == "equation":
+        _, _, shown = bf_rule(q)
+        need(all(abs(sp.N((shown - f).subs(X, x_), 20)) < 1e-9 for x_ in (sp.Rational(29, 10), sp.Rational(71, 10))), f"the rule shown {shown} is not the situation's {f}")
+    W = "SL2.2.range#"
+    trap = None
+    if rep == "graph" and u not in ("range-rational",):
+        bf_graph(q, f)
+    if u == "range-quadratic":
+        p = sp.Poly(f, X)
+        a, b = p.coeff_monomial(X**2), p.coeff_monomial(X)
+        h = -b / (2 * a)
+        k = f.subs(X, h)
+        if rep == "words":
+            need(Fmt_point(h, k) in L[0] and ("upwards" in L[0]) == (a > 0), "the words describe another parabola")
+        rel = "≥" if a > 0 else "≤"
+        want, wr = f"y {rel} {br_say(k)}", {W + "2": {f"x {rel} {br_say(k)}"}}
+        if br_trap(k):
+            trap = f"y {rel} {gc_s2(k)}"
+    elif u == "range-rational":
+        A = sp.limit(f, X, sp.oo)
+        if rep == "graph":
+            for c in q["graph"]["curves"]:
+                need(gc_curve_is(c, gc_f(f), 1e-5) or len(c) <= 10, "the graph drawn is not f")
+        want, wr = f"y ≠ {br_say(A)}", {W + "1": {"all real numbers"}}
+        if br_trap(A):
+            trap = f"y ≠ {gc_s2(A)}"
+    elif u == "range-exponential":
+        c = sp.limit(f, X, -sp.oo)
+        up = f.subs(X, 0) > c
+        want = f"y {'>' if up else '<'} {br_say(c)}"
+        wr = {W + "1": {f"y {'≥' if up else '≤'} {br_say(c)}"}}
+    elif u in ("range-restricted", "range-reflected"):
+        lo, hi = br_domain(q, g)
+        ymin, ymax, turns = br_extremes(f, lo, hi)
+        need(len(turns) == 1, "the vertex is not inside the domain")
+        if u == "range-restricted":
+            a_, b_ = sorted([f.subs(X, lo), f.subs(X, hi)])
+            need(a_ != b_, "both ends have one height")
+            want, wr = br_iv("y", ymin, ymax), {W + "0": {br_iv("y", a_, b_)}}
+            if br_trap(ymin, ymax):
+                trap = f"{gc_s2(ymin)} ≤ y ≤ {gc_s2(ymax)}"
+        else:
+            want, wr = br_iv("y", -ymax, -ymin), {}
+            if br_trap(ymin, ymax):
+                trap = f"{gc_s2(-ymax)} ≤ y ≤ {gc_s2(-ymin)}"
+    elif u == "composite-condition":
+        need(L[1] in ("g(x) = √(x − c)", "g(x) = ln(x − c)"), f"can't read {L[1]!r}")
+        root = "√" in L[1]
+        reached = f.is_polynomial(X)
+        if reached:
+            p = sp.Poly(f, X)
+            need(p.coeff_monomial(X**2) > 0, "f has no least value")
+            m = f.subs(X, -p.coeff_monomial(X) / (2 * p.coeff_monomial(X**2)))
+        else:
+            m = sp.limit(f, X, -sp.oo)
+        rel = "≤" if root or not reached else "<"
+        want, wr = f"c {rel} {br_say(m)}", {}
+        if br_trap(m):
+            trap = f"c {rel} {gc_s2(m)}"
+    elif u == "domain-root":
+        inner = next(a.base for a in f.atoms(sp.Pow) if a.exp == sp.Rational(1, 2))
+        c = sp.solve(inner, X)[0]
+        left = sp.diff(inner, X) < 0
+        rel, strict = ("≤", "<") if left else ("≥", ">")
+        want, wr = f"x {rel} {br_say(c)}", {"SL2.2.domain#0": {f"x {strict} {br_say(c)}"}, "SL2.2.domain#1": {f"x {rel} 0"}}
+    elif u == "domain-log-or-fraction":
+        logs = list(f.atoms(sp.log))
+        if logs:
+            want = f"x > {br_say(sp.solve(logs[0].args[0], X)[0])}"
+        else:
+            want = f"x ≠ {br_say(sp.solve(sp.denom(sp.together(f)), X)[0])}"
+        wr = {}
+    elif u in ("domain-from-graph", "range-from-graph"):
+        lo, hi = R(g["lo"]), R(g["hi"])
+        pts = q["graph"]["points"]
+        need(len(pts) == 2 and sorted(float(p["x"]) for p in pts) == [float(lo), float(hi)], "the dots are not the ends")
+        open_at = {sp.nsimplify(p["x"]): p["open"] for p in pts}
+        need(all(p["filled"] != p["open"] for p in pts), "a dot is neither open nor filled")
+        c = q["graph"]["curves"][0]
+        need(abs(c[0][0] - float(lo)) < 1e-6 and abs(c[-1][0] - float(hi)) < 1e-6, "the curve doesn't stop at the dots")
+        if u == "domain-from-graph":
+            want = br_iv("x", lo, hi, open_at[lo], open_at[hi])
+            ymin, ymax, _ = br_extremes(f, lo, hi)
+            wr = {"SL2.2.domain#2": {br_bars(f, lo, hi, open_at)}}
+        else:
+            want, wr = br_bars(f, lo, hi, open_at), {}
+    elif u == "domain-from-range":
+        m = re.search(r"range(?: of f on its domain)? is (−?\d+) ≤ y ≤ (−?\d+)", " ".join(L))
+        need(m is not None, "can't read the range")
+        p, r = (R(t.replace("−", "-")) for t in m.groups())
+        xs = sorted([sp.solve(f - p, X)[0], sp.solve(f - r, X)[0]])
+        if rep == "words":
+            need(f"gradient {frac_text(sp.diff(f, X))} and y-intercept {frac_text(f.subs(X, 0))}" in L[0], "the words describe another line")
+        want, wr = br_iv("x", xs[0], xs[1]), {}
+    elif u == "inverse-domain":
+        d1 = R(g["d1"])
+        bounded = g["d2"] is not None
+        if bounded:
+            d2 = R(g["d2"])
+            r1, r2 = sorted([f.subs(X, d1), f.subs(X, d2)])
+            dom, ran, dom_i, ran_i = br_iv("x", d1, d2), br_iv("y", r1, r2), br_iv("x", r1, r2), br_iv("y", d1, d2)
+        else:
+            need(sp.diff(f, X).subs(X, d1 + 1) > 0, "f is not increasing on its domain")
+            r1 = f.subs(X, d1)
+            dom, ran, dom_i, ran_i = f"x ≥ {br_say(d1)}", f"y ≥ {br_say(r1)}", f"x ≥ {br_say(r1)}", f"y ≥ {br_say(d1)}"
+        need(("for " + dom) in " ".join(L), "the domain shown is not the situation's")
+        want, wr = f"domain {dom_i}, range {ran_i}", {"SL2.5.inverse-domain-range#0": {f"domain {dom}, range {ran}"}}
+    elif u == "restrict-for-inverse":
+        p = sp.Poly(f, X)
+        h = -p.coeff_monomial(X) / (2 * p.coeff_monomial(X**2))
+        m = re.search(r"\((−?\d+), (−?\d+)\)", asked)
+        px, py = (R(t.replace("−", "-")) for t in m.groups())
+        need(f.subs(X, px) == py and px != h and h != 0, "the point is not a clean point on the curve")
+        rel = "≥" if px > h else "≤"
+        want, wr = f"x {rel} {br_say(h)}", {"SL2.5.inverse-domain-range#1": {f"x {rel} 0"}}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
+def Fmt_point(x, y):
+    return f"({frac_text(x)}, {frac_text(y)})"
+
+
+def br_bars(f, lo, hi, open_at):
+    """The range of a polynomial on a domain with open or filled ends."""
+    a, b = f.subs(X, lo), f.subs(X, hi)
+    lows = [(a, open_at[lo]), (b, open_at[hi])]
+    for t in sp.real_roots(sp.Poly(sp.diff(f, X), X)):
+        if lo < t < hi:
+            lows.append((f.subs(X, t), False))
+    ymin, o1 = min(lows, key=lambda p: (p[0], p[1]))
+    ymax, o2 = max(lows, key=lambda p: (p[0], not p[1]))
+    return br_iv("y", ymin, ymax, o1, o2)
+
+
+def bo_card_is(card, base, fx):
+    """Whether a card's curve is the shown curve with every point moved by fx."""
+    got = card["curves"][0]
+    return len(got) == len(base) and all(abs(a - b) < 1e-9 for p, c in zip(got, base) for a, b in zip(p, fx(c)))
+
+
+def check_one_to_one(q):
+    u, rep, paper, L, asked = q["view"]["unknown"], q["view"]["rep"], q["paper"], q["lines"], q["asked"]
+    g = q["given"]
+    bf_no_hyphens(q)
+    f = bf_given(g)
+    if rep == "equation" and u != "area-by-symmetry":
+        _, _, shown = bf_rule(q)
+        need(all(abs(sp.N((shown - f).subs(X, x_), 20)) < 1e-9 for x_ in (sp.Rational(29, 10), sp.Rational(71, 10))), f"the rule shown {shown} is not the situation's {f}")
+    n = lambda w: bf_n(w, paper)
+    trap = None
+    wr = {}
+    if u in ("image-point", "point-from-inverse", "inverse-from-graph", "sketch-inverse"):
+        p_, q_ = R(g.get("p", 0)), R(g.get("q", 0))
+        need(f.subs(X, p_) == q_, "the key point is not on f")
+    if u == "sketch-inverse":
+        base = q["graph"]["curves"][0]
+        need(gc_curve_is(base, gc_f(f)), "the graph drawn is not f")
+        graphs, ch = q["graphs"], q["choices"]
+        need(len(graphs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+        need(len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+        moves = {"x-axis": lambda c: (c[0], -c[1]), "y-axis": lambda c: (-c[0], c[1]), "y=-x": lambda c: (-c[1], -c[0])}
+        for o, gr in zip(ch, graphs):
+            if o["correct"]:
+                need(bo_card_is(gr, base, lambda c: (c[1], c[0])), "the right graph is not f with its coordinates swapped")
+            else:
+                mk = o["mistake"]
+                need(mk in moves and bo_card_is(gr, base, moves[mk]), f"the {mk} graph is not that reflection")
+                need(o["why"] != "", "a wrong graph doesn't say what is wrong")
+                need(o["ref"] == ("SL2.2.inverse-undo#1" if mk != "y=-x" else ""), "a wrong graph has the wrong ref")
+        gc_check_common(q, next(o["text"] for o in ch if o["correct"]), {o["ref"]: {o["text"], "Graph A", "Graph B", "Graph C", "Graph D"} for o in ch if o["ref"]})
+        return None, None
+    if u == "area-by-symmetry":
+        need(L[0].endswith(", for x ≥ 0"), "no domain")
+        a = sp.Poly(bf_expr(L[0].split(" = ")[1].rsplit(",", 1)[0]), X).coeff_monomial(X**2)
+        m = 1 / a
+        need(f"meet at (0, 0) and ({dec_text(m)}, {dec_text(m)})." in L[1], "the meeting point is wrong")
+        half = sp.integrate(X - a * X**2, (X, 0, m))
+        whole = sp.integrate(sp.sqrt(X / a) - a * X**2, (X, 0, m))
+        need(whole == 2 * half, "the region is not twice the half")
+        if len(L) > 2 and "area between the graph of f" in L[2]:
+            need(n(half) in L[2], "the given half is wrong")
+        want = f"Area = {n(whole)}"
+        trap = bf_trap_num(paper, "Area = ", whole)
+    elif u == "image-point":
+        want, wr = f"({frac_text(q_)}, {frac_text(p_)})", {"SL2.4.symmetry#1": {f"({frac_text(-q_)}, {frac_text(-p_)})", f"({frac_text(q_)}, {frac_text(-p_)})"}}
+        if rep == "graph":
+            bf_graph(q, f)
+    elif u == "point-from-inverse":
+        want = f"({frac_text(p_)}, {frac_text(q_)})"
+        need(f"({frac_text(q_)}, {frac_text(p_)})" in asked, "the point asked is not on the inverse")
+        if rep == "graph":
+            c = q["graph"]["curves"][0]
+            need(gc_curve_is([[y, x] for x, y in c], gc_f(f)), "the graph drawn is not f⁻¹")
+    elif u == "inverse-from-table":
+        bf_table(q, f)
+        a = R(g["a"])
+        xs = sp.solve(f - a, X)
+        need(len(xs) == 1, "not one-to-one")
+        want, wr = f"f⁻¹({frac_text(a)}) = {frac_text(xs[0])}", {"SL2.2.inverse-undo#2": {f"f⁻¹({frac_text(a)}) = {frac_text(f.subs(X, a))}"}}
+    elif u == "inverse-from-graph":
+        bf_graph(q, f)
+        want = f"f⁻¹({frac_text(q_)}) = {frac_text(p_)}"
+    elif u == "inverse-from-rule":
+        a = R(g["a"])
+        inv = R(g["inv"]) if paper == 1 else sp.solve(f - a, X)[0]
+        need(abs(sp.N(f.subs(X, inv) - a, 20)) < 1e-6, "f(f⁻¹(a)) is not a")
+        need(g.get("form") == "half" or sp.diff(f, X).subs(X, inv) != 0, "f is not one-to-one here")
+        label = f"f⁻¹({frac_text(a)}) = "
+        want = label + n(inv)
+        trap = bf_trap_num(paper, label, inv)
+        v = f.subs(X, a)
+        if v.is_Rational and v != 0:
+            wr = {"SL2.2.inverse-undo#2": {label + t for t in bf_forms(v)}, "SL2.2.inverse-undo#0": {label + t for t in bf_forms(1 / v)}}
+    elif u == "intercepts-of-inverse":
+        xi = sp.solve(f, X)[0]
+        yi = f.subs(X, 0)
+        want = f"x-intercept ({frac_text(yi)}, 0), y-intercept (0, {frac_text(xi)})"
+    elif u == "asymptotes-of-inverse":
+        if g["form"] == "rat":
+            h = sp.solve(sp.denom(sp.together(f)), X)[0]
+            A = sp.limit(f, X, sp.oo)
+            want = f"x = {frac_text(A)} and y = {frac_text(h)}"
+        else:
+            want = f"x = {frac_text(sp.limit(f, X, -sp.oo))}"
+    elif u == "meeting-on-y-equals-x":
+        need(sp.diff(f, X).subs(X, R(g["p"])) > 0, "f is not increasing")
+        fixed = [s_ for s_ in sp.solve(f - X, X) if s_.is_real and f.subs(X, s_) == s_]
+        need(len(fixed) == 1 and fixed[0] == R(g["p"]) and fixed[0].q == 1, f"f meets y = x at {fixed}")
+        want = f"({frac_text(fixed[0])}, {frac_text(fixed[0])})"
+        y0 = f.subs(X, 0)
+        if y0.is_Rational and y0 != 0:
+            wr = {"SL2.4.symmetry#0": {f"(0, {frac_text(y0)})"}}
+    elif u == "is-self-inverse":
+        ff = sp.simplify(f.subs(X, f))
+        own = sp.simplify(ff - X) == 0
+        need(own == g["inverse"], "the situation has it the wrong way round")
+        p_, q_ = R(g["p"]), R(g["q"])
+        need(f.subs(X, p_) == q_, "the point is not on f")
+        wr = {"SL2.4.symmetry#2": {"Yes: it has a point on y = x, so it must be symmetric"}}
+        if own:
+            want = "Yes: the graph is its own mirror image in y = x"
+            wr["SL2.2.inverse-undo#0"] = {"No: f(x) and 1/f(x) are different"}
+        else:
+            need(f.subs(X, q_) != p_, "the swapped point is on f too")
+            want = f"No: {Fmt_point(p_, q_)} is on the graph, but {Fmt_point(q_, p_)} is not"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
+def bf_spot(q, lines):
+    """The first false line of a student's working on f(2a)."""
+    f = bf_given(q["given"])
+    a = R(q["given"]["a"])
+    last = None
+    for i, line in enumerate(lines):
+        sides = [p.strip() for p in line.split(" = ") if p.strip()]
+        if line.startswith("f(2 × "):
+            if 2 * f.subs(X, a) != f.subs(X, 2 * a):
+                return i
+            continue
+        if line.startswith("= "):
+            val = sp.nsimplify(parse(line[2:]))
+            continue
+        if f.subs(X, a) != parse(sides[1]):
+            return i
+    return None
+
+
+SPOT_CHECKS["basic-function"] = bf_spot
+
+
+# ── Lines (FAL-424): line-conditions ─────────────────────────
+# Every line is read back from the text the student sees (or the graph's marked points, or the
+# table), its gradient and intercepts worked out again with exact rationals, and the answer and
+# each tagged wrong option written out as the game writes them.
+
+LC_LIM = 9
+LC_DEN = 5
+LC_PAPER2 = {"gradient-from-two-points", "equation-two-points", "equation-from-intercepts"}
+LC_RUN_RISE, LC_ORDER, LC_COEF = ("SL2.1.gradient#%d" % i for i in range(3))
+LC_PLUS, LC_OTHER_M = "SL2.1.equation-of-line#0", "SL2.1.equation-of-line#2"
+LC_YINT_POINT, LC_SWAP_INT, LC_YINT_D = ("SL2.1.intercepts#%d" % i for i in range(3))
+LC_PERP, LC_PRODUCT_1, LC_BISECT = ("SL2.1.parallel-perpendicular#%d" % i for i in range(3))
+LC_MID = "SL3.1.midpoint-3d#0"
+LC_NUM = r"−?\d+(?:\.\d+)?(?:/\d+)?"
+LC_PT = re.compile(rf"\(({LC_NUM}), ({LC_NUM})\)")
+
+
+def lc_style(q):
+    """What no line of a Lines question may read as: a hyphen for a minus, two signs in a row,
+    a bare negative after ×, or a coefficient of 1."""
+    texts = [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]
+    for t in texts:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+        need(not re.search(r"[−+] [−+]|× −|(?<![\d.])[01][xy]\b", t), f"badly written signs in {t!r}")
+
+
+def lc_q(t):
+    t = t.strip().replace("−", "-")
+    return sp.Rational(t)
+
+
+def lc_terms(side):
+    """ax + by + d of one side of an equation, as (a, b, d)."""
+    s = side.replace("½", "(1/2)").replace(" ", "")
+    co = [sp.Integer(0)] * 3
+    at = 0
+    while at < len(s):
+        m = re.compile(r"([+−]?)(?:\((\d+/\d+)\)|(\d+(?:\.\d+)?(?:/\d+)?))?([xy]?)").match(s, at)
+        need(m is not None and m.end() > at, f"can't read {side!r}")
+        sign = -1 if m.group(1) == "−" else 1
+        body = m.group(2) or m.group(3)
+        v = sign * (sp.Rational(body) if body else sp.Integer(1))
+        co["xy".find(m.group(4)) if m.group(4) else 2] += v
+        at = m.end()
+    return co
+
+
+@lru_cache(maxsize=None)
+def lc_line(text):
+    """y = mx + c or ax + by + d = 0 as (m, c)."""
+    t = text.split(": ", 1)[-1].strip().rstrip(".")
+    need(t.count(" = ") == 1, f"not an equation: {text!r}")
+    left, right = t.split(" = ")
+    a, b, d = (x - y for x, y in zip(lc_terms(left), lc_terms(right)))
+    need(b != 0, f"{text!r} has no y")
+    return -a / b, -d / b
+
+
+def lc_sl(m, c):
+    return "y = " + qr_poly([m, c])
+
+
+def lc_abd(m, c):
+    den = sp.ilcm(sp.Rational(m).q, sp.Rational(c).q)
+    a, b, d = -m * den, sp.Integer(den), -c * den
+    g = sp.igcd(int(a), int(b), int(d))
+    sign = -1 if a < 0 else 1
+    return tuple(sign * int(v) // g for v in (a, b, d))
+
+
+def lc_gtext(a, b, d):
+    out = ""
+    for v, letter in ((a, "x"), (b, "y"), (d, "")):
+        if v == 0:
+            continue
+        body = str(abs(v)) if letter == "" or abs(v) != 1 else ""
+        out += (("−" if v < 0 else "") if out == "" else (" − " if v < 0 else " + ")) + body + letter
+    return out + " = 0"
+
+
+def lc_gen(m, c):
+    return lc_gtext(*lc_abd(m, c))
+
+
+def lc_sf_line(m, c):
+    tail = "" if c == 0 else (" − " if c < 0 else " + ") + gc_s(abs(c))
+    return f"y = {gc_s(m)}x{tail}"
+
+
+def lc_form(q):
+    """How the question asks an equation: "sl", "gen" or None."""
+    if "the form ax + by + d = 0" in q["asked"]:
+        return "gen"
+    return "sl" if "the form y = mx + c" in q["asked"] else None
+
+
+def lc_writer(q):
+    form = lc_form(q)
+    need(form is not None, "the question doesn't state the form")
+    if form == "gen":
+        need(q["paper"] == 1, "general form is Paper 1")
+        return lc_gen
+    return lc_sl if q["paper"] == 1 else lc_sf_line
+
+
+def lc_through(writer, n, x, y):
+    return writer(n, y - n * x)
+
+
+def lc_named(t):
+    """The points named in a line of text, A and B by their letters."""
+    out = {}
+    for name, x, y in re.findall(rf"\b([A-Z])(?: is the point )?\(({LC_NUM}), ({LC_NUM})\)", t):
+        out[name] = (lc_q(x), lc_q(y))
+    return out
+
+
+def lc_ab(q):
+    """A and B from the words, the graph's labels or the table."""
+    rep = q["view"]["rep"]
+    t = q.get("table")
+    if t is not None:
+        rows = t["rows"]
+        need(rows[0][1] == ["A", "B", "C"] and rows[1][0] == "x" and rows[2][0] == "y", "the table's heads")
+        pts = [(lc_q(x), lc_q(y)) for x, y in zip(rows[1][1], rows[2][1])]
+        m = (pts[1][1] - pts[0][1]) / (pts[1][0] - pts[0][0])
+        need(pts[2][1] - pts[0][1] == m * (pts[2][0] - pts[0][0]), "C is not on the line AB")
+        return pts[0], pts[1]
+    if rep == "graph" and q["graph"] is not None:
+        found = {}
+        for p in q["graph"]["points"]:
+            found.update(lc_named(p["label"]))
+            if p["label"][:1] in ("A", "B"):
+                need((lc_q(str(sp.nsimplify(p["x"]))), lc_q(str(sp.nsimplify(p["y"])))) == found[p["label"][0]], f"the mark {p['label']} is not at its point")
+        return found.get("A"), found.get("B")
+    found = lc_named(" ".join(q["lines"]))
+    return found.get("A"), found.get("B")
+
+
+def lc_graph_line(q, m, c):
+    """The drawn line is y = mx + c, inside the window."""
+    gr = q["graph"]
+    need(gr is not None, "no graph")
+    need(len(gr["curves"]) == 1 and len(gr["curves"][0]) > 5, "no line is drawn")
+    for x, y in gr["curves"][0]:
+        need(abs(float(m) * x + float(c) - y) < 1e-6, "the line drawn is another line")
+        need(gr["y0"] <= y <= gr["y1"], "the line leaves the plot")
+
+
+def lc_clean(q, A, B):
+    u, paper = q["view"]["unknown"], q["paper"]
+    need(A[0] != B[0] and A[1] != B[1], "A and B share a coordinate: the gradient is 0 or there is none")
+    m = (B[1] - A[1]) / (B[0] - A[0])
+    if paper == 1:
+        need(all(v.q == 1 and abs(v) <= LC_LIM for v in A + B), f"A or B is off the small grid: {A}, {B}")
+        need(m.q <= LC_DEN, f"the gradient {m} has a big denominator")
+    else:
+        need(u in LC_PAPER2, f"{u} is Paper 1")
+        need(m.q > LC_DEN and not re.fullmatch(r"−?\d+\.\d*", dec_text(m)), f"Paper 2 gradient {m} needs no calculator")
+
+
+def lc_p(asked):
+    """The point P of the question, from its name."""
+    found = lc_named(asked)
+    need("P" in found, f"no P in {asked!r}")
+    return found["P"]
+
+
+def lc_coords(g):
+    """Every marked point's (x, y) of a graph."""
+    return [(sp.nsimplify(p["x"], rational=True), sp.nsimplify(p["y"], rational=True)) for p in g["points"]]
+
+
+def lc_first_line(q):
+    """(m, c) of the line a question starts from: L₁, or the line AB."""
+    for t in q["lines"]:
+        if t.startswith("L₁: "):
+            return lc_line(t)
+    A, B = lc_ab(q)
+    need(A is not None and B is not None, "no first line")
+    lc_clean(q, A, B)
+    m = (B[1] - A[1]) / (B[0] - A[0])
+    return m, A[1] - m * A[0]
+
+
+def lc_tick_cells(q):
+    """A view asked for by method: GDC regression asks for a calculator unless it shares a family."""
+    if q["view"]["angle"] == "gdc-regression" and not q["view"].get("shared"):
+        need(q["paper"] == 2, "GDC regression is Paper 2")
+
+
+def lc_two_sets(*pairs):
+    """{ref: {texts}} from (ref, text) pairs."""
+    out = {}
+    for ref, t in pairs:
+        out.setdefault(ref, set()).add(t)
+    return out
+
+
+def lc_gradient_question(q, u):
+    rep, n = q["view"]["rep"], (lambda v: frac_text(v) if q["paper"] == 1 else gc_s(v))
+    if u == "gradient-from-general":
+        need(len(q["lines"]) == 1, "one line is shown")
+        L = q["lines"][0]
+        need(L.endswith(" = 0"), f"not ax + by + d = 0: {L!r}")
+        a, b, d = (x for x in lc_terms(L[:-4]))
+        need(sp.igcd(int(a), int(b), int(d)) == 1 and a > 0 and a.q == 1 and b.q == 1 and d.q == 1, f"{L!r} is not whole with a > 0")
+        m, c = lc_line(L)
+        need(m.q <= LC_DEN, "the gradient has a big denominator")
+        want = f"m = {frac_text(m)}"
+        return want, lc_two_sets(*[(LC_COEF, f"m = {frac_text(v)}") for v in (a, -a, b)])
+    if u == "gradient-from-graph":
+        pts = lc_coords(q["graph"])
+        need(len(pts) == 2, "two marked points")
+        A, B = pts
+        lc_clean(q, A, B)
+        m = (B[1] - A[1]) / (B[0] - A[0])
+        lc_graph_line(q, m, A[1] - m * A[0])
+    else:
+        A, B = lc_ab(q)
+        lc_clean(q, A, B)
+        m = (B[1] - A[1]) / (B[0] - A[0])
+        if rep == "graph":
+            lc_graph_line(q, m, A[1] - m * A[0])
+    return f"m = {n(m)}", lc_two_sets((LC_RUN_RISE, f"m = {n(1 / m)}"), (LC_ORDER, f"m = {n(-m)}"))
+
+
+def lc_missing(q):
+    m_ = re.fullmatch(rf"The line through A and B has gradient ({LC_NUM})\. Find t\.", q["asked"])
+    need(m_ is not None, f"asked {q['asked']!r}")
+    m = lc_q(m_.group(1))
+    if q["view"]["rep"] == "graph":
+        A = lc_coords(q["graph"])[0]
+        need(len(q["graph"]["points"]) == 1 and len(q["graph"]["vlines"]) == 1, "the graph marks A and the line B is on")
+        found = re.search(rf"B\(({LC_NUM}), t\)", q["lines"][0])
+        need(float(lc_q(found.group(1))) == q["graph"]["vlines"][0]["at"], "the dashed line is not x = B's x")
+        bx, by = lc_q(found.group(1)), None
+    else:
+        A = lc_named(q["lines"][0])["A"]
+        found = re.search(rf"B is the point \(({LC_NUM}|t), ({LC_NUM}|t)\)", q["lines"][0])
+        bx, by = (None if v == "t" else lc_q(v) for v in found.groups())
+    need(m.q <= LC_DEN and m != 0, "a clean non-zero gradient")
+    if by is None:
+        dx = bx - A[0]
+        v = A[1] + m * dx
+        wr = {LC_RUN_RISE: {f"t = {frac_text(A[1] + dx / m)}"}, LC_ORDER: {f"t = {frac_text(A[1] - m * dx)}"}}
+    else:
+        dy = by - A[1]
+        v = A[0] + dy / m
+        wr = {LC_RUN_RISE: {f"t = {frac_text(A[0] + dy * m)}"}, LC_ORDER: {f"t = {frac_text(A[0] - dy / m)}"}}
+    need(v.q == 1, "t is not a whole number")
+    return f"t = {frac_text(v)}", wr
+
+
+def lc_equation(q, u):
+    """(want, wrongs) of the unknowns that ask a line's equation."""
+    w = lc_writer(q)
+    rep, asked, L = q["view"]["rep"], q["asked"], q["lines"]
+    if u == "equation-point-gradient":
+        f = re.fullmatch(rf"A line passes through \(({LC_NUM}), ({LC_NUM})\) and has gradient ({LC_NUM})\.", L[0])
+        need(f is not None, f"can't read {L[0]!r}")
+        x, y, n = (lc_q(v) for v in f.groups())
+        need(n.q <= LC_DEN and n != 0, "a clean non-zero gradient")
+        return lc_through(w, n, x, y), lc_two_sets((LC_PLUS, lc_through(w, n, -x, y)))
+    if u == "equation-two-points":
+        A, B = lc_ab(q)
+        lc_clean(q, A, B)
+        m = (B[1] - A[1]) / (B[0] - A[0])
+        if rep == "graph":
+            lc_graph_line(q, m, A[1] - m * A[0])
+        return lc_through(w, m, *A), lc_two_sets((LC_ORDER, lc_through(w, -m, *A)), (LC_RUN_RISE, lc_through(w, 1 / m, *A)))
+    if u == "midpoint-then-line":
+        A, B = lc_ab(q)
+        lc_clean(q, A, B)
+        M = ((A[0] + B[0]) / 2, (A[1] + B[1]) / 2)
+        need(M[0].q == 1 and M[1].q == 1, "M is not whole")
+        T = (sp.Integer(0), sp.Integer(0)) if "the origin" in asked else lc_named(asked)["T"]
+        need(M[0] != T[0] and M[1] != T[1], "the line through M and T is level or upright")
+        n = (M[1] - T[1]) / (M[0] - T[0])
+        need(n.q <= LC_DEN, "the line through M has a big denominator")
+        H = ((B[0] - A[0]) / 2, (B[1] - A[1]) / 2)
+        wr = lc_two_sets((LC_MID, lc_through(w, (H[1] - T[1]) / (H[0] - T[0]), *H))) if H[0] != T[0] else {}
+        return lc_through(w, n, *M), wr
+    if u == "equation-from-intercepts":
+        if rep == "graph":
+            pts = lc_coords(q["graph"])
+            p = next(a for a, b in pts if b == 0 and a != 0)
+            r = next(b for a, b in pts if a == 0 and b != 0)
+            lc_graph_line(q, -r / p, r)
+        else:
+            f = re.fullmatch(rf"A line crosses the x-axis at x = ({LC_NUM}) and the y-axis at y = ({LC_NUM})\.", L[0])
+            need(f is not None, f"can't read {L[0]!r}")
+            p, r = lc_q(f.group(1)), lc_q(f.group(2))
+        need(p != 0 and r != 0 and p.q == 1 and r.q == 1 and abs(p) <= 9 and abs(r) <= 9, "the intercepts are not small, whole and non-zero")
+        m = -r / p
+        if q["paper"] == 2:
+            need(m.q > LC_DEN and not re.fullmatch(r"−?\d+\.\d*", dec_text(m)), f"Paper 2 gradient {m} needs no calculator")
+        return w(m, r), lc_two_sets((LC_ORDER, w(-m, r)), (LC_SWAP_INT, w(-p / r, p)))
+    if u == "perpendicular-bisector":
+        A, B = lc_ab(q)
+        lc_clean(q, A, B)
+        if rep == "graph":
+            m = (B[1] - A[1]) / (B[0] - A[0])
+            lc_graph_line(q, m, A[1] - m * A[0])
+        m = (B[1] - A[1]) / (B[0] - A[0])
+        M = ((A[0] + B[0]) / 2, (A[1] + B[1]) / 2)
+        need(M[0].q == 1 and M[1].q == 1, "M is not whole")
+        n = -1 / m
+        need(n.q <= LC_DEN, "the new gradient has a big denominator")
+        return lc_through(w, n, *M), lc_two_sets((LC_BISECT, lc_through(w, m, *M)), (LC_BISECT, lc_through(w, n, *A)))
+    # parallel-through-point, perpendicular-through-point
+    m, c = lc_first_line(q)
+    if rep == "graph":
+        lc_graph_line(q, m, c)
+        P = lc_named(q["graph"]["points"][2]["label"])["P"]
+    else:
+        P = lc_p(asked)
+    n = m if u == "parallel-through-point" else -1 / m
+    need(n.q <= LC_DEN, "the new gradient has a big denominator")
+    need(all(v.q == 1 and abs(v) <= LC_LIM for v in P), f"P = {P} is not a small whole point")
+    if u == "parallel-through-point":
+        need(P[1] - n * P[0] != c, "the parallel line is the first line")
+        return lc_through(w, n, *P), lc_two_sets((LC_OTHER_M, lc_through(w, -1 / m, *P)), (LC_PLUS, lc_through(w, n, -P[0], P[1])))
+    return lc_through(w, n, *P), lc_two_sets((LC_OTHER_M, lc_through(w, m, *P)), (LC_PERP, lc_through(w, -m, *P)), (LC_PERP, lc_through(w, 1 / m, *P)))
+
+
+def lc_new_line(q):
+    """(m, c) of the line in an unknown-coordinate, general-form or intercepts question."""
+    t = q["lines"][0]
+    f = re.fullmatch(rf"A line (?:L )?passes through \(({LC_NUM}), ({LC_NUM})\) and has gradient ({LC_NUM})\.", t)
+    if f:
+        x, y, n = (lc_q(v) for v in f.groups())
+        return n, y - n * x
+    return lc_line(t.replace("The graph shows the line ", ""))
+
+
+def lc_pair_text(p1, p2):
+    a, b = sorted([p1, p2], key=lambda p: (p[0], p[1]))
+    return f"({frac_text(a[0])}, {frac_text(a[1])}) and ({frac_text(b[0])}, {frac_text(b[1])})"
+
+
+def lc_check_kind(q):
+    L1, L2 = q["lines"]
+    a, b, d = lc_terms(L1[len("L₁: "):-4])
+    need(a > 0 and all(v.q == 1 for v in (a, b, d)) and L1.endswith(" = 0"), f"{L1!r} is not whole with a > 0")
+    m1, c1 = lc_line(L1)
+    m2, c2 = lc_line(L2)
+    need((m1, c1) != (m2, c2), "the two lines are one line")
+    perp, para, none, one = ("Perpendicular, because the gradients multiply to −1", "Parallel, because the gradients are equal",
+                             "Neither, because the gradients are not equal and do not multiply to −1", "Perpendicular, because the gradients multiply to 1")
+    want = para if m1 == m2 else (perp if m1 * m2 == -1 else none)
+    wr = {LC_PRODUCT_1: {one}} if m1 * m2 == 1 and m1 != m2 else {}
+    return want, wr
+
+
+def lc_k(q):
+    f = re.fullmatch(r"Find k so that L₁ and L₂ are (parallel|perpendicular)\.", q["asked"])
+    need(f is not None, f"asked {q['asked']!r}")
+    if q["view"]["rep"] == "equation":
+        m, _ = lc_line(q["lines"][0])
+    else:
+        g = re.fullmatch(rf"L₁ passes through \({LC_NUM}, {LC_NUM}\) and has gradient ({LC_NUM})\.", q["lines"][0])
+        need(g is not None, f"can't read {q['lines'][0]!r}")
+        m = lc_q(g.group(1))
+    h = re.fullmatch(r"L₂: kx ([+−]) (\d*)y ([+−]) (\d+) = 0", q["lines"][1])
+    need(h is not None, f"can't read {q['lines'][1]!r}")
+    b = (-1 if h.group(1) == "−" else 1) * int(h.group(2) or 1)
+    if q["view"]["angle"] == "product-minus-one":
+        need(f.group(1) == "perpendicular", "m₁ × m₂ = −1 is asked of a parallel pair")
+    if f.group(1) == "parallel":
+        return f"k = {frac_text(-m * b)}", {}
+    return f"k = {frac_text(b / m)}", {LC_PRODUCT_1: {f"k = {frac_text(-b / m)}"}}
+
+
+def lc_concept(q, u):
+    """(want, wrongs) of fn-concept-gradient-meaning, from the numbers the student sees."""
+    rep, L = q["view"]["rep"], q["lines"]
+    if u == "gradient-as-rate":
+        i = q["situation"]["ctx"]
+        unit, _, _, _, per = LM_CTX[i]
+        unit = unit or "dollars"
+        each = per.rsplit(" ", 1)[1]
+        if rep == "table":
+            rows = q["table"]["rows"]
+            x, y = rows[0][0], rows[1][0]
+            xs, ys = [lc_q(v) for v in rows[0][1]], [lc_q(v) for v in rows[1][1]]
+            need(len({(ys[k + 1] - ys[k]) / (xs[k + 1] - xs[k]) for k in range(4)}) == 1, "the table is not straight")
+        else:
+            f = re.fullmatch(rf"When ([a-z]) = ({LC_NUM}), ([A-Z]) = ({LC_NUM})\. When [a-z] = ({LC_NUM}), [A-Z] = ({LC_NUM})\.", L[1])
+            need(f is not None, f"can't read {L[1]!r}")
+            x, y = f.group(1), f.group(3)
+            xs, ys = [lc_q(f.group(2)), lc_q(f.group(5))], [lc_q(f.group(4)), lc_q(f.group(6))]
+        m = (ys[-1] - ys[0]) / (xs[-1] - xs[0])
+        want = f"{dec_text(m)} {per}: the change in {y} for each {each}"
+        return want, {LM_TOTAL: {f"{dec_text(ys[-1] - ys[0])} {unit}: the total change in {y} from the first point to the last"}}
+    if u == "steepness-compare":
+        names = ["L₁", "L₂", "L₃"]
+        if rep == "graph":
+            g = q["graph"]
+            need(len(g["curves"]) == 3, "three lines are drawn")
+            ms = []
+            for cv in g["curves"]:
+                (x0, y0), (x1, y1) = cv[0], cv[-1]
+                ms.append(sp.nsimplify((y1 - y0) / (x1 - x0), rational=True, tolerance=1e-6))
+            for p, m_, cv in zip(g["points"], ms, g["curves"]):
+                need(abs(float(m_) * p["x"] + (cv[0][1] - float(m_) * cv[0][0]) - p["y"]) < 1e-6, f"the label {p['label']} is not on its line")
+            need([p["label"] for p in g["points"]] == names, "the lines are not labelled")
+        else:
+            ms = [lc_line(t)[0] for t in L]
+        sizes = [abs(v) for v in ms]
+        need(len(set(sizes)) == 3, "two lines are as steep")
+        top = sizes.index(max(sizes))
+        low = sizes.index(min(sizes))
+        say = lambda k: f"{names[k]}, and it {'rises' if ms[k] > 0 else 'falls'} from left to right"
+        return say(top), {LC_RUN_RISE: {say(low)}}
+    if u == "parallel-why":
+        text = L if rep != "graph" else re.fullmatch(r"L₁ and L₂ are drawn on the grid: (L₁: .*) and (L₂: .*)\.", L[0]).groups()
+        (m1, c1), (m2, c2) = lc_line(text[0]), lc_line(text[1])
+        need(m1 == m2, "the gradients differ")
+        if rep == "graph":
+            need(len(q["graph"]["curves"]) == 2, "two lines are drawn")
+        if c1 == c2:
+            return "They are the same line, so they share every point", {}
+        return f"Both change by {frac_text(m1)} for each step of 1, so the gap of {frac_text(abs(c1 - c2))} between them never changes", {}
+    if u == "perpendicular-why":
+        if rep == "graph":
+            f = re.fullmatch(rf"L₁ goes through O\(0, 0\) and P\(({LC_NUM}), ({LC_NUM})\); L₂ goes through O and Q\(({LC_NUM}), ({LC_NUM})\)\.", L[0])
+            p, r, qx, qy = (lc_q(v) for v in f.groups())
+            need((qx, qy) == (-r, p), "Q is not P turned a quarter-turn")
+        else:
+            f = re.fullmatch(rf"A step along L₁ is ({LC_NUM}) across and ({LC_NUM}) up\. L₂ goes through the same point\.", L[0])
+            p, r = (lc_q(v) for v in f.groups())
+        m1, m2 = r / p, p / -r
+        need(m1 * m2 == -1, "not perpendicular")
+        return (f"A quarter-turn sends the step ({frac_text(p)}, {frac_text(r)}) to ({frac_text(-r)}, {frac_text(p)}), so the gradients are {frac_text(m1)} and {frac_text(m2)}, and their product is −1",
+                {LC_PRODUCT_1: {f"The gradients are {frac_text(m1)} and {frac_text(1 / m1)}, a number and its reciprocal, so their product is 1"}})
+    return "The vertical line has no gradient, so there is no product to work out", {}
+
+
+LC_CONCEPT = {"gradient-as-rate", "steepness-compare", "parallel-why", "perpendicular-why", "vertical-exception"}
+
+
+def check_line_conditions(q):
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    lc_style(q)
+    if u in LC_CONCEPT:
+        need(q["paper"] == 1, "a concept question has no calculator")
+        want, wr = lc_concept(q, u)
+        gc_check_common(q, want, wr)
+        return None, None
+    lc_tick_cells(q)
+    if q["paper"] == 2:
+        need(u in LC_PAPER2, f"{u} is Paper 1")
+    trap = None
+    if u in ("gradient-from-two-points", "gradient-from-general", "gradient-from-graph"):
+        want, wr = lc_gradient_question(q, u)
+        if q["paper"] == 2:
+            trap = "m = " + gc_s2(R(q["answer"]["values"]["v"]))
+    elif u == "missing-coordinate-from-gradient":
+        want, wr = lc_missing(q)
+    elif u == "perpendicular-gradient":
+        m, _ = lc_first_line(q)
+        n = -1 / m
+        need(n.q <= LC_DEN, "the new gradient has a big denominator")
+        want, wr = f"m = {frac_text(n)}", lc_two_sets((LC_PERP, f"m = {frac_text(-m)}"), (LC_PERP, f"m = {frac_text(1 / m)}"))
+    elif u in ("equation-point-gradient", "equation-two-points", "midpoint-then-line", "equation-from-intercepts", "parallel-through-point",
+               "perpendicular-through-point", "perpendicular-bisector"):
+        want, wr = lc_equation(q, u)
+        if q["paper"] == 2:
+            trap = lc_trap(q)
+    elif u == "unknown-coordinate":
+        n, c = lc_new_line(q)
+        f = re.fullmatch(rf"The point Q\((t|{LC_NUM}), (t|{LC_NUM})\) lies on the line\. Find t\.", q["asked"])
+        need(f is not None, f"asked {q['asked']!r}")
+        v = n * lc_q(f.group(1)) + c if f.group(2) == "t" else (lc_q(f.group(2)) - c) / n
+        want, wr = f"t = {frac_text(v)}", {}
+    elif u == "general-form":
+        n, c = lc_new_line(q)
+        need(n.q > 1, "a whole gradient has no fractions to clear")
+        want, wr = lc_gen(n, c), {}
+    elif u == "intercepts-from-equation":
+        n, c = lc_new_line(q)
+        if rep == "graph":
+            lc_graph_line(q, n, c)
+        z = sp.Integer(0)
+        x = -c / n
+        form = q["lines"][0].rstrip(".")
+        wr = lc_two_sets((LC_YINT_POINT, lc_pair_text((x, z), (c, z))), (LC_SWAP_INT, lc_pair_text((c, z), (z, x))))
+        if form.endswith(" = 0"):
+            wr[LC_YINT_D] = {lc_pair_text((x, z), (z, sp.Integer(lc_abd(n, c)[2])))}
+        need(q["view"]["angle"] != "read-c" or " = 0" not in form, "read c needs y = mx + c")
+        want = lc_pair_text((x, z), (z, c))
+    elif u == "triangle-area":
+        n, c = lc_new_line(q)
+        if rep == "graph":
+            lc_graph_line(q, n, c)
+        x = -c / n
+        need(c != 0, "no triangle: the line goes through the origin")
+        want, wr = f"Area = {frac_text(abs(x * c) / 2)}", lc_two_sets((LC_SWAP_INT, f"Area = {frac_text(x * x / 2)}"))
+    elif u == "check-perpendicular":
+        want, wr = lc_check_kind(q)
+    elif u == "k-for-perpendicular":
+        want, wr = lc_k(q)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr, trap)
+    if q["paper"] == 1 and u != "check-perpendicular":
+        need(q["answer"].get("exact", False), "a Paper 1 answer is exact")
+    return None, None
+
+
+def lc_trap(q):
+    v = q["answer"]["values"]
+    m, c = R(v["m"]), R(v["c"])
+    if not (gc_rounds(m) or gc_rounds(c)):
+        return None
+    tail = "" if c == 0 else (" − " if c < 0 else " + ") + gc_s2(abs(c))
+    lead = gc_s2(abs(m))
+    return f"y = {'−' if m < 0 else ''}{'' if lead == '1' else lead}x{tail}"
+
+
+# ── Lines (FAL-424): line-crossing ───────────────────────────
+# The two lines are read back from the text (or a line's gradient and intercept in words), the
+# meeting point is solved again exactly, and the tagged wrong options worked out as they say.
+
+LX = "SL2.1.intersection-lines#"
+LX_X_ONLY, LX_SIGN, LX_FAR = LX + "0", LX + "1", LX + "2"
+LX_LIM = 6
+
+
+def lx_terms(L):
+    """(a, b, k) of ax + by = k or y = mx + c, as rationals."""
+    t = L.split(": ", 1)[-1].strip().rstrip(".")
+    left, right = t.split(" = ")
+    p, q = lc_terms(left), lc_terms(right)
+    return p[0] - q[0], p[1] - q[1], q[2] - p[2]
+
+
+def lx_words(t):
+    f = re.fullmatch(rf"L[₁₂] has gradient ({LC_NUM}) and y-intercept ({LC_NUM})\.", t)
+    if f:
+        return -lc_q(f.group(1)), sp.Integer(1), lc_q(f.group(2))
+    f = re.fullmatch(rf"L₂ goes through \(({LC_NUM}), ({LC_NUM})\) and \(({LC_NUM}), ({LC_NUM})\)\.", t)
+    if f:
+        x1, y1, x2, y2 = (lc_q(v) for v in f.groups())
+        need(x1 != x2, "the two points are one above the other")
+        m = (y2 - y1) / (x2 - x1)
+        return -m, sp.Integer(1), y1 - m * x1
+    return lx_terms(t)
+
+
+def lx_meet(p, q):
+    (a1, b1, k1), (a2, b2, k2) = p, q
+    det = a1 * b2 - a2 * b1
+    need(det != 0, "the lines don't meet at one point")
+    return (k1 * b2 - k2 * b1) / det, (a1 * k2 - a2 * k1) / det
+
+
+def lx_ptext(x, y, paper):
+    n = frac_text if paper == 1 else gc_s
+    return f"({n(x)}, {n(y)})"
+
+
+def lx_ptrap(x, y):
+    return f"({gc_s2(x)}, {gc_s2(y)})"
+
+
+def lx_clean_point(q, x, y):
+    if q["paper"] == 1:
+        need(x.q == 1 and y.q == 1 and abs(x) <= LX_LIM and abs(y) <= LX_LIM, f"the meeting point ({x}, {y}) is not small and whole")
+    else:
+        need(q["view"]["angle"] == "gdc-intersect" or q["view"].get("same_angle") == "gdc-intersect", "Paper 2 is the GDC's intersect")
+        need(gc_rounds(x) and gc_rounds(y), "a Paper 2 meeting point that needs no calculator")
+
+
+def check_line_crossing(q):
+    u, rep, L, paper = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["paper"]
+    lc_style(q)
+    if q["view"]["angle"] == "gdc-intersect" and not q["view"].get("shared"):
+        need(paper == 2, "the GDC's intersect is Paper 2")
+    trap = None
+    wr = {}
+    if u in ("meet-slope-intercept", "meet-general", "meet-from-graph"):
+        p, r = lx_terms(L[0]), lx_terms(L[1])
+        x, y = lx_meet(p, r)
+        lx_clean_point(q, x, y)
+        want = lx_ptext(x, y, paper)
+        trap = lx_ptrap(x, y) if paper == 2 else None
+        nx = frac_text if paper == 1 else gc_s
+        wr[LX_X_ONLY] = {f"x = {nx(x)}"}
+        if u == "meet-general":
+            a1, b1, k1 = p
+            need(r[0] == 1, "L₂ has x alone")
+            need(all(v.q == 1 for v in (a1, b1, k1) + r), "the coefficients are not whole")
+            slip = a1 * r[1] + b1
+            if slip != 0:
+                ys = (a1 * r[2] - k1) / slip
+                wr[LX_SIGN] = {lx_ptext(r[2] - r[1] * ys, ys, paper)}
+        if rep == "graph":
+            g = q["graph"]
+            need(len(g["curves"]) == 2, "two lines are drawn")
+            for cv, (a, b, k) in zip(g["curves"], (p, r)):
+                need(len(cv) > 5, "a line is missing")
+                for px, py in cv[::9]:
+                    need(abs(float(a) * px + float(b) * py - float(k)) < 1e-6, "the line drawn is another line")
+                    need(g["y0"] <= py <= g["y1"], "a line leaves the plot")
+            need(abs(x) <= g["x1"] and abs(y) <= g["y1"], "they meet off the grid")
+    elif u == "point-on-both":
+        f = re.search(rf"point \(({LC_NUM}), ({LC_NUM})\)", q["asked"])
+        px, py = lc_q(f.group(1)), lc_q(f.group(2))
+        on = [a * px + b * py == k for a, b, k in (lx_words(L[0]), lx_words(L[1]))]
+        want = {(True, True): "It lies on both lines", (True, False): "It lies on L₁ but not on L₂", (False, True): "It lies on L₂ but not on L₁",
+                (False, False): "It lies on neither line"}[tuple(on)]
+    elif u == "do-they-meet":
+        (a1, b1, k1), (a2, b2, k2) = lx_words(L[0]), lx_words(L[1])
+        if rep == "equation":
+            need(all(v.q == 1 for v in (a2, b2, k2)) and a2 > 0, "L₂ is not whole with a > 0")
+        if a1 * b2 == a2 * b1:
+            want = "They are the same line, so they share every point" if a1 * k2 == a2 * k1 else "They never meet, because the gradients are equal and the intercepts differ"
+            if want.startswith("They never"):
+                wr[LX_FAR] = {"They do meet far away, because any two lines cross somewhere"}
+        else:
+            want = "They meet at one point, because the gradients are different"
+    elif u == "line-through-meeting-point":
+        x, y = lx_meet(lx_words(L[0]), lx_words(L[1]))
+        lx_clean_point(q, x, y)
+        f = re.search(rf"through T\(({LC_NUM}), ({LC_NUM})\)", q["asked"])
+        if f:
+            tx, ty = lc_q(f.group(1)), lc_q(f.group(2))
+            need(tx != x, "T is straight above the meeting point")
+            n = (ty - y) / (tx - x)
+        else:
+            f = re.search(rf"has gradient ({LC_NUM})\.", q["asked"])
+            n = lc_q(f.group(1))
+        want = lc_sl(n, y - n * x)
+    elif u == "constant-from-meeting-point":
+        f = re.fullmatch(rf"L₁ and L₂ meet where x = ({LC_NUM})\. Find k\.", q["asked"])
+        x = lc_q(f.group(1))
+        g = re.fullmatch(r"L₁: y = (.*)x \+ k", L[0])
+        m = lc_lead(g.group(1))
+        a, b, k = lx_terms(L[1])
+        y = (k - a * x) / b
+        want = f"k = {frac_text(y - m * x)}"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
+def lc_lead(t):
+    """A coefficient as Fmt.lead writes it: '', '−', '½', '(3/2)', '−(3/2)'."""
+    if t in ("", "−"):
+        return sp.Integer(-1 if t else 1)
+    return lc_terms(t + "x")[0]
+
+
+# ── Lines (FAL-424): line-model ──────────────────────────────
+# The model is read back from what the student sees: the equation, the story, the graph's two
+# marked points or the readings. Outputs, inputs and the meaning of each number are worked out
+# from it, and the sentences are the checker's own copy of each context's.
+
+LM_MODEL = "SL2.1.line-model#"
+LM_TOTAL, LM_SWAP, LM_DOMAIN = LM_MODEL + "0", LM_MODEL + "1", LM_MODEL + "2"
+LM_OUTPUT = "SL2.2.function-model#2"
+# unit, rate, total, start, per, the end of the domain
+LM_CTX = [
+    ("", "Each extra km adds {} to the cost", "A whole trip costs {}", "{} is the fixed charge, paid even for a trip of 0 km", "dollars per km"),
+    ("", "Each extra minute adds {} to the bill", "A whole month's bill is {}", "{} is the monthly charge, paid even with no calls", "dollars per minute"),
+    ("litres", "Each minute adds {} to the tank", "The tank holds {} in all", "{} is in the tank at the start", "litres per minute"),
+    ("litres", "Each minute takes {} out of the tank", "The tank holds {} in all", "{} is in the tank at the start", "litres per minute"),
+    ("cm", "Each extra kg adds {} to the length", "The spring is {} long in all", "{} is the length with no load", "cm per kg"),
+    ("cm", "Each hour takes {} off the height", "The candle is {} tall in all", "{} is the height when it is lit", "cm per hour"),
+]
+LM_STORY = [
+    (r"A taxi charges a fixed \$(.+), plus \$(.+) for each km\.", 1),
+    (r"A phone plan costs a fixed \$(.+) a month, plus \$(.+) for each minute of calls\.", 1),
+    (r"A tank holds (.+) litres and is being filled by (.+) litres each minute\.", 1),
+    (r"A tank holds (.+) litres and drains by (.+) litres each minute\.", -1),
+    (r"A spring is (.+) cm long with no load and stretches by (.+) cm for each kg hung on it\.", 1),
+    (r"A candle is (.+) cm tall and burns down by (.+) cm each hour\.", -1),
+]
+
+
+def lm_amount(i, v):
+    unit = LM_CTX[i][0]
+    if unit == "":
+        return ("−$" if v < 0 else "$") + lm_money(abs(v))
+    return f"{dec_text(v)} {unit}"
+
+
+def lm_money(v):
+    v = sp.Rational(v)
+    if v.q == 1:
+        return str(v.p)
+    cents = v * 100
+    need(cents.q == 1, f"{v} is not a whole number of cents")
+    return f"{cents.p // 100}.{cents.p % 100:02d}"
+
+
+def lm_story(t):
+    """(context, m, c) from a story."""
+    for i, (rx, sign) in enumerate(LM_STORY):
+        f = re.fullmatch(rx, t)
+        if f:
+            return i, sign * lc_q(f.group(2)), lc_q(f.group(1))
+    return None
+
+
+def lm_equation(t):
+    """(m, c, input letter, output letter) from 'C = 1.8d + 4', with anything after it."""
+    f = re.match(r"(?:The model is )?([A-Z]) = (.+?)(?:, where .*|\.)?$", t)
+    need(f is not None, f"can't read the model {t!r}")
+    letters = set(re.findall(r"[a-z]", f.group(2)))
+    need(len(letters) == 1, f"can't read the model {t!r}")
+    x = letters.pop()
+    a, b, d = lc_terms(f.group(2).replace(x, "x"))
+    return a, d, x, f.group(1)
+
+
+def lm_model(q):
+    """(m, c) of the model in a question, in the three ways it can be shown."""
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "graph":
+        pts = lc_coords(q["graph"])
+        need(len(pts) == 2 and pts[0][0] == 0, "the graph marks its start and one reading")
+        c = pts[0][1]
+        m = (pts[1][1] - c) / pts[1][0]
+        cv = q["graph"]["curves"][0]
+        need(len(cv) > 5, "no line")
+        for x, y in cv[::17]:
+            need(abs(float(m) * x + float(c) - y) < 1e-6, "the line drawn is not through the marked points")
+            need(y >= q["graph"]["y0"] and y <= q["graph"]["y1"], "the line leaves the plot")
+        return m, c
+    found = lm_story(L[0])
+    for t in L:
+        if t.startswith("The model is ") or ", where " in t:
+            m, c, _, _ = lm_equation(t)
+            need(found is None or (found[1], found[2]) == (m, c), "the story and the model disagree")
+            return m, c
+    need(found is not None, f"can't read {L[0]!r}")
+    return found[1], found[2]
+
+
+def lm_clean(i, m, c):
+    need(m != 0 and (m > 0) == (i not in (3, 5)), "the rate has the wrong sign for its context")
+    need(c > 0, "the start is not positive")
+    if LM_CTX[i][0] == "":
+        need((m * 100).q == 1 and (c * 100).q == 1, "money does not end in cents")
+
+
+def lm_mc(m, c):
+    return f"m = {dec_text(m)}, c = {dec_text(c)}"
+
+
+def check_line_model(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    i = q["situation"]["ctx"]
+    lc_style(q)
+    need(q["paper"] == 1, "a line model has no calculator")
+    wr = {}
+    if u == "build-from-words":
+        ctx, m, c = lm_story(L[0])
+        need(ctx == i, "the story is another context")
+        want = lm_mc(m, c)
+        wr = {LM_SWAP: {lm_mc(c, m)}}
+    elif u == "build-from-two-points":
+        if rep == "table":
+            rows = q["table"]["rows"]
+            (x1, x2), (y1, y2) = [lc_q(v) for v in rows[0][1]], [lc_q(v) for v in rows[1][1]]
+        else:
+            f = re.fullmatch(rf"When [a-z] = ({LC_NUM}), [A-Z] = ({LC_NUM})\. When [a-z] = ({LC_NUM}), [A-Z] = ({LC_NUM})\.", L[0])
+            need(f is not None, f"can't read {L[0]!r}")
+            x1, y1, x2, y2 = (lc_q(v) for v in f.groups())
+        m = (y2 - y1) / (x2 - x1)
+        c = y1 - m * x1
+        lm_clean(i, m, c)
+        want = lm_mc(m, c)
+    elif u in ("interpret-gradient", "interpret-intercept"):
+        m, c = lm_model(q)
+        lm_clean(i, m, c)
+        _, rate, total, start, _ = LM_CTX[i]
+        if u == "interpret-gradient":
+            v = lm_amount(i, abs(m))
+            want, wr = rate.format(v), {LM_TOTAL: {total.format(v)}}
+        else:
+            v = lm_amount(i, c)
+            want, wr = start.format(v), {LM_SWAP: {rate.format(v)}}
+    elif u == "predict":
+        m, c = lm_model(q)
+        lm_clean(i, m, c)
+        f = re.fullmatch(r"Find ([A-Z]) when ([a-z]) = (\d+)\.", asked)
+        need(f is not None, f"asked {asked!r}")
+        v = m * int(f.group(3)) + c
+        unit = LM_CTX[i][0]
+        want = f"{f.group(1)} = ${lm_money(v)}" if unit == "" else f"{f.group(1)} = {dec_text(v)} {unit}"
+    elif u == "input-for-output":
+        if rep == "words":
+            _, m, c = lm_story(L[0])
+            f = re.search(r"the input ([a-z]) when .* is (.+?)(?: cm| litres)?, using", asked)
+        else:
+            m, c = lm_model(q)
+            f = re.search(r"Find ([a-z]) when [A-Z] = (.+?)(?: cm| litres)?\.$", asked)
+        need(f is not None, f"asked {asked!r}")
+        y = lc_q(f.group(2).replace("$", ""))
+        x = (y - c) / m
+        need(x.q == 1 and x > 0, f"the input {x} is not whole and positive")
+        want = f"{f.group(1)} = {frac_text(x)}"
+        wr = {LM_OUTPUT: {f"{f.group(1)} = {dec_text(y)}"}}
+    elif u == "check-linear-table":
+        rows = q["table"]["rows"]
+        xs, ys = [lc_q(v) for v in rows[0][1]], [lc_q(v) for v in rows[1][1]]
+        need(len({xs[k + 1] - xs[k] for k in range(4)}) == 1, "the inputs are not equally spaced")
+        ds = {ys[k + 1] - ys[k] for k in range(4)}
+        if len(ds) == 1:
+            want = f"Yes: {dec_text(ds.pop() / (xs[1] - xs[0]))} {LM_CTX[i][4]}"
+        else:
+            want = "No: the outputs do not change by equal amounts"
+    elif u == "domain-sense":
+        found = lm_story(L[0])
+        m, c, x, y = lm_equation(L[1])
+        need(found is not None and (found[1], found[2]) == (m, c), "the story and the model disagree")
+        f = re.fullmatch(rf"The model is used at [a-z] = ({LC_NUM})\. Does the prediction make sense\? What is the sensible domain\?", asked)
+        v = lc_q(f.group(1))
+        ctx = found[0]
+        end = None
+        if ctx in (3, 5):
+            end = -c / m
+        elif ctx == 2:
+            f = re.fullmatch(rf"The tank is full at ({LC_NUM}) litres\.", L[2])
+            need(f is not None, f"can't read {L[2:]!r}")
+            end = (lc_q(f.group(1)) - c) / m
+            need(end > 0 and end.q == 1, "a tank is full at a whole number of minutes")
+        dom = f"0 ≤ {x} ≤ {frac_text(end)}" if end is not None else f"{x} ≥ 0"
+        out = m * v + c
+        yes = f"Yes: it gives {y} = {lm_amount(ctx, out)}, and the sensible domain is {dom}"
+        if v >= 0 and (end is None or v <= end):
+            want = yes
+        else:
+            reason = f"{x} cannot be negative"
+            if v > 0:
+                reason = {2: f"the tank is full after {end} minutes", 3: f"the tank is empty after {end} minutes", 5: f"the candle is gone after {end} hours"}[ctx]
+            want = f"No: {reason}, so the sensible domain is {dom}"
+            wr = {LM_DOMAIN: {yes}}
+    elif u == "compare-plans":
+        if rep == "words":
+            pa, pb = [re.fullmatch(r"Plan [AB] costs \$(.+), plus \$(.+) for each .+\.", t) for t in L]
+            ca, ma, cb, mb = lc_q(pa.group(1)), lc_q(pa.group(2)), lc_q(pb.group(1)), lc_q(pb.group(2))
+            letter = re.search(r"Equal at ([a-z]) =", q["choices"][0]["text"]).group(1)
+        else:
+            ma, ca, letter, _ = lm_equation(L[0].split(": ")[1])
+            mb, cb, _, _ = lm_equation(L[1].split(": ")[1])
+        need(ma != mb, "the plans never meet")
+        x = (cb - ca) / (ma - mb)
+        need(x.q == 1 and x > 0, f"the plans meet at {x}, not a whole input")
+        want = f"Equal at {letter} = {x}, then Plan {'A' if ma < mb else 'B'} is cheaper"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr)
+    return None, None
+
+
+# ── Lines (FAL-424): fn-pre-linear-equations ─────────────────
+# The equation is read back from the question and solved again; a slip is the same equation
+# worked with the catalogue's mistake. A line of a student's working is right when the solution
+# of the question fits it, which a linear equation can only do if it is the same equation.
+
+LEQ = "fn-pre-linear-equations#"
+LEQ_BRACKET, LEQ_SIGN, LEQ_FRACTION, LEQ_DIVIDE = (LEQ + str(i) for i in range(4))
+LEQ_LIM = 9
+LEQ_DEN = 6
+
+
+def leq_n(t):
+    return sp.Integer(t.replace("−", "-"))
+
+
+def leq_side(side):
+    """a and d of ax + d."""
+    a, b, d = lc_terms(side)
+    need(b == 0, f"a y in {side!r}")
+    return a, d
+
+
+def leq_x(v):
+    return f"x = {frac_text(v)}"
+
+
+def leq_small(*vs):
+    need(all(abs(v) <= LEQ_LIM for v in vs), f"a coefficient outside ±9 in {vs}")
+
+
+def leq_sides(line):
+    need(line.count(" = ") == 1, f"not one equation: {line!r}")
+    return [parse(t) for t in line.split(" = ")]
+
+
+def leq_read_fractions(t):
+    f = re.fullmatch(r"x/(\d) \+ x/(\d) = (−?\d+)", t)
+    if f:
+        return "sum", int(f.group(1)), int(f.group(2)), leq_n(f.group(3)), None
+    f = re.fullmatch(r"\(x \+ (\d+)\)/(\d) = \(x − (\d+)\)/(\d)", t)
+    need(f is not None, f"can't read {t!r}")
+    return "eq", int(f.group(2)), int(f.group(4)), sp.Integer(f.group(1)), sp.Integer(f.group(3))
+
+
+def check_linear_equation(q):
+    u, rep, L = q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    lc_style(q)
+    need(q["paper"] == 1, "a prior-learning equation has no calculator")
+    wr = {}
+    if u == "two-step":
+        if rep == "words":
+            f = re.fullmatch(r"(\d+) (more|less) than (twice|\d times) a number is (−?\d+)\.", L[0])
+            need(f is not None and q["asked"] == "Call the number x. Find x.", f"can't read {L[0]!r}")
+            a = sp.Integer(2 if f.group(3) == "twice" else f.group(3)[0])
+            b = sp.Integer(f.group(1)) * (1 if f.group(2) == "more" else -1)
+            c = leq_n(f.group(4))
+        else:
+            left, right = L[0].split(" = ")
+            a, b = leq_side(left)
+            c = leq_n(right)
+        leq_small(a, b)
+        x = (c - b) / a
+        need(x.q == 1 and x != 0, f"x = {x} is not whole")
+        want, wr[LEQ_SIGN] = leq_x(x), {leq_x((c + b) / a)}
+    elif u == "both-sides":
+        left, right = L[0].split(" = ")
+        (a, b), (c, d) = leq_side(left), leq_side(right)
+        leq_small(a, b, c, d)
+        need(a != c, "no x left")
+        x = (d - b) / (a - c)
+        wr[LEQ_SIGN] = {leq_x((d + b) / (a - c))} | ({leq_x((d - b) / (a + c))} if a + c != 0 else set())
+        need(x != 0 and abs(x) <= LEQ_LIM and x.q <= LEQ_DEN, f"x = {x}")
+        want = leq_x(x)
+    elif u == "brackets":
+        f = re.fullmatch(r"(−?\d)\(x ([+−]) (\d)\) = (−?\d)\(x ([+−]) (\d)\)", L[0])
+        need(f is not None, f"can't read {L[0]!r}")
+        p, r = leq_n(f.group(1)), leq_n(f.group(4))
+        a, t = sp.Integer(f.group(3)) * (1 if f.group(2) == "+" else -1), sp.Integer(f.group(6)) * (1 if f.group(5) == "+" else -1)
+        need(p != r and a != t, "no x left, or the same bracket on both sides")
+        x = (r * t - p * a) / (p - r)
+        need(x != 0 and abs(x) <= LEQ_LIM and x.q <= LEQ_DEN, f"x = {x}")
+        want = leq_x(x)
+        wr[LEQ_BRACKET] = {leq_x((t - a) / (p - r)), leq_x((r * t - a) / (p - r))}
+    elif u == "fractions":
+        shape, p, r, e1, e2 = leq_read_fractions(L[0])
+        need(2 <= p <= LEQ_DEN and 2 <= r <= LEQ_DEN and p != r, "the denominators")
+        lcm = sp.ilcm(p, r)
+        l, w = lcm // p, lcm // r
+        if shape == "sum":
+            leq_small(e1)
+            x = e1 * sp.Rational(p * r, p + r)
+            slip = e1 / (l + w)
+        else:
+            x = (p * e2 + r * e1) / sp.Integer(p - r)
+            slip = (-e1 - e2) / sp.Integer(l - w)
+        need(x.q == 1 and x != 0, f"x = {x}")
+        want, wr[LEQ_FRACTION] = leq_x(x), {leq_x(slip)}
+    elif u == "make-y-subject":
+        a, b, k = lx_terms(L[0])
+        leq_small(a, b)
+        c = k / b
+        need(abs(b) >= 2 and c.q == 1 and c != 0 and a != 0, f"c = {c}")
+        want, wr[LEQ_DIVIDE] = lc_sl(-a / b, c), {lc_sl(-a / b, k)}
+    elif u == "missing-number":
+        f = re.fullmatch(r"The solution is x = (−?\d+)\.", L[1])
+        need(f is not None and q["asked"] == "Find the missing number.", f"can't read {L[1]!r}")
+        x = leq_n(f.group(1))
+        left, right = L[0].split(" = ")
+        need(L[0].count("□") == 1 and x != 0, "one blank, and a solution that isn't 0")
+        if right == "□":
+            a, b = leq_side(left)
+            v = a * x + b
+        elif "□x" in left:
+            b = lc_terms(left.replace("□x", "0"))[2]
+            v = (leq_n(right) - b) / x
+            need(v.q == 1, f"□ = {v}")
+        else:
+            a = lc_terms(left.replace(" + □", ""))[0]
+            v = leq_n(right) - a * x
+        want = f"□ = {frac_text(v)}"
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr)
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            leq_check_step(st)
+    return None, None
+
+
+def leq_check_step(st):
+    """A worked check is true arithmetic: both sides, and the value they are said to reach."""
+    f = re.fullmatch(r"Check: (.+) = (.+), as it should\.", st) or re.fullmatch(r"Check: the left side is (.+) and the right side is (.+), both (.+)\.", st) \
+        or re.fullmatch(r"Check: (.+) and (.+) are both (.+)\.", st)
+    if f:
+        need(len({parse(t) for t in f.groups()}) == 1, f"the check {st!r} is not true")
+
+
+def leq_spot(q, lines):
+    a, b = leq_sides(q["lines"][0])
+    sol = sp.solve(a - b, X)
+    need(len(sol) == 1, "the equation has not one solution")
+    for i, line in enumerate(lines):
+        l, r = leq_sides(line.removeprefix("So "))
+        if sp.simplify((l - r).subs(X, sol[0])) != 0:
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-linear-equations"] = leq_spot
+
+
+# ── Lines (FAL-424): fn-pre-simultaneous ─────────────────────
+# The pair is read back from the equations (or the prices) and solved again. A spot's lines
+# are right when the true pair fits them; the sentences are the checker's own copy.
+
+SM = "fn-pre-simultaneous#"
+SM_ADD, SM_ONE_SIDE, SM_STOP, SM_ONE_CHECK = (SM + str(i) for i in range(4))
+SM_LIM = 9
+SM_NONE = "No solution: the left sides match but the right sides don't, so the lines are parallel"
+SM_MANY = "Infinitely many solutions: one equation is a multiple of the other, so they are the same line"
+SM_THINGS = {("adult ticket", "child ticket"): ("adult tickets", "child tickets"), ("notebook", "pen"): ("notebooks", "pens"),
+             ("coffee", "muffin"): ("coffees", "muffins"), ("burger", "drink"): ("burgers", "drinks")}
+
+
+def sm_pair(x, y):
+    return f"({frac_text(x)}, {frac_text(y)})"
+
+
+def sm_small(*vs):
+    need(all(abs(v) <= SM_LIM and v.q == 1 for v in vs), f"a coefficient outside ±9 in {vs}")
+
+
+def sm_word(q):
+    f = re.fullmatch(r"Let x be the price of one (.+) and y the price of one (.+), in dollars\. Find \(x, y\)\.", q["asked"])
+    need(f is not None and (f.group(1), f.group(2)) in SM_THINGS, f"asked {q['asked']!r}")
+    one, two = f.group(1), f.group(2)
+    many = SM_THINGS[(one, two)]
+    out = []
+    for line in q["lines"][:2]:
+        g = re.fullmatch(rf"(\d+) ({one}|{many[0]}) and (\d+) ({two}|{many[1]}) cost \$(\d+)\.", line)
+        need(g is not None, f"can't read {line!r}")
+        a, b = int(g.group(1)), int(g.group(3))
+        need(g.group(2) == (one if a == 1 else many[0]) and g.group(4) == (two if b == 1 else many[1]), f"the plural in {line!r}")
+        out.append((sp.Integer(a), sp.Integer(b), sp.Integer(g.group(5))))
+    return out
+
+
+def sm_added(p, r):
+    """(1) and (2) × a₁ added, not subtracted, with x treated as gone. Needs a₂ = 1."""
+    (a1, b1, k1), (_, b2, k2) = p, r
+    c = b1 + a1 * b2
+    if c == 0:
+        return None
+    y = (k1 + a1 * k2) / c
+    return k2 - b2 * y, y
+
+
+def check_simultaneous(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    lc_style(q)
+    need(q["paper"] == 1, "a prior-learning pair has no calculator")
+    wr = {}
+    if u == "special-case":
+        p, r = lx_terms(L[0]), lx_terms(L[1])
+        need(p[0] * r[1] == r[0] * p[1], "the left sides are not multiples")
+        want = SM_MANY if p[0] * r[2] == r[0] * p[2] else SM_NONE
+    elif u == "missing-coefficient":
+        f = re.fullmatch(rf"The pair has the solution \(({LC_NUM}), ({LC_NUM})\)\. Find k\.", q["asked"])
+        need(f is not None, f"asked {q['asked']!r}")
+        x, y = lc_q(f.group(1)), lc_q(f.group(2))
+        a2, b2, k2 = lx_terms(L[1])
+        need(a2 * x + b2 * y == k2, "the pair does not fit (2)")
+        left, right = L[0].split(": ")[1].split(" = ")
+        need(left.count("k") == 1, f"one k in {left!r}")
+        a, b, _ = lc_terms(left.replace("k", "0"))
+        k = (lc_q(right) - a * x) / y if "ky" in left else (lc_q(right) - b * y) / x
+        need(k.q == 1 and k != 0, f"k = {k}")
+        want = f"k = {frac_text(k)}"
+    else:
+        p, r = sm_word(q) if u == "word-problem" else (lx_terms(L[0]), lx_terms(L[1]))
+        sm_small(*p[:2], *r[:2])
+        x, y = lx_meet(p, r)
+        need(x.q == 1 and y.q == 1 and x != 0 and y != 0, f"the pair ({x}, {y}) is not whole and nonzero")
+        want = sm_pair(x, y)
+        stop = {f"x = {frac_text(x)}"}
+        if u == "matching-coefficient":
+            need(p[1] == 1 and abs(r[1]) == 1, "the y terms don't match")
+            if r[1] == 1:
+                xa = (p[2] + r[2]) / (p[0] + r[0])
+                wr[SM_ADD] = {sm_pair(xa, p[2] - p[0] * xa)}
+        elif u == "scale-one":
+            need(r[0] == 1 and p[0] in (2, 3), "one scaling by 2 or 3 matches x")
+            wr[SM_STOP] = stop
+            add = sm_added(p, r)
+            if add:
+                wr[SM_ADD] = {sm_pair(*add)}
+        elif u == "scale-both":
+            need(p[0] % r[0] != 0 and r[0] % p[0] != 0, "only one equation needs scaling")
+            wr[SM_STOP] = stop
+        elif u == "word-problem":
+            need(x > 0 and y > 0 and r[0] == 1, "prices are positive, and (2) has one of the first")
+            wr[SM_STOP] = stop
+    gc_check_common(q, want, wr)
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            f = re.fullmatch(r"Check \(\d\): (.+)\.", st)
+            if f:
+                need(eq_true(f.group(1)), f"the check {st!r} is not true")
+    return None, None
+
+
+def sm_spot(q, lines):
+    p, r = lx_terms(q["lines"][0]), lx_terms(q["lines"][1])
+    x, y = lx_meet(p, r)
+    f = re.fullmatch(rf"So \(({LC_NUM}), ({LC_NUM})\), which fits \(1\)", lines[-1])
+    if f:
+        sx, sy = lc_q(f.group(1)), lc_q(f.group(2))
+        need(p[0] * sx + p[1] * sy == p[2] and r[0] * sx + r[1] * sy != r[2], "the pair should fit (1) only")
+        lines = lines[:-1]
+    for i, line in enumerate(lines):
+        a, b, k = lx_terms(line.removeprefix("So "))
+        if a * x + b * y != k:
+            return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-simultaneous"] = sm_spot
+
+
+# ── Lines (FAL-424): fn-link-rate-of-change ──────────────────
+# Each form of the rate is read back from what the student sees (the rule, the table, the points,
+# the line, the fitted line or f′) and the answer worked out from it; a curve is parsed and
+# differentiated by SymPy, and the stories are the checker's own copy.
+
+LR_RUN_RISE, LR_ORDER = "SL2.1.gradient#0", "SL2.1.gradient#1"
+LR_TOTAL, LR_SWAP = "SL2.1.line-model#0", "SL2.1.line-model#1"
+LR_NTH, LR_TERMS = "SL1.2.nth-term#0", "SL1.2.find-u1-d#0"
+LR_AB_SWAP, LR_AB_BARE = "SL4.4.interpret-ab#0", "SL4.4.interpret-ab#1"
+LR_SIGN, LR_UNITS = "SL5.1.interpret-derivative#1", "SL5.1.interpret-derivative#2"
+LR_ONE_CHORD, LR_F_NOT_DF = "SL5.1.chord-to-tangent#1", "SL5.3.gradient-at-point#0"
+LR_SUB = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+# x, its unit, y, its unit, a step of x, y's change, the total slip, the exact slip, the sign
+LR_REG = [
+    ("the distance driven", "km", "the fuel used", "litres", "km", "litres more fuel", "The total fuel used is {} litres", "Each extra km adds exactly {} litres of fuel, every time", 1),
+    ("the time spent revising", "hours", "the test score", "marks", "hour of revising", "marks more", "The total score is {} marks", "Each extra hour of revising adds exactly {} marks, every time", 1),
+    ("the temperature", "°C", "sales", "drinks a day", "degree", "more iced drinks", "The total sold is {} iced drinks", "Each extra degree sells exactly {} more iced drinks, every time", 1),
+    ("the age of a car", "years", "its value", "thousand dollars", "year of age", "thousand dollars less value", "The car is worth {} thousand dollars in all", "Each extra year takes exactly {} thousand dollars off, every time", -1),
+]
+LR_DERIV = {
+    "the volume of water in a tank": ("the volume of water", "litres", "litres per minute"),
+    "the height of a ball": ("the height of the ball", "metres", "metres per second"),
+    "the temperature of a cup of coffee": ("the temperature of the coffee", "°C", "°C per minute"),
+    "the area of an oil slick": ("the area of the oil slick", "cm²", "cm² per second"),
+}
+
+
+def lr_rule(t):
+    f = re.fullmatch(r"uₙ = (−?\d+) ([+−]) (\d+)\(n − 1\)", t)
+    need(f is not None, f"can't read the rule {t!r}")
+    return lc_q(f.group(1)), sp.Integer(f.group(3)) * (1 if f.group(2) == "+" else -1)
+
+
+def lr_arith(ns, us):
+    """u₁ and d of an arithmetic sequence shown as terms at n = 1, 2, 3, …"""
+    need(ns == list(range(1, len(ns) + 1)) and len(ns) >= 3, f"the positions {ns}")
+    ds = {us[i + 1] - us[i] for i in range(len(us) - 1)}
+    need(len(ds) == 1, "the terms are not arithmetic")
+    return us[0], ds.pop()
+
+
+def lr_sequence(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "equation":
+        return lr_rule(L[0])
+    if rep == "table":
+        rows = q["table"]["rows"]
+        return lr_arith([lc_q(v) for v in rows[0][1]], [lc_q(v) for v in rows[1][1]])
+    pts = lc_coords(q["graph"])
+    need(not q["graph"]["curves"], "the graph is points, not a line")
+    for x, y in pts:
+        need(q["graph"]["x0"] <= x <= q["graph"]["x1"] and q["graph"]["y0"] <= y <= q["graph"]["y1"], "a point is off the plot")
+    return lr_arith([p[0] for p in pts], [p[1] for p in pts])
+
+
+def lr_two(a, b, names):
+    return f"{names[0]} = {dec_text(a)}, {names[1]} = {dec_text(b)}"
+
+
+def lr_du1(q):
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "table":
+        rows = q["table"]["rows"]
+        (p, r), (up, ur) = [lc_q(v) for v in rows[0][1]], [lc_q(v) for v in rows[1][1]]
+    elif rep == "words":
+        f = re.fullmatch(r"Term number (\d+) of an arithmetic sequence is (−?\d+), and term number (\d+) is (−?\d+)\.", L[0])
+        need(f is not None, f"can't read {L[0]!r}")
+        p, up, r, ur = sp.Integer(f.group(1)), lc_q(f.group(2)), sp.Integer(f.group(3)), lc_q(f.group(4))
+    else:
+        f = re.fullmatch(r"u([₀-₉]+) = (−?\d+) and u([₀-₉]+) = (−?\d+)", L[0])
+        need(f is not None, f"can't read {L[0]!r}")
+        p, up, r, ur = sp.Integer(f.group(1).translate(LR_SUB)), lc_q(f.group(2)), sp.Integer(f.group(3).translate(LR_SUB)), lc_q(f.group(4))
+    need(1 < p < r, "two terms in order, past the first")
+    return p, up, r, ur
+
+
+def lr_kind(rep, t):
+    """What a line of match-rate-kind is, and the rate it states."""
+    if rep == "equation":
+        if t.startswith("uₙ = "):
+            need(t.endswith(", for whole numbers n"), f"{t!r}")
+            return "exact, whole steps", lr_rule(t.removesuffix(", for whole numbers n"))[1]
+        if t.endswith(", for every real x"):
+            return "exact, every x", lc_line(t.removesuffix(", for every real x"))[0]
+        if t.endswith(", the regression line of a scatter of data"):
+            return "fitted model", lc_line(t.removesuffix(", the regression line of a scatter of data"))[0]
+        f = re.fullmatch(r"f′\(\d\) = (\d), for a curve y = f\(x\)", t)
+        need(f is not None, f"can't read {t!r}")
+        return "one instant", lc_q(f.group(1))
+    for kind, rx in (("exact, whole steps", r"Row n of a theatre has uₙ seats, and each row has (\d) more seats than the row before\."),
+                     ("exact, every x", r"A tap adds water to a tank at exactly (\d) litres per minute, for any time t\."),
+                     ("fitted model", r"A line fitted to data from 20 plants says each extra week goes with about (\d) cm more height\."),
+                     ("one instant", r"At the moment t = \d, the height of a kite is rising at (\d) metres per second\.")):
+        f = re.fullmatch(rx, t)
+        if f:
+            return kind, lc_q(f.group(1))
+    raise Fail(f"can't read {t!r}")
+
+
+def lr_regression(q):
+    """The story's index, a and b."""
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "equation":
+        f = re.fullmatch(r"(y = .+) is the regression line of y on x\.", L[0])
+        g = re.fullmatch(r"x is (.+) in (.+) and y is (.+) in (.+)\.", L[1])
+        need(f is not None and g is not None, f"can't read {L}")
+        a, b = lc_line(f.group(1))
+        names = g.group(1), g.group(2), g.group(3), g.group(4)
+    else:
+        f = re.fullmatch(r"A line fitted to data from 30 \w+ predicts (.+), y (.+), from (.+), x (.+)\.", L[0])
+        g = re.fullmatch(rf"Its gradient is ({LC_NUM}) and its y-intercept is ({LC_NUM})\.", L[1])
+        need(f is not None and g is not None, f"can't read {L}")
+        a, b = lc_q(g.group(1)), lc_q(g.group(2))
+        names = f.group(3), f.group(4), f.group(1), f.group(2)
+    i = next((k for k, c in enumerate(LR_REG) if c[:4] == names), None)
+    need(i is not None, f"no story for {names}")
+    return i, a, b
+
+
+def lr_curve(text):
+    return sp.nsimplify(parse(text.removeprefix("y = ")), rational=True)
+
+
+def lr_marks_on(g, f):
+    """The curve drawn is f, and stays in the plot."""
+    need(len(g["curves"]) == 1 and len(g["curves"][0]) > 5, "one curve")
+    fn = sp.lambdify(X, f)
+    for x, y in g["curves"][0][::9]:
+        need(abs(float(fn(x)) - y) < 1e-6, "the curve drawn is another curve")
+        need(g["y0"] <= y <= g["y1"], "the curve leaves the plot")
+    for x, y in lc_coords(g):
+        need(f.subs(X, x) == y, f"({x}, {y}) is not on the curve")
+
+
+def check_link_rate(q):
+    u, rep, L, asked, angle = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"], q["view"]["angle"]
+    lc_style(q)
+    if not q["view"].get("shared"):
+        need(q["paper"] == (2 if angle == "gdc-dydx" else 1), f"paper {q['paper']} for {angle}")
+    wr, trap = {}, None
+    if u == "sequence-as-line":
+        u1, d = lr_sequence(q)
+        want = lc_sl(d, u1 - d)
+        wr = {LR_SWAP: {lc_sl(u1, d)}, LR_NTH: {lc_sl(d, u1)}}
+    elif u == "sequence-from-line":
+        if rep == "graph":
+            pts = lc_coords(q["graph"])
+            need(len(pts) == 2 and pts[0][0] == 0 and pts[1][0] > 0, "the graph marks two points from x = 0")
+            m, c = (pts[1][1] - pts[0][1]) / pts[1][0], pts[0][1]
+            lr_marks_on(q["graph"], m * X + c)
+        else:
+            m, c = lc_line(L[0])
+        need(m != 0 and m.q == 1 and c.q == 1, "the line is not whole")
+        want = lr_two(m + c, m, ("u₁", "d"))
+    elif u == "d-from-two-terms":
+        p, up, r, ur = lr_du1(q)
+        d = (ur - up) / (r - p)
+        need(d != 0 and d.q == 1, f"d = {d}")
+        names = ("d", "u₁")
+        slip = lambda v: {lr_two(v, up - (p - 1) * v, names)}
+        want = lr_two(d, up - (p - 1) * d, names)
+        wr = {LR_RUN_RISE: slip((r - p) / (ur - up)), LR_ORDER: slip(-d), LR_TERMS: slip((ur - up) / (r - p + 1))}
+    elif u == "match-rate-kind":
+        f = re.search(r"goes up by (\d) per step", asked)
+        need(f is not None and [t[:3] for t in L] == ["A: ", "B: ", "C: ", "D: "], f"can't read {L}")
+        kinds = [lr_kind(rep, t[3:]) for t in L]
+        need({k[1] for k in kinds} == {lc_q(f.group(1))}, "the four don't share one rate")
+        need(len({k[0] for k in kinds}) == 4, "one of each kind")
+        want = "; ".join(f"{a}: {k[0]}" for a, k in zip("ABCD", kinds))
+    elif u == "interpret-regression-gradient":
+        i, a, b = lr_regression(q)
+        c = LR_REG[i]
+        need((a > 0) == (c[8] > 0), "the gradient has the wrong sign for its story")
+        v = dec_text(abs(a))
+        want = f"Each extra {c[4]} goes with about {v} {c[5]} on average; real points sit above and below the line"
+        wr = {LR_TOTAL: {c[6].format(v)}, LR_AB_SWAP: {f"Each extra {c[4]} goes with about {dec_text(b)} {c[5]} on average, from a start of {v}"}, LR_AB_BARE: {f"{dec_text(a)} is the gradient"}}
+    elif u == "derivative-in-context":
+        f = re.fullmatch(r"([A-Za-z])\(t\) is (.+), in (.+), t (minutes|seconds) after .+\.", L[0])
+        g = re.fullmatch(r"([A-Za-z])′\((\d)\) = (−?\d+)", L[1])
+        need(f is not None and g is not None and f.group(1) == g.group(1) and f.group(2) in LR_DERIV, f"can't read {L}")
+        of, unit, per = LR_DERIV[f.group(2)]
+        need(f.group(3) == unit, "the unit")
+        k = lc_q(g.group(3))
+        need(k != 0 and per.endswith(f.group(4)[:-1]), "the rate's time unit")
+        way, other = ("falling", "rising") if k < 0 else ("rising", "falling")
+        say = lambda w, un: f"At t = {g.group(2)}, {of} is {w} at {abs(k)} {un}, at that instant only"
+        want = say(way, per)
+        wr = {LR_UNITS: {say(way, unit)}}
+        if k < 0:
+            wr[LR_SIGN] = {say(other, per)}
+    elif u in ("chord-to-limit", "tangent-gradient-methods"):
+        if u == "chord-to-limit":
+            f = re.fullmatch(rf"Find the gradient of the chord from x = ({LC_NUM}) to x = ({LC_NUM}), then the gradient of the tangent at x = ({LC_NUM})\.", asked)
+            need(f is not None and f.group(1) == f.group(3), f"asked {asked!r}")
+            x0, x1 = lc_q(f.group(1)), lc_q(f.group(2))
+            g = re.fullmatch(rf"(y = .+?)(?:, at x = ({LC_NUM})|\. The table shows the gradient of the chord from x = ({LC_NUM}) to x = ({LC_NUM}) \+ h\.)", L[0])
+            if g:
+                need({v for v in g.groups()[1:] if v} == {f.group(1)}, "the point in the line is not the one asked about")
+            else:
+                g = re.fullmatch(r"The graph shows (y = .+) and a chord between the two points marked\.", L[0])
+                need(g is not None, f"can't read {L[0]!r}")
+            fn = lr_curve(g.group(1))
+            gf = lambda a, b: (fn.subs(X, b) - fn.subs(X, a)) / (b - a)
+            grad = gf(x0, x1)
+            df = sp.diff(fn, X).subs(X, x0)
+            need(df.q == 1 and x0 != 0, "the tangent gradient is not whole")
+            want = lr_two(grad, df, ("chord", "tangent"))
+            wr = {LR_ONE_CHORD: {lr_two(grad, grad, ("chord", "tangent"))}}
+            if rep == "table":
+                rows = q["table"]["rows"]
+                for hh, gg in zip(rows[0][1], rows[1][1]):
+                    need(gf(x0, x0 + lc_q(hh)) == lc_q(gg), f"the table's chord for h = {hh} is wrong")
+                need(x1 - x0 < min(lc_q(h) for h in rows[0][1]), "the chord asked for is not the next one")
+            elif rep == "graph":
+                need(lc_coords(q["graph"]) == [(x0, fn.subs(X, x0)), (x1, fn.subs(X, x1))], "the marks are not the chord's ends")
+                lr_marks_on(q["graph"], fn)
+        else:
+            f = re.fullmatch(rf"Find the gradient of the tangent at x = ({LC_NUM})\.", asked)
+            need(f is not None, f"asked {asked!r}")
+            x0 = lc_q(f.group(1))
+            g = re.fullmatch(rf"The graph shows (y = .+) with the point at x = ({LC_NUM}) marked\.", L[0])
+            need(g is None or g.group(2) == f.group(1), "the point marked is not the one asked about")
+            fn = lr_curve(g.group(1) if g else L[0])
+            df = sp.diff(fn, X).subs(X, x0)
+            one = (fn.subs(X, x0 + sp.Rational(1, 10)) - fn.subs(X, x0)) * 10
+            if q["paper"] == 2:
+                need(gc_rounds(df), "a Paper 2 gradient that needs no calculator")
+                want = "gradient = " + gc_s(df)
+                trap = "gradient = " + gc_s2(df)
+                wr = {LR_ONE_CHORD: {"gradient = " + gc_s(one)}, LR_F_NOT_DF: {"gradient = " + gc_s(fn.subs(X, x0))}}
+            else:
+                need(df.q == 1, "a Paper 1 gradient that is not whole")
+                want = "gradient = " + dec_text(df)
+                wr = {LR_ONE_CHORD: {"gradient = " + dec_text(one)}, LR_F_NOT_DF: {"gradient = " + dec_text(fn.subs(X, x0))}}
+            if rep == "graph":
+                need(lc_coords(q["graph"]) == [(x0, fn.subs(X, x0))], "the mark is not the point on the curve")
+                lr_marks_on(q["graph"], fn)
+    elif u == "constant-derivative":
+        if rep == "words":
+            f = re.fullmatch(r"y goes (up|down) by exactly (\d) per unit of x, at every x\.", L[0])
+            g = re.fullmatch(rf"y = ({LC_NUM}) when x = ({LC_NUM})\.", L[1])
+            need(f is not None and g is not None, f"can't read {L}")
+            m = sp.Integer(f.group(2)) * (1 if f.group(1) == "up" else -1)
+            y0, x0 = lc_q(g.group(1)), lc_q(g.group(2))
+        else:
+            f = re.fullmatch(rf"f′\(x\) = ({LC_NUM}) for every x, and f\(({LC_NUM})\) = ({LC_NUM})\.", L[0])
+            need(f is not None, f"can't read {L[0]!r}")
+            m, x0, y0 = lc_q(f.group(1)), lc_q(f.group(2)), lc_q(f.group(3))
+        want = lc_sl(m, y0 - m * x0)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wr, trap)
+    return None, None
+
+
+# ── Transformations: the transform-chain situation (FAL-424) ─
+# Everything is worked again from the situation's base and moves: the chain is composed
+# here, every rule and every sentence an option writes is read back into a curve or a
+# chain, and an option is right only if it is the same curve as the truth. A graph in
+# straight pieces has no rule, so the letter f stands for a cubic with no symmetry.
+
+TC_NUM = r"−?\d+(?:\.\d+)?(?:/\d+)?"
+TC_F = lambda t: t**3 + 2 * t**2 + t + 7
+TC_P1_FACTORS = {sp.Rational(*p) for p in [(2, 1), (3, 1), (1, 2), (1, 3), (1, 4)]}
+TC_LOCALS = {"x": X, "sqrt": sp.sqrt, "exp": sp.exp, "log": sp.log, "sin": sp.sin,
+             "log2": lambda t: sp.log(t) / sp.log(2), "f": TC_F}
+TC_PROBES = [sp.Rational(n, 7) for n in range(-61, 62, 8)] + [sp.Rational(n, 3) for n in (100, 151, -103, -160)]
+
+
+def tc_num(t):
+    return R(t.replace("−", "-"))
+
+
+def tm_expr(text):
+    """A function as the game writes it, with the letter f or a rule, as SymPy."""
+    t = text.strip().replace("−", "-").replace("½", "(1/2)").replace("²", "**2").replace("³", "**3")
+    t = t.replace("√(", "sqrt(").replace("√x", "sqrt(x)").replace("e^(", "exp(").replace("e^x", "exp(x)")
+    t = t.replace("ln(", "log(").replace("ln x", "log(x)").replace("log₂(", "log2(").replace("log₂ x", "log2(x)").replace("sin x", "sin(x)")
+    need(re.fullmatch(r"[0-9x+\-*/(). a-z]+", t) is not None, f"can't read the function {text!r}")
+    # Exactly, not as floats: 0.8x + 2.4 is 0 at x = −3, where a float can land just under the
+    # edge of a root's domain, and whether it does depends on the mpmath precision in force.
+    return parse_expr(t, transformations=TRANSFORMS + (rationalize,), local_dict=TC_LOCALS)
+
+
+def tc_moves(text):
+    """A chain of moves as a sentence."""
+    out = []
+    for part in text.split(", then "):
+        m = re.fullmatch(rf"a (vertical|horizontal) stretch with scale factor ({TC_NUM})", part)
+        if m:
+            out.append({"k": "vs" if m[1] == "vertical" else "hs", "a": tc_num(m[2])})
+            continue
+        m = re.fullmatch(rf"a translation by the vector \(({TC_NUM}), ({TC_NUM})\)", part)
+        if m:
+            out.append({"k": "tr", "c": tc_num(m[1]), "d": tc_num(m[2])})
+            continue
+        if re.fullmatch(rf"a stretch with scale factor {TC_NUM}", part):
+            out.append({"k": "vs", "a": sp.Integer(0)})  # no direction: the wrong curve whatever it is
+            continue
+        m = re.fullmatch(r"a reflection in the (x|y)-axis", part)
+        need(m is not None, f"can't read the move {part!r}")
+        out.append({"k": "r" + m[1]})
+    return out
+
+
+def tc_given_moves(g):
+    return [{k: (R(v) if k != "k" else v) for k, v in m.items()} for m in g["moves"]]
+
+
+def tc_compose(moves):
+    """(A, B, C, D) of g(x) = A f(B(x − C)) + D, the chain walked one move at a time."""
+    px, qx, py, qy = sp.Integer(1), sp.Integer(0), sp.Integer(1), sp.Integer(0)
+    for m in moves:
+        if m["k"] == "vs":
+            py, qy = py * m["a"], qy * m["a"]
+        elif m["k"] == "hs":
+            px, qx = px * m["a"], qx * m["a"]
+        elif m["k"] == "rx":
+            py, qy = -py, -qy
+        elif m["k"] == "ry":
+            px, qx = -px, -qx
+        else:
+            qx, qy = qx + m["c"], qy + m["d"]
+    return (py, 1 / px, qx, qy)
+
+
+def tc_image(M, x, y):
+    A, B, C, D = M
+    return (x / B + C, A * y + D)
+
+
+def tc_base(g):
+    fam = g["fam"]
+    return {"sq": X**2, "cube": X**3, "root": sp.sqrt(X), "recip": 1 / X, "exp": sp.exp(X), "ln": sp.log(X),
+            "log2": sp.log(X) / sp.log(2), "sin": sp.sin(X), "pts": TC_F(X),
+            "vert": (X - R(g.get("u", 0)))**2 + R(g.get("v", 0)),
+            "poly": X**2 + R(g.get("u", 0)) * X + R(g.get("v", 0))}[fam]
+
+
+def tc_curve(g, M):
+    A, B, C, D = M
+    return A * tc_base(g).subs(X, B * (X - C)) + D
+
+
+def tc_same(e1, e2):
+    """Whether two functions are one curve, on the same x-values, at the probes."""
+    f1, f2 = sp.lambdify(X, e1, "mpmath"), sp.lambdify(X, e2, "mpmath")
+    hit = 0
+    for x in TC_PROBES:
+        vals = []
+        for f in (f1, f2):
+            try:
+                v = mpmath.mpc(f(mpmath.mpf(x.p) / x.q))
+                vals.append(v.real if abs(v.imag) < 1e-20 else None)
+            except (ZeroDivisionError, ValueError):
+                vals.append(None)
+        if (vals[0] is None) != (vals[1] is None):
+            return False
+        if vals[0] is not None:
+            hit += 1
+            if abs(vals[0] - vals[1]) > 1e-9 * max(1, abs(vals[0])):
+                return False
+    return hit > 0
+
+
+def tc_clean(q, g):
+    moves = tc_given_moves(g)
+    need(1 <= len(moves) <= (2 if q["paper"] == 1 else 3), f"{len(moves)} moves on Paper {q['paper']}")
+    M = tc_compose(moves)
+    need(tuple(R(g["map"][k]) for k in "ABCD") == M, "the situation's map is not its moves")
+    for m in moves:
+        if q["paper"] == 1:
+            if "a" in m:
+                need(m["a"] in TC_P1_FACTORS, f"scale factor {m['a']} on Paper 1")
+            if m["k"] == "tr":
+                need(m["c"].q == 1 and m["d"].q == 1, "a Paper 1 translation is not whole")
+    for k in g["key"]:
+        x, y = R(k[0]), R(k[1])
+        if g["fam"] != "pts":
+            need(abs(sp.N(tc_base(g).subs(X, x) - y)) < 1e-12, f"key point ({x}, {y}) is not on f")
+        if q["paper"] == 1:
+            ix, iy = tc_image(M, x, y)
+            need(ix.q == 1 and iy.q == 1, f"the image of ({x}, {y}) is off the grid")
+    return moves, M
+
+
+def tc_pts_in(gr, want):
+    """The graph's marked points are the wanted ones, each with its coordinates in its label."""
+    got = sorted((round(p["x"], 6), round(p["y"], 6)) for p in gr["points"])
+    need(got == sorted((round(float(x), 6), round(float(y), 6)) for x, y in want), f"marked points {got}")
+
+
+def tc_curves_are(gr, curves, e):
+    for c in curves:
+        fn = sp.lambdify(X, e, "mpmath")
+        for x, y in c[::9]:
+            v = mpmath.mpc(fn(mpmath.mpf(x)))
+            # 1e-6: at a root's end a float rounds just outside the domain, so √(1e−17) is imaginary.
+            need(abs(v.imag) < 1e-6 and abs(float(v.real) - y) < 1e-6 * max(1, abs(y)), f"a curve misses {e} at x = {x}")
+
+
+def tc_piece_map(curve, nodes, M):
+    want = sorted(tc_image(M, R(n[0]), R(n[1])) for n in nodes)
+    got = sorted((sp.Float(p[0]), sp.Float(p[1])) for p in curve)
+    need(len(got) == len(want) and all(abs(a - float(u)) + abs(b - float(v)) < 1e-9 for (a, b), (u, v) in zip(got, want)), "the drawn corners are not the images")
+
+
+def tc_drawn(gr, curves, g, M):
+    """Curves are f moved by M: its pieces' corners, or its rule at the samples."""
+    if g["fam"] == "pts":
+        need(len(curves) == 1, "a straight-piece graph in pieces")
+        tc_piece_map(curves[0], g["nodes"], M)
+    else:
+        tc_curves_are(gr, curves, tc_curve(g, M))
+
+
+def tc_lines_pair(q, g, M):
+    """The question shows f and g, as rules or on a graph, and P, Q move as the chain says."""
+    I = (1, 1, 0, 0)
+    if q["view"]["rep"] == "graph":
+        gr = q["graph"]
+        k = gr["sand_from"]
+        tc_drawn(gr, gr["curves"][:k], g, I)
+        tc_drawn(gr, gr["curves"][k:], g, M)
+        want = []
+        for p in g["key"][:2]:
+            x, y = R(p[0]), R(p[1])
+            want += [(x, y), tc_image(M, x, y)]
+        tc_pts_in(gr, want)
+    else:
+        L = q["lines"]
+        need(L[0].startswith("f(x) = ") and L[1].startswith("g(x) = "), f"lines {L!r}")
+        need(tc_same(tm_expr(rhs(L[0])), tc_base(g)), "the line shows another f")
+        need(tc_same(tm_expr(rhs(L[1])), tc_curve(g, M)), f"the line {L[1]!r} is not g")
+
+
+def tc_f_said(q, g):
+    """f as an equation or a name, in the question's first line."""
+    line = q["lines"][0]
+    if q["view"]["rep"] == "words":
+        need(g["fam"] == "poly" or TC_NAMES[g["fam"]] in line, f"f is not named in {line!r}")
+    else:
+        need(line.startswith("f(x) = "), f"line {line!r}")
+        need(tc_same(tm_expr(line[7:].split(", for")[0]), tc_base(g)), "the line shows another f")
+
+
+TC_NAMES = {"sq": "x²", "cube": "x³", "root": "√x", "recip": "1/x", "exp": "e^x", "ln": "ln x", "log2": "log₂ x", "sin": "sin x"}
+
+
+def tc_opts(q, read, right, refs):
+    """Every option read with read(): right only if right(value) holds. refs: ref ->
+    test on the value, the mistake that ref names."""
+    for o in q["choices"]:
+        v = read(o["text"])
+        need(right(v) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+        if o["ref"]:
+            need(o["ref"] in refs, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(refs[o["ref"]](v), f"option {o['text']!r} is not {o['ref']}")
+    right_text = q["answer_text"]
+    wr = defaultdict(set)
+    for o in q["choices"]:
+        if o["ref"]:
+            wr[o["ref"]].add(o["text"])
+    gc_check_common(q, right_text, wr, trap=tc_trap(q))
+
+
+def tc_trap(q):
+    ts = [o["text"] for o in q["choices"] if o.get("trap")]
+    return ts[0] if ts else None
+
+
+def tc_chain_opts(q, g, M, refs=None):
+    """Options that are chains of moves: right if they are the true curve."""
+    truth = tc_curve(g, M)
+    tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda m: tc_same(tc_curve(g, m), truth), refs or {})
+
+
+def tc_rule_opts(q, g, M, refs, strip="g(x) = "):
+    truth = tc_curve(g, M)
+
+    def read(t):
+        need(t.startswith(strip), f"option {t!r}")
+        return tm_expr(t[len(strip):])
+    tc_opts(q, read, lambda e: tc_same(e, truth), {r: (lambda e, c=c: tc_same(e, c)) for r, c in refs.items()})
+
+
+def tc_with(M, **kw):
+    A, B, C, D = M
+    v = {"A": A, "B": B, "C": C, "D": D}
+    v.update(kw)
+    return (v["A"], v["B"], v["C"], v["D"])
+
+
+def tc_set_is(text, st):
+    """A set of reals as the game writes it, read back and compared with {lo, hi, ...}."""
+    return tc_set(text) == st
+
+
+def tc_set(text):
+    t = text.strip()
+    if t.startswith("all real"):
+        return {}
+    m = re.fullmatch(rf"[xy] ≠ ({TC_NUM})", t)
+    if m:
+        return {"hole": tc_num(m[1])}
+    m = re.fullmatch(rf"({TC_NUM}) (≤|<) [xy] (≤|<) ({TC_NUM})", t)
+    if m:
+        return {"lo": tc_num(m[1]), "hi": tc_num(m[4]), "lo_in": m[2] == "≤", "hi_in": m[3] == "≤"}
+    m = re.fullmatch(rf"[xy] (≥|>|≤|<) ({TC_NUM})", t)
+    need(m is not None, f"can't read the set {text!r}")
+    if m[1] in "≥>":
+        return {"lo": tc_num(m[2]), "lo_in": m[1] == "≥"}
+    return {"hi": tc_num(m[2]), "hi_in": m[1] == "≤"}
+
+
+def tc_moved(st, m, q):
+    """A set under t -> m·t + q."""
+    if "hole" in st:
+        return {"hole": m * st["hole"] + q}
+    out = {}
+    if "lo" in st:
+        k, inc = ("hi", "hi_in") if m < 0 else ("lo", "lo_in")
+        out[k], out[inc] = m * st["lo"] + q, st["lo_in"]
+    if "hi" in st:
+        k, inc = ("lo", "lo_in") if m < 0 else ("hi", "hi_in")
+        out[k], out[inc] = m * st["hi"] + q, st["hi_in"]
+    return out
+
+
+def tc_f_domain(g):
+    fam = g["fam"]
+    if fam == "root":
+        return {"lo": sp.Integer(0), "lo_in": True}
+    if fam == "recip":
+        return {"hole": sp.Integer(0)}
+    if fam in ("ln", "log2"):
+        return {"lo": sp.Integer(0), "lo_in": False}
+    if fam == "pts":
+        return {"lo": R(g["nodes"][0][0]), "hi": R(g["nodes"][-1][0]), "lo_in": True, "hi_in": True}
+    return {}
+
+
+def tc_f_range(g):
+    fam = g["fam"]
+    if fam in ("sq", "root"):
+        return {"lo": sp.Integer(0), "lo_in": True}
+    if fam == "recip":
+        return {"hole": sp.Integer(0)}
+    if fam == "exp":
+        return {"lo": sp.Integer(0), "lo_in": False}
+    if fam == "sin":
+        return {"lo": sp.Integer(-1), "hi": sp.Integer(1), "lo_in": True, "hi_in": True}
+    if fam == "vert":
+        return {"lo": R(g["v"]), "lo_in": True}
+    if fam == "pts":
+        ys = [R(n[1]) for n in g["nodes"]]
+        return {"lo": min(ys), "hi": max(ys), "lo_in": True, "hi_in": True}
+    return {}
+
+
+def tc_cards(q, g, M, wrong):
+    """Pick the graph: each card is f under the map of what it names. wrong: mistake ->
+    (map, ref)."""
+    graphs, ch = q["graphs"], q["choices"]
+    need(len(graphs) == 4 and len(ch) == 4, "pick the graph needs four graphs")
+    need([o["text"] for o in ch] == ["Graph A", "Graph B", "Graph C", "Graph D"], "the graphs are not lettered A to D")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right graph")
+    need(all(gr.get("card") for gr in graphs), "a graph is not drawn as a card")
+    need(len({(gr["x0"], gr["x1"], gr["y0"], gr["y1"]) for gr in graphs}) == 1, "the cards don't share one window")
+    need(len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+    truth = tc_curve(g, M)
+    seen = [truth]
+    for o, gr in zip(ch, graphs):
+        m = M if o["correct"] else wrong[o["mistake"]][0]
+        if o["correct"]:
+            need(o["mistake"] == "", "the right graph names a mistake")
+        else:
+            need(o["ref"] == wrong[o["mistake"]][1], f"the {o['mistake']} card is tagged {o['ref']!r}")
+            need(not tc_same(tc_curve(g, m), truth), f"the {o['mistake']} card is the right curve")
+        tc_drawn(gr, gr["curves"], g, m)
+        keys = [tc_image(m, R(k[0]), R(k[1])) for k in g["key"]]
+        tc_pts_in(gr, keys)
+        for x, y in keys:
+            need(gr["x0"] <= x <= gr["x1"] and gr["y0"] <= y <= gr["y1"], "a marked point is outside the card")
+    gc_check_common(q, next(o["text"] for o in ch if o["correct"]), {o["ref"]: {o["text"]} for o in ch if o["ref"]})
+
+
+def tc_f_plot(q, g):
+    gr = q["graph"]
+    need(gr is not None, "no graph of f")
+    tc_drawn(gr, gr["curves"], g, (1, 1, 0, 0))
+    for p in gr["points"]:
+        px, py = sp.nsimplify(p["x"]), sp.nsimplify(p["y"])
+        need([px, py] in [[R(k[0]), R(k[1])] for k in g["key"]], f"marked point {p['label']} is not a key point")
+
+
+def tc_point_opts(q, want, refs):
+    """A point answer: its values, its text, and each tagged option the mistake it names."""
+    tc_opts(q, lambda t: (lambda m: (tc_num(m[1]), tc_num(m[2])))(re.fullmatch(rf"\(({TC_NUM}), ({TC_NUM})\)", t)),
+            lambda p: p == want, {r: (lambda p, w=w: p == w) for r, w in refs.items()})
+
+
+def tc_order_text(q, g, M1, M2, text):
+    """"stretch first, g(x) = …; translation first, g(x) = …" as two curves, or one."""
+    m = re.fullmatch(r"stretch first, g\(x\) = (.+); translation first, g\(x\) = (.+)", text)
+    if m:
+        return (tm_expr(m[1]), tm_expr(m[2]))
+    m = re.fullmatch(r"the same graph either way, g\(x\) = (.+)", text)
+    need(m is not None, f"can't read {text!r}")
+    e = tm_expr(m[1])
+    return (e, e)
+
+
+def check_transform(q):
+    g, u, rep, L = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    if q["view"]["angle"].startswith("gdc"):
+        need(q["paper"] == 2, "a GDC method on Paper 1")
+    for t in [q["asked"]] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+        need(not re.search(r"[+−] [+−]", t), f"two signs in a row in {t!r}")
+    if u == "relate-two-models":
+        return tc_models(q)
+    if u == "describe-log-rewrite":
+        return tc_log(q)
+    moves, M = tc_clean(q, g)
+    A, B, C, D = M
+    if u in ("describe-translation", "describe-stretch", "describe-from-graphs", "describe-with-reflection", "vector-from-key-point"):
+        tc_lines_pair(q, g, M) if u != "vector-from-key-point" or rep == "graph" else None
+    if u == "describe-translation":
+        m = moves[0]
+        tc_chain_opts(q, g, M, {"SL2.11.describe#0": lambda o: o == tc_compose([dict(m, c=-m["c"])])})
+    elif u == "describe-stretch":
+        a = moves[0]["a"]
+        tc_chain_opts(q, g, M, {"SL2.11.stretch#0": lambda o: o == tc_compose([{"k": "hs", "a": 1 / a}])})
+    elif u == "describe-from-graphs":
+        tc_chain_opts(q, g, M)
+    elif u == "describe-with-reflection":
+        other = {"k": "ry" if moves[0]["k"] == "rx" else "rx"}
+        tc_chain_opts(q, g, M, {"SL2.11.reflect#1": lambda o: o == tc_compose([other, moves[1]])})
+    elif u == "describe-after-completing-square":
+        need(g["fam"] == "sq" and L[0] == "y = x²", "the base is not y = x²")
+        e = parse(rhs(L[1]))
+        need(sp.expand(e - (X - C)**2 - D) == 0, f"{L[1]!r} is not the translated parabola")
+        tc_chain_opts(q, g, M, {"SL2.11.describe#0": lambda o: o == tc_compose([{"k": "tr", "c": -C, "d": D}])})
+    elif u == "describe-factor-inside":
+        m = re.fullmatch(r"g\(x\) = f\((.+)\)", L[0])
+        need(m is not None and tc_same(tm_expr(m[1]), B * (X - C)), f"{L[0]!r} is not the moves")
+        k = moves[0]["a"]
+        tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M, {"SL2.11.stretch#0": lambda o: o == tc_compose([{"k": "hs", "a": 1 / k}, {"k": "tr", "c": C, "d": 0}])})
+    elif u == "stretch-and-shift-parameters":
+        tc_lines_pair(q, g, M)
+        k, d = moves[0]["a"], moves[1]["d"]
+        fx = lambda t: tuple(tc_num(v) for v in re.fullmatch(rf"horizontal scale factor = ({TC_NUM}), vertical translation = ({TC_NUM})", t).groups())
+        tc_opts(q, fx, lambda v: v == (k, d), {"SL2.11.stretch#0": lambda v: v == (1 / k, d)})
+    elif u == "vector-from-key-point":
+        if rep == "words":
+            p = re.findall(rf"\(({TC_NUM}), ({TC_NUM})\)", " ".join(L))
+            need(tuple(tc_num(v) for v in p[1]) == tc_image(M, tc_num(p[0][0]), tc_num(p[0][1])), "the second point is not the image")
+        tc_point_opts(q, (C, D), {})
+    elif u in ("describe-the-reverse", "undo-in-reverse"):
+        if rep == "equation":
+            tc_lines_pair(q, g, M)
+        need(tc_moves(re.search(r" by (.+)\.$", L[-1])[1]) == moves, "the moves shown are not the chain")
+        tc_opts(q, tc_moves, lambda o: tc_compose(moves + o) == (1, 1, 0, 0), {})
+    elif u == "sketch-stretch-shift":
+        a, d = moves[0]["a"], moves[1]["d"]
+        need(tc_same(tm_expr(q["asked"][len("Which graph is y = "):-1]), a * TC_F(X) + d), "the asked rule is not a·f(x) + d")
+        tc_f_plot(q, g)
+        tc_cards(q, g, M, {"bracket": ((a, 1, 0, a * d), "SL2.11.composite-transform#1"), "wrong-way": ((a, 1, 0, -d), ""), "sideways": ((1, 1 / a, 0, d), ""), "inverted": ((1 / a, 1, 0, d), "")})
+    elif u == "sketch-reflection":
+        tc_f_plot(q, g)
+        rx = moves[0]["k"] == "rx"
+        tc_cards(q, g, M, {"other-axis": ((1, -1, 0, 0) if rx else (-1, 1, 0, 0), "SL2.11.reflect#1"), "both": ((-1, -1, 0, 0), ""), "unchanged": ((1, 1, 0, 0), "")})
+    elif u == "sketch-horizontal":
+        tc_f_plot(q, g)
+        if moves[0]["k"] == "hs":
+            k = moves[0]["a"]
+            tc_cards(q, g, M, {"up-down": ((1 / k, 1, 0, 0), "SL2.11.sketch-transformed#1"), "inverted": ((1, k, 0, 0), ""), "vertical": ((k, 1, 0, 0), "")})
+        else:
+            c = moves[0]["c"]
+            tc_cards(q, g, M, {"other-way": ((1, 1, -c, 0), "SL2.11.sketch-transformed#2"), "up": ((1, 1, 0, c), ""), "down": ((1, 1, 0, -c), "")})
+    elif u == "rule-single-translation":
+        tc_f_said(q, g)
+        need(re.search(rf"by the vector \({TC_NUM}, {TC_NUM}\)", L[1]) is not None, "no vector")
+        tc_rule_opts(q, g, M, {"SL2.11.translate#0": tc_curve(g, (1, 1, -C, D)), "SL2.11.translate#1": tc_curve(g, (1, 1, C - D, 0))})
+    elif u == "rule-from-moves":
+        tc_f_said(q, g)
+        need(tc_moves(re.search(r" by (.+), to give", L[1])[1]) == moves, "the moves shown are not the chain")
+        tc_rule_opts(q, g, M, {"SL2.11.composite-transform#0": tc_curve(g, (A, B, C / B, D)),
+                               "SL2.11.composite-transform#1": tc_curve(g, (A, B, C, A * D))})
+    elif u == "reflect-translate-rule":
+        tc_f_said(q, g)
+        tc_reflect_translate(q, g, moves, M)
+    elif u == "reflect-rule":
+        tc_f_said(q, g)
+        other = (1, -1, 0, 0) if moves[0]["k"] == "rx" else (-1, 1, 0, 0)
+        refs = {"SL2.11.reflect#1": tc_curve(g, other)}
+        if g["fam"] == "poly":
+            refs["SL2.11.reflect#0"] = -X**2 + R(g["u"]) * X + R(g["v"])
+        tc_rule_opts(q, g, M, refs)
+    elif u in ("image-point", "original-point"):
+        tc_point(q, g, M, rep, u)
+    elif u == "moved-asymptote":
+        tc_asymptote(q, g, M, rep)
+    elif u == "domain-range-of-g":
+        tc_f_said(q, g) if rep != "graph" else tc_f_plot(q, g)
+        dom, ran = tc_moved(tc_f_domain(g), 1 / B, C), tc_moved(tc_f_range(g), A, D)
+        rd = lambda t: tuple(tc_set(p) for p in re.fullmatch(r"domain (.+); range (.+)", t).groups())
+        tc_opts(q, rd, lambda v: v == (dom, ran), {"SL2.2.domain#2": lambda v: v == (ran, dom)})
+    elif u == "undo-moves":
+        need(tc_moves(re.search(r" (?:by|through) (.+)\.$", L[1 if rep == "equation" else 0])[1]) == moves, "the moves shown are not the chain")
+        gl = L[0] if rep == "equation" else L[1]
+        need(tc_same(tm_expr(re.search(r"= (.+?)\.?$", gl)[1]), tc_curve(g, M)), f"{gl!r} is not g")
+        truth = tc_base(g)
+        tc_opts(q, lambda t: tm_expr(t[len("f(x) = "):]), lambda e: tc_same(e, truth), {})
+    elif u == "order-changes-rule":
+        tc_f_said(q, g)
+        tc_two_ways(q, g, moves)
+    elif u == "two-orders":
+        tc_f_said(q, g)
+        tc_two_orders(q, g, moves)
+    elif u == "which-pairs-commute":
+        tc_commute(q)
+    elif u == "inside-opposite":
+        tc_inside(q, g, moves, M)
+    elif u == "inside-vs-outside":
+        tc_vs_outside(q, g, moves, M)
+    elif u == "order-from-bracket":
+        tc_bracket(q, g, moves, M)
+    elif u == "point-both-orders":
+        tc_both_points(q, g, moves)
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+def tc_reflect_translate(q, g, moves, M):
+    refl, t = moves
+    sign = tc_compose([refl, {"k": "tr", "c": -t["c"], "d": t["d"]}])
+    fd = tc_f_domain(g)
+    dom = tc_moved(fd, 1 / M[1], M[2])
+    truth = tc_curve(g, M)
+
+    def rd(text):
+        m = re.fullmatch(r"g\(x\) = (.+), with domain (.+)", text)
+        return tm_expr(m[1]), tc_set(m[2])
+    openset = {k: (False if k.endswith("_in") else v) for k, v in dom.items()}
+    tc_opts(q, rd, lambda v: tc_same(v[0], truth) and v[1] == dom, {
+        "SL2.11.translate#0": lambda v: tc_same(v[0], tc_curve(g, sign)) and v[1] == tc_moved(fd, 1 / sign[1], sign[2]),
+        "SL2.2.domain#0": lambda v: tc_same(v[0], truth) and v[1] == openset,
+        "SL2.2.domain#1": lambda v: tc_same(v[0], truth) and v[1] == fd})
+
+
+def tc_point(q, g, M, rep, u):
+    A, B, C, D = M
+    L = q["lines"]
+    need(tc_same(tm_expr(rhs(L[-1])), A * TC_F(B * (X - C)) + D), f"{L[-1]!r} is not the moves")
+    if rep == "table":
+        rows = q["table"]["rows"]
+        pts = list(zip(rows[0][1], rows[1][1]))
+        x0 = tc_num(re.search(rf"x = ({TC_NUM})\.", L[0])[1])
+        ys = [tc_num(y) for x, y in pts if tc_num(x) == x0]
+        need(len(ys) == 1, "the table has no such point")
+        p = (x0, ys[0])
+    else:
+        m = re.search(rf"\(({TC_NUM}), ({TC_NUM})\)", L[0])
+        p = (tc_num(m[1]), tc_num(m[2]))
+        if rep == "graph":
+            gp = q["graph"]["points"][0]
+            need((sp.nsimplify(gp["x"], rational=True), sp.nsimplify(gp["y"], rational=True)) == p, "the marked point is not the one named")
+    x, y = p
+    if u == "image-point":
+        tc_point_opts(q, tc_image(M, x, y), {"SL2.11.image-point#0": (x / B - C, A * y + D), "SL2.11.image-point#1": (x / B + C, A * (y + D)),
+                                             "SL2.11.image-point#2": (x * B + C, A * y + D), "SL2.11.stretch#1": (x * A + C, A * y + D)})
+    else:
+        tc_point_opts(q, ((x - C) * B, (y - D) / A), {"SL2.11.image-point#0": ((x + C) * B, (y - D) / A), "SL2.11.image-point#2": ((x - C) / B, (y - D) / A)})
+
+
+def tc_asymptote(q, g, M, rep):
+    A, B, C, D = M
+    fam = g["fam"]
+    hasx = fam in ("recip", "ln", "log2")
+    hasy = fam in ("recip", "exp")
+    if rep == "graph":
+        tc_f_plot(q, g)
+        gr = q["graph"]
+        need(len(gr["vlines"]) == int(hasx) and len(gr["hlines"]) == int(hasy), "the asymptotes are not dashed")
+    else:
+        tc_f_said(q, g)
+    x, y = tc_image(M, 0, 0)[0] if hasx else None, tc_image(M, 0, 0)[1] if hasy else None
+    if hasx and hasy:
+        rd = lambda t: tuple(tc_num(v) for v in re.fullmatch(rf"x = ({TC_NUM}), y = ({TC_NUM})", t).groups())
+        tc_opts(q, rd, lambda v: v == (x, y), {"SL2.11.sketch-transformed#0": lambda v: v == (0, y), "SL2.11.translate#2": lambda v: v == (x, 0)})
+    else:
+        name, val = ("x", x) if hasx else ("y", y)
+        rd = lambda t: (t[0], tc_num(t[4:]))
+        tc_opts(q, rd, lambda v: v == (name, val), {"SL2.11.sketch-transformed#0": lambda v: v == (name, 0), "SL2.11.translate#2": lambda v: v == (name, 0)})
+
+
+def tc_two_ways(q, g, moves):
+    a = tc_curve(g, tc_compose(moves))
+    b = tc_curve(g, tc_compose([moves[1], moves[0]]))
+    same = tc_same(a, b)
+
+    def rd(t):
+        return (tc_order_text(q, g, None, None, t), t.startswith("the same graph"))
+    right = lambda v: tc_same(v[0][0], a) and tc_same(v[0][1], b) and v[1] == same
+    tc_opts(q, rd, right, {"SL2.11.composite-transform#2": lambda v: v[1] and not same})
+
+
+def tc_two_orders(q, g, moves):
+    m1, m2 = tc_compose(moves), tc_compose([moves[1], moves[0]])
+    a, b = tc_curve(g, m1), tc_curve(g, m2)
+    k = (R(g["key"][0][0]), R(g["key"][0][1]))
+    p1, p2 = tc_image(m1, *k), tc_image(m2, *k)
+    need(p1 != p2, "the point lands in one place both ways")
+
+    def rd(t):
+        m = re.fullmatch(rf"stretch first, g\(x\) = (.+) and \({TC_NUM}, {TC_NUM}\) goes to \(({TC_NUM}), ({TC_NUM})\); translation first, g\(x\) = (.+) and it goes to \(({TC_NUM}), ({TC_NUM})\)", t)
+        if m is None:
+            need(t.startswith("the order never matters"), f"can't read {t!r}")
+            return None
+        return (tm_expr(m[1]), (tc_num(m[2]), tc_num(m[3])), tm_expr(m[4]), (tc_num(m[5]), tc_num(m[6])))
+    tc_opts(q, rd, lambda v: v is not None and tc_same(v[0], a) and tc_same(v[2], b) and v[1] == p1 and v[3] == p2,
+            {"SL2.11.composite-transform#2": lambda v: v is None})
+
+
+def tc_commute(q):
+    def rd(t):
+        if t.startswith("any two moves"):
+            return None
+        pair = t.split(": ")[0]
+        a, b = pair.split(" and ")
+        return tc_moves(a) + tc_moves(b)
+
+    def right(v):
+        return v is not None and tc_compose(v) == tc_compose([v[1], v[0]])
+    tc_opts(q, rd, right, {"SL2.11.composite-transform#2": lambda v: v is None})
+
+
+def tc_inside(q, g, moves, M):
+    if q["view"]["rep"] == "graph":
+        tc_lines_pair(q, g, M)
+    m = moves[0]
+    if m["k"] == "tr":
+        c = m["c"]
+
+        def rd(t):
+            h = t.split(":")[0]
+            mt = re.fullmatch(rf"({TC_NUM}) to the (left|right)", h)
+            if mt:
+                return ("x", tc_num(mt[1]) * (1 if mt[2] == "right" else -1))
+            mt = re.fullmatch(rf"(up|down) ({TC_NUM})", h)
+            return ("y", tc_num(mt[2]) * (1 if mt[1] == "up" else -1))
+        tc_opts(q, rd, lambda v: v == ("x", c), {"SL2.11.describe#0": lambda v: v == ("x", -c)})
+    else:
+        k = m["a"]
+        tc_opts(q, lambda t: tc_moves(t.split(":")[0])[0]["k"] + str(tc_moves(t.split(":")[0])[0]["a"]), lambda v: v == "hs" + str(k),
+                {"SL2.11.stretch#0": lambda v: v == "hs" + str(1 / k)})
+
+
+def tc_vs_outside(q, g, moves, M):
+    m = moves[0]
+    if m["k"] == "tr":
+        c = -m["c"]
+        inner, outer = (1, 1, -c, 0), (1, 1, 0, c)
+    else:
+        b = M[1]
+        inner, outer = (1, b, 0, 0), (b, 1, 0, 0)
+    ins, outs = (lambda M1: M1[0] * TC_F(M1[1] * (X - M1[2])) + M1[3])(inner), (lambda M1: M1[0] * TC_F(M1[1] * (X - M1[2])) + M1[3])(outer)
+    if q["view"]["rep"] == "graph":
+        gr = q["graph"]
+        k = gr["sand_from"]
+        pa, pb = [(sp.nsimplify(p["x"], rational=True), sp.nsimplify(p["y"], rational=True)) for p in gr["points"]]
+        need(pa != pb, "curves A and B are marked at one point")
+        key = next((R(p[0]), R(p[1])) for p in g["key"] if tc_image(inner, R(p[0]), R(p[1])) != tc_image(outer, R(p[0]), R(p[1])))
+        a_inner = pa == tc_image(inner, *key)
+        need(pa == tc_image(inner if a_inner else outer, *key) and pb == tc_image(outer if a_inner else inner, *key), "the marked points are not the images")
+        tc_drawn(gr, gr["curves"][:k], g, inner if a_inner else outer)
+        tc_drawn(gr, gr["curves"][k:], g, outer if a_inner else inner)
+
+        def rd(t):
+            mt = re.fullmatch(r"A is (.+), B is (.+)", t)
+            if mt is None:
+                return None
+            return (tm_expr(mt[1]), tm_expr(mt[2]))
+        want = (ins, outs) if a_inner else (outs, ins)
+        tc_opts(q, rd, lambda v: v is not None and tc_same(v[0], want[0]) and tc_same(v[1], want[1]), {})
+        return
+
+    def rd2(t):
+        mt = re.fullmatch(r"(.+?) ((?:moves|stretches) .+); (.+?) ((?:moves|stretches) .+)", t)
+        if mt is None:
+            return None
+        return mt[2], mt[4], tc_same(tm_expr(mt[1]), ins), tc_same(tm_expr(mt[3]), outs)
+    says = lambda axis: (f"along the {axis}-axis" if m["k"] == "tr" else f"parallel to the {axis}-axis")
+    tc_opts(q, rd2, lambda v: v is not None and v[2] and v[3] and says("x") in v[0] and says("y") in v[1], {})
+
+
+def tc_bracket(q, g, moves, M):
+    L = q["lines"]
+    A, B, C, D = M
+    m = re.fullmatch(r"g\(x\) = (.+)", L[0])
+    need(tc_same(tm_expr(m[1]), tc_curve({"fam": "pts"}, M)), f"{L[0]!r} is not the moves")
+    e = C * B
+    tc_opts(q, lambda t: tc_compose(tc_moves(t)), lambda o: o == M,
+            {"SL2.11.composite-transform#0": lambda o: o == tc_compose([moves[0], {"k": "tr", "c": e, "d": 0}])})
+
+
+def tc_both_points(q, g, moves):
+    k = (R(g["key"][0][0]), R(g["key"][0][1]))
+    p1, p2 = tc_image(tc_compose(moves), *k), tc_image(tc_compose([moves[1], moves[0]]), *k)
+    need(f"{frac_or_dec(k[0], q)}, {frac_or_dec(k[1], q)}" in q["lines"][0], "the point shown is not the key point")
+    rd = lambda t: tuple((tc_num(a), tc_num(b)) for a, b in re.findall(rf"\(({TC_NUM}), ({TC_NUM})\)", t))
+    tc_opts(q, rd, lambda v: v == (p1, p2), {"SL2.11.image-point#1": lambda v: v == (p2, p1)})
+    if q["view"]["rep"] == "graph":
+        tc_f_plot(q, g)
+
+
+def frac_or_dec(v, q):
+    return frac_text(v).replace("-", "−")
+
+
+def tc_models(q):
+    g, rep, L = q["given"], q["view"]["rep"], q["lines"]
+    a1, d1, a2, d2, w = (R(g[k]) for k in ("a1", "d1", "a2", "d2", "w"))
+    if rep == "equation":
+        nums = [tc_num(v) for v in re.fullmatch(rf"p\(t\) = ({TC_NUM}) sin\(({TC_NUM})t\) ([+−]) ({TC_NUM})", L[0]).group(1, 2, 4)]
+        need(nums == [a1, w, abs(d1)], "p is not the situation's")
+        nums = [tc_num(v) for v in re.fullmatch(rf"q\(t\) = ({TC_NUM}) sin\(({TC_NUM})t\) ([+−]) ({TC_NUM})", L[1]).group(1, 2, 4)]
+        need(nums == [a2, w, abs(d2)], "q is not the situation's")
+    else:
+        need(tc_num(re.search(rf"amplitude ({TC_NUM})", L[0])[1]) == a1 and tc_num(re.search(rf"amplitude ({TC_NUM})", L[1])[1]) == a2, "the amplitudes")
+        need(tc_num(re.search(rf"y = ({TC_NUM})", L[0])[1]) == d1 and tc_num(re.search(rf"y = ({TC_NUM})", L[1])[1]) == d2, "the centre lines")
+    a = a2 / a1
+    d = d2 - a * d1
+    t = sp.Symbol("t")
+    need(sp.expand(a * (a1 * sp.sin(w * t) + d1) + d - (a2 * sp.sin(w * t) + d2)) == 0, "a and d don't map p onto q")
+    if q["paper"] == 1:
+        want = f"a = {frac_text(a)}, d = {frac_text(d)}".replace("-", "−")
+        trap = None
+    else:
+        want = f"a = {gc_s(a)}, d = {gc_s(d)}"
+        trap = f"a = {gc_s2(a)}, d = {gc_s2(d)}"
+    gc_check_common(q, want, {}, trap=trap)
+    return None, None
+
+
+def tc_log(q):
+    g, L = q["given"], q["lines"]
+    need(q["paper"] == 1, "a log law is Paper 1")
+    b, e = g["lb"], g["le"]
+    p = b**e
+    x = sp.Symbol("x", positive=True)
+    lg = lambda v: sp.log(v) / sp.log(b)
+    new = lg(p * x) if g["lform"] == "shift" else lg(x**e)
+    name = L[0][len("y = "):-2]
+
+    def rd(t):
+        m = re.fullmatch(rf".+? = (.+?), (.+)", t)
+        rhs_, mv = m[1], tc_moves(m[2])[0]
+        mp = re.fullmatch(rf"(\d+) {re.escape(name)} x", rhs_)
+        if mp:
+            val = int(mp[1]) * lg(x)
+        else:
+            val = lg(x) + int(re.fullmatch(rf"{re.escape(name)} x \+ (\d+)", rhs_)[1])
+        A, _, _, D = tc_compose([mv])
+        return val, A * lg(x) + D
+    tc_opts(q, rd, lambda v: abs(sp.N((v[0] - new).subs(x, 3))) < 1e-12 and abs(sp.N((v[1] - new).subs(x, 3))) < 1e-12, {})
+    return None, None
+
+
 # ── regression-x-on-y (t4-regression-x-on-y, FAL-725) ────────
 # The `regression-x-on-y` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/regression_pair.gd. The data and the lines are read back from what the
@@ -12563,6 +15284,1023 @@ def cd_check(q):
             need(0 < v < 1, f"option {o['text']!r} is not a probability")
     for sol in q["solutions"]:
         need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
+# ── basic-relation (fn-ext-is-function, FAL-424) ─────────────
+# The relation is read back from what the student sees: an equation's text, a table's rows,
+# the words' listing, or the polylines of a graph. Whether it is a function, and whether it is
+# one-to-one, comes from there (exact solving in y, or lines crossed on the drawn curve), and
+# every option is then judged as a claim: exactly one must be true, and it must be the answer.
+
+RL_Y = sp.Symbol("y", real=True)
+RL_XS = [sp.Rational(i, 2) for i in range(-16, 17)]
+RL_GRID = [-7.9137 + 0.1 * i for i in range(160)]
+RL_TOL = 0.06
+RL_R0, RL_R1, RL_R2 = "SL2.2.is-function#0", "SL2.2.is-function#1", "SL2.2.is-function#2"
+RL_YES_GRAPH = "A function: every vertical line crosses it at most once"
+RL_YES_EQ = "Yes: no x gives two values of y"
+RL_YES_ONE = "Yes: every horizontal line crosses it at most once, so it has an inverse"
+RL_GIVES = re.compile(r"x = (−?\d+) gives y = (−?\d+) and y = (−?\d+)")
+RL_BOTH = re.compile(r"x = (−?\d+) and x = (−?\d+) both give y = (−?\d+)")
+
+
+def rl_eq(text):
+    """An equation in x and y as the expression L − R, and any domain after ', for'."""
+    body, _, dom = text.partition(", for ")
+    left, right = body.split(" = ")
+    conv = lambda s: re.sub(r"\|([^|]+)\|", r"Abs(\1)", s.strip()).replace("−", "-").replace("√", "sqrt").replace("²", "**2").replace("³", "**3").replace("^", "**").replace("xy", "x*y")
+    loc = {"x": X, "y": RL_Y, "Abs": sp.Abs, "sqrt": sp.sqrt}
+    return parse_expr(conv(left), local_dict=loc, transformations=TRANSFORMS) - parse_expr(conv(right), local_dict=loc, transformations=TRANSFORMS), dom
+
+
+def rl_real_y(g):
+    """The real y with g(y) = 0, for g free of Abs."""
+    p = sp.Poly(g, RL_Y)
+    if p.degree() < 1:
+        return []
+    if p.degree() == 1:
+        c1, c0 = p.all_coeffs()
+        return [-c0 / c1]
+    return sorted(set(sp.real_roots(p)), key=lambda v: float(v))
+
+
+def rl_ys(F, x0):
+    """The y on F = 0 at x0, each once."""
+    g = F.subs(X, x0)
+    if g.has(sp.zoo, sp.nan):
+        return []
+    ab = [a for a in g.atoms(sp.Abs) if a.has(RL_Y)]
+    if not ab:
+        return rl_real_y(sp.expand(g))
+    out = set()
+    for sign in (1, -1):
+        for v in rl_real_y(sp.expand(g.subs(ab[0], sign * ab[0].args[0]))):
+            if sp.simplify(g.subs(RL_Y, v)) == 0:
+                out.add(v)
+    return sorted(out, key=lambda v: float(v))
+
+
+def rl_points(F, dom):
+    """x -> the y's, on the half-integer inputs the rule allows."""
+    lo = sp.Integer(0) if dom == "x ≥ 0" else None
+    need(dom in ("", "x ≥ 0"), f"a domain {dom!r}")
+    out = {}
+    for x0 in RL_XS:
+        if lo is not None and x0 < lo:
+            continue
+        ys = [v for v in rl_ys(F, x0) if v.is_real]
+        if ys:
+            out[x0] = ys
+    return out
+
+
+def rl_cross(curves, x0):
+    """The y where the drawn curves cross x = x0."""
+    out = []
+    for c in curves:
+        for (xa, ya), (xb, yb) in zip(c, c[1:]):
+            if xa != xb and min(xa, xb) <= x0 <= max(xa, xb):
+                y = ya + (yb - ya) * (x0 - xa) / (xb - xa)
+                if not any(abs(y - o) < 1e-3 for o in out):
+                    out.append(y)
+    return out
+
+
+def rl_is_fn(curves):
+    """The vertical line test on what is drawn."""
+    for c in curves:
+        for (xa, ya), (xb, yb) in zip(c, c[1:]):
+            if abs(xa - xb) < 1e-9 and abs(ya - yb) > 1e-6:
+                return False
+    return all(len(rl_cross(curves, x0)) <= 1 for x0 in RL_GRID)
+
+
+def rl_is_one(curves):
+    """The horizontal line test on what is drawn."""
+    return rl_is_fn([[[y, x] for x, y in c] for c in curves])
+
+
+def rl_on_graph(curves, x0, y0):
+    return any(abs(y - y0) < RL_TOL for y in rl_cross(curves, x0))
+
+
+def rl_int(t):
+    return int(t.replace("−", "-"))
+
+
+def rl_function_claim(text, is_fn, on, yes):
+    """Whether an option on 'is it a function?' is true, for a relation with these points."""
+    if text == yes:
+        return is_fn
+    m = RL_GIVES.search(text)
+    if m:
+        a, b, c = map(rl_int, m.groups())
+        return not is_fn and b != c and on(a, b) and on(a, c)
+    return False
+
+
+def rl_many_ref(q, on):
+    """The options that say a true many-to-one fact and call it 'not a function'."""
+    out = set()
+    for o in q["choices"]:
+        m = RL_BOTH.search(o["text"])
+        if m:
+            a, b, y = map(rl_int, m.groups())
+            if a != b and on(a, y) and on(b, y):
+                out.add(o["text"])
+    return out
+
+
+def rl_finish(q, claim, wr):
+    true = [o["text"] for o in q["choices"] if claim(o["text"])]
+    need(len(true) == 1, f"{len(true)} true options: {true}")
+    gc_check_common(q, true[0], wr)
+
+
+def rl_words(q):
+    """name -> outputs, from the listing, and the input and output nouns from the question."""
+    m = re.fullmatch(r"Taking each (\w+) as the input and each (\w+) as the output, is this a function\?", q["asked"])
+    need(m is not None and q["lines"][0].endswith(":"), "can't read the words")
+    who, what = m.groups()
+    need(who in q["lines"][0].lower() and what in q["lines"][0].lower(), "the rule isn't about the question's nouns")
+    pairs = {}
+    for part in re.findall(r"(\w+): ([^.]+)\.", q["lines"][1]):
+        need(part[0] not in pairs, f"{part[0]} is listed twice")
+        pairs[part[0]] = part[1].split(" and ")
+    need(len(pairs) >= 4, "too few inputs")
+    return who, pairs
+
+
+def rl_mapping_claim(pairs, who):
+    """The claims on a mapping: pairs is input -> outputs."""
+    is_fn = all(len(set(v)) == 1 for v in pairs.values())
+
+    def claim(text):
+        if text == f"A function: each {who} has one output":
+            return is_fn
+        if text.startswith("A function:"):
+            return False
+        m = re.fullmatch(r"Not a function: (.+) has two outputs, (.+) and (.+)", text)
+        if m:
+            return m.group(1) in pairs and m.group(2) in pairs[m.group(1)] and m.group(3) in pairs[m.group(1)] and m.group(2) != m.group(3)
+        return False
+    return claim, is_fn
+
+
+def rl_share_ref(q, pairs):
+    out = set()
+    for o in q["choices"]:
+        m = re.fullmatch(r"Not a function: (.+) and (.+) share the output (.+)", o["text"])
+        if m:
+            need(m.group(1) != m.group(2) and m.group(3) in pairs[m.group(1)] and m.group(3) in pairs[m.group(2)], f"{o['text']!r} isn't so")
+            out.add(o["text"])
+    return out
+
+
+def rl_table(q):
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "x" and rows[1][0] == "y" and len(rows[0][1]) == 6 == len(rows[1][1]), "the table of pairs")
+    return [(rl_int(a), rl_int(b)) for a, b in zip(rows[0][1], rows[1][1])]
+
+
+def rl_restrict(F, text, pts):
+    """Whether 'Keep only …' leaves at most one y at every input, and keeps all the inputs."""
+    t = text.removeprefix("Keep only ").replace("−", "-")
+    m = re.fullmatch(r"(-?\d+) ≤ y ≤ (-?\d+)", t)
+    if m:
+        lo, hi = map(int, m.groups())
+        keep = lambda x, y: lo <= y <= hi
+    else:
+        m = re.fullmatch(r"([xy]) (≥|≤|≠) (-?\d+)", t)
+        need(m is not None, f"can't read {text!r}")
+        v, rel, c = m.group(1), m.group(2), int(m.group(3))
+        keep = lambda x, y: {"≥": (x if v == "x" else y) >= c, "≤": (x if v == "x" else y) <= c, "≠": (x if v == "x" else y) != c}[rel]
+    left = {x: [y for y in ys if keep(x, y)] for x, ys in pts.items()}
+    return all(len(ys) <= 1 for ys in left.values()) and all(left[x] for x in pts)
+
+
+def rl_lines_on(curves, a, b):
+    vert = [c for c in curves if all(abs(p[0] - a) < 1e-9 for p in c)]
+    horiz = [c for c in curves if all(abs(p[1] - b) < 1e-9 for p in c)]
+    need(len(curves) == 2 and len(vert) == 1 and len(horiz) == 1, "the graph is not the two lines")
+
+
+def rl_on_eq(F):
+    return lambda x0, y0: sp.simplify(F.subs({X: x0, RL_Y: y0})) == 0
+
+
+def check_relation(q):
+    rl_check(q)
+    return None, None
+
+
+def rl_check(q):
+    u, rep, L = q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    need(q["paper"] == 1, "an extension type is Paper 1")
+    bf_no_hyphens(q)
+    if u == "from-graph":
+        curves = q["graph"]["curves"]
+        is_fn = rl_is_fn(curves)
+        on = lambda a, b: rl_on_graph(curves, a, b)
+        wr = {RL_R0: rl_many_ref(q, on)}
+        wr[RL_R1] = {"A function: no horizontal line crosses it twice", "Not a function: a horizontal line crosses it twice"}
+        if is_fn:
+            need(rl_is_one(curves) or wr[RL_R0], "a many-to-one function with no many-to-one option")
+        return rl_finish(q, lambda t: rl_function_claim(t, is_fn, on, RL_YES_GRAPH), wr)
+    if u == "from-equation":
+        F, _ = rl_eq(L[0])
+        pts = rl_points(F, "")
+        is_fn = all(len(ys) == 1 for ys in pts.values())
+        on = rl_on_eq(F)
+        return rl_finish(q, lambda t: rl_function_claim(t, is_fn, on, RL_YES_EQ), {RL_R0: rl_many_ref(q, on)})
+    if u == "from-mapping":
+        if rep == "words":
+            who, pairs = rl_words(q)
+        else:
+            who, pairs = "x", defaultdict(list)
+            for a, b in rl_table(q):
+                pairs[f"x = {frac_text(a)}"].append(frac_text(b))
+        claim, _ = rl_mapping_claim(pairs, who)
+        return rl_finish(q, claim, {RL_R0: rl_share_ref(q, pairs)})
+    if u == "one-to-one":
+        if rep == "graph":
+            graphs, ch = q["graphs"], q["choices"]
+            need(len(graphs) == 4 and len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+            ones = [o["text"] for o, gr in zip(ch, graphs) if rl_is_fn(gr["curves"]) and rl_is_one(gr["curves"])]
+            need(len(ones) == 1, f"{ones} are one-to-one")
+            for o, gr in zip(ch, graphs):
+                need(rl_is_fn(gr["curves"]), f"{o['text']} is not a function")
+                if not o["correct"]:
+                    m = RL_BOTH.search(o["why"])
+                    need(o["mistake"] == "many-to-one" and m is not None, "a wrong graph doesn't say what is wrong")
+                    a, b, y = map(rl_int, m.groups())
+                    need(a != b and rl_on_graph(gr["curves"], a, y) and rl_on_graph(gr["curves"], b, y), f"{o['why']!r} is not on the graph")
+            return gc_check_common(q, ones[0], {})
+        if rep == "table":
+            ps = rl_table(q)
+            need(len({a for a, _ in ps}) == len(ps), "not a function: an input repeats")
+            on = lambda a, b: (a, b) in ps
+            one = len({b for _, b in ps}) == len(ps)
+        else:
+            F, dom = rl_eq(L[0])
+            pts = rl_points(F, dom)
+            need(all(len(ys) == 1 for ys in pts.values()), "not a function")
+            ys = [ys_[0] for ys_ in pts.values()]
+            one = len(set(ys)) == len(ys)
+            on = (lambda a, b: a >= 0 and rl_on_eq(F)(a, b)) if dom else rl_on_eq(F)
+
+        def claim(t):
+            if t == RL_YES_ONE:
+                return one
+            m = RL_BOTH.search(t)
+            if m and t.startswith("No: "):
+                a, b, y = map(rl_int, m.groups())
+                return not one and a != b and on(a, y) and on(b, y)
+            return False
+        return rl_finish(q, claim, {RL_R0: {"No: it is not a function, so it has no inverse"}})
+    if u == "vertical-line":
+        m = re.search(r"x = (−?\d+) and y = (−?\d+)\.$", L[0])
+        need(m is not None, "can't read the lines")
+        a, b = m.group(1), m.group(2)
+        if rep == "graph":
+            rl_lines_on(q["graph"]["curves"], rl_int(a), rl_int(b))
+        say = lambda xf, yf: f"x = {a} {'is' if xf else 'is not'} a function; y = {b} {'is' if yf else 'is not'} a function"
+        return gc_check_common(q, say(False, True), {RL_R2: {say(True, True), say(True, False)}, RL_R1: {say(False, False)}})
+    if u == "make-it-a-function":
+        eq = re.sub(r"^(Relation: |The graph shows the relation )", "", L[0]).rstrip(".")
+        F, _ = rl_eq(eq)
+        pts = rl_points(F, "")
+        need(any(len(ys) == 2 for ys in pts.values()), "the relation is already a function")
+        if q["format"] == "pick-the-graph":
+            graphs, ch = q["graphs"], q["choices"]
+            need(len(graphs) == 4 and len({json.dumps(gr["curves"]) for gr in graphs}) == 4, "two graphs are the same")
+            on = rl_on_eq_close(F)
+            good = []
+            for o, gr in zip(ch, graphs):
+                for c in gr["curves"]:
+                    need(all(on(p) for p in c[::17]), f"{o['text']} is not part of the relation")
+                if rl_is_fn(gr["curves"]):
+                    good.append(o["text"])
+                need(o["correct"] or o["why"] != "", "a wrong graph doesn't say what is wrong")
+            need(len(good) == 1, f"{good} are functions")
+            return gc_check_common(q, good[0], {})
+        return rl_finish(q, lambda t: rl_restrict(F, t, pts), {})
+    raise Fail(f"no check for {u}")
+
+
+def rl_on_eq_close(F):
+    g = sp.lambdify((X, RL_Y), F, "math")
+    return lambda p: abs(g(p[0], p[1])) < 1e-6
+
+
+# ── fn-pre-substitute (FAL-424) ──────────────────────────────
+# The expression and the input are read from the text the student sees. The clean limits are
+# the checker's own copy (SB_*).
+
+SB_T = "fn-pre-substitute"
+SB_R = {i: f"{SB_T}#{i}" for i in range(4)}
+SB_MAX_D = 16
+SB_FRACTIONS = {sp.Rational(*p) for p in [(1, 2), (-1, 2), (1, 3), (3, 2), (1, 4), (2, 3)]}
+
+
+def sb_read(q):
+    """(expression text, the input) from the view's representation."""
+    rep, L, asked = q["view"]["rep"], q["lines"], q["asked"]
+    if rep == "words":
+        m = re.fullmatch(r"Find the value of (.+) when x = (\S+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        return m.group(1), R(m.group(2).replace("−", "-"))
+    if rep == "table":
+        need(L[0].startswith("y = "), "no rule above the table")
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "y" and len(rows[0][1]) == 5 == len(rows[1][1]), "the table's shape")
+        need(rows[1][1].count("?") == 1, "not one missing entry")
+        i = rows[1][1].index("?")
+        f = bf_expr(L[0][4:])
+        for xs, ys in zip(rows[0][1], rows[1][1]):
+            if ys != "?":
+                need(f.subs(X, R(xs.replace("−", "-"))) == R(ys.replace("−", "-")), f"the table's y at {xs} is {ys}")
+        return L[0][4:], R(rows[0][1][i].replace("−", "-"))
+    need(L[1].startswith("x = "), "no input")
+    return L[0], R(L[1][4:].replace("−", "-"))
+
+
+def sb_ltr(part, x0):
+    """A fraction's top or bottom worked left to right, where order matters: None for 'x + 2'."""
+    m = re.fullmatch(r"(\d+) ([+−]) (\d*)x", part)
+    if not m:
+        return None
+    c, mult = int(m.group(1)), int(m.group(3) or 1)
+    return (c + (mult if m.group(2) == "+" else -mult)) * x0
+
+
+def sb_parts(text):
+    m = re.fullmatch(r"\((.+)\)/\((.+)\)", text)
+    need(m is not None, f"not a fraction: {text!r}")
+    return m.group(1), m.group(2)
+
+
+def check_substitute(q):
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    need(q["paper"] == 1, "prior learning is Paper 1")
+    bf_no_hyphens(q)
+    wr = {}
+    if u == "missing-input":
+        text, v = (q["lines"][0].split(" = ") if rep == "equation" else re.fullmatch(r"The expression (.+) has the value (\S+)\. Find x\.", q["asked"]).groups())
+        f = bf_expr(text)
+        need(sp.degree(f, X) == 1, "not linear")
+        sols = sp.solve(f - R(v.replace("−", "-")), X)
+        need(len(sols) == 1 and sols[0].q == 1 and sols[0] != 0, f"x = {sols}")
+        want = f"x = {frac_text(sols[0])}"
+    else:
+        text, x0 = sb_read(q)
+        f = bf_expr(text)
+        val = f.subs(X, x0)
+        need(val.is_Rational, f"the value {val} is not exact")
+        need(val.q <= SB_MAX_D, f"the value {val} is not simple")
+        if u == "fraction-input":
+            need(x0 in SB_FRACTIONS, f"the input {x0} is not a simple fraction")
+        else:
+            need(x0.q == 1 and -5 <= x0 <= 5 and x0 != 0, f"the input {x0}")
+        want = frac_text(val)
+        if u in ("negative-into-square", "negative-into-linear"):
+            need(x0 < 0, "the input is not negative")
+        if u == "negative-into-square":
+            a, b, c = [sp.Poly(f, X).coeff_monomial(X**i) for i in (2, 1, 0)]
+            need(a != 0, "no x²")
+            wr = {SB_R[0]: {frac_text(-a * x0**2 + b * x0 + c)}}
+        elif u == "negative-into-linear":
+            wr = {SB_R[2]: {frac_text(f.subs(X, -x0))}}
+        elif u == "coefficient-and-power":
+            a = sp.Poly(f, X).coeff_monomial(X**2)
+            need(f == a * X**2, "not ax²")
+            wr = {SB_R[1]: {frac_text((a * x0)**2)}, SB_R[0]: {frac_text(-val)}}
+        elif u == "rational-expression":
+            top, bottom = sb_parts(text)
+            ft, fb = bf_expr(top).subs(X, x0), bf_expr(bottom).subs(X, x0)
+            lt, lb = sb_ltr(top, x0), sb_ltr(bottom, x0)
+            need((lt is None) != (lb is None), "exactly one part should depend on the order")
+            wr = {SB_R[3]: {frac_text(lt / fb if lt is not None else ft / lb)}}
+    gc_check_common(q, want, wr)
+    for o in q["choices"]:
+        need(o["correct"] or R(o["text"].replace("x = ", "").replace("−", "-")) != R(want.replace("x = ", "").replace("−", "-")), "a wrong option equals the answer")
+    return None, None
+
+
+def sb_spot(q, lines):
+    """The first false line of a student's working on a fraction."""
+    text, x0 = sb_read(q)
+    top, bottom = sb_parts(text)
+    ft, fb = bf_expr(top).subs(X, x0), bf_expr(bottom).subs(X, x0)
+    got = {"Top": ft, "Bottom": fb}
+    for i, line in enumerate(lines):
+        if line.startswith("Put x = "):
+            m = re.fullmatch(r"Put x = (\S+) in: top (.+), bottom (.+)", line)
+            need(m is not None, f"can't read {line!r}")
+            if R(m.group(1).replace("−", "-")) != x0 or parse(m.group(2)) != ft or parse(m.group(3)) != fb:
+                return i
+        elif line.startswith("So the value is "):
+            if R(line[16:].replace("−", "-")) != ft / fb:
+                return i
+        else:
+            head = line.split(":")[0]
+            need(head in got, f"can't read {line!r}")
+            if R(line.rsplit(" = ", 1)[1].replace("−", "-")) != got[head]:
+                return i
+    return None
+
+
+SPOT_CHECKS["fn-pre-substitute"] = sb_spot
+
+
+# ── Transformations: the two link types (FAL-424) ────────────
+# fn-link-transformations and fn-link-vectors. Nothing is taken from the situation: each
+# parent, vector, data set, normal model, area, wave and point is read back from what the
+# student sees, then the move is applied here with SymPy, and every option is read back
+# and tested on the mathematics (a wave's option is right if it is the same curve, one
+# period along or not).
+
+LT_NUM = r"−?\d+(?:\.\d+)?(?:/\d+)?"
+
+
+def lt_d(v):
+    return dec_text(v).replace("-", "−")
+
+
+def lt_vec(text):
+    m = re.search(rf"\(({LT_NUM}), ({LT_NUM})\)", text)
+    need(m is not None, f"no vector in {text!r}")
+    return tc_num(m[1]), tc_num(m[2])
+
+
+def lt_moved_by(text):
+    """(a, b) from "by the vector (a, b)" or "moved 3 to the left and 2 up"."""
+    m = re.search(rf"(\d+) to the (left|right) and (up|down) (\d+)", text)
+    if m:
+        return R(m[1]) * (1 if m[2] == "right" else -1), R(m[4]) * (1 if m[3] == "up" else -1)
+    return lt_vec(re.search(r"vector (.+)", text)[1])
+
+
+def lt_pts(text):
+    return [(tc_num(a), tc_num(b)) for a, b in re.findall(rf"\(({LT_NUM}), ({LT_NUM})\)", text)]
+
+
+def lt_move(e, a, b):
+    return e.subs(X, X - a) + b
+
+
+def lt_sand(q, first, second):
+    """Both curves of a two-colour graph, the first in teal and the second in sand."""
+    gr = q["graph"]
+    need(gr is not None, "no graph")
+    k = gr["sand_from"]
+    need(0 < k < len(gr["curves"]), "the graph doesn't show two curves")
+    tc_curves_are(gr, gr["curves"][:k], first)
+    tc_curves_are(gr, gr["curves"][k:], second)
+
+
+def lt_feature(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        m = re.fullmatch(r"The graphs of y = (.+) and its image are shown\. The image is the graph translated by the (vector .+)\.", L[0])
+        par, (a, b) = tm_expr(m[1]), lt_moved_by(m[2])
+    elif rep == "words":
+        m = re.fullmatch(r"The graph of y = (.+) is moved (.+)\.", L[0])
+        par, (a, b) = tm_expr(m[1]), lt_moved_by(m[2])
+    else:
+        par, (a, b) = tm_expr(rhs(L[0])), lt_moved_by(L[1])
+    need(a != 0 and b != 0, "a vector with a zero part")
+    g = lt_move(par, a, b)
+    if rep == "graph":
+        lt_sand(q, par, g)
+    d = lt_d
+    pair = lambda x, y: f"({d(x)}, {d(y)})"
+    if par == X**2:
+        x0 = sp.solve(sp.diff(g, X), X)[0]
+        want = pair(x0, g.subs(X, x0))
+        wr = {"SL2.11.translate#0": {pair(-a, b)}, "SL2.11.translate#1": {pair(a - b, 0)}}
+    elif par == 1 / X:
+        x0 = sp.solve(sp.denom(sp.together(g)), X)[0]
+        y0 = sp.limit(g, X, sp.oo)
+        named = lambda u, v: f"x = {d(u)}, y = {d(v)}"
+        want = named(x0, y0)
+        wr = {"SL2.11.translate#0": {named(-a, b)}, "SL2.11.translate#1": {named(a - b, 0)}, "SL2.11.translate#2": {named(a, 0)}}
+    elif par == sp.exp(X):
+        want = f"y = {d(sp.limit(g, X, -sp.oo))}"
+        wr = {"SL2.11.translate#2": {"y = 0"}}
+    else:
+        need(par == sp.sin(X), f"parent {par}")
+        need("(π/2, 1)" in q["asked"] and sp.diff(par, X).subs(X, sp.pi / 2) == 0 and par.subs(X, sp.pi / 2) == 1, "(π/2, 1) is not the maximum")
+        x0 = sp.pi / 2 + a
+        need(sp.simplify(sp.diff(g, X).subs(X, x0)) == 0 and sp.diff(g, X, 2).subs(X, x0).evalf() < 0, "the image is not a maximum")
+        tail = lambda v: "π/2" + ("" if v == 0 else f" {'+' if v > 0 else '−'} {d(abs(v))}")
+        pip = lambda v, y: f"({tail(v)}, {d(y)})"
+        want = pip(a, 1 + b)
+        wr = {"SL3.7.transformations#2": {pip(-a, 1 + b)}, "SL2.11.translate#1": {pip(a - b, 1)}}
+    gc_check_common(q, want, wr)
+
+
+def lt_gap(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        m = re.search(r"antiderivatives of f\(x\) = (.+)\.$", L[0])
+        f = parse(m[1])
+        pts = q["graph"]["points"]
+        need(len(pts) == 2 and all(p["x"] == 0 for p in pts), "the graph doesn't mark two y-intercepts")
+        c1, c2 = sp.nsimplify(pts[0]["y"]), sp.nsimplify(pts[1]["y"])
+        F = sp.integrate(f, X)
+        G, H = F + c1, F + c2
+        lt_sand(q, G, H)
+        for p, c in zip(pts, (c1, c2)):
+            need(p["label"] == f"(0, {lt_d(c)})", "a label is not its point")
+    else:
+        G, H, f = parse(rhs(L[0])), parse(rhs(L[1])), parse(L[2][L[2].index("f(x) = ") + 7:-1])
+        need(sp.expand(sp.diff(G, X) - f) == 0 and sp.expand(sp.diff(H, X) - f) == 0, "G and H are not antiderivatives of f")
+        c1, c2 = G.subs(X, 0), H.subs(X, 0)
+    gap = sp.expand(H - G)
+    need(gap.is_number and gap != 0, "the two curves are not a vertical move apart")
+    gc_check_common(q, f"(0, {lt_d(gap)})", {"SL5.5.boundary-condition#1": {f"(0, {lt_d(c2)})"}})
+
+
+def lt_through(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        fd = parse(rhs(L[1]))
+        m = re.search(r"y = F\(x\) = (.+) is shown", L[0])
+        F = parse(m[1])
+        need(sp.expand(sp.diff(F, X) - fd) == 0, "F is not the antiderivative")
+        tc_curves_are(q["graph"], q["graph"]["curves"], F)
+        px, py = lt_pts(L[0])[0]
+    elif rep == "words":
+        fd = parse(re.search(r"at any point is (.+)\.$", L[0])[1])
+        px, py = lt_pts(L[1])[0]
+    else:
+        fd = parse(rhs(L[0]))
+        px, py = lt_pts(L[1])[0]
+    F = sp.integrate(fd, X)
+    need(F.subs(X, 0) == 0, "F has a constant term")
+    c = py - F.subs(X, px)
+    need(c != 0, "C is 0")
+    t = lambda v: f"C = {lt_d(v)}"
+    gc_check_common(q, t(c), {"SL5.5.boundary-condition#1": {t(0)}, "SL5.5.boundary-condition#0": {t(py - fd.subs(X, px))}})
+
+
+def lt_stats_line(text, names):
+    out = []
+    for n in names:
+        m = re.search(rf"{n} ({LT_NUM})", text)
+        need(m is not None, f"no {n} in {text!r}")
+        out.append(tc_num(m[1]))
+    return out
+
+
+def lt_data_stats(xs):
+    """Mean, median, population SD and IQR, with the median left out of odd halves."""
+    n = len(xs)
+    xs = sorted(xs)
+    med = lambda v: v[len(v) // 2] if len(v) % 2 else (v[len(v) // 2 - 1] + v[len(v) // 2]) / 2
+    mean = sum(xs) / n
+    sd = sp.sqrt(sum((x - mean)**2 for x in xs) / n)
+    return mean, med(xs), sd, med(xs[n - n // 2:]) - med(xs[:n // 2])
+
+
+LT_STATS = ("mean", "median", "standard deviation", "IQR")
+
+
+def lt_table_stats(q, names):
+    rows = q["table"]["rows"]
+    need(rows[0] == ["Statistic", list(names)], "the table's head")
+    return [[tc_num(v) for v in r[1]] for r in rows[1:]]
+
+
+def lt_hist(curve):
+    """The whole values and frequencies of a histogram's outline, read off its bars."""
+    out = []
+    need(curve[0][1] == 0 and curve[-1][1] == 0, "the outline doesn't start and end on the axis")
+    for (x0, y0), (x1, y1) in zip(curve[1:-1], curve[2:-1]):
+        if x1 > x0 and y0 == y1:
+            v = sp.nsimplify((x0 + x1) / 2)
+            need(x1 - x0 == 1 and v.is_integer and float(y0).is_integer(), "a bar is not a whole value of width 1")
+            out += [v] * int(y0)
+    return out
+
+
+def lt_shifted(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "table":
+        before = lt_table_stats(q, LT_STATS)[0]
+        k = tc_num(re.fullmatch(rf"Every value is increased by ({LT_NUM})\.", L[1])[1])
+    elif rep == "graph":
+        k = tc_num(re.search(rf"increased by ({LT_NUM})\.", L[0])[1])
+        before = lt_stats_line(L[1], LT_STATS)
+        c = q["graph"]["curves"]
+        need(len(c) == 2, "two histograms")
+        xs, ys = lt_hist(c[0]), lt_hist(c[1])
+        need(sorted(x + k for x in xs) == sorted(ys), "the second histogram is not the first moved by k")
+        need(list(lt_data_stats(xs)) == before, "the statistics are not the histogram's")
+    else:
+        before = lt_stats_line(L[0], LT_STATS)
+        k = tc_num(re.fullmatch(rf"Every value is increased by ({LT_NUM})\.", L[1])[1])
+    need(k != 0, "k is 0")
+    xs = [R(v) for v in q["given"]["xs"]]
+    need(5 <= len(xs) <= 8 and list(lt_data_stats(xs)) == before, "the statistics are not the data's")
+    moved = [x + k for x in xs]
+    say = lambda v: ", ".join(f"{n} = {lt_d(x)}" for n, x in zip(LT_STATS, v))
+    mean, med, sd, iqr = lt_data_stats(moved)
+    gc_check_common(q, say((mean, med, sd, iqr)), {"SL4.3.constant-changes#0": {say((mean, med, sd + k, iqr))}, "SL4.3.constant-changes#2": {say((mean, med, sd, iqr + k))}})
+
+
+def lt_stretched(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    how = L[-1]
+    m = re.fullmatch(rf"Every value is multiplied by ({LT_NUM}), then increased by ({LT_NUM})\.", how)
+    f, k = tc_num(m[1]), tc_num(m[2])
+    if rep == "table":
+        mean, sd = lt_table_stats(q, ("mean", "standard deviation"))[0]
+    else:
+        mean, sd = lt_stats_line(L[0], ("mean", "standard deviation"))
+    # A two-value data set with this mean and SD, worked directly.
+    a, b = (mean - sd) * f + k, (mean + sd) * f + k
+    nm, ns = (a + b) / 2, abs(b - a) / 2
+    say = lambda u, v, w: f"mean = {lt_d(u)}, standard deviation = {lt_d(v)}, variance = {lt_d(w)}"
+    gc_check_common(q, say(nm, ns, ns**2), {"SL4.3.constant-changes#1": {say(nm, ns, sd**2 * f)}, "SL4.3.constant-changes#0": {say(nm, ns + k, ns**2)}})
+
+
+def lt_change(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "table":
+        (m1, s1), (m2, s2) = lt_table_stats(q, ("mean", "standard deviation"))
+    else:
+        m1, s1 = tc_num(re.search(rf"mean ({LT_NUM})", L[0])[1]), tc_num(re.search(rf"deviation ({LT_NUM})", L[0])[1])
+        m2, s2 = tc_num(re.search(rf"mean is ({LT_NUM})", L[1])[1]), tc_num(re.search(rf"deviation is ({LT_NUM})", L[1])[1])
+
+    def rd(t):
+        m = re.fullmatch(rf"every value was (increased by|decreased by|multiplied by) ({LT_NUM})", t)
+        need(m is not None, f"can't read {t!r}")
+        v = tc_num(m[2])
+        return {"increased by": (m1 + v, s1), "decreased by": (m1 - v, s1), "multiplied by": (m1 * v, s1 * v)}[m[1]]
+    tc_opts(q, rd, lambda v: v == (m2, s2), {})
+
+
+def lt_standardise_moves(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.search(r"X ~ N\((\d+), (\d+)\)", L[0])
+    mu, var = R(m[1]), R(m[2])
+    sg = sp.sqrt(var)
+    need(sg.is_rational and sg > 0, "the variance is not a square")
+    t = L[-1] if rep == "graph" else L[0]
+    need(f"the mean is {mu} and the standard deviation is {sg}" in t.lower().replace("so ", ""), f"{t!r} doesn't give μ and σ")
+    keep = "each x goes to its own z, so the area between two values is the same"
+    want = f"a translation by the vector ({lt_d(-mu)}, 0), then a horizontal stretch with scale factor 1/{sg}; {keep}"
+    vague = f"a translation by the vector ({lt_d(-mu)}, 0), then a stretch; {keep}"
+    factor = f"a translation by the vector ({lt_d(-mu)}, 0), then a horizontal stretch with scale factor {sg}; {keep}"
+
+    def rd(text):
+        moves, why = text.split("; ")
+        if moves.endswith("a stretch"):
+            return None
+        A, B, C, D = tc_compose(tc_moves(moves))
+        # z = B⁻¹-free: the map sends x to x/B + C, which must be (x − μ)/σ at every x.
+        z = sp.Symbol("z")
+        return (sp.expand(z / B + C - (z - mu) / sg) == 0 and A == 1 and D == 0, why == keep)
+    tc_opts(q, rd, lambda v: v == (True, True), {"SL2.11.stretch#0": lambda v: v == (False, True), "SL2.11.stretch#2": lambda v: v is None})
+    need(any(o["text"] == want for o in q["choices"]), "no option says the moves")
+    for o in q["choices"]:
+        if o["ref"] == "SL2.11.stretch#0":
+            need(o["text"] == factor, f"{o['text']!r} is not a stretch by σ")
+        if o["ref"] == "SL2.11.stretch#2":
+            need(o["text"] == vague, f"{o['text']!r} is not a stretch with nothing said")
+    if rep == "graph":
+        Xpdf = lambda u, s: sp.exp(-((X - u) / s)**2 / 2) / (s * sp.sqrt(2 * sp.pi))
+        lt_sand(q, Xpdf(mu, sg), Xpdf(0, 1))
+
+
+def lt_standardise_bounds(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    need(q["paper"] == 2, "the GDC's probability is Paper 2")
+    if rep == "words":
+        m = re.search(r"mean (\d+) and standard deviation (\d+)", L[0])
+        mu, sg = R(m[1]), R(m[2])
+        m = re.search(r"that X is (less|more) than (\d+)\.", L[1])
+        rel, x = "<" if m[1] == "less" else ">", R(m[2])
+    else:
+        m = re.fullmatch(r"X ~ N\((\d+), (\d+)\)", L[0])
+        mu, sg = R(m[1]), sp.sqrt(R(m[2]))
+        m = re.fullmatch(r"P\(X ([<>]) (\d+)\)", L[1])
+        rel, x = m[1], R(m[2])
+    z = (x - mu) / sg
+    need((z * 100).q == 1, f"z = {z} doesn't end in 2 d.p.")
+    p = lambda r, v: f"P(Z {r} {lt_d(v)})"
+    gc_check_common(q, p(rel, z), {"SL4.12.standardise#1": {p(rel, (x - mu) / sg**2)}, "SL4.12.standardise#0": {p(">" if rel == "<" else "<", z)}})
+    ph = nu_phi(z) if rel == "<" else 1 - nu_phi(z)
+    gdc = next(s for s in q["solutions"] if s["angle"] == "gdc-both")
+    for st in gdc["steps"][1:3]:
+        need(gc_s(ph) in st, f"the GDC's value in {st!r} is not {gc_s(ph)}")
+
+
+def lt_int(text):
+    m = re.fullmatch(rf"∫ from ({LT_NUM}) to ({LT_NUM}) of (.+) dx", text)
+    need(m is not None, f"can't read the integral {text!r}")
+    return tc_num(m[1]), tc_num(m[2]), m[3]
+
+
+def lt_translated(q):
+    L, rep, asked = q["lines"], q["view"]["rep"], q["asked"]
+    if rep == "words":
+        m = re.fullmatch(rf"The area under y = (.+) from x = ({LT_NUM}) to x = ({LT_NUM}) is ({LT_NUM})\.", L[0])
+        f, p, r, area = tm_expr(m[1]), tc_num(m[2]), tc_num(m[3]), tc_num(m[4])
+        need(sp.integrate(f, (X, p, r)) == area, "the given area is wrong")
+        m = re.fullmatch(rf"Find the area under the moved curve y = (.+), from x = ({LT_NUM}) to x = ({LT_NUM})\.", asked)
+        g, lo, hi = tm_expr(m[1]), tc_num(m[2]), tc_num(m[3])
+        mv = re.fullmatch(r"The curve and the two limits are all moved (\d+) to the (left|right)\.", L[1])
+        a = R(mv[1]) * (1 if mv[2] == "right" else -1)
+    else:
+        given = L[0] if rep == "equation" else L[1]
+        left, right = given.rsplit(" = ", 1)
+        p, r, body = lt_int(left)
+        f, area = tm_expr(body), tc_num(right)
+        need(sp.integrate(f, (X, p, r)) == area, "the given area is wrong")
+        m = re.fullmatch(r"Find (.+), without integrating\.", asked)
+        lo, hi, body = lt_int(m[1])
+        g = tm_expr(body)
+        a = lo - p
+    need(a != 0 and lo == p + a and hi == r + a and sp.expand(g - f.subs(X, X - a)) == 0, "the limits and the curve aren't one move")
+    if rep == "graph":
+        gr = q["graph"]
+        lt_sand(q, f, g)
+        need(sorted(v["at"] for v in gr["vlines"]) == sorted(float(v) for v in (p, r, lo, hi)), "the limits drawn")
+    gc_check_common(q, f"Area = {lt_d(sp.integrate(g, (X, lo, hi)))}", {})
+
+
+def lt_raised(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    given = L[0] if rep == "equation" else L[1]
+    left, right = given.rsplit(" = ", 1)
+    p, r, body = lt_int(left)
+    need(body == "f(x)", "the given integral")
+    area = tc_num(right)
+    names = q["answer"]["fixed"]["names"]
+    lo1, hi1, b1 = lt_int(names[0])
+    lo2, hi2, b2 = lt_int(names[1])
+    need((lo1, hi1, lo2, hi2) == (p, r, p, r), "other limits")
+    m = re.fullmatch(rf"\(f\(x\) ([+−]) (\d+)\)", b1)
+    b = R(m[2]) * (1 if m[1] == "+" else -1)
+    m = re.fullmatch(r"(½|\d+)f\(x\)", b2)
+    f = sp.Rational(1, 2) if m[1] == "½" else R(m[1])
+    if rep == "graph":
+        gr = q["graph"]
+        c = gr["curves"][0]
+        trap = sum((c[i + 1][0] - c[i][0]) * (c[i + 1][1] + c[i][1]) / 2 for i in range(len(c) - 1))
+        need(c[0][0] == float(p) and c[-1][0] == float(r) and abs(trap - float(area)) < 1e-2 * max(1, float(area)), f"the curve drawn has area {trap}")
+    say = lambda u, v: f"{names[0]} = {lt_d(u)}, {names[1]} = {lt_d(v)}"
+    gc_check_common(q, say(area + b * (r - p), f * area), {"SL5.11.integral-properties#0": {say(area + b, f * area)}})
+
+
+LT_CHECKS = {"moved-feature": lt_feature, "antiderivative-gap": lt_gap, "curve-through-point": lt_through, "shifted-data": lt_shifted,
+             "stretched-data": lt_stretched, "change-from-statistics": lt_change, "standardise-moves": lt_standardise_moves,
+             "standardise-bounds": lt_standardise_bounds, "translated-area": lt_translated, "raised-area": lt_raised}
+
+
+def check_link_transformations(q):
+    u = q["view"]["unknown"]
+    le_no_hyphen(q)
+    if u != "standardise-bounds" and not (u == "standardise-moves" and q.get("view", {}).get("shared")):
+        need(q["paper"] == 1, f"{u} is Paper 1")
+    need(u in LT_CHECKS, f"no check for {u}")
+    LT_CHECKS[u](q)
+    return None, None
+
+
+def lv_read_parent(text):
+    return tm_expr(text)
+
+
+def lv_point_on(par, x, y):
+    need(par.subs(X, x) == y, f"({x}, {y}) is not on {par}")
+
+
+def lv_eq_vector(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(r"The graph of y = (.+) is moved (.+)\.", L[0]) if rep == "words" else None
+    par, (a, b) = (tm_expr(m[1]), lt_moved_by(m[2])) if m else (tm_expr(rhs(L[0])), lt_moved_by(L[1]))
+    g = lt_move(par, a, b)
+    tc_opts(q, lambda t: tm_expr(rhs(t)), lambda e: tc_same(e, g),
+            {"SL2.11.translate#0": lambda e: tc_same(e, lt_move(par, -a, b)), "SL2.11.translate#1": lambda e: tc_same(e, par.subs(X, X - a + b))})
+
+
+def lv_image_undo(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(rf"(?:The graph of y = (.+) is shown, with the point P|The point P)\(({LT_NUM}), ({LT_NUM})\)(?: is on y = (.+))?\.", L[0])
+    par = tm_expr(m[1] or m[4])
+    x, y = tc_num(m[2]), tc_num(m[3])
+    lv_point_on(par, x, y)
+    a, b = lt_moved_by(L[1])
+    if rep == "graph":
+        tc_curves_are(q["graph"], q["graph"]["curves"], par)
+    want = ((x + a, y + b), (-a, -b))
+
+    def rd(t):
+        p = lt_pts(t)
+        need(len(p) == 2, f"can't read {t!r}")
+        return tuple(p)
+    tc_opts(q, rd, lambda v: v == want, {})
+
+
+def lv_image_eq(q):
+    L = q["lines"]
+    x, y = lt_pts(L[0])[0]
+    m = re.fullmatch(rf"The new graph is y = f\(x ([+−]) (\d+)\)(?: ([+−]) (\d+))?\.", L[1])
+    a = R(m[2]) * (1 if m[1] == "−" else -1)
+    b = R(m[4]) * (1 if m[3] == "+" else -1)
+    pair = lambda u, v: f"({lt_d(u)}, {lt_d(v)})"
+    gc_check_common(q, pair(x + a, y + b), {"SL2.11.image-point#0": {pair(x - a, y + b)}})
+
+
+def lv_from_images(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.search(r"y = (.+?) (?:goes to|and its image)", L[0])
+    par = tm_expr(m[1])
+    (x, y), (ix, iy) = lt_pts(L[0])[:2]
+    lv_point_on(par, x, y)
+    a, b = ix - x, iy - y
+    g = lt_move(par, a, b)
+    if rep == "graph":
+        lt_sand(q, par, g)
+
+    def rd(t):
+        m = re.fullmatch(r"the vector is (\(.+\)), so y = (.+)", t)
+        return lt_vec(m[1]), tm_expr(m[2])
+    tc_opts(q, rd, lambda v: v[0] == (a, b) and tc_same(v[1], g), {})
+
+
+def lv_from_vertex(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    plain = parse(re.search(r"carries y = (.+) onto", q["asked"])[1])
+    if rep == "graph":
+        m = re.fullmatch(r"The graphs of y = (.+) and y = (.+) are shown, with the new vertex marked\.", L[0])
+        need(parse(m[1]) == plain, "the plain parabola")
+        e = parse(m[2])
+        lt_sand(q, plain, e)
+    else:
+        e = parse(rhs(L[0]))
+    h = sp.solve(sp.diff(e, X), X)[0]
+    c = e.subs(X, h)
+    need(sp.expand(lt_move(plain, h, c) - e) == 0, "it isn't the plain parabola moved")
+    pair = lambda u, v: f"({lt_d(u)}, {lt_d(v)})"
+    gc_check_common(q, pair(h, c), {"SL2.6.vertex#0": {pair(-h, c)}})
+
+
+def lv_vertex_form(q):
+    m = re.fullmatch(r"The graph of y = (.+) is moved by the vector (\(.+\))\.", q["lines"][0])
+    plain = parse(m[1])
+    h, c = lt_vec(m[2])
+    g = lt_move(plain, h, c)
+
+    def rd(t):
+        m = re.fullmatch(r"y = (.+), with vertex (\(.+\))", t)
+        return parse(m[1]), lt_vec(m[2])
+    tc_opts(q, rd, lambda v: sp.expand(v[0] - g) == 0 and v[1] == (h, c),
+            {"SL2.11.translate#0": lambda v: sp.expand(v[0] - lt_move(plain, -h, c)) == 0, "SL2.6.vertex#0": lambda v: sp.expand(v[0] - g) == 0 and v[1] == (-h, c)})
+
+
+def lv_direction(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "words":
+        m = tc_num(re.search(rf"gradient ({LT_NUM})\.", L[0])[1])
+    else:
+        t = re.search(r"y = (.+?)(?:\.| is shown|$)", L[0])[1].replace("The line ", "")
+        e = tm_expr(t)
+        m = sp.diff(e, X)
+        if rep == "graph":
+            tc_curves_are(q["graph"], q["graph"]["curves"], e)
+            p = q["graph"]["points"]
+            need(len(p) == 2 and all(e.subs(X, sp.nsimplify(u["x"])) == sp.nsimplify(u["y"]) for u in p), "the marked points are not on the line")
+    tc_opts(q, lt_vec, lambda v: v[0] != 0 and v[1] / v[0] == m, {"SL2.1.gradient#0": lambda v: v[0] != 0 and v[1] / v[0] == 1 / m})
+
+
+def lv_gradient(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    t = L[0]
+    pts = lt_pts(t)
+    if "direction vector" in t:
+        (x0, y0), (u, v) = pts
+        m = v / u
+    else:
+        (x0, y0), (x1, y1) = pts
+        m = (y1 - y0) / (x1 - x0)
+    line = m * (X - x0) + y0
+    if rep == "graph":
+        tc_curves_are(q["graph"], q["graph"]["curves"], line)
+
+    def rd(text):
+        k = re.fullmatch(rf"gradient ({LT_NUM}), and y = (.+)", text)
+        return tc_num(k[1]), tm_expr(k[2])
+    tc_opts(q, rd, lambda o: o[0] == m and tc_same(o[1], line), {"SL2.1.gradient#1": lambda o: o[0] == -m})
+
+
+def lv_pi(t):
+    m = re.fullmatch(r"(−?)(\d*)π(?:/(\d+))?", t)
+    need(m is not None, f"can't read {t!r}")
+    v = sp.Rational(int(m[2] or 1), int(m[3] or 1))
+    return -v if m[1] else v
+
+
+def lv_wave(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    t = L[0] if rep == "equation" else re.search(r"and (y = .+) are shown", L[0])[1]
+    m = re.fullmatch(r"y = (\d+) sin\((\d+)x ([+−]) ([^)]+)\)(?: ([+−]) (\d+))?", t)
+    A, B = R(m[1]), R(m[2])
+    E = lv_pi(m[4]) * (1 if m[3] == "+" else -1)
+    D = R(m[6]) * (1 if m[5] == "+" else -1)
+    b = re.search(r"The graph of y = (\d+) sin\((\d+)x\) is mapped", q["asked"])
+    need((R(b[1]), R(b[2])) == (A, B), "the base wave is not this wave's")
+    f = A * sp.sin(B * X + E * sp.pi) + D
+    base = A * sp.sin(B * X)
+    if rep == "graph":
+        lt_sand(q, base, f)
+
+    def rd(text):
+        k = re.fullmatch(rf"\(([^,]+), ({LT_NUM})\)", text)
+        return lv_pi(k[1]), tc_num(k[2])
+
+    def same(v):
+        moved = lt_move(base, v[0] * sp.pi, v[1])
+        return all(abs(sp.N((moved - f).subs(X, sp.Rational(n, 7)))) < 1e-9 for n in (1, 5, 9, 13, 22))
+    tc_opts(q, rd, same, {"SL3.7.transformations#0": lambda v: v == (-E, D), "SL3.7.transformations#2": lambda v: v == (E / B, D)})
+    need(rd(q["answer_text"]) == (-E / B, D), "the answer is not −E/B")
+
+
+def lv_p3(text):
+    m = re.fullmatch(rf"([A-Z]?)\(({LT_NUM}), ({LT_NUM}), ({LT_NUM})\)", text)
+    need(m is not None, f"can't read {text!r}")
+    return tuple(tc_num(m[i]) for i in (2, 3, 4))
+
+
+def lv_step(q):
+    L = q["lines"]
+    m = re.fullmatch(r"A(\(.+\)) and B(\(.+\)) are points in 3D\.", L[0])
+    A, B = lv_p3(m[1]), lv_p3(m[2])
+    st = tuple(v - u for u, v in zip(A, B))
+    mid = tuple((u + v) / 2 for u, v in zip(A, B))
+    d = sp.sqrt(sum(v**2 for v in st))
+    need(d.is_integer and all(v % 2 == 0 for v in st), f"step {st} has odd parts or a surd length")
+    t3 = lambda v: "(" + ", ".join(lt_d(x) for x in v) + ")"
+    root = lambda n: lt_d(sp.sqrt(n)) if sp.sqrt(n).is_rational else f"√{n}"
+    say = lambda s, c, w: f"step {t3(s)}, midpoint {t3(c)}, distance {w}"
+    bad = set()
+    for i in range(3):
+        if A[i] < 0 < B[i]:
+            w = list(st)
+            w[i] = B[i] + A[i]
+            bad.add(say(w, [u + v / 2 for u, v in zip(A, w)], root(sum(v**2 for v in w))))
+    need(bad, "no coordinate where a negative can be mishandled")
+    gc_check_common(q, say(st, mid, lt_d(d)), {"SL3.1.distance-3d#0": {say(st, mid, lt_d(abs(sum(st))))}, "SL3.1.distance-3d#1": bad})
+
+
+def lv_endpoint(q):
+    L = q["lines"]
+    m = re.fullmatch(r"A(\(.+\)) and M(\(.+\)) are points in 3D\.", L[0])
+    A, M = lv_p3(m[1]), lv_p3(m[2])
+    B = tuple(2 * w - u for u, w in zip(A, M))
+    say = lambda v: f"x = {lt_d(v[0])}, y = {lt_d(v[1])}, z = {lt_d(v[2])}"
+    gc_check_common(q, say(B), {"SL3.1.midpoint-3d#1": {say([(u + w) / 2 for u, w in zip(A, M)])}, "SL3.1.midpoint-3d#2": {say([w / 2 for w in M])}})
+
+
+def lv_time(t):
+    return tm_expr(t.replace("t", "x"))
+
+
+def lv_delay(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "graph":
+        m = re.fullmatch(r"The graphs show A's displacement s_A\(t\) = (.+), and B's, which is A's moved by the vector \((\d+), 0\)\.", L[0])
+    else:
+        m = re.fullmatch(r"s_A\(t\) = (.+), in metres, for t seconds after the start\.", L[0])
+        m = (None, m[1], re.search(r"\((\d+), 0\)", L[1])[1])
+    sa, d = lv_time(m[1]), R(m[2])
+    need(d > 0, "no delay")
+    sb = sa.subs(X, X - d)
+    if rep == "graph":
+        lt_sand(q, sa, sb)
+
+    def rd(text):
+        k = re.fullmatch(r"s_B\(t\) = (.+): B reaches each position (\d+) seconds? (after|before) A", text)
+        return lv_time(k[1]), R(k[2]), k[3]
+    tc_opts(q, rd, lambda v: tc_same(v[0], sb) and v[1] == d and v[2] == "after", {})
+
+
+LV_CHECKS = {"equation-from-vector": lv_eq_vector, "image-and-undo": lv_image_undo, "image-from-equation": lv_image_eq, "vector-from-images": lv_from_images,
+             "vector-from-vertex-form": lv_from_vertex, "vertex-form-from-vector": lv_vertex_form, "direction-from-gradient": lv_direction,
+             "gradient-from-vector": lv_gradient, "wave-shift-vector": lv_wave, "step-in-3d": lv_step, "endpoint-from-midpoint": lv_endpoint, "time-delay": lv_delay}
+
+
+def check_link_vectors(q):
+    u = q["view"]["unknown"]
+    le_no_hyphen(q)
+    need(q["paper"] == 1, "fn-link-vectors is Paper 1")
+    need(u in LV_CHECKS, f"no check for {u}")
+    LV_CHECKS[u](q)
     return None, None
 
 
@@ -14643,6 +18381,12 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
+                    "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation, "fn-pre-substitute": check_substitute,
+                    "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model,
+                    "fn-pre-linear-equations": check_linear_equation, "fn-pre-simultaneous": check_simultaneous,
+                    "fn-link-rate-of-change": check_link_rate,
+                    "transform-chain": check_transform, "fn-link-transformations": check_link_transformations,
+                    "fn-link-vectors": check_link_vectors,
                     "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
                     "arc-sector": check_arc_sector, "bearings-elevation": check_bearings,
                     "solid": check_solid, "standard-form": check_standard_form}

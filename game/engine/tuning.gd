@@ -191,6 +191,22 @@ const CHAINS := {
 	# the composite as one expression, then its value at an input. (The parameter, solve and
 	# reversed unknowns each need their own numbers, so they stay single questions.)
 	"fn-composite": ["expression", "value-inside-out"],
+	# the start value, a value later on, then the input that reaches a target
+	"fn-evaluate-function": ["value-at-zero", "value-at-input", "time-for-target"],
+	# the range from the vertex, then a change that uses it. (The other parts of the chain
+	# each need their own function, so they stay single questions.)
+	"fn-domain-range": ["range-quadratic", "restrict-for-inverse"],
+	# the sketch by swapping key points, then a point of f⁻¹ by the same symmetry
+	"fn-inverse-reflection": ["sketch-inverse", "image-point"],
+	# the gradient of the segment, the perpendicular gradient, the new line through a point,
+	# then a coordinate on it and the area it makes with the axes. (The chain's midpoint part
+	# needs a whole midpoint and a line through it, so it stays a single question.)
+	"fn-line-from-conditions": ["gradient-from-two-points", "perpendicular-gradient", "perpendicular-through-point",
+		"unknown-coordinate", "triangle-area"],
+	# name the moves hidden in f(bx − e), then the moves that undo them, in order
+	"fn-transform-describe": ["describe-factor-inside", "describe-the-reverse"],
+	# a point through the moves, the new rule, its domain and range
+	"fn-transform-apply": ["image-point", "rule-from-moves", "domain-range-of-g"],
 }
 
 

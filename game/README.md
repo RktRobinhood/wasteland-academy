@@ -556,6 +556,40 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   `split-to-form` and on `clear-and-solve` (the catalogue's one error-spot slip of each),
   true-false-reason on every unknown of the gallery and the model. Not built: method-pick, order-steps
   and match (see the formats above).
+- **The Function basics region** (FAL-424): `basic_function.gd` is one rule (a polynomial, a root,
+  an exponential, a rational or a model such as a falling ball, a cost, a population or a cooling
+  drink) and its inputs and outputs. `fn-evaluate-function` and `fn-concept-function-notation` are
+  on it, and two situations extend its rules: `basic_restricted.gd` (`fn-domain-range`: a rule with
+  a stated domain, a reflection, a second function or an inverse, so the range has to be worked out)
+  and `basic_one_to_one.gd` (`fn-inverse-reflection`: a one-to-one curve with key points on grid
+  points, so the inverse comes from swapping coordinates). `basic_relation.gd` (`fn-ext-is-function`)
+  is a relation that may or may not be a function, as a graph, a mapping or an equation, and
+  `substitute.gd` is the level-0 `fn-pre-substitute`. The graph's `filled` and `open` points mark
+  whether a domain's end is included. Paper 2 rules need a calculator; the extension types are Paper 1.
+  Boss chains: `fn-evaluate-function`, `fn-domain-range` and `fn-inverse-reflection`.
+- **The Lines region** (FAL-424): `line_conditions.gd` is a segment and a line built from it: the
+  two points come first, then the gradient, the midpoint and a new line through a chosen point, so
+  any of them can be hidden. `fn-line-from-conditions` and `fn-concept-gradient-meaning` are on it. The
+  answer kind `gline` is ax + by + d = 0, right at any whole-number multiple with a > 0, and a `line`
+  answer's text is y = mx + c. `line_crossing.gd` (`fn-ext-intersection-lines`) picks the meeting point
+  first; a Paper 2 pair has one that needs the GDC, to 3 s.f. `line_model.gd` (`fn-ext-line-model`) is a
+  fixed amount plus a steady rate. `linear_equation.gd` and `simultaneous.gd` are level-0, with the
+  solution picked first. `link_rate.gd` (`fn-link-rate-of-change`) is one rate in four forms: a
+  sequence's d, a line's m, a regression gradient and a derivative. Its `match-rate-kind` is a match in
+  the catalogue, so it plays as one pick of the whole matching, A to D, until that format is built.
+- **The Transformations region** (FAL-424): `transform_chain.gd` is a base graph and up to three
+  moves, with the moves picked first and everything derived from them, so f, g, the moves or a point
+  can each be hidden: f and the moves give g, f and g give the moves, g and the moves give f.
+  `fn-transform-describe`, `fn-transform-apply` and `fn-concept-transform-order` share it, each with its
+  own views file, and the sketch unknowns are a pick of four graphs (Q13). `link_transformations.gd`
+  is one vector and factor in a parent graph, a data set, a normal curve or an area, and
+  `link_vectors.gd` is one vector as a translation, a vertex, a wave's shift, a line's direction, a
+  step in 3D or a time delay. The checker works every chain again from the base and the moves, reads
+  each option back into a curve or a chain, and calls it right only if it is the same curve as the
+  truth. A graph in straight pieces has no rule, so there the letter f stands for a cubic with no
+  symmetry. Not built in these three regions: `match` and `order-steps` (the format isn't built
+  yet), and error-spot on `fn-ext-intersection-lines`, `fn-concept-transform-order`, `fn-link-vectors`
+  and the exam types.
 - A **view** picks the unknown, the representation, the angle (method) and the format.
   `engine/situations/quadratic_views.gd` has one builder per unknown: what is shown,
   the answer, the wrong options (each catalogue misconception's `wrong` rule, tagged
