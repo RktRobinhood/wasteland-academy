@@ -4262,6 +4262,74 @@
 				"two options of a test end in each verdict",
 				"the quadratic for P(B) has one root that makes P(A) at most 1, and the quadratic for x has one repeated root"
 			]
+		},
+		"box-plot": {
+			"name": "One or two data sets, summarised by a box plot, and the outlier rule on them",
+			"summary": "Pick the five numbers of a box plot on a scaled axis, or a list or frequency table and find them, or take them from a cumulative frequency curve. Everything else follows: each section's quarter of the data, the shape, a comparison of two groups, the fences of the 1.5 × IQR rule, and a value tested against them.",
+			"quantities": [
+				{
+					"name": "tick, x0, x1",
+					"is": "the figure's axis",
+					"pick": "25 ticks, a number every fifth; a tick is 1, 2, 5 or 10, and on Paper 2 also 0.5, 0.2, 0.1 or 0.02"
+				},
+				{
+					"name": "min, q1, med, q3, max",
+					"is": "the five numbers of a box",
+					"pick": "on ticks and at least two ticks apart, symmetric or skewed; or worked out from the data"
+				},
+				{
+					"name": "xs, fs, data",
+					"is": "a list as shown, a table's values and frequencies, and every value in order",
+					"pick": "9 to 13 whole numbers on Paper 1, in order; 11 to 17 on Paper 2, as they came, some in tenths; a table has 4 to 7 values"
+				},
+				{
+					"name": "Q1, Q3",
+					"is": "the medians of the two halves, the median left out when n is odd",
+					"pick": "as DataSummarySituation.quartiles"
+				},
+				{
+					"name": "n",
+					"is": "how many values a plot stands for",
+					"pick": "a multiple of 4, and of the plot's length in ticks where a share is asked"
+				},
+				{
+					"name": "ka, kb",
+					"is": "the two marks a share runs between",
+					"pick": "two of the five numbers"
+				},
+				{
+					"name": "outl, x, side",
+					"is": "whether the tested value is an outlier, the value, and which end it is at",
+					"pick": "a fair coin, drawn first; one or two ticks from the fence either way, on the same quartiles"
+				},
+				{
+					"name": "lo_f, hi_f, iqr",
+					"is": "the fences and the IQR",
+					"pick": "worked out"
+				},
+				{
+					"name": "limit, error",
+					"is": "the most a story allows, and whether the value is past it",
+					"pick": "a fair coin"
+				},
+				{
+					"name": "ma, mb, sa, sb, ta, tb",
+					"is": "two groups' means, standard deviations and maxima",
+					"pick": "one decimal; the group with the lower mean has the higher maximum"
+				}
+			],
+			"clean": [
+				"every number read off a figure is on a tick, and a figure's numbers are in order and at least two ticks apart",
+				"a section's share by length is a whole count or percentage, and differs from its true share",
+				"symmetric means both halves and both whiskers match exactly; skewed differs in both",
+				"two groups' medians and IQRs differ by at least two ticks, and the lower median has the higher maximum",
+				"a test is an outlier half of the time, and no tested value is on a fence",
+				"two options of a test end in each verdict",
+				"the slips on the fence lead to their own verdicts: the median's fence always says outlier, the other always says not",
+				"a list's other values have no outlier",
+				"a Paper 2 new mean is clear of a rounding edge by 0.03 of a unit of the third figure; on Paper 1 it ends in at most one decimal",
+				"removing an outlier moves the mean or the range at least three times as far as the median or the IQR"
+			]
 		}
 	},
 	"skills": {
@@ -4380,9 +4448,13 @@
 		"SL3.8.factorise-not-divide": "Solve equations by factorising or converting to tan x, without losing solutions",
 		"SL4.1.sampling-technique": "Identify, describe and evaluate a sampling technique",
 		"SL4.1.bias-reliability": "Comment on bias in a sample and the reliability of data",
+		"SL4.2.outlier-test": "Test whether a value is an outlier using 1.5 × IQR",
+		"SL4.1.outlier-decision": "Decide in context whether an outlier should be kept or removed",
 		"SL4.2.cumfreq-quartiles": "Find the median, quartiles, percentiles and IQR from a cumulative frequency graph",
 		"SL4.2.cumfreq-count": "Estimate how many values lie above, below or between given values, or find a cut-off",
 		"SL4.2.cumfreq-build": "Build a cumulative frequency table and graph, and recover class frequencies from it",
+		"SL4.2.box-plot": "Draw and interpret a box-and-whisker diagram",
+		"SL4.2.compare-distributions": "Compare two distributions in context",
 		"SL4.3.mean-median-mode": "Find the mean, median and mode of a data set or a discrete frequency table",
 		"SL4.3.quartiles-discrete": "Find quartiles, range and IQR of discrete data",
 		"SL4.3.mean-totals": "Use total = mean × n to find a missing value, a missing frequency or a combined mean",
@@ -29578,6 +29650,434 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "The 1.5 x IQR outlier rule",
+			"summary": "Use the 1.5 × IQR rule: find the fences, decide with two numbers whether a value is an outlier, show that the greatest value is one, find the largest value that isn't and the smallest that is, find a quartile from knowing there are no outliers, count the outliers in a data set by hand or with a modified box plot, then decide in context whether to keep or remove a value and what removing it does to the measures.",
+			"situation": "box-plot",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "a box plot to scale, or a sketch not to scale with L and U marked"
+				},
+				{
+					"rep": "terms",
+					"exam": true,
+					"how": "a list of values"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a frequency table"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "the five numbers in a sentence, or a story with a limit"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "find-fences",
+					"given": [
+						"a box plot, a list or the five numbers"
+					],
+					"asked": "Q1 − 1.5 × IQR and Q3 + 1.5 × IQR",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph",
+						"terms",
+						"words"
+					],
+					"skills": [
+						"SL4.2.outlier-test"
+					]
+				},
+				{
+					"id": "decide-outlier",
+					"given": [
+						"a box plot, a list or the five numbers, and a value"
+					],
+					"asked": "whether the value is an outlier, with the two numbers",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph",
+						"terms",
+						"words"
+					],
+					"skills": [
+						"SL4.2.outlier-test"
+					]
+				},
+				{
+					"id": "show-max-outlier",
+					"given": [
+						"a box plot, a list or the five numbers"
+					],
+					"asked": "the two numbers that show the greatest value is an outlier",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph",
+						"terms",
+						"words"
+					],
+					"skills": [
+						"SL4.2.outlier-test"
+					]
+				},
+				{
+					"id": "largest-not-outlier",
+					"given": [
+						"a box plot or the five numbers"
+					],
+					"asked": "the largest value that would not be an outlier",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL4.2.outlier-test"
+					]
+				},
+				{
+					"id": "smallest-outlier",
+					"given": [
+						"a box plot or the five numbers, in whole numbers"
+					],
+					"asked": "the smallest value that would be an outlier",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL4.2.outlier-test"
+					]
+				},
+				{
+					"id": "quartile-from-no-outliers",
+					"given": [
+						"the IQR, the median, the extremes and no outliers"
+					],
+					"asked": "the minimum possible U or L",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL4.2.outlier-test"
+					]
+				},
+				{
+					"id": "outliers-in-data",
+					"given": [
+						"a list or a frequency table"
+					],
+					"asked": "how many values are outliers",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms",
+						"table"
+					],
+					"skills": [
+						"SL4.2.outlier-test"
+					]
+				},
+				{
+					"id": "keep-or-remove",
+					"given": [
+						"an outlier and a limit from the story"
+					],
+					"asked": "whether to remove it, with the reason",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.1.outlier-decision"
+					]
+				},
+				{
+					"id": "effect-of-removing",
+					"given": [
+						"a list and its outlier"
+					],
+					"asked": "the mean and the median of what is left",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL4.1.outlier-decision"
+					]
+				},
+				{
+					"id": "which-measure-moves",
+					"given": [
+						"a list and its outlier"
+					],
+					"asked": "the statement that describes the effect on two measures",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL4.1.outlier-decision"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.2.outlier-test",
+					"method": "fences",
+					"suits": [
+						"find-fences",
+						"decide-outlier",
+						"show-max-outlier",
+						"largest-not-outlier",
+						"smallest-outlier",
+						"quartile-from-no-outliers",
+						"outliers-in-data"
+					],
+					"name": "Compute both fences",
+					"about": "Find Q1 − 1.5 × IQR and Q3 + 1.5 × IQR; any value outside these fences is an outlier."
+				},
+				{
+					"skill": "SL4.2.outlier-test",
+					"method": "distance-from-quartile",
+					"suits": [
+						"decide-outlier",
+						"show-max-outlier",
+						"largest-not-outlier",
+						"smallest-outlier",
+						"quartile-from-no-outliers"
+					],
+					"name": "Compare the distance from the nearest quartile",
+					"about": "For a 'show that', work out how far the value lies beyond its nearest quartile and show this distance exceeds 1.5 × IQR."
+				},
+				{
+					"skill": "SL4.2.outlier-test",
+					"method": "gdc-modified-box",
+					"suits": [
+						"outliers-in-data"
+					],
+					"name": "Modified box plot on the GDC",
+					"about": "Draw the modified box plot; points plotted on their own are outliers. Then confirm with the fence calculation to earn the marks."
+				},
+				{
+					"skill": "SL4.1.outlier-decision",
+					"method": "plausibility",
+					"suits": [
+						"keep-or-remove"
+					],
+					"name": "Is it a mistake or a genuine extreme?",
+					"about": "Remove a value only if it is impossible or clearly a recording error in context (a student 17 m tall); keep genuine extremes (a very tall basketball player)."
+				},
+				{
+					"skill": "SL4.1.outlier-decision",
+					"method": "effect-on-measures",
+					"suits": [
+						"effect-of-removing",
+						"which-measure-moves"
+					],
+					"name": "Reason about which measures it affects",
+					"about": "An outlier drags the mean, range and standard deviation but barely moves the median and IQR, so decide which summary to trust."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "An outlier should always be removed from the data.",
+					"answer": "False: remove a value only if it can't be true, such as a recording error. A genuine extreme is part of the data.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "A value exactly on the upper fence is an outlier.",
+					"answer": "Never: an outlier is greater than Q3 + 1.5 × IQR, so a value on the fence is not beyond it.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict what removing a very high value does to the mean and to the median, then say why.",
+					"answer": "The mean falls noticeably and the median hardly moves: the mean uses how far out each value is, but the median uses only the middle.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.2.outlier-test#0",
+					"text": "Using 1.5 × Q3 as the upper fence instead of Q3 + 1.5 × IQR",
+					"as": "distractor",
+					"in": [
+						"find-fences",
+						"decide-outlier",
+						"show-max-outlier",
+						"largest-not-outlier",
+						"smallest-outlier",
+						"quartile-from-no-outliers",
+						"outliers-in-data"
+					],
+					"wrong": "1.5 × Q3"
+				},
+				{
+					"ref": "SL4.2.outlier-test#1",
+					"text": "Measuring 1.5 × IQR from the median instead of from the nearest quartile",
+					"as": "distractor",
+					"in": [
+						"find-fences",
+						"decide-outlier",
+						"show-max-outlier",
+						"largest-not-outlier",
+						"smallest-outlier",
+						"outliers-in-data"
+					],
+					"wrong": "the median plus or minus 1.5 × IQR"
+				},
+				{
+					"ref": "SL4.2.outlier-test#2",
+					"text": "Calling any value that looks far from the rest an outlier without doing the test",
+					"as": "distractor",
+					"in": [
+						"outliers-in-data"
+					],
+					"wrong": "the count with the far-looking value inside the fence added"
+				},
+				{
+					"ref": "SL4.2.outlier-test#3",
+					"text": "Using the fence on the far side from the value",
+					"as": "distractor",
+					"in": [
+						"decide-outlier"
+					],
+					"wrong": "a low value held against the upper fence"
+				},
+				{
+					"ref": "SL4.2.outlier-test#4",
+					"text": "Reading the comparison backwards, so a value inside the fences is called an outlier or one beyond them is not",
+					"as": "distractor",
+					"in": [
+						"decide-outlier"
+					],
+					"wrong": "the right numbers with the other verdict"
+				},
+				{
+					"ref": "SL4.2.outlier-test#5",
+					"text": "Leaving the factor out of the fence, so that it sits one IQR from the quartile",
+					"as": "distractor",
+					"in": [
+						"find-fences",
+						"show-max-outlier",
+						"largest-not-outlier",
+						"smallest-outlier",
+						"quartile-from-no-outliers"
+					],
+					"wrong": "Q3 + IQR and Q1 − IQR"
+				},
+				{
+					"ref": "SL4.2.outlier-test#6",
+					"text": "Using the fence itself as the smallest outlier, though a value on the fence is not beyond it",
+					"as": "distractor",
+					"in": [
+						"smallest-outlier"
+					],
+					"wrong": "the fence, or the whole number just under it"
+				},
+				{
+					"ref": "SL4.2.outlier-test#7",
+					"text": "Using the quartile, not the IQR, as the distance to multiply",
+					"as": "distractor",
+					"in": [
+						"decide-outlier"
+					],
+					"wrong": "1.5 × Q1 for the distance"
+				},
+				{
+					"ref": "SL4.1.outlier-decision#0",
+					"text": "Assuming every outlier must be deleted",
+					"as": "distractor",
+					"in": [
+						"keep-or-remove"
+					],
+					"wrong": "remove it, whatever it is"
+				},
+				{
+					"ref": "SL4.1.outlier-decision#1",
+					"text": "Assuming removing an outlier changes the median as much as the mean",
+					"as": "distractor",
+					"in": [
+						"effect-of-removing",
+						"which-measure-moves"
+					],
+					"wrong": "the median moved by the mean's change"
+				},
+				{
+					"ref": "SL4.1.outlier-decision#2",
+					"text": "Assuming every outlier must stay in the data, even an impossible value",
+					"as": "distractor",
+					"in": [
+						"keep-or-remove"
+					],
+					"wrong": "keep it, whatever it is"
+				},
+				{
+					"ref": "SL4.1.outlier-decision#3",
+					"text": "Using the old number of values to find the new mean",
+					"as": "distractor",
+					"in": [
+						"effect-of-removing"
+					],
+					"wrong": "the new total over the old n"
+				},
+				{
+					"ref": "SL4.1.outlier-decision#4",
+					"text": "Assuming the median stays exactly the same when a value is removed",
+					"as": "distractor",
+					"in": [
+						"effect-of-removing"
+					],
+					"wrong": "the old median"
+				},
+				{
+					"ref": "SL4.1.outlier-decision#5",
+					"text": "Reversing which measure an outlier drags and which it leaves alone",
+					"as": "distractor",
+					"in": [
+						"which-measure-moves"
+					],
+					"wrong": "the two measures swapped"
+				},
+				{
+					"ref": "SL4.1.outlier-decision#6",
+					"text": "Getting the direction wrong: removing a high value lowers the mean, and removing a low one raises it",
+					"as": "distractor",
+					"in": [
+						"which-measure-moves"
+					],
+					"wrong": "the change in the other direction"
+				}
+			],
+			"chain": [
+				"find Q1, Q3 and the IQR, from a box plot, the five numbers or the data",
+				"work out 1.5 × IQR",
+				"add it to Q3 and take it from Q1 for the fences, or compare it with the value's distance from its nearest quartile",
+				"a value beyond a fence is an outlier, and one on the fence is not",
+				"remove a value only if it can't be true; the mean and the range feel it, the median and the IQR hardly do"
+			],
 			"frequency": 4,
 			"marks": 3,
 			"section": {
@@ -29587,9 +30087,7 @@
 			"paper": {
 				"p1": 2,
 				"p2": 2
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-cumulative-frequency",
@@ -30292,6 +30790,590 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Read, interpret and compare box plots",
+			"summary": "Read the median, a quartile, the IQR and the range off a box plot drawn to scale, with one or two boxes and outliers as crosses; find the five numbers from a list, a frequency table or a cumulative frequency curve; pick the box plot of a data set; use the fact that each section holds a quarter of the data; judge the shape, and how the mean compares with the median; and compare two groups in context, by medians and IQRs or by means and standard deviations.",
+			"situation": "box-plot",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "a box plot to scale, one or two boxes, four to pick from, or a cumulative frequency curve"
+				},
+				{
+					"rep": "terms",
+					"exam": true,
+					"how": "a list of values, in order on Paper 1 and as it came on Paper 2"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a frequency table, or a table of summary statistics for two groups"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "the five numbers in a sentence, and how many values there are"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "read-median",
+					"given": [
+						"a box plot, with one or two boxes"
+					],
+					"asked": "the median",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "read-quartile",
+					"given": [
+						"a box plot"
+					],
+					"asked": "Q1 or Q3",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "read-iqr",
+					"given": [
+						"a box plot, with one or two boxes"
+					],
+					"asked": "the IQR",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "read-range",
+					"given": [
+						"a box plot, perhaps with a cross"
+					],
+					"asked": "the range",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "read-median-iqr",
+					"given": [
+						"a box plot, with one or two boxes"
+					],
+					"asked": "the median and the IQR together",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "five-number-from-data",
+					"given": [
+						"a list or a frequency table"
+					],
+					"asked": "the five-number summary",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"terms",
+						"table"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "five-number-from-cumfreq",
+					"given": [
+						"a cumulative frequency curve"
+					],
+					"asked": "the five numbers of its box plot",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "pick-box-from-data",
+					"given": [
+						"a list or a frequency table, and four box plots on one axis"
+					],
+					"asked": "the plot that shows the data",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"terms",
+						"table"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "pick-box-with-outlier",
+					"given": [
+						"a list with an outlier, and four box plots on one axis"
+					],
+					"asked": "the plot that shows the data, with the outlier as a cross",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "count-in-section",
+					"given": [
+						"a box plot or its five numbers, and n"
+					],
+					"asked": "how many values lie between two marks",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph",
+						"words"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "percent-in-section",
+					"given": [
+						"a box plot"
+					],
+					"asked": "the percentage of values between two marks",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "value-at-share",
+					"given": [
+						"a box plot",
+						"a share above or below a"
+					],
+					"asked": "the value a",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "could-be-normal",
+					"given": [
+						"a box plot, symmetric or skewed"
+					],
+					"asked": "whether the data could be normal, with the two gaps in the box",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "mean-against-median",
+					"given": [
+						"a skewed box plot"
+					],
+					"asked": "how the mean is likely to compare with the median, with a reason",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.box-plot"
+					]
+				},
+				{
+					"id": "compare-box-plots",
+					"given": [
+						"two box plots"
+					],
+					"asked": "a comparison of centre and spread in context",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.compare-distributions"
+					]
+				},
+				{
+					"id": "compare-summary",
+					"given": [
+						"the mean, standard deviation and maximum of two groups"
+					],
+					"asked": "a comparison of centre and spread in context",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.2.compare-distributions"
+					]
+				},
+				{
+					"id": "claim-from-box-plots",
+					"given": [
+						"two box plots and a claim"
+					],
+					"asked": "whether the plots support the claim, with the two medians",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.2.compare-distributions"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.2.box-plot",
+					"method": "five-number-summary",
+					"suits": [
+						"five-number-from-data",
+						"pick-box-from-data",
+						"pick-box-with-outlier"
+					],
+					"name": "Five-number summary from the data",
+					"about": "Order the data, find the minimum, Q1, median, Q3 and maximum, then draw the box from Q1 to Q3 with the median line and whiskers to the extremes (or to the furthest values that are not outliers)."
+				},
+				{
+					"skill": "SL4.2.box-plot",
+					"method": "from-cumfreq",
+					"suits": [
+						"five-number-from-cumfreq"
+					],
+					"name": "Read the five values from a cumulative frequency graph",
+					"about": "Read Q1, the median and Q3 at n/4, n/2 and 3n/4, and the extremes from where the curve starts and finishes."
+				},
+				{
+					"skill": "SL4.2.box-plot",
+					"method": "gdc-stats",
+					"suits": [
+						"five-number-from-data",
+						"pick-box-from-data",
+						"pick-box-with-outlier"
+					],
+					"name": "1-Var Stats or a box plot on the GDC",
+					"about": "Enter the list and read minX, Q1, Med, Q3 and maxX, or draw the modified box plot, which marks outliers for you."
+				},
+				{
+					"skill": "SL4.2.compare-distributions",
+					"method": "median-iqr",
+					"suits": [
+						"compare-box-plots",
+						"claim-from-box-plots"
+					],
+					"name": "Compare medians and IQRs from the box plots",
+					"about": "Make one comment on centre (the median is higher or lower) and one on spread (the IQR is larger or smaller, so less or more consistent), each in the language of the context."
+				},
+				{
+					"skill": "SL4.2.compare-distributions",
+					"method": "mean-sd",
+					"suits": [
+						"compare-summary"
+					],
+					"name": "Compare means and standard deviations",
+					"about": "When summary statistics are given, compare the means for centre and the standard deviations for consistency, again in context."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "In a box plot, the longest whisker holds the most data.",
+					"answer": "False: each whisker and each half of the box holds about a quarter of the data. A long section means those values are spread out, not that there are more of them.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The median is in the middle of the box.",
+					"answer": "Sometimes: it is only when the data between the quartiles are symmetric. The median splits the data in two by count, not the box by length.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "A box plot has a long upper whisker. Predict whether the mean is above or below the median, then say why.",
+					"answer": "Above: the median depends only on the middle of the data, but the mean uses every value, so the few high values pull it up.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.2.box-plot#0",
+					"text": "Assuming a longer section of the box or a longer whisker holds more of the data",
+					"as": "distractor",
+					"in": [
+						"count-in-section",
+						"percent-in-section",
+						"mean-against-median"
+					],
+					"wrong": "the count or percentage in proportion to the section's length"
+				},
+				{
+					"ref": "SL4.2.box-plot#1",
+					"text": "Drawing the whisker out to an outlier instead of marking the outlier separately with a cross",
+					"as": "distractor",
+					"in": [
+						"pick-box-with-outlier"
+					],
+					"wrong": "a plot whose whisker reaches the outlier, with no cross"
+				},
+				{
+					"ref": "SL4.2.box-plot#2",
+					"text": "Using the median in both halves when n is odd",
+					"as": "distractor",
+					"in": [
+						"five-number-from-data",
+						"pick-box-from-data"
+					],
+					"wrong": "quartiles from halves that keep the median"
+				},
+				{
+					"ref": "SL4.2.box-plot#3",
+					"text": "Using the values in the order shown, without sorting them first",
+					"as": "distractor",
+					"in": [
+						"five-number-from-data",
+						"pick-box-from-data"
+					],
+					"wrong": "the five numbers read off the unsorted list"
+				},
+				{
+					"ref": "SL4.2.box-plot#4",
+					"text": "Using each value of a frequency table once, ignoring its frequency",
+					"as": "distractor",
+					"in": [
+						"five-number-from-data",
+						"pick-box-from-data"
+					],
+					"wrong": "the five numbers of the values column"
+				},
+				{
+					"ref": "SL4.2.box-plot#5",
+					"text": "Using the middle of the box as the median",
+					"as": "distractor",
+					"in": [
+						"read-median",
+						"read-median-iqr",
+						"value-at-share",
+						"pick-box-from-data"
+					],
+					"wrong": "the point halfway between Q1 and Q3"
+				},
+				{
+					"ref": "SL4.2.box-plot#6",
+					"text": "Using the whole length of the plot as the IQR, or the IQR as the range",
+					"as": "distractor",
+					"in": [
+						"read-iqr",
+						"read-range",
+						"read-median-iqr"
+					],
+					"wrong": "greatest − least for the IQR, or Q3 − Q1 for the range"
+				},
+				{
+					"ref": "SL4.2.box-plot#7",
+					"text": "Using the end of the whisker as the greatest value, leaving the cross out",
+					"as": "distractor",
+					"in": [
+						"read-range"
+					],
+					"wrong": "the whisker's end minus the least value"
+				},
+				{
+					"ref": "SL4.2.box-plot#8",
+					"text": "Using a quarter of the horizontal axis as a quartile, instead of a quarter of the frequency",
+					"as": "distractor",
+					"in": [
+						"five-number-from-cumfreq"
+					],
+					"wrong": "a quarter, half and three quarters of the way along the axis"
+				},
+				{
+					"ref": "SL4.2.box-plot#9",
+					"text": "Using the cumulative frequency levels as the values themselves",
+					"as": "distractor",
+					"in": [
+						"five-number-from-cumfreq"
+					],
+					"wrong": "n/4, n/2 and 3n/4 as Q1, the median and Q3"
+				},
+				{
+					"ref": "SL4.2.box-plot#10",
+					"text": "Using the ends of the axis as the least and greatest values",
+					"as": "distractor",
+					"in": [
+						"five-number-from-cumfreq"
+					],
+					"wrong": "0 and the end of the axis as min and max"
+				},
+				{
+					"ref": "SL4.2.box-plot#11",
+					"text": "Using the share below a value when the question gives the share above it, or the other way round",
+					"as": "distractor",
+					"in": [
+						"value-at-share"
+					],
+					"wrong": "the other quartile"
+				},
+				{
+					"ref": "SL4.2.box-plot#12",
+					"text": "Using the range to judge the shape of the data",
+					"as": "distractor",
+					"in": [
+						"could-be-normal"
+					],
+					"wrong": "a verdict from the range alone"
+				},
+				{
+					"ref": "SL4.2.box-plot#13",
+					"text": "Reading the gaps backwards, so equal gaps seem skewed and unequal gaps symmetric",
+					"as": "distractor",
+					"in": [
+						"could-be-normal"
+					],
+					"wrong": "the right gaps with the other verdict"
+				},
+				{
+					"ref": "SL4.2.box-plot#14",
+					"text": "Assuming the mean equals the median because half of the data lie on each side of the median",
+					"as": "distractor",
+					"in": [
+						"mean-against-median"
+					],
+					"wrong": "the two called equal"
+				},
+				{
+					"ref": "SL4.2.box-plot#15",
+					"text": "Using the n/4th and 3n/4th values as the quartiles, not the medians of the halves",
+					"as": "distractor",
+					"in": [
+						"five-number-from-data",
+						"pick-box-from-data"
+					],
+					"wrong": "the values at those positions"
+				},
+				{
+					"ref": "SL4.2.box-plot#16",
+					"text": "Drawing the whisker out to the fence, not to the furthest value inside it",
+					"as": "distractor",
+					"in": [
+						"pick-box-with-outlier"
+					],
+					"wrong": "a plot whose whisker ends at the upper fence"
+				},
+				{
+					"ref": "SL4.3.quartiles-discrete#0",
+					"text": "Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1",
+					"as": "distractor",
+					"in": [
+						"read-iqr"
+					],
+					"wrong": "Q1 + Q3"
+				},
+				{
+					"ref": "SL4.2.compare-distributions#0",
+					"text": "Comparing only the maximum or minimum values",
+					"as": "distractor",
+					"in": [
+						"compare-box-plots",
+						"compare-summary",
+						"claim-from-box-plots"
+					],
+					"wrong": "a comparison of the maxima, which point the other way"
+				},
+				{
+					"ref": "SL4.2.compare-distributions#1",
+					"text": "Using a larger spread as a sign of a higher average",
+					"as": "distractor",
+					"in": [
+						"compare-box-plots",
+						"compare-summary",
+						"claim-from-box-plots"
+					],
+					"wrong": "the wider group called typically higher"
+				},
+				{
+					"ref": "SL4.2.compare-distributions#2",
+					"text": "Quoting the numbers without saying what they mean in context",
+					"as": "distractor",
+					"in": [
+						"compare-box-plots",
+						"compare-summary"
+					],
+					"wrong": "the four numbers and no comparison"
+				},
+				{
+					"ref": "SL4.2.compare-distributions#3",
+					"text": "Reading the comparison backwards, so the verdict is the opposite of what the medians show",
+					"as": "distractor",
+					"in": [
+						"claim-from-box-plots"
+					],
+					"wrong": "the right medians with the other verdict"
+				}
+			],
+			"chain": [
+				"read the five numbers off the plot, or find them from the data: Q1 and Q3 are the medians of the two halves, with the median left out when n is odd",
+				"IQR = Q3 − Q1, range = greatest − least, and a cross is still a value",
+				"each section holds a quarter of the data, however long it looks",
+				"equal halves and whiskers are symmetric; a long whisker pulls the mean that way",
+				"compare the centre and the spread, each said in the words of the story"
+			],
 			"frequency": 7,
 			"marks": 2,
 			"section": {
@@ -30301,9 +31383,7 @@
 			"paper": {
 				"p1": 3,
 				"p2": 4
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-constant-changes",

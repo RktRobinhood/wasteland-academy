@@ -23906,7 +23906,638 @@ def td_check(q):
     return None, None
 
 
-SITUATION_CHECKS = {"motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── box-plot (t4-box-plot and t4-outlier-rule, FAL-740) ──────
+# The `box-plot` situation's clean limits and stories, the checker's own copy: the engine's is in
+# game/engine/situations/box_plot.gd. The five numbers are read back from the figure spec, the
+# list, the table, the sentence or the curve; quartiles are worked out here from the data with the
+# median left out of the halves when n is odd. Every option's text is rebuilt from those facts, so
+# a false number or a verdict that doesn't follow fails. The arithmetic in the working is evaluated.
+
+BXP_B, BXP_C, BXP_T, BXP_D = "SL4.2.box-plot#", "SL4.2.compare-distributions#", "SL4.2.outlier-test#", "SL4.1.outlier-decision#"
+BXP_SPAN, BXP_EVERY = 25, 5
+BXP_EDGE = sp.Rational(3, 100)
+BXP_IS, BXP_NOT = "is an outlier", "is not an outlier"
+BXP_NORMAL, BXP_SKEWED = "are symmetric, so could be normal", "are skewed, so are unlikely to be normal"
+BXP_SUPPORT, BXP_OPPOSE = "support", "do not support"
+BXP_RULE = "An outlier is a value less than Q1 − 1.5 × IQR or greater than Q3 + 1.5 × IQR."
+BXP_HALVES = "Q1 and Q3 are the medians of the lower and upper halves, leaving out the median when n is odd."
+BXP_NAMES = ("min", "q1", "med", "q3", "max")
+BXP_PLOTS = ("Plot A", "Plot B", "Plot C", "Plot D")
+# who, the words before them, the noun, the unit, the axis, the two groups, the typical verb
+BXP_STORIES = [("patrols", "the distance walked in a day by", "distance walked", "km", "distance walked (km)", ("north patrols", "south patrols"), "walked further"),
+               ("crates", "the mass of", "mass", "kg", "mass (kg)", ("salvage crates", "market crates"), "were heavier"),
+               ("drones", "the flight time of", "flight time", "minutes", "flight time (minutes)", ("old drones", "new drones"), "flew for longer"),
+               ("wells", "the depth of", "depth", "m", "depth (m)", ("hill wells", "valley wells"), "were deeper"),
+               ("tanks", "the water held in", "water held", "litres", "water held (litres)", ("roof tanks", "yard tanks"), "held more"),
+               ("traders", "the takings of", "takings", "caps", "takings (caps)", ("gate traders", "market traders"), "took more"),
+               ("bean plants", "the height of", "height", "cm", "height (cm)", ("shaded plants", "sunlit plants"), "grew taller"),
+               ("radios", "the battery life of", "battery life", "hours", "battery life (hours)", ("scrap radios", "trade radios"), "lasted longer")]
+BXP_LIMITS = [("the water, in litres, read from one tank each morning", "The tank holds at most {} litres.", "the tank can't hold that much"),
+              ("the depth to the water, in m, sounded in one well each week", "The well is {} m deep.", "the well isn't that deep"),
+              ("the hours worked in a week by each scavenger", "The camp's rule stops a week at {} hours.", "the rule stops the week before that"),
+              ("the charge, in amp hours, of each radio battery", "A full battery holds {} amp hours.", "a battery can't hold that much"),
+              ("the top speed, in km/h, of each drone", "These drones are built to fly at no more than {} km/h.", "the drones can't fly that fast"),
+              ("the mass, in kg, of each truck's load", "The bridge scale reads up to {} kg and every truck crossed it.", "the scale can't read that high")]
+BXP_NUM = r"−?\d+(?:\.\d+)?"
+BXP_ARITH = rf"\(?{BXP_NUM}(?:/\d+)?\)?(?: [+−×÷] \(?{BXP_NUM}\)?)*"
+
+
+def bxp_val(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def bxp_eval(t):
+    """A plain sum in the game's signs, with exact rationals: × and ÷ before + and −."""
+    return sp.sympify(re.sub(r"(?<![\d.])(\d+(?:\.\d+)?)", r"Rational('\1')", t.replace("−", "-").replace("×", "*").replace("÷", "/")),
+                      locals={"Rational": sp.Rational})
+
+
+def bxp_steps(q):
+    """Every chain a = b = c of plain numbers in the working is true, to the figures shown."""
+    pat = re.compile(rf"(?<![\w.,−+×÷/] )(?<![\w./]){BXP_ARITH}(?: = {BXP_ARITH})+(?![\w/])")
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in pat.finditer(step):
+                parts = mt.group(0).split(" = ")
+                first = bxp_eval(parts[0])
+                for p in parts[1:]:
+                    v = bxp_eval(p)
+                    if q["paper"] == 2 and re.fullmatch(r"\d+\.\d+", p):
+                        places = len(p.split(".")[1])
+                        need(abs(first - v) <= sp.Rational(6, 10) / 10 ** places, f"{step!r}: {mt.group(0)}")
+                    else:
+                        need(first == v, f"{step!r}: {mt.group(0)} is really {first}")
+
+
+def bxp_story(q):
+    return BXP_STORIES[int(q["given"]["ctx"])]
+
+
+def bxp_cap(t):
+    return t[0].upper() + t[1:]
+
+
+def bxp_u(c, v):
+    return f"{dec_text(v)} {c[3]}"
+
+
+def bxp_row(b):
+    out = {k: R(b[k]) for k in BXP_NAMES}
+    out["out"] = [R(x) for x in b["out"]]
+    return out
+
+
+def bxp_ok(f):
+    need(f["min"] < f["q1"] < f["med"] < f["q3"] < f["max"], f"the five numbers aren't in order: {f}")
+
+
+def bxp_fig(q, on_ticks=True):
+    """The box figure, held to its axis: 25 ticks, a number every fifth, values on ticks."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "box", "no box plot")
+    x0, x1, t = R(g["x0"]), R(g["x1"]), R(g["tick"])
+    need((x1 - x0) == BXP_SPAN * t and g["every"] == BXP_EVERY and x0 % (BXP_EVERY * t) == 0, "the axis isn't 25 ticks from a labelled tick")
+    need(x0 >= 0 and t >= sp.Rational(1, 50), "the axis")
+    need(g["name"] == bxp_story(q)[4], "the axis isn't named")
+    rows = [bxp_row(b) for b in g["boxes"]]
+    for f in rows:
+        vals = [f[k] for k in BXP_NAMES] + f["out"]
+        for v in vals:
+            need(x0 <= v <= x1, f"{v} is off the axis")
+            if on_ticks:
+                need((v - x0) % t == 0, f"{v} is not on a tick")
+        if on_ticks:
+            for a, b in zip(BXP_NAMES, BXP_NAMES[1:]):
+                need(f[b] - f[a] >= 2 * t, f"{a} and {b} are less than two ticks apart")
+    return rows
+
+
+def bxp_plot_line(q):
+    """n, from the sentence above a single plot."""
+    c = bxp_story(q)
+    mt = re.fullmatch(rf"The box plot shows {re.escape(c[1])} (\d+) {c[0]}\.", q["lines"][0])
+    need(mt is not None, f"can't read {q['lines'][0]!r}")
+    return int(mt.group(1))
+
+
+def bxp_two(q):
+    c = bxp_story(q)
+    need(q["lines"][0] == f"The box plots show {c[1]} the {c[5][0]} and the {c[5][1]}.", f"can't read {q['lines'][0]!r}")
+    rows = bxp_fig(q)
+    need(len(rows) == 2 and [b["name"] for b in q["graph"]["boxes"]] == list(c[5]), "two named boxes")
+    return rows
+
+
+def bxp_chosen(q):
+    """The box asked about, and the words that name it."""
+    c = bxp_story(q)
+    rows = bxp_fig(q)
+    if len(rows) == 2:
+        bxp_two(q)
+        for i in (0, 1):
+            if q["asked"].endswith(f" of the {c[5][i]}."):
+                return rows[i], f" of the {c[5][i]}"
+        raise Fail(f"which box? {q['asked']!r}")
+    bxp_plot_line(q)
+    return rows[0], ""
+
+
+def bxp_five_words(q, line):
+    mt = re.fullmatch(rf"The least value is ({BXP_NUM}), Q1 = ({BXP_NUM}), the median is ({BXP_NUM}), Q3 = ({BXP_NUM}) and the greatest value is ({BXP_NUM})\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return dict(zip(BXP_NAMES, [R(mt.group(i)) for i in range(1, 6)]), out=[])
+
+
+def bxp_data(q):
+    """(values as shown, frequencies or None, every value in order)."""
+    c, rep, L = bxp_story(q), q["view"]["rep"], q["lines"]
+    if rep == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "Frequency", "table heads")
+        xs, fs = [R(v) for v in rows[0][1]], [int(v) for v in rows[1][1]]
+        n = sum(fs)
+        need(L[0] == f"The table shows {c[1]} {n} {c[0]}, in {c[3]}.", f"can't read {L[0]!r}")
+        need(xs == sorted(xs) and len(set(xs)) == len(xs), "a table's values are distinct and ascending")
+        return xs, fs, [x for x, f in zip(xs, fs) for _ in range(f)]
+    mt = re.fullmatch(rf"{re.escape(bxp_cap(c[1]))} (\d+) {c[0]}, in {c[3]}:", L[0])
+    need(mt is not None, f"can't read {L[0]!r}")
+    xs = [R(v) for v in L[1].split(", ")]
+    need(len(xs) == int(mt.group(1)), "the list's length")
+    if q["paper"] == 1:
+        need(xs == sorted(xs), "a Paper 1 list is shown in order")
+    else:
+        need(xs != sorted(xs), "a Paper 2 list comes as it came")
+    return xs, None, sorted(xs)
+
+
+def bxp_summary(v):
+    a, b = ds_quartiles(v)
+    return {"min": v[0], "q1": a, "med": ds_median(v), "q3": b, "max": v[-1], "out": []}
+
+
+def bxp_keep_median(v):
+    n, h = len(v), len(v) // 2
+    return {"min": v[0], "q1": ds_median(v[:h + 1]), "med": ds_median(v), "q3": ds_median(v[h:]), "max": v[-1], "out": []}
+
+
+def bxp_positions(v):
+    n = len(v)
+    return {"min": v[0], "q1": v[sp.ceiling(sp.Rational(n, 4)) - 1], "med": ds_median(v), "q3": v[sp.ceiling(sp.Rational(3 * n, 4)) - 1], "max": v[-1], "out": []}
+
+
+def bxp_five_text(f):
+    return "min = {}, Q1 = {}, median = {}, Q3 = {}, max = {}".format(*[dec_text(f[k]) for k in BXP_NAMES])
+
+
+def bxp_same(a, b):
+    return all(a[k] == b[k] for k in BXP_NAMES) and a["out"] == b["out"]
+
+
+def bxp_data_slips(q, xs, fs, v):
+    """ref -> the summary that slip gives."""
+    out = {BXP_B + "15": bxp_positions(v)}
+    if len(v) % 2 == 1:
+        out[BXP_B + "2"] = bxp_keep_median(v)
+    if fs is not None:
+        out[BXP_B + "4"] = bxp_summary(xs)
+    elif q["paper"] == 2:
+        a, b = ds_quartiles(xs)
+        out[BXP_B + "3"] = {"min": xs[0], "q1": a, "med": ds_median(xs), "q3": b, "max": xs[-1], "out": []}
+    return out
+
+
+def bxp_common(q, want, wrongs):
+    gc_check_common(q, want, wrongs, None)
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z\d])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def bxp_pick(q, right, slips):
+    """Rows A to D on one axis: the one right row, every row different, every tag its slip."""
+    rows = bxp_fig(q, on_ticks=False)
+    need(len(rows) == 4 and [b["name"] for b in q["graph"]["boxes"]] == ["A", "B", "C", "D"], "four rows, A to D")
+    hits = [i for i, f in enumerate(rows) if bxp_same(f, right)]
+    need(len(hits) == 1, f"{len(hits)} rows are the right plot")
+    need(all(not bxp_same(rows[i], rows[j]) for i in range(4) for j in range(i)), "two rows are the same")
+    wrongs = {ref: {BXP_PLOTS[i] for i, f in enumerate(rows) if bxp_same(f, s)} for ref, s in slips.items()}
+    bxp_common(q, BXP_PLOTS[hits[0]], wrongs)
+
+
+def bxp_rule_facts(q, rep):
+    """The five numbers a question on the rule shows, and the data if it shows them."""
+    L = q["lines"]
+    need(BXP_RULE in L, "the rule isn't stated")
+    if rep == "graph":
+        rows = bxp_fig(q)
+        bxp_plot_line(q)
+        return rows[0], None
+    if rep == "terms":
+        need(BXP_HALVES in L, "the quartile convention isn't stated")
+        _, _, v = bxp_data(q)
+        return bxp_summary(v), v
+    return bxp_five_words(q, L[1]), None
+
+
+def bxp_fence(f):
+    iq = f["q3"] - f["q1"]
+    d = sp.Rational(3, 2) * iq
+    return iq, f["q1"] - d, f["q3"] + d, d
+
+
+def bxp_test_said(l_name, l, r_name, r, x, verdict):
+    return f"{l_name} = {dec_text(l)} and {r_name} = {dec_text(r)}, so {dec_text(x)} {verdict}"
+
+
+def bxp_test(q, rep):
+    angle, asked = q["view"]["angle"], q["asked"]
+    mt = re.fullmatch(rf"Determine whether ({BXP_NUM}) is an outlier, with a valid reason\.", asked)
+    need(mt is not None, f"asked {asked!r}")
+    x = R(mt.group(1))
+    f, v = bxp_rule_facts(q, rep)
+    iq, lo, hi, d = bxp_fence(f)
+    need(x in (f["min"], f["max"]), "the value tested is not an end of the data")
+    up = x == f["max"]
+    fence = hi if up else lo
+    need(x != fence, "the value is on the fence")
+    beyond = x > hi if up else x < lo
+    if v is not None:
+        rest = list(v)
+        rest.remove(x)
+        need(all(lo <= e <= hi for e in rest), "another value is an outlier")
+    if rep == "graph":
+        t = R(q["graph"]["tick"])
+        need(abs(x - fence) <= 2 * t, "the value is more than two ticks from the fence")
+    verdict, other = (BXP_IS, BXP_NOT) if beyond else (BXP_NOT, BXP_IS)
+    if angle == "fences":
+        ln, lv, rn, rv = "IQR", iq, "upper fence" if up else "lower fence", fence
+    else:
+        ln, lv, rn, rv = (f"{dec_text(x)} − Q3", x - f["q3"], "1.5 × IQR", d) if up else (f"Q1 − {dec_text(x)}", f["q1"] - x, "1.5 × IQR", d)
+    say = lambda l, r, w: bxp_test_said(ln, l, rn, r, x, w)
+    wrongs = {BXP_T + "4": {say(lv, rv, other)}}
+    if angle == "fences":
+        fm = f["med"] + d if up else f["med"] - d
+        need((x > fm) if up else (x < fm), "the median's fence must say outlier")
+        wrongs[BXP_T + "1"] = {say(iq, fm, BXP_IS)}
+        if up:
+            f3 = sp.Rational(3, 2) * f["q3"]
+            need(x <= f3, "1.5 × Q3 must say not")
+            wrongs[BXP_T + "0"] = {say(iq, f3, BXP_NOT)}
+        else:
+            wrongs[BXP_T + "3"] = {f"IQR = {dec_text(iq)} and upper fence = {dec_text(hi)}, so {dec_text(x)} {BXP_NOT}"}
+    else:
+        dm = x - f["med"] if up else f["med"] - x
+        need(dm > d, "the distance from the median must say outlier")
+        wrongs[BXP_T + "1"] = {say(dm, d, BXP_IS)}
+        far = sp.Rational(3, 2) * (f["q3"] if up else f["q1"])
+        need(lv <= far, "1.5 × the quartile must say not")
+        wrongs[BXP_T + ("0" if up else "7")] = {say(lv, far, BXP_NOT)}
+    bxp_common(q, say(lv, rv, verdict), wrongs)
+    need(sum(o["text"].endswith(" " + BXP_NOT) for o in q["choices"]) == 2, "two options must end in each verdict")
+    a = q["answer"]["values"]
+    need(R(a["l"]) == lv and R(a["r"]) == rv and a["verdict"] == verdict, "the typed answer")
+
+
+def bxp_show(q, rep):
+    angle, asked = q["view"]["angle"], q["asked"]
+    mt = re.fullmatch(rf"Show that the greatest value, ({BXP_NUM}), is an outlier\.", asked)
+    need(mt is not None, f"asked {asked!r}")
+    x = R(mt.group(1))
+    f, _ = bxp_rule_facts(q, rep)
+    need(x == f["max"], "that is not the greatest value")
+    iq, lo, hi, d = bxp_fence(f)
+    need(x > hi, "the greatest value is not an outlier")
+    f3, fm = sp.Rational(3, 2) * f["q3"], f["med"] + d
+    if angle == "fences":
+        ln, lv, rn, rv = "IQR", iq, "upper fence", hi
+        slips = {BXP_T + "1": (iq, fm), BXP_T + "0": (iq, f3), BXP_T + "5": (iq, f["q3"] + iq)}
+    else:
+        ln, lv, rn, rv = f"{dec_text(x)} − Q3", x - f["q3"], "1.5 × IQR", d
+        slips = {BXP_T + "1": (x - f["med"], d), BXP_T + "0": (lv, f3), BXP_T + "5": (lv, iq)}
+    say = lambda l, r: f"{ln} = {dec_text(l)} and {rn} = {dec_text(r)}, so {dec_text(x)} {BXP_IS}"
+    bxp_common(q, say(lv, rv), {k: {say(*p)} for k, p in slips.items()})
+
+
+def bxp_whole_above(x):
+    return sp.floor(x) + 1
+
+
+def bxp_compare_set(q, c, word, spread, v):
+    """The four options of a comparison: v is [centre, centre, spread, spread, max, max]."""
+    g = c[5]
+    hi = 0 if v[0] > v[1] else 1
+    steady = 0 if v[2] < v[3] else 1
+    wide, top = 1 - steady, 0 if v[4] > v[5] else 1
+    need(v[0] != v[1] and v[2] != v[3] and v[4] != v[5], "the two groups tie")
+    need(top != hi, "the higher maximum belongs to the higher centre")
+    cap_g = [f"The {g[0]}", f"The {g[1]}"]
+    u = lambda x: bxp_u(c, x)
+    want = f"{cap_g[hi]} typically {c[6]}: {word} {u(v[hi])} against {u(v[1 - hi])}. {cap_g[steady]} were more consistent: {spread} {u(v[2 + steady])} against {u(v[2 + wide])}."
+    wrongs = {BXP_C + "0": {f"{cap_g[top]} typically {c[6]}: maximum {u(v[4 + top])} against {u(v[5 - top])}. {cap_g[steady]} were more consistent: {spread} {u(v[2 + steady])} against {u(v[2 + wide])}."},
+              BXP_C + "1": {f"{cap_g[wide]} typically {c[6]}: {spread} {u(v[2 + wide])} against {u(v[2 + steady])}. {cap_g[wide]} were less consistent: {spread} {u(v[2 + wide])} against {u(v[2 + steady])}."},
+              BXP_C + "2": {f"The {word}s are {u(v[0])} and {u(v[1])}, and the {spread}s are {u(v[2])} and {u(v[3])}."}}
+    bxp_common(q, want, wrongs)
+    need({o["text"] for o in q["choices"]} == {want} | set().union(*wrongs.values()), "an option states something else")
+
+
+def bxp_box_plot(q):
+    g, u, L, rep, asked, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    c = bxp_story(q) if u != "five-number-from-cumfreq" else None
+    if u == "read-median":
+        f, name = bxp_chosen(q)
+        need(asked == f"Write down the median {c[2]}{name}.", f"asked {asked!r}")
+        bxp_common(q, f"median = {bxp_u(c, f['med'])}", {BXP_B + "5": {f"median = {bxp_u(c, (f['q1'] + f['q3']) / 2)}"}})
+    elif u == "read-quartile":
+        f, _ = bxp_chosen(q)
+        low = "lower quartile" in asked
+        bxp_common(q, f"{'Q1' if low else 'Q3'} = {bxp_u(c, f['q1'] if low else f['q3'])}", {})
+    elif u == "read-iqr":
+        f, name = bxp_chosen(q)
+        need(asked == f"Find the interquartile range{name}.", f"asked {asked!r}")
+        s = lambda v: f"IQR = {bxp_u(c, v)}"
+        bxp_common(q, s(f["q3"] - f["q1"]), {BXP_B + "6": {s(f["max"] - f["min"])}, "SL4.3.quartiles-discrete#0": {s(f["q1"] + f["q3"])}})
+    elif u == "read-range":
+        rows = bxp_fig(q)
+        bxp_plot_line(q)
+        f = rows[0]
+        s = lambda v: f"range = {bxp_u(c, v)}"
+        wrongs = {BXP_B + "6": {s(f["q3"] - f["q1"])}}
+        top = f["max"]
+        if f["out"]:
+            need(L[1] == "A cross marks an outlier.", "the cross isn't explained")
+            iq, lo, hi, _ = bxp_fence(f)
+            top = f["out"][0]
+            need(top > hi and lo <= f["min"] and f["max"] <= hi, "the cross is not the one outlier")
+            wrongs[BXP_B + "7"] = {s(f["max"] - f["min"])}
+        bxp_common(q, s(top - f["min"]), wrongs)
+    elif u == "read-median-iqr":
+        f, name = bxp_chosen(q)
+        need(asked == f"Write down the median and the interquartile range{name}.", f"asked {asked!r}")
+        s = lambda a, b: f"median = {bxp_u(c, a)}, IQR = {bxp_u(c, b)}"
+        iq = f["q3"] - f["q1"]
+        bxp_common(q, s(f["med"], iq), {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2, iq)}, BXP_B + "6": {s(f["med"], f["max"] - f["min"])}})
+    elif u == "five-number-from-data":
+        need(BXP_HALVES in L, "the quartile convention isn't stated")
+        xs, fs, v = bxp_data(q)
+        f = bxp_summary(v)
+        bxp_ok(f)
+        bxp_common(q, bxp_five_text(f), {r: {bxp_five_text(s)} for r, s in bxp_data_slips(q, xs, fs, v).items()})
+    elif u == "five-number-from-cumfreq":
+        cc = CF_CTX[int(g["ctx"])]
+        n, dx, dy, pts = cf_curve(q, cc)
+        q1 = cf_read_x(pts, sp.Rational(n, 4), dx, dy)
+        med = cf_read_x(pts, sp.Rational(n, 2), dx, dy)
+        q3 = cf_read_x(pts, sp.Rational(3 * n, 4), dx, dy)
+        lo, hi = pts[0][0], pts[-1][0]
+        x1 = CF_SQUARES * dx
+        need(0 < lo and hi < x1, "the curve must start and end inside the axis")
+        f = {"min": lo, "q1": q1, "med": med, "q3": q3, "max": hi}
+        wrongs = {BXP_B + "8": {bxp_five_text(dict(f, q1=sp.Rational(x1, 4), med=sp.Rational(x1, 2), q3=sp.Rational(3 * x1, 4)))},
+                  BXP_B + "9": {bxp_five_text(dict(f, q1=sp.Rational(n, 4), med=sp.Rational(n, 2), q3=sp.Rational(3 * n, 4)))},
+                  BXP_B + "10": {bxp_five_text(dict(f, min=0, max=x1))}}
+        bxp_common(q, bxp_five_text(f), wrongs)
+    elif u == "pick-box-from-data":
+        need(BXP_HALVES in L, "the quartile convention isn't stated")
+        xs, fs, v = bxp_data(q)
+        f = bxp_summary(v)
+        bxp_ok(f)
+        slips = bxp_data_slips(q, xs, fs, v)
+        slips[BXP_B + "5"] = dict(f, med=(f["q1"] + f["q3"]) / 2)
+        bxp_pick(q, f, slips)
+    elif u == "pick-box-with-outlier":
+        need(BXP_HALVES in L and BXP_RULE in L, "the rule isn't stated")
+        _, _, v = bxp_data(q)
+        f = bxp_summary(v)
+        iq, lo, hi, _ = bxp_fence(f)
+        need(v[-1] > hi and v[-2] <= hi and v[0] >= lo, "one high outlier")
+        right = dict(f, max=v[-2], out=[v[-1]])
+        bxp_pick(q, right, {BXP_B + "1": dict(f, max=v[-1]), BXP_B + "16": dict(f, max=hi, out=[v[-1]])})
+    elif u in ("count-in-section", "percent-in-section"):
+        if rep == "words":
+            mt = re.fullmatch(rf"For {re.escape(c[1])} (\d+) {c[0]}:", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            n, f = int(mt.group(1)), bxp_five_words(q, L[1])
+        else:
+            n, f = bxp_plot_line(q), bxp_fig(q)[0]
+        mt = re.search(rf"with a {re.escape(c[2])} between ({BXP_NUM}) and ({BXP_NUM})\.$", asked)
+        need(mt is not None, f"asked {asked!r}")
+        a, b = R(mt.group(1)), R(mt.group(2))
+        vals = [f[k] for k in BXP_NAMES]
+        need(a in vals and b in vals and a < b, "the marks aren't two of the five numbers")
+        k = vals.index(b) - vals.index(a)
+        whole = f["max"] - f["min"]
+        if u == "count-in-section":
+            need(n % 4 == 0 and n != 100, f"n = {n}")
+            slip = sp.Rational(n) * (b - a) / whole
+            need(slip.q == 1 and slip != sp.Rational(n * k, 4), "the slip by length")
+            s = lambda v: f"number = {dec_text(v)} {c[0]}"
+            bxp_common(q, s(sp.Rational(n * k, 4)), {BXP_B + "0": {s(slip)}})
+        else:
+            slip = 100 * (b - a) / whole
+            need(slip.q == 1 and slip != 25 * k, "the slip by length")
+            s = lambda v: f"percentage = {dec_text(v)}%"
+            bxp_common(q, s(sp.Integer(25 * k)), {BXP_B + "0": {s(slip)}})
+    elif u == "value-at-share":
+        f = bxp_fig(q)[0]
+        bxp_plot_line(q)
+        mt = re.fullmatch(rf"(Half|A quarter|Three quarters) of the {c[0]} have a {re.escape(c[2])} (below|above) a {c[3]}\. Estimate the value of a\.", asked)
+        need(mt is not None, f"asked {asked!r}")
+        below = {"Half": sp.Rational(1, 2), "A quarter": sp.Rational(1, 4), "Three quarters": sp.Rational(3, 4)}[mt.group(1)]
+        if mt.group(2) == "above":
+            below = 1 - below
+        key = {sp.Rational(1, 4): "q1", sp.Rational(1, 2): "med", sp.Rational(3, 4): "q3"}[below]
+        s = lambda v: f"a = {bxp_u(c, v)}"
+        wrongs = {BXP_B + "5": {s((f["q1"] + f["q3"]) / 2)}} if key == "med" else {BXP_B + "11": {s(f["q3" if key == "q1" else "q1"])}}
+        bxp_common(q, s(f[key]), wrongs)
+    elif u == "could-be-normal":
+        f = bxp_fig(q)[0]
+        bxp_plot_line(q)
+        a, b = f["med"] - f["q1"], f["q3"] - f["med"]
+        w1, w2 = f["q1"] - f["min"], f["max"] - f["q3"]
+        need((a == b) == (w1 == w2), "the box and the whiskers disagree about the shape")
+        right, other = (BXP_NORMAL, BXP_SKEWED) if a == b else (BXP_SKEWED, BXP_NORMAL)
+        s = lambda w: f"median − Q1 = {dec_text(a)} and Q3 − median = {dec_text(b)}, so the data {w}"
+        one = f"range = {dec_text(f['max'] - f['min'])}, so the data "
+        wrongs = {BXP_B + "13": {s(other)}, BXP_B + "12": {one + BXP_NORMAL, one + BXP_SKEWED}}
+        bxp_common(q, s(right), wrongs)
+        need({o["text"] for o in q["choices"]} == {s(right), s(other), one + BXP_NORMAL, one + BXP_SKEWED}, "an option states something else")
+    elif u == "mean-against-median":
+        f = bxp_fig(q)[0]
+        bxp_plot_line(q)
+        up = f["max"] - f["q3"] > f["q1"] - f["min"]
+        need(up == (f["q3"] - f["med"] > f["med"] - f["q1"]) and f["max"] - f["q3"] != f["q1"] - f["min"], "the shape is mixed")
+        more, less, tail, pull = ("greater", "less", "upper", "high") if up else ("less", "greater", "lower", "low")
+        want = f"The mean is likely to be {more} than the median: the long {tail} whisker holds a few {pull} values, which pull the mean that way."
+        wrongs = {BXP_B + "0": {f"The mean is likely to be {less} than the median: the long {tail} whisker holds more of the data."},
+                  BXP_B + "14": {"The mean and the median are likely to be equal: half of the data lie on each side of the median."}}
+        bxp_common(q, want, wrongs)
+    elif u == "compare-box-plots":
+        a, b = bxp_two(q)
+        t = R(q["graph"]["tick"])
+        ia, ib = a["q3"] - a["q1"], b["q3"] - b["q1"]
+        need(abs(a["med"] - b["med"]) >= 2 * t and abs(ia - ib) >= 2 * t, "the groups are too alike")
+        bxp_compare_set(q, c, "median", "IQR", [a["med"], b["med"], ia, ib, a["max"], b["max"]])
+    elif u == "compare-summary":
+        rows = q["table"]["rows"]
+        need(rows[0][1] == list(c[5]) and [r[0] for r in rows[1:]] == ["Mean", "Standard deviation", "Maximum"], "table heads")
+        m, sd, top = [[R(v) for v in r[1]] for r in rows[1:]]
+        need(all(top[i] > m[i] for i in (0, 1)), "a maximum is below its mean")
+        bxp_compare_set(q, c, "mean", "standard deviation", [m[0], m[1], sd[0], sd[1], top[0], top[1]])
+    elif u == "claim-from-box-plots":
+        a, b = bxp_two(q)
+        rows = (a, b)
+        mt = re.fullmatch(rf"Mara claims that the (.+) typically {re.escape(c[6])} than the (.+)\.", L[1])
+        need(mt is not None and {mt.group(1), mt.group(2)} == set(c[5]), f"can't read {L[1]!r}")
+        i = c[5].index(mt.group(1))
+        holds = rows[i]["med"] > rows[1 - i]["med"]
+        need(rows[0]["med"] != rows[1]["med"], "the medians tie")
+        ia, ib = a["q3"] - a["q1"], b["q3"] - b["q1"]
+        right, flip = (BXP_SUPPORT, BXP_OPPOSE) if holds else (BXP_OPPOSE, BXP_SUPPORT)
+        s = lambda w, x, y, v: f"The {w} is {dec_text(x)} for the {c[5][0]} and {dec_text(y)} for the {c[5][1]}, so the plots {v} the claim"
+        # Each end-only or spread-only reading points the way its option says.
+        need((rows[i]["max"] > rows[1 - i]["max"]) != holds, "the maxima must mislead")
+        wide = (ia > ib) == (i == 0)
+        need(wide == holds, "the IQRs must mislead the other way")
+        wrongs = {BXP_C + "3": {s("median", a["med"], b["med"], flip)}, BXP_C + "0": {s("maximum", a["max"], b["max"], flip)}, BXP_C + "1": {s("IQR", ia, ib, right)}}
+        bxp_common(q, s("median", a["med"], b["med"], right), wrongs)
+        need(sum(o["text"].endswith(f" {BXP_OPPOSE} the claim") for o in q["choices"]) == 2, "two options must end in each verdict")
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def bxp_outlier(q):
+    g, u, L, rep, asked, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    c = bxp_story(q)
+    if u == "find-fences":
+        f, _ = bxp_rule_facts(q, rep)
+        iq, lo, hi, d = bxp_fence(f)
+        s = lambda a, b: f"lower fence = {dec_text(a)}, upper fence = {dec_text(b)}"
+        wrongs = {BXP_T + "1": {s(f["med"] - d, f["med"] + d)}, BXP_T + "5": {s(f["q1"] - iq, f["q3"] + iq)}, BXP_T + "0": {s(lo, sp.Rational(3, 2) * f["q3"])}}
+        bxp_common(q, s(lo, hi), wrongs)
+    elif u == "decide-outlier":
+        bxp_test(q, rep)
+    elif u == "show-max-outlier":
+        bxp_show(q, rep)
+    elif u == "largest-not-outlier":
+        f, _ = bxp_rule_facts(q, rep)
+        iq, lo, hi, d = bxp_fence(f)
+        s = lambda v: f"largest value = {bxp_u(c, v)}"
+        bxp_common(q, s(hi), {BXP_T + "0": {s(sp.Rational(3, 2) * f["q3"])}, BXP_T + "1": {s(f["med"] + d)}, BXP_T + "5": {s(f["q3"] + iq)}})
+    elif u == "smallest-outlier":
+        need(asked.startswith("Every value is a whole number."), "the values aren't said to be whole")
+        f, _ = bxp_rule_facts(q, rep)
+        need(all(f[k].q == 1 for k in BXP_NAMES), "the data aren't whole numbers")
+        iq, lo, hi, d = bxp_fence(f)
+        s = lambda v: f"smallest outlier = {bxp_u(c, v)}"
+        wa = bxp_whole_above
+        bxp_common(q, s(wa(hi)), {BXP_T + "6": {s(sp.floor(hi))}, BXP_T + "0": {s(wa(sp.Rational(3, 2) * f["q3"]))}, BXP_T + "1": {s(wa(f["med"] + d))}, BXP_T + "5": {s(wa(f["q3"] + iq))}})
+    elif u == "quartile-from-no-outliers":
+        mt = re.fullmatch(rf"The interquartile range is ({BXP_NUM}) {c[3]} and there are no outliers\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        iq = R(mt.group(1))
+        d = sp.Rational(3, 2) * iq
+        if rep == "graph":
+            spec = q["graph"]
+            need(spec["scale"] is False, "the sketch must say it is not to scale")
+            need("not drawn to scale" in L[0], "the sketch must say it is not to scale")
+            lab = spec["labels"]
+            need(lab[1] == "L" and lab[3] == "U", "L and U aren't marked")
+            lo, med, hi = R(lab[0]), R(lab[2]), R(lab[4])
+        else:
+            mt = re.search(rf"the least value is ({BXP_NUM}), the median is ({BXP_NUM}) and the greatest value is ({BXP_NUM})\.", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            lo, med, hi = R(mt.group(1)), R(mt.group(2)), R(mt.group(3))
+        need(BXP_RULE in L, "the rule isn't stated")
+        umin = hi - d
+        lmin = umin - iq
+        need(lo < lmin < med < umin < hi, "the bound leaves no room for the median")
+        need(lmin - d <= lo, "the least value would be an outlier")
+        which = re.fullmatch(r"Find the minimum possible value of ([UL])\.", asked).group(1)
+        s = lambda v: f"{which} = {bxp_u(c, v)}"
+        if which == "U":
+            wrongs = {BXP_T + "5": {s(hi - iq)}, BXP_T + "0": {s(hi / sp.Rational(3, 2))}}
+            bxp_common(q, s(umin), wrongs)
+        else:
+            bxp_common(q, s(lmin), {BXP_T + "5": {s(hi - 2 * iq)}})
+    elif u == "outliers-in-data":
+        need(BXP_HALVES in L and BXP_RULE in L, "the rule isn't stated")
+        xs, fs, v = bxp_data(q)
+        f = bxp_summary(v)
+        iq, lo, hi, d = bxp_fence(f)
+        need(lo not in v and hi not in v, "a value is on a fence")
+        beyond = lambda a, b: sum(1 for e in v if e < a or e > b)
+        k = beyond(lo, hi)
+        near = sum(1 for e in v if f["q3"] + iq < e <= hi)
+        need(k <= 3 and near >= 1, "the data")
+        s = lambda n: f"number of outliers = {n}"
+        wrongs = {BXP_T + "2": {s(k + near)}, BXP_T + "1": {s(beyond(f["med"] - d, f["med"] + d))}, BXP_T + "0": {s(beyond(f["q1"] / 2, sp.Rational(3, 2) * f["q3"]))}}
+        bxp_common(q, s(k), wrongs)
+    elif u == "keep-or-remove":
+        l = BXP_LIMITS[int(g["ctx"])]
+        mt = re.fullmatch(rf"A camp records {re.escape(l[0])}, (\d+) times in all\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        mt = re.fullmatch(re.escape(l[1]).replace(r"\{\}", rf"({BXP_NUM})"), L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        lim = R(mt.group(1))
+        mt = re.fullmatch(rf"Q1 = ({BXP_NUM}) and Q3 = ({BXP_NUM}), and the value ({BXP_NUM}) is an outlier by the 1\.5 × IQR rule\.", L[2])
+        need(mt is not None, f"can't read {L[2]!r}")
+        q1, q3, x = [R(mt.group(i)) for i in (1, 2, 3)]
+        need(x > q3 + sp.Rational(3, 2) * (q3 - q1), "the value is no outlier")
+        remove = f"Remove it: {dec_text(x)} is above {dec_text(lim)}, so {l[2]}, and it must be a recording error."
+        keep = f"Keep it: {dec_text(x)} is unusually high but it is possible, so it is a genuine value."
+        bxp_common(q, remove if x > lim else keep, {BXP_D + "0": {"Remove it: every outlier must be deleted, because it fails the test."},
+                                                    BXP_D + "2": {"Keep it: an outlier is always part of the data, whatever its value."}})
+        need({keep, remove} <= {o["text"] for o in q["choices"]}, "both verdicts on the facts must be options")
+    elif u in ("effect-of-removing", "which-measure-moves"):
+        _, _, v = bxp_data(q)
+        mt = re.fullmatch(rf"The value ({BXP_NUM}) is an outlier and is removed\.", L[2])
+        need(mt is not None, f"can't read {L[2]!r}")
+        x = R(mt.group(1))
+        f = bxp_summary(v)
+        iq, lo, hi, d = bxp_fence(f)
+        need(x > hi or x < lo, "the value is no outlier")
+        need(x in (v[0], v[-1]), "the value is not an end")
+        rest = list(v)
+        rest.remove(x)
+        m0, m1 = sum(v) / len(v), sum(rest) / len(rest)
+        d0, d1 = ds_median(v), ds_median(rest)
+        need(d0 != d1 and abs(m0 - m1) >= 3 * abs(d0 - d1), "the mean must move far more than the median")
+        h = bxp_summary(rest)
+        r0, r1 = v[-1] - v[0], rest[-1] - rest[0]
+        i1 = h["q3"] - h["q1"]
+        need(r0 - r1 >= 3 * abs(iq - i1), "the range must move far more than the IQR")
+        if u == "effect-of-removing":
+            if paper == 2:
+                need(ds_clear(m1), "the new mean is on a rounding edge")
+            else:
+                need((10 * m1).q == 1, "a Paper 1 mean ends in one decimal")
+            sh = (lambda e: dec_text(e)) if paper == 1 else (lambda e: dec_text(e) if sp.Rational(sig3(e)) == e else sig3(e))
+            s = lambda a, b: f"new mean = {sh(a)}, new median = {sh(b)}"
+            wrongs = {BXP_D + "4": {s(m1, d0)}, BXP_D + "1": {s(m1, d0 + m1 - m0)}, BXP_D + "3": {s(sum(rest) / len(v), d1)}}
+            bxp_common(q, s(m1, d1), wrongs)
+        else:
+            centre = "mean and the median" in asked
+            big, small = ("mean", "median") if centre else ("range", "IQR")
+            falls = x > m1 if centre else True
+            way, back = ("falls", "rises") if falls else ("rises", "falls")
+            t = lambda a, w, b: f"The {a} {w} a lot and the {b} hardly moves: only the {a} feels how far out a value is."
+            wrongs = {BXP_D + "1": {f"The {big} and the {small} {way} by about the same amount: they both describe the same data."},
+                      BXP_D + "5": {t(small, way, big)}, BXP_D + "6": {t(big, back, small)}}
+            bxp_common(q, t(big, way, small), wrongs)
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def check_box_plot(q):
+    bxp_steps(q)
+    for sol in q["solutions"]:
+        if sol["angle"] in ("gdc-stats", "gdc-modified-box"):
+            need(q["paper"] == 2 or q["view"]["angle"] not in ("gdc-stats", "gdc-modified-box"), "a GDC method is Paper 2")
+    (bxp_box_plot if q["view"]["type"] == "t4-box-plot" else bxp_outlier)(q)
+    return None, None
+# ── end box-plot ──
+
+
+SITUATION_CHECKS = {"box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,

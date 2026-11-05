@@ -41,6 +41,10 @@ extends Control
 ##   squares     {"style": "shaded", "cut", "shaded", "area"}: a square cut into cut × cut, with
 ##               `shaded` of them shaded and the rest repeated in the top right corner, or
 ##               {"style": "nested", "t", "side"}: squares inside squares, each corner t along a side
+##   box         {"x0", "x1", "tick", "every", "name", "boxes": [{"name", "min", "q1", "med", "q3", "max",
+##               "out": [outliers, drawn as crosses]}]}: box plots to scale on one axis, a tick at every
+##               `tick` and a number at every `every`-th. With "scale": false, one box with its
+##               "labels" (five texts) under the five points and no axis: a sketch, not to scale
 
 const PAD := 26.0
 const FONT_SIZE := 32
@@ -48,6 +52,7 @@ const DOT := 13.0
 const LABEL_GAP := 90.0
 const TREE_TOP := 64.0
 const TREE_LEAF := 84.0
+const BOX_ROW := 150.0
 
 var spec: Dictionary = {}
 
@@ -60,6 +65,8 @@ func _init() -> void:
 func set_spec(s: Dictionary) -> void:
 	spec = s
 	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "unit-circle": 640, "straight-angle": 420, "solid": 640, "bounce": 520, "squares": 660}.get(s.get("kind"), 560))
+	if s.get("kind") == "box":
+		custom_minimum_size.y = (BOX_ROW * s.boxes.size() + 170.0) if s.get("scale", true) else 300.0
 	if s.get("kind") == "tree" and s.has("heads"):
 		custom_minimum_size.y = maxf(620.0, TREE_TOP + 26.0 + s.first.size() * s.second.size() * TREE_LEAF)
 	queue_redraw()
@@ -110,6 +117,8 @@ func _draw() -> void:
 			_bounce()
 		"squares":
 			_squares()
+		"box":
+			_box_plots()
 
 
 func _text(s: String, at: Vector2, col: Color, fs: int = FONT_SIZE, centred: bool = true) -> void:
@@ -1192,3 +1201,68 @@ func _nested(box: Rect2) -> void:
 		for i in 4:
 			inner.append(corners[i].lerp(corners[(i + 1) % 4], t))
 		corners = inner
+
+
+# ── Box plots ────────────────────────────────────────────────
+
+func _box_plots() -> void:
+	var left := PAD + 30.0
+	var right := size.x - PAD - 30.0
+	var scaled: bool = spec.get("scale", true)
+	var rows: Array = spec.boxes
+	if not scaled:
+		_box_sketch(left, right)
+		return
+	var x0 := float(spec.x0)
+	var x1 := float(spec.x1)
+	var px := func(v: float) -> float: return left + (v - x0) / (x1 - x0) * (right - left)
+	var base := BOX_ROW * rows.size() + 40.0
+	var tick := float(spec.tick)
+	var count := roundi((x1 - x0) / tick)
+	# The ticks run up the figure, so a value is read straight down to its number.
+	for k in count + 1:
+		var p: float = px.call(x0 + k * tick)
+		var bold: bool = k % int(spec.every) == 0
+		draw_line(Vector2(p, 16), Vector2(p, base), Color(1, 1, 1, 0.34 if bold else 0.15), 2.0)
+		draw_line(Vector2(p, base), Vector2(p, base + (20.0 if bold else 12.0)), UiTheme.DIM, 3.0)
+		if bold:
+			_text(_n(x0 + k * tick), Vector2(p, base + 58.0), UiTheme.DIM, FONT_SIZE - 6)
+	draw_line(Vector2(left, base), Vector2(right, base), UiTheme.DIM, 4.0)
+	_text(spec.name, Vector2(size.x / 2.0, base + 108.0), UiTheme.TEXT, FONT_SIZE - 4)
+	for i in rows.size():
+		_one_box(rows[i], 28.0 + BOX_ROW * i, px)
+
+
+func _one_box(b: Dictionary, top: float, px: Callable) -> void:
+	var named: bool = b.name != ""
+	var y0 := top + (34.0 if named else 8.0)
+	var h := BOX_ROW - (70.0 if named else 44.0)
+	var y := y0 + h / 2.0
+	var at := func(key: String) -> float: return px.call(float(b[key]))
+	var box := Rect2(Vector2(at.call("q1"), y0), Vector2(at.call("q3") - at.call("q1"), h))
+	draw_rect(box, Color(UiTheme.TEAL, 0.28))
+	draw_rect(box, UiTheme.TEAL, false, 4.0)
+	draw_line(Vector2(at.call("med"), y0), Vector2(at.call("med"), y0 + h), UiTheme.SAND, 6.0)
+	draw_line(Vector2(at.call("min"), y), Vector2(at.call("q1"), y), UiTheme.TEAL, 4.0)
+	draw_line(Vector2(at.call("q3"), y), Vector2(at.call("max"), y), UiTheme.TEAL, 4.0)
+	for key in ["min", "max"]:
+		draw_line(Vector2(at.call(key), y - 20.0), Vector2(at.call(key), y + 20.0), UiTheme.TEAL, 4.0)
+	for v in b.out:
+		var c := Vector2(px.call(float(v)), y)
+		draw_line(c + Vector2(-13, -13), c + Vector2(13, 13), UiTheme.SAND, 5.0)
+		draw_line(c + Vector2(-13, 13), c + Vector2(13, -13), UiTheme.SAND, 5.0)
+	if named:
+		_chip(b.name, Vector2(px.call(float(b.min)) + 30.0 if b.name.length() > 1 else 26.0, top + 22.0), UiTheme.TEXT, FONT_SIZE - 6)
+
+
+## Not to scale: the shape of the box and five labels under its points.
+func _box_sketch(left: float, right: float) -> void:
+	var b: Dictionary = spec.boxes[0]
+	var lo := float(b.min)
+	var hi := float(b.max)
+	var px := func(v: float) -> float: return left + 40.0 + (v - lo) / (hi - lo) * (right - left - 80.0)
+	_text(spec.name, Vector2(size.x / 2.0, 44.0), UiTheme.TEXT, FONT_SIZE - 4)
+	_one_box(b, 70.0, px)
+	for i in spec.labels.size():
+		var key: String = ["min", "q1", "med", "q3", "max"][i]
+		_text(spec.labels[i], Vector2(px.call(float(b[key])), 262.0), UiTheme.TEXT, FONT_SIZE - 2)
