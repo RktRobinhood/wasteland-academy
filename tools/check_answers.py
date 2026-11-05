@@ -20132,6 +20132,9 @@ def check_binomial_expansion(q):
     else:
         label, want, read, wrongs = be_one(q, u, paper)
     be_check_options(q, label, want, read, wrongs)
+    return None, None
+
+
 # ── normal-probability (t4-normal-probability, FAL-728) ──────
 # The checker's own reading of what the student sees: μ and σ from the first line, the region
 # from the stem or from the curve's shade and marks, and the areas from mpmath through nu_phi
@@ -20759,7 +20762,7 @@ def pf_multiple(q, g, rep, angle):
     need(pf_divides_all(e, m, n), f"{m} does not divide E for every integer")
     k = sp.expand(e) / m
     need(pf_int_coeffs(k, n), "k has a fraction in it")
-    need(q["lines"] == pf_named(g, rep, "E", left_text) + [f"E is a multiple of {m}: E = {m}k."], f"can't read {q['lines']}")
+    need(q["lines"] == pf_named(g, rep, "E", left_text) + ([] if rep == "words" else ["n is an integer."]) + [f"E is a multiple of {m}: E = {m}k."], f"can't read {q['lines']}")
     slips = {r: sp.expand(v) / m for r, v in pf_slips(g, angle == "factorise").items()}
     pf_options(q, "k = ", k, slips, "k = " + pf_poly(k, n))
     pf_steps(q, {"E": e})

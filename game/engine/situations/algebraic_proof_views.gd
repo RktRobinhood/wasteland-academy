@@ -774,7 +774,8 @@ func u_multiple_k(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		wrongs.append(line_option(ln(items), good, slip_ref(s, angle, k)))
 	var nm := name_of(s)
 	var generic: Array = [ln([T("k", big, "n")]), ln([T("k", big / m + 1, "n")]), ln([T("k", big / m + 2, "n")]), ln([T("k", big * m, "n")])]
-	return {"asked": "Find k in terms of n.", "lines": numbers_shown(s, rep) + ["%s is a multiple of %d: %s = %dk." % [nm, m, nm, m]], "answer": ans, "wrongs": wrongs,
+	var given: Array = [] if rep == "words" else ["n is an integer."]
+	return {"asked": "Find k in terms of n.", "lines": numbers_shown(s, rep) + given + ["%s is a multiple of %d: %s = %dk." % [nm, m, nm, m]], "answer": ans, "wrongs": wrongs,
 		"generic": generic.map(func(w): return line_option(w, good).values),
 		"methods": every_method(s, ans, func(meth): return walk(steps_of(s, meth), 4, nm) + ["%s is an integer, so %s is %d times an integer." % [good.text, nm, m], say(ans)])}
 
@@ -788,6 +789,8 @@ func u_consecutive_sum(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var generic: Array = [ln([K(m), "(", T("u", s.big, "n"), T("b", tail), ")"]), ln([K(m), "(", T("u", s.big / m, "n"), T("b", tail), ")"]),
 		ln([K(m), "(", T("u", s.big, "n"), T("b", tail / m), ")"])]
 	var lines: Array = numbers_shown(s, rep)
+	if rep != "words":
+		lines.append("n is an integer.")
 	return {"asked": "Write S as %d times an integer expression in n." % m, "lines": lines, "answer": ans, "wrongs": slip_options(s, "algebraic-form", 2, good),
 		"generic": (generic.map(func(w): return line_option(w, good)) + bumps(good)).map(func(w): return w.values),
 		"methods": {"algebraic-form": method(walk(c, 2, "S") + ["n is an integer, so the bracket is an integer, and S is a multiple of %d." % m, say(ans)], ans.values)}}
@@ -807,7 +810,7 @@ func u_greatest_divisor(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {"asked": "Find the largest whole number that divides S for every positive integer n.", "lines": lines, "answer": ans,
 		"wrongs": [wrong({"v": Q.new(big)}, R_BRACKET), wrong({"v": Q.new(one)}, R_EXAMPLES)],
 		"generic": [{"v": Q.new(m + 1)}, {"v": Q.new(2 * m)}, {"v": Q.new(tail)}, {"v": Q.new(s.c)}, {"v": Q.new(3 * m)}],
-		"methods": {"algebraic-form": method(walk(c, 1, "S") + ["The hcf of %d and %d is %d, so S = %s and %d divides S for every n." % [big, tail, m, bracket, m],
+		"methods": {"algebraic-form": method(walk(c, 1, "S") + ["The hcf of %d and %d is %d, so S = %s. The bracket is an integer, so %d divides S for every n." % [big, tail, m, bracket, m],
 			"No larger number works: at n = 1 and n = 2, S is %d and %d, and their hcf is %d." % [one, two, Q.gcd(one, two)], say(ans)], ans.values)}}
 
 

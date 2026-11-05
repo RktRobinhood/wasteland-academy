@@ -53,6 +53,15 @@ func test_the_gdc_is_paper_2_and_the_rest_is_both() -> void:
 		check_eq(QuestionEngine.cell_papers(t, c.unknown, c.rep, c.angle), [2] if c.angle == "gdc-ncr" else [1, 2], c.key)
 
 
+func test_no_paper_1_question_shows_the_gdc() -> void:
+	for c in QuestionEngine.cells(false, [TYPE]):
+		if c.angle == "gdc-ncr":
+			continue
+		var q := QuestionEngine.make({"type": TYPE, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": 3, "paper": 1})
+		check_eq(q.paper, 1, c.key)
+		check(q.solutions.all(func(x): return x.angle != "gdc-ncr"), "%s shows a GDC tab" % c.key)
+
+
 func test_same_seed_same_question() -> void:
 	for c in QuestionEngine.cells(false, [TYPE]):
 		var a := _make(c.unknown, c.rep, c.angle, 7, "mcq")

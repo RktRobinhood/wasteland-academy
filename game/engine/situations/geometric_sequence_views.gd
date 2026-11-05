@@ -342,10 +342,19 @@ static func gdc_sum(s: Dictionary, u1: Q, r: Q, n: int) -> String:
 
 
 ## The steps of S − rS, in this order: both rows, the subtraction, the numbers.
+## A sum's value, with the fractions worked on Paper 1, where there is no calculator.
+static func sum_worked(s: Dictionary, u1: Q, r: Q, n: int) -> String:
+	var total := X(s, partial(u1, r, n))
+	if s.paper != 1 or r.is_int():
+		return total
+	var top := Q.new(1).sub(power(r, n))
+	return "%s × %s ÷ %s = %s" % [B(s, u1), B(s, top), B(s, Q.new(1).sub(r)), total]
+
+
 static func shift_steps(s: Dictionary, u1: Q, r: Q, n: int, final: String) -> Array:
 	return ["Write Sₙ = u₁ + u₁r + … + u₁r^(n − 1) and rSₙ = u₁r + u₁r² + … + u₁r^n.",
 		"Subtract: every middle term cancels, so Sₙ − rSₙ = u₁ − u₁r^n, and Sₙ = u₁(1 − r^n)/(1 − r).",
-		"With n = %d: %s(1 − %s)/(1 − %s) = %s" % [n, B(s, u1), pow_text(s, r, n), B(s, r), X(s, partial(u1, r, n))], final]
+		"With n = %d: %s(1 − %s)/(1 − %s) = %s" % [n, B(s, u1), pow_text(s, r, n), B(s, r), sum_worked(s, u1, r, n)], final]
 
 
 # ── Terms ────────────────────────────────────────────────────
@@ -359,8 +368,9 @@ func u_r_from_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"wrongs": [wrong({"v": s.u1.div(u2)}, R_R_FLIP), wrong({"v": u2.sub(s.u1)}, R_R_FLIP)],
 		"generic": vs([s.r.neg(), s.r.add(1), s.r.mul(2), u3.sub(u2)]),
 		"methods": {
-			"nth-formula": method([read, "Each term is r times the one before, so r = u₂ ÷ u₁ = %s ÷ %s = %s." % [X(s, u2), B(s, s.u1), X(s, s.r)], say(ans)], ans.values),
-			"repeated-multiply": method([read, "Multiply u₁ by %s: %s × %s = %s, and again: %s × %s = %s. The factor stays the same." % [B(s, s.r), B(s, s.u1), B(s, s.r), X(s, u2), B(s, u2), B(s, s.r), X(s, u3)], say(ans)], ans.values),
+			"nth-formula": method([read, "Put n = 2 in uₙ = u₁r^(n − 1): u₂ = u₁r, so r = u₂ ÷ u₁ = %s ÷ %s = %s." % [X(s, u2), B(s, s.u1), X(s, s.r)], say(ans)], ans.values),
+			"repeated-multiply": method([read, "u₁ × r = u₂, so try r = %s ÷ %s = %s." % [X(s, u2), B(s, s.u1), X(s, s.r)],
+				"Check: %s × %s = %s, and again: %s × %s = %s. The factor stays the same." % [B(s, s.u1), B(s, s.r), X(s, u2), B(s, u2), B(s, s.r), X(s, u3)], say(ans)], ans.values),
 		}})
 
 
@@ -375,7 +385,7 @@ func _term_methods(rep: String, s: Dictionary, n: int, ans: Dictionary) -> Dicti
 	var power_v := power(s.r, n - 1)
 	var out := {
 		"nth-formula": method([first, "%s = u₁r^(%d − 1) = %s × %s" % [U(n), n, B(s, s.u1), pow_text(s, s.r, n - 1)],
-			"%s × %s = %s" % [B(s, s.u1), B(s, power_v), X(s, v)], say(ans)], ans.values),
+			"%s × %s = %s" % [B(s, s.u1), B(s, power_v) if s.paper == 1 else pow_text(s, s.r, n - 1), X(s, v)], say(ans)], ans.values),
 		"repeated-multiply": method([first, "Start at u₁ and multiply by %s, %d times: %s" % [B(s, s.r), n - 1, ", ".join(steps_up)], say(ans)], ans.values),
 		"gdc-seq": method([first, "In sequence mode, enter u(n) = %s × %s^(n − 1)." % [B(s, s.u1), B(s, s.r)],
 			"The table at n = %d shows %s." % [n, X(s, v)], say(ans)], ans.values),
@@ -442,7 +452,7 @@ func u_general_term(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"methods": {
 			"nth-formula": method([first, "uₙ = u₁r^(n − 1), so put in u₁ and r.", say(ans)], ans.values),
 			"exponential-form": method([first, "uₙ = u₁r^(n − 1) = (u₁/r) × r^n, and u₁/r = %s ÷ %s = %s." % [X(s, s.u1), B(s, s.r), X(s, s.u1.div(s.r))],
-				say(ans)], ans.values),
+				"So uₙ = %s × %s^n." % [B(s, s.u1.div(s.r)), B(s, s.r)], say(ans)], ans.values),
 		}})
 
 
@@ -640,7 +650,7 @@ func u_coefficients_geometric(_rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		"lines": ["(1 + hx)%s, where h > 0" % Fmt.sup(s.n)], "answer": ans, "generic": gen,
 		"methods": {
 			"equal-ratios": method(["The coefficients are %sC%d h%s = %sh%s, %sC%d h%s = %sh%s and %sC%d h%s = %sh%s." % [s.n, a, Fmt.sup(a), Fmt.num(c[0]), Fmt.sup(a), s.n, b, Fmt.sup(b), Fmt.num(c[1]), Fmt.sup(b), s.n, d, Fmt.sup(d), Fmt.num(c[2]), Fmt.sup(d)],
-				"Middle term squared = product of its neighbours: %s = %s" % [lhs, rhs], "Divide by the lower power of h: %s" % solve, say(ans)], ans.values),
+				"Middle term squared = product of its neighbours: %s = %s" % [lhs, rhs], "Divide by the lower power of h, and take the root if a power is left: %s" % solve, say(ans)], ans.values),
 			"gdc-solver": method(["The coefficients are %sh%s, %sh%s and %sh%s." % [Fmt.num(c[0]), Fmt.sup(a), Fmt.num(c[1]), Fmt.sup(b), Fmt.num(c[2]), Fmt.sup(d)],
 				"Geometric means %s = %s. Graph both sides for h > 0." % [lhs, rhs], "The graphs cross at h = %s." % X(s, s.v), say(ans)], ans.values),
 		}}
@@ -653,7 +663,7 @@ func _sum_methods(s: Dictionary, n: int, ans: Dictionary, first: String) -> Dict
 	var f := sum_formula(s, s.u1, s.r, n)
 	var total := partial(s.u1, s.r, n)
 	return {
-		"sum-formula": method([first, f[0], "%s = %s" % [f[1], X(s, total)], say(ans)], ans.values),
+		"sum-formula": method([first, f[0], "%s = %s" % [f[1], sum_worked(s, s.u1, s.r, n)], say(ans)], ans.values),
 		"shift-subtract": method(shift_steps(s, s.u1, s.r, n, say(ans)), ans.values),
 		"direct-add": method([first, add_line(s, s.u1, s.r, n), say(ans)], ans.values),
 		"gdc-sum-seq": method([first, gdc_sum(s, s.u1, s.r, n), say(ans)], ans.values),
@@ -711,7 +721,7 @@ func u_sum_closed_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		"generic": [vals_of([second, r]), vals_of([r, r if one else s.u1]), vals_of([r.add(1), second]), vals_of([r, second.add(1)]), vals_of([r, second.mul(2)])],
 		"methods": {
 			"sum-formula": method(["r > 1, so use Sₙ = u₁(r^n − 1)/(r − 1).", line, read, say(ans)], ans.values),
-			"shift-subtract": method(["Write Sₙ = u₁ + u₁r + … + u₁r^(n − 1) and rSₙ = u₁r + … + u₁r^n.", "Subtract: rSₙ − Sₙ = u₁r^n − u₁, so Sₙ = u₁(r^n − 1)/(r − 1).", read, say(ans)], ans.values),
+			"shift-subtract": method(["Write Sₙ = u₁ + u₁r + … + u₁r^(n − 1) and rSₙ = u₁r + … + u₁r^n.", "Subtract: rSₙ − Sₙ = u₁r^n − u₁, so Sₙ = u₁(r^n − 1)/(r − 1).", "Put in the numbers: " + line, read, say(ans)], ans.values),
 		}}
 
 
@@ -1294,7 +1304,7 @@ func u_story_target(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return {"asked": "Does the total ever reach %s?" % goal, "lines": story_lines(s, SAVERS), "answer": ans, "wrongs": wrongs, "generic": generic,
 		"methods": {
 			"model-series": method(["The amounts are geometric: u₁ = %s, r = %s." % [X(s, s.u1), X(s, s.r)], check_r, step2, "%s." % right], ans.values),
-			"partial-sums": method(["The amounts are geometric: u₁ = %s, r = %s." % [X(s, s.u1), X(s, s.r)], "On the GDC: %s" % table_line(s, s.u1, s.r, [10, 20, 30]), "%s." % right], ans.values),
+			"partial-sums": method(["The amounts are geometric: u₁ = %s, r = %s." % [X(s, s.u1), X(s, s.r)], "On the GDC: %s" % table_line(s, s.u1, s.r, [10, 20, 30]), "Compare those with %s." % goal, "%s." % right], ans.values),
 		}}
 
 

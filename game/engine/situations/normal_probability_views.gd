@@ -140,7 +140,7 @@ static func cdf_z(s: Dictionary) -> String:
 
 static func _value_of(s: Dictionary, call_text: String) -> String:
 	if s.kind == "out":
-		return "1 − %s = 1 − %s = %s" % [call_text, W(s.other), W(s.p)]
+		return "1 − %s = %s" % [call_text, W(s.p)]
 	return "%s = %s" % [call_text, W(s.p)]
 
 

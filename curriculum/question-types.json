@@ -21655,7 +21655,7 @@
     },
     {
      "ref": "SL1.6.identity-lhs-rhs#1",
-     "text": "Checking a few values of n and calling it a proof",
+     "text": "Checking particular values and calling it a proof",
      "as": "distractor",
      "in": [
       "next-step",
@@ -21682,7 +21682,7 @@
     },
     {
      "ref": "SL1.6.integer-proof#1",
-     "text": "Verifying examples instead of arguing for a general n",
+     "text": "Verifying examples instead of arguing in general",
      "as": "distractor",
      "in": [
       "greatest-divisor",
@@ -23491,7 +23491,7 @@
      "wrong": "n!/(n − r)!, so n(n − 1) with no halving"
     },
     {
-     "text": "Keeping the negative root of the quadratic, though n counts brackets",
+     "text": "Keeping the negative root of the quadratic, though n is a whole number",
      "as": "distractor",
      "in": [
       "ncr-find-n"
@@ -31913,7 +31913,7 @@
     },
     {
      "ref": "SL4.5.relative-frequency#1",
-     "text": "Treating the result as 'due' after a run, when past trials don't change the chance",
+     "text": "Letting a run change the chance, as if a result were 'due': past trials don't change it",
      "as": "distractor",
      "in": [
       "gamblers-fallacy"

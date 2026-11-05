@@ -1053,7 +1053,7 @@
                 {
                   "id": "list-and-formula",
                   "approach": "formula",
-                  "name": "Substitute the limits, identify u_1, r and n, then use S_n",
+                  "name": "Identify u_1, r and n, from the limits or the terms",
                   "summary": "The first term comes from the lower limit (3 × 2^1 = 6, not 3), r is the base of the power, and n = upper − lower + 1."
                 },
                 {
@@ -1875,7 +1875,7 @@
               ],
               "misconceptions": [
                 "Starting from LHS = RHS and operating on both sides, which assumes what is to be proved",
-                "Checking a few values of n and calling it a proof",
+                "Checking particular values and calling it a proof",
                 "Stopping without a concluding statement, or writing = where ≡ is required"
               ],
               "threads": [
@@ -1932,7 +1932,7 @@
               ],
               "misconceptions": [
                 "Writing two different odd numbers as 2n + 1 and 2n + 1, which only covers the case where they are equal",
-                "Verifying examples instead of arguing for a general n",
+                "Verifying examples instead of arguing in general",
                 "Concluding divisibility without showing the bracket is an integer"
               ],
               "threads": [
@@ -2879,7 +2879,7 @@
                 {
                   "id": "model-series",
                   "approach": "contextual",
-                  "name": "Identify the series hiding in the context and use S∞",
+                  "name": "Identify the series hiding in the context and sum it",
                   "summary": "Write the first few distances, areas or digits as terms, find u_1 and r, check |r| < 1, then apply the formula."
                 },
                 {
@@ -11246,7 +11246,7 @@
               ],
               "misconceptions": [
                 "Taking the relative frequency from a handful of trials as the true probability",
-                "Treating the result as 'due' after a run, when past trials don't change the chance"
+                "Letting a run change the chance, as if a result were 'due': past trials don't change it"
               ],
               "threads": []
             },

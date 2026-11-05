@@ -62,7 +62,7 @@ const TRIALS := [["Each radio scan", "scan", "picks up a signal", "scans", "The 
 	["Each can on a shelf", "can", "has gone bad", "cans", "A trader opens %d cans."], ["Each drone trip", "trip", "arrives late", "trips", "The drone makes %d trips."],
 	["Each lock on the vault", "lock", "jams", "locks", "A scavenger tries %d locks."], ["Each old bridge", "bridge", "gives way", "bridges", "A caravan crosses %d bridges."]]
 ## What one person does, and their one go at it.
-const TRIES := ["hits the target", "finds water", "fixes the pump", "gets the radio working", "reaches the depot", "spots the convoy", "finds the way through", "wins the bid"]
+const TRIES := ["hits the target", "finds water", "fixes the pump", "gets the radio working", "reaches the depot", "spots the convoy", "finds the way through", "wins a bid"]
 ## The thing tested, what it does, and the verb's past.
 const RF := [["A home-made spinner", "spun", "spin"], ["A bent die", "rolled", "roll"], ["A weighted wheel", "spun", "spin"], ["A dented dial", "spun", "spin"]]
 ## Column head, letter, unit, the plural counted and one of them.
@@ -430,7 +430,7 @@ func u_grid_total_at_least(rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 	out.wrongs = wr(s, Q.new(kinds, ds.size()), R_SAME_SHARE) + wr(s, Q.new(above, all), R_BOUNDARY) + wr(s, Q.new(n, all - n), R_REST)
 	out.generic = fair(s, [Q.new(all - n, all), Q.new(n + 1, all), Q.new(n, all + ds.size())])
 	var rows := by_row(s, test)
-	out.methods = _grid_methods(rep, s, ans, n, all, rows, "A total of %d itself counts. Row by row there are %s = %d such outcomes." % [s.k, plus(rows), n])
+	out.methods = _grid_methods(rep, s, ans, n, all, rows, "A total of %d itself counts. Taking each first result in turn, there are %s = %d such outcomes." % [s.k, plus(rows), n])
 	return out
 
 
@@ -640,8 +640,8 @@ func u_complement_two_rules(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var space := "There are %d × %d = %d equally likely outcomes." % [s.xs.size(), s.ys.size(), all]
 	var big := "A big prize: %s = %d outcomes." % [plus(by_row(s, _big_test(s))), w[0]]
 	var small := "A small prize: %s = %d outcomes." % [plus(by_row(s, _small_test(s))), w[1]]
-	out.methods = {"one-minus": method([space + " Counting row by row:", big + " " + small, "No outcome wins both, so P(nothing) = 1 − %s − %s = %s" % [T(s, Q.new(w[0], all)), T(s, Q.new(w[1], all)), T(s, v)], final_step(ans)], ans.values),
-		"count-complement": method([space + " Counting row by row:", big + " " + small, "That leaves %d − %d − %d = %d outcomes that win nothing." % [all, w[0], w[1], none], "P = n(A′) ÷ n(U): " + ratio(s, none, all), final_step(ans)], ans.values)}
+	out.methods = {"one-minus": method([space + " Taking each first result in turn:", big + " " + small, "No outcome wins both, so P(nothing) = 1 − %d/%d − %d/%d = %d/%d = %s" % [w[0], all, w[1], all, none, all, T(s, v)], final_step(ans)], ans.values),
+		"count-complement": method([space + " Taking each first result in turn:", big + " " + small, "That leaves %d − %d − %d = %d outcomes that win nothing." % [all, w[0], w[1], none], "P = n(A′) ÷ n(U): " + ratio(s, none, all), final_step(ans)], ans.values)}
 	return out
 
 

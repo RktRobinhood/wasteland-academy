@@ -52,6 +52,9 @@ func papers(unknown: String, _rep: String, angle_id: String) -> Array:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
 	out.given = BinomialExpansionSituation.export(s)
+	# No calculator on Paper 1, so a calculator's working isn't shown there.
+	if s.paper == 1:
+		out.methods.erase("gdc-ncr")
 	return out
 
 
@@ -406,7 +409,7 @@ func u_ncr_find_n(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		"wrongs": rng.shuffled(w), "generic": pad(n, [n + 1, n - 1, v, 2 * v]),
 		"methods": {
 			"factorial-formula": method(["nC2 = n!/(2! × (n − 2)!) = n(n − 1)/2", "n(n − 1)/2 = %d, so n² − n − %d = 0" % [v, 2 * v],
-				"(n − %d)(n + %d) = 0, so n = %d or n = %s" % [n, n - 1, n, N(1 - n)], "n counts brackets, so it can't be negative. " + final], ans.values),
+				"(n − %d)(n + %d) = 0, so n = %d or n = %s" % [n, n - 1, n, N(1 - n)], "n is a whole number, so it can't be negative. " + final], ans.values),
 			"gdc-ncr": method(["Tabulate x nCr 2 on the GDC against x.", "The table gives %d at x = %d." % [v, n], final], ans.values),
 			"pascal-build": method(["nC2 is entry 2 of row n, counting from 0.", "Entry 2 of rows 2, 3, 4 and on is %s." % ", ".join(entries),
 				"%d is in row %d. " % [v, n] + final], ans.values),
