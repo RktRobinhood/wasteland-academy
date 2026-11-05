@@ -23926,9 +23926,9 @@ GPD_CLASSES = [("t", "Time, t (minutes)", "Caravans", "caravans", "The table sho
                ("w", "Water, w (litres)", "Households", "households", "The table shows how much water each household drew in a week.", "amounts of water drawn"),
                ("r", "Range, r (km)", "Radios", "radios", "The table shows the range of each radio on the repair bench.", "radio ranges")]
 GPD_WIDTHS = [{10, 20, 50}, {5}, {5, 10, 20}, {5, 10}, {10, 20, 50}, {5, 10, 20}]
-GPD_VALUES = [("Rats caught", "Traps", "traps", "The table shows how many rats each trap caught."),
-              ("Flat tyres", "Trips", "trips", "The table shows how many flat tyres each trip cost."),
-              ("Fuses blown", "Nights", "nights", "The table shows how many fuses blew each night."),
+GPD_VALUES = [("Rats caught", "Trap lines", "trap lines", "The table shows how many rats each trap line caught."),
+              ("Flat tyres", "Crews", "crews", "The table shows how many flat tyres each crew had in a year."),
+              ("Fuses blown", "Months", "months", "The table shows how many fuses blew each month."),
               ("Barrels filled", "Days", "days", "The table shows how many barrels were filled each day."),
               ("Radios fixed", "Weeks", "weeks", "The table shows how many radios were fixed each week."),
               ("Scrap runs", "Scavengers", "scavengers", "The table shows how many scrap runs each scavenger made.")]

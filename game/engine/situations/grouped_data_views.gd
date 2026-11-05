@@ -53,9 +53,9 @@ const CLASSES := [
 ]
 ## A table of single values.
 const VALUES := [
-	{"head": "Rats caught", "count": "Traps", "many": "traps", "line": "The table shows how many rats each trap caught."},
-	{"head": "Flat tyres", "count": "Trips", "many": "trips", "line": "The table shows how many flat tyres each trip cost."},
-	{"head": "Fuses blown", "count": "Nights", "many": "nights", "line": "The table shows how many fuses blew each night."},
+	{"head": "Rats caught", "count": "Trap lines", "many": "trap lines", "line": "The table shows how many rats each trap line caught."},
+	{"head": "Flat tyres", "count": "Crews", "many": "crews", "line": "The table shows how many flat tyres each crew had in a year."},
+	{"head": "Fuses blown", "count": "Months", "many": "months", "line": "The table shows how many fuses blew each month."},
 	{"head": "Barrels filled", "count": "Days", "many": "days", "line": "The table shows how many barrels were filled each day."},
 	{"head": "Radios fixed", "count": "Weeks", "many": "weeks", "line": "The table shows how many radios were fixed each week."},
 	{"head": "Scrap runs", "count": "Scavengers", "many": "scavengers", "line": "The table shows how many scrap runs each scavenger made."},
@@ -231,7 +231,7 @@ static func too_close(ans: Dictionary, v: Q) -> bool:
 
 ## Fillers: positive numbers an option can show.
 static func gen(ans: Dictionary, xs: Array) -> Array:
-	return xs.filter(func(x): return x.sign() > 0 and shows(ans, x)).map(func(x): return {"v": x})
+	return xs.filter(func(x): return x.sign() > 0 and shows(ans, x) and not too_close(ans, x)).map(func(x): return {"v": x})
 
 
 static func nudges(v: Q) -> Array:

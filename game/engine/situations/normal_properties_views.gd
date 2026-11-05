@@ -140,7 +140,8 @@ static func mk_as(v: Variant, label: String) -> Dictionary:
 
 ## The curve with its mean marked, and the given shading and other marks.
 static func pic(s: Dictionary, shade: Array, marks: Array) -> Dictionary:
-	return curve(s.muf, s.sgf, shade, [mk_as(s.muf, D(s.mu))] + marks)
+	var mean := mk_as(s.muf, D(s.mu))
+	return curve(s.muf, s.sgf, shade, [mean] + marks.filter(func(m): return m.label != mean.label))
 
 
 ## The first line of a sketch: what to draw, or what to read off the figure.
