@@ -310,6 +310,8 @@ static func _try(ask: String, paper: int, rng: Seeded) -> Dictionary:
 			if paper == 2:
 				if s.tmax <= 0.0 or s.tmax >= float(s.T) or not GdcKit.fair(s.tmax):
 					return {}
+				if not MotionSituation.one_peak(MotionSituation.v_of(s), MotionSituation.critical(s)):
+					return {}
 			s.t = float(s.m) if paper == 1 else s.tmax
 			s.net = change(s, 0.0, s.t)
 			if paper == 2 and not _all_fair([s.net, s.net + float(s.s0)]):

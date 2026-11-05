@@ -11566,6 +11566,12 @@ def mt_extremes(v, a, T, exact):
     return [(t, mt_at(v, t)) for t in ts]
 
 
+def mt_one_top(ex, size=lambda y: y):
+    """One of [(t, v)] alone has the largest value: a wave's peaks repeat, and a solution names one time."""
+    top = max(size(y) for _, y in ex)
+    need(sum(1 for _, y in ex if sp.N(top - size(y)) < 1e-6) == 1, f"the maximum {top} is reached more than once")
+
+
 def mt_graph_corners(q):
     c = q["graph"]["curves"][0]
     return [(sp.nsimplify(p[0]), sp.nsimplify(p[1])) for p in c]
@@ -11684,9 +11690,11 @@ def check_motion(q):
         ex = mt_extremes(v, a, T, exact)
         top = max(ex, key=lambda p: p[1])
         need(0 < top[0] < T, "the maximum is at an end")
+        mt_one_top(ex)
         gc_check_common(q, tail("v = ", top[1], " m/s"), {})
     elif u == "max-speed":
         ex = mt_extremes(v, a, T, exact)
+        mt_one_top(ex, abs)
         spd = max(abs(y) for _, y in ex)
         inner = [abs(y) for t, y in ex if 0 < t < T]
         gc_check_common(q, tail("Speed = ", spd, " m/s"), {MT_X + "0": {tail("Speed = ", max(y for _, y in ex), " m/s")}, MT_X + "1": {tail("Speed = ", max(inner), " m/s")}})
@@ -11694,10 +11702,12 @@ def check_motion(q):
             dm_graph_curve(q, v)
     elif u == "acceleration-at-max-speed":
         ex = mt_extremes(v, a, T, exact)
+        mt_one_top(ex, abs)
         ts = max(ex, key=lambda p: abs(p[1]))[0]
         gc_check_common(q, tail("a = ", mt_at(a, ts), " m/s²"), {})
     elif u == "max-acceleration":
         ex = mt_extremes(a, sp.diff(a, x), T, exact)
+        mt_one_top(ex)
         gc_check_common(q, tail("a = ", max(y for _, y in ex), " m/s²"), {})
     else:
         raise Fail(f"no check for {u}")
@@ -11980,6 +11990,7 @@ def check_motion_distance(q):
         ex = mt_extremes(v, a, T, exact)
         tm = max(ex, key=lambda p: p[1])[0]
         need(0 < tm < T, "the greatest velocity is at an end")
+        mt_one_top(ex)
         net = I(0, tm)
         gc_check_common(q, f"s = {tx(s0 + net)} m", {KD_D + "0": {f"s = {tx(net)} m"}})
     elif u == "does-it-return":
