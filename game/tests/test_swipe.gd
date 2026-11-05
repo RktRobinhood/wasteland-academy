@@ -285,6 +285,29 @@ func test_a_long_solution_keeps_the_result_and_next_is_a_swipe_away() -> void:
 		_done(made)
 
 
+## Attack with nothing filled in, tapped at the fold: the message under it comes into
+## view, and Attack stays there to tap again.
+func test_an_empty_attack_shows_what_is_missing() -> void:
+	for path in SCREENS:
+		for spec in [["choice", MCQ, "Choose one."], ["boxes", TABLE_VALUE, "Fill in every box."]]:
+			var made: Array = await _screen(path, spec[1])
+			var s: Control = made[1]
+			var filler := Control.new()
+			filler.custom_minimum_size.y = 2000
+			s.card.add_child(filler)
+			s.card.move_child(filler, 0)
+			await _settle()
+			s.scroll.scroll_vertical = int(s.check_button.get_rect().end.y - s.scroll.size.y)
+			await _settle()
+			check(_shows(s, s.check_button), "%s, %s: the button starts in view" % [path, spec[0]])
+			await _tap(_middle(s.check_button))
+			check_eq(s.feedback.text, spec[2], "%s, %s: the message" % [path, spec[0]])
+			check(not s.answered, "%s, %s: it isn't an answer" % [path, spec[0]])
+			check(_shows(s, s.feedback), "%s, %s: the message shows (%s in %s)" % [path, spec[0], s.feedback.get_global_rect(), s.scroll.get_global_rect()])
+			check(_shows(s, s.check_button), "%s, %s: the button still shows" % [path, spec[0]])
+			_done(made)
+
+
 ## Time running out shows its result the same way as Attack.
 func test_a_timeout_shows_the_result() -> void:
 	var made: Array = await _screen(SCREENS[0], MCQ)
