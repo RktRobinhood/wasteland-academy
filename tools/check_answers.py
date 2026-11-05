@@ -19141,41 +19141,6 @@ def check_trig_model(q):
     return None, None
 
 
-SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
-                    "distribution": check_distribution, "cubic": check_cubic,
-                    "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
-                    "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
-                    "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
-                    "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
-                    "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
-                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth,
-                    "gdc-curve": check_gdc_curve, "gdc-two-curves": check_gdc_two_curves,
-                    "gdc-combined": check_gdc_combined,
-                    "gdc-context-equation": check_gdc_context_equation,
-                    "graph-from-features": check_graph_from_features,
-                    "gdc-inequality": check_gdc_inequality,
-                    "fn-pre-graph-reading": check_graph_reading,
-                    "graph-match": check_graph_match,
-                    "fn-link-extremes": check_link_extremes,
-                    "fn-link-graph-vs-algebra": check_link_graph_algebra,
-                    "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
-                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
-                    "compound-interest": check_compound_interest,
-                    "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
-                    "monotonic": check_monotonic, "concavity": check_concavity,
-                    "integration": check_integration, "definite-integral": check_definite_integral,
-                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional,
-                    "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation, "fn-pre-substitute": check_substitute,
-                    "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model,
-                    "fn-pre-linear-equations": check_linear_equation, "fn-pre-simultaneous": check_simultaneous,
-                    "fn-link-rate-of-change": check_link_rate,
-                    "transform-chain": check_transform, "fn-link-transformations": check_link_transformations,
-                    "fn-link-vectors": check_link_vectors,
-                    "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
-                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-model": check_trig_model,
-                    "solid": check_solid, "standard-form": check_standard_form}
-
-
 # ── normal-probability (t4-normal-probability, FAL-728) ──────
 # The checker's own reading of what the student sees: μ and σ from the first line, the region
 # from the stem or from the curve's shade and marks, and the areas from mpmath through nu_phi
@@ -19321,7 +19286,7 @@ def np_check(q):
                 need(abs(np_mp(b) - mu) >= sg / 10, f"{b} is within a tenth of σ of μ")
     expect = {"prob-below": ("lt",), "prob-above": ("gt",), "prob-between": ("in",), "outside-interval": ("out",), "negative-lower-tail": ("lt",),
               "rejected-rule": ("lt", "gt", "out"), "expected-rejected": ("lt", "gt", "out"), "percentage-in-range": ("lt", "gt", "in"),
-              "expected-number": ("lt", "gt", "in"), "variance-given": ("lt", "gt", "in"), "recorded-value": ("in",)}
+              "expected-number": ("lt", "gt", "in"), "exactly-in-sample": ("lt", "gt", "in"), "variance-given": ("lt", "gt", "in"), "recorded-value": ("in",)}
     need(kind in expect[u], f"{u} with a region of kind {kind}")
     label = "probability = "
     if u in ("expected-number", "expected-rejected"):
@@ -19333,6 +19298,17 @@ def np_check(q):
         want, trap = nu_text("expected number = ", x), bn_trap("expected number = ", nu_f(x))
         wrongs[NP_SKILL + "2"] = {nu_text("expected number = ", p)}
         wrongs[side] = {nu_text("expected number = ", n * other)}
+    elif u == "exactly-in-sample":
+        mt, mk = re.search(r"A random sample of (\d+) ", " ".join(L)), re.search(r"exactly (\d+) of them", asked)
+        need(mt is not None and mk is not None, f"can't read {L} {asked!r}")
+        n, k = int(mt.group(1)), int(mk.group(1))
+        need(0 < k < n, f"k = {k} of {n}")
+        pmf = lambda a, j: mpmath.binomial(n, j) * a ** j * (1 - a) ** (n - j)
+        x, cum, flip = pmf(p, k), mpmath.fsum(pmf(p, j) for j in range(k + 1)), pmf(other, k)
+        need(x >= mpmath.mpf("0.02") and nu_clear(x) and nu_clear(cum), f"the binomial values {x}, {cum}")
+        want, trap = nu_text(label, x), bn_trap(label, nu_f(x))
+        wrongs[NP_TYPE + "12"] = {nu_text(label, cum)}
+        wrongs[side] = {nu_text(label, flip)}
     elif u == "percentage-in-range":
         pc = "percentage" in asked
         need(pc or "proportion" in asked, f"asked {asked!r}")
@@ -19361,6 +19337,9 @@ def np_check(q):
         wrongs[NP_TYPE + "7"] = {nu_text(label, np_inside(v - w, v + w, mu, sg))}
         wrongs[NP_TYPE + "8"] = {nu_text(label, np_inside(v, hi, mu, sg))}
     gc_check_common(q, want, wrongs, trap)
+    for o in q["choices"]:
+        if o.get("trap") and o["ref"] == NP_TYPE + "9":
+            need(R(o["text"].rsplit("= ", 1)[1]).q == 1, f"{o['text']!r} is tagged as a whole number")
     # A sketch's claim about the area must hold.
     for sol in q["solutions"]:
         for st in sol["steps"]:
@@ -19369,6 +19348,41 @@ def np_check(q):
                 b = mpmath.mpf(mt.group(2))
                 need(p < b if mt.group(1) == "under" else p > b, f"{sol['name']}: {st!r} is false for {p}")
     return None, None
+
+
+SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+                    "distribution": check_distribution, "cubic": check_cubic,
+                    "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
+                    "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
+                    "fn-pre-expand": check_expand, "fn-pre-factorise": check_factorise,
+                    "fn-pre-surds": check_surds, "fn-pre-linear-inequalities": check_lineq,
+                    "quadratic-model": check_qmodel, "fn-link-equivalent-forms": check_eqforms,
+                    "fn-link-symmetry": check_symmetry, "exp-model": check_exp_model, "exp-log-pair": check_exp_log_pair, "log-quadratic": check_log_quadratic, "log-function": check_log_function, "fn-pre-percent-multiplier": check_percent, "exp-growth-vs-linear": check_growth, "fn-link-multiplicative-growth": check_link_growth,
+                    "gdc-curve": check_gdc_curve, "gdc-two-curves": check_gdc_two_curves,
+                    "gdc-combined": check_gdc_combined,
+                    "gdc-context-equation": check_gdc_context_equation,
+                    "graph-from-features": check_graph_from_features,
+                    "gdc-inequality": check_gdc_inequality,
+                    "fn-pre-graph-reading": check_graph_reading,
+                    "graph-match": check_graph_match,
+                    "fn-link-extremes": check_link_extremes,
+                    "fn-link-graph-vs-algebra": check_link_graph_algebra,
+                    "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
+                    "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
+                    "compound-interest": check_compound_interest,
+                    "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
+                    "monotonic": check_monotonic, "concavity": check_concavity,
+                    "integration": check_integration, "definite-integral": check_definite_integral,
+                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional,
+                    "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation, "fn-pre-substitute": check_substitute,
+                    "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model,
+                    "fn-pre-linear-equations": check_linear_equation, "fn-pre-simultaneous": check_simultaneous,
+                    "fn-link-rate-of-change": check_link_rate,
+                    "transform-chain": check_transform, "fn-link-transformations": check_link_transformations,
+                    "fn-link-vectors": check_link_vectors,
+                    "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
+                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-model": check_trig_model,
+                    "solid": check_solid, "standard-form": check_standard_form}
 
 
 # ── Boss chains (FAL-415) ────────────────────────────────────

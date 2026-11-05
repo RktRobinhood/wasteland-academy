@@ -3669,7 +3669,7 @@
 		"normal-probability": {
 			"name": "A normal variable with a region asked for",
 			"extends": "normal-unknown",
-			"summary": "The base normal variable, now with μ and σ known and a region of it asked for: a tail, a band, two tails, a rule that rejects some items, a sample count, or a value recorded to a rounding unit. It adds only the region; the normal function, the stories and the curve are the base situation's.",
+			"summary": "The base normal variable, now with μ and σ known and a region of it asked for: a tail, a band, two tails, a rule that rejects some items, a sample count, exactly k of a sample, or a value recorded to a rounding unit. It adds only the region; the normal function, the stories and the curve are the base situation's.",
 			"quantities": [
 				{
 					"name": "lo, hi",
@@ -3684,7 +3684,12 @@
 				{
 					"name": "n",
 					"is": "a sample size",
-					"pick": "50 to 1000, so the expected count is at least 10"
+					"pick": "50 to 1000, so the expected count is at least 10; 10 to 100 for exactly k of a sample"
+				},
+				{
+					"name": "k",
+					"is": "a count in the sample, for exactly k",
+					"pick": "within 2 of the expected count, and between 1 and n − 1"
 				},
 				{
 					"name": "sigma squared",
@@ -27793,7 +27798,7 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Normal probability for an interval on the GDC",
-			"summary": "X is normal with μ and σ known, and a region is asked for: below, above, between or outside values, a percentage in a story, an expected count in a sample, a rejection rule, a variable that can be negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle from two given tails.",
+			"summary": "X is normal with μ and σ known, and a region is asked for: below, above, between or outside values, a percentage in a story, an expected count in a sample, exactly k of a sample in the region, a rejection rule, a variable that can be negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle from two given tails.",
 			"situation": "normal-probability",
 			"formats": [
 				"value",
@@ -27803,7 +27808,7 @@
 				{
 					"rep": "equation",
 					"exam": true,
-					"how": "X ~ N(35, 5²) and an event, P(X < 30), or tails given as P(X < 30) = 0.2"
+					"how": "X ~ N(μ, σ²) with numbers and an event for X, or two tails given as probabilities"
 				},
 				{
 					"rep": "words",
@@ -27812,7 +27817,7 @@
 				},
 				{
 					"rep": "diagram",
-					"exam": false,
+					"exam": true,
 					"how": "a normal curve with the region shaded and its bounds and the mean marked; the stem does not say the region again"
 				}
 			],
@@ -27961,6 +27966,26 @@
 					]
 				},
 				{
+					"id": "exactly-in-sample",
+					"given": [
+						"X ~ N(μ, σ²)",
+						"a sample size n",
+						"a region",
+						"a count k"
+					],
+					"asked": "the probability that exactly k of the sample fall in the region",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
 					"id": "negative-lower-tail",
 					"given": [
 						"X ~ N(μ, σ²) for a measure that can be negative",
@@ -28046,6 +28071,7 @@
 						"outside-interval",
 						"rejected-rule",
 						"expected-rejected",
+						"exactly-in-sample",
 						"negative-lower-tail",
 						"variance-given",
 						"recorded-value"
@@ -28065,6 +28091,7 @@
 						"outside-interval",
 						"rejected-rule",
 						"expected-rejected",
+						"exactly-in-sample",
 						"negative-lower-tail",
 						"variance-given",
 						"recorded-value",
@@ -28085,6 +28112,7 @@
 						"outside-interval",
 						"rejected-rule",
 						"expected-rejected",
+						"exactly-in-sample",
 						"negative-lower-tail",
 						"variance-given",
 						"recorded-value"
@@ -28096,8 +28124,8 @@
 			"concepts": [
 				{
 					"kind": "true-false-reason",
-					"prompt": "For X ~ N(10, 16), the GDC needs 16 as its last number.",
-					"answer": "False: 16 is the variance. normalcdf takes the standard deviation, which is 4.",
+					"prompt": "When X ~ N(μ, σ²) is written with the variance as a number, that number goes into normalcdf as the last entry.",
+					"answer": "False: that number is the variance. normalcdf takes the standard deviation, so take the square root first.",
 					"level": 3
 				},
 				{
@@ -28109,7 +28137,7 @@
 				{
 					"kind": "true-false-reason",
 					"prompt": "An expected number in a sample must be a whole number.",
-					"answer": "False: it is n × p, a long-run average, so 31.7 is a fine expected number.",
+					"answer": "False: it is n × p, a long-run average, so a decimal is a fine expected number.",
 					"level": 3
 				}
 			],
@@ -28154,10 +28182,11 @@
 						"outside-interval",
 						"rejected-rule",
 						"expected-rejected",
+						"exactly-in-sample",
 						"negative-lower-tail",
 						"variance-given"
 					],
-					"wrong": "1 minus the area asked for, or n times that"
+					"wrong": "1 minus the area asked for, or n times that, or that area used as the binomial's p"
 				},
 				{
 					"text": "Using only the upper bound, so the area below the lower bound is counted too",
@@ -28224,6 +28253,14 @@
 						"between-from-tails"
 					],
 					"wrong": "the sum of the tails"
+				},
+				{
+					"text": "Using the cumulative function for exactly k of a sample",
+					"as": "distractor",
+					"in": [
+						"exactly-in-sample"
+					],
+					"wrong": "P(Y ≤ k) for P(Y = k), with the area as p"
 				}
 			],
 			"chain": [
@@ -28231,7 +28268,7 @@
 				"mark the bounds and shade the region",
 				"use normalcdf, with a very large number for an open end",
 				"take the area from 1 for a region left out",
-				"multiply by n for a count"
+				"multiply by n for a count, or use the area as a binomial's p for exactly k of a sample"
 			],
 			"frequency": 12,
 			"marks": 2,

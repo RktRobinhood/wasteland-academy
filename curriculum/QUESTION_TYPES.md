@@ -822,15 +822,15 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 
 ### t4-normal-probability
 
-**Normal probability for an interval on the GDC.** X is normal with μ and σ known, and a region is asked for: below, above, between or outside values, a percentage in a story, an expected count in a sample, a rejection rule, a variable that can be negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle from two given tails.
+**Normal probability for an interval on the GDC.** X is normal with μ and σ known, and a region is asked for: below, above, between or outside values, a percentage in a story, an expected count in a sample, exactly k of a sample in the region, a rejection rule, a variable that can be negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle from two given tails.
 
 - **Syllabus:** 4.9
 - **Skills:** `SL4.9.normal-probability`
 - **Where it appears:** P1 0, P2 12; Section A 2, B 10. Marks per part: usually 2 (2 to 5).
-- **Usual chain:** pick out μ and σ, taking the root if the variance is written → mark the bounds and shade the region → use normalcdf, with a very large number for an open end → take the area from 1 for a region left out → multiply by n for a count
+- **Usual chain:** pick out μ and σ, taking the root if the variance is written → mark the bounds and shade the region → use normalcdf, with a very large number for an open end → take the area from 1 for a region left out → multiply by n for a count, or use the area as a binomial's p for exactly k of a sample
 - **Given:** X ~ N(μ, σ²) or a story with a mean and a standard deviation, one or two values, or a rule, a sample size, a rounding unit, two tail areas. **Asked:** A probability, a percentage or proportion, or an expected number. **Answer form:** 3 s.f., exact.
 - **A recipe can randomise:** the mean and the standard deviation; the bounds and which side of the mean they sit on; the shape of the region; the sample size; the story and its units.
-- **Limits that keep answers clean:** Paper 2 only; no bound within a tenth of a standard deviation of μ, except a recorded value; an expected count is not rounded to a whole number.
+- **Limits that keep answers clean:** Paper 2 only; no bound within a tenth of a standard deviation of μ, except a recorded value; a band is at least one standard deviation wide, so its labels fit on the curve; an expected count is not rounded to a whole number.
 - **Game formats:** value, mcq
 - **Bank parts:** 12.
 

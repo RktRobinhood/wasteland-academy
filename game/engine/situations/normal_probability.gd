@@ -13,6 +13,9 @@ extends RefCounted
 ##   outside-interval       kind "out": below lo or above hi
 ##   rejected-rule          kind "lt", "gt" or "out": the rejected region
 ##   expected-rejected      n and a rejected region
+##   exactly-in-sample      n, k and a region: P(exactly k of the n fall in it), with the area
+##                          as a binomial's p; pmf is that, cum is P(at most k), flip is the
+##                          same with the region left out (absent where it reads as nothing)
 ##   negative-lower-tail    neg true: a temperature or a change, P(X < hi) with hi > 0 and a
 ##                          real area below 0
 ##   variance-given         variance: X ~ N(μ, σ²) written with σ² (sg is missing where σ² isn't
@@ -25,6 +28,8 @@ extends RefCounted
 ##   mu, sg  Q;  muf, sgf  the same as floats
 ##   lo, hi  the region's bounds, Q or absent for an open end;  kind
 ##   zlo, zhi  their z-values;  p  the area of the region;  and what each slip needs.
+##
+## _fill's z_min keeps a bound off μ; a recorded value passes −1, as it may sit on the mean.
 
 const TRIES := 6000
 const NEG_CONTEXTS := 3
@@ -33,6 +38,11 @@ const P_MIN := 0.005
 ## A slip's area below this reads as absurd.
 const SLIP_MIN := 0.001
 const SAMPLES := [50, 80, 100, 120, 150, 200, 250, 300, 400, 500, 800, 1000]
+## Samples small enough that "exactly k" has a real chance.
+const SMALL_SAMPLES := [10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100]
+## A band this many σ wide, so its two labels can sit in a row on the curve.
+const BAND_MIN := 1.0
+const PMF_MIN := 0.02
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
@@ -58,6 +68,8 @@ static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:
 				ok = _region(rng, s, rng.pick(["lt", "gt", "out", "out"]))
 			"expected-rejected":
 				ok = _region(rng, s, rng.pick(["lt", "gt", "out", "out"])) and _sample(rng, s)
+			"exactly-in-sample":
+				ok = _region(rng, s, rng.pick(["lt", "gt", "in"])) and _exactly(rng, s)
 			"negative-lower-tail":
 				ok = _negative(rng, s)
 			"variance-given":
@@ -114,11 +126,11 @@ static func _bounds(rng: Seeded, s: Dictionary, kind: String) -> bool:
 		"in":
 			s.lo = _cut(rng, s, -Z_MAX, Z_MAX)
 			s.hi = _cut(rng, s, -Z_MAX, Z_MAX)
-			if (s.hi.to_float() - s.lo.to_float()) < 0.3 * s.sgf:
+			if (s.hi.to_float() - s.lo.to_float()) < BAND_MIN * s.sgf:
 				return false
 		"out":
-			s.lo = _cut(rng, s, -Z_MAX, -0.3)
-			s.hi = _cut(rng, s, 0.3, Z_MAX)
+			s.lo = _cut(rng, s, -Z_MAX, -BAND_MIN / 2.0)
+			s.hi = _cut(rng, s, BAND_MIN / 2.0, Z_MAX)
 	return true
 
 
@@ -138,7 +150,7 @@ static func _fill(s: Dictionary, kind: String, z_min: float = NormalUnknownSitua
 		if s.has(k):
 			var z: float = (s[k].to_float() - s.muf) / s.sgf
 			s["z" + k] = z
-			if absf(z) < z_min or absf(z) > Z_MAX + 0.2:
+			if absf(z) <= z_min + 1e-9 or absf(z) > Z_MAX + 0.2:
 				return false
 	var inside := area(lo, hi, s.muf, s.sgf)
 	s.p = 1.0 - inside if kind == "out" else inside
@@ -159,6 +171,22 @@ static func _sample(rng: Seeded, s: Dictionary) -> bool:
 	s.n = int(rng.pick(SAMPLES))
 	var e: float = s.n * s.p
 	return e >= 10.0 and clear(e) and clear(s.n * s.other)
+
+
+## k near the expected count of a small sample, and the binomial values from the region's area.
+static func _exactly(rng: Seeded, s: Dictionary) -> bool:
+	s.n = int(rng.pick(SMALL_SAMPLES))
+	s.k = roundi(s.n * s.p) + rng.int_in(-2, 2)
+	if s.k < 1 or s.k >= s.n:
+		return false
+	s.pmf = BinomialSituation.pmf(s.n, s.p, s.k)
+	s.cum = BinomialSituation.cdf(s.n, s.p, s.k)
+	var flip := BinomialSituation.pmf(s.n, s.other, s.k)
+	if flip >= SLIP_MIN:
+		if not clear(flip):
+			return false
+		s.flip = flip
+	return s.pmf >= PMF_MIN and clear(s.pmf) and clear(s.cum)
 
 
 ## A temperature or a change: μ near 0, so 0 is no lower limit for X.
@@ -215,7 +243,7 @@ static func _recorded(rng: Seeded, s: Dictionary) -> bool:
 	s.h = s.u.div(Q.new(2))
 	s.lo = s.v.sub(s.h)
 	s.hi = s.v.add(s.h)
-	if not _fill(s, "in", 0.0):
+	if not _fill(s, "in", -1.0):
 		return false
 	s.wide = area(s.v.sub(s.u), s.v.add(s.u), s.muf, s.sgf)
 	s.half_up = area(s.v, s.hi, s.muf, s.sgf)

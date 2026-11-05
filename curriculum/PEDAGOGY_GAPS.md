@@ -2231,7 +2231,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 #### Normal probability for an interval on the GDC (`t4-normal-probability`, exam, 12 bank parts)
 
 - **Situation:** A normal variable with a region asked for, shared with `t4-normal-unknown-parameter`.
-- **Representations:** **equation**, **words**, diagram (bold: the exam uses it)
+- **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given X ~ N(μ, σ²); a value a → P(X < a)
   - **exam** L1: given X ~ N(μ, σ²); a value a → P(X > a)
@@ -2241,16 +2241,17 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - new L2: given X ~ N(μ, σ²); two values a and b → P(X < a or X > b)
   - **exam** L3: given a story with a mean and a standard deviation; a rule that rejects a tail, or all but a band → the probability that a chosen item is rejected
   - **exam** L3: given a story with a mean and a standard deviation; a rule that rejects a tail, or all but a band; a sample size n → the expected number rejected
+  - **exam** L4: given X ~ N(μ, σ²); a sample size n; a region; a count k → the probability that exactly k of the sample fall in the region
   - new L2: given X ~ N(μ, σ²) for a measure that can be negative; a value a above 0 → P(X < a)
   - new L2: given X ~ N(μ, σ²) with the variance written as a number; a region → the probability of the region
   - **exam** L4: given X ~ N(μ, σ²); a rounding unit; a recorded value → the probability of that recorded value
   - **exam** L2: given P(X < a); P(X > b) → P(a < X < b), with μ and σ unknown
 - **Angles:** normalcdf with μ and σ; Sketch to sense-check; Standardise, then use Z.
 - **Concept probes:**
-  - *true-false-reason* (L3): For X ~ N(10, 16), the GDC needs 16 as its last number. — False: 16 is the variance. normalcdf takes the standard deviation, which is 4.
+  - *true-false-reason* (L3): When X ~ N(μ, σ²) is written with the variance as a number, that number goes into normalcdf as the last entry. — False: that number is the variance. normalcdf takes the standard deviation, so take the square root first.
   - *always-sometimes-never* (L3): P(X < a) can be found with 0 as the lower bound. — Sometimes: only where X cannot be negative, or nearly so. A temperature can go below 0, so use a very large negative number as the lower end.
-  - *true-false-reason* (L3): An expected number in a sample must be a whole number. — False: it is n × p, a long-run average, so 31.7 is a fine expected number.
-- **Misconceptions used:** 12. Entering the variance instead of the standard deviation into the GDC; Using 0 as the lower bound for P(X < a) when the variable can be negative (for example temperatures); Leaving an expected number as a probability instead of multiplying by n; Finding the area left out instead of the area asked for; Using only the upper bound, so the area below the lower bound is counted too; Counting one tail only when the event has two; Leaving a probability as a decimal when a percentage is asked for; Using a whole rounding unit either side of the recorded value instead of half a unit; Using only the half unit above the recorded value, and not the half unit below it; Rounding an expected number to a whole number when it need not be one; Taking off one tail only, so the other tail stays in the answer; Adding the two tails instead of taking them from 1.
+  - *true-false-reason* (L3): An expected number in a sample must be a whole number. — False: it is n × p, a long-run average, so a decimal is a fine expected number.
+- **Misconceptions used:** 13. Entering the variance instead of the standard deviation into the GDC; Using 0 as the lower bound for P(X < a) when the variable can be negative (for example temperatures); Leaving an expected number as a probability instead of multiplying by n; Finding the area left out instead of the area asked for; Using only the upper bound, so the area below the lower bound is counted too; Counting one tail only when the event has two; Leaving a probability as a decimal when a percentage is asked for; Using a whole rounding unit either side of the recorded value instead of half a unit; Using only the half unit above the recorded value, and not the half unit below it; Rounding an expected number to a whole number when it need not be one; Taking off one tail only, so the other tail stays in the answer; Adding the two tails instead of taking them from 1; Using the cumulative function for exactly k of a sample.
 
 #### Choose the right regression line; x on y; mean point on both (`t4-regression-x-on-y`, exam, 5 bank parts)
 

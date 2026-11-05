@@ -21,6 +21,7 @@ const R_HALF_UP := "t4-normal-probability#8"
 const R_WHOLE_COUNT := "t4-normal-probability#9"
 const R_LEFT_TAIL := "t4-normal-probability#10"
 const R_ADD_TAILS := "t4-normal-probability#11"
+const R_CUMULATIVE := "t4-normal-probability#12"
 
 ## One thing from each of NormalUnknownViews.CONTEXTS: what it is, its plural, what is measured,
 ## and what happens to one that fails a rule.
@@ -43,7 +44,7 @@ const NEGATIVE := [
 ]
 
 const ASKS := ["prob-below", "prob-above", "prob-between", "percentage-in-range", "expected-number", "outside-interval",
-	"rejected-rule", "expected-rejected", "negative-lower-tail", "variance-given", "recorded-value", "between-from-tails"]
+	"rejected-rule", "expected-rejected", "exactly-in-sample", "negative-lower-tail", "variance-given", "recorded-value", "between-from-tails"]
 
 
 func needs() -> Dictionary:
@@ -417,6 +418,30 @@ func u_expected_rejected(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	return out
 
 
+## The region's area becomes a binomial's p, as a real paper's part does after a normal one.
+func u_exactly_in_sample(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
+	var ans := sf_ans("probability = ", s.pmf)
+	var c := scene(s)
+	var lines: Array
+	var asked: String
+	if rep == "words":
+		lines = [opening(rep, s), "A random sample of %d %s is taken." % [s.n, c.items]]
+		asked = "Find the probability that in exactly %d of them the %s is %s." % [s.k, c.attr, in_words(s)]
+	else:
+		lines = [opening(rep, s), "A random sample of %d values of X is taken." % s.n]
+		asked = "Find the probability that exactly %d of them have %s." % [s.k, event(s)]
+		if rep == "diagram":
+			asked = "Find the probability that exactly %d of them lie in the shaded region." % s.k
+	var out := _question(rep, s, lines, asked, ans)
+	out.wrongs = [wrong_x(s.cum, R_CUMULATIVE)]
+	if s.has("flip"):
+		out.wrongs.append(wrong_x(s.flip, R_OTHER))
+	out.generic = near(s.pmf)
+	var step := "The number in the region is Y ~ B(%d, %s), with p unrounded, so P(Y = %d) = binompdf(%d, %s, %d) = %s" % [s.n, W(s.p), s.k, s.n, W(s.p), s.k, W(s.pmf)]
+	out.methods = _methods(rep, s, ans, [step])
+	return out
+
+
 # ── A rounded value, and a middle from two tails ─────────────
 
 func u_recorded_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -437,7 +462,7 @@ func u_recorded_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var m := _methods(rep, s, ans)
 	m["gdc-normalcdf"].steps.push_front(width)
 	m["standardise-first"].steps.push_front(width)
-	var top := 0.4 / s.sgf
+	var top: float = 0.4 / s.sgf
 	m["sketch-check"].steps = [width, "Sketch the curve and shade the thin strip from %s to %s." % [D(s.lo), D(s.hi)],
 		"The curve is at most about 0.4 ÷ %s = %s high and the strip is %s wide, so the area must be under %s." % [sg_text(s), W(top), D(s.u), W(top * s.u.to_float())],
 		"%s, which fits." % cdf_x(s), final_step(ans)]
@@ -459,7 +484,7 @@ func u_between_from_tails(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	if rep == "diagram":
 		out.graph = curve(s.muf, s.sgf, [[float(s.x1), float(s.x2)]], [{"at": float(s.x1), "label": str(s.x1)}, {"at": float(s.x2), "label": str(s.x2)}])
 	out.wrongs = [wrong({"v": s.left}, R_LEFT_TAIL), wrong({"v": s.sum}, R_ADD_TAILS)]
-	out.generic = [{"v": Q.new(1).sub(s.p2)}, {"v": s.mid.add(Q.new(1, 10))}, {"v": s.mid.mul(Q.new(1, 2))}]
+	out.generic = [{"v": Q.new(1).sub(s.p2)}, {"v": s.p1}, {"v": s.p2}, {"v": s.mid.mul(Q.new(1, 2))}]
 	var first := "Sketch the curve and shade the tails below %d and above %d: the middle is what they leave." % [s.x1, s.x2]
 	if rep == "diagram":
 		first = "On the curve, the shaded middle is what the two tails leave."
