@@ -10158,8 +10158,13 @@
                 }
               ],
               "misconceptions": [
-                "Every outlier must be deleted",
-                "Removing an outlier changes the median as much as it changes the mean"
+                "Assuming every outlier must be deleted",
+                "Assuming removing an outlier changes the median or the IQR as much as the mean or the range",
+                "Assuming every outlier must stay in the data, even an impossible value",
+                "Using the old number of values to find the new mean",
+                "Assuming the median stays exactly the same when a value is removed",
+                "Reversing which measure an outlier drags and which it leaves alone",
+                "Getting the direction of the change wrong"
               ],
               "threads": []
             }
@@ -10406,8 +10411,23 @@
                 }
               ],
               "misconceptions": [
-                "A longer section of the box or a longer whisker contains more data values (each quarter holds about 25% of the data)",
-                "Drawing the whisker out to an outlier instead of marking the outlier separately with a cross"
+                "Assuming a longer section of the box or a longer whisker holds more of the data",
+                "Drawing the whisker out to an outlier instead of marking the outlier separately with a cross",
+                "Using the median in both halves when n is odd",
+                "Using the values in the order shown, without sorting them first",
+                "Using each value of a frequency table once, ignoring its frequency",
+                "Using the middle of the box as the median",
+                "Using the whole length of the plot as the IQR, or the IQR as the range",
+                "Using the end of the whisker as the greatest value, leaving the cross out",
+                "Using a quarter of the horizontal axis as a quartile, instead of a quarter of the frequency",
+                "Using the cumulative frequency levels as the values themselves",
+                "Using the ends of the axis as the least and greatest values",
+                "Using the share below a value when the question gives the share above it, or the other way round",
+                "Using the range to judge the shape of the data",
+                "Reading the gaps backwards, so equal gaps seem skewed and unequal gaps symmetric",
+                "Assuming the mean equals the median because half of the data lie on each side of the median",
+                "Using the values a quarter and three quarters of the way along the list as the quartiles, not the medians of the halves",
+                "Drawing the whisker out to the fence, not to the furthest value inside it"
               ],
               "threads": [
                 {
@@ -10463,7 +10483,12 @@
               "misconceptions": [
                 "Using 1.5 × Q3 as the upper fence instead of Q3 + 1.5 × IQR",
                 "Measuring 1.5 × IQR from the median instead of from the nearest quartile",
-                "Calling any value that looks far from the rest an outlier without doing the test"
+                "Calling any value that looks far from the rest an outlier without doing the test",
+                "Using the fence on the far side from the value",
+                "Reading the comparison backwards, so a value inside the fences is called an outlier or one beyond them is not",
+                "Leaving the factor out of the fence, so that it sits one IQR from the quartile",
+                "Using the fence itself as the smallest outlier, though a value on the fence is not beyond it",
+                "Using the quartile, not the IQR, as the distance to multiply"
               ],
               "threads": []
             },
@@ -10504,8 +10529,9 @@
               ],
               "misconceptions": [
                 "Comparing only the maximum or minimum values",
-                "Saying a larger IQR means a higher average",
-                "Quoting the numbers without saying what they mean in context"
+                "Using a larger spread as a sign of a higher average",
+                "Quoting the numbers without saying what they mean in context",
+                "Reading the comparison backwards, so the verdict is the opposite of what the medians show"
               ],
               "threads": []
             }
