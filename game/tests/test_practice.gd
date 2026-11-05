@@ -77,6 +77,51 @@ func test_a_wrong_option_records_its_misconception() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 
 
+func test_an_answer_box_shows_all_it_is_given() -> void:
+	# FAL-743: 0.00000842 showed as 000842 in a box of fixed width.
+	for window: Vector2i in [Vector2i(360, 800), Vector2i(390, 844), Vector2i(1280, 800)]:
+		var made: Array = await _screen(_area(window))
+		var p: Control = made[1]
+		p.show_view({"type": "t1-standard-form", "unknown": "to-ordinary-small", "rep": "equation", "angle": "place-shift", "format": "value", "seed": 1})
+		await tree.process_frame
+		var box: LineEdit = p.card.find_children("Slot_*", "LineEdit", true, false)[0]
+		var empty: float = box.get_combined_minimum_size().x
+		p._focus = box
+		for k in "0.00000842":
+			p._on_key(k)
+		check_eq(box.text, "0.00000842")
+		check(box.get_combined_minimum_size().x > empty, "the box grows with its text")
+		box.text = "8".repeat(40)
+		check_eq(box.text.length(), p.SLOT_CHARS, "a box stops at its limit")
+		await tree.process_frame
+		await tree.process_frame
+		var font := box.get_theme_font("font")
+		var wide := font.get_string_size(box.text, HORIZONTAL_ALIGNMENT_LEFT, -1, box.get_theme_font_size("font_size")).x
+		check(box.size.x >= wide, "%s: %d of text in a box of %d" % [window, wide, box.size.x])
+		var card_rect: Rect2 = p.card.get_global_rect()
+		check(box.get_global_rect().end.x <= card_rect.end.x + 0.5, "%s: the box runs off the card" % window)
+		check(card_rect.end.x <= made[0].size.x, "%s: the card runs off the screen" % window)
+		made[0].free()
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
+func test_a_power_in_the_question_fits_a_phone() -> void:
+	# FAL-743: the prompt, its lines and the worked steps are rich text when they have a power.
+	var made: Array = await _screen(_area(Vector2i(390, 844)))
+	var p: Control = made[1]
+	p.show_view({"type": "fn-exponential-model", "unknown": "change-over-period", "rep": "equation", "angle": "repeated-multiplication", "format": "value", "seed": 6})
+	p.autoplay(true)
+	await tree.process_frame
+	await tree.process_frame
+	var rich: Array = p.card.find_children("*", "RichTextLabel", true, false)
+	check(rich.size() >= 2, "the equation and a worked step")
+	for r: RichTextLabel in rich:
+		check(r.size.y >= r.get_theme_font_size("normal_font_size"), "%s has no height" % r.get_parsed_text())
+		check(r.get_global_rect().end.x <= p.card.get_global_rect().end.x + 0.5, r.get_parsed_text())
+	made[0].free()
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
+
+
 func test_planner_questions_follow_on() -> void:
 	var made: Array = await _screen(_area(Vector2i(390, 844)))
 	var p: Control = made[1]

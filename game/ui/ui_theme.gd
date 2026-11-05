@@ -25,6 +25,11 @@ const SMALL := 32
 
 const TITLE_FONT := preload("res://assets/fonts/bangers-latin.woff2")
 const MATH_FONT := preload("res://assets/fonts/dejavu-math-subset.woff2")
+## A power's size against its line, and how far up it sits, as a share of the font's height.
+const POWER_SCALE := 0.68
+const POWER_RAISE := -0.28
+
+static var _raised: FontVariation
 
 
 ## Adds the maths subset behind the default font, once. Safe to call again.
@@ -98,6 +103,46 @@ static func label(text: String, size: int = BODY, color: Color = TEXT) -> Label:
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
 	return l
+
+
+## A label for maths, with powers written with a caret drawn raised (FAL-743). They are
+## raised here, not written in superscript characters, as Unicode has no superscript . or /.
+## Plain text gets a plain label, so only the text with a power is rich text. The questions
+## keep their carets: tools/check_answers.py parses them. A Button can't hold rich text.
+static func math(text: String, size: int = BODY, color: Color = TEXT, center := false) -> Control:
+	var runs := Fmt.power_runs(text)
+	if not runs.any(func(run): return run[1]):
+		var l := label(text, size, color)
+		if center:
+			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		return l
+	var r := RichTextLabel.new()
+	r.fit_content = true
+	r.scroll_active = false
+	r.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_theme_font_size_override("normal_font_size", size)
+	r.add_theme_color_override("default_color", color)
+	r.add_theme_constant_override("line_separation", 3)
+	if center:
+		r.push_paragraph(HORIZONTAL_ALIGNMENT_CENTER)
+	for run in runs:
+		if run[1]:
+			r.push_font(_raised_font(), roundi(size * POWER_SCALE))
+			r.add_text(run[0])
+			r.pop()
+		else:
+			r.add_text(run[0])
+	return r
+
+
+static func _raised_font() -> FontVariation:
+	if _raised == null:
+		install_math_font()
+		_raised = FontVariation.new()
+		_raised.base_font = ThemeDB.fallback_font
+		_raised.baseline_offset = POWER_RAISE
+	return _raised
 
 
 static func panel(color: Color = PANEL) -> StyleBoxFlat:

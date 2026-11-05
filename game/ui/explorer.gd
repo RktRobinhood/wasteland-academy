@@ -639,7 +639,7 @@ func _show_versions() -> void:
 	question = first
 	_clear_card()
 	card.add_child(UiTheme.label("%s · %d versions" % [first.type_name, VERSIONS], UiTheme.SMALL, UiTheme.DIM))
-	card.add_child(UiTheme.label(first.prompt, UiTheme.BODY))
+	card.add_child(UiTheme.math(first.prompt, UiTheme.BODY))
 	var list := VBoxContainer.new()
 	list.name = "Versions"
 	list.add_theme_constant_override("separation", 18)
@@ -658,7 +658,7 @@ func _show_versions() -> void:
 			inner.add_child(UiTheme.label(q.error, UiTheme.SMALL, UiTheme.PINK))
 		else:
 			for line in q.lines:
-				inner.add_child(UiTheme.label(line, UiTheme.BODY, UiTheme.SAND if line.contains(" = ") else UiTheme.TEXT))
+				inner.add_child(UiTheme.math(line, UiTheme.BODY, UiTheme.SAND if line.contains(" = ") else UiTheme.TEXT))
 			if q.graph != null:
 				var g := graph_for(q.graph)
 				g.custom_minimum_size.y = mini(480, int(g.custom_minimum_size.y))

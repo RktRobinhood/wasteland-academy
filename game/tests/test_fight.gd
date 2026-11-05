@@ -188,6 +188,22 @@ func _check_fits(window: Vector2i) -> void:
 
 # ── The scroller is the fight screen (FAL-331) ───────────────
 
+func test_an_answer_box_stays_on_the_card() -> void:
+	# FAL-743: the fight's card is narrower than the practice screen's.
+	var made: Array = await _screen(_area(Vector2i(360, 800)))
+	var f: Control = made[1]
+	f.question = QuestionEngine.make({"type": "t1-standard-form", "unknown": "to-ordinary-small", "rep": "equation", "angle": "place-shift", "format": "value", "seed": 1})
+	f.render_question()
+	await tree.process_frame
+	var box: LineEdit = f.card.find_children("Slot_*", "LineEdit", true, false)[0]
+	box.text = "8".repeat(40)
+	await tree.process_frame
+	await tree.process_frame
+	check_eq(box.text.length(), f.SLOT_CHARS, "a box stops at its limit")
+	check(box.get_global_rect().end.x <= f.card.get_global_rect().end.x + 0.5, "the box runs off the card")
+	_done(made)
+
+
 func test_the_scene_is_the_fight_screen() -> void:
 	for spec in [[Vector2i(390, 844), 0.25, 1240], [Vector2i(360, 780), 0.25, 1240], [Vector2i(1280, 800), 0.3, 1400]]:
 		var area := _area(spec[0])
