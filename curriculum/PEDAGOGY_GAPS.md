@@ -1668,7 +1668,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 4 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1741,6 +1741,46 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): $1000 invested at 5% compounded annually for 10 years earns twice as much interest as $1000 invested at 5% for 5 years. — False: interest is earned on interest, so the second five years earn more than the first. The 10-year interest is $628.89 and the 5-year interest is $276.28, more than double.
   - *true-false-reason* (L3): An investment that is worth $5000 after 3 years at 4% compounded annually is worth $5000 ÷ 1.04^3 now. — True: the value after 3 years is PV × 1.04^3, so the amount invested now is the future value divided by 1.04^3.
 - **Misconceptions used:** 8. Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Giving the total value when the question asks for the interest earned (or the reverse); Taking the root but not subtracting 1 and multiplying by 100, giving a rate of 1.1%; Halving the total growth instead of taking a root: 21% ÷ 2 = 10.5%; Rounding the number of periods to the nearest integer instead of up; Forgetting to convert N from months or quarters back into years; Comparing nominal rates only and ignoring the compounding frequency.
+
+#### Binomial expansion: a coefficient, a term or the full expansion (`t1-binomial-term`, exam, 6 bank parts)
+
+- **Situation:** One bracket (ax^p + b)^n, or nCr on its own.
+- **Representations:** **equation**, table (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given n; r → the value of nCr
+  - new L1: given Pascal's triangle; n; r → nCr, read from the triangle
+  - new L2: given n; an r close to n → the value of nCr
+  - new L2: given nCr = nCm with m ≠ r → m
+  - new L1: given n; r of 0 or n → the value of nC0 or nCn
+  - new L3: given the value of nC2 → n
+  - new L3: given a top of n, or n plus or minus a whole number → nC2 as a polynomial in n, which is the show-that nC2 = n(n − 1)/2
+  - new L1: given n → the row of Pascal's triangle for n
+  - new L1: given the first rows of Pascal's triangle → the next row
+  - new L1: given one row of Pascal's triangle → n
+  - **exam** L1: given a bracket with a letter in it, and its power → the number of terms
+  - new L1: given the bracket and its power, which is 2 or 3 → the expansion
+  - **exam** L2: given (x + b)^n or (b + x)^n, with n of 4 or 5 → the expansion
+  - new L2: given a bracket with a negative term → the expansion
+  - new L3: given a bracket with a number beside x → the expansion
+  - new L2: given Pascal's triangle; the bracket and its power → the expansion
+  - new L3: given a bracket in x² → the expansion
+  - new L3: given (x + b/x)^n → the expansion, with each term simplified
+  - new L2: given the bracket and its power → the first three terms, in ascending powers of x
+  - new L2: given the bracket and its power; a power of x → the coefficient
+  - new L2: given a bracket with a negative term; a power of x → the coefficient
+  - **exam** L3: given a bracket with a number beside x; a power of x → the coefficient
+  - new L2: given Pascal's triangle; the bracket and its power; a power of x → the coefficient
+  - new L3: given a bracket in x²; a power of x → the coefficient
+  - **exam** L2: given (x + k)^n; a power of x → the coefficient in terms of k
+  - new L2: given the bracket and its power; a power of x → the term, with its x
+  - **exam** L2: given an expansion with two coefficients written as letters → the value of one of the letters
+  - new L3: given the bracket and its power; the term's place, in descending powers → that term
+- **Angles:** Use nCr = n!/(r!(n − r)!); Build Pascal's triangle by adding adjacent entries; Use nCr = nC(n − r); Use the nCr function on the GDC; Use the row of Pascal's triangle with falling and rising powers; Apply the binomial theorem term by term; Multiply the brackets out step by step; Count choices from each bracket; Write the general term and choose r; Read the coefficient from Pascal's triangle; Count how many brackets supply x.
+- **Concept probes:**
+  - *true-false-reason* (L3): The expansion of (a + b)^n has n terms. — False: r runs from 0 to n, which is n + 1 values, so there are n + 1 terms. (a + b)² has three.
+  - *always-sometimes-never* (L3): In (1 + x)^n the coefficient of x^r equals the coefficient of x^(n − r). — Always: both are nCr, as choosing r brackets to give x is the same as choosing n − r to give 1.
+  - *true-false-reason* (L4): The coefficients of (1 + x)^n add up to 2^n. — True: put x = 1 in the expansion. The sum of the coefficients is then (1 + 1)^n.
+- **Misconceptions used:** 14. Using n!/r! and forgetting the (n − r)! factor; Numbering the rows of Pascal's triangle from 1 instead of from 0; Thinking nC0 = 0; Not raising the coefficient: applying the power to x alone, so (ax)^r becomes ax^r; Losing the alternating signs when the second term is negative; Writing a term whose two powers do not add up to n; Ignoring the sign: treating a negative term raised to an odd power as positive; Forgetting to raise the other term to its power; Giving the whole term when the coefficient is asked for, or the coefficient when the term is asked for; Leaving out the r! in the formula for nCr; Keeping the negative root of the quadratic, though n counts brackets; Counting n terms in the expansion, leaving out the term where r = 0; Using the place of the term as r, when r starts from 0; Forgetting that (1/x)^r is x^(−r), so the power of x falls by one each term, not by two.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
