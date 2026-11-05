@@ -49,6 +49,7 @@ const SLIPS := {
 	"ap": [R_GAPS],
 }
 const UNSUITED := "This statement does not suit that method, so work through it line by line."
+const OTHER_ROUTE := "These lines take a different route from that method, so work through them line by line."
 
 const UNKNOWNS := ["simplify-left-side", "common-expression", "missing-line", "next-step", "valid-proof", "flawed-step", "multiple-k",
 	"consecutive-sum", "greatest-divisor", "finish-divisibility", "represent-integers", "case-bracket", "consecutive-factors", "remainder-form"]
@@ -558,16 +559,20 @@ func every_method(s: Dictionary, ans: Dictionary, steps: Callable) -> Dictionary
 	for m in methods:
 		if m in works:
 			out[m] = method(steps.call(m), ans.values)
-		elif m == angle:
+		else:
 			out[m] = method([UNSUITED] + steps.call(works[0]), ans.values)
 	return out
 
 
-## The one method whose proof a question shows: its lines belong to that method, so another
-## method's working would not reach this answer.
+## The method whose proof a question shows: its lines belong to that method, so another
+## method's working would not reach this answer. Other methods' tabs say so, and walk those lines.
 func asked_method(s: Dictionary, steps: Array, ans: Dictionary) -> Dictionary:
 	var head: Array = [] if AlgebraicProofSituation.suits(s.ask, angle, s.fam) else [UNSUITED]
-	return {angle: method(head + steps, ans.values)}
+	var out := {angle: method(head + steps, ans.values)}
+	for m in AlgebraicProofSituation.ASKS[s.ask]:
+		if m != angle:
+			out[m] = method([OTHER_ROUTE] + steps, ans.values)
+	return out
 
 
 static func say(ans: Dictionary) -> String:
