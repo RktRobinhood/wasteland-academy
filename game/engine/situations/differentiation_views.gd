@@ -784,7 +784,7 @@ func u_show_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			target = "f′(x) = %d(p − qx²)/(x² + %d)^r" % [a, b]
 			names = ["p", "q", "r"]
 			vals = [b, 2 * n - 1, n + 1]
-			wr = [[[b, -2 * n - 1, n + 1], R_SIGN], [[b, 2 * n - 1, 2 * n], R_NOT_SQUARED]]
+			wr = [[[b, -2 * n - 1, n + 1], R_SIGN], [[b, 2 * n - 1, 2 * n], ""]]
 			gen = [[b, 2 * n, n + 1], [b, n, n + 1], [2 * b, 2 * n - 1, n + 1], [b + 1, 2 * n - 1, n + 1]]
 			ds = ["The quotient rule, with u = %s and v = (x² + %d)%s: v′ = %s(x² + %d)%s." % [T(a, "x"), b, Fmt.sup(n), T(2 * n, "x"), b, Fmt.sup(n - 1)],
 				"Take out %d(x² + %d)%s on top, leaving x² + %d − %s." % [a, b, Fmt.sup(n - 1), b, T(2 * n, "x²")],

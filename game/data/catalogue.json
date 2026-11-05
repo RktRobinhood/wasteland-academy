@@ -18341,7 +18341,7 @@
 				},
 				{
 					"ref": "SL1.1.convert#1",
-					"text": "Counting the digits instead of the places the point moves",
+					"text": "Moving the point one place too many, by counting digits instead of the places it moves",
 					"as": "distractor",
 					"in": [
 						"to-form-large",
@@ -21457,7 +21457,7 @@
 				},
 				{
 					"ref": "SL3.3.elevation-depression#2",
-					"text": "Leaving the observer's eye height out of the calculation",
+					"text": "Leaving the person's height or eye level out of the calculation",
 					"as": "distractor",
 					"in": [
 						"height-with-eye-level",
@@ -23615,7 +23615,6 @@
 					"in": [
 						"b-from-period",
 						"all-four",
-						"tan-two-points",
 						"wheel-model"
 					],
 					"wrong": "the period taken as the gap from a maximum to the next minimum"
@@ -23627,7 +23626,6 @@
 					"in": [
 						"amp-axis",
 						"all-four",
-						"q-from-minimum",
 						"sum-as-cos"
 					],
 					"wrong": "a = max − min, not halved"
@@ -23657,7 +23655,7 @@
 				},
 				{
 					"ref": "SL3.7.transformations#1",
-					"text": "Using b as the scale factor of the horizontal stretch instead of its reciprocal",
+					"text": "Treating b as the horizontal scale factor: a stretch with scale factor k divides b by k",
 					"as": "distractor",
 					"in": [
 						"image-equation",
@@ -24162,7 +24160,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL3.8.solve-basic#0",
-					"text": "Stopping at the calculator's principal value",
+					"text": "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
 					"as": "distractor",
 					"in": [
 						"basic-exact",
@@ -24710,8 +24708,7 @@
 						"bias-direction",
 						"better-method",
 						"random-not-perfect",
-						"improve-reliability",
-						"under-represented"
+						"improve-reliability"
 					],
 					"wrong": "a random draw called exact or sure to match"
 				}
@@ -33687,7 +33684,7 @@
 				},
 				{
 					"ref": "SL5.10.inspection-substitution#0",
-					"text": "Integrating the outer function but leaving the extra x in place",
+					"text": "Integrating the outer function but leaving the extra factor in place",
 					"as": "distractor",
 					"in": [
 						"inspection-power",
@@ -43524,7 +43521,7 @@
 				},
 				{
 					"ref": "SL3.8.solve-basic#0",
-					"text": "Stopping at the calculator's principal value",
+					"text": "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
 					"as": "distractor",
 					"in": [
 						"one-answer-only"

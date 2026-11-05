@@ -75,7 +75,7 @@
               ],
               "misconceptions": [
                 "Getting the sign of the power wrong: a large number needs a positive power and a small one a negative power",
-                "Counting the digits instead of the places the point moves",
+                "Moving the point one place too many, by counting digits instead of the places it moves",
                 "Leaving or comparing a number whose first part isn't between one and ten"
               ],
               "threads": [
@@ -8192,7 +8192,7 @@
               "misconceptions": [
                 "Measuring the angle of depression from the vertical instead of the horizontal",
                 "Putting the angle of depression inside the triangle at the top vertex",
-                "Leaving the observer's eye height out of the calculation"
+                "Leaving the person's height or eye level out of the calculation"
               ],
               "threads": [
                 {
@@ -9328,7 +9328,7 @@
               ],
               "misconceptions": [
                 "Reading the shift before taking b out of the bracket",
-                "Using b as the scale factor of the horizontal stretch instead of its reciprocal",
+                "Treating b as the horizontal scale factor: a stretch with scale factor k divides b by k",
                 "Getting the direction of the shift wrong: a plus inside the bracket moves the graph left"
               ],
               "threads": [
@@ -9596,7 +9596,7 @@
                 }
               ],
               "misconceptions": [
-                "Stopping at the calculator's principal value",
+                "Stopping at one solution, such as the calculator's principal value, instead of finding them all",
                 "Finding a cosine equation's second solution the way you would for sine",
                 "Missing the solutions below zero in the interval"
               ],
@@ -16570,7 +16570,7 @@
                 }
               ],
               "misconceptions": [
-                "Integrating the outer function but leaving the extra x in place",
+                "Integrating the outer function but leaving the extra factor in place",
                 "Forgetting to divide by the number that comes from differentiating the inside",
                 "Forgetting to substitute back from u to x"
               ],

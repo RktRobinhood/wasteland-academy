@@ -61,7 +61,7 @@ static func B(b: Variant) -> String:
 
 ## A worked figure: five significant figures.
 static func W(x: float) -> String:
-	return Fmt.sf(x, 5)
+	return Fmt.work(x, 5)
 
 
 ## The number a worked figure says, so the next step works from what is shown.

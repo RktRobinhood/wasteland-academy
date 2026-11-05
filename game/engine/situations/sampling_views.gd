@@ -353,7 +353,7 @@ func u_under_represented(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 	var right := cap(group(s, g))
 	var low: int = s.got.find(s.got.min())
 	var other: int = 3 - g - low
-	var built := claims(right, [[cap(group(s, low)), ""], [cap(group(s, other)), ""], ["None: the sample matches the %s." % c.place, R_PERFECT]])
+	var built := claims(right, [[cap(group(s, low)), ""], [cap(group(s, other)), ""], ["None: the sample matches the %s." % c.place, ""]])
 	var fair: Array = s.q
 	return {"lines": ["The table shows a %s of %d %s and a sample of %d of them." % [c.place, s.N, c.who, s.n]], "table": groups_table(s, [c.place, "sample"], [s.G, s.got], [s.N, s.n]),
 		"asked": "Which group is most under-represented in the sample?", "answer": built.answer, "wrongs": built.wrongs,

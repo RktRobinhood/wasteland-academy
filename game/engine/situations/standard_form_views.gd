@@ -397,7 +397,7 @@ func _over(_rep: String, s: Dictionary) -> Dictionary:
 	out.wrongs = options(ans, list)
 	out.wrongs += options(ans, [[s.r, e + 1 if v.lt(Q.new(1)) else e - 1]])
 	out.generic = options(ans, spares(s)).map(func(w): return w.values)
-	var group := "(%s ÷ %s) × 10^(%s − %s) = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), N(s.m), P(s.n), written(v, s.paper == 2, 5), ten(e)]
+	var group := "(%s ÷ %s) × 10^(%s − %s) = %s × %s" % [Fmt.dec(s.a), Fmt.dec(s.b), N(s.m), P(s.n), Fmt.work(v, 5) if s.paper == 2 or Fmt.dec(v).contains("/") else Fmt.dec(v), ten(e)]
 	out.methods = {"group-and-index": method(["Divide the a-values and subtract the powers of ten.", group] + tidy_sf(s, v, e) + [say(ans)], ans.values)}
 	gdc(out, s, "(%s) ÷ (%s)" % [sci(s.a, s.m), sci(s.b, s.n)])
 	out.methods["ordinary-numbers"] = method(["%s ÷ %s = %s" % [plain(s.a, s.m), plain(s.b, s.n), whole(s)], say(ans)], ans.values)
@@ -462,7 +462,7 @@ func u_times_larger(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 static func tidy_sf(s: Dictionary, v: Q, e: int) -> Array:
 	if s.paper == 1:
 		return tidy(v, e, s.r, s.k)
-	return ["In standard form that is %s × %s." % [Fmt.sf(s.r, 5), ten(s.k)]]
+	return ["In standard form that is %s × %s." % [Fmt.work(s.r, 5), ten(s.k)]]
 
 
 func u_time_from_rate(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
