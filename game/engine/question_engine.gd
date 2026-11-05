@@ -260,7 +260,7 @@ static func rep_is_exam(t: Dictionary, rep: String) -> bool:
 ## (Courses) keeps the unknowns it covers; "" keeps them all.
 ## Cached: the planner asks on every question, and building every cell each time cost a
 ## student tens of milliseconds a pick (FAL-755). So the result is shared by every caller
-## and is read-only: filter() or duplicate() it, and don't write to a cell.
+## and is read-only, each cell too: filter() it, or duplicate() a cell to change it.
 static func cells(exam_only: bool = false, types: Array = [], course: String = "") -> Array:
 	var cached: Variant = _cells_cache.get([exam_only, types, course])
 	if cached != null:
@@ -282,8 +282,10 @@ static func cells(exam_only: bool = false, types: Array = [], course: String = "
 				if exam_only and not exam:
 					continue
 				for angle in angles_for(t, u.id, course):
-					out.append({"key": cell_key(id, u.id, rep, angle), "type": id, "unknown": u.id, "rep": rep,
-						"angle": angle, "level": int(u.level), "exam": exam})
+					var cell := {"key": cell_key(id, u.id, rep, angle), "type": id, "unknown": u.id, "rep": rep,
+						"angle": angle, "level": int(u.level), "exam": exam}
+					cell.make_read_only()
+					out.append(cell)
 	out.make_read_only()
 	# The key's own copy of types: the caller's array can change later.
 	_cells_cache[[exam_only, types.duplicate(), course]] = out

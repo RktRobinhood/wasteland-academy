@@ -35,6 +35,12 @@ func test_cells_are_the_same_the_second_time() -> void:
 func test_cells_are_read_only() -> void:
 	check(QuestionEngine.cells().is_read_only())
 	check(not QuestionEngine.cells().duplicate().is_read_only())
+	check(QuestionEngine.cells().all(func(c): return c.is_read_only()))
+	var cell: Dictionary = QuestionEngine.cells()[0]
+	var level: int = cell.level
+	check(not cell.set("level", level + 1), "a write to a cached cell is blocked")
+	check_eq(cell.level, level)
+	check(not cell.duplicate().is_read_only())
 
 
 ## Each argument changes the answer, whichever order they are asked in.
