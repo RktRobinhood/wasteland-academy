@@ -238,8 +238,11 @@ static func _recorded(rng: Seeded, s: Dictionary) -> bool:
 	_floats(s)
 	if s.sgf > s.muf / 4.0:
 		return false
-	var z: float = rng.int_in(-160, 160) / 100.0
+	var z: float = 0.0 if rng.chance(0.2) else rng.int_in(-160, 160) / 100.0
 	s.v = Q.new(roundi((s.muf + z * s.sgf) * m), m)
+	# A whole value on a grid of tenths would read as if the grid were whole.
+	if m == 10 and s.v.is_int():
+		return false
 	s.h = s.u.div(Q.new(2))
 	s.lo = s.v.sub(s.h)
 	s.hi = s.v.add(s.h)

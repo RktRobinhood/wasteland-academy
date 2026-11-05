@@ -247,6 +247,15 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   bound typed), P(within kσ), σ or μ from a tail, σ from an interquartile range or a central
   area, μ and σ from two tails (a `named` answer), μ and σ from equal tails, and μ from two
   z-values. Representations are the equation, a story with percentages, and a shaded curve.
+- `engine/situations/normal_probability.gd` (FAL-728) is `t4-normal-probability` (SL4.9, all Paper 2):
+  X is normal with μ and σ known, and a region of it is asked for. It is a thin layer on
+  `normal-unknown`: one normal distribution, the same stories and the same curve (its views extend
+  `NormalUnknownViews`). Its views (`normal_probability_views.gd`) ask 13 unknowns: below, above,
+  between and outside values, a percentage or proportion, an expected count, a rejection rule and
+  its expected count, exactly k of a sample (the area as a binomial's p), a variable that can be
+  negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle
+  from two given tails, which is exact. On a shaded curve the stem doesn't say the region again. A
+  recorded value has no curve: its strip is too thin to read, and labelling it gives the half unit away.
 - `engine/situations/venn.gd` (FAL-725) is `t4-venn-addition-rule` (SL4.6, on all four syllabuses):
   four regions out of a total, shown as decimals, fractions or counts in a story, a Venn diagram
   (PlotView's `venn`, rep `diagram`) or a two-way table (rep `table`, with heads and totals as
@@ -1370,6 +1379,11 @@ script error happens while it runs. Run one file with
   FAL-725 types: each built with every cell and all its skills, one right option on each paper,
   the numbers against hand values, the figures drawn, every misconception as an option, and the
   courses each is in.
+- `test_normal_probability.gd` (FAL-728): `t4-normal-probability`: every cell on Paper 2 with one
+  right option, the one normal distribution it shares with `normal-unknown`, regions that add up,
+  bands wide enough for their labels, the shaded curve, the root of a variance, half a unit either
+  side of a recorded value, exactly k of a sample, a middle from two tails, and every misconception
+  as an option.
 - `test_sampling.gd`, `test_cumulative_frequency.gd`: the two FAL-726 types: every cell and skill,
   one right option on each paper the type has, group sizes whole, a curve rising through grid corners
   with its class boundaries among them, a table's estimates ending, the figure drawn, every
