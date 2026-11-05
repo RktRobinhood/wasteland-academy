@@ -17073,7 +17073,7 @@ def as_read(q):
             if m:
                 k["r"] = plain(m.group(1))
                 continue
-            m = re.fullmatch(r"θ = (\S+?)(°| radians)", ln)
+            m = re.fullmatch(r"θ = (\S+?)(°| radians?)", ln)
             if m:
                 angle(m.group(1), m.group(2) == "°")
                 continue
@@ -17087,7 +17087,7 @@ def as_read(q):
         if m:
             k["r"] = plain(m.group(1))
             k["unit"] = " " + m.group(2)
-        m = re.search(r"(?:with an angle of|a gap with an angle of) (\S+?)(°| radians) at the centre", text)
+        m = re.search(r"(?:with an angle of|a gap with an angle of) (\S+?)(°| radians?) at the centre", text)
         if m:
             angle(m.group(1), m.group(2) == "°")
         for key, pat in (("l", r"The curved edge of the sector is (.+?) (cm|km|m) long\."), ("a", r"The area of the sector is (.+?) (cm|km|m)²\."),
@@ -17304,7 +17304,7 @@ def as_check(q):
         W("sector-area#2", label, tail, rr**2 * t0 / 2)
     elif u == "cone-radius":
         if rep == "words":
-            mt = re.fullmatch(r"A sheet of tin is cut into a sector of radius ([\d.]+) cm and angle (\S+?)(°| radians)\. Its two straight edges are joined to make a funnel, with the arc as the rim\.", L[0].replace(" m ", " cm ").replace(" km ", " cm "))
+            mt = re.fullmatch(r"A sheet of tin is cut into a sector of radius ([\d.]+) cm and angle (\S+?)(°| radians?)\. Its two straight edges are joined to make a funnel, with the arc as the rim\.", L[0].replace(" m ", " cm ").replace(" km ", " cm "))
             need(mt is not None, f"can't read {L[0]!r}")
             r = R(mt.group(1))
             d = as_val(mt.group(2))
