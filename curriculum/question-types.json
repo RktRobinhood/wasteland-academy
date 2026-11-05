@@ -3694,9 +3694,6 @@
     "the range is even on Paper 1, so a and d are whole"
    ]
   },
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   "geometric-sequence": {
    "name": "One geometric sequence and its sums",
    "summary": "Pick u₁ and r (or the two terms, the expressions in k, the Σ, the story), then derive every term, Sₙ and S∞, so any of them can be hidden and any shown.",
@@ -3742,7 +3739,8 @@
     "Paper 2: sizes up to 5 000 000, each clear of a rounding edge at 3 s.f.",
     "terms shown are whole on Paper 1 and end in decimals on Paper 2",
     "a graph's dots are small whole numbers"
-=======
+   ]
+  },
   "normal-probability": {
    "name": "A normal variable with a region asked for",
    "extends": "normal-unknown",
@@ -3790,8 +3788,8 @@
     "a bound is at least a tenth of a standard deviation from μ, except a recorded value, which can sit on it",
     "every region has an area of at least 0.005 on each side, and an expected count stays a decimal unless the 3 s.f. make it whole",
     "a variable that can be negative has a real area below 0, so using 0 as the lower bound changes the answer"
->>>>>>> fal-728-normal
-=======
+   ]
+  },
   "basic-probability": {
    "name": "One chance set-up, counted or measured",
    "summary": "Pick a set-up with outcomes that can be counted or results that can be read: a bag, a two-way table, a list of data, two dice or spinners, a short sample space, one event, independent trials, a results table, a running relative frequency, two tests or a run of results. The probability of an event, of its complement, or an estimate from results is then known, and any of them can be asked.",
@@ -3864,8 +3862,8 @@
     "a frequency chart's relative frequency on Paper 1 has a total of 20, 25, 40, 50, 80, 100 or 200, so it ends",
     "a running relative frequency comes from real counts: hits never fall, and rise by no more than the trials added",
     "an event's probability is never one half where its complement is asked, so the two are always different"
->>>>>>> fal-728-prob
-=======
+   ]
+  },
   "algebraic-proof": {
    "name": "One statement to prove, as a chain of lines",
    "summary": "Pick the shape of an identity or a divisibility claim and its numbers, and every line of the proof follows, with the slip each wrong line makes.",
@@ -3920,7 +3918,6 @@
     "every statement is true for every value of its letter",
     "the divisor is more than 1, and the bracket has whole-number coefficients",
     "a greatest divisor is smaller than the coefficient of n, so a fraction is left if that is taken out"
->>>>>>> fal-728-proof
    ]
   }
  },

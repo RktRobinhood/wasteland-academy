@@ -20958,7 +20958,6 @@ def pf_never(q, g, rep):
     pf_steps(q, {"S": e})
 
 
-SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
 # ── basic-probability (t4-probability-basic, FAL-728) ────────
 # The `basic-probability` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/basic_probability.gd. Each question's facts are read back from what the
@@ -21387,9 +21386,7 @@ SITUATION_CHECKS = {"basic-probability": check_basic_probability, "quadratic": c
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
-                    "binomial": check_binomial, "geometric-sequence": check_geometric, "data-summary": check_data_summary, "regression": check_regression,
-                    "binomial": check_binomial, "binomial-expansion": check_binomial_expansion, "data-summary": check_data_summary, "regression": check_regression,
-                    "binomial": check_binomial, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
+                    "binomial": check_binomial, "geometric-sequence": check_geometric, "binomial-expansion": check_binomial_expansion, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
