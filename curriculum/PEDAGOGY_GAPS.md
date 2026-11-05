@@ -585,7 +585,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A geometric series with ratio 0.9 has a sum to infinity, but one with ratio 1.1 does not. — True. Multiplying by 0.9 again and again drives the terms to 0, like exponential decay, so the sum settles at u₁/(1 − 0.9) = 10u₁. Multiplying by 1.1 makes the terms grow, so the sum grows without limit.
   - *interpret-parameter* (L3): In A(t) = 2000 × 0.85^t, what do 2000 and 0.85 mean, and what is the yearly percentage change? — 2000 is the value at t = 0. 0.85 is the factor each year: the value keeps 85%, so it falls by 15% a year.
   - *predict-check* (L3): Predict which is worth more after 10 years: 1000 growing by 5% a year, or 1000 growing by 50 a year. Then check. — The 5% one. 1000 × 1.05¹⁰ ≈ 1628.89, while 1000 + 10 × 50 = 1500. Both add 50 in year one, but the percentage is taken of a growing amount.
-- **Misconceptions used:** 13. Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth); Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the initial value as P(1) instead of P(0), so the exponent is off by one; Thinks (1/2)^x is the reflection of 2^x in the x-axis rather than the y-axis; Using r^n instead of r^(n − 1); Using 1.3 for a 30% decrease, or subtracting 30% of the original each year (linear thinking); Off-by-one: the value 'after 10 years' needs 10 multiplications, not u_10 = u_1 r^9 with u_1 as the starting value; Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Using 1.15 or 0.15 as the multiplier instead of 0.85; Treating depreciation as linear: subtracting 15% of the original price each year; Thinking r < 1 is enough, so a series with r = −2 'converges'; Including the endpoints: thinking r = 1 or r = −1 gives a sum to infinity.
+- **Misconceptions used:** 13. Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth); Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the initial value as P(1) instead of P(0), so the exponent is off by one; Thinks (1/2)^x is the reflection of 2^x in the x-axis rather than the y-axis; Using rⁿ in the term formula, one power of r too many; Using 1.3 for a 30% decrease, or subtracting 30% of the original each year (linear thinking); Off-by-one: the value 'after 10 years' needs 10 multiplications, not u_10 = u_1 r^9 with u_1 as the starting value; Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Using 1.15 or 0.15 as the multiplier instead of 0.85; Treating depreciation as linear: subtracting 15% of the original price each year; Thinking r below one is enough, so a large negative ratio seems to converge; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity.
 
 ### 3. Graphs and key features (syllabus 2.3, 2.4, 2.10)
 
@@ -1668,7 +1668,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 5 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1724,6 +1724,39 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): For an arithmetic sequence of whole numbers, Sₙ is a multiple of n. — Sometimes: Sₙ = n × (u₁ + uₙ)/2, so it is a multiple of n exactly when u₁ + uₙ is even.
 - **Misconceptions used:** 12. Using u_1 + nd, which gives u_11 instead of u_10; Finding d as u_1 − u_2, so a decreasing sequence gets a positive d; Confusing the position n with the value u_n; Dividing by the number of terms instead of the number of gaps: d = 16/5; Treating the given term as u_1 when asked for the first term; Answering with n when the question asks for the term itself (or the reverse); Forgetting the + 1 when counting terms: (403 − 7)/4 = 99 terms; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Finding u_n when the question asks for S_n (or the reverse); Keeping the negative root of the quadratic as a number of terms; Answering with the value of the sum instead of the number of terms n.
 
+#### Geometric sequence: find r, u1, a term or S_n (`t1-geometric-sequence`, exam, 9 bank parts)
+
+- **Situation:** One geometric sequence and its sums, shared with `t1-sum-to-infinity`.
+- **Representations:** **notation**, **terms**, **words**, **equation**, table, graph, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the first terms, as a list, a table or dots on a graph → the common ratio r
+  - **exam** L2: given u₁ and r, or the first terms → a later term uₙ
+  - **exam** L2: given u₁ and a fractional r, or the first terms → the exact value of a later term
+  - **exam** L3: given u₁ and r, or the first terms → an expression for uₙ in terms of n
+  - **exam** L3: given two terms an odd number of steps apart → r
+  - **exam** L3: given two terms an even number of steps apart → both possible values of r
+  - **exam** L3: given two terms an odd number of steps apart → u₁
+  - **exam** L4: given two terms an even number of steps apart; the sign of a far term → the next term
+  - **exam** L4: given the outer two of four consecutive terms → the two terms between them
+  - **exam** L4: given three consecutive terms, each linear in k → the possible values of k
+  - **exam** L5: given (1 + hx)ⁿ and three powers of x whose coefficients are geometric → h
+  - **exam** L2: given u₁ and r, or the first terms → Sₙ
+  - **exam** L3: given u₁ and a fractional r, or the first terms → the exact value of Sₙ
+  - **exam** L3: given a series with its first and last terms → its sum
+  - **exam** L3: given u₁ and a whole-number r → the numbers in a closed form for Sₙ
+  - **exam** L5: given u₁ = 1 and a whole-number r → the numbers in a closed form for S₁ + S₂ + … + Sₙ
+  - **exam** L3: given a sequence with r = −1 → the sum of the first 2m or 2m + 1 terms
+  - **exam** L4: given a ball's drop height and its rebound fraction → the distance travelled when it lands for the nth time
+  - **exam** L2: given a series in Σ notation → u₁ and r
+  - **exam** L3: given a series in Σ notation → its value
+  - **exam** L3: given a series with its first and last terms → the same series in Σ notation
+- **Angles:** Substitute into u_n = u_1 r^(n − 1); Multiply by r repeatedly; Rewrite as u_n = (u_1/r) × r^n; Use the GDC sequence or table mode; Divide one term equation by the other; Count multiplicative steps between terms; Equate consecutive ratios; Solve with the GDC; Use S_n = u_1(r^n − 1)/(r − 1) or u_1(1 − r^n)/(1 − r); Multiply by r and subtract (S − rS); Add the terms directly; Use sum(seq(…)) or Σ on the GDC; Substitute the limits, identify u_1, r and n, then use S_n; Take the constant factor outside the sigma; Use the GDC Σ template.
+- **Concept probes:**
+  - *true-false-reason* (L3): If r² = 9 for a geometric sequence, then r = 3. — False: r = −3 fits as well, because a square hides the sign. The sequence needs another fact to settle which.
+  - *always-sometimes-never* (L3): The terms of a geometric sequence get bigger as n gets bigger. — Sometimes: they do for u₁ = 1 and r = 2, but they shrink for r = 1/2 and flip sign for r = −2.
+  - *true-false-reason* (L4): uₙ = 3 × 2ⁿ is a geometric sequence, even though it isn't written as u₁r^(n − 1). — True: each term is 2 times the one before, so r = 2. It is the same as u₁ = 6 and r = 2.
+- **Misconceptions used:** 13. Using rⁿ in the term formula, one power of r too many; Multiplying u₁ and r first and raising the product to the power, instead of raising r alone; Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁; Subtracting terms as if the sequence were arithmetic; Taking only the positive root of an even power and losing the negative ratio; Counting terms instead of steps, so the power of r is one too high; Using a power one lower than n in the sum formula; Slipping on the sign of a negative r raised to an odd power; Miscounting the terms when the last term is given; Taking the coefficient as the first term, whatever the lower limit gives; Taking r to be the coefficient instead of the base of the power; Counting the terms as upper minus lower, which is one too few; Doubling the first drop of a bouncing ball as well as the rebounds.
+
 #### Compound interest: value, rate or time, with different compounding periods (`t1-compound-interest`, exam, 16 bank parts)
 
 - **Situation:** Money invested at a nominal annual rate, compounded k times a year.
@@ -1741,6 +1774,37 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): $1000 invested at 5% compounded annually for 10 years earns twice as much interest as $1000 invested at 5% for 5 years. — False: interest is earned on interest, so the second five years earn more than the first. The 10-year interest is $628.89 and the 5-year interest is $276.28, more than double.
   - *true-false-reason* (L3): An investment that is worth $5000 after 3 years at 4% compounded annually is worth $5000 ÷ 1.04^3 now. — True: the value after 3 years is PV × 1.04^3, so the amount invested now is the future value divided by 1.04^3.
 - **Misconceptions used:** 8. Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Giving the total value when the question asks for the interest earned (or the reverse); Taking the root but not subtracting 1 and multiplying by 100, giving a rate of 1.1%; Halving the total growth instead of taking a root: 21% ÷ 2 = 10.5%; Rounding the number of periods to the nearest integer instead of up; Forgetting to convert N from months or quarters back into years; Comparing nominal rates only and ignoring the compounding frequency.
+
+#### Sum to infinity: convergence, value, or an unknown from it (`t1-sum-to-infinity`, exam, 5 bank parts)
+
+- **Situation:** One geometric sequence and its sums, shared with `t1-geometric-sequence`.
+- **Representations:** **notation**, **terms**, **equation**, **words**, table, graph, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the first terms, or u₁ and r → whether S∞ exists, and why
+  - new L3: given a table of partial sums → what the table shows about S∞
+  - **exam** L4: given r as a line in x, as an expression or a graph → the values of x for which S∞ exists
+  - **exam** L2: given u₁ and r, the first terms, or a table of terms → S∞
+  - **exam** L3: given an infinite series in Σ notation → S∞
+  - new L3: given a square shaded in shrinking pieces → the total shaded area
+  - **exam** L4: given a series of multiples of log x, with one multiple hidden; S∞ → x
+  - **exam** L2: given r and S∞ → u₁
+  - **exam** L3: given u₁ and S∞ → r
+  - **exam** L3: given S∞ as a multiple of u₁ → r
+  - **exam** L4: given u₂ and S∞, with one root of the quadratic too large → r
+  - **exam** L4: given u₂ and S∞, with both roots of the quadratic allowed → both possible values of r
+  - **exam** L3: given a ball's drop height and its rebound fraction → the total distance before it comes to rest
+  - **exam** L4: given a rebound fraction, for a drop of x metres → k, where the total distance is kx
+  - **exam** L3: given a recurring decimal → the same number as a fraction
+  - **exam** L4: given a square, and how each next square sits inside the last → the total area of all the squares
+  - **exam** L3: given a story in which each amount is a fixed share of the last → the total if it goes on for ever
+  - **exam** L4: given a story, with a target for the running total → whether the total ever reaches the target
+  - **exam** L4: given the share kept each round, a target and a number of rounds → the first amount
+- **Angles:** Find r and check |r| < 1; Watch the partial sums on the GDC; Solve −1 < r < 1 as a double inequality; Graph r as a function of x inside the band −1 < y < 1; Use S∞ = u_1/(1 − r); Let n → ∞ in the S_n formula; Tabulate partial sums on the GDC; Shade a shape in shrinking pieces; Substitute into S∞ = u_1/(1 − r) and rearrange; Combine two conditions into a quadratic in r; Use S∞/u_1 = 1/(1 − r); Solve with the GDC; Identify the series hiding in the context and use S∞; Split the motion into separate series; Draw the first few stages; Check with partial sums on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): A geometric series with r = −1 has a sum to infinity of u₁/2, because the formula gives that. — False: the partial sums flip between u₁ and 0 and never settle. The formula only holds for |r| < 1.
+  - *always-sometimes-never* (L4): If u₁ > 0, then S∞ is greater than u₁. — Sometimes: it is for r > 0, but for r < 0 the denominator 1 − r is more than 1, so S∞ is less than u₁.
+  - *true-false-reason* (L4): 0.999… is exactly equal to 1. — True: it is 9/10 + 9/100 + …, with u₁ = 9/10 and r = 1/10, so S∞ = (9/10)/(9/10) = 1.
+- **Misconceptions used:** 12. Thinking r below one is enough, so a large negative ratio seems to converge; Solving only the upper inequality and forgetting the lower one when r depends on x; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity; Putting a plus in the formula's denominator, or dropping the sign of a negative r; Taking the coefficient as u₁ instead of the value at the lower limit; Applying the formula when the size of r is one or more, which gives a meaningless sum; Inverting the rearrangement of the formula, so S∞ and u₁ swap places; Keeping a root too large in size for a sum to infinity to exist; Substituting u₂ as if it were u₁; Doubling the first drop of a bouncing ball as well as the rebounds; Using one tenth as r for a recurring block of more than one digit; Using S∞ in context without checking that r is small enough.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
