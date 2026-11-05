@@ -23906,7 +23906,556 @@ def td_check(q):
     return None, None
 
 
-SITUATION_CHECKS = {"motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── grouped-data (t4-grouped-data, FAL-740) ──────
+# The `grouped-data` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/grouped_data.gd. The classes, values and frequencies are read back from the
+# table, the rest from the lines; only the story's index comes from `given`. A median is checked by
+# trying every frequency, a spread by Σf(x − mean)² ÷ Σf, and every plain sum in the working is
+# evaluated.
+
+GPD_GM, GPD_SD, GPD_MT, GPD_MM = "SL4.3.grouped-mean#", "SL4.3.sd-variance#", "SL4.3.mean-totals#", "SL4.3.mean-median-mode#"
+GPD_EDGE = sp.Rational(3, 100)
+GPD_NUM = r"−?\d+(?:\.\d+)?"
+GPD_P1_TOTALS = {10, 20, 25, 40, 50, 100}
+GPD_P2_TOTAL = (30, 150)
+GPD_P2_ONLY = {"estimate-sd", "estimate-variance", "sd-from-table", "variance-from-table"}
+GPD_CLASSES = [("t", "Time, t (minutes)", "Caravans", "caravans", "The table shows how long each caravan took to cross the salt flat.", "crossing times"),
+               ("l", "Length, l (cm)", "Rats", "rats", "The table shows the length of each rat caught at the pump house.", "rat lengths"),
+               ("m", "Mass, m (kg)", "Crates", "crates", "The table shows the mass of each crate in the depot.", "crate masses"),
+               ("d", "Distance, d (km)", "Scouts", "scouts", "The table shows how far each scout walked in a week.", "distances walked"),
+               ("w", "Water, w (litres)", "Households", "households", "The table shows how much water each household drew in a week.", "amounts of water drawn"),
+               ("r", "Range, r (km)", "Radios", "radios", "The table shows the range of each radio on the repair bench.", "radio ranges")]
+GPD_WIDTHS = [{10, 20, 50}, {5}, {5, 10, 20}, {5, 10}, {10, 20, 50}, {5, 10, 20}]
+GPD_VALUES = [("Rats caught", "Traps", "traps", "The table shows how many rats each trap caught."),
+              ("Flat tyres", "Trips", "trips", "The table shows how many flat tyres each trip cost."),
+              ("Fuses blown", "Nights", "nights", "The table shows how many fuses blew each night."),
+              ("Barrels filled", "Days", "days", "The table shows how many barrels were filled each day."),
+              ("Radios fixed", "Weeks", "weeks", "The table shows how many radios were fixed each week."),
+              ("Scrap runs", "Scavengers", "scavengers", "The table shows how many scrap runs each scavenger made.")]
+GPD_GROUPS = [(["the north camp", "the south camp", "the river camp"], "Camp", "scouts", "carried a mean of", " kg of scrap", "mass of scrap carried", "total mass of scrap carried", "Mean (kg)"),
+              (["the day shift", "the night shift", "the dawn shift"], "Shift", "guards", "walked a mean of", " km", "distance walked", "total distance walked", "Mean (km)"),
+              (["the first depot", "the second depot", "the third depot"], "Depot", "crates", "held a mean of", " fuses", "number of fuses held", "total number of fuses held", "Mean"),
+              (["the east well", "the west well", "the hill well"], "Well", "buckets", "held a mean of", " litres", "volume of water held", "total volume of water held", "Mean (litres)"),
+              (["the old road", "the new road", "the salt road"], "Road", "caravans", "hauled a mean of", " barrels", "number of barrels hauled", "total number of barrels hauled", "Mean"),
+              (["the top bunker", "the middle bunker", "the low bunker"], "Bunker", "radios", "reached a mean of", " km", "range reached", "total of the ranges reached", "Mean (km)")]
+GPD_PAIRS = [("the north pump", "the south pump", "At", "the water drawn each day", "litres", "More water is drawn on an average day at {}.", "Every day's draw at {} is within {} litres of the mean."),
+             ("the east trap line", "the west trap line", "On", "the weekly catch", "rats", "More rats are caught in an average week on {}.", "Every week's catch on {} is within {} rats of the mean."),
+             ("the tower radio", "the bunker radio", "From", "the range of a message", "km", "Messages reach further on average from {}.", "Every message from {} reaches within {} km of the mean."),
+             ("the salt road", "the river road", "On", "the time for a crossing", "hours", "An average crossing takes longer on {}.", "Every crossing on {} is within {} hours of the mean.")]
+GPD_WHY = "It is an estimate: the exact values in each class are not known."
+GPD_WHY_ALL = {GPD_WHY, "It is the exact mean: every row of the table was used.", "It is an estimate: the frequencies have been rounded.",
+               "It is an estimate: only the class with the most values was used."}
+GPD_SUB = "₁₂₃₄₅₆"
+
+
+def gpd_clear(v):
+    """A value written to 3 s.f. sits clear of a rounding edge."""
+    x = abs(sp.N(v, 40))
+    e = int(sp.floor(sp.log(x, 10)))
+    scaled = x / sp.Integer(10) ** (e - 2)
+    need(abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= GPD_EDGE, f"{x} is on a rounding edge")
+
+
+def gpd_rounds(q, v):
+    """True where the question writes v to 3 s.f.: Paper 2, and it doesn't end there."""
+    return q["paper"] == 2 and sp.Rational(sig3(v)) != v
+
+
+def gpd_shown(label, v, sf):
+    if sf:
+        return label + rg_s(v)
+    return label + dec_text(v)
+
+
+def gpd_set(q, label, v, table):
+    """want, trap and wrongs for a number; `table` is ref -> the values that mistake gives. Every
+    option is written as the answer is."""
+    sf = gpd_rounds(q, v)
+    if sf:
+        gpd_clear(v)
+    else:
+        need(v.is_rational and (sp.Rational(v) * 100).q == 1 or q["paper"] == 2, f"the answer {v} doesn't end within 2 decimal places")
+    want = gpd_shown(label, v, sf)
+    trap = bn_trap(label, v) if sf else None
+    wrongs = {}
+    for ref, xs in table.items():
+        wrongs[ref] = {gpd_shown(label, x, sf) for x in xs if sf or x.is_rational}
+    return want, trap, wrongs
+
+
+def gpd_class_table(q, blank=None):
+    """lo, hi, the cells and the total of a grouped table, checked for what a table may be."""
+    c = GPD_CLASSES[int(q["given"]["ctx"])]
+    rows = q["table"]["rows"]
+    need(rows[0][0] == c[1] and rows[0][1][0] in (c[2], c[2] + " (thousands)"), f"the heads {rows[0]}")
+    thousands = rows[0][1][0].endswith("(thousands)")
+    need(not thousands or (q["paper"] == 2 and f"The numbers of {c[3]} are in thousands." in q["lines"]), "a table in thousands")
+    need(q["lines"][0] == c[4], f"the line {q['lines'][0]!r}")
+    body = rows[1:]
+    total = None
+    if body[-1][0] == "Total":
+        total = R(body[-1][1][0])
+        body = body[:-1]
+    else:
+        for ln in q["lines"]:
+            mt = re.fullmatch(rf"There are (\d+) {c[3]} in all\.", ln)
+            if mt:
+                total = R(mt.group(1))
+    lo, hi, cells, ends = [], [], [], set()
+    for label, cell in body:
+        mt = re.fullmatch(rf"(\d+) (≤|<) {c[0]} (<|≤) (\d+)", label)
+        need(mt is not None, f"can't read the class {label!r}")
+        ends.add((mt.group(2), mt.group(3)))
+        lo.append(int(mt.group(1)))
+        hi.append(int(mt.group(4)))
+        cells.append(cell[0])
+    need(len(ends) == 1 and ends <= {("≤", "<"), ("<", "≤")}, f"the classes close at different ends: {ends}")
+    need(4 <= len(lo) <= 5, f"{len(lo)} classes")
+    need(all(a < b for a, b in zip(lo, hi)) and all(hi[i] == lo[i + 1] for i in range(len(lo) - 1)), "the classes don't meet")
+    widths = {b - a for a, b in zip(lo, hi)}
+    w = min(widths)
+    need(lo[0] > 0 and lo[0] % w == 0 and w in GPD_WIDTHS[int(q["given"]["ctx"])] and widths <= {w, 2 * w}, f"widths {widths} from {lo[0]}")
+    labels = [ln[0] for ln in body]
+    if not thousands:
+        need(all(x == blank or (re.fullmatch(r"\d+", x) and int(x) >= 1) for x in cells), f"the frequencies {cells}")
+    return lo, hi, cells, total, labels, thousands
+
+
+def gpd_mids(lo, hi):
+    return [sp.Rational(a + b, 2) for a, b in zip(lo, hi)]
+
+
+def gpd_stats(xs, fs):
+    n = sum(fs)
+    mean = sum(f * x for f, x in zip(fs, xs)) / n
+    var = sum(f * (x - mean) ** 2 for f, x in zip(fs, xs)) / n
+    return n, mean, var
+
+
+def gpd_value_table(q, blank=None, left_blank=None):
+    """The values and cells of a table of single values."""
+    c = GPD_VALUES[int(q["given"]["ctx"])]
+    rows = q["table"]["rows"]
+    need(rows[0] == [c[0], [c[1]]], f"the heads {rows[0]}")
+    need(q["lines"][0] == c[3], f"the line {q['lines'][0]!r}")
+    xs = [left if left == left_blank else R(left) for left, _ in rows[1:]]
+    cells = [cell[0] for _, cell in rows[1:]]
+    known = [x for x in xs if x != left_blank]
+    need(known == sorted(set(known)) and len(known) >= 3, f"the values {xs}")
+    need(all(x == blank or x in ("p", "q") or int(x) >= 1 for x in cells), f"the frequencies {cells}")
+    return xs, cells, c
+
+
+def gpd_steps(q):
+    """Every plain sum, product, square and root in the working is right to the figures shown."""
+    def close_to(step, expr, v, shown):
+        v = sp.N(v, 30)
+        digits = shown.replace("−", "").replace(".", "").lstrip("0")
+        if "." in shown:
+            tol = sp.Rational(6, 10 * 10 ** len(shown.split(".")[1]))
+        elif len(digits) >= 6:
+            tol = sp.Integer(1)
+        else:
+            tol = sp.Integer(0)
+        need(abs(v - R(shown.replace("−", "-"))) <= tol + sp.Rational(1, 10 ** 20), f"{step!r}: {expr} is really {v}")
+
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in re.finditer(rf"√({GPD_NUM}) = ({GPD_NUM})(?![\d²])", step):
+                close_to(step, mt.group(0), sp.sqrt(R(mt.group(1))), mt.group(2))
+            for mt in re.finditer(rf"({GPD_NUM})² = ({GPD_NUM})", step):
+                # A GDC's σx is shown to 6 s.f., so its square is only that good.
+                a = R(mt.group(1))
+                unit = sp.Rational(1, 10 ** len(mt.group(1).split(".")[1])) if "." in mt.group(1) else sp.Integer(0)
+                v = R(mt.group(2))
+                need(abs(a * a - v) <= 2 * a * unit + sp.Rational(1, 100), f"{step!r}: {mt.group(0)}")
+            parts = step.split(" = ")
+            for left, right in zip(parts, parts[1:]):
+                j = len(left)
+                while j > 0 and left[j - 1] in "0123456789.+−×÷() ":
+                    j -= 1
+                run = left[j:].strip()
+                mt = re.match(rf"{GPD_NUM}(?: [+−×÷] \(?{GPD_NUM}\)?)*(?![\w²/.])", right)
+                if mt is None or not re.search(r" [+−×÷] ", run) or run.count("(") != run.count(")"):
+                    continue
+                v = sp.sympify(run.replace("×", "*").replace("÷", "/").replace("−", "-"), rational=True)
+                if re.search(r" [+−×÷] ", mt.group(0)):
+                    w = sp.sympify(mt.group(0).replace("×", "*").replace("÷", "/").replace("−", "-"), rational=True)
+                    need(v == w, f"{step!r}: {run} is not {mt.group(0)}")
+                else:
+                    close_to(step, run, v, mt.group(0))
+
+
+def gpd_gdc(q, read):
+    """A GDC method names what is keyed in and what is read off. read: x̄ or σx -> its value."""
+    for sol in q["solutions"]:
+        if sol["angle"] not in ("gdc-lists", "gdc-sigma"):
+            continue
+        need(q["paper"] == 2, "a GDC method on Paper 1")
+        text = " ".join(sol["steps"])
+        need("L1" in text and "1-Var Stats" in text, f"{sol['name']}: what is keyed in")
+        hits = re.findall(rf"(x̄|σx) = ({GPD_NUM})", text)
+        need(hits != [], f"{sol['name']}: nothing is read off")
+        for name, shown in hits:
+            need(abs(sp.N(read[name], 30) - R(shown)) <= sp.Rational(1, 10 ** (len(shown.split(".")[1]) if "." in shown else 0)), f"{name} = {shown}, really {sp.N(read[name], 8)}")
+
+
+def gpd_groups(q):
+    """The groups of a mean-of-groups question: sizes and means, from the lines or the table."""
+    g = GPD_GROUPS[int(q["given"]["ctx"])]
+    L = q["lines"]
+    if q["view"]["rep"] == "table":
+        need(L == [f"The table shows the number of {g[2]} and the mean for each {g[1].lower()}."], f"the line {L!r}")
+        rows = q["table"]["rows"]
+        need(rows[0] == [g[1], ["Number", g[7]]], f"the heads {rows[0]}")
+        need(len(rows) == 4 and [r[0] for r in rows[1:]] == [n[4:].capitalize() for n in g[0]], f"the rows {rows}")
+        sizes, means = [int(r[1][0]) for r in rows[1:]], [R(r[1][1]) for r in rows[1:]]
+    else:
+        need(len(L) == 2 and q["table"] is None, f"the lines {L!r}")
+        sizes, means = [], []
+        for i, ln in enumerate(L):
+            mt = re.fullmatch(rf"(\d+) {g[2]} from {g[0][i]} {g[3]} ({GPD_NUM}){g[4]}\.", ln)
+            need(mt is not None, f"can't read {ln!r}")
+            sizes.append(int(mt.group(1)))
+            means.append(R(mt.group(2)))
+    need(len(set(sizes)) == len(sizes) and len(set(means)) == len(means), "two groups match")
+    return g, sizes, means
+
+
+def gpd_frequency(q, xs, cells, mean):
+    """The one missing frequency p, from Σf(x − mean) = 0, and the slip with p left out of Σf."""
+    i = cells.index("p")
+    fs = [None if c == "p" else R(c) for c in cells]
+    p = sp.Symbol("p")
+    sol = sp.solve(sum((p if f is None else f) * (x - mean) for f, x in zip(fs, xs)), p)
+    need(len(sol) == 1, f"p = {sol}")
+    v = sol[0]
+    need(v.is_integer and v >= 2, f"p = {v}")
+    known_n = sum(f for f in fs if f is not None)
+    known_fx = sum(f * x for f, x in zip(fs, xs) if f is not None)
+    return v, (mean * known_n - known_fx) / xs[i], known_n, known_fx, xs[i]
+
+
+def gpd_frequency_steps(q, p, known_n, known_fx, xp):
+    """The equation in the working holds at p."""
+    for sol in q["solutions"]:
+        if sol["angle"] != "frequency-equation":
+            continue
+        m1 = re.search(rf"Σfx = ({GPD_NUM}) \+ ({GPD_NUM})p and Σf = ({GPD_NUM}) \+ p", sol["steps"][0])
+        need(m1 is not None and R(m1.group(1)) == known_fx and R(m1.group(2)) == xp and R(m1.group(3)) == known_n, f"{sol['steps'][0]!r}")
+        m2 = re.search(rf"so ({GPD_NUM}) \+ ({GPD_NUM})p = ({GPD_NUM})\(({GPD_NUM}) \+ p\)", sol["steps"][1])
+        need(m2 is not None and R(m2.group(1)) + R(m2.group(2)) * p == R(m2.group(3)) * (R(m2.group(4)) + p), f"{sol['steps'][1]!r}")
+
+
+def gpd_median(data):
+    data = sorted(data)
+    n = len(data)
+    return data[n // 2] if n % 2 else (data[n // 2 - 1] + data[n // 2]) / 2
+
+
+def check_grouped_data(q):
+    g, u, L, rep, asked, paper = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"], q["paper"]
+    need(paper == 2 or u not in GPD_P2_ONLY, f"{u} is Paper 2")
+    need(paper == 2 or all(s["angle"] not in ("gdc-lists", "gdc-sigma") for s in q["solutions"]), "a GDC method on Paper 1")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z\d])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    gpd_steps(q)
+    gm, sd, mt_, mm = GPD_GM, GPD_SD, GPD_MT, GPD_MM
+    wrongs, want, trap = {}, None, None
+    sfs = " to 3 s.f."
+
+    def word(text, v):
+        """The stem asks for 3 s.f. only where the answer needs it."""
+        need(asked == (text + ("," + sfs if gpd_rounds(q, v) else ".")), f"asked {asked!r}")
+
+    if u in ("modal-class", "modal-class-after-frequency"):
+        lo, hi, cells, total, labels, _ = gpd_class_table(q, "p" if u != "modal-class" else None)
+        need(len({b - a for a, b in zip(lo, hi)}) == 1, "a modal class needs equal classes")
+        need(asked == "Write down the modal class.", f"asked {asked!r}")
+        if u == "modal-class":
+            fs = [int(c) for c in cells]
+        else:
+            need(cells.count("p") == 1 and total is not None, "p and the total")
+            p = int(total) - sum(int(c) for c in cells if c != "p")
+            need(p >= 1, f"p = {p}")
+            fs = [p if c == "p" else int(c) for c in cells]
+        top = max(fs)
+        need(fs.count(top) == 1, "two modal classes")
+        i = fs.index(top)
+        if paper == 1:
+            need(sum(fs) in GPD_P1_TOTALS, f"Σf = {sum(fs)}")
+        else:
+            need(GPD_P2_TOTAL[0] <= sum(fs) <= GPD_P2_TOTAL[1], f"Σf = {sum(fs)}")
+        data = [k for k, f in enumerate(fs) for _ in range(f)]
+        n = len(data)
+        low, high = data[(n - 1) // 2], data[n // 2]
+        table = {}
+        if low == high and low != i:
+            table[gm + "6"] = {labels[low]}
+        if u == "modal-class":
+            need(low == high and low != i, "the median's class is the modal class")
+        elif "p" in cells and fs[cells.index("p")] == top:
+            rest = [f for k, f in enumerate(fs) if k != i]
+            need(rest.count(max(rest)) == 1, "two known classes tie")
+            table[gm + "7"] = {labels[[k for k in range(len(fs)) if k != i and fs[k] == max(rest)][0]]}
+        need(all(o["text"] in labels for o in q["choices"]), "an option is not a class")
+        gc_check_common(q, labels[i], table, None)
+        return None, None
+    if u == "mid-interval-value":
+        lo, hi, cells, total, labels, _ = gpd_class_table(q)
+        mt = re.fullmatch(r"Write down the mid-interval value of the class (.+)\.", asked)
+        need(mt is not None and mt.group(1) in labels, f"asked {asked!r}")
+        i = labels.index(mt.group(1))
+        label = "mid-interval value = "
+        v = sp.Rational(lo[i] + hi[i], 2)
+        want = label + dec_text(v)
+        wrongs = {gm + "1": {label + str(hi[i])}, gm + "3": {label + str(lo[i])}, gm + "4": {label + str(hi[i] - lo[i])}}
+    elif u == "mid-interval-list":
+        lo, hi, cells, total, labels, _ = gpd_class_table(q)
+        need(asked == "List the mid-interval value of each class, x₁ for the first row, and so on down the table.", f"asked {asked!r}")
+        need(len({b - a for a, b in zip(lo, hi)}) == 2, "a list needs unequal classes")
+
+        def said(vals):
+            return ", ".join(f"x{GPD_SUB[i]} = {dec_text(v)}" for i, v in enumerate(vals))
+        mids = gpd_mids(lo, hi)
+        want = said(mids)
+        w0 = hi[0] - lo[0]
+        wrongs = {gm + "1": {said(hi)}, gm + "3": {said(lo)}, gm + "8": {said([mids[0] + w0 * i for i in range(len(mids))])}}
+    elif u in ("estimate-mean", "estimate-why", "estimate-sd", "estimate-variance"):
+        lo, hi, cells, total, labels, thousands = gpd_class_table(q)
+        xs = gpd_mids(lo, hi)
+        fs = [R(c) for c in cells]
+        n, mean, var = gpd_stats(xs, fs)
+        if paper == 1:
+            need(not thousands and int(n) in GPD_P1_TOTALS, f"Σf = {n}")
+        if u == "estimate-why":
+            mt = re.fullmatch(rf"Using the mid-interval values, the mean comes to ({GPD_NUM})\.", L[-1])
+            need(mt is not None and mt.group(1) == (dec_text(mean) if sp.Rational(sig3(mean)) == mean else rg_s(mean)), f"{L[-1]!r}, mean {mean}")
+            need(asked == "Which statement about this value is true?", f"asked {asked!r}")
+            need({o["text"] for o in q["choices"]} == GPD_WHY_ALL, "the statements")
+            wrongs = {gm + "2": {"It is the exact mean: every row of the table was used."}}
+            gc_check_common(q, GPD_WHY, wrongs, None)
+            return None, None
+        ups, los = [R(h) for h in hi], [R(a) for a in lo]
+        sx2 = var * n / (n - 1)
+        if u == "estimate-mean":
+            word("Find an estimate of the mean", mean)
+            need(paper == 1 or sp.Rational(sig3(mean)) != mean, "the Paper 2 mean needs no rounding")
+            k = len(xs)
+            want, trap, wrongs = gpd_set(q, "mean ≈ ", mean, {gm + "0": [sum(f * x for f, x in zip(fs, xs)) / k], gm + "1": [gpd_stats(ups, fs)[1]],
+                                                            gm + "3": [gpd_stats(los, fs)[1]], gm + "5": [sum(xs) / k]})
+            gpd_gdc(q, {"x̄": mean})
+        else:
+            flat = gpd_stats(xs, [sp.Integer(1)] * len(xs))[2]
+            hi_var = gpd_stats(ups, fs)[2]
+            root = sp.sqrt
+            if u == "estimate-sd":
+                word("Find an estimate of the standard deviation", root(var))
+                table = {sd + "1": [var], gm + "5": [root(flat)], gm + "1": [root(hi_var)]}
+                if not thousands:
+                    table[sd + "0"] = [root(sx2)]
+                want, trap, wrongs = gpd_set(q, "standard deviation ≈ ", root(var), table)
+            else:
+                word("Find an estimate of the variance", var)
+                table = {sd + "1": [root(var)], gm + "5": [flat], gm + "1": [hi_var]}
+                if not thousands:
+                    table[sd + "0"] = [sx2]
+                want, trap, wrongs = gpd_set(q, "variance ≈ ", var, table)
+            if not thousands:
+                need(rg_s(root(var)) != rg_s(root(sx2)), "σx and Sx read the same")
+            gpd_gdc(q, {"σx": root(var)})
+    elif u in ("sd-from-table", "variance-from-table"):
+        xs, cells, c = gpd_value_table(q)
+        fs = [R(x) for x in cells]
+        n, mean, var = gpd_stats(xs, fs)
+        need(13 <= n <= 40, f"Σf = {n}")
+        flat = gpd_stats(xs, [sp.Integer(1)] * len(xs))[2]
+        sx2 = var * n / (n - 1)
+        need(rg_s(sp.sqrt(var)) != rg_s(sp.sqrt(sx2)), "σx and Sx read the same")
+        if u == "sd-from-table":
+            word("Find the standard deviation", sp.sqrt(var))
+            want, trap, wrongs = gpd_set(q, "standard deviation = ", sp.sqrt(var), {sd + "0": [sp.sqrt(sx2)], sd + "1": [var], gm + "5": [sp.sqrt(flat)]})
+        else:
+            word("Find the variance", var)
+            want, trap, wrongs = gpd_set(q, "variance = ", var, {sd + "0": [sx2], sd + "1": [sp.sqrt(var)], gm + "5": [flat]})
+        gpd_gdc(q, {"σx": sp.sqrt(var)})
+    elif u in ("sd-of-small-set", "variance-of-small-set"):
+        need(len(L) == 1 and q["table"] is None, f"the lines {L!r}")
+        mt = re.fullmatch(r"The (\d) values are (\d+(?:, \d+)*)\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        xs = [R(x) for x in mt.group(2).split(", ")]
+        need(len(xs) == int(mt.group(1)) and (4 <= len(xs) <= 6 if paper == 1 else 5 <= len(xs) <= 8), f"{len(xs)} values")
+        n, mean, var = gpd_stats(xs, [sp.Integer(1)] * len(xs))
+        need(mean.q == 1, f"the mean {mean} is not whole")
+        ssq = var * n
+        mad = sum(abs(x - mean) for x in xs) / n
+        if u == "sd-of-small-set":
+            s = sp.sqrt(var)
+            word("Find the standard deviation of these values", s)
+            if paper == 1:
+                need(s.is_integer and s >= 1, f"the Paper 1 sd {s}")
+            want, trap, wrongs = gpd_set(q, "standard deviation = ", s, {sd + "1": [var], sd + "0": [sp.sqrt(ssq / (n - 1))], sd + "3": [mad]})
+        else:
+            word("Find the variance of these values", var)
+            want, trap, wrongs = gpd_set(q, "variance = ", var, {sd + "1": [sp.sqrt(var)], sd + "0": [ssq / (n - 1)], sd + "3": [mad]})
+        gpd_gdc(q, {"σx": sp.sqrt(var)})
+    elif u in ("variance-from-sd", "sd-from-variance"):
+        c = GPD_CLASSES[int(g["ctx"])]
+        need(q["table"] is None and len(L) == 1, f"the lines {L!r}")
+        name, ask_name = ("standard deviation", "variance") if u == "variance-from-sd" else ("variance", "standard deviation")
+        mt = re.fullmatch(rf"The {name} of the {c[5]} is ({GPD_NUM})\.", L[0])
+        need(mt is not None, f"can't read {L[0]!r}")
+        v = R(mt.group(1))
+        if u == "variance-from-sd":
+            word("Find the variance", v * v)
+            want, trap, wrongs = gpd_set(q, "variance = ", v * v, {sd + "1": [v], sd + "4": [2 * v]})
+        else:
+            word("Find the standard deviation", sp.sqrt(v))
+            if paper == 1:
+                need(sp.sqrt(v).is_rational, "a Paper 1 variance is a square")
+            want, trap, wrongs = gpd_set(q, "standard deviation = ", sp.sqrt(v), {sd + "1": [v], sd + "5": [v / 2], sd + "2": [-sp.sqrt(v)]})
+    elif u == "interpret-sd":
+        c = GPD_PAIRS[int(g["ctx"])]
+        need(len(L) == 2 and q["table"] is None, f"the lines {L!r}")
+        vals = []
+        for i, ln in enumerate(L):
+            mt = re.fullmatch(rf"{c[2]} {c[i]}, {c[3]} has mean (\d+) {c[4]} and standard deviation (\d+) {c[4]}\.", ln)
+            need(mt is not None, f"can't read {ln!r}")
+            vals.append((int(mt.group(1)), int(mt.group(2))))
+        need(vals[0][1] != vals[1][1], "the sds are equal")
+        big = 0 if vals[0][1] > vals[1][1] else 1
+        need(vals[big][0] < vals[1 - big][0], "the larger sd must have the smaller mean, so the two can't be confused")
+        place = lambda i: f"{c[2].lower()} {c[i]}"
+        right = f"{c[3].capitalize()} varies more around its mean {place(big)}."
+        back = f"{c[3].capitalize()} varies more around its mean {place(1 - big)}."
+        wrongs = {sd + "6": {c[5].format(c[big])}, sd + "7": {back}, sd + "8": {c[6].format(c[big], vals[big][1])}}
+        need(asked == "What do these figures show?", f"asked {asked!r}")
+        gc_check_common(q, right, wrongs, None)
+        return None, None
+    elif u == "missing-frequency-from-total":
+        lo, hi, cells, total, labels, _ = gpd_class_table(q, "p")
+        need(cells.count("p") == 1 and total is not None and asked == "Find the value of p.", f"{cells}, {total}, {asked!r}")
+        rest = sum(int(c) for c in cells if c != "p")
+        p = total - rest
+        need(p >= 1, f"p = {p}")
+        want = f"p = {dec_text(p)}"
+        wrongs = {mt_ + "2": {f"p = {rest}"}, mt_ + "3": {f"p = {dec_text(total / len(cells))}"}}
+    elif u == "missing-frequency-from-estimate":
+        lo, hi, cells, _, labels, _ = gpd_class_table(q, "p")
+        mt = re.fullmatch(rf"Using mid-interval values, an estimate of the mean is ({GPD_NUM})\.", L[1])
+        need(mt is not None and asked == "Find the value of p.", f"{L!r}, {asked!r}")
+        mean = R(mt.group(1))
+        need((mean * (10 if paper == 1 else 100)).q == 1, f"the mean {mean}")
+        p, slip, known_n, known_fx, xp = gpd_frequency(q, gpd_mids(lo, hi), cells, mean)
+        want = f"p = {p}"
+        wrongs = {mt_ + "1": {f"p = {dec_text(slip)}"}}
+        gpd_frequency_steps(q, p, known_n, known_fx, xp)
+    elif u == "two-frequencies-from-mean":
+        xs, cells, c = gpd_value_table(q)
+        mt = re.fullmatch(rf"There are (\d+) {c[2]} in all, and the mean is ({GPD_NUM})\.", L[1])
+        need(mt is not None and asked == "Find the value of p and the value of q.", f"{L!r}, {asked!r}")
+        n, mean = R(mt.group(1)), R(mt.group(2))
+        need(cells.count("p") == 1 and cells.count("q") == 1, f"{cells}")
+        a, b = xs[cells.index("p")], xs[cells.index("q")]
+        known = [(x, R(cell)) for x, cell in zip(xs, cells) if cell not in ("p", "q")]
+        kf, kfx = sum(f for _, f in known), sum(x * f for x, f in known)
+        P, Q_ = sp.symbols("p q")
+        sol = sp.solve([P + Q_ + kf - n, a * P + b * Q_ + kfx - mean * n], [P, Q_])
+        p, r = sol[P], sol[Q_]
+        need(p.is_integer and r.is_integer and p >= 1 and r >= 1 and p != r, f"p = {p}, q = {r}")
+        need(a != mean and b != mean, "a row of p or q sits on the mean")
+        want = f"p = {p}, q = {r}"
+        sl = sp.solve([P + Q_ + kf - n, a * P + b * Q_ + kfx - mean * kf], [P, Q_])
+        wrongs = {mt_ + "4": {f"p = {r}, q = {p}"}, mt_ + "1": {f"p = {dec_text(sl[P])}, q = {dec_text(sl[Q_])}"}}
+    elif u == "missing-frequency-from-median":
+        xs, cells, c = gpd_value_table(q, "x")
+        mt = re.fullmatch(rf"The median is ({GPD_NUM})\.", L[1])
+        need(mt is not None and asked == "Find the value of x.", f"{L!r}, {asked!r}")
+        med = R(mt.group(1))
+        need(cells.count("x") == 1, f"{cells}")
+        i = cells.index("x")
+        hits = []
+        for x in range(0, 60):
+            data = [v for v, cell in zip(xs, cells) for _ in range(x if cell == "x" else int(cell))]
+            if gpd_median(data) == med:
+                hits.append(x)
+        need(len(hits) == 1 and hits[0] >= 1, f"the median fits x = {hits}")
+        x = hits[0]
+        want = f"x = {x}"
+        known_n = sum(int(cell) for cell in cells if cell != "x")
+        known_fx = sum(int(cell) * v for v, cell in zip(xs, cells) if cell != "x")
+        below = sum(int(cell) for v, cell in zip(xs, cells) if cell != "x" and v < med)
+        above = sum(int(cell) for v, cell in zip(xs, cells) if cell != "x" and v > med)
+        near = above if xs[i] < med else below
+        wrongs = {mm + "4": {f"x = {near}"}}
+        if xs[i] != med:
+            wrongs[mm + "3"] = {f"x = {dec_text((med * known_n - known_fx) / (xs[i] - med))}"}
+    elif u == "missing-value-from-table-mean":
+        xs, cells, c = gpd_value_table(q, None, "k")
+        mt = re.fullmatch(rf"The mean is ({GPD_NUM})\.", L[1])
+        need(mt is not None and asked == "Find the value of k.", f"{L!r}, {asked!r}")
+        mean = R(mt.group(1))
+        need(xs.count("k") == 1, f"{xs}")
+        i = xs.index("k")
+        fs = [R(cell) for cell in cells]
+        known = sum(f * x for f, x in zip(fs, xs) if x != "k")
+        rest = mean * sum(fs) - known
+        k = rest / fs[i]
+        need(k.is_integer and k >= 1 and fs[i] >= 2 and k != mean, f"k = {k}")
+        seq = [k if x == "k" else x for x in xs]
+        need(seq == sorted(set(seq)), f"the values with k are not in order: {seq}")
+        want = f"k = {k}"
+        wrongs = {mt_ + "6": {f"k = {dec_text(rest)}"}}
+    elif u == "new-value-from-new-mean":
+        c = GPD_GROUPS[int(g["ctx"])]
+        need(len(L) == 2 and q["table"] is None, f"{L!r}")
+        one = c[2][:-1]
+        m1 = re.fullmatch(rf"(\d+) {c[2]} {c[3]} ({GPD_NUM}){c[4]}\.", L[0])
+        m2 = re.fullmatch(rf"One more {one} joins them, and the mean of all (\d+) becomes ({GPD_NUM}){c[4]}\.", L[1])
+        need(m1 is not None and m2 is not None and int(m2.group(1)) == int(m1.group(1)) + 1, f"{L!r}")
+        n, old, new = int(m1.group(1)), R(m1.group(2)), R(m2.group(2))
+        need(asked == f"Find the {c[5]} for the new {one}.", f"asked {asked!r}")
+        k = new * (n + 1) - old * n
+        need(k > 0, f"k = {k}")
+        want = f"new value = {dec_text(k)}"
+        wrongs = {mt_ + "0": {f"new value = {dec_text(2 * new - old)}"}, mt_ + "5": {f"new value = {dec_text(n * (new - old))}"}}
+    elif u == "whole-mean-from-groups":
+        c, sizes, means = gpd_groups(q)
+        total = sum(n * m for n, m in zip(sizes, means))
+        whole = total / sum(sizes)
+        word(f"Find the mean {c[5]} for all {sum(sizes)} {c[2]}", whole)
+        want, trap, wrongs = gpd_set(q, "mean = ", whole, {mt_ + "0": [sum(means) / len(means)]})
+        need(sum(means) / len(means) != whole, "the plain average is right here")
+    elif u == "whole-total-from-groups":
+        c, sizes, means = gpd_groups(q)
+        total = sum(n * m for n, m in zip(sizes, means))
+        need(total.q == 1, f"the total {total} is not whole")
+        need(asked == f"Find the {c[6]} by all {sum(sizes)} {c[2]}.", f"asked {asked!r}")
+        want = f"total = {total}"
+        wrongs = {mt_ + "0": {f"total = {dec_text(sum(means) / len(means) * sum(sizes))}"}}
+    elif u == "group-mean-from-whole":
+        c = GPD_GROUPS[int(g["ctx"])]
+        need(len(L) == 2 and q["table"] is None, f"{L!r}")
+        m1 = re.fullmatch(rf"(\d+) {c[2]} {c[3]} ({GPD_NUM}){c[4]}\.", L[0])
+        m2 = re.fullmatch(rf"Of these, (\d+) {c[2]} from {c[0][0]} {c[3]} ({GPD_NUM}){c[4]}\.", L[1])
+        need(m1 is not None and m2 is not None, f"{L!r}")
+        n, whole, n1, m = int(m1.group(1)), R(m1.group(2)), int(m2.group(1)), R(m2.group(2))
+        need(0 < n1 < n, f"{n1} of {n}")
+        need(asked == f"Find the mean {c[5]} for the other {n - n1} {c[2]}.", f"asked {asked!r}")
+        rest = whole * n - m * n1
+        v = rest / (n - n1)
+        need(v > 0, f"the mean {v}")
+        want = f"mean = {dec_text(v)}"
+        wrongs = {mt_ + "0": {f"mean = {dec_text(2 * whole - m)}"}, mt_ + "7": {f"mean = {dec_text(rest / n)}"}}
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+# ── end grouped-data ──
+
+SITUATION_CHECKS = {"grouped-data": check_grouped_data, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
