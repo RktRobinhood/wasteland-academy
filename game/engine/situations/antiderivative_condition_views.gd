@@ -43,8 +43,8 @@ const UNKNOWNS := ["poly-function", "poly-decimal-point", "curve-through-point",
 const P1_ONLY := ["trig-chain", "trig-shift", "trig-and-exp", "log-inspection", "log-given-log"]
 const P2_ONLY := ["poly-decimal-point", "exp-linear-decimal", "rate-model"]
 ## The curve a scout, a surveyor or a rigger follows: what it is.
-const CURVES := ["a ridge line on a scout's map", "a buried pipe on the survey sheet", "a cable slung between two towers on a rigger's plan",
-	"a dry riverbed on a caravan's chart"]
+const CURVES := ["A ridge line on a scout's map", "A buried pipe on the survey sheet", "A cable slung between two towers on a rigger's plan",
+	"A dry riverbed on a caravan's chart"]
 ## A count that changes with time: the thing, its letter, the time unit, the plural unit, the start.
 const RATES := [["rats in the old tunnels", "R", "year", "years", "the survey began"],
 	["litres of water in the reservoir", "W", "day", "days", "the gauge was fitted"],
@@ -168,7 +168,7 @@ static func nudged(s: Dictionary, terms: Array, k: Variant, sf: bool = false) ->
 static func fit(s: Dictionary, rule: String, whole: String, cond: String, fv: Q) -> Array:
 	return ["%s: %s = %s + C." % [rule, lhs(s), whole],
 		"Put %s into this result, not into the derivative: %s + C = %s." % [cond, W(s, fv), W(s, s.y0)],
-		"So C = %s − %s = %s." % [W(s, s.y0), WP(s, fv), W(s, s.k)]]
+		"C = %s − %s = %s." % [W(s, s.y0), WP(s, fv), W(s, s.k)]]
 
 
 ## "x = 2 and y = 5", naming f(2) = 5 for a function.
@@ -190,7 +190,7 @@ static func find(s: Dictionary) -> String:
 
 
 static func map_line(s: Dictionary, f: String) -> String:
-	return "On paper, %s follows a curve with gradient dy/dx = %s at any point (x, y)." % [CURVES[s.ctx], f]
+	return "%s follows a curve with gradient dy/dx = %s at any point (x, y)." % [CURVES[s.ctx], f]
 
 
 # ── Sums of powers ───────────────────────────────────────────
@@ -213,12 +213,22 @@ static func power_slips(s: Dictionary) -> Dictionary:
 		R_KEPT_C: kept(s, ter),
 		R_NO_C: opt(s, ter, 0, R_NO_C),
 		R_SIGN: opt(s, ter, y0.add(AntiderivativeConditionSituation.val(F, x0)), R_SIGN),
-		R_DIFF: other(lhs(s) + " = " + pw(D1) + konst(s, y0.sub(AntiderivativeConditionSituation.val(D1, x0))), R_DIFF),
+		R_DIFF: other(lhs(s) + " = " + _merged(s, D1, y0.sub(AntiderivativeConditionSituation.val(D1, x0))), R_DIFF),
 		R_OLD_POWER: opt(s, bodied(old), y0.sub(AntiderivativeConditionSituation.val(old, x0)), R_OLD_POWER),
 	}
 	if y0.d == 1 and absi(y0.n) <= 9:
 		out[R_Y_AS_X] = opt(s, ter, x0.sub(AntiderivativeConditionSituation.val(F, y0)), R_Y_AS_X)
 	return out
+
+
+## A sum of powers with k added to its own constant term, if it has one.
+static func _merged(s: Dictionary, terms: Array, k: Q) -> String:
+	var rest: Array = terms.filter(func(t): return t[1] != 0)
+	var total := k
+	for t in terms:
+		if t[1] == 0:
+			total = total.add(t[0])
+	return pw(rest) + konst(s, total)
 
 
 func _powers(s: Dictionary, lines: Array, asked: String, refs: Array, rule: String = RULE_POWER, angle_id: String = "integrate-then-substitute") -> Dictionary:
@@ -261,7 +271,8 @@ func u_find_constant(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if y0.d == 1 and absi(y0.n) <= 9:
 		wr.append(DefiniteIntegralViews.like(ans, Q.of(s.x0).sub(AntiderivativeConditionSituation.val(F, y0)), R_Y_AS_X))
 	return DefiniteIntegralViews.pack(lines, "Find the value of C.", ans, wr, [],
-		{"integrate-then-substitute": fit(s, "Start from the integrated form", pw(F), cond_text(s), fv).slice(1)})
+		{"integrate-then-substitute": ["Put %s into the integrated form, not into the derivative: %s + C = %s." % [cond_text(s), N(fv), N(y0)],
+			"C = %s − %s = %s." % [N(y0), P(fv), N(s.k)]]})
 
 
 func u_further_value(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -322,10 +333,10 @@ func u_parameter_from_gradient(rep: String, s: Dictionary, _rng: Seeded) -> Dict
 		lines[0] = map_line(s, shown) + " Here a is a constant."
 	var wr: Array = [opt(s, bodied(badF), y0.sub(AntiderivativeConditionSituation.val(badF, x0)), R_POINT), opt(s, ter, m.sub(AntiderivativeConditionSituation.val(F, x1)), R_GRAD_HEIGHT),
 		opt(s, ter, 0, R_NO_C), kept(s, ter)]
-	var pow1: Q = AntiderivativeConditionSituation.power(x1, n)
+	var with_a: String = Fmt.lead(AntiderivativeConditionSituation.power(x1, n)) + "a"
 	return DefiniteIntegralViews.pack(lines, find(s), ans, wr, nudged(s, ter, s.k),
 		{"integrate-then-substitute": [
-			"The gradient goes into dy/dx, not into y: %s × a%s = %s, so %s × a = %s." % [P(pow1), konst(s, c), N(m), P(pow1), N(m.sub(c))],
+			"The gradient goes into dy/dx, not into y: %s%s = %s, so %s = %s." % [with_a, konst(s, c), N(m), with_a, N(m.sub(c))],
 			"So a = %s, and dy/dx = %s." % [N(s.K), pw(s.fp)],
 			"Integrate: y = %s + C." % pw(F),
 			"The point goes into y: %s + C = %s, so C = %s − %s = %s." % [N(fv), N(y0), N(y0), P(fv), N(s.k)]]})
@@ -391,14 +402,16 @@ func u_accumulate_graph(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var g := Plot.spec([pts], marks, -1, xs[3] + 1, mini(ys.min(), 0) - 1, maxi(ys.max(), 0) + 2)
 	g.y_name = "%s′" % s.name
 	var pieces: Array = []
+	var parts: Array = []
 	for i in range(s.from, 3):
-		pieces.append("%s to %s gives %s" % [N(xs[i]), N(xs[i + 1]), P(Q.new((ys[i] + ys[i + 1]) * (xs[i + 1] - xs[i]), 2))])
-	var parts: Array = pieces.map(func(p): return p.split(" gives ")[1])
+		var part := Q.new((ys[i] + ys[i + 1]) * (xs[i + 1] - xs[i]), 2)
+		pieces.append("%s to %s gives %s" % [N(xs[i]), N(xs[i + 1]), N(part)])
+		parts.append(P(part))
 	return DefiniteIntegralViews.pack(["The diagram shows the graph of %s′, which is made of straight lines." % s.name, "%s(%s) = %s" % [s.name, N(s.x0), N(y0)]],
 		"Find %s(%s)." % [s.name, N(b)], ans, wr, [],
 		{"accumulate-from-point": [
 			"%s(%s) = %s(%s) + the integral of %s′ from %s to %s, which is the signed area under the graph." % [s.name, N(b), s.name, N(s.x0), s.name, N(s.x0), N(b)],
-			"Area below the x-axis counts as negative, so take each piece as a trapezium: width × (left height + right height) ÷ 2.",
+			"Area below the x-axis counts as negative. Each piece is width × (left height + right height) ÷ 2, even where it crosses the axis.",
 			"From %s, so the integral is %s = %s." % ["; ".join(pieces), " + ".join(parts), N(area)],
 			"%s(%s) = %s + %s = %s." % [s.name, N(b), N(y0), P(area), N(v)]]},
 		g)
@@ -572,7 +585,7 @@ func u_log_inspection(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	return DefiniteIntegralViews.pack(["%s′(x) = %s/(%s)" % [s.name, DifferentiationViews.T(2 * K, "x"), q], "The graph of y = %s(x) passes through %s." % [s.name, Fmt.point(s.x0, y0)]],
 		find(s), ans, wr, gen,
 		{"integrate-and-fit": [
-			"The top is %d × the derivative of %s, which is 2x, so integrate by inspection: %s(x) = %s + C. It is positive, so no modulus is needed." % [K, q, s.name, DifferentiationViews.T(K, "ln(%s)" % q)],
+			"The top is %d × the derivative of %s, which is 2x, so integrate by inspection: %s(x) = %s + C. %s is always positive, so no modulus is needed." % [K, q, s.name, DifferentiationViews.T(K, "ln(%s)" % q), q],
 			"Put in %s(%s) = %s, where %s = %d: %s + C = %s." % [s.name, N(s.x0), N(y0), q.replace("x²", P(s.x0) + "²"), n, DifferentiationViews.T(K, "ln %d" % n), N(y0)],
 			"So C = %s − %s." % [N(y0), DifferentiationViews.T(K, "ln %d" % n)]]})
 
@@ -592,7 +605,7 @@ func u_log_given_log(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		other(head + DifferentiationViews.T(K, ln_q) + konst(s, y0) + " + " + DifferentiationViews.T(K, "ln %d" % n), R_Y_IS_C), kept(s, ter)]
 	return DefiniteIntegralViews.pack(["%s′(x) = (%s)/(%s)" % [s.name, top, q], "%s(%s) = %s" % [s.name, N(s.x0), given]], find(s), ans, wr, nudged(s, ter, y0),
 		{"integrate-and-fit": [
-			"The top is %d × the derivative of the bottom, so integrate by inspection: %s(x) = %s + C. The bottom is always positive." % [K, s.name, DifferentiationViews.T(K, ln_q)],
+			"The top is %s the derivative of the bottom, so integrate by inspection: %s(x) = %s + C. The bottom is always positive." % ["exactly" if K == 1 else "%d ×" % K, s.name, DifferentiationViews.T(K, ln_q)],
 			"At x = %s the bottom is %d, so %s + C = %s." % [N(s.x0), n, DifferentiationViews.T(K, "ln %d" % n), given],
 			"The logs cancel, so C = %s." % N(y0)]})
 
@@ -613,35 +626,33 @@ func u_rate_model(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var change: float = v - P0
 	var ans := DefiniteIntegralViews.val(v, true, "%s(%d) = " % [sym, T])
 	var rate := "%se^(−%st)" % ["−%d" % A if sg < 0 else str(A), Fmt.dec(kq)]
-	var wr: Array = [DefiniteIntegralViews.like(ans, float(P0 + sg * A * T), R_SAME_RATE), DefiniteIntegralViews.like(ans, change, R_NO_START), DefiniteIntegralViews.like(ans, sg * A * decay, R_AT_END),
-		DefiniteIntegralViews.like(ans, P0 + sg * A * (1.0 - decay), R_NO_A)]
+	var wr: Array = [DefiniteIntegralViews.like(ans, float(P0 + sg * A * T), R_SAME_RATE), DefiniteIntegralViews.like(ans, P0 + sg * A * (1.0 - decay), R_NO_A)]
+	# A count can't be negative, so the rate or the change alone is only an option when it rises.
+	if sg > 0:
+		wr.append(DefiniteIntegralViews.like(ans, change, R_NO_START))
+		wr.append(DefiniteIntegralViews.like(ans, sg * A * decay, R_AT_END))
 	var integral: String = "∫ from 0 to %d of %s dt" % [T, rate]
-	var factor := "%s" % Fmt.num(Q.new(A).div(kq))
-	var signed_factor := ("−" if sg < 0 else "") + factor
+	var factor := "%d/%s" % [A, Fmt.dec(kq)]
+	var after: float = P0 + sg * A / k
 	var end_step := "So %s(%d) = %d + %s = %s, to 6 s.f." % [sym, T, P0, "(%s)" % GdcKit.W(change) if change < 0 else GdcKit.W(change), GdcKit.W(v)]
 	var gen: Array = [P0 - change, v * 1.1, v * 0.9, v + 100.0, v - 100.0].map(func(x): return DefiniteIntegralViews.val(x, true, "%s(%d) = " % [sym, T]).values)
 	return DefiniteIntegralViews.pack(["The number of %s changes at the rate d%s/dt = %s per %s, where t is measured in %s from the moment %s." % [c[0], sym, rate, c[2], c[3], c[4]],
 		"At that moment %s(0) = %d." % [sym, P0]],
 		"Use the model to find %s(%d), to 3 s.f." % [sym, T], ans, wr, gen,
 		{"integrate-and-fit": [
-			"Integrate, dividing by −%s: %s(t) = %s e^(−%st) + C." % [Fmt.dec(kq), sym, "(%s)" % _neg(signed_factor), Fmt.dec(kq)],
-			"At t = 0, e⁰ = 1, so C = %d − %s = %s." % [P0, "(%s)" % _neg(signed_factor), Fmt.num(Q.new(P0).sub(Q.new(-sg * A).div(kq)))],
+			"Integrate, dividing by −%s: %s(t) = (%s%s)e^(−%st) + C." % [Fmt.dec(kq), sym, "−" if sg > 0 else "", factor, Fmt.dec(kq)],
+			"At t = 0, e⁰ = 1, so C = %d %s %s = %s, to 6 s.f." % [P0, "+" if sg > 0 else "−", factor, GdcKit.W(after)],
 			"Put in t = %d: e^(−%s) = %s, to 6 s.f." % [T, Fmt.dec(kq.mul(T)), GdcKit.W(decay)],
-			"So %s(%d) = %s, to 6 s.f." % [sym, T, GdcKit.W(v)]],
+			"So %s(%d) = (%s%s) × %s + C = %s, to 6 s.f." % [sym, T, "−" if sg > 0 else "", factor, GdcKit.W(decay), GdcKit.W(v)]],
 		"accumulate-from-point": [
 			"No C is needed: %s(%d) = %s(0) + %s." % [sym, T, sym, integral],
-			"The integral is %s × (1 − e^(−%s)) = %s, to 6 s.f." % ["(%s)" % signed_factor, Fmt.dec(kq.mul(T)), GdcKit.W(change)],
+			"The integral is (%s%s)(1 − e^(−%s)) = %s, to 6 s.f." % ["−" if sg < 0 else "", factor, Fmt.dec(kq.mul(T)), GdcKit.W(change)],
 			end_step],
 		"gdc-start-plus-change": [
 			"Only one value is wanted, so use %s(%d) = %s(0) + %s." % [sym, T, sym, integral],
 			"Key in the definite integral on the GDC, with %s as the integrand and limits 0 and %d." % [rate, T],
 			"The GDC reads %s." % GdcKit.W(change),
 			end_step]})
-
-
-## −x, written with its sign: "520" → "−520", "−520" → "520".
-static func _neg(t: String) -> String:
-	return t.substr(1) if t.begins_with("−") else "−" + t
 
 
 # ── From the second derivative ───────────────────────────────
@@ -697,7 +708,7 @@ func u_second_derivative_value(_rep: String, s: Dictionary, _rng: Seeded) -> Dic
 	var ans := DefiniteIntegralViews.val(v, false, "%s(%s) = " % [s.name, N(b)])
 	var wr: Array = [DefiniteIntegralViews.like(ans, AntiderivativeConditionSituation.val(G, b).add(c1), R_STOPPED), DefiniteIntegralViews.like(ans, Hb.add(c1.mul(b)).add(c1), R_ONE_C),
 		DefiniteIntegralViews.like(ans, Hb.add(Q.of(w.bad1).mul(b)).add(w.bad2), R_STAGES)]
-	var steps: Array = w.steps.slice(0, 2) + ["Integrate again, with a new constant: %s(x) = %s + D, and %s." % [s.name, DifferentiationViews.SUM(bodied(H) + [[c1, "x"]]), w.steps[3]],
+	var steps: Array = w.steps.slice(0, 2) + ["Integrate again, with a new constant: %s(x) = %s + D, and %s" % [s.name, DifferentiationViews.SUM(bodied(H) + [[c1, "x"]]), w.steps[3]],
 		"So %s(x) = %s, and %s(%s) = %s." % [s.name, DifferentiationViews.SUM(bodied(H) + [[c1, "x"], [c2, ""]]), s.name, N(b), N(v)]]
 	return DefiniteIntegralViews.pack(two_lines(s, pw(s.fpp)), "Find %s(%s)." % [s.name, N(b)], ans, wr, [], {"integrate-and-fit": steps})
 

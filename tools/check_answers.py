@@ -24164,7 +24164,7 @@ def adc_rate(q):
     # Added up numerically too, as the GDC would.
     need(abs(mpmath.quad(lambda u: mpmath.mpf(A.p) / A.q * mpmath.exp(-mpmath.mpf(k.p) / k.q * u), [0, int(T)]) - mpmath.mpf(str(change))) < 1e-9, "the integral")
     v = P0 + change
-    need(v > ADC_RATE_MIN and abs(change) >= ADC_CHANGE_MIN, f"the amount {v}, the change {change}")
+    need(v > ADC_RATE_MIN and P0 + A * T > 0 and abs(change) >= ADC_CHANGE_MIN, f"the amount {v}, the change {change}")
     need(gc_fair(v) and gc_fair(change), f"{v} or {change} sits on a rounding edge")
     decay = sp.N(sp.exp(-k * T), 40)
     return c.group(1), T, P0, A, k, v, change, decay

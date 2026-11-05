@@ -33,7 +33,7 @@ const MAX_DEN := 24
 ## An angle as a multiple of π, with sin and cos at it. The first are on an axis, so a slip that
 ## swaps sin and cos still gives a fraction.
 const TURNS := [[1, 2, 1, 0], [1, 1, 0, -1], [3, 2, -1, 0], [2, 1, 0, 1]]
-const SHIFTS := [[1, 2], [1, 3], [1, 4], [1, 6], [-1, 3], [-1, 4], [-1, 6]]
+const SHIFTS := [[1, 3], [1, 4], [1, 6], [-1, 3], [-1, 4], [-1, 6]]
 const EXPS := [1, 1, 2, 3, -1, -2]
 ## Labels on a family of curves stay this far apart.
 const FAMILY_GAP := 2
@@ -198,7 +198,7 @@ static func _trig_shift(rng: Seeded, s: Dictionary) -> bool:
 
 
 static func _reciprocal(rng: Seeded, s: Dictionary) -> bool:
-	s.a = rng.pick([1, 1, 2, 3, 4, -1, -2])
+	s.a = rng.pick([1, 1, 2, 3, 4])
 	s.K = s.a * nz(rng, -4, 5) if rng.chance(0.6) else nz(rng, -6, 6)
 	s.x0 = Q.new(rng.int_in(0, 3))
 	s.lin_b = 1 - s.a * s.x0.n                    # ax₀ + b = 1, so ln 1 falls out
@@ -272,7 +272,7 @@ static func _rate(rng: Seeded, s: Dictionary) -> bool:
 	var change: float = s.sign * s.A / k * (1.0 - exp(-k * s.T))
 	s.Pt = s.P0 + change
 	var flat: float = s.P0 + s.sign * s.A * s.T
-	return s.Pt > 500.0 and absf(change) >= 100.0 and GdcKit.fair(s.Pt) and GdcKit.fair(change) and Fmt.sf(flat) != Fmt.sf(s.Pt) \
+	return s.Pt > 500.0 and flat > 0.0 and absf(change) >= 100.0 and GdcKit.fair(s.Pt) and GdcKit.fair(change) and Fmt.sf(flat) != Fmt.sf(s.Pt) \
 		and Answer.rounds_clearly(flat, EDGE)
 
 
