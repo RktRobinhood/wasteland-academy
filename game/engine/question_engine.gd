@@ -81,11 +81,15 @@ static var SITUATIONS := {
 	"fn-link-extremes": [LinkExtremesSituation, LinkExtremesViews],
 	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
 	"binomial": [BinomialSituation, BinomialViews],
+	"geometric-sequence": [GeometricSequenceSituation, GeometricSequenceViews],
+	"binomial-expansion": [BinomialExpansionSituation, BinomialExpansionViews],
+	"algebraic-proof": [AlgebraicProofSituation, AlgebraicProofViews],
 	"sampling": [SamplingSituation, SamplingViews],
 	"cumulative-frequency": [CumulativeFrequencySituation, CumulativeFrequencyViews],
 	"regression": [RegressionSituation, RegressionViews],
 	"regression-x-on-y": [RegressionPairSituation, RegressionPairViews],
 	"normal-unknown": [NormalUnknownSituation, NormalUnknownViews],
+	"normal-probability": [NormalProbabilitySituation, NormalProbabilityViews],
 	"venn": [VennSituation, VennViews],
 	"conditional": [ConditionalSituation, ConditionalViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
@@ -121,6 +125,7 @@ static var SITUATIONS := {
 	"fn-link-vectors": [LinkVectorsSituation, LinkVectorsViews],
 	"solid": [SolidSituation, SolidViews],
 	"standard-form": [StandardFormSituation, StandardFormViews],
+	"basic-probability": [BasicProbabilitySituation, BasicProbabilityViews],
 }
 
 static var _cat: Dictionary = {}

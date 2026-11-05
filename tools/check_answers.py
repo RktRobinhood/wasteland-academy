@@ -31,6 +31,7 @@ import sys
 from collections import defaultdict
 from decimal import ROUND_HALF_UP, Decimal
 from functools import lru_cache
+from itertools import combinations, permutations, product
 from pathlib import Path
 
 import mpmath
@@ -19141,7 +19142,2237 @@ def check_trig_model(q):
     return None, None
 
 
-SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── geometric-sequence (t1-geometric-sequence, t1-sum-to-infinity, FAL-728) ──
+# The `geometric-sequence` situation's clean limits, the checker's own copy: the engine's is
+# in game/engine/situations/geometric_sequence.gd. Each answer is found again from the numbers
+# with exact rationals or SymPy's solvers, with no code shared with the engine, and each
+# misconception's wrong value is worked out from what the slip does.
+
+GS13, GS18 = "SL1.3.", "SL1.8."
+GS_LIMIT = {1: 200000, 2: 5000000}
+GS_DEN_MAX = 6561
+GS_EDGE = sp.Rational(19, 1000)         # the engine's is 0.02; a hair under it, for float ties
+GS_BALLS = ["rubber ball", "steel spring", "salvaged drone shell", "scrap tyre"]
+GS_P2 = ("gdc-seq", "gdc-solver", "gdc-sum-seq", "gdc-sigma", "partial-sums")
+
+
+def gs_work(v, n=6):
+    t = sig3(v, n).replace("-", "−")
+    return t.rstrip("0").rstrip(".") if "." in t else t
+
+
+def gs_x(p, v):
+    """A number as the question writes it."""
+    v = sp.Rational(v)
+    if p == 1:
+        return frac_text(v)
+    t = dec_text(v)
+    return t if len(t) <= 9 and "/" not in t else gs_work(v)
+
+
+def gs_ends(v):
+    """v is whole, or 3 s.f. write it exactly."""
+    return v.is_rational and (v.q == 1 or sp.Rational(sig3(v)) == v)
+
+
+def gs_show(p, vals):
+    if p == 1:
+        return "frac"
+    return "dec" if all(gs_ends(v) for v in vals) else "sf"
+
+
+def gs_text(show, v):
+    if v == 0:
+        return "0"
+    if show == "frac":
+        return frac_text(v)
+    if show == "dec":
+        t = dec_text(v) if v.is_rational else "/"
+        # A Paper 2 option never reads as a fraction or a long decimal.
+        return t if v.is_rational and (v.q == 1 or ("/" not in t and len(t) <= 8)) else dec_text(sp.Rational(sig3(v)))
+    return sig3(v).replace("-", "−")
+
+
+def gs_clear(x):
+    v = abs(num(x))
+    if v == 0:
+        return True
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= GS_EDGE
+
+
+def gs_num(paper, vals):
+    """The clean limits on an answer."""
+    for v in vals:
+        need(abs(num(v)) <= GS_LIMIT[paper], f"{float(v)} is too large for Paper {paper}")
+        if paper == 1:
+            need(v.is_rational and v.q <= GS_DEN_MAX, f"{v} is not a clean Paper 1 value")
+        elif not gs_ends(v):
+            need(gs_clear(v), f"{float(v):.6f} is on a rounding edge")
+
+
+def gs_trap(show, label, v, unit=""):
+    if show != "sf":
+        return None
+    return label + dec_text(sp.Rational(sig3(v, 2))) + unit
+
+
+def gs_u(k):
+    return "u" + str(k).translate(str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉"))
+
+
+def gs_s(k):
+    return "S" + str(k).translate(str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉"))
+
+
+def gs_sum(u1, r, n):
+    """Added term by term, not from the formula."""
+    return sum((u1 * r ** i for i in range(n)), sp.Integer(0))
+
+
+def gs_inf(u1, r):
+    """The limit of the partial sums, as SymPy finds it."""
+    m = sp.Symbol("m", positive=True, integer=True)
+    return sp.limit(u1 * (1 - abs(r) ** m) / (1 - r), m, sp.oo)
+
+
+def gs_xs_text(p, name, vals):
+    vals = sorted(vals, key=lambda v: num(v))
+    show = gs_show(p, vals)
+    return f"{name} = " + " or ".join(gs_text(show, v) for v in vals), show
+
+
+def gs_named(show, names, vals):
+    return ", ".join(f"{n} = {gs_text(show, v)}" for n, v in zip(names, vals))
+
+
+def gs_terms(p, u1, r, k=4):
+    return ", ".join(gs_x(p, u1 * r ** i) for i in range(k)) + ", …"
+
+
+def gs_expr(a, b):
+    """a·k + b as the game writes it, read back with SymPy for the checker's own use."""
+    return a * sp.Symbol("k") + b
+
+
+def gs_seq_shown(q, u1, r, k=4):
+    """What is shown is the sequence: notation, terms, table or dots."""
+    rep, L, p = q["view"]["rep"], q["lines"], q["paper"]
+    if rep == "notation":
+        need(L[0] == f"u₁ = {gs_x(p, u1)},  r = {gs_x(p, r)}", f"the notation shows {L[0]!r}")
+    elif rep == "terms":
+        need(L[0] == gs_terms(p, u1, r, k), f"the terms show {L[0]!r}")
+    elif rep == "table":
+        rows = q["table"]["rows"]
+        need(rows == [["n", [str(i + 1) for i in range(k)]], ["uₙ", [gs_x(p, u1 * r ** i) for i in range(k)]]], "the table is not the sequence")
+    elif rep == "graph":
+        pts = q["graph"]["points"]
+        need(len(pts) == k and all(sp.nsimplify(pt["y"]) == u1 * r ** i and pt["x"] == i + 1 for i, pt in enumerate(pts)), "the dots are not the sequence")
+        need(q["graph"]["y1"] >= max(pt["y"] for pt in pts), "a dot is off the graph")
+
+
+def gs_series_shown(q, u1, r, last):
+    p = q["paper"]
+    second, third = u1 * r, u1 * r ** 2
+    bits = gs_x(p, u1) + "".join((" − " if v < 0 else " + ") + gs_x(p, abs(v)) for v in (second, third))
+    want = bits + " + … " + ("− " if last < 0 else "+ ") + gs_x(p, abs(last))
+    need(q["lines"][0] == want, f"the series shows {q['lines'][0]!r}, not {want!r}")
+
+
+def gs_sigma_text(p, c, b, lower, shift, upper):
+    tail = "k" if shift == 0 else (f"(k − {-shift})" if shift < 0 else f"(k + {shift})")
+    top = "∞" if upper < 0 else str(upper)
+    return f"Σ (k = {lower} to {top}) {gs_x(p, c)}({gs_x(p, b)})^{tail}"
+
+
+def check_geometric(q):
+    g, v, L, asked, paper = q["given"], q["view"], q["lines"], q["asked"], q["paper"]
+    u, rep, angle = v["unknown"], v["rep"], v["angle"]
+    need(angle not in GS_P2 or paper == 2, f"{angle} is Paper 2 only")
+    if u in ("term-exact", "sum-exact", "sum-closed-form", "sum-of-sums", "sum-alternating", "x-from-log-series"):
+        need(paper == 1, f"{u} is Paper 1")
+    if u in ("coefficients-geometric", "exists-table", "deposit-for-target"):
+        need(paper == 2, f"{u} is Paper 2")
+    has = lambda k: k in g
+    u1 = R(g["u1"]) if has("u1") else None
+    r = R(g["r"]) if has("r") else None
+    n = int(g["n"]) if has("n") else None
+    wrongs, trap, want = {}, None, None
+
+    def one(label, x, unit=""):
+        """The answer as one number: its text, trap and how a wrong value reads."""
+        nonlocal want, trap
+        gs_num(paper, [x])
+        show = gs_show(paper, [x])
+        want = label + gs_text(show, x) + unit
+        trap = gs_trap(show, label, x, unit)
+        return lambda w: label + gs_text(show, w) + unit
+
+    if u == "r-from-terms":
+        gs_seq_shown(q, u1, r)
+        need(asked == "Find the common ratio r.", f"asked {asked!r}")
+        t = one("r = ", (u1 * r) / u1)
+        wrongs[GS13 + "nth-term#2"] = {t(u1 / (u1 * r)), t(u1 * r - u1)}
+    elif u in ("term-from-u1-r", "term-exact"):
+        gs_seq_shown(q, u1, r)
+        need(asked == (f"Find {gs_u(n)}." if u == "term-from-u1-r" else f"Find the exact value of {gs_u(n)}."), f"asked {asked!r}")
+        need(5 <= n <= 9, "n is outside 5 to 9")
+        val = u1
+        for _ in range(n - 1):
+            val *= r
+        t = one(gs_u(n) + " = ", val)
+        wrongs[GS13 + "nth-term#0"] = {t(val * r)}
+        wrongs[GS13 + "nth-term#1"] = {t((u1 * r) ** (n - 1))}
+    elif u == "general-term":
+        gs_seq_shown(q, u1, r)
+        exp_form = angle == "exponential-form"
+        need(asked == ("Find an expression for uₙ in the form a × b^n." if exp_form else "Find an expression for uₙ in terms of n."), f"asked {asked!r}")
+        a = u1 / r if exp_form else u1
+        tail = "n" if exp_form else "(n − 1)"
+        br = lambda x: f"({gs_x(paper, x)})" if x < 0 or "/" in gs_x(paper, x) else gs_x(paper, x)
+        rl = lambda c, b, e: f"{gs_x(paper, c)} × {br(b)}^{e}"
+        want = "uₙ = " + rl(a, r, tail)
+        # The rule is right: it gives the first three terms.
+        for k in (1, 2, 3):
+            need(a * r ** (k if exp_form else k - 1) == u1 * r ** (k - 1), "the rule misses a term")
+        wrongs[GS13 + "nth-term#0"] = {"uₙ = " + rl(u1, r, "n")}
+        wrongs[GS13 + "nth-term#1"] = {f"uₙ = {br(u1 * r)}^(n − 1)"}
+    elif u in ("r-odd-gap", "r-even-gap", "u1-from-two-terms", "term-choose-sign"):
+        pp, qq = int(g["p"]), int(g["q"])
+        up, uq = R(g["up"]), R(g["uq"])
+        gap = qq - pp
+        need(gap % 2 == (0 if u in ("r-even-gap", "term-choose-sign") else 1), f"the gap {gap} is the wrong parity")
+        need(up == u1 * r ** (pp - 1) and uq == u1 * r ** (qq - 1), "the given terms are not the sequence's")
+        x = sp.Symbol("x", real=True)
+        roots = sorted(sp.real_roots(sp.Poly(x ** gap * up - uq, x)), key=num)
+        need(all(ro.is_rational for ro in roots), "r is not rational")
+        if u == "term-choose-sign":
+            m = int(g["m"])
+            need((m - pp) % 2 == 1 and up > 0, "the far term doesn't settle the sign")
+            neg = r < 0
+            want_line = f"{gs_u(pp)} = {gs_x(paper, up)},  {gs_u(qq)} = {gs_x(paper, uq)},  {gs_u(m)} {'<' if neg else '>'} 0"
+            if rep == "notation":
+                need(L[0] == want_line, f"line {L[0]!r}")
+            else:
+                need(L[0].endswith(f"term is {'negative' if neg else 'positive'}."), f"line {L[0]!r}")
+            # The far term's sign picks one root.
+            keep = [ro for ro in roots if (ro < 0) == neg]
+            need(len(keep) == 1, "the sign doesn't pick one root")
+            need(n == qq + 1 and asked == f"Find {gs_u(n)}.", f"asked {asked!r}")
+            val = uq * keep[0]
+            t = one(gs_u(n) + " = ", val)
+            if neg:
+                wrongs[GS13 + "find-r-u1#1"] = {t(-val)}
+        else:
+            if rep == "notation":
+                need(L[0] == f"{gs_u(pp)} = {gs_x(paper, up)},  {gs_u(qq)} = {gs_x(paper, uq)}", f"line {L[0]!r}")
+            else:
+                need(L[0] == f"The {bn_ordinal(pp)} term of a geometric sequence is {gs_x(paper, up)} and the {bn_ordinal(qq)} term is {gs_x(paper, uq)}.", f"line {L[0]!r}")
+            if u == "r-odd-gap":
+                need(len(roots) == 1 and asked == "Find r.", "an odd gap has one r")
+                t = one("r = ", roots[0])
+                wrongs[GS13 + "find-r-u1#0"] = {t((uq - up) / gap)}
+                if paper == 2 and uq / up > 0:
+                    wrongs[GS13 + "find-r-u1#2"] = {t(sp.Rational(str(round(float(num((uq / up) ** sp.Rational(1, gap + 1))), 9))))}
+            elif u == "r-even-gap":
+                need(len(roots) == 2 and roots[0] == -roots[1] and asked == "Find the possible values of r.", "an even gap has ±r")
+                gs_num(paper, roots)
+                want, show = gs_xs_text(paper, "r", roots)
+                wrongs[GS13 + "find-r-u1#1"] = {f"r = {gs_text(show, roots[1])}"}
+                wrongs[GS13 + "find-r-u1#0"] = {f"r = {gs_text(show, (uq - up) / gap)}"}
+            else:
+                need(len(roots) == 1 and asked == "Find u₁.", "an odd gap has one r")
+                val = up / roots[0] ** (pp - 1)
+                t = one("u₁ = ", val)
+                wrongs[GS13 + "find-r-u1#2"] = {t(up / roots[0] ** pp)}
+    elif u == "interior-terms":
+        a, b = R(g["first"]), R(g["fourth"])
+        need(a > 0 and b > 0, "the outer terms are not positive")
+        root = sp.real_root(b / a, 3)
+        p1, p2 = a * root, a * root ** 2
+        ax, bx = gs_x(paper, a), gs_x(paper, b)
+        need(L[0] == (f"{ax}, p, q, {bx}" if rep == "terms" else f"The numbers {ax}, p, q and {bx} are four consecutive terms of a geometric sequence."), f"line {L[0]!r}")
+        if paper == 1:
+            need(root.is_rational and p1.q == 1 and p2.q == 1, "Paper 1's four terms are not whole")
+        else:
+            need(not root.is_rational, "Paper 2's ratio is not a surd")
+        gs_num(paper, [p1, p2])
+        show = gs_show(paper, [sp.nsimplify(p1), sp.nsimplify(p2)])
+        names = ["p", "q"]
+        want = gs_named(show, names, [p1, p2])
+        third = (b - a) / 3
+        wrongs[GS13 + "find-r-u1#0"] = {gs_named(show, names, [a + third, a + 2 * third])}
+        if paper == 2:
+            r4 = (b / a) ** sp.Rational(1, 4)
+            wrongs[GS13 + "find-r-u1#2"] = {gs_named(show, names, [a * r4, a * r4 ** 2])}
+    elif u == "k-consecutive":
+        e = [int(t) for t in g["e"]]
+        k = sp.Symbol("k")
+        t1, t2, t3 = e[0] * k + e[1], e[2] * k + e[3], e[4] * k + e[5]
+        roots = sp.solve(sp.Eq(t2 ** 2, t1 * t3), k)
+        need(len(roots) == 2, "not two values of k")
+        for ro in roots:
+            need(all(sp.simplify(t.subs(k, ro)) != 0 for t in (t1, t2, t3)), "a term is 0")
+            need(sp.simplify(t2.subs(k, ro) ** 2 - t1.subs(k, ro) * t3.subs(k, ro)) == 0, "k doesn't make it geometric")
+        if paper == 1:
+            need(all(ro.is_rational and ro.q <= 6 for ro in roots), "Paper 1's k are not simple")
+        else:
+            need(not any(ro.is_rational for ro in roots), "Paper 2's k are not surds")
+        gs_num(paper, roots)
+        want, show = gs_xs_text(paper, "k", roots)
+        if e[0] + e[4] != 2 * e[2]:
+            wrongs[GS13 + "find-r-u1#0"] = {f"k = {gs_text(show, sp.solve(2 * t2 - t1 - t3, k)[0])}"}
+    elif u == "coefficients-geometric":
+        nn = int(g["n"])
+        a, b, d = [int(t) for t in g["pow"]]
+        need(L[0] == "(1 + hx)" + "".join("⁰¹²³⁴⁵⁶⁷⁸⁹"[int(c)] for c in str(nn)) + ", where h > 0", f"line {L[0]!r}")
+        need(a < b < d <= nn, "the powers are out of order")
+        h = sp.Symbol("h", positive=True)
+        co = [sp.binomial(nn, j) * h ** j for j in (a, b, d)]
+        sols = sp.solve(sp.Eq(co[1] ** 2, co[0] * co[2]), h)
+        need(len(sols) == 1, "not one positive h")
+        t = one("h = ", sols[0])
+    elif u in ("sum-from-u1-r", "sum-exact"):
+        gs_seq_shown(q, u1, r)
+        ex = "the exact value of " if u == "sum-exact" else ""
+        need(asked == f"Find {ex}{gs_s(n)}, the sum of the first {n} terms.", f"asked {asked!r}")
+        val = gs_sum(u1, r, n)
+        t = one(gs_s(n) + " = ", val)
+        wrongs[GS13 + "sum#0"] = {t(u1 * (1 - r ** (n - 1)) / (1 - r))}
+        if r < 0 and n % 2 == 1:
+            wrongs[GS13 + "sum#1"] = {t(u1 * (1 - abs(r) ** n) / (1 - r))}
+    elif u == "sum-last-term":
+        last = R(g["last"])
+        need(last == u1 * r ** (n - 1), "the last term is not the nth")
+        gs_series_shown(q, u1, r, last)
+        val = gs_sum(u1, r, n)
+        t = one("Sum = ", val)
+        wrongs[GS13 + "sum#2"] = {t(gs_sum(u1, r, n - 1))}
+        if r < 0 and n % 2 == 1:
+            wrongs[GS13 + "sum#1"] = {t(u1 * (1 - abs(r) ** n) / (1 - r))}
+    elif u == "sum-closed-form":
+        need(L[0] == f"u₁ = {frac_text(u1)},  r = {frac_text(r)}", f"line {L[0]!r}")
+        need(r > 1 and r.q == 1, "r is not a whole number above 1")
+        if u1 == 1:
+            a, b = r, r - 1
+            need(all((a ** m - 1) / b == gs_sum(u1, r, m) for m in range(1, 7)), "the closed form is wrong")
+            want = f"a = {a}, b = {b}"
+        else:
+            a, b = r, u1 / (r - 1)
+            need(all(b * (a ** m - 1) == gs_sum(u1, r, m) for m in range(1, 7)), "the closed form is wrong")
+            want = f"a = {a}, k = {frac_text(b)}"
+    elif u == "sum-of-sums":
+        need(u1 == 1 and r >= 3, "the sequence is out of range")
+        a, b, c = r, r - 1, (r - 1) ** 2
+        for m in range(1, 8):
+            total = sum(gs_sum(u1, r, j) for j in range(1, m + 1))
+            need((a * (a ** m - 1) - b * m) / c == total, "the closed form is wrong")
+        want = f"a = {a}, b = {b}, c = {c}"
+    elif u == "sum-alternating":
+        need(r == -1 and L[0] == gs_terms(paper, u1, r), f"line {L[0]!r}")
+        odd = g["odd"]
+        count = "2m + 1" if odd else "2m"
+        need(asked == f"Find the sum of the first {count} terms, where m is a positive whole number.", f"asked {asked!r}")
+        vals = {gs_sum(u1, r, 2 * m + (1 if odd else 0)) for m in (1, 2, 3, 4, 5)}
+        need(len(vals) == 1, "the sum depends on m")
+        t = one("Sum = ", vals.pop())
+        if odd:
+            wrongs[GS13 + "sum#1"] = {t(sp.Integer(0))}
+    elif u in ("bounce-before", "bounce-total", "bounce-multiple"):
+        ctx = GS_BALLS[int(g["ctx"])]
+        need(ctx in L[0], f"the story {L[0]!r}")
+        rate = gs_x(paper, r) if paper == 1 else dec_text(r * 100) + "%"
+        need(f"rebounds to {rate} of" in L[0], f"the story {L[0]!r} doesn't give r")
+        if rep == "diagram":
+            gr = q["graph"]
+            need(gr["kind"] == "bounce" and abs(gr["peaks"][2] - float(r ** 2)) < 1e-9, "the figure is not this ball")
+        if u == "bounce-multiple":
+            total = 1 + 2 * sum((r ** i for i in range(1, 400)), sp.Integer(0))  # a check on the closed form below
+            exact = (1 + r) / (1 - r)
+            need(abs(num(exact - total)) < 1e-6 * exact, "the distance is wrong")
+            need(asked == "The total distance it travels before it comes to rest is kx metres. Find k.", f"asked {asked!r}")
+            t = one("k = ", exact)
+            wrongs[GS18 + "applications#0"] = {t(2 / (1 - r))}
+        else:
+            h = R(g["h"])
+            need(f"height of {gs_x(paper, h)} m" in L[0], f"the story {L[0]!r} doesn't give the height")
+            if u == "bounce-before":
+                need(asked == f"Find the total distance it has travelled at the moment it lands for the {bn_ordinal(n)} time.", f"asked {asked!r}")
+                # The path, leg by leg: down, then up and down n − 1 times.
+                height, dist = h, h
+                for _ in range(n - 1):
+                    height *= r
+                    dist += 2 * height
+                t = one("Distance = ", dist, " m")
+                wrongs[GS18 + "applications#0"] = {t(dist + h)}
+            else:
+                need(asked == "Find the total distance it travels before it comes to rest.", f"asked {asked!r}")
+                t = one("Total distance = ", h + 2 * gs_inf(h * r, r), " m")
+                wrongs[GS18 + "applications#0"] = {t(2 * gs_inf(h, r))}
+    elif u in ("sigma-first-r", "sigma-evaluate"):
+        c, b, lo, sh, up = R(g["c"]), R(g["b"]), int(g["lower"]), int(g["shift"]), int(g["upper"])
+        need(L[0] == gs_sigma_text(paper, c, b, lo, sh, up), f"the Σ shows {L[0]!r}")
+        k = sp.Symbol("k")
+        f = c * b ** (k + sh)
+        first, second = f.subs(k, lo), f.subs(k, lo + 1)
+        if u == "sigma-first-r":
+            need(asked == "Write down u₁ and r for this series.", f"asked {asked!r}")
+            show = gs_show(paper, [first, second / first])
+            names = ["u₁", "r"]
+            gs_num(paper, [first])
+            want = gs_named(show, names, [first, second / first])
+            if first != c:
+                wrongs[GS13 + "sigma#0"] = {gs_named(show, names, [c, second / first])}
+            wrongs[GS13 + "sigma#1"] = {gs_named(show, names, [first, c])}
+        else:
+            count = up - lo + 1
+            need(asked == "Find the value of this sum.", f"asked {asked!r}")
+            val = sum(f.subs(k, j) for j in range(lo, up + 1))
+            t = one("Sum = ", val)
+            if first != c:
+                wrongs[GS13 + "sigma#0"] = {t(gs_sum(c, b, count))}
+            wrongs[GS13 + "sigma#2"] = {t(gs_sum(first, b, up - lo))}
+    elif u == "sigma-write":
+        last = R(g["last"])
+        need(last == u1 * r ** (n - 1), "the last term is not the nth")
+        gs_series_shown(q, u1, r, last)
+        need(sum(u1 * r ** (j - 1) for j in range(1, n + 1)) == gs_sum(u1, r, n), "the Σ is not the series")
+        want = f"a = {frac_text(u1)}, b = {frac_text(r)}, n = {n}"
+    elif u == "exists-claim":
+        gs_seq_shown(q, u1, r)
+        ar = abs(r)
+        kind = g["kind"]
+        need(kind == ("conv" if ar < 1 else "one" if r == 1 else "neg-one" if r == -1 else "big" if r > 0 else "neg-big"), f"kind {kind} for r = {r}")
+        mag = gs_x(paper, ar)
+        if ar < 1:
+            want = f"Yes: |r| = {mag}, which is less than 1"
+        elif ar > 1:
+            want = f"No: |r| = {mag}, which is more than 1"
+            wrongs[GS18 + "sum-to-infinity#2"] = {f"Yes: S∞ = u₁/(1 − r) = {gs_x(paper, u1 / (1 - r))}"}
+            if r < 0:
+                wrongs[GS18 + "convergence#0"] = {f"Yes: r = {gs_x(paper, r)}, which is less than 1"}
+        else:
+            want = "No: |r| = 1, and |r| has to be less than 1"
+            wrongs[GS18 + "convergence#2"] = {"Yes: |r| ≤ 1 is enough"}
+            if r == -1:
+                wrongs[GS18 + "sum-to-infinity#2"] = {f"Yes: S∞ = u₁/(1 − r) = {gs_x(paper, u1 / 2)}"}
+    elif u == "exists-table":
+        rows = q["table"]["rows"]
+        ns = [int(t) for t in rows[0][1]]
+        need(rows[1][1] == [gs_work(gs_sum(u1, r, m)) for m in ns], "the table is not the partial sums")
+        lim = u1 / (1 - r)
+        settles = abs(r) < 1
+        need(g["kind"] == ("conv" if settles else "big" if r > 0 else "neg-big"), "the kind is wrong")
+        if settles:
+            want = f"S∞ exists: the sums settle near {gs_text('sf', lim)}"
+        else:
+            want = "S∞ does not exist: the sums never settle"
+            wrongs[GS18 + "sum-to-infinity#2"] = {f"S∞ exists: u₁/(1 − r) = {gs_text('sf', lim)}"}
+    elif u == "x-interval":
+        a, b, c = int(g["ax"]), int(g["bx"]), int(g["cx"])
+        x = sp.Symbol("x", real=True)
+        ex = sp.Rational(a, c) * x + sp.Rational(b, c)
+        sol = sp.solve_univariate_inequality(sp.Abs(ex) < 1, x, relational=False)
+        need(isinstance(sol, sp.Interval) and sol.left_open and sol.right_open, f"|r| < 1 gives {sol}")
+        lo, hi = sol.start, sol.end
+        need(lo == R(g["lo"]) and hi == R(g["hi"]), "the ends are not where |r| = 1")
+        want = f"{frac_text(lo)} < x < {frac_text(hi)}"
+        one_end = sp.solve(sp.Eq(ex, 1), x)[0]
+        wrongs[GS18 + "convergence#1"] = {f"x {'<' if a > 0 else '>'} {frac_text(one_end)}"}
+        wrongs[GS18 + "convergence#2"] = {f"{frac_text(lo)} ≤ x ≤ {frac_text(hi)}"}
+        if rep == "graph":
+            gr = q["graph"]
+            need(lo.q == 1 and hi.q == 1, "a graph's ends are whole")
+            need(any(h_["at"] == 1 for h_ in gr["hlines"]) and any(h_["at"] == -1 for h_ in gr["hlines"]), "the band is missing")
+            for px, py in gr["curves"][0][::40]:
+                need(abs(float(ex.subs(x, sp.Float(px))) - py) < 1e-6, "the line is not r(x)")
+            need(gr["x0"] < lo and hi < gr["x1"], "an end is off the graph")
+        else:
+            shown = re.fullmatch(r"A geometric series has common ratio r = (.+), where x is a real number\.", L[0])
+            need(shown is not None and sp.simplify(parse(shown.group(1)).subs(X, x) - ex) == 0, f"line {L[0]!r} is not r = {ex}")
+    elif u == "sinf-value":
+        gs_seq_shown(q, u1, r)
+        need(abs(r) < 1, "no sum to infinity")
+        if paper == 1:
+            need((u1 / (1 - r)).q <= 30, "a Paper 1 S∞ has a large denominator")
+        t = one("S∞ = ", gs_inf(u1, r))
+        wrongs[GS18 + "sum-to-infinity#0"] = {t(u1 / (1 + r))}
+    elif u == "sinf-sigma":
+        c, b, lo, sh = R(g["c"]), R(g["b"]), int(g["lower"]), int(g["shift"])
+        need(L[0] == gs_sigma_text(paper, c, b, lo, sh, -1), f"the Σ shows {L[0]!r}")
+        k = sp.Symbol("k", integer=True)
+        first = c * b ** (lo + sh)
+        val = sp.summation(c * b ** (k + sh), (k, lo, sp.oo))
+        need(val == first / (1 - b), "the sum is not the closed form")
+        t = one("S∞ = ", val)
+        wrongs[GS18 + "sum-to-infinity#0"] = {t(first / (1 + b))}
+        if first != c:
+            wrongs[GS18 + "sum-to-infinity#1"] = {t(c / (1 - b))}
+    elif u == "sinf-shaded":
+        cut, shaded, area = int(g["cut"]), int(g["shaded"]), R(g["area"])
+        need(f"{cut} by {cut} grid" in L[0] and f"area {gs_x(paper, area)} " in L[0] and f"{shaded} of the" in L[0], f"line {L[0]!r}")
+        gr = q["graph"]
+        need(gr["kind"] == "squares" and gr["style"] == "shaded" and gr["cut"] == cut and gr["shaded"] == shaded, "the figure is another")
+        # What stays unshaded: one cell of each grid, down to nothing. The rest is shaded in the ratio s : 1 cell's remainder.
+        cells = cut * cut
+        need(0 < shaded < cells, "the shaded count is out of range")
+        m = sp.Symbol("m", positive=True, integer=True)
+        val = sp.limit(area * sp.Rational(shaded, cells) * (1 - sp.Rational(1, cells) ** m) / (1 - sp.Rational(1, cells)), m, sp.oo)
+        t = one("Total shaded area = ", val)
+        wrongs[GS18 + "sum-to-infinity#0"] = {t(area * sp.Rational(shaded, cells) / (1 + sp.Rational(1, cells)))}
+    elif u == "x-from-log-series":
+        m, base, ln, tt = int(g["m2"]), int(g["base"]), int(g["ln"]), int(g["t"])
+        log_name = f"log{str(base).translate(str.maketrans('0123456789', '₀₁₂₃₄₅₆₇₈₉'))}"
+        need(L[0] == f"{log_name} x + p {log_name} x + (1/{m}) {log_name} x + …, where x > 1 and p > 0", f"line {L[0]!r}")
+        p = sp.Symbol("p", positive=True)
+        ps = sp.solve(sp.Eq(p / 1, sp.Rational(1, m) / p), p)
+        need(len(ps) == 1, "not one ratio")
+        S = ln / (1 - ps[0])
+        sq = sp.sqrt(m)
+        if tt:
+            need(sp.simplify(S - tt * (m + sq)) == 0, "S∞ is not t(m + √m)")
+            head = f"{tt * m} + {'' if tt == 1 else tt}√{m}"
+        else:
+            need(S == R(g["sinf"]), "the S∞ given is wrong")
+            head = frac_text(S)
+        need(asked == f"The series is geometric, with S∞ = {head}. Find x.", f"asked {asked!r}")
+        val = sp.Integer(base) ** sp.simplify(S * (1 - ps[0]))
+        t = one("x = ", val)
+    elif u in ("u1-from-sinf", "r-from-sinf"):
+        S = R(g["sinf"])
+        need(abs(r) < 1, "no sum to infinity")
+        need(S == u1 / (1 - r), "S∞ is not the sequence's")
+        x = sp.Symbol("x")
+        if u == "u1-from-sinf":
+            shown = f"r = {gs_x(paper, r)},  S∞ = {gs_x(paper, S)}" if rep == "notation" else f"A geometric series has common ratio {gs_x(paper, r)} and sum to infinity {gs_x(paper, S)}."
+            need(L[0] == shown, f"line {L[0]!r}")
+            sol = sp.solve(sp.Eq(x / (1 - r), S), x)
+            t = one("u₁ = ", sol[0])
+            wrongs[GS18 + "find-unknown#0"] = {t(S / (1 - r))}
+        else:
+            shown = f"u₁ = {gs_x(paper, u1)},  S∞ = {gs_x(paper, S)}" if rep == "notation" else f"A geometric series has first term {gs_x(paper, u1)} and sum to infinity {gs_x(paper, S)}."
+            need(L[0] == shown, f"line {L[0]!r}")
+            sol = sp.solve(sp.Eq(u1 / (1 - x), S), x)
+            t = one("r = ", sol[0])
+            wrongs[GS18 + "find-unknown#0"] = {t(1 - S / u1)}
+    elif u == "r-from-multiple":
+        mult = R(g["mult"])
+        tm = gs_x(paper, mult)
+        br = f"({tm})" if mult < 0 or "/" in tm else tm
+        need(L[0] == (f"S∞ = {br} × u₁,  u₁ ≠ 0" if rep == "notation" else f"The sum to infinity of a geometric series is {tm} times its first term."), f"line {L[0]!r}")
+        x = sp.Symbol("x")
+        sol = sp.solve(sp.Eq(1 / (1 - x), mult), x)
+        need(abs(sol[0]) < 1, "|r| is not below 1")
+        t = one("r = ", sol[0])
+        wrongs[GS18 + "find-unknown#0"] = {t(1 - mult)}
+    elif u in ("r-from-u2-reject", "r-from-u2-both"):
+        S, u2 = R(g["sinf"]), R(g["u2"])
+        shown = f"u₂ = {gs_x(paper, u2)},  S∞ = {gs_x(paper, S)}" if rep == "notation" else f"The second term of a geometric series is {gs_x(paper, u2)} and its sum to infinity is {gs_x(paper, S)}."
+        need(L[0] == shown, f"line {L[0]!r}")
+        x = sp.Symbol("x", real=True)
+        roots = sorted(sp.solve(sp.Eq(u2 / x / (1 - x), S), x), key=num)
+        need(len(roots) == 2, "not two roots")
+        need(all(ro.is_rational for ro in roots) if paper == 1 else not any(ro.is_rational for ro in roots), "the roots don't suit the paper")
+        good = [ro for ro in roots if abs(num(ro)) < 1]
+        gs_num(paper, good)
+        if u == "r-from-u2-reject":
+            need(len(good) == 1 and asked == "Find r.", "one root should be rejected")
+            want, show = gs_xs_text(paper, "r", good)
+            bad = [ro for ro in roots if ro not in good]
+            wrongs[GS18 + "find-unknown#1"] = {gs_xs_text_as(show, "r", roots), gs_xs_text_as(show, "r", bad)}
+        else:
+            need(len(good) == 2 and asked == "Find the possible values of r.", "both roots should stay")
+            want, show = gs_xs_text(paper, "r", good)
+        wrongs[GS18 + "find-unknown#2"] = {f"r = {gs_text(show, 1 - u2 / S)}"}
+    elif u == "recurring-decimal":
+        digits, ln = int(g["digits"]), int(g["len"])
+        block = str(digits).rjust(ln, "0")
+        need(L[0] == "0." + block * 3 + "…", f"line {L[0]!r}")
+        need(block != block[0] * ln or ln == 1, "the block is a shorter block repeated")
+        top = 10 ** ln
+        d = sp.Symbol("d")
+        val = sp.solve(sp.Eq(top * d - d, digits), d)[0]     # 10ᵏd − d cancels the tail
+        need(val == gs_inf(sp.Rational(digits, top), sp.Rational(1, top)), "the series and the algebra disagree")
+        want = frac_text(val)
+        if ln > 1:
+            wrongs[GS18 + "applications#1"] = {frac_text(sp.Rational(digits, top) / sp.Rational(9, 10))}
+    elif u == "nested-squares":
+        tt, side = R(g["t"]), R(g["h"])
+        need(f"side {gs_x(paper, side)} cm" in L[0] and f"corner {frac_text(tt)} of the way" in L[0], f"line {L[0]!r}")
+        gr = q["graph"]
+        need(gr["kind"] == "squares" and gr["style"] == "nested" and abs(gr["t"] - float(tt)) < 1e-9, "the figure is another")
+        # The next side by Pythagoras, on coordinates of one corner triangle.
+        rr = sp.Matrix([tt * side, (1 - tt) * side]).dot(sp.Matrix([tt * side, (1 - tt) * side])) / side ** 2
+        t = one("Total area = ", gs_inf(side ** 2, rr), " cm²")
+    elif u == "story-total":
+        need(gs_x(paper, u1) in L[0], f"story {L[0]!r}")
+        rate = gs_x(paper, r) if paper == 1 else dec_text(r * 100) + "%"
+        need(f" {rate} of" in L[0], f"story {L[0]!r} doesn't give the share")
+        unit = re.search(r"\d ([A-Za-z]+) ", L[0]).group(1)
+        t = one("Total = ", gs_inf(u1, r), " " + unit)
+        wrongs[GS18 + "sum-to-infinity#0"] = {t(u1 / (1 + r))}
+    elif u == "story-target":
+        target, kind = R(g["target"]), g["kind"]
+        need(gs_x(paper, u1) in L[0], f"story {L[0]!r}")
+        rate = gs_x(paper, r) if paper == 1 else dec_text(r * 100) + "%"
+        need(f" {rate} of" in L[0], f"story {L[0]!r} doesn't give the share")
+        need(asked.startswith(f"Does the total ever reach {gs_x(paper, target)} "), f"asked {asked!r}")
+        goal = asked[len("Does the total ever reach "):-1]
+        lim = gs_x(paper, u1 / (1 - r))
+        if abs(r) < 1:
+            s_inf = gs_inf(u1, r)
+            if s_inf < target:
+                need(kind == "under", "the total stops short")
+                want = f"No: the total stays below S∞ = {lim}, and that is less than {goal}"
+            else:
+                need(kind == "over" and s_inf > target, "the total passes the target")
+                need(next(m for m in range(1, 900) if gs_sum(u1, r, m) > target) > 1, "the first amount passes it")
+                want = f"Yes: S∞ = {lim}, which is more than {goal}"
+        else:
+            need(kind == "grow" and r > 1, "r is not above 1")
+            need(next(m for m in range(1, 900) if gs_sum(u1, r, m) > target) > 1, "the target is too low")
+            want = "Yes: r > 1, so the total grows without limit"
+            wrongs[GS18 + "applications#2"] = {f"No: S∞ = {lim}, so it stops there"}
+    elif u == "deposit-for-target":
+        target = R(g["target"])
+        rate = dec_text(r * 100) + "%"
+        need(f" {rate} of" in L[0], f"story {L[0]!r} doesn't give the share")
+        need(f"after {n} " in asked and f" is {gs_x(paper, target)} " in asked, f"asked {asked!r}")
+        x = sp.Symbol("x")
+        sol = sp.solve(sp.Eq(gs_sum(x, r, n), target), x)
+        unit = asked[asked.index(f" is {gs_x(paper, target)}") + len(f" is {gs_x(paper, target)}"):].split(".")[0]
+        t = one("First amount = ", sol[0], unit)
+    else:
+        need(False, f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+def gs_xs_text_as(show, name, vals):
+    vals = sorted(vals, key=lambda v: num(v))
+    return f"{name} = " + " or ".join(gs_text(show, v) for v in vals)
+
+
+# ── binomial-expansion (t1-binomial-term, FAL-728) ───────────
+# The checker's own copy of the clean limits: the engine's is in
+# game/engine/situations/binomial_expansion.gd. Every answer and every tagged slip is worked out
+# again from what the question shows: the bracket is read from the text, expanded with SymPy, and
+# each option's text is read back into an expression, so nothing is taken from the engine.
+
+BE_X = sp.Symbol("x")
+BE_N = sp.Symbol("n")
+BE_S = "SL1.9."
+BE_T = "t1-binomial-term#"
+BE_HAND, BE_MOST, BE_ROW = 20000, 200000000, 7
+BE_ROWS = {"ncr-find-n": 8}
+BE_ROMAN = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻", "0123456789-")
+BE_TERM = re.compile(r"([+-]?)(\(\d+/\d+\)|\d+/\d+|\d+)?((?:[a-z](?:[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+)?)*)(/x)?")
+BE_POWER = re.compile(r"(\([^()]*\))([⁰¹²³⁴⁵⁶⁷⁸⁹]+)")
+
+
+def be_terms(text):
+    """A sum read as [(coefficient, {letter: power})], in the order written."""
+    t = text.replace("−", "-").replace(" ", "").replace("½", "(1/2)")
+    out, at = [], 0
+    while at < len(t):
+        m = BE_TERM.match(t, at)
+        need(m is not None and m.end() > at, f"can't read {text!r}")
+        sign, c, letters, over = m.groups()
+        coef = sp.Integer(1)
+        if c:
+            coef = sp.Rational(c.strip("()"))
+        if sign == "-":
+            coef = -coef
+        powers = {}
+        for lm in re.finditer(r"([a-z])([⁰¹²³⁴⁵⁶⁷⁸⁹⁻]*)", letters):
+            powers[lm.group(1)] = powers.get(lm.group(1), 0) + (int(lm.group(2).translate(BE_ROMAN)) if lm.group(2) else 1)
+        if over:
+            powers["x"] = powers.get("x", 0) - 1
+        out.append((coef, powers))
+        at = m.end()
+    return out
+
+
+def be_expr(text):
+    """A sum as a SymPy expression."""
+    out = sp.Integer(0)
+    for c, powers in be_terms(text):
+        for k, p in powers.items():
+            c *= sp.Symbol(k)**p
+        out += c
+    return out
+
+
+def be_bracket(asked):
+    """The (…)ⁿ in a question: its two terms as written, and n."""
+    m = BE_POWER.search(asked)
+    need(m is not None, f"no bracket in {asked!r}")
+    terms = be_terms(m.group(1)[1:-1])
+    need(len(terms) == 2, f"{m.group(1)} is not two terms")
+    return terms, int(m.group(2).translate(BE_ROMAN)), m.group(0)
+
+
+def be_is_x(term):
+    return term[1].get("x", 0) > 0
+
+
+def be_parts(terms):
+    """(a, p, b, e, letter): the x term a·x^p and the other term b·x^e, or a letter."""
+    xt = [t for t in terms if be_is_x(t)]
+    need(len(xt) == 1, f"{terms} has no one term in x")
+    other = [t for t in terms if t is not xt[0]][0]
+    a, p = xt[0][0], xt[0][1]["x"]
+    b, e = other[0], other[1].get("x", 0)
+    letter = next((k for k in other[1] if k != "x"), None)
+    return a, p, b, e, letter
+
+
+def be_coefs(a, p, b, e, n):
+    """{power of x: coefficient} of the true expansion, from SymPy alone."""
+    f = sp.expand((a * BE_X**p + b * BE_X**e)**n)
+    return {int(k): v for k, v in (t.as_coeff_exponent(BE_X)[::-1] for t in sp.Add.make_args(f))}
+
+
+def be_sum(n, a, p, b, e, js, coef, power=None):
+    """The sum of coef(j)·x^power(j) over js: a slip's whole expansion."""
+    return sum((coef(j) * BE_X**(power(j) if power else p * j + e * (n - j)) for j in js), sp.Integer(0))
+
+
+def be_table_rows(table):
+    """The numbers of each row of a table, blanks dropped."""
+    return [[int(c) for c in cells if c != ""] for _, cells in table["rows"]]
+
+
+def be_triangle(q, last):
+    """The table is Pascal's triangle down to row `last`, staggered, with no row numbers."""
+    t = q["table"]
+    need(t is not None, "no triangle shown")
+    need(len(t["rows"]) == last + 1, f"{len(t['rows'])} rows, not {last + 1}")
+    for i, (head, cells) in enumerate(t["rows"]):
+        need(head == "", "a row is numbered")
+        need(len(cells) == 2 * last + 1, "the rows are not one width")
+        want = [""] * (2 * last + 1)
+        for r in range(i + 1):
+            want[last - i + 2 * r] = str(sp.binomial(i, r))
+        need(cells == want, f"row {i} of the triangle is {cells}")
+
+
+def be_row(text):
+    return tuple(int(v) for v in text.split(", "))
+
+
+def be_row_of(n):
+    return tuple(int(sp.binomial(n, r)) for r in range(n + 1))
+
+
+def be_check_options(q, label, want, read, wrongs):
+    """Four options, each read back from its text. One is `want`; a tagged one is that slip."""
+    ans = q["answer"]
+    fx = ans["fixed"]
+    need(ans["kind"] == "form" and ans.get("exact"), "a binomial answer is an exact form")
+    need(q["answer_text"].startswith(label), f"answer {q['answer_text']!r} has no {label!r}")
+    need(read(q["answer_text"][len(label):]) == want, f"engine answer {q['answer_text']!r} is wrong (expected {want})")
+
+    def typed(values):
+        out = ""
+        for item in fx["parts"]:
+            if isinstance(item, str):
+                out += item
+            else:
+                need(item["slot"] in values, f"no value for slot {item['slot']}")
+                v = R(values[item["slot"]])
+                out += str(v) if v.q == 1 else f"{'-' if v < 0 else ''}({abs(v)})"
+        return out.replace("+ -", "- ")
+
+    tv = typed(ans["values"])
+    need(read(tv[len(label):]) == want, f"the typed answer {tv!r} is not the answer")
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    seen, texts = [], set()
+    for o in ch:
+        need(o["text"].startswith(label), f"option {o['text']!r} has no {label!r}")
+        v = read(o["text"][len(label):])
+        need(v not in seen, f"two options are the same: {o['text']!r}")
+        seen.append(v)
+        need(o["text"] not in texts, f"two options read the same: {o['text']!r}")
+        texts.add(o["text"])
+        need((v == want) == o["correct"], f"option {o['text']!r} is marked {'right' if o['correct'] else 'wrong'}")
+        if "shape" not in o["values"]:
+            tv = typed(o["values"])
+            need(read(tv[len(label):]) == v, f"option {o['text']!r} types as {tv!r}")
+        if o["ref"]:
+            need(not o["correct"], "a misconception is the right answer")
+            need(o["ref"] in wrongs, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(v in wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+    need(len(q["solutions"]) >= 1, "no worked solution")
+    for sol in q["solutions"]:
+        need(sol["result"]["text"] == ans["values"]["text"], f"{sol['name']}: gives {sol['result']['text']}, not the answer")
+        need(ans["values"]["text"] in sol["steps"][-1], f"{sol['name']}: last step {sol['steps'][-1]!r} doesn't state the answer")
+    if q["view"]["angle"] != "any":
+        need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
+
+
+def be_ncr(q, u, paper):
+    asked, angle = q["asked"], q["view"]["angle"]
+    fct = sp.factorial
+    if u in ("ncr-value", "ncr-read-triangle", "ncr-large-r", "ncr-edge"):
+        m = re.search(r"(\d+)C(\d+)\.$", asked)
+        need(m is not None, f"can't read {asked!r}")
+        n, r = int(m.group(1)), int(m.group(2))
+        need(n <= 12, "n is above 12")
+        if u != "ncr-edge" and (angle == "pascal-build" or u == "ncr-read-triangle"):
+            need(n <= BE_ROW, f"row {n} is read from the triangle")
+        wrongs = {}
+        if u in ("ncr-value", "ncr-large-r"):
+            wrongs[BE_S + "ncr-pascal#0"] = {fct(n) / fct(r)}
+        if u == "ncr-value":
+            wrongs[BE_T + "9"] = {fct(n) / fct(n - r)}
+        if u == "ncr-read-triangle":
+            be_triangle(q, n + 1)
+            wrongs[BE_S + "ncr-pascal#1"] = {sp.binomial(n - 1, r)}
+        if u == "ncr-edge":
+            need(r in (0, n), "not an edge of the row")
+            if r == 0:
+                wrongs[BE_S + "ncr-pascal#2"] = {sp.Integer(0)}
+        if u == "ncr-large-r":
+            need(n - r <= 4 and r > n - r, "r is not the large one")
+        if paper == 1 and u == "ncr-value" and angle != "pascal-build":
+            need(min(r, n - r) <= 3, "too long by hand")
+        return f"{n}C{r} = ", sp.binomial(n, r), be_expr, wrongs
+    if u == "ncr-symmetry":
+        m = re.fullmatch(r"(\d+)C(\d+) = (\d+)Cm, where m ≠ (\d+)\. Find m\.", asked)
+        need(m is not None and m.group(1) == m.group(3) and m.group(2) == m.group(4), f"can't read {asked!r}")
+        n, r = int(m.group(1)), int(m.group(2))
+        sol = [v for v in range(n + 1) if v != r and sp.binomial(n, v) == sp.binomial(n, r)]
+        need(len(sol) == 1, f"m has {sol}")
+        return "m = ", sp.Integer(sol[0]), be_expr, {}
+    if u == "ncr-find-n":
+        m = re.fullmatch(r"nC2 = (\d+), where n is a whole number\. Find n\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        v = int(m.group(1))
+        roots = sp.solve(BE_N * (BE_N - 1) / 2 - v, BE_N)
+        pos = [t for t in roots if t > 0]
+        neg = [t for t in roots if t < 0]
+        need(len(pos) == 1 and pos[0].is_integer and len(neg) == 1, f"roots {roots}")
+        n = pos[0]
+        need(n <= (BE_ROWS[u] if angle == "pascal-build" else 12), "n is too long for the method")
+        wrongs = {BE_T + "10": set(neg)}
+        if angle == "pascal-build":
+            wrongs[BE_S + "ncr-pascal#1"] = {n + 1}
+        return "n = ", n, be_expr, wrongs
+    if u == "ncr-formula-in-n":
+        m = re.fullmatch(r"Write \(?(n(?: [+−] \d+)?)\)?C2 as a polynomial in n, for whole numbers n ≥ 3\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        top = be_expr(m.group(1))
+        want = sp.expand(sp.expand_func(sp.binomial(top, 2)))
+        return "", want, be_expr, {BE_T + "9": {sp.expand(top * (top - 1))}}
+    raise AssertionError(u)
+
+
+def be_rows(q, u, paper):
+    asked, angle = q["asked"], q["view"]["angle"]
+    if u == "pascal-row":
+        m = re.fullmatch(r"Write down the row of Pascal's triangle for n = (\d+)\.", asked)
+        need(m is not None, f"can't read {asked!r}")
+        n = int(m.group(1))
+        need(n <= BE_ROW, "the row is too long")
+        return "", be_row_of(n), be_row, {BE_S + "ncr-pascal#1": {be_row_of(n - 1)}}
+    if u == "pascal-next-row":
+        n = len(q["table"]["rows"]) - 1
+        be_triangle(q, n)
+        return "", be_row_of(n + 1), be_row, {}
+    if u == "row-from-entries":
+        rows = be_table_rows(q["table"])
+        need(len(rows) == 1, "one row is shown")
+        n = rows[0][1]
+        need(tuple(rows[0]) == be_row_of(n), f"{rows[0]} is not a row")
+        return "n = ", sp.Integer(n), be_expr, {BE_S + "ncr-pascal#1": {sp.Integer(n + 1)}}
+    raise AssertionError(u)
+
+
+def be_limits(q, terms, n, cs, u):
+    """What a bracket question has to be."""
+    need(q["paper"] in (1, 2), "no paper")
+    need(terms[0][0] > 0, "a negative in the first term written")
+    a, p, b, e, letter = be_parts(terms)
+    most = max(abs(v) for v in cs.values())
+    need(most <= (BE_HAND if q["paper"] == 1 else BE_MOST), f"a coefficient of {most} on Paper {q['paper']}")
+    need(sp.Integer(a) == a and sp.Integer(b) == b, "the bracket is not whole numbers")
+    need(not (p == 1 and a == 2 and e == 0 and b == -5 and not letter), "the bank's own bracket")
+    need(a != 0 and b != 0, "a term is zero")
+    need(sp.gcd(a, b) == 1, "the two numbers in the bracket share a factor")
+
+
+def be_expansion(q, u, paper):
+    asked, angle = q["asked"], q["view"]["angle"]
+    terms, n, shown = be_bracket(asked)
+    a, p, b, e, _ = be_parts(terms)
+    cs = be_coefs(a, p, b, e, n)
+    js = range(n + 1)
+    want = sp.expand((a * BE_X**p + b * BE_X**e)**n)
+    if u == "first-three-terms":
+        need(p == 1 and e == 0, "the first three terms are of a linear bracket")
+        js = range(3)
+        want = sum((cs[k] * BE_X**k for k in sorted(cs)[:3]), sp.Integer(0))
+    be_limits(q, terms, n, {k: v for k, v in cs.items()} if u != "first-three-terms" else {k: cs[k] for k in sorted(cs)[:3]}, u)
+    if u == "expand-from-triangle":
+        be_triangle(q, n)
+    if angle in ("pascal-row",) or u == "expand-from-triangle":
+        need(n <= BE_ROW, "the row is too long")
+    if u == "expand-small":
+        need(n in (2, 3), "n is not 2 or 3")
+    bn = lambda j: sp.binomial(n, j)
+    pow_ = lambda j: p * j + e * (n - j)
+    wrongs = {}
+    if abs(a) > 1:
+        wrongs[BE_S + "full-expansion#0"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * (a if j > 0 else 1) * b**(n - j))}
+    elif e == -1 and abs(b) > 1:
+        wrongs[BE_S + "full-expansion#0"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * (b if n > j else 1))}
+    elif abs(b) > 1:
+        wrongs[BE_S + "specific-term#1"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * (b if n > j else 1))}
+    if a < 0 or b < 0:
+        wrongs[BE_S + "full-expansion#1"] = {be_sum(n, a, p, b, e, js, lambda j: abs(bn(j) * a**j * b**(n - j)))}
+    if e == -1:
+        wrongs[BE_T + "13"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * b**(n - j), lambda j: j)}
+    else:
+        wrongs[BE_S + "full-expansion#2"] = {be_sum(n, a, p, b, e, js, lambda j: bn(j) * a**j * b**j)}
+    return "", want, be_expr, wrongs
+
+
+def be_one(q, u, paper):
+    """One term or coefficient."""
+    asked, angle, L = q["asked"], q["view"]["angle"], q["lines"]
+    terms, n, shown = be_bracket(L[0] if u == "missing-coefficient" else asked)
+    a, p, b, e, letter = be_parts(terms)
+    if letter:
+        k = sp.Symbol(letter)
+        m = re.search(r"coefficient of (x\S*) in the expansion", asked)
+        j = be_terms(m.group(1))[0][1]["x"]
+        need(asked.endswith(f"in terms of {letter}."), "the letter asked is not the bracket's")
+        need(a == 1 and p == 1 and b == 1 and terms[0][1] == {"x": 1}, "the bracket is (x + k)")
+        need(n != 8, "the bank's own bracket")
+        c = sp.expand((BE_X + k)**n).coeff(BE_X, j)
+        cn = sp.binomial(n, j)
+        return "", c, be_expr, {BE_S + "full-expansion#2": {cn * k**j}, BE_S + "specific-term#2": {c * BE_X**j},
+                                BE_S + "specific-term#1": {cn * k}}
+    cs = be_coefs(a, p, b, e, n)
+    if u == "term-by-position":
+        need("descending powers of x" in asked and not be_is_x(terms[1]), "the term is counted highest power first, x first")
+        m = re.search(r"Find the (\d+)(?:st|nd|rd|th) term\.", asked)
+        pos = int(m.group(1))
+        powers = sorted(cs, reverse=True)
+        need(2 <= pos <= n - 1, "the place is at an end")
+        power = powers[pos - 1]
+    elif u == "missing-coefficient":
+        m = re.fullmatch(r"\(x \+ (\d+)\)([⁰¹²³⁴⁵⁶⁷⁸⁹]+) = x\S+ \+ px\S+ \+ qx\S+ \+ \.\.\. \+ (\d+)", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        need(int(m.group(3)) == cs[0], "the last term shown is wrong")
+        name = {"Find the value of p.": "p", "Find the value of q.": "q"}[asked]
+        power = n - (1 if name == "p" else 2)
+    else:
+        m = re.search(r"(?:coefficient of|term in) (x\S*) in the expansion", asked)
+        need(m is not None, f"can't read {asked!r}")
+        power = be_terms(m.group(1))[0][1]["x"]
+    need(power in cs, f"no term in x^{power}")
+    be_limits(q, terms, n, {power: cs[power]}, u)
+    if u == "coefficient-from-triangle":
+        be_triangle(q, n)
+    if angle == "pascal-select" or u == "coefficient-from-triangle":
+        need(n <= BE_ROW, "the row is too long")
+    j = power // p
+    c = cs[power]
+    bn = sp.binomial(n, j)
+    is_term = u in ("specific-term", "term-by-position")
+    wrap = (lambda v: v * BE_X**power) if is_term else (lambda v: v)
+    wrongs = {}
+    if u == "missing-coefficient":
+        pick = n - power
+        wrongs[BE_S + "ncr-pascal#1"] = {sp.binomial(n - 1, pick) * b**pick}
+        if pick == 2 and b > 1:
+            wrongs[BE_S + "specific-term#1"] = {sp.binomial(n, pick) * b}
+        return f"{name} = ", c, be_expr, wrongs
+    if c < 0:
+        wrongs[BE_S + "specific-term#0"] = {wrap(-c)}
+    if abs(b) > 1 and n - j >= 2:
+        wrongs[BE_S + "specific-term#1"] = {wrap(bn * a**j * b)}
+    if abs(a) > 1 and j >= 2:
+        wrongs[BE_S + "full-expansion#0"] = {wrap(bn * a * b**(n - j))}
+    if j != n - j and abs(b) > 1:
+        wrongs[BE_S + "full-expansion#2"] = {wrap(bn * a**j * b**j)}
+    wrongs[BE_S + "specific-term#2"] = {c if is_term else c * BE_X**power}
+    if u == "term-by-position":
+        lower = powers[pos]
+        wrongs[BE_T + "12"] = {cs[lower] * BE_X**lower}
+    return "", (c * BE_X**power if is_term else c), be_expr, wrongs
+
+
+def be_number_of_terms(q):
+    terms, n, shown = be_bracket(q["asked"])
+    a, p, b, e, letter = be_parts(terms)
+    need(letter and q["asked"].endswith(f"where {letter} > 0."), "the letter is not positive")
+    k = sp.Symbol(letter, positive=True)
+    need(not (n == 11 and a == 1), "the bank's own bracket")
+    f = sp.expand((a * BE_X + b * k)**n)
+    return "", sp.Integer(len(sp.Add.make_args(f))), be_expr, {BE_T + "11": {sp.Integer(n)}}
+
+
+def check_binomial_expansion(q):
+    u, paper = q["view"]["unknown"], q["paper"]
+    need(not (q["view"]["angle"] == "gdc-ncr" and paper == 1), "the GDC on Paper 1")
+    if u.startswith("ncr-"):
+        label, want, read, wrongs = be_ncr(q, u, paper)
+    elif u in ("pascal-row", "pascal-next-row", "row-from-entries"):
+        label, want, read, wrongs = be_rows(q, u, paper)
+    elif u == "number-of-terms":
+        label, want, read, wrongs = be_number_of_terms(q)
+    elif u.startswith("expand-") or u == "first-three-terms":
+        label, want, read, wrongs = be_expansion(q, u, paper)
+    else:
+        label, want, read, wrongs = be_one(q, u, paper)
+    be_check_options(q, label, want, read, wrongs)
+    return None, None
+
+
+# ── normal-probability (t4-normal-probability, FAL-728) ──────
+# The checker's own reading of what the student sees: μ and σ from the first line, the region
+# from the stem or from the curve's shade and marks, and the areas from mpmath through nu_phi
+# (the normal-unknown section's). It shares nothing with the engine.
+
+NP_SKILL = "SL4.9.normal-probability#"
+NP_TYPE = "t4-normal-probability#"
+NP_NEG = [("The night temperatures at the north camp", " °C"), ("The temperatures in the cold store", " °C"),
+          ("The daily changes in the depot's water level", " cm")]
+NP_LOOK = re.compile(r"so the area must be (under|over) (\d+(?:\.\d+)?)\.")
+
+
+def np_mp(x):
+    return mpmath.mpf(x.p) / x.q
+
+
+def np_story(q):
+    i = int(q["given"]["ctx"])
+    return NP_NEG[i] if q["given"].get("neg") else NU_CONTEXTS[i]
+
+
+def np_model(q):
+    """μ and σ as mpmath numbers, and whether the variance was the number written."""
+    line = q["lines"][0]
+    mt = re.search(rf"X ~ N\(({NU_NUM}), ({NU_NUM})\)", line)
+    if mt:
+        return np_mp(nu_val(mt.group(1))), mpmath.sqrt(np_mp(nu_val(mt.group(2)))), nu_val(mt.group(2))
+    mt = re.fullmatch(rf"X ~ N\(({NU_NUM}), ({NU_NUM})²\)", line)
+    if mt:
+        return np_mp(nu_val(mt.group(1))), np_mp(nu_val(mt.group(2))), None
+    what, unit = np_story(q)
+    mt = re.fullmatch(rf"{re.escape(what)} are normally distributed with mean ({NU_NUM}){unit} and standard deviation ({NU_NUM}){unit}\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return np_mp(nu_val(mt.group(1))), np_mp(nu_val(mt.group(2))), None
+
+
+def np_from_text(tx, unit):
+    """(kind, lo, hi) from an event or a story's words."""
+    n = NU_NUM
+    for pat, kind in [(rf"X < ({n}) or X > ({n})", "out"), (rf"({n}) < X < ({n})", "in"), (rf"X > ({n})", "gt"), (rf"X < ({n})", "lt"),
+                      (rf"not between ({n}){unit} and ({n}){unit}", "out"), (rf"unless .* between ({n}){unit} and ({n}){unit}", "out"),
+                      (rf"between ({n}){unit} and ({n}){unit}", "in"), (rf"less than ({n}){unit}", "lt"), (rf"more than ({n}){unit}", "gt")]:
+        mt = re.search(pat, tx)
+        if mt:
+            v = [nu_val(x) for x in mt.groups()]
+            return (kind, v[0], v[1]) if len(v) == 2 else (kind, None, v[0]) if kind == "lt" else (kind, v[0], None)
+    raise Fail(f"can't read a region in {tx!r}")
+
+
+def np_from_curve(q, mu, sg):
+    """(kind, lo, hi) from the shaded curve: each end is a marked value, and the curve is X's."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "normal", "no normal curve")
+    need(abs(mpmath.mpf(g["mu"]) - mu) < mpmath.mpf("1e-6") and abs(mpmath.mpf(g["sigma"]) - sg) < mpmath.mpf("1e-6"), "the curve is not X's")
+    labels = {float(nu_val(m["label"])): nu_val(m["label"]) for m in g["marks"]}
+    need(any(abs(k - float(mu)) < 1e-6 for k in labels), "the mean is not marked")
+
+    def at(x):
+        hit = [v for k, v in labels.items() if abs(k - float(x)) < 1e-6]
+        need(len(hit) == 1, f"the bound {x} is not marked")
+        return hit[0]
+
+    sh = g["shade"]
+    if len(sh) == 2:
+        need(sh[0][0] is None and sh[1][1] is None, "two tails are shaded from the ends")
+        return "out", at(sh[0][1]), at(sh[1][0])
+    a, b = sh[0]
+    if a is None:
+        return "lt", None, at(b)
+    if b is None:
+        return "gt", at(a), None
+    return "in", at(a), at(b)
+
+
+def np_inside(lo, hi, mu, sg):
+    top = 1 if hi is None else nu_phi((np_mp(hi) - mu) / sg)
+    low = 0 if lo is None else nu_phi((np_mp(lo) - mu) / sg)
+    return top - low
+
+
+def check_normal_probability(q):
+    with mpmath.workdps(40):
+        return np_check(q)
+
+
+def np_check(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 2, "these are Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z^])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    for sol in q["solutions"]:
+        if rep != "diagram":
+            need(not re.search(r"\b(shown|shaded region|the curve:|the drawn)\b", " ".join(sol["steps"])), f"{sol['name']}: talks about a figure the stem doesn't draw")
+        else:
+            need(not any(st.startswith("Sketch") for st in sol["steps"]), f"{sol['name']}: asks for a sketch of a drawn curve")
+    need((q["graph"] is not None) == (rep == "diagram"), "the figure belongs to the diagram representation, and only there")
+    side = NP_TYPE + "3"
+    wrongs, trap = {}, None
+
+    if u == "between-from-tails":
+        need(L[0] == "X ~ N(μ, σ²)" or L[0].endswith("are normally distributed."), f"{L[0]!r}")
+        x1, s1, p1 = nu_tail(q, 1)
+        x2, s2, p2 = nu_tail(q, 2)
+        need(s1 == "lt" and s2 == "gt" and x1 < x2 and p1 + p2 < 1, "two tails, the lower first")
+        mid = 1 - p1 - p2
+        if rep == "diagram":
+            nu_shaded(q, np_mp(mid))
+        else:
+            kind, lo, hi = np_from_text(asked, np_story(q)[1])
+            need((kind, lo, hi) == ("in", x1, x2), f"asked {asked!r}")
+        want = f"probability = {dec_text(mid)}"
+        wrongs[NP_TYPE + "10"] = {f"probability = {dec_text(1 - p1)}"}
+        wrongs[NP_TYPE + "11"] = {f"probability = {dec_text(p1 + p2)}"}
+        gc_check_common(q, want, wrongs, None)
+        return None, None
+
+    mu, sg, var = np_model(q)
+    need(sg <= mu / 4 or g.get("neg"), f"σ = {sg} is too large for a measure")
+    unit = np_story(q)[1]
+    if u == "recorded-value":
+        tx = " ".join(L[1:])
+        mt = re.search(rf"to the nearest ({NU_NUM})", tx)
+        mv = re.search(rf"recorded as ({NU_NUM})", asked)
+        need(mt is not None and mv is not None, f"can't read {tx!r} {asked!r}")
+        w, v = nu_val(mt.group(1)), nu_val(mv.group(1))
+        need(w in (1, sp.Rational(1, 10)) and (v / w).q == 1, f"{v} is not on the grid of {w}")
+        kind, lo, hi = "in", v - w / 2, v + w / 2
+    elif rep == "diagram":
+        kind, lo, hi = np_from_curve(q, mu, sg)
+    else:
+        src = L[1] if u in ("rejected-rule", "expected-rejected") else asked
+        kind, lo, hi = np_from_text(src, unit)
+    if lo is not None and hi is not None:
+        need(lo < hi, "the bounds are out of order")
+    inside = np_inside(lo, hi, mu, sg)
+    p = 1 - inside if kind == "out" else inside
+    other = 1 - p
+    need(nu_clear(p) and nu_clear(other), f"{p} is on a rounding edge")
+    need(mpmath.mpf("0.005") <= p <= mpmath.mpf("0.995"), f"the area {p}")
+    if u != "recorded-value":
+        for b in (lo, hi):
+            if b is not None:
+                need(abs(np_mp(b) - mu) >= sg / 10, f"{b} is within a tenth of σ of μ")
+    expect = {"prob-below": ("lt",), "prob-above": ("gt",), "prob-between": ("in",), "outside-interval": ("out",), "negative-lower-tail": ("lt",),
+              "rejected-rule": ("lt", "gt", "out"), "expected-rejected": ("lt", "gt", "out"), "percentage-in-range": ("lt", "gt", "in"),
+              "expected-number": ("lt", "gt", "in"), "exactly-in-sample": ("lt", "gt", "in"), "variance-given": ("lt", "gt", "in"), "recorded-value": ("in",)}
+    need(kind in expect[u], f"{u} with a region of kind {kind}")
+    label = "probability = "
+    if u in ("expected-number", "expected-rejected"):
+        mt = re.search(r"A random sample of (\d+) ", " ".join(L))
+        need(mt is not None, f"no sample size in {L}")
+        n = int(mt.group(1))
+        x = n * p
+        need(x >= 10 and nu_clear(x) and nu_clear(n * other), f"the count {x}")
+        want, trap = nu_text("expected number = ", x), bn_trap("expected number = ", nu_f(x))
+        wrongs[NP_SKILL + "2"] = {nu_text("expected number = ", p)}
+        wrongs[side] = {nu_text("expected number = ", n * other)}
+    elif u == "exactly-in-sample":
+        mt, mk = re.search(r"A random sample of (\d+) ", " ".join(L)), re.search(r"exactly (\d+) of them", asked)
+        need(mt is not None and mk is not None, f"can't read {L} {asked!r}")
+        n, k = int(mt.group(1)), int(mk.group(1))
+        need(0 < k < n, f"k = {k} of {n}")
+        pmf = lambda a, j: mpmath.binomial(n, j) * a ** j * (1 - a) ** (n - j)
+        x, cum, flip = pmf(p, k), mpmath.fsum(pmf(p, j) for j in range(k + 1)), pmf(other, k)
+        need(x >= mpmath.mpf("0.02") and nu_clear(x) and nu_clear(cum), f"the binomial values {x}, {cum}")
+        want, trap = nu_text(label, x), bn_trap(label, nu_f(x))
+        wrongs[NP_TYPE + "12"] = {nu_text(label, cum)}
+        wrongs[side] = {nu_text(label, flip)}
+    elif u == "percentage-in-range":
+        pc = "percentage" in asked
+        need(pc or "proportion" in asked, f"asked {asked!r}")
+        label = "percentage = " if pc else "proportion = "
+        tail = "%" if pc else ""
+        x = p * 100 if pc else p
+        want, trap = nu_text(label, x) + tail, bn_trap(label, nu_f(x))
+        trap = trap + tail if trap else None
+        wrongs[side] = {nu_text(label, other * 100 if pc else other) + tail}
+        if pc:
+            wrongs[NP_TYPE + "6"] = {nu_text(label, p) + tail}
+    else:
+        want, trap = nu_text(label, p), bn_trap(label, nu_f(p))
+        wrongs[side] = {nu_text(label, other)}
+    if u == "prob-between":
+        wrongs[NP_TYPE + "4"] = {nu_text(label, np_inside(None, hi, mu, sg))}
+    if kind == "out" and u in ("outside-interval", "rejected-rule"):
+        wrongs[NP_TYPE + "5"] = {nu_text(label, np_inside(None, lo, mu, sg))}
+    if u == "negative-lower-tail":
+        need(mu != 0 and hi > 0 and nu_phi(-mu / sg) > mpmath.mpf("0.05"), "X has no real area below 0")
+        wrongs[NP_SKILL + "1"] = {nu_text(label, np_inside(sp.Integer(0), hi, mu, sg))}
+    if u == "variance-given":
+        need(var is not None, "the variance is not written")
+        wrongs[NP_SKILL + "0"] = {nu_text(label, np_inside(lo, hi, mu, np_mp(var)))}
+    if u == "recorded-value":
+        wrongs[NP_TYPE + "7"] = {nu_text(label, np_inside(v - w, v + w, mu, sg))}
+        wrongs[NP_TYPE + "8"] = {nu_text(label, np_inside(v, hi, mu, sg))}
+    gc_check_common(q, want, wrongs, trap)
+    for o in q["choices"]:
+        if o.get("trap") and o["ref"] == NP_TYPE + "9":
+            need(R(o["text"].rsplit("= ", 1)[1]).q == 1, f"{o['text']!r} is tagged as a whole number")
+    # A sketch's claim about the area must hold.
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            mt = NP_LOOK.search(st)
+            if mt:
+                b = mpmath.mpf(mt.group(2))
+                need(p < b if mt.group(1) == "under" else p > b, f"{sol['name']}: {st!r} is false for {p}")
+    return None, None
+
+
+# ── algebraic-proof (t1-algebraic-proof, FAL-728) ────────────
+# The `algebraic-proof` situation's clean limits and exam exclusions, the checker's own copy: the
+# engine's is in game/engine/situations/algebraic_proof.gd. Every statement is built here from
+# its numbers with SymPy and proved: an identity by simplifying LHS − RHS to zero, and a claim
+# about every integer by the residues, since an integer polynomial's value mod m depends only on n
+# mod m. Each misconception's wrong value comes from doing that wrong maths here. Lines and
+# options are read back as expressions, so a wrong line can't be the right value written otherwise.
+
+PF_ID, PF_INT, PF_T = "SL1.6.identity-lhs-rhs#", "SL1.6.integer-proof#", "t1-algebraic-proof#"
+PF_ASSUME, PF_VALUES, PF_NO_END = PF_ID + "0", PF_ID + "1", PF_ID + "2"
+PF_SAME, PF_EXAMPLES, PF_BRACKET = PF_T + "3", PF_INT + "1", PF_INT + "2"
+PF_MID, PF_SQ, PF_SIGN, PF_PART, PF_SPLIT, PF_TOP, PF_GAPS, PF_COEF, PF_DOTS = (PF_T + str(i) for i in range(6, 15))
+PF_IDENTITY = ("simplify-left-side", "common-expression", "missing-line", "next-step", "valid-proof")
+PF_FACTOR = ("square-diff", "sym", "sym-mult")
+PF_N, PF_XV, PF_K = sp.Symbol("n"), sp.Symbol("x"), sp.Symbol("k")
+
+
+def pf_read(text):
+    """A line of working or an option, as an expression."""
+    s = text.strip().replace("−", "-").replace("²", "**2").replace("³", "**3").replace("⁴", "**4")
+    s = s.replace("½", "(1/2)").replace("[", "(").replace("]", ")")
+    return parse_expr(s, local_dict={"n": PF_N, "x": PF_XV, "k": PF_K}, transformations=TRANSFORMS)
+
+
+def pf_same(a, b):
+    return sp.simplify(a - b) == 0
+
+
+def pf_int_coeffs(e, *vs):
+    p = sp.Poly(sp.expand(e), *vs)
+    return all(c.is_integer for c in p.coeffs())
+
+
+def pf_divides_all(e, m, v):
+    """m divides e for every integer: e has whole coefficients, so its residues repeat mod m."""
+    need(pf_int_coeffs(e, v), f"{e} has a fraction in it")
+    return all(sp.expand(e).subs(v, r) % m == 0 for r in range(m))
+
+
+def pf_sq_mid(a, b):
+    return a**2 + a * b + b**2
+
+
+def pf_sq_kept(a, sign, b):
+    """(a ± b)² with each term squared and keeping its sign."""
+    return a**2 + sign * b**2
+
+
+def pf_poly(e, v):
+    """A polynomial as the game writes it, from its coefficients."""
+    p = sp.Poly(sp.expand(e), v)
+    out = ""
+    for (pw,), c in p.terms():
+        mag = abs(c)
+        name = {0: "", 1: v.name, 2: v.name + "²", 3: v.name + "³", 4: v.name + "⁴"}[pw]
+        body = str(mag) if pw == 0 else ("" if mag == 1 else str(mag)) + name
+        out += ("−" if c < 0 else "") + body if out == "" else (" − " if c < 0 else " + ") + body
+    return out or "0"
+
+
+def pf_plus(c):
+    return f" − {-c}" if c < 0 else f" + {c}"
+
+
+def pf_lead(c):
+    return "" if c == 1 else str(c)
+
+
+def pf_statement(g):
+    """(variable, left side as text, LHS, RHS or None, the simplified form as text or None), with the
+    statement's limits. The sides are built from the numbers alone."""
+    fam = g["fam"]
+    i = lambda k: int(g[k])
+    if fam == "square-diff":
+        d = i("d")
+        need(2 <= d <= 9, f"d = {d}")
+        n = PF_N
+        return n, f"(n{pf_plus(d)})² − n²", (n + d)**2 - n**2, d * (2 * n + d), pf_poly(2 * d * n + d**2, n)
+    if fam in ("sym", "sym-mult"):
+        p, q = i("p"), i("q")
+        need(2 <= p <= 7 and 1 <= q <= 7 and p != q and (p, q) not in ((2, 5), (3, 2)), f"p, q = {p}, {q}")
+        v = PF_XV if fam == "sym" else PF_N
+        text = f"({p}{v.name}{pf_plus(q)})² − ({p}{v.name}{pf_plus(-q)})²"
+        return v, text, (p * v + q)**2 - (p * v - q)**2, 4 * p * q * v, pf_poly(4 * p * q * v, v)
+    x = PF_XV
+    if fam == "shift":
+        a, b = i("a"), i("b")
+        need(a != 0 and b != 0 and abs(a) <= 8 and abs(b) <= 9 and a**2 + b != 0, f"a, b = {a}, {b}")
+        r = x**2 - 2 * a * x + a**2 + b
+        return x, f"(x{pf_plus(-a)})²{pf_plus(b)}", (x - a)**2 + b, r, pf_poly(r, x)
+    if fam == "combine":
+        p, q, c, d = i("p"), i("q"), i("c"), i("d")
+        need(1 <= p <= 6 and 1 <= c <= 15 and q != 0 and d != 0 and (p, q, c, d) != (2, -3, 6, 1), "the numbers are out of range")
+        top = sp.expand((p * x + q) * (x - d) - c)
+        need(all(c_ != 0 for c_ in sp.Poly(top, x).all_coeffs()), f"a term of {top} is missing")
+        den = f"(x{pf_plus(-d)})"
+        return x, f"{pf_lead(p)}x{pf_plus(q)} − {c}/{den}", p * x + q - c / (x - d), top / (x - d), f"({pf_poly(top, x)})/{den}"
+    if fam == "split":
+        a = i("a")
+        need(a not in (0, 1) and abs(a) <= 9, f"a = {a}")
+        return x, f"(x{pf_plus(-a)})²/x", (x - a)**2 / x, x - 2 * a + a**2 / x, f"x{pf_plus(-2 * a)} + {a**2}/x"
+    if fam == "triple":
+        k = i("k")
+        need(2 <= k <= 6, f"k = {k}")
+        kk = k * k
+        l_ = x**2 + ((x**2 - kk) / (2 * k))**2
+        r = ((x**2 + kk) / (2 * k))**2
+        return x, f"x² + ((x² − {kk})/{2 * k})²", l_, r, f"({pf_poly(x**4 + 2 * kk * x**2 + kk**2, x)})/{4 * kk}"
+    if fam == "reciprocal":
+        a, d = i("a"), i("d")
+        n = PF_N
+        need(2 <= a <= 7 and 2 <= d <= 9, f"a, d = {a}, {d}")
+        return n, f"{a}/n − {a}/(n + {d})", sp.Rational(a) / n - sp.Rational(a) / (n + d), sp.Rational(a * d) / (n * (n + d)), f"{a * d}/(n(n + {d}))"
+    if fam == "ap":
+        n = PF_N
+        u, v, w, c = i("u"), i("v"), i("w"), i("c")
+        kind = g["kind"]
+        need(u == w and (u, v) == {"integers": (1, 0), "evens": (2, 0), "odds": (2, 1)}.get(kind, (u, v)), "the list is not its kind")
+        need(kind != "steps" or (u in (3, 4, 5) and 1 <= v < u), "the list is out of range")
+        terms = [u * n + v + t * w for t in range(c)]
+        head = pf_lead(u) + "n"
+        text = " + ".join(head if v + t * w == 0 else f"({head}{pf_plus(v + t * w)})" for t in range(c))
+        return n, text, sum(terms), None, pf_poly(sum(terms), n)
+    need(False, f"no statement {fam}")
+
+
+def pf_ap_numbers(g):
+    """The list's sum as big·n + tail, hcf and all, solved from the terms."""
+    _, _, s, _, _ = pf_statement(g)
+    big, tail = sp.Poly(s, PF_N).all_coeffs()
+    # The largest whole number that divides every value, from the values themselves.
+    m = sp.gcd([s.subs(PF_N, t) for t in range(1, 30)])
+    need(m == sp.gcd(big, tail) and m > 1, "the sum has no common factor")
+    need(int(g["big"]) == big and int(g["tail"]) == tail and int(g["m"]) == m, "the sum's numbers are wrong")
+    return s, int(big), int(tail), int(m)
+
+
+def pf_slips(g, factor=False):
+    """ref -> the value that wrong move gives, each worked out here by making the move."""
+    fam = g["fam"]
+    i = lambda k: int(g[k])
+    if factor:
+        if fam == "square-diff":
+            a, b = PF_N + i("d"), PF_N
+        else:
+            v = PF_XV if fam == "sym" else PF_N
+            a, b = i("p") * v + i("q"), i("p") * v - i("q")
+        return {PF_DOTS: (a + b) * (a + b)}
+    if fam == "square-diff":
+        n, d = PF_N, i("d")
+        return {PF_MID: pf_sq_mid(n, d) - n**2, PF_SQ: pf_sq_kept(n, 1, d) - n**2}
+    if fam in ("sym", "sym-mult"):
+        v = PF_XV if fam == "sym" else PF_N
+        a, b = i("p") * v, i("q")
+        return {PF_MID: pf_sq_mid(a, b) - pf_sq_mid(a, -b), PF_SQ: pf_sq_kept(a, 1, b) - pf_sq_kept(a, -1, b),
+                # The minus misses the last term of the second bracket.
+                PF_SIGN: (a + b)**2 - (a**2 - 2 * a * b) + b**2}
+    x = PF_XV
+    if fam == "shift":
+        a, b = i("a"), i("b")
+        return {PF_MID: pf_sq_mid(x, -a) + b, PF_SQ: pf_sq_kept(x, -sp.sign(a), a) + b, PF_SIGN: (x + a)**2 + b}
+    if fam == "combine":
+        p, q, c, d = i("p"), i("q"), i("c"), i("d")
+        return {PF_PART: (p * x * (x - d) + q - c) / (x - d), PF_SIGN: (p * x * (x - d) + q * x + q * d - c) / (x - d)}
+    if fam == "split":
+        a = i("a")
+        return {PF_SPLIT: x - 2 * a + a**2, PF_MID: pf_sq_mid(x, -a) / x, PF_SQ: pf_sq_kept(x, -sp.sign(a), a) / x}
+    if fam == "triple":
+        k = i("k")
+        kk = k * k
+        return {PF_SQ: x**2 + pf_sq_kept(x**2, -1, kk) / (4 * kk), PF_TOP: x**2 + (x**2 - kk)**2 / (2 * k)}
+    if fam == "reciprocal":
+        a, d, n = i("a"), i("d"), PF_N
+        den = n * (n + d)
+        return {PF_PART: (a * n + d - a * n) / den, PF_SIGN: (a * n + a * d + a * n) / den}
+    if fam == "ap":
+        n, u, v, w, c = PF_N, i("u"), i("v"), i("w"), i("c")
+        return {PF_GAPS: sum(u * n + v + (t + 1) * w for t in range(c))}
+    need(False, f"no slips for {fam}")
+
+
+def pf_options(q, label, value, slips, want, steps=(2, 14), read=pf_read, side_steps=True):
+    """Every option read back: the right one has the value, a tagged one the value its slip gives,
+    and an untagged one any other value. want is the answer's text, from the checker's own numbers."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = read(o["text"][len(label):])
+        if o["correct"]:
+            need(pf_same(v, value), f"the right option {o['text']!r} has the wrong value")
+        else:
+            need(not pf_same(v, value), f"the wrong option {o['text']!r} has the right value")
+            if o["ref"]:
+                need(o["ref"] in slips, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+                need(pf_same(v, slips[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives ({slips[o['ref']]})")
+    pf_shared(q, want, steps)
+
+
+def pf_shared(q, want, steps=(2, 14)):
+    tr_hyphens(q)
+    ch = q["choices"]
+    gc_check_common(q, want, {o["ref"]: {o["text"]} for o in ch if o["ref"]}, steps=steps)
+
+
+def pf_steps(q, sides):
+    """Every line of working: 'NAME = expression' has the value of that name."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            tail = st.rsplit(": ", 1)[-1]
+            m = re.fullmatch(r"(L|LHS|RHS|E|S) = ([^,]+?)\.?", tail)
+            if m and m.group(1) in sides:
+                need(pf_same(pf_read(m.group(2)), sides[m.group(1)]), f"{sol['name']}: {st!r} has the wrong value")
+
+
+def pf_shown_proof(q, lhs, name="LHS"):
+    """The numbered lines of a proof: [(line number, text)], in order, from 1."""
+    out = []
+    for ln_ in q["lines"]:
+        m = re.fullmatch(r"Line (\d+): (.*)", ln_)
+        if not m:
+            continue
+        no, body = int(m.group(1)), m.group(2)
+        need(no == len(out) + 1, f"line {no} is out of order")
+        if no == 1:
+            need(body.startswith(f"{name} = "), f"can't read {ln_!r}")
+            body = body[len(name) + 3:]
+            need(pf_same(pf_read(body), lhs), f"line 1 is not the statement: {ln_!r}")
+        elif body != "?":
+            need(body.startswith("= "), f"can't read {ln_!r}")
+            body = body[2:]
+        out.append((no, body))
+    need(out, "no proof is shown")
+    return out
+
+
+def pf_claim(g, left_text, right_text, dom=""):
+    return f"Prove that {left_text} ≡ {right_text}{dom}."
+
+
+def pf_domain(g):
+    if g["fam"] == "combine":
+        return ", for x ≠ " + frac_text(int(g["d"]))
+    if g["fam"] == "split":
+        return ", for x ≠ 0"
+    if g["fam"] == "reciprocal":
+        return ", for n ≠ 0 and n ≠ −" + str(g["d"])
+    return ""
+
+
+def pf_two(g, v):
+    return f"{g['p']}{v}{pf_plus(int(g['q']))}", f"{g['p']}{v}{pf_plus(-int(g['q']))}"
+
+
+def pf_claim_in_words(g):
+    """Words for the two statements a sentence can prove."""
+    if g["fam"] == "square-diff":
+        d = g["d"]
+        return [f"Two integers differ by {d}: n and n + {d}.", f"Prove that the difference of their squares is {d} times their sum."]
+    a, b = pf_two(g, "x")
+    return [f"Two numbers are {a} and {b}.", f"Prove that the square of the first minus the square of the second is {4 * int(g['p']) * int(g['q'])}x."]
+
+
+def pf_named(g, rep, nm, left_text):
+    """The expression named, as the question shows it."""
+    if rep != "words":
+        return [f"{nm} = {left_text}"]
+    fam = g["fam"]
+    if fam == "square-diff":
+        d = g["d"]
+        return [f"Two integers differ by {d}: n and n + {d}.", f"{nm} is the square of the larger minus the square of the smaller."]
+    if fam == "sym":
+        a, b = pf_two(g, "x")
+        return [f"Two numbers are {a} and {b}.", f"{nm} is the square of the first minus the square of the second."]
+    if fam == "sym-mult":
+        a, b = pf_two(g, "n")
+        return [f"Two numbers are {a} and {b}, where n is a positive integer.", f"{nm} is the square of the first minus the square of the second."]
+    u, v, w, c, kind = int(g["u"]), int(g["v"]), int(g["w"]), int(g["c"]), g["kind"]
+    first = pf_lead(u) + "n" + (pf_plus(v) if v else "")
+    noun = {"integers": "integers", "evens": "even numbers", "odds": "odd numbers"}.get(kind)
+    what = f"{c} consecutive {noun}" if noun else f"{c} numbers, each {w} more than the one before"
+    return [f"{nm} is the sum of {what}, and the smallest is {first}, where n is a positive integer."]
+
+
+def pf_identity(q, g, u, rep, angle):
+    v, left_text, lhs, rhs, simple = pf_statement(g)
+    fam, paper = g["fam"], q["paper"]
+    need(pf_same(lhs, rhs), f"{fam}: LHS and RHS are not identical")
+    factor = angle == "factorise" and fam in PF_FACTOR
+    slips = pf_slips(g, factor)
+    # The right side as the statement writes it.
+    right_text = {"square-diff": f"{g.get('d')}(2n + {g.get('d')})", "triple": f"((x² + {int(g.get('k', 0))**2})/{2 * int(g.get('k', 0))})²"}.get(fam, simple)
+    # Each proof shown ends on the right side.
+    claim = pf_claim(g, left_text, right_text, pf_domain(g))
+    if u == "simplify-left-side":
+        need(q["lines"] == pf_named(g, rep, "L", left_text), f"can't read {q['lines']}")
+        pf_options(q, "L = ", lhs, slips, "L = " + simple)
+        pf_steps(q, {"L": lhs})
+    elif u == "common-expression":
+        need(fam in ("square-diff", "shift", "split", "triple"), "no common form to reach")
+        left_form = {"square-diff": simple, "shift": simple, "split": f"(x²{pf_plus(-2 * int(g.get('a', 0)))}x + {int(g.get('a', 0))**2})/x", "triple": simple}[fam]
+        right_shown = {"shift": f"x(x{pf_plus(-2 * int(g.get('a', 0)))}){pf_plus(int(g.get('a', 0))**2 + int(g.get('b', 0)))}"}.get(fam, right_text)
+        need(q["lines"] == [pf_claim(g, left_text, right_shown, pf_domain(g))], f"can't read {q['lines']}")
+        need(pf_same(pf_read(right_shown), rhs), "the shown right side is another expression")
+        pf_options(q, "", lhs, slips, left_form)
+        pf_steps(q, {"LHS": lhs, "RHS": rhs})
+    elif u == "missing-line":
+        head = pf_claim_in_words(g) if rep == "words" else [claim]
+        need(q["lines"][:len(head)] == head, f"can't read {q['lines']}")
+        shown = pf_shown_proof(q, lhs)
+        hide = int(g["hide"])
+        need(0 < hide < len(shown) - 1, "the hidden line is the first or the last")
+        for no, body in shown:
+            need((body == "?") == (no == hide + 1), f"line {no} is {body!r}")
+            if body != "?":
+                need(pf_same(pf_read(body), lhs), f"line {no} is not the left side: {body}")
+        need(shown[-1][1] == right_text, f"the proof ends on {shown[-1][1]!r}, not the right side")
+        label = f"Line {hide + 1}: "
+        need(q["answer_text"].startswith(label), f"the answer is {q['answer_text']!r}")
+        pf_options(q, label, lhs, slips, q["answer_text"])
+        pf_steps(q, {"LHS": lhs})
+    elif u == "next-step":
+        need(q["lines"][0] == claim, f"can't read {q['lines']}")
+        shown = pf_shown_proof(q, lhs)
+        at = int(g["at"])
+        need(len(shown) == at, "the proof stops at the wrong line")
+        for no, body in shown:
+            need(pf_same(pf_read(body), lhs), f"line {no} is not the left side")
+        lit = sp.Symbol(v.name)
+        for o in q["choices"]:
+            t = o["text"]
+            if o["ref"] == PF_ASSUME:
+                need(t == f"{left_text} − ({right_text}) = 0", f"can't read {t!r}")
+                continue
+            if o["ref"] == PF_VALUES:
+                m = re.fullmatch(rf"Put {v.name} = (\d+): both sides equal (.+)\.", t)
+                need(m, f"can't read {t!r}")
+                pt, val = int(m.group(1)), pf_read(m.group(2))
+                need(lhs.subs(v, pt) == val and sp.nsimplify(rhs).subs(v, pt) == val, f"{t!r}: the values are not the sides'")
+                continue
+            need(t.startswith("= "), f"can't read {t!r}")
+            val = pf_read(t[2:])
+            if o["correct"]:
+                need(pf_same(val, lhs), f"the next line {t!r} is not the left side")
+                need(t[2:] not in [b for _, b in shown], f"{t!r} is a line already there")
+            else:
+                need(not pf_same(val, lhs), f"the wrong line {t!r} is equal to the left side")
+                if o["ref"]:
+                    need(o["ref"] in slips and pf_same(val, slips[o["ref"]]), f"{t!r} is not what {o['ref']} gives")
+        need(all(o["ref"] in (PF_ASSUME, PF_VALUES) or o["correct"] or o["text"].startswith("= ") for o in q["choices"]), "an option has another shape")
+        pf_shared(q, q["answer_text"])
+        pf_steps(q, {"LHS": lhs})
+    elif u == "valid-proof":
+        need(fam in ("square-diff", "sym", "shift"), f"{fam} in a whole proof")
+        need(q["lines"] == [claim], f"can't read {q['lines']}")
+        m = re.fullmatch(r"LHS = (.+?) = (.+?) = RHS, so LHS ≡ RHS\.", q["answer_text"])
+        need(m, f"can't read {q['answer_text']!r}")
+        need(pf_same(pf_read(m.group(1)), lhs) and m.group(2) == right_text, "the proof doesn't run from the left side to the right")
+        need(sorted(o["ref"] for o in q["choices"]) == sorted(["", PF_ASSUME, PF_VALUES, PF_NO_END]), "the options are not the three false proofs")
+        for o in q["choices"]:
+            t = o["text"]
+            if o["ref"] == PF_ASSUME:
+                need(t == "Assume LHS = RHS. Take the RHS from both sides: 0 = 0, so LHS ≡ RHS.", f"can't read {t!r}")
+            elif o["ref"] == PF_VALUES:
+                nm = v.name
+                m2 = re.fullmatch(rf"At {nm} = 1 both sides are (.+) and at {nm} = 2 both are (.+), so LHS ≡ RHS\.", t)
+                need(m2 and lhs.subs(v, 1) == pf_read(m2.group(1)) and rhs.subs(v, 2) == pf_read(m2.group(2)), f"{t!r}: the values are not the sides'")
+            elif o["ref"] == PF_NO_END:
+                need(t == f"LHS = {m.group(1)}", f"{t!r} is not the proof stopped early")
+                need(not t.endswith(right_text), "it reached the right side")
+        pf_shared(q, q["answer_text"])
+        pf_steps(q, {"LHS": lhs})
+
+
+def pf_flawed(q, g, angle):
+    v, left_text, lhs, rhs, simple = pf_statement(g)
+    fam = g["fam"]
+    nm = {"sym-mult": "E", "ap": "S"}.get(fam, "LHS")
+    if fam in ("sym-mult", "ap"):
+        s_ = lhs
+        m_ = int(g["m"])
+        need(pf_divides_all(s_, m_, v), f"{m_} does not divide {s_} for every integer")
+        need(q["lines"][:2] == [f"{nm} = {left_text}", f"Prove that {nm} is a multiple of {m_} for every positive integer n."], f"can't read {q['lines']}")
+    else:
+        need(pf_same(lhs, rhs), "the identity does not hold")
+    slips = pf_slips(g)
+    shown = pf_shown_proof(q, lhs, nm)
+    # The first line that isn't the left side, found here.
+    bad = [no for no, body in shown if not pf_same(pf_read(body), lhs)]
+    need(bad, "every line of the proof is right")
+    first = bad[0]
+    need(all(no in bad for no, _ in shown if no > first), "a later line goes back to being right")
+    ref = [r for r, e in slips.items() if pf_same(pf_read(dict(shown)[first]), e)]
+    need(ref, f"line {first} is no slip the type names: {dict(shown)[first]}")
+    need(int(g["at"]) == first - 1, "the situation names another line")
+    need(q["answer_text"].startswith(f"Line {first} should read: "), f"the answer is {q['answer_text']!r}, but line {first} is the first wrong line")
+    read = lambda t: re.fullmatch(r"Line (\d+) should read: (.+)", t)
+    for o in q["choices"]:
+        m = read(o["text"])
+        need(m, f"can't read {o['text']!r}")
+        no, val = int(m.group(1)), pf_read(m.group(2))
+        if o["correct"]:
+            need(no == first and pf_same(val, lhs), f"the right option {o['text']!r} doesn't correct line {first}")
+        else:
+            need(no != first or not pf_same(val, lhs), f"the wrong option {o['text']!r} is a correction of line {first}")
+            if o["ref"]:
+                need(o["ref"] in slips and pf_same(val, slips[o["ref"]]), f"{o['text']!r} is not what {o['ref']} gives")
+    pf_shared(q, q["answer_text"])
+    pf_steps(q, {nm: lhs})
+
+
+def pf_multiple(q, g, rep, angle):
+    n = PF_N
+    _, left_text, e, _, _ = pf_statement(g)
+    p, q0, m = int(g["p"]), int(g["q"]), int(g["m"])
+    total = 4 * p * q0
+    need(total % m == 0 and 2 < m < total, f"m = {m} is not a proper divisor of {total}")
+    need(pf_divides_all(e, m, n), f"{m} does not divide E for every integer")
+    k = sp.expand(e) / m
+    need(pf_int_coeffs(k, n), "k has a fraction in it")
+    need(q["lines"] == pf_named(g, rep, "E", left_text) + ([] if rep == "words" else ["n is an integer."]) + [f"E is a multiple of {m}: E = {m}k."], f"can't read {q['lines']}")
+    slips = {r: sp.expand(v) / m for r, v in pf_slips(g, angle == "factorise").items()}
+    pf_options(q, "k = ", k, slips, "k = " + pf_poly(k, n))
+    pf_steps(q, {"E": e})
+
+
+def pf_divides_text(q, g, rep):
+    s, big, tail, m = pf_ap_numbers(g)
+    _, left_text, _, _, _ = pf_statement(g)
+    return s, big, tail, m, pf_named(g, rep, "S", left_text)
+
+
+def check_algebraic_proof(q):
+    g, u, rep, angle, paper = q["given"], q["view"]["unknown"], q["view"]["rep"], q["view"]["angle"], q["paper"]
+    if u in PF_IDENTITY or (u == "flawed-step" and angle == "expand-simplify"):
+        need(paper in (1, 2), f"paper {paper}")
+    else:
+        need(paper == 1, f"{u} is Paper 1 in the bank, not Paper {paper}")
+    if u in PF_IDENTITY:
+        pf_identity(q, g, u, rep, angle)
+    elif u == "flawed-step":
+        pf_flawed(q, g, angle)
+    elif u == "multiple-k":
+        pf_multiple(q, g, rep, angle)
+    elif u in ("consecutive-sum", "greatest-divisor", "finish-divisibility"):
+        s, big, tail, m, shown = pf_divides_text(q, g, rep)
+        n = PF_N
+        need(pf_divides_all(s, m, n), f"{m} does not divide S for every integer")
+        need(q["lines"][:len(shown)] == shown, f"can't read {q['lines']}")
+        if u == "consecutive-sum":
+            pf_options(q, "S = ", s, pf_slips(g), f"S = {m}({pf_poly(s / m, n)})")
+            pf_steps(q, {"S": s})
+        elif u == "greatest-divisor":
+            need(big > m, "the coefficient of n is the answer")
+            label = "greatest divisor = "
+            for o in q["choices"]:
+                x = int(o["text"][len(label):])
+                need(o["correct"] == (x == m), f"option {x}: the greatest divisor is {m}")
+                # Anything larger than m fails for some n.
+                need(x <= m or not pf_divides_all(s, x, n), f"{x} divides every value too")
+                if o["ref"] == PF_BRACKET:
+                    need(x == big and tail % big != 0, f"{x} is not the coefficient that leaves a fraction")
+                elif o["ref"] == PF_EXAMPLES:
+                    need(x == s.subs(n, 1), f"{x} is not the value at n = 1")
+            pf_shared(q, label + str(m))
+            pf_steps(q, {"S": s})
+        else:
+            need(big > m, "no fraction is left by the coefficient of n")
+            need(q["lines"][len(shown):] == [f"S = {pf_poly(s, n)}"], f"can't read {q['lines']}")
+            for o in q["choices"]:
+                t = o["text"]
+                if o["ref"] == PF_BRACKET:
+                    r = re.fullmatch(rf"S = {big}\(n \+ (\d+/\d+)\), and {big} is a multiple of {m}\.", t)
+                    need(r, f"can't read {t!r}")
+                    f = sp.Rational(r.group(1))
+                    need(pf_same(big * (n + f), s) and f.q != 1, f"{t!r}: the bracket is an integer or the line is false")
+                elif o["ref"] == PF_EXAMPLES:
+                    r = re.fullmatch(rf"S = (\d+) when n = 1 and (\d+) when n = 2, and both are multiples of {m}\.", t)
+                    need(r and s.subs(n, 1) == int(r.group(1)) and s.subs(n, 2) == int(r.group(2)), f"{t!r}: the values are not S's")
+                else:
+                    r = re.fullmatch(rf"S = {m}\((.+)\), and (.+) is an integer\.", t)
+                    need(r and r.group(1) == r.group(2), f"can't read {t!r}")
+                    inner = pf_read(r.group(1))
+                    need(pf_int_coeffs(inner, n), f"{t!r}: the bracket has a fraction")
+                    need(pf_same(m * inner, s) == o["correct"], f"{t!r} is marked {o['correct']}")
+            pf_shared(q, q["answer_text"])
+            pf_steps(q, {"S": s})
+    elif u == "represent-integers":
+        pf_represent(q, g)
+    elif u == "case-bracket":
+        pf_cases(q, g, rep)
+    elif u == "consecutive-factors":
+        pf_product(q, g, rep)
+    elif u == "remainder-form":
+        pf_never(q, g, rep)
+    else:
+        need(False, f"no check for {u}")
+    return None, None
+
+
+def pf_represent(q, g):
+    m, r, claim, a, b = int(g["m"]), int(g["r"]), g["claim"], g["l1"], g["l2"]
+    need(2 <= m <= 9 and 0 <= r < m and a != b, "the numbers are out of range")
+    # The claim, tried on every pair in a range wide enough to cover all residues.
+    holds = {"sum-even": lambda x, y: (x + y) % 2 == 0, "product-odd": lambda x, y: (x * y) % 2 == 1, "product-four": lambda x, y: (x * y) % 4 == 0,
+             "sum-multiple": lambda x, y: (x + y) % m == 0, "difference-multiple": lambda x, y: (x - y) % m == 0}[claim]
+    need(claim not in ("product-odd",) or (m, r) == (2, 1), "the claim is on another kind")
+    need(claim != "product-four" or (m, r) == (2, 0), "the claim is on another kind")
+    need(claim != "sum-even" or m == 2, "the claim is on another kind")
+    need(claim != "sum-multiple" or r == 0, "the claim is on another kind")
+    pool = [m * t + r for t in range(-20, 21)]
+    need(all(holds(x, y) for x in pool for y in pool), f"the claim {claim} is false for {m}k + {r}")
+    tx = lambda letter, shift=0: f"{'' if m == 1 else m}{letter}" + (pf_plus(r + shift) if r + shift else "")
+    want = f"Let them be {tx(a)} and {tx(b)}, for integers {a} and {b}."
+    wrongs = {PF_SAME: f"Let them be {tx(a)} and {tx(a)}, for an integer {a}.", PF_EXAMPLES: f"Take {m + r} and {2 * m + r}, and check that the claim holds for them."}
+    for o in q["choices"]:
+        if o["ref"]:
+            need(o["text"] == wrongs[o["ref"]], f"option {o['text']!r} is not what {o['ref']} gives")
+        elif not o["correct"]:
+            need(o["text"] == f"Let them be {tx(a)} and {tx(a, m)}, for an integer {a}.", f"can't read {o['text']!r}")
+    # Which pairs each opening reaches. Only two letters reach every pair of this kind.
+    need({o["ref"] for o in q["choices"]} == {"", PF_SAME, PF_EXAMPLES}, "the options are not the three openings")
+    pairs = [(x, y) for x in pool for y in pool]
+    need(all((x - r) % m == 0 and (y - r) % m == 0 for x, y in pairs), "two letters miss a pair")
+    need(any(x != y for x, y in pairs) and any(y - x not in (0, m) for x, y in pairs), "the one-letter openings reach every pair")
+    pf_shared(q, want)
+    need(any(tx(a) in s_ for s_ in q["solutions"][0]["steps"]), "the working doesn't use the numbers")
+    last = q["solutions"][0]["steps"][2]
+    t0 = sp.Symbol(a)
+    t1 = sp.Symbol(b)
+    e1, e2 = m * t0 + r, m * t1 + r
+    need(pf_two_step(last, claim, e1, e2, m, a, b), f"can't confirm the working: {last!r}")
+
+
+def pf_two_step(step, claim, e1, e2, m, a, b):
+    """The proof the working gives, read by its equals signs, from the two letters."""
+    syms = {a: sp.Symbol(a), b: sp.Symbol(b)}
+    body = step.removeprefix("Then the proof runs: ").split(", and ")[0]
+    read = lambda t: parse_expr(re.sub(rf"(?<=[{a}{b}\d])(?=[{a}{b}(])", "*", t.strip().replace("−", "-")), local_dict=syms, transformations=TRANSFORMS)
+    parts = [read(p) for p in body.split(" = ")]
+    want = {"sum-even": e1 + e2, "sum-multiple": e1 + e2, "difference-multiple": e1 - e2}.get(claim, e1 * e2)
+    return all(pf_same(p, want) for p in parts)
+
+
+def pf_cases(q, g, rep):
+    a, b, part = int(g["a"]), int(g["b"]), g["part"]
+    n, k = PF_N, PF_K
+    need(a % 2 == 1 and b % 2 == 0 and abs(a) <= 9 and -8 <= b <= 12, f"a, b = {a}, {b}")
+    e = n**2 + a * n + b
+    need(pf_divides_all(e, 2, n), "E is not always even")
+    sub = 2 * k if part == "even" else 2 * k + 1
+    ek = sp.expand(e.subs(n, sub))
+    need(pf_int_coeffs(ek / 2, k), "the bracket has a fraction")
+    if part == "even":
+        slips = {PF_COEF: 2 * k**2 + a * sub + b}
+    else:
+        slips = {PF_SQ: pf_sq_kept(2 * k, 1, 1) + a * sub + b, PF_MID: pf_sq_mid(2 * k, 1) + a * sub + b}
+    name = "2k" if part == "even" else "2k + 1"
+    first = f"E = {pf_poly(e, n)}, where n is an integer." if rep != "words" else f"Take an integer n. Square it, add {frac_text(a)} times n, and add {frac_text(b)}. Call the result E."
+    need(q["lines"] == [first, f"Case: n is {part}, so n = {name} for an integer k."], f"can't read {q['lines']}")
+    pf_options(q, "E = ", ek, slips, f"E = 2({pf_poly(ek / 2, k)})")
+    pf_steps(q, {"E": ek})
+
+
+def pf_product(q, g, rep):
+    m, n = int(g["m"]), PF_N
+    need(0 < abs(m) <= 8 and m != -1, f"m = {m}")
+    e = sp.expand((n + m) * (n + m + 1))
+    a, b = sp.Poly(e, n).all_coeffs()[1:]
+    first = f"E = {pf_poly(e, n)}, where n is an integer." if rep != "words" else f"Take an integer n. Square it, add {frac_text(a)} times n, and add {frac_text(b)}. Call the result E."
+    need(q["lines"] == [first], f"can't read {q['lines']}")
+    need(pf_divides_all(e, 2, n), "E is not always even")
+    pf_options(q, "E = ", e, {}, f"E = (n{pf_plus(m)})(n{pf_plus(m + 1)})")
+    need(q["answer"]["unordered"] == [["p", "q"]], "the brackets can't be typed in either order")
+
+
+def pf_never(q, g, rep):
+    n, d, m, shape = PF_N, int(g["d"]), int(g["m"]), g["shape"]
+    if shape == "three":
+        need(m == 3 and d in (2, 4, 5, 7), f"d = {d}")
+        e = (n - d)**2 + n**2 + (n + d)**2
+        text = f"(n − {d})² + n² + (n + {d})²"
+        who = f"the three integers n − {d}, n and n + {d}"
+        slips = {PF_SQ: pf_sq_kept(n, -1, d) + n**2 + pf_sq_kept(n, 1, d)}
+        bracket = n**2
+    else:
+        need(m == 2 and d in (3, 5, 7), f"d = {d}")
+        e = n**2 + (n + d)**2
+        text = f"n² + (n + {d})²"
+        who = f"the two integers n and n + {d}"
+        slips = {PF_SQ: n**2 + pf_sq_kept(n, 1, d)}
+        bracket = n**2 + d * n
+    e = sp.expand(e)
+    # Never divisible: no residue of n gives 0, and so no integer does.
+    residues = {e.subs(n, t) % m for t in range(m)}
+    need(0 not in residues and len(residues) == 1, f"{m} divides S for some n, or the remainder changes")
+    r = residues.pop()
+    q0 = sp.Rational(sp.expand(e - m * bracket - r), m)
+    need(q0.q == 1, "the bracket has a fraction")
+    need(q["lines"] == ([f"S is the sum of the squares of {who}, where n is an integer."] if rep == "words" else [f"S = {text}, where n is an integer."]), f"can't read {q['lines']}")
+    want = f"S = {m}({pf_poly(bracket + q0, n)}){pf_plus(r)}"
+    # A bracket with a fraction has S's value, and that is its fault.
+    for o in q["choices"]:
+        if o["ref"] == PF_BRACKET:
+            v = pf_read(o["text"][4:])
+            need(pf_same(v, e), f"{o['text']!r} is not S")
+            inner = sp.expand(v / m)
+            need(not pf_int_coeffs(inner, n), f"{o['text']!r} has a whole bracket")
+    rest = dict(q, choices=[o for o in q["choices"] if o["ref"] != PF_BRACKET])
+    for o in rest["choices"]:
+        need(o["text"].startswith("S = "), f"{o['text']!r} has another shape")
+        v = pf_read(o["text"][4:])
+        need(pf_same(v, e) == o["correct"], f"{o['text']!r} is marked {o['correct']}")
+        if o["ref"]:
+            need(pf_same(v, slips[o["ref"]]), f"{o['text']!r} is not what {o['ref']} gives")
+    pf_shared(q, want)
+    pf_steps(q, {"S": e})
+
+
+# ── basic-probability (t4-probability-basic, FAL-728) ────────
+# The `basic-probability` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/basic_probability.gd. Each question's facts are read back from what the
+# student sees (the story, the table, the bar chart, the tree, the curve); only the story's index
+# comes from `given`. Outcomes are enumerated or counted again with exact rationals.
+
+PB_EL, PB_CO, PB_RF = "SL4.5.equally-likely#", "SL4.5.complement#", "SL4.5.relative-frequency#"
+PB_T = "t4-probability-basic#"
+PB_REST, PB_OLD_TOTAL, PB_OLD_COUNT, PB_EVENT, PB_BOUNDARY, PB_ONE_RULE, PB_WHOLE_RUN = [PB_T + str(i) for i in range(6, 13)]
+PB_EDGE = sp.Rational(3, 100)
+PB_P1_TOTALS = {20, 25, 40, 50, 80, 100, 200}
+PB_COLOURS = "red|blue|green|white|black"
+PB_TWO_WAY = [(["is from the camp", "is from the road"], ["carries a knife", "carries a bow", "carries a rifle"]),
+              (["works the north road", "works the south road"], ["sells salt", "sells fuel", "sells seed"]),
+              (["works days", "works nights"], ["stands at the gate", "stands on the wall", "stands in the tower"]),
+              (["drives a truck", "rides a bike"], ["carries fuel", "carries water", "carries parts"])]
+PB_NUM = r"\d+(?:\.\d+)?(?:/\d+)?"
+
+
+def pb_clear(v):
+    """A 3 s.f. answer: it needs rounding, and sits clear of a rounding edge."""
+    v = sp.Rational(v)
+    e = 0
+    while sp.Rational(10) ** e > v:
+        e -= 1
+    scaled = v / sp.Rational(10) ** (e - 2)
+    return sp.Rational(sig3(v)) != v and abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= PB_EDGE
+
+
+def pb_shown(v, form):
+    return {"frac": frac_text, "dec": dec_text, "sf": rg_s}[form](v)
+
+
+def pb_set(q, v, table, label="probability = "):
+    """want, trap and wrongs for a probability v; `table` is ref -> the values that mistake gives."""
+    form = q["given"]["form"]
+    need(form in ("frac", "dec", "sf"), f"form {form}")
+    need(0 < v < 1, f"the answer {v} is not a probability")
+    if form == "sf":
+        need(q["paper"] == 2, "3 s.f. is Paper 2 only")
+        need(pb_clear(v), f"{v} needs no rounding, or sits on a rounding edge")
+    if form == "dec":
+        need("/" not in dec_text(v), f"{v} doesn't end as a decimal")
+    wrongs = {ref: {label + pb_shown(x, form) for x in xs if 0 < x < 1} for ref, xs in table.items()}
+    trap = bn_trap(label, v) if form == "sf" else None
+    return label + pb_shown(v, form), trap, wrongs
+
+
+def pb_two_cols(q):
+    """The first row's heads and the second row's values of a two-row table."""
+    rows = q["table"]["rows"]
+    need(len(rows) == 2 and len(rows[0][1]) == len(rows[1][1]), "not a two-row table")
+    return rows[0][1], rows[1][1]
+
+
+def pb_colours(q):
+    """colour -> count, from the story or the table."""
+    if q["table"] is not None:
+        heads, vals = pb_two_cols(q)
+        need(q["table"]["rows"][0][0] == "Colour", "table heads")
+        return {h.lower(): int(v) for h, v in zip(heads, vals)}
+    return {c: int(n) for n, c in re.findall(rf"(\d+) ({PB_COLOURS})\b", q["lines"][0])}
+
+
+def pb_rest(n, u):
+    """The slip of leaving the event's own count out of the total."""
+    return [sp.Rational(n, u - n)] if u != n else []
+
+
+def pb_faces(q):
+    """The two sets of faces, from the story or from the table's edges."""
+    if q["table"] is not None:
+        rows = q["table"]["rows"]
+        xs, ys = [int(r[0]) for r in rows[1:]], [int(v) for v in rows[0][1]]
+    else:
+        text = " ".join(q["lines"])
+        if "Two fair six-sided dice" in text:
+            return list(range(1, 7)), list(range(1, 7))
+        mt = re.search(r"The first shows ([\d, and]+) and the second shows ([\d, and]+)\. Both are spun\.", text)
+        need(mt is not None, f"can't read the faces in {text!r}")
+        xs, ys = [int(v) for v in re.findall(r"\d+", mt.group(1))], [int(v) for v in re.findall(r"\d+", mt.group(2))]
+    if "dice" in " ".join(q["lines"]):
+        need(xs == list(range(1, 7)) and ys == xs, "dice have six faces")
+    need(len(set(xs)) == len(xs) and len(set(ys)) == len(ys), "a spinner repeats a number")
+    return xs, ys
+
+
+def pb_grid_check(q, xs, ys, cell):
+    """Every cell of a shown sample space table says what `cell` says it should."""
+    if q["table"] is None:
+        return
+    rows = q["table"]["rows"]
+    for i, x in enumerate(xs):
+        need(rows[i + 1][1] == [str(cell(x, y)) for y in ys], f"the table's row {x} is wrong")
+
+
+def pb_trial_values(ps):
+    """P(none), P(exactly one) and the sum, counted over every outcome of the trials."""
+    none, one = sp.Integer(0), sp.Integer(0)
+    for hits in product([0, 1], repeat=len(ps)):
+        pr = sp.Integer(1)
+        for h, p in zip(hits, ps):
+            pr *= p if h else 1 - p
+        if sum(hits) == 0:
+            none += pr
+        if sum(hits) == 1:
+            one += pr
+    return none, one, sum(ps)
+
+
+def pb_tree(q, pa, pb_):
+    g = q["graph"]
+    need(g is not None and g["kind"] == "tree", "no tree")
+    for got, want in ((g["p"], pa), (g["q"][0], pb_), (g["q"][1], pb_)):
+        need(R(got[0]) == want and R(got[1]) == 1 - want, f"the tree's branches {got} don't add to 1 at {want}")
+
+
+def check_basic_probability(q):
+    g, u, L, rep, asked = q["given"], q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    label, table = "probability = ", {}
+    if u == "bag-counter":
+        cs = pb_colours(q)
+        need(len(cs) in (3, 4), f"{len(cs)} colours")
+        mt = re.search(rf"it is ({PB_COLOURS})(?: or ({PB_COLOURS}))?\.$", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        want = [c for c in mt.groups() if c]
+        n, t = sum(cs[c] for c in want), sum(cs.values())
+        v = sp.Rational(n, t)
+        need(v != sp.Rational(len(want), len(cs)), "counting colours gives the answer")
+        table = {PB_EL + "0": [sp.Rational(len(want), len(cs))], PB_REST: pb_rest(n, t)}
+    elif u == "bag-after-change":
+        cs = pb_colours(q)
+        mt = re.fullmatch(rf"(\d+) ({PB_COLOURS}) .+ (?:is|are) (taken out and not put back|added)\.", L[1])
+        need(mt is not None, f"can't read {L[1]!r}")
+        m, c = int(mt.group(1)), mt.group(2)
+        sign = -1 if mt.group(3).startswith("taken") else 1
+        ask = re.search(rf"it is ({PB_COLOURS})\.$", asked).group(1)
+        t0 = sum(cs.values())
+        after = dict(cs)
+        after[c] += sign * m
+        need(after[c] >= 1, "the bag ran out of the colour")
+        v = sp.Rational(after[ask], t0 + sign * m)
+        table = {PB_OLD_TOTAL: [sp.Rational(after[ask], t0)]}
+        if ask == c:
+            table[PB_OLD_COUNT] = [sp.Rational(cs[ask], t0 + sign * m)]
+    elif u == "two-way-whole":
+        rows = q["table"]["rows"]
+        need(len(rows) == 4 and rows[3][0] == "Total" and rows[0][1][3] == "Total", "table heads")
+        C = [[int(v) for v in rows[i][1]] for i in (1, 2, 3)]
+        need(all(C[i][0] + C[i][1] + C[i][2] == C[i][3] for i in range(3)), "a row doesn't add up")
+        need(all(C[0][j] + C[1][j] == C[2][j] for j in range(4)), "a column doesn't add up")
+        need("from the whole table" in asked, f"{asked!r}")
+        rw, cw = PB_TWO_WAY[int(g["ctx"]) % 4]
+        grand = C[2][3]
+        found = None
+        for j, c in enumerate(cw):
+            if asked.endswith(f" {c}."):
+                found = j
+        need(found is not None, f"can't read the column in {asked!r}")
+        rowi = next((i for i, r in enumerate(rw) if f" {r} and " in asked), None)
+        if rowi is None:
+            v = sp.Rational(C[2][found], grand)
+            table = {PB_REST: pb_rest(C[2][found], grand)}
+        else:
+            cell = C[rowi][found]
+            v = sp.Rational(cell, grand)
+            table = {PB_EL + "1": [sp.Rational(cell, C[rowi][3])], PB_REST: pb_rest(cell, grand)}
+    elif u == "list-data":
+        vals = [int(x) for x in L[1].split(", ")]
+        need(f"each of {len(vals)} " in L[0], "the list isn't the length the story says")
+        mt = re.search(r"that (more than|at least|fewer than) (\d+) ", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        op, k = mt.group(1), int(mt.group(2))
+        need(k in vals, "the boundary is not in the list")
+        test = {"more than": lambda x: x > k, "at least": lambda x: x >= k, "fewer than": lambda x: x < k}[op]
+        slip = {"more than": lambda x: x >= k, "at least": lambda x: x > k, "fewer than": lambda x: x <= k}[op]
+        n, kinds = sum(1 for x in vals if test(x)), set(vals)
+        v = sp.Rational(n, len(vals))
+        table = {PB_EL + "0": [sp.Rational(sum(1 for x in kinds if test(x)), len(kinds))], PB_REST: pb_rest(n, len(vals)),
+                 PB_BOUNDARY: [sp.Rational(sum(1 for x in vals if slip(x)), len(vals))]}
+    elif u in ("grid-total-equals", "grid-total-at-least", "complement-count") and (u != "complement-count" or rep == "diagram"):
+        xs, ys = pb_faces(q)
+        pb_grid_check(q, xs, ys, lambda a, b: a + b)
+        ts = [a + b for a, b in product(xs, ys)]
+        ds = set(ts)
+        mt = re.search(r"the total is (at least |not )?(\d+)\.$", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        k = int(mt.group(2))
+        need(k in ds, "that total can't happen")
+        if u == "grid-total-at-least":
+            n = sum(1 for t in ts if t >= k)
+            v = sp.Rational(n, len(ts))
+            need(v != sp.Rational(sum(1 for t in ds if t >= k), len(ds)), "counting totals gives the answer")
+            table = {PB_EL + "0": [sp.Rational(sum(1 for t in ds if t >= k), len(ds))], PB_REST: pb_rest(n, len(ts)),
+                     PB_BOUNDARY: [sp.Rational(sum(1 for t in ts if t > k), len(ts))]}
+        else:
+            n = ts.count(k)
+            need(sp.Rational(n, len(ts)) != sp.Rational(1, len(ds)), "counting totals gives the answer")
+            if u == "grid-total-equals":
+                v = sp.Rational(n, len(ts))
+                table = {PB_EL + "0": [sp.Rational(1, len(ds))], PB_REST: pb_rest(n, len(ts))}
+            else:
+                v = 1 - sp.Rational(n, len(ts))
+                table = {PB_EL + "0": [1 - sp.Rational(1, len(ds))], PB_EVENT: [sp.Rational(n, len(ts))]}
+    elif u == "complement-count":
+        mt = re.search(r"numbered 1 to (\d+), one of each\.", L[0])
+        mm = re.search(r"not a multiple of (\d+)\.$", asked)
+        need(mt is not None and mm is not None, "can't read the numbers")
+        big, m = int(mt.group(1)), int(mm.group(1))
+        n = sum(1 for i in range(1, big + 1) if i % m == 0)
+        v = sp.Rational(big - n, big)
+        table = {PB_EVENT: [sp.Rational(n, big)]}
+    elif u == "list-then-count":
+        text = " ".join(L)
+        mc = re.match(r"(Two|Three) fair coins are tossed\.", text)
+        if mc:
+            nc = {"Two": 2, "Three": 3}[mc.group(1)]
+            h = int(re.search(r"exactly (\d+) heads?\.$", asked).group(1))
+            space = list(product("HT", repeat=nc))
+            n, all_ = sum(1 for w in space if w.count("H") == h), len(space)
+            table = {PB_EL + "0": [sp.Rational(1, nc + 1)]}
+        elif text.startswith("A fair coin is tossed and a fair six-sided die"):
+            mt = re.search(r"a (head|tail) and (?:an (even|odd) number|a number greater than (\d))\.$", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            test = {"even": lambda f: f % 2 == 0, "odd": lambda f: f % 2 == 1}.get(mt.group(2), lambda f: f > int(mt.group(3)))
+            space = list(product("HT", range(1, 7)))
+            n, all_ = sum(1 for c, f in space if c == mt.group(1)[0].upper() and test(f)), len(space)
+        elif "are on a crew" in text:
+            who = re.findall(r"[A-Z][a-z]+", L[0].split(" are on")[0])
+            space = list(combinations(who, 2))
+            both = re.search(r"that (\w+) and (\w+) are both chosen\.$", asked)
+            one = re.search(r"that (\w+) is chosen\.$", asked)
+            n = sum(1 for p in space if (both and both.group(1) in p and both.group(2) in p) or (one and one.group(1) in p))
+            all_ = len(space)
+        else:
+            ds = re.findall(r"\d", L[0])
+            need(len(ds) == 3 and len(set(ds)) == 3, f"can't read the cards in {L[0]!r}")
+            space = [int("".join(p)) for p in permutations(ds)]
+            ab = re.search(r"greater than (\d+)\.$", asked)
+            if ab:
+                need(int(ab.group(1)) in space, "the boundary isn't one of the numbers")
+            n = sum(1 for x in space if (x > int(ab.group(1)) if ab else x % 2 == 0))
+            all_ = len(space)
+        v = sp.Rational(n, all_)
+        table.update({PB_REST: pb_rest(n, all_)})
+    elif u == "complement-given":
+        p = R(re.search(rf"({PB_NUM})\.?$", L[0]).group(1))
+        need(p != sp.Rational(1, 2), "the event and its complement are equal")
+        if rep == "equation":
+            label = "P(A′) = "
+        v = 1 - p
+        table = {PB_EVENT: [p]}
+    elif u == "complement-table":
+        heads, vals = pb_two_cols(q)
+        mt = re.search(rf"not (?:land on )?({PB_COLOURS})\.$", asked)
+        need(mt is not None, f"can't read {asked!r}")
+        i = [h.lower() for h in heads].index(mt.group(1))
+        ps = [R(x) for x in vals]
+        k = len(ps)
+        if q["table"]["rows"][1][0] == "Probability":
+            need(sum(ps) == 1, "the probabilities don't add to 1")
+            p = ps[i]
+        else:
+            p = ps[i] / sum(ps)
+        need(p != sp.Rational(1, 2), "the event and its complement are equal")
+        v = 1 - p
+        table = {PB_EVENT: [p], PB_EL + "0": [sp.Rational(k - 1, k)]}
+    elif u == "complement-two-rules":
+        xs, ys = pb_faces(q)
+        rules = " ".join(L)
+        ends = re.search(r"A total of (\d+) or less wins a big prize\. A total of (\d+) or more wins a small prize\.", rules)
+        gap = re.search(r"Equal numbers win a big prize\. Numbers that differ by (\d+) win a small prize\.", rules)
+        need((ends is None) != (gap is None), "can't read the rules")
+        if ends:
+            lo, hi = int(ends.group(1)), int(ends.group(2))
+            need(lo < hi, "the prizes overlap")
+            big, small = (lambda a, b: a + b <= lo), (lambda a, b: a + b >= hi)
+            pb_grid_check(q, xs, ys, lambda a, b: a + b)
+        else:
+            d = int(gap.group(1))
+            need(d > 0, "the prizes overlap")
+            big, small = (lambda a, b: a == b), (lambda a, b: abs(a - b) == d)
+            pb_grid_check(q, xs, ys, lambda a, b: abs(a - b))
+        space = list(product(xs, ys))
+        nb, ns = sum(1 for a, b in space if big(a, b)), sum(1 for a, b in space if small(a, b))
+        need(not any(big(a, b) and small(a, b) for a, b in space), "an outcome wins both")
+        u_ = len(space)
+        v = sp.Rational(u_ - nb - ns, u_)
+        table = {PB_ONE_RULE: [1 - sp.Rational(nb, u_), 1 - sp.Rational(ns, u_)], PB_EVENT: [sp.Rational(nb + ns, u_)]}
+    elif u in ("at-least-one-same", "at-least-one-different"):
+        text = " ".join(L)
+        need("independently" in text, "the trials aren't said to be independent")
+        if u == "at-least-one-same":
+            p = R(re.search(rf"with probability ({PB_NUM}),", text).group(1))
+            if rep == "diagram":
+                n = 2
+                pb_tree(q, p, p)
+            else:
+                n = int(re.search(r"\b(\d+) [a-z]+\.$", L[1]).group(1))
+            ps = [p] * n
+        elif rep == "diagram":
+            gr = q["graph"]
+            ps = [R(gr["p"][0]), R(gr["q"][0][0])]
+            pb_tree(q, ps[0], ps[1])
+        else:
+            ps = [R(x) for x in re.findall(rf"with probability ({PB_NUM})", text)]
+            need(len(ps) == len(re.findall(r"[A-Z][a-z]+", L[0].split(" each try")[0])), "a probability for each person")
+        need(all(0 < p < 1 for p in ps) and len(ps) in (2, 3), f"trials {ps}")
+        none, one, added = pb_trial_values(ps)
+        need(added < 1, "adding the trials passes 1")
+        v = 1 - none
+        table = {PB_CO + "0": [one], PB_CO + "1": [added], PB_EVENT: [none]}
+    elif u == "rf-from-table":
+        label = "relative frequency = "
+        if rep == "graph":
+            gr = q["graph"]
+            need(gr["kind"] == "bars" and gr["xs"] == list(range(1, len(gr["ys"]) + 1)), "no bar chart")
+            fs = [int(y) for y in gr["ys"]]
+        else:
+            heads, vals = pb_two_cols(q)
+            need(heads == [str(i + 1) for i in range(len(vals))], "table heads")
+            fs = [int(x) for x in vals]
+        t = int(re.search(r" (\d+) times\.", L[0]).group(1))
+        need(sum(fs) == t, "the frequencies don't add to the trials")
+        if q["paper"] == 1:
+            need(t in PB_P1_TOTALS, f"Paper 1 total {t}")
+        s_ = int(re.search(r"a score of (\d+)\.$", asked).group(1))
+        f = fs[s_ - 1]
+        v = sp.Rational(f, t)
+        table = {PB_EL + "0": [sp.Rational(1, len(fs))], PB_REST: pb_rest(f, t)}
+    elif u == "rf-total-to-find":
+        rows = q["table"]["rows"]
+        if rows[0][0] == "Score":
+            heads, vals = pb_two_cols(q)
+            need(heads == [str(i + 1) for i in range(len(vals))], "table heads")
+            fs = [int(x) for x in vals]
+            mt = re.search(r"scores (exactly|at least) (\d+)\.$", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            k = int(mt.group(2))
+            f, first = (sum(fs[k - 1:]), fs[k - 1]) if mt.group(1) == "at least" else (fs[k - 1], None)
+        else:
+            bounds = [re.fullmatch(r"(\d+) ≤ [a-z] < (\d+)", r[0]) for r in rows[1:]]
+            need(all(bounds), "class heads")
+            edges = [(int(b.group(1)), int(b.group(2))) for b in bounds]
+            need(all(edges[i][1] == edges[i + 1][0] for i in range(len(edges) - 1)), "the classes don't join")
+            fs = [int(r[1][0]) for r in rows[1:]]
+            mt = re.search(r"is (\d+) [a-z]+ or more\.$", asked)
+            need(mt is not None, f"can't read {asked!r}")
+            k = [e[0] for e in edges].index(int(mt.group(1)))
+            f, first = sum(fs[k:]), fs[k]
+        t = sum(fs)
+        v = sp.Rational(f, t)
+        table = {PB_REST: pb_rest(f, t)}
+        if first is not None:
+            table[PB_BOUNDARY] = [sp.Rational(f - first, t)]
+    elif u == "rf-graph-estimate":
+        gr = q["graph"]
+        need(gr["kind"] == "cumfreq" and gr["y_name"] == "relative frequency", "no graph of relative frequency")
+        step = int(gr["curve"][0][0])
+        hits, prev = [], 0
+        for i, (x, y) in enumerate(gr["curve"]):
+            need(int(x) == step * (i + 1), "the trials don't go up in equal steps")
+            h = round(float(y) * int(x))
+            need(abs(float(y) * int(x) - h) < 1e-6, f"{y} of {x} is not a count")
+            need(0 <= h - prev <= step, "more hits than trials, or hits falling")
+            hits.append(h)
+            prev = h
+        last = gr["curve"][-10:]
+        mean = sum(sp.Rational(int(hits[len(hits) - 10 + i]), int(p[0])) for i, p in enumerate(last)) / 10
+        v = sp.Rational(round(mean * 50), 50)
+        need(all(abs(sp.Rational(int(hits[len(hits) - 10 + i]), int(p[0])) - v) < sp.Rational(3, 100) for i, p in enumerate(last)), "the curve hasn't settled")
+        need(v != sp.Rational(1, 2), "the estimate and its complement are equal")
+        table = {PB_RF + "0": [sp.Rational(hits[0], step)]}
+    elif u == "more-reliable":
+        if rep == "table":
+            rows = q["table"]["rows"]
+            ns, hs = [int(rows[1][1][0]), int(rows[2][1][0])], [int(rows[1][1][1]), int(rows[2][1][1])]
+        else:
+            ns, hs = [], []
+            for line in L[1:3]:
+                a, b = re.findall(r"\d+", line)
+                ns.append(int(a))
+                hs.append(int(b))
+        need(all(0 < h < n for h, n in zip(hs, ns)) and ns[0] != ns[1], f"tests {ns} {hs}")
+        i = 0 if ns[0] > ns[1] else 1
+        v = sp.Rational(hs[i], ns[i])
+        table = {PB_RF + "0": [sp.Rational(hs[1 - i], ns[1 - i])]}
+    elif u == "gamblers-fallacy":
+        mt = re.match(r"A fair coin lands on (heads|tails) (\d+) times in a row\.", L[0])
+        if mt:
+            run = int(mt.group(2))
+            v = sp.Rational(1, 2)
+            whole = sp.Rational(1, 2) ** (run + 1)
+            table = {PB_WHOLE_RUN: [whole]} if asked.endswith(f"lands on {mt.group(1)}.") else {PB_RF + "1": [1 - whole]}
+        else:
+            md = re.match(r"A fair six-sided die has been rolled (\d+) times and has not shown a (\d)\.", L[0])
+            ms = re.match(r"A fair spinner has (\d+) equal sectors, one of them red\. It has been spun (\d+) times", L[0])
+            need(md is not None or ms is not None, f"can't read {L[0]!r}")
+            m, run = (6, int(md.group(1))) if md else (int(ms.group(1)), int(ms.group(2)))
+            v = sp.Rational(1, m)
+            table = {PB_RF + "1": [sp.Rational(run + 1, m)]}
+    else:
+        raise Fail(f"no check for {u}")
+    want, trap, wrongs = pb_set(q, v, table, label)
+    gc_check_common(q, want, wrongs, trap)
+    for o in q["choices"]:
+        m = re.search(r"= (.+)$", o["text"])
+        need(0 < R(m.group(1)) < 1, f"option {o['text']!r} is not a probability")
+    return None, None
+
+
+SITUATION_CHECKS = {"basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
@@ -19158,13 +21389,13 @@ SITUATION_CHECKS = {"quadratic": check_quadratic, "triangle": check_triangle, "a
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
-                    "binomial": check_binomial, "data-summary": check_data_summary, "regression": check_regression,
+                    "binomial": check_binomial, "geometric-sequence": check_geometric, "binomial-expansion": check_binomial_expansion, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
-                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "venn": check_venn, "conditional": check_conditional,
+                    "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional,
                     "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation, "fn-pre-substitute": check_substitute,
                     "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model,
                     "fn-pre-linear-equations": check_linear_equation, "fn-pre-simultaneous": check_simultaneous,

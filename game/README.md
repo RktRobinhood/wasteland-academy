@@ -175,6 +175,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a range, Var = np, σ = Var, E(X) rounded, n rounded down, p = Var ÷ E, a kth success
   read as k in m trials, a conditional multiplied). As every exam type, it offers no extra
   format (error-spot, method-pick, true-false-reason): `test_extension.gd` holds that rule.
+- `engine/situations/binomial_expansion.gd` (FAL-728) is `t1-binomial-term` (SL1.9, on the AA
+  courses): one bracket (ax^p + b)^n, or nCr alone, with every coefficient a whole number worked
+  out exactly. Binomial expansion, not the distribution above. Its views
+  (`binomial_expansion_views.gd`) show the bracket or nCr, or Pascal's triangle as a staggered
+  grid with no row numbers (a table, as reading the row is the skill), and ask 28 unknowns: nCr by
+  formula, from the triangle, by symmetry, at the edges and with n to find, nC2 as a polynomial,
+  a row of the triangle, the next row and n from a row, the number of terms, full expansions
+  (small n, (x + b)^n, a negative term, a number beside x, x², b/x), the first three terms, one
+  coefficient in the same shapes, a coefficient in terms of a letter, the term in x^k, a coefficient
+  left as a letter, and the term in a given place. The GDC's nCr is Paper 2 only; the other cells
+  make both papers, with Paper 2 having the longer rows. A question that reads the triangle stays
+  at row 7. An expansion is typed term by term, and a row without its ends. Wrong options come
+  from the SL1.9 misconceptions and the type's own five (no r!, the negative root for n, n terms,
+  the place taken as r, (1/x)^r read as falling by one power).
 - `engine/situations/differentiation.gd` (FAL-723) is `t5-differentiation-rules` (SL5.6, AA only):
   one function to differentiate, with whole-number coefficients. Its views ask 18 unknowns:
   standard results and rational powers, the chain rule on a bracket, an exponential, a log, a
@@ -219,6 +233,19 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   numerically. Graphs are in straight pieces with whole-number corners, on axes named t and v
   or s (`y_name`). The acceleration at maximum speed is only asked where that speed is at an end
   of the interval, as it is 0 at a turning point of v.
+- `engine/situations/geometric_sequence.gd` (FAL-728) is `t1-geometric-sequence` (SL1.3, on all four
+  syllabuses) and `t1-sum-to-infinity` (SL1.8), one situation for both. Paper 1 is whole numbers and
+  simple fractions, marked exactly; Paper 2 is decimals that end, marked exactly when whole or within
+  3 figures and otherwise to 3 s.f. Its views (`geometric_sequence_views.gd`) ask 21 and 19 unknowns:
+  r, a term and uₙ (a `form` answer, where the method sets u₁r^(n − 1) or (u₁/r)r^n), r and u₁ from two
+  terms, both signs for an even gap, a far term's sign, the terms between two terms, three terms in k,
+  coefficients of (1 + hx)ⁿ, Sₙ by each map method, closed forms, a Σ read, evaluated and written, and
+  a ball's distance to a landing; then whether S∞ exists (a `claim`), x from −1 < r < 1 (a `form`
+  answer; a wrong option in another shape can be picked but not typed), S∞, u₁ or r from it, a log
+  series, a quadratic in r with a root to reject, and a ball, a recurring block, nested squares, a
+  shaded square, a running total against a target and the first amount for a target. GDC and
+  partial-sums methods are Paper 2 only, and their working isn't shown on Paper 1. PlotView's
+  `bounce` and `squares` draw the figures; a sequence's dots and the band −1 < y < 1 use GraphView.
 - `engine/situations/regression.gd` (FAL-695) is `t4-regression-gdc` (SL4.4, on all four
   syllabuses): paired data, 6 to 9 whole-number points near a line (x from 1 to 20, y from 8
   to 99, 0.8 ≤ |r| ≤ 0.99, up or down as the story says), so the means, the regression line
@@ -247,6 +274,15 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   bound typed), P(within kσ), σ or μ from a tail, σ from an interquartile range or a central
   area, μ and σ from two tails (a `named` answer), μ and σ from equal tails, and μ from two
   z-values. Representations are the equation, a story with percentages, and a shaded curve.
+- `engine/situations/normal_probability.gd` (FAL-728) is `t4-normal-probability` (SL4.9, all Paper 2):
+  X is normal with μ and σ known, and a region of it is asked for. It is a thin layer on
+  `normal-unknown`: one normal distribution, the same stories and the same curve (its views extend
+  `NormalUnknownViews`). Its views (`normal_probability_views.gd`) ask 13 unknowns: below, above,
+  between and outside values, a percentage or proportion, an expected count, a rejection rule and
+  its expected count, exactly k of a sample (the area as a binomial's p), a variable that can be
+  negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle
+  from two given tails, which is exact. On a shaded curve the stem doesn't say the region again. A
+  recorded value has no curve: its strip is too thin to read, and labelling it gives the half unit away.
 - `engine/situations/venn.gd` (FAL-725) is `t4-venn-addition-rule` (SL4.6, on all four syllabuses):
   four regions out of a total, shown as decimals, fractions or counts in a story, a Venn diagram
   (PlotView's `venn`, rep `diagram`) or a two-way table (rep `table`, with heads and totals as
@@ -255,6 +291,16 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   and greatest overlap. Paper 1 is exact; Paper 2 has decimals to 3 places or counts answered to
   3 s.f. An option that should be a probability is one: `build()` adds near values, because the
   engine's last-resort nudges add 1.
+- `engine/situations/basic_probability.gd` (FAL-728) is `t4-probability-basic` (SL4.5): one chance
+  set-up for each unknown. Its views (`basic_probability_views.gd`) ask 18 unknowns: a bag and a bag
+  after a change, a two-way table (rep `table`, with totals), a list of data, a total on two dice or
+  spinners in words or as a sample space table (rep `diagram`), a listed sample space, the complement
+  of a given probability, table, count or two prize rules, at least one with a tree for two trials
+  (PlotView's `tree`), a relative frequency from a table or bars (`bars`), a grouped table with no
+  total, a long-run value from a running relative frequency (`cumfreq`, every point a real count),
+  the more reliable of two tests, and a run of results. Paper 1 is exact; Paper 2 counts and
+  products are answered to 3 s.f. Every option is a probability written as the answer is: a decimal
+  question drops a slip that doesn't end, and `build()` adds near values.
 - `engine/situations/conditional.gd` (FAL-725) is `t4-conditional-probability` (SL4.11, AA only). The
   events come from `VennSituation`; it also draws a two-stage tree (PlotView's `tree`), two draws
   without replacement, the multiplication rule, and normal, binomial and discrete conditionals.
@@ -317,6 +363,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   13 unknowns on one ratio and a quadrant (the other ratio, tan, sin 2θ, cos 2θ, each with the map's
   methods), cos θ from cos 2θ, written or from a triangle's cosine rule, and expressions to rewrite
   (in sin x or cos x alone, as a cos bx, as a sin bx, a + b sin cx, and a maximum after rewriting).
+- `engine/situations/algebraic_proof.gd` (FAL-728) is `t1-algebraic-proof` (SL1.6, AA only): 14
+  unknowns on one statement to prove, an identity (a difference of squares, (x − a)² + b, a fraction
+  to combine or split, a reciprocal difference, a Pythagorean triple in x) or a claim about integers
+  (a multiple of m, a sum of consecutive terms, n² + an + b always even, a sum of squares never
+  divisible). A phone can't read a written proof, so each unknown is one decision a proof turns on,
+  typed in slots (a `form`) or picked (a `claim`): the simplified form, what both sides reach, a
+  hidden line, the next line, the first wrong line and its correction, k in E = mk, the integer
+  bracket, the greatest divisor, a remainder, the opening with two letters, or which of four
+  arguments is a proof. `AlgebraicProofViews.chain()` writes every proof as lines from the numbers,
+  and a slip is that chain with one wrong move carried on, so wrong options are what the slip gives.
+  Identities are Paper 1 or 2 and integer proofs Paper 1, as in the bank.
 - `engine/situations/trig_model.gd` (FAL-727) is `t3-trig-model-parameters` (SL3.7, AA only): 15
   unknowns on one wave from its turning points. Paper 1 has x in multiples of π and whole a, b and d;
   Paper 2 is a story in t, or a decimal phase, to 3 s.f., six parts in seven as in the bank. It also
@@ -1021,6 +1078,9 @@ sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and l
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
 back into erf, and a shaded area must be the area given (`check_regression_pair`,
 `check_normal_unknown`, `check_venn`, `check_conditional`).
+For `basic-probability` it reads the story, table, bar chart, tree or curve back, counts the outcomes
+again by listing every one, and checks that a curve is real counts settling on its answer
+(`check_basic_probability`).
 For `sampling` it runs the checklist on the surveyor's sentence (a fixed interval, groups filled,
 a random draw) to find the technique, and holds each wrong disadvantage to being false of it. For
 `cumulative-frequency` it reads every value off the curve in the figure, which must rise strictly
@@ -1362,6 +1422,15 @@ script error happens while it runs. Run one file with
   built with every cell and every skill, no extra format, four different options, GDC methods on
   Paper 2 only, + C on every integral, the method setting the shape, a shaded region on every
   figure, exact integrals and derivatives against hand values, and named axes.
+- `test_binomial_expansion.gd`: t1-binomial-term built with every cell and all three skills, no
+  extra format, four different options, the GDC on Paper 2 only, hand values, the bracket as the
+  exam writes it, the staggered triangle, a term against a coefficient, a typed expansion and row,
+  every misconception as an option, the three concept probes and AA courses only.
+- `test_algebraic_proof.gd`: t1-algebraic-proof built with every cell, both SL1.6 skills and
+  14 unknowns; every cell in both formats, with the answer ending the working; the bank's paper
+  split; each statement against values worked out by hand; a hidden line and a spoiled line
+  where the chain says; the fix typed on the wrong line marked wrong; a typed slip detected;
+  the factors in either order; every misconception as an option; no statement with the exam's numbers.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a
@@ -1380,10 +1449,18 @@ script error happens while it runs. Run one file with
   given, a right triangle in every cone and a sector that rolls into its cone, a × 10^k typed with
   a negative k, the right value with a outside 1 to 10 marked wrong, E-notation never typed, the
   superscripts' glyphs, and every misconception as an option.
+- `test_basic_probability.gd`: `t4-probability-basic`: every cell and skill, one right option on each
+  paper, every option a probability, hand values, the figures drawn, a curve of real counts, a
+  complement that differs from its event, and every misconception as an option.
 - `test_regression_pair.gd`, `test_normal_unknown.gd`, `test_venn.gd`, `test_conditional.gd`: the four
   FAL-725 types: each built with every cell and all its skills, one right option on each paper,
   the numbers against hand values, the figures drawn, every misconception as an option, and the
   courses each is in.
+- `test_normal_probability.gd` (FAL-728): `t4-normal-probability`: every cell on Paper 2 with one
+  right option, the one normal distribution it shares with `normal-unknown`, regions that add up,
+  bands wide enough for their labels, the shaded curve, the root of a variance, half a unit either
+  side of a recorded value, exactly k of a sample, a middle from two tails, and every misconception
+  as an option.
 - `test_sampling.gd`, `test_cumulative_frequency.gd`: the two FAL-726 types: every cell and skill,
   one right option on each paper the type has, group sizes whole, a curve rising through grid corners
   with its class boundaries among them, a table's estimates ending, the figure drawn, every

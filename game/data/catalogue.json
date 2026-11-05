@@ -2619,6 +2619,49 @@
 				"the least number of trials is found from P(X ≥ 1) > c, with N − 1 failing and N working"
 			]
 		},
+		"binomial-expansion": {
+			"name": "One bracket (ax^p + b)^n, or nCr on its own",
+			"summary": "Pick the power n, then the bracket, then which term is asked. Every coefficient is a whole number, worked out exactly. The same numbers give nCr, a row of Pascal's triangle, the full expansion or one term.",
+			"quantities": [
+				{
+					"name": "n",
+					"is": "the power, and the row of the triangle",
+					"pick": "2 to 12, by the unknown: up to 7 where a row is read, up to 6 for a coefficient on Paper 1 and 10 on Paper 2"
+				},
+				{
+					"name": "r",
+					"is": "nCr's r",
+					"pick": "from 2 up to n − 2 for a value, 0 or n for an edge"
+				},
+				{
+					"name": "a, p",
+					"is": "the term with x, ax^p",
+					"pick": "a from 1 to 3, p of 1 or 2"
+				},
+				{
+					"name": "b",
+					"is": "the number in the bracket, a letter, or b/x",
+					"pick": "up to 4 in size, either sign"
+				},
+				{
+					"name": "first",
+					"is": "whether the number is written first, (3 − 2x) or (2x + 3)",
+					"pick": "at random, with a negative only in the second term written"
+				},
+				{
+					"name": "j",
+					"is": "how many brackets give the x term, so the term asked is in x^(p·j)",
+					"pick": "at least 2, and at least 2 left for the other term"
+				}
+			],
+			"clean": [
+				"every coefficient is a whole number",
+				"Paper 1 coefficients are at most 20000 in size, Paper 2 at most 200000000",
+				"a row read from the triangle is row 7 at most (row 8 shown for reading nC2)",
+				"a negative is only ever in the second term written",
+				"the numbers are not those of the bank, and the two numbers in a bracket share no factor"
+			]
+		},
 		"regression": {
 			"name": "Paired data and the line fitted to it",
 			"summary": "Pick x-values and y-values that lie near a straight line, in a story where the correlation is positive or negative. The means, the regression line of y on x and Pearson's r are then known. The same line is used backwards (a constant from the mean point) and forwards (an estimate at an x inside the data, or from a line given to 3 s.f.).",
@@ -3665,6 +3708,232 @@
 				"Paper 2 answers are to 3 s.f., clear of a rounding edge",
 				"the range is even on Paper 1, so a and d are whole"
 			]
+		},
+		"geometric-sequence": {
+			"name": "One geometric sequence and its sums",
+			"summary": "Pick u₁ and r (or the two terms, the expressions in k, the Σ, the story), then derive every term, Sₙ and S∞, so any of them can be hidden and any shown.",
+			"quantities": [
+				{
+					"name": "u₁",
+					"is": "the first term",
+					"pick": "a non-zero whole number on Paper 1, a multiple of 20 on Paper 2"
+				},
+				{
+					"name": "r",
+					"is": "the common ratio",
+					"pick": "a whole number or simple fraction on Paper 1, a decimal such as 0.85 or 1.25 on Paper 2; |r| < 1 for a sum to infinity, or above 1 in size where one must not exist"
+				},
+				{
+					"name": "n",
+					"is": "a term number or the number of terms",
+					"pick": "5 to 9 for a term, 4 to 10 for a sum"
+				},
+				{
+					"name": "uₙ, Sₙ, S∞",
+					"is": "a term, a finite sum and the sum to infinity",
+					"pick": "u₁r^(n − 1), u₁(1 − r^n)/(1 − r) and u₁/(1 − r)"
+				},
+				{
+					"name": "u_p, u_q",
+					"is": "two given terms",
+					"pick": "p from 2 to 4 and a gap of 2 to 5; an odd gap fixes r, and an even gap gives ±r"
+				},
+				{
+					"name": "k, h, x",
+					"is": "an unknown inside the terms",
+					"pick": "three linear terms in k, three binomial coefficients in h, or r as a line in x"
+				},
+				{
+					"name": "story",
+					"is": "what the series counts",
+					"pick": "a ball's path, a well's yield, a growing store, a recurring block, or squares"
+				}
+			],
+			"clean": [
+				"Paper 1: every value exact, with denominators no larger than 6561 and sizes up to 200 000",
+				"Paper 2: sizes up to 5 000 000, each clear of a rounding edge at 3 s.f.",
+				"terms shown are whole on Paper 1 and end in decimals on Paper 2",
+				"a graph's dots are small whole numbers"
+			]
+		},
+		"normal-probability": {
+			"name": "A normal variable with a region asked for",
+			"extends": "normal-unknown",
+			"summary": "The base normal variable, now with μ and σ known and a region of it asked for: a tail, a band, two tails, a rule that rejects some items, a sample count, exactly k of a sample, or a value recorded to a rounding unit. It adds only the region; the normal function, the stories and the curve are the base situation's.",
+			"quantities": [
+				{
+					"name": "lo, hi",
+					"is": "the bounds of the region",
+					"pick": "whole numbers, or tenths when σ is under 3, up to 2.3 standard deviations from μ; an open end is left out"
+				},
+				{
+					"name": "kind",
+					"is": "the shape of the region",
+					"pick": "below, above, between, or outside two bounds"
+				},
+				{
+					"name": "n",
+					"is": "a sample size",
+					"pick": "50 to 1000, so the expected count is at least 10; 10 to 100 for exactly k of a sample"
+				},
+				{
+					"name": "k",
+					"is": "a count in the sample, for exactly k",
+					"pick": "within 2 of the expected count, and between 1 and n − 1"
+				},
+				{
+					"name": "sigma squared",
+					"is": "the variance, written where σ would be",
+					"pick": "a square, or a whole number up to 400 that is not one"
+				},
+				{
+					"name": "u",
+					"is": "a rounding unit",
+					"pick": "1 or 0.1, with the recorded value on that grid"
+				},
+				{
+					"name": "x1, p1, x2, p2",
+					"is": "two tails, for a middle found without μ or σ",
+					"pick": "x1 < x2 whole, tails in thousandths from 0.04 to 0.45, and μ and σ whatever they force"
+				}
+			],
+			"clean": [
+				"Paper 2 only: every part in the bank is",
+				"probabilities and expected counts are to 3 s.f. and at least 0.03 of a unit of the third figure from a rounding edge; a middle from two tails is exact",
+				"a bound is at least a tenth of a standard deviation from μ, except a recorded value, which can sit on it",
+				"every region has an area of at least 0.005 on each side, and an expected count stays a decimal unless the 3 s.f. make it whole",
+				"a variable that can be negative has a real area below 0, so using 0 as the lower bound changes the answer"
+			]
+		},
+		"basic-probability": {
+			"name": "One chance set-up, counted or measured",
+			"summary": "Pick a set-up with outcomes that can be counted or results that can be read: a bag, a two-way table, a list of data, two dice or spinners, a short sample space, one event, independent trials, a results table, a running relative frequency, two tests or a run of results. The probability of an event, of its complement, or an estimate from results is then known, and any of them can be asked.",
+			"quantities": [
+				{
+					"name": "counts, cols, target",
+					"is": "the colours in a bag or the groups of a table, and which is asked",
+					"pick": "Paper 1: 2 to 12 each; Paper 2: 5 to 70 each"
+				},
+				{
+					"name": "mode, changed, m",
+					"is": "a change to the bag before the draw",
+					"pick": "1 to 3 of one colour taken out or added"
+				},
+				{
+					"name": "cells, what",
+					"is": "a 2 by 3 table with totals, and whether one cell or a whole column is asked",
+					"pick": "Paper 1: 2 to 12 a cell; Paper 2: 6 to 60"
+				},
+				{
+					"name": "vals, op, k",
+					"is": "a list of data, a word (more than, at least, fewer than) and a boundary that is in the list",
+					"pick": "10 to 24 values from 2 to 12"
+				},
+				{
+					"name": "xs, ys, k",
+					"is": "the faces of two dice or spinners, and the total asked",
+					"pick": "dice 1 to 6, or 3 to 5 sectors numbered 1 to 9"
+				},
+				{
+					"name": "kind",
+					"is": "a sample space short enough to list",
+					"pick": "coins, a coin and a die, pairs from a crew, or three digit cards"
+				},
+				{
+					"name": "rule, lo, hi, d",
+					"is": "two prizes that can't both happen",
+					"pick": "a low or a high total, or equal numbers or numbers that differ by d, from 1 to 3"
+				},
+				{
+					"name": "p, ps, n",
+					"is": "the probabilities of independent trials",
+					"pick": "2 or 3 trials (2 on a tree), in tenths, unit fractions or hundredths"
+				},
+				{
+					"name": "edges",
+					"is": "class boundaries of a grouped table",
+					"pick": "4 to 6 classes of width 5, 10 or 20"
+				},
+				{
+					"name": "curve, settle, early",
+					"is": "a running relative frequency of real counts, its long-run value and its first point",
+					"pick": "40 points that settle on a multiple of 0.02 from 0.2 to 0.8, not 0.5"
+				},
+				{
+					"name": "ns, hits, large",
+					"is": "two tests of the same thing",
+					"pick": "10 to 60 trials against 200 to 1500"
+				},
+				{
+					"name": "streak",
+					"is": "a run of results before the next trial",
+					"pick": "3 to 6 for a coin, 2 to m − 2 for m sectors or faces"
+				}
+			],
+			"clean": [
+				"Paper 1 answers are exact, as a fraction in lowest terms or a decimal that ends",
+				"Paper 2 counts and products are answered to 3 s.f., need rounding, and sit at least 0.03 of a unit of the third figure from a rounding edge",
+				"every option is a probability between 0 and 1, written the way the answer is",
+				"a frequency chart's relative frequency on Paper 1 has a total of 20, 25, 40, 50, 80, 100 or 200, so it ends",
+				"a running relative frequency comes from real counts: hits never fall, and rise by no more than the trials added",
+				"an event's probability is never one half where its complement is asked, so the two are always different"
+			]
+		},
+		"algebraic-proof": {
+			"name": "One statement to prove, as a chain of lines",
+			"summary": "Pick the shape of an identity or a divisibility claim and its numbers, and every line of the proof follows, with the slip each wrong line makes.",
+			"quantities": [
+				{
+					"name": "fam",
+					"is": "the shape of the statement",
+					"pick": "what the unknown, the representation and the method allow"
+				},
+				{
+					"name": "d",
+					"is": "the gap in a difference of squares or a sum of squares",
+					"pick": "whole numbers from 2 to 9, not a multiple of 3 in a sum of three squares"
+				},
+				{
+					"name": "p, q",
+					"is": "(px + q)² − (px − q)²",
+					"pick": "different whole numbers from 1 to 7, with p at least 2"
+				},
+				{
+					"name": "a, b",
+					"is": "the numbers of (x − a)² + b, n² + an + b or a/n − a/(n + d)",
+					"pick": "small whole numbers, a odd and b even for n² + an + b"
+				},
+				{
+					"name": "p, q, c, d",
+					"is": "px + q − c/(x − d)",
+					"pick": "small whole numbers"
+				},
+				{
+					"name": "k",
+					"is": "the number in the Pythagorean triple in x",
+					"pick": "2 to 6"
+				},
+				{
+					"name": "kind, c",
+					"is": "a sum of c consecutive integers, even numbers or odd numbers",
+					"pick": "2 to 7 terms"
+				},
+				{
+					"name": "m",
+					"is": "the divisor",
+					"pick": "from the factors of the expression, or the hcf of the sum's two numbers"
+				},
+				{
+					"name": "m, r",
+					"is": "two numbers of the form mk + r",
+					"pick": "m from 2 to 9, r from 0 to m − 1"
+				}
+			],
+			"clean": [
+				"every statement is true for every value of its letter",
+				"the divisor is more than 1, and the bracket has whole-number coefficients",
+				"a greatest divisor is smaller than the coefficient of n, so a fraction is left if that is taken out"
+			]
 		}
 	},
 	"skills": {
@@ -3734,10 +4003,23 @@
 		"SL1.2.find-n": "Find which term has a given value, or the number of terms",
 		"SL1.2.sum": "Find the sum of a finite arithmetic series",
 		"SL1.2.sum-unknown": "Use a given sum to find n, u_1 or d",
+		"SL1.3.nth-term": "Find a term or the general term of a geometric sequence",
+		"SL1.3.find-r-u1": "Find r and u_1 from given terms or conditions",
+		"SL1.3.sum": "Find the sum of a finite geometric series",
+		"SL1.3.sigma": "Interpret and evaluate sigma notation for geometric series",
 		"SL1.4.future-value": "Find the future value of a compound interest investment",
 		"SL1.4.find-rate-or-pv": "Find the present value or the interest rate",
 		"SL1.4.find-time": "Find the time needed to reach a target value",
 		"SL1.4.compare-options": "Compare investment options and compounding frequencies",
+		"SL1.6.identity-lhs-rhs": "Prove an algebraic identity from LHS to RHS",
+		"SL1.6.integer-proof": "Prove properties of integers: odd, even, consecutive and divisibility",
+		"SL1.8.convergence": "Decide whether a geometric series converges and find the condition for convergence",
+		"SL1.8.sum-to-infinity": "Find the sum to infinity of a convergent geometric series",
+		"SL1.8.find-unknown": "Use a given sum to infinity to find r, u_1 or another unknown",
+		"SL1.8.applications": "Apply sums to infinity in context",
+		"SL1.9.ncr-pascal": "Evaluate nCr and use Pascal's triangle",
+		"SL1.9.full-expansion": "Expand (a + b)^n fully",
+		"SL1.9.specific-term": "Find a specific term or coefficient in an expansion",
 		"SL3.1.volume-solids": "Find volumes of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.1.surface-area": "Find surface areas of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.5.ambiguous-case": "Resolve the ambiguous case of the sine rule (two possible triangles)",
@@ -3778,6 +4060,9 @@
 		"SL4.4.mean-point": "Find the mean point and use it with lines of best fit",
 		"SL4.4.predict": "Use the regression line to predict, and judge whether the prediction is reliable",
 		"SL4.5.expected-occurrences": "Find the expected number of occurrences",
+		"SL4.5.equally-likely": "Find a probability by counting equally likely outcomes",
+		"SL4.5.complement": "Use complementary events, including 'at least one'",
+		"SL4.5.relative-frequency": "Estimate a probability from relative frequency",
 		"SL4.6.union": "Find P(A ∪ B) for combined events",
 		"SL4.6.venn": "Complete and use a Venn diagram, including finding an unknown",
 		"SL4.7.expected-value": "Calculate and interpret E(X)",
@@ -3792,6 +4077,7 @@
 		"SL4.8.mean-variance": "Find the mean, variance and standard deviation of a binomial distribution",
 		"SL4.8.find-n-or-p": "Find n or p from given information about a binomial distribution",
 		"SL4.8.binomial-in-context": "Build a binomial model from an earlier probability, including conditional and 'kth success' questions",
+		"SL4.9.normal-probability": "Calculate normal probabilities with technology, including expected numbers",
 		"SL4.10.x-on-y-line": "Find the regression line of x on y",
 		"SL4.10.choose-line": "Choose the correct regression line for a prediction",
 		"SL4.10.predict-x": "Predict x from y with the x-on-y line and judge reliability",
@@ -3859,11 +4145,8 @@
 		"SL5.1.chord-to-tangent": "Find the gradient of a curve as the limit of chord gradients",
 		"SL1.3.model": "Model growth and decay with geometric sequences",
 		"SL1.4.depreciation": "Model annual depreciation",
-		"SL1.3.nth-term": "Find a term or the general term of a geometric sequence",
-		"SL1.8.convergence": "Decide whether a geometric series converges and find the condition for convergence",
 		"SL4.9.inverse-normal": "Find a value of X from a given probability (inverse normal)",
 		"SL4.9.symmetry-probability": "Find normal probabilities from given ones using symmetry, without a calculator",
-		"SL1.9.ncr-pascal": "Evaluate nCr and use Pascal's triangle",
 		"SL4.9.central-interval": "Find an interval symmetric about the mean that contains a given probability",
 		"SL1.6.identity-constants": "Use = and ≡ correctly and find unknown constants in an identity",
 		"SL1.7.log-laws": "Use the laws of logarithms to simplify, expand and evaluate",
@@ -18994,6 +19277,717 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Geometric sequence: find r, u1, a term or S_n",
+			"summary": "Find the common ratio, a term or the general term of a geometric sequence, find r and u₁ from given terms, including expressions in k and coefficients of a binomial expansion, and find finite sums from terms, the last term, a closed form or sigma notation.",
+			"situation": "geometric-sequence",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "notation",
+					"exam": true,
+					"how": "u₁ = 5,  r = 3, or two terms: u₃ = 12,  u₆ = 96"
+				},
+				{
+					"rep": "terms",
+					"exam": true,
+					"how": "the first terms, 5, 15, 45, 135, …, a series with a last term, or three terms in k"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "the same in a sentence: the third term is 12 and the sixth is 96, or a bouncing ball"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "Σ (k = 1 to 6) 5(2)^k, or (1 + hx)⁸"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "n against uₙ"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "dots at (n, uₙ), each with its value"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the path of a bouncing ball, with the drop marked"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "r-from-terms",
+					"given": [
+						"the first terms, as a list, a table or dots on a graph"
+					],
+					"asked": "the common ratio r",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"terms",
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL1.3.nth-term"
+					]
+				},
+				{
+					"id": "term-from-u1-r",
+					"given": [
+						"u₁ and r, or the first terms"
+					],
+					"asked": "a later term uₙ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL1.3.nth-term"
+					]
+				},
+				{
+					"id": "term-exact",
+					"given": [
+						"u₁ and a fractional r, or the first terms"
+					],
+					"asked": "the exact value of a later term",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.3.nth-term"
+					]
+				},
+				{
+					"id": "general-term",
+					"given": [
+						"u₁ and r, or the first terms"
+					],
+					"asked": "an expression for uₙ in terms of n",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"table"
+					],
+					"skills": [
+						"SL1.3.nth-term"
+					]
+				},
+				{
+					"id": "r-odd-gap",
+					"given": [
+						"two terms an odd number of steps apart"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "r-even-gap",
+					"given": [
+						"two terms an even number of steps apart"
+					],
+					"asked": "both possible values of r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "u1-from-two-terms",
+					"given": [
+						"two terms an odd number of steps apart"
+					],
+					"asked": "u₁",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "term-choose-sign",
+					"given": [
+						"two terms an even number of steps apart",
+						"the sign of a far term"
+					],
+					"asked": "the next term",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "interior-terms",
+					"given": [
+						"the outer two of four consecutive terms"
+					],
+					"asked": "the two terms between them",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"terms",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "k-consecutive",
+					"given": [
+						"three consecutive terms, each linear in k"
+					],
+					"asked": "the possible values of k",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"terms",
+						"words"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "coefficients-geometric",
+					"given": [
+						"(1 + hx)^n and three powers of x whose coefficients are geometric"
+					],
+					"asked": "h",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.3.find-r-u1"
+					]
+				},
+				{
+					"id": "sum-from-u1-r",
+					"given": [
+						"u₁ and r, or the first terms"
+					],
+					"asked": "Sₙ",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-exact",
+					"given": [
+						"u₁ and a fractional r, or the first terms"
+					],
+					"asked": "the exact value of Sₙ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-last-term",
+					"given": [
+						"a series with its first and last terms"
+					],
+					"asked": "its sum",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-closed-form",
+					"given": [
+						"u₁ and a whole-number r"
+					],
+					"asked": "the numbers in a closed form for Sₙ",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-of-sums",
+					"given": [
+						"u₁ = 1 and a whole-number r"
+					],
+					"asked": "the numbers in a closed form for S₁ + S₂ + … + Sₙ",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"notation"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sum-alternating",
+					"given": [
+						"a sequence with r = −1"
+					],
+					"asked": "the sum of the first 2m or 2m + 1 terms",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "bounce-before",
+					"given": [
+						"a ball's drop height and its rebound fraction"
+					],
+					"asked": "the distance travelled when it lands for the nth time",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL1.3.sum"
+					]
+				},
+				{
+					"id": "sigma-first-r",
+					"given": [
+						"a series in Σ notation"
+					],
+					"asked": "u₁ and r",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.3.sigma"
+					]
+				},
+				{
+					"id": "sigma-evaluate",
+					"given": [
+						"a series in Σ notation"
+					],
+					"asked": "its value",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.3.sigma"
+					]
+				},
+				{
+					"id": "sigma-write",
+					"given": [
+						"a series with its first and last terms"
+					],
+					"asked": "the same series in Σ notation",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL1.3.sigma"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.3.nth-term",
+					"method": "nth-formula",
+					"suits": [
+						"r-from-terms",
+						"term-from-u1-r",
+						"term-exact",
+						"general-term"
+					],
+					"name": "Substitute into u_n = u_1 r^(n − 1)",
+					"about": "Find r = u_2/u_1, raise r to the number of steps n − 1, then multiply by u_1."
+				},
+				{
+					"skill": "SL1.3.nth-term",
+					"method": "repeated-multiply",
+					"suits": [
+						"r-from-terms",
+						"term-from-u1-r",
+						"term-exact"
+					],
+					"name": "Multiply by r repeatedly",
+					"about": "For small n keep multiplying by r; a table makes the sign changes from a negative r obvious."
+				},
+				{
+					"skill": "SL1.3.nth-term",
+					"method": "exponential-form",
+					"suits": [
+						"term-from-u1-r",
+						"general-term"
+					],
+					"name": "Rewrite as u_n = (u_1/r) × r^n",
+					"about": "Recognise the sequence as an exponential function of n sampled at whole numbers."
+				},
+				{
+					"skill": "SL1.3.nth-term",
+					"method": "gdc-seq",
+					"suits": [
+						"term-from-u1-r"
+					],
+					"name": "Use the GDC sequence or table mode",
+					"about": "Enter u_n = u_1 r^(n − 1), or the recursive rule u_(n+1) = r u_n, and read off the term."
+				},
+				{
+					"skill": "SL1.3.find-r-u1",
+					"method": "divide-terms",
+					"suits": [
+						"r-odd-gap",
+						"r-even-gap",
+						"u1-from-two-terms",
+						"term-choose-sign",
+						"interior-terms"
+					],
+					"name": "Divide one term equation by the other",
+					"about": "u_6/u_3 = u_1r^5/(u_1r^2) = r^3 = 8, which cancels u_1 and leaves a power of r to solve."
+				},
+				{
+					"skill": "SL1.3.find-r-u1",
+					"method": "step-count",
+					"suits": [
+						"r-odd-gap",
+						"r-even-gap",
+						"u1-from-two-terms",
+						"term-choose-sign",
+						"interior-terms"
+					],
+					"name": "Count multiplicative steps between terms",
+					"about": "Three steps from u_3 to u_6 means multiplying by r three times, so r^3 = 96/12 directly."
+				},
+				{
+					"skill": "SL1.3.find-r-u1",
+					"method": "equal-ratios",
+					"suits": [
+						"k-consecutive",
+						"coefficients-geometric"
+					],
+					"name": "Equate consecutive ratios",
+					"about": "For consecutive terms a, b, c use b/a = c/b, i.e. b² = ac (the middle term is the geometric mean), then solve the quadratic: (k + 6)² = 4k² gives k = 6 or k = −2."
+				},
+				{
+					"skill": "SL1.3.find-r-u1",
+					"method": "gdc-solver",
+					"suits": [
+						"r-odd-gap",
+						"r-even-gap",
+						"k-consecutive",
+						"coefficients-geometric"
+					],
+					"name": "Solve with the GDC",
+					"about": "Use the polynomial or numerical solver for r^3 = 8 or (k + 6)² = 4k²."
+				},
+				{
+					"skill": "SL1.3.sum",
+					"method": "sum-formula",
+					"suits": [
+						"sum-from-u1-r",
+						"sum-exact",
+						"sum-last-term",
+						"sum-closed-form",
+						"sum-of-sums",
+						"sum-alternating",
+						"bounce-before"
+					],
+					"name": "Use S_n = u_1(r^n − 1)/(r − 1) or u_1(1 − r^n)/(1 − r)",
+					"about": "Pick the version that keeps the numerator and denominator positive: the first for r > 1, the second for r < 1."
+				},
+				{
+					"skill": "SL1.3.sum",
+					"method": "shift-subtract",
+					"suits": [
+						"sum-from-u1-r",
+						"sum-exact",
+						"sum-closed-form"
+					],
+					"name": "Multiply by r and subtract (S − rS)",
+					"about": "Writing S_n and rS_n one above the other cancels every middle term, leaving S_n(1 − r) = u_1(1 − r^n)."
+				},
+				{
+					"skill": "SL1.3.sum",
+					"method": "direct-add",
+					"suits": [
+						"sum-from-u1-r",
+						"sum-exact",
+						"sum-last-term",
+						"sum-alternating",
+						"bounce-before"
+					],
+					"name": "Add the terms directly",
+					"about": "For a handful of terms, listing and adding is quick and checks the formula."
+				},
+				{
+					"skill": "SL1.3.sum",
+					"method": "gdc-sum-seq",
+					"suits": [
+						"sum-from-u1-r",
+						"sum-last-term",
+						"bounce-before"
+					],
+					"name": "Use sum(seq(…)) or Σ on the GDC",
+					"about": "Evaluate Σ u_1 r^(k − 1) from k = 1 to n directly."
+				},
+				{
+					"skill": "SL1.3.sigma",
+					"method": "list-and-formula",
+					"suits": [
+						"sigma-first-r",
+						"sigma-evaluate",
+						"sigma-write"
+					],
+					"name": "Identify u_1, r and n, from the limits or the terms",
+					"about": "The first term comes from the lower limit (3 × 2^1 = 6, not 3), r is the base of the power, and n = upper − lower + 1."
+				},
+				{
+					"skill": "SL1.3.sigma",
+					"method": "factor-out",
+					"suits": [
+						"sigma-evaluate"
+					],
+					"name": "Take the constant factor outside the sigma",
+					"about": "Σ 3(2)^r = 3 Σ 2^r, which reduces the problem to a simpler standard series."
+				},
+				{
+					"skill": "SL1.3.sigma",
+					"method": "gdc-sigma",
+					"suits": [
+						"sigma-evaluate"
+					],
+					"name": "Use the GDC Σ template",
+					"about": "Type the expression and limits exactly as given and evaluate."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If r² = 9 for a geometric sequence, then r = 3.",
+					"answer": "False: r = −3 fits as well, because a square hides the sign. The sequence needs another fact to settle which.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The terms of a geometric sequence get bigger as n gets bigger.",
+					"answer": "Sometimes: they do for u₁ = 1 and r = 2, but they shrink for r = 1/2 and flip sign for r = −2.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "uₙ = 3 × 2^n is a geometric sequence, even though it isn't written as u₁r^(n − 1).",
+					"answer": "True: each term is 2 times the one before, so r = 2. It is the same as u₁ = 6 and r = 2.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.3.nth-term#0",
+					"text": "Using r^n in the term formula, one power of r too many",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-r",
+						"term-exact",
+						"general-term"
+					],
+					"wrong": "the term one further along, u₁r^n"
+				},
+				{
+					"ref": "SL1.3.nth-term#1",
+					"text": "Multiplying u₁ and r first and raising the product to the power, instead of raising r alone",
+					"as": "distractor",
+					"in": [
+						"term-from-u1-r",
+						"term-exact",
+						"general-term"
+					],
+					"wrong": "(u₁r)^(n − 1)"
+				},
+				{
+					"ref": "SL1.3.nth-term#2",
+					"text": "Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁",
+					"as": "distractor",
+					"in": [
+						"r-from-terms"
+					],
+					"wrong": "u₁ ÷ u₂, or u₂ − u₁"
+				},
+				{
+					"ref": "SL1.3.find-r-u1#0",
+					"text": "Subtracting terms as if the sequence were arithmetic",
+					"as": "distractor",
+					"in": [
+						"r-odd-gap",
+						"r-even-gap",
+						"interior-terms",
+						"k-consecutive"
+					],
+					"wrong": "the common difference between the two terms, or a value of k or the terms from it"
+				},
+				{
+					"ref": "SL1.3.find-r-u1#1",
+					"text": "Taking only the positive root of an even power and losing the negative ratio",
+					"as": "distractor",
+					"in": [
+						"r-even-gap",
+						"term-choose-sign"
+					],
+					"wrong": "the positive root alone"
+				},
+				{
+					"ref": "SL1.3.find-r-u1#2",
+					"text": "Counting terms instead of steps, so the power of r is one too high",
+					"as": "distractor",
+					"in": [
+						"u1-from-two-terms",
+						"r-odd-gap",
+						"interior-terms"
+					],
+					"wrong": "a power of r one too high"
+				},
+				{
+					"ref": "SL1.3.sum#0",
+					"text": "Using a power one lower than n in the sum formula",
+					"as": "distractor",
+					"in": [
+						"sum-from-u1-r",
+						"sum-exact"
+					],
+					"wrong": "the sum of one term fewer"
+				},
+				{
+					"ref": "SL1.3.sum#1",
+					"text": "Slipping on the sign of a negative r raised to an odd power",
+					"as": "distractor",
+					"in": [
+						"sum-from-u1-r",
+						"sum-exact",
+						"sum-last-term",
+						"sum-alternating"
+					],
+					"wrong": "(−r)^n read as positive, for odd n"
+				},
+				{
+					"ref": "SL1.3.sum#2",
+					"text": "Miscounting the terms when the last term is given",
+					"as": "distractor",
+					"in": [
+						"sum-last-term"
+					],
+					"wrong": "the sum of one term fewer"
+				},
+				{
+					"ref": "SL1.3.sigma#0",
+					"text": "Taking the coefficient as the first term, whatever the lower limit gives",
+					"as": "distractor",
+					"in": [
+						"sigma-first-r",
+						"sigma-evaluate"
+					],
+					"wrong": "the coefficient used as u₁"
+				},
+				{
+					"ref": "SL1.3.sigma#1",
+					"text": "Taking r to be the coefficient instead of the base of the power",
+					"as": "distractor",
+					"in": [
+						"sigma-first-r"
+					],
+					"wrong": "the coefficient given as r"
+				},
+				{
+					"ref": "SL1.3.sigma#2",
+					"text": "Counting the terms as upper minus lower, which is one too few",
+					"as": "distractor",
+					"in": [
+						"sigma-evaluate"
+					],
+					"wrong": "the sum of one term fewer"
+				},
+				{
+					"ref": "SL1.8.applications#0",
+					"text": "Doubling the first drop of a bouncing ball as well as the rebounds",
+					"as": "distractor",
+					"in": [
+						"bounce-before"
+					],
+					"wrong": "the first drop counted twice"
+				}
+			],
+			"chain": [
+				"read r and u₁ from the terms",
+				"a term or uₙ from u₁r^(n − 1)",
+				"r from two terms, by dividing out u₁ or counting steps, with both signs for an even gap",
+				"equal ratios for terms that are expressions: the middle term squared is the product of its neighbours",
+				"Sₙ from the formula, a count of terms, S − rS or sigma notation",
+				"the total distance of a bouncing ball, up to one landing"
+			],
 			"frequency": 9,
 			"marks": 3,
 			"section": {
@@ -19003,9 +19997,7 @@
 			"paper": {
 				"p1": 6,
 				"p2": 3
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-depreciation",
@@ -19373,6 +20365,504 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Prove an algebraic identity or a divisibility result",
+			"summary": "Prove an identity from one side to the other, or that an integer expression is always a multiple of a number. A phone can't read a written proof, so each question is one decision a proof turns on: the simplified form, a hidden line, the next line, the first wrong line, the factor k, the integer bracket, a remainder, or which of four arguments is a proof.",
+			"situation": "algebraic-proof",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the statement written out: (x − 3)² + 5 ≡ x² − 6x + 14, or S = n + (n + 1) + (n + 2)"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a sentence about numbers: two integers that differ by 3, or the sum of five consecutive odd numbers"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "simplify-left-side",
+					"given": [
+						"the left side of an identity"
+					],
+					"asked": "the simplified form or single fraction it reaches",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.identity-lhs-rhs"
+					]
+				},
+				{
+					"id": "common-expression",
+					"given": [
+						"both sides of an identity, neither simplified"
+					],
+					"asked": "the expression both sides reach",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.6.identity-lhs-rhs"
+					]
+				},
+				{
+					"id": "missing-line",
+					"given": [
+						"a proof with one line hidden"
+					],
+					"asked": "the hidden line",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.identity-lhs-rhs"
+					]
+				},
+				{
+					"id": "next-step",
+					"given": [
+						"the first lines of a proof"
+					],
+					"asked": "which line comes next",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.6.identity-lhs-rhs"
+					]
+				},
+				{
+					"id": "valid-proof",
+					"given": [
+						"an identity and four arguments"
+					],
+					"asked": "which argument is a complete proof",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.6.identity-lhs-rhs"
+					]
+				},
+				{
+					"id": "flawed-step",
+					"given": [
+						"a proof with one slip carried to the end"
+					],
+					"asked": "the first wrong line and its correction",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.6.identity-lhs-rhs",
+						"SL1.6.integer-proof"
+					]
+				},
+				{
+					"id": "multiple-k",
+					"given": [
+						"a difference of two squares and the claim that it is m times k"
+					],
+					"asked": "k in terms of n",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.integer-proof"
+					]
+				},
+				{
+					"id": "consecutive-sum",
+					"given": [
+						"a sum of consecutive integers, even numbers or odd numbers"
+					],
+					"asked": "the sum as m times an integer expression",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.integer-proof"
+					]
+				},
+				{
+					"id": "greatest-divisor",
+					"given": [
+						"a sum of consecutive integers, even numbers or odd numbers"
+					],
+					"asked": "the largest whole number that always divides it",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.integer-proof"
+					]
+				},
+				{
+					"id": "finish-divisibility",
+					"given": [
+						"a simplified sum and a divisor"
+					],
+					"asked": "which line proves the divisibility",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.integer-proof"
+					]
+				},
+				{
+					"id": "represent-integers",
+					"given": [
+						"a claim about any two numbers of one kind"
+					],
+					"asked": "which opening covers every pair",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.6.integer-proof"
+					]
+				},
+				{
+					"id": "case-bracket",
+					"given": [
+						"n² + an + b with a odd and b even, and one parity of n"
+					],
+					"asked": "the expression as 2 times an integer expression in k",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.integer-proof"
+					]
+				},
+				{
+					"id": "consecutive-factors",
+					"given": [
+						"a quadratic in n that is a product of consecutive integers"
+					],
+					"asked": "the two factors",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.integer-proof"
+					]
+				},
+				{
+					"id": "remainder-form",
+					"given": [
+						"a sum of squares that is never divisible by m"
+					],
+					"asked": "the sum as m times an integer expression plus a remainder",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.integer-proof"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.6.identity-lhs-rhs",
+					"method": "expand-simplify",
+					"suits": [
+						"simplify-left-side",
+						"missing-line",
+						"next-step",
+						"valid-proof",
+						"flawed-step"
+					],
+					"name": "Start from the LHS and simplify to the RHS",
+					"about": "Write LHS = …, expand, collect terms or combine fractions, and finish with = RHS, never treating the statement as an equation to be solved."
+				},
+				{
+					"skill": "SL1.6.identity-lhs-rhs",
+					"method": "factorise",
+					"suits": [
+						"simplify-left-side",
+						"missing-line",
+						"next-step",
+						"multiple-k"
+					],
+					"name": "Spot a structure and factorise",
+					"about": "Use the difference of two squares: (n + 1)² − (n − 1)² = [(n + 1) − (n − 1)][(n + 1) + (n − 1)] = 2 × 2n = 4n."
+				},
+				{
+					"skill": "SL1.6.identity-lhs-rhs",
+					"method": "common-form",
+					"suits": [
+						"common-expression"
+					],
+					"name": "Reduce both sides separately to the same expression",
+					"about": "Simplify LHS and RHS in two independent chains to a common expression, then conclude LHS ≡ RHS."
+				},
+				{
+					"skill": "SL1.6.integer-proof",
+					"method": "algebraic-form",
+					"suits": [
+						"flawed-step",
+						"multiple-k",
+						"consecutive-sum",
+						"greatest-divisor",
+						"finish-divisibility",
+						"represent-integers",
+						"remainder-form"
+					],
+					"name": "Represent the integers algebraically and factor out the divisor",
+					"about": "Use n, n + 1 for consecutive integers and 2k, 2k + 1 for even and odd numbers, simplify, then write the result as 2(…), 3(…) or 8(…) with an integer bracket."
+				},
+				{
+					"skill": "SL1.6.integer-proof",
+					"method": "cases",
+					"suits": [
+						"case-bracket"
+					],
+					"name": "Split into cases",
+					"about": "Consider n even (n = 2k) and n odd (n = 2k + 1) separately and show the result holds in both."
+				},
+				{
+					"skill": "SL1.6.integer-proof",
+					"method": "consecutive-product",
+					"suits": [
+						"consecutive-factors"
+					],
+					"name": "Factorise into consecutive integers",
+					"about": "n² + n = n(n + 1) is a product of consecutive integers, one of which must be even."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "n² + n + 41 is prime for n = 1, 2, 3, 4 and 5, so it is prime for every positive integer n.",
+					"answer": "False: examples can't prove a claim about every n. At n = 41 it is 41² + 41 + 41 = 41 × 43, which is not prime.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The sum of three consecutive integers is divisible by 6.",
+					"answer": "Sometimes: the sum is 3(n + 1), a multiple of 3 every time, but it needs n + 1 even to be a multiple of 6. 1 + 2 + 3 = 6 works and 2 + 3 + 4 = 9 does not.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "6n + 9 = 6(n + 3/2), so 6n + 9 is a multiple of 6 for every integer n.",
+					"answer": "False: n + 3/2 is not an integer, so the 6 outside proves nothing. At n = 1, 6n + 9 = 15, which is not a multiple of 6.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.6.identity-lhs-rhs#0",
+					"text": "Starting from LHS = RHS and operating on both sides, which assumes what is to be proved",
+					"as": "distractor",
+					"in": [
+						"next-step",
+						"valid-proof"
+					],
+					"wrong": "a line that takes the right side from both sides and reaches zero"
+				},
+				{
+					"ref": "SL1.6.identity-lhs-rhs#1",
+					"text": "Checking particular values and calling it a proof",
+					"as": "distractor",
+					"in": [
+						"next-step",
+						"valid-proof"
+					],
+					"wrong": "the two sides compared at one or two values, each worked out truly"
+				},
+				{
+					"ref": "SL1.6.identity-lhs-rhs#2",
+					"text": "Stopping without a concluding statement, or writing = where ≡ is required",
+					"as": "distractor",
+					"in": [
+						"valid-proof"
+					],
+					"wrong": "the expansion, with no last line and no conclusion"
+				},
+				{
+					"text": "Using one letter for two different numbers, which only covers the case where they are equal",
+					"as": "distractor",
+					"in": [
+						"represent-integers"
+					],
+					"wrong": "one letter for both numbers"
+				},
+				{
+					"ref": "SL1.6.integer-proof#1",
+					"text": "Verifying examples instead of arguing in general",
+					"as": "distractor",
+					"in": [
+						"greatest-divisor",
+						"finish-divisibility",
+						"represent-integers"
+					],
+					"wrong": "the value at one n, or two chosen numbers, in place of a general argument"
+				},
+				{
+					"ref": "SL1.6.integer-proof#2",
+					"text": "Concluding divisibility without showing the bracket is an integer",
+					"as": "distractor",
+					"in": [
+						"greatest-divisor",
+						"finish-divisibility",
+						"remainder-form"
+					],
+					"wrong": "the leading number taken out, which leaves a fraction in the bracket"
+				},
+				{
+					"text": "Forgetting to double the middle term when squaring a bracket",
+					"as": "distractor",
+					"in": [
+						"simplify-left-side",
+						"common-expression",
+						"missing-line",
+						"next-step",
+						"flawed-step",
+						"multiple-k",
+						"case-bracket"
+					],
+					"wrong": "(a + b)² written as a² + ab + b²"
+				},
+				{
+					"text": "Squaring each term of a bracket and keeping its sign, with no middle term",
+					"as": "distractor",
+					"in": [
+						"simplify-left-side",
+						"common-expression",
+						"missing-line",
+						"next-step",
+						"flawed-step",
+						"multiple-k",
+						"case-bracket",
+						"remainder-form"
+					],
+					"wrong": "(a + b)² written as a² + b², and (a − b)² as a² − b²"
+				},
+				{
+					"text": "Getting a sign wrong when multiplying out or removing a bracket",
+					"as": "distractor",
+					"in": [
+						"simplify-left-side",
+						"missing-line",
+						"next-step",
+						"flawed-step",
+						"multiple-k"
+					],
+					"wrong": "one term with the opposite sign, carried to the end"
+				},
+				{
+					"text": "Multiplying only the first term of a bracket",
+					"as": "distractor",
+					"in": [
+						"simplify-left-side",
+						"missing-line",
+						"next-step",
+						"flawed-step"
+					],
+					"wrong": "the other terms of the bracket left unmultiplied"
+				},
+				{
+					"text": "Dividing only part of a numerator by x",
+					"as": "distractor",
+					"in": [
+						"simplify-left-side",
+						"missing-line",
+						"next-step"
+					],
+					"wrong": "the last term of the numerator not divided"
+				},
+				{
+					"text": "Squaring only the numerator of a fraction",
+					"as": "distractor",
+					"in": [
+						"simplify-left-side",
+						"common-expression",
+						"missing-line",
+						"next-step",
+						"flawed-step"
+					],
+					"wrong": "the denominator left unsquared"
+				},
+				{
+					"text": "Adding one gap too many when summing a list of terms",
+					"as": "distractor",
+					"in": [
+						"consecutive-sum"
+					],
+					"wrong": "the gaps counted up to c, not c − 1"
+				},
+				{
+					"text": "Squaring the letter but not its coefficient",
+					"as": "distractor",
+					"in": [
+						"case-bracket"
+					],
+					"wrong": "the letter squared and the number in front left as it is"
+				},
+				{
+					"text": "Writing a² − b² as (a + b)(a + b)",
+					"as": "distractor",
+					"in": [
+						"simplify-left-side",
+						"missing-line",
+						"next-step",
+						"multiple-k"
+					],
+					"wrong": "both brackets written with the plus"
+				}
+			],
+			"chain": [
+				"simplify one side, or both to a common expression",
+				"take each line from the one before, and name the line that breaks",
+				"write the number as m times an integer expression, and show the bracket is an integer",
+				"split into cases, or factorise into consecutive integers",
+				"show a remainder that rules out a divisor"
+			],
 			"frequency": 8,
 			"marks": 3,
 			"section": {
@@ -19382,9 +20872,7 @@
 			"paper": {
 				"p1": 7,
 				"p2": 1
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-rational-exponents",
@@ -19445,6 +20933,662 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Sum to infinity: convergence, value, or an unknown from it",
+			"summary": "Decide whether a sum to infinity exists, by the ratio, a table of partial sums or a band on a graph, find S∞ from terms, sigma notation or a shaded square, use it to find u₁, r or x, and apply it to a bouncing ball, a recurring decimal, nested squares and a running total with or without a target.",
+			"situation": "geometric-sequence",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "notation",
+					"exam": true,
+					"how": "u₁ = 18,  r = −2/3, or u₂ = 6,  S∞ = 27"
+				},
+				{
+					"rep": "terms",
+					"exam": true,
+					"how": "the first terms, 18, −12, 8, …, or a recurring decimal"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "an infinite Σ, a series of logs, or r = (2x + 1)/3"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a sentence or a story: a ball, a well, a store of scrap"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "n against uₙ, or partial sums Sₙ from a GDC"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "r as a line in x, with the band between y = −1 and y = 1"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a ball's path, a square shaded in pieces, or squares inside squares"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "exists-claim",
+					"given": [
+						"the first terms, or u₁ and r"
+					],
+					"asked": "whether S∞ exists, and why",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms"
+					],
+					"skills": [
+						"SL1.8.convergence"
+					]
+				},
+				{
+					"id": "exists-table",
+					"given": [
+						"a table of partial sums"
+					],
+					"asked": "what the table shows about S∞",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL1.8.convergence"
+					]
+				},
+				{
+					"id": "x-interval",
+					"given": [
+						"r as a line in x, as an expression or a graph"
+					],
+					"asked": "the values of x for which S∞ exists",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL1.8.convergence"
+					]
+				},
+				{
+					"id": "sinf-value",
+					"given": [
+						"u₁ and r, the first terms, or a table of terms"
+					],
+					"asked": "S∞",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"terms",
+						"table"
+					],
+					"skills": [
+						"SL1.8.sum-to-infinity"
+					]
+				},
+				{
+					"id": "sinf-sigma",
+					"given": [
+						"an infinite series in Σ notation"
+					],
+					"asked": "S∞",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.8.sum-to-infinity"
+					]
+				},
+				{
+					"id": "sinf-shaded",
+					"given": [
+						"a square shaded in shrinking pieces"
+					],
+					"asked": "the total shaded area",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL1.8.sum-to-infinity"
+					]
+				},
+				{
+					"id": "x-from-log-series",
+					"given": [
+						"a series of multiples of log x, with one multiple hidden",
+						"S∞"
+					],
+					"asked": "x",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "u1-from-sinf",
+					"given": [
+						"r and S∞"
+					],
+					"asked": "u₁",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "r-from-sinf",
+					"given": [
+						"u₁ and S∞"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "r-from-multiple",
+					"given": [
+						"S∞ as a multiple of u₁"
+					],
+					"asked": "r",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "r-from-u2-reject",
+					"given": [
+						"u₂ and S∞, with one root of the quadratic too large"
+					],
+					"asked": "r",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "r-from-u2-both",
+					"given": [
+						"u₂ and S∞, with both roots of the quadratic allowed"
+					],
+					"asked": "both possible values of r",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"notation",
+						"words"
+					],
+					"skills": [
+						"SL1.8.find-unknown"
+					]
+				},
+				{
+					"id": "bounce-total",
+					"given": [
+						"a ball's drop height and its rebound fraction"
+					],
+					"asked": "the total distance before it comes to rest",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "bounce-multiple",
+					"given": [
+						"a rebound fraction, for a drop of x metres"
+					],
+					"asked": "k, where the total distance is kx",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "recurring-decimal",
+					"given": [
+						"a recurring decimal"
+					],
+					"asked": "the same number as a fraction",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "nested-squares",
+					"given": [
+						"a square, and how each next square sits inside the last"
+					],
+					"asked": "the total area of all the squares",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "story-total",
+					"given": [
+						"a story in which each amount is a fixed share of the last"
+					],
+					"asked": "the total if it goes on for ever",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "story-target",
+					"given": [
+						"a story, with a target for the running total"
+					],
+					"asked": "whether the total ever reaches the target",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				},
+				{
+					"id": "deposit-for-target",
+					"given": [
+						"the share kept each round, a target and a number of rounds"
+					],
+					"asked": "the first amount",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.8.applications"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.8.convergence",
+					"method": "test-ratio",
+					"suits": [
+						"exists-claim"
+					],
+					"name": "Find r and check |r| < 1",
+					"about": "Compute r = u_2/u_1 and state |r| < 1 explicitly as the justification."
+				},
+				{
+					"skill": "SL1.8.convergence",
+					"method": "partial-sums",
+					"suits": [
+						"exists-claim",
+						"exists-table"
+					],
+					"name": "Watch the partial sums on the GDC",
+					"about": "Tabulate S_n for large n: if the values settle the series converges, if they grow or flip without settling it does not (evidence, not proof)."
+				},
+				{
+					"skill": "SL1.8.convergence",
+					"method": "double-inequality",
+					"suits": [
+						"x-interval"
+					],
+					"name": "Solve −1 < r < 1 as a double inequality",
+					"about": "With r = 2x/3, solve −1 < 2x/3 < 1 to get −3/2 < x < 3/2."
+				},
+				{
+					"skill": "SL1.8.convergence",
+					"method": "graph-band",
+					"suits": [
+						"x-interval"
+					],
+					"name": "Graph r as a function of x inside the band −1 < y < 1",
+					"about": "Plot y = r(x) with y = −1 and y = 1 and find where the graph lies strictly between them."
+				},
+				{
+					"skill": "SL1.8.sum-to-infinity",
+					"method": "formula",
+					"suits": [
+						"sinf-value",
+						"sinf-sigma",
+						"sinf-shaded"
+					],
+					"name": "Use S∞ = u_1/(1 − r)",
+					"about": "Identify u_1 and r, state that |r| < 1, then substitute."
+				},
+				{
+					"skill": "SL1.8.sum-to-infinity",
+					"method": "limit-of-sn",
+					"suits": [
+						"sinf-value",
+						"sinf-sigma"
+					],
+					"name": "Let n → ∞ in the S_n formula",
+					"about": "S_n = u_1(1 − r^n)/(1 − r), and r^n → 0 when |r| < 1, leaving u_1/(1 − r)."
+				},
+				{
+					"skill": "SL1.8.sum-to-infinity",
+					"method": "partial-sums",
+					"suits": [
+						"sinf-value"
+					],
+					"name": "Tabulate partial sums on the GDC",
+					"about": "Compute S_10, S_20 and S_50 and watch them approach a limit, confirming the formula's answer."
+				},
+				{
+					"skill": "SL1.8.sum-to-infinity",
+					"method": "shaded-square",
+					"suits": [
+						"sinf-shaded"
+					],
+					"name": "Shade a shape in shrinking pieces",
+					"about": "Shading half a square, then half of what is left, and so on, shows 1/2 + 1/4 + 1/8 + … fills exactly 1."
+				},
+				{
+					"skill": "SL1.8.find-unknown",
+					"method": "rearrange",
+					"suits": [
+						"u1-from-sinf",
+						"r-from-sinf",
+						"r-from-multiple",
+						"x-from-log-series"
+					],
+					"name": "Substitute into S∞ = u_1/(1 − r) and rearrange",
+					"about": "20 = 8/(1 − r) gives 1 − r = 0.4, so r = 0.6."
+				},
+				{
+					"skill": "SL1.8.find-unknown",
+					"method": "form-quadratic",
+					"suits": [
+						"r-from-u2-reject",
+						"r-from-u2-both"
+					],
+					"name": "Combine two conditions into a quadratic in r",
+					"about": "Substitute u_1 = 6/r into S∞ = 27 to get 9r² − 9r + 2 = 0, solve, and keep only roots with |r| < 1."
+				},
+				{
+					"skill": "SL1.8.find-unknown",
+					"method": "ratio-structure",
+					"suits": [
+						"r-from-multiple"
+					],
+					"name": "Use S∞/u_1 = 1/(1 − r)",
+					"about": "If S∞ = 3u_1 then 1/(1 − r) = 3, so r = 2/3, without ever needing u_1."
+				},
+				{
+					"skill": "SL1.8.find-unknown",
+					"method": "gdc-solver",
+					"suits": [
+						"u1-from-sinf",
+						"r-from-sinf",
+						"r-from-u2-reject",
+						"r-from-u2-both"
+					],
+					"name": "Solve with the GDC",
+					"about": "Enter the equation in r into the solver, or graph both sides and intersect."
+				},
+				{
+					"skill": "SL1.8.applications",
+					"method": "model-series",
+					"suits": [
+						"bounce-total",
+						"bounce-multiple",
+						"recurring-decimal",
+						"nested-squares",
+						"story-total",
+						"story-target",
+						"deposit-for-target"
+					],
+					"name": "Identify the series hiding in the context and sum it",
+					"about": "Write the first few distances, areas or digits as terms, find u_1 and r, check |r| < 1, then apply the formula."
+				},
+				{
+					"skill": "SL1.8.applications",
+					"method": "split-series",
+					"suits": [
+						"bounce-total",
+						"bounce-multiple"
+					],
+					"name": "Split the motion into separate series",
+					"about": "For a bouncing ball, add the first drop to twice the sum of the rebound heights, since each rebound goes up and comes back down."
+				},
+				{
+					"skill": "SL1.8.applications",
+					"method": "draw-stages",
+					"suits": [
+						"bounce-total",
+						"nested-squares"
+					],
+					"name": "Draw the first few stages",
+					"about": "Sketching the nested shapes or the bounce path shows what each term represents, so nothing is double counted or missed."
+				},
+				{
+					"skill": "SL1.8.applications",
+					"method": "partial-sums",
+					"suits": [
+						"bounce-total",
+						"recurring-decimal",
+						"story-total",
+						"story-target"
+					],
+					"name": "Check with partial sums on the GDC",
+					"about": "Summing the first 30 terms numerically should already be very close to the formula's answer."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A geometric series with r = −1 has a sum to infinity of u₁/2, because the formula gives that.",
+					"answer": "False: the partial sums flip between u₁ and 0 and never settle. The formula only holds for |r| < 1.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "If u₁ > 0, then S∞ is greater than u₁.",
+					"answer": "Sometimes: it is for r > 0, but for r < 0 the denominator 1 − r is more than 1, so S∞ is less than u₁.",
+					"level": 4
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "0.999… is exactly equal to 1.",
+					"answer": "True: it is 9/10 + 9/100 + …, with u₁ = 9/10 and r = 1/10, so S∞ = (9/10)/(9/10) = 1.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.8.convergence#0",
+					"text": "Thinking r below one is enough, so a large negative ratio seems to converge",
+					"as": "distractor",
+					"in": [
+						"exists-claim"
+					],
+					"wrong": "a yes for a ratio below −1"
+				},
+				{
+					"ref": "SL1.8.convergence#1",
+					"text": "Solving only the upper inequality and forgetting the lower one when r depends on x",
+					"as": "distractor",
+					"in": [
+						"x-interval"
+					],
+					"wrong": "one end of the interval only"
+				},
+				{
+					"ref": "SL1.8.convergence#2",
+					"text": "Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity",
+					"as": "distractor",
+					"in": [
+						"exists-claim",
+						"x-interval"
+					],
+					"wrong": "a yes for |r| = 1, or an interval with its ends included"
+				},
+				{
+					"ref": "SL1.8.sum-to-infinity#0",
+					"text": "Putting a plus in the formula's denominator, or dropping the sign of a negative r",
+					"as": "distractor",
+					"in": [
+						"sinf-value",
+						"sinf-sigma",
+						"sinf-shaded",
+						"story-total"
+					],
+					"wrong": "u₁/(1 + r)"
+				},
+				{
+					"ref": "SL1.8.sum-to-infinity#1",
+					"text": "Taking the coefficient as u₁ instead of the value at the lower limit",
+					"as": "distractor",
+					"in": [
+						"sinf-sigma"
+					],
+					"wrong": "the coefficient used as u₁"
+				},
+				{
+					"ref": "SL1.8.sum-to-infinity#2",
+					"text": "Applying the formula when the size of r is one or more, which gives a meaningless sum",
+					"as": "distractor",
+					"in": [
+						"exists-claim",
+						"exists-table"
+					],
+					"wrong": "a value from the formula for |r| > 1"
+				},
+				{
+					"ref": "SL1.8.find-unknown#0",
+					"text": "Inverting the rearrangement of the formula, so S∞ and u₁ swap places",
+					"as": "distractor",
+					"in": [
+						"u1-from-sinf",
+						"r-from-sinf",
+						"r-from-multiple"
+					],
+					"wrong": "S∞ and u₁ swapped in the rearrangement"
+				},
+				{
+					"ref": "SL1.8.find-unknown#1",
+					"text": "Keeping a root too large in size for a sum to infinity to exist",
+					"as": "distractor",
+					"in": [
+						"r-from-u2-reject"
+					],
+					"wrong": "the root with |r| > 1 kept"
+				},
+				{
+					"ref": "SL1.8.find-unknown#2",
+					"text": "Substituting u₂ as if it were u₁",
+					"as": "distractor",
+					"in": [
+						"r-from-u2-reject",
+						"r-from-u2-both"
+					],
+					"wrong": "r found from S∞ = u₂/(1 − r)"
+				},
+				{
+					"ref": "SL1.8.applications#0",
+					"text": "Doubling the first drop of a bouncing ball as well as the rebounds",
+					"as": "distractor",
+					"in": [
+						"bounce-total",
+						"bounce-multiple"
+					],
+					"wrong": "the first drop counted twice"
+				},
+				{
+					"ref": "SL1.8.applications#1",
+					"text": "Using one tenth as r for a recurring block of more than one digit",
+					"as": "distractor",
+					"in": [
+						"recurring-decimal"
+					],
+					"wrong": "r taken as one tenth for a longer block"
+				},
+				{
+					"ref": "SL1.8.applications#2",
+					"text": "Using S∞ in context without checking that r is small enough",
+					"as": "distractor",
+					"in": [
+						"story-target"
+					],
+					"wrong": "S∞ read as a ceiling when r > 1"
+				}
+			],
+			"chain": [
+				"find r and test |r| < 1",
+				"solve −1 < r < 1 when r depends on x",
+				"S∞ = u₁/(1 − r), with u₁ taken from the lower limit of a sigma",
+				"u₁ or r back from S∞, and a quadratic in r from u₂ and S∞, keeping |r| < 1",
+				"a story: split a ball's path, write a recurring block as a series, or compare S∞ with a target"
+			],
 			"frequency": 5,
 			"marks": 3,
 			"section": {
@@ -19454,9 +21598,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 4
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-binomial-find-unknown",
@@ -19481,6 +21623,818 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Binomial expansion: a coefficient, a term or the full expansion",
+			"summary": "Evaluate nCr, read and build Pascal's triangle, expand (a + b)^n in full, and find one term or coefficient: with a negative term, a number beside x, x², a letter in the bracket, or by its place in the expansion.",
+			"situation": "binomial-expansion",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the bracket and its power, (2x − 3)⁵, or nCr as 8C3"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "Pascal's triangle drawn as a staggered grid with no row numbers, or one row of it"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "ncr-value",
+					"given": [
+						"n",
+						"r"
+					],
+					"asked": "the value of nCr",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "ncr-read-triangle",
+					"given": [
+						"Pascal's triangle",
+						"n",
+						"r"
+					],
+					"asked": "nCr, read from the triangle",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "ncr-large-r",
+					"given": [
+						"n",
+						"an r close to n"
+					],
+					"asked": "the value of nCr",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "ncr-symmetry",
+					"given": [
+						"nCr = nCm with m ≠ r"
+					],
+					"asked": "m",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "ncr-edge",
+					"given": [
+						"n",
+						"r of 0 or n"
+					],
+					"asked": "the value of nC0 or nCn",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "ncr-find-n",
+					"given": [
+						"the value of nC2"
+					],
+					"asked": "n",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "ncr-formula-in-n",
+					"given": [
+						"a top of n, or n plus or minus a whole number"
+					],
+					"asked": "nC2 as a polynomial in n, which is the show-that nC2 = n(n − 1)/2",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "pascal-row",
+					"given": [
+						"n"
+					],
+					"asked": "the row of Pascal's triangle for n",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "pascal-next-row",
+					"given": [
+						"the first rows of Pascal's triangle"
+					],
+					"asked": "the next row",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "row-from-entries",
+					"given": [
+						"one row of Pascal's triangle"
+					],
+					"asked": "n",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL1.9.ncr-pascal"
+					]
+				},
+				{
+					"id": "number-of-terms",
+					"given": [
+						"a bracket with a letter in it, and its power"
+					],
+					"asked": "the number of terms",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.full-expansion"
+					]
+				},
+				{
+					"id": "expand-small",
+					"given": [
+						"the bracket and its power, which is 2 or 3"
+					],
+					"asked": "the expansion",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.full-expansion"
+					]
+				},
+				{
+					"id": "expand-unit",
+					"given": [
+						"(x + b)^n or (b + x)^n, with n of 4 or 5"
+					],
+					"asked": "the expansion",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.full-expansion"
+					]
+				},
+				{
+					"id": "expand-negative",
+					"given": [
+						"a bracket with a negative term"
+					],
+					"asked": "the expansion",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.full-expansion"
+					]
+				},
+				{
+					"id": "expand-raised",
+					"given": [
+						"a bracket with a number beside x"
+					],
+					"asked": "the expansion",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.full-expansion"
+					]
+				},
+				{
+					"id": "expand-from-triangle",
+					"given": [
+						"Pascal's triangle",
+						"the bracket and its power"
+					],
+					"asked": "the expansion",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL1.9.full-expansion"
+					]
+				},
+				{
+					"id": "expand-power",
+					"given": [
+						"a bracket in x²"
+					],
+					"asked": "the expansion",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.full-expansion"
+					]
+				},
+				{
+					"id": "expand-reciprocal",
+					"given": [
+						"(x + b/x)^n"
+					],
+					"asked": "the expansion, with each term simplified",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.full-expansion"
+					]
+				},
+				{
+					"id": "first-three-terms",
+					"given": [
+						"the bracket and its power"
+					],
+					"asked": "the first three terms, in ascending powers of x",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.full-expansion"
+					]
+				},
+				{
+					"id": "coefficient-plain",
+					"given": [
+						"the bracket and its power",
+						"a power of x"
+					],
+					"asked": "the coefficient",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.specific-term"
+					]
+				},
+				{
+					"id": "coefficient-negative",
+					"given": [
+						"a bracket with a negative term",
+						"a power of x"
+					],
+					"asked": "the coefficient",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.specific-term"
+					]
+				},
+				{
+					"id": "coefficient-raised",
+					"given": [
+						"a bracket with a number beside x",
+						"a power of x"
+					],
+					"asked": "the coefficient",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.specific-term"
+					]
+				},
+				{
+					"id": "coefficient-from-triangle",
+					"given": [
+						"Pascal's triangle",
+						"the bracket and its power",
+						"a power of x"
+					],
+					"asked": "the coefficient",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL1.9.specific-term"
+					]
+				},
+				{
+					"id": "coefficient-power",
+					"given": [
+						"a bracket in x²",
+						"a power of x"
+					],
+					"asked": "the coefficient",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.specific-term"
+					]
+				},
+				{
+					"id": "coefficient-letter",
+					"given": [
+						"(x + k)^n",
+						"a power of x"
+					],
+					"asked": "the coefficient in terms of k",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.specific-term"
+					]
+				},
+				{
+					"id": "specific-term",
+					"given": [
+						"the bracket and its power",
+						"a power of x"
+					],
+					"asked": "the term, with its x",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.specific-term"
+					]
+				},
+				{
+					"id": "missing-coefficient",
+					"given": [
+						"an expansion with two coefficients written as letters"
+					],
+					"asked": "the value of one of the letters",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.specific-term"
+					]
+				},
+				{
+					"id": "term-by-position",
+					"given": [
+						"the bracket and its power",
+						"the term's place, in descending powers"
+					],
+					"asked": "that term",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.9.specific-term"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.9.ncr-pascal",
+					"method": "factorial-formula",
+					"suits": [
+						"ncr-value",
+						"ncr-large-r",
+						"ncr-edge",
+						"ncr-find-n",
+						"ncr-formula-in-n",
+						"pascal-row"
+					],
+					"name": "Use nCr = n!/(r!(n − r)!)",
+					"about": "Cancel the larger factorial first: 8C3 = (8 × 7 × 6)/(3 × 2 × 1) = 56."
+				},
+				{
+					"skill": "SL1.9.ncr-pascal",
+					"method": "pascal-build",
+					"suits": [
+						"ncr-value",
+						"ncr-read-triangle",
+						"ncr-edge",
+						"ncr-find-n",
+						"pascal-row",
+						"pascal-next-row",
+						"row-from-entries"
+					],
+					"name": "Build Pascal's triangle by adding adjacent entries",
+					"about": "Each entry is the sum of the two above it; the row that starts 1, n is row n."
+				},
+				{
+					"skill": "SL1.9.ncr-pascal",
+					"method": "symmetry",
+					"suits": [
+						"ncr-large-r",
+						"ncr-symmetry"
+					],
+					"name": "Use nCr = nC(n − r)",
+					"about": "8C5 = 8C3, so choose the smaller r to shorten the work."
+				},
+				{
+					"skill": "SL1.9.ncr-pascal",
+					"method": "gdc-ncr",
+					"suits": [
+						"ncr-value",
+						"ncr-large-r",
+						"ncr-find-n",
+						"pascal-row"
+					],
+					"name": "Use the nCr function on the GDC",
+					"about": "Enter n nCr r directly, or tabulate nCx to read a whole row."
+				},
+				{
+					"skill": "SL1.9.full-expansion",
+					"method": "pascal-row",
+					"suits": [
+						"expand-small",
+						"expand-unit",
+						"expand-negative",
+						"expand-raised",
+						"expand-from-triangle",
+						"expand-power",
+						"expand-reciprocal",
+						"first-three-terms"
+					],
+					"name": "Use the row of Pascal's triangle with falling and rising powers",
+					"about": "For n = 4 use 1, 4, 6, 4, 1; the power of the first term falls from 4 to 0 while the power of the second rises from 0 to 4."
+				},
+				{
+					"skill": "SL1.9.full-expansion",
+					"method": "binomial-theorem",
+					"suits": [
+						"number-of-terms",
+						"expand-small",
+						"expand-unit",
+						"expand-negative",
+						"expand-raised",
+						"expand-power",
+						"expand-reciprocal",
+						"first-three-terms"
+					],
+					"name": "Apply the binomial theorem term by term",
+					"about": "Write each term as nCr a^(n − r) b^r, with brackets round (2x) and (−3) so coefficients and signs are raised too."
+				},
+				{
+					"skill": "SL1.9.full-expansion",
+					"method": "repeated-multiply",
+					"suits": [
+						"expand-small"
+					],
+					"name": "Multiply the brackets out step by step",
+					"about": "For n = 2 or 3, multiply out directly; this also shows where Pascal's numbers come from."
+				},
+				{
+					"skill": "SL1.9.full-expansion",
+					"method": "choose-brackets",
+					"suits": [
+						"number-of-terms",
+						"expand-unit"
+					],
+					"name": "Count choices from each bracket",
+					"about": "Every term picks a or b from each of the n brackets; the number of ways to pick b exactly r times is nCr."
+				},
+				{
+					"skill": "SL1.9.specific-term",
+					"method": "general-term",
+					"suits": [
+						"coefficient-plain",
+						"coefficient-negative",
+						"coefficient-raised",
+						"coefficient-power",
+						"coefficient-letter",
+						"specific-term",
+						"missing-coefficient",
+						"term-by-position"
+					],
+					"name": "Write the general term and choose r",
+					"about": "Use nCr a^(n − r) b^r, pick the r that gives the required power, then evaluate including the sign and coefficient."
+				},
+				{
+					"skill": "SL1.9.specific-term",
+					"method": "pascal-select",
+					"suits": [
+						"coefficient-plain",
+						"coefficient-negative",
+						"coefficient-from-triangle",
+						"missing-coefficient",
+						"term-by-position"
+					],
+					"name": "Read the coefficient from Pascal's triangle",
+					"about": "For small n, take the needed entry from row n and multiply by the matching powers of a and b."
+				},
+				{
+					"skill": "SL1.9.specific-term",
+					"method": "choose-brackets",
+					"suits": [
+						"coefficient-plain",
+						"coefficient-negative",
+						"coefficient-raised",
+						"coefficient-letter",
+						"specific-term"
+					],
+					"name": "Count how many brackets supply x",
+					"about": "For x³ in (2 − x)^7, choose 3 of the 7 brackets to give −x and the other 4 give 2: 7C3 × 2^4 × (−1)^3 = −560."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The expansion of (a + b)^n has n terms.",
+					"answer": "False: r runs from 0 to n, which is n + 1 values, so there are n + 1 terms. (a + b)² has three.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "In (1 + x)^n the coefficient of x^r equals the coefficient of x^(n − r).",
+					"answer": "Always: both are nCr, as choosing r brackets to give x is the same as choosing n − r to give 1.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "The coefficients of (1 + x)^n add up to 2^n.",
+					"answer": "True: put x = 1 in the expansion. The sum of the coefficients is then (1 + 1)^n.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.9.ncr-pascal#0",
+					"text": "Using n!/r! and forgetting the (n − r)! factor",
+					"as": "distractor",
+					"in": [
+						"ncr-value",
+						"ncr-large-r"
+					],
+					"wrong": "n!/r!"
+				},
+				{
+					"ref": "SL1.9.ncr-pascal#1",
+					"text": "Numbering the rows of Pascal's triangle from 1 instead of from 0",
+					"as": "distractor",
+					"in": [
+						"ncr-read-triangle",
+						"ncr-find-n",
+						"pascal-row",
+						"row-from-entries",
+						"missing-coefficient"
+					],
+					"wrong": "the row before or after the right one"
+				},
+				{
+					"ref": "SL1.9.ncr-pascal#2",
+					"text": "Thinking nC0 = 0",
+					"as": "distractor",
+					"in": [
+						"ncr-edge"
+					],
+					"wrong": "0 for nC0"
+				},
+				{
+					"ref": "SL1.9.full-expansion#0",
+					"text": "Not raising the coefficient: applying the power to x alone, so (ax)^r becomes ax^r",
+					"as": "distractor",
+					"in": [
+						"expand-small",
+						"expand-raised",
+						"expand-from-triangle",
+						"expand-power",
+						"expand-reciprocal",
+						"first-three-terms",
+						"coefficient-raised",
+						"coefficient-from-triangle",
+						"coefficient-power",
+						"specific-term",
+						"term-by-position"
+					],
+					"wrong": "the number beside x, or on x, used once however high the power"
+				},
+				{
+					"ref": "SL1.9.full-expansion#1",
+					"text": "Losing the alternating signs when the second term is negative",
+					"as": "distractor",
+					"in": [
+						"expand-small",
+						"expand-negative",
+						"expand-raised",
+						"expand-from-triangle",
+						"expand-power",
+						"expand-reciprocal",
+						"first-three-terms"
+					],
+					"wrong": "every term positive"
+				},
+				{
+					"ref": "SL1.9.full-expansion#2",
+					"text": "Writing a term whose two powers do not add up to n",
+					"as": "distractor",
+					"in": [
+						"expand-small",
+						"expand-unit",
+						"expand-negative",
+						"expand-raised",
+						"expand-from-triangle",
+						"expand-power",
+						"first-three-terms",
+						"coefficient-plain",
+						"coefficient-negative",
+						"coefficient-raised",
+						"coefficient-from-triangle",
+						"coefficient-power",
+						"coefficient-letter",
+						"specific-term",
+						"term-by-position"
+					],
+					"wrong": "the same power on both terms of the bracket"
+				},
+				{
+					"ref": "SL1.9.specific-term#0",
+					"text": "Ignoring the sign: treating a negative term raised to an odd power as positive",
+					"as": "distractor",
+					"in": [
+						"coefficient-negative",
+						"coefficient-raised",
+						"coefficient-from-triangle",
+						"coefficient-power",
+						"specific-term",
+						"term-by-position"
+					],
+					"wrong": "the size of the coefficient with its minus sign lost"
+				},
+				{
+					"ref": "SL1.9.specific-term#1",
+					"text": "Forgetting to raise the other term to its power",
+					"as": "distractor",
+					"in": [
+						"expand-small",
+						"expand-unit",
+						"expand-negative",
+						"expand-power",
+						"first-three-terms",
+						"coefficient-plain",
+						"coefficient-negative",
+						"coefficient-raised",
+						"coefficient-from-triangle",
+						"coefficient-power",
+						"coefficient-letter",
+						"specific-term",
+						"missing-coefficient",
+						"term-by-position"
+					],
+					"wrong": "the number or letter in the bracket used once, not raised to its power"
+				},
+				{
+					"ref": "SL1.9.specific-term#2",
+					"text": "Giving the whole term when the coefficient is asked for, or the coefficient when the term is asked for",
+					"as": "distractor",
+					"in": [
+						"coefficient-plain",
+						"coefficient-negative",
+						"coefficient-raised",
+						"coefficient-from-triangle",
+						"coefficient-power",
+						"coefficient-letter",
+						"specific-term",
+						"term-by-position"
+					],
+					"wrong": "the term with its x for a coefficient, or the number alone for a term"
+				},
+				{
+					"text": "Leaving out the r! in the formula for nCr",
+					"as": "distractor",
+					"in": [
+						"ncr-value",
+						"ncr-formula-in-n"
+					],
+					"wrong": "n!/(n − r)!, so n(n − 1) with no halving"
+				},
+				{
+					"text": "Keeping the negative root of the quadratic, though n is a whole number",
+					"as": "distractor",
+					"in": [
+						"ncr-find-n"
+					],
+					"wrong": "the root 1 − n"
+				},
+				{
+					"text": "Counting n terms in the expansion, leaving out the term where r = 0",
+					"as": "distractor",
+					"in": [
+						"number-of-terms"
+					],
+					"wrong": "n"
+				},
+				{
+					"text": "Using the place of the term as r, when r starts from 0",
+					"as": "distractor",
+					"in": [
+						"term-by-position"
+					],
+					"wrong": "the term one place along"
+				},
+				{
+					"text": "Forgetting that (1/x)^r is x^(−r), so the power of x falls by one each term, not by two",
+					"as": "distractor",
+					"in": [
+						"expand-reciprocal"
+					],
+					"wrong": "the powers of x run n, n − 1 and so on down to 0"
+				}
+			],
+			"chain": [
+				"evaluate nCr, or read the row of Pascal's triangle",
+				"write each term as nCr a^(n − r) b^r, with brackets round each part",
+				"raise the numbers and the signs too, then simplify",
+				"for one term, choose the r that gives the power asked",
+				"state the term or its coefficient, whichever is asked"
+			],
 			"frequency": 6,
 			"marks": 2,
 			"section": {
@@ -19490,9 +22444,7 @@
 			"paper": {
 				"p1": 2,
 				"p2": 4
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-3d-angle",
@@ -26332,6 +29284,578 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Probability from a table, a count or the complement",
+			"summary": "Find a probability by counting equally likely outcomes (a bag, a two-way table, a list of data, a grid of two dice, a listed sample space), by the complement (1 − P(A), counting what is left, or at least one = 1 − none), or estimate one from results: a table, a bar chart, a graph settling to its long-run value, the more reliable of two tests, and a run of results that changes nothing.",
+			"situation": "basic-probability",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a bag of tokens, two dice, independent trials, a run of results"
+				},
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a table of counts, a two-way table with totals, or a frequency table, grouped or not"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the probability in symbols: P(A) = 0.37"
+				},
+				{
+					"rep": "terms",
+					"exam": false,
+					"how": "a list of data values"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a sample space table of totals or gaps, one outcome in each cell, or a tree of two independent trials"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "a bar chart of frequencies, or relative frequency drawn against the number of trials"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "bag-counter",
+					"given": [
+						"the counts of each colour"
+					],
+					"asked": "the probability of a colour, or of either of two",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "bag-after-change",
+					"given": [
+						"the counts of each colour",
+						"how many of one colour leave or join the bag"
+					],
+					"asked": "the probability of a colour on the next draw",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "two-way-whole",
+					"given": [
+						"a two-way table with totals"
+					],
+					"asked": "the probability that someone chosen from the whole table is in a cell or a column",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "list-data",
+					"given": [
+						"a list of data values",
+						"a boundary"
+					],
+					"asked": "the probability that a value chosen at random is more than, at least or fewer than it",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"terms"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "grid-total-equals",
+					"given": [
+						"two dice or spinners"
+					],
+					"asked": "the probability of one total",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "grid-total-at-least",
+					"given": [
+						"two dice or spinners"
+					],
+					"asked": "the probability of a total of at least k",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "list-then-count",
+					"given": [
+						"a small experiment"
+					],
+					"asked": "the probability of an event, by listing the sample space",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.5.equally-likely"
+					]
+				},
+				{
+					"id": "complement-given",
+					"given": [
+						"P(A)"
+					],
+					"asked": "P(A′)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "complement-table",
+					"given": [
+						"a table of counts or of probabilities"
+					],
+					"asked": "the probability of not landing on, or not being, one colour",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "complement-count",
+					"given": [
+						"numbered items and a multiple, or two dice or spinners and a total"
+					],
+					"asked": "the probability of not being a multiple, or of not getting that total",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "complement-two-rules",
+					"given": [
+						"two dice or spinners",
+						"two prize rules that can't both happen"
+					],
+					"asked": "the probability of winning nothing",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "at-least-one-same",
+					"given": [
+						"p",
+						"the number of independent trials"
+					],
+					"asked": "the probability of at least one success",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "at-least-one-different",
+					"given": [
+						"a probability for each independent trial"
+					],
+					"asked": "the probability of at least one success",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.5.complement"
+					]
+				},
+				{
+					"id": "rf-from-table",
+					"given": [
+						"a frequency table or bar chart",
+						"the number of trials"
+					],
+					"asked": "the relative frequency of a score",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL4.5.relative-frequency"
+					]
+				},
+				{
+					"id": "rf-total-to-find",
+					"given": [
+						"a frequency table with no total, by score or in groups"
+					],
+					"asked": "the probability of a score, or of a value from a boundary up",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.5.relative-frequency"
+					]
+				},
+				{
+					"id": "rf-graph-estimate",
+					"given": [
+						"a graph of relative frequency against trials"
+					],
+					"asked": "the estimate of the probability",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.5.relative-frequency"
+					]
+				},
+				{
+					"id": "more-reliable",
+					"given": [
+						"two tests of different sizes"
+					],
+					"asked": "the estimate from the more reliable test",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL4.5.relative-frequency"
+					]
+				},
+				{
+					"id": "gamblers-fallacy",
+					"given": [
+						"a fair coin, die or spinner",
+						"a run of results"
+					],
+					"asked": "the probability on the next trial",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL4.5.relative-frequency",
+						"SL4.5.equally-likely"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.5.equally-likely",
+					"method": "count-ratio",
+					"suits": [
+						"bag-counter",
+						"bag-after-change",
+						"two-way-whole",
+						"list-data",
+						"grid-total-equals",
+						"grid-total-at-least",
+						"gamblers-fallacy"
+					],
+					"name": "n(A) ÷ n(U)",
+					"about": "Count the outcomes in the event and divide by the total number of equally likely outcomes."
+				},
+				{
+					"skill": "SL4.5.equally-likely",
+					"method": "list-sample-space",
+					"suits": [
+						"grid-total-equals",
+						"grid-total-at-least",
+						"list-then-count"
+					],
+					"name": "List or tabulate the sample space",
+					"about": "Write out every equally likely outcome systematically (or read the totals from a table), then pick out those in the event."
+				},
+				{
+					"skill": "SL4.5.complement",
+					"method": "one-minus",
+					"suits": [
+						"complement-given",
+						"complement-table",
+						"complement-count",
+						"complement-two-rules"
+					],
+					"name": "P(A′) = 1 − P(A)",
+					"about": "A and A′ cover every outcome without overlapping, so their probabilities add to 1."
+				},
+				{
+					"skill": "SL4.5.complement",
+					"method": "count-complement",
+					"suits": [
+						"complement-table",
+						"complement-count",
+						"complement-two-rules"
+					],
+					"name": "Count the outcomes not in A",
+					"about": "Count n(A′) directly and divide by n(U); a useful check on 1 − P(A)."
+				},
+				{
+					"skill": "SL4.5.complement",
+					"method": "at-least-one",
+					"suits": [
+						"at-least-one-same",
+						"at-least-one-different"
+					],
+					"name": "At least one = 1 − none",
+					"about": "Instead of adding every case with one or more, find the single case 'none' and subtract it from 1."
+				},
+				{
+					"skill": "SL4.5.relative-frequency",
+					"method": "freq-over-trials",
+					"suits": [
+						"rf-from-table",
+						"rf-total-to-find",
+						"more-reliable"
+					],
+					"name": "Frequency ÷ number of trials",
+					"about": "The relative frequency of an event is the number of times it happened divided by the number of trials."
+				},
+				{
+					"skill": "SL4.5.relative-frequency",
+					"method": "long-run",
+					"suits": [
+						"rf-graph-estimate"
+					],
+					"name": "Read the long-run value",
+					"about": "On a graph of relative frequency against number of trials, the value it settles towards is the best estimate of the probability."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Rain tomorrow either happens or it doesn't, so the probability of rain is one half.",
+					"answer": "False: two outcomes are only worth one half each if they are equally likely, and nothing says these are.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "A relative frequency from a thousand trials can still differ from the true probability.",
+					"answer": "True: more trials make the estimate more reliable, not exact. It settles near the probability and need not land on it.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "P(at least one success) is more than the probability of success on one trial.",
+					"answer": "Sometimes: it is more when there are two or more trials and each can succeed, but with one trial, or a probability of 0 on every later trial, the two are equal.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.5.equally-likely#0",
+					"text": "Treating outcomes that are not equally likely as if they were, giving each kind of outcome the same share",
+					"as": "distractor",
+					"in": [
+						"bag-counter",
+						"list-data",
+						"grid-total-equals",
+						"grid-total-at-least",
+						"list-then-count",
+						"complement-table",
+						"complement-count",
+						"rf-from-table"
+					],
+					"wrong": "one share per colour, value, total or score, not per equally likely outcome"
+				},
+				{
+					"ref": "SL4.5.equally-likely#1",
+					"text": "Dividing by a row total when the person is chosen from the whole group",
+					"as": "distractor",
+					"in": [
+						"two-way-whole"
+					],
+					"wrong": "the cell over its row total"
+				},
+				{
+					"ref": "SL4.5.complement#0",
+					"text": "Finding P(exactly one) when 'at least one' is asked for",
+					"as": "distractor",
+					"in": [
+						"at-least-one-same",
+						"at-least-one-different"
+					],
+					"wrong": "the probability of exactly one success"
+				},
+				{
+					"ref": "SL4.5.complement#1",
+					"text": "Adding the trials' probabilities for 'at least one', which counts the overlaps more than once",
+					"as": "distractor",
+					"in": [
+						"at-least-one-same",
+						"at-least-one-different"
+					],
+					"wrong": "the sum of the trials' probabilities"
+				},
+				{
+					"ref": "SL4.5.relative-frequency#0",
+					"text": "Taking the relative frequency from a handful of trials as the true probability",
+					"as": "distractor",
+					"in": [
+						"rf-graph-estimate",
+						"more-reliable"
+					],
+					"wrong": "the first point of the graph, or the smaller test's value"
+				},
+				{
+					"ref": "SL4.5.relative-frequency#1",
+					"text": "Letting a run change the chance, as if a result were 'due': past trials don't change it",
+					"as": "distractor",
+					"in": [
+						"gamblers-fallacy"
+					],
+					"wrong": "a chance raised by the run"
+				},
+				{
+					"text": "Dividing by the rest instead of the whole, leaving the event's own count out of the total",
+					"as": "distractor",
+					"in": [
+						"bag-counter",
+						"two-way-whole",
+						"list-data",
+						"grid-total-equals",
+						"grid-total-at-least",
+						"list-then-count",
+						"rf-from-table",
+						"rf-total-to-find"
+					],
+					"wrong": "n(A) ÷ (n(U) − n(A))"
+				},
+				{
+					"text": "Leaving the total at its old size after the bag changes",
+					"as": "distractor",
+					"in": [
+						"bag-after-change"
+					],
+					"wrong": "the count now over the total before the change"
+				},
+				{
+					"text": "Changing the total but leaving the colour's count at its old size",
+					"as": "distractor",
+					"in": [
+						"bag-after-change"
+					],
+					"wrong": "the old count over the new total"
+				},
+				{
+					"text": "Giving the probability of the event itself, or of 'none', instead of the one asked for",
+					"as": "distractor",
+					"in": [
+						"complement-given",
+						"complement-table",
+						"complement-count",
+						"complement-two-rules",
+						"at-least-one-same",
+						"at-least-one-different"
+					],
+					"wrong": "P(A) for P(A′), or P(none) for P(at least one)"
+				},
+				{
+					"text": "Getting the boundary wrong, counting a value that doesn't belong or leaving out one that does",
+					"as": "distractor",
+					"in": [
+						"list-data",
+						"grid-total-at-least",
+						"rf-total-to-find"
+					],
+					"wrong": "the count with the boundary value on the wrong side"
+				},
+				{
+					"text": "Taking away only one of the two prizes from the whole",
+					"as": "distractor",
+					"in": [
+						"complement-two-rules"
+					],
+					"wrong": "1 minus one prize's probability"
+				},
+				{
+					"text": "Working out the chance of the whole run instead of the next toss alone",
+					"as": "distractor",
+					"in": [
+						"gamblers-fallacy"
+					],
+					"wrong": "the chance of the run with the next toss on the end"
+				}
+			],
+			"chain": [
+				"count the equally likely outcomes, not the kinds of outcome",
+				"divide by the whole group, whatever row the event sits in",
+				"list or tabulate a sample space, then count the event",
+				"use the complement: 1 − P(A), or count what is left",
+				"at least one = 1 − none",
+				"estimate from results: frequency ÷ trials, the long-run value, the bigger test"
+			],
 			"frequency": 4,
 			"marks": 1,
 			"section": {
@@ -26341,9 +29865,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 3
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-tree-diagram",
@@ -27748,6 +31270,478 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Normal probability for an interval on the GDC",
+			"summary": "X is normal with μ and σ known, and a region is asked for: below, above, between or outside values, a percentage in a story, an expected count in a sample, exactly k of a sample in the region, a rejection rule, a variable that can be negative, a variance written in place of σ, a value recorded to a rounding unit, and a middle from two given tails.",
+			"situation": "normal-probability",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "X ~ N(μ, σ²) with numbers and an event for X, or two tails given as probabilities"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story with a mean and a standard deviation, and a chosen item or a sample"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a normal curve with the region shaded and its bounds and the mean marked; the stem does not say the region again"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "prob-below",
+					"given": [
+						"X ~ N(μ, σ²)",
+						"a value a"
+					],
+					"asked": "P(X < a)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "prob-above",
+					"given": [
+						"X ~ N(μ, σ²)",
+						"a value a"
+					],
+					"asked": "P(X > a)",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "prob-between",
+					"given": [
+						"X ~ N(μ, σ²)",
+						"two values a and b"
+					],
+					"asked": "P(a < X < b)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "percentage-in-range",
+					"given": [
+						"a story with a mean and a standard deviation",
+						"a region"
+					],
+					"asked": "the percentage or proportion in the region",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "expected-number",
+					"given": [
+						"X ~ N(μ, σ²)",
+						"a sample size n",
+						"a region"
+					],
+					"asked": "the expected number in the region, not rounded to a whole number",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "outside-interval",
+					"given": [
+						"X ~ N(μ, σ²)",
+						"two values a and b"
+					],
+					"asked": "P(X < a or X > b)",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "rejected-rule",
+					"given": [
+						"a story with a mean and a standard deviation",
+						"a rule that rejects a tail, or all but a band"
+					],
+					"asked": "the probability that a chosen item is rejected",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "expected-rejected",
+					"given": [
+						"a story with a mean and a standard deviation",
+						"a rule that rejects a tail, or all but a band",
+						"a sample size n"
+					],
+					"asked": "the expected number rejected",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "exactly-in-sample",
+					"given": [
+						"X ~ N(μ, σ²)",
+						"a sample size n",
+						"a region",
+						"a count k"
+					],
+					"asked": "the probability that exactly k of the sample fall in the region",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "negative-lower-tail",
+					"given": [
+						"X ~ N(μ, σ²) for a measure that can be negative",
+						"a value a above 0"
+					],
+					"asked": "P(X < a)",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "variance-given",
+					"given": [
+						"X ~ N(μ, σ²) with the variance written as a number",
+						"a region"
+					],
+					"asked": "the probability of the region",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "recorded-value",
+					"given": [
+						"X ~ N(μ, σ²)",
+						"a rounding unit",
+						"a recorded value"
+					],
+					"asked": "the probability of that recorded value",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				},
+				{
+					"id": "between-from-tails",
+					"given": [
+						"P(X < a)",
+						"P(X > b)"
+					],
+					"asked": "P(a < X < b), with μ and σ unknown",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL4.9.normal-probability"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.9.normal-probability",
+					"method": "gdc-normalcdf",
+					"suits": [
+						"prob-below",
+						"prob-above",
+						"prob-between",
+						"percentage-in-range",
+						"expected-number",
+						"outside-interval",
+						"rejected-rule",
+						"expected-rejected",
+						"exactly-in-sample",
+						"negative-lower-tail",
+						"variance-given",
+						"recorded-value"
+					],
+					"name": "normalcdf with μ and σ",
+					"about": "Enter the lower bound, upper bound, μ and σ, using a very large number such as 10^99 for an open end."
+				},
+				{
+					"skill": "SL4.9.normal-probability",
+					"method": "sketch-check",
+					"suits": [
+						"prob-below",
+						"prob-above",
+						"prob-between",
+						"percentage-in-range",
+						"expected-number",
+						"outside-interval",
+						"rejected-rule",
+						"expected-rejected",
+						"exactly-in-sample",
+						"negative-lower-tail",
+						"variance-given",
+						"recorded-value",
+						"between-from-tails"
+					],
+					"name": "Sketch to sense-check",
+					"about": "Shade the region on a quick sketch; for example, a tail beyond μ + σ must give less than about 0.16."
+				},
+				{
+					"skill": "SL4.9.normal-probability",
+					"method": "standardise-first",
+					"suits": [
+						"prob-below",
+						"prob-above",
+						"prob-between",
+						"percentage-in-range",
+						"expected-number",
+						"outside-interval",
+						"rejected-rule",
+						"expected-rejected",
+						"exactly-in-sample",
+						"negative-lower-tail",
+						"variance-given",
+						"recorded-value"
+					],
+					"name": "Standardise, then use Z",
+					"about": "Convert the bounds to z = (x − μ)/σ and find the same area under N(0, 1)."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "When X ~ N(μ, σ²) is written with the variance as a number, that number goes into normalcdf as the last entry.",
+					"answer": "False: that number is the variance. normalcdf takes the standard deviation, so take the square root first.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "P(X < a) can be found with 0 as the lower bound.",
+					"answer": "Sometimes: only where X cannot be negative, or nearly so. A temperature can go below 0, so use a very large negative number as the lower end.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "An expected number in a sample must be a whole number.",
+					"answer": "False: it is n × p, a long-run average, so a decimal is a fine expected number.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.9.normal-probability#0",
+					"text": "Entering the variance instead of the standard deviation into the GDC",
+					"as": "distractor",
+					"in": [
+						"variance-given"
+					],
+					"wrong": "the variance entered as σ"
+				},
+				{
+					"ref": "SL4.9.normal-probability#1",
+					"text": "Using 0 as the lower bound for P(X < a) when the variable can be negative (for example temperatures)",
+					"as": "distractor",
+					"in": [
+						"negative-lower-tail"
+					],
+					"wrong": "normalcdf from 0 instead of from a very large negative number"
+				},
+				{
+					"ref": "SL4.9.normal-probability#2",
+					"text": "Leaving an expected number as a probability instead of multiplying by n",
+					"as": "distractor",
+					"in": [
+						"expected-number",
+						"expected-rejected"
+					],
+					"wrong": "the probability, not multiplied by n"
+				},
+				{
+					"text": "Finding the area left out instead of the area asked for",
+					"as": "distractor",
+					"in": [
+						"prob-below",
+						"prob-above",
+						"prob-between",
+						"percentage-in-range",
+						"expected-number",
+						"outside-interval",
+						"rejected-rule",
+						"expected-rejected",
+						"exactly-in-sample",
+						"negative-lower-tail",
+						"variance-given"
+					],
+					"wrong": "1 minus the area asked for, or n times that, or that area used as the binomial's p"
+				},
+				{
+					"text": "Using only the upper bound, so the area below the lower bound is counted too",
+					"as": "distractor",
+					"in": [
+						"prob-between"
+					],
+					"wrong": "P(X < b)"
+				},
+				{
+					"text": "Counting one tail only when the event has two",
+					"as": "distractor",
+					"in": [
+						"outside-interval",
+						"rejected-rule"
+					],
+					"wrong": "the lower tail alone"
+				},
+				{
+					"text": "Leaving a probability as a decimal when a percentage is asked for",
+					"as": "distractor",
+					"in": [
+						"percentage-in-range"
+					],
+					"wrong": "the probability written as the percentage, not multiplied by 100"
+				},
+				{
+					"text": "Using a whole rounding unit either side of the recorded value instead of half a unit",
+					"as": "distractor",
+					"in": [
+						"recorded-value"
+					],
+					"wrong": "the interval one unit either side of the value"
+				},
+				{
+					"text": "Using only the half unit above the recorded value, and not the half unit below it",
+					"as": "distractor",
+					"in": [
+						"recorded-value"
+					],
+					"wrong": "the area from the value up to half a unit above"
+				},
+				{
+					"text": "Rounding an expected number to a whole number when it need not be one",
+					"as": "distractor",
+					"in": [
+						"expected-number",
+						"expected-rejected"
+					],
+					"wrong": "the count to a whole number, on the rounding trap"
+				},
+				{
+					"text": "Taking off one tail only, so the other tail stays in the answer",
+					"as": "distractor",
+					"in": [
+						"between-from-tails"
+					],
+					"wrong": "1 minus the lower tail"
+				},
+				{
+					"text": "Adding the two tails instead of taking them from 1",
+					"as": "distractor",
+					"in": [
+						"between-from-tails"
+					],
+					"wrong": "the sum of the tails"
+				},
+				{
+					"text": "Using the cumulative function for exactly k of a sample",
+					"as": "distractor",
+					"in": [
+						"exactly-in-sample"
+					],
+					"wrong": "P(Y ≤ k) for P(Y = k), with the area as p"
+				}
+			],
+			"chain": [
+				"pick out μ and σ, taking the root if the variance is written",
+				"mark the bounds and shade the region",
+				"use normalcdf, with a very large number for an open end",
+				"take the area from 1 for a region left out",
+				"multiply by n for a count, or use the area as a binomial's p for exactly k of a sample"
+			],
 			"frequency": 12,
 			"marks": 2,
 			"section": {
@@ -27757,9 +31751,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 12
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-regression-x-on-y",
@@ -42994,7 +46986,7 @@
 				},
 				{
 					"ref": "SL1.3.nth-term#0",
-					"text": "Using r^n instead of r^(n − 1)",
+					"text": "Using r^n in the term formula, one power of r too many",
 					"as": "distractor",
 					"in": [
 						"sequence-vs-function"
@@ -43058,7 +47050,7 @@
 				},
 				{
 					"ref": "SL1.8.convergence#0",
-					"text": "Thinking r < 1 is enough, so a series with r = −2 'converges'",
+					"text": "Thinking r below one is enough, so a large negative ratio seems to converge",
 					"as": "distractor",
 					"in": [
 						"sum-to-infinity-link"
@@ -43067,7 +47059,7 @@
 				},
 				{
 					"ref": "SL1.8.convergence#2",
-					"text": "Including the endpoints: thinking r = 1 or r = −1 gives a sum to infinity",
+					"text": "Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity",
 					"as": "distractor",
 					"in": [
 						"sum-to-infinity-link"

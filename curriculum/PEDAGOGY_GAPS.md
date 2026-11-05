@@ -585,7 +585,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A geometric series with ratio 0.9 has a sum to infinity, but one with ratio 1.1 does not. — True. Multiplying by 0.9 again and again drives the terms to 0, like exponential decay, so the sum settles at u₁/(1 − 0.9) = 10u₁. Multiplying by 1.1 makes the terms grow, so the sum grows without limit.
   - *interpret-parameter* (L3): In A(t) = 2000 × 0.85^t, what do 2000 and 0.85 mean, and what is the yearly percentage change? — 2000 is the value at t = 0. 0.85 is the factor each year: the value keeps 85%, so it falls by 15% a year.
   - *predict-check* (L3): Predict which is worth more after 10 years: 1000 growing by 5% a year, or 1000 growing by 50 a year. Then check. — The 5% one. 1000 × 1.05¹⁰ ≈ 1628.89, while 1000 + 10 × 50 = 1500. Both add 50 in year one, but the percentage is taken of a growing amount.
-- **Misconceptions used:** 13. Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth); Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the initial value as P(1) instead of P(0), so the exponent is off by one; Thinks (1/2)^x is the reflection of 2^x in the x-axis rather than the y-axis; Using r^n instead of r^(n − 1); Using 1.3 for a 30% decrease, or subtracting 30% of the original each year (linear thinking); Off-by-one: the value 'after 10 years' needs 10 multiplications, not u_10 = u_1 r^9 with u_1 as the starting value; Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Using 1.15 or 0.15 as the multiplier instead of 0.85; Treating depreciation as linear: subtracting 15% of the original price each year; Thinking r < 1 is enough, so a series with r = −2 'converges'; Including the endpoints: thinking r = 1 or r = −1 gives a sum to infinity.
+- **Misconceptions used:** 13. Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth); Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the initial value as P(1) instead of P(0), so the exponent is off by one; Thinks (1/2)^x is the reflection of 2^x in the x-axis rather than the y-axis; Using r^n in the term formula, one power of r too many; Using 1.3 for a 30% decrease, or subtracting 30% of the original each year (linear thinking); Off-by-one: the value 'after 10 years' needs 10 multiplications, not u_10 = u_1 r^9 with u_1 as the starting value; Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Using 1.15 or 0.15 as the multiplier instead of 0.85; Treating depreciation as linear: subtracting 15% of the original price each year; Thinking r below one is enough, so a large negative ratio seems to converge; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity.
 
 ### 3. Graphs and key features (syllabus 2.3, 2.4, 2.10)
 
@@ -1668,7 +1668,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 3 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 7 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1724,6 +1724,39 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): For an arithmetic sequence of whole numbers, Sₙ is a multiple of n. — Sometimes: Sₙ = n × (u₁ + uₙ)/2, so it is a multiple of n exactly when u₁ + uₙ is even.
 - **Misconceptions used:** 12. Using u_1 + nd, which gives u_11 instead of u_10; Finding d as u_1 − u_2, so a decreasing sequence gets a positive d; Confusing the position n with the value u_n; Dividing by the number of terms instead of the number of gaps: d = 16/5; Treating the given term as u_1 when asked for the first term; Answering with n when the question asks for the term itself (or the reverse); Forgetting the + 1 when counting terms: (403 − 7)/4 = 99 terms; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Finding u_n when the question asks for S_n (or the reverse); Keeping the negative root of the quadratic as a number of terms; Answering with the value of the sum instead of the number of terms n.
 
+#### Geometric sequence: find r, u1, a term or S_n (`t1-geometric-sequence`, exam, 9 bank parts)
+
+- **Situation:** One geometric sequence and its sums, shared with `t1-sum-to-infinity`.
+- **Representations:** **notation**, **terms**, **words**, **equation**, table, graph, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the first terms, as a list, a table or dots on a graph → the common ratio r
+  - **exam** L2: given u₁ and r, or the first terms → a later term uₙ
+  - **exam** L2: given u₁ and a fractional r, or the first terms → the exact value of a later term
+  - **exam** L3: given u₁ and r, or the first terms → an expression for uₙ in terms of n
+  - **exam** L3: given two terms an odd number of steps apart → r
+  - **exam** L3: given two terms an even number of steps apart → both possible values of r
+  - **exam** L3: given two terms an odd number of steps apart → u₁
+  - **exam** L4: given two terms an even number of steps apart; the sign of a far term → the next term
+  - **exam** L4: given the outer two of four consecutive terms → the two terms between them
+  - **exam** L4: given three consecutive terms, each linear in k → the possible values of k
+  - **exam** L5: given (1 + hx)ⁿ and three powers of x whose coefficients are geometric → h
+  - **exam** L2: given u₁ and r, or the first terms → Sₙ
+  - **exam** L3: given u₁ and a fractional r, or the first terms → the exact value of Sₙ
+  - **exam** L3: given a series with its first and last terms → its sum
+  - **exam** L3: given u₁ and a whole-number r → the numbers in a closed form for Sₙ
+  - **exam** L5: given u₁ = 1 and a whole-number r → the numbers in a closed form for S₁ + S₂ + … + Sₙ
+  - **exam** L3: given a sequence with r = −1 → the sum of the first 2m or 2m + 1 terms
+  - **exam** L4: given a ball's drop height and its rebound fraction → the distance travelled when it lands for the nth time
+  - **exam** L2: given a series in Σ notation → u₁ and r
+  - **exam** L3: given a series in Σ notation → its value
+  - **exam** L3: given a series with its first and last terms → the same series in Σ notation
+- **Angles:** Substitute into u_n = u_1 r^(n − 1); Multiply by r repeatedly; Rewrite as u_n = (u_1/r) × r^n; Use the GDC sequence or table mode; Divide one term equation by the other; Count multiplicative steps between terms; Equate consecutive ratios; Solve with the GDC; Use S_n = u_1(r^n − 1)/(r − 1) or u_1(1 − r^n)/(1 − r); Multiply by r and subtract (S − rS); Add the terms directly; Use sum(seq(…)) or Σ on the GDC; Identify u_1, r and n, from the limits or the terms; Take the constant factor outside the sigma; Use the GDC Σ template.
+- **Concept probes:**
+  - *true-false-reason* (L3): If r² = 9 for a geometric sequence, then r = 3. — False: r = −3 fits as well, because a square hides the sign. The sequence needs another fact to settle which.
+  - *always-sometimes-never* (L3): The terms of a geometric sequence get bigger as n gets bigger. — Sometimes: they do for u₁ = 1 and r = 2, but they shrink for r = 1/2 and flip sign for r = −2.
+  - *true-false-reason* (L4): uₙ = 3 × 2ⁿ is a geometric sequence, even though it isn't written as u₁r^(n − 1). — True: each term is 2 times the one before, so r = 2. It is the same as u₁ = 6 and r = 2.
+- **Misconceptions used:** 13. Using r^n in the term formula, one power of r too many; Multiplying u₁ and r first and raising the product to the power, instead of raising r alone; Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁; Subtracting terms as if the sequence were arithmetic; Taking only the positive root of an even power and losing the negative ratio; Counting terms instead of steps, so the power of r is one too high; Using a power one lower than n in the sum formula; Slipping on the sign of a negative r raised to an odd power; Miscounting the terms when the last term is given; Taking the coefficient as the first term, whatever the lower limit gives; Taking r to be the coefficient instead of the base of the power; Counting the terms as upper minus lower, which is one too few; Doubling the first drop of a bouncing ball as well as the rebounds.
+
 #### Compound interest: value, rate or time, with different compounding periods (`t1-compound-interest`, exam, 16 bank parts)
 
 - **Situation:** Money invested at a nominal annual rate, compounded k times a year.
@@ -1741,6 +1774,103 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): $1000 invested at 5% compounded annually for 10 years earns twice as much interest as $1000 invested at 5% for 5 years. — False: interest is earned on interest, so the second five years earn more than the first. The 10-year interest is $628.89 and the 5-year interest is $276.28, more than double.
   - *true-false-reason* (L3): An investment that is worth $5000 after 3 years at 4% compounded annually is worth $5000 ÷ 1.04^3 now. — True: the value after 3 years is PV × 1.04^3, so the amount invested now is the future value divided by 1.04^3.
 - **Misconceptions used:** 8. Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20; Using simple interest: 1200 + 3 × 60 = $1380; Giving the total value when the question asks for the interest earned (or the reverse); Taking the root but not subtracting 1 and multiplying by 100, giving a rate of 1.1%; Halving the total growth instead of taking a root: 21% ÷ 2 = 10.5%; Rounding the number of periods to the nearest integer instead of up; Forgetting to convert N from months or quarters back into years; Comparing nominal rates only and ignoring the compounding frequency.
+
+#### Prove an algebraic identity or a divisibility result (`t1-algebraic-proof`, exam, 8 bank parts)
+
+- **Situation:** One statement to prove, as a chain of lines.
+- **Representations:** **equation**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the left side of an identity → the simplified form or single fraction it reaches
+  - **exam** L3: given both sides of an identity, neither simplified → the expression both sides reach
+  - new L3: given a proof with one line hidden → the hidden line
+  - new L2: given the first lines of a proof → which line comes next
+  - new L3: given an identity and four arguments → which argument is a complete proof
+  - new L4: given a proof with one slip carried to the end → the first wrong line and its correction
+  - **exam** L2: given a difference of two squares and the claim that it is m times k → k in terms of n
+  - **exam** L2: given a sum of consecutive integers, even numbers or odd numbers → the sum as m times an integer expression
+  - new L4: given a sum of consecutive integers, even numbers or odd numbers → the largest whole number that always divides it
+  - **exam** L3: given a simplified sum and a divisor → which line proves the divisibility
+  - new L3: given a claim about any two numbers of one kind → which opening covers every pair
+  - new L4: given n² + an + b with a odd and b even, and one parity of n → the expression as 2 times an integer expression in k
+  - new L3: given a quadratic in n that is a product of consecutive integers → the two factors
+  - **exam** L4: given a sum of squares that is never divisible by m → the sum as m times an integer expression plus a remainder
+- **Angles:** Start from the LHS and simplify to the RHS; Spot a structure and factorise; Reduce both sides separately to the same expression; Represent the integers algebraically and factor out the divisor; Split into cases; Factorise into consecutive integers.
+- **Concept probes:**
+  - *true-false-reason* (L3): n² + n + 41 is prime for n = 1, 2, 3, 4 and 5, so it is prime for every positive integer n. — False: examples can't prove a claim about every n. At n = 41 it is 41² + 41 + 41 = 41 × 43, which is not prime.
+  - *always-sometimes-never* (L3): The sum of three consecutive integers is divisible by 6. — Sometimes: the sum is 3(n + 1), a multiple of 3 every time, but it needs n + 1 even to be a multiple of 6. 1 + 2 + 3 = 6 works and 2 + 3 + 4 = 9 does not.
+  - *true-false-reason* (L4): 6n + 9 = 6(n + 3/2), so 6n + 9 is a multiple of 6 for every integer n. — False: n + 3/2 is not an integer, so the 6 outside proves nothing. At n = 1, 6n + 9 = 15, which is not a multiple of 6.
+- **Misconceptions used:** 15. Starting from LHS = RHS and operating on both sides, which assumes what is to be proved; Checking particular values and calling it a proof; Stopping without a concluding statement, or writing = where ≡ is required; Using one letter for two different numbers, which only covers the case where they are equal; Verifying examples instead of arguing in general; Concluding divisibility without showing the bracket is an integer; Forgetting to double the middle term when squaring a bracket; Squaring each term of a bracket and keeping its sign, with no middle term; Getting a sign wrong when multiplying out or removing a bracket; Multiplying only the first term of a bracket; Dividing only part of a numerator by x; Squaring only the numerator of a fraction; Adding one gap too many when summing a list of terms; Squaring the letter but not its coefficient; Writing a² − b² as (a + b)(a + b).
+
+#### Sum to infinity: convergence, value, or an unknown from it (`t1-sum-to-infinity`, exam, 5 bank parts)
+
+- **Situation:** One geometric sequence and its sums, shared with `t1-geometric-sequence`.
+- **Representations:** **notation**, **terms**, **equation**, **words**, table, graph, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the first terms, or u₁ and r → whether S∞ exists, and why
+  - new L3: given a table of partial sums → what the table shows about S∞
+  - **exam** L4: given r as a line in x, as an expression or a graph → the values of x for which S∞ exists
+  - **exam** L2: given u₁ and r, the first terms, or a table of terms → S∞
+  - **exam** L3: given an infinite series in Σ notation → S∞
+  - new L3: given a square shaded in shrinking pieces → the total shaded area
+  - **exam** L4: given a series of multiples of log x, with one multiple hidden; S∞ → x
+  - **exam** L2: given r and S∞ → u₁
+  - **exam** L3: given u₁ and S∞ → r
+  - **exam** L3: given S∞ as a multiple of u₁ → r
+  - **exam** L4: given u₂ and S∞, with one root of the quadratic too large → r
+  - **exam** L4: given u₂ and S∞, with both roots of the quadratic allowed → both possible values of r
+  - **exam** L3: given a ball's drop height and its rebound fraction → the total distance before it comes to rest
+  - **exam** L4: given a rebound fraction, for a drop of x metres → k, where the total distance is kx
+  - **exam** L3: given a recurring decimal → the same number as a fraction
+  - **exam** L4: given a square, and how each next square sits inside the last → the total area of all the squares
+  - **exam** L3: given a story in which each amount is a fixed share of the last → the total if it goes on for ever
+  - **exam** L4: given a story, with a target for the running total → whether the total ever reaches the target
+  - **exam** L4: given the share kept each round, a target and a number of rounds → the first amount
+- **Angles:** Find r and check |r| < 1; Watch the partial sums on the GDC; Solve −1 < r < 1 as a double inequality; Graph r as a function of x inside the band −1 < y < 1; Use S∞ = u_1/(1 − r); Let n → ∞ in the S_n formula; Tabulate partial sums on the GDC; Shade a shape in shrinking pieces; Substitute into S∞ = u_1/(1 − r) and rearrange; Combine two conditions into a quadratic in r; Use S∞/u_1 = 1/(1 − r); Solve with the GDC; Identify the series hiding in the context and sum it; Split the motion into separate series; Draw the first few stages; Check with partial sums on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): A geometric series with r = −1 has a sum to infinity of u₁/2, because the formula gives that. — False: the partial sums flip between u₁ and 0 and never settle. The formula only holds for |r| < 1.
+  - *always-sometimes-never* (L4): If u₁ > 0, then S∞ is greater than u₁. — Sometimes: it is for r > 0, but for r < 0 the denominator 1 − r is more than 1, so S∞ is less than u₁.
+  - *true-false-reason* (L4): 0.999… is exactly equal to 1. — True: it is 9/10 + 9/100 + …, with u₁ = 9/10 and r = 1/10, so S∞ = (9/10)/(9/10) = 1.
+- **Misconceptions used:** 12. Thinking r below one is enough, so a large negative ratio seems to converge; Solving only the upper inequality and forgetting the lower one when r depends on x; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity; Putting a plus in the formula's denominator, or dropping the sign of a negative r; Taking the coefficient as u₁ instead of the value at the lower limit; Applying the formula when the size of r is one or more, which gives a meaningless sum; Inverting the rearrangement of the formula, so S∞ and u₁ swap places; Keeping a root too large in size for a sum to infinity to exist; Substituting u₂ as if it were u₁; Doubling the first drop of a bouncing ball as well as the rebounds; Using one tenth as r for a recurring block of more than one digit; Using S∞ in context without checking that r is small enough.
+
+#### Binomial expansion: a coefficient, a term or the full expansion (`t1-binomial-term`, exam, 6 bank parts)
+
+- **Situation:** One bracket (ax^p + b)^n, or nCr on its own.
+- **Representations:** **equation**, table (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given n; r → the value of nCr
+  - new L1: given Pascal's triangle; n; r → nCr, read from the triangle
+  - new L2: given n; an r close to n → the value of nCr
+  - new L2: given nCr = nCm with m ≠ r → m
+  - new L1: given n; r of 0 or n → the value of nC0 or nCn
+  - new L3: given the value of nC2 → n
+  - new L3: given a top of n, or n plus or minus a whole number → nC2 as a polynomial in n, which is the show-that nC2 = n(n − 1)/2
+  - new L1: given n → the row of Pascal's triangle for n
+  - new L1: given the first rows of Pascal's triangle → the next row
+  - new L1: given one row of Pascal's triangle → n
+  - **exam** L1: given a bracket with a letter in it, and its power → the number of terms
+  - new L1: given the bracket and its power, which is 2 or 3 → the expansion
+  - **exam** L2: given (x + b)^n or (b + x)^n, with n of 4 or 5 → the expansion
+  - new L2: given a bracket with a negative term → the expansion
+  - new L3: given a bracket with a number beside x → the expansion
+  - new L2: given Pascal's triangle; the bracket and its power → the expansion
+  - new L3: given a bracket in x² → the expansion
+  - new L3: given (x + b/x)^n → the expansion, with each term simplified
+  - new L2: given the bracket and its power → the first three terms, in ascending powers of x
+  - new L2: given the bracket and its power; a power of x → the coefficient
+  - new L2: given a bracket with a negative term; a power of x → the coefficient
+  - **exam** L3: given a bracket with a number beside x; a power of x → the coefficient
+  - new L2: given Pascal's triangle; the bracket and its power; a power of x → the coefficient
+  - new L3: given a bracket in x²; a power of x → the coefficient
+  - **exam** L2: given (x + k)^n; a power of x → the coefficient in terms of k
+  - new L2: given the bracket and its power; a power of x → the term, with its x
+  - **exam** L2: given an expansion with two coefficients written as letters → the value of one of the letters
+  - new L3: given the bracket and its power; the term's place, in descending powers → that term
+- **Angles:** Use nCr = n!/(r!(n − r)!); Build Pascal's triangle by adding adjacent entries; Use nCr = nC(n − r); Use the nCr function on the GDC; Use the row of Pascal's triangle with falling and rising powers; Apply the binomial theorem term by term; Multiply the brackets out step by step; Count choices from each bracket; Write the general term and choose r; Read the coefficient from Pascal's triangle; Count how many brackets supply x.
+- **Concept probes:**
+  - *true-false-reason* (L3): The expansion of (a + b)^n has n terms. — False: r runs from 0 to n, which is n + 1 values, so there are n + 1 terms. (a + b)² has three.
+  - *always-sometimes-never* (L3): In (1 + x)^n the coefficient of x^r equals the coefficient of x^(n − r). — Always: both are nCr, as choosing r brackets to give x is the same as choosing n − r to give 1.
+  - *true-false-reason* (L4): The coefficients of (1 + x)^n add up to 2^n. — True: put x = 1 in the expansion. The sum of the coefficients is then (1 + 1)^n.
+- **Misconceptions used:** 14. Using n!/r! and forgetting the (n − r)! factor; Numbering the rows of Pascal's triangle from 1 instead of from 0; Thinking nC0 = 0; Not raising the coefficient: applying the power to x alone, so (ax)^r becomes ax^r; Losing the alternating signs when the second term is negative; Writing a term whose two powers do not add up to n; Ignoring the sign: treating a negative term raised to an odd power as positive; Forgetting to raise the other term to its power; Giving the whole term when the coefficient is asked for, or the coefficient when the term is asked for; Leaving out the r! in the formula for nCr; Keeping the negative root of the quadratic, though n is a whole number; Counting n terms in the expansion, leaving out the term where r = 0; Using the place of the term as r, when r starts from 0; Forgetting that (1/x)^r is x^(−r), so the power of x falls by one each term, not by two.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|
@@ -2026,7 +2156,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2152,6 +2282,36 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): An event with probability 0.3 is expected 7.5 times in 25 trials, so the expected number should be given as 8. — False: an expected number is a long-run average and need not be a whole number, so 7.5 is the answer.
 - **Misconceptions used:** 2. Rounding the expected number to a whole number (it does not have to be one); Giving the probability instead of the expected number.
 
+#### Probability from a table, a count or the complement (`t4-probability-basic`, exam, 4 bank parts)
+
+- **Situation:** One chance set-up, counted or measured.
+- **Representations:** **words**, **table**, **equation**, terms, **diagram**, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the counts of each colour → the probability of a colour, or of either of two
+  - **exam** L2: given the counts of each colour; how many of one colour leave or join the bag → the probability of a colour on the next draw
+  - **exam** L2: given a two-way table with totals → the probability that someone chosen from the whole table is in a cell or a column
+  - new L1: given a list of data values; a boundary → the probability that a value chosen at random is more than, at least or fewer than it
+  - **exam** L2: given two dice or spinners → the probability of one total
+  - **exam** L2: given two dice or spinners → the probability of a total of at least k
+  - **exam** L2: given a small experiment → the probability of an event, by listing the sample space
+  - **exam** L1: given P(A) → P(A′)
+  - **exam** L1: given a table of counts or of probabilities → the probability of not landing on, or not being, one colour
+  - **exam** L2: given numbered items and a multiple, or two dice or spinners and a total → the probability of not being a multiple, or of not getting that total
+  - **exam** L3: given two dice or spinners; two prize rules that can't both happen → the probability of winning nothing
+  - **exam** L3: given p; the number of independent trials → the probability of at least one success
+  - **exam** L3: given a probability for each independent trial → the probability of at least one success
+  - **exam** L1: given a frequency table or bar chart; the number of trials → the relative frequency of a score
+  - **exam** L2: given a frequency table with no total, by score or in groups → the probability of a score, or of a value from a boundary up
+  - new L2: given a graph of relative frequency against trials → the estimate of the probability
+  - **exam** L2: given two tests of different sizes → the estimate from the more reliable test
+  - new L2: given a fair coin, die or spinner; a run of results → the probability on the next trial
+- **Angles:** n(A) ÷ n(U); List or tabulate the sample space; P(A′) = 1 − P(A); Count the outcomes not in A; At least one = 1 − none; Frequency ÷ number of trials; Read the long-run value.
+- **Concept probes:**
+  - *true-false-reason* (L3): Rain tomorrow either happens or it doesn't, so the probability of rain is one half. — False: two outcomes are only worth one half each if they are equally likely, and nothing says these are.
+  - *true-false-reason* (L3): A relative frequency from a thousand trials can still differ from the true probability. — True: more trials make the estimate more reliable, not exact. It settles near the probability and need not land on it.
+  - *always-sometimes-never* (L4): P(at least one success) is more than the probability of success on one trial. — Sometimes: it is more when there are two or more trials and each can succeed, but with one trial, or a probability of 0 on every later trial, the two are equal.
+- **Misconceptions used:** 13. Treating outcomes that are not equally likely as if they were, giving each kind of outcome the same share; Dividing by a row total when the person is chosen from the whole group; Finding P(exactly one) when 'at least one' is asked for; Adding the trials' probabilities for 'at least one', which counts the overlaps more than once; Taking the relative frequency from a handful of trials as the true probability; Letting a run change the chance, as if a result were 'due': past trials don't change it; Dividing by the rest instead of the whole, leaving the event's own count out of the total; Leaving the total at its old size after the bag changes; Changing the total but leaving the colour's count at its old size; Giving the probability of the event itself, or of 'none', instead of the one asked for; Getting the boundary wrong, counting a value that doesn't belong or leaving out one that does; Taking away only one of the two prizes from the whole; Working out the chance of the whole run instead of the next toss alone.
+
 #### Venn diagrams, two-way tables and the addition rule (`t4-venn-addition-rule`, exam, 11 bank parts)
 
 - **Situation:** Two events in one sample space.
@@ -2228,6 +2388,31 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): For any binomial distribution, Var(X) is smaller than E(X). — True: Var(X) = np(1 − p) = E(X)(1 − p), and 1 − p is less than 1, so the variance is always smaller than the mean. That is why Var(X) ÷ E(X) gives 1 − p.
 - **Misconceptions used:** 14. Writing B(p, n) instead of B(n, p); Leaving out the nCr factor and giving just p^r (1 − p)^(n − r); Swapping the powers: p^(n − r) (1 − p)^r; Using the cumulative function (binomcdf) for 'exactly r'; P(X ≥ 3) = 1 − P(X ≤ 3) (it should be 1 − P(X ≤ 2)); Using P(X ≤ 5) for P(X < 5); P(2 < X ≤ 6) = P(X ≤ 6) − P(X ≤ 3) (it should subtract P(X ≤ 2)); Var(X) = np (forgetting the factor 1 − p); Giving np(1 − p) when the standard deviation is asked for; Rounding E(X) to a whole number; Rounding n down instead of up to the next whole number; Taking p = Var(X) ÷ E(X) (that gives 1 − p); Finding P(X = 3) in 8 trials for 'the third success is on the eighth trial'; Multiplying the two probabilities in a conditional instead of dividing.
 
+#### Normal probability for an interval on the GDC (`t4-normal-probability`, exam, 12 bank parts)
+
+- **Situation:** A normal variable with a region asked for, shared with `t4-normal-unknown-parameter`.
+- **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given X ~ N(μ, σ²); a value a → P(X < a)
+  - **exam** L1: given X ~ N(μ, σ²); a value a → P(X > a)
+  - **exam** L2: given X ~ N(μ, σ²); two values a and b → P(a < X < b)
+  - **exam** L2: given a story with a mean and a standard deviation; a region → the percentage or proportion in the region
+  - **exam** L3: given X ~ N(μ, σ²); a sample size n; a region → the expected number in the region, not rounded to a whole number
+  - new L2: given X ~ N(μ, σ²); two values a and b → P(X < a or X > b)
+  - **exam** L3: given a story with a mean and a standard deviation; a rule that rejects a tail, or all but a band → the probability that a chosen item is rejected
+  - **exam** L3: given a story with a mean and a standard deviation; a rule that rejects a tail, or all but a band; a sample size n → the expected number rejected
+  - **exam** L4: given X ~ N(μ, σ²); a sample size n; a region; a count k → the probability that exactly k of the sample fall in the region
+  - new L2: given X ~ N(μ, σ²) for a measure that can be negative; a value a above 0 → P(X < a)
+  - new L2: given X ~ N(μ, σ²) with the variance written as a number; a region → the probability of the region
+  - **exam** L4: given X ~ N(μ, σ²); a rounding unit; a recorded value → the probability of that recorded value
+  - **exam** L2: given P(X < a); P(X > b) → P(a < X < b), with μ and σ unknown
+- **Angles:** normalcdf with μ and σ; Sketch to sense-check; Standardise, then use Z.
+- **Concept probes:**
+  - *true-false-reason* (L3): When X ~ N(μ, σ²) is written with the variance as a number, that number goes into normalcdf as the last entry. — False: that number is the variance. normalcdf takes the standard deviation, so take the square root first.
+  - *always-sometimes-never* (L3): P(X < a) can be found with 0 as the lower bound. — Sometimes: only where X cannot be negative, or nearly so. A temperature can go below 0, so use a very large negative number as the lower end.
+  - *true-false-reason* (L3): An expected number in a sample must be a whole number. — False: it is n × p, a long-run average, so a decimal is a fine expected number.
+- **Misconceptions used:** 13. Entering the variance instead of the standard deviation into the GDC; Using 0 as the lower bound for P(X < a) when the variable can be negative (for example temperatures); Leaving an expected number as a probability instead of multiplying by n; Finding the area left out instead of the area asked for; Using only the upper bound, so the area below the lower bound is counted too; Counting one tail only when the event has two; Leaving a probability as a decimal when a percentage is asked for; Using a whole rounding unit either side of the recorded value instead of half a unit; Using only the half unit above the recorded value, and not the half unit below it; Rounding an expected number to a whole number when it need not be one; Taking off one tail only, so the other tail stays in the answer; Adding the two tails instead of taking them from 1; Using the cumulative function for exactly k of a sample.
+
 #### Choose the right regression line; x on y; mean point on both (`t4-regression-x-on-y`, exam, 5 bank parts)
 
 - **Situation:** The two regression lines of paired data.
@@ -2275,7 +2460,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Find an unknown mean or standard deviation with z-scores (`t4-normal-unknown-parameter`, exam, 13 bank parts)
 
-- **Situation:** A normal variable with a parameter hidden.
+- **Situation:** A normal variable with a parameter hidden, shared with `t4-normal-probability`.
 - **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given P(Z < k) or P(Z > k) → k
