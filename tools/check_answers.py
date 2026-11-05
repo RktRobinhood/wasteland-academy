@@ -23906,7 +23906,439 @@ def td_check(q):
     return None, None
 
 
-SITUATION_CHECKS = {"motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── antiderivative-condition (t5-antiderivative-condition, FAL-740) ──────
+# The `antiderivative-condition` situation's clean limits, the checker's own copy: the engine's is
+# in game/engine/situations/antiderivative_condition.gd. The derivative and the condition are read
+# back from what the student sees, the function is integrated again with SymPy, and every option is
+# differentiated: the one right option must give the derivative back, pass through the condition
+# and have no C left in it, and no other may. Each tagged wrong option is worked out from its slip.
+# A figure is read back too: the family's curves and labels, or the corners of f′.
+
+ADC_BC = "SL5.5.boundary-condition#"
+ADC_FF = "SL5.10.find-function-from-derivative#"
+ADC_POINT, ADC_Y_AS_X, ADC_KEPT, ADC_NO_C, ADC_SIGN, ADC_Y_IS_C, ADC_DIFF, ADC_F_PRIME, ADC_GRAD, ADC_ALL_POS = [
+    ADC_BC + str(i) for i in (0, 2, 3, 4, 5, 6, 7, 8, 9, 10)]
+ADC_ONE_C, ADC_EXACT, ADC_POINT_F, ADC_SAME_RATE, ADC_STAGES, ADC_STOPPED = [ADC_FF + str(i) for i in range(6)]
+ADC_OLD_POWER = "SL5.5.antidiff-power#0"
+ADC_SIN_SIGN = "SL5.10.standard-integrals#0"
+ADC_MULT_A = "SL5.10.linear-composites#0"
+ADC_NO_A = "SL5.10.linear-composites#1"
+ADC_NO_HALF = "SL5.10.inspection-substitution#1"
+ADC_AT_END = "SL5.5.total-change-from-rate#0"
+ADC_NO_START = "SL5.5.total-change-from-rate#1"
+ADC_P1_ONLY = ("trig-chain", "trig-shift", "trig-and-exp", "log-inspection", "log-given-log")
+ADC_P2_ONLY = ("poly-decimal-point", "exp-linear-decimal", "rate-model")
+ADC_FAMILY_GAP = 2
+ADC_FAMILY_MAX = 16
+ADC_RATE_MIN = 500
+ADC_CHANGE_MIN = 100
+ADC_STEP_NUM = r"\(?−?\d+(?:\.\d+)?(?:/\d+)?\)?"
+
+
+def adc_num(text):
+    """A number as the question writes it, with π if it has one."""
+    t = text.strip()
+    if "π" in t:
+        return adc_expr(t)
+    return R(t.replace("−", "-"))
+
+
+def adc_expr(text):
+    """An option, derivative or value as SymPy; 'f(x) = ' and a trailing '+ C' are taken off."""
+    t = re.sub(r"^(?:[fgh]\(x\)|y) = ", "", text.strip())
+    t = re.sub(r"(?<=[\dx)])π", "*pi", t).replace("π", "pi")
+    return in_expr(t)
+
+
+def adc_template(ans):
+    out = ""
+    for item in ans["template"]:
+        out += item if isinstance(item, str) else "(" + str(ans["values"][item["slot"]]) + ")"
+    return adc_expr(out)
+
+
+def adc_fit(F, x0, y0):
+    """The function F + C through (x0, y0)."""
+    return F + y0 - F.subs(CX, x0)
+
+
+def adc_steps(q, fp=None):
+    """The plain sums in the working are right, and every 'f(x) = … + C' integrates f′."""
+    pat = re.compile(rf"(?<![\w)^/.(])({ADC_STEP_NUM}(?: [+−] {ADC_STEP_NUM})+) = (−?\d+(?:\.\d+)?(?:/\d+)?)(?![\w/])")
+    for sol in q["solutions"]:
+        for step in sol["steps"]:
+            for mt in pat.finditer(step):
+                sign, total = 1, sp.Integer(0)
+                for tok in re.split(r" ([+−]) ", mt.group(1)):
+                    if tok in "+−":
+                        sign = 1 if tok == "+" else -1
+                    else:
+                        total += sign * R(tok.strip("()").replace("−", "-"))
+                got = R(mt.group(2).replace("−", "-"))
+                if "." in mt.group(0) and "s.f." in step:
+                    need(abs(total - got) <= abs(got) * sp.Rational(6, 1000) + sp.Rational(1, 10 ** 3), f"{step!r}: {mt.group(0)} is really {total}")
+                else:
+                    need(total == got, f"{step!r}: {mt.group(0)} is really {total}")
+            if fp is not None:
+                for mt in re.finditer(r"(?:[fgh]\(x\)|\by) = ([^:=]+) \+ C\.", step):
+                    need(calc_same(sp.diff(adc_expr(mt.group(1)), CX), fp), f"{step!r} does not integrate the derivative")
+
+
+def adc_function(q, fp, x0, y0, wr, tol=sp.Rational(1, 10 ** 12), order=1):
+    """Differentiates every option. wr: ref -> the expressions that slip gives."""
+    calc_options(q)
+    calc_steps(q)
+    for o in q["choices"]:
+        t, e = o["text"], adc_expr(o["text"])
+        has_c = t.endswith(" + C")
+        at = abs(sp.N(e.subs(CX, x0) - y0, 30))
+        right = not has_c and calc_same(sp.diff(e, CX), fp) and at <= tol
+        need(right == o["correct"], f"option {t!r} is {'wrong' if o['correct'] else 'also right'} by differentiating it")
+        if o["ref"] == ADC_KEPT:
+            need(has_c and calc_same(sp.diff(e, CX), fp), f"{t!r} is not the right terms with + C")
+        elif o["ref"]:
+            need(o["ref"] in wr, f"the checker can't confirm {o['ref']} on {q['view']['unknown']}")
+            need(any(calc_same(e, w) for w in wr[o["ref"]]), f"option {t!r} is not what {o['ref']} gives ({wr[o['ref']]})")
+    gap = sp.N(adc_template(q["answer"]) - adc_expr(q["answer_text"]), 30)
+    need(gap.is_number and abs(gap) <= tol, "the slots don't make the expression shown")
+    need(not q["answer_text"].endswith("+ C"), "the answer has C left in it")
+
+
+def adc_read(q):
+    """(the derivative's text, x0 as text, y0 as text): from the two lines of the stem."""
+    L = q["lines"]
+    m = re.fullmatch(r"dy/dx = (.+)", L[0]) or re.fullmatch(r"[fgh]′\(x\) = (.+?)(?:, for x > 0)?", L[0]) \
+        or re.search(r"gradient dy/dx = (.+) at any point \(x, y\)\.$", L[0])
+    need(m is not None, f"can't read the derivative in {L[0]!r}")
+    c = re.fullmatch(r"(?:The curve|The graph of y = [fgh]\(x\)) passes through \((.+), (.+)\)\.", L[1])
+    if c:
+        return m.group(1), c.group(1), c.group(2)
+    c = re.fullmatch(r"y = (.+) when x = (.+)", L[1])
+    if c:
+        return m.group(1), c.group(2), c.group(1)
+    c = re.fullmatch(r"[fgh]\((.+?)\) = (.+)", L[1])
+    need(c is not None, f"can't read the condition in {L[1]!r}")
+    return m.group(1), c.group(1), c.group(2)
+
+
+def adc_values(q, label, v, table):
+    """A value answer: table is ref -> the values that slip gives."""
+    wrongs = {r: {label + dm_num(x) for x in xs} for r, xs in table.items()}
+    gc_check_common(q, label + dm_num(v), wrongs)
+
+
+def adc_old_power(fp):
+    out = sp.Integer(0)
+    for t in sp.Add.make_args(sp.expand(fp)):
+        c, p = t.as_coeff_exponent(CX)
+        out += (c / p if p != 0 else c) * CX ** (p + 1)
+    return out
+
+
+def adc_powers(q, fp, x0, y0):
+    F = sp.integrate(sp.expand(fp), CX)
+    d = sp.diff(fp, CX)
+    wr = {ADC_POINT: [F + y0 - fp.subs(CX, x0)], ADC_POINT_F: [F + y0 - fp.subs(CX, x0)], ADC_NO_C: [F], ADC_SIGN: [F + y0 + F.subs(CX, x0)],
+          ADC_DIFF: [adc_fit(d, x0, y0)], ADC_OLD_POWER: [adc_fit(adc_old_power(fp), x0, y0)], ADC_Y_AS_X: [F + x0 - F.subs(CX, y0)]}
+    return F, wr
+
+
+def adc_trig(q, text, x0, y0):
+    m = re.fullmatch(r"(−?\d*) ?(cos|sin)\((.+)\)", text)
+    need(m is not None, f"can't read {text!r}")
+    K = sp.Integer({"": "1", "−": "-1"}.get(m.group(1), m.group(1).replace("−", "-")))
+    fam = m.group(2)
+    inner = adc_expr(m.group(3))
+    a = sp.diff(inner, CX)
+    sign = 1 if fam == "cos" else -1
+    int_fn, other = (sp.sin, sp.cos) if fam == "cos" else (sp.cos, sp.sin)
+    c0 = sign * K / a
+    F = c0 * int_fn(inner)
+    fp = K * (sp.cos(inner) if fam == "cos" else sp.sin(inner))
+    at = inner.subs(CX, x0)
+    wr = {ADC_EXACT: [F + y0 - c0 * other(at)], ADC_POINT_F: [F + y0 - fp.subs(CX, x0)], ADC_NO_C: [F],
+          ADC_MULT_A: [adc_fit(sign * K * a * int_fn(inner), x0, y0)], ADC_NO_A: [adc_fit(sign * K * int_fn(inner), x0, y0)]}
+    if fam == "sin":
+        wr[ADC_SIN_SIGN] = [adc_fit(-F, x0, y0)]
+    need(at.is_rational is False and F.subs(CX, x0).is_rational, f"the angle {at} is not a landmark")
+    need((F + y0 - F.subs(CX, x0)).subs(CX, x0) == y0, "the point is not on the curve")
+    need(y0 - F.subs(CX, x0) != 0, "the constant is 0")
+    return fp, wr
+
+
+def adc_exp_sum(q, fp, x0, y0):
+    need(x0 == 0, "an exponential's condition is at x = 0")
+    F = sp.integrate(fp, CX)
+    ex = [t for t in sp.Add.make_args(fp) if t.has(sp.exp)]
+    need(len(ex) == 1, "one exponential term")
+    arg = ex[0].atoms(sp.exp).pop().args[0]
+    e, B = sp.diff(arg, CX), ex[0] / sp.exp(arg)
+    base = F - B / e * sp.exp(arg)
+    wr = {ADC_EXACT: [F + y0], ADC_POINT_F: [F + y0 - fp.subs(CX, 0)], ADC_NO_C: [F], ADC_NO_A: [adc_fit(base + B * sp.exp(arg), 0, y0)],
+          ADC_MULT_A: [adc_fit(base + B * e * sp.exp(arg), 0, y0)]}
+    if "sin x" in q["lines"][0]:
+        wr[ADC_SIN_SIGN] = [adc_fit(base.subs(sp.cos(CX), -sp.cos(CX)) + B / e * sp.exp(arg), 0, y0)]
+    need(y0 - F.subs(CX, 0) != 0, "the constant is 0")
+    return wr
+
+
+def adc_second(q):
+    L = q["lines"]
+    m = re.fullmatch(r"[fgh]″\(x\) = (.+)", L[0])
+    c = re.fullmatch(r"[fgh]′\((.+)\) = (.+) and [fgh]\((.+)\) = (.+)", L[1])
+    need(m is not None and c is not None and c.group(1) == c.group(3), f"can't read {L[:2]!r}")
+    fpp, x0, p, r = adc_expr(m.group(1)), adc_num(c.group(1)), adc_num(c.group(2)), adc_num(c.group(4))
+    need(p != r, "the two conditions are the same number")
+    G = sp.integrate(fpp, CX)
+    H = sp.integrate(G, CX)
+    c1 = p - G.subs(CX, x0)
+    c2 = r - H.subs(CX, x0) - c1 * x0
+    need(c1 != 0 and c2 != 0, "a constant is 0")
+    b1 = r - G.subs(CX, x0)
+    b2 = p - H.subs(CX, x0) - b1 * x0
+    return fpp, x0, p, r, G, H, c1, c2, b1, b2
+
+
+def adc_family(q, fp, x0, y0):
+    g = q["graph"]
+    need(g is not None and len(g["curves"]) == 4, "a family has four curves")
+    F = sp.integrate(fp, CX)
+    pts = g["points"]
+    need(R(pts[0]["x"]) == x0 and R(pts[0]["y"]) == y0, "the given point is not marked")
+    need(pts[0]["label"] == f"({dm_num(x0)}, {dm_num(y0)})", f"the point reads {pts[0]['label']!r}")
+    cs = []
+    for curve, mark in zip(g["curves"], pts[1:]):
+        m = re.fullmatch(r"C = (−?\d+)", mark["label"])
+        need(m is not None, f"the label {mark['label']!r}")
+        c = sp.Integer(m.group(1).replace("−", "-"))
+        cs.append(c)
+        f = sp.lambdify(CX, F + c, "math")
+        need(all(abs(f(x) - y) < 1e-6 for x, y in curve), f"the curve labelled C = {c} is not F + C")
+        need(abs(f(mark["x"]) - mark["y"]) < 1e-6, "a label is not on its curve")
+    k = y0 - F.subs(CX, x0)
+    need(k in cs, "no curve passes through the point")
+    gaps = sorted(cs)
+    need(all(v - u >= ADC_FAMILY_GAP for u, v in zip(gaps, gaps[1:])), f"labels {gaps} are too close")
+    need(max(abs(c) for c in cs) <= ADC_FAMILY_MAX and k != 0, f"the constants {cs}")
+    fv = F.subs(CX, x0)
+    wr = {ADC_Y_IS_C: [y0], ADC_SIGN: [y0 + fv], ADC_POINT: [y0 - fp.subs(CX, x0)]}
+    need({o["text"] for o in q["choices"]} == {f"C = {dm_num(c)}" for c in cs}, "the options are not the curves on the figure")
+    return k, wr
+
+
+def adc_pieces(q):
+    g = q["graph"]
+    need(g is not None and len(g["curves"]) == 1, "no graph of f′")
+    pts = [(R(p["x"]), R(p["y"])) for p in g["points"]]
+    need(len(pts) == 4 and [(R(x), R(y)) for x, y in g["curves"][0]] == pts, "the corners are not the graph")
+    for p, xy in zip(g["points"], pts):
+        need(p["label"] == f"({dm_num(xy[0])}, {dm_num(xy[1])})", f"a corner reads {p['label']!r}")
+    c = re.fullmatch(r"[fgh]\((.+)\) = (.+)", q["lines"][1])
+    m = re.fullmatch(r"Find [fgh]\((.+)\)\.", q["asked"])
+    need(c is not None and m is not None, "can't read the condition")
+    a, y0, b = adc_num(c.group(1)), adc_num(c.group(2)), adc_num(m.group(1))
+    need(b == pts[3][0], "the value asked is not the end of the graph")
+    x = CX
+    signed, whole = sp.Integer(0), sp.Integer(0)
+    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
+        if x1 < a:
+            continue
+        line = y1 + (y2 - y1) * (x - x1) / (x2 - x1)
+        signed += sp.integrate(line, (x, x1, x2))
+        whole += sp.integrate(sp.Abs(line).rewrite(sp.Piecewise), (x, x1, x2))
+    need(signed != 0, "the signed area is 0")
+    return a, y0, b, signed, whole, pts[3][1]
+
+
+def adc_rate(q):
+    m = re.fullmatch(r"The number of (.+) changes at the rate d([A-Z])/dt = (−?)(\d+)e\^\(−([\d.]+)t\) per (\w+), where t is measured in (\w+) from the moment (.+)\.", q["lines"][0])
+    c = re.fullmatch(r"At that moment ([A-Z])\(0\) = (\d+)\.", q["lines"][1])
+    a = re.fullmatch(r"Use the model to find ([A-Z])\((\d+)\), to 3 s\.f\.", q["asked"])
+    need(m is not None and c is not None and a is not None, f"can't read {q['lines']!r}")
+    need(m.group(2) == c.group(1) == a.group(1), "the letters differ")
+    sign = -1 if m.group(3) else 1
+    A, k, P0, T = sign * R(m.group(4)), R(m.group(5)), R(c.group(2)), R(a.group(2))
+    t = sp.Symbol("t")
+    rate = A * sp.exp(-k * t)
+    change = sp.N(sp.integrate(rate, (t, 0, T)), 40)
+    # Added up numerically too, as the GDC would.
+    need(abs(mpmath.quad(lambda u: mpmath.mpf(A.p) / A.q * mpmath.exp(-mpmath.mpf(k.p) / k.q * u), [0, int(T)]) - mpmath.mpf(str(change))) < 1e-9, "the integral")
+    v = P0 + change
+    need(v > ADC_RATE_MIN and abs(change) >= ADC_CHANGE_MIN, f"the amount {v}, the change {change}")
+    need(gc_fair(v) and gc_fair(change), f"{v} or {change} sits on a rounding edge")
+    decay = sp.N(sp.exp(-k * T), 40)
+    return c.group(1), T, P0, A, k, v, change, decay
+
+
+def check_antiderivative_condition(q):
+    u, L, paper, ang = q["view"]["unknown"], q["lines"], q["paper"], q["view"]["angle"]
+    if u in ADC_P1_ONLY:
+        need(paper == 1, f"{u} is Paper 1")
+    if u in ADC_P2_ONLY or ang.startswith("gdc-"):
+        need(paper == 2, f"{u} with {ang} is Paper 2")
+    if ang.startswith("gdc-"):
+        need(any("Key in" in st for st in q["solutions"][0]["steps"]), "a GDC method names what is keyed in")
+        need(any("GDC reads" in st for st in q["solutions"][0]["steps"]), "a GDC method names what is read off")
+    x = CX
+    if u in ("poly-function", "poly-decimal-point", "curve-through-point", "negative-power"):
+        ft, xt, yt = adc_read(q)
+        fp, x0, y0 = adc_expr(ft), adc_num(xt), adc_num(yt)
+        F, wr = adc_powers(q, fp, x0, y0)
+        need(y0 != F.subs(x, x0), "the constant is 0")
+        if u == "poly-decimal-point":
+            need(x0 != int(x0) and "/" not in xt + yt, "a decimal point")
+        adc_function(q, fp, x0, y0, wr)
+        adc_steps(q, fp)
+        return None, None
+    if u in ("find-constant", "further-value"):
+        ft, xt, yt = adc_read(q)
+        fp, x0, y0 = adc_expr(ft), adc_num(xt), adc_num(yt)
+        F = sp.integrate(sp.expand(fp), x)
+        k = y0 - F.subs(x, x0)
+        need(k != 0, "the constant is 0")
+        if u == "find-constant":
+            need(q["asked"] == "Find the value of C." and calc_same(adc_expr(L[2].rstrip(".").split(" = ", 1)[1]), F), "the integrated form shown is wrong")
+            adc_values(q, "C = ", k, {ADC_POINT: [y0 - fp.subs(x, x0)], ADC_SIGN: [y0 + F.subs(x, x0)], ADC_Y_IS_C: [y0], ADC_Y_AS_X: [x0 - F.subs(x, y0)]})
+        else:
+            m = re.fullmatch(r"Find ([fgh])\((.+)\)\.", q["asked"])
+            need(m is not None, f"asked {q['asked']!r}")
+            b = adc_num(m.group(2))
+            v = F.subs(x, b) + k
+            need(v == y0 + sp.integrate(sp.expand(fp), (x, x0, b)), "the start plus the change disagrees")
+            adc_values(q, f"{m.group(1)}({dm_num(b)}) = ", v, {ADC_NO_C: [F.subs(x, b)], ADC_POINT: [F.subs(x, b) + y0 - fp.subs(x, x0)], ADC_F_PRIME: [fp.subs(x, b)],
+                                                              ADC_NO_START: [F.subs(x, b) - F.subs(x, x0)]})
+        adc_steps(q, fp)
+        return None, None
+    if u in ("trig-chain", "trig-shift"):
+        ft, xt, yt = adc_read(q)
+        x0, y0 = adc_num(xt), adc_num(yt)
+        fp, wr = adc_trig(q, ft, x0, y0)
+        adc_function(q, fp, x0, y0, wr)
+        adc_steps(q, fp)
+        return None, None
+    if u == "reciprocal-linear":
+        ft, xt, yt = adc_read(q)
+        x0, y0 = adc_num(xt), adc_num(yt)
+        m = re.fullmatch(r"(−?\d+)/\((.+)\)", ft)
+        need(m is not None, f"can't read {ft!r}")
+        K, inner = sp.Integer(m.group(1).replace("−", "-")), adc_expr(m.group(2))
+        a = sp.diff(inner, x)
+        need(inner.subs(x, x0) == 1, "ax + b is not 1 at the point")
+        F = K / a * sp.log(inner)
+        fp = K / inner
+        adc_function(q, fp, x0, y0, {ADC_EXACT: [F + y0 - K / a], ADC_POINT_F: [F + y0 - K], ADC_MULT_A: [K * a * sp.log(inner) + y0], ADC_NO_A: [K * sp.log(inner) + y0]})
+        adc_steps(q, fp)
+        return None, None
+    if u in ("exp-and-power", "trig-and-exp"):
+        ft, xt, yt = adc_read(q)
+        fp, x0, y0 = adc_expr(ft), adc_num(xt), adc_num(yt)
+        adc_function(q, fp, x0, y0, adc_exp_sum(q, fp, x0, y0))
+        adc_steps(q, fp)
+        return None, None
+    if u == "exp-linear-decimal":
+        ft, xt, yt = adc_read(q)
+        fp, x0, y0 = adc_expr(ft), adc_num(xt), adc_num(yt)
+        m = re.fullmatch(r"e\^\((\d)x\) \+ (\d+)", ft)
+        need(m is not None, f"can't read {ft!r}")
+        a, b = int(m.group(1)), int(m.group(2))
+        F = sp.exp(a * x) / a + b * x
+        k = sp.N(y0 - F.subs(x, x0), 40)
+        need(gc_fair(k) and abs(k) >= 1, f"the constant {k} is not clean")
+        sf = lambda v: R(gc_s(sp.N(v, 40)).replace("−", "-"))
+        tol = sp.Rational(6, 10) * sp.Integer(10) ** (sp.floor(sp.log(abs(k), 10)) - 2)
+        no_a = sp.exp(a * x) + b * x
+        adc_function(q, fp, x0, y0, {ADC_NO_A: [no_a + sf(y0 - no_a.subs(x, x0))], ADC_POINT_F: [F + sf(y0 - fp.subs(x, x0))], ADC_NO_C: [F]}, tol=tol)
+        adc_steps(q, fp)
+        return None, None
+    if u == "log-inspection":
+        ft, xt, yt = adc_read(q)
+        x0, y0 = adc_num(xt), adc_num(yt)
+        m = re.fullmatch(r"(\d*)x/\((.+)\)", ft)
+        need(m is not None, f"can't read {ft!r}")
+        top, inner = sp.Integer(m.group(1)), adc_expr(m.group(2))
+        need(top % 2 == 0, "the top is not a multiple of 2x")
+        fp = top * x / inner
+        K = top / 2
+        F = K * sp.log(inner)
+        at = inner.subs(x, x0)
+        adc_function(q, fp, x0, y0, {ADC_NO_HALF: [adc_fit(top * sp.log(inner), x0, y0)], ADC_Y_IS_C: [F + y0], ADC_POINT_F: [F + y0 - fp.subs(x, x0)]})
+        need(f"ln {at}" in q["answer_text"], "the constant's log is not at the point")
+        adc_steps(q, fp)
+        return None, None
+    if u == "log-given-log":
+        ft, xt, yt = adc_read(q)
+        x0, y0 = adc_num(xt), adc_expr(yt)
+        m = re.fullmatch(r"\((.+)\)/\((.+)\)", ft)
+        need(m is not None, f"can't read {ft!r}")
+        top, inner = adc_expr(m.group(1)), adc_expr(m.group(2))
+        K = sp.simplify(top / sp.diff(inner, x))
+        need(K.is_integer and K > 0, "the top is not a multiple of the bottom's derivative")
+        need(sp.discriminant(inner, x) < 0, "the bottom has a root")
+        fp = top / inner
+        F = K * sp.log(inner)
+        at = F.subs(x, x0)
+        adc_function(q, fp, x0, y0, {ADC_NO_HALF: [2 * F + y0 - 2 * at], ADC_Y_IS_C: [F + y0]})
+        adc_steps(q, fp)
+        return None, None
+    if u in ("second-derivative", "second-derivative-exp", "second-derivative-value"):
+        fpp, x0, p, r, G, H, c1, c2, b1, b2 = adc_second(q)
+        f = H + c1 * x + c2
+        need(calc_same(sp.diff(f, x, 2), fpp), "two integrations")
+        if u == "second-derivative-value":
+            m = re.fullmatch(r"Find ([fgh])\((.+)\)\.", q["asked"])
+            need(m is not None, f"asked {q['asked']!r}")
+            b = adc_num(m.group(2))
+            adc_values(q, f"{m.group(1)}({dm_num(b)}) = ", f.subs(x, b), {ADC_STOPPED: [(G + c1).subs(x, b)], ADC_ONE_C: [(H + c1 * x + c1).subs(x, b)], ADC_STAGES: [(H + b1 * x + b2).subs(x, b)]})
+        else:
+            wr = {ADC_ONE_C: [H + c1 * x + c1, H + r - H.subs(x, x0)], ADC_STAGES: [H + b1 * x + b2], ADC_EXACT: [H + p * x + r]}
+            # f′ and f both hold: the option's derivative must meet f′(x0) = p.
+            adc_function(q, sp.diff(f, x), x0, r, wr)
+        adc_steps(q, None)
+        need(any("+ D" in st or "D =" in st for st in q["solutions"][0]["steps"]), "the second integration has its own constant")
+        return None, None
+    if u == "parameter-from-gradient":
+        m = re.search(r"dy/dx = a(x²?) ([+−]) (\d+)", L[0])
+        g = re.fullmatch(r"The gradient of the curve at x = (.+) is (.+)\.", L[1])
+        c = re.fullmatch(r"The curve passes through \((.+), (.+)\)\.", L[2])
+        need(m is not None and g is not None and c is not None, f"can't read {L!r}")
+        n = 2 if "²" in m.group(1) else 1
+        con = int(m.group(3)) * (1 if m.group(2) == "+" else -1)
+        x1, grad, x0, y0 = adc_num(g.group(1)), adc_num(g.group(2)), adc_num(c.group(1)), adc_num(c.group(2))
+        K = (grad - con) / x1 ** n
+        fp = K * x ** n + con
+        F = sp.integrate(fp, x)
+        K2 = (y0 - con) / x0 ** n
+        need(K2 != K, "the slip gives the right a")
+        adc_function(q, fp, x0, y0, {ADC_POINT: [adc_fit(sp.integrate(K2 * x ** n + con, x), x0, y0)], ADC_GRAD: [F + grad - F.subs(x, x1)], ADC_NO_C: [F]})
+        adc_steps(q, fp)
+        return None, None
+    if u == "family-pick":
+        m = re.fullmatch(r"[fgh]′\(x\) = (.+)", L[0])
+        c = re.search(r"passes through \((.+), (.+)\)\.", L[1])
+        need(m is not None and c is not None, f"can't read {L!r}")
+        fp, x0, y0 = adc_expr(m.group(1)), adc_num(c.group(1)), adc_num(c.group(2))
+        k, wr = adc_family(q, fp, x0, y0)
+        adc_values(q, "C = ", k, wr)
+        adc_steps(q, fp)
+        return None, None
+    if u == "accumulate-graph":
+        a, y0, b, signed, whole, last = adc_pieces(q)
+        name = q["asked"][5]
+        adc_values(q, f"{name}({dm_num(b)}) = ", y0 + signed, {ADC_NO_START: [signed], ADC_AT_END: [last], ADC_ALL_POS: [y0 + whole]})
+        adc_steps(q)
+        return None, None
+    if u == "rate-model":
+        sym, T, P0, A, k, v, change, decay = adc_rate(q)
+        label = f"{sym}({T}) = "
+        gc_check_common(q, label + gc_s(v), {ADC_SAME_RATE: {label + gc_s(sp.Float(P0 + A * T, 40))}, ADC_NO_START: {label + gc_s(change)},
+                                             ADC_AT_END: {label + gc_s(sp.Float(A * decay, 40))}, ADC_NO_A: {label + gc_s(sp.Float(P0 + A * (1 - decay), 40))}})
+        adc_steps(q)
+        return None, None
+    raise Fail(f"no check for {u}")
+# ── end antiderivative-condition ──
+
+
+SITUATION_CHECKS = {"antiderivative-condition": check_antiderivative_condition, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,

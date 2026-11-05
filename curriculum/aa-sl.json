@@ -14783,7 +14783,15 @@
               "misconceptions": [
                 "Substituting the point into f′(x) instead of f(x)",
                 "Leaving + C in the final answer, or setting C = 0",
-                "Substituting the y-value in place of x"
+                "Substituting the y-value in place of x",
+                "Leaving + C in the final answer",
+                "Dropping the constant of integration",
+                "Adding F(a) to the given value instead of subtracting it when solving for C",
+                "Taking C to be the y-value of the given point",
+                "Differentiating f′ instead of integrating it",
+                "Giving f′ at the point asked for instead of f",
+                "Using the gradient as a height on the curve when fixing C",
+                "Counting every area under f′ as positive"
               ],
               "threads": [
                 {
@@ -16761,8 +16769,11 @@
               ],
               "misconceptions": [
                 "Using a single constant for both integrations from f″",
-                "Mis-evaluating exact values when finding C, e.g. taking sin(π/2) = 0",
-                "Substituting the point into f′ instead of f"
+                "Using a wrong exact value of sin, cos, e or ln when finding C",
+                "Substituting the point into f′ instead of f",
+                "Assuming the rate stays at its starting value for the whole time",
+                "Using the two conditions at the wrong stages",
+                "Stopping at f′ after one integration when f is asked for"
               ],
               "threads": [
                 {

@@ -4262,6 +4262,64 @@
 				"two options of a test end in each verdict",
 				"the quadratic for P(B) has one root that makes P(A) at most 1, and the quadratic for x has one repeated root"
 			]
+		},
+		"antiderivative-condition": {
+			"name": "A derivative and a condition that fixes the constant",
+			"summary": "Draw a derivative from one of the bank's families, then a point, value or start amount. The right constant follows from the integrated function; the wrong ones come from the slips. Exact wherever the exam is, with landmark angles and a point that makes e⁰ or ln 1 fall out; the decimal e^(ax) and the rate model are worked to 3 s.f.",
+			"quantities": [
+				{
+					"name": "fp, fpp",
+					"is": "the derivative or second derivative as a sum of powers",
+					"pick": "whole coefficients, chosen so most integrals have whole coefficients"
+				},
+				{
+					"name": "x0, y0",
+					"is": "the condition",
+					"pick": "small whole numbers; tenths and hundredths on the decimal cell; a multiple of π at a landmark for trig"
+				},
+				{
+					"name": "k",
+					"is": "the constant",
+					"pick": "worked out from the condition, and never 0"
+				},
+				{
+					"name": "K, a, sh",
+					"is": "the coefficient, the inside and the shift of a trig or reciprocal term",
+					"pick": "a from 2 to 4, or ax + b = 1 at the point; sh a multiple of π/6 or π/4"
+				},
+				{
+					"name": "A, B, e",
+					"is": "a power or trig term beside B e^(ex)",
+					"pick": "the condition is at x = 0"
+				},
+				{
+					"name": "p, q, c1, c2",
+					"is": "f′ and f at a point and the two constants",
+					"pick": "both constants not 0, and p and q differ"
+				},
+				{
+					"name": "A, kq, P0, T, sign",
+					"is": "the rate ±A e^(−kq t) and the start",
+					"pick": "kq in steps of 0.005 from 0.01 to 0.09; P0 a whole number of tens"
+				},
+				{
+					"name": "cs",
+					"is": "the four curves of a family",
+					"pick": "the right C and three slips, at least 2 apart"
+				},
+				{
+					"name": "xs, ys, from",
+					"is": "the corners of f′ and the corner the start is at",
+					"pick": "whole corners, with pieces above and below the axis"
+				}
+			],
+			"clean": [
+				"the constant is not 0",
+				"Paper 2's 3 s.f. values are clear of a rounding edge by 0.05 of a unit of the third figure, and are not whole",
+				"the constant of the decimal e^(ax) is at least 1 in size",
+				"a family's four values of C are at least 2 apart and at most 16 in size",
+				"the rate model's result is above 500 and its change is at least 100"
+			]
 		}
 	},
 	"skills": {
@@ -4458,6 +4516,8 @@
 		"SL5.7.find-second-derivative": "Find and evaluate the second derivative",
 		"SL5.7.concavity": "Determine where a graph is concave up or concave down",
 		"SL5.7.sketch-match-graphs": "Match or sketch the graphs of f, f′ and f″",
+		"SL5.5.boundary-condition": "Use a boundary condition to find the constant of integration",
+		"SL5.10.find-function-from-derivative": "Find f from f′ or f″ and given conditions",
 		"SL5.11.evaluate-definite": "Evaluate a definite integral exactly",
 		"SL5.11.area-with-negative-regions": "Find areas where the curve is partly below the x-axis",
 		"SL5.11.unknown-limit-or-parameter": "Find an unknown limit or parameter from a given integral or area",
@@ -4476,7 +4536,6 @@
 		"SL2.8.rational-model": "Use a rational function as a model",
 		"SL2.2.is-function": "Decide whether a relation is a function, and whether it is one-to-one",
 		"SL2.1.intersection-lines": "Find where two lines intersect",
-		"SL5.5.boundary-condition": "Use a boundary condition to find the constant of integration",
 		"SL4.3.constant-changes": "Find the effect of adding or multiplying every value by a constant",
 		"SL5.11.integral-properties": "Use properties of definite integrals",
 		"SL3.1.distance-3d": "Find the distance between two points in 3D",
@@ -40668,6 +40727,747 @@
 			"topic": 5,
 			"source": "exam",
 			"name": "Integrate, then find the constant from a point or initial value",
+			"summary": "Integrate f′ or f″, and use a point, a value or a start amount to fix the constant. The result is f(x), the equation of a curve, the constant itself, or a further value. It covers polynomials, negative powers, trig with a chain or a shift, 1/(ax + b), e^(ax), logs by inspection, a gradient that fixes a parameter, two conditions from f″, a family of curves on one figure, the graph of f′ read as areas, and a decaying rate in a story.",
+			"situation": "antiderivative-condition",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "f′(x) = 3x² − 2 and f(1) = 5, or dy/dx with a point, or f″(x) with two conditions"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a curve on a map with its gradient, or a rate in a story with a start amount"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "a family y = F(x) + C with the point marked, or the graph of f′ in straight pieces"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "poly-function",
+					"given": [
+						"f′(x) as a polynomial",
+						"f(a) = b"
+					],
+					"asked": "f(x)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.5.boundary-condition"
+					]
+				},
+				{
+					"id": "poly-decimal-point",
+					"given": [
+						"f′(x) = ax + b",
+						"f at a point in decimals"
+					],
+					"asked": "f(x), with a decimal constant",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.5.boundary-condition"
+					]
+				},
+				{
+					"id": "curve-through-point",
+					"given": [
+						"dy/dx as a polynomial",
+						"a point on the curve"
+					],
+					"asked": "the equation of the curve",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.5.boundary-condition"
+					]
+				},
+				{
+					"id": "find-constant",
+					"given": [
+						"f′(x)",
+						"f(a) = b",
+						"the integrated form with + C"
+					],
+					"asked": "the value of C",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.5.boundary-condition"
+					]
+				},
+				{
+					"id": "further-value",
+					"given": [
+						"f′(x)",
+						"f(a) = b"
+					],
+					"asked": "a further value f(c)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.5.boundary-condition",
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "negative-power",
+					"given": [
+						"f′(x) with a negative power of x",
+						"f(a) = b"
+					],
+					"asked": "f(x)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "trig-chain",
+					"given": [
+						"f′(x) = k cos(ax) or k sin(ax)",
+						"f at a multiple of π"
+					],
+					"asked": "f(x)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "trig-shift",
+					"given": [
+						"dy/dx = k cos(x + c) or k sin(x + c)",
+						"y at a multiple of π"
+					],
+					"asked": "y in terms of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "reciprocal-linear",
+					"given": [
+						"a gradient k/(ax + b)",
+						"a point on the curve"
+					],
+					"asked": "f(x) or the equation of the curve",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "exp-and-power",
+					"given": [
+						"f′(x) with a power of x and an exponential",
+						"f(0) or the curve's y-intercept"
+					],
+					"asked": "f(x)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "trig-and-exp",
+					"given": [
+						"f′(x) with cos x or sin x and an exponential",
+						"f(0)"
+					],
+					"asked": "f(x)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "exp-linear-decimal",
+					"given": [
+						"f′(x) = e^(ax) + b",
+						"f at a decimal point"
+					],
+					"asked": "f(x), with the constant to 3 s.f.",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "log-inspection",
+					"given": [
+						"f′(x) = 2kx/(x² + a)",
+						"a point on the graph"
+					],
+					"asked": "f(x), with a log in the constant",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "log-given-log",
+					"given": [
+						"f′(x) = k(2x + b)/(x² + bx + c)",
+						"a value of f with a log in it"
+					],
+					"asked": "f(x)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "rate-model",
+					"given": [
+						"a rate that decays exponentially",
+						"the amount at the start"
+					],
+					"asked": "the amount at a later time, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL5.5.boundary-condition",
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "second-derivative",
+					"given": [
+						"f″(x) as a polynomial",
+						"f′ and f at a point"
+					],
+					"asked": "f(x)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "second-derivative-exp",
+					"given": [
+						"f″(x) = ax + be^x",
+						"f′(0) and f(0)"
+					],
+					"asked": "f(x)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "second-derivative-value",
+					"given": [
+						"f″(x) as a polynomial",
+						"f′ and f at a point"
+					],
+					"asked": "a further value f(c)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.10.find-function-from-derivative"
+					]
+				},
+				{
+					"id": "parameter-from-gradient",
+					"given": [
+						"dy/dx with a constant a",
+						"the gradient at one point",
+						"a point on the curve"
+					],
+					"asked": "y in terms of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL5.5.boundary-condition"
+					]
+				},
+				{
+					"id": "family-pick",
+					"given": [
+						"f′(x)",
+						"a point",
+						"a family y = F(x) + C on one figure"
+					],
+					"asked": "the C of the curve through the point",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.5.boundary-condition"
+					]
+				},
+				{
+					"id": "accumulate-graph",
+					"given": [
+						"the graph of f′ in straight pieces",
+						"f(a) = b"
+					],
+					"asked": "a further value f(c)",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.5.boundary-condition"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.5.boundary-condition",
+					"method": "integrate-then-substitute",
+					"suits": [
+						"poly-function",
+						"poly-decimal-point",
+						"curve-through-point",
+						"find-constant",
+						"further-value",
+						"family-pick",
+						"parameter-from-gradient"
+					],
+					"name": "Integrate, then substitute the point",
+					"about": "Integrate with + C, substitute the known point into f, and solve for C."
+				},
+				{
+					"skill": "SL5.5.boundary-condition",
+					"method": "accumulate-from-point",
+					"suits": [
+						"further-value",
+						"rate-model",
+						"accumulate-graph"
+					],
+					"name": "Start value plus accumulated change",
+					"about": "Use f(b) = f(a) + ∫ from a to b of f′(x) dx to go from the known value to the required one without finding C."
+				},
+				{
+					"skill": "SL5.5.boundary-condition",
+					"method": "pick-from-family",
+					"suits": [
+						"family-pick"
+					],
+					"name": "Choose the right vertical shift",
+					"about": "Sketch y = F(x) + C for a few values of C and pick the shift that passes through the given point."
+				},
+				{
+					"skill": "SL5.10.find-function-from-derivative",
+					"method": "integrate-and-fit",
+					"suits": [
+						"negative-power",
+						"trig-chain",
+						"trig-shift",
+						"reciprocal-linear",
+						"exp-and-power",
+						"trig-and-exp",
+						"exp-linear-decimal",
+						"log-inspection",
+						"log-given-log",
+						"rate-model",
+						"second-derivative",
+						"second-derivative-exp",
+						"second-derivative-value"
+					],
+					"name": "Integrate and fit the constant(s)",
+					"about": "Integrate, then substitute the known point to find C; from f″, integrate twice and use one condition at each stage."
+				},
+				{
+					"skill": "SL5.10.find-function-from-derivative",
+					"method": "gdc-start-plus-change",
+					"suits": [
+						"further-value",
+						"rate-model"
+					],
+					"name": "Start value plus GDC integral",
+					"about": "On P2, if only one value is needed, compute f(b) = f(a) + ∫ from a to b of f′(x) dx on the GDC."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Knowing f′(x) for every x is enough to know f(x) for every x.",
+					"answer": "False: f′ fixes the shape, and any vertical shift has the same derivative. One value of f is needed to pick the shift.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Two different antiderivatives of the same function on one interval cross each other.",
+					"answer": "Never: they differ by a constant, so one curve is the other moved up or down, and the gap never closes.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "From f″(x), one condition is enough to find f(x).",
+					"answer": "False: there are two integrations, so two constants, and each needs a condition of its own.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.5.boundary-condition#0",
+					"text": "Substituting the point into f′(x) instead of f(x)",
+					"as": "distractor",
+					"in": [
+						"poly-function",
+						"poly-decimal-point",
+						"curve-through-point",
+						"find-constant",
+						"further-value",
+						"parameter-from-gradient",
+						"family-pick"
+					],
+					"wrong": "the constant from f′ at the point"
+				},
+				{
+					"ref": "SL5.5.boundary-condition#2",
+					"text": "Substituting the y-value in place of x",
+					"as": "distractor",
+					"in": [
+						"poly-function",
+						"curve-through-point",
+						"find-constant"
+					],
+					"wrong": "the point's coordinates swapped"
+				},
+				{
+					"ref": "SL5.5.boundary-condition#3",
+					"text": "Leaving + C in the final answer",
+					"as": "distractor",
+					"in": [
+						"poly-function",
+						"poly-decimal-point",
+						"curve-through-point",
+						"parameter-from-gradient",
+						"negative-power",
+						"trig-chain",
+						"trig-shift",
+						"reciprocal-linear",
+						"exp-and-power",
+						"trig-and-exp",
+						"exp-linear-decimal",
+						"log-inspection",
+						"log-given-log",
+						"second-derivative",
+						"second-derivative-exp"
+					],
+					"wrong": "the right terms, with + C left in"
+				},
+				{
+					"ref": "SL5.5.boundary-condition#4",
+					"text": "Dropping the constant of integration",
+					"as": "distractor",
+					"in": [
+						"poly-function",
+						"poly-decimal-point",
+						"curve-through-point",
+						"further-value",
+						"parameter-from-gradient",
+						"trig-shift",
+						"exp-linear-decimal"
+					],
+					"wrong": "the right terms with no constant"
+				},
+				{
+					"ref": "SL5.5.boundary-condition#5",
+					"text": "Adding F(a) to the given value instead of subtracting it when solving for C",
+					"as": "distractor",
+					"in": [
+						"poly-function",
+						"poly-decimal-point",
+						"curve-through-point",
+						"find-constant",
+						"family-pick"
+					],
+					"wrong": "the given value plus F(a) as the constant"
+				},
+				{
+					"ref": "SL5.5.boundary-condition#6",
+					"text": "Taking C to be the y-value of the given point",
+					"as": "distractor",
+					"in": [
+						"find-constant",
+						"family-pick",
+						"log-inspection",
+						"log-given-log"
+					],
+					"wrong": "the given value as the constant"
+				},
+				{
+					"ref": "SL5.5.boundary-condition#7",
+					"text": "Differentiating f′ instead of integrating it",
+					"as": "distractor",
+					"in": [
+						"poly-function",
+						"negative-power"
+					],
+					"wrong": "the derivative of f′, with a constant fitted to the point"
+				},
+				{
+					"ref": "SL5.5.boundary-condition#8",
+					"text": "Giving f′ at the point asked for instead of f",
+					"as": "distractor",
+					"in": [
+						"further-value"
+					],
+					"wrong": "f′ at the point asked for"
+				},
+				{
+					"ref": "SL5.5.boundary-condition#9",
+					"text": "Using the gradient as a height on the curve when fixing C",
+					"as": "distractor",
+					"in": [
+						"parameter-from-gradient"
+					],
+					"wrong": "the constant fitted as if the gradient were a height"
+				},
+				{
+					"ref": "SL5.5.boundary-condition#10",
+					"text": "Counting every area under f′ as positive",
+					"as": "distractor",
+					"in": [
+						"accumulate-graph"
+					],
+					"wrong": "the start plus the areas, all counted as positive"
+				},
+				{
+					"ref": "SL5.10.find-function-from-derivative#0",
+					"text": "Using a single constant for both integrations from f″",
+					"as": "distractor",
+					"in": [
+						"second-derivative",
+						"second-derivative-exp",
+						"second-derivative-value"
+					],
+					"wrong": "one constant used at both stages"
+				},
+				{
+					"ref": "SL5.10.find-function-from-derivative#1",
+					"text": "Using a wrong exact value of sin, cos, e or ln when finding C",
+					"as": "distractor",
+					"in": [
+						"trig-chain",
+						"trig-shift",
+						"reciprocal-linear",
+						"exp-and-power",
+						"trig-and-exp",
+						"second-derivative-exp"
+					],
+					"wrong": "the constant from a wrong value of sin, cos, e⁰ or ln 1"
+				},
+				{
+					"ref": "SL5.10.find-function-from-derivative#2",
+					"text": "Substituting the point into f′ instead of f",
+					"as": "distractor",
+					"in": [
+						"negative-power",
+						"trig-chain",
+						"trig-shift",
+						"reciprocal-linear",
+						"exp-and-power",
+						"trig-and-exp",
+						"exp-linear-decimal",
+						"log-inspection"
+					],
+					"wrong": "the constant from f′ at the point"
+				},
+				{
+					"ref": "SL5.10.find-function-from-derivative#3",
+					"text": "Assuming the rate stays at its starting value for the whole time",
+					"as": "distractor",
+					"in": [
+						"rate-model"
+					],
+					"wrong": "the start plus the starting rate times the time"
+				},
+				{
+					"ref": "SL5.10.find-function-from-derivative#4",
+					"text": "Using the two conditions at the wrong stages",
+					"as": "distractor",
+					"in": [
+						"second-derivative",
+						"second-derivative-exp",
+						"second-derivative-value"
+					],
+					"wrong": "the f value used for f′, and the f′ value for f"
+				},
+				{
+					"ref": "SL5.10.find-function-from-derivative#5",
+					"text": "Stopping at f′ after one integration when f is asked for",
+					"as": "distractor",
+					"in": [
+						"second-derivative-value"
+					],
+					"wrong": "f′ at the point asked for"
+				},
+				{
+					"ref": "SL5.5.antidiff-power#0",
+					"text": "Dividing by the old power instead of the new one",
+					"as": "distractor",
+					"in": [
+						"poly-function",
+						"negative-power"
+					],
+					"wrong": "each term divided by its old power"
+				},
+				{
+					"ref": "SL5.10.standard-integrals#0",
+					"text": "Integrating sin x to cos x, with the wrong sign",
+					"as": "distractor",
+					"in": [
+						"trig-chain",
+						"trig-shift",
+						"trig-and-exp"
+					],
+					"wrong": "the integral of sin with a plus sign"
+				},
+				{
+					"ref": "SL5.10.linear-composites#0",
+					"text": "Multiplying by the coefficient of x, as in differentiation, instead of dividing",
+					"as": "distractor",
+					"in": [
+						"trig-chain",
+						"reciprocal-linear",
+						"exp-and-power",
+						"trig-and-exp"
+					],
+					"wrong": "multiplied by the inner coefficient"
+				},
+				{
+					"ref": "SL5.10.linear-composites#1",
+					"text": "Forgetting to divide by the coefficient of x",
+					"as": "distractor",
+					"in": [
+						"trig-chain",
+						"reciprocal-linear",
+						"exp-and-power",
+						"trig-and-exp",
+						"exp-linear-decimal",
+						"rate-model"
+					],
+					"wrong": "not divided by the inner coefficient"
+				},
+				{
+					"ref": "SL5.10.inspection-substitution#1",
+					"text": "Forgetting to divide by the number that comes from differentiating the inside",
+					"as": "distractor",
+					"in": [
+						"log-inspection",
+						"log-given-log"
+					],
+					"wrong": "the coefficient of x on top kept as the coefficient of ln"
+				},
+				{
+					"ref": "SL5.5.total-change-from-rate#0",
+					"text": "Evaluating the rate at the end time instead of integrating",
+					"as": "distractor",
+					"in": [
+						"rate-model",
+						"accumulate-graph"
+					],
+					"wrong": "the rate at the end time"
+				},
+				{
+					"ref": "SL5.5.total-change-from-rate#1",
+					"text": "Adding the starting amount when only the change is asked for, or forgetting it when the total is asked for",
+					"as": "distractor",
+					"in": [
+						"further-value",
+						"rate-model",
+						"accumulate-graph"
+					],
+					"wrong": "the change alone, with the start left out"
+				}
+			],
+			"chain": [
+				"integrate f′ (or f″), with + C",
+				"put the condition into the integrated function, not into its derivative",
+				"solve for C, keeping exact values",
+				"from f″, integrate again with a new constant and use the second condition",
+				"write the function with no C left, or put in the further value",
+				"or go straight to f(b) = f(a) + ∫ f′ dx from a to b"
+			],
 			"frequency": 9,
 			"marks": 4,
 			"section": {
@@ -40677,9 +41477,7 @@
 			"paper": {
 				"p1": 4,
 				"p2": 5
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t5-definite-integral-area",
