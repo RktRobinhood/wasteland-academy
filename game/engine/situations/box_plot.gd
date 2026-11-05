@@ -632,14 +632,14 @@ static func _keep(rng: Seeded, s: Dictionary) -> bool:
 static func _effect(rng: Seeded, s: Dictionary) -> bool:
 	var p1: bool = s.paper == 1
 	var m := rng.int_in(6, 9) if p1 else rng.int_in(9, 13)
+	var up: bool = s.side == "up"
+	# A low outlier needs room under the data, so those data sit higher.
+	var base: int = 10 if up else 18
 	var rest: Array = []
 	for i in m:
-		rest.append(Q.new(rng.int_in(10, 30)))
+		rest.append(Q.new(rng.int_in(base, base + 20)))
 	rest = DataSummarySituation.sorted(rest)
-	var up: bool = s.side == "up"
-	var x := Q.new(rest[m - 1].n + rng.int_in(20, 45)) if up else Q.new(rng.int_in(1, maxi(1, rest[0].n - 8)))
-	if not up and rest[0].n < 16:
-		return false
+	var x := Q.new(rest[m - 1].n + rng.int_in(20, 45)) if up else Q.new(rng.int_in(1, rest[0].n - 8))
 	var data: Array = rest + [x] if up else [x] + rest
 	s.data = data
 	s.xs = data if p1 else rng.shuffled(data)
