@@ -19,6 +19,9 @@ const COLUMN_WIDE := 1500
 const PICK_WIDE := 900
 ## The answer keys (Keypad.ANSWER_KEYS): the calculator shares them (FAL-419).
 const KEYS := Keypad.ANSWER_KEYS
+## The most an answer box takes, still inside the fight's card on a 360 px phone. The
+## longest answers any type asks for are about 25 characters, as exact fractions.
+const SLOT_CHARS := 26
 ## How far a finger moves, in base units, before a touch is a swipe and not a tap: about
 ## 10 px on a phone. Any less and the wobble in a tap scrolls the card and loses the tap.
 const SWIPE_DEADZONE := 28
@@ -204,7 +207,7 @@ func render_question() -> void:
 	meta_row.add_child(paper_box)
 	card.add_child(meta_row)
 	show_paper()
-	var prompt := UiTheme.label(question.prompt, UiTheme.BODY)
+	var prompt := UiTheme.math(question.prompt, UiTheme.BODY)
 	prompt.name = "Prompt"
 	card.add_child(prompt)
 
@@ -287,10 +290,7 @@ func _add_representation() -> void:
 		# A student's working (error-spot) reads as lines of text, not as the equation.
 		var is_eq: bool = ((question.rep == "equation" and (line.begins_with("f(") or line.contains(" = "))) \
 			or question.rep in ["notation", "terms"]) and not line.begins_with("Line ")
-		var l := UiTheme.label(line, UiTheme.BIG if is_eq else UiTheme.BODY, UiTheme.SAND if is_eq else UiTheme.TEXT)
-		if is_eq:
-			l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		card.add_child(l)
+		card.add_child(UiTheme.math(line, UiTheme.BIG if is_eq else UiTheme.BODY, UiTheme.SAND if is_eq else UiTheme.TEXT, is_eq))
 	if question.graph != null:
 		card.add_child(graph_for(question.graph))
 	if question.table != null:
@@ -361,6 +361,10 @@ func _add_slots() -> void:
 			var e := LineEdit.new()
 			e.name = "Slot_" + item.slot
 			e.custom_minimum_size = Vector2(150, 0)
+			# Grows as it's typed in, so every digit shows and the box says nothing about the
+			# answer's length. Not past the card: 0.00000842 hid its zeros at a fixed width.
+			e.expand_to_text_length = true
+			e.max_length = SLOT_CHARS
 			e.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			e.placeholder_text = "?"
 			e.virtual_keyboard_enabled = false
@@ -597,7 +601,7 @@ static func right_text(q: Dictionary) -> String:
 func _show_working() -> void:
 	working.visible = true
 	if question.format == "probe":
-		working.add_child(UiTheme.label(question.reveal, UiTheme.BODY))
+		working.add_child(UiTheme.math(question.reveal, UiTheme.BODY))
 		return
 	working.add_child(UiTheme.label("Worked solution", UiTheme.BIG, UiTheme.SAND))
 	var tabs := VBoxContainer.new()
@@ -632,9 +636,9 @@ func _show_steps(box: VBoxContainer, i: int) -> void:
 		box.remove_child(c)
 		c.queue_free()
 	var sol: Dictionary = question.solutions[i]
-	box.add_child(UiTheme.label(sol.name, UiTheme.SMALL, UiTheme.DIM))
+	box.add_child(UiTheme.math(sol.name, UiTheme.SMALL, UiTheme.DIM))
 	for st in sol.steps:
-		box.add_child(UiTheme.label(Step.text(st), UiTheme.BODY))
+		box.add_child(UiTheme.math(Step.text(st), UiTheme.BODY))
 
 
 func _update_progress() -> void:
