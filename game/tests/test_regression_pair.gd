@@ -2,8 +2,8 @@ extends "res://tests/test_case.gd"
 ## The regression-x-on-y situation (FAL-725): t4-regression-x-on-y is built with every cell and
 ## all four SL4.10 skills, cells make both forms with one right option, the table's line of x on
 ## y is exact, the working shows the real line, both lines given pass through a whole mean
-## point, only choosing a line and the
-## mean point reach Paper 1, every misconception shows up, and it stays out of the AI courses.
+## point, only choosing a line and the mean point reach Paper 1, every misconception shows up,
+## and it stays out of the AI courses.
 ## The SymPy checker (tools/check-answers) checks the maths.
 
 const TYPE := "t4-regression-x-on-y"
