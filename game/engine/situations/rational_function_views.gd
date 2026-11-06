@@ -209,7 +209,7 @@ func u_ha_from_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var A: Q = s.A
 	var ans := axis_ans("y", A, pp)
 	var fin := final("So the horizontal asymptote is", ans)
-	var ratio := "y = a/c = %s/%s = %s" % [Fmt.num(s.a), Fmt.num(s.c), work(A, pp)] if s.c != 1 else "y = a/c = %s" % Fmt.num(A)
+	var ratio := "y = a/c = " + Fmt.equals("%s/%s" % [Fmt.num(s.a), Fmt.num(s.c)], work(A, pp)) if s.c != 1 else "y = a/c = %s" % Fmt.num(A)
 	var far := "f(1000) = %s and f(−1000) = %s" % [at(s, 1000.0), at(s, -1000.0)]
 	return {
 		"asked": "Write down the equation of the horizontal asymptote of the graph of y = f(x).", "lines": [fx(s)], "answer": ans,
@@ -312,7 +312,7 @@ func u_y_intercept(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	else:
 		ans.exact = true
 	var fin := final("So the y-intercept is", ans)
-	var sub := "f(0) = %s/%s = %s" % [Fmt.num(s.b), Fmt.num(s.d), work(yi, pp)]
+	var sub := "f(0) = " + Fmt.equals("%s/%s" % [Fmt.num(s.b), Fmt.num(s.d)], work(yi, pp))
 	return {
 		"asked": "Find the y-intercept of the graph of y = f(x).", "lines": [fx(s)], "answer": ans,
 		"wrongs": [wrong({"y": s.xi}, R_ZERO_YINT)],

@@ -197,7 +197,7 @@ func u_chord_length(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	if rep == "graph":
 		out.lines = shown(s) + ["The sketch shows the line meeting the curve at A and B."]
 	var dy: Q = s.m.mul(dx)
-	var dist := "Δx = %s and Δy = %s × %s = %s, so AB = √(%s² + %s²) = √%s = %s" % [N(dx), N(s.m), N(dx), N(dy), N(dx), Fmt.paren(dy), N(dx * dx * r), Answer.surd_text(sv[0], sv[1])]
+	var dist := "Δx = %s and Δy = %s × %s = %s, so AB = √(%s² + %s²) = %s" % [N(dx), N(s.m), N(dx), N(dy), N(dx), Fmt.paren(dy), Fmt.equals("√" + N(dx * dx * r), Answer.surd_text(sv[0], sv[1]))]
 	var c := eq_coeffs(s)
 	var fs := QuadraticViews.formula_steps(c[0], c[1], c[2])
 	var h: Q = s.x1.add(s.x2).div(2)

@@ -149,8 +149,8 @@ func u_value_inside_out(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.generic = [{"v": gx}, {"v": ev(f, x0)}, {"v": v.add(1)}]
 	var final := "So " + Answer.text(ans) + "."
 	var inside := [
-		"g(%s) = %s = %s" % [N(x0), CompositePairSituation.sub_in(g, N(x0)), N(gx)],
-		"f(%s) = %s = %s" % [N(gx), CompositePairSituation.sub_in(f, N(gx)), fshow],
+		"g(%s) = %s" % [N(x0), Fmt.equals(CompositePairSituation.sub_in(g, N(x0)), N(gx))],
+		"f(%s) = %s" % [N(gx), Fmt.equals(CompositePairSituation.sub_in(f, N(gx)), fshow)],
 		final]
 	var built: Array
 	if sine:
@@ -280,7 +280,7 @@ func _param_lin(s: Dictionary) -> Dictionary:
 	var final := "So %s." % Answer.text(ans)
 	var d_part := ("+ %s" % N(s.d)) if s.d.sign() >= 0 else ("− %s" % s.d.abs_q().text())
 	var eq := "%sk %s = %s" % [Fmt.lead(gx), d_part, N(s.v)]
-	var inside := ["g(%s) = %s = %s" % [N(x0), CompositePairSituation.sub_in(g, N(x0)), N(gx)],
+	var inside := ["g(%s) = %s" % [N(x0), Fmt.equals(CompositePairSituation.sub_in(g, N(x0)), N(gx))],
 		"f(%s) = %s, so %s" % [N(gx), "%sk %s" % [Fmt.lead(gx), d_part], eq],
 		"%sk = %s, so k = %s ÷ %s" % [Fmt.lead(gx), N(s.v.sub(s.d)), N(s.v.sub(s.d)), N(gx)], final]
 	var build := ["(f∘g)(x) = k(%s) %s" % [rt(g), d_part],

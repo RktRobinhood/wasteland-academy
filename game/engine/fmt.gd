@@ -197,6 +197,12 @@ static func paren(v: Variant) -> String:
 	return "(%s)" % q.text() if q.sign() < 0 or not q.is_int() else q.text()
 
 
+## "left = right", with left once when right starts with it: equals("7/9", "7/9 = 0.778")
+## is "7/9 = 0.778", and equals("7/9", "7/9") is "7/9". A step says each value once.
+static func equals(left: String, right: String) -> String:
+	return right if right == left or right.begins_with(left + " = ") else "%s = %s" % [left, right]
+
+
 # ── Quadratics extension types (FAL-459) ─────────────────────
 
 const SUPS := {"0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "-": "⁻"}

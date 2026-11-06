@@ -65,3 +65,21 @@ func test_export_writes_text_and_moves() -> void:
 	moves.resize(plain.size())
 	check_eq(e.solutions[0].moves, moves)
 	check(e.solutions.slice(1).all(func(sol): return sol.moves.all(func(m): return m == null)), "untagged steps export a null move")
+
+
+func test_a_step_says_each_value_once() -> void:
+	check_eq(Fmt.equals("3/4", "1/2"), "3/4 = 1/2", "two values")
+	check_eq(Fmt.equals("7/9", "7/9"), "7/9", "one value")
+	check_eq(Fmt.equals("7/9", "7/9 = 0.778 (3 s.f.)"), "7/9 = 0.778 (3 s.f.)", "the value leads the rest")
+	check_eq(Fmt.equals("7/9", "7/90"), "7/9 = 7/90", "a longer number isn't the value")
+	var repeat := RegEx.create_from_string("(?:^|= )([^=:,]*?[^ =:,]) = \\1(?=$|[,.:;)]| [^×+−/÷^])")
+	var seen := 0
+	for t in ["fn-rational-asymptotes-intercepts", "fn-curve-intersection-quadratic", "fn-exponential-model", "fn-composite", "fn-exp-log-inverse-composite", "t4-probability-basic"]:
+		for c in QuestionEngine.cells(false, [t]):
+			for seed in range(1, 41):
+				var q := QuestionEngine.make({"type": t, "unknown": c.unknown, "rep": c.rep, "angle": c.angle, "seed": seed, "format": "value"})
+				for sol in q.solutions:
+					for st in sol.steps:
+						seen += 1
+						check(repeat.search(Step.text(st)) == null, "%s seed %d: %s" % [c.key, seed, Step.text(st)])
+	check(seen > 0, "no steps looked at")

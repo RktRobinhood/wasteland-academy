@@ -223,7 +223,7 @@ func u_evaluate_log_function(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var final := "So " + Answer.text(ans) + "."
 	out.methods = {"what-power": {"result": ans.values, "steps": [
 		"The inside is %s, and %s = %d: the power of %d that gives %d is %d." % [inside(s, x), PW(b, n), ipow(b, n), b, ipow(b, n), n],
-		"So %s %d = %d, and g(%d) = %d%s = %d." % [LG(b), ipow(b, n), n, x, n, c_step(c), n + c], final]}}
+		"So %s %d = %d, and g(%d) = %s." % [LG(b), ipow(b, n), n, x, Fmt.equals("%d%s" % [n, c_step(c)], str(n + c))], final]}}
 	return out
 
 
@@ -321,15 +321,21 @@ func u_evaluate_inverse(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs.append(wrong({"v": Q.new(ipow(m, b) + h)}, "SL2.9.exp-log-inverse#1"))
 	out.generic = [{"v": Q.new(ipow(b, m))}, {"v": Q.new(m + h)}, {"v": Q.new(ipow(b, m) - h)}, {"v": Q.new(ipow(b, m + 1) + h)}]
 	var final := "So " + Answer.text(ans) + "."
+	# Subtracting or adding 0 is no sum to show.
+	var chain := ["%s = %d" % [PW(b, m), ipow(b, m)]]
+	if c != 0:
+		chain.push_front("%d%s = %d" % [a, c_step(-c), m])
+	if h != 0:
+		chain.append("%d%s = %d" % [ipow(b, m), c_step(h), x])
 	out.methods = {
 		"reverse-operations": {"result": ans.values, "steps": [
 			"g⁻¹ undoes g: subtract %d, raise %d to that power, then add %d." % [c, b, h],
-			"%d%s = %d, %s = %d, %d%s = %d" % [a, c_step(-c), m, PW(b, m), ipow(b, m), ipow(b, m), c_step(h), x], final]},
+			", ".join(chain), final]},
 		"convert-form": {"result": ans.values, "steps": [
 			"g⁻¹(%d) is the x with g(x) = %d: %s(%s) = %d" % [a, a, LG(b), Answer.x_minus(h), m],
 			"In exponential form: %s = %s = %d, so x = %d" % [Answer.x_minus(h), PW(b, m), ipow(b, m), x], final]},
 		"inverse-identities": {"result": ans.values, "steps": [
-			"g(g⁻¹(%d)) = %d, and g(%d) = %s(%d) = %d%s = %d." % [a, a, x, LG(b), ipow(b, m), m, c_step(c), a],
+			"g(g⁻¹(%d)) = %d, and g(%d) = %s(%d) = %s." % [a, a, x, LG(b), ipow(b, m), Fmt.equals("%d%s" % [m, c_step(c)], str(a))],
 			"So g⁻¹(%d) = %d." % [a, x], final]},
 	}
 	return out
@@ -588,7 +594,7 @@ func u_solve_log_equation(_rep: String, s: Dictionary, _rng: Seeded) -> Dictiona
 			"convert-form": {"result": ans.values, "steps": [
 				"%s(%s) = %d" % [LG(b), Answer.x_minus(h), m], "In exponential form: %s = %s = %d" % [Answer.x_minus(h), PW(b, m), ipow(b, m)], final]},
 			"rewrite-exponential": {"result": ans.values, "steps": [
-				"log_b A = m means b^m = A: here %s = %s." % [Answer.x_minus(h), PW(b, m)], "x = %d%s = %d" % [ipow(b, m), c_step(h), x], final]},
+				"log_b A = m means b^m = A: here %s = %s." % [Answer.x_minus(h), PW(b, m)], "x = " + Fmt.equals("%d%s" % [ipow(b, m), c_step(h)], str(x)), final]},
 			"apply-inverse": {"result": ans.values, "steps": [
 				"%s%s(%s) = %d" % ["" if c == 0 else ("Subtract %d: " % c if c > 0 else "Add %d: " % -c), LG(b), Answer.x_minus(h), m],
 				"Raise %d to each side: %s = %d" % [b, Answer.x_minus(h), ipow(b, m)], final]},
@@ -731,7 +737,7 @@ func p2_evaluate_log_function(s: Dictionary) -> Dictionary:
 	out.methods = {"what-power": {"result": ans.values, "steps": [
 		"The inside is %s, and %s < %d < %s: no whole power of %d gives %d." % [inside(s, x), PW(b, lo), k, PW(b, lo + 1), b, k],
 		"With a GDC: %s %d = ln %d / ln %d = %s" % [LG(b), k, k, b, W(lk)],
-		"g(%d) = %s%s = %s" % [x, W(lk), c_step(c), W(val)], "So " + Answer.text(ans) + "."]}}
+		"g(%d) = %s" % [x, Fmt.equals(W(lk) + c_step(c), W(val))], "So " + Answer.text(ans) + "."]}}
 	return out
 
 
@@ -752,15 +758,15 @@ func p2_evaluate_inverse(s: Dictionary) -> Dictionary:
 		sf_wrong(out, w)
 	var final := "So " + Answer.text(ans) + "."
 	var pw := "%d^(%s)" % [b, D(t)]
+	var add_h: Array = ["%s%s = %s" % [W(bt), c_step(h), W(x)]] if h != 0 else []
 	out.methods = {
 		"reverse-operations": {"result": ans.values, "steps": [
 			"g⁻¹ undoes g: subtract %d, raise %d to that power, then add %d." % [c, b, h],
-			("%s%s = %s, and with a GDC %s = %s" % [D(a), c_step(-c), D(t), pw, W(bt)]) if c != 0 else "With a GDC %s = %s" % [pw, W(bt)],
-			"%s%s = %s" % [W(bt), c_step(h), W(x)], final]},
+			("%s%s = %s, and with a GDC %s = %s" % [D(a), c_step(-c), D(t), pw, W(bt)]) if c != 0 else "With a GDC %s = %s" % [pw, W(bt)]] + add_h + [final]},
 		"convert-form": {"result": ans.values, "steps": [
 			"g⁻¹(%s) is the x with g(x) = %s: %s(%s) = %s" % [D(a), D(a), LG(b), Answer.x_minus(h), D(t)],
 			"In exponential form: %s = %s = %s (GDC)" % [Answer.x_minus(h), pw, W(bt)],
-			"x = %s%s = %s" % [W(bt), c_step(h), W(x)], final]},
+			"x = " + Fmt.equals(W(bt) + c_step(h), W(x)), final]},
 		"inverse-identities": {"result": ans.values, "steps": [
 			"g(g⁻¹(%s)) = %s, so %s(x%s) = %s, where x = g⁻¹(%s)." % [D(a), D(a), LG(b), c_step(-h), D(t), D(a)],
 			"%s^(%s x) = x, so x%s = %s; with a GDC that is %s." % [b, LG(b), c_step(-h), pw, W(bt)],
@@ -825,7 +831,7 @@ func p2_solve_log_equation(s: Dictionary) -> Dictionary:
 			"In exponential form: %s = %s = %s (GDC)" % [Answer.x_minus(h), pw, W(bt)], final]},
 		"rewrite-exponential": {"result": ans.values, "steps": [
 			"log_b A = m means b^m = A: here %s = %s." % [Answer.x_minus(h), pw],
-			"With a GDC: x = %s%s = %s" % [W(bt), c_step(h), W(x)], final]},
+			"With a GDC: x = " + Fmt.equals(W(bt) + c_step(h), W(x)), final]},
 		"apply-inverse": {"result": ans.values, "steps": [
 			"%s%s(%s) = %s" % ["" if c == 0 else ("Subtract %d: " % c if c > 0 else "Add %d: " % -c), LG(b), Answer.x_minus(h), D(t)],
 			"Raise %d to each side: %s = %s = %s on a GDC" % [b, Answer.x_minus(h), pw, W(bt)], final]},
