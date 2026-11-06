@@ -460,6 +460,50 @@
     "the bank’s numbers and the skill map’s examples are left out"
    ]
   },
+  "log-exp-form": {
+   "name": "A log and its exponential form, and a named log scale or log model",
+   "summary": "Paper 1 draws a base and a power so a form changes and a value comes out exactly. Paper 2 draws a named scale with its constants, then an amount or a reading, so a reading, an amount, a factor, a rise or a time can be worked out from the formula.",
+   "quantities": [
+    {
+     "name": "b, e, x",
+     "is": "a base, a power and the number b^e",
+     "pick": "b from 2 to 10, or a power of 2, 3 or 5 for a fraction, with b^e at most 1000; e is whole, negative or a fraction"
+    },
+    {
+     "name": "p, q, c, k, r",
+     "is": "the numbers of an equation in x",
+     "pick": "small whole numbers, with r square-free for a surd"
+    },
+    {
+     "name": "scale",
+     "is": "the named scale",
+     "pick": "Howl rating, Rumble number, Glare class, Rad index or Bite, each with its own short list of constants"
+    },
+    {
+     "name": "x, y",
+     "is": "an amount and its reading",
+     "pick": "an amount of two figures in the scale's range, or a reading in tenths"
+    },
+    {
+     "name": "m, delta",
+     "is": "a factor on the amount, or a rise in the reading",
+     "pick": "a short list of factors, or a rise whose power of the base isn't whole"
+    },
+    {
+     "name": "p, q, r, t, T",
+     "is": "a model h = p + q ln(rt + 1), a time and a level",
+     "pick": "p and q in halves, r a whole number from 1 to 4, t up to 30 days or found up to 120"
+    }
+   ],
+   "clean": [
+    "Paper 1 is exact, and each number comes out by hand",
+    "a 3 s.f. answer is clear of a rounding edge and doesn't end in a zero",
+    "a power of the base that gives an amount isn't whole, so the answer needs rounding",
+    "a very big or small amount is in standard form",
+    "a table's readings differ, and no reading is zero or negative",
+    "the bank's numbers and scales, and the skill map's examples, are left out"
+   ]
+  },
   "exp-growth-vs-linear": {
    "extends": "exp-model",
    "name": "Linear and exponential growth side by side",
@@ -3096,6 +3140,53 @@
     "the dot on a limit graph is not at the limit"
    ]
   },
+  "derivative-model": {
+   "name": "A model of a quantity in time, and rules with values",
+   "summary": "Pick a story and a model of one family, so its value and rate at a time, the times a rate is reached and its greatest rate come from the GDC; or pick the values and rates of two functions in a table or in straight pieces, so a product, a quotient or a composite has an exact derivative.",
+   "quantities": [
+    {
+     "name": "ctx",
+     "is": "the story",
+     "pick": "one of fifteen, each suited to one family, with a letter and units"
+    },
+    {
+     "name": "model",
+     "is": "S(t)",
+     "pick": "exponential P e^(kt), logistic L/(1 + a e^(−kt)), pulse a t e^(−kt), wave c + mt + B cos(wt), or log c + a ln(bt + 1), on 0 ≤ t ≤ T"
+    },
+    {
+     "name": "t0",
+     "is": "the time",
+     "pick": "a whole number inside the domain"
+    },
+    {
+     "name": "k",
+     "is": "a rate given",
+     "pick": "the rate at a hidden time, to 2 s.f."
+    },
+    {
+     "name": "second model",
+     "is": "to compare",
+     "pick": "an exponential against a logistic with the same story; or a straight line against a wave, with rates that cross"
+    },
+    {
+     "name": "f, g, f′, g′",
+     "is": "the values",
+     "pick": "whole numbers in a table at four points, or read from straight pieces with whole gradients"
+    }
+   ],
+   "modes": [
+    "Paper 2: a rate from the GDC or a rule"
+   ],
+   "clean": [
+    "a rate or a time is clear of a rounding edge at 3 s.f., with a third figure that is not 0, so that it reads differently from its 2 s.f. trap",
+    "a time found is at least half a unit of time from the ends of the domain and from another time with the same rate",
+    "the point of greatest rate is inside the domain and at least half a unit of time from where the quantity is greatest",
+    "of two models, the one that rises faster is behind at that time",
+    "a quotient's value and its slips end as decimals",
+    "a chain rule's three readings of f′ are different rows, with different values"
+   ]
+  },
   "monotonic": {
    "name": "A function and where it rises or falls",
    "summary": "A cubic built from its turning points, a quadratic from its roots, f′ with an exponential whose zeros come from the GDC, or a function with a letter that keeps f′ on one side of the axis.",
@@ -3612,6 +3703,66 @@
     "θ stays between 0 and 2π"
    ]
   },
+  "circular-motion": {
+   "name": "Something turning steadily about a point, and a straight line beside it",
+   "summary": "Pick a rate, given as a time for one turn, revolutions per minute, degrees or radians per second. Add a reach r and a line d from the centre for a chord, or an arm for a rim. Every angle, time, fraction, arc and speed then follows.",
+   "quantities": [
+    {
+     "name": "T",
+     "is": "the time for one turn, in seconds",
+     "pick": "a whole number from 5 to 60 (3 to 40 for a rim speed); a multiple of 12 up to 60 on an exact chord"
+    },
+    {
+     "name": "n",
+     "is": "revolutions per minute",
+     "pick": "a whole number from 2 to 40"
+    },
+    {
+     "name": "k",
+     "is": "degrees per second",
+     "pick": "a multiple of 15 up to 150 where it is asked for exactly, else a whole number from 5 to 80 that is no multiple of 15"
+    },
+    {
+     "name": "w",
+     "is": "the rate in radians per second",
+     "pick": "0.15 to 3.00 to 2 d.p."
+    },
+    {
+     "name": "r",
+     "is": "the reach of a sweep, or the length of an arm",
+     "pick": "8 to 60 to the half metre; an even number to 60 on an exact chord; 2.0 to 14.0 to 1 d.p. for an arm"
+    },
+    {
+     "name": "d",
+     "is": "the line's distance from the centre",
+     "pick": "1 d.p., a share of r from 0.25 to 0.92 and at least 0.02 from a landmark cosine; k, k√2 or k√3 with r = 2k on an exact chord"
+    },
+    {
+     "name": "φ",
+     "is": "half of angle AOB",
+     "pick": "arccos(d/r)"
+    },
+    {
+     "name": "θ",
+     "is": "an angle turned",
+     "pick": "a landmark in degrees or as a multiple of π; whole degrees that are no landmark; or 0.50 to 5.50 radians to 2 d.p."
+    },
+    {
+     "name": "τ",
+     "is": "a time in seconds",
+     "pick": "a whole number below T, or to 1 d.p. from 0.15 to 0.42 of T for the time on a chord"
+    }
+   ],
+   "clean": [
+    "Paper 2 only, as all 3 bank parts are",
+    "an exact answer is a multiple of π, or a whole number of degrees or seconds",
+    "every other answer is to 3 s.f., clear of a rounding edge by 0.03 of its last place, with every wrong option clear too and all reading differently",
+    "a 3 s.f. answer does not end in 0, so it reads differently from its 2 s.f. trap",
+    "the working runs on from the figures it shows and lands on the answer to 3 s.f.",
+    "a figure is drawn to its real shape",
+    "the bank's own numbers (a reach of 20 with a line at 14, and a turn in 16 seconds for the exact rate) are left out"
+   ]
+  },
   "bearings-elevation": {
    "name": "Journeys, sightings and connected triangles",
    "summary": "Points on a map or in a side view, set from real coordinates: bearings and distances, heights and lines of sight, and triangles that share a side. Any bearing, angle or length can be asked, and the sketch keeps the real shape.",
@@ -3912,6 +4063,63 @@
     "a rewritten expression has whole-number coefficients"
    ]
   },
+  "prove-identity": {
+   "name": "One trig identity to prove, as a chain of lines",
+   "summary": "Pick the shape of an identity, the number in front and the multiple inside, and every line of the proof follows, with the slip each wrong line makes.",
+   "quantities": [
+    {
+     "name": "fam",
+     "is": "the shape of the identity",
+     "pick": "what the unknown, the representation and the method allow"
+    },
+    {
+     "name": "k",
+     "is": "the number in front",
+     "pick": "1 to 6"
+    },
+    {
+     "name": "n",
+     "is": "the number in front of sin u cos u",
+     "pick": "3 to 9"
+    },
+    {
+     "name": "w",
+     "is": "the multiple of the letter inside",
+     "pick": "1, 2 or 4"
+    },
+    {
+     "name": "letter",
+     "is": "the variable",
+     "pick": "x or θ"
+    },
+    {
+     "name": "minus, flip, base",
+     "is": "which signs or functions the shape uses",
+     "pick": "at random"
+    },
+    {
+     "name": "t",
+     "is": "the angle for a value",
+     "pick": "from π/6, π/4, π/3, 2π/3, 3π/4 and 5π/6, with the side defined and not zero"
+    },
+    {
+     "name": "r, given",
+     "is": "the ratio given for a value",
+     "pick": "a fraction, below 1 in size for a sine or cosine"
+    },
+    {
+     "name": "want, c",
+     "is": "the greatest or least value of the side plus a number",
+     "pick": "c from −5 to 9"
+    }
+   ],
+   "clean": [
+    "every statement is true wherever both sides are defined",
+    "only SL identities are used",
+    "no statement is an exam's or the map's example",
+    "every value is exact, with one surd at most"
+   ]
+  },
   "trig-equation": {
    "name": "One trig equation on an interval",
    "summary": "Pick the ratio, a landmark value k, the inner angle bx + φ and the interval. Every solution follows, as a multiple of π or in degrees. A factorised form or a rewrite to tan x is built from the same values.",
@@ -3947,6 +4155,54 @@
     "Paper 2 is only where a decimal k needs a GDC",
     "there are at most 8 solutions, and a compound equation has at least 2",
     "a solution in degrees is a whole number"
+   ]
+  },
+  "trig-quadratic": {
+   "name": "A trig equation that is a quadratic in one ratio",
+   "summary": "Pick the roots in u, sin x, cos x or tan x: landmark values, sometimes with a root outside the range. Build the quadratic forward from them, so it factorises cleanly, then disguise it with cos²x, cos 2x, a compound angle or a number over a bracket. Every solution follows on the interval, as a multiple of π or in degrees. A quadratic with no rational root gives a surd for sin x, or 3 s.f. solutions on Paper 2.",
+   "quantities": [
+    {
+     "name": "fn, b",
+     "is": "u = fn(bx)",
+     "pick": "sin, cos or tan; b is 1, or 2 or 3 in a compound equation"
+    },
+    {
+     "name": "us, kept, bad",
+     "is": "the roots in u, those in range and the one to reject",
+     "pick": "0, ±1/2 or ±1, with ±2, ±3 or ±3/2 to reject; ±√2/2, ±√3/2 for u² equal to a number; tan's landmark values"
+    },
+    {
+     "name": "p, lead, cons, sc",
+     "is": "the quadratic in u, its brackets and what makes the number in front of cos 2x whole",
+     "pick": "worked out from the roots"
+    },
+    {
+     "name": "dis, lay",
+     "is": "how the equation is written",
+     "pick": "direct, pythag or double, with the number, the term in u or neither on the right"
+    },
+    {
+     "name": "lo, hi, open_hi, form",
+     "is": "the interval and how angles are written",
+     "pick": "0 to π, 0 to 2π or −π to π, longer for a count; pi or deg"
+    },
+    {
+     "name": "e, q, top, gaps",
+     "is": "p u + q + top/(u − e), and the x where its bracket is 0",
+     "pick": "e is 1 or −1, and q and top come from dividing the quadratic by (u − e)"
+    },
+    {
+     "name": "u_dec, kept_dec, bad_dec",
+     "is": "the roots of a quadratic with no rational root, on Paper 2",
+     "pick": "a, b and c whole, a discriminant that isn't a square, and roots clear of 0 and ±1"
+    }
+   ],
+   "clean": [
+    "a factorisable quadratic is built forward from its roots",
+    "Paper 1 roots in range have landmark angles, except the one surd value of formula-root",
+    "there are at most 8 solutions, 12 for a count",
+    "a solution in degrees is a whole number",
+    "the bank's and the map's own equations are never drawn"
    ]
   },
   "trig-model": {
@@ -4501,6 +4757,62 @@
     "every statement is true for every value of its letter",
     "the divisor is more than 1, and the bracket has whole-number coefficients",
     "a greatest divisor is smaller than the coefficient of n, so a fraction is left if that is taken out"
+   ]
+  },
+  "sequence-proof": {
+   "name": "One claim about sequences, as a chain of lines",
+   "summary": "Pick the shape of a claim about arithmetic or geometric terms and its numbers, and every line of the proof follows, with the slip each wrong line makes.",
+   "quantities": [
+    {
+     "name": "fam",
+     "is": "the shape of the claim",
+     "pick": "what the unknown, the representation and the method allow"
+    },
+    {
+     "name": "e, g, h",
+     "is": "the steps between three terms of a sequence",
+     "pick": "whole numbers from 1 to 5, and never evenly spaced terms when a relation is asked"
+    },
+    {
+     "name": "e, w",
+     "is": "where two sequences with one first term meet again, and the value there",
+     "pick": "e from 1 to 3 and w from 2 to 12"
+    },
+    {
+     "name": "i, j",
+     "is": "a, a + id and a + jd are consecutive geometric terms",
+     "pick": "pairs that make d a whole multiple of a"
+    },
+    {
+     "name": "k0, t1, r",
+     "is": "the value of k, the first term and the common ratio of three terms in k",
+     "pick": "small whole numbers, r a whole number, a half or a third"
+    },
+    {
+     "name": "b, p, q",
+     "is": "a geometric sequence with first term b^p and ratio b^q",
+     "pick": "b is 2, 3 or 5, q not zero, p and q different"
+    },
+    {
+     "name": "p, q",
+     "is": "the general term pn + q",
+     "pick": "small whole numbers, not zero"
+    },
+    {
+     "name": "A, B",
+     "is": "the sum Sₙ = An² + Bn",
+     "pick": "small whole numbers, B not zero and not A"
+    },
+    {
+     "name": "m, thing",
+     "is": "the rows of a staircase of dots, and what the dots are",
+     "pick": "4 or 5 rows"
+    }
+   ],
+   "clean": [
+    "every claim is true for every n, or for every sequence of its kind",
+    "every term of a simplified form is there to see, except a zero number in a dot count",
+    "d is a whole multiple of a, and a common ratio is a whole number or a simple fraction"
    ]
   },
   "motion-distance": {
@@ -20542,8 +20854,9 @@
    "id": "t1-sequence-proof",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Prove a property linking arithmetic and geometric terms",
+   "summary": "Prove a result that ties arithmetic and geometric terms together, or a general result about a sequence or its sum. A phone can't read a written proof, so each question is one decision a proof turns on: a relation between terms, a hidden line, the next line, the first wrong line, a consequence such as the common ratio or difference, or which of four arguments is a proof.",
    "syllabus": [
     "1.2",
     "1.3",
@@ -20551,6 +20864,820 @@
    ],
    "skills": [
     "SL1.6.series-proof"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "write each term from the sequence's formula, or compare neighbouring terms for general n",
+    "use the condition for arithmetic or geometric terms and simplify",
+    "add a sum forwards and backwards, or count it from a picture of dots",
+    "take a sum from the next to reach a general term",
+    "read off what the proof establishes: a relation, a common ratio or a difference"
+   ],
+   "given": [
+    "three terms of an arithmetic or a geometric sequence",
+    "arithmetic terms that are also geometric terms",
+    "a geometric sequence and its logs",
+    "a general term, or a sum as a quadratic in n",
+    "a sum written forwards and backwards",
+    "a pattern of dots"
+   ],
+   "asked": "A relation between terms, a common ratio or difference, a general term, a sum, a line of a proof, the first wrong line and its correction, or which argument proves the claim.",
+   "answerForms": [
+    "an expression with whole-number coefficients, typed in slots",
+    "a whole number or a fraction",
+    "a line of a proof, picked"
+   ],
+   "randomise": [
+    "the claim: unevenly spaced terms, a linked pair of sequences, logs of a geometric sequence, a general term, a sum from its nth term, a term from its sum, a dot pattern",
+    "every number in the claim",
+    "which line is hidden, reached or spoiled, and by which slip",
+    "the letters of three terms, and what the dots stand for"
+   ],
+   "constraints": [
+    "every claim holds for every n, or for every sequence of its kind",
+    "the checker proves each line for general n, not by trying values",
+    "a wrong line is the same proof with one slip, carried to the end",
+    "no claim is an exam's: unevenly spaced terms, and the bank's terms and values left out",
+    "Paper 1 throughout: no calculator method"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "sequence-proof",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the claim in symbols: uₙ = pn + q, or Sₙ = An² + Bn, or the terms named by letter"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a sentence about lists of numbers, or a scavenger's layers of rivets"
+    },
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "a pattern of dots: a rectangle in L-shaped layers, or two staircases that fit together"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "arithmetic-relation",
+     "given": [
+      "three terms of an arithmetic sequence, unevenly spaced"
+     ],
+     "asked": "the last term in terms of the other two",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "geometric-relation",
+     "given": [
+      "three terms of a geometric sequence, unevenly spaced"
+     ],
+     "asked": "the power in the relation between them",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "second-term-bound",
+     "given": [
+      "two sequences with the same first term, that meet again later"
+     ],
+     "asked": "the greatest lower bound on the arithmetic sequence's second term",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "common-ratio-check",
+     "given": [
+      "three terms in k, and a value of k"
+     ],
+     "asked": "the common ratio that proves they are geometric",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "difference-in-a",
+     "given": [
+      "arithmetic terms that are consecutive geometric terms"
+     ],
+     "asked": "d in terms of a",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "linked-ratio",
+     "given": [
+      "arithmetic terms that are consecutive geometric terms"
+     ],
+     "asked": "the common ratio the proof establishes",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "log-difference",
+     "given": [
+      "a geometric sequence and the log of each term"
+     ],
+     "asked": "the constant difference of the logs",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "log-general-term",
+     "given": [
+      "a geometric sequence and the log of each term"
+     ],
+     "asked": "the nth term of the logs",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "constant-difference",
+     "given": [
+      "a general term pn + q"
+     ],
+     "asked": "u_(n+1) − u_n, and that it is constant",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "particular-terms",
+     "given": [
+      "a cubic whose first three terms have equal gaps"
+     ],
+     "asked": "which line settles whether it is arithmetic",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "term-from-sum",
+     "given": [
+      "Sₙ as a quadratic in n"
+     ],
+     "asked": "uₙ in terms of n",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "difference-from-sum",
+     "given": [
+      "Sₙ as a quadratic in n"
+     ],
+     "asked": "the common difference",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "sum-by-formula",
+     "given": [
+      "an arithmetic sequence's general term or first terms"
+     ],
+     "asked": "Sₙ in terms of n",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "pair-sum",
+     "given": [
+      "a sum written forwards and backwards"
+     ],
+     "asked": "the total of each column",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "dot-total",
+     "given": [
+      "a rectangle of dots built in L-shaped layers"
+     ],
+     "asked": "the number of dots in the first n layers",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "dot-layer",
+     "given": [
+      "a rectangle of dots built in L-shaped layers"
+     ],
+     "asked": "the number of dots in layer n",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "dot-rectangle",
+     "given": [
+      "two staircases of dots that make a rectangle"
+     ],
+     "asked": "the rectangle's width for any n",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "missing-line",
+     "given": [
+      "a proof with one line hidden"
+     ],
+     "asked": "the hidden line",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "next-line",
+     "given": [
+      "the first lines of a proof"
+     ],
+     "asked": "which line comes next",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "flawed-line",
+     "given": [
+      "a proof with one slip carried to the end"
+     ],
+     "asked": "the first wrong line and its correction",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    },
+    {
+     "id": "valid-proof",
+     "given": [
+      "a claim and four arguments"
+     ],
+     "asked": "which argument is a complete proof",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.6.series-proof"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.6.series-proof",
+     "method": "general-difference",
+     "suits": [
+      "arithmetic-relation",
+      "geometric-relation",
+      "common-ratio-check",
+      "log-difference",
+      "constant-difference",
+      "particular-terms",
+      "term-from-sum",
+      "difference-from-sum",
+      "missing-line",
+      "next-line",
+      "flawed-line",
+      "valid-proof"
+     ]
+    },
+    {
+     "skill": "SL1.6.series-proof",
+     "method": "series-formula",
+     "suits": [
+      "second-term-bound",
+      "difference-in-a",
+      "linked-ratio",
+      "log-general-term",
+      "sum-by-formula",
+      "dot-total",
+      "missing-line",
+      "next-line",
+      "flawed-line",
+      "valid-proof"
+     ]
+    },
+    {
+     "skill": "SL1.6.series-proof",
+     "method": "forwards-backwards",
+     "suits": [
+      "sum-by-formula",
+      "pair-sum",
+      "missing-line",
+      "next-line",
+      "flawed-line",
+      "valid-proof"
+     ]
+    },
+    {
+     "skill": "SL1.6.series-proof",
+     "method": "dot-diagram",
+     "suits": [
+      "dot-total",
+      "dot-layer",
+      "dot-rectangle"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "u₂ − u₁ = u₃ − u₂ for a sequence, so the sequence is arithmetic.",
+     "answer": "False: that is one pair of gaps. uₙ = (n − 1)(n − 2)(n − 3) + n has u₁, u₂, u₃ = 1, 2, 3, but u₄ = 10. A proof needs uₙ₊₁ − uₙ for general n.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "If a sequence of positive numbers is geometric, the logs of its terms form an arithmetic sequence.",
+     "answer": "Always: log uₙ₊₁ − log uₙ = log(uₙ₊₁/uₙ) = log r for every n, and that is a constant.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "An arithmetic sequence with d ≠ 0 has a, a + d and a + 3d as consecutive geometric terms. Then d = a.",
+     "answer": "True: (a + d)² = a(a + 3d) gives d² = ad, and d ≠ 0, so d = a. The terms a, 2a and 4a have common ratio 2.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.6.series-proof#0",
+     "text": "Checking a few values of n and stopping",
+     "as": "distractor",
+     "in": [
+      "next-line",
+      "valid-proof",
+      "particular-terms"
+     ],
+     "wrong": "true values at the first few n, in place of a general argument"
+    },
+    {
+     "ref": "SL1.6.series-proof#1",
+     "text": "Using the result being proved as a step in its own proof",
+     "as": "distractor",
+     "in": [
+      "next-line",
+      "valid-proof"
+     ],
+     "wrong": "the claim itself used as a line of its own proof"
+    },
+    {
+     "ref": "SL1.6.series-proof#2",
+     "text": "Comparing the gaps between particular terms instead of the gap between neighbouring terms for general n",
+     "as": "distractor",
+     "in": [
+      "valid-proof",
+      "particular-terms"
+     ],
+     "wrong": "u₂ − u₁ = u₃ − u₂, for those terms only"
+    },
+    {
+     "ref": "SL1.6.series-proof#3",
+     "text": "Counting one gap too many between the first term and the nth term",
+     "as": "distractor",
+     "in": [
+      "sum-by-formula",
+      "log-general-term",
+      "pair-sum",
+      "dot-total",
+      "dot-layer",
+      "dot-rectangle",
+      "missing-line",
+      "next-line",
+      "flawed-line",
+      "valid-proof"
+     ],
+     "wrong": "one more common difference than there are gaps"
+    },
+    {
+     "ref": "SL1.6.series-proof#4",
+     "text": "Taking away only the first term of a bracket, so the other terms keep their signs",
+     "as": "distractor",
+     "in": [
+      "constant-difference",
+      "term-from-sum",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "the second bracket's later terms not negated, carried to the end"
+    },
+    {
+     "ref": "SL1.6.series-proof#5",
+     "text": "Multiplying only the first term of a bracket by the number outside it",
+     "as": "distractor",
+     "in": [
+      "constant-difference",
+      "arithmetic-relation",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "p(n + 1) written as pn + 1, or e(y − x) as ey − x"
+    },
+    {
+     "ref": "SL1.6.series-proof#6",
+     "text": "Squaring a bracket term by term, with no middle term",
+     "as": "distractor",
+     "in": [
+      "term-from-sum",
+      "difference-in-a",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "(n − 1)² written as n² + 1, or (a + id)² as a² + i²d²"
+    },
+    {
+     "ref": "SL1.6.series-proof#7",
+     "text": "Forgetting to double the middle term when squaring a bracket",
+     "as": "distractor",
+     "in": [
+      "difference-in-a",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "(a + id)² written with iad in the middle, not 2iad"
+    },
+    {
+     "ref": "SL1.6.series-proof#8",
+     "text": "Testing the wrong kind of sequence: a common difference for a geometric claim, or a common ratio for an arithmetic one",
+     "as": "distractor",
+     "in": [
+      "common-ratio-check",
+      "particular-terms"
+     ],
+     "wrong": "u₂ − u₁ given as the ratio, or ratios compared for an arithmetic claim"
+    },
+    {
+     "ref": "SL1.6.series-proof#9",
+     "text": "Dividing a term by the one after it, which gives the reciprocal of the common ratio",
+     "as": "distractor",
+     "in": [
+      "common-ratio-check",
+      "linked-ratio",
+      "log-difference",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "uₙ/uₙ₊₁ in place of uₙ₊₁/uₙ"
+    },
+    {
+     "ref": "SL1.6.series-proof#10",
+     "text": "Writing a difference of logs as the log of a difference",
+     "as": "distractor",
+     "in": [
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "log(uₙ₊₁ − uₙ) in place of log(uₙ₊₁/uₙ)"
+    },
+    {
+     "ref": "SL1.6.series-proof#11",
+     "text": "Taking the common ratio itself as the difference of the logs",
+     "as": "distractor",
+     "in": [
+      "log-difference",
+      "log-general-term",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "the ratio r where log r belongs"
+    },
+    {
+     "ref": "SL1.6.series-proof#12",
+     "text": "Forgetting to halve at the end, which gives twice the sum",
+     "as": "distractor",
+     "in": [
+      "sum-by-formula",
+      "missing-line",
+      "next-line",
+      "flawed-line",
+      "valid-proof"
+     ],
+     "wrong": "the (n/2) left as n"
+    },
+    {
+     "ref": "SL1.6.series-proof#13",
+     "text": "Leaving out the doubling of the first term in the sum formula",
+     "as": "distractor",
+     "in": [
+      "sum-by-formula",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "u₁ in the bracket, not 2u₁"
+    },
+    {
+     "ref": "SL1.6.series-proof#14",
+     "text": "Treating the last term as the whole sum",
+     "as": "distractor",
+     "in": [
+      "dot-total"
+     ],
+     "wrong": "the nth term given as Sₙ"
+    },
+    {
+     "ref": "SL1.6.series-proof#15",
+     "text": "Treating the sum of the first n terms as the nth term",
+     "as": "distractor",
+     "in": [
+      "term-from-sum"
+     ],
+     "wrong": "Sₙ given as uₙ"
+    },
+    {
+     "ref": "SL1.6.series-proof#16",
+     "text": "Using the next sum instead of the one before when taking a difference of sums",
+     "as": "distractor",
+     "in": [
+      "term-from-sum",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "uₙ taken as Sₙ₊₁ − Sₙ"
+    },
+    {
+     "ref": "SL1.6.series-proof#17",
+     "text": "Reading a coefficient of Sₙ as the common difference",
+     "as": "distractor",
+     "in": [
+      "difference-from-sum"
+     ],
+     "wrong": "the coefficient of n² or of n, not twice the coefficient of n²"
+    },
+    {
+     "ref": "SL1.6.series-proof#18",
+     "text": "Confusing the first term with the common difference",
+     "as": "distractor",
+     "in": [
+      "difference-from-sum",
+      "log-difference",
+      "log-general-term"
+     ],
+     "wrong": "the first term given as d, or the two swapped in the general term"
+    },
+    {
+     "ref": "SL1.6.series-proof#19",
+     "text": "Reading the width of the rectangle as the number of dots in a layer",
+     "as": "distractor",
+     "in": [
+      "dot-layer"
+     ],
+     "wrong": "pn + q in place of the layer's L shape"
+    },
+    {
+     "ref": "SL1.6.series-proof#20",
+     "text": "Counting the corner of a layer twice",
+     "as": "distractor",
+     "in": [
+      "dot-layer"
+     ],
+     "wrong": "the new row and the new columns added whole, so the dots where they meet count twice"
+    },
+    {
+     "ref": "SL1.6.series-proof#21",
+     "text": "Adding the last term to itself instead of to the first term",
+     "as": "distractor",
+     "in": [
+      "pair-sum",
+      "dot-rectangle",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "2uₙ as the total of a column"
+    },
+    {
+     "ref": "SL1.6.series-proof#22",
+     "text": "Counting half as many columns, as if the two lists were already paired off",
+     "as": "distractor",
+     "in": [
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "n/2 columns in place of n"
+    },
+    {
+     "ref": "SL1.6.series-proof#23",
+     "text": "Taking a ratio across several steps as the common ratio",
+     "as": "distractor",
+     "in": [
+      "common-ratio-check",
+      "linked-ratio"
+     ],
+     "wrong": "u₃/u₁ in place of u₂/u₁"
+    },
+    {
+     "ref": "SL1.6.series-proof#24",
+     "text": "Moving a term across the equals sign without changing its sign",
+     "as": "distractor",
+     "in": [
+      "arithmetic-relation",
+      "difference-in-a",
+      "missing-line",
+      "next-line",
+      "flawed-line"
+     ],
+     "wrong": "a term that keeps its sign on the other side"
+    },
+    {
+     "ref": "SL1.6.series-proof#25",
+     "text": "Counting a term's position in the sequence instead of the steps to reach it",
+     "as": "distractor",
+     "in": [
+      "arithmetic-relation",
+      "geometric-relation",
+      "second-term-bound"
+     ],
+     "wrong": "the number of the term used as the number of steps"
+    },
+    {
+     "ref": "SL1.6.series-proof#26",
+     "text": "Stopping before dividing by the coefficient of the letter",
+     "as": "distractor",
+     "in": [
+      "second-term-bound"
+     ],
+     "wrong": "the inequality left with a number in front of m"
+    },
+    {
+     "ref": "SL1.6.series-proof#27",
+     "text": "Using the rule for three consecutive terms on terms that are not consecutive",
+     "as": "distractor",
+     "in": [
+      "geometric-relation"
+     ],
+     "wrong": "the power 2, from the middle term squared"
+    },
+    {
+     "ref": "SL1.6.series-proof#28",
+     "text": "Halving a rectangle that holds only one copy of the sum",
+     "as": "distractor",
+     "in": [
+      "dot-total"
+     ],
+     "wrong": "(n/2) put in front, as for two staircases"
+    },
+    {
+     "ref": "SL1.6.series-proof#29",
+     "text": "Taking d/a as the common ratio",
+     "as": "distractor",
+     "in": [
+      "linked-ratio"
+     ],
+     "wrong": "the multiple of a in d, in place of (a + id)/a"
+    },
+    {
+     "ref": "SL1.6.series-proof#30",
+     "text": "Leaving the first term out of a pair, so only the last term is counted",
+     "as": "distractor",
+     "in": [
+      "pair-sum",
+      "dot-rectangle"
+     ],
+     "wrong": "uₙ, with the first term left out"
+    }
    ],
    "parts": [
     "aa-sl-2024-may-tz2-p1-q09.a",
@@ -24358,14 +25485,1000 @@
    "id": "t1-log-exp-form",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Switch between log and exponential form to evaluate or solve, including log models",
+   "summary": "Change a fact between log and exponential form, evaluate logs exactly, and solve for the number, the base or x by hand. Then work named scales and a log model on a calculator: a reading, an amount, the steps between two readings, and the time to reach a level.",
    "syllabus": [
     "1.5"
    ],
    "skills": [
     "SL1.5.exp-log-form",
     "SL1.5.log-context"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "log_a b = c and a^c = b say the same thing: the log is the power",
+    "evaluate by asking what power of the base gives the number, or cancel a log and a power of one base",
+    "solve by rewriting in exponential form, then for whichever number is unknown",
+    "a log has a real value only for a positive number",
+    "on a scale, substitute with the right log key, keeping brackets and signs",
+    "undo a scale: the constant, the multiplier, the log by exponentiating, then any factor inside",
+    "each step on a scale is a multiplication, so readings compare by their difference, not their ratio"
+   ],
+   "given": [
+    "a log or a power to rewrite",
+    "a log to evaluate, or a power of a log",
+    "an equation with x in the number, the bracket, the power or the base",
+    "a graph of a log with a marked point",
+    "four logs to compare",
+    "a scale's formula or its rule in a sentence",
+    "an amount, a reading, a factor or a rise",
+    "readings in a table",
+    "a log model in time"
+   ],
+   "asked": "A form, an exact value, an exact solution, the log with or without a real value; or to 3 s.f. a reading, an amount, a factor, a rise, a percentage increase, a scale's constant, a level or a time.",
+   "answerForms": [
+    "log_a b = c or a^c = b, with its numbers typed",
+    "exact number or fraction",
+    "x = log_a b, or x = ln b, as an exact log",
+    "a power of e",
+    "√r, exact",
+    "one log chosen from four",
+    "3 s.f. on Paper 2",
+    "a × 10^k, with a to 3 s.f., for a very big or small amount"
+   ],
+   "randomise": [
+    "the base: e, 10 or a small whole number",
+    "the power: whole, negative or a fraction",
+    "the shape of the equation",
+    "the scale and its constants",
+    "the amount, the reading, the factor or the rise",
+    "the place and what is measured",
+    "the model's constants and the time or level"
+   ],
+   "constraints": [
+    "Paper 1 is exact, and every number comes out by hand",
+    "Paper 2 is the scales and the models: the calculator does the work",
+    "each 3 s.f. answer is clear of a rounding edge and does not end in a zero",
+    "an amount outside the range a phone shows in full is in standard form",
+    "the bank's numbers and scales, and the skill map's examples, are left out"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "log-exp-form",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the log or the equation alone, or a scale's formula with what its letters mean"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "the fact in a sentence, or a scale's rule told as a sentence with no formula"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "readings or amounts at places or times, with the one asked for missing"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "the curve with a crossing marked: a log and the x-axis, a point that fixes the base, or a reading or level as a line"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "to-exponential-form",
+     "given": [
+      "log_a b = c, with c whole, negative or a fraction"
+     ],
+     "asked": "the same fact as a power",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "to-log-form",
+     "given": [
+      "a^c = b, with c negative or a fraction"
+     ],
+     "asked": "the same fact as a log",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "solve-exp-as-log",
+     "given": [
+      "a^x = b, or k × a^x = kb, in base e, 10 or a small whole number"
+     ],
+     "asked": "x as an exact log",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "value-whole-power",
+     "given": [
+      "log_a b, with b a whole power of a"
+     ],
+     "asked": "the exact value",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "value-negative-power",
+     "given": [
+      "log_a b, with b a reciprocal power of a"
+     ],
+     "asked": "the exact negative value",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "value-fractional-power",
+     "given": [
+      "log_a b, with a and b powers of one prime, or b a root of a"
+     ],
+     "asked": "the exact fraction",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "log-of-power",
+     "given": [
+      "log_a(a^k) or ln(e^k), with k whole, negative or a fraction"
+     ],
+     "asked": "the exact value",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "power-of-log",
+     "given": [
+      "a^(log_a x), a^(−log_a x) or a^(k log_a x), in base e, 10 or a small whole number"
+     ],
+     "asked": "the exact value",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "solve-log-x",
+     "given": [
+      "log_a x = c or ln x = c"
+     ],
+     "asked": "the exact value of x",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "solve-log-linear",
+     "given": [
+      "log_a(px + q) = c"
+     ],
+     "asked": "the exact value of x",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "solve-log-square",
+     "given": [
+      "log_a(x² − k) = c for x beyond the asymptote, or the graph of ln(x² − k) crossing the x-axis"
+     ],
+     "asked": "the exact surd",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "solve-log-base",
+     "given": [
+      "log_x b = c, or the graph of y = log_a x through a marked point"
+     ],
+     "asked": "the exact base",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "no-real-log",
+     "given": [
+      "four logs, with zero, negative, fractional and unit arguments"
+     ],
+     "asked": "the one with no real value, or the one with a real value",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.5.exp-log-form"
+     ]
+    },
+    {
+     "id": "reading-from-value",
+     "given": [
+      "a scale's formula or rule",
+      "an amount"
+     ],
+     "asked": "the reading, to 3 s.f.",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "reading-after-multiple",
+     "given": [
+      "a scale's formula or rule",
+      "a power of ten and its exact reading",
+      "a factor on the amount"
+     ],
+     "asked": "the second reading, to 3 s.f.",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "value-from-reading",
+     "given": [
+      "a scale's formula or rule",
+      "a reading"
+     ],
+     "asked": "the amount, to 3 s.f., in standard form if it is very big or small",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "acid-reading",
+     "given": [
+      "the Bite formula, a minus log",
+      "an acid content"
+     ],
+     "asked": "the Bite, to 3 s.f.",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "acid-value",
+     "given": [
+      "the Bite formula, a minus log",
+      "a Bite"
+     ],
+     "asked": "the acid content, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "ratio-two-readings",
+     "given": [
+      "a scale's formula or rule",
+      "two readings"
+     ],
+     "asked": "how many times greater one amount is than the other, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "rise-for-factor",
+     "given": [
+      "a scale's formula or rule",
+      "a factor on the amount"
+     ],
+     "asked": "the rise or fall in the reading, to 3 s.f.",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "value-after-steps",
+     "given": [
+      "a scale's formula or rule",
+      "an amount with its reading",
+      "a rise in the reading"
+     ],
+     "asked": "the new amount, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "percent-rise",
+     "given": [
+      "a scale's formula or rule",
+      "a reading",
+      "a rise in the reading"
+     ],
+     "asked": "the percentage increase in the amount, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "find-scale-constant",
+     "given": [
+      "y = k log(x × K) with k unknown",
+      "one amount and its reading"
+     ],
+     "asked": "k, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "model-value",
+     "given": [
+      "h = p + q ln(rt + 1)",
+      "a time"
+     ],
+     "asked": "the level, to 3 s.f.",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    },
+    {
+     "id": "model-time",
+     "given": [
+      "h = p + q ln(rt + 1)",
+      "a level"
+     ],
+     "asked": "the time, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL1.5.log-context"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.5.exp-log-form",
+     "method": "what-power",
+     "suits": [
+      "value-whole-power",
+      "value-negative-power",
+      "value-fractional-power",
+      "log-of-power",
+      "no-real-log"
+     ]
+    },
+    {
+     "skill": "SL1.5.exp-log-form",
+     "method": "rewrite-exponential",
+     "suits": [
+      "to-exponential-form",
+      "to-log-form",
+      "solve-exp-as-log",
+      "value-whole-power",
+      "value-negative-power",
+      "value-fractional-power",
+      "solve-log-x",
+      "solve-log-linear",
+      "solve-log-square",
+      "solve-log-base"
+     ]
+    },
+    {
+     "skill": "SL1.5.exp-log-form",
+     "method": "inverse-identities",
+     "suits": [
+      "log-of-power",
+      "power-of-log"
+     ]
+    },
+    {
+     "skill": "SL1.5.log-context",
+     "method": "substitute-evaluate",
+     "suits": [
+      "reading-from-value",
+      "reading-after-multiple",
+      "acid-reading",
+      "rise-for-factor",
+      "find-scale-constant",
+      "model-value"
+     ]
+    },
+    {
+     "skill": "SL1.5.log-context",
+     "method": "invert-formula",
+     "suits": [
+      "value-from-reading",
+      "acid-value",
+      "ratio-two-readings",
+      "value-after-steps",
+      "percent-rise",
+      "model-time"
+     ]
+    },
+    {
+     "skill": "SL1.5.log-context",
+     "method": "scale-steps",
+     "suits": [
+      "reading-after-multiple",
+      "ratio-two-readings",
+      "rise-for-factor",
+      "value-after-steps",
+      "percent-rise"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "log₂(1/8) has no real value, because it is negative.",
+     "answer": "False: the log is −3, a real number, as 2^(−3) = 1/8. It's the number inside the log that must be positive, not the log itself.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "If a reading on a base-10 scale with no multiplier rises by 2, the amount is 100 times as big.",
+     "answer": "Always: each rise of 1 multiplies the amount by 10, so a rise of 2 multiplies it by 10² = 100, whatever the first reading was.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "In S = −log₁₀ c, what happens to c when S goes up by 1?",
+     "answer": "c is divided by 10: the minus sign means a higher reading is a smaller amount, so each step up is a tenth of what came before.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.5.exp-log-form#0",
+     "text": "Dividing instead of finding the power",
+     "as": "distractor",
+     "in": [
+      "solve-exp-as-log",
+      "value-whole-power",
+      "value-negative-power",
+      "value-fractional-power",
+      "solve-log-x",
+      "solve-log-linear",
+      "solve-log-base"
+     ],
+     "wrong": "the number divided by the base, or the log's value times the base"
+    },
+    {
+     "ref": "SL1.5.exp-log-form#1",
+     "text": "Mixing up base and exponent: reading log_a b = x as x^a = b",
+     "as": "distractor",
+     "in": [
+      "to-exponential-form",
+      "value-whole-power",
+      "solve-log-x",
+      "solve-log-linear"
+     ],
+     "wrong": "the log's value raised to the base"
+    },
+    {
+     "ref": "SL1.5.exp-log-form#2",
+     "text": "Believing the log of zero or of a negative number has a real value",
+     "as": "distractor",
+     "in": [
+      "no-real-log"
+     ],
+     "wrong": "a log of zero or of a negative number picked as real"
+    },
+    {
+     "ref": "SL1.5.log-context#0",
+     "text": "Treating a log scale as linear: taking the ratio of two readings as the ratio of the amounts",
+     "as": "distractor",
+     "in": [
+      "reading-after-multiple",
+      "ratio-two-readings",
+      "value-after-steps",
+      "percent-rise"
+     ],
+     "wrong": "the ratio of the readings used as the ratio of the amounts"
+    },
+    {
+     "ref": "SL1.5.log-context#1",
+     "text": "Dropping the minus sign in front of a log",
+     "as": "distractor",
+     "in": [
+      "reading-from-value",
+      "value-from-reading",
+      "acid-reading",
+      "acid-value"
+     ],
+     "wrong": "the log's term with its minus sign left out"
+    },
+    {
+     "ref": "SL1.5.log-context#2",
+     "text": "Undoing a minus log with the minus sign in front of the power instead of in the power",
+     "as": "distractor",
+     "in": [
+      "acid-value"
+     ],
+     "wrong": "minus ten to the reading"
+    },
+    {
+     "text": "Swapping the number and the power when changing form",
+     "as": "distractor",
+     "in": [
+      "to-exponential-form",
+      "to-log-form"
+     ],
+     "wrong": "the number and the power in each other's places"
+    },
+    {
+     "text": "Swapping the base and the number when changing form",
+     "as": "distractor",
+     "in": [
+      "to-exponential-form",
+      "to-log-form",
+      "solve-exp-as-log"
+     ],
+     "wrong": "the base and the number in each other's places"
+    },
+    {
+     "text": "Dropping the minus sign on the power",
+     "as": "distractor",
+     "in": [
+      "value-negative-power",
+      "solve-log-x"
+     ],
+     "wrong": "the positive power"
+    },
+    {
+     "text": "Taking the reciprocal of the power instead of making it negative",
+     "as": "distractor",
+     "in": [
+      "value-negative-power"
+     ],
+     "wrong": "one over the power"
+    },
+    {
+     "text": "Turning the fraction in the power upside down",
+     "as": "distractor",
+     "in": [
+      "value-fractional-power"
+     ],
+     "wrong": "the reciprocal of the right value"
+    },
+    {
+     "text": "Raising the number to the power instead of taking the root",
+     "as": "distractor",
+     "in": [
+      "solve-log-base"
+     ],
+     "wrong": "the number to the power"
+    },
+    {
+     "text": "Raising the base to the number instead of asking what power gives it",
+     "as": "distractor",
+     "in": [
+      "solve-exp-as-log"
+     ],
+     "wrong": "the base to the number"
+    },
+    {
+     "text": "Taking the log before the power stands alone",
+     "as": "distractor",
+     "in": [
+      "solve-exp-as-log"
+     ],
+     "wrong": "the log of the whole right side"
+    },
+    {
+     "text": "Dropping the log and working with the inside as it stands",
+     "as": "distractor",
+     "in": [
+      "solve-log-linear",
+      "solve-log-square",
+      "find-scale-constant"
+     ],
+     "wrong": "the log's inside used without its log"
+    },
+    {
+     "text": "Setting the inside of the log to zero instead of to the power of the base",
+     "as": "distractor",
+     "in": [
+      "solve-log-square"
+     ],
+     "wrong": "the root of the constant in the bracket"
+    },
+    {
+     "text": "Stopping at x² instead of taking the root",
+     "as": "distractor",
+     "in": [
+      "solve-log-square"
+     ],
+     "wrong": "the value of x²"
+    },
+    {
+     "text": "Keeping the negative root, which is outside the domain",
+     "as": "distractor",
+     "in": [
+      "solve-log-square"
+     ],
+     "wrong": "the negative root"
+    },
+    {
+     "text": "Assuming a fraction below one has no real log, because its log is negative",
+     "as": "distractor",
+     "in": [
+      "no-real-log"
+     ],
+     "wrong": "the log of a proper fraction picked as not real"
+    },
+    {
+     "text": "Assuming the log of one has no real value, because it is zero",
+     "as": "distractor",
+     "in": [
+      "no-real-log"
+     ],
+     "wrong": "the log of one picked as not real"
+    },
+    {
+     "text": "Reading a minus sign in front of a log as the log of a negative number",
+     "as": "distractor",
+     "in": [
+      "no-real-log"
+     ],
+     "wrong": "a negative multiple of a log picked as not real"
+    },
+    {
+     "text": "Multiplying the base by the number in the power or the log, instead of letting the two cancel",
+     "as": "distractor",
+     "in": [
+      "log-of-power",
+      "power-of-log"
+     ],
+     "wrong": "the base times the number"
+    },
+    {
+     "text": "Dropping the log and leaving the base raised to the number",
+     "as": "distractor",
+     "in": [
+      "power-of-log"
+     ],
+     "wrong": "the base to the number"
+    },
+    {
+     "text": "Working out the power inside and stopping there",
+     "as": "distractor",
+     "in": [
+      "log-of-power"
+     ],
+     "wrong": "the value of the power, not its log"
+    },
+    {
+     "text": "Using the wrong log key: ln for log, or log for ln",
+     "as": "distractor",
+     "in": [
+      "reading-from-value",
+      "reading-after-multiple",
+      "value-from-reading",
+      "acid-reading",
+      "acid-value",
+      "ratio-two-readings",
+      "rise-for-factor",
+      "percent-rise",
+      "find-scale-constant",
+      "model-value",
+      "model-time"
+     ],
+     "wrong": "the same sum in the other log"
+    },
+    {
+     "text": "Leaving out the constant in the formula",
+     "as": "distractor",
+     "in": [
+      "reading-from-value",
+      "value-from-reading",
+      "model-value"
+     ],
+     "wrong": "the sum with the constant left out"
+    },
+    {
+     "text": "Leaving out the factor inside the log",
+     "as": "distractor",
+     "in": [
+      "reading-from-value",
+      "value-from-reading"
+     ],
+     "wrong": "the sum with the factor in the bracket left out"
+    },
+    {
+     "text": "Forgetting the multiplier in front of the log",
+     "as": "distractor",
+     "in": [
+      "reading-from-value",
+      "reading-after-multiple",
+      "ratio-two-readings",
+      "rise-for-factor",
+      "value-after-steps",
+      "percent-rise"
+     ],
+     "wrong": "one step for each unit of reading"
+    },
+    {
+     "text": "Leaving the power of ten outside the multiplier",
+     "as": "distractor",
+     "in": [
+      "reading-from-value"
+     ],
+     "wrong": "the power of ten added on after multiplying"
+    },
+    {
+     "text": "Adding the factor straight on to the value it changes",
+     "as": "distractor",
+     "in": [
+      "reading-after-multiple",
+      "value-after-steps"
+     ],
+     "wrong": "the factor added on"
+    },
+    {
+     "text": "Multiplying by the factor instead of by its log",
+     "as": "distractor",
+     "in": [
+      "rise-for-factor"
+     ],
+     "wrong": "the multiplier times the factor"
+    },
+    {
+     "text": "Stopping before undoing the log",
+     "as": "distractor",
+     "in": [
+      "value-from-reading",
+      "model-time"
+     ],
+     "wrong": "the log's value given as the amount"
+    },
+    {
+     "text": "Multiplying by the factor inside the log instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "value-from-reading"
+     ],
+     "wrong": "the factor applied the wrong way"
+    },
+    {
+     "text": "Dividing by the multiplier after undoing the log instead of before",
+     "as": "distractor",
+     "in": [
+      "value-from-reading"
+     ],
+     "wrong": "the multiplier divided out last"
+    },
+    {
+     "text": "Giving the difference in readings as the factor",
+     "as": "distractor",
+     "in": [
+      "ratio-two-readings",
+      "value-after-steps"
+     ],
+     "wrong": "the gap between the readings"
+    },
+    {
+     "text": "Giving the new amount as a percentage of the old instead of the increase",
+     "as": "distractor",
+     "in": [
+      "percent-rise"
+     ],
+     "wrong": "the factor as a percentage"
+    },
+    {
+     "text": "Reading only the power of ten and ignoring the number in front",
+     "as": "distractor",
+     "in": [
+      "acid-reading"
+     ],
+     "wrong": "the power of ten alone"
+    },
+    {
+     "text": "Multiplying by the log instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "find-scale-constant"
+     ],
+     "wrong": "the reading times the log"
+    },
+    {
+     "text": "Subtracting the log instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "find-scale-constant"
+     ],
+     "wrong": "the reading less the log"
+    },
+    {
+     "text": "Adding the two constants before multiplying by the log",
+     "as": "distractor",
+     "in": [
+      "model-value"
+     ],
+     "wrong": "the two constants added, then multiplied by the log"
+    },
+    {
+     "text": "Leaving out the added term inside the log",
+     "as": "distractor",
+     "in": [
+      "model-value"
+     ],
+     "wrong": "the log of the time term alone"
+    },
+    {
+     "text": "Forgetting to take off the added term inside the log",
+     "as": "distractor",
+     "in": [
+      "model-time"
+     ],
+     "wrong": "the power of e divided, with nothing taken off"
+    },
+    {
+     "text": "Dividing by the rate before taking off the added term",
+     "as": "distractor",
+     "in": [
+      "model-time"
+     ],
+     "wrong": "the division done first"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p1-q05.a",
@@ -31724,13 +33837,796 @@
    "id": "t3-circular-motion",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Angle in radians as a function of time for rotating objects",
+   "summary": "Something turns steadily about a point: find the angle turned in one second or in t seconds, a rate from a period, from revolutions per minute or from degrees per second, the time to turn an angle, how long a straight line cut from its circle is swept in each turn, the fraction of a turn that takes, the arc swept and the speed of a point on the rim.",
    "syllabus": [
     "3.4"
    ],
    "skills": [
     "SL3.4.convert"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "turn the given rate into an angle per second: a full turn is 2π, or 360°",
+    "the angle after t seconds is the rate times t",
+    "a time is an angle divided by the rate, with both in the same unit",
+    "a chord: half of angle AOB has cosine d/r, so the whole angle is 2 arccos(d/r)",
+    "the time on the chord is that angle ÷ the rate, or that fraction of a turn times the time for one turn",
+    "l = rθ for the arc, and the speed is the arc in one second"
+   ],
+   "given": [
+    "the time for one turn",
+    "revolutions per minute, degrees per second or radians per second",
+    "the angle as a function of time",
+    "a radius and a line's distance from the centre, in words or drawn",
+    "the time a line is swept, with the distance worked back"
+   ],
+   "asked": "An angle turned, as an exact multiple of π or to 3 s.f., an expression for it in terms of t, a rate, a time, angle AOB of a chord, the fraction of a turn on the chord, an arc, the speed of a point on the rim, or the line's distance from the centre.",
+   "answerForms": [
+    "an exact multiple of π",
+    "a whole number of degrees or seconds",
+    "an expression in t",
+    "3 s.f."
+   ],
+   "randomise": [
+    "the story: what turns, and the line beside it",
+    "the rate, and how it is given",
+    "the radius and the line's distance",
+    "the time or the angle",
+    "whether the numbers are told or drawn"
+   ],
+   "constraints": [
+    "Paper 2 only, as all 3 bank parts are",
+    "a figure is drawn to its real shape",
+    "a rate or angle asked for exactly is a multiple of π, and landmark angles count in landmarks",
+    "every 3 s.f. value, right or wrong, is clear of a rounding edge",
+    "d/r is from a quarter to 0.92 and clear of a landmark cosine unless the answer is exact"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "circular-motion",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: a searchlight on a tower turns once every so many seconds, beside a straight fence"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "the circle with its centre, radius and the line that cuts the chord AB, or the angle turned drawn to size on the circle"
+    },
+    {
+     "rep": "equation",
+     "exam": false,
+     "how": "the angle as a function of time: θ = wt radians"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "rate-from-period",
+     "given": [
+      "the time for one turn"
+     ],
+     "asked": "the angle turned in one second, as an exact multiple of π",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "angle-expression",
+     "given": [
+      "the time for one turn"
+     ],
+     "asked": "an expression for the angle turned in terms of t, as a multiple of π",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "angle-after-time",
+     "given": [
+      "the time for one turn",
+      "a time"
+     ],
+     "asked": "the angle turned in that time, as an exact multiple of π",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "rate-from-rpm",
+     "given": [
+      "revolutions per minute"
+     ],
+     "asked": "the rate in radians per second, as an exact multiple of π",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "rate-from-degrees",
+     "given": [
+      "a landmark rate in degrees per second"
+     ],
+     "asked": "the rate in radians per second, as an exact multiple of π",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "sweep-to-radians",
+     "given": [
+      "a landmark angle in degrees"
+     ],
+     "asked": "the angle in radians, as an exact multiple of π",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "sweep-to-degrees",
+     "given": [
+      "a landmark multiple of π"
+     ],
+     "asked": "the angle in degrees",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "chord-angle-exact",
+     "given": [
+      "r",
+      "d at a landmark share of r"
+     ],
+     "asked": "angle AOB, as an exact multiple of π",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "chord-time-exact",
+     "given": [
+      "r",
+      "d at a landmark share of r",
+      "the time for one turn"
+     ],
+     "asked": "the exact time on the chord in each turn",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "rate-to-degrees",
+     "given": [
+      "the rate in radians per second, or θ = wt"
+     ],
+     "asked": "the rate in degrees per second",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "period-from-rate",
+     "given": [
+      "the rate in radians per second, or θ = wt"
+     ],
+     "asked": "the time for one turn",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "time-to-turn",
+     "given": [
+      "the rate in radians per second, or θ = wt",
+      "an angle in degrees"
+     ],
+     "asked": "the time to turn through it",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "time-from-period",
+     "given": [
+      "the time for one turn",
+      "an angle in radians"
+     ],
+     "asked": "the time to turn through it",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "half-angle",
+     "given": [
+      "r",
+      "d"
+     ],
+     "asked": "half of angle AOB, in radians",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "chord-angle",
+     "given": [
+      "r",
+      "d"
+     ],
+     "asked": "angle AOB, in radians",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "chord-time",
+     "given": [
+      "r",
+      "d",
+      "the time for one turn"
+     ],
+     "asked": "the time on the chord in each turn",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "chord-time-rpm",
+     "given": [
+      "r",
+      "d",
+      "revolutions per minute"
+     ],
+     "asked": "the time on the chord in each turn, in seconds",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "chord-time-degrees",
+     "given": [
+      "r",
+      "d",
+      "a rate in degrees per second"
+     ],
+     "asked": "the time on the chord in each turn",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "dark-time",
+     "given": [
+      "r",
+      "d",
+      "the time for one turn"
+     ],
+     "asked": "the time off the chord in each turn",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "fraction-in-view",
+     "given": [
+      "r",
+      "d",
+      "the time for one turn"
+     ],
+     "asked": "the fraction of each turn spent on the chord",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "arc-past-line",
+     "given": [
+      "r",
+      "d"
+     ],
+     "asked": "the length of the shorter arc AB",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "distance-from-time",
+     "given": [
+      "r",
+      "the time for one turn",
+      "the time on the chord"
+     ],
+     "asked": "the distance from the centre to the line",
+     "level": 5,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "arc-in-time",
+     "given": [
+      "an arm's length",
+      "the time for one turn",
+      "a time"
+     ],
+     "asked": "the distance its tip moves in that time",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "rim-speed",
+     "given": [
+      "an arm's length",
+      "the time for one turn"
+     ],
+     "asked": "the speed of its tip",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    },
+    {
+     "id": "rim-speed-rpm",
+     "given": [
+      "an arm's length",
+      "revolutions per minute"
+     ],
+     "asked": "the speed of its tip, in metres per second",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL3.4.convert"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.4.convert",
+     "method": "multiply-factor",
+     "suits": [
+      "rate-from-period",
+      "angle-expression",
+      "angle-after-time",
+      "rate-from-rpm",
+      "rate-from-degrees",
+      "sweep-to-radians",
+      "sweep-to-degrees",
+      "chord-angle-exact",
+      "chord-time-exact",
+      "rate-to-degrees",
+      "period-from-rate",
+      "time-to-turn",
+      "time-from-period",
+      "half-angle",
+      "chord-angle",
+      "chord-time",
+      "chord-time-rpm",
+      "chord-time-degrees",
+      "dark-time",
+      "fraction-in-view",
+      "arc-past-line",
+      "distance-from-time",
+      "arc-in-time",
+      "rim-speed",
+      "rim-speed-rpm"
+     ]
+    },
+    {
+     "skill": "SL3.4.convert",
+     "method": "fraction-of-turn",
+     "suits": [
+      "rate-from-period",
+      "angle-expression",
+      "angle-after-time",
+      "rate-from-rpm",
+      "rate-from-degrees",
+      "sweep-to-radians",
+      "sweep-to-degrees",
+      "chord-angle-exact",
+      "chord-time-exact",
+      "rate-to-degrees",
+      "period-from-rate",
+      "time-to-turn",
+      "time-from-period",
+      "half-angle",
+      "chord-angle",
+      "chord-time",
+      "chord-time-rpm",
+      "chord-time-degrees",
+      "dark-time",
+      "fraction-in-view",
+      "arc-past-line",
+      "distance-from-time",
+      "arc-in-time",
+      "rim-speed",
+      "rim-speed-rpm"
+     ]
+    },
+    {
+     "skill": "SL3.4.convert",
+     "method": "landmarks",
+     "suits": [
+      "rate-from-degrees",
+      "sweep-to-radians",
+      "sweep-to-degrees",
+      "chord-angle-exact",
+      "chord-time-exact"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If a light turns twice as fast, a fence beside it is swept for half as long in each turn.",
+     "answer": "True: the angle AOB is fixed by the distances alone, and the time is that angle ÷ the rate.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A line d metres from a light with a reach of r metres is swept for less than half of each turn.",
+     "answer": "Always, for 0 < d < r: cos φ = d/r is positive, so φ < π/2 and angle AOB < π, which is less than half a turn.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "In θ = πt/8, what does π/8 mean, and how long is one turn?",
+     "answer": "π/8 is the angle turned each second, in radians. One turn is 2π, so it takes 2π ÷ π/8 = 16 seconds.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.4.convert#0",
+     "text": "Multiplying by 180/π when converting degrees to radians",
+     "as": "distractor",
+     "in": [
+      "rate-from-degrees",
+      "sweep-to-radians",
+      "time-to-turn"
+     ],
+     "wrong": "degrees × 180/π"
+    },
+    {
+     "ref": "SL3.4.convert#1",
+     "text": "Writing the size in radians as if it were degrees",
+     "as": "distractor",
+     "in": [
+      "sweep-to-degrees",
+      "rate-to-degrees"
+     ],
+     "wrong": "the size in radians written as degrees"
+    },
+    {
+     "ref": "SL3.4.convert#2",
+     "text": "Giving a decimal when an exact multiple of π is asked for",
+     "as": "distractor",
+     "in": [
+      "rate-from-period",
+      "angle-expression",
+      "angle-after-time",
+      "rate-from-rpm",
+      "rate-from-degrees",
+      "sweep-to-radians",
+      "chord-angle-exact"
+     ],
+     "wrong": "the decimal in place of the multiple of π"
+    },
+    {
+     "ref": "SL3.4.convert#3",
+     "text": "Taking π as a full turn instead of 2π",
+     "as": "distractor",
+     "in": [
+      "rate-from-period",
+      "angle-expression",
+      "angle-after-time",
+      "rate-from-rpm",
+      "rate-from-degrees",
+      "sweep-to-radians",
+      "sweep-to-degrees",
+      "rate-to-degrees",
+      "period-from-rate",
+      "time-from-period",
+      "fraction-in-view",
+      "arc-in-time",
+      "rim-speed",
+      "rim-speed-rpm"
+     ],
+     "wrong": "a full turn counted as π: half the angle, or double the time"
+    },
+    {
+     "ref": "SL3.4.convert#4",
+     "text": "Dividing the wrong way round, with the two numbers swapped",
+     "as": "distractor",
+     "in": [
+      "rate-from-period",
+      "angle-expression",
+      "period-from-rate"
+     ],
+     "wrong": "T/2π for a rate, or w/2π for a time"
+    },
+    {
+     "ref": "SL3.4.convert#5",
+     "text": "Using the degrees-to-radians factor when converting radians to degrees",
+     "as": "distractor",
+     "in": [
+      "sweep-to-degrees",
+      "rate-to-degrees"
+     ],
+     "wrong": "radians × π/180"
+    },
+    {
+     "ref": "SL3.4.convert#6",
+     "text": "Leaving a rate in revolutions per minute unconverted when seconds are needed",
+     "as": "distractor",
+     "in": [
+      "rate-from-rpm",
+      "chord-time-rpm",
+      "rim-speed-rpm"
+     ],
+     "wrong": "the rate per minute used as a rate per second"
+    },
+    {
+     "ref": "SL3.4.convert#7",
+     "text": "Mixing degrees and radians in one calculation",
+     "as": "distractor",
+     "in": [
+      "chord-time-exact",
+      "period-from-rate",
+      "time-to-turn",
+      "time-from-period",
+      "chord-time",
+      "chord-time-degrees",
+      "fraction-in-view",
+      "arc-past-line",
+      "distance-from-time",
+      "arc-in-time",
+      "rim-speed"
+     ],
+     "wrong": "an angle in one unit with a full turn, a rate or a calculator mode in the other"
+    },
+    {
+     "ref": "SL3.4.convert#8",
+     "text": "Using half of the angle at the centre when the whole of angle AOB is needed",
+     "as": "distractor",
+     "in": [
+      "chord-angle-exact",
+      "chord-time-exact",
+      "chord-angle",
+      "chord-time",
+      "chord-time-rpm",
+      "chord-time-degrees",
+      "dark-time",
+      "fraction-in-view",
+      "arc-past-line"
+     ],
+     "wrong": "φ in place of 2φ"
+    },
+    {
+     "ref": "SL3.4.convert#9",
+     "text": "Using the whole of the angle at the centre when half of it is needed",
+     "as": "distractor",
+     "in": [
+      "half-angle",
+      "distance-from-time"
+     ],
+     "wrong": "2φ in place of φ"
+    },
+    {
+     "ref": "SL3.4.convert#10",
+     "text": "Using sine instead of cosine, when the distance from the centre is the side next to the angle",
+     "as": "distractor",
+     "in": [
+      "chord-angle-exact",
+      "chord-time-exact",
+      "half-angle",
+      "chord-angle",
+      "chord-time",
+      "chord-time-rpm",
+      "chord-time-degrees",
+      "dark-time",
+      "fraction-in-view",
+      "arc-past-line",
+      "distance-from-time"
+     ],
+     "wrong": "arcsin(d/r) in place of arccos(d/r), or r sin φ in place of r cos φ"
+    },
+    {
+     "ref": "SL3.4.convert#11",
+     "text": "Mixing up the time on the line with the time off it",
+     "as": "distractor",
+     "in": [
+      "chord-time-exact",
+      "dark-time"
+     ],
+     "wrong": "T − t in place of t, or t in place of T − t"
+    },
+    {
+     "ref": "SL3.4.convert#12",
+     "text": "Multiplying the angle by the rate instead of dividing by it",
+     "as": "distractor",
+     "in": [
+      "period-from-rate",
+      "time-to-turn",
+      "time-from-period"
+     ],
+     "wrong": "angle × rate"
+    },
+    {
+     "ref": "SL3.4.convert#13",
+     "text": "Giving the distance round the circle as the answer, without using the time",
+     "as": "distractor",
+     "in": [
+      "arc-in-time",
+      "rim-speed",
+      "rim-speed-rpm"
+     ],
+     "wrong": "2πr"
+    },
+    {
+     "ref": "SL3.4.convert#14",
+     "text": "Writing the size in degrees as if it were radians",
+     "as": "distractor",
+     "in": [
+      "rate-from-period",
+      "angle-expression",
+      "angle-after-time",
+      "rate-from-rpm",
+      "chord-angle-exact",
+      "half-angle",
+      "chord-angle"
+     ],
+     "wrong": "the size in degrees given as radians"
+    }
    ],
    "parts": [
     "aa-sl-2024-may-tz2-p2-q09.b",
@@ -33709,14 +36605,676 @@
    "id": "t3-prove-identity",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Prove a trig identity",
+   "summary": "Show that one trig expression equals another, using sin²x + cos²x = 1, tan x = sin x/cos x and the double-angle identities. A phone can't read a written proof, so each question is one decision a proof turns on: the simple form, a hidden line, the next line, the first wrong line, the form of cos 2x that cancels the 1, the side to start from, which argument is a proof, or a value once the identity holds.",
    "syllabus": [
     "3.6",
     "1.6"
    ],
    "skills": [
     "SL3.6.prove-identity"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "start from the busier side",
+    "rewrite tan and the double angles in sin and cos",
+    "choose the form of the double-angle cosine that cancels the constant",
+    "spot a difference of squares or a common factor",
+    "cancel factors, not terms",
+    "end on the other side, with a line for each identity"
+   ],
+   "given": [
+    "an identity, with its sides simplified or not",
+    "a proof with a line hidden or wrong",
+    "four arguments for one identity",
+    "an angle or a ratio, once the identity holds"
+   ],
+   "asked": "A simple form, a line of a proof, the first wrong line and its correction, a form of the double-angle cosine, the side to start from, which argument proves the identity, or a value of the expression.",
+   "answerForms": [
+    "an expression with exact coefficients, typed in slots",
+    "an exact number or surd",
+    "a line of a proof, or a sentence, picked"
+   ],
+   "randomise": [
+    "the identity: a double angle over a constant and a cosine, a product, a square, a fourth-power difference, a sum of fractions, a tan through sin and cos, a common factor, a perfect square",
+    "the number in front and the multiple of the letter inside",
+    "the letter",
+    "which line is hidden, reached or spoiled, and by which slip",
+    "the side the busier expression is on",
+    "the angle or ratio"
+   ],
+   "constraints": [
+    "every identity holds wherever both sides are defined",
+    "only SL identities: no secant, cosecant or cotangent, and no triple angle",
+    "a wrong line is the same work with one slip, carried to the end",
+    "no statement is an exam's or the map's example: those numbers are left out",
+    "Paper 1 throughout: exact answers and no calculator method"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "prove-identity",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the identity or one side of it written out, in sines, cosines and tangents of a multiple of the letter"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a sentence: the square of a sum, a difference of fourth powers, or a multiple of a product"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "simplified-result",
+     "given": [
+      "one side of an identity, as an expression or a sentence"
+     ],
+     "asked": "the simple form it reaches",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "next-line",
+     "given": [
+      "an identity",
+      "the first lines of its proof"
+     ],
+     "asked": "the line that comes next",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "missing-line",
+     "given": [
+      "a proof with one line hidden"
+     ],
+     "asked": "the hidden line",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "flawed-line",
+     "given": [
+      "a proof with one slip carried to the end"
+     ],
+     "asked": "the first wrong line and its correction",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "valid-argument",
+     "given": [
+      "an identity",
+      "four arguments for it"
+     ],
+     "asked": "which argument is a complete proof",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "start-side",
+     "given": [
+      "an identity, with its busier side on the left or the right"
+     ],
+     "asked": "which is the best way to start",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "true-identity",
+     "given": [
+      "one left side",
+      "four right sides"
+     ],
+     "asked": "which statement is an identity",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "cos2-form",
+     "given": [
+      "an expression with a constant and the double-angle cosine"
+     ],
+     "asked": "which form of the cosine cancels the constant",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "half-form",
+     "given": [
+      "a number and the double-angle cosine"
+     ],
+     "asked": "the square of a sine or a cosine it equals",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "sin2-multiple",
+     "given": [
+      "a multiple of sin u cos u"
+     ],
+     "asked": "that multiple of the double-angle sine",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "cancel-fraction",
+     "given": [
+      "a fraction with a sum on top"
+     ],
+     "asked": "the expression left after factorising and cancelling",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "factor-structure",
+     "given": [
+      "a side with a factorisable structure"
+     ],
+     "asked": "the correct first line of factorising it",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "identity-value",
+     "given": [
+      "an identity that has been proved",
+      "an angle"
+     ],
+     "asked": "the exact value of the side at that angle",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "value-from-ratio",
+     "given": [
+      "one side of an identity",
+      "one ratio"
+     ],
+     "asked": "the exact value of the side",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "greatest-value",
+     "given": [
+      "a function, one side of an identity plus a number"
+     ],
+     "asked": "its greatest or least value",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "common-expression",
+     "given": [
+      "an identity with both sides unsimplified"
+     ],
+     "asked": "the expression both sides reach",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.6.prove-identity",
+     "method": "complex-side",
+     "suits": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "valid-argument",
+      "start-side",
+      "true-identity",
+      "identity-value",
+      "value-from-ratio",
+      "greatest-value",
+      "common-expression"
+     ]
+    },
+    {
+     "skill": "SL3.6.prove-identity",
+     "method": "sin-cos-convert",
+     "suits": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "cos2-form",
+      "half-form",
+      "sin2-multiple",
+      "value-from-ratio"
+     ]
+    },
+    {
+     "skill": "SL3.6.prove-identity",
+     "method": "factorise-structure",
+     "suits": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "cancel-fraction",
+      "factor-structure",
+      "value-from-ratio",
+      "greatest-value"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "(1 + cos 2x)/cos 2x = 1 + 1 = 2, because the cos 2x cancels.",
+     "answer": "False: cos 2x is a factor of only one term of the top, so it can't cancel. At x = π/3 the fraction is (1 − 1/2)/(−1/2) = −1, not 2.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "cos²x − sin²x = 1.",
+     "answer": "Sometimes: cos²x − sin²x is cos 2x, which is 1 only when x is a multiple of π. It is cos²x + sin²x that is always 1.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "At x = π/4 both sides of sin 2x = 2 sin x cos x equal 1, so that proves the identity.",
+     "answer": "False: one value only shows the two sides agree there. sin x = cos x also holds at x = π/4, and it is no identity. A proof runs from one side to the other for every x.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.6.prove-identity#0",
+     "text": "Working on both sides at once as if solving an equation, then treating a true last line as the proof",
+     "as": "distractor",
+     "in": [
+      "next-line",
+      "valid-argument",
+      "start-side"
+     ],
+     "wrong": "a line that takes the right side from both sides, or a plan to work on both at once"
+    },
+    {
+     "ref": "SL3.6.prove-identity#1",
+     "text": "Cancelling across a sum, as if one term of the top were a factor of the whole top",
+     "as": "distractor",
+     "in": [
+      "next-line",
+      "missing-line",
+      "true-identity",
+      "cancel-fraction"
+     ],
+     "wrong": "one term of the top cancelled with the bottom, the other left"
+    },
+    {
+     "ref": "SL3.6.prove-identity#2",
+     "text": "Choosing a form of the double-angle cosine that does not cancel the constant term",
+     "as": "distractor",
+     "in": [
+      "cos2-form"
+     ],
+     "wrong": "a true form of the cosine that leaves a constant behind"
+    },
+    {
+     "ref": "SL3.6.prove-identity#3",
+     "text": "Checking the two sides at one value and calling that a proof",
+     "as": "distractor",
+     "in": [
+      "valid-argument",
+      "start-side"
+     ],
+     "wrong": "the two sides compared at one angle, worked out truly"
+    },
+    {
+     "ref": "SL3.6.prove-identity#4",
+     "text": "Stopping before reaching the other side, so the proof has no last line",
+     "as": "distractor",
+     "in": [
+      "valid-argument"
+     ],
+     "wrong": "the first line of working, with no last line and no conclusion"
+    },
+    {
+     "ref": "SL3.6.prove-identity#5",
+     "text": "Getting a sign wrong when a bracket after a minus is removed or a factor is taken out",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "true-identity",
+      "half-form",
+      "factor-structure",
+      "value-from-ratio"
+     ],
+     "wrong": "one term with the opposite sign, carried to the end"
+    },
+    {
+     "ref": "SL3.6.prove-identity#6",
+     "text": "Leaving out the factor of two in the double-angle sine",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "cancel-fraction",
+      "value-from-ratio"
+     ],
+     "wrong": "the double-angle sine written without its factor of two"
+    },
+    {
+     "ref": "SL3.6.prove-identity#7",
+     "text": "Swapping the signs in a form of the double-angle cosine",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "cos2-form",
+      "half-form",
+      "value-from-ratio"
+     ],
+     "wrong": "a form of the cosine with both signs changed"
+    },
+    {
+     "ref": "SL3.6.prove-identity#8",
+     "text": "Treating a difference of squares of sine and cosine as one, which only their sum is",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "value-from-ratio",
+      "common-expression"
+     ],
+     "wrong": "the wrong bracket taken as one"
+    },
+    {
+     "ref": "SL3.6.prove-identity#9",
+     "text": "Forgetting to double the middle term when squaring a bracket",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "value-from-ratio"
+     ],
+     "wrong": "the middle term of the square left undoubled"
+    },
+    {
+     "ref": "SL3.6.prove-identity#10",
+     "text": "Squaring each term of a bracket with no middle term",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "value-from-ratio"
+     ],
+     "wrong": "the square of each term and no middle term"
+    },
+    {
+     "ref": "SL3.6.prove-identity#11",
+     "text": "Keeping the same angle when a double-angle identity should change it",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "true-identity",
+      "half-form"
+     ],
+     "wrong": "the same angle kept on both sides of the identity"
+    },
+    {
+     "ref": "SL3.6.prove-identity#12",
+     "text": "Writing a difference of two squares as the same bracket twice",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "factor-structure",
+      "common-expression"
+     ],
+     "wrong": "both brackets written with the minus"
+    },
+    {
+     "ref": "SL3.6.prove-identity#13",
+     "text": "Writing tan as cosine over sine, the wrong way up",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity"
+     ],
+     "wrong": "the ratio tan replaced by cosine over sine"
+    },
+    {
+     "ref": "SL3.6.prove-identity#14",
+     "text": "Leaving the number in front unchanged when using a double-angle identity",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "true-identity",
+      "half-form",
+      "sin2-multiple"
+     ],
+     "wrong": "the number in front kept, with the two absorbed"
+    },
+    {
+     "ref": "SL3.6.prove-identity#15",
+     "text": "Reading the greatest value off the number in front, leaving out the constant in the bracket",
+     "as": "distractor",
+     "in": [
+      "greatest-value"
+     ],
+     "wrong": "the number in front alone, in place of the bracket's greatest value"
+    },
+    {
+     "ref": "SL3.6.prove-identity#16",
+     "text": "Reading the greatest value off the number in front of the first form, before the identity changes it",
+     "as": "distractor",
+     "in": [
+      "greatest-value"
+     ],
+     "wrong": "the first form's number in front, before it is halved or quartered"
+    },
+    {
+     "ref": "SL3.6.prove-identity#17",
+     "text": "Putting the angle into the function without its multiple",
+     "as": "distractor",
+     "in": [
+      "identity-value"
+     ],
+     "wrong": "the function worked out at the given angle, not at its multiple"
+    },
+    {
+     "ref": "SL3.6.prove-identity#18",
+     "text": "Mixing up the double-angle identities for sine and cosine",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "true-identity",
+      "common-expression"
+     ],
+     "wrong": "sine and cosine swapped in the last line"
+    },
+    {
+     "ref": "SL3.6.prove-identity#19",
+     "text": "Adding two fractions by adding their tops and adding their bottoms",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "true-identity"
+     ],
+     "wrong": "the tops added and the bottoms added"
+    },
+    {
+     "ref": "SL3.6.prove-identity#20",
+     "text": "Multiplying only the first term of a bracket",
+     "as": "distractor",
+     "in": [
+      "next-line",
+      "missing-line",
+      "true-identity"
+     ],
+     "wrong": "the second term of the bracket left unmultiplied"
+    },
+    {
+     "ref": "SL3.6.prove-identity#21",
+     "text": "Squaring the trig term but not the number in front of it",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "value-from-ratio"
+     ],
+     "wrong": "the number in front left unsquared"
+    },
+    {
+     "ref": "SL3.6.prove-identity#22",
+     "text": "Factorising a perfect square as a difference of two squares",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "factor-structure"
+     ],
+     "wrong": "the sum and difference brackets, in place of the perfect square"
+    },
+    {
+     "ref": "SL3.6.prove-identity#23",
+     "text": "Starting from the simpler side, which gives less to work from",
+     "as": "distractor",
+     "in": [
+      "start-side"
+     ],
+     "wrong": "the shorter side chosen as the start"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q06.a",
@@ -35973,14 +39531,775 @@
    "id": "t3-trig-quadratic",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Trig equation that is a quadratic in sin or cos",
+   "summary": "Solve a trig equation that is a quadratic in sin x, cos x or tan x: write the quadratic after an identity, choose the identity, factorise or use the formula, reject a root outside the range, then give every solution on an interval, how many there are, one of them or their sum, with exact answers on Paper 1 and 3 s.f. from a graph of the whole equation on Paper 2.",
    "syllabus": [
     "3.8",
     "2.7"
    ],
    "skills": [
     "SL3.8.quadratic-in-trig"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "choose the identity that leaves one function: cos²x = 1 − sin²x, or the form of cos 2x in the ratio the equation already has",
+    "bring every term to one side and let u = sin x, cos x or tan x",
+    "factorise, or use the quadratic formula",
+    "reject any root of sin or cos outside −1 to 1",
+    "solve each root on the interval, and collect the solutions"
+   ],
+   "given": [
+    "an equation in one ratio",
+    "an equation with a squared ratio or cos 2x to swap",
+    "a number over a bracket in the ratio",
+    "a quadratic with surd coefficients",
+    "a graph of the whole equation",
+    "y = sin x with a dashed line at each root"
+   ],
+   "asked": "The quadratic in u, the identity, the brackets, the values of u, the root to reject and why, every solution, how many there are, one solution, their sum, or a letter in the quadratic.",
+   "answerForms": [
+    "exact multiples of π",
+    "degrees",
+    "a quadratic in u",
+    "two brackets",
+    "a surd for sin x or cos x",
+    "a whole number for a count",
+    "3 s.f. on Paper 2"
+   ],
+   "randomise": [
+    "the roots in u, and whether one is rejected",
+    "sin, cos or tan",
+    "how the equation is disguised",
+    "which term is on the right",
+    "the interval, in radians or degrees",
+    "the multiple of x inside a compound equation"
+   ],
+   "constraints": [
+    "every bank part is Paper 1, so every question is but the two GDC unknowns",
+    "the equation is built forward from its roots, so a factorisable quadratic factorises cleanly",
+    "roots in range are landmark values, or give a surd for formula-root",
+    "the bank's and the map's own equations are never drawn",
+    "the solutions can be typed in any order",
+    "a wrong option may have another number of solutions, and can then be picked but not typed",
+    "a Paper 2 root keeps clear of 0 and ±1, and every 3 s.f. value is clear of a rounding edge"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "trig-quadratic",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the equation and its interval written out: 2 sin²x + 3 cos x = 3, for 0 ≤ x ≤ 2π"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the whole equation as a curve, with its zeros marked for gdc-solve, or the wave with a dashed line at each root in u"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "quadratic-in-u",
+     "given": [
+      "an equation with cos²x, sin²x or cos 2x in it"
+     ],
+     "asked": "the quadratic in sin x or cos x, with its first number given",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "identity-to-use",
+     "given": [
+      "an equation with cos²x, sin²x or cos 2x in it"
+     ],
+     "asked": "the identity that leaves one function in a quadratic",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "factorised-form",
+     "given": [
+      "a quadratic in sin x or cos x"
+     ],
+     "asked": "its two brackets",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "values-of-u",
+     "given": [
+      "an equation that is a quadratic in u"
+     ],
+     "asked": "the two values of u",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "formula-root",
+     "given": [
+      "a quadratic in u with no whole-number factors"
+     ],
+     "asked": "the exact value of sin x or cos x, by the formula, with the other root rejected",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "reject-root",
+     "given": [
+      "an equation with a root outside the range"
+     ],
+     "asked": "the root that gives no solutions, and why",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "all-solutions",
+     "given": [
+      "an equation in sin x or cos x, direct or with a squared ratio to swap, and an interval"
+     ],
+     "asked": "every solution, exactly",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "all-solutions-degrees",
+     "given": [
+      "the equation and an interval in degrees"
+     ],
+     "asked": "every solution in degrees",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "double-angle-solve",
+     "given": [
+      "an equation with cos 2x and sin x or cos x, and an interval"
+     ],
+     "asked": "every solution, exactly",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "plus-minus-root",
+     "given": [
+      "a number times sin²x or cos²x equal to a number, and an interval"
+     ],
+     "asked": "every solution, from both roots",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "tan-squared",
+     "given": [
+      "a number times tan²x equal to a number, or tan x and a number over tan x, and an interval"
+     ],
+     "asked": "every solution, from both roots",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "tan-zero-root",
+     "given": [
+      "tan²x equal to a number times tan x, and an interval"
+     ],
+     "asked": "every solution, tan x = 0 among them",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "surd-coefficient",
+     "given": [
+      "a quadratic with surd coefficients in sin x, cos x or tan x, and an interval"
+     ],
+     "asked": "every solution, exactly",
+     "level": 5,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "compound-quadratic",
+     "given": [
+      "a quadratic in sin 2x, cos 2x, sin 3x or cos 3x, and an interval"
+     ],
+     "asked": "every solution, exactly",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "rational-disguise",
+     "given": [
+      "u plus a number over a bracket in u, for u = sin x, cos x, sin 2x or cos 2x, with the values that make the bracket 0 ruled out"
+     ],
+     "asked": "every solution, exactly",
+     "level": 5,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "double-factor",
+     "given": [
+      "sin 2x equal to a number times cos²x, or sin 2x sin x equal to a number times cos x, and an interval"
+     ],
+     "asked": "every solution, with cos x = 0 among them",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "count-solutions",
+     "given": [
+      "the equation and an interval, up to two turns"
+     ],
+     "asked": "how many solutions there are",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "one-solution",
+     "given": [
+      "the equation and an interval"
+     ],
+     "asked": "the largest, the smallest or the smallest positive solution",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "sum-solutions",
+     "given": [
+      "the equation and an interval"
+     ],
+     "asked": "the sum of the solutions, in π or degrees",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "constant-from-solution",
+     "given": [
+      "one exact solution of a quadratic in sin x or cos x with one letter in it"
+     ],
+     "asked": "the letter",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "gdc-solve",
+     "given": [
+      "a quadratic with no whole-number factors, direct or disguised, and an interval"
+     ],
+     "asked": "every solution to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "gdc-count",
+     "given": [
+      "the equation, a long interval and the whole equation as a graph"
+     ],
+     "asked": "how many solutions there are, where the curve crosses or touches the axis",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.8.quadratic-in-trig",
+     "method": "identity-then-factorise",
+     "suits": [
+      "quadratic-in-u",
+      "identity-to-use",
+      "factorised-form",
+      "values-of-u",
+      "reject-root",
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "tan-squared",
+      "tan-zero-root",
+      "surd-coefficient",
+      "compound-quadratic",
+      "rational-disguise",
+      "double-factor",
+      "count-solutions",
+      "one-solution",
+      "sum-solutions",
+      "constant-from-solution"
+     ]
+    },
+    {
+     "skill": "SL3.8.quadratic-in-trig",
+     "method": "quadratic-formula",
+     "suits": [
+      "values-of-u",
+      "formula-root",
+      "reject-root",
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "surd-coefficient",
+      "compound-quadratic",
+      "count-solutions",
+      "gdc-solve"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "all-solutions",
+       "count-solutions"
+      ],
+      "why": "when the quadratic factorises, the formula is more work for the same two roots"
+     }
+    },
+    {
+     "skill": "SL3.8.quadratic-in-trig",
+     "method": "gdc-graph",
+     "suits": [
+      "gdc-solve",
+      "gdc-count"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "2 sin²x − 3 sin x − 2 = 0 has four solutions on 0 ≤ x ≤ 2π, since each of its two roots gives two.",
+     "answer": "False: the roots are sin x = −1/2 and sin x = 2, and sin x is never 2. Only x = 7π/6 and 11π/6 are solutions.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A quadratic in sin x with two different roots in −1 < u < 1 has four solutions on 0 ≤ x < 2π.",
+     "answer": "Always: a line strictly between −1 and 1 crosses the sine wave twice in one whole turn, and 0 ≤ x < 2π is one whole turn, so each root gives two.",
+     "level": 4
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Which form of cos 2x should you use in cos 2x + 2 cos x + 1 = 0?",
+     "answer": "2cos²x − 1, since the rest of the equation is in cos x: it gives 2cos²x + 2 cos x = 0, so cos x = 0 or cos x = −1.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.8.quadratic-in-trig#0",
+     "text": "Accepting a root outside the range of sine or cosine as giving solutions",
+     "as": "distractor",
+     "in": [
+      "formula-root",
+      "reject-root",
+      "count-solutions",
+      "gdc-count"
+     ],
+     "wrong": "the root out of range kept, or counted as if it gave two solutions a turn"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#1",
+     "text": "Taking only the positive root of tan²x",
+     "as": "distractor",
+     "in": [
+      "tan-squared"
+     ],
+     "wrong": "the solutions of the positive root alone"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#2",
+     "text": "Picking the form of cos 2x in cos x when the rest of the equation is in sin x, leaving two different functions",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u",
+      "identity-to-use"
+     ],
+     "wrong": "cos 2x in cos²x, with sin x still in the equation"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#3",
+     "text": "Picking the form of cos 2x in sin x when the rest of the equation is in cos x, leaving two different functions",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u",
+      "identity-to-use"
+     ],
+     "wrong": "cos 2x in sin²x, with cos x still in the equation"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#4",
+     "text": "Taking only the positive root when sin²x or cos²x equals a number",
+     "as": "distractor",
+     "in": [
+      "plus-minus-root",
+      "double-factor"
+     ],
+     "wrong": "the solutions of the positive root alone"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#5",
+     "text": "Solving only one bracket of the factorised quadratic and dropping the other",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "surd-coefficient",
+      "compound-quadratic",
+      "rational-disguise",
+      "one-solution",
+      "sum-solutions"
+     ],
+     "wrong": "the solutions of one root alone"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#6",
+     "text": "Getting the sign of each root wrong, often by reading the number straight from its bracket",
+     "as": "distractor",
+     "in": [
+      "factorised-form",
+      "values-of-u",
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "surd-coefficient",
+      "rational-disguise",
+      "one-solution",
+      "sum-solutions"
+     ],
+     "wrong": "each root with its sign changed"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#7",
+     "text": "Using the Pythagorean identity with the wrong sign",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u",
+      "identity-to-use"
+     ],
+     "wrong": "cos²x as sin²x − 1 or 1 + sin²x"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#8",
+     "text": "Keeping solutions that are outside the stated interval",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "tan-squared",
+      "surd-coefficient"
+     ],
+     "wrong": "the solutions on a whole turn when the interval is half of one"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#9",
+     "text": "Moving a term across the equals sign without changing its sign",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u"
+     ],
+     "wrong": "the term on the right added to the left as it stands"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#10",
+     "text": "Counting one solution for each root of the quadratic, when one root can give several",
+     "as": "distractor",
+     "in": [
+      "count-solutions",
+      "gdc-count"
+     ],
+     "wrong": "the number of roots"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#11",
+     "text": "Counting only where the curve crosses the axis, and missing where it only touches",
+     "as": "distractor",
+     "in": [
+      "gdc-count"
+     ],
+     "wrong": "the count without the solutions at u = 1 or −1"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#12",
+     "text": "Rejecting a root because it is negative, although sine and cosine can be negative",
+     "as": "distractor",
+     "in": [
+      "reject-root"
+     ],
+     "wrong": "the negative root in range rejected"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#13",
+     "text": "Forgetting to double a in the denominator of the quadratic formula",
+     "as": "distractor",
+     "in": [
+      "formula-root"
+     ],
+     "wrong": "the root over a instead of 2a"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#14",
+     "text": "Forgetting to square the value of sin x or cos x in the squared term",
+     "as": "distractor",
+     "in": [
+      "constant-from-solution"
+     ],
+     "wrong": "u in place of u²"
+    },
+    {
+     "ref": "SL3.6.double-angle-values#1",
+     "text": "Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u",
+      "identity-to-use"
+     ],
+     "wrong": "cos 2x as 1 − sin²x or cos²x − 1"
+    },
+    {
+     "ref": "SL3.8.solve-basic#0",
+     "text": "Stopping at one solution instead of finding them all",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "tan-squared",
+      "surd-coefficient",
+      "one-solution",
+      "sum-solutions",
+      "gdc-solve"
+     ],
+     "wrong": "the principal value of each root alone"
+    },
+    {
+     "ref": "SL3.8.solve-basic#1",
+     "text": "Finding a cosine equation's second solution the way you would for sine",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "surd-coefficient"
+     ],
+     "wrong": "α and π − α for a cosine"
+    },
+    {
+     "ref": "SL3.8.solve-basic#2",
+     "text": "Missing the solutions below zero in the interval",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "tan-squared",
+      "surd-coefficient"
+     ],
+     "wrong": "the solutions from 0 up only"
+    },
+    {
+     "ref": "SL3.8.compound-angle#0",
+     "text": "Solving for the multiple angle without extending the interval, which loses solutions",
+     "as": "distractor",
+     "in": [
+      "compound-quadratic",
+      "rational-disguise"
+     ],
+     "wrong": "the first wave's solutions only"
+    },
+    {
+     "ref": "SL3.8.compound-angle#1",
+     "text": "Undoing only the principal value and forgetting the other solutions",
+     "as": "distractor",
+     "in": [
+      "compound-quadratic"
+     ],
+     "wrong": "the principal value undone, alone"
+    },
+    {
+     "ref": "SL3.8.factorise-not-divide#0",
+     "text": "Cancelling a factor that can be zero, which loses its solutions",
+     "as": "distractor",
+     "in": [
+      "tan-zero-root",
+      "double-factor"
+     ],
+     "wrong": "tan x or cos x cancelled, its solutions gone"
+    },
+    {
+     "ref": "SL3.8.graphical#0",
+     "text": "Looking at only part of the interval and missing solutions",
+     "as": "distractor",
+     "in": [
+      "count-solutions",
+      "gdc-count"
+     ],
+     "wrong": "the count over the first whole turn alone"
+    },
+    {
+     "ref": "SL3.8.graphical#2",
+     "text": "Leaving the GDC in degree mode",
+     "as": "distractor",
+     "in": [
+      "gdc-solve"
+     ],
+     "wrong": "the solutions in degrees"
+    },
+    {
+     "ref": "SL3.8.graphical#4",
+     "text": "Counting each point where the line only touches a maximum or minimum as two solutions",
+     "as": "distractor",
+     "in": [
+      "count-solutions",
+      "gdc-count"
+     ],
+     "wrong": "two solutions counted at u = 1 or −1"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p1-q03.b",
@@ -36531,7 +40850,7 @@
     },
     {
      "ref": "SL3.8.graphical#4",
-     "text": "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+     "text": "Counting each point where the line only touches a maximum or minimum as two solutions",
      "as": "distractor",
      "in": [
       "count-at-extreme"
@@ -53569,8 +57888,9 @@
    "id": "t5-derivative-model-gdc",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Derivative of a model at a point with technology",
+   "summary": "Differentiate a real-world model at a point, with the GDC or by a rule: a rate with its units, the time a rate is reached, the greatest rate, whether the quantity is rising or falling and what the rate means in the story. Use the chain, product and quotient rules with values from a table or read from graphs, and picture the rate as a tangent.",
    "syllabus": [
     "5.6",
     "5.1"
@@ -53578,6 +57898,648 @@
    "skills": [
     "SL5.6.rules-with-values",
     "SL5.1.interpret-derivative"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read the model: exponential, logistic, a product, a wave or a logarithm",
+    "differentiate it, with the GDC's dy/dx or by a rule",
+    "substitute the time, or solve for the time a rate is reached",
+    "graph the derivative to find its greatest size",
+    "read the sign as a direction and the size as a speed, with units",
+    "write the chain, product or quotient rule, then substitute values from a table or from graphs"
+   ],
+   "given": [
+    "a model and its domain",
+    "a time, a rate or a step",
+    "a graph of the model with a tangent",
+    "two models of one story",
+    "a table of values and derivatives",
+    "graphs of f and g in straight pieces"
+   ],
+   "asked": "A rate, a rate with units, a time, the greatest rate, a direction, a statement in the story, an estimate from a tangent, or a derivative from values.",
+   "answerForms": [
+    "3 s.f.",
+    "exact",
+    "a sentence"
+   ],
+   "randomise": [
+    "the story",
+    "the family of model and its numbers",
+    "the time, the rate or the step",
+    "the columns of a table",
+    "the straight pieces of a graph"
+   ],
+   "constraints": [
+    "Paper 2: every part of this type in the bank is Paper 2",
+    "a rate or a time is clear of a rounding edge at 3 s.f., and its third figure is not 0",
+    "a time found is clear of the ends of the domain and of any other time with that rate",
+    "a value from a table or from graphs is exact and ends as a decimal"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "derivative-model",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the model on a line of its own, with its domain"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story with the model in it, or the values and rates at one time"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the model with its tangents, the graph of the rate with a line, two models, or straight pieces to read"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "values of the functions and their derivatives at whole points"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "rate-at-time",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "the derivative at that time, to 3 s.f.",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "rate-with-units",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "the rate of change with its units",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "rate-other-unit",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "the rate per a shorter unit of time, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "time-at-rate",
+     "given": [
+      "the model",
+      "a rate"
+     ],
+     "asked": "the first time the quantity changes at that rate, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "greatest-rate",
+     "given": [
+      "the model",
+      "the domain"
+     ],
+     "asked": "the greatest rate of change, or of decrease, to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "time-of-greatest-rate",
+     "given": [
+      "the model",
+      "the domain"
+     ],
+     "asked": "when the quantity rises or falls fastest, to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "rising-or-falling",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "which way the quantity is going, and how fast",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "interpret-rate",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "the sentence that says what the derivative there means",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "compare-models",
+     "given": [
+      "two models of one story",
+      "a time"
+     ],
+     "asked": "which model rises faster, and why",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "time-rate-greater",
+     "given": [
+      "a wave model and a straight-line model",
+      "the domain"
+     ],
+     "asked": "the total time one rate is greater than the other, to 3 s.f.",
+     "level": 5,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "steeper-tangent",
+     "given": [
+      "a model's graph",
+      "the tangents at two points"
+     ],
+     "asked": "the point where the quantity rises faster",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "tangent-estimate",
+     "given": [
+      "the model",
+      "a time",
+      "a short step"
+     ],
+     "asked": "the tangent's estimate of a later value, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "product-from-table",
+     "given": [
+      "two quantities and their rates at a time"
+     ],
+     "asked": "the rate of change of their product",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "quotient-from-table",
+     "given": [
+      "two quantities and their rates at a time"
+     ],
+     "asked": "the rate of change of their quotient",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "chain-from-table",
+     "given": [
+      "a table of f, g, f′ and g′"
+     ],
+     "asked": "the derivative of f(g(x)) at a point",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "composite-with-model",
+     "given": [
+      "a model of a function g",
+      "a table of g and g′"
+     ],
+     "asked": "the derivative of the model at a point, to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "rising-from-table",
+     "given": [
+      "two quantities and their rates at a time"
+     ],
+     "asked": "which way their product is going, and how fast",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "product-from-graphs",
+     "given": [
+      "graphs of f and g in straight pieces"
+     ],
+     "asked": "the derivative of f(x)g(x) at a point",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "quotient-from-graphs",
+     "given": [
+      "graphs of f and g in straight pieces"
+     ],
+     "asked": "the derivative of f(x)/g(x) at a point",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "chain-from-graphs",
+     "given": [
+      "graphs of f and g in straight pieces"
+     ],
+     "asked": "the derivative of f(g(x)) at a point",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.6.rules-with-values",
+     "method": "gdc-derivative",
+     "suits": [
+      "rate-at-time",
+      "rate-with-units",
+      "rate-other-unit",
+      "time-at-rate",
+      "greatest-rate",
+      "time-of-greatest-rate",
+      "rising-or-falling",
+      "interpret-rate",
+      "compare-models",
+      "time-rate-greater",
+      "tangent-estimate"
+     ]
+    },
+    {
+     "skill": "SL5.6.rules-with-values",
+     "method": "rule-then-substitute",
+     "suits": [
+      "rate-at-time",
+      "time-at-rate",
+      "time-rate-greater",
+      "product-from-table",
+      "quotient-from-table",
+      "chain-from-table",
+      "composite-with-model",
+      "rising-from-table"
+     ]
+    },
+    {
+     "skill": "SL5.6.rules-with-values",
+     "method": "read-from-graphs",
+     "suits": [
+      "product-from-graphs",
+      "quotient-from-graphs",
+      "chain-from-graphs"
+     ]
+    },
+    {
+     "skill": "SL5.1.interpret-derivative",
+     "method": "units-ratio",
+     "suits": [
+      "rate-with-units",
+      "rate-other-unit",
+      "interpret-rate"
+     ]
+    },
+    {
+     "skill": "SL5.1.interpret-derivative",
+     "method": "sign-direction",
+     "suits": [
+      "rising-or-falling",
+      "interpret-rate",
+      "compare-models",
+      "rising-from-table"
+     ]
+    },
+    {
+     "skill": "SL5.1.interpret-derivative",
+     "method": "tangent-picture",
+     "suits": [
+      "rising-or-falling",
+      "steeper-tangent",
+      "tangent-estimate"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If S′(4) = −2.5 for a quantity S in litres, with t in hours, then S is −2.5 litres when t = 4.",
+     "answer": "False: S′(4) is a rate, not an amount. S is falling at 2.5 litres per hour at that moment, whatever S itself is.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The quantity S(t) is rising fastest at the moment S(t) is greatest.",
+     "answer": "Never for a smooth peak inside the domain: at a peak S′(t) = 0, so S is not rising at all. It rises fastest earlier, where the graph of S′ reaches its maximum.",
+     "level": 4
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "In S(t) = 200e^(−0.1t), what does the −0.1 say about the rate of change?",
+     "answer": "The rate is S′(t) = −0.1 × S(t), so at any time the quantity falls at a tenth of its size per unit of time.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.1.interpret-derivative#0",
+     "text": "Reading the rate of change as the amount itself",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "rate-with-units",
+      "rate-other-unit",
+      "time-at-rate",
+      "greatest-rate",
+      "rising-or-falling",
+      "interpret-rate",
+      "compare-models",
+      "time-rate-greater",
+      "steeper-tangent",
+      "product-from-table",
+      "rising-from-table",
+      "product-from-graphs"
+     ],
+     "wrong": "the value of the quantity offered as the rate, or the time the quantity itself takes the rate's value"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#1",
+     "text": "Ignoring a negative sign, so a falling quantity is read as rising",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "rate-with-units",
+      "time-at-rate",
+      "rising-or-falling",
+      "interpret-rate",
+      "steeper-tangent",
+      "tangent-estimate",
+      "rising-from-table"
+     ],
+     "wrong": "the sign of a negative rate dropped"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#2",
+     "text": "Giving the units of y only, instead of units of y per unit of x",
+     "as": "distractor",
+     "in": [
+      "rate-with-units",
+      "rising-or-falling",
+      "interpret-rate",
+      "compare-models"
+     ],
+     "wrong": "the rate's number with the units of the quantity"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#3",
+     "text": "Using the change over the next unit of time instead of the rate at that instant",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "interpret-rate"
+     ],
+     "wrong": "S(t + 1) − S(t), or the rate read as that change"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#4",
+     "text": "Finding the greatest value of the quantity instead of its greatest rate",
+     "as": "distractor",
+     "in": [
+      "greatest-rate",
+      "time-of-greatest-rate"
+     ],
+     "wrong": "the greatest value of the quantity, or the time of it"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#5",
+     "text": "Giving the rate per the model's unit of time when another unit is asked for",
+     "as": "distractor",
+     "in": [
+      "rate-other-unit"
+     ],
+     "wrong": "the rate with no conversion"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#0",
+     "text": "Using f′(a) instead of f′(g(a)) for a composite",
+     "as": "distractor",
+     "in": [
+      "chain-from-table",
+      "composite-with-model",
+      "chain-from-graphs"
+     ],
+     "wrong": "the outer derivative at a, not at g(a)"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#1",
+     "text": "Multiplying f′(a) × g′(a) for a product",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "product-from-table",
+      "rising-from-table",
+      "product-from-graphs"
+     ],
+     "wrong": "f′ × g′, with neither term of the product rule"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#2",
+     "text": "Reading g′(a) when g(a) is needed",
+     "as": "distractor",
+     "in": [
+      "product-from-table",
+      "chain-from-table",
+      "composite-with-model",
+      "product-from-graphs"
+     ],
+     "wrong": "g′(a) used in place of g(a)"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#3",
+     "text": "Dividing f′(a) by g′(a) for a quotient",
+     "as": "distractor",
+     "in": [
+      "quotient-from-table",
+      "quotient-from-graphs"
+     ],
+     "wrong": "f′ ÷ g′"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#4",
+     "text": "Subtracting the two terms of the quotient rule in the wrong order",
+     "as": "distractor",
+     "in": [
+      "quotient-from-table",
+      "quotient-from-graphs"
+     ],
+     "wrong": "(fg′ − f′g)/g²"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#5",
+     "text": "Leaving out the inner derivative of a composite",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "greatest-rate",
+      "chain-from-table",
+      "composite-with-model",
+      "chain-from-graphs"
+     ],
+     "wrong": "the outer derivative alone"
+    }
    ],
    "parts": [
     "aa-sl-2022-may-tz2-p2-q08.c",
@@ -68028,7 +72990,7 @@
     },
     {
      "ref": "SL3.8.quadratic-in-trig#2",
-     "text": "Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions",
+     "text": "Picking the form of cos 2x in cos x when the rest of the equation is in sin x, leaving two different functions",
      "as": "error-spot",
      "in": [
       "cos2x-form"

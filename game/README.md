@@ -339,6 +339,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   must equal the target at three sets of them. Each tagged option is worked out from its slip, a
   typed answer's slots must make the expression it shows, and each equation in the working is
   evaluated. `test_log_laws.gd` covers the cells, the papers, the no-proof line and typed marking.
+- `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and
+  SL1.5.log-context), the `log-exp-form` situation: 25 unknowns over 73 cells. Paper 1 changes a fact
+  between log and exponential form, evaluates a log exactly, solves for the number, the bracket, the
+  power or the base, and picks the log with or without a real value. Paper 2 is five invented scales
+  (Howl rating, Rumble number, Glare class, Rad index, Bite) and a log model in time: a reading, an
+  amount, the factor or rise between readings, a scale's constant, a level or a time, to 3 s.f. with
+  the rounding trap, in standard form outside 0.01 to 100000. The views (`log_exp_form_views.gd`) show
+  it as an equation or formula, as a rule in a sentence, as a table of readings and as a curve with
+  a crossing or a line. exp-log-form is Paper 1 and log-context Paper 2, which makes the bank's 2/3
+  Paper 2 share (48 of 73 cells). `E11LF_check` in the SymPy checker reads the scale back from the
+  formula or the sentence.
 - `engine/situations/trig_wave.gd` (FAL-751) is `t3-trig-read-features` (SL3.7.read-features) and
   `t3-trig-model-use` (SL3.7.model-context), the `trig-wave` situation, which extends `trig-model`: it
   keeps that situation's Paper 2 wave, contexts and graph, and `TrigWaveViews` extends its views.
@@ -585,6 +596,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   to its real proportions with the region shaded; a curved strip and a cone use PlotView's `sector`.
   As in the bank the type is nearly all Paper 2: only `segment-exact` is Paper 1 alone, and the
   sector from two conditions makes both papers, with whole-number roots on Paper 1.
+- `engine/situations/circular_motion.gd` (FAL-753) is `t3-circular-motion` (SL3.4.convert, AA only):
+  something turning steadily about a point, at a rate given as a time for one turn, revolutions per
+  minute, degrees or radians per second, with a straight line beside it or an arm. Every question is
+  Paper 2, as the bank's three parts are. Its views (`circular_motion_views.gd`) ask 25 unknowns: the
+  angle in one second, θ in terms of t, the angle after a time, rates and turns converted, the time to
+  turn an angle, half of and all of angle AOB from arccos(d/r), the time on the chord AB with the rate
+  given three ways, the time off it, the fraction of a turn on it, the arc beyond it, the distance d
+  worked back from that time, and the arc and speed of a tip. An exact answer is a `form` (a multiple
+  of π, or whole degrees or seconds); on an exact chord d is k, k√2 or k√3 with r = 2k, so counting in
+  landmarks is a true method, and it is offered on those cells and on landmark conversions alone.
+  Everything else is 3 s.f. with the rounding trap. A chord is RegionPlot's `sweep`, drawn to its real
+  shape with the turning arrow and the marked angle; a turn with no line is PlotView's `sector` on its
+  whole circle. The working runs on from the figures it shows, and the situation refuses numbers where
+  that would not land on the answer to 3 s.f.
 - `engine/situations/bearings_elevation.gd` (FAL-726) is `t3-bearings-elevation` (SL3.3, on all four
   syllabuses). Every question is Paper 2. Its views (`bearings_elevation_views.gd`) ask 19 unknowns:
   back bearings, angles from a bearing, two-leg journeys by the cosine rule or by components, due
@@ -633,6 +658,15 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   arguments is a proof. `AlgebraicProofViews.chain()` writes every proof as lines from the numbers,
   and a slip is that chain with one wrong move carried on, so wrong options are what the slip gives.
   Identities are Paper 1 or 2 and integer proofs Paper 1, as in the bank.
+- `engine/situations/prove_identity.gd` (FAL-753) is `t3-prove-identity` (SL3.6.prove-identity, all Paper 1):
+  16 unknowns and 34 cells on one trig identity from 14 shapes, each with a number in front and a multiple
+  of the letter inside, on the SL identities only (no sec, cosec or cot, no sin 3x). As in `algebraic_proof`,
+  each unknown is one decision a proof turns on, typed in slots (a `form`) or picked (a `claim`): the simple
+  form, the next line, a hidden line, the first wrong line and its fix, what both sides reach, which of four
+  arguments is a proof, the side to start from, which form of cos 2x cancels the 1, a factorised first line,
+  and then a value at an angle, a value from a ratio, or a greatest or least value. `ProveIdentityViews.chain()`
+  writes every proof as lines from the numbers, and a slip is that chain with one wrong move carried on, so
+  wrong options are what the slip gives. Shown as an equation, or for four shapes as a sentence.
 - `engine/situations/trig_model.gd` (FAL-727) is `t3-trig-model-parameters` (SL3.7, AA only): 15
   unknowns on one wave from its turning points. Paper 1 has x in multiples of π and whole a, b and d;
   Paper 2 is a story in t, or a decimal phase, to 3 s.f., six parts in seven as in the bank. It also
@@ -683,6 +717,30 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   unordered list, the mean of the two means, p left out of Σf, the mean or the mode as the
   best average) and never read as a fraction (`DataSummaryViews.tidy`). As every exam type, it
   offers no extra format: `test_extension.gd` holds that rule.
+- `engine/situations/sequence_proof.gd` (FAL-753) is `t1-sequence-proof` (SL1.6.series-proof), Paper 1
+  throughout as all four of its parts in the bank are: one claim about arithmetic and geometric terms,
+  picked from twelve shapes. As in `algebraic_proof_views.gd`, whose helpers its views extend, a phone
+  can't read a written proof, so `sequence_proof_views.gd` asks 21 unknowns, each one decision a proof turns
+  on: a relation between unevenly spaced terms, the bound on a second term when two sequences share
+  their ends, the common ratio that proves three terms in k are geometric, d in terms of a when
+  arithmetic terms are also geometric, the logs of a geometric sequence, uₙ₊₁ − uₙ, uₙ from Sₙ, a cubic
+  whose first gaps are equal, a sum by the formula or forwards and backwards, a hidden line, the next
+  line, the first wrong line and its correction, and which of four arguments is a proof. They show the
+  claim in symbols or in words, or a figure (`dots` in `ui/plot_view.gd`: a rectangle in L-shaped layers,
+  or two staircases that fit together), so all four of the map's methods are played. `lines_of()` writes
+  every proof as lines from the numbers, and a slip carried down it makes each wrong line.
+
+- `engine/situations/trig_quadratic.gd` (FAL-753) is `t3-trig-quadratic` (SL3.8.quadratic-in-trig),
+  the `trig-quadratic` situation, and `TrigQuadraticViews` extends `TrigEquationViews`. The equation
+  is built forward from its roots in sin x, cos x or tan x, so it factorises cleanly, then disguised:
+  with cos²x, with cos 2x, as a quadratic in sin 2x, as a number over a bracket, as sin 2x equal to a
+  multiple of cos²x, or with surd coefficients. Its 22 unknowns take the solution a step at a time
+  (the quadratic in u, the identity, the brackets, the values of u, the exact root from the formula,
+  the root to reject and why, the letter from one solution) or whole (every solution, in radians or
+  degrees, how many, one of them, their sum). The figures are the whole equation as one curve, or
+  y = sin x with a dashed line at each root. Everything is Paper 1 with exact answers but `gdc-solve`
+  and `gdc-count`, where the map's GDC method lives: that is 6 of the 48 cells, so `test_paper.gd`
+  gives the type an `OVER_SHARE`, and the bank's and the map's own equations are never drawn.
 - `engine/situations/depreciation.gd` (FAL-752) is `t1-depreciation` (SL1.4), the `depreciation`
   situation: a price P that keeps a fixed fraction c of its value each year, month or quarter. Its
   views (`depreciation_views.gd`) show it as a story, as V = P(c)^t, as a table of three whole times
@@ -694,6 +752,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   rate per month or quarter. Methods are the multiplier, the TVM solver with a negative rate, a
   year-by-year run, logs, a GDC table and a graph. Money is answered exactly to the dollar, and every
   value, and every slip offered, leaves a fraction of a dollar at least 0.15 from the edge at 0.5.
+- `engine/situations/derivative_model.gd` (FAL-753) is `t5-derivative-model-gdc` (SL5.6.rules-with-values
+  and SL5.1.interpret-derivative), the `derivative-model` situation: a story modelled by an exponential, a
+  logistic, a product te^(−kt), a wave with a trend or a logarithm, and the chain, product and quotient
+  rules with values. Its views (`derivative_model_views.gd`) show the model on a line or in a story, with
+  a graph of the model and its tangents, of the rate and a line, or of two models; a table of values and
+  rates; or straight pieces to read. It asks 20 unknowns over 62 cells, all Paper 2: the rate at a time,
+  with its units or per a shorter unit, the first time a rate is reached, the greatest rate and when, which
+  way the quantity is going, what a rate means in the story, two models compared, the total time one rate
+  is greater, the steeper of two tangents, a tangent's estimate, and a product, quotient or composite from
+  a table or from graphs. The GDC's dy/dx is the method `gdc-derivative`, appended to SL5.6.rules-with-values.
+  A model's answers are to 3 s.f. with the rounding trap and values from a table or graphs are exact.
 - `engine/situations/compound_interest.gd` (FAL-695) is `t1-compound-interest` (SL1.4, on all
   four syllabuses): money invested at a nominal annual rate r %, compounded 1, 2, 4 or 12
   times a year, for n years. Its views (`compound_interest_views.gd`) ask 6 unknowns, all
@@ -1368,11 +1437,32 @@ the table (a table's multiplier from its own values), works each value again wit
 rate from a root and a time from a logarithm tested exactly either side of the answer, rebuilds each
 tagged option from its slip, holds the figure's curve, line and crossing to the model, and requires
 each method's numbers in its working (`e10de_check`).
+For `sequence-proof` it reads the claim back from the words or the dots, and proves every line of a
+proof with SymPy for general n, each left side held to what it means, so no value is sampled. A tagged
+option must be true in a world where its slip was made and false in the real one, and a spoiled proof's
+first false line must be the one it says, with the lines after it what that slip carries to
+(`E11SP_check`).
+
+For `derivative-model` it reads the model back from the line shown and differentiates it with SymPy.
+Times come from a float scan for sign changes refined by bisection, a greatest rate from where the
+second derivative changes sign, and a total time from the stretches between the crossings it finds.
+Tables, sentences and straight-line graphs are read back and put through each rule with exact
+rationals. Each tagged option is worked out from its slip, each figure's curves and tangents are held
+to the model, and a derivative in the working is compared with SymPy's (`E11DM_check`).
+
+For `log-exp-form` it reads a log, a power or a sentence back and tests the power that gives the number
+exactly; on Paper 2 it reads each scale's constants back from its formula or its sentence, finds each
+value from the logarithm to 40 digits, rebuilds each tagged option from its slip, and requires each
+method's numbers in its working (`E11LF_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
 and between them, and the counts in the working are compared. Degree mode is the same scan with the
 angle in degrees, and the map's own example equations are refused (`e10tm_check`, `e10tm_*`).
+For `prove-identity` it builds each statement from its numbers, reads every line, option and worked step
+back as an expression, and proves equality by writing both in t = tan(x/2) and cancelling, after exact tests
+at rational points. A wrong line must equal what its slip gives, worked out here, and a value from a ratio
+comes from putting the angle itself into the first form at 40 digits (`E11PI_check`).
 For `regression-interpret` it fits the data again with exact rationals and judges every statement
 offered from those numbers, so a wrong statement that happens to be true fails (`e9regr_check`).
 For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
@@ -1787,6 +1877,9 @@ script error happens while it runs. Run one file with
   extra format, four different options, the GDC on Paper 2 only, hand values, the bracket as the
   exam writes it, the staggered triangle, a term against a coefficient, a typed expansion and row,
   every misconception as an option, the three concept probes and AA courses only.
+- `test_prove_identity.gd` (FAL-753): `t3-prove-identity`: every cell on Paper 1, four different options, hand
+  values, each chain reaching its right side, hidden and spoiled lines where they should be, no exam
+  statement or HL ratio, typed slips detected, and every tag shown.
 - `test_algebraic_proof.gd`: t1-algebraic-proof built with every cell, both SL1.6 skills and
   14 unknowns; every cell in both formats, with the answer ending the working; the bank's paper
   split; each statement against values worked out by hand; a hidden line and a spoiled line
@@ -1838,9 +1931,17 @@ script error happens while it runs. Run one file with
 - `test_tree_diagram.gd` (FAL-739): `t4-tree-diagram`: every cell with one right option, its papers,
   forks that add to 1, a tree of each shape, a tin's branches as the recount, one valid k, n back from
   a growing tin, a game's two ways to win, past-paper set-ups left out and every misconception shown.
+- `test_derivative_model.gd` (FAL-753): `t5-derivative-model-gdc`: every cell and method on Paper 2, the
+  sums by hand, a time that has the rate asked for, a greatest rate that is the rate's top, and every tag.
+- `test_trig_quadratic.gd` (FAL-753): `t3-trig-quadratic`: built with every cell and all three methods,
+  four different options on the cell's one paper, the equation against hand values, a root out of range
+  gives no solutions, the bank's and the map's equations are never drawn, and every slip shows up as an option.
 - `test_inverse_normal.gd` (FAL-752): `t4-inverse-normal`: every cell and method, each on its one paper
   with one right option; a value has the area it was given, a central interval and a band hold theirs,
   a ratio's tails are in that ratio, Paper 1 is exact with no calculator word, and every slip comes up.
+- `test_circular_motion.gd` (FAL-753): `t3-circular-motion`: every cell on Paper 2 with one right option,
+  all three methods, sums done by hand, an exact chord's whole time, a found chord clear of a landmark
+  cosine, the figure of each diagram cell, and every slip comes up.
 - `test_normal_probability.gd` (FAL-728): `t4-normal-probability`: every cell on Paper 2 with one
   right option, the one normal distribution it shares with `normal-unknown`, regions that add up,
   bands wide enough for their labels, the shaded curve, the root of a variance, half a unit either
@@ -1862,6 +1963,14 @@ script error happens while it runs. Run one file with
   mean that is not the mean of the means; the outlier dragging the mean; every misconception
   as an option; exact and 3 s.f. marking; the three concept probes; and every course having
   every cell.
+- `test_sequence_proof.gd`: t1-sequence-proof built with every cell and all four methods, Paper 1 only;
+  four different options and working of 2 to 5 steps in each cell; linked terms, sums, a term from its sum,
+  logs and terms in k match sums done by hand; the dot figures count what they say; a hidden or spoiled
+  line is its own number; relations never use the exam's evenly spaced terms; every tag shows up.
+
+- `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
+  exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
+  figures, map strings with no numbers, and every tag as an option.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters

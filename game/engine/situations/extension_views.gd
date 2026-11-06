@@ -73,6 +73,16 @@ static func signed(v: Variant) -> String:
 	return ("−" if q.sign() < 0 else "+") + q.abs_q().text()
 
 
+## Drops a closing "So …" line that only repeats how the line before it ends, so each
+## working says its answer once.
+static func said_once(methods: Dictionary, answer: Dictionary) -> void:
+	var said := Answer.text(answer).trim_suffix(".")
+	for m: Dictionary in methods.values():
+		var st: Array = m.steps
+		if st.size() > 2 and str(st[-1]).begins_with("So ") and str(st[-1]).trim_suffix(".").ends_with(said) and str(st[-2]).trim_suffix(".").ends_with(said):
+			m.steps = st.slice(0, -1)
+
+
 static func wrong(values: Dictionary, ref: String = "") -> Dictionary:
 	return {"values": values, "ref": ref}
 

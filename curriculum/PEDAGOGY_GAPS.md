@@ -363,7 +363,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): ln 12 − ln 3, ln 4 and 2 ln 2 are three forms of one number. — True. ln 12 − ln 3 = ln(12/3) = ln 4, and ln 4 = ln 2² = 2 ln 2. Each form is useful somewhere: the last shows it is a multiple of ln 2.
   - *always-sometimes-never* (L3): An equation that is true for x = 1 and for x = 2 is an identity. — Sometimes. x² = 3x − 2 is true at x = 1 and x = 2 but not at x = 0 (0 ≠ −2), so it is only an equation. An identity must hold for every x.
   - *predict-check* (L4): Predict which form of cos 2x turns cos 2x + 3 sin x − 2 = 0 into a quadratic in one function, then solve for 0 ≤ x ≤ 2π. — 1 − 2sin²x, because the rest of the equation is in sin x. Then 2sin²x − 3 sin x + 1 = 0, so (2 sin x − 1)(sin x − 1) = 0 and x = π/6, π/2 or 5π/6.
-- **Misconceptions used:** 15. Forgets to subtract the square of half the coefficient; Forgets to multiply the correction term by a when a is not one; Gets the sign of h wrong inside the bracket; Reads the roots off the factors with the wrong signs; Thinks the y-intercept is pq rather than apq; Calling an equation that is true for one value of x an identity; Comparing coefficients in an equation (not an identity) to 'solve' it; Splitting the log of a sum: log(a + b) = log a + log b; Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b); Confusing (log x)² with 2 log x = log x²; Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions; Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ; Moving the coefficient to the top along with the variable, instead of only the variable; Differentiating the denominator instead of using a negative power; Adding one to a negative power instead of subtracting one.
+- **Misconceptions used:** 15. Forgets to subtract the square of half the coefficient; Forgets to multiply the correction term by a when a is not one; Gets the sign of h wrong inside the bracket; Reads the roots off the factors with the wrong signs; Thinks the y-intercept is pq rather than apq; Calling an equation that is true for one value of x an identity; Comparing coefficients in an equation (not an identity) to 'solve' it; Splitting the log of a sum: log(a + b) = log a + log b; Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b); Confusing (log x)² with 2 log x = log x²; Picking the form of cos 2x in cos x when the rest of the equation is in sin x, leaving two different functions; Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ; Moving the coefficient to the top along with the variable, instead of only the variable; Differentiating the denominator instead of using a negative power; Adding one to a negative power instead of subtracting one.
 
 ### 2. Exponentials and logs (syllabus 2.9)
 
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1690,6 +1690,39 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): Multiplying two numbers in standard form gives an answer already in standard form. — Sometimes: it holds when the product of the a-values is below 10. Otherwise a has to be brought back and k raised by 1.
   - *true-false-reason* (L3): A GDC showing 3.1E−4 is an acceptable final answer. — False: calculator notation isn't accepted. Write 3.1 × 10^−4.
 - **Misconceptions used:** 9. Getting the sign of the power wrong: a large number needs a positive power and a small one a negative power; Moving the point one place too many, by counting digits instead of the places it moves; Leaving or comparing a number whose first part isn't between one and ten; Multiplying the powers of ten instead of adding them; Forgetting to renormalise, which leaves the first part outside one to ten; Slipping on the powers: subtracting them for a product, or adding them for a quotient; Writing the GDC display, E-notation and all, as the final answer; Rounding a at an early step so the third significant figure is wrong; Dividing the wrong way round when asked 'how many times larger'.
+
+#### Prove a property linking arithmetic and geometric terms (`t1-sequence-proof`, exam, 4 bank parts)
+
+- **Situation:** One claim about sequences, as a chain of lines.
+- **Representations:** **equation**, words, diagram (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given three terms of an arithmetic sequence, unevenly spaced → the last term in terms of the other two
+  - **exam** L3: given three terms of a geometric sequence, unevenly spaced → the power in the relation between them
+  - **exam** L4: given two sequences with the same first term, that meet again later → the greatest lower bound on the arithmetic sequence's second term
+  - **exam** L2: given three terms in k, and a value of k → the common ratio that proves they are geometric
+  - new L3: given arithmetic terms that are consecutive geometric terms → d in terms of a
+  - new L4: given arithmetic terms that are consecutive geometric terms → the common ratio the proof establishes
+  - new L3: given a geometric sequence and the log of each term → the constant difference of the logs
+  - new L3: given a geometric sequence and the log of each term → the nth term of the logs
+  - new L2: given a general term pn + q → u_(n+1) − u_n, and that it is constant
+  - new L4: given a cubic whose first three terms have equal gaps → which line settles whether it is arithmetic
+  - new L3: given Sₙ as a quadratic in n → uₙ in terms of n
+  - new L3: given Sₙ as a quadratic in n → the common difference
+  - new L3: given an arithmetic sequence's general term or first terms → Sₙ in terms of n
+  - new L3: given a sum written forwards and backwards → the total of each column
+  - new L3: given a rectangle of dots built in L-shaped layers → the number of dots in the first n layers
+  - new L3: given a rectangle of dots built in L-shaped layers → the number of dots in layer n
+  - new L3: given two staircases of dots that make a rectangle → the rectangle's width for any n
+  - new L3: given a proof with one line hidden → the hidden line
+  - new L2: given the first lines of a proof → which line comes next
+  - new L4: given a proof with one slip carried to the end → the first wrong line and its correction
+  - new L4: given a claim and four arguments → which argument is a complete proof
+- **Angles:** Show u_(n+1) − u_n is a constant; Apply a known series formula and simplify; Write the sum forwards and backwards and add; Use a picture of dots.
+- **Concept probes:**
+  - *true-false-reason* (L3): u₂ − u₁ = u₃ − u₂ for a sequence, so the sequence is arithmetic. — False: that is one pair of gaps. uₙ = (n − 1)(n − 2)(n − 3) + n has u₁, u₂, u₃ = 1, 2, 3, but u₄ = 10. A proof needs uₙ₊₁ − uₙ for general n.
+  - *always-sometimes-never* (L3): If a sequence of positive numbers is geometric, the logs of its terms form an arithmetic sequence. — Always: log uₙ₊₁ − log uₙ = log(uₙ₊₁/uₙ) = log r for every n, and that is a constant.
+  - *true-false-reason* (L4): An arithmetic sequence with d ≠ 0 has a, a + d and a + 3d as consecutive geometric terms. Then d = a. — True: (a + d)² = a(a + 3d) gives d² = ad, and d ≠ 0, so d = a. The terms a, 2a and 4a have common ratio 2.
+- **Misconceptions used:** 31. Checking a few values of n and stopping; Using the result being proved as a step in its own proof; Comparing the gaps between particular terms instead of the gap between neighbouring terms for general n; Counting one gap too many between the first term and the nth term; Taking away only the first term of a bracket, so the other terms keep their signs; Multiplying only the first term of a bracket by the number outside it; Squaring a bracket term by term, with no middle term; Forgetting to double the middle term when squaring a bracket; Testing the wrong kind of sequence: a common difference for a geometric claim, or a common ratio for an arithmetic one; Dividing a term by the one after it, which gives the reciprocal of the common ratio; Writing a difference of logs as the log of a difference; Taking the common ratio itself as the difference of the logs; Forgetting to halve at the end, which gives twice the sum; Leaving out the doubling of the first term in the sum formula; Treating the last term as the whole sum; Treating the sum of the first n terms as the nth term; Using the next sum instead of the one before when taking a difference of sums; Reading a coefficient of Sₙ as the common difference; Confusing the first term with the common difference; Reading the width of the rectangle as the number of dots in a layer; Counting the corner of a layer twice; Adding the last term to itself instead of to the first term; Counting half as many columns, as if the two lists were already paired off; Taking a ratio across several steps as the common ratio; Moving a term across the equals sign without changing its sign; Counting a term's position in the sequence instead of the steps to reach it; Stopping before dividing by the coefficient of the letter; Using the rule for three consecutive terms on terms that are not consecutive; Halving a rectangle that holds only one copy of the sum; Taking d/a as the common ratio; Leaving the first term out of a pair, so only the last term is counted.
 
 #### Arithmetic sequence or series modelling a pattern or context (`t1-arithmetic-in-context`, exam, 6 bank parts)
 
@@ -1850,6 +1883,43 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): $1000 invested at 5% compounded annually for 10 years earns twice as much interest as $1000 invested at 5% for 5 years. — False: interest is earned on interest, so the second five years earn more than the first. The 10-year interest is $628.89 and the 5-year interest is $276.28, more than double.
   - *true-false-reason* (L3): An investment that is worth $5000 after 3 years at 4% compounded annually is worth $5000 ÷ 1.04^3 now. — True: the value after 3 years is PV × 1.04^3, so the amount invested now is the future value divided by 1.04^3.
 - **Misconceptions used:** 8. Using the annual rate with kn periods, instead of dividing the rate by k; Using simple interest instead of compounding; Giving the total value when the question asks for the interest earned (or the reverse); Stopping at the root, without subtracting one and converting to a percentage; Dividing the total growth by the number of years instead of taking a root; Rounding the answer to the nearest whole number instead of up; Forgetting to convert N from months or quarters back into years; Comparing nominal rates only and ignoring the compounding frequency.
+
+#### Switch between log and exponential form to evaluate or solve, including log models (`t1-log-exp-form`, exam, 3 bank parts)
+
+- **Situation:** A log and its exponential form, and a named log scale or log model.
+- **Representations:** **equation**, words, table, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given log_a b = c, with c whole, negative or a fraction → the same fact as a power
+  - new L1: given a^c = b, with c negative or a fraction → the same fact as a log
+  - new L2: given a^x = b, or k × a^x = kb, in base e, 10 or a small whole number → x as an exact log
+  - new L1: given log_a b, with b a whole power of a → the exact value
+  - new L2: given log_a b, with b a reciprocal power of a → the exact negative value
+  - new L2: given log_a b, with a and b powers of one prime, or b a root of a → the exact fraction
+  - new L1: given log_a(a^k) or ln(e^k), with k whole, negative or a fraction → the exact value
+  - new L2: given a^(log_a x), a^(−log_a x) or a^(k log_a x), in base e, 10 or a small whole number → the exact value
+  - new L1: given log_a x = c or ln x = c → the exact value of x
+  - new L2: given log_a(px + q) = c → the exact value of x
+  - **exam** L3: given log_a(x² − k) = c for x beyond the asymptote, or the graph of ln(x² − k) crossing the x-axis → the exact surd
+  - new L3: given log_x b = c, or the graph of y = log_a x through a marked point → the exact base
+  - new L2: given four logs, with zero, negative, fractional and unit arguments → the one with no real value, or the one with a real value
+  - new L2: given a scale's formula or rule; an amount → the reading, to 3 s.f.
+  - **exam** L2: given a scale's formula or rule; a power of ten and its exact reading; a factor on the amount → the second reading, to 3 s.f.
+  - **exam** L3: given a scale's formula or rule; a reading → the amount, to 3 s.f., in standard form if it is very big or small
+  - new L2: given the Bite formula, a minus log; an acid content → the Bite, to 3 s.f.
+  - new L3: given the Bite formula, a minus log; a Bite → the acid content, to 3 s.f.
+  - new L3: given a scale's formula or rule; two readings → how many times greater one amount is than the other, to 3 s.f.
+  - new L2: given a scale's formula or rule; a factor on the amount → the rise or fall in the reading, to 3 s.f.
+  - new L3: given a scale's formula or rule; an amount with its reading; a rise in the reading → the new amount, to 3 s.f.
+  - new L3: given a scale's formula or rule; a reading; a rise in the reading → the percentage increase in the amount, to 3 s.f.
+  - new L3: given y = k log(x × K) with k unknown; one amount and its reading → k, to 3 s.f.
+  - new L2: given h = p + q ln(rt + 1); a time → the level, to 3 s.f.
+  - new L3: given h = p + q ln(rt + 1); a level → the time, to 3 s.f.
+- **Angles:** Ask 'what power of the base gives this number?'; Rewrite as an exponential equation; Use log_a(a^x) = x and a^(log_a x) = x; Substitute and evaluate with technology; Undo the logarithm by exponentiating; Read each step on a log scale as a multiplication.
+- **Concept probes:**
+  - *true-false-reason* (L3): log₂(1/8) has no real value, because it is negative. — False: the log is −3, a real number, as 2^(−3) = 1/8. It's the number inside the log that must be positive, not the log itself.
+  - *always-sometimes-never* (L3): If a reading on a base-10 scale with no multiplier rises by 2, the amount is 100 times as big. — Always: each rise of 1 multiplies the amount by 10, so a rise of 2 multiplies it by 10² = 100, whatever the first reading was.
+  - *interpret-parameter* (L3): In S = −log₁₀ c, what happens to c when S goes up by 1? — c is divided by 10: the minus sign means a higher reading is a smaller amount, so each step up is a tenth of what came before.
+- **Misconceptions used:** 43. Dividing instead of finding the power; Mixing up base and exponent: reading log_a b = x as x^a = b; Believing the log of zero or of a negative number has a real value; Treating a log scale as linear: taking the ratio of two readings as the ratio of the amounts; Dropping the minus sign in front of a log; Undoing a minus log with the minus sign in front of the power instead of in the power; Swapping the number and the power when changing form; Swapping the base and the number when changing form; Dropping the minus sign on the power; Taking the reciprocal of the power instead of making it negative; Turning the fraction in the power upside down; Raising the number to the power instead of taking the root; Raising the base to the number instead of asking what power gives it; Taking the log before the power stands alone; Dropping the log and working with the inside as it stands; Setting the inside of the log to zero instead of to the power of the base; Stopping at x² instead of taking the root; Keeping the negative root, which is outside the domain; Assuming a fraction below one has no real log, because its log is negative; Assuming the log of one has no real value, because it is zero; Reading a minus sign in front of a log as the log of a negative number; Multiplying the base by the number in the power or the log, instead of letting the two cancel; Dropping the log and leaving the base raised to the number; Working out the power inside and stopping there; Using the wrong log key: ln for log, or log for ln; Leaving out the constant in the formula; Leaving out the factor inside the log; Forgetting the multiplier in front of the log; Leaving the power of ten outside the multiplier; Adding the factor straight on to the value it changes; Multiplying by the factor instead of by its log; Stopping before undoing the log; Multiplying by the factor inside the log instead of dividing by it; Dividing by the multiplier after undoing the log instead of before; Giving the difference in readings as the factor; Giving the new amount as a percentage of the old instead of the increase; Reading only the power of ten and ignoring the number in front; Multiplying by the log instead of dividing by it; Subtracting the log instead of dividing by it; Adding the two constants before multiplying by the log; Leaving out the added term inside the log; Forgetting to take off the added term inside the log; Dividing by the rate before taking off the added term.
 
 #### Prove an algebraic identity or a divisibility result (`t1-algebraic-proof`, exam, 8 bank parts)
 
@@ -2026,7 +2096,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 19 exam types have them so far.
 
 #### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
 
@@ -2209,6 +2279,43 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): Two legs on bearings of 040° and 100° meet at an angle of 60° inside the triangle. — False: 60° is the turn. The north lines are parallel, so the angle inside is 180° − 60° = 120°.
 - **Misconceptions used:** 9. Measuring a bearing anticlockwise or from east instead of clockwise from north; Giving the bearing the other way: the way back, not the way asked for; Using the bearings themselves as angles inside the triangle without angle chasing; Measuring the angle of depression from the vertical instead of the horizontal; Putting the angle of depression inside the triangle at the top vertex; Leaving the person's height or eye level out of the calculation; Rounding the shared side early and carrying the error into the next triangle; Assuming a right angle because it looks like one; Using the sine rule in a triangle where no side–opposite angle pair is known.
 
+#### Angle in radians as a function of time for rotating objects (`t3-circular-motion`, exam, 3 bank parts)
+
+- **Situation:** Something turning steadily about a point, and a straight line beside it.
+- **Representations:** **words**, **diagram**, equation (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the time for one turn → the angle turned in one second, as an exact multiple of π
+  - **exam** L2: given the time for one turn → an expression for the angle turned in terms of t, as a multiple of π
+  - new L2: given the time for one turn; a time → the angle turned in that time, as an exact multiple of π
+  - new L2: given revolutions per minute → the rate in radians per second, as an exact multiple of π
+  - new L1: given a landmark rate in degrees per second → the rate in radians per second, as an exact multiple of π
+  - new L1: given a landmark angle in degrees → the angle in radians, as an exact multiple of π
+  - new L1: given a landmark multiple of π → the angle in degrees
+  - new L3: given r; d at a landmark share of r → angle AOB, as an exact multiple of π
+  - new L3: given r; d at a landmark share of r; the time for one turn → the exact time on the chord in each turn
+  - new L2: given the rate in radians per second, or θ = wt → the rate in degrees per second
+  - new L2: given the rate in radians per second, or θ = wt → the time for one turn
+  - new L2: given the rate in radians per second, or θ = wt; an angle in degrees → the time to turn through it
+  - new L2: given the time for one turn; an angle in radians → the time to turn through it
+  - new L2: given r; d → half of angle AOB, in radians
+  - new L3: given r; d → angle AOB, in radians
+  - **exam** L4: given r; d; the time for one turn → the time on the chord in each turn
+  - new L4: given r; d; revolutions per minute → the time on the chord in each turn, in seconds
+  - new L4: given r; d; a rate in degrees per second → the time on the chord in each turn
+  - new L4: given r; d; the time for one turn → the time off the chord in each turn
+  - new L3: given r; d; the time for one turn → the fraction of each turn spent on the chord
+  - new L3: given r; d → the length of the shorter arc AB
+  - new L5: given r; the time for one turn; the time on the chord → the distance from the centre to the line
+  - new L3: given an arm's length; the time for one turn; a time → the distance its tip moves in that time
+  - new L3: given an arm's length; the time for one turn → the speed of its tip
+  - new L3: given an arm's length; revolutions per minute → the speed of its tip, in metres per second
+- **Angles:** Multiply by π/180 or 180/π; Fraction of a full turn; Count in landmark angles.
+- **Concept probes:**
+  - *true-false-reason* (L3): If a light turns twice as fast, a fence beside it is swept for half as long in each turn. — True: the angle AOB is fixed by the distances alone, and the time is that angle ÷ the rate.
+  - *always-sometimes-never* (L3): A line d metres from a light with a reach of r metres is swept for less than half of each turn. — Always, for 0 < d < r: cos φ = d/r is positive, so φ < π/2 and angle AOB < π, which is less than half a turn.
+  - *interpret-parameter* (L3): In θ = πt/8, what does π/8 mean, and how long is one turn? — π/8 is the angle turned each second, in radians. One turn is 2π, so it takes 2π ÷ π/8 = 16 seconds.
+- **Misconceptions used:** 15. Multiplying by 180/π when converting degrees to radians; Writing the size in radians as if it were degrees; Giving a decimal when an exact multiple of π is asked for; Taking π as a full turn instead of 2π; Dividing the wrong way round, with the two numbers swapped; Using the degrees-to-radians factor when converting radians to degrees; Leaving a rate in revolutions per minute unconverted when seconds are needed; Mixing degrees and radians in one calculation; Using half of the angle at the centre when the whole of angle AOB is needed; Using the whole of the angle at the centre when half of it is needed; Using sine instead of cosine, when the distance from the centre is the side next to the angle; Mixing up the time on the line with the time off it; Multiplying the angle by the rate instead of dividing by it; Giving the distance round the circle as the answer, without using the time; Writing the size in degrees as if it were radians.
+
 #### Segments and composite regions built from sectors, triangles and rectangles (`t3-composite-circular-region`, exam, 13 bank parts)
 
 - **Situation:** A region of sectors, triangles and rectangles, or a sector from two conditions.
@@ -2302,6 +2409,34 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): For an angle θ, sin(π − θ) = sin θ. — Always: θ and π − θ are mirror images in the y-axis, so their points on the unit circle have the same height.
   - *interpret-parameter* (L3): Why is the cos list of the landmark angles the sin list read backwards? — Because cos θ = sin(π/2 − θ): reflecting the unit circle in y = x swaps x and y.
 - **Misconceptions used:** 9. Swapping the sine and cosine values of a special angle; Inverting the value of tan at a special angle; Thinking the angle of an isosceles right triangle has a sine or cosine of one half; Getting the size right but the sign wrong for the quadrant; Measuring the reference angle from the y-axis; Treating a negative angle as positive; Swapping coordinates: taking sin θ as the x-coordinate; Measuring θ clockwise or from the y-axis; Thinking tan has a value where cos is zero.
+
+#### Prove a trig identity (`t3-prove-identity`, exam, 3 bank parts)
+
+- **Situation:** One trig identity to prove, as a chain of lines.
+- **Representations:** **equation**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given one side of an identity, as an expression or a sentence → the simple form it reaches
+  - new L2: given an identity; the first lines of its proof → the line that comes next
+  - new L3: given a proof with one line hidden → the hidden line
+  - new L4: given a proof with one slip carried to the end → the first wrong line and its correction
+  - **exam** L3: given an identity; four arguments for it → which argument is a complete proof
+  - new L2: given an identity, with its busier side on the left or the right → which is the best way to start
+  - new L3: given one left side; four right sides → which statement is an identity
+  - **exam** L2: given an expression with a constant and the double-angle cosine → which form of the cosine cancels the constant
+  - new L2: given a number and the double-angle cosine → the square of a sine or a cosine it equals
+  - new L1: given a multiple of sin u cos u → that multiple of the double-angle sine
+  - new L3: given a fraction with a sum on top → the expression left after factorising and cancelling
+  - **exam** L2: given a side with a factorisable structure → the correct first line of factorising it
+  - new L2: given an identity that has been proved; an angle → the exact value of the side at that angle
+  - new L3: given one side of an identity; one ratio → the exact value of the side
+  - new L3: given a function, one side of an identity plus a number → its greatest or least value
+  - **exam** L3: given an identity with both sides unsimplified → the expression both sides reach
+- **Angles:** Start from the more complicated side; Convert everything to sin x and cos x; Spot a factorisable structure.
+- **Concept probes:**
+  - *true-false-reason* (L3): (1 + cos 2x)/cos 2x = 1 + 1 = 2, because the cos 2x cancels. — False: cos 2x is a factor of only one term of the top, so it can't cancel. At x = π/3 the fraction is (1 − 1/2)/(−1/2) = −1, not 2.
+  - *always-sometimes-never* (L3): cos²x − sin²x = 1. — Sometimes: cos²x − sin²x is cos 2x, which is 1 only when x is a multiple of π. It is cos²x + sin²x that is always 1.
+  - *true-false-reason* (L3): At x = π/4 both sides of sin 2x = 2 sin x cos x equal 1, so that proves the identity. — False: one value only shows the two sides agree there. sin x = cos x also holds at x = π/4, and it is no identity. A proof runs from one side to the other for every x.
+- **Misconceptions used:** 24. Working on both sides at once as if solving an equation, then treating a true last line as the proof; Cancelling across a sum, as if one term of the top were a factor of the whole top; Choosing a form of the double-angle cosine that does not cancel the constant term; Checking the two sides at one value and calling that a proof; Stopping before reaching the other side, so the proof has no last line; Getting a sign wrong when a bracket after a minus is removed or a factor is taken out; Leaving out the factor of two in the double-angle sine; Swapping the signs in a form of the double-angle cosine; Treating a difference of squares of sine and cosine as one, which only their sum is; Forgetting to double the middle term when squaring a bracket; Squaring each term of a bracket with no middle term; Keeping the same angle when a double-angle identity should change it; Writing a difference of two squares as the same bracket twice; Writing tan as cosine over sine, the wrong way up; Leaving the number in front unchanged when using a double-angle identity; Reading the greatest value off the number in front, leaving out the constant in the bracket; Reading the greatest value off the number in front of the first form, before the identity changes it; Putting the angle into the function without its multiple; Mixing up the double-angle identities for sine and cosine; Adding two fractions by adding their tops and adding their bottoms; Multiplying only the first term of a bracket; Squaring the trig term but not the number in front of it; Factorising a perfect square as a difference of two squares; Starting from the simpler side, which gives less to work from.
 
 #### Use Pythagorean and double-angle identities to find exact values or rewrite (`t3-identity-values`, exam, 5 bank parts)
 
@@ -2408,6 +2543,41 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): In h(t) = −10 cos(πt/6) + 12, what does the minus sign tell you? — The wave starts at its lowest point: at t = 0 it is 12 − 10 = 2, then it rises.
 - **Misconceptions used:** 8. Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum; Using a = max − min, forgetting to halve; Getting the sign of c wrong in the bracket; Reading the shift before taking b out of the bracket; Treating b as the horizontal scale factor: a stretch with scale factor k divides b by k; Getting the direction of the shift wrong: a plus inside the bracket moves the graph left; Leaving the calculator in degree mode for a radian model; Taking b itself as the period, instead of working out b from the period.
 
+#### Trig equation that is a quadratic in sin or cos (`t3-trig-quadratic`, exam, 3 bank parts)
+
+- **Situation:** A trig equation that is a quadratic in one ratio.
+- **Representations:** **equation**, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L3: given an equation with cos²x, sin²x or cos 2x in it → the quadratic in sin x or cos x, with its first number given
+  - new L3: given an equation with cos²x, sin²x or cos 2x in it → the identity that leaves one function in a quadratic
+  - new L2: given a quadratic in sin x or cos x → its two brackets
+  - new L3: given an equation that is a quadratic in u → the two values of u
+  - new L4: given a quadratic in u with no whole-number factors → the exact value of sin x or cos x, by the formula, with the other root rejected
+  - new L3: given an equation with a root outside the range → the root that gives no solutions, and why
+  - **exam** L4: given an equation in sin x or cos x, direct or with a squared ratio to swap, and an interval → every solution, exactly
+  - new L4: given the equation and an interval in degrees → every solution in degrees
+  - **exam** L4: given an equation with cos 2x and sin x or cos x, and an interval → every solution, exactly
+  - new L3: given a number times sin²x or cos²x equal to a number, and an interval → every solution, from both roots
+  - new L3: given a number times tan²x equal to a number, or tan x and a number over tan x, and an interval → every solution, from both roots
+  - new L3: given tan²x equal to a number times tan x, and an interval → every solution, tan x = 0 among them
+  - new L5: given a quadratic with surd coefficients in sin x, cos x or tan x, and an interval → every solution, exactly
+  - new L4: given a quadratic in sin 2x, cos 2x, sin 3x or cos 3x, and an interval → every solution, exactly
+  - **exam** L5: given u plus a number over a bracket in u, for u = sin x, cos x, sin 2x or cos 2x, with the values that make the bracket 0 ruled out → every solution, exactly
+  - new L4: given sin 2x equal to a number times cos²x, or sin 2x sin x equal to a number times cos x, and an interval → every solution, with cos x = 0 among them
+  - new L3: given the equation and an interval, up to two turns → how many solutions there are
+  - new L4: given the equation and an interval → the largest, the smallest or the smallest positive solution
+  - new L4: given the equation and an interval → the sum of the solutions, in π or degrees
+  - new L3: given one exact solution of a quadratic in sin x or cos x with one letter in it → the letter
+  - new L4: given a quadratic with no whole-number factors, direct or disguised, and an interval → every solution to 3 s.f.
+  - new L3: given the equation, a long interval and the whole equation as a graph → how many solutions there are, where the curve crosses or touches the axis
+- **Angles:** Identity, substitute u, factorise; Quadratic formula in u; Graph the whole equation.
+  - *Slow:* Quadratic formula in u: when the quadratic factorises, the formula is more work for the same two roots.
+- **Concept probes:**
+  - *true-false-reason* (L3): 2 sin²x − 3 sin x − 2 = 0 has four solutions on 0 ≤ x ≤ 2π, since each of its two roots gives two. — False: the roots are sin x = −1/2 and sin x = 2, and sin x is never 2. Only x = 7π/6 and 11π/6 are solutions.
+  - *always-sometimes-never* (L4): A quadratic in sin x with two different roots in −1 < u < 1 has four solutions on 0 ≤ x < 2π. — Always: a line strictly between −1 and 1 crosses the sine wave twice in one whole turn, and 0 ≤ x < 2π is one whole turn, so each root gives two.
+  - *predict-check* (L3): Which form of cos 2x should you use in cos 2x + 2 cos x + 1 = 0? — 2cos²x − 1, since the rest of the equation is in cos x: it gives 2cos²x + 2 cos x = 0, so cos x = 0 or cos x = −1.
+- **Misconceptions used:** 25. Accepting a root outside the range of sine or cosine as giving solutions; Taking only the positive root of tan²x; Picking the form of cos 2x in cos x when the rest of the equation is in sin x, leaving two different functions; Picking the form of cos 2x in sin x when the rest of the equation is in cos x, leaving two different functions; Taking only the positive root when sin²x or cos²x equals a number; Solving only one bracket of the factorised quadratic and dropping the other; Getting the sign of each root wrong, often by reading the number straight from its bracket; Using the Pythagorean identity with the wrong sign; Keeping solutions that are outside the stated interval; Moving a term across the equals sign without changing its sign; Counting one solution for each root of the quadratic, when one root can give several; Counting only where the curve crosses the axis, and missing where it only touches; Rejecting a root because it is negative, although sine and cosine can be negative; Forgetting to double a in the denominator of the quadratic formula; Forgetting to square the value of sin x or cos x in the squared term; Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Missing the solutions below zero in the interval; Solving for the multiple angle without extending the interval, which loses solutions; Undoing only the principal value and forgetting the other solutions; Cancelling a factor that can be zero, which loses its solutions; Looking at only part of the interval and missing solutions; Leaving the GDC in degree mode; Counting each point where the line only touches a maximum or minimum as two solutions.
+
 #### Solve a trig model equation or inequality for times (`t3-trig-model-equation`, exam, 5 bank parts)
 
 - **Situation:** A trig equation or inequality to solve or count, shared with `t3-trig-model-parameters`, `t3-trig-model-use`, `t3-trig-read-features`.
@@ -2436,7 +2606,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A line y = k meets a wave at its maximum. That is one solution in each cycle, not two. — True: the line only touches at the top, so the two crossings of a lower line have come together at one point.
   - *predict-check* (L3): A wave runs for 2.5 cycles and the line is inside its range. Predict the number of solutions from the cycles alone, then count along a sketch. — Two full cycles give 4, but the half cycle left can give 0, 1 or 2 more, so the count needs the sketch.
   - *interpret-parameter* (L4): Why does a sine curve against a steep line through the origin have fewer solutions than against a shallow one? — The wave stays inside a band, and a steeper line leaves that band sooner, so there are fewer humps for it to cross.
-- **Misconceptions used:** 16. Looking at only part of the interval and missing solutions; Including the boundary values of k where the line only touches at a maximum or minimum; Leaving the GDC in degree mode; Giving the whole range of the function as the values of k, without counting the solutions each value gives; Counting two solutions in a cycle where the line only touches at a maximum or minimum; Counting one solution in each cycle, when a line inside the range crosses twice in a cycle; Taking the share of one cycle as the share of a span that is not a whole number of cycles; Leaving out the maximum and the minimum, although the line still meets the curve at those heights; Leaving out the crossing at the origin; Counting two solutions in every cycle of the wave, although the line leaves the wave's band; Using the rule for the minimum at a maximum, or the rule for the maximum at a minimum; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Leaving d out of the maximum, the minimum or the range.
+- **Misconceptions used:** 16. Looking at only part of the interval and missing solutions; Including the boundary values of k where the line only touches at a maximum or minimum; Leaving the GDC in degree mode; Giving the whole range of the function as the values of k, without counting the solutions each value gives; Counting each point where the line only touches a maximum or minimum as two solutions; Counting one solution in each cycle, when a line inside the range crosses twice in a cycle; Taking the share of one cycle as the share of a span that is not a whole number of cycles; Leaving out the maximum and the minimum, although the line still meets the curve at those heights; Leaving out the crossing at the origin; Counting two solutions in every cycle of the wave, although the line leaves the wave's band; Using the rule for the minimum at a maximum, or the rule for the maximum at a minimum; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Leaving d out of the maximum, the minimum or the range.
 
 #### Solve a trig equation exactly in an interval (`t3-trig-equation`, exam, 8 bank parts)
 
@@ -3062,7 +3232,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -3253,6 +3423,38 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): If v(3) = 0, the particle changes direction at t = 3. — False: v has to change sign there too. v(t) = (t − 3)² is 0 at t = 3, but the particle keeps going the same way.
   - *always-sometimes-never* (L3): The maximum speed of a particle is the same as its maximum velocity. — Sometimes: a large negative velocity is a high speed, so the maximum speed can come where the velocity is at its lowest.
 - **Misconceptions used:** 12. Substituting t into the function you were given, instead of differentiating it; Computing average velocity s/t instead of ds/dt; Assuming acceleration is constant when it depends on t; Looking for zero acceleration instead of zero velocity; Thinking speeding up only needs positive acceleration, whatever the sign of the velocity; Counting every zero of v as a change of direction, even where v touches zero without changing sign; Treating maximum speed as maximum velocity (a large negative velocity is a high speed); Ignoring the endpoints of the time interval; Setting the velocity to zero to find its maximum; Reading the height of a v–t graph as the displacement; Thinking a downward-sloping v–t graph means moving backwards; Counting area below the axis as positive displacement.
+
+#### Derivative of a model at a point with technology (`t5-derivative-model-gdc`, exam, 4 bank parts)
+
+- **Situation:** A model of a quantity in time, and rules with values.
+- **Representations:** **equation**, **words**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the model; a time → the derivative at that time, to 3 s.f.
+  - new L2: given the model; a time → the rate of change with its units
+  - new L3: given the model; a time → the rate per a shorter unit of time, to 3 s.f.
+  - new L3: given the model; a rate → the first time the quantity changes at that rate, to 3 s.f.
+  - new L4: given the model; the domain → the greatest rate of change, or of decrease, to 3 s.f.
+  - new L4: given the model; the domain → when the quantity rises or falls fastest, to 3 s.f.
+  - new L2: given the model; a time → which way the quantity is going, and how fast
+  - new L3: given the model; a time → the sentence that says what the derivative there means
+  - new L3: given two models of one story; a time → which model rises faster, and why
+  - **exam** L5: given a wave model and a straight-line model; the domain → the total time one rate is greater than the other, to 3 s.f.
+  - new L3: given a model's graph; the tangents at two points → the point where the quantity rises faster
+  - new L3: given the model; a time; a short step → the tangent's estimate of a later value, to 3 s.f.
+  - new L3: given two quantities and their rates at a time → the rate of change of their product
+  - new L4: given two quantities and their rates at a time → the rate of change of their quotient
+  - new L3: given a table of f, g, f′ and g′ → the derivative of f(g(x)) at a point
+  - new L4: given a model of a function g; a table of g and g′ → the derivative of the model at a point, to 3 s.f.
+  - new L3: given two quantities and their rates at a time → which way their product is going, and how fast
+  - new L3: given graphs of f and g in straight pieces → the derivative of f(x)g(x) at a point
+  - new L4: given graphs of f and g in straight pieces → the derivative of f(x)/g(x) at a point
+  - new L4: given graphs of f and g in straight pieces → the derivative of f(g(x)) at a point
+- **Angles:** Use the GDC's dy/dx; Write the general rule, then substitute; Read values and gradients from graphs; Read dy/dx as 'units of y per unit of x'; Use the sign for direction; Picture the tangent.
+- **Concept probes:**
+  - *true-false-reason* (L3): If S′(4) = −2.5 for a quantity S in litres, with t in hours, then S is −2.5 litres when t = 4. — False: S′(4) is a rate, not an amount. S is falling at 2.5 litres per hour at that moment, whatever S itself is.
+  - *always-sometimes-never* (L4): The quantity S(t) is rising fastest at the moment S(t) is greatest. — Never for a smooth peak inside the domain: at a peak S′(t) = 0, so S is not rising at all. It rises fastest earlier, where the graph of S′ reaches its maximum.
+  - *interpret-parameter* (L3): In S(t) = 200e^(−0.1t), what does the −0.1 say about the rate of change? — The rate is S′(t) = −0.1 × S(t), so at any time the quantity falls at a tenth of its size per unit of time.
+- **Misconceptions used:** 12. Reading the rate of change as the amount itself; Ignoring a negative sign, so a falling quantity is read as rising; Giving the units of y only, instead of units of y per unit of x; Using the change over the next unit of time instead of the rate at that instant; Finding the greatest value of the quantity instead of its greatest rate; Giving the rate per the model's unit of time when another unit is asked for; Using f′(a) instead of f′(g(a)) for a composite; Multiplying f′(a) × g′(a) for a product; Reading g′(a) when g(a) is needed; Dividing f′(a) by g′(a) for a quotient; Subtracting the two terms of the quotient rule in the wrong order; Leaving out the inner derivative of a composite.
 
 #### Chain, product and quotient rules (`t5-differentiation-rules`, exam, 8 bank parts)
 

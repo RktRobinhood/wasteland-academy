@@ -1833,9 +1833,9 @@
                 }
               ],
               "misconceptions": [
-                "Treating the log scale as linear: 70 dB is 70/50 = 1.4 times as intense as 50 dB",
-                "Dropping the minus sign so the pH comes out negative",
-                "Inverting pH = −log[H⁺] as [H⁺] = −10^pH"
+                "Treating a log scale as linear: taking the ratio of two readings as the ratio of the amounts",
+                "Dropping the minus sign in front of a log",
+                "Undoing a minus log with the minus sign in front of the power instead of in the power"
               ],
               "threads": [
                 {
@@ -2133,9 +2133,37 @@
                 }
               ],
               "misconceptions": [
-                "Checking n = 1, 2, 3 and stopping",
+                "Checking a few values of n and stopping",
                 "Using the result being proved as a step in its own proof",
-                "Showing u_2 − u_1 = u_3 − u_2 for particular terms instead of u_(n+1) − u_n for general n"
+                "Comparing the gaps between particular terms instead of the gap between neighbouring terms for general n",
+                "Counting one gap too many between the first term and the nth term",
+                "Taking away only the first term of a bracket, so the other terms keep their signs",
+                "Multiplying only the first term of a bracket by the number outside it",
+                "Squaring a bracket term by term, with no middle term",
+                "Forgetting to double the middle term when squaring a bracket",
+                "Testing the wrong kind of sequence: a common difference for a geometric claim, or a common ratio for an arithmetic one",
+                "Dividing a term by the one after it, which gives the reciprocal of the common ratio",
+                "Writing a difference of logs as the log of a difference",
+                "Taking the common ratio itself as the difference of the logs",
+                "Forgetting to halve at the end, which gives twice the sum",
+                "Leaving out the doubling of the first term in the sum formula",
+                "Treating the last term as the whole sum",
+                "Treating the sum of the first n terms as the nth term",
+                "Using the next sum instead of the one before when taking a difference of sums",
+                "Reading a coefficient of Sₙ as the common difference",
+                "Confusing the first term with the common difference",
+                "Reading the width of the rectangle as the number of dots in a layer",
+                "Counting the corner of a layer twice",
+                "Adding the last term to itself instead of to the first term",
+                "Counting half as many columns, as if the two lists were already paired off",
+                "Taking a ratio across several steps as the common ratio",
+                "Moving a term across the equals sign without changing its sign",
+                "Counting a term's position in the sequence instead of the steps to reach it",
+                "Stopping before dividing by the coefficient of the letter",
+                "Using the rule for three consecutive terms on terms that are not consecutive",
+                "Halving a rectangle that holds only one copy of the sum",
+                "Taking d/a as the common ratio",
+                "Leaving the first term out of a pair, so only the last term is counted"
               ],
               "threads": [
                 {
@@ -8490,7 +8518,19 @@
               "misconceptions": [
                 "Multiplying by 180/π when converting degrees to radians",
                 "Writing the size in radians as if it were degrees",
-                "Giving a decimal when an exact multiple of π is asked for"
+                "Giving a decimal when an exact multiple of π is asked for",
+                "Taking π as a full turn instead of 2π",
+                "Dividing the wrong way round, with the two numbers swapped",
+                "Using the degrees-to-radians factor when converting radians to degrees",
+                "Leaving a rate in revolutions per minute unconverted when seconds are needed",
+                "Mixing degrees and radians in one calculation",
+                "Using half of the angle at the centre when the whole of angle AOB is needed",
+                "Using the whole of the angle at the centre when half of it is needed",
+                "Using sine instead of cosine, when the distance from the centre is the side next to the angle",
+                "Mixing up the time on the line with the time off it",
+                "Multiplying the angle by the rate instead of dividing by it",
+                "Giving the distance round the circle as the answer, without using the time",
+                "Writing the size in degrees as if it were radians"
               ],
               "threads": []
             },
@@ -9276,9 +9316,30 @@
                 }
               ],
               "misconceptions": [
-                "Working on both sides at once as if solving an equation, then concluding 0 = 0",
-                "Cancelling across a sum, e.g. (1 + cos 2x) / cos 2x = 1 + 1",
-                "Choosing a form of cos 2θ that does not cancel the 1, e.g. cos²θ − sin²θ in 1 + cos 2θ"
+                "Working on both sides at once as if solving an equation, then treating a true last line as the proof",
+                "Cancelling across a sum, as if one term of the top were a factor of the whole top",
+                "Choosing a form of the double-angle cosine that does not cancel the constant term",
+                "Checking the two sides at one value and calling that a proof",
+                "Stopping before reaching the other side, so the proof has no last line",
+                "Getting a sign wrong when a bracket after a minus is removed or a factor is taken out",
+                "Leaving out the factor of two in the double-angle sine",
+                "Swapping the signs in a form of the double-angle cosine",
+                "Treating a difference of squares of sine and cosine as one, which only their sum is",
+                "Forgetting to double the middle term when squaring a bracket",
+                "Squaring each term of a bracket with no middle term",
+                "Keeping the same angle when a double-angle identity should change it",
+                "Writing a difference of two squares as the same bracket twice",
+                "Writing tan as cosine over sine, the wrong way up",
+                "Leaving the number in front unchanged when using a double-angle identity",
+                "Reading the greatest value off the number in front, leaving out the constant in the bracket",
+                "Reading the greatest value off the number in front of the first form, before the identity changes it",
+                "Putting the angle into the function without its multiple",
+                "Mixing up the double-angle identities for sine and cosine",
+                "Adding two fractions by adding their tops and adding their bottoms",
+                "Multiplying only the first term of a bracket",
+                "Squaring the trig term but not the number in front of it",
+                "Factorising a perfect square as a difference of two squares",
+                "Starting from the simpler side, which gives less to work from"
               ],
               "threads": [
                 {
@@ -9822,9 +9883,21 @@
                 }
               ],
               "misconceptions": [
-                "Accepting sin x = 2 as giving solutions",
+                "Accepting a root outside the range of sine or cosine as giving solutions",
                 "Taking only the positive root of tan²x",
-                "Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions"
+                "Picking the form of cos 2x in cos x when the rest of the equation is in sin x, leaving two different functions",
+                "Picking the form of cos 2x in sin x when the rest of the equation is in cos x, leaving two different functions",
+                "Taking only the positive root when sin²x or cos²x equals a number",
+                "Solving only one bracket of the factorised quadratic and dropping the other",
+                "Getting the sign of each root wrong, often by reading the number straight from its bracket",
+                "Using the Pythagorean identity with the wrong sign",
+                "Keeping solutions that are outside the stated interval",
+                "Moving a term across the equals sign without changing its sign",
+                "Counting one solution for each root of the quadratic, when one root can give several",
+                "Counting only where the curve crosses the axis, and missing where it only touches",
+                "Rejecting a root because it is negative, although sine and cosine can be negative",
+                "Forgetting to double a in the denominator of the quadratic formula",
+                "Forgetting to square the value of sin x or cos x in the squared term"
               ],
               "threads": [
                 {
@@ -9944,7 +10017,7 @@
                 "Including the boundary values of k where the line only touches at a maximum or minimum",
                 "Leaving the GDC in degree mode",
                 "Giving the whole range of the function as the values of k, without counting the solutions each value gives",
-                "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+                "Counting each point where the line only touches a maximum or minimum as two solutions",
                 "Counting one solution in each cycle, when a line inside the range crosses twice in a cycle",
                 "Taking the share of one cycle as the share of a span that is not a whole number of cycles",
                 "Leaving out the maximum and the minimum, although the line still meets the curve at those heights",
@@ -13783,7 +13856,10 @@
               "misconceptions": [
                 "Reading the rate of change as the amount itself",
                 "Ignoring a negative sign, so a falling quantity is read as rising",
-                "Giving the units of y only, instead of units of y per unit of x"
+                "Giving the units of y only, instead of units of y per unit of x",
+                "Using the change over the next unit of time instead of the rate at that instant",
+                "Finding the greatest value of the quantity instead of its greatest rate",
+                "Giving the rate per the model's unit of time when another unit is asked for"
               ],
               "threads": [
                 {
@@ -15477,12 +15553,21 @@
                   "approach": "graphical",
                   "name": "Read values and gradients from graphs",
                   "summary": "When f and g are drawn as straight-line pieces, read function values and gradients from the graphs, then substitute."
+                },
+                {
+                  "id": "gdc-derivative",
+                  "approach": "gdc",
+                  "name": "Use the GDC's dy/dx",
+                  "summary": "With the function as a formula, use the GDC's numerical derivative at the point, or graph it to find a crossing or a maximum."
                 }
               ],
               "misconceptions": [
-                "For a composite, using f′(1) instead of f′(g(1))",
-                "For a product, multiplying f′(a) × g′(a)",
-                "Reading g′(1) from the table when g(1) is needed"
+                "Using f′(a) instead of f′(g(a)) for a composite",
+                "Multiplying f′(a) × g′(a) for a product",
+                "Reading g′(a) when g(a) is needed",
+                "Dividing f′(a) by g′(a) for a quotient",
+                "Subtracting the two terms of the quotient rule in the wrong order",
+                "Leaving out the inner derivative of a composite"
               ],
               "threads": []
             }

@@ -28183,6 +28183,823 @@ def check_binomial_unknown(q):
 # ── end binomial-unknown ──
 
 
+# ── log-exp-form (t1-log-exp-form, FAL-753) ──────────────────
+# The `log-exp-form` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/log_exp_form.gd. Paper 1 is read back from the log or the sentence and
+# solved exactly, a value by finding the power that gives the number and testing it. Paper 2 reads
+# the scale's constants from its formula or its sentence, finds each value from the logarithm to 40
+# digits, rebuilds each tagged option from its slip, and requires each method's numbers in its working.
+
+E11LF_FORM = "SL1.5.exp-log-form#"
+E11LF_CTX = "SL1.5.log-context#"
+E11LF_OWN = "t1-log-exp-form#"
+E11LF_SUBS = "₀₁₂₃₄₅₆₇₈₉"
+E11LF_SUPS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+E11LF_EDGE = sp.Rational(49, 1000)     # the engine's is 0.05
+E11LF_GAP = sp.Rational(19, 1000)      # the engine's is 0.02
+E11LF_LOW = sp.Rational(1, 100)
+E11LF_HIGH = sp.Integer(100000)
+E11LF_THREE = " Give your answer to 3 significant figures."
+E11LF_MODEL = {"thickness": ("salt crust", " mm", "the last flood"), "width": ("lichen patch", " cm", "the rains"),
+               "depth": ("rust layer", " mm", "the hull was scraped"), "height": ("dune", " m", "the storm")}
+E11LF_PLACES = ("Ash Pass", "Salt Ridge", "Rust Gorge", "Cinder Bay", "Dry Lake", "Glass Flats")
+E11LF_SCALES = {"Howl rating": ("H", "I", "sound power", " units", "dust storm"),
+                "Rumble number": ("R", "W", "ground swing", " microns", "tremor"),
+                "Glare class": ("G", "B", "brightness", " units", "beacon"),
+                "Rad index": ("N", "C", "count", " clicks a minute", "ruin"),
+                "Bite": ("S", "c", "acid content", " moles per litre", "water sample")}
+E11LF_PAPER_1 = ("to-exponential-form", "to-log-form", "solve-exp-as-log", "value-whole-power", "value-negative-power", "value-fractional-power",
+                 "log-of-power", "power-of-log", "solve-log-x", "solve-log-linear", "solve-log-square", "solve-log-base", "no-real-log")
+E11LF_LOG = r"(log[₀-₉]+|ln)"
+
+
+def E11LF_q(t):
+    """A number as the game writes it: −3/2, 0.001, 81."""
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E11LF_n(v):
+    """A fraction as the game writes it: −3/2."""
+    v = sp.Rational(v)
+    return (str(v.p) if v.q == 1 else f"{v.p}/{v.q}").replace("-", "−")
+
+
+def E11LF_base_name(b):
+    return "ln" if b == 0 else "log" + "".join(E11LF_SUBS[int(c)] for c in str(b))
+
+
+def E11LF_base_of(name):
+    return 0 if name == "ln" else int("".join(str(E11LF_SUBS.index(c)) for c in name[3:]))
+
+
+def E11LF_arg(t):
+    return f"({t})" if "/" in t or "−" in t or " " in t else t
+
+
+def E11LF_lg(b, t):
+    a = E11LF_arg(t if isinstance(t, str) else E11LF_n(t))
+    return E11LF_base_name(b) + (a if a.startswith("(") else " " + a)
+
+
+def E11LF_any_lg(b, t):
+    b = sp.Rational(b)
+    if b.q == 1 and b >= 2:
+        return E11LF_lg(int(b), t)
+    return f"log base {E11LF_n(b)} of {E11LF_arg(t if isinstance(t, str) else E11LF_n(t))}"
+
+
+def E11LF_pw(b, e):
+    e = sp.Rational(e)
+    base = "e" if b == 0 else E11LF_n(b)
+    if b != 0 and (sp.Rational(b).q != 1 or b < 0):
+        base = f"({base})"
+    return f"{base}^{E11LF_n(e)}" if e.q == 1 and e > 0 else f"{base}^({E11LF_n(e)})"
+
+
+def E11LF_sup(k):
+    return ("⁻" if k < 0 else "") + "".join(E11LF_SUPS[int(c)] for c in str(abs(k)))
+
+
+def E11LF_power_of(b, arg):
+    """The rational y with b^y = arg, tested exactly."""
+    y = sp.nsimplify(sp.N(sp.log(arg) / sp.log(b), DIGITS), rational=True, tolerance=sp.Rational(1, 10**30))
+    need(y.q <= 12 and sp.simplify(sp.Integer(b) ** y - arg) == 0, f"{arg} is no rational power of {b}")
+    return y
+
+
+def E11LF_exact_common(q, want, wrongs):
+    need(q["paper"] == 1, "changing form is Paper 1")
+    need(q["answer"].get("exact") is True, "an exact answer is not marked exact")
+    gc_check_common(q, want, wrongs)
+
+
+def E11LF_read_form(q):
+    """b, c and x of log_b x = c, from the log or the sentence."""
+    L = q["lines"][0]
+    if q["view"]["rep"] == "words":
+        m = re.fullmatch(r"The logarithm of (\S+) to base (\d+) is (\S+)\.", L)
+        need(m is not None, f"can't read {L!r}")
+        return int(m.group(2)), E11LF_q(m.group(3)), None if m.group(1) == "x" else E11LF_q(m.group(1))
+    m = re.fullmatch(E11LF_LOG + r"(?: (\S+)|\((.+)\)) = (\S+)", L)
+    need(m is not None, f"can't read {L!r}")
+    t = m.group(2) or m.group(3)
+    return E11LF_base_of(m.group(1)), E11LF_q(m.group(4)), None if t == "x" else E11LF_q(t)
+
+
+def E11LF_paper1(q, u):
+    L, rep, F, O = q["lines"], q["view"]["rep"], E11LF_FORM, E11LF_OWN
+    wrongs = {}
+    if u == "to-exponential-form":
+        b, c, x = E11LF_read_form(q)
+        need(q["asked"] == "Write this in exponential form.", q["asked"])
+        need(E11LF_power_of(b, x) == c, f"log base {b} of {x} is not {c}")
+        want = f"{E11LF_pw(b, c)} = {E11LF_n(x)}"
+        wrongs = {O + "7": {f"{E11LF_pw(x, c)} = {b}"}, O + "6": {f"{E11LF_pw(b, x)} = {E11LF_n(c)}"}}
+        if c.q == 1 and c > 0:
+            wrongs[F + "1"] = {f"{E11LF_pw(c, b)} = {E11LF_n(x)}"}
+    elif u == "to-log-form":
+        need(q["asked"] == "Write this in logarithmic form.", q["asked"])
+        if rep == "words":
+            m = re.fullmatch(r"The power of (\d+) that gives (\S+) is (\S+)\.", L[0])
+            need(m is not None, L[0])
+            b, x, c = int(m.group(1)), E11LF_q(m.group(2)), E11LF_q(m.group(3))
+        else:
+            m = re.fullmatch(r"(\d+)\^\(?([^()]+)\)? = (\S+)", L[0])
+            need(m is not None, L[0])
+            b, c, x = int(m.group(1)), E11LF_q(m.group(2)), E11LF_q(m.group(3))
+        need(sp.Integer(b) ** c == x, f"{b}^{c} is not {x}")
+        need(c < 0 or c.q != 1, "a whole power is the exp-log-pair's question")
+        want = f"{E11LF_any_lg(b, x)} = {E11LF_n(c)}"
+        wrongs = {O + "7": {f"{E11LF_any_lg(x, b)} = {E11LF_n(c)}"}, O + "6": {f"{E11LF_any_lg(b, c)} = {E11LF_n(x)}"}}
+    elif u == "solve-exp-as-log":
+        if rep == "words":
+            m = re.fullmatch(r"A patch of mould covers (\d+) square metres\. Its area is multiplied by (\d+) each week, and after x weeks it covers (\d+) square metres\.", L[0])
+            need(m is not None, L[0])
+            k, b, total = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        else:
+            m = re.fullmatch(r"(?:(\d+) × )?(e|\d+)\^x = (\d+)", L[0])
+            need(m is not None, L[0])
+            k, b, total = int(m.group(1) or 1), 0 if m.group(2) == "e" else int(m.group(2)), int(m.group(3))
+        need(total % k == 0, "the power doesn't stand alone in whole numbers")
+        r = total // k
+        if b:
+            test = b
+            while test < r:
+                test *= b
+            need(test != r, f"{r} is a power of {b}")
+        name = "e" if b == 0 else str(b)
+        want = "x = " + E11LF_lg(b, r)
+        wrongs = {O + "12": {f"x = {name}^{r}"}}
+        if b:
+            wrongs[F + "0"] = {"x = " + E11LF_n(sp.Rational(r, b))}
+            wrongs[O + "7"] = {"x = " + E11LF_lg(r, b)}
+        if k > 1:
+            wrongs[O + "13"] = {"x = " + E11LF_lg(b, total)}
+    elif u in ("value-whole-power", "value-negative-power", "value-fractional-power"):
+        if rep == "words":
+            m = re.fullmatch(r"Each relay on the line multiplies a signal's strength by (\d+)\. A signal arrives (\d+) times as strong as it left\.", L[0])
+            need(m is not None, L[0])
+            b, t = int(m.group(1)), m.group(2)
+            need(q["asked"] == f"Find {E11LF_lg(b, int(t))}, the number of relays it passed through.", q["asked"])
+        else:
+            m = re.fullmatch(E11LF_LOG + r"(?: (\S+)|\((.+)\))", L[0])
+            need(m is not None, L[0])
+            b, t = E11LF_base_of(m.group(1)), m.group(2) or m.group(3)
+            need(q["asked"] == "Find the exact value.", q["asked"])
+        s = re.fullmatch(r"(\d+)?√(\d+)", t)
+        if s:
+            arg = int(s.group(1) or 1) * sp.sqrt(int(s.group(2)))
+        elif t.startswith("1/√"):
+            arg = 1 / sp.sqrt(int(t[3:]))
+        else:
+            arg = E11LF_q(t)
+        y = E11LF_power_of(b, arg)
+        want = E11LF_n(y)
+        if u == "value-whole-power":
+            need(y.q == 1 and y >= 2, f"the value {y}")
+            root = sp.integer_nthroot(int(arg), b)
+            wrongs = {F + "0": {E11LF_n(arg / b)}}
+            if root[1]:
+                wrongs[F + "1"] = {str(root[0])}
+        elif u == "value-negative-power":
+            need(y.q == 1 and y < 0, f"the value {y}")
+            wrongs = {O + "8": {E11LF_n(-y)}, O + "9": {E11LF_n(1 / -y)}, F + "0": {E11LF_n(arg / b)}}
+        else:
+            need(y.q > 1, f"the value {y}")
+            wrongs = {O + "10": {E11LF_n(1 / y)}}
+            if arg.is_rational:
+                wrongs[F + "0"] = {E11LF_n(arg / b)}
+    elif u == "log-of-power":
+        m = re.fullmatch(E11LF_LOG + r"\((e|\d+)\^\(?([^()]+)\)?\)", L[0])
+        need(m is not None and q["asked"] == "Find the exact value.", L[0])
+        b, k = E11LF_base_of(m.group(1)), E11LF_q(m.group(3))
+        need(m.group(2) == ("e" if b == 0 else str(b)), "the base of the power is not the log's")
+        got = sp.simplify(sp.log(sp.E ** k)) if b == 0 else E11LF_power_of(b, sp.Integer(b) ** k)
+        want = E11LF_n(got)
+        wrongs = {O + "21": {E11LF_n(k * b)} if b else {(E11LF_n(k) if k.q == 1 else f"({E11LF_n(k)})") + "e"}}
+        if b and k.q == 1 and k >= 2:
+            wrongs[O + "23"] = {str(b ** int(k))}
+    elif u == "power-of-log":
+        m = re.fullmatch(r"(e|\d+)\^\((−)?(?:(\d+) )?" + E11LF_LOG + r" (\d+)\)", L[0])
+        need(m is not None and q["asked"] == "Find the exact value.", L[0])
+        base = 0 if m.group(1) == "e" else int(m.group(1))
+        need(E11LF_base_of(m.group(4)) == base, "the log's base is not the power's")
+        co = (-1 if m.group(2) else 1) * int(m.group(3) or 1)
+        x = sp.Integer(m.group(5))
+        B = sp.E if base == 0 else sp.Integer(base)
+        val = sp.nsimplify(sp.N(B ** (co * sp.log(x) / sp.log(B)), DIGITS), rational=True, tolerance=sp.Rational(1, 10**30))
+        need(val == x ** co, f"the value {val}")
+        want = E11LF_n(val)
+        wrongs = {O + "21": {E11LF_n(x * base)} if base else {f"{x}e"}, O + "22": {E11LF_pw(base, co * x)}}
+    elif u == "solve-log-x":
+        b, c, _ = E11LF_read_form(q)
+        need(q["asked"] == "Find the exact value of x.", q["asked"])
+        if b == 0:
+            want = "x = " + E11LF_pw(0, c)
+            wrongs = {F + "0": {"x = " + ("e" if c == 1 else "−e" if c == -1 else E11LF_n(c) + "e")}, O + "8": {"x = " + E11LF_pw(0, -c)}}
+        else:
+            x = sp.Integer(b) ** c
+            need(x.is_rational, f"{b}^{c} is not rational")
+            want = "x = " + E11LF_n(x)
+            wrongs = {F + "0": {"x = " + E11LF_n(c * b)}}
+            if c.q == 1 and c > 0:
+                wrongs[F + "1"] = {"x = " + E11LF_n(c ** b)}
+            if c.q == 1 and c < 0:
+                wrongs[O + "8"] = {"x = " + E11LF_n(sp.Integer(b) ** -c)}
+    elif u == "solve-log-linear":
+        m = re.fullmatch(E11LF_LOG + r"\((\d*)x (\+|−) (\d+)\) = (\S+)", L[0])
+        need(m is not None and q["asked"] == "Find the exact value of x.", L[0])
+        b, p, q0, c = E11LF_base_of(m.group(1)), int(m.group(2) or 1), int(m.group(4)) * (1 if m.group(3) == "+" else -1), int(E11LF_q(m.group(5)))
+        X = sp.Symbol("x")
+        sol = sp.solve(sp.Eq(p * X + q0, sp.Rational(b) ** c), X)
+        need(len(sol) == 1, "one solution")
+        by = lambda top: (top - q0) / sp.Integer(p)
+        want = "x = " + E11LF_n(sol[0])
+        wrongs = {O + "14": {"x = " + E11LF_n(by(sp.Integer(c)))}, F + "0": {"x = " + E11LF_n(by(sp.Integer(b * c)))}}
+        if c >= 1:
+            wrongs[F + "1"] = {"x = " + E11LF_n(by(sp.Integer(c) ** b))}
+    elif u == "solve-log-square":
+        label = "a = " if rep == "graph" else "x = "
+        if rep == "graph":
+            m = re.fullmatch(r"The graph shows part of y = " + E11LF_LOG + r"\(x² − (\d+)\) for x > (\d+)\. It crosses the x-axis at A\(a, 0\)\.", L[0])
+            need(m is not None and q["asked"] == "Find the exact value of a.", L[0])
+            b, k, c, bound = E11LF_base_of(m.group(1)), int(m.group(2)), 0, int(m.group(3))
+            need(bound ** 2 == k, "the asymptote")
+        else:
+            m = re.fullmatch(E11LF_LOG + r"\(x² − (\d+)\) = (\d+)", L[0])
+            need(m is not None, L[0])
+            b, k, c = E11LF_base_of(m.group(1)), int(m.group(2)), int(m.group(3))
+            mb = re.fullmatch(r"Solve the equation for x > (\S+), giving the exact value of x\.", q["asked"])
+            need(mb is not None, q["asked"])
+            need(sp.sympify(mb.group(1).replace("√", "sqrt(") + (")" if "√" in mb.group(1) else "")) == sp.sqrt(k), "the domain")
+        X = sp.Symbol("x", positive=True)
+        r = (1 if c == 0 else b ** c) + k
+        sol = sp.solve(sp.Eq(X ** 2 - k, r - k), X)
+        need(sol == [sp.sqrt(r)] and sp.sqrt(r) > sp.sqrt(k), f"the root {sol}")
+        need(all(e == 1 for e in sp.factorint(r).values()), f"{r} is not square-free")
+        root = lambda n: label + (str(sp.sqrt(n)) if sp.sqrt(n).is_integer else f"√{n}")
+        want = f"{label}√{r}"
+        wrongs = {O + "17": {f"{label}−√{r}"}, O + "15": {root(k)}, O + "16": {f"{label}{r}"}}
+        if c:
+            wrongs[O + "14"] = {root(c + k)}
+        if rep == "graph":
+            g = q["graph"]
+            need(g is not None and len(g["points"]) == 1 and len(g["vlines"]) == 1, "the figure's parts")
+            need(float(g["vlines"][0]["at"]) == bound and g["vlines"][0]["label"] == f"x = {bound}", "the asymptote drawn")
+            need(abs(g["points"][0]["x"] - float(sp.sqrt(r))) < 1e-9 and g["points"][0]["y"] == 0 and g["points"][0]["label"] == "A(a, 0)", "the marked crossing")
+            B = float(sp.E if b == 0 else b)
+            for px, py in g["curves"][0][::16]:
+                need(abs(py - float(sp.log(px * px - k) / sp.log(B))) < 1e-6, f"the curve at {px}")
+    elif u == "solve-log-base":
+        label = "a = " if rep == "graph" else "x = "
+        if rep == "graph":
+            m = re.fullmatch(r"The graph shows y = log_a x, for a base a > 1\. It passes through P\((\S+), (\S+)\)\.", L[0])
+            need(m is not None and q["asked"] == "Find the exact value of a.", L[0])
+            n, c = E11LF_q(m.group(1)), E11LF_q(m.group(2))
+        else:
+            m = re.fullmatch(r"log base x of (\S+) = (\S+)", L[0])
+            need(m is not None and q["asked"] == "Find the exact value of x, where x > 0.", L[0])
+            n, c = E11LF_q(m.group(1)), E11LF_q(m.group(2))
+        val = sp.nsimplify(sp.N(n ** (1 / c), DIGITS), rational=True, tolerance=sp.Rational(1, 10**30))
+        need(val > 0 and val != 1 and sp.simplify(val ** c - n) == 0, f"the base {val}")
+        want = label + E11LF_n(val)
+        wrongs = {F + "0": {label + E11LF_n(n / c)}}
+        if c.q == 1 and 0 < c <= 4 and n <= 20:
+            wrongs[O + "11"] = {label + E11LF_n(n ** c)}
+        if rep == "graph":
+            g = q["graph"]
+            need(len(g["points"]) == 1 and abs(g["points"][0]["x"] - float(n)) < 1e-9 and abs(g["points"][0]["y"] - float(c)) < 1e-9, "the marked point")
+            for px, py in g["curves"][0][::16]:
+                need(abs(py - float(sp.log(px) / sp.log(val))) < 1e-6, f"the curve at {px}")
+    elif u == "no-real-log":
+        m = re.fullmatch(r"The four logs are (.+)\.", L[0])
+        need(m is not None, L[0])
+        shown = m.group(1).split(",  ")
+        need(sorted(shown) == sorted(o["text"] for o in q["choices"]), "the lines aren't the options")
+        real, tags = [], {}
+        for t in shown:
+            minus = t.startswith("−")
+            mt = re.fullmatch(E11LF_LOG + r"(?: (\S+)|\((.+)\))", t[1:] if minus else t)
+            need(mt is not None, t)
+            a = sp.sympify((mt.group(2) or mt.group(3)).replace("−", "-"), rational=True)
+            if a > 0:
+                real.append(t)
+            tags[t] = O + "20" if minus else O + "19" if a == 1 else O + "18" if a > 0 else F + "2"
+        if q["asked"] == "Which of these has no real value?":
+            need(len(real) == 3, f"{len(real)} real logs")
+            want = next(t for t in shown if t not in real)
+            wrongs = {tags[t]: {t} for t in real}
+        else:
+            need(q["asked"] == "Which of these has a real value?" and len(real) == 1, f"{len(real)} real logs")
+            want = real[0]
+            wrongs = {F + "2": {t for t in shown if t != want}}
+    E11LF_exact_common(q, want, wrongs)
+    return None, None
+
+
+# ── Paper 2 ──────────────────────────────────────────────────
+
+def E11LF_f(x):
+    return sp.N(x, DIGITS)
+
+
+def E11LF_formula(t, y, x):
+    """d, A, ln?, K from y = d ± A log(x × 10^k), log(x/c) or log x."""
+    m = re.fullmatch(rf"{y} = (?:(\d+) (\+|−) )?(−)?(?:([\d.]+) )?(log₁₀|ln)(?: {x}|\({x} × 10([⁰¹²³⁴⁵⁶⁷⁸⁹]+)\)|\({x}/(\d+)\))", t)
+    need(m is not None, f"can't read the formula {t!r}")
+    d = sp.Integer(m.group(1) or 0)
+    A = sp.Rational(m.group(4) or 1)
+    if m.group(2) == "−" or m.group(3):
+        A = -A
+    K = sp.Integer(1)
+    if m.group(6):
+        K = sp.Integer(10) ** int("".join(str(E11LF_SUPS.index(c)) for c in m.group(6)))
+    if m.group(7):
+        K = sp.Rational(1, int(m.group(7)))
+    return d, A, K, m
+
+
+def E11LF_scale(q):
+    """The scale, from its formula or its sentence."""
+    L0 = q["lines"][0]
+    words = q["view"]["rep"] == "words"
+    for name, (y, x, amount, unit, thing) in E11LF_SCALES.items():
+        if not L0.startswith(("The " + name, "On an old chart, the " + name)):
+            continue
+        f = dict(name=name, y=y, x=x, amount=amount, unit=unit, thing=thing, d=sp.Integer(0), A=sp.Integer(1), K=sp.Integer(1), nat=False, k=None)
+        if words:
+            if name == "Howl rating":
+                m = re.fullmatch(rf"The Howl rating of a dust storm is (\S+) times the base-10 log of I × 10([{E11LF_SUPS}]+), where I units is its sound power\.", L0)
+                need(m is not None, L0)
+                f["K"] = sp.Integer(10) ** int("".join(str(E11LF_SUPS.index(c)) for c in m.group(2)))
+                if m.group(1) == "k":
+                    f["k"] = True
+                else:
+                    f["A"] = sp.Rational(m.group(1))
+            elif name == "Rumble number":
+                m = re.fullmatch(r"The Rumble number of a tremor is (\d+) plus the base-10 log of its ground swing in microns\.", L0)
+                need(m is not None, L0)
+                f["d"] = sp.Integer(m.group(1))
+            elif name == "Glare class":
+                m = re.fullmatch(r"The Glare class of a beacon is (\d+) minus (\S+) times the base-10 log of its brightness in units\.", L0)
+                need(m is not None, L0)
+                f["d"], f["A"] = sp.Integer(m.group(1)), -sp.Rational(m.group(2))
+            elif name == "Rad index":
+                m = re.fullmatch(r"The Rad index of a ruin is (\S+) times the natural log of C/(\d+), where C clicks a minute is its count\.", L0)
+                need(m is not None, L0)
+                f["K"], f["nat"] = sp.Rational(1, int(m.group(2))), True
+                if m.group(1) == "k":
+                    f["k"] = True
+                else:
+                    f["A"] = sp.Rational(m.group(1))
+            else:
+                need(L0 == "The Bite of a water sample is minus the base-10 log of its acid content in moles per litre.", L0)
+                f["A"] = sp.Integer(-1)
+        else:
+            m = re.fullmatch(rf"(?:On an old chart, the|The) {name} {y} of a {thing} and its {amount} {x}{unit} are linked by (.+?)(, where k is a constant)?\.", L0)
+            need(m is not None, f"can't read {L0!r}")
+            t = m.group(1)
+            if m.group(2):
+                f["k"] = True
+                t = t.replace(f"{y} = k ", f"{y} = ")
+            d, A, K, mt = E11LF_formula(t, y, x)
+            f.update(d=d, A=A, K=K, nat=mt.group(5) == "ln")
+        E11LF_limits(f)
+        return f
+    need(False, f"no scale in {L0!r}")
+
+
+def E11LF_limits(f):
+    n, d, A, K = f["name"], f["d"], f["A"], f["K"]
+    if f["k"]:
+        return
+    if n == "Howl rating":
+        need(d == 0 and A in (8, 12, 15, 20) and K in (10**7, 10**8, 10**9, 10**11), f"Howl constants {A}, {K}")
+    elif n == "Rumble number":
+        need(d in (1, 2, 3) and A == 1 and K == 1, f"Rumble constants {d}, {A}")
+    elif n == "Glare class":
+        need(6 <= d <= 9 and A in (-2, -3, -4) and K == 1, f"Glare constants {d}, {A}")
+    elif n == "Rad index":
+        need(d == 0 and A in (5, 6, 8, 12) and 1 / K in (10, 20, 25, 40, 50) and f["nat"], f"Rad constants {A}, {K}")
+    else:
+        need(d == 0 and A == -1 and K == 1, f"Bite constants {d}, {A}")
+
+
+def E11LF_lg_v(f, v):
+    return E11LF_f(sp.log(v) if f["nat"] else sp.log(v) / sp.log(10))
+
+
+def E11LF_other(f, v):
+    return E11LF_f(sp.log(v) / sp.log(10) if f["nat"] else sp.log(v))
+
+
+def E11LF_base(f):
+    return sp.E if f["nat"] else sp.Integer(10)
+
+
+def E11LF_other_base(f):
+    return sp.Integer(10) if f["nat"] else sp.E
+
+
+def E11LF_read(f, x):
+    return E11LF_f(f["d"] + f["A"] * E11LF_lg_v(f, x * f["K"]))
+
+
+def E11LF_amount(f, y):
+    return E11LF_f(E11LF_base(f) ** ((y - f["d"]) / f["A"]) / f["K"])
+
+
+def E11LF_amt(t):
+    """An amount as the question writes it: 3.2 × 10⁻⁵, 10⁻⁶, 1450, 0.1."""
+    t = t.strip()
+    m = re.fullmatch(r"(?:([\d.]+) × )?10([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)", t)
+    if m:
+        pw = m.group(2)
+        e = -1 if pw[0] == "⁻" else 1
+        k = e * int("".join(str(E11LF_SUPS.index(c)) for c in pw.lstrip("⁻")))
+        return sp.Rational(m.group(1) or 1) * sp.Rational(10) ** k
+    return E11LF_q(t)
+
+
+def E11LF_parts(x):
+    v = E11LF_f(x)
+    k = int(sp.floor(sp.log(abs(v), 10)))
+    a = v / sp.Rational(10) ** k
+    if abs(sp.Integer(sp.floor(abs(a) * 100 + sp.Rational(1, 2)))) >= 1000:
+        a /= 10
+        k += 1
+    return a, k
+
+
+def E11LF_sig(x, n=3):
+    return sig3(x, n).replace("-", "−")
+
+
+def E11LF_text(label, x, unit, std, n=3):
+    """A value as the game writes it, in the answer's shape."""
+    if std:
+        a, k = E11LF_parts(x)
+        return f"{label}{E11LF_sig(a, n)} × 10{E11LF_sup(k)}{unit}"
+    return f"{label}{E11LF_sig(x, n)}{unit}"
+
+
+def E11LF_is_std(x):
+    return not (E11LF_LOW <= E11LF_f(x) < E11LF_HIGH)
+
+
+def E11LF_clean(x):
+    v = E11LF_f(x)
+    a, _ = E11LF_parts(v)
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    need(abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E11LF_EDGE, f"{float(v)} is on a rounding edge")
+    need(not E11LF_sig(a).endswith("0"), f"{float(v)} reads the same as its 2 s.f. trap")
+
+
+def E11LF_unround(u):
+    need(abs(E11LF_f(u) - sp.floor(E11LF_f(u) + sp.Rational(1, 2))) >= E11LF_GAP, f"the power {u} is close to a whole number, so the answer needs no rounding")
+
+
+def E11LF_work(x):
+    """A value in the working: 6 s.f. with the trailing zeros off, or a × 10^k."""
+    def tidy(v):
+        t = sig3(v, 6).replace("-", "−")
+        return t.rstrip("0").rstrip(".") if "." in t else t
+    v = E11LF_f(x)
+    if E11LF_LOW - sp.Rational(1, 10**30) <= abs(v) < E11LF_HIGH:
+        return tidy(v)
+    k = int(sp.floor(sp.log(abs(v), 10)))
+    a = v / sp.Rational(10) ** k
+    if abs(sp.floor(abs(a) * 100 + sp.Rational(1, 2))) >= 1000:
+        a /= 10
+        k += 1
+    return f"{tidy(a)} × 10{E11LF_sup(k)}"
+
+
+def E11LF_shows(q, angle, *xs):
+    for sol in q["solutions"]:
+        if sol["angle"] == angle:
+            text = " ".join(sol["steps"])
+            for x in xs:
+                t = x if isinstance(x, str) else E11LF_work(x)
+                need(t in text, f"{sol['name']}: the working doesn't show {t}")
+
+
+def E11LF_place_row(q, at, row=1):
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "Place" and at in rows[0][1], f"the table's places {rows[0]}")
+    return rows[row][1][rows[0][1].index(at)]
+
+
+def E11LF_end(q, want, wrongs, label, x, unit):
+    """Shared end of a 3 s.f. question: the answer, the trap and the options."""
+    E11LF_clean(x)
+    std = E11LF_is_std(x)
+    trap = E11LF_text(label, x, unit, True, 2) if std else label + dec_text(sp.Rational(sig3(x, 2))) + unit
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+def E11LF_opts(label, unit, std, pairs):
+    out = {}
+    for ref, v in pairs:
+        if ref is None or v is None:
+            continue
+        val = E11LF_f(v)
+        if val == 0:
+            continue
+        out.setdefault(ref, set()).add(E11LF_text(label, val, unit, std))
+    return out
+
+
+def E11LF_model(q):
+    L0, rep = q["lines"][0], q["view"]["rep"]
+    what = "|".join(E11LF_MODEL)
+    if rep == "words":
+        m = re.fullmatch(rf"The ({what}) of a (.+) in( \w+), t days after (.+), is ([\d.]+) plus ([\d.]+) times the natural log of \(([\d.]*)t \+ 1\)\.", L0)
+    else:
+        m = re.fullmatch(rf"The ({what}) of a (.+), h( \w+), t days after (.+), is given by h = ([\d.]+) \+ ([\d.]+) ln\(([\d.]*)t \+ 1\)\.", L0)
+    need(m is not None, f"can't read {L0!r}")
+    need(E11LF_MODEL[m.group(1)] == (m.group(2), m.group(3), m.group(4)), "the story's words don't belong together")
+    p, q0, r = sp.Rational(m.group(5)), sp.Rational(m.group(6)), sp.Rational(m.group(7) or 1)
+    need(1 <= p <= 6 and sp.Rational(3, 2) <= q0 <= 6 and 1 <= r <= 4 and (2 * p).q == 1 and (2 * q0).q == 1, f"the model's p {p}, q {q0}, r {r}")
+    return m.group(1), m.group(3), m.group(4), p, q0, r
+
+
+def E11LF_paper2(q, u):
+    L, rep, asked = q["lines"], q["view"]["rep"], q["asked"]
+    O, C = E11LF_OWN, E11LF_CTX
+    need(q["paper"] == 2, "a scale is Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if u in ("model-value", "model-time"):
+        what, unit, start, p, q0, r = E11LF_model(q)
+        if u == "model-value":
+            m = re.fullmatch(rf"Find its {what} (\d+) days after {re.escape(start)}\." + re.escape(E11LF_THREE), asked)
+            need(m is not None, asked)
+            t = sp.Integer(m.group(1))
+            ln = E11LF_f(sp.log(r * t + 1))
+            h = E11LF_f(p + q0 * ln)
+            label = (what if rep == "words" else "h") + " = "
+            std = E11LF_is_std(h)
+            w = E11LF_opts(label, unit, std, [(O + "39", (p + q0) * ln), (O + "40", p + q0 * sp.log(r * t)), (O + "25", q0 * ln), (O + "24", p + q0 * sp.log(r * t + 1) / sp.log(10))])
+            if rep == "table":
+                rows = q["table"]["rows"]
+                need(rows[0][1][2] == str(t) and rows[1][1][2] == "?", "the table's last column")
+                for tv, hv in zip(rows[0][1][:2], rows[1][1][:2]):
+                    need(sig3(p + q0 * sp.log(r * int(tv) + 1)) == hv, f"the table's h at {tv}")
+            E11LF_shows(q, "substitute-evaluate", ln, h)
+            return E11LF_end(q, E11LF_text(label, h, unit, std), w, label, h, unit)
+        m = re.fullmatch(rf"Find how many days after {re.escape(start)} its {what} reaches ([\d.]+){unit}\." + re.escape(E11LF_THREE), asked)
+        need(m is not None, asked)
+        T = sp.Rational(m.group(1))
+        x = (T - p) / q0
+        E11LF_unround(x)
+        t = E11LF_f((sp.exp(x) - 1) / r)
+        need(1 <= t <= 120, f"t = {t}")
+        w = E11LF_opts("t = ", " days", False, [(O + "31", x), (O + "24", (sp.Integer(10) ** x - 1) / r), (O + "41", sp.exp(x) / r), (O + "42", sp.exp(x) / r - 1)])
+        E11LF_shows(q, "invert-formula", E11LF_f(x), sp.exp(x), t)
+        if rep == "graph":
+            g = q["graph"]
+            need(len(g["hlines"]) == 1 and sp.Rational(str(g["hlines"][0]["at"])) == T and len(g["points"]) == 1, "the figure's line")
+            need(abs(g["points"][0]["x"] - float(t)) < 1e-6 and g["points"][0]["label"] == "P", "the marked crossing")
+            for px, py in g["curves"][0][::16]:
+                need(abs(py - float(p + q0 * sp.log(r * px + 1))) < 1e-6, f"the curve at {px}")
+        return E11LF_end(q, E11LF_text("t = ", t, " days", False), w, "t = ", t, " days")
+    f = E11LF_scale(q)
+    n, y_, x_, amount, unit, thing = f["name"], f["y"], f["x"], f["amount"], f["unit"], f["thing"]
+    yl = (n if rep == "words" else y_) + " = "
+    xl = (amount if rep == "words" else x_) + " = "
+    A, d, K = f["A"], f["d"], f["K"]
+    b = E11LF_base(f)
+    three = re.escape(E11LF_THREE)
+    head = f"{x_} ({unit.strip()})"
+    if u in ("reading-from-value", "acid-reading"):
+        if u == "reading-from-value":
+            m = re.fullmatch(rf"Find the {n} at (.+)\." + three, asked)
+        else:
+            need(n == "Bite", "an acid reading is the Bite")
+            m = re.fullmatch(r"Find the Bite of the sample from (.+)\." + three, asked)
+        need(m is not None, asked)
+        at = m.group(1)
+        if rep == "table":
+            x = E11LF_amt(E11LF_place_row(q, at))
+            need(q["table"]["rows"][1][0] == head, "the table's heading")
+        else:
+            pat = rf"A {thing} at {at} has a {amount} of (.+){unit}\." if u == "reading-from-value" else rf"A water sample from {at} has an acid content of (.+) moles per litre\."
+            m = re.fullmatch(pat, L[1])
+            need(m is not None, L[1])
+            x = E11LF_amt(m.group(1))
+        y = E11LF_read(f, x)
+        need(y > 0, f"the reading {y}")
+        u_log = E11LF_lg_v(f, x * K)
+        std = E11LF_is_std(y)
+        if u == "acid-reading":
+            k = int(sp.floor(sp.log(x, 10)))
+            w = E11LF_opts(yl, "", std, [(C + "1", E11LF_f(sp.log(x) / sp.log(10))), (O + "24", -sp.log(x)), (O + "36", -k)])
+        else:
+            pairs = [(O + "24", d + A * E11LF_other(f, x * K))]
+            if abs(A) != 1:
+                pairs.append((O + "27", d + u_log * sp.sign(A)))
+            if K != 1:
+                pairs.append((O + "26", A * E11LF_lg_v(f, x)))
+            if K > 1:
+                pairs.append((O + "28", A * E11LF_lg_v(f, x) + sp.log(K, 10)))
+            if d != 0:
+                pairs.append((O + "25", A * u_log))
+            if A < 0:
+                pairs.append((C + "1", d - A * u_log))
+            w = E11LF_opts(yl, "", std, pairs)
+        E11LF_shows(q, "substitute-evaluate", u_log, y)
+        return E11LF_end(q, E11LF_text(yl, y, "", std), w, yl, y, "")
+    if u in ("reading-after-multiple", "value-after-steps"):
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[1][0] == head, "the table's heading")
+            x1 = E11LF_amt(rows[1][1][0])
+        if u == "reading-after-multiple":
+            need(asked == f"Find the {n} of B." + E11LF_THREE, asked)
+            if rep == "table":
+                y1 = E11LF_q(rows[2][1][0])
+                m_ = E11LF_amt(rows[1][1][1]) / x1
+                need(rows[2][1][1] == "?", "the missing reading")
+            else:
+                m = re.fullmatch(rf"A {thing}, A, has a {amount} of (.+){unit} and a {n} of (\S+)\.", L[1])
+                need(m is not None, L[1])
+                x1, y1 = E11LF_amt(m.group(1)), E11LF_q(m.group(2))
+                m2 = re.fullmatch(rf"A second {thing}, B, has (\S+) times the {amount} of A\.", L[2])
+                need(m2 is not None, L[2])
+                m_ = sp.Rational(m2.group(1))
+            need(abs(E11LF_read(f, x1) - y1) < sp.Rational(1, 10**20), "A's reading doesn't fit the scale")
+            need(m_ in [sp.Rational(3, 2), sp.Rational(5, 2)] + list(map(sp.Integer, range(2, 9))), f"the factor {m_}")
+            y2 = E11LF_f(y1 + A * sp.log(m_, 10))
+            lm = E11LF_f(sp.log(m_, 10))
+            std = E11LF_is_std(y2)
+            pairs = [(C + "0", m_ * y1), (O + "29", y1 + m_), (O + "24", y1 + A * sp.log(m_))]
+            if abs(A) != 1:
+                pairs.append((O + "27", y1 + sp.sign(A) * lm))
+            E11LF_shows(q, "scale-steps", lm, E11LF_f(A * lm), y2)
+            E11LF_shows(q, "substitute-evaluate", y2)
+            return E11LF_end(q, E11LF_text(yl, y2, "", std), E11LF_opts(yl, "", std, pairs), yl, y2, "")
+        if rep == "table":
+            need(asked == f"Find the {amount} at noon." + E11LF_THREE, asked)
+            need(rows[1][1][1] == "?", "the missing amount")
+            y1, y2 = E11LF_q(rows[2][1][0]), E11LF_q(rows[2][1][1])
+        else:
+            need(asked == f"Find its {amount} at noon." + E11LF_THREE, asked)
+            m = re.fullmatch(rf"At dawn a {thing} has a {amount} of (.+){unit} and a {n} of (\S+)\.", L[1])
+            need(m is not None, L[1])
+            x1, y1 = E11LF_amt(m.group(1)), E11LF_q(m.group(2))
+            m2 = re.fullmatch(rf"By noon its {n} has risen by (\S+)\.", L[2])
+            need(m2 is not None, L[2])
+            y2 = y1 + sp.Rational(m2.group(1))
+        need(abs(E11LF_read(f, x1) - y1) < sp.Rational(1, 10**20), "the dawn reading doesn't fit the scale")
+        dy = y2 - y1
+        E11LF_unround(dy / A)
+        F = E11LF_f(b ** (dy / A))
+        x2 = E11LF_f(x1 * F)
+        need(abs(E11LF_amount(f, y2) - x2) < abs(x2) / 10**20, "the two routes to the amount disagree")
+        std = E11LF_is_std(x2)
+        pairs = [(C + "0", x1 * y2 / y1), (O + "34", x1 * dy), (O + "29", x1 + F)]
+        if abs(A) != 1:
+            pairs.append((O + "27", x1 * sp.Integer(10) ** dy))
+        E11LF_shows(q, "scale-steps", F, x2)
+        E11LF_shows(q, "invert-formula", x2)
+        return E11LF_end(q, E11LF_text(xl, x2, unit, std), E11LF_opts(xl, unit, std, pairs), xl, x2, unit)
+    if u in ("value-from-reading", "acid-value"):
+        if rep == "table":
+            if u == "value-from-reading":
+                m = re.fullmatch(rf"Find the {amount} at (.+)\." + three, asked)
+            else:
+                m = re.fullmatch(r"Find the acid content of the sample from (.+)\." + three, asked)
+            need(m is not None, asked)
+            y = E11LF_q(E11LF_place_row(q, m.group(1)))
+        elif rep == "graph":
+            need(n == "Rad index", "a figure is a Rad index")
+            m = re.fullmatch(rf"The graph shows N against C for a ruin at (.+), and the line N = (\S+)\.", L[1])
+            need(m is not None, L[1])
+            y = E11LF_q(m.group(2))
+            need(asked == f"Find the count at {m.group(1)}." + E11LF_THREE, asked)
+        elif u == "value-from-reading":
+            m = re.fullmatch(rf"A {thing} at (.+) has a {n} of (\S+)\.", L[1])
+            need(m is not None and asked == f"Find the {amount} at {m.group(1)}." + E11LF_THREE, L[1])
+            y = E11LF_q(m.group(2))
+        else:
+            m = re.fullmatch(r"A water sample from (.+) has a Bite of (\S+)\.", L[1])
+            need(m is not None and asked == "Find its acid content." + E11LF_THREE, L[1])
+            y = E11LF_q(m.group(2))
+        pw = (y - d) / A
+        E11LF_unround(pw)
+        x = E11LF_amount(f, y)
+        std = E11LF_is_std(x)
+        if u == "acid-value":
+            pairs = [(C + "2", -sp.Integer(10) ** y), (C + "1", sp.Integer(10) ** y), (O + "24", sp.exp(-y))]
+        else:
+            ob = E11LF_other_base(f)
+            pairs = [(O + "24", ob ** pw / K)]
+            if E11LF_LOW <= abs(E11LF_f(pw)) < E11LF_HIGH:
+                pairs.append((O + "31", pw))
+            if K != 1:
+                pairs.extend([(O + "32", b ** pw * K), (O + "26", b ** pw)])
+            if abs(A) != 1:
+                pairs.append((O + "33", b ** (y - d) / abs(A) / K))
+            if d != 0:
+                pairs.append((O + "25", b ** (y / A) / K))
+            if A < 0:
+                pairs.append((C + "1", b ** (-pw) / K))
+        E11LF_shows(q, "invert-formula", E11LF_f(b ** pw), x)
+        if rep == "graph":
+            g = q["graph"]
+            need(len(g["hlines"]) == 1 and sp.Rational(str(g["hlines"][0]["at"])) == y and len(g["points"]) == 1, "the figure's line")
+            need(abs(g["points"][0]["x"] - float(x)) < 1e-6 and g["points"][0]["label"] == "P", "the marked crossing")
+            for px, py in g["curves"][0][::16]:
+                need(abs(py - float(E11LF_read(f, sp.Float(px)))) < 1e-6, f"the curve at {px}")
+        return E11LF_end(q, E11LF_text(xl, x, unit, std), E11LF_opts(xl, unit, std, pairs), xl, x, unit)
+    if u == "ratio-two-readings":
+        m = re.fullmatch(rf"How many times greater is the {amount} at (.+) than at (.+)\?" + three, asked)
+        need(m is not None, asked)
+        at2, at1 = m.group(1), m.group(2)
+        if rep == "table":
+            y1, y2 = E11LF_q(E11LF_place_row(q, at1)), E11LF_q(E11LF_place_row(q, at2))
+        else:
+            mr = re.fullmatch(rf"A {thing} at {at1} has a {n} of (\S+), and a {thing} at {at2} has a {n} of (\S+)\.", L[1])
+            need(mr is not None, L[1])
+            y1, y2 = E11LF_q(mr.group(1)), E11LF_q(mr.group(2))
+        need(y1 > 0 and y2 > 0, "a reading")
+        x1, x2 = E11LF_amount(f, y1), E11LF_amount(f, y2)
+        need(x2 > x1, "the asked place has the smaller amount")
+        dy = abs(y2 - y1)
+        pw = dy / abs(A)
+        E11LF_unround(pw)
+        F = E11LF_f(b ** pw)
+        need(abs(x2 / x1 - F) < F / 10**20, "the two routes to the factor disagree")
+        need(sp.Rational(6, 5) <= F <= 2 * 10**7, f"the factor {F}")
+        std = E11LF_is_std(F)
+        pairs = [(C + "0", max(y1, y2) / min(y1, y2)), (O + "34", dy), (O + "24", E11LF_other_base(f) ** pw)]
+        if abs(A) != 1:
+            pairs.append((O + "27", b ** dy))
+        E11LF_shows(q, "scale-steps", E11LF_f(pw), F)
+        E11LF_shows(q, "invert-formula", x1, x2, F)
+        return E11LF_end(q, E11LF_text("", F, " times", std), E11LF_opts("", " times", std, pairs), "", F, " times")
+    if u == "rise-for-factor":
+        m = re.fullmatch(rf"The {amount} of a {thing} is multiplied by (\S+)\.", L[1])
+        need(m is not None, L[1])
+        m_ = sp.Rational(m.group(1))
+        word = "fall" if A < 0 else "rise"
+        need(asked == f"Find the {word} in its {n}." + E11LF_THREE, asked)
+        need(abs(A) != 1, "a multiplier")
+        lm = E11LF_lg_v(f, m_)
+        E11LF_unround(lm)
+        size = E11LF_f(abs(A) * lm)
+        std = E11LF_is_std(size)
+        label = word + " = "
+        pairs = [(O + "30", abs(A) * m_), (O + "27", lm), (O + "24", abs(A) * E11LF_other(f, m_))]
+        E11LF_shows(q, "scale-steps", lm, size)
+        E11LF_shows(q, "substitute-evaluate", lm, size)
+        return E11LF_end(q, E11LF_text(label, size, "", std), E11LF_opts(label, "", std, pairs), label, size, "")
+    if u == "percent-rise":
+        m = re.fullmatch(rf"A {thing} has a {n} of (\S+)\. Its {n} rises by (\S+)\.", L[1])
+        need(m is not None and asked == f"Find the percentage increase in its {amount}." + E11LF_THREE, L[1])
+        y1, dy = E11LF_q(m.group(1)), E11LF_q(m.group(2))
+        F = E11LF_f(b ** (dy / A))
+        need(sp.Rational(6, 5) <= F <= 9, f"the factor {F}")
+        pct = E11LF_f(100 * (F - 1))
+        std = E11LF_is_std(pct)
+        label = "increase = "
+        pairs = [(O + "35", 100 * F), (C + "0", 100 * dy / y1), (O + "24", 100 * (E11LF_other_base(f) ** (dy / A) - 1))]
+        if A != 1:
+            pairs.append((O + "27", 100 * (b ** dy - 1)))
+        E11LF_clean(E11LF_f(100 * F))
+        E11LF_shows(q, "scale-steps", F, pct)
+        E11LF_shows(q, "invert-formula", F, pct)
+        return E11LF_end(q, E11LF_text(label, pct, "%", std), E11LF_opts(label, "%", std, pairs), label, pct, "%")
+    if u == "find-scale-constant":
+        need(f["k"] is True and asked == "Find k." + E11LF_THREE, asked)
+        if rep == "table":
+            rows = q["table"]["rows"]
+            need(rows[1][0] == head and rows[2][0] == n, "the table's headings")
+            x, y = E11LF_amt(rows[1][1][0]), E11LF_q(rows[2][1][0])
+        else:
+            m = re.fullmatch(rf"A {thing} at (.+) has a {amount} of (.+){unit} and a {n} of (\S+)\.", L[1])
+            need(m is not None, L[1])
+            x, y = E11LF_amt(m.group(2)), E11LF_q(m.group(3))
+        inner = x * K
+        need(inner > sp.Rational(3, 2), f"the inside of the log {inner}")
+        lv = E11LF_lg_v(f, inner)
+        k = E11LF_f(y / lv)
+        std = E11LF_is_std(k)
+        pairs = [(O + "37", y * lv), (O + "38", y - lv), (O + "14", y / inner), (O + "24", y / E11LF_other(f, inner))]
+        E11LF_shows(q, "substitute-evaluate", lv, k)
+        return E11LF_end(q, E11LF_text("k = ", k, "", std), E11LF_opts("k = ", "", std, pairs), "k = ", k, "")
+    need(False, f"the unknown {u}")
+
+
+def E11LF_check(q):
+    u = q["view"]["unknown"]
+    need(q["answer"]["kind"] in ("form", "number", "choice"), "the answer's kind")
+    if u in E11LF_PAPER_1:
+        return E11LF_paper1(q, u)
+    return E11LF_paper2(q, u)
 # ── log-laws (t1-log-laws, FAL-751) ──────────────────────────
 # The `log-laws` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/log_laws.gd. Every expression is read back from what the student sees
@@ -32759,7 +33576,2866 @@ def e10tm_check(q):
 
 # ── end trig-model-equation ──
 
-SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
+# ── sequence-proof (t1-sequence-proof, FAL-753) ──────────────
+# The `sequence-proof` situation's clean limits and exam exclusions, the checker's own copy: the
+# engine's is in game/engine/situations/sequence_proof.gd. Each claim is read back from the
+# question's own words, and every line of a proof is proved here with SymPy: for general n, or
+# for every a and d, not by trying values. A line is held to what its left side means, so
+# "uₙ = ..." has to equal Sₙ − Sₙ₋₁ as an expression in n. Each tagged option is that same check
+# on a world where the slip was made: the slip's value is worked out here by making the move,
+# and the option must be true there and false here.
+
+E11SP_M = "SL1.6.series-proof#"
+E11SP_CHECK, E11SP_CIRCULAR, E11SP_PARTICULAR, E11SP_GAPS, E11SP_FIRST_ONLY, E11SP_ONE_TERM, E11SP_TERMWISE, E11SP_NO_DOUBLE, E11SP_WRONG_TEST, \
+    E11SP_RECIPROCAL, E11SP_LOG_DIFF, E11SP_RATIO_AS_DIFF, E11SP_NO_HALF, E11SP_NO_TWO, E11SP_LAST_AS_SUM, E11SP_SUM_AS_TERM, E11SP_NEXT_SUM, \
+    E11SP_COEFF, E11SP_SWAP, E11SP_WIDTH, E11SP_CORNER, E11SP_LAST_TWICE, E11SP_HALF_COLUMNS, E11SP_ACROSS, E11SP_SIGN_MOVE, E11SP_POSITION, \
+    E11SP_NO_DIVIDE, E11SP_CONSECUTIVE, E11SP_HALF_RECT, E11SP_D_OVER_A, E11SP_LAST_ONLY = (E11SP_M + str(i) for i in range(31))
+E11SP_N = sp.Symbol("n", positive=True, integer=True)
+E11SP_A, E11SP_D = sp.Symbol("a"), sp.Symbol("d")
+E11SP_LINKS = ((1, 3), (1, 4), (1, 5), (1, 6), (2, 8), (2, 12), (3, 15))
+E11SP_STEPS = ((1, 2), (1, 3), (1, 4), (2, 1), (2, 3), (3, 1), (3, 2), (4, 1))
+E11SP_KSKIP = (1, -5, -2, 3, 5, 3)
+E11SP_SUB = {"₁": "1", "₂": "2", "₃": "3", "₅": "5"}
+E11SP_THINGS = ("rivets", "bolts", "bottle caps", "washers", "fuses")
+E11SP_UNSUITED = "This statement does not suit that method, so work through it line by line."
+
+
+def E11SP_num(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E11SP_expr(text, names=None):
+    """Plain text as an expression: names maps a word in the text to its value."""
+    s = text.strip()
+    names = dict(names or {})
+    # Longest first, so uₙ₊₁ is not read as uₙ and two stray signs.
+    local = {"n": E11SP_N}
+    for i, key in enumerate(sorted(names, key=len, reverse=True)):
+        s = s.replace(key, f" E11T{i} ")
+        local[f"E11T{i}"] = names[key]
+    s = s.replace("−", "-").replace("×", "*").replace("²", "**2").replace("³", "**3").replace("⁴", "**4")
+    s = s.replace("½", "(1/2)")
+    return parse_expr(s, local_dict=local, transformations=TRANSFORMS)
+
+
+def E11SP_same(a, b):
+    return sp.simplify(sp.expand(a - b)) == 0
+
+
+def E11SP_sides(line):
+    need(line.count(" = ") == 1, f"can't read the line {line!r}")
+    return line.split(" = ")
+
+
+def E11SP_top_terms(text):
+    """A list a + b + … + z cut at its top-level pluses."""
+    out, depth, cur = [], 0, ""
+    for tok in re.split(r"( \+ |[()])", text):
+        if tok == "(":
+            depth += 1
+        elif tok == ")":
+            depth -= 1
+        if tok == " + " and depth == 0:
+            out.append(cur.strip())
+            cur = ""
+        else:
+            cur += tok
+    return out + [cur.strip()]
+
+
+# ── The world a proof lives in ───────────────────────────────
+# A world is a dict: fam, and what each left side means. A slip's world changes one meaning.
+
+def E11SP_world(fam, g, angle=None):
+    i = lambda k: int(g[k])
+    n = E11SP_N
+    if fam == "ap-term":
+        p, q = i("p"), i("q")
+        need(2 <= abs(p) <= 9 and 1 <= abs(q) <= 9 and p + 2 * q != 0, f"p, q = {p}, {q}")
+        return {"fam": fam, "u": lambda k: p * k + q, "gap": p}
+    if fam == "sum-term":
+        a, b = i("A"), i("B")
+        need(1 <= a <= 6 and 1 <= abs(b) <= 9 and a != b, f"A, B = {a}, {b}")
+        S = lambda k: a * k**2 + b * k
+        return {"fam": fam, "S": S, "term": S(n) - S(n - 1), "A": a, "B": b}
+    if fam == "log-geo":
+        b, p, q = i("b"), i("p"), i("q")
+        need(b in (2, 3, 5) and 1 <= p <= 4 and q != 0 and p != q and abs(q) <= {2: 4, 3: 3, 5: 2}[b], f"b, p, q = {b}, {p}, {q}")
+        u1, r = sp.Integer(b)**p, sp.Integer(b)**q
+        return {"fam": fam, "b": b, "u1": u1, "r": r, "p": p, "q": q, "gap": sp.Integer(q)}
+    if fam == "linked":
+        ii, j = i("i"), i("j")
+        need((ii, j) in E11SP_LINKS, f"i, j = {ii}, {j}")
+        a, d = E11SP_A, E11SP_D
+        roots = sp.solve(sp.expand((a + ii * d)**2 - a * (a + j * d)), d)
+        k = [x / a for x in roots if x != 0]
+        need(len(k) == 1 and k[0].is_integer, f"d is not a whole multiple of a: {roots}")
+        return {"fam": fam, "i": ii, "j": j, "k": k[0]}
+    if fam == "sum-list":
+        p, q = i("p"), i("q")
+        need(2 <= p <= 7 and q != 0 and 1 <= p + q <= 9 and p + 2 * q != 0, f"p, q = {p}, {q}")
+        k = sp.Symbol("k", positive=True, integer=True)
+        S = sp.factor(sp.summation(p * k + q, (k, 1, n)))
+        u = lambda t: p * t + q
+        return {"fam": fam, "u": u, "sum": S, "pair": u(1) + u(n), "p": p, "q": q, "first": p + q}
+    need(False, f"no world for {fam}")
+
+
+def E11SP_slip_world(w, ref, angle):
+    """The same world with one wrong move made, worked out here by making the move."""
+    v, n = dict(w), E11SP_N
+    fam = w["fam"]
+    if fam == "ap-term":
+        p, q = w["gap"], w["u"](0)
+        v["gap"] = {E11SP_ONE_TERM: sp.Integer(1), E11SP_FIRST_ONLY: p + 2 * q}[ref]
+    elif fam == "sum-term":
+        a, b, S = w["A"], w["B"], w["S"]
+        if ref == E11SP_TERMWISE:
+            v["term"] = S(n) - (a * (n**2 + 1) + b * (n - 1))
+        elif ref == E11SP_FIRST_ONLY:
+            # Only the n² term of the second bracket changes sign.
+            v["term"] = S(n) - a * n**2 + (-2 * a * n + a + b * n - b)
+        else:
+            need(ref == E11SP_NEXT_SUM, f"no slip {ref}")
+            v["term"] = S(n + 1) - S(n)
+    elif fam == "log-geo":
+        if ref == E11SP_RATIO_AS_DIFF:
+            v["gap"] = w["r"]
+        else:
+            need(ref == E11SP_RECIPROCAL, f"no slip {ref}")
+            v["gap"] = -w["gap"]
+    elif fam == "linked":
+        i, j, a, d = w["i"], w["j"], E11SP_A, E11SP_D
+        # d = ka, from the equation the slip leaves.
+        m = {E11SP_NO_DOUBLE: j - i, E11SP_TERMWISE: j, E11SP_SIGN_MOVE: j + 2 * i}[ref]
+        v["k"] = sp.Rational(m, i * i)
+        v["slip"] = ref
+    elif fam == "sum-list":
+        p, first, S = w["p"], w["first"], w["sum"]
+        if angle == "forwards-backwards":
+            if ref == E11SP_NO_HALF:
+                v["sum"] = 2 * S
+                v["halved"] = 2
+            elif ref == E11SP_HALF_COLUMNS:
+                v["sum"] = S / 2
+                v["columns"] = n / 2
+            else:
+                need(ref == E11SP_LAST_TWICE, f"no slip {ref}")
+                v["pair"] = 2 * w["u"](n)
+                v["sum"] = n * w["u"](n)
+        else:
+            v["sum"] = {E11SP_GAPS: n / 2 * (2 * first + n * p), E11SP_NO_TWO: n / 2 * (first + (n - 1) * p), E11SP_NO_HALF: 2 * S}[ref]
+    return v
+
+
+def E11SP_log_read(text, w):
+    """log₂ uₙ₊₁ − log₂ uₙ, log₂(uₙ₊₁/uₙ), log₂(8) or a number, as a value in n."""
+    n, b = E11SP_N, w["b"]
+    u = lambda k: w["u1"] * w["r"]**(k - 1)
+    name = "log" + {2: "₂", 3: "₃", 5: "₅"}[b]
+    s = text.replace(f"{name} uₙ₊₁", f"{name}(uₙ₊₁)").replace(f"{name} uₙ", f"{name}(uₙ)")
+    # A log base b of a power of b is that power: its value, by exponents and no sampling.
+    def lg(e):
+        return sp.simplify(sp.expand_log(sp.log(sp.powsimp(e, force=True)), force=True) / sp.log(b))
+    expr = E11SP_expr(s.replace(name, "E11LOG"), {"uₙ₊₁": u(n + 1), "uₙ": u(n), "E11LOG": sp.Function("E11LOG")})
+    return expr.replace(lambda e: isinstance(e, sp.core.function.AppliedUndef), lambda e: lg(e.args[0]))
+
+
+def E11SP_true(line, w):
+    """Whether a line of a proof holds in this world, for general n."""
+    fam, n = w["fam"], E11SP_N
+    left, right = E11SP_sides(line)
+    if fam == "ap-term":
+        need(left == "uₙ₊₁ − uₙ", f"can't read {line!r}")
+        return E11SP_same(E11SP_expr(right), w["gap"])
+    if fam == "sum-term":
+        need(left == "uₙ", f"can't read {line!r}")
+        S = w["S"]
+        return E11SP_same(E11SP_expr(right, {"Sₙ₊₁": S(n + 1), "Sₙ₋₁": S(n - 1), "Sₙ": S(n)}), w["term"])
+    if fam == "log-geo":
+        need(left == "vₙ₊₁ − vₙ", f"can't read {line!r}")
+        return E11SP_same(E11SP_log_read(right, w), w["gap"])
+    if fam == "linked":
+        a, d = E11SP_A, E11SP_D
+        names = {"a": a, "d": d}
+        e = sp.expand(E11SP_expr(left, names) - E11SP_expr(right, names))
+        return sp.expand(e.subs(d, w["k"] * a)) == 0
+    # sum-list
+    S, u = w["sum"], w["u"]
+    if " copies of " in right:
+        count, body = right.split(" copies of ")
+        need(left == "2Sₙ", f"can't read {line!r}")
+        x = E11SP_expr(body)
+        return E11SP_same(x, w["pair"]) and E11SP_same(E11SP_expr(count), w.get("columns", n))
+    if "…" in right:
+        need(left == "Sₙ", f"can't read {line!r}")
+        ts = E11SP_top_terms(right)
+        need(len(ts) == 5 and ts[3] == "…", f"can't read the list {right!r}")
+        got = [E11SP_expr(t) for t in ts[:3] + ts[4:]]
+        fw = [u(1), u(2), u(3), u(n)]
+        bw = [u(n), u(n - 1), u(n - 2), u(1)]
+        return all(E11SP_same(x, y) for x, y in zip(got, fw)) or all(E11SP_same(x, y) for x, y in zip(got, bw))
+    whole = {"Sₙ": S, "2Sₙ": 2 * S}
+    need(left in whole, f"can't read {line!r}")
+    return E11SP_same(E11SP_expr(right), whole[left])
+
+
+# ── Reading a claim back ─────────────────────────────────────
+
+def E11SP_read_claim(q, g, rep):
+    """The numbers a chain's setting states, from the words. They must be the given ones."""
+    fam, L = g["fam"], q["lines"]
+    if fam == "ap-term":
+        if rep == "words" and q["view"]["unknown"] in ("constant-difference", "missing-line"):
+            m = re.fullmatch(r"The nth term of a sequence is found by multiplying n by (−?\d+), then (adding|taking away) (\d+)\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            p, c = int(E11SP_num(m.group(1))), int(m.group(3)) * (1 if m.group(2) == "adding" else -1)
+        else:
+            m = re.fullmatch(r"uₙ = (.+), where n is a positive integer\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = sp.Poly(E11SP_expr(m.group(1)), E11SP_N)
+            p, c = e.coeff_monomial(E11SP_N), e.coeff_monomial(1)
+        need((p, c) == (int(g["p"]), int(g["q"])), "the setting is not the given numbers")
+    elif fam == "sum-term":
+        if rep == "words" and q["view"]["unknown"] in ("term-from-sum", "difference-from-sum", "missing-line"):
+            m = re.fullmatch(r"The sum of the first n terms of a sequence is found by multiplying n² by (\d+), then (adding|taking away) (\d+) times n\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            a, b = int(m.group(1)), int(m.group(3)) * (1 if m.group(2) == "adding" else -1)
+        else:
+            m = re.fullmatch(r"Sₙ = (.+) is the sum of the first n terms of a sequence\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = sp.Poly(E11SP_expr(m.group(1)), E11SP_N)
+            a, b = e.coeff_monomial(E11SP_N**2), e.coeff_monomial(E11SP_N)
+        need((a, b) == (int(g["A"]), int(g["B"])), "the setting is not the given numbers")
+    elif fam == "log-geo":
+        if rep == "words":
+            m = re.fullmatch(r"A geometric sequence uₙ starts at (\d+), and each term is ([\d/]+) times the one before\.", L[0])
+            m2 = re.fullmatch(r"A second sequence vₙ is the log base (\d) of each term\.", L[1])
+            need(m and m2, f"can't read {L[:2]!r}")
+            b = int(m2.group(1))
+        else:
+            m = re.fullmatch(r"uₙ is a geometric sequence with u₁ = (\d+) and common ratio ([\d/]+)\.", L[0])
+            m2 = re.fullmatch(r"vₙ = log([₂₃₅]) uₙ", L[1])
+            need(m and m2, f"can't read {L[:2]!r}")
+            b = int(E11SP_SUB[m2.group(1)])
+        need(sp.Integer(m.group(1)) == sp.Integer(b)**int(g["p"]) and sp.Rational(m.group(2)) == sp.Integer(b)**int(g["q"]) and b == int(g["b"]), "the setting is not the given numbers")
+    elif fam == "linked":
+        ii, j = int(g["i"]), int(g["j"])
+        if rep == "words":
+            need(f"Its 1st, {E11SP_ord(ii + 1)} and {E11SP_ord(j + 1)} terms are three consecutive terms" in L[1], f"can't read {L[1]!r}")
+        else:
+            lead = lambda c: "" if c == 1 else str(c)
+            need(L[1] == f"a, a + {lead(ii)}d and a + {lead(j)}d are three consecutive terms of a geometric sequence.", f"can't read {L[1]!r}")
+    elif fam == "sum-list":
+        if rep == "words":
+            m = re.fullmatch(r"A list of numbers starts at (\d+), and each number is (\d+) more than the one before\. Sₙ is the sum of the first n numbers\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            first, d = int(m.group(1)), int(m.group(2))
+        else:
+            m = re.fullmatch(r"uₙ = (.+) is an arithmetic sequence, and Sₙ is the sum of its first n terms\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = E11SP_expr(m.group(1))
+            first, d = e.subs(E11SP_N, 1), sp.expand(e.subs(E11SP_N, 2) - e.subs(E11SP_N, 1))
+        need((first, d) == (int(g["p"]) + int(g["q"]), int(g["p"])), "the setting is not the given numbers")
+
+
+def E11SP_ord(k):
+    return f"{k}" + ("th" if 11 <= k % 100 <= 13 else {1: "st", 2: "nd", 3: "rd"}.get(k % 10, "th"))
+
+
+def E11SP_claim_line(q, w):
+    """A chain's stated claim: true, and it is what the proof reaches."""
+    claim = next((l for l in q["lines"] if l.startswith("Prove that ")), None)
+    need(claim is not None, "no claim")
+    if claim.startswith("Prove that the sequence") or claim.startswith("Prove that vₙ"):
+        return None
+    body = claim[len("Prove that "):].rstrip(".")
+    need(E11SP_true(body, w), f"the claim {claim!r} is false")
+    return body
+
+
+def E11SP_shown(q):
+    """The numbered lines of a proof: [(line number, text)], in order, from 1."""
+    out = []
+    for l in q["lines"]:
+        m = re.fullmatch(r"Line (\d+): (.*)", l)
+        if m:
+            need(int(m.group(1)) == len(out) + 1, f"line {m.group(1)} is out of order")
+            out.append(m.group(2))
+    need(out, "no lines of proof")
+    return out
+
+
+def E11SP_steps(q, w):
+    """Every step of working that ends on a line of the proof is true of the world."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            # "Why it holds: the line". A step with no colon is a sentence, not a line.
+            tail = st.rsplit(": ", 1)[-1].rstrip(".")
+            if ": " in st and tail.count(" = ") == 1 and "," not in tail and not st.startswith("So "):
+                need(E11SP_true(tail, w), f"{sol['name']}: {st!r} is not true")
+
+
+def E11SP_tagged(o, body, w, angle):
+    """A tagged wrong line: true where the slip was made, and it holds nowhere else."""
+    ref = o["ref"]
+    if ref == E11SP_LOG_DIFF:
+        need(body.endswith("(uₙ₊₁ − uₙ)"), f"{body!r} is not a log of a difference")
+        return
+    need(E11SP_true(body, E11SP_slip_world(w, ref, angle)), f"option {body!r} is not what {ref} gives")
+
+
+def E11SP_common(q, want):
+    """The checks every question shares. A tag's option has been read back by value already."""
+    tags = {}
+    for o in q["choices"]:
+        if o["ref"]:
+            tags.setdefault(o["ref"], set()).add(o["text"])
+    gc_check_common(q, want, tags, steps=(2, 5))
+
+
+def E11SP_lines_check(q, g, u, rep, angle):
+    fam = g["fam"]
+    need(angle in ("general-difference", "series-formula", "forwards-backwards"), f"method {angle}")
+    # A shared situation belongs to no method, so its lines can be another's: the working says so.
+    fits = fam in {"general-difference": ("ap-term", "sum-term", "log-geo"), "series-formula": ("sum-list", "linked"), "forwards-backwards": ("sum-list",)}[angle]
+    need(fits or q["solutions"][0]["steps"][0] == E11SP_UNSUITED, f"{fam} by {angle}")
+    E11SP_read_claim(q, g, rep)
+    w = E11SP_world(fam, g)
+    E11SP_claim_line(q, w)
+    if u == "valid-proof":
+        return E11SP_valid(q, g, w, angle)
+    shown = E11SP_shown(q)
+    if u == "flawed-line":
+        return E11SP_flawed(q, g, w, angle, shown)
+    if u == "missing-line":
+        hide = int(g["hide"])
+        need(shown[hide] == "?" and shown.count("?") == 1, "the hidden line")
+        label = f"Line {hide + 1}: "
+        need(q["answer_text"].startswith(label), "the answer is another line")
+    else:
+        need(len(shown) == int(g["at"]), "the lines shown")
+        label = ""
+    for i, l in enumerate(shown):
+        if l != "?":
+            need(E11SP_true(l, w), f"line {i + 1} is false: {l!r}")
+    for o in q["choices"]:
+        body = o["text"][len(label):]
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        if o["correct"]:
+            need(E11SP_true(body, w), f"the right line {body!r} is false")
+            need(body not in shown, "the right line is already shown")
+            continue
+        ref = o["ref"]
+        if ref == E11SP_CIRCULAR:
+            need(body.endswith(", because that is the result to prove.") and E11SP_true(body.split(", because")[0], w), f"can't read {body!r}")
+            continue
+        if ref == E11SP_CHECK:
+            need(E11SP_one_value(body, w), f"{body!r} is not the value at n = 1")
+            continue
+        if ref == E11SP_LOG_DIFF:
+            E11SP_tagged(o, body, w, angle)
+            continue
+        need(not E11SP_true(body, w), f"the wrong line {body!r} is true")
+        if ref:
+            E11SP_tagged(o, body, w, angle)
+    E11SP_common(q, q["answer_text"])
+    E11SP_steps(q, w)
+
+
+def E11SP_one_value(body, w):
+    m = re.fullmatch(r"Try n = 1: (.+) = (−?\d+)\.", body)
+    need(m, f"can't read {body!r}")
+    fam, v = w["fam"], E11SP_num(m.group(2))
+    if fam == "ap-term":
+        return m.group(1) == "u₂ − u₁" and v == w["u"](2) - w["u"](1)
+    if fam == "sum-term":
+        return m.group(1) == "u₁" and v == w["S"](1)
+    if fam == "log-geo":
+        return m.group(1) == "v₂ − v₁" and v == w["gap"]
+    return m.group(1) == "S₁" and v == w["u"](1)
+
+
+def E11SP_flawed(q, g, w, angle, shown):
+    at = int(g["at"])
+    # The first false line is found here, and every line after it follows from the same slip.
+    first = next((i for i, l in enumerate(shown) if not E11SP_true(l, w)), None)
+    need(first == at, f"the first false line is {first}, not {at}")
+    refs = E11SP_chain_refs(w, angle)
+    made = refs[int(g["slip"]) - 1]
+    slip = E11SP_slip_world(w, made, angle)
+    for l in shown[at:]:
+        need(E11SP_true(l, slip), f"{l!r} is not what the slip {made} carries to")
+    head = f"Line {at + 1} should read: "
+    for o in q["choices"]:
+        m = re.fullmatch(r"Line (\d+) should read: (.*)", o["text"])
+        need(m, f"can't read {o['text']!r}")
+        no, body = int(m.group(1)) - 1, m.group(2)
+        if o["correct"]:
+            need(o["text"].startswith(head) and E11SP_true(body, w), f"the right option {o['text']!r} is false")
+        elif no == at:
+            need(not E11SP_true(body, w), f"{o['text']!r} is true of the first wrong line")
+            if o["ref"]:
+                E11SP_tagged(o, body, w, angle)
+        else:
+            need(no > at and not o["ref"], f"{o['text']!r} is about an earlier line, or tagged")
+    need(q["answer_text"].startswith(head), "the answer is another line")
+    E11SP_common(q, q["answer_text"])
+
+
+def E11SP_chain_refs(w, angle):
+    if w["fam"] == "sum-list":
+        return [E11SP_NO_HALF, E11SP_HALF_COLUMNS, E11SP_LAST_TWICE] if angle == "forwards-backwards" else [E11SP_GAPS, E11SP_NO_TWO, E11SP_NO_HALF]
+    return {"ap-term": [E11SP_ONE_TERM, E11SP_FIRST_ONLY], "sum-term": [E11SP_TERMWISE, E11SP_FIRST_ONLY, E11SP_NEXT_SUM],
+            "log-geo": [E11SP_LOG_DIFF, E11SP_RATIO_AS_DIFF, E11SP_RECIPROCAL], "linked": [E11SP_NO_DOUBLE, E11SP_TERMWISE, E11SP_SIGN_MOVE]}[w["fam"]]
+
+
+def E11SP_valid(q, g, w, angle):
+    fam, n = w["fam"], E11SP_N
+    ch = {o["ref"]: o["text"] for o in q["choices"] if not o["correct"]}
+    arith = "so the sequence is arithmetic."
+    t = lambda v: ("−" + str(-v)) if v < 0 else str(v)
+    if fam in ("ap-term", "sum-term"):
+        d = sp.simplify(w["term"].subs(n, n + 1) - w["term"]) if fam == "sum-term" else sp.Integer(w["gap"])
+        need(d.is_number, "the sequence is not arithmetic")
+        gap = "uₙ₊₁ − uₙ"
+        need(ch[E11SP_CHECK] == f"Try n = 1, n = 2 and n = 3: {gap} is {t(d)} each time, {arith}", f"can't read {ch[E11SP_CHECK]!r}")
+        need(ch[E11SP_PARTICULAR] == f"u₂ − u₁ = u₃ − u₂ = {t(d)}, {arith}", f"can't read {ch[E11SP_PARTICULAR]!r}")
+        need(ch[E11SP_CIRCULAR].startswith("The sequence is arithmetic, so "), f"can't read {ch[E11SP_CIRCULAR]!r}")
+        right = q["answer_text"]
+        if fam == "ap-term":
+            m = re.fullmatch(rf"uₙ₊₁ − uₙ = (.+) = {re.escape(t(d))} for every n, so the sequence is arithmetic\.", right)
+            need(m and E11SP_true(f"uₙ₊₁ − uₙ = {m.group(1)}", w), f"can't read {right!r}")
+        else:
+            m = re.fullmatch(rf"uₙ = Sₙ − Sₙ₋₁ = (.+) for every n, so uₙ₊₁ − uₙ = {d}, a constant\.", right)
+            need(m and E11SP_true(f"uₙ = {m.group(1)}", w), f"can't read {right!r}")
+        E11SP_common(q, right)
+        return
+    # The two arguments on a sum: read back, every number worked out here.
+    p, first, S = w["p"], w["first"], w["sum"]
+    body = sp.expand(2 * S / n)
+    text = E11SP_poly(body)
+    ends = f"(n/2)({text})"
+    need(ch[E11SP_CHECK] == f"S₁ = {S.subs(n, 1)}, S₂ = {S.subs(n, 2)} and S₃ = {S.subs(n, 3)} fit the formula, so it holds for every n.", f"can't read {ch[E11SP_CHECK]!r}")
+    need(ch[E11SP_CIRCULAR] == f"Let Sₙ = {ends}. Then 2Sₙ = n({text}), so halving gives {ends}.", f"can't read {ch[E11SP_CIRCULAR]!r}")
+    if angle == "forwards-backwards":
+        want = f"Add Sₙ forwards and backwards: each of the n columns is {text}, so 2Sₙ = n({text}), and Sₙ = {ends}."
+        need(E11SP_same(w["pair"], body), "the columns do not add to the bracket")
+        need(ch[E11SP_NO_HALF] == f"Add Sₙ forwards and backwards: each of the n columns is {text}, so Sₙ = n({text}).", f"can't read {ch[E11SP_NO_HALF]!r}")
+    else:
+        want = f"Sₙ = (n/2)(2 × {first} + (n − 1) × {p}) = {ends}, by the formula for an arithmetic sum."
+        off = E11SP_poly(sp.expand(2 * first + n * p))
+        need(ch[E11SP_GAPS] == f"Sₙ = (n/2)(2 × {first} + n × {p}) = (n/2)({off}), by the formula for an arithmetic sum.", f"can't read {ch[E11SP_GAPS]!r}")
+    E11SP_common(q, want)
+
+
+def E11SP_poly(e, v=None):
+    return pf_poly(e.subs(E11SP_N, PF_N), PF_N)
+
+
+def E11SP_values(q, label, value, wrongs, want=None):
+    """Number options: the right one has the value, and each tag the value of its slip."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = E11SP_num(o["text"][len(label):])
+        need(o["correct"] == (v == value), f"option {o['text']!r} is marked {o['correct']}; the value is {value}")
+        if o["ref"]:
+            need(o["ref"] in wrongs and any(v == x for x in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+    t = str(value).replace("-", "−")
+    E11SP_common(q, label + t)
+
+
+def E11SP_forms(q, label, value, wrongs, names=None):
+    """Expression options: each read back and compared with value as an expression in n."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = E11SP_expr(o["text"][len(label):], names)
+        need(o["correct"] == E11SP_same(v, value), f"option {o['text']!r} is marked {o['correct']}")
+        if o["ref"]:
+            need(o["ref"] in wrongs and E11SP_same(v, wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+    E11SP_common(q, q["answer_text"])
+
+
+def E11SP_relation(q, g, rep, u):
+    """Three unevenly spaced terms, read back from the words."""
+    x, y, z = g["l1"], g["l2"], g["l3"]
+    need((x, y, z) in (("a", "b", "c"), ("x", "y", "z"), ("f", "g", "h")), "the letters")
+    L = q["lines"]
+    if u == "arithmetic-relation":
+        if rep == "words":
+            m = re.fullmatch(rf"In an arithmetic sequence, {x} is the first term and {y} comes straight after it\. {z} comes (\d) terms after {y}\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = int(m.group(1))
+        else:
+            m = re.fullmatch(rf"{x}, {y} and {z} are the 1st, 2nd and (\d)th terms of an arithmetic sequence\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = int(m.group(1)) - 2
+        need(2 <= e <= 5 and e == int(g["e"]), f"e = {e}: evenly spaced terms are the exam's")
+        t, d = sp.Symbol("t"), sp.Symbol("D")
+        vals = {x: t, y: t + d, z: t + (e + 1) * d}
+        X, Y = sp.Symbol(x), sp.Symbol(y)
+        for o in q["choices"]:
+            left, right = E11SP_sides(o["text"])
+            need(left == z, f"option {o['text']!r} is not about {z}")
+            r = E11SP_expr(right, {x: X, y: Y})
+            need(o["correct"] == E11SP_same(r.subs({X: vals[x], Y: vals[y]}), vals[z]), f"option {o['text']!r} is marked {o['correct']}")
+            want = {E11SP_POSITION: (e + 3) * Y - (e + 2) * X, E11SP_ONE_TERM: (e + 1) * Y - X, E11SP_SIGN_MOVE: (e - 1) * Y - e * X}
+            if o["ref"]:
+                need(E11SP_same(r, want[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+        E11SP_common(q, q["answer_text"])
+        return
+    if rep == "words":
+        m = re.fullmatch(rf"In a geometric sequence with no zero terms, {x} is the first term, {y} comes (\d) after it and {z} comes (\d) after {y}\.", L[0])
+        need(m, f"can't read {L[0]!r}")
+        a, b = int(m.group(1)), int(m.group(2))
+    else:
+        m = re.fullmatch(rf"{x}, {y} and {z} are the 1st, (\d)\w\w and (\d)\w\w terms of a geometric sequence with no zero terms\.", L[0])
+        need(m, f"can't read {L[0]!r}")
+        a, b = int(m.group(1)) - 1, int(m.group(2)) - int(m.group(1))
+    need((a, b) in E11SP_STEPS and (a, b) == (int(g["g"]), int(g["h"])), "the steps")
+    sup = lambda c: "" if c == 1 else "".join("⁰¹²³⁴⁵⁶⁷⁸⁹"[int(ch)] for ch in str(c))
+    need(L[1] == f"{x}{sup(b)}{z}{sup(a)} = {y}^k for every such sequence.", f"can't read {L[1]!r}")
+    t, r, k = sp.Symbol("t", positive=True), sp.Symbol("r", positive=True), sp.Symbol("k")
+    left, yv = t**b * (t * r**(a + b))**a, t * r**a
+    # log of both sides: this must hold for every t and r, which fixes k.
+    both = sp.expand(sp.expand_log(sp.log(left), force=True) - k * sp.expand_log(sp.log(yv), force=True))
+    sol = sp.solve([both.coeff(sp.log(t)), both.coeff(sp.log(r))], k, dict=True)
+    need(len(sol) == 1, "no k works")
+    E11SP_values(q, "k = ", sol[0][k], {E11SP_POSITION: [1 + a + b], E11SP_CONSECUTIVE: [2 * min(a, b)]})
+
+
+def E11SP_bound(q, g, rep):
+    L = q["lines"]
+    if rep == "words":
+        m = re.fullmatch(r"The adding list reaches (\d+) at its (\d+)\w\w number\. The multiplying list reaches \d+ at its 3rd number\.", L[1])
+    else:
+        m = re.fullmatch(r"The (\d+)\w\w term of the arithmetic sequence and the 3rd term of the geometric sequence are both (\d+)\.", L[1])
+    need(m, f"can't read {L[1]!r}")
+    a, b = int(m.group(1)), int(m.group(2))
+    w, place = (a, b) if rep == "words" else (b, a)
+    e = place - 2
+    need(1 <= e <= 3 and 2 <= w <= 12 and (e, w) == (int(g["e"]), int(g["w"])), "the numbers are out of range")
+    B = sp.Symbol("b", positive=True)
+    D = (w - B) / sp.Integer(place - 1)
+    m_of_b = B + D
+    # m rises with b, and b > 0 is all the geometric sequence asks (c² = bw), so L is the limit.
+    need(sp.diff(m_of_b, B).is_positive, "m does not rise with b")
+    bound = sp.limit(m_of_b, B, 0, "+")
+    E11SP_values(q, "L = ", bound, {E11SP_NO_DIVIDE: [sp.Integer(w)], E11SP_POSITION: [sp.Rational(w, place)]})
+
+
+def E11SP_kterms(q, g, rep):
+    L = q["lines"]
+    if rep == "words":
+        m = re.fullmatch(r"A sequence's first term is (.+), its second is (.+) and its third is (.+), where k is (\d+)\.", L[0])
+    else:
+        m0 = re.fullmatch(r"The first three terms of a sequence are u₁ = (.+), u₂ = (.+) and u₃ = (.+)\.", L[0])
+        need(m0 and re.fullmatch(r"k = \d+", L[1]), f"can't read {L[:2]!r}")
+        m = re.fullmatch(r"(.+)\|(.+)\|(.+)\|(\d+)", "|".join([m0.group(1), m0.group(2), m0.group(3), L[1][4:]]))
+    need(m, f"can't read {L!r}")
+    k = sp.Symbol("k")
+    us = [E11SP_expr(m.group(i), {"k": k}) for i in (1, 2, 3)]
+    k0 = int(m.group(4))
+    cs = []
+    for e in us:
+        p = sp.Poly(e, k)
+        cs += [p.coeff_monomial(k), p.coeff_monomial(1)]
+    need(tuple(cs) != E11SP_KSKIP, "the exam's terms")
+    v = [e.subs(k, k0) for e in us]
+    need(all(x != 0 for x in v), "a zero term")
+    r = v[1] / v[0]
+    need(v[2] / v[1] == r, f"the terms {v} are not geometric")
+    need(r not in (0, 1, -1), f"r = {r}")
+    E11SP_values(q, "r = ", r, {E11SP_WRONG_TEST: [v[1] - v[0]], E11SP_RECIPROCAL: [1 / r], E11SP_ACROSS: [v[2] / v[0]]})
+
+
+def E11SP_linked(q, g, rep, u):
+    E11SP_read_claim(q, g, rep)
+    w = E11SP_world("linked", g)
+    k, i = w["k"], w["i"]
+    if u == "difference-in-a":
+        for o in q["choices"]:
+            need(o["text"].startswith("d = "), f"can't read {o['text']!r}")
+            body = o["text"]
+            need(o["correct"] == E11SP_true(body, w), f"option {o['text']!r} is marked {o['correct']}")
+            if o["ref"]:
+                E11SP_tagged(o, body, w, None)
+        E11SP_common(q, q["answer_text"])
+        E11SP_steps(q, w)
+        return
+    r = 1 + i * k
+    E11SP_values(q, "r = ", r, {E11SP_D_OVER_A: [k], E11SP_ACROSS: [r * r], E11SP_RECIPROCAL: [1 / r]})
+
+
+def E11SP_logs(q, g, rep, u):
+    E11SP_read_claim(q, g, rep)
+    w = E11SP_world("log-geo", g)
+    n, b, p, q_ = E11SP_N, w["b"], w["p"], w["q"]
+    if u == "log-difference":
+        E11SP_values(q, "vₙ₊₁ − vₙ = ", E11SP_log_read("log" + {2: "₂", 3: "₃", 5: "₅"}[b] + "(uₙ₊₁/uₙ)", w),
+                     {E11SP_RATIO_AS_DIFF: [w["r"]], E11SP_RECIPROCAL: [-sp.Integer(q_)], E11SP_SWAP: [sp.Integer(p)]})
+        E11SP_steps(q, w)
+        return
+    v = E11SP_log_read("log" + {2: "₂", 3: "₃", 5: "₅"}[b] + " uₙ", w)
+    r = w["r"]
+    E11SP_forms(q, "vₙ = ", v, {E11SP_GAPS: q_ * n + p, E11SP_SWAP: p * n + q_ - p, E11SP_RATIO_AS_DIFF: r * n + p - r})
+
+
+def E11SP_cubic(q, g):
+    L, n = q["lines"], E11SP_N
+    m = re.fullmatch(r"uₙ = (.+), where n is a positive integer\.", L[0])
+    need(m, f"can't read {L[0]!r}")
+    u = E11SP_expr(m.group(1))
+    at = lambda k: u.subs(n, k)
+    gap = sp.expand(u.subs(n, n + 1) - u)
+    need(sp.Poly(gap, n).degree() == 2, "the gap is constant")
+    p = at(2) - at(1)
+    need(p == at(3) - at(2), "the first gaps are not equal")
+    need(at(4) - at(3) != p, "the fourth gap is equal too")
+    need(L[1] == f"u₁ = {E11SP_t(at(1))}, u₂ = {E11SP_t(at(2))} and u₃ = {E11SP_t(at(3))}", f"can't read {L[1]!r}")
+    need(at(1) != 0 and at(2) != 0 and at(2) / at(1) != at(3) / at(2), "the ratios are equal")
+    want = f"Not arithmetic: uₙ₊₁ − uₙ = {E11SP_poly(gap)}, which changes with n."
+    ch = {o["ref"]: o["text"] for o in q["choices"] if not o["correct"]}
+    need(ch[E11SP_PARTICULAR] == f"Arithmetic: u₂ − u₁ = u₃ − u₂ = {E11SP_t(p)}, so the gap is constant.", f"can't read {ch[E11SP_PARTICULAR]!r}")
+    need(ch[E11SP_CHECK] == f"Arithmetic: uₙ₊₁ − uₙ is {E11SP_t(p)} at n = 1 and at n = 2, so it is {E11SP_t(p)} for every n.", f"can't read {ch[E11SP_CHECK]!r}")
+    need(ch[E11SP_WRONG_TEST] == "Not arithmetic: u₂/u₁ and u₃/u₂ are different.", f"can't read {ch[E11SP_WRONG_TEST]!r}")
+    E11SP_common(q, want)
+
+
+def E11SP_t(v):
+    return str(v).replace("-", "−")
+
+
+def E11SP_dots(q, g, rep, u):
+    n = E11SP_N
+    fig = q["graph"]
+    need((fig is not None) == (rep == "diagram"), "the figure doesn't match the representation")
+    if u == "dot-rectangle":
+        rows = fig["rows"]
+        m_ = re.search(r"for n = (\d)\. Its rows are the terms of uₙ = (.+)\.$", q["lines"][0])
+        need(m_ and any(t in q["lines"][0] for t in E11SP_THINGS), f"can't read {q['lines'][0]!r}")
+        m, ue = int(m_.group(1)), E11SP_expr(m_.group(2))
+        at = lambda k: ue.subs(n, k)
+        need(len(rows) == m and m in (4, 5), "the rows")
+        for r, row in enumerate(rows):
+            need(sorted(row) == row and set(row) <= {0, 1}, "the two copies are mixed up")
+            need(row.count(0) == at(r + 1) and row.count(1) == at(m - r), f"row {r + 1} is not its two steps")
+        wide = at(1) + ue
+        need(all(len(row) == wide.subs(n, m) for row in rows), "the rows are not one width")
+        E11SP_forms(q, "Width = ", wide, {E11SP_LAST_TWICE: 2 * ue, E11SP_LAST_ONLY: ue, E11SP_GAPS: at(1) + at(1) + n * (at(2) - at(1))})
+        return
+    if rep == "diagram":
+        rows = fig["rows"]
+        need(len(rows) == 4 and len({len(r) for r in rows}) == 1 and fig["name"] == "Layers 1 to 4", "the figure")
+        counts = [sum(r.count(c) for r in rows) for c in range(4)]
+        for k in range(1, 5):
+            inner = [r[:] for r in rows[:k]]
+            wide = sum(1 for c in rows[k - 1] if c < k)
+            need(all(all(c < k for c in r[:wide]) and all(c >= k for c in r[wide:]) for r in inner), f"layers 1 to {k} are not a rectangle")
+            need(sum(counts[:k]) == k * wide, "the rectangle's count")
+            if k == 1:
+                w1 = wide
+            if k == 2:
+                w2 = wide
+        p, q_ = w2 - w1, 2 * w1 - w2
+    else:
+        m_ = re.search(r"After 1, 2 and 3 layers it has 1, 2 and 3 rows, and (\d+), (\d+) and (\d+) columns\.", q["lines"][0])
+        need(m_, f"can't read {q['lines'][0]!r}")
+        w1, w2, w3 = (int(x) for x in m_.groups())
+        need(w3 - w2 == w2 - w1, "the widths are not linear")
+        p, q_ = w2 - w1, 2 * w1 - w2
+    need(p in (1, 2) and (p, q_) == (int(g["p"]), int(g["q"])) and p + q_ >= 1 and q_ <= 3, "the numbers are out of range")
+    width = p * n + q_
+    S = n * width
+    term = sp.expand(S - S.subs(n, n - 1))
+    need(sp.expand(term.subs(n, n + 1) - term).is_number, "the layers are not arithmetic")
+    if u == "dot-total":
+        need(q["answer_text"] == f"Sₙ = n({E11SP_poly(width)})", f"the answer {q['answer_text']!r}")
+        E11SP_forms(q, "Sₙ = ", S, {E11SP_LAST_AS_SUM: term, E11SP_HALF_RECT: S / 2, E11SP_GAPS: n * (width + p)})
+    else:
+        E11SP_forms(q, "uₙ = ", term, {E11SP_WIDTH: width, E11SP_CORNER: term + p, E11SP_GAPS: term.subs(n, n + 1)})
+
+
+def E11SP_check(q):
+    g, u, rep, angle = q["given"], q["view"]["unknown"], q["view"]["rep"], q["view"]["angle"]
+    need(q["paper"] == 1, "sequence-proof is Paper 1")
+    tr_hyphens(q)
+    n = E11SP_N
+    if u in ("arithmetic-relation", "geometric-relation"):
+        E11SP_relation(q, g, rep, u)
+    elif u == "second-term-bound":
+        E11SP_bound(q, g, rep)
+    elif u == "common-ratio-check":
+        E11SP_kterms(q, g, rep)
+    elif u in ("difference-in-a", "linked-ratio"):
+        E11SP_linked(q, g, rep, u)
+    elif u in ("log-difference", "log-general-term"):
+        E11SP_logs(q, g, rep, u)
+    elif u == "constant-difference":
+        E11SP_read_claim(q, g, rep)
+        w = E11SP_world("ap-term", g)
+        p, c = w["gap"], w["u"](0)
+        E11SP_values(q, "uₙ₊₁ − uₙ = ", sp.simplify(w["u"](n + 1) - w["u"](n)), {E11SP_ONE_TERM: [sp.Integer(1)], E11SP_FIRST_ONLY: [p + 2 * c]})
+        E11SP_steps(q, w)
+    elif u == "particular-terms":
+        E11SP_cubic(q, g)
+    elif u == "term-from-sum":
+        E11SP_read_claim(q, g, rep)
+        w = E11SP_world("sum-term", g)
+        S = w["S"]
+        slip = lambda ref: E11SP_slip_world(w, ref, None)["term"]
+        E11SP_forms(q, "uₙ = ", w["term"], {E11SP_TERMWISE: slip(E11SP_TERMWISE), E11SP_FIRST_ONLY: slip(E11SP_FIRST_ONLY), E11SP_NEXT_SUM: slip(E11SP_NEXT_SUM), E11SP_SUM_AS_TERM: S(n)})
+        E11SP_steps(q, w)
+    elif u == "difference-from-sum":
+        E11SP_read_claim(q, g, rep)
+        w = E11SP_world("sum-term", g)
+        d = sp.expand(w["term"].subs(n, n + 1) - w["term"])
+        need(d.is_number, "the sequence is not arithmetic")
+        E11SP_values(q, "d = ", d, {E11SP_COEFF: [sp.Integer(w["A"]), sp.Integer(w["B"])], E11SP_SWAP: [w["S"](1)]})
+    elif u in ("sum-by-formula", "pair-sum"):
+        E11SP_read_claim(q, g, rep)
+        w = E11SP_world("sum-list", g)
+        ue, first, p = w["u"](n), w["first"], w["p"]
+        if u == "sum-by-formula":
+            need(q["answer_text"] == f"Sₙ = (n/2)({E11SP_poly(sp.expand(2 * w['sum'] / n))})", f"the answer {q['answer_text']!r}")
+            E11SP_forms(q, "Sₙ = ", w["sum"], {r: E11SP_slip_world(w, r, "series-formula")["sum"] for r in (E11SP_GAPS, E11SP_NO_TWO, E11SP_NO_HALF)})
+        else:
+            for l in q["lines"]:
+                if l.startswith("Sₙ = "):
+                    need(E11SP_true(l, w), f"{l!r} is false")
+            E11SP_forms(q, "Column total = ", w["pair"], {E11SP_LAST_TWICE: 2 * ue, E11SP_LAST_ONLY: ue, E11SP_GAPS: first + first + n * p})
+    elif u in ("dot-total", "dot-layer", "dot-rectangle"):
+        E11SP_dots(q, g, rep, u)
+    elif u in ("missing-line", "next-line", "flawed-line", "valid-proof"):
+        E11SP_lines_check(q, g, u, rep, angle)
+    else:
+        need(False, f"no check for {u}")
+    return None, None
+
+
+# ── end sequence-proof ──
+
+
+# ── derivative-model (t5-derivative-model-gdc, FAL-753) ──────
+# The `derivative-model` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/derivative_model.gd. The model is read back from the line shown and
+# differentiated with SymPy; a time is found by a float scan for sign changes refined by bisection
+# at 40 digits, and a greatest rate from where the second derivative changes sign. Values from a
+# table or from graphs are read back and put through each rule with exact rationals. Each tagged
+# option is worked out from its slip, and each derivative the working writes is compared with SymPy's.
+
+E11DM_SI = "SL5.1.interpret-derivative#"
+E11DM_SR = "SL5.6.rules-with-values#"
+E11DM_CTX = [("M", "area of mould on a bunker wall", "cm²", "day", "days"), ("R", "number of rad-rats in the tunnels", "rats", "week", "weeks"),
+             ("X", "radiation reading at the dump", "microsieverts", "hour", "hours"), ("C", "amount of coolant in a leaking tank", "litres", "minute", "minutes"),
+             ("P", "population of a settlement", "people", "year", "years"), ("V", "area covered by a vine", "m²", "week", "weeks"),
+             ("T", "number of traders on the new route", "traders", "year", "years"), ("S", "toxin level in a water filter", "mg per litre", "hour", "hours"),
+             ("K", "smoke level in a shelter", "parts per million", "minute", "minutes"), ("Q", "pressure in a pipe after a surge", "kilopascals", "minute", "minutes"),
+             ("D", "depth of water in a flooded canal", "metres", "hour", "hours"), ("H", "height of a fungus tower", "cm", "day", "days"),
+             ("W", "charge in a battery bank", "kilowatt-hours", "hour", "hours"), ("L", "length of a tunnel", "metres", "day", "days"),
+             ("G", "height of a dune wall", "metres", "year", "years")]
+E11DM_SHORT = {"day": ("hour", 24), "week": ("day", 7), "hour": ("minute", 60), "minute": ("second", 60), "year": ("month", 12)}
+E11DM_TWO = {"depth": "two flooded canals", "height": "two fungus towers", "charge": "two battery banks"}
+E11DM_RATE_MIN = sp.Rational(49, 1000)   # the engine's is 0.05
+E11DM_GAP = sp.Rational(49, 100)         # the engine's is 0.5
+E11DM_SCAN = 1500
+E11DM_FORMS = {"exp": re.compile(r"(\d+)e\^\((−?[\d.]+)t\)"), "logistic": re.compile(r"(\d+)/\(1 \+ (\d+)e\^\(−([\d.]+)t\)\)"),
+               "pulse": re.compile(r"(\d+)te\^\(−([\d.]+)t\)"), "wave": re.compile(r"(\d+) \+ ([\d.]*)t \+ (\d+) cos\(([\d.]*)t\)"),
+               "log": re.compile(r"(\d+) \+ (\d+) ln\(([\d.]*)t \+ 1\)")}
+
+
+def E11DM_num(v):
+    return R(str(v).replace("−", "-"))
+
+
+def E11DM_expr(text):
+    return calc_expr(text.replace("t", "x"))
+
+
+def E11DM_form(text):
+    """The family of a model as written, and its numbers."""
+    for fam, rx in E11DM_FORMS.items():
+        m = rx.fullmatch(text)
+        if m:
+            return fam, [E11DM_num(g or 1) for g in m.groups()]
+    raise Fail(f"can't read the model {text!r}")
+
+
+def E11DM_limits(fam, n, T):
+    if fam == "exp":
+        P, k = n
+        need(P % 10 == 0 and 50 <= P <= 600 and sp.Rational(3, 100) <= abs(k) <= sp.Rational(3, 10), f"P {P} or k {k}")
+    elif fam == "logistic":
+        L, a, k = n
+        need(L % 50 == 0 and 200 <= L <= 3000 and 4 <= a <= 30 and sp.Rational(1, 5) <= k <= sp.Rational(4, 5), f"L {L}, a {a} or k {k}")
+    elif fam == "pulse":
+        a, k = n
+        need(a % 5 == 0 and 10 <= a <= 60 and sp.Rational(3, 20) <= k <= sp.Rational(3, 5), f"a {a} or k {k}")
+    elif fam == "wave":
+        c, m, B, w = n
+        need(c % 5 == 0 and 10 <= c <= 40 and sp.Rational(1, 10) <= m <= sp.Rational(6, 5) and 2 <= B <= 9 and sp.Rational(3, 10) <= w <= sp.Rational(6, 5), f"the wave {n}")
+    else:
+        c, a, b = n
+        need(c % 5 == 0 and 5 <= c <= 30 and a % 5 == 0 and 10 <= a <= 45 and sp.Rational(1, 10) <= b <= 1, f"the log model {n}")
+    need(2 <= T <= 60, f"T {T}")
+
+
+def E11DM_read(q):
+    """The model from its line: the letter, its text, the expression and the domain's end."""
+    for t in q["lines"]:
+        m = re.search(r"([A-Z])\(t\) = (.+?), for 0 ≤ t ≤ (\d+)", t)
+        if m:
+            sym, text, T = m.group(1), m.group(2), int(m.group(3))
+            E11DM_limits(*E11DM_form(text), T)
+            return sym, text, E11DM_expr(text), T
+    raise Fail("can't read the model")
+
+
+def E11DM_ctx(q):
+    sym, what, y, per, time = E11DM_CTX[int(q["given"]["ctx"])]
+    return {"sym": sym, "what": what, "y": y, "per": per, "time": time, "unit": f"{y} per {per}"}
+
+
+def E11DM_story(q, c, text, T):
+    """A story's line says the story's own letter, units and time."""
+    shown = f"The {c['what']}, in {c['y']}, t {c['time']} after the start, is modelled by {c['sym']}(t) = {text}, for 0 ≤ t ≤ {T}."
+    bare = f"{c['sym']}(t) = {text}, for 0 ≤ t ≤ {T}"
+    need(q["lines"][0] == (bare if q["view"]["rep"] == "equation" else shown), f"the model's line {q['lines'][0]!r}")
+
+
+def E11DM_mp(fn):
+    return sp.lambdify(CX, fn, "mpmath")
+
+
+def E11DM_zeros(fn, lo, hi):
+    """Every sign change of fn on [lo, hi], in order: a float scan, then bisection."""
+    f, g = sp.lambdify(CX, fn, "math"), E11DM_mp(fn)
+    lo, hi = float(lo), float(hi)
+    out = []
+    xa, fa = lo, f(lo)
+    for i in range(1, E11DM_SCAN + 1):
+        xb = lo + (hi - lo) * i / E11DM_SCAN
+        fb = f(xb)
+        if fa == 0:
+            out.append(mpmath.mpf(xa))
+        elif fa * fb < 0:
+            a, b = mpmath.mpf(xa), mpmath.mpf(xb)
+            ga = g(a)
+            for _ in range(110):
+                mid = (a + b) / 2
+                gm = g(mid)
+                if ga * gm <= 0:
+                    b = mid
+                else:
+                    a, ga = mid, gm
+            out.append((a + b) / 2)
+        xa, fa = xb, fb
+    return out
+
+
+def E11DM_stretch(inside, cuts, T):
+    """The total length of the stretches of [0, T] between the cuts where inside holds."""
+    ends = [mpmath.mpf(0)] + list(cuts) + [mpmath.mpf(T)]
+    return sum((b - a for a, b in zip(ends, ends[1:]) if inside((a + b) / 2)), mpmath.mpf(0))
+
+
+def E11DM_f(x):
+    return sp.Float(mpmath.nstr(mpmath.mpf(x), 35), 35)
+
+
+def E11DM_s(x):
+    return gc_s(E11DM_f(x))
+
+
+def E11DM_s2(x):
+    return gc_s2(E11DM_f(x))
+
+
+def E11DM_w(x):
+    # An exact tie, 6.328125: a GDC rounds it up, so a hair up from the tie does the same.
+    t = sig3(E11DM_f(x) * (1 + 1e-13), 6)
+    return (t.rstrip("0").rstrip(".") if "." in t else t).replace("-", "−")
+
+
+def E11DM_ok(x):
+    """A fair answer: at least the smallest rate, clear of an edge, and not ending in 0."""
+    v = E11DM_f(x)
+    need(abs(v) >= E11DM_RATE_MIN and not on_edge(abs(v)), f"{v} is too small or on a rounding edge")
+    need(not E11DM_s(x).endswith("0"), f"{E11DM_s(x)} ends in 0, like its trap")
+
+
+def E11DM_shows(q, *numbers):
+    """Every worked solution shows these, as a GDC shows them."""
+    for sol in q["solutions"]:
+        text = " ".join(sol["steps"])
+        for n in numbers:
+            need(n in text, f"{sol['name']}: the working doesn't show {n}")
+
+
+def E11DM_any_shows(q, angle, *numbers):
+    for sol in q["solutions"]:
+        if sol["angle"] == angle:
+            text = " ".join(sol["steps"])
+            for n in numbers:
+                need(n in text, f"{sol['name']}: the working doesn't show {n}")
+
+
+def E11DM_rule_work(q, sym, fn):
+    """Where the working writes the derivative, it is the derivative of the model."""
+    df = sp.diff(fn, CX)
+    for sol in q["solutions"]:
+        if sol["angle"] == "rule-then-substitute":
+            hits = [m for st in sol["steps"] for m in re.findall(rf"{sym}′\(t\) = (.+?)(?:\.$| and )", st)]
+            need(hits, f"{sol['name']}: no derivative in the working")
+            need(calc_same(E11DM_expr(hits[0]), df), f"{sol['name']}: {hits[0]!r} is not the derivative")
+
+
+def E11DM_points(pts, fn, label):
+    f = E11DM_mp(fn)
+    for x, y in pts[:: 16]:
+        need(abs(f(mpmath.mpf(str(x))) - mpmath.mpf(str(y))) < mpmath.mpf(10) ** -5, f"{label} is not the function at {x}")
+
+
+def E11DM_curve(q, i, fn):
+    E11DM_points(q["graph"]["curves"][i], fn, f"curve {i}")
+
+
+def E11DM_graph(q, fn, ts, T):
+    """The model, a mark at each time, and each tangent, on the domain."""
+    g = q["graph"]
+    need(g is not None and int(g["x0"]) == 0 and int(g["x1"]) == T, "the figure's window")
+    E11DM_curve(q, 0, fn)
+    need(len(g["points"]) == len(ts), "the figure's marks")
+    df = sp.diff(fn, CX)
+    for i, t in enumerate(ts):
+        v, r = fn.subs(CX, t), df.subs(CX, t)
+        E11DM_curve(q, i + 1, v + r * (CX - t))
+        need(g["points"][i]["x"] == float(t), f"the mark at {t}")
+
+
+def E11DM_slips(text, fn, t):
+    """What each family's rule gives when its own step goes wrong, at t."""
+    fam, n = E11DM_form(text)
+    wr = {}
+    if fam == "pulse":
+        a, k = n
+        wr[E11DM_SR + "1"] = sp.diff(a * CX, CX) * sp.diff(sp.exp(-k * CX), CX)
+    elif fam == "log":
+        c, a, b = n
+        wr[E11DM_SR + "5"] = a / (b * CX + 1)
+    elif fam == "wave":
+        c, m, B, w = n
+        wr[E11DM_SR + "5"] = m - B * sp.sin(w * CX)
+    return {k: sp.N(v.subs(CX, t), 30) for k, v in wr.items()}
+
+
+def E11DM_sums(q):
+    """The plain sums in the working, worked again."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for left, right in re.findall(r"= ([()\d\s×+−/²]*[×−+][()\d\s×+−/²]*) = (−?[\d.]+)\.", st):
+                t = left.replace("×", "*").replace("−", "-").replace("²", "**2").replace(" ", "")
+                t = re.sub(r"(\d+)", r"Integer(\1)", t)
+                need(sp.sympify(t, locals={"Integer": sp.Integer}) == E11DM_num(right), f"{sol['name']}: {left} = {right}")
+
+
+def E11DM_time_of_top(fn, T, fall):
+    """Where the rate is greatest (least, if it falls), from the turning points of S′ and its ends."""
+    df = sp.diff(fn, CX)
+    d = E11DM_mp(df)
+    turns = E11DM_zeros(sp.diff(df, CX), 0, T)
+    sgn = -1 if fall else 1
+    best = max([mpmath.mpf(0), mpmath.mpf(T)] + turns, key=lambda t: sgn * d(t))
+    need(0 < best < T, "the greatest rate is at an end of the domain")
+    need(1 <= best <= T - 1, "the greatest rate is near an end of the domain")
+    return best, sgn * d(best)
+
+
+def E11DM_peak(fn, T):
+    f = E11DM_mp(fn)
+    best = max([mpmath.mpf(0), mpmath.mpf(T)] + E11DM_zeros(sp.diff(fn, CX), 0, T), key=f)
+    return best, f(best)
+
+
+def E11DM_model_unknown(q, u, c, sym, text, fn, T):
+    """The questions on one model. Returns want, wrongs, trap."""
+    asked, rep = q["asked"], q["view"]["rep"]
+    I, S = E11DM_SI, E11DM_SR
+    df = sp.diff(fn, CX)
+    f, d = E11DM_mp(fn), E11DM_mp(df)
+    wrongs, want, trap = {}, None, None
+    if u in ("rate-at-time", "rate-with-units", "rate-other-unit", "rising-or-falling", "interpret-rate", "tangent-estimate"):
+        m = re.search(r"t = (\d+)\b|′\((\d+)\)", asked)
+        need(m is not None, f"asked {asked!r}")
+        t0 = int(m.group(1) or m.group(2))
+        need(1 <= t0 <= T - 1, f"t0 {t0}")
+        v, r = f(t0), d(t0)
+        need(v > 0 and E11DM_s(abs(r)) != E11DM_s(v), "the value and the rate")
+        E11DM_ok(r)
+        need(not on_edge(E11DM_f(v)), "the value is on a rounding edge")
+        if rep == "graph":
+            E11DM_graph(q, fn, [t0], T)
+        E11DM_shows(q, E11DM_w(r))
+    if u == "rate-at-time":
+        if rep == "equation":
+            need(asked == f"Find {sym}′({t0}), to 3 s.f.", f"asked {asked!r}")
+            head, tail = f"{sym}′({t0}) = ", ""
+        else:
+            need(asked == f"Find the rate of change of the {c['what']} when t = {t0}, in {c['unit']}, to 3 s.f.", f"asked {asked!r}")
+            head, tail = f"d{sym}/dt = ", " " + c["unit"]
+        opt = lambda x: head + E11DM_s(x) + tail
+        want, trap = opt(r), head + E11DM_s2(r) + tail
+        wrongs = {I + "0": {opt(v)}, I + "3": {opt(f(t0 + 1) - v)}}
+        if r < 0:
+            wrongs[I + "1"] = {opt(-r)}
+        wrongs.update({k: {opt(x)} for k, x in E11DM_slips(text, fn, t0).items()})
+        E11DM_rule_work(q, sym, fn)
+    elif u == "rate-with-units":
+        need(asked == f"Find the rate of change of the {c['what']} when t = {t0}, with its units.", f"asked {asked!r}")
+        want = f"{E11DM_s(r)} {c['unit']}"
+        wrongs = {I + "2": {f"{E11DM_s(r)} {c['y']}"}, I + "0": {f"{E11DM_s(v)} {c['unit']}"}}
+        if r < 0:
+            wrongs[I + "1"] = {f"{E11DM_s(-r)} {c['unit']}"}
+    elif u == "rate-other-unit":
+        to, div = E11DM_SHORT[c["per"]]
+        need(asked == f"Find the rate of change of the {c['what']} when t = {t0}, in {c['y']} per {to}, to 3 s.f.", f"asked {asked!r}")
+        x = r / div
+        E11DM_ok(x)
+        tail = f" {c['y']} per {to}"
+        want, trap = "rate = " + E11DM_s(x) + tail, "rate = " + E11DM_s2(x) + tail
+        wrongs = {I + "5": {"rate = " + E11DM_s(r) + tail}, I + "0": {"rate = " + E11DM_s(v / div) + tail}}
+        E11DM_shows(q, f"÷ {div} = {E11DM_w(x)}")
+    elif u == "time-at-rate":
+        if rep == "equation":
+            m = re.fullmatch(rf"Find the (first )?value of t for which {sym}′\(t\) = (−?[\d.]+), to 3 s\.f\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            k = E11DM_num(m.group(2))
+        else:
+            m = re.fullmatch(rf"Find the (first )?time at which the {re.escape(c['what'])} is (increasing|decreasing) at ([\d.]+) {re.escape(c['unit'])}, to 3 s\.f\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            k = E11DM_num(m.group(3)) * (1 if m.group(2) == "increasing" else -1)
+        roots = E11DM_zeros(df - k, 0, T)
+        need(len(roots) >= 1 and (m.group(1) is not None) == (len(roots) > 1), f"{len(roots)} times, and the question says {m.group(1)!r}")
+        x = roots[0]
+        E11DM_ok(x)
+        need(E11DM_GAP <= x <= T - E11DM_GAP, f"the time {x} is by an end of the domain")
+        need(len(roots) == 1 or roots[1] - x >= E11DM_GAP, "two times too close")
+        want, trap = "t = " + E11DM_s(x), "t = " + E11DM_s2(x)
+        amount = E11DM_zeros(fn - abs(k), 0, T)
+        if amount:
+            wrongs[I + "0"] = {"t = " + E11DM_s(amount[0])}
+        if k < 0:
+            other = E11DM_zeros(df + k, 0, T)
+            if other:
+                wrongs[I + "1"] = {"t = " + E11DM_s(other[0])}
+        E11DM_shows(q, E11DM_w(x))
+        E11DM_rule_work(q, sym, fn)
+        if rep == "graph":
+            g = q["graph"]
+            E11DM_curve(q, 0, df)
+            need(len(g["hlines"]) == 1 and sp.Rational(str(g["hlines"][0]["at"])).limit_denominator(10**6) == k, "the figure's line")
+            need(g["points"] == [] and int(g["x1"]) == T, "the figure's marks or window")
+    elif u in ("greatest-rate", "time-of-greatest-rate"):
+        fall = E11DM_form(text)[0] == "pulse"
+        need(E11DM_form(text)[0] in ("logistic", "pulse", "wave"), "this rate has no inner top")
+        t, r = E11DM_time_of_top(fn, T, fall)
+        at, top = E11DM_peak(fn, T)
+        need(abs(at - t) >= E11DM_GAP, "the greatest rate is at the greatest value")
+        if rep == "graph":
+            E11DM_curve(q, 0, fn)
+        if u == "greatest-rate":
+            need(asked == f"Find the greatest rate at which the {c['what']} {'falls' if fall else 'changes'}, in {c['unit']}, to 3 s.f.", f"asked {asked!r}")
+            E11DM_ok(r)
+            opt = lambda x: "rate = " + E11DM_s(x) + " " + c["unit"]
+            want, trap = opt(r), "rate = " + E11DM_s2(r) + " " + c["unit"]
+            wrongs = {I + "0": {opt(f(t))}, I + "4": {opt(top)}}
+            fam, n = E11DM_form(text)
+            if fam == "wave":
+                wrongs[S + "5"] = {opt(n[1] + n[2])}
+        else:
+            need(asked == f"Find the time at which the {c['what']} is {'falling' if fall else 'rising'} fastest, to 3 s.f.", f"asked {asked!r}")
+            E11DM_ok(t)
+            want, trap = "t = " + E11DM_s(t), "t = " + E11DM_s2(t)
+            wrongs = {I + "4": {"t = " + E11DM_s(at)}}
+        E11DM_shows(q, E11DM_w(t))
+    elif u == "rising-or-falling":
+        need(E11DM_form(text)[0] in ("pulse", "wave"), "its direction is plain from the model")
+        need(asked == f"At t = {t0}, which way is the {c['what']} going, and how fast?", f"asked {asked!r}")
+        mag, unit = E11DM_s(abs(r)), c["unit"]
+        word, other = ("Rising", "Falling") if r > 0 else ("Falling", "Rising")
+        want = f"{word} at {mag} {unit}"
+        wrongs = {I + "0": {f"{word} at {E11DM_s(v)} {unit}"}, I + "2": {f"{'Up' if r > 0 else 'Down'} by {mag} {c['y']}"}}
+        if r < 0:
+            wrongs[I + "1"] = {f"{other} at {mag} {unit}"}
+    elif u == "interpret-rate":
+        need(asked == f"Find {sym}′({t0}). Which sentence says what it means here?", f"asked {asked!r}")
+        mag, unit, what = E11DM_s(abs(r)), c["unit"], c["what"]
+        way, back = ("going up", "going down") if r > 0 else ("going down", "going up")
+        want = f"At t = {t0} the {what} is {way} at {mag} {unit}."
+        wrongs = {I + "0": {f"At t = {t0} the {what} is {mag} {c['y']}."},
+                  I + "2": {f"The {what} has {'gone up' if r > 0 else 'gone down'} by {mag} {c['y']} since the start."},
+                  I + "3": {f"In the next {c['per']} the {what} {'goes up' if r > 0 else 'goes down'} by exactly {mag} {c['y']}."}}
+        if r < 0:
+            wrongs[I + "1"] = {f"At t = {t0} the {what} is {back} at {mag} {unit}."}
+    elif u == "tangent-estimate":
+        m = re.fullmatch(rf"Use the tangent at t = {t0} to estimate {sym} when t = ([\d.]+), to 3 s\.f\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        t1 = E11DM_num(m.group(1))
+        h = t1 - t0
+        need(0 < h <= sp.Rational(1, 2) and t1 <= T, f"the step {h}")
+        est = v + r * mpmath.mpf(h.p) / h.q
+        E11DM_ok(est)
+        need(est > 0 and E11DM_s(est) != E11DM_s(f(mpmath.mpf(t1.p) / t1.q)), "the estimate reads the same as the true value")
+        want, trap = f"{sym} ≈ " + E11DM_s(est), f"{sym} ≈ " + E11DM_s2(est)
+        if r < 0:
+            wrongs[I + "1"] = {f"{sym} ≈ " + E11DM_s(v - r * mpmath.mpf(h.p) / h.q)}
+        E11DM_shows(q, E11DM_w(v), E11DM_w(r), E11DM_w(est))
+    return want, wrongs, trap
+
+
+def E11DM_compare(q, c):
+    L, asked, rep = q["lines"], q["asked"], q["view"]["rep"]
+    m = re.fullmatch(rf"Two models of the {re.escape(c['what'])}, in {re.escape(c['y'])}, t {re.escape(c['time'])} after the start, for 0 ≤ t ≤ (\d+):", L[0])
+    need(m is not None and L[1].startswith("A(t) = ") and L[2].startswith("B(t) = "), f"can't read {L[:3]!r}")
+    T = int(m.group(1))
+    ta, tb = calc_rhs(L[1]), calc_rhs(L[2])
+    need({E11DM_form(ta)[0], E11DM_form(tb)[0]} == {"logistic", "exp"}, "a hump and an exponential")
+    fa, fb = E11DM_expr(ta), E11DM_expr(tb)
+    m = re.fullmatch(r"Compare the two models at t = (\d+)\. Which sentence is true\?", asked)
+    need(m is not None, f"asked {asked!r}")
+    t0 = int(m.group(1))
+    ra, rb = E11DM_mp(sp.diff(fa, CX))(t0), E11DM_mp(sp.diff(fb, CX))(t0)
+    va, vb = E11DM_mp(fa)(t0), E11DM_mp(fb)(t0)
+    need(ra > 0 and rb > 0, "both rise")
+    need((ra > rb) != (va > vb), "the one that rises faster is not behind")
+    need(abs(ra - rb) >= max(ra, rb) / 4, "the two rates are too close")
+    fast, slow = ("A", "B") if ra > rb else ("B", "A")
+    nums = f"A′({t0}) = {E11DM_s(ra)} and B′({t0}) = {E11DM_s(rb)}"
+    want = f"{nums}, so the {c['what']} is rising faster in model {fast}."
+    high = max(va, vb)
+    wrongs = {E11DM_SI + "0": {f"The {c['what']} is rising faster in model {slow}, because that model is higher at t = {t0} ({E11DM_s(high)})."},
+              E11DM_SI + "2": {f"Model {fast} is {E11DM_s(abs(ra - rb))} {c['y']} ahead at t = {t0}."}}
+    E11DM_shows(q, E11DM_w(ra), E11DM_w(rb))
+    if rep == "graph":
+        g = q["graph"]
+        E11DM_curve(q, 0, fa)
+        E11DM_curve(q, 1, fb)
+        need([p["label"] for p in g["points"]] == ["A", "B"] and int(g["x1"]) == T, "the figure's marks or window")
+    return want, wrongs
+
+
+def E11DM_rates_cross(q, c):
+    L, asked, rep = q["lines"], q["asked"], q["view"]["rep"]
+    if rep == "words":
+        m = re.fullmatch(r"The (\w+)s of (.+), in (.+), t (\w+) after the start, are A\(t\) = (.+) and B\(t\) = (.+), for 0 ≤ t ≤ (\d+)\.", L[0])
+        need(m is not None and E11DM_TWO.get(m.group(1)) == m.group(2), f"can't read {L[0]!r}")
+        ta, tb, T = m.group(5), m.group(6), int(m.group(7))
+        need(asked == f"Find the total time, in {c['time']}, for which the {m.group(1)} of B is changing at a greater rate than the {m.group(1)} of A.", f"asked {asked!r}")
+    else:
+        ta, tb = calc_rhs(L[0]), calc_rhs(L[1])
+        m = re.fullmatch(r"Both are for 0 ≤ t ≤ (\d+)\.", L[2])
+        need(m is not None, f"can't read {L[2]!r}")
+        T = int(m.group(1))
+        need(asked == "Find the total time for which the rate of change of B is greater than the rate of change of A.", f"asked {asked!r}")
+    need(E11DM_form(ta)[0] == "wave", "A is a wave")
+    m = re.fullmatch(r"(\d+) \+ ([\d.]*)t", tb)
+    need(m is not None, f"B is not a line: {tb!r}")
+    fa, fb = E11DM_expr(ta), E11DM_expr(tb)
+    da, db = sp.diff(fa, CX), sp.diff(fb, CX)
+    cuts = E11DM_zeros(da - db, 0, T)
+    need(len(cuts) >= 2, "the rates cross fewer than twice")
+    d = E11DM_mp(da - db)
+    x = E11DM_stretch(lambda t: d(t) < 0, cuts, T)
+    E11DM_ok(x)
+    need(x <= T - E11DM_GAP, "the rate is greater for the whole domain")
+    for p, n in zip(cuts, cuts[1:]):
+        need(n - p >= E11DM_GAP, "two crossings too close")
+    tail = " " + c["time"] if rep == "words" else ""
+    want, trap = "total time = " + E11DM_s(x) + tail, "total time = " + E11DM_s2(x) + tail
+    gap = E11DM_mp(fa - fb)
+    over = E11DM_stretch(lambda t: gap(t) < 0, E11DM_zeros(fa - fb, 0, T), T)
+    wrongs = {}
+    if over > 0:
+        wrongs[E11DM_SI + "0"] = {"total time = " + E11DM_s(over) + tail}
+    E11DM_shows(q, *[E11DM_w(t) for t in cuts], E11DM_w(x))
+    for sol in q["solutions"]:
+        if sol["angle"] == "rule-then-substitute":
+            found = re.fullmatch(r"Differentiate: A′\(t\) = (.+) and B′\(t\) = (.+)\.", sol["steps"][0])
+            need(found is not None and calc_same(E11DM_expr(found.group(1)), da) and abs(E11DM_num(found.group(2)) - db) < 1e-9, f"{sol['name']}: the derivatives")
+    return want, wrongs, trap
+
+
+def E11DM_tangents(q, c):
+    L, asked = q["lines"], q["asked"]
+    sym, text, fn, T = E11DM_read(q)
+    m = re.fullmatch(rf"The graph shows {sym} against t, with the tangents at P \(t = (\d+)\) and Q \(t = (\d+)\)\.", L[1])
+    need(m is not None, f"can't read {L[1]!r}")
+    need(asked == f"At which point is the {c['what']} rising faster?", f"asked {asked!r}")
+    tp, tq = int(m.group(1)), int(m.group(2))
+    d, f = E11DM_mp(sp.diff(fn, CX)), E11DM_mp(fn)
+    fast, slow, ta, tb = ("P", "Q", tp, tq) if d(tp) > d(tq) else ("Q", "P", tq, tp)
+    need(d(ta) > 0, "neither is rising")
+    need(f(tb) > f(ta), "the slower point is not the higher")
+    need(abs(d(ta)) >= mpmath.mpf(1.29) * abs(d(tb)) or abs(d(tb)) >= mpmath.mpf(1.29) * abs(d(ta)), "the tangents look alike")
+    g = q["graph"]
+    E11DM_curve(q, 0, fn)
+    marks = {p["label"]: p["x"] for p in g["points"]}
+    need(marks == {"P": float(tp), "Q": float(tq)}, f"the marks {marks}")
+    df = sp.diff(fn, CX)
+    # The two tangents are one curve, broken by a point off the plot.
+    line = g["curves"][1]
+    at = next(i for i, p in enumerate(line) if p[1] > 500000)
+    for pts, p in zip((line[:at], line[at + 1:]), g["points"]):
+        t = int(p["x"])
+        E11DM_points(pts, fn.subs(CX, t) + df.subs(CX, t) * (CX - t), f"the tangent at {t}")
+    want = f"At {fast}, because its tangent has the greater gradient."
+    wrongs = {E11DM_SI + "0": {f"At {slow}, because {slow} is higher on the curve."}}
+    if d(tb) < 0:
+        need(abs(d(tb)) > d(ta), "the falling tangent is not the steeper")
+        wrongs[E11DM_SI + "1"] = {f"At {slow}, because its tangent is the steeper one."}
+    return want, wrongs
+
+
+def E11DM_table(q):
+    """{name: {x: value}} from a table's rows, and the column of x-values."""
+    rows = q["table"]["rows"]
+    xs = [int(t) for t in rows[0][1]]
+    return xs, {r[0]: dict(zip(xs, [E11DM_num(v) for v in r[1]])) for r in rows[1:]}
+
+
+def E11DM_product_read(q):
+    """A story's values at t = a, from the table or the sentence: F, G, H, f, g, f′, g′ and the sign."""
+    L = q["lines"]
+    m = re.fullmatch(r"(\w)\(t\) is the (.+) and (\w)\(t\) is the (.+), t (\w+) after the start\.", L[0])
+    n = re.fullmatch(r"(\w)\(t\) = (\w)\(t\) ([×÷]) (\w)\(t\) is the (.+)\.", L[1])
+    need(m is not None and n is not None and n.group(2) == m.group(1) and n.group(4) == m.group(3), f"can't read {L[:2]!r}")
+    F, G, H = m.group(1), m.group(3), n.group(1)
+    a = re.search(r"t = (\d+)", q["asked"])
+    need(a is not None, f"asked {q['asked']!r}")
+    a = int(a.group(1))
+    if q["view"]["rep"] == "table":
+        need(L[2] == "The table gives their values and rates.", f"can't read {L[2]!r}")
+        _, t = E11DM_table(q)
+        f, g, df, dg = t[f"{F}(t)"][a], t[f"{G}(t)"][a], t[f"{F}′(t)"][a], t[f"{G}′(t)"][a]
+    else:
+        w = re.fullmatch(rf"When t = {a}, {F} = (\d+), (rising|falling) at (\d+) .+ per \w+; {G} = (\d+), (rising|falling) at (\d+) .+ per \w+\.", L[2])
+        need(w is not None, f"can't read {L[2]!r}")
+        f, g = sp.Integer(w.group(1)), sp.Integer(w.group(4))
+        df = sp.Integer(w.group(3)) * (1 if w.group(2) == "rising" else -1)
+        dg = sp.Integer(w.group(6)) * (1 if w.group(5) == "rising" else -1)
+    return {"F": F, "G": G, "H": H, "a": a, "f": f, "g": g, "df": df, "dg": dg, "sign": n.group(3), "h": n.group(5)}
+
+
+def E11DM_tail(q):
+    m = re.search(r"when t = \d+, in (.+)\.$", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    return " " + m.group(1)
+
+
+def E11DM_product_wrongs(f, g, df, dg, opt, I, S):
+    return {S + "1": {opt(df * dg)}, S + "2": {opt(df * dg + f * dg)}, I + "0": {opt(f * g)}}
+
+
+def E11DM_quotient_wrongs(f, g, df, dg, opt, S):
+    return {S + "3": {opt(df / dg)}, S + "4": {opt((f * dg - df * g) / g ** 2)}}
+
+
+def E11DM_pieces(q):
+    """The two graphs: their corners at x = 0, 2, 4, 6, whichever curve carries which name."""
+    g = q["graph"]
+    need(len(g["curves"]) == 2 and [p["label"] for p in g["points"]] == ["f", "g"] and int(g["x1"]) == 7, "the figure's parts")
+    names = {}
+    for curve, p in zip(g["curves"], g["points"]):
+        need([c[0] for c in curve] == [0, 2, 4, 6] and curve[3][1] == p["y"], "a piecewise curve's corners")
+        names[p["label"]] = [sp.Integer(int(c[1])) for c in curve]
+    return names["f"], names["g"]
+
+
+def E11DM_h(ps, x):
+    return (ps[(x - 1) // 2] + ps[(x + 1) // 2]) / 2
+
+
+def E11DM_d(ps, x):
+    return (ps[(x + 1) // 2] - ps[(x - 1) // 2]) / 2
+
+
+def E11DM_rules(q, u):
+    L, asked = q["lines"], q["asked"]
+    I, S = E11DM_SI, E11DM_SR
+    x = dec_text
+    wrongs, trap = {}, None
+    if u in ("product-from-table", "quotient-from-table"):
+        v = E11DM_product_read(q)
+        f, g, df, dg, a, H = v["f"], v["g"], v["df"], v["dg"], v["a"], v["H"]
+        tail = E11DM_tail(q)
+        opt = lambda n: f"{H}′({a}) = {x(sp.Rational(n))}{tail}"
+        if u == "product-from-table":
+            need(v["sign"] == "×", "this is a product")
+            r = df * g + f * dg
+            wrongs = E11DM_product_wrongs(f, g, df, dg, opt, I, S)
+        else:
+            need(v["sign"] == "÷", "this is a quotient")
+            r = (df * g - f * dg) / g ** 2
+            wrongs = E11DM_quotient_wrongs(f, g, df, dg, opt, S)
+        return opt(r), wrongs, None
+    if u == "rising-from-table":
+        v = E11DM_product_read(q)
+        f, g, df, dg = v["f"], v["g"], v["df"], v["dg"]
+        r = df * g + f * dg
+        slip = df * dg
+        need(r != 0 and (r > 0) != (slip > 0), "the slip doesn't turn the direction round")
+        m = re.fullmatch(rf"When t = {v['a']}, which way is the .+ going, and how fast\?", asked)
+        need(m is not None, f"asked {asked!r}")
+        word, other = ("Rising", "Falling") if r > 0 else ("Falling", "Rising")
+        unit = re.search(r" (.+ per \w+)$", next(o["text"] for o in q["choices"] if o["correct"]).split(" at ", 1)[1]).group(1)
+        need(q["answer_text"] == f"{word} at {abs(r)} {unit}", f"{q['answer_text']!r}")
+        wrongs = {S + "1": {f"{other} at {abs(slip)} {unit}"}, I + "0": {f"{word} at {f * g} {unit}"}}
+        if r < 0:
+            wrongs[I + "1"] = {f"{other} at {abs(r)} {unit}"}
+        return f"{word} at {abs(r)} {unit}", wrongs, None
+    if u == "chain-from-table":
+        need(L[0] == "h(x) = f(g(x)). The table gives values of f, g and their derivatives.", f"can't read {L[0]!r}")
+        m = re.fullmatch(r"Find h′\((\d)\)\.", asked)
+        a = int(m.group(1))
+        xs, t = E11DM_table(q)
+        b, c = int(t["g(x)"][a]), int(t["g′(x)"][a])
+        need(b in xs and c in xs and len({a, b, c}) == 3 and c != 1, "the three rows are not different")
+        fp = t["f′(x)"]
+        opt = lambda n: f"h′({a}) = {x(sp.Rational(n))}"
+        need(len({fp[a], fp[b], fp[c]}) == 3, "the three readings of f′ are not different")
+        return opt(fp[b] * c), {S + "0": {opt(fp[a] * c)}, S + "2": {opt(fp[c] * c)}, S + "5": {opt(fp[b])}}, None
+    if u == "composite-with-model":
+        m = re.fullmatch(r"h\(t\) = (.+)\. The table gives values of g and g′\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        forms = [(r"(\d+)e\^\(([\d.]+)g\(t\)\)", lambda A, k: A * sp.exp(k * CX)), (r"(\d+) ln\(g\(t\)\)", lambda A: A * sp.log(CX)), (r"(\d+)√\(g\(t\)\)", lambda A: A * sp.sqrt(CX))]
+        outer = None
+        for rx, make in forms:
+            hit = re.fullmatch(rx, m.group(1))
+            if hit:
+                outer = make(*[E11DM_num(g) for g in hit.groups()])
+        need(outer is not None, f"can't read {m.group(1)!r}")
+        a = int(re.fullmatch(r"Find h′\((\d)\), to 3 s\.f\.", asked).group(1))
+        _, t = E11DM_table(q)
+        g, dg = t["g(t)"][a], t["g′(t)"][a]
+        dout = sp.diff(outer, CX)
+        at = lambda u_: sp.N(dout.subs(CX, u_), 40)
+        r = at(g) * dg
+        E11DM_ok(r)
+        need(g != a and g != dg, "the slips read the same value")
+        opt = lambda n: f"h′({a}) = {gc_s(n)}"
+        wrongs = {S + "0": {opt(at(a) * dg)}, S + "5": {opt(at(g))}}
+        if dg > 0:
+            wrongs[S + "2"] = {opt(at(dg) * dg)}
+        return opt(r), wrongs, f"h′({a}) = {gc_s2(r)}"
+    # From graphs.
+    fv, gv = E11DM_pieces(q)
+    a = int(re.fullmatch(r"Find h′\((\d)\)\.", asked).group(1))
+    need(a in (1, 3, 5), f"a {a} is at a corner")
+    need(L[0] == "The graph shows y = f(x) and y = g(x), each made of straight pieces.", f"can't read {L[0]!r}")
+    opt = lambda n: f"h′({a}) = {x(sp.Rational(n))}"
+    f, g, df, dg = E11DM_h(fv, a), E11DM_h(gv, a), E11DM_d(fv, a), E11DM_d(gv, a)
+    need(all(sp.Rational(v).q == 1 for v in (f, g, df, dg)), "a value read off is not whole")
+    if u == "product-from-graphs":
+        need(L[1] == "h(x) = f(x)g(x)", f"can't read {L[1]!r}")
+        return opt(df * g + f * dg), E11DM_product_wrongs(f, g, df, dg, opt, I, S), None
+    if u == "quotient-from-graphs":
+        need(L[1] == "h(x) = f(x)/g(x)", f"can't read {L[1]!r}")
+        return opt((df * g - f * dg) / g ** 2), E11DM_quotient_wrongs(f, g, df, dg, opt, S), None
+    need(L[1] == "h(x) = f(g(x))", f"can't read {L[1]!r}")
+    b = int(g)
+    need(b in (1, 3, 5) and b != a, f"g({a}) = {b} is at a corner of f, or is a")
+    fb = E11DM_d(fv, b)
+    return opt(fb * dg), {S + "0": {opt(E11DM_d(fv, a) * dg)}, S + "5": {opt(fb)}}, None
+
+
+def E11DM_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] == 2, "a model's derivative is Paper 2")
+    calc_steps(q)
+    if u in ("product-from-table", "quotient-from-table", "chain-from-table", "composite-with-model", "rising-from-table",
+             "product-from-graphs", "quotient-from-graphs", "chain-from-graphs"):
+        want, wrongs, trap = E11DM_rules(q, u)
+        E11DM_sums(q)
+    else:
+        c = E11DM_ctx(q)
+        if u == "compare-models":
+            want, wrongs = E11DM_compare(q, c)
+            trap = None
+        elif u == "time-rate-greater":
+            want, wrongs, trap = E11DM_rates_cross(q, c)
+        elif u == "steeper-tangent":
+            want, wrongs = E11DM_tangents(q, c)
+            trap = None
+        else:
+            sym, text, fn, T = E11DM_read(q)
+            E11DM_story(q, c, text, T)
+            want, wrongs, trap = E11DM_model_unknown(q, u, c, sym, text, fn, T)
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
+# ── prove-identity (t3-prove-identity, FAL-753) ──────────────
+# The `prove-identity` situation's clean limits and exam exclusions, the checker's own copy: the
+# engine's is in game/engine/situations/prove_identity.gd. Every statement is built here from its
+# numbers and read back from the lines, and every line of a proof is read back as an expression. Two
+# expressions are the same only if they agree exactly at rational points of tan(x/2) and their
+# difference then cancels to zero in t = tan(x/2), which proves it for every x. Each misconception's
+# wrong value comes from doing that wrong maths here, and a value from a ratio is found by putting the
+# angle that gives the ratio into the first form at 40 digits.
+
+E11PI_S = "SL3.6.prove-identity#"
+E11PI_BOTH, E11PI_SUM, E11PI_KEEP, E11PI_VALUES, E11PI_NO_END, E11PI_SIGN, E11PI_DOUBLE, E11PI_FORM, E11PI_PYTH, E11PI_MID, E11PI_NOMID, E11PI_ARG, E11PI_DIFF, \
+    E11PI_TAN, E11PI_COEF, E11PI_EXT, E11PI_PRE, E11PI_AT, E11PI_WHICH, E11PI_ADD, E11PI_PART, E11PI_COEFSQ, E11PI_FACT, E11PI_SIMPLE = (E11PI_S + str(i) for i in range(24))
+E11PI_X, E11PI_T = sp.Symbol("x"), sp.Symbol("t")
+E11PI_POINTS = (sp.Rational(2, 7), sp.Rational(-3, 11), sp.Rational(5, 13), sp.Rational(7, 17))
+E11PI_MULTS = (1, 2, 4)
+E11PI_POWER = {"²": 2, "³": 3, "⁴": 4}
+E11PI_LIMITS = ("half-tan", "half-tan-plus", "reciprocal-sum", "tan-diff", "tan-ratio", "tan-double", "split")
+E11PI_CACHE = {}
+
+
+def E11PI_read(text):
+    """A line of working or an option, as an expression in x."""
+    s = text.strip().replace("−", "-").replace("θ", "x").replace("½", "(1/2)")
+
+    def fn(m):
+        inner = f"{m.group(1)}({m.group(3) or 1}*x)"
+        return f"({inner})**{E11PI_POWER[m.group(2)]}" if m.group(2) else inner
+    s = re.sub(r"(sin|cos|tan)([²³⁴]?) ?(\d*)x", fn, s)
+    for k, v in E11PI_POWER.items():
+        s = s.replace(k, f"**{v}")
+    s = re.sub(r"\)\s*(?=[(a-z\d])", ")*", s)
+    s = re.sub(r"(\d)\s*(?=[(a-z])", r"\1*", s)
+    need(not re.search(r"[^-+*/() \dsincota x.]", s), f"can't read {text!r}")
+    return parse_expr(s, local_dict={"x": E11PI_X, "sin": sp.sin, "cos": sp.cos, "tan": sp.tan}, transformations=TRANSFORMS)
+
+
+def E11PI_turn(z, n):
+    """z**n for a pair (real, imaginary) of exact values, the way z = (cos x, sin x) turns."""
+    a, b = sp.Integer(1), sp.Integer(0)
+    for _ in range(n):
+        a, b = a * z[0] - b * z[1], a * z[1] + b * z[0]
+    return a, b
+
+
+def E11PI_put(e, t):
+    """e with sin, cos and tan of nx written in t = tan(x/2)."""
+    top = 1 + t**2
+    z = ((1 - t**2) / top, 2 * t / top)
+    reps = {}
+    for f in e.atoms(sp.sin, sp.cos, sp.tan):
+        n = sp.Poly(f.args[0], E11PI_X).coeff_monomial(E11PI_X)
+        need(f.args[0] == n * E11PI_X and n.is_integer and n > 0, f"the angle in {f}")
+        c, s_ = E11PI_turn(z, int(n))
+        reps[f] = {sp.sin: s_, sp.cos: c, sp.tan: s_ / c}[f.func]
+    return e.xreplace(reps)
+
+
+def E11PI_same(a, b):
+    """Whether a and b are one expression wherever both are defined, proved in t."""
+    key = (a, b)
+    if key in E11PI_CACHE:
+        return E11PI_CACHE[key]
+    diff = a - b
+    out = True
+    for t in E11PI_POINTS:
+        v = E11PI_put(diff, t)
+        if v.has(sp.zoo, sp.nan, sp.oo):
+            continue
+        if v != 0:
+            out = False
+            break
+    if out:
+        out = sp.cancel(sp.together(E11PI_put(diff, E11PI_T))) == 0
+    E11PI_CACHE[key] = out
+    return out
+
+
+def E11PI_model(g):
+    """The statement from its numbers: (left, right, slip -> what the proof reaches after it)."""
+    fam, k, w = g["fam"], int(g.get("k", 1)), int(g["w"])
+    need(1 <= k <= 6, f"k = {k}")
+    need(w in E11PI_MULTS, f"w = {w}")
+    need(g["letter"] in ("x", "θ"), f"the letter {g['letter']}")
+    u = w * E11PI_X
+    s, c, t = sp.sin(u), sp.cos(u), sp.tan(u)
+    sd, cd = sp.sin(2 * u), sp.cos(2 * u)
+    base = g.get("base", "sin")
+    b, a_ = (s, c) if base == "sin" else (c, s)
+    if fam == "half-tan":
+        out = k * (1 - cd) / sd, k * t, {E11PI_SIGN: [-k * t], E11PI_DOUBLE: [2 * k * t], E11PI_FORM: [k * c / s]}
+    elif fam == "half-tan-plus":
+        out = k * sd / (1 + cd), k * t, {E11PI_DOUBLE: [k * t / 2], E11PI_FORM: [k * c / s]}
+    elif fam == "product":
+        n = int(g["n"])
+        need(3 <= n <= 9, f"n = {n}")
+        out = n * s * c, sp.Rational(n, 2) * sd, {E11PI_COEF: [n * sd], E11PI_ARG: [sp.Rational(n, 2) * s]}
+    elif fam == "double-twice":
+        need(w in (1, 2), f"w = {w}")
+        out = 4 * k * s * c * cd, k * sp.sin(4 * u), {E11PI_COEF: [2 * k * sp.sin(4 * u)], E11PI_ARG: [2 * k * s * cd]}
+    elif fam == "square":
+        sg = -1 if g["minus"] else 1
+        out = k * (s + sg * c)**2, k * (1 + sg * sd), {E11PI_MID: [k * (1 + sg * s * c)], E11PI_NOMID: [sp.Integer(k)]}
+    elif fam == "quartic-diff":
+        sg = -1 if g["flip"] else 1
+        out = k * sg * (c**4 - s**4), k * sg * cd, {E11PI_DIFF: [k * cd**2], E11PI_PYTH: [sp.Integer(k)], E11PI_WHICH: [k * sg * sd]}
+    elif fam == "quartic-sin":
+        out = 4 * k * (b**2 - b**4), k * sd**2, {E11PI_SIGN: [4 * k * b**2 * (1 + b**2)], E11PI_COEFSQ: [2 * k * sd**2], E11PI_DOUBLE: [4 * k * sd**2]}
+    elif fam == "reciprocal-sum":
+        out = k * (s / c + c / s), 2 * k / sd, {E11PI_DOUBLE: [k / sd], E11PI_ADD: [sp.Integer(k)]}
+    elif fam == "tan-diff":
+        out = k * c**2 * (1 - t**2), k * cd, {E11PI_TAN: [k * (c**2 - c**4 / s**2)], E11PI_PART: [k * (c**2 - s**2 / c**2)], E11PI_WHICH: [k * sd]}
+    elif fam == "tan-ratio":
+        out = k * (1 - t**2) / (1 + t**2), k * cd, {E11PI_TAN: [-k * cd], E11PI_SUM: [sp.Integer(-k)], E11PI_WHICH: [k * sd]}
+    elif fam == "tan-double":
+        out = k * t * (1 + cd), k * sd, {E11PI_TAN: [2 * k * c**3 / s], E11PI_FORM: [2 * k * s**3 / c], E11PI_WHICH: [k * cd]}
+    elif fam == "factor-sum":
+        sg = -1 if base == "sin" else 1
+        out = k * (sd + 1 + sg * cd), 2 * k * b * (a_ + b), {E11PI_FORM: [2 * k * a_ * (a_ + b)], E11PI_DOUBLE: [k * b * (a_ + 2 * b)]}
+        if base == "sin":
+            out[2][E11PI_SIGN] = [2 * k * s * (c - s)]
+    elif fam == "perfect-square":
+        sg = -1 if base == "sin" else 1
+        out = k * (1 + 2 * sg * cd + cd**2), 4 * k * b**4, {E11PI_FACT: [k * sd**2], E11PI_FORM: [4 * k * a_**4], E11PI_COEFSQ: [2 * k * b**4]}
+    elif fam == "split":
+        out = k * (sd + 2 * b**2) / (2 * b), k * (a_ + b), {E11PI_SUM: [k * (a_ + 2 * b**2), k * (2 * s * c + b)], E11PI_DOUBLE: [k * (a_ + 2 * b) / 2]}
+    else:
+        need(False, f"no statement {fam}")
+    # The exam's and the map's own statements are left out.
+    need(not (k == 1 and w == 1 and (fam in ("half-tan", "half-tan-plus") or (fam == "quartic-diff" and not g["flip"]))), "an exam's statement")
+    need(E11PI_same(out[0], out[1]), f"{fam} is not an identity")
+    return out
+
+
+def E11PI_words(q, g, nm="L"):
+    """The left side, read back from a sentence."""
+    line = q["lines"][0]
+    u = r"(sin|cos) (\d*)[xθ]"
+    by = r"(?:, multiplied by (\d+))?\."
+    two = lambda f, n: {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan}[f]((int(n) if n else 1) * E11PI_X)
+    m = re.fullmatch(rf"{nm} is (\d+) times the product of {u} and {u}\.", line)
+    if m:
+        return int(m.group(1)) * two(m.group(2), m.group(3)) * two(m.group(4), m.group(5))
+    m = re.fullmatch(rf"{nm} is the square of the (sum|difference, sine minus cosine,)(?: of)? {u} and {u}{by}", line)
+    if m:
+        sg = 1 if m.group(1) == "sum" else -1
+        return int(m.group(6) or 1) * (two(m.group(2), m.group(3)) + sg * two(m.group(4), m.group(5)))**2
+    m = re.fullmatch(rf"{nm} is the fourth power of {u} minus the fourth power of {u}{by}", line)
+    if m:
+        return int(m.group(5) or 1) * (two(m.group(1), m.group(2))**4 - two(m.group(3), m.group(4))**4)
+    m = re.fullmatch(rf"{nm} is tan ?(\d*)[xθ] times the sum of 1 and cos (\d*)[xθ]{by}", line)
+    need(m, f"can't read {line!r}")
+    return int(m.group(3) or 1) * two("tan", m.group(1)) * (1 + two("cos", m.group(2)))
+
+
+def E11PI_left(q, g, rep, lhs, nm="L"):
+    """The left side the lines show must be the statement's."""
+    if rep == "words":
+        shown = E11PI_words(q, g, nm)
+    else:
+        m = re.fullmatch(rf"{nm} = (.+)", q["lines"][0])
+        need(m, f"can't read {q['lines'][0]!r}")
+        shown = E11PI_read(m.group(1))
+    need(E11PI_same(shown, lhs), f"the question shows {shown}, not the statement's left side")
+
+
+def E11PI_claim(q, g, lhs, rhs, swap=False, line=0):
+    m = re.fullmatch(r"Prove that (.+) ≡ (.+?)(, where both sides are defined)?\.", q["lines"][line])
+    need(m, f"can't read {q['lines'][line]!r}")
+    a, b = E11PI_read(m.group(1)), E11PI_read(m.group(2))
+    a, b = (b, a) if swap else (a, b)
+    need(E11PI_same(a, lhs) and E11PI_same(b, rhs), "the statement shown is another one")
+    need(E11PI_same(a, b), "the statement shown is no identity")
+    need(bool(m.group(3)) == (g["fam"] in E11PI_LIMITS), "the note on where it is defined")
+    return m.group(1), m.group(2)
+
+
+def E11PI_proof(q, lhs):
+    """The numbered lines: [(number, text)], the first one read back."""
+    out = []
+    for ln_ in q["lines"]:
+        m = re.fullmatch(r"Line (\d+): (.*)", ln_)
+        if not m:
+            continue
+        no, body = int(m.group(1)), m.group(2)
+        need(no == len(out) + 1, f"line {no} is out of order")
+        if no == 1:
+            need(body.startswith("LHS = "), f"can't read {ln_!r}")
+            body = body[6:]
+            need(E11PI_same(E11PI_read(body), lhs), "line 1 is not the left side")
+        elif body != "?":
+            need(body.startswith("= "), f"can't read {ln_!r}")
+            body = body[2:]
+        out.append((no, body))
+    need(out, "no proof is shown")
+    return out
+
+
+def E11PI_form(q):
+    """A typed answer's slots put back into its form, as an expression: they must make its text."""
+    v = q["answer"]["values"]
+    text = ""
+    for p in q["answer"]["template"]:
+        got = "" if isinstance(p, str) else str(v[p["slot"]])
+        text += p if isinstance(p, str) else got if got.isdigit() else f"({got})"
+    return E11PI_read(text.split(" = ", 1)[-1])
+
+
+def E11PI_shared(q, want, steps=(2, 5)):
+    tr_hyphens(q)
+    wrongs = {}
+    for o in q["choices"]:
+        if o["ref"]:
+            wrongs.setdefault(o["ref"], set()).add(o["text"])
+    gc_check_common(q, want, wrongs, steps=steps)
+
+
+def E11PI_tagged(o, val, slips):
+    if o["ref"]:
+        need(o["ref"] in slips, f"the checker can't confirm {o['ref']} on this statement")
+        need(any(E11PI_same(val, e) for e in slips[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives ({slips[o['ref']]})")
+
+
+def E11PI_options(q, label, value, slips, steps=(2, 5)):
+    """Every option read back: the right one has the value, a tagged one what its slip gives, and
+    an untagged one any other value."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = E11PI_read(o["text"][len(label):])
+        need(E11PI_same(v, value) == o["correct"], f"option {o['text']!r} is marked {o['correct']}")
+        if not o["correct"]:
+            E11PI_tagged(o, v, slips)
+    E11PI_shared(q, q["answer_text"], steps)
+
+
+def E11PI_numbers(q, label, want, wrongs):
+    """Options that are numbers: want is exact, wrongs ref -> [exact values]."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = E11PI_exact(o["text"][len(label):])
+        same = abs(sp.N(v - want, 40)) < sp.Float("1e-30")
+        need(same == o["correct"], f"option {o['text']!r} is marked {o['correct']}: the value is {want}")
+        if o["ref"]:
+            need(o["ref"] in wrongs, f"the checker can't confirm {o['ref']}")
+            need(any(abs(sp.N(v - w, 40)) < sp.Float("1e-30") for w in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+    E11PI_shared(q, q["answer_text"])
+
+
+def E11PI_exact(text):
+    """"3√3/2", "(1 + √3)/2", "−7/4", as an exact number."""
+    s = text.strip().replace("−", "-")
+    s = re.sub(r"(\d)√", r"\1*√", s).replace("√", "sqrt_")
+    s = re.sub(r"sqrt_(\d+)", r"sqrt(\1)", s)
+    need(not re.search(r"[^-+*/() \dsqrt]", s), f"can't read {text!r}")
+    return parse_expr(s, local_dict={"sqrt": sp.sqrt}, transformations=TRANSFORMS)
+
+
+def E11PI_steps(q, sides):
+    """Each line of working: 'NAME = expression' has the value of that name, and each identity it
+    quotes is one."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for name, val in sides.items():
+                m = re.fullmatch(rf"(?:.*: )?{name} = ([^,]+?)\.?", st) if ": " in st else None
+                if m:
+                    need(E11PI_same(E11PI_read(m.group(1)), val), f"{sol['name']}: {st!r} has the wrong value")
+            # Only a step's own reason: an answer may run on to "= RHS".
+            why = st.split(": ")[0] if not st.startswith("So ") else ""
+            for m in re.finditer(r"((?:sin|cos|tan) \d*[xθ]) = ([^:,]*?(?:sin|cos)[^:,]*?)(?= and |$|\.$|,)", why):
+                need(E11PI_same(E11PI_read(m.group(1)), E11PI_read(m.group(2))), f"{sol['name']}: {m.group(0)!r} is no identity")
+
+
+def E11PI_chain_step(q, g, lhs, proof):
+    for no, body in proof:
+        if body != "?":
+            need(E11PI_same(E11PI_read(body), lhs), f"line {no} is not the left side: {body}")
+
+
+def E11PI_value(e, t):
+    """e at x = tπ, exact."""
+    return sp.nsimplify(sp.simplify(e.subs(E11PI_X, t * sp.pi)))
+
+
+def E11PI_float(e, x0):
+    return sp.N(e.subs(E11PI_X, x0), 40)
+
+
+def E11PI_range(lhs):
+    """The least and greatest of e, over a grid that holds every turning point of these shapes."""
+    f = sp.lambdify(E11PI_X, lhs, "math")
+    vals = [f(i * math.pi / 96) for i in range(192)]
+    return min(vals), max(vals)
+
+
+def E11PI_check(q):
+    g, u, rep, angle = q["given"], q["view"]["unknown"], q["view"]["rep"], q["view"]["angle"]
+    need(q["paper"] == 1, f"paper {q['paper']}: every bank part is Paper 1")
+    lhs, rhs, slips = E11PI_model(g)
+    fam, letter = g["fam"], g["letter"]
+    every = q["lines"] + [q["asked"]] + [o["text"] for o in q["choices"]] + [st for sol in q["solutions"] for st in sol["steps"]]
+    for tx in every:
+        need(not re.search(r"\b(sec|cosec|cot)\b", tx), f"an HL ratio in {tx!r}")
+        need(not re.search(r"(?<!\d)3[xθ]", tx), f"a triple angle in {tx!r}")
+    if u == "simplified-result":
+        E11PI_left(q, g, rep, lhs)
+        need(E11PI_same(E11PI_form(q), lhs), "the slots don't make the expression")
+        need(q["asked"].startswith("Write L in the form "), f"can't read {q['asked']!r}")
+        E11PI_options(q, "L = ", rhs, slips)
+        E11PI_steps(q, {"L": lhs})
+    elif u == "next-line":
+        E11PI_claim(q, g, lhs, rhs)
+        left_text = re.fullmatch(r"Prove that (.+?) ≡ .+", q["lines"][0]).group(1)
+        right_text = re.fullmatch(r"Prove that .+? ≡ (.+?)(?:, where both sides are defined)?\.", q["lines"][0]).group(1)
+        shown = E11PI_proof(q, lhs)
+        need(len(shown) == int(g["at"]), "the proof stops at the wrong line")
+        E11PI_chain_step(q, g, lhs, shown)
+        for o in q["choices"]:
+            t = o["text"]
+            if o["ref"] == E11PI_BOTH:
+                need(t == f"{left_text} − ({right_text}) = 0", f"can't read {t!r}")
+                continue
+            need(t.startswith("= "), f"can't read {t!r}")
+            v = E11PI_read(t[2:])
+            need(E11PI_same(v, lhs) == o["correct"], f"the line {t!r} is marked {o['correct']}")
+            if o["correct"]:
+                need(t[2:] not in [b for _, b in shown], f"{t!r} is a line already there")
+            else:
+                E11PI_tagged(o, v, slips)
+        E11PI_shared(q, q["answer_text"])
+        E11PI_steps(q, {"LHS": lhs})
+    elif u == "missing-line":
+        _, right_text = E11PI_claim(q, g, lhs, rhs)
+        shown = E11PI_proof(q, lhs)
+        hide = int(g["hide"])
+        need(0 < hide < len(shown) - 1, "the hidden line is the first or the last")
+        for no, body in shown:
+            need((body == "?") == (no == hide + 1), f"line {no} is {body!r}")
+        E11PI_chain_step(q, g, lhs, shown)
+        need(shown[-1][1] == right_text, f"the proof ends on {shown[-1][1]!r}, not the right side")
+        E11PI_options(q, f"Line {hide + 1}: ", lhs, slips)
+        E11PI_steps(q, {"LHS": lhs})
+    elif u == "flawed-line":
+        E11PI_claim(q, g, lhs, rhs)
+        need(q["lines"][1] == "A student's proof has one slip, carried down to the end:", f"can't read {q['lines'][1]!r}")
+        shown = E11PI_proof(q, lhs)
+        # The first line that isn't the left side, found here.
+        bad = [no for no, body in shown if not E11PI_same(E11PI_read(body), lhs)]
+        need(bad, "every line of the proof is right")
+        first = bad[0]
+        need(all(no in bad for no, _ in shown if no > first), "a later line goes back to being right")
+        ref = [r for r, es in slips.items() if any(E11PI_same(E11PI_read(dict(shown)[first]), e) for e in es)]
+        need(ref, f"line {first} is no slip the type names: {dict(shown)[first]}")
+        need(g["slip"] in ref, "the situation names another slip")
+        need(int(g["at"]) == first - 1, "the situation names another line")
+        for o in q["choices"]:
+            m = re.fullmatch(r"Line (\d+) should read: (.+)", o["text"])
+            need(m, f"can't read {o['text']!r}")
+            no, v = int(m.group(1)), E11PI_read(m.group(2))
+            need((no == first and E11PI_same(v, lhs)) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
+            if not o["correct"]:
+                E11PI_tagged(o, v, slips)
+        E11PI_shared(q, q["answer_text"])
+        E11PI_steps(q, {"LHS": lhs})
+    elif u == "valid-argument":
+        _, right_text = E11PI_claim(q, g, lhs, rhs)
+        m = re.fullmatch(r"LHS = (.+) = RHS, so LHS ≡ RHS\.", q["answer_text"])
+        need(m, f"can't read {q['answer_text']!r}")
+        steps = m.group(1).split(" = ")
+        need(all(E11PI_same(E11PI_read(t), lhs) for t in steps) and steps[-1] == right_text, "the proof doesn't run from the left side to the right")
+        need(sorted(o["ref"] for o in q["choices"]) == sorted(["", E11PI_BOTH, E11PI_VALUES, E11PI_NO_END]), "the options are not the three false proofs")
+        for o in q["choices"]:
+            t = o["text"]
+            if o["ref"] == E11PI_BOTH:
+                need(t == "Assume LHS ≡ RHS. Take the RHS from both sides: 0 = 0, so LHS ≡ RHS.", f"can't read {t!r}")
+            elif o["ref"] == E11PI_VALUES:
+                r = re.fullmatch(rf"At {letter} = π/(\d+) both sides equal (.+), so LHS ≡ RHS\.", t)
+                need(r, f"can't read {t!r}")
+                x0 = sp.pi / int(r.group(1))
+                val = E11PI_exact(r.group(2))
+                need(abs(E11PI_float(lhs, x0) - sp.N(val, 40)) < sp.Float("1e-30") and abs(E11PI_float(rhs, x0) - sp.N(val, 40)) < sp.Float("1e-30"), f"{t!r}: the value is not the sides'")
+            elif o["ref"] == E11PI_NO_END:
+                need(t == f"LHS = {steps[0]}", f"{t!r} is not the proof stopped early")
+                need(not E11PI_same(E11PI_read(steps[0]), rhs) or steps[0] != right_text, "it reached the right side")
+        E11PI_shared(q, q["answer_text"])
+        E11PI_steps(q, {"LHS": lhs})
+    elif u == "start-side":
+        swap = bool(g["swap"])
+        a_text, b_text = E11PI_claim(q, g, lhs, rhs, swap)
+        count = lambda t: len(re.findall(r"sin|cos|tan", t))
+        need(count(a_text) != count(b_text), "neither side is busier")
+        side, rest = ("left", "right") if count(a_text) > count(b_text) else ("right", "left")
+        want = {"": f"Start from the {side} side: it is the busier one, so there is more to rewrite.",
+                E11PI_SIMPLE: f"Start from the {rest} side: it is the shorter one, so there is less to write.",
+                E11PI_BOTH: "Work on both sides at once until they match."}
+        for o in q["choices"]:
+            if o["ref"] == E11PI_VALUES:
+                need(re.fullmatch(rf"Put {letter} = π/\d+ into both sides and compare them\.", o["text"]), f"can't read {o['text']!r}")
+            else:
+                need(o["text"] == want[o["ref"]], f"the option {o['text']!r} is not the checker's")
+        E11PI_shared(q, want[""])
+    elif u == "true-identity":
+        for o in q["choices"]:
+            m = re.fullmatch(r"(.+) ≡ (.+)", o["text"])
+            need(m, f"can't read {o['text']!r}")
+            need(E11PI_same(E11PI_read(m.group(1)), lhs), "another left side")
+            v = E11PI_read(m.group(2))
+            need(E11PI_same(v, lhs) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
+            if not o["correct"]:
+                E11PI_tagged(o, v, slips)
+        E11PI_shared(q, q["answer_text"])
+        E11PI_steps(q, {"L": lhs})
+    elif u == "cos2-form":
+        m = re.fullmatch(r"L = (.+)", q["lines"][0])
+        need(m and E11PI_same(E11PI_read(m.group(1)), lhs), f"can't read {q['lines'][0]!r}")
+        d = 2 * int(g["w"])
+        cd = sp.cos(d * E11PI_X)
+        sg = -1 if fam == "half-tan" or (fam != "half-tan-plus" and g["base"] == "sin") else 1
+        need(q["asked"] == f"Which form of cos {'' if d == 1 else d}{letter} makes the 1 cancel?", f"can't read {q['asked']!r}")
+        s_, c_ = sp.Symbol("s"), sp.Symbol("c")
+        w = int(g["w"])
+        for o in q["choices"]:
+            r = re.fullmatch(rf"cos {d}{letter} = (.+)", o["text"])
+            need(r, f"can't read {o['text']!r}")
+            v = E11PI_read(r.group(1))
+            true = E11PI_same(v, cd)
+            # What 1 ± the form leaves, in sin and cos: a constant term is a 1 that did not cancel.
+            left_over = sp.expand(1 + sg * v.subs({sp.sin(w * E11PI_X): s_, sp.cos(w * E11PI_X): c_}))
+            cancels = left_over.subs({s_: 0, c_: 0}) == 0
+            need((true and cancels) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
+            if o["ref"] == E11PI_KEEP:
+                need(true and not cancels, f"{o['text']!r} is not a true form that keeps the 1")
+            elif o["ref"] == E11PI_FORM:
+                need(not true and E11PI_same(v, -cd), f"{o['text']!r} is not the form with its signs swapped")
+            else:
+                need(o["correct"], "an option with no slip")
+        E11PI_shared(q, q["answer_text"])
+    elif u == "half-form":
+        k, w = int(g["k"]), int(g["w"])
+        base = "sin" if fam == "half-tan" else "cos"
+        sg = -1 if base == "sin" else 1
+        m = re.fullmatch(r"L = (.+)", q["lines"][0])
+        need(m, f"can't read {q['lines'][0]!r}")
+        e = E11PI_read(m.group(1))
+        cd = sp.cos(2 * w * E11PI_X)
+        need(E11PI_same(e, k * (1 + sg * cd)), "the expression shown is another one")
+        f = {"sin": sp.sin, "cos": sp.cos}
+        other = "cos" if base == "sin" else "sin"
+        half = {E11PI_ARG: [2 * k * f[base](2 * w * E11PI_X)**2], E11PI_COEF: [k * f[base](w * E11PI_X)**2], E11PI_FORM: [2 * k * f[other](w * E11PI_X)**2]}
+        if base == "sin":
+            half[E11PI_SIGN] = [-2 * k * f[base](w * E11PI_X)**2]
+        need(E11PI_same(E11PI_form(q), e), "the slots don't make the expression")
+        E11PI_options(q, "L = ", e, half)
+        E11PI_steps(q, {"L": e})
+    elif u == "sin2-multiple":
+        n, w = int(g["n"]), int(g["w"])
+        a = sp.Rational(lhs.subs(E11PI_X, sp.pi / (4 * w)) / sp.sin(sp.pi / 2))
+        need(E11PI_same(lhs, a * sp.sin(2 * w * E11PI_X)), "no multiple of the double angle")
+        line = q["lines"][0]
+        if rep == "words":
+            r = re.fullmatch(rf"(\d+) times the product of sin {w if w > 1 else ''}{letter} and cos {w if w > 1 else ''}{letter} is a times sin {2 * w}{letter}, for every {letter}\.", line)
+            need(r and int(r.group(1)) == n, f"can't read {line!r}")
+        else:
+            r = re.fullmatch(rf"(.+) ≡ a sin {2 * w}{letter}", line)
+            need(r and E11PI_same(E11PI_read(r.group(1)), lhs), f"can't read {line!r}")
+        E11PI_numbers(q, "a = ", a, {E11PI_COEF: [sp.Integer(n)]})
+    elif u == "cancel-fraction":
+        E11PI_left(q, g, rep, lhs)
+        need(E11PI_same(E11PI_form(q), lhs), "the slots don't make the expression")
+        E11PI_options(q, "L = ", rhs, slips)
+        E11PI_steps(q, {"L": lhs})
+    elif u == "factor-structure":
+        E11PI_left(q, g, rep, lhs)
+        for o in q["choices"]:
+            need(o["text"].startswith("L = "), f"can't read {o['text']!r}")
+            body = o["text"][4:]
+            v = E11PI_read(body)
+            need(E11PI_same(v, lhs) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
+            if o["correct"]:
+                need(bool(re.search(r"\)\(|\)²|[²⁴][xθ\d]+\(", body)) or fam == "quartic-sin", f"{body!r} is not factorised")
+            else:
+                E11PI_tagged(o, v, slips)
+        E11PI_shared(q, q["answer_text"])
+    elif u == "identity-value":
+        E11PI_left(q, g, rep, lhs)
+        m = re.fullmatch(r"It has been proved that L ≡ (.+)\.", q["lines"][1])
+        need(m and E11PI_same(E11PI_read(m.group(1)), lhs), f"can't read {q['lines'][1]!r}")
+        r = re.fullmatch(rf"Find the exact value of L when {letter} = (\d*)π(?:/(\d+))?\.", q["asked"])
+        need(r, f"can't read {q['asked']!r}")
+        t = sp.Rational(int(r.group(1) or 1), int(r.group(2) or 1))
+        need(t == sp.Rational(g["t"]) and t in (sp.Rational(1, 6), sp.Rational(1, 4), sp.Rational(1, 3), sp.Rational(2, 3), sp.Rational(3, 4), sp.Rational(5, 6)), f"t = {t}")
+        want = E11PI_value(rhs, t)
+        need(want != 0, "the value is zero")
+        need(abs(E11PI_float(lhs, t * sp.pi) - sp.N(want, 40)) < sp.Float("1e-30"), "the first form has another value there")
+        # With the multiple left out, the angle is just the x given.
+        plain = rhs.replace(lambda e: isinstance(e, (sp.sin, sp.cos, sp.tan)), lambda e: e.func(E11PI_X))
+        E11PI_numbers(q, "L = ", want, {E11PI_AT: [E11PI_value(plain, t)]})
+    elif u == "value-from-ratio":
+        E11PI_left(q, g, rep, lhs)
+        w = int(g["w"])
+        r = re.fullmatch(rf"(tan|sin|cos) (\d*){letter} = (−?\d+(?:/\d+)?)\.", q["lines"][1])
+        need(r, f"can't read {q['lines'][1]!r}")
+        fn, n, val = r.group(1), int(r.group(2) or 1), sp.Rational(r.group(3).replace("−", "-"))
+        need(val == sp.Rational(g["r"]), "the ratio given is another")
+        need(n == (w if fn == "tan" else 2 * w), f"the angle in {q['lines'][1]!r}")
+        need(fn == "tan" or abs(val) < 1, f"no angle has that ratio: {val}")
+        x0 = {"tan": sp.atan, "sin": sp.asin, "cos": sp.acos}[fn](val) / n
+        want = sp.nsimplify(E11PI_float(lhs, x0), rational=True, tolerance=sp.Float("1e-25"))
+        need(abs(sp.N(want, 40) - E11PI_float(rhs, x0)) < sp.Float("1e-30"), "the two sides differ")
+        wrongs = {ref: [E11PI_float(e, x0) for e in es] for ref, es in slips.items()}
+        E11PI_numbers(q, "L = ", want, wrongs)
+    elif u == "greatest-value":
+        c = int(g["c"])
+        top = g["want"] == "greatest"
+        if rep == "words":
+            shown = E11PI_words(q, g)
+            need(E11PI_same(shown, lhs), "the sentence is another statement")
+            r = re.fullmatch(rf"f\({letter}\) is L(?: (plus|minus) (\d+))?\.", q["lines"][1])
+            need(r and int(r.group(2) or 0) * (-1 if r.group(1) == "minus" else 1) == c, f"can't read {q['lines'][1]!r}")
+        else:
+            r = re.fullmatch(rf"f\({letter}\) = (.+?)(?: ([−+]) (\d+))?", q["lines"][0])
+            need(r, f"can't read {q['lines'][0]!r}")
+            need(E11PI_same(E11PI_read(r.group(1)), lhs), "the function shown is another one")
+            need(int(r.group(3) or 0) * (-1 if r.group(2) == "−" else 1) == c, f"can't read {q['lines'][0]!r}")
+        lo, hi = E11PI_range(lhs)
+        want = sp.nsimplify((hi if top else lo) * 2, rational=True, tolerance=1e-9) / 2 + c
+        wrongs = {}
+        if fam == "square":
+            wrongs[E11PI_EXT] = [sp.Integer(int(g["k"]) + c)]
+        elif fam == "product":
+            wrongs[E11PI_PRE] = [sp.Integer(int(g["n"]) + c)]
+        elif fam in ("double-twice", "quartic-sin"):
+            wrongs[E11PI_PRE] = [sp.Integer(4 * int(g["k"]) + c)]
+        E11PI_numbers(q, f"{g['want']} value = ", want, wrongs)
+        tail = q["solutions"][0]["steps"][1]
+        rr = re.search(r"run from (.+?) to (.+?)\.$", tail)
+        need(rr and E11PI_exact(rr.group(1)) == sp.nsimplify(lo * 2, rational=True, tolerance=1e-9) / 2 + c and E11PI_exact(rr.group(2)) == sp.nsimplify(hi * 2, rational=True, tolerance=1e-9) / 2 + c, f"can't confirm {tail!r}")
+    elif u == "common-expression":
+        k = int(g["k"])
+        _, shown_right = E11PI_claim(q, g, lhs, rhs)
+        need(E11PI_same(E11PI_read(shown_right), rhs), "the right side is another expression")
+        need(len(re.findall("cos|sin", shown_right)) >= 1 and "²" in shown_right, "the right side is simple already")
+        need(E11PI_same(E11PI_form(q), rhs), "the slots don't make the expression")
+        E11PI_options(q, "", rhs, slips)
+        E11PI_steps(q, {"LHS": lhs, "RHS": rhs})
+    else:
+        need(False, f"no check for {u}")
+    return None, None
+
+
+# ── end prove-identity ──
+
+
+# ── trig-quadratic (t3-trig-quadratic, FAL-753) ──────────────────────────
+# The `trig-quadratic` situation's checker. It reads the equation and the interval back from the
+# stem, as SymPy, and solves it itself. Every sine and cosine goes to a point (S, C) on the circle:
+# the equation becomes a polynomial in S and C, S is eliminated with S² + C² = 1, and each real
+# root C gives the angles that fit. Those are stepped round onto the interval. So no identity, root
+# or solution comes from the engine, and an exact answer is confirmed by putting it back in the
+# equation. The quadratic in u and each tagged wrong option are worked out from their slips.
+
+E11TQ_X = sp.Symbol("x", real=True)
+E11TQ_S, E11TQ_C, E11TQ_U = sp.symbols("S C u")
+E11TQ_FN = {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan}
+E11TQ_Q = "SL3.8.quadratic-in-trig#"
+E11TQ_RANGE, E11TQ_TAN_ROOT, E11TQ_IN_SIN, E11TQ_IN_COS, E11TQ_PLUS, E11TQ_ONE, E11TQ_SIGNS, E11TQ_PYTHAG, E11TQ_OUT, E11TQ_MOVED, E11TQ_ONE_EACH, E11TQ_TOUCH, E11TQ_NEG, E11TQ_HALF, E11TQ_NO_SQ = [E11TQ_Q + str(i) for i in range(15)]
+E11TQ_LOSE = "SL3.6.double-angle-values#1"
+E11TQ_STOP, E11TQ_MIRROR, E11TQ_BELOW = "SL3.8.solve-basic#0", "SL3.8.solve-basic#1", "SL3.8.solve-basic#2"
+E11TQ_WAVE, E11TQ_BACK = "SL3.8.compound-angle#0", "SL3.8.compound-angle#1"
+E11TQ_CANCEL = "SL3.8.factorise-not-divide#0"
+E11TQ_PART, E11TQ_DEG, E11TQ_TWICE = "SL3.8.graphical#0", "SL3.8.graphical#2", "SL3.8.graphical#4"
+E11TQ_LIST = ("all-solutions", "all-solutions-degrees", "double-angle-solve", "surd-coefficient")
+E11TQ_GDC = ("gdc-solve", "gdc-count")
+
+
+def E11TQ_expr(text):
+    """A side of an equation as the game writes it, as SymPy in x."""
+    t = re.sub(r"(sin|cos|tan)²(\d)x", r"\1(\2*x)**2", text.strip())
+    ns = {"x": E11TQ_X, "pi": sp.pi, "sqrt": sp.sqrt, "sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "k": sp.Symbol("k")}
+    return sp.sympify(tq_python(t), locals=ns, rational=True)
+
+
+def E11TQ_sides(eq):
+    left, right = eq.split(" = ")
+    return E11TQ_expr(left), E11TQ_expr(right)
+
+
+@lru_cache(maxsize=None)
+def E11TQ_angles(f):
+    """Every angle in (−π, π] with f = 0, as floats: the elimination on the circle."""
+    S, C = E11TQ_S, E11TQ_C
+    g = sp.expand_trig(f).subs(sp.tan(E11TQ_X), sp.sin(E11TQ_X) / sp.cos(E11TQ_X)).subs({sp.sin(E11TQ_X): S, sp.cos(E11TQ_X): C})
+    top, under = sp.fraction(sp.together(g))
+    top = sp.expand(top)
+    circle = S**2 + C**2 - 1
+    r = sp.Poly(sp.rem(sp.Poly(top, S, C, extension=True).as_expr(), circle, S), S)
+    a, b = r.coeff_monomial(1), r.coeff_monomial(S)
+    p = sp.Poly(sp.expand(a**2 - b**2 * (1 - C**2)), C, extension=True).sqf_part()
+    out = set()
+    with mpmath.workdps(60):
+        cs = [mpmath.mpf(str(sp.N(c, 60))) for c in p.all_coeffs()]
+        roots = mpmath.polyroots(cs, maxsteps=500, extraprec=400)
+        num = sp.lambdify((S, C), top, "mpmath")
+        den = sp.lambdify((S, C), under, "mpmath")
+        for root in roots:
+            if abs(mpmath.im(root)) > 1e-25 or abs(mpmath.re(root)) > 1 + 1e-25:
+                continue
+            c = max(min(mpmath.re(root), mpmath.mpf(1)), mpmath.mpf(-1))
+            for sign in (1, -1):
+                s = sign * mpmath.sqrt(1 - c * c)
+                if abs(num(s, c)) < 1e-18 and abs(den(s, c)) > 1e-18:
+                    t = float(mpmath.atan2(s, c))
+                    out.add(round(math.pi if abs(t + math.pi) < 1e-12 else t, 11))
+    return tuple(sorted(out))
+
+
+def E11TQ_solve(f, lo, hi, open_hi=False):
+    """Every x in radians with f(x) = 0 on the interval. A compound angle is expanded first."""
+    xs = set()
+    for t in E11TQ_angles(f):
+        for n in range(-8, 9):
+            x = t + 2 * n * math.pi
+            if lo - 1e-9 <= x <= hi + 1e-9 and not (open_hi and abs(x - hi) < 1e-9):
+                xs.add(round(x, 10))
+    return sorted(xs)
+
+
+def E11TQ_read(line):
+    """The stem's first line: {eq, f, left, right, lo, hi, open_hi, deg, unit}."""
+    m = re.fullmatch(r"(.+?), for (\S+) ≤ x (≤|<) (\S+?)(?:, x ≠ (.+))?", line)
+    need(m is not None, f"can't read {line!r}")
+    deg = m[2].endswith("°")
+    left, right = E11TQ_sides(m[1])
+    ends = [E11TQ_expr(e.replace("°", "")) for e in (m[2], m[4])]
+    unit = sp.Rational(1) if deg else sp.pi
+    return dict(eq=m[1], left=left, right=right, f=sp.expand(left - right), deg=deg, open_hi=m[3] == "<", gaps=m[5],
+                lo=float(ends[0]), hi=float(ends[1]), lo_r=math.radians(float(ends[0])) if deg else float(ends[0]), hi_r=math.radians(float(ends[1])) if deg else float(ends[1]))
+
+
+def E11TQ_exact(E, xs):
+    """Solutions in radians as the game names them, each put back in the equation exactly."""
+    out = []
+    for x in xs:
+        m = sp.Rational(round(x / math.pi * 144), 144)
+        need(abs(float(m) * math.pi - x) < 1e-8, f"{x} is no multiple of π")
+        need(sp.simplify(E["f"].subs(E11TQ_X, m * sp.pi)) == 0, f"{m}π doesn't solve {E['eq']}")
+        out.append(m)
+    return out
+
+
+def E11TQ_name(E, m):
+    return tr_angle(m, "deg" if E["deg"] else "pi")
+
+
+def E11TQ_names(E, ms):
+    return tq_list([E11TQ_name(E, m) for m in ms])
+
+
+def E11TQ_in_u(f, fn, b):
+    """The quadratic in u that f is: [a, b, c], whatever identity it takes. Its first is positive."""
+    x, u = E11TQ_X, E11TQ_U
+    body = E11TQ_FN[fn](b * x)
+    g = f
+    if b != 1:
+        pass
+    elif fn == "sin":
+        g = g.subs(sp.cos(2 * x), 1 - 2 * sp.sin(x)**2).subs(sp.cos(x)**2, 1 - sp.sin(x)**2)
+    elif fn == "cos":
+        g = g.subs(sp.cos(2 * x), 2 * sp.cos(x)**2 - 1).subs(sp.sin(x)**2, 1 - sp.cos(x)**2)
+    g = sp.fraction(sp.together(g.subs(body, u)))[0]
+    need(not g.has(x), f"{f} is not a quadratic in {fn}")
+    p = sp.Poly(sp.expand(g), u, extension=True).all_coeffs()
+    need(len(p) == 3, f"{f} is not a quadratic in {fn}")
+    return [c if p[0] > 0 else -c for c in p]
+
+
+def E11TQ_roots(cs):
+    a, b, c = cs
+    d = sp.sqrtdenest(sp.sqrt(sp.expand(b**2 - 4 * a * c)))
+    return [sp.radsimp(sp.simplify((-b + d) / (2 * a))), sp.radsimp(sp.simplify((-b - d) / (2 * a)))]
+
+
+def E11TQ_on(E, fn, k, b=1):
+    """fn(bx) = k on the interval: solutions in radians."""
+    return E11TQ_solve(E11TQ_FN[fn](b * E11TQ_X) - k, E["lo_r"], E["hi_r"], E["open_hi"])
+
+
+def E11TQ_val(E, r):
+    """A value in the question's unit for a list of names."""
+    return sp.Rational(round(r / math.pi * 144), 144)
+
+
+def E11TQ_txt(E, xs):
+    return E11TQ_names(E, [E11TQ_val(E, r) for r in sorted(xs)]) if xs else None
+
+
+def E11TQ_kept(fn, us):
+    return [u for u in us if fn == "tan" or abs(sp.N(u)) <= 1]
+
+
+def E11TQ_principal(fn, k, b, E):
+    al = {"sin": math.asin, "cos": math.acos, "tan": math.atan}[fn](float(k)) / b
+    return al if E["lo_r"] - 1e-9 <= al <= E["hi_r"] + 1e-9 else None
+
+
+def E11TQ_mains(E, fn, ks, b):
+    out = [E11TQ_principal(fn, k, b, E) for k in ks]
+    return sorted({round(a, 10) for a in out if a is not None})
+
+
+def E11TQ_flip(E, fn, ks, b=1):
+    xs = set()
+    for k in ks:
+        xs |= set(E11TQ_on(E, fn, -k, b))
+    return sorted(xs)
+
+
+def E11TQ_slips(E, fn, ks, xs, b, one):
+    """What each slip gives on a list of solutions. `one` is the tag of keeping one root."""
+    w = defaultdict(set)
+    add = lambda ref, rs: w[ref].add(E11TQ_txt(E, rs)) if rs else None
+    if len(ks) == 2:
+        add(one, E11TQ_on(E, fn, ks[0], b))
+        if one == E11TQ_ONE:
+            add(one, E11TQ_on(E, fn, ks[1], b))
+    mains = E11TQ_mains(E, fn, ks, b)
+    if len(mains) < len(xs):
+        add(E11TQ_STOP, mains)
+    if fn == "cos":
+        pair = set(mains)
+        for al in mains:
+            o = math.pi - al
+            if E["lo_r"] - 1e-9 <= o <= E["hi_r"] + 1e-9:
+                pair.add(round(o, 10))
+        add(E11TQ_MIRROR, sorted(pair))
+    if one == E11TQ_ONE:
+        add(E11TQ_SIGNS, E11TQ_flip(E, fn, ks, b))
+    if E["lo_r"] == 0 and abs(E["hi_r"] - math.pi) < 1e-9:
+        wide = dict(E, hi_r=2 * math.pi)
+        got = set()
+        for k in ks:
+            got |= set(E11TQ_on(wide, fn, k, b))
+        add(E11TQ_OUT, sorted(got))
+    if E["lo_r"] < 0:
+        add(E11TQ_BELOW, [x for x in xs if x >= -1e-9])
+    return w
+
+
+def E11TQ_curve(q, E, marks=None):
+    """The figure is the whole equation on the interval, with its zeros marked if it marks any."""
+    F = sp.lambdify(E11TQ_X, E["f"], "math")
+    g = q["graph"]
+    need(g is not None, "no figure")
+    pts = [p for c in g["curves"] for p in c]
+    for x, y in pts[::13]:
+        need(E["lo_r"] - 1e-6 <= x <= E["hi_r"] + 1e-6, "the curve runs off the interval")
+        need(abs(y - F(x)) < 1e-6, "the curve is another equation")
+    got, want = sorted(p["x"] for p in g["points"]), sorted(marks or [])
+    need(len(got) == len(want) and all(abs(a - b) < 1e-6 for a, b in zip(got, want)), "the marks aren't the zeros")
+
+
+def E11TQ_lines(q, E, us):
+    g = q["graph"]
+    need(g is not None and sorted(round(h["at"], 6) for h in g["hlines"]) == sorted(round(float(u), 6) for u in us), "the dashed lines aren't the roots")
+
+
+def E11TQ_quad_text(fn, cs, x="x"):
+    parts = [(cs[0], f"{fn}²{x}"), (cs[1], f"{fn} {x}"), (cs[2], "")]
+    out = ""
+    for c, body in parts:
+        if c == 0:
+            continue
+        size = frac_text(abs(c)) if body == "" else ("" if abs(c) == 1 else f"{frac_text(abs(c))} ") + body
+        out += (("−" if c < 0 else "") + size) if out == "" else f" {'+' if c > 0 else '−'} {size}"
+    return out + " = 0"
+
+
+def E11TQ_lead(cs, lead):
+    k = lead / cs[0]
+    return [c * k for c in cs]
+
+
+def E11TQ_step_one(q, g, u):
+    """The unknowns that stop at one step of the solution."""
+    L, fn = q["lines"], g["fn"]
+    eq = L[0]
+    left, right = E11TQ_sides(eq)
+    f = sp.expand(left - right)
+    x = E11TQ_X
+    cs = E11TQ_in_u(f, fn, 1)
+    if u == "quadratic-in-u":
+        lead = R(re.search(r"in the form (\d*) ?(?:sin|cos)", q["asked"])[1] or 1)
+        cs = E11TQ_lead(cs, lead)
+        want = E11TQ_quad_text(fn, cs)
+        need(q["asked"].endswith(f"{'' if lead == 1 else str(lead) + ' '}{fn}²x + b {fn} x + c = 0."), f"can't read {q['asked']!r}")
+        w = defaultdict(set)
+        o = "cos" if fn == "sin" else "sin"
+        if left.has(sp.cos(2 * x)):
+            into = {"sin": 2 * sp.cos(x)**2 - 1, "cos": 1 - 2 * sp.sin(x)**2}[fn]
+            h = f.subs(sp.cos(2 * x), into)
+            lead2 = h.coeff(E11TQ_FN[o](x), 2)
+            h = sp.expand(h if lead2 > 0 else -h)
+            two = [h.coeff(E11TQ_FN[o](x), 2), h.coeff(E11TQ_FN[fn](x), 1), h.subs({E11TQ_FN[o](x): 0, E11TQ_FN[fn](x): 0})]
+            parts = E11TQ_quad_text(o, [two[0], 0, 0])[:-4]
+            rest = E11TQ_quad_text(fn, [1, two[1], two[2]])[:-4].split("²x", 1)[1]
+            w[E11TQ_IN_SIN if fn == "sin" else E11TQ_IN_COS].add(parts + rest + " = 0")
+            lose = {"sin": 1 - sp.sin(x)**2, "cos": sp.cos(x)**2 - 1}[fn]
+            w[E11TQ_LOSE].add(E11TQ_quad_text(fn, E11TQ_in_u(f.subs(sp.cos(2 * x), lose), fn, 1)))
+        else:
+            g2 = E11TQ_in_u(f.subs(E11TQ_FN[o](x)**2, E11TQ_FN[fn](x)**2 - 1), fn, 1)
+            w[E11TQ_PYTHAG].add(E11TQ_quad_text(fn, E11TQ_lead(g2, lead)))
+        if right != 0:
+            g3 = E11TQ_in_u(sp.expand(left + right), fn, 1)
+            w[E11TQ_MOVED].add(E11TQ_quad_text(fn, E11TQ_lead(g3, lead)))
+        gc_check_common(q, want, w, steps=(2, 5))
+        return
+    if u == "identity-to-use":
+        name = re.fullmatch(r"Which identity turns this into a quadratic in (sin|cos) x\?", q["asked"])
+        need(name is not None and name[1] == fn, f"can't read {q['asked']!r}")
+        w = defaultdict(set)
+        goods = []
+        for o in q["choices"]:
+            a, b = E11TQ_sides(o["text"])
+            true = abs(float((a - b).subs(x, 0.7))) < 1e-9
+            target = b.has(E11TQ_FN[fn](x)) and not b.has(E11TQ_FN["cos" if fn == "sin" else "sin"](x))
+            wanted = left.has(a) if not a.is_Pow else f.has(a)
+            if true and target and wanted:
+                goods.append(o["text"])
+            elif o["ref"] in (E11TQ_IN_SIN, E11TQ_IN_COS):
+                need(true and not target and a == sp.cos(2 * x) and o["ref"] == (E11TQ_IN_SIN if fn == "sin" else E11TQ_IN_COS), f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
+            elif o["ref"] == E11TQ_PYTHAG:
+                need(not true and a.is_Pow, f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
+            elif o["ref"] == E11TQ_LOSE:
+                need(not true and a == sp.cos(2 * x), f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
+            else:
+                need(not o["ref"], f"no check for {o['ref']}")
+        need(len(goods) == 1, f"{goods} are right")
+        gc_check_common(q, goods[0], w, steps=(2, 5))
+        return
+    us = E11TQ_roots(cs)
+    name = f"{fn} x"
+    kept = [v for v in us if abs(v) <= 1]
+    bad = [v for v in us if abs(v) > 1]
+    if u == "factorised-form":
+        w = defaultdict(set)
+        rd = lambda t: E11TQ_expr(t[:-4])
+        for o in q["choices"]:
+            e = sp.expand(rd(o["text"]))
+            same = sp.expand(e - (left - right)) == 0
+            need(same == o["correct"], f"option {o['text']!r} is marked wrongly")
+            if o["ref"]:
+                need(o["ref"] == E11TQ_SIGNS, f"no check for {o['ref']}")
+                flipped = sp.expand(e.subs(E11TQ_FN[fn](x), -E11TQ_FN[fn](x)) - (left - right))
+                need(flipped == 0, f"{o['text']!r} isn't each root with its sign changed")
+                w[o["ref"]].add(o["text"])
+        gc_check_common(q, q["answer_text"], w, steps=(2, 5))
+        return
+    if u == "values-of-u":
+        need(q["asked"] == f"Let u = {name}. Find the two values of u that solve the quadratic this gives.", f"can't read {q['asked']!r}")
+        order = lambda a, b: f"u = {frac_text(min(a, b))} or u = {frac_text(max(a, b))}"
+        gc_check_common(q, order(us[0], us[1]), {E11TQ_SIGNS: {order(-us[0], -us[1])}}, steps=(2, 5))
+        return
+    if u == "formula-root":
+        need(len(kept) == 1 and len(bad) == 1, "not one root in range and one out")
+        tr_common(q, name + " = ", kept[0], {E11TQ_RANGE: [bad[0]], E11TQ_HALF: [2 * kept[0]]}, steps=(2, 5))
+        return
+    need(u == "reject-root", f"no check for {u}")
+    need(len(kept) == 1 and len(bad) == 1, "not one root in range and one out")
+    say = lambda v, why: f"{name} = {tr_text(v)} has no solutions, as {why}"
+    w = {E11TQ_RANGE: {"Neither: both roots give solutions"}}
+    if kept[0] < 0:
+        w[E11TQ_NEG] = {say(kept[0], "it is negative")}
+    gc_check_common(q, say(bad[0], f"it is outside the range of {name}"), w, steps=(2, 5))
+    if q["view"]["rep"] == "graph":
+        E11TQ_lines(q, {}, us)
+
+
+def E11TQ_count(q, E, fn, b, xs, us):
+    n = len(xs)
+    ks = E11TQ_kept(fn, us)
+    w = defaultdict(set)
+    label = "Number of solutions = "
+    span = sp.nsimplify((E["hi_r"] - E["lo_r"]) / math.pi)
+    if len(ks) < len(us):
+        w[E11TQ_RANGE].add(f"{label}{n + span}")
+    if len(us) != n:
+        w[E11TQ_ONE_EACH].add(f"{label}{len(us)}")
+    ends = sum(len(E11TQ_on(E, fn, k, b)) for k in ks if abs(abs(sp.N(k)) - 1) < 1e-12)
+    if ends:
+        w[E11TQ_TWICE].add(f"{label}{n + ends}")
+        w[E11TQ_TOUCH].add(f"{label}{n - ends}")
+    if span > 2:
+        one = dict(E, hi_r=E["lo_r"] + 2 * math.pi)
+        w[E11TQ_PART].add(f"{label}{len({round(x, 8) for k in ks for x in E11TQ_on(one, fn, k, b)})}")
+    gc_check_common(q, f"{label}{n}", w, steps=(2, 5))
+
+
+def E11TQ_pick(xs, kind):
+    if kind == "largest":
+        return max(xs)
+    if kind == "smallest":
+        return min(xs)
+    return min(x for x in xs if x > 0)
+
+
+def E11TQ_one(q, E, fn, ks, xs):
+    a = re.fullmatch(r"Find the (largest|smallest|smallest positive) solution, in exact form\.", q["asked"])
+    need(a is not None, f"can't read {q['asked']!r}")
+    kind = {"largest": "largest", "smallest": "smallest", "smallest positive": "positive"}[a[1]]
+    want = E11TQ_txt(E, [E11TQ_pick(xs, kind)])
+    w = defaultdict(set)
+    take = lambda rs: [E11TQ_pick(rs, kind)] if rs and (kind != "positive" or any(r > 0 for r in rs)) else []
+    if len(ks) == 2:
+        for k in ks:
+            r = take(E11TQ_on(E, fn, k))
+            if r:
+                w[E11TQ_ONE].add(E11TQ_txt(E, r))
+    r = take(E11TQ_flip(E, fn, ks))
+    if r:
+        w[E11TQ_SIGNS].add(E11TQ_txt(E, r))
+    r = take(E11TQ_mains(E, fn, ks, 1))
+    if r:
+        w[E11TQ_STOP].add(E11TQ_txt(E, r))
+    gc_check_common(q, want, w, steps=(2, 5))
+
+
+def E11TQ_sum(q, E, fn, ks, xs):
+    text = lambda rs: "Sum = " + tr_angle(sum(E11TQ_val(E, r) for r in rs), "deg" if E["deg"] else "pi")
+    w = defaultdict(set)
+    if len(ks) == 2:
+        for k in ks:
+            r = E11TQ_on(E, fn, k)
+            if r:
+                w[E11TQ_ONE].add(text(r))
+    m = E11TQ_mains(E, fn, ks, 1)
+    if m and len(m) < len(xs):
+        w[E11TQ_STOP].add(text(m))
+    r = E11TQ_flip(E, fn, ks)
+    if r:
+        w[E11TQ_SIGNS].add(text(r))
+    gc_check_common(q, text(xs), w, steps=(2, 5))
+
+
+def E11TQ_constant(q, g):
+    m = re.fullmatch(r"x = (\S+) is a solution of (.+)\.", q["lines"][0])
+    need(m is not None, f"can't read {q['lines'][0]!r}")
+    x, k = E11TQ_X, sp.Symbol("k")
+    at = E11TQ_expr(m[1])
+    left, right = E11TQ_sides(re.sub(r"\bk (sin|cos)", r"k*\1", m[2]))
+    f = left - right
+    fn = E11TQ_FN[g["fn"]]
+    got = sp.solve(f.subs(x, at), k)
+    need(len(got) == 1, f"no one k in {m[2]}")
+    slip = sp.solve(f.subs(fn(x)**2, fn(x)).subs(x, at), k)
+    gc_check_common(q, f"k = {frac_text(got[0])}", {E11TQ_NO_SQ: {f"k = {frac_text(slip[0])}"}}, steps=(2, 5))
+
+
+def E11TQ_double_factor(q, E, xs):
+    x = E11TQ_X
+    rest = sp.cancel(sp.expand_trig(E["f"]) / sp.cos(x))
+    w = defaultdict(set)
+    got = E11TQ_solve(rest, E["lo_r"], E["hi_r"])
+    w[E11TQ_CANCEL].add(E11TQ_txt(E, got))
+    a = rest.coeff(sp.sin(x), 2)
+    if a != 0:
+        k = sp.sqrt(-rest.subs(sp.sin(x), 0) / a)
+        pos = E11TQ_on(E, "sin", k)
+        zeros = E11TQ_on(E, "cos", sp.Integer(0))
+        w[E11TQ_PLUS].add(E11TQ_txt(E, sorted(set(pos) | set(zeros))))
+    gc_check_common(q, E11TQ_txt(E, xs), w, steps=(2, 5))
+
+
+def E11TQ_gdc_solve(q, g, E, rep):
+    xs = E11TQ_solve(E["f"], E["lo_r"], E["hi_r"], E["open_hi"])
+    need(1 <= len(xs) <= 8, f"{len(xs)} solutions")
+    vals = [sp.Float(str(x), 12) for x in xs]
+    ds = [sp.Float(str(math.degrees(x)), 12) for x in xs]
+    w = {E11TQ_DEG: {gc_xs(ds)}}
+    if len(xs) > 1:
+        w[E11TQ_STOP] = {gc_xs(vals[:1])}
+    gc_check_common(q, gc_xs(vals), w, gc_trap(vals, gc_xs2(vals)), steps=(2, 5))
+    if rep == "graph":
+        E11TQ_curve(q, E, xs)
+
+
+def E11TQ_check(q):
+    g, u, rep, L = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    need(q["paper"] == (2 if u in E11TQ_GDC else 1), f"paper {q['paper']} for {u}")
+    tr_hyphens(q)
+    if u == "constant-from-solution":
+        E11TQ_constant(q, g)
+        return None, None
+    if u in ("quadratic-in-u", "identity-to-use", "factorised-form", "values-of-u", "formula-root", "reject-root"):
+        E11TQ_step_one(q, g, u)
+        return None, None
+    E = E11TQ_read(L[0])
+    need(E["deg"] == (g["form"] == "deg"), "the unit is another one")
+    fn = g["fn"]
+    b = int(R(g["b"]))
+    if u == "gdc-solve":
+        E11TQ_gdc_solve(q, g, E, rep)
+        return None, None
+    xs = E11TQ_solve(E["f"], E["lo_r"], E["hi_r"], E["open_hi"])
+    need(1 <= len(xs) <= 12, f"{len(xs)} solutions")
+    E11TQ_exact(E, xs)
+    if u == "double-factor":
+        E11TQ_double_factor(q, E, xs)
+        if rep == "graph":
+            E11TQ_curve(q, E)
+        return None, None
+    cs = E11TQ_in_u(E["f"], fn, b)
+    us = E11TQ_roots(cs)
+    ks = E11TQ_kept(fn, us)
+    if u in ("count-solutions", "gdc-count"):
+        E11TQ_count(q, E, fn, b, xs, us)
+        if rep == "graph":
+            E11TQ_lines(q, E, us) if u == "count-solutions" else E11TQ_curve(q, E)
+        return None, None
+    if u == "one-solution":
+        E11TQ_one(q, E, fn, ks, xs)
+    elif u == "sum-solutions":
+        E11TQ_sum(q, E, fn, ks, xs)
+    elif u == "tan-zero-root":
+        nz = [k for k in ks if k != 0]
+        gc_check_common(q, E11TQ_txt(E, xs), {E11TQ_CANCEL: {E11TQ_txt(E, E11TQ_on(E, fn, nz[0]))}}, steps=(2, 5))
+    elif u == "compound-quadratic" or u == "rational-disguise":
+        w = defaultdict(set)
+        first = [x for x in xs if b * x <= E["hi_r"] + 1e-9]
+        if b > 1 and first:
+            w[E11TQ_WAVE].add(E11TQ_txt(E, first))
+        if len(ks) == 2:
+            for k in ks:
+                r = E11TQ_on(E, fn, k, b)
+                if r:
+                    w[E11TQ_ONE].add(E11TQ_txt(E, r))
+        if u == "compound-quadratic":
+            for k in ks:
+                al = E11TQ_mains(E, fn, [k], b)
+                if al:
+                    w[E11TQ_BACK].add(E11TQ_txt(E, al))
+        else:
+            r = E11TQ_flip(E, fn, ks, b)
+            if r:
+                w[E11TQ_SIGNS].add(E11TQ_txt(E, r))
+        gc_check_common(q, E11TQ_txt(E, xs), w, steps=(2, 5))
+    elif u in E11TQ_LIST or u in ("plus-minus-root", "tan-squared"):
+        one = {"plus-minus-root": E11TQ_PLUS, "tan-squared": E11TQ_TAN_ROOT}.get(u, E11TQ_ONE)
+        order = sorted(ks, key=lambda v: -sp.N(v)) if one != E11TQ_ONE else ks
+        gc_check_common(q, E11TQ_txt(E, xs), E11TQ_slips(E, fn, order, xs, b, one), steps=(2, 5))
+    else:
+        need(False, f"no check for {u}")
+    if rep == "graph":
+        E11TQ_curve(q, E)
+    return None, None
+
+
+# ── end trig-quadratic ──
+
+
+# ── circular-motion (t3-circular-motion, FAL-753) ────────────────────────
+# The `circular-motion` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/circular_motion.gd. The rate, the reach, the line's distance, the angle and
+# the time are read back from the lines or the figure, each answer and each tagged slip is worked out
+# from those with SymPy to 40 digits, a figure is held to those numbers, and every plain sum in the
+# working is evaluated.
+
+E11CM_SK = "SL3.4.convert#"
+E11CM_FACTOR, E11CM_RAD_AS_DEG, E11CM_DECIMAL, E11CM_PI_TURN, E11CM_FLIPPED = (E11CM_SK + str(i) for i in range(5))
+E11CM_BACK, E11CM_PER_MIN, E11CM_MIXED, E11CM_HALF, E11CM_WHOLE = (E11CM_SK + str(i) for i in range(5, 10))
+E11CM_SINE, E11CM_REST, E11CM_TIMES, E11CM_NO_TIME, E11CM_DEG_AS_RAD = (E11CM_SK + str(i) for i in range(10, 15))
+E11CM_SWEEPS = [("The watchtower's searchlight", "beam", "fence"), ("The salvage yard's rotating beacon", "light", "haul road"),
+                ("The depot's radar dish", "signal", "fence line"), ("The ridge camp's scanner", "beam", "pipeline"),
+                ("The old mast's lamp", "light", "rail track")]
+E11CM_ROTORS = [("A wind turbine at the bean farm", "Each blade", "the tip of a blade"), ("A wind pump on the flats", "Each sail", "the tip of a sail"),
+                ("A water wheel at the dam", "Each spoke", "the end of a spoke"), ("A rotor on the old mill", "Each vane", "the tip of a vane"),
+                ("A crane in the scrapyard", "Its jib", "the end of the jib")]
+E11CM_EDGE = sp.Rational(29, 1000)      # the engine's is 0.03
+E11CM_EXACT = " Give your answer as an exact multiple of π."
+E11CM_SF = " Give your answer to 3 significant figures."
+E11CM_RS = " rad/s"
+E11CM_CHORD = ("half-angle", "chord-angle", "chord-time", "chord-time-rpm", "chord-time-degrees", "dark-time", "fraction-in-view", "arc-past-line")
+E11CM_TAIL = {"chord-time-rpm": ", in seconds"}
+E11CM_RATIOS = (sp.Rational(1, 2), sp.sqrt(2) / 2, sp.sqrt(3) / 2)
+E11CM_DEG_LAND = {15 * i for i in range(1, 23) if i != 12}
+E11CM_PI_LAND = {sp.Rational(a, b) for a, b in ((1, 6), (1, 4), (1, 3), (1, 2), (2, 3), (3, 4), (5, 6), (7, 6), (5, 4), (4, 3), (3, 2), (5, 3), (7, 4), (11, 6))}
+
+
+def E11CM_pi(b, letter=""):
+    """A multiple of π as the game writes it: "π/8", "3π/8", "3πt/8"."""
+    b = sp.Rational(b)
+    top = ("π" if b.p == 1 else f"{b.p}π") + letter
+    return top if b.q == 1 else f"{top}/{b.q}"
+
+
+def E11CM_len(text):
+    """A length as written: 14, 14.5 or 3√2."""
+    m = re.fullmatch(r"(\d+)√(\d)", text)
+    return sp.Integer(m.group(1)) * sp.sqrt(int(m.group(2))) if m else R(text)
+
+
+def E11CM_val(text):
+    """A value in the working: 16, 1.5908, π/8, 3π/8."""
+    t = re.sub(r"([\d.]+)π", r"(\1*pi)", text.replace("−", "-").replace("×", "*").replace("÷", "/")).replace("π", "pi")
+    return sp.sympify(t, rational=True)
+
+
+def E11CM_clear(x):
+    """x is positive and clear of a 3 s.f. rounding edge."""
+    v = num(x)
+    if v <= 0:
+        return False
+    scaled = v / sp.Integer(10) ** (sp.floor(sp.log(v, 10)) - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E11CM_EDGE
+
+
+def E11CM_rate(line):
+    """The rate in a line: (src, the number given, radians per second), or None."""
+    for src, rx in (("T", r"It makes one full turn every (\d+) seconds\."), ("n", r"It turns at (\d+) revolutions per minute\."),
+                    ("k", r"It turns at (\d+) degrees per second\."), ("w", r"It turns at ([\d.]+) radians per second\."),
+                    ("w", r"After t seconds it has turned through θ = ([\d.]+)t radians\.")):
+        m = re.fullmatch(rx, line)
+        if m:
+            v = R(m.group(1))
+            return src, v, {"T": 2 * sp.pi / v, "n": sp.pi * v / 30, "k": sp.pi * v / 180, "w": v}[src]
+    return None
+
+
+def E11CM_read(q):
+    """What the student is shown: the story, r and d (from the words or the figure) and the rate."""
+    L, rep, u, g = q["lines"], q["view"]["rep"], q["view"]["unknown"], q["given"]
+    ctx = int(g["ctx"])
+    f = {"r": None, "d": None, "src": None, "ctx": ctx}
+    m = re.fullmatch(r"(.+) turns about O\. (.+) is ([\d.]+) m long\.", L[0])
+    if m:
+        need((m.group(1), m.group(2)) == E11CM_ROTORS[ctx][:2], f"the story {L[0]!r}")
+        f["r"], f["tip"] = R(m.group(3)), E11CM_ROTORS[ctx][2]
+    else:
+        thing, ray, line = E11CM_SWEEPS[ctx]
+        f["ray"], f["line"] = ray, line
+        need(L[0].startswith(thing + " at O "), f"the story {L[0]!r}")
+        rest = L[0][len(thing) + 6:]
+        m = re.fullmatch(rf"turns steadily\. Its {ray} reaches ([\d.]+) m, and a straight {line} passes (.+) m from O, meeting the edge of that circle at A and B\.", rest)
+        if m:
+            f["r"], f["d"] = R(m.group(1)), E11CM_len(m.group(2))
+        elif rest == f"turns steadily. The diagram shows the circle its {ray} reaches and a straight {line}, which meets the circle at A and B.":
+            G = q["graph"]
+            need(G["kind"] == "region" and G["shape"] == "sweep" and G["line"] == line, "the figure is not the chord")
+            f["r"] = R(G["r_label"].removesuffix(" m"))
+            if G["d_label"] != "?":
+                f["d"] = E11CM_len(G["d_label"].removesuffix(" m"))
+                need(abs(sp.Float(G["d"], 30) - num(f["d"])) < 1e-9, "the figure's d is not the label's")
+            need(abs(sp.Float(G["r"], 30) - num(f["r"])) < 1e-9, "the figure's r is not the label's")
+        else:
+            m = re.fullmatch(rf"turns steadily\. Its {ray} reaches ([\d.]+) m, and a straight {line} meets the edge of that circle at A and B\.", rest)
+            if m:
+                f["r"] = R(m.group(1))
+            else:
+                need(rest == "turns steadily." or rest.startswith(f"swings its {ray} from A to B"), f"can't read {L[0]!r}")
+                f["swing"] = rest
+    for line in L[1:]:
+        got = E11CM_rate(line)
+        if got:
+            f["src"], f["given"], f["om"] = got
+    if rep == "equation":
+        need(len(L) > 1 and L[1].startswith("After t seconds"), "an equation with no θ = wt")
+    if u not in ("half-angle", "chord-angle", "chord-angle-exact", "arc-past-line", "sweep-to-radians", "sweep-to-degrees", "distance-from-time"):
+        need(f["src"] is not None, "no rate in the lines")
+        f["T"] = 2 * sp.pi / f["om"]
+    return f
+
+
+def E11CM_sector(q, th, label, r_label=""):
+    G = q["graph"]
+    need(G is not None and G["kind"] == "sector" and G.get("circle"), "the figure is not an angle on a circle")
+    need(abs(sp.Float(G["theta"], 30) - num(th)) < 1e-9, "the figure is not drawn to the angle")
+    need(G["angle_label"] == label and G["r_label"] == r_label, f"the figure's labels {G['angle_label']!r}, {G['r_label']!r}")
+
+
+def E11CM_sums(q):
+    """Every plain sum in the working is what it says, to the figures it shows."""
+    rx = re.compile(r"(?<![\w.])([\dπ(][\d.π()/×÷−+ ]*[×÷−][\d.π()/×÷−+ ]*?) = (\d[\d.]*π?(?:/\d+)?|π(?:/\d+)?)(?!\w)")
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for left, right in rx.findall(st):
+                if left.count("(") != left.count(")"):
+                    continue
+                a, b = E11CM_val(left), E11CM_val(right)
+                unit = sp.Integer(0) if "π" in right else (sp.Rational(1, 10 ** len(right.split(".")[1])) if "." in right else sp.Integer(1))
+                need(abs(num(a) - num(b)) <= unit * sp.Rational(6, 10) + sp.Rational(1, 10**20), f"{sol['name']}: {left} is not {right}")
+            m = re.search(r"([\d.]+) cos\(([\d.]+) ÷ 2\) = ([\d.]+)", st)
+            if m:
+                x = R(m.group(1)) * sp.cos(R(m.group(2)) / 2)
+                need(abs(num(x) - R(m.group(3))) <= sp.Rational(2, 10000) * R(m.group(3)), f"{sol['name']}: {st!r}")
+
+
+def E11CM_says(q, *texts):
+    for sol in q["solutions"]:
+        for t in texts:
+            need(any(t in st for st in sol["steps"]), f"{sol['name']}: the working doesn't say {t!r}")
+
+
+def E11CM_fin(q, want, wr, x=None, label="", tail=""):
+    """The last checks. x is the true value of a 3 s.f. answer."""
+    trap = None
+    if x is not None:
+        need(E11CM_clear(x), f"{want} is on a rounding edge")
+        need(not sig3(x).endswith("0"), f"{want} ends in 0")
+        trap = label + dec_text(R(sig3(x, 2))) + tail
+    gc_check_common(q, want, wr, trap)
+    E11CM_sums(q)
+    for sol in q["solutions"]:
+        need(q["view"]["angle"] in ("multiply-factor", "fraction-of-turn", "landmarks"), "the method")
+        if sol["angle"] == "multiply-factor":
+            need(any("π/180" in st or "180/π" in st for st in sol["steps"]), f"{sol['name']}: no π/180 in the working")
+        if sol["angle"] == "fraction-of-turn":
+            need(any("turn" in st for st in sol["steps"]), f"{sol['name']}: no turn in the working")
+        if sol["angle"] == "landmarks":
+            need(any("landmark" in st or "lots of" in st for st in sol["steps"]), f"{sol['name']}: no landmark in the working")
+    return None, None
+
+
+def E11CM_entry(q):
+    with mpmath.workdps(40):
+        return E11CM_check(q)
+
+
+def E11CM_check(q):
+    u, L, rep, asked = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 2, "circular motion is Paper 2")
+    need(q["view"]["angle"] != "landmarks" or u in ("rate-from-degrees", "sweep-to-radians", "sweep-to-degrees", "chord-angle-exact", "chord-time-exact"), f"landmarks on {u}")
+    need(rep == "words" or rep == "diagram" or (rep == "equation" and u in ("rate-to-degrees", "period-from-rate", "time-to-turn")), f"{u} as {rep}")
+    need((q["graph"] is not None) == (rep == "diagram"), "a figure where there should be none, or none where there should be one")
+    f = E11CM_read(q)
+    pi = sp.pi
+    S = sig3
+
+    def want_num(label, x, tail, wrongs):
+        """wrongs: ref -> value. Each is a 3 s.f. text in the answer's own terms."""
+        wr = {}
+        for ref, v in wrongs.items():
+            if num(v) > 0:
+                need(E11CM_clear(v), f"the slip {ref} is on a rounding edge")
+                wr[ref] = {label + S(v) + tail}
+        need(q["answer"].get("show") == "sf" and not q["answer"].get("exact"), "a 3 s.f. answer")
+        return E11CM_fin(q, label + S(x) + tail, wr, x, label, tail)
+
+    def want_pi(label, b, tail, wrongs, letter=""):
+        need(q["answer"].get("exact") is True, "an exact answer")
+        return E11CM_fin(q, label + E11CM_pi(b, letter) + tail, wrongs)
+
+    def texts(label, tail, **kw):
+        return {E11CM_SK + k[1:]: {label + v + tail} for k, v in kw.items()}
+
+    if u in ("rate-from-period", "angle-expression"):
+        T = f["given"]
+        need(f["src"] == "T" and T.q == 1 and 5 <= T <= 60 and T != 16, f"T = {T}")
+        b = 2 / T
+        if rep == "diagram":
+            need(q["graph"]["mark"] == ("moving" if u == "angle-expression" else ""), "the figure's mark")
+        if u == "rate-from-period":
+            need(asked == "Find the angle it turns through in one second, in radians." + E11CM_EXACT, f"asked {asked!r}")
+            label, tail = "angle = ", " radians"
+            return want_pi(label, b, tail, {E11CM_DECIMAL: {label + S(b * pi) + tail}, E11CM_PI_TURN: {label + E11CM_pi(1 / T) + tail},
+                                            E11CM_DEG_AS_RAD: {label + S(360 / T) + tail}, E11CM_FLIPPED: {f"{label}{dec_text(T / 2)}/π{tail}"}})
+        need(asked == "Write θ in terms of t, as an exact multiple of π.", f"asked {asked!r}")
+        need(L[-1] == (f"At t = 0 its {E11CM_SWEEPS[f['ctx']][1]} points at A. After t seconds it points at D, on the way to B, and has turned through θ radians." if rep == "diagram"
+                       else f"After t seconds its {E11CM_SWEEPS[f['ctx']][1]} has turned through θ radians from where it started."), f"the line {L[-1]!r}")
+        return want_pi("θ = ", b, "", {E11CM_DECIMAL: {f"θ = {S(b * pi)}t"}, E11CM_PI_TURN: {"θ = " + E11CM_pi(1 / T, "t")},
+                                       E11CM_DEG_AS_RAD: {f"θ = {S(360 / T)}t"}, E11CM_FLIPPED: {f"θ = {dec_text(T / 2)}t/π"}}, "t")
+    if u == "angle-after-time":
+        T = f["given"]
+        if rep == "diagram":
+            m = re.fullmatch(r"The diagram shows the angle θ, in radians, that it turns through from A to B in (\d+) seconds\.", L[-1])
+            need(m is not None and asked == "Find θ." + E11CM_EXACT, f"can't read {L[-1]!r}")
+        else:
+            m = re.fullmatch(r"Find the angle θ it turns through in (\d+) seconds, in radians\." + re.escape(E11CM_EXACT), asked)
+            need(m is not None, f"can't read {asked!r}")
+        tau = R(m.group(1))
+        need(f["src"] == "T" and 6 <= T <= 60 and 2 <= tau < T, f"T = {T}, τ = {tau}")
+        b = 2 * tau / T
+        if rep == "diagram":
+            E11CM_sector(q, b * pi, "θ")
+        return want_pi("θ = ", b, "", {E11CM_DECIMAL: {"θ = " + S(b * pi)}, E11CM_PI_TURN: {"θ = " + E11CM_pi(tau / T)}, E11CM_DEG_AS_RAD: {"θ = " + S(360 * tau / T)}})
+    if u == "rate-from-rpm":
+        n = f["given"]
+        need(f["src"] == "n" and 2 <= n <= 40, f"n = {n}")
+        need(asked == "Find its rate of turning in radians per second." + E11CM_EXACT, f"asked {asked!r}")
+        b = n / 30
+        label, tail = "rate = ", E11CM_RS
+        return want_pi(label, b, tail, {E11CM_DECIMAL: {label + S(b * pi) + tail}, E11CM_PI_TURN: {label + E11CM_pi(n / 60) + tail},
+                                        E11CM_DEG_AS_RAD: {label + dec_text(6 * n) + tail}, E11CM_PER_MIN: {label + E11CM_pi(2 * n) + tail}})
+    if u == "rate-from-degrees":
+        k = f["given"]
+        need(f["src"] == "k" and k in E11CM_DEG_LAND and k <= 150, f"k = {k}")
+        need(asked == "Find its rate of turning in radians per second." + E11CM_EXACT, f"asked {asked!r}")
+        b = k / 180
+        label, tail = "rate = ", E11CM_RS
+        return want_pi(label, b, tail, {E11CM_FACTOR: {label + S(k * 180 / pi) + tail}, E11CM_DECIMAL: {label + S(b * pi) + tail}, E11CM_PI_TURN: {label + E11CM_pi(k / 360) + tail}})
+    if u == "sweep-to-radians":
+        need(asked == "Write this angle θ in radians." + E11CM_EXACT, f"asked {asked!r}")
+        if rep == "diagram":
+            need(f["swing"].endswith("from A to B, through the angle in the diagram."), f"the line {L[0]!r}")
+            mt = re.fullmatch(r"(\d+)°", q["graph"]["angle_label"])
+            need(mt is not None, "can't read the figure's angle")
+            d = int(mt.group(1))
+            E11CM_sector(q, d * pi / 180, f"{d}°")
+        else:
+            mt = re.search(r"through (\d+)°\.$", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            d = int(mt.group(1))
+        need(d in E11CM_DEG_LAND, f"{d}° is no landmark")
+        b = sp.Rational(d, 180)
+        return want_pi("θ = ", b, "", {E11CM_FACTOR: {"θ = " + S(sp.Integer(d) * 180 / pi)}, E11CM_DECIMAL: {"θ = " + S(b * pi)}, E11CM_PI_TURN: {"θ = " + E11CM_pi(sp.Rational(d, 360))}})
+    if u == "sweep-to-degrees":
+        need(asked == "Write this angle θ in degrees.", f"asked {asked!r}")
+        if rep == "diagram":
+            need(f["swing"].endswith("through the angle in the diagram, which is in radians."), f"the line {L[0]!r}")
+            text = q["graph"]["angle_label"]
+        else:
+            mt = re.search(r"through (.+) radians\.$", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            text = mt.group(1)
+        b = E11CM_val(text) / pi
+        need(b in E11CM_PI_LAND, f"{b}π is no landmark")
+        if rep == "diagram":
+            E11CM_sector(q, b * pi, text)
+        need(q["answer"].get("exact") is True, "an exact answer")
+        return E11CM_fin(q, f"θ = {dec_text(b * 180)}°", {E11CM_RAD_AS_DEG: {f"θ = {S(b * pi)}°"}, E11CM_BACK: {f"θ = {S(b * pi * pi / 180)}°"}, E11CM_PI_TURN: {f"θ = {dec_text(b * 360)}°"}})
+    if u in ("chord-angle-exact", "chord-time-exact"):
+        r, d = f["r"], f["d"]
+        need(r.q == 1 and r % 2 == 0 and 4 <= r <= 60, f"r = {r}")
+        c = sp.nsimplify(d / r)
+        need(c in E11CM_RATIOS, f"d/r = {c} is no landmark")
+        b = 2 * sp.acos(c) / pi
+        sine = 2 * sp.asin(c) / pi
+        need(b.is_Rational and sine.is_Rational, "no exact angle")
+        if rep == "diagram" and u == "chord-angle-exact":
+            need(q["graph"]["mark"] == "whole" and q["graph"]["angle_label"] == "?", "the figure's mark")
+        if u == "chord-angle-exact":
+            label = "angle AOB = "
+            need(asked == "Find angle AOB, in radians." + E11CM_EXACT, f"asked {asked!r}")
+            return want_pi(label, b, "", {E11CM_HALF: {label + E11CM_pi(b / 2)}, E11CM_DECIMAL: {label + S(b * pi)}, E11CM_DEG_AS_RAD: {label + dec_text(b * 180)},
+                                          E11CM_SINE: {label + E11CM_pi(sine)}})
+        T = f["given"]
+        need(f["src"] == "T" and T % 12 == 0 and 12 <= T <= 60, f"T = {T}")
+        need(asked == f"For how many seconds is its {f['ray']} on the stretch AB of the {f['line']} in each turn? Give the exact value.", f"asked {asked!r}")
+        t = b / 2 * T
+        need(t.q == 1, f"the time {t} is not whole")
+        need(q["answer"].get("exact") is True, "an exact answer")
+        S2 = lambda x: f"time = {dec_text(x)} s"
+        return E11CM_fin(q, S2(t), {E11CM_HALF: {S2(t / 2)}, E11CM_REST: {S2(T - t)}, E11CM_MIXED: {f"time = {S(b * 180 / f['om'])} s"}, E11CM_SINE: {S2(sine / 2 * T)}})
+    if u in ("rate-to-degrees", "period-from-rate", "time-to-turn"):
+        om = f["given"]
+        need(f["src"] == "w" and sp.Rational(15, 100) <= om <= 3 and (om * 100).q == 1, f"w = {om}")
+        if u == "rate-to-degrees":
+            need(asked == "Find its rate of turning in degrees per second." + E11CM_SF, f"asked {asked!r}")
+            return want_num("rate = ", om * 180 / pi, "°/s", {E11CM_RAD_AS_DEG: om, E11CM_BACK: om * pi / 180, E11CM_PI_TURN: om / pi * 360})
+        if u == "period-from-rate":
+            need(asked == "Find the time it takes to make one full turn." + E11CM_SF, f"asked {asked!r}")
+            return want_num("time = ", 2 * pi / om, " s", {E11CM_PI_TURN: pi / om, E11CM_FLIPPED: om / (2 * pi), E11CM_TIMES: 2 * pi * om, E11CM_MIXED: 360 / om})
+        mt = re.fullmatch(r"Find the time it takes to turn through (\d+)°\." + E11CM_SF, asked)
+        need(mt is not None, f"can't read {asked!r}")
+        d = sp.Integer(mt.group(1))
+        need(20 <= d <= 340 and d % 15 != 0, f"{d}°")
+        th = d * pi / 180
+        return want_num("time = ", th / om, " s", {E11CM_MIXED: d / om, E11CM_TIMES: th * om, E11CM_FACTOR: d * 180 / pi / om})
+    if u == "time-from-period":
+        T = f["given"]
+        if rep == "diagram":
+            need(asked == "Find the time it takes to turn from A to B." + E11CM_SF, f"asked {asked!r}")
+            th = R(q["graph"]["angle_label"])
+            E11CM_sector(q, th, q["graph"]["angle_label"])
+        else:
+            mt = re.fullmatch(r"Find the time it takes to turn through ([\d.]+) radians\." + E11CM_SF, asked)
+            need(mt is not None, f"can't read {asked!r}")
+            th = R(mt.group(1))
+        need(f["src"] == "T" and 6 <= T <= 60 and sp.Rational(1, 2) <= th <= sp.Rational(55, 10), f"T = {T}, θ = {th}")
+        return want_num("time = ", th * T / (2 * pi), " s", {E11CM_PI_TURN: th * T / pi, E11CM_TIMES: th * 2 * pi / T, E11CM_MIXED: th * T / 360})
+    if u in E11CM_CHORD:
+        r, d = f["r"], f["d"]
+        need(2 * r == sp.floor(2 * r) and 8 <= r <= 60 and (10 * d).q == 1 and (r, d) != (20, 14), f"r = {r}, d = {d}")
+        c = d / r
+        need(sp.Rational(1, 4) <= c <= sp.Rational(92, 100), f"d/r = {c}")
+        for mark in E11CM_RATIOS:
+            need(abs(num(c - mark)) >= sp.Rational(2, 100) - sp.Rational(1, 10**15), f"d/r = {c} is a landmark")
+        ph = sp.acos(c)
+        ps = sp.asin(c)
+        if u == "half-angle":
+            need(asked == "Find angle AOM, in radians." + E11CM_SF, f"asked {asked!r}")
+            need(L[-1] == f"M is the point of the {f['line']} nearest to O.", f"the line {L[-1]!r}")
+            if rep == "diagram":
+                need(q["graph"]["mark"] == "half" and q["graph"]["nearest"], "the figure's mark")
+            return want_num("angle AOM = ", ph, " radians", {E11CM_WHOLE: 2 * ph, E11CM_DEG_AS_RAD: ph * 180 / pi, E11CM_SINE: ps})
+        if u == "chord-angle":
+            need(asked == "Find angle AOB, in radians." + E11CM_SF, f"asked {asked!r}")
+            if rep == "diagram":
+                need(q["graph"]["mark"] == "whole", "the figure's mark")
+            return want_num("angle AOB = ", 2 * ph, " radians", {E11CM_HALF: ph, E11CM_DEG_AS_RAD: 2 * ph * 180 / pi, E11CM_SINE: 2 * ps})
+        if u == "arc-past-line":
+            need(asked == f"Find the length of the shorter arc AB, on the far side of the {f['line']} from O." + E11CM_SF, f"asked {asked!r}")
+            return want_num("arc = ", 2 * r * ph, " m", {E11CM_MIXED: r * 2 * ph * 180 / pi, E11CM_HALF: r * ph, E11CM_SINE: 2 * r * ps})
+        src, g, om = f["src"], f["given"], f["om"]
+        T = 2 * pi / om
+        t = 2 * ph / om
+        need(src == {"chord-time-rpm": "n", "chord-time-degrees": "k"}.get(u, "T"), f"the rate is {src}")
+        need({"T": 6 <= g <= 60, "n": 2 <= g <= 30, "k": 5 <= g <= 80 and g % 15 != 0}[src], f"the rate {g}")
+        if u == "fraction-in-view":
+            need(asked == f"Find the fraction of each turn for which its {f['ray']} is on the stretch AB of the {f['line']}." + E11CM_SF, f"asked {asked!r}")
+            return want_num("fraction = ", ph / pi, "", {E11CM_PI_TURN: 2 * ph / pi, E11CM_HALF: ph / (2 * pi), E11CM_MIXED: 2 * ph / 360, E11CM_SINE: ps / pi})
+        if u == "dark-time":
+            need(asked == f"Find the time in each turn for which its {f['ray']} is not on the stretch AB of the {f['line']}." + E11CM_SF, f"asked {asked!r}")
+            return want_num("time = ", T - t, " s", {E11CM_REST: t, E11CM_HALF: T - t / 2, E11CM_SINE: T - 2 * ps / om})
+        need(asked == f"Find the time its {f['ray']} spends on the stretch AB of the {f['line']} in each turn{E11CM_TAIL.get(u, '')}." + E11CM_SF, f"asked {asked!r}")
+        wrongs = {E11CM_HALF: t / 2, E11CM_SINE: 2 * ps / om}
+        if u == "chord-time":
+            wrongs[E11CM_MIXED] = 2 * ph * 180 / pi / om
+        elif u == "chord-time-rpm":
+            wrongs[E11CM_PER_MIN] = t / 60
+        else:
+            wrongs[E11CM_MIXED] = 2 * ph / g
+        return want_num("time = ", t, " s", wrongs)
+    if u == "distance-from-time":
+        r = f["r"]
+        m = re.fullmatch(rf"It makes one full turn every (\d+) seconds, and its {f['ray']} is on the stretch AB for ([\d.]+) seconds in each turn\.", L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        T, tau = R(m.group(1)), R(m.group(2))
+        need(r.q == 1 and 8 <= r <= 60 and 8 <= T <= 60 and (10 * tau).q == 1 and sp.Rational(15, 100) <= tau / T <= sp.Rational(42, 100), f"r = {r}, T = {T}, τ = {tau}")
+        need(asked == f"Find the distance from O to the {f['line']}." + E11CM_SF, f"asked {asked!r}")
+        half = pi * tau / T
+        x = r * sp.cos(half)
+        if rep == "diagram":
+            need(q["graph"]["d_label"] == "?" and abs(sp.Float(q["graph"]["d"], 30) - num(x)) < 1e-9, "the figure's distance")
+        return want_num("distance = ", x, " m", {E11CM_WHOLE: r * sp.cos(2 * half), E11CM_SINE: r * sp.sin(half), E11CM_MIXED: r * sp.cos(half * pi / 180)})
+    need(u in ("arc-in-time", "rim-speed", "rim-speed-rpm"), f"no check for {u}")
+    r, g = f["r"], f["given"]
+    need((10 * r).q == 1 and 2 <= r <= 14, f"r = {r}")
+    tip = f["tip"]
+    if u == "arc-in-time":
+        need(f["src"] == "T" and 6 <= g <= 60, f"T = {g}")
+        mt = re.fullmatch(rf"Find the distance {tip} moves in (\d+) seconds\." + E11CM_SF, asked)
+        need(mt is not None, f"can't read {asked!r}")
+        tau = sp.Integer(mt.group(1))
+        need(2 <= tau < g, f"τ = {tau}")
+        th = 2 * pi * tau / g
+        if rep == "diagram":
+            E11CM_sector(q, th, "", f"{dec_text(r)} m")
+            need(L[-1] == f"The diagram shows {tip} moving from A to B along the circle in {tau} seconds.", f"the line {L[-1]!r}")
+        return want_num("distance = ", r * th, " m", {E11CM_MIXED: r * th * 180 / pi, E11CM_PI_TURN: r * th / 2, E11CM_NO_TIME: 2 * pi * r})
+    if u == "rim-speed":
+        need(f["src"] == "T" and 3 <= g <= 40, f"T = {g}")
+        need(asked == f"Find the speed of {tip}." + E11CM_SF, f"asked {asked!r}")
+        return want_num("speed = ", 2 * pi * r / g, " m/s", {E11CM_NO_TIME: 2 * pi * r, E11CM_PI_TURN: pi * r / g, E11CM_MIXED: r * 360 / g})
+    need(f["src"] == "n" and 3 <= g <= 30, f"n = {g}")
+    need(asked == f"Find the speed of {tip}, in metres per second." + E11CM_SF, f"asked {asked!r}")
+    return want_num("speed = ", 2 * pi * r * g / 60, " m/s", {E11CM_PER_MIN: 2 * pi * r * g, E11CM_PI_TURN: pi * r * g / 60, E11CM_NO_TIME: 2 * pi * r})
+
+
+# ── end circular-motion ──
+
+
+SITUATION_CHECKS = {"circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
                     "distribution": check_distribution, "cubic": check_cubic,
@@ -32783,7 +36459,8 @@ SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between"
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "depreciation": e10de_check,
-                    "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
+                    "sequence-proof": E11SP_check,
+                    "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning, "derivative-model": E11DM_check,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional, "independence": check_independence,
@@ -32795,7 +36472,7 @@ SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between"
                     "transform-chain": check_transform, "fn-link-transformations": check_link_transformations,
                     "fn-link-vectors": check_link_vectors,
                     "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
-                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-model": check_trig_model,
+                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-quadratic": E11TQ_check, "trig-model": check_trig_model,
                     "solid": check_solid, "standard-form": check_standard_form}
 
 
