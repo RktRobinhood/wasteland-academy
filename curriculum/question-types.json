@@ -418,6 +418,48 @@
     "the threshold is between the start and the long-run value, so the time is positive"
    ]
   },
+  "log-laws": {
+   "name": "A log expression to evaluate, combine, expand or rewrite in another base",
+   "summary": "Draw the primes and powers first, so the laws land on an exact value, and work it out exactly. Every unknown has its own draw, and only the 3 s.f. value needs a calculator.",
+   "quantities": [
+    {
+     "name": "b, L",
+     "is": "the base of the log and how it is written",
+     "pick": "e, 10 (as log or log₁₀), or 2, 3, 5"
+    },
+    {
+     "name": "p, c, d",
+     "is": "the primes the numbers are made from",
+     "pick": "from 2, 3, 5, 7, and 11 for a base"
+    },
+    {
+     "name": "i, j, k, t",
+     "is": "the powers",
+     "pick": "so that every number is at most 1000"
+    },
+    {
+     "name": "co",
+     "is": "the number in a single log, or the coefficient of a quotient",
+     "pick": "a whole number or a fraction from small whole numbers"
+    },
+    {
+     "name": "m",
+     "is": "a value given for a log",
+     "pick": "a short list of whole numbers and fractions"
+    },
+    {
+     "name": "cx, cy",
+     "is": "x and y for a GDC check",
+     "pick": "different primes from 2, 3, 5, 7"
+    }
+   ],
+   "clean": [
+    "every number is at most 1000, and each answer is exact but the 3 s.f. value",
+    "a 3 s.f. value is clear of a rounding edge, and is below 9",
+    "p and q are the logs of different primes, and never log 2 and log 5 in base 10, which add to 1",
+    "the bank’s numbers and the skill map’s examples are left out"
+   ]
+  },
   "exp-growth-vs-linear": {
    "extends": "exp-model",
    "name": "Linear and exponential growth side by side",
@@ -22448,8 +22490,9 @@
    "id": "t1-log-laws",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Log laws and change of base to evaluate or rewrite logarithms",
+   "summary": "One log expression, by the laws and by change of base: an exact value, a single log, an expansion in p and q, a shown form, a rewrite in another base, and one 3 s.f. value. The GDC checks two forms at one value, which supports an answer and proves nothing.",
    "syllabus": [
     "1.7",
     "1.5"
@@ -22457,6 +22500,678 @@
    "skills": [
     "SL1.7.log-laws",
     "SL1.7.change-of-base"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "write each number as a power of the same prime, or spot the product or quotient that lands on one",
+    "use the laws to combine the logs into one, or to expand one into simple pieces",
+    "put in what is given: p and q, a value, or log of the base = 1",
+    "for another base, divide by the log of the base, or let y be the log and take logs of a^y = b",
+    "on Paper 2, check two forms at one value, or read a value from the log-base template"
+   ],
+   "given": [
+    "a sum, difference or multiple of logs",
+    "one log, or one log over another",
+    "p = log x and q = log y, or the logs of two primes",
+    "the value of a log, in one base or in base ab",
+    "f(x) = B^x and a root to put in f⁻¹"
+   ],
+   "asked": "An exact value, a single log, an expression in p and q, an expression in other logs, a constant k, or a value to 3 s.f.",
+   "answerForms": [
+    "exact number or fraction",
+    "ln k, k a positive whole number",
+    "one log, with its number typed",
+    "an expression in p and q, its coefficients typed",
+    "a multiple of a log, or a quotient of logs",
+    "3 s.f. on Paper 2"
+   ],
+   "randomise": [
+    "the log: ln, log, log₁₀ or log₂ to log₅",
+    "the prime or primes, and the powers",
+    "the shape: sum, difference, multiple, reciprocal, root or a mix",
+    "which letters, and which of p and q has the fraction",
+    "the value given",
+    "the base and its power"
+   ],
+   "constraints": [
+    "every cell is Paper 1 but those that need a calculator: the two GDC checks, the log-base template and the 3 s.f. value",
+    "the working of a GDC check says that it is a check and that the laws are the proof",
+    "a log of a fraction or an expression is written with brackets",
+    "the bank’s own numbers, and the skill map’s examples, are left out"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "log-laws",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the expression, or the values and letters given, as the exam writes them"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "value-difference",
+     "given": [
+      "a sum or difference of two logs, each number a power of the base"
+     ],
+     "asked": "the exact value",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "value-hidden",
+     "given": [
+      "logs whose numbers are not powers of the base, or the log of a sum, that give a whole number once combined"
+     ],
+     "asked": "the exact value",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "value-quotient",
+     "given": [
+      "one log over another, with both numbers powers of one prime"
+     ],
+     "asked": "the exact value, a fraction",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "single-ln-k",
+     "given": [
+      "a sum, difference, multiple or reciprocal of numbers in logs"
+     ],
+     "asked": "the expression as ln k or log k, k a positive whole number",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "single-log-letters",
+     "given": [
+      "a sum of multiples of log x, log y and logs of numbers"
+     ],
+     "asked": "one logarithm",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "expand-letters",
+     "given": [
+      "p = log x and q = log y",
+      "the log of a product, quotient, power or root of x and y"
+     ],
+     "asked": "an expression in p and q",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "expand-numbers",
+     "given": [
+      "the logs of two primes as p and q",
+      "the log of a number made from those primes"
+     ],
+     "asked": "an expression in p and q",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "show-number",
+     "given": [
+      "an equation: two logs on one side, k times a log on the other"
+     ],
+     "asked": "the whole number k: show that the equation holds",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "given-log-laws",
+     "given": [
+      "the value of log a in some base"
+     ],
+     "asked": "the value of the log of 1/a, a power or root of a, or a times or over the base",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "ab-base-value",
+     "given": [
+      "the value of log base ab of a"
+     ],
+     "asked": "the value of log base ab of b",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "ab-base-hence",
+     "given": [
+      "the value of log base ab of a"
+     ],
+     "asked": "the value of log base ab of a quotient of powers or roots of a and b",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.log-laws"
+     ]
+    },
+    {
+     "id": "evaluate-single",
+     "given": [
+      "one log: the base and number are powers of one prime, the number may be a reciprocal, the base may be a root"
+     ],
+     "asked": "the exact value, which can be negative or a fraction",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.change-of-base"
+     ]
+    },
+    {
+     "id": "log-of-root",
+     "given": [
+      "the log of a root, or f(x) = B^x and f⁻¹ at a root"
+     ],
+     "asked": "the exact value, a fraction",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.change-of-base"
+     ]
+    },
+    {
+     "id": "cob-common-base",
+     "given": [
+      "log_c N, with N a power of d"
+     ],
+     "asked": "an expression in log d and log c",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.change-of-base"
+     ]
+    },
+    {
+     "id": "cob-in-p-q",
+     "given": [
+      "the logs of two primes as p and q",
+      "a log whose base is not 10 or e"
+     ],
+     "asked": "an expression in p and q, a quotient",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.change-of-base"
+     ]
+    },
+    {
+     "id": "given-log-base",
+     "given": [
+      "the value of log a in a base B"
+     ],
+     "asked": "the value of the log of a or a power of a in a base B^k",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.change-of-base"
+     ]
+    },
+    {
+     "id": "base-power-letter",
+     "given": [
+      "a log of x or a power of x, in a base B^k"
+     ],
+     "asked": "the multiple of log_B x it equals",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.change-of-base"
+     ]
+    },
+    {
+     "id": "value-3sf",
+     "given": [
+      "a log whose number is not a power of the base"
+     ],
+     "asked": "its value to 3 s.f., on Paper 2 only",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL1.7.change-of-base"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.7.log-laws",
+     "method": "combine",
+     "suits": [
+      "value-difference",
+      "value-hidden",
+      "single-ln-k",
+      "single-log-letters",
+      "show-number"
+     ]
+    },
+    {
+     "skill": "SL1.7.log-laws",
+     "method": "evaluate-separately",
+     "suits": [
+      "value-difference"
+     ]
+    },
+    {
+     "skill": "SL1.7.log-laws",
+     "method": "expand",
+     "suits": [
+      "value-quotient",
+      "expand-letters",
+      "expand-numbers",
+      "show-number",
+      "given-log-laws",
+      "ab-base-value",
+      "ab-base-hence"
+     ]
+    },
+    {
+     "skill": "SL1.7.log-laws",
+     "method": "gdc-check",
+     "suits": [
+      "single-log-letters",
+      "expand-letters"
+     ]
+    },
+    {
+     "skill": "SL1.7.change-of-base",
+     "method": "cob-formula",
+     "suits": [
+      "evaluate-single",
+      "cob-common-base",
+      "cob-in-p-q",
+      "given-log-base",
+      "base-power-letter",
+      "value-3sf"
+     ]
+    },
+    {
+     "skill": "SL1.7.change-of-base",
+     "method": "common-base-power",
+     "suits": [
+      "evaluate-single",
+      "log-of-root",
+      "given-log-base",
+      "base-power-letter"
+     ]
+    },
+    {
+     "skill": "SL1.7.change-of-base",
+     "method": "define-and-log",
+     "suits": [
+      "evaluate-single",
+      "log-of-root",
+      "cob-common-base",
+      "cob-in-p-q",
+      "given-log-base",
+      "base-power-letter"
+     ]
+    },
+    {
+     "skill": "SL1.7.change-of-base",
+     "method": "gdc-logbase",
+     "suits": [
+      "value-3sf"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A GDC shows that log(x²/√y) and 2 log x − ½ log y agree at x = 3, y = 5, so the two are equal for every x and y.",
+     "answer": "False: one value is a check, not a proof. The laws of logs prove it.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "log a/log b can be written as log(a/b).",
+     "answer": "False: log(a/b) is log a − log b. log a/log b is log_b a, by change of base.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "log(a + b) = log a + log b, for positive a and b.",
+     "answer": "Sometimes: it needs a + b = ab, as with a = b = 2. It isn’t a law.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.7.log-laws#0",
+     "text": "Splitting the log of a sum: log(a + b) = log a + log b",
+     "as": "distractor",
+     "in": [
+      "value-hidden"
+     ],
+     "wrong": "the log of a sum split into a sum of logs"
+    },
+    {
+     "ref": "SL1.7.log-laws#1",
+     "text": "Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b)",
+     "as": "distractor",
+     "in": [
+      "value-quotient"
+     ],
+     "wrong": "the quotient of logs written as the log of the quotient"
+    },
+    {
+     "text": "Confusing a power of a log with a multiple of the log",
+     "as": "distractor",
+     "in": [
+      "single-log-letters",
+      "expand-letters",
+      "expand-numbers",
+      "given-log-laws",
+      "cob-common-base",
+      "cob-in-p-q"
+     ],
+     "wrong": "the multiple written as a power of the log, p² for 2p"
+    },
+    {
+     "text": "Inverting the change of base formula, with the log of the base on top",
+     "as": "distractor",
+     "in": [
+      "value-quotient",
+      "evaluate-single",
+      "log-of-root",
+      "cob-common-base",
+      "cob-in-p-q",
+      "given-log-base",
+      "base-power-letter",
+      "value-3sf"
+     ],
+     "wrong": "the reciprocal of the right value"
+    },
+    {
+     "text": "Simplifying a quotient of logs to the log of the quotient, or to a difference of logs",
+     "as": "distractor",
+     "in": [
+      "cob-common-base",
+      "cob-in-p-q",
+      "value-3sf"
+     ],
+     "wrong": "log(a/b) or log a − log b for log a/log b"
+    },
+    {
+     "text": "Dividing by the new base itself, not by the power that turns the old base into it",
+     "as": "distractor",
+     "in": [
+      "given-log-base",
+      "base-power-letter"
+     ],
+     "wrong": "the old log over the new base"
+    },
+    {
+     "text": "Stopping at the number inside the log, without taking the log of it",
+     "as": "distractor",
+     "in": [
+      "value-difference",
+      "value-hidden",
+      "show-number",
+      "evaluate-single"
+     ],
+     "wrong": "the combined number, not its log"
+    },
+    {
+     "text": "Reading a difference of logs as a quotient of logs",
+     "as": "distractor",
+     "in": [
+      "value-difference"
+     ],
+     "wrong": "the two values divided"
+    },
+    {
+     "text": "Reading a sum of logs as a product of logs",
+     "as": "distractor",
+     "in": [
+      "value-difference",
+      "expand-letters",
+      "expand-numbers"
+     ],
+     "wrong": "the two values multiplied"
+    },
+    {
+     "text": "Multiplying the number inside the log by the coefficient, not raising it to that power",
+     "as": "distractor",
+     "in": [
+      "value-hidden",
+      "single-ln-k",
+      "single-log-letters"
+     ],
+     "wrong": "the number times the coefficient"
+    },
+    {
+     "text": "Turning a root into a whole-number multiple, not a fraction",
+     "as": "distractor",
+     "in": [
+      "single-log-letters",
+      "expand-letters",
+      "expand-numbers",
+      "given-log-laws",
+      "log-of-root"
+     ],
+     "wrong": "a whole-number multiple where the coefficient is 1 over the root"
+    },
+    {
+     "text": "Treating a minus sign in front of a log, or a denominator, as a plus",
+     "as": "distractor",
+     "in": [
+      "single-ln-k",
+      "single-log-letters",
+      "expand-letters",
+      "expand-numbers",
+      "given-log-laws",
+      "ab-base-value",
+      "ab-base-hence"
+     ],
+     "wrong": "a term with the wrong sign"
+    },
+    {
+     "text": "Dropping the minus sign that a reciprocal gives",
+     "as": "distractor",
+     "in": [
+      "single-ln-k",
+      "given-log-laws",
+      "evaluate-single"
+     ],
+     "wrong": "the value with the sign lost"
+    },
+    {
+     "text": "Dividing the number by the base, not finding the power",
+     "as": "distractor",
+     "in": [
+      "value-difference",
+      "show-number",
+      "evaluate-single",
+      "value-3sf"
+     ],
+     "wrong": "number ÷ base"
+    },
+    {
+     "text": "Taking the reciprocal of the log, not its negative",
+     "as": "distractor",
+     "in": [
+      "given-log-laws"
+     ],
+     "wrong": "1 over the value given"
+    },
+    {
+     "text": "Forgetting that the log of the base is one",
+     "as": "distractor",
+     "in": [
+      "expand-letters",
+      "expand-numbers",
+      "given-log-laws",
+      "cob-in-p-q"
+     ],
+     "wrong": "the term from the base left out"
+    },
+    {
+     "text": "Multiplying by the power of the base, not dividing",
+     "as": "distractor",
+     "in": [
+      "evaluate-single",
+      "given-log-base",
+      "base-power-letter"
+     ],
+     "wrong": "the power times the value"
+    },
+    {
+     "text": "Assuming the two logs in base ab are negatives of each other, when they add to 1",
+     "as": "distractor",
+     "in": [
+      "ab-base-value",
+      "ab-base-hence"
+     ],
+     "wrong": "the other log taken as −m"
+    },
+    {
+     "text": "Swapping the powers, or a number with its power",
+     "as": "distractor",
+     "in": [
+      "single-ln-k",
+      "ab-base-hence"
+     ],
+     "wrong": "each power on the other number"
+    },
+    {
+     "text": "Adding what is inside the logs, when a sum of logs is the log of a product",
+     "as": "distractor",
+     "in": [
+      "value-hidden",
+      "single-ln-k",
+      "single-log-letters"
+     ],
+     "wrong": "the log of the sum"
+    },
+    {
+     "text": "Subtracting what is inside the logs, when a difference of logs is the log of a quotient",
+     "as": "distractor",
+     "in": [
+      "value-hidden",
+      "single-ln-k"
+     ],
+     "wrong": "the log of the difference"
+    },
+    {
+     "text": "Ignoring the root on the number",
+     "as": "distractor",
+     "in": [
+      "single-ln-k",
+      "log-of-root"
+     ],
+     "wrong": "the value for the number under the root"
+    },
+    {
+     "text": "Ignoring the root on the base",
+     "as": "distractor",
+     "in": [
+      "evaluate-single"
+     ],
+     "wrong": "the value for the base under the root"
+    },
+    {
+     "text": "Multiplying the log by the number inside, not adding its log",
+     "as": "distractor",
+     "in": [
+      "given-log-laws"
+     ],
+     "wrong": "b × the log given"
+    }
    ],
    "parts": [
     "aa-sl-2021-nov-tz0-p1-q08.c",

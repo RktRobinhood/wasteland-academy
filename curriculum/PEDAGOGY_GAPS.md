@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 8 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 9 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1790,6 +1790,36 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): The sum of three consecutive integers is divisible by 6. — Sometimes: the sum is 3(n + 1), a multiple of 3 every time, but it needs n + 1 even to be a multiple of 6. 1 + 2 + 3 = 6 works and 2 + 3 + 4 = 9 does not.
   - *true-false-reason* (L4): 6n + 9 = 6(n + 3/2), so 6n + 9 is a multiple of 6 for every integer n. — False: n + 3/2 is not an integer, so the 6 outside proves nothing. At n = 1, 6n + 9 = 15, which is not a multiple of 6.
 - **Misconceptions used:** 15. Starting from LHS = RHS and operating on both sides, which assumes what is to be proved; Checking particular values and calling it a proof; Stopping without a concluding statement, or writing = where ≡ is required; Using one letter for two different numbers, which only covers the case where they are equal; Verifying examples instead of arguing in general; Concluding divisibility without showing the bracket is an integer; Forgetting to double the middle term when squaring a bracket; Squaring each term of a bracket and keeping its sign, with no middle term; Getting a sign wrong when multiplying out or removing a bracket; Multiplying only the first term of a bracket; Dividing only part of a numerator by x; Squaring only the numerator of a fraction; Adding one gap too many when summing a list of terms; Squaring the letter but not its coefficient; Writing a² − b² as (a + b)(a + b).
+
+#### Log laws and change of base to evaluate or rewrite logarithms (`t1-log-laws`, exam, 10 bank parts)
+
+- **Situation:** A log expression to evaluate, combine, expand or rewrite in another base.
+- **Representations:** **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a sum or difference of two logs, each number a power of the base → the exact value
+  - **exam** L2: given logs whose numbers are not powers of the base, or the log of a sum, that give a whole number once combined → the exact value
+  - **exam** L2: given one log over another, with both numbers powers of one prime → the exact value, a fraction
+  - **exam** L1: given a sum, difference, multiple or reciprocal of numbers in logs → the expression as ln k or log k, k a positive whole number
+  - **exam** L2: given a sum of multiples of log x, log y and logs of numbers → one logarithm
+  - **exam** L2: given p = log x and q = log y; the log of a product, quotient, power or root of x and y → an expression in p and q
+  - **exam** L2: given the logs of two primes as p and q; the log of a number made from those primes → an expression in p and q
+  - **exam** L2: given an equation: two logs on one side, k times a log on the other → the whole number k: show that the equation holds
+  - **exam** L2: given the value of log a in some base → the value of the log of 1/a, a power or root of a, or a times or over the base
+  - **exam** L3: given the value of log base ab of a → the value of log base ab of b
+  - **exam** L3: given the value of log base ab of a → the value of log base ab of a quotient of powers or roots of a and b
+  - **exam** L2: given one log: the base and number are powers of one prime, the number may be a reciprocal, the base may be a root → the exact value, which can be negative or a fraction
+  - **exam** L3: given the log of a root, or f(x) = B^x and f⁻¹ at a root → the exact value, a fraction
+  - **exam** L2: given log_c N, with N a power of d → an expression in log d and log c
+  - **exam** L3: given the logs of two primes as p and q; a log whose base is not 10 or e → an expression in p and q, a quotient
+  - **exam** L3: given the value of log a in a base B → the value of the log of a or a power of a in a base B^k
+  - **exam** L3: given a log of x or a power of x, in a base B^k → the multiple of log_B x it equals
+  - **exam** L2: given a log whose number is not a power of the base → its value to 3 s.f., on Paper 2 only
+- **Angles:** Combine into a single logarithm; Evaluate each logarithm exactly first; Expand into simple pieces; Check numerically on the GDC; Apply log_a b = log_c b / log_c a; Write both numbers as powers of a common base; Let y = log_a b, rewrite and take logs; Use the GDC log-base template.
+- **Concept probes:**
+  - *true-false-reason* (L3): A GDC shows that log(x²/√y) and 2 log x − ½ log y agree at x = 3, y = 5, so the two are equal for every x and y. — False: one value is a check, not a proof. The laws of logs prove it.
+  - *true-false-reason* (L3): log a/log b can be written as log(a/b). — False: log(a/b) is log a − log b. log a/log b is log_b a, by change of base.
+  - *always-sometimes-never* (L4): log(a + b) = log a + log b, for positive a and b. — Sometimes: it needs a + b = ab, as with a = b = 2. It isn’t a law.
+- **Misconceptions used:** 24. Splitting the log of a sum: log(a + b) = log a + log b; Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b); Confusing a power of a log with a multiple of the log; Inverting the change of base formula, with the log of the base on top; Simplifying a quotient of logs to the log of the quotient, or to a difference of logs; Dividing by the new base itself, not by the power that turns the old base into it; Stopping at the number inside the log, without taking the log of it; Reading a difference of logs as a quotient of logs; Reading a sum of logs as a product of logs; Multiplying the number inside the log by the coefficient, not raising it to that power; Turning a root into a whole-number multiple, not a fraction; Treating a minus sign in front of a log, or a denominator, as a plus; Dropping the minus sign that a reciprocal gives; Dividing the number by the base, not finding the power; Taking the reciprocal of the log, not its negative; Forgetting that the log of the base is one; Multiplying by the power of the base, not dividing; Assuming the two logs in base ab are negatives of each other, when they add to 1; Swapping the powers, or a number with its power; Adding what is inside the logs, when a sum of logs is the log of a product; Subtracting what is inside the logs, when a difference of logs is the log of a quotient; Ignoring the root on the number; Ignoring the root on the base; Multiplying the log by the number inside, not adding its log.
 
 #### Sum to infinity: convergence, value, or an unknown from it (`t1-sum-to-infinity`, exam, 5 bank parts)
 

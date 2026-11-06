@@ -277,6 +277,25 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   1.5 × IQR rule. A figure uses `PlotView`'s `box` on an axis of 25 ticks, labelled every fifth, and
   every number read from it is on a tick. A list or a table follows `data_summary`'s quartiles.
   A test of a value puts it just beyond or just inside a fence on the same quartiles.
+- `engine/situations/log_laws.gd` (FAL-751) is `t1-log-laws` (SL1.7.log-laws and SL1.7.change-of-base),
+  the `log-laws` situation: one log expression, in ln, log, log₁₀ or a small base, with primes and
+  powers drawn so the laws land on an exact value. Its views (`log_laws_views.gd`) ask 18 unknowns: an
+  exact value (each log a power, a value only the combined log shows, the log of a sum, one log over
+  another), ln k, one log from letters, an expansion in p and q (letters or primes), a shown form
+  k ln c, a value from a given log, a base ab (the given log, then "hence"), one log in a power of a
+  prime base, the log of a root (or f⁻¹ at a root), a log in terms of two others or of p and q, a
+  given log in a base B^k, log in base B^k of x in terms of log base B of x, and a 3 s.f. value.
+  The one representation is `equation`. Every answer is the `form` kind, so its numbers are typed
+  and a wrong option in another shape, such as log(25/11), can be picked but not typed. A base the
+  font can't lower reads "log base √3 of 81". The exam is all Paper 1, so a cell is Paper 2 only
+  where it needs a calculator: `gdc-check` on the two letter unknowns, and both methods of the 3 s.f.
+  value, which is why the type is in `OVER_SHARE` in `test_paper.gd`, at 4 cells of 32. A GDC check
+  tries one value, shows what both forms give, and says it's a check and that the laws are the proof.
+  `check_answers.py` (`e9log_*`) reads every expression back with a small parser of the game's
+  notation and works it out at 40 digits. Letters take values that fit what's given, and an option
+  must equal the target at three sets of them. Each tagged option is worked out from its slip, a
+  typed answer's slots must make the expression it shows, and each equation in the working is
+  evaluated. `test_log_laws.gd` covers the cells, the papers, the no-proof line and typed marking.
 - `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
   v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
   Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found

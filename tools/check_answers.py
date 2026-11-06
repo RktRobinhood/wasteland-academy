@@ -24998,6 +24998,799 @@ def check_binomial_unknown(q):
 # ── end binomial-unknown ──
 
 
+# ── log-laws (t1-log-laws, FAL-751) ──────────────────────────
+# The `log-laws` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/log_laws.gd. Every expression is read back from what the student sees
+# with a small parser of the game's own notation (log₃ 81, log(5x²/2), log base ab of a), and is
+# worked out again at 40 digits, with letters at values that fit what is given. An option is right
+# only if it equals the target at three sets of letters. Each tagged wrong option is worked out
+# from its slip, a typed answer's slots must make the expression it shows, and every equation in
+# the working is evaluated from the figures shown.
+
+E9LOG_MOST = 1000
+E9LOG_FRACTION = __import__("fractions").Fraction
+E9LOG_EDGE = "0.06"
+E9LOG_LAW = "SL1.7.log-laws#"
+E9LOG_OWN = "t1-log-laws#"
+(E9LOG_POWER_LOG, E9LOG_INVERT, E9LOG_SIMPLIFY, E9LOG_BASE_ITSELF, E9LOG_STOP, E9LOG_DIV_LOGS, E9LOG_MUL_LOGS, E9LOG_TIMES_IN, E9LOG_ROOT_TWO,
+ E9LOG_PLUS, E9LOG_NO_MINUS, E9LOG_NUM_BASE, E9LOG_RECIPROCAL, E9LOG_LOG_BASE, E9LOG_TIMES_BASE, E9LOG_AB_NEG, E9LOG_SWAP, E9LOG_ADD_IN,
+ E9LOG_SUB_IN, E9LOG_NO_ROOT, E9LOG_ROOT_BASE, E9LOG_SCALE) = [E9LOG_OWN + str(i) for i in range(2, 24)]
+E9LOG_SPLIT, E9LOG_QUOT = E9LOG_LAW + "0", E9LOG_LAW + "1"
+E9LOG_GDC = ("gdc-check", "gdc-logbase")
+E9LOG_BANK = ("ln 3 + ln 4", "3 ln 2", "−ln(1/2)", "log₂(1/16)", "log₉ 3", "log base √3 of 81", "log₄ 8", "log₅ 8", "log₃ 8", "log₃ 81 − log₃ 9",
+              "log₃ 20", "ln 12 − ln 3", "log₉ x", "log₈ √32", "log₁₀₀₀ a", "2 log x + log 5 − log 2", "log₁₀ 24", "log 24", "ln 24",
+              "log(x²/√y)")
+E9LOG_SUBS = "₀₁₂₃₄₅₆₇₈₉"
+E9LOG_SUPS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+E9LOG_TOKEN = re.compile(r"\s*(log base (?:√\d+|[a-z]{2}) of|log[₀₁₂₃₄₅₆₇₈₉]+|log|ln|\d+\.\d+|\d+|[⁰¹²³⁴⁵⁶⁷⁸⁹]+|[a-z]|[-−+×/^()√])")
+E9LOG_NAME = r"(log[₀₁₂₃₄₅₆₇₈₉]*|ln)"
+E9LOG_POINTS = ((mpmath.mpf("2.3"), mpmath.mpf("3.7")), (mpmath.mpf("0.6"), mpmath.mpf("5.1")), (mpmath.mpf("7.9"), mpmath.mpf("1.4")))
+
+
+class E9logBad(Exception):
+    """Text that isn't a log expression, such as a sentence."""
+
+
+def e9log_base(name):
+    """The base of a log's name: mpmath.e for ln, 10 for log."""
+    if name == "ln":
+        return mpmath.e
+    digits = name[3:]
+    return 10 if not digits else int("".join(str(E9LOG_SUBS.index(c)) for c in digits))
+
+
+def e9log_log(base, x):
+    if x == 0:
+        raise E9logBad("the log of zero")
+    return mpmath.log(x) / mpmath.log(base)
+
+
+def e9log_tokens(text):
+    out = []
+    i = 0
+    text = text.rstrip()
+    while i < len(text):
+        mt = E9LOG_TOKEN.match(text, i)
+        if mt is None:
+            raise E9logBad(text)
+        out.append(mt.group(1))
+        i = mt.end()
+    return out
+
+
+class E9logParser:
+    """The notation: a log's argument is one atom with its powers, or a bracket; a log base .. of
+    takes juxtaposed letters. Reading is left to right, so 3 log 2/log 5 is (3 log 2)/(log 5)."""
+
+    def __init__(self, text, env):
+        self.toks = e9log_tokens(text)
+        self.at = 0
+        self.env = env
+
+    def peek(self):
+        return self.toks[self.at] if self.at < len(self.toks) else None
+
+    def take(self):
+        self.at += 1
+        return self.toks[self.at - 1]
+
+    def expect(self, t):
+        if self.peek() != t:
+            raise E9logBad(f"wanted {t}")
+        self.take()
+
+    def starts_atom(self):
+        t = self.peek()
+        return t is not None and (t in ("(", "√") or t.startswith(("log", "ln")) or t[0].isdigit() or (len(t) == 1 and t.isalpha()))
+
+    def expr(self):
+        v = self.term()
+        while self.peek() in ("+", "−", "-"):
+            op = self.take()
+            w = self.term()
+            v = v + w if op == "+" else v - w
+        return v
+
+    def term(self):
+        v = self.unary()
+        while True:
+            t = self.peek()
+            if t == "×":
+                self.take()
+                v *= self.unary()
+            elif t == "/":
+                self.take()
+                w = self.unary()
+                if w == 0:
+                    raise E9logBad("a division by zero")
+                v /= w
+            elif self.starts_atom():
+                v *= self.power()
+            else:
+                return v
+
+    def unary(self):
+        if self.peek() in ("−", "-"):
+            self.take()
+            return -self.unary()
+        return self.power()
+
+    def power(self):
+        v = self.atom()
+        while True:
+            t = self.peek()
+            if t is not None and t[0] in E9LOG_SUPS:
+                self.take()
+                v = v ** int("".join(str(E9LOG_SUPS.index(c)) for c in t))
+            elif t == "^":
+                self.take()
+                if self.peek() in ("−", "-"):
+                    self.take()
+                    v = v ** (-self.atom())
+                else:
+                    v = v ** self.atom()
+            else:
+                return v
+
+    def atom(self):
+        t = self.peek()
+        if t is None:
+            raise E9logBad("the end")
+        self.take()
+        if t == "(":
+            v = self.expr()
+            self.expect(")")
+            return v
+        if t == "√":
+            return mpmath.sqrt(self.atom())
+        if t.startswith("log base "):
+            spec = t[9:-3]
+            base = mpmath.sqrt(int(spec[1:])) if spec[0] == "√" else self.env[spec[0]] * self.env[spec[1]]
+            v = self.power()
+            while self.starts_atom():
+                v *= self.power()
+            return e9log_log(base, v)
+        if t.startswith(("log", "ln")):
+            return e9log_log(e9log_base(t), self.power())
+        if t[0].isdigit():
+            return mpmath.mpf(t)
+        if t in self.env:
+            return self.env[t]
+        raise E9logBad(f"the letter {t}")
+
+
+def e9log_read(text, env):
+    p = E9logParser(text, env)
+    v = p.expr()
+    if p.peek() is not None:
+        raise E9logBad(text)
+    return v
+
+
+def e9log_same(a, b):
+    return abs(a - b) <= mpmath.mpf(10) ** -25 * max(1, abs(b))
+
+
+def e9log_whole(v, what):
+    r = mpmath.nint(v)
+    need(abs(r - v) < mpmath.mpf(10) ** -25, f"{what} is {v}, not whole")
+    return int(r)
+
+
+def e9log_q(v):
+    """A value as a small fraction, as the laws give."""
+    f = E9LOG_FRACTION(float(v)).limit_denominator(1000)
+    need(abs(mpmath.mpf(f.numerator) / f.denominator - v) < mpmath.mpf(10) ** -12, f"{v} isn't a fraction")
+    return f
+
+
+def e9log_sf(v, n=3, strip=False):
+    """v to n s.f., half away from zero, with its zeros."""
+    d = Decimal(mpmath.nstr(mpmath.mpf(abs(v)), 30))
+    e = d.adjusted()
+    out = d.quantize(Decimal(1).scaleb(e - n + 1), rounding=ROUND_HALF_UP)
+    t = format(out, "f")
+    if strip and "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return ("−" if v < 0 else "") + t
+
+
+def e9log_slots(ans_or_option, template):
+    """What the slots say, written into the template, or None if the option has no slots."""
+    out = ""
+    for part in template:
+        if isinstance(part, str):
+            out += part
+        else:
+            v = ans_or_option.get(part["slot"])
+            if v is None:
+                return None
+            out += "(" + str(v).replace("-", "−") + ")"
+    return out
+
+
+def e9log_clauses(step):
+    for part in re.split(r"\.(?:\s|$)|, so |, as |, and | and | means |, which gives |: |; ", step):
+        s = re.sub(r"^(So|Let|Then|That is|This shows it, with|Put in|=)\s+", "", part.strip())
+        if s:
+            yield s
+
+
+def e9log_steps(q, env):
+    """Every equation in the working that parses is evaluated. A decimal is held to its places."""
+    for sol in q["solutions"]:
+        need(2 <= len(sol["steps"]) <= 5, f"{sol['name']}: {len(sol['steps'])} steps")
+        done = 0
+        for step in sol["steps"]:
+            for clause in e9log_clauses(step):
+                bits = [b.strip() for b in clause.split(" = ")]
+                for a, b in zip(bits, bits[1:]):
+                    try:
+                        va, vb = e9log_read(a, env), e9log_read(b, env)
+                    except (E9logBad, ZeroDivisionError, KeyError, OverflowError):
+                        continue
+                    done += 1
+                    mt = re.search(r"\.(\d+)$", b)
+                    if mt or re.fullmatch(r"\d+\.\d+", a):
+                        places = len(mt.group(1)) if mt else 6
+                        tol = mpmath.mpf(6) * mpmath.mpf(10) ** -(places + 1)
+                        need(abs(va - vb) <= tol, f"{step!r}: {a} is {va}, not {b}")
+                    else:
+                        need(e9log_same(va, vb), f"{step!r}: {a} = {b} is false: {va}, {vb}")
+        need(done >= 1 or sol["angle"] in E9LOG_GDC, f"{sol['name']}: nothing in the working could be read: {sol['steps']}")
+        last = sol["steps"][-1]
+        need(q["answer_text"] in last, f"{sol['name']}: {last!r} doesn't state the answer")
+        need(not re.search(r"(?:^|\. )(\d+) = \1(?![\d/^.])", " ".join(sol["steps"])), f"{sol['name']}: says a number equals itself")
+
+
+def e9log_gdc(q, f_target, f_answer):
+    """A GDC check names one value, shows what both forms give, and says it isn't a proof."""
+    for sol in q["solutions"]:
+        if sol["angle"] != "gdc-check":
+            continue
+        text = " ".join(sol["steps"])
+        mt = re.search(r"With x = (\d+)(?: and y = (\d+))?, both forms show (−?[\d.]+) on the GDC", text)
+        need(mt is not None, f"{sol['name']}: no check: {text}")
+        need("check, not a proof" in text, f"{sol['name']}: a check called a proof")
+        x, y = int(mt.group(1)), int(mt.group(2) or 2)
+        env = {"x": mpmath.mpf(x), "y": mpmath.mpf(y)}
+        a, b = f_target(env), f_answer(env)
+        need(e9log_same(a, b), f"{sol['name']}: the forms differ at {x}, {y}")
+        need(e9log_sf(a, 5, True) == mt.group(3), f"{sol['name']}: shows {mt.group(3)}, not {a}")
+
+
+def e9log_options(q, envs, want, tags):
+    """envs: the letters' values; want(env): the target there; tags: ref -> env -> the values its
+    slip gives. Four different options, one right."""
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    need(len({o["text"] for o in ch}) == 4, "two options read the same")
+    template = q["answer"].get("template") or []
+    prints = []
+    for o in ch:
+        head = o["text"][4:] if o["text"].startswith("k = ") else o["text"]
+        vals = [e9log_read(head, e) for e in envs]
+        right = all(e9log_same(v, want(e)) for v, e in zip(vals, envs))
+        need(right == o["correct"], f"option {o['text']!r} is {'right' if right else 'wrong'} but marked {o['correct']}")
+        filled = e9log_slots(o["values"], template)
+        if filled is not None:
+            for v, e in zip(vals, envs):
+                need(e9log_same(e9log_read(filled.replace("k = ", ""), e), v), f"{filled!r} isn't {o['text']!r}")
+        elif o["correct"]:
+            raise Fail("the answer's slots are missing")
+        if o["ref"]:
+            need(o["ref"] in tags, f"{o['text']!r} can't be {o['ref']} on this question")
+            for v, e in zip(vals, envs):
+                need(any(e9log_same(v, x) for x in tags[o["ref"]](e)), f"{o['text']!r} isn't what {o['ref']} gives: {v}")
+        prints.append(tuple(mpmath.nstr(v, 20) for v in vals))
+    need(len(set(prints)) == 4, "two options are equal in value")
+
+
+def e9log_powers(n, b):
+    """e with n = b^e, or None."""
+    e = 0
+    x = n
+    while x % b == 0:
+        x //= b
+        e += 1
+    return e if x == 1 and e > 0 else None
+
+
+def e9log_prime_powers(n):
+    return {int(k): int(v) for k, v in sp.factorint(n).items()}
+
+
+def e9log_two(line):
+    """L m ± L n: the base, the numbers, the sign."""
+    mt = re.fullmatch(E9LOG_NAME + r" (\d+) ([−+]) \1 (\d+)", line)
+    return mt and (e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(4)), mt.group(3))
+
+
+def e9log_value_difference(line):
+    t = e9log_two(line)
+    need(t is not None, f"can't read {line!r}")
+    b, m, n, op = t
+    i, j = e9log_powers(m, b), e9log_powers(n, b)
+    need(i and j, f"{line}: not powers of the base")
+    need(i > j or op == "+", "a difference that isn't positive")
+    tags = {E9LOG_STOP: [mpmath.mpf(m) / n if op == "−" else mpmath.mpf(m * n)], E9LOG_NUM_BASE: [mpmath.mpf(m - n if op == "−" else m + n) / b]}
+    tags[E9LOG_DIV_LOGS if op == "−" else E9LOG_MUL_LOGS] = [mpmath.mpf(i) / j if op == "−" else mpmath.mpf(i * j)]
+    return tags
+
+
+def e9log_value_hidden(line):
+    t = e9log_two(line)
+    if t:
+        b, A, B, op = t
+        need(not e9log_powers(A, b) and not e9log_powers(B, b), f"{line}: nothing hidden")
+        top = mpmath.mpf(A * B) if op == "+" else mpmath.mpf(A) / B
+        return {E9LOG_STOP: [top], (E9LOG_ADD_IN if op == "+" else E9LOG_SUB_IN): [e9log_log(b, A + B if op == "+" else A - B)]}
+    mt = re.fullmatch("2 " + E9LOG_NAME + r" (\d+) \+ \1 (\d+)", line)
+    if mt:
+        b, c, B = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+        need(not e9log_powers(c * c, b) and not e9log_powers(B, b), f"{line}: nothing hidden")
+        return {E9LOG_STOP: [mpmath.mpf(c * c * B)], E9LOG_ADD_IN: [e9log_log(b, c * c + B)], E9LOG_TIMES_IN: [e9log_log(b, 2 * c * B)]}
+    mt = re.fullmatch(E9LOG_NAME + r"\((\d+) \+ (\d+)\)", line)
+    need(mt is not None, f"can't read {line!r}")
+    b, A, B = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+    need(e9log_powers(A + B, b), f"{line}: the sum isn't a power of the base")
+    return {E9LOG_STOP: [mpmath.mpf(A + B)], E9LOG_SPLIT: [e9log_log(b, A) + e9log_log(b, B)]}
+
+
+def e9log_value_quotient(line):
+    mt = re.fullmatch(E9LOG_NAME + r" (\d+)/\1 (\d+)", line)
+    need(mt is not None, f"can't read {line!r}")
+    b, m, n = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+    need(len(e9log_prime_powers(m * n)) == 1, f"{line}: not powers of one prime")
+    lm, ln_ = e9log_log(b, m), e9log_log(b, n)
+    return {E9LOG_QUOT: [e9log_log(b, mpmath.mpf(m) / n)], E9LOG_INVERT: [ln_ / lm]}
+
+
+def e9log_single_k(line, want, b):
+    """The tags of L k: the expression's own shape gives each slip."""
+    lg = lambda v: e9log_log(b, v)
+    k = e9log_whole(b ** want, f"k in {line}")
+    need(k > 0, "k isn't positive")
+    mt = re.fullmatch(r"(?:(\d+) )?" + E9LOG_NAME + r" (\d+)(?: ([−+]) \2 (\d+))?", line)
+    if mt:
+        c, u, op, v = int(mt.group(1) or 1), int(mt.group(3)), mt.group(4), mt.group(5)
+        if not op:
+            swapped = [lg(c ** u)] if u != c else []
+            return {E9LOG_TIMES_IN: [lg(c * u)], E9LOG_SWAP: swapped}
+        v = int(v)
+        if op == "−":
+            return {E9LOG_SUB_IN: [lg(u - v)], E9LOG_PLUS: [lg(u * v)]}
+        return {E9LOG_ADD_IN: [lg(u ** c + v)], E9LOG_TIMES_IN: [lg(c * u * v)]}
+    mt = re.fullmatch(r"−" + E9LOG_NAME + r"\(1/(\d+)\)", line)
+    if mt:
+        return {E9LOG_NO_MINUS: [lg(mpmath.mpf(1) / int(mt.group(2)))]}
+    mt = re.fullmatch(r"\(1/(\d)\) " + E9LOG_NAME + r" (\d+)", line)
+    need(mt is not None, f"can't read {line!r}")
+    c, u = int(mt.group(1)), int(mt.group(3))
+    return {E9LOG_TIMES_IN: [lg(mpmath.mpf(u) / c)], E9LOG_NO_ROOT: [lg(u)]}
+
+
+def e9log_envs(extra=None):
+    out = []
+    for x, y in E9LOG_POINTS:
+        e = {"x": x, "y": y}
+        if extra:
+            e.update(extra(e))
+        out.append(e)
+    return out
+
+
+def e9log_letters_tags(line, b):
+    """The slips of a sum of logs of x, y and numbers, worked from its terms."""
+    name = r"(?:log[₀₁₂₃₄₅₆₇₈₉]*|ln)"
+    t = re.findall(r"(^|[−+] )(?:(\d+|\(1/2\)) )?" + name + r" (x|y|\d+)", line)
+    terms = []
+    for sign, co, what in t:
+        c = mpmath.mpf(1) / 2 if co == "(1/2)" else mpmath.mpf(co or 1)
+        terms.append((-1 if sign.startswith("−") else 1, c, what))
+    need(sum(1 for t_ in terms if t_[2] == "x") == 1, f"can't read {line!r}")
+    lg = lambda v: e9log_log(b, v)
+
+    def combo(fn):
+        """Applies fn to each term: (sign, coefficient, value), and gives a number."""
+        return lambda e: [fn([(s, c, e.get(w) if w in ("x", "y") else mpmath.mpf(w)) for s, c, w in terms])]
+
+    def sign_lost(ts):
+        v = mpmath.mpf(1)
+        for _, c, x in ts:
+            v *= x ** c
+        return lg(v)
+
+    def times_in(ts):
+        v = mpmath.mpf(1)
+        for s, c, x in ts:
+            v *= (c * x) ** s
+        return lg(v)
+
+    def add_in(ts):
+        return lg(sum(s * x ** c for s, c, x in ts))
+
+    def root_two(ts):
+        v = mpmath.mpf(1)
+        for s, c, x in ts:
+            v *= x ** (2 if c == mpmath.mpf(1) / 2 else c * s)
+        return lg(v)
+
+    def plus_only(e):
+        return [sign_lost([(s, c, e.get(w) if w in ("x", "y") else mpmath.mpf(w)) for s, c, w in terms])]
+
+    def powers(e):
+        """Each letter's multiple written as a power of its log, the numbers combined."""
+        total = mpmath.mpf(0)
+        loose = []
+        for s, c, w in terms:
+            if w in ("x", "y"):
+                total += s * e9log_log(b, e[w]) ** int(c)
+            else:
+                loose.append(s * e9log_log(b, mpmath.mpf(w)))
+        return [total + sum(loose)]
+
+    return {E9LOG_PLUS: plus_only, E9LOG_TIMES_IN: combo(times_in), E9LOG_ADD_IN: combo(add_in), E9LOG_POWER_LOG: powers, E9LOG_ROOT_TWO: combo(root_two)}
+
+
+def e9log_coeffs(target_text, base):
+    """u, v and k of L(arg) = u L x + v L y + k, from the target at three points."""
+    at = lambda x, y: e9log_read(target_text, {"x": mpmath.mpf(x), "y": mpmath.mpf(y)})
+    k = at(1, 1)
+    return e9log_q(at(base, 1) - k), e9log_q(at(1, base) - k), e9log_q(k)
+
+
+def e9log_pq_tags(u, v, k, shape_root):
+    """The slips of up + vq + k. shape_root: a square root in it, with 2 for 1/2."""
+    uf, vf, kf = [mpmath.mpf(c.numerator) / c.denominator for c in (u, v, k)]
+
+    def powered(e):
+        def pw(c, l):
+            if c == 0:
+                return 0
+            return (1 if c > 0 else -1) * (l ** abs(c.numerator) if c.denominator == 1 else abs(mpmath.mpf(c.numerator) / c.denominator) * l)
+        return [pw(u, e["p"]) + pw(v, e["q"]) + kf, pw(u, e["p"]) + pw(v, e["q"])]
+
+    tags = {E9LOG_PLUS: lambda e: [uf * e["p"] - vf * e["q"] + kf], E9LOG_POWER_LOG: powered,
+            E9LOG_MUL_LOGS: lambda e: [uf * vf * e["p"] * e["q"]], E9LOG_LOG_BASE: lambda e: [uf * e["p"] + vf * e["q"]]}
+    if shape_root:
+        tags[E9LOG_ROOT_TWO] = lambda e: [4 * uf * e["p"] + vf * e["q"] + kf, uf * e["p"] + 4 * vf * e["q"] + kf, 4 * uf * e["p"] + 4 * vf * e["q"] + kf]
+    return tags
+
+
+def e9log_given(line):
+    mt = re.fullmatch(r"It is given that " + E9LOG_NAME + r" a = (−?\d+(?:/\d+)?), where a > 0\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return mt.group(1), e9log_read(mt.group(2), {})
+
+
+def e9log_ab(line):
+    mt = re.fullmatch(r"It is given that log base ([a-z])([a-z]) of \1 = (−?\d+(?:/\d+)?), where \1, \2 > 0 and \1\2 ≠ 1\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    m = e9log_read(mt.group(3), {})
+    B = mpmath.mpf("3.7")
+    return mt.group(1), mt.group(2), m, {mt.group(1): B ** m, mt.group(2): B ** (1 - m)}
+
+
+def e9log_gather(tags):
+    """Tags of plain lists as functions of the letters."""
+    return {k: (v if callable(v) else (lambda e, v=v: v)) for k, v in tags.items()}
+
+
+def e9log_paper(q, u, angle):
+    if u == "value-3sf" or angle in E9LOG_GDC:
+        need(q["paper"] == 2, f"{angle} on Paper 1")
+    else:
+        need(q["paper"] == 1, "Paper 2 without a calculator method")
+    for sol in q["solutions"]:
+        if sol["angle"] in E9LOG_GDC:
+            need(q["paper"] == 2, "a GDC method on Paper 1")
+    if q["paper"] == 1:
+        need(not re.search(r"GDC|calculator", " ".join(st for sol in q["solutions"] for st in sol["steps"])), "a calculator on Paper 1")
+
+
+def e9log_clean(q):
+    text = " ".join(q["lines"]) + " " + q["asked"]
+    target = re.fullmatch(r"(?:Find the value of|Express|Find an expression for) (.+?)(?: in terms of p and q)?\.", q["asked"])
+    for shown in (q["lines"][0], target and target.group(1)):
+        need(shown not in E9LOG_BANK, f"a bank or map number: {shown}")
+    for n in re.findall(r"(?<![₀₁₂₃₄₅₆₇₈₉\d.])\d+(?![\d.])", text):
+        need(int(n) <= E9LOG_MOST, f"{n} is past the clean limit")
+
+
+def e9log_plain(q, u, line):
+    """Exact numbers, with no letters."""
+    want = e9log_read(line, {})
+    fn = {"value-difference": e9log_value_difference, "value-hidden": e9log_value_hidden, "value-quotient": e9log_value_quotient}[u]
+    if u in ("value-difference", "value-hidden"):
+        e9log_whole(want, line)
+    tags = fn(line)
+    return [{}], lambda e: want, e9log_gather(tags), {"y": want}
+
+
+def e9log_evaluate_single(line):
+    want = e9log_read(line, {})
+    mt = re.fullmatch(r"log base √(\d+) of (\d+)", line)
+    if mt:
+        p, n = int(mt.group(1)), int(mt.group(2))
+        t = e9log_powers(n, p)
+        need(t, f"{line}")
+        return want, {E9LOG_ROOT_BASE: [mpmath.mpf(t)], E9LOG_INVERT: [1 / want]}, False
+    mt = re.fullmatch(E9LOG_NAME + r"(?:\(1/(\d+)\)| (\d+))", line)
+    need(mt is not None, f"can't read {line!r}")
+    B = e9log_base(mt.group(1))
+    tags = {E9LOG_INVERT: [1 / want]}
+    if mt.group(2):
+        n = int(mt.group(2))
+        tags[E9LOG_NO_MINUS] = [-want]
+        tags[E9LOG_STOP] = [mpmath.mpf(1) / n]
+    else:
+        n = int(mt.group(3))
+        tags[E9LOG_NUM_BASE] = [mpmath.mpf(n) / B]
+        ps = e9log_prime_powers(B)
+        p, e = next(iter(ps.items()))
+        tags[E9LOG_TIMES_BASE] = [want * e * e]
+    need(len(e9log_prime_powers(B * n)) == 1, f"{line}: more than one prime")
+    return want, tags, False
+
+
+def e9log_figures(q, b, n):
+    """The 3 s.f. value: compared as written."""
+    v = mpmath.log(n) / mpmath.log(b)
+    want = e9log_sf(v)
+    need(q["answer_text"] == want, f"the answer is {q['answer_text']!r}, not {want}")
+    scaled = abs(v) / mpmath.mpf(10) ** (int(mpmath.floor(mpmath.log10(abs(v)))) - 2)
+    need(abs(scaled - mpmath.floor(scaled) - mpmath.mpf("0.5")) >= mpmath.mpf(E9LOG_EDGE), f"{v} sits on a rounding edge")
+    ch = q["choices"]
+    need(len(ch) == 4 and len({o["text"] for o in ch}) == 4, "four different options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "one right option")
+    tags = {E9LOG_INVERT: 1 / v, E9LOG_SIMPLIFY: mpmath.log10(mpmath.mpf(n) / b), E9LOG_NUM_BASE: mpmath.mpf(n) / b}
+    for o in ch:
+        need((o["text"] == want) == o["correct"], f"{o['text']!r} marked {o['correct']}")
+        if o.get("trap"):
+            need(e9log_sf(v, 2) == o["text"] or e9log_sf(v, 2, True) == o["text"], f"the trap {o['text']!r}")
+        if o["ref"]:
+            need(o["ref"] in tags and e9log_sf(tags[o["ref"]]) == o["text"], f"{o['text']!r} isn't {o['ref']}")
+    return v
+
+
+def e9log_check(q):
+    with mpmath.workdps(40):
+        return e9log_solve(q)
+
+
+def e9log_solve(q):
+    u, angle, L = q["view"]["unknown"], q["view"]["angle"], q["lines"]
+    asked = q["asked"]
+    e9log_paper(q, u, angle)
+    e9log_clean(q)
+    need(q["answer"]["kind"] == "number" if u == "value-3sf" else q["answer"]["kind"] == "form", "the answer's kind")
+    if u != "value-3sf":
+        need(q["answer"].get("exact") is True, "an exact answer not marked exactly")
+    envs, tags, step_env = [{}], {}, {}
+    if u in ("value-difference", "value-hidden", "value-quotient"):
+        envs, want, tags, step_env = e9log_plain(q, u, L[0])
+    elif u == "single-ln-k":
+        mt = re.fullmatch(r"Write this as (\S+) k, where k is a positive whole number\.", asked)
+        need(mt is not None, asked)
+        v = e9log_read(L[0], {})
+        b = e9log_base(mt.group(1))
+        want = lambda e: v
+        tags = e9log_gather(e9log_single_k(L[0], v, b))
+        need(re.fullmatch(re.escape(mt.group(1)) + r" \d+", q["answer_text"]), "the answer isn't L k")
+    elif u == "single-log-letters":
+        need(asked == "Write this as a single logarithm.", asked)
+        envs = e9log_envs()
+        want = lambda e: e9log_read(L[0], e)
+        b = e9log_base(re.search(E9LOG_NAME, L[0]).group(1))
+        tags = e9log_letters_tags(L[0], b)
+        ans_text = q["answer_text"]
+        need(len(re.findall(r"log|ln", ans_text)) == 1, f"{ans_text} isn't a single log")
+        e9log_gdc(q, want, lambda e: e9log_read(ans_text, e))
+        step_env = envs[0]
+    elif u == "expand-letters":
+        mt = re.fullmatch(r"Let p = " + E9LOG_NAME + r" x and q = \1 y, where x, y > 0\.", L[0])
+        need(mt is not None, L[0])
+        target = re.fullmatch(r"Express (.+) in terms of p and q\.", asked).group(1)
+        b = e9log_base(mt.group(1))
+        envs = e9log_envs(lambda e: {"p": e9log_log(b, e["x"]), "q": e9log_log(b, e["y"])})
+        want = lambda e: e9log_read(target, e)
+        cu, cv, ck = e9log_coeffs(target, b)
+        tags = e9log_pq_tags(cu, cv, ck, "√" in target)
+        ans_text = q["answer_text"]
+        need(not re.search(r"log|ln", ans_text), "the answer isn't in p and q")
+        full = lambda e: dict(e, p=e9log_log(b, e["x"]), q=e9log_log(b, e["y"]))
+        e9log_gdc(q, want, lambda e: e9log_read(ans_text, full(e)))
+        step_env = envs[0]
+    elif u == "expand-numbers":
+        mt = re.fullmatch(r"Let " + E9LOG_NAME + r" (\d+) = p and \1 (\d+) = q\.", L[0])
+        need(mt is not None, L[0])
+        b, c, d = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+        need(sp.isprime(c) and sp.isprime(d) and c != d and not (b == 10 and c * d == 10), f"p and q: {L[0]}")
+        target = re.fullmatch(r"Express (.+) in terms of p and q\.", asked).group(1)
+        envs = [{"p": e9log_log(b, c), "q": e9log_log(b, d)}]
+        value = e9log_read(target, {})
+        want = lambda e: value
+        am = re.fullmatch(mt.group(1) + r"(?: (\d+)| √(\d+)|\((\d+)/(\d+)\))", target)
+        need(am is not None, target)
+        top, under, size = (int(am.group(1)), 1, 1) if am.group(1) else (int(am.group(2)), 1, 2) if am.group(2) else (int(am.group(3)), int(am.group(4)), 1)
+        exps = {p: E9LOG_FRACTION(e, size) for p, e in e9log_prime_powers(top).items()}
+        for p, e in e9log_prime_powers(under).items():
+            exps[p] = -E9LOG_FRACTION(e, size)
+        k = exps.pop(5, E9LOG_FRACTION(0)) if b == 10 and {c, d} == {2, 3} else E9LOG_FRACTION(0)
+        need(set(exps) <= {c, d}, f"{target} isn't made of {c} and {d}")
+        cu, cv = exps.get(c, E9LOG_FRACTION(0)), exps.get(d, E9LOG_FRACTION(0))
+        if k:
+            cu -= k
+        tags = e9log_pq_tags(cu, cv, k, "√" in target)
+    elif u == "show-number":
+        mt = re.fullmatch("(.+) = k " + E9LOG_NAME + r" (\d+)", L[0])
+        need(mt is not None, L[0])
+        k = e9log_read(mt.group(1), {}) / e9log_log(e9log_base(mt.group(2)), int(mt.group(3)))
+        e9log_whole(k, "k")
+        c = int(mt.group(3))
+        num = c ** int(mpmath.nint(k))
+        want = lambda e: k
+        tags = e9log_gather({E9LOG_STOP: [mpmath.mpf(num)], E9LOG_NUM_BASE: [mpmath.mpf(num) / c]})
+        step_env = {"k": k}
+    elif u in ("given-log-laws", "given-log-base"):
+        name, m = e9log_given(L[0])
+        b = e9log_base(name)
+        env = {"a": b ** m}
+        target = re.fullmatch(r"Find the value of (.+)\.", asked).group(1)
+        v = e9log_read(target, env)
+        envs = [env]
+        want = lambda e: v
+        step_env = dict(env, y=v)
+        if u == "given-log-laws":
+            lm = m
+            mt = re.fullmatch(name + r"(?: √a| a\^\(1/(\d)\)| a([²³])|\(1/a\)|\((\d+)a\)|\((\d+)/a\)|\(a([²³])/(\d+)\))", target)
+            need(mt is not None, target)
+            if "1/a" in target:
+                tags = {E9LOG_RECIPROCAL: [1 / lm], E9LOG_NO_MINUS: [lm]}
+            elif "√" in target or mt.group(1):
+                tags = {E9LOG_ROOT_TWO: [lm * (int(mt.group(1) or 2))]}
+            elif mt.group(2):
+                r = E9LOG_SUPS.index(mt.group(2))
+                tags = {E9LOG_POWER_LOG: [lm ** r]}
+            elif mt.group(3):
+                tags = {E9LOG_LOG_BASE: [lm], E9LOG_SCALE: [lm * b]}
+            elif mt.group(4):
+                tags = {E9LOG_LOG_BASE: [-lm], E9LOG_PLUS: [1 + lm]}
+            else:
+                r = E9LOG_SUPS.index(mt.group(5))
+                tags = {E9LOG_LOG_BASE: [r * lm], E9LOG_PLUS: [r * lm + 1]}
+        else:
+            mt = re.fullmatch(E9LOG_NAME + r" a([²³]?)", target)
+            need(mt is not None, target)
+            big = e9log_base(mt.group(1))
+            kk = e9log_powers(big, b)
+            need(kk and kk >= 2, f"{big} isn't a power of {b}")
+            r = E9LOG_SUPS.index(mt.group(2)) if mt.group(2) else 1
+            tags = {E9LOG_TIMES_BASE: [r * m * kk], E9LOG_BASE_ITSELF: [r * m / big], E9LOG_INVERT: [kk / (r * m)]}
+        tags = e9log_gather(tags)
+    elif u in ("ab-base-value", "ab-base-hence"):
+        l1, l2, m, env = e9log_ab(L[0])
+        target = re.fullmatch(r"Find the value of (.+)\.", asked).group(1)
+        v = e9log_read(target, env)
+        envs = [env]
+        want = lambda e: v
+        if u == "ab-base-value":
+            need(target == f"log base {l1}{l2} of {l2}", target)
+            tags = e9log_gather({E9LOG_AB_NEG: [-m], E9LOG_PLUS: [1 + m]})
+        else:
+            mt = re.fullmatch(r"log base \S+ of \(" + l1 + r"(.*)/" + l2 + r"(.*)\)", target)
+            need(mt is not None, target)
+            read_e = lambda t: (e9log_read(t[1:], {}) if t.startswith("^") else mpmath.mpf(E9LOG_SUPS.index(t)))
+            e1, e2 = read_e(mt.group(1)), read_e(mt.group(2))
+            mb = 1 - m
+            tags = e9log_gather({E9LOG_SWAP: [e2 * m - e1 * mb], E9LOG_PLUS: [e1 * m + e2 * mb], E9LOG_AB_NEG: [e1 * m + e2 * m]})
+        step_env = env
+    elif u == "evaluate-single":
+        v, tags, _ = e9log_evaluate_single(L[0])
+        want = lambda e: v
+        tags = e9log_gather(tags)
+        step_env = {"y": v}
+    elif u == "log-of-root":
+        if L[0].startswith("f(x)"):
+            B = int(re.fullmatch(r"f\(x\) = (\d+)\^x", L[0]).group(1))
+            root = re.fullmatch(r"Find the value of f⁻¹\((.+)\)\.", asked).group(1)
+        else:
+            mt = re.fullmatch(E9LOG_NAME + r" (.+)", L[0])
+            B, root = e9log_base(mt.group(1)), mt.group(2)
+        mt = re.fullmatch(r"(?:√(\d+)|(\d+)\^\(1/3\))", root)
+        need(mt is not None, root)
+        n = int(mt.group(1) or mt.group(2))
+        need((B, root) != (8, "√32"), "the bank's numbers")
+        size = 2 if mt.group(1) else 3
+        v = e9log_log(B, e9log_read(root, {}))
+        need(len(e9log_prime_powers(B * n)) == 1, f"{B}, {n}")
+        want = lambda e: v
+        whole = e9log_log(B, n)
+        tags = e9log_gather({E9LOG_NO_ROOT: [whole], E9LOG_ROOT_TWO: [whole * size], E9LOG_INVERT: [1 / v]})
+        step_env = {"y": v}
+    elif u == "cob-common-base":
+        mt = re.fullmatch(r"Express this in terms of " + E9LOG_NAME + r" (\d+) and \1 (\d+)\.", asked)
+        need(mt is not None, asked)
+        H, d, c = mt.group(1), int(mt.group(2)), int(mt.group(3))
+        need(e9log_base(H) in (10, mpmath.e), H)
+        v = e9log_read(L[0], {})
+        base = e9log_base(re.fullmatch(E9LOG_NAME + r" (\d+)", L[0]).group(1))
+        N_ = int(re.fullmatch(E9LOG_NAME + r" (\d+)", L[0]).group(2))
+        need(base == c and e9log_powers(N_, d), f"{L[0]} in {d} and {c}")
+        k = e9log_powers(N_, d)
+        hb = e9log_base(H)
+        ld, lc = e9log_log(hb, d), e9log_log(hb, c)
+        want = lambda e: v
+        tags = e9log_gather({E9LOG_INVERT: [lc / (k * ld)], E9LOG_SIMPLIFY: [e9log_log(hb, mpmath.mpf(N_) / c)], E9LOG_POWER_LOG: [ld ** k / lc]})
+        need(set(re.findall(r"\d+", q["answer_text"].replace(H, ""))) <= {str(k), str(d), str(c)} and q["answer_text"].count(H) == 2, "not in those two logs")
+        step_env = {"y": v}
+    elif u == "cob-in-p-q":
+        mt = re.fullmatch(r"Let " + E9LOG_NAME + r" (\d+) = p and \1 (\d+) = q\.", L[0])
+        need(mt is not None, L[0])
+        hb, c, d = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+        need(sp.isprime(c) and sp.isprime(d) and c != d and not (hb == 10 and c * d == 10), L[0])
+        target = re.fullmatch(r"Find an expression for (.+) in terms of p and q\.", asked).group(1)
+        tm = re.fullmatch(E9LOG_NAME + r" (\d+)", target)
+        B, N_ = e9log_base(tm.group(1)), int(tm.group(2))
+        p_, q_ = e9log_log(hb, c), e9log_log(hb, d)
+        envs = [{"p": p_, "q": q_}]
+        v = e9log_log(B, N_)
+        want = lambda e: v
+        fs = e9log_prime_powers(N_)
+        k, j = fs.get(c, 0), fs.get(d, 0)
+        need(set(fs) <= {c, d} and k > 0, target)
+        de = e9log_powers(B, d)
+        need(de in (1, 2), f"the base {B}")
+        tags = e9log_gather({E9LOG_INVERT: [de * q_ / (k * p_ + j * q_)], E9LOG_SIMPLIFY: [k * p_ - de * q_, k * p_ + j * q_ - q_], E9LOG_POWER_LOG: [p_ ** k / (de * q_)],
+                             E9LOG_LOG_BASE: [k * p_ / q_]})
+        need(not re.search(r"log|ln", q["answer_text"]), "the answer isn't in p and q")
+        step_env = {"y": v, "p": p_, "q": q_}
+    elif u == "base-power-letter":
+        mt = re.fullmatch(r"Write this in terms of (\S+) x, where x > 0\.", asked)
+        need(mt is not None, asked)
+        name = mt.group(1)
+        b = e9log_base(name)
+        tm = re.fullmatch(E9LOG_NAME + r" x([²³]?)", L[0])
+        need(tm is not None, L[0])
+        big = e9log_base(tm.group(1))
+        r = E9LOG_SUPS.index(tm.group(2)) if tm.group(2) else 1
+        k = e9log_powers(big, b)
+        need(k and k >= 2, f"{big} and {b}")
+        envs = [{"x": e} for e in (mpmath.mpf("2.3"), mpmath.mpf("0.6"), mpmath.mpf("7.9"))]
+        want = lambda e: e9log_read(L[0], e)
+        tags = {E9LOG_BASE_ITSELF: lambda e: [mpmath.mpf(r) / big * e9log_log(b, e["x"])], E9LOG_TIMES_BASE: lambda e: [r * k * e9log_log(b, e["x"])],
+                E9LOG_INVERT: lambda e: [mpmath.mpf(k) / (r * e9log_log(b, e["x"]))]}
+        step_env = {"x": envs[0]["x"], "y": want(envs[0])}
+    elif u == "value-3sf":
+        mt = re.fullmatch(E9LOG_NAME + r" (\d+)", L[0])
+        need(mt is not None, L[0])
+        b, n = e9log_base(mt.group(1)), int(mt.group(2))
+        need(not e9log_powers(n, b), "a power of the base")
+        need(q["answer"].get("show") == "sf", "not to 3 s.f.")
+        e9log_figures(q, b, n)
+        e9log_steps(q, {})
+        for sol in q["solutions"]:
+            if sol["angle"] == "gdc-logbase":
+                shown = re.search(r"The GDC shows (\d+\.\d+)", " ".join(sol["steps"]))
+                need(shown and shown.group(1) == e9log_sf(mpmath.log(n) / mpmath.log(b), 5, True), f"{sol['steps']}")
+        return None, None
+    else:
+        raise Fail(f"no check for {u}")
+    if u == "show-number":
+        need(q["answer_text"].startswith("k = "), "the answer isn't k")
+    e9log_options(q, envs, want, tags)
+    if not step_env:
+        step_env = envs[0]
+    e9log_steps(q, step_env)
+    need(angle == "any" or q["solutions"][0]["angle"] == angle, "the asked method isn't first")
+    return None, None
+
+
+# ── end log-laws ──
+
+
 # ── antiderivative-condition (t5-antiderivative-condition, FAL-740) ──────
 # The `antiderivative-condition` situation's clean limits, the checker's own copy: the engine's is
 # in game/engine/situations/antiderivative_condition.gd. The derivative and the condition are read
@@ -26757,7 +27550,7 @@ def check_box_plot(q):
 # ── end box-plot ──
 
 
-SITUATION_CHECKS = {"grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+SITUATION_CHECKS = {"log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
