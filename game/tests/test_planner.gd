@@ -15,8 +15,10 @@ func _all_seen(save: Dictionary, right: bool) -> void:
 func test_never_seen_cells_come_first() -> void:
 	var save := SaveData.blank()
 	var seen := {}
+	# A blank save is on AA SL, so its cells are AA SL's: the types only AA HL has are not served.
+	var mine := QuestionEngine.cells(false, [], Courses.of(save)).size()
 	# Room for every cell plus the probes in between, however many classes are built.
-	for i in 2 * QuestionEngine.cells().size():
+	for i in 2 * mine:
 		var v := Planner.next(save, NOW)
 		if v.rule == "probe":
 			SaveData.record(save, "%s|concept|%d" % [v.type, v.probe], true, NOW, "", true)
@@ -26,9 +28,9 @@ func test_never_seen_cells_come_first() -> void:
 		check(not seen.has(key), "a seen cell came back while others were unseen")
 		seen[key] = true
 		SaveData.record(save, key, true, NOW)
-		if seen.size() == QuestionEngine.cells().size():
+		if seen.size() == mine:
 			break
-	check_eq(seen.size(), QuestionEngine.cells().size(), "every cell was served once")
+	check_eq(seen.size(), mine, "every cell was served once")
 
 
 func test_recent_wrong_cells_come_back_spaced() -> void:
