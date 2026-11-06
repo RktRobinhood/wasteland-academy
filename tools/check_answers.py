@@ -28390,7 +28390,7 @@ def E11LF_paper1(q, u):
         val = sp.nsimplify(sp.N(B ** (co * sp.log(x) / sp.log(B)), DIGITS), rational=True, tolerance=sp.Rational(1, 10**30))
         need(val == x ** co, f"the value {val}")
         want = E11LF_n(val)
-        wrongs = {O + "21": {E11LF_n(x * base)} if base else {f"{x}e"}, O + "22": {E11LF_pw(base, x)}}
+        wrongs = {O + "21": {E11LF_n(x * base)} if base else {f"{x}e"}, O + "22": {E11LF_pw(base, co * x)}}
     elif u == "solve-log-x":
         b, c, _ = E11LF_read_form(q)
         need(q["asked"] == "Find the exact value of x.", q["asked"])
@@ -29000,8 +29000,6 @@ def E11LF_check(q):
     if u in E11LF_PAPER_1:
         return E11LF_paper1(q, u)
     return E11LF_paper2(q, u)
-
-
 # ── log-laws (t1-log-laws, FAL-751) ──────────────────────────
 # The `log-laws` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/log_laws.gd. Every expression is read back from what the student sees
@@ -34310,555 +34308,13 @@ def E11SP_check(q):
         E11SP_dots(q, g, rep, u)
     elif u in ("missing-line", "next-line", "flawed-line", "valid-proof"):
         E11SP_lines_check(q, g, u, rep, angle)
-
-# ── prove-identity (t3-prove-identity, FAL-753) ──────────────
-# The `prove-identity` situation's clean limits and exam exclusions, the checker's own copy: the
-# engine's is in game/engine/situations/prove_identity.gd. Every statement is built here from its
-# numbers and read back from the lines, and every line of a proof is read back as an expression. Two
-# expressions are the same only if they agree exactly at rational points of tan(x/2) and their
-# difference then cancels to zero in t = tan(x/2), which proves it for every x. Each misconception's
-# wrong value comes from doing that wrong maths here, and a value from a ratio is found by putting the
-# angle that gives the ratio into the first form at 40 digits.
-
-E11PI_S = "SL3.6.prove-identity#"
-E11PI_BOTH, E11PI_SUM, E11PI_KEEP, E11PI_VALUES, E11PI_NO_END, E11PI_SIGN, E11PI_DOUBLE, E11PI_FORM, E11PI_PYTH, E11PI_MID, E11PI_NOMID, E11PI_ARG, E11PI_DIFF, \
-    E11PI_TAN, E11PI_COEF, E11PI_EXT, E11PI_PRE, E11PI_AT, E11PI_WHICH, E11PI_ADD, E11PI_PART, E11PI_COEFSQ, E11PI_FACT, E11PI_SIMPLE = (E11PI_S + str(i) for i in range(24))
-E11PI_X, E11PI_T = sp.Symbol("x"), sp.Symbol("t")
-E11PI_POINTS = (sp.Rational(2, 7), sp.Rational(-3, 11), sp.Rational(5, 13), sp.Rational(7, 17))
-E11PI_MULTS = (1, 2, 4)
-E11PI_POWER = {"²": 2, "³": 3, "⁴": 4}
-E11PI_LIMITS = ("half-tan", "half-tan-plus", "reciprocal-sum", "tan-diff", "tan-ratio", "tan-double", "split")
-E11PI_CACHE = {}
-
-
-def E11PI_read(text):
-    """A line of working or an option, as an expression in x."""
-    s = text.strip().replace("−", "-").replace("θ", "x").replace("½", "(1/2)")
-
-    def fn(m):
-        inner = f"{m.group(1)}({m.group(3) or 1}*x)"
-        return f"({inner})**{E11PI_POWER[m.group(2)]}" if m.group(2) else inner
-    s = re.sub(r"(sin|cos|tan)([²³⁴]?) ?(\d*)x", fn, s)
-    for k, v in E11PI_POWER.items():
-        s = s.replace(k, f"**{v}")
-    s = re.sub(r"\)\s*(?=[(a-z\d])", ")*", s)
-    s = re.sub(r"(\d)\s*(?=[(a-z])", r"\1*", s)
-    need(not re.search(r"[^-+*/() \dsincota x.]", s), f"can't read {text!r}")
-    return parse_expr(s, local_dict={"x": E11PI_X, "sin": sp.sin, "cos": sp.cos, "tan": sp.tan}, transformations=TRANSFORMS)
-
-
-def E11PI_turn(z, n):
-    """z**n for a pair (real, imaginary) of exact values, the way z = (cos x, sin x) turns."""
-    a, b = sp.Integer(1), sp.Integer(0)
-    for _ in range(n):
-        a, b = a * z[0] - b * z[1], a * z[1] + b * z[0]
-    return a, b
-
-
-def E11PI_put(e, t):
-    """e with sin, cos and tan of nx written in t = tan(x/2)."""
-    top = 1 + t**2
-    z = ((1 - t**2) / top, 2 * t / top)
-    reps = {}
-    for f in e.atoms(sp.sin, sp.cos, sp.tan):
-        n = sp.Poly(f.args[0], E11PI_X).coeff_monomial(E11PI_X)
-        need(f.args[0] == n * E11PI_X and n.is_integer and n > 0, f"the angle in {f}")
-        c, s_ = E11PI_turn(z, int(n))
-        reps[f] = {sp.sin: s_, sp.cos: c, sp.tan: s_ / c}[f.func]
-    return e.xreplace(reps)
-
-
-def E11PI_same(a, b):
-    """Whether a and b are one expression wherever both are defined, proved in t."""
-    key = (a, b)
-    if key in E11PI_CACHE:
-        return E11PI_CACHE[key]
-    diff = a - b
-    out = True
-    for t in E11PI_POINTS:
-        v = E11PI_put(diff, t)
-        if v.has(sp.zoo, sp.nan, sp.oo):
-            continue
-        if v != 0:
-            out = False
-            break
-    if out:
-        out = sp.cancel(sp.together(E11PI_put(diff, E11PI_T))) == 0
-    E11PI_CACHE[key] = out
-    return out
-
-
-def E11PI_model(g):
-    """The statement from its numbers: (left, right, slip -> what the proof reaches after it)."""
-    fam, k, w = g["fam"], int(g.get("k", 1)), int(g["w"])
-    need(1 <= k <= 6, f"k = {k}")
-    need(w in E11PI_MULTS, f"w = {w}")
-    need(g["letter"] in ("x", "θ"), f"the letter {g['letter']}")
-    u = w * E11PI_X
-    s, c, t = sp.sin(u), sp.cos(u), sp.tan(u)
-    sd, cd = sp.sin(2 * u), sp.cos(2 * u)
-    base = g.get("base", "sin")
-    b, a_ = (s, c) if base == "sin" else (c, s)
-    if fam == "half-tan":
-        out = k * (1 - cd) / sd, k * t, {E11PI_SIGN: [-k * t], E11PI_DOUBLE: [2 * k * t], E11PI_FORM: [k * c / s]}
-    elif fam == "half-tan-plus":
-        out = k * sd / (1 + cd), k * t, {E11PI_DOUBLE: [k * t / 2], E11PI_FORM: [k * c / s]}
-    elif fam == "product":
-        n = int(g["n"])
-        need(3 <= n <= 9, f"n = {n}")
-        out = n * s * c, sp.Rational(n, 2) * sd, {E11PI_COEF: [n * sd], E11PI_ARG: [sp.Rational(n, 2) * s]}
-    elif fam == "double-twice":
-        need(w in (1, 2), f"w = {w}")
-        out = 4 * k * s * c * cd, k * sp.sin(4 * u), {E11PI_COEF: [2 * k * sp.sin(4 * u)], E11PI_ARG: [2 * k * s * cd]}
-    elif fam == "square":
-        sg = -1 if g["minus"] else 1
-        out = k * (s + sg * c)**2, k * (1 + sg * sd), {E11PI_MID: [k * (1 + sg * s * c)], E11PI_NOMID: [sp.Integer(k)]}
-    elif fam == "quartic-diff":
-        sg = -1 if g["flip"] else 1
-        out = k * sg * (c**4 - s**4), k * sg * cd, {E11PI_DIFF: [k * cd**2], E11PI_PYTH: [sp.Integer(k)], E11PI_WHICH: [k * sg * sd]}
-    elif fam == "quartic-sin":
-        out = 4 * k * (b**2 - b**4), k * sd**2, {E11PI_SIGN: [4 * k * b**2 * (1 + b**2)], E11PI_COEFSQ: [2 * k * sd**2], E11PI_DOUBLE: [4 * k * sd**2]}
-    elif fam == "reciprocal-sum":
-        out = k * (s / c + c / s), 2 * k / sd, {E11PI_DOUBLE: [k / sd], E11PI_ADD: [sp.Integer(k)]}
-    elif fam == "tan-diff":
-        out = k * c**2 * (1 - t**2), k * cd, {E11PI_TAN: [k * (c**2 - c**4 / s**2)], E11PI_PART: [k * (c**2 - s**2 / c**2)], E11PI_WHICH: [k * sd]}
-    elif fam == "tan-ratio":
-        out = k * (1 - t**2) / (1 + t**2), k * cd, {E11PI_TAN: [-k * cd], E11PI_SUM: [sp.Integer(-k)], E11PI_WHICH: [k * sd]}
-    elif fam == "tan-double":
-        out = k * t * (1 + cd), k * sd, {E11PI_TAN: [2 * k * c**3 / s], E11PI_FORM: [2 * k * s**3 / c], E11PI_WHICH: [k * cd]}
-    elif fam == "factor-sum":
-        sg = -1 if base == "sin" else 1
-        out = k * (sd + 1 + sg * cd), 2 * k * b * (a_ + b), {E11PI_FORM: [2 * k * a_ * (a_ + b)], E11PI_DOUBLE: [k * b * (a_ + 2 * b)]}
-        if base == "sin":
-            out[2][E11PI_SIGN] = [2 * k * s * (c - s)]
-    elif fam == "perfect-square":
-        sg = -1 if base == "sin" else 1
-        out = k * (1 + 2 * sg * cd + cd**2), 4 * k * b**4, {E11PI_FACT: [k * sd**2], E11PI_FORM: [4 * k * a_**4], E11PI_COEFSQ: [2 * k * b**4]}
-    elif fam == "split":
-        out = k * (sd + 2 * b**2) / (2 * b), k * (a_ + b), {E11PI_SUM: [k * (a_ + 2 * b**2), k * (2 * s * c + b)], E11PI_DOUBLE: [k * (a_ + 2 * b) / 2]}
-    else:
-        need(False, f"no statement {fam}")
-    # The exam's and the map's own statements are left out.
-    need(not (k == 1 and w == 1 and (fam in ("half-tan", "half-tan-plus") or (fam == "quartic-diff" and not g["flip"]))), "an exam's statement")
-    need(E11PI_same(out[0], out[1]), f"{fam} is not an identity")
-    return out
-
-
-def E11PI_words(q, g, nm="L"):
-    """The left side, read back from a sentence."""
-    line = q["lines"][0]
-    u = r"(sin|cos) (\d*)[xθ]"
-    by = r"(?:, multiplied by (\d+))?\."
-    two = lambda f, n: {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan}[f]((int(n) if n else 1) * E11PI_X)
-    m = re.fullmatch(rf"{nm} is (\d+) times the product of {u} and {u}\.", line)
-    if m:
-        return int(m.group(1)) * two(m.group(2), m.group(3)) * two(m.group(4), m.group(5))
-    m = re.fullmatch(rf"{nm} is the square of the (sum|difference, sine minus cosine,)(?: of)? {u} and {u}{by}", line)
-    if m:
-        sg = 1 if m.group(1) == "sum" else -1
-        return int(m.group(6) or 1) * (two(m.group(2), m.group(3)) + sg * two(m.group(4), m.group(5)))**2
-    m = re.fullmatch(rf"{nm} is the fourth power of {u} minus the fourth power of {u}{by}", line)
-    if m:
-        return int(m.group(5) or 1) * (two(m.group(1), m.group(2))**4 - two(m.group(3), m.group(4))**4)
-    m = re.fullmatch(rf"{nm} is tan ?(\d*)[xθ] times the sum of 1 and cos (\d*)[xθ]{by}", line)
-    need(m, f"can't read {line!r}")
-    return int(m.group(3) or 1) * two("tan", m.group(1)) * (1 + two("cos", m.group(2)))
-
-
-def E11PI_left(q, g, rep, lhs, nm="L"):
-    """The left side the lines show must be the statement's."""
-    if rep == "words":
-        shown = E11PI_words(q, g, nm)
-    else:
-        m = re.fullmatch(rf"{nm} = (.+)", q["lines"][0])
-        need(m, f"can't read {q['lines'][0]!r}")
-        shown = E11PI_read(m.group(1))
-    need(E11PI_same(shown, lhs), f"the question shows {shown}, not the statement's left side")
-
-
-def E11PI_claim(q, g, lhs, rhs, swap=False, line=0):
-    m = re.fullmatch(r"Prove that (.+) ≡ (.+?)(, where both sides are defined)?\.", q["lines"][line])
-    need(m, f"can't read {q['lines'][line]!r}")
-    a, b = E11PI_read(m.group(1)), E11PI_read(m.group(2))
-    a, b = (b, a) if swap else (a, b)
-    need(E11PI_same(a, lhs) and E11PI_same(b, rhs), "the statement shown is another one")
-    need(E11PI_same(a, b), "the statement shown is no identity")
-    need(bool(m.group(3)) == (g["fam"] in E11PI_LIMITS), "the note on where it is defined")
-    return m.group(1), m.group(2)
-
-
-def E11PI_proof(q, lhs):
-    """The numbered lines: [(number, text)], the first one read back."""
-    out = []
-    for ln_ in q["lines"]:
-        m = re.fullmatch(r"Line (\d+): (.*)", ln_)
-        if not m:
-            continue
-        no, body = int(m.group(1)), m.group(2)
-        need(no == len(out) + 1, f"line {no} is out of order")
-        if no == 1:
-            need(body.startswith("LHS = "), f"can't read {ln_!r}")
-            body = body[6:]
-            need(E11PI_same(E11PI_read(body), lhs), "line 1 is not the left side")
-        elif body != "?":
-            need(body.startswith("= "), f"can't read {ln_!r}")
-            body = body[2:]
-        out.append((no, body))
-    need(out, "no proof is shown")
-    return out
-
-
-def E11PI_form(q):
-    """A typed answer's slots put back into its form, as an expression: they must make its text."""
-    v = q["answer"]["values"]
-    text = ""
-    for p in q["answer"]["template"]:
-        got = "" if isinstance(p, str) else str(v[p["slot"]])
-        text += p if isinstance(p, str) else got if got.isdigit() else f"({got})"
-    return E11PI_read(text.split(" = ", 1)[-1])
-
-
-def E11PI_shared(q, want, steps=(2, 5)):
-    tr_hyphens(q)
-    wrongs = {}
-    for o in q["choices"]:
-        if o["ref"]:
-            wrongs.setdefault(o["ref"], set()).add(o["text"])
-    gc_check_common(q, want, wrongs, steps=steps)
-
-
-def E11PI_tagged(o, val, slips):
-    if o["ref"]:
-        need(o["ref"] in slips, f"the checker can't confirm {o['ref']} on this statement")
-        need(any(E11PI_same(val, e) for e in slips[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives ({slips[o['ref']]})")
-
-
-def E11PI_options(q, label, value, slips, steps=(2, 5)):
-    """Every option read back: the right one has the value, a tagged one what its slip gives, and
-    an untagged one any other value."""
-    for o in q["choices"]:
-        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
-        v = E11PI_read(o["text"][len(label):])
-        need(E11PI_same(v, value) == o["correct"], f"option {o['text']!r} is marked {o['correct']}")
-        if not o["correct"]:
-            E11PI_tagged(o, v, slips)
-    E11PI_shared(q, q["answer_text"], steps)
-
-
-def E11PI_numbers(q, label, want, wrongs):
-    """Options that are numbers: want is exact, wrongs ref -> [exact values]."""
-    for o in q["choices"]:
-        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
-        v = E11PI_exact(o["text"][len(label):])
-        same = abs(sp.N(v - want, 40)) < sp.Float("1e-30")
-        need(same == o["correct"], f"option {o['text']!r} is marked {o['correct']}: the value is {want}")
-        if o["ref"]:
-            need(o["ref"] in wrongs, f"the checker can't confirm {o['ref']}")
-            need(any(abs(sp.N(v - w, 40)) < sp.Float("1e-30") for w in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
-    E11PI_shared(q, q["answer_text"])
-
-
-def E11PI_exact(text):
-    """"3√3/2", "(1 + √3)/2", "−7/4", as an exact number."""
-    s = text.strip().replace("−", "-")
-    s = re.sub(r"(\d)√", r"\1*√", s).replace("√", "sqrt_")
-    s = re.sub(r"sqrt_(\d+)", r"sqrt(\1)", s)
-    need(not re.search(r"[^-+*/() \dsqrt]", s), f"can't read {text!r}")
-    return parse_expr(s, local_dict={"sqrt": sp.sqrt}, transformations=TRANSFORMS)
-
-
-def E11PI_steps(q, sides):
-    """Each line of working: 'NAME = expression' has the value of that name, and each identity it
-    quotes is one."""
-    for sol in q["solutions"]:
-        for st in sol["steps"]:
-            for name, val in sides.items():
-                m = re.fullmatch(rf"(?:.*: )?{name} = ([^,]+?)\.?", st) if ": " in st else None
-                if m:
-                    need(E11PI_same(E11PI_read(m.group(1)), val), f"{sol['name']}: {st!r} has the wrong value")
-            # Only a step's own reason: an answer may run on to "= RHS".
-            why = st.split(": ")[0] if not st.startswith("So ") else ""
-            for m in re.finditer(r"((?:sin|cos|tan) \d*[xθ]) = ([^:,]*?(?:sin|cos)[^:,]*?)(?= and |$|\.$|,)", why):
-                need(E11PI_same(E11PI_read(m.group(1)), E11PI_read(m.group(2))), f"{sol['name']}: {m.group(0)!r} is no identity")
-
-
-def E11PI_chain_step(q, g, lhs, proof):
-    for no, body in proof:
-        if body != "?":
-            need(E11PI_same(E11PI_read(body), lhs), f"line {no} is not the left side: {body}")
-
-
-def E11PI_value(e, t):
-    """e at x = tπ, exact."""
-    return sp.nsimplify(sp.simplify(e.subs(E11PI_X, t * sp.pi)))
-
-
-def E11PI_float(e, x0):
-    return sp.N(e.subs(E11PI_X, x0), 40)
-
-
-def E11PI_range(lhs):
-    """The least and greatest of e, over a grid that holds every turning point of these shapes."""
-    f = sp.lambdify(E11PI_X, lhs, "math")
-    vals = [f(i * math.pi / 96) for i in range(192)]
-    return min(vals), max(vals)
-
-
-def E11PI_check(q):
-    g, u, rep, angle = q["given"], q["view"]["unknown"], q["view"]["rep"], q["view"]["angle"]
-    need(q["paper"] == 1, f"paper {q['paper']}: every bank part is Paper 1")
-    lhs, rhs, slips = E11PI_model(g)
-    fam, letter = g["fam"], g["letter"]
-    every = q["lines"] + [q["asked"]] + [o["text"] for o in q["choices"]] + [st for sol in q["solutions"] for st in sol["steps"]]
-    for tx in every:
-        need(not re.search(r"\b(sec|cosec|cot)\b", tx), f"an HL ratio in {tx!r}")
-        need(not re.search(r"(?<!\d)3[xθ]", tx), f"a triple angle in {tx!r}")
-    if u == "simplified-result":
-        E11PI_left(q, g, rep, lhs)
-        need(E11PI_same(E11PI_form(q), lhs), "the slots don't make the expression")
-        need(q["asked"].startswith("Write L in the form "), f"can't read {q['asked']!r}")
-        E11PI_options(q, "L = ", rhs, slips)
-        E11PI_steps(q, {"L": lhs})
-    elif u == "next-line":
-        E11PI_claim(q, g, lhs, rhs)
-        left_text = re.fullmatch(r"Prove that (.+?) ≡ .+", q["lines"][0]).group(1)
-        right_text = re.fullmatch(r"Prove that .+? ≡ (.+?)(?:, where both sides are defined)?\.", q["lines"][0]).group(1)
-        shown = E11PI_proof(q, lhs)
-        need(len(shown) == int(g["at"]), "the proof stops at the wrong line")
-        E11PI_chain_step(q, g, lhs, shown)
-        for o in q["choices"]:
-            t = o["text"]
-            if o["ref"] == E11PI_BOTH:
-                need(t == f"{left_text} − ({right_text}) = 0", f"can't read {t!r}")
-                continue
-            need(t.startswith("= "), f"can't read {t!r}")
-            v = E11PI_read(t[2:])
-            need(E11PI_same(v, lhs) == o["correct"], f"the line {t!r} is marked {o['correct']}")
-            if o["correct"]:
-                need(t[2:] not in [b for _, b in shown], f"{t!r} is a line already there")
-            else:
-                E11PI_tagged(o, v, slips)
-        E11PI_shared(q, q["answer_text"])
-        E11PI_steps(q, {"LHS": lhs})
-    elif u == "missing-line":
-        _, right_text = E11PI_claim(q, g, lhs, rhs)
-        shown = E11PI_proof(q, lhs)
-        hide = int(g["hide"])
-        need(0 < hide < len(shown) - 1, "the hidden line is the first or the last")
-        for no, body in shown:
-            need((body == "?") == (no == hide + 1), f"line {no} is {body!r}")
-        E11PI_chain_step(q, g, lhs, shown)
-        need(shown[-1][1] == right_text, f"the proof ends on {shown[-1][1]!r}, not the right side")
-        E11PI_options(q, f"Line {hide + 1}: ", lhs, slips)
-        E11PI_steps(q, {"LHS": lhs})
-    elif u == "flawed-line":
-        E11PI_claim(q, g, lhs, rhs)
-        need(q["lines"][1] == "A student's proof has one slip, carried down to the end:", f"can't read {q['lines'][1]!r}")
-        shown = E11PI_proof(q, lhs)
-        # The first line that isn't the left side, found here.
-        bad = [no for no, body in shown if not E11PI_same(E11PI_read(body), lhs)]
-        need(bad, "every line of the proof is right")
-        first = bad[0]
-        need(all(no in bad for no, _ in shown if no > first), "a later line goes back to being right")
-        ref = [r for r, es in slips.items() if any(E11PI_same(E11PI_read(dict(shown)[first]), e) for e in es)]
-        need(ref, f"line {first} is no slip the type names: {dict(shown)[first]}")
-        need(g["slip"] in ref, "the situation names another slip")
-        need(int(g["at"]) == first - 1, "the situation names another line")
-        for o in q["choices"]:
-            m = re.fullmatch(r"Line (\d+) should read: (.+)", o["text"])
-            need(m, f"can't read {o['text']!r}")
-            no, v = int(m.group(1)), E11PI_read(m.group(2))
-            need((no == first and E11PI_same(v, lhs)) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
-            if not o["correct"]:
-                E11PI_tagged(o, v, slips)
-        E11PI_shared(q, q["answer_text"])
-        E11PI_steps(q, {"LHS": lhs})
-    elif u == "valid-argument":
-        _, right_text = E11PI_claim(q, g, lhs, rhs)
-        m = re.fullmatch(r"LHS = (.+?) = (.+?) = RHS, so LHS ≡ RHS\.", q["answer_text"])
-        need(m, f"can't read {q['answer_text']!r}")
-        need(E11PI_same(E11PI_read(m.group(1)), lhs) and m.group(2) == right_text, "the proof doesn't run from the left side to the right")
-        need(sorted(o["ref"] for o in q["choices"]) == sorted(["", E11PI_BOTH, E11PI_VALUES, E11PI_NO_END]), "the options are not the three false proofs")
-        for o in q["choices"]:
-            t = o["text"]
-            if o["ref"] == E11PI_BOTH:
-                need(t == "Assume LHS ≡ RHS. Take the RHS from both sides: 0 = 0, so LHS ≡ RHS.", f"can't read {t!r}")
-            elif o["ref"] == E11PI_VALUES:
-                r = re.fullmatch(rf"At {letter} = π/(\d+) both sides equal (.+), so LHS ≡ RHS\.", t)
-                need(r, f"can't read {t!r}")
-                x0 = sp.pi / int(r.group(1))
-                val = E11PI_exact(r.group(2))
-                need(abs(E11PI_float(lhs, x0) - sp.N(val, 40)) < sp.Float("1e-30") and abs(E11PI_float(rhs, x0) - sp.N(val, 40)) < sp.Float("1e-30"), f"{t!r}: the value is not the sides'")
-            elif o["ref"] == E11PI_NO_END:
-                need(t == f"LHS = {m.group(1)}", f"{t!r} is not the proof stopped early")
-                need(not E11PI_same(E11PI_read(m.group(1)), rhs) or m.group(1) != right_text, "it reached the right side")
-        E11PI_shared(q, q["answer_text"])
-        E11PI_steps(q, {"LHS": lhs})
-    elif u == "start-side":
-        swap = bool(g["swap"])
-        a_text, b_text = E11PI_claim(q, g, lhs, rhs, swap)
-        count = lambda t: len(re.findall(r"sin|cos|tan", t))
-        need(count(a_text) != count(b_text), "neither side is busier")
-        side, rest = ("left", "right") if count(a_text) > count(b_text) else ("right", "left")
-        want = {"": f"Start from the {side} side: it is the busier one, so there is more to rewrite.",
-                E11PI_SIMPLE: f"Start from the {rest} side: it is the shorter one, so there is less to write.",
-                E11PI_BOTH: "Work on both sides at once until they match."}
-        for o in q["choices"]:
-            if o["ref"] == E11PI_VALUES:
-                need(re.fullmatch(rf"Put {letter} = π/\d+ into both sides and compare them\.", o["text"]), f"can't read {o['text']!r}")
-            else:
-                need(o["text"] == want[o["ref"]], f"the option {o['text']!r} is not the checker's")
-        E11PI_shared(q, want[""])
-    elif u == "true-identity":
-        for o in q["choices"]:
-            m = re.fullmatch(r"(.+) ≡ (.+)", o["text"])
-            need(m, f"can't read {o['text']!r}")
-            need(E11PI_same(E11PI_read(m.group(1)), lhs), "another left side")
-            v = E11PI_read(m.group(2))
-            need(E11PI_same(v, lhs) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
-            if not o["correct"]:
-                E11PI_tagged(o, v, slips)
-        E11PI_shared(q, q["answer_text"])
-        E11PI_steps(q, {"L": lhs})
-    elif u == "cos2-form":
-        m = re.fullmatch(r"L = (.+)", q["lines"][0])
-        need(m and E11PI_same(E11PI_read(m.group(1)), lhs), f"can't read {q['lines'][0]!r}")
-        d = 2 * int(g["w"])
-        cd = sp.cos(d * E11PI_X)
-        sg = -1 if fam == "half-tan" or (fam != "half-tan-plus" and g["base"] == "sin") else 1
-        need(q["asked"] == f"Which form of cos {'' if d == 1 else d}{letter} makes the 1 cancel?", f"can't read {q['asked']!r}")
-        s_, c_ = sp.Symbol("s"), sp.Symbol("c")
-        w = int(g["w"])
-        for o in q["choices"]:
-            r = re.fullmatch(rf"cos {d}{letter} = (.+)", o["text"])
-            need(r, f"can't read {o['text']!r}")
-            v = E11PI_read(r.group(1))
-            true = E11PI_same(v, cd)
-            # What 1 ± the form leaves, in sin and cos: a constant term is a 1 that did not cancel.
-            left_over = sp.expand(1 + sg * v.subs({sp.sin(w * E11PI_X): s_, sp.cos(w * E11PI_X): c_}))
-            cancels = left_over.subs({s_: 0, c_: 0}) == 0
-            need((true and cancels) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
-            if o["ref"] == E11PI_KEEP:
-                need(true and not cancels, f"{o['text']!r} is not a true form that keeps the 1")
-            elif o["ref"] == E11PI_FORM:
-                need(not true and E11PI_same(v, -cd), f"{o['text']!r} is not the form with its signs swapped")
-            else:
-                need(o["correct"], "an option with no slip")
-        E11PI_shared(q, q["answer_text"])
-    elif u == "half-form":
-        k, w = int(g["k"]), int(g["w"])
-        base = "sin" if fam == "half-tan" else "cos"
-        sg = -1 if base == "sin" else 1
-        m = re.fullmatch(r"L = (.+)", q["lines"][0])
-        need(m, f"can't read {q['lines'][0]!r}")
-        e = E11PI_read(m.group(1))
-        cd = sp.cos(2 * w * E11PI_X)
-        need(E11PI_same(e, k * (1 + sg * cd)), "the expression shown is another one")
-        f = {"sin": sp.sin, "cos": sp.cos}
-        other = "cos" if base == "sin" else "sin"
-        half = {E11PI_ARG: [2 * k * f[base](2 * w * E11PI_X)**2], E11PI_COEF: [k * f[base](w * E11PI_X)**2], E11PI_FORM: [2 * k * f[other](w * E11PI_X)**2]}
-        if base == "sin":
-            half[E11PI_SIGN] = [-2 * k * f[base](w * E11PI_X)**2]
-        need(E11PI_same(E11PI_form(q), e), "the slots don't make the expression")
-        E11PI_options(q, "L = ", e, half)
-        E11PI_steps(q, {"L": e})
-    elif u == "sin2-multiple":
-        n, w = int(g["n"]), int(g["w"])
-        a = sp.Rational(lhs.subs(E11PI_X, sp.pi / (4 * w)) / sp.sin(sp.pi / 2))
-        need(E11PI_same(lhs, a * sp.sin(2 * w * E11PI_X)), "no multiple of the double angle")
-        line = q["lines"][0]
-        if rep == "words":
-            r = re.fullmatch(rf"(\d+) times the product of sin {w if w > 1 else ''}{letter} and cos {w if w > 1 else ''}{letter} is a times sin {2 * w}{letter}, for every {letter}\.", line)
-            need(r and int(r.group(1)) == n, f"can't read {line!r}")
-        else:
-            r = re.fullmatch(rf"(.+) ≡ a sin {2 * w}{letter}", line)
-            need(r and E11PI_same(E11PI_read(r.group(1)), lhs), f"can't read {line!r}")
-        E11PI_numbers(q, "a = ", a, {E11PI_COEF: [sp.Integer(n)]})
-    elif u == "cancel-fraction":
-        E11PI_left(q, g, rep, lhs)
-        need(E11PI_same(E11PI_form(q), lhs), "the slots don't make the expression")
-        E11PI_options(q, "L = ", rhs, slips)
-        E11PI_steps(q, {"L": lhs})
-    elif u == "factor-structure":
-        E11PI_left(q, g, rep, lhs)
-        for o in q["choices"]:
-            need(o["text"].startswith("L = "), f"can't read {o['text']!r}")
-            body = o["text"][4:]
-            v = E11PI_read(body)
-            need(E11PI_same(v, lhs) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
-            if o["correct"]:
-                need(bool(re.search(r"\)\(|\)²|[²⁴][xθ\d]+\(", body)) or fam == "quartic-sin", f"{body!r} is not factorised")
-            else:
-                E11PI_tagged(o, v, slips)
-        E11PI_shared(q, q["answer_text"])
-    elif u == "identity-value":
-        E11PI_left(q, g, rep, lhs)
-        m = re.fullmatch(r"It has been proved that L ≡ (.+)\.", q["lines"][1])
-        need(m and E11PI_same(E11PI_read(m.group(1)), lhs), f"can't read {q['lines'][1]!r}")
-        r = re.fullmatch(rf"Find the exact value of L when {letter} = (\d*)π(?:/(\d+))?\.", q["asked"])
-        need(r, f"can't read {q['asked']!r}")
-        t = sp.Rational(int(r.group(1) or 1), int(r.group(2) or 1))
-        need(t == sp.Rational(g["t"]) and t in (sp.Rational(1, 6), sp.Rational(1, 4), sp.Rational(1, 3), sp.Rational(2, 3), sp.Rational(3, 4), sp.Rational(5, 6)), f"t = {t}")
-        want = E11PI_value(rhs, t)
-        need(want != 0, "the value is zero")
-        need(abs(E11PI_float(lhs, t * sp.pi) - sp.N(want, 40)) < sp.Float("1e-30"), "the first form has another value there")
-        # With the multiple left out, the angle is just the x given.
-        plain = rhs.replace(lambda e: isinstance(e, (sp.sin, sp.cos, sp.tan)), lambda e: e.func(E11PI_X))
-        E11PI_numbers(q, "L = ", want, {E11PI_AT: [E11PI_value(plain, t)]})
-    elif u == "value-from-ratio":
-        E11PI_left(q, g, rep, lhs)
-        w = int(g["w"])
-        r = re.fullmatch(rf"(tan|sin|cos) (\d*){letter} = (−?\d+(?:/\d+)?)\.", q["lines"][1])
-        need(r, f"can't read {q['lines'][1]!r}")
-        fn, n, val = r.group(1), int(r.group(2) or 1), sp.Rational(r.group(3).replace("−", "-"))
-        need(val == sp.Rational(g["r"]), "the ratio given is another")
-        need(n == (w if fn == "tan" else 2 * w), f"the angle in {q['lines'][1]!r}")
-        need(fn == "tan" or abs(val) < 1, f"no angle has that ratio: {val}")
-        x0 = {"tan": sp.atan, "sin": sp.asin, "cos": sp.acos}[fn](val) / n
-        want = sp.nsimplify(E11PI_float(lhs, x0), rational=True, tolerance=sp.Float("1e-25"))
-        need(abs(sp.N(want, 40) - E11PI_float(rhs, x0)) < sp.Float("1e-30"), "the two sides differ")
-        wrongs = {ref: [E11PI_float(e, x0) for e in es] for ref, es in slips.items()}
-        E11PI_numbers(q, "L = ", want, wrongs)
-    elif u == "greatest-value":
-        c = int(g["c"])
-        top = g["want"] == "greatest"
-        if rep == "words":
-            shown = E11PI_words(q, g)
-            need(E11PI_same(shown, lhs), "the sentence is another statement")
-            r = re.fullmatch(rf"f\({letter}\) is L(?: (plus|minus) (\d+))?\.", q["lines"][1])
-            need(r and int(r.group(2) or 0) * (-1 if r.group(1) == "minus" else 1) == c, f"can't read {q['lines'][1]!r}")
-        else:
-            r = re.fullmatch(rf"f\({letter}\) = (.+?)(?: ([−+]) (\d+))?", q["lines"][0])
-            need(r, f"can't read {q['lines'][0]!r}")
-            need(E11PI_same(E11PI_read(r.group(1)), lhs), "the function shown is another one")
-            need(int(r.group(3) or 0) * (-1 if r.group(2) == "−" else 1) == c, f"can't read {q['lines'][0]!r}")
-        lo, hi = E11PI_range(lhs)
-        want = sp.nsimplify((hi if top else lo) * 2, rational=True, tolerance=1e-9) / 2 + c
-        wrongs = {}
-        if fam == "square":
-            wrongs[E11PI_EXT] = [sp.Integer(int(g["k"]) + c)]
-        elif fam == "product":
-            wrongs[E11PI_PRE] = [sp.Integer(int(g["n"]) + c)]
-        elif fam in ("double-twice", "quartic-sin"):
-            wrongs[E11PI_PRE] = [sp.Integer(4 * int(g["k"]) + c)]
-        E11PI_numbers(q, f"{g['want']} value = ", want, wrongs)
-        tail = q["solutions"][0]["steps"][1]
-        rr = re.search(r"run from (.+?) to (.+?), with", tail)
-        need(rr and E11PI_exact(rr.group(1)) == sp.nsimplify(lo * 2, rational=True, tolerance=1e-9) / 2 + c and E11PI_exact(rr.group(2)) == sp.nsimplify(hi * 2, rational=True, tolerance=1e-9) / 2 + c, f"can't confirm {tail!r}")
-    elif u == "common-expression":
-        k = int(g["k"])
-        _, shown_right = E11PI_claim(q, g, lhs, rhs)
-        need(E11PI_same(E11PI_read(shown_right), rhs), "the right side is another expression")
-        need(len(re.findall("cos|sin", shown_right)) >= 1 and "²" in shown_right, "the right side is simple already")
-        need(E11PI_same(E11PI_form(q), rhs), "the slots don't make the expression")
-        E11PI_options(q, "", rhs, slips)
-        E11PI_steps(q, {"LHS": lhs, "RHS": rhs})
     else:
         need(False, f"no check for {u}")
     return None, None
 
 
 # ── end sequence-proof ──
+
 
 # ── derivative-model (t5-derivative-model-gdc, FAL-753) ──────
 # The `derivative-model` situation's clean limits, the checker's own copy: the engine's is in
@@ -35517,6 +34973,556 @@ def E11DM_check(q):
     return None, None
 
 
+# ── prove-identity (t3-prove-identity, FAL-753) ──────────────
+# The `prove-identity` situation's clean limits and exam exclusions, the checker's own copy: the
+# engine's is in game/engine/situations/prove_identity.gd. Every statement is built here from its
+# numbers and read back from the lines, and every line of a proof is read back as an expression. Two
+# expressions are the same only if they agree exactly at rational points of tan(x/2) and their
+# difference then cancels to zero in t = tan(x/2), which proves it for every x. Each misconception's
+# wrong value comes from doing that wrong maths here, and a value from a ratio is found by putting the
+# angle that gives the ratio into the first form at 40 digits.
+
+E11PI_S = "SL3.6.prove-identity#"
+E11PI_BOTH, E11PI_SUM, E11PI_KEEP, E11PI_VALUES, E11PI_NO_END, E11PI_SIGN, E11PI_DOUBLE, E11PI_FORM, E11PI_PYTH, E11PI_MID, E11PI_NOMID, E11PI_ARG, E11PI_DIFF, \
+    E11PI_TAN, E11PI_COEF, E11PI_EXT, E11PI_PRE, E11PI_AT, E11PI_WHICH, E11PI_ADD, E11PI_PART, E11PI_COEFSQ, E11PI_FACT, E11PI_SIMPLE = (E11PI_S + str(i) for i in range(24))
+E11PI_X, E11PI_T = sp.Symbol("x"), sp.Symbol("t")
+E11PI_POINTS = (sp.Rational(2, 7), sp.Rational(-3, 11), sp.Rational(5, 13), sp.Rational(7, 17))
+E11PI_MULTS = (1, 2, 4)
+E11PI_POWER = {"²": 2, "³": 3, "⁴": 4}
+E11PI_LIMITS = ("half-tan", "half-tan-plus", "reciprocal-sum", "tan-diff", "tan-ratio", "tan-double", "split")
+E11PI_CACHE = {}
+
+
+def E11PI_read(text):
+    """A line of working or an option, as an expression in x."""
+    s = text.strip().replace("−", "-").replace("θ", "x").replace("½", "(1/2)")
+
+    def fn(m):
+        inner = f"{m.group(1)}({m.group(3) or 1}*x)"
+        return f"({inner})**{E11PI_POWER[m.group(2)]}" if m.group(2) else inner
+    s = re.sub(r"(sin|cos|tan)([²³⁴]?) ?(\d*)x", fn, s)
+    for k, v in E11PI_POWER.items():
+        s = s.replace(k, f"**{v}")
+    s = re.sub(r"\)\s*(?=[(a-z\d])", ")*", s)
+    s = re.sub(r"(\d)\s*(?=[(a-z])", r"\1*", s)
+    need(not re.search(r"[^-+*/() \dsincota x.]", s), f"can't read {text!r}")
+    return parse_expr(s, local_dict={"x": E11PI_X, "sin": sp.sin, "cos": sp.cos, "tan": sp.tan}, transformations=TRANSFORMS)
+
+
+def E11PI_turn(z, n):
+    """z**n for a pair (real, imaginary) of exact values, the way z = (cos x, sin x) turns."""
+    a, b = sp.Integer(1), sp.Integer(0)
+    for _ in range(n):
+        a, b = a * z[0] - b * z[1], a * z[1] + b * z[0]
+    return a, b
+
+
+def E11PI_put(e, t):
+    """e with sin, cos and tan of nx written in t = tan(x/2)."""
+    top = 1 + t**2
+    z = ((1 - t**2) / top, 2 * t / top)
+    reps = {}
+    for f in e.atoms(sp.sin, sp.cos, sp.tan):
+        n = sp.Poly(f.args[0], E11PI_X).coeff_monomial(E11PI_X)
+        need(f.args[0] == n * E11PI_X and n.is_integer and n > 0, f"the angle in {f}")
+        c, s_ = E11PI_turn(z, int(n))
+        reps[f] = {sp.sin: s_, sp.cos: c, sp.tan: s_ / c}[f.func]
+    return e.xreplace(reps)
+
+
+def E11PI_same(a, b):
+    """Whether a and b are one expression wherever both are defined, proved in t."""
+    key = (a, b)
+    if key in E11PI_CACHE:
+        return E11PI_CACHE[key]
+    diff = a - b
+    out = True
+    for t in E11PI_POINTS:
+        v = E11PI_put(diff, t)
+        if v.has(sp.zoo, sp.nan, sp.oo):
+            continue
+        if v != 0:
+            out = False
+            break
+    if out:
+        out = sp.cancel(sp.together(E11PI_put(diff, E11PI_T))) == 0
+    E11PI_CACHE[key] = out
+    return out
+
+
+def E11PI_model(g):
+    """The statement from its numbers: (left, right, slip -> what the proof reaches after it)."""
+    fam, k, w = g["fam"], int(g.get("k", 1)), int(g["w"])
+    need(1 <= k <= 6, f"k = {k}")
+    need(w in E11PI_MULTS, f"w = {w}")
+    need(g["letter"] in ("x", "θ"), f"the letter {g['letter']}")
+    u = w * E11PI_X
+    s, c, t = sp.sin(u), sp.cos(u), sp.tan(u)
+    sd, cd = sp.sin(2 * u), sp.cos(2 * u)
+    base = g.get("base", "sin")
+    b, a_ = (s, c) if base == "sin" else (c, s)
+    if fam == "half-tan":
+        out = k * (1 - cd) / sd, k * t, {E11PI_SIGN: [-k * t], E11PI_DOUBLE: [2 * k * t], E11PI_FORM: [k * c / s]}
+    elif fam == "half-tan-plus":
+        out = k * sd / (1 + cd), k * t, {E11PI_DOUBLE: [k * t / 2], E11PI_FORM: [k * c / s]}
+    elif fam == "product":
+        n = int(g["n"])
+        need(3 <= n <= 9, f"n = {n}")
+        out = n * s * c, sp.Rational(n, 2) * sd, {E11PI_COEF: [n * sd], E11PI_ARG: [sp.Rational(n, 2) * s]}
+    elif fam == "double-twice":
+        need(w in (1, 2), f"w = {w}")
+        out = 4 * k * s * c * cd, k * sp.sin(4 * u), {E11PI_COEF: [2 * k * sp.sin(4 * u)], E11PI_ARG: [2 * k * s * cd]}
+    elif fam == "square":
+        sg = -1 if g["minus"] else 1
+        out = k * (s + sg * c)**2, k * (1 + sg * sd), {E11PI_MID: [k * (1 + sg * s * c)], E11PI_NOMID: [sp.Integer(k)]}
+    elif fam == "quartic-diff":
+        sg = -1 if g["flip"] else 1
+        out = k * sg * (c**4 - s**4), k * sg * cd, {E11PI_DIFF: [k * cd**2], E11PI_PYTH: [sp.Integer(k)], E11PI_WHICH: [k * sg * sd]}
+    elif fam == "quartic-sin":
+        out = 4 * k * (b**2 - b**4), k * sd**2, {E11PI_SIGN: [4 * k * b**2 * (1 + b**2)], E11PI_COEFSQ: [2 * k * sd**2], E11PI_DOUBLE: [4 * k * sd**2]}
+    elif fam == "reciprocal-sum":
+        out = k * (s / c + c / s), 2 * k / sd, {E11PI_DOUBLE: [k / sd], E11PI_ADD: [sp.Integer(k)]}
+    elif fam == "tan-diff":
+        out = k * c**2 * (1 - t**2), k * cd, {E11PI_TAN: [k * (c**2 - c**4 / s**2)], E11PI_PART: [k * (c**2 - s**2 / c**2)], E11PI_WHICH: [k * sd]}
+    elif fam == "tan-ratio":
+        out = k * (1 - t**2) / (1 + t**2), k * cd, {E11PI_TAN: [-k * cd], E11PI_SUM: [sp.Integer(-k)], E11PI_WHICH: [k * sd]}
+    elif fam == "tan-double":
+        out = k * t * (1 + cd), k * sd, {E11PI_TAN: [2 * k * c**3 / s], E11PI_FORM: [2 * k * s**3 / c], E11PI_WHICH: [k * cd]}
+    elif fam == "factor-sum":
+        sg = -1 if base == "sin" else 1
+        out = k * (sd + 1 + sg * cd), 2 * k * b * (a_ + b), {E11PI_FORM: [2 * k * a_ * (a_ + b)], E11PI_DOUBLE: [k * b * (a_ + 2 * b)]}
+        if base == "sin":
+            out[2][E11PI_SIGN] = [2 * k * s * (c - s)]
+    elif fam == "perfect-square":
+        sg = -1 if base == "sin" else 1
+        out = k * (1 + 2 * sg * cd + cd**2), 4 * k * b**4, {E11PI_FACT: [k * sd**2], E11PI_FORM: [4 * k * a_**4], E11PI_COEFSQ: [2 * k * b**4]}
+    elif fam == "split":
+        out = k * (sd + 2 * b**2) / (2 * b), k * (a_ + b), {E11PI_SUM: [k * (a_ + 2 * b**2), k * (2 * s * c + b)], E11PI_DOUBLE: [k * (a_ + 2 * b) / 2]}
+    else:
+        need(False, f"no statement {fam}")
+    # The exam's and the map's own statements are left out.
+    need(not (k == 1 and w == 1 and (fam in ("half-tan", "half-tan-plus") or (fam == "quartic-diff" and not g["flip"]))), "an exam's statement")
+    need(E11PI_same(out[0], out[1]), f"{fam} is not an identity")
+    return out
+
+
+def E11PI_words(q, g, nm="L"):
+    """The left side, read back from a sentence."""
+    line = q["lines"][0]
+    u = r"(sin|cos) (\d*)[xθ]"
+    by = r"(?:, multiplied by (\d+))?\."
+    two = lambda f, n: {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan}[f]((int(n) if n else 1) * E11PI_X)
+    m = re.fullmatch(rf"{nm} is (\d+) times the product of {u} and {u}\.", line)
+    if m:
+        return int(m.group(1)) * two(m.group(2), m.group(3)) * two(m.group(4), m.group(5))
+    m = re.fullmatch(rf"{nm} is the square of the (sum|difference, sine minus cosine,)(?: of)? {u} and {u}{by}", line)
+    if m:
+        sg = 1 if m.group(1) == "sum" else -1
+        return int(m.group(6) or 1) * (two(m.group(2), m.group(3)) + sg * two(m.group(4), m.group(5)))**2
+    m = re.fullmatch(rf"{nm} is the fourth power of {u} minus the fourth power of {u}{by}", line)
+    if m:
+        return int(m.group(5) or 1) * (two(m.group(1), m.group(2))**4 - two(m.group(3), m.group(4))**4)
+    m = re.fullmatch(rf"{nm} is tan ?(\d*)[xθ] times the sum of 1 and cos (\d*)[xθ]{by}", line)
+    need(m, f"can't read {line!r}")
+    return int(m.group(3) or 1) * two("tan", m.group(1)) * (1 + two("cos", m.group(2)))
+
+
+def E11PI_left(q, g, rep, lhs, nm="L"):
+    """The left side the lines show must be the statement's."""
+    if rep == "words":
+        shown = E11PI_words(q, g, nm)
+    else:
+        m = re.fullmatch(rf"{nm} = (.+)", q["lines"][0])
+        need(m, f"can't read {q['lines'][0]!r}")
+        shown = E11PI_read(m.group(1))
+    need(E11PI_same(shown, lhs), f"the question shows {shown}, not the statement's left side")
+
+
+def E11PI_claim(q, g, lhs, rhs, swap=False, line=0):
+    m = re.fullmatch(r"Prove that (.+) ≡ (.+?)(, where both sides are defined)?\.", q["lines"][line])
+    need(m, f"can't read {q['lines'][line]!r}")
+    a, b = E11PI_read(m.group(1)), E11PI_read(m.group(2))
+    a, b = (b, a) if swap else (a, b)
+    need(E11PI_same(a, lhs) and E11PI_same(b, rhs), "the statement shown is another one")
+    need(E11PI_same(a, b), "the statement shown is no identity")
+    need(bool(m.group(3)) == (g["fam"] in E11PI_LIMITS), "the note on where it is defined")
+    return m.group(1), m.group(2)
+
+
+def E11PI_proof(q, lhs):
+    """The numbered lines: [(number, text)], the first one read back."""
+    out = []
+    for ln_ in q["lines"]:
+        m = re.fullmatch(r"Line (\d+): (.*)", ln_)
+        if not m:
+            continue
+        no, body = int(m.group(1)), m.group(2)
+        need(no == len(out) + 1, f"line {no} is out of order")
+        if no == 1:
+            need(body.startswith("LHS = "), f"can't read {ln_!r}")
+            body = body[6:]
+            need(E11PI_same(E11PI_read(body), lhs), "line 1 is not the left side")
+        elif body != "?":
+            need(body.startswith("= "), f"can't read {ln_!r}")
+            body = body[2:]
+        out.append((no, body))
+    need(out, "no proof is shown")
+    return out
+
+
+def E11PI_form(q):
+    """A typed answer's slots put back into its form, as an expression: they must make its text."""
+    v = q["answer"]["values"]
+    text = ""
+    for p in q["answer"]["template"]:
+        got = "" if isinstance(p, str) else str(v[p["slot"]])
+        text += p if isinstance(p, str) else got if got.isdigit() else f"({got})"
+    return E11PI_read(text.split(" = ", 1)[-1])
+
+
+def E11PI_shared(q, want, steps=(2, 5)):
+    tr_hyphens(q)
+    wrongs = {}
+    for o in q["choices"]:
+        if o["ref"]:
+            wrongs.setdefault(o["ref"], set()).add(o["text"])
+    gc_check_common(q, want, wrongs, steps=steps)
+
+
+def E11PI_tagged(o, val, slips):
+    if o["ref"]:
+        need(o["ref"] in slips, f"the checker can't confirm {o['ref']} on this statement")
+        need(any(E11PI_same(val, e) for e in slips[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives ({slips[o['ref']]})")
+
+
+def E11PI_options(q, label, value, slips, steps=(2, 5)):
+    """Every option read back: the right one has the value, a tagged one what its slip gives, and
+    an untagged one any other value."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = E11PI_read(o["text"][len(label):])
+        need(E11PI_same(v, value) == o["correct"], f"option {o['text']!r} is marked {o['correct']}")
+        if not o["correct"]:
+            E11PI_tagged(o, v, slips)
+    E11PI_shared(q, q["answer_text"], steps)
+
+
+def E11PI_numbers(q, label, want, wrongs):
+    """Options that are numbers: want is exact, wrongs ref -> [exact values]."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = E11PI_exact(o["text"][len(label):])
+        same = abs(sp.N(v - want, 40)) < sp.Float("1e-30")
+        need(same == o["correct"], f"option {o['text']!r} is marked {o['correct']}: the value is {want}")
+        if o["ref"]:
+            need(o["ref"] in wrongs, f"the checker can't confirm {o['ref']}")
+            need(any(abs(sp.N(v - w, 40)) < sp.Float("1e-30") for w in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+    E11PI_shared(q, q["answer_text"])
+
+
+def E11PI_exact(text):
+    """"3√3/2", "(1 + √3)/2", "−7/4", as an exact number."""
+    s = text.strip().replace("−", "-")
+    s = re.sub(r"(\d)√", r"\1*√", s).replace("√", "sqrt_")
+    s = re.sub(r"sqrt_(\d+)", r"sqrt(\1)", s)
+    need(not re.search(r"[^-+*/() \dsqrt]", s), f"can't read {text!r}")
+    return parse_expr(s, local_dict={"sqrt": sp.sqrt}, transformations=TRANSFORMS)
+
+
+def E11PI_steps(q, sides):
+    """Each line of working: 'NAME = expression' has the value of that name, and each identity it
+    quotes is one."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for name, val in sides.items():
+                m = re.fullmatch(rf"(?:.*: )?{name} = ([^,]+?)\.?", st) if ": " in st else None
+                if m:
+                    need(E11PI_same(E11PI_read(m.group(1)), val), f"{sol['name']}: {st!r} has the wrong value")
+            # Only a step's own reason: an answer may run on to "= RHS".
+            why = st.split(": ")[0] if not st.startswith("So ") else ""
+            for m in re.finditer(r"((?:sin|cos|tan) \d*[xθ]) = ([^:,]*?(?:sin|cos)[^:,]*?)(?= and |$|\.$|,)", why):
+                need(E11PI_same(E11PI_read(m.group(1)), E11PI_read(m.group(2))), f"{sol['name']}: {m.group(0)!r} is no identity")
+
+
+def E11PI_chain_step(q, g, lhs, proof):
+    for no, body in proof:
+        if body != "?":
+            need(E11PI_same(E11PI_read(body), lhs), f"line {no} is not the left side: {body}")
+
+
+def E11PI_value(e, t):
+    """e at x = tπ, exact."""
+    return sp.nsimplify(sp.simplify(e.subs(E11PI_X, t * sp.pi)))
+
+
+def E11PI_float(e, x0):
+    return sp.N(e.subs(E11PI_X, x0), 40)
+
+
+def E11PI_range(lhs):
+    """The least and greatest of e, over a grid that holds every turning point of these shapes."""
+    f = sp.lambdify(E11PI_X, lhs, "math")
+    vals = [f(i * math.pi / 96) for i in range(192)]
+    return min(vals), max(vals)
+
+
+def E11PI_check(q):
+    g, u, rep, angle = q["given"], q["view"]["unknown"], q["view"]["rep"], q["view"]["angle"]
+    need(q["paper"] == 1, f"paper {q['paper']}: every bank part is Paper 1")
+    lhs, rhs, slips = E11PI_model(g)
+    fam, letter = g["fam"], g["letter"]
+    every = q["lines"] + [q["asked"]] + [o["text"] for o in q["choices"]] + [st for sol in q["solutions"] for st in sol["steps"]]
+    for tx in every:
+        need(not re.search(r"\b(sec|cosec|cot)\b", tx), f"an HL ratio in {tx!r}")
+        need(not re.search(r"(?<!\d)3[xθ]", tx), f"a triple angle in {tx!r}")
+    if u == "simplified-result":
+        E11PI_left(q, g, rep, lhs)
+        need(E11PI_same(E11PI_form(q), lhs), "the slots don't make the expression")
+        need(q["asked"].startswith("Write L in the form "), f"can't read {q['asked']!r}")
+        E11PI_options(q, "L = ", rhs, slips)
+        E11PI_steps(q, {"L": lhs})
+    elif u == "next-line":
+        E11PI_claim(q, g, lhs, rhs)
+        left_text = re.fullmatch(r"Prove that (.+?) ≡ .+", q["lines"][0]).group(1)
+        right_text = re.fullmatch(r"Prove that .+? ≡ (.+?)(?:, where both sides are defined)?\.", q["lines"][0]).group(1)
+        shown = E11PI_proof(q, lhs)
+        need(len(shown) == int(g["at"]), "the proof stops at the wrong line")
+        E11PI_chain_step(q, g, lhs, shown)
+        for o in q["choices"]:
+            t = o["text"]
+            if o["ref"] == E11PI_BOTH:
+                need(t == f"{left_text} − ({right_text}) = 0", f"can't read {t!r}")
+                continue
+            need(t.startswith("= "), f"can't read {t!r}")
+            v = E11PI_read(t[2:])
+            need(E11PI_same(v, lhs) == o["correct"], f"the line {t!r} is marked {o['correct']}")
+            if o["correct"]:
+                need(t[2:] not in [b for _, b in shown], f"{t!r} is a line already there")
+            else:
+                E11PI_tagged(o, v, slips)
+        E11PI_shared(q, q["answer_text"])
+        E11PI_steps(q, {"LHS": lhs})
+    elif u == "missing-line":
+        _, right_text = E11PI_claim(q, g, lhs, rhs)
+        shown = E11PI_proof(q, lhs)
+        hide = int(g["hide"])
+        need(0 < hide < len(shown) - 1, "the hidden line is the first or the last")
+        for no, body in shown:
+            need((body == "?") == (no == hide + 1), f"line {no} is {body!r}")
+        E11PI_chain_step(q, g, lhs, shown)
+        need(shown[-1][1] == right_text, f"the proof ends on {shown[-1][1]!r}, not the right side")
+        E11PI_options(q, f"Line {hide + 1}: ", lhs, slips)
+        E11PI_steps(q, {"LHS": lhs})
+    elif u == "flawed-line":
+        E11PI_claim(q, g, lhs, rhs)
+        need(q["lines"][1] == "A student's proof has one slip, carried down to the end:", f"can't read {q['lines'][1]!r}")
+        shown = E11PI_proof(q, lhs)
+        # The first line that isn't the left side, found here.
+        bad = [no for no, body in shown if not E11PI_same(E11PI_read(body), lhs)]
+        need(bad, "every line of the proof is right")
+        first = bad[0]
+        need(all(no in bad for no, _ in shown if no > first), "a later line goes back to being right")
+        ref = [r for r, es in slips.items() if any(E11PI_same(E11PI_read(dict(shown)[first]), e) for e in es)]
+        need(ref, f"line {first} is no slip the type names: {dict(shown)[first]}")
+        need(g["slip"] in ref, "the situation names another slip")
+        need(int(g["at"]) == first - 1, "the situation names another line")
+        for o in q["choices"]:
+            m = re.fullmatch(r"Line (\d+) should read: (.+)", o["text"])
+            need(m, f"can't read {o['text']!r}")
+            no, v = int(m.group(1)), E11PI_read(m.group(2))
+            need((no == first and E11PI_same(v, lhs)) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
+            if not o["correct"]:
+                E11PI_tagged(o, v, slips)
+        E11PI_shared(q, q["answer_text"])
+        E11PI_steps(q, {"LHS": lhs})
+    elif u == "valid-argument":
+        _, right_text = E11PI_claim(q, g, lhs, rhs)
+        m = re.fullmatch(r"LHS = (.+?) = (.+?) = RHS, so LHS ≡ RHS\.", q["answer_text"])
+        need(m, f"can't read {q['answer_text']!r}")
+        need(E11PI_same(E11PI_read(m.group(1)), lhs) and m.group(2) == right_text, "the proof doesn't run from the left side to the right")
+        need(sorted(o["ref"] for o in q["choices"]) == sorted(["", E11PI_BOTH, E11PI_VALUES, E11PI_NO_END]), "the options are not the three false proofs")
+        for o in q["choices"]:
+            t = o["text"]
+            if o["ref"] == E11PI_BOTH:
+                need(t == "Assume LHS ≡ RHS. Take the RHS from both sides: 0 = 0, so LHS ≡ RHS.", f"can't read {t!r}")
+            elif o["ref"] == E11PI_VALUES:
+                r = re.fullmatch(rf"At {letter} = π/(\d+) both sides equal (.+), so LHS ≡ RHS\.", t)
+                need(r, f"can't read {t!r}")
+                x0 = sp.pi / int(r.group(1))
+                val = E11PI_exact(r.group(2))
+                need(abs(E11PI_float(lhs, x0) - sp.N(val, 40)) < sp.Float("1e-30") and abs(E11PI_float(rhs, x0) - sp.N(val, 40)) < sp.Float("1e-30"), f"{t!r}: the value is not the sides'")
+            elif o["ref"] == E11PI_NO_END:
+                need(t == f"LHS = {m.group(1)}", f"{t!r} is not the proof stopped early")
+                need(not E11PI_same(E11PI_read(m.group(1)), rhs) or m.group(1) != right_text, "it reached the right side")
+        E11PI_shared(q, q["answer_text"])
+        E11PI_steps(q, {"LHS": lhs})
+    elif u == "start-side":
+        swap = bool(g["swap"])
+        a_text, b_text = E11PI_claim(q, g, lhs, rhs, swap)
+        count = lambda t: len(re.findall(r"sin|cos|tan", t))
+        need(count(a_text) != count(b_text), "neither side is busier")
+        side, rest = ("left", "right") if count(a_text) > count(b_text) else ("right", "left")
+        want = {"": f"Start from the {side} side: it is the busier one, so there is more to rewrite.",
+                E11PI_SIMPLE: f"Start from the {rest} side: it is the shorter one, so there is less to write.",
+                E11PI_BOTH: "Work on both sides at once until they match."}
+        for o in q["choices"]:
+            if o["ref"] == E11PI_VALUES:
+                need(re.fullmatch(rf"Put {letter} = π/\d+ into both sides and compare them\.", o["text"]), f"can't read {o['text']!r}")
+            else:
+                need(o["text"] == want[o["ref"]], f"the option {o['text']!r} is not the checker's")
+        E11PI_shared(q, want[""])
+    elif u == "true-identity":
+        for o in q["choices"]:
+            m = re.fullmatch(r"(.+) ≡ (.+)", o["text"])
+            need(m, f"can't read {o['text']!r}")
+            need(E11PI_same(E11PI_read(m.group(1)), lhs), "another left side")
+            v = E11PI_read(m.group(2))
+            need(E11PI_same(v, lhs) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
+            if not o["correct"]:
+                E11PI_tagged(o, v, slips)
+        E11PI_shared(q, q["answer_text"])
+        E11PI_steps(q, {"L": lhs})
+    elif u == "cos2-form":
+        m = re.fullmatch(r"L = (.+)", q["lines"][0])
+        need(m and E11PI_same(E11PI_read(m.group(1)), lhs), f"can't read {q['lines'][0]!r}")
+        d = 2 * int(g["w"])
+        cd = sp.cos(d * E11PI_X)
+        sg = -1 if fam == "half-tan" or (fam != "half-tan-plus" and g["base"] == "sin") else 1
+        need(q["asked"] == f"Which form of cos {'' if d == 1 else d}{letter} makes the 1 cancel?", f"can't read {q['asked']!r}")
+        s_, c_ = sp.Symbol("s"), sp.Symbol("c")
+        w = int(g["w"])
+        for o in q["choices"]:
+            r = re.fullmatch(rf"cos {d}{letter} = (.+)", o["text"])
+            need(r, f"can't read {o['text']!r}")
+            v = E11PI_read(r.group(1))
+            true = E11PI_same(v, cd)
+            # What 1 ± the form leaves, in sin and cos: a constant term is a 1 that did not cancel.
+            left_over = sp.expand(1 + sg * v.subs({sp.sin(w * E11PI_X): s_, sp.cos(w * E11PI_X): c_}))
+            cancels = left_over.subs({s_: 0, c_: 0}) == 0
+            need((true and cancels) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
+            if o["ref"] == E11PI_KEEP:
+                need(true and not cancels, f"{o['text']!r} is not a true form that keeps the 1")
+            elif o["ref"] == E11PI_FORM:
+                need(not true and E11PI_same(v, -cd), f"{o['text']!r} is not the form with its signs swapped")
+            else:
+                need(o["correct"], "an option with no slip")
+        E11PI_shared(q, q["answer_text"])
+    elif u == "half-form":
+        k, w = int(g["k"]), int(g["w"])
+        base = "sin" if fam == "half-tan" else "cos"
+        sg = -1 if base == "sin" else 1
+        m = re.fullmatch(r"L = (.+)", q["lines"][0])
+        need(m, f"can't read {q['lines'][0]!r}")
+        e = E11PI_read(m.group(1))
+        cd = sp.cos(2 * w * E11PI_X)
+        need(E11PI_same(e, k * (1 + sg * cd)), "the expression shown is another one")
+        f = {"sin": sp.sin, "cos": sp.cos}
+        other = "cos" if base == "sin" else "sin"
+        half = {E11PI_ARG: [2 * k * f[base](2 * w * E11PI_X)**2], E11PI_COEF: [k * f[base](w * E11PI_X)**2], E11PI_FORM: [2 * k * f[other](w * E11PI_X)**2]}
+        if base == "sin":
+            half[E11PI_SIGN] = [-2 * k * f[base](w * E11PI_X)**2]
+        need(E11PI_same(E11PI_form(q), e), "the slots don't make the expression")
+        E11PI_options(q, "L = ", e, half)
+        E11PI_steps(q, {"L": e})
+    elif u == "sin2-multiple":
+        n, w = int(g["n"]), int(g["w"])
+        a = sp.Rational(lhs.subs(E11PI_X, sp.pi / (4 * w)) / sp.sin(sp.pi / 2))
+        need(E11PI_same(lhs, a * sp.sin(2 * w * E11PI_X)), "no multiple of the double angle")
+        line = q["lines"][0]
+        if rep == "words":
+            r = re.fullmatch(rf"(\d+) times the product of sin {w if w > 1 else ''}{letter} and cos {w if w > 1 else ''}{letter} is a times sin {2 * w}{letter}, for every {letter}\.", line)
+            need(r and int(r.group(1)) == n, f"can't read {line!r}")
+        else:
+            r = re.fullmatch(rf"(.+) ≡ a sin {2 * w}{letter}", line)
+            need(r and E11PI_same(E11PI_read(r.group(1)), lhs), f"can't read {line!r}")
+        E11PI_numbers(q, "a = ", a, {E11PI_COEF: [sp.Integer(n)]})
+    elif u == "cancel-fraction":
+        E11PI_left(q, g, rep, lhs)
+        need(E11PI_same(E11PI_form(q), lhs), "the slots don't make the expression")
+        E11PI_options(q, "L = ", rhs, slips)
+        E11PI_steps(q, {"L": lhs})
+    elif u == "factor-structure":
+        E11PI_left(q, g, rep, lhs)
+        for o in q["choices"]:
+            need(o["text"].startswith("L = "), f"can't read {o['text']!r}")
+            body = o["text"][4:]
+            v = E11PI_read(body)
+            need(E11PI_same(v, lhs) == o["correct"], f"the option {o['text']!r} is marked {o['correct']}")
+            if o["correct"]:
+                need(bool(re.search(r"\)\(|\)²|[²⁴][xθ\d]+\(", body)) or fam == "quartic-sin", f"{body!r} is not factorised")
+            else:
+                E11PI_tagged(o, v, slips)
+        E11PI_shared(q, q["answer_text"])
+    elif u == "identity-value":
+        E11PI_left(q, g, rep, lhs)
+        m = re.fullmatch(r"It has been proved that L ≡ (.+)\.", q["lines"][1])
+        need(m and E11PI_same(E11PI_read(m.group(1)), lhs), f"can't read {q['lines'][1]!r}")
+        r = re.fullmatch(rf"Find the exact value of L when {letter} = (\d*)π(?:/(\d+))?\.", q["asked"])
+        need(r, f"can't read {q['asked']!r}")
+        t = sp.Rational(int(r.group(1) or 1), int(r.group(2) or 1))
+        need(t == sp.Rational(g["t"]) and t in (sp.Rational(1, 6), sp.Rational(1, 4), sp.Rational(1, 3), sp.Rational(2, 3), sp.Rational(3, 4), sp.Rational(5, 6)), f"t = {t}")
+        want = E11PI_value(rhs, t)
+        need(want != 0, "the value is zero")
+        need(abs(E11PI_float(lhs, t * sp.pi) - sp.N(want, 40)) < sp.Float("1e-30"), "the first form has another value there")
+        # With the multiple left out, the angle is just the x given.
+        plain = rhs.replace(lambda e: isinstance(e, (sp.sin, sp.cos, sp.tan)), lambda e: e.func(E11PI_X))
+        E11PI_numbers(q, "L = ", want, {E11PI_AT: [E11PI_value(plain, t)]})
+    elif u == "value-from-ratio":
+        E11PI_left(q, g, rep, lhs)
+        w = int(g["w"])
+        r = re.fullmatch(rf"(tan|sin|cos) (\d*){letter} = (−?\d+(?:/\d+)?)\.", q["lines"][1])
+        need(r, f"can't read {q['lines'][1]!r}")
+        fn, n, val = r.group(1), int(r.group(2) or 1), sp.Rational(r.group(3).replace("−", "-"))
+        need(val == sp.Rational(g["r"]), "the ratio given is another")
+        need(n == (w if fn == "tan" else 2 * w), f"the angle in {q['lines'][1]!r}")
+        need(fn == "tan" or abs(val) < 1, f"no angle has that ratio: {val}")
+        x0 = {"tan": sp.atan, "sin": sp.asin, "cos": sp.acos}[fn](val) / n
+        want = sp.nsimplify(E11PI_float(lhs, x0), rational=True, tolerance=sp.Float("1e-25"))
+        need(abs(sp.N(want, 40) - E11PI_float(rhs, x0)) < sp.Float("1e-30"), "the two sides differ")
+        wrongs = {ref: [E11PI_float(e, x0) for e in es] for ref, es in slips.items()}
+        E11PI_numbers(q, "L = ", want, wrongs)
+    elif u == "greatest-value":
+        c = int(g["c"])
+        top = g["want"] == "greatest"
+        if rep == "words":
+            shown = E11PI_words(q, g)
+            need(E11PI_same(shown, lhs), "the sentence is another statement")
+            r = re.fullmatch(rf"f\({letter}\) is L(?: (plus|minus) (\d+))?\.", q["lines"][1])
+            need(r and int(r.group(2) or 0) * (-1 if r.group(1) == "minus" else 1) == c, f"can't read {q['lines'][1]!r}")
+        else:
+            r = re.fullmatch(rf"f\({letter}\) = (.+?)(?: ([−+]) (\d+))?", q["lines"][0])
+            need(r, f"can't read {q['lines'][0]!r}")
+            need(E11PI_same(E11PI_read(r.group(1)), lhs), "the function shown is another one")
+            need(int(r.group(3) or 0) * (-1 if r.group(2) == "−" else 1) == c, f"can't read {q['lines'][0]!r}")
+        lo, hi = E11PI_range(lhs)
+        want = sp.nsimplify((hi if top else lo) * 2, rational=True, tolerance=1e-9) / 2 + c
+        wrongs = {}
+        if fam == "square":
+            wrongs[E11PI_EXT] = [sp.Integer(int(g["k"]) + c)]
+        elif fam == "product":
+            wrongs[E11PI_PRE] = [sp.Integer(int(g["n"]) + c)]
+        elif fam in ("double-twice", "quartic-sin"):
+            wrongs[E11PI_PRE] = [sp.Integer(4 * int(g["k"]) + c)]
+        E11PI_numbers(q, f"{g['want']} value = ", want, wrongs)
+        tail = q["solutions"][0]["steps"][1]
+        rr = re.search(r"run from (.+?) to (.+?), with", tail)
+        need(rr and E11PI_exact(rr.group(1)) == sp.nsimplify(lo * 2, rational=True, tolerance=1e-9) / 2 + c and E11PI_exact(rr.group(2)) == sp.nsimplify(hi * 2, rational=True, tolerance=1e-9) / 2 + c, f"can't confirm {tail!r}")
+    elif u == "common-expression":
+        k = int(g["k"])
+        _, shown_right = E11PI_claim(q, g, lhs, rhs)
+        need(E11PI_same(E11PI_read(shown_right), rhs), "the right side is another expression")
+        need(len(re.findall("cos|sin", shown_right)) >= 1 and "²" in shown_right, "the right side is simple already")
+        need(E11PI_same(E11PI_form(q), rhs), "the slots don't make the expression")
+        E11PI_options(q, "", rhs, slips)
+        E11PI_steps(q, {"LHS": lhs, "RHS": rhs})
+    else:
+        need(False, f"no check for {u}")
+    return None, None
+
+
+# ── end prove-identity ──
+
+
 # ── trig-quadratic (t3-trig-quadratic, FAL-753) ──────────────────────────
 # The `trig-quadratic` situation's checker. It reads the equation and the interval back from the
 # stem, as SymPy, and solves it itself. Every sine and cosine goes to a point (S, C) on the circle:
@@ -36025,7 +36031,6 @@ def E11TQ_check(q):
 
 # ── end trig-quadratic ──
 
-# ── end prove-identity ──
 
 # ── circular-motion (t3-circular-motion, FAL-753) ────────────────────────
 # The `circular-motion` situation's clean limits, the checker's own copy: the engine's is in
@@ -36426,6 +36431,7 @@ def E11CM_check(q):
 
 
 # ── end circular-motion ──
+
 
 SITUATION_CHECKS = {"circular-motion": E11CM_entry, "prove-identity": E11PI_check, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "log-exp-form": E11LF_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,

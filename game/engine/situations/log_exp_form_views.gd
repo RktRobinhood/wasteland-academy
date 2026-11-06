@@ -536,7 +536,8 @@ func u_power_of_log(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var ans := exact_ans("", s.val)
 	var w_list: Array = []
 	w_list.append(DifferentiationViews.alt(N(x) + "e", R_TIMES_BASE) if b == 0 else wv("", x.mul(Q.new(b)), R_TIMES_BASE))
-	w_list.append(DifferentiationViews.alt(pw(b, x), R_LEFT_RAISED))
+	var dropped: Q = x.mul(Q.new({"plain": 1, "minus": -1, "times": s.get("k", 1)}[s.shape]))
+	w_list.append(DifferentiationViews.alt(pw(b, dropped), R_LEFT_RAISED))
 	var steps: Array = ["A power and a log of the same base undo each other: a^(log_a x) = x."]
 	match s.shape:
 		"plain":
