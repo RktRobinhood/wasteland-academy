@@ -21882,6 +21882,488 @@ def np_check(q):
     return None, None
 
 
+# ── inverse-normal (t4-inverse-normal, FAL-752) ──────────────
+# The `inverse-normal` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/inverse_normal.gd. Everything is read back from what the student sees:
+# μ and σ from the first line, the area from a line or the story, its side from the words or the
+# shading. A value comes from the checker's own inverse (erfinv at 40 digits, put back through
+# erfc), Paper 1's with exact rationals, each tagged option is worked out from its slip, and each
+# invNorm, normalcdf and plain sum in the working is done again.
+
+E10IN_S, E10IN_T = "SL4.9.inverse-normal#", "t4-inverse-normal#"
+E10IN_P1 = ("shift-same-sd", "mirror-bound", "rule-value", "given-z")
+E10IN_N = NU_NUM
+E10IN_Z_MIN, E10IN_TAIL_MAX = sp.Rational(3, 10), sp.Rational(38, 100)
+E10IN_RULE = {1: sp.Rational(68, 100), 2: sp.Rational(95, 100), 3: sp.Rational(997, 1000)}
+E10IN_TIMES = {"twice": 2, "three times": 3, "four times": 4}
+E10IN_STORY = [("grain sack", "grain sacks", "mass", "masses", "heaviest", "lightest"),
+               ("copper pipe", "copper pipes", "length", "lengths", "longest", "shortest"),
+               ("crossing", "crossings", "time", "times", "slowest", "fastest"),
+               ("filled can", "filled cans", "volume of water", "volumes of water", "fullest", "least full"),
+               ("fence post", "fence posts", "height", "heights", "tallest", "shortest"),
+               ("lamp battery", "lamp batteries", "lifetime", "lifetimes", "longest-lasting", "shortest-lived"),
+               ("patrol", "patrols", "daily distance", "daily distances", "longest", "shortest"),
+               ("engine part", "engine parts", "mass", "masses", "heaviest", "lightest")]
+E10IN_CALL = re.compile(rf"(invNorm|normalcdf)\(((?:−10\^99, )?{E10IN_N}), ({E10IN_N}), ({E10IN_N})\) = ({E10IN_N})")
+E10IN_SIDE = re.compile(r"so (\w) is (above|below) the mean")
+
+
+def e10in_inv(p):
+    """The checker's own inverse normal: z with Φ(z) = p, put back through Φ."""
+    with mpmath.workdps(40):
+        p = mpmath.mpf(p.p) / p.q if isinstance(p, sp.Rational) else mpmath.mpf(p)
+        need(0 < p < 1, f"no z for an area of {p}")
+        z = mpmath.sqrt(2) * mpmath.erfinv(2 * p - 1)
+        need(abs(nu_phi(z) - p) < mpmath.mpf("1e-30"), "the inverse does not give the area back")
+        return z
+
+
+def e10in_txt(label, x, unit=""):
+    return label + rg_s(nu_f(x)) + unit
+
+
+def e10in_trap(label, x, unit=""):
+    t = bn_trap(label, nu_f(x))
+    return t + unit if t else None
+
+
+def e10in_story(q):
+    i = int(q["given"]["ctx"])
+    what, unit = NU_CONTEXTS[i]
+    return (what, unit) + E10IN_STORY[i]
+
+
+def e10in_model(q):
+    """μ and σ as rationals, from the first line."""
+    line = q["lines"][0]
+    mt = re.fullmatch(rf"X ~ N\(({E10IN_N}), ({E10IN_N})²\)", line)
+    if mt:
+        return nu_val(mt.group(1)), nu_val(mt.group(2))
+    what, unit = e10in_story(q)[:2]
+    mt = re.fullmatch(rf"{re.escape(what)} are normally distributed with mean ({E10IN_N}){unit} and standard deviation ({E10IN_N}){unit}\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return nu_val(mt.group(1)), nu_val(mt.group(2))
+
+
+def e10in_curve(q, mu, sg):
+    """The curve drawn is X's, and its marks are the mean, a letter or two and a value."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "normal", "no normal curve")
+    need(abs(R(g["mu"]) - mu) < sp.Rational(1, 10 ** 6) and abs(R(g["sigma"]) - sg) < sp.Rational(1, 10 ** 6), "the curve is not X's")
+    labels = {m["label"]: mpmath.mpf(m["at"]) for m in g["marks"]}
+    need(dec_text(mu) in labels and abs(labels[dec_text(mu)] - np_mp(mu)) < mpmath.mpf("1e-6"), "the mean is not marked")
+    return labels
+
+
+def e10in_tail_curve(q, mu, sg, letter):
+    """The side of the one shaded tail, which starts at the letter's mark."""
+    labels = e10in_curve(q, mu, sg)
+    need(letter in labels, f"{letter} is not marked")
+    sh = q["graph"]["shade"]
+    need(len(sh) == 1, "one shaded area")
+    a, b = sh[0]
+    need((a is None) != (b is None), "a tail is shaded from an end")
+    edge = mpmath.mpf(b if a is None else a)
+    need(abs(edge - labels[letter]) < mpmath.mpf("1e-6"), "the shading does not stop at the mark")
+    return "<" if a is None else ">", labels[letter]
+
+
+def e10in_area_line(line):
+    mt = re.fullmatch(rf"The shaded area is ({E10IN_N})\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return nu_val(mt.group(1))
+
+
+def e10in_left(rel, p):
+    return p if rel == "<" else 1 - p
+
+
+def e10in_at(mu, sg, left):
+    return np_mp(mu) + e10in_inv(left) * np_mp(sg)
+
+
+def e10in_marked(mark, x):
+    need(abs(mark - x) < mpmath.mpf("1e-4"), f"the mark is at {mark}, the value is {x}")
+
+
+def e10in_working(q, mu, sg, left, x):
+    """The method's own lines: its invNorm and normalcdf, its sums and what a sketch claims."""
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    npr_steps(q)
+    for sol in q["solutions"]:
+        text = " ".join(sol["steps"])
+        need(not re.search(r"(?<![A-Za-z^])-\d", text), f"a hyphen for a minus in {text!r}")
+        first = sol["steps"][0]
+        if sol["angle"] == "sketch-tail":
+            want = "On the curve" if rep == "diagram" else "Sketch"
+            need(first.startswith(want), f"{sol['name']}: {first!r} starts wrong for this representation")
+        need(rep == "diagram" or "On the curve" not in text, f"{sol['name']}: talks about a figure the stem doesn't draw")
+        if q["paper"] == 1:
+            need(not NPR_GDC.search(text), f"{sol['name']}: a calculator on Paper 1")
+        else:
+            need("invNorm(" in text, f"{sol['name']}: no invNorm")
+            if sol["angle"] == "via-z":
+                need(re.search(rf"z = invNorm\({E10IN_N}, 0, 1\)", text) and "zσ" in text or " × " in text, f"{sol['name']}: never goes through z")
+            else:
+                need(not re.search(rf"invNorm\({E10IN_N}, 0, 1\)", text), f"{sol['name']}: not this method")
+        for mt in E10IN_CALL.finditer(text):
+            kind, a, m, s, shown = mt.groups()
+            shown = np_mp(nu_val(shown))
+            need((nu_val(m), nu_val(s)) in ((mu, sg), (sp.Integer(0), sp.Integer(1))), f"{mt.group(0)}: not X's parameters")
+            M, S = np_mp(nu_val(m)), np_mp(nu_val(s))
+            if kind == "invNorm":
+                area = nu_val(a)
+                need(abs(np_mp(area) - left) <= left * mpmath.mpf("1e-4"), f"{mt.group(0)}: the area is not the left area {left}")
+                got = M + e10in_inv(area) * S
+            else:
+                need(a.startswith("−10^99, "), f"{mt.group(0)}: not a left area")
+                got = nu_phi((np_mp(nu_val(a.split(", ")[1])) - M) / S)
+            scale = mpmath.mpf(10) ** (mpmath.floor(mpmath.log10(abs(got))) - 5)
+            need(abs(got - shown) <= 3 * scale, f"{mt.group(0)}: it is really {got}")
+        for mt in E10IN_SIDE.finditer(text):
+            letter, word = mt.groups()
+            if u in ("central-bounds", "ratio-tails") and letter in "ab":
+                continue
+            need((x > np_mp(mu)) == (word == "above"), f"{sol['name']}: {mt.group(0)!r} is false for {x}")
+
+
+def e10in_plain(q, mu, sg):
+    """(rel, p, left, label, unit, near ref): the unknowns with one left area."""
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    what, unit, item, items, attr, attrs, top, bottom = e10in_story(q)
+    mark = None
+    near = E10IN_S + "0"
+    label, tail = "a = ", ""
+    if u in ("value-below", "value-above", "most-above"):
+        if rep == "diagram":
+            need(L[0].startswith("X ~ N"), f"{L[0]!r}")
+            p = e10in_area_line(L[1])
+            rel, mark = e10in_tail_curve(q, mu, sg, "a")
+        elif rep == "equation":
+            mt = re.fullmatch(rf"P\(X ([<>]) a\) = ({E10IN_N})", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            rel, p = mt.group(1), nu_val(mt.group(2))
+        else:
+            mt = re.fullmatch(rf"({E10IN_N})% of the {items} have a {attr} above a{unit}\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            rel, p = ">", nu_val(mt.group(1)) / 100
+        need(asked == "Find a.", f"{asked!r}")
+        need(rel == ("<" if u == "value-below" else ">"), f"{u} with {rel}")
+        if u == "value-below":
+            near = E10IN_T + "3"
+        elif u == "value-above":
+            need(p <= E10IN_TAIL_MAX, f"the tail {p} holds the mean")
+        else:
+            need(p >= 1 - E10IN_TAIL_MAX, f"{p} is not most of the area")
+    elif u in ("top-percent", "bottom-percent"):
+        end = "top" if u == "top-percent" else "bottom"
+        rel = ">" if end == "top" else "<"
+        an_item = ("an " if item[0] in "aeiou" else "a ") + item
+        need(asked == f"Find the {'least' if end == 'top' else 'greatest'} {attr} of {an_item} that is set aside.", f"{asked!r}")
+        if rep == "diagram":
+            mt = re.fullmatch(rf"The shaded region is the ({E10IN_N})% of the {items} that are set aside\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            side, mark = e10in_tail_curve(q, mu, sg, "a")
+            need(side == rel, "the shading is on the wrong side")
+        else:
+            mt = re.fullmatch(rf"The {end} ({E10IN_N})% of the {items}, the {top if end == 'top' else bottom}, are set aside\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+        p = nu_val(mt.group(1)) / 100
+        need(p <= E10IN_TAIL_MAX, f"the {end} {p} holds the mean")
+        label, tail = attr + " = ", unit
+        near = E10IN_S + "0" if end == "top" else E10IN_T + "3"
+    elif u == "quartile":
+        if rep == "diagram":
+            need(asked == "Q is a quartile of X. Find Q.", f"{asked!r}")
+            p = e10in_area_line(L[1])
+            rel, mark = e10in_tail_curve(q, mu, sg, "Q")
+            need(p in (sp.Rational(1, 4), sp.Rational(3, 4)), f"{p} is no quartile's area")
+            left = e10in_left(rel, p)
+            label = "Q = "
+        else:
+            mt = re.fullmatch(rf"Find the (upper|lower) quartile of {'X' if rep == 'equation' else 'the ' + attrs}\.", asked)
+            need(mt is not None, f"{asked!r}")
+            left = sp.Rational(3, 4) if mt.group(1) == "upper" else sp.Rational(1, 4)
+            rel, p = "<", left
+            label, tail = mt.group(1) + " quartile = ", unit if rep == "words" else ""
+    else:
+        mt = re.search(rf"(\d+)(st|nd|rd|th) percentile of the {attrs}", asked if rep == "words" else L[1])
+        need(mt is not None, f"can't read the percentile in {asked!r}")
+        n = int(mt.group(1))
+        need(mt.group(2) == ({1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th") if not 11 <= n % 100 <= 13 else "th"), f"{mt.group(0)!r}")
+        p, rel = sp.Rational(n, 100), "<"
+        if rep == "diagram":
+            need(asked == "Find a.", f"{asked!r}")
+            side, mark = e10in_tail_curve(q, mu, sg, "a")
+            need(side == "<", "a percentile is the area to its left")
+        else:
+            label, tail = attr + " = ", unit
+        near = E10IN_T + "3"
+    left = e10in_left(rel, p)
+    return rel, p, left, label, tail, near, mark
+
+
+def e10in_paper2(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    mu, sg = e10in_model(q)
+    need(sg <= mu / 4, f"σ = {sg} is too large for a measure")
+    M, S = np_mp(mu), np_mp(sg)
+    what, unit, item, items, attr, attrs, top, bottom = e10in_story(q)
+    far = E10IN_T + "4"
+    if u == "central-bounds":
+        if rep == "words":
+            mt = re.fullmatch(rf"The middle ({E10IN_N})% of the {items} lie between a{unit} and b{unit}, with the mean halfway between them\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            c = nu_val(mt.group(1)) / 100
+        elif rep == "equation":
+            mt = re.fullmatch(rf"P\(a < X < b\) = ({E10IN_N}), and a and b are the same distance from the mean\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            c = nu_val(mt.group(1))
+        else:
+            mt = re.fullmatch(rf"The shaded area is ({E10IN_N}), and a and b are the same distance from the mean\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            c = nu_val(mt.group(1))
+            nu_shaded(q, np_mp(c))
+        left = (1 + c) / 2
+        z = e10in_inv(left)
+        zc = e10in_inv(c)
+        x = M + z * S
+        if rep == "diagram":
+            labels = e10in_curve(q, mu, sg)
+            e10in_marked(labels["a"], M - z * S)
+            e10in_marked(labels["b"], x)
+        need(zc > mpmath.mpf("0.15"), "the central area must give a value")
+        ends = lambda a, b: f"a = {rg_s(nu_f(a))}, b = {rg_s(nu_f(b))}"
+        need(all(nu_clear(v) for v in (M - z * S, x, M - zc * S, M + zc * S, M - z, M + z)), "a value is on a rounding edge")
+        gc_check_common(q, ends(M - z * S, x), {E10IN_T + "5": {ends(M - zc * S, M + zc * S)}, far: {ends(M - z, M + z)}, E10IN_S + "1": {ends(-z, z)}})
+        e10in_working(q, mu, sg, left, x)
+        return
+    if u == "band-end":
+        if rep == "words":
+            mt = re.fullmatch(rf"({E10IN_N})% of the {items} have a {attr} between (w|{E10IN_N}){unit} and (w|{E10IN_N}){unit}\.", L[1])
+        elif rep == "equation":
+            mt = re.fullmatch(rf"P\((w|{E10IN_N}) < X < (w|{E10IN_N})\) = ({E10IN_N})", L[1])
+        else:
+            mt = None
+        if rep == "diagram":
+            c = e10in_area_line(L[1])
+            labels = e10in_curve(q, mu, sg)
+            need("w" in labels, "w is not marked")
+            others = [k for k in labels if k not in ("w", dec_text(mu))]
+            need(len(others) == 1, f"marks {labels}")
+            b = nu_val(others[0])
+            lower = labels["w"] < np_mp(b)
+            lo, hi = q["graph"]["shade"][0]
+            e10in_marked(mpmath.mpf(lo if lower else hi), labels["w"])
+            e10in_marked(mpmath.mpf(hi if lower else lo), np_mp(b))
+        else:
+            need(mt is not None, f"can't read {L[1]!r}")
+            first, second, c = (mt.group(2), mt.group(3), nu_val(mt.group(1)) / 100) if rep == "words" else (mt.group(1), mt.group(2), nu_val(mt.group(3)))
+            need((first == "w") != (second == "w"), f"{L[1]!r}")
+            lower = first == "w"
+            b = nu_val(second if lower else first)
+        need(asked == "Find w.", f"{asked!r}")
+        below = nu_phi((np_mp(b) - M) / S)
+        C = np_mp(c)
+        left = below - C if lower else below + C
+        x = M + e10in_inv(left) * S
+        if rep == "diagram":
+            e10in_marked(labels["w"], x)
+        need((x < np_mp(b)) == lower, "w is on the wrong side of the known end")
+        need(abs(x - np_mp(b)) >= S / 2, "w is too close to the known end")
+        to_end = e10in_at(mu, sg, 1 - c) if lower else e10in_at(mu, sg, c)
+        half = (1 - c) / 2
+        equal = e10in_at(mu, sg, half) if lower else e10in_at(mu, sg, 1 - half)
+        need(all(nu_clear(v) for v in (x, to_end, equal, below, left)), "a value is on a rounding edge")
+        gc_check_common(q, e10in_txt("w = ", x), {E10IN_T + "6": {e10in_txt("w = ", to_end)}, E10IN_T + "7": {e10in_txt("w = ", equal)}}, e10in_trap("w = ", x))
+        e10in_working(q, mu, sg, left, x)
+        return
+    if u == "ratio-tails":
+        mt = re.fullmatch(r"Find (a|b)\.", asked)
+        need(mt is not None, f"{asked!r}")
+        which = mt.group(1)
+        if rep == "words":
+            mc = re.fullmatch(rf"({E10IN_N})% of the {items} have a {attr} between a{unit} and b{unit}\.", L[1])
+            need(mc is not None, f"can't read {L[1]!r}")
+            c = nu_val(mc.group(1)) / 100
+            ml = re.fullmatch(rf"The share (above b|below a){unit} is (twice|three times|four times) the share (above b|below a){unit}\.", L[2])
+            need(ml is not None and ml.group(1) != ml.group(3), f"can't read {L[2]!r}")
+            r, big = E10IN_TIMES[ml.group(2)], ml.group(1)[-1]
+        else:
+            if rep == "equation":
+                mc = re.fullmatch(rf"P\(a < X < b\) = ({E10IN_N})", L[1])
+                need(mc is not None, f"can't read {L[1]!r}")
+                c = nu_val(mc.group(1))
+            else:
+                c = e10in_area_line(L[1])
+                nu_shaded(q, np_mp(c))
+            ml = re.fullmatch(r"P\(X ([<>]) ([ab])\) = (\d)P\(X ([<>]) ([ab])\)", L[2])
+            need(ml is not None, f"can't read {L[2]!r}")
+            need((ml.group(1), ml.group(2), ml.group(4), ml.group(5)) in ((">", "b", "<", "a"), ("<", "a", ">", "b")), f"{L[2]!r}")
+            r, big = int(ml.group(3)), ml.group(2)
+        rest = 1 - c
+        small = rest / (r + 1)
+        large = r * small
+        ta, tb = (large, small) if big == "a" else (small, large)
+        xa, xb = e10in_at(mu, sg, ta), e10in_at(mu, sg, 1 - tb)
+        need(abs(nu_phi((xa - M) / S) - nu_phi((xb - M) / S) + np_mp(c)) < mpmath.mpf("1e-25"), "the band's area")
+        need(c >= sp.Rational(1, 2), f"a band of {c}")
+        if rep == "diagram":
+            labels = e10in_curve(q, mu, sg)
+            e10in_marked(labels["a"], xa)
+            e10in_marked(labels["b"], xb)
+        left = ta if which == "a" else 1 - tb
+        x = xa if which == "a" else xb
+        equal = e10in_at(mu, sg, rest / 2) if which == "a" else e10in_at(mu, sg, 1 - rest / 2)
+        swap = e10in_at(mu, sg, tb) if which == "a" else e10in_at(mu, sg, 1 - ta)
+        other = xb if which == "a" else xa
+        f = lambda v: e10in_txt(which + " = ", v)
+        need(all(nu_clear(v) for v in (x, equal, swap, xa, xb)), "a value is on a rounding edge")
+        gc_check_common(q, f(x), {E10IN_T + "7": {f(equal)}, E10IN_T + "8": {f(swap)}, E10IN_T + "9": {f(other)}}, e10in_trap(which + " = ", x))
+        e10in_working(q, mu, sg, left, x)
+        return
+    rel, p, left, label, tail, near, mark = e10in_plain(q, mu, sg)
+    z = e10in_inv(left)
+    need(abs(z) >= E10IN_Z_MIN, f"z = {z} is too close to the mean")
+    x, flip = M + z * S, M - z * S
+    if mark is not None:
+        e10in_marked(mark, x)
+    need(sig3(nu_f(x)) != sig3(mu), "the value reads as the mean")
+    need(all(nu_clear(v) for v in (x, flip, M + z, nu_phi(left))), "a value is on a rounding edge")
+    t = lambda v: e10in_txt(label, v, tail)
+    area = left if u == "quartile" else p
+    wrongs = {near: {t(flip)}, far: {t(M + z)}, E10IN_S + "1": {t(z), t(np_mp(area))}, E10IN_S + "2": {t(nu_phi(np_mp(left)))}}
+    gc_check_common(q, t(x), wrongs, e10in_trap(label, x, tail))
+    e10in_working(q, mu, sg, left, x)
+
+
+def e10in_paper1(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    side, far, keep, rule_k, way, dist = (E10IN_T + str(i) for i in (11, 4, 10, 14, 12, 13))
+    what, unit, item, items, attr, attrs, top, bottom = e10in_story(q)
+    need(q["graph"] is None or rep == "diagram", "a figure on another representation")
+    n = E10IN_N
+    if u == "shift-same-sd":
+        if rep == "equation":
+            mt = re.fullmatch(rf"X ~ N\(({n}), σ²\) and Y ~ N\(({n}), σ²\)", L[0])
+            ma = re.fullmatch(rf"Find b such that P\(X ([<>]) b\) = P\(Y ([<>]) ({n})\)\.", asked)
+            need(mt is not None and ma is not None, f"can't read {L} {asked!r}")
+            rx, ry, c = ma.group(1), ma.group(2), nu_val(ma.group(3))
+        else:
+            need(L[0] == f"In two groups of {items}, A and B, the {attrs} are normally distributed with the same standard deviation.", f"{L[0]!r}")
+            mt = re.fullmatch(rf"The mean is ({n}){unit} in group A and ({n}){unit} in group B\.", L[1])
+            ma = re.fullmatch(rf"The share of group A with a {attr} (above|below) b{unit} equals the share of group B with a {attr} (above|below) ({n}){unit}\. Find b\.", asked)
+            need(mt is not None and ma is not None, f"can't read {L} {asked!r}")
+            rx, ry = (">" if ma.group(i) == "above" else "<" for i in (1, 2))
+            c = nu_val(ma.group(3))
+        m1, m2 = nu_val(mt.group(1)), nu_val(mt.group(2))
+        # z is (b − m1)/σ, and equal areas make it (c − m2)/σ, or its negative on the other side.
+        sigma = sp.Symbol("sigma", positive=True)
+        b = sp.Symbol("b")
+        zy = (c - m2) / sigma
+        x = sp.solve(sp.Eq((b - m1) / sigma, zy if rx == ry else -zy), b)[0]
+        d = x - m1
+        wrongs = {side: {m1 - d}, keep: {c}, way: {c + m2 - m1}}
+        mean = m1
+    elif u == "mirror-bound":
+        if rep == "words":
+            mt = re.fullmatch(rf"{re.escape(what)} are normally distributed with mean ({n}){unit}\.", L[0])
+            ma = re.fullmatch(rf"As many of the {items} have a {attr} (above|below) a{unit} as have one (above|below) ({n}){unit}\.", L[1])
+            need(mt is not None and ma is not None and ma.group(1) != ma.group(2), f"can't read {L}")
+            c = nu_val(ma.group(3))
+            word = ma.group(1)
+        else:
+            mt = re.fullmatch(rf"X ~ N\(({n}), σ²\)", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            if rep == "equation":
+                ma = re.fullmatch(rf"P\(X ([<>]) a\) = P\(X ([<>]) ({n})\)", L[1])
+                need(ma is not None and ma.group(1) != ma.group(2), f"can't read {L[1]!r}")
+                c = nu_val(ma.group(3))
+                word = "below" if ma.group(1) == "<" else "above"
+            else:
+                need(L[1] == "The two shaded areas are equal.", f"{L[1]!r}")
+                g = q["graph"]
+                labels = {m["label"]: mpmath.mpf(m["at"]) for m in g["marks"]}
+                need("a" in labels and len(labels) == 3, f"marks {labels}")
+                c = [nu_val(k) for k in labels if k != "a" and k != mt.group(1)][0]
+                need(len(g["shade"]) == 2 and g["shade"][0][0] is None and g["shade"][1][1] is None, "two tails are shaded from the ends")
+                need(abs(np_mp(c) - mpmath.mpf(g["shade"][0][1])) < 1e-6 or abs(np_mp(c) - mpmath.mpf(g["shade"][1][0])) < 1e-6, "the tail does not stop at the value")
+                word = "below" if c > nu_val(mt.group(1)) else "above"
+        mean = nu_val(mt.group(1))
+        need((c > mean) == (word == "below"), "the two tails are on one side of the mean")
+        x = 2 * mean - c
+        if rep == "diagram":
+            e10in_marked(labels["a"], np_mp(x))
+        wrongs = {side: {2 * c - mean}, keep: {c}, dist: {abs(c - mean)}}
+    else:
+        mu, sg = e10in_model(q)
+        M = mu
+        if u == "rule-value":
+            need(asked == "Use the 68-95-99.7 rule to find a.", f"{asked!r}")
+            if rep == "equation":
+                mt = re.fullmatch(rf"P\(X ([<>]) a\) = ({n})", L[1])
+                need(mt is not None, f"can't read {L[1]!r}")
+                rel, p = mt.group(1), nu_val(mt.group(2))
+            elif rep == "words":
+                mt = re.fullmatch(rf"({n})% of the {items} have a {attr} (below|above) a{unit}\.", L[1])
+                need(mt is not None, f"can't read {L[1]!r}")
+                rel, p = "<" if mt.group(2) == "below" else ">", nu_val(mt.group(1)) / 100
+            else:
+                p = e10in_area_line(L[1])
+                rel, mark = e10in_tail_curve(q, mu, sg, "a")
+            left = e10in_left(rel, p)
+            # The band of the rule whose tail this area is, on either side.
+            hits = [k for k, b in E10IN_RULE.items() if (1 - b) / 2 in (left, 1 - left)]
+            need(len(hits) == 1, f"{p} is no tail of the rule")
+            k = hits[0]
+            s = 1 if left > sp.Rational(1, 2) else -1
+            x = mu + s * k * sg
+            other = k + 1 if k < 3 else k - 1
+            wrongs = {side: {mu - s * k * sg}, rule_k: {mu + s * other * sg}, far: {mu + s * k}}
+        else:
+            mt = re.fullmatch(rf"Z ~ N\(0, 1\) and P\(Z < ({n})\) = ({n})", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            z0, table = nu_val(mt.group(1)), nu_val(mt.group(2))
+            need(abs(np_mp(table) - nu_phi(np_mp(z0))) <= mpmath.mpf("0.0005"), f"P(Z < {z0}) is not {table}")
+            if rep == "diagram":
+                p = e10in_area_line(L[2])
+                rel, mark = e10in_tail_curve(q, mu, sg, "a")
+            else:
+                ma = re.fullmatch(rf"P\(X ([<>]) a\) = ({n})", L[2])
+                need(ma is not None, f"can't read {L[2]!r}")
+                rel, p = ma.group(1), nu_val(ma.group(2))
+            left = e10in_left(rel, p)
+            need(left in (table, 1 - table), f"{left} is not in the line given")
+            s = 1 if left == table else -1
+            x = mu + s * z0 * sg
+            wrongs = {side: {mu - s * z0 * sg}, far: {mu + s * z0}, E10IN_S + "1": {z0, table}}
+        if rep == "diagram":
+            e10in_marked(mark, np_mp(x))
+        mean = mu
+    letter = "b" if u == "shift-same-sd" else "a"
+    label = letter + " = "
+    need(x > 0, f"{x} is no measure")
+    tx = lambda v: label + dec_text(v)
+    gc_check_common(q, tx(x), {ref: {tx(v) for v in vs} for ref, vs in wrongs.items()})
+    if u in ("rule-value", "given-z"):
+        e10in_working(q, mu, sg, sp.Integer(1), np_mp(x))
+    else:
+        e10in_working(q, mean, sp.Integer(1), sp.Integer(1), np_mp(x))
+    # A sketch's claims of distance hold.
+    for sol in q["solutions"]:
+        for mt in re.finditer(r"so (a|b) is (\d+) (above|below) ", " ".join(sol["steps"])):
+            d = int(mt.group(2)) * (1 if mt.group(3) == "above" else -1)
+            need(x - mean == d, f"{sol['name']}: {mt.group(0)!r}")
+
+
+def e10in_check(q):
+    with mpmath.workdps(40):
+        need(q["paper"] == (1 if q["view"]["unknown"] in E10IN_P1 else 2), f"{q['view']['unknown']} is on the wrong paper")
+        need((q["graph"] is not None) == (q["view"]["rep"] == "diagram"), "the figure belongs to the diagram representation, and only there")
+        (e10in_paper1 if q["paper"] == 1 else e10in_paper2)(q)
+    return None, None
+
+
 # ── algebraic-proof (t1-algebraic-proof, FAL-728) ────────────
 # The `algebraic-proof` situation's clean limits and exam exclusions, the checker's own copy: the
 # engine's is in game/engine/situations/algebraic_proof.gd. Every statement is built here from
@@ -29426,6 +29908,7 @@ SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between"
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional, "independence": check_independence,
+                    "inverse-normal": e10in_check,
                     "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation, "fn-pre-substitute": check_substitute,
                     "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model,
                     "fn-pre-linear-equations": check_linear_equation, "fn-pre-simultaneous": check_simultaneous,

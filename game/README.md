@@ -272,6 +272,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   the central interval. Its 27 unknowns are exact, except a value a GDC gives, to 3 s.f. Two of
   them are `pick-the-graph`: four cards that share one window and one set of axis marks, so only
   the curves and the shading differ.
+- `engine/situations/inverse_normal.gd` (FAL-752) is `t4-inverse-normal` (SL4.9.inverse-normal), the
+  `inverse-normal` situation: normal-probability the other way round, with an area given and the value
+  that cuts it off asked for. Its views (`inverse_normal_views.gd`) extend `NormalProbabilityViews` for
+  the stories and the curve, and show X ~ N(μ, σ²), a story, or the curve with the area shaded and the
+  value marked by a letter, so the figure says which side the area is on. It asks 14 unknowns. Ten are
+  Paper 2, to 3 s.f. with the rounding trap, with every method of the map (invNorm with the left area,
+  via z, a sketch first): a with P(X < a) = p or P(X > a) = p, the top or bottom k%, a quartile, a
+  percentile, an area above a of more than a half, both ends of a central interval (typed), the other
+  end of a band, and an end of a band whose tails are in a ratio r : 1. Four are Paper 1, exact, by
+  via z or a sketch only, as the exam's one Paper 1 part reaches a value by comparing distances from
+  the mean: a second curve with the same σ, a mirror tail, a tail of the 68-95-99.7 rule, or a line of
+  N(0, 1) given. The mirror image of the answer is always offered, with one slip far from the mean, so
+  the far slips don't give the answer away together. Working from a z shown works on from that z, so
+  each number follows from the line before.
 - `engine/situations/area_between.gd` (FAL-751) is `t5-area-between-curves` (SL5.11), the `area-between`
   situation: two curves and the region between them. Its views (`area_between_views.gd`) show the two
   equations, the curves named f and g with the region shaded (GraphView's `shade`, each strip between
@@ -1289,6 +1303,10 @@ sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and l
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
 back into erf, and a shaded area must be the area given (`check_regression_pair`,
 `check_normal_unknown`, `check_venn`, `check_conditional`).
+For `inverse-normal` it reads μ, σ, the area and its side back from the lines, the story or the shading,
+and finds each value with its own inverse (erfinv at 40 digits, put back through erfc), or exactly on
+Paper 1, solving the shift with SymPy. Each tagged option is worked out from its slip, and each
+invNorm, normalcdf and plain sum in the working is done again (`e10in_check`).
 For `antiderivative-condition` it reads f′ (or f″) and the condition back from the lines, works
 the antiderivative again with SymPy, and differentiates every option: only the right one may give
 f′ back, meet the condition and have no C left in it (`check_antiderivative_condition`). Each
@@ -1720,6 +1738,9 @@ script error happens while it runs. Run one file with
 - `test_tree_diagram.gd` (FAL-739): `t4-tree-diagram`: every cell with one right option, its papers,
   forks that add to 1, a tree of each shape, a tin's branches as the recount, one valid k, n back from
   a growing tin, a game's two ways to win, past-paper set-ups left out and every misconception shown.
+- `test_inverse_normal.gd` (FAL-752): `t4-inverse-normal`: every cell and method, each on its one paper
+  with one right option; a value has the area it was given, a central interval and a band hold theirs,
+  a ratio's tails are in that ratio, Paper 1 is exact with no calculator word, and every slip comes up.
 - `test_normal_probability.gd` (FAL-728): `t4-normal-probability`: every cell on Paper 2 with one
   right option, the one normal distribution it shares with `normal-unknown`, regions that add up,
   bands wide enough for their labels, the shaded curve, the root of a variance, half a unit either

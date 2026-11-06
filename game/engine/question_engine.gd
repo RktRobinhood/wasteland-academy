@@ -96,6 +96,7 @@ static var SITUATIONS := {
 	"regression-x-on-y": [RegressionPairSituation, RegressionPairViews],
 	"normal-unknown": [NormalUnknownSituation, NormalUnknownViews],
 	"normal-probability": [NormalProbabilitySituation, NormalProbabilityViews],
+	"inverse-normal": [InverseNormalSituation, InverseNormalViews],
 	"venn": [VennSituation, VennViews],
 	"conditional": [ConditionalSituation, ConditionalViews],
 	"tree-diagram": [TreeDiagramSituation, TreeDiagramViews],
