@@ -2845,7 +2845,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -3186,6 +3186,35 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): ∫ 2 sin x cos x dx can be sin² x + C and also −cos² x + C. — True: the two differ by 1, since sin² x + cos² x = 1. Two correct answers can look different and still differ only by a constant.
   - *always-sometimes-never* (L4): ∫ f(x)g(x) dx equals (∫ f(x) dx)(∫ g(x) dx). — Sometimes at best, and not as a rule: for f(x) = g(x) = x it fails, since x³/3 is not (x²/2)². There is no product rule that splits an integral this way.
 - **Misconceptions used:** 14. Dividing by the old power instead of the new one; Forgetting + C; Integrating a fraction in x without first rewriting it as a negative power; Integrating sin x to cos x, with the wrong sign; Using the power rule on a reciprocal term, which would mean dividing by zero; Multiplying by the new power instead of dividing; Multiplying by the coefficient of x, as in differentiation, instead of dividing; Forgetting to divide by the coefficient of x; Dividing by the whole exponent instead of the coefficient of x; Integrating the outer function but leaving the extra factor in place; Forgetting to divide by the number that comes from differentiating the inside; Forgetting to substitute back from u to x; Integrating the numerator and denominator separately; Missing the middle term when squaring a bracket.
+
+#### Area between two curves (`t5-area-between-curves`, exam, 13 bank parts)
+
+- **Situation:** Two curves and the region between them.
+- **Representations:** **equation**, **graph**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a parabola and a line, as equations or on a graph → the x-coordinates where they meet: the limits
+  - **exam** L3: given a parabola and a line, as equations, on a graph, or as marked points → an integral for the area, not evaluated
+  - **exam** L3: given two curves that swap over → an expression for the total area: two integrals, or one with a modulus on the GDC
+  - **exam** L3: given a parabola and a line, as equations, on a graph, or as marked points → the exact area they enclose
+  - **exam** L3: given two parabolas → the exact area they enclose
+  - **exam** L4: given a cubic and a line that meet three times → the total exact area of the two regions
+  - **exam** L4: given a parabola and a line that cross once between two vertical lines → the total exact area of the two regions
+  - **exam** L4: given two trig curves and where they meet → the exact area between two meeting points
+  - **exam** L4: given two trig curves that cross once on an interval → the exact total area of the two regions
+  - **exam** L3: given y = Ae^(kx), y = −Be^(kx) and two vertical lines → the exact area of the region
+  - **exam** L4: given f(x), g′(x) = f′(x), and the area between the graphs and two vertical lines → the two possible expressions for g(x)
+  - **exam** L4: given a parabola, a line with a letter k in it, and the area they enclose → k
+  - **exam** L4: given the graph of f′, the areas it makes with the x-axis, and values of f → a value of f at a crossing or at the end
+  - **exam** L2: given two curves that need a calculator → the x-coordinates where they meet, to 3 s.f.
+  - **exam** L3: given two curves that need a calculator → the area they enclose, to 3 s.f.
+  - **exam** L4: given two curves that cross three times → the total area of the two regions, to 3 s.f.
+  - **exam** L4: given f(x), a root or a quotient → the area between f and its inverse, to 3 s.f.
+  - **exam** L4: given a curve and two lines, with the region between all three shaded → its area, to 3 s.f., split where the top edge changes
+- **Angles:** Integrate top minus bottom; Split where the curves cross; GDC with |f − g|; Area under the top minus area under the bottom.
+- **Concept probes:**
+  - *true-false-reason* (L3): If ∫ from a to b of (f(x) − g(x)) dx = 0, the curves enclose no area between a and b. — False: the curves can swap over, so a piece with f on top cancels a piece with g on top. Split at the crossing, or integrate |f − g|.
+  - *always-sometimes-never* (L3): The area between two curves changes when both are moved up by the same amount. — Never: top minus bottom stays the same at every x, so the area does too.
+- **Misconceptions used:** 17. Integrating lower − upper and reporting a negative area; Using the x-intercepts of one curve as limits instead of the intersection points; Not splitting where the curves cross, so the pieces cancel; Giving the y-values of the meeting points instead of the x-values; Adding the two areas instead of subtracting the lower from the upper; Subtracting only the first term of the lower curve, so its other terms keep their signs; Counting only one of the pieces of the region; Adding the two curves, so the part below the x-axis cancels part of the area above it; Taking only the positive shift, when the other graph can lie on either side; Using the area as the shift, without dividing by the width of the region; Stopping at the cube of the letter, without taking the cube root; Forgetting to halve after adding the two changes; Treating an area below the x-axis as a rise in f, or an area above it as a fall; Stopping at the area between the curve and y = x, without doubling for the inverse; Using one curve as the top edge across the whole region, past the point where the edge changes; Multiplying by the coefficient of x, as in differentiation, instead of dividing; Taking the lower limit's term as zero when it isn't.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

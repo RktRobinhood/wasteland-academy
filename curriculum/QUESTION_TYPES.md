@@ -1305,6 +1305,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 7.
 
+### t5-area-between-curves
+
+**Area between two curves.** Find the region between two curves: where they meet, an integral for it, its area, or a letter from its area. It covers a parabola and a line, two parabolas, a cubic and a line, trig and exponential pairs worked exactly, curves that swap over, g = f + k, the graph of f′ with its areas, and on Paper 2 curves that need a GDC, a function and its inverse, and a region with three edges.
+
+- **Syllabus:** 5.11
+- **Skills:** `SL5.11.area-between-curves`
+- **Where it appears:** P1 8, P2 5; Section A 3, B 10. Marks per part: usually 4 (2 to 6).
+- **Usual chain:** solve f(x) = g(x) for the limits → decide which curve is on top between them → integrate top minus bottom → split where the curves swap, or use |f − g| on the GDC → or find each area under its curve and subtract
+- **Given:** two curves as equations, two curves on a graph with the region shaded, a parabola and a line from their marked points, the meeting points, or two vertical lines, an area and a letter to find, the graph of f′ with its areas. **Asked:** The limits, an integral expression, an area, or a letter or expression from a given area. **Answer form:** x-values, integral expression, exact value, exact value with π, a surd or e, expression, 3 s.f..
+- **A recipe can randomise:** the family of the two curves; the meeting points; which curve is on top; the lines that bound the region; the stretch of a trig pair; the shift or the letter; the two areas beside f′.
+- **Limits that keep answers clean:** Paper 1 exact, with whole meeting points or landmark angles; the curves that need a calculator are Paper 2, to 3 s.f.; GDC methods are Paper 2 only; a parabola and its chord stay on or above the x-axis, so the areas under them are real areas.
+- **Game formats:** value, mcq
+- **Bank parts:** 13.
+
 ## Coverage per syllabus statement
 
 "Parts" counts parts carrying the tag anywhere, then those where it is the main tag. "Skills with no exam type" are `aa-sl.json` skills that no type maps to: either the bank never examines them or they appear only inside another type. "Types with no full skill" are types whose pattern no curriculum skill fully names.
