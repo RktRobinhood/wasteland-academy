@@ -58,7 +58,6 @@ const SLIPS := {
 	"split": [R_SUM, R_DOUBLE],
 }
 const UNSUITED := "This statement does not suit that method, so work through it line by line."
-const OTHER_ROUTE := "These lines take a different route from that method, so work through them line by line."
 const POWERS := {2: "²", 3: "³", 4: "⁴"}
 const HAS_LIMITS := ["half-tan", "half-tan-plus", "reciprocal-sum", "tan-diff", "tan-ratio", "tan-double", "split"]
 
@@ -81,6 +80,7 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var out := super.build(unknown, rep, s, rng)
 	out.given = ProveIdentitySituation.export(s)
 	out.given.merge(out.get("shown", {}))
+	said_once(out.methods, out.answer)
 	return out
 
 
@@ -560,24 +560,12 @@ static func walk(c: Array, upto: int, nm: String) -> Array:
 	return out
 
 
-## The method whose proof a question shows. Other methods' tabs say so, and walk the same lines.
+## The method whose proof a question shows: its lines belong to that method alone.
 func routes(s: Dictionary, steps: Array, ans: Dictionary) -> Dictionary:
-	var out := {}
-	for m in ProveIdentitySituation.ASKS[s.ask]:
-		var note := ""
-		if m != angle:
-			note = OTHER_ROUTE
-		elif not ProveIdentitySituation.suits(s.ask, m, s.fam):
-			note = UNSUITED
-		var lines: Array = steps.duplicate()
-		if note != "":
-			lines[0] = note + " " + lines[0]
-		out[m] = method(lines, ans.values)
-	if not out.has(angle):
-		var lines: Array = steps.duplicate()
+	var lines: Array = steps.duplicate()
+	if not ProveIdentitySituation.suits(s.ask, angle, s.fam):
 		lines[0] = UNSUITED + " " + lines[0]
-		out[angle] = method(lines, ans.values)
-	return out
+	return {angle: method(lines, ans.values)}
 
 
 static func say(ans: Dictionary) -> String:
@@ -722,7 +710,12 @@ func u_valid_argument(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var c := chain(s)
 	var t := Q.new(1, 6 * int(s.w))
 	var first: String = c[1].text
-	var out := AlgebraicProofViews.pick_answer("LHS = %s = %s = RHS, so LHS ≡ RHS." % [first, c.back().text], [
+	var all_lines: PackedStringArray = []
+	for i in range(1, c.size()):
+		# A k of 1 leaves a line that only adds brackets: the chain shows it once.
+		if i == 1 or c[i].text.trim_prefix("(").trim_suffix(")") != c[i - 1].text:
+			all_lines.append(c[i].text)
+	var out := AlgebraicProofViews.pick_answer("LHS = %s = RHS, so LHS ≡ RHS." % " = ".join(all_lines), [
 		["Assume LHS ≡ RHS. Take the RHS from both sides: 0 = 0, so LHS ≡ RHS.", R_BOTH],
 		["At %s = %s both sides equal %s, so LHS ≡ RHS." % [s.letter, Fmt.pi(t), TrigKit.text(right_value(s, t))], R_VALUES],
 		["LHS = %s" % first, R_NO_END]])
@@ -748,7 +741,7 @@ func u_start_side(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		["Put %s = %s into both sides and compare them." % [s.letter, Fmt.pi(Q.new(1, 6 * int(s.w)))], R_VALUES]])
 	out.asked = "Which is the best way to start this proof?"
 	out.lines = [claim(s, swap)]
-	var steps: Array = ["The %s side has %d trig terms and the %s side %d." % [side, busy(left(s)), rest, busy(right(s))],
+	var steps: Array = ["The %s side has %d trig functions and the %s side %d." % [side, busy(left(s)), rest, busy(right(s))],
 		"%s: %s" % [c[1].why, c[1].text], picked("So the start is", out.answer)]
 	out.methods = routes(s, steps, out.answer)
 	return out
@@ -792,7 +785,7 @@ func u_cos2_form(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var show_line: String = c[1].text if s.fam == "perfect-square" else c[0].text
 	out.lines = ["L = " + show_line]
 	var pair := "1 − (%s)" % cos2_form(s, "sin") if fn == "sin" else "1 + (%s)" % cos2_form(s, "cos")
-	var steps: Array = ["%s = 2 %s: the 1s cancel." % [pair, F(fn, u, 2)], "The other two true forms leave a 1 behind.", picked("So use", out.answer)]
+	var steps: Array = ["%s = 2 %s: the 1s cancel." % [pair, F(fn, u, 2)], "The other two true forms leave a constant behind.", picked("So use", out.answer)]
 	out.methods = {angle: method(steps, out.answer.values)}
 	return out
 
@@ -1025,7 +1018,7 @@ func u_greatest_value(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 			wrongs.append(wrong({"v": Q.new(4 * s.k).add(add)}, R_PRE))
 	var generic: Array = [{"v": (r[0] if top else r[1]).add(add)}, {"v": add}, {"v": r[1]}, {"v": v.add(Q.new(1))}, {"v": v.sub(Q.new(1))}, {"v": v.add(Q.new(2))}]
 	var steps: Array = ["Simplify with the identities: f(%s) = %s%s" % [s.letter, right(s), tail],
-		"Its values run from %s to %s, with the number added." % [Fmt.num(r[0].add(add)), Fmt.num(r[1].add(add))], say(ans)]
+		"Its values run from %s to %s." % [Fmt.num(r[0].add(add)), Fmt.num(r[1].add(add))], say(ans)]
 	return {"asked": "Find the %s value of f." % s.want, "lines": lines, "answer": ans, "wrongs": wrongs, "generic": generic, "methods": routes(s, steps, ans)}
 
 

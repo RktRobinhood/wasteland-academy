@@ -34101,7 +34101,7 @@ def E11SP_relation(q, g, rep, u):
     both = sp.expand(sp.expand_log(sp.log(left), force=True) - k * sp.expand_log(sp.log(yv), force=True))
     sol = sp.solve([both.coeff(sp.log(t)), both.coeff(sp.log(r))], k, dict=True)
     need(len(sol) == 1, "no k works")
-    E11SP_values(q, "k = ", sol[0][k], {E11SP_POSITION: [1 + a + b], E11SP_CONSECUTIVE: [2]})
+    E11SP_values(q, "k = ", sol[0][k], {E11SP_POSITION: [1 + a + b], E11SP_CONSECUTIVE: [2 * min(a, b)]})
 
 
 def E11SP_bound(q, g, rep):
@@ -35337,9 +35337,10 @@ def E11PI_check(q):
         E11PI_steps(q, {"LHS": lhs})
     elif u == "valid-argument":
         _, right_text = E11PI_claim(q, g, lhs, rhs)
-        m = re.fullmatch(r"LHS = (.+?) = (.+?) = RHS, so LHS ≡ RHS\.", q["answer_text"])
+        m = re.fullmatch(r"LHS = (.+) = RHS, so LHS ≡ RHS\.", q["answer_text"])
         need(m, f"can't read {q['answer_text']!r}")
-        need(E11PI_same(E11PI_read(m.group(1)), lhs) and m.group(2) == right_text, "the proof doesn't run from the left side to the right")
+        steps = m.group(1).split(" = ")
+        need(all(E11PI_same(E11PI_read(t), lhs) for t in steps) and steps[-1] == right_text, "the proof doesn't run from the left side to the right")
         need(sorted(o["ref"] for o in q["choices"]) == sorted(["", E11PI_BOTH, E11PI_VALUES, E11PI_NO_END]), "the options are not the three false proofs")
         for o in q["choices"]:
             t = o["text"]
@@ -35352,8 +35353,8 @@ def E11PI_check(q):
                 val = E11PI_exact(r.group(2))
                 need(abs(E11PI_float(lhs, x0) - sp.N(val, 40)) < sp.Float("1e-30") and abs(E11PI_float(rhs, x0) - sp.N(val, 40)) < sp.Float("1e-30"), f"{t!r}: the value is not the sides'")
             elif o["ref"] == E11PI_NO_END:
-                need(t == f"LHS = {m.group(1)}", f"{t!r} is not the proof stopped early")
-                need(not E11PI_same(E11PI_read(m.group(1)), rhs) or m.group(1) != right_text, "it reached the right side")
+                need(t == f"LHS = {steps[0]}", f"{t!r} is not the proof stopped early")
+                need(not E11PI_same(E11PI_read(steps[0]), rhs) or steps[0] != right_text, "it reached the right side")
         E11PI_shared(q, q["answer_text"])
         E11PI_steps(q, {"LHS": lhs})
     elif u == "start-side":
@@ -35505,7 +35506,7 @@ def E11PI_check(q):
             wrongs[E11PI_PRE] = [sp.Integer(4 * int(g["k"]) + c)]
         E11PI_numbers(q, f"{g['want']} value = ", want, wrongs)
         tail = q["solutions"][0]["steps"][1]
-        rr = re.search(r"run from (.+?) to (.+?), with", tail)
+        rr = re.search(r"run from (.+?) to (.+?)\.$", tail)
         need(rr and E11PI_exact(rr.group(1)) == sp.nsimplify(lo * 2, rational=True, tolerance=1e-9) / 2 + c and E11PI_exact(rr.group(2)) == sp.nsimplify(hi * 2, rational=True, tolerance=1e-9) / 2 + c, f"can't confirm {tail!r}")
     elif u == "common-expression":
         k = int(g["k"])
@@ -36234,7 +36235,7 @@ def E11CM_check(q):
             need(q["graph"]["mark"] == ("moving" if u == "angle-expression" else ""), "the figure's mark")
         if u == "rate-from-period":
             need(asked == "Find the angle it turns through in one second, in radians." + E11CM_EXACT, f"asked {asked!r}")
-            label, tail = "rate = ", E11CM_RS
+            label, tail = "angle = ", " radians"
             return want_pi(label, b, tail, {E11CM_DECIMAL: {label + S(b * pi) + tail}, E11CM_PI_TURN: {label + E11CM_pi(1 / T) + tail},
                                             E11CM_DEG_AS_RAD: {label + S(360 / T) + tail}, E11CM_FLIPPED: {f"{label}{dec_text(T / 2)}/π{tail}"}})
         need(asked == "Write θ in terms of t, as an exact multiple of π.", f"asked {asked!r}")

@@ -104,6 +104,7 @@ func papers(unknown: String, _rep: String, _angle: String) -> Array:
 func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var out := super.build(unknown, rep, s, rng)
 	out.titles = TITLES.get(unknown, {})
+	said_once(out.methods, out.answer)
 	return out
 
 
@@ -443,11 +444,7 @@ static func unique_texts(rows: Array, avoid: String) -> Array:
 ## situation belongs to no method, so its lines can be another's, and the working says that too.
 func of_lines(s: Dictionary, steps: Array, ans: Dictionary) -> Dictionary:
 	var head: Array = [] if SequenceProofSituation.suits(s.ask, angle, s.fam) else [UNSUITED]
-	var out := {angle: method(head + steps, ans.values)}
-	for m in SequenceProofSituation.ASKS[s.ask]:
-		if m != angle:
-			out[m] = method([OTHER_ROUTE] + steps, ans.values)
-	return out
+	return {angle: method(head + steps, ans.values)}
 
 
 # ── Three terms: the exam's relations ────────────────────────
@@ -491,7 +488,7 @@ func u_geometric_relation(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		"%s = %s%sr%s" % [left_side, x, Fmt.sup(big), Fmt.sup(power)],
 		"%s%s = (%sr%s)%s = %s%sr%s, the same expression." % [y, Fmt.sup(big), x, Fmt.sup(g), Fmt.sup(big), x, Fmt.sup(big), Fmt.sup(power)], say(ans)]
 	return {"asked": "Find k.", "lines": lines, "answer": ans,
-		"wrongs": [wrong({"v": Q.new(big + 1)}, M_POSITION), wrong({"v": Q.new(2)}, M_CONSECUTIVE)],
+		"wrongs": [wrong({"v": Q.new(big + 1)}, M_POSITION), wrong({"v": Q.new(2 * mini(g, h))}, M_CONSECUTIVE if g != h else "")],
 		"generic": [{"v": Q.new(big + 2)}, {"v": Q.new(big - 1)}, {"v": Q.new(big + 3)}, {"v": Q.new(g * h + 1)}],
 		"methods": {"general-difference": method(steps, ans.values)}}
 
@@ -675,7 +672,7 @@ func u_sum_by_formula(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var good: Dictionary = c.back()
 	var ans := form(good)
 	var cols := lines_of(s, "forwards-backwards")
-	var by_columns: Array = ["%s and %s: %s" % [cols[0].why, cols[1].why.to_lower(), cols[1].text],
+	var by_columns: Array = ["%s: %s" % [cols[0].why, cols[0].text], "%s: %s" % [cols[1].why, cols[1].text],
 		"%s: %s" % [cols[2].why, cols[2].text], "%s: %s" % [cols[3].why, cols[3].text], "%s, so %s." % [cols[4].why, Answer.text(ans)]]
 	var wrongs := slip_lines(s, "series-formula", 2, good)
 	return {"asked": "Write %s in terms of n." % SN, "lines": setup(s, rep), "answer": ans, "wrongs": wrongs, "generic": nudged(good),
@@ -803,7 +800,7 @@ func u_dot_rectangle(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var lines: Array = ["The figure shows two copies of a staircase of %s, for n = %d. Its rows are the terms of uₙ = %s." % [thing, m, poly([p, q])],
 		"The second copy is turned round, so together they make a rectangle with n rows."]
 	var steps: Array = ["The top row of the rectangle is the shortest step of one copy and the longest of the other: u₁ + uₙ.",
-		"u₁ + uₙ = %d + %s" % [f, wrapped(p, q)], "Two copies fill n rows of that width, so Sₙ is half the rectangle.", say(ans)]
+		"u₁ + uₙ = %d + %s" % [f, wrapped(p, q)], say(ans)]
 	return {"asked": "Find the width of the rectangle for any n, in terms of n.", "lines": lines, "answer": ans,
 		"wrongs": [line_option(row.call(2 * p, 2 * q), good, M_LAST_TWICE), line_option(row.call(p, q), good, M_LAST_ONLY), line_option(row.call(p, q + f + p), good, M_GAPS)],
 		"generic": nudged(good), "methods": {"dot-diagram": method(steps, ans.values)},

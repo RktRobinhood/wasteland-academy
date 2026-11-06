@@ -165,6 +165,15 @@ static func model_lines(rep: String, s: Dictionary) -> Array:
 	return [bare(s)] if rep == "equation" else [story(s)]
 
 
+## The model, and on the bare form what its letter stands for, where the question names the quantity.
+static func named_lines(rep: String, s: Dictionary) -> Array:
+	var c := ctx(s)
+	var out := model_lines(rep, s)
+	if rep == "equation":
+		out.append("%s is the %s, in %s, and t is in %s." % [c.sym, c.what, c.y, c.time])
+	return out
+
+
 static func rising(r: float) -> String:
 	return "rising" if r > 0.0 else "falling"
 
@@ -356,7 +365,7 @@ func u_time_at_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		asked = "Find the %svalue of t for which %s′(t) = %s, to 3 s.f." % [word, c.sym, D(k)]
 	var out := {"lines": model_lines(rep, s), "asked": asked, "answer": ans, "wrongs": slips, "generic": gv([x * 1.25, x * 0.75, x + 1.0, x + 0.5]),
 		"methods": {"gdc-derivative": method(["The rate is %s, so %s′(t) = %s." % [D(k), c.sym, D(k)],
-				"Graph y = dy/dx of the model and y = %s, and find where they first meet: t = %s." % [D(k), GdcKit.W(x)], Answer.text(ans)], ans.values),
+				"Graph y = %s′(t) and y = %s, and find where they first meet: t = %s." % [c.sym, D(k), GdcKit.W(x)], Answer.text(ans)], ans.values),
 			"rule-then-substitute": method(["%s: %s′(t) = %s." % [rule_name(s.mod), c.sym, derivative(s.mod)],
 				"Solve %s = %s with the GDC's solver: t = %s." % [derivative(s.mod), D(k), GdcKit.W(x)], Answer.text(ans)], ans.values)}}
 	if rep == "graph":
@@ -381,7 +390,7 @@ func u_greatest_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var slips: Array = [wv(DerivativeModelSituation.y(s.mod, s.top.t), R_VALUE), wv(p.y, R_PEAK)]
 	if s.mod.fam == "wave":
 		slips.append(wv(s.mod.m.to_float() + s.mod.B.to_float(), R_NO_INNER))
-	var out := {"lines": model_lines(rep, s), "asked": asked, "answer": ans, "wrongs": slips, "generic": gv([r * 2.0, r * 0.5, r * 1.5]),
+	var out := {"lines": named_lines(rep, s), "asked": asked, "answer": ans, "wrongs": slips, "generic": gv([r * 2.0, r * 0.5, r * 1.5]),
 		"methods": {"gdc-derivative": method(_greatest_lines(s, "the greatest size of the rate") + [Answer.text(ans)], ans.values)}}
 	if rep == "graph":
 		out.graph = model_graph(s, [], false)
@@ -395,7 +404,7 @@ func u_time_of_greatest_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var p := DerivativeModelSituation.peak_of(s)
 	var ans := sf_answer("t = ", t)
 	var asked := "Find the time at which the %s is %s fastest, to 3 s.f." % [c.what, "falling" if s.fall else "rising"]
-	var out := {"lines": model_lines(rep, s), "asked": asked, "answer": ans, "wrongs": [wv(p.t, R_PEAK)], "generic": gv([t * 0.5, t * 1.5, t + 1.0, t - 0.5]),
+	var out := {"lines": named_lines(rep, s), "asked": asked, "answer": ans, "wrongs": [wv(p.t, R_PEAK)], "generic": gv([t * 0.5, t * 1.5, t + 1.0, t - 0.5]),
 		"methods": {"gdc-derivative": method(_greatest_lines(s, "where the model is steepest") + [Answer.text(ans)], ans.values)}}
 	if rep == "graph":
 		out.graph = model_graph(s, [], false)
@@ -415,7 +424,7 @@ func u_rising_or_falling(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var built := claims(right, [["%s at %s %s" % [other.capitalize(), mag, unit(c)], R_SIGN if r < 0.0 else ""],
 		["%s at %s %s" % [word.capitalize(), Fmt.sf(s.v), unit(c)], R_VALUE],
 		["%s by %s %s" % ["Up" if r > 0.0 else "Down", mag, c.y], R_UNITS]])
-	var out := {"lines": model_lines(rep, s), "asked": "At t = %d, which way is the %s going, and how fast?" % [s.t0, c.what],
+	var out := {"lines": named_lines(rep, s), "asked": "At t = %d, which way is the %s going, and how fast?" % [s.t0, c.what],
 		"answer": built.answer, "wrongs": built.wrongs, "generic": [],
 		"methods": {"gdc-derivative": method([gdc_line(s), "Its sign says %s; its size says how fast." % word, right], built.answer.values),
 			"sign-direction": method(["The sign of %s′(%d) gives the direction: %s, so %s." % [c.sym, s.t0, GdcKit.W(r), word],
@@ -472,7 +481,7 @@ func u_compare_models(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var built := claims(right, [
 		["The %s is rising faster in model %s, because that model is higher at t = %d (%s)." % [c.what, slow, t0, Fmt.sf(high)], R_VALUE],
 		["%s, so the %s is rising faster in model %s." % [nums, c.what, slow], ""],
-		["Model %s is %s %s ahead at t = %d." % [fast, gap, c.y, t0], R_UNITS]])
+		["Model %s is %s %s ahead at t = %d." % [fast, gap, c.y, t0], ""]])
 	var lines: Array = ["Two models of the %s, in %s, t %s after the start, for %s:" % [c.what, c.y, c.time, domain(s)],
 		"A(t) = %s" % model(ms.A), "B(t) = %s" % model(ms.B)]
 	var out := {"lines": lines, "asked": "Compare the two models at t = %d. Which sentence is true?" % t0,
@@ -706,7 +715,7 @@ func u_rising_from_table(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	out.generic = []
 	var sum := "%s′(%d) = %s × %s + %s × %s = %s." % [st.H, a, paren(df), paren(g), paren(f), paren(dg), Fmt.num(r)]
 	out.methods = {"rule-then-substitute": method(["The product rule: %s′ = %s′%s + %s%s′." % [st.H, st.F, st.G, st.F, st.G], sum, right], built.answer.values),
-		"sign-direction": method([sum, "It is %s, so the total is %s, at %d %s." % ["positive" if r > 0 else "negative", word, absi(r), u], right], built.answer.values)}
+		"sign-direction": method([sum, "It is %s, so the total is %s." % ["positive" if r > 0 else "negative", word], right], built.answer.values)}
 	return out
 
 

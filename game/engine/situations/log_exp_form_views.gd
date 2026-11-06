@@ -60,6 +60,8 @@ const R_ORDER := OWN + "42"
 
 const POWER := "what-power"
 const REWRITE := "rewrite-exponential"
+## These go from a power to a log, the other way from what the method is named for.
+const LOG_FORM_ASKS := ["to-log-form", "solve-exp-as-log"]
 const INVERSE := "inverse-identities"
 const SUBSTITUTE := "substitute-evaluate"
 const INVERT := "invert-formula"
@@ -102,6 +104,9 @@ func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictiona
 	var out := super.build(unknown, rep, s, rng)
 	out.wrongs = rng.shuffled(out.wrongs)
 	out.given = LogExpFormSituation.export(s)
+	said_once(out.methods, out.answer)
+	if unknown in LOG_FORM_ASKS:
+		out.titles = {REWRITE: "Rewrite as a logarithm"}
 	# A rounded a: the trap writes it to 2 s.f., as t1-standard-form does.
 	if out.answer.kind == "form" and not out.answer.exact and Answer.needs_rounding(out.answer.values.a):
 		var a: Q = out.answer.values.a
@@ -144,6 +149,11 @@ static func pw(b: Variant, e: Q) -> String:
 	if not Q.of(b).is_int() or Q.of(b).sign() < 0:
 		base = "(%s)" % base
 	return "%s^%s" % [base, N(e)] if e.is_int() and e.sign() > 0 else "%s^(%s)" % [base, N(e)]
+
+
+## A divisor in standard form takes brackets: 0.01 ÷ (3.16 × 10⁻⁸).
+static func under(t: String) -> String:
+	return "(%s)" % t if t.contains("×") else t
 
 
 static func say(ans: Dictionary) -> String:
@@ -913,10 +923,11 @@ func u_ratio_two_readings(rep: String, s: Dictionary, _rng: Seeded) -> Dictionar
 		return "At %s = %s: %s = %s = %s" % [c.y, D(y), c.x, power, w(v)]
 	var opens := "Undo the formula at each reading." if rep != "words" else opening(rep, s) + "Undo it at each reading."
 	out.methods = {
-		STEPS: method([opening(rep, s) + step_line(s), "The readings differ by %s = %s, which is %s ÷ %s = %s such steps." % [gap, D(Q.new(roundi(absf(dy) * 10.0), 10)), D(Q.new(roundi(absf(dy) * 10.0), 10)), D(s.A.abs_q()), w(u)],
+		STEPS: method([opening(rep, s) + step_line(s), "The readings differ by %s = %s, so that is %s steps." % [gap, D(Q.new(roundi(absf(dy) * 10.0), 10)), w(u)] if s.A.abs_q().eq(1)
+				else "The readings differ by %s = %s, which is %s ÷ %s = %s steps." % [gap, D(Q.new(roundi(absf(dy) * 10.0), 10)), D(Q.new(roundi(absf(dy) * 10.0), 10)), D(s.A.abs_q()), w(u)],
 			"The factor is %s^(%s) = %s" % [base_name(s), w(u), w(f)], say(ans)], ans.values),
 		INVERT: method([opens, at_reading.call(s.y, inv1), at_reading.call(s.y2, inv2),
-			"%s ÷ %s = %s" % [w(inv2), w(inv1), w(f)], say(ans)], ans.values)}
+			"%s ÷ %s = %s" % [w(inv2), under(w(inv1)), w(f)], say(ans)], ans.values)}
 	return out
 
 
@@ -994,7 +1005,7 @@ func u_percent_rise(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		STEPS: method([opening(rep, s) + step_line(s), "A rise of %s is %s of those steps, a factor of %s^(%s) = %s." % [D(s.delta), w(u), base_name(s), w(u), w(f)],
 			"The increase is (%s − 1) × 100 = %s" % [w(f), w(pct)], say(ans)], ans.values),
 		INVERT: method([opening(rep, s) + "Undo the formula at %s and at %s: %s = %s, then %s = %s." % [D(s.y), w(y1 + dy), c.x, w(x1), c.x, w(x2)],
-			"The factor is %s ÷ %s = %s" % [w(x2), w(x1), w(x2 / x1)], "The increase is (%s − 1) × 100 = %s" % [w(x2 / x1), w(pct)], say(ans)], ans.values)}
+			"The factor is %s ÷ %s = %s" % [w(x2), under(w(x1)), w(x2 / x1)], "The increase is (%s − 1) × 100 = %s" % [w(x2 / x1), w(pct)], say(ans)], ans.values)}
 	return out
 
 

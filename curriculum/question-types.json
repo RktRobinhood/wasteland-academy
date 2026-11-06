@@ -34485,7 +34485,7 @@
     },
     {
      "ref": "SL3.4.convert#4",
-     "text": "Dividing the wrong way round: time by angle instead of angle by time, or the rate by a full turn instead of a full turn by the rate",
+     "text": "Dividing the wrong way round, with the two numbers swapped",
      "as": "distractor",
      "in": [
       "rate-from-period",
@@ -34603,7 +34603,7 @@
     },
     {
      "ref": "SL3.4.convert#13",
-     "text": "Giving the distance round the circle as the speed or the distance moved, without using the time",
+     "text": "Giving the distance round the circle as the answer, without using the time",
      "as": "distractor",
      "in": [
       "arc-in-time",
@@ -37268,7 +37268,7 @@
     },
     {
      "ref": "SL3.6.prove-identity#23",
-     "text": "Starting from the simpler side, which leaves nothing to rewrite",
+     "text": "Starting from the simpler side, which gives less to work from",
      "as": "distractor",
      "in": [
       "start-side"
@@ -40048,7 +40048,7 @@
     },
     {
      "ref": "SL3.8.quadratic-in-trig#2",
-     "text": "Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions",
+     "text": "Picking the form of cos 2x in cos x when the rest of the equation is in sin x, leaving two different functions",
      "as": "distractor",
      "in": [
       "quadratic-in-u",
@@ -40058,7 +40058,7 @@
     },
     {
      "ref": "SL3.8.quadratic-in-trig#3",
-     "text": "Using cos 2x = 1 − 2sin²x when the equation also contains cos x, leaving two different functions",
+     "text": "Picking the form of cos 2x in sin x when the rest of the equation is in cos x, leaving two different functions",
      "as": "distractor",
      "in": [
       "quadratic-in-u",
@@ -40292,7 +40292,7 @@
     },
     {
      "ref": "SL3.8.graphical#4",
-     "text": "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+     "text": "Counting each point where the line only touches a maximum or minimum as two solutions",
      "as": "distractor",
      "in": [
       "count-solutions",
@@ -40850,7 +40850,7 @@
     },
     {
      "ref": "SL3.8.graphical#4",
-     "text": "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+     "text": "Counting each point where the line only touches a maximum or minimum as two solutions",
      "as": "distractor",
      "in": [
       "count-at-extreme"
@@ -72990,7 +72990,7 @@
     },
     {
      "ref": "SL3.8.quadratic-in-trig#2",
-     "text": "Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions",
+     "text": "Picking the form of cos 2x in cos x when the rest of the equation is in sin x, leaving two different functions",
      "as": "error-spot",
      "in": [
       "cos2x-form"

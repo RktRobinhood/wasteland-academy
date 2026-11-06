@@ -8520,7 +8520,7 @@
                 "Writing the size in radians as if it were degrees",
                 "Giving a decimal when an exact multiple of π is asked for",
                 "Taking π as a full turn instead of 2π",
-                "Dividing the wrong way round: time by angle instead of angle by time, or the rate by a full turn instead of a full turn by the rate",
+                "Dividing the wrong way round, with the two numbers swapped",
                 "Using the degrees-to-radians factor when converting radians to degrees",
                 "Leaving a rate in revolutions per minute unconverted when seconds are needed",
                 "Mixing degrees and radians in one calculation",
@@ -8529,7 +8529,7 @@
                 "Using sine instead of cosine, when the distance from the centre is the side next to the angle",
                 "Mixing up the time on the line with the time off it",
                 "Multiplying the angle by the rate instead of dividing by it",
-                "Giving the distance round the circle as the speed or the distance moved, without using the time",
+                "Giving the distance round the circle as the answer, without using the time",
                 "Writing the size in degrees as if it were radians"
               ],
               "threads": []
@@ -9339,7 +9339,7 @@
                 "Multiplying only the first term of a bracket",
                 "Squaring the trig term but not the number in front of it",
                 "Factorising a perfect square as a difference of two squares",
-                "Starting from the simpler side, which leaves nothing to rewrite"
+                "Starting from the simpler side, which gives less to work from"
               ],
               "threads": [
                 {
@@ -9885,8 +9885,8 @@
               "misconceptions": [
                 "Accepting a root outside the range of sine or cosine as giving solutions",
                 "Taking only the positive root of tan²x",
-                "Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions",
-                "Using cos 2x = 1 − 2sin²x when the equation also contains cos x, leaving two different functions",
+                "Picking the form of cos 2x in cos x when the rest of the equation is in sin x, leaving two different functions",
+                "Picking the form of cos 2x in sin x when the rest of the equation is in cos x, leaving two different functions",
                 "Taking only the positive root when sin²x or cos²x equals a number",
                 "Solving only one bracket of the factorised quadratic and dropping the other",
                 "Getting the sign of each root wrong, often by reading the number straight from its bracket",
@@ -10017,7 +10017,7 @@
                 "Including the boundary values of k where the line only touches at a maximum or minimum",
                 "Leaving the GDC in degree mode",
                 "Giving the whole range of the function as the values of k, without counting the solutions each value gives",
-                "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+                "Counting each point where the line only touches a maximum or minimum as two solutions",
                 "Counting one solution in each cycle, when a line inside the range crosses twice in a cycle",
                 "Taking the share of one cycle as the share of a span that is not a whole number of cycles",
                 "Leaving out the maximum and the minimum, although the line still meets the curve at those heights",

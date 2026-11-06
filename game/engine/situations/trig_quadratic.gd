@@ -31,7 +31,7 @@ const TAN_SQUARES := [[1, 1], [3, 1], [1, 3]]
 const WHOLE_TURN := [[0, 2], [0, 2], [0, 2], [-1, 1], [0, 1]]
 const WIDE := [[0, 2], [0, 1], [-1, 1], [0, 4], [-2, 2], [0, 3], [-1, 2]]
 ## The bank's and the map's own equations stay theirs: "fn|dis|a,b,c".
-const TAKEN := ["sin|pythag|2,-5,2", "sin|double|2,1,-1", "sin|direct|2,-1,-1", "sin|pythag|2,-3,1", "sin|double|2,-3,1"]
+const TAKEN := ["sin|pythag|2,-5,2", "sin|pythag|2,5,2", "sin|double|2,1,-1", "sin|direct|2,-1,-1", "sin|pythag|2,-3,1", "sin|double|2,-3,1"]
 
 
 static func generate(rng: Seeded, need: Dictionary = {}) -> Dictionary:

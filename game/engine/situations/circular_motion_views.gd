@@ -314,7 +314,7 @@ func sweep_time(s: Dictionary) -> Dictionary:
 
 func u_rate_from_period(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var b := Q.new(2, s.T)
-	var ans := pi_ans("rate = ", b, RS)
+	var ans := pi_ans("angle = ", b, " radians")
 	var v := chord_stem(rep, s) if rep == "diagram" else plain_stem(rep, s)
 	var out := frame(v, "Find the angle it turns through in one second, in radians." + EXACT, ans)
 	out.wrongs = [other(ans, Fmt.sf(b.to_float() * PI), R_DECIMAL), pi_slip(ans, Q.new(1, s.T), R_PI_TURN),
@@ -438,9 +438,9 @@ func u_sweep_to_degrees(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 
 # ── An exact chord ───────────────────────────────────────────
 
-## cos φ on the page: "cos φ = 3√2/6 = √2/2".
+## φ on the page: "Half of angle AOB is φ, with cos φ = 3√2/6 = √2/2".
 static func exact_cos(s: Dictionary) -> String:
-	return "cos φ = %s/%s = %s" % [d_text(s), D(s.r), CircularMotionSituation.LANDMARK[s.ratio].text]
+	return "Half of angle AOB is φ, with cos φ = %s/%s = %s" % [d_text(s), D(s.r), CircularMotionSituation.LANDMARK[s.ratio].text]
 
 
 ## Angle AOB as a multiple of π, and half of it.
@@ -504,7 +504,7 @@ func u_rate_to_degrees(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.generic = rest([x * 2.0, x / 2.0, x * 3.0, x / 3.0])
 	var t := D(s.w)
 	out.methods = {"multiply-factor": method(["Multiply by 180/π: %s × 180/π = %s" % [t, end(x)], say(ans)], ans.values),
-		"fraction-of-turn": method(["Each second it makes %s/2π of a turn." % t, "A full turn is 360°: %s/2π × 360 = %s" % [t, end(x)], say(ans)], ans.values)}
+		"fraction-of-turn": method(["Each second it makes %s/(2π) of a turn." % t, "A full turn is 360°: %s/(2π) × 360 = %s" % [t, end(x)], say(ans)], ans.values)}
 	return out
 
 
@@ -518,7 +518,7 @@ func u_period_from_rate(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var t := D(s.w)
 	var per_s := rd(rad_to_deg(om))
 	out.methods = {"multiply-factor": method(["Multiply by 180/π: %s × 180/π = %s° per second." % [t, w(per_s)], "A full turn is 360°: 360 ÷ %s = %s" % [w(per_s), end(360.0 / per_s)], say(ans)], ans.values),
-		"fraction-of-turn": method(["Each second it makes %s/2π of a turn." % t, "So a full turn takes 2π ÷ %s = %s" % [t, end(x)], say(ans)], ans.values)}
+		"fraction-of-turn": method(["Each second it makes %s/(2π) of a turn." % t, "So a full turn takes 2π ÷ %s = %s" % [t, end(x)], say(ans)], ans.values)}
 	return out
 
 
@@ -552,7 +552,7 @@ func u_time_from_period(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.generic = rest([x * 2.0, x / 2.0, x * 3.0])
 	var share := rd(th / TAU)
 	out.methods = {"multiply-factor": method([rate_step(s), "Time = %s ÷ (%s) = %s" % [t, rate_rad(s), end(x)], say(ans)], ans.values),
-		"fraction-of-turn": method(["%s radians is %s/2π = %s of a turn." % [t, t, w(share)], "%s × %d = %s" % [w(share), s.T, end(share * s.T)], say(ans)], ans.values)}
+		"fraction-of-turn": method(["%s radians is %s/(2π) = %s of a turn." % [t, t, w(share)], "%s × %d = %s" % [w(share), s.T, end(share * s.T)], say(ans)], ans.values)}
 	return out
 
 

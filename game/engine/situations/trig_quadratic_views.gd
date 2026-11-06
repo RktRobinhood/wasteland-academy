@@ -46,6 +46,16 @@ const WHY_RANGE := "it is outside the range of %s x"
 const WHY_NEGATIVE := "it is negative"
 const WHY_LARGER := "it is the larger root"
 const NEITHER := "Neither: both roots give solutions"
+## No identity and no factorising in these: only the substitution.
+const TITLES := {"plus-minus-root": "Substitute u, then take both roots", "tan-squared": "Substitute u, then take both roots", "constant-from-solution": "Put the solution into the equation"}
+
+
+func build(unknown: String, rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
+	var out := super.build(unknown, rep, s, rng)
+	said_once(out.methods, out.answer)
+	if TITLES.has(unknown):
+		out.titles = {M_IF: TITLES[unknown]}
+	return out
 
 
 func needs() -> Dictionary:
@@ -424,7 +434,7 @@ func u_identity_to_use(_rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	var a := Answer.make("choice", {"v": right}, {"options": rng.shuffled(opts)})
 	var out := {"answer": a, "lines": [eq_text(s)], "asked": "Which identity turns this into a quadratic in %s?" % u_name(s), "wrongs": picks}
 	var from := "cos 2x" if s.dis == "double" else "%s²x" % o
-	out.methods = {M_IF: method(["The rest of the equation is in %s, so %s has to be written in %s too." % [u_name(s), from, u_name(s)], "That gives %s, one function in a quadratic." % uq(scaled(s)), say(a)], a.values)}
+	out.methods = {M_IF: method(["The rest of the equation is in %s, so %s has to be written in %s too." % [u_name(s), from, u_name(s)], "That gives %s, one function in a quadratic." % quad_line(s, scaled(s)), say(a)], a.values)}
 	return out
 
 
@@ -611,7 +621,7 @@ func u_surd_coefficient(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var q: Dictionary = s.surd
 	var let_u := "Let u = %s: %s" % [u_name(s), surd_line({"surd": q}, "u²", "u")]
 	var top := "%s" % T(TrigKit.plus(TrigKit.times(q.right, q.l), TrigKit.times(q.left, q.m)))
-	var diff := TrigKit.plus(TrigKit.times(q.right, q.l), TrigKit.times(q.left, -q.m))
+	var diff := TrigKit.plus(TrigKit.times(q.left, q.m), TrigKit.times(q.right, -q.l))
 	var fact := "Factorise: %s%s = 0, so %s.%s" % [surd_bracket(q.l, q.left), surd_bracket(q.m, q.right), roots_text(s), reject_tail(s)]
 	var form := "The formula's discriminant is the perfect square (%s)², so u = (%s ± (%s))/%d = %s or %s.%s" % [T(diff), top, T(diff), 2 * q.a, T(s.us[0]), T(s.us[1]), reject_tail(s)]
 	out.methods = {M_IF: method([let_u, fact, solve_step(s), say(a)], a.values), M_QF: method([let_u, form, solve_step(s), say(a)], a.values)}
