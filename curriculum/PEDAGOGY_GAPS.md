@@ -582,7 +582,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A geometric series with ratio 0.9 has a sum to infinity, but one with ratio 1.1 does not. — True. Multiplying by 0.9 again and again drives the terms to 0, like exponential decay, so the sum settles at u₁/(1 − 0.9) = 10u₁. Multiplying by 1.1 makes the terms grow, so the sum grows without limit.
   - *interpret-parameter* (L3): In A(t) = 2000 × 0.85^t, what do 2000 and 0.85 mean, and what is the yearly percentage change? — 2000 is the value at t = 0. 0.85 is the factor each year: the value keeps 85%, so it falls by 15% a year.
   - *predict-check* (L3): Predict which is worth more after 10 years: 1000 growing by 5% a year, or 1000 growing by 50 a year. Then check. — The 5% one. 1000 × 1.05¹⁰ ≈ 1628.89, while 1000 + 10 × 50 = 1500. Both add 50 in year one, but the percentage is taken of a growing amount.
-- **Misconceptions used:** 13. Confuses the percentage rate with the growth factor, which is one plus the rate; Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the start value as the value after one period, so the exponent is off by one; Thinks a reciprocal base reflects the graph in the x-axis rather than the y-axis; Using r^n in the term formula, one power of r too many; Using the wrong factor for a percentage decrease, or subtracting the same amount each year; Counting one multiplication too few: when u₁ is the starting value, the value after t years needs t multiplications; Using the annual rate with kn periods, instead of dividing the rate by k; Using simple interest instead of compounding; Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss; Treating depreciation as linear: subtracting the same percentage of the original price each year; Thinking r below one is enough, so a large negative ratio seems to converge; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity.
+- **Misconceptions used:** 13. Confuses the percentage rate with the growth factor, which is one plus the rate; Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the start value as the value after one period, so the exponent is off by one; Thinks a reciprocal base reflects the graph in the x-axis rather than the y-axis; Using r^n in the term formula, one power of r too many; Using the wrong factor for a percentage decrease, or subtracting the same amount each time; Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications; Using the annual rate with kn periods, instead of dividing the rate by k; Using simple interest instead of compounding; Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss; Treating depreciation as linear: subtracting the same percentage of the original price each year; Thinking r below one is enough, so a large negative ratio seems to converge; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity.
 
 ### 3. Graphs and key features (syllabus 2.3, 2.4, 2.10)
 
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 9 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 10 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1713,6 +1713,36 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): If the common difference d is negative, the sum Sₙ is negative for every large enough n. — True. Sₙ = n/2 (2u₁ + (n − 1)d), and the bracket keeps falling by d for each extra term, so it becomes negative and stays negative.
   - *always-sometimes-never* (L3): For an arithmetic sequence of whole numbers, Sₙ is a multiple of n. — Sometimes: Sₙ = n × (u₁ + uₙ)/2, so it is a multiple of n exactly when u₁ + uₙ is even.
 - **Misconceptions used:** 12. Using u₁ + nd, which counts one step too many; Finding d as the earlier term minus the later term, so a decreasing sequence gets a positive d; Confusing the position n with the value u_n; Dividing by the number of terms instead of the number of gaps; Treating the given term as u₁ when asked for the first term; Answering with n when the question asks for the term itself (or the reverse); Forgetting to add one when counting terms; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Finding u_n when the question asks for S_n (or the reverse); Keeping the negative root of the quadratic as a number of terms; Answering with the value of the sum instead of the number of terms n.
+
+#### Geometric sequence or series modelling a context (`t1-geometric-in-context`, exam, 6 bank parts)
+
+- **Situation:** A story modelled by a geometric sequence.
+- **Representations:** **words**, **notation**, **diagram**, table, graph (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given a value and a percentage change → the multiplier r
+  - **exam** L2: given a value today and its percentage change, or a table → the value after t rounds, which is t multiplications
+  - **exam** L2: given an amount in round 1 and its percentage change, or a table → the amount in round n, which is n − 1 multiplications
+  - **exam** L1: given u₁ as the value today → which term is the value after t rounds
+  - **exam** L2: given a drop height and a rebound fraction or percentage → the height after the kth bounce
+  - **exam** L2: given an amount in round 1 and how it changes → uₙ as an expression in n
+  - **exam** L3: given an amount in round 1 and its percentage change, or a table → the total over n rounds
+  - **exam** L4: given a flat deal and a deal rising by a percentage, for n payments → the difference between the two totals
+  - **exam** L4: given an arithmetic model and a geometric one → the first round in which the geometric one is ahead
+  - **exam** L3: given the sides of a first rectangle and their scale factor → the area of the nth rectangle, in terms of n
+  - **exam** L4: given the sides of a first rectangle, their scale factor and how many rectangles → the mean area, as p × (b^a − 1)
+  - **exam** L3: given a rising sequence and a target → the least n with uₙ past the target
+  - **exam** L3: given a value today, its percentage change and a target → the least whole t after which the target is passed
+  - **exam** L4: given a rising sequence and a target for the total → the least n with Sₙ past the target
+  - **exam** L4: given u₁, a later term and a target for the total → the least n with Sₙ past the target, after finding r
+  - **exam** L3: given a falling sequence and a small value → the least n with uₙ below it
+  - **exam** L4: given a falling sequence or its Σ, and a small value → the least n with S∞ − Sₙ below it
+  - **exam** L2: given the first terms and the last, which is u₁ times an exact power of r → the number of terms
+- **Angles:** Convert the percentage change to a multiplier r; Build a year-by-year table; Tabulate competing models side by side; Graph both models and find where they cross; Take logarithms to bring n down; Scroll a GDC table of u_n or S_n; Intersect the curve with a horizontal line; Recognise an exact power.
+- **Concept probes:**
+  - *true-false-reason* (L3): If a value is u₁ today and grows by a fixed percentage each year, then its value after 10 years is u₁₀. — False: u₁ is today, so u₂ is after 1 year and u₁₁ is after 10 years. The term number is one more than the years passed.
+  - *always-sometimes-never* (L3): A model that grows by a fixed percentage overtakes one that grows by a fixed amount. — Always, if the percentage is above 0 and it starts positive: the fixed percentage adds more each year, and in the end more than any fixed amount.
+  - *predict-check* (L3): A ball rebounds to 3/4 of its height. Predict which bounce first stays under half the drop, then check. — The 3rd: 3/4, then 9/16, then 27/64, which is the first below 1/2.
+- **Misconceptions used:** 20. Using the percentage as r, instead of the multiplier that the percentage gives; Using the wrong factor for a percentage decrease, or subtracting the same amount each time; Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications; Adding the same amount each step instead of multiplying, so that a percentage rise grows in a straight line; Giving the last amount instead of the total of all the amounts; Giving the last round in which the first model is still ahead, instead of the first round the second one leads; Using the factor for a length as the factor for an area, instead of squaring it; Stopping at the total of the terms, without dividing by how many there are, when the mean is asked; Not flipping the inequality when dividing by ln r, which is negative when r is below one; Rounding n down instead of up for 'the least n such that'; Giving the term or the sum instead of n; Stopping at the last n that falls short of the target instead of the first n that meets it; Taking the power of r as the number of terms, which is one too few; Testing the wrong quantity: a term when the condition is on a total or a gap, or the total when it is on a term; Giving the term number instead of the steps passed, when u₁ is the value at the start; Using r^n in the term formula, one power of r too many; Multiplying u₁ and r first and raising the product to the power, instead of raising r alone; Using a power one lower than n in the sum formula; Subtracting terms as if the sequence were arithmetic; Counting terms instead of steps, so the power of r is one too high.
 
 #### Geometric sequence: find r, u1, a term or S_n (`t1-geometric-sequence`, exam, 9 bank parts)
 
