@@ -138,7 +138,7 @@ static func is_built(region: String, course: String = "") -> bool:
 ##   "coverage": otherwise the lowest share of the region's cells checked.
 ## Ties go to the earlier region in that order.
 static func suggest(save: Dictionary, regions: Array = MapLink.region_ids()) -> Dictionary:
-	var open := regions.filter(func(id): return is_built(id))
+	var open := regions.filter(func(id): return is_built(id, Courses.of(save)))
 	for id in open:
 		if accuracy(save, id).seen == 0 and best_floor(save, id) == 0:
 			return {"region": id, "why": "untried"}

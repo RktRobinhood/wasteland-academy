@@ -279,6 +279,16 @@ func test_no_pick_with_nothing_open() -> void:
 		"only regions with nothing built")
 
 
+func test_sparks_pick_excludes_regions_outside_the_students_course() -> void:
+	var save := SaveData.blank()
+	save.course = "ai-sl"
+	check(Progress.is_built("transformations"), "transformations is built for other courses")
+	check(not Progress.is_built("transformations", "ai-sl"), "AI SL does not cover transformations")
+	check_eq(Progress.suggest(save, ["transformations"]), {}, "never suggest an unavailable region")
+	check_eq(Progress.suggest(save, ["transformations", "quadratics"]),
+		{"region": "quadratics", "why": "untried"}, "suggest an available region instead")
+
+
 # ── Screens ──────────────────────────────────────────────────
 
 func test_the_world_map() -> void:
