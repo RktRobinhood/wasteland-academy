@@ -3949,6 +3949,54 @@
     "a solution in degrees is a whole number"
    ]
   },
+  "trig-quadratic": {
+   "name": "A trig equation that is a quadratic in one ratio",
+   "summary": "Pick the roots in u, sin x, cos x or tan x: landmark values, sometimes with a root outside the range. Build the quadratic forward from them, so it factorises cleanly, then disguise it with cos²x, cos 2x, a compound angle or a number over a bracket. Every solution follows on the interval, as a multiple of π or in degrees. A quadratic with no rational root gives a surd for sin x, or 3 s.f. solutions on Paper 2.",
+   "quantities": [
+    {
+     "name": "fn, b",
+     "is": "u = fn(bx)",
+     "pick": "sin, cos or tan; b is 1, or 2 or 3 in a compound equation"
+    },
+    {
+     "name": "us, kept, bad",
+     "is": "the roots in u, those in range and the one to reject",
+     "pick": "0, ±1/2 or ±1, with ±2, ±3 or ±3/2 to reject; ±√2/2, ±√3/2 for u² equal to a number; tan's landmark values"
+    },
+    {
+     "name": "p, lead, cons, sc",
+     "is": "the quadratic in u, its brackets and what makes the number in front of cos 2x whole",
+     "pick": "worked out from the roots"
+    },
+    {
+     "name": "dis, lay",
+     "is": "how the equation is written",
+     "pick": "direct, pythag or double, with the number, the term in u or neither on the right"
+    },
+    {
+     "name": "lo, hi, open_hi, form",
+     "is": "the interval and how angles are written",
+     "pick": "0 to π, 0 to 2π or −π to π, longer for a count; pi or deg"
+    },
+    {
+     "name": "e, q, top, gaps",
+     "is": "p u + q + top/(u − e), and the x where its bracket is 0",
+     "pick": "e is 1 or −1, and q and top come from dividing the quadratic by (u − e)"
+    },
+    {
+     "name": "u_dec, kept_dec, bad_dec",
+     "is": "the roots of a quadratic with no rational root, on Paper 2",
+     "pick": "a, b and c whole, a discriminant that isn't a square, and roots clear of 0 and ±1"
+    }
+   ],
+   "clean": [
+    "a factorisable quadratic is built forward from its roots",
+    "Paper 1 roots in range have landmark angles, except the one surd value of formula-root",
+    "there are at most 8 solutions, 12 for a count",
+    "a solution in degrees is a whole number",
+    "the bank's and the map's own equations are never drawn"
+   ]
+  },
   "trig-model": {
    "name": "One wave and the model behind it",
    "summary": "Pick the top and bottom of a wave and where it peaks. Half the range, the mean, the period and the shift all follow, whichever of them is hidden. On Paper 1 the across axis is in multiples of π; on Paper 2 it is a story in hours, minutes or days.",
@@ -35973,14 +36021,775 @@
    "id": "t3-trig-quadratic",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Trig equation that is a quadratic in sin or cos",
+   "summary": "Solve a trig equation that is a quadratic in sin x, cos x or tan x: write the quadratic after an identity, choose the identity, factorise or use the formula, reject a root outside the range, then give every solution on an interval, how many there are, one of them or their sum, with exact answers on Paper 1 and 3 s.f. from a graph of the whole equation on Paper 2.",
    "syllabus": [
     "3.8",
     "2.7"
    ],
    "skills": [
     "SL3.8.quadratic-in-trig"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "choose the identity that leaves one function: cos²x = 1 − sin²x, or the form of cos 2x in the ratio the equation already has",
+    "bring every term to one side and let u = sin x, cos x or tan x",
+    "factorise, or use the quadratic formula",
+    "reject any root of sin or cos outside −1 to 1",
+    "solve each root on the interval, and collect the solutions"
+   ],
+   "given": [
+    "an equation in one ratio",
+    "an equation with a squared ratio or cos 2x to swap",
+    "a number over a bracket in the ratio",
+    "a quadratic with surd coefficients",
+    "a graph of the whole equation",
+    "y = sin x with a dashed line at each root"
+   ],
+   "asked": "The quadratic in u, the identity, the brackets, the values of u, the root to reject and why, every solution, how many there are, one solution, their sum, or a letter in the quadratic.",
+   "answerForms": [
+    "exact multiples of π",
+    "degrees",
+    "a quadratic in u",
+    "two brackets",
+    "a surd for sin x or cos x",
+    "a whole number for a count",
+    "3 s.f. on Paper 2"
+   ],
+   "randomise": [
+    "the roots in u, and whether one is rejected",
+    "sin, cos or tan",
+    "how the equation is disguised",
+    "which term is on the right",
+    "the interval, in radians or degrees",
+    "the multiple of x inside a compound equation"
+   ],
+   "constraints": [
+    "every bank part is Paper 1, so every question is but the two GDC unknowns",
+    "the equation is built forward from its roots, so a factorisable quadratic factorises cleanly",
+    "roots in range are landmark values, or give a surd for formula-root",
+    "the bank's and the map's own equations are never drawn",
+    "the solutions can be typed in any order",
+    "a wrong option may have another number of solutions, and can then be picked but not typed",
+    "a Paper 2 root keeps clear of 0 and ±1, and every 3 s.f. value is clear of a rounding edge"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "trig-quadratic",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the equation and its interval written out: 2 sin²x + 3 cos x = 3, for 0 ≤ x ≤ 2π"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the whole equation as a curve, with its zeros marked for gdc-solve, or the wave with a dashed line at each root in u"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "quadratic-in-u",
+     "given": [
+      "an equation with cos²x, sin²x or cos 2x in it"
+     ],
+     "asked": "the quadratic in sin x or cos x, with its first number given",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "identity-to-use",
+     "given": [
+      "an equation with cos²x, sin²x or cos 2x in it"
+     ],
+     "asked": "the identity that leaves one function in a quadratic",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "factorised-form",
+     "given": [
+      "a quadratic in sin x or cos x"
+     ],
+     "asked": "its two brackets",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "values-of-u",
+     "given": [
+      "an equation that is a quadratic in u"
+     ],
+     "asked": "the two values of u",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "formula-root",
+     "given": [
+      "a quadratic in u with no whole-number factors"
+     ],
+     "asked": "the exact value of sin x or cos x, by the formula, with the other root rejected",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "reject-root",
+     "given": [
+      "an equation with a root outside the range"
+     ],
+     "asked": "the root that gives no solutions, and why",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "all-solutions",
+     "given": [
+      "an equation in sin x or cos x, direct or with a squared ratio to swap, and an interval"
+     ],
+     "asked": "every solution, exactly",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "all-solutions-degrees",
+     "given": [
+      "the equation and an interval in degrees"
+     ],
+     "asked": "every solution in degrees",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "double-angle-solve",
+     "given": [
+      "an equation with cos 2x and sin x or cos x, and an interval"
+     ],
+     "asked": "every solution, exactly",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "plus-minus-root",
+     "given": [
+      "a number times sin²x or cos²x equal to a number, and an interval"
+     ],
+     "asked": "every solution, from both roots",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "tan-squared",
+     "given": [
+      "a number times tan²x equal to a number, or tan x and a number over tan x, and an interval"
+     ],
+     "asked": "every solution, from both roots",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "tan-zero-root",
+     "given": [
+      "tan²x equal to a number times tan x, and an interval"
+     ],
+     "asked": "every solution, tan x = 0 among them",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "surd-coefficient",
+     "given": [
+      "a quadratic with surd coefficients in sin x, cos x or tan x, and an interval"
+     ],
+     "asked": "every solution, exactly",
+     "level": 5,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "compound-quadratic",
+     "given": [
+      "a quadratic in sin 2x, cos 2x, sin 3x or cos 3x, and an interval"
+     ],
+     "asked": "every solution, exactly",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "rational-disguise",
+     "given": [
+      "u plus a number over a bracket in u, for u = sin x, cos x, sin 2x or cos 2x, with the values that make the bracket 0 ruled out"
+     ],
+     "asked": "every solution, exactly",
+     "level": 5,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "double-factor",
+     "given": [
+      "sin 2x equal to a number times cos²x, or sin 2x sin x equal to a number times cos x, and an interval"
+     ],
+     "asked": "every solution, with cos x = 0 among them",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "count-solutions",
+     "given": [
+      "the equation and an interval, up to two turns"
+     ],
+     "asked": "how many solutions there are",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "one-solution",
+     "given": [
+      "the equation and an interval"
+     ],
+     "asked": "the largest, the smallest or the smallest positive solution",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "sum-solutions",
+     "given": [
+      "the equation and an interval"
+     ],
+     "asked": "the sum of the solutions, in π or degrees",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "constant-from-solution",
+     "given": [
+      "one exact solution of a quadratic in sin x or cos x with one letter in it"
+     ],
+     "asked": "the letter",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "gdc-solve",
+     "given": [
+      "a quadratic with no whole-number factors, direct or disguised, and an interval"
+     ],
+     "asked": "every solution to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    },
+    {
+     "id": "gdc-count",
+     "given": [
+      "the equation, a long interval and the whole equation as a graph"
+     ],
+     "asked": "how many solutions there are, where the curve crosses or touches the axis",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.quadratic-in-trig"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.8.quadratic-in-trig",
+     "method": "identity-then-factorise",
+     "suits": [
+      "quadratic-in-u",
+      "identity-to-use",
+      "factorised-form",
+      "values-of-u",
+      "reject-root",
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "tan-squared",
+      "tan-zero-root",
+      "surd-coefficient",
+      "compound-quadratic",
+      "rational-disguise",
+      "double-factor",
+      "count-solutions",
+      "one-solution",
+      "sum-solutions",
+      "constant-from-solution"
+     ]
+    },
+    {
+     "skill": "SL3.8.quadratic-in-trig",
+     "method": "quadratic-formula",
+     "suits": [
+      "values-of-u",
+      "formula-root",
+      "reject-root",
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "surd-coefficient",
+      "compound-quadratic",
+      "count-solutions",
+      "gdc-solve"
+     ],
+     "weak": {
+      "kind": "slow",
+      "unknowns": [
+       "all-solutions",
+       "count-solutions"
+      ],
+      "why": "when the quadratic factorises, the formula is more work for the same two roots"
+     }
+    },
+    {
+     "skill": "SL3.8.quadratic-in-trig",
+     "method": "gdc-graph",
+     "suits": [
+      "gdc-solve",
+      "gdc-count"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "2 sin²x − 3 sin x − 2 = 0 has four solutions on 0 ≤ x ≤ 2π, since each of its two roots gives two.",
+     "answer": "False: the roots are sin x = −1/2 and sin x = 2, and sin x is never 2. Only x = 7π/6 and 11π/6 are solutions.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A quadratic in sin x with two different roots in −1 < u < 1 has four solutions on 0 ≤ x < 2π.",
+     "answer": "Always: a line strictly between −1 and 1 crosses the sine wave twice in one whole turn, and 0 ≤ x < 2π is one whole turn, so each root gives two.",
+     "level": 4
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Which form of cos 2x should you use in cos 2x + 2 cos x + 1 = 0?",
+     "answer": "2cos²x − 1, since the rest of the equation is in cos x: it gives 2cos²x + 2 cos x = 0, so cos x = 0 or cos x = −1.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.8.quadratic-in-trig#0",
+     "text": "Accepting a root outside the range of sine or cosine as giving solutions",
+     "as": "distractor",
+     "in": [
+      "formula-root",
+      "reject-root",
+      "count-solutions",
+      "gdc-count"
+     ],
+     "wrong": "the root out of range kept, or counted as if it gave two solutions a turn"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#1",
+     "text": "Taking only the positive root of tan²x",
+     "as": "distractor",
+     "in": [
+      "tan-squared"
+     ],
+     "wrong": "the solutions of the positive root alone"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#2",
+     "text": "Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u",
+      "identity-to-use"
+     ],
+     "wrong": "cos 2x in cos²x, with sin x still in the equation"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#3",
+     "text": "Using cos 2x = 1 − 2sin²x when the equation also contains cos x, leaving two different functions",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u",
+      "identity-to-use"
+     ],
+     "wrong": "cos 2x in sin²x, with cos x still in the equation"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#4",
+     "text": "Taking only the positive root when sin²x or cos²x equals a number",
+     "as": "distractor",
+     "in": [
+      "plus-minus-root",
+      "double-factor"
+     ],
+     "wrong": "the solutions of the positive root alone"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#5",
+     "text": "Solving only one bracket of the factorised quadratic and dropping the other",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "surd-coefficient",
+      "compound-quadratic",
+      "rational-disguise",
+      "one-solution",
+      "sum-solutions"
+     ],
+     "wrong": "the solutions of one root alone"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#6",
+     "text": "Getting the sign of each root wrong, often by reading the number straight from its bracket",
+     "as": "distractor",
+     "in": [
+      "factorised-form",
+      "values-of-u",
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "surd-coefficient",
+      "rational-disguise",
+      "one-solution",
+      "sum-solutions"
+     ],
+     "wrong": "each root with its sign changed"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#7",
+     "text": "Using the Pythagorean identity with the wrong sign",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u",
+      "identity-to-use"
+     ],
+     "wrong": "cos²x as sin²x − 1 or 1 + sin²x"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#8",
+     "text": "Keeping solutions that are outside the stated interval",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "tan-squared",
+      "surd-coefficient"
+     ],
+     "wrong": "the solutions on a whole turn when the interval is half of one"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#9",
+     "text": "Moving a term across the equals sign without changing its sign",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u"
+     ],
+     "wrong": "the term on the right added to the left as it stands"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#10",
+     "text": "Counting one solution for each root of the quadratic, when one root can give several",
+     "as": "distractor",
+     "in": [
+      "count-solutions",
+      "gdc-count"
+     ],
+     "wrong": "the number of roots"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#11",
+     "text": "Counting only where the curve crosses the axis, and missing where it only touches",
+     "as": "distractor",
+     "in": [
+      "gdc-count"
+     ],
+     "wrong": "the count without the solutions at u = 1 or −1"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#12",
+     "text": "Rejecting a root because it is negative, although sine and cosine can be negative",
+     "as": "distractor",
+     "in": [
+      "reject-root"
+     ],
+     "wrong": "the negative root in range rejected"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#13",
+     "text": "Forgetting to double a in the denominator of the quadratic formula",
+     "as": "distractor",
+     "in": [
+      "formula-root"
+     ],
+     "wrong": "the root over a instead of 2a"
+    },
+    {
+     "ref": "SL3.8.quadratic-in-trig#14",
+     "text": "Forgetting to square the value of sin x or cos x in the squared term",
+     "as": "distractor",
+     "in": [
+      "constant-from-solution"
+     ],
+     "wrong": "u in place of u²"
+    },
+    {
+     "ref": "SL3.6.double-angle-values#1",
+     "text": "Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ",
+     "as": "distractor",
+     "in": [
+      "quadratic-in-u",
+      "identity-to-use"
+     ],
+     "wrong": "cos 2x as 1 − sin²x or cos²x − 1"
+    },
+    {
+     "ref": "SL3.8.solve-basic#0",
+     "text": "Stopping at one solution instead of finding them all",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "tan-squared",
+      "surd-coefficient",
+      "one-solution",
+      "sum-solutions",
+      "gdc-solve"
+     ],
+     "wrong": "the principal value of each root alone"
+    },
+    {
+     "ref": "SL3.8.solve-basic#1",
+     "text": "Finding a cosine equation's second solution the way you would for sine",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "surd-coefficient"
+     ],
+     "wrong": "α and π − α for a cosine"
+    },
+    {
+     "ref": "SL3.8.solve-basic#2",
+     "text": "Missing the solutions below zero in the interval",
+     "as": "distractor",
+     "in": [
+      "all-solutions",
+      "all-solutions-degrees",
+      "double-angle-solve",
+      "plus-minus-root",
+      "tan-squared",
+      "surd-coefficient"
+     ],
+     "wrong": "the solutions from 0 up only"
+    },
+    {
+     "ref": "SL3.8.compound-angle#0",
+     "text": "Solving for the multiple angle without extending the interval, which loses solutions",
+     "as": "distractor",
+     "in": [
+      "compound-quadratic",
+      "rational-disguise"
+     ],
+     "wrong": "the first wave's solutions only"
+    },
+    {
+     "ref": "SL3.8.compound-angle#1",
+     "text": "Undoing only the principal value and forgetting the other solutions",
+     "as": "distractor",
+     "in": [
+      "compound-quadratic"
+     ],
+     "wrong": "the principal value undone, alone"
+    },
+    {
+     "ref": "SL3.8.factorise-not-divide#0",
+     "text": "Cancelling a factor that can be zero, which loses its solutions",
+     "as": "distractor",
+     "in": [
+      "tan-zero-root",
+      "double-factor"
+     ],
+     "wrong": "tan x or cos x cancelled, its solutions gone"
+    },
+    {
+     "ref": "SL3.8.graphical#0",
+     "text": "Looking at only part of the interval and missing solutions",
+     "as": "distractor",
+     "in": [
+      "count-solutions",
+      "gdc-count"
+     ],
+     "wrong": "the count over the first whole turn alone"
+    },
+    {
+     "ref": "SL3.8.graphical#2",
+     "text": "Leaving the GDC in degree mode",
+     "as": "distractor",
+     "in": [
+      "gdc-solve"
+     ],
+     "wrong": "the solutions in degrees"
+    },
+    {
+     "ref": "SL3.8.graphical#4",
+     "text": "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+     "as": "distractor",
+     "in": [
+      "count-solutions",
+      "gdc-count"
+     ],
+     "wrong": "two solutions counted at u = 1 or −1"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p1-q03.b",

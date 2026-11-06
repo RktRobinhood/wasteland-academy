@@ -32759,6 +32759,514 @@ def e10tm_check(q):
 
 # ── end trig-model-equation ──
 
+# ── trig-quadratic (t3-trig-quadratic, FAL-753) ──────────────────────────
+# The `trig-quadratic` situation's checker. It reads the equation and the interval back from the
+# stem, as SymPy, and solves it itself. Every sine and cosine goes to a point (S, C) on the circle:
+# the equation becomes a polynomial in S and C, S is eliminated with S² + C² = 1, and each real
+# root C gives the angles that fit. Those are stepped round onto the interval. So no identity, root
+# or solution comes from the engine, and an exact answer is confirmed by putting it back in the
+# equation. The quadratic in u and each tagged wrong option are worked out from their slips.
+
+E11TQ_X = sp.Symbol("x", real=True)
+E11TQ_S, E11TQ_C, E11TQ_U = sp.symbols("S C u")
+E11TQ_FN = {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan}
+E11TQ_Q = "SL3.8.quadratic-in-trig#"
+E11TQ_RANGE, E11TQ_TAN_ROOT, E11TQ_IN_SIN, E11TQ_IN_COS, E11TQ_PLUS, E11TQ_ONE, E11TQ_SIGNS, E11TQ_PYTHAG, E11TQ_OUT, E11TQ_MOVED, E11TQ_ONE_EACH, E11TQ_TOUCH, E11TQ_NEG, E11TQ_HALF, E11TQ_NO_SQ = [E11TQ_Q + str(i) for i in range(15)]
+E11TQ_LOSE = "SL3.6.double-angle-values#1"
+E11TQ_STOP, E11TQ_MIRROR, E11TQ_BELOW = "SL3.8.solve-basic#0", "SL3.8.solve-basic#1", "SL3.8.solve-basic#2"
+E11TQ_WAVE, E11TQ_BACK = "SL3.8.compound-angle#0", "SL3.8.compound-angle#1"
+E11TQ_CANCEL = "SL3.8.factorise-not-divide#0"
+E11TQ_PART, E11TQ_DEG, E11TQ_TWICE = "SL3.8.graphical#0", "SL3.8.graphical#2", "SL3.8.graphical#4"
+E11TQ_LIST = ("all-solutions", "all-solutions-degrees", "double-angle-solve", "surd-coefficient")
+E11TQ_GDC = ("gdc-solve", "gdc-count")
+
+
+def E11TQ_expr(text):
+    """A side of an equation as the game writes it, as SymPy in x."""
+    t = re.sub(r"(sin|cos|tan)²(\d)x", r"\1(\2*x)**2", text.strip())
+    ns = {"x": E11TQ_X, "pi": sp.pi, "sqrt": sp.sqrt, "sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "k": sp.Symbol("k")}
+    return sp.sympify(tq_python(t), locals=ns, rational=True)
+
+
+def E11TQ_sides(eq):
+    left, right = eq.split(" = ")
+    return E11TQ_expr(left), E11TQ_expr(right)
+
+
+@lru_cache(maxsize=None)
+def E11TQ_angles(f):
+    """Every angle in (−π, π] with f = 0, as floats: the elimination on the circle."""
+    S, C = E11TQ_S, E11TQ_C
+    g = sp.expand_trig(f).subs(sp.tan(E11TQ_X), sp.sin(E11TQ_X) / sp.cos(E11TQ_X)).subs({sp.sin(E11TQ_X): S, sp.cos(E11TQ_X): C})
+    top, under = sp.fraction(sp.together(g))
+    top = sp.expand(top)
+    circle = S**2 + C**2 - 1
+    r = sp.Poly(sp.rem(sp.Poly(top, S, C, extension=True).as_expr(), circle, S), S)
+    a, b = r.coeff_monomial(1), r.coeff_monomial(S)
+    p = sp.Poly(sp.expand(a**2 - b**2 * (1 - C**2)), C, extension=True).sqf_part()
+    out = set()
+    with mpmath.workdps(60):
+        cs = [mpmath.mpf(str(sp.N(c, 60))) for c in p.all_coeffs()]
+        roots = mpmath.polyroots(cs, maxsteps=500, extraprec=400)
+        num = sp.lambdify((S, C), top, "mpmath")
+        den = sp.lambdify((S, C), under, "mpmath")
+        for root in roots:
+            if abs(mpmath.im(root)) > 1e-25 or abs(mpmath.re(root)) > 1 + 1e-25:
+                continue
+            c = max(min(mpmath.re(root), mpmath.mpf(1)), mpmath.mpf(-1))
+            for sign in (1, -1):
+                s = sign * mpmath.sqrt(1 - c * c)
+                if abs(num(s, c)) < 1e-18 and abs(den(s, c)) > 1e-18:
+                    t = float(mpmath.atan2(s, c))
+                    out.add(round(math.pi if abs(t + math.pi) < 1e-12 else t, 11))
+    return tuple(sorted(out))
+
+
+def E11TQ_solve(f, lo, hi, open_hi=False):
+    """Every x in radians with f(x) = 0 on the interval. A compound angle is expanded first."""
+    xs = set()
+    for t in E11TQ_angles(f):
+        for n in range(-8, 9):
+            x = t + 2 * n * math.pi
+            if lo - 1e-9 <= x <= hi + 1e-9 and not (open_hi and abs(x - hi) < 1e-9):
+                xs.add(round(x, 10))
+    return sorted(xs)
+
+
+def E11TQ_read(line):
+    """The stem's first line: {eq, f, left, right, lo, hi, open_hi, deg, unit}."""
+    m = re.fullmatch(r"(.+?), for (\S+) ≤ x (≤|<) (\S+?)(?:, x ≠ (.+))?", line)
+    need(m is not None, f"can't read {line!r}")
+    deg = m[2].endswith("°")
+    left, right = E11TQ_sides(m[1])
+    ends = [E11TQ_expr(e.replace("°", "")) for e in (m[2], m[4])]
+    unit = sp.Rational(1) if deg else sp.pi
+    return dict(eq=m[1], left=left, right=right, f=sp.expand(left - right), deg=deg, open_hi=m[3] == "<", gaps=m[5],
+                lo=float(ends[0]), hi=float(ends[1]), lo_r=math.radians(float(ends[0])) if deg else float(ends[0]), hi_r=math.radians(float(ends[1])) if deg else float(ends[1]))
+
+
+def E11TQ_exact(E, xs):
+    """Solutions in radians as the game names them, each put back in the equation exactly."""
+    out = []
+    for x in xs:
+        m = sp.Rational(round(x / math.pi * 144), 144)
+        need(abs(float(m) * math.pi - x) < 1e-8, f"{x} is no multiple of π")
+        need(sp.simplify(E["f"].subs(E11TQ_X, m * sp.pi)) == 0, f"{m}π doesn't solve {E['eq']}")
+        out.append(m)
+    return out
+
+
+def E11TQ_name(E, m):
+    return tr_angle(m, "deg" if E["deg"] else "pi")
+
+
+def E11TQ_names(E, ms):
+    return tq_list([E11TQ_name(E, m) for m in ms])
+
+
+def E11TQ_in_u(f, fn, b):
+    """The quadratic in u that f is: [a, b, c], whatever identity it takes. Its first is positive."""
+    x, u = E11TQ_X, E11TQ_U
+    body = E11TQ_FN[fn](b * x)
+    g = f
+    if b != 1:
+        pass
+    elif fn == "sin":
+        g = g.subs(sp.cos(2 * x), 1 - 2 * sp.sin(x)**2).subs(sp.cos(x)**2, 1 - sp.sin(x)**2)
+    elif fn == "cos":
+        g = g.subs(sp.cos(2 * x), 2 * sp.cos(x)**2 - 1).subs(sp.sin(x)**2, 1 - sp.cos(x)**2)
+    g = sp.fraction(sp.together(g.subs(body, u)))[0]
+    need(not g.has(x), f"{f} is not a quadratic in {fn}")
+    p = sp.Poly(sp.expand(g), u, extension=True).all_coeffs()
+    need(len(p) == 3, f"{f} is not a quadratic in {fn}")
+    return [c if p[0] > 0 else -c for c in p]
+
+
+def E11TQ_roots(cs):
+    a, b, c = cs
+    d = sp.sqrtdenest(sp.sqrt(sp.expand(b**2 - 4 * a * c)))
+    return [sp.radsimp(sp.simplify((-b + d) / (2 * a))), sp.radsimp(sp.simplify((-b - d) / (2 * a)))]
+
+
+def E11TQ_on(E, fn, k, b=1):
+    """fn(bx) = k on the interval: solutions in radians."""
+    return E11TQ_solve(E11TQ_FN[fn](b * E11TQ_X) - k, E["lo_r"], E["hi_r"], E["open_hi"])
+
+
+def E11TQ_val(E, r):
+    """A value in the question's unit for a list of names."""
+    return sp.Rational(round(r / math.pi * 144), 144)
+
+
+def E11TQ_txt(E, xs):
+    return E11TQ_names(E, [E11TQ_val(E, r) for r in sorted(xs)]) if xs else None
+
+
+def E11TQ_kept(fn, us):
+    return [u for u in us if fn == "tan" or abs(sp.N(u)) <= 1]
+
+
+def E11TQ_principal(fn, k, b, E):
+    al = {"sin": math.asin, "cos": math.acos, "tan": math.atan}[fn](float(k)) / b
+    return al if E["lo_r"] - 1e-9 <= al <= E["hi_r"] + 1e-9 else None
+
+
+def E11TQ_mains(E, fn, ks, b):
+    out = [E11TQ_principal(fn, k, b, E) for k in ks]
+    return sorted({round(a, 10) for a in out if a is not None})
+
+
+def E11TQ_flip(E, fn, ks, b=1):
+    xs = set()
+    for k in ks:
+        xs |= set(E11TQ_on(E, fn, -k, b))
+    return sorted(xs)
+
+
+def E11TQ_slips(E, fn, ks, xs, b, one):
+    """What each slip gives on a list of solutions. `one` is the tag of keeping one root."""
+    w = defaultdict(set)
+    add = lambda ref, rs: w[ref].add(E11TQ_txt(E, rs)) if rs else None
+    if len(ks) == 2:
+        add(one, E11TQ_on(E, fn, ks[0], b))
+        if one == E11TQ_ONE:
+            add(one, E11TQ_on(E, fn, ks[1], b))
+    mains = E11TQ_mains(E, fn, ks, b)
+    if len(mains) < len(xs):
+        add(E11TQ_STOP, mains)
+    if fn == "cos":
+        pair = set(mains)
+        for al in mains:
+            o = math.pi - al
+            if E["lo_r"] - 1e-9 <= o <= E["hi_r"] + 1e-9:
+                pair.add(round(o, 10))
+        add(E11TQ_MIRROR, sorted(pair))
+    if one == E11TQ_ONE:
+        add(E11TQ_SIGNS, E11TQ_flip(E, fn, ks, b))
+    if E["lo_r"] == 0 and abs(E["hi_r"] - math.pi) < 1e-9:
+        wide = dict(E, hi_r=2 * math.pi)
+        got = set()
+        for k in ks:
+            got |= set(E11TQ_on(wide, fn, k, b))
+        add(E11TQ_OUT, sorted(got))
+    if E["lo_r"] < 0:
+        add(E11TQ_BELOW, [x for x in xs if x >= -1e-9])
+    return w
+
+
+def E11TQ_curve(q, E, marks=None):
+    """The figure is the whole equation on the interval, with its zeros marked if it marks any."""
+    F = sp.lambdify(E11TQ_X, E["f"], "math")
+    g = q["graph"]
+    need(g is not None, "no figure")
+    pts = [p for c in g["curves"] for p in c]
+    for x, y in pts[::13]:
+        need(E["lo_r"] - 1e-6 <= x <= E["hi_r"] + 1e-6, "the curve runs off the interval")
+        need(abs(y - F(x)) < 1e-6, "the curve is another equation")
+    got, want = sorted(p["x"] for p in g["points"]), sorted(marks or [])
+    need(len(got) == len(want) and all(abs(a - b) < 1e-6 for a, b in zip(got, want)), "the marks aren't the zeros")
+
+
+def E11TQ_lines(q, E, us):
+    g = q["graph"]
+    need(g is not None and sorted(round(h["at"], 6) for h in g["hlines"]) == sorted(round(float(u), 6) for u in us), "the dashed lines aren't the roots")
+
+
+def E11TQ_quad_text(fn, cs, x="x"):
+    parts = [(cs[0], f"{fn}²{x}"), (cs[1], f"{fn} {x}"), (cs[2], "")]
+    out = ""
+    for c, body in parts:
+        if c == 0:
+            continue
+        size = frac_text(abs(c)) if body == "" else ("" if abs(c) == 1 else f"{frac_text(abs(c))} ") + body
+        out += (("−" if c < 0 else "") + size) if out == "" else f" {'+' if c > 0 else '−'} {size}"
+    return out + " = 0"
+
+
+def E11TQ_lead(cs, lead):
+    k = lead / cs[0]
+    return [c * k for c in cs]
+
+
+def E11TQ_step_one(q, g, u):
+    """The unknowns that stop at one step of the solution."""
+    L, fn = q["lines"], g["fn"]
+    eq = L[0]
+    left, right = E11TQ_sides(eq)
+    f = sp.expand(left - right)
+    x = E11TQ_X
+    cs = E11TQ_in_u(f, fn, 1)
+    if u == "quadratic-in-u":
+        lead = R(re.search(r"in the form (\d*) ?(?:sin|cos)", q["asked"])[1] or 1)
+        cs = E11TQ_lead(cs, lead)
+        want = E11TQ_quad_text(fn, cs)
+        need(q["asked"].endswith(f"{'' if lead == 1 else str(lead) + ' '}{fn}²x + b {fn} x + c = 0."), f"can't read {q['asked']!r}")
+        w = defaultdict(set)
+        o = "cos" if fn == "sin" else "sin"
+        if left.has(sp.cos(2 * x)):
+            into = {"sin": 2 * sp.cos(x)**2 - 1, "cos": 1 - 2 * sp.sin(x)**2}[fn]
+            h = f.subs(sp.cos(2 * x), into)
+            lead2 = h.coeff(E11TQ_FN[o](x), 2)
+            h = sp.expand(h if lead2 > 0 else -h)
+            two = [h.coeff(E11TQ_FN[o](x), 2), h.coeff(E11TQ_FN[fn](x), 1), h.subs({E11TQ_FN[o](x): 0, E11TQ_FN[fn](x): 0})]
+            parts = E11TQ_quad_text(o, [two[0], 0, 0])[:-4]
+            rest = E11TQ_quad_text(fn, [1, two[1], two[2]])[:-4].split("²x", 1)[1]
+            w[E11TQ_IN_SIN if fn == "sin" else E11TQ_IN_COS].add(parts + rest + " = 0")
+            lose = {"sin": 1 - sp.sin(x)**2, "cos": sp.cos(x)**2 - 1}[fn]
+            w[E11TQ_LOSE].add(E11TQ_quad_text(fn, E11TQ_in_u(f.subs(sp.cos(2 * x), lose), fn, 1)))
+        else:
+            g2 = E11TQ_in_u(f.subs(E11TQ_FN[o](x)**2, E11TQ_FN[fn](x)**2 - 1), fn, 1)
+            w[E11TQ_PYTHAG].add(E11TQ_quad_text(fn, E11TQ_lead(g2, lead)))
+        if right != 0:
+            g3 = E11TQ_in_u(sp.expand(left + right), fn, 1)
+            w[E11TQ_MOVED].add(E11TQ_quad_text(fn, E11TQ_lead(g3, lead)))
+        gc_check_common(q, want, w, steps=(2, 5))
+        return
+    if u == "identity-to-use":
+        name = re.fullmatch(r"Which identity turns this into a quadratic in (sin|cos) x\?", q["asked"])
+        need(name is not None and name[1] == fn, f"can't read {q['asked']!r}")
+        w = defaultdict(set)
+        goods = []
+        for o in q["choices"]:
+            a, b = E11TQ_sides(o["text"])
+            true = abs(float((a - b).subs(x, 0.7))) < 1e-9
+            target = b.has(E11TQ_FN[fn](x)) and not b.has(E11TQ_FN["cos" if fn == "sin" else "sin"](x))
+            wanted = left.has(a) if not a.is_Pow else f.has(a)
+            if true and target and wanted:
+                goods.append(o["text"])
+            elif o["ref"] in (E11TQ_IN_SIN, E11TQ_IN_COS):
+                need(true and not target and a == sp.cos(2 * x) and o["ref"] == (E11TQ_IN_SIN if fn == "sin" else E11TQ_IN_COS), f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
+            elif o["ref"] == E11TQ_PYTHAG:
+                need(not true and a.is_Pow, f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
+            elif o["ref"] == E11TQ_LOSE:
+                need(not true and a == sp.cos(2 * x), f"{o['text']!r} isn't {o['ref']}")
+                w[o["ref"]].add(o["text"])
+            else:
+                need(not o["ref"], f"no check for {o['ref']}")
+        need(len(goods) == 1, f"{goods} are right")
+        gc_check_common(q, goods[0], w, steps=(2, 5))
+        return
+    us = E11TQ_roots(cs)
+    name = f"{fn} x"
+    kept = [v for v in us if abs(v) <= 1]
+    bad = [v for v in us if abs(v) > 1]
+    if u == "factorised-form":
+        w = defaultdict(set)
+        rd = lambda t: E11TQ_expr(t[:-4])
+        for o in q["choices"]:
+            e = sp.expand(rd(o["text"]))
+            same = sp.expand(e - (left - right)) == 0
+            need(same == o["correct"], f"option {o['text']!r} is marked wrongly")
+            if o["ref"]:
+                need(o["ref"] == E11TQ_SIGNS, f"no check for {o['ref']}")
+                flipped = sp.expand(e.subs(E11TQ_FN[fn](x), -E11TQ_FN[fn](x)) - (left - right))
+                need(flipped == 0, f"{o['text']!r} isn't each root with its sign changed")
+                w[o["ref"]].add(o["text"])
+        gc_check_common(q, q["answer_text"], w, steps=(2, 5))
+        return
+    if u == "values-of-u":
+        need(q["asked"] == f"Let u = {name}. Find the two values of u that solve the quadratic this gives.", f"can't read {q['asked']!r}")
+        order = lambda a, b: f"u = {frac_text(min(a, b))} or u = {frac_text(max(a, b))}"
+        gc_check_common(q, order(us[0], us[1]), {E11TQ_SIGNS: {order(-us[0], -us[1])}}, steps=(2, 5))
+        return
+    if u == "formula-root":
+        need(len(kept) == 1 and len(bad) == 1, "not one root in range and one out")
+        tr_common(q, name + " = ", kept[0], {E11TQ_RANGE: [bad[0]], E11TQ_HALF: [2 * kept[0]]}, steps=(2, 5))
+        return
+    need(u == "reject-root", f"no check for {u}")
+    need(len(kept) == 1 and len(bad) == 1, "not one root in range and one out")
+    say = lambda v, why: f"{name} = {tr_text(v)} has no solutions, as {why}"
+    w = {E11TQ_RANGE: {"Neither: both roots give solutions"}}
+    if kept[0] < 0:
+        w[E11TQ_NEG] = {say(kept[0], "it is negative")}
+    gc_check_common(q, say(bad[0], f"it is outside the range of {name}"), w, steps=(2, 5))
+    if q["view"]["rep"] == "graph":
+        E11TQ_lines(q, {}, us)
+
+
+def E11TQ_count(q, E, fn, b, xs, us):
+    n = len(xs)
+    ks = E11TQ_kept(fn, us)
+    w = defaultdict(set)
+    label = "Number of solutions = "
+    span = sp.nsimplify((E["hi_r"] - E["lo_r"]) / math.pi)
+    if len(ks) < len(us):
+        w[E11TQ_RANGE].add(f"{label}{n + span}")
+    if len(us) != n:
+        w[E11TQ_ONE_EACH].add(f"{label}{len(us)}")
+    ends = sum(len(E11TQ_on(E, fn, k, b)) for k in ks if abs(abs(sp.N(k)) - 1) < 1e-12)
+    if ends:
+        w[E11TQ_TWICE].add(f"{label}{n + ends}")
+        w[E11TQ_TOUCH].add(f"{label}{n - ends}")
+    if span > 2:
+        one = dict(E, hi_r=E["lo_r"] + 2 * math.pi)
+        w[E11TQ_PART].add(f"{label}{len({round(x, 8) for k in ks for x in E11TQ_on(one, fn, k, b)})}")
+    gc_check_common(q, f"{label}{n}", w, steps=(2, 5))
+
+
+def E11TQ_pick(xs, kind):
+    if kind == "largest":
+        return max(xs)
+    if kind == "smallest":
+        return min(xs)
+    return min(x for x in xs if x > 0)
+
+
+def E11TQ_one(q, E, fn, ks, xs):
+    a = re.fullmatch(r"Find the (largest|smallest|smallest positive) solution, in exact form\.", q["asked"])
+    need(a is not None, f"can't read {q['asked']!r}")
+    kind = {"largest": "largest", "smallest": "smallest", "smallest positive": "positive"}[a[1]]
+    want = E11TQ_txt(E, [E11TQ_pick(xs, kind)])
+    w = defaultdict(set)
+    take = lambda rs: [E11TQ_pick(rs, kind)] if rs and (kind != "positive" or any(r > 0 for r in rs)) else []
+    if len(ks) == 2:
+        for k in ks:
+            r = take(E11TQ_on(E, fn, k))
+            if r:
+                w[E11TQ_ONE].add(E11TQ_txt(E, r))
+    r = take(E11TQ_flip(E, fn, ks))
+    if r:
+        w[E11TQ_SIGNS].add(E11TQ_txt(E, r))
+    r = take(E11TQ_mains(E, fn, ks, 1))
+    if r:
+        w[E11TQ_STOP].add(E11TQ_txt(E, r))
+    gc_check_common(q, want, w, steps=(2, 5))
+
+
+def E11TQ_sum(q, E, fn, ks, xs):
+    text = lambda rs: "Sum = " + tr_angle(sum(E11TQ_val(E, r) for r in rs), "deg" if E["deg"] else "pi")
+    w = defaultdict(set)
+    if len(ks) == 2:
+        for k in ks:
+            r = E11TQ_on(E, fn, k)
+            if r:
+                w[E11TQ_ONE].add(text(r))
+    m = E11TQ_mains(E, fn, ks, 1)
+    if m and len(m) < len(xs):
+        w[E11TQ_STOP].add(text(m))
+    r = E11TQ_flip(E, fn, ks)
+    if r:
+        w[E11TQ_SIGNS].add(text(r))
+    gc_check_common(q, text(xs), w, steps=(2, 5))
+
+
+def E11TQ_constant(q, g):
+    m = re.fullmatch(r"x = (\S+) is a solution of (.+)\.", q["lines"][0])
+    need(m is not None, f"can't read {q['lines'][0]!r}")
+    x, k = E11TQ_X, sp.Symbol("k")
+    at = E11TQ_expr(m[1])
+    left, right = E11TQ_sides(re.sub(r"\bk (sin|cos)", r"k*\1", m[2]))
+    f = left - right
+    fn = E11TQ_FN[g["fn"]]
+    got = sp.solve(f.subs(x, at), k)
+    need(len(got) == 1, f"no one k in {m[2]}")
+    slip = sp.solve(f.subs(fn(x)**2, fn(x)).subs(x, at), k)
+    gc_check_common(q, f"k = {frac_text(got[0])}", {E11TQ_NO_SQ: {f"k = {frac_text(slip[0])}"}}, steps=(2, 5))
+
+
+def E11TQ_double_factor(q, E, xs):
+    x = E11TQ_X
+    rest = sp.cancel(sp.expand_trig(E["f"]) / sp.cos(x))
+    w = defaultdict(set)
+    got = E11TQ_solve(rest, E["lo_r"], E["hi_r"])
+    w[E11TQ_CANCEL].add(E11TQ_txt(E, got))
+    a = rest.coeff(sp.sin(x), 2)
+    if a != 0:
+        k = sp.sqrt(-rest.subs(sp.sin(x), 0) / a)
+        pos = E11TQ_on(E, "sin", k)
+        zeros = E11TQ_on(E, "cos", sp.Integer(0))
+        w[E11TQ_PLUS].add(E11TQ_txt(E, sorted(set(pos) | set(zeros))))
+    gc_check_common(q, E11TQ_txt(E, xs), w, steps=(2, 5))
+
+
+def E11TQ_gdc_solve(q, g, E, rep):
+    xs = E11TQ_solve(E["f"], E["lo_r"], E["hi_r"], E["open_hi"])
+    need(1 <= len(xs) <= 8, f"{len(xs)} solutions")
+    vals = [sp.Float(str(x), 12) for x in xs]
+    ds = [sp.Float(str(math.degrees(x)), 12) for x in xs]
+    w = {E11TQ_DEG: {gc_xs(ds)}}
+    if len(xs) > 1:
+        w[E11TQ_STOP] = {gc_xs(vals[:1])}
+    gc_check_common(q, gc_xs(vals), w, gc_trap(vals, gc_xs2(vals)), steps=(2, 5))
+    if rep == "graph":
+        E11TQ_curve(q, E, xs)
+
+
+def E11TQ_check(q):
+    g, u, rep, L = q["given"], q["view"]["unknown"], q["view"]["rep"], q["lines"]
+    need(q["paper"] == (2 if u in E11TQ_GDC else 1), f"paper {q['paper']} for {u}")
+    tr_hyphens(q)
+    if u == "constant-from-solution":
+        E11TQ_constant(q, g)
+        return None, None
+    if u in ("quadratic-in-u", "identity-to-use", "factorised-form", "values-of-u", "formula-root", "reject-root"):
+        E11TQ_step_one(q, g, u)
+        return None, None
+    E = E11TQ_read(L[0])
+    need(E["deg"] == (g["form"] == "deg"), "the unit is another one")
+    fn = g["fn"]
+    b = int(R(g["b"]))
+    if u == "gdc-solve":
+        E11TQ_gdc_solve(q, g, E, rep)
+        return None, None
+    xs = E11TQ_solve(E["f"], E["lo_r"], E["hi_r"], E["open_hi"])
+    need(1 <= len(xs) <= 12, f"{len(xs)} solutions")
+    E11TQ_exact(E, xs)
+    if u == "double-factor":
+        E11TQ_double_factor(q, E, xs)
+        if rep == "graph":
+            E11TQ_curve(q, E)
+        return None, None
+    cs = E11TQ_in_u(E["f"], fn, b)
+    us = E11TQ_roots(cs)
+    ks = E11TQ_kept(fn, us)
+    if u in ("count-solutions", "gdc-count"):
+        E11TQ_count(q, E, fn, b, xs, us)
+        if rep == "graph":
+            E11TQ_lines(q, E, us) if u == "count-solutions" else E11TQ_curve(q, E)
+        return None, None
+    if u == "one-solution":
+        E11TQ_one(q, E, fn, ks, xs)
+    elif u == "sum-solutions":
+        E11TQ_sum(q, E, fn, ks, xs)
+    elif u == "tan-zero-root":
+        nz = [k for k in ks if k != 0]
+        gc_check_common(q, E11TQ_txt(E, xs), {E11TQ_CANCEL: {E11TQ_txt(E, E11TQ_on(E, fn, nz[0]))}}, steps=(2, 5))
+    elif u == "compound-quadratic" or u == "rational-disguise":
+        w = defaultdict(set)
+        first = [x for x in xs if b * x <= E["hi_r"] + 1e-9]
+        if b > 1 and first:
+            w[E11TQ_WAVE].add(E11TQ_txt(E, first))
+        if len(ks) == 2:
+            for k in ks:
+                r = E11TQ_on(E, fn, k, b)
+                if r:
+                    w[E11TQ_ONE].add(E11TQ_txt(E, r))
+        if u == "compound-quadratic":
+            for k in ks:
+                al = E11TQ_mains(E, fn, [k], b)
+                if al:
+                    w[E11TQ_BACK].add(E11TQ_txt(E, al))
+        else:
+            r = E11TQ_flip(E, fn, ks, b)
+            if r:
+                w[E11TQ_SIGNS].add(E11TQ_txt(E, r))
+        gc_check_common(q, E11TQ_txt(E, xs), w, steps=(2, 5))
+    elif u in E11TQ_LIST or u in ("plus-minus-root", "tan-squared"):
+        one = {"plus-minus-root": E11TQ_PLUS, "tan-squared": E11TQ_TAN_ROOT}.get(u, E11TQ_ONE)
+        order = sorted(ks, key=lambda v: -sp.N(v)) if one != E11TQ_ONE else ks
+        gc_check_common(q, E11TQ_txt(E, xs), E11TQ_slips(E, fn, order, xs, b, one), steps=(2, 5))
+    else:
+        need(False, f"no check for {u}")
+    if rep == "graph":
+        E11TQ_curve(q, E)
+    return None, None
+
+
+# ── end trig-quadratic ──
+
 SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
@@ -32795,7 +33303,7 @@ SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between"
                     "transform-chain": check_transform, "fn-link-transformations": check_link_transformations,
                     "fn-link-vectors": check_link_vectors,
                     "sampling": check_sampling, "cumulative-frequency": check_cumulative_frequency,
-                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-model": check_trig_model,
+                    "arc-sector": check_arc_sector, "bearings-elevation": check_bearings, "exact-trig": check_exact_trig, "trig-identity": check_trig_identity, "trig-equation": check_trig_equation, "trig-quadratic": E11TQ_check, "trig-model": check_trig_model,
                     "solid": check_solid, "standard-form": check_standard_form}
 
 
