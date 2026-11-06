@@ -272,6 +272,21 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   the central interval. Its 27 unknowns are exact, except a value a GDC gives, to 3 s.f. Two of
   them are `pick-the-graph`: four cards that share one window and one set of axis marks, so only
   the curves and the shading differ.
+- `engine/situations/area_between.gd` (FAL-751) is `t5-area-between-curves` (SL5.11), the `area-between`
+  situation: two curves and the region between them. Its views (`area_between_views.gd`) show the two
+  equations, the curves named f and g with the region shaded (GraphView's `shade`, each strip between
+  the curves), or a `diagram`: a parabola and a line with only points marked, so the equations come
+  first. It asks 18 unknowns: the limits, an integral expression, an expression for curves that swap
+  (two integrals on Paper 1, one with a modulus on the GDC), a parabola and a line, two parabolas, a
+  cubic and a line, a swap inside two vertical lines, trig pairs at landmark angles, A e^(kx) and
+  −B e^(kx), the two possible g = f + c from an area, a letter k from an area, the graph of f′ with
+  its areas, and on Paper 2 the limits, two curves, three crossings, f and its inverse, and a region
+  with three edges. Every method of the map is in a cell: top minus bottom, split at the crossings,
+  ∫ |f − g| on the GDC (Paper 2 only), and the area under the top minus the area under the bottom. So
+  that last one is honest, a parabola and its chord stay on or above the x-axis between the meeting
+  points. Paper 1 is exact, and a value with a surd is typed by its numbers. Paper 2 is a `number`
+  to 3 s.f. with the rounding trap. The curves that need a GDC are Paper 2 only, and the rest are
+  Paper 1, so the type lands near the bank's 5 parts in 13.
 - `engine/situations/box_plot.gd` (FAL-740) is `t4-box-plot` (SL4.2) and `t4-outlier-rule` (SL4.1,
   SL4.2), the `box-plot` situation: one or two data sets, the five numbers of a box plot and the
   1.5 × IQR rule. A figure uses `PlotView`'s `box` on an axis of 25 ticks, labelled every fifth, and
@@ -1227,6 +1242,11 @@ every other option must fail (`check_binomial_unknown`). For `normal-properties`
 or the given areas back and finds each area with mpmath (`check_normal_properties`). For `box-plot`
 it reads the five numbers off the figure or the data, and applies the 1.5 × IQR rule itself
 (`check_box_plot`).
+For `area-between` it reads the two curves back from the lines, or fits them to a diagram's marked
+points, and finds the meeting points, the top curve and every piece again: exactly with SymPy on
+Paper 1, and with its own root search and mpmath on Paper 2. Each option of an integral expression
+is integrated, each tagged slip is worked out from its misconception, each figure's curves and
+strips must be the question's, and the plain sums in the working are evaluated (`check_area_between`).
 For `independence` it reads the facts back the same way and decides each test itself. Each of the
 four comparisons must agree, and all four option texts are rebuilt from true values, so a false
 number or a verdict that doesn't follow fails. It also multiplies and divides every plain step of
@@ -1581,6 +1601,10 @@ script error happens while it runs. Run one file with
 - `test_motion_distance.gd`: t5-kinematics-distance built with every cell and both skills, four
   different options, GDC methods on Paper 2 and integrating by hand on Paper 1, the antiderivatives
   against v, a worked trip, graphs with a corner at each zero, and a return that goes both ways.
+- `test_area_between.gd`: `t5-area-between-curves` (FAL-751): built with every cell and all four
+  methods, four different options, the papers follow the curves, a figure shades the region between
+  its curves, a diagram marks what fixes its equations, every slip shows up as an option, and the
+  exact pieces and Simpson's rule against hand values.
 - `test_integration.gd`, `test_definite_integral.gd`, `test_motion.gd`: the three FAL-724 types:
   built with every cell and every skill, no extra format, four different options, GDC methods on
   Paper 2 only, + C on every integral, the method setting the shape, a shaded region on every

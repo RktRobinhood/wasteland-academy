@@ -117,6 +117,7 @@ static var SITUATIONS := {
 	"concavity": [ConcavitySituation, ConcavityViews],
 	"integration": [IntegrationSituation, IntegrationViews],
 	"definite-integral": [DefiniteIntegralSituation, DefiniteIntegralViews],
+	"area-between": [AreaBetweenSituation, AreaBetweenViews],
 	"motion": [MotionSituation, MotionViews],
 	"motion-distance": [MotionDistanceSituation, MotionDistanceViews],
 	"optimisation-model": [OptimisationSituation, OptimisationViews],

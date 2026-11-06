@@ -26757,7 +26757,497 @@ def check_box_plot(q):
 # ── end box-plot ──
 
 
-SITUATION_CHECKS = {"grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── area-between (t5-area-between-curves, FAL-751) ───────────────────────
+# The `area-between` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/area_between.gd. Each pair of curves is read back from the question and
+# solved again here: exactly with SymPy on Paper 1, and with its own root search and mpmath on
+# Paper 2. Nothing is taken from the question's `given`.
+E9AREA_AB = "SL5.11.area-between-curves#"
+E9AREA_P2 = ("gdc-meeting-limits", "gdc-area", "gdc-area-split", "inverse-area", "region-two-lines")
+E9AREA_TRIG = re.compile(r"sin|cos")
+E9AREA_MIN_GAP = 0.5
+
+
+def e9area_rhs(line):
+    """The expression after the first ' = ', without a domain after it."""
+    return in_expr(re.sub(r", for .*$", "", line.split(" = ", 1)[1]).rstrip("."))
+
+
+def e9area_value(text):
+    """An option's number: fractions, √, π and powers of e, as exact SymPy."""
+    t = re.sub(r"^[A-Za-z()]* ?(Area|k|f\(q\)|g\(q\)|h\(q\)|f\(r\)|g\(r\)|h\(r\)) = ", "", text)
+    t = re.sub(r"√(\d+)", r"sqrt(\1)", t)
+    return in_expr(t)
+
+
+def e9area_a(text):
+    return f"Area = {dm_num(text)}"
+
+
+def e9area_surd(v):
+    """c1√r + c0, as the game writes it."""
+    v = sp.nsimplify(sp.expand(v))
+    c0, rest = v.as_coeff_Add()
+    if rest == 0:
+        return dm_num(c0)
+    c1, root = rest.as_coeff_Mul()
+    r = root.args[0]
+
+    def lead(c):
+        if c == 1:
+            return ""
+        if c == -1:
+            return "−"
+        if c == sp.Rational(1, 2):
+            return "½"
+        if c == -sp.Rational(1, 2):
+            return "−½"
+        return dm_num(c) if c.is_integer else ("−" if c < 0 else "") + f"({dm_num(abs(c))})"
+    head = f"{lead(c1)}√{r}"
+    if c0 == 0:
+        return head
+    return f"{head} {'+' if c0 > 0 else '−'} {dm_num(abs(c0))}"
+
+
+def e9area_size(top, bot, a, b):
+    return sp.integrate(sp.expand(top - bot), (CX, a, b))
+
+
+def e9area_curve_on(q, i, f):
+    """Curve i of the figure is f, wherever it is drawn."""
+    fn = sp.lambdify(CX, f, "mpmath")
+    c = q["graph"]["curves"][i]
+    for x, y in c[:: 20]:
+        need(abs(fn(mpmath.mpf(str(x))) - mpmath.mpf(str(y))) < mpmath.mpf(10) ** -5, f"curve {i} of the figure is not {f}")
+
+
+def e9area_shade(q, f, g, ends):
+    """Each shaded region runs between the two curves, between its ends."""
+    shade = q["graph"]["shade"]
+    need(len(shade) == len(ends), f"{len(shade)} shaded regions, not {len(ends)}")
+    ff, fg = sp.lambdify(CX, f, "math"), sp.lambdify(CX, g, "math")
+    for strips, (a, b) in zip(shade, ends):
+        need(abs(strips[0][0] - float(a)) < 1e-6 and abs(strips[-1][0] - float(b)) < 1e-6, f"the shading runs {strips[0][0]} to {strips[-1][0]}, not {a} to {b}")
+        for x, lo, hi in strips[:: 8]:
+            u, v = ff(x), fg(x)
+            need(abs(hi - max(u, v)) < 1e-6 and abs(lo - min(u, v)) < 1e-6, f"the shading at x = {x} is not the region")
+
+
+def e9area_figure(q, f, g, ends):
+    if q["view"]["rep"] == "equation":
+        need(q["graph"] is None, "an equation question has a figure")
+        return
+    e9area_curve_on(q, 0, f)
+    e9area_curve_on(q, 1, g)
+    e9area_shade(q, f, g, ends)
+
+
+def e9area_sums(q):
+    """Every plain 'a − b = c' or 'a + b = c' in the working is true, to the figures shown."""
+    num = r"\(?(−?\d+(?:\.\d+)?(?:/\d+)?)\)?"
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in re.finditer(rf"(?<![\w.^/(|−])(?<![+−] )(?<![+−] \(){num} ([+−]) {num} = (−?\d+(?:\.\d+)?(?:/\d+)?)(?![\w/])", st):
+                a, op, b, c = m.groups()
+                a, b, c = (sp.Rational(t.replace("−", "-")) for t in (a, b, c))
+                got = a + b if op == "+" else a - b
+                need(abs(got - c) <= abs(c) * sp.Rational(1, 10 ** 4) + sp.Rational(1, 10 ** 4), f"the sum in {st!r} is wrong")
+
+
+def e9area_opts(q, want, wrongs):
+    """Options, tags and working for an exact or a 3 s.f. answer."""
+    trap = None
+    for o in q["choices"]:
+        if o.get("trap"):
+            m = re.fullmatch(r"(.* = )(.*)", q["answer_text"])
+            trap = m.group(1) + gc_s2(q["e9area_true"])
+    gc_check_common(q, want, wrongs, trap)
+    calc_steps(q)
+    e9area_sums(q)
+    for o in q["choices"]:
+        need("-" not in o["text"].replace("−", ""), f"a hyphen in {o['text']!r}")
+
+
+def e9area_integrals(text, sub):
+    """The value of an expression option: a sum of ∫ from a to b of h dx."""
+    t = text.replace("Area = ", "")
+    total = 0
+    parts = t.split(" + ∫ from ")
+    for i, pt in enumerate(parts):
+        pt = pt if i else pt[len("∫ from "):]
+        m = re.fullmatch(r"(.+?) to (.+?) of (.+) dx", pt)
+        need(m is not None, f"can't read {text!r}")
+        a, b, body = sp.Rational(m.group(1).replace("−", "-")), sp.Rational(m.group(2).replace("−", "-")), m.group(3)
+        h = sub(body)
+        total += sp.integrate(sp.expand(h), (CX, a, b))
+    return total
+
+
+def e9area_gdc_pair(q):
+    """Two curves on a domain: every crossing, found here."""
+    L = q["lines"]
+    m = re.search(r"for (−?[\d.]+) ≤ x ≤ (−?[\d.]+)", " ".join(L))
+    need(m is not None, "no domain")
+    lo, hi = (sp.Rational(t.replace("−", "-")) for t in m.groups())
+    f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+    return f, g, lo, hi, gc_zeros(sp.nsimplify(f - g, rational=True), lo, hi)
+
+
+def e9area_quad(f, g, a, b):
+    fn = sp.lambdify(CX, f - g, "mpmath")
+    return mpmath.quad(fn, [a, b])
+
+
+def e9area_s(v):
+    return sp.Float(str(v), 25)
+
+
+def check_area_between(q):
+    u, L, rep, ang, paper, asked = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["view"]["angle"], q["paper"], q["asked"]
+    x = CX
+    mpmath.mp.dps = 30
+    AB = E9AREA_AB
+    if u in E9AREA_P2 or ang.startswith("gdc-"):
+        need(paper == 2, f"{u} with {ang} is Paper 2")
+    else:
+        need(paper == 1, f"{u} with {ang} is Paper 1")
+    for t in [asked] + L:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+    if u in ("meeting-limits", "integral-expression", "area-line-curve"):
+        if rep == "diagram":
+            pts = [(sp.Rational(a.replace("−", "-")), sp.Rational(b.replace("−", "-")))
+                   for p in q["graph"]["points"] for a, b in re.findall(r"\((−?[\d/]+), (−?[\d/]+)\)", p["label"])]
+            ends = q["graph"]["shade"][0]
+            p, t_ = sp.Rational(ends[0][0]).limit_denominator(100), sp.Rational(ends[-1][0]).limit_denominator(100)
+            roots = [a for a, b in pts if b == 0]
+            need(len(roots) == 2 and len(pts) >= 3, f"the marked points {pts} don't fix the parabola")
+            x0, y0 = next((a, b) for a, b in pts if b != 0)
+            A = y0 / ((x0 - roots[0]) * (x0 - roots[1]))
+            f = sp.expand(A * (x - roots[0]) * (x - roots[1]))
+            g = sp.interpolate([(p, f.subs(x, p)), (t_, f.subs(x, t_))], x)
+        else:
+            f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        need(sp.degree(f, x) == 2 and sp.degree(g, x) <= 1, "not a parabola and a line")
+        ms = sorted(sp.roots(sp.Poly(f - g, x)))
+        need(len(ms) == 2 and all(r.is_rational for r in ms), f"the meeting points are {ms}")
+        p, r2 = ms
+        rs = sorted(sp.roots(sp.Poly(f, x)))
+        need(len(rs) == 2 and rs != ms, "the parabola's roots are the meeting points")
+        need(all(f.subs(x, p + (r2 - p) * i / 8) >= 0 for i in range(9)), "the parabola dips below the axis between the meeting points")
+        top, bot = (f, g) if (f - g).subs(x, (p + r2) / 2) > 0 else (g, f)
+        gap = sp.expand(top - bot)
+        v = sp.integrate(gap, (x, p, r2))
+        if rep != "equation":
+            e9area_figure(q, f, g, [(p, r2)])
+        if u == "meeting-limits":
+            texts = lambda a, b: f"x = {dm_num(min(a, b))} and x = {dm_num(max(a, b))}"
+            ya, yb = f.subs(x, p), f.subs(x, r2)
+            e9area_opts(q, texts(p, r2), {AB + "1": {texts(*rs)}, AB + "3": {texts(ya, yb)}})
+        elif u == "area-line-curve":
+            side = abs(sp.integrate(gap, (x, rs[0], rs[1])))
+            added = sp.integrate(f + g, (x, p, r2))
+            e9area_opts(q, e9area_a(v), {AB + "0": {e9area_a(-v)}, AB + "1": {e9area_a(side)}, AB + "4": {e9area_a(added)}})
+        else:
+            e9area_expr(q, gap, p, r2, v, rs)
+        return None, None
+
+    if u == "area-two-parabolas":
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        need(sp.degree(f, x) == 2 and sp.degree(g, x) == 2 and sp.degree(sp.expand(f - g), x) == 2, "not two parabolas")
+        ms = sorted(sp.roots(sp.Poly(f - g, x)))
+        need(len(ms) == 2, f"the meeting points are {ms}")
+        p, r2 = ms
+        top, bot = (f, g) if (f - g).subs(x, (p + r2) / 2) > 0 else (g, f)
+        v = e9area_size(top, bot, p, r2)
+        pb = sp.Poly(bot, x).all_coeffs()
+        slip = top - pb[0] * x ** 2 + pb[1] * x + pb[2]
+        rb = sorted(sp.roots(sp.Poly(bot, x)))
+        side = abs(e9area_size(top, bot, rb[0], rb[1]))
+        e9area_figure(q, top, bot, [(p, r2)])
+        e9area_opts(q, e9area_a(v), {AB + "0": {e9area_a(-v)}, AB + "1": {e9area_a(side)}, AB + "5": {e9area_a(sp.integrate(sp.expand(slip), (x, p, r2)))}})
+        return None, None
+
+    if u in ("area-split-cubic", "area-split-bounded") or (u == "split-expression" and paper == 1):
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        cs = sorted(sp.roots(sp.Poly(f - g, x)))
+        if u == "area-split-bounded":
+            m = re.search(r"lines x = (−?\d+) and x = (−?\d+)", L[2])
+            lo, hi = (sp.Integer(t.replace("−", "-")) for t in m.groups())
+            ins = [c for c in cs if lo < c < hi]
+            need(len(ins) == 1, f"crossings {cs} inside {lo}, {hi}")
+            a, b, c = lo, ins[0], hi
+        else:
+            need(len(cs) == 3, f"crossings {cs}")
+            a, b, c = cs
+        p1, p2 = sp.integrate(sp.expand(f - g), (x, a, b)), sp.integrate(sp.expand(f - g), (x, b, c))
+        need(p1 * p2 < 0, "the curves don't swap over")
+        area = abs(p1) + abs(p2)
+        e9area_figure(q, f, g, [(a, b), (b, c)])
+        if u == "split-expression":
+            sub = lambda body: in_expr(body.replace("f(x)", f"({L[0].split(' = ', 1)[1]})").replace("g(x)", f"({L[1].split(' = ', 1)[1]})"))
+            for o in q["choices"]:
+                val = e9area_integrals(o["text"], sub)
+                need((val == area) == o["correct"], f"option {o['text']!r} gives {val}, the area is {area}")
+                if o["ref"] == AB + "2":
+                    need(" + ∫" not in o["text"] and val == abs(p1 + p2) or abs(val) == abs(p1 + p2), f"{o['text']!r} is not one integral")
+                if o["ref"] == AB + "0":
+                    need(val == -area, f"{o['text']!r} is not the negative area")
+            calc_options(q)
+            calc_steps(q)
+        else:
+            e9area_opts(q, e9area_a(area), {AB + "0": {e9area_a(-area)}, AB + "2": {e9area_a(abs(p1 + p2))}, AB + "6": {e9area_a(abs(p1))}})
+        return None, None
+
+    if u == "area-trig":
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        m = re.search(r"where x = (.+?), and at B, where x = (.+?)\.", L[2])
+        a, b = e9area_pi(m.group(1)), e9area_pi(m.group(2))
+        need(sp.simplify((f - g).subs(x, a)) == 0 and sp.simplify((f - g).subs(x, b)) == 0, "A and B are not on both curves")
+        zs = [z for z in gc_zeros(f - g, float(a) + 0.01, float(b) - 0.01)]
+        need(not zs, f"the curves cross between A and B at {zs}")
+        top, bot = (f, g) if (f - g).subs(x, (a + b) / 2) > 0 else (g, f)
+        v = sp.simplify(sp.integrate(top - bot, (x, a, b)))
+        wrongs = {AB + "0": {e9area_a(e9area_surd(-v))}}
+        z2 = sorted(z for z in sp.solveset(top, x, sp.Interval(0, 2 * sp.pi)) if True)
+        need(len(z2) >= 2, f"the top curve's roots are {z2}")
+        pairs = {e9area_a(e9area_surd(abs(sp.simplify(sp.integrate(top - bot, (x, s, t)))))) for s, t in zip(z2, z2[1:])}
+        pairs |= {e9area_a(e9area_surd(abs(sp.simplify(sp.integrate(top - bot, (x, z2[0], t)))))) for t in z2[1:]}
+        wrongs[AB + "1"] = pairs
+        if rep == "graph":
+            e9area_figure(q, top, bot, [(a, b)])
+        e9area_opts(q, e9area_a(e9area_surd(v)), wrongs)
+        return None, None
+
+    if u == "area-trig-split":
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        m = re.search(r"between x = (.+?) and x = (.+?), at x = (.+?)\.", L[2])
+        a, c, b = (e9area_pi(m.group(i)) for i in (1, 2, 3))
+        need(sp.simplify((f - g).subs(x, b)) == 0, "the curves don't cross there")
+        need(len(gc_zeros(f - g, float(a) + 0.01, float(c) - 0.01)) == 1, "not one crossing inside")
+        p1, p2 = (sp.simplify(sp.integrate(f - g, (x, s, t))) for s, t in ((a, b), (b, c)))
+        area = sp.simplify(abs(p1) + abs(p2))
+        net = sp.simplify(abs(p1 + p2))
+        if rep == "graph":
+            e9area_figure(q, f, g, [(a, b), (b, c)])
+        e9area_opts(q, e9area_a(e9area_surd(area)), {AB + "0": {e9area_a(e9area_surd(-area))}, AB + "2": {e9area_a(e9area_surd(net))}, AB + "6": {e9area_a(e9area_surd(abs(p1)))}})
+        return None, None
+
+    if u == "area-exp-lines":
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        m = re.search(r"lines x = (−?\d+) and x = (−?\d+)", L[2])
+        a, b = (sp.Integer(t.replace("−", "-")) for t in m.groups())
+        need(a != -b, "the bank's symmetric lines")
+        need(f.subs(x, 0) > 0 > g.subs(x, 0), "the upper curve is not above the axis")
+        v = sp.integrate(f - g, (x, a, b))
+        cancel = sp.integrate(f + g, (x, a, b))
+        k = sp.diff(f, x).subs(x, 0) / f.subs(x, 0)
+        for o in q["choices"]:
+            val = di_exact_value(o["text"])
+            need(di_same(val, v) == o["correct"], f"option {o['text']!r} is {'wrong' if o['correct'] else 'also right'}: the area is {v}")
+            if o["ref"] == AB + "0":
+                need(di_same(val, -v), f"{o['text']!r} is not the negative area")
+            elif o["ref"] == AB + "7":
+                need(di_same(val, cancel), f"{o['text']!r} is not the sum integrated")
+            elif o["ref"] == "SL5.10.linear-composites#0":
+                need(di_same(val, v * k * k), f"{o['text']!r} is not the coefficient multiplied")
+            elif o["ref"] == "SL5.11.evaluate-definite#1":
+                need(a == 0 and di_same(val, sp.integrate(f - g, x).subs(x, b)), f"{o['text']!r} is not F(upper) alone")
+            elif o["ref"]:
+                need(False, f"the checker can't confirm {o['ref']}")
+        if rep == "graph":
+            e9area_figure(q, f, g, [(a, b)])
+        calc_options(q)
+        calc_steps(q)
+        return None, None
+
+    if u == "find-shift":
+        m = re.search(r"lines x = (−?\d+) and x = (−?\d+) has area (.+)\.$", L[1])
+        a, b, A = sp.Integer(m.group(1)), sp.Integer(m.group(2)), sp.Rational(m.group(3))
+        k = A / (b - a)
+        e9area_rhs(L[0])
+        both = lambda c: f"g(x) = f(x) + {dm_num(c)} or g(x) = f(x) − {dm_num(c)}"
+        e9area_opts(q, both(k), {AB + "8": {f"g(x) = f(x) + {dm_num(k)}"}, AB + "9": {both(A)}})
+        return None, None
+
+    if u == "find-parameter":
+        f = e9area_rhs(L[0])
+        A = sp.Rational(re.search(r"area (\d+(?:/\d+)?)\.", L[2]).group(1))
+        K = sp.Symbol("k", positive=True)
+        t = L[1].split(" = ", 1)[1]
+        m = re.fullmatch(r"(\d*)k²", t)
+        need(t == "kx" or m is not None, f"can't read the line {t!r}")
+        rhs = K * x if t == "kx" else sp.Integer(m.group(1) or 1) * K ** 2
+        ms = sorted(sp.solve(f - rhs, x), key=lambda r: r.subs(K, 1))
+        need(len(ms) == 2, f"the meeting points are {ms}")
+        area = sp.integrate(sp.expand(rhs - f), (x, ms[0], ms[1]))
+        ks = [s for s in sp.solve(area - A, K) if s.is_real]
+        need(len(ks) == 1 and ks[0].is_rational and ks[0] > 0, f"k is {ks}")
+        k = ks[0]
+        if rep == "graph":
+            e9area_figure(q, f, rhs.subs(K, k), [(ms[0].subs(K, k), ms[1].subs(K, k))])
+        e9area_opts(q, f"k = {dm_num(k)}", {AB + "10": {f"k = {dm_num(k ** 3)}"}})
+        return None, None
+
+    if u == "derivative-areas":
+        name = re.search(r"graph of ([fgh])′", L[0]).group(1)
+        ticks = {t[1]: t[0] for t in q["graph"]["x_ticks"]}
+        a, b, c = (sp.Rational(ticks[t]).limit_denominator(10) for t in "pqr")
+        cv = q["graph"]["curves"][0]
+        pts = [(sp.Rational(px).limit_denominator(10 ** 8), sp.Rational(py).limit_denominator(10 ** 6)) for px, py in cv[:: 53][:4]]
+        fp_ = sp.interpolate(pts, x)
+        S = sp.nsimplify(sp.Poly(fp_, x).LC(), rational=True).limit_denominator(1000)
+        fp_ = S * (x - a) * (x - b) * (x - c)
+        e9area_curve_on(q, 0, fp_)
+        e9area_shade(q, fp_, sp.Integer(0), [(a, b), (b, c)])
+        A1, A2 = abs(sp.integrate(sp.expand(fp_), (x, a, b))), abs(sp.integrate(sp.expand(fp_), (x, b, c)))
+        up = fp_.subs(x, (a + b) / 2) > 0
+        need(("above the axis from p to q" in L[0]) == up, "the words and the graph disagree")
+        d1, d2 = (A1, -A2) if up else (-A1, A2)
+        if "total area" in L[1]:
+            T, Sv = re.search(r"total area (\d+), and .*= (−?\d+)\.", L[1]).groups()
+            T, Sv = sp.Integer(T), sp.Integer(Sv.replace("−", "-"))
+            need(T == A1 + A2, f"the total area {T} is not {A1 + A2}")
+            # f(q) − f(p) = d1, f(r) − f(q) = d2: 2f(q) = f(p) + f(r) + d1 − d2.
+            v = (Sv + d1 - d2) / 2
+            lab = f"{name}(q) = "
+            e9area_opts(q, lab + dm_num(v), {AB + "11": {lab + dm_num(Sv + d1 - d2)}, AB + "12": {lab + dm_num((Sv - d1 + d2) / 2)}})
+        else:
+            m = re.search(r"from p to q has area (\d+), the region from q to r has area (\d+), and [fgh]\(p\) = (−?\d+)\.", L[1])
+            g1, g2, f0 = sp.Integer(m.group(1)), sp.Integer(m.group(2)), sp.Integer(m.group(3).replace("−", "-"))
+            need((g1, g2) == (A1, A2), "the areas given are not the areas drawn")
+            lab = f"{name}(r) = "
+            e9area_opts(q, lab + dm_num(f0 + d1 + d2), {AB + "12": {lab + dm_num(f0 + d1 - d2)}})
+        return None, None
+
+    if u in ("gdc-meeting-limits", "gdc-area"):
+        f, g, lo, hi, zs = e9area_gdc_pair(q)
+        need(len(zs) == 2 and zs[1] - zs[0] >= E9AREA_MIN_GAP, f"crossings {zs}")
+        z0, z1 = e9area_s(zs[0]), e9area_s(zs[1])
+        need(not on_edge(abs(z0)) and not on_edge(abs(z1)), "a meeting point sits on a rounding edge")
+        if rep == "graph":
+            e9area_figure(q, f, g, [(float(zs[0]), float(zs[1]))])
+        rs = []
+        if f.is_polynomial(x):
+            rs = sorted(r for r in sp.roots(sp.Poly(f, x)) if r.is_real)
+        if u == "gdc-meeting-limits":
+            texts = lambda a, b: f"x = {gc_s(e9area_s(min(a, b)))} and x = {gc_s(e9area_s(max(a, b)))}"
+            ff = sp.lambdify(x, f, "mpmath")
+            wr = {AB + "3": {texts(ff(zs[0]), ff(zs[1]))}}
+            if len(rs) == 2:
+                wr[AB + "1"] = {f"x = {e9area_fix(rs[0])} and x = {e9area_fix(rs[1])}"}
+            e9area_opts(q, texts(zs[0], zs[1]), wr)
+            return None, None
+        area = abs(e9area_quad(f, g, zs[0], zs[1]))
+        q["e9area_true"] = e9area_s(area)
+        need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
+        added = e9area_quad(f, 0 * x, zs[0], zs[1]) + e9area_quad(g, 0 * x, zs[0], zs[1])
+        wr = {AB + "0": {"Area = " + gc_s(-e9area_s(area))}, AB + "4": {"Area = " + gc_s(e9area_s(added))}}
+        if len(rs) == 2:
+            wr[AB + "1"] = {"Area = " + gc_s(e9area_s(abs(e9area_quad(f, g, rs[0], rs[1]))))}
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), wr)
+        return None, None
+
+    if u == "gdc-area-split" or u == "split-expression":
+        f, g, lo, hi, zs = e9area_gdc_pair(q)
+        need(len(zs) == 3, f"crossings {zs}")
+        if rep == "graph":
+            e9area_figure(q, f, g, [(float(zs[0]), float(zs[1])), (float(zs[1]), float(zs[2]))])
+        p1, p2 = e9area_quad(f, g, zs[0], zs[1]), e9area_quad(f, g, zs[1], zs[2])
+        need(p1 * p2 < 0, "the curves don't swap over")
+        area = abs(p1) + abs(p2)
+        if u == "split-expression":
+            s_ = lambda v: gc_s(e9area_s(v))
+            one = lambda a, b: f"Area = ∫ from {s_(a)} to {s_(b)} of |f(x) − g(x)| dx"
+            e9area_opts(q, one(zs[0], zs[2]), {AB + "2": {f"Area = ∫ from {s_(zs[0])} to {s_(zs[2])} of (f(x) − g(x)) dx"}, AB + "6": {one(zs[0], zs[1])}})
+            return None, None
+        q["e9area_true"] = e9area_s(area)
+        need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "2": {"Area = " + gc_s(e9area_s(abs(p1 + p2)))}, AB + "6": {"Area = " + gc_s(e9area_s(abs(p1)))}})
+        return None, None
+
+    if u == "inverse-area":
+        f = e9area_rhs(re.sub(r", for .*$", "", L[0]))
+        y = sp.Symbol("y")
+        sols = sp.solve(f.subs(x, y) - x, y)
+        inv = next(s for s in sols)
+        # A root's inverse is a polynomial and a quotient's is a quotient: each composed back on f.
+        zs = sorted(float(r) for r in sp.solve(sp.together(f - x), x) if r.is_real)
+        need(len(zs) == 2, f"f meets y = x at {zs}")
+        fn = sp.lambdify(x, f - x, "mpmath")
+        half = abs(mpmath.quad(fn, zs))
+        area = 2 * half
+        ff = sp.lambdify(x, inv, "mpmath")
+        check_x = (zs[0] + zs[1]) / 2
+        back = sp.lambdify(x, f, "mpmath")
+        need(abs(ff(back(mpmath.mpf(check_x))) - check_x) < 1e-12, "the inverse found doesn't undo f")
+        if rep == "graph":
+            e9area_figure(q, f, inv, [(zs[0], zs[1])])
+        q["e9area_true"] = e9area_s(area)
+        need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "13": {"Area = " + gc_s(e9area_s(half))}, AB + "0": {"Area = " + gc_s(-e9area_s(area))}})
+        return None, None
+
+    if u == "region-two-lines":
+        f, M_, L_ = e9area_rhs(L[0]), e9area_rhs(L[1]), e9area_rhs(L[2])
+        xr = sp.solve(M_ - L_, x)[0]
+        xp = gc_zeros(sp.nsimplify(f - M_, rational=True), 0, 12)
+        need(len(xp) == 1, f"f meets M at {xp}")
+        xp = xp[0]
+        xq = gc_zeros(sp.nsimplify(f - L_, rational=True), xp, 14)
+        need(len(xq) >= 1, "f doesn't meet L")
+        xq = xq[0]
+        need(xr < xp < xq, f"the corners run {xr}, {xp}, {xq}")
+        p1, p2 = e9area_quad(M_, L_, xr, xp), e9area_quad(f, L_, xp, xq)
+        whole = e9area_quad(f, L_, xr, xq)
+        area = p1 + p2
+        for i, c in enumerate((f, M_, L_)):
+            e9area_curve_on(q, i, c)
+        need(len(q["graph"]["shade"]) == 2, "two shaded pieces")
+        e9area_shade(dict(q, graph=dict(q["graph"], shade=q["graph"]["shade"][:1])), M_, L_, [(float(xr), float(xp))])
+        e9area_shade(dict(q, graph=dict(q["graph"], shade=q["graph"]["shade"][1:])), f, L_, [(float(xp), float(xq))])
+        q["e9area_true"] = e9area_s(area)
+        need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "14": {"Area = " + gc_s(e9area_s(whole))}, AB + "6": {"Area = " + gc_s(e9area_s(p2))}})
+        return None, None
+
+    need(False, f"no check for {u}")
+
+
+def e9area_fix(v):
+    """A whole-number root as the 3 s.f. the game writes."""
+    return gc_s(sp.Float(sp.N(v, 30), 30))
+
+
+def e9area_pi(t):
+    """'π/4', '5π/6', 'π', '0' as a multiple of π."""
+    if t == "0":
+        return sp.Integer(0)
+    m = re.fullmatch(r"(\d*)π(?:/(\d+))?", t)
+    need(m is not None, f"can't read the angle {t!r}")
+    return sp.Integer(m.group(1) or 1) * sp.pi / sp.Integer(m.group(2) or 1)
+
+
+def e9area_expr(q, gap, p, r2, v, rs):
+    """Each option of an integral expression is worked out: only the right one is the area."""
+    AB = E9AREA_AB
+    for o in q["choices"]:
+        val = e9area_integrals(o["text"], in_expr)
+        need((val == v) == o["correct"], f"option {o['text']!r} gives {val}, the area is {v}")
+        lo_hi = re.match(r"Area = ∫ from (.+?) to (.+?) of", o["text"]).groups()
+        if o["ref"] == AB + "0":
+            need(val == -v, f"{o['text']!r} is not the negative area")
+        elif o["ref"] == AB + "1":
+            need([sp.Rational(t.replace("−", "-")) for t in lo_hi] == rs, f"{o['text']!r} doesn't use the parabola's x-intercepts")
+        elif o["ref"]:
+            need(False, f"the checker can't confirm {o['ref']}")
+    calc_options(q)
+    calc_steps(q)
+    e9area_sums(q)
+# ── end area-between ──
+
+
+SITUATION_CHECKS = {"area-between": check_area_between, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,

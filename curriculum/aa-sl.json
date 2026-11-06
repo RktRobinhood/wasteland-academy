@@ -17128,7 +17128,19 @@
               "misconceptions": [
                 "Integrating lower − upper and reporting a negative area",
                 "Using the x-intercepts of one curve as limits instead of the intersection points",
-                "Not splitting where the curves cross, so the pieces cancel"
+                "Not splitting where the curves cross, so the pieces cancel",
+                "Giving the y-values of the meeting points instead of the x-values",
+                "Adding the two areas instead of subtracting the lower from the upper",
+                "Subtracting only the first term of the lower curve, so its other terms keep their signs",
+                "Counting only one of the pieces of the region",
+                "Adding the two curves, so the part below the x-axis cancels part of the area above it",
+                "Taking only the positive shift, when the other graph can lie on either side",
+                "Using the area as the shift, without dividing by the width of the region",
+                "Stopping at the cube of the letter, without taking the cube root",
+                "Forgetting to halve after adding the two changes",
+                "Treating an area below the x-axis as a rise in f, or an area above it as a fall",
+                "Stopping at the area between the curve and y = x, without doubling for the inverse",
+                "Using one curve as the top edge across the whole region, past the point where the edge changes"
               ],
               "threads": [
                 {
