@@ -7,7 +7,6 @@ extends "res://tests/test_case.gd"
 
 const TYPE := "t4-regression-interpret"
 const CELLS := 24
-const SIT := RegressionInterpretSituation
 
 
 func _make(c: Dictionary, seed: int, format: String = "mcq") -> Dictionary:
@@ -15,7 +14,7 @@ func _make(c: Dictionary, seed: int, format: String = "mcq") -> Dictionary:
 
 
 func _draw(ask: String, i: int, rep: String = "equation") -> Dictionary:
-	return SIT.generate(Seeded.new("%s|%s|%d" % [ask, rep, i]), {"ask": ask, "rep": rep})
+	return RegressionInterpretSituation.generate(Seeded.new("%s|%s|%d" % [ask, rep, i]), {"ask": ask, "rep": rep})
 
 
 func test_the_type_is_built_with_every_cell() -> void:
@@ -56,7 +55,7 @@ func test_a_line_given_is_the_tables_own() -> void:
 		check(s.a.eq(s.sxy.div(s.sxx)), "draw %d: a = Sxy / Sxx" % i)
 		check_eq(Fmt.sf(s.a3), Fmt.sf(s.a), "draw %d" % i)
 		check_eq(Fmt.sf(s.b3), Fmt.sf(s.b), "draw %d" % i)
-		check_eq(s.a.sign(), SIT.STORIES[s.ctx].sign, "draw %d: the story's sign" % i)
+		check_eq(s.a.sign(), RegressionInterpretSituation.STORIES[s.ctx].sign, "draw %d: the story's sign" % i)
 
 
 func test_a_table_uses_the_unrounded_gradient_for_a_change() -> void:
@@ -88,7 +87,7 @@ func test_the_cases_of_an_estimate_stand_apart() -> void:
 		seen[s.case] = true
 		var inside: bool = s.x0 > s.lo and s.x0 < s.hi
 		check_eq(inside, s.case != "outside", "draw %d" % i)
-		check_eq(absf(s.r) <= SIT.WEAK_MAX, s.case == "weak", "draw %d" % i)
+		check_eq(absf(s.r) <= RegressionInterpretSituation.WEAK_MAX, s.case == "weak", "draw %d" % i)
 		check(s.y0.sign() > 0, "draw %d: the estimate is a possible amount" % i)
 	check_eq(seen.size(), 3, "every case comes up")
 

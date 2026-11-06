@@ -34,6 +34,8 @@ const R_SIGN := "SL3.7.model-context#11"
 
 const RF_UNKNOWNS := ["amplitude", "period", "amp-period", "principal-axis", "max-value", "min-value", "range", "first-max-x",
 	"tan-period", "tan-features", "b-from-graph", "a-d-from-graph", "intercept-gap", "b-from-story", "amp-axis-story", "wheel-a-b"]
+## The read-features unknowns a GDC can answer.
+const RF_GDC := ["amplitude", "period", "amp-period", "principal-axis", "max-value", "min-value", "range", "first-max-x", "tan-period"]
 const MU_UNKNOWNS := ["value-at-time", "exact-value", "first-time-level", "all-times", "duration-above", "duration-below", "duration-span",
 	"first-max-time", "high-low-gap", "count-peaks", "count-lows", "interpret-extreme", "reaches-level"]
 const GDC := "gdc-graph"
@@ -47,13 +49,16 @@ func needs() -> Dictionary:
 
 
 ## The bank's model-use parts are Paper 2 but for one exact value and one "never reaches".
-func papers(unknown: String, _rep: String, _method_id: String) -> Array:
+func papers(unknown: String, rep: String, method_id: String) -> Array:
 	if not has(unknown):
 		return []
 	if unknown == "intercept-gap" or unknown == "exact-value":
 		return [1]
 	if unknown in MU_UNKNOWNS and unknown != "reaches-level":
 		return [2]
+	# A marked graph has no equation to type in, and the GDC's figure has no marks to read.
+	if rep == "graph" and unknown in RF_GDC:
+		return [2] if method_id == GDC else [1]
 	return [1, 2]
 
 
