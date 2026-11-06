@@ -1011,9 +1011,13 @@
                 }
               ],
               "misconceptions": [
-                "Not flipping the inequality when dividing by ln r < 0 (e.g. r = 0.8)",
+                "Not flipping the inequality when dividing by ln r, which is negative when r is below one",
                 "Rounding n down instead of up for 'the least n such that'",
-                "Giving the term or the sum instead of n"
+                "Giving the term or the sum instead of n",
+                "Stopping at the last n that falls short of the target instead of the first n that meets it",
+                "Taking the power of r as the number of terms, which is one too few",
+                "Testing the wrong quantity: a term when the condition is on a total or a gap, or the total when it is on a term",
+                "Giving the term number instead of the steps passed, when u₁ is the value at the start"
               ],
               "threads": [
                 {
@@ -1130,9 +1134,14 @@
                 }
               ],
               "misconceptions": [
-                "Using r = 0.05 (or 5) for a 5% increase instead of 1.05",
-                "Using the wrong factor for a percentage decrease, or subtracting the same amount each year",
-                "Counting one multiplication too few: when u₁ is the starting value, the value after t years needs t multiplications"
+                "Using the percentage as r, instead of the multiplier that the percentage gives",
+                "Using the wrong factor for a percentage decrease, or subtracting the same amount each time",
+                "Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications",
+                "Adding the same amount each step instead of multiplying, so that a percentage rise grows in a straight line",
+                "Giving the last amount instead of the total of all the amounts",
+                "Giving the last round in which the first model is still ahead, instead of the first round the second one leads",
+                "Using the factor for a length as the factor for an area, instead of squaring it",
+                "Stopping at the total of the terms, without dividing by how many there are, when the mean is asked"
               ],
               "threads": [
                 {

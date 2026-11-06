@@ -370,6 +370,21 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   shaded square, a running total against a target and the first amount for a target. GDC and
   partial-sums methods are Paper 2 only, and their working isn't shown on Paper 1. PlotView's
   `bounce` and `squares` draw the figures; a sequence's dots and the band −1 < y < 1 use GraphView.
+- `engine/situations/geometric_context.gd` (FAL-752) is `t1-geometric-in-context` (SL1.3.model and
+  SL1.3.find-n), the `geometric-context` situation: a story that a geometric sequence models. Paper 2
+  powers run far enough to overflow a `Q`, so a value there is a float, as a GDC gives it. Its views
+  (`geometric_context_views.gd`) ask 18 unknowns: r from a percentage, a value after t rounds (t
+  multiplications) and in round n (n − 1), which term is "after t", a rebound height, uₙ in terms of n
+  (a `form` answer), a total, the gap between a flat deal and a rising one, the first round a geometric
+  model passes an arithmetic one, the area of the nth rectangle with its sides scaled and their mean as
+  p × (b^a − 1), and the least n for uₙ or Sₙ past a target, for S∞ − Sₙ below a small value, for a
+  first term below one, after finding r from u₁ and a later term, the least whole t after a start, and
+  a count of terms from an exact power. Every method of the two skills is in a cell. The one Paper 1
+  part in the bank is the rectangles, so they, r, the indexing, tabulating a rebound or uₙ and an
+  exact power are Paper 1; a value, a rebound or uₙ by the multiplier makes both papers, with small
+  powers on Paper 1; the rest is Paper 2. A method's title follows the story ("Build a
+  bounce-by-bounce table"). A figure is PlotView's `bounce`, dots with the target as a line (the first
+  three labelled, so u₁ and r can be read), or two rivals as curves named at their right-hand ends.
 - `engine/situations/regression.gd` (FAL-695) is `t4-regression-gdc` (SL4.4, on all four
   syllabuses): paired data, 6 to 9 whole-number points near a line (x from 1 to 20, y from 8
   to 99, 0.8 ≤ |r| ≤ 0.99, up or down as the story says), so the means, the regression line
@@ -1284,6 +1299,11 @@ Paper 2, summed over the stretches between rests it finds itself, so a distance 
 engine's. A return is decided by the roots of s itself, a ridge's gap by the model's own period,
 a race by solving for the winner's time, and every option of an expression is worked out and
 must equal the distance only if it is the right one (`check_motion_distance`, `kd_*`).
+For `geometric-context` it reads the story, table, dots or Σ back and works every value out again with
+exact rationals. A least n comes from testing the terms or totals one at a time, and it must be the
+first whole number past the crossing, which is at least 0.1 from a whole number. Each tagged option is
+rebuilt from its slip, and the isolated power, the bound after logs, a table's two rows and each
+listed row are held to the working's own lines (`e10ge_check`).
 For the four FAL-725 situations it reads the facts back from the question: lines, percentages,
 sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and lines again with
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
@@ -1710,6 +1730,7 @@ script error happens while it runs. Run one file with
 - `test_basic_probability.gd`: `t4-probability-basic`: every cell and skill, one right option on each
   paper, every option a probability, hand values, the figures drawn, a curve of real counts, a
   complement that differs from its event, and every misconception as an option.
+- `test_geometric_context.gd`: t1-geometric-in-context built with every cell, both skills and every map method, the papers, "after t" against "in round n", a least n as the first past its target, a gap as the series' tail, a rival passing once, and the figures
 - `test_regression_interpret.gd`: t4-regression-interpret built with every cell and both skills, Paper 2
   throughout, the given line is the table's to 3 s.f., each case stands apart (x = 0, strong or weak r,
   inside or outside the data), the scatter is the data, and every misconception shows up.
