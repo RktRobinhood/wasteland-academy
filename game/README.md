@@ -330,6 +330,15 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   mean point from both lines (on the equations, or with both lines drawn) and one mean from the
   other. The table, the estimates and the judgement are Paper 2; choosing a line and the mean
   point are on both papers, with lines through a whole-number mean point and 0 < ac < 1.
+- `engine/situations/regression_interpret.gd` (FAL-751) is `t4-regression-interpret` (SL4.4, Paper 2,
+  on `SL4.4.interpret-ab` and `SL4.4.predict`). It draws its own tables with `RegressionSituation.stats`,
+  because its eight stories carry units, some have x = 0 in the table and others far below it, and r
+  can be weak: |r| is at least 0.9 or at most 0.5, never between. A line given to 3 s.f., with its r
+  and range, is always a real table's. Its views (`regression_interpret_views.gd`) ask what a and b
+  mean, whether b is sensible, the change for k more of x, whether an estimate is reliable, why a
+  worked estimate is not appropriate (outside the data, or y on x solved for x) and a reading from
+  a drawn line, to the nearest 5. Most answers are a `claim`, so multiple choice only, and three of
+  the wrong statements are taken from a shuffled list. The scatter is a `Plot.spec` with unlabelled dots.
 - `engine/situations/normal_unknown.gd` (FAL-725) is `t4-normal-unknown-parameter` (SL4.12, AA only,
   all Paper 2): X is normal with something hidden. The student's facts stay clean (whole values,
   areas in hundredths), and the hidden parameter is whatever they force, so z and the answers are
@@ -1203,6 +1212,8 @@ definite integral or area is worked out again with SymPy, or mpmath for a model,
 roots it finds itself, and each shaded strip must be the region asked for; rests and extremes are
 found again from v(t), exactly on Paper 1 (`check_integration`, `check_definite_integral`,
 `check_motion`).
+For `regression-interpret` it fits the data again with exact rationals and judges every statement
+offered from those numbers, so a wrong statement that happens to be true fails (`e9regr_check`).
 For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
 Paper 2, summed over the stretches between rests it finds itself, so a distance is not the
 engine's. A return is decided by the roots of s itself, a ridge's gap by the model's own period,
@@ -1618,6 +1629,9 @@ script error happens while it runs. Run one file with
 - `test_basic_probability.gd`: `t4-probability-basic`: every cell and skill, one right option on each
   paper, every option a probability, hand values, the figures drawn, a curve of real counts, a
   complement that differs from its event, and every misconception as an option.
+- `test_regression_interpret.gd`: t4-regression-interpret built with every cell and both skills, Paper 2
+  throughout, the given line is the table's to 3 s.f., each case stands apart (x = 0, strong or weak r,
+  inside or outside the data), the scatter is the data, and every misconception shows up.
 - `test_regression_pair.gd`, `test_normal_unknown.gd`, `test_venn.gd`, `test_conditional.gd`: the four
   FAL-725 types: each built with every cell and all its skills, one right option on each paper,
   the numbers against hand values, the figures drawn, every misconception as an option, and the

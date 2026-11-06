@@ -14930,6 +14930,328 @@ def check_regression_pair(q):
     return None, None
 
 
+# ── regression-interpret (t4-regression-interpret, FAL-751) ──
+# The `regression-interpret` situation's clean limits, the checker's own copy: the engine's is
+# in game/engine/situations/regression_interpret.gd. The numbers are read back from what is shown
+# and the line and r found again from the data. Every statement offered is then judged from those
+# numbers: the option's wording only says which claim it makes, and the claim's truth is worked out.
+
+E9REGR_NUM = r"−?\d+(?:\.\d+)?"
+E9REGR_STRONG = (sp.Rational(9, 10), sp.Rational(99, 100))
+E9REGR_WEAK = (sp.Rational(1, 5), sp.Rational(1, 2))
+E9REGR_AB = "SL4.4.interpret-ab#"
+E9REGR_PR = "SL4.4.predict#"
+E9REGR_ORIGIN = "SL4.4.mean-point#0"
+# The stories, in the engine's order: who, x, x's units, x with units, one more x, k more x,
+# y, y's units, one unit of y, y with units, the sign of r, the lowest x allowed, the highest x, x = 0.
+E9REGR_STORIES = [
+    ("water filters", "time in use", "days", "time in use in days", "extra day in use", "the time in use is {} days longer", "flow rate", "litres per hour", "litre per hour", "flow rate in litres per hour", -1, 0, 20, "a new filter"),
+    ("solar panels", "age", "years", "age in years", "extra year of age", "the age is {} years greater", "power output", "watts", "watt", "power output in watts", -1, 0, 20, "a new panel"),
+    ("water tanks", "pumping time", "hours", "pumping time in hours", "extra hour of pumping", "the pumping time is {} hours longer", "water in the tank", "litres", "litre", "water in the tank in litres", 1, 0, 20, "the moment the pump starts"),
+    ("grain stores", "time since the last delivery", "days", "time since the last delivery in days", "extra day since the last delivery", "the time since the last delivery is {} days longer", "grain in store", "kg", "kg", "grain in store in kg", -1, 0, 20, "the day of a delivery"),
+    ("convoys", "fuel carried", "litres", "fuel carried in litres", "extra litre of fuel carried", "the fuel carried is {} litres more", "distance driven", "km", "km", "distance driven in km", 1, 30, 70, ""),
+    ("wind turbines", "wind speed", "m/s", "wind speed in m/s", "extra 1 m/s of wind speed", "the wind speed is {} m/s higher", "power output", "kW", "kW", "power output in kW", 1, 8, 20, ""),
+    ("cargo trucks", "load carried", "kg", "load carried in kg", "extra kg of load carried", "the load carried is {} kg more", "top speed", "km/h", "km/h", "top speed in km/h", -1, 30, 80, ""),
+    ("water stalls", "price of a can", "tokens", "price of a can in tokens", "extra token on the price", "the price of a can is {} tokens higher", "number of cans sold in a day", "cans", "can", "number of cans sold in a day", -1, 20, 60, ""),
+]
+E9REGR_KEYS = ("who", "x", "ux", "xl", "per", "up", "y", "uy", "uy1", "yl", "sign", "lo", "hi", "zero")
+
+
+def e9regr_t(v):
+    return sig3(v).replace("-", "−")
+
+
+def e9regr_d(v):
+    return dec_text(v).replace("-", "−")
+
+
+def e9regr_six(v):
+    t = sig3(v, 6)
+    return (t.rstrip("0").rstrip(".") if "." in t else t).replace("-", "−")
+
+
+def e9regr_num(text):
+    return R(text.replace("−", "-"))
+
+
+def e9regr_line_text(a, b):
+    return f"y = {e9regr_t(a)}x {'−' if b < 0 else '+'} {e9regr_t(abs(b))}"
+
+
+def e9regr_fit(xs, ys):
+    """The data back: the line of y on x, the line of x on y and r, by exact rationals."""
+    n = len(xs)
+    sx, sy = sum(xs), sum(ys)
+    sxx = sp.Rational(n * sum(x * x for x in xs) - sx * sx, n)
+    sxy = sp.Rational(n * sum(x * y for x, y in zip(xs, ys)) - sx * sy, n)
+    syy = sp.Rational(n * sum(y * y for y in ys) - sy * sy, n)
+    mx, my = sp.Rational(sx, n), sp.Rational(sy, n)
+    a, c = sxy / sxx, sxy / syy
+    return {"a": a, "b": my - a * mx, "c": c, "d": mx - c * my, "mx": mx, "my": my, "r": sxy / sp.sqrt(sxx * syy)}
+
+
+def e9regr_story(who, xl, yl):
+    i = next((k for k, c in enumerate(E9REGR_STORIES) if (c[0], c[3], c[9]) == (who, xl, yl)), None)
+    need(i is not None, f"no story for {who!r}, {xl!r}, {yl!r}")
+    return dict(zip(E9REGR_KEYS, E9REGR_STORIES[i]))
+
+
+def e9regr_read(q):
+    """What the question shows: the story, the data, the line it works with, r and the ranges."""
+    g, rep, L = q["given"], q["view"]["rep"], q["lines"]
+    xs, ys = [int(v) for v in g["xs"]], [int(v) for v in g["ys"]]
+    f = e9regr_fit(xs, ys)
+    a3, b3 = R(sig3(f["a"])), R(sig3(f["b"]))
+    shown_r = None
+    if rep == "table":
+        m = re.fullmatch(r"The table shows the (.+) \(x\) and the (.+) \(y\) for (\d+) (.+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        xl, yl, n, who = m.group(1), m.group(2), int(m.group(3)), m.group(4)
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "y", "table heads")
+        need([int(v) for v in rows[0][1]] == xs and [int(v) for v in rows[1][1]] == ys, "the table is not the data")
+    elif rep == "graph":
+        m = re.fullmatch(r"The graph shows the (.+) \(x\) and the (.+) \(y\) for (\d+) (.+), with the regression line of y on x\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        xl, yl, n, who = m.group(1), m.group(2), int(m.group(3)), m.group(4)
+        pts = q["graph"]["points"]
+        need([(round(p["x"]), round(p["y"])) for p in pts] == list(zip(xs, ys)), "the dots are not the data")
+        for px, py in q["graph"]["curves"][0][::9]:
+            need(abs(float(a3) * px + float(b3) - py) < 1e-6, "the line drawn is not the line")
+            need(q["graph"]["y0"] <= py + 1e-6 and py - 1e-6 <= q["graph"]["y1"], "the line leaves the plot")
+        if len(L) > 1:
+            shown_r = L[1]
+    elif rep == "equation":
+        m = re.fullmatch(rf"The regression line of y on x is y = ({E9REGR_NUM})x ([+−]) ({E9REGR_NUM})\.", L[0])
+        k = re.fullmatch(r"x is the (.+) and y is the (.+), for (\d+) (.+)\.", L[1])
+        need(m is not None and k is not None, f"can't read {L[:2]}")
+        xl, yl, n, who = k.group(1), k.group(2), int(k.group(3)), k.group(4)
+        need(e9regr_num(m.group(1)) == a3 and (1 if m.group(2) == "+" else -1) * e9regr_num(m.group(3)) == b3, "the line given is not the data's line to 3 s.f.")
+        shown_r = L[2]
+    else:
+        m = re.fullmatch(r"A line fitted to data from (\d+) (.+) predicts the (.+) \(y\) from the (.+) \(x\)\.", L[0])
+        k = re.fullmatch(rf"Its gradient is ({E9REGR_NUM}) and its y-intercept is ({E9REGR_NUM})\.", L[1])
+        need(m is not None and k is not None, f"can't read {L[:2]}")
+        n, who, yl, xl = int(m.group(1)), m.group(2), m.group(3), m.group(4)
+        need(e9regr_num(k.group(1)) == a3 and e9regr_num(k.group(2)) == b3, "the line given is not the data's line to 3 s.f.")
+        shown_r = L[2]
+    c = e9regr_story(who, xl, yl)
+    need(n == len(xs) == len(ys) and 6 <= n <= 9, f"n = {n}")
+    need(xs == sorted(set(xs)) and c["lo"] <= xs[0] and xs[-1] <= c["hi"], f"x-values {xs}")
+    need(c["lo"] > 0 or xs[0] == 0, "a story that starts at 0 has x = 0 in its table")
+    need(all(8 <= y <= 99 for y in ys), "a y-value is outside 8 to 99")
+    r = f["r"]
+    need((r > 0) == (c["sign"] > 0), "the sign of r does not match the story")
+    strong = E9REGR_STRONG[0] <= abs(r) <= E9REGR_STRONG[1]
+    weak = E9REGR_WEAK[0] <= abs(r) <= E9REGR_WEAK[1]
+    need(strong or weak, f"|r| = {float(abs(r)):.3f} is in neither band")
+    need(rg_clear(f["a"]) and rg_clear(f["b"]) and abs(f["b"]) >= 1, "a or b is on a rounding edge")
+    if shown_r is not None:
+        need(shown_r == f"Pearson's r = {sig3(sp.Rational(round(r * 100), 100), 2) if abs(r) >= sp.Rational(1, 10) else ''}".replace("-", "−"), f"r shown as {shown_r!r}")
+    out = dict(f)
+    out["c_"] = f["c"]
+    out.update(c=c, xs=xs, ys=ys, a3=a3, b3=b3, strong=strong, weak=weak, lo=xs[0], hi=xs[-1], rep=rep)
+    return out
+
+
+def e9regr_gradient(f):
+    c, a, b = f["c"], f["a3"], f["b3"]
+    v = e9regr_t(abs(a))
+    word = lambda m: "rises" if m > 0 else "falls"
+    fits = all(f["a"] * x + f["b"] == y for x, y in zip(f["xs"], f["ys"]))
+    return [(f"For each {c['per']}, the {c['y']} {word(a)} by about {v} {c['uy']} on average.", e9regr_t(f["a"]) == e9regr_t(a), None),
+            (f"The {c['y']} starts at about {e9regr_t(a)} {c['uy']}, and changes by about {e9regr_t(b)} {c['uy']} for each {c['per']}.", e9regr_t(a) == e9regr_t(b), E9REGR_AB + "0"),
+            (f"{e9regr_t(a)} is only the gradient of the line: it has no meaning for the {c['who']}.", False, E9REGR_AB + "1"),
+            (f"A rise of 1 {c['uy1']} in the {c['y']} goes with a {'rise' if a > 0 else 'fall'} of about {v} {c['ux']} in the {c['x']}.", e9regr_t(abs(f["c_"])) == v, E9REGR_AB + "3"),
+            (f"For each {c['per']}, the {c['y']} {word(-a)} by about {v} {c['uy']} on average.", (a > 0) != (f["a"] > 0), E9REGR_AB + "4"),
+            (f"For each {c['per']}, the {c['y']} of every one of the {c['who']} {word(a)} by exactly {v} {c['uy']}.", fits, E9REGR_AB + "5")]
+
+
+def e9regr_intercept(f):
+    c, a, b = f["c"], f["a3"], f["b3"]
+    v = e9regr_t(b)
+    return [(f"The {c['y']} the line gives when the {c['x']} is 0 {c['ux']}: about {v} {c['uy']}.", e9regr_t(f["b"]) == v, None),
+            (f"The change in the {c['y']} for each {c['per']}: about {v} {c['uy']}.", e9regr_t(a) == v, E9REGR_AB + "0"),
+            (f"A constant of the line, which has no units and tells nothing about the {c['who']}.", False, E9REGR_AB + "12"),
+            (f"The mean {c['y']} of the {c['who']}: about {v} {c['uy']}.", e9regr_t(f["my"]) == v, E9REGR_AB + "6"),
+            (f"The {c['x']} at which the {c['y']} reaches 0: about {v} {c['ux']}.", e9regr_t(-b / a) == v, E9REGR_AB + "7")]
+
+
+def e9regr_sensible(f):
+    c, b, lo, hi = f["c"], f["b3"], f["lo"], f["hi"]
+    value = f"{e9regr_t(b)} {c['uy']}"
+    in_data = lo == 0
+    far = lo > 0 and 2 * lo >= hi - lo
+    need(in_data or far, f"x = 0 is neither in the data nor far from it: {lo} to {hi}")
+    if in_data:
+        need(b > 0 and b not in f["ys"], "x = 0 in the data needs a b that is a possible amount and not a y-value")
+    base = (f"No: a line fitted to data must pass through the origin, so b should be 0.", b == 0, E9REGR_ORIGIN)
+    if in_data:
+        return [(f"Yes: x = 0 is in the data, so about {value} is a fair estimate for {c['zero']}.", in_data and b > 0, None),
+                ("No: x = 0 is outside the data, so b can't mean anything.", not in_data, E9REGR_AB + "10"),
+                ("No: b is not one of the y-values in the data, so it is not a real value.", not in_data, E9REGR_AB + "11"), base]
+    tail = f", and a negative {c['y']} can't happen." if b < 0 else ", so the line can't be trusted there."
+    return [(f"No: x = 0 is far outside the data, which start at x = {lo}{tail}", far, None),
+            (f"Yes: every regression line gives a value at x = 0, so about {value} is a sound estimate.", in_data, E9REGR_AB + "2"),
+            ("Yes: r is strong, so the line holds all the way down to x = 0.", in_data, E9REGR_PR + "0"), base]
+
+
+def e9regr_judge(f, x0):
+    lo, hi, strong, weak = f["lo"], f["hi"], f["strong"], f["weak"]
+    inside = lo <= x0 <= hi
+    at = f"x = {x0}"
+    good = f"Reliable: {at} is inside the data and the correlation is strong."
+    outside = f"Not reliable: {at} is outside the data, which run from {lo} to {hi}."
+    thin = "Not reliable: the correlation is weak."
+    no_line = "Not reliable: a line of y on x can't be used to estimate y."
+    if not inside:
+        need(x0 - hi >= sp.Rational(hi - lo, 2) or lo - x0 >= sp.Rational(hi - lo, 2), "an estimate outside the data is close to it")
+        need(strong, "an estimate outside the data has a strong r, so that one reason holds")
+    out = [(good, inside and strong, E9REGR_PR + "2" if weak else None), (outside, not inside, None), (thin, weak, None), (no_line, False, None)]
+    if not inside:
+        out.append(("Reliable: r is strong, so the line holds for any x.", False, E9REGR_PR + "0"))
+    elif weak:
+        out.append((f"Reliable: {at} is inside the data, so the line can be trusted there.", strong, E9REGR_PR + "2"))
+    else:
+        out.append(("Not reliable: an estimate from a regression line can never be trusted.", False, E9REGR_PR + "4"))
+    return out
+
+
+def e9regr_flawed(q, f):
+    a, b, L, lo, hi = f["a3"], f["b3"], q["lines"], f["lo"], f["hi"]
+    if f["rep"] == "table":
+        need(L[1] == f"The regression line of y on x is {e9regr_line_text(a, b)}.", f"the line in {L[1]!r}")
+    elif f["rep"] == "equation":
+        need(L[3] == f"In the data, x runs from {lo} to {hi} and y from {min(f['ys'])} to {max(f['ys'])}.", f"the range in {L[3]!r}")
+    need(f["strong"], "the flaw is not a weak r")
+    weak = ("The correlation is too weak for any estimate.", f["weak"], None)
+    sign_b = f"{'−' if b < 0 else '+'} {e9regr_d(abs(b))}"
+    m = re.fullmatch(rf"A scout estimates y when x = (\d+): y = {re.escape(e9regr_t(a))} × (\d+) ([+−]) ({E9REGR_NUM}) ≈ ({E9REGR_NUM})", L[-1])
+    if m:
+        x0 = int(m.group(1))
+        need(int(m.group(2)) == x0 and (1 if m.group(3) == "+" else -1) * e9regr_num(m.group(4)) == b, "the working is not the line's")
+        y0 = a * x0 + b
+        need(m.group(5) == e9regr_t(y0) and rg_clear(y0) and y0 >= 1, f"the working's result, {y0}")
+        outside = not lo <= x0 <= hi
+        need(x0 - hi >= sp.Rational(hi - lo, 2) or lo - x0 >= sp.Rational(hi - lo, 2), "x is not well outside the data")
+        return [(f"x = {x0} is outside the data, which run from {lo} to {hi}, so the line may not hold there.", outside, None),
+                ("Nothing is wrong: r is strong, so the line holds for any x.", not outside, E9REGR_PR + "0"),
+                ("The line must be rearranged to make x the subject first.", False, E9REGR_PR + "1"), weak]
+    m = re.fullmatch(rf"A scout knows that y = (\d+) and estimates x: (\d+) = {re.escape(e9regr_t(a))}x ([+−]) ({E9REGR_NUM}), so x ≈ ({E9REGR_NUM})", L[-1])
+    need(m is not None, f"can't read {L[-1]!r}")
+    y = int(m.group(1))
+    need(int(m.group(2)) == y and (1 if m.group(3) == "+" else -1) * e9regr_num(m.group(4)) == b, "the working is not the line's")
+    xr = (y - b) / a
+    xc = f["c_"] * y + f["d"]
+    need(m.group(5) == e9regr_t(xr) and rg_clear(xr) and rg_clear(xc), f"the working's result, {xr}")
+    need(lo < xr < hi and y not in f["ys"], "x should be inside the data, and y not in the table")
+    differ = e9regr_t(xr) != e9regr_t(xc)
+    return [("x is being estimated, so the line of x on y is needed: the line of y on x only estimates y.", differ, None),
+            ("Nothing is wrong: rearranging a line gives the same estimate.", not differ, E9REGR_PR + "1"),
+            (f"y = {y} is outside the data, so the line may not hold there.", not min(f["ys"]) <= y <= max(f["ys"]), None), weak,
+            (f"The sign is wrong: it should be x = ({y} + {e9regr_t(b)}) ÷ {e9regr_t(a)}.", b == 0, None)]
+
+
+def e9regr_reading(q, f):
+    m = re.fullmatch(rf"Read from the line an estimate of the {re.escape(f['c']['y'])} when x = (\d+), to the nearest 5\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    x0 = int(m.group(1))
+    need(q["graph"]["vlines"] == [{"at": float(x0), "label": f"x = {x0}"}], "the x read at is marked")
+    need(f["lo"] < x0 < f["hi"] and x0 not in f["xs"], "x is inside the data and not a dot")
+    say = lambda v: f"About {v} {f['c']['uy']}"
+    y = f["a3"] * x0 + f["b3"]
+    fives = lambda v: int(5 * sp.floor(v / 5 + sp.Rational(1, 2)))
+    read = fives(y)
+    need(abs(y - read) <= 1 and read >= 10, f"the line is at {y}: no fair reading")
+    nearest = min(f["xs"], key=lambda x: (abs(x - x0), x))
+    claims = {say(read): (True, None)}
+    near = fives(sp.Integer(f["ys"][f["xs"].index(nearest)]))
+    across = fives((x0 - f["b3"]) / f["a3"])
+    tagged = {E9REGR_PR + "3": {say(near)}, E9REGR_PR + "5": {say(across)}}
+    for o in q["choices"]:
+        got = re.fullmatch(rf"About (−?\d+) {re.escape(f['c']['uy'])}", o["text"])
+        need(got is not None, f"can't read {o['text']!r}")
+        v = int(got.group(1))
+        need(v % 5 == 0 and (v == read) == o["correct"], f"option {o['text']!r} is judged wrongly: the line is at {y}")
+        need(v == read or abs(v - read) >= 5, "two readings are too close")
+    return say(read), tagged
+
+
+def e9regr_judged(q, claims):
+    """Every option is one of the claims, and its truth is the claim's. One is true."""
+    by = {t: (truth, ref) for t, truth, ref in claims}
+    for o in q["choices"]:
+        need(o["text"] in by, f"option {o['text']!r} is not a statement the checker knows")
+        truth, ref = by[o["text"]]
+        need(bool(truth) == bool(o["correct"]), f"option {o['text']!r} is {'true' if truth else 'false'} for these numbers")
+        need(o["ref"] == (ref or ""), f"option {o['text']!r} carries {o['ref']!r}, not {ref!r}")
+    true = [t for t, truth, _ in claims if truth]
+    need(len(true) == 1, f"{len(true)} statements are true: {true}")
+    wr = {}
+    for t, truth, ref in claims:
+        if ref:
+            wr.setdefault(ref, set()).add(t)
+    return true[0], wr
+
+
+def e9regr_check(q):
+    u, rep, L, asked, angle = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"], q["view"]["angle"]
+    need(q["paper"] == 2, "regression questions are Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    f = e9regr_read(q)
+    a, b, trap = f["a3"], f["b3"], None
+    steps = [st for sol in q["solutions"] for st in sol["steps"]]
+    if u == "interpret-gradient":
+        want, wrongs = e9regr_judged(q, e9regr_gradient(f))
+        p = f["lo"]
+        if angle == "two-predictions":
+            for x in (p, p + 1):
+                need(any(f"y = {e9regr_t(a)} × {x}" in st and e9regr_d(a * x + b) in st for st in steps), f"the prediction at x = {x}")
+            need(any(f"= {e9regr_d(a)}, which is a" in st for st in steps), "the difference is not a")
+    elif u == "interpret-intercept":
+        want, wrongs = e9regr_judged(q, e9regr_intercept(f))
+    elif u == "intercept-sensible":
+        if rep != "table":
+            need(L[-1] == f"In the data, x runs from {f['lo']} to {f['hi']}.", f"the range in {L[-1]!r}")
+        want, wrongs = e9regr_judged(q, e9regr_sensible(f))
+    elif u == "expected-change":
+        c = f["c"]
+        m = re.fullmatch(rf"What change in the {re.escape(c['y'])} does the line predict when (.+)\? Give your answer to 3 s\.f\., with a minus sign for a fall\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        k = next((v for v in (2, 3, 4, 5, 6, 8, 10) if c["up"].format(v) == m.group(1)), None)
+        need(k is not None and f["lo"] + k <= f["hi"], f"can't read the extra in {asked!r}")
+        use = f["a"] if rep == "table" else a
+        ch = use * k
+        need(rg_clear(ch) and sp.Rational(sig3(ch)) != ch, f"the change {ch} is on an edge or needs no rounding")
+        say = lambda v: f"change = {e9regr_t(v)} {c['uy']}"
+        want = say(ch)
+        trap = f"change = {dec_text(sp.Rational(sig3(ch, 2))).replace('-', '−')} {c['uy']}"
+        wrongs = {E9REGR_AB + "9": {say(use)}, E9REGR_AB + "8": {say(use * k + b)}, E9REGR_AB + "0": {say(b * k)}}
+        if angle == "two-predictions":
+            for x in (f["lo"], f["lo"] + k):
+                y = use * x + b
+                need(any((e9regr_six(y) if rep == "table" else e9regr_d(y)) in st for st in steps), f"the prediction at x = {x}")
+    elif u == "judge-prediction":
+        m = re.fullmatch(rf"A scout uses the line to estimate y when x = (\d+), and gets y ≈ ({E9REGR_NUM})\. Comment on the reliability of this estimate\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        x0 = int(m.group(1))
+        y0 = a * x0 + b
+        need(m.group(2) == e9regr_t(y0) and rg_clear(y0) and y0 >= 1, f"the estimate is {y0}")
+        if rep == "equation":
+            need(L[-1] == f"In the data, x runs from {f['lo']} to {f['hi']}.", f"the range in {L[-1]!r}")
+        want, wrongs = e9regr_judged(q, e9regr_judge(f, x0))
+    elif u == "flawed-estimate":
+        need(asked == "Give a reason why this method is not appropriate.", f"asked {asked!r}")
+        want, wrongs = e9regr_judged(q, e9regr_flawed(q, f))
+    elif u == "read-estimate":
+        want, wrongs = e9regr_reading(q, f)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
 # ── normal-unknown (t4-normal-unknown-parameter, FAL-725) ────
 # The `normal-unknown` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/normal_unknown.gd. The facts are read back from what the student sees;
@@ -26774,6 +27096,7 @@ SITUATION_CHECKS = {"grouped-data": check_grouped_data, "binomial-unknown": chec
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
+                    "regression-interpret": e9regr_check,
                     "binomial": check_binomial, "geometric-sequence": check_geometric, "binomial-expansion": check_binomial_expansion, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
