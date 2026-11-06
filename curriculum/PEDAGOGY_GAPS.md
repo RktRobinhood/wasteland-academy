@@ -2279,6 +2279,43 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): Two legs on bearings of 040° and 100° meet at an angle of 60° inside the triangle. — False: 60° is the turn. The north lines are parallel, so the angle inside is 180° − 60° = 120°.
 - **Misconceptions used:** 9. Measuring a bearing anticlockwise or from east instead of clockwise from north; Giving the bearing the other way: the way back, not the way asked for; Using the bearings themselves as angles inside the triangle without angle chasing; Measuring the angle of depression from the vertical instead of the horizontal; Putting the angle of depression inside the triangle at the top vertex; Leaving the person's height or eye level out of the calculation; Rounding the shared side early and carrying the error into the next triangle; Assuming a right angle because it looks like one; Using the sine rule in a triangle where no side–opposite angle pair is known.
 
+#### Angle in radians as a function of time for rotating objects (`t3-circular-motion`, exam, 3 bank parts)
+
+- **Situation:** Something turning steadily about a point, and a straight line beside it.
+- **Representations:** **words**, **diagram**, equation (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given the time for one turn → the angle turned in one second, as an exact multiple of π
+  - **exam** L2: given the time for one turn → an expression for the angle turned in terms of t, as a multiple of π
+  - new L2: given the time for one turn; a time → the angle turned in that time, as an exact multiple of π
+  - new L2: given revolutions per minute → the rate in radians per second, as an exact multiple of π
+  - new L1: given a landmark rate in degrees per second → the rate in radians per second, as an exact multiple of π
+  - new L1: given a landmark angle in degrees → the angle in radians, as an exact multiple of π
+  - new L1: given a landmark multiple of π → the angle in degrees
+  - new L3: given r; d at a landmark share of r → angle AOB, as an exact multiple of π
+  - new L3: given r; d at a landmark share of r; the time for one turn → the exact time on the chord in each turn
+  - new L2: given the rate in radians per second, or θ = wt → the rate in degrees per second
+  - new L2: given the rate in radians per second, or θ = wt → the time for one turn
+  - new L2: given the rate in radians per second, or θ = wt; an angle in degrees → the time to turn through it
+  - new L2: given the time for one turn; an angle in radians → the time to turn through it
+  - new L2: given r; d → half of angle AOB, in radians
+  - new L3: given r; d → angle AOB, in radians
+  - **exam** L4: given r; d; the time for one turn → the time on the chord in each turn
+  - new L4: given r; d; revolutions per minute → the time on the chord in each turn, in seconds
+  - new L4: given r; d; a rate in degrees per second → the time on the chord in each turn
+  - new L4: given r; d; the time for one turn → the time off the chord in each turn
+  - new L3: given r; d; the time for one turn → the fraction of each turn spent on the chord
+  - new L3: given r; d → the length of the shorter arc AB
+  - new L5: given r; the time for one turn; the time on the chord → the distance from the centre to the line
+  - new L3: given an arm's length; the time for one turn; a time → the distance its tip moves in that time
+  - new L3: given an arm's length; the time for one turn → the speed of its tip
+  - new L3: given an arm's length; revolutions per minute → the speed of its tip, in metres per second
+- **Angles:** Multiply by π/180 or 180/π; Fraction of a full turn; Count in landmark angles.
+- **Concept probes:**
+  - *true-false-reason* (L3): If a light turns twice as fast, a fence beside it is swept for half as long in each turn. — True: the angle AOB is fixed by the distances alone, and the time is that angle ÷ the rate.
+  - *always-sometimes-never* (L3): A line d metres from a light with a reach of r metres is swept for less than half of each turn. — Always, for 0 < d < r: cos φ = d/r is positive, so φ < π/2 and angle AOB < π, which is less than half a turn.
+  - *interpret-parameter* (L3): In θ = πt/8, what does π/8 mean, and how long is one turn? — π/8 is the angle turned each second, in radians. One turn is 2π, so it takes 2π ÷ π/8 = 16 seconds.
+- **Misconceptions used:** 15. Multiplying by 180/π when converting degrees to radians; Writing the size in radians as if it were degrees; Giving a decimal when an exact multiple of π is asked for; Taking π as a full turn instead of 2π; Dividing the wrong way round: time by angle instead of angle by time, or the rate by a full turn instead of a full turn by the rate; Using the degrees-to-radians factor when converting radians to degrees; Leaving a rate in revolutions per minute unconverted when seconds are needed; Mixing degrees and radians in one calculation; Using half of the angle at the centre when the whole of angle AOB is needed; Using the whole of the angle at the centre when half of it is needed; Using sine instead of cosine, when the distance from the centre is the side next to the angle; Mixing up the time on the line with the time off it; Multiplying the angle by the rate instead of dividing by it; Giving the distance round the circle as the speed or the distance moved, without using the time; Writing the size in degrees as if it were radians.
+
 #### Segments and composite regions built from sectors, triangles and rectangles (`t3-composite-circular-region`, exam, 13 bank parts)
 
 - **Situation:** A region of sectors, triangles and rectangles, or a sector from two conditions.

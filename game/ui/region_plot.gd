@@ -13,6 +13,11 @@ extends RefCounted
 ##   hatch    {"rho", "h", "w_label", "h_label"}: a rectangle with a semicircle on top, shaded
 ##   tangent  {"theta", "r_label", "angle_label"}: tangents from A touching a circle at D and E,
 ##            with the part between them and the minor arc shaded
+##   sweep    {"r", "d", "r_label", "d_label", "line", "mark", "angle_label", "nearest"}: a circle with
+##            centre O, turning clockwise, cut at A and B by a straight line d from O, named `line`.
+##            `mark` is "half" (angle AOM), "whole" (angle AOB), "moving" (a beam at D, on its way
+##            from A to B, with angle AOD marked) or ""; `nearest` writes M, the foot of the
+##            perpendicular from O
 
 const FILL := 0.32
 const LINE := 5.0
@@ -33,6 +38,8 @@ static func draw(v: PlotView) -> void:
 			_hatch(v)
 		"tangent":
 			_tangent(v)
+		"sweep":
+			_sweep(v)
 
 
 static func _shade(v: PlotView, pts: PackedVector2Array) -> void:
@@ -263,3 +270,66 @@ static func _tangent(v: PlotView) -> void:
 	var room := (dist - 1.0) * k > near + 64.0
 	_angle_chip(v, v.spec.angle_label, a + (Vector2(0, near + 36.0) if room else Vector2(96, 14)))
 	_length(v, v.spec.r_label, (c + d) / 2.0 + Vector2(0, 44))
+
+
+static func _sweep(v: PlotView) -> void:
+	var cosine: float = v.spec.d / v.spec.r
+	var half := acos(cosine)
+	var box := Rect2(Vector2(64, 60), v.size - Vector2(128, 130))
+	# In radii, with room outside the circle for the turning arrow and the line's ends.
+	var f := _fit(box, Vector2(-1.2, -1.22), Vector2(1.14, 1.22))
+	var c: Vector2 = f.o
+	var k: float = f.k
+	var a := v._on_circle(c, k, half)
+	var b := v._on_circle(c, k, -half)
+	var m := c + Vector2(k * cosine, 0)
+	v.draw_arc(c, k, 0.0, TAU, 96, UiTheme.TEAL, LINE, true)
+	var top := c + Vector2(k * cosine, -1.2 * k)
+	var low := c + Vector2(k * cosine, 1.2 * k)
+	v.draw_line(top, low, UiTheme.TEXT, 3.0, true)
+	v.draw_line(a, b, UiTheme.TEAL, LINE + 2.0, true)
+	v._text(v.spec.line, low + Vector2(0, 34), UiTheme.DIM, PlotView.FONT_SIZE - 4)
+	v.draw_line(c, a, UiTheme.SAND, 3.0, true)
+	v._dashes(c, b, UiTheme.SAND)
+	v._dashes(c, m, UiTheme.SAND)
+	# The right angle at the foot of the perpendicular.
+	var box_at := m + Vector2(-20, -20)
+	v.draw_polyline(PackedVector2Array([box_at + Vector2(0, 20), box_at, box_at + Vector2(20, 0)]), UiTheme.SAND, 2.0, true)
+	# The turning arrow, clockwise, outside the circle on the left.
+	var turn := v._arc_points(c, k + 26.0, PI * 0.95, -PI * 0.4)
+	v.draw_polyline(turn, UiTheme.DIM, 3.0, true)
+	var tip: Vector2 = turn[turn.size() - 1]
+	var back: Vector2 = (turn[turn.size() - 4] - tip).normalized()
+	v.draw_line(tip, tip + back.rotated(0.5) * 20.0, UiTheme.DIM, 3.0, true)
+	v.draw_line(tip, tip + back.rotated(-0.5) * 20.0, UiTheme.DIM, 3.0, true)
+	v.draw_circle(c, PlotView.DOT * 0.6, UiTheme.TEXT)
+	for p in [a, b]:
+		v.draw_circle(p, PlotView.DOT * 0.5, UiTheme.TEXT)
+	_name(v, "O", c + Vector2(-30, 0))
+	_name(v, "A", a + Vector2(30, -18))
+	_name(v, "B", b + Vector2(30, 22))
+	if v.spec.get("nearest", false):
+		_name(v, "M", m + Vector2(30, 0))
+	_length(v, v.spec.r_label, (c + a) / 2.0 + Vector2(-34, -20))
+	# Clear of the line, however close to O it passes.
+	var wide := v.get_theme_default_font().get_string_size(v.spec.d_label, HORIZONTAL_ALIGNMENT_LEFT, -1, PlotView.FONT_SIZE).x
+	_length(v, v.spec.d_label, Vector2(minf((c.x + m.x) / 2.0, m.x - wide / 2.0 - 16.0), c.y + 40.0))
+	var near := minf(NEAR + 14.0, k * cosine * 0.7)
+	near = maxf(near, 34.0)
+	match v.spec.get("mark", ""):
+		"half":
+			v.draw_polyline(v._arc_points(c, near, 0.0, half), UiTheme.PINK, 3.0, true)
+			_angle_chip(v, v.spec.angle_label, v._on_circle(c, near + 26.0, half / 2.0) + Vector2(0, 10))
+		"whole":
+			v.draw_polyline(v._arc_points(c, near, -half, 2.0 * half), UiTheme.PINK, 3.0, true)
+			_angle_chip(v, v.spec.angle_label, c + Vector2(near + 26.0, -22.0))
+		"moving":
+			# D is partway down from A, between A and the foot of the perpendicular.
+			var turned := half * 0.55
+			var through := half - turned
+			var dd := c + Vector2(k * cosine, -k * cosine * tan(through))
+			v.draw_line(c, dd, UiTheme.PINK, 3.0, true)
+			v.draw_circle(dd, PlotView.DOT * 0.5, UiTheme.TEXT)
+			_name(v, "D", dd + Vector2(30, 6))
+			v.draw_polyline(v._arc_points(c, near, through, turned), UiTheme.PINK, 3.0, true)
+			_angle_chip(v, v.spec.angle_label, v._on_circle(c, near + 26.0, through + turned / 2.0) + Vector2(0, 10))

@@ -3718,6 +3718,66 @@
 				"θ stays between 0 and 2π"
 			]
 		},
+		"circular-motion": {
+			"name": "Something turning steadily about a point, and a straight line beside it",
+			"summary": "Pick a rate, given as a time for one turn, revolutions per minute, degrees or radians per second. Add a reach r and a line d from the centre for a chord, or an arm for a rim. Every angle, time, fraction, arc and speed then follows.",
+			"quantities": [
+				{
+					"name": "T",
+					"is": "the time for one turn, in seconds",
+					"pick": "a whole number from 5 to 60 (3 to 40 for a rim speed); a multiple of 12 up to 60 on an exact chord"
+				},
+				{
+					"name": "n",
+					"is": "revolutions per minute",
+					"pick": "a whole number from 2 to 40"
+				},
+				{
+					"name": "k",
+					"is": "degrees per second",
+					"pick": "a multiple of 15 up to 150 where it is asked for exactly, else a whole number from 5 to 80 that is no multiple of 15"
+				},
+				{
+					"name": "w",
+					"is": "the rate in radians per second",
+					"pick": "0.15 to 3.00 to 2 d.p."
+				},
+				{
+					"name": "r",
+					"is": "the reach of a sweep, or the length of an arm",
+					"pick": "8 to 60 to the half metre; an even number to 60 on an exact chord; 2.0 to 14.0 to 1 d.p. for an arm"
+				},
+				{
+					"name": "d",
+					"is": "the line's distance from the centre",
+					"pick": "1 d.p., a share of r from 0.25 to 0.92 and at least 0.02 from a landmark cosine; k, k√2 or k√3 with r = 2k on an exact chord"
+				},
+				{
+					"name": "φ",
+					"is": "half of angle AOB",
+					"pick": "arccos(d/r)"
+				},
+				{
+					"name": "θ",
+					"is": "an angle turned",
+					"pick": "a landmark in degrees or as a multiple of π; whole degrees that are no landmark; or 0.50 to 5.50 radians to 2 d.p."
+				},
+				{
+					"name": "τ",
+					"is": "a time in seconds",
+					"pick": "a whole number below T, or to 1 d.p. from 0.15 to 0.42 of T for the time on a chord"
+				}
+			],
+			"clean": [
+				"Paper 2 only, as all 3 bank parts are",
+				"an exact answer is a multiple of π, or a whole number of degrees or seconds",
+				"every other answer is to 3 s.f., clear of a rounding edge by 0.03 of its last place, with every wrong option clear too and all reading differently",
+				"a 3 s.f. answer does not end in 0, so it reads differently from its 2 s.f. trap",
+				"the working runs on from the figures it shows and lands on the answer to 3 s.f.",
+				"a figure is drawn to its real shape",
+				"the bank's own numbers (a reach of 20 with a line at 14, and a turn in 16 seconds for the exact rate) are left out"
+			]
+		},
 		"bearings-elevation": {
 			"name": "Journeys, sightings and connected triangles",
 			"summary": "Points on a map or in a side view, set from real coordinates: bearings and distances, heights and lines of sight, and triangles that share a side. Any bearing, angle or length can be asked, and the sketch keeps the real shape.",
@@ -5497,9 +5557,9 @@
 		"SL3.2.cosine-rule-angle": "Use the cosine rule to find an angle from three sides",
 		"SL3.3.bearings": "Interpret bearings, draw the journey diagram, and find distances and bearings",
 		"SL3.3.multi-triangle": "Solve multi-step problems across connected triangles, choosing the right rule at each step",
+		"SL3.4.convert": "Convert between degrees and radians",
 		"SL3.4.segment-shaded": "Find the area or perimeter of a segment or composite shaded region",
 		"SL3.4.sector-two-conditions": "Solve sector problems with two conditions (perimeter and area, or arc and area)",
-		"SL3.4.convert": "Convert between degrees and radians",
 		"SL3.4.arc-length": "Find arc length or sector perimeter, or work back to r or θ",
 		"SL3.4.sector-area": "Find sector area, or work back to r or θ",
 		"SL3.5.exact-special": "Write down exact values at 0, π/6, π/4, π/3 and π/2",
@@ -32211,6 +32271,765 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Angle in radians as a function of time for rotating objects",
+			"summary": "Something turns steadily about a point: find the angle turned in one second or in t seconds, a rate from a period, from revolutions per minute or from degrees per second, the time to turn an angle, how long a straight line cut from its circle is swept in each turn, the fraction of a turn that takes, the arc swept and the speed of a point on the rim.",
+			"situation": "circular-motion",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a searchlight on a tower turns once every so many seconds, beside a straight fence"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the circle with its centre, radius and the line that cuts the chord AB, or the angle turned drawn to size on the circle"
+				},
+				{
+					"rep": "equation",
+					"exam": false,
+					"how": "the angle as a function of time: θ = wt radians"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "rate-from-period",
+					"given": [
+						"the time for one turn"
+					],
+					"asked": "the angle turned in one second, as an exact multiple of π",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "angle-expression",
+					"given": [
+						"the time for one turn"
+					],
+					"asked": "an expression for the angle turned in terms of t, as a multiple of π",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "angle-after-time",
+					"given": [
+						"the time for one turn",
+						"a time"
+					],
+					"asked": "the angle turned in that time, as an exact multiple of π",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "rate-from-rpm",
+					"given": [
+						"revolutions per minute"
+					],
+					"asked": "the rate in radians per second, as an exact multiple of π",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "rate-from-degrees",
+					"given": [
+						"a landmark rate in degrees per second"
+					],
+					"asked": "the rate in radians per second, as an exact multiple of π",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "sweep-to-radians",
+					"given": [
+						"a landmark angle in degrees"
+					],
+					"asked": "the angle in radians, as an exact multiple of π",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "sweep-to-degrees",
+					"given": [
+						"a landmark multiple of π"
+					],
+					"asked": "the angle in degrees",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "chord-angle-exact",
+					"given": [
+						"r",
+						"d at a landmark share of r"
+					],
+					"asked": "angle AOB, as an exact multiple of π",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "chord-time-exact",
+					"given": [
+						"r",
+						"d at a landmark share of r",
+						"the time for one turn"
+					],
+					"asked": "the exact time on the chord in each turn",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "rate-to-degrees",
+					"given": [
+						"the rate in radians per second, or θ = wt"
+					],
+					"asked": "the rate in degrees per second",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "period-from-rate",
+					"given": [
+						"the rate in radians per second, or θ = wt"
+					],
+					"asked": "the time for one turn",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "time-to-turn",
+					"given": [
+						"the rate in radians per second, or θ = wt",
+						"an angle in degrees"
+					],
+					"asked": "the time to turn through it",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "time-from-period",
+					"given": [
+						"the time for one turn",
+						"an angle in radians"
+					],
+					"asked": "the time to turn through it",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "half-angle",
+					"given": [
+						"r",
+						"d"
+					],
+					"asked": "half of angle AOB, in radians",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "chord-angle",
+					"given": [
+						"r",
+						"d"
+					],
+					"asked": "angle AOB, in radians",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "chord-time",
+					"given": [
+						"r",
+						"d",
+						"the time for one turn"
+					],
+					"asked": "the time on the chord in each turn",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "chord-time-rpm",
+					"given": [
+						"r",
+						"d",
+						"revolutions per minute"
+					],
+					"asked": "the time on the chord in each turn, in seconds",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "chord-time-degrees",
+					"given": [
+						"r",
+						"d",
+						"a rate in degrees per second"
+					],
+					"asked": "the time on the chord in each turn",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "dark-time",
+					"given": [
+						"r",
+						"d",
+						"the time for one turn"
+					],
+					"asked": "the time off the chord in each turn",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "fraction-in-view",
+					"given": [
+						"r",
+						"d",
+						"the time for one turn"
+					],
+					"asked": "the fraction of each turn spent on the chord",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "arc-past-line",
+					"given": [
+						"r",
+						"d"
+					],
+					"asked": "the length of the shorter arc AB",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "distance-from-time",
+					"given": [
+						"r",
+						"the time for one turn",
+						"the time on the chord"
+					],
+					"asked": "the distance from the centre to the line",
+					"level": 5,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "arc-in-time",
+					"given": [
+						"an arm's length",
+						"the time for one turn",
+						"a time"
+					],
+					"asked": "the distance its tip moves in that time",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "rim-speed",
+					"given": [
+						"an arm's length",
+						"the time for one turn"
+					],
+					"asked": "the speed of its tip",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				},
+				{
+					"id": "rim-speed-rpm",
+					"given": [
+						"an arm's length",
+						"revolutions per minute"
+					],
+					"asked": "the speed of its tip, in metres per second",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.4.convert"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.4.convert",
+					"method": "multiply-factor",
+					"suits": [
+						"rate-from-period",
+						"angle-expression",
+						"angle-after-time",
+						"rate-from-rpm",
+						"rate-from-degrees",
+						"sweep-to-radians",
+						"sweep-to-degrees",
+						"chord-angle-exact",
+						"chord-time-exact",
+						"rate-to-degrees",
+						"period-from-rate",
+						"time-to-turn",
+						"time-from-period",
+						"half-angle",
+						"chord-angle",
+						"chord-time",
+						"chord-time-rpm",
+						"chord-time-degrees",
+						"dark-time",
+						"fraction-in-view",
+						"arc-past-line",
+						"distance-from-time",
+						"arc-in-time",
+						"rim-speed",
+						"rim-speed-rpm"
+					],
+					"name": "Multiply by π/180 or 180/π",
+					"about": "Degrees to radians: multiply by π/180; radians to degrees: multiply by 180/π."
+				},
+				{
+					"skill": "SL3.4.convert",
+					"method": "fraction-of-turn",
+					"suits": [
+						"rate-from-period",
+						"angle-expression",
+						"angle-after-time",
+						"rate-from-rpm",
+						"rate-from-degrees",
+						"sweep-to-radians",
+						"sweep-to-degrees",
+						"chord-angle-exact",
+						"chord-time-exact",
+						"rate-to-degrees",
+						"period-from-rate",
+						"time-to-turn",
+						"time-from-period",
+						"half-angle",
+						"chord-angle",
+						"chord-time",
+						"chord-time-rpm",
+						"chord-time-degrees",
+						"dark-time",
+						"fraction-in-view",
+						"arc-past-line",
+						"distance-from-time",
+						"arc-in-time",
+						"rim-speed",
+						"rim-speed-rpm"
+					],
+					"name": "Fraction of a full turn",
+					"about": "Write the angle as a fraction of 360°, then take the same fraction of 2π: 150° is 5/12 of a turn, so 5π/6."
+				},
+				{
+					"skill": "SL3.4.convert",
+					"method": "landmarks",
+					"suits": [
+						"rate-from-degrees",
+						"sweep-to-radians",
+						"sweep-to-degrees",
+						"chord-angle-exact",
+						"chord-time-exact"
+					],
+					"name": "Count in landmark angles",
+					"about": "30° = π/6, so 150° = 5 × π/6; 45° = π/4, so 135° = 3π/4."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If a light turns twice as fast, a fence beside it is swept for half as long in each turn.",
+					"answer": "True: the angle AOB is fixed by the distances alone, and the time is that angle ÷ the rate.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "A line d metres from a light with a reach of r metres is swept for less than half of each turn.",
+					"answer": "Always, for 0 < d < r: cos φ = d/r is positive, so φ < π/2 and angle AOB < π, which is less than half a turn.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "In θ = πt/8, what does π/8 mean, and how long is one turn?",
+					"answer": "π/8 is the angle turned each second, in radians. One turn is 2π, so it takes 2π ÷ π/8 = 16 seconds.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.4.convert#0",
+					"text": "Multiplying by 180/π when converting degrees to radians",
+					"as": "distractor",
+					"in": [
+						"rate-from-degrees",
+						"sweep-to-radians",
+						"time-to-turn"
+					],
+					"wrong": "degrees × 180/π"
+				},
+				{
+					"ref": "SL3.4.convert#1",
+					"text": "Writing the size in radians as if it were degrees",
+					"as": "distractor",
+					"in": [
+						"sweep-to-degrees",
+						"rate-to-degrees"
+					],
+					"wrong": "the size in radians written as degrees"
+				},
+				{
+					"ref": "SL3.4.convert#2",
+					"text": "Giving a decimal when an exact multiple of π is asked for",
+					"as": "distractor",
+					"in": [
+						"rate-from-period",
+						"angle-expression",
+						"angle-after-time",
+						"rate-from-rpm",
+						"rate-from-degrees",
+						"sweep-to-radians",
+						"chord-angle-exact"
+					],
+					"wrong": "the decimal in place of the multiple of π"
+				},
+				{
+					"ref": "SL3.4.convert#3",
+					"text": "Taking π as a full turn instead of 2π",
+					"as": "distractor",
+					"in": [
+						"rate-from-period",
+						"angle-expression",
+						"angle-after-time",
+						"rate-from-rpm",
+						"rate-from-degrees",
+						"sweep-to-radians",
+						"sweep-to-degrees",
+						"rate-to-degrees",
+						"period-from-rate",
+						"time-from-period",
+						"fraction-in-view",
+						"arc-in-time",
+						"rim-speed",
+						"rim-speed-rpm"
+					],
+					"wrong": "a full turn counted as π: half the angle, or double the time"
+				},
+				{
+					"ref": "SL3.4.convert#4",
+					"text": "Dividing the wrong way round: time by angle instead of angle by time, or the rate by a full turn instead of a full turn by the rate",
+					"as": "distractor",
+					"in": [
+						"rate-from-period",
+						"angle-expression",
+						"period-from-rate"
+					],
+					"wrong": "T/2π for a rate, or w/2π for a time"
+				},
+				{
+					"ref": "SL3.4.convert#5",
+					"text": "Using the degrees-to-radians factor when converting radians to degrees",
+					"as": "distractor",
+					"in": [
+						"sweep-to-degrees",
+						"rate-to-degrees"
+					],
+					"wrong": "radians × π/180"
+				},
+				{
+					"ref": "SL3.4.convert#6",
+					"text": "Leaving a rate in revolutions per minute unconverted when seconds are needed",
+					"as": "distractor",
+					"in": [
+						"rate-from-rpm",
+						"chord-time-rpm",
+						"rim-speed-rpm"
+					],
+					"wrong": "the rate per minute used as a rate per second"
+				},
+				{
+					"ref": "SL3.4.convert#7",
+					"text": "Mixing degrees and radians in one calculation",
+					"as": "distractor",
+					"in": [
+						"chord-time-exact",
+						"period-from-rate",
+						"time-to-turn",
+						"time-from-period",
+						"chord-time",
+						"chord-time-degrees",
+						"fraction-in-view",
+						"arc-past-line",
+						"distance-from-time",
+						"arc-in-time",
+						"rim-speed"
+					],
+					"wrong": "an angle in one unit with a full turn, a rate or a calculator mode in the other"
+				},
+				{
+					"ref": "SL3.4.convert#8",
+					"text": "Using half of the angle at the centre when the whole of angle AOB is needed",
+					"as": "distractor",
+					"in": [
+						"chord-angle-exact",
+						"chord-time-exact",
+						"chord-angle",
+						"chord-time",
+						"chord-time-rpm",
+						"chord-time-degrees",
+						"dark-time",
+						"fraction-in-view",
+						"arc-past-line"
+					],
+					"wrong": "φ in place of 2φ"
+				},
+				{
+					"ref": "SL3.4.convert#9",
+					"text": "Using the whole of the angle at the centre when half of it is needed",
+					"as": "distractor",
+					"in": [
+						"half-angle",
+						"distance-from-time"
+					],
+					"wrong": "2φ in place of φ"
+				},
+				{
+					"ref": "SL3.4.convert#10",
+					"text": "Using sine instead of cosine, when the distance from the centre is the side next to the angle",
+					"as": "distractor",
+					"in": [
+						"chord-angle-exact",
+						"chord-time-exact",
+						"half-angle",
+						"chord-angle",
+						"chord-time",
+						"chord-time-rpm",
+						"chord-time-degrees",
+						"dark-time",
+						"fraction-in-view",
+						"arc-past-line",
+						"distance-from-time"
+					],
+					"wrong": "arcsin(d/r) in place of arccos(d/r), or r sin φ in place of r cos φ"
+				},
+				{
+					"ref": "SL3.4.convert#11",
+					"text": "Mixing up the time on the line with the time off it",
+					"as": "distractor",
+					"in": [
+						"chord-time-exact",
+						"dark-time"
+					],
+					"wrong": "T − t in place of t, or t in place of T − t"
+				},
+				{
+					"ref": "SL3.4.convert#12",
+					"text": "Multiplying the angle by the rate instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"period-from-rate",
+						"time-to-turn",
+						"time-from-period"
+					],
+					"wrong": "angle × rate"
+				},
+				{
+					"ref": "SL3.4.convert#13",
+					"text": "Giving the distance round the circle as the speed or the distance moved, without using the time",
+					"as": "distractor",
+					"in": [
+						"arc-in-time",
+						"rim-speed",
+						"rim-speed-rpm"
+					],
+					"wrong": "2πr"
+				},
+				{
+					"ref": "SL3.4.convert#14",
+					"text": "Writing the size in degrees as if it were radians",
+					"as": "distractor",
+					"in": [
+						"rate-from-period",
+						"angle-expression",
+						"angle-after-time",
+						"rate-from-rpm",
+						"chord-angle-exact",
+						"half-angle",
+						"chord-angle"
+					],
+					"wrong": "the size in degrees given as radians"
+				}
+			],
+			"chain": [
+				"turn the given rate into an angle per second: a full turn is 2π, or 360°",
+				"the angle after t seconds is the rate times t",
+				"a time is an angle divided by the rate, with both in the same unit",
+				"a chord: half of angle AOB has cosine d/r, so the whole angle is 2 arccos(d/r)",
+				"the time on the chord is that angle ÷ the rate, or that fraction of a turn times the time for one turn",
+				"l = rθ for the arc, and the speed is the arc in one second"
+			],
 			"frequency": 3,
 			"marks": 1,
 			"section": {
@@ -32220,9 +33039,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 3
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-composite-circular-region",
