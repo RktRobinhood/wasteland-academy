@@ -29401,7 +29401,503 @@ def check_trig_wave(q):
 
 # ── end trig-wave ──
 
+# ── trig-model-equation (t3-trig-model-equation, FAL-752) ────────────────
+# The `trig-model-equation` situation's checker. It reads the model, the wave or the two curves back
+# from what the student sees, then finds every crossing itself: a story through e9trig_cross, a curve
+# through e10tm_roots (a scan for sign changes, refined by bisection, with touches found from the
+# turning points). Nothing comes from the engine's roots. Degree mode is the same scan with the angle
+# read in degrees. Each tagged wrong option is worked out from its slip.
+
+e10tm_G, e10tm_B = "SL3.8.graphical#", "SL3.8.solve-basic#"
+e10tm_PART, e10tm_TOUCH_END, e10tm_DEG, e10tm_WHOLE, e10tm_TOUCH2, e10tm_ONCE, e10tm_SHARE, e10tm_ENDS, e10tm_ORIGIN, e10tm_EVERY, e10tm_OTHER = [e10tm_G + str(i) for i in range(11)]
+e10tm_STOP, e10tm_COS = e10tm_B + "0", e10tm_B + "1"
+e10tm_SIDE, e10tm_HALF = E9TRIG_SIDE, E9TRIG_ONE_SIDE
+e10tm_NO_D = E9TRIG_NO_D
+e10tm_EXACT = ("exact-times-level", "time-at-least-exact")
+e10tm_STORY = ("times-in-window", "set-above-level", "set-below-level", "set-two-spans", "chance-above", "time-past-level")
+e10tm_WAVE = ("count-solutions", "count-at-extreme", "k-exactly-n", "k-any-solution", "k-no-solution", "touch-find-constant", "touch-one-solution")
+e10tm_NUM = r"−?\d+(?:\.\d+)?"
+
+
+def e10tm_stationary(F, lo, hi, n=8000):
+    """The turning points of F inside (lo, hi): a scan of its slope for sign changes, refined by
+    bisection. The grid is offset, so a turning point on a round number can't sit on a grid point."""
+    h = 1e-5
+    D = lambda x: (F(x + h) - F(x - h)) / (2 * h)
+    out = []
+    x0, d0 = None, None
+    for i in range(n):
+        x = lo + (hi - lo) * (i + 0.37) / n
+        d1 = D(x)
+        if d0 is not None and d0 * d1 < 0:
+            a, b, fa = x0, x, d0
+            for _ in range(60):
+                m = (a + b) / 2
+                fm = D(m)
+                if fa * fm <= 0:
+                    b = m
+                else:
+                    a, fa = m, fm
+            out.append((a + b) / 2)
+        x0, d0 = x, d1
+    return out
+
+
+def e10tm_roots(F, lo, hi, n=8000):
+    """Every x in [lo, hi] with F(x) = 0: a scan for sign changes, refined by bisection, then any
+    touch (a turning point of F at 0) and any end at 0, which show no sign change."""
+    out = []
+    last_x, last_v = None, None
+    for i in range(n + 1):
+        x = lo + (hi - lo) * i / n
+        v = F(x)
+        if abs(v) <= 1e-9:
+            continue
+        if last_v is not None and last_v * v < 0:
+            a, b, fa = last_x, x, last_v
+            for _ in range(70):
+                m = (a + b) / 2
+                fm = F(m)
+                if fa * fm <= 0:
+                    b = m
+                else:
+                    a, fa = m, fm
+            out.append((a + b) / 2)
+        last_x, last_v = x, v
+    for t in e10tm_stationary(F, lo, hi, n):
+        if abs(F(t)) < 1e-8 and not any(abs(t - r) < 1e-5 for r in out):
+            out.append(t)
+    for e in (lo, hi):
+        if abs(F(e)) < 1e-9 and not any(abs(e - r) < 1e-6 for r in out):
+            out.append(e)
+    return sorted(0.0 if abs(r) < 1e-9 else round(r, 10) for r in out)
+
+
+def e10tm_turns(F, lo, hi, n=8000):
+    """The heights of F at its ends and at its turning points."""
+    return [F(lo), F(hi)] + [F(x) for x in e10tm_stationary(F, lo, hi, n)]
+
+
+def e10tm_wave_of(text, lo_t=None, hi_t=None):
+    A, fn, b, c, d, wr = e9trig_wave(text, "x")
+    need(c == 0, f"a shift in {text!r}")
+    W = dict(A=A, fn=fn, b=b, d=d, amp=abs(A), top=d + abs(A), low=d - abs(A), wr=wr)
+    W["fa"], W["fb"], W["fd"] = float(A), float(b), float(d)
+    W["T"] = 2 * math.pi / W["fb"]
+    W["F"] = lambda x: W["fa"] * E9TRIG_FN[fn](W["fb"] * x) + W["fd"]
+    W["G"] = lambda x: W["fa"] * E9TRIG_FN[fn](math.radians(W["fb"] * x)) + W["fd"]
+    if lo_t is not None:
+        W["lo"], W["hi"] = float(e9trig_pi_text(lo_t)), float(e9trig_pi_text(hi_t))
+    return W
+
+
+def e10tm_x(q):
+    """The wave on its interval from the first line, and its figure held to it."""
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(r"f\(x\) = (.+), for (\S+) ≤ x ≤ (\S+), with x in radians\.", L[0])
+    need(m is not None, f"can't read {L[0]!r}")
+    W = e10tm_wave_of(m[1], m[2], m[3])
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if fig is not None:
+        for x, y in fig["curves"][0][::13]:
+            need(abs(y - W["F"](x)) < 1e-6, "the curve is another wave")
+            need(W["lo"] - 1e-6 <= x <= W["hi"] + 1e-6, "the curve runs off the interval")
+    return W
+
+
+def e10tm_count(W, k, deg=False, hi=None):
+    f = W["G"] if deg else W["F"]
+    return len(e10tm_roots(lambda x: f(x) - k, W["lo"], W["hi"] if hi is None else hi))
+
+
+def e10tm_line(q, W, k):
+    """The dashed line of a figure is the level asked about."""
+    if q["graph"] is not None:
+        need([round(h["at"], 6) for h in q["graph"]["hlines"]] == [round(float(k), 6)], "the dashed line isn't the level")
+
+
+def e10tm_exact_height(W, y):
+    """A float height of the wave as the exact height it has to be."""
+    for v in (W["low"], W["d"], W["top"]):
+        if abs(float(v) - y) < 1e-8:
+            return v
+    raise Fail(f"a height {y} is not the wave's top, axis or bottom")
+
+
+def e10tm_bands(W):
+    """y = k as k rises through the heights where the count can change: [(lo, hi, count)]."""
+    hs = sorted({e10tm_exact_height(W, y) for y in e10tm_turns(W["F"], W["lo"], W["hi"])})
+    out = []
+    for i, h in enumerate(hs):
+        out.append((h, h, e10tm_count(W, float(h))))
+        if i + 1 < len(hs):
+            out.append((h, hs[i + 1], e10tm_count(W, float((h + hs[i + 1]) / 2))))
+    return out
+
+
+def e10tm_exactly(W, n):
+    bs = e10tm_bands(W)
+    at = [i for i, b in enumerate(bs) if b[2] == n]
+    need(len(at) > 0 and at[-1] - at[0] == len(at) - 1, f"{n} solutions isn't one unbroken band of k")
+    first, last = bs[at[0]], bs[at[-1]]
+    return first[0], "≤" if first[0] == first[1] else "<", "≤" if last[0] == last[1] else "<", last[1], bs
+
+
+def e10tm_band_text(bs):
+    names = []
+    for lo, hi, n in bs:
+        head = f"k = {dec_text(lo)}" if lo == hi else f"{dec_text(lo)} < k < {dec_text(hi)}"
+        names.append(f"{head} gives {n} solution{'' if n == 1 else 's'}")
+    return ", ".join(names)
+
+
+def e10tm_level(q, M):
+    m = re.search(rf"(?:is|above|below|at least|at most) ({e10tm_NUM}) {re.escape(M['unit'])}(?:\?| at that time| \.|,|\.)", q["asked"])
+    need(m is not None, f"can't read the level in {q['asked']!r}")
+    k = e9trig_n(m[1])
+    need(M["low"] < k < M["top"], "the level is outside the wave")
+    e10tm_line(q, None, k)
+    return k
+
+
+def e10tm_pieces(M, k, L_, above, deg=False):
+    xs = [0.0] + e9trig_cross(M, k, 0.0, L_, deg) + [float(L_)]
+    return [(a, b) for a, b in zip(xs, xs[1:]) if b - a > 1e-9 and (e9trig_at(M, (a + b) / 2, deg) > k) == above]
+
+
+def e10tm_s(x):
+    return gc_s(e9trig_f(x))
+
+
+def e10tm_stretch(p, L_):
+    return ("0 ≤ t" if p[0] <= 0 else e10tm_s(p[0]) + " < t") + (f" ≤ {int(L_)}" if p[1] >= L_ else " < " + e10tm_s(p[1]))
+
+
+def e10tm_set(ps, L_):
+    return " or ".join(e10tm_stretch(p, L_) for p in ps)
+
+
+def e10tm_list(v, xs):
+    names = [e10tm_s(x) for x in sorted(xs)]
+    return f"{v} = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def e10tm_exact_list(ts):
+    names = [dec_text(t) for t in sorted(ts)]
+    return "t = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def e10tm_numbers_in(q, marker, xs):
+    """Each number after `marker` in the working is one of xs, so the working's times are the times."""
+    for sol in q["solutions"]:
+        for st in sol["steps"][:-1]:
+            if marker in st:
+                for t in re.findall(r"−?\d+(?:\.\d+)?", st.split(marker, 1)[1]):
+                    y = float(t.replace("−", "-"))
+                    need(any(abs(y - x) <= 2e-4 * max(1.0, abs(x)) for x in xs) or y == 2 or y == 0, f"{sol['name']}: {t} in {st!r} isn't a crossing")
+
+
+def e10tm_exact(q, M, u):
+    k = e10tm_level(q, M)
+    r = (k - M["d"]) / M["A"]
+    need(abs(r) == sp.Rational(1, 2) and M["c"] == 0, "a Paper 1 level is half of the amplitude from the axis")
+    T = sp.nsimplify(M["T"])
+    fn = sp.sin if M["fn"] == "sin" else sp.cos
+    rat = lambda x: sp.Rational(str(round(x, 9))).limit_denominator(1000)
+    def times(L_):
+        out = [rat(x) for x in e9trig_cross(M, float(k), 0.0, float(L_))]
+        for t in out:
+            need(sp.simplify(M["A"] * fn(M["b"] * t) + M["d"] - k) == 0, f"{t} isn't exactly at the level")
+        return out
+    if u == "exact-times-level":
+        m = re.fullmatch(rf"Find the exact value of every time in 0 ≤ t ≤ ({e10tm_NUM}) when .+", q["asked"])
+        need(m is not None, f"can't read {q['asked']!r}")
+        L_ = e9trig_n(m[1])
+        ts = times(L_)
+        wrongs = {e10tm_STOP: {e10tm_exact_list(ts[:1])}}
+        if T < L_:
+            wrongs[e10tm_PART] = {e10tm_exact_list([t for t in ts if t <= T])}
+        if M["fn"] == "cos":
+            al = sp.acos(r)
+            cs = []
+            for ang in (al, sp.pi - al):
+                t = ang / M["b"]
+                while t <= L_:
+                    cs.append(sp.nsimplify(t))
+                    t += T
+            wrongs[e10tm_COS] = {e10tm_exact_list(cs)}
+        gc_check_common(q, e10tm_exact_list(ts), wrongs, steps=(2, 7))
+    else:
+        word = re.search(r" (at least|at most) ", q["asked"])
+        need(word is not None, f"can't read {q['asked']!r}")
+        above = word[1] == "at least"
+        w = rat(sum(b - a for a, b in e10tm_pieces(M, float(k), float(M["ft"]), above)))
+        l = "Time = "
+        tail = " " + M["time"]
+        wrongs = {e10tm_SIDE: {f"{l}{dec_text(T - w)}{tail}"}}
+        if above and k > M["d"]:
+            wrongs[e10tm_HALF] = {f"{l}{dec_text(w / 2)}{tail}"}
+        gc_check_common(q, f"{l}{dec_text(w)}{tail}", wrongs, steps=(2, 7))
+    for sol in q["solutions"]:
+        need("GDC" not in " ".join(sol["steps"]), "a calculator on Paper 1")
+
+
+def e10tm_story(q, M, u):
+    ask, what, sym, unit, time = q["asked"], e9trig_lower(M["thing"]), M["sym"], M["unit"], " " + M["time"]
+    T = M["ft"]
+    k = e10tm_level(q, M)
+    fk = float(k)
+    dp = 360.0 / M["fb"]
+    if u == "times-in-window":
+        m = re.fullmatch(rf"Find every time in (\d+) ≤ t ≤ (\d+) when {re.escape(what)} is {e10tm_NUM} {re.escape(unit)}, to 3 significant figures\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        a, b = float(m[1]), float(m[2])
+        all_ = e9trig_cross(M, fk, 0.0, b + T)
+        xs = [x for x in all_ if a < x < b]
+        need(2 <= len(xs) <= 4 and all(abs(x - a) > 0.04 * T and abs(x - b) > 0.04 * T for x in all_), f"the window has {len(xs)} clean times")
+        gc_check_common(q, e10tm_list("t", xs), {e10tm_PART: {e10tm_list("t", xs[:-1])}, e10tm_DEG: {e10tm_list("t", e9trig_cross(M, fk, 0.0, 720.0 / M["fb"], True)[:2])}}, steps=(2, 6))
+        e10tm_numbers_in(q, "t = ", xs + [T])
+    elif u in ("set-above-level", "set-below-level", "set-two-spans"):
+        m = re.fullmatch(rf"For 0 ≤ t ≤ (\d+), find the set of times when {re.escape(what)} is (above|below) {e10tm_NUM} {re.escape(unit)}\. Give the times to 3 significant figures\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        L_, above = float(m[1]), m[2] == "above"
+        ps = e10tm_pieces(M, fk, L_, above)
+        need(len(ps) == (2 if u == "set-two-spans" else 1), f"{len(ps)} stretches")
+        if u != "set-two-spans":
+            need(ps[0][0] > 0 and ps[0][1] < L_, "the one stretch has to be inside the span")
+        need(u == "set-two-spans" or above == (u == "set-above-level"), "the wrong side for this unknown")
+        wrongs = {e10tm_SIDE: {e10tm_set(e10tm_pieces(M, fk, L_, not above), L_)}}
+        far = 720.0 / M["fb"]
+        deg = [p for p in e10tm_pieces(M, fk, far, above, True) if p[0] > 0 and p[1] < far]
+        if deg:
+            wrongs[e10tm_DEG] = {e10tm_set(deg[:1], math.inf)}
+        if len(ps) == 2:
+            wrongs[e10tm_PART] = {e10tm_set(ps[:1], L_)}
+        elif above:
+            wrongs[e10tm_HALF] = {e10tm_set([(ps[0][0], (ps[0][0] + ps[0][1]) / 2)], L_)}
+        gc_check_common(q, e10tm_set(ps, L_), wrongs, steps=(2, 6))
+        e10tm_numbers_in(q, "cross at t = ", e9trig_cross(M, fk, 0.0, L_))
+    else:
+        if u == "chance-above":
+            m = re.fullmatch(rf"A reading is taken at a random time in the first (\d+) {M['time']}\. Find the probability that {re.escape(what)} is above {e10tm_NUM} {re.escape(unit)} at that time, to 3 significant figures\.", ask)
+            need(m is not None, f"can't read {ask!r}")
+            above = True
+        else:
+            m = re.fullmatch(rf"For how long in 0 ≤ t ≤ (\d+) is {re.escape(what)} (above|below) {e10tm_NUM} {re.escape(unit)}\? Answer to 3 significant figures\.", ask)
+            need(m is not None, f"can't read {ask!r}")
+            above = m[2] == "above"
+        L_ = float(m[1])
+        need(abs(L_ / T - round(L_ / T)) > 0.1, "the span is whole cycles")
+        tot = sum(b - a for a, b in e10tm_pieces(M, fk, L_, above))
+        up = e9trig_cycle(M, fk)
+        w = up if above else T - up
+        ds = sum(b - a for a, b in e10tm_pieces(M, fk, L_, above, True))
+        if u == "chance-above":
+            wr = {e10tm_SHARE: [w / T], e10tm_SIDE: [1 - tot / L_]}
+            if ds > 0:
+                wr[e10tm_DEG] = [ds / L_]
+            e9trig_num(q, "P = ", tot / L_, "", wr)
+        else:
+            wr = {e10tm_SIDE: [L_ - tot], e10tm_SHARE: [w * L_ / T], e10tm_PART: [w * math.floor(L_ / T)]}
+            if ds > 0:
+                wr[e10tm_DEG] = [ds]
+            e9trig_num(q, "Time = ", tot, time, wr)
+        for sol in q["solutions"]:
+            need(any(" adds up to " in st and abs(float(st.split()[-1].rstrip(".")) - tot) < 2e-3 * max(1.0, tot) for st in sol["steps"]), f"{sol['name']}: the total in the working isn't {tot}")
+
+
+def e10tm_wave(q, u):
+    paper, ask = q["paper"], q["asked"]
+    if u == "touch-find-constant":
+        return e10tm_touch(q)
+    W = e10tm_x(q)
+    F, top, low, amp = W["F"], W["top"], W["low"], W["amp"]
+    l = "Number of solutions = "
+    if u in ("count-solutions", "count-at-extreme"):
+        m = re.fullmatch(rf"Find the number of solutions of f\(x\) = ({e10tm_NUM})\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        k = e9trig_n(m[1])
+        e10tm_line(q, W, k)
+        fk = float(k)
+        xs = e10tm_roots(lambda x: F(x) - fk, W["lo"], W["hi"])
+        n = len(xs)
+        span = (W["hi"] - W["lo"]) / W["T"]
+        if u == "count-solutions":
+            need(low < k < top and n >= 3, f"a level inside the range with {n} solutions")
+            need(abs(F(W["lo"]) - fk) > 0.01 and abs(F(W["hi"]) - fk) > 0.01, "a solution on the end of the interval")
+            wrongs = {e10tm_ONCE: {f"{l}{math.floor(span + 1e-9)}"}}
+            if "." not in W["wr"]:
+                wrongs[e10tm_PART] = {f"{l}{e10tm_count(W, fk, hi=W['lo'] + W['T'])}"}
+            if paper == 2:
+                wrongs[e10tm_DEG] = {f"{l}{e10tm_count(W, fk, True)}"}
+        else:
+            need(k in (top, low) and n >= 2, "a line at a turning point")
+            turns = [x for x in xs if abs((F(x + 1e-4) - F(x - 1e-4))) < 1e-3]
+            need(len(turns) == n, "a line at the top or bottom only touches")
+            wrongs = {e10tm_TOUCH2: {f"{l}{2 * n}"}, e10tm_PART: {f"{l}1"}}
+        gc_check_common(q, f"{l}{n}", wrongs)
+        return
+    if u == "k-exactly-n":
+        m = re.fullmatch(r"Find the set of values of k for which f\(x\) = k has exactly (\d+) solutions\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        n = int(m[1])
+        lo, r1, r2, hi, bs = e10tm_exactly(W, n)
+        t = lambda a, ra, rb, b: f"{dec_text(a)} {ra} k {rb} {dec_text(b)}"
+        wrongs = {e10tm_WHOLE: {t(low, "≤", "≤", top)}}
+        if (r1 == "<" and lo == low) or (r2 == "<" and hi == top):
+            wrongs[e10tm_TOUCH_END] = {t(lo, "≤" if lo == low else r1, "≤" if hi == top else r2, hi)}
+        gc_check_common(q, t(lo, r1, r2, hi), wrongs)
+        said = e10tm_band_text(bs)
+        for sol in q["solutions"]:
+            need(any(said in st for st in sol["steps"]), f"{sol['name']}: the counts in the working aren't {said!r}")
+        return
+    vals = e10tm_turns(F, W["lo"], W["hi"])
+    need(abs(max(vals) - float(top)) < 1e-8 and abs(min(vals) - float(low)) < 1e-8, "the interval misses a turning point")
+    if u == "k-any-solution":
+        need(ask == "Find the set of values of k for which f(x) = k has at least one solution.", f"can't read {ask!r}")
+        t = lambda a, r, b: f"{dec_text(a)} {r} k {r} {dec_text(b)}"
+        gc_check_common(q, t(low, "≤", top), {e10tm_ENDS: {t(low, "<", top)}, e10tm_NO_D: {t(-amp, "≤", amp)}})
+    elif u == "k-no-solution":
+        need(ask == "Find the set of values of k for which f(x) = k has no solutions.", f"can't read {ask!r}")
+        t = lambda a, b, s: f"k {'<' if s else '≤'} {dec_text(a)} or k {'>' if s else '≥'} {dec_text(b)}"
+        gc_check_common(q, t(low, top, True), {e10tm_TOUCH_END: {t(low, top, False)}, e10tm_NO_D: {t(-amp, amp, True)}})
+    elif u == "touch-one-solution":
+        need(ask == "Find the two values of k for which f(x) = k has exactly one solution.", f"can't read {ask!r}")
+        ones = [h for h in (low, W["d"], top) if e10tm_count(W, float(h)) == 1]
+        need(ones == [low, top], f"one solution at {ones}")
+        for i in range(1, 12):
+            need(e10tm_count(W, float(low) + (float(top) - float(low)) * (i + 0.1) / 13) >= 2, "a k inside the range with one solution")
+        t = lambda a, b: f"k = {dec_text(a)} or k = {dec_text(b)}"
+        gc_check_common(q, t(low, top), {e10tm_NO_D: {t(-amp, amp)}})
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def e10tm_touch(q):
+    L, asked, rep = q["lines"], q["asked"], q["view"]["rep"]
+    need(asked == "Find p.", f"can't read {asked!r}")
+    m = re.fullmatch(r"f\(x\) = (.+), with x in radians(, and p > 0)?\.", L[0])
+    t = re.match(rf"The line y = ({e10tm_NUM}) touches the graph of f at its (maximum|minimum) points\.", L[1])
+    need(m is not None and t is not None, f"can't read {L}")
+    k, big = e9trig_n(t[1]), t[2] == "maximum"
+    text = m[1]
+    if text.startswith("p "):
+        need(m[2] is not None, "p needs a sign")
+        W = e10tm_wave_of(text[2:])
+        p = k - W["d"] if big else W["d"] - k
+        need(p > 0, "p is positive")
+        W = e10tm_wave_of(dec_text(p) + " " + text[2:])
+        wrongs = {e10tm_OTHER: {f"p = {dec_text(-p)}"}, e10tm_NO_D: {f"p = {dec_text(k if big else -k)}"}}
+    else:
+        need(text.endswith(" + p"), f"can't read {text!r}")
+        W0 = e10tm_wave_of(text[:-4])
+        amp = W0["amp"]
+        p = k - amp if big else k + amp
+        W = W0
+        W["d"], W["fd"] = p, float(p)
+        wrongs = {e10tm_OTHER: {f"p = {dec_text(k + amp if big else k - amp)}"}}
+    vals = e10tm_turns(W["F"], 0.0, 3 * W["T"])
+    need(abs((max(vals) if big else min(vals)) - float(k)) < 1e-8, "the line doesn't touch the wave")
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if fig is not None:
+        for x, y in fig["curves"][0][::13]:
+            need(abs(y - W["F"](x)) < 1e-6, "the curve is another wave")
+        e10tm_line(q, W, k)
+    gc_check_common(q, "p = " + dec_text(p), wrongs)
+
+
+def e10tm_vs(q, u):
+    L, ask, rep = q["lines"], q["asked"], q["view"]["rep"]
+    m = re.fullmatch(rf"(.+) = (.+), for (\S+) ≤ x ≤ (\S+), with x in radians\.", L[0])
+    need(m is not None, f"can't read {L[0]!r}")
+    W = e10tm_wave_of(m[1], m[3], m[4])
+    need(W["d"] == 0, "the trig side has no constant")
+    r = re.fullmatch(rf"(\d+(?:\.\d+)?)x", m[2])
+    if r:
+        slope = float(e9trig_n(r[1]))
+        H = lambda x: slope * x
+    else:
+        e = re.fullmatch(r"e\^\(−(\d+(?:\.\d+)?)?x\)", m[2])
+        need(e is not None, f"can't read {m[2]!r}")
+        slope = None
+        rate = float(e9trig_n(e[1])) if e[1] else 1.0
+        H = lambda x: math.exp(-rate * x)
+    # The map's own examples stay the map's.
+    if slope is not None:
+        need(not (W["A"] == 1 and W["b"] == 1 and W["fn"] == "sin" and abs(slope - 0.3) < 1e-9), "the map's own equation")
+    else:
+        need(not (W["A"] == 2 and W["b"] == 1 and W["fn"] == "cos" and rate == 1.0), "the map's own equation")
+    lo, hi = W["lo"], W["hi"]
+    F, G = (lambda x: W["F"](x) - H(x)), (lambda x: W["G"](x) - H(x))
+    xs, ds = e10tm_roots(F, lo, hi), e10tm_roots(G, lo, hi)
+    need(len(xs) >= 2, f"{len(xs)} solutions")
+    for x in xs:
+        need(x == 0 or (abs(x - lo) > 0.1 and abs(x - hi) > 0.1), "a solution on the end of the interval")
+        need(abs(F(x + 1e-5) - F(x - 1e-5)) / 2e-5 > 0.1, "the curves nearly touch")
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if fig is not None:
+        need(len(fig["curves"]) == 2, "two curves")
+        for x, y in fig["curves"][0][::13]:
+            need(abs(y - W["F"](x)) < 1e-6, "the curve is another wave")
+        for x, y in fig["curves"][1][::13]:
+            need(abs(y - H(x)) < 1e-6, "the curve is another line or exponential")
+    origin = any(x == 0 for x in xs)
+    pos = [x for x in xs if x > 1e-6]
+    if u == "count-vs-line":
+        need(slope is not None, "a line")
+        n = len(xs)
+        l = "Number of solutions = "
+        wrongs = {e10tm_DEG: {f"{l}{len(ds)}"}}
+        waves = math.floor((hi - lo) * W["fb"] / (2 * math.pi) + 1e-9)
+        if float(W["amp"]) / slope < hi:
+            wrongs[e10tm_EVERY] = {f"{l}{2 * waves}"}
+        if lo < 0:
+            wrongs[e10tm_PART] = {f"{l}{len(pos)}"}
+        if origin:
+            wrongs[e10tm_ORIGIN] = {f"{l}{n - 1}"}
+        gc_check_common(q, f"{l}{n}", wrongs)
+        return
+    wrongs = {}
+    if ds:
+        wrongs[e10tm_DEG] = {e10tm_list("x", ds)}
+    if u == "solve-vs-line":
+        keep = [x for x in xs if x > -1e-6]
+        if keep:
+            wrongs[e10tm_PART] = {e10tm_list("x", keep)}
+        if origin:
+            wrongs[e10tm_ORIGIN] = {e10tm_list("x", [x for x in xs if x != 0])}
+    else:
+        wrongs[e10tm_PART] = {e10tm_list("x", xs[:-1])}
+    gc_check_common(q, e10tm_list("x", xs), wrongs)
+    e10tm_numbers_in(q, "x = ", xs)
+
+
+def e10tm_check(q):
+    u, angle, paper = q["view"]["unknown"], q["view"]["angle"], q["paper"]
+    if u in e10tm_EXACT:
+        need(paper == 1, f"{u} is Paper 1")
+    elif u not in e10tm_WAVE or angle == "gdc-intersect":
+        need(paper == 2, f"{u} by {angle} is Paper 2")
+    tr_hyphens(q)
+    if u in e10tm_EXACT:
+        e10tm_exact(q, e9trig_model(q), u)
+    elif u in e10tm_STORY:
+        e10tm_story(q, e9trig_model(q), u)
+    elif u in e10tm_WAVE:
+        e10tm_wave(q, u)
+    else:
+        e10tm_vs(q, u)
+    e9trig_sums(q)
+    return None, None
+
+
+# ── end trig-model-equation ──
+
 SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+                    "trig-model-equation": e10tm_check,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,

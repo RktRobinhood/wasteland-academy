@@ -327,6 +327,21 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Degree mode is a worked distractor on every value and time: the model is solved again with its
   angle in degrees. Its one Paper 1 exact value is at a whole t past the first quadrant, in TrigKit's
   exact numbers, and whether a level is reached makes Paper 1 too.
+- `engine/situations/trig_model_equation.gd` (FAL-752) is `t3-trig-model-equation` (SL3.8.graphical,
+  SL2.10), the `trig-model-equation` situation, which extends `trig-wave`, and `TrigModelEquationViews`
+  extends `TrigWaveViews`. Its 18 unknowns don't repeat `t3-trig-model-use`'s and fall in four families:
+  exact times in a story on Paper 1, where the level is half of the amplitude from the axis, so
+  fn(bracket) = ±1/2 (every time in a span, the time at least or at most a level in one cycle); a
+  story and a level on Paper 2 (every time in a window that starts after 0, the set of times above or
+  below a level, in one stretch or two, and the total time or the chance past a level in a span that
+  isn't whole cycles); a wave on an interval on either paper (the number of solutions of f(x) = k,
+  with k inside the range or at a turning point, the band of k with exactly n solutions, the k with at
+  least one or no solutions, a letter of the wave from a touching line, and the two k with exactly
+  one solution); and a trig curve against a line or a falling exponential on Paper 2 (every solution,
+  or how many). Counts walk the wave's monotonic pieces, so a line at a turning point or an end is
+  counted once. A set of times is a `form`, typed end by end to 3 s.f. The figures are the model's or
+  wave's graph with the level dashed, or both curves. A question's tagged wrong options are rotated by
+  its `spin`, so every slip shows up across the seeds even where only two fit beside the rounding trap.
 - `engine/situations/distance_midpoint.gd` (FAL-751) is `t3-distance-midpoint` (SL3.1), the
   `distance-midpoint` situation: points in 2D or 3D, drawn first, so a distance is the root of a
   whole number and a midpoint is exact. Its 15 unknowns ask a distance, k from a distance (two whole
@@ -1277,6 +1292,11 @@ works every feature again with SymPy, testing that nothing before a first maximu
 of a level are found by scanning the model for sign changes and bisecting, and durations are added up
 between them, so no formula is shared with the engine; degree mode is the same scan with the angle in
 degrees. The plain sums in the working are evaluated (`check_trig_wave`, `e9trig_*`).
+For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
+finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
+scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
+and between them, and the counts in the working are compared. Degree mode is the same scan with the
+angle in degrees, and the map's own example equations are refused (`e10tm_check`, `e10tm_*`).
 For `regression-interpret` it fits the data again with exact rationals and judges every statement
 offered from those numbers, so a wrong statement that happens to be true fails (`e9regr_check`).
 For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
@@ -1686,6 +1706,10 @@ script error happens while it runs. Run one file with
   different options, the GDC on Paper 2 only, a figure hiding its equation unless the GDC needs it, b
   written each way, first peaks and a model against hand values, degree mode and "only the first time"
   as options, and every misconception shown.
+- `test_trig_model_equation.gd`: t3-trig-model-equation built with every cell, four different options,
+  exact times on Paper 1 and a GDC or a story's level on Paper 2, counts, bands of k, exact times,
+  stretches and a curve against a line against hand values, the map's own examples never asked, a
+  touching line and degree mode as options, the figures, and every misconception shown.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a

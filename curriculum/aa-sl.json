@@ -9910,7 +9910,15 @@
               "misconceptions": [
                 "Looking at only part of the interval and missing solutions",
                 "Including the boundary values of k where the line only touches at a maximum or minimum",
-                "Leaving the GDC in degree mode"
+                "Leaving the GDC in degree mode",
+                "Giving the whole range of the function as the values of k, without counting the solutions each value gives",
+                "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+                "Counting one solution in each cycle, when a line inside the range crosses twice in a cycle",
+                "Taking the share of one cycle as the share of a span that is not a whole number of cycles",
+                "Leaving out the maximum and the minimum, although the line still meets the curve at those heights",
+                "Leaving out the crossing at the origin",
+                "Counting two solutions in every cycle of the wave, although the line leaves the wave's band",
+                "Using the rule for the minimum at a maximum, or the rule for the maximum at a minimum"
               ],
               "threads": [
                 {
