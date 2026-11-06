@@ -91,6 +91,13 @@ describe("a valid batch", () => {
 });
 
 describe("fields", () => {
+	it.each(["SL2.1.gradient#0", "AHL1.10.permutations#1"])("preserves the curriculum misconception reference %s", async (misconception) => {
+		const res = await post({ schema: 1, events: [{ ...checked(), misconception }] });
+		expect(res.status).toBe(202);
+		const [row] = await rows();
+		expect(JSON.parse(row.fields as string).misconception).toBe(misconception);
+	});
+
 	it("drops fields that aren't on the allowlist", async () => {
 		const res = await post({ schema: 1, events: [{ ...checked(), typed_answer: "x = 3/0", name: "Ada", email: "a@b.c", class_code: "11B" }] });
 		expect(res.status).toBe(202);

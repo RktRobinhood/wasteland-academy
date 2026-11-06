@@ -24,6 +24,7 @@ together (FAL-722). A shard that is missing or there twice is a failure.
     python3 tools/check_answers.py --merge dir   (every summary.json under dir)
 """
 
+import itertools
 import json
 import math
 import re

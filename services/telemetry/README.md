@@ -151,5 +151,16 @@ To export events for the report (FAL-407):
 
 ```
 npx wrangler d1 execute wasteland-telemetry --remote --json \
-  --command "SELECT * FROM events WHERE received_at >= '2026-10-22'" > events.json
+  --command "SELECT * FROM events WHERE received_at >= '2026-10-22' ORDER BY received_at, id" > events.json
+
+# Wrangler returns statement results as JSON; the report reads one event per line.
+python3 - <<'PY' > events.jsonl
+import json
+with open("events.json", encoding="utf-8") as source:
+    for statement in json.load(source):
+        for event in statement["results"]:
+            print(json.dumps(event))
+PY
+
+python3 ../../tools/telemetry/report.py events.jsonl -o report.md
 ```

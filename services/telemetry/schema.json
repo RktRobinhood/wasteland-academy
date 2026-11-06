@@ -36,7 +36,7 @@
       "attempt": { "type": "int", "min": 1, "max": 99 },
       "seconds": { "type": "number", "min": 0, "max": 600 },
       "format_errors": { "type": "int", "min": 0, "max": 99 },
-      "misconception": { "type": "string", "max": 64, "pattern": "^[a-z0-9][a-z0-9_.-]*$" },
+      "misconception": { "type": "string", "max": 64, "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*(#[0-9]+)?$" },
       "solution_opened": { "type": "bool" }
     },
     "question_left": {
