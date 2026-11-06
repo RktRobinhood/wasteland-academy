@@ -92,6 +92,7 @@ static var SITUATIONS := {
 	"sampling": [SamplingSituation, SamplingViews],
 	"cumulative-frequency": [CumulativeFrequencySituation, CumulativeFrequencyViews],
 	"regression": [RegressionSituation, RegressionViews],
+	"regression-interpret": [RegressionInterpretSituation, RegressionInterpretViews],
 	"regression-x-on-y": [RegressionPairSituation, RegressionPairViews],
 	"normal-unknown": [NormalUnknownSituation, NormalUnknownViews],
 	"normal-probability": [NormalProbabilitySituation, NormalProbabilityViews],

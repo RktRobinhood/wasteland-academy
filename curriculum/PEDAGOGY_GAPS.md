@@ -2330,7 +2330,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 20 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2512,6 +2512,25 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): The median of an ordered data set with 12 values is the 6th value. — False: with an even number of values the median is halfway between the 6th and 7th values, so it need not be a value in the set.
   - *true-false-reason* (L4): One class of 10 students has a mean mark of 60 and another of 30 students has a mean mark of 80. The mean mark of all 40 students is 70. — False: the mean of the two means ignores the group sizes. The totals are 600 and 2400, so the mean is 3000 ÷ 40 = 75, nearer the bigger group's mean.
 - **Misconceptions used:** 9. Taking the middle value of the unordered list as the median; Giving the position (n + 1)/2 as the median instead of the value in that position; Giving the highest frequency as the mode instead of the value that has that frequency; Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1; Finding quartiles from the unordered list; Averaging the two group means for a combined mean when the groups are different sizes; Forgetting that the unknown frequency p also appears in the denominator Σf; The mean is always the best average because it uses every value; The mode is the most useful average for continuous data.
+
+#### Interpret a regression gradient or judge a prediction (`t4-regression-interpret`, exam, 7 bank parts)
+
+- **Situation:** What a regression line says, and how far to trust it.
+- **Representations:** **table**, **equation**, words, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a table, or the line; the story → what a means in context
+  - **exam** L2: given a table, or the line; an extra amount of x → the change in y that the line predicts, to 3 s.f.
+  - new L2: given a table, or the line; the story → what b represents
+  - new L3: given a table, or the line and the range of x; the story → whether b has a sensible meaning
+  - **exam** L3: given the data, or r and the range of x; an estimate at x → whether the estimate is reliable
+  - **exam** L3: given the data, or the line, r and the ranges; a scout's working → why the method is not appropriate
+  - new L1: given a scatter with the line drawn; an x inside the data → y read from the line, to the nearest 5
+- **Angles:** 'For each extra unit of x, y changes by a'; Compare two predictions; Interpolation and strength check; Read from the drawn line.
+- **Concept probes:**
+  - *true-false-reason* (L3): If y = 3x + 40 is a regression line, then every extra unit of x adds exactly 3 to y for each individual. — False: 3 is an average rate for the data. Real points sit above and below the line, so one individual may change by more or by less.
+  - *always-sometimes-never* (L3): The value of b in y = ax + b is a sensible estimate of y at x = 0. — Sometimes: it is when x = 0 is in the data and the value is possible. If x = 0 is far outside the data, b is an extrapolation and may mean nothing.
+  - *predict-check* (L3): Predict y at x = 10 and at x = 11 on a line y = ax + b. What is the difference? — It is exactly a, whatever x you start from: this is what the gradient means.
+- **Misconceptions used:** 20. Interpreting b as the rate of change and a as the starting value; Saying 'a is the gradient' without any reference to the context or units; Treating b as meaningful when x = 0 is far outside the data; Reading the gradient backwards, as the change in x for one unit of y; Ignoring the sign of a, so that a fall is read as a rise; Reading a fitted gradient as an exact rule for every individual, not an average; Reading b as the mean of y; Reading b as the x-intercept, where y is 0; Putting the extra amount in as x, which gives a prediction, not a change; Giving the change for one unit when several extra units are asked about; Calling an intercept outside the data without checking the data; Expecting the regression line to pass through the data points; Saying b is only a constant of the line, with no units or meaning in the story; Forcing the line of best fit through the origin; Extrapolating far outside the data range and calling the result reliable; Rearranging the y-on-x line to predict x from a given y; Trusting a prediction when |r| is small; Reading the nearest plotted point instead of the line; Thinking no estimate from a regression line can be trusted, even inside the data with a strong r; Finding the x on the y-axis and reading across, instead of going up from the x-axis.
 
 #### Regression line and Pearson r on the GDC, then predict (`t4-regression-gdc`, exam, 19 bank parts)
 

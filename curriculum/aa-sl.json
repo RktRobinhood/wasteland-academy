@@ -11169,7 +11169,10 @@
               "misconceptions": [
                 "Extrapolating far outside the data range and calling the result reliable",
                 "Rearranging the y-on-x line to predict x from a given y",
-                "Trusting a prediction when |r| is small"
+                "Trusting a prediction when |r| is small",
+                "Reading the nearest plotted point instead of the line",
+                "Thinking no estimate from a regression line can be trusted, even inside the data with a strong r",
+                "Finding the x on the y-axis and reading across, instead of going up from the x-axis"
               ],
               "threads": []
             },
@@ -11213,7 +11216,17 @@
               "misconceptions": [
                 "Interpreting b as the rate of change and a as the starting value",
                 "Saying 'a is the gradient' without any reference to the context or units",
-                "Treating b as meaningful when x = 0 is far outside the data"
+                "Treating b as meaningful when x = 0 is far outside the data",
+                "Reading the gradient backwards, as the change in x for one unit of y",
+                "Ignoring the sign of a, so that a fall is read as a rise",
+                "Reading a fitted gradient as an exact rule for every individual, not an average",
+                "Reading b as the mean of y",
+                "Reading b as the x-intercept, where y is 0",
+                "Putting the extra amount in as x, which gives a prediction, not a change",
+                "Giving the change for one unit when several extra units are asked about",
+                "Calling an intercept outside the data without checking the data",
+                "Expecting the regression line to pass through the data points",
+                "Saying b is only a constant of the line, with no units or meaning in the story"
               ],
               "threads": [
                 {
