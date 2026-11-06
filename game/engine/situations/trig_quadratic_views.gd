@@ -622,6 +622,8 @@ func u_surd_coefficient(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var let_u := "Let u = %s: %s" % [u_name(s), surd_line({"surd": q}, "u²", "u")]
 	var top := "%s" % T(TrigKit.plus(TrigKit.times(q.right, q.l), TrigKit.times(q.left, q.m)))
 	var diff := TrigKit.plus(TrigKit.times(q.left, q.m), TrigKit.times(q.right, -q.l))
+	if T(diff).begins_with("−"):
+		diff = TrigKit.plus(TrigKit.times(q.right, q.l), TrigKit.times(q.left, -q.m))
 	var fact := "Factorise: %s%s = 0, so %s.%s" % [surd_bracket(q.l, q.left), surd_bracket(q.m, q.right), roots_text(s), reject_tail(s)]
 	var form := "The formula's discriminant is the perfect square (%s)², so u = (%s ± (%s))/%d = %s or %s.%s" % [T(diff), top, T(diff), 2 * q.a, T(s.us[0]), T(s.us[1]), reject_tail(s)]
 	out.methods = {M_IF: method([let_u, fact, solve_step(s), say(a)], a.values), M_QF: method([let_u, form, solve_step(s), say(a)], a.values)}
