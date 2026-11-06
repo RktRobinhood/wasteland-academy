@@ -444,7 +444,11 @@ static func unique_texts(rows: Array, avoid: String) -> Array:
 ## situation belongs to no method, so its lines can be another's, and the working says that too.
 func of_lines(s: Dictionary, steps: Array, ans: Dictionary) -> Dictionary:
 	var head: Array = [] if SequenceProofSituation.suits(s.ask, angle, s.fam) else [UNSUITED]
-	return {angle: method(head + steps, ans.values)}
+	var out := {angle: method(head + steps, ans.values)}
+	for m in SequenceProofSituation.ASKS[s.ask]:
+		if m != angle:
+			out[m] = method([OTHER_ROUTE] + steps, ans.values)
+	return out
 
 
 # ── Three terms: the exam's relations ────────────────────────
