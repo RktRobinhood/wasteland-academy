@@ -4010,6 +4010,66 @@
 				"a Paper 1 time is past the first quadrant and off the axes, so the sign has to be worked out"
 			]
 		},
+		"trig-model-equation": {
+			"name": "A trig equation or inequality to solve or count",
+			"extends": "trig-wave",
+			"summary": "One trig equation or inequality, for its times or the number of its solutions. A story keeps the trig-wave model and adds a level with a window or a span that isn't whole cycles; on Paper 1 the level sits halfway from the axis to a peak or trough, so every time is exact. A wave on an interval asks how many solutions f(x) = k has and which k give how many. A trig curve against a line or a falling exponential has no algebra to solve it.",
+			"quantities": [
+				{
+					"name": "form, A, C, d, period or bdec",
+					"is": "a story's model, as in trig-wave",
+					"pick": "on Paper 1 A sin(2πt/T), A cos or −A cos with a whole period"
+				},
+				{
+					"name": "level, ratio",
+					"is": "the level, and (level − d) ÷ A on Paper 1",
+					"pick": "a half well inside the wave on Paper 2, a ratio of plus or minus one half on Paper 1"
+				},
+				{
+					"name": "above",
+					"is": "which side of the level is asked for",
+					"pick": "above or below"
+				},
+				{
+					"name": "L, t_from, t_to",
+					"is": "a span from 0, or a window",
+					"pick": "a span of 1.3 to 3.7 cycles or a window starting after the first crossing, with nothing on its ends"
+				},
+				{
+					"name": "kind, a, bq, d",
+					"is": "a wave a fn(bx) + d",
+					"pick": "b as x, πx or a decimal, as in trig-wave; a negative in three of ten"
+				},
+				{
+					"name": "lo_x, hi_x",
+					"is": "the interval",
+					"pick": "quarters of a period, or a whole end for a decimal b"
+				},
+				{
+					"name": "k, big, n_sol, k_lo, k_hi, r1, r2",
+					"is": "a line y = k, or the band of k with exactly n solutions",
+					"pick": "derived by counting along the wave's monotonic pieces"
+				},
+				{
+					"name": "which",
+					"is": "the letter of the wave a touching line fixes",
+					"pick": "a or d"
+				},
+				{
+					"name": "vs, m, e, origin",
+					"is": "the other curve, mx or e^(−ex)",
+					"pick": "a slope in hundredths or an exponent from 0.2 to 1.5"
+				}
+			],
+			"clean": [
+				"Paper 1 is exact",
+				"Paper 2 times are to 3 s.f., clear of a rounding edge",
+				"no crossing sits on the end of a window or span",
+				"two curves cross clearly, with no near miss",
+				"an interval's count is clear unless the line is at a turning point on purpose",
+				"the map's own example equations are never asked"
+			]
+		},
 		"geometric-sequence": {
 			"name": "One geometric sequence and its sums",
 			"summary": "Pick u₁ and r (or the two terms, the expressions in k, the Σ, the story), then derive every term, Sₙ and S∞, so any of them can be hidden and any shown.",
@@ -5148,6 +5208,7 @@
 		"SL3.7.read-features": "Write down amplitude, period, principal axis, maximum, minimum and range",
 		"SL3.7.equation-from-graph": "Find a, b, c and d from a graph or from given maximum and minimum points",
 		"SL3.7.transformations": "Describe or apply the transformations that map sin x or cos x to a sin(b(x + c)) + d",
+		"SL3.8.graphical": "Solve trig equations graphically, including ones with no algebraic method, and count solutions",
 		"SL3.8.solve-basic": "Solve sin x = k, cos x = k or tan x = k in a finite interval",
 		"SL3.8.compound-angle": "Solve equations with a transformed argument, e.g. sin 2x = k or cos(x + π/4) = k",
 		"SL3.8.factorise-not-divide": "Solve equations by factorising or converting to tan x, without losing solutions",
@@ -5272,7 +5333,6 @@
 		"SL3.8.quadratic-in-trig": "Solve equations that lead to a quadratic in sin x, cos x or tan x",
 		"SL1.5.zero-negative": "Work with zero and negative integer exponents",
 		"SL5.8.closed-interval-extremes": "Find the greatest and least values of f on a closed interval (and its range)",
-		"SL3.8.graphical": "Solve trig equations graphically, including ones with no algebraic method, and count solutions",
 		"SL1.7.log-equations": "Solve logarithmic equations and reject invalid solutions",
 		"SL1.5.evaluate-tech": "Evaluate logarithms and solve simple exponential equations with technology"
 	},
@@ -33480,6 +33540,604 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Solve a trig model equation or inequality for times",
+			"summary": "Solve a trig model equation or inequality: every time in a span at a level, exactly on Paper 1 and in a window on Paper 2, the set of times above or below a level, the time or the chance past a level in a span that isn't whole cycles, a trig curve against a line or a falling exponential, the number of solutions of f(x) = k, which k give exactly n solutions, and a line touching at a maximum or minimum.",
+			"situation": "trig-model-equation",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: the depth of water at the harbour wall, modelled by an equation, with t in hours"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the model, wave or equation written out, with its interval"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the curves drawn, with the level dashed where there is one and the turning points marked for a set of k"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "exact-times-level",
+					"given": [
+						"a model with π in it, a level and a span"
+					],
+					"asked": "the exact value of every time in the span at the level",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "time-at-least-exact",
+					"given": [
+						"a model with π in it and a level"
+					],
+					"asked": "the exact time in one cycle at least, or at most, the level",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "times-in-window",
+					"given": [
+						"a model, a level and a window that starts after 0"
+					],
+					"asked": "every time in the window at the level",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "set-above-level",
+					"given": [
+						"a model, a level and a span"
+					],
+					"asked": "the set of times above the level",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "set-below-level",
+					"given": [
+						"a model, a level and a span"
+					],
+					"asked": "the set of times below the level",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "set-two-spans",
+					"given": [
+						"a model, a level and a longer span"
+					],
+					"asked": "the set of times past the level, in two stretches",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "chance-above",
+					"given": [
+						"a model, a level and a span that is not whole cycles"
+					],
+					"asked": "the chance a random time in the span is above the level",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "time-past-level",
+					"given": [
+						"a model, a level and a span that is not whole cycles"
+					],
+					"asked": "the total time above, or below, the level in the span",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "count-solutions",
+					"given": [
+						"a wave on an interval and a level inside its range"
+					],
+					"asked": "the number of solutions of f(x) = k",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "count-at-extreme",
+					"given": [
+						"a wave on an interval and its maximum or minimum"
+					],
+					"asked": "the number of solutions, where the line only touches",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "k-exactly-n",
+					"given": [
+						"a wave on an interval"
+					],
+					"asked": "the set of k with exactly n solutions",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "k-any-solution",
+					"given": [
+						"a wave on an interval"
+					],
+					"asked": "the set of k with at least one solution",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "k-no-solution",
+					"given": [
+						"a wave on an interval"
+					],
+					"asked": "the set of k with no solutions",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "touch-find-constant",
+					"given": [
+						"a wave with a letter in it and a line touching its maxima or minima"
+					],
+					"asked": "the letter",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "touch-one-solution",
+					"given": [
+						"one cycle of a wave, from the axis to the axis"
+					],
+					"asked": "the two values of k with exactly one solution",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "solve-vs-line",
+					"given": [
+						"a trig function, a line and an interval"
+					],
+					"asked": "every solution",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "solve-vs-exp",
+					"given": [
+						"a trig function, a falling exponential and an interval"
+					],
+					"asked": "every solution",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				},
+				{
+					"id": "count-vs-line",
+					"given": [
+						"a trig function, a line and an interval"
+					],
+					"asked": "the number of solutions",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.8.graphical"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.8.graphical",
+					"method": "gdc-intersect",
+					"suits": [
+						"times-in-window",
+						"set-above-level",
+						"set-below-level",
+						"set-two-spans",
+						"chance-above",
+						"time-past-level",
+						"count-solutions",
+						"count-at-extreme",
+						"k-exactly-n",
+						"k-any-solution",
+						"k-no-solution",
+						"touch-find-constant",
+						"touch-one-solution",
+						"solve-vs-line",
+						"solve-vs-exp",
+						"count-vs-line"
+					],
+					"name": "GDC intersect",
+					"about": "Graph both sides in radian mode with a window matching the interval and use intersect for every crossing."
+				},
+				{
+					"skill": "SL3.8.graphical",
+					"method": "sketch-and-count",
+					"suits": [
+						"exact-times-level",
+						"time-at-least-exact",
+						"times-in-window",
+						"set-above-level",
+						"set-below-level",
+						"set-two-spans",
+						"chance-above",
+						"time-past-level",
+						"count-solutions",
+						"count-at-extreme",
+						"k-exactly-n",
+						"touch-one-solution",
+						"solve-vs-line",
+						"solve-vs-exp",
+						"count-vs-line"
+					],
+					"name": "Sketch and count crossings",
+					"about": "Sketch both graphs by hand and count the crossings to give the number of solutions without solving."
+				},
+				{
+					"skill": "SL3.8.graphical",
+					"method": "range-reasoning",
+					"suits": [
+						"count-solutions",
+						"count-at-extreme",
+						"k-exactly-n",
+						"k-any-solution",
+						"k-no-solution",
+						"touch-find-constant",
+						"touch-one-solution",
+						"count-vs-line"
+					],
+					"name": "Reason from the maximum and minimum",
+					"about": "y = k meets a sin(bx) + d only when d − |a| ≤ k ≤ d + |a|; at k equal to the max or min the line just touches, which changes the count."
+				},
+				{
+					"skill": "SL3.8.solve-basic",
+					"method": "unit-circle-cast",
+					"suits": [
+						"exact-times-level",
+						"time-at-least-exact"
+					],
+					"name": "Reference angle in every valid quadrant",
+					"about": "Find the reference angle, place it in each quadrant where the ratio has the right sign (CAST), and list those inside the interval."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A line y = k meets a wave at its maximum. That is one solution in each cycle, not two.",
+					"answer": "True: the line only touches at the top, so the two crossings of a lower line have come together at one point.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "A wave runs for 2.5 cycles and the line is inside its range. Predict the number of solutions from the cycles alone, then count along a sketch.",
+					"answer": "Two full cycles give 4, but the half cycle left can give 0, 1 or 2 more, so the count needs the sketch.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "Why does a sine curve against a steep line through the origin have fewer solutions than against a shallow one?",
+					"answer": "The wave stays inside a band, and a steeper line leaves that band sooner, so there are fewer humps for it to cross.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.8.graphical#0",
+					"text": "Looking at only part of the interval and missing solutions",
+					"as": "distractor",
+					"in": [
+						"exact-times-level",
+						"times-in-window",
+						"set-two-spans",
+						"time-past-level",
+						"count-solutions",
+						"count-at-extreme",
+						"solve-vs-line",
+						"solve-vs-exp",
+						"count-vs-line"
+					],
+					"wrong": "only the first part of the interval"
+				},
+				{
+					"ref": "SL3.8.graphical#1",
+					"text": "Including the boundary values of k where the line only touches at a maximum or minimum",
+					"as": "distractor",
+					"in": [
+						"k-exactly-n",
+						"k-no-solution"
+					],
+					"wrong": "the end where the line only touches, included"
+				},
+				{
+					"ref": "SL3.8.graphical#2",
+					"text": "Leaving the GDC in degree mode",
+					"as": "distractor",
+					"in": [
+						"times-in-window",
+						"set-above-level",
+						"set-below-level",
+						"set-two-spans",
+						"chance-above",
+						"time-past-level",
+						"count-solutions",
+						"solve-vs-line",
+						"solve-vs-exp",
+						"count-vs-line"
+					],
+					"wrong": "the angle taken in degrees"
+				},
+				{
+					"ref": "SL3.8.graphical#3",
+					"text": "Giving the whole range of the function as the values of k, without counting the solutions each value gives",
+					"as": "distractor",
+					"in": [
+						"k-exactly-n"
+					],
+					"wrong": "the whole range"
+				},
+				{
+					"ref": "SL3.8.graphical#4",
+					"text": "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+					"as": "distractor",
+					"in": [
+						"count-at-extreme"
+					],
+					"wrong": "two for each touch"
+				},
+				{
+					"ref": "SL3.8.graphical#5",
+					"text": "Counting one solution in each cycle, when a line inside the range crosses twice in a cycle",
+					"as": "distractor",
+					"in": [
+						"count-solutions"
+					],
+					"wrong": "one for each cycle"
+				},
+				{
+					"ref": "SL3.8.graphical#6",
+					"text": "Taking the share of one cycle as the share of a span that is not a whole number of cycles",
+					"as": "distractor",
+					"in": [
+						"chance-above",
+						"time-past-level"
+					],
+					"wrong": "the one-cycle share"
+				},
+				{
+					"ref": "SL3.8.graphical#7",
+					"text": "Leaving out the maximum and the minimum, although the line still meets the curve at those heights",
+					"as": "distractor",
+					"in": [
+						"k-any-solution"
+					],
+					"wrong": "strict inequalities"
+				},
+				{
+					"ref": "SL3.8.graphical#8",
+					"text": "Leaving out the crossing at the origin",
+					"as": "distractor",
+					"in": [
+						"solve-vs-line",
+						"count-vs-line"
+					],
+					"wrong": "no solution at the origin"
+				},
+				{
+					"ref": "SL3.8.graphical#9",
+					"text": "Counting two solutions in every cycle of the wave, although the line leaves the wave's band",
+					"as": "distractor",
+					"in": [
+						"count-vs-line"
+					],
+					"wrong": "two for each cycle"
+				},
+				{
+					"ref": "SL3.8.graphical#10",
+					"text": "Using the rule for the minimum at a maximum, or the rule for the maximum at a minimum",
+					"as": "distractor",
+					"in": [
+						"touch-find-constant"
+					],
+					"wrong": "the other extreme's rule"
+				},
+				{
+					"ref": "SL3.8.solve-basic#0",
+					"text": "Stopping at one solution instead of finding them all",
+					"as": "distractor",
+					"in": [
+						"exact-times-level"
+					],
+					"wrong": "only the first time"
+				},
+				{
+					"ref": "SL3.8.solve-basic#1",
+					"text": "Finding a cosine equation's second solution the way you would for sine",
+					"as": "distractor",
+					"in": [
+						"exact-times-level"
+					],
+					"wrong": "π − α for cosine"
+				},
+				{
+					"ref": "SL3.7.model-context#3",
+					"text": "Giving the time on the wrong side of the level: below it when above was asked, or the reverse",
+					"as": "distractor",
+					"in": [
+						"time-at-least-exact",
+						"set-above-level",
+						"set-below-level",
+						"set-two-spans",
+						"chance-above",
+						"time-past-level"
+					],
+					"wrong": "the other side of the level"
+				},
+				{
+					"ref": "SL3.7.model-context#4",
+					"text": "Stopping at the peak, so only half of the time past the level is counted",
+					"as": "distractor",
+					"in": [
+						"time-at-least-exact",
+						"set-above-level"
+					],
+					"wrong": "half of the time"
+				},
+				{
+					"ref": "SL3.7.read-features#5",
+					"text": "Leaving d out of the maximum, the minimum or the range",
+					"as": "distractor",
+					"in": [
+						"k-any-solution",
+						"k-no-solution",
+						"touch-find-constant",
+						"touch-one-solution"
+					],
+					"wrong": "|a| as the largest value"
+				}
+			],
+			"chain": [
+				"set the calculator to radians",
+				"graph both sides over the interval",
+				"a level inside the range is crossed twice in each cycle, and a maximum or minimum only touched once",
+				"count along the whole interval, not one cycle",
+				"decide which stretches are on the side asked for"
+			],
 			"frequency": 5,
 			"marks": 3,
 			"section": {
@@ -33489,9 +34147,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 4
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-trig-equation",
