@@ -499,6 +499,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq, method-pick, error-spot
 - **Bank parts:** 21.
 
+### t1-geometric-in-context
+
+**Geometric sequence or series modelling a context.** Turn a percentage change or a rebound into a multiplier, then find a later value, a total, the first round past a target or the round one model overtakes another, keeping track of whether a value is 'after t rounds' or 'in round n'.
+
+- **Syllabus:** 1.3
+- **Skills:** `SL1.3.model`, `SL1.3.find-n`
+- **Where it appears:** P1 1, P2 5; Section A 3, B 3. Marks per part: usually 4 (2 to 5).
+- **Usual chain:** turn the percentage or rebound into r → decide whether the value wanted is u_t or u_(t + 1) → use uₙ or Sₙ, or tabulate the first rows → for a target, solve for the power with logs, a GDC table or a graph → round to the first whole n that meets the condition
+- **Given:** a story with a first value and a percentage change, a table of the first rounds, a dropped ball, with its figure, dots and a target line, or two models drawn together, u₁ and a later term, or a Σ. **Asked:** A value after t rounds or in round n, an expression for uₙ, a total, a mean, the least n past a target, the first round a model overtakes another, or the number of terms. **Answer form:** 3 s.f., a whole number, an exact value, an expression in n.
+- **A recipe can randomise:** the story, rising or falling; the percentage, or the rebound fraction; the start and the number of rounds; the target; the arithmetic rival's start and step; the rectangle's sides and scale factor.
+- **Limits that keep answers clean:** Paper 2 unless exact: the rectangles, r, the indexing and an exact power are Paper 1; no calculator working on Paper 1; a crossing is well clear of a whole number; a target is never a value the sequence takes.
+- **Game formats:** value, mcq
+- **Bank parts:** 6.
+
 ### t1-geometric-sequence
 
 **Geometric sequence: find r, u1, a term or S_n.** Find the common ratio, a term or the general term of a geometric sequence, find r and u₁ from given terms, including expressions in k and coefficients of a binomial expansion, and find finite sums from terms, the last term, a closed form or sigma notation.

@@ -4057,6 +4057,60 @@
 				"a graph's dots are small whole numbers"
 			]
 		},
+		"geometric-context": {
+			"name": "A story modelled by a geometric sequence",
+			"summary": "Pick a story, a first value and a percentage change or rebound, so the multiplier r is known. Every later value, a total, the moment a target is passed and the year a geometric model passes an arithmetic one all follow.",
+			"quantities": [
+				{
+					"name": "story",
+					"is": "what changes and in what steps",
+					"pick": "a value today or an amount in round 1, rising or falling; a dropped ball; two deals; two rivals; a set of rectangles; or a count that multiplies"
+				},
+				{
+					"name": "p, r",
+					"is": "the percentage change and the multiplier",
+					"pick": "p whole, from 3 to 25 for a rise and 5 to 40 for a fall, and r = 1 ± p/100; 20 to 50 on a graph, so that the dots are few; 10, 20 or 50 for a value on Paper 1"
+				},
+				{
+					"name": "u₁ or the value today",
+					"is": "where the sequence starts",
+					"pick": "a round whole number: its first rows in a table are exact decimals"
+				},
+				{
+					"name": "t, n, k",
+					"is": "rounds passed, a term number, a bounce",
+					"pick": "4 to 8 rounds or terms for a value (2 to 4 on Paper 1), 5 to 9 terms for a total, 3 to 8 bounces"
+				},
+				{
+					"name": "target",
+					"is": "what uₙ, Sₙ or S∞ − Sₙ has to pass",
+					"pick": "2 s.f. of a value part-way between two terms, or a small value such as 0.05"
+				},
+				{
+					"name": "a, d, b",
+					"is": "an arithmetic rival and a geometric one",
+					"pick": "b below a, so that B passes A once and stays ahead"
+				},
+				{
+					"name": "w, h, k",
+					"is": "the sides of a first rectangle and their scale factor",
+					"pick": "whole sides, with k from 3/2, 2, 5/4, 3, 6/5 and 4/3, so the area factor k² is exact"
+				},
+				{
+					"name": "last term",
+					"is": "the end of a finite sequence",
+					"pick": "u₁ × r^(n − 1), with r from 2 to 5, so that r^(n − 1) is an exact power"
+				}
+			],
+			"clean": [
+				"Paper 1: exact values, whole heights, and terms up to 200 000",
+				"Paper 2: values are floats, as a GDC gives them, up to 5 000 000 and clear of a rounding edge at 3 s.f.",
+				"a crossing is at least 0.1 from a whole number, so that the whole n or year is not in doubt",
+				"in a table, the rows shown are exact",
+				"the rival B starts below A and is at least 0.5 clear of A in the years either side of the crossing",
+				"the stories are not those of the bank"
+			]
+		},
 		"normal-probability": {
 			"name": "A normal variable with a region asked for",
 			"extends": "normal-unknown",
@@ -4925,6 +4979,8 @@
 		"SL1.2.find-u1-d": "Find u_1 and d from given terms or conditions",
 		"SL1.2.sum": "Find the sum of a finite arithmetic series",
 		"SL1.2.sum-unknown": "Use a given sum to find n, u_1 or d",
+		"SL1.3.model": "Model growth and decay with geometric sequences",
+		"SL1.3.find-n": "Find n for a given term, sum or threshold",
 		"SL1.3.nth-term": "Find a term or the general term of a geometric sequence",
 		"SL1.3.find-r-u1": "Find r and u_1 from given terms or conditions",
 		"SL1.3.sum": "Find the sum of a finite geometric series",
@@ -5090,7 +5146,6 @@
 		"SL4.3.constant-changes": "Find the effect of adding or multiplying every value by a constant",
 		"SL5.11.integral-properties": "Use properties of definite integrals",
 		"SL5.1.chord-to-tangent": "Find the gradient of a curve as the limit of chord gradients",
-		"SL1.3.model": "Model growth and decay with geometric sequences",
 		"SL1.4.depreciation": "Model annual depreciation",
 		"SL4.9.inverse-normal": "Find a value of X from a given probability (inverse normal)",
 		"SL1.6.identity-constants": "Use = and ≡ correctly and find unknown constants in an identity",
@@ -20844,6 +20899,690 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Geometric sequence or series modelling a context",
+			"summary": "Turn a percentage change or a rebound into a multiplier, then find a later value, a total, the first round past a target or the round one model overtakes another, keeping track of whether a value is 'after t rounds' or 'in round n'.",
+			"situation": "geometric-context",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story with a first value and a change, as the bank has it"
+				},
+				{
+					"rep": "notation",
+					"exam": true,
+					"how": "u₁ and r, u₁ and a later term, the first terms and the last, or a Σ"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the path of a dropped ball, with the drop height marked"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "the first three rounds, from which r is read"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "dots with the target as a line, the first three labelled, or two rival models as curves"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "factor-from-percent",
+					"given": [
+						"a value and a percentage change"
+					],
+					"asked": "the multiplier r",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "value-after-years",
+					"given": [
+						"a value today and its percentage change, or a table"
+					],
+					"asked": "the value after t rounds, which is t multiplications",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "value-in-round",
+					"given": [
+						"an amount in round 1 and its percentage change, or a table"
+					],
+					"asked": "the amount in round n, which is n − 1 multiplications",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "term-number-after",
+					"given": [
+						"u₁ as the value today"
+					],
+					"asked": "which term is the value after t rounds",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "rebound-height",
+					"given": [
+						"a drop height and a rebound fraction or percentage"
+					],
+					"asked": "the height after the kth bounce",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"diagram"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "nth-expression",
+					"given": [
+						"an amount in round 1 and how it changes"
+					],
+					"asked": "uₙ as an expression in n",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "total-over-rounds",
+					"given": [
+						"an amount in round 1 and its percentage change, or a table"
+					],
+					"asked": "the total over n rounds",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "total-two-deals",
+					"given": [
+						"a flat deal and a deal rising by a percentage, for n payments"
+					],
+					"asked": "the difference between the two totals",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "overtake-first-round",
+					"given": [
+						"an arithmetic model and a geometric one"
+					],
+					"asked": "the first round in which the geometric one is ahead",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "scaled-area-term",
+					"given": [
+						"the sides of a first rectangle and their scale factor"
+					],
+					"asked": "the area of the nth rectangle, in terms of n",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "mean-of-areas",
+					"given": [
+						"the sides of a first rectangle, their scale factor and how many rectangles"
+					],
+					"asked": "the mean area, as p × (b^a − 1)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL1.3.model"
+					]
+				},
+				{
+					"id": "least-n-term",
+					"given": [
+						"a rising sequence and a target"
+					],
+					"asked": "the least n with uₙ past the target",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"table",
+						"graph",
+						"notation"
+					],
+					"skills": [
+						"SL1.3.find-n"
+					]
+				},
+				{
+					"id": "least-rounds-after",
+					"given": [
+						"a value today, its percentage change and a target"
+					],
+					"asked": "the least whole t after which the target is passed",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.3.find-n"
+					]
+				},
+				{
+					"id": "least-n-sum",
+					"given": [
+						"a rising sequence and a target for the total"
+					],
+					"asked": "the least n with Sₙ past the target",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"table",
+						"graph",
+						"notation"
+					],
+					"skills": [
+						"SL1.3.find-n"
+					]
+				},
+				{
+					"id": "least-n-two-terms",
+					"given": [
+						"u₁, a later term and a target for the total"
+					],
+					"asked": "the least n with Sₙ past the target, after finding r",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"notation"
+					],
+					"skills": [
+						"SL1.3.find-n"
+					]
+				},
+				{
+					"id": "first-below",
+					"given": [
+						"a falling sequence and a small value"
+					],
+					"asked": "the least n with uₙ below it",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"table",
+						"graph",
+						"notation"
+					],
+					"skills": [
+						"SL1.3.find-n"
+					]
+				},
+				{
+					"id": "gap-to-limit",
+					"given": [
+						"a falling sequence or its Σ, and a small value"
+					],
+					"asked": "the least n with S∞ − Sₙ below it",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"notation"
+					],
+					"skills": [
+						"SL1.3.find-n"
+					]
+				},
+				{
+					"id": "count-terms-power",
+					"given": [
+						"the first terms and the last, which is u₁ times an exact power of r"
+					],
+					"asked": "the number of terms",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"notation",
+						"table"
+					],
+					"skills": [
+						"SL1.3.find-n"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.3.model",
+					"method": "multiplier",
+					"suits": [
+						"factor-from-percent",
+						"value-after-years",
+						"value-in-round",
+						"rebound-height",
+						"nth-expression",
+						"total-over-rounds",
+						"total-two-deals",
+						"scaled-area-term",
+						"mean-of-areas"
+					],
+					"name": "Convert the percentage change to a multiplier r",
+					"about": "A 5% increase means r = 1.05 and a 30% decrease means r = 0.7; then use u_n or S_n with careful indexing."
+				},
+				{
+					"skill": "SL1.3.model",
+					"method": "tabulate",
+					"suits": [
+						"value-after-years",
+						"value-in-round",
+						"term-number-after",
+						"rebound-height",
+						"nth-expression",
+						"total-over-rounds"
+					],
+					"name": "Build a year-by-year table",
+					"about": "List the first few years to settle whether 'after n years' is u_n or u_(n+1) before using a formula."
+				},
+				{
+					"skill": "SL1.3.model",
+					"method": "gdc-table-compare",
+					"suits": [
+						"total-two-deals",
+						"overtake-first-round"
+					],
+					"name": "Tabulate competing models side by side",
+					"about": "Enter the arithmetic and geometric models as two functions of n and find the first n where one overtakes the other."
+				},
+				{
+					"skill": "SL1.3.model",
+					"method": "graph-intersect",
+					"suits": [
+						"overtake-first-round"
+					],
+					"name": "Graph both models and find where they cross",
+					"about": "Plot the competing models, read off the intersection, then round to a whole year in context."
+				},
+				{
+					"skill": "SL1.3.find-n",
+					"method": "logs",
+					"suits": [
+						"least-n-term",
+						"least-rounds-after",
+						"least-n-sum",
+						"least-n-two-terms",
+						"first-below",
+						"gap-to-limit",
+						"count-terms-power"
+					],
+					"name": "Take logarithms to bring n down",
+					"about": "Isolate r^(n − 1), take ln of both sides and divide by ln r (flipping the inequality if ln r < 0), then round up to an integer."
+				},
+				{
+					"skill": "SL1.3.find-n",
+					"method": "gdc-table",
+					"suits": [
+						"least-n-term",
+						"least-rounds-after",
+						"least-n-sum",
+						"least-n-two-terms",
+						"first-below",
+						"gap-to-limit",
+						"count-terms-power"
+					],
+					"name": "Scroll a GDC table of u_n or S_n",
+					"about": "Tabulate the term or the sum against n and find the first n that meets the condition."
+				},
+				{
+					"skill": "SL1.3.find-n",
+					"method": "graph-intersect",
+					"suits": [
+						"least-n-term",
+						"least-rounds-after",
+						"least-n-sum",
+						"least-n-two-terms",
+						"first-below",
+						"gap-to-limit"
+					],
+					"name": "Intersect the curve with a horizontal line",
+					"about": "Graph y = u_1 r^(x − 1) (or the sum as a function of x) and y = target; round the x-coordinate appropriately."
+				},
+				{
+					"skill": "SL1.3.find-n",
+					"method": "exact-power",
+					"suits": [
+						"count-terms-power"
+					],
+					"name": "Recognise an exact power",
+					"about": "When the target is an exact power, e.g. 3^(n − 1) = 19 683 = 3^9, compare exponents directly."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If a value is u₁ today and grows by a fixed percentage each year, then its value after 10 years is u₁₀.",
+					"answer": "False: u₁ is today, so u₂ is after 1 year and u₁₁ is after 10 years. The term number is one more than the years passed.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "A model that grows by a fixed percentage overtakes one that grows by a fixed amount.",
+					"answer": "Always, if the percentage is above 0 and it starts positive: the fixed percentage adds more each year, and in the end more than any fixed amount.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "A ball rebounds to 3/4 of its height. Predict which bounce first stays under half the drop, then check.",
+					"answer": "The 3rd: 3/4, then 9/16, then 27/64, which is the first below 1/2.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.3.model#0",
+					"text": "Using the percentage as r, instead of the multiplier that the percentage gives",
+					"as": "distractor",
+					"in": [
+						"factor-from-percent",
+						"value-after-years",
+						"value-in-round",
+						"nth-expression",
+						"total-over-rounds",
+						"total-two-deals"
+					],
+					"wrong": "the rate as a decimal used for r"
+				},
+				{
+					"ref": "SL1.3.model#1",
+					"text": "Using the wrong factor for a percentage decrease, or subtracting the same amount each time",
+					"as": "distractor",
+					"in": [
+						"factor-from-percent",
+						"value-after-years",
+						"value-in-round",
+						"rebound-height",
+						"total-over-rounds"
+					],
+					"wrong": "one plus the rate for a fall, or the first drop taken off every time"
+				},
+				{
+					"ref": "SL1.3.model#2",
+					"text": "Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications",
+					"as": "distractor",
+					"in": [
+						"value-after-years",
+						"term-number-after",
+						"rebound-height"
+					],
+					"wrong": "the value one step early"
+				},
+				{
+					"ref": "SL1.3.model#3",
+					"text": "Adding the same amount each step instead of multiplying, so that a percentage rise grows in a straight line",
+					"as": "distractor",
+					"in": [
+						"value-after-years",
+						"value-in-round",
+						"nth-expression",
+						"total-over-rounds",
+						"overtake-first-round"
+					],
+					"wrong": "the first rise repeated, with no compounding"
+				},
+				{
+					"ref": "SL1.3.model#4",
+					"text": "Giving the last amount instead of the total of all the amounts",
+					"as": "distractor",
+					"in": [
+						"total-over-rounds",
+						"total-two-deals"
+					],
+					"wrong": "the final term"
+				},
+				{
+					"ref": "SL1.3.model#5",
+					"text": "Giving the last round in which the first model is still ahead, instead of the first round the second one leads",
+					"as": "distractor",
+					"in": [
+						"overtake-first-round"
+					],
+					"wrong": "the round before"
+				},
+				{
+					"ref": "SL1.3.model#6",
+					"text": "Using the factor for a length as the factor for an area, instead of squaring it",
+					"as": "distractor",
+					"in": [
+						"scaled-area-term"
+					],
+					"wrong": "the side factor used as r"
+				},
+				{
+					"ref": "SL1.3.model#7",
+					"text": "Stopping at the total of the terms, without dividing by how many there are, when the mean is asked",
+					"as": "distractor",
+					"in": [
+						"mean-of-areas"
+					],
+					"wrong": "the sum, not the mean"
+				},
+				{
+					"ref": "SL1.3.find-n#0",
+					"text": "Not flipping the inequality when dividing by ln r, which is negative when r is below one",
+					"as": "distractor",
+					"in": [
+						"first-below",
+						"least-rounds-after",
+						"gap-to-limit"
+					],
+					"wrong": "the last n on the wrong side of the target"
+				},
+				{
+					"ref": "SL1.3.find-n#1",
+					"text": "Rounding n down instead of up for 'the least n such that'",
+					"as": "distractor",
+					"in": [
+						"least-n-term",
+						"least-rounds-after",
+						"least-n-sum",
+						"least-n-two-terms",
+						"first-below",
+						"gap-to-limit"
+					],
+					"wrong": "the whole number below the crossing"
+				},
+				{
+					"ref": "SL1.3.find-n#2",
+					"text": "Giving the term or the sum instead of n",
+					"as": "distractor",
+					"in": [
+						"least-n-term",
+						"least-rounds-after",
+						"least-n-sum",
+						"first-below",
+						"gap-to-limit"
+					],
+					"wrong": "the value reached, not the n that reaches it"
+				},
+				{
+					"ref": "SL1.3.find-n#3",
+					"text": "Stopping at the last n that falls short of the target instead of the first n that meets it",
+					"as": "distractor",
+					"in": [
+						"least-n-term",
+						"least-rounds-after",
+						"least-n-sum",
+						"least-n-two-terms",
+						"first-below",
+						"gap-to-limit"
+					],
+					"wrong": "the row before the target is passed"
+				},
+				{
+					"ref": "SL1.3.find-n#4",
+					"text": "Taking the power of r as the number of terms, which is one too few",
+					"as": "distractor",
+					"in": [
+						"count-terms-power"
+					],
+					"wrong": "n − 1"
+				},
+				{
+					"ref": "SL1.3.find-n#5",
+					"text": "Testing the wrong quantity: a term when the condition is on a total or a gap, or the total when it is on a term",
+					"as": "distractor",
+					"in": [
+						"least-n-term",
+						"least-n-sum",
+						"gap-to-limit"
+					],
+					"wrong": "the n that the other quantity gives"
+				},
+				{
+					"ref": "SL1.3.find-n#6",
+					"text": "Giving the term number instead of the steps passed, when u₁ is the value at the start",
+					"as": "distractor",
+					"in": [
+						"least-rounds-after"
+					],
+					"wrong": "t + 1"
+				},
+				{
+					"ref": "SL1.3.nth-term#0",
+					"text": "Using r^n in the term formula, one power of r too many",
+					"as": "distractor",
+					"in": [
+						"value-after-years",
+						"value-in-round",
+						"rebound-height",
+						"nth-expression",
+						"scaled-area-term"
+					],
+					"wrong": "one more multiplication than the question has"
+				},
+				{
+					"ref": "SL1.3.nth-term#1",
+					"text": "Multiplying u₁ and r first and raising the product to the power, instead of raising r alone",
+					"as": "distractor",
+					"in": [
+						"nth-expression",
+						"scaled-area-term"
+					],
+					"wrong": "(u₁r)^(n − 1)"
+				},
+				{
+					"ref": "SL1.3.sum#0",
+					"text": "Using a power one lower than n in the sum formula",
+					"as": "distractor",
+					"in": [
+						"total-over-rounds",
+						"total-two-deals",
+						"mean-of-areas"
+					],
+					"wrong": "the sum of one term fewer"
+				},
+				{
+					"ref": "SL1.3.find-r-u1#0",
+					"text": "Subtracting terms as if the sequence were arithmetic",
+					"as": "distractor",
+					"in": [
+						"least-n-two-terms",
+						"count-terms-power"
+					],
+					"wrong": "a common difference used in place of r"
+				},
+				{
+					"ref": "SL1.3.find-r-u1#2",
+					"text": "Counting terms instead of steps, so the power of r is one too high",
+					"as": "distractor",
+					"in": [
+						"least-n-two-terms"
+					],
+					"wrong": "r from a root one too high"
+				}
+			],
+			"chain": [
+				"turn the percentage or rebound into r",
+				"decide whether the value wanted is u_t or u_(t + 1)",
+				"use uₙ or Sₙ, or tabulate the first rows",
+				"for a target, solve for the power with logs, a GDC table or a graph",
+				"round to the first whole n that meets the condition"
+			],
 			"frequency": 6,
 			"marks": 4,
 			"section": {
@@ -20853,9 +21592,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 5
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-geometric-sequence",
@@ -59796,22 +60533,22 @@
 				},
 				{
 					"ref": "SL1.3.model#1",
-					"text": "Using the wrong factor for a percentage decrease, or subtracting the same amount each year",
+					"text": "Using the wrong factor for a percentage decrease, or subtracting the same amount each time",
 					"as": "distractor",
 					"in": [
 						"percent-to-factor",
 						"depreciation-two-ways"
 					],
-					"wrong": "1.3 for a 30% fall, or 30% of the first value taken off every year"
+					"wrong": "one plus the rate for a fall, or the first drop taken off every time"
 				},
 				{
 					"ref": "SL1.3.model#2",
-					"text": "Counting one multiplication too few: when u₁ is the starting value, the value after t years needs t multiplications",
+					"text": "Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications",
 					"as": "distractor",
 					"in": [
 						"sequence-vs-function"
 					],
-					"wrong": "the value after 10 years given as u₁₀ = P₀r⁹"
+					"wrong": "the value after t years taken as the tth term, one multiplication too few"
 				},
 				{
 					"ref": "SL1.4.future-value#0",

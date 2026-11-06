@@ -86,6 +86,7 @@ static var SITUATIONS := {
 	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
 	"binomial": [BinomialSituation, BinomialViews],
 	"geometric-sequence": [GeometricSequenceSituation, GeometricSequenceViews],
+	"geometric-context": [GeometricContextSituation, GeometricContextViews],
 	"binomial-expansion": [BinomialExpansionSituation, BinomialExpansionViews],
 	"binomial-unknown": [BinomialUnknownSituation, BinomialUnknownViews],
 	"log-laws": [LogLawsSituation, LogLawsViews],

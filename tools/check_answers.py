@@ -21971,6 +21971,649 @@ def gs_xs_text_as(show, name, vals):
     return f"{name} = " + " or ".join(gs_text(show, v) for v in vals)
 
 
+# ── geometric-context (t1-geometric-in-context, FAL-752) ─────
+# The `geometric-context` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/geometric_context.gd. The story, table, dots or Σ are read back from what
+# the student sees. Every value is worked out again with exact rationals, every least n by testing
+# the terms or totals one at a time, and each tagged option from what its slip does.
+
+E10GE_NUM = r"−?\d+(?:\.\d+)?"
+E10GE_M, E10GE_F = "SL1.3.model#", "SL1.3.find-n#"
+E10GE_NTH0, E10GE_NTH1, E10GE_SUM0 = "SL1.3.nth-term#0", "SL1.3.nth-term#1", "SL1.3.sum#0"
+E10GE_ARITH, E10GE_ROOT = "SL1.3.find-r-u1#0", "SL1.3.find-r-u1#2"
+E10GE_LIMIT = 5000000
+E10GE_P1_LIMIT = 200000
+E10GE_EDGE = sp.Rational(19, 1000)      # the engine's is 0.02; a hair under it, for float ties
+E10GE_CLEAR = sp.Rational(99, 1000)     # the engine's is 0.1; the same, for a crossing
+E10GE_P1 = ("factor-from-percent", "term-number-after", "scaled-area-term", "mean-of-areas")
+E10GE_BALLS = ["rubber ball", "steel spring", "scrap tyre", "drone shell"]
+# now, thing, subject, unit, round, heading, sign
+E10GE_STOCKS = [
+    ("Glow-moss covers {} m² of a bunker wall today.", "area of moss", "The area", " m²", "month", "Area (m²)", 1),
+    ("The Guild's vault holds {} kg of silver today.", "mass of silver", "The mass", " kg", "year", "Mass (kg)", 1),
+    ("A vat holds {} litres of algae oil today.", "volume of algae oil", "The volume", " litres", "week", "Volume (litres)", 1),
+    ("A scrap heap weighs {} kg today.", "mass of the heap", "The mass", " kg", "year", "Mass (kg)", 1),
+    ("A leaking tank holds {} litres of fuel today.", "volume of fuel", "The volume", " litres", "day", "Volume (litres)", -1),
+    ("The reading at a crater is {} mSv today.", "reading", "The reading", " mSv", "year", "Reading (mSv)", -1),
+    ("A battery bank holds {} kWh today.", "charge", "The charge", " kWh", "day", "Charge (kWh)", -1),
+    ("A silo holds {} kg of grain today.", "mass of grain", "The mass", " kg", "week", "Mass (kg)", -1),
+]
+# first, thing, subject, unit, round, heading, total, preposition, sign
+E10GE_FLOWS = [
+    ("A rooftop farm yields {} kg of beans in its first season.", "yield", "The yield", " kg", "season", "Yield (kg)", "total yield", "in", 1),
+    ("A salvage crew hauls {} kg of scrap in its first month.", "haul", "The haul", " kg", "month", "Haul (kg)", "total haul", "in", 1),
+    ("A guard is paid {} tokens in her first year.", "pay", "Her pay", " tokens", "year", "Pay (tokens)", "total pay", "in", 1),
+    ("A copper mine sends out {} kg in its first year.", "output", "The output", " kg", "year", "Output (kg)", "total output", "in", 1),
+    ("A spring gives {} litres of water in its first week.", "flow", "The flow", " litres", "week", "Flow (litres)", "total flow", "in", -1),
+    ("A dig site gives up {} kg of scrap in its first month.", "find", "The find", " kg", "month", "Find (kg)", "total find", "in", -1),
+    ("A solar rig stores {} kWh on its first day.", "charge stored", "The charge stored", " kWh", "day", "Charge stored (kWh)", "total charge stored", "on", -1),
+    ("A trade route brings in {} tokens in its first year.", "income", "The income", " tokens", "year", "Income (tokens)", "total income", "in", -1),
+]
+# opening, round, unit, heading, what a payment is called
+E10GE_DEALS = [
+    ("A scavenger signs on for {} months, paid once a month, and may pick one of two deals.", "month", " tokens", "tokens", "payment"),
+    ("A settler takes a water ration for {} weeks, once a week, and may pick one of two deals.", "week", " litres", "litres", "ration"),
+    ("A caravan buys fuel on contract for {} months, with a delivery each month, and may pick one of two deals.", "month", " litres", "litres", "delivery"),
+    ("A bazaar trader rents a stall out for {} weeks, for one payment a week, and may pick one of two deals.", "week", " scrap", "scrap", "payment"),
+]
+E10GE_RIVALS = [("Yard A", "Yard B", "turns out", " kg", "year"), ("Well A", "Well B", "gives", " litres", "month"),
+                ("Stall A", "Stall B", "takes", " tokens", "week"), ("Farm A", "Farm B", "grows", " kg", "season")]
+E10GE_SHEETS = [("A workshop cuts {} rectangular armour plates, numbered {} to {}.", "P", "plate", "plates"),
+                ("A rigger stitches {} rectangular tarpaulins, numbered {} to {}.", "T", "tarpaulin", "tarpaulins"),
+                ("A signal crew paints {} rectangular flags, numbered {} to {}.", "F", "flag", "flags"),
+                ("A glazier cuts {} rectangular solar panels, numbered {} to {}.", "S", "panel", "panels")]
+E10GE_SPREADS = [
+    ("In round 1, {} scouts hear a warning.", "In each round after that, {} times as many scouts hear it as in the round before.", "In the last round, {} scouts hear it.", "How many rounds are there?"),
+    ("A spore patch has {} spores on day 1.", "Each day after that it has {} times as many as the day before.", "On the last day of the count it has {} spores.", "How many days does the count last?"),
+    ("On the first level of a shaft, a crew finds {} scrap coils.", "On each deeper level it finds {} times as many as on the level before.", "On the lowest level it finds {} coils.", "How many levels does the shaft have?"),
+    ("A trader's first shipment is {} cans.", "Each shipment after that is {} times the one before.", "The last shipment is {} cans.", "How many shipments are there?"),
+]
+
+
+def e10ge_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def e10ge_sub(k):
+    return "".join("₀₁₂₃₄₅₆₇₈₉"[int(c)] for c in str(k))
+
+
+def e10ge_fill(pattern, text):
+    """The numbers put into a pattern's {} to make text, or None."""
+    parts = pattern.split("{}")
+    rx = f"({E10GE_NUM})".join(re.escape(p) for p in parts)
+    m = re.fullmatch(rx, text)
+    return [e10ge_q(g) for g in m.groups()] if m else None
+
+
+def e10ge_near(text, x, tol=sp.Rational(1, 50000)):
+    """A number from the working agrees with x to the figures shown."""
+    return abs(num(e10ge_q(text)) - num(x)) <= num(tol) * max(abs(num(x)), sp.Rational(1, 1000))
+
+
+def e10ge_clear(x):
+    v = abs(num(x))
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E10GE_EDGE
+
+
+def e10ge_b(v):
+    t = frac_text(v)
+    return f"({t})" if "/" in t else t
+
+
+def e10ge_val(x, unit, want_clear=True):
+    """x as Paper 2 writes it, with its trap, once x is known to be off a rounding edge."""
+    if want_clear:
+        need(e10ge_clear(x) and abs(num(x)) <= E10GE_LIMIT, f"the value {num(x)} is on an edge or too large")
+    return gc_s(x) + unit
+
+
+def e10ge_table(q, u1_row=-1):
+    t = q["table"]
+    need(t is not None, "no table")
+    rows = t["rows"]
+    return rows, [e10ge_q(v) for v in rows[u1_row][1]]
+
+
+def e10ge_ratio(vals):
+    r = vals[1] / vals[0]
+    need(all(vals[i + 1] == vals[i] * r for i in range(len(vals) - 1)), "the table is not geometric")
+    return r
+
+
+def e10ge_stock(q):
+    """The value today, r, p and the story, from the sentences or the table."""
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "table":
+        for st in E10GE_STOCKS:
+            if L[0] == f"The table shows the {st[1]}. It changes by the same percentage each {st[4]}.":
+                rows, vals = e10ge_table(q)
+                need(rows[-1][0] == st[5] and rows[-2] == [f"{st[4].capitalize()}s from now", ["0", "1", "2"]], "the table's headings")
+                r = e10ge_ratio(vals)
+                need((r > 1) == (st[6] > 0), "the table runs the wrong way for its story")
+                return st, vals[0], r, abs(r - 1) * 100
+        raise Fail(f"can't read {L[0]!r}")
+    for st in E10GE_STOCKS:
+        got = e10ge_fill(st[0], L[0])
+        if got:
+            m = re.fullmatch(rf"{re.escape(st[2])} (rises|falls) by (\d+)% each {st[4]}\.", L[1])
+            need(m is not None, f"can't read {L[1]!r}")
+            sign = 1 if m.group(1) == "rises" else -1
+            need(sign == st[6], "the change runs the wrong way for its story")
+            p = sp.Integer(m.group(2))
+            return st, got[0], 1 + sign * p / 100, p
+    raise Fail(f"can't read {L[0]!r}")
+
+
+def e10ge_flow(q, lines=None):
+    """u₁, r, p and the story of an amount for each round, from the sentences or the table."""
+    L, rep = lines if lines is not None else q["lines"], q["view"]["rep"]
+    if rep == "table":
+        for st in E10GE_FLOWS:
+            if L[0] in (f"The table shows the {st[1]} in the first three {st[4]}s. It changes by the same percentage each {st[4]}.",
+                        f"The table shows the {st[1]} in the first three {st[4]}s. Each value is the same multiple of the one before."):
+                rows, vals = e10ge_table(q)
+                need(rows[0] == [st[4].capitalize(), ["1", "2", "3"]] and rows[1][0] == st[5], "the table's headings")
+                r = e10ge_ratio(vals)
+                need((r > 1) == (st[8] > 0), "the table runs the wrong way for its story")
+                return st, vals[0], r, abs(r - 1) * 100
+        raise Fail(f"can't read {L[0]!r}")
+    for st in E10GE_FLOWS:
+        got = e10ge_fill(st[0], L[0])
+        if got:
+            subj, each = re.escape(st[2]), f" each {st[4]}."
+            m = re.fullmatch(rf"{subj} (rises|falls) by (\d+)%{re.escape(each)}", L[1])
+            if m:
+                sign = 1 if m.group(1) == "rises" else -1
+                need(sign == st[8], "the change runs the wrong way for its story")
+                p = sp.Integer(m.group(2))
+                return st, got[0], 1 + sign * p / 100, p
+            word = {"doubles": 2, "triples": 3, "halves": sp.Rational(1, 2)}
+            m = re.fullmatch(rf"{subj} (doubles|triples|halves){re.escape(each)}", L[1])
+            need(m is not None, f"can't read {L[1]!r}")
+            r = sp.Rational(word[m.group(1)])
+            need((r > 1) == (st[8] > 0), "the change runs the wrong way for its story")
+            return st, got[0], r, abs(r - 1) * 100
+    raise Fail(f"can't read {L[0]!r}")
+
+
+def e10ge_dots(q, totals):
+    """u₁, r and the target from a figure: the first three dots are labelled, and all must fit."""
+    g = q["graph"]
+    pts = g["points"]
+    need(g["x_name"] == "n" and g["y_name"] == ("Sₙ" if totals else "uₙ"), "the axes' names")
+    shown = [e10ge_q(p["label"]) for p in pts[:3]]
+    need(all(p["label"] == "" for p in pts[3:]), "a dot past the third is labelled")
+    u1 = shown[0]
+    terms = [shown[0], shown[1] - shown[0], shown[2] - shown[1]] if totals else shown
+    r = terms[1] / terms[0]
+    need(terms[2] == terms[1] * r, "the dots are not geometric")
+    for i, p in enumerate(pts):
+        k = i + 1
+        y = u1 * (r ** k - 1) / (r - 1) if totals else u1 * r ** (k - 1)
+        need(p["x"] == k and abs(p["y"] - float(y)) <= 1e-6 * float(y), f"the dot at n = {k} is off the model")
+    need(len(g["hlines"]) == 1, "no target line")
+    target = e10ge_q(g["hlines"][0]["label"].replace("y = ", ""))
+    need(abs(g["hlines"][0]["at"] - float(target)) < 1e-6 * float(target), "the target line is drawn at the wrong height")
+    return u1, r, target
+
+
+def e10ge_seq(q, totals):
+    """u₁, r, the story or None, from any representation of a sequence."""
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "notation":
+        m = re.fullmatch(rf"A geometric sequence has u₁ = ({E10GE_NUM}) and r = ({E10GE_NUM})\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        if totals:
+            need(L[1] == "Sₙ is the sum of its first n terms.", f"can't read {L[1]!r}")
+        return e10ge_q(m.group(1)), e10ge_q(m.group(2)), None, None
+    if rep == "graph":
+        u1, r, target = e10ge_dots(q, totals)
+        st = next((s_ for s_ in E10GE_FLOWS if f"changes by the same percentage each {s_[4]}, and the line is the target" in L[0] and f"The {s_[1]} changes" in L[0]), None)
+        need(st is not None, f"can't read {L[0]!r}")
+        need((r > 1) == (st[8] > 0), "the dots run the wrong way for their story")
+        return u1, r, st, target
+    st, u1, r, _ = e10ge_flow(q, L[:-1] if rep == "words" else L[:1])
+    want = f"Let Sₙ be the {st[6]} of the first n {st[4]}s." if totals else f"Let uₙ be the {st[1]} {st[7]} {st[4]} n."
+    need(L[-1] == want, f"the last line {L[-1]!r}")
+    return u1, r, st, None
+
+
+def e10ge_first(cond, top=4000):
+    k = 1
+    while k <= top:
+        if cond(k):
+            return k
+        k += 1
+    return 0
+
+
+def e10ge_crossing(x, n):
+    """The real crossing x is well clear of a whole number, and n is the next one up."""
+    f = abs(mpmath.mpf(x) - mpmath.nint(x))
+    need(f >= mpmath.mpf(int(E10GE_CLEAR.p)) / int(E10GE_CLEAR.q), f"the crossing {x} is too near a whole number")
+    need(int(mpmath.ceil(x)) == n, f"the crossing {x} doesn't round up to {n}")
+
+
+def e10ge_steps(q):
+    return {sol["angle"]: sol["steps"] for sol in q["solutions"]}
+
+
+def e10ge_find_work(q, value, n, x, u, qv, letter="n"):
+    """The working of a find-n question, from what the game writes: the power isolated (qv), the
+    bound after logs, value(k) at the table's rows, and the crossing on the graph."""
+    w = e10ge_steps(q)
+    if "logs" in w:
+        solve = next(st for st in w["logs"] if "Solve" in st)
+        m = re.search(rf"[<>] ({E10GE_NUM})$", solve)
+        need(m is not None and e10ge_near(m.group(1), qv), f"the power isn't isolated in {solve!r}")
+        logs = next(st for st in w["logs"] if "ln" in st)
+        if u in ("term", "first"):
+            m = re.search(rf"n − 1 > ({E10GE_NUM})$", logs)
+            need(m is not None and e10ge_near(m.group(1), x - 1), f"the bound in {logs!r}")
+            m = re.search(rf"So n > ({E10GE_NUM}),", " ".join(w["logs"]))
+            need(m is not None and e10ge_near(m.group(1), x), "the bound on n")
+        else:
+            m = re.search(rf"{letter} > ({E10GE_NUM})$", logs)
+            need(m is not None and e10ge_near(m.group(1), x), f"the bound in {logs!r}")
+        if qv < 1:
+            need("flips the sign" in logs, "the inequality isn't flipped")
+        need("next whole number" in " ".join(w["logs"]), "the bound isn't rounded up")
+    if "gdc-table" in w:
+        st = next((t for t in w["gdc-table"] if t.startswith("X = ")), "")
+        m = re.fullmatch(rf"X = (\d+) gives ({E10GE_NUM}), and X = (\d+) gives ({E10GE_NUM})\.", st)
+        need(m is not None, f"the table row {st!r}")
+        need(int(m.group(1)) == n - 1 and int(m.group(3)) == n, "the table rows are not either side of n")
+        need(e10ge_near(m.group(2), value(n - 1)) and e10ge_near(m.group(4), value(n)), "the table's values")
+    if "graph-intersect" in w:
+        m = re.search(rf"find where they meet: x = ({E10GE_NUM})\.", " ".join(w["graph-intersect"]))
+        need(m is not None and e10ge_near(m.group(1), x), "the crossing in the graph working")
+
+
+def e10ge_short(angle, rising):
+    return {"logs": E10GE_F + ("1" if rising else "0"), "gdc-table": E10GE_F + "3"}.get(angle, E10GE_F + "1")
+
+
+def e10ge_list(st, r, first, label):
+    """Each entry of a listed working is the one before × r."""
+    vals = [e10ge_q(v) for v in re.findall(rf"{label} ?\d* ?\w*: ({E10GE_NUM})", st, re.I)]
+    need(len(vals) >= 2, f"nothing listed in {st!r}")
+    prev = first
+    for v in vals:
+        need(abs(num(v - prev * r)) <= 2e-5 * num(abs(prev * r)) + 1e-9, f"{num(v)} doesn't follow {num(prev)}")
+        prev = v
+    return vals
+
+
+def e10ge_check(q):
+    u, rep, L, asked, angle, paper = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"], q["view"]["angle"], q["paper"]
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    both = ("rebound-height", "nth-expression", "value-after-years", "value-in-round")
+    if u in E10GE_P1 or angle == "exact-power" or (angle == "tabulate" and u in both[:2]):
+        need(paper == 1, f"{u} by {angle} is Paper 1")
+    elif u not in both or (angle == "tabulate" and u in both[2:]):
+        need(paper == 2, f"{u} by {angle} is Paper 2")
+    if paper == 1:
+        for sol in q["solutions"]:
+            need(sol["angle"] in ("multiplier", "tabulate", "exact-power"), f"{sol['angle']} is shown on Paper 1")
+    wrongs, trap, want = {}, None, None
+    w = e10ge_steps(q)
+    M, F = E10GE_M, E10GE_F
+
+    def value(x, unit):
+        nonlocal want, trap
+        if paper == 1:
+            want = dec_text(x) + unit
+            return lambda v: dec_text(v) + unit
+        want = e10ge_val(x, unit)
+        trap = gc_trap([x], gc_s2(x) + unit)
+        return lambda v: gc_s(v) + unit
+
+    if u == "factor-from-percent":
+        st, _, r, p = e10ge_stock(q)
+        need(asked == f"The {st[1]} after each {st[4]} is r times what it was. Write down the value of r.", f"asked {asked!r}")
+        want = "r = " + dec_text(r)
+        t = lambda v: "r = " + dec_text(v)
+        wrongs = {M + "0": {t(p / 100)}, M + "1": {t(1 + p / 100)}}
+    elif u == "value-after-years":
+        st, start, r, p = e10ge_stock(q)
+        m = re.fullmatch(rf"Find the {re.escape(st[1])} after (\d+) {st[4]}s?\.(?: Give your answer to 3 s\.f\.)?", asked)
+        need(m is not None and asked.endswith("3 s.f.") == (paper == 2), f"asked {asked!r}")
+        k = int(m.group(1))
+        need(4 <= k <= 8 or (paper == 1 and 2 <= k <= 3 and p in (10, 20, 50)), "t or p is out of range")
+        x = start * r ** k
+        rate = p / 100
+        t = value(x, st[3])
+        wrongs = {M + "2": {t(start * r ** (k - 1))}, E10GE_NTH0: {t(start * r ** (k + 1))}, M + "0": {t(start * rate ** k)},
+                  M + "3": {t(start * (1 + k * rate))}, M + "1": {t(start * (1 + rate) ** k)}}
+        if r < 1 and 1 - k * rate > 0:
+            wrongs[M + "1"].add(t(start * (1 - k * rate)))
+        need(any(e10ge_near(z, x) for z in re.findall(rf"= ({E10GE_NUM})$", w["multiplier"][2])), "the multiplier's result")
+        need(f"^{k} =" in w["multiplier"][2] and start == e10ge_q(w["multiplier"][2].split(" ")[0]), "the multiplier's power")
+        vals = e10ge_list(w["tabulate"][1].split("Today: ")[1], r, start, "after")
+        need(len(vals) == k and e10ge_near(dec_text(vals[-1]), x), "the listed rows")
+    elif u == "value-in-round":
+        st, u1, r, p = e10ge_flow(q)
+        m = re.fullmatch(rf"Find the {re.escape(st[1])} {st[7]} {st[4]} (\d+)\.(?: Give your answer to 3 s\.f\.)?", asked)
+        need(m is not None and asked.endswith("3 s.f.") == (paper == 2), f"asked {asked!r}")
+        k = int(m.group(1))
+        need(5 <= k <= 9 or (paper == 1 and 3 <= k <= 4 and p in (10, 20, 50)), "n or p is out of range")
+        x = u1 * r ** (k - 1)
+        rate = p / 100
+        t = value(x, st[3])
+        wrongs = {E10GE_NTH0: {t(u1 * r ** k)}, M + "0": {t(u1 * rate ** (k - 1))}, M + "3": {t(u1 * (1 + (k - 1) * rate))}, M + "1": {t(u1 * (1 + rate) ** (k - 1))}}
+        if r < 1 and 1 - (k - 1) * rate > 0:
+            wrongs[M + "1"].add(t(u1 * (1 - (k - 1) * rate)))
+        need(f"^{k - 1} = " in w["multiplier"][2] and e10ge_near(w["multiplier"][2].rsplit("= ", 1)[1], x), "the multiplier's result")
+        vals = e10ge_list(w["tabulate"][1].split(f"{st[4].capitalize()} 1: ")[1].split(";", 1)[1], r, u1, st[4])
+        need(len(vals) == k - 1 and e10ge_near(dec_text(vals[-1]), x), "the listed rows")
+    elif u == "term-number-after":
+        st, _, _, _ = e10ge_stock(q)
+        m = re.search(rf"uₙ is the {re.escape(st[1])} after (\d+) {st[4]}s?\.$", asked)
+        need(m is not None and asked.startswith(f"Let u₁ be the {st[1]} today, u₂ the {st[1]} after 1 {st[4]}"), f"asked {asked!r}")
+        k = int(m.group(1))
+        # u₁ is after 0 steps, so count the terms: after k steps there have been k + 1.
+        names = list(range(0, k + 1))
+        want = f"n = {len(names)}"
+        wrongs = {M + "2": {f"n = {k}"}}
+    elif u == "rebound-height":
+        m = re.fullmatch(rf"A (.+) is dropped from a height of ({E10GE_NUM}) (cm|m)\. Each time it lands it rebounds to (\S+) of the height it fell from\.", L[0])
+        need(m is not None and m.group(1) in E10GE_BALLS, f"the story {L[0]!r}")
+        h, unit = e10ge_q(m.group(2)), " " + m.group(3)
+        r = e10ge_q(m.group(4)) if paper == 1 else e10ge_q(m.group(4).rstrip("%")) / 100
+        need((paper == 1) == (unit == " cm"), "the unit doesn't fit the paper")
+        if rep == "diagram":
+            g = q["graph"]
+            need(g["kind"] == "bounce" and abs(g["peaks"][2] - float(r ** 2)) < 1e-9 and g["h_label"] == dec_text(h) + unit, "the figure is not this ball")
+        m = re.fullmatch(r"Find the height it reaches after the (\d+)(?:st|nd|rd|th) bounce\.(?: Give your answer to 3 s\.f\.)?", asked)
+        need(m is not None and bool(asked.endswith("3 s.f.")) == (paper == 2), f"asked {asked!r}")
+        k = int(m.group(1))
+        x = h * r ** k
+        slip = h - k * (h - h * r)
+        if paper == 1:
+            need(x.q == 1 and 40 <= h <= 1000, "a Paper 1 height is not whole")
+            t = value(x, unit)
+            vals = e10ge_list(w["tabulate"][1], r, h, "after bounce") if "tabulate" in w else [x]
+            need(vals[-1] == x, "the listed rows")
+            need(f"^{k} = {frac_text(x)}" in w["multiplier"][2], "the multiplier's result")
+        else:
+            t = value(x, unit)
+            need(e10ge_near(w["multiplier"][2].rsplit("= ", 1)[1], x), "the multiplier's result")
+        wrongs = {M + "2": {t(h * r ** (k - 1))}, E10GE_NTH0: {t(h * r ** (k + 1))}, M + "1": {t(slip)}}
+    elif u == "nth-expression":
+        st, u1, r, p = e10ge_flow(q)
+        need(asked == f"Let uₙ be the {st[1]} {st[7]} {st[4]} n. Find an expression for uₙ in terms of n.", f"asked {asked!r}")
+        sx = frac_text if paper == 1 else dec_text
+        bb = lambda v: f"({sx(v)})" if "/" in sx(v) else sx(v)
+        want = f"uₙ = {sx(u1)} × {bb(r)}^(n − 1)"
+        step = abs(u1 * (r - 1))
+        sign = "+" if r > 1 else "−"
+        # The option must give u₁ at n = 1 and each later term, the wrong forms must not.
+        wrongs = {E10GE_NTH0: {f"uₙ = {sx(u1)} × {bb(r)}^n"}, E10GE_NTH1: {f"uₙ = {bb(u1 * r)}^(n − 1)"},
+                  M + ("3" if r > 1 else "1"): {f"uₙ = {sx(u1)} {sign} {sx(step)}(n − 1)"}, M + "0": {f"uₙ = {sx(u1)} × {bb(p / 100)}^(n − 1)"}}
+        for o in q["choices"]:
+            if o["correct"]:
+                need(o["values"].get("a") is not None and R(o["values"]["a"]) == u1 and R(o["values"]["b"]) == r, "the typed slots don't make the answer")
+    elif u == "total-over-rounds":
+        st, u1, r, p = e10ge_flow(q)
+        m = re.fullmatch(rf"Find the {re.escape(st[6])} over the first (\d+) {st[4]}s?\. Give your answer to 3 s\.f\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        k = int(m.group(1))
+        need(5 <= k <= 9, "n is outside 5 to 9")
+        x = sum(u1 * r ** i for i in range(k))
+        rate = p / 100
+        t = value(x, st[3])
+        wrongs = {M + "4": {t(u1 * r ** (k - 1))}, E10GE_SUM0: {t(sum(u1 * r ** i for i in range(k - 1)))}, M + "0": {t(sum(u1 * rate ** i for i in range(k)))},
+                  M + "3": {t(sum(u1 * (1 + i * rate) for i in range(k)))}, M + "1": {t(sum(u1 * (1 + rate) ** i for i in range(k)))}}
+        need(e10ge_near(w["multiplier"][2].rsplit("= ", 1)[1], x), "the formula's result")
+        listed = re.findall(r"\d+(?:\.\d+)?", w["tabulate"][1].split(": ", 1)[1])
+        need(len(listed) == k, "the listed amounts")
+        for i, a in enumerate(listed):
+            need(abs(num(e10ge_q(a) - u1 * r ** i)) <= 0.0051, f"the amount {a}")
+        added = re.fullmatch(rf"Add them: (.+) ≈ ({E10GE_NUM})", w["tabulate"][2])
+        need(added is not None and [e for e in added.group(1).split(" + ")] == listed, "the sum isn't of the listed amounts")
+        need(abs(sum(e10ge_q(a) for a in listed) - e10ge_q(added.group(2))) <= sp.Rational(1, 100), "the sum of the listed amounts")
+        need(gc_s(e10ge_q(added.group(2))) == gc_s(x), "the listed total doesn't give the answer")
+    elif u == "total-two-deals":
+        got = None
+        for st in E10GE_DEALS:
+            got = e10ge_fill(st[0], L[0])
+            if got:
+                break
+        need(got is not None, f"can't read {L[0]!r}")
+        k = int(got[0])
+        if rep == "table":
+            need(q["table"]["rows"][0] == [st[1].capitalize(), ["1", "2", "3"]], "the table's headings")
+            a_row, b_row = q["table"]["rows"][1:3]
+            need(a_row[0] == f"Deal A ({st[3]})" and b_row[0] == f"Deal B ({st[3]})", "the table's headings")
+            need(len(set(a_row[1])) == 1, "Deal A isn't flat")
+            a, vals = e10ge_q(a_row[1][0]), [e10ge_q(v) for v in b_row[1]]
+            r = e10ge_ratio(vals)
+            u1 = vals[0]
+            p = (r - 1) * 100
+        else:
+            m1 = re.fullmatch(rf"Deal A: every {st[4]} is ({E10GE_NUM}){re.escape(st[2])}\.", L[1])
+            m2 = re.fullmatch(rf"Deal B: the first {st[4]} is ({E10GE_NUM}){re.escape(st[2])}, and each one after it is (\d+)% more than the one before\.", L[2])
+            need(m1 is not None and m2 is not None, f"can't read {L[1:]!r}")
+            a, u1, p = e10ge_q(m1.group(1)), e10ge_q(m2.group(1)), sp.Integer(m2.group(2))
+            r = 1 + p / 100
+        need(asked == "Find the difference between the totals of the two deals. Give your answer to 3 s.f.", f"asked {asked!r}")
+        s_b = sum(u1 * r ** i for i in range(k))
+        flat = a * k
+        x = abs(s_b - flat)
+        need(x > flat * sp.Rational(3, 100), "the deals are too close")
+        t = value(x, st[2])
+        rate = p / 100
+        wrongs = {M + "4": {t(abs(u1 * r ** (k - 1) - a))}, E10GE_SUM0: {t(abs(sum(u1 * r ** i for i in range(k - 1)) - flat))}, M + "0": {t(abs(sum(u1 * rate ** i for i in range(k)) - flat))}}
+        for name in ("multiplier", "gdc-table-compare"):
+            m = next(filter(None, (re.fullmatch(rf"The difference is ({E10GE_NUM}) − ({E10GE_NUM}) = ({E10GE_NUM})\.", s_) for s_ in w[name])), None)
+            need(m is not None and e10ge_q(m.group(1)) - e10ge_q(m.group(2)) == e10ge_q(m.group(3)), "the difference doesn't follow from its two totals")
+            need(e10ge_near(m.group(3), x) and gc_s(e10ge_q(m.group(3))) == gc_s(x), "the difference in the working")
+    elif u == "overtake-first-round":
+        st = next(s_ for s_ in E10GE_RIVALS if any(s_[0] in ln for ln in L))
+        if rep == "table":
+            rows = q["table"]["rows"]
+            unit = st[3].strip()
+            need(rows[1][0] == f"{st[0]} ({unit})" and rows[2][0] == f"{st[1]} ({unit})" and rows[0] == [st[4].capitalize(), ["1", "2", "3"]], "the table's headings")
+            av, bv = [e10ge_q(v) for v in rows[1][1]], [e10ge_q(v) for v in rows[2][1]]
+            d = av[1] - av[0]
+            need(av[2] - av[1] == d, "A isn't arithmetic")
+            a, b, r = av[0], bv[0], e10ge_ratio(bv)
+            p = (r - 1) * 100
+        else:
+            m1 = re.fullmatch(rf"{st[0]} {st[2]} ({E10GE_NUM}){re.escape(st[3])} in {st[4]} 1, then ({E10GE_NUM}){re.escape(st[3])} more each {st[4]}\.", L[0])
+            m2 = re.fullmatch(rf"{st[1]} {st[2]} ({E10GE_NUM}){re.escape(st[3])} in {st[4]} 1, then (\d+)% more each {st[4]} than the {st[4]} before\.", L[1])
+            need(m1 is not None and m2 is not None, f"can't read {L[:2]!r}")
+            a, d, b, p = e10ge_q(m1.group(1)), e10ge_q(m1.group(2)), e10ge_q(m2.group(1)), sp.Integer(m2.group(2))
+            r = 1 + p / 100
+        need(asked == f"Find the first {st[4]} in which {st[1]} {st[2]} more than {st[0]}.", f"asked {asked!r}")
+        need(b < a, "B doesn't start below A")
+        k = e10ge_first(lambda i: b * r ** (i - 1) > a + (i - 1) * d)
+        need(k >= 2, "B never passes A")
+        for i in (k, k + 1, k + 5):
+            need(b * r ** (i - 1) > a + (i - 1) * d, "B doesn't stay ahead")
+        lo, hi = mpmath.mpf(k - 1), mpmath.mpf(k)
+        gap = lambda v: mpmath.mpf(int(b.p)) / int(b.q) * mpmath.mpf(float(r)) ** (v - 1) - mpmath.mpf(int(a.p)) / int(a.q) - (v - 1) * mpmath.mpf(int(d.p)) / int(d.q)
+        for _ in range(80):
+            mid = (lo + hi) / 2
+            lo, hi = (mid, hi) if gap(mid) < 0 else (lo, mid)
+        e10ge_crossing(hi, k)
+        cap = st[4].capitalize()
+        want = f"{cap} {k}"
+        step = b * p / 100
+        slip = e10ge_first(lambda i: b + (i - 1) * step > a + (i - 1) * d)
+        wrongs = {M + "5": {f"{cap} {k - 1}"}}
+        if slip:
+            wrongs[M + "3"] = {f"{cap} {slip}"}
+        m = re.search(rf"x = ({E10GE_NUM})\.$", w["graph-intersect"][1])
+        need(m is not None and e10ge_near(m.group(1), hi), "the crossing in the working")
+        m = re.fullmatch(rf"X = (\d+): Y1 = ({E10GE_NUM}) and Y2 = ({E10GE_NUM})\. X = (\d+): Y1 = ({E10GE_NUM}) and Y2 = ({E10GE_NUM})\.", w["gdc-table-compare"][2])
+        need(m is not None and int(m.group(1)) == k - 1 and int(m.group(4)) == k, "the table's rows")
+        need(e10ge_near(m.group(2), a + (k - 2) * d) and e10ge_near(m.group(3), b * r ** (k - 2)) and e10ge_near(m.group(5), a + (k - 1) * d) and e10ge_near(m.group(6), b * r ** (k - 1)), "the table's values")
+        if rep == "graph":
+            g = q["graph"]
+            x1 = k + 2
+            f_a = lambda v: float(a) + (v - 1) * float(d)
+            f_b = lambda v: float(b) * float(r) ** (v - 1)
+            for curve, fn in zip(g["curves"], (f_a, f_b)):
+                for pt in curve[::20]:
+                    need(abs(pt[1] - fn(pt[0])) <= 1e-6 * max(1, abs(fn(pt[0]))), "a curve is off its model")
+            need(g["points"][0]["label"] == st[0] and g["points"][1]["label"] == st[1] and g["points"][0]["x"] == x1, "the curves' labels")
+            need(L[-1] == f"The graph shows both over the first {x1} {st[4]}s.", f"the graph's line {L[-1]!r}")
+    elif u in ("scaled-area-term", "mean-of-areas"):
+        st = next(s_ for s_ in E10GE_SHEETS if s_[1] + "₁ is " in L[1] and s_[0].split("{}")[0] in L[0])
+        got = re.fullmatch(rf"(?:.+) (\d+) rectangular .+, numbered {st[1]}₁ to {st[1]}(\S+)\.", L[0])
+        need(got is not None and e10ge_sub(int(got.group(1))) == got.group(2), f"can't read {L[0]!r}")
+        parts = int(got.group(1))
+        m = re.fullmatch(rf"{st[1]}₁ is (\d+) cm wide and (\d+) cm tall\.", L[1])
+        k3 = re.fullmatch(rf"The width and the height of each {st[2]} are both (\S+) times those of the {st[2]} before\.", L[2])
+        need(m is not None and k3 is not None, f"can't read {L[1:]!r}")
+        area = sp.Integer(m.group(1)) * sp.Integer(m.group(2))
+        kf = e10ge_q(k3.group(1))
+        b2 = kf ** 2
+        need(f"{e10ge_b(kf)}² = {frac_text(b2)}" in " ".join(q["solutions"][0]["steps"]), "the area factor in the working")
+        if u == "scaled-area-term":
+            need(asked == f"Find an expression for the area of {st[1]}ₙ in terms of n.", f"asked {asked!r}")
+            lab = f"area of {st[1]}ₙ = "
+            want = f"{lab}{frac_text(area)} × {e10ge_b(b2)}^(n − 1) cm²"
+            wrongs = {M + "6": {f"{lab}{frac_text(area)} × {e10ge_b(kf)}^(n − 1) cm²"}, E10GE_NTH0: {f"{lab}{frac_text(area)} × {e10ge_b(b2)}^n cm²"},
+                      E10GE_NTH1: {f"{lab}{e10ge_b(area * b2)}^(n − 1) cm²"}}
+        else:
+            need(asked == f"Find the mean area of the {parts} {st[3]}, in the form p × ({e10ge_b(b2)}^a − 1) cm², where a is a whole number.", f"asked {asked!r}")
+            # Add the areas exactly, and divide: the form must then agree with the sum.
+            mean = sum(area * b2 ** i for i in range(parts)) / parts
+            p_val = mean / (b2 ** parts - 1)
+            need(p_val.q <= 120, "p is not a fraction a hand can write")
+            say = lambda p_, a_: f"mean = {e10ge_b(p_)} × ({e10ge_b(b2)}^{a_} − 1) cm²"
+            want = say(p_val, parts)
+            wrongs = {M + "7": {say(p_val * parts, parts)}, E10GE_SUM0: {say(p_val, parts - 1)}}
+    elif u == "count-terms-power":
+        if rep == "words":
+            st = next(s_ for s_ in E10GE_SPREADS if s_[3] == asked)
+            u1, last = e10ge_fill(st[0], L[0])[0], e10ge_fill(st[2], L[2])[0]
+            r = e10ge_fill(st[1], L[1])[0]
+        elif rep == "notation":
+            m = re.fullmatch(rf"The numbers (\d+), (\d+), (\d+), …, (\d+) form a finite geometric sequence\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            vals = [sp.Integer(m.group(i)) for i in (1, 2, 3)]
+            u1, last, r = vals[0], sp.Integer(m.group(4)), e10ge_ratio(vals)
+        else:
+            row = q["table"]["rows"][1][1]
+            vals = [e10ge_q(v) for v in row[:3]]
+            u1, last, r = vals[0], e10ge_q(row[-1]), e10ge_ratio(vals)
+        k = e10ge_first(lambda i: u1 * r ** (i - 1) == last, 40)
+        need(k > 0, "the last term is not a term")
+        unit = " " + {"rounds": "rounds", "days": "days", "levels": "levels", "shipments": "shipments"}[asked.split(" ")[2]] if rep == "words" else ""
+        want = f"{k}{unit}" if unit else f"n = {k}"
+        need(last <= (E10GE_P1_LIMIT if paper == 1 else E10GE_LIMIT), "the last term is too large")
+        arith = (last - u1) / (u1 * r - u1) + 1
+        say = (lambda v: f"{v}{unit}") if unit else (lambda v: f"n = {v}")
+        wrongs = {F + "4": {say(k - 1)}, E10GE_ARITH: {say(dec_text(arith))}}
+        if "exact-power" in w:
+            need(f"{last / u1} = {r}^{k - 1}" in w["exact-power"][2], "the power isn't recognised")
+    else:
+        # The least n: tested one term or total at a time.
+        rising = None
+        if u in ("least-n-term", "first-below", "least-n-sum"):
+            totals = u == "least-n-sum"
+            u1, r, _, target = e10ge_seq(q, totals)
+            rel = "<" if u == "first-below" else ">"
+            sym = "Sₙ" if totals else "uₙ"
+            m = re.fullmatch(rf"Find the least value of n for which {sym} {rel} ({E10GE_NUM})\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            t_ = e10ge_q(m.group(1))
+            need(target is None or target == t_, "the line drawn is not the target")
+            need((r > 1) == (rel == ">"), "the sequence doesn't move towards its target")
+            term = lambda i: u1 * r ** (i - 1)
+            tot = lambda i: u1 * (r ** i - 1) / (r - 1)
+            val = tot if totals else term
+            k = e10ge_first((lambda i: val(i) > t_) if rel == ">" else (lambda i: val(i) < t_))
+            if totals:
+                x = mpmath.log(1 + mpmath.mpf(float(t_ * (r - 1) / u1))) / mpmath.log(float(r))
+            else:
+                x = 1 + mpmath.log(float(t_ / u1)) / mpmath.log(float(r))
+            word = "first" if u == "first-below" else ("sum" if totals else "term")
+            wrongs = {e10ge_short(angle, rel == ">"): {f"n = {k - 1}"}, F + "2": {f"n = {dec_text(sp.Rational(sig3(val(k))))}"}}
+            if u == "least-n-term":
+                wrongs[F + "5"] = {f"n = {e10ge_first(lambda i: tot(i) > t_)}"}
+            elif totals:
+                wrongs[F + "5"] = {f"n = {e10ge_first(lambda i: term(i) > t_)}"}
+            e10ge_find_work(q, val, k, x, word, 1 + t_ * (r - 1) / u1 if totals else t_ / u1)
+        elif u == "least-rounds-after":
+            st, start, r, p = e10ge_stock(q)
+            rising = r > 1
+            m = re.fullmatch(rf"Find the least whole number of {st[4]}s t after which the {re.escape(st[1])} is (more|less) than ({E10GE_NUM}){re.escape(st[3])}\.", asked)
+            need(m is not None and (m.group(1) == "more") == rising, f"asked {asked!r}")
+            t_ = e10ge_q(m.group(2))
+            val = lambda i: start * r ** i
+            k = 0
+            while not (val(k) > t_ if rising else val(k) < t_):
+                k += 1
+            x = mpmath.log(float(t_ / start)) / mpmath.log(float(r))
+            wrongs = {F + "6": {f"t = {k + 1}"}, e10ge_short(angle, rising): {f"t = {k - 1}"}, F + "2": {f"t = {dec_text(sp.Rational(sig3(val(k))))}"}}
+            e10ge_find_work(q, val, k, x, "after", t_ / start, "t")
+        elif u == "least-n-two-terms":
+            if rep == "words":
+                st = next(s_ for s_ in E10GE_FLOWS if e10ge_fill(s_[0], L[0]))
+                u1 = e10ge_fill(st[0], L[0])[0]
+                m = re.fullmatch(rf"The {re.escape(st[1])} {st[7]} {st[4]} (\d+) is ({E10GE_NUM}){re.escape(st[3])}, and the {re.escape(st[1])} forms a geometric sequence in which each term is more than the last\.", L[1])
+                need(m is not None and L[2] == f"Let Sₙ be the {st[6]} of the first n {st[4]}s.", f"can't read {L[1:]!r}")
+                mm, um = int(m.group(1)), e10ge_q(m.group(2))
+            else:
+                m = re.fullmatch(rf"A geometric sequence of positive terms has u₁ = ({E10GE_NUM}) and u(\S+) = ({E10GE_NUM})\.", L[0])
+                need(m is not None, f"can't read {L[0]!r}")
+                u1, um = e10ge_q(m.group(1)), e10ge_q(m.group(3))
+                mm = int("".join(str("₀₁₂₃₄₅₆₇₈₉".index(c)) for c in m.group(2)))
+            r = sp.root(um / u1, mm - 1)
+            need(r.is_rational and r > 1, f"r = {r} is not a rational above 1")
+            r = sp.Rational(r)
+            m = re.fullmatch(rf"Find the least value of n for which Sₙ > ({E10GE_NUM})\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            t_ = e10ge_q(m.group(1))
+            tot = lambda i: u1 * (r ** i - 1) / (r - 1)
+            k = e10ge_first(lambda i: tot(i) > t_)
+            x = mpmath.log(1 + mpmath.mpf(float(t_ * (r - 1) / u1))) / mpmath.log(float(r))
+            r4 = float(um / u1) ** (1 / mm)
+            uf = float(u1)
+            d = (um - u1) / (mm - 1)
+            wrongs = {e10ge_short(angle, True): {f"n = {k - 1}"},
+                      E10GE_ROOT: {f"n = {e10ge_first(lambda i: uf * (r4 ** i - 1) / (r4 - 1) > float(t_), 61)}"},
+                      E10GE_ARITH: {f"n = {e10ge_first(lambda i: i * (2 * u1 + (i - 1) * d) / 2 > t_)}"}}
+            e10ge_find_work(q, tot, k, x, "sum", 1 + t_ * (r - 1) / u1)
+        elif u == "gap-to-limit":
+            if rep == "notation":
+                m = re.fullmatch(rf"The sum of the first n terms of a geometric sequence is Sₙ = Σ \(k = 1 to n\) ({E10GE_NUM})\(({E10GE_NUM})\)\^k\.", L[0])
+                need(m is not None, f"can't read {L[0]!r}")
+                c, r = e10ge_q(m.group(1)), e10ge_q(m.group(2))
+                u1 = c * r
+            else:
+                st, u1, r, _ = e10ge_flow(q, L[:2])
+                need(L[2] == f"Let Sₙ be the {st[6]} of the first n {st[4]}s, and S∞ the amount it settles towards.", f"can't read {L[2]!r}")
+            need(0 < r < 1, "no limit")
+            m = re.fullmatch(rf"Find the least value of n for which S∞ − Sₙ < ({E10GE_NUM})\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            t_ = e10ge_q(m.group(1))
+            lim = u1 / (1 - r)
+            part = lambda i: u1 * (1 - r ** i) / (1 - r)
+            val = lambda i: lim - part(i)
+            k = e10ge_first(lambda i: val(i) < t_)
+            x = mpmath.log(float(t_ / lim)) / mpmath.log(float(r))
+            wrongs = {e10ge_short(angle, False): {f"n = {k - 1}"}, F + "5": {f"n = {e10ge_first(lambda i: u1 * r ** (i - 1) < t_)}"},
+                      F + "2": {f"n = {dec_text(sp.Rational(sig3(part(k))))}"}}
+            e10ge_find_work(q, val, k, x, "gap", t_ / lim)
+        else:
+            raise Fail(f"no check for {u}")
+        need(1 <= k <= 60, f"n = {k} is out of range")
+        e10ge_crossing(x, k)
+        letter = "t" if u == "least-rounds-after" else "n"
+        want = f"{letter} = {k}"
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
 # ── binomial-expansion (t1-binomial-term, FAL-728) ───────────
 # The checker's own copy of the clean limits: the engine's is in
 # game/engine/situations/binomial_expansion.gd. Every answer and every tagged slip is worked out
@@ -30098,7 +30741,7 @@ SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between"
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "regression-interpret": e9regr_check,
-                    "binomial": check_binomial, "geometric-sequence": check_geometric, "binomial-expansion": check_binomial_expansion, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
+                    "binomial": check_binomial, "geometric-sequence": check_geometric, "geometric-context": e10ge_check, "binomial-expansion": check_binomial_expansion, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
