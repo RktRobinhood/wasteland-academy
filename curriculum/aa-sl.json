@@ -12729,7 +12729,7 @@
                 }
               ],
               "misconceptions": [
-                "Entering 0.10 for the top 10% without converting to the left-tail area 0.90",
+                "Entering the upper-tail area without converting it to the area on the left",
                 "Giving the z-value or the probability as the answer instead of the x-value",
                 "Using normalcdf when a value of x is wanted"
               ],

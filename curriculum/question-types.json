@@ -4145,6 +4145,55 @@
     "a variable that can be negative has a real area below 0, so using 0 as the lower bound changes the answer"
    ]
   },
+  "inverse-normal": {
+   "name": "A normal variable with a value asked for",
+   "extends": "normal-probability",
+   "summary": "The normal variable the other way round: μ and σ known, an area given, and the value it cuts off asked for. It adds the area and the value; the normal function, the stories and the curve are the base situations'. Paper 1 has no invNorm, so there the area comes with what fixes the value: a second curve with the same σ, a mirror tail, a band of the 68-95-99.7 rule, or a line of N(0, 1).",
+   "quantities": [
+    {
+     "name": "p",
+     "is": "the area given",
+     "pick": "hundredths: a tail from 0.01 to 0.38, or 0.62 to 0.99 for the side holding the mean"
+    },
+    {
+     "name": "level",
+     "is": "a central area, or a band's area",
+     "pick": "hundredths: 0.5 to 0.98 for a central area, 0.3 to 0.9 for a band"
+    },
+    {
+     "name": "b",
+     "is": "the known end of a band",
+     "pick": "a whole number, or a tenth when σ is under 3, from 0.3 to 2.2 standard deviations from μ"
+    },
+    {
+     "name": "r, small",
+     "is": "the ratio of the two tails outside a band, and the smaller tail",
+     "pick": "r from 2 to 4; the smaller tail in thousandths from 0.01 to 0.12, leaving a band of at least 0.5"
+    },
+    {
+     "name": "mu1, mu2, c",
+     "is": "two means with one σ, and a value of the second variable",
+     "pick": "whole numbers, on Paper 1"
+    },
+    {
+     "name": "k",
+     "is": "how many standard deviations a band of the rule reaches",
+     "pick": "1, 2 or 3, on Paper 1"
+    },
+    {
+     "name": "z0, table",
+     "is": "a line of the standard normal given",
+     "pick": "z0 in tenths from 0.5 to 2.5, with its area to 3 d.p., on Paper 1"
+    }
+   ],
+   "clean": [
+    "Paper 2 answers are to 3 s.f. and at least 0.03 of a unit of the third figure from a rounding edge, as is every slip offered",
+    "Paper 1 answers are exact, with no area that needs a calculator",
+    "the value is at least 0.3 standard deviations from μ, and reads differently from μ to 3 s.f.",
+    "σ is at most a quarter of μ, so the measures stay positive",
+    "a Paper 1 question never needs σ itself where it is a letter"
+   ]
+  },
   "basic-probability": {
    "name": "One chance set-up, counted or measured",
    "summary": "Pick a set-up with outcomes that can be counted or results that can be read: a bag, a two-way table, a list of data, two dice or spinners, a short sample space, one event, independent trials, a results table, a running relative frequency, two tests or a run of results. The probability of an event, of its complement, or an estimate from results is then known, and any of them can be asked.",
@@ -44069,13 +44118,559 @@
    "id": "t4-inverse-normal",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Inverse normal: value for a given probability",
+   "summary": "An area is given and the value of X that cuts it off is asked for: a with P(X < a) = p or P(X > a) = p, the top or bottom k%, a quartile, a percentile, the two ends of a central interval, the other end of a band, and a band whose tails are in a given ratio. On Paper 1, with no invNorm, a second curve with the same σ, a mirror tail, the 68-95-99.7 rule or a given line of N(0, 1) fixes the value.",
    "syllabus": [
     "4.9"
    ],
    "skills": [
     "SL4.9.inverse-normal"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "shade the area, and see which side of the mean the value must lie",
+    "turn what is given into the area to the left of the value",
+    "use invNorm with μ and σ, or find z and move z standard deviations from the mean",
+    "on Paper 1, compare distances from the mean, or use the rule or a given z",
+    "state the value of x, not z or a probability"
+   ],
+   "given": [
+    "X ~ N(μ, σ²), or a story with a mean and a standard deviation",
+    "an area, a percentage, a quartile or a percentile",
+    "one end of a band, or how two tails compare",
+    "a curve with the area shaded and the value marked by a letter",
+    "on Paper 1, a second curve with the same σ, a mirror tail, or a line of N(0, 1)"
+   ],
+   "asked": "A value of X, or the two ends of an interval.",
+   "answerForms": [
+    "3 s.f.",
+    "exact",
+    "two ends, typed"
+   ],
+   "randomise": [
+    "μ and σ",
+    "the area and which side it is on",
+    "the top or bottom of a story",
+    "which quartile",
+    "the band's known end and which end is asked",
+    "which tail is the larger, and by how much",
+    "the story and its units"
+   ],
+   "constraints": [
+    "invNorm is Paper 2 only",
+    "Paper 1 uses only the four unknowns that need no calculator, with exact answers",
+    "a value is at least 0.3 standard deviations from μ"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "inverse-normal",
+   "sharesSituation": [
+    "t4-normal-probability",
+    "t4-normal-unknown-parameter"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "X ~ N(μ, σ²) with numbers and an area, such as P(X > a) = 0.2"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story with a mean, a standard deviation and a percentage, a quartile or a percentile"
+    },
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "a normal curve with the area shaded and the value marked by a letter; the stem gives the area and the figure says which side it is on"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "value-below",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "an area p"
+     ],
+     "asked": "a with P(X < a) = p",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "value-above",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "a tail area p"
+     ],
+     "asked": "a with P(X > a) = p",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "top-percent",
+     "given": [
+      "a story with a mean and a standard deviation",
+      "the top k%"
+     ],
+     "asked": "the cut-off of the top k%",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "bottom-percent",
+     "given": [
+      "a story with a mean and a standard deviation",
+      "the bottom k%"
+     ],
+     "asked": "the cut-off of the bottom k%",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "quartile",
+     "given": [
+      "X ~ N(μ, σ²) or a story"
+     ],
+     "asked": "the upper or lower quartile",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "percentile",
+     "given": [
+      "a story with a mean and a standard deviation",
+      "a percentile"
+     ],
+     "asked": "the value at that percentile",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "most-above",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "an area above a of more than a half"
+     ],
+     "asked": "a, which is below the mean",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "central-bounds",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "a central area"
+     ],
+     "asked": "both ends of the interval, the same distance from the mean",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "band-end",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "one end of a band and its area"
+     ],
+     "asked": "the other end of the band",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "ratio-tails",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "the area of a band",
+      "how the two tails outside it compare"
+     ],
+     "asked": "one end of the band",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "shift-same-sd",
+     "given": [
+      "two normal variables with the same σ, a letter",
+      "a value of the second"
+     ],
+     "asked": "the value of the first with the same tail area",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "mirror-bound",
+     "given": [
+      "X ~ N(μ, σ²) with σ a letter",
+      "P(X < a) = P(X > c), or the same the other way round"
+     ],
+     "asked": "a",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "rule-value",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "a tail of the 68-95-99.7 rule"
+     ],
+     "asked": "the value that cuts it off",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "given-z",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "a line of N(0, 1)",
+      "an area"
+     ],
+     "asked": "the value that cuts off that area",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.9.inverse-normal",
+     "method": "gdc-invnorm-left",
+     "suits": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "band-end",
+      "ratio-tails"
+     ]
+    },
+    {
+     "skill": "SL4.9.inverse-normal",
+     "method": "via-z",
+     "suits": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "band-end",
+      "ratio-tails",
+      "shift-same-sd",
+      "mirror-bound",
+      "rule-value",
+      "given-z"
+     ]
+    },
+    {
+     "skill": "SL4.9.inverse-normal",
+     "method": "sketch-tail",
+     "suits": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "band-end",
+      "ratio-tails",
+      "shift-same-sd",
+      "mirror-bound",
+      "rule-value",
+      "given-z"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "For the top 10% of a normal variable, the value to find has an area of 0.1 to its left.",
+     "answer": "False: 0.1 is the area to its right. The area to its left is 0.9, and that is what invNorm takes.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "invNorm gives a value above the mean.",
+     "answer": "Sometimes: only when the area to the left is more than 0.5.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "If X and Y have the same standard deviation, a value the same distance above each mean cuts off the same tail area.",
+     "answer": "True: both values have the same z, so the two curves are the same shape with the same area beyond them.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.9.inverse-normal#0",
+     "text": "Entering the upper-tail area without converting it to the area on the left",
+     "as": "distractor",
+     "in": [
+      "value-above",
+      "top-percent",
+      "quartile",
+      "most-above"
+     ],
+     "wrong": "invNorm of the area above the value instead of the area below it, the mirror image of the answer"
+    },
+    {
+     "ref": "SL4.9.inverse-normal#1",
+     "text": "Giving the z-value or the probability as the answer instead of the x-value",
+     "as": "distractor",
+     "in": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "given-z"
+     ],
+     "wrong": "z, or the area itself, or ±z for the two ends"
+    },
+    {
+     "ref": "SL4.9.inverse-normal#2",
+     "text": "Using normalcdf when a value of x is wanted",
+     "as": "distractor",
+     "in": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above"
+     ],
+     "wrong": "normalcdf with the left area as its upper bound, on the GDC's default N(0, 1)"
+    },
+    {
+     "text": "Taking 1 minus the area when it is already the area on the left",
+     "as": "distractor",
+     "in": [
+      "value-below",
+      "bottom-percent",
+      "percentile"
+     ],
+     "wrong": "invNorm of 1 − p, the mirror image of the answer"
+    },
+    {
+     "text": "Adding z to the mean without multiplying by σ",
+     "as": "distractor",
+     "in": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "rule-value",
+      "given-z"
+     ],
+     "wrong": "μ + z"
+    },
+    {
+     "text": "Using the central area as the left-tail area",
+     "as": "distractor",
+     "in": [
+      "central-bounds"
+     ],
+     "wrong": "μ ± σ × invNorm of the central area on N(0, 1)"
+    },
+    {
+     "text": "Treating a band as if it ran all the way to the end of the curve",
+     "as": "distractor",
+     "in": [
+      "band-end"
+     ],
+     "wrong": "invNorm of the area the band would leave if it reached the end of the curve"
+    },
+    {
+     "text": "Splitting the tails equally when they are not equal",
+     "as": "distractor",
+     "in": [
+      "band-end",
+      "ratio-tails"
+     ],
+     "wrong": "half of what is left, used as the tail at the end asked for"
+    },
+    {
+     "text": "Giving the larger tail to the wrong end of the curve",
+     "as": "distractor",
+     "in": [
+      "ratio-tails"
+     ],
+     "wrong": "the same end, with the two tails swapped"
+    },
+    {
+     "text": "Finding the other end of the band instead of the one asked for",
+     "as": "distractor",
+     "in": [
+      "ratio-tails"
+     ],
+     "wrong": "the other end"
+    },
+    {
+     "text": "Keeping the given value instead of moving it to where the areas match",
+     "as": "distractor",
+     "in": [
+      "shift-same-sd",
+      "mirror-bound"
+     ],
+     "wrong": "c, as it is given"
+    },
+    {
+     "text": "Measuring the distance on the wrong side of the mean",
+     "as": "distractor",
+     "in": [
+      "shift-same-sd",
+      "mirror-bound",
+      "rule-value",
+      "given-z"
+     ],
+     "wrong": "the mean, with the distance taken the other way"
+    },
+    {
+     "text": "Moving the value by the gap between the means in the wrong direction",
+     "as": "distractor",
+     "in": [
+      "shift-same-sd"
+     ],
+     "wrong": "c plus the second mean minus the first"
+    },
+    {
+     "text": "Giving the distance from the mean instead of the value",
+     "as": "distractor",
+     "in": [
+      "mirror-bound"
+     ],
+     "wrong": "the distance from the mean to c"
+    },
+    {
+     "text": "Reading the tail against the wrong number of standard deviations",
+     "as": "distractor",
+     "in": [
+      "rule-value"
+     ],
+     "wrong": "the band of the rule one standard deviation out, on the same side"
+    }
    ],
    "parts": [
     "aa-sl-2022-nov-tz0-p2-q09.d",
@@ -45174,6 +45769,7 @@
    ],
    "situation": "normal-probability",
    "sharesSituation": [
+    "t4-inverse-normal",
     "t4-normal-unknown-parameter"
    ],
    "representations": [
@@ -47191,6 +47787,7 @@
    ],
    "situation": "normal-unknown",
    "sharesSituation": [
+    "t4-inverse-normal",
     "t4-normal-probability"
    ],
    "representations": [
@@ -65246,12 +65843,12 @@
     },
     {
      "ref": "SL4.9.inverse-normal#0",
-     "text": "Entering 0.10 for the top 10% without converting to the left-tail area 0.90",
+     "text": "Entering the upper-tail area without converting it to the area on the left",
      "as": "distractor",
      "in": [
       "inverse-normal-undo"
      ],
-     "wrong": "for the top 10%, enters 0.10 instead of 0.90"
+     "wrong": "enters the area above the value instead of the area below it"
     },
     {
      "ref": "SL4.9.inverse-normal#2",

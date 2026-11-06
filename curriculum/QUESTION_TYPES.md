@@ -1100,6 +1100,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq, error-spot, method-pick, true-false-reason
 - **Bank parts:** 18.
 
+### t4-inverse-normal
+
+**Inverse normal: value for a given probability.** An area is given and the value of X that cuts it off is asked for: a with P(X < a) = p or P(X > a) = p, the top or bottom k%, a quartile, a percentile, the two ends of a central interval, the other end of a band, and a band whose tails are in a given ratio. On Paper 1, with no invNorm, a second curve with the same σ, a mirror tail, the 68-95-99.7 rule or a given line of N(0, 1) fixes the value.
+
+- **Syllabus:** 4.9
+- **Skills:** `SL4.9.inverse-normal`
+- **Where it appears:** P1 1, P2 4; Section A 2, B 3. Marks per part: usually 2 (2 to 4).
+- **Usual chain:** shade the area, and see which side of the mean the value must lie → turn what is given into the area to the left of the value → use invNorm with μ and σ, or find z and move z standard deviations from the mean → on Paper 1, compare distances from the mean, or use the rule or a given z → state the value of x, not z or a probability
+- **Given:** X ~ N(μ, σ²), or a story with a mean and a standard deviation, an area, a percentage, a quartile or a percentile, one end of a band, or how two tails compare, a curve with the area shaded and the value marked by a letter, on Paper 1, a second curve with the same σ, a mirror tail, or a line of N(0, 1). **Asked:** A value of X, or the two ends of an interval. **Answer form:** 3 s.f., exact, two ends, typed.
+- **A recipe can randomise:** μ and σ; the area and which side it is on; the top or bottom of a story; which quartile; the band's known end and which end is asked; which tail is the larger, and by how much; the story and its units.
+- **Limits that keep answers clean:** invNorm is Paper 2 only; Paper 1 uses only the four unknowns that need no calculator, with exact answers; a value is at least 0.3 standard deviations from μ.
+- **Game formats:** value, mcq
+- **Bank parts:** 5.
+
 ### t4-normal-properties
 
 **Normal curve properties: symmetry, sigma intervals, matching curves.** Read the normal curve: the 68-95-99.7 rule as a share, a count, a tail or a band, what μ and σ do to the curve, which curves match, P(X = a) = 0, a mirror tail or value, area bookkeeping from given tails, and, on Paper 2, the central interval with invNorm or a solver.
