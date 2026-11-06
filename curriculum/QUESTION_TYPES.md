@@ -889,6 +889,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 7.
 
+### t3-trig-quadratic
+
+**Trig equation that is a quadratic in sin or cos.** Solve a trig equation that is a quadratic in sin x, cos x or tan x: write the quadratic after an identity, choose the identity, factorise or use the formula, reject a root outside the range, then give every solution on an interval, how many there are, one of them or their sum, with exact answers on Paper 1 and 3 s.f. from a graph of the whole equation on Paper 2.
+
+- **Syllabus:** 3.8, 2.7
+- **Skills:** `SL3.8.quadratic-in-trig`
+- **Where it appears:** P1 3, P2 0; Section A 3, B 0. Marks per part: 5.
+- **Usual chain:** choose the identity that leaves one function: cos²x = 1 − sin²x, or the form of cos 2x in the ratio the equation already has → bring every term to one side and let u = sin x, cos x or tan x → factorise, or use the quadratic formula → reject any root of sin or cos outside −1 to 1 → solve each root on the interval, and collect the solutions
+- **Given:** an equation in one ratio, an equation with a squared ratio or cos 2x to swap, a number over a bracket in the ratio, a quadratic with surd coefficients, a graph of the whole equation, y = sin x with a dashed line at each root. **Asked:** The quadratic in u, the identity, the brackets, the values of u, the root to reject and why, every solution, how many there are, one solution, their sum, or a letter in the quadratic. **Answer form:** exact multiples of π, degrees, a quadratic in u, two brackets, a surd for sin x or cos x, a whole number for a count, 3 s.f. on Paper 2.
+- **A recipe can randomise:** the roots in u, and whether one is rejected; sin, cos or tan; how the equation is disguised; which term is on the right; the interval, in radians or degrees; the multiple of x inside a compound equation.
+- **Limits that keep answers clean:** every bank part is Paper 1, so every question is but the two GDC unknowns; the equation is built forward from its roots, so a factorisable quadratic factorises cleanly; roots in range are landmark values, or give a surd for formula-root; the bank's and the map's own equations are never drawn; the solutions can be typed in any order; a wrong option may have another number of solutions, and can then be picked but not typed; a Paper 2 root keeps clear of 0 and ±1, and every 3 s.f. value is clear of a rounding edge.
+- **Game formats:** value, mcq
+- **Bank parts:** 3.
+
 ### t3-trig-model-equation
 
 **Solve a trig model equation or inequality for times.** Solve a trig model equation or inequality: every time in a span at a level, exactly on Paper 1 and in a window on Paper 2, the set of times above or below a level, the time or the chance past a level in a span that isn't whole cycles, a trig curve against a line or a falling exponential, the number of solutions of f(x) = k, which k give exactly n solutions, and a line touching at a maximum or minimum.

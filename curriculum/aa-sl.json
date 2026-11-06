@@ -9871,9 +9871,21 @@
                 }
               ],
               "misconceptions": [
-                "Accepting sin x = 2 as giving solutions",
+                "Accepting a root outside the range of sine or cosine as giving solutions",
                 "Taking only the positive root of tan²x",
-                "Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions"
+                "Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions",
+                "Using cos 2x = 1 − 2sin²x when the equation also contains cos x, leaving two different functions",
+                "Taking only the positive root when sin²x or cos²x equals a number",
+                "Solving only one bracket of the factorised quadratic and dropping the other",
+                "Getting the sign of each root wrong, often by reading the number straight from its bracket",
+                "Using the Pythagorean identity with the wrong sign",
+                "Keeping solutions that are outside the stated interval",
+                "Moving a term across the equals sign without changing its sign",
+                "Counting one solution for each root of the quadratic, when one root can give several",
+                "Counting only where the curve crosses the axis, and missing where it only touches",
+                "Rejecting a root because it is negative, although sine and cosine can be negative",
+                "Forgetting to double a in the denominator of the quadratic formula",
+                "Forgetting to square the value of sin x or cos x in the squared term"
               ],
               "threads": [
                 {

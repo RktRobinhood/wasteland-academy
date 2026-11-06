@@ -48,6 +48,7 @@ static var SITUATIONS := {
 	"exact-trig": [ExactTrigSituation, ExactTrigViews],
 	"trig-identity": [TrigIdentitySituation, TrigIdentityViews],
 	"trig-equation": [TrigEquationSituation, TrigEquationViews],
+	"trig-quadratic": [TrigQuadraticSituation, TrigQuadraticViews],
 	"trig-model": [TrigModelSituation, TrigModelViews],
 	"trig-wave": [TrigWaveSituation, TrigWaveViews],
 	"trig-model-equation": [TrigModelEquationSituation, TrigModelEquationViews],

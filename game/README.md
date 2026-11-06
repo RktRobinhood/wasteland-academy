@@ -715,6 +715,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   claim in symbols or in words, or a figure (`dots` in `ui/plot_view.gd`: a rectangle in L-shaped layers,
   or two staircases that fit together), so all four of the map's methods are played. `lines_of()` writes
   every proof as lines from the numbers, and a slip carried down it makes each wrong line.
+
+- `engine/situations/trig_quadratic.gd` (FAL-753) is `t3-trig-quadratic` (SL3.8.quadratic-in-trig),
+  the `trig-quadratic` situation, and `TrigQuadraticViews` extends `TrigEquationViews`. The equation
+  is built forward from its roots in sin x, cos x or tan x, so it factorises cleanly, then disguised:
+  with cos²x, with cos 2x, as a quadratic in sin 2x, as a number over a bracket, as sin 2x equal to a
+  multiple of cos²x, or with surd coefficients. Its 22 unknowns take the solution a step at a time
+  (the quadratic in u, the identity, the brackets, the values of u, the exact root from the formula,
+  the root to reject and why, the letter from one solution) or whole (every solution, in radians or
+  degrees, how many, one of them, their sum). The figures are the whole equation as one curve, or
+  y = sin x with a dashed line at each root. Everything is Paper 1 with exact answers but `gdc-solve`
+  and `gdc-count`, where the map's GDC method lives: that is 6 of the 48 cells, so `test_paper.gd`
+  gives the type an `OVER_SHARE`, and the bank's and the map's own equations are never drawn.
 - `engine/situations/depreciation.gd` (FAL-752) is `t1-depreciation` (SL1.4), the `depreciation`
   situation: a price P that keeps a fixed fraction c of its value each year, month or quarter. Its
   views (`depreciation_views.gd`) show it as a story, as V = P(c)^t, as a table of three whole times
@@ -1907,6 +1919,9 @@ script error happens while it runs. Run one file with
   a growing tin, a game's two ways to win, past-paper set-ups left out and every misconception shown.
 - `test_derivative_model.gd` (FAL-753): `t5-derivative-model-gdc`: every cell and method on Paper 2, the
   sums by hand, a time that has the rate asked for, a greatest rate that is the rate's top, and every tag.
+- `test_trig_quadratic.gd` (FAL-753): `t3-trig-quadratic`: built with every cell and all three methods,
+  four different options on the cell's one paper, the equation against hand values, a root out of range
+  gives no solutions, the bank's and the map's equations are never drawn, and every slip shows up as an option.
 - `test_inverse_normal.gd` (FAL-752): `t4-inverse-normal`: every cell and method, each on its one paper
   with one right option; a value has the area it was given, a central interval and a band hold theirs,
   a ratio's tails are in that ratio, Paper 1 is exact with no calculator word, and every slip comes up.

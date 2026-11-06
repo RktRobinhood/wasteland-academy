@@ -2506,6 +2506,41 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): In h(t) = −10 cos(πt/6) + 12, what does the minus sign tell you? — The wave starts at its lowest point: at t = 0 it is 12 − 10 = 2, then it rises.
 - **Misconceptions used:** 8. Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum; Using a = max − min, forgetting to halve; Getting the sign of c wrong in the bracket; Reading the shift before taking b out of the bracket; Treating b as the horizontal scale factor: a stretch with scale factor k divides b by k; Getting the direction of the shift wrong: a plus inside the bracket moves the graph left; Leaving the calculator in degree mode for a radian model; Taking b itself as the period, instead of working out b from the period.
 
+#### Trig equation that is a quadratic in sin or cos (`t3-trig-quadratic`, exam, 3 bank parts)
+
+- **Situation:** A trig equation that is a quadratic in one ratio.
+- **Representations:** **equation**, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L3: given an equation with cos²x, sin²x or cos 2x in it → the quadratic in sin x or cos x, with its first number given
+  - new L3: given an equation with cos²x, sin²x or cos 2x in it → the identity that leaves one function in a quadratic
+  - new L2: given a quadratic in sin x or cos x → its two brackets
+  - new L3: given an equation that is a quadratic in u → the two values of u
+  - new L4: given a quadratic in u with no whole-number factors → the exact value of sin x or cos x, by the formula, with the other root rejected
+  - new L3: given an equation with a root outside the range → the root that gives no solutions, and why
+  - **exam** L4: given an equation in sin x or cos x, direct or with a squared ratio to swap, and an interval → every solution, exactly
+  - new L4: given the equation and an interval in degrees → every solution in degrees
+  - **exam** L4: given an equation with cos 2x and sin x or cos x, and an interval → every solution, exactly
+  - new L3: given a number times sin²x or cos²x equal to a number, and an interval → every solution, from both roots
+  - new L3: given a number times tan²x equal to a number, or tan x and a number over tan x, and an interval → every solution, from both roots
+  - new L3: given tan²x equal to a number times tan x, and an interval → every solution, tan x = 0 among them
+  - new L5: given a quadratic with surd coefficients in sin x, cos x or tan x, and an interval → every solution, exactly
+  - new L4: given a quadratic in sin 2x, cos 2x, sin 3x or cos 3x, and an interval → every solution, exactly
+  - **exam** L5: given u plus a number over a bracket in u, for u = sin x, cos x, sin 2x or cos 2x, with the values that make the bracket 0 ruled out → every solution, exactly
+  - new L4: given sin 2x equal to a number times cos²x, or sin 2x sin x equal to a number times cos x, and an interval → every solution, with cos x = 0 among them
+  - new L3: given the equation and an interval, up to two turns → how many solutions there are
+  - new L4: given the equation and an interval → the largest, the smallest or the smallest positive solution
+  - new L4: given the equation and an interval → the sum of the solutions, in π or degrees
+  - new L3: given one exact solution of a quadratic in sin x or cos x with one letter in it → the letter
+  - new L4: given a quadratic with no whole-number factors, direct or disguised, and an interval → every solution to 3 s.f.
+  - new L3: given the equation, a long interval and the whole equation as a graph → how many solutions there are, where the curve crosses or touches the axis
+- **Angles:** Identity, substitute u, factorise; Quadratic formula in u; Graph the whole equation.
+  - *Slow:* Quadratic formula in u: when the quadratic factorises, the formula is more work for the same two roots.
+- **Concept probes:**
+  - *true-false-reason* (L3): 2 sin²x − 3 sin x − 2 = 0 has four solutions on 0 ≤ x ≤ 2π, since each of its two roots gives two. — False: the roots are sin x = −1/2 and sin x = 2, and sin x is never 2. Only x = 7π/6 and 11π/6 are solutions.
+  - *always-sometimes-never* (L4): A quadratic in sin x with two different roots in −1 < u < 1 has four solutions on 0 ≤ x < 2π. — Always: a line strictly between −1 and 1 crosses the sine wave twice in one whole turn, and 0 ≤ x < 2π is one whole turn, so each root gives two.
+  - *predict-check* (L3): Which form of cos 2x should you use in cos 2x + 2 cos x + 1 = 0? — 2cos²x − 1, since the rest of the equation is in cos x: it gives 2cos²x + 2 cos x = 0, so cos x = 0 or cos x = −1.
+- **Misconceptions used:** 25. Accepting a root outside the range of sine or cosine as giving solutions; Taking only the positive root of tan²x; Using cos 2x = 2cos²x − 1 when the equation also contains sin x, leaving two different functions; Using cos 2x = 1 − 2sin²x when the equation also contains cos x, leaving two different functions; Taking only the positive root when sin²x or cos²x equals a number; Solving only one bracket of the factorised quadratic and dropping the other; Getting the sign of each root wrong, often by reading the number straight from its bracket; Using the Pythagorean identity with the wrong sign; Keeping solutions that are outside the stated interval; Moving a term across the equals sign without changing its sign; Counting one solution for each root of the quadratic, when one root can give several; Counting only where the curve crosses the axis, and missing where it only touches; Rejecting a root because it is negative, although sine and cosine can be negative; Forgetting to double a in the denominator of the quadratic formula; Forgetting to square the value of sin x or cos x in the squared term; Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Missing the solutions below zero in the interval; Solving for the multiple angle without extending the interval, which loses solutions; Undoing only the principal value and forgetting the other solutions; Cancelling a factor that can be zero, which loses its solutions; Looking at only part of the interval and missing solutions; Leaving the GDC in degree mode; Counting two solutions in a cycle where the line only touches at a maximum or minimum.
+
 #### Solve a trig model equation or inequality for times (`t3-trig-model-equation`, exam, 5 bank parts)
 
 - **Situation:** A trig equation or inequality to solve or count, shared with `t3-trig-model-parameters`, `t3-trig-model-use`, `t3-trig-read-features`.
