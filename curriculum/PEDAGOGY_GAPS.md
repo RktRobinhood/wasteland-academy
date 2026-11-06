@@ -1044,7 +1044,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): cos x = −1/2 has only one solution between 0 and 2π, because arccos(−1/2) = 2π/3. — False. 4π/3 works too. arccos can only return one value, in [0, π], because cos had to be cut down to that interval before it could be undone, just as √ only returns the root that is ≥ 0.
   - *always-sometimes-never* (L4): Squaring and then taking the square root gets you back to where you started: √(x²) = x. — Sometimes. True for x ≥ 0, but √((−3)²) = 3. √ only undoes x² on the restricted domain x ≥ 0.
   - *interpret-parameter* (L3): The point (2, e²) is on y = eˣ. Where is the matching point on y = ln x, and why? — (e², 2). An inverse swaps input and output, which is a reflection in the line y = x.
-- **Misconceptions used:** 15. Reads f⁻¹(x) as the reciprocal of f(x); Reflects in the x-axis or y-axis instead of in the line y = x; Computes f(a) when f⁻¹(a) is asked for; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse; Multiplies by the coefficient of x, or subtracts it, instead of dividing after taking logs; Converts log_b x = c to x = c^b instead of b^c; Dividing instead of finding the power; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Entering 0.10 for the top 10% without converting to the left-tail area 0.90; Using normalcdf when a value of x is wanted; Dividing by the old power instead of the new one; Forgetting + C.
+- **Misconceptions used:** 15. Reads f⁻¹(x) as the reciprocal of f(x); Reflects in the x-axis or y-axis instead of in the line y = x; Computes f(a) when f⁻¹(a) is asked for; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse; Multiplies by the coefficient of x, or subtracts it, instead of dividing after taking logs; Converts log_b x = c to x = c^b instead of b^c; Dividing instead of finding the power; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Entering the upper-tail area without converting it to the area on the left; Using normalcdf when a value of x is wanted; Dividing by the old power instead of the new one; Forgetting + C.
 
 ### 5. Rational functions (syllabus 2.8)
 
@@ -2357,7 +2357,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 22 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2721,6 +2721,32 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): For any binomial distribution, Var(X) is smaller than E(X). — True: Var(X) = np(1 − p) = E(X)(1 − p), and 1 − p is less than 1, so the variance is always smaller than the mean. That is why Var(X) ÷ E(X) gives 1 − p.
 - **Misconceptions used:** 14. Writing B(p, n) instead of B(n, p); Leaving out the nCr factor; Swapping the powers of p and its complement; Using the cumulative function (binomcdf) for 'exactly r'; Using P(X ≤ k) as the complement of P(X ≥ k), instead of stopping at the value below k; Using P(X ≤ k) for P(X < k); Subtracting the wrong cumulative: P(a < X ≤ b) subtracts P(X ≤ a); Using np as the variance, forgetting the factor 1 − p; Giving np(1 − p) when the standard deviation is asked for; Rounding E(X) to a whole number; Rounding n down instead of up to the next whole number; Taking p = Var(X) ÷ E(X) (that gives 1 − p); Finding the probability of k successes in n trials for 'the kth success is on trial n'; Multiplying the two probabilities in a conditional instead of dividing.
 
+#### Inverse normal: value for a given probability (`t4-inverse-normal`, exam, 5 bank parts)
+
+- **Situation:** A normal variable with a value asked for, shared with `t4-normal-probability`, `t4-normal-unknown-parameter`.
+- **Representations:** **equation**, **words**, diagram (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given X ~ N(μ, σ²); an area p → a with P(X < a) = p
+  - **exam** L2: given X ~ N(μ, σ²); a tail area p → a with P(X > a) = p
+  - **exam** L2: given a story with a mean and a standard deviation; the top k% → the cut-off of the top k%
+  - **exam** L2: given a story with a mean and a standard deviation; the bottom k% → the cut-off of the bottom k%
+  - **exam** L2: given X ~ N(μ, σ²) or a story → the upper or lower quartile
+  - new L2: given a story with a mean and a standard deviation; a percentile → the value at that percentile
+  - **exam** L3: given X ~ N(μ, σ²) or a story; an area above a of more than a half → a, which is below the mean
+  - **exam** L3: given X ~ N(μ, σ²) or a story; a central area → both ends of the interval, the same distance from the mean
+  - **exam** L3: given X ~ N(μ, σ²) or a story; one end of a band and its area → the other end of the band
+  - **exam** L4: given X ~ N(μ, σ²) or a story; the area of a band; how the two tails outside it compare → one end of the band
+  - **exam** L2: given two normal variables with the same σ, a letter; a value of the second → the value of the first with the same tail area
+  - new L2: given X ~ N(μ, σ²) with σ a letter; P(X < a) = P(X > c), or the same the other way round → a
+  - new L2: given X ~ N(μ, σ²) or a story; a tail of the 68-95-99.7 rule → the value that cuts it off
+  - new L3: given X ~ N(μ, σ²); a line of N(0, 1); an area → the value that cuts off that area
+- **Angles:** invNorm with the left-tail area; Find z, then x = μ + zσ; Sketch the tail first.
+- **Concept probes:**
+  - *true-false-reason* (L3): For the top 10% of a normal variable, the value to find has an area of 0.1 to its left. — False: 0.1 is the area to its right. The area to its left is 0.9, and that is what invNorm takes.
+  - *always-sometimes-never* (L3): invNorm gives a value above the mean. — Sometimes: only when the area to the left is more than 0.5.
+  - *true-false-reason* (L3): If X and Y have the same standard deviation, a value the same distance above each mean cuts off the same tail area. — True: both values have the same z, so the two curves are the same shape with the same area beyond them.
+- **Misconceptions used:** 15. Entering the upper-tail area without converting it to the area on the left; Giving the z-value or the probability as the answer instead of the x-value; Using normalcdf when a value of x is wanted; Taking 1 minus the area when it is already the area on the left; Adding z to the mean without multiplying by σ; Using the central area as the left-tail area; Treating a band as if it ran all the way to the end of the curve; Splitting the tails equally when they are not equal; Giving the larger tail to the wrong end of the curve; Finding the other end of the band instead of the one asked for; Keeping the given value instead of moving it to where the areas match; Measuring the distance on the wrong side of the mean; Moving the value by the gap between the means in the wrong direction; Giving the distance from the mean instead of the value; Reading the tail against the wrong number of standard deviations.
+
 #### Normal curve properties: symmetry, sigma intervals, matching curves (`t4-normal-properties`, exam, 8 bank parts)
 
 - **Situation:** What the shape of a normal curve gives.
@@ -2762,7 +2788,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Normal probability for an interval on the GDC (`t4-normal-probability`, exam, 12 bank parts)
 
-- **Situation:** A normal variable with a region asked for, shared with `t4-normal-unknown-parameter`.
+- **Situation:** A normal variable with a region asked for, shared with `t4-inverse-normal`, `t4-normal-unknown-parameter`.
 - **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given X ~ N(μ, σ²); a value a → P(X < a)
@@ -2857,7 +2883,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Find an unknown mean or standard deviation with z-scores (`t4-normal-unknown-parameter`, exam, 13 bank parts)
 
-- **Situation:** A normal variable with a parameter hidden, shared with `t4-normal-probability`.
+- **Situation:** A normal variable with a parameter hidden, shared with `t4-inverse-normal`, `t4-normal-probability`.
 - **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given P(Z < k) or P(Z > k) → k
