@@ -1131,8 +1131,8 @@
               ],
               "misconceptions": [
                 "Using r = 0.05 (or 5) for a 5% increase instead of 1.05",
-                "Using 1.3 for a 30% decrease, or subtracting 30% of the original each year (linear thinking)",
-                "Off-by-one: the value 'after 10 years' needs 10 multiplications, not u_10 = u_1 r^9 with u_1 as the starting value"
+                "Using the wrong factor for a percentage decrease, or subtracting the same amount each year",
+                "Counting one multiplication too few: when u₁ is the starting value, the value after t years needs t multiplications"
               ],
               "threads": [
                 {
@@ -1209,8 +1209,8 @@
                 }
               ],
               "misconceptions": [
-                "Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20",
-                "Using simple interest: 1200 + 3 × 60 = $1380",
+                "Using the annual rate with kn periods, instead of dividing the rate by k",
+                "Using simple interest instead of compounding",
                 "Giving the total value when the question asks for the interest earned (or the reverse)"
               ],
               "threads": [
@@ -1264,9 +1264,9 @@
                 }
               ],
               "misconceptions": [
-                "Taking the root but not subtracting 1 and multiplying by 100, giving a rate of 1.1%",
+                "Stopping at the root, without subtracting one and converting to a percentage",
                 "Entering PV and FV with the same sign in the TVM solver",
-                "Halving the total growth instead of taking a root: 21% ÷ 2 = 10.5%"
+                "Dividing the total growth by the number of years instead of taking a root"
               ],
               "threads": [
                 {
@@ -1384,8 +1384,8 @@
                 }
               ],
               "misconceptions": [
-                "Using 1.15 or 0.15 as the multiplier instead of 0.85",
-                "Treating depreciation as linear: subtracting 15% of the original price each year",
+                "Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss",
+                "Treating depreciation as linear: subtracting the same percentage of the original price each year",
                 "Giving the remaining value when the question asks for the loss in value"
               ],
               "threads": [
@@ -1634,7 +1634,7 @@
               "misconceptions": [
                 "A negative exponent makes the number negative: 2^−3 = −8",
                 "Thinking a^0 = 0",
-                "Moving only the variable: writing 1/(4x^3) as 4x^−3 instead of (1/4)x^−3"
+                "Moving the coefficient to the top along with the variable, instead of only the variable"
               ],
               "threads": [
                 {
@@ -1689,9 +1689,9 @@
                 }
               ],
               "misconceptions": [
-                "Dividing instead of finding the power: log_2 32 = 16",
+                "Dividing instead of finding the power",
                 "Mixing up base and exponent: reading log_a b = x as x^a = b",
-                "Believing log 0 or the log of a negative number has a real value"
+                "Believing the log of zero or of a negative number has a real value"
               ],
               "threads": [
                 {
@@ -2313,9 +2313,9 @@
                 }
               ],
               "misconceptions": [
-                "Inverting the formula: log_5 8 = log 5/log 8",
+                "Inverting the change-of-base formula: log a/log b instead of log b/log a",
                 "Simplifying log 8/log 5 to log(8/5) or log 8 − log 5",
-                "Thinking log_9 x = (1/9) log_3 x instead of (1/2) log_3 x"
+                "Dividing by the base instead of by the power when changing to a smaller base"
               ],
               "threads": [
                 {
@@ -2441,9 +2441,9 @@
                 }
               ],
               "misconceptions": [
-                "Losing brackets: writing ln 3^(x + 1) as x + 1 ln 3",
+                "Losing the brackets around the power when bringing it down",
                 "Taking logs before isolating: ln(5e^(2x)) = 5 × 2x",
-                "Rounding ln 3 and ln 5 early so the 3 s.f. answer is wrong"
+                "Rounding the logs early, so the final answer is wrong"
               ],
               "threads": [
                 {
@@ -2502,7 +2502,7 @@
                 }
               ],
               "misconceptions": [
-                "Keeping a solution that makes an argument zero or negative (x = −2)",
+                "Keeping a solution that makes an argument zero or negative",
                 "Combining log a + log b as log(a + b)",
                 "Converting log_2 X = 3 to X = 3² or X = 3/2 instead of X = 2³"
               ],
@@ -3488,7 +3488,7 @@
               "misconceptions": [
                 "Writes the y-intercept as (c, 0) instead of (0, c)",
                 "Sets y = 0 to find the y-intercept (swaps the two conditions)",
-                "For ax + by + d = 0 gives the y-intercept as d instead of −d/b"
+                "Gives the y-intercept of ax + by + d = 0 as d instead of −d/b"
               ],
               "threads": [
                 {
@@ -3554,7 +3554,7 @@
               "misconceptions": [
                 "Takes the perpendicular gradient as −m or 1/m instead of −1/m",
                 "Thinks perpendicular gradients multiply to 1",
-                "For a perpendicular bisector, uses the gradient of AB itself or forgets that the line must pass through the midpoint"
+                "Uses the gradient of AB itself for a perpendicular bisector, or forgets that the line must pass through the midpoint"
               ],
               "threads": [
                 {
@@ -3757,9 +3757,9 @@
                 }
               ],
               "misconceptions": [
-                "Treats f(x) as f × x, e.g. writes f(2) = 2f",
-                "Evaluates −x² at x = −3 as 9 instead of −9 (no brackets)",
-                "Writes f(x + 1) as f(x) + 1"
+                "Treats f(x) as f × x, so a factor inside the bracket comes out",
+                "Squares the minus sign too: −x² is −(x²), not (−x)²",
+                "Writes f(x + a) as f(x) + a"
               ],
               "threads": [
                 {
@@ -3882,8 +3882,8 @@
               ],
               "misconceptions": [
                 "Uses only the endpoints of a restricted domain and misses a turning point inside it",
-                "Includes the asymptote value, e.g. gives the range of e^x + 2 as y ≥ 2 instead of y > 2",
-                "Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x)"
+                "Includes the asymptote value in the range",
+                "Writes the range in terms of x instead of y or f(x)"
               ],
               "threads": [
                 {
@@ -3951,7 +3951,7 @@
               "misconceptions": [
                 "Thinks a many-to-one function such as y = x² is not a function",
                 "Uses the horizontal line test to decide whether something is a function (it tests one-to-one)",
-                "Believes a vertical line such as x = 3 is a function"
+                "Believes a vertical line is a function"
               ],
               "threads": [
                 {
@@ -4015,7 +4015,7 @@
                 }
               ],
               "misconceptions": [
-                "Reads f⁻¹(x) as 1/f(x)",
+                "Reads f⁻¹(x) as the reciprocal of f(x)",
                 "Reflects in the x-axis or y-axis instead of in the line y = x",
                 "Computes f(a) when f⁻¹(a) is asked for"
               ],
@@ -4261,7 +4261,7 @@
                 }
               ],
               "misconceptions": [
-                "Reads 'solve f(x) = 1' as 'find f(1)'",
+                "Reads 'solve f(x) = c' as 'find f(c)'",
                 "Gives only one solution when y = k crosses the curve several times",
                 "Misreads the scale when the axes are not 1 unit per square"
               ],
@@ -4379,7 +4379,7 @@
               ],
               "misconceptions": [
                 "Picks a graph with the right shape but the wrong y-intercept",
-                "Confuses a^x with a > 1 (growth) and 0 < a < 1 (decay)",
+                "Confuses exponential growth with exponential decay",
                 "Ignores the sign of the leading coefficient and picks a parabola opening the wrong way"
               ],
               "threads": [
@@ -4462,8 +4462,8 @@
               ],
               "misconceptions": [
                 "Confuses the zeros (x where f(x) = 0) with the y-intercept f(0)",
-                "From f(x) = (x + 2)(x − 5) gives zeros −5 and 2 (wrong signs)",
-                "Divides by x when solving x³ = 4x and loses the zero x = 0"
+                "Gives the zeros with the wrong signs",
+                "Divides by x when solving and loses the zero at the origin"
               ],
               "threads": [
                 {
@@ -4524,8 +4524,8 @@
               ],
               "misconceptions": [
                 "Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa",
-                "On a restricted domain, misses an endpoint that is higher than the local maximum",
-                "Gives GDC answers to fewer than 3 significant figures"
+                "Misses an endpoint of a restricted domain that goes past the turning point",
+                "Gives GDC answers to too few significant figures"
               ],
               "threads": [
                 {
@@ -4587,9 +4587,9 @@
                 }
               ],
               "misconceptions": [
-                "Writes an asymptote as a number (2) instead of an equation (y = 2)",
-                "Swaps vertical and horizontal, writing x = 2 for a horizontal asymptote",
-                "Gives ln(x − 4) the vertical asymptote x = −4"
+                "Writes an asymptote as a number instead of an equation",
+                "Swaps vertical and horizontal, writing the asymptotes the wrong way round",
+                "Gets the sign of a vertical asymptote wrong by reading it off the bracket"
               ],
               "threads": [
                 {
@@ -4779,7 +4779,7 @@
               ],
               "misconceptions": [
                 "Applies f first for (f ∘ g)(x), evaluating g(f(x)) instead",
-                "Multiplies f(2) × g(2) instead of composing",
+                "Multiplies the two values instead of composing",
                 "Applies the same function twice"
               ],
               "threads": []
@@ -4895,8 +4895,8 @@
               ],
               "misconceptions": [
                 "Writes f⁻¹(x) = 1/f(x)",
-                "Undoes the operations in the original order, e.g. for 2x + 1 gives x/2 − 1",
-                "For a quadratic on a restricted domain keeps the ± instead of choosing the sign that matches the domain"
+                "Undoes the operations in the original order",
+                "Keeps the ± for a quadratic on a restricted domain, or picks the sign that doesn't match the domain"
               ],
               "threads": [
                 {
@@ -5021,7 +5021,7 @@
               ],
               "misconceptions": [
                 "Thinks (f ∘ f⁻¹)(x) = 1 rather than x",
-                "Solves f⁻¹(x) = 3 by writing x = f⁻¹(3) instead of x = f(3)",
+                "Solves f⁻¹(x) = c by applying f⁻¹ to c instead of f",
                 "Believes (f ∘ f)(x) = x for any function"
               ],
               "threads": [
@@ -5098,7 +5098,7 @@
               "misconceptions": [
                 "Uses x = b/(2a), dropping the minus sign",
                 "Writes the axis as y = h, or just the number h, instead of x = h",
-                "Reads h from a(x + 3)² as +3"
+                "Reads h with the wrong sign from a(x − h)²"
               ],
               "threads": [
                 {
@@ -5173,9 +5173,9 @@
                 }
               ],
               "misconceptions": [
-                "From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4)",
+                "Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k)",
                 "Finds the x-coordinate of the vertex but not the y-coordinate",
-                "Calls the vertex a minimum when a < 0"
+                "Mixes up maximum and minimum for the sign of a"
               ],
               "threads": [
                 {
@@ -5238,9 +5238,9 @@
                 }
               ],
               "misconceptions": [
-                "Forgets to subtract the square of half the coefficient, writing x² − 8x + 11 = (x − 4)² + 11",
-                "When a ≠ 1, does not multiply the correction term by a",
-                "Gets the sign of h wrong, writing (x + 4)² for x² − 8x + …"
+                "Forgets to subtract the square of half the coefficient",
+                "Forgets to multiply the correction term by a when a is not one",
+                "Gets the sign of h wrong inside the bracket"
               ],
               "threads": [
                 {
@@ -5302,7 +5302,7 @@
                 }
               ],
               "misconceptions": [
-                "From (x + 1)(x − 4) gives the intercepts 1 and −4",
+                "Reads the roots off the factors with the wrong signs",
                 "Leaves out the leading coefficient a when writing a(x − p)(x − q)",
                 "Thinks the y-intercept is pq rather than apq"
               ],
@@ -5370,8 +5370,8 @@
                 }
               ],
               "misconceptions": [
-                "Assumes a = 1 without checking against another point",
-                "Writes (x − 1) for an intercept at x = −1",
+                "Assumes the leading coefficient is one, without checking against another point",
+                "Uses the wrong sign in a factor: a root at x = p gives (x − p)",
                 "Substitutes the vertex into ax² + bx + c as if it were just another point and forgets it is a turning point"
               ],
               "threads": [
@@ -5573,7 +5573,7 @@
               ],
               "misconceptions": [
                 "Divides both sides of 3x² = 6x by x and loses the root x = 0",
-                "From (x − 2)(x − 3) = 0 gives x = −2 or x = −3",
+                "Gives the roots with the wrong signs",
                 "Forgets the ± when square-rooting, so x² = 9 gives only x = 3"
               ],
               "threads": [
@@ -5634,7 +5634,7 @@
                 }
               ],
               "misconceptions": [
-                "Mishandles the sign of −4ac when c < 0, e.g. writes 25 − 4(1)(−6) = 1",
+                "Mishandles the signs in −4ac",
                 "Thinks Δ < 0 means two negative roots rather than no real roots",
                 "Uses b² + 4ac or √(b² − 4ac) as the discriminant"
               ],
@@ -5704,7 +5704,7 @@
               ],
               "misconceptions": [
                 "Reads a, b, c before rearranging to '= 0', e.g. keeps the line's terms on the other side",
-                "Solves k² − 36 < 0 as k < ±6 instead of −6 < k < 6",
+                "Solves k² < c as k < ±√c instead of −√c < k < √c",
                 "Uses Δ > 0 for 'real roots' and forgets the equal-roots case (Δ ≥ 0)"
               ],
               "threads": [
@@ -5769,8 +5769,8 @@
                 }
               ],
               "misconceptions": [
-                "Solves x² > 9 as x > ±3, or as x > 3 only",
-                "Writes x < −2 or x > 3 as the single interval −2 < x < 3",
+                "Keeps only one side of the solution, or writes x > ±√c",
+                "Joins the two outer regions into a single interval between the roots",
                 "Divides by a negative leading coefficient without reversing the inequality"
               ],
               "threads": [
@@ -5825,8 +5825,8 @@
                 }
               ],
               "misconceptions": [
-                "Stops at u = 2 or u = 3 instead of solving e^x = 2 and e^x = 3 for x",
-                "Keeps an impossible solution such as 2^x = −1 or a negative x inside a log",
+                "Stops at the value of u instead of solving for x",
+                "Keeps an impossible solution, such as an exponential equal to a negative number or a negative x inside a log",
                 "Writes 4^x as 2(2^x) instead of (2^x)²"
               ],
               "threads": [
@@ -5900,9 +5900,9 @@
                 }
               ],
               "misconceptions": [
-                "Thinks self-inverse means f(x) × f⁻¹(x) = 1",
-                "Draws y = 1/x touching or crossing the axes",
-                "Draws the branches in the second and fourth quadrants (that is y = −1/x)"
+                "Thinks self-inverse means the product of f(x) and f⁻¹(x) is one",
+                "Draws the reciprocal graph touching or crossing the axes",
+                "Draws the branches in the second and fourth quadrants"
               ],
               "threads": [
                 {
@@ -6030,9 +6030,9 @@
                 }
               ],
               "misconceptions": [
-                "Gives the translation vector as (−3, 2) because of the '− 3' in x − 3",
+                "Gives the translation with the wrong horizontal sign, from the sign in the bracket",
                 "Forgets the vertical stretch B and treats every rational function as a translated 1/x",
-                "Splits the numerator wrongly, e.g. 2x + 1 = 2(x − 3) + 1"
+                "Splits the numerator wrongly, forgetting to adjust the constant"
               ],
               "threads": [
                 {
@@ -6149,7 +6149,7 @@
                 }
               ],
               "misconceptions": [
-                "Cannot collect the y-terms after cross-multiplying and leaves y on both sides",
+                "Leaves y on both sides, without collecting the y-terms after cross-multiplying",
                 "Gives the domain of f⁻¹ as x ≠ −d/c (f's excluded value) instead of x ≠ a/c",
                 "Thinks only 1/x can be self-inverse"
               ],
@@ -6284,9 +6284,9 @@
                 }
               ],
               "misconceptions": [
-                "Puts the y-intercept of e^(x − 1) + 2 at (0, 3), ignoring the horizontal shift",
+                "Ignores the horizontal shift when finding the y-intercept",
                 "Gives the asymptote of e^x + b as y = 0",
-                "Thinks (1/2)^x is the reflection of 2^x in the x-axis rather than the y-axis"
+                "Thinks a reciprocal base reflects the graph in the x-axis rather than the y-axis"
               ],
               "threads": [
                 {
@@ -6356,7 +6356,7 @@
               ],
               "misconceptions": [
                 "Draws the log graph with a horizontal asymptote",
-                "Gives the vertical asymptote of ln(x − 2) as x = −2",
+                "Gets the sign of the vertical asymptote of a log graph wrong",
                 "Thinks ln 0 = 0, so the graph starts at the origin"
               ],
               "threads": [
@@ -6426,9 +6426,9 @@
                 }
               ],
               "misconceptions": [
-                "Solves e^(2x) = 7 as x = 2 ln 7 or x = ln 7 − 2 instead of x = (ln 7)/2",
-                "Converts log₂ x = 5 to x = 5² instead of 2⁵",
-                "Writes x = 7/(2e), treating e as a coefficient to divide by"
+                "Multiplies by the coefficient of x, or subtracts it, instead of dividing after taking logs",
+                "Converts log_b x = c to x = c^b instead of b^c",
+                "Divides by e, treating it as a coefficient"
               ],
               "threads": [
                 {
@@ -6496,9 +6496,9 @@
                 }
               ],
               "misconceptions": [
-                "Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth)",
+                "Confuses the percentage rate with the growth factor, which is one plus the rate",
                 "Computes P₀ × r × t (linear growth) instead of P₀ × r^t",
-                "Treats the initial value as P(1) instead of P(0), so the exponent is off by one"
+                "Treats the start value as the value after one period, so the exponent is off by one"
               ],
               "threads": [
                 {
@@ -6628,7 +6628,7 @@
               ],
               "misconceptions": [
                 "Looks at too small a range of x and misses a solution",
-                "Rounds intermediate values or gives answers to fewer than 3 s.f.",
+                "Rounds intermediate values, or gives too few significant figures",
                 "Takes ln of both sides of e^x = x + 3 and writes x = ln x + ln 3"
               ],
               "threads": [
@@ -6874,7 +6874,7 @@
                 }
               ],
               "misconceptions": [
-                "Rounds the wrong way for the context (e.g. 4.2 years becomes 4 when 5 complete years are needed)",
+                "Rounds the wrong way for the context, to a whole number that doesn't meet the condition",
                 "Keeps a solution outside the model's domain, such as a negative time",
                 "Answers 'how much' when the question asks 'when'"
               ],
@@ -7088,7 +7088,7 @@
               ],
               "misconceptions": [
                 "Using b as the scale factor of f(bx) (it is 1/b)",
-                "Thinks 2f(x) moves the x-intercepts",
+                "Thinks a vertical stretch moves the x-intercepts",
                 "Describes a stretch without its direction or scale factor"
               ],
               "threads": [
@@ -7427,7 +7427,7 @@
               ],
               "misconceptions": [
                 "Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²",
-                "Mishandling a negative coordinate, e.g. taking 4 − (−2) as 2",
+                "Mishandling a negative coordinate when subtracting",
                 "Giving only one value of k from (k − 3)² = 16"
               ],
               "threads": [
@@ -7857,7 +7857,7 @@
               "misconceptions": [
                 "Rearranging by multiplying when the unknown side is underneath the ratio",
                 "Using the hypotenuse as if it were one of the shorter sides",
-                "Calculator in radian mode when the angle is in degrees",
+                "Using a calculator in radian mode when the angle is in degrees",
                 "Stopping at half of a length that the symmetry doubles"
               ],
               "threads": []
@@ -7980,7 +7980,7 @@
               ],
               "misconceptions": [
                 "Pairing a side with an angle that is not opposite it",
-                "Rearranging b / sin 40° = 8 / sin 65° as b = 8 sin 65° / sin 40°",
+                "Rearranging the sine rule wrongly, with the two sines swapped",
                 "Trying the sine rule with SAS information, where no opposite pair is known (needs the cosine rule)"
               ],
               "threads": []
@@ -9317,8 +9317,8 @@
                 }
               ],
               "misconceptions": [
-                "Period = b instead of 2π/b",
-                "Amplitude = a + d, or a negative amplitude when a < 0",
+                "Uses b as the period instead of 2π/b",
+                "Ignores the principal axis, or adds it to the amplitude",
                 "Giving tan x an amplitude"
               ],
               "threads": [
@@ -10751,7 +10751,7 @@
                 }
               ],
               "misconceptions": [
-                "Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1",
+                "Adding the quartiles, or giving the pair of them, instead of subtracting",
                 "Finding quartiles from the unordered list"
               ],
               "threads": []
@@ -10905,8 +10905,8 @@
                 }
               ],
               "misconceptions": [
-                "The mean is always the best average because it uses every value",
-                "The mode is the most useful average for continuous data"
+                "Thinking the mean is always the best average because it uses every value",
+                "Thinking the mode is the most useful average for continuous data"
               ],
               "threads": []
             }
@@ -11957,7 +11957,7 @@
                 }
               ],
               "misconceptions": [
-                "Including the endpoint for a strict inequality, e.g. using X = 2 in P(X > 2)",
+                "Including the endpoint for a strict inequality",
                 "For a conditional probability, not dividing by P(given event)"
               ],
               "threads": []
@@ -12210,8 +12210,8 @@
                 }
               ],
               "misconceptions": [
-                "Leaving out the nCr factor and giving just p^r (1 − p)^(n − r)",
-                "Swapping the powers: p^(n − r) (1 − p)^r",
+                "Leaving out the nCr factor",
+                "Swapping the powers of p and its complement",
                 "Using the cumulative function (binomcdf) for 'exactly r'"
               ],
               "threads": [
@@ -12267,9 +12267,9 @@
                 }
               ],
               "misconceptions": [
-                "P(X ≥ 3) = 1 − P(X ≤ 3) (it should be 1 − P(X ≤ 2))",
-                "Using P(X ≤ 5) for P(X < 5)",
-                "P(2 < X ≤ 6) = P(X ≤ 6) − P(X ≤ 3) (it should subtract P(X ≤ 2))"
+                "Using P(X ≤ k) as the complement of P(X ≥ k), instead of stopping at the value below k",
+                "Using P(X ≤ k) for P(X < k)",
+                "Subtracting the wrong cumulative: P(a < X ≤ b) subtracts P(X ≤ a)"
               ],
               "threads": [
                 {
@@ -12319,7 +12319,7 @@
                 }
               ],
               "misconceptions": [
-                "Var(X) = np (forgetting the factor 1 − p)",
+                "Using np as the variance, forgetting the factor 1 − p",
                 "Giving np(1 − p) when the standard deviation is asked for",
                 "Rounding E(X) to a whole number"
               ],
@@ -12431,7 +12431,7 @@
               ],
               "misconceptions": [
                 "Using a rounded p from the earlier part and losing accuracy",
-                "Finding P(X = 3) in 8 trials for 'the third success is on the eighth trial'",
+                "Finding the probability of k successes in n trials for 'the kth success is on trial n'",
                 "Multiplying the two probabilities in a conditional instead of dividing"
               ],
               "threads": []
@@ -14149,9 +14149,9 @@
                 }
               ],
               "misconceptions": [
-                "Reducing the coefficient instead of multiplying: d/dx(5x³) = 4x² rather than 15x²",
+                "Reducing the coefficient instead of multiplying by the power",
                 "Raising the power: d/dx(axⁿ) = anxⁿ⁺¹",
-                "Leaving a constant unchanged instead of making it 0, or writing d/dx(7x) = 7x"
+                "Keeping a constant term when differentiating, instead of dropping it"
               ],
               "threads": [
                 {
@@ -14209,8 +14209,8 @@
                 }
               ],
               "misconceptions": [
-                "Differentiating the denominator: d/dx(1/x²) = 1/(2x)",
-                "Getting the new power wrong: x⁻² → −2x⁻¹ instead of −2x⁻³",
+                "Differentiating the denominator instead of using a negative power",
+                "Adding one to a negative power instead of subtracting one",
                 "Dividing only the first term of the numerator by x"
               ],
               "threads": [
@@ -14265,7 +14265,7 @@
               "misconceptions": [
                 "Substituting into f(x) instead of f′(x)",
                 "Substituting first and then differentiating the number f(a), giving 0",
-                "Sign slips with negatives, e.g. 3(−2)² evaluated as −12"
+                "Slipping on the sign with a negative x"
               ],
               "threads": [
                 {
@@ -15845,7 +15845,7 @@
                 }
               ],
               "misconceptions": [
-                "f″ > 0 means a maximum (sign reversed)",
+                "Reversing the second-derivative test: a positive f″ means a minimum",
                 "f″(a) = 0 proves a point of inflexion (x⁴ has a minimum at 0 with f″(0) = 0)",
                 "Checking the sign of f rather than f′ either side of the point"
               ],
@@ -16996,7 +16996,7 @@
                 }
               ],
               "misconceptions": [
-                "∫ from 1 to 4 of (f(x) + 2) dx = 7 + 2 instead of 7 + 2 × 3",
+                "Adds the constant once instead of multiplying it by the width of the interval",
                 "Not changing the sign when the limits are reversed",
                 "Assuming ∫ (f(x))² dx = (∫ f(x) dx)²"
               ],
