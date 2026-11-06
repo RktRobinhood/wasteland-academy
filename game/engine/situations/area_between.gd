@@ -25,6 +25,7 @@ const GAP := 0.8
 const END_GAP := 0.25
 const MIN_PIECE := 0.3
 const MAX_COEFF := 40
+const MAX_HEIGHT := 30
 
 ## A value is [c0, c1, r], which is c0 + c1√r, each c whole or [n, d]. Angles are [n, d], as nπ/d.
 ## A Paper 1 pair, for A = 1: F is the antiderivative of top − bot, and `wrong` is the size of the
@@ -257,6 +258,9 @@ static func _line_curve(rng: Seeded) -> Dictionary:
 	var n := a * (p - r) * (p - t) - m * p
 	var par: Array = [a, -a * (r + t), a * r * t]
 	if not small(par) or absi(m) > MAX_COEFF or absi(n) > MAX_COEFF:
+		return {}
+	# A tall window would leave the region a sliver.
+	if absi(m * p + n) > MAX_HEIGHT or absi(m * q + n) > MAX_HEIGHT:
 		return {}
 	var top: Array = par if a < 0 else [m, n]
 	var bot: Array = [m, n] if a < 0 else par

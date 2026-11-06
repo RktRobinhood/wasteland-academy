@@ -134,10 +134,12 @@ func _draw() -> void:
 		if p.x < float(spec.x0) or p.x > float(spec.x1) or p.y < float(spec.y0) or p.y > float(spec.y1):
 			continue
 		var c := to_px(Vector2(p.x, p.y))
-		draw_circle(c, dot, UiTheme.PINK)
-		# An end of a domain (FAL-424): "open" is left out, "filled" is included.
-		if not p.get("filled", false):
-			draw_circle(c, dot * (0.7 if p.get("open", false) else 0.45), UiTheme.BG)
+		# A point with "name" only names its curve (FAL-751), so it has no dot.
+		if not p.get("name", false):
+			draw_circle(c, dot, UiTheme.PINK)
+			# An end of a domain (FAL-424): "open" is left out, "filled" is included.
+			if not p.get("filled", false):
+				draw_circle(c, dot * (0.7 if p.get("open", false) else 0.45), UiTheme.BG)
 		if p.label == "":
 			continue
 		var w := font.get_string_size(p.label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x

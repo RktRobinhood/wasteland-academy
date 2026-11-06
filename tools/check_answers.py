@@ -27091,7 +27091,7 @@ def check_area_between(q):
 
     if u == "derivative-areas":
         name = re.search(r"graph of ([fgh])′", L[0]).group(1)
-        ticks = {t[1]: t[0] for t in q["graph"]["x_ticks"]}
+        ticks = {p_["label"]: p_["x"] for p_ in q["graph"]["points"]}
         a, b, c = (sp.Rational(ticks[t]).limit_denominator(10) for t in "pqr")
         cv = q["graph"]["curves"][0]
         pts = [(sp.Rational(px).limit_denominator(10 ** 8), sp.Rational(py).limit_denominator(10 ** 6)) for px, py in cv[:: 53][:4]]

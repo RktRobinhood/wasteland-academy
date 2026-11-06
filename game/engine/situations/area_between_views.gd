@@ -175,6 +175,8 @@ static func figure(fns: Array, lo: float, hi: float, regions: Array, points: Arr
 		cs.append(GdcKit.curve(fns[i], a, b))
 	var g := Plot.spec(cs, marks, floori(lo), ceili(hi), wy0, wy1)
 	g.shade = shade
+	for i in range(points.size(), marks.size()):
+		g.points[i].name = true
 	return g
 
 
@@ -778,10 +780,10 @@ func u_derivative_areas(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var total := a1.add(a2)
 	var fp_ := poly_fn(s.co)
 	var zero := func(_x: float) -> float: return 0.0
-	var g := figure([fp_], float(s.a) - 0.6, float(s.c) + 0.6, [[fp_, zero, float(s.a), float(s.b)], [fp_, zero, float(s.b), float(s.c)]], [], [name_ + "′"])
+	var g := figure([fp_], float(s.a) - 0.6, float(s.c) + 0.6, [[fp_, zero, float(s.a), float(s.b)], [fp_, zero, float(s.b), float(s.c)]],
+		[[s.a, 0, "p"], [s.b, 0, "q"], [s.c, 0, "r"]], [name_ + "′"])
 	g.y_bare = true
-	g.x_ticks = [[float(s.a), "p"], [float(s.b), "q"], [float(s.c), "r"]]
-	g.points = []
+	g.x_ticks = [[float(s.a), ""], [float(s.b), ""], [float(s.c), ""]]
 	var f_p: Q = Q.new(mid).sub(a1) if up else Q.new(mid).add(a1)
 	var f_r: Q = Q.new(mid).sub(a2) if up else Q.new(mid).add(a2)
 	var here := "above" if up else "below"
