@@ -275,7 +275,7 @@ func answer_resolved(outcome: String, info: Dictionary = {}) -> void:
 			return
 		if good:
 			var m: Dictionary = _monsters[0]
-			var seg := {"kind": "strike", "d": 1.9, "glance": glance, "hit": 20 * int(encounter.tier), "fade": 0.9}
+			var seg := {"kind": "strike", "d": 1.9, "glance": glance, "hit": int(info.get("hit", Tuning.HIT)), "fade": 0.9}
 			m.hits -= 1
 			var done: int = m.total - m.hits
 			var stage := mini(m.stages - 1, done * m.stages / maxi(1, m.total))

@@ -35,9 +35,9 @@ extends "res://ui/practice.gd"
 ## taunts, the shared enemy pool, and the run banners and best-floor medals. Each one
 ## missing keeps the look from before.
 ##
-## On an Explore or Puzzle beat (FAL-733) the overlay, the button and the result lines
-## talk about the job the strip shows, in its prop's words (JourneyLink.job_words()), not
-## about an enemy. The run is the same. With no strip showing they read as a fight.
+## On an Explore or Puzzle beat (FAL-733) the overlay, the floor line, the button and the result
+## lines talk about the job the strip shows, in its prop's words (JourneyLink.job_words()),
+## not about an enemy. The run is the same. With no strip showing they read as a fight.
 
 const MONO := preload("res://assets/fonts/share-tech-mono-latin.woff2")
 const GREEN := Color(0.36, 0.8, 0.42)
@@ -696,7 +696,7 @@ func _show_boss_part() -> void:
 func _update_progress() -> void:
 	if run == null or progress == null:
 		return
-	var what := "fight %d of %d" % [run.fight, Tuning.FIGHTS_PER_FLOOR]
+	var what := "%s %d of %d" % ["fight" if job.is_empty() else "stop", run.fight, Tuning.FIGHTS_PER_FLOOR]
 	if not run.boss.is_empty():
 		what += " · %s part (%s) of %d" % ["boss" if run.kind == "boss" else "mini-boss",
 			QuestionEngine.part_letter(mini(run.boss.part, run.boss.parts.size() - 1)), run.boss.parts.size()]

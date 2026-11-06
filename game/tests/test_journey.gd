@@ -524,6 +524,28 @@ func test_every_beat_plays() -> void:
 		s.free()
 
 
+## The demo has no run to ask: a strike shows one right answer's damage at any tier.
+func test_with_no_run_a_strike_shows_the_tuned_hit() -> void:
+	var s := _stage()
+	tree.root.add_child(s)
+	s.start_run("signal-tower", "learner-female", "rebar", 1)
+	s.fight_started(1, 5, 5, {"kind": "fight", "tier": 5, "questions": 5, "group": ["d5-overseer"], "ambush": false})
+	for i in int(JourneyStage.APPROACH / DT):
+		s.advance(DT)
+	s.question_opened(0)
+	s.answer_resolved("right")
+	var shown := []
+	for i in 130:
+		s.advance(DT)
+		for f in s._state.fx:
+			if f.k == "dmg":
+				shown.append(f.txt)
+	check(not shown.is_empty(), "the number showed")
+	for t in shown:
+		check_eq(t, "-%d" % Tuning.HIT)
+	s.free()
+
+
 # ------------------------------------------------------------------ the demo screen
 
 func _area(window: Vector2i) -> Vector2:
@@ -633,11 +655,14 @@ func test_the_run_drives_the_strip() -> void:
 				check_eq(c.slice(1, 3), said.slice(1, 3), "fight_ahead named the fight that opened")
 			said = []
 	check(names.count("fight_ahead") > 0, "a won fight names the next")
+	var hits := []
 	for c in rec.calls:
 		if c[0] == "answer_resolved":
 			check(c[1] in ["right", "wrong", "timeout", "late", "partial"], "outcome %s" % c[1])
+			hits.append(c[2].hit)
 		if c[0] == "fight_started":
 			check(c[2] >= 1 and c[2] <= 5 and c[3] >= 1, "fight %s" % [c])
+	check_eq(hits, answers.map(func(a): return a.enemy_damage), "each hit is the run's")
 	rec.free()
 
 

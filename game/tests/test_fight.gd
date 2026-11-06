@@ -232,13 +232,13 @@ func test_the_scene_is_the_fight_screen() -> void:
 
 
 ## The first seed whose fight 1 is that kind of beat, on floor 1 of the journey's region.
-func _seed_for(kinds: Array) -> Dictionary:
+func _seed_for(kinds: Array, min_tier := 1) -> Dictionary:
 	var assets := JourneyStage.shared_assets()
 	var roster := assets.roster("signal-tower")
 	for s in range(1, 2000):
 		var tier := Dungeon.tier_for(s, 1, 1)
 		var e := JourneyBeats.encounter(s, 1, tier, roster, Tuning.ENEMIES[tier].hits)
-		if e.kind in kinds:
+		if e.kind in kinds and tier >= min_tier:
 			return {"seed": s, "encounter": e, "sheet": assets.sheets.get(e.prop, {})}
 	return {}
 
@@ -253,6 +253,8 @@ func test_a_job_talks_about_the_job() -> void:
 			await tree.process_frame
 		check_eq(f.strip.encounter.prop, pick.encounter.prop, "the strip draws this prop")
 		check_eq(f.enemy_name.text, pick.sheet.label, "the overlay names the job")
+		check(f.progress.text.contains("· stop 1 of %d ·" % Tuning.FIGHTS_PER_FLOOR), f.progress.text)
+		check(not f.progress.text.contains("fight"), f.progress.text)
 		check(not f.enemy_name.text.contains("·"), "no tier tag")
 		check_eq(f.check_button.text, pick.sheet.verb, "the button says the job")
 		check(f.enemy_bar.is_visible_in_tree(), "the bar stays")
@@ -316,6 +318,7 @@ func test_a_fight_reads_as_a_fight() -> void:
 	var f: Control = made[1]
 	check_eq(f.check_button.text, "Attack")
 	check_eq(f.enemy_name.text, "%s · D%d" % [f.run.enemy.name, f.run.tier])
+	check(f.progress.text.contains("· fight 1 of %d ·" % Tuning.FIGHTS_PER_FLOOR), f.progress.text)
 	f.autoplay(true)
 	check(f.feedback.text.begins_with("Hit!"), f.feedback.text)
 	while f.run.state != "ended" and not f.result.get("defeated", false):
@@ -323,6 +326,37 @@ func test_a_fight_reads_as_a_fight() -> void:
 		f.autoplay(true)
 	check(f.feedback.text.contains("The %s falls." % f.run.enemy.name), f.feedback.text)
 	check_eq(f.next_button.text, "Next fight")
+	_done(made)
+
+
+## What floats over the monster once the strip reaches the strike.
+func _number_shown(f: Control) -> String:
+	await tree.process_frame
+	for i in 600:
+		f.strip.advance(1.0 / 60.0)
+		for fx in f.strip._state.fx:
+			if fx.k == "dmg":
+				return fx.txt
+	return ""
+
+
+## The number over the monster is what the bar drops, on a right answer and a glancing
+## hit (FAL-756).
+func test_the_number_over_the_monster_is_the_bars_drop() -> void:
+	var made: Array = await _screen(_area(Vector2i(390, 844)), _seed_for(["fight"], 2).seed)
+	var f: Control = made[1]
+	var hp := int(f.run.enemy.hp)
+	f.autoplay(true)
+	check_eq(f.result.outcome, "right")
+	check_eq(await _number_shown(f), "-%d" % (hp - f.run.enemy.hp), "a right answer")
+	f.next_question()
+	await _number_shown(f)
+	hp = f.run.enemy.hp
+	f.run.question = QuestionEngine.make({"type": "t3-sine-cosine-rule", "unknown": "side-cosine-rule", "rep": "words",
+		"angle": "cosine-rule", "format": "value", "seed": 7, "paper": 2})
+	var res: Dictionary = f.run.answer({"v": Fmt.sf(f.run.question.answer.values.v, 2)})
+	check_eq(res.outcome, "glancing")
+	check_eq(await _number_shown(f), "-%d" % (hp - f.run.enemy.hp), "a glancing hit")
 	_done(made)
 
 
@@ -336,6 +370,7 @@ func test_no_strip_keeps_the_fight_labels() -> void:
 	var g: Control = off[1]
 	check_eq(g.check_button.text, "Attack")
 	check_eq(g.enemy_name.text, "%s · D%d" % [g.run.enemy.name, g.run.tier])
+	check(g.progress.text.contains("· fight 1 of %d ·" % Tuning.FIGHTS_PER_FLOOR), g.progress.text)
 	var f: Control = on[1]
 	check_eq(f.run.question.view, g.run.question.view, "the same question")
 	f.autoplay(true)
