@@ -272,11 +272,71 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   the central interval. Its 27 unknowns are exact, except a value a GDC gives, to 3 s.f. Two of
   them are `pick-the-graph`: four cards that share one window and one set of axis marks, so only
   the curves and the shading differ.
+- `engine/situations/area_between.gd` (FAL-751) is `t5-area-between-curves` (SL5.11), the `area-between`
+  situation: two curves and the region between them. Its views (`area_between_views.gd`) show the two
+  equations, the curves named f and g with the region shaded (GraphView's `shade`, each strip between
+  the curves), or a `diagram`: a parabola and a line with only points marked, so the equations come
+  first. It asks 18 unknowns: the limits, an integral expression, an expression for curves that swap
+  (two integrals on Paper 1, one with a modulus on the GDC), a parabola and a line, two parabolas, a
+  cubic and a line, a swap inside two vertical lines, trig pairs at landmark angles, A e^(kx) and
+  −B e^(kx), the two possible g = f + c from an area, a letter k from an area, the graph of f′ with
+  its areas, and on Paper 2 the limits, two curves, three crossings, f and its inverse, and a region
+  with three edges. Every method of the map is in a cell: top minus bottom, split at the crossings,
+  ∫ |f − g| on the GDC (Paper 2 only), and the area under the top minus the area under the bottom. So
+  that last one is honest, a parabola and its chord stay on or above the x-axis between the meeting
+  points. Paper 1 is exact, and a value with a surd is typed by its numbers. Paper 2 is a `number`
+  to 3 s.f. with the rounding trap. The curves that need a GDC are Paper 2 only, and the rest are
+  Paper 1, so the type lands near the bank's 5 parts in 13.
 - `engine/situations/box_plot.gd` (FAL-740) is `t4-box-plot` (SL4.2) and `t4-outlier-rule` (SL4.1,
   SL4.2), the `box-plot` situation: one or two data sets, the five numbers of a box plot and the
   1.5 × IQR rule. A figure uses `PlotView`'s `box` on an axis of 25 ticks, labelled every fifth, and
   every number read from it is on a tick. A list or a table follows `data_summary`'s quartiles.
   A test of a value puts it just beyond or just inside a fence on the same quartiles.
+- `engine/situations/log_laws.gd` (FAL-751) is `t1-log-laws` (SL1.7.log-laws and SL1.7.change-of-base),
+  the `log-laws` situation: one log expression, in ln, log, log₁₀ or a small base, with primes and
+  powers drawn so the laws land on an exact value. Its views (`log_laws_views.gd`) ask 18 unknowns: an
+  exact value (each log a power, a value only the combined log shows, the log of a sum, one log over
+  another), ln k, one log from letters, an expansion in p and q (letters or primes), a shown form
+  k ln c, a value from a given log, a base ab (the given log, then "hence"), one log in a power of a
+  prime base, the log of a root (or f⁻¹ at a root), a log in terms of two others or of p and q, a
+  given log in a base B^k, log in base B^k of x in terms of log base B of x, and a 3 s.f. value.
+  The one representation is `equation`. Every answer is the `form` kind, so its numbers are typed
+  and a wrong option in another shape, such as log(25/11), can be picked but not typed. A base the
+  font can't lower reads "log base √3 of 81". The exam is all Paper 1, so a cell is Paper 2 only
+  where it needs a calculator: `gdc-check` on the two letter unknowns, and both methods of the 3 s.f.
+  value, which is why the type is in `OVER_SHARE` in `test_paper.gd`, at 4 cells of 32. A GDC check
+  tries one value, shows what both forms give, and says it's a check and that the laws are the proof.
+  `check_answers.py` (`e9log_*`) reads every expression back with a small parser of the game's
+  notation and works it out at 40 digits. Letters take values that fit what's given, and an option
+  must equal the target at three sets of them. Each tagged option is worked out from its slip, a
+  typed answer's slots must make the expression it shows, and each equation in the working is
+  evaluated. `test_log_laws.gd` covers the cells, the papers, the no-proof line and typed marking.
+- `engine/situations/trig_wave.gd` (FAL-751) is `t3-trig-read-features` (SL3.7.read-features) and
+  `t3-trig-model-use` (SL3.7.model-context), the `trig-wave` situation, which extends `trig-model`: it
+  keeps that situation's Paper 2 wave, contexts and graph, and `TrigWaveViews` extends its views.
+  A reading (16 unknowns) is a fn(bx) + d for sin, cos and tan, with b whole, a fraction, a multiple of
+  π or a decimal: amplitude, period, both, principal axis, maximum, minimum, range, the first x at a
+  maximum, tan's period and a claim that it has no amplitude, b or a and d off a figure, r in terms of
+  q from a sin(qx)'s marked intercepts, and b, the amplitude and axis or a wheel's a and b from a story.
+  A figure hides its equation and marks its turning points, except a `gdc-graph` cell, which prints
+  the equation and drops the marks, so that the GDC has something to graph and something to find. A
+  use (13 unknowns) is a model in a story, in the forms the bank writes it (a cos at a peak, a sin a
+  quarter of a period earlier, −a cos at a trough, a decimal b): a value, the first or every time at a
+  level, how long past a level in a cycle or a span of whole cycles, the first maximum, the gap from a
+  low to a high, counts of maxima and minima, what an extreme means and whether a level is reached.
+  Degree mode is a worked distractor on every value and time: the model is solved again with its
+  angle in degrees. Its one Paper 1 exact value is at a whole t past the first quadrant, in TrigKit's
+  exact numbers, and whether a level is reached makes Paper 1 too.
+- `engine/situations/distance_midpoint.gd` (FAL-751) is `t3-distance-midpoint` (SL3.1), the
+  `distance-midpoint` situation: points in 2D or 3D, drawn first, so a distance is the root of a
+  whole number and a midpoint is exact. Its 15 unknowns ask a distance, k from a distance (two whole
+  values, or a ± b√c), which sides of an isosceles triangle are equal, a cuboid's space diagonal, a
+  pyramid's edge or height, a radius from a centre or a diameter, the distance from the origin to a
+  point on a curve, a midpoint, a centre and a missing endpoint. Lengths are exact on Paper 1 and to
+  3 s.f. on Paper 2, where midpoints and endpoints use coordinates to 1 d.p. A figure is `PlotView`'s
+  `space`: the points on axes with the coordinates on them, a cuboid or pyramid on the axes, or a
+  round solid with no axes. Position vectors are the map's vector representation, listed as
+  `notation`. The 2D unknowns use the type's own `distance-formula-2d` method.
 - `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
   v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
   Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found
@@ -330,6 +390,15 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   mean point from both lines (on the equations, or with both lines drawn) and one mean from the
   other. The table, the estimates and the judgement are Paper 2; choosing a line and the mean
   point are on both papers, with lines through a whole-number mean point and 0 < ac < 1.
+- `engine/situations/regression_interpret.gd` (FAL-751) is `t4-regression-interpret` (SL4.4, Paper 2,
+  on `SL4.4.interpret-ab` and `SL4.4.predict`). It draws its own tables with `RegressionSituation.stats`,
+  because its eight stories carry units, some have x = 0 in the table and others far below it, and r
+  can be weak: |r| is at least 0.9 or at most 0.5, never between. A line given to 3 s.f., with its r
+  and range, is always a real table's. Its views (`regression_interpret_views.gd`) ask what a and b
+  mean, whether b is sensible, the change for k more of x, whether an estimate is reliable, why a
+  worked estimate is not appropriate (outside the data, or y on x solved for x) and a reading from
+  a drawn line, to the nearest 5. Most answers are a `claim`, so multiple choice only, and three of
+  the wrong statements are taken from a shuffled list. The scatter is a `Plot.spec` with unlabelled dots.
 - `engine/situations/normal_unknown.gd` (FAL-725) is `t4-normal-unknown-parameter` (SL4.12, AA only,
   all Paper 2): X is normal with something hidden. The student's facts stay clean (whole values,
   areas in hundredths), and the hidden parameter is whatever they force, so z and the answers are
@@ -1203,6 +1272,13 @@ definite integral or area is worked out again with SymPy, or mpmath for a model,
 roots it finds itself, and each shaded strip must be the region asked for; rests and extremes are
 found again from v(t), exactly on Paper 1 (`check_integration`, `check_definite_integral`,
 `check_motion`).
+For `trig-wave` it reads the wave back from the equation, or from a figure's marks and its curve, and
+works every feature again with SymPy, testing that nothing before a first maximum is as high. Crossings
+of a level are found by scanning the model for sign changes and bisecting, and durations are added up
+between them, so no formula is shared with the engine; degree mode is the same scan with the angle in
+degrees. The plain sums in the working are evaluated (`check_trig_wave`, `e9trig_*`).
+For `regression-interpret` it fits the data again with exact rationals and judges every statement
+offered from those numbers, so a wrong statement that happens to be true fails (`e9regr_check`).
 For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
 Paper 2, summed over the stretches between rests it finds itself, so a distance is not the
 engine's. A return is decided by the roots of s itself, a ridge's gap by the model's own period,
@@ -1227,6 +1303,14 @@ every other option must fail (`check_binomial_unknown`). For `normal-properties`
 or the given areas back and finds each area with mpmath (`check_normal_properties`). For `box-plot`
 it reads the five numbers off the figure or the data, and applies the 1.5 × IQR rule itself
 (`check_box_plot`).
+For `area-between` it reads the two curves back from the lines, or fits them to a diagram's marked
+points, and finds the meeting points, the top curve and every piece again: exactly with SymPy on
+Paper 1, and with its own root search and mpmath on Paper 2. Each option of an integral expression
+is integrated, each tagged slip is worked out from its misconception, each figure's curves and
+strips must be the question's, and the plain sums in the working are evaluated (`check_area_between`).
+For `distance-midpoint` it reads the points back from the sentences, the position vectors or the
+figure's labels, works each length and midpoint again, solves for k with SymPy, rebuilds each tagged
+option from its slip, and evaluates the sums in the working (`check_distance_midpoint`).
 For `independence` it reads the facts back the same way and decides each test itself. Each of the
 four comparisons must agree, and all four option texts are rebuilt from true values, so a false
 number or a verdict that doesn't follow fails. It also multiplies and divides every plain step of
@@ -1581,6 +1665,10 @@ script error happens while it runs. Run one file with
 - `test_motion_distance.gd`: t5-kinematics-distance built with every cell and both skills, four
   different options, GDC methods on Paper 2 and integrating by hand on Paper 1, the antiderivatives
   against v, a worked trip, graphs with a corner at each zero, and a return that goes both ways.
+- `test_area_between.gd`: `t5-area-between-curves` (FAL-751): built with every cell and all four
+  methods, four different options, the papers follow the curves, a figure shades the region between
+  its curves, a diagram marks what fixes its equations, every slip shows up as an option, and the
+  exact pieces and Simpson's rule against hand values.
 - `test_integration.gd`, `test_definite_integral.gd`, `test_motion.gd`: the three FAL-724 types:
   built with every cell and every skill, no extra format, four different options, GDC methods on
   Paper 2 only, + C on every integral, the method setting the shape, a shaded region on every
@@ -1594,6 +1682,10 @@ script error happens while it runs. Run one file with
   split; each statement against values worked out by hand; a hidden line and a spoiled line
   where the chain says; the fix typed on the wrong line marked wrong; a typed slip detected;
   the factors in either order; every misconception as an option; no statement with the exam's numbers.
+- `test_trig_wave.gd`: t3-trig-read-features and t3-trig-model-use built with every cell, four
+  different options, the GDC on Paper 2 only, a figure hiding its equation unless the GDC needs it, b
+  written each way, first peaks and a model against hand values, degree mode and "only the first time"
+  as options, and every misconception shown.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a
@@ -1618,6 +1710,9 @@ script error happens while it runs. Run one file with
 - `test_basic_probability.gd`: `t4-probability-basic`: every cell and skill, one right option on each
   paper, every option a probability, hand values, the figures drawn, a curve of real counts, a
   complement that differs from its event, and every misconception as an option.
+- `test_regression_interpret.gd`: t4-regression-interpret built with every cell and both skills, Paper 2
+  throughout, the given line is the table's to 3 s.f., each case stands apart (x = 0, strong or weak r,
+  inside or outside the data), the scatter is the data, and every misconception shows up.
 - `test_regression_pair.gd`, `test_normal_unknown.gd`, `test_venn.gd`, `test_conditional.gd`: the four
   FAL-725 types: each built with every cell and all its skills, one right option on each paper,
   the numbers against hand values, the figures drawn, every misconception as an option, and the

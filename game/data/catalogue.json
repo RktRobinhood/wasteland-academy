@@ -433,6 +433,48 @@
 				"the threshold is between the start and the long-run value, so the time is positive"
 			]
 		},
+		"log-laws": {
+			"name": "A log expression to evaluate, combine, expand or rewrite in another base",
+			"summary": "Draw the primes and powers first, so the laws land on an exact value, and work it out exactly. Every unknown has its own draw, and only the 3 s.f. value needs a calculator.",
+			"quantities": [
+				{
+					"name": "b, L",
+					"is": "the base of the log and how it is written",
+					"pick": "e, 10 (as log or log₁₀), or 2, 3, 5"
+				},
+				{
+					"name": "p, c, d",
+					"is": "the primes the numbers are made from",
+					"pick": "from 2, 3, 5, 7, and 11 for a base"
+				},
+				{
+					"name": "i, j, k, t",
+					"is": "the powers",
+					"pick": "so that every number is at most 1000"
+				},
+				{
+					"name": "co",
+					"is": "the number in a single log, or the coefficient of a quotient",
+					"pick": "a whole number or a fraction from small whole numbers"
+				},
+				{
+					"name": "m",
+					"is": "a value given for a log",
+					"pick": "a short list of whole numbers and fractions"
+				},
+				{
+					"name": "cx, cy",
+					"is": "x and y for a GDC check",
+					"pick": "different primes from 2, 3, 5, 7"
+				}
+			],
+			"clean": [
+				"every number is at most 1000, and each answer is exact but the 3 s.f. value",
+				"a 3 s.f. value is clear of a rounding edge, and is below 9",
+				"p and q are the logs of different primes, and never log 2 and log 5 in base 10, which add to 1",
+				"the bank’s numbers and the skill map’s examples are left out"
+			]
+		},
 		"exp-growth-vs-linear": {
 			"extends": "exp-model",
 			"name": "Linear and exponential growth side by side",
@@ -2720,6 +2762,66 @@
 				"an estimate is inside the data (interpolation), never an extrapolation"
 			]
 		},
+		"regression-interpret": {
+			"name": "What a regression line says, and how far to trust it",
+			"summary": "A table of paired data with units in a story, from which the line y = ax + b, r and the range of x are known. a is read as a rate, b as the value at x = 0, and an estimate is judged by where x lies and how strong r is. The same numbers can be given as the line to 3 s.f. with r and the range.",
+			"quantities": [
+				{
+					"name": "story",
+					"is": "what x and y are, with their units",
+					"pick": "one of eight stories: four with x = 0 in the data (time in use, age, pumping time, time since a delivery) and four with x = 0 far below it (fuel, wind speed, load, price)"
+				},
+				{
+					"name": "n",
+					"is": "the number of points",
+					"pick": "6 to 9, or 8 to 9 when the correlation is weak"
+				},
+				{
+					"name": "x",
+					"is": "the x-values",
+					"pick": "n different whole numbers in the story's range: 0 to 20 with 0 included, or a range such as 30 to 70"
+				},
+				{
+					"name": "y",
+					"is": "the y-values",
+					"pick": "whole numbers from 8 to 99, near a line of the story's sign"
+				},
+				{
+					"name": "a, b",
+					"is": "the regression line y = ax + b of y on x",
+					"pick": "exact from the sums, given to 3 s.f., clear of a rounding edge, with |b| ≥ 1"
+				},
+				{
+					"name": "r",
+					"is": "Pearson's r",
+					"pick": "0.9 ≤ |r| ≤ 0.99 when strong and 0.2 ≤ |r| ≤ 0.5 when weak, shown to 2 d.p. where it is given"
+				},
+				{
+					"name": "k",
+					"is": "the extra x in an expected change",
+					"pick": "2, 3, 4, 5, 6, 8 or 10, within the spread of the data"
+				},
+				{
+					"name": "x0",
+					"is": "the x an estimate is made at",
+					"pick": "a whole number inside the data and not in the table, or at least half the data's spread beyond it"
+				},
+				{
+					"name": "y0",
+					"is": "the y known when the line is solved for x",
+					"pick": "a whole number inside the y-values and not in the table, with the rearranged x inside the data"
+				}
+			],
+			"clean": [
+				"Paper 2 only: every part of this type in the bank is Paper 2, and the GDC finds a, b and r",
+				"strong and weak correlation are kept apart: |r| is at least 0.9 or at most 0.5",
+				"x = 0 is either in the table or far outside it: at least half the data's spread below the lowest x",
+				"an estimate outside the data is at least half the data's spread beyond it, and positive",
+				"a number written in a statement is at least 0.03 of a unit of its third figure from a rounding edge",
+				"a reading from the graph has a line within 1 of a multiple of 5, so one option is fair",
+				"the stories are not those of the bank"
+			]
+		},
 		"data-summary": {
 			"name": "One discrete data set, as a list or a frequency table, and what summarises it",
 			"summary": "Pick a data set of whole numbers, shown as a list in no particular order or as a table of values and frequencies. Its mean, median, mode, range, quartiles and interquartile range are then known. The same ideas run backwards (a missing value or frequency from a given mean, two group means combined) and sideways (which measure an outlier leaves alone).",
@@ -3031,6 +3133,42 @@
 				"roots and points of contact are whole numbers",
 				"a Paper 2 answer is clear of a rounding edge",
 				"a region's corners are marked on its figure"
+			]
+		},
+		"area-between": {
+			"name": "Two curves and the region between them",
+			"summary": "Two curves, a parabola and a line, a pair of trig or exponential curves, or a function and its inverse, with the region they enclose, curves that swap over, or an area given and a letter to find.",
+			"quantities": [
+				{
+					"name": "f, g",
+					"is": "the two curves",
+					"pick": "whole-number polynomials, landmark trig or e^(kx) on Paper 1, and a sine, an exponential, a root or a quotient beside a polynomial on Paper 2"
+				},
+				{
+					"name": "p, q",
+					"is": "the meeting points",
+					"pick": "whole, or a landmark angle, on Paper 1, and found numerically on Paper 2"
+				},
+				{
+					"name": "A",
+					"is": "the area of the region",
+					"pick": "exact on Paper 1, and found with Simpson's rule on Paper 2"
+				},
+				{
+					"name": "k",
+					"is": "a shift or a letter in a curve",
+					"pick": "picked first, so the given area is exact"
+				}
+			],
+			"modes": [
+				"Paper 1: an exact area, from whole-number meeting points or landmark angles",
+				"Paper 2: a GDC value to 3 s.f., on curves that need a calculator"
+			],
+			"clean": [
+				"a parabola and its chord stay on or above the x-axis between the meeting points, so the areas under them are real areas",
+				"the parabola's x-intercepts are not both meeting points",
+				"Paper 2 meeting points are at least 0.5 apart and clear of the domain's ends",
+				"a Paper 2 answer is clear of a rounding edge"
 			]
 		},
 		"motion": {
@@ -3481,6 +3619,60 @@
 				"a sector's angle stays from 60° to 300°, and its cone's radius is less than the sector's radius"
 			]
 		},
+		"distance-midpoint": {
+			"name": "Points in 2D or 3D, with their distances and midpoints",
+			"summary": "Two or three points, on a plan, as position vectors or on a figure on axes, inside a cuboid, a pyramid, a sphere, a hemisphere or a circle. The points are drawn first, so a distance is the root of a whole number and a midpoint is exact. A missing coordinate k is fixed by a distance, with its two values on either side of a known coordinate.",
+			"quantities": [
+				{
+					"name": "A, B",
+					"is": "the two points",
+					"pick": "Paper 1: whole coordinates up to 15 in size; Paper 2: the same for a length, and 1 d.p. to 12 for a midpoint or an endpoint"
+				},
+				{
+					"name": "M",
+					"is": "the midpoint, or the centre of a sphere or circle",
+					"pick": "from A and B, or drawn with A so that B = 2M − A"
+				},
+				{
+					"name": "C, apex",
+					"is": "show-isosceles: the third vertex, and where the equal sides meet",
+					"pick": "two moves of the same length, not parallel, from a vertex with coordinates to 7 in size"
+				},
+				{
+					"name": "sq",
+					"is": "the distance squared",
+					"pick": "a whole number; on Paper 1 about a third are perfect squares, from a list of four whole numbers with a² + b² + c² = d²"
+				},
+				{
+					"name": "shape, turn",
+					"is": "which round shape, and where the point on it is drawn",
+					"pick": "a sphere, a hemisphere or a circle, turned to any angle"
+				},
+				{
+					"name": "mode, a, b, h",
+					"is": "pyramid-edge: on the axes with base OABC, or two points in general; half the base edges and the height",
+					"pick": "a and b from 2 to 7 and different, h from 3 to 14"
+				},
+				{
+					"name": "axis, p, t, top",
+					"is": "find-k: the coordinate with k, the known value there, (k − p)² = t, and AB² = top",
+					"pick": "t a square to 81 for whole k, or a non-square from a whole distance for a surd"
+				},
+				{
+					"name": "ca, cb",
+					"is": "origin-to-curve: the numbers in f(x)²",
+					"pick": "ca from 2 to 9, cb from 2 to 12"
+				}
+			],
+			"clean": [
+				"no coordinate is above 15 in size, except a missing endpoint, at most 30",
+				"a Paper 2 length is not whole, and its 3 s.f. is clear of a rounding edge",
+				"at least one coordinate changes sign between the points, so a negative matters",
+				"on a midpoint or an endpoint the points differ in every coordinate",
+				"the equal sides of an isosceles triangle are a square-free root, and the third side differs from them",
+				"the bank's points and the skill's worked examples are left out"
+			]
+		},
 		"standard-form": {
 			"name": "Numbers in standard form",
 			"summary": "One or two numbers a × 10^k. Convert them to and from ordinary numbers, multiply and divide them, bring a back between 1 and 10, or use them in a story with large or small amounts.",
@@ -3707,6 +3899,55 @@
 				"Paper 1 is exact, with the across axis in multiples of π",
 				"Paper 2 answers are to 3 s.f., clear of a rounding edge",
 				"the range is even on Paper 1, so a and d are whole"
+			]
+		},
+		"trig-wave": {
+			"name": "One wave to read or to use",
+			"extends": "trig-model",
+			"summary": "The trig-model wave with its letters on show, to read or to use. A reading takes a fn(bx) + d for sin, cos or tan, with b whole, a fraction, a multiple of π or a decimal, or the base wave on a figure. A use takes a model of a story in the forms the bank writes it, and finds its first peak and trough, then a level's crossings and how long it stays past it. Its contexts, Paper 2 wave and graph are the base situation's.",
+			"quantities": [
+				{
+					"name": "a, d",
+					"is": "the number in front and the number added on",
+					"pick": "whole on Paper 1, tenths on Paper 2, with a negative in three of ten"
+				},
+				{
+					"name": "kind, bq",
+					"is": "how b is written, and b",
+					"pick": "x (3x, x/2), pi (4πx, πx/6) or dec (1.3x, Paper 2)"
+				},
+				{
+					"name": "c",
+					"is": "a shift, for a first maximum only",
+					"pick": "a landmark for x, a half or quarter for pi, a tenth for dec"
+				},
+				{
+					"name": "form, A, C",
+					"is": "a model: A fn(B(t − C)) + d",
+					"pick": "cos at a peak, sin a quarter earlier, −cos at a trough, or a decimal B"
+				},
+				{
+					"name": "T, B, tmax, tmin",
+					"is": "the period, B and the first top and bottom after 0",
+					"pick": "derived"
+				},
+				{
+					"name": "level, L, t0",
+					"is": "a level, an interval or span, a time",
+					"pick": "a level on a half well inside the wave, a span with no peak on its end"
+				},
+				{
+					"name": "n",
+					"is": "the x-intercepts of sin(qx) are at 0, nr and 2nr",
+					"pick": "1 to 4"
+				}
+			],
+			"clean": [
+				"Paper 1 is exact",
+				"Paper 2 answers are to 3 s.f., clear of a rounding edge",
+				"a level sits well inside the wave",
+				"no crossing or peak is on the end of a span",
+				"a Paper 1 time is past the first quadrant and off the axes, so the sign has to be worked out"
 			]
 		},
 		"geometric-sequence": {
@@ -4633,6 +4874,7 @@
 		"SL1.4.compare-options": "Compare investment options and compounding frequencies",
 		"SL1.6.identity-lhs-rhs": "Prove an algebraic identity from LHS to RHS",
 		"SL1.6.integer-proof": "Prove properties of integers: odd, even, consecutive and divisibility",
+		"SL1.7.log-laws": "Use the laws of logarithms to simplify, expand and evaluate",
 		"SL1.8.convergence": "Decide whether a geometric series converges and find the condition for convergence",
 		"SL1.8.sum-to-infinity": "Find the sum to infinity of a convergent geometric series",
 		"SL1.8.find-unknown": "Use a given sum to infinity to find r, u_1 or another unknown",
@@ -4641,6 +4883,7 @@
 		"SL1.9.ncr-pascal": "Evaluate nCr and use Pascal's triangle",
 		"SL1.9.full-expansion": "Expand (a + b)^n fully",
 		"SL1.9.specific-term": "Find a specific term or coefficient in an expansion",
+		"SL3.1.distance-3d": "Find the distance between two points in 3D",
 		"SL3.1.volume-solids": "Find volumes of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.1.surface-area": "Find surface areas of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.5.ambiguous-case": "Resolve the ambiguous case of the sine rule (two possible triangles)",
@@ -4665,8 +4908,9 @@
 		"SL3.6.ratio-from-ratio": "Find one trig ratio from another, using the quadrant for the sign",
 		"SL3.6.double-angle-values": "Find exact values of sin 2θ and cos 2θ from a given ratio",
 		"SL3.6.simplify": "Rewrite and simplify trig expressions using identities",
-		"SL3.7.equation-from-graph": "Find a, b, c and d from a graph or from given maximum and minimum points",
 		"SL3.7.model-context": "Model a real-life periodic situation (tides, Ferris wheel, temperature, daylight)",
+		"SL3.7.read-features": "Write down amplitude, period, principal axis, maximum, minimum and range",
+		"SL3.7.equation-from-graph": "Find a, b, c and d from a graph or from given maximum and minimum points",
 		"SL3.7.transformations": "Describe or apply the transformations that map sin x or cos x to a sin(b(x + c)) + d",
 		"SL3.8.solve-basic": "Solve sin x = k, cos x = k or tan x = k in a finite interval",
 		"SL3.8.compound-angle": "Solve equations with a transformed argument, e.g. sin 2x = k or cos(x + π/4) = k",
@@ -4686,10 +4930,11 @@
 		"SL4.3.mean-median-mode": "Find the mean, median and mode of a data set or a discrete frequency table",
 		"SL4.3.quartiles-discrete": "Find quartiles, range and IQR of discrete data",
 		"SL4.3.choose-measure": "Choose and justify the most appropriate average or measure of spread",
+		"SL4.4.interpret-ab": "Interpret a and b in y = ax + b in context",
+		"SL4.4.predict": "Use the regression line to predict, and judge whether the prediction is reliable",
 		"SL4.4.regression-y-on-x": "Find the equation of the regression line of y on x",
 		"SL4.4.pearson-r": "Calculate Pearson's r with technology and match r to a scatter diagram",
 		"SL4.4.mean-point": "Find the mean point and use it with lines of best fit",
-		"SL4.4.predict": "Use the regression line to predict, and judge whether the prediction is reliable",
 		"SL4.5.expected-occurrences": "Find the expected number of occurrences",
 		"SL4.5.equally-likely": "Find a probability by counting equally likely outcomes",
 		"SL4.5.complement": "Use complementary events, including 'at least one'",
@@ -4772,6 +5017,7 @@
 		"SL5.10.linear-composites": "Integrate composites with ax + b",
 		"SL5.10.inspection-substitution": "Integrate ∫ k g′(x) f(g(x)) dx by inspection or substitution",
 		"SL5.10.rewrite-before-integrating": "Rewrite an integrand in a standard form before integrating",
+		"SL5.11.area-between-curves": "Find the area between two curves (or a curve and a line)",
 		"SL2.6.model": "Model and optimise with a quadratic in context",
 		"SL2.9.exp-graph": "Sketch and describe exponential graphs, including transformed ones such as e^(x − a) + b",
 		"SL2.1.line-model": "Model with a linear function and interpret its gradient and intercept",
@@ -4782,20 +5028,15 @@
 		"SL2.1.intersection-lines": "Find where two lines intersect",
 		"SL4.3.constant-changes": "Find the effect of adding or multiplying every value by a constant",
 		"SL5.11.integral-properties": "Use properties of definite integrals",
-		"SL3.1.distance-3d": "Find the distance between two points in 3D",
-		"SL4.4.interpret-ab": "Interpret a and b in y = ax + b in context",
 		"SL5.1.chord-to-tangent": "Find the gradient of a curve as the limit of chord gradients",
 		"SL1.3.model": "Model growth and decay with geometric sequences",
 		"SL1.4.depreciation": "Model annual depreciation",
 		"SL4.9.inverse-normal": "Find a value of X from a given probability (inverse normal)",
 		"SL1.6.identity-constants": "Use = and ≡ correctly and find unknown constants in an identity",
-		"SL1.7.log-laws": "Use the laws of logarithms to simplify, expand and evaluate",
 		"SL3.8.quadratic-in-trig": "Solve equations that lead to a quadratic in sin x, cos x or tan x",
 		"SL1.5.zero-negative": "Work with zero and negative integer exponents",
-		"SL3.7.read-features": "Write down amplitude, period, principal axis, maximum, minimum and range",
 		"SL5.8.closed-interval-extremes": "Find the greatest and least values of f on a closed interval (and its range)",
 		"SL3.8.graphical": "Solve trig equations graphically, including ones with no algebraic method, and count solutions",
-		"SL5.11.area-between-curves": "Find the area between two curves (or a curve and a line)",
 		"SL1.7.log-equations": "Solve logarithmic equations and reject invalid solutions",
 		"SL1.5.evaluate-tech": "Evaluate logarithms and solve simple exponential equations with technology"
 	},
@@ -21462,6 +21703,663 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Log laws and change of base to evaluate or rewrite logarithms",
+			"summary": "One log expression, by the laws and by change of base: an exact value, a single log, an expansion in p and q, a shown form, a rewrite in another base, and one 3 s.f. value. The GDC checks two forms at one value, which supports an answer and proves nothing.",
+			"situation": "log-laws",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the expression, or the values and letters given, as the exam writes them"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "value-difference",
+					"given": [
+						"a sum or difference of two logs, each number a power of the base"
+					],
+					"asked": "the exact value",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "value-hidden",
+					"given": [
+						"logs whose numbers are not powers of the base, or the log of a sum, that give a whole number once combined"
+					],
+					"asked": "the exact value",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "value-quotient",
+					"given": [
+						"one log over another, with both numbers powers of one prime"
+					],
+					"asked": "the exact value, a fraction",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "single-ln-k",
+					"given": [
+						"a sum, difference, multiple or reciprocal of numbers in logs"
+					],
+					"asked": "the expression as ln k or log k, k a positive whole number",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "single-log-letters",
+					"given": [
+						"a sum of multiples of log x, log y and logs of numbers"
+					],
+					"asked": "one logarithm",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "expand-letters",
+					"given": [
+						"p = log x and q = log y",
+						"the log of a product, quotient, power or root of x and y"
+					],
+					"asked": "an expression in p and q",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "expand-numbers",
+					"given": [
+						"the logs of two primes as p and q",
+						"the log of a number made from those primes"
+					],
+					"asked": "an expression in p and q",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "show-number",
+					"given": [
+						"an equation: two logs on one side, k times a log on the other"
+					],
+					"asked": "the whole number k: show that the equation holds",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "given-log-laws",
+					"given": [
+						"the value of log a in some base"
+					],
+					"asked": "the value of the log of 1/a, a power or root of a, or a times or over the base",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "ab-base-value",
+					"given": [
+						"the value of log base ab of a"
+					],
+					"asked": "the value of log base ab of b",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "ab-base-hence",
+					"given": [
+						"the value of log base ab of a"
+					],
+					"asked": "the value of log base ab of a quotient of powers or roots of a and b",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.log-laws"
+					]
+				},
+				{
+					"id": "evaluate-single",
+					"given": [
+						"one log: the base and number are powers of one prime, the number may be a reciprocal, the base may be a root"
+					],
+					"asked": "the exact value, which can be negative or a fraction",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.change-of-base"
+					]
+				},
+				{
+					"id": "log-of-root",
+					"given": [
+						"the log of a root, or f(x) = B^x and f⁻¹ at a root"
+					],
+					"asked": "the exact value, a fraction",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.change-of-base"
+					]
+				},
+				{
+					"id": "cob-common-base",
+					"given": [
+						"log_c N, with N a power of d"
+					],
+					"asked": "an expression in log d and log c",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.change-of-base"
+					]
+				},
+				{
+					"id": "cob-in-p-q",
+					"given": [
+						"the logs of two primes as p and q",
+						"a log whose base is not 10 or e"
+					],
+					"asked": "an expression in p and q, a quotient",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.change-of-base"
+					]
+				},
+				{
+					"id": "given-log-base",
+					"given": [
+						"the value of log a in a base B"
+					],
+					"asked": "the value of the log of a or a power of a in a base B^k",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.change-of-base"
+					]
+				},
+				{
+					"id": "base-power-letter",
+					"given": [
+						"a log of x or a power of x, in a base B^k"
+					],
+					"asked": "the multiple of log_B x it equals",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.change-of-base"
+					]
+				},
+				{
+					"id": "value-3sf",
+					"given": [
+						"a log whose number is not a power of the base"
+					],
+					"asked": "its value to 3 s.f., on Paper 2 only",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.7.change-of-base"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.7.log-laws",
+					"method": "combine",
+					"suits": [
+						"value-difference",
+						"value-hidden",
+						"single-ln-k",
+						"single-log-letters",
+						"show-number"
+					],
+					"name": "Combine into a single logarithm",
+					"about": "Use log a − log b = log(a/b) and n log a = log a^n to reach one log, then evaluate: log_3(81/9) = log_3 9 = 2."
+				},
+				{
+					"skill": "SL1.7.log-laws",
+					"method": "evaluate-separately",
+					"suits": [
+						"value-difference"
+					],
+					"name": "Evaluate each logarithm exactly first",
+					"about": "log_3 81 = 4 and log_3 9 = 2, so the difference is 2 without needing any law."
+				},
+				{
+					"skill": "SL1.7.log-laws",
+					"method": "expand",
+					"suits": [
+						"value-quotient",
+						"expand-letters",
+						"expand-numbers",
+						"show-number",
+						"given-log-laws",
+						"ab-base-value",
+						"ab-base-hence"
+					],
+					"name": "Expand into simple pieces",
+					"about": "Break log(x²/√y) into 2 log x − ½ log y = 2p − q/2."
+				},
+				{
+					"skill": "SL1.7.log-laws",
+					"method": "gdc-check",
+					"suits": [
+						"single-log-letters",
+						"expand-letters"
+					],
+					"name": "Check numerically on the GDC",
+					"about": "Evaluate both forms for a chosen value to confirm they agree (a check, not a proof)."
+				},
+				{
+					"skill": "SL1.7.change-of-base",
+					"method": "cob-formula",
+					"suits": [
+						"evaluate-single",
+						"cob-common-base",
+						"cob-in-p-q",
+						"given-log-base",
+						"base-power-letter",
+						"value-3sf"
+					],
+					"name": "Apply log_a b = log_c b / log_c a",
+					"about": "Convert to base 10 or e: log_5 8 = log 8/log 5 = 3 log 2/log 5."
+				},
+				{
+					"skill": "SL1.7.change-of-base",
+					"method": "common-base-power",
+					"suits": [
+						"evaluate-single",
+						"log-of-root",
+						"given-log-base",
+						"base-power-letter"
+					],
+					"name": "Write both numbers as powers of a common base",
+					"about": "log_4 8 = log_(2²) 2³ = 3/2, because 4^(3/2) = 8."
+				},
+				{
+					"skill": "SL1.7.change-of-base",
+					"method": "define-and-log",
+					"suits": [
+						"evaluate-single",
+						"log-of-root",
+						"cob-common-base",
+						"cob-in-p-q",
+						"given-log-base",
+						"base-power-letter"
+					],
+					"name": "Let y = log_a b, rewrite and take logs",
+					"about": "a^y = b, so y log a = log b and y = log b/log a, which re-derives the formula on the spot."
+				},
+				{
+					"skill": "SL1.7.change-of-base",
+					"method": "gdc-logbase",
+					"suits": [
+						"value-3sf"
+					],
+					"name": "Use the GDC log-base template",
+					"about": "Evaluate log_3 20 directly, or as log 20/log 3."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A GDC shows that log(x²/√y) and 2 log x − ½ log y agree at x = 3, y = 5, so the two are equal for every x and y.",
+					"answer": "False: one value is a check, not a proof. The laws of logs prove it.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "log a/log b can be written as log(a/b).",
+					"answer": "False: log(a/b) is log a − log b. log a/log b is log_b a, by change of base.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "log(a + b) = log a + log b, for positive a and b.",
+					"answer": "Sometimes: it needs a + b = ab, as with a = b = 2. It isn’t a law.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.7.log-laws#0",
+					"text": "Splitting the log of a sum: log(a + b) = log a + log b",
+					"as": "distractor",
+					"in": [
+						"value-hidden"
+					],
+					"wrong": "the log of a sum split into a sum of logs"
+				},
+				{
+					"ref": "SL1.7.log-laws#1",
+					"text": "Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b)",
+					"as": "distractor",
+					"in": [
+						"value-quotient"
+					],
+					"wrong": "the quotient of logs written as the log of the quotient"
+				},
+				{
+					"text": "Confusing a power of a log with a multiple of the log",
+					"as": "distractor",
+					"in": [
+						"single-log-letters",
+						"expand-letters",
+						"expand-numbers",
+						"given-log-laws",
+						"cob-common-base",
+						"cob-in-p-q"
+					],
+					"wrong": "the multiple written as a power of the log, p² for 2p"
+				},
+				{
+					"text": "Inverting the change of base formula, with the log of the base on top",
+					"as": "distractor",
+					"in": [
+						"value-quotient",
+						"evaluate-single",
+						"log-of-root",
+						"cob-common-base",
+						"cob-in-p-q",
+						"given-log-base",
+						"base-power-letter",
+						"value-3sf"
+					],
+					"wrong": "the reciprocal of the right value"
+				},
+				{
+					"text": "Simplifying a quotient of logs to the log of the quotient, or to a difference of logs",
+					"as": "distractor",
+					"in": [
+						"cob-common-base",
+						"cob-in-p-q",
+						"value-3sf"
+					],
+					"wrong": "log(a/b) or log a − log b for log a/log b"
+				},
+				{
+					"text": "Dividing by the new base itself, not by the power that turns the old base into it",
+					"as": "distractor",
+					"in": [
+						"given-log-base",
+						"base-power-letter"
+					],
+					"wrong": "the old log over the new base"
+				},
+				{
+					"text": "Stopping at the number inside the log, without taking the log of it",
+					"as": "distractor",
+					"in": [
+						"value-difference",
+						"value-hidden",
+						"show-number",
+						"evaluate-single"
+					],
+					"wrong": "the combined number, not its log"
+				},
+				{
+					"text": "Reading a difference of logs as a quotient of logs",
+					"as": "distractor",
+					"in": [
+						"value-difference"
+					],
+					"wrong": "the two values divided"
+				},
+				{
+					"text": "Reading a sum of logs as a product of logs",
+					"as": "distractor",
+					"in": [
+						"value-difference",
+						"expand-letters",
+						"expand-numbers"
+					],
+					"wrong": "the two values multiplied"
+				},
+				{
+					"text": "Multiplying the number inside the log by the coefficient, not raising it to that power",
+					"as": "distractor",
+					"in": [
+						"value-hidden",
+						"single-ln-k",
+						"single-log-letters"
+					],
+					"wrong": "the number times the coefficient"
+				},
+				{
+					"text": "Turning a root into a whole-number multiple, not a fraction",
+					"as": "distractor",
+					"in": [
+						"single-log-letters",
+						"expand-letters",
+						"expand-numbers",
+						"given-log-laws",
+						"log-of-root"
+					],
+					"wrong": "a whole-number multiple where the coefficient is 1 over the root"
+				},
+				{
+					"text": "Treating a minus sign in front of a log, or a denominator, as a plus",
+					"as": "distractor",
+					"in": [
+						"single-ln-k",
+						"single-log-letters",
+						"expand-letters",
+						"expand-numbers",
+						"given-log-laws",
+						"ab-base-value",
+						"ab-base-hence"
+					],
+					"wrong": "a term with the wrong sign"
+				},
+				{
+					"text": "Dropping the minus sign that a reciprocal gives",
+					"as": "distractor",
+					"in": [
+						"single-ln-k",
+						"given-log-laws",
+						"evaluate-single"
+					],
+					"wrong": "the value with the sign lost"
+				},
+				{
+					"text": "Dividing the number by the base, not finding the power",
+					"as": "distractor",
+					"in": [
+						"value-difference",
+						"show-number",
+						"evaluate-single",
+						"value-3sf"
+					],
+					"wrong": "number ÷ base"
+				},
+				{
+					"text": "Taking the reciprocal of the log, not its negative",
+					"as": "distractor",
+					"in": [
+						"given-log-laws"
+					],
+					"wrong": "1 over the value given"
+				},
+				{
+					"text": "Forgetting that the log of the base is one",
+					"as": "distractor",
+					"in": [
+						"expand-letters",
+						"expand-numbers",
+						"given-log-laws",
+						"cob-in-p-q"
+					],
+					"wrong": "the term from the base left out"
+				},
+				{
+					"text": "Multiplying by the power of the base, not dividing",
+					"as": "distractor",
+					"in": [
+						"evaluate-single",
+						"given-log-base",
+						"base-power-letter"
+					],
+					"wrong": "the power times the value"
+				},
+				{
+					"text": "Assuming the two logs in base ab are negatives of each other, when they add to 1",
+					"as": "distractor",
+					"in": [
+						"ab-base-value",
+						"ab-base-hence"
+					],
+					"wrong": "the other log taken as −m"
+				},
+				{
+					"text": "Swapping the powers, or a number with its power",
+					"as": "distractor",
+					"in": [
+						"single-ln-k",
+						"ab-base-hence"
+					],
+					"wrong": "each power on the other number"
+				},
+				{
+					"text": "Adding what is inside the logs, when a sum of logs is the log of a product",
+					"as": "distractor",
+					"in": [
+						"value-hidden",
+						"single-ln-k",
+						"single-log-letters"
+					],
+					"wrong": "the log of the sum"
+				},
+				{
+					"text": "Subtracting what is inside the logs, when a difference of logs is the log of a quotient",
+					"as": "distractor",
+					"in": [
+						"value-hidden",
+						"single-ln-k"
+					],
+					"wrong": "the log of the difference"
+				},
+				{
+					"text": "Ignoring the root on the number",
+					"as": "distractor",
+					"in": [
+						"single-ln-k",
+						"log-of-root"
+					],
+					"wrong": "the value for the number under the root"
+				},
+				{
+					"text": "Ignoring the root on the base",
+					"as": "distractor",
+					"in": [
+						"evaluate-single"
+					],
+					"wrong": "the value for the base under the root"
+				},
+				{
+					"text": "Multiplying the log by the number inside, not adding its log",
+					"as": "distractor",
+					"in": [
+						"given-log-laws"
+					],
+					"wrong": "b × the log given"
+				}
+			],
+			"chain": [
+				"write each number as a power of the same prime, or spot the product or quotient that lands on one",
+				"use the laws to combine the logs into one, or to expand one into simple pieces",
+				"put in what is given: p and q, a value, or log of the base = 1",
+				"for another base, divide by the log of the base, or let y be the log and take logs of a^y = b",
+				"on Paper 2, check two forms at one value, or read a value from the log-base template"
+			],
 			"frequency": 10,
 			"marks": 2,
 			"section": {
@@ -21471,9 +22369,7 @@
 			"paper": {
 				"p1": 10,
 				"p2": 0
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-sum-to-infinity",
@@ -23536,6 +24432,648 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Distance and midpoint in 2D or 3D",
+			"summary": "Find a distance or a midpoint from coordinates in 2D or 3D, on a plan, as position vectors or on a figure: a space diagonal, a pyramid's edge or height, a radius from a centre or a diameter, the two values of k from a distance, an isosceles triangle, a missing endpoint and the distance from the origin to a point on a curve. Lengths are exact on Paper 1 and to 3 s.f. on Paper 2.",
+			"situation": "distance-midpoint",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the points written out in a sentence, as A(1, 4, 0)"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the points on axes with their coordinates, a cuboid or pyramid on the axes, or a sphere, hemisphere or circle with its points"
+				},
+				{
+					"rep": "notation",
+					"exam": false,
+					"how": "position vectors a and b, or a vector with k in it, standing for the map's vector representation"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "distance-two-points",
+					"given": [
+						"two points in 3D, on a plan, as position vectors or on a figure"
+					],
+					"asked": "the distance between them",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "distance-2d",
+					"given": [
+						"two points in 2D"
+					],
+					"asked": "the distance between them",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "find-k-two-values",
+					"given": [
+						"a point with k as a coordinate, or a vector with k in it, and the distance"
+					],
+					"asked": "the two values of k, whole numbers",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "find-k-surd",
+					"given": [
+						"a point with k as a coordinate, or a vector with k in it, and a whole distance"
+					],
+					"asked": "the two values of k: a ± b√c on Paper 1, 3 s.f. on Paper 2",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "show-isosceles",
+					"given": [
+						"the three vertices of a triangle"
+					],
+					"asked": "the two equal sides and their exact length",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "space-diagonal",
+					"given": [
+						"a cuboid on the axes, with O at one corner and G opposite"
+					],
+					"asked": "the length of the space diagonal OG",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "pyramid-edge",
+					"given": [
+						"a pyramid on the axes with base OABC, or a right pyramid's vertex and a base corner or the base's centre"
+					],
+					"asked": "a slant edge or the height",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "radius-from-centre",
+					"given": [
+						"the centre of a sphere or hemisphere, and a point on its surface"
+					],
+					"asked": "the radius",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "radius-from-diameter",
+					"given": [
+						"the ends of a diameter of a sphere or circle"
+					],
+					"asked": "the radius",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "origin-to-curve",
+					"given": [
+						"f(x) as a square root, and a point P(x, f(x)) on its graph"
+					],
+					"asked": "the distance from the origin to P, in terms of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "midpoint-3d",
+					"given": [
+						"two points in 3D"
+					],
+					"asked": "the coordinates of the midpoint",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				},
+				{
+					"id": "midpoint-2d",
+					"given": [
+						"two points in 2D"
+					],
+					"asked": "the coordinates of the midpoint",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				},
+				{
+					"id": "missing-endpoint",
+					"given": [
+						"one end of a segment in 3D, and its midpoint"
+					],
+					"asked": "the coordinates of the other end",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				},
+				{
+					"id": "missing-endpoint-2d",
+					"given": [
+						"one end of a segment in 2D, and its midpoint"
+					],
+					"asked": "the coordinates of the other end",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				},
+				{
+					"id": "centre-from-diameter",
+					"given": [
+						"the ends of a diameter of a sphere or circle"
+					],
+					"asked": "the coordinates of the centre",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.1.distance-3d",
+					"method": "distance-formula",
+					"suits": [
+						"distance-two-points",
+						"space-diagonal",
+						"pyramid-edge",
+						"radius-from-centre",
+						"show-isosceles",
+						"radius-from-diameter"
+					],
+					"name": "3D distance formula",
+					"about": "Square the differences in x, y and z, add them, then square-root: d = √((x₂ − x₁)² + (y₂ − y₁)² + (z₂ − z₁)²)."
+				},
+				{
+					"method": "distance-formula-2d",
+					"suits": [
+						"distance-2d",
+						"origin-to-curve"
+					],
+					"name": "2D distance formula",
+					"about": "Square the differences in x and y, add them, then square-root: d = √((x₂ − x₁)² + (y₂ − y₁)²)."
+				},
+				{
+					"skill": "SL3.1.distance-3d",
+					"method": "pythagoras-twice",
+					"suits": [
+						"distance-two-points",
+						"pyramid-edge",
+						"radius-from-centre",
+						"space-diagonal"
+					],
+					"name": "Pythagoras twice",
+					"about": "Find the diagonal across the floor from the x and y moves, then use it and the vertical z move as the legs of a second right triangle."
+				},
+				{
+					"skill": "SL3.1.distance-3d",
+					"method": "square-both-sides",
+					"suits": [
+						"find-k-two-values",
+						"find-k-surd",
+						"show-isosceles"
+					],
+					"name": "Work with d² for an unknown coordinate",
+					"about": "Set the sum of squared differences equal to d² (no roots), solve the quadratic in k and expect two values, one on each side."
+				},
+				{
+					"skill": "SL3.1.midpoint-3d",
+					"method": "average-coordinates",
+					"suits": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter",
+						"radius-from-diameter"
+					],
+					"name": "Average each coordinate",
+					"about": "M = ((x₁ + x₂)/2, (y₁ + y₂)/2, (z₁ + z₂)/2)."
+				},
+				{
+					"skill": "SL3.1.midpoint-3d",
+					"method": "solve-each-coordinate",
+					"suits": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"name": "Solve one equation per coordinate",
+					"about": "For a missing endpoint, set (x + 6)/2 = 2 and so on, and solve each coordinate equation separately."
+				},
+				{
+					"skill": "SL3.1.midpoint-3d",
+					"method": "repeat-the-step",
+					"suits": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter",
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"name": "Half the journey, or the same step again",
+					"about": "The midpoint is A plus half the displacement A→B; to get B from A and M, repeat the step A→M once more, so B = 2M − A."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The distance from A to B is the same as the distance from B to A.",
+					"answer": "True: swapping the points changes the sign of each difference, and squaring takes that away.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If a point B is at distance d from a point A and has one unknown coordinate, there is always exactly one place it can be.",
+					"answer": "False: the bracket with k is squared, so there are usually two values, one on each side of the known coordinate, and one where the bracket is 0.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The midpoint of two points with whole coordinates has whole coordinates.",
+					"answer": "Sometimes: only when the two values on each axis are both odd or both even.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.1.distance-3d#0",
+					"text": "Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter",
+						"space-diagonal"
+					],
+					"wrong": "the size of Δx + Δy + Δz"
+				},
+				{
+					"ref": "SL3.1.distance-3d#1",
+					"text": "Mishandling a negative coordinate when subtracting",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"distance-2d",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter"
+					],
+					"wrong": "the difference of the two sizes on each axis, squared and added"
+				},
+				{
+					"ref": "SL3.1.distance-3d#2",
+					"text": "Giving only one value of k, when the squared bracket has two square roots",
+					"as": "distractor",
+					"in": [
+						"find-k-two-values",
+						"find-k-surd"
+					],
+					"wrong": "the one value of k"
+				},
+				{
+					"ref": "SL3.1.midpoint-3d#0",
+					"text": "Subtracting instead of adding: M = ((x₂ − x₁)/2, ...)",
+					"as": "distractor",
+					"in": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter"
+					],
+					"wrong": "half of B − A"
+				},
+				{
+					"ref": "SL3.1.midpoint-3d#1",
+					"text": "Finding the endpoint by averaging A and M instead of extending past M",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "the midpoint of A and M"
+				},
+				{
+					"ref": "SL3.1.midpoint-3d#2",
+					"text": "Halving the midpoint coordinates to get the endpoint",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "half of M"
+				},
+				{
+					"text": "Stopping at the squared distance, without the square root",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"distance-2d",
+						"space-diagonal",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter",
+						"show-isosceles",
+						"origin-to-curve"
+					],
+					"wrong": "the sum of the squares as the distance"
+				},
+				{
+					"text": "Adding the coordinates of the two points instead of subtracting them",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"distance-2d",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter"
+					],
+					"wrong": "the root of the sum of (x₁ + x₂)²"
+				},
+				{
+					"text": "Leaving out the z difference, so the length stays on the floor",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"space-diagonal",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter"
+					],
+					"wrong": "the root of Δx² + Δy²"
+				},
+				{
+					"text": "Using the whole base diagonal instead of half of it",
+					"as": "distractor",
+					"in": [
+						"pyramid-edge"
+					],
+					"wrong": "the base's full edges with the height"
+				},
+				{
+					"text": "Giving the whole diameter as the radius",
+					"as": "distractor",
+					"in": [
+						"radius-from-diameter"
+					],
+					"wrong": "AB"
+				},
+				{
+					"text": "Doubling the distance from the centre, as if a diameter were asked",
+					"as": "distractor",
+					"in": [
+						"radius-from-centre"
+					],
+					"wrong": "twice the radius"
+				},
+				{
+					"text": "Leaving out the other squared differences, so the one bracket equals the distance",
+					"as": "distractor",
+					"in": [
+						"find-k-two-values",
+						"find-k-surd"
+					],
+					"wrong": "p ± d"
+				},
+				{
+					"text": "Using the wrong sign on the known coordinate in the bracket",
+					"as": "distractor",
+					"in": [
+						"find-k-two-values",
+						"find-k-surd"
+					],
+					"wrong": "−p ± the root"
+				},
+				{
+					"text": "Stopping at the squared bracket, without taking its root",
+					"as": "distractor",
+					"in": [
+						"find-k-two-values",
+						"find-k-surd"
+					],
+					"wrong": "p ± t, with t the value of the squared bracket"
+				},
+				{
+					"text": "Naming the wrong pair of equal sides",
+					"as": "distractor",
+					"in": [
+						"show-isosceles"
+					],
+					"wrong": "another pair, with the right length"
+				},
+				{
+					"text": "Using the length of the third side for the equal sides",
+					"as": "distractor",
+					"in": [
+						"show-isosceles"
+					],
+					"wrong": "the right pair, with the third side's length"
+				},
+				{
+					"text": "Adding the coordinates and not halving",
+					"as": "distractor",
+					"in": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter"
+					],
+					"wrong": "A + B"
+				},
+				{
+					"text": "Dropping a minus sign before averaging the coordinates",
+					"as": "distractor",
+					"in": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter"
+					],
+					"wrong": "the mean of the sizes of the coordinates"
+				},
+				{
+					"text": "Stopping at the step from A to M, without adding it on to M",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "M − A"
+				},
+				{
+					"text": "Doubling the midpoint and leaving out the known end",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "2M"
+				},
+				{
+					"text": "Adding the known end to twice the midpoint instead of subtracting it",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "2M + A"
+				},
+				{
+					"text": "Adding x and f(x) without squaring them",
+					"as": "distractor",
+					"in": [
+						"origin-to-curve"
+					],
+					"wrong": "x + f(x)"
+				},
+				{
+					"text": "Using f(x) alone as the distance from the origin",
+					"as": "distractor",
+					"in": [
+						"origin-to-curve"
+					],
+					"wrong": "f(x)"
+				},
+				{
+					"text": "Subtracting the squares instead of adding them",
+					"as": "distractor",
+					"in": [
+						"origin-to-curve"
+					],
+					"wrong": "the root of f(x)² − x²"
+				},
+				{
+					"text": "Adding the two differences before squaring them",
+					"as": "distractor",
+					"in": [
+						"distance-2d"
+					],
+					"wrong": "the size of Δx + Δy"
+				}
+			],
+			"methods": [
+				{
+					"id": "distance-formula-2d",
+					"name": "2D distance formula",
+					"summary": "Square the differences in x and y, add them, then square-root: d = √((x₂ − x₁)² + (y₂ − y₁)²)."
+				}
+			],
+			"chain": [
+				"read the coordinates of the two points, from the words, the vectors or the figure",
+				"take the differences, keeping the signs",
+				"square them, add them and take the root, or go across the floor and then up",
+				"for k, set the sum of the squares equal to d² and take both roots",
+				"for a midpoint, average each coordinate; for an endpoint, repeat the step from A to M"
+			],
 			"frequency": 9,
 			"marks": 2,
 			"section": {
@@ -23545,9 +25083,7 @@
 			"paper": {
 				"p1": 3,
 				"p2": 6
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-solid-volume-area",
@@ -28723,6 +30259,469 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Evaluate or use a trig model: times, counts, durations",
+			"summary": "Use a trig model in a story: its value at a time, exactly on Paper 1, the first time or every time at a level, how long it stays above or below a level, the first maximum, the gap from a low to a high, how many peaks or troughs fall in a span, what an extreme means, and whether a level is ever reached.",
+			"situation": "trig-wave",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: the depth of water at the harbour wall, modelled by an equation, with t in hours"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the model alone, with the unit of t"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the model with its curve, and the level dashed where there is one"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "value-at-time",
+					"given": [
+						"a model and a time"
+					],
+					"asked": "the value at that time",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "exact-value",
+					"given": [
+						"a model with π in it, and a whole time"
+					],
+					"asked": "the exact value at that time",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "first-time-level",
+					"given": [
+						"a model and a level"
+					],
+					"asked": "the first time it is at the level",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "all-times",
+					"given": [
+						"a model, a level and an interval"
+					],
+					"asked": "every time in the interval at the level",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "duration-above",
+					"given": [
+						"a model and a level"
+					],
+					"asked": "how long it is above the level in each cycle",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "duration-below",
+					"given": [
+						"a model and a level"
+					],
+					"asked": "how long it is below the level between two peaks",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "duration-span",
+					"given": [
+						"a model, a level and a span of whole cycles"
+					],
+					"asked": "how long it is above the level in the span",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "first-max-time",
+					"given": [
+						"a model, often with a negative a"
+					],
+					"asked": "the first time it reaches its maximum",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "high-low-gap",
+					"given": [
+						"a model with a decimal b"
+					],
+					"asked": "the time from a minimum to the next maximum",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "count-peaks",
+					"given": [
+						"a model and a time span"
+					],
+					"asked": "the number of maxima in the span",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "count-lows",
+					"given": [
+						"a model and a span in a longer unit"
+					],
+					"asked": "the number of minima in the span",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "interpret-extreme",
+					"given": [
+						"a model in a story"
+					],
+					"asked": "the maximum or minimum, and what it means",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "reaches-level",
+					"given": [
+						"a model and a level"
+					],
+					"asked": "whether the model ever reaches the level",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.7.model-context",
+					"method": "substitute-evaluate",
+					"suits": [
+						"value-at-time",
+						"exact-value",
+						"interpret-extreme"
+					],
+					"name": "Substitute the time",
+					"about": "Put the time into the model, in radian mode, to get the height or depth."
+				},
+				{
+					"skill": "SL3.7.model-context",
+					"method": "gdc-intersection",
+					"suits": [
+						"first-time-level",
+						"all-times",
+						"duration-above",
+						"duration-below",
+						"duration-span",
+						"first-max-time",
+						"count-peaks",
+						"count-lows",
+						"reaches-level"
+					],
+					"name": "Intersect with y = k on the GDC",
+					"about": "Graph the model and the horizontal line y = k and read every intersection time inside the domain."
+				},
+				{
+					"skill": "SL3.7.model-context",
+					"method": "solve-analytically",
+					"suits": [
+						"first-time-level",
+						"all-times",
+						"duration-above",
+						"duration-below",
+						"first-max-time",
+						"high-low-gap",
+						"reaches-level",
+						"count-peaks",
+						"count-lows"
+					],
+					"name": "Rearrange and solve",
+					"about": "Rearrange to sin(b(t + c)) = (k − d)/a, find the principal solution, then use symmetry and the period for the rest."
+				},
+				{
+					"skill": "SL3.7.model-context",
+					"method": "symmetry-duration",
+					"suits": [
+						"all-times",
+						"duration-above",
+						"duration-below",
+						"duration-span",
+						"high-low-gap"
+					],
+					"name": "Use symmetry about the peak",
+					"about": "Find one crossing time; the other is equally far beyond the maximum, and the time above k is the gap between them."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A tide is above a level from 2 hours before high water, so it stays above it until 2 hours after.",
+					"answer": "True: a wave is symmetric about each peak, so the two crossings are equally far from it.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "A model has a period of 12 hours. Why can a span of 48 hours be answered from one cycle?",
+					"answer": "48 hours is exactly 4 periods, so whatever happens in one cycle happens 4 times, wherever the span starts.",
+					"level": 4
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "In degree mode, is a value of a radian model usually right, nearly right or nothing like it? Predict whether the error can be positive, then try one.",
+					"answer": "Positive: the angle is read as far smaller than it is, so the answer can be off by nearly the whole height of the wave.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.7.model-context#0",
+					"text": "Leaving the calculator in degree mode for a radian model",
+					"as": "distractor",
+					"in": [
+						"value-at-time",
+						"first-time-level",
+						"all-times",
+						"duration-above",
+						"duration-below",
+						"duration-span"
+					],
+					"wrong": "the angle taken in degrees"
+				},
+				{
+					"ref": "SL3.7.model-context#1",
+					"text": "Giving only the first intersection when all times in the interval are asked for",
+					"as": "distractor",
+					"in": [
+						"all-times"
+					],
+					"wrong": "only the first time"
+				},
+				{
+					"ref": "SL3.7.model-context#2",
+					"text": "Taking b itself as the period, instead of working out b from the period",
+					"as": "distractor",
+					"in": [
+						"high-low-gap",
+						"count-peaks"
+					],
+					"wrong": "b as the period"
+				},
+				{
+					"ref": "SL3.7.model-context#3",
+					"text": "Giving the time on the wrong side of the level: below it when above was asked, or the reverse",
+					"as": "distractor",
+					"in": [
+						"duration-above",
+						"duration-below",
+						"duration-span"
+					],
+					"wrong": "the time on the other side of the level"
+				},
+				{
+					"ref": "SL3.7.model-context#4",
+					"text": "Stopping at the peak, so only half of the time past the level is counted",
+					"as": "distractor",
+					"in": [
+						"duration-above",
+						"duration-below"
+					],
+					"wrong": "half of the time"
+				},
+				{
+					"ref": "SL3.7.model-context#5",
+					"text": "Counting one cycle when the time span holds several",
+					"as": "distractor",
+					"in": [
+						"duration-span"
+					],
+					"wrong": "one cycle only"
+				},
+				{
+					"ref": "SL3.7.model-context#6",
+					"text": "Taking c in the bracket as the time of a maximum or minimum",
+					"as": "distractor",
+					"in": [
+						"first-max-time",
+						"interpret-extreme"
+					],
+					"wrong": "c as the time of the maximum"
+				},
+				{
+					"ref": "SL3.7.model-context#7",
+					"text": "Reading the constant d as the largest or smallest value",
+					"as": "distractor",
+					"in": [
+						"interpret-extreme",
+						"reaches-level"
+					],
+					"wrong": "d as the extreme value"
+				},
+				{
+					"ref": "SL3.7.model-context#8",
+					"text": "Dividing the whole time by the period, without placing the first one",
+					"as": "distractor",
+					"in": [
+						"count-peaks",
+						"count-lows"
+					],
+					"wrong": "the span divided by the period"
+				},
+				{
+					"ref": "SL3.7.model-context#9",
+					"text": "Forgetting to change the time span into the unit the model uses",
+					"as": "distractor",
+					"in": [
+						"count-lows"
+					],
+					"wrong": "the span left in its own unit"
+				},
+				{
+					"ref": "SL3.7.model-context#10",
+					"text": "Taking the whole period as the gap from a low point to the next high point",
+					"as": "distractor",
+					"in": [
+						"high-low-gap"
+					],
+					"wrong": "the whole period"
+				},
+				{
+					"ref": "SL3.7.model-context#11",
+					"text": "Taking the wrong sign for the value of an angle past the first quadrant",
+					"as": "distractor",
+					"in": [
+						"exact-value"
+					],
+					"wrong": "the value with the wrong sign"
+				},
+				{
+					"ref": "SL3.7.read-features#5",
+					"text": "Leaving d out of the maximum, the minimum or the range",
+					"as": "distractor",
+					"in": [
+						"reaches-level"
+					],
+					"wrong": "|a| as the largest value"
+				}
+			],
+			"chain": [
+				"set the calculator to radians",
+				"put the time in for a value",
+				"graph the model and y = k, or rearrange, for a time",
+				"a wave is symmetric about each peak, so a crossing has a twin",
+				"count from the first peak, one period at a time"
+			],
 			"frequency": 9,
 			"marks": 2,
 			"section": {
@@ -28732,15 +30731,536 @@
 			"paper": {
 				"p1": 1,
 				"p2": 8
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-trig-read-features",
 			"topic": 3,
 			"source": "exam",
 			"name": "Read amplitude, period and principal axis from a graph or equation",
+			"summary": "Read a wave's features from its equation or its graph: amplitude, period, principal axis, maximum, minimum, range and the first x at a maximum, for sin, cos and tan, with b whole, a fraction, a multiple of π or a decimal, and the letters of a wave from a story.",
+			"situation": "trig-wave",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "f(x) = 3 sin(2x) + 1, written out"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the wave, with the across axis in multiples of π on Paper 1 and its first maximum and next minimum marked; tan with its asymptotes dashed"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a wave's highest and lowest values, how often it peaks, or a wheel"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "amplitude",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the amplitude",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "period",
+					"given": [
+						"a sine or cosine wave, as an equation or a graph"
+					],
+					"asked": "the period",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "amp-period",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the amplitude and the period",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "principal-axis",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the equation of the principal axis",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "max-value",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the maximum value",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "min-value",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the minimum value",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "range",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the range",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "first-max-x",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the maximum value and the first x at which it occurs",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "tan-period",
+					"given": [
+						"a tan function, as an equation or a graph"
+					],
+					"asked": "the period",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "tan-features",
+					"given": [
+						"a tan function"
+					],
+					"asked": "which statement about its amplitude, range and period is true",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "b-from-graph",
+					"given": [
+						"the graph of a cos(b(x − c)) + d"
+					],
+					"asked": "the period, and hence b",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "a-d-from-graph",
+					"given": [
+						"the graph of a cos(b(x − c)) + d"
+					],
+					"asked": "a and d",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "intercept-gap",
+					"given": [
+						"the graph of sin(qx), with x-intercepts marked in terms of r"
+					],
+					"asked": "r in terms of q",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "b-from-story",
+					"given": [
+						"a story saying how often a wave peaks"
+					],
+					"asked": "b",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "amp-axis-story",
+					"given": [
+						"a story with the highest and lowest values"
+					],
+					"asked": "the amplitude and the principal axis",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "wheel-a-b",
+					"given": [
+						"a wheel's size and time for one turn, starting at the bottom"
+					],
+					"asked": "a and b in a cos(bt) + d",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.7.read-features",
+					"method": "read-parameters",
+					"suits": [
+						"amplitude",
+						"period",
+						"amp-period",
+						"principal-axis",
+						"max-value",
+						"min-value",
+						"range",
+						"first-max-x",
+						"tan-period",
+						"tan-features",
+						"b-from-graph",
+						"a-d-from-graph",
+						"intercept-gap",
+						"b-from-story",
+						"amp-axis-story",
+						"wheel-a-b"
+					],
+					"name": "Read the parameters",
+					"about": "Amplitude |a|, period 2π/b (π/b for tan), principal axis y = d, maximum d + |a|, minimum d − |a|."
+				},
+				{
+					"skill": "SL3.7.read-features",
+					"method": "transform-base",
+					"suits": [
+						"amplitude",
+						"period",
+						"amp-period",
+						"principal-axis",
+						"max-value",
+						"min-value",
+						"range",
+						"first-max-x",
+						"tan-period",
+						"tan-features",
+						"b-from-graph",
+						"a-d-from-graph",
+						"intercept-gap",
+						"amp-axis-story"
+					],
+					"name": "Transform the base graph's features",
+					"about": "Start from sin x (range [−1, 1], period 2π) and push each number through: stretch by a, period divided by b, lift by d."
+				},
+				{
+					"skill": "SL3.7.read-features",
+					"method": "gdc-graph",
+					"suits": [
+						"amplitude",
+						"period",
+						"amp-period",
+						"principal-axis",
+						"max-value",
+						"min-value",
+						"range",
+						"first-max-x",
+						"tan-period"
+					],
+					"name": "Graph and read on the GDC",
+					"about": "Plot the function in radian mode, find a maximum and minimum, and deduce the rest."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "y = −5 sin x has an amplitude of −5.",
+					"answer": "False: the amplitude is a size, so it is 5. The minus sign flips the wave but leaves its height alone.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Doubling b doubles the period of a wave.",
+					"answer": "Never: b divides the period, so doubling b halves it.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "Why does y = 2 tan x have no amplitude, when y = 2 sin x does?",
+					"answer": "An amplitude is half the height from the bottom of a wave to its top, and tan has no top: each branch climbs without limit.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.7.read-features#0",
+					"text": "Using b as the period, instead of working the period out from b",
+					"as": "distractor",
+					"in": [
+						"period",
+						"tan-period"
+					],
+					"wrong": "the period = b"
+				},
+				{
+					"ref": "SL3.7.read-features#11",
+					"text": "Taking the amplitude as a + d, or as negative when a is negative",
+					"as": "distractor",
+					"in": [
+						"amplitude",
+						"amp-period"
+					],
+					"wrong": "the amplitude = a + d, or a with its sign"
+				},
+				{
+					"ref": "SL3.7.read-features#2",
+					"text": "Giving tan x an amplitude",
+					"as": "distractor",
+					"in": [
+						"tan-features"
+					],
+					"wrong": "an amplitude and a range for tan"
+				},
+				{
+					"ref": "SL3.7.read-features#3",
+					"text": "Using the period rule of sin and cos for tan, which repeats twice as often",
+					"as": "distractor",
+					"in": [
+						"tan-period",
+						"tan-features"
+					],
+					"wrong": "2π ÷ b for tan"
+				},
+				{
+					"ref": "SL3.7.read-features#4",
+					"text": "Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat",
+					"as": "distractor",
+					"in": [
+						"period",
+						"amp-period"
+					],
+					"wrong": "π ÷ b for a sine or cosine"
+				},
+				{
+					"ref": "SL3.7.read-features#5",
+					"text": "Leaving d out of the maximum, the minimum or the range",
+					"as": "distractor",
+					"in": [
+						"max-value",
+						"min-value",
+						"range"
+					],
+					"wrong": "the range as −|a| to |a|"
+				},
+				{
+					"ref": "SL3.7.read-features#6",
+					"text": "Keeping the minus sign of a when adding it to d, which swaps the maximum and the minimum",
+					"as": "distractor",
+					"in": [
+						"max-value",
+						"min-value"
+					],
+					"wrong": "d + a as the maximum with a negative"
+				},
+				{
+					"ref": "SL3.7.read-features#7",
+					"text": "Reading the amplitude as the principal axis, or the other way round",
+					"as": "distractor",
+					"in": [
+						"principal-axis",
+						"a-d-from-graph",
+						"amp-axis-story"
+					],
+					"wrong": "y = |a| as the axis"
+				},
+				{
+					"ref": "SL3.7.read-features#8",
+					"text": "Ignoring the minus sign in front of the wave, which turns its peaks into troughs",
+					"as": "distractor",
+					"in": [
+						"first-max-x"
+					],
+					"wrong": "the peak of the wave with a positive"
+				},
+				{
+					"ref": "SL3.7.read-features#9",
+					"text": "Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later",
+					"as": "distractor",
+					"in": [
+						"first-max-x"
+					],
+					"wrong": "the peak of the other function"
+				},
+				{
+					"ref": "SL3.7.read-features#10",
+					"text": "Taking a as positive when the wave starts at its lowest point",
+					"as": "distractor",
+					"in": [
+						"wheel-a-b"
+					],
+					"wrong": "a positive"
+				},
+				{
+					"ref": "SL3.7.equation-from-graph#0",
+					"text": "Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum",
+					"as": "distractor",
+					"in": [
+						"period",
+						"amp-period",
+						"b-from-graph",
+						"intercept-gap",
+						"b-from-story",
+						"wheel-a-b"
+					],
+					"wrong": "the period taken as the gap from a maximum to the next minimum"
+				},
+				{
+					"ref": "SL3.7.equation-from-graph#1",
+					"text": "Using a = max − min, forgetting to halve",
+					"as": "distractor",
+					"in": [
+						"amplitude",
+						"amp-period",
+						"a-d-from-graph",
+						"amp-axis-story"
+					],
+					"wrong": "a = max − min, not halved"
+				},
+				{
+					"ref": "SL3.7.model-context#0",
+					"text": "Leaving the calculator in degree mode for a radian model",
+					"as": "distractor",
+					"in": [
+						"period"
+					],
+					"wrong": "the graph read in degrees"
+				},
+				{
+					"ref": "SL3.7.model-context#2",
+					"text": "Taking b itself as the period, instead of working out b from the period",
+					"as": "distractor",
+					"in": [
+						"b-from-graph",
+						"b-from-story",
+						"wheel-a-b"
+					],
+					"wrong": "b = the period"
+				}
+			],
+			"chain": [
+				"the amplitude is the size of a",
+				"the period is 2π ÷ b, or π ÷ b for tan",
+				"the principal axis is y = d",
+				"the maximum and minimum are d ± |a|",
+				"tan has no amplitude, maximum or minimum"
+			],
 			"frequency": 18,
 			"marks": 2,
 			"section": {
@@ -28750,9 +31270,7 @@
 			"paper": {
 				"p1": 8,
 				"p2": 10
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-trig-model-parameters",
@@ -33308,6 +35826,415 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Interpret a regression gradient or judge a prediction",
+			"summary": "From a table or a line, say what the gradient a and the intercept b mean in the story, find the expected change for an extra amount of x, and judge whether an estimate can be trusted: inside or outside the data, strong or weak r, y on x solved for x.",
+			"situation": "regression-interpret",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a table of x against y with units in a story, as the bank has it; the GDC gives a, b and r"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the regression line to 3 s.f., what x and y are, and r"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "a sentence giving the line's gradient and y-intercept, and what it predicts"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "a scatter of the data with the line drawn and the x marked"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "interpret-gradient",
+					"given": [
+						"a table, or the line",
+						"the story"
+					],
+					"asked": "what a means in context",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.4.interpret-ab"
+					]
+				},
+				{
+					"id": "expected-change",
+					"given": [
+						"a table, or the line",
+						"an extra amount of x"
+					],
+					"asked": "the change in y that the line predicts, to 3 s.f.",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.4.interpret-ab"
+					]
+				},
+				{
+					"id": "interpret-intercept",
+					"given": [
+						"a table, or the line",
+						"the story"
+					],
+					"asked": "what b represents",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.4.interpret-ab"
+					]
+				},
+				{
+					"id": "intercept-sensible",
+					"given": [
+						"a table, or the line and the range of x",
+						"the story"
+					],
+					"asked": "whether b has a sensible meaning",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.4.interpret-ab"
+					]
+				},
+				{
+					"id": "judge-prediction",
+					"given": [
+						"the data, or r and the range of x",
+						"an estimate at x"
+					],
+					"asked": "whether the estimate is reliable",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL4.4.predict"
+					]
+				},
+				{
+					"id": "flawed-estimate",
+					"given": [
+						"the data, or the line, r and the ranges",
+						"a scout's working"
+					],
+					"asked": "why the method is not appropriate",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation"
+					],
+					"skills": [
+						"SL4.4.predict"
+					]
+				},
+				{
+					"id": "read-estimate",
+					"given": [
+						"a scatter with the line drawn",
+						"an x inside the data"
+					],
+					"asked": "y read from the line, to the nearest 5",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.4.predict"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.4.interpret-ab",
+					"method": "per-unit-sentence",
+					"suits": [
+						"interpret-gradient",
+						"expected-change",
+						"interpret-intercept",
+						"intercept-sensible"
+					],
+					"name": "'For each extra unit of x, y changes by a'",
+					"about": "Describe a as the change in y (with units) for every one-unit increase in x, and b as the predicted y when x = 0."
+				},
+				{
+					"skill": "SL4.4.interpret-ab",
+					"method": "two-predictions",
+					"suits": [
+						"interpret-gradient",
+						"expected-change"
+					],
+					"name": "Compare two predictions",
+					"about": "Predict y at x and at x + 1; the difference is a, which shows what the gradient means in practice."
+				},
+				{
+					"skill": "SL4.4.predict",
+					"method": "reliability-check",
+					"suits": [
+						"judge-prediction",
+						"flawed-estimate"
+					],
+					"name": "Interpolation and strength check",
+					"about": "A prediction is reliable only if x lies within the range of the data (interpolation) and the correlation is strong; otherwise say which condition fails."
+				},
+				{
+					"skill": "SL4.4.predict",
+					"method": "read-off-line",
+					"suits": [
+						"read-estimate"
+					],
+					"name": "Read from the drawn line",
+					"about": "Go up from x to the line and across to the y-axis for a quick estimate or a check."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If y = 3x + 40 is a regression line, then every extra unit of x adds exactly 3 to y for each individual.",
+					"answer": "False: 3 is an average rate for the data. Real points sit above and below the line, so one individual may change by more or by less.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The value of b in y = ax + b is a sensible estimate of y at x = 0.",
+					"answer": "Sometimes: it is when x = 0 is in the data and the value is possible. If x = 0 is far outside the data, b is an extrapolation and may mean nothing.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict y at x = 10 and at x = 11 on a line y = ax + b. What is the difference?",
+					"answer": "It is exactly a, whatever x you start from: this is what the gradient means.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.4.interpret-ab#0",
+					"text": "Interpreting b as the rate of change and a as the starting value",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient",
+						"interpret-intercept",
+						"expected-change"
+					],
+					"wrong": "a and b the wrong way round"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#1",
+					"text": "Saying 'a is the gradient' without any reference to the context or units",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient"
+					],
+					"wrong": "the number with no story or units"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#2",
+					"text": "Treating b as meaningful when x = 0 is far outside the data",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible"
+					],
+					"wrong": "yes, though x = 0 is far outside the data"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#3",
+					"text": "Reading the gradient backwards, as the change in x for one unit of y",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient"
+					],
+					"wrong": "a as x's change per unit of y"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#4",
+					"text": "Ignoring the sign of a, so that a fall is read as a rise",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient"
+					],
+					"wrong": "the direction reversed"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#5",
+					"text": "Reading a fitted gradient as an exact rule for every individual, not an average",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient"
+					],
+					"wrong": "exactly a, for every individual"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#6",
+					"text": "Reading b as the mean of y",
+					"as": "distractor",
+					"in": [
+						"interpret-intercept"
+					],
+					"wrong": "b called the mean of y"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#7",
+					"text": "Reading b as the x-intercept, where y is 0",
+					"as": "distractor",
+					"in": [
+						"interpret-intercept"
+					],
+					"wrong": "b called the x where y is 0"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#8",
+					"text": "Putting the extra amount in as x, which gives a prediction, not a change",
+					"as": "distractor",
+					"in": [
+						"expected-change"
+					],
+					"wrong": "ak + b"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#9",
+					"text": "Giving the change for one unit when several extra units are asked about",
+					"as": "distractor",
+					"in": [
+						"expected-change"
+					],
+					"wrong": "a, not k × a"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#10",
+					"text": "Calling an intercept outside the data without checking the data",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible"
+					],
+					"wrong": "no, though x = 0 is in the table"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#11",
+					"text": "Expecting the regression line to pass through the data points",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible"
+					],
+					"wrong": "no, because b is not a y-value in the data"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#12",
+					"text": "Saying b is only a constant of the line, with no units or meaning in the story",
+					"as": "distractor",
+					"in": [
+						"interpret-intercept"
+					],
+					"wrong": "b called a bare constant"
+				},
+				{
+					"ref": "SL4.4.mean-point#0",
+					"text": "Forcing the line of best fit through the origin",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible"
+					],
+					"wrong": "b should be 0"
+				},
+				{
+					"ref": "SL4.4.predict#0",
+					"text": "Extrapolating far outside the data range and calling the result reliable",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible",
+						"judge-prediction",
+						"flawed-estimate"
+					],
+					"wrong": "r is strong, so the line holds for any x"
+				},
+				{
+					"ref": "SL4.4.predict#1",
+					"text": "Rearranging the y-on-x line to predict x from a given y",
+					"as": "distractor",
+					"in": [
+						"flawed-estimate"
+					],
+					"wrong": "rearranging called harmless"
+				},
+				{
+					"ref": "SL4.4.predict#2",
+					"text": "Trusting a prediction when |r| is small",
+					"as": "distractor",
+					"in": [
+						"judge-prediction"
+					],
+					"wrong": "reliable, though r is weak"
+				},
+				{
+					"ref": "SL4.4.predict#3",
+					"text": "Reading the nearest plotted point instead of the line",
+					"as": "distractor",
+					"in": [
+						"read-estimate"
+					],
+					"wrong": "the y of the nearest dot"
+				},
+				{
+					"ref": "SL4.4.predict#4",
+					"text": "Thinking no estimate from a regression line can be trusted, even inside the data with a strong r",
+					"as": "distractor",
+					"in": [
+						"judge-prediction"
+					],
+					"wrong": "not reliable, though x is inside the data and r is strong"
+				},
+				{
+					"ref": "SL4.4.predict#5",
+					"text": "Finding the x on the y-axis and reading across, instead of going up from the x-axis",
+					"as": "distractor",
+					"in": [
+						"read-estimate"
+					],
+					"wrong": "the x of the line at y = x0"
+				}
+			],
+			"chain": [
+				"find or read a and b, with r from the GDC",
+				"a is the change in y, in y's units, for one more unit of x",
+				"b is what the line gives at x = 0: check that x = 0 is in or near the data",
+				"an extra k of x changes y by k × a",
+				"an estimate needs x inside the data and a strong r, and the line of y on x only estimates y"
+			],
 			"frequency": 7,
 			"marks": 1,
 			"section": {
@@ -33317,9 +36244,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 7
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-regression-gdc",
@@ -46316,6 +49241,581 @@
 			"topic": 5,
 			"source": "exam",
 			"name": "Area between two curves",
+			"summary": "Find the region between two curves: where they meet, an integral for it, its area, or a letter from its area. It covers a parabola and a line, two parabolas, a cubic and a line, trig and exponential pairs worked exactly, curves that swap over, g = f + k, the graph of f′ with its areas, and on Paper 2 curves that need a GDC, a function and its inverse, and a region with three edges.",
+			"situation": "area-between",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the two curves as equations, and the region in words"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the curves named f and g, with the region shaded and its ends marked"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "a parabola and a line with their points marked and no equations, and the region shaded"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "meeting-limits",
+					"given": [
+						"a parabola and a line, as equations or on a graph"
+					],
+					"asked": "the x-coordinates where they meet: the limits",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "integral-expression",
+					"given": [
+						"a parabola and a line, as equations, on a graph, or as marked points"
+					],
+					"asked": "an integral for the area, not evaluated",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "split-expression",
+					"given": [
+						"two curves that swap over"
+					],
+					"asked": "an expression for the total area: two integrals, or one with a modulus on the GDC",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "area-line-curve",
+					"given": [
+						"a parabola and a line, as equations, on a graph, or as marked points"
+					],
+					"asked": "the exact area they enclose",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph",
+						"diagram"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "area-two-parabolas",
+					"given": [
+						"two parabolas"
+					],
+					"asked": "the exact area they enclose",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "area-split-cubic",
+					"given": [
+						"a cubic and a line that meet three times"
+					],
+					"asked": "the total exact area of the two regions",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "area-split-bounded",
+					"given": [
+						"a parabola and a line that cross once between two vertical lines"
+					],
+					"asked": "the total exact area of the two regions",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "area-trig",
+					"given": [
+						"two trig curves and where they meet"
+					],
+					"asked": "the exact area between two meeting points",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "area-trig-split",
+					"given": [
+						"two trig curves that cross once on an interval"
+					],
+					"asked": "the exact total area of the two regions",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "area-exp-lines",
+					"given": [
+						"y = Ae^(kx), y = −Be^(kx) and two vertical lines"
+					],
+					"asked": "the exact area of the region",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "find-shift",
+					"given": [
+						"f(x), g′(x) = f′(x), and the area between the graphs and two vertical lines"
+					],
+					"asked": "the two possible expressions for g(x)",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "find-parameter",
+					"given": [
+						"a parabola, a line with a letter k in it, and the area they enclose"
+					],
+					"asked": "k",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "derivative-areas",
+					"given": [
+						"the graph of f′, the areas it makes with the x-axis, and values of f"
+					],
+					"asked": "a value of f at a crossing or at the end",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "gdc-meeting-limits",
+					"given": [
+						"two curves that need a calculator"
+					],
+					"asked": "the x-coordinates where they meet, to 3 s.f.",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "gdc-area",
+					"given": [
+						"two curves that need a calculator"
+					],
+					"asked": "the area they enclose, to 3 s.f.",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "gdc-area-split",
+					"given": [
+						"two curves that cross three times"
+					],
+					"asked": "the total area of the two regions, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "inverse-area",
+					"given": [
+						"f(x), a root or a quotient"
+					],
+					"asked": "the area between f and its inverse, to 3 s.f.",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				},
+				{
+					"id": "region-two-lines",
+					"given": [
+						"a curve and two lines, with the region between all three shaded"
+					],
+					"asked": "its area, to 3 s.f., split where the top edge changes",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL5.11.area-between-curves"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL5.11.area-between-curves",
+					"method": "top-minus-bottom",
+					"suits": [
+						"meeting-limits",
+						"integral-expression",
+						"area-line-curve",
+						"area-two-parabolas",
+						"area-trig",
+						"area-exp-lines",
+						"find-shift",
+						"find-parameter",
+						"gdc-area",
+						"inverse-area"
+					],
+					"name": "Integrate top minus bottom",
+					"about": "Find the intersections, then integrate (upper curve − lower curve) between them."
+				},
+				{
+					"skill": "SL5.11.area-between-curves",
+					"method": "split-at-crossings",
+					"suits": [
+						"split-expression",
+						"area-split-cubic",
+						"area-split-bounded",
+						"area-trig-split",
+						"derivative-areas",
+						"gdc-area-split",
+						"region-two-lines"
+					],
+					"name": "Split where the curves cross",
+					"about": "If the curves swap over, split at each intersection and use (upper − lower) on each piece."
+				},
+				{
+					"skill": "SL5.11.area-between-curves",
+					"method": "gdc-abs-difference",
+					"suits": [
+						"gdc-meeting-limits",
+						"split-expression",
+						"gdc-area",
+						"gdc-area-split",
+						"inverse-area",
+						"region-two-lines"
+					],
+					"name": "GDC with |f − g|",
+					"about": "Find the intersections on the GDC, then evaluate ∫ |f(x) − g(x)| dx between them."
+				},
+				{
+					"skill": "SL5.11.area-between-curves",
+					"method": "difference-of-areas",
+					"suits": [
+						"area-line-curve",
+						"find-shift",
+						"gdc-area"
+					],
+					"name": "Area under the top minus area under the bottom",
+					"about": "Find each area under its curve separately and subtract, e.g. a trapezium under the line minus the area under the parabola."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If ∫ from a to b of (f(x) − g(x)) dx = 0, the curves enclose no area between a and b.",
+					"answer": "False: the curves can swap over, so a piece with f on top cancels a piece with g on top. Split at the crossing, or integrate |f − g|.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The area between two curves changes when both are moved up by the same amount.",
+					"answer": "Never: top minus bottom stays the same at every x, so the area does too.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL5.11.area-between-curves#0",
+					"text": "Integrating lower − upper and reporting a negative area",
+					"as": "distractor",
+					"in": [
+						"integral-expression",
+						"split-expression",
+						"area-line-curve",
+						"area-two-parabolas",
+						"area-split-cubic",
+						"area-split-bounded",
+						"area-trig",
+						"area-trig-split",
+						"area-exp-lines",
+						"gdc-area",
+						"inverse-area"
+					],
+					"wrong": "the area with the wrong sign"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#1",
+					"text": "Using the x-intercepts of one curve as limits instead of the intersection points",
+					"as": "distractor",
+					"in": [
+						"meeting-limits",
+						"integral-expression",
+						"area-line-curve",
+						"area-two-parabolas",
+						"area-trig",
+						"gdc-meeting-limits",
+						"gdc-area"
+					],
+					"wrong": "limits at one curve's roots"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#2",
+					"text": "Not splitting where the curves cross, so the pieces cancel",
+					"as": "distractor",
+					"in": [
+						"split-expression",
+						"area-split-cubic",
+						"area-split-bounded",
+						"area-trig-split",
+						"gdc-area-split"
+					],
+					"wrong": "one integral across the crossing"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#3",
+					"text": "Giving the y-values of the meeting points instead of the x-values",
+					"as": "distractor",
+					"in": [
+						"meeting-limits",
+						"gdc-meeting-limits"
+					],
+					"wrong": "the heights of the meeting points"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#4",
+					"text": "Adding the two areas instead of subtracting the lower from the upper",
+					"as": "distractor",
+					"in": [
+						"area-line-curve",
+						"gdc-area"
+					],
+					"wrong": "the two areas added"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#5",
+					"text": "Subtracting only the first term of the lower curve, so its other terms keep their signs",
+					"as": "distractor",
+					"in": [
+						"area-two-parabolas"
+					],
+					"wrong": "the lower curve taken away without brackets"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#6",
+					"text": "Counting only one of the pieces of the region",
+					"as": "distractor",
+					"in": [
+						"split-expression",
+						"area-split-cubic",
+						"area-split-bounded",
+						"area-trig-split",
+						"gdc-area-split",
+						"region-two-lines"
+					],
+					"wrong": "one piece"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#7",
+					"text": "Adding the two curves, so the part below the x-axis cancels part of the area above it",
+					"as": "distractor",
+					"in": [
+						"area-exp-lines"
+					],
+					"wrong": "the sum of the curves integrated"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#8",
+					"text": "Taking only the positive shift, when the other graph can lie on either side",
+					"as": "distractor",
+					"in": [
+						"find-shift"
+					],
+					"wrong": "one expression"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#9",
+					"text": "Using the area as the shift, without dividing by the width of the region",
+					"as": "distractor",
+					"in": [
+						"find-shift"
+					],
+					"wrong": "the area as the shift"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#10",
+					"text": "Stopping at the cube of the letter, without taking the cube root",
+					"as": "distractor",
+					"in": [
+						"find-parameter"
+					],
+					"wrong": "k³"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#11",
+					"text": "Forgetting to halve after adding the two changes",
+					"as": "distractor",
+					"in": [
+						"derivative-areas"
+					],
+					"wrong": "twice the value"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#12",
+					"text": "Treating an area below the x-axis as a rise in f, or an area above it as a fall",
+					"as": "distractor",
+					"in": [
+						"derivative-areas"
+					],
+					"wrong": "the changes with the wrong signs"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#13",
+					"text": "Stopping at the area between the curve and y = x, without doubling for the inverse",
+					"as": "distractor",
+					"in": [
+						"inverse-area"
+					],
+					"wrong": "half the area"
+				},
+				{
+					"ref": "SL5.11.area-between-curves#14",
+					"text": "Using one curve as the top edge across the whole region, past the point where the edge changes",
+					"as": "distractor",
+					"in": [
+						"region-two-lines"
+					],
+					"wrong": "one integral with the wrong top edge"
+				},
+				{
+					"ref": "SL5.10.linear-composites#0",
+					"text": "Multiplying by the coefficient of x, as in differentiation, instead of dividing",
+					"as": "distractor",
+					"in": [
+						"area-exp-lines"
+					],
+					"wrong": "the coefficient multiplied"
+				},
+				{
+					"ref": "SL5.11.evaluate-definite#1",
+					"text": "Taking the lower limit's term as zero when it isn't",
+					"as": "distractor",
+					"in": [
+						"area-exp-lines"
+					],
+					"wrong": "e⁰ taken as 0"
+				}
+			],
+			"chain": [
+				"solve f(x) = g(x) for the limits",
+				"decide which curve is on top between them",
+				"integrate top minus bottom",
+				"split where the curves swap, or use |f − g| on the GDC",
+				"or find each area under its curve and subtract"
+			],
 			"frequency": 13,
 			"marks": 4,
 			"section": {
@@ -46325,9 +49825,7 @@
 			"paper": {
 				"p1": 8,
 				"p2": 5
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "fn-ext-quadratic-model",
@@ -57440,7 +60938,7 @@
 				},
 				{
 					"ref": "SL3.7.read-features#0",
-					"text": "Uses b as the period instead of 2π/b",
+					"text": "Using b as the period, instead of working the period out from b",
 					"as": "distractor",
 					"in": [
 						"wave-max-point"

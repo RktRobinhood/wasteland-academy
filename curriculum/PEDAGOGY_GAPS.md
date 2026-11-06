@@ -855,7 +855,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): The greatest value of a function on a closed interval is always at a stationary point. — False. It can be at an endpoint. On 0 ≤ x ≤ 5, f(x) = x² − 4x + 1 has its only stationary point at (2, −3), a minimum; the greatest value is f(5) = 6.
   - *interpret-parameter* (L4): Why does "the line is a tangent to the parabola" mean the discriminant is zero? — Equating the line and the curve gives a quadratic whose roots are the x-values where they meet. A tangent meets the curve at exactly one point, so there is one repeated root, and that happens when Δ = 0. Δ > 0 means two meeting points; Δ < 0 means none.
   - *predict-check* (L3): Predict the greatest and least values of y = 4 sin(3x) − 1 without calculus. Then check with dy/dx = 0. — 3 and −5: sin is between −1 and 1, so 4 sin(3x) is between −4 and 4, then subtract 1. dy/dx = 12 cos(3x) = 0 where sin(3x) = ±1, giving the same values.
-- **Misconceptions used:** 14. Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa; Misses an endpoint of a restricted domain that goes past the turning point; Finds the x-coordinate of the vertex but not the y-coordinate; Mixes up maximum and minimum for the sign of a; Uses only the endpoints of a restricted domain and misses a turning point inside it; Writes the range in terms of x instead of y or f(x); Reads a, b, c before rearranging to '= 0', e.g. keeps the line's terms on the other side; Uses b as the period instead of 2π/b; Ignores the principal axis, or adds it to the amplitude; Solving f(x) = 0 instead of f′(x) = 0; Substituting the x-value into f′ instead of f to get the y-coordinate; Using b² − 4ac > 0 instead of = 0; Matching gradients but forgetting the line must also pass through the point on the curve; Ignoring the endpoints and quoting only the local maximum and minimum.
+- **Misconceptions used:** 14. Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa; Misses an endpoint of a restricted domain that goes past the turning point; Finds the x-coordinate of the vertex but not the y-coordinate; Mixes up maximum and minimum for the sign of a; Uses only the endpoints of a restricted domain and misses a turning point inside it; Writes the range in terms of x instead of y or f(x); Reads a, b, c before rearranging to '= 0', e.g. keeps the line's terms on the other side; Using b as the period, instead of working the period out from b; Ignores the principal axis, or adds it to the amplitude; Solving f(x) = 0 instead of f′(x) = 0; Substituting the x-value into f′ instead of f to get the y-coordinate; Using b² − 4ac > 0 instead of = 0; Matching gradients but forgetting the line must also pass through the point on the curve; Ignoring the endpoints and quoting only the local maximum and minimum.
 
 #### Solve it by algebra, by graph or by GDC (`fn-link-graph-vs-algebra`, link, level 3–4)
 
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 8 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 9 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1791,6 +1791,36 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): 6n + 9 = 6(n + 3/2), so 6n + 9 is a multiple of 6 for every integer n. — False: n + 3/2 is not an integer, so the 6 outside proves nothing. At n = 1, 6n + 9 = 15, which is not a multiple of 6.
 - **Misconceptions used:** 15. Starting from LHS = RHS and operating on both sides, which assumes what is to be proved; Checking particular values and calling it a proof; Stopping without a concluding statement, or writing = where ≡ is required; Using one letter for two different numbers, which only covers the case where they are equal; Verifying examples instead of arguing in general; Concluding divisibility without showing the bracket is an integer; Forgetting to double the middle term when squaring a bracket; Squaring each term of a bracket and keeping its sign, with no middle term; Getting a sign wrong when multiplying out or removing a bracket; Multiplying only the first term of a bracket; Dividing only part of a numerator by x; Squaring only the numerator of a fraction; Adding one gap too many when summing a list of terms; Squaring the letter but not its coefficient; Writing a² − b² as (a + b)(a + b).
 
+#### Log laws and change of base to evaluate or rewrite logarithms (`t1-log-laws`, exam, 10 bank parts)
+
+- **Situation:** A log expression to evaluate, combine, expand or rewrite in another base.
+- **Representations:** **equation** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a sum or difference of two logs, each number a power of the base → the exact value
+  - **exam** L2: given logs whose numbers are not powers of the base, or the log of a sum, that give a whole number once combined → the exact value
+  - **exam** L2: given one log over another, with both numbers powers of one prime → the exact value, a fraction
+  - **exam** L1: given a sum, difference, multiple or reciprocal of numbers in logs → the expression as ln k or log k, k a positive whole number
+  - **exam** L2: given a sum of multiples of log x, log y and logs of numbers → one logarithm
+  - **exam** L2: given p = log x and q = log y; the log of a product, quotient, power or root of x and y → an expression in p and q
+  - **exam** L2: given the logs of two primes as p and q; the log of a number made from those primes → an expression in p and q
+  - **exam** L2: given an equation: two logs on one side, k times a log on the other → the whole number k: show that the equation holds
+  - **exam** L2: given the value of log a in some base → the value of the log of 1/a, a power or root of a, or a times or over the base
+  - **exam** L3: given the value of log base ab of a → the value of log base ab of b
+  - **exam** L3: given the value of log base ab of a → the value of log base ab of a quotient of powers or roots of a and b
+  - **exam** L2: given one log: the base and number are powers of one prime, the number may be a reciprocal, the base may be a root → the exact value, which can be negative or a fraction
+  - **exam** L3: given the log of a root, or f(x) = B^x and f⁻¹ at a root → the exact value, a fraction
+  - **exam** L2: given log_c N, with N a power of d → an expression in log d and log c
+  - **exam** L3: given the logs of two primes as p and q; a log whose base is not 10 or e → an expression in p and q, a quotient
+  - **exam** L3: given the value of log a in a base B → the value of the log of a or a power of a in a base B^k
+  - **exam** L3: given a log of x or a power of x, in a base B^k → the multiple of log_B x it equals
+  - **exam** L2: given a log whose number is not a power of the base → its value to 3 s.f., on Paper 2 only
+- **Angles:** Combine into a single logarithm; Evaluate each logarithm exactly first; Expand into simple pieces; Check numerically on the GDC; Apply log_a b = log_c b / log_c a; Write both numbers as powers of a common base; Let y = log_a b, rewrite and take logs; Use the GDC log-base template.
+- **Concept probes:**
+  - *true-false-reason* (L3): A GDC shows that log(x²/√y) and 2 log x − ½ log y agree at x = 3, y = 5, so the two are equal for every x and y. — False: one value is a check, not a proof. The laws of logs prove it.
+  - *true-false-reason* (L3): log a/log b can be written as log(a/b). — False: log(a/b) is log a − log b. log a/log b is log_b a, by change of base.
+  - *always-sometimes-never* (L4): log(a + b) = log a + log b, for positive a and b. — Sometimes: it needs a + b = ab, as with a = b = 2. It isn’t a law.
+- **Misconceptions used:** 24. Splitting the log of a sum: log(a + b) = log a + log b; Turning a quotient of logs into the log of a quotient: log a/log b = log(a/b); Confusing a power of a log with a multiple of the log; Inverting the change of base formula, with the log of the base on top; Simplifying a quotient of logs to the log of the quotient, or to a difference of logs; Dividing by the new base itself, not by the power that turns the old base into it; Stopping at the number inside the log, without taking the log of it; Reading a difference of logs as a quotient of logs; Reading a sum of logs as a product of logs; Multiplying the number inside the log by the coefficient, not raising it to that power; Turning a root into a whole-number multiple, not a fraction; Treating a minus sign in front of a log, or a denominator, as a plus; Dropping the minus sign that a reciprocal gives; Dividing the number by the base, not finding the power; Taking the reciprocal of the log, not its negative; Forgetting that the log of the base is one; Multiplying by the power of the base, not dividing; Assuming the two logs in base ab are negatives of each other, when they add to 1; Swapping the powers, or a number with its power; Adding what is inside the logs, when a sum of logs is the log of a product; Subtracting what is inside the logs, when a difference of logs is the log of a quotient; Ignoring the root on the number; Ignoring the root on the base; Multiplying the log by the number inside, not adding its log.
+
 #### Sum to infinity: convergence, value, or an unknown from it (`t1-sum-to-infinity`, exam, 5 bank parts)
 
 - **Situation:** One geometric sequence and its sums, shared with `t1-geometric-sequence`.
@@ -1910,7 +1940,34 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
+
+#### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
+
+- **Situation:** Points in 2D or 3D, with their distances and midpoints.
+- **Representations:** **equation**, **diagram**, notation (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given two points in 3D, on a plan, as position vectors or on a figure → the distance between them
+  - new L1: given two points in 2D → the distance between them
+  - new L3: given a point with k as a coordinate, or a vector with k in it, and the distance → the two values of k, whole numbers
+  - new L3: given a point with k as a coordinate, or a vector with k in it, and a whole distance → the two values of k: a ± b√c on Paper 1, 3 s.f. on Paper 2
+  - new L3: given the three vertices of a triangle → the two equal sides and their exact length
+  - new L2: given a cuboid on the axes, with O at one corner and G opposite → the length of the space diagonal OG
+  - **exam** L2: given a pyramid on the axes with base OABC, or a right pyramid's vertex and a base corner or the base's centre → a slant edge or the height
+  - **exam** L2: given the centre of a sphere or hemisphere, and a point on its surface → the radius
+  - **exam** L2: given the ends of a diameter of a sphere or circle → the radius
+  - **exam** L3: given f(x) as a square root, and a point P(x, f(x)) on its graph → the distance from the origin to P, in terms of x
+  - new L1: given two points in 3D → the coordinates of the midpoint
+  - new L1: given two points in 2D → the coordinates of the midpoint
+  - new L2: given one end of a segment in 3D, and its midpoint → the coordinates of the other end
+  - new L2: given one end of a segment in 2D, and its midpoint → the coordinates of the other end
+  - **exam** L2: given the ends of a diameter of a sphere or circle → the coordinates of the centre
+- **Angles:** 3D distance formula; 2D distance formula; Pythagoras twice; Work with d² for an unknown coordinate; Average each coordinate; Solve one equation per coordinate; Half the journey, or the same step again.
+- **Concept probes:**
+  - *true-false-reason* (L3): The distance from A to B is the same as the distance from B to A. — True: swapping the points changes the sign of each difference, and squaring takes that away.
+  - *true-false-reason* (L3): If a point B is at distance d from a point A and has one unknown coordinate, there is always exactly one place it can be. — False: the bracket with k is squared, so there are usually two values, one on each side of the known coordinate, and one where the bracket is 0.
+  - *always-sometimes-never* (L3): The midpoint of two points with whole coordinates has whole coordinates. — Sometimes: only when the two values on each axis are both odd or both even.
+- **Misconceptions used:** 26. Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²; Mishandling a negative coordinate when subtracting; Giving only one value of k, when the squared bracket has two square roots; Subtracting instead of adding: M = ((x₂ − x₁)/2, ...); Finding the endpoint by averaging A and M instead of extending past M; Halving the midpoint coordinates to get the endpoint; Stopping at the squared distance, without the square root; Adding the coordinates of the two points instead of subtracting them; Leaving out the z difference, so the length stays on the floor; Using the whole base diagonal instead of half of it; Giving the whole diameter as the radius; Doubling the distance from the centre, as if a diameter were asked; Leaving out the other squared differences, so the one bracket equals the distance; Using the wrong sign on the known coordinate in the bracket; Stopping at the squared bracket, without taking its root; Naming the wrong pair of equal sides; Using the length of the third side for the equal sides; Adding the coordinates and not halving; Dropping a minus sign before averaging the coordinates; Stopping at the step from A to M, without adding it on to M; Doubling the midpoint and leaving out the known end; Adding the known end to twice the midpoint instead of subtracting it; Adding x and f(x) without squaring them; Using f(x) alone as the distance from the origin; Subtracting the squares instead of adding them; Adding the two differences before squaring them.
 
 #### Volume and surface area of solids, including in terms of a variable (`t3-solid-volume-area`, exam, 13 bank parts)
 
@@ -2185,9 +2242,62 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): Why does 1 − 2 sin²θ suit a question that gives sin θ? — Because it is cos 2θ written with sin θ alone, so the other ratio is never needed.
 - **Misconceptions used:** 8. Ignoring the quadrant and giving the wrong sign; Dropping the squares from the Pythagorean identity; Taking the square root of a difference term by term; Doubling sin θ to get sin 2θ; Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ; Losing the negative sign of cos θ for an obtuse θ before substituting into sin 2θ; Expanding (sin x + cos x)² as sin²x + cos²x; Keeping the number in front the same when rewriting as the sine of a double angle, instead of halving it.
 
+#### Evaluate or use a trig model: times, counts, durations (`t3-trig-model-use`, exam, 9 bank parts)
+
+- **Situation:** One wave to read or to use, shared with `t3-trig-model-parameters`, `t3-trig-read-features`.
+- **Representations:** **words**, **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a model and a time → the value at that time
+  - **exam** L3: given a model with π in it, and a whole time → the exact value at that time
+  - **exam** L3: given a model and a level → the first time it is at the level
+  - new L4: given a model, a level and an interval → every time in the interval at the level
+  - **exam** L4: given a model and a level → how long it is above the level in each cycle
+  - **exam** L4: given a model and a level → how long it is below the level between two peaks
+  - **exam** L4: given a model, a level and a span of whole cycles → how long it is above the level in the span
+  - **exam** L3: given a model, often with a negative a → the first time it reaches its maximum
+  - **exam** L3: given a model with a decimal b → the time from a minimum to the next maximum
+  - **exam** L3: given a model and a time span → the number of maxima in the span
+  - **exam** L3: given a model and a span in a longer unit → the number of minima in the span
+  - new L2: given a model in a story → the maximum or minimum, and what it means
+  - **exam** L3: given a model and a level → whether the model ever reaches the level
+- **Angles:** Substitute the time; Intersect with y = k on the GDC; Rearrange and solve; Use symmetry about the peak.
+- **Concept probes:**
+  - *true-false-reason* (L3): A tide is above a level from 2 hours before high water, so it stays above it until 2 hours after. — True: a wave is symmetric about each peak, so the two crossings are equally far from it.
+  - *interpret-parameter* (L4): A model has a period of 12 hours. Why can a span of 48 hours be answered from one cycle? — 48 hours is exactly 4 periods, so whatever happens in one cycle happens 4 times, wherever the span starts.
+  - *predict-check* (L3): In degree mode, is a value of a radian model usually right, nearly right or nothing like it? Predict whether the error can be positive, then try one. — Positive: the angle is read as far smaller than it is, so the answer can be off by nearly the whole height of the wave.
+- **Misconceptions used:** 13. Leaving the calculator in degree mode for a radian model; Giving only the first intersection when all times in the interval are asked for; Taking b itself as the period, instead of working out b from the period; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Counting one cycle when the time span holds several; Taking c in the bracket as the time of a maximum or minimum; Reading the constant d as the largest or smallest value; Dividing the whole time by the period, without placing the first one; Forgetting to change the time span into the unit the model uses; Taking the whole period as the gap from a low point to the next high point; Taking the wrong sign for the value of an angle past the first quadrant; Leaving d out of the maximum, the minimum or the range.
+
+#### Read amplitude, period and principal axis from a graph or equation (`t3-trig-read-features`, exam, 18 bank parts)
+
+- **Situation:** One wave to read or to use, shared with `t3-trig-model-parameters`, `t3-trig-model-use`.
+- **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a wave, as an equation or a graph → the amplitude
+  - **exam** L2: given a sine or cosine wave, as an equation or a graph → the period
+  - **exam** L2: given a wave, as an equation or a graph → the amplitude and the period
+  - **exam** L1: given a wave, as an equation or a graph → the equation of the principal axis
+  - **exam** L1: given a wave, as an equation or a graph → the maximum value
+  - **exam** L1: given a wave, as an equation or a graph → the minimum value
+  - **exam** L2: given a wave, as an equation or a graph → the range
+  - **exam** L3: given a wave, as an equation or a graph → the maximum value and the first x at which it occurs
+  - **exam** L2: given a tan function, as an equation or a graph → the period
+  - **exam** L2: given a tan function → which statement about its amplitude, range and period is true
+  - **exam** L2: given the graph of a cos(b(x − c)) + d → the period, and hence b
+  - **exam** L2: given the graph of a cos(b(x − c)) + d → a and d
+  - **exam** L3: given the graph of sin(qx), with x-intercepts marked in terms of r → r in terms of q
+  - **exam** L2: given a story saying how often a wave peaks → b
+  - **exam** L1: given a story with the highest and lowest values → the amplitude and the principal axis
+  - **exam** L3: given a wheel's size and time for one turn, starting at the bottom → a and b in a cos(bt) + d
+- **Angles:** Read the parameters; Transform the base graph's features; Graph and read on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): y = −5 sin x has an amplitude of −5. — False: the amplitude is a size, so it is 5. The minus sign flips the wave but leaves its height alone.
+  - *always-sometimes-never* (L3): Doubling b doubles the period of a wave. — Never: b divides the period, so doubling b halves it.
+  - *interpret-parameter* (L3): Why does y = 2 tan x have no amplitude, when y = 2 sin x does? — An amplitude is half the height from the bottom of a wave to its top, and tan has no top: each branch climbs without limit.
+- **Misconceptions used:** 15. Using b as the period, instead of working the period out from b; Taking the amplitude as a + d, or as negative when a is negative; Giving tan x an amplitude; Using the period rule of sin and cos for tan, which repeats twice as often; Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat; Leaving d out of the maximum, the minimum or the range; Keeping the minus sign of a when adding it to d, which swaps the maximum and the minimum; Reading the amplitude as the principal axis, or the other way round; Ignoring the minus sign in front of the wave, which turns its peaks into troughs; Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later; Taking a as positive when the wave starts at its lowest point; Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum; Using a = max − min, forgetting to halve; Leaving the calculator in degree mode for a radian model; Taking b itself as the period, instead of working out b from the period.
+
 #### Find the parameters of a trig model from a graph, data or context (`t3-trig-model-parameters`, exam, 7 bank parts)
 
-- **Situation:** One wave and the model behind it.
+- **Situation:** One wave and the model behind it, shared with `t3-trig-model-use`, `t3-trig-read-features`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given a maximum and a minimum → a and d
@@ -2247,7 +2357,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 20 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2429,6 +2539,25 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): The median of an ordered data set with 12 values is the 6th value. — False: with an even number of values the median is halfway between the 6th and 7th values, so it need not be a value in the set.
   - *true-false-reason* (L4): One class of 10 students has a mean mark of 60 and another of 30 students has a mean mark of 80. The mean mark of all 40 students is 70. — False: the mean of the two means ignores the group sizes. The totals are 600 and 2400, so the mean is 3000 ÷ 40 = 75, nearer the bigger group's mean.
 - **Misconceptions used:** 9. Taking the middle value of the unordered list as the median; Giving the position (n + 1)/2 as the median instead of the value in that position; Giving the highest frequency as the mode instead of the value that has that frequency; Adding the quartiles, or giving the pair of them, instead of subtracting; Finding quartiles from the unordered list; Averaging the two group means for a combined mean when the groups are different sizes; Forgetting that the unknown frequency p also appears in the denominator Σf; Thinking the mean is always the best average because it uses every value; Thinking the mode is the most useful average for continuous data.
+
+#### Interpret a regression gradient or judge a prediction (`t4-regression-interpret`, exam, 7 bank parts)
+
+- **Situation:** What a regression line says, and how far to trust it.
+- **Representations:** **table**, **equation**, words, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a table, or the line; the story → what a means in context
+  - **exam** L2: given a table, or the line; an extra amount of x → the change in y that the line predicts, to 3 s.f.
+  - new L2: given a table, or the line; the story → what b represents
+  - new L3: given a table, or the line and the range of x; the story → whether b has a sensible meaning
+  - **exam** L3: given the data, or r and the range of x; an estimate at x → whether the estimate is reliable
+  - **exam** L3: given the data, or the line, r and the ranges; a scout's working → why the method is not appropriate
+  - new L1: given a scatter with the line drawn; an x inside the data → y read from the line, to the nearest 5
+- **Angles:** 'For each extra unit of x, y changes by a'; Compare two predictions; Interpolation and strength check; Read from the drawn line.
+- **Concept probes:**
+  - *true-false-reason* (L3): If y = 3x + 40 is a regression line, then every extra unit of x adds exactly 3 to y for each individual. — False: 3 is an average rate for the data. Real points sit above and below the line, so one individual may change by more or by less.
+  - *always-sometimes-never* (L3): The value of b in y = ax + b is a sensible estimate of y at x = 0. — Sometimes: it is when x = 0 is in the data and the value is possible. If x = 0 is far outside the data, b is an extrapolation and may mean nothing.
+  - *predict-check* (L3): Predict y at x = 10 and at x = 11 on a line y = ax + b. What is the difference? — It is exactly a, whatever x you start from: this is what the gradient means.
+- **Misconceptions used:** 20. Interpreting b as the rate of change and a as the starting value; Saying 'a is the gradient' without any reference to the context or units; Treating b as meaningful when x = 0 is far outside the data; Reading the gradient backwards, as the change in x for one unit of y; Ignoring the sign of a, so that a fall is read as a rise; Reading a fitted gradient as an exact rule for every individual, not an average; Reading b as the mean of y; Reading b as the x-intercept, where y is 0; Putting the extra amount in as x, which gives a prediction, not a change; Giving the change for one unit when several extra units are asked about; Calling an intercept outside the data without checking the data; Expecting the regression line to pass through the data points; Saying b is only a constant of the line, with no units or meaning in the story; Forcing the line of best fit through the origin; Extrapolating far outside the data range and calling the result reliable; Rearranging the y-on-x line to predict x from a given y; Trusting a prediction when |r| is small; Reading the nearest plotted point instead of the line; Thinking no estimate from a regression line can be trusted, even inside the data with a strong r; Finding the x on the y-axis and reading across, instead of going up from the x-axis.
 
 #### Regression line and Pearson r on the GDC, then predict (`t4-regression-gdc`, exam, 19 bank parts)
 
@@ -2762,7 +2891,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -3103,6 +3232,35 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): ∫ 2 sin x cos x dx can be sin² x + C and also −cos² x + C. — True: the two differ by 1, since sin² x + cos² x = 1. Two correct answers can look different and still differ only by a constant.
   - *always-sometimes-never* (L4): ∫ f(x)g(x) dx equals (∫ f(x) dx)(∫ g(x) dx). — Sometimes at best, and not as a rule: for f(x) = g(x) = x it fails, since x³/3 is not (x²/2)². There is no product rule that splits an integral this way.
 - **Misconceptions used:** 14. Dividing by the old power instead of the new one; Forgetting + C; Integrating a fraction in x without first rewriting it as a negative power; Integrating sin x to cos x, with the wrong sign; Using the power rule on a reciprocal term, which would mean dividing by zero; Multiplying by the new power instead of dividing; Multiplying by the coefficient of x, as in differentiation, instead of dividing; Forgetting to divide by the coefficient of x; Dividing by the whole exponent instead of the coefficient of x; Integrating the outer function but leaving the extra factor in place; Forgetting to divide by the number that comes from differentiating the inside; Forgetting to substitute back from u to x; Integrating the numerator and denominator separately; Missing the middle term when squaring a bracket.
+
+#### Area between two curves (`t5-area-between-curves`, exam, 13 bank parts)
+
+- **Situation:** Two curves and the region between them.
+- **Representations:** **equation**, **graph**, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a parabola and a line, as equations or on a graph → the x-coordinates where they meet: the limits
+  - **exam** L3: given a parabola and a line, as equations, on a graph, or as marked points → an integral for the area, not evaluated
+  - **exam** L3: given two curves that swap over → an expression for the total area: two integrals, or one with a modulus on the GDC
+  - **exam** L3: given a parabola and a line, as equations, on a graph, or as marked points → the exact area they enclose
+  - **exam** L3: given two parabolas → the exact area they enclose
+  - **exam** L4: given a cubic and a line that meet three times → the total exact area of the two regions
+  - **exam** L4: given a parabola and a line that cross once between two vertical lines → the total exact area of the two regions
+  - **exam** L4: given two trig curves and where they meet → the exact area between two meeting points
+  - **exam** L4: given two trig curves that cross once on an interval → the exact total area of the two regions
+  - **exam** L3: given y = Ae^(kx), y = −Be^(kx) and two vertical lines → the exact area of the region
+  - **exam** L4: given f(x), g′(x) = f′(x), and the area between the graphs and two vertical lines → the two possible expressions for g(x)
+  - **exam** L4: given a parabola, a line with a letter k in it, and the area they enclose → k
+  - **exam** L4: given the graph of f′, the areas it makes with the x-axis, and values of f → a value of f at a crossing or at the end
+  - **exam** L2: given two curves that need a calculator → the x-coordinates where they meet, to 3 s.f.
+  - **exam** L3: given two curves that need a calculator → the area they enclose, to 3 s.f.
+  - **exam** L4: given two curves that cross three times → the total area of the two regions, to 3 s.f.
+  - **exam** L4: given f(x), a root or a quotient → the area between f and its inverse, to 3 s.f.
+  - **exam** L4: given a curve and two lines, with the region between all three shaded → its area, to 3 s.f., split where the top edge changes
+- **Angles:** Integrate top minus bottom; Split where the curves cross; GDC with |f − g|; Area under the top minus area under the bottom.
+- **Concept probes:**
+  - *true-false-reason* (L3): If ∫ from a to b of (f(x) − g(x)) dx = 0, the curves enclose no area between a and b. — False: the curves can swap over, so a piece with f on top cancels a piece with g on top. Split at the crossing, or integrate |f − g|.
+  - *always-sometimes-never* (L3): The area between two curves changes when both are moved up by the same amount. — Never: top minus bottom stays the same at every x, so the area does too.
+- **Misconceptions used:** 17. Integrating lower − upper and reporting a negative area; Using the x-intercepts of one curve as limits instead of the intersection points; Not splitting where the curves cross, so the pieces cancel; Giving the y-values of the meeting points instead of the x-values; Adding the two areas instead of subtracting the lower from the upper; Subtracting only the first term of the lower curve, so its other terms keep their signs; Counting only one of the pieces of the region; Adding the two curves, so the part below the x-axis cancels part of the area above it; Taking only the positive shift, when the other graph can lie on either side; Using the area as the shift, without dividing by the width of the region; Stopping at the cube of the letter, without taking the cube root; Forgetting to halve after adding the two changes; Treating an area below the x-axis as a rise in f, or an area above it as a fall; Stopping at the area between the curve and y = x, without doubling for the inverse; Using one curve as the top edge across the whole region, past the point where the edge changes; Multiplying by the coefficient of x, as in differentiation, instead of dividing; Taking the lower limit's term as zero when it isn't.
 
 | Type | Kind | Skills | Level | Gap | What it asks |
 |---|---|---|---|---|---|

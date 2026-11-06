@@ -14930,6 +14930,328 @@ def check_regression_pair(q):
     return None, None
 
 
+# ── regression-interpret (t4-regression-interpret, FAL-751) ──
+# The `regression-interpret` situation's clean limits, the checker's own copy: the engine's is
+# in game/engine/situations/regression_interpret.gd. The numbers are read back from what is shown
+# and the line and r found again from the data. Every statement offered is then judged from those
+# numbers: the option's wording only says which claim it makes, and the claim's truth is worked out.
+
+E9REGR_NUM = r"−?\d+(?:\.\d+)?"
+E9REGR_STRONG = (sp.Rational(9, 10), sp.Rational(99, 100))
+E9REGR_WEAK = (sp.Rational(1, 5), sp.Rational(1, 2))
+E9REGR_AB = "SL4.4.interpret-ab#"
+E9REGR_PR = "SL4.4.predict#"
+E9REGR_ORIGIN = "SL4.4.mean-point#0"
+# The stories, in the engine's order: who, x, x's units, x with units, one more x, k more x,
+# y, y's units, one unit of y, y with units, the sign of r, the lowest x allowed, the highest x, x = 0.
+E9REGR_STORIES = [
+    ("water filters", "time in use", "days", "time in use in days", "extra day in use", "the time in use is {} days longer", "flow rate", "litres per hour", "litre per hour", "flow rate in litres per hour", -1, 0, 20, "a new filter"),
+    ("solar panels", "age", "years", "age in years", "extra year of age", "the age is {} years greater", "power output", "watts", "watt", "power output in watts", -1, 0, 20, "a new panel"),
+    ("water tanks", "pumping time", "hours", "pumping time in hours", "extra hour of pumping", "the pumping time is {} hours longer", "water in the tank", "litres", "litre", "water in the tank in litres", 1, 0, 20, "the moment the pump starts"),
+    ("grain stores", "time since the last delivery", "days", "time since the last delivery in days", "extra day since the last delivery", "the time since the last delivery is {} days longer", "grain in store", "kg", "kg", "grain in store in kg", -1, 0, 20, "the day of a delivery"),
+    ("convoys", "fuel carried", "litres", "fuel carried in litres", "extra litre of fuel carried", "the fuel carried is {} litres more", "distance driven", "km", "km", "distance driven in km", 1, 30, 70, ""),
+    ("wind turbines", "wind speed", "m/s", "wind speed in m/s", "extra 1 m/s of wind speed", "the wind speed is {} m/s higher", "power output", "kW", "kW", "power output in kW", 1, 8, 20, ""),
+    ("cargo trucks", "load carried", "kg", "load carried in kg", "extra kg of load carried", "the load carried is {} kg more", "top speed", "km/h", "km/h", "top speed in km/h", -1, 30, 80, ""),
+    ("water stalls", "price of a can", "tokens", "price of a can in tokens", "extra token on the price", "the price of a can is {} tokens higher", "number of cans sold in a day", "cans", "can", "number of cans sold in a day", -1, 20, 60, ""),
+]
+E9REGR_KEYS = ("who", "x", "ux", "xl", "per", "up", "y", "uy", "uy1", "yl", "sign", "lo", "hi", "zero")
+
+
+def e9regr_t(v):
+    return sig3(v).replace("-", "−")
+
+
+def e9regr_d(v):
+    return dec_text(v).replace("-", "−")
+
+
+def e9regr_six(v):
+    t = sig3(v, 6)
+    return (t.rstrip("0").rstrip(".") if "." in t else t).replace("-", "−")
+
+
+def e9regr_num(text):
+    return R(text.replace("−", "-"))
+
+
+def e9regr_line_text(a, b):
+    return f"y = {e9regr_t(a)}x {'−' if b < 0 else '+'} {e9regr_t(abs(b))}"
+
+
+def e9regr_fit(xs, ys):
+    """The data back: the line of y on x, the line of x on y and r, by exact rationals."""
+    n = len(xs)
+    sx, sy = sum(xs), sum(ys)
+    sxx = sp.Rational(n * sum(x * x for x in xs) - sx * sx, n)
+    sxy = sp.Rational(n * sum(x * y for x, y in zip(xs, ys)) - sx * sy, n)
+    syy = sp.Rational(n * sum(y * y for y in ys) - sy * sy, n)
+    mx, my = sp.Rational(sx, n), sp.Rational(sy, n)
+    a, c = sxy / sxx, sxy / syy
+    return {"a": a, "b": my - a * mx, "c": c, "d": mx - c * my, "mx": mx, "my": my, "r": sxy / sp.sqrt(sxx * syy)}
+
+
+def e9regr_story(who, xl, yl):
+    i = next((k for k, c in enumerate(E9REGR_STORIES) if (c[0], c[3], c[9]) == (who, xl, yl)), None)
+    need(i is not None, f"no story for {who!r}, {xl!r}, {yl!r}")
+    return dict(zip(E9REGR_KEYS, E9REGR_STORIES[i]))
+
+
+def e9regr_read(q):
+    """What the question shows: the story, the data, the line it works with, r and the ranges."""
+    g, rep, L = q["given"], q["view"]["rep"], q["lines"]
+    xs, ys = [int(v) for v in g["xs"]], [int(v) for v in g["ys"]]
+    f = e9regr_fit(xs, ys)
+    a3, b3 = R(sig3(f["a"])), R(sig3(f["b"]))
+    shown_r = None
+    if rep == "table":
+        m = re.fullmatch(r"The table shows the (.+) \(x\) and the (.+) \(y\) for (\d+) (.+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        xl, yl, n, who = m.group(1), m.group(2), int(m.group(3)), m.group(4)
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "y", "table heads")
+        need([int(v) for v in rows[0][1]] == xs and [int(v) for v in rows[1][1]] == ys, "the table is not the data")
+    elif rep == "graph":
+        m = re.fullmatch(r"The graph shows the (.+) \(x\) and the (.+) \(y\) for (\d+) (.+), with the regression line of y on x\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        xl, yl, n, who = m.group(1), m.group(2), int(m.group(3)), m.group(4)
+        pts = q["graph"]["points"]
+        need([(round(p["x"]), round(p["y"])) for p in pts] == list(zip(xs, ys)), "the dots are not the data")
+        for px, py in q["graph"]["curves"][0][::9]:
+            need(abs(float(a3) * px + float(b3) - py) < 1e-6, "the line drawn is not the line")
+            need(q["graph"]["y0"] <= py + 1e-6 and py - 1e-6 <= q["graph"]["y1"], "the line leaves the plot")
+        if len(L) > 1:
+            shown_r = L[1]
+    elif rep == "equation":
+        m = re.fullmatch(rf"The regression line of y on x is y = ({E9REGR_NUM})x ([+−]) ({E9REGR_NUM})\.", L[0])
+        k = re.fullmatch(r"x is the (.+) and y is the (.+), for (\d+) (.+)\.", L[1])
+        need(m is not None and k is not None, f"can't read {L[:2]}")
+        xl, yl, n, who = k.group(1), k.group(2), int(k.group(3)), k.group(4)
+        need(e9regr_num(m.group(1)) == a3 and (1 if m.group(2) == "+" else -1) * e9regr_num(m.group(3)) == b3, "the line given is not the data's line to 3 s.f.")
+        shown_r = L[2]
+    else:
+        m = re.fullmatch(r"A line fitted to data from (\d+) (.+) predicts the (.+) \(y\) from the (.+) \(x\)\.", L[0])
+        k = re.fullmatch(rf"Its gradient is ({E9REGR_NUM}) and its y-intercept is ({E9REGR_NUM})\.", L[1])
+        need(m is not None and k is not None, f"can't read {L[:2]}")
+        n, who, yl, xl = int(m.group(1)), m.group(2), m.group(3), m.group(4)
+        need(e9regr_num(k.group(1)) == a3 and e9regr_num(k.group(2)) == b3, "the line given is not the data's line to 3 s.f.")
+        shown_r = L[2]
+    c = e9regr_story(who, xl, yl)
+    need(n == len(xs) == len(ys) and 6 <= n <= 9, f"n = {n}")
+    need(xs == sorted(set(xs)) and c["lo"] <= xs[0] and xs[-1] <= c["hi"], f"x-values {xs}")
+    need(c["lo"] > 0 or xs[0] == 0, "a story that starts at 0 has x = 0 in its table")
+    need(all(8 <= y <= 99 for y in ys), "a y-value is outside 8 to 99")
+    r = f["r"]
+    need((r > 0) == (c["sign"] > 0), "the sign of r does not match the story")
+    strong = E9REGR_STRONG[0] <= abs(r) <= E9REGR_STRONG[1]
+    weak = E9REGR_WEAK[0] <= abs(r) <= E9REGR_WEAK[1]
+    need(strong or weak, f"|r| = {float(abs(r)):.3f} is in neither band")
+    need(rg_clear(f["a"]) and rg_clear(f["b"]) and abs(f["b"]) >= 1, "a or b is on a rounding edge")
+    if shown_r is not None:
+        need(shown_r == f"Pearson's r = {sig3(sp.Rational(round(r * 100), 100), 2) if abs(r) >= sp.Rational(1, 10) else ''}".replace("-", "−"), f"r shown as {shown_r!r}")
+    out = dict(f)
+    out["c_"] = f["c"]
+    out.update(c=c, xs=xs, ys=ys, a3=a3, b3=b3, strong=strong, weak=weak, lo=xs[0], hi=xs[-1], rep=rep)
+    return out
+
+
+def e9regr_gradient(f):
+    c, a, b = f["c"], f["a3"], f["b3"]
+    v = e9regr_t(abs(a))
+    word = lambda m: "rises" if m > 0 else "falls"
+    fits = all(f["a"] * x + f["b"] == y for x, y in zip(f["xs"], f["ys"]))
+    return [(f"For each {c['per']}, the {c['y']} {word(a)} by about {v} {c['uy']} on average.", e9regr_t(f["a"]) == e9regr_t(a), None),
+            (f"The {c['y']} starts at about {e9regr_t(a)} {c['uy']}, and changes by about {e9regr_t(b)} {c['uy']} for each {c['per']}.", e9regr_t(a) == e9regr_t(b), E9REGR_AB + "0"),
+            (f"{e9regr_t(a)} is only the gradient of the line: it has no meaning for the {c['who']}.", False, E9REGR_AB + "1"),
+            (f"A rise of 1 {c['uy1']} in the {c['y']} goes with a {'rise' if a > 0 else 'fall'} of about {v} {c['ux']} in the {c['x']}.", e9regr_t(abs(f["c_"])) == v, E9REGR_AB + "3"),
+            (f"For each {c['per']}, the {c['y']} {word(-a)} by about {v} {c['uy']} on average.", (a > 0) != (f["a"] > 0), E9REGR_AB + "4"),
+            (f"For each {c['per']}, the {c['y']} of every one of the {c['who']} {word(a)} by exactly {v} {c['uy']}.", fits, E9REGR_AB + "5")]
+
+
+def e9regr_intercept(f):
+    c, a, b = f["c"], f["a3"], f["b3"]
+    v = e9regr_t(b)
+    return [(f"The {c['y']} the line gives when the {c['x']} is 0 {c['ux']}: about {v} {c['uy']}.", e9regr_t(f["b"]) == v, None),
+            (f"The change in the {c['y']} for each {c['per']}: about {v} {c['uy']}.", e9regr_t(a) == v, E9REGR_AB + "0"),
+            (f"A constant of the line, which has no units and tells nothing about the {c['who']}.", False, E9REGR_AB + "12"),
+            (f"The mean {c['y']} of the {c['who']}: about {v} {c['uy']}.", e9regr_t(f["my"]) == v, E9REGR_AB + "6"),
+            (f"The {c['x']} at which the {c['y']} reaches 0: about {v} {c['ux']}.", e9regr_t(-b / a) == v, E9REGR_AB + "7")]
+
+
+def e9regr_sensible(f):
+    c, b, lo, hi = f["c"], f["b3"], f["lo"], f["hi"]
+    value = f"{e9regr_t(b)} {c['uy']}"
+    in_data = lo == 0
+    far = lo > 0 and 2 * lo >= hi - lo
+    need(in_data or far, f"x = 0 is neither in the data nor far from it: {lo} to {hi}")
+    if in_data:
+        need(b > 0 and b not in f["ys"], "x = 0 in the data needs a b that is a possible amount and not a y-value")
+    base = (f"No: a line fitted to data must pass through the origin, so b should be 0.", b == 0, E9REGR_ORIGIN)
+    if in_data:
+        return [(f"Yes: x = 0 is in the data, so about {value} is a fair estimate for {c['zero']}.", in_data and b > 0, None),
+                ("No: x = 0 is outside the data, so b can't mean anything.", not in_data, E9REGR_AB + "10"),
+                ("No: b is not one of the y-values in the data, so it is not a real value.", not in_data, E9REGR_AB + "11"), base]
+    tail = f", and a negative {c['y']} can't happen." if b < 0 else ", so the line can't be trusted there."
+    return [(f"No: x = 0 is far outside the data, which start at x = {lo}{tail}", far, None),
+            (f"Yes: every regression line gives a value at x = 0, so about {value} is a sound estimate.", in_data, E9REGR_AB + "2"),
+            ("Yes: r is strong, so the line holds all the way down to x = 0.", in_data, E9REGR_PR + "0"), base]
+
+
+def e9regr_judge(f, x0):
+    lo, hi, strong, weak = f["lo"], f["hi"], f["strong"], f["weak"]
+    inside = lo <= x0 <= hi
+    at = f"x = {x0}"
+    good = f"Reliable: {at} is inside the data and the correlation is strong."
+    outside = f"Not reliable: {at} is outside the data, which run from {lo} to {hi}."
+    thin = "Not reliable: the correlation is weak."
+    no_line = "Not reliable: a line of y on x can't be used to estimate y."
+    if not inside:
+        need(x0 - hi >= sp.Rational(hi - lo, 2) or lo - x0 >= sp.Rational(hi - lo, 2), "an estimate outside the data is close to it")
+        need(strong, "an estimate outside the data has a strong r, so that one reason holds")
+    out = [(good, inside and strong, E9REGR_PR + "2" if weak else None), (outside, not inside, None), (thin, weak, None), (no_line, False, None)]
+    if not inside:
+        out.append(("Reliable: r is strong, so the line holds for any x.", False, E9REGR_PR + "0"))
+    elif weak:
+        out.append((f"Reliable: {at} is inside the data, so the line can be trusted there.", strong, E9REGR_PR + "2"))
+    else:
+        out.append(("Not reliable: an estimate from a regression line can never be trusted.", False, E9REGR_PR + "4"))
+    return out
+
+
+def e9regr_flawed(q, f):
+    a, b, L, lo, hi = f["a3"], f["b3"], q["lines"], f["lo"], f["hi"]
+    if f["rep"] == "table":
+        need(L[1] == f"The regression line of y on x is {e9regr_line_text(a, b)}.", f"the line in {L[1]!r}")
+    elif f["rep"] == "equation":
+        need(L[3] == f"In the data, x runs from {lo} to {hi} and y from {min(f['ys'])} to {max(f['ys'])}.", f"the range in {L[3]!r}")
+    need(f["strong"], "the flaw is not a weak r")
+    weak = ("The correlation is too weak for any estimate.", f["weak"], None)
+    sign_b = f"{'−' if b < 0 else '+'} {e9regr_d(abs(b))}"
+    m = re.fullmatch(rf"A scout estimates y when x = (\d+): y = {re.escape(e9regr_t(a))} × (\d+) ([+−]) ({E9REGR_NUM}) ≈ ({E9REGR_NUM})", L[-1])
+    if m:
+        x0 = int(m.group(1))
+        need(int(m.group(2)) == x0 and (1 if m.group(3) == "+" else -1) * e9regr_num(m.group(4)) == b, "the working is not the line's")
+        y0 = a * x0 + b
+        need(m.group(5) == e9regr_t(y0) and rg_clear(y0) and y0 >= 1, f"the working's result, {y0}")
+        outside = not lo <= x0 <= hi
+        need(x0 - hi >= sp.Rational(hi - lo, 2) or lo - x0 >= sp.Rational(hi - lo, 2), "x is not well outside the data")
+        return [(f"x = {x0} is outside the data, which run from {lo} to {hi}, so the line may not hold there.", outside, None),
+                ("Nothing is wrong: r is strong, so the line holds for any x.", not outside, E9REGR_PR + "0"),
+                ("The line must be rearranged to make x the subject first.", False, None), weak]
+    m = re.fullmatch(rf"A scout knows that y = (\d+) and estimates x: (\d+) = {re.escape(e9regr_t(a))}x ([+−]) ({E9REGR_NUM}), so x ≈ ({E9REGR_NUM})", L[-1])
+    need(m is not None, f"can't read {L[-1]!r}")
+    y = int(m.group(1))
+    need(int(m.group(2)) == y and (1 if m.group(3) == "+" else -1) * e9regr_num(m.group(4)) == b, "the working is not the line's")
+    xr = (y - b) / a
+    xc = f["c_"] * y + f["d"]
+    need(m.group(5) == e9regr_t(xr) and rg_clear(xr) and rg_clear(xc), f"the working's result, {xr}")
+    need(lo < xr < hi and y not in f["ys"], "x should be inside the data, and y not in the table")
+    differ = e9regr_t(xr) != e9regr_t(xc)
+    return [("x is being estimated, so the line of x on y is needed: the line of y on x only estimates y.", differ, None),
+            ("Nothing is wrong: rearranging a line gives the same estimate.", not differ, E9REGR_PR + "1"),
+            (f"y = {y} is outside the data, so the line may not hold there.", not min(f["ys"]) <= y <= max(f["ys"]), None), weak,
+            (f"The sign is wrong: it should be x = ({y} + {e9regr_t(b)}) ÷ {e9regr_t(a)}.", b == 0, None)]
+
+
+def e9regr_reading(q, f):
+    m = re.fullmatch(rf"Read from the line an estimate of the {re.escape(f['c']['y'])} when x = (\d+), to the nearest 5\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    x0 = int(m.group(1))
+    need(q["graph"]["vlines"] == [{"at": float(x0), "label": f"x = {x0}"}], "the x read at is marked")
+    need(f["lo"] < x0 < f["hi"] and x0 not in f["xs"], "x is inside the data and not a dot")
+    say = lambda v: f"About {v} {f['c']['uy']}"
+    y = f["a3"] * x0 + f["b3"]
+    fives = lambda v: int(5 * sp.floor(v / 5 + sp.Rational(1, 2)))
+    read = fives(y)
+    need(abs(y - read) <= 1 and read >= 10, f"the line is at {y}: no fair reading")
+    nearest = min(f["xs"], key=lambda x: (abs(x - x0), x))
+    claims = {say(read): (True, None)}
+    near = fives(sp.Integer(f["ys"][f["xs"].index(nearest)]))
+    across = fives((x0 - f["b3"]) / f["a3"])
+    tagged = {E9REGR_PR + "3": {say(near)}, E9REGR_PR + "5": {say(across)}}
+    for o in q["choices"]:
+        got = re.fullmatch(rf"About (−?\d+) {re.escape(f['c']['uy'])}", o["text"])
+        need(got is not None, f"can't read {o['text']!r}")
+        v = int(got.group(1))
+        need(v % 5 == 0 and (v == read) == o["correct"], f"option {o['text']!r} is judged wrongly: the line is at {y}")
+        need(v == read or abs(v - read) >= 5, "two readings are too close")
+    return say(read), tagged
+
+
+def e9regr_judged(q, claims):
+    """Every option is one of the claims, and its truth is the claim's. One is true."""
+    by = {t: (truth, ref) for t, truth, ref in claims}
+    for o in q["choices"]:
+        need(o["text"] in by, f"option {o['text']!r} is not a statement the checker knows")
+        truth, ref = by[o["text"]]
+        need(bool(truth) == bool(o["correct"]), f"option {o['text']!r} is {'true' if truth else 'false'} for these numbers")
+        need(o["ref"] == (ref or ""), f"option {o['text']!r} carries {o['ref']!r}, not {ref!r}")
+    true = [t for t, truth, _ in claims if truth]
+    need(len(true) == 1, f"{len(true)} statements are true: {true}")
+    wr = {}
+    for t, truth, ref in claims:
+        if ref:
+            wr.setdefault(ref, set()).add(t)
+    return true[0], wr
+
+
+def e9regr_check(q):
+    u, rep, L, asked, angle = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"], q["view"]["angle"]
+    need(q["paper"] == 2, "regression questions are Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    f = e9regr_read(q)
+    a, b, trap = f["a3"], f["b3"], None
+    steps = [st for sol in q["solutions"] for st in sol["steps"]]
+    if u == "interpret-gradient":
+        want, wrongs = e9regr_judged(q, e9regr_gradient(f))
+        p = f["lo"]
+        if angle == "two-predictions":
+            for x in (p, p + 1):
+                need(any(f"y = {e9regr_t(a)} × {x}" in st and e9regr_d(a * x + b) in st for st in steps), f"the prediction at x = {x}")
+            need(any(f"= {e9regr_d(a)}, which is a" in st for st in steps), "the difference is not a")
+    elif u == "interpret-intercept":
+        want, wrongs = e9regr_judged(q, e9regr_intercept(f))
+    elif u == "intercept-sensible":
+        if rep != "table":
+            need(L[-1] == f"In the data, x runs from {f['lo']} to {f['hi']}.", f"the range in {L[-1]!r}")
+        want, wrongs = e9regr_judged(q, e9regr_sensible(f))
+    elif u == "expected-change":
+        c = f["c"]
+        m = re.fullmatch(rf"What change in the {re.escape(c['y'])} does the line predict when (.+)\? Give your answer to 3 s\.f\., with a minus sign for a fall\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        k = next((v for v in (2, 3, 4, 5, 6, 8, 10) if c["up"].format(v) == m.group(1)), None)
+        need(k is not None and f["lo"] + k <= f["hi"], f"can't read the extra in {asked!r}")
+        use = f["a"] if rep == "table" else a
+        ch = use * k
+        need(rg_clear(ch) and sp.Rational(sig3(ch)) != ch, f"the change {ch} is on an edge or needs no rounding")
+        say = lambda v: f"change = {e9regr_t(v)} {c['uy']}"
+        want = say(ch)
+        trap = f"change = {dec_text(sp.Rational(sig3(ch, 2))).replace('-', '−')} {c['uy']}"
+        wrongs = {E9REGR_AB + "9": {say(use)}, E9REGR_AB + "8": {say(use * k + b)}, E9REGR_AB + "0": {say(b * k)}}
+        if angle == "two-predictions":
+            for x in (f["lo"], f["lo"] + k):
+                y = use * x + b
+                need(any((e9regr_six(y) if rep == "table" else e9regr_d(y)) in st for st in steps), f"the prediction at x = {x}")
+    elif u == "judge-prediction":
+        m = re.fullmatch(rf"A scout uses the line to estimate y when x = (\d+), and gets y ≈ ({E9REGR_NUM})\. Comment on the reliability of this estimate\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        x0 = int(m.group(1))
+        y0 = a * x0 + b
+        need(m.group(2) == e9regr_t(y0) and rg_clear(y0) and y0 >= 1, f"the estimate is {y0}")
+        if rep == "equation":
+            need(L[-1] == f"In the data, x runs from {f['lo']} to {f['hi']}.", f"the range in {L[-1]!r}")
+        want, wrongs = e9regr_judged(q, e9regr_judge(f, x0))
+    elif u == "flawed-estimate":
+        need(asked == "Give a reason why this method is not appropriate.", f"asked {asked!r}")
+        want, wrongs = e9regr_judged(q, e9regr_flawed(q, f))
+    elif u == "read-estimate":
+        want, wrongs = e9regr_reading(q, f)
+    else:
+        raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
 # ── normal-unknown (t4-normal-unknown-parameter, FAL-725) ────
 # The `normal-unknown` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/normal_unknown.gd. The facts are read back from what the student sees;
@@ -24998,6 +25320,799 @@ def check_binomial_unknown(q):
 # ── end binomial-unknown ──
 
 
+# ── log-laws (t1-log-laws, FAL-751) ──────────────────────────
+# The `log-laws` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/log_laws.gd. Every expression is read back from what the student sees
+# with a small parser of the game's own notation (log₃ 81, log(5x²/2), log base ab of a), and is
+# worked out again at 40 digits, with letters at values that fit what is given. An option is right
+# only if it equals the target at three sets of letters. Each tagged wrong option is worked out
+# from its slip, a typed answer's slots must make the expression it shows, and every equation in
+# the working is evaluated from the figures shown.
+
+E9LOG_MOST = 1000
+E9LOG_FRACTION = __import__("fractions").Fraction
+E9LOG_EDGE = "0.06"
+E9LOG_LAW = "SL1.7.log-laws#"
+E9LOG_OWN = "t1-log-laws#"
+(E9LOG_POWER_LOG, E9LOG_INVERT, E9LOG_SIMPLIFY, E9LOG_BASE_ITSELF, E9LOG_STOP, E9LOG_DIV_LOGS, E9LOG_MUL_LOGS, E9LOG_TIMES_IN, E9LOG_ROOT_TWO,
+ E9LOG_PLUS, E9LOG_NO_MINUS, E9LOG_NUM_BASE, E9LOG_RECIPROCAL, E9LOG_LOG_BASE, E9LOG_TIMES_BASE, E9LOG_AB_NEG, E9LOG_SWAP, E9LOG_ADD_IN,
+ E9LOG_SUB_IN, E9LOG_NO_ROOT, E9LOG_ROOT_BASE, E9LOG_SCALE) = [E9LOG_OWN + str(i) for i in range(2, 24)]
+E9LOG_SPLIT, E9LOG_QUOT = E9LOG_LAW + "0", E9LOG_LAW + "1"
+E9LOG_GDC = ("gdc-check", "gdc-logbase")
+E9LOG_BANK = ("ln 3 + ln 4", "3 ln 2", "−ln(1/2)", "log₂(1/16)", "log₉ 3", "log base √3 of 81", "log₄ 8", "log₅ 8", "log₃ 8", "log₃ 81 − log₃ 9",
+              "log₃ 20", "ln 12 − ln 3", "log₉ x", "log₈ √32", "log₁₀₀₀ a", "2 log x + log 5 − log 2", "log₁₀ 24", "log 24", "ln 24",
+              "log(x²/√y)")
+E9LOG_SUBS = "₀₁₂₃₄₅₆₇₈₉"
+E9LOG_SUPS = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+E9LOG_TOKEN = re.compile(r"\s*(log base (?:√\d+|[a-z]{2}) of|log[₀₁₂₃₄₅₆₇₈₉]+|log|ln|\d+\.\d+|\d+|[⁰¹²³⁴⁵⁶⁷⁸⁹]+|[a-z]|[-−+×/^()√])")
+E9LOG_NAME = r"(log[₀₁₂₃₄₅₆₇₈₉]*|ln)"
+E9LOG_POINTS = ((mpmath.mpf("2.3"), mpmath.mpf("3.7")), (mpmath.mpf("0.6"), mpmath.mpf("5.1")), (mpmath.mpf("7.9"), mpmath.mpf("1.4")))
+
+
+class E9logBad(Exception):
+    """Text that isn't a log expression, such as a sentence."""
+
+
+def e9log_base(name):
+    """The base of a log's name: mpmath.e for ln, 10 for log."""
+    if name == "ln":
+        return mpmath.e
+    digits = name[3:]
+    return 10 if not digits else int("".join(str(E9LOG_SUBS.index(c)) for c in digits))
+
+
+def e9log_log(base, x):
+    if x == 0:
+        raise E9logBad("the log of zero")
+    return mpmath.log(x) / mpmath.log(base)
+
+
+def e9log_tokens(text):
+    out = []
+    i = 0
+    text = text.rstrip()
+    while i < len(text):
+        mt = E9LOG_TOKEN.match(text, i)
+        if mt is None:
+            raise E9logBad(text)
+        out.append(mt.group(1))
+        i = mt.end()
+    return out
+
+
+class E9logParser:
+    """The notation: a log's argument is one atom with its powers, or a bracket; a log base .. of
+    takes juxtaposed letters. Reading is left to right, so 3 log 2/log 5 is (3 log 2)/(log 5)."""
+
+    def __init__(self, text, env):
+        self.toks = e9log_tokens(text)
+        self.at = 0
+        self.env = env
+
+    def peek(self):
+        return self.toks[self.at] if self.at < len(self.toks) else None
+
+    def take(self):
+        self.at += 1
+        return self.toks[self.at - 1]
+
+    def expect(self, t):
+        if self.peek() != t:
+            raise E9logBad(f"wanted {t}")
+        self.take()
+
+    def starts_atom(self):
+        t = self.peek()
+        return t is not None and (t in ("(", "√") or t.startswith(("log", "ln")) or t[0].isdigit() or (len(t) == 1 and t.isalpha()))
+
+    def expr(self):
+        v = self.term()
+        while self.peek() in ("+", "−", "-"):
+            op = self.take()
+            w = self.term()
+            v = v + w if op == "+" else v - w
+        return v
+
+    def term(self):
+        v = self.unary()
+        while True:
+            t = self.peek()
+            if t == "×":
+                self.take()
+                v *= self.unary()
+            elif t == "/":
+                self.take()
+                w = self.unary()
+                if w == 0:
+                    raise E9logBad("a division by zero")
+                v /= w
+            elif self.starts_atom():
+                v *= self.power()
+            else:
+                return v
+
+    def unary(self):
+        if self.peek() in ("−", "-"):
+            self.take()
+            return -self.unary()
+        return self.power()
+
+    def power(self):
+        v = self.atom()
+        while True:
+            t = self.peek()
+            if t is not None and t[0] in E9LOG_SUPS:
+                self.take()
+                v = v ** int("".join(str(E9LOG_SUPS.index(c)) for c in t))
+            elif t == "^":
+                self.take()
+                if self.peek() in ("−", "-"):
+                    self.take()
+                    v = v ** (-self.atom())
+                else:
+                    v = v ** self.atom()
+            else:
+                return v
+
+    def atom(self):
+        t = self.peek()
+        if t is None:
+            raise E9logBad("the end")
+        self.take()
+        if t == "(":
+            v = self.expr()
+            self.expect(")")
+            return v
+        if t == "√":
+            return mpmath.sqrt(self.atom())
+        if t.startswith("log base "):
+            spec = t[9:-3]
+            base = mpmath.sqrt(int(spec[1:])) if spec[0] == "√" else self.env[spec[0]] * self.env[spec[1]]
+            v = self.power()
+            while self.starts_atom():
+                v *= self.power()
+            return e9log_log(base, v)
+        if t.startswith(("log", "ln")):
+            return e9log_log(e9log_base(t), self.power())
+        if t[0].isdigit():
+            return mpmath.mpf(t)
+        if t in self.env:
+            return self.env[t]
+        raise E9logBad(f"the letter {t}")
+
+
+def e9log_read(text, env):
+    p = E9logParser(text, env)
+    v = p.expr()
+    if p.peek() is not None:
+        raise E9logBad(text)
+    return v
+
+
+def e9log_same(a, b):
+    return abs(a - b) <= mpmath.mpf(10) ** -25 * max(1, abs(b))
+
+
+def e9log_whole(v, what):
+    r = mpmath.nint(v)
+    need(abs(r - v) < mpmath.mpf(10) ** -25, f"{what} is {v}, not whole")
+    return int(r)
+
+
+def e9log_q(v):
+    """A value as a small fraction, as the laws give."""
+    f = E9LOG_FRACTION(float(v)).limit_denominator(1000)
+    need(abs(mpmath.mpf(f.numerator) / f.denominator - v) < mpmath.mpf(10) ** -12, f"{v} isn't a fraction")
+    return f
+
+
+def e9log_sf(v, n=3, strip=False):
+    """v to n s.f., half away from zero, with its zeros."""
+    d = Decimal(mpmath.nstr(mpmath.mpf(abs(v)), 30))
+    e = d.adjusted()
+    out = d.quantize(Decimal(1).scaleb(e - n + 1), rounding=ROUND_HALF_UP)
+    t = format(out, "f")
+    if strip and "." in t:
+        t = t.rstrip("0").rstrip(".")
+    return ("−" if v < 0 else "") + t
+
+
+def e9log_slots(ans_or_option, template):
+    """What the slots say, written into the template, or None if the option has no slots."""
+    out = ""
+    for part in template:
+        if isinstance(part, str):
+            out += part
+        else:
+            v = ans_or_option.get(part["slot"])
+            if v is None:
+                return None
+            out += "(" + str(v).replace("-", "−") + ")"
+    return out
+
+
+def e9log_clauses(step):
+    for part in re.split(r"\.(?:\s|$)|, so |, as |, and | and | means |, which gives |: |; ", step):
+        s = re.sub(r"^(So|Let|Then|That is|This shows it, with|Put in|=)\s+", "", part.strip())
+        if s:
+            yield s
+
+
+def e9log_steps(q, env):
+    """Every equation in the working that parses is evaluated. A decimal is held to its places."""
+    for sol in q["solutions"]:
+        need(2 <= len(sol["steps"]) <= 5, f"{sol['name']}: {len(sol['steps'])} steps")
+        done = 0
+        for step in sol["steps"]:
+            for clause in e9log_clauses(step):
+                bits = [b.strip() for b in clause.split(" = ")]
+                for a, b in zip(bits, bits[1:]):
+                    try:
+                        va, vb = e9log_read(a, env), e9log_read(b, env)
+                    except (E9logBad, ZeroDivisionError, KeyError, OverflowError):
+                        continue
+                    done += 1
+                    mt = re.search(r"\.(\d+)$", b)
+                    if mt or re.fullmatch(r"\d+\.\d+", a):
+                        places = len(mt.group(1)) if mt else 6
+                        tol = mpmath.mpf(6) * mpmath.mpf(10) ** -(places + 1)
+                        need(abs(va - vb) <= tol, f"{step!r}: {a} is {va}, not {b}")
+                    else:
+                        need(e9log_same(va, vb), f"{step!r}: {a} = {b} is false: {va}, {vb}")
+        need(done >= 1 or sol["angle"] in E9LOG_GDC, f"{sol['name']}: nothing in the working could be read: {sol['steps']}")
+        last = sol["steps"][-1]
+        need(q["answer_text"] in last, f"{sol['name']}: {last!r} doesn't state the answer")
+        need(not re.search(r"(?:^|\. )(\d+) = \1(?![\d/^.])", " ".join(sol["steps"])), f"{sol['name']}: says a number equals itself")
+
+
+def e9log_gdc(q, f_target, f_answer):
+    """A GDC check names one value, shows what both forms give, and says it isn't a proof."""
+    for sol in q["solutions"]:
+        if sol["angle"] != "gdc-check":
+            continue
+        text = " ".join(sol["steps"])
+        mt = re.search(r"With x = (\d+)(?: and y = (\d+))?, both forms show (−?[\d.]+) on the GDC", text)
+        need(mt is not None, f"{sol['name']}: no check: {text}")
+        need("check, not a proof" in text, f"{sol['name']}: a check called a proof")
+        x, y = int(mt.group(1)), int(mt.group(2) or 2)
+        env = {"x": mpmath.mpf(x), "y": mpmath.mpf(y)}
+        a, b = f_target(env), f_answer(env)
+        need(e9log_same(a, b), f"{sol['name']}: the forms differ at {x}, {y}")
+        need(e9log_sf(a, 5, True) == mt.group(3), f"{sol['name']}: shows {mt.group(3)}, not {a}")
+
+
+def e9log_options(q, envs, want, tags):
+    """envs: the letters' values; want(env): the target there; tags: ref -> env -> the values its
+    slip gives. Four different options, one right."""
+    ch = q["choices"]
+    need(len(ch) == 4, f"{len(ch)} options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "not exactly one right option")
+    need(len({o["text"] for o in ch}) == 4, "two options read the same")
+    template = q["answer"].get("template") or []
+    prints = []
+    for o in ch:
+        head = o["text"][4:] if o["text"].startswith("k = ") else o["text"]
+        vals = [e9log_read(head, e) for e in envs]
+        right = all(e9log_same(v, want(e)) for v, e in zip(vals, envs))
+        need(right == o["correct"], f"option {o['text']!r} is {'right' if right else 'wrong'} but marked {o['correct']}")
+        filled = e9log_slots(o["values"], template)
+        if filled is not None:
+            for v, e in zip(vals, envs):
+                need(e9log_same(e9log_read(filled.replace("k = ", ""), e), v), f"{filled!r} isn't {o['text']!r}")
+        elif o["correct"]:
+            raise Fail("the answer's slots are missing")
+        if o["ref"]:
+            need(o["ref"] in tags, f"{o['text']!r} can't be {o['ref']} on this question")
+            for v, e in zip(vals, envs):
+                need(any(e9log_same(v, x) for x in tags[o["ref"]](e)), f"{o['text']!r} isn't what {o['ref']} gives: {v}")
+        prints.append(tuple(mpmath.nstr(v, 20) for v in vals))
+    need(len(set(prints)) == 4, "two options are equal in value")
+
+
+def e9log_powers(n, b):
+    """e with n = b^e, or None."""
+    e = 0
+    x = n
+    while x % b == 0:
+        x //= b
+        e += 1
+    return e if x == 1 and e > 0 else None
+
+
+def e9log_prime_powers(n):
+    return {int(k): int(v) for k, v in sp.factorint(n).items()}
+
+
+def e9log_two(line):
+    """L m ± L n: the base, the numbers, the sign."""
+    mt = re.fullmatch(E9LOG_NAME + r" (\d+) ([−+]) \1 (\d+)", line)
+    return mt and (e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(4)), mt.group(3))
+
+
+def e9log_value_difference(line):
+    t = e9log_two(line)
+    need(t is not None, f"can't read {line!r}")
+    b, m, n, op = t
+    i, j = e9log_powers(m, b), e9log_powers(n, b)
+    need(i and j, f"{line}: not powers of the base")
+    need(i > j or op == "+", "a difference that isn't positive")
+    tags = {E9LOG_STOP: [mpmath.mpf(m) / n if op == "−" else mpmath.mpf(m * n)], E9LOG_NUM_BASE: [mpmath.mpf(m - n if op == "−" else m + n) / b]}
+    tags[E9LOG_DIV_LOGS if op == "−" else E9LOG_MUL_LOGS] = [mpmath.mpf(i) / j if op == "−" else mpmath.mpf(i * j)]
+    return tags
+
+
+def e9log_value_hidden(line):
+    t = e9log_two(line)
+    if t:
+        b, A, B, op = t
+        need(not e9log_powers(A, b) and not e9log_powers(B, b), f"{line}: nothing hidden")
+        top = mpmath.mpf(A * B) if op == "+" else mpmath.mpf(A) / B
+        return {E9LOG_STOP: [top], (E9LOG_ADD_IN if op == "+" else E9LOG_SUB_IN): [e9log_log(b, A + B if op == "+" else A - B)]}
+    mt = re.fullmatch("2 " + E9LOG_NAME + r" (\d+) \+ \1 (\d+)", line)
+    if mt:
+        b, c, B = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+        need(not e9log_powers(c * c, b) and not e9log_powers(B, b), f"{line}: nothing hidden")
+        return {E9LOG_STOP: [mpmath.mpf(c * c * B)], E9LOG_ADD_IN: [e9log_log(b, c * c + B)], E9LOG_TIMES_IN: [e9log_log(b, 2 * c * B)]}
+    mt = re.fullmatch(E9LOG_NAME + r"\((\d+) \+ (\d+)\)", line)
+    need(mt is not None, f"can't read {line!r}")
+    b, A, B = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+    need(e9log_powers(A + B, b), f"{line}: the sum isn't a power of the base")
+    return {E9LOG_STOP: [mpmath.mpf(A + B)], E9LOG_SPLIT: [e9log_log(b, A) + e9log_log(b, B)]}
+
+
+def e9log_value_quotient(line):
+    mt = re.fullmatch(E9LOG_NAME + r" (\d+)/\1 (\d+)", line)
+    need(mt is not None, f"can't read {line!r}")
+    b, m, n = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+    need(len(e9log_prime_powers(m * n)) == 1, f"{line}: not powers of one prime")
+    lm, ln_ = e9log_log(b, m), e9log_log(b, n)
+    return {E9LOG_QUOT: [e9log_log(b, mpmath.mpf(m) / n)], E9LOG_INVERT: [ln_ / lm]}
+
+
+def e9log_single_k(line, want, b):
+    """The tags of L k: the expression's own shape gives each slip."""
+    lg = lambda v: e9log_log(b, v)
+    k = e9log_whole(b ** want, f"k in {line}")
+    need(k > 0, "k isn't positive")
+    mt = re.fullmatch(r"(?:(\d+) )?" + E9LOG_NAME + r" (\d+)(?: ([−+]) \2 (\d+))?", line)
+    if mt:
+        c, u, op, v = int(mt.group(1) or 1), int(mt.group(3)), mt.group(4), mt.group(5)
+        if not op:
+            swapped = [lg(c ** u)] if u != c else []
+            return {E9LOG_TIMES_IN: [lg(c * u)], E9LOG_SWAP: swapped}
+        v = int(v)
+        if op == "−":
+            return {E9LOG_SUB_IN: [lg(u - v)], E9LOG_PLUS: [lg(u * v)]}
+        return {E9LOG_ADD_IN: [lg(u ** c + v)], E9LOG_TIMES_IN: [lg(c * u * v)]}
+    mt = re.fullmatch(r"−" + E9LOG_NAME + r"\(1/(\d+)\)", line)
+    if mt:
+        return {E9LOG_NO_MINUS: [lg(mpmath.mpf(1) / int(mt.group(2)))]}
+    mt = re.fullmatch(r"\(1/(\d)\) " + E9LOG_NAME + r" (\d+)", line)
+    need(mt is not None, f"can't read {line!r}")
+    c, u = int(mt.group(1)), int(mt.group(3))
+    return {E9LOG_TIMES_IN: [lg(mpmath.mpf(u) / c)], E9LOG_NO_ROOT: [lg(u)]}
+
+
+def e9log_envs(extra=None):
+    out = []
+    for x, y in E9LOG_POINTS:
+        e = {"x": x, "y": y}
+        if extra:
+            e.update(extra(e))
+        out.append(e)
+    return out
+
+
+def e9log_letters_tags(line, b):
+    """The slips of a sum of logs of x, y and numbers, worked from its terms."""
+    name = r"(?:log[₀₁₂₃₄₅₆₇₈₉]*|ln)"
+    t = re.findall(r"(^|[−+] )(?:(\d+|\(1/2\)) )?" + name + r" (x|y|\d+)", line)
+    terms = []
+    for sign, co, what in t:
+        c = mpmath.mpf(1) / 2 if co == "(1/2)" else mpmath.mpf(co or 1)
+        terms.append((-1 if sign.startswith("−") else 1, c, what))
+    need(sum(1 for t_ in terms if t_[2] == "x") == 1, f"can't read {line!r}")
+    lg = lambda v: e9log_log(b, v)
+
+    def combo(fn):
+        """Applies fn to each term: (sign, coefficient, value), and gives a number."""
+        return lambda e: [fn([(s, c, e.get(w) if w in ("x", "y") else mpmath.mpf(w)) for s, c, w in terms])]
+
+    def sign_lost(ts):
+        v = mpmath.mpf(1)
+        for _, c, x in ts:
+            v *= x ** c
+        return lg(v)
+
+    def times_in(ts):
+        v = mpmath.mpf(1)
+        for s, c, x in ts:
+            v *= (c * x) ** s
+        return lg(v)
+
+    def add_in(ts):
+        return lg(sum(s * x ** c for s, c, x in ts))
+
+    def root_two(ts):
+        v = mpmath.mpf(1)
+        for s, c, x in ts:
+            v *= x ** (2 if c == mpmath.mpf(1) / 2 else c * s)
+        return lg(v)
+
+    def plus_only(e):
+        return [sign_lost([(s, c, e.get(w) if w in ("x", "y") else mpmath.mpf(w)) for s, c, w in terms])]
+
+    def powers(e):
+        """Each letter's multiple written as a power of its log, the numbers combined."""
+        total = mpmath.mpf(0)
+        loose = []
+        for s, c, w in terms:
+            if w in ("x", "y"):
+                total += s * e9log_log(b, e[w]) ** int(c)
+            else:
+                loose.append(s * e9log_log(b, mpmath.mpf(w)))
+        return [total + sum(loose)]
+
+    return {E9LOG_PLUS: plus_only, E9LOG_TIMES_IN: combo(times_in), E9LOG_ADD_IN: combo(add_in), E9LOG_POWER_LOG: powers, E9LOG_ROOT_TWO: combo(root_two)}
+
+
+def e9log_coeffs(target_text, base):
+    """u, v and k of L(arg) = u L x + v L y + k, from the target at three points."""
+    at = lambda x, y: e9log_read(target_text, {"x": mpmath.mpf(x), "y": mpmath.mpf(y)})
+    k = at(1, 1)
+    return e9log_q(at(base, 1) - k), e9log_q(at(1, base) - k), e9log_q(k)
+
+
+def e9log_pq_tags(u, v, k, shape_root):
+    """The slips of up + vq + k. shape_root: a square root in it, with 2 for 1/2."""
+    uf, vf, kf = [mpmath.mpf(c.numerator) / c.denominator for c in (u, v, k)]
+
+    def powered(e):
+        def pw(c, l):
+            if c == 0:
+                return 0
+            return (1 if c > 0 else -1) * (l ** abs(c.numerator) if c.denominator == 1 else abs(mpmath.mpf(c.numerator) / c.denominator) * l)
+        return [pw(u, e["p"]) + pw(v, e["q"]) + kf, pw(u, e["p"]) + pw(v, e["q"])]
+
+    tags = {E9LOG_PLUS: lambda e: [uf * e["p"] - vf * e["q"] + kf], E9LOG_POWER_LOG: powered,
+            E9LOG_MUL_LOGS: lambda e: [uf * vf * e["p"] * e["q"]], E9LOG_LOG_BASE: lambda e: [uf * e["p"] + vf * e["q"]]}
+    if shape_root:
+        tags[E9LOG_ROOT_TWO] = lambda e: [4 * uf * e["p"] + vf * e["q"] + kf, uf * e["p"] + 4 * vf * e["q"] + kf, 4 * uf * e["p"] + 4 * vf * e["q"] + kf]
+    return tags
+
+
+def e9log_given(line):
+    mt = re.fullmatch(r"It is given that " + E9LOG_NAME + r" a = (−?\d+(?:/\d+)?), where a > 0\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return mt.group(1), e9log_read(mt.group(2), {})
+
+
+def e9log_ab(line):
+    mt = re.fullmatch(r"It is given that log base ([a-z])([a-z]) of \1 = (−?\d+(?:/\d+)?), where \1, \2 > 0 and \1\2 ≠ 1\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    m = e9log_read(mt.group(3), {})
+    B = mpmath.mpf("3.7")
+    return mt.group(1), mt.group(2), m, {mt.group(1): B ** m, mt.group(2): B ** (1 - m)}
+
+
+def e9log_gather(tags):
+    """Tags of plain lists as functions of the letters."""
+    return {k: (v if callable(v) else (lambda e, v=v: v)) for k, v in tags.items()}
+
+
+def e9log_paper(q, u, angle):
+    if u == "value-3sf" or angle in E9LOG_GDC:
+        need(q["paper"] == 2, f"{angle} on Paper 1")
+    else:
+        need(q["paper"] == 1, "Paper 2 without a calculator method")
+    for sol in q["solutions"]:
+        if sol["angle"] in E9LOG_GDC:
+            need(q["paper"] == 2, "a GDC method on Paper 1")
+    if q["paper"] == 1:
+        need(not re.search(r"GDC|calculator", " ".join(st for sol in q["solutions"] for st in sol["steps"])), "a calculator on Paper 1")
+
+
+def e9log_clean(q):
+    text = " ".join(q["lines"]) + " " + q["asked"]
+    target = re.fullmatch(r"(?:Find the value of|Express|Find an expression for) (.+?)(?: in terms of p and q)?\.", q["asked"])
+    for shown in (q["lines"][0], target and target.group(1)):
+        need(shown not in E9LOG_BANK, f"a bank or map number: {shown}")
+    for n in re.findall(r"(?<![₀₁₂₃₄₅₆₇₈₉\d.])\d+(?![\d.])", text):
+        need(int(n) <= E9LOG_MOST, f"{n} is past the clean limit")
+
+
+def e9log_plain(q, u, line):
+    """Exact numbers, with no letters."""
+    want = e9log_read(line, {})
+    fn = {"value-difference": e9log_value_difference, "value-hidden": e9log_value_hidden, "value-quotient": e9log_value_quotient}[u]
+    if u in ("value-difference", "value-hidden"):
+        e9log_whole(want, line)
+    tags = fn(line)
+    return [{}], lambda e: want, e9log_gather(tags), {"y": want}
+
+
+def e9log_evaluate_single(line):
+    want = e9log_read(line, {})
+    mt = re.fullmatch(r"log base √(\d+) of (\d+)", line)
+    if mt:
+        p, n = int(mt.group(1)), int(mt.group(2))
+        t = e9log_powers(n, p)
+        need(t, f"{line}")
+        return want, {E9LOG_ROOT_BASE: [mpmath.mpf(t)], E9LOG_INVERT: [1 / want]}, False
+    mt = re.fullmatch(E9LOG_NAME + r"(?:\(1/(\d+)\)| (\d+))", line)
+    need(mt is not None, f"can't read {line!r}")
+    B = e9log_base(mt.group(1))
+    tags = {E9LOG_INVERT: [1 / want]}
+    if mt.group(2):
+        n = int(mt.group(2))
+        tags[E9LOG_NO_MINUS] = [-want]
+        tags[E9LOG_STOP] = [mpmath.mpf(1) / n]
+    else:
+        n = int(mt.group(3))
+        tags[E9LOG_NUM_BASE] = [mpmath.mpf(n) / B]
+        ps = e9log_prime_powers(B)
+        p, e = next(iter(ps.items()))
+        tags[E9LOG_TIMES_BASE] = [want * e * e]
+    need(len(e9log_prime_powers(B * n)) == 1, f"{line}: more than one prime")
+    return want, tags, False
+
+
+def e9log_figures(q, b, n):
+    """The 3 s.f. value: compared as written."""
+    v = mpmath.log(n) / mpmath.log(b)
+    want = e9log_sf(v)
+    need(q["answer_text"] == want, f"the answer is {q['answer_text']!r}, not {want}")
+    scaled = abs(v) / mpmath.mpf(10) ** (int(mpmath.floor(mpmath.log10(abs(v)))) - 2)
+    need(abs(scaled - mpmath.floor(scaled) - mpmath.mpf("0.5")) >= mpmath.mpf(E9LOG_EDGE), f"{v} sits on a rounding edge")
+    ch = q["choices"]
+    need(len(ch) == 4 and len({o["text"] for o in ch}) == 4, "four different options")
+    need(sum(1 for o in ch if o["correct"]) == 1, "one right option")
+    tags = {E9LOG_INVERT: 1 / v, E9LOG_SIMPLIFY: mpmath.log10(mpmath.mpf(n) / b), E9LOG_NUM_BASE: mpmath.mpf(n) / b}
+    for o in ch:
+        need((o["text"] == want) == o["correct"], f"{o['text']!r} marked {o['correct']}")
+        if o.get("trap"):
+            need(e9log_sf(v, 2) == o["text"] or e9log_sf(v, 2, True) == o["text"], f"the trap {o['text']!r}")
+        if o["ref"]:
+            need(o["ref"] in tags and e9log_sf(tags[o["ref"]]) == o["text"], f"{o['text']!r} isn't {o['ref']}")
+    return v
+
+
+def e9log_check(q):
+    with mpmath.workdps(40):
+        return e9log_solve(q)
+
+
+def e9log_solve(q):
+    u, angle, L = q["view"]["unknown"], q["view"]["angle"], q["lines"]
+    asked = q["asked"]
+    e9log_paper(q, u, angle)
+    e9log_clean(q)
+    need(q["answer"]["kind"] == "number" if u == "value-3sf" else q["answer"]["kind"] == "form", "the answer's kind")
+    if u != "value-3sf":
+        need(q["answer"].get("exact") is True, "an exact answer not marked exactly")
+    envs, tags, step_env = [{}], {}, {}
+    if u in ("value-difference", "value-hidden", "value-quotient"):
+        envs, want, tags, step_env = e9log_plain(q, u, L[0])
+    elif u == "single-ln-k":
+        mt = re.fullmatch(r"Write this as (\S+) k, where k is a positive whole number\.", asked)
+        need(mt is not None, asked)
+        v = e9log_read(L[0], {})
+        b = e9log_base(mt.group(1))
+        want = lambda e: v
+        tags = e9log_gather(e9log_single_k(L[0], v, b))
+        need(re.fullmatch(re.escape(mt.group(1)) + r" \d+", q["answer_text"]), "the answer isn't L k")
+    elif u == "single-log-letters":
+        need(asked == "Write this as a single logarithm.", asked)
+        envs = e9log_envs()
+        want = lambda e: e9log_read(L[0], e)
+        b = e9log_base(re.search(E9LOG_NAME, L[0]).group(1))
+        tags = e9log_letters_tags(L[0], b)
+        ans_text = q["answer_text"]
+        need(len(re.findall(r"log|ln", ans_text)) == 1, f"{ans_text} isn't a single log")
+        e9log_gdc(q, want, lambda e: e9log_read(ans_text, e))
+        step_env = envs[0]
+    elif u == "expand-letters":
+        mt = re.fullmatch(r"Let p = " + E9LOG_NAME + r" x and q = \1 y, where x, y > 0\.", L[0])
+        need(mt is not None, L[0])
+        target = re.fullmatch(r"Express (.+) in terms of p and q\.", asked).group(1)
+        b = e9log_base(mt.group(1))
+        envs = e9log_envs(lambda e: {"p": e9log_log(b, e["x"]), "q": e9log_log(b, e["y"])})
+        want = lambda e: e9log_read(target, e)
+        cu, cv, ck = e9log_coeffs(target, b)
+        tags = e9log_pq_tags(cu, cv, ck, "√" in target)
+        ans_text = q["answer_text"]
+        need(not re.search(r"log|ln", ans_text), "the answer isn't in p and q")
+        full = lambda e: dict(e, p=e9log_log(b, e["x"]), q=e9log_log(b, e["y"]))
+        e9log_gdc(q, want, lambda e: e9log_read(ans_text, full(e)))
+        step_env = envs[0]
+    elif u == "expand-numbers":
+        mt = re.fullmatch(r"Let " + E9LOG_NAME + r" (\d+) = p and \1 (\d+) = q\.", L[0])
+        need(mt is not None, L[0])
+        b, c, d = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+        need(sp.isprime(c) and sp.isprime(d) and c != d and not (b == 10 and c * d == 10), f"p and q: {L[0]}")
+        target = re.fullmatch(r"Express (.+) in terms of p and q\.", asked).group(1)
+        envs = [{"p": e9log_log(b, c), "q": e9log_log(b, d)}]
+        value = e9log_read(target, {})
+        want = lambda e: value
+        am = re.fullmatch(mt.group(1) + r"(?: (\d+)| √(\d+)|\((\d+)/(\d+)\))", target)
+        need(am is not None, target)
+        top, under, size = (int(am.group(1)), 1, 1) if am.group(1) else (int(am.group(2)), 1, 2) if am.group(2) else (int(am.group(3)), int(am.group(4)), 1)
+        exps = {p: E9LOG_FRACTION(e, size) for p, e in e9log_prime_powers(top).items()}
+        for p, e in e9log_prime_powers(under).items():
+            exps[p] = -E9LOG_FRACTION(e, size)
+        k = exps.pop(5, E9LOG_FRACTION(0)) if b == 10 and {c, d} == {2, 3} else E9LOG_FRACTION(0)
+        need(set(exps) <= {c, d}, f"{target} isn't made of {c} and {d}")
+        cu, cv = exps.get(c, E9LOG_FRACTION(0)), exps.get(d, E9LOG_FRACTION(0))
+        if k:
+            cu -= k
+        tags = e9log_pq_tags(cu, cv, k, "√" in target)
+    elif u == "show-number":
+        mt = re.fullmatch("(.+) = k " + E9LOG_NAME + r" (\d+)", L[0])
+        need(mt is not None, L[0])
+        k = e9log_read(mt.group(1), {}) / e9log_log(e9log_base(mt.group(2)), int(mt.group(3)))
+        e9log_whole(k, "k")
+        c = int(mt.group(3))
+        num = c ** int(mpmath.nint(k))
+        want = lambda e: k
+        tags = e9log_gather({E9LOG_STOP: [mpmath.mpf(num)], E9LOG_NUM_BASE: [mpmath.mpf(num) / c]})
+        step_env = {"k": k}
+    elif u in ("given-log-laws", "given-log-base"):
+        name, m = e9log_given(L[0])
+        b = e9log_base(name)
+        env = {"a": b ** m}
+        target = re.fullmatch(r"Find the value of (.+)\.", asked).group(1)
+        v = e9log_read(target, env)
+        envs = [env]
+        want = lambda e: v
+        step_env = dict(env, y=v)
+        if u == "given-log-laws":
+            lm = m
+            mt = re.fullmatch(name + r"(?: √a| a\^\(1/(\d)\)| a([²³])|\(1/a\)|\((\d+)a\)|\((\d+)/a\)|\(a([²³])/(\d+)\))", target)
+            need(mt is not None, target)
+            if "1/a" in target:
+                tags = {E9LOG_RECIPROCAL: [1 / lm], E9LOG_NO_MINUS: [lm]}
+            elif "√" in target or mt.group(1):
+                tags = {E9LOG_ROOT_TWO: [lm * (int(mt.group(1) or 2))]}
+            elif mt.group(2):
+                r = E9LOG_SUPS.index(mt.group(2))
+                tags = {E9LOG_POWER_LOG: [lm ** r]}
+            elif mt.group(3):
+                tags = {E9LOG_LOG_BASE: [lm], E9LOG_SCALE: [lm * b]}
+            elif mt.group(4):
+                tags = {E9LOG_LOG_BASE: [-lm], E9LOG_PLUS: [1 + lm]}
+            else:
+                r = E9LOG_SUPS.index(mt.group(5))
+                tags = {E9LOG_LOG_BASE: [r * lm], E9LOG_PLUS: [r * lm + 1]}
+        else:
+            mt = re.fullmatch(E9LOG_NAME + r" a([²³]?)", target)
+            need(mt is not None, target)
+            big = e9log_base(mt.group(1))
+            kk = e9log_powers(big, b)
+            need(kk and kk >= 2, f"{big} isn't a power of {b}")
+            r = E9LOG_SUPS.index(mt.group(2)) if mt.group(2) else 1
+            tags = {E9LOG_TIMES_BASE: [r * m * kk], E9LOG_BASE_ITSELF: [r * m / big], E9LOG_INVERT: [kk / (r * m)]}
+        tags = e9log_gather(tags)
+    elif u in ("ab-base-value", "ab-base-hence"):
+        l1, l2, m, env = e9log_ab(L[0])
+        target = re.fullmatch(r"Find the value of (.+)\.", asked).group(1)
+        v = e9log_read(target, env)
+        envs = [env]
+        want = lambda e: v
+        if u == "ab-base-value":
+            need(target == f"log base {l1}{l2} of {l2}", target)
+            tags = e9log_gather({E9LOG_AB_NEG: [-m], E9LOG_PLUS: [1 + m]})
+        else:
+            mt = re.fullmatch(r"log base \S+ of \(" + l1 + r"(.*)/" + l2 + r"(.*)\)", target)
+            need(mt is not None, target)
+            read_e = lambda t: (e9log_read(t[1:], {}) if t.startswith("^") else mpmath.mpf(E9LOG_SUPS.index(t)))
+            e1, e2 = read_e(mt.group(1)), read_e(mt.group(2))
+            mb = 1 - m
+            tags = e9log_gather({E9LOG_SWAP: [e2 * m - e1 * mb], E9LOG_PLUS: [e1 * m + e2 * mb], E9LOG_AB_NEG: [e1 * m + e2 * m]})
+        step_env = env
+    elif u == "evaluate-single":
+        v, tags, _ = e9log_evaluate_single(L[0])
+        want = lambda e: v
+        tags = e9log_gather(tags)
+        step_env = {"y": v}
+    elif u == "log-of-root":
+        if L[0].startswith("f(x)"):
+            B = int(re.fullmatch(r"f\(x\) = (\d+)\^x", L[0]).group(1))
+            root = re.fullmatch(r"Find the value of f⁻¹\((.+)\)\.", asked).group(1)
+        else:
+            mt = re.fullmatch(E9LOG_NAME + r" (.+)", L[0])
+            B, root = e9log_base(mt.group(1)), mt.group(2)
+        mt = re.fullmatch(r"(?:√(\d+)|(\d+)\^\(1/3\))", root)
+        need(mt is not None, root)
+        n = int(mt.group(1) or mt.group(2))
+        need((B, root) != (8, "√32"), "the bank's numbers")
+        size = 2 if mt.group(1) else 3
+        v = e9log_log(B, e9log_read(root, {}))
+        need(len(e9log_prime_powers(B * n)) == 1, f"{B}, {n}")
+        want = lambda e: v
+        whole = e9log_log(B, n)
+        tags = e9log_gather({E9LOG_NO_ROOT: [whole], E9LOG_ROOT_TWO: [whole * size], E9LOG_INVERT: [1 / v]})
+        step_env = {"y": v}
+    elif u == "cob-common-base":
+        mt = re.fullmatch(r"Express this in terms of " + E9LOG_NAME + r" (\d+) and \1 (\d+)\.", asked)
+        need(mt is not None, asked)
+        H, d, c = mt.group(1), int(mt.group(2)), int(mt.group(3))
+        need(e9log_base(H) in (10, mpmath.e), H)
+        v = e9log_read(L[0], {})
+        base = e9log_base(re.fullmatch(E9LOG_NAME + r" (\d+)", L[0]).group(1))
+        N_ = int(re.fullmatch(E9LOG_NAME + r" (\d+)", L[0]).group(2))
+        need(base == c and e9log_powers(N_, d), f"{L[0]} in {d} and {c}")
+        k = e9log_powers(N_, d)
+        hb = e9log_base(H)
+        ld, lc = e9log_log(hb, d), e9log_log(hb, c)
+        want = lambda e: v
+        tags = e9log_gather({E9LOG_INVERT: [lc / (k * ld)], E9LOG_SIMPLIFY: [e9log_log(hb, mpmath.mpf(N_) / c)], E9LOG_POWER_LOG: [ld ** k / lc]})
+        need(set(re.findall(r"\d+", q["answer_text"].replace(H, ""))) <= {str(k), str(d), str(c)} and q["answer_text"].count(H) == 2, "not in those two logs")
+        step_env = {"y": v}
+    elif u == "cob-in-p-q":
+        mt = re.fullmatch(r"Let " + E9LOG_NAME + r" (\d+) = p and \1 (\d+) = q\.", L[0])
+        need(mt is not None, L[0])
+        hb, c, d = e9log_base(mt.group(1)), int(mt.group(2)), int(mt.group(3))
+        need(sp.isprime(c) and sp.isprime(d) and c != d and not (hb == 10 and c * d == 10), L[0])
+        target = re.fullmatch(r"Find an expression for (.+) in terms of p and q\.", asked).group(1)
+        tm = re.fullmatch(E9LOG_NAME + r" (\d+)", target)
+        B, N_ = e9log_base(tm.group(1)), int(tm.group(2))
+        p_, q_ = e9log_log(hb, c), e9log_log(hb, d)
+        envs = [{"p": p_, "q": q_}]
+        v = e9log_log(B, N_)
+        want = lambda e: v
+        fs = e9log_prime_powers(N_)
+        k, j = fs.get(c, 0), fs.get(d, 0)
+        need(set(fs) <= {c, d} and k > 0, target)
+        de = e9log_powers(B, d)
+        need(de in (1, 2), f"the base {B}")
+        tags = e9log_gather({E9LOG_INVERT: [de * q_ / (k * p_ + j * q_)], E9LOG_SIMPLIFY: [k * p_ - de * q_, k * p_ + j * q_ - q_], E9LOG_POWER_LOG: [p_ ** k / (de * q_)],
+                             E9LOG_LOG_BASE: [k * p_ / q_]})
+        need(not re.search(r"log|ln", q["answer_text"]), "the answer isn't in p and q")
+        step_env = {"y": v, "p": p_, "q": q_}
+    elif u == "base-power-letter":
+        mt = re.fullmatch(r"Write this in terms of (\S+) x, where x > 0\.", asked)
+        need(mt is not None, asked)
+        name = mt.group(1)
+        b = e9log_base(name)
+        tm = re.fullmatch(E9LOG_NAME + r" x([²³]?)", L[0])
+        need(tm is not None, L[0])
+        big = e9log_base(tm.group(1))
+        r = E9LOG_SUPS.index(tm.group(2)) if tm.group(2) else 1
+        k = e9log_powers(big, b)
+        need(k and k >= 2, f"{big} and {b}")
+        envs = [{"x": e} for e in (mpmath.mpf("2.3"), mpmath.mpf("0.6"), mpmath.mpf("7.9"))]
+        want = lambda e: e9log_read(L[0], e)
+        tags = {E9LOG_BASE_ITSELF: lambda e: [mpmath.mpf(r) / big * e9log_log(b, e["x"])], E9LOG_TIMES_BASE: lambda e: [r * k * e9log_log(b, e["x"])],
+                E9LOG_INVERT: lambda e: [mpmath.mpf(k) / (r * e9log_log(b, e["x"]))]}
+        step_env = {"x": envs[0]["x"], "y": want(envs[0])}
+    elif u == "value-3sf":
+        mt = re.fullmatch(E9LOG_NAME + r" (\d+)", L[0])
+        need(mt is not None, L[0])
+        b, n = e9log_base(mt.group(1)), int(mt.group(2))
+        need(not e9log_powers(n, b), "a power of the base")
+        need(q["answer"].get("show") == "sf", "not to 3 s.f.")
+        e9log_figures(q, b, n)
+        e9log_steps(q, {})
+        for sol in q["solutions"]:
+            if sol["angle"] == "gdc-logbase":
+                shown = re.search(r"The GDC shows (\d+\.\d+)", " ".join(sol["steps"]))
+                need(shown and shown.group(1) == e9log_sf(mpmath.log(n) / mpmath.log(b), 5, True), f"{sol['steps']}")
+        return None, None
+    else:
+        raise Fail(f"no check for {u}")
+    if u == "show-number":
+        need(q["answer_text"].startswith("k = "), "the answer isn't k")
+    e9log_options(q, envs, want, tags)
+    if not step_env:
+        step_env = envs[0]
+    e9log_steps(q, step_env)
+    need(angle == "any" or q["solutions"][0]["angle"] == angle, "the asked method isn't first")
+    return None, None
+
+
+# ── end log-laws ──
+
+
 # ── antiderivative-condition (t5-antiderivative-condition, FAL-740) ──────
 # The `antiderivative-condition` situation's clean limits, the checker's own copy: the engine's is
 # in game/engine/situations/antiderivative_condition.gd. The derivative and the condition are read
@@ -26757,7 +27872,1536 @@ def check_box_plot(q):
 # ── end box-plot ──
 
 
-SITUATION_CHECKS = {"grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── distance-midpoint (t3-distance-midpoint, FAL-751) ────────────────────
+# The `distance-midpoint` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/distance_midpoint.gd. The points are read back from what the student sees
+# (the sentences, the position vectors or the labels of the figure), the lengths and midpoints are
+# worked again, k is solved with SymPy, and each tagged option is rebuilt from its slip. The sums in
+# the working are evaluated, and a figure must hold the same points.
+
+E9DIST_T = "t3-distance-midpoint#"
+E9DIST_D = "SL3.1.distance-3d#"
+E9DIST_M = "SL3.1.midpoint-3d#"
+E9DIST_REACH = 15
+E9DIST_END_REACH = 30
+E9DIST_EDGE = sp.Rational(3, 100)
+E9DIST_BANK = [((8, 6, 0), (4, 3, 10)), ((8, 0, 0), (4, 3, 10)), ((6, 8, 0), (3, 4, 9)), ((6, 0, 0), (3, 4, 9)), ((1, 5, 0), (-1, 1, 6)),
+               ((1, 7, 0), (-3, 4, 2)), ((6, -1, -3), (4, -5, -9)), ((1, 4, 0), (-3, 2, -4)), ((1, -2, 3), (4, 2, 15)), ((2, 5, -1), (6, 3, 4))]
+E9DIST_N = r"−?\d+(?:\.\d+)?(?:/\d+)?"
+E9DIST_PT = re.compile(rf"(?<![A-Za-z])([A-Z])\(({E9DIST_N}), ({E9DIST_N})(?:, ({E9DIST_N}))?\)")
+E9DIST_VEC = re.compile(rf"(?<![A-Za-z])([a-z]) = \(({E9DIST_N}), ({E9DIST_N})(?:, ({E9DIST_N}))?\)")
+E9DIST_LENS = ("distance-two-points", "distance-2d", "space-diagonal", "pyramid-edge", "radius-from-centre", "radius-from-diameter")
+
+
+def e9dist_r(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def e9dist_points(q):
+    """name -> coordinates, from all the student can read."""
+    texts = list(q["lines"])
+    g = q["graph"]
+    if g is not None:
+        texts += list(g["labels"].values())
+    out = {}
+    for t in texts:
+        for rx, up in ((E9DIST_PT, False), (E9DIST_VEC, True)):
+            for m in rx.finditer(t):
+                out[m.group(1).upper() if up else m.group(1)] = tuple(e9dist_r(v) for v in m.groups()[1:] if v is not None)
+    return out
+
+
+def e9dist_c(v, paper):
+    return dec_text(v) if paper == 2 else frac_text(sp.Rational(v))
+
+
+def e9dist_pt(p, paper):
+    return "(" + ", ".join(e9dist_c(v, paper) for v in p) + ")"
+
+
+def e9dist_root(n):
+    """√n as the game writes it: √61, 6√2 or 13."""
+    n = int(n)
+    m, r, f = 1, n, 2
+    while f * f <= r:
+        while r % (f * f) == 0:
+            r //= f * f
+            m *= f
+        f += 1
+    if r == 1:
+        return str(m)
+    return f"√{r}" if m == 1 else f"{m}√{r}"
+
+
+def e9dist_sq(a, b):
+    return sum((y - x) ** 2 for x, y in zip(a, b))
+
+
+def e9dist_clear(x):
+    v = abs(num(x))
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E9DIST_EDGE
+
+
+def e9dist_len(label, n, paper):
+    """The text of a length whose square is n."""
+    if paper == 1:
+        return f"{label} = {e9dist_root(n)}"
+    return f"{label} = {gc_s(sp.N(sp.sqrt(n), 30))}"
+
+
+def e9dist_trap(label, n, paper):
+    return None if paper == 1 else f"{label} = {gc_s2(sp.N(sp.sqrt(n), 30))}"
+
+
+def e9dist_slips(a, b):
+    """Slip -> the square of the length it gives, for the move from a to b."""
+    d = [y - x for x, y in zip(a, b)]
+    n = sum(v ** 2 for v in d)
+    out = {E9DIST_D + "0" if len(a) == 3 else E9DIST_T + "25": sum(d) ** 2, E9DIST_D + "1": sum((abs(y) - abs(x)) ** 2 for x, y in zip(a, b)),
+           E9DIST_T + "6": n ** 2, E9DIST_T + "7": sum((x + y) ** 2 for x, y in zip(a, b))}
+    if len(a) == 3:
+        out[E9DIST_T + "8"] = d[0] ** 2 + d[1] ** 2
+    return out
+
+
+def e9dist_limits(a, b, reach=E9DIST_REACH):
+    need(all(abs(v) <= reach for v in a + b), "a coordinate is out of reach")
+    need(any(x * y < 0 for x, y in zip(a, b)), "no coordinate changes sign")
+    if len(a) == 3:
+        pa, pb = tuple(a), tuple(b)
+        need((pa, pb) not in E9DIST_BANK and (pb, pa) not in E9DIST_BANK, "the bank's points")
+
+
+def e9dist_p2_length(n):
+    need(not sp.sqrt(n).is_Rational, "a Paper 2 length is whole")
+    need(e9dist_clear(sp.sqrt(n)), "a length is on a rounding edge")
+
+
+def e9dist_read_ok(q):
+    """Everything a student reads uses the game's minus sign and glyphs."""
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def e9dist_value(t):
+    """A sum of numbers as it is written, or None if it isn't only numbers."""
+    t = t.strip().replace("−", "-").replace("×", "*").replace("÷", "/").replace("²", "**2")
+    if not t or not re.fullmatch(r"[\d.+\-*/() ]+", t) or not re.search(r"\d", t):
+        return None
+    if t.count("(") != t.count(")"):
+        return None
+    try:
+        return eval(re.sub(r"\d+(?:\.\d+)?", lambda m: f"sp.Rational('{m.group(0)}')", t), {"sp": sp})
+    except (SyntaxError, TypeError):
+        return None
+
+
+def e9dist_steps(q):
+    """Evaluates the sums in the working: chains, coordinate lists, rounded roots and equations."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in re.finditer(rf"\(([^=]*)\) = \(({E9DIST_N}(?:, {E9DIST_N})*)\)", st):
+                left = re.split(r", (?![^()]*\))", m.group(1))
+                right = m.group(2).split(", ")
+                need(len(left) == len(right), f"can't read {st!r}")
+                for x, y in zip(left, right):
+                    need(e9dist_value(x) == e9dist_r(y), f"{x} is not {y} in {st!r}")
+            for m in re.finditer(rf"\(({E9DIST_N}) \+ ([xyz])\)/2 = ({E9DIST_N}), so ({E9DIST_N}) \+ [xyz] = ({E9DIST_N}) and [xyz] = ({E9DIST_N})\.", st):
+                a, mm, b, tw, v = (e9dist_r(m.group(i)) for i in (1, 3, 4, 5, 6))
+                need(a == b and tw == 2 * mm and a + v == 2 * mm, f"the equation in {st!r} is wrong")
+            for m in re.finditer(r"√(\d+(?:\.\d+)?) = ([\d.]+) to 3 s\.f\.", st):
+                need(gc_s(sp.N(sp.sqrt(sp.Rational(m.group(1))), 30)) == m.group(2), f"the root in {st!r}")
+            for m in re.finditer(r"√(\d+) = (\d*√\d+|\d+),", st):
+                need(e9dist_root(m.group(1)) == m.group(2), f"the root in {st!r}")
+            for piece in re.split(r", (?![^()]*\))|: |\. ", st):
+                parts = [p for p in piece.rstrip(".").split(" = ")]
+                vals = [e9dist_value(p) for p in parts]
+                for x, y in zip(vals, vals[1:]):
+                    if x is not None and y is not None:
+                        need(x == y, f"{piece!r} doesn't add up")
+
+
+def e9dist_figure(q, pts):
+    """A figure's points are the question's own."""
+    g = q["graph"]
+    if q["rep"] != "diagram":
+        need(g is None, "only a diagram has a figure")
+        return
+    need(g is not None and g["kind"] == "space", "no figure")
+    if not g["axes"]:
+        need(g.get("ball") is not None, "a figure with no axes and no round solid")
+        return
+    for n, p in pts.items():
+        if n in g["pts"]:
+            need(all(abs(float(u) - float(v)) < 1e-9 for u, v in zip(g["pts"][n], p)), f"{n} is drawn at the wrong place")
+    need(sum(1 for ln in g["lines"] if ln["asked"]) >= (0 if q["view"]["unknown"] == "show-isosceles" else 1), "the figure doesn't mark the segment")
+
+
+def e9dist_length(q, label, a, b, extra=None, reach=E9DIST_REACH):
+    paper = q["paper"]
+    n = e9dist_sq(a, b)
+    e9dist_limits(a, b, reach)
+    if paper == 2:
+        e9dist_p2_length(n)
+    w = {ref: {e9dist_len(label, v, paper)} for ref, v in e9dist_slips(a, b).items() if v > 0}
+    for ref, v in (extra or {}).items():
+        w[ref] = {e9dist_len(label, v, paper)}
+    gc_check_common(q, e9dist_len(label, n, paper), w, e9dist_trap(label, n, paper))
+    return n
+
+
+def e9dist_distance(q):
+    p = e9dist_points(q)
+    u = q["view"]["unknown"]
+    e9dist_figure(q, p)
+    need(len(p["A"]) == (2 if u == "distance-2d" else 3), "the wrong dimension")
+    if u == "distance-2d":
+        need(all(s["angle"] != "pythagoras-twice" for s in q["solutions"]), "Pythagoras twice needs three axes")
+    e9dist_length(q, "AB", p["A"], p["B"])
+
+
+def e9dist_space_diagonal(q):
+    p = e9dist_points(q)
+    e9dist_figure(q, p)
+    a, b = (sp.Integer(0),) * 3, p["G"]
+    need(len(set(b)) == 3 and all(v > 0 for v in b), "the edges of the cuboid")
+    n = e9dist_sq(a, b)
+    paper = q["paper"]
+    if paper == 2:
+        e9dist_p2_length(n)
+    slips = e9dist_slips(a, b)
+    w = {r: {e9dist_len("OG", slips[r], paper)} for r in (E9DIST_D + "0", E9DIST_T + "6", E9DIST_T + "8")}
+    gc_check_common(q, e9dist_len("OG", n, paper), w, e9dist_trap("OG", n, paper))
+    if q["graph"] is not None:
+        need(q["graph"]["labels"]["O"] == "O", "the origin's label")
+
+
+def e9dist_pyramid(q):
+    asked = q["asked"]
+    m = re.search(r"(?:edge|height) ([A-Z])([A-Z])", asked)
+    need(m is not None, f"can't read {asked!r}")
+    label = m.group(1) + m.group(2)
+    p = e9dist_points(q)
+    e9dist_figure(q, p)
+    g = q["graph"]
+    upright = g is not None or "rectangular base OABC" in q["lines"][0]
+    extra = {}
+    if upright:
+        v = p["V"]
+        need(v[2] > 0, "the vertex is above the base")
+        corner = tuple(sp.Rational(str(x)) for x in g["pts"][m.group(1)]) if g is not None else p[m.group(1)]
+        want = {"A": (0, 2 * v[1], 0), "B": (2 * v[0], 2 * v[1], 0), "C": (2 * v[0], 0, 0)}[m.group(1)]
+        need(corner == want, "the base is not centred under V")
+        need(v[0] != v[1], "the base is square")
+        extra[E9DIST_T + "9"] = 4 * (v[0] ** 2 + v[1] ** 2) + v[2] ** 2
+        paper = q["paper"]
+        n = e9dist_sq(corner, v)
+        need(tuple(corner) != tuple(v), "a corner at V")
+        if paper == 2:
+            e9dist_p2_length(n)
+        need((corner, v) not in [(tuple(sp.Integer(i) for i in x), tuple(sp.Integer(i) for i in y)) for x, y in E9DIST_BANK], "the bank's points")
+        w = {ref: {e9dist_len(label, val, paper)} for ref, val in e9dist_slips(corner, v).items() if val > 0}
+        w[E9DIST_T + "9"] = {e9dist_len(label, extra[E9DIST_T + "9"], paper)}
+        gc_check_common(q, e9dist_len(label, n, paper), w, e9dist_trap(label, n, paper))
+    else:
+        a, b = (p["V"], p["X"]) if label == "VX" else (p["A"], p["V"])
+        e9dist_length(q, label, a, b)
+
+
+def e9dist_radius_centre(q):
+    p = e9dist_points(q)
+    e9dist_figure(q, p)
+    e9dist_length(q, "r", p["C"], p["P"], {E9DIST_T + "11": 4 * e9dist_sq(p["C"], p["P"])})
+
+
+def e9dist_radius_diameter(q):
+    p = e9dist_points(q)
+    e9dist_figure(q, p)
+    a, b, paper = p["A"], p["B"], q["paper"]
+    e9dist_limits(a, b)
+    n = e9dist_sq(a, b)
+
+    def text(d2):
+        """The radius from a diameter whose square is d2."""
+        if paper == 1:
+            return f"r = {e9dist_root(d2 / 4)}"
+        return f"r = {gc_s(sp.N(sp.sqrt(d2) / 2, 30))}"
+
+    w = {E9DIST_T + "10": {text(4 * n)}}
+    if paper == 1:
+        need(all((y - x) % 2 == 0 for x, y in zip(a, b)), "the centre is not whole")
+        w[E9DIST_T + "6"] = {text(n ** 2 / 4)}
+    else:
+        e9dist_p2_length(n)
+        need(e9dist_clear(sp.sqrt(n) / 2), "the radius is on a rounding edge")
+    for ref, v in e9dist_slips(a, b).items():
+        if ref != E9DIST_T + "6" and v > 0 and (paper == 2 or v % 4 == 0):
+            w[ref] = {text(v)}
+    trap = None if paper == 1 else f"r = {gc_s2(sp.N(sp.sqrt(n) / 2, 30))}"
+    gc_check_common(q, text(n), w, trap)
+
+
+def e9dist_k(q):
+    L, rep, paper, u = q["lines"], q["rep"], q["paper"], q["view"]["unknown"]
+    k = sp.Symbol("k", real=True)
+    if rep == "notation":
+        m = re.fullmatch(r"The vector from A to B is \((.+), (.+), (.+)\), and its length is (.+)\.", L[0])
+        need(m is not None, f"can't read {L}")
+        moves = list(m.groups()[:3])
+        given = m.group(4)
+    else:
+        a = E9DIST_PT.search(L[0])
+        mb = re.search(r"B\((.+?), (.+?), (.+?)\)", L[0])
+        ml = re.fullmatch(r"The distance AB is (.+)\.", L[1])
+        need(a is not None and mb is not None and ml is not None, f"can't read {L}")
+        A = [e9dist_r(v) for v in a.groups()[1:]]
+        moves = []
+        for i, t in enumerate(mb.groups()):
+            moves.append(f"k − {A[i]}".replace("− -", "+ ") if t == "k" else str(e9dist_r(t) - A[i]))
+        given = ml.group(1)
+    exprs = []
+    for t in moves:
+        mk = re.fullmatch(r"k ([−+]) (\d+)", t.replace("--", ""))
+        exprs.append(k + (1 if mk.group(1) == "+" else -1) * int(mk.group(2)) if mk else e9dist_r(t) if "k" not in t else None)
+    need(sum(1 for e in exprs if getattr(e, "free_symbols", None)) == 1, f"one bracket holds k: {moves}")
+    d2 = e9dist_root_value(given)
+    roots = sorted(sp.solve(sum(e ** 2 for e in exprs) - d2, k))
+    need(len(roots) == 2, f"k = {roots}")
+    lo, hi = roots
+    p = (lo + hi) / 2
+    t = (hi - p) ** 2
+    rest = d2 - t
+    need(p.is_integer and p != 0 and t.is_integer and t > 0, f"p = {p}, t = {t}")
+    root_d = sp.sqrt(d2)
+
+    def pair(x, y, fn):
+        a, b = sorted([x, y])
+        return f"k = {fn(a)} or {fn(b)}"
+
+    w = {}
+    if u == "find-k-two-values":
+        need(lo.is_integer and hi.is_integer, "whole k")
+        whole = lambda v: frac_text(sp.Rational(v))
+        want = pair(lo, hi, whole)
+        w[E9DIST_D + "2"] = {f"k = {whole(lo)}", f"k = {whole(hi)}"}
+        w[E9DIST_T + "13"] = {pair(-p - (hi - p), -p + (hi - p), whole)}
+        w[E9DIST_T + "14"] = {pair(p - t, p + t, whole)}
+        if root_d.is_integer:
+            w[E9DIST_T + "12"] = {pair(p - root_d, p + root_d, whole)}
+    else:
+        need(not hi.is_rational, "a surd k")
+        need(root_d.is_integer, "a whole distance")
+        s = hi - p
+        if paper == 1:
+            tp = frac_text(p)
+            want = f"k = {tp} ± {e9dist_root(t)}"
+            w[E9DIST_D + "2"] = {f"k = {tp} + {e9dist_root(t)}"}
+            w[E9DIST_T + "13"] = {f"k = {frac_text(-p)} ± {e9dist_root(t)}"}
+            w[E9DIST_T + "14"] = {f"k = {tp} ± {t}"}
+            w[E9DIST_T + "12"] = {f"k = {tp} ± {root_d}"}
+        else:
+            sf = lambda v: gc_s(sp.N(v, 30))
+            need(e9dist_clear(lo) and e9dist_clear(hi), "k is on a rounding edge")
+            want = pair(lo, hi, sf)
+            w[E9DIST_D + "2"] = {f"k = {sf(hi)}", f"k = {sf(lo)}"}
+            w[E9DIST_T + "13"] = {pair(-p - s, -p + s, sf)}
+            w[E9DIST_T + "14"] = {pair(p - t, p + t, sf)}
+            w[E9DIST_T + "12"] = {pair(p - root_d, p + root_d, sf)}
+    gc_check_common(q, want, w)
+
+
+def e9dist_root_value(t):
+    """The square of a length written as 7, √41 or 2√5."""
+    m = re.fullmatch(r"(\d*)√(\d+)", t)
+    if m:
+        return int(m.group(1) or 1) ** 2 * int(m.group(2))
+    return int(t) ** 2
+
+
+def e9dist_isosceles(q):
+    p = e9dist_points(q)
+    need(q["paper"] == 1, "an exact statement is Paper 1")
+    e9dist_figure(q, p)
+    A, B, C = p["A"], p["B"], p["C"]
+    need(all(abs(v) <= E9DIST_REACH for v in A + B + C), "a coordinate is out of reach")
+    sides = {"AB": e9dist_sq(A, B), "AC": e9dist_sq(A, C), "BC": e9dist_sq(B, C)}
+    pairs = [("AB", "AC"), ("AB", "BC"), ("AC", "BC")]
+    eq = [pq for pq in pairs if sides[pq[0]] == sides[pq[1]]]
+    need(len(eq) == 1, f"the sides are {sides}")
+    x, y = eq[0]
+    third = ({"AB", "AC", "BC"} - {x, y}).pop()
+    n, other = sides[x], sides[third]
+    need(sp.Matrix([b - a for a, b in zip(A, B)]).cross(sp.Matrix([c - a for a, c in zip(A, C)])).norm() != 0, "the points are in a line")
+    need(e9dist_root(n) == f"√{n}", "the equal sides are not square-free")
+    head = f"{x} = {y}"
+    wrong_pair = pairs[(pairs.index(eq[0]) + 1) % 3]
+    w = {E9DIST_T + "15": {f"{wrong_pair[0]} = {wrong_pair[1]} = √{n}"}, E9DIST_T + "16": {f"{head} = {e9dist_root(other)}"}, E9DIST_T + "6": {f"{head} = {n}"}}
+    gc_check_common(q, f"{head} = √{n}", w)
+    need(q["answer"]["values"]["pair"] == head and R(q["answer"]["values"]["r"]) == n, "the answer's slots")
+
+
+def e9dist_origin(q):
+    L = q["lines"]
+    need(q["paper"] == 1, "an exact statement is Paper 1")
+    m = re.fullmatch(r"Consider the function f\(x\) = √\((\d+)(x|x²|x³) \+ (\d+)( − x²)?\)\.", L[0])
+    need(m is not None, f"can't read {L}")
+    need(L[1] == "The point P(x, f(x)) is on the graph of f.", "the point")
+    x = sp.Symbol("x", positive=True)
+    pow_ = {"x": 1, "x²": 2, "x³": 3}[m.group(2)]
+    a, b, term = int(m.group(1)), int(m.group(3)), m.group(2)
+    f2 = a * x ** pow_ + b - (x ** 2 if m.group(4) else 0)
+    l2 = sp.expand(x ** 2 + f2)
+    co = sp.Poly(l2, x)
+    need(len(co.terms()) == 2 and co.coeff_monomial(1) == b and co.coeff_monomial(x ** pow_) > 0, f"l² = {l2}")
+    under = f"{co.coeff_monomial(x ** pow_)}{term} + {b}"
+    inner = L[0][len("Consider the function f(x) = √("):-2]
+    take = f"l = √({inner} − x²)" if not m.group(4) else f"l = √({under} − 2x²)"
+    w = {E9DIST_T + "22": {f"l = x + √({inner})"}, E9DIST_T + "23": {f"l = √({inner})"}, E9DIST_T + "6": {f"l = {under}"}, E9DIST_T + "24": {take}}
+    gc_check_common(q, f"l = √({under})", w)
+
+
+def e9dist_midpoint(q, a, b):
+    paper = q["paper"]
+    need(all(x != y for x, y in zip(a, b)), "the points share a coordinate")
+    e9dist_limits(a, b)
+    if paper == 1:
+        need(all(v.is_integer for v in a + b), "Paper 1 points are whole")
+    m = tuple((x + y) / 2 for x, y in zip(a, b))
+    half = tuple((y - x) / 2 for x, y in zip(a, b))
+    w = {E9DIST_M + "0": {e9dist_pt(half, paper)}, E9DIST_T + "17": {e9dist_pt(tuple(x + y for x, y in zip(a, b)), paper)},
+         E9DIST_T + "18": {e9dist_pt(tuple((abs(x) + abs(y)) / 2 for x, y in zip(a, b)), paper)}}
+    gc_check_common(q, e9dist_pt(m, paper), w)
+    e9dist_slots(q, m)
+
+
+def e9dist_slots(q, want):
+    v = q["answer"]["values"]
+    for letter, c in zip("xyz", want):
+        need(R(v[letter]) == c, "the answer's slots")
+    for o in q["choices"]:
+        ov = o["values"]
+        if "x" in ov:
+            need(e9dist_pt(tuple(R(ov[k]) for k in "xyz"[:len(want)]), q["paper"]) == o["text"], f"option {o['text']!r} doesn't say its values")
+
+
+def e9dist_endpoint(q, a, m):
+    paper = q["paper"]
+    need(all(x != y for x, y in zip(a, m)), "the points share a coordinate")
+    b = tuple(2 * y - x for x, y in zip(a, m))
+    e9dist_limits(a, m, E9DIST_END_REACH)
+    need(all(abs(v) <= E9DIST_END_REACH for v in b), "B is out of reach")
+    if paper == 1:
+        need(all(v.is_integer for v in a + m), "Paper 1 points are whole")
+    t = lambda p: e9dist_pt(tuple(p), paper)
+    w = {E9DIST_M + "1": {t((x + y) / 2 for x, y in zip(a, m))}, E9DIST_M + "2": {t(y / 2 for y in m)},
+         E9DIST_T + "19": {t(y - x for x, y in zip(a, m))}, E9DIST_T + "20": {t(2 * y for y in m)}, E9DIST_T + "21": {t(2 * y + x for x, y in zip(a, m))}}
+    gc_check_common(q, t(b), w)
+    e9dist_slots(q, b)
+
+
+def check_distance_midpoint(q):
+    u = q["view"]["unknown"]
+    e9dist_read_ok(q)
+    e9dist_steps(q)
+    if u in ("distance-two-points", "distance-2d"):
+        e9dist_distance(q)
+    elif u in ("find-k-two-values", "find-k-surd"):
+        e9dist_k(q)
+    elif u == "show-isosceles":
+        e9dist_isosceles(q)
+    elif u == "space-diagonal":
+        e9dist_space_diagonal(q)
+    elif u == "pyramid-edge":
+        e9dist_pyramid(q)
+    elif u == "radius-from-centre":
+        e9dist_radius_centre(q)
+    elif u == "radius-from-diameter":
+        e9dist_radius_diameter(q)
+    elif u == "origin-to-curve":
+        e9dist_origin(q)
+    elif u in ("midpoint-3d", "midpoint-2d", "centre-from-diameter"):
+        p = e9dist_points(q)
+        e9dist_figure(q, p)
+        need(len(p["A"]) == (2 if u == "midpoint-2d" else 3), "the wrong dimension")
+        e9dist_midpoint(q, p["A"], p["B"])
+    elif u in ("missing-endpoint", "missing-endpoint-2d"):
+        p = e9dist_points(q)
+        e9dist_figure(q, p)
+        need(len(p["A"]) == (2 if u.endswith("2d") else 3), "the wrong dimension")
+        e9dist_endpoint(q, p["A"], p["M"])
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+# ── end distance-midpoint ──
+
+
+# ── area-between (t5-area-between-curves, FAL-751) ───────────────────────
+# The `area-between` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/area_between.gd. Each pair of curves is read back from the question and
+# solved again here: exactly with SymPy on Paper 1, and with its own root search and mpmath on
+# Paper 2. Nothing is taken from the question's `given`.
+E9AREA_AB = "SL5.11.area-between-curves#"
+E9AREA_P2 = ("gdc-meeting-limits", "gdc-area", "gdc-area-split", "inverse-area", "region-two-lines")
+E9AREA_TRIG = re.compile(r"sin|cos")
+E9AREA_MIN_GAP = 0.5
+
+
+def e9area_rhs(line):
+    """The expression after the first ' = ', without a domain after it."""
+    return in_expr(re.sub(r", for .*$", "", line.split(" = ", 1)[1]).rstrip("."))
+
+
+def e9area_value(text):
+    """An option's number: fractions, √, π and powers of e, as exact SymPy."""
+    t = re.sub(r"^[A-Za-z()]* ?(Area|k|f\(q\)|g\(q\)|h\(q\)|f\(r\)|g\(r\)|h\(r\)) = ", "", text)
+    t = re.sub(r"√(\d+)", r"sqrt(\1)", t)
+    return in_expr(t)
+
+
+def e9area_a(text):
+    return f"Area = {dm_num(text)}"
+
+
+def e9area_surd(v):
+    """c1√r + c0, as the game writes it."""
+    v = sp.nsimplify(sp.expand(v))
+    c0, rest = v.as_coeff_Add()
+    if rest == 0:
+        return dm_num(c0)
+    c1, root = rest.as_coeff_Mul()
+    r = root.args[0]
+
+    def lead(c):
+        if c == 1:
+            return ""
+        if c == -1:
+            return "−"
+        if c == sp.Rational(1, 2):
+            return "½"
+        if c == -sp.Rational(1, 2):
+            return "−½"
+        return dm_num(c) if c.is_integer else ("−" if c < 0 else "") + f"({dm_num(abs(c))})"
+    head = f"{lead(c1)}√{r}"
+    if c0 == 0:
+        return head
+    return f"{head} {'+' if c0 > 0 else '−'} {dm_num(abs(c0))}"
+
+
+def e9area_size(top, bot, a, b):
+    return sp.integrate(sp.expand(top - bot), (CX, a, b))
+
+
+def e9area_curve_on(q, i, f):
+    """Curve i of the figure is f, wherever it is drawn."""
+    fn = sp.lambdify(CX, f, "mpmath")
+    c = q["graph"]["curves"][i]
+    for x, y in c[:: 20]:
+        need(abs(fn(mpmath.mpf(str(x))) - mpmath.mpf(str(y))) < mpmath.mpf(10) ** -5, f"curve {i} of the figure is not {f}")
+
+
+def e9area_shade(q, f, g, ends):
+    """Each shaded region runs between the two curves, between its ends."""
+    shade = q["graph"]["shade"]
+    need(len(shade) == len(ends), f"{len(shade)} shaded regions, not {len(ends)}")
+    ff, fg = sp.lambdify(CX, f, "math"), sp.lambdify(CX, g, "math")
+    for strips, (a, b) in zip(shade, ends):
+        need(abs(strips[0][0] - float(a)) < 1e-6 and abs(strips[-1][0] - float(b)) < 1e-6, f"the shading runs {strips[0][0]} to {strips[-1][0]}, not {a} to {b}")
+        for x, lo, hi in strips[:: 8]:
+            u, v = ff(x), fg(x)
+            need(abs(hi - max(u, v)) < 1e-6 and abs(lo - min(u, v)) < 1e-6, f"the shading at x = {x} is not the region")
+
+
+def e9area_figure(q, f, g, ends):
+    if q["view"]["rep"] == "equation":
+        need(q["graph"] is None, "an equation question has a figure")
+        return
+    e9area_curve_on(q, 0, f)
+    e9area_curve_on(q, 1, g)
+    e9area_shade(q, f, g, ends)
+
+
+def e9area_sums(q):
+    """Every plain 'a − b = c' or 'a + b = c' in the working is true, to the figures shown."""
+    num = r"\(?(−?\d+(?:\.\d+)?(?:/\d+)?)\)?"
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in re.finditer(rf"(?<![\w.^/(|−])(?<![+−] )(?<![+−] \(){num} ([+−]) {num} = (−?\d+(?:\.\d+)?(?:/\d+)?)(?![\w/])", st):
+                a, op, b, c = m.groups()
+                a, b, c = (sp.Rational(t.replace("−", "-")) for t in (a, b, c))
+                got = a + b if op == "+" else a - b
+                need(abs(got - c) <= abs(c) * sp.Rational(1, 10 ** 4) + sp.Rational(1, 10 ** 4), f"the sum in {st!r} is wrong")
+
+
+def e9area_opts(q, want, wrongs):
+    """Options, tags and working for an exact or a 3 s.f. answer."""
+    trap = None
+    for o in q["choices"]:
+        if o.get("trap"):
+            m = re.fullmatch(r"(.* = )(.*)", q["answer_text"])
+            trap = m.group(1) + gc_s2(q["e9area_true"])
+    gc_check_common(q, want, wrongs, trap)
+    calc_steps(q)
+    e9area_sums(q)
+    for o in q["choices"]:
+        need("-" not in o["text"].replace("−", ""), f"a hyphen in {o['text']!r}")
+
+
+def e9area_integrals(text, sub):
+    """The value of an expression option: a sum of ∫ from a to b of h dx."""
+    t = text.replace("Area = ", "")
+    total = 0
+    parts = t.split(" + ∫ from ")
+    for i, pt in enumerate(parts):
+        pt = pt if i else pt[len("∫ from "):]
+        m = re.fullmatch(r"(.+?) to (.+?) of (.+) dx", pt)
+        need(m is not None, f"can't read {text!r}")
+        a, b, body = sp.Rational(m.group(1).replace("−", "-")), sp.Rational(m.group(2).replace("−", "-")), m.group(3)
+        h = sub(body)
+        total += sp.integrate(sp.expand(h), (CX, a, b))
+    return total
+
+
+def e9area_gdc_pair(q):
+    """Two curves on a domain: every crossing, found here."""
+    L = q["lines"]
+    m = re.search(r"for (−?[\d.]+) ≤ x ≤ (−?[\d.]+)", " ".join(L))
+    need(m is not None, "no domain")
+    lo, hi = (sp.Rational(t.replace("−", "-")) for t in m.groups())
+    f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+    return f, g, lo, hi, gc_zeros(sp.nsimplify(f - g, rational=True), lo, hi)
+
+
+def e9area_quad(f, g, a, b):
+    fn = sp.lambdify(CX, f - g, "mpmath")
+    return mpmath.quad(fn, [a, b])
+
+
+def e9area_s(v):
+    return sp.Float(str(v), 25)
+
+
+def check_area_between(q):
+    u, L, rep, ang, paper, asked = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["view"]["angle"], q["paper"], q["asked"]
+    x = CX
+    mpmath.mp.dps = 30
+    AB = E9AREA_AB
+    if u in E9AREA_P2 or ang.startswith("gdc-"):
+        need(paper == 2, f"{u} with {ang} is Paper 2")
+    else:
+        need(paper == 1, f"{u} with {ang} is Paper 1")
+    for t in [asked] + L:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+    if u in ("meeting-limits", "integral-expression", "area-line-curve"):
+        if rep == "diagram":
+            pts = [(sp.Rational(a.replace("−", "-")), sp.Rational(b.replace("−", "-")))
+                   for p in q["graph"]["points"] for a, b in re.findall(r"\((−?[\d/]+), (−?[\d/]+)\)", p["label"])]
+            ends = q["graph"]["shade"][0]
+            p, t_ = sp.Rational(ends[0][0]).limit_denominator(100), sp.Rational(ends[-1][0]).limit_denominator(100)
+            roots = [a for a, b in pts if b == 0]
+            need(len(roots) == 2 and len(pts) >= 3, f"the marked points {pts} don't fix the parabola")
+            x0, y0 = next((a, b) for a, b in pts if b != 0)
+            A = y0 / ((x0 - roots[0]) * (x0 - roots[1]))
+            f = sp.expand(A * (x - roots[0]) * (x - roots[1]))
+            g = sp.interpolate([(p, f.subs(x, p)), (t_, f.subs(x, t_))], x)
+        else:
+            f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        need(sp.degree(f, x) == 2 and sp.degree(g, x) <= 1, "not a parabola and a line")
+        ms = sorted(sp.roots(sp.Poly(f - g, x)))
+        need(len(ms) == 2 and all(r.is_rational for r in ms), f"the meeting points are {ms}")
+        p, r2 = ms
+        rs = sorted(sp.roots(sp.Poly(f, x)))
+        need(len(rs) == 2 and rs != ms, "the parabola's roots are the meeting points")
+        need(all(f.subs(x, p + (r2 - p) * i / 8) >= 0 for i in range(9)), "the parabola dips below the axis between the meeting points")
+        top, bot = (f, g) if (f - g).subs(x, (p + r2) / 2) > 0 else (g, f)
+        gap = sp.expand(top - bot)
+        v = sp.integrate(gap, (x, p, r2))
+        if rep != "equation":
+            e9area_figure(q, f, g, [(p, r2)])
+        if u == "meeting-limits":
+            texts = lambda a, b: f"x = {dm_num(min(a, b))} and x = {dm_num(max(a, b))}"
+            ya, yb = f.subs(x, p), f.subs(x, r2)
+            e9area_opts(q, texts(p, r2), {AB + "1": {texts(*rs)}, AB + "3": {texts(ya, yb)}})
+        elif u == "area-line-curve":
+            side = abs(sp.integrate(gap, (x, rs[0], rs[1])))
+            added = sp.integrate(f + g, (x, p, r2))
+            e9area_opts(q, e9area_a(v), {AB + "0": {e9area_a(-v)}, AB + "1": {e9area_a(side)}, AB + "4": {e9area_a(added)}})
+        else:
+            e9area_expr(q, gap, p, r2, v, rs)
+        return None, None
+
+    if u == "area-two-parabolas":
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        need(sp.degree(f, x) == 2 and sp.degree(g, x) == 2 and sp.degree(sp.expand(f - g), x) == 2, "not two parabolas")
+        ms = sorted(sp.roots(sp.Poly(f - g, x)))
+        need(len(ms) == 2, f"the meeting points are {ms}")
+        p, r2 = ms
+        top, bot = (f, g) if (f - g).subs(x, (p + r2) / 2) > 0 else (g, f)
+        v = e9area_size(top, bot, p, r2)
+        pb = sp.Poly(bot, x).all_coeffs()
+        slip = top - pb[0] * x ** 2 + pb[1] * x + pb[2]
+        rb = sorted(sp.roots(sp.Poly(bot, x)))
+        side = abs(e9area_size(top, bot, rb[0], rb[1]))
+        e9area_figure(q, top, bot, [(p, r2)])
+        e9area_opts(q, e9area_a(v), {AB + "0": {e9area_a(-v)}, AB + "1": {e9area_a(side)}, AB + "5": {e9area_a(sp.integrate(sp.expand(slip), (x, p, r2)))}})
+        return None, None
+
+    if u in ("area-split-cubic", "area-split-bounded") or (u == "split-expression" and paper == 1):
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        cs = sorted(sp.roots(sp.Poly(f - g, x)))
+        if u == "area-split-bounded":
+            m = re.search(r"lines x = (−?\d+) and x = (−?\d+)", L[2])
+            lo, hi = (sp.Integer(t.replace("−", "-")) for t in m.groups())
+            ins = [c for c in cs if lo < c < hi]
+            need(len(ins) == 1, f"crossings {cs} inside {lo}, {hi}")
+            a, b, c = lo, ins[0], hi
+        else:
+            need(len(cs) == 3, f"crossings {cs}")
+            a, b, c = cs
+        p1, p2 = sp.integrate(sp.expand(f - g), (x, a, b)), sp.integrate(sp.expand(f - g), (x, b, c))
+        need(p1 * p2 < 0, "the curves don't swap over")
+        area = abs(p1) + abs(p2)
+        e9area_figure(q, f, g, [(a, b), (b, c)])
+        if u == "split-expression":
+            sub = lambda body: in_expr(body.replace("f(x)", f"({L[0].split(' = ', 1)[1]})").replace("g(x)", f"({L[1].split(' = ', 1)[1]})"))
+            for o in q["choices"]:
+                val = e9area_integrals(o["text"], sub)
+                need((val == area) == o["correct"], f"option {o['text']!r} gives {val}, the area is {area}")
+                if o["ref"] == AB + "2":
+                    need(" + ∫" not in o["text"] and val == abs(p1 + p2) or abs(val) == abs(p1 + p2), f"{o['text']!r} is not one integral")
+                if o["ref"] == AB + "0":
+                    need(val == -area, f"{o['text']!r} is not the negative area")
+            calc_options(q)
+            calc_steps(q)
+        else:
+            e9area_opts(q, e9area_a(area), {AB + "0": {e9area_a(-area)}, AB + "2": {e9area_a(abs(p1 + p2))}, AB + "6": {e9area_a(abs(p1))}})
+        return None, None
+
+    if u == "area-trig":
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        m = re.search(r"where x = (.+?), and at B, where x = (.+?)\.", L[2])
+        a, b = e9area_pi(m.group(1)), e9area_pi(m.group(2))
+        need(sp.simplify((f - g).subs(x, a)) == 0 and sp.simplify((f - g).subs(x, b)) == 0, "A and B are not on both curves")
+        zs = [z for z in gc_zeros(f - g, float(a) + 0.01, float(b) - 0.01)]
+        need(not zs, f"the curves cross between A and B at {zs}")
+        top, bot = (f, g) if (f - g).subs(x, (a + b) / 2) > 0 else (g, f)
+        v = sp.simplify(sp.integrate(top - bot, (x, a, b)))
+        wrongs = {AB + "0": {e9area_a(e9area_surd(-v))}}
+        z2 = sorted(z for z in sp.solveset(top, x, sp.Interval(0, 2 * sp.pi)) if True)
+        need(len(z2) >= 2, f"the top curve's roots are {z2}")
+        pairs = {e9area_a(e9area_surd(abs(sp.simplify(sp.integrate(top - bot, (x, s, t)))))) for s, t in zip(z2, z2[1:])}
+        pairs |= {e9area_a(e9area_surd(abs(sp.simplify(sp.integrate(top - bot, (x, z2[0], t)))))) for t in z2[1:]}
+        wrongs[AB + "1"] = pairs
+        if rep == "graph":
+            e9area_figure(q, top, bot, [(a, b)])
+        e9area_opts(q, e9area_a(e9area_surd(v)), wrongs)
+        return None, None
+
+    if u == "area-trig-split":
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        m = re.search(r"between x = (.+?) and x = (.+?), at x = (.+?)\.", L[2])
+        a, c, b = (e9area_pi(m.group(i)) for i in (1, 2, 3))
+        need(sp.simplify((f - g).subs(x, b)) == 0, "the curves don't cross there")
+        need(len(gc_zeros(f - g, float(a) + 0.01, float(c) - 0.01)) == 1, "not one crossing inside")
+        p1, p2 = (sp.simplify(sp.integrate(f - g, (x, s, t))) for s, t in ((a, b), (b, c)))
+        area = sp.simplify(abs(p1) + abs(p2))
+        net = sp.simplify(abs(p1 + p2))
+        if rep == "graph":
+            e9area_figure(q, f, g, [(a, b), (b, c)])
+        e9area_opts(q, e9area_a(e9area_surd(area)), {AB + "0": {e9area_a(e9area_surd(-area))}, AB + "2": {e9area_a(e9area_surd(net))}, AB + "6": {e9area_a(e9area_surd(abs(p1)))}})
+        return None, None
+
+    if u == "area-exp-lines":
+        f, g = e9area_rhs(L[0]), e9area_rhs(L[1])
+        m = re.search(r"lines x = (−?\d+) and x = (−?\d+)", L[2])
+        a, b = (sp.Integer(t.replace("−", "-")) for t in m.groups())
+        need(a != -b, "the bank's symmetric lines")
+        need(f.subs(x, 0) > 0 > g.subs(x, 0), "the upper curve is not above the axis")
+        v = sp.integrate(f - g, (x, a, b))
+        cancel = sp.integrate(f + g, (x, a, b))
+        k = sp.diff(f, x).subs(x, 0) / f.subs(x, 0)
+        for o in q["choices"]:
+            val = di_exact_value(o["text"])
+            need(di_same(val, v) == o["correct"], f"option {o['text']!r} is {'wrong' if o['correct'] else 'also right'}: the area is {v}")
+            if o["ref"] == AB + "0":
+                need(di_same(val, -v), f"{o['text']!r} is not the negative area")
+            elif o["ref"] == AB + "7":
+                need(di_same(val, cancel), f"{o['text']!r} is not the sum integrated")
+            elif o["ref"] == "SL5.10.linear-composites#0":
+                need(di_same(val, v * k * k), f"{o['text']!r} is not the coefficient multiplied")
+            elif o["ref"] == "SL5.11.evaluate-definite#1":
+                need(a == 0 and di_same(val, sp.integrate(f - g, x).subs(x, b)), f"{o['text']!r} is not F(upper) alone")
+            elif o["ref"]:
+                need(False, f"the checker can't confirm {o['ref']}")
+        if rep == "graph":
+            e9area_figure(q, f, g, [(a, b)])
+        calc_options(q)
+        calc_steps(q)
+        return None, None
+
+    if u == "find-shift":
+        m = re.search(r"lines x = (−?\d+) and x = (−?\d+) has area (.+)\.$", L[1])
+        a, b, A = sp.Integer(m.group(1)), sp.Integer(m.group(2)), sp.Rational(m.group(3))
+        k = A / (b - a)
+        e9area_rhs(L[0])
+        both = lambda c: f"g(x) = f(x) + {dm_num(c)} or g(x) = f(x) − {dm_num(c)}"
+        e9area_opts(q, both(k), {AB + "8": {f"g(x) = f(x) + {dm_num(k)}"}, AB + "9": {both(A)}})
+        return None, None
+
+    if u == "find-parameter":
+        f = e9area_rhs(L[0])
+        A = sp.Rational(re.search(r"area (\d+(?:/\d+)?)\.", L[2]).group(1))
+        K = sp.Symbol("k", positive=True)
+        t = L[1].split(" = ", 1)[1]
+        m = re.fullmatch(r"(\d*)k²", t)
+        need(t == "kx" or m is not None, f"can't read the line {t!r}")
+        rhs = K * x if t == "kx" else sp.Integer(m.group(1) or 1) * K ** 2
+        ms = sorted(sp.solve(f - rhs, x), key=lambda r: r.subs(K, 1))
+        need(len(ms) == 2, f"the meeting points are {ms}")
+        area = sp.integrate(sp.expand(rhs - f), (x, ms[0], ms[1]))
+        ks = [s for s in sp.solve(area - A, K) if s.is_real]
+        need(len(ks) == 1 and ks[0].is_rational and ks[0] > 0, f"k is {ks}")
+        k = ks[0]
+        if rep == "graph":
+            e9area_figure(q, f, rhs.subs(K, k), [(ms[0].subs(K, k), ms[1].subs(K, k))])
+        e9area_opts(q, f"k = {dm_num(k)}", {AB + "10": {f"k = {dm_num(k ** 3)}"}})
+        return None, None
+
+    if u == "derivative-areas":
+        name = re.search(r"graph of ([fgh])′", L[0]).group(1)
+        ticks = {p_["label"]: p_["x"] for p_ in q["graph"]["points"]}
+        a, b, c = (sp.Rational(ticks[t]).limit_denominator(10) for t in "pqr")
+        cv = q["graph"]["curves"][0]
+        pts = [(sp.Rational(px).limit_denominator(10 ** 8), sp.Rational(py).limit_denominator(10 ** 6)) for px, py in cv[:: 53][:4]]
+        fp_ = sp.interpolate(pts, x)
+        S = sp.nsimplify(sp.Poly(fp_, x).LC(), rational=True).limit_denominator(1000)
+        fp_ = S * (x - a) * (x - b) * (x - c)
+        e9area_curve_on(q, 0, fp_)
+        e9area_shade(q, fp_, sp.Integer(0), [(a, b), (b, c)])
+        A1, A2 = abs(sp.integrate(sp.expand(fp_), (x, a, b))), abs(sp.integrate(sp.expand(fp_), (x, b, c)))
+        up = fp_.subs(x, (a + b) / 2) > 0
+        need(("above the axis from p to q" in L[0]) == up, "the words and the graph disagree")
+        d1, d2 = (A1, -A2) if up else (-A1, A2)
+        if "total area" in L[1]:
+            T, Sv = re.search(r"total area (\d+), and .*= (−?\d+)\.", L[1]).groups()
+            T, Sv = sp.Integer(T), sp.Integer(Sv.replace("−", "-"))
+            need(T == A1 + A2, f"the total area {T} is not {A1 + A2}")
+            # f(q) − f(p) = d1, f(r) − f(q) = d2: 2f(q) = f(p) + f(r) + d1 − d2.
+            v = (Sv + d1 - d2) / 2
+            lab = f"{name}(q) = "
+            e9area_opts(q, lab + dm_num(v), {AB + "11": {lab + dm_num(Sv + d1 - d2)}, AB + "12": {lab + dm_num((Sv - d1 + d2) / 2)}})
+        else:
+            m = re.search(r"from p to q has area (\d+), the region from q to r has area (\d+), and [fgh]\(p\) = (−?\d+)\.", L[1])
+            g1, g2, f0 = sp.Integer(m.group(1)), sp.Integer(m.group(2)), sp.Integer(m.group(3).replace("−", "-"))
+            need((g1, g2) == (A1, A2), "the areas given are not the areas drawn")
+            lab = f"{name}(r) = "
+            e9area_opts(q, lab + dm_num(f0 + d1 + d2), {AB + "12": {lab + dm_num(f0 + d1 - d2)}})
+        return None, None
+
+    if u in ("gdc-meeting-limits", "gdc-area"):
+        f, g, lo, hi, zs = e9area_gdc_pair(q)
+        need(len(zs) == 2 and zs[1] - zs[0] >= E9AREA_MIN_GAP, f"crossings {zs}")
+        z0, z1 = e9area_s(zs[0]), e9area_s(zs[1])
+        need(not on_edge(abs(z0)) and not on_edge(abs(z1)), "a meeting point sits on a rounding edge")
+        if rep == "graph":
+            e9area_figure(q, f, g, [(float(zs[0]), float(zs[1]))])
+        rs = []
+        if f.is_polynomial(x):
+            rs = sorted(r for r in sp.roots(sp.Poly(f, x)) if r.is_real)
+        if u == "gdc-meeting-limits":
+            texts = lambda a, b: f"x = {gc_s(e9area_s(min(a, b)))} and x = {gc_s(e9area_s(max(a, b)))}"
+            ff = sp.lambdify(x, f, "mpmath")
+            wr = {AB + "3": {texts(ff(zs[0]), ff(zs[1]))}}
+            if len(rs) == 2:
+                wr[AB + "1"] = {f"x = {e9area_fix(rs[0])} and x = {e9area_fix(rs[1])}"}
+            e9area_opts(q, texts(zs[0], zs[1]), wr)
+            return None, None
+        area = abs(e9area_quad(f, g, zs[0], zs[1]))
+        q["e9area_true"] = e9area_s(area)
+        need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
+        added = e9area_quad(f, 0 * x, zs[0], zs[1]) + e9area_quad(g, 0 * x, zs[0], zs[1])
+        wr = {AB + "0": {"Area = " + gc_s(-e9area_s(area))}, AB + "4": {"Area = " + gc_s(e9area_s(added))}}
+        if len(rs) == 2:
+            wr[AB + "1"] = {"Area = " + gc_s(e9area_s(abs(e9area_quad(f, g, rs[0], rs[1]))))}
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), wr)
+        return None, None
+
+    if u == "gdc-area-split" or u == "split-expression":
+        f, g, lo, hi, zs = e9area_gdc_pair(q)
+        need(len(zs) == 3, f"crossings {zs}")
+        if rep == "graph":
+            e9area_figure(q, f, g, [(float(zs[0]), float(zs[1])), (float(zs[1]), float(zs[2]))])
+        p1, p2 = e9area_quad(f, g, zs[0], zs[1]), e9area_quad(f, g, zs[1], zs[2])
+        need(p1 * p2 < 0, "the curves don't swap over")
+        area = abs(p1) + abs(p2)
+        if u == "split-expression":
+            s_ = lambda v: gc_s(e9area_s(v))
+            one = lambda a, b: f"Area = ∫ from {s_(a)} to {s_(b)} of |f(x) − g(x)| dx"
+            e9area_opts(q, one(zs[0], zs[2]), {AB + "2": {f"Area = ∫ from {s_(zs[0])} to {s_(zs[2])} of (f(x) − g(x)) dx"}, AB + "6": {one(zs[0], zs[1])}})
+            return None, None
+        q["e9area_true"] = e9area_s(area)
+        need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "2": {"Area = " + gc_s(e9area_s(abs(p1 + p2)))}, AB + "6": {"Area = " + gc_s(e9area_s(abs(p1)))}})
+        return None, None
+
+    if u == "inverse-area":
+        f = e9area_rhs(re.sub(r", for .*$", "", L[0]))
+        y = sp.Symbol("y")
+        sols = sp.solve(f.subs(x, y) - x, y)
+        inv = next(s for s in sols)
+        # A root's inverse is a polynomial and a quotient's is a quotient: each composed back on f.
+        zs = sorted(float(r) for r in sp.solve(sp.together(f - x), x) if r.is_real)
+        need(len(zs) == 2, f"f meets y = x at {zs}")
+        fn = sp.lambdify(x, f - x, "mpmath")
+        half = abs(mpmath.quad(fn, zs))
+        area = 2 * half
+        ff = sp.lambdify(x, inv, "mpmath")
+        check_x = (zs[0] + zs[1]) / 2
+        back = sp.lambdify(x, f, "mpmath")
+        need(abs(ff(back(mpmath.mpf(check_x))) - check_x) < 1e-12, "the inverse found doesn't undo f")
+        if rep == "graph":
+            e9area_figure(q, f, inv, [(zs[0], zs[1])])
+        q["e9area_true"] = e9area_s(area)
+        need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "13": {"Area = " + gc_s(e9area_s(half))}, AB + "0": {"Area = " + gc_s(-e9area_s(area))}})
+        return None, None
+
+    if u == "region-two-lines":
+        f, M_, L_ = e9area_rhs(L[0]), e9area_rhs(L[1]), e9area_rhs(L[2])
+        xr = sp.solve(M_ - L_, x)[0]
+        xp = gc_zeros(sp.nsimplify(f - M_, rational=True), 0, 12)
+        need(len(xp) == 1, f"f meets M at {xp}")
+        xp = xp[0]
+        xq = gc_zeros(sp.nsimplify(f - L_, rational=True), xp, 14)
+        need(len(xq) >= 1, "f doesn't meet L")
+        xq = xq[0]
+        need(xr < xp < xq, f"the corners run {xr}, {xp}, {xq}")
+        p1, p2 = e9area_quad(M_, L_, xr, xp), e9area_quad(f, L_, xp, xq)
+        whole = e9area_quad(f, L_, xr, xq)
+        area = p1 + p2
+        for i, c in enumerate((f, M_, L_)):
+            e9area_curve_on(q, i, c)
+        need(len(q["graph"]["shade"]) == 2, "two shaded pieces")
+        e9area_shade(dict(q, graph=dict(q["graph"], shade=q["graph"]["shade"][:1])), M_, L_, [(float(xr), float(xp))])
+        e9area_shade(dict(q, graph=dict(q["graph"], shade=q["graph"]["shade"][1:])), f, L_, [(float(xp), float(xq))])
+        q["e9area_true"] = e9area_s(area)
+        need(not on_edge(e9area_s(area)), "the area sits on a rounding edge")
+        e9area_opts(q, "Area = " + gc_s(e9area_s(area)), {AB + "14": {"Area = " + gc_s(e9area_s(whole))}, AB + "6": {"Area = " + gc_s(e9area_s(p2))}})
+        return None, None
+
+    need(False, f"no check for {u}")
+
+
+def e9area_fix(v):
+    """A whole-number root as the 3 s.f. the game writes."""
+    return gc_s(sp.Float(sp.N(v, 30), 30))
+
+
+def e9area_pi(t):
+    """'π/4', '5π/6', 'π', '0' as a multiple of π."""
+    if t == "0":
+        return sp.Integer(0)
+    m = re.fullmatch(r"(\d*)π(?:/(\d+))?", t)
+    need(m is not None, f"can't read the angle {t!r}")
+    return sp.Integer(m.group(1) or 1) * sp.pi / sp.Integer(m.group(2) or 1)
+
+
+def e9area_expr(q, gap, p, r2, v, rs):
+    """Each option of an integral expression is worked out: only the right one is the area."""
+    AB = E9AREA_AB
+    for o in q["choices"]:
+        val = e9area_integrals(o["text"], in_expr)
+        need((val == v) == o["correct"], f"option {o['text']!r} gives {val}, the area is {v}")
+        lo_hi = re.match(r"Area = ∫ from (.+?) to (.+?) of", o["text"]).groups()
+        if o["ref"] == AB + "0":
+            need(val == -v, f"{o['text']!r} is not the negative area")
+        elif o["ref"] == AB + "1":
+            need([sp.Rational(t.replace("−", "-")) for t in lo_hi] == rs, f"{o['text']!r} doesn't use the parabola's x-intercepts")
+        elif o["ref"]:
+            need(False, f"the checker can't confirm {o['ref']}")
+    calc_options(q)
+    calc_steps(q)
+    e9area_sums(q)
+# ── end area-between ──
+
+# ── trig-wave (t3-trig-read-features, t3-trig-model-use, FAL-751) ────────
+# The `trig-wave` situation's checker. It reads the wave or the model back from what the student
+# sees (the equation in its text, or the turning points and the curve of a figure), works every
+# feature out again with SymPy, finds crossings by scanning the model for sign changes and refining
+# them, works each tagged wrong option out from its slip, and evaluates the plain sums in the working.
+
+E9TRIG_RF, E9TRIG_MC, E9TRIG_EF = "SL3.7.read-features#", "SL3.7.model-context#", "SL3.7.equation-from-graph#"
+E9TRIG_B, E9TRIG_TAN_AMP, E9TRIG_TAN_SIN, E9TRIG_SIN_TAN, E9TRIG_NO_D, E9TRIG_SWAP = [E9TRIG_RF + str(i) for i in (0, 2, 3, 4, 5, 6)]
+E9TRIG_AMP = E9TRIG_RF + "11"
+E9TRIG_AXIS, E9TRIG_MINUS, E9TRIG_SIN_COS, E9TRIG_WHEEL = [E9TRIG_RF + str(i) for i in range(7, 11)]
+E9TRIG_HALF, E9TRIG_DOUBLE = E9TRIG_EF + "0", E9TRIG_EF + "1"
+E9TRIG_DEG, E9TRIG_FIRST, E9TRIG_PERB, E9TRIG_SIDE, E9TRIG_ONE_SIDE, E9TRIG_CYCLE, E9TRIG_C, E9TRIG_D_X = [E9TRIG_MC + str(i) for i in range(8)]
+E9TRIG_DIVIDE, E9TRIG_UNIT, E9TRIG_WHOLE, E9TRIG_SIGN = [E9TRIG_MC + str(i) for i in range(8, 12)]
+E9TRIG_STORIES = {"D": ("The depth of water at the old harbour wall", "m", "hours"), "T": ("The temperature inside the grain store", "°C", "hours"),
+                  "h": ("The height of a seat on the salvage-yard wheel", "m", "minutes"), "L": ("The water level behind the dam", "m", "days"),
+                  "P": ("The power draw of the generator shed", "kW", "minutes"), "R": ("The length of a mooring rope", "m", "hours")}
+E9TRIG_UP = {"hours": ("day", 24), "minutes": ("hour", 60), "days": ("week", 7)}
+E9TRIG_NUM = r"−?\d+(?:\.\d+)?"
+E9TRIG_FN = {"sin": math.sin, "cos": math.cos, "tan": math.tan}
+E9TRIG_P1_ONLY = ("exact-value", "intercept-gap")
+E9TRIG_P2_ONLY = ("value-at-time", "first-time-level", "all-times", "duration-above", "duration-below", "duration-span", "first-max-time",
+                  "high-low-gap", "count-peaks", "count-lows", "interpret-extreme")
+
+
+def e9trig_n(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def e9trig_pi_text(t):
+    """A number written with π, as sympy: "π", "3π/4", "2π", "1/2", "1.3"."""
+    m = re.fullmatch(r"(−?)(\d*)π(?:/(\d+))?", t)
+    if m:
+        return (-1 if m[1] else 1) * sp.Rational(int(m[2] or 1), int(m[3] or 1)) * sp.pi
+    return e9trig_n(t)
+
+
+def e9trig_b(inner, v):
+    """The bracket of a wave in the letter v: returns (b, c, how b is written)."""
+    m = re.fullmatch(rf"(?:(.+?)\()?{v} − (.+?)\)?", inner)
+    if m:
+        b = e9trig_pi_text(m[1]) if m[1] else sp.Integer(1)
+        return b, e9trig_pi_text(m[2]), (m[1] or "1")
+    m = re.fullmatch(rf"(\d*)(π?){v}(?:/(\d+))?", inner)
+    if m:
+        b = sp.Rational(int(m[1] or 1), int(m[3] or 1)) * (sp.pi if m[2] else 1)
+        return b, sp.Integer(0), inner
+    m = re.fullmatch(rf"(\d+\.\d+){v}", inner)
+    need(m is not None, f"can't read the bracket {inner!r}")
+    return e9trig_n(m[1]), sp.Integer(0), m[1]
+
+
+def e9trig_wave(text, v):
+    """a fn(bracket) + d as the game writes it: A, fn, b, c, d, how b is written."""
+    m = re.fullmatch(rf"(−?)({E9TRIG_NUM.replace('−?', '')} )?(sin|cos|tan)\((.+?)\)(?: ([+−]) ({E9TRIG_NUM.replace('−?', '')}))?", text)
+    need(m is not None, f"can't read the wave {text!r}")
+    A = (-1 if m[1] else 1) * (e9trig_n(m[2].strip()) if m[2] else 1)
+    d = sp.Integer(0) if m[5] is None else (1 if m[5] == "+" else -1) * e9trig_n(m[6])
+    b, c, written = e9trig_b(m[4], v)
+    return sp.Rational(A), m[3], b, c, d, written
+
+
+def e9trig_peak(A, fn, c, T):
+    """The first peak after 0, from the sign of a and the function's own top."""
+    ph = {("sin", True): sp.Rational(1, 4), ("sin", False): sp.Rational(3, 4), ("cos", True): 0, ("cos", False): sp.Rational(1, 2)}[(fn, A > 0)]
+    return e9trig_first(c + ph * T, T)
+
+
+def e9trig_first(x, T):
+    n = sp.ceiling(sp.simplify(x / T))
+    y = sp.nsimplify(x - (n - 1) * T)
+    return y
+
+
+def e9trig_read(q):
+    """The wave of a reading: from the equation, or from a figure's marked points and its curve."""
+    g, rep, L, paper = q["given"], q["view"]["rep"], q["lines"], q["paper"]
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if rep == "equation" or g.get("fn") == "tan":
+        if rep == "equation":
+            text = L[0].removeprefix("f(x) = ")
+        else:
+            m = re.fullmatch(r"The graph of y = f\(x\) is shown, where f\(x\) = (.+)\. The dashed lines are its asymptotes\.", L[0])
+            need(m is not None, f"can't read {L}")
+            text = m[1]
+        A, fn, b, c, d, wr = e9trig_wave(text, "x")
+        W = e9trig_from_letters(A, fn, b, c, d, wr, paper)
+        if fig is not None:
+            e9trig_tan_curve(fig, W)
+        return W
+    pts = fig["points"]
+    if not pts:
+        # A GDC's figure: its equation is in the words, and the curve must be that equation.
+        m = re.fullmatch(r"The graph of y = f\(x\) is shown, where f\(x\) = (.+)\.", L[0])
+        need(m is not None and q["view"]["angle"] == "gdc-graph", f"a figure with no marks: {L}")
+        A, fn, b, c, d, wr = e9trig_wave(m[1], "x")
+        W = e9trig_from_letters(A, fn, b, c, d, wr, paper)
+        W["kind"] = "plain"
+        W["T"] = 2 * sp.pi / b
+    else:
+        need(len(pts) == 2, "a wave's figure marks two points")
+        tp = re.fullmatch(rf"max \((.+), ({E9TRIG_NUM}(?:/\d+)?)\)", pts[0]["label"])
+        bt = re.fullmatch(rf"min \((.+), ({E9TRIG_NUM}(?:/\d+)?)\)", pts[1]["label"])
+        need(tp is not None and bt is not None, f"can't read {pts}")
+        xm, xn = (e9trig_pi_text(tp[1]), e9trig_pi_text(bt[1])) if paper == 1 else (e9trig_n(tp[1]), e9trig_n(bt[1]))
+        top, low = e9trig_n(tp[2]), e9trig_n(bt[2])
+        T = 2 * (xn - xm)
+        need(T > 0 and top > low, "the marks are the wrong way round")
+        W = dict(A=(top - low) / 2, fn="cos", b=2 * sp.pi / T, c=xm, d=(top + low) / 2, T=T, xm=xm, top=top, low=low, kind="x" if paper == 1 else "plain", wr=None)
+    fa, fb, fc, fd = float(W["A"]), float(W["b"]), float(W["c"]), float(W["d"])
+    for x, y in fig["curves"][0][::13]:
+        need(abs(y - (fa * E9TRIG_FN[W["fn"]](fb * (x - fc)) + fd)) < 1e-6, "the curve is another wave")
+    return W
+
+
+def e9trig_from_letters(A, fn, b, c, d, wr, paper):
+    T = (sp.pi if fn == "tan" else 2 * sp.pi) / b
+    kind = "dec" if "." in wr else "pi" if "π" in wr else "x"
+    amp = abs(A)
+    W = dict(A=A, fn=fn, b=b, c=c, d=d, T=sp.nsimplify(T) if kind != "dec" else T, top=d + amp, low=d - amp, kind=kind, wr=wr)
+    if fn != "tan":
+        W["xm"] = e9trig_peak(A, fn, c, W["T"])
+        # The peak is a peak: nothing before it is as high.
+        fa, fb, fc = float(A), float(b), float(c)
+        f = lambda x: fa * E9TRIG_FN[fn](fb * (x - fc))
+        xm = float(W["xm"])
+        need(abs(f(xm) - float(amp)) < 1e-6, "the first maximum isn't a maximum")
+        need(all(f(xm * i / 60) < float(amp) - 1e-9 for i in range(1, 58)), "a higher point comes earlier")
+    return W
+
+
+def e9trig_tan_curve(fig, W):
+    fa, fb, fd = float(W["A"]), float(W["b"]), float(W["d"])
+    for curve in fig["curves"]:
+        for x, y in curve[::9]:
+            need(abs(y - (fa * math.tan(fb * x) + fd)) < 1e-5, "the curve is another tan")
+    T = float(W["T"])
+    need([round(v["at"], 6) for v in fig["vlines"]] == [round(T / 2, 6), round(1.5 * T, 6)], "the asymptotes are in the wrong place")
+
+
+def e9trig_tan_read(q):
+    """A tan function on a figure with only its marks: the equation isn't shown, so a, b and d come
+    from the two marked points and the asymptotes; the curve fixes the size of a."""
+    g, fig, paper = q["given"], q["graph"], q["paper"]
+    pts = fig["points"]
+    need(len(pts) == 2, "a tan figure marks two points")
+    m = re.fullmatch(rf"\((.+), ({E9TRIG_NUM})\)", pts[1]["label"])
+    need(m is not None, f"can't read {pts}")
+    written = m[1]
+    T = e9trig_pi_text(written) if "π" in written else e9trig_n(written)
+    d = e9trig_n(m[2])
+    need(abs(pts[1]["x"] - float(T)) < 1e-6, "the mark is off its label")
+    need(pts[0]["label"] == f"(0, {dec_text(d)})", "the first mark is not on the axis of the branch")
+    v = fig["vlines"]
+    need(abs(v[0]["at"] - float(T) / 2) < 1e-6 and abs(v[1]["at"] - 1.5 * float(T)) < 1e-6, "the asymptotes are in the wrong place")
+    x0, y0 = fig["curves"][0][3]
+    a = (y0 - float(d)) / math.tan(math.pi / float(T) * x0)
+    for curve in fig["curves"]:
+        for x, y in curve[::9]:
+            need(abs(y - (a * math.tan(math.pi / float(T) * x) + float(d))) < 1e-5, "the curve is another tan")
+    return dict(A=None, fn="tan", b=sp.pi / T, c=sp.Integer(0), d=d, T=T, top=None, low=None, kind="x" if "π" in written else "pi", wr=None)
+
+
+def e9trig_x(W, v):
+    k = W["kind"]
+    if k == "x":
+        return as_pi(sp.Rational(sp.nsimplify(v / sp.pi)))
+    return gc_s(tm_f(v)) if k == "dec" else dec_text(sp.Rational(sp.nsimplify(v)))
+
+
+def e9trig_b_text(W):
+    k, b = W["kind"], W["b"]
+    if k == "pi":
+        return as_pi(sp.Rational(sp.nsimplify(b / sp.pi)))
+    return gc_s(tm_f(b)) if k == "dec" else dec_text(b)
+
+
+def e9trig_label(q, label, W, v, wrongs):
+    """One place across as the answer: wrongs is ref -> values, or texts where a value is a string."""
+    t = lambda x: x if isinstance(x, str) else label + e9trig_x(W, x)
+    trap = None
+    if W["kind"] == "dec":
+        val = tm_f(v)
+        trap = gc_trap([val], label + gc_s2(val))
+    gc_check_common(q, t(v), {k: {t(x) for x in vs} for k, vs in wrongs.items()}, trap)
+
+
+def e9trig_period(q, W):
+    T, rep = W["T"], q["view"]["rep"]
+    P = "Period = "
+    wr = {E9TRIG_B: [P + e9trig_b_text(W)] if W["kind"] != "plain" else [], E9TRIG_SIN_TAN: [T / 2], E9TRIG_HALF: [T / 2]}
+    if W["kind"] == "dec":
+        wr[E9TRIG_DEG] = [P + gc_s(sp.Integer(360) / W["b"])]
+    e9trig_label(q, P, W, T, wr)
+
+
+def e9trig_two(q, W, n1, v1, n2, v2, wrongs, word=None):
+    """Two numbers, the second a place across: exact, or named to 3 s.f."""
+    if W["kind"] == "dec":
+        t = lambda a, b: tm_named([(n1, a), (n2, b)])
+    else:
+        t = lambda a, b: f"{n1} = {dec_text(a)}, {n2} = {e9trig_x(W, b)}"
+    gc_check_common(q, t(v1, v2), {k: {t(*p) for p in ps} for k, ps in wrongs.items()})
+
+
+def e9trig_read_features(q):
+    u, rep, L, g, paper = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["given"], q["paper"]
+    if u == "intercept-gap":
+        return e9trig_intercept(q)
+    if u == "b-from-story":
+        return e9trig_b_story(q)
+    if u == "amp-axis-story":
+        return e9trig_amp_axis(q)
+    if u == "wheel-a-b":
+        return e9trig_wheel(q)
+    if rep == "graph" and g.get("fn") == "tan" and u == "tan-period" and q["view"]["angle"] != "gdc-graph":
+        W = e9trig_tan_read(q)
+        P = "Period = "
+        gc_check_common(q, P + e9trig_x(W, W["T"]), {E9TRIG_TAN_SIN: {P + e9trig_x(W, 2 * W["T"])}, E9TRIG_B: {P + e9trig_b_text(W)}})
+        return
+    W = e9trig_read(q)
+    A, d, T, top, low, fn = W["A"], W["d"], W["T"], W["top"], W["low"], W["fn"]
+    amp = abs(A)
+    if u == "amplitude":
+        l = "Amplitude = "
+        gc_check_common(q, l + dec_text(amp), {E9TRIG_AMP: {l + dec_text(A), l + dec_text(A + d)}, E9TRIG_DOUBLE: {l + dec_text(top - low)}})
+    elif u == "period":
+        e9trig_period(q, W)
+    elif u == "amp-period":
+        e9trig_two(q, W, "Amplitude", amp, "period", T, {E9TRIG_HALF: [(amp, T / 2)], E9TRIG_SIN_TAN: [(amp, T / 2)], E9TRIG_DOUBLE: [(top - low, T)], E9TRIG_AMP: [(A, T), (A + d, T)]})
+    elif u == "principal-axis":
+        gc_check_common(q, f"y = {dec_text(d)}", {E9TRIG_AXIS: {f"y = {dec_text(amp)}"}})
+    elif u == "max-value":
+        l = "Maximum value = "
+        gc_check_common(q, l + dec_text(top), {E9TRIG_NO_D: {l + dec_text(amp)}, E9TRIG_SWAP: {l + dec_text(d + A)}})
+    elif u == "min-value":
+        l = "Minimum value = "
+        gc_check_common(q, l + dec_text(low), {E9TRIG_NO_D: {l + dec_text(-amp)}, E9TRIG_SWAP: {l + dec_text(d - A)}})
+    elif u == "range":
+        gc_check_common(q, f"{dec_text(low)} ≤ y ≤ {dec_text(top)}", {E9TRIG_NO_D: {f"{dec_text(-amp)} ≤ y ≤ {dec_text(amp)}"}})
+    elif u == "first-max-x":
+        xm = W["xm"]
+        wr = {}
+        if rep != "graph":
+            c = W["c"]
+            wr[E9TRIG_MINUS] = [(top, e9trig_peak(-A, fn, c, T))]
+            wr[E9TRIG_SIN_COS] = [(top, e9trig_peak(A, "cos" if fn == "sin" else "sin", c, T))]
+        e9trig_two(q, W, "Maximum", top, "x", xm, wr)
+    elif u == "tan-period":
+        e9trig_period_tan(q, W)
+    elif u == "tan-features":
+        t = lambda body, v: f"{body}, and its period is {e9trig_x(W, v)}"
+        none = "It has no amplitude, as it has no maximum or minimum"
+        gc_check_common(q, t(none, T), {E9TRIG_TAN_AMP: {t(f"Its amplitude is {dec_text(amp)}", T), t(f"Its range is {dec_text(d - amp)} ≤ y ≤ {dec_text(d + amp)}", T)}, E9TRIG_TAN_SIN: {t(none, 2 * T)}})
+    elif u == "b-from-graph":
+        b = W["b"]
+        if paper == 1:
+            b = sp.nsimplify(b)
+            gc_check_common(q, f"b = {dec_text(b)}", {E9TRIG_PERB: {"b = " + as_pi(sp.nsimplify(T / sp.pi))}, E9TRIG_HALF: {f"b = {dec_text(2 * b)}"}})
+        else:
+            tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b]}, steps=(2, 5))
+    elif u == "a-d-from-graph":
+        t = lambda a_, d_: f"a = {dec_text(a_)}, d = {dec_text(d_)}"
+        gc_check_common(q, t(amp, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, amp)}})
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def e9trig_period_tan(q, W):
+    P = "Period = "
+    T = W["T"]
+    wr = {E9TRIG_TAN_SIN: [2 * T], E9TRIG_B: [P + e9trig_b_text(W)]}
+    e9trig_label(q, P, W, T, wr)
+
+
+def e9trig_intercept(q):
+    L = q["lines"]
+    m = re.fullmatch(r"The graph of f crosses the x-axis at x = 0, x = (\d*)r and x = (\d*)r\.", L[1])
+    need(m is not None and L[0] == "f(x) = sin(qx), with q > 0 and x in radians.", f"can't read {L}")
+    n, n2 = int(m[1] or 1), int(m[2] or 1)
+    need(n2 == 2 * n, "the crossings aren't evenly spaced")
+    s = sp.Symbol("q", positive=True)
+    want = sp.pi / (n * s)
+    # r really is the first crossing after 0, and the second is at 2n r.
+    need(sp.simplify(sp.sin(s * n * want)) == 0 and sp.simplify(sp.sin(s * n2 * want)) == 0 and sp.simplify(sp.sin(s * n * want / 2)) != 0, "r is not the crossing")
+    ticks = q["graph"]["x_ticks"]
+    need([t[1] for t in ticks] == [f"{n if n > 1 else ''}r", f"{n2}r"], "the figure's marks are not the question's")
+    txt = lambda k: "r = π/q" if k == 1 else f"r = π/({k}q)"
+    gc_check_common(q, txt(n), {E9TRIG_HALF: {"r = 2π/q" if n == 1 else f"r = 2π/({n}q)"}})
+
+
+def e9trig_story(q):
+    """The story of the question: its letter, words, unit and time."""
+    sym = TM_CONTEXTS[q["given"]["ctx"]][0]
+    return (sym,) + E9TRIG_STORIES[sym]
+
+
+def e9trig_b_story(q):
+    sym, thing, unit, time = e9trig_story(q)
+    L, paper = q["lines"], q["paper"]
+    need(L[0] == f"{thing} is modelled by {sym}(t) = a sin(b(t − c)) + d, with a, b, c > 0 and t in {time}.", f"can't read {L}")
+    m = re.fullmatch(rf"It reaches its highest value every (\d+) {time}\.", L[1])
+    need(m is not None, f"can't read {L}")
+    T = sp.Integer(m[1])
+    b = 2 * sp.pi / T
+    if paper == 1:
+        t = lambda v: "b = " + as_pi(sp.Rational(v / sp.pi))
+        gc_check_common(q, t(b), {E9TRIG_PERB: {f"b = {T}"}, E9TRIG_HALF: {t(2 * b)}})
+    else:
+        tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b]}, steps=(2, 5))
+
+
+def e9trig_amp_axis(q):
+    sym, thing, unit, time = e9trig_story(q)
+    L = q["lines"]
+    need(L[0] == f"{thing} is modelled by a sine wave.", f"can't read {L}")
+    m = re.fullmatch(rf"It runs between a lowest value of ({E9TRIG_NUM}) {re.escape(unit)} and a highest value of ({E9TRIG_NUM}) {re.escape(unit)}\.", L[1])
+    need(m is not None, f"can't read {L}")
+    low, top = e9trig_n(m[1]), e9trig_n(m[2])
+    need(low > 0 and top > low, "the range is the wrong way round")
+    a, d = (top - low) / 2, (top + low) / 2
+    t = lambda x, y: f"Amplitude = {dec_text(x)}, principal axis y = {dec_text(y)}"
+    gc_check_common(q, t(a, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, a)}})
+
+
+def e9trig_wheel(q):
+    L, paper = q["lines"], q["paper"]
+    m = re.fullmatch(r"A wheel of diameter (\d+) m turns once every (\d+) minutes\. Its lowest seat passes (\d+) m above the ground, and a seat starts at the lowest point at t = 0\.", L[0])
+    need(m is not None, f"can't read {L}")
+    dia, T, base = sp.Integer(m[1]), sp.Integer(m[2]), sp.Integer(m[3])
+    a, b = -dia / 2, 2 * sp.pi / T
+    d = dia / 2 + base
+    need(L[1] == f"h(t) = a cos(bt) + {dec_text(d)} gives the height of the seat in metres, t minutes later.", f"can't read {L}")
+    need(a * sp.cos(0) + d == base, "the seat isn't at the bottom at the start")
+    if paper == 1:
+        t = lambda x, y: f"a = {dec_text(x)}, b = {as_pi(sp.Rational(y / sp.pi))}"
+        gc_check_common(q, t(a, b), {E9TRIG_WHEEL: {t(-a, b)}, E9TRIG_PERB: {f"a = {dec_text(a)}, b = {dec_text(T)}"}, E9TRIG_HALF: {t(a, 2 * b)}})
+    else:
+        t = lambda x, y: tm_named([("a", x), ("b", y)])
+        gc_check_common(q, t(a, b), {E9TRIG_WHEEL: {t(-a, b)}, E9TRIG_PERB: {t(a, T)}, E9TRIG_HALF: {t(a, 2 * b)}})
+
+
+# ── Using a model ────────────────────────────────────────────
+
+def e9trig_model(q):
+    """The model from the first line, held to its story, and its figure to the model."""
+    g, rep, L = q["given"], q["view"]["rep"], q["lines"]
+    sym, thing, unit, time = e9trig_story(q)
+    if rep == "words":
+        m = re.fullmatch(rf"{re.escape(thing)} is modelled by {sym}\(t\) = (.+), with t in {time}\.", L[0])
+        need(m is not None, f"can't read {L}")
+        text = m[1]
+    else:
+        need(L[0].startswith(f"{sym}(t) = "), f"can't read {L}")
+        text = L[0][len(sym) + 6:]
+        need(L[1] == (f"t is measured in {time}." if rep == "equation" else f"The graph shows the model, with t in {time}."), f"can't read {L}")
+    A, fn, b, c, d, wr = e9trig_wave(text, "t")
+    a = abs(A)
+    T = 2 * sp.pi / b
+    M = dict(A=A, fn=fn, b=b, c=c, d=d, a=a, T=T, top=d + a, low=d - a, sym=sym, thing=thing, unit=unit, time=time, text=text, dec="." in wr)
+    M["fa"], M["fb"], M["fc"], M["fd"], M["ft"] = float(A), float(b), float(c), float(d), float(T)
+    M["low_f"], M["top_f"] = float(M["low"]), float(M["top"])
+    M["tmax"] = float(e9trig_peak(A, fn, c, T))
+    M["tmin"] = float(e9trig_first(e9trig_peak(A, fn, c, T) + T / 2, T))
+    need(abs(e9trig_at(M, M["tmax"]) - M["top_f"]) < 1e-9 and abs(e9trig_at(M, M["tmin"]) - M["low_f"]) < 1e-9, "the first top or bottom is wrong")
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if fig is not None:
+        for x, y in fig["curves"][0][::13]:
+            need(abs(y - e9trig_at(M, x)) < 1e-6, "the curve is another model")
+    return M
+
+
+def e9trig_at(M, t, deg=False):
+    u = M["fb"] * (t - M["fc"])
+    return M["fa"] * E9TRIG_FN[M["fn"]](math.radians(u) if deg else u) + M["fd"]
+
+
+def e9trig_cross(M, k, lo, hi, deg=False):
+    """Every crossing of level k in (lo, hi], from a scan for sign changes, refined by bisection."""
+    per = 360.0 / M["fb"] if deg else M["ft"]
+    n = max(200, int((hi - lo) / per * 400))
+    out = []
+    t0, f0 = lo, e9trig_at(M, lo, deg) - k or 1e-13
+    for i in range(1, n + 1):
+        t1 = lo + (hi - lo) * i / n
+        f1 = e9trig_at(M, t1, deg) - k or 1e-13
+        if f0 * f1 < 0:
+            a, b, fa = t0, t1, f0
+            for _ in range(60):
+                m = (a + b) / 2
+                fm = e9trig_at(M, m, deg) - k
+                if fa * fm <= 0:
+                    b = m
+                else:
+                    a, fa = m, fm
+            out.append(round((a + b) / 2, 9))
+        t0, f0 = t1, f1
+    return out
+
+
+def e9trig_above(M, k, lo, hi, deg=False):
+    """The time above k in (lo, hi], added up between crossings."""
+    xs = [lo] + e9trig_cross(M, k, lo, hi, deg) + [hi]
+    return sum(b - a for a, b in zip(xs, xs[1:]) if e9trig_at(M, (a + b) / 2, deg) > k)
+
+
+def e9trig_cycle(M, k, deg=False):
+    """The time above k in one cycle, from trough to trough, so no crossing is on an end."""
+    per = 360.0 / M["fb"] if deg else M["ft"]
+    lo = min((per * i / 720 for i in range(720)), key=lambda t: e9trig_at(M, t, deg))
+    return e9trig_above(M, k, lo, lo + per, deg)
+
+
+def e9trig_f(t):
+    return sp.Float(t, 30)
+
+
+def e9trig_num(q, label, v, tail, wrongs):
+    want = label + gc_s(e9trig_f(v)) + tail
+    val = e9trig_f(v)
+    gc_check_common(q, want, {k: {label + gc_s(e9trig_f(x)) + tail for x in vs} for k, vs in wrongs.items()}, gc_trap([val], label + gc_s2(val) + tail))
+
+
+def e9trig_level(q, M):
+    """The level from the question, and from the figure's dashed line."""
+    m = re.search(rf"(?:is|above|below) ({E9TRIG_NUM}) {re.escape(M['unit'])}", q["asked"])
+    need(m is not None, f"can't read the level in {q['asked']!r}")
+    k = e9trig_n(m[1])
+    need(M["low"] < k < M["top"], "the level is outside the wave")
+    if q["graph"] is not None:
+        need([round(h["at"], 6) for h in q["graph"]["hlines"]] == [round(float(k), 6)], "the dashed line isn't the level")
+    return k
+
+
+def e9trig_lower(thing):
+    return thing[0].lower() + thing[1:]
+
+
+def e9trig_list(xs):
+    names = [gc_s(e9trig_f(x)) for x in sorted(xs)]
+    return "t = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def e9trig_model_use(q):
+    u, angle, paper = q["view"]["unknown"], q["view"]["angle"], q["paper"]
+    M = e9trig_model(q)
+    T, what = M["ft"], e9trig_lower(M["thing"])
+    sym, unit, time = M["sym"], " " + M["unit"], " " + M["time"]
+    ask = q["asked"]
+    if u == "value-at-time":
+        m = re.fullmatch(rf"Find {re.escape(what)} when t = (\d+), to 3 significant figures\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        t = int(m[1])
+        e9trig_num(q, sym + " = ", e9trig_at(M, t), unit, {E9TRIG_DEG: [e9trig_at(M, t, True)]})
+    elif u == "exact-value":
+        m = re.fullmatch(rf"Find the exact value of {re.escape(what)} when t = (\d+)\.", ask)
+        need(m is not None and paper == 1, f"can't read {ask!r}")
+        t = int(m[1])
+        fv = (sp.sin if M["fn"] == "sin" else sp.cos)(M["b"] * t)
+        v = M["A"] * fv + M["d"]
+        tr_common(q, sym + " = ", v, {E9TRIG_SIGN: [M["d"] - M["A"] * fv]}, tail=unit, steps=(2, 5))
+    elif u == "first-time-level":
+        k = e9trig_level(q, M)
+        xs = e9trig_cross(M, float(k), 1e-6, 2.2 * T)
+        ds = e9trig_cross(M, float(k), 0.0, 1.01 * 360.0 / M["fb"], True)
+        e9trig_num(q, "t = ", xs[0], time, {E9TRIG_DEG: ds[:1]})
+    elif u == "all-times":
+        m = re.fullmatch(rf"Find every time in 0 ≤ t ≤ (\d+) when {re.escape(what)} is ({E9TRIG_NUM}) {re.escape(M['unit'])}, to 3 significant figures\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        L_, k = float(m[1]), float(e9trig_n(m[2]))
+        xs = e9trig_cross(M, k, 0.0, L_)
+        need(2 <= len(xs) <= 4, f"{len(xs)} times")
+        ds = e9trig_cross(M, k, 0.0, 720.0 / M["fb"], True)[:2]
+        gc_check_common(q, e9trig_list(xs), {E9TRIG_FIRST: {e9trig_list(xs[:1])}, E9TRIG_DEG: {e9trig_list(ds)}})
+    elif u in ("duration-above", "duration-below"):
+        k = e9trig_level(q, M)
+        w = e9trig_cycle(M, float(k))
+        dp = 360.0 / M["fb"]
+        wd = e9trig_cycle(M, float(k), True)
+        if u == "duration-above":
+            e9trig_num(q, "Time = ", w, time, {E9TRIG_SIDE: [T - w], E9TRIG_ONE_SIDE: [w / 2], E9TRIG_DEG: [wd]})
+        else:
+            e9trig_num(q, "Time = ", T - w, time, {E9TRIG_SIDE: [w], E9TRIG_ONE_SIDE: [(T - w) / 2], E9TRIG_DEG: [dp - wd]})
+    elif u == "duration-span":
+        k = e9trig_level(q, M)
+        m = re.match(r"For how long in 0 ≤ t ≤ (\d+) is", ask)
+        need(m is not None, f"can't read {ask!r}")
+        span = float(m[1])
+        n = span / T
+        need(abs(n - round(n)) < 1e-9, "the span is not whole cycles")
+        total = e9trig_above(M, float(k), 0.0, span)
+        w = e9trig_cycle(M, float(k))
+        wd = e9trig_cycle(M, float(k), True)
+        e9trig_num(q, "Time = ", total, time, {E9TRIG_CYCLE: [w], E9TRIG_SIDE: [span - total], E9TRIG_DEG: [wd * round(n)]})
+    elif u == "first-max-time":
+        t = M["tmax"]
+        c = M["fc"]
+        whole = abs(t - round(t)) < 1e-9
+        if whole:
+            gc_check_common(q, f"t = {round(t)}{time}", {E9TRIG_C: {f"t = {dec_text(sp.Rational(M['c']))}{time}"}})
+        else:
+            e9trig_num(q, "t = ", t, time, {E9TRIG_C: [c]})
+    elif u == "high-low-gap":
+        need(M["dec"], "the gap needs a decimal b")
+        e9trig_num(q, "Time = ", T / 2, time, {E9TRIG_WHOLE: [T], E9TRIG_PERB: [M["fb"] / 2]})
+    elif u == "count-peaks":
+        m = re.fullmatch(rf"How many times does {re.escape(what)} reach its maximum in 0 ≤ t ≤ (\d+)\?", ask)
+        need(m is not None, f"can't read {ask!r}")
+        L_ = int(m[1])
+        n = sum(1 for i in range(10000) if M["tmax"] + i * T <= L_)
+        l = "Number of maxima = "
+        gc_check_common(q, f"{l}{n}", {E9TRIG_DIVIDE: {f"{l}{math.floor(L_ / T)}"}, E9TRIG_PERB: {f"{l}{math.floor(L_ / M['fb'])}"}})
+    elif u == "count-lows":
+        one, f = E9TRIG_UP[M["time"]]
+        m = re.fullmatch(rf"How many times does {re.escape(what)} fall to its minimum in the first (?:(\d+) )?{one}s?\?", ask)
+        need(m is not None, f"can't read {ask!r}")
+        up = int(m[1] or 1)
+        L_ = up * f
+        n = sum(1 for i in range(100000) if M["tmin"] + i * T <= L_)
+        un = sum(1 for i in range(100000) if M["tmin"] + i * T <= up)
+        l = "Number of minima = "
+        gc_check_common(q, f"{l}{n}", {E9TRIG_UNIT: {f"{l}{un}"}, E9TRIG_DIVIDE: {f"{l}{math.floor(L_ / T)}"}})
+    elif u == "interpret-extreme":
+        big = "maximum" in ask
+        need(ask == f"Write down the {'maximum' if big else 'minimum'} value of the model, and say what it means here.", f"can't read {ask!r}")
+        v, t = (M["top"], M["tmax"]) if big else (M["low"], M["tmin"])
+        word = "highest" if big else "lowest"
+        ts = lambda x: str(round(x)) if abs(x - round(x)) < 1e-9 else gc_s(e9trig_f(x))
+        said = lambda w, y, x: f"The {w} value of {what} is {dec_text(y)}{unit}, first reached at t = {ts(x)}"
+        gc_check_common(q, said(word, v, t), {E9TRIG_D_X: {said(word, M["d"], t)}, E9TRIG_C: {said(word, v, M["fc"])}})
+    elif u == "reaches-level":
+        m = re.fullmatch(rf"Does {re.escape(what)} ever reach ({E9TRIG_NUM}){re.escape(unit)}\? Which statement is right\?", ask)
+        need(m is not None, f"can't read {ask!r}")
+        k = e9trig_n(m[1])
+        top, a, d = M["top"], M["a"], M["d"]
+        need(k != top, "the level is the top")
+        scan = max(e9trig_at(M, T * i / 720) for i in range(721))
+        reach = float(k) < scan
+        does = lambda v: f"It reaches {dec_text(k)}, as its largest value is {dec_text(v)}"
+        never = lambda v: f"It never reaches {dec_text(k)}, as its largest value is {dec_text(v)}"
+        gc_check_common(q, does(top) if reach else never(top), {E9TRIG_D_X: {never(d)}, E9TRIG_NO_D: {never(a)}, E9TRIG_DOUBLE: {does(top + a)}})
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def e9trig_sums(q):
+    """Each plain sum in the working, from the figures shown, to their own precision."""
+    num = r"\(?−?\d+(?:\.\d+)?\)?"
+    rx = re.compile(rf"(?<![\w.(π/])((?:\({num} [−+] {num}\)|{num})(?: [+−×÷] (?:\({num} [−+] {num}\)|{num}))+) = (−?\d+(?:\.\d+)?)(?![\w/π])")
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in rx.finditer(st):
+                e = m[1].replace("−", "-").replace("×", "*").replace("÷", "/")
+                x = float(eval(e, {"__builtins__": {}}))
+                y = float(m[2].replace("−", "-"))
+                need(abs(x - y) <= 2e-4 * max(1.0, abs(y)), f"{sol['name']}: {m[0]!r} is {x}")
+
+
+def check_trig_wave(q):
+    t, u, angle, paper = q["view"]["type"], q["view"]["unknown"], q["view"]["angle"], q["paper"]
+    if u in E9TRIG_P1_ONLY:
+        need(paper == 1, f"{u} is Paper 1")
+    if u in E9TRIG_P2_ONLY or angle == "gdc-graph" or (angle == "gdc-intersection"):
+        need(paper == 2, f"{u} by {angle} is Paper 2")
+    tr_hyphens(q)
+    (e9trig_read_features if t == "t3-trig-read-features" else e9trig_model_use)(q)
+    e9trig_sums(q)
+    return None, None
+
+
+# ── end trig-wave ──
+
+SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
@@ -26774,6 +29418,7 @@ SITUATION_CHECKS = {"grouped-data": check_grouped_data, "binomial-unknown": chec
                     "graph-match": check_graph_match,
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
+                    "regression-interpret": e9regr_check,
                     "binomial": check_binomial, "geometric-sequence": check_geometric, "binomial-expansion": check_binomial_expansion, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
