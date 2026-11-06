@@ -6,8 +6,8 @@ extends SceneTree
 ##   numbers   a number in the feedback appears nowhere in that question's stem, options
 ##             or working, so the text was written for another question.
 ##   claim     the text states the false belief as if it were true, so it reads as advice
-##             after "Watch out:". Every string has to name the slip ("Assuming ...",
-##             "Using ...").
+##             after "Watch out:". Every string has to name the slip, in either form:
+##             "Assuming ...", "Using ...", or "Assumes ...", "Uses ...".
 ##   no text   the tag has no text in the type's misconceptions, so the student sees nothing.
 ##   overflow  an option's number is absurdly large, as when a slip divides by next to nothing
 ##             and the size overflows (FAL-729's σ = −9220000000). The answer checker doesn't
@@ -60,6 +60,16 @@ const REPORT_ONLY := [
 const DOUBLE_STOP := "(?<!\\.)\\.\\.(?!\\.)"
 ## Words that open a sentence and aren't a slip.
 const NOT_A_SLIP := ["thing", "nothing", "everything", "something", "anything", "string", "during", "king", "ring", "wing"]
+## Third-person verbs that name a slip. A list and not a rule, because an "-s" word also
+## opens a bare claim ("Angles add up to 90°", "Sign slips"). A new verb belongs here.
+const SLIP_VERBS := ["adds", "answers", "applies", "assumes", "believes", "calls", "cancels", "checks",
+	"chooses", "computes", "confuses", "converts", "copies", "counts", "describes", "divides", "doubles",
+	"draws", "drops", "evaluates", "factorises", "finds", "flips", "forgets", "gets", "gives", "ignores",
+	"includes", "interprets", "keeps", "leaves", "lets", "looks", "makes", "mishandles", "misreads",
+	"misses", "mixes", "moves", "multiplies", "picks", "plots", "puts", "reads", "reflects", "replaces",
+	"restricts", "reverses", "rounds", "says", "sets", "shows", "sketches", "solves", "splits", "squares",
+	"states", "stops", "stretches", "substitutes", "subtracts", "swaps", "takes", "thinks", "treats",
+	"undoes", "uses", "works", "writes"]
 ## Vulgar fractions, as a question may write them instead.
 const VULGAR := {"½": "1/2", "⅓": "1/3", "⅔": "2/3", "¼": "1/4", "¾": "3/4", "⅕": "1/5", "⅙": "1/6", "⅛": "1/8"}
 
@@ -170,12 +180,14 @@ func _check_strings(id: String) -> void:
 
 
 ## True when a string opens by naming what the student did: a gerund ("Assuming",
-## "Using"), or "Not" plus one.
+## "Using"), "Not" plus one, or a third-person verb ("Assumes", "Writes").
 static func names_a_slip(text: String) -> bool:
 	var words := text.strip_edges().split(" ", false)
 	if words.is_empty():
 		return false
 	var first := words[0].to_lower()
+	if first in SLIP_VERBS:
+		return true
 	if first == "not" and words.size() > 1:
 		first = words[1].to_lower()
 	return first.ends_with("ing") and first.length() > 4 and not first in NOT_A_SLIP

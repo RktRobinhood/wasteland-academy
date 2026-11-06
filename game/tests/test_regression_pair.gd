@@ -1,7 +1,8 @@
 extends "res://tests/test_case.gd"
 ## The regression-x-on-y situation (FAL-725): t4-regression-x-on-y is built with every cell and
 ## all four SL4.10 skills, cells make both forms with one right option, the table's line of x on
-## y is exact, both lines given pass through a whole mean point, only choosing a line and the
+## y is exact, the working shows the real line, both lines given pass through a whole mean
+## point, only choosing a line and the
 ## mean point reach Paper 1, every misconception shows up, and it stays out of the AI courses.
 ## The SymPy checker (tools/check-answers) checks the maths.
 
@@ -44,6 +45,15 @@ func test_the_line_of_x_on_y_is_the_line_of_the_table() -> void:
 		check(s.c.eq(s.sxy.div(s.syy)), "draw %d: c = Sxy / Syy" % i)
 		check(s.d.eq(s.mx.sub(s.c.mul(s.my))), "draw %d: the line passes through the mean point" % i)
 		check(not s.c.eq(Q.new(1).div(s.a)), "draw %d: x on y is not y on x rearranged" % i)
+
+
+func test_the_working_shows_the_real_line() -> void:
+	for c in QuestionEngine.cells(false, [TYPE]):
+		for seed in [1, 2, 3]:
+			var q := _make(c, seed)
+			for sol in q.solutions:
+				for text in Step.texts(sol.steps):
+					check(not (text.contains("cy + d") and not text.contains("in the form")), "%s: %s" % [c.key, text])
 
 
 func test_given_lines_cross_at_a_whole_mean_point() -> void:
