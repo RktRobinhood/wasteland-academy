@@ -8490,7 +8490,19 @@
               "misconceptions": [
                 "Multiplying by 180/π when converting degrees to radians",
                 "Writing the size in radians as if it were degrees",
-                "Giving a decimal when an exact multiple of π is asked for"
+                "Giving a decimal when an exact multiple of π is asked for",
+                "Taking π as a full turn instead of 2π",
+                "Dividing the wrong way round: time by angle instead of angle by time, or the rate by a full turn instead of a full turn by the rate",
+                "Using the degrees-to-radians factor when converting radians to degrees",
+                "Leaving a rate in revolutions per minute unconverted when seconds are needed",
+                "Mixing degrees and radians in one calculation",
+                "Using half of the angle at the centre when the whole of angle AOB is needed",
+                "Using the whole of the angle at the centre when half of it is needed",
+                "Using sine instead of cosine, when the distance from the centre is the side next to the angle",
+                "Mixing up the time on the line with the time off it",
+                "Multiplying the angle by the rate instead of dividing by it",
+                "Giving the distance round the circle as the speed or the distance moved, without using the time",
+                "Writing the size in degrees as if it were radians"
               ],
               "threads": []
             },

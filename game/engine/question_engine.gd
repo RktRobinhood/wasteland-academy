@@ -45,6 +45,7 @@ static var SITUATIONS := {
 	"triangle": [TriangleSituation, TriangleViews],
 	"arc-sector": [ArcSectorSituation, ArcSectorViews],
 	"circular-region": [CircularRegionSituation, CircularRegionViews],
+	"circular-motion": [CircularMotionSituation, CircularMotionViews],
 	"exact-trig": [ExactTrigSituation, ExactTrigViews],
 	"trig-identity": [TrigIdentitySituation, TrigIdentityViews],
 	"trig-equation": [TrigEquationSituation, TrigEquationViews],

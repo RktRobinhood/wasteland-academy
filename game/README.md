@@ -585,6 +585,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   to its real proportions with the region shaded; a curved strip and a cone use PlotView's `sector`.
   As in the bank the type is nearly all Paper 2: only `segment-exact` is Paper 1 alone, and the
   sector from two conditions makes both papers, with whole-number roots on Paper 1.
+- `engine/situations/circular_motion.gd` (FAL-753) is `t3-circular-motion` (SL3.4.convert, AA only):
+  something turning steadily about a point, at a rate given as a time for one turn, revolutions per
+  minute, degrees or radians per second, with a straight line beside it or an arm. Every question is
+  Paper 2, as the bank's three parts are. Its views (`circular_motion_views.gd`) ask 25 unknowns: the
+  angle in one second, θ in terms of t, the angle after a time, rates and turns converted, the time to
+  turn an angle, half of and all of angle AOB from arccos(d/r), the time on the chord AB with the rate
+  given three ways, the time off it, the fraction of a turn on it, the arc beyond it, the distance d
+  worked back from that time, and the arc and speed of a tip. An exact answer is a `form` (a multiple
+  of π, or whole degrees or seconds); on an exact chord d is k, k√2 or k√3 with r = 2k, so counting in
+  landmarks is a true method, and it is offered on those cells and on landmark conversions alone.
+  Everything else is 3 s.f. with the rounding trap. A chord is RegionPlot's `sweep`, drawn to its real
+  shape with the turning arrow and the marked angle; a turn with no line is PlotView's `sector` on its
+  whole circle. The working runs on from the figures it shows, and the situation refuses numbers where
+  that would not land on the answer to 3 s.f.
 - `engine/situations/bearings_elevation.gd` (FAL-726) is `t3-bearings-elevation` (SL3.3, on all four
   syllabuses). Every question is Paper 2. Its views (`bearings_elevation_views.gd`) ask 19 unknowns:
   back bearings, angles from a bearing, two-leg journeys by the cosine rule or by components, due
@@ -1841,6 +1855,9 @@ script error happens while it runs. Run one file with
 - `test_inverse_normal.gd` (FAL-752): `t4-inverse-normal`: every cell and method, each on its one paper
   with one right option; a value has the area it was given, a central interval and a band hold theirs,
   a ratio's tails are in that ratio, Paper 1 is exact with no calculator word, and every slip comes up.
+- `test_circular_motion.gd` (FAL-753): `t3-circular-motion`: every cell on Paper 2 with one right option,
+  all three methods, sums done by hand, an exact chord's whole time, a found chord clear of a landmark
+  cosine, the figure of each diagram cell, and every slip comes up.
 - `test_normal_probability.gd` (FAL-728): `t4-normal-probability`: every cell on Paper 2 with one
   right option, the one normal distribution it shares with `normal-unknown`, regions that add up,
   bands wide enough for their labels, the shaded curve, the root of a variance, half a unit either

@@ -32759,7 +32759,407 @@ def e10tm_check(q):
 
 # ── end trig-model-equation ──
 
-SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
+# ── circular-motion (t3-circular-motion, FAL-753) ────────────────────────
+# The `circular-motion` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/circular_motion.gd. The rate, the reach, the line's distance, the angle and
+# the time are read back from the lines or the figure, each answer and each tagged slip is worked out
+# from those with SymPy to 40 digits, a figure is held to those numbers, and every plain sum in the
+# working is evaluated.
+
+E11CM_SK = "SL3.4.convert#"
+E11CM_FACTOR, E11CM_RAD_AS_DEG, E11CM_DECIMAL, E11CM_PI_TURN, E11CM_FLIPPED = (E11CM_SK + str(i) for i in range(5))
+E11CM_BACK, E11CM_PER_MIN, E11CM_MIXED, E11CM_HALF, E11CM_WHOLE = (E11CM_SK + str(i) for i in range(5, 10))
+E11CM_SINE, E11CM_REST, E11CM_TIMES, E11CM_NO_TIME, E11CM_DEG_AS_RAD = (E11CM_SK + str(i) for i in range(10, 15))
+E11CM_SWEEPS = [("The watchtower's searchlight", "beam", "fence"), ("The salvage yard's rotating beacon", "light", "haul road"),
+                ("The depot's radar dish", "signal", "fence line"), ("The ridge camp's scanner", "beam", "pipeline"),
+                ("The old mast's lamp", "light", "rail track")]
+E11CM_ROTORS = [("A wind turbine at the bean farm", "Each blade", "the tip of a blade"), ("A wind pump on the flats", "Each sail", "the tip of a sail"),
+                ("A water wheel at the dam", "Each spoke", "the end of a spoke"), ("A rotor on the old mill", "Each vane", "the tip of a vane"),
+                ("A crane in the scrapyard", "Its jib", "the end of the jib")]
+E11CM_EDGE = sp.Rational(29, 1000)      # the engine's is 0.03
+E11CM_EXACT = " Give your answer as an exact multiple of π."
+E11CM_SF = " Give your answer to 3 significant figures."
+E11CM_RS = " rad/s"
+E11CM_CHORD = ("half-angle", "chord-angle", "chord-time", "chord-time-rpm", "chord-time-degrees", "dark-time", "fraction-in-view", "arc-past-line")
+E11CM_TAIL = {"chord-time-rpm": ", in seconds"}
+E11CM_RATIOS = (sp.Rational(1, 2), sp.sqrt(2) / 2, sp.sqrt(3) / 2)
+E11CM_DEG_LAND = {15 * i for i in range(1, 23) if i != 12}
+E11CM_PI_LAND = {sp.Rational(a, b) for a, b in ((1, 6), (1, 4), (1, 3), (1, 2), (2, 3), (3, 4), (5, 6), (7, 6), (5, 4), (4, 3), (3, 2), (5, 3), (7, 4), (11, 6))}
+
+
+def E11CM_pi(b, letter=""):
+    """A multiple of π as the game writes it: "π/8", "3π/8", "3πt/8"."""
+    b = sp.Rational(b)
+    top = ("π" if b.p == 1 else f"{b.p}π") + letter
+    return top if b.q == 1 else f"{top}/{b.q}"
+
+
+def E11CM_len(text):
+    """A length as written: 14, 14.5 or 3√2."""
+    m = re.fullmatch(r"(\d+)√(\d)", text)
+    return sp.Integer(m.group(1)) * sp.sqrt(int(m.group(2))) if m else R(text)
+
+
+def E11CM_val(text):
+    """A value in the working: 16, 1.5908, π/8, 3π/8."""
+    t = re.sub(r"([\d.]+)π", r"(\1*pi)", text.replace("−", "-").replace("×", "*").replace("÷", "/")).replace("π", "pi")
+    return sp.sympify(t, rational=True)
+
+
+def E11CM_clear(x):
+    """x is positive and clear of a 3 s.f. rounding edge."""
+    v = num(x)
+    if v <= 0:
+        return False
+    scaled = v / sp.Integer(10) ** (sp.floor(sp.log(v, 10)) - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E11CM_EDGE
+
+
+def E11CM_rate(line):
+    """The rate in a line: (src, the number given, radians per second), or None."""
+    for src, rx in (("T", r"It makes one full turn every (\d+) seconds\."), ("n", r"It turns at (\d+) revolutions per minute\."),
+                    ("k", r"It turns at (\d+) degrees per second\."), ("w", r"It turns at ([\d.]+) radians per second\."),
+                    ("w", r"After t seconds it has turned through θ = ([\d.]+)t radians\.")):
+        m = re.fullmatch(rx, line)
+        if m:
+            v = R(m.group(1))
+            return src, v, {"T": 2 * sp.pi / v, "n": sp.pi * v / 30, "k": sp.pi * v / 180, "w": v}[src]
+    return None
+
+
+def E11CM_read(q):
+    """What the student is shown: the story, r and d (from the words or the figure) and the rate."""
+    L, rep, u, g = q["lines"], q["view"]["rep"], q["view"]["unknown"], q["given"]
+    ctx = int(g["ctx"])
+    f = {"r": None, "d": None, "src": None, "ctx": ctx}
+    m = re.fullmatch(r"(.+) turns about O\. (.+) is ([\d.]+) m long\.", L[0])
+    if m:
+        need((m.group(1), m.group(2)) == E11CM_ROTORS[ctx][:2], f"the story {L[0]!r}")
+        f["r"], f["tip"] = R(m.group(3)), E11CM_ROTORS[ctx][2]
+    else:
+        thing, ray, line = E11CM_SWEEPS[ctx]
+        f["ray"], f["line"] = ray, line
+        need(L[0].startswith(thing + " at O "), f"the story {L[0]!r}")
+        rest = L[0][len(thing) + 6:]
+        m = re.fullmatch(rf"turns steadily\. Its {ray} reaches ([\d.]+) m, and a straight {line} passes (.+) m from O, meeting the edge of that circle at A and B\.", rest)
+        if m:
+            f["r"], f["d"] = R(m.group(1)), E11CM_len(m.group(2))
+        elif rest == f"turns steadily. The diagram shows the circle its {ray} reaches and a straight {line}, which meets the circle at A and B.":
+            G = q["graph"]
+            need(G["kind"] == "region" and G["shape"] == "sweep" and G["line"] == line, "the figure is not the chord")
+            f["r"] = R(G["r_label"].removesuffix(" m"))
+            if G["d_label"] != "?":
+                f["d"] = E11CM_len(G["d_label"].removesuffix(" m"))
+                need(abs(sp.Float(G["d"], 30) - num(f["d"])) < 1e-9, "the figure's d is not the label's")
+            need(abs(sp.Float(G["r"], 30) - num(f["r"])) < 1e-9, "the figure's r is not the label's")
+        else:
+            m = re.fullmatch(rf"turns steadily\. Its {ray} reaches ([\d.]+) m, and a straight {line} meets the edge of that circle at A and B\.", rest)
+            if m:
+                f["r"] = R(m.group(1))
+            else:
+                need(rest == "turns steadily." or rest.startswith(f"swings its {ray} from A to B"), f"can't read {L[0]!r}")
+                f["swing"] = rest
+    for line in L[1:]:
+        got = E11CM_rate(line)
+        if got:
+            f["src"], f["given"], f["om"] = got
+    if rep == "equation":
+        need(len(L) > 1 and L[1].startswith("After t seconds"), "an equation with no θ = wt")
+    if u not in ("half-angle", "chord-angle", "chord-angle-exact", "arc-past-line", "sweep-to-radians", "sweep-to-degrees", "distance-from-time"):
+        need(f["src"] is not None, "no rate in the lines")
+        f["T"] = 2 * sp.pi / f["om"]
+    return f
+
+
+def E11CM_sector(q, th, label, r_label=""):
+    G = q["graph"]
+    need(G is not None and G["kind"] == "sector" and G.get("circle"), "the figure is not an angle on a circle")
+    need(abs(sp.Float(G["theta"], 30) - num(th)) < 1e-9, "the figure is not drawn to the angle")
+    need(G["angle_label"] == label and G["r_label"] == r_label, f"the figure's labels {G['angle_label']!r}, {G['r_label']!r}")
+
+
+def E11CM_sums(q):
+    """Every plain sum in the working is what it says, to the figures it shows."""
+    rx = re.compile(r"(?<![\w.])([\dπ(][\d.π()/×÷−+ ]*[×÷−][\d.π()/×÷−+ ]*?) = (\d[\d.]*π?(?:/\d+)?|π(?:/\d+)?)(?!\w)")
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for left, right in rx.findall(st):
+                if left.count("(") != left.count(")"):
+                    continue
+                a, b = E11CM_val(left), E11CM_val(right)
+                unit = sp.Integer(0) if "π" in right else (sp.Rational(1, 10 ** len(right.split(".")[1])) if "." in right else sp.Integer(1))
+                need(abs(num(a) - num(b)) <= unit * sp.Rational(6, 10) + sp.Rational(1, 10**20), f"{sol['name']}: {left} is not {right}")
+            m = re.search(r"([\d.]+) cos\(([\d.]+) ÷ 2\) = ([\d.]+)", st)
+            if m:
+                x = R(m.group(1)) * sp.cos(R(m.group(2)) / 2)
+                need(abs(num(x) - R(m.group(3))) <= sp.Rational(2, 10000) * R(m.group(3)), f"{sol['name']}: {st!r}")
+
+
+def E11CM_says(q, *texts):
+    for sol in q["solutions"]:
+        for t in texts:
+            need(any(t in st for st in sol["steps"]), f"{sol['name']}: the working doesn't say {t!r}")
+
+
+def E11CM_fin(q, want, wr, x=None, label="", tail=""):
+    """The last checks. x is the true value of a 3 s.f. answer."""
+    trap = None
+    if x is not None:
+        need(E11CM_clear(x), f"{want} is on a rounding edge")
+        need(not sig3(x).endswith("0"), f"{want} ends in 0")
+        trap = label + dec_text(R(sig3(x, 2))) + tail
+    gc_check_common(q, want, wr, trap)
+    E11CM_sums(q)
+    for sol in q["solutions"]:
+        need(q["view"]["angle"] in ("multiply-factor", "fraction-of-turn", "landmarks"), "the method")
+        if sol["angle"] == "multiply-factor":
+            need(any("π/180" in st or "180/π" in st for st in sol["steps"]), f"{sol['name']}: no π/180 in the working")
+        if sol["angle"] == "fraction-of-turn":
+            need(any("turn" in st for st in sol["steps"]), f"{sol['name']}: no turn in the working")
+        if sol["angle"] == "landmarks":
+            need(any("landmark" in st or "lots of" in st for st in sol["steps"]), f"{sol['name']}: no landmark in the working")
+    return None, None
+
+
+def E11CM_entry(q):
+    with mpmath.workdps(40):
+        return E11CM_check(q)
+
+
+def E11CM_check(q):
+    u, L, rep, asked = q["view"]["unknown"], q["lines"], q["view"]["rep"], q["asked"]
+    need(q["paper"] == 2, "circular motion is Paper 2")
+    need(q["view"]["angle"] != "landmarks" or u in ("rate-from-degrees", "sweep-to-radians", "sweep-to-degrees", "chord-angle-exact", "chord-time-exact"), f"landmarks on {u}")
+    need(rep == "words" or rep == "diagram" or (rep == "equation" and u in ("rate-to-degrees", "period-from-rate", "time-to-turn")), f"{u} as {rep}")
+    need((q["graph"] is not None) == (rep == "diagram"), "a figure where there should be none, or none where there should be one")
+    f = E11CM_read(q)
+    pi = sp.pi
+    S = sig3
+
+    def want_num(label, x, tail, wrongs):
+        """wrongs: ref -> value. Each is a 3 s.f. text in the answer's own terms."""
+        wr = {}
+        for ref, v in wrongs.items():
+            if num(v) > 0:
+                need(E11CM_clear(v), f"the slip {ref} is on a rounding edge")
+                wr[ref] = {label + S(v) + tail}
+        need(q["answer"].get("show") == "sf" and not q["answer"].get("exact"), "a 3 s.f. answer")
+        return E11CM_fin(q, label + S(x) + tail, wr, x, label, tail)
+
+    def want_pi(label, b, tail, wrongs, letter=""):
+        need(q["answer"].get("exact") is True, "an exact answer")
+        return E11CM_fin(q, label + E11CM_pi(b, letter) + tail, wrongs)
+
+    def texts(label, tail, **kw):
+        return {E11CM_SK + k[1:]: {label + v + tail} for k, v in kw.items()}
+
+    if u in ("rate-from-period", "angle-expression"):
+        T = f["given"]
+        need(f["src"] == "T" and T.q == 1 and 5 <= T <= 60 and T != 16, f"T = {T}")
+        b = 2 / T
+        if rep == "diagram":
+            need(q["graph"]["mark"] == ("moving" if u == "angle-expression" else ""), "the figure's mark")
+        if u == "rate-from-period":
+            need(asked == "Find the angle it turns through in one second, in radians." + E11CM_EXACT, f"asked {asked!r}")
+            label, tail = "rate = ", E11CM_RS
+            return want_pi(label, b, tail, {E11CM_DECIMAL: {label + S(b * pi) + tail}, E11CM_PI_TURN: {label + E11CM_pi(1 / T) + tail},
+                                            E11CM_DEG_AS_RAD: {label + S(360 / T) + tail}, E11CM_FLIPPED: {f"{label}{dec_text(T / 2)}/π{tail}"}})
+        need(asked == "Write θ in terms of t, as an exact multiple of π.", f"asked {asked!r}")
+        need(L[-1] == (f"At t = 0 its {E11CM_SWEEPS[f['ctx']][1]} points at A. After t seconds it points at D, on the way to B, and has turned through θ radians." if rep == "diagram"
+                       else f"After t seconds its {E11CM_SWEEPS[f['ctx']][1]} has turned through θ radians from where it started."), f"the line {L[-1]!r}")
+        return want_pi("θ = ", b, "", {E11CM_DECIMAL: {f"θ = {S(b * pi)}t"}, E11CM_PI_TURN: {"θ = " + E11CM_pi(1 / T, "t")},
+                                       E11CM_DEG_AS_RAD: {f"θ = {S(360 / T)}t"}, E11CM_FLIPPED: {f"θ = {dec_text(T / 2)}t/π"}}, "t")
+    if u == "angle-after-time":
+        T = f["given"]
+        if rep == "diagram":
+            m = re.fullmatch(r"The diagram shows the angle θ, in radians, that it turns through from A to B in (\d+) seconds\.", L[-1])
+            need(m is not None and asked == "Find θ." + E11CM_EXACT, f"can't read {L[-1]!r}")
+        else:
+            m = re.fullmatch(r"Find the angle θ it turns through in (\d+) seconds, in radians\." + re.escape(E11CM_EXACT), asked)
+            need(m is not None, f"can't read {asked!r}")
+        tau = R(m.group(1))
+        need(f["src"] == "T" and 6 <= T <= 60 and 2 <= tau < T, f"T = {T}, τ = {tau}")
+        b = 2 * tau / T
+        if rep == "diagram":
+            E11CM_sector(q, b * pi, "θ")
+        return want_pi("θ = ", b, "", {E11CM_DECIMAL: {"θ = " + S(b * pi)}, E11CM_PI_TURN: {"θ = " + E11CM_pi(tau / T)}, E11CM_DEG_AS_RAD: {"θ = " + S(360 * tau / T)}})
+    if u == "rate-from-rpm":
+        n = f["given"]
+        need(f["src"] == "n" and 2 <= n <= 40, f"n = {n}")
+        need(asked == "Find its rate of turning in radians per second." + E11CM_EXACT, f"asked {asked!r}")
+        b = n / 30
+        label, tail = "rate = ", E11CM_RS
+        return want_pi(label, b, tail, {E11CM_DECIMAL: {label + S(b * pi) + tail}, E11CM_PI_TURN: {label + E11CM_pi(n / 60) + tail},
+                                        E11CM_DEG_AS_RAD: {label + dec_text(6 * n) + tail}, E11CM_PER_MIN: {label + E11CM_pi(2 * n) + tail}})
+    if u == "rate-from-degrees":
+        k = f["given"]
+        need(f["src"] == "k" and k in E11CM_DEG_LAND and k <= 150, f"k = {k}")
+        need(asked == "Find its rate of turning in radians per second." + E11CM_EXACT, f"asked {asked!r}")
+        b = k / 180
+        label, tail = "rate = ", E11CM_RS
+        return want_pi(label, b, tail, {E11CM_FACTOR: {label + S(k * 180 / pi) + tail}, E11CM_DECIMAL: {label + S(b * pi) + tail}, E11CM_PI_TURN: {label + E11CM_pi(k / 360) + tail}})
+    if u == "sweep-to-radians":
+        need(asked == "Write this angle θ in radians." + E11CM_EXACT, f"asked {asked!r}")
+        if rep == "diagram":
+            need(f["swing"].endswith("from A to B, through the angle in the diagram."), f"the line {L[0]!r}")
+            mt = re.fullmatch(r"(\d+)°", q["graph"]["angle_label"])
+            need(mt is not None, "can't read the figure's angle")
+            d = int(mt.group(1))
+            E11CM_sector(q, d * pi / 180, f"{d}°")
+        else:
+            mt = re.search(r"through (\d+)°\.$", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            d = int(mt.group(1))
+        need(d in E11CM_DEG_LAND, f"{d}° is no landmark")
+        b = sp.Rational(d, 180)
+        return want_pi("θ = ", b, "", {E11CM_FACTOR: {"θ = " + S(sp.Integer(d) * 180 / pi)}, E11CM_DECIMAL: {"θ = " + S(b * pi)}, E11CM_PI_TURN: {"θ = " + E11CM_pi(sp.Rational(d, 360))}})
+    if u == "sweep-to-degrees":
+        need(asked == "Write this angle θ in degrees.", f"asked {asked!r}")
+        if rep == "diagram":
+            need(f["swing"].endswith("through the angle in the diagram, which is in radians."), f"the line {L[0]!r}")
+            text = q["graph"]["angle_label"]
+        else:
+            mt = re.search(r"through (.+) radians\.$", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            text = mt.group(1)
+        b = E11CM_val(text) / pi
+        need(b in E11CM_PI_LAND, f"{b}π is no landmark")
+        if rep == "diagram":
+            E11CM_sector(q, b * pi, text)
+        need(q["answer"].get("exact") is True, "an exact answer")
+        return E11CM_fin(q, f"θ = {dec_text(b * 180)}°", {E11CM_RAD_AS_DEG: {f"θ = {S(b * pi)}°"}, E11CM_BACK: {f"θ = {S(b * pi * pi / 180)}°"}, E11CM_PI_TURN: {f"θ = {dec_text(b * 360)}°"}})
+    if u in ("chord-angle-exact", "chord-time-exact"):
+        r, d = f["r"], f["d"]
+        need(r.q == 1 and r % 2 == 0 and 4 <= r <= 60, f"r = {r}")
+        c = sp.nsimplify(d / r)
+        need(c in E11CM_RATIOS, f"d/r = {c} is no landmark")
+        b = 2 * sp.acos(c) / pi
+        sine = 2 * sp.asin(c) / pi
+        need(b.is_Rational and sine.is_Rational, "no exact angle")
+        if rep == "diagram" and u == "chord-angle-exact":
+            need(q["graph"]["mark"] == "whole" and q["graph"]["angle_label"] == "?", "the figure's mark")
+        if u == "chord-angle-exact":
+            label = "angle AOB = "
+            need(asked == "Find angle AOB, in radians." + E11CM_EXACT, f"asked {asked!r}")
+            return want_pi(label, b, "", {E11CM_HALF: {label + E11CM_pi(b / 2)}, E11CM_DECIMAL: {label + S(b * pi)}, E11CM_DEG_AS_RAD: {label + dec_text(b * 180)},
+                                          E11CM_SINE: {label + E11CM_pi(sine)}})
+        T = f["given"]
+        need(f["src"] == "T" and T % 12 == 0 and 12 <= T <= 60, f"T = {T}")
+        need(asked == f"For how many seconds is its {f['ray']} on the stretch AB of the {f['line']} in each turn? Give the exact value.", f"asked {asked!r}")
+        t = b / 2 * T
+        need(t.q == 1, f"the time {t} is not whole")
+        need(q["answer"].get("exact") is True, "an exact answer")
+        S2 = lambda x: f"time = {dec_text(x)} s"
+        return E11CM_fin(q, S2(t), {E11CM_HALF: {S2(t / 2)}, E11CM_REST: {S2(T - t)}, E11CM_MIXED: {f"time = {S(b * 180 / f['om'])} s"}, E11CM_SINE: {S2(sine / 2 * T)}})
+    if u in ("rate-to-degrees", "period-from-rate", "time-to-turn"):
+        om = f["given"]
+        need(f["src"] == "w" and sp.Rational(15, 100) <= om <= 3 and (om * 100).q == 1, f"w = {om}")
+        if u == "rate-to-degrees":
+            need(asked == "Find its rate of turning in degrees per second." + E11CM_SF, f"asked {asked!r}")
+            return want_num("rate = ", om * 180 / pi, "°/s", {E11CM_RAD_AS_DEG: om, E11CM_BACK: om * pi / 180, E11CM_PI_TURN: om / pi * 360})
+        if u == "period-from-rate":
+            need(asked == "Find the time it takes to make one full turn." + E11CM_SF, f"asked {asked!r}")
+            return want_num("time = ", 2 * pi / om, " s", {E11CM_PI_TURN: pi / om, E11CM_FLIPPED: om / (2 * pi), E11CM_TIMES: 2 * pi * om, E11CM_MIXED: 360 / om})
+        mt = re.fullmatch(r"Find the time it takes to turn through (\d+)°\." + E11CM_SF, asked)
+        need(mt is not None, f"can't read {asked!r}")
+        d = sp.Integer(mt.group(1))
+        need(20 <= d <= 340 and d % 15 != 0, f"{d}°")
+        th = d * pi / 180
+        return want_num("time = ", th / om, " s", {E11CM_MIXED: d / om, E11CM_TIMES: th * om, E11CM_FACTOR: d * 180 / pi / om})
+    if u == "time-from-period":
+        T = f["given"]
+        if rep == "diagram":
+            need(asked == "Find the time it takes to turn from A to B." + E11CM_SF, f"asked {asked!r}")
+            th = R(q["graph"]["angle_label"])
+            E11CM_sector(q, th, q["graph"]["angle_label"])
+        else:
+            mt = re.fullmatch(r"Find the time it takes to turn through ([\d.]+) radians\." + E11CM_SF, asked)
+            need(mt is not None, f"can't read {asked!r}")
+            th = R(mt.group(1))
+        need(f["src"] == "T" and 6 <= T <= 60 and sp.Rational(1, 2) <= th <= sp.Rational(55, 10), f"T = {T}, θ = {th}")
+        return want_num("time = ", th * T / (2 * pi), " s", {E11CM_PI_TURN: th * T / pi, E11CM_TIMES: th * 2 * pi / T, E11CM_MIXED: th * T / 360})
+    if u in E11CM_CHORD:
+        r, d = f["r"], f["d"]
+        need(2 * r == sp.floor(2 * r) and 8 <= r <= 60 and (10 * d).q == 1 and (r, d) != (20, 14), f"r = {r}, d = {d}")
+        c = d / r
+        need(sp.Rational(1, 4) <= c <= sp.Rational(92, 100), f"d/r = {c}")
+        for mark in E11CM_RATIOS:
+            need(abs(num(c - mark)) >= sp.Rational(2, 100) - sp.Rational(1, 10**15), f"d/r = {c} is a landmark")
+        ph = sp.acos(c)
+        ps = sp.asin(c)
+        if u == "half-angle":
+            need(asked == "Find angle AOM, in radians." + E11CM_SF, f"asked {asked!r}")
+            need(L[-1] == f"M is the point of the {f['line']} nearest to O.", f"the line {L[-1]!r}")
+            if rep == "diagram":
+                need(q["graph"]["mark"] == "half" and q["graph"]["nearest"], "the figure's mark")
+            return want_num("angle AOM = ", ph, " radians", {E11CM_WHOLE: 2 * ph, E11CM_DEG_AS_RAD: ph * 180 / pi, E11CM_SINE: ps})
+        if u == "chord-angle":
+            need(asked == "Find angle AOB, in radians." + E11CM_SF, f"asked {asked!r}")
+            if rep == "diagram":
+                need(q["graph"]["mark"] == "whole", "the figure's mark")
+            return want_num("angle AOB = ", 2 * ph, " radians", {E11CM_HALF: ph, E11CM_DEG_AS_RAD: 2 * ph * 180 / pi, E11CM_SINE: 2 * ps})
+        if u == "arc-past-line":
+            need(asked == f"Find the length of the shorter arc AB, on the far side of the {f['line']} from O." + E11CM_SF, f"asked {asked!r}")
+            return want_num("arc = ", 2 * r * ph, " m", {E11CM_MIXED: r * 2 * ph * 180 / pi, E11CM_HALF: r * ph, E11CM_SINE: 2 * r * ps})
+        src, g, om = f["src"], f["given"], f["om"]
+        T = 2 * pi / om
+        t = 2 * ph / om
+        need(src == {"chord-time-rpm": "n", "chord-time-degrees": "k"}.get(u, "T"), f"the rate is {src}")
+        need({"T": 6 <= g <= 60, "n": 2 <= g <= 30, "k": 5 <= g <= 80 and g % 15 != 0}[src], f"the rate {g}")
+        if u == "fraction-in-view":
+            need(asked == f"Find the fraction of each turn for which its {f['ray']} is on the stretch AB of the {f['line']}." + E11CM_SF, f"asked {asked!r}")
+            return want_num("fraction = ", ph / pi, "", {E11CM_PI_TURN: 2 * ph / pi, E11CM_HALF: ph / (2 * pi), E11CM_MIXED: 2 * ph / 360, E11CM_SINE: ps / pi})
+        if u == "dark-time":
+            need(asked == f"Find the time in each turn for which its {f['ray']} is not on the stretch AB of the {f['line']}." + E11CM_SF, f"asked {asked!r}")
+            return want_num("time = ", T - t, " s", {E11CM_REST: t, E11CM_HALF: T - t / 2, E11CM_SINE: T - 2 * ps / om})
+        need(asked == f"Find the time its {f['ray']} spends on the stretch AB of the {f['line']} in each turn{E11CM_TAIL.get(u, '')}." + E11CM_SF, f"asked {asked!r}")
+        wrongs = {E11CM_HALF: t / 2, E11CM_SINE: 2 * ps / om}
+        if u == "chord-time":
+            wrongs[E11CM_MIXED] = 2 * ph * 180 / pi / om
+        elif u == "chord-time-rpm":
+            wrongs[E11CM_PER_MIN] = t / 60
+        else:
+            wrongs[E11CM_MIXED] = 2 * ph / g
+        return want_num("time = ", t, " s", wrongs)
+    if u == "distance-from-time":
+        r = f["r"]
+        m = re.fullmatch(rf"It makes one full turn every (\d+) seconds, and its {f['ray']} is on the stretch AB for ([\d.]+) seconds in each turn\.", L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        T, tau = R(m.group(1)), R(m.group(2))
+        need(r.q == 1 and 8 <= r <= 60 and 8 <= T <= 60 and (10 * tau).q == 1 and sp.Rational(15, 100) <= tau / T <= sp.Rational(42, 100), f"r = {r}, T = {T}, τ = {tau}")
+        need(asked == f"Find the distance from O to the {f['line']}." + E11CM_SF, f"asked {asked!r}")
+        half = pi * tau / T
+        x = r * sp.cos(half)
+        if rep == "diagram":
+            need(q["graph"]["d_label"] == "?" and abs(sp.Float(q["graph"]["d"], 30) - num(x)) < 1e-9, "the figure's distance")
+        return want_num("distance = ", x, " m", {E11CM_WHOLE: r * sp.cos(2 * half), E11CM_SINE: r * sp.sin(half), E11CM_MIXED: r * sp.cos(half * pi / 180)})
+    need(u in ("arc-in-time", "rim-speed", "rim-speed-rpm"), f"no check for {u}")
+    r, g = f["r"], f["given"]
+    need((10 * r).q == 1 and 2 <= r <= 14, f"r = {r}")
+    tip = f["tip"]
+    if u == "arc-in-time":
+        need(f["src"] == "T" and 6 <= g <= 60, f"T = {g}")
+        mt = re.fullmatch(rf"Find the distance {tip} moves in (\d+) seconds\." + E11CM_SF, asked)
+        need(mt is not None, f"can't read {asked!r}")
+        tau = sp.Integer(mt.group(1))
+        need(2 <= tau < g, f"τ = {tau}")
+        th = 2 * pi * tau / g
+        if rep == "diagram":
+            E11CM_sector(q, th, "", f"{dec_text(r)} m")
+            need(L[-1] == f"The diagram shows {tip} moving from A to B along the circle in {tau} seconds.", f"the line {L[-1]!r}")
+        return want_num("distance = ", r * th, " m", {E11CM_MIXED: r * th * 180 / pi, E11CM_PI_TURN: r * th / 2, E11CM_NO_TIME: 2 * pi * r})
+    if u == "rim-speed":
+        need(f["src"] == "T" and 3 <= g <= 40, f"T = {g}")
+        need(asked == f"Find the speed of {tip}." + E11CM_SF, f"asked {asked!r}")
+        return want_num("speed = ", 2 * pi * r / g, " m/s", {E11CM_NO_TIME: 2 * pi * r, E11CM_PI_TURN: pi * r / g, E11CM_MIXED: r * 360 / g})
+    need(f["src"] == "n" and 3 <= g <= 30, f"n = {g}")
+    need(asked == f"Find the speed of {tip}, in metres per second." + E11CM_SF, f"asked {asked!r}")
+    return want_num("speed = ", 2 * pi * r * g / 60, " m/s", {E11CM_PER_MIN: 2 * pi * r * g, E11CM_PI_TURN: pi * r * g / 60, E11CM_NO_TIME: 2 * pi * r})
+
+
+# ── end circular-motion ──
+
+SITUATION_CHECKS = {"circular-motion": E11CM_entry, "distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
                     "distribution": check_distribution, "cubic": check_cubic,
