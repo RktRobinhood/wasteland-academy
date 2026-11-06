@@ -3,7 +3,9 @@ extends "res://tests/test_case.gd"
 ## and the weakest skills against hand counts on scripted saves; the world map, the
 ## Functions island and the region screen, "coming soon" for a region with nothing
 ## built, the music each screen asks for, the fit on a phone and a PC window, and the
-## world map opening the Bazaar (FAL-416) and leaving it going back there.
+## world map opening the Bazaar (FAL-416) and leaving it going back there. The island
+## as a hub (FAL-533): the plan's spots with no buttons overlapping, roads that branch
+## from the tower, glyphs in place of numbers, and SPARK's pick (Progress.suggest()).
 
 const MAP := "res://scenes/map.tscn"
 const FIGHT := "res://scenes/fight.tscn"
@@ -19,7 +21,7 @@ func _area(window: Vector2i) -> Vector2:
 	return Vector2(window) / scale
 
 
-func _map(route: Dictionary, save: Dictionary = {}, area := Vector2(1080, 1920)) -> Array:
+func _map(route: Dictionary, save: Dictionary = {}, area := Vector2(1080, 1920), art_dir := "") -> Array:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE))
 	if not save.is_empty():
 		SaveData.store(save, SAVE)
@@ -29,6 +31,8 @@ func _map(route: Dictionary, save: Dictionary = {}, area := Vector2(1080, 1920))
 	tree.root.add_child(frame)
 	var m: Control = (load(MAP) as PackedScene).instantiate()
 	m.save_path = SAVE
+	if art_dir != "":
+		m.art_dir = art_dir
 	frame.add_child(m)
 	for i in 3:
 		await tree.process_frame
@@ -200,6 +204,81 @@ func test_the_weakest_skills_ignore_skills_with_fewer_than_3_answers() -> void:
 	check_eq(Progress.skill_stats(save, "quadratics")[picks[0].skill], {"right": 0, "seen": 2}, "still counted, just not flagged")
 
 
+## The open (built) regions, most-examined first.
+func _open_regions() -> Array:
+	return MapLink.region_ids().filter(func(id): return Progress.is_built(id))
+
+
+## Answers `right` of `seen` in the region's first cell.
+func _answer(save: Dictionary, region: String, right: int, seen: int) -> void:
+	var key: String = Progress.catalogue_cells(region, false)[0].key
+	for i in seen:
+		SaveData.record(save, key, i < right, 100)
+
+
+func test_sparks_pick_is_the_first_untried_open_region() -> void:
+	var open := _open_regions()
+	check(open.size() >= 2, "two open regions to pick between: %s" % [open])
+	if open.size() < 2:
+		return
+	var save := SaveData.blank()
+	check_eq(Progress.suggest(save), {"region": open[0], "why": "untried"}, "a new save: the most-examined")
+	_answer(save, open[0], 0, 5)
+	check_eq(Progress.suggest(save), {"region": open[1], "why": "untried"}, "the next one not tried, however badly the first went")
+	# A floor reached counts as tried too.
+	var save2 := SaveData.blank()
+	Dungeon.note_floor(save2, open[0], 1, false)
+	check_eq(Progress.suggest(save2).region, open[1], "a run with no answers is a try")
+	var unbuilt := _unbuilt_region()
+	if unbuilt != "":
+		check(Progress.suggest(SaveData.blank()).region != unbuilt, "never a region with nothing built")
+
+
+func test_sparks_pick_is_the_lowest_accuracy_once_all_are_tried() -> void:
+	var open := _open_regions()
+	if open.size() < 2:
+		return
+	var save := SaveData.blank()
+	for id in open:
+		_answer(save, id, 3, 4)
+	# The last region is the weakest at 1 of 4, and the first one has too few answers to
+	# count even at 0 of 2.
+	_answer(save, open[-1], 0, 4)
+	save.cells.erase(Progress.catalogue_cells(open[0], false)[0].key)
+	_answer(save, open[0], 0, Progress.MIN_ATTEMPTS - 1)
+	check_eq(Progress.suggest(save), {"region": open[-1], "why": "accuracy"})
+	# A tie goes to the more-examined region.
+	var tie := SaveData.blank()
+	for id in open:
+		_answer(tie, id, 1, 4)
+	check_eq(Progress.suggest(tie), {"region": open[0], "why": "accuracy"}, "a tie")
+
+
+func test_sparks_pick_is_the_lowest_coverage_when_no_accuracy_counts() -> void:
+	var open := _open_regions()
+	if open.size() < 2:
+		return
+	var save := SaveData.blank()
+	# Every region tried, each under MIN_ATTEMPTS answers; the first has more cells checked.
+	for id in open:
+		_answer(save, id, 1, 1)
+	var second: String = Progress.catalogue_cells(open[0], false)[1].key
+	SaveData.record(save, second, true, 100)
+	var shares := open.map(func(id):
+		var c := Progress.coverage(save, id)
+		return float(c.checked) / c.total)
+	var want: String = open[shares.find(shares.min())]
+	check_eq(Progress.suggest(save), {"region": want, "why": "coverage"}, "shares %s" % [shares])
+	check(want != open[0], "the region with more checked is not the pick")
+
+
+func test_no_pick_with_nothing_open() -> void:
+	check_eq(Progress.suggest(SaveData.blank(), []), {}, "no regions")
+	var unbuilt := _unbuilt_region()
+	check_eq(Progress.suggest(SaveData.blank(), ["nowhere"] + ([unbuilt] if unbuilt != "" else [])), {},
+		"only regions with nothing built")
+
+
 # ── Screens ──────────────────────────────────────────────────
 
 func test_the_world_map() -> void:
@@ -276,6 +355,174 @@ func test_the_functions_island() -> void:
 	check(board.get_node_or_null("Ground") != null, "the coded ground")
 	check(board.get_node_or_null("Spot_quadratics/Box/Landmark/Coded") != null, "the coded landmark")
 	check_eq(Audio.location(), "signal-tower", "the island's loop")
+	_done(made)
+
+
+## The island's buttons by spot id.
+func _spot_buttons(m: Control) -> Dictionary:
+	var out := {}
+	for c in m.island_board.get_children():
+		if c is Button and c.name.begins_with("Spot_"):
+			out[String(c.name).trim_prefix("Spot_")] = c
+	return out
+
+
+func test_the_island_is_a_hub_laid_out_as_the_plan() -> void:
+	var map_script := preload("res://ui/map.gd")
+	check_eq(map_script.SPOTS, {
+		"quadratics": Vector2(25, 85), "exp-log": Vector2(75, 86), "function-basics": Vector2(21, 66),
+		"graphs-features": Vector2(79, 65), "lines": Vector2(21, 27), "rational": Vector2(79, 28),
+		"composite-inverse": Vector2(25, 8), "transformations": Vector2(75, 9), "all": Vector2(50, 46),
+		"relic": Vector2(12, 50)}, "the FAL-531 plan's table")
+	var made: Array = await _map({"screen": "island", "island": "functions"})
+	var m: Control = made[1]
+	var buttons := _spot_buttons(m)
+	check_eq(buttons.size(), map_script.SPOTS.size(), "a button per spot")
+	var board := Rect2(Vector2.ZERO, map_script.BOARD)
+	for id in buttons:
+		var b: Button = buttons[id]
+		var r := Rect2(b.position, b.size)
+		var box: float = map_script.RELIC_LANDMARK if id == "relic" else map_script.LANDMARK
+		var centre: Vector2 = map_script.SPOTS[id] * map_script.BOARD / 100.0
+		check((r.position + Vector2(r.size.x / 2.0, box / 2.0)).distance_to(centre) < 0.5, "%s's landmark is centred on its spot" % id)
+		check(board.encloses(r), "%s %s is on the board" % [id, r])
+		check_eq((b.get_node("Box/Landmark") as Control).custom_minimum_size.y, box, id + "'s landmark box")
+		for other in buttons:
+			if other < id:
+				var o: Button = buttons[other]
+				check(not r.intersects(Rect2(o.position, o.size)), "%s and %s overlap" % [id, other])
+	var relic: Button = buttons.relic
+	check(relic.size.x <= 200.0, "the Relic device's button is small: %s" % relic.size)
+	check(relic.get_node_or_null("Box/State") == null, "the Relic device shows its name only")
+	check((relic.get_node("Box/Name") as Label).get_minimum_size().x <= relic.size.x, "its name fits")
+	_done(made)
+
+
+func test_the_roads_branch_from_the_tower() -> void:
+	var map_script := preload("res://ui/map.gd")
+	var roads: Array = map_script.roads()
+	var ends := {}
+	for r in roads:
+		for e in r:
+			check(e == "landing" or map_script.SPOTS.has(e), "a road ends at a spot or the landing: " + e)
+	# A spoke from the tower to every spot, and the road up from the landing.
+	for id in map_script.SPOTS:
+		if id != "all":
+			check(roads.has(["all", id]), "a spoke to " + id)
+	check(roads.has(["landing", "all"]), "the landing's road to the tower")
+	# The loop: each region linked to the two neighbours in the plan's table.
+	var neighbours := {
+		"quadratics": ["exp-log", "function-basics"], "exp-log": ["quadratics", "graphs-features"],
+		"function-basics": ["quadratics", "lines"], "graphs-features": ["exp-log", "rational"],
+		"lines": ["function-basics", "composite-inverse"], "rational": ["graphs-features", "transformations"],
+		"composite-inverse": ["lines", "transformations"], "transformations": ["composite-inverse", "rational"],
+	}
+	for id in neighbours:
+		var got: Array = []
+		for r in roads:
+			if not r.has("all") and r.has(id):
+				got.append(r[1] if r[0] == id else r[0])
+		got.sort()
+		var want: Array = neighbours[id].duplicate()
+		want.sort()
+		check_eq(got, want, id + "'s neighbours on the loop")
+	# Every road links to the tower: from it, the roads reach every end.
+	var reached := {"all": true}
+	for pass_ in roads.size():
+		for r in roads:
+			if reached.has(r[0]) or reached.has(r[1]):
+				reached[r[0]] = true
+				reached[r[1]] = true
+	for r in roads:
+		check(reached.has(r[0]) and reached.has(r[1]), "%s reaches the tower" % [r])
+	var made: Array = await _map({"screen": "island", "island": "functions"})
+	var drawn: Control = made[1].island_board.get_node("Ground/Roads")
+	check_eq(drawn.lines.size(), roads.size(), "the coded ground draws every road")
+	_done(made)
+
+
+func test_the_coded_landmarks_show_glyphs_not_numbers() -> void:
+	var map_script := preload("res://ui/map.gd")
+	var made: Array = await _map({"screen": "island", "island": "functions"})
+	var buttons := _spot_buttons(made[1])
+	for id in buttons:
+		var mark := buttons[id].get_node("Box/Landmark/Coded/Mark") as Label
+		check_eq(mark.text, map_script.GLYPHS[id], id + "'s glyph, not its initials")
+		check(not mark.text.is_valid_int(), "%s: no number (%s)" % [id, mark.text])
+		for i in mark.text.length():
+			check(UiTheme.TITLE_FONT.has_char(mark.text.unicode_at(i)), "%s: the title font draws '%s'" % [id, mark.text[i]])
+		var ring := mark.get_parent() as Control
+		check(mark.get_minimum_size().x <= ring.custom_minimum_size.x - 20.0, "%s's glyph fits its ring" % id)
+	_done(made)
+	# A glyph the font can't draw falls back to the region's initials.
+	check_eq(map_script.mark("graphs-features", "f⁻¹"), "GKF", "superscript letters fall back")
+	check_eq(map_script.mark("exp-log", "eˣ"), "EL")
+
+
+func test_sparks_pick_gets_the_beacon_its_line_and_first_focus() -> void:
+	var open := _open_regions()
+	if open.size() < 2:
+		return
+	# One region tried, the next one not: the beacon is on the untried one.
+	var save := SaveData.blank()
+	_answer(save, open[0], 2, 3)
+	var made: Array = await _map({"screen": "island", "island": "functions"}, save)
+	var m: Control = made[1]
+	check_eq(m.pick, {"region": open[1], "why": "untried"})
+	var buttons := _spot_buttons(m)
+	for id in buttons:
+		check_eq(buttons[id].get_node_or_null("Beacon") != null, id == open[1], id + ": a beacon only on the pick")
+	var line := (buttons[open[1]].get_node("Box/State") as Label).text
+	check_eq(line.replace("\n", " · "), "Not tried yet · SPARK's pick")
+	check_eq((buttons[open[0]].get_node("Box/State") as Label).text, "67%", "the tried region's line has no pick")
+	check_eq(m.get_viewport().gui_get_focus_owner(), buttons[open[1]], "first focus on the pick")
+	check(not buttons[open[0]].disabled, "the region tried stays open: a pick is never a gate")
+	_done(made)
+	# A cleared pick with a long line breaks before "SPARK's pick" to stay on its spot.
+	var low := SaveData.blank()
+	for id in open:
+		_answer(low, id, 3, 3)
+	_answer(low, open[0], 0, 20)
+	for f in [1, 2, 3]:
+		Dungeon.note_floor(low, open[0], f, true)
+	made = await _map({"screen": "island", "island": "functions"}, low)
+	var b: Button = _spot_buttons(made[1])[open[0]]
+	var state := b.get_node("Box/State") as Label
+	check_eq(state.text.replace("\n", " · "), "Floor 3 · %d%% · Cleared · SPARK's pick" % Progress.accuracy(low, open[0]).percent)
+	check(state.get_minimum_size().x <= b.size.x, "the line fits its spot: %s" % state.get_minimum_size())
+	_done(made)
+
+
+func test_the_beacon_shows_over_landmark_art() -> void:
+	var open := _open_regions()
+	var made: Array = await _map({"screen": "island", "island": "functions"}, {}, Vector2(1080, 1920),
+		"res://tests/fixtures/art/map/functions/")
+	var b: Button = _spot_buttons(made[1])[open[0]]
+	check(b.get_node_or_null("Box/Landmark/Art") != null, "the fixture's landmark art")
+	var beacon := b.get_node_or_null("Beacon")
+	check(beacon != null and beacon.get_index() > b.get_node("Box").get_index(), "the beacon, drawn over the art")
+	_done(made)
+
+
+func test_every_open_region_still_opens_its_screen() -> void:
+	var made: Array = await _map({"screen": "island", "island": "functions"})
+	var m: Control = made[1]
+	# The map as the scene on screen, so a press shows the route in it.
+	var was := tree.current_scene
+	m.reparent(tree.root)
+	tree.current_scene = m
+	var buttons := _spot_buttons(m)
+	for id in _open_regions() + ["all"]:
+		var b: Button = buttons[id]
+		check(not b.disabled, id + " is enabled")
+		b.pressed.emit()
+		check_eq(m.screen, "region", id)
+		check_eq(m.route.get("region"), id, id + "'s screen")
+		m.show_route({"screen": "island", "island": "functions"})
+		await tree.process_frame
+		buttons = _spot_buttons(m)
+	tree.current_scene = was
+	m.free()
 	_done(made)
 
 
