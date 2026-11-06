@@ -24822,7 +24822,7 @@
 				},
 				{
 					"ref": "SL3.1.distance-3d#1",
-					"text": "Mishandling a negative coordinate, so that subtracting it takes away its size instead of adding it",
+					"text": "Mishandling a negative coordinate when subtracting",
 					"as": "distractor",
 					"in": [
 						"distance-two-points",
