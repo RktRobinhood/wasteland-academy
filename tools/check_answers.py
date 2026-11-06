@@ -1780,7 +1780,7 @@ def e10ar_seq(q, u):
         return say(S(n)), {E10AR_TOTAL: {say(T(n))}, E10AR_SUM0: {say(sp.Rational(n, 2) * (2 * u1 + n * d))}, E10AR_SUM1: {say(S(n - 1))}}
     if u == "in-or-after":
         need(c["time"], "a story with no time in it")
-        ma = re.fullmatch(rf"Find the {re.escape(c['what'])} once (\d+) full {c['step']}s have passed\.", asked)
+        ma = re.fullmatch(rf"Find the {re.escape(c['what'])} {c['on']} the {c['step']} after (\d+) full {c['step']}s\.", asked)
         mi = re.fullmatch(rf"Find the {re.escape(c['what'])} {c['on']} {c['step']} (\d+)\.", asked)
         need(ma or mi, f"asked {asked!r}")
         n = int((ma or mi).group(1))
@@ -2051,7 +2051,7 @@ def e10ar_predict(q):
         wr = {E10AR_NTH0: {say(ys[0] + big * avg)}, E10AR_MO + "4": {say(ys[-1] + big * avg)}, E10AR_MO + "3": {say(ys[0] + (big - 1) * (ys[1] - ys[0]))}}
     else:
         want = f["a"] * big + f["b"]
-        wr = {E10AR_MO + "6": {say(f["a"] * big)}, E10AR_NTH0: {say(f["a"] * (big + 1) + f["b"])}}
+        wr = {E10AR_MO + "6": {say(f["a"] * big)}, E10AR_MO + "14": {say(f["a"] * (big + 1) + f["b"])}}
     need(want > 0 and rg_clear(want), f"{want}")
     return say(want), wr, f"{e10ar_d(sp.Rational(sig3(want, 2)))} {c['unit']}"
 
@@ -22750,7 +22750,7 @@ def e10ge_check(q):
         # u₁ is after 0 steps, so count the terms: after k steps there have been k + 1.
         names = list(range(0, k + 1))
         want = f"n = {len(names)}"
-        wrongs = {M + "2": {f"n = {k}"}}
+        wrongs = {E10GE_F + "7": {f"n = {k}"}}
     elif u == "rebound-height":
         m = re.fullmatch(rf"A (.+) is dropped from a height of ({E10GE_NUM}) (cm|m)\. Each time it lands it rebounds to (\S+) of the height it fell from\.", L[0])
         need(m is not None and m.group(1) in E10GE_BALLS, f"the story {L[0]!r}")
@@ -23834,6 +23834,7 @@ def e10in_plain(q, mu, sg):
             need(p in (sp.Rational(1, 4), sp.Rational(3, 4)), f"{p} is no quartile's area")
             left = e10in_left(rel, p)
             label = "Q = "
+            near = E10IN_S + "0" if rel == ">" else E10IN_T + "3"
         else:
             mt = re.fullmatch(rf"Find the (upper|lower) quartile of {'X' if rep == 'equation' else 'the ' + attrs}\.", asked)
             need(mt is not None, f"{asked!r}")
@@ -24048,7 +24049,7 @@ def e10in_paper1(q):
         x = 2 * mean - c
         if rep == "diagram":
             e10in_marked(labels["a"], np_mp(x))
-        wrongs = {side: {2 * c - mean}, keep: {c}, dist: {abs(c - mean)}}
+        wrongs = {E10IN_T + "15": {2 * c - mean}, keep: {c}, dist: {abs(c - mean)}}
     else:
         mu, sg = e10in_model(q)
         M = mu
@@ -32108,10 +32109,10 @@ def e9trig_f(t):
     return sp.Float(t, 30)
 
 
-def e9trig_num(q, label, v, tail, wrongs):
+def e9trig_num(q, label, v, tail, wrongs, steps=(2, 5)):
     want = label + gc_s(e9trig_f(v)) + tail
     val = e9trig_f(v)
-    gc_check_common(q, want, {k: {label + gc_s(e9trig_f(x)) + tail for x in vs} for k, vs in wrongs.items()}, gc_trap([val], label + gc_s2(val) + tail))
+    gc_check_common(q, want, {k: {label + gc_s(e9trig_f(x)) + tail for x in vs} for k, vs in wrongs.items()}, gc_trap([val], label + gc_s2(val) + tail), steps)
 
 
 def e9trig_level(q, M):
@@ -32517,8 +32518,9 @@ def e10tm_story(q, M, u):
         a, b = float(m[1]), float(m[2])
         all_ = e9trig_cross(M, fk, 0.0, b + T)
         xs = [x for x in all_ if a < x < b]
+        ds = [x for x in e9trig_cross(M, fk, 0.0, b, True) if x > a]
         need(2 <= len(xs) <= 4 and all(abs(x - a) > 0.04 * T and abs(x - b) > 0.04 * T for x in all_), f"the window has {len(xs)} clean times")
-        gc_check_common(q, e10tm_list("t", xs), {e10tm_PART: {e10tm_list("t", xs[:-1])}, e10tm_DEG: {e10tm_list("t", e9trig_cross(M, fk, 0.0, 720.0 / M["fb"], True)[:2])}}, steps=(2, 6))
+        gc_check_common(q, e10tm_list("t", xs), dict({e10tm_PART: {e10tm_list("t", xs[:-1])}}, **({e10tm_DEG: {e10tm_list("t", ds)}} if ds else {})), steps=(2, 6))
         e10tm_numbers_in(q, "t = ", xs + [T])
     elif u in ("set-above-level", "set-below-level", "set-two-spans"):
         m = re.fullmatch(rf"For 0 ≤ t ≤ (\d+), find the set of times when {re.escape(what)} is (above|below) {e10tm_NUM} {re.escape(unit)}\. Give the times to 3 significant figures\.", ask)
@@ -32530,10 +32532,9 @@ def e10tm_story(q, M, u):
             need(ps[0][0] > 0 and ps[0][1] < L_, "the one stretch has to be inside the span")
         need(u == "set-two-spans" or above == (u == "set-above-level"), "the wrong side for this unknown")
         wrongs = {e10tm_SIDE: {e10tm_set(e10tm_pieces(M, fk, L_, not above), L_)}}
-        far = 720.0 / M["fb"]
-        deg = [p for p in e10tm_pieces(M, fk, far, above, True) if p[0] > 0 and p[1] < far]
+        deg = e10tm_pieces(M, fk, L_, above, True)
         if deg:
-            wrongs[e10tm_DEG] = {e10tm_set(deg[:1], math.inf)}
+            wrongs[e10tm_DEG] = {e10tm_set(deg, L_)}
         if len(ps) == 2:
             wrongs[e10tm_PART] = {e10tm_set(ps[:1], L_)}
         elif above:
@@ -32559,12 +32560,12 @@ def e10tm_story(q, M, u):
             wr = {e10tm_SHARE: [w / T], e10tm_SIDE: [1 - tot / L_]}
             if ds > 0:
                 wr[e10tm_DEG] = [ds / L_]
-            e9trig_num(q, "P = ", tot / L_, "", wr)
+            e9trig_num(q, "P = ", tot / L_, "", wr, (2, 6))
         else:
             wr = {e10tm_SIDE: [L_ - tot], e10tm_SHARE: [w * L_ / T], e10tm_PART: [w * math.floor(L_ / T)]}
             if ds > 0:
                 wr[e10tm_DEG] = [ds]
-            e9trig_num(q, "Time = ", tot, time, wr)
+            e9trig_num(q, "Time = ", tot, time, wr, (2, 6))
         for sol in q["solutions"]:
             need(any(" adds up to " in st and abs(float(st.split()[-1].rstrip(".")) - tot) < 2e-3 * max(1.0, tot) for st in sol["steps"]), f"{sol['name']}: the total in the working isn't {tot}")
 

@@ -21110,7 +21110,7 @@
     },
     {
      "ref": "SL1.2.model#3",
-     "text": "Taking a single difference from the data as d, instead of using all the data",
+     "text": "Taking the first change in the data as d, instead of the overall change across the data",
      "as": "distractor",
      "in": [
       "estimate-d",
@@ -21121,7 +21121,7 @@
     },
     {
      "ref": "SL1.2.model#4",
-     "text": "Adding all the steps from year 1 onto the last value in the data",
+     "text": "Adding n steps of d onto the last value in the data, instead of counting on from year 1",
      "as": "distractor",
      "in": [
       "predict-from-gaps"
@@ -21210,8 +21210,17 @@
      "wrong": "t₁ + (n − 1)(t₂ − t₁)"
     },
     {
+     "ref": "SL1.2.model#14",
+     "text": "Putting n + 1 into the regression line instead of n, so the prediction is one step too far",
+     "as": "distractor",
+     "in": [
+      "predict-from-line"
+     ],
+     "wrong": "the line one year too far on"
+    },
+    {
      "ref": "SL1.2.find-n#0",
-     "text": "Rounding n down when the first term past a value is wanted, so the term found falls short of it",
+     "text": "Rounding n down when the first term or total past a value is wanted, so the value found has not yet passed it",
      "as": "distractor",
      "in": [
       "first-past",
@@ -21221,7 +21230,7 @@
     },
     {
      "ref": "SL1.2.find-n#1",
-     "text": "Answering with n when the question asks for the term itself (or the reverse)",
+     "text": "Mixing up n and the value: giving n when the term or total is asked for, or the reverse",
      "as": "distractor",
      "in": [
       "term-number",
@@ -21263,12 +21272,12 @@
     },
     {
      "ref": "SL1.2.find-n#5",
-     "text": "Setting the number of rows equal to the crate size, instead of making the total a multiple of it",
+     "text": "Setting the number of rows equal to the size of a full pack, instead of making the total a multiple of it",
      "as": "distractor",
      "in": [
       "stack-crates"
      ],
-     "wrong": "n set to the crate size"
+     "wrong": "n set to the size of a full pack"
     },
     {
      "ref": "SL1.2.nth-term#0",
@@ -21278,8 +21287,7 @@
       "term-in-context",
       "term-or-total",
       "in-or-after",
-      "predict-from-gaps",
-      "predict-from-line"
+      "predict-from-gaps"
      ],
      "wrong": "one step too many: u₁ + nd"
     },
@@ -21787,7 +21795,7 @@
     },
     {
      "ref": "SL1.2.find-n#1",
-     "text": "Answering with n when the question asks for the term itself (or the reverse)",
+     "text": "Mixing up n and the value: giving n when the term or total is asked for, or the reverse",
      "as": "distractor",
      "in": [
       "n-from-term"
@@ -22416,7 +22424,6 @@
      "as": "distractor",
      "in": [
       "value-after-years",
-      "term-number-after",
       "rebound-height"
      ],
      "wrong": "the value one step early"
@@ -22484,7 +22491,7 @@
     },
     {
      "ref": "SL1.3.find-n#1",
-     "text": "Rounding n down instead of up for 'the least n such that'",
+     "text": "Rounding down instead of up when the least whole number is asked",
      "as": "distractor",
      "in": [
       "least-n-term",
@@ -22498,7 +22505,7 @@
     },
     {
      "ref": "SL1.3.find-n#2",
-     "text": "Giving the term or the sum instead of n",
+     "text": "Giving the term or the sum instead of the number asked for",
      "as": "distractor",
      "in": [
       "least-n-term",
@@ -22511,7 +22518,7 @@
     },
     {
      "ref": "SL1.3.find-n#3",
-     "text": "Stopping at the last n that falls short of the target instead of the first n that meets it",
+     "text": "Stopping at the last whole number that falls short of the target instead of the first that meets it",
      "as": "distractor",
      "in": [
       "least-n-term",
@@ -22553,8 +22560,17 @@
      "wrong": "t + 1"
     },
     {
+     "ref": "SL1.3.find-n#7",
+     "text": "Giving the steps passed instead of the term number, which is one more when u₁ is the value at the start",
+     "as": "distractor",
+     "in": [
+      "term-number-after"
+     ],
+     "wrong": "t, the steps passed"
+    },
+    {
      "ref": "SL1.3.nth-term#0",
-     "text": "Using r^n in the term formula, one power of r too many",
+     "text": "Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps",
      "as": "distractor",
      "in": [
       "value-after-years",
@@ -23230,7 +23246,7 @@
    "misconceptions": [
     {
      "ref": "SL1.3.nth-term#0",
-     "text": "Using r^n in the term formula, one power of r too many",
+     "text": "Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps",
      "as": "distractor",
      "in": [
       "term-from-u1-r",
@@ -23905,7 +23921,7 @@
     },
     {
      "ref": "SL1.4.find-time#0",
-     "text": "Rounding the number of periods to the nearest integer instead of up",
+     "text": "Rounding the answer to the nearest whole number instead of up",
      "as": "distractor",
      "in": [
       "years-below",
@@ -24274,7 +24290,7 @@
     },
     {
      "ref": "SL1.4.find-time#0",
-     "text": "Rounding the number of periods to the nearest integer instead of up",
+     "text": "Rounding the answer to the nearest whole number instead of up",
      "as": "distractor",
      "in": [
       "time-needed"
@@ -36474,7 +36490,7 @@
       "solve-vs-exp",
       "count-vs-line"
      ],
-     "wrong": "only the first part of the interval"
+     "wrong": "only part of the interval"
     },
     {
      "ref": "SL3.8.graphical#1",
@@ -43840,7 +43856,7 @@
      "wrong": "E(X)"
     },
     {
-     "text": "Using the same chance on every face, leaving out the different last face",
+     "text": "Using the same chance on every face, ignoring that the last face has its own chance",
      "as": "distractor",
      "in": [
       "expected-from-win"
@@ -45838,7 +45854,8 @@
      "in": [
       "value-below",
       "bottom-percent",
-      "percentile"
+      "percentile",
+      "quartile"
      ],
      "wrong": "invNorm of 1 − p, the mirror image of the answer"
     },
@@ -45914,7 +45931,6 @@
      "as": "distractor",
      "in": [
       "shift-same-sd",
-      "mirror-bound",
       "rule-value",
       "given-z"
      ],
@@ -45943,6 +45959,14 @@
       "rule-value"
      ],
      "wrong": "the band of the rule one standard deviation out, on the same side"
+    },
+    {
+     "text": "Measuring the distance from the given value instead of from the mean",
+     "as": "distractor",
+     "in": [
+      "mirror-bound"
+     ],
+     "wrong": "the given value moved a further distance from the mean"
     }
    ],
    "parts": [
@@ -66589,7 +66613,7 @@
     },
     {
      "ref": "SL1.3.nth-term#0",
-     "text": "Using r^n in the term formula, one power of r too many",
+     "text": "Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps",
      "as": "distractor",
      "in": [
       "sequence-vs-function"

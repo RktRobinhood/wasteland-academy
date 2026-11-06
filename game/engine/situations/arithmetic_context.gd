@@ -492,7 +492,7 @@ static func _pile(rng: Seeded, s: Dictionary) -> bool:
 	s.list = "piles"
 	s.ctx = rng.int_in(0, PILES.size() - 1)
 	s.u1 = Q.new(rng.int_in(2, 5))
-	s.d = Q.new(rng.int_in(1, 3))
+	s.d = Q.new(rng.int_in(2, 3))
 	return true
 
 

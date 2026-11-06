@@ -213,7 +213,7 @@ static func _draw(rng: Seeded, s: Dictionary) -> bool:
 			if s.paper == 1:
 				_by_hand(rng, s)
 				s.start = Q.new(rng.int_in(1, 9) * 1000)
-				s.t = rng.int_in(2, 3)
+				s.t = 3  # The table shows 2 steps on, so asking for that would give the answer.
 				s.v = s.start.mul(GeometricSequenceSituation.power(s.r, s.t))
 				return true
 			s.t = rng.int_in(4, 8)
@@ -224,7 +224,7 @@ static func _draw(rng: Seeded, s: Dictionary) -> bool:
 			if s.paper == 1:
 				_by_hand(rng, s)
 				s.u1 = Q.new(rng.int_in(1, 9) * 1000)
-				s.n = rng.int_in(3, 4)
+				s.n = 4  # The table shows rounds 1 to 3, so asking for those would give the answer.
 				s.v = s.u1.mul(GeometricSequenceSituation.power(s.r, s.n - 1))
 				return true
 			s.n = rng.int_in(5, 9)
@@ -318,7 +318,10 @@ static func _total(rng: Seeded, s: Dictionary) -> bool:
 	# The amounts listed to 2 d.p. add up to the same 3 s.f. answer.
 	var listed := 0.0
 	for i in range(1, s.n + 1):
-		listed += snappedf(term(s.u1.to_float(), r, i), 0.01)
+		var amount := term(s.u1.to_float(), r, i)
+		if absf(fposmod(amount * 100.0, 1.0) - 0.5) < 0.001:
+			return false  # A tie to 2 d.p. would round by float noise.
+		listed += snappedf(amount, 0.01)
 	s.listed = listed
 	return _clear(s.v) and Fmt.sf(listed) == Fmt.sf(s.v)
 

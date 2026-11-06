@@ -28,6 +28,7 @@ const IN_SIDE := IN_T + "11"
 const IN_GAP_WAY := IN_T + "12"
 const IN_DISTANCE := IN_T + "13"
 const IN_RULE_K := IN_T + "14"
+const IN_PAST := IN_T + "15"
 
 ## One row for each of NormalUnknownViews.CONTEXTS: the measures, and the two ends of them.
 const IN_WORDS := [
@@ -263,7 +264,8 @@ func u_quartile(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		lines.append(area_line(s.p))
 		out.asked = "Q is a quartile of X. Find Q."
 		out.graph = tail_fig(s, "Q")
-	tail_options(out, s, IN_UPPER, s.left, rng)
+	# A figure can shade the left area already, and then the slip is converting it.
+	tail_options(out, s, IN_CONVERT if rep == "diagram" and s.rel == "<" else IN_UPPER, s.left, rng)
 	if rep == "diagram":
 		out.methods = tail_methods(rep, s, "Q", ans)
 		return out
@@ -481,7 +483,7 @@ func u_mirror_bound(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		var xf := float(s.x)
 		var shade: Array = [[null, xf], [cf, null]] if gap > 0 else [[null, cf], [xf, null]]
 		out.graph = curve(s.muf, s.sgf, shade, [mk(xf, "a"), mk(s.muf, D(s.mu)), mk(cf, str(s.c))])
-	out.wrongs = [wq(s.wrong_side, IN_SIDE), wq(s.c, IN_KEEP), wq(far, IN_DISTANCE)]
+	out.wrongs = [wq(s.wrong_side, IN_PAST), wq(s.c, IN_KEEP), wq(far, IN_DISTANCE)]
 	out.generic = [{"v": Q.new(s.x + 1)}, {"v": Q.new(s.x + 2)}, {"v": Q.new(s.x + 5)}]
 	var sum := "a = %s %s %d = %d" % [D(s.mu), "−" if gap > 0 else "+", far, s.x]
 	var top := "Sketch the curve and shade the two equal tails: they sit the same distance either side of the mean %s." % D(s.mu)

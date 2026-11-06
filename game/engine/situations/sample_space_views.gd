@@ -797,7 +797,7 @@ func _win_steps(s: Dictionary) -> Dictionary:
 	var solved := "So %s × q = %s − %s = %s, and q = %s ÷ %s = %s." % [Fmt.paren(coef), s.pa.text(), Q.of(s.cr).text(), right.text(), Fmt.paren(right), Fmt.paren(coef), s.qy.text()]
 	return {"cells": "Each cell of the grid has probability P(X = x) × P(Y = y). The column for y holds P(X < y) × P(Y = y) of the event: %s." % ", ".join(parts),
 		"pairs": "List the ordered pairs (x, y) with x < y: %s. Group them by y, as P(X < y) × P(Y = y): %s." % [pairs_text(pairs), ", ".join(parts)],
-		"add": first, "sub": sub, "solved": solved}
+		"add": first, "add_groups": first.replace("the columns", "the groups"), "sub": sub, "solved": solved}
 
 
 func u_weight_from_win(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -811,7 +811,7 @@ func u_weight_from_win(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.generic = near(s, [s.qy.add(Q.new(1, s.qy.d)), s.qy.sub(Q.new(1, s.qy.d)), s.qy.mul(Q.new(2))])
 	var w := _win_steps(s)
 	out.methods = {"grid-count": method([w.cells, w.add, w.sub, w.solved, final_step(ans)], ans.values),
-		"systematic-list": method([w.pairs, w.add, w.sub, w.solved, final_step(ans)], ans.values)}
+		"systematic-list": method([w.pairs, w.add_groups, w.sub, w.solved, final_step(ans)], ans.values)}
 	out.titles = {"grid-count": WEIGHTS_TITLE}
 	return out
 
@@ -838,6 +838,6 @@ func u_expected_from_win(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var w := _win_steps(s)
 	var last := "So r = 1 − %d × %s = %s, and E(Y) = %s = %s." % [n - 1, s.qy.text(), s.ry.text(), " + ".join(terms), e.text()]
 	out.methods = {"grid-count": method([w.cells + " " + w.add, w.sub, w.solved, last, final_step(ans)], ans.values),
-		"systematic-list": method([w.pairs + " " + w.add, w.sub, w.solved, last, final_step(ans)], ans.values)}
+		"systematic-list": method([w.pairs + " " + w.add_groups, w.sub, w.solved, last, final_step(ans)], ans.values)}
 	out.titles = {"grid-count": WEIGHTS_TITLE}
 	return out

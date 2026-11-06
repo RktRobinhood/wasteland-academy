@@ -24,6 +24,7 @@ const R_COMPOUND := MO + "10"
 const R_ONLY_INTEREST := MO + "11"
 const R_ONE_AWAY := MO + "12"
 const R_TOTALS_ARITH := MO + "13"
+const R_LINE_NEXT := MO + "14"
 const FN := "SL1.2.find-n#"
 const R_ROUND_DOWN := FN + "0"
 const R_N_OR_TERM := FN + "1"
@@ -276,7 +277,7 @@ func u_in_or_after(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var v := term(s, at)
 	var ans := value(v, c.unit)
 	var out := setup(rep, s)
-	out.asked = "Find the %s once %d full %ss have passed." % [c.what, n, c.step] if is_after \
+	out.asked = "Find the %s %s the %s after %d full %ss." % [c.what, c.on, c.step, n, c.step] if is_after \
 		else "Find the %s %s %s %d." % [c.what, c.on, c.step, n]
 	out.answer = ans
 	out.wrongs = n_wrongs([[term(s, n), R_AFTER]]) if is_after else n_wrongs([[term(s, n + 1), R_N_D]])
@@ -437,7 +438,7 @@ func u_predict_from_line(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var out := data_setup(rep, s)
 	out.asked = "The %s is modelled by the regression line of the values on n. Use it to predict the value in year %d, to 3 s.f." % [c.what, big_n]
 	out.answer = ans
-	out.wrongs = n_wrongs([[s.a.mul(big_n), R_NO_B], [s.pl.add(s.a), R_N_D]])
+	out.wrongs = n_wrongs([[s.a.mul(big_n), R_NO_B], [s.pl.add(s.a), R_LINE_NEXT]])
 	out.generic = nums([s.pa, s.pl.sub(s.a), s.b.mul(big_n)])
 	out.methods = {"gdc-regression": method([linreg(s),
 		"Put n = %d into the line, keeping the GDC's values: y = %s × %d %s." % [big_n, W(s.a), big_n, signed_b(s.b)],
@@ -490,11 +491,13 @@ func u_comment_validity(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	for i in range(1, m):
 		changes.append(s.ys[i] - s.ys[i - 1])
 	var spread := "The yearly changes run from %s to %s." % [D(Q.new(changes.min())), D(Q.new(changes.max()))]
-	var steps: Array = [spread, "%s, so %s %s." % [gap_step(s), U(big_n), is_val(s.pa)]] if not line \
-		else [linreg(s), "Pearson's r = %s, and at n = %d, y %s." % [W(GdcKit.qf(s.r)), big_n, is_val(s.pl)]]
-	steps.append_array([verdict, right])
-	var key: String = "gdc-regression" if line else "average-difference"
-	out.methods = {key: method(steps, made.answer.values)}
+	var gaps: Array = [spread, "%s, so %s %s." % [gap_step(s), U(big_n), is_val(s.pa)]]
+	var fit: Array = [linreg(s), "Pearson's r = %s, and at n = %d, y %s." % [W(GdcKit.qf(s.r)), big_n, is_val(s.pl)]]
+	# The other method lands on a slightly different figure, and the same verdict.
+	(fit if not line else gaps).append("The scout's figure is about %s." % said)
+	gaps.append_array([verdict, right])
+	fit.append_array([verdict, right])
+	out.methods = {"average-difference": method(gaps, made.answer.values), "gdc-regression": method(fit, made.answer.values)}
 	return out
 
 

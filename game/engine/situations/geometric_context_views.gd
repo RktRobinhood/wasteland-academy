@@ -28,6 +28,7 @@ const R_SHORT := F + "3"
 const R_POWER_AS_N := F + "4"
 const R_WRONG_TEST := F + "5"
 const R_N_FOR_T := F + "6"
+const R_T_FOR_N := F + "7"
 const R_POWER_N := "SL1.3.nth-term#0"
 const R_POWER_ALL := "SL1.3.nth-term#1"
 const R_SUM_POWER := "SL1.3.sum#0"
@@ -352,7 +353,7 @@ func u_term_number_after(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 		out.table = {"rows": rows}
 	out.asked = "Let u₁ be the %s today, u₂ the %s after 1 %s, and so on. Find the value of n for which uₙ is the %s after %s." % [c.thing, c.thing, c.round, c.thing, plural(c.round, t)]
 	out.answer = ans
-	out.wrongs = whole_wrongs([[t, R_ONE_FEW]], rng)
+	out.wrongs = whole_wrongs([[t, R_T_FOR_N]], rng)
 	out.generic = [{"v": Q.new(t + 2)}, {"v": Q.new(t - 1)}, {"v": Q.new(2 * t)}, {"v": Q.new(t + 3)}]
 	out.titles = titles_for(c.round, false)
 	out.methods = {"tabulate": method(["List the terms: u₁ is today, u₂ is after 1 %s, and u₃ is after 2 %ss." % [c.round, c.round],

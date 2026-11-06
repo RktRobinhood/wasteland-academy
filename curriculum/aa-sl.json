@@ -475,12 +475,12 @@
                 }
               ],
               "misconceptions": [
-                "Rounding n down when the first term past a value is wanted, so the term found falls short of it",
-                "Answering with n when the question asks for the term itself (or the reverse)",
+                "Rounding n down when the first term or total past a value is wanted, so the value found has not yet passed it",
+                "Mixing up n and the value: giving n when the term or total is asked for, or the reverse",
                 "Forgetting to add one when counting terms",
                 "Rounding a non-whole n to call the value a term of the sequence",
                 "Testing whether the value alone is a multiple of d, without taking off the first term",
-                "Setting the number of rows equal to the crate size, instead of making the total a multiple of it"
+                "Setting the number of rows equal to the size of a full pack, instead of making the total a multiple of it"
               ],
               "threads": [
                 {
@@ -746,8 +746,8 @@
                 "Using u_n when the question asks for a total S_n, or the reverse",
                 "Taking the value after n steps of time as u_n, when u_1 is the value at the start, so the term is one out",
                 "Extrapolating an approximate model far beyond the data without comment",
-                "Taking a single difference from the data as d, instead of using all the data",
-                "Adding all the steps from year 1 onto the last value in the data",
+                "Taking the first change in the data as d, instead of the overall change across the data",
+                "Adding n steps of d onto the last value in the data, instead of counting on from year 1",
                 "Reading the regression line's b as the common difference, instead of its gradient a",
                 "Leaving the intercept b out of a prediction from a regression line",
                 "Treating a prediction from an approximate model as an exact value",
@@ -756,7 +756,8 @@
                 "Treating simple interest as compound, so that interest earns interest",
                 "Giving only the interest earned, leaving out the starting amount",
                 "Stopping one term away from the last positive term when finding the greatest total",
-                "Treating the totals of a stack as an arithmetic sequence, when it is the rows added that are"
+                "Treating the totals of a stack as an arithmetic sequence, when it is the rows added that are",
+                "Putting n + 1 into the regression line instead of n, so the prediction is one step too far"
               ],
               "threads": [
                 {
@@ -835,7 +836,7 @@
                 }
               ],
               "misconceptions": [
-                "Using r^n in the term formula, one power of r too many",
+                "Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps",
                 "Multiplying u₁ and r first and raising the product to the power, instead of raising r alone",
                 "Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁"
               ],
@@ -1002,13 +1003,13 @@
                 {
                   "id": "logs",
                   "approach": "algebraic",
-                  "name": "Take logarithms to bring n down",
+                  "name": "Take logarithms to bring the power down",
                   "summary": "Isolate r^(n − 1), take ln of both sides and divide by ln r (flipping the inequality if ln r < 0), then round up to an integer."
                 },
                 {
                   "id": "gdc-table",
                   "approach": "gdc",
-                  "name": "Scroll a GDC table of u_n or S_n",
+                  "name": "Scroll a GDC table of the values",
                   "summary": "Tabulate the term or the sum against n and find the first n that meets the condition."
                 },
                 {
@@ -1026,12 +1027,13 @@
               ],
               "misconceptions": [
                 "Not flipping the inequality when dividing by ln r, which is negative when r is below one",
-                "Rounding n down instead of up for 'the least n such that'",
-                "Giving the term or the sum instead of n",
-                "Stopping at the last n that falls short of the target instead of the first n that meets it",
+                "Rounding down instead of up when the least whole number is asked",
+                "Giving the term or the sum instead of the number asked for",
+                "Stopping at the last whole number that falls short of the target instead of the first that meets it",
                 "Taking the power of r as the number of terms, which is one too few",
                 "Testing the wrong quantity: a term when the condition is on a total or a gap, or the total when it is on a term",
-                "Giving the term number instead of the steps passed, when u₁ is the value at the start"
+                "Giving the term number instead of the steps passed, when u₁ is the value at the start",
+                "Giving the steps passed instead of the term number, which is one more when u₁ is the value at the start"
               ],
               "threads": [
                 {
@@ -1345,12 +1347,12 @@
                 {
                   "id": "graph-intersect",
                   "approach": "graphical",
-                  "name": "Intersect the growth curve with the target",
+                  "name": "Intersect the curve with the target",
                   "summary": "Plot y = PV(1 + r/(100k))^(kx) and y = target, then round the x-coordinate in context."
                 }
               ],
               "misconceptions": [
-                "Rounding the number of periods to the nearest integer instead of up",
+                "Rounding the answer to the nearest whole number instead of up",
                 "Forgetting to convert N from months or quarters back into years",
                 "Not flipping the inequality when dividing by the log of a depreciation factor below 1"
               ],
