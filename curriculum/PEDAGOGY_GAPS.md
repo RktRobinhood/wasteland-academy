@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 9 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 10 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1690,6 +1690,38 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): Multiplying two numbers in standard form gives an answer already in standard form. — Sometimes: it holds when the product of the a-values is below 10. Otherwise a has to be brought back and k raised by 1.
   - *true-false-reason* (L3): A GDC showing 3.1E−4 is an acceptable final answer. — False: calculator notation isn't accepted. Write 3.1 × 10^−4.
 - **Misconceptions used:** 9. Getting the sign of the power wrong: a large number needs a positive power and a small one a negative power; Moving the point one place too many, by counting digits instead of the places it moves; Leaving or comparing a number whose first part isn't between one and ten; Multiplying the powers of ten instead of adding them; Forgetting to renormalise, which leaves the first part outside one to ten; Slipping on the powers: subtracting them for a product, or adding them for a quotient; Writing the GDC display, E-notation and all, as the final answer; Rounding a at an early step so the third significant figure is wrong; Dividing the wrong way round when asked 'how many times larger'.
+
+#### Arithmetic sequence or series modelling a pattern or context (`t1-arithmetic-in-context`, exam, 6 bank parts)
+
+- **Situation:** An arithmetic sequence or series in a story.
+- **Representations:** **words**, **table**, graph, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a story, or a table of its first terms → one term of the sequence
+  - **exam** L2: given a story, or a table of its first terms → the total of the first n terms
+  - new L2: given a story, and a question in its words → which calculation answers it: one term or a total
+  - new L3: given a story told in steps of time, or a table → the value in step n, or once n full steps have passed
+  - **exam** L2: given an amount at the start and its change each step, or a table → the amount after n steps
+  - **exam** L3: given a deposit and a rate, or a table of values → the value of the deposit after n years
+  - **exam** L2: given yearly data that are nearly arithmetic → d from the first and last values, to 3 s.f.
+  - **exam** L3: given yearly data that are nearly arithmetic → d as the regression gradient, to 3 s.f.
+  - **exam** L3: given yearly data that are nearly arithmetic → a later value, from d estimated by first and last, to 3 s.f.
+  - **exam** L3: given yearly data that are nearly arithmetic → a later value from the regression line, to 3 s.f.
+  - **exam** L4: given yearly data, a prediction, and any limit in the story → whether the prediction is valid, and why
+  - **exam** L3: given stacks of 1, 2 and 3 rows, or a table of totals → the number of items in a stack of n rows
+  - **exam** L4: given terms that fall past 0, in a story or a table → the greatest running total
+  - **exam** L2: given a sequence and a value in it → the term number that has the value
+  - **exam** L3: given a falling sequence → the term number that reaches 0
+  - **exam** L2: given first value, last value and gap, or a table and the last value → how many terms there are
+  - **exam** L3: given a sequence and a target → the first term number past the target
+  - new L4: given a rising sequence and a target for its total → the first n whose running total passes the target
+  - **exam** L3: given a sequence and a value → whether the value is a term, justified by n
+  - **exam** L5: given a stack of rows and a crate size → the fewest rows that use whole crates exactly
+- **Angles:** Identify u_1, d and n from the context, then use u_n or S_n; Build a table of the first few terms; Estimate d from imperfect data; Fit a linear regression to (n, u_n) data; Solve u_1 + (n − 1)d = value (or > value); Count steps of d, then add one; Scroll the GDC table; Intersect with a horizontal line.
+- **Concept probes:**
+  - *true-false-reason* (L3): If u₁ is the amount at the start, the amount after 5 years is u₅. — False: u₁ is after 0 years, so after 5 years it is u₆. Writing out the first few terms shows the shift.
+  - *always-sometimes-never* (L3): A value that is a multiple of d is a term of an arithmetic sequence. — Sometimes: it depends on u₁. A value is a term exactly when (value − u₁) ÷ d is a whole number.
+  - *predict-check* (L3): Predict whether d from first and last values and d from a regression line will be equal for data that are nearly arithmetic. Check with a table of your own. — Usually not: the first uses two values only, the regression uses them all. They are equal when the data are exactly arithmetic.
+- **Misconceptions used:** 25. Taking the value after n steps of time as u_n, when u_1 is the value at the start, so the term is one out; Extrapolating an approximate model far beyond the data without comment; Taking a single difference from the data as d, instead of using all the data; Adding all the steps from year 1 onto the last value in the data; Reading the regression line's b as the common difference, instead of its gradient a; Leaving the intercept b out of a prediction from a regression line; Treating a prediction from an approximate model as an exact value; Rejecting every prediction because the data are not exactly arithmetic; Trusting a prediction that breaks a limit the story states; Treating simple interest as compound, so that interest earns interest; Giving only the interest earned, leaving out the starting amount; Stopping one term away from the last positive term when finding the greatest total; Treating the totals of a stack as an arithmetic sequence, when it is the rows added that are; Rounding n down when the first term past a value is wanted, so the term found falls short of it; Answering with n when the question asks for the term itself (or the reverse); Forgetting to add one when counting terms; Rounding a non-whole n to call the value a term of the sequence; Testing whether the value alone is a multiple of d, without taking off the first term; Setting the number of rows equal to the crate size, instead of making the total a multiple of it; Using u₁ + nd, which counts one step too many; Finding d as the earlier term minus the later term, so a decreasing sequence gets a positive d; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Using u_n when the question asks for a total S_n, or the reverse; Dividing by the number of terms instead of the number of gaps.
 
 #### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 21 bank parts)
 
