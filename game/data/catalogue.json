@@ -2762,6 +2762,66 @@
 				"an estimate is inside the data (interpolation), never an extrapolation"
 			]
 		},
+		"regression-interpret": {
+			"name": "What a regression line says, and how far to trust it",
+			"summary": "A table of paired data with units in a story, from which the line y = ax + b, r and the range of x are known. a is read as a rate, b as the value at x = 0, and an estimate is judged by where x lies and how strong r is. The same numbers can be given as the line to 3 s.f. with r and the range.",
+			"quantities": [
+				{
+					"name": "story",
+					"is": "what x and y are, with their units",
+					"pick": "one of eight stories: four with x = 0 in the data (time in use, age, pumping time, time since a delivery) and four with x = 0 far below it (fuel, wind speed, load, price)"
+				},
+				{
+					"name": "n",
+					"is": "the number of points",
+					"pick": "6 to 9, or 8 to 9 when the correlation is weak"
+				},
+				{
+					"name": "x",
+					"is": "the x-values",
+					"pick": "n different whole numbers in the story's range: 0 to 20 with 0 included, or a range such as 30 to 70"
+				},
+				{
+					"name": "y",
+					"is": "the y-values",
+					"pick": "whole numbers from 8 to 99, near a line of the story's sign"
+				},
+				{
+					"name": "a, b",
+					"is": "the regression line y = ax + b of y on x",
+					"pick": "exact from the sums, given to 3 s.f., clear of a rounding edge, with |b| ≥ 1"
+				},
+				{
+					"name": "r",
+					"is": "Pearson's r",
+					"pick": "0.9 ≤ |r| ≤ 0.99 when strong and 0.2 ≤ |r| ≤ 0.5 when weak, shown to 2 d.p. where it is given"
+				},
+				{
+					"name": "k",
+					"is": "the extra x in an expected change",
+					"pick": "2, 3, 4, 5, 6, 8 or 10, within the spread of the data"
+				},
+				{
+					"name": "x0",
+					"is": "the x an estimate is made at",
+					"pick": "a whole number inside the data and not in the table, or at least half the data's spread beyond it"
+				},
+				{
+					"name": "y0",
+					"is": "the y known when the line is solved for x",
+					"pick": "a whole number inside the y-values and not in the table, with the rearranged x inside the data"
+				}
+			],
+			"clean": [
+				"Paper 2 only: every part of this type in the bank is Paper 2, and the GDC finds a, b and r",
+				"strong and weak correlation are kept apart: |r| is at least 0.9 or at most 0.5",
+				"x = 0 is either in the table or far outside it: at least half the data's spread below the lowest x",
+				"an estimate outside the data is at least half the data's spread beyond it, and positive",
+				"a number written in a statement is at least 0.03 of a unit of its third figure from a rounding edge",
+				"a reading from the graph has a line within 1 of a multiple of 5, so one option is fair",
+				"the stories are not those of the bank"
+			]
+		},
 		"data-summary": {
 			"name": "One discrete data set, as a list or a frequency table, and what summarises it",
 			"summary": "Pick a data set of whole numbers, shown as a list in no particular order or as a table of values and frequencies. Its mean, median, mode, range, quartiles and interquartile range are then known. The same ideas run backwards (a missing value or frequency from a given mean, two group means combined) and sideways (which measure an outlier leaves alone).",
@@ -4870,10 +4930,11 @@
 		"SL4.3.mean-median-mode": "Find the mean, median and mode of a data set or a discrete frequency table",
 		"SL4.3.quartiles-discrete": "Find quartiles, range and IQR of discrete data",
 		"SL4.3.choose-measure": "Choose and justify the most appropriate average or measure of spread",
+		"SL4.4.interpret-ab": "Interpret a and b in y = ax + b in context",
+		"SL4.4.predict": "Use the regression line to predict, and judge whether the prediction is reliable",
 		"SL4.4.regression-y-on-x": "Find the equation of the regression line of y on x",
 		"SL4.4.pearson-r": "Calculate Pearson's r with technology and match r to a scatter diagram",
 		"SL4.4.mean-point": "Find the mean point and use it with lines of best fit",
-		"SL4.4.predict": "Use the regression line to predict, and judge whether the prediction is reliable",
 		"SL4.5.expected-occurrences": "Find the expected number of occurrences",
 		"SL4.5.equally-likely": "Find a probability by counting equally likely outcomes",
 		"SL4.5.complement": "Use complementary events, including 'at least one'",
@@ -4967,7 +5028,6 @@
 		"SL2.1.intersection-lines": "Find where two lines intersect",
 		"SL4.3.constant-changes": "Find the effect of adding or multiplying every value by a constant",
 		"SL5.11.integral-properties": "Use properties of definite integrals",
-		"SL4.4.interpret-ab": "Interpret a and b in y = ax + b in context",
 		"SL5.1.chord-to-tangent": "Find the gradient of a curve as the limit of chord gradients",
 		"SL1.3.model": "Model growth and decay with geometric sequences",
 		"SL1.4.depreciation": "Model annual depreciation",
@@ -30451,10 +30511,7 @@
 					"suits": [
 						"value-at-time",
 						"exact-value",
-						"count-peaks",
-						"count-lows",
-						"interpret-extreme",
-						"reaches-level"
+						"interpret-extreme"
 					],
 					"name": "Substitute the time",
 					"about": "Put the time into the model, in radian mode, to get the height or depth."
@@ -30486,7 +30543,9 @@
 						"duration-below",
 						"first-max-time",
 						"high-low-gap",
-						"reaches-level"
+						"reaches-level",
+						"count-peaks",
+						"count-lows"
 					],
 					"name": "Rearrange and solve",
 					"about": "Rearrange to sin(b(t + c)) = (k − d)/a, find the principal solution, then use symmetry and the period for the rest."
@@ -30654,15 +30713,6 @@
 						"reaches-level"
 					],
 					"wrong": "|a| as the largest value"
-				},
-				{
-					"ref": "SL3.7.equation-from-graph#1",
-					"text": "Using a = max − min, forgetting to halve",
-					"as": "distractor",
-					"in": [
-						"reaches-level"
-					],
-					"wrong": "the largest value with max − min as a"
 				}
 			],
 			"chain": [
@@ -35776,6 +35826,415 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Interpret a regression gradient or judge a prediction",
+			"summary": "From a table or a line, say what the gradient a and the intercept b mean in the story, find the expected change for an extra amount of x, and judge whether an estimate can be trusted: inside or outside the data, strong or weak r, y on x solved for x.",
+			"situation": "regression-interpret",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "a table of x against y with units in a story, as the bank has it; the GDC gives a, b and r"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the regression line to 3 s.f., what x and y are, and r"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "a sentence giving the line's gradient and y-intercept, and what it predicts"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "a scatter of the data with the line drawn and the x marked"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "interpret-gradient",
+					"given": [
+						"a table, or the line",
+						"the story"
+					],
+					"asked": "what a means in context",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.4.interpret-ab"
+					]
+				},
+				{
+					"id": "expected-change",
+					"given": [
+						"a table, or the line",
+						"an extra amount of x"
+					],
+					"asked": "the change in y that the line predicts, to 3 s.f.",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.4.interpret-ab"
+					]
+				},
+				{
+					"id": "interpret-intercept",
+					"given": [
+						"a table, or the line",
+						"the story"
+					],
+					"asked": "what b represents",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.4.interpret-ab"
+					]
+				},
+				{
+					"id": "intercept-sensible",
+					"given": [
+						"a table, or the line and the range of x",
+						"the story"
+					],
+					"asked": "whether b has a sensible meaning",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table",
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL4.4.interpret-ab"
+					]
+				},
+				{
+					"id": "judge-prediction",
+					"given": [
+						"the data, or r and the range of x",
+						"an estimate at x"
+					],
+					"asked": "whether the estimate is reliable",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL4.4.predict"
+					]
+				},
+				{
+					"id": "flawed-estimate",
+					"given": [
+						"the data, or the line, r and the ranges",
+						"a scout's working"
+					],
+					"asked": "why the method is not appropriate",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table",
+						"equation"
+					],
+					"skills": [
+						"SL4.4.predict"
+					]
+				},
+				{
+					"id": "read-estimate",
+					"given": [
+						"a scatter with the line drawn",
+						"an x inside the data"
+					],
+					"asked": "y read from the line, to the nearest 5",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL4.4.predict"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.4.interpret-ab",
+					"method": "per-unit-sentence",
+					"suits": [
+						"interpret-gradient",
+						"expected-change",
+						"interpret-intercept",
+						"intercept-sensible"
+					],
+					"name": "'For each extra unit of x, y changes by a'",
+					"about": "Describe a as the change in y (with units) for every one-unit increase in x, and b as the predicted y when x = 0."
+				},
+				{
+					"skill": "SL4.4.interpret-ab",
+					"method": "two-predictions",
+					"suits": [
+						"interpret-gradient",
+						"expected-change"
+					],
+					"name": "Compare two predictions",
+					"about": "Predict y at x and at x + 1; the difference is a, which shows what the gradient means in practice."
+				},
+				{
+					"skill": "SL4.4.predict",
+					"method": "reliability-check",
+					"suits": [
+						"judge-prediction",
+						"flawed-estimate"
+					],
+					"name": "Interpolation and strength check",
+					"about": "A prediction is reliable only if x lies within the range of the data (interpolation) and the correlation is strong; otherwise say which condition fails."
+				},
+				{
+					"skill": "SL4.4.predict",
+					"method": "read-off-line",
+					"suits": [
+						"read-estimate"
+					],
+					"name": "Read from the drawn line",
+					"about": "Go up from x to the line and across to the y-axis for a quick estimate or a check."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "If y = 3x + 40 is a regression line, then every extra unit of x adds exactly 3 to y for each individual.",
+					"answer": "False: 3 is an average rate for the data. Real points sit above and below the line, so one individual may change by more or by less.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The value of b in y = ax + b is a sensible estimate of y at x = 0.",
+					"answer": "Sometimes: it is when x = 0 is in the data and the value is possible. If x = 0 is far outside the data, b is an extrapolation and may mean nothing.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Predict y at x = 10 and at x = 11 on a line y = ax + b. What is the difference?",
+					"answer": "It is exactly a, whatever x you start from: this is what the gradient means.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.4.interpret-ab#0",
+					"text": "Interpreting b as the rate of change and a as the starting value",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient",
+						"interpret-intercept",
+						"expected-change"
+					],
+					"wrong": "a and b the wrong way round"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#1",
+					"text": "Saying 'a is the gradient' without any reference to the context or units",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient"
+					],
+					"wrong": "the number with no story or units"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#2",
+					"text": "Treating b as meaningful when x = 0 is far outside the data",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible"
+					],
+					"wrong": "yes, though x = 0 is far outside the data"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#3",
+					"text": "Reading the gradient backwards, as the change in x for one unit of y",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient"
+					],
+					"wrong": "a as x's change per unit of y"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#4",
+					"text": "Ignoring the sign of a, so that a fall is read as a rise",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient"
+					],
+					"wrong": "the direction reversed"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#5",
+					"text": "Reading a fitted gradient as an exact rule for every individual, not an average",
+					"as": "distractor",
+					"in": [
+						"interpret-gradient"
+					],
+					"wrong": "exactly a, for every individual"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#6",
+					"text": "Reading b as the mean of y",
+					"as": "distractor",
+					"in": [
+						"interpret-intercept"
+					],
+					"wrong": "b called the mean of y"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#7",
+					"text": "Reading b as the x-intercept, where y is 0",
+					"as": "distractor",
+					"in": [
+						"interpret-intercept"
+					],
+					"wrong": "b called the x where y is 0"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#8",
+					"text": "Putting the extra amount in as x, which gives a prediction, not a change",
+					"as": "distractor",
+					"in": [
+						"expected-change"
+					],
+					"wrong": "ak + b"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#9",
+					"text": "Giving the change for one unit when several extra units are asked about",
+					"as": "distractor",
+					"in": [
+						"expected-change"
+					],
+					"wrong": "a, not k × a"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#10",
+					"text": "Calling an intercept outside the data without checking the data",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible"
+					],
+					"wrong": "no, though x = 0 is in the table"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#11",
+					"text": "Expecting the regression line to pass through the data points",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible"
+					],
+					"wrong": "no, because b is not a y-value in the data"
+				},
+				{
+					"ref": "SL4.4.interpret-ab#12",
+					"text": "Saying b is only a constant of the line, with no units or meaning in the story",
+					"as": "distractor",
+					"in": [
+						"interpret-intercept"
+					],
+					"wrong": "b called a bare constant"
+				},
+				{
+					"ref": "SL4.4.mean-point#0",
+					"text": "Forcing the line of best fit through the origin",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible"
+					],
+					"wrong": "b should be 0"
+				},
+				{
+					"ref": "SL4.4.predict#0",
+					"text": "Extrapolating far outside the data range and calling the result reliable",
+					"as": "distractor",
+					"in": [
+						"intercept-sensible",
+						"judge-prediction",
+						"flawed-estimate"
+					],
+					"wrong": "r is strong, so the line holds for any x"
+				},
+				{
+					"ref": "SL4.4.predict#1",
+					"text": "Rearranging the y-on-x line to predict x from a given y",
+					"as": "distractor",
+					"in": [
+						"flawed-estimate"
+					],
+					"wrong": "the line rearranged for x, or rearranging called harmless"
+				},
+				{
+					"ref": "SL4.4.predict#2",
+					"text": "Trusting a prediction when |r| is small",
+					"as": "distractor",
+					"in": [
+						"judge-prediction"
+					],
+					"wrong": "reliable, though r is weak"
+				},
+				{
+					"ref": "SL4.4.predict#3",
+					"text": "Reading the nearest plotted point instead of the line",
+					"as": "distractor",
+					"in": [
+						"read-estimate"
+					],
+					"wrong": "the y of the nearest dot"
+				},
+				{
+					"ref": "SL4.4.predict#4",
+					"text": "Thinking no estimate from a regression line can be trusted, even inside the data with a strong r",
+					"as": "distractor",
+					"in": [
+						"judge-prediction"
+					],
+					"wrong": "not reliable, though x is inside the data and r is strong"
+				},
+				{
+					"ref": "SL4.4.predict#5",
+					"text": "Finding the x on the y-axis and reading across, instead of going up from the x-axis",
+					"as": "distractor",
+					"in": [
+						"read-estimate"
+					],
+					"wrong": "the x of the line at y = x0"
+				}
+			],
+			"chain": [
+				"find or read a and b, with r from the GDC",
+				"a is the change in y, in y's units, for one more unit of x",
+				"b is what the line gives at x = 0: check that x = 0 is in or near the data",
+				"an extra k of x changes y by k × a",
+				"an estimate needs x inside the data and a strong r, and the line of y on x only estimates y"
+			],
 			"frequency": 7,
 			"marks": 1,
 			"section": {
@@ -35785,9 +36244,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 7
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-regression-gdc",

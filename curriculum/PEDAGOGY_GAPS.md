@@ -1654,7 +1654,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): Translating y = x² by the vector (2, 5) gives y = (x + 2)² + 5. — False. The new graph must reach each height 2 units later, so x has to be reduced by 2 before squaring: y = (x − 2)² + 5, with vertex (2, 5).
   - *interpret-parameter* (L3): y = 3(x + 1)² − 7 is y = 3x² moved by a vector. What is the vector, and where does the point (1, 3) on y = 3x² go? — The vector is (−1, −7), which is also the vertex. (1, 3) goes to (0, −4); check: 3(0 + 1)² − 7 = −4.
   - *predict-check* (L3): A line has gradient −2/5. Predict a vector along it, then check by moving from (1, 4) by your vector. — (5, −2): 5 across and 2 down. From (1, 4) you reach (6, 2), and (2 − 4)/(6 − 1) = −2/5.
-- **Misconceptions used:** 12. Writes f(x + 3) − 2 for a translation by (3, −2), getting the horizontal sign wrong; Puts the vertical component inside the bracket, writing f(x − 3 − 2); Moves the point the wrong way horizontally: (2, 5) on f becomes (1, 5) on f(x − 1); From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4); Computes run over rise, (x₂ − x₁)/(y₂ − y₁), giving the reciprocal of the gradient; Subtracts the coordinates in inconsistent order, (y₂ − y₁)/(x₁ − x₂), and gets the wrong sign; Reading the shift before taking b out of the bracket; Getting the direction of the shift wrong: a plus inside the bracket moves the graph left; Finding the endpoint by averaging A and M instead of extending past M; Halving the midpoint coordinates to get the endpoint; Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²; Mishandling a negative coordinate, e.g. taking 4 − (−2) as 2.
+- **Misconceptions used:** 12. Writes f(x + 3) − 2 for a translation by (3, −2), getting the horizontal sign wrong; Puts the vertical component inside the bracket, writing f(x − 3 − 2); Moves the point the wrong way horizontally: (2, 5) on f becomes (1, 5) on f(x − 1); From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4); Computes run over rise, (x₂ − x₁)/(y₂ − y₁), giving the reciprocal of the gradient; Subtracts the coordinates in inconsistent order, (y₂ − y₁)/(x₁ − x₂), and gets the wrong sign; Reading the shift before taking b out of the bracket; Getting the direction of the shift wrong: a plus inside the bracket moves the graph left; Finding the endpoint by averaging A and M instead of extending past M; Halving the midpoint coordinates to get the endpoint; Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²; Mishandling a negative coordinate, so that subtracting it takes away its size instead of adding it.
 
 ## Topic 1: Number and algebra (catalogue level)
 
@@ -1940,7 +1940,34 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
+
+#### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
+
+- **Situation:** Points in 2D or 3D, with their distances and midpoints.
+- **Representations:** **equation**, **diagram**, notation (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given two points in 3D, on a plan, as position vectors or on a figure → the distance between them
+  - new L1: given two points in 2D → the distance between them
+  - new L3: given a point with k as a coordinate, or a vector with k in it, and the distance → the two values of k, whole numbers
+  - new L3: given a point with k as a coordinate, or a vector with k in it, and a whole distance → the two values of k: a ± b√c on Paper 1, 3 s.f. on Paper 2
+  - new L3: given the three vertices of a triangle → the two equal sides and their exact length
+  - new L2: given a cuboid on the axes, with O at one corner and G opposite → the length of the space diagonal OG
+  - **exam** L2: given a pyramid on the axes with base OABC, or a right pyramid's vertex and a base corner or the base's centre → a slant edge or the height
+  - **exam** L2: given the centre of a sphere or hemisphere, and a point on its surface → the radius
+  - **exam** L2: given the ends of a diameter of a sphere or circle → the radius
+  - **exam** L3: given f(x) as a square root, and a point P(x, f(x)) on its graph → the distance from the origin to P, in terms of x
+  - new L1: given two points in 3D → the coordinates of the midpoint
+  - new L1: given two points in 2D → the coordinates of the midpoint
+  - new L2: given one end of a segment in 3D, and its midpoint → the coordinates of the other end
+  - new L2: given one end of a segment in 2D, and its midpoint → the coordinates of the other end
+  - **exam** L2: given the ends of a diameter of a sphere or circle → the coordinates of the centre
+- **Angles:** 3D distance formula; 2D distance formula; Pythagoras twice; Work with d² for an unknown coordinate; Average each coordinate; Solve one equation per coordinate; Half the journey, or the same step again.
+- **Concept probes:**
+  - *true-false-reason* (L3): The distance from A to B is the same as the distance from B to A. — True: swapping the points changes the sign of each difference, and squaring takes that away.
+  - *true-false-reason* (L3): If a point B is at distance d from a point A and has one unknown coordinate, there is always exactly one place it can be. — False: the bracket with k is squared, so there are usually two values, one on each side of the known coordinate, and one where the bracket is 0.
+  - *always-sometimes-never* (L3): The midpoint of two points with whole coordinates has whole coordinates. — Sometimes: only when the two values on each axis are both odd or both even.
+- **Misconceptions used:** 26. Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²; Mishandling a negative coordinate, so that subtracting it takes away its size instead of adding it; Giving only one value of k, when the squared bracket has two square roots; Subtracting instead of adding: M = ((x₂ − x₁)/2, ...); Finding the endpoint by averaging A and M instead of extending past M; Halving the midpoint coordinates to get the endpoint; Stopping at the squared distance, without the square root; Adding the coordinates of the two points instead of subtracting them; Leaving out the z difference, so the length stays on the floor; Using the whole base diagonal instead of half of it; Giving the whole diameter as the radius; Doubling the distance from the centre, as if a diameter were asked; Leaving out the other squared differences, so the one bracket equals the distance; Using the wrong sign on the known coordinate in the bracket; Stopping at the squared bracket, without taking its root; Naming the wrong pair of equal sides; Using the length of the third side for the equal sides; Adding the coordinates and not halving; Dropping a minus sign before averaging the coordinates; Stopping at the step from A to M, without adding it on to M; Doubling the midpoint and leaving out the known end; Adding the known end to twice the midpoint instead of subtracting it; Adding x and f(x) without squaring them; Using f(x) alone as the distance from the origin; Subtracting the squares instead of adding them; Adding the two differences before squaring them.
 
 #### Volume and surface area of solids, including in terms of a variable (`t3-solid-volume-area`, exam, 13 bank parts)
 
@@ -2238,7 +2265,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A tide is above a level from 2 hours before high water, so it stays above it until 2 hours after. — True: a wave is symmetric about each peak, so the two crossings are equally far from it.
   - *interpret-parameter* (L4): A model has a period of 12 hours. Why can a span of 48 hours be answered from one cycle? — 48 hours is exactly 4 periods, so whatever happens in one cycle happens 4 times, wherever the span starts.
   - *predict-check* (L3): In degree mode, is a value of a radian model usually right, nearly right or nothing like it? Predict whether the error can be positive, then try one. — Positive: the angle is read as far smaller than it is, so the answer can be off by nearly the whole height of the wave.
-- **Misconceptions used:** 14. Leaving the calculator in degree mode for a radian model; Giving only the first intersection when all times in the interval are asked for; Taking b itself as the period, instead of working out b from the period; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Counting one cycle when the time span holds several; Taking c in the bracket as the time of a maximum or minimum; Reading the constant d as the largest or smallest value; Dividing the whole time by the period, without placing the first one; Forgetting to change the time span into the unit the model uses; Taking the whole period as the gap from a low point to the next high point; Taking the wrong sign for the value of an angle past the first quadrant; Leaving d out of the maximum, the minimum or the range; Using a = max − min, forgetting to halve.
+- **Misconceptions used:** 13. Leaving the calculator in degree mode for a radian model; Giving only the first intersection when all times in the interval are asked for; Taking b itself as the period, instead of working out b from the period; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Counting one cycle when the time span holds several; Taking c in the bracket as the time of a maximum or minimum; Reading the constant d as the largest or smallest value; Dividing the whole time by the period, without placing the first one; Forgetting to change the time span into the unit the model uses; Taking the whole period as the gap from a low point to the next high point; Taking the wrong sign for the value of an angle past the first quadrant; Leaving d out of the maximum, the minimum or the range.
 
 #### Read amplitude, period and principal axis from a graph or equation (`t3-trig-read-features`, exam, 18 bank parts)
 
