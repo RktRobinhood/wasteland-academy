@@ -104,7 +104,7 @@ static func features(s: Dictionary) -> Dictionary:
 	var T := float(s.T)
 	s.z = GdcKit.zeros(v, 0.01, T - 0.01)
 	s.turns = GdcKit.zeros(a, 0.01, T - 0.01)
-	var ts: Array = [0.0, T] + s.turns
+	var ts := critical(s)
 	s.vmax = -INF
 	s.vmin = INF
 	s.smax = -1.0
@@ -120,6 +120,25 @@ static func features(s: Dictionary) -> Dictionary:
 			s.smax = absf(y)
 			s.ts = t
 	return s
+
+
+## Whether fn reaches its largest value at one of these times only. A wave peaks again every
+## period, and "the time when v is greatest" and "at t = ..." in a solution need one time.
+static func one_peak(fn: Callable, ts: Array) -> bool:
+	var top := -INF
+	for t in ts:
+		top = maxf(top, fn.call(t))
+	return ts.filter(func(t): return top - fn.call(t) < 1e-6).size() == 1
+
+
+## The ends of the interval and the turning points of v, where v and |v| have their extremes.
+static func critical(s: Dictionary) -> Array:
+	return [0.0, float(s.T)] + s.turns
+
+
+static func _one_speed_peak(s: Dictionary) -> bool:
+	var v := v_of(s)
+	return one_peak(func(t: float) -> float: return absf(v.call(t)), critical(s))
 
 
 static func _spaced(list: Array, end: float) -> bool:
@@ -280,15 +299,17 @@ static func _try(ask: String, paper: int, rng: Seeded) -> Dictionary:
 			s = model(rng)
 			if s.is_empty():
 				return {}
-			if ask == "max-velocity" and (s.tmax <= 0.0 or s.tmax >= float(s.T)):
+			if ask == "max-velocity" and (s.tmax <= 0.0 or s.tmax >= float(s.T) or not one_peak(v_of(s), critical(s))):
 				return {}
 			# At a turning point of v the acceleration is 0, so this asks about an end.
-			if ask == "acceleration-at-max-speed" and (s.ts > 0.0 and s.ts < float(s.T) or not GdcKit.fair(a_of(s).call(s.ts))):
+			if ask == "acceleration-at-max-speed" and (s.ts > 0.0 and s.ts < float(s.T) or not GdcKit.fair(a_of(s).call(s.ts)) or not _one_speed_peak(s)):
 				return {}
 			if ask == "max-acceleration":
 				return _max_a(s)
 		"max-speed":
 			s = quadratic(rng, 1) if paper == 1 else model(rng)
+			if not s.is_empty() and not _one_speed_peak(s):
+				return {}
 		"speed-from-graph", "acceleration-from-graph", "displacement-from-graph", "direction-from-graph":
 			return pieces(rng)
 		"velocity-from-graph":
@@ -334,7 +355,7 @@ static func _max_a(s: Dictionary) -> Dictionary:
 		if y > s.amax:
 			s.amax = y
 			s.tamax = t
-	return s if Answer.rounds_clearly(s.amax, 0.05) else {}
+	return s if Answer.rounds_clearly(s.amax, 0.05) and one_peak(a, ts) else {}
 
 
 static func export(s: Dictionary) -> Dictionary:

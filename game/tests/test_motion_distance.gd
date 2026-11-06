@@ -103,3 +103,20 @@ func test_a_graph_question_shows_its_graph() -> void:
 		if c.rep == "graph":
 			var q := _make(c.unknown, c.rep, c.angle, 2)
 			check(q.graph != null and not q.graph.curves.is_empty(), c.key + " has no graph")
+
+
+func test_a_wave_that_peaks_twice_has_no_single_time_of_greatest_velocity() -> void:
+	var s := {"fam": "wave", "A": 4, "w": Q.new(4, 5), "B": 1, "T": 10}
+	MotionSituation.features(s)
+	check_eq(s.turns.size(), 3, "peak, trough, peak")
+	check(not MotionSituation.one_peak(MotionSituation.v_of(s), MotionSituation.critical(s)))
+	s.T = 7
+	MotionSituation.features(s)
+	check(MotionSituation.one_peak(MotionSituation.v_of(s), MotionSituation.critical(s)))
+
+
+func test_position_at_max_velocity_has_one_time_on_every_seed() -> void:
+	for seed in range(1, 121):
+		var s := MotionDistanceSituation.generate(Seeded.new("peak|%d" % seed), {"ask": "position-at-max-velocity", "paper": 2})
+		var v := MotionSituation.v_of(s)
+		check(MotionSituation.one_peak(v, MotionSituation.critical(s)), "seed %d peaks twice: %s" % [seed, s])
