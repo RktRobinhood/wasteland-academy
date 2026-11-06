@@ -11699,8 +11699,8 @@
                 }
               ],
               "misconceptions": [
-                "Counting (3,5) and (5,3) as a single outcome",
-                "Using 11 or 12 as the total number of outcomes for two dice instead of 36"
+                "Counting a pair and its reverse as a single outcome",
+                "Using the number of different scores as the total number of outcomes"
               ],
               "threads": [
                 {

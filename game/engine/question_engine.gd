@@ -144,6 +144,7 @@ static var SITUATIONS := {
 	"solid": [SolidSituation, SolidViews],
 	"standard-form": [StandardFormSituation, StandardFormViews],
 	"basic-probability": [BasicProbabilitySituation, BasicProbabilityViews],
+	"sample-space": [SampleSpaceSituation, SampleSpaceViews],
 }
 
 static var _cat: Dictionary = {}

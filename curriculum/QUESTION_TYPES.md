@@ -1030,6 +1030,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 14.
 
+### t4-sample-space
+
+**Sample space diagrams for dice and spinners.** Two dice, a die and a spinner, or two spinners, fair or with unusual faces, set out as an m × n grid of outcomes. Fill in a cell, count the outcomes, find P(event), a complement, or a score from a points rule, and use the grid's symmetry. A biased die rolled twice has a grid of probabilities. A face or a probability left as a letter is found from a sum's distribution or from P(X < Y), and then E(Y).
+
+- **Syllabus:** 4.6
+- **Skills:** `SL4.6.sample-space-grid`
+- **Where it appears:** P1 4, P2 1; Section A 0, B 5. Marks per part: usually 2 (2 to 6).
+- **Usual chain:** set the outcomes out as a grid or a list of ordered pairs: m × n of them → every face is its own outcome, and (a, b) and (b, a) are two outcomes → count the cells in the event and divide by all the cells, not by the number of different scores → matching dice: use the symmetry of the grid to count one side → biased: each cell is P(first) × P(second), and the cells in the event are added → a letter on a face or a probability: compare the grid in terms of the letter with what is known
+- **Given:** two dice or spinners with their faces, in words or drawn, the grid of scores, with its heads, a points rule for matches and differences, a biased die or spinner, as a table, a figure or sentences, the distribution of a sum, or one probability from it, P(X < Y) for two biased dice. **Asked:** A score in a cell, the number of outcomes, a probability from the grid, a missing face, a missing probability, or E(Y). **Answer form:** whole number, fraction, decimal, 3 s.f..
+- **A recipe can randomise:** the objects, their sizes and their faces; the scoring rule: sum, product, difference or larger number; the event and its boundary word; the points rule; the biased probabilities and the total; the unusual die and the letters; the story.
+- **Limits that keep answers clean:** Paper 1 exact, fractions on a fair grid and decimals on a biased die; Paper 2 to 3 s.f., clear of a rounding edge; a grid has at most 8 rows and 8 columns, and a distribution table at most 7 sums, so they fit a phone; an event has at most 16 cells, or 8 on a biased die, so the working can list them; the unknowns that use the symmetry of the grid always have matching objects, so every method suits every question of them; a missing a has exactly one whole value between its neighbours; q and r make a real die, and counting the ties makes a different one.
+- **Game formats:** value, mcq
+- **Bank parts:** 5.
+
 ### t4-venn-addition-rule
 
 **Venn diagrams, two-way tables and the addition rule.** Two events in a sample space, from the addition rule, a story, a Venn diagram or a two-way table: find the union, the intersection, neither, one event only, exactly one, a region or an unknown x, a missing table entry, and the least and greatest overlap.

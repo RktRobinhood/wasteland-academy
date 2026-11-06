@@ -24172,6 +24172,632 @@ def check_independence(q):
     return None, None
 
 
+# ── sample-space (t4-sample-space, FAL-752) ──────────────────
+# The `sample-space` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/sample_space.gd. The objects are read back from the grid, the figure or
+# the sentences, every outcome is listed again, and a letter is found by trying every value it
+# could have (a face) or by solving with SymPy (a probability). The working's plain sums are
+# evaluated, and its lists and counts must be the checker's own.
+
+E10SS_G = "SL4.6.sample-space-grid#"
+E10SS_O = "t4-sample-space#"
+E10SS_STORIES = ["At a Bazaar stall, a game uses", "The gate guards pass the night with a game that uses",
+                 "At the depot, the scavengers settle who cooks with a game that uses", "A salt trader offers travellers a game that uses",
+                 "The convoy drivers kill time with a game that uses", "Around the camp fire, the medics play a game that uses"]
+E10SS_THINGS = {"two fair dice": ["first die", "second die"], "a fair die and a fair spinner": ["die", "spinner"],
+                "two fair spinners": ["first spinner", "second spinner"]}
+E10SS_RULES = {"the sum of the two numbers": ("+", lambda a, b: a + b), "the product of the two numbers": ("×", lambda a, b: a * b),
+               "the larger number minus the smaller, or 0 if they match": ("diff", lambda a, b: abs(a - b)),
+               "the larger of the two numbers, or that number if they match": ("max", max)}
+E10SS_PROPS = {"an even number": lambda v: v % 2 == 0, "an odd number": lambda v: v % 2 == 1, "a multiple of 3": lambda v: v % 3 == 0,
+               "a multiple of 4": lambda v: v % 4 == 0, "a prime number": lambda v: sp.isprime(v), "a square number": lambda v: sp.sqrt(v).is_integer}
+E10SS_RELS = {"": lambda v, k: v == k, "at least ": lambda v, k: v >= k, "greater than ": lambda v, k: v > k,
+              "at most ": lambda v, k: v <= k, "less than ": lambda v, k: v < k}
+E10SS_FLIP = {"at least ": "greater than ", "greater than ": "at least ", "at most ": "less than ", "less than ": "at most "}
+E10SS_BOTH = {"p-score", "p-at-least", "p-complement", "p-property", "p-compare", "p-rule-points", "weighted-sum", "weighted-target"}
+E10SS_MAX_FACES = 8
+E10SS_MAX_LISTED = 16
+E10SS_MAX_WEIGHTED = 8
+E10SS_MAX_SUMS = 7
+E10SS_MAX_WIN_DEN = 60
+E10SS_SHOWN = re.compile(r"[\d./+−×÷() ]+")
+
+
+def e10ss_and(items):
+    items = [str(i) for i in items]
+    return items[0] if len(items) < 2 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def e10ss_pair(p):
+    return f"({p[0]}, {p[1]})"
+
+
+def e10ss_pairs(pairs):
+    return e10ss_and([e10ss_pair(p) for p in pairs])
+
+
+def e10ss_plus(xs):
+    return " + ".join(str(x) for x in xs)
+
+
+def e10ss_faces(text):
+    """ "1, 2, 2 and 3" or "1, a, a and b": whole numbers stay ints, letters stay letters."""
+    parts = re.split(r", | and ", text)
+    return [int(p) if re.fullmatch(r"\d+", p) else p for p in parts]
+
+
+def e10ss_frac(v):
+    return frac_text(sp.Rational(v)).replace("-", "−")
+
+
+def e10ss_eval(text):
+    """A plain sum as a Rational, or None if it isn't one."""
+    t = text.strip().rstrip(".").strip()
+    if not re.search(r"\d", t) or t.count("(") != t.count(")"):
+        return None
+    t = re.sub(r"\d+\.\d+|\d+", lambda m: f"Rational('{m.group(0)}')", t.replace("−", "-").replace("×", "*").replace("÷", "/"))
+    try:
+        return sp.Rational(eval(t, {"__builtins__": {}, "Rational": sp.Rational}))
+    except (SyntaxError, TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
+def e10ss_arith(q):
+    """Every "sum = sum" of plain numbers in the working is right, to its last figure."""
+    done = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            sides = st.split(" = ")
+            for left, right in zip(sides, sides[1:]):
+                tail = re.search(E10SS_SHOWN.pattern + "$", left)
+                head = E10SS_SHOWN.match(right)
+                if tail is None or head is None:
+                    continue
+                a, b = e10ss_eval(tail.group(0)), e10ss_eval(head.group(0))
+                if a is not None and b is not None:
+                    need(a == b, f"{sol['name']}: {tail.group(0)} is not {head.group(0)} in {st!r}")
+                    done += 1
+    return done
+
+
+def e10ss_steps(q, angle=None):
+    return [st for sol in q["solutions"] if angle is None or sol["angle"] == angle for st in sol["steps"]]
+
+
+def e10ss_has(q, angle, text):
+    need(any(text in st for st in e10ss_steps(q, angle)), f"{angle}: no step says {text!r}: {e10ss_steps(q, angle)}")
+
+
+def e10ss_read_fair(q):
+    """The two objects, with what each is called, from the grid, the figure or the sentences."""
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(r"(.+) (two fair dice|a fair die and a fair spinner|two fair spinners)\.", L[0])
+    need(m is not None and m.group(1) in E10SS_STORIES, f"the opening {L[0]!r}")
+    names = E10SS_THINGS[m.group(2)]
+    if rep == "table":
+        rows = q["table"]["rows"]
+        ys = [int(v) for v in rows[0][1]]
+        xs = [int(r[0]) for r in rows[1:]]
+    elif rep == "diagram":
+        g = q["graph"]
+        need(g is not None and g["kind"] == "spinners", "no figure of the two objects")
+        items = g["items"]
+        need([i["name"] for i in items] == [" ".join(w.capitalize() for w in n.split()) for n in names], f"the figure's names {[i['name'] for i in items]}")
+        for it, n in zip(items, names):
+            need(it["shape"] == ("die" if n.endswith("die") else "spinner"), f"the figure draws {n} as a {it['shape']}")
+            need(all(abs(v - 1 / len(it["labels"])) < 1e-9 for v in it["shares"]), "a fair object's sectors are not equal")
+        xs, ys = [[int(v) for v in it["labels"]] for it in items]
+    else:
+        faces = []
+        for line, n in zip(L[1:3], names):
+            word = r"has faces labelled" if n.endswith("die") else r"has equal sectors numbered"
+            k = re.fullmatch(rf"The {n} {word} (.+)\.", line)
+            need(k is not None, f"can't read the faces in {line!r}")
+            faces.append(e10ss_faces(k.group(1)))
+        xs, ys = faces
+    need(xs == sorted(xs) and ys == sorted(ys), "the faces are not in order")
+    need(max(len(xs), len(ys)) <= E10SS_MAX_FACES and min(len(xs), len(ys)) >= 3, "the size of the grid")
+    return {"xs": xs, "ys": ys, "names": names, "N": len(xs) * len(ys), "cells": [(x, y) for x in xs for y in ys]}
+
+
+def e10ss_read_rule(q, f):
+    rule = next((l for l in q["lines"] if l.startswith("The score is ")), None)
+    need(rule is not None, "no scoring rule")
+    corner, fn = E10SS_RULES[rule[len("The score is "):-1]]
+    if q["view"]["rep"] == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == corner, f"the corner {rows[0][0]!r}")
+        for i, x in enumerate(f["xs"]):
+            for j, y in enumerate(f["ys"]):
+                need(rows[i + 1][1][j] in (str(fn(x, y)), "?"), f"the cell for ({x}, {y}) is {rows[i + 1][1][j]!r}")
+    f["fn"] = fn
+    f["scores"] = sorted({fn(x, y) for x, y in f["cells"]})
+    return fn
+
+
+def e10ss_event(f, text):
+    """ "the score is at least 7": the test on a cell, and the same test with its boundary read the other way."""
+    m = re.fullmatch(r"the score is (at least |greater than |at most |less than |)(\d+)", text)
+    if m:
+        word, k = m.group(1), int(m.group(2))
+        f["k"], f["word"] = k, word
+        test = lambda a, b: E10SS_RELS[word](f["fn"](a, b), k)
+        other = (lambda a, b: E10SS_RELS[E10SS_FLIP[word]](f["fn"](a, b), k)) if word else None
+        return test, other
+    m = re.fullmatch(r"the score is (an even number|an odd number|a multiple of 3|a multiple of 4|a prime number|a square number)", text)
+    need(m is not None, f"can't read the event {text!r}")
+    return (lambda a, b: bool(E10SS_PROPS[m.group(1)](f["fn"](a, b)))), None
+
+
+def e10ss_hits(f, test):
+    return [c for c in f["cells"] if test(*c)]
+
+
+def e10ss_rows(f, test):
+    return [sum(1 for y in f["ys"] if test(x, y)) for x in f["xs"]]
+
+
+def e10ss_one_way(pairs):
+    return len({tuple(sorted(p)) for p in pairs})
+
+
+def e10ss_distinct(f):
+    return len(set(f["xs"])) == len(f["xs"]) and len(set(f["ys"])) == len(f["ys"])
+
+
+def e10ss_form(q):
+    return "sf" if q["paper"] == 2 else "dec" if q["view"]["unknown"].startswith("weighted") else "frac"
+
+
+def e10ss_shown(q, v):
+    form = e10ss_form(q)
+    if form == "sf":
+        return e9regr_t(v)
+    return dec_text(v) if form == "dec" else e10ss_frac(v)
+
+
+def e10ss_prob(q, v, table):
+    """want, trap and wrongs for a probability; `table` is ref -> the values that slip gives."""
+    label = "probability = "
+    if q["paper"] == 2:
+        need(sp.Rational(sig3(v)) != v and rg_clear(v), f"{v} needs no rounding, or sits on a rounding edge")
+    return label + e10ss_shown(q, v), bn_trap(label, v) if q["paper"] == 2 else None, \
+        {ref: {label + e10ss_shown(q, x) for x in xs} for ref, xs in table.items()}
+
+
+def e10ss_fair_table(f, pairs, flip=False):
+    """What every fair probability's wrong options come from."""
+    h, N, out = len(pairs), f["N"], {}
+    side = (lambda n, d: 1 - sp.Rational(n, d)) if flip else sp.Rational
+    if e10ss_distinct(f):
+        out[E10SS_G + "0"] = [side(e10ss_one_way(pairs), N)]
+    out[E10SS_G + "1"] = [side(h, len(f["scores"]))]
+    return out
+
+
+def e10ss_size_steps(q, f, test, h):
+    """The two counting routes say the grid's size and the checker's own count and list."""
+    m, n, N = len(f["xs"]), len(f["ys"]), f["N"]
+    note = "two separate outcomes" if not e10ss_distinct(f) else None
+    for angle in ("grid-count", "systematic-list"):
+        e10ss_has(q, angle, f"{m} × {n} = {N}")
+        need(any("two separate outcomes" in st for st in e10ss_steps(q, angle)) == (note is not None), "the note on a repeated face")
+    e10ss_has(q, "grid-count", f"{e10ss_plus(e10ss_rows(f, test))} = {h} cells")
+    e10ss_has(q, "systematic-list", f"{e10ss_pairs(e10ss_hits(f, test))}: {h} ordered pairs")
+
+
+def e10ss_p_text(a, b):
+    v = sp.Rational(a, b)
+    return f"P = {a}/{b}" if v.q == b else f"P = {a}/{b} = {e10ss_frac(v)}"
+
+
+def e10ss_mirror(q, f, pairs_n):
+    """The mirror route: the sum and its reflection, and the count on the short side."""
+    n = len(f["xs"])
+    need(f["xs"] == list(range(1, n + 1)) and f["ys"] == f["xs"], "the symmetry needs matching objects numbered from 1")
+    k, word = f["k"], f["word"]
+    need(n + 1 < k < 2 * n, f"the sum {k} is not above the middle")
+    mirror = 2 * n + 2 - k
+    e10ss_has(q, "grid-symmetry", f"symmetric about the sum {n + 1}")
+    sign, back = ("=", "=") if word == "" else ("≥", "≤")
+    e10ss_has(q, "grid-symmetry", f"P(sum {sign} {k}) = P(sum {back} {mirror})")
+    short = [c for c in f["cells"] if (c[0] + c[1] == mirror if word == "" else c[0] + c[1] <= mirror)]
+    need(len(short) == pairs_n, f"the mirror side has {len(short)} cells, the event {pairs_n}: the grid is not symmetric")
+    e10ss_has(q, "grid-symmetry", f"{e10ss_pairs(short)}: {pairs_n} ordered pairs out of {f['N']}")
+
+
+def e10ss_fill(q, f):
+    rows = q["table"]["rows"]
+    need(q["asked"] == "One cell of the table is hidden. Find the score it hides.", f"asked {q['asked']!r}")
+    spots = [(i, j) for i in range(len(f["xs"])) for j in range(len(f["ys"])) if rows[i + 1][1][j] == "?"]
+    need(len(spots) == 1, f"{len(spots)} hidden cells")
+    i, j = spots[0]
+    a, b = f["xs"][i], f["ys"][j]
+    need(a >= 2 and b >= 2 and a != b, "the hidden cell's numbers")
+    say = lambda v: f"score = {v}"
+    v = f["fn"](a, b)
+    other = {say(fn(a, b)) for _, fn in E10SS_RULES.values()} - {say(v)}
+    next_ = [f["fn"](a, f["ys"][k]) for k in (j + 1, j - 1) if 0 <= k < len(f["ys"])]
+    e10ss_has(q, "grid-count", f"the two numbers are {a} and {b}")
+    return say(v), None, {E10SS_O + "3": other, E10SS_O + "4": {say(x) for x in next_}}
+
+
+def e10ss_total(q, f):
+    need(q["asked"] == "Find the total number of outcomes in the sample space.", f"asked {q['asked']!r}")
+    say = lambda v: f"number of outcomes = {v}"
+    m, n = len(f["xs"]), len(f["ys"])
+    wrongs = {E10SS_G + "1": {say(len(f["scores"]))}, E10SS_O + "5": {say(m + n)}}
+    if e10ss_distinct(f):
+        wrongs[E10SS_G + "0"] = {say(e10ss_one_way(f["cells"]))}
+    e10ss_has(q, "grid-count", f"{m} × {n} = {f['N']} cells")
+    e10ss_has(q, "systematic-list", f"{m} × {n} = {f['N']} pairs")
+    return say(f["N"]), None, wrongs
+
+
+def e10ss_event_of(q, f, start, end="."):
+    a = q["asked"]
+    need(a.startswith(start) and a.endswith(end), f"asked {a!r}")
+    return e10ss_event(f, a[len(start):-len(end)])
+
+
+def e10ss_count(q, f):
+    test, _ = e10ss_event_of(q, f, "Find the number of outcomes for which ")
+    pairs = e10ss_hits(f, test)
+    h = len(pairs)
+    need(2 <= h <= E10SS_MAX_LISTED and h < f["N"], f"{h} cells")
+    say = lambda v: f"number of outcomes = {v}"
+    wrongs = {E10SS_O + "6": {say(len({f['fn'](*p) for p in pairs}))}}
+    if e10ss_distinct(f):
+        wrongs[E10SS_G + "0"] = {say(e10ss_one_way(pairs))}
+    e10ss_has(q, "grid-count", f"{e10ss_plus(e10ss_rows(f, test))} = {h} cells")
+    e10ss_has(q, "systematic-list", f"{e10ss_pairs(pairs)}: {h} ordered pairs")
+    return say(h), None, wrongs
+
+
+def e10ss_plain_p(q, f, u):
+    test, other = e10ss_event_of(q, f, "Find the probability that ")
+    pairs = e10ss_hits(f, test)
+    h, N = len(pairs), f["N"]
+    need(2 <= h <= E10SS_MAX_LISTED and h < N, f"{h} cells")
+    table = e10ss_fair_table(f, pairs)
+    if other is not None:
+        need(e10ss_hits(f, other) != pairs, "the boundary changes nothing")
+        table[E10SS_O + "2"] = [sp.Rational(len(e10ss_hits(f, other)), N)]
+    if u == "p-property":
+        need(all(f["fn"](*c) != 0 for c in f["cells"]), "a score of 0 has no clear property")
+    if u in ("p-mirror-score", "p-mirror-at-least"):
+        need(f["fn"](2, 3) == 5 and f["fn"](4, 3) == 7, "a mirror question is about sums")
+        e10ss_mirror(q, f, h)
+    e10ss_size_steps(q, f, test, h)
+    for sol in q["solutions"]:
+        need(any(e10ss_p_text(h, N) in st for st in sol["steps"]), f"{sol['name']}: no P = {h}/{N}")
+    return e10ss_prob(q, sp.Rational(h, N), table)
+
+
+def e10ss_complement(q, f):
+    m = re.fullmatch(r"Find the probability that the score is not (\d+)\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    k = int(m.group(1))
+    test = lambda a, b: f["fn"](a, b) == k
+    pairs = e10ss_hits(f, test)
+    h, N = len(pairs), f["N"]
+    need(2 <= h <= E10SS_MAX_LISTED and h < N, f"{h} cells")
+    v = 1 - sp.Rational(h, N)
+    table = e10ss_fair_table(f, pairs, True)
+    table[E10SS_O + "7"] = [sp.Rational(h, N)]
+    e10ss_size_steps(q, f, test, h)
+    for sol in q["solutions"]:
+        need(any(f"P(not {k}) = 1 − {h}/{N} = {e10ss_frac(v)}" in st for st in sol["steps"]), f"{sol['name']}: no complement")
+    return e10ss_prob(q, v, table)
+
+
+def e10ss_compare(q, f):
+    a, b = f["names"]
+    need(q["asked"] == f"Find the probability that the number on the {a} is higher than the number on the {b}.", f"asked {q['asked']!r}")
+    if q["view"]["rep"] == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "−", "the corner")
+        for i, x in enumerate(f["xs"]):
+            sh = ["0" if x == y else f"{'+' if x > y else '−'}{abs(x - y)}" for y in f["ys"]]
+            need(rows[i + 1][1] == sh, f"the row for {x}")
+    test = lambda x, y: x > y
+    pairs = e10ss_hits(f, test)
+    h, N = len(pairs), f["N"]
+    ties = sum(1 for x, y in f["cells"] if x == y)
+    other = N - h - ties
+    need(2 <= h <= E10SS_MAX_LISTED and ties > 0 and other != h and 2 * h != N, "the sides of the grid")
+    e10ss_size_steps(q, f, test, h)
+    return e10ss_prob(q, sp.Rational(h, N), {E10SS_O + "8": [sp.Rational(h + ties, N)], E10SS_O + "9": [sp.Rational(1, 2)], E10SS_O + "10": [sp.Rational(other, N)]})
+
+
+def e10ss_points(q, f):
+    n = len(f["xs"])
+    need(f["ys"] == f["xs"] and f["xs"] == list(range(1, n + 1)), "the points rule is on matching objects")
+    line = next((l for l in q["lines"] if l.startswith("A player scores")), "")
+    m = re.fullmatch(r"A player scores (\d+) points if the two numbers match, (\d+) points if they differ by exactly (\d+), and 0 points otherwise\.", line)
+    need(m is not None, f"can't read the rule {line!r}")
+    hi, mid, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    need(hi != mid and mid > 0 and d in (1, 2), "the points rule")
+    if q["view"]["rep"] == "table":
+        rows = q["table"]["rows"]
+        for i, x in enumerate(f["xs"]):
+            need(rows[i + 1][1] == [f"{x},{y}" for y in f["ys"]], f"the row for {x}")
+    points = lambda a, b: hi if a == b else mid if abs(a - b) == d else 0
+    if q["asked"] == f"Find the probability that a player scores {mid} points in one round.":
+        test = lambda a, b: points(a, b) == mid
+        diag = 0
+    else:
+        need(q["asked"] == "Find the probability that a player scores some points in one round.", f"asked {q['asked']!r}")
+        test = lambda a, b: points(a, b) > 0
+        diag = n
+    pairs = e10ss_hits(f, test)
+    h, N = len(pairs), f["N"]
+    need(2 <= h <= E10SS_MAX_LISTED and 2 * h != N, f"{h} cells")
+    once = e10ss_one_way(pairs)
+    above = n - d
+    need(h == 2 * above + diag, "the diagonal doesn't split the event")
+    e10ss_has(q, "grid-count", f"{n} × {n} = {N}")
+    e10ss_has(q, "grid-count", f"{e10ss_plus(e10ss_rows(f, test))} = {h} cells")
+    e10ss_has(q, "systematic-list", f"{e10ss_pairs(pairs)}: {h} ordered pairs")
+    e10ss_has(q, "grid-symmetry", f"2 × {above} = {h}" if diag == 0 else f"2 × {above} + {diag} = {h}")
+    return e10ss_prob(q, sp.Rational(h, N), {E10SS_G + "0": [sp.Rational(once, N), sp.Rational(once, n * (n + 1) // 2)], E10SS_O + "7": [1 - sp.Rational(h, N)]})
+
+
+def e10ss_read_biased(q):
+    """A biased object's faces and probabilities, from the table, the figure or the sentence."""
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(r"(.+) a biased (die|spinner)\.", L[0])
+    need(m is not None and m.group(1) in E10SS_STORIES, f"the opening {L[0]!r}")
+    if rep == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "P(X = x)", "the table's heads")
+        xs, ps = [int(v) for v in rows[0][1]], [R(v) for v in rows[1][1]]
+    elif rep == "diagram":
+        items = q["graph"]["items"]
+        need(q["graph"]["kind"] == "spinners" and len(items) == 1 and items[0]["shape"] == "spinner", "the figure")
+        got = [re.fullmatch(r"(\d+): ([\d.]+)", v) for v in items[0]["labels"]]
+        xs, ps = [int(k.group(1)) for k in got], [R(k.group(2)) for k in got]
+        need(all(abs(a - float(b)) < 1e-9 for a, b in zip(items[0]["shares"], ps)), "a sector isn't drawn to its probability")
+    else:
+        got = re.findall(r"P\(X = (\d+)\) = (\d+(?:\.\d+)?)", L[1])
+        xs, ps = [int(a) for a, _ in got], [R(b) for _, b in got]
+    need(sum(ps) == 1 and min(ps) > 0, f"the probabilities {ps} don't make a distribution")
+    need(len(set(ps)) > 1, "this object is fair")
+    place = sp.Rational(1, 100 if q["paper"] == 2 else 10)
+    need(all((p / place).is_integer for p in ps), f"the probabilities {ps} are not in {place}")
+    return {"xs": xs, "p": dict(zip(xs, ps)), "kind": m.group(2), "N": len(xs) ** 2, "cells": [(a, b) for a in xs for b in xs]}
+
+
+def e10ss_weighted(q, u):
+    f = e10ss_read_biased(q)
+    p, L = f["p"], q["lines"]
+    if u == "weighted-sum":
+        m = re.fullmatch(r"Find the probability that the total is (at least |)(\d+)\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        word, k = m.group(1), int(m.group(2))
+        need(any("twice, and the two numbers are added" in l for l in L), "two rolls")
+    else:
+        need(q["asked"] == "Find the probability that the player wins.", f"asked {q['asked']!r}")
+        m = re.fullmatch(r"A player adds the numbers from up to (\d+) (?:rolls|spins), and wins with a total of at least (\d+)\.", L[-2])
+        k2 = re.fullmatch(r"After (\d+) (?:rolls|spins), the player's total is (\d+)\. The (?:rolls|spins) are independent\.", L[-1])
+        need(m is not None and k2 is not None, f"can't read {L[-2:]!r}")
+        need(int(m.group(1)) == int(k2.group(1)) + 2, "two rolls are left")
+        rolls, so_far = int(k2.group(1)), int(k2.group(2))
+        need(rolls * min(f["xs"]) <= so_far <= rolls * max(f["xs"]), "a total those rolls can't make")
+        k, word = int(m.group(2)) - so_far, "at least "
+        e10ss_has(q, None, f"{m.group(2)} − {so_far} = {k} more")
+    test = (lambda a, b: a + b >= k) if word else (lambda a, b: a + b == k)
+    pairs = [c for c in f["cells"] if test(*c)]
+    need(2 <= len(pairs) <= E10SS_MAX_WEIGHTED and len(pairs) < f["N"], f"{len(pairs)} cells")
+    need(e10ss_one_way(pairs) != len(pairs), "no pair in the event has a reverse")
+    chance = lambda cs: sum((p[a] * p[b] for a, b in cs), sp.Integer(0))
+    v = chance(pairs)
+    table = {E10SS_G + "0": [chance([c for c in pairs if c[0] <= c[1]])], E10SS_O + "11": [sp.Rational(len(pairs), f["N"])]}
+    if word:
+        table[E10SS_O + "2"] = [chance([c for c in f["cells"] if c[0] + c[1] > k])]
+    if u == "weighted-target":
+        table[E10SS_O + "12"] = [sum((p[x] for x in f["xs"] if x >= k), sp.Integer(0))]
+    shown = " + ".join(f"{dec_text(p[a])} × {dec_text(p[b])}" for a, b in pairs)
+    for angle in ("grid-count", "systematic-list"):
+        e10ss_has(q, angle, e10ss_pairs(pairs))
+        e10ss_has(q, angle, f"P = {shown}" if angle == "grid-count" else f"so P = {shown}")
+        e10ss_has(q, angle, f"= {dec_text(v)}")
+    return e10ss_prob(q, v, table)
+
+
+def e10ss_read_face(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    need(L[0].endswith(" two fair dice.") and L[0][: -len(" two fair dice.")] in E10SS_STORIES, f"the opening {L[0]!r}")
+    if rep == "diagram":
+        items = q["graph"]["items"]
+        need(q["graph"]["kind"] == "spinners" and all(i["shape"] == "die" for i in items), "the figure")
+        xs, labels = [int(v) for v in items[0]["labels"]], [int(v) if v.isdigit() else v for v in items[1]["labels"]]
+        limits = L[1]
+    else:
+        m = re.fullmatch(r"The first die has faces labelled (.+)\.", L[1])
+        k = re.fullmatch(r"The second die has faces labelled (.+?)\. Here (.+)\.", L[2])
+        need(m is not None and k is not None, f"can't read the faces in {L[1:3]!r}")
+        xs, labels, limits = e10ss_faces(m.group(1)), e10ss_faces(k.group(1)), k.group(2)
+    need(all(isinstance(x, int) for x in xs) and len(labels) == 4 and isinstance(labels[0], int), "the faces")
+    need(labels[1] == "a" and labels[2] == "a", f"the second die {labels}")
+    return xs, labels, limits
+
+
+def e10ss_counts(xs, ys):
+    out = {}
+    for x in xs:
+        for y in ys:
+            out[x + y] = out.get(x + y, 0) + 1
+    return out
+
+
+def e10ss_dist(q, N):
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "s" and rows[1][0] == "P(S = s)", "the table's heads")
+    need(len(rows[0][1]) <= E10SS_MAX_SUMS, "too many sums for a phone")
+    out = {}
+    for s_, p in zip(rows[0][1], rows[1][1]):
+        k = re.fullmatch(rf"(\d+)/{N}", p)
+        need(k is not None, f"the probability {p!r}")
+        out[int(s_)] = int(k.group(1))
+    need(sum(out.values()) == N, "the distribution doesn't add to 1")
+    return out
+
+
+def e10ss_largest(q):
+    need(q["asked"] == "Find the value of b.", f"asked {q['asked']!r}")
+    xs, labels, limits = e10ss_read_face(q)
+    c = labels[0]
+    need(labels[3] == "b" and f"{c} < a < b" in limits, f"the second die {labels}, {limits!r}")
+    N = 4 * len(xs)
+    if q["view"]["rep"] == "table":
+        dist = e10ss_dist(q, N)
+        found = [(a, b) for b in range(c + 2, 40) for a in range(c + 1, b) if e10ss_counts(xs, [c, a, a, b]) == dist]
+        need(len(found) == 1, f"the table fits {found}")
+        b = found[0][1]
+        top = max(dist)
+    else:
+        k = re.fullmatch(r"The largest possible value of S is (\d+)\.", q["lines"][-1])
+        need(k is not None, f"can't read {q['lines'][-1]!r}")
+        top = int(k.group(1))
+        b = top - max(xs)
+        need(b >= c + 2, "no a fits below b")
+    say = lambda v: f"b = {v}"
+    e10ss_has(q, "systematic-list", f"(({max(xs)}, b)".replace("((", "("))
+    e10ss_has(q, "systematic-list", f"{top} − {max(xs)} = {b}")
+    return say(b), None, {E10SS_O + "13": {say(top)}, E10SS_O + "14": {say(top - min(xs))}}
+
+
+def e10ss_grid_a(q):
+    need(q["asked"] == "Find the value of a.", f"asked {q['asked']!r}")
+    xs, labels, limits = e10ss_read_face(q)
+    c, b = labels[0], labels[3]
+    need(isinstance(b, int) and f"{c} < a < {b}" in limits, f"the second die {labels}, {limits!r}")
+    N = 4 * len(xs)
+    tries = list(range(c + 1, b))
+    need(len(tries) >= 2, "a has only one value it could be")
+    say = lambda v: f"a = {v}"
+    wrongs = {}
+    if q["view"]["rep"] == "table":
+        dist = e10ss_dist(q, N)
+        found = [a for a in tries if e10ss_counts(xs, [c, a, a, b]) == dist]
+        ss = sorted(dist)
+        if ss[1] - min(xs) > 0:
+            wrongs[E10SS_O + "15"] = {say(ss[1] - min(xs))}
+        k = re.search(r"P\(S = (\d+)\) = (\d+)/", next(st for st in e10ss_steps(q, "systematic-list") if "P(S = " in st))
+        need(k is not None, "the sum tried")
+        t, count = int(k.group(1)), int(k.group(2))
+        need(dist.get(t) == count, f"the table has no P(S = {t}) = {count}/{N}")
+    else:
+        k = re.fullmatch(rf"The probability that S = (\d+) is (\d+)/{N}\.", q["lines"][-1])
+        need(k is not None, f"can't read {q['lines'][-1]!r}")
+        t, count = int(k.group(1)), int(k.group(2))
+        found = [a for a in tries if e10ss_counts(xs, [c, a, a, b]).get(t, 0) == count]
+    need(len(found) == 1, f"a could be {found}")
+    a = found[0]
+    # One sum picks a out, on the table too, and the listed tries are right.
+    need([v for v in tries if e10ss_counts(xs, [c, v, v, b]).get(t, 0) == count] == [a], "the sum tried doesn't pick out a")
+    e10ss_has(q, "systematic-list", ", ".join(f"a = {v} gives {e10ss_counts(xs, [c, v, v, b]).get(t, 0)}" for v in tries))
+    if q["view"]["rep"] == "table":
+        first = min(xs) + a
+        known = e10ss_counts(xs, [c, b])
+        rest = {s_: dist[s_] - known.get(s_, 0) for s_ in dist}
+        need(min(s_ for s_, v in rest.items() if v > 0) == first, "the smallest sum left isn't the first die's smallest number plus a")
+        e10ss_has(q, "grid-count", ", ".join(f"{s_}: {rest[s_]}" for s_ in sorted(rest)))
+        e10ss_has(q, "grid-count", f"{min(xs)} + a = {first}")
+    else:
+        u = e10ss_counts(xs, [c, b]).get(t, 0)
+        per = (count - u) // 2
+        need(xs.count(t - a) == per and per > 0, "the a columns don't hold the rest")
+        e10ss_has(q, "grid-count", f"{count} − {u} = {count - u}")
+        e10ss_has(q, "grid-count", f"x = {t - a} on exactly {per} face")
+    return say(a), None, wrongs
+
+
+def e10ss_win(q, u):
+    L, rep = q["lines"], q["view"]["rep"]
+    need(L[0].endswith(" two biased dice, A and B.") and L[0][: -len(" two biased dice, A and B.")] in E10SS_STORIES, f"the opening {L[0]!r}")
+    if rep == "table":
+        rows = q["table"]["rows"]
+        need([r[0] for r in rows] == ["n", "P(X = n)", "P(Y = n)"], "the table's heads")
+        xs, px, py = [int(v) for v in rows[0][1]], [R(v) for v in rows[1][1]], rows[2][1]
+    else:
+        got = re.findall(r"P\(X = (\d+)\) = (\d+/\d+|\d+)", L[2])
+        xs, px = [int(a) for a, _ in got], [R(b) for _, b in got]
+        same = re.findall(r"P\(Y = (\d+)\)", L[3])
+        need([int(v) for v in same] == xs and L[3].endswith(f"= q and P(Y = {xs[-1]}) = r, where q and r are constants."), f"can't read {L[3]!r}")
+        py = ["q"] * (len(xs) - 1) + ["r"]
+    n = len(xs)
+    need(xs == list(range(1, n + 1)) and sum(px) == 1 and min(px) > 0 and len(set(px)) > 1, f"die A {xs}, {px}")
+    need(py == ["q"] * (n - 1) + ["r"], f"die B {py}")
+    m = re.fullmatch(r"Each die is rolled once\. The probability that X is less than Y is (\d+/\d+)\.", L[-1])
+    need(m is not None, f"can't read {L[-1]!r}")
+    pa = R(m.group(1))
+    need(pa.q <= E10SS_MAX_WIN_DEN, f"P(X < Y) = {pa}")
+    qs, rs = sp.Symbol("q"), sp.Symbol("r")
+    pb = [qs] * (n - 1) + [rs]
+    solve = lambda tie: sp.solve([sum(px[i] * pb[j] for i in range(n) for j in range(n) if xs[i] < xs[j] + tie) - pa, sum(pb) - 1], [qs, rs], dict=True)
+    got = solve(0)
+    need(len(got) == 1 and qs in got[0] and rs in got[0], f"the equations give {got}")
+    qv, rv = got[0][qs], got[0][rs]
+    need(0 < qv and 0 < rv and qv != rv, f"q = {qv}, r = {rv}")
+    tied = solve(1)
+    need(len(tied) == 1 and qs in tied[0] and 0 < tied[0][qs] and 0 < tied[0][rs] and tied[0][qs] != qv, f"the ties give {tied}")
+    ex = sum(x * p for x, p in zip(xs, px))
+    ey = sum(x * p for x, p in zip(xs, [qv] * (n - 1) + [rv]))
+    pairs = [(a, b) for a in xs for b in xs if a < b]
+    e10ss_has(q, "systematic-list", e10ss_pairs(pairs))
+    for angle in ("grid-count", "systematic-list"):
+        for y in xs:
+            e10ss_has(q, angle, f"P(X < {y}) = {e10ss_frac(sum(p for x, p in zip(xs, px) if x < y))}")
+        e10ss_has(q, angle, f"= {e10ss_frac(qv)}.")
+    if u == "weight-from-win":
+        say = lambda v: f"q = {e10ss_frac(v)}"
+        return say(qv), None, {E10SS_O + "16": {say(rv)}, E10SS_O + "17": {say(sp.Rational(1, n))}, E10SS_O + "8": {say(tied[0][qs])}}
+    need(q["asked"] == "Find E(Y).", f"asked {q['asked']!r}")
+    say = lambda v: f"E(Y) = {e10ss_frac(v)}"
+    return say(ey), None, {E10SS_O + "17": {say(sp.Rational(n + 1, 2))}, E10SS_O + "18": {say(ex)}, E10SS_O + "19": {say(qv * sum(xs))}}
+
+
+def e10ss_check(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    need(q["paper"] == 1 or u in E10SS_BOTH, f"{u} is Paper 1")
+    for tx in [q["asked"]] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z\d])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if u.startswith("weighted"):
+        want, trap, wrongs = e10ss_weighted(q, u)
+    elif u == "face-from-largest":
+        want, trap, wrongs = e10ss_largest(q)
+    elif u == "face-from-grid":
+        want, trap, wrongs = e10ss_grid_a(q)
+    elif u.endswith("-from-win"):
+        want, trap, wrongs = e10ss_win(q, u)
+    else:
+        f = e10ss_read_fair(q)
+        if u != "p-compare" and u != "p-rule-points":
+            e10ss_read_rule(q, f)
+            need(u not in ("p-mirror-score", "p-mirror-at-least") or f["ys"] == f["xs"], "a mirror needs matching objects")
+        if u == "fill-cell":
+            want, trap, wrongs = e10ss_fill(q, f)
+        elif u == "total-outcomes":
+            want, trap, wrongs = e10ss_total(q, f)
+        elif u == "count-event":
+            want, trap, wrongs = e10ss_count(q, f)
+        elif u in ("p-score", "p-at-least", "p-property", "p-mirror-score", "p-mirror-at-least"):
+            want, trap, wrongs = e10ss_plain_p(q, f, u)
+        elif u == "p-complement":
+            want, trap, wrongs = e10ss_complement(q, f)
+        elif u == "p-compare":
+            want, trap, wrongs = e10ss_compare(q, f)
+        elif u == "p-rule-points":
+            want, trap, wrongs = e10ss_points(q, f)
+        else:
+            raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    need(e10ss_arith(q) > 0 or u == "fill-cell", "the working has no sum to check")
+    return None, None
+
+
 # ── basic-probability (t4-probability-basic, FAL-728) ────────
 # The `basic-probability` situation's clean limits, the checker's own copy: the engine's is in
 # game/engine/situations/basic_probability.gd. Each question's facts are read back from what the
@@ -30724,6 +31350,7 @@ def check_trig_wave(q):
 # ── end trig-wave ──
 
 SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
+                    "sample-space": e10ss_check,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,

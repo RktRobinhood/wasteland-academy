@@ -29,6 +29,8 @@ extends Control
 ##               rectangle with a segment of a circle cut from each of two opposite edges
 ##   region      {"shape", ...}: a region built from a sector, a triangle, a rectangle and a
 ##               circle, shaded, drawn by RegionPlot (see ui/region_plot.gd)
+##   spinners    {"items": [{"name", "shape", "labels", "shares"}]}: dice laid out flat and spinners
+##               side by side, drawn by SpinnerPlot (see ui/spinner_plot.gd)
 ##   sketch      {"pts": {name: [x, y]}, "lines": [{"a", "b", "label", "dash"}],
 ##               "arcs": [{"at", "from", "to", "label"}], "north": [names], "right": [names], "note",
 ##               "circles": [{"at", "through"}]}:
@@ -118,6 +120,8 @@ func _draw() -> void:
 			_plate()
 		"region":
 			RegionPlot.draw(self)
+		"spinners":
+			SpinnerPlot.draw(self)
 		"sketch":
 			_sketch()
 		"solid":

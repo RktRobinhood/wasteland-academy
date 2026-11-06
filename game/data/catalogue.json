@@ -4234,6 +4234,76 @@
 				"an event's probability is never one half where its complement is asked, so the two are always different"
 			]
 		},
+		"sample-space": {
+			"name": "Two dice or spinners on a grid of outcomes",
+			"summary": "Pick two objects, fair or with unusual faces, and a score. The m × n grid of outcomes is then known, and any cell, count or probability can be asked. A biased object rolled twice has a grid of probabilities. A face or a probability can be left as a letter and found from the sum's distribution or from P(X < Y).",
+			"quantities": [
+				{
+					"name": "kind",
+					"is": "the objects",
+					"pick": "two dice, a die and a spinner, or two spinners"
+				},
+				{
+					"name": "xs, ys",
+					"is": "the faces of each, one entry per face",
+					"pick": "Paper 1: 3 to 6 faces; Paper 2: 5 to 8; 1 to n, or sometimes numbers from 0 to 9 with a repeat"
+				},
+				{
+					"name": "rule",
+					"is": "the score",
+					"pick": "sum, product, difference or larger number"
+				},
+				{
+					"name": "rel, k",
+					"is": "the event",
+					"pick": "a score in the grid, with =, at least, greater than, at most or less than"
+				},
+				{
+					"name": "prop",
+					"is": "a property of the score",
+					"pick": "even, odd, a multiple of 3 or 4, prime or square"
+				},
+				{
+					"name": "hi, mid, d",
+					"is": "the points for a match, and for a difference of d",
+					"pick": "6 to 12, 2 to 5 and 1 or 2"
+				},
+				{
+					"name": "px",
+					"is": "a biased object's probabilities",
+					"pick": "Paper 1: 3 or 4 faces in tenths; Paper 2: 4 or 5 faces in hundredths from 0.11"
+				},
+				{
+					"name": "goal, score, rolls",
+					"is": "a total to reach, the total so far and the rolls so far",
+					"pick": "2 to 4 rolls so far, and two left"
+				},
+				{
+					"name": "c, a, b, t",
+					"is": "the second die c, a, a, b, and a sum whose count picks out a",
+					"pick": "c is 1 or 2, a and b are 1 to 3 above the one before, and b is at least c + 3"
+				},
+				{
+					"name": "qy, ry, pa",
+					"is": "P(Y) on all but the last face, on the last face, and P(X < Y)",
+					"pick": "X in quarters to tenths on 3 or 4 faces, q in quarters to twelfths, r the rest"
+				}
+			],
+			"modes": [
+				"fair",
+				"biased",
+				"letter on a face",
+				"letter on a probability"
+			],
+			"clean": [
+				"Paper 1 answers are exact",
+				"Paper 2 answers need rounding and are at least 0.03 of a unit of the third figure from a rounding edge",
+				"an event has 2 to 16 cells, and 2 to 8 on a biased die, fewer than the whole grid",
+				"a distribution table has at most 7 sums",
+				"P(X < Y) is between 0 and 1 with a denominator of at most 60",
+				"q and r are above 0 and differ, and q from counting the ties is a different real value"
+			]
+		},
 		"algebraic-proof": {
 			"name": "One statement to prove, as a chain of lines",
 			"summary": "Pick the shape of an identity or a divisibility claim and its numbers, and every line of the proof follows, with the slip each wrong line makes.",
@@ -5057,6 +5127,7 @@
 		"SL4.5.complement": "Use complementary events, including 'at least one'",
 		"SL4.5.relative-frequency": "Estimate a probability from relative frequency",
 		"SL4.6.tree": "Use a tree diagram for multi-stage events, with and without replacement",
+		"SL4.6.sample-space-grid": "Use a sample space diagram or table of outcomes for two combined events",
 		"SL4.6.union": "Find P(A ∪ B) for combined events",
 		"SL4.6.venn": "Complete and use a Venn diagram, including finding an unknown",
 		"SL4.7.expected-value": "Calculate and interpret E(X)",
@@ -39352,6 +39423,598 @@
 			"topic": 4,
 			"source": "exam",
 			"name": "Sample space diagrams for dice and spinners",
+			"summary": "Two dice, a die and a spinner, or two spinners, fair or with unusual faces, set out as an m × n grid of outcomes. Fill in a cell, count the outcomes, find P(event), a complement, or a score from a points rule, and use the grid's symmetry. A biased die rolled twice has a grid of probabilities. A face or a probability left as a letter is found from a sum's distribution or from P(X < Y), and then E(Y).",
+			"situation": "sample-space",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "table",
+					"exam": true,
+					"how": "the grid of outcomes with its heads, a table of probabilities, or a sum's distribution"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "the faces or the probabilities in sentences"
+				},
+				{
+					"rep": "diagram",
+					"exam": false,
+					"how": "the two dice laid out flat, or the spinners drawn with their sectors to scale"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "fill-cell",
+					"given": [
+						"the grid of scores with one cell hidden",
+						"the scoring rule"
+					],
+					"asked": "the score in the hidden cell",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "total-outcomes",
+					"given": [
+						"two objects, fair, with their faces",
+						"the scoring rule"
+					],
+					"asked": "the number of outcomes in the sample space",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "count-event",
+					"given": [
+						"two objects, or their grid",
+						"an event on the score"
+					],
+					"asked": "the number of outcomes in the event",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"table",
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "p-score",
+					"given": [
+						"two objects, or their grid",
+						"a score"
+					],
+					"asked": "P(score = k)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "p-at-least",
+					"given": [
+						"two objects, or their grid",
+						"a boundary score"
+					],
+					"asked": "P(score at least, at most, greater than or less than k)",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"table",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "p-complement",
+					"given": [
+						"two objects, or their grid",
+						"a score"
+					],
+					"asked": "P(score is not k)",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "p-property",
+					"given": [
+						"two objects, or their grid",
+						"a property of the score"
+					],
+					"asked": "P(score is even, odd, a multiple, prime or square)",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table",
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "p-compare",
+					"given": [
+						"two objects with different faces, or the grid of their differences"
+					],
+					"asked": "P(the first number is higher than the second)",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table",
+						"diagram"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "p-mirror-score",
+					"given": [
+						"two matching objects numbered from 1, or their grid of sums",
+						"a sum above the middle"
+					],
+					"asked": "P(sum = k), counted on the lower side",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "p-mirror-at-least",
+					"given": [
+						"two matching objects numbered from 1, or their grid of sums",
+						"a sum above the middle"
+					],
+					"asked": "P(sum at least k), counted on the lower side",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "p-rule-points",
+					"given": [
+						"two matching objects, or the grid of pairs",
+						"a rule giving points for a match and for a difference"
+					],
+					"asked": "the probability of a given score in one round",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "weighted-sum",
+					"given": [
+						"a biased die or spinner, rolled twice",
+						"a total"
+					],
+					"asked": "P(total = k) or P(total at least k)",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "weighted-target",
+					"given": [
+						"a biased die or spinner",
+						"a total to reach, the total so far and two rolls left"
+					],
+					"asked": "the probability of reaching the total",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "face-from-largest",
+					"given": [
+						"a die with unusual faces and one with letters",
+						"the distribution of the sum, or its largest value"
+					],
+					"asked": "the largest face b",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"table",
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "face-from-grid",
+					"given": [
+						"a die with unusual faces and one with a letter",
+						"the distribution of the sum, or one probability"
+					],
+					"asked": "the repeated face a",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "weight-from-win",
+					"given": [
+						"two biased dice, one with q on its faces and r on the last",
+						"P(X < Y)"
+					],
+					"asked": "q",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				},
+				{
+					"id": "expected-from-win",
+					"given": [
+						"two biased dice, one with q on its faces and r on the last",
+						"P(X < Y)"
+					],
+					"asked": "E(Y)",
+					"level": 5,
+					"exam": true,
+					"reps": [
+						"table",
+						"words"
+					],
+					"skills": [
+						"SL4.6.sample-space-grid"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL4.6.sample-space-grid",
+					"method": "grid-count",
+					"suits": [
+						"fill-cell",
+						"total-outcomes",
+						"count-event",
+						"p-score",
+						"p-at-least",
+						"p-complement",
+						"p-property",
+						"p-compare",
+						"p-mirror-score",
+						"p-mirror-at-least",
+						"p-rule-points",
+						"weighted-sum",
+						"weighted-target",
+						"face-from-grid",
+						"weight-from-win",
+						"expected-from-win"
+					],
+					"name": "Fill a grid and count cells",
+					"about": "Draw a 6 × 6 (or m × n) grid of outcomes, write the score in each cell, and count the cells that satisfy the event."
+				},
+				{
+					"skill": "SL4.6.sample-space-grid",
+					"method": "systematic-list",
+					"suits": [
+						"total-outcomes",
+						"count-event",
+						"p-score",
+						"p-at-least",
+						"p-complement",
+						"p-property",
+						"p-compare",
+						"p-mirror-score",
+						"p-mirror-at-least",
+						"p-rule-points",
+						"weighted-sum",
+						"weighted-target",
+						"face-from-grid",
+						"weight-from-win",
+						"expected-from-win",
+						"face-from-largest"
+					],
+					"name": "List the ordered pairs",
+					"about": "List the ordered pairs that give the event, e.g. (2,6), (3,5), (4,4), (5,3), (6,2) for a sum of 8, out of 36 in total."
+				},
+				{
+					"skill": "SL4.6.sample-space-grid",
+					"method": "grid-symmetry",
+					"suits": [
+						"p-mirror-score",
+						"p-mirror-at-least",
+						"p-rule-points"
+					],
+					"name": "Use the symmetry of the grid",
+					"about": "Sums on two fair dice are symmetric about 7, so count the easier side: P(sum = 10) = P(sum = 4)."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "Two dice can land on a 3 and a 5 in only one way.",
+					"answer": "False: the first die can show the 3 or the second can, so (3, 5) and (5, 3) are two outcomes of the grid.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The number of different scores is the number of outcomes in the sample space.",
+					"answer": "Sometimes: it is true only when no two cells of the grid have the same score. Sums of two dice repeat, so most grids have fewer scores than cells.",
+					"level": 3
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "Replace one face of a fair die by a copy of another face. What happens to the number of cells in the grid?",
+					"answer": "Nothing: a die has as many outcomes as faces, whatever is printed on them. The repeated number simply fills more cells.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL4.6.sample-space-grid#0",
+					"text": "Counting a pair and its reverse as a single outcome",
+					"as": "distractor",
+					"in": [
+						"count-event",
+						"p-score",
+						"p-at-least",
+						"p-complement",
+						"p-mirror-score",
+						"p-mirror-at-least",
+						"p-rule-points",
+						"p-property",
+						"total-outcomes",
+						"weighted-sum",
+						"weighted-target"
+					],
+					"wrong": "the event, or the whole grid, with a pair and its reverse counted once"
+				},
+				{
+					"ref": "SL4.6.sample-space-grid#1",
+					"text": "Using the number of different scores as the total number of outcomes",
+					"as": "distractor",
+					"in": [
+						"total-outcomes",
+						"p-score",
+						"p-at-least",
+						"p-complement",
+						"p-property",
+						"p-mirror-score",
+						"p-mirror-at-least"
+					],
+					"wrong": "the cells in the event over the number of different scores, or that number as the total"
+				},
+				{
+					"text": "Reading the boundary score the wrong way: leaving it out of at least or at most, or keeping it in greater than or less than",
+					"as": "distractor",
+					"in": [
+						"p-at-least",
+						"p-mirror-at-least",
+						"weighted-sum",
+						"weighted-target"
+					],
+					"wrong": "the same event with the boundary score moved in or out"
+				},
+				{
+					"text": "Using another operation on the two numbers instead of the game's scoring rule",
+					"as": "distractor",
+					"in": [
+						"fill-cell"
+					],
+					"wrong": "the cell's two numbers put through a different rule"
+				},
+				{
+					"text": "Copying the next cell along instead of working out the cell asked for",
+					"as": "distractor",
+					"in": [
+						"fill-cell"
+					],
+					"wrong": "the score in the neighbouring cell of the row"
+				},
+				{
+					"text": "Adding the numbers of faces instead of multiplying them to get the size of the grid",
+					"as": "distractor",
+					"in": [
+						"total-outcomes"
+					],
+					"wrong": "m + n"
+				},
+				{
+					"text": "Counting the different scores in the event instead of the cells that give them",
+					"as": "distractor",
+					"in": [
+						"count-event"
+					],
+					"wrong": "how many different scores are in the event"
+				},
+				{
+					"text": "Giving the probability of the opposite event instead of the one asked for",
+					"as": "distractor",
+					"in": [
+						"p-complement",
+						"p-rule-points"
+					],
+					"wrong": "the event's complement"
+				},
+				{
+					"text": "Counting the ties as part of an event that asks for a strictly higher or lower number",
+					"as": "distractor",
+					"in": [
+						"p-compare",
+						"weight-from-win"
+					],
+					"wrong": "the ties added to the event, here or in the equation for q"
+				},
+				{
+					"text": "Assuming each side is higher half of the time, which ignores the ties and the faces",
+					"as": "distractor",
+					"in": [
+						"p-compare"
+					],
+					"wrong": "1/2"
+				},
+				{
+					"text": "Working out the chance that the second number is higher, instead of the first",
+					"as": "distractor",
+					"in": [
+						"p-compare"
+					],
+					"wrong": "the other side of the diagonal"
+				},
+				{
+					"text": "Treating every cell as equally likely when the die or spinner is biased",
+					"as": "distractor",
+					"in": [
+						"weighted-sum",
+						"weighted-target"
+					],
+					"wrong": "the cells in the event over all the cells"
+				},
+				{
+					"text": "Assuming the whole amount needed has to come from one roll or spin",
+					"as": "distractor",
+					"in": [
+						"weighted-target"
+					],
+					"wrong": "P(X at least the amount needed)"
+				},
+				{
+					"text": "Taking the largest sum as the missing face, without subtracting the other die's face",
+					"as": "distractor",
+					"in": [
+						"face-from-largest"
+					],
+					"wrong": "the largest sum"
+				},
+				{
+					"text": "Subtracting the smallest face of the other die, when the largest sum uses its largest face",
+					"as": "distractor",
+					"in": [
+						"face-from-largest"
+					],
+					"wrong": "the largest sum minus the smallest face"
+				},
+				{
+					"text": "Assuming the second smallest sum comes from the second die's next face, when it can come from the first die's next face",
+					"as": "distractor",
+					"in": [
+						"face-from-grid"
+					],
+					"wrong": "the second smallest sum minus the first die's smallest face"
+				},
+				{
+					"text": "Giving the chance on the last face instead of the letter asked for",
+					"as": "distractor",
+					"in": [
+						"weight-from-win"
+					],
+					"wrong": "r"
+				},
+				{
+					"text": "Assuming the biased die is fair",
+					"as": "distractor",
+					"in": [
+						"weight-from-win",
+						"expected-from-win"
+					],
+					"wrong": "1/n, or the mean of the faces"
+				},
+				{
+					"text": "Using the other die's probabilities for the expected value",
+					"as": "distractor",
+					"in": [
+						"expected-from-win"
+					],
+					"wrong": "E(X)"
+				},
+				{
+					"text": "Using the same chance on every face, leaving out the different last face",
+					"as": "distractor",
+					"in": [
+						"expected-from-win"
+					],
+					"wrong": "q × (1 + 2 + … + n)"
+				}
+			],
+			"chain": [
+				"set the outcomes out as a grid or a list of ordered pairs: m × n of them",
+				"every face is its own outcome, and (a, b) and (b, a) are two outcomes",
+				"count the cells in the event and divide by all the cells, not by the number of different scores",
+				"matching dice: use the symmetry of the grid to count one side",
+				"biased: each cell is P(first) × P(second), and the cells in the event are added",
+				"a letter on a face or a probability: compare the grid in terms of the letter with what is known"
+			],
 			"frequency": 5,
 			"marks": 2,
 			"section": {
@@ -39361,9 +40024,7 @@
 			"paper": {
 				"p1": 4,
 				"p2": 1
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t4-venn-addition-rule",
