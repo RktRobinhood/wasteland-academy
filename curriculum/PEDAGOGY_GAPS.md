@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 13 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1850,6 +1850,43 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): $1000 invested at 5% compounded annually for 10 years earns twice as much interest as $1000 invested at 5% for 5 years. — False: interest is earned on interest, so the second five years earn more than the first. The 10-year interest is $628.89 and the 5-year interest is $276.28, more than double.
   - *true-false-reason* (L3): An investment that is worth $5000 after 3 years at 4% compounded annually is worth $5000 ÷ 1.04^3 now. — True: the value after 3 years is PV × 1.04^3, so the amount invested now is the future value divided by 1.04^3.
 - **Misconceptions used:** 8. Using the annual rate with kn periods, instead of dividing the rate by k; Using simple interest instead of compounding; Giving the total value when the question asks for the interest earned (or the reverse); Stopping at the root, without subtracting one and converting to a percentage; Dividing the total growth by the number of years instead of taking a root; Rounding the answer to the nearest whole number instead of up; Forgetting to convert N from months or quarters back into years; Comparing nominal rates only and ignoring the compounding frequency.
+
+#### Switch between log and exponential form to evaluate or solve, including log models (`t1-log-exp-form`, exam, 3 bank parts)
+
+- **Situation:** A log and its exponential form, and a named log scale or log model.
+- **Representations:** **equation**, words, table, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given log_a b = c, with c whole, negative or a fraction → the same fact as a power
+  - new L1: given a^c = b, with c negative or a fraction → the same fact as a log
+  - new L2: given a^x = b, or k × a^x = kb, in base e, 10 or a small whole number → x as an exact log
+  - new L1: given log_a b, with b a whole power of a → the exact value
+  - new L2: given log_a b, with b a reciprocal power of a → the exact negative value
+  - new L2: given log_a b, with a and b powers of one prime, or b a root of a → the exact fraction
+  - new L1: given log_a(a^k) or ln(e^k), with k whole, negative or a fraction → the exact value
+  - new L2: given a^(log_a x), a^(−log_a x) or a^(k log_a x), in base e, 10 or a small whole number → the exact value
+  - new L1: given log_a x = c or ln x = c → the exact value of x
+  - new L2: given log_a(px + q) = c → the exact value of x
+  - **exam** L3: given log_a(x² − k) = c for x beyond the asymptote, or the graph of ln(x² − k) crossing the x-axis → the exact surd
+  - new L3: given log_x b = c, or the graph of y = log_a x through a marked point → the exact base
+  - new L2: given four logs, with zero, negative, fractional and unit arguments → the one with no real value, or the one with a real value
+  - new L2: given a scale's formula or rule; an amount → the reading, to 3 s.f.
+  - **exam** L2: given a scale's formula or rule; a power of ten and its exact reading; a factor on the amount → the second reading, to 3 s.f.
+  - **exam** L3: given a scale's formula or rule; a reading → the amount, to 3 s.f., in standard form if it is very big or small
+  - new L2: given the Bite formula, a minus log; an acid content → the Bite, to 3 s.f.
+  - new L3: given the Bite formula, a minus log; a Bite → the acid content, to 3 s.f.
+  - new L3: given a scale's formula or rule; two readings → how many times greater one amount is than the other, to 3 s.f.
+  - new L2: given a scale's formula or rule; a factor on the amount → the rise or fall in the reading, to 3 s.f.
+  - new L3: given a scale's formula or rule; an amount with its reading; a rise in the reading → the new amount, to 3 s.f.
+  - new L3: given a scale's formula or rule; a reading; a rise in the reading → the percentage increase in the amount, to 3 s.f.
+  - new L3: given y = k log(x × K) with k unknown; one amount and its reading → k, to 3 s.f.
+  - new L2: given h = p + q ln(rt + 1); a time → the level, to 3 s.f.
+  - new L3: given h = p + q ln(rt + 1); a level → the time, to 3 s.f.
+- **Angles:** Ask 'what power of the base gives this number?'; Rewrite as an exponential equation; Use log_a(a^x) = x and a^(log_a x) = x; Substitute and evaluate with technology; Undo the logarithm by exponentiating; Read each step on a log scale as a multiplication.
+- **Concept probes:**
+  - *true-false-reason* (L3): log₂(1/8) has no real value, because it is negative. — False: the log is −3, a real number, as 2^(−3) = 1/8. It's the number inside the log that must be positive, not the log itself.
+  - *always-sometimes-never* (L3): If a reading on a base-10 scale with no multiplier rises by 2, the amount is 100 times as big. — Always: each rise of 1 multiplies the amount by 10, so a rise of 2 multiplies it by 10² = 100, whatever the first reading was.
+  - *interpret-parameter* (L3): In S = −log₁₀ c, what happens to c when S goes up by 1? — c is divided by 10: the minus sign means a higher reading is a smaller amount, so each step up is a tenth of what came before.
+- **Misconceptions used:** 43. Dividing instead of finding the power; Mixing up base and exponent: reading log_a b = x as x^a = b; Believing the log of zero or of a negative number has a real value; Treating a log scale as linear: taking the ratio of two readings as the ratio of the amounts; Dropping the minus sign in front of a log; Undoing a minus log with the minus sign in front of the power instead of in the power; Swapping the number and the power when changing form; Swapping the base and the number when changing form; Dropping the minus sign on the power; Taking the reciprocal of the power instead of making it negative; Turning the fraction in the power upside down; Raising the number to the power instead of taking the root; Raising the base to the number instead of asking what power gives it; Taking the log before the power stands alone; Dropping the log and working with the inside as it stands; Setting the inside of the log to zero instead of to the power of the base; Stopping at x² instead of taking the root; Keeping the negative root, which is outside the domain; Assuming a fraction below one has no real log, because its log is negative; Assuming the log of one has no real value, because it is zero; Reading a minus sign in front of a log as the log of a negative number; Multiplying the base by the number in the power or the log, instead of letting the two cancel; Dropping the log and leaving the base raised to the number; Working out the power inside and stopping there; Using the wrong log key: ln for log, or log for ln; Leaving out the constant in the formula; Leaving out the factor inside the log; Forgetting the multiplier in front of the log; Leaving the power of ten outside the multiplier; Adding the factor straight on to the value it changes; Multiplying by the factor instead of by its log; Stopping before undoing the log; Multiplying by the factor inside the log instead of dividing by it; Dividing by the multiplier after undoing the log instead of before; Giving the difference in readings as the factor; Giving the new amount as a percentage of the old instead of the increase; Reading only the power of ten and ignoring the number in front; Multiplying by the log instead of dividing by it; Subtracting the log instead of dividing by it; Adding the two constants before multiplying by the log; Leaving out the added term inside the log; Forgetting to take off the added term inside the log; Dividing by the rate before taking off the added term.
 
 #### Prove an algebraic identity or a divisibility result (`t1-algebraic-proof`, exam, 8 bank parts)
 

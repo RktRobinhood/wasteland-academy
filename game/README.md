@@ -339,6 +339,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   must equal the target at three sets of them. Each tagged option is worked out from its slip, a
   typed answer's slots must make the expression it shows, and each equation in the working is
   evaluated. `test_log_laws.gd` covers the cells, the papers, the no-proof line and typed marking.
+- `engine/situations/log_exp_form.gd` (FAL-753) is `t1-log-exp-form` (SL1.5.exp-log-form and
+  SL1.5.log-context), the `log-exp-form` situation: 25 unknowns over 73 cells. Paper 1 changes a fact
+  between log and exponential form, evaluates a log exactly, solves for the number, the bracket, the
+  power or the base, and picks the log with or without a real value. Paper 2 is five invented scales
+  (Howl rating, Rumble number, Glare class, Rad index, Bite) and a log model in time: a reading, an
+  amount, the factor or rise between readings, a scale's constant, a level or a time, to 3 s.f. with
+  the rounding trap, in standard form outside 0.01 to 100000. The views (`log_exp_form_views.gd`) show
+  it as an equation or formula, as a rule in a sentence, as a table of readings and as a curve with
+  a crossing or a line. exp-log-form is Paper 1 and log-context Paper 2, which makes the bank's 2/3
+  Paper 2 share (48 of 73 cells). `E11LF_check` in the SymPy checker reads the scale back from the
+  formula or the sentence.
 - `engine/situations/trig_wave.gd` (FAL-751) is `t3-trig-read-features` (SL3.7.read-features) and
   `t3-trig-model-use` (SL3.7.model-context), the `trig-wave` situation, which extends `trig-model`: it
   keeps that situation's Paper 2 wave, contexts and graph, and `TrigWaveViews` extends its views.
@@ -1368,6 +1379,10 @@ the table (a table's multiplier from its own values), works each value again wit
 rate from a root and a time from a logarithm tested exactly either side of the answer, rebuilds each
 tagged option from its slip, holds the figure's curve, line and crossing to the model, and requires
 each method's numbers in its working (`e10de_check`).
+For `log-exp-form` it reads a log, a power or a sentence back and tests the power that gives the number
+exactly; on Paper 2 it reads each scale's constants back from its formula or its sentence, finds each
+value from the logarithm to 40 digits, rebuilds each tagged option from its slip, and requires each
+method's numbers in its working (`E11LF_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -1862,6 +1877,9 @@ script error happens while it runs. Run one file with
   mean that is not the mean of the means; the outlier dragging the mean; every misconception
   as an option; exact and 3 s.f. marking; the three concept probes; and every course having
   every cell.
+- `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
+  exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
+  figures, map strings with no numbers, and every tag as an option.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters

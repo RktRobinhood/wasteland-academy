@@ -1833,9 +1833,9 @@
                 }
               ],
               "misconceptions": [
-                "Treating the log scale as linear: 70 dB is 70/50 = 1.4 times as intense as 50 dB",
-                "Dropping the minus sign so the pH comes out negative",
-                "Inverting pH = −log[H⁺] as [H⁺] = −10^pH"
+                "Treating a log scale as linear: taking the ratio of two readings as the ratio of the amounts",
+                "Dropping the minus sign in front of a log",
+                "Undoing a minus log with the minus sign in front of the power instead of in the power"
               ],
               "threads": [
                 {

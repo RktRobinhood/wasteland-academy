@@ -91,6 +91,7 @@ static var SITUATIONS := {
 	"binomial-expansion": [BinomialExpansionSituation, BinomialExpansionViews],
 	"binomial-unknown": [BinomialUnknownSituation, BinomialUnknownViews],
 	"log-laws": [LogLawsSituation, LogLawsViews],
+	"log-exp-form": [LogExpFormSituation, LogExpFormViews],
 	"algebraic-proof": [AlgebraicProofSituation, AlgebraicProofViews],
 	"sampling": [SamplingSituation, SamplingViews],
 	"cumulative-frequency": [CumulativeFrequencySituation, CumulativeFrequencyViews],
