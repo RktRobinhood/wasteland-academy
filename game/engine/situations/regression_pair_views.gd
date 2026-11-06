@@ -102,7 +102,7 @@ func u_x_on_y_line(_rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	out.wrongs = [wrong({"v0": s.ra, "v1": s.rb}, R_REARRANGED), wrong({"v0": s.a, "v1": s.b}, R_NOT_SWAPPED)]
 	out.generic = [{"v0": s.c, "v1": s.d.neg()}, {"v0": s.d, "v1": s.c}, {"v0": s.c.mul(Q.new(9, 10)), "v1": s.d}]
 	out.methods = {"gdc-swap-lists": method(["Enter the y-values in L1 and the x-values in L2, and run LinReg (ax + b) with y as the independent variable.",
-		"The GDC's a and b are c = %s and d = %s." % [W(s.c), W(s.d)], "Write the result with x as the subject: x = cy + d.", final_step(ans)], ans.values)}
+		"The GDC's a and b are c = %s and d = %s." % [W(s.c), W(s.d)], "Write the result with x as the subject.", final_step(ans)], ans.values)}
 	return out
 
 
