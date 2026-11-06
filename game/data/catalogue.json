@@ -2994,6 +2994,55 @@
 				"the slips (the annual rate over kn periods, simple interest, the root without the 1 taken off, the total growth shared over n years, the time rounded to the nearest year) each read differently from the answer"
 			]
 		},
+		"depreciation": {
+			"name": "A thing bought at a price that keeps a fixed fraction of its value each year, month or quarter",
+			"summary": "Pick a price, a rate of depreciation and a number of years. The value after those years, the total loss, the loss in one year, the original price, the rate, a value under two rates, the gap to an account and the time to fall below a target are then all known.",
+			"quantities": [
+				{
+					"name": "P",
+					"is": "the price paid",
+					"pick": "a multiple of 1000 dollars from 4000 to 60000 (of 10000, to 60000, in a table of months or quarters); found, not given, for the original value"
+				},
+				{
+					"name": "r",
+					"is": "the rate of depreciation, in per cent per period",
+					"pick": "a whole number from 5 to 30 a year; 10 to 30 in the first year of two rates, with a later rate from 5 to 2 below that; 0.5 to 3.0 a month or 1.5 to 8.0 a quarter"
+				},
+				{
+					"name": "c",
+					"is": "the multiplier, 1 − r/100",
+					"pick": "follows from r"
+				},
+				{
+					"name": "n",
+					"is": "the number of years, or the year asked about",
+					"pick": "3 to 10; 2 to 8 for one year's loss or the original value"
+				},
+				{
+					"name": "V",
+					"is": "P × c^n",
+					"pick": "a value whose leftover fraction of a dollar is at least 0.15 from 0.5; given as a multiple of 1000 for the original value, and in whole dollars for a rate asked for"
+				},
+				{
+					"name": "account",
+					"is": "a sum S at i % a year, compounded yearly, over the same n",
+					"pick": "S a multiple of 500 up to 7/10 of P, i a whole number from 2 to 8, and the value at least 100 dollars more than the account"
+				},
+				{
+					"name": "target",
+					"is": "the value a time asks the price to fall below",
+					"pick": "a multiple of 500 from 15% to 80% of P (20% to 80% with a rate per period), or 10, 20, 25, 30, 40, 50 or 60% of P, with the real solution at least 0.15 from a whole number"
+				}
+			],
+			"clean": [
+				"Paper 2 only, as all 5 bank parts are: the GDC's TVM solver, table or graph, or logs, does the work",
+				"money answers are to the nearest dollar, exactly, and every value, and every wrong option a slip gives, leaves a fraction of a dollar at least 0.15 from the rounding edge at 0.5",
+				"a rate asked for is found from whole-dollar values, is clear of a 3 s.f. edge, and its 3 s.f. value does not end in 0, so it reads differently from its 2 s.f. trap",
+				"a table of values is exact to the cent",
+				"a time is the first whole number of years, months or quarters below the target, with the real solution at least 0.15 from a whole number",
+				"r × n is at most 90, so the straight-line slip still leaves a positive value"
+			]
+		},
 		"differentiation": {
 			"name": "A function to differentiate",
 			"summary": "Pick a function from one family (standard results, a composite, a product, a quotient, a form to show, a gradient at a point), with whole-number coefficients. Its derivative is then exact.",
@@ -5164,9 +5213,10 @@
 		"SL1.3.find-r-u1": "Find r and u_1 from given terms or conditions",
 		"SL1.3.sum": "Find the sum of a finite geometric series",
 		"SL1.3.sigma": "Interpret and evaluate sigma notation for geometric series",
+		"SL1.4.depreciation": "Model annual depreciation",
+		"SL1.4.find-time": "Find the time needed to reach a target value",
 		"SL1.4.future-value": "Find the future value of a compound interest investment",
 		"SL1.4.find-rate-or-pv": "Find the present value or the interest rate",
-		"SL1.4.find-time": "Find the time needed to reach a target value",
 		"SL1.4.compare-options": "Compare investment options and compounding frequencies",
 		"SL1.6.identity-lhs-rhs": "Prove an algebraic identity from LHS to RHS",
 		"SL1.6.integer-proof": "Prove properties of integers: odd, even, consecutive and divisibility",
@@ -5328,7 +5378,6 @@
 		"SL4.3.constant-changes": "Find the effect of adding or multiplying every value by a constant",
 		"SL5.11.integral-properties": "Use properties of definite integrals",
 		"SL5.1.chord-to-tangent": "Find the gradient of a curve as the limit of chord gradients",
-		"SL1.4.depreciation": "Model annual depreciation",
 		"SL1.6.identity-constants": "Use = and ≡ correctly and find unknown constants in an identity",
 		"SL3.8.quadratic-in-trig": "Solve equations that lead to a quadratic in sin x, cos x or tan x",
 		"SL1.5.zero-negative": "Work with zero and negative integer exponents",
@@ -22506,6 +22555,520 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Depreciation as repeated percentage decrease",
+			"summary": "Find what a thing losing a fixed percentage of its value is worth after n years, what it has lost, the price it was bought for, the rate, a value under two rates, the gap between its value and an account, and how long it takes to fall below a target.",
+			"situation": "depreciation",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a price and a percentage fall each year, month or quarter"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the model V = P(c)^t, with t measured from a date or from the day it is bought"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "the value at three whole times, or the two rates by year"
+				},
+				{
+					"rep": "graph",
+					"exam": false,
+					"how": "the curve, the target as a line and their crossing marked, as a GDC's intersect shows it"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "value-after",
+					"given": [
+						"the price",
+						"the rate",
+						"the years"
+					],
+					"asked": "the value after the years, to the nearest dollar",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"table"
+					],
+					"skills": [
+						"SL1.4.depreciation"
+					]
+				},
+				{
+					"id": "total-loss",
+					"given": [
+						"the price",
+						"the rate",
+						"the years"
+					],
+					"asked": "the total loss in value, to the nearest dollar",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"table"
+					],
+					"skills": [
+						"SL1.4.depreciation"
+					]
+				},
+				{
+					"id": "loss-in-year",
+					"given": [
+						"the price",
+						"the rate",
+						"one year"
+					],
+					"asked": "the loss in that year alone, to the nearest dollar",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"table"
+					],
+					"skills": [
+						"SL1.4.depreciation"
+					]
+				},
+				{
+					"id": "original-value",
+					"given": [
+						"the value at a later time",
+						"the rate",
+						"the years since it was bought"
+					],
+					"asked": "the price paid, to the nearest dollar",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"table"
+					],
+					"skills": [
+						"SL1.4.depreciation"
+					]
+				},
+				{
+					"id": "find-rate",
+					"given": [
+						"the price",
+						"the value at a later time",
+						"the years"
+					],
+					"asked": "the yearly rate of depreciation, to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"table"
+					],
+					"skills": [
+						"SL1.4.depreciation"
+					]
+				},
+				{
+					"id": "read-rate",
+					"given": [
+						"the model, or a table of values"
+					],
+					"asked": "the yearly rate of depreciation",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"table"
+					],
+					"skills": [
+						"SL1.4.depreciation"
+					]
+				},
+				{
+					"id": "two-rate-value",
+					"given": [
+						"the price",
+						"the first year's rate",
+						"the later rate",
+						"the years"
+					],
+					"asked": "the value after the years, to the nearest dollar",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.4.depreciation"
+					]
+				},
+				{
+					"id": "shortfall",
+					"given": [
+						"the price and the rate, or the model",
+						"an account",
+						"the years"
+					],
+					"asked": "the extra money needed on top of the account, to the nearest dollar",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation"
+					],
+					"skills": [
+						"SL1.4.depreciation"
+					]
+				},
+				{
+					"id": "years-below",
+					"given": [
+						"the price",
+						"the rate",
+						"a target"
+					],
+					"asked": "the least number of complete years to fall below the target",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL1.4.find-time"
+					]
+				},
+				{
+					"id": "years-fraction",
+					"given": [
+						"the price",
+						"the rate",
+						"a percentage of the price"
+					],
+					"asked": "the least number of complete years to fall below that percentage",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL1.4.find-time"
+					]
+				},
+				{
+					"id": "years-from-periods",
+					"given": [
+						"the price",
+						"a rate per month or quarter",
+						"a target"
+					],
+					"asked": "the least number of complete years to fall below the target",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"table"
+					],
+					"skills": [
+						"SL1.4.find-time"
+					]
+				},
+				{
+					"id": "least-periods",
+					"given": [
+						"the price",
+						"a rate per month or quarter",
+						"a target"
+					],
+					"asked": "the least number of complete months or quarters to fall below the target",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"table"
+					],
+					"skills": [
+						"SL1.4.find-time"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.4.depreciation",
+					"method": "decay-multiplier",
+					"suits": [
+						"value-after",
+						"total-loss",
+						"loss-in-year",
+						"original-value",
+						"find-rate",
+						"read-rate",
+						"two-rate-value",
+						"shortfall"
+					],
+					"name": "Use V = V_0(1 − r/100)^n",
+					"about": "A 15% depreciation keeps 85% each year, so multiply by 0.85 once per year."
+				},
+				{
+					"skill": "SL1.4.depreciation",
+					"method": "tvm-negative",
+					"suits": [
+						"value-after",
+						"total-loss",
+						"loss-in-year",
+						"original-value",
+						"find-rate",
+						"two-rate-value",
+						"shortfall"
+					],
+					"name": "Use the TVM solver with a negative interest rate",
+					"about": "Enter I% = −15 with PV = −24 000 and solve for FV, or solve for I% to find the rate."
+				},
+				{
+					"skill": "SL1.4.depreciation",
+					"method": "year-by-year",
+					"suits": [
+						"value-after",
+						"total-loss",
+						"loss-in-year",
+						"original-value",
+						"two-rate-value"
+					],
+					"name": "Calculate year by year",
+					"about": "Tabulate the value at the end of each year, which also shows the loss in each individual year."
+				},
+				{
+					"skill": "SL1.4.find-time",
+					"method": "logs",
+					"suits": [
+						"years-below",
+						"years-fraction",
+						"years-from-periods",
+						"least-periods"
+					],
+					"name": "Use logarithms to solve for the exponent",
+					"about": "Isolate (1 + r/(100k))^(kn), take logs, convert periods to years, then round up to a whole period."
+				},
+				{
+					"skill": "SL1.4.find-time",
+					"method": "tvm",
+					"suits": [
+						"years-below",
+						"years-fraction",
+						"years-from-periods",
+						"least-periods"
+					],
+					"name": "Solve for N in the TVM solver",
+					"about": "Enter PV, FV, I%, P/Y and C/Y, solve for N, round up, and convert to years if the periods are months or quarters."
+				},
+				{
+					"skill": "SL1.4.find-time",
+					"method": "gdc-table",
+					"suits": [
+						"years-below",
+						"years-fraction",
+						"years-from-periods",
+						"least-periods"
+					],
+					"name": "Tabulate value against time",
+					"about": "Scroll the table to the first whole period where the value passes the target."
+				},
+				{
+					"skill": "SL1.4.find-time",
+					"method": "graph-intersect",
+					"suits": [
+						"years-below",
+						"years-fraction",
+						"years-from-periods",
+						"least-periods"
+					],
+					"name": "Intersect the growth curve with the target",
+					"about": "Plot y = PV(1 + r/(100k))^(kx) and y = target, then round the x-coordinate in context."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A thing that loses 10% of its value each year has lost 30% of its value after 3 years.",
+					"answer": "False: each 10% is of the value at the start of that year, which keeps falling. It keeps 0.9^3 = 0.729 of its value, so it has lost 27.1%.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Under a fixed percentage depreciation, the loss in each year is smaller than the loss in the year before.",
+					"answer": "Always: each year's loss is the same percentage of a smaller value, so the amounts lost shrink by the multiplier each year.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "In V = 8000(0.92)^t, what do 8000 and 0.92 mean?",
+					"answer": "8000 is the value when t = 0, the price paid. 0.92 is the fraction kept each year, so the value falls by 8% a year.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.4.depreciation#0",
+					"text": "Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss",
+					"as": "distractor",
+					"in": [
+						"value-after",
+						"total-loss"
+					],
+					"wrong": "P(1 + r/100)^n: the rate added on each year, not taken off"
+				},
+				{
+					"ref": "SL1.4.depreciation#1",
+					"text": "Treating depreciation as linear: subtracting the same percentage of the original price each year",
+					"as": "distractor",
+					"in": [
+						"value-after",
+						"total-loss",
+						"loss-in-year",
+						"original-value",
+						"find-rate",
+						"years-below",
+						"years-fraction"
+					],
+					"wrong": "the same amount off each year: r % of the price, every year"
+				},
+				{
+					"ref": "SL1.4.depreciation#2",
+					"text": "Giving the remaining value when the question asks for the loss in value (or the reverse)",
+					"as": "distractor",
+					"in": [
+						"value-after",
+						"total-loss",
+						"loss-in-year",
+						"two-rate-value"
+					],
+					"wrong": "the value given as the loss, or the loss as the value"
+				},
+				{
+					"ref": "SL1.4.depreciation#3",
+					"text": "Giving the total loss so far when the question asks for the loss in one year",
+					"as": "distractor",
+					"in": [
+						"loss-in-year"
+					],
+					"wrong": "P − V(n): everything lost up to that year"
+				},
+				{
+					"ref": "SL1.4.depreciation#4",
+					"text": "Taking the percentage of the value at the end of the year instead of at the start",
+					"as": "distractor",
+					"in": [
+						"loss-in-year"
+					],
+					"wrong": "r % of the value at the end of the year"
+				},
+				{
+					"ref": "SL1.4.depreciation#5",
+					"text": "Undoing a percentage loss by adding the same percentage back on",
+					"as": "distractor",
+					"in": [
+						"original-value"
+					],
+					"wrong": "V(1 + r/100)^n: the percentage added back, once a year"
+				},
+				{
+					"ref": "SL1.4.depreciation#6",
+					"text": "Giving the percentage kept each year instead of the percentage lost",
+					"as": "distractor",
+					"in": [
+						"find-rate",
+						"read-rate"
+					],
+					"wrong": "100c: the percentage kept, not the percentage lost"
+				},
+				{
+					"ref": "SL1.4.depreciation#7",
+					"text": "Giving the total percentage lost over all the years as the yearly rate",
+					"as": "distractor",
+					"in": [
+						"find-rate"
+					],
+					"wrong": "(1 − V/P) × 100: the whole fall given as one year's rate"
+				},
+				{
+					"ref": "SL1.4.depreciation#8",
+					"text": "Applying the later rate to every year instead of only to the years after the first",
+					"as": "distractor",
+					"in": [
+						"two-rate-value"
+					],
+					"wrong": "P × (later multiplier)^n: the later rate in the first year as well"
+				},
+				{
+					"ref": "SL1.4.depreciation#9",
+					"text": "Comparing amounts from different dates, with one side left at today's value",
+					"as": "distractor",
+					"in": [
+						"shortfall"
+					],
+					"wrong": "today's price against the later account, or the later value against today's sum"
+				},
+				{
+					"ref": "SL1.4.find-time#0",
+					"text": "Rounding the number of periods to the nearest integer instead of up",
+					"as": "distractor",
+					"in": [
+						"years-below",
+						"years-fraction",
+						"years-from-periods",
+						"least-periods"
+					],
+					"wrong": "the real solution rounded to the nearest whole number"
+				},
+				{
+					"ref": "SL1.4.find-time#1",
+					"text": "Forgetting to convert N from months or quarters back into years",
+					"as": "distractor",
+					"in": [
+						"years-from-periods"
+					],
+					"wrong": "the number of periods given as the number of years"
+				},
+				{
+					"ref": "SL1.4.find-time#2",
+					"text": "Not flipping the inequality when dividing by the log of a depreciation factor below 1",
+					"as": "distractor",
+					"in": [
+						"years-below",
+						"years-fraction",
+						"years-from-periods",
+						"least-periods"
+					],
+					"wrong": "n < the real solution, so the whole number below it"
+				}
+			],
+			"chain": [
+				"what is kept each year: the multiplier 1 − r/100",
+				"V = P × c^n, by formula, in the TVM solver with a negative rate, or year by year",
+				"a loss is P − V, and one year's loss is V(n − 1) − V(n)",
+				"P = V ÷ c^n, or the rate from the nth root of V ÷ P",
+				"the time below a target, from logs, the TVM solver, a table or a graph, rounded up",
+				"a time in months or quarters, converted to years"
+			],
 			"frequency": 5,
 			"marks": 2,
 			"section": {
@@ -22515,9 +23078,7 @@
 			"paper": {
 				"p1": 0,
 				"p2": 5
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-compound-interest",
