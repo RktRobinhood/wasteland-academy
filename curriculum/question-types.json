@@ -5460,7 +5460,7 @@
     },
     {
      "ref": "SL2.1.intercepts#2",
-     "text": "For ax + by + d = 0 gives the y-intercept as d instead of −d/b",
+     "text": "Gives the y-intercept of ax + by + d = 0 as d instead of −d/b",
      "as": "distractor",
      "in": [
       "intercepts-from-equation"
@@ -5488,7 +5488,7 @@
     },
     {
      "ref": "SL2.1.parallel-perpendicular#2",
-     "text": "For a perpendicular bisector, uses the gradient of AB itself or forgets that the line must pass through the midpoint",
+     "text": "Uses the gradient of AB itself for a perpendicular bisector, or forgets that the line must pass through the midpoint",
      "as": "error-spot",
      "in": [
       "perpendicular-bisector"
@@ -6065,7 +6065,7 @@
    "misconceptions": [
     {
      "ref": "SL2.2.evaluate-notation#0",
-     "text": "Treats f(x) as f × x, e.g. writes f(2) = 2f",
+     "text": "Treats f(x) as f × x, so a factor inside the bracket comes out",
      "as": "distractor",
      "in": [
       "read-value"
@@ -6074,7 +6074,7 @@
     },
     {
      "ref": "SL2.2.evaluate-notation#1",
-     "text": "Evaluates −x² at x = −3 as 9 instead of −9 (no brackets)",
+     "text": "Squares the minus sign too: −x² is −(x²), not (−x)²",
      "as": "distractor",
      "in": [
       "value-from-rule"
@@ -6083,7 +6083,7 @@
     },
     {
      "ref": "SL2.2.evaluate-notation#2",
-     "text": "Writes f(x + 1) as f(x) + 1",
+     "text": "Writes f(x + a) as f(x) + a",
      "as": "distractor",
      "in": [
       "value-at-shifted-input"
@@ -6092,7 +6092,7 @@
     },
     {
      "ref": "SL2.3.read-graph#0",
-     "text": "Reads 'solve f(x) = 1' as 'find f(1)'",
+     "text": "Reads 'solve f(x) = c' as 'find f(c)'",
      "as": "distractor",
      "in": [
       "solve-from-table"
@@ -6128,7 +6128,7 @@
     },
     {
      "ref": "SL2.5.composite-value#1",
-     "text": "Multiplies f(2) × g(2) instead of composing",
+     "text": "Multiplies the two values instead of composing",
      "as": "distractor",
      "in": [
       "self-composite-read",
@@ -6147,7 +6147,7 @@
     },
     {
      "ref": "SL2.2.inverse-undo#0",
-     "text": "Reads f⁻¹(x) as 1/f(x)",
+     "text": "Reads f⁻¹(x) as the reciprocal of f(x)",
      "as": "distractor",
      "in": [
       "inverse-value-read"
@@ -6175,7 +6175,7 @@
     },
     {
      "ref": "SL2.5.identity#1",
-     "text": "Solves f⁻¹(x) = 3 by writing x = f⁻¹(3) instead of x = f(3)",
+     "text": "Solves f⁻¹(x) = c by applying f⁻¹ to c instead of f",
      "as": "distractor",
      "in": [
       "solve-inverse-equation"
@@ -6608,7 +6608,7 @@
    "misconceptions": [
     {
      "ref": "SL2.2.inverse-undo#0",
-     "text": "Reads f⁻¹(x) as 1/f(x)",
+     "text": "Reads f⁻¹(x) as the reciprocal of f(x)",
      "as": "distractor",
      "in": [
       "inverse-from-rule"
@@ -7116,7 +7116,7 @@
    "misconceptions": [
     {
      "ref": "SL2.2.evaluate-notation#0",
-     "text": "Treats f(x) as f × x, e.g. writes f(2) = 2f",
+     "text": "Treats f(x) as f × x, so a factor inside the bracket comes out",
      "as": "error-spot",
      "in": [
       "value-at-input"
@@ -7125,7 +7125,7 @@
     },
     {
      "ref": "SL2.2.evaluate-notation#1",
-     "text": "Evaluates −x² at x = −3 as 9 instead of −9 (no brackets)",
+     "text": "Squares the minus sign too: −x² is −(x²), not (−x)²",
      "as": "distractor",
      "in": [
       "value-at-input"
@@ -7134,7 +7134,7 @@
     },
     {
      "ref": "SL2.2.evaluate-notation#2",
-     "text": "Writes f(x + 1) as f(x) + 1",
+     "text": "Writes f(x + a) as f(x) + a",
      "as": "distractor",
      "in": [
       "expression-input"
@@ -7182,7 +7182,7 @@
     },
     {
      "ref": "SL2.4.zeros-intercepts#1",
-     "text": "From f(x) = (x + 2)(x − 5) gives zeros −5 and 2 (wrong signs)",
+     "text": "Gives the zeros with the wrong signs",
      "as": "distractor",
      "in": [
       "zeros"
@@ -7191,7 +7191,7 @@
     },
     {
      "ref": "SL2.4.zeros-intercepts#2",
-     "text": "Divides by x when solving x³ = 4x and loses the zero x = 0",
+     "text": "Divides by x when solving and loses the zero at the origin",
      "as": "error-spot",
      "in": [
       "zeros"
@@ -7671,7 +7671,7 @@
     },
     {
      "ref": "SL2.2.range#1",
-     "text": "Includes the asymptote value, e.g. gives the range of e^x + 2 as y ≥ 2 instead of y > 2",
+     "text": "Includes the asymptote value in the range",
      "as": "distractor",
      "in": [
       "range-exponential",
@@ -7681,7 +7681,7 @@
     },
     {
      "ref": "SL2.2.range#2",
-     "text": "Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x)",
+     "text": "Writes the range in terms of x instead of y or f(x)",
      "as": "distractor",
      "in": [
       "range-quadratic"
@@ -8306,7 +8306,7 @@
     },
     {
      "ref": "SL2.4.zeros-intercepts#1",
-     "text": "From f(x) = (x + 2)(x − 5) gives zeros −5 and 2 (wrong signs)",
+     "text": "Gives the zeros with the wrong signs",
      "as": "distractor",
      "in": [
       "label-zeros"
@@ -8324,7 +8324,7 @@
     },
     {
      "ref": "SL2.4.max-min#1",
-     "text": "On a restricted domain, misses an endpoint that is higher than the local maximum",
+     "text": "Misses an endpoint of a restricted domain that goes past the turning point",
      "as": "distractor",
      "in": [
       "greatest-on-domain"
@@ -8333,7 +8333,7 @@
     },
     {
      "ref": "SL2.4.max-min#2",
-     "text": "Gives GDC answers to fewer than 3 significant figures",
+     "text": "Gives GDC answers to too few significant figures",
      "as": "error-spot",
      "in": [
       "judge-a-sketch"
@@ -9199,7 +9199,7 @@
     },
     {
      "ref": "SL2.4.zeros-intercepts#2",
-     "text": "Divides by x when solving x³ = 4x and loses the zero x = 0",
+     "text": "Divides by x when solving and loses the zero at the origin",
      "as": "error-spot",
      "in": [
       "zeros-with-x-factor"
@@ -9218,7 +9218,7 @@
     },
     {
      "ref": "SL2.4.max-min#1",
-     "text": "On a restricted domain, misses an endpoint that is higher than the local maximum",
+     "text": "Misses an endpoint of a restricted domain that goes past the turning point",
      "as": "distractor",
      "in": [
       "greatest-on-domain"
@@ -9227,7 +9227,7 @@
     },
     {
      "ref": "SL2.4.max-min#2",
-     "text": "Gives GDC answers to fewer than 3 significant figures",
+     "text": "Gives GDC answers to too few significant figures",
      "as": "distractor",
      "in": [
       "turning-point-coordinates"
@@ -9246,7 +9246,7 @@
     },
     {
      "ref": "SL2.10.solve-gdc#1",
-     "text": "Rounds intermediate values or gives answers to fewer than 3 s.f.",
+     "text": "Rounds intermediate values, or gives too few significant figures",
      "as": "distractor",
      "in": [
       "use-stored-zeros"
@@ -9693,7 +9693,7 @@
     },
     {
      "ref": "SL2.10.solve-gdc#1",
-     "text": "Rounds intermediate values or gives answers to fewer than 3 s.f.",
+     "text": "Rounds intermediate values, or gives too few significant figures",
      "as": "distractor",
      "in": [
       "models-equal"
@@ -10109,7 +10109,7 @@
     },
     {
      "ref": "SL2.4.max-min#1",
-     "text": "On a restricted domain, misses an endpoint that is higher than the local maximum",
+     "text": "Misses an endpoint of a restricted domain that goes past the turning point",
      "as": "distractor",
      "in": [
       "max-difference"
@@ -10118,7 +10118,7 @@
     },
     {
      "ref": "SL2.4.max-min#2",
-     "text": "Gives GDC answers to fewer than 3 significant figures",
+     "text": "Gives GDC answers to too few significant figures",
      "as": "distractor",
      "in": [
       "least-distance"
@@ -10154,7 +10154,7 @@
     },
     {
      "ref": "SL2.10.context-apply#0",
-     "text": "Rounds the wrong way for the context (e.g. 4.2 years becomes 4 when 5 complete years are needed)",
+     "text": "Rounds the wrong way for the context, to a whole number that doesn't meet the condition",
      "as": "distractor",
      "in": [
       "first-whole-day"
@@ -10550,7 +10550,7 @@
     },
     {
      "ref": "SL2.10.solve-gdc#1",
-     "text": "Rounds intermediate values or gives answers to fewer than 3 s.f.",
+     "text": "Rounds intermediate values, or gives too few significant figures",
      "as": "distractor",
      "in": [
       "simultaneous-nonlinear",
@@ -10569,7 +10569,7 @@
     },
     {
      "ref": "SL2.10.context-apply#0",
-     "text": "Rounds the wrong way for the context (e.g. 4.2 years becomes 4 when 5 complete years are needed)",
+     "text": "Rounds the wrong way for the context, to a whole number that doesn't meet the condition",
      "as": "distractor",
      "in": [
       "smallest-whole-number"
@@ -11025,7 +11025,7 @@
     },
     {
      "ref": "SL2.5.composite-value#1",
-     "text": "Multiplies f(2) × g(2) instead of composing",
+     "text": "Multiplies the two values instead of composing",
      "as": "distractor",
      "in": [
       "value-inside-out"
@@ -11072,7 +11072,7 @@
     },
     {
      "ref": "SL2.5.find-inverse#1",
-     "text": "Undoes the operations in the original order, e.g. for 2x + 1 gives x/2 − 1",
+     "text": "Undoes the operations in the original order",
      "as": "distractor",
      "in": [
       "inner-from-composite"
@@ -11668,7 +11668,7 @@
     },
     {
      "ref": "SL2.5.find-inverse#1",
-     "text": "Undoes the operations in the original order, e.g. for 2x + 1 gives x/2 − 1",
+     "text": "Undoes the operations in the original order",
      "as": "distractor",
      "in": [
       "inverse-linear",
@@ -11678,7 +11678,7 @@
     },
     {
      "ref": "SL2.5.find-inverse#2",
-     "text": "For a quadratic on a restricted domain keeps the ± instead of choosing the sign that matches the domain",
+     "text": "Keeps the ± for a quadratic on a restricted domain, or picks the sign that doesn't match the domain",
      "as": "error-spot",
      "in": [
       "inverse-restricted-quadratic"
@@ -11715,7 +11715,7 @@
     },
     {
      "ref": "SL2.8.rational-inverse#0",
-     "text": "Cannot collect the y-terms after cross-multiplying and leaves y on both sides",
+     "text": "Leaves y on both sides, without collecting the y-terms after cross-multiplying",
      "as": "error-spot",
      "in": [
       "inverse-rational"
@@ -11751,7 +11751,7 @@
     },
     {
      "ref": "SL2.5.identity#1",
-     "text": "Solves f⁻¹(x) = 3 by writing x = f⁻¹(3) instead of x = f(3)",
+     "text": "Solves f⁻¹(x) = c by applying f⁻¹ to c instead of f",
      "as": "distractor",
      "in": [
       "solve-inverse-equals"
@@ -12339,7 +12339,7 @@
     },
     {
      "ref": "SL2.5.find-inverse#1",
-     "text": "Undoes the operations in the original order, e.g. for 2x + 1 gives x/2 − 1",
+     "text": "Undoes the operations in the original order",
      "as": "distractor",
      "in": [
       "inverse-of-log"
@@ -12348,7 +12348,7 @@
     },
     {
      "ref": "SL2.5.find-inverse#2",
-     "text": "For a quadratic on a restricted domain keeps the ± instead of choosing the sign that matches the domain",
+     "text": "Keeps the ± for a quadratic on a restricted domain, or picks the sign that doesn't match the domain",
      "as": "distractor",
      "in": [
       "inverse-log-of-square"
@@ -12357,7 +12357,7 @@
     },
     {
      "ref": "SL2.9.exp-log-inverse#0",
-     "text": "Solves e^(2x) = 7 as x = 2 ln 7 or x = ln 7 − 2 instead of x = (ln 7)/2",
+     "text": "Multiplies by the coefficient of x, or subtracts it, instead of dividing after taking logs",
      "as": "distractor",
      "in": [
       "solve-exp-equation"
@@ -12366,7 +12366,7 @@
     },
     {
      "ref": "SL2.9.exp-log-inverse#1",
-     "text": "Converts log₂ x = 5 to x = 5² instead of 2⁵",
+     "text": "Converts log_b x = c to x = c^b instead of b^c",
      "as": "distractor",
      "in": [
       "solve-log-equation",
@@ -12376,7 +12376,7 @@
     },
     {
      "ref": "SL2.9.exp-log-inverse#2",
-     "text": "Writes x = 7/(2e), treating e as a coefficient to divide by",
+     "text": "Divides by e, treating it as a coefficient",
      "as": "distractor",
      "in": [
       "solve-exp-equation"
@@ -12385,7 +12385,7 @@
     },
     {
      "ref": "SL1.5.exp-log-form#0",
-     "text": "Dividing instead of finding the power: log_2 32 = 16",
+     "text": "Dividing instead of finding the power",
      "as": "distractor",
      "in": [
       "evaluate-log-function"
@@ -12404,7 +12404,7 @@
     },
     {
      "ref": "SL1.5.exp-log-form#2",
-     "text": "Believing log 0 or the log of a negative number has a real value",
+     "text": "Believing the log of zero or of a negative number has a real value",
      "as": "distractor",
      "in": [
       "log-of-non-positive"
@@ -12440,7 +12440,7 @@
     },
     {
      "ref": "SL1.7.change-of-base#0",
-     "text": "Inverting the formula: log_5 8 = log 5/log 8",
+     "text": "Inverting the change-of-base formula: log a/log b instead of log b/log a",
      "as": "distractor",
      "in": [
       "inverse-awkward-base"
@@ -12458,7 +12458,7 @@
     },
     {
      "ref": "SL1.7.change-of-base#2",
-     "text": "Thinking log_9 x = (1/9) log_3 x instead of (1/2) log_3 x",
+     "text": "Dividing by the base instead of by the power when changing to a smaller base",
      "as": "distractor",
      "in": [
       "simplify-composite"
@@ -13150,7 +13150,7 @@
     },
     {
      "ref": "SL2.6.axis-symmetry#2",
-     "text": "Reads h from a(x + 3)² as +3",
+     "text": "Reads h with the wrong sign from a(x − h)²",
      "as": "distractor",
      "in": [
       "axis-from-vertex"
@@ -13159,7 +13159,7 @@
     },
     {
      "ref": "SL2.6.vertex#0",
-     "text": "From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4)",
+     "text": "Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k)",
      "as": "distractor",
      "in": [
       "vertex-from-vertex-form"
@@ -13177,7 +13177,7 @@
     },
     {
      "ref": "SL2.6.vertex#2",
-     "text": "Calls the vertex a minimum when a < 0",
+     "text": "Mixes up maximum and minimum for the sign of a",
      "as": "distractor",
      "in": [
       "max-or-min"
@@ -13186,7 +13186,7 @@
     },
     {
      "ref": "SL2.6.complete-square#0",
-     "text": "Forgets to subtract the square of half the coefficient, writing x² − 8x + 11 = (x − 4)² + 11",
+     "text": "Forgets to subtract the square of half the coefficient",
      "as": "distractor",
      "in": [
       "vertex-form-from-general"
@@ -13195,7 +13195,7 @@
     },
     {
      "ref": "SL2.6.complete-square#1",
-     "text": "When a ≠ 1, does not multiply the correction term by a",
+     "text": "Forgets to multiply the correction term by a when a is not one",
      "as": "distractor",
      "in": [
       "vertex-form-from-general"
@@ -13204,7 +13204,7 @@
     },
     {
      "ref": "SL2.6.complete-square#2",
-     "text": "Gets the sign of h wrong, writing (x + 4)² for x² − 8x + …",
+     "text": "Gets the sign of h wrong inside the bracket",
      "as": "distractor",
      "in": [
       "vertex-form-from-general",
@@ -13214,7 +13214,7 @@
     },
     {
      "ref": "SL2.6.factorised-form#0",
-     "text": "From (x + 1)(x − 4) gives the intercepts 1 and −4",
+     "text": "Reads the roots off the factors with the wrong signs",
      "as": "distractor",
      "in": [
       "roots-from-factorised"
@@ -13662,7 +13662,7 @@
    "misconceptions": [
     {
      "ref": "SL2.6.find-equation#0",
-     "text": "Assumes a = 1 without checking against another point",
+     "text": "Assumes the leading coefficient is one, without checking against another point",
      "as": "distractor",
      "in": [
       "a-from-roots-and-point",
@@ -13672,7 +13672,7 @@
     },
     {
      "ref": "SL2.6.find-equation#1",
-     "text": "Writes (x − 1) for an intercept at x = −1",
+     "text": "Uses the wrong sign in a factor: a root at x = p gives (x − p)",
      "as": "distractor",
      "in": [
       "a-from-roots-and-point",
@@ -13700,7 +13700,7 @@
     },
     {
      "ref": "SL2.2.range#2",
-     "text": "Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x)",
+     "text": "Writes the range in terms of x instead of y or f(x)",
      "as": "distractor",
      "in": [
       "range-after-finding"
@@ -14097,7 +14097,7 @@
     },
     {
      "ref": "SL2.7.solve-equation#1",
-     "text": "From (x − 2)(x − 3) = 0 gives x = −2 or x = −3",
+     "text": "Gives the roots with the wrong signs",
      "as": "distractor",
      "in": [
       "solve-factorisable",
@@ -14117,7 +14117,7 @@
     },
     {
      "ref": "SL2.7.hidden-quadratic#0",
-     "text": "Stops at u = 2 or u = 3 instead of solving e^x = 2 and e^x = 3 for x",
+     "text": "Stops at the value of u instead of solving for x",
      "as": "distractor",
      "in": [
       "solve-hidden-exponential"
@@ -14126,7 +14126,7 @@
     },
     {
      "ref": "SL2.7.hidden-quadratic#1",
-     "text": "Keeps an impossible solution such as 2^x = −1 or a negative x inside a log",
+     "text": "Keeps an impossible solution, such as an exponential equal to a negative number or a negative x inside a log",
      "as": "distractor",
      "in": [
       "solve-hidden-exponential",
@@ -14565,7 +14565,7 @@
    "misconceptions": [
     {
      "ref": "SL2.7.discriminant#0",
-     "text": "Mishandles the sign of −4ac when c < 0, e.g. writes 25 − 4(1)(−6) = 1",
+     "text": "Mishandles the signs in −4ac",
      "as": "distractor",
      "in": [
       "nature-from-equation",
@@ -14604,7 +14604,7 @@
     },
     {
      "ref": "SL2.7.discriminant-parameter#1",
-     "text": "Solves k² − 36 < 0 as k < ±6 instead of −6 < k < 6",
+     "text": "Solves k² < c as k < ±√c instead of −√c < k < √c",
      "as": "distractor",
      "in": [
       "k-interval"
@@ -14622,7 +14622,7 @@
     },
     {
      "ref": "SL2.7.inequality#1",
-     "text": "Writes x < −2 or x > 3 as the single interval −2 < x < 3",
+     "text": "Joins the two outer regions into a single interval between the roots",
      "as": "distractor",
      "in": [
       "k-interval"
@@ -15029,7 +15029,7 @@
     },
     {
      "ref": "SL2.7.solve-equation#1",
-     "text": "From (x − 2)(x − 3) = 0 gives x = −2 or x = −3",
+     "text": "Gives the roots with the wrong signs",
      "as": "distractor",
      "in": [
       "meeting-x"
@@ -15344,7 +15344,7 @@
    "misconceptions": [
     {
      "ref": "SL2.7.inequality#0",
-     "text": "Solves x² > 9 as x > ±3, or as x > 3 only",
+     "text": "Keeps only one side of the solution, or writes x > ±√c",
      "as": "distractor",
      "in": [
       "square-against-constant"
@@ -15353,7 +15353,7 @@
     },
     {
      "ref": "SL2.7.inequality#1",
-     "text": "Writes x < −2 or x > 3 as the single interval −2 < x < 3",
+     "text": "Joins the two outer regions into a single interval between the roots",
      "as": "distractor",
      "in": [
       "solve-against-zero",
@@ -15909,7 +15909,7 @@
    "misconceptions": [
     {
      "ref": "SL2.7.inequality#0",
-     "text": "Solves x² > 9 as x > ±3, or as x > 3 only",
+     "text": "Keeps only one side of the solution, or writes x > ±√c",
      "as": "distractor",
      "in": [
       "domain-from-inequality"
@@ -15918,7 +15918,7 @@
     },
     {
      "ref": "SL2.7.inequality#1",
-     "text": "Writes x < −2 or x > 3 as the single interval −2 < x < 3",
+     "text": "Joins the two outer regions into a single interval between the roots",
      "as": "distractor",
      "in": [
       "sign-of-f"
@@ -15936,7 +15936,7 @@
     },
     {
      "ref": "SL2.4.asymptotes#0",
-     "text": "Writes an asymptote as a number (2) instead of an equation (y = 2)",
+     "text": "Writes an asymptote as a number instead of an equation",
      "as": "distractor",
      "in": [
       "asymptotes"
@@ -15945,7 +15945,7 @@
     },
     {
      "ref": "SL2.4.asymptotes#1",
-     "text": "Swaps vertical and horizontal, writing x = 2 for a horizontal asymptote",
+     "text": "Swaps vertical and horizontal, writing the asymptotes the wrong way round",
      "as": "distractor",
      "in": [
       "asymptotes"
@@ -15954,7 +15954,7 @@
     },
     {
      "ref": "SL2.4.asymptotes#2",
-     "text": "Gives ln(x − 4) the vertical asymptote x = −4",
+     "text": "Gets the sign of a vertical asymptote wrong by reading it off the bracket",
      "as": "distractor",
      "in": [
       "asymptotes"
@@ -15972,7 +15972,7 @@
     },
     {
      "ref": "SL2.6.vertex#0",
-     "text": "From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4)",
+     "text": "Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k)",
      "as": "distractor",
      "in": [
       "max-value"
@@ -15990,7 +15990,7 @@
     },
     {
      "ref": "SL2.6.vertex#2",
-     "text": "Calls the vertex a minimum when a < 0",
+     "text": "Mixes up maximum and minimum for the sign of a",
      "as": "distractor",
      "in": [
       "range"
@@ -15999,7 +15999,7 @@
     },
     {
      "ref": "SL1.5.exp-log-form#0",
-     "text": "Dividing instead of finding the power: log_2 32 = 16",
+     "text": "Dividing instead of finding the power",
      "as": "distractor",
      "in": [
       "base-from-max"
@@ -16017,7 +16017,7 @@
     },
     {
      "ref": "SL1.5.exp-log-form#2",
-     "text": "Believing log 0 or the log of a negative number has a real value",
+     "text": "Believing the log of zero or of a negative number has a real value",
      "as": "error-spot",
      "in": [
       "zeros"
@@ -16044,7 +16044,7 @@
     },
     {
      "ref": "SL2.2.range#2",
-     "text": "Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x)",
+     "text": "Writes the range in terms of x instead of y or f(x)",
      "as": "distractor",
      "in": [
       "range"
@@ -16526,7 +16526,7 @@
     },
     {
      "ref": "SL2.4.asymptotes#0",
-     "text": "Writes an asymptote as a number (2) instead of an equation (y = 2)",
+     "text": "Writes an asymptote as a number instead of an equation",
      "as": "distractor",
      "in": [
       "va-from-equation",
@@ -16536,7 +16536,7 @@
     },
     {
      "ref": "SL2.4.asymptotes#1",
-     "text": "Swaps vertical and horizontal, writing x = 2 for a horizontal asymptote",
+     "text": "Swaps vertical and horizontal, writing the asymptotes the wrong way round",
      "as": "distractor",
      "in": [
       "features-from-graph",
@@ -16556,7 +16556,7 @@
     },
     {
      "ref": "SL2.4.zeros-intercepts#1",
-     "text": "From f(x) = (x + 2)(x − 5) gives zeros −5 and 2 (wrong signs)",
+     "text": "Gives the zeros with the wrong signs",
      "as": "distractor",
      "in": [
       "x-intercept"
@@ -16565,7 +16565,7 @@
     },
     {
      "ref": "SL2.2.range#1",
-     "text": "Includes the asymptote value, e.g. gives the range of e^x + 2 as y ≥ 2 instead of y > 2",
+     "text": "Includes the asymptote value in the range",
      "as": "distractor",
      "in": [
       "range-from-asymptote"
@@ -16574,7 +16574,7 @@
     },
     {
      "ref": "SL2.2.range#2",
-     "text": "Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x)",
+     "text": "Writes the range in terms of x instead of y or f(x)",
      "as": "distractor",
      "in": [
       "range-from-asymptote"
@@ -17144,7 +17144,7 @@
     },
     {
      "ref": "SL2.8.reciprocal#0",
-     "text": "Thinks self-inverse means f(x) × f⁻¹(x) = 1",
+     "text": "Thinks self-inverse means the product of f(x) and f⁻¹(x) is one",
      "as": "error-spot",
      "in": [
       "reciprocal-self-inverse"
@@ -17153,7 +17153,7 @@
     },
     {
      "ref": "SL2.8.reciprocal#1",
-     "text": "Draws y = 1/x touching or crossing the axes",
+     "text": "Draws the reciprocal graph touching or crossing the axes",
      "as": "distractor",
      "in": [
       "parent-reciprocal"
@@ -17162,7 +17162,7 @@
     },
     {
      "ref": "SL2.8.reciprocal#2",
-     "text": "Draws the branches in the second and fourth quadrants (that is y = −1/x)",
+     "text": "Draws the branches in the second and fourth quadrants",
      "as": "distractor",
      "in": [
       "parent-reciprocal"
@@ -17766,7 +17766,7 @@
    "misconceptions": [
     {
      "ref": "SL2.9.exp-model#0",
-     "text": "Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth)",
+     "text": "Confuses the percentage rate with the growth factor, which is one plus the rate",
      "as": "distractor",
      "in": [
       "factor-from-percent",
@@ -17785,7 +17785,7 @@
     },
     {
      "ref": "SL2.9.exp-model#2",
-     "text": "Treats the initial value as P(1) instead of P(0), so the exponent is off by one",
+     "text": "Treats the start value as the value after one period, so the exponent is off by one",
      "as": "distractor",
      "in": [
       "model-from-table",
@@ -17823,7 +17823,7 @@
     },
     {
      "ref": "SL1.7.solve-with-logs#0",
-     "text": "Losing brackets: writing ln 3^(x + 1) as x + 1 ln 3",
+     "text": "Losing the brackets around the power when bringing it down",
      "as": "distractor",
      "in": [
       "time-to-level"
@@ -17842,7 +17842,7 @@
     },
     {
      "ref": "SL1.7.solve-with-logs#2",
-     "text": "Rounding ln 3 and ln 5 early so the 3 s.f. answer is wrong",
+     "text": "Rounding the logs early, so the final answer is wrong",
      "as": "distractor",
      "in": [
       "predict-from-data-point"
@@ -17851,7 +17851,7 @@
     },
     {
      "ref": "SL2.10.context-apply#0",
-     "text": "Rounds the wrong way for the context (e.g. 4.2 years becomes 4 when 5 complete years are needed)",
+     "text": "Rounds the wrong way for the context, to a whole number that doesn't meet the condition",
      "as": "distractor",
      "in": [
       "whole-units-inequality"
@@ -18294,7 +18294,7 @@
     },
     {
      "ref": "SL2.9.log-graph#1",
-     "text": "Gives the vertical asymptote of ln(x − 2) as x = −2",
+     "text": "Gets the sign of the vertical asymptote of a log graph wrong",
      "as": "distractor",
      "in": [
       "asymptote-from-equation"
@@ -18313,7 +18313,7 @@
     },
     {
      "ref": "SL2.4.asymptotes#0",
-     "text": "Writes an asymptote as a number (2) instead of an equation (y = 2)",
+     "text": "Writes an asymptote as a number instead of an equation",
      "as": "distractor",
      "in": [
       "asymptote-from-equation"
@@ -18322,7 +18322,7 @@
     },
     {
      "ref": "SL2.4.asymptotes#1",
-     "text": "Swaps vertical and horizontal, writing x = 2 for a horizontal asymptote",
+     "text": "Swaps vertical and horizontal, writing the asymptotes the wrong way round",
      "as": "distractor",
      "in": [
       "asymptote-from-graph"
@@ -18331,7 +18331,7 @@
     },
     {
      "ref": "SL2.4.asymptotes#2",
-     "text": "Gives ln(x − 4) the vertical asymptote x = −4",
+     "text": "Gets the sign of a vertical asymptote wrong by reading it off the bracket",
      "as": "distractor",
      "in": [
       "n-from-asymptote"
@@ -19534,7 +19534,7 @@
     },
     {
      "ref": "SL2.11.stretch#1",
-     "text": "Thinks 2f(x) moves the x-intercepts",
+     "text": "Thinks a vertical stretch moves the x-intercepts",
      "as": "distractor",
      "in": [
       "image-point"
@@ -21908,7 +21908,7 @@
    "misconceptions": [
     {
      "ref": "SL1.4.future-value#0",
-     "text": "Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20",
+     "text": "Using the annual rate with kn periods, instead of dividing the rate by k",
      "as": "distractor",
      "in": [
       "future-value"
@@ -21917,7 +21917,7 @@
     },
     {
      "ref": "SL1.4.future-value#1",
-     "text": "Using simple interest: 1200 + 3 × 60 = $1380",
+     "text": "Using simple interest instead of compounding",
      "as": "distractor",
      "in": [
       "future-value"
@@ -21936,7 +21936,7 @@
     },
     {
      "ref": "SL1.4.find-rate-or-pv#0",
-     "text": "Taking the root but not subtracting 1 and multiplying by 100, giving a rate of 1.1%",
+     "text": "Stopping at the root, without subtracting one and converting to a percentage",
      "as": "distractor",
      "in": [
       "interest-rate"
@@ -21945,7 +21945,7 @@
     },
     {
      "ref": "SL1.4.find-rate-or-pv#2",
-     "text": "Halving the total growth instead of taking a root: 21% ÷ 2 = 10.5%",
+     "text": "Dividing the total growth by the number of years instead of taking a root",
      "as": "distractor",
      "in": [
       "interest-rate"
@@ -27541,7 +27541,7 @@
     },
     {
      "ref": "SL3.2.right-side#2",
-     "text": "Calculator in radian mode when the angle is in degrees",
+     "text": "Using a calculator in radian mode when the angle is in degrees",
      "as": "distractor",
      "in": [
       "area-from-two-sides"
@@ -28727,7 +28727,7 @@
     },
     {
      "ref": "SL3.2.sine-rule#1",
-     "text": "Rearranging b / sin 40° = 8 / sin 65° as b = 8 sin 65° / sin 40°",
+     "text": "Rearranging the sine rule wrongly, with the two sines swapped",
      "as": "distractor",
      "in": [
       "side-sine-rule"
@@ -28745,7 +28745,7 @@
     },
     {
      "ref": "SL3.2.right-side#2",
-     "text": "Calculator in radian mode when the angle is in degrees",
+     "text": "Using a calculator in radian mode when the angle is in degrees",
      "as": "distractor",
      "in": [
       "side-cosine-rule",
@@ -32880,7 +32880,7 @@
      "wrong": "the period = b"
     },
     {
-     "ref": "SL3.7.read-features#1",
+     "ref": "SL3.7.read-features#11",
      "text": "Taking the amplitude as a + d, or as negative when a is negative",
      "as": "distractor",
      "in": [
@@ -36576,7 +36576,7 @@
     },
     {
      "ref": "SL4.3.quartiles-discrete#0",
-     "text": "Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1",
+     "text": "Adding the quartiles, or giving the pair of them, instead of subtracting",
      "as": "distractor",
      "in": [
       "read-iqr"
@@ -37937,7 +37937,7 @@
     },
     {
      "ref": "SL4.3.quartiles-discrete#0",
-     "text": "Giving the IQR as Q1 + Q3, or as the pair of quartiles, instead of Q3 − Q1",
+     "text": "Adding the quartiles, or giving the pair of them, instead of subtracting",
      "as": "distractor",
      "in": [
       "iqr-of-data"
@@ -37973,7 +37973,7 @@
     },
     {
      "ref": "SL4.3.choose-measure#0",
-     "text": "The mean is always the best average because it uses every value",
+     "text": "Thinking the mean is always the best average because it uses every value",
      "as": "distractor",
      "in": [
       "choose-average"
@@ -37982,7 +37982,7 @@
     },
     {
      "ref": "SL4.3.choose-measure#1",
-     "text": "The mode is the most useful average for continuous data",
+     "text": "Thinking the mode is the most useful average for continuous data",
      "as": "distractor",
      "in": [
       "choose-average"
@@ -41213,7 +41213,7 @@
     },
     {
      "ref": "SL4.7.table-probabilities#0",
-     "text": "Including the endpoint for a strict inequality, e.g. using X = 2 in P(X > 2)",
+     "text": "Including the endpoint for a strict inequality",
      "as": "distractor",
      "in": [
       "event-probability"
@@ -41659,7 +41659,7 @@
     },
     {
      "ref": "SL4.8.exact-probability#0",
-     "text": "Leaving out the nCr factor and giving just p^r (1 − p)^(n − r)",
+     "text": "Leaving out the nCr factor",
      "as": "distractor",
      "in": [
       "exact-probability"
@@ -41668,7 +41668,7 @@
     },
     {
      "ref": "SL4.8.exact-probability#1",
-     "text": "Swapping the powers: p^(n − r) (1 − p)^r",
+     "text": "Swapping the powers of p and its complement",
      "as": "distractor",
      "in": [
       "exact-probability"
@@ -41686,7 +41686,7 @@
     },
     {
      "ref": "SL4.8.cumulative-probability#0",
-     "text": "P(X ≥ 3) = 1 − P(X ≤ 3) (it should be 1 − P(X ≤ 2))",
+     "text": "Using P(X ≤ k) as the complement of P(X ≥ k), instead of stopping at the value below k",
      "as": "distractor",
      "in": [
       "at-least-probability"
@@ -41695,7 +41695,7 @@
     },
     {
      "ref": "SL4.8.cumulative-probability#1",
-     "text": "Using P(X ≤ 5) for P(X < 5)",
+     "text": "Using P(X ≤ k) for P(X < k)",
      "as": "distractor",
      "in": [
       "at-most-probability"
@@ -41704,7 +41704,7 @@
     },
     {
      "ref": "SL4.8.cumulative-probability#2",
-     "text": "P(2 < X ≤ 6) = P(X ≤ 6) − P(X ≤ 3) (it should subtract P(X ≤ 2))",
+     "text": "Subtracting the wrong cumulative: P(a < X ≤ b) subtracts P(X ≤ a)",
      "as": "distractor",
      "in": [
       "between-probability"
@@ -41713,7 +41713,7 @@
     },
     {
      "ref": "SL4.8.mean-variance#0",
-     "text": "Var(X) = np (forgetting the factor 1 − p)",
+     "text": "Using np as the variance, forgetting the factor 1 − p",
      "as": "distractor",
      "in": [
       "variance-from-parameters"
@@ -41758,7 +41758,7 @@
     },
     {
      "ref": "SL4.8.binomial-in-context#1",
-     "text": "Finding P(X = 3) in 8 trials for 'the third success is on the eighth trial'",
+     "text": "Finding the probability of k successes in n trials for 'the kth success is on trial n'",
      "as": "distractor",
      "in": [
       "kth-success-trial"
@@ -46320,7 +46320,7 @@
    "misconceptions": [
     {
      "ref": "SL5.3.power-rule#0",
-     "text": "Reducing the coefficient instead of multiplying: d/dx(5x³) = 4x² rather than 15x²",
+     "text": "Reducing the coefficient instead of multiplying by the power",
      "as": "distractor",
      "in": [
       "derivative"
@@ -46329,7 +46329,7 @@
     },
     {
      "ref": "SL5.3.power-rule#2",
-     "text": "Leaving a constant unchanged instead of making it 0, or writing d/dx(7x) = 7x",
+     "text": "Keeping a constant term when differentiating, instead of dropping it",
      "as": "distractor",
      "in": [
       "derivative"
@@ -46365,7 +46365,7 @@
     },
     {
      "ref": "SL5.3.gradient-at-point#2",
-     "text": "Sign slips with negatives, e.g. 3(−2)² evaluated as −12",
+     "text": "Slipping on the sign with a negative x",
      "as": "distractor",
      "in": [
       "gradient-at-point"
@@ -47118,7 +47118,7 @@
     },
     {
      "ref": "SL5.8.classify-stationary-points#0",
-     "text": "f″ > 0 means a maximum (sign reversed)",
+     "text": "Reversing the second-derivative test: a positive f″ means a minimum",
      "as": "distractor",
      "in": [
       "nature"
@@ -53898,7 +53898,7 @@
     },
     {
      "ref": "SL2.6.vertex#0",
-     "text": "From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4)",
+     "text": "Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k)",
      "as": "distractor",
      "in": [
       "match-three-forms"
@@ -54126,7 +54126,7 @@
      "wrong": "kx² + (r + s)x + rs, only x² scaled"
     },
     {
-     "text": "Gets the sign of a product wrong: (x + 3)(x − 5) = x² + 2x − 15",
+     "text": "Gets the sign of a product wrong",
      "as": "distractor",
      "in": [
       "double-bracket"
@@ -54134,7 +54134,7 @@
      "wrong": "middle term with the wrong sign"
     },
     {
-     "text": "In k(x + r)² + d, multiplies d by k as well",
+     "text": "Multiplies d by k as well in k(x + r)² + d",
      "as": "error-spot",
      "in": [
       "vertex-form-expand"
@@ -54354,7 +54354,7 @@
    ],
    "misconceptions": [
     {
-     "text": "Swaps the signs: x² − x − 6 = (x − 2)(x + 3)",
+     "text": "Swaps the signs of the two factors",
      "as": "distractor",
      "in": [
       "monic-trinomial"
@@ -54362,7 +54362,7 @@
      "wrong": "the factor pair with signs swapped, giving +x"
     },
     {
-     "text": "Factorises a sum of squares: x² + 9 = (x + 3)(x − 3)",
+     "text": "Factorises a sum of squares as if it were a difference of squares",
      "as": "distractor",
      "in": [
       "difference-of-squares"
@@ -54370,7 +54370,7 @@
      "wrong": "(x + 3)(x − 3) offered for x² + 9"
     },
     {
-     "text": "Divides only the first term by the common factor: 6x² − 9x = 3x(2x − 9)",
+     "text": "Divides only the first term by the common factor",
      "as": "distractor",
      "in": [
       "common-factor"
@@ -54378,7 +54378,7 @@
      "wrong": "second term left undivided"
     },
     {
-     "text": "Ignores the leading coefficient: 2x² + 7x + 3 = (x + 1)(x + 3)",
+     "text": "Ignores the leading coefficient when factorising",
      "as": "error-spot",
      "in": [
       "non-monic"
@@ -54554,7 +54554,7 @@
      "wrong": "adds the numbers under the roots, √12 + √27 = √39"
     },
     {
-     "text": "Divides only one term of the numerator: (4 + √12)/2 = 4 + √3",
+     "text": "Divides only one term of the numerator",
      "as": "distractor",
      "in": [
       "formula-fraction"
@@ -54562,7 +54562,7 @@
      "wrong": "only the surd halved"
     },
     {
-     "text": "Stops before the surd is fully simplified, e.g. √48 = 2√12",
+     "text": "Stops before the surd is fully simplified",
      "as": "error-spot",
      "in": [
       "simplify-root"
@@ -54745,7 +54745,7 @@
      "wrong": "strict and non-strict swapped"
     },
     {
-     "text": "In a two-sided inequality, applies the step to the middle part only",
+     "text": "Applies the step to the middle part only in a two-sided inequality",
      "as": "error-spot",
      "in": [
       "two-sided"
@@ -55020,7 +55020,7 @@
    "misconceptions": [
     {
      "ref": "SL2.9.exp-graph#0",
-     "text": "Puts the y-intercept of e^(x − 1) + 2 at (0, 3), ignoring the horizontal shift",
+     "text": "Ignores the horizontal shift when finding the y-intercept",
      "as": "distractor",
      "in": [
       "y-intercept"
@@ -55038,7 +55038,7 @@
     },
     {
      "ref": "SL2.9.exp-graph#2",
-     "text": "Thinks (1/2)^x is the reflection of 2^x in the x-axis rather than the y-axis",
+     "text": "Thinks a reciprocal base reflects the graph in the x-axis rather than the y-axis",
      "as": "distractor",
      "in": [
       "compare-reflections"
@@ -55047,7 +55047,7 @@
     },
     {
      "ref": "SL2.2.range#1",
-     "text": "Includes the asymptote value, e.g. gives the range of e^x + 2 as y ≥ 2 instead of y > 2",
+     "text": "Includes the asymptote value in the range",
      "as": "distractor",
      "in": [
       "range"
@@ -55287,7 +55287,7 @@
    "misconceptions": [
     {
      "ref": "SL2.9.exp-model#0",
-     "text": "Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth)",
+     "text": "Confuses the percentage rate with the growth factor, which is one plus the rate",
      "as": "distractor",
      "in": [
       "classify-words"
@@ -55563,7 +55563,7 @@
    ],
    "misconceptions": [
     {
-     "text": "Uses the percentage as the multiplier for a decrease: −15% gives × 0.15",
+     "text": "Uses the percentage as the multiplier for a decrease",
      "as": "distractor",
      "in": [
       "decrease-multiplier",
@@ -55572,7 +55572,7 @@
      "wrong": "× 0.15 instead of × 0.85"
     },
     {
-     "text": "Writes 5% growth as × 1.5",
+     "text": "Puts the percentage in the wrong decimal place in the growth multiplier",
      "as": "distractor",
      "in": [
       "increase-multiplier"
@@ -55580,7 +55580,7 @@
      "wrong": "1.5 instead of 1.05"
     },
     {
-     "text": "Reverses a change by taking the percentage of the new amount: after a 20% rise to 360, gives 360 − 72 = 288",
+     "text": "Reverses a change by taking the percentage of the new amount",
      "as": "distractor",
      "in": [
       "reverse-percentage"
@@ -55798,7 +55798,7 @@
     },
     {
      "ref": "SL2.3.match-graph#1",
-     "text": "Confuses a^x with a > 1 (growth) and 0 < a < 1 (decay)",
+     "text": "Confuses exponential growth with exponential decay",
      "as": "distractor",
      "in": [
       "graph-from-equation",
@@ -56506,7 +56506,7 @@
    ],
    "misconceptions": [
     {
-     "text": "Counts squares as units when one square is worth 2, 5 or 0.1",
+     "text": "Counts squares as units when each square is worth more or less than one",
      "as": "distractor",
      "in": [
       "read-with-scale"
@@ -56523,7 +56523,7 @@
      "wrong": "the points reflected in y = x"
     },
     {
-     "text": "Mixes up significant figures and decimal places: 0.004567 to 3 s.f. becomes 0.005",
+     "text": "Mixes up significant figures and decimal places",
      "as": "distractor",
      "in": [
       "round-small-3sf"
@@ -56539,7 +56539,7 @@
      "wrong": "2.05 instead of 2.04"
     },
     {
-     "text": "Drops a needed final zero: 1.4972 to 3 s.f. written as 1.5",
+     "text": "Gives too few significant figures, such as dropping a needed final zero",
      "as": "distractor",
      "in": [
       "round-3sf"
@@ -56834,7 +56834,7 @@
     },
     {
      "ref": "SL2.5.find-inverse#1",
-     "text": "Undoes the operations in the original order, e.g. for 2x + 1 gives x/2 − 1",
+     "text": "Undoes the operations in the original order",
      "as": "distractor",
      "in": [
       "undo-a-composite"
@@ -56843,7 +56843,7 @@
     },
     {
      "ref": "SL2.5.find-inverse#2",
-     "text": "For a quadratic on a restricted domain keeps the ± instead of choosing the sign that matches the domain",
+     "text": "Keeps the ± for a quadratic on a restricted domain, or picks the sign that doesn't match the domain",
      "as": "error-spot",
      "in": [
       "choose-restriction"
@@ -57089,7 +57089,7 @@
    ],
    "misconceptions": [
     {
-     "text": "Undoes the steps in the original order: y = 3x − 5 gives x = y/3 + 5",
+     "text": "Undoes the steps in the original order",
      "as": "distractor",
      "in": [
       "two-step"
@@ -57097,7 +57097,7 @@
      "wrong": "divides first, then adds 5, instead of (y + 5)/3"
     },
     {
-     "text": "Takes the square root term by term: y = x² + 9 gives x = √y − 3",
+     "text": "Takes the square root term by term",
      "as": "distractor",
      "in": [
       "power-or-root"
@@ -57105,7 +57105,7 @@
      "wrong": "√y − 3 instead of ±√(y − 9)"
     },
     {
-     "text": "Flips one side only: from y = 3/(x − 2), writes x − 2 = y/3",
+     "text": "Flips one side only when the subject is in the denominator",
      "as": "distractor",
      "in": [
       "subject-in-denominator"
@@ -57342,7 +57342,7 @@
    "misconceptions": [
     {
      "ref": "SL2.8.transformed-reciprocal#0",
-     "text": "Gives the translation vector as (−3, 2) because of the '− 3' in x − 3",
+     "text": "Gives the translation with the wrong horizontal sign, from the sign in the bracket",
      "as": "distractor",
      "in": [
       "translation-vector",
@@ -57362,7 +57362,7 @@
     },
     {
      "ref": "SL2.8.transformed-reciprocal#2",
-     "text": "Splits the numerator wrongly, e.g. 2x + 1 = 2(x − 3) + 1",
+     "text": "Splits the numerator wrongly, forgetting to adjust the constant",
      "as": "error-spot",
      "in": [
       "split-to-form"
@@ -57847,6 +57847,15 @@
      "wrong": "\"the population reaches 800 after enough years\""
     },
     {
+     "ref": "SL2.8.asymptotes#1",
+     "text": "Gives the horizontal asymptote as y = b/d (the ratio of constants) instead of y = a/c",
+     "as": "distractor",
+     "in": [
+      "why-horizontal"
+     ],
+     "wrong": "a horizontal asymptote at the ratio of the constants"
+    },
+    {
      "ref": "SL2.8.asymptotes#2",
      "text": "Thinks there is no horizontal asymptote because the numerator is not a constant",
      "as": "error-spot",
@@ -57857,7 +57866,7 @@
     },
     {
      "ref": "SL2.4.asymptotes#1",
-     "text": "Swaps vertical and horizontal, writing x = 2 for a horizontal asymptote",
+     "text": "Swaps vertical and horizontal, writing the asymptotes the wrong way round",
      "as": "distractor",
      "in": [
       "why-vertical"
@@ -58063,7 +58072,7 @@
    ],
    "misconceptions": [
     {
-     "text": "Cancels terms, not factors: (x + 6)/(x + 3) = 2",
+     "text": "Cancels terms, not factors",
      "as": "distractor",
      "in": [
       "simplify-by-cancelling"
@@ -58071,7 +58080,7 @@
      "wrong": "the x cancelled from top and bottom, leaving 6/3"
     },
     {
-     "text": "Adds tops and bottoms: 1/(x + 1) + 2/(x − 1) = 3/(2x)",
+     "text": "Adds tops and bottoms separately instead of using a common denominator",
      "as": "distractor",
      "in": [
       "add-fractions"
@@ -58330,7 +58339,7 @@
     },
     {
      "ref": "SL2.2.is-function#2",
-     "text": "Believes a vertical line such as x = 3 is a function",
+     "text": "Believes a vertical line is a function",
      "as": "distractor",
      "in": [
       "vertical-line"
@@ -58535,7 +58544,7 @@
    "misconceptions": [
     {
      "ref": "SL2.2.evaluate-notation#2",
-     "text": "Writes f(x + 1) as f(x) + 1",
+     "text": "Writes f(x + a) as f(x) + a",
      "as": "distractor",
      "in": [
       "inside-or-outside-shift"
@@ -58544,7 +58553,7 @@
     },
     {
      "ref": "SL2.2.evaluate-notation#0",
-     "text": "Treats f(x) as f × x, e.g. writes f(2) = 2f",
+     "text": "Treats f(x) as f × x, so a factor inside the bracket comes out",
      "as": "error-spot",
      "in": [
       "inside-or-outside-scale"
@@ -58553,7 +58562,7 @@
     },
     {
      "ref": "SL2.2.inverse-undo#0",
-     "text": "Reads f⁻¹(x) as 1/f(x)",
+     "text": "Reads f⁻¹(x) as the reciprocal of f(x)",
      "as": "distractor",
      "in": [
       "inverse-or-reciprocal"
@@ -58767,7 +58776,7 @@
    ],
    "misconceptions": [
     {
-     "text": "Squares without brackets: −x² at x = −3 gives 9",
+     "text": "Squares without brackets, so the sign comes out wrong",
      "as": "distractor",
      "in": [
       "negative-into-square",
@@ -58776,7 +58785,7 @@
      "wrong": "9 instead of −9"
     },
     {
-     "text": "Multiplies before squaring: 2x² at x = 3 gives (2 × 3)² = 36",
+     "text": "Multiplies before squaring",
      "as": "distractor",
      "in": [
       "coefficient-and-power"
@@ -58784,7 +58793,7 @@
      "wrong": "36 instead of 18"
     },
     {
-     "text": "Drops the sign of the input: 3 − 2x at x = −2 gives 3 − 4 = −1",
+     "text": "Drops the sign of the input",
      "as": "distractor",
      "in": [
       "negative-into-linear"
@@ -58792,7 +58801,7 @@
      "wrong": "−1 instead of 7"
     },
     {
-     "text": "Works left to right ignoring the order of operations: 2 + 3 × 4 = 20",
+     "text": "Works left to right, ignoring the order of operations",
      "as": "error-spot",
      "in": [
       "rational-expression"
@@ -59827,7 +59836,7 @@
    ],
    "misconceptions": [
     {
-     "text": "Multiplies only the first term in a bracket: 3(x + 2) = 3x + 2",
+     "text": "Multiplies only the first term in a bracket",
      "as": "distractor",
      "in": [
       "brackets"
@@ -59852,7 +59861,7 @@
      "wrong": "the whole-number term left unmultiplied"
     },
     {
-     "text": "Divides only one term when making y the subject: 2y = 3x − 6 gives y = 3x/2 − 6",
+     "text": "Divides only one term when making y the subject",
      "as": "distractor",
      "in": [
       "make-y-subject"
@@ -60946,7 +60955,7 @@
     },
     {
      "ref": "SL5.11.integral-properties#0",
-     "text": "∫ from 1 to 4 of (f(x) + 2) dx = 7 + 2 instead of 7 + 2 × 3",
+     "text": "Adds the constant once instead of multiplying it by the width of the interval",
      "as": "distractor",
      "in": [
       "raised-area"
@@ -61429,7 +61438,7 @@
     },
     {
      "ref": "SL2.6.vertex#0",
-     "text": "From a(x + 3)² − 4 gives the vertex (3, −4) instead of (−3, −4)",
+     "text": "Gets the sign of the vertex wrong: a(x − h)² + k has its vertex at (h, k)",
      "as": "distractor",
      "in": [
       "vector-from-vertex-form"
@@ -61501,7 +61510,7 @@
     },
     {
      "ref": "SL3.1.distance-3d#1",
-     "text": "Mishandling a negative coordinate, so that subtracting it takes away its size instead of adding it",
+     "text": "Mishandling a negative coordinate when subtracting",
      "as": "distractor",
      "in": [
       "step-in-3d"
@@ -62424,7 +62433,7 @@
    "misconceptions": [
     {
      "ref": "SL2.9.exp-model#0",
-     "text": "Uses r instead of 1 + r as the growth factor (0.05 instead of 1.05 for 5% growth)",
+     "text": "Confuses the percentage rate with the growth factor, which is one plus the rate",
      "as": "distractor",
      "in": [
       "percent-to-factor"
@@ -62442,7 +62451,7 @@
     },
     {
      "ref": "SL2.9.exp-model#2",
-     "text": "Treats the initial value as P(1) instead of P(0), so the exponent is off by one",
+     "text": "Treats the start value as the value after one period, so the exponent is off by one",
      "as": "distractor",
      "in": [
       "sequence-vs-function"
@@ -62451,7 +62460,7 @@
     },
     {
      "ref": "SL2.9.exp-graph#2",
-     "text": "Thinks (1/2)^x is the reflection of 2^x in the x-axis rather than the y-axis",
+     "text": "Thinks a reciprocal base reflects the graph in the x-axis rather than the y-axis",
      "as": "distractor",
      "in": [
       "graph-from-factor"
@@ -62469,7 +62478,7 @@
     },
     {
      "ref": "SL1.3.model#1",
-     "text": "Using 1.3 for a 30% decrease, or subtracting 30% of the original each year (linear thinking)",
+     "text": "Using the wrong factor for a percentage decrease, or subtracting the same amount each year",
      "as": "distractor",
      "in": [
       "percent-to-factor",
@@ -62479,7 +62488,7 @@
     },
     {
      "ref": "SL1.3.model#2",
-     "text": "Off-by-one: the value 'after 10 years' needs 10 multiplications, not u_10 = u_1 r^9 with u_1 as the starting value",
+     "text": "Counting one multiplication too few: when u₁ is the starting value, the value after t years needs t multiplications",
      "as": "distractor",
      "in": [
       "sequence-vs-function"
@@ -62488,7 +62497,7 @@
     },
     {
      "ref": "SL1.4.future-value#0",
-     "text": "Using the annual rate with kn periods: 2000 × 1.04^20 instead of 2000 × 1.01^20",
+     "text": "Using the annual rate with kn periods, instead of dividing the rate by k",
      "as": "distractor",
      "in": [
       "compounding-factor"
@@ -62497,7 +62506,7 @@
     },
     {
      "ref": "SL1.4.future-value#1",
-     "text": "Using simple interest: 1200 + 3 × 60 = $1380",
+     "text": "Using simple interest instead of compounding",
      "as": "distractor",
      "in": [
       "compounding-factor"
@@ -62506,7 +62515,7 @@
     },
     {
      "ref": "SL1.4.depreciation#0",
-     "text": "Using 1.15 or 0.15 as the multiplier instead of 0.85",
+     "text": "Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss",
      "as": "distractor",
      "in": [
       "depreciation-two-ways"
@@ -62515,7 +62524,7 @@
     },
     {
      "ref": "SL1.4.depreciation#1",
-     "text": "Treating depreciation as linear: subtracting 15% of the original price each year",
+     "text": "Treating depreciation as linear: subtracting the same percentage of the original price each year",
      "as": "distractor",
      "in": [
       "depreciation-two-ways"
@@ -62888,7 +62897,7 @@
    "misconceptions": [
     {
      "ref": "SL2.2.inverse-undo#0",
-     "text": "Reads f⁻¹(x) as 1/f(x)",
+     "text": "Reads f⁻¹(x) as the reciprocal of f(x)",
      "as": "distractor",
      "in": [
       "inverse-of-exponential"
@@ -62942,7 +62951,7 @@
     },
     {
      "ref": "SL2.9.exp-log-inverse#0",
-     "text": "Solves e^(2x) = 7 as x = 2 ln 7 or x = ln 7 − 2 instead of x = (ln 7)/2",
+     "text": "Multiplies by the coefficient of x, or subtracts it, instead of dividing after taking logs",
      "as": "distractor",
      "in": [
       "inverse-of-exponential"
@@ -62951,7 +62960,7 @@
     },
     {
      "ref": "SL2.9.exp-log-inverse#1",
-     "text": "Converts log₂ x = 5 to x = 5² instead of 2⁵",
+     "text": "Converts log_b x = c to x = c^b instead of b^c",
      "as": "distractor",
      "in": [
       "undo-check"
@@ -62960,7 +62969,7 @@
     },
     {
      "ref": "SL1.5.exp-log-form#0",
-     "text": "Dividing instead of finding the power: log_2 32 = 16",
+     "text": "Dividing instead of finding the power",
      "as": "distractor",
      "in": [
       "undo-check"
@@ -63785,7 +63794,7 @@
    "misconceptions": [
     {
      "ref": "SL2.6.complete-square#0",
-     "text": "Forgets to subtract the square of half the coefficient, writing x² − 8x + 11 = (x − 4)² + 11",
+     "text": "Forgets to subtract the square of half the coefficient",
      "as": "distractor",
      "in": [
       "identity-constants"
@@ -63794,7 +63803,7 @@
     },
     {
      "ref": "SL2.6.complete-square#1",
-     "text": "When a ≠ 1, does not multiply the correction term by a",
+     "text": "Forgets to multiply the correction term by a when a is not one",
      "as": "distractor",
      "in": [
       "form-for-feature"
@@ -63803,7 +63812,7 @@
     },
     {
      "ref": "SL2.6.complete-square#2",
-     "text": "Gets the sign of h wrong, writing (x + 4)² for x² − 8x + …",
+     "text": "Gets the sign of h wrong inside the bracket",
      "as": "distractor",
      "in": [
       "identity-constants"
@@ -63812,7 +63821,7 @@
     },
     {
      "ref": "SL2.6.factorised-form#0",
-     "text": "From (x + 1)(x − 4) gives the intercepts 1 and −4",
+     "text": "Reads the roots off the factors with the wrong signs",
      "as": "distractor",
      "in": [
       "form-for-feature"
@@ -63893,7 +63902,7 @@
     },
     {
      "ref": "SL1.5.zero-negative#2",
-     "text": "Moving only the variable: writing 1/(4x^3) as 4x^−3 instead of (1/4)x^−3",
+     "text": "Moving the coefficient to the top along with the variable, instead of only the variable",
      "as": "distractor",
      "in": [
       "power-form-first"
@@ -63902,7 +63911,7 @@
     },
     {
      "ref": "SL5.3.negative-powers#0",
-     "text": "Differentiating the denominator: d/dx(1/x²) = 1/(2x)",
+     "text": "Differentiating the denominator instead of using a negative power",
      "as": "distractor",
      "in": [
       "power-form-first"
@@ -63911,7 +63920,7 @@
     },
     {
      "ref": "SL5.3.negative-powers#1",
-     "text": "Getting the new power wrong: x⁻² → −2x⁻¹ instead of −2x⁻³",
+     "text": "Adding one to a negative power instead of subtracting one",
      "as": "distractor",
      "in": [
       "power-form-first"
@@ -64296,7 +64305,7 @@
     },
     {
      "ref": "SL2.4.max-min#1",
-     "text": "On a restricted domain, misses an endpoint that is higher than the local maximum",
+     "text": "Misses an endpoint of a restricted domain that goes past the turning point",
      "as": "distractor",
      "in": [
       "endpoint-beats-vertex"
@@ -64314,7 +64323,7 @@
     },
     {
      "ref": "SL2.6.vertex#2",
-     "text": "Calls the vertex a minimum when a < 0",
+     "text": "Mixes up maximum and minimum for the sign of a",
      "as": "distractor",
      "in": [
       "max-height-methods"
@@ -64332,7 +64341,7 @@
     },
     {
      "ref": "SL2.2.range#2",
-     "text": "Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x)",
+     "text": "Writes the range in terms of x instead of y or f(x)",
      "as": "distractor",
      "in": [
       "endpoint-beats-vertex"
@@ -64359,7 +64368,7 @@
     },
     {
      "ref": "SL3.7.read-features#1",
-     "text": "Taking the amplitude as a + d, or as negative when a is negative",
+     "text": "Ignores the principal axis, or adds it to the amplitude",
      "as": "distractor",
      "in": [
       "wave-extremes",
@@ -64750,7 +64759,7 @@
     },
     {
      "ref": "SL2.10.solve-gdc#1",
-     "text": "Rounds intermediate values or gives answers to fewer than 3 s.f.",
+     "text": "Rounds intermediate values, or gives too few significant figures",
      "as": "distractor",
      "in": [
       "solve-by-intersection"
@@ -64849,7 +64858,7 @@
     },
     {
      "ref": "SL1.7.log-equations#0",
-     "text": "Keeping a solution that makes an argument zero or negative (x = −2)",
+     "text": "Keeping a solution that makes an argument zero or negative",
      "as": "distractor",
      "in": [
       "log-equation-check"

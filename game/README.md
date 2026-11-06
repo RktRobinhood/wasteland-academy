@@ -1360,7 +1360,7 @@ were true (each string opens by naming the slip: "Assuming ...", "Using ..."), o
 text. It also fails on an absurdly large option. So strings carry no numbers of their own:
 one string serves every question with that tag. Whether a tag fits its option has to be
 read: `--rows=file.tsv` writes one row per type, unknown, representation and tag. A new type
-is enforced from its first commit; the older types in `REPORT_ONLY` are only counted.
+is enforced from its first commit, and `REPORT_ONLY` is empty.
 
 The checker only exports seeds 1 to 50. `tools/stress-questions` makes every cell with
 seeds 51 to 2250 (about 258,000 questions, a few minutes) and checks that each question

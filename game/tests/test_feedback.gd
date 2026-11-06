@@ -8,7 +8,7 @@ func test_a_string_has_to_name_the_slip() -> void:
 	for text in ["Thinking a limit can't exist when the function never reaches the value", "Assuming a right angle because it looks like one",
 			"Using the wrong sign", "Not dividing by all the paths"]:
 		check(Check.names_a_slip(text), text)
-	for text in ["Writes the rule with the sign reversed", "Thinks the order never matters", "Gives the vertex with the wrong sign"]:
+	for text in ["Writes the rule with the sign reversed", "Thinks the order never matters", "Gives the vertex with the wrong sign", "Joins the two regions into one interval"]:
 		check(Check.names_a_slip(text), text)
 	for text in ["At rest means a = 0", "A random sample is always perfectly representative", "sin 2θ = 2 sin θ", "Sign slips", "Nothing changes", "",
 			"The mean is always the best average", "Angles add up to 90°", "Not writes the rule"]:

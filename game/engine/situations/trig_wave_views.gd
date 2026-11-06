@@ -9,7 +9,7 @@ extends TrigModelViews
 ## wave on a figure hides its equation unless the question's method is the GDC.
 
 const R_B := "SL3.7.read-features#0"
-const R_AMP := "SL3.7.read-features#1"
+const R_AMP := "SL3.7.read-features#11"
 const R_TAN_AMP := "SL3.7.read-features#2"
 const R_TAN_SIN := "SL3.7.read-features#3"
 const R_SIN_TAN := "SL3.7.read-features#4"
