@@ -1389,6 +1389,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 29.
 
+### t5-derivative-model-gdc
+
+**Derivative of a model at a point with technology.** Differentiate a real-world model at a point, with the GDC or by a rule: a rate with its units, the time a rate is reached, the greatest rate, whether the quantity is rising or falling and what the rate means in the story. Use the chain, product and quotient rules with values from a table or read from graphs, and picture the rate as a tangent.
+
+- **Syllabus:** 5.6, 5.1
+- **Skills:** `SL5.6.rules-with-values`, `SL5.1.interpret-derivative`
+- **Where it appears:** P1 0, P2 4; Section A 0, B 4. Marks per part: usually 2 (2 to 6).
+- **Usual chain:** read the model: exponential, logistic, a product, a wave or a logarithm → differentiate it, with the GDC's dy/dx or by a rule → substitute the time, or solve for the time a rate is reached → graph the derivative to find its greatest size → read the sign as a direction and the size as a speed, with units → write the chain, product or quotient rule, then substitute values from a table or from graphs
+- **Given:** a model and its domain, a time, a rate or a step, a graph of the model with a tangent, two models of one story, a table of values and derivatives, graphs of f and g in straight pieces. **Asked:** A rate, a rate with units, a time, the greatest rate, a direction, a statement in the story, an estimate from a tangent, or a derivative from values. **Answer form:** 3 s.f., exact, a sentence.
+- **A recipe can randomise:** the story; the family of model and its numbers; the time, the rate or the step; the columns of a table; the straight pieces of a graph.
+- **Limits that keep answers clean:** Paper 2: every part of this type in the bank is Paper 2; a rate or a time is clear of a rounding edge at 3 s.f., and its third figure is not 0; a time found is clear of the ends of the domain and of any other time with that rate; a value from a table or from graphs is exact and ends as a decimal.
+- **Game formats:** value, mcq
+- **Bank parts:** 4.
+
 ### t5-differentiation-rules
 
 **Chain, product and quotient rules.** Differentiate standard functions, composites, products and quotients, written as an expression; show that a derivative takes a given form; find a gradient at a point, exactly on Paper 1 and to 3 s.f. on Paper 2.

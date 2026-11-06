@@ -706,6 +706,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   rate per month or quarter. Methods are the multiplier, the TVM solver with a negative rate, a
   year-by-year run, logs, a GDC table and a graph. Money is answered exactly to the dollar, and every
   value, and every slip offered, leaves a fraction of a dollar at least 0.15 from the edge at 0.5.
+- `engine/situations/derivative_model.gd` (FAL-753) is `t5-derivative-model-gdc` (SL5.6.rules-with-values
+  and SL5.1.interpret-derivative), the `derivative-model` situation: a story modelled by an exponential, a
+  logistic, a product te^(−kt), a wave with a trend or a logarithm, and the chain, product and quotient
+  rules with values. Its views (`derivative_model_views.gd`) show the model on a line or in a story, with
+  a graph of the model and its tangents, of the rate and a line, or of two models; a table of values and
+  rates; or straight pieces to read. It asks 20 unknowns over 62 cells, all Paper 2: the rate at a time,
+  with its units or per a shorter unit, the first time a rate is reached, the greatest rate and when, which
+  way the quantity is going, what a rate means in the story, two models compared, the total time one rate
+  is greater, the steeper of two tangents, a tangent's estimate, and a product, quotient or composite from
+  a table or from graphs. The GDC's dy/dx is the method `gdc-derivative`, appended to SL5.6.rules-with-values.
+  A model's answers are to 3 s.f. with the rounding trap and values from a table or graphs are exact.
 - `engine/situations/compound_interest.gd` (FAL-695) is `t1-compound-interest` (SL1.4, on all
   four syllabuses): money invested at a nominal annual rate r %, compounded 1, 2, 4 or 12
   times a year, for n years. Its views (`compound_interest_views.gd`) ask 6 unknowns, all
@@ -1385,6 +1396,13 @@ proof with SymPy for general n, each left side held to what it means, so no valu
 option must be true in a world where its slip was made and false in the real one, and a spoiled proof's
 first false line must be the one it says, with the lines after it what that slip carries to
 (`E11SP_check`).
+
+For `derivative-model` it reads the model back from the line shown and differentiates it with SymPy.
+Times come from a float scan for sign changes refined by bisection, a greatest rate from where the
+second derivative changes sign, and a total time from the stretches between the crossings it finds.
+Tables, sentences and straight-line graphs are read back and put through each rule with exact
+rationals. Each tagged option is worked out from its slip, each figure's curves and tangents are held
+to the model, and a derivative in the working is compared with SymPy's (`E11DM_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -1855,6 +1873,8 @@ script error happens while it runs. Run one file with
 - `test_tree_diagram.gd` (FAL-739): `t4-tree-diagram`: every cell with one right option, its papers,
   forks that add to 1, a tree of each shape, a tin's branches as the recount, one valid k, n back from
   a growing tin, a game's two ways to win, past-paper set-ups left out and every misconception shown.
+- `test_derivative_model.gd` (FAL-753): `t5-derivative-model-gdc`: every cell and method on Paper 2, the
+  sums by hand, a time that has the rate asked for, a greatest rate that is the rate's top, and every tag.
 - `test_inverse_normal.gd` (FAL-752): `t4-inverse-normal`: every cell and method, each on its one paper
   with one right option; a value has the area it was given, a central interval and a band hold theirs,
   a ratio's tails are in that ratio, Paper 1 is exact with no calculator word, and every slip comes up.

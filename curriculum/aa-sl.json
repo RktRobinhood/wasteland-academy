@@ -13811,7 +13811,10 @@
               "misconceptions": [
                 "Reading the rate of change as the amount itself",
                 "Ignoring a negative sign, so a falling quantity is read as rising",
-                "Giving the units of y only, instead of units of y per unit of x"
+                "Giving the units of y only, instead of units of y per unit of x",
+                "Using the change over the next unit of time instead of the rate at that instant",
+                "Finding the greatest value of the quantity instead of its greatest rate",
+                "Giving the rate per the model's unit of time when another unit is asked for"
               ],
               "threads": [
                 {
@@ -15505,12 +15508,21 @@
                   "approach": "graphical",
                   "name": "Read values and gradients from graphs",
                   "summary": "When f and g are drawn as straight-line pieces, read function values and gradients from the graphs, then substitute."
+                },
+                {
+                  "id": "gdc-derivative",
+                  "approach": "gdc",
+                  "name": "Use the GDC's dy/dx",
+                  "summary": "With the function as a formula, use the GDC's numerical derivative at the point, or graph it to find a crossing or a maximum."
                 }
               ],
               "misconceptions": [
-                "For a composite, using f′(1) instead of f′(g(1))",
-                "For a product, multiplying f′(a) × g′(a)",
-                "Reading g′(1) from the table when g(1) is needed"
+                "Using f′(a) instead of f′(g(a)) for a composite",
+                "Multiplying f′(a) × g′(a) for a product",
+                "Reading g′(a) when g(a) is needed",
+                "Dividing f′(a) by g′(a) for a quotient",
+                "Subtracting the two terms of the quotient rule in the wrong order",
+                "Leaving out the inner derivative of a composite"
               ],
               "threads": []
             }

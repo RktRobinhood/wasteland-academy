@@ -123,6 +123,7 @@ static var SITUATIONS := {
 	"rational-model": [RationalModelSituation, RationalModelViews],
 	"differentiation": [DifferentiationSituation, DifferentiationViews],
 	"derivative-meaning": [DerivativeMeaningSituation, DerivativeMeaningViews],
+	"derivative-model": [DerivativeModelSituation, DerivativeModelViews],
 	"monotonic": [MonotonicSituation, MonotonicViews],
 	"concavity": [ConcavitySituation, ConcavityViews],
 	"integration": [IntegrationSituation, IntegrationViews],
