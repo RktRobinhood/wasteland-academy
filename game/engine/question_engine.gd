@@ -53,6 +53,7 @@ static var SITUATIONS := {
 	"bearings-elevation": [BearingsSituation, BearingsViews],
 	"right-triangle": [RightTriangleSituation, RightTriangleViews],
 	"arithmetic-sequence": [ArithmeticSequenceSituation, ArithmeticSequenceViews],
+	"arithmetic-context": [ArithmeticContextSituation, ArithmeticContextViews],
 	"distribution": [DistributionSituation, DistributionViews],
 	"quadratic-parameter": [QuadraticParameterSituation, QuadraticParameterViews],
 	"curve-and-line": [CurveLineSituation, CurveLineViews],

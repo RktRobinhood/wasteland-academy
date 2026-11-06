@@ -475,9 +475,12 @@
                 }
               ],
               "misconceptions": [
-                "Rounding n down: from n > 49.5 concluding n = 49",
+                "Rounding n down when the first term past a value is wanted, so the term found falls short of it",
                 "Answering with n when the question asks for the term itself (or the reverse)",
-                "Forgetting to add one when counting terms"
+                "Forgetting to add one when counting terms",
+                "Rounding a non-whole n to call the value a term of the sequence",
+                "Testing whether the value alone is a multiple of d, without taking off the first term",
+                "Setting the number of rows equal to the crate size, instead of making the total a multiple of it"
               ],
               "threads": [
                 {
@@ -741,8 +744,19 @@
               ],
               "misconceptions": [
                 "Using u_n when the question asks for a total S_n, or the reverse",
-                "Off-by-one with time: the value 'after 3 years' is u_4 when u_1 is the starting value",
-                "Extrapolating an approximate model far beyond the data without comment"
+                "Taking the value after n steps of time as u_n, when u_1 is the value at the start, so the term is one out",
+                "Extrapolating an approximate model far beyond the data without comment",
+                "Taking a single difference from the data as d, instead of using all the data",
+                "Adding all the steps from year 1 onto the last value in the data",
+                "Reading the regression line's b as the common difference, instead of its gradient a",
+                "Leaving the intercept b out of a prediction from a regression line",
+                "Treating a prediction from an approximate model as an exact value",
+                "Rejecting every prediction because the data are not exactly arithmetic",
+                "Trusting a prediction that breaks a limit the story states",
+                "Treating simple interest as compound, so that interest earns interest",
+                "Giving only the interest earned, leaving out the starting amount",
+                "Stopping one term away from the last positive term when finding the greatest total",
+                "Treating the totals of a stack as an arithmetic sequence, when it is the rows added that are"
               ],
               "threads": [
                 {

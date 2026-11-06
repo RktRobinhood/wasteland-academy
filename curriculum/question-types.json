@@ -2468,6 +2468,66 @@
     "two given terms are at least two steps apart, and neither is u₁ when u₁ is asked"
    ]
   },
+  "arithmetic-context": {
+   "name": "An arithmetic sequence or series in a story",
+   "summary": "A story that is one arithmetic sequence: rows of seats, a yearly wage, an amount that changes by the same step, simple interest, a stack of rows, or data that are nearly arithmetic. u₁ and d come from the story, a table, a graph or a figure. The story decides whether a term, a total, a term number or a judgement is wanted, and ArithmeticSequenceSituation's helpers do the sums.",
+   "quantities": [
+    {
+     "name": "story",
+     "is": "what the terms count, and in what steps",
+     "pick": "one of eight sequences (four rising, four falling), five amounts that change each step, three lines of evenly spaced things, three net changes that fall past 0, five data tables or three stacks"
+    },
+    {
+     "name": "u₁, d",
+     "is": "the first term and the common difference",
+     "pick": "the story's own range: whole numbers, or steps of 0.1 or 0.5 where the story has decimals, so every term ends"
+    },
+    {
+     "name": "n",
+     "is": "the term number or the number of terms asked about",
+     "pick": "8 to 40 for a term and 6 to 30 for a total, with the story still positive one term past it"
+    },
+    {
+     "name": "X",
+     "is": "a target for a term or a running total",
+     "pick": "a round number strictly between two neighbours, with the real n at least 0.1 from a whole number"
+    },
+    {
+     "name": "rate",
+     "is": "the rate of simple interest",
+     "pick": "2% to 9% in steps of 0.5%, on a deposit of 400 to 5000 tokens in hundreds"
+    },
+    {
+     "name": "data",
+     "is": "the table of a nearly arithmetic story",
+     "pick": "5 to 8 years, a step of the story's size and whole-number noise of up to a third of it; every change has the story's sign, and the changes are not all equal"
+    },
+    {
+     "name": "d estimates",
+     "is": "what the data say d is",
+     "pick": "(last − first) ÷ gaps, and the gradient of the regression line, exact from the sums"
+    },
+    {
+     "name": "N",
+     "is": "the year of a prediction",
+     "pick": "2 to 6 years past the table; for a comment, 1 or 2 past it (near), at least three spans past it (far), or past the story's limit (capped)"
+    },
+    {
+     "name": "crate",
+     "is": "the size of a stack's whole crates",
+     "pick": "10, 12, 15, 16, 20, 24, 25 or 30, where a multiple comes within 40 rows and not in the first two"
+    }
+   ],
+   "clean": [
+    "Paper 2 only: every part of this type in the bank is Paper 2",
+    "a count or amount that ends is marked exactly; what comes from imperfect data is to 3 s.f.",
+    "a target is not a term, and its real n is at least 0.1 from a whole number",
+    "in a whole-number test u₁ is not a multiple of d, and n is a decimal that ends within two places",
+    "in a story every term asked about is positive; only the net stories have negative terms",
+    "the stated limit of a story is passed by both the estimate from d and the regression line's",
+    "wrong options read differently to 3 s.f.; a number written to 3 s.f. is clear of a rounding edge"
+   ]
+  },
   "distribution": {
    "name": "One discrete random variable with its probability distribution",
    "summary": "Pick 3 to 5 values of X and their probabilities, as multiples of k, as a formula P(X = x) = k f(x), or as decimals, so they add to 1. A game variant has prizes and a stake. Every probability, E(X), the probability of any event and the expected number of times it happens in n trials are then known, and any of them can be asked.",
@@ -20241,14 +20301,762 @@
    "id": "t1-arithmetic-in-context",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Arithmetic sequence or series modelling a pattern or context",
+   "summary": "A story that is an arithmetic sequence: find a term or a total, tell 'after n years' from 'in year n', find simple interest, estimate d from imperfect data and comment on a prediction, or find n: which term has a value, the first to pass a target, whether a value is a term at all.",
    "syllabus": [
     "1.2"
    ],
    "skills": [
     "SL1.2.model",
     "SL1.2.find-n"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read u₁ and d from the story, the table, the graph or the figure",
+    "decide whether the question wants one term, a total or a term number",
+    "count the steps of d: term n is n − 1 steps from u₁, and a value after n steps is u₍ₙ₊₁₎ when u₁ is the start",
+    "for a target, solve and round up, or read the table or the graph",
+    "with imperfect data, estimate d, predict, and say how far to trust it"
+   ],
+   "given": [
+    "a story in words",
+    "a table of the first terms, or of data",
+    "a line or dots on a graph",
+    "a figure of three stacks of rows"
+   ],
+   "asked": "A term, a total, an amount after n steps, a term number, the number of terms, the first term or total past a target, whether a value is a term, an estimate of d, a prediction, a comment on validity, the greatest total, or the fewest rows that use whole crates.",
+   "answerForms": [
+    "a whole number or a decimal that ends, marked exactly",
+    "3 s.f.",
+    "a choice in words"
+   ],
+   "randomise": [
+    "the story",
+    "u₁ and d, rising or falling",
+    "the term or the number of terms",
+    "the target",
+    "the data, and the year predicted"
+   ],
+   "constraints": [
+    "Paper 2: a GDC table, a graph and a regression are all in play",
+    "every option is a different number or statement, and every wrong statement is false for the numbers shown",
+    "a target is never a term, and its real n is clear of a whole number"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "arithmetic-context",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story giving u₁ and d in its own words"
+    },
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "a table of the first terms or of yearly data, with d to be found"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the line of uₙ against n with two labelled dots and the target drawn, or the data's labelled dots"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "three stacks of 1, 2 and 3 rows, side by side, as the bank's pattern figures have it"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "term-in-context",
+     "given": [
+      "a story, or a table of its first terms"
+     ],
+     "asked": "one term of the sequence",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "total-in-context",
+     "given": [
+      "a story, or a table of its first terms"
+     ],
+     "asked": "the total of the first n terms",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "term-or-total",
+     "given": [
+      "a story, and a question in its words"
+     ],
+     "asked": "which calculation answers it: one term or a total",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "in-or-after",
+     "given": [
+      "a story told in steps of time, or a table"
+     ],
+     "asked": "the value in step n, or once n full steps have passed",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "value-after",
+     "given": [
+      "an amount at the start and its change each step, or a table"
+     ],
+     "asked": "the amount after n steps",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "simple-interest",
+     "given": [
+      "a deposit and a rate, or a table of values"
+     ],
+     "asked": "the value of the deposit after n years",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "estimate-d",
+     "given": [
+      "yearly data that are nearly arithmetic"
+     ],
+     "asked": "d from the first and last values, to 3 s.f.",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "fit-gradient",
+     "given": [
+      "yearly data that are nearly arithmetic"
+     ],
+     "asked": "d as the regression gradient, to 3 s.f.",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "predict-from-gaps",
+     "given": [
+      "yearly data that are nearly arithmetic"
+     ],
+     "asked": "a later value, from d estimated by first and last, to 3 s.f.",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "predict-from-line",
+     "given": [
+      "yearly data that are nearly arithmetic"
+     ],
+     "asked": "a later value from the regression line, to 3 s.f.",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "comment-validity",
+     "given": [
+      "yearly data, a prediction, and any limit in the story"
+     ],
+     "asked": "whether the prediction is valid, and why",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "stack-total",
+     "given": [
+      "stacks of 1, 2 and 3 rows, or a table of totals"
+     ],
+     "asked": "the number of items in a stack of n rows",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "peak-total",
+     "given": [
+      "terms that fall past 0, in a story or a table"
+     ],
+     "asked": "the greatest running total",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model",
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "term-number",
+     "given": [
+      "a sequence and a value in it"
+     ],
+     "asked": "the term number that has the value",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "zero-term",
+     "given": [
+      "a falling sequence"
+     ],
+     "asked": "the term number that reaches 0",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "count-terms",
+     "given": [
+      "first value, last value and gap, or a table and the last value"
+     ],
+     "asked": "how many terms there are",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "first-past",
+     "given": [
+      "a sequence and a target"
+     ],
+     "asked": "the first term number past the target",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "first-total-past",
+     "given": [
+      "a rising sequence and a target for its total"
+     ],
+     "asked": "the first n whose running total passes the target",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "whole-n-test",
+     "given": [
+      "a sequence and a value"
+     ],
+     "asked": "whether the value is a term, justified by n",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "stack-crates",
+     "given": [
+      "a stack of rows and a crate size"
+     ],
+     "asked": "the fewest rows that use whole crates exactly",
+     "level": 5,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.2.model",
+     "method": "identify-parameters",
+     "suits": [
+      "term-in-context",
+      "total-in-context",
+      "term-or-total",
+      "in-or-after",
+      "value-after",
+      "simple-interest",
+      "stack-total",
+      "peak-total"
+     ]
+    },
+    {
+     "skill": "SL1.2.model",
+     "method": "tabulate",
+     "suits": [
+      "term-in-context",
+      "total-in-context",
+      "in-or-after",
+      "value-after",
+      "simple-interest",
+      "stack-total"
+     ]
+    },
+    {
+     "skill": "SL1.2.model",
+     "method": "average-difference",
+     "suits": [
+      "estimate-d",
+      "predict-from-gaps",
+      "comment-validity"
+     ]
+    },
+    {
+     "skill": "SL1.2.model",
+     "method": "gdc-regression",
+     "suits": [
+      "fit-gradient",
+      "predict-from-line",
+      "comment-validity"
+     ]
+    },
+    {
+     "skill": "SL1.2.find-n",
+     "method": "solve-linear",
+     "suits": [
+      "term-number",
+      "zero-term",
+      "count-terms",
+      "first-past",
+      "whole-n-test"
+     ]
+    },
+    {
+     "skill": "SL1.2.find-n",
+     "method": "count-steps",
+     "suits": [
+      "term-number",
+      "zero-term",
+      "count-terms",
+      "whole-n-test"
+     ]
+    },
+    {
+     "skill": "SL1.2.find-n",
+     "method": "gdc-table",
+     "suits": [
+      "term-number",
+      "zero-term",
+      "first-past",
+      "first-total-past",
+      "peak-total",
+      "stack-crates"
+     ]
+    },
+    {
+     "skill": "SL1.2.find-n",
+     "method": "graph-intersect",
+     "suits": [
+      "term-number",
+      "zero-term",
+      "first-past",
+      "first-total-past"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If u₁ is the amount at the start, the amount after 5 years is u₅.",
+     "answer": "False: u₁ is after 0 years, so after 5 years it is u₆. Writing out the first few terms shows the shift.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A value that is a multiple of d is a term of an arithmetic sequence.",
+     "answer": "Sometimes: it depends on u₁. A value is a term exactly when (value − u₁) ÷ d is a whole number.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Predict whether d from first and last values and d from a regression line will be equal for data that are nearly arithmetic. Check with a table of your own.",
+     "answer": "Usually not: the first uses two values only, the regression uses them all. They are equal when the data are exactly arithmetic.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.2.model#1",
+     "text": "Taking the value after n steps of time as u_n, when u_1 is the value at the start, so the term is one out",
+     "as": "distractor",
+     "in": [
+      "in-or-after",
+      "value-after",
+      "simple-interest"
+     ],
+     "wrong": "u_n, one step short of the amount after n steps"
+    },
+    {
+     "ref": "SL1.2.model#2",
+     "text": "Extrapolating an approximate model far beyond the data without comment",
+     "as": "distractor",
+     "in": [
+      "comment-validity"
+     ],
+     "wrong": "valid, though the year is far beyond the data"
+    },
+    {
+     "ref": "SL1.2.model#3",
+     "text": "Taking a single difference from the data as d, instead of using all the data",
+     "as": "distractor",
+     "in": [
+      "estimate-d",
+      "fit-gradient",
+      "predict-from-gaps"
+     ],
+     "wrong": "the first change in the data taken as d"
+    },
+    {
+     "ref": "SL1.2.model#4",
+     "text": "Adding all the steps from year 1 onto the last value in the data",
+     "as": "distractor",
+     "in": [
+      "predict-from-gaps"
+     ],
+     "wrong": "the last value plus N steps of d"
+    },
+    {
+     "ref": "SL1.2.model#5",
+     "text": "Reading the regression line's b as the common difference, instead of its gradient a",
+     "as": "distractor",
+     "in": [
+      "fit-gradient"
+     ],
+     "wrong": "the line's b given as d"
+    },
+    {
+     "ref": "SL1.2.model#6",
+     "text": "Leaving the intercept b out of a prediction from a regression line",
+     "as": "distractor",
+     "in": [
+      "predict-from-line"
+     ],
+     "wrong": "a × N, with no b"
+    },
+    {
+     "ref": "SL1.2.model#7",
+     "text": "Treating a prediction from an approximate model as an exact value",
+     "as": "distractor",
+     "in": [
+      "comment-validity"
+     ],
+     "wrong": "valid and exact"
+    },
+    {
+     "ref": "SL1.2.model#8",
+     "text": "Rejecting every prediction because the data are not exactly arithmetic",
+     "as": "distractor",
+     "in": [
+      "comment-validity"
+     ],
+     "wrong": "no prediction can be made from imperfect data"
+    },
+    {
+     "ref": "SL1.2.model#9",
+     "text": "Trusting a prediction that breaks a limit the story states",
+     "as": "distractor",
+     "in": [
+      "comment-validity"
+     ],
+     "wrong": "valid, though the prediction breaks the limit"
+    },
+    {
+     "ref": "SL1.2.model#10",
+     "text": "Treating simple interest as compound, so that interest earns interest",
+     "as": "distractor",
+     "in": [
+      "simple-interest"
+     ],
+     "wrong": "the deposit compounded for n years"
+    },
+    {
+     "ref": "SL1.2.model#11",
+     "text": "Giving only the interest earned, leaving out the starting amount",
+     "as": "distractor",
+     "in": [
+      "simple-interest"
+     ],
+     "wrong": "n × the yearly interest alone"
+    },
+    {
+     "ref": "SL1.2.model#12",
+     "text": "Stopping one term away from the last positive term when finding the greatest total",
+     "as": "distractor",
+     "in": [
+      "peak-total"
+     ],
+     "wrong": "the running total one term before or after the last positive term"
+    },
+    {
+     "ref": "SL1.2.model#13",
+     "text": "Treating the totals of a stack as an arithmetic sequence, when it is the rows added that are",
+     "as": "distractor",
+     "in": [
+      "stack-total"
+     ],
+     "wrong": "t₁ + (n − 1)(t₂ − t₁)"
+    },
+    {
+     "ref": "SL1.2.find-n#0",
+     "text": "Rounding n down when the first term past a value is wanted, so the term found falls short of it",
+     "as": "distractor",
+     "in": [
+      "first-past",
+      "first-total-past"
+     ],
+     "wrong": "the whole n below the crossing"
+    },
+    {
+     "ref": "SL1.2.find-n#1",
+     "text": "Answering with n when the question asks for the term itself (or the reverse)",
+     "as": "distractor",
+     "in": [
+      "term-number",
+      "first-past",
+      "first-total-past",
+      "peak-total"
+     ],
+     "wrong": "the term's value given as n, or n given as the total"
+    },
+    {
+     "ref": "SL1.2.find-n#2",
+     "text": "Forgetting to add one when counting terms",
+     "as": "distractor",
+     "in": [
+      "term-number",
+      "zero-term",
+      "count-terms",
+      "whole-n-test"
+     ],
+     "wrong": "n − 1: the number of steps"
+    },
+    {
+     "ref": "SL1.2.find-n#3",
+     "text": "Rounding a non-whole n to call the value a term of the sequence",
+     "as": "distractor",
+     "in": [
+      "whole-n-test"
+     ],
+     "wrong": "yes, with n rounded"
+    },
+    {
+     "ref": "SL1.2.find-n#4",
+     "text": "Testing whether the value alone is a multiple of d, without taking off the first term",
+     "as": "distractor",
+     "in": [
+      "whole-n-test"
+     ],
+     "wrong": "the value tested for a multiple of d"
+    },
+    {
+     "ref": "SL1.2.find-n#5",
+     "text": "Setting the number of rows equal to the crate size, instead of making the total a multiple of it",
+     "as": "distractor",
+     "in": [
+      "stack-crates"
+     ],
+     "wrong": "n set to the crate size"
+    },
+    {
+     "ref": "SL1.2.nth-term#0",
+     "text": "Using u₁ + nd, which counts one step too many",
+     "as": "distractor",
+     "in": [
+      "term-in-context",
+      "term-or-total",
+      "in-or-after",
+      "predict-from-gaps",
+      "predict-from-line"
+     ],
+     "wrong": "one step too many: u₁ + nd"
+    },
+    {
+     "ref": "SL1.2.nth-term#1",
+     "text": "Finding d as the earlier term minus the later term, so a decreasing sequence gets a positive d",
+     "as": "distractor",
+     "in": [
+      "estimate-d"
+     ],
+     "wrong": "a positive d for a falling sequence"
+    },
+    {
+     "ref": "SL1.2.sum#0",
+     "text": "Using n instead of n − 1 inside the formula: n/2(2u_1 + nd)",
+     "as": "distractor",
+     "in": [
+      "total-in-context",
+      "term-or-total",
+      "stack-total"
+     ],
+     "wrong": "nd inside the sum's bracket"
+    },
+    {
+     "ref": "SL1.2.sum#1",
+     "text": "Using the wrong n, such as the last term's value or the number of gaps",
+     "as": "distractor",
+     "in": [
+      "total-in-context",
+      "stack-total"
+     ],
+     "wrong": "the sum of n − 1 terms"
+    },
+    {
+     "ref": "SL1.2.model#0",
+     "text": "Using u_n when the question asks for a total S_n, or the reverse",
+     "as": "distractor",
+     "in": [
+      "term-in-context",
+      "total-in-context",
+      "term-or-total",
+      "in-or-after",
+      "stack-total",
+      "peak-total",
+      "first-past",
+      "first-total-past",
+      "stack-crates"
+     ],
+     "wrong": "a term for a total, or a total for a term"
+    },
+    {
+     "ref": "SL1.2.find-u1-d#0",
+     "text": "Dividing by the number of terms instead of the number of gaps",
+     "as": "distractor",
+     "in": [
+      "estimate-d"
+     ],
+     "wrong": "the change divided by the number of values, not the gaps"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p2-q03.a",

@@ -149,6 +149,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   it ends), or the first week or day whose term or running total is more than a round
   threshold (a whole n). Any type with a `situation` gets a copy in
   `data/catalogue.json`, whatever its topic.
+- `engine/situations/arithmetic_context.gd` (FAL-752) is `t1-arithmetic-in-context`, Paper 2 throughout
+  as every part of it in the bank is: an arithmetic sequence in a story, with
+  `ArithmeticSequenceSituation`'s `term` and `sum` doing the sums. Its views
+  (`arithmetic_context_views.gd`) show the story in words, a table of the first terms or of data, a
+  graph (the line of uₙ against n with two labelled dots and the target drawn, or the data's labelled
+  dots) or a figure (`stages` in `ui/plot_view.gd`: stacks of 1, 2 and 3 rows side by side), and ask 20
+  unknowns. SL1.2.model: a term and a total (seats, pay, runs, hauls, a failing well), which calculation
+  a question wants, "in year n" against "once n full years have passed", an amount after n steps, simple
+  interest, d from first and last or as a regression gradient, a prediction from either, a comment on
+  validity (near the data, far past it, or over a limit in the story), a stack's total, and the
+  greatest running total of terms that fall past 0. SL1.2.find-n: the term with a value, the term that
+  reaches 0, the number of terms, the first term or running total past a target, whether a value is a
+  term at all (a whole n), and the fewest rows that use whole crates. What ends is marked exactly, what
+  comes from imperfect data is to 3 s.f., and a judgement is a picked statement.
 - `engine/situations/distribution.gd` (FAL-396) is the Topic 4 situation: one
   discrete random variable X with 3 to 5 values, its probabilities as multiples of k,
   a formula P(X = x) = k f(x) or decimals, or a game with prizes and a stake. Its views
@@ -1277,6 +1291,11 @@ works every feature again with SymPy, testing that nothing before a first maximu
 of a level are found by scanning the model for sign changes and bisecting, and durations are added up
 between them, so no formula is shared with the engine; degree mode is the same scan with the angle in
 degrees. The plain sums in the working are evaluated (`check_trig_wave`, `e9trig_*`).
+For `arithmetic-context` it reads the story back from the words, the table, the graph's dots or the
+figure's rows, then walks the sequence term by term, so no formula is shared with the engine: a term
+number is found by scanning, a peak by keeping the running total, and data are fitted again. Every
+statement offered is judged from those numbers, and the plain sums in the working are evaluated
+(`e10ar_check`).
 For `regression-interpret` it fits the data again with exact rationals and judges every statement
 offered from those numbers, so a wrong statement that happens to be true fails (`e9regr_check`).
 For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
