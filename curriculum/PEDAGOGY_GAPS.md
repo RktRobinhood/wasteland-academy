@@ -2357,7 +2357,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 22 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2644,6 +2644,35 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): Drawing without replacement changes the probability on a second-stage branch. — Always: one item has gone, so the total on the bottom of the fraction changes, whichever colour was drawn.
   - *true-false-reason* (L3): P(at least one) is the same as 1 minus P(none). — True: at least one and none are complements, so together they cover everything. With many paths it is much the shorter way.
 - **Misconceptions used:** 27. Not reducing the numerator and denominator on the second-stage branches when sampling without replacement; Adding along a path instead of multiplying; Counting only one order of the two colours and forgetting the other; Subtracting the branch before the fork instead of a branch at the fork; Leaving out one branch of a three-way fork; Subtracting one from the branch instead of the branch from one; Reducing the count of the colour that was not drawn; Leaving out the extra item added after the first draw; Giving the last branch alone instead of multiplying along the path; Stopping after one path into the event; Adding the branches that end in the outcome without multiplying along each path; Giving the probability of the opposite event; Stopping at the complement without subtracting it from one; Counting exactly one and leaving out the paths with more; Swapping the success and failure probabilities on the path; Multiplying by the number of orders when the order is fixed; Counting one failure too many before the success; Giving the path without dividing by the total of the paths; Keeping the root that makes a branch greater than one; Giving the number in the tin instead of the number of selections; Leaving the last selection out of the count; Leaving out the orders of the rounds; Counting only the games with the top score in every round; Including the totals equal to the limit; Leaving the count of the colour drawn unchanged after the first draw; Leaving the total unchanged after an item is drawn; Reducing the total before anything has been drawn.
+
+#### Sample space diagrams for dice and spinners (`t4-sample-space`, exam, 5 bank parts)
+
+- **Situation:** Two dice or spinners on a grid of outcomes.
+- **Representations:** **table**, **words**, diagram (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given the grid of scores with one cell hidden; the scoring rule → the score in the hidden cell
+  - new L1: given two objects, fair, with their faces; the scoring rule → the number of outcomes in the sample space
+  - new L1: given two objects, or their grid; an event on the score → the number of outcomes in the event
+  - **exam** L2: given two objects, or their grid; a score → P(score = k)
+  - **exam** L2: given two objects, or their grid; a boundary score → P(score at least, at most, greater than or less than k)
+  - new L2: given two objects, or their grid; a score → P(score is not k)
+  - new L2: given two objects, or their grid; a property of the score → P(score is even, odd, a multiple, prime or square)
+  - new L3: given two objects with different faces, or the grid of their differences → P(the first number is higher than the second)
+  - new L2: given two matching objects numbered from 1, or their grid of sums; a sum above the middle → P(sum = k), counted on the lower side
+  - new L3: given two matching objects numbered from 1, or their grid of sums; a sum above the middle → P(sum at least k), counted on the lower side
+  - **exam** L3: given two matching objects, or the grid of pairs; a rule giving points for a match and for a difference → the probability of a given score in one round
+  - **exam** L3: given a biased die or spinner, rolled twice; a total → P(total = k) or P(total at least k)
+  - **exam** L4: given a biased die or spinner; a total to reach, the total so far and two rolls left → the probability of reaching the total
+  - **exam** L3: given a die with unusual faces and one with letters; the distribution of the sum, or its largest value → the largest face b
+  - **exam** L4: given a die with unusual faces and one with a letter; the distribution of the sum, or one probability → the repeated face a
+  - **exam** L4: given two biased dice, one with q on its faces and r on the last; P(X < Y) → q
+  - **exam** L5: given two biased dice, one with q on its faces and r on the last; P(X < Y) → E(Y)
+- **Angles:** Fill a grid and count cells; List the ordered pairs; Use the symmetry of the grid.
+- **Concept probes:**
+  - *true-false-reason* (L3): Two dice can land on a 3 and a 5 in only one way. — False: the first die can show the 3 or the second can, so (3, 5) and (5, 3) are two outcomes of the grid.
+  - *always-sometimes-never* (L3): The number of different scores is the number of outcomes in the sample space. — Sometimes: it is true only when no two cells of the grid have the same score. Sums of two dice repeat, so most grids have fewer scores than cells.
+  - *predict-check* (L3): Replace one face of a fair die by a copy of another face. What happens to the number of cells in the grid? — Nothing: a die has as many outcomes as faces, whatever is printed on them. The repeated number simply fills more cells.
+- **Misconceptions used:** 20. Counting a pair and its reverse as a single outcome; Using the number of different scores as the total number of outcomes; Reading the boundary score the wrong way: leaving it out of at least or at most, or keeping it in greater than or less than; Using another operation on the two numbers instead of the game's scoring rule; Copying the next cell along instead of working out the cell asked for; Adding the numbers of faces instead of multiplying them to get the size of the grid; Counting the different scores in the event instead of the cells that give them; Giving the probability of the opposite event instead of the one asked for; Counting the ties as part of an event that asks for a strictly higher or lower number; Assuming each side is higher half of the time, which ignores the ties and the faces; Working out the chance that the second number is higher, instead of the first; Treating every cell as equally likely when the die or spinner is biased; Assuming the whole amount needed has to come from one roll or spin; Taking the largest sum as the missing face, without subtracting the other die's face; Subtracting the smallest face of the other die, when the largest sum uses its largest face; Assuming the second smallest sum comes from the second die's next face, when it can come from the first die's next face; Giving the chance on the last face instead of the letter asked for; Assuming the biased die is fair; Using the other die's probabilities for the expected value; Using the same chance on every face, leaving out the different last face.
 
 #### Venn diagrams, two-way tables and the addition rule (`t4-venn-addition-rule`, exam, 11 bank parts)
 
