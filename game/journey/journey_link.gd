@@ -90,6 +90,7 @@ func _on_resolved(outcome: String) -> void:
 	var info := {}
 	if not run.answers.is_empty():
 		info.damage = int(run.answers[-1].player_damage)
+		info.hit = int(run.answers[-1].enemy_damage)
 	_call("answer_resolved", [String(OUTCOME.get(outcome, outcome)), info])
 	# Won, as Run.resolve() counts it: a boss isn't beaten by a player who went down.
 	if int(run.enemy.hp) <= 0 and (run.boss.is_empty() or run.hp > 0):
