@@ -7427,8 +7427,8 @@
               ],
               "misconceptions": [
                 "Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²",
-                "Mishandling a negative coordinate, e.g. taking 4 − (−2) as 2",
-                "Giving only one value of k from (k − 3)² = 16"
+                "Mishandling a negative coordinate, so that subtracting it takes away its size instead of adding it",
+                "Giving only one value of k, when the squared bracket has two square roots"
               ],
               "threads": [
                 {

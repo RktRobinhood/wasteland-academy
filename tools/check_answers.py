@@ -26757,7 +26757,474 @@ def check_box_plot(q):
 # ── end box-plot ──
 
 
-SITUATION_CHECKS = {"grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── distance-midpoint (t3-distance-midpoint, FAL-751) ────────────────────
+# The `distance-midpoint` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/distance_midpoint.gd. The points are read back from what the student sees
+# (the sentences, the position vectors or the labels of the figure), the lengths and midpoints are
+# worked again, k is solved with SymPy, and each tagged option is rebuilt from its slip. The sums in
+# the working are evaluated, and a figure must hold the same points.
+
+E9DIST_T = "t3-distance-midpoint#"
+E9DIST_D = "SL3.1.distance-3d#"
+E9DIST_M = "SL3.1.midpoint-3d#"
+E9DIST_REACH = 15
+E9DIST_END_REACH = 30
+E9DIST_EDGE = sp.Rational(3, 100)
+E9DIST_BANK = [((8, 6, 0), (4, 3, 10)), ((8, 0, 0), (4, 3, 10)), ((6, 8, 0), (3, 4, 9)), ((6, 0, 0), (3, 4, 9)), ((1, 5, 0), (-1, 1, 6)),
+               ((1, 7, 0), (-3, 4, 2)), ((6, -1, -3), (4, -5, -9)), ((1, 4, 0), (-3, 2, -4)), ((1, -2, 3), (4, 2, 15)), ((2, 5, -1), (6, 3, 4))]
+E9DIST_N = r"−?\d+(?:\.\d+)?(?:/\d+)?"
+E9DIST_PT = re.compile(rf"(?<![A-Za-z])([A-Z])\(({E9DIST_N}), ({E9DIST_N})(?:, ({E9DIST_N}))?\)")
+E9DIST_VEC = re.compile(rf"(?<![A-Za-z])([a-z]) = \(({E9DIST_N}), ({E9DIST_N})(?:, ({E9DIST_N}))?\)")
+E9DIST_LENS = ("distance-two-points", "distance-2d", "space-diagonal", "pyramid-edge", "radius-from-centre", "radius-from-diameter")
+
+
+def e9dist_r(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def e9dist_points(q):
+    """name -> coordinates, from all the student can read."""
+    texts = list(q["lines"])
+    g = q["graph"]
+    if g is not None:
+        texts += list(g["labels"].values())
+    out = {}
+    for t in texts:
+        for rx, up in ((E9DIST_PT, False), (E9DIST_VEC, True)):
+            for m in rx.finditer(t):
+                out[m.group(1).upper() if up else m.group(1)] = tuple(e9dist_r(v) for v in m.groups()[1:] if v is not None)
+    return out
+
+
+def e9dist_c(v, paper):
+    return dec_text(v) if paper == 2 else frac_text(sp.Rational(v))
+
+
+def e9dist_pt(p, paper):
+    return "(" + ", ".join(e9dist_c(v, paper) for v in p) + ")"
+
+
+def e9dist_root(n):
+    """√n as the game writes it: √61, 6√2 or 13."""
+    n = int(n)
+    m, r, f = 1, n, 2
+    while f * f <= r:
+        while r % (f * f) == 0:
+            r //= f * f
+            m *= f
+        f += 1
+    if r == 1:
+        return str(m)
+    return f"√{r}" if m == 1 else f"{m}√{r}"
+
+
+def e9dist_sq(a, b):
+    return sum((y - x) ** 2 for x, y in zip(a, b))
+
+
+def e9dist_clear(x):
+    v = abs(num(x))
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E9DIST_EDGE
+
+
+def e9dist_len(label, n, paper):
+    """The text of a length whose square is n."""
+    if paper == 1:
+        return f"{label} = {e9dist_root(n)}"
+    return f"{label} = {gc_s(sp.N(sp.sqrt(n), 30))}"
+
+
+def e9dist_trap(label, n, paper):
+    return None if paper == 1 else f"{label} = {gc_s2(sp.N(sp.sqrt(n), 30))}"
+
+
+def e9dist_slips(a, b):
+    """Slip -> the square of the length it gives, for the move from a to b."""
+    d = [y - x for x, y in zip(a, b)]
+    n = sum(v ** 2 for v in d)
+    out = {E9DIST_D + "0" if len(a) == 3 else E9DIST_T + "25": sum(d) ** 2, E9DIST_D + "1": sum((abs(y) - abs(x)) ** 2 for x, y in zip(a, b)),
+           E9DIST_T + "6": n ** 2, E9DIST_T + "7": sum((x + y) ** 2 for x, y in zip(a, b))}
+    if len(a) == 3:
+        out[E9DIST_T + "8"] = d[0] ** 2 + d[1] ** 2
+    return out
+
+
+def e9dist_limits(a, b, reach=E9DIST_REACH):
+    need(all(abs(v) <= reach for v in a + b), "a coordinate is out of reach")
+    need(any(x * y < 0 for x, y in zip(a, b)), "no coordinate changes sign")
+    if len(a) == 3:
+        pa, pb = tuple(a), tuple(b)
+        need((pa, pb) not in E9DIST_BANK and (pb, pa) not in E9DIST_BANK, "the bank's points")
+
+
+def e9dist_p2_length(n):
+    need(not sp.sqrt(n).is_Rational, "a Paper 2 length is whole")
+    need(e9dist_clear(sp.sqrt(n)), "a length is on a rounding edge")
+
+
+def e9dist_read_ok(q):
+    """Everything a student reads uses the game's minus sign and glyphs."""
+    for t in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", t), f"a hyphen for a minus in {t!r}")
+
+
+def e9dist_value(t):
+    """A sum of numbers as it is written, or None if it isn't only numbers."""
+    t = t.strip().replace("−", "-").replace("×", "*").replace("÷", "/").replace("²", "**2")
+    if not t or not re.fullmatch(r"[\d.+\-*/() ]+", t) or not re.search(r"\d", t):
+        return None
+    if t.count("(") != t.count(")"):
+        return None
+    try:
+        return eval(re.sub(r"\d+(?:\.\d+)?", lambda m: f"sp.Rational('{m.group(0)}')", t), {"sp": sp})
+    except (SyntaxError, TypeError):
+        return None
+
+
+def e9dist_steps(q):
+    """Evaluates the sums in the working: chains, coordinate lists, rounded roots and equations."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in re.finditer(rf"\(([^=]*)\) = \(({E9DIST_N}(?:, {E9DIST_N})*)\)", st):
+                left = re.split(r", (?![^()]*\))", m.group(1))
+                right = m.group(2).split(", ")
+                need(len(left) == len(right), f"can't read {st!r}")
+                for x, y in zip(left, right):
+                    need(e9dist_value(x) == e9dist_r(y), f"{x} is not {y} in {st!r}")
+            for m in re.finditer(rf"\(({E9DIST_N}) \+ ([xyz])\)/2 = ({E9DIST_N}), so ({E9DIST_N}) \+ [xyz] = ({E9DIST_N}) and [xyz] = ({E9DIST_N})\.", st):
+                a, mm, b, tw, v = (e9dist_r(m.group(i)) for i in (1, 3, 4, 5, 6))
+                need(a == b and tw == 2 * mm and a + v == 2 * mm, f"the equation in {st!r} is wrong")
+            for m in re.finditer(r"√(\d+(?:\.\d+)?) = ([\d.]+) to 3 s\.f\.", st):
+                need(gc_s(sp.N(sp.sqrt(sp.Rational(m.group(1))), 30)) == m.group(2), f"the root in {st!r}")
+            for m in re.finditer(r"√(\d+) = (\d*√\d+|\d+),", st):
+                need(e9dist_root(m.group(1)) == m.group(2), f"the root in {st!r}")
+            for piece in re.split(r", (?![^()]*\))|: |\. ", st):
+                parts = [p for p in piece.rstrip(".").split(" = ")]
+                vals = [e9dist_value(p) for p in parts]
+                for x, y in zip(vals, vals[1:]):
+                    if x is not None and y is not None:
+                        need(x == y, f"{piece!r} doesn't add up")
+
+
+def e9dist_figure(q, pts):
+    """A figure's points are the question's own."""
+    g = q["graph"]
+    if q["rep"] != "diagram":
+        need(g is None, "only a diagram has a figure")
+        return
+    need(g is not None and g["kind"] == "space", "no figure")
+    if not g["axes"]:
+        need(g.get("ball") is not None, "a figure with no axes and no round solid")
+        return
+    for n, p in pts.items():
+        if n in g["pts"]:
+            need(all(abs(float(u) - float(v)) < 1e-9 for u, v in zip(g["pts"][n], p)), f"{n} is drawn at the wrong place")
+    need(sum(1 for ln in g["lines"] if ln["asked"]) >= (0 if q["view"]["unknown"] == "show-isosceles" else 1), "the figure doesn't mark the segment")
+
+
+def e9dist_length(q, label, a, b, extra=None, reach=E9DIST_REACH):
+    paper = q["paper"]
+    n = e9dist_sq(a, b)
+    e9dist_limits(a, b, reach)
+    if paper == 2:
+        e9dist_p2_length(n)
+    w = {ref: {e9dist_len(label, v, paper)} for ref, v in e9dist_slips(a, b).items() if v > 0}
+    for ref, v in (extra or {}).items():
+        w[ref] = {e9dist_len(label, v, paper)}
+    gc_check_common(q, e9dist_len(label, n, paper), w, e9dist_trap(label, n, paper))
+    return n
+
+
+def e9dist_distance(q):
+    p = e9dist_points(q)
+    u = q["view"]["unknown"]
+    e9dist_figure(q, p)
+    need(len(p["A"]) == (2 if u == "distance-2d" else 3), "the wrong dimension")
+    if u == "distance-2d":
+        need(all(s["angle"] != "pythagoras-twice" for s in q["solutions"]), "Pythagoras twice needs three axes")
+    e9dist_length(q, "AB", p["A"], p["B"])
+
+
+def e9dist_space_diagonal(q):
+    p = e9dist_points(q)
+    e9dist_figure(q, p)
+    a, b = (sp.Integer(0),) * 3, p["G"]
+    need(len(set(b)) == 3 and all(v > 0 for v in b), "the edges of the cuboid")
+    n = e9dist_sq(a, b)
+    paper = q["paper"]
+    if paper == 2:
+        e9dist_p2_length(n)
+    slips = e9dist_slips(a, b)
+    w = {r: {e9dist_len("OG", slips[r], paper)} for r in (E9DIST_D + "0", E9DIST_T + "6", E9DIST_T + "8")}
+    gc_check_common(q, e9dist_len("OG", n, paper), w, e9dist_trap("OG", n, paper))
+    if q["graph"] is not None:
+        need(q["graph"]["labels"]["O"] == "O", "the origin's label")
+
+
+def e9dist_pyramid(q):
+    asked = q["asked"]
+    m = re.search(r"(?:edge|height) ([A-Z])([A-Z])", asked)
+    need(m is not None, f"can't read {asked!r}")
+    label = m.group(1) + m.group(2)
+    p = e9dist_points(q)
+    e9dist_figure(q, p)
+    g = q["graph"]
+    upright = g is not None or "rectangular base OABC" in q["lines"][0]
+    extra = {}
+    if upright:
+        v = p["V"]
+        need(v[2] > 0, "the vertex is above the base")
+        corner = tuple(sp.Rational(str(x)) for x in g["pts"][m.group(1)]) if g is not None else p[m.group(1)]
+        want = {"A": (0, 2 * v[1], 0), "B": (2 * v[0], 2 * v[1], 0), "C": (2 * v[0], 0, 0)}[m.group(1)]
+        need(corner == want, "the base is not centred under V")
+        need(v[0] != v[1], "the base is square")
+        extra[E9DIST_T + "9"] = 4 * (v[0] ** 2 + v[1] ** 2) + v[2] ** 2
+        paper = q["paper"]
+        n = e9dist_sq(corner, v)
+        need(tuple(corner) != tuple(v), "a corner at V")
+        if paper == 2:
+            e9dist_p2_length(n)
+        need((corner, v) not in [(tuple(sp.Integer(i) for i in x), tuple(sp.Integer(i) for i in y)) for x, y in E9DIST_BANK], "the bank's points")
+        w = {ref: {e9dist_len(label, val, paper)} for ref, val in e9dist_slips(corner, v).items() if val > 0}
+        w[E9DIST_T + "9"] = {e9dist_len(label, extra[E9DIST_T + "9"], paper)}
+        gc_check_common(q, e9dist_len(label, n, paper), w, e9dist_trap(label, n, paper))
+    else:
+        a, b = (p["V"], p["X"]) if label == "VX" else (p["A"], p["V"])
+        e9dist_length(q, label, a, b)
+
+
+def e9dist_radius_centre(q):
+    p = e9dist_points(q)
+    e9dist_figure(q, p)
+    e9dist_length(q, "r", p["C"], p["P"], {E9DIST_T + "11": 4 * e9dist_sq(p["C"], p["P"])})
+
+
+def e9dist_radius_diameter(q):
+    p = e9dist_points(q)
+    e9dist_figure(q, p)
+    a, b, paper = p["A"], p["B"], q["paper"]
+    e9dist_limits(a, b)
+    n = e9dist_sq(a, b)
+
+    def text(d2):
+        """The radius from a diameter whose square is d2."""
+        if paper == 1:
+            return f"r = {e9dist_root(d2 / 4)}"
+        return f"r = {gc_s(sp.N(sp.sqrt(d2) / 2, 30))}"
+
+    w = {E9DIST_T + "10": {text(4 * n)}}
+    if paper == 1:
+        need(all((y - x) % 2 == 0 for x, y in zip(a, b)), "the centre is not whole")
+        w[E9DIST_T + "6"] = {text(n ** 2 / 4)}
+    else:
+        e9dist_p2_length(n)
+        need(e9dist_clear(sp.sqrt(n) / 2), "the radius is on a rounding edge")
+    for ref, v in e9dist_slips(a, b).items():
+        if ref != E9DIST_T + "6" and v > 0 and (paper == 2 or v % 4 == 0):
+            w[ref] = {text(v)}
+    trap = None if paper == 1 else f"r = {gc_s2(sp.N(sp.sqrt(n) / 2, 30))}"
+    gc_check_common(q, text(n), w, trap)
+
+
+def e9dist_k(q):
+    L, rep, paper, u = q["lines"], q["rep"], q["paper"], q["view"]["unknown"]
+    k = sp.Symbol("k", real=True)
+    if rep == "notation":
+        m = re.fullmatch(r"The vector from A to B is \((.+), (.+), (.+)\), and its length is (.+)\.", L[0])
+        need(m is not None, f"can't read {L}")
+        moves = list(m.groups()[:3])
+        given = m.group(4)
+    else:
+        a = E9DIST_PT.search(L[0])
+        mb = re.search(r"B\((.+?), (.+?), (.+?)\)", L[0])
+        ml = re.fullmatch(r"The distance AB is (.+)\.", L[1])
+        need(a is not None and mb is not None and ml is not None, f"can't read {L}")
+        A = [e9dist_r(v) for v in a.groups()[1:]]
+        moves = []
+        for i, t in enumerate(mb.groups()):
+            moves.append(f"k − {A[i]}".replace("− -", "+ ") if t == "k" else str(e9dist_r(t) - A[i]))
+        given = ml.group(1)
+    exprs = []
+    for t in moves:
+        mk = re.fullmatch(r"k ([−+]) (\d+)", t.replace("--", ""))
+        exprs.append(k + (1 if mk.group(1) == "+" else -1) * int(mk.group(2)) if mk else e9dist_r(t) if "k" not in t else None)
+    need(sum(1 for e in exprs if getattr(e, "free_symbols", None)) == 1, f"one bracket holds k: {moves}")
+    d2 = e9dist_root_value(given)
+    roots = sorted(sp.solve(sum(e ** 2 for e in exprs) - d2, k))
+    need(len(roots) == 2, f"k = {roots}")
+    lo, hi = roots
+    p = (lo + hi) / 2
+    t = (hi - p) ** 2
+    rest = d2 - t
+    need(p.is_integer and p != 0 and t.is_integer and t > 0, f"p = {p}, t = {t}")
+    root_d = sp.sqrt(d2)
+
+    def pair(x, y, fn):
+        a, b = sorted([x, y])
+        return f"k = {fn(a)} or {fn(b)}"
+
+    w = {}
+    if u == "find-k-two-values":
+        need(lo.is_integer and hi.is_integer, "whole k")
+        whole = lambda v: frac_text(sp.Rational(v))
+        want = pair(lo, hi, whole)
+        w[E9DIST_D + "2"] = {f"k = {whole(lo)}", f"k = {whole(hi)}"}
+        w[E9DIST_T + "13"] = {pair(-p - (hi - p), -p + (hi - p), whole)}
+        w[E9DIST_T + "14"] = {pair(p - t, p + t, whole)}
+        if root_d.is_integer:
+            w[E9DIST_T + "12"] = {pair(p - root_d, p + root_d, whole)}
+    else:
+        need(not hi.is_rational, "a surd k")
+        need(root_d.is_integer, "a whole distance")
+        s = hi - p
+        if paper == 1:
+            tp = frac_text(p)
+            want = f"k = {tp} ± {e9dist_root(t)}"
+            w[E9DIST_D + "2"] = {f"k = {tp} + {e9dist_root(t)}"}
+            w[E9DIST_T + "13"] = {f"k = {frac_text(-p)} ± {e9dist_root(t)}"}
+            w[E9DIST_T + "14"] = {f"k = {tp} ± {t}"}
+            w[E9DIST_T + "12"] = {f"k = {tp} ± {root_d}"}
+        else:
+            sf = lambda v: gc_s(sp.N(v, 30))
+            need(e9dist_clear(lo) and e9dist_clear(hi), "k is on a rounding edge")
+            want = pair(lo, hi, sf)
+            w[E9DIST_D + "2"] = {f"k = {sf(hi)}", f"k = {sf(lo)}"}
+            w[E9DIST_T + "13"] = {pair(-p - s, -p + s, sf)}
+            w[E9DIST_T + "14"] = {pair(p - t, p + t, sf)}
+            w[E9DIST_T + "12"] = {pair(p - root_d, p + root_d, sf)}
+    gc_check_common(q, want, w)
+
+
+def e9dist_root_value(t):
+    """The square of a length written as 7, √41 or 2√5."""
+    m = re.fullmatch(r"(\d*)√(\d+)", t)
+    if m:
+        return int(m.group(1) or 1) ** 2 * int(m.group(2))
+    return int(t) ** 2
+
+
+def e9dist_isosceles(q):
+    p = e9dist_points(q)
+    need(q["paper"] == 1, "an exact statement is Paper 1")
+    e9dist_figure(q, p)
+    A, B, C = p["A"], p["B"], p["C"]
+    need(all(abs(v) <= E9DIST_REACH for v in A + B + C), "a coordinate is out of reach")
+    sides = {"AB": e9dist_sq(A, B), "AC": e9dist_sq(A, C), "BC": e9dist_sq(B, C)}
+    pairs = [("AB", "AC"), ("AB", "BC"), ("AC", "BC")]
+    eq = [pq for pq in pairs if sides[pq[0]] == sides[pq[1]]]
+    need(len(eq) == 1, f"the sides are {sides}")
+    x, y = eq[0]
+    third = ({"AB", "AC", "BC"} - {x, y}).pop()
+    n, other = sides[x], sides[third]
+    need(sp.Matrix([b - a for a, b in zip(A, B)]).cross(sp.Matrix([c - a for a, c in zip(A, C)])).norm() != 0, "the points are in a line")
+    need(e9dist_root(n) == f"√{n}", "the equal sides are not square-free")
+    head = f"{x} = {y}"
+    wrong_pair = pairs[(pairs.index(eq[0]) + 1) % 3]
+    w = {E9DIST_T + "15": {f"{wrong_pair[0]} = {wrong_pair[1]} = √{n}"}, E9DIST_T + "16": {f"{head} = {e9dist_root(other)}"}, E9DIST_T + "6": {f"{head} = {n}"}}
+    gc_check_common(q, f"{head} = √{n}", w)
+    need(q["answer"]["values"]["pair"] == head and R(q["answer"]["values"]["r"]) == n, "the answer's slots")
+
+
+def e9dist_origin(q):
+    L = q["lines"]
+    need(q["paper"] == 1, "an exact statement is Paper 1")
+    m = re.fullmatch(r"Consider the function f\(x\) = √\((\d+)(x|x²|x³) \+ (\d+)( − x²)?\)\.", L[0])
+    need(m is not None, f"can't read {L}")
+    need(L[1] == "The point P(x, f(x)) is on the graph of f.", "the point")
+    x = sp.Symbol("x", positive=True)
+    pow_ = {"x": 1, "x²": 2, "x³": 3}[m.group(2)]
+    a, b, term = int(m.group(1)), int(m.group(3)), m.group(2)
+    f2 = a * x ** pow_ + b - (x ** 2 if m.group(4) else 0)
+    l2 = sp.expand(x ** 2 + f2)
+    co = sp.Poly(l2, x)
+    need(len(co.terms()) == 2 and co.coeff_monomial(1) == b and co.coeff_monomial(x ** pow_) > 0, f"l² = {l2}")
+    under = f"{co.coeff_monomial(x ** pow_)}{term} + {b}"
+    inner = L[0][len("Consider the function f(x) = √("):-2]
+    take = f"l = √({inner} − x²)" if not m.group(4) else f"l = √({under} − 2x²)"
+    w = {E9DIST_T + "22": {f"l = x + √({inner})"}, E9DIST_T + "23": {f"l = √({inner})"}, E9DIST_T + "6": {f"l = {under}"}, E9DIST_T + "24": {take}}
+    gc_check_common(q, f"l = √({under})", w)
+
+
+def e9dist_midpoint(q, a, b):
+    paper = q["paper"]
+    need(all(x != y for x, y in zip(a, b)), "the points share a coordinate")
+    e9dist_limits(a, b)
+    if paper == 1:
+        need(all(v.is_integer for v in a + b), "Paper 1 points are whole")
+    m = tuple((x + y) / 2 for x, y in zip(a, b))
+    half = tuple((y - x) / 2 for x, y in zip(a, b))
+    w = {E9DIST_M + "0": {e9dist_pt(half, paper)}, E9DIST_T + "17": {e9dist_pt(tuple(x + y for x, y in zip(a, b)), paper)},
+         E9DIST_T + "18": {e9dist_pt(tuple((abs(x) + abs(y)) / 2 for x, y in zip(a, b)), paper)}}
+    gc_check_common(q, e9dist_pt(m, paper), w)
+    e9dist_slots(q, m)
+
+
+def e9dist_slots(q, want):
+    v = q["answer"]["values"]
+    for letter, c in zip("xyz", want):
+        need(R(v[letter]) == c, "the answer's slots")
+    for o in q["choices"]:
+        ov = o["values"]
+        if "x" in ov:
+            need(e9dist_pt(tuple(R(ov[k]) for k in "xyz"[:len(want)]), q["paper"]) == o["text"], f"option {o['text']!r} doesn't say its values")
+
+
+def e9dist_endpoint(q, a, m):
+    paper = q["paper"]
+    need(all(x != y for x, y in zip(a, m)), "the points share a coordinate")
+    b = tuple(2 * y - x for x, y in zip(a, m))
+    e9dist_limits(a, m, E9DIST_END_REACH)
+    need(all(abs(v) <= E9DIST_END_REACH for v in b), "B is out of reach")
+    if paper == 1:
+        need(all(v.is_integer for v in a + m), "Paper 1 points are whole")
+    t = lambda p: e9dist_pt(tuple(p), paper)
+    w = {E9DIST_M + "1": {t((x + y) / 2 for x, y in zip(a, m))}, E9DIST_M + "2": {t(y / 2 for y in m)},
+         E9DIST_T + "19": {t(y - x for x, y in zip(a, m))}, E9DIST_T + "20": {t(2 * y for y in m)}, E9DIST_T + "21": {t(2 * y + x for x, y in zip(a, m))}}
+    gc_check_common(q, t(b), w)
+    e9dist_slots(q, b)
+
+
+def check_distance_midpoint(q):
+    u = q["view"]["unknown"]
+    e9dist_read_ok(q)
+    e9dist_steps(q)
+    if u in ("distance-two-points", "distance-2d"):
+        e9dist_distance(q)
+    elif u in ("find-k-two-values", "find-k-surd"):
+        e9dist_k(q)
+    elif u == "show-isosceles":
+        e9dist_isosceles(q)
+    elif u == "space-diagonal":
+        e9dist_space_diagonal(q)
+    elif u == "pyramid-edge":
+        e9dist_pyramid(q)
+    elif u == "radius-from-centre":
+        e9dist_radius_centre(q)
+    elif u == "radius-from-diameter":
+        e9dist_radius_diameter(q)
+    elif u == "origin-to-curve":
+        e9dist_origin(q)
+    elif u in ("midpoint-3d", "midpoint-2d", "centre-from-diameter"):
+        p = e9dist_points(q)
+        e9dist_figure(q, p)
+        need(len(p["A"]) == (2 if u == "midpoint-2d" else 3), "the wrong dimension")
+        e9dist_midpoint(q, p["A"], p["B"])
+    elif u in ("missing-endpoint", "missing-endpoint-2d"):
+        p = e9dist_points(q)
+        e9dist_figure(q, p)
+        need(len(p["A"]) == (2 if u.endswith("2d") else 3), "the wrong dimension")
+        e9dist_endpoint(q, p["A"], p["M"])
+    else:
+        raise Fail(f"no check for {u}")
+    return None, None
+
+
+# ── end distance-midpoint ──
+
+
+SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,

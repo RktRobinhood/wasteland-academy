@@ -277,6 +277,16 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   1.5 × IQR rule. A figure uses `PlotView`'s `box` on an axis of 25 ticks, labelled every fifth, and
   every number read from it is on a tick. A list or a table follows `data_summary`'s quartiles.
   A test of a value puts it just beyond or just inside a fence on the same quartiles.
+- `engine/situations/distance_midpoint.gd` (FAL-751) is `t3-distance-midpoint` (SL3.1), the
+  `distance-midpoint` situation: points in 2D or 3D, drawn first, so a distance is the root of a
+  whole number and a midpoint is exact. Its 15 unknowns ask a distance, k from a distance (two whole
+  values, or a ± b√c), which sides of an isosceles triangle are equal, a cuboid's space diagonal, a
+  pyramid's edge or height, a radius from a centre or a diameter, the distance from the origin to a
+  point on a curve, a midpoint, a centre and a missing endpoint. Lengths are exact on Paper 1 and to
+  3 s.f. on Paper 2, where midpoints and endpoints use coordinates to 1 d.p. A figure is `PlotView`'s
+  `space`: the points on axes with the coordinates on them, a cuboid or pyramid on the axes, or a
+  round solid with no axes. Position vectors are the map's vector representation, listed as
+  `notation`. The 2D unknowns use the type's own `distance-formula-2d` method.
 - `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
   v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
   Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found
@@ -1227,6 +1237,9 @@ every other option must fail (`check_binomial_unknown`). For `normal-properties`
 or the given areas back and finds each area with mpmath (`check_normal_properties`). For `box-plot`
 it reads the five numbers off the figure or the data, and applies the 1.5 × IQR rule itself
 (`check_box_plot`).
+For `distance-midpoint` it reads the points back from the sentences, the position vectors or the
+figure's labels, works each length and midpoint again, solves for k with SymPy, rebuilds each tagged
+option from its slip, and evaluates the sums in the working (`check_distance_midpoint`).
 For `independence` it reads the facts back the same way and decides each test itself. Each of the
 four comparisons must agree, and all four option texts are rebuilt from true values, so a false
 number or a verdict that doesn't follow fails. It also multiplies and divides every plain step of

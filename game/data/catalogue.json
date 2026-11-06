@@ -3481,6 +3481,60 @@
 				"a sector's angle stays from 60° to 300°, and its cone's radius is less than the sector's radius"
 			]
 		},
+		"distance-midpoint": {
+			"name": "Points in 2D or 3D, with their distances and midpoints",
+			"summary": "Two or three points, on a plan, as position vectors or on a figure on axes, inside a cuboid, a pyramid, a sphere, a hemisphere or a circle. The points are drawn first, so a distance is the root of a whole number and a midpoint is exact. A missing coordinate k is fixed by a distance, with its two values on either side of a known coordinate.",
+			"quantities": [
+				{
+					"name": "A, B",
+					"is": "the two points",
+					"pick": "Paper 1: whole coordinates up to 15 in size; Paper 2: the same for a length, and 1 d.p. to 12 for a midpoint or an endpoint"
+				},
+				{
+					"name": "M",
+					"is": "the midpoint, or the centre of a sphere or circle",
+					"pick": "from A and B, or drawn with A so that B = 2M − A"
+				},
+				{
+					"name": "C, apex",
+					"is": "show-isosceles: the third vertex, and where the equal sides meet",
+					"pick": "two moves of the same length, not parallel, from a vertex with coordinates to 7 in size"
+				},
+				{
+					"name": "sq",
+					"is": "the distance squared",
+					"pick": "a whole number; on Paper 1 about a third are perfect squares, from a list of four whole numbers with a² + b² + c² = d²"
+				},
+				{
+					"name": "shape, turn",
+					"is": "which round shape, and where the point on it is drawn",
+					"pick": "a sphere, a hemisphere or a circle, turned to any angle"
+				},
+				{
+					"name": "mode, a, b, h",
+					"is": "pyramid-edge: on the axes with base OABC, or two points in general; half the base edges and the height",
+					"pick": "a and b from 2 to 7 and different, h from 3 to 14"
+				},
+				{
+					"name": "axis, p, t, top",
+					"is": "find-k: the coordinate with k, the known value there, (k − p)² = t, and AB² = top",
+					"pick": "t a square to 81 for whole k, or a non-square from a whole distance for a surd"
+				},
+				{
+					"name": "ca, cb",
+					"is": "origin-to-curve: the numbers in f(x)²",
+					"pick": "ca from 2 to 9, cb from 2 to 12"
+				}
+			],
+			"clean": [
+				"no coordinate is above 15 in size, except a missing endpoint, at most 30",
+				"a Paper 2 length is not whole, and its 3 s.f. is clear of a rounding edge",
+				"at least one coordinate changes sign between the points, so a negative matters",
+				"on a midpoint or an endpoint the points differ in every coordinate",
+				"the equal sides of an isosceles triangle are a square-free root, and the third side differs from them",
+				"the bank's points and the skill's worked examples are left out"
+			]
+		},
 		"standard-form": {
 			"name": "Numbers in standard form",
 			"summary": "One or two numbers a × 10^k. Convert them to and from ordinary numbers, multiply and divide them, bring a back between 1 and 10, or use them in a story with large or small amounts.",
@@ -4641,6 +4695,7 @@
 		"SL1.9.ncr-pascal": "Evaluate nCr and use Pascal's triangle",
 		"SL1.9.full-expansion": "Expand (a + b)^n fully",
 		"SL1.9.specific-term": "Find a specific term or coefficient in an expansion",
+		"SL3.1.distance-3d": "Find the distance between two points in 3D",
 		"SL3.1.volume-solids": "Find volumes of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.1.surface-area": "Find surface areas of pyramids, cones, spheres, hemispheres and composite solids",
 		"SL3.5.ambiguous-case": "Resolve the ambiguous case of the sine rule (two possible triangles)",
@@ -4782,7 +4837,6 @@
 		"SL2.1.intersection-lines": "Find where two lines intersect",
 		"SL4.3.constant-changes": "Find the effect of adding or multiplying every value by a constant",
 		"SL5.11.integral-properties": "Use properties of definite integrals",
-		"SL3.1.distance-3d": "Find the distance between two points in 3D",
 		"SL4.4.interpret-ab": "Interpret a and b in y = ax + b in context",
 		"SL5.1.chord-to-tangent": "Find the gradient of a curve as the limit of chord gradients",
 		"SL1.3.model": "Model growth and decay with geometric sequences",
@@ -23536,6 +23590,648 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Distance and midpoint in 2D or 3D",
+			"summary": "Find a distance or a midpoint from coordinates in 2D or 3D, on a plan, as position vectors or on a figure: a space diagonal, a pyramid's edge or height, a radius from a centre or a diameter, the two values of k from a distance, an isosceles triangle, a missing endpoint and the distance from the origin to a point on a curve. Lengths are exact on Paper 1 and to 3 s.f. on Paper 2.",
+			"situation": "distance-midpoint",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the points written out in a sentence, as A(1, 4, 0)"
+				},
+				{
+					"rep": "diagram",
+					"exam": true,
+					"how": "the points on axes with their coordinates, a cuboid or pyramid on the axes, or a sphere, hemisphere or circle with its points"
+				},
+				{
+					"rep": "notation",
+					"exam": false,
+					"how": "position vectors a and b, or a vector with k in it, standing for the map's vector representation"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "distance-two-points",
+					"given": [
+						"two points in 3D, on a plan, as position vectors or on a figure"
+					],
+					"asked": "the distance between them",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "distance-2d",
+					"given": [
+						"two points in 2D"
+					],
+					"asked": "the distance between them",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "find-k-two-values",
+					"given": [
+						"a point with k as a coordinate, or a vector with k in it, and the distance"
+					],
+					"asked": "the two values of k, whole numbers",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "find-k-surd",
+					"given": [
+						"a point with k as a coordinate, or a vector with k in it, and a whole distance"
+					],
+					"asked": "the two values of k: a ± b√c on Paper 1, 3 s.f. on Paper 2",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "show-isosceles",
+					"given": [
+						"the three vertices of a triangle"
+					],
+					"asked": "the two equal sides and their exact length",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "space-diagonal",
+					"given": [
+						"a cuboid on the axes, with O at one corner and G opposite"
+					],
+					"asked": "the length of the space diagonal OG",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "pyramid-edge",
+					"given": [
+						"a pyramid on the axes with base OABC, or a right pyramid's vertex and a base corner or the base's centre"
+					],
+					"asked": "a slant edge or the height",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "radius-from-centre",
+					"given": [
+						"the centre of a sphere or hemisphere, and a point on its surface"
+					],
+					"asked": "the radius",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "radius-from-diameter",
+					"given": [
+						"the ends of a diameter of a sphere or circle"
+					],
+					"asked": "the radius",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "origin-to-curve",
+					"given": [
+						"f(x) as a square root, and a point P(x, f(x)) on its graph"
+					],
+					"asked": "the distance from the origin to P, in terms of x",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL3.1.distance-3d"
+					]
+				},
+				{
+					"id": "midpoint-3d",
+					"given": [
+						"two points in 3D"
+					],
+					"asked": "the coordinates of the midpoint",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				},
+				{
+					"id": "midpoint-2d",
+					"given": [
+						"two points in 2D"
+					],
+					"asked": "the coordinates of the midpoint",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				},
+				{
+					"id": "missing-endpoint",
+					"given": [
+						"one end of a segment in 3D, and its midpoint"
+					],
+					"asked": "the coordinates of the other end",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				},
+				{
+					"id": "missing-endpoint-2d",
+					"given": [
+						"one end of a segment in 2D, and its midpoint"
+					],
+					"asked": "the coordinates of the other end",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"notation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				},
+				{
+					"id": "centre-from-diameter",
+					"given": [
+						"the ends of a diameter of a sphere or circle"
+					],
+					"asked": "the coordinates of the centre",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"diagram"
+					],
+					"skills": [
+						"SL3.1.midpoint-3d"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.1.distance-3d",
+					"method": "distance-formula",
+					"suits": [
+						"distance-two-points",
+						"space-diagonal",
+						"pyramid-edge",
+						"radius-from-centre",
+						"show-isosceles",
+						"radius-from-diameter"
+					],
+					"name": "3D distance formula",
+					"about": "Square the differences in x, y and z, add them, then square-root: d = √((x₂ − x₁)² + (y₂ − y₁)² + (z₂ − z₁)²)."
+				},
+				{
+					"method": "distance-formula-2d",
+					"suits": [
+						"distance-2d",
+						"origin-to-curve"
+					],
+					"name": "2D distance formula",
+					"about": "Square the differences in x and y, add them, then square-root: d = √((x₂ − x₁)² + (y₂ − y₁)²)."
+				},
+				{
+					"skill": "SL3.1.distance-3d",
+					"method": "pythagoras-twice",
+					"suits": [
+						"distance-two-points",
+						"pyramid-edge",
+						"radius-from-centre",
+						"space-diagonal"
+					],
+					"name": "Pythagoras twice",
+					"about": "Find the diagonal across the floor from the x and y moves, then use it and the vertical z move as the legs of a second right triangle."
+				},
+				{
+					"skill": "SL3.1.distance-3d",
+					"method": "square-both-sides",
+					"suits": [
+						"find-k-two-values",
+						"find-k-surd",
+						"show-isosceles"
+					],
+					"name": "Work with d² for an unknown coordinate",
+					"about": "Set the sum of squared differences equal to d² (no roots), solve the quadratic in k and expect two values, one on each side."
+				},
+				{
+					"skill": "SL3.1.midpoint-3d",
+					"method": "average-coordinates",
+					"suits": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter",
+						"radius-from-diameter"
+					],
+					"name": "Average each coordinate",
+					"about": "M = ((x₁ + x₂)/2, (y₁ + y₂)/2, (z₁ + z₂)/2)."
+				},
+				{
+					"skill": "SL3.1.midpoint-3d",
+					"method": "solve-each-coordinate",
+					"suits": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"name": "Solve one equation per coordinate",
+					"about": "For a missing endpoint, set (x + 6)/2 = 2 and so on, and solve each coordinate equation separately."
+				},
+				{
+					"skill": "SL3.1.midpoint-3d",
+					"method": "repeat-the-step",
+					"suits": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter",
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"name": "Half the journey, or the same step again",
+					"about": "The midpoint is A plus half the displacement A→B; to get B from A and M, repeat the step A→M once more, so B = 2M − A."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "The distance from A to B is the same as the distance from B to A.",
+					"answer": "True: swapping the points changes the sign of each difference, and squaring takes that away.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "If a point B is at distance d from a point A and has one unknown coordinate, there is always exactly one place it can be.",
+					"answer": "False: the bracket with k is squared, so there are usually two values, one on each side of the known coordinate, and one where the bracket is 0.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "The midpoint of two points with whole coordinates has whole coordinates.",
+					"answer": "Sometimes: only when the two values on each axis are both odd or both even.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.1.distance-3d#0",
+					"text": "Adding the differences before squaring: (Δx + Δy + Δz)² instead of Δx² + Δy² + Δz²",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter",
+						"space-diagonal"
+					],
+					"wrong": "the size of Δx + Δy + Δz"
+				},
+				{
+					"ref": "SL3.1.distance-3d#1",
+					"text": "Mishandling a negative coordinate, so that subtracting it takes away its size instead of adding it",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"distance-2d",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter"
+					],
+					"wrong": "the difference of the two sizes on each axis, squared and added"
+				},
+				{
+					"ref": "SL3.1.distance-3d#2",
+					"text": "Giving only one value of k, when the squared bracket has two square roots",
+					"as": "distractor",
+					"in": [
+						"find-k-two-values",
+						"find-k-surd"
+					],
+					"wrong": "the one value of k"
+				},
+				{
+					"ref": "SL3.1.midpoint-3d#0",
+					"text": "Subtracting instead of adding: M = ((x₂ − x₁)/2, ...)",
+					"as": "distractor",
+					"in": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter"
+					],
+					"wrong": "half of B − A"
+				},
+				{
+					"ref": "SL3.1.midpoint-3d#1",
+					"text": "Finding the endpoint by averaging A and M instead of extending past M",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "the midpoint of A and M"
+				},
+				{
+					"ref": "SL3.1.midpoint-3d#2",
+					"text": "Halving the midpoint coordinates to get the endpoint",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "half of M"
+				},
+				{
+					"text": "Stopping at the squared distance, without the square root",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"distance-2d",
+						"space-diagonal",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter",
+						"show-isosceles",
+						"origin-to-curve"
+					],
+					"wrong": "the sum of the squares as the distance"
+				},
+				{
+					"text": "Adding the coordinates of the two points instead of subtracting them",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"distance-2d",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter"
+					],
+					"wrong": "the root of the sum of (x₁ + x₂)²"
+				},
+				{
+					"text": "Leaving out the z difference, so the length stays on the floor",
+					"as": "distractor",
+					"in": [
+						"distance-two-points",
+						"space-diagonal",
+						"pyramid-edge",
+						"radius-from-centre",
+						"radius-from-diameter"
+					],
+					"wrong": "the root of Δx² + Δy²"
+				},
+				{
+					"text": "Using the whole base diagonal instead of half of it",
+					"as": "distractor",
+					"in": [
+						"pyramid-edge"
+					],
+					"wrong": "the base's full edges with the height"
+				},
+				{
+					"text": "Giving the whole diameter as the radius",
+					"as": "distractor",
+					"in": [
+						"radius-from-diameter"
+					],
+					"wrong": "AB"
+				},
+				{
+					"text": "Doubling the distance from the centre, as if a diameter were asked",
+					"as": "distractor",
+					"in": [
+						"radius-from-centre"
+					],
+					"wrong": "twice the radius"
+				},
+				{
+					"text": "Leaving out the other squared differences, so the one bracket equals the distance",
+					"as": "distractor",
+					"in": [
+						"find-k-two-values",
+						"find-k-surd"
+					],
+					"wrong": "p ± d"
+				},
+				{
+					"text": "Using the wrong sign on the known coordinate in the bracket",
+					"as": "distractor",
+					"in": [
+						"find-k-two-values",
+						"find-k-surd"
+					],
+					"wrong": "−p ± the root"
+				},
+				{
+					"text": "Stopping at the squared bracket, without taking its root",
+					"as": "distractor",
+					"in": [
+						"find-k-two-values",
+						"find-k-surd"
+					],
+					"wrong": "p ± t, with t the value of the squared bracket"
+				},
+				{
+					"text": "Naming the wrong pair of equal sides",
+					"as": "distractor",
+					"in": [
+						"show-isosceles"
+					],
+					"wrong": "another pair, with the right length"
+				},
+				{
+					"text": "Using the length of the third side for the equal sides",
+					"as": "distractor",
+					"in": [
+						"show-isosceles"
+					],
+					"wrong": "the right pair, with the third side's length"
+				},
+				{
+					"text": "Adding the coordinates and not halving",
+					"as": "distractor",
+					"in": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter"
+					],
+					"wrong": "A + B"
+				},
+				{
+					"text": "Dropping a minus sign before averaging the coordinates",
+					"as": "distractor",
+					"in": [
+						"midpoint-3d",
+						"midpoint-2d",
+						"centre-from-diameter"
+					],
+					"wrong": "the mean of the sizes of the coordinates"
+				},
+				{
+					"text": "Stopping at the step from A to M, without adding it on to M",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "M − A"
+				},
+				{
+					"text": "Doubling the midpoint and leaving out the known end",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "2M"
+				},
+				{
+					"text": "Adding the known end to twice the midpoint instead of subtracting it",
+					"as": "distractor",
+					"in": [
+						"missing-endpoint",
+						"missing-endpoint-2d"
+					],
+					"wrong": "2M + A"
+				},
+				{
+					"text": "Adding x and f(x) without squaring them",
+					"as": "distractor",
+					"in": [
+						"origin-to-curve"
+					],
+					"wrong": "x + f(x)"
+				},
+				{
+					"text": "Using f(x) alone as the distance from the origin",
+					"as": "distractor",
+					"in": [
+						"origin-to-curve"
+					],
+					"wrong": "f(x)"
+				},
+				{
+					"text": "Subtracting the squares instead of adding them",
+					"as": "distractor",
+					"in": [
+						"origin-to-curve"
+					],
+					"wrong": "the root of f(x)² − x²"
+				},
+				{
+					"text": "Adding the two differences before squaring them",
+					"as": "distractor",
+					"in": [
+						"distance-2d"
+					],
+					"wrong": "the size of Δx + Δy"
+				}
+			],
+			"methods": [
+				{
+					"id": "distance-formula-2d",
+					"name": "2D distance formula",
+					"summary": "Square the differences in x and y, add them, then square-root: d = √((x₂ − x₁)² + (y₂ − y₁)²)."
+				}
+			],
+			"chain": [
+				"read the coordinates of the two points, from the words, the vectors or the figure",
+				"take the differences, keeping the signs",
+				"square them, add them and take the root, or go across the floor and then up",
+				"for k, set the sum of the squares equal to d² and take both roots",
+				"for a midpoint, average each coordinate; for an endpoint, repeat the step from A to M"
+			],
 			"frequency": 9,
 			"marks": 2,
 			"section": {
@@ -23545,9 +24241,7 @@
 			"paper": {
 				"p1": 3,
 				"p2": 6
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-solid-volume-area",
@@ -54491,7 +55185,7 @@
 				},
 				{
 					"ref": "SL3.1.distance-3d#1",
-					"text": "Mishandling a negative coordinate, e.g. taking 4 − (−2) as 2",
+					"text": "Mishandling a negative coordinate, so that subtracting it takes away its size instead of adding it",
 					"as": "distractor",
 					"in": [
 						"step-in-3d"

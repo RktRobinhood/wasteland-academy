@@ -101,6 +101,7 @@ static var SITUATIONS := {
 	"antiderivative-condition": [AntiderivativeConditionSituation, AntiderivativeConditionViews],
 	"normal-properties": [NormalPropertiesSituation, NormalPropertiesViews],
 	"box-plot": [BoxPlotSituation, BoxPlotViews],
+	"distance-midpoint": [DistanceMidpointSituation, DistanceMidpointViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
 	"compound-interest": [CompoundInterestSituation, CompoundInterestViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],
