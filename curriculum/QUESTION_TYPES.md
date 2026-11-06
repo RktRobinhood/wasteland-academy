@@ -819,6 +819,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 3.
 
+### t3-prove-identity
+
+**Prove a trig identity.** Show that one trig expression equals another, using sin²x + cos²x = 1, tan x = sin x/cos x and the double-angle identities. A phone can't read a written proof, so each question is one decision a proof turns on: the simple form, a hidden line, the next line, the first wrong line, the form of cos 2x that cancels the 1, the side to start from, which argument is a proof, or a value once the identity holds.
+
+- **Syllabus:** 3.6, 1.6
+- **Skills:** `SL3.6.prove-identity`
+- **Where it appears:** P1 3, P2 0; Section A 2, B 1. Marks per part: usually 3 (2 to 6).
+- **Usual chain:** start from the busier side → rewrite tan and the double angles in sin and cos → choose the form of the double-angle cosine that cancels the constant → spot a difference of squares or a common factor → cancel factors, not terms → end on the other side, with a line for each identity
+- **Given:** an identity, with its sides simplified or not, a proof with a line hidden or wrong, four arguments for one identity, an angle or a ratio, once the identity holds. **Asked:** A simple form, a line of a proof, the first wrong line and its correction, a form of the double-angle cosine, the side to start from, which argument proves the identity, or a value of the expression. **Answer form:** an expression with exact coefficients, typed in slots, an exact number or surd, a line of a proof, or a sentence, picked.
+- **A recipe can randomise:** the identity: a double angle over a constant and a cosine, a product, a square, a fourth-power difference, a sum of fractions, a tan through sin and cos, a common factor, a perfect square; the number in front and the multiple of the letter inside; the letter; which line is hidden, reached or spoiled, and by which slip; the side the busier expression is on; the angle or ratio.
+- **Limits that keep answers clean:** every identity holds wherever both sides are defined; only SL identities: no secant, cosecant or cotangent, and no triple angle; a wrong line is the same work with one slip, carried to the end; no statement is an exam's or the map's example: those numbers are left out; Paper 1 throughout: exact answers and no calculator method.
+- **Game formats:** value, mcq
+- **Bank parts:** 3.
+
 ### t3-identity-values
 
 **Use Pythagorean and double-angle identities to find exact values or rewrite.** Find one ratio from another with the quadrant setting the sign, find sin 2θ and cos 2θ from a ratio, work back from cos 2θ, and rewrite expressions with the Pythagorean and double angle identities.

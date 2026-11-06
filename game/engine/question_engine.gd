@@ -94,6 +94,7 @@ static var SITUATIONS := {
 	"log-exp-form": [LogExpFormSituation, LogExpFormViews],
 	"algebraic-proof": [AlgebraicProofSituation, AlgebraicProofViews],
 	"sequence-proof": [SequenceProofSituation, SequenceProofViews],
+	"prove-identity": [ProveIdentitySituation, ProveIdentityViews],
 	"sampling": [SamplingSituation, SamplingViews],
 	"cumulative-frequency": [CumulativeFrequencySituation, CumulativeFrequencyViews],
 	"regression": [RegressionSituation, RegressionViews],

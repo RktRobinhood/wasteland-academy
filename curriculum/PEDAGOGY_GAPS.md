@@ -2096,7 +2096,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 17 exam types have them so far.
 
 #### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
 
@@ -2372,6 +2372,34 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): For an angle θ, sin(π − θ) = sin θ. — Always: θ and π − θ are mirror images in the y-axis, so their points on the unit circle have the same height.
   - *interpret-parameter* (L3): Why is the cos list of the landmark angles the sin list read backwards? — Because cos θ = sin(π/2 − θ): reflecting the unit circle in y = x swaps x and y.
 - **Misconceptions used:** 9. Swapping the sine and cosine values of a special angle; Inverting the value of tan at a special angle; Thinking the angle of an isosceles right triangle has a sine or cosine of one half; Getting the size right but the sign wrong for the quadrant; Measuring the reference angle from the y-axis; Treating a negative angle as positive; Swapping coordinates: taking sin θ as the x-coordinate; Measuring θ clockwise or from the y-axis; Thinking tan has a value where cos is zero.
+
+#### Prove a trig identity (`t3-prove-identity`, exam, 3 bank parts)
+
+- **Situation:** One trig identity to prove, as a chain of lines.
+- **Representations:** **equation**, words (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given one side of an identity, as an expression or a sentence → the simple form it reaches
+  - new L2: given an identity; the first lines of its proof → the line that comes next
+  - new L3: given a proof with one line hidden → the hidden line
+  - new L4: given a proof with one slip carried to the end → the first wrong line and its correction
+  - **exam** L3: given an identity; four arguments for it → which argument is a complete proof
+  - new L2: given an identity, with its busier side on the left or the right → which is the best way to start
+  - new L3: given one left side; four right sides → which statement is an identity
+  - **exam** L2: given an expression with a constant and the double-angle cosine → which form of the cosine cancels the constant
+  - new L2: given a number and the double-angle cosine → the square of a sine or a cosine it equals
+  - new L1: given a multiple of sin u cos u → that multiple of the double-angle sine
+  - new L3: given a fraction with a sum on top → the expression left after factorising and cancelling
+  - **exam** L2: given a side with a factorisable structure → the correct first line of factorising it
+  - new L2: given an identity that has been proved; an angle → the exact value of the side at that angle
+  - new L3: given one side of an identity; one ratio → the exact value of the side
+  - new L3: given a function, one side of an identity plus a number → its greatest or least value
+  - **exam** L3: given an identity with both sides unsimplified → the expression both sides reach
+- **Angles:** Start from the more complicated side; Convert everything to sin x and cos x; Spot a factorisable structure.
+- **Concept probes:**
+  - *true-false-reason* (L3): (1 + cos 2x)/cos 2x = 1 + 1 = 2, because the cos 2x cancels. — False: cos 2x is a factor of only one term of the top, so it can't cancel. At x = π/3 the fraction is (1 − 1/2)/(−1/2) = −1, not 2.
+  - *always-sometimes-never* (L3): cos²x − sin²x = 1. — Sometimes: cos²x − sin²x is cos 2x, which is 1 only when x is a multiple of π. It is cos²x + sin²x that is always 1.
+  - *true-false-reason* (L3): At x = π/4 both sides of sin 2x = 2 sin x cos x equal 1, so that proves the identity. — False: one value only shows the two sides agree there. sin x = cos x also holds at x = π/4, and it is no identity. A proof runs from one side to the other for every x.
+- **Misconceptions used:** 24. Working on both sides at once as if solving an equation, then treating a true last line as the proof; Cancelling across a sum, as if one term of the top were a factor of the whole top; Choosing a form of the double-angle cosine that does not cancel the constant term; Checking the two sides at one value and calling that a proof; Stopping before reaching the other side, so the proof has no last line; Getting a sign wrong when a bracket after a minus is removed or a factor is taken out; Leaving out the factor of two in the double-angle sine; Swapping the signs in a form of the double-angle cosine; Treating a difference of squares of sine and cosine as one, which only their sum is; Forgetting to double the middle term when squaring a bracket; Squaring each term of a bracket with no middle term; Keeping the same angle when a double-angle identity should change it; Writing a difference of two squares as the same bracket twice; Writing tan as cosine over sine, the wrong way up; Leaving the number in front unchanged when using a double-angle identity; Reading the greatest value off the number in front, leaving out the constant in the bracket; Reading the greatest value off the number in front of the first form, before the identity changes it; Putting the angle into the function without its multiple; Mixing up the double-angle identities for sine and cosine; Adding two fractions by adding their tops and adding their bottoms; Multiplying only the first term of a bracket; Squaring the trig term but not the number in front of it; Factorising a perfect square as a difference of two squares; Starting from the simpler side, which leaves nothing to rewrite.
 
 #### Use Pythagorean and double-angle identities to find exact values or rewrite (`t3-identity-values`, exam, 5 bank parts)
 

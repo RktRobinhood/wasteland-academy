@@ -4003,6 +4003,63 @@
     "a rewritten expression has whole-number coefficients"
    ]
   },
+  "prove-identity": {
+   "name": "One trig identity to prove, as a chain of lines",
+   "summary": "Pick the shape of an identity, the number in front and the multiple inside, and every line of the proof follows, with the slip each wrong line makes.",
+   "quantities": [
+    {
+     "name": "fam",
+     "is": "the shape of the identity",
+     "pick": "what the unknown, the representation and the method allow"
+    },
+    {
+     "name": "k",
+     "is": "the number in front",
+     "pick": "1 to 6"
+    },
+    {
+     "name": "n",
+     "is": "the number in front of sin u cos u",
+     "pick": "3 to 9"
+    },
+    {
+     "name": "w",
+     "is": "the multiple of the letter inside",
+     "pick": "1, 2 or 4"
+    },
+    {
+     "name": "letter",
+     "is": "the variable",
+     "pick": "x or θ"
+    },
+    {
+     "name": "minus, flip, base",
+     "is": "which signs or functions the shape uses",
+     "pick": "at random"
+    },
+    {
+     "name": "t",
+     "is": "the angle for a value",
+     "pick": "from π/6, π/4, π/3, 2π/3, 3π/4 and 5π/6, with the side defined and not zero"
+    },
+    {
+     "name": "r, given",
+     "is": "the ratio given for a value",
+     "pick": "a fraction, below 1 in size for a sine or cosine"
+    },
+    {
+     "name": "want, c",
+     "is": "the greatest or least value of the side plus a number",
+     "pick": "c from −5 to 9"
+    }
+   ],
+   "clean": [
+    "every statement is true wherever both sides are defined",
+    "only SL identities are used",
+    "no statement is an exam's or the map's example",
+    "every value is exact, with one surd at most"
+   ]
+  },
   "trig-equation": {
    "name": "One trig equation on an interval",
    "summary": "Pick the ratio, a landmark value k, the inner angle bx + φ and the interval. Every solution follows, as a multiple of π or in degrees. A factorised form or a rewrite to tan x is built from the same values.",
@@ -35657,14 +35714,676 @@
    "id": "t3-prove-identity",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Prove a trig identity",
+   "summary": "Show that one trig expression equals another, using sin²x + cos²x = 1, tan x = sin x/cos x and the double-angle identities. A phone can't read a written proof, so each question is one decision a proof turns on: the simple form, a hidden line, the next line, the first wrong line, the form of cos 2x that cancels the 1, the side to start from, which argument is a proof, or a value once the identity holds.",
    "syllabus": [
     "3.6",
     "1.6"
    ],
    "skills": [
     "SL3.6.prove-identity"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "start from the busier side",
+    "rewrite tan and the double angles in sin and cos",
+    "choose the form of the double-angle cosine that cancels the constant",
+    "spot a difference of squares or a common factor",
+    "cancel factors, not terms",
+    "end on the other side, with a line for each identity"
+   ],
+   "given": [
+    "an identity, with its sides simplified or not",
+    "a proof with a line hidden or wrong",
+    "four arguments for one identity",
+    "an angle or a ratio, once the identity holds"
+   ],
+   "asked": "A simple form, a line of a proof, the first wrong line and its correction, a form of the double-angle cosine, the side to start from, which argument proves the identity, or a value of the expression.",
+   "answerForms": [
+    "an expression with exact coefficients, typed in slots",
+    "an exact number or surd",
+    "a line of a proof, or a sentence, picked"
+   ],
+   "randomise": [
+    "the identity: a double angle over a constant and a cosine, a product, a square, a fourth-power difference, a sum of fractions, a tan through sin and cos, a common factor, a perfect square",
+    "the number in front and the multiple of the letter inside",
+    "the letter",
+    "which line is hidden, reached or spoiled, and by which slip",
+    "the side the busier expression is on",
+    "the angle or ratio"
+   ],
+   "constraints": [
+    "every identity holds wherever both sides are defined",
+    "only SL identities: no secant, cosecant or cotangent, and no triple angle",
+    "a wrong line is the same work with one slip, carried to the end",
+    "no statement is an exam's or the map's example: those numbers are left out",
+    "Paper 1 throughout: exact answers and no calculator method"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "prove-identity",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the identity or one side of it written out, in sines, cosines and tangents of a multiple of the letter"
+    },
+    {
+     "rep": "words",
+     "exam": false,
+     "how": "a sentence: the square of a sum, a difference of fourth powers, or a multiple of a product"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "simplified-result",
+     "given": [
+      "one side of an identity, as an expression or a sentence"
+     ],
+     "asked": "the simple form it reaches",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "next-line",
+     "given": [
+      "an identity",
+      "the first lines of its proof"
+     ],
+     "asked": "the line that comes next",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "missing-line",
+     "given": [
+      "a proof with one line hidden"
+     ],
+     "asked": "the hidden line",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "flawed-line",
+     "given": [
+      "a proof with one slip carried to the end"
+     ],
+     "asked": "the first wrong line and its correction",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "valid-argument",
+     "given": [
+      "an identity",
+      "four arguments for it"
+     ],
+     "asked": "which argument is a complete proof",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "start-side",
+     "given": [
+      "an identity, with its busier side on the left or the right"
+     ],
+     "asked": "which is the best way to start",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "true-identity",
+     "given": [
+      "one left side",
+      "four right sides"
+     ],
+     "asked": "which statement is an identity",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "cos2-form",
+     "given": [
+      "an expression with a constant and the double-angle cosine"
+     ],
+     "asked": "which form of the cosine cancels the constant",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "half-form",
+     "given": [
+      "a number and the double-angle cosine"
+     ],
+     "asked": "the square of a sine or a cosine it equals",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "sin2-multiple",
+     "given": [
+      "a multiple of sin u cos u"
+     ],
+     "asked": "that multiple of the double-angle sine",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "cancel-fraction",
+     "given": [
+      "a fraction with a sum on top"
+     ],
+     "asked": "the expression left after factorising and cancelling",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "factor-structure",
+     "given": [
+      "a side with a factorisable structure"
+     ],
+     "asked": "the correct first line of factorising it",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "identity-value",
+     "given": [
+      "an identity that has been proved",
+      "an angle"
+     ],
+     "asked": "the exact value of the side at that angle",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "value-from-ratio",
+     "given": [
+      "one side of an identity",
+      "one ratio"
+     ],
+     "asked": "the exact value of the side",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "greatest-value",
+     "given": [
+      "a function, one side of an identity plus a number"
+     ],
+     "asked": "its greatest or least value",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    },
+    {
+     "id": "common-expression",
+     "given": [
+      "an identity with both sides unsimplified"
+     ],
+     "asked": "the expression both sides reach",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation"
+     ],
+     "skills": [
+      "SL3.6.prove-identity"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.6.prove-identity",
+     "method": "complex-side",
+     "suits": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "valid-argument",
+      "start-side",
+      "true-identity",
+      "identity-value",
+      "value-from-ratio",
+      "greatest-value",
+      "common-expression"
+     ]
+    },
+    {
+     "skill": "SL3.6.prove-identity",
+     "method": "sin-cos-convert",
+     "suits": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "cos2-form",
+      "half-form",
+      "sin2-multiple",
+      "value-from-ratio"
+     ]
+    },
+    {
+     "skill": "SL3.6.prove-identity",
+     "method": "factorise-structure",
+     "suits": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "cancel-fraction",
+      "factor-structure",
+      "value-from-ratio",
+      "greatest-value"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "(1 + cos 2x)/cos 2x = 1 + 1 = 2, because the cos 2x cancels.",
+     "answer": "False: cos 2x is a factor of only one term of the top, so it can't cancel. At x = π/3 the fraction is (1 − 1/2)/(−1/2) = −1, not 2.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "cos²x − sin²x = 1.",
+     "answer": "Sometimes: cos²x − sin²x is cos 2x, which is 1 only when x is a multiple of π. It is cos²x + sin²x that is always 1.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "At x = π/4 both sides of sin 2x = 2 sin x cos x equal 1, so that proves the identity.",
+     "answer": "False: one value only shows the two sides agree there. sin x = cos x also holds at x = π/4, and it is no identity. A proof runs from one side to the other for every x.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.6.prove-identity#0",
+     "text": "Working on both sides at once as if solving an equation, then treating a true last line as the proof",
+     "as": "distractor",
+     "in": [
+      "next-line",
+      "valid-argument",
+      "start-side"
+     ],
+     "wrong": "a line that takes the right side from both sides, or a plan to work on both at once"
+    },
+    {
+     "ref": "SL3.6.prove-identity#1",
+     "text": "Cancelling across a sum, as if one term of the top were a factor of the whole top",
+     "as": "distractor",
+     "in": [
+      "next-line",
+      "missing-line",
+      "true-identity",
+      "cancel-fraction"
+     ],
+     "wrong": "one term of the top cancelled with the bottom, the other left"
+    },
+    {
+     "ref": "SL3.6.prove-identity#2",
+     "text": "Choosing a form of the double-angle cosine that does not cancel the constant term",
+     "as": "distractor",
+     "in": [
+      "cos2-form"
+     ],
+     "wrong": "a true form of the cosine that leaves a constant behind"
+    },
+    {
+     "ref": "SL3.6.prove-identity#3",
+     "text": "Checking the two sides at one value and calling that a proof",
+     "as": "distractor",
+     "in": [
+      "valid-argument",
+      "start-side"
+     ],
+     "wrong": "the two sides compared at one angle, worked out truly"
+    },
+    {
+     "ref": "SL3.6.prove-identity#4",
+     "text": "Stopping before reaching the other side, so the proof has no last line",
+     "as": "distractor",
+     "in": [
+      "valid-argument"
+     ],
+     "wrong": "the first line of working, with no last line and no conclusion"
+    },
+    {
+     "ref": "SL3.6.prove-identity#5",
+     "text": "Getting a sign wrong when a bracket after a minus is removed or a factor is taken out",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "true-identity",
+      "half-form",
+      "factor-structure",
+      "value-from-ratio"
+     ],
+     "wrong": "one term with the opposite sign, carried to the end"
+    },
+    {
+     "ref": "SL3.6.prove-identity#6",
+     "text": "Leaving out the factor of two in the double-angle sine",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "cancel-fraction",
+      "value-from-ratio"
+     ],
+     "wrong": "the double-angle sine written without its factor of two"
+    },
+    {
+     "ref": "SL3.6.prove-identity#7",
+     "text": "Swapping the signs in a form of the double-angle cosine",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "cos2-form",
+      "half-form",
+      "value-from-ratio"
+     ],
+     "wrong": "a form of the cosine with both signs changed"
+    },
+    {
+     "ref": "SL3.6.prove-identity#8",
+     "text": "Treating a difference of squares of sine and cosine as one, which only their sum is",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "value-from-ratio",
+      "common-expression"
+     ],
+     "wrong": "the wrong bracket taken as one"
+    },
+    {
+     "ref": "SL3.6.prove-identity#9",
+     "text": "Forgetting to double the middle term when squaring a bracket",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "value-from-ratio"
+     ],
+     "wrong": "the middle term of the square left undoubled"
+    },
+    {
+     "ref": "SL3.6.prove-identity#10",
+     "text": "Squaring each term of a bracket with no middle term",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity",
+      "value-from-ratio"
+     ],
+     "wrong": "the square of each term and no middle term"
+    },
+    {
+     "ref": "SL3.6.prove-identity#11",
+     "text": "Keeping the same angle when a double-angle identity should change it",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "true-identity",
+      "half-form"
+     ],
+     "wrong": "the same angle kept on both sides of the identity"
+    },
+    {
+     "ref": "SL3.6.prove-identity#12",
+     "text": "Writing a difference of two squares as the same bracket twice",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "factor-structure",
+      "common-expression"
+     ],
+     "wrong": "both brackets written with the minus"
+    },
+    {
+     "ref": "SL3.6.prove-identity#13",
+     "text": "Writing tan as cosine over sine, the wrong way up",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "true-identity"
+     ],
+     "wrong": "the ratio tan replaced by cosine over sine"
+    },
+    {
+     "ref": "SL3.6.prove-identity#14",
+     "text": "Leaving the number in front unchanged when using a double-angle identity",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "true-identity",
+      "half-form",
+      "sin2-multiple"
+     ],
+     "wrong": "the number in front kept, with the two absorbed"
+    },
+    {
+     "ref": "SL3.6.prove-identity#15",
+     "text": "Reading the greatest value off the number in front, leaving out the constant in the bracket",
+     "as": "distractor",
+     "in": [
+      "greatest-value"
+     ],
+     "wrong": "the number in front alone, in place of the bracket's greatest value"
+    },
+    {
+     "ref": "SL3.6.prove-identity#16",
+     "text": "Reading the greatest value off the number in front of the first form, before the identity changes it",
+     "as": "distractor",
+     "in": [
+      "greatest-value"
+     ],
+     "wrong": "the first form's number in front, before it is halved or quartered"
+    },
+    {
+     "ref": "SL3.6.prove-identity#17",
+     "text": "Putting the angle into the function without its multiple",
+     "as": "distractor",
+     "in": [
+      "identity-value"
+     ],
+     "wrong": "the function worked out at the given angle, not at its multiple"
+    },
+    {
+     "ref": "SL3.6.prove-identity#18",
+     "text": "Mixing up the double-angle identities for sine and cosine",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "true-identity",
+      "common-expression"
+     ],
+     "wrong": "sine and cosine swapped in the last line"
+    },
+    {
+     "ref": "SL3.6.prove-identity#19",
+     "text": "Adding two fractions by adding their tops and adding their bottoms",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "true-identity"
+     ],
+     "wrong": "the tops added and the bottoms added"
+    },
+    {
+     "ref": "SL3.6.prove-identity#20",
+     "text": "Multiplying only the first term of a bracket",
+     "as": "distractor",
+     "in": [
+      "next-line",
+      "missing-line",
+      "true-identity"
+     ],
+     "wrong": "the second term of the bracket left unmultiplied"
+    },
+    {
+     "ref": "SL3.6.prove-identity#21",
+     "text": "Squaring the trig term but not the number in front of it",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "flawed-line",
+      "value-from-ratio"
+     ],
+     "wrong": "the number in front left unsquared"
+    },
+    {
+     "ref": "SL3.6.prove-identity#22",
+     "text": "Factorising a perfect square as a difference of two squares",
+     "as": "distractor",
+     "in": [
+      "simplified-result",
+      "next-line",
+      "missing-line",
+      "factor-structure"
+     ],
+     "wrong": "the sum and difference brackets, in place of the perfect square"
+    },
+    {
+     "ref": "SL3.6.prove-identity#23",
+     "text": "Starting from the simpler side, which leaves nothing to rewrite",
+     "as": "distractor",
+     "in": [
+      "start-side"
+     ],
+     "wrong": "the shorter side chosen as the start"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q06.a",
