@@ -9832,6 +9832,438 @@ def check_compound_interest(q):
     return None, None
 
 
+# ── depreciation (t1-depreciation, FAL-752) ──────────────────
+# The `depreciation` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/depreciation.gd. The price, rate and target are read back from what is
+# shown (a table's multiplier from its own values), every value is found again with exact rationals,
+# a rate from a high-precision root and a time from a logarithm, tested against the values either
+# side of it, and each number the working needs must be in the working.
+
+E10DE_WHO = ["Kira", "Tomas", "The Guild", "A trader", "Ines", "The caravan fund"]
+E10DE_ITEMS = ["water truck", "solar rig", "salvage crane", "wind pump", "fuel tanker", "generator", "drill rig", "cargo wagon"]
+E10DE_UNIT = {"year": 1, "quarter": 4, "month": 12}
+E10DE_LETTER = {1: "t", 4: "q", 12: "m"}
+E10DE_DEP = "SL1.4.depreciation#"
+E10DE_TIME = "SL1.4.find-time#"
+E10DE_CENT = sp.Rational(51, 10000)     # a figure shown to the cent is the value to within this
+E10DE_DOLLAR_EDGE = sp.Rational(149, 1000)   # the engine's is 0.15
+E10DE_EDGE = sp.Rational(29, 1000)      # the engine's is 0.03
+E10DE_GAP = sp.Rational(149, 1000)      # the engine's is 0.15
+E10DE_MONTH = {sp.Rational(t, 10) for t in (5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 18, 20, 25, 30)}
+E10DE_QUARTER = {sp.Rational(t, 10) for t in (15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 75, 80)}
+E10DE_PCTS = (10, 20, 25, 30, 40, 50, 60)
+E10DE_YEARS_MAX = 25
+
+
+def e10de_clear(x):
+    """x rounds to a dollar without doubt."""
+    if not (0 < x <= 10**6):
+        return False
+    return abs(x - sp.floor(x) - sp.Rational(1, 2)) >= E10DE_DOLLAR_EDGE
+
+
+def e10de_d(x):
+    """x to the nearest dollar, as the game writes it."""
+    return str(int(sp.floor(x + sp.Rational(1, 2))))
+
+
+def e10de_rate_clear(x):
+    v = num(x)
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E10DE_EDGE
+
+
+def e10de_figures(sol):
+    return [sp.Rational(t) for st in sol["steps"] for t in re.findall(r"\d+\.\d+", st)]
+
+
+def e10de_shown(sol, x, tol=E10DE_CENT):
+    """Some figure in the worked solution is x, to the figures it is shown to."""
+    need(any(abs(t - x) <= tol for t in e10de_figures(sol)), f"{sol['name']}: the working doesn't show {float(x):.4f}")
+
+
+def e10de_says(sol, *texts):
+    for text in texts:
+        need(any(text in st for st in sol["steps"]), f"{sol['name']}: the working doesn't say {text!r}")
+
+
+def e10de_run(sol, start, c, first, last):
+    """A year-by-year run: every year from first to last, each the one before times c."""
+    found = {int(y): sp.Rational(v) for st in sol["steps"] for y, v in re.findall(r"[Yy]ear (\d+): (\d+\.\d+)", st)}
+    need(sorted(found) == list(range(first, last + 1)), f"{sol['name']}: the run has years {sorted(found)}")
+    for y, shown in found.items():
+        need(abs(shown - start * c ** (y - first + 1)) <= E10DE_CENT, f"{sol['name']}: year {y} is not {float(start * c ** (y - first + 1)):.2f}")
+
+
+def e10de_story(q, w, item):
+    g = q["given"]
+    need(w in E10DE_WHO and E10DE_WHO.index(w) == int(g["ctx"]), f"the story's name {w!r}")
+    need(item in E10DE_ITEMS and E10DE_ITEMS.index(item) == int(g["item"]), f"the story's item {item!r}")
+
+
+def e10de_table(q, name, start=None):
+    """A value table: three whole times in a row, exact to the cent, one multiplier. Returns t0, v0 and c."""
+    rows = q["table"]["rows"]
+    need(len(rows) == 2 and rows[0][0] == name and rows[1][0] == "V ($)", f"the table's headings {rows}")
+    ts, vs = [int(t) for t in rows[0][1]], [R(v) for v in rows[1][1]]
+    need(len(ts) == 3 and ts[1] == ts[0] + 1 and ts[2] == ts[1] + 1 and (start is None or ts[0] == start), f"the table's times {ts}")
+    c = vs[1] / vs[0]
+    need(vs[2] == vs[1] * c, "the table's values do not share a multiplier, or are not exact")
+    return ts[0], vs[0], c
+
+
+def e10de_read(q):
+    """The price P, rate r, multiplier c and periods a year k, from what the student is shown."""
+    rep, L = q["view"]["rep"], q["lines"]
+    f = {"date": None, "T": None}
+    if rep == "words":
+        m = re.fullmatch(r"(.+) buys a (.+) for \$(\d+)\. Its value falls by ([\d.]+)% each (year|month|quarter)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        e10de_story(q, m.group(1), m.group(2))
+        f["P"], f["r"], f["k"] = sp.Integer(m.group(3)), R(m.group(4)), E10DE_UNIT[m.group(5)]
+        f["c"] = 1 - f["r"] / 100
+    elif rep == "equation":
+        m = re.fullmatch(r"(.+) buys a (.+) on 1 January (\d+)\. Its value in dollars, t years after that date, is V = (\d+)\(([\d.]+)\)\^t\.", L[0])
+        if m:
+            e10de_story(q, m.group(1), m.group(2))
+            f["date"], f["P"], f["c"], f["k"] = int(m.group(3)), sp.Integer(m.group(4)), R(m.group(5)), 1
+        else:
+            m = re.fullmatch(r"(.+) buys a (.+)\. Its value in dollars, ([tqm]) (year|month|quarter)s after it is bought, is V = (\d+)\(([\d.]+)\)\^\3\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            f["k"], f["P"], f["c"] = E10DE_UNIT[m.group(4)], sp.Integer(m.group(5)), R(m.group(6))
+            need(m.group(3) == E10DE_LETTER[f["k"]], f"the letter in {L[0]!r}")
+        f["r"] = 100 * (1 - f["c"])
+    elif rep == "table":
+        m = re.fullmatch(r"(.+) buys a (.+), and its value falls by the same percentage each (year|month|quarter)\. The table shows its value, ([tqm]) (?:year|month|quarter)s after it is bought\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        e10de_story(q, m.group(1), m.group(2))
+        f["k"] = E10DE_UNIT[m.group(3)]
+        need(L[0].endswith(f"{E10DE_LETTER[f['k']]} {m.group(3)}s after it is bought."), f"the letter in {L[0]!r}")
+        _, f["P"], f["c"] = e10de_table(q, f"{E10DE_LETTER[f['k']]} ({m.group(3)}s)", 0)
+        f["r"] = 100 * (1 - f["c"])
+    else:
+        m = re.fullmatch(r"(.+) buys a (.+)\. The graph shows its value V dollars, t years after it is bought, where V = (\d+)\(([\d.]+)\)\^t, and the line V = (\d+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        e10de_story(q, m.group(1), m.group(2))
+        f["k"], f["P"], f["c"], f["T"] = 1, sp.Integer(m.group(3)), R(m.group(4)), sp.Integer(m.group(5))
+        f["r"] = 100 * (1 - f["c"])
+    P, r, k = f["P"], f["r"], f["k"]
+    need(0 < f["c"] < 1, f"the multiplier {f['c']}")
+    if k == 1:
+        need(P % 1000 == 0 and 4000 <= P <= 60000 and r.q == 1 and 5 <= r <= 30, f"P {P} or r {r} is outside the limits")
+    else:
+        need(r in (E10DE_MONTH if k == 12 else E10DE_QUARTER), f"the rate {r} per period")
+        need(P % 1000 == 0 and 4000 <= P <= 60000 or (rep == "table" and P % 10000 == 0 and 10000 <= P <= 60000), f"P {P} is outside the limits")
+    return f
+
+
+def e10de_value_work(q, f, n, tail):
+    """Each method reaches V(n), then whatever the question does with it."""
+    P, c, r = f["P"], f["c"], f["r"]
+    v = P * c ** n
+    for sol in q["solutions"]:
+        a = sol["angle"]
+        if a == "decay-multiplier":
+            e10de_says(sol, f"{P} × {dec_text(c)}^{n}")
+            e10de_shown(sol, v)
+        elif a == "tvm-negative":
+            e10de_says(sol, f"N = {n}", f"I% = −{dec_text(r)}", f"PV = −{P}", "PMT = 0")
+            e10de_shown(sol, v)
+        else:
+            need(a == "year-by-year", f"the method {a}")
+            e10de_run(sol, P, c, 1, n)
+        for x in tail:
+            e10de_shown(sol, x, sp.Rational(11, 1000))
+
+
+def e10de_time_work(q, f, x, per, least):
+    P, c, r, T = f["P"], f["c"], f["r"], f["T"]
+    w = E10DE_LETTER[f["k"]]
+    for sol in q["solutions"]:
+        a = sol["angle"]
+        if a == "logs":
+            e10de_says(sol, f"{P} × {dec_text(c)}^{w} < {dec_text(T)}", "flips the sign")
+            e10de_shown(sol, sp.Rational(str(x)), sp.Rational(6, 10000))
+        elif a == "tvm":
+            e10de_says(sol, f"I% = −{dec_text(r)}", f"PV = −{P}", f"FV = {dec_text(T)}", "PMT = 0")
+            e10de_shown(sol, sp.Rational(str(x)), sp.Rational(6, 10000))
+        elif a == "gdc-table":
+            low, top = (least - 1) * per, least * per
+            need(low >= 0, "the table starts before 0")
+            e10de_says(sol, f"X = {low} gives Y1 =", f"X = {top} gives Y1 =")
+            e10de_shown(sol, P * c ** low)
+            e10de_shown(sol, P * c ** top)
+        else:
+            need(a == "graph-intersect", f"the method {a}")
+            e10de_says(sol, f"y = {dec_text(T)}")
+            e10de_shown(sol, sp.Rational(str(x)), sp.Rational(6, 10000))
+        if per > 1 and a != "gdc-table":
+            e10de_says(sol, f"÷ {per} =")
+        if a != "gdc-table":
+            e10de_says(sol, f"round up: {least}")
+
+
+def e10de_figure(q, f, x, least):
+    """The drawn curve is the model, the line is the target, and the mark is their crossing."""
+    g = q["graph"]
+    P, c, T = f["P"], f["c"], f["T"]
+    need(g is not None and len(g["curves"]) == 1 and len(g["hlines"]) == 1 and len(g["points"]) == 1, "the figure's parts")
+    need(int(g["x0"]) == 0 and int(g["x1"]) == least + 2 and int(g["y0"]) == 0 and int(g["y1"]) >= P, f"the figure's window {g['x1']}, {g['y1']}")
+    for px, py in g["curves"][0][::16]:
+        need(abs(py - float(P) * float(c) ** px) <= 1e-6 * float(P), f"the curve at {px}")
+    need(sp.Rational(str(g["hlines"][0]["at"])) == T and g["hlines"][0]["label"] == f"V = {dec_text(T)}", "the figure's line")
+    pt = g["points"][0]
+    need(abs(pt["x"] - float(x)) < 1e-6 and sp.Rational(str(pt["y"])) == T, "the marked crossing")
+    need(pt["label"] == f"({sig3(x)}, {dec_text(T)})", f"the mark's label {pt['label']!r}")
+
+
+def e10de_time(q, f, per, label):
+    """The least whole time: from the logarithm, then tested exactly either side of it."""
+    P, c, r, T, k = f["P"], f["c"], f["r"], f["T"], f["k"]
+    need(T.q == 1 and (T % 500 == 0 or "pct" in q["given"]), f"target {T}")
+    x = sp.N(sp.log(T / P) / sp.log(c), DIGITS)
+    y = x / per
+    frac = y - sp.floor(y)
+    need(E10DE_GAP <= frac <= 1 - E10DE_GAP, f"the real solution {float(y):.4f} is not clear of a whole number")
+    least = int(sp.ceiling(y))
+    need(P * c ** (least * per) < T <= P * c ** ((least - 1) * per), f"{least} is not the first time below the target")
+    need(int(q["given"]["least"]) == least, f"the least is {least}, not {q['given']['least']}")
+    wrongs = {E10DE_TIME + "2": {f"{label} = {int(sp.floor(y))}"}}
+    near = int(sp.floor(y + sp.Rational(1, 2)))
+    if near != least:
+        wrongs[E10DE_TIME + "0"] = {f"{label} = {near}"}
+    if k == 1:
+        line = next(n for n in range(1, 500) if P * (100 - n * r) < T * 100)
+        if line != least:
+            wrongs[E10DE_DEP + "1"] = {f"{label} = {line}"}
+    elif per > 1:
+        wrongs[E10DE_TIME + "1"] = {f"{label} = {int(sp.ceiling(x))}"}
+    e10de_time_work(q, f, x, per, least)
+    if q["view"]["rep"] == "graph":
+        e10de_figure(q, f, x, least)
+    return f"{label} = {least}", wrongs, least
+
+
+def e10de_check(q):
+    g, u, L, asked, rep = q["given"], q["view"]["unknown"], q["lines"], q["asked"], q["view"]["rep"]
+    need(q["paper"] == 2, "depreciation is Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    D = E10DE_DEP
+    if u in ("value-after", "total-loss", "loss-in-year", "read-rate", "years-below", "years-fraction", "years-from-periods", "least-periods"):
+        f = e10de_read(q)
+        P, r, c, k = f["P"], f["r"], f["c"], f["k"]
+    if u in ("value-after", "total-loss"):
+        if f["date"] is not None:
+            need(u == "value-after", "a date on a total loss")
+            m = re.fullmatch(r"Find its value on 1 January (\d+), to the nearest dollar\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            n = int(m.group(1)) - f["date"]
+        else:
+            m = re.fullmatch(r"Find its value after (\d+) years, to the nearest dollar\." if u == "value-after"
+                             else r"Find the total loss in its value over the first (\d+) years, to the nearest dollar\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            n = int(m.group(1))
+        need(k == 1 and 3 <= n <= 10 and r * n <= 90 and int(g["n"]) == n, f"n = {n}")
+        v, up, line = P * c ** n, P * (1 + r / 100) ** n, P * (1 - n * r / 100)
+        need(all(e10de_clear(x) for x in (v, P - v, up, up - P)), "a value is on the edge between two dollars")
+        if u == "value-after":
+            want = "value = $" + e10de_d(v)
+            wrongs = {D + "0": {"value = $" + e10de_d(up)}, D + "1": {"value = $" + e10de_d(line)}, D + "2": {"value = $" + e10de_d(P - v)}}
+            e10de_value_work(q, f, n, [])
+        else:
+            want = "loss = $" + e10de_d(P - v)
+            wrongs = {D + "0": {"loss = $" + e10de_d(up - P)}, D + "1": {"loss = $" + e10de_d(P - line)}, D + "2": {"loss = $" + e10de_d(v)}}
+            e10de_value_work(q, f, n, [P - v])
+    elif u == "loss-in-year":
+        m = re.fullmatch(r"Find the loss in its value during year (\d+) alone, between (\d+) and (\d+) years after it is bought, to the nearest dollar\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n = int(m.group(1))
+        need(int(m.group(2)) == n - 1 and int(m.group(3)) == n and 2 <= n <= 8 and k == 1, f"the year in {asked!r}")
+        a, b = P * c ** (n - 1), P * c ** n
+        need(all(e10de_clear(x) for x in (a, b, a - b, P - b, b * r / 100)), "a value is on the edge between two dollars")
+        want = "loss = $" + e10de_d(a - b)
+        say = lambda x: {"loss = $" + e10de_d(x)}
+        wrongs = {D + "3": say(P - b), D + "4": say(b * r / 100), D + "1": say(P * r / 100), D + "2": say(b)}
+        for sol in q["solutions"]:
+            if sol["angle"] == "year-by-year":
+                e10de_run(sol, P, c, 1, n)
+            else:
+                e10de_shown(sol, a)
+                e10de_shown(sol, b)
+            e10de_shown(sol, a - b, sp.Rational(11, 1000))
+    elif u == "original-value":
+        need(asked == "Find the price it was bought for, to the nearest dollar.", f"asked {asked!r}")
+        if rep == "words":
+            m = re.fullmatch(r"(.+) owns a (.+) that is worth \$(\d+) now\. It was bought (\d+) years ago, and its value has fallen by ([\d.]+)% each year\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            V, n, r = sp.Integer(m.group(3)), int(m.group(4)), R(m.group(5))
+            c = 1 - r / 100
+        elif rep == "equation":
+            m = re.fullmatch(r"(.+) owns a (.+)\. Its value in dollars, t years after it was bought, is V = P\(([\d.]+)\)\^t, and V = (\d+) when t = (\d+)\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            c, V, n = R(m.group(3)), sp.Integer(m.group(4)), int(m.group(5))
+            r = 100 * (1 - c)
+        else:
+            m = re.fullmatch(r"(.+) owns a (.+), and its value falls by the same percentage each year\. The table shows its value, t years after it was bought\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            n, V, c = e10de_table(q, "t (years)")
+            r = 100 * (1 - c)
+        need(V % 1000 == 0 and 2000 <= V <= 30000 and r.q == 1 and 5 <= r <= 30 and 2 <= n <= 8 and r * n <= 90, f"V {V}, r {r} or n {n} is outside the limits")
+        p = V / c ** n
+        up, line = V * (1 + r / 100) ** n, V / (1 - n * r / 100)
+        need(all(e10de_clear(x) for x in (p, up, line, V * c ** n)), "a value is on the edge between two dollars")
+        want = "price = $" + e10de_d(p)
+        wrongs = {D + "5": {"price = $" + e10de_d(up)}, D + "1": {"price = $" + e10de_d(line)}}
+        for sol in q["solutions"]:
+            a = sol["angle"]
+            e10de_shown(sol, p)
+            if a == "year-by-year":
+                found = {int(y): sp.Rational(t) for st in sol["steps"] for y, t in re.findall(r"[Yy]ear (\d+): (\d+\.\d+)", st)}
+                need(sorted(found) == list(range(n)), f"{sol['name']}: the run back has years {sorted(found)}")
+                for y, t in found.items():
+                    need(abs(t - V / c ** (n - y)) <= E10DE_CENT, f"{sol['name']}: year {y} going back")
+            elif a == "tvm-negative":
+                e10de_says(sol, f"N = {n}", f"I% = −{dec_text(r)}", f"FV = {V}", "Solve for PV")
+            else:
+                e10de_says(sol, f"{V} ÷ {dec_text(c)}^{n}")
+    elif u == "find-rate":
+        need(asked == "Find the yearly rate of depreciation, as a percentage to 3 s.f.", f"asked {asked!r}")
+        if rep == "words":
+            m = re.fullmatch(r"(.+) buys a (.+) for \$(\d+)\. (\d+) years later it is worth \$(\d+), and it has lost the same percentage of its value each year\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            P, n, V = sp.Integer(m.group(3)), int(m.group(4)), sp.Integer(m.group(5))
+        elif rep == "equation":
+            m = re.fullmatch(r"(.+) buys a (.+)\. Its value in dollars, t years after it is bought, is V = (\d+)\(a\)\^t, where 0 < a < 1\. When t = (\d+), V = (\d+)\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            P, n, V = sp.Integer(m.group(3)), int(m.group(4)), sp.Integer(m.group(5))
+        else:
+            m = re.fullmatch(r"(.+) buys a (.+), and its value falls by the same percentage each year\. The table shows its value, t years after it is bought\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            t = q["table"]["rows"]
+            need(t[0][0] == "t (years)" and t[1][0] == "V ($)" and t[0][1][0] == "0", f"the table {t}")
+            n, P, V = int(t[0][1][1]), R(t[1][1][0]), R(t[1][1][1])
+        need(P % 1000 == 0 and 4000 <= P <= 60000 and 3 <= n <= 10 and 0 < V < P, f"P {P}, n {n} or V {V} is outside the limits")
+        root = sp.N((V / P) ** sp.Rational(1, n), DIGITS)
+        found, kept, whole = 100 * (1 - root), 100 * root, 100 * (1 - V / P)
+        share = whole / n
+        need(5 <= sp.Float(found) <= 31, f"the rate {found}")
+        need(all(e10de_rate_clear(x) for x in (found, kept, whole, share)), "a rate is on a rounding edge")
+        need(len({sig3(found), sig3(kept), sig3(whole), sig3(share)}) == 4, "two rates read the same")
+        need(not sig3(found).endswith("0"), "the rate reads the same as its 2 s.f. trap")
+        want = "rate = " + sig3(found) + "%"
+        trap = "rate = " + dec_text(sp.Rational(sig3(found, 2))) + "%"
+        wrongs = {D + "6": {"rate = " + sig3(kept) + "%"}, D + "7": {"rate = " + sig3(whole) + "%"}, D + "1": {"rate = " + sig3(share) + "%"}}
+        for sol in q["solutions"]:
+            if sol["angle"] == "tvm-negative":
+                e10de_says(sol, f"N = {n}", f"PV = −{P}", f"FV = {V}", "Solve for I%")
+            e10de_shown(sol, sp.Rational(str(found)), sp.Rational(1, 1000))
+    elif u == "read-rate":
+        need(k == 1 and asked == "Write down the yearly rate of depreciation, as a percentage.", f"asked {asked!r}")
+        want = f"rate = {dec_text(r)}%"
+        wrongs = {D + "6": {f"rate = {dec_text(100 * c)}%"}}
+        for sol in q["solutions"]:
+            e10de_says(sol, f"1 − {dec_text(c)} = {dec_text(r / 100)}", f"{dec_text(r)}%")
+    elif u == "two-rate-value":
+        if rep == "table":
+            m = re.fullmatch(r"(.+) buys a (.+) for \$(\d+)\. The table shows how far its value falls each year\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            t = q["table"]["rows"]
+            need(t[0] == ["Year", ["1", "2 onward"]] and t[1][0] == "Fall in value", f"the table {t}")
+            r1, r2 = R(t[1][1][0].rstrip("%")), R(t[1][1][1].rstrip("%"))
+        else:
+            m = re.fullmatch(r"(.+) buys a (.+) for \$(\d+)\. Its value falls by ([\d.]+)% in the first year, and by ([\d.]+)% in each year after that\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            r1, r2 = R(m.group(4)), R(m.group(5))
+        e10de_story(q, m.group(1), m.group(2))
+        P = sp.Integer(m.group(3))
+        ma = re.fullmatch(r"Find its value (\d+) years after it is bought, to the nearest dollar\.", asked)
+        need(ma is not None, f"asked {asked!r}")
+        n = int(ma.group(1))
+        need(P % 1000 == 0 and 4000 <= P <= 60000 and 3 <= n <= 10 and 10 <= r1 <= 30 and 5 <= r2 <= r1 - 2 and r1.q == 1 and r2.q == 1, f"P {P}, the rates or n {n} are outside the limits")
+        c1, c2 = 1 - r1 / 100, 1 - r2 / 100
+        a, v = P * c1, P * c1 * c2 ** (n - 1)
+        later = P * c2 ** n
+        need(all(e10de_clear(x) for x in (v, P - v, later, v * c2)), "a value is on the edge between two dollars")
+        want = "value = $" + e10de_d(v)
+        wrongs = {D + "8": {"value = $" + e10de_d(later)}, D + "2": {"value = $" + e10de_d(P - v)}}
+        for sol in q["solutions"]:
+            e10de_shown(sol, a)
+            if sol["angle"] == "year-by-year":
+                e10de_run(sol, a, c2, 2, n)
+            else:
+                e10de_shown(sol, v)
+            if sol["angle"] == "tvm-negative":
+                e10de_says(sol, f"N = {n - 1}", f"I% = −{dec_text(r2)}")
+    elif u == "shortfall":
+        need(len(L) == 3, "the shortfall's lines")
+        if rep == "equation":
+            m = re.fullmatch(r"(.+) plans to buy a (.+) in (\d+) years' time\. Its value in dollars, t years from now, is V = (\d+)\(([\d.]+)\)\^t\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            P, c = sp.Integer(m.group(4)), R(m.group(5))
+            r = 100 * (1 - c)
+        else:
+            m = re.fullmatch(r"(.+) plans to buy a (.+) in (\d+) years' time\. It is worth \$(\d+) now, and its value falls by ([\d.]+)% each year\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            P, r = sp.Integer(m.group(4)), R(m.group(5))
+            c = 1 - r / 100
+        e10de_story(q, m.group(1), m.group(2))
+        n = int(m.group(3))
+        ms = re.fullmatch(r"The buyer puts \$(\d+) in an account today, at ([\d.]+)% per year compounded yearly, and adds nothing more\.", L[1])
+        need(ms is not None, f"can't read {L[1]!r}")
+        S, i = sp.Integer(ms.group(1)), R(ms.group(2))
+        need(L[2] == f"On the day, all the money in the account and an extra $M will pay exactly what the {m.group(2)} is worth then.", f"can't read {L[2]!r}")
+        need(asked == "Find M, to the nearest dollar.", f"asked {asked!r}")
+        need(P % 1000 == 0 and 4000 <= P <= 60000 and r.q == 1 and 5 <= r <= 30 and 3 <= n <= 10 and r * n <= 90, f"P {P}, r {r} or n {n} is outside the limits")
+        need(S % 500 == 0 and S <= P * sp.Rational(7, 10) and i.q == 1 and 2 <= i <= 8, f"the account {S} at {i}")
+        v, a = P * c ** n, S * (1 + i / 100) ** n
+        M = v - a
+        need(M >= 100 and all(e10de_clear(x) for x in (v, a, M, P - a, v - S)), "a value is on the edge between two dollars, or M is too small")
+        want = "M = $" + e10de_d(M)
+        wrongs = {D + "9": {"M = $" + e10de_d(P - a), "M = $" + e10de_d(v - S)}}
+        for sol in q["solutions"]:
+            e10de_shown(sol, v)
+            e10de_shown(sol, a)
+            e10de_shown(sol, M, sp.Rational(11, 1000))
+    elif u in ("years-below", "years-fraction"):
+        need(k == 1, "a time in years is on a yearly rate")
+        if u == "years-below":
+            m = re.fullmatch(r"Find the least number of complete years after which its value is less than \$(\d+)\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            T = sp.Integer(m.group(1))
+        else:
+            m = re.fullmatch(r"Find the least number of complete years after which it is worth less than (\d+)% of the price paid\.", asked)
+            need(m is not None and int(m.group(1)) in E10DE_PCTS, f"asked {asked!r}")
+            T = P * int(m.group(1)) / sp.Integer(100)
+        need(f["T"] is None or f["T"] == T, "the graph's line is not the target")
+        need(sp.Rational(15, 100) * P <= T <= sp.Rational(8, 10) * P, f"target {T}")
+        f["T"] = T
+        want, wrongs, least = e10de_time(q, f, 1, "years")
+        need(2 <= least <= E10DE_YEARS_MAX, f"{least} years")
+    else:
+        need(k in (4, 12), "a rate per month or quarter")
+        unit = "month" if k == 12 else "quarter"
+        word = "year" if u == "years-from-periods" else unit
+        m = re.fullmatch(rf"Find the least number of complete {word}s after which its value is less than \$(\d+)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        T = sp.Integer(m.group(1))
+        need(sp.Rational(2, 10) * P <= T <= sp.Rational(8, 10) * P, f"target {T}")
+        f["T"] = T
+        want, wrongs, least = e10de_time(q, f, k if u == "years-from-periods" else 1, word + "s")
+        need(least <= (E10DE_YEARS_MAX if u == "years-from-periods" else 12 * E10DE_YEARS_MAX), f"{least} {word}s")
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
 # ── Rational functions (FAL-423): rational-function ───────────
 # f(x) = (ax + b)/(cx + d) is read back from the question (its equation, or its graph's
 # curve and asymptote lines, or the givens a, b, c, d where only a table or words show it)
@@ -31853,6 +32285,7 @@ SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between"
                     "binomial": check_binomial, "geometric-sequence": check_geometric, "geometric-context": e10ge_check, "binomial-expansion": check_binomial_expansion, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
+                    "depreciation": e10de_check,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,

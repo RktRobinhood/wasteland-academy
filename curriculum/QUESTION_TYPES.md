@@ -527,6 +527,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 9.
 
+### t1-depreciation
+
+**Depreciation as repeated percentage decrease.** Find what a thing losing a fixed percentage of its value is worth after n years, what it has lost, the price it was bought for, the rate, a value under two rates, the gap between its value and an account, and how long it takes to fall below a target.
+
+- **Syllabus:** 1.4
+- **Skills:** `SL1.4.depreciation`, `SL1.4.find-time`
+- **Where it appears:** P1 0, P2 5; Section A 5, B 0. Marks per part: usually 2 (1 to 3).
+- **Usual chain:** what is kept each year: the multiplier 1 − r/100 → V = P × c^n, by formula, in the TVM solver with a negative rate, or year by year → a loss is P − V, and one year's loss is V(n − 1) − V(n) → P = V ÷ c^n, or the rate from the nth root of V ÷ P → the time below a target, from logs, the TVM solver, a table or a graph, rounded up → a time in months or quarters, converted to years
+- **Given:** a price, a rate and a number of years, a model V = P(c)^t, a table of values, a value at a later time, two rates, one for the first year, an account to set against the value, a target, or a percentage of the price. **Asked:** The value, the total loss, one year's loss, the price, the rate, the extra money needed, or the number of years, months or quarters. **Answer form:** to the nearest dollar, 3 s.f., a percentage, a whole number of years, months or quarters.
+- **A recipe can randomise:** the story: who buys what; the price and the rate; the number of years, or the year asked about; the target, or the percentage of the price; the account's sum and rate; the rate per month or quarter.
+- **Limits that keep answers clean:** Paper 2: the GDC does the work; money is to the nearest dollar, and every value is clear of the rounding edge at half a dollar; a rate asked for is clear of a 3 s.f. edge; a time is the first whole period below the target, with its real solution clear of a whole number.
+- **Game formats:** value, mcq
+- **Bank parts:** 5.
+
 ### t1-compound-interest
 
 **Compound interest: value, rate or time, with different compounding periods.** Find the value of an investment after n years of compound interest, the interest earned, the amount to invest now, the annual rate, the time to reach a target, and how much more one account is worth than another.
