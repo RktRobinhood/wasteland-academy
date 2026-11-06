@@ -475,9 +475,12 @@
                 }
               ],
               "misconceptions": [
-                "Rounding n down: from n > 49.5 concluding n = 49",
-                "Answering with n when the question asks for the term itself (or the reverse)",
-                "Forgetting to add one when counting terms"
+                "Rounding n down when the first term or total past a value is wanted, so the value found has not yet passed it",
+                "Mixing up n and the value: giving n when the term or total is asked for, or the reverse",
+                "Forgetting to add one when counting terms",
+                "Rounding a non-whole n to call the value a term of the sequence",
+                "Testing whether the value alone is a multiple of d, without taking off the first term",
+                "Setting the number of rows equal to the size of a full pack, instead of making the total a multiple of it"
               ],
               "threads": [
                 {
@@ -741,8 +744,20 @@
               ],
               "misconceptions": [
                 "Using u_n when the question asks for a total S_n, or the reverse",
-                "Off-by-one with time: the value 'after 3 years' is u_4 when u_1 is the starting value",
-                "Extrapolating an approximate model far beyond the data without comment"
+                "Taking the value after n steps of time as u_n, when u_1 is the value at the start, so the term is one out",
+                "Extrapolating an approximate model far beyond the data without comment",
+                "Taking the first change in the data as d, instead of the overall change across the data",
+                "Adding n steps of d onto the last value in the data, instead of counting on from year 1",
+                "Reading the regression line's b as the common difference, instead of its gradient a",
+                "Leaving the intercept b out of a prediction from a regression line",
+                "Treating a prediction from an approximate model as an exact value",
+                "Rejecting every prediction because the data are not exactly arithmetic",
+                "Trusting a prediction that breaks a limit the story states",
+                "Treating simple interest as compound, so that interest earns interest",
+                "Giving only the interest earned, leaving out the starting amount",
+                "Stopping one term away from the last positive term when finding the greatest total",
+                "Treating the totals of a stack as an arithmetic sequence, when it is the rows added that are",
+                "Putting n + 1 into the regression line instead of n, so the prediction is one step too far"
               ],
               "threads": [
                 {
@@ -821,7 +836,7 @@
                 }
               ],
               "misconceptions": [
-                "Using r^n in the term formula, one power of r too many",
+                "Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps",
                 "Multiplying u₁ and r first and raising the product to the power, instead of raising r alone",
                 "Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁"
               ],
@@ -988,13 +1003,13 @@
                 {
                   "id": "logs",
                   "approach": "algebraic",
-                  "name": "Take logarithms to bring n down",
+                  "name": "Take logarithms to bring the power down",
                   "summary": "Isolate r^(n − 1), take ln of both sides and divide by ln r (flipping the inequality if ln r < 0), then round up to an integer."
                 },
                 {
                   "id": "gdc-table",
                   "approach": "gdc",
-                  "name": "Scroll a GDC table of u_n or S_n",
+                  "name": "Scroll a GDC table of the values",
                   "summary": "Tabulate the term or the sum against n and find the first n that meets the condition."
                 },
                 {
@@ -1011,9 +1026,14 @@
                 }
               ],
               "misconceptions": [
-                "Not flipping the inequality when dividing by ln r < 0 (e.g. r = 0.8)",
-                "Rounding n down instead of up for 'the least n such that'",
-                "Giving the term or the sum instead of n"
+                "Not flipping the inequality when dividing by ln r, which is negative when r is below one",
+                "Rounding down instead of up when the least whole number is asked",
+                "Giving the term or the sum instead of the number asked for",
+                "Stopping at the last whole number that falls short of the target instead of the first that meets it",
+                "Taking the power of r as the number of terms, which is one too few",
+                "Testing the wrong quantity: a term when the condition is on a total or a gap, or the total when it is on a term",
+                "Giving the term number instead of the steps passed, when u₁ is the value at the start",
+                "Giving the steps passed instead of the term number, which is one more when u₁ is the value at the start"
               ],
               "threads": [
                 {
@@ -1130,9 +1150,14 @@
                 }
               ],
               "misconceptions": [
-                "Using r = 0.05 (or 5) for a 5% increase instead of 1.05",
-                "Using the wrong factor for a percentage decrease, or subtracting the same amount each year",
-                "Counting one multiplication too few: when u₁ is the starting value, the value after t years needs t multiplications"
+                "Using the percentage as r, instead of the multiplier that the percentage gives",
+                "Using the wrong factor for a percentage decrease, or subtracting the same amount each time",
+                "Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications",
+                "Adding the same amount each step instead of multiplying, so that a percentage rise grows in a straight line",
+                "Giving the last amount instead of the total of all the amounts",
+                "Giving the last round in which the first model is still ahead, instead of the first round the second one leads",
+                "Using the factor for a length as the factor for an area, instead of squaring it",
+                "Stopping at the total of the terms, without dividing by how many there are, when the mean is asked"
               ],
               "threads": [
                 {
@@ -1322,12 +1347,12 @@
                 {
                   "id": "graph-intersect",
                   "approach": "graphical",
-                  "name": "Intersect the growth curve with the target",
+                  "name": "Intersect the curve with the target",
                   "summary": "Plot y = PV(1 + r/(100k))^(kx) and y = target, then round the x-coordinate in context."
                 }
               ],
               "misconceptions": [
-                "Rounding the number of periods to the nearest integer instead of up",
+                "Rounding the answer to the nearest whole number instead of up",
                 "Forgetting to convert N from months or quarters back into years",
                 "Not flipping the inequality when dividing by the log of a depreciation factor below 1"
               ],
@@ -1386,7 +1411,14 @@
               "misconceptions": [
                 "Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss",
                 "Treating depreciation as linear: subtracting the same percentage of the original price each year",
-                "Giving the remaining value when the question asks for the loss in value"
+                "Giving the remaining value when the question asks for the loss in value (or the reverse)",
+                "Giving the total loss so far when the question asks for the loss in one year",
+                "Taking the percentage of the value at the end of the year instead of at the start",
+                "Undoing a percentage loss by adding the same percentage back on",
+                "Giving the percentage kept each year instead of the percentage lost",
+                "Giving the total percentage lost over all the years as the yearly rate",
+                "Applying the later rate to every year instead of only to the years after the first",
+                "Comparing amounts from different dates, with one side left at today's value"
               ],
               "threads": [
                 {
@@ -9910,7 +9942,15 @@
               "misconceptions": [
                 "Looking at only part of the interval and missing solutions",
                 "Including the boundary values of k where the line only touches at a maximum or minimum",
-                "Leaving the GDC in degree mode"
+                "Leaving the GDC in degree mode",
+                "Giving the whole range of the function as the values of k, without counting the solutions each value gives",
+                "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+                "Counting one solution in each cycle, when a line inside the range crosses twice in a cycle",
+                "Taking the share of one cycle as the share of a span that is not a whole number of cycles",
+                "Leaving out the maximum and the minimum, although the line still meets the curve at those heights",
+                "Leaving out the crossing at the origin",
+                "Counting two solutions in every cycle of the wave, although the line leaves the wave's band",
+                "Using the rule for the minimum at a maximum, or the rule for the maximum at a minimum"
               ],
               "threads": [
                 {
@@ -11676,8 +11716,8 @@
                 }
               ],
               "misconceptions": [
-                "Counting (3,5) and (5,3) as a single outcome",
-                "Using 11 or 12 as the total number of outcomes for two dice instead of 36"
+                "Counting a pair and its reverse as a single outcome",
+                "Using the number of different scores as the total number of outcomes"
               ],
               "threads": [
                 {
@@ -12706,7 +12746,7 @@
                 }
               ],
               "misconceptions": [
-                "Entering 0.10 for the top 10% without converting to the left-tail area 0.90",
+                "Entering the upper-tail area without converting it to the area on the left",
                 "Giving the z-value or the probability as the answer instead of the x-value",
                 "Using normalcdf when a value of x is wanted"
               ],

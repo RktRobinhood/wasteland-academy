@@ -29,6 +29,8 @@ extends Control
 ##               rectangle with a segment of a circle cut from each of two opposite edges
 ##   region      {"shape", ...}: a region built from a sector, a triangle, a rectangle and a
 ##               circle, shaded, drawn by RegionPlot (see ui/region_plot.gd)
+##   spinners    {"items": [{"name", "shape", "labels", "shares"}]}: dice laid out flat and spinners
+##               side by side, drawn by SpinnerPlot (see ui/spinner_plot.gd)
 ##   sketch      {"pts": {name: [x, y]}, "lines": [{"a", "b", "label", "dash"}],
 ##               "arcs": [{"at", "from", "to", "label"}], "north": [names], "right": [names], "note",
 ##               "circles": [{"at", "through"}]}:
@@ -52,6 +54,8 @@ extends Control
 ##               above as on an exam paper, or x and y flat (a name starting _ isn't drawn or written);
 ##               `asked` is the segment the question is about, and `ball` draws a sphere, hemisphere or
 ##               circle round `at` (FAL-751)
+##   stages      {"stages": [[row lengths, top row first], ...], "names": [text]}: stacks of blocks side by
+##               side, each row centred and drawn to one scale, with a name under each stack
 
 const PAD := 26.0
 const FONT_SIZE := 32
@@ -72,6 +76,8 @@ func _init() -> void:
 func set_spec(s: Dictionary) -> void:
 	spec = s
 	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "unit-circle": 640, "straight-angle": 420, "solid": 640, "bounce": 520, "squares": 660, "space": 640}.get(s.get("kind"), 560))
+	if s.get("kind") == "stages":
+		custom_minimum_size.y = 300.0
 	if s.get("kind") == "box":
 		custom_minimum_size.y = (BOX_ROW * s.boxes.size() + 170.0) if s.get("scale", true) else 300.0
 	if s.get("kind") == "tree" and s.has("heads"):
@@ -89,6 +95,8 @@ func _draw() -> void:
 		return
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.08, 0.1, 0.14))
 	match spec.get("kind", ""):
+		"stages":
+			_stages()
 		"numberline":
 			_numberline()
 		"normal":
@@ -112,6 +120,8 @@ func _draw() -> void:
 			_plate()
 		"region":
 			RegionPlot.draw(self)
+		"spinners":
+			SpinnerPlot.draw(self)
 		"sketch":
 			_sketch()
 		"solid":
@@ -1287,6 +1297,32 @@ func _bounce() -> void:
 		at += half if i == 0 else 2.0 * half
 	_dashes(Vector2(box.position.x, box.position.y), Vector2(box.position.x + 110, box.position.y), UiTheme.SAND, 3.0)
 	_chip(spec.h_label, Vector2(box.position.x + 190, box.position.y + 12), UiTheme.SAND)
+
+
+func _stages() -> void:
+	var rows_of: Array = spec.stages
+	var widest := 0
+	var tallest := 0
+	for rows in rows_of:
+		widest += rows.max()
+		tallest = maxi(tallest, rows.size())
+	var gap := 40.0
+	var room := size - Vector2(2.0 * PAD + gap * (rows_of.size() - 1), 2.0 * PAD + 60.0)
+	var unit: float = minf(room.x / widest, room.y / tallest)
+	var at := PAD
+	var ground := PAD + tallest * unit
+	for i in rows_of.size():
+		var rows: Array = rows_of[i]
+		var wide: float = rows.max() * unit
+		var mid := at + wide / 2.0
+		for j in rows.size():
+			var count: int = rows[j]
+			var y := ground - (rows.size() - j) * unit
+			for b in count:
+				var x := mid - count * unit / 2.0 + b * unit
+				draw_rect(Rect2(x + 1.0, y + 1.0, unit - 2.0, unit - 2.0), UiTheme.TEAL)
+		_text(spec.names[i], Vector2(mid, ground + 44.0), UiTheme.SAND, FONT_SIZE - 4)
+		at += wide + gap
 
 
 func _squares() -> void:

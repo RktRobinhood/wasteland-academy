@@ -1509,6 +1509,685 @@ def check_arithmetic(q):
     return {"v": sp.nsimplify(v.subs(sol))}, None
 
 
+# ── arithmetic-context (t1-arithmetic-in-context, FAL-752) ───
+# The `arithmetic-context` situation's stories and clean limits, the checker's own copy: the
+# engine's is in game/engine/situations/arithmetic_context.gd. u₁ and d are read back from the
+# words, the table, the graph or the figure, and every answer is found by walking the sequence
+# term by term or fitting the data again, with no formula shared with the engine. Each tagged
+# wrong option is worked out from its slip, and the plain sums in the working are evaluated.
+
+E10AR_STORIES = [
+    {"step": "row", "on": "in", "unit": "seats", "sign": 1, "den": 1, "u1": [20, 60, 2], "d": [2, 3, 4, 5, 6], "time": False,
+        "open": "The fight pit at the Bazaar has curved rows of seats. Row 1 has %s seats, and each row after it has %s more seats than the row before.",
+        "show": "the number of seats in the first rows of the fight pit", "heads": ["Row", "Seats"],
+        "term": "the number of seats in row %d", "sum": "the total number of seats in the first %d rows",
+        "find": "Which row has %s seats?", "past": "Find the first row with more than %s seats.",
+        "total": "Find the smallest number of rows that together hold more than %s seats.", "can": "Can a row have exactly %s seats?"},
+    {"step": "year", "on": "in", "unit": "tokens", "sign": 1, "den": 1, "u1": [9000, 20000, 500], "d": [150, 200, 250, 300, 400, 500, 750], "time": True,
+        "open": "The Scrap Guild pays a new scout %s tokens in year 1, and the pay goes up by %s tokens each year after that.",
+        "show": "a scout's pay in the first years with the Scrap Guild", "heads": ["Year", "Pay"], "what": "scout's pay",
+        "term": "the scout's pay in year %d", "sum": "the total pay over the first %d years",
+        "find": "In which year is the pay %s tokens?", "past": "Find the first year in which the pay is more than %s tokens.",
+        "total": "Find the first year by the end of which the total pay is more than %s tokens.", "can": "Can the pay in some year be exactly %s tokens?"},
+    {"step": "week", "on": "in", "unit": "km", "sign": 1, "den": 10, "u1": [30, 70, 5], "d": [2, 3, 4, 5, 6, 8], "time": True,
+        "open": "A courier's long run is %s km in week 1, and it is %s km longer each week after that.",
+        "show": "the length of a courier's long run in the first weeks", "heads": ["Week", "km"], "what": "length of the long run",
+        "term": "the length of the long run in week %d", "sum": "the total length of the long runs over the first %d weeks",
+        "find": "In which week is the long run %s km?", "past": "Find the first week in which the long run is more than %s km.",
+        "total": "Find the first week by the end of which the long runs total more than %s km.", "can": "Can the long run in some week be exactly %s km?"},
+    {"step": "day", "on": "on", "unit": "kg", "sign": 1, "den": 2, "u1": [60, 180, 5], "d": [5, 7, 9, 15], "time": True,
+        "open": "A salvage crew hauls %s kg of scrap on day 1, and %s kg more each day after that.",
+        "show": "the scrap a salvage crew hauls on the first days", "heads": ["Day", "kg"], "what": "day's haul",
+        "term": "the day's haul on day %d", "sum": "the total scrap hauled over the first %d days",
+        "find": "On which day is the haul %s kg?", "past": "Find the first day on which the haul is more than %s kg.",
+        "total": "Find the first day by the end of which the total haul is more than %s kg.", "can": "Can the haul on some day be exactly %s kg?"},
+    {"step": "day", "on": "on", "unit": "litres", "sign": -1, "den": 1, "u1": [300, 640, 10], "d": [5, 6, 8, 10, 12, 15, 20], "time": True,
+        "open": "A failing well gives %s litres on day 1, and %s litres less each day after that.",
+        "show": "the water a failing well gives on the first days", "heads": ["Day", "Litres"], "what": "water the well gives",
+        "term": "the water the well gives on day %d", "sum": "the total water from the well over the first %d days",
+        "find": "On which day does the well give %s litres?", "past": "Find the first day on which the well gives less than %s litres.",
+        "can": "Can the well give exactly %s litres on some day?", "zero": "On which day does the flow of the well reach 0 litres?"},
+    {"step": "layer", "on": "in", "unit": "sandbags", "sign": -1, "den": 1, "u1": [60, 120, 2], "d": [2, 3, 4, 5], "time": False,
+        "open": "Layer 1, the bottom layer of a barricade, has %s sandbags, and each layer above it has %s fewer sandbags than the layer below.",
+        "show": "the sandbags in the first layers of a barricade, counted from the bottom", "heads": ["Layer", "Bags"],
+        "term": "the number of sandbags in layer %d", "sum": "the total number of sandbags in the first %d layers",
+        "find": "Which layer has %s sandbags?", "past": "Find the first layer with fewer than %s sandbags.",
+        "can": "Can a layer have exactly %s sandbags?", "zero": "Which layer would have 0 sandbags, so that the barricade stops below it?"},
+    {"step": "day", "on": "on", "unit": "km", "sign": -1, "den": 2, "u1": [240, 400, 10], "d": [3, 5, 7, 9, 12], "time": True,
+        "open": "A convoy on worn tyres drives %s km on day 1, and %s km less each day after that.",
+        "show": "the distance a convoy on worn tyres drives on the first days", "heads": ["Day", "km"], "what": "distance the convoy drives",
+        "term": "the distance the convoy drives on day %d", "sum": "the total distance driven over the first %d days",
+        "find": "On which day does the convoy drive %s km?", "past": "Find the first day on which the convoy drives less than %s km.",
+        "can": "Can the convoy drive exactly %s km on some day?", "zero": "On which day does the convoy's distance for the day reach 0 km?"},
+    {"step": "month", "on": "in", "unit": "kWh", "sign": -1, "den": 1, "u1": [200, 500, 10], "d": [4, 5, 6, 8, 10, 12, 15], "time": True,
+        "open": "An old solar bank stores %s kWh in month 1, and %s kWh less each month after that.",
+        "show": "the energy an old solar bank stores in the first months", "heads": ["Month", "kWh"], "what": "energy the bank stores",
+        "term": "the energy the bank stores in month %d", "sum": "the total energy stored over the first %d months",
+        "find": "In which month does the bank store %s kWh?", "past": "Find the first month in which the bank stores less than %s kWh.",
+        "can": "Can the bank store exactly %s kWh in some month?", "zero": "In which month does the energy the bank stores reach 0 kWh?"},
+]
+
+E10AR_STOCKS = [
+    {"step": "year", "unit": "cm", "sign": 1, "start": [40, 200, 10], "d": [12, 15, 18, 24, 30], "what": "height of the tree", "heads": ["Years passed", "Height"],
+        "open": "A shade tree is %s cm tall when it is planted, and it grows %s cm each year.", "show": "the height of a newly planted shade tree"},
+    {"step": "hour", "unit": "litres", "sign": 1, "start": [100, 600, 20], "d": [15, 25, 35, 40, 45], "what": "water in the tank", "heads": ["Hours passed", "Litres"],
+        "open": "A tank holds %s litres when the pump starts, and the pump adds %s litres each hour.", "show": "the water in a tank once the pump starts"},
+    {"step": "month", "unit": "tokens", "sign": -1, "start": [2000, 6000, 100], "d": [40, 60, 75, 90, 120], "what": "debt still owed", "heads": ["Months passed", "Tokens"],
+        "open": "A scout owes the Bazaar %s tokens, and repays %s tokens each month.", "show": "the debt a scout still owes the Bazaar"},
+    {"step": "week", "unit": "m", "sign": 1, "start": [20, 90, 5], "d": [3, 4, 6, 7, 9], "what": "depth of the shaft", "heads": ["Weeks passed", "Depth"],
+        "open": "A mine shaft is %s m deep, and the crew digs it %s m deeper each week.", "show": "the depth of a mine shaft as the crew digs"},
+    {"step": "week", "unit": "litres", "sign": -1, "start": [3000, 8000, 100], "d": [55, 70, 85, 110, 130], "what": "fuel in the depot", "heads": ["Weeks passed", "Litres"],
+        "open": "A depot holds %s litres of fuel when winter starts, and it uses %s litres each week.", "show": "the fuel in a depot once winter starts"},
+]
+
+E10AR_LINES = [
+    {"unit": "m", "thing": "marker posts", "one": "post", "head": "Post", "first": [5, 60], "gap": [4, 6, 8, 12, 15, 20],
+        "open": "Marker posts stand along a pipeline, %s m apart. The first is %s m from the pump and the last is %s m from the pump.", "show": "where the first marker posts stand along a pipeline, in metres from the pump", "end": "The last post is %s m from the pump."},
+    {"unit": "m", "thing": "lamps", "one": "lamp", "head": "Lamp", "first": [10, 80], "gap": [6, 7, 9, 11, 14, 25],
+        "open": "Lamps hang along a tunnel, %s m apart. The first is %s m from the gate and the last is %s m from the gate.", "show": "where the first lamps hang along a tunnel, in metres from the gate", "end": "The last lamp is %s m from the gate."},
+    {"unit": "cm", "thing": "rungs", "one": "rung", "head": "Rung", "first": [20, 45], "gap": [24, 25, 28, 30, 32],
+        "open": "The rungs of a lookout's ladder are %s cm apart. The lowest is %s cm above the ground and the highest is %s cm above the ground.", "show": "the height of the lowest rungs of a lookout's ladder, in cm", "end": "The highest rung is %s cm above the ground."},
+]
+
+E10AR_NET = [
+    {"step": "week", "unit": "litres", "den": 1, "u1": [60, 200, 10], "d": [4, 6, 7, 8, 9, 12], "heads": ["Week", "Litres gained"],
+        "open": "An empty tank gains %s litres in week 1. Each week the gain is %s litres less than the week before, and once it is negative the tank is losing water.",
+        "show": "what an empty tank gains in the first weeks, where a negative gain is a loss", "ask": "Find the greatest amount of water the tank holds."},
+    {"step": "month", "unit": "tokens", "den": 1, "u1": [400, 1500, 50], "d": [40, 60, 70, 80, 90, 110], "heads": ["Month", "Profit"],
+        "open": "A new trading post makes %s tokens of profit in month 1. Each month the profit is %s tokens less than the month before, and once it is negative the post is making a loss.",
+        "show": "a new trading post's profit in the first months, where a negative profit is a loss", "ask": "Find the greatest total profit the post ever has."},
+    {"step": "minute", "unit": "m", "den": 2, "u1": [80, 240, 10], "d": [5, 7, 9, 11, 15], "heads": ["Minute", "Metres climbed"],
+        "open": "A survey drone climbs %s m in minute 1 from the ground. Each minute it climbs %s m less than the minute before, and once the climb is negative it is coming down.",
+        "show": "how far a survey drone climbs from the ground in the first minutes, where a negative climb is a descent", "ask": "Find the greatest height the drone reaches."},
+]
+
+E10AR_DATA = [
+    {"step": "year", "unit": "caravans", "sign": 1, "y1": [40, 90], "d": [6, 14], "head": "Caravans", "what": "number of caravans",
+        "open": "A gatekeeper counts the caravans through the Bazaar gate each year.", "cap": "The gate can pass at most %d caravans in a year."},
+    {"step": "year", "unit": "cm", "sign": 1, "y1": [60, 110], "d": [7, 15], "head": "Height", "what": "height of the tree",
+        "open": "A scout measures a shade tree at the end of each year, in cm.", "cap": "Trees of this kind stop growing at about %d cm."},
+    {"step": "year", "unit": "settlers", "sign": 1, "y1": [70, 130], "d": [8, 16], "head": "Settlers", "what": "number of settlers",
+        "open": "A clerk records the settlers at Last Well each year.", "cap": "The well can support at most %d settlers."},
+    {"step": "year", "unit": "megalitres", "sign": -1, "y1": [170, 240], "d": [11, 20], "head": "Megalitres", "what": "water left",
+        "open": "A warden records the water left in a reservoir at the end of each year, in megalitres.", "cap": ""},
+    {"step": "year", "unit": "kWh", "sign": -1, "y1": [160, 220], "d": [10, 18], "head": "kWh", "what": "charge held",
+        "open": "A mechanic records the charge a battery pack holds after each year of use, in kWh.", "cap": ""},
+]
+
+E10AR_PILES = [
+    {"thing": "fuel drums", "one": "drum", "open": "Fuel drums are stacked in rows. A stack with 1 row has %s drums. Each extra row goes under the stack and has %s more drums than the row above it.", "crate": "Drums come on full pallets of %d.", "pack": "pallets"},
+    {"thing": "sandbags", "one": "sandbag", "open": "Sandbags are piled in rows. A pile with 1 row has %s sandbags. Each extra row goes under the pile and has %s more sandbags than the row above it.", "crate": "Sandbags come in full crates of %d.", "pack": "crates"},
+    {"thing": "scrap beams", "one": "beam", "open": "Scrap beams are stacked in rows. A stack with 1 row has %s beams. Each extra row goes under the stack and has %s more beams than the row above it.", "crate": "Beams come in full bundles of %d.", "pack": "bundles"},
+]
+
+E10AR_NUM = r"−?\d+(?:\.\d+)?"
+E10AR_N_TERM = (8, 40)
+E10AR_N_SUM = (6, 30)
+E10AR_EDGE = sp.Rational(1, 10)
+E10AR_CRATES = (10, 12, 15, 16, 20, 24, 25, 30)
+E10AR_MO = "SL1.2.model#"
+E10AR_FN = "SL1.2.find-n#"
+E10AR_NTH0 = "SL1.2.nth-term#0"
+E10AR_SIGN = "SL1.2.nth-term#1"
+E10AR_SUM0 = "SL1.2.sum#0"
+E10AR_SUM1 = "SL1.2.sum#1"
+E10AR_TOTAL = "SL1.2.model#0"
+E10AR_GAPS = "SL1.2.find-u1-d#0"
+E10AR_METHOD = {"solve-linear": r"\(n − 1\)|n − 1 =", "count-steps": "one more|add one", "gdc-table": "table", "graph-intersect": "Graph y",
+                "gdc-regression": "LinReg", "average-difference": "last − first"}
+
+
+def e10ar_v(t):
+    return R(t.replace("−", "-"))
+
+
+def e10ar_d(v):
+    return dec_text(sp.Rational(v)).replace("-", "−")
+
+
+def e10ar_money(v):
+    cents = int(sp.floor(sp.Rational(v) * 100 + sp.Rational(1, 2)))
+    return str(cents // 100) if cents % 100 == 0 else f"{cents // 100}.{cents % 100:02d}"
+
+
+def e10ar_rx(tpl):
+    return re.escape(tpl).replace("%s", f"({E10AR_NUM})").replace("%d", r"(\d+)").replace("\\ ", " ")
+
+
+def e10ar_term(u1, d, k):
+    v = u1
+    for _ in range(k - 1):
+        v += d
+    return v
+
+
+def e10ar_sum(u1, d, k):
+    return sum((u1 + i * d for i in range(k)), sp.Integer(0))
+
+
+def e10ar_range(v, den, r):
+    need(r[0] <= v * den <= r[1] and (v * den - r[0]) % r[2] == 0, f"{v} is outside the story's range {r}")
+
+
+def e10ar_rows(q, heads):
+    t = q["table"]
+    need(t is not None and [r[0] for r in t["rows"]] == list(heads), f"the table's heads are {t and t['rows']}")
+    return t["rows"][0][1], [e10ar_v(v) for v in t["rows"][1][1]]
+
+
+def e10ar_steady(vals):
+    need(len(vals) == 4 and all(b - a == vals[1] - vals[0] for a, b in zip(vals, vals[1:])), f"not arithmetic: {vals}")
+
+
+def e10ar_shown(q):
+    """The story and its u₁ and d, read from what the student sees."""
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "words":
+        for c in E10AR_STORIES:
+            m = re.fullmatch(e10ar_rx(c["open"]), L[0])
+            if m:
+                return c, e10ar_v(m.group(1)), c["sign"] * e10ar_v(m.group(2))
+        raise Fail(f"can't read the story {L[0]!r}")
+    if rep == "table":
+        c = next((c for c in E10AR_STORIES if L[0] == f"The table shows {c['show']}."), None)
+        need(c is not None, f"can't read {L[0]!r}")
+        ks, vals = e10ar_rows(q, c["heads"])
+        need(ks == ["1", "2", "3", "4"], f"the table's steps are {ks}")
+        e10ar_steady(vals)
+        return c, vals[0], vals[1] - vals[0]
+    need(rep == "graph", f"rep {rep}")
+    c = next((c for c in E10AR_STORIES if L[0] == f"The line through the dots shows {c['show']}: the {c['step']} number n across, the amount up."), None)
+    need(c is not None, f"can't read {L[0]!r}")
+    g = q["graph"]
+    pts = {int(p["x"]): parse_point(p["label"]) for p in g["points"]}
+    need(sorted(pts) == [1, 2] and all(pts[k][0] == k for k in pts), f"the dots are {pts}")
+    u1, u2 = pts[1][1], pts[2][1]
+    need(all(abs(float(u1) + (x - 1) * float(u2 - u1) - y) < 1e-6 for x, y in g["curves"][0]), "the line is not the dots' line")
+    return c, u1, u2 - u1
+
+
+def e10ar_limits(c, u1, d):
+    e10ar_range(u1, c["den"], c["u1"])
+    need(sp.sign(d) == c["sign"] and abs(d) * c["den"] in c["d"], f"d = {d} is not the story's")
+
+
+def e10ar_target(q, u1, d, n):
+    """The graph's dashed line says the target the words give, and the window holds it."""
+    g = q["graph"]
+    need(g["x1"] == n + 2, f"the window ends at {g['x1']}")
+    if n and g["hlines"]:
+        return e10ar_v(g["hlines"][0]["label"].removeprefix("y = "))
+    return None
+
+
+def e10ar_sums(q):
+    """Every plain sum in the working is true, exactly or to the figures it shows."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in re.finditer(r"([\d(][\d.()−+×÷ ]*[\d)]) (=|≈) (−?\d+(?:\.\d+)?)(?!\d)", st):
+                left = m.group(1)
+                if left.count("(") != left.count(")") or not re.search(r"[−+×÷]", left):
+                    continue
+                py = re.sub(r"\d+(?:\.\d+)?", lambda k: f"sp.Rational('{k.group()}')", left.replace("−", "-").replace("×", "*").replace("÷", "/"))
+                got = eval(py, {"sp": sp})
+                want = e10ar_v(m.group(3))
+                if m.group(2) == "=":
+                    need(got == want, f"{st!r}: {left} is {got}")
+                else:
+                    need(abs(got - want) <= abs(want) / 1000 + sp.Rational(1, 100), f"{st!r}: {left} is {float(got)}")
+
+
+def e10ar_methods(q):
+    for sol in q["solutions"]:
+        word = E10AR_METHOD.get(sol["angle"])
+        if word:
+            need(any(re.search(word, st) for st in sol["steps"]), f"{sol['angle']}: the steps don't do it: {sol['steps']}")
+    need(all(sol["angle"] != "tabulate" or any(", " in st for st in sol["steps"]) for sol in q["solutions"]), "tabulate lists nothing")
+
+
+def e10ar_find(q, c, pat):
+    asked = q["asked"]
+    tail = f" Give n, the {c['step']} number."
+    m = re.fullmatch(e10ar_rx(pat) + re.escape(tail), asked)
+    need(m is not None, f"asked {asked!r}")
+    return e10ar_v(m.group(1)) if m.groups() else None
+
+
+def e10ar_scan(u1, d, test, top=400):
+    for k in range(1, top):
+        if test(k, u1 + (k - 1) * d):
+            return k
+    raise Fail("no term meets it")
+
+
+def e10ar_seq(q, u):
+    """Unknowns on a STORIES sequence: the text wanted and each tag's texts."""
+    rep, asked = q["view"]["rep"], q["asked"]
+    c, u1, d = e10ar_shown(q)
+    e10ar_limits(c, u1, d) if u != "zero-term" else None
+    T = lambda k: e10ar_term(u1, d, k)
+    S = lambda k: e10ar_sum(u1, d, k)
+    say = lambda v: f"{e10ar_d(v)} {c['unit']}"
+    n_say = lambda v: f"n = {e10ar_d(v)}"
+    if u in ("term-in-context", "total-in-context"):
+        m = re.fullmatch(r"Find " + e10ar_rx(c["term" if u[1] == "e" else "sum"]) + r"\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n = int(m.group(1))
+        lim = E10AR_N_TERM if u[1] == "e" else E10AR_N_SUM
+        need(lim[0] <= n <= lim[1] and T(n + 1) > 0, f"n = {n} is out of limits")
+        if u[1] == "e":
+            return say(T(n)), {E10AR_NTH0: {say(u1 + n * d)}, E10AR_TOTAL: {say(S(n))}}
+        return say(S(n)), {E10AR_TOTAL: {say(T(n))}, E10AR_SUM0: {say(sp.Rational(n, 2) * (2 * u1 + n * d))}, E10AR_SUM1: {say(S(n - 1))}}
+    if u == "in-or-after":
+        need(c["time"], "a story with no time in it")
+        ma = re.fullmatch(rf"Find the {re.escape(c['what'])} {c['on']} the {c['step']} after (\d+) full {c['step']}s\.", asked)
+        mi = re.fullmatch(rf"Find the {re.escape(c['what'])} {c['on']} {c['step']} (\d+)\.", asked)
+        need(ma or mi, f"asked {asked!r}")
+        n = int((ma or mi).group(1))
+        need(E10AR_N_SUM[0] <= n <= E10AR_N_SUM[1], f"n = {n}")
+        if ma:
+            return say(T(n + 1)), {E10AR_MO + "1": {say(T(n))}, E10AR_TOTAL: {say(S(n))}}
+        return say(T(n)), {E10AR_NTH0: {say(T(n + 1))}, E10AR_TOTAL: {say(S(n))}}
+    if u == "term-number":
+        v = e10ar_find(q, c, c["find"])
+        k = e10ar_scan(u1, d, lambda _, t: t == v)
+        need(E10AR_N_TERM[0] <= k <= E10AR_N_TERM[1], f"k = {k}")
+        if rep == "graph":
+            need(e10ar_target(q, u1, d, k) == v, "the graph's line is not the value asked")
+        return n_say(k), {E10AR_FN + "2": {n_say(k - 1)}, E10AR_FN + "1": {n_say(v)}}
+    if u == "zero-term":
+        e10ar_find(q, c, c["zero"])
+        k = e10ar_scan(u1, d, lambda _, t: t == 0)
+        need(E10AR_N_TERM[0] <= k <= E10AR_N_TERM[1] and d < 0, f"k = {k}")
+        need(abs(d) * c["den"] in c["d"], f"d = {d}")
+        return n_say(k), {E10AR_FN + "2": {n_say(k - 1)}}
+    if u == "first-past":
+        x = e10ar_find(q, c, c["past"])
+        up = d > 0
+        k = e10ar_scan(u1, d, lambda _, t: t > x if up else t < x)
+        need(E10AR_N_TERM[0] <= k <= E10AR_N_TERM[1] and x > 0 and T(k) > 0, f"k = {k}, x = {x}")
+        real = 1 + (x - u1) / d
+        need(abs(real - round(real)) >= E10AR_EDGE, f"the real n, {real}, is too near a whole number")
+        if rep == "graph":
+            need(e10ar_target(q, u1, d, k) == x, "the graph's line is not the target")
+        wr = {E10AR_FN + "0": {n_say(k - 1)}, E10AR_FN + "1": {n_say(T(k))}}
+        if up:
+            wr[E10AR_TOTAL] = {n_say(next(j for j in range(1, 400) if S(j) > x))}
+        return n_say(k), wr
+    if u == "first-total-past":
+        need(d > 0, "a total past a target rises")
+        tail = "" if c["step"] == "row" else f", the {c['step']} number"
+        m = re.fullmatch(e10ar_rx(c["total"]) + rf" Give n{tail}\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        x = e10ar_v(m.group(1))
+        k = next(j for j in range(1, 400) if S(j) > x)
+        need(E10AR_N_SUM[0] <= k <= E10AR_N_SUM[1], f"k = {k}")
+        root = max(sp.solve(sp.Symbol("n") * (2 * u1 + (sp.Symbol("n") - 1) * d) / 2 - x, sp.Symbol("n")), key=lambda r: float(r))
+        need(abs(float(root) - round(float(root))) >= 0.1, f"the real n, {float(root)}, is too near a whole number")
+        for sol in q["solutions"]:
+            if sol["angle"] == "graph-intersect":
+                x_at = next(re.search(rf"x ≈ ({E10AR_NUM})", st) for st in sol["steps"] if "x ≈" in st)
+                need(abs(float(e10ar_v(x_at.group(1))) - float(root)) < 1e-4, f"the graph's x is not {float(root)}")
+        return n_say(k), {E10AR_FN + "0": {n_say(k - 1)}, E10AR_FN + "1": {n_say(S(k))}, E10AR_TOTAL: {n_say(next(j for j in range(1, 4000) if T(j) > x))}}
+    raise Fail(f"no check for {u}")
+
+
+def e10ar_claims_calc(q):
+    c, u1, d = e10ar_shown(q)
+    e10ar_limits(c, u1, d)
+    asked = q["asked"]
+    mt = re.fullmatch(r"Which calculation gives " + e10ar_rx(c["term"]) + r"\?", asked)
+    ms = re.fullmatch(r"Which calculation gives " + e10ar_rx(c["sum"]) + r"\?", asked)
+    need(mt or ms, f"asked {asked!r}")
+    n = int((mt or ms).group(1))
+    need(E10AR_N_SUM[0] <= n <= E10AR_N_SUM[1] and e10ar_term(u1, d, n + 1) > 0, f"n = {n}")
+    goal = e10ar_term(u1, d, n) if mt else e10ar_sum(u1, d, n)
+    sg, ab = ("−" if d < 0 else "+"), e10ar_d(abs(d))
+    a = e10ar_d(u1)
+    plain = lambda k: f"{a} {sg} {k} × {ab}"
+    full = lambda k: f"({n} ÷ 2) × (2 × {a} {sg} {k} × {ab})"
+    vals = {plain(n - 1): u1 + (n - 1) * d, plain(n): u1 + n * d, full(n - 1): sp.Rational(n, 2) * (2 * u1 + (n - 1) * d),
+            full(n): sp.Rational(n, 2) * (2 * u1 + n * d), f"{n} × {a}": n * u1, f"{n} × ({plain(n - 1)})": n * (u1 + (n - 1) * d)}
+    tags = {full(n - 1) if mt else plain(n - 1): E10AR_TOTAL, plain(n): E10AR_NTH0, full(n): E10AR_SUM0}
+    return [(t, v == goal, tags.get(t)) for t, v in vals.items()]
+
+
+def e10ar_claims_whole(q):
+    c, u1, d = e10ar_shown(q)
+    e10ar_limits(c, u1, d)
+    m = re.fullmatch(e10ar_rx(c["can"]) + r" Justify your answer\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    v = e10ar_v(m.group(1))
+    step = abs(d)
+    need((u1 / step).q != 1, "u₁ is a multiple of d")
+    real = 1 + (v - u1) / d
+    need(real >= E10AR_N_TERM[0] - 1 and (real * 100).q == 1, f"n = {real}")
+    term = any(u1 + (k - 1) * d == v for k in range(1, 400))
+    vt = e10ar_d(v)
+    rd = e10ar_d(real)
+    multiple = (v / step).q == 1
+    near = int(sp.floor(real + sp.Rational(1, 2)))
+    if term:
+        need(not multiple, "a term that is a multiple of d")
+        return [(f"Yes: n = {rd}, a whole number.", True, None), (f"Yes: n = {e10ar_d(real - 1)}, a whole number.", False, E10AR_FN + "2"),
+                (f"No: {vt} is not a multiple of {e10ar_d(step)}, so it can't be a term.", False, E10AR_FN + "4"),
+                (f"No: {vt} is too far from the first term to be a term.", False, None)]
+    need(multiple and abs(real - round(real)) >= E10AR_EDGE, f"the value {vt} is not a clean no")
+    return [(f"No: n = {rd}, which is not a whole number.", True, None), (f"Yes: n = {rd}, which rounds to {near}.", False, E10AR_FN + "3"),
+            (f"Yes: {vt} is a multiple of {e10ar_d(step)}, so it must be a term.", False, E10AR_FN + "4"),
+            (f"No: n = {e10ar_d(real - 1)}, which is not a whole number.", False, E10AR_FN + "2")]
+
+
+def e10ar_after(q):
+    rep, L, asked = q["view"]["rep"], q["lines"], q["asked"]
+    if rep == "words":
+        for c in E10AR_STOCKS:
+            m = re.fullmatch(e10ar_rx(c["open"]), L[0])
+            if m:
+                u1, d = e10ar_v(m.group(1)), c["sign"] * e10ar_v(m.group(2))
+                break
+        else:
+            raise Fail(f"can't read {L[0]!r}")
+    else:
+        c = next((c for c in E10AR_STOCKS if L[0] == f"The table shows {c['show']}."), None)
+        need(c is not None, f"can't read {L[0]!r}")
+        ks, vals = e10ar_rows(q, c["heads"])
+        need(ks == ["0", "1", "2", "3"], f"steps {ks}")
+        e10ar_steady(vals)
+        u1, d = vals[0], vals[1] - vals[0]
+    need(sp.sign(d) == c["sign"] and abs(d) in c["d"] and c["start"][0] <= u1 <= c["start"][1], f"{u1}, {d}")
+    m = re.fullmatch(rf"Find the {re.escape(c['what'])} after (\d+) {c['step']}s\.", asked)
+    need(m is not None, f"asked {asked!r}")
+    n = int(m.group(1))
+    v = u1
+    for _ in range(n):
+        v += d
+    need(E10AR_N_SUM[0] <= n <= E10AR_N_SUM[1] and v + d > 0, f"n = {n}")
+    say = lambda x: f"{e10ar_d(x)} {c['unit']}"
+    return say(v), {E10AR_MO + "1": {say(v - d)}}
+
+
+def e10ar_bank(q):
+    rep, L, asked = q["view"]["rep"], q["lines"], q["asked"]
+    if rep == "words":
+        m = re.fullmatch(rf"A scout leaves ({E10AR_NUM}) tokens with the Bazaar Bank at ({E10AR_NUM})% simple interest a year, and takes nothing out\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        p, rate = e10ar_v(m.group(1)), e10ar_v(m.group(2))
+        i = p * rate / 100
+    else:
+        ks, vals = e10ar_rows(q, ("Years passed", "Tokens"))
+        need(ks == ["0", "1", "2", "3"], f"steps {ks}")
+        e10ar_steady(vals)
+        p, i = vals[0], vals[1] - vals[0]
+        rate = i / p * 100
+    need(400 <= p <= 5000 and p % 100 == 0 and 2 <= rate <= 9 and (rate * 2).q == 1, f"{p}, {rate}")
+    m = re.fullmatch(r"Find the value of the deposit after (\d+) years\.", asked)
+    need(m is not None, f"asked {asked!r}")
+    n = int(m.group(1))
+    need(6 <= n <= 20, f"n = {n}")
+    say = lambda x: f"{e10ar_money(x)} tokens"
+    v = p
+    grown = p
+    for _ in range(n):
+        v += i
+        grown *= 1 + rate / 100
+    return say(v), {E10AR_MO + "1": {say(v - i)}, E10AR_MO + "10": {say(grown)}, E10AR_MO + "11": {say(i * n)}}
+
+
+def e10ar_count(q):
+    rep, L, asked = q["view"]["rep"], q["lines"], q["asked"]
+    if rep == "words":
+        for c in E10AR_LINES:
+            m = re.fullmatch(e10ar_rx(c["open"]), L[0])
+            if m:
+                gap, first, last = (e10ar_v(m.group(i)) for i in (1, 2, 3))
+                break
+        else:
+            raise Fail(f"can't read {L[0]!r}")
+    else:
+        c = next((c for c in E10AR_LINES if L[0] == f"The table shows {c['show']}."), None)
+        need(c is not None, f"can't read {L[0]!r}")
+        _, vals = e10ar_rows(q, (c["head"], c["unit"]))
+        e10ar_steady(vals)
+        first, gap = vals[0], vals[1] - vals[0]
+        m = re.fullmatch(e10ar_rx(c["end"]), L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        last = e10ar_v(m.group(1))
+    need(asked == f"Find n, the number of {c['thing']}.", f"asked {asked!r}")
+    need(gap in c["gap"] and c["first"][0] <= first <= c["first"][1], f"{first}, {gap}")
+    k, at = 1, first
+    while at < last:
+        at += gap
+        k += 1
+    need(at == last and E10AR_N_TERM[0] <= k <= E10AR_N_TERM[1], f"the posts don't end on the last: {k}")
+    return f"n = {k}", {E10AR_FN + "2": {f"n = {k - 1}"}}
+
+
+def e10ar_peak(q):
+    rep, L, asked = q["view"]["rep"], q["lines"], q["asked"]
+    if rep == "words":
+        for c in E10AR_NET:
+            m = re.fullmatch(e10ar_rx(c["open"]), L[0])
+            if m:
+                u1, d = e10ar_v(m.group(1)), -e10ar_v(m.group(2))
+                break
+        else:
+            raise Fail(f"can't read {L[0]!r}")
+    else:
+        c = next((c for c in E10AR_NET if L[0] == f"The table shows {c['show']}. The terms go on falling by the same amount."), None)
+        need(c is not None, f"can't read {L[0]!r}")
+        ks, vals = e10ar_rows(q, c["heads"])
+        e10ar_steady(vals)
+        u1, d = vals[0], vals[1] - vals[0]
+    need(asked == c["ask"], f"asked {asked!r}")
+    e10ar_range(u1, c["den"], c["u1"])
+    need(-d * c["den"] in c["d"], f"d = {d}")
+    run, best, at = sp.Integer(0), None, 0
+    totals = [sp.Integer(0)]
+    for k in range(1, 300):
+        run += u1 + (k - 1) * d
+        totals.append(run)
+        if best is None or run > best:
+            best, at = run, k
+    need(E10AR_N_SUM[0] <= at <= E10AR_N_TERM[1], f"peak at {at}")
+    say = lambda v: f"{e10ar_d(v)} {c['unit']}"
+    return say(best), {E10AR_MO + "12": {say(totals[at + 1]), say(totals[at + 2]), say(totals[at - 1])}, E10AR_TOTAL: {say(u1)}, E10AR_FN + "1": {say(sp.Integer(at))}}
+
+
+def e10ar_data(q):
+    """The story, the values, and the fit."""
+    rep, L = q["view"]["rep"], q["lines"]
+    c = next((c for c in E10AR_DATA if L[0] == c["open"]), None)
+    need(c is not None, f"can't read {L[0]!r}")
+    if rep == "table":
+        ks, ys = e10ar_rows(q, ("Year n", c["head"]))
+        xs = [int(k) for k in ks]
+    elif rep == "graph":
+        g = q["graph"]
+        xs = [int(p["x"]) for p in g["points"]]
+        ys = [e10ar_v(p["label"]) for p in g["points"]]
+        need(all(p["y"] == float(y) for p, y in zip(g["points"], ys)), "a dot is not at its label")
+        need(g["curves"] == [] and g["y1"] >= max(ys) and g["x1"] > max(xs), "the window doesn't hold the data")
+        need(L[1] == f"The graph shows the data, with each dot's value beside it, for years n = 1 to {len(xs)}.", f"line {L[1]!r}")
+    else:
+        m = re.fullmatch(r"For years 1 to (\d+) in turn, the values were ([\d, ]+)\.", L[1])
+        need(m is not None, f"can't read {L[1]!r}")
+        ys = [R(v) for v in m.group(2).split(", ")]
+        xs = list(range(1, int(m.group(1)) + 1))
+    m = len(ys)
+    need(5 <= m <= 8 and xs == list(range(1, m + 1)), f"years {xs}")
+    ch = [b - a for a, b in zip(ys, ys[1:])]
+    need(all(sp.sign(v) == c["sign"] for v in ch) and len(set(ch)) > 1, f"the changes are {ch}")
+    f = e9regr_fit(xs, [int(y) for y in ys])
+    return c, [int(y) for y in ys], m, f, sp.Rational(ys[-1] - ys[0], m - 1)
+
+
+def e10ar_gradient(q):
+    u = q["view"]["unknown"]
+    c, ys, m, f, avg = e10ar_data(q)
+    say = lambda v: f"d ≈ {rg_s(v)}"
+    want = avg if u == "estimate-d" else f["a"]
+    need(rg_clear(want), f"{want} is on an edge")
+    wr = {E10AR_MO + "3": {say(ys[1] - ys[0])}}
+    if u == "estimate-d":
+        wr[E10AR_GAPS] = {say(sp.Rational(ys[-1] - ys[0], m))}
+        if c["sign"] < 0:
+            wr[E10AR_SIGN] = {say(-want)}
+    else:
+        wr[E10AR_MO + "5"] = {say(f["b"])}
+    return say(want), wr, f"d ≈ {e10ar_d(sp.Rational(sig3(want, 2)))}"
+
+
+def e10ar_predict(q):
+    u = q["view"]["unknown"]
+    c, ys, m, f, avg = e10ar_data(q)
+    mt = re.findall(r"in year (\d+)", q["asked"])
+    need(len(mt) >= 1, f"asked {q['asked']!r}")
+    big = int(mt[-1])
+    need(m + 2 <= big <= m + 6, f"year {big}")
+    say = lambda v: f"{rg_s(v)} {c['unit']}"
+    if u == "predict-from-gaps":
+        want = ys[0] + (big - 1) * avg
+        wr = {E10AR_NTH0: {say(ys[0] + big * avg)}, E10AR_MO + "4": {say(ys[-1] + big * avg)}, E10AR_MO + "3": {say(ys[0] + (big - 1) * (ys[1] - ys[0]))}}
+    else:
+        want = f["a"] * big + f["b"]
+        wr = {E10AR_MO + "6": {say(f["a"] * big)}, E10AR_MO + "14": {say(f["a"] * (big + 1) + f["b"])}}
+    need(want > 0 and rg_clear(want), f"{want}")
+    return say(want), wr, f"{e10ar_d(sp.Rational(sig3(want, 2)))} {c['unit']}"
+
+
+def e10ar_claims_valid(q):
+    c, ys, m, f, avg = e10ar_data(q)
+    L = q["lines"]
+    mt = re.fullmatch(rf"A scout uses the data to predict the {re.escape(c['what'])} in year (\d+), and gets about ({E10AR_NUM})\. Comment on the validity of this prediction\.", q["asked"])
+    need(mt is not None, f"asked {q['asked']!r}")
+    big, said = int(mt.group(1)), mt.group(2)
+    p = f["a"] * big + f["b"] if q["view"]["angle"] == "gdc-regression" else ys[0] + (big - 1) * avg
+    need(rg_s(p) == said and rg_clear(p), f"the prediction is {p}, not {said}")
+    cap = None
+    extra = L[-1]
+    if c["sign"] > 0:
+        k = re.fullmatch(e10ar_rx(c["cap"]), extra)
+        cap = int(k.group(1)) if k else None
+    else:
+        need(extra == f"The {c['what']} can't be less than 0." or big - m <= 2, f"line {extra!r}")
+    broken = (cap is not None and p > cap) if c["sign"] > 0 else p < 0
+    exact = f"Valid and exact: the model gives the value in year {big} with no error."
+    bad = "Not valid: data that are not exactly arithmetic can't be used to predict anything."
+    tag = lambda i: E10AR_MO + str(i)
+    if broken:
+        need(big > m, "a broken limit inside the data")
+        right = (f"Not valid: about {said} is over the limit of {cap}, so the model has stopped applying." if c["sign"] > 0
+                 else f"Not valid: about {said} is below 0, which is impossible, so the model has stopped applying.")
+        return [(right, True, None), ("Valid: the data fit the model well, so the prediction can be trusted.", False, tag(9)),
+                (exact, False, tag(7)), (bad, False, tag(8))]
+    need(p > 0, "a negative prediction with no limit")
+    if big - m <= 2:
+        out = [(f"Reasonable: year {big} is close to the data, and the yearly changes all go the same way.", True, None), (exact, False, tag(7)), (bad, False, tag(8)),
+               (f"Not valid: year {big} is far beyond the data, which end at year {m}.", False, None)]
+        if cap is not None:
+            out.append((f"Not valid: about {said} is over the limit of {cap}.", False, None))
+        return out
+    need(big - m >= 3 * m and c["sign"] > 0, f"year {big} is neither near nor far")
+    return [(f"Doubtful: year {big} is far beyond the data, which end at year {m}, so the steady change may not last.", True, None),
+            ("Valid: the change has been steady, so it will carry on for any number of years.", False, tag(2)), (exact, False, tag(7)), (bad, False, tag(8))]
+
+
+def e10ar_pile(q):
+    """The stack's u₁ and d, from the figure, the table or the words, and its story."""
+    rep, L = q["view"]["rep"], q["lines"]
+    if rep == "words":
+        for c in E10AR_PILES:
+            m = re.fullmatch(e10ar_rx(c["open"]), L[0])
+            if m:
+                return c, e10ar_v(m.group(1)), e10ar_v(m.group(2))
+        raise Fail(f"can't read {L[0]!r}")
+    if rep == "diagram":
+        c = next((c for c in E10AR_PILES if L[0] == f"The figure shows stacks of {c['thing']} with 1, 2 and 3 rows. Each extra row goes under the stack."), None)
+        need(c is not None, f"can't read {L[0]!r}")
+        st = q["graph"]["stages"]
+        need(q["graph"]["kind"] == "stages" and len(st) == 3 and q["graph"]["names"] == ["n = 1", "n = 2", "n = 3"], "the figure")
+        need([len(r) for r in st] == [1, 2, 3] and st[1][:1] == st[0] and st[2][:2] == st[1], f"the stacks are {st}")
+        return c, sp.Integer(st[2][0]), sp.Integer(st[2][1] - st[2][0])
+    c = next((c for c in E10AR_PILES if L[0].startswith(c["thing"].capitalize() + " are stacked in rows.")), None)
+    need(c is not None, f"can't read {L[0]!r}")
+    ks, vals = e10ar_rows(q, ("Rows n", "tₙ"))
+    need(ks == ["1", "2", "3", "4"], f"rows {ks}")
+    rows = [vals[0]] + [b - a for a, b in zip(vals, vals[1:])]
+    need(rows[2] - rows[1] == rows[1] - rows[0] and rows[3] - rows[2] == rows[1] - rows[0], f"the rows are {rows}")
+    return c, rows[0], rows[1] - rows[0]
+
+
+def e10ar_stack(q):
+    c, u1, d = e10ar_pile(q)
+    need(2 <= u1 <= 5 and 1 <= d <= 3, f"{u1}, {d}")
+    say = lambda v: f"{e10ar_d(v)} {c['thing']}"
+    m = re.fullmatch(rf"Find t[₀-₉]+, the number of {re.escape(c['thing'])} in a stack of (\d+) rows\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    n = int(m.group(1))
+    need(4 <= n <= 12, f"n = {n}")
+    S = lambda k: e10ar_sum(u1, d, k)
+    return say(S(n)), {E10AR_TOTAL: {say(e10ar_term(u1, d, n))}, E10AR_MO + "13": {say(S(1) + (n - 1) * (S(2) - S(1)))}, E10AR_SUM1: {say(S(n - 1))},
+                       E10AR_SUM0: {say(sp.Rational(n, 2) * (2 * u1 + n * d))}}
+
+
+def e10ar_crates(q):
+    c, u1, d = e10ar_pile(q)
+    need(2 <= u1 <= 5 and 1 <= d <= 3, f"{u1}, {d}")
+    m = re.fullmatch(e10ar_rx(c["crate"]), q["lines"][-1])
+    need(m is not None, f"can't read {q['lines'][-1]!r}")
+    size = int(m.group(1))
+    need(size in E10AR_CRATES, f"size {size}")
+    need(q["asked"] == f"A stack uses only whole {c['pack']}, with nothing left over. Find n, the smallest number of rows it can have.", f"asked {q['asked']!r}")
+    k = next(j for j in range(1, E10AR_N_TERM[1] + 1) if e10ar_sum(u1, d, j) % size == 0)
+    need(k >= 3, f"k = {k}")
+    wr = {E10AR_FN + "5": {f"n = {size}"}}
+    row = next((j for j in range(1, E10AR_N_TERM[1] + 1) if e10ar_term(u1, d, j) % size == 0), None)
+    if row:
+        wr[E10AR_TOTAL] = {f"n = {row}"}
+    return f"n = {k}", wr
+
+
+def e10ar_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] == 2, "every arithmetic-context question is Paper 2")
+    for tx in [q["asked"]] + q["lines"] + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    trap = None
+    if u in ("term-in-context", "total-in-context", "in-or-after", "term-number", "zero-term", "first-past", "first-total-past"):
+        want, wrongs = e10ar_seq(q, u)
+    elif u == "value-after":
+        want, wrongs = e10ar_after(q)
+    elif u == "simple-interest":
+        want, wrongs = e10ar_bank(q)
+    elif u == "count-terms":
+        want, wrongs = e10ar_count(q)
+    elif u == "peak-total":
+        want, wrongs = e10ar_peak(q)
+    elif u in ("estimate-d", "fit-gradient"):
+        want, wrongs, trap = e10ar_gradient(q)
+    elif u in ("predict-from-gaps", "predict-from-line"):
+        want, wrongs, trap = e10ar_predict(q)
+    elif u == "stack-total":
+        want, wrongs = e10ar_stack(q)
+    elif u == "stack-crates":
+        want, wrongs = e10ar_crates(q)
+    elif u == "term-or-total":
+        want, wrongs = e9regr_judged(q, e10ar_claims_calc(q))
+    elif u == "whole-n-test":
+        want, wrongs = e9regr_judged(q, e10ar_claims_whole(q))
+    elif u == "comment-validity":
+        want, wrongs = e9regr_judged(q, e10ar_claims_valid(q))
+    else:
+        raise Fail(f"no check for {u}")
+    if q["answer"]["kind"] == "number" and q["answer"].get("show") != "sf":
+        need(q["answer"].get("exact") is True, "an amount that ends is marked exactly")
+    gc_check_common(q, want, wrongs, trap)
+    e10ar_sums(q)
+    e10ar_methods(q)
+    return None, None
+
+
 # Paper 2 (FAL-419): a context in words with a decimal u₁ and d, the checker's own copy
 # of the engine's limits (arithmetic_sequence.gd, P2): in hundredths, u₁ and d with
 # their step, and the threshold's step; EDGE keeps "first more than" clear of a whole n.
@@ -9150,6 +9829,438 @@ def check_compound_interest(q):
     need(q["solutions"][0]["angle"] == q["view"]["angle"], "the asked method is not the first worked solution")
     for sol in q["solutions"]:
         need(want in sol["steps"][-1], f"{sol['name']}: the last step {sol['steps'][-1]!r} doesn't state {want!r}")
+    return None, None
+
+
+# ── depreciation (t1-depreciation, FAL-752) ──────────────────
+# The `depreciation` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/depreciation.gd. The price, rate and target are read back from what is
+# shown (a table's multiplier from its own values), every value is found again with exact rationals,
+# a rate from a high-precision root and a time from a logarithm, tested against the values either
+# side of it, and each number the working needs must be in the working.
+
+E10DE_WHO = ["Kira", "Tomas", "The Guild", "A trader", "Ines", "The caravan fund"]
+E10DE_ITEMS = ["water truck", "solar rig", "salvage crane", "wind pump", "fuel tanker", "generator", "drill rig", "cargo wagon"]
+E10DE_UNIT = {"year": 1, "quarter": 4, "month": 12}
+E10DE_LETTER = {1: "t", 4: "q", 12: "m"}
+E10DE_DEP = "SL1.4.depreciation#"
+E10DE_TIME = "SL1.4.find-time#"
+E10DE_CENT = sp.Rational(51, 10000)     # a figure shown to the cent is the value to within this
+E10DE_DOLLAR_EDGE = sp.Rational(149, 1000)   # the engine's is 0.15
+E10DE_EDGE = sp.Rational(29, 1000)      # the engine's is 0.03
+E10DE_GAP = sp.Rational(149, 1000)      # the engine's is 0.15
+E10DE_MONTH = {sp.Rational(t, 10) for t in (5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 18, 20, 25, 30)}
+E10DE_QUARTER = {sp.Rational(t, 10) for t in (15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 75, 80)}
+E10DE_PCTS = (10, 20, 25, 30, 40, 50, 60)
+E10DE_YEARS_MAX = 25
+
+
+def e10de_clear(x):
+    """x rounds to a dollar without doubt."""
+    if not (0 < x <= 10**6):
+        return False
+    return abs(x - sp.floor(x) - sp.Rational(1, 2)) >= E10DE_DOLLAR_EDGE
+
+
+def e10de_d(x):
+    """x to the nearest dollar, as the game writes it."""
+    return str(int(sp.floor(x + sp.Rational(1, 2))))
+
+
+def e10de_rate_clear(x):
+    v = num(x)
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E10DE_EDGE
+
+
+def e10de_figures(sol):
+    return [sp.Rational(t) for st in sol["steps"] for t in re.findall(r"\d+\.\d+", st)]
+
+
+def e10de_shown(sol, x, tol=E10DE_CENT):
+    """Some figure in the worked solution is x, to the figures it is shown to."""
+    need(any(abs(t - x) <= tol for t in e10de_figures(sol)), f"{sol['name']}: the working doesn't show {float(x):.4f}")
+
+
+def e10de_says(sol, *texts):
+    for text in texts:
+        need(any(text in st for st in sol["steps"]), f"{sol['name']}: the working doesn't say {text!r}")
+
+
+def e10de_run(sol, start, c, first, last):
+    """A year-by-year run: every year from first to last, each the one before times c."""
+    found = {int(y): sp.Rational(v) for st in sol["steps"] for y, v in re.findall(r"[Yy]ear (\d+): (\d+\.\d+)", st)}
+    need(sorted(found) == list(range(first, last + 1)), f"{sol['name']}: the run has years {sorted(found)}")
+    for y, shown in found.items():
+        need(abs(shown - start * c ** (y - first + 1)) <= E10DE_CENT, f"{sol['name']}: year {y} is not {float(start * c ** (y - first + 1)):.2f}")
+
+
+def e10de_story(q, w, item):
+    g = q["given"]
+    need(w in E10DE_WHO and E10DE_WHO.index(w) == int(g["ctx"]), f"the story's name {w!r}")
+    need(item in E10DE_ITEMS and E10DE_ITEMS.index(item) == int(g["item"]), f"the story's item {item!r}")
+
+
+def e10de_table(q, name, start=None):
+    """A value table: three whole times in a row, exact to the cent, one multiplier. Returns t0, v0 and c."""
+    rows = q["table"]["rows"]
+    need(len(rows) == 2 and rows[0][0] == name and rows[1][0] == "V ($)", f"the table's headings {rows}")
+    ts, vs = [int(t) for t in rows[0][1]], [R(v) for v in rows[1][1]]
+    need(len(ts) == 3 and ts[1] == ts[0] + 1 and ts[2] == ts[1] + 1 and (start is None or ts[0] == start), f"the table's times {ts}")
+    c = vs[1] / vs[0]
+    need(vs[2] == vs[1] * c, "the table's values do not share a multiplier, or are not exact")
+    return ts[0], vs[0], c
+
+
+def e10de_read(q):
+    """The price P, rate r, multiplier c and periods a year k, from what the student is shown."""
+    rep, L = q["view"]["rep"], q["lines"]
+    f = {"date": None, "T": None}
+    if rep == "words":
+        m = re.fullmatch(r"(.+) buys a (.+) for \$(\d+)\. Its value falls by ([\d.]+)% each (year|month|quarter)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        e10de_story(q, m.group(1), m.group(2))
+        f["P"], f["r"], f["k"] = sp.Integer(m.group(3)), R(m.group(4)), E10DE_UNIT[m.group(5)]
+        f["c"] = 1 - f["r"] / 100
+    elif rep == "equation":
+        m = re.fullmatch(r"(.+) buys a (.+) on 1 January (\d+)\. Its value in dollars, t years after that date, is V = (\d+)\(([\d.]+)\)\^t\.", L[0])
+        if m:
+            e10de_story(q, m.group(1), m.group(2))
+            f["date"], f["P"], f["c"], f["k"] = int(m.group(3)), sp.Integer(m.group(4)), R(m.group(5)), 1
+        else:
+            m = re.fullmatch(r"(.+) buys a (.+)\. Its value in dollars, ([tqm]) (year|month|quarter)s after it is bought, is V = (\d+)\(([\d.]+)\)\^\3\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            f["k"], f["P"], f["c"] = E10DE_UNIT[m.group(4)], sp.Integer(m.group(5)), R(m.group(6))
+            need(m.group(3) == E10DE_LETTER[f["k"]], f"the letter in {L[0]!r}")
+        f["r"] = 100 * (1 - f["c"])
+    elif rep == "table":
+        m = re.fullmatch(r"(.+) buys a (.+), and its value falls by the same percentage each (year|month|quarter)\. The table shows its value, ([tqm]) (?:year|month|quarter)s after it is bought\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        e10de_story(q, m.group(1), m.group(2))
+        f["k"] = E10DE_UNIT[m.group(3)]
+        need(L[0].endswith(f"{E10DE_LETTER[f['k']]} {m.group(3)}s after it is bought."), f"the letter in {L[0]!r}")
+        _, f["P"], f["c"] = e10de_table(q, f"{E10DE_LETTER[f['k']]} ({m.group(3)}s)", 0)
+        f["r"] = 100 * (1 - f["c"])
+    else:
+        m = re.fullmatch(r"(.+) buys a (.+)\. The graph shows its value V dollars, t years after it is bought, where V = (\d+)\(([\d.]+)\)\^t, and the line V = (\d+)\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        e10de_story(q, m.group(1), m.group(2))
+        f["k"], f["P"], f["c"], f["T"] = 1, sp.Integer(m.group(3)), R(m.group(4)), sp.Integer(m.group(5))
+        f["r"] = 100 * (1 - f["c"])
+    P, r, k = f["P"], f["r"], f["k"]
+    need(0 < f["c"] < 1, f"the multiplier {f['c']}")
+    if k == 1:
+        need(P % 1000 == 0 and 4000 <= P <= 60000 and r.q == 1 and 5 <= r <= 30, f"P {P} or r {r} is outside the limits")
+    else:
+        need(r in (E10DE_MONTH if k == 12 else E10DE_QUARTER), f"the rate {r} per period")
+        need(P % 1000 == 0 and 4000 <= P <= 60000 or (rep == "table" and P % 10000 == 0 and 10000 <= P <= 60000), f"P {P} is outside the limits")
+    return f
+
+
+def e10de_value_work(q, f, n, tail):
+    """Each method reaches V(n), then whatever the question does with it."""
+    P, c, r = f["P"], f["c"], f["r"]
+    v = P * c ** n
+    for sol in q["solutions"]:
+        a = sol["angle"]
+        if a == "decay-multiplier":
+            e10de_says(sol, f"{P} × {dec_text(c)}^{n}")
+            e10de_shown(sol, v)
+        elif a == "tvm-negative":
+            e10de_says(sol, f"N = {n}", f"I% = −{dec_text(r)}", f"PV = −{P}", "PMT = 0")
+            e10de_shown(sol, v)
+        else:
+            need(a == "year-by-year", f"the method {a}")
+            e10de_run(sol, P, c, 1, n)
+        for x in tail:
+            e10de_shown(sol, x, sp.Rational(11, 1000))
+
+
+def e10de_time_work(q, f, x, per, least):
+    P, c, r, T = f["P"], f["c"], f["r"], f["T"]
+    w = E10DE_LETTER[f["k"]]
+    for sol in q["solutions"]:
+        a = sol["angle"]
+        if a == "logs":
+            e10de_says(sol, f"{P} × {dec_text(c)}^{w} < {dec_text(T)}", "flips the sign")
+            e10de_shown(sol, sp.Rational(str(x)), sp.Rational(6, 10000))
+        elif a == "tvm":
+            e10de_says(sol, f"I% = −{dec_text(r)}", f"PV = −{P}", f"FV = {dec_text(T)}", "PMT = 0")
+            e10de_shown(sol, sp.Rational(str(x)), sp.Rational(6, 10000))
+        elif a == "gdc-table":
+            low, top = (least - 1) * per, least * per
+            need(low >= 0, "the table starts before 0")
+            e10de_says(sol, f"X = {low} gives Y1 =", f"X = {top} gives Y1 =")
+            e10de_shown(sol, P * c ** low)
+            e10de_shown(sol, P * c ** top)
+        else:
+            need(a == "graph-intersect", f"the method {a}")
+            e10de_says(sol, f"y = {dec_text(T)}")
+            e10de_shown(sol, sp.Rational(str(x)), sp.Rational(6, 10000))
+        if per > 1 and a != "gdc-table":
+            e10de_says(sol, f"÷ {per} =")
+        if a != "gdc-table":
+            e10de_says(sol, f"round up: {least}")
+
+
+def e10de_figure(q, f, x, least):
+    """The drawn curve is the model, the line is the target, and the mark is their crossing."""
+    g = q["graph"]
+    P, c, T = f["P"], f["c"], f["T"]
+    need(g is not None and len(g["curves"]) == 1 and len(g["hlines"]) == 1 and len(g["points"]) == 1, "the figure's parts")
+    need(int(g["x0"]) == 0 and int(g["x1"]) == least + 2 and int(g["y0"]) == 0 and int(g["y1"]) >= P, f"the figure's window {g['x1']}, {g['y1']}")
+    for px, py in g["curves"][0][::16]:
+        need(abs(py - float(P) * float(c) ** px) <= 1e-6 * float(P), f"the curve at {px}")
+    need(sp.Rational(str(g["hlines"][0]["at"])) == T and g["hlines"][0]["label"] == f"V = {dec_text(T)}", "the figure's line")
+    pt = g["points"][0]
+    need(abs(pt["x"] - float(x)) < 1e-6 and sp.Rational(str(pt["y"])) == T, "the marked crossing")
+    need(pt["label"] == f"({sig3(x)}, {dec_text(T)})", f"the mark's label {pt['label']!r}")
+
+
+def e10de_time(q, f, per, label):
+    """The least whole time: from the logarithm, then tested exactly either side of it."""
+    P, c, r, T, k = f["P"], f["c"], f["r"], f["T"], f["k"]
+    need(T.q == 1 and (T % 500 == 0 or "pct" in q["given"]), f"target {T}")
+    x = sp.N(sp.log(T / P) / sp.log(c), DIGITS)
+    y = x / per
+    frac = y - sp.floor(y)
+    need(E10DE_GAP <= frac <= 1 - E10DE_GAP, f"the real solution {float(y):.4f} is not clear of a whole number")
+    least = int(sp.ceiling(y))
+    need(P * c ** (least * per) < T <= P * c ** ((least - 1) * per), f"{least} is not the first time below the target")
+    need(int(q["given"]["least"]) == least, f"the least is {least}, not {q['given']['least']}")
+    wrongs = {E10DE_TIME + "2": {f"{label} = {int(sp.floor(y))}"}}
+    near = int(sp.floor(y + sp.Rational(1, 2)))
+    if near != least:
+        wrongs[E10DE_TIME + "0"] = {f"{label} = {near}"}
+    if k == 1:
+        line = next(n for n in range(1, 500) if P * (100 - n * r) < T * 100)
+        if line != least:
+            wrongs[E10DE_DEP + "1"] = {f"{label} = {line}"}
+    elif per > 1:
+        wrongs[E10DE_TIME + "1"] = {f"{label} = {int(sp.ceiling(x))}"}
+    e10de_time_work(q, f, x, per, least)
+    if q["view"]["rep"] == "graph":
+        e10de_figure(q, f, x, least)
+    return f"{label} = {least}", wrongs, least
+
+
+def e10de_check(q):
+    g, u, L, asked, rep = q["given"], q["view"]["unknown"], q["lines"], q["asked"], q["view"]["rep"]
+    need(q["paper"] == 2, "depreciation is Paper 2")
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    wrongs, want, trap = {}, None, None
+    D = E10DE_DEP
+    if u in ("value-after", "total-loss", "loss-in-year", "read-rate", "years-below", "years-fraction", "years-from-periods", "least-periods"):
+        f = e10de_read(q)
+        P, r, c, k = f["P"], f["r"], f["c"], f["k"]
+    if u in ("value-after", "total-loss"):
+        if f["date"] is not None:
+            need(u == "value-after", "a date on a total loss")
+            m = re.fullmatch(r"Find its value on 1 January (\d+), to the nearest dollar\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            n = int(m.group(1)) - f["date"]
+        else:
+            m = re.fullmatch(r"Find its value after (\d+) years, to the nearest dollar\." if u == "value-after"
+                             else r"Find the total loss in its value over the first (\d+) years, to the nearest dollar\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            n = int(m.group(1))
+        need(k == 1 and 3 <= n <= 10 and r * n <= 90 and int(g["n"]) == n, f"n = {n}")
+        v, up, line = P * c ** n, P * (1 + r / 100) ** n, P * (1 - n * r / 100)
+        need(all(e10de_clear(x) for x in (v, P - v, up, up - P)), "a value is on the edge between two dollars")
+        if u == "value-after":
+            want = "value = $" + e10de_d(v)
+            wrongs = {D + "0": {"value = $" + e10de_d(up)}, D + "1": {"value = $" + e10de_d(line)}, D + "2": {"value = $" + e10de_d(P - v)}}
+            e10de_value_work(q, f, n, [])
+        else:
+            want = "loss = $" + e10de_d(P - v)
+            wrongs = {D + "0": {"loss = $" + e10de_d(up - P)}, D + "1": {"loss = $" + e10de_d(P - line)}, D + "2": {"loss = $" + e10de_d(v)}}
+            e10de_value_work(q, f, n, [P - v])
+    elif u == "loss-in-year":
+        m = re.fullmatch(r"Find the loss in its value during year (\d+) alone, between (\d+) and (\d+) years after it is bought, to the nearest dollar\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        n = int(m.group(1))
+        need(int(m.group(2)) == n - 1 and int(m.group(3)) == n and 2 <= n <= 8 and k == 1, f"the year in {asked!r}")
+        a, b = P * c ** (n - 1), P * c ** n
+        need(all(e10de_clear(x) for x in (a, b, a - b, P - b, b * r / 100)), "a value is on the edge between two dollars")
+        want = "loss = $" + e10de_d(a - b)
+        say = lambda x: {"loss = $" + e10de_d(x)}
+        wrongs = {D + "3": say(P - b), D + "4": say(b * r / 100), D + "1": say(P * r / 100), D + "2": say(b)}
+        for sol in q["solutions"]:
+            if sol["angle"] == "year-by-year":
+                e10de_run(sol, P, c, 1, n)
+            else:
+                e10de_shown(sol, a)
+                e10de_shown(sol, b)
+            e10de_shown(sol, a - b, sp.Rational(11, 1000))
+    elif u == "original-value":
+        need(asked == "Find the price it was bought for, to the nearest dollar.", f"asked {asked!r}")
+        if rep == "words":
+            m = re.fullmatch(r"(.+) owns a (.+) that is worth \$(\d+) now\. It was bought (\d+) years ago, and its value has fallen by ([\d.]+)% each year\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            V, n, r = sp.Integer(m.group(3)), int(m.group(4)), R(m.group(5))
+            c = 1 - r / 100
+        elif rep == "equation":
+            m = re.fullmatch(r"(.+) owns a (.+)\. Its value in dollars, t years after it was bought, is V = P\(([\d.]+)\)\^t, and V = (\d+) when t = (\d+)\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            c, V, n = R(m.group(3)), sp.Integer(m.group(4)), int(m.group(5))
+            r = 100 * (1 - c)
+        else:
+            m = re.fullmatch(r"(.+) owns a (.+), and its value falls by the same percentage each year\. The table shows its value, t years after it was bought\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            n, V, c = e10de_table(q, "t (years)")
+            r = 100 * (1 - c)
+        need(V % 1000 == 0 and 2000 <= V <= 30000 and r.q == 1 and 5 <= r <= 30 and 2 <= n <= 8 and r * n <= 90, f"V {V}, r {r} or n {n} is outside the limits")
+        p = V / c ** n
+        up, line = V * (1 + r / 100) ** n, V / (1 - n * r / 100)
+        need(all(e10de_clear(x) for x in (p, up, line, V * c ** n)), "a value is on the edge between two dollars")
+        want = "price = $" + e10de_d(p)
+        wrongs = {D + "5": {"price = $" + e10de_d(up)}, D + "1": {"price = $" + e10de_d(line)}}
+        for sol in q["solutions"]:
+            a = sol["angle"]
+            e10de_shown(sol, p)
+            if a == "year-by-year":
+                found = {int(y): sp.Rational(t) for st in sol["steps"] for y, t in re.findall(r"[Yy]ear (\d+): (\d+\.\d+)", st)}
+                need(sorted(found) == list(range(n)), f"{sol['name']}: the run back has years {sorted(found)}")
+                for y, t in found.items():
+                    need(abs(t - V / c ** (n - y)) <= E10DE_CENT, f"{sol['name']}: year {y} going back")
+            elif a == "tvm-negative":
+                e10de_says(sol, f"N = {n}", f"I% = −{dec_text(r)}", f"FV = {V}", "Solve for PV")
+            else:
+                e10de_says(sol, f"{V} ÷ {dec_text(c)}^{n}")
+    elif u == "find-rate":
+        need(asked == "Find the yearly rate of depreciation, as a percentage to 3 s.f.", f"asked {asked!r}")
+        if rep == "words":
+            m = re.fullmatch(r"(.+) buys a (.+) for \$(\d+)\. (\d+) years later it is worth \$(\d+), and it has lost the same percentage of its value each year\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            P, n, V = sp.Integer(m.group(3)), int(m.group(4)), sp.Integer(m.group(5))
+        elif rep == "equation":
+            m = re.fullmatch(r"(.+) buys a (.+)\. Its value in dollars, t years after it is bought, is V = (\d+)\(a\)\^t, where 0 < a < 1\. When t = (\d+), V = (\d+)\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            P, n, V = sp.Integer(m.group(3)), int(m.group(4)), sp.Integer(m.group(5))
+        else:
+            m = re.fullmatch(r"(.+) buys a (.+), and its value falls by the same percentage each year\. The table shows its value, t years after it is bought\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            e10de_story(q, m.group(1), m.group(2))
+            t = q["table"]["rows"]
+            need(t[0][0] == "t (years)" and t[1][0] == "V ($)" and t[0][1][0] == "0", f"the table {t}")
+            n, P, V = int(t[0][1][1]), R(t[1][1][0]), R(t[1][1][1])
+        need(P % 1000 == 0 and 4000 <= P <= 60000 and 3 <= n <= 10 and 0 < V < P, f"P {P}, n {n} or V {V} is outside the limits")
+        root = sp.N((V / P) ** sp.Rational(1, n), DIGITS)
+        found, kept, whole = 100 * (1 - root), 100 * root, 100 * (1 - V / P)
+        share = whole / n
+        need(5 <= sp.Float(found) <= 31, f"the rate {found}")
+        need(all(e10de_rate_clear(x) for x in (found, kept, whole, share)), "a rate is on a rounding edge")
+        need(len({sig3(found), sig3(kept), sig3(whole), sig3(share)}) == 4, "two rates read the same")
+        need(not sig3(found).endswith("0"), "the rate reads the same as its 2 s.f. trap")
+        want = "rate = " + sig3(found) + "%"
+        trap = "rate = " + dec_text(sp.Rational(sig3(found, 2))) + "%"
+        wrongs = {D + "6": {"rate = " + sig3(kept) + "%"}, D + "7": {"rate = " + sig3(whole) + "%"}, D + "1": {"rate = " + sig3(share) + "%"}}
+        for sol in q["solutions"]:
+            if sol["angle"] == "tvm-negative":
+                e10de_says(sol, f"N = {n}", f"PV = −{P}", f"FV = {V}", "Solve for I%")
+            e10de_shown(sol, sp.Rational(str(found)), sp.Rational(1, 1000))
+    elif u == "read-rate":
+        need(k == 1 and asked == "Write down the yearly rate of depreciation, as a percentage.", f"asked {asked!r}")
+        want = f"rate = {dec_text(r)}%"
+        wrongs = {D + "6": {f"rate = {dec_text(100 * c)}%"}}
+        for sol in q["solutions"]:
+            e10de_says(sol, f"1 − {dec_text(c)} = {dec_text(r / 100)}", f"{dec_text(r)}%")
+    elif u == "two-rate-value":
+        if rep == "table":
+            m = re.fullmatch(r"(.+) buys a (.+) for \$(\d+)\. The table shows how far its value falls each year\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            t = q["table"]["rows"]
+            need(t[0] == ["Year", ["1", "2 onward"]] and t[1][0] == "Fall in value", f"the table {t}")
+            r1, r2 = R(t[1][1][0].rstrip("%")), R(t[1][1][1].rstrip("%"))
+        else:
+            m = re.fullmatch(r"(.+) buys a (.+) for \$(\d+)\. Its value falls by ([\d.]+)% in the first year, and by ([\d.]+)% in each year after that\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            r1, r2 = R(m.group(4)), R(m.group(5))
+        e10de_story(q, m.group(1), m.group(2))
+        P = sp.Integer(m.group(3))
+        ma = re.fullmatch(r"Find its value (\d+) years after it is bought, to the nearest dollar\.", asked)
+        need(ma is not None, f"asked {asked!r}")
+        n = int(ma.group(1))
+        need(P % 1000 == 0 and 4000 <= P <= 60000 and 3 <= n <= 10 and 10 <= r1 <= 30 and 5 <= r2 <= r1 - 2 and r1.q == 1 and r2.q == 1, f"P {P}, the rates or n {n} are outside the limits")
+        c1, c2 = 1 - r1 / 100, 1 - r2 / 100
+        a, v = P * c1, P * c1 * c2 ** (n - 1)
+        later = P * c2 ** n
+        need(all(e10de_clear(x) for x in (v, P - v, later, v * c2)), "a value is on the edge between two dollars")
+        want = "value = $" + e10de_d(v)
+        wrongs = {D + "8": {"value = $" + e10de_d(later)}, D + "2": {"value = $" + e10de_d(P - v)}}
+        for sol in q["solutions"]:
+            e10de_shown(sol, a)
+            if sol["angle"] == "year-by-year":
+                e10de_run(sol, a, c2, 2, n)
+            else:
+                e10de_shown(sol, v)
+            if sol["angle"] == "tvm-negative":
+                e10de_says(sol, f"N = {n - 1}", f"I% = −{dec_text(r2)}")
+    elif u == "shortfall":
+        need(len(L) == 3, "the shortfall's lines")
+        if rep == "equation":
+            m = re.fullmatch(r"(.+) plans to buy a (.+) in (\d+) years' time\. Its value in dollars, t years from now, is V = (\d+)\(([\d.]+)\)\^t\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            P, c = sp.Integer(m.group(4)), R(m.group(5))
+            r = 100 * (1 - c)
+        else:
+            m = re.fullmatch(r"(.+) plans to buy a (.+) in (\d+) years' time\. It is worth \$(\d+) now, and its value falls by ([\d.]+)% each year\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            P, r = sp.Integer(m.group(4)), R(m.group(5))
+            c = 1 - r / 100
+        e10de_story(q, m.group(1), m.group(2))
+        n = int(m.group(3))
+        ms = re.fullmatch(r"The buyer puts \$(\d+) in an account today, at ([\d.]+)% per year compounded yearly, and adds nothing more\.", L[1])
+        need(ms is not None, f"can't read {L[1]!r}")
+        S, i = sp.Integer(ms.group(1)), R(ms.group(2))
+        need(L[2] == f"On the day, all the money in the account and an extra $M will pay exactly what the {m.group(2)} is worth then.", f"can't read {L[2]!r}")
+        need(asked == "Find M, to the nearest dollar.", f"asked {asked!r}")
+        need(P % 1000 == 0 and 4000 <= P <= 60000 and r.q == 1 and 5 <= r <= 30 and 3 <= n <= 10 and r * n <= 90, f"P {P}, r {r} or n {n} is outside the limits")
+        need(S % 500 == 0 and S <= P * sp.Rational(7, 10) and i.q == 1 and 2 <= i <= 8, f"the account {S} at {i}")
+        v, a = P * c ** n, S * (1 + i / 100) ** n
+        M = v - a
+        need(M >= 100 and all(e10de_clear(x) for x in (v, a, M, P - a, v - S)), "a value is on the edge between two dollars, or M is too small")
+        want = "M = $" + e10de_d(M)
+        wrongs = {D + "9": {"M = $" + e10de_d(P - a), "M = $" + e10de_d(v - S)}}
+        for sol in q["solutions"]:
+            e10de_shown(sol, v)
+            e10de_shown(sol, a)
+            e10de_shown(sol, M, sp.Rational(11, 1000))
+    elif u in ("years-below", "years-fraction"):
+        need(k == 1, "a time in years is on a yearly rate")
+        if u == "years-below":
+            m = re.fullmatch(r"Find the least number of complete years after which its value is less than \$(\d+)\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            T = sp.Integer(m.group(1))
+        else:
+            m = re.fullmatch(r"Find the least number of complete years after which it is worth less than (\d+)% of the price paid\.", asked)
+            need(m is not None and int(m.group(1)) in E10DE_PCTS, f"asked {asked!r}")
+            T = P * int(m.group(1)) / sp.Integer(100)
+        need(f["T"] is None or f["T"] == T, "the graph's line is not the target")
+        need(sp.Rational(15, 100) * P <= T <= sp.Rational(8, 10) * P, f"target {T}")
+        f["T"] = T
+        want, wrongs, least = e10de_time(q, f, 1, "years")
+        need(2 <= least <= E10DE_YEARS_MAX, f"{least} years")
+    else:
+        need(k in (4, 12), "a rate per month or quarter")
+        unit = "month" if k == 12 else "quarter"
+        word = "year" if u == "years-from-periods" else unit
+        m = re.fullmatch(rf"Find the least number of complete {word}s after which its value is less than \$(\d+)\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        T = sp.Integer(m.group(1))
+        need(sp.Rational(2, 10) * P <= T <= sp.Rational(8, 10) * P, f"target {T}")
+        f["T"] = T
+        want, wrongs, least = e10de_time(q, f, k if u == "years-from-periods" else 1, word + "s")
+        need(least <= (E10DE_YEARS_MAX if u == "years-from-periods" else 12 * E10DE_YEARS_MAX), f"{least} {word}s")
+    gc_check_common(q, want, wrongs, trap)
     return None, None
 
 
@@ -21292,6 +22403,649 @@ def gs_xs_text_as(show, name, vals):
     return f"{name} = " + " or ".join(gs_text(show, v) for v in vals)
 
 
+# ── geometric-context (t1-geometric-in-context, FAL-752) ─────
+# The `geometric-context` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/geometric_context.gd. The story, table, dots or Σ are read back from what
+# the student sees. Every value is worked out again with exact rationals, every least n by testing
+# the terms or totals one at a time, and each tagged option from what its slip does.
+
+E10GE_NUM = r"−?\d+(?:\.\d+)?"
+E10GE_M, E10GE_F = "SL1.3.model#", "SL1.3.find-n#"
+E10GE_NTH0, E10GE_NTH1, E10GE_SUM0 = "SL1.3.nth-term#0", "SL1.3.nth-term#1", "SL1.3.sum#0"
+E10GE_ARITH, E10GE_ROOT = "SL1.3.find-r-u1#0", "SL1.3.find-r-u1#2"
+E10GE_LIMIT = 5000000
+E10GE_P1_LIMIT = 200000
+E10GE_EDGE = sp.Rational(19, 1000)      # the engine's is 0.02; a hair under it, for float ties
+E10GE_CLEAR = sp.Rational(99, 1000)     # the engine's is 0.1; the same, for a crossing
+E10GE_P1 = ("factor-from-percent", "term-number-after", "scaled-area-term", "mean-of-areas")
+E10GE_BALLS = ["rubber ball", "steel spring", "scrap tyre", "drone shell"]
+# now, thing, subject, unit, round, heading, sign
+E10GE_STOCKS = [
+    ("Glow-moss covers {} m² of a bunker wall today.", "area of moss", "The area", " m²", "month", "Area (m²)", 1),
+    ("The Guild's vault holds {} kg of silver today.", "mass of silver", "The mass", " kg", "year", "Mass (kg)", 1),
+    ("A vat holds {} litres of algae oil today.", "volume of algae oil", "The volume", " litres", "week", "Volume (litres)", 1),
+    ("A scrap heap weighs {} kg today.", "mass of the heap", "The mass", " kg", "year", "Mass (kg)", 1),
+    ("A leaking tank holds {} litres of fuel today.", "volume of fuel", "The volume", " litres", "day", "Volume (litres)", -1),
+    ("The reading at a crater is {} mSv today.", "reading", "The reading", " mSv", "year", "Reading (mSv)", -1),
+    ("A battery bank holds {} kWh today.", "charge", "The charge", " kWh", "day", "Charge (kWh)", -1),
+    ("A silo holds {} kg of grain today.", "mass of grain", "The mass", " kg", "week", "Mass (kg)", -1),
+]
+# first, thing, subject, unit, round, heading, total, preposition, sign
+E10GE_FLOWS = [
+    ("A rooftop farm yields {} kg of beans in its first season.", "yield", "The yield", " kg", "season", "Yield (kg)", "total yield", "in", 1),
+    ("A salvage crew hauls {} kg of scrap in its first month.", "haul", "The haul", " kg", "month", "Haul (kg)", "total haul", "in", 1),
+    ("A guard is paid {} tokens in her first year.", "pay", "Her pay", " tokens", "year", "Pay (tokens)", "total pay", "in", 1),
+    ("A copper mine sends out {} kg in its first year.", "output", "The output", " kg", "year", "Output (kg)", "total output", "in", 1),
+    ("A spring gives {} litres of water in its first week.", "flow", "The flow", " litres", "week", "Flow (litres)", "total flow", "in", -1),
+    ("A dig site gives up {} kg of scrap in its first month.", "find", "The find", " kg", "month", "Find (kg)", "total find", "in", -1),
+    ("A solar rig stores {} kWh on its first day.", "charge stored", "The charge stored", " kWh", "day", "Charge stored (kWh)", "total charge stored", "on", -1),
+    ("A trade route brings in {} tokens in its first year.", "income", "The income", " tokens", "year", "Income (tokens)", "total income", "in", -1),
+]
+# opening, round, unit, heading, what a payment is called
+E10GE_DEALS = [
+    ("A scavenger signs on for {} months, paid once a month, and may pick one of two deals.", "month", " tokens", "tokens", "payment"),
+    ("A settler takes a water ration for {} weeks, once a week, and may pick one of two deals.", "week", " litres", "litres", "ration"),
+    ("A caravan buys fuel on contract for {} months, with a delivery each month, and may pick one of two deals.", "month", " litres", "litres", "delivery"),
+    ("A bazaar trader rents a stall out for {} weeks, for one payment a week, and may pick one of two deals.", "week", " scrap", "scrap", "payment"),
+]
+E10GE_RIVALS = [("Yard A", "Yard B", "turns out", " kg", "year"), ("Well A", "Well B", "gives", " litres", "month"),
+                ("Stall A", "Stall B", "takes", " tokens", "week"), ("Farm A", "Farm B", "grows", " kg", "season")]
+E10GE_SHEETS = [("A workshop cuts {} rectangular armour plates, numbered {} to {}.", "P", "plate", "plates"),
+                ("A rigger stitches {} rectangular tarpaulins, numbered {} to {}.", "T", "tarpaulin", "tarpaulins"),
+                ("A signal crew paints {} rectangular flags, numbered {} to {}.", "F", "flag", "flags"),
+                ("A glazier cuts {} rectangular solar panels, numbered {} to {}.", "S", "panel", "panels")]
+E10GE_SPREADS = [
+    ("In round 1, {} scouts hear a warning.", "In each round after that, {} times as many scouts hear it as in the round before.", "In the last round, {} scouts hear it.", "How many rounds are there?"),
+    ("A spore patch has {} spores on day 1.", "Each day after that it has {} times as many as the day before.", "On the last day of the count it has {} spores.", "How many days does the count last?"),
+    ("On the first level of a shaft, a crew finds {} scrap coils.", "On each deeper level it finds {} times as many as on the level before.", "On the lowest level it finds {} coils.", "How many levels does the shaft have?"),
+    ("A trader's first shipment is {} cans.", "Each shipment after that is {} times the one before.", "The last shipment is {} cans.", "How many shipments are there?"),
+]
+
+
+def e10ge_q(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def e10ge_sub(k):
+    return "".join("₀₁₂₃₄₅₆₇₈₉"[int(c)] for c in str(k))
+
+
+def e10ge_fill(pattern, text):
+    """The numbers put into a pattern's {} to make text, or None."""
+    parts = pattern.split("{}")
+    rx = f"({E10GE_NUM})".join(re.escape(p) for p in parts)
+    m = re.fullmatch(rx, text)
+    return [e10ge_q(g) for g in m.groups()] if m else None
+
+
+def e10ge_near(text, x, tol=sp.Rational(1, 50000)):
+    """A number from the working agrees with x to the figures shown."""
+    return abs(num(e10ge_q(text)) - num(x)) <= num(tol) * max(abs(num(x)), sp.Rational(1, 1000))
+
+
+def e10ge_clear(x):
+    v = abs(num(x))
+    e = sp.floor(sp.log(v, 10))
+    scaled = v / sp.Integer(10) ** (e - 2)
+    return abs(scaled - sp.floor(scaled) - sp.Rational(1, 2)) >= E10GE_EDGE
+
+
+def e10ge_b(v):
+    t = frac_text(v)
+    return f"({t})" if "/" in t else t
+
+
+def e10ge_val(x, unit, want_clear=True):
+    """x as Paper 2 writes it, with its trap, once x is known to be off a rounding edge."""
+    if want_clear:
+        need(e10ge_clear(x) and abs(num(x)) <= E10GE_LIMIT, f"the value {num(x)} is on an edge or too large")
+    return gc_s(x) + unit
+
+
+def e10ge_table(q, u1_row=-1):
+    t = q["table"]
+    need(t is not None, "no table")
+    rows = t["rows"]
+    return rows, [e10ge_q(v) for v in rows[u1_row][1]]
+
+
+def e10ge_ratio(vals):
+    r = vals[1] / vals[0]
+    need(all(vals[i + 1] == vals[i] * r for i in range(len(vals) - 1)), "the table is not geometric")
+    return r
+
+
+def e10ge_stock(q):
+    """The value today, r, p and the story, from the sentences or the table."""
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "table":
+        for st in E10GE_STOCKS:
+            if L[0] == f"The table shows the {st[1]}. It changes by the same percentage each {st[4]}.":
+                rows, vals = e10ge_table(q)
+                need(rows[-1][0] == st[5] and rows[-2] == [f"{st[4].capitalize()}s from now", ["0", "1", "2"]], "the table's headings")
+                r = e10ge_ratio(vals)
+                need((r > 1) == (st[6] > 0), "the table runs the wrong way for its story")
+                return st, vals[0], r, abs(r - 1) * 100
+        raise Fail(f"can't read {L[0]!r}")
+    for st in E10GE_STOCKS:
+        got = e10ge_fill(st[0], L[0])
+        if got:
+            m = re.fullmatch(rf"{re.escape(st[2])} (rises|falls) by (\d+)% each {st[4]}\.", L[1])
+            need(m is not None, f"can't read {L[1]!r}")
+            sign = 1 if m.group(1) == "rises" else -1
+            need(sign == st[6], "the change runs the wrong way for its story")
+            p = sp.Integer(m.group(2))
+            return st, got[0], 1 + sign * p / 100, p
+    raise Fail(f"can't read {L[0]!r}")
+
+
+def e10ge_flow(q, lines=None):
+    """u₁, r, p and the story of an amount for each round, from the sentences or the table."""
+    L, rep = lines if lines is not None else q["lines"], q["view"]["rep"]
+    if rep == "table":
+        for st in E10GE_FLOWS:
+            if L[0] in (f"The table shows the {st[1]} in the first three {st[4]}s. It changes by the same percentage each {st[4]}.",
+                        f"The table shows the {st[1]} in the first three {st[4]}s. Each value is the same multiple of the one before."):
+                rows, vals = e10ge_table(q)
+                need(rows[0] == [st[4].capitalize(), ["1", "2", "3"]] and rows[1][0] == st[5], "the table's headings")
+                r = e10ge_ratio(vals)
+                need((r > 1) == (st[8] > 0), "the table runs the wrong way for its story")
+                return st, vals[0], r, abs(r - 1) * 100
+        raise Fail(f"can't read {L[0]!r}")
+    for st in E10GE_FLOWS:
+        got = e10ge_fill(st[0], L[0])
+        if got:
+            subj, each = re.escape(st[2]), f" each {st[4]}."
+            m = re.fullmatch(rf"{subj} (rises|falls) by (\d+)%{re.escape(each)}", L[1])
+            if m:
+                sign = 1 if m.group(1) == "rises" else -1
+                need(sign == st[8], "the change runs the wrong way for its story")
+                p = sp.Integer(m.group(2))
+                return st, got[0], 1 + sign * p / 100, p
+            word = {"doubles": 2, "triples": 3, "halves": sp.Rational(1, 2)}
+            m = re.fullmatch(rf"{subj} (doubles|triples|halves){re.escape(each)}", L[1])
+            need(m is not None, f"can't read {L[1]!r}")
+            r = sp.Rational(word[m.group(1)])
+            need((r > 1) == (st[8] > 0), "the change runs the wrong way for its story")
+            return st, got[0], r, abs(r - 1) * 100
+    raise Fail(f"can't read {L[0]!r}")
+
+
+def e10ge_dots(q, totals):
+    """u₁, r and the target from a figure: the first three dots are labelled, and all must fit."""
+    g = q["graph"]
+    pts = g["points"]
+    need(g["x_name"] == "n" and g["y_name"] == ("Sₙ" if totals else "uₙ"), "the axes' names")
+    shown = [e10ge_q(p["label"]) for p in pts[:3]]
+    need(all(p["label"] == "" for p in pts[3:]), "a dot past the third is labelled")
+    u1 = shown[0]
+    terms = [shown[0], shown[1] - shown[0], shown[2] - shown[1]] if totals else shown
+    r = terms[1] / terms[0]
+    need(terms[2] == terms[1] * r, "the dots are not geometric")
+    for i, p in enumerate(pts):
+        k = i + 1
+        y = u1 * (r ** k - 1) / (r - 1) if totals else u1 * r ** (k - 1)
+        need(p["x"] == k and abs(p["y"] - float(y)) <= 1e-6 * float(y), f"the dot at n = {k} is off the model")
+    need(len(g["hlines"]) == 1, "no target line")
+    target = e10ge_q(g["hlines"][0]["label"].replace("y = ", ""))
+    need(abs(g["hlines"][0]["at"] - float(target)) < 1e-6 * float(target), "the target line is drawn at the wrong height")
+    return u1, r, target
+
+
+def e10ge_seq(q, totals):
+    """u₁, r, the story or None, from any representation of a sequence."""
+    L, rep = q["lines"], q["view"]["rep"]
+    if rep == "notation":
+        m = re.fullmatch(rf"A geometric sequence has u₁ = ({E10GE_NUM}) and r = ({E10GE_NUM})\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        if totals:
+            need(L[1] == "Sₙ is the sum of its first n terms.", f"can't read {L[1]!r}")
+        return e10ge_q(m.group(1)), e10ge_q(m.group(2)), None, None
+    if rep == "graph":
+        u1, r, target = e10ge_dots(q, totals)
+        st = next((s_ for s_ in E10GE_FLOWS if f"changes by the same percentage each {s_[4]}, and the line is the target" in L[0] and f"The {s_[1]} changes" in L[0]), None)
+        need(st is not None, f"can't read {L[0]!r}")
+        need((r > 1) == (st[8] > 0), "the dots run the wrong way for their story")
+        return u1, r, st, target
+    st, u1, r, _ = e10ge_flow(q, L[:-1] if rep == "words" else L[:1])
+    want = f"Let Sₙ be the {st[6]} of the first n {st[4]}s." if totals else f"Let uₙ be the {st[1]} {st[7]} {st[4]} n."
+    need(L[-1] == want, f"the last line {L[-1]!r}")
+    return u1, r, st, None
+
+
+def e10ge_first(cond, top=4000):
+    k = 1
+    while k <= top:
+        if cond(k):
+            return k
+        k += 1
+    return 0
+
+
+def e10ge_crossing(x, n):
+    """The real crossing x is well clear of a whole number, and n is the next one up."""
+    f = abs(mpmath.mpf(x) - mpmath.nint(x))
+    need(f >= mpmath.mpf(int(E10GE_CLEAR.p)) / int(E10GE_CLEAR.q), f"the crossing {x} is too near a whole number")
+    need(int(mpmath.ceil(x)) == n, f"the crossing {x} doesn't round up to {n}")
+
+
+def e10ge_steps(q):
+    return {sol["angle"]: sol["steps"] for sol in q["solutions"]}
+
+
+def e10ge_find_work(q, value, n, x, u, qv, letter="n"):
+    """The working of a find-n question, from what the game writes: the power isolated (qv), the
+    bound after logs, value(k) at the table's rows, and the crossing on the graph."""
+    w = e10ge_steps(q)
+    if "logs" in w:
+        solve = next(st for st in w["logs"] if "Solve" in st)
+        m = re.search(rf"[<>] ({E10GE_NUM})$", solve)
+        need(m is not None and e10ge_near(m.group(1), qv), f"the power isn't isolated in {solve!r}")
+        logs = next(st for st in w["logs"] if "ln" in st)
+        if u in ("term", "first"):
+            m = re.search(rf"n − 1 > ({E10GE_NUM})$", logs)
+            need(m is not None and e10ge_near(m.group(1), x - 1), f"the bound in {logs!r}")
+            m = re.search(rf"So n > ({E10GE_NUM}),", " ".join(w["logs"]))
+            need(m is not None and e10ge_near(m.group(1), x), "the bound on n")
+        else:
+            m = re.search(rf"{letter} > ({E10GE_NUM})$", logs)
+            need(m is not None and e10ge_near(m.group(1), x), f"the bound in {logs!r}")
+        if qv < 1:
+            need("flips the sign" in logs, "the inequality isn't flipped")
+        need("next whole number" in " ".join(w["logs"]), "the bound isn't rounded up")
+    if "gdc-table" in w:
+        st = next((t for t in w["gdc-table"] if t.startswith("X = ")), "")
+        m = re.fullmatch(rf"X = (\d+) gives ({E10GE_NUM}), and X = (\d+) gives ({E10GE_NUM})\.", st)
+        need(m is not None, f"the table row {st!r}")
+        need(int(m.group(1)) == n - 1 and int(m.group(3)) == n, "the table rows are not either side of n")
+        need(e10ge_near(m.group(2), value(n - 1)) and e10ge_near(m.group(4), value(n)), "the table's values")
+    if "graph-intersect" in w:
+        m = re.search(rf"find where they meet: x = ({E10GE_NUM})\.", " ".join(w["graph-intersect"]))
+        need(m is not None and e10ge_near(m.group(1), x), "the crossing in the graph working")
+
+
+def e10ge_short(angle, rising):
+    return {"logs": E10GE_F + ("1" if rising else "0"), "gdc-table": E10GE_F + "3"}.get(angle, E10GE_F + "1")
+
+
+def e10ge_list(st, r, first, label):
+    """Each entry of a listed working is the one before × r."""
+    vals = [e10ge_q(v) for v in re.findall(rf"{label} ?\d* ?\w*: ({E10GE_NUM})", st, re.I)]
+    need(len(vals) >= 2, f"nothing listed in {st!r}")
+    prev = first
+    for v in vals:
+        need(abs(num(v - prev * r)) <= 2e-5 * num(abs(prev * r)) + 1e-9, f"{num(v)} doesn't follow {num(prev)}")
+        prev = v
+    return vals
+
+
+def e10ge_check(q):
+    u, rep, L, asked, angle, paper = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"], q["view"]["angle"], q["paper"]
+    for tx in [asked] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    both = ("rebound-height", "nth-expression", "value-after-years", "value-in-round")
+    if u in E10GE_P1 or angle == "exact-power" or (angle == "tabulate" and u in both[:2]):
+        need(paper == 1, f"{u} by {angle} is Paper 1")
+    elif u not in both or (angle == "tabulate" and u in both[2:]):
+        need(paper == 2, f"{u} by {angle} is Paper 2")
+    if paper == 1:
+        for sol in q["solutions"]:
+            need(sol["angle"] in ("multiplier", "tabulate", "exact-power"), f"{sol['angle']} is shown on Paper 1")
+    wrongs, trap, want = {}, None, None
+    w = e10ge_steps(q)
+    M, F = E10GE_M, E10GE_F
+
+    def value(x, unit):
+        nonlocal want, trap
+        if paper == 1:
+            want = dec_text(x) + unit
+            return lambda v: dec_text(v) + unit
+        want = e10ge_val(x, unit)
+        trap = gc_trap([x], gc_s2(x) + unit)
+        return lambda v: gc_s(v) + unit
+
+    if u == "factor-from-percent":
+        st, _, r, p = e10ge_stock(q)
+        need(asked == f"The {st[1]} after each {st[4]} is r times what it was. Write down the value of r.", f"asked {asked!r}")
+        want = "r = " + dec_text(r)
+        t = lambda v: "r = " + dec_text(v)
+        wrongs = {M + "0": {t(p / 100)}, M + "1": {t(1 + p / 100)}}
+    elif u == "value-after-years":
+        st, start, r, p = e10ge_stock(q)
+        m = re.fullmatch(rf"Find the {re.escape(st[1])} after (\d+) {st[4]}s?\.(?: Give your answer to 3 s\.f\.)?", asked)
+        need(m is not None and asked.endswith("3 s.f.") == (paper == 2), f"asked {asked!r}")
+        k = int(m.group(1))
+        need(4 <= k <= 8 or (paper == 1 and 2 <= k <= 3 and p in (10, 20, 50)), "t or p is out of range")
+        x = start * r ** k
+        rate = p / 100
+        t = value(x, st[3])
+        wrongs = {M + "2": {t(start * r ** (k - 1))}, E10GE_NTH0: {t(start * r ** (k + 1))}, M + "0": {t(start * rate ** k)},
+                  M + "3": {t(start * (1 + k * rate))}, M + "1": {t(start * (1 + rate) ** k)}}
+        if r < 1 and 1 - k * rate > 0:
+            wrongs[M + "1"].add(t(start * (1 - k * rate)))
+        need(any(e10ge_near(z, x) for z in re.findall(rf"= ({E10GE_NUM})$", w["multiplier"][2])), "the multiplier's result")
+        need(f"^{k} =" in w["multiplier"][2] and start == e10ge_q(w["multiplier"][2].split(" ")[0]), "the multiplier's power")
+        vals = e10ge_list(w["tabulate"][1].split("Today: ")[1], r, start, "after")
+        need(len(vals) == k and e10ge_near(dec_text(vals[-1]), x), "the listed rows")
+    elif u == "value-in-round":
+        st, u1, r, p = e10ge_flow(q)
+        m = re.fullmatch(rf"Find the {re.escape(st[1])} {st[7]} {st[4]} (\d+)\.(?: Give your answer to 3 s\.f\.)?", asked)
+        need(m is not None and asked.endswith("3 s.f.") == (paper == 2), f"asked {asked!r}")
+        k = int(m.group(1))
+        need(5 <= k <= 9 or (paper == 1 and 3 <= k <= 4 and p in (10, 20, 50)), "n or p is out of range")
+        x = u1 * r ** (k - 1)
+        rate = p / 100
+        t = value(x, st[3])
+        wrongs = {E10GE_NTH0: {t(u1 * r ** k)}, M + "0": {t(u1 * rate ** (k - 1))}, M + "3": {t(u1 * (1 + (k - 1) * rate))}, M + "1": {t(u1 * (1 + rate) ** (k - 1))}}
+        if r < 1 and 1 - (k - 1) * rate > 0:
+            wrongs[M + "1"].add(t(u1 * (1 - (k - 1) * rate)))
+        need(f"^{k - 1} = " in w["multiplier"][2] and e10ge_near(w["multiplier"][2].rsplit("= ", 1)[1], x), "the multiplier's result")
+        vals = e10ge_list(w["tabulate"][1].split(f"{st[4].capitalize()} 1: ")[1].split(";", 1)[1], r, u1, st[4])
+        need(len(vals) == k - 1 and e10ge_near(dec_text(vals[-1]), x), "the listed rows")
+    elif u == "term-number-after":
+        st, _, _, _ = e10ge_stock(q)
+        m = re.search(rf"uₙ is the {re.escape(st[1])} after (\d+) {st[4]}s?\.$", asked)
+        need(m is not None and asked.startswith(f"Let u₁ be the {st[1]} today, u₂ the {st[1]} after 1 {st[4]}"), f"asked {asked!r}")
+        k = int(m.group(1))
+        # u₁ is after 0 steps, so count the terms: after k steps there have been k + 1.
+        names = list(range(0, k + 1))
+        want = f"n = {len(names)}"
+        wrongs = {E10GE_F + "7": {f"n = {k}"}}
+    elif u == "rebound-height":
+        m = re.fullmatch(rf"A (.+) is dropped from a height of ({E10GE_NUM}) (cm|m)\. Each time it lands it rebounds to (\S+) of the height it fell from\.", L[0])
+        need(m is not None and m.group(1) in E10GE_BALLS, f"the story {L[0]!r}")
+        h, unit = e10ge_q(m.group(2)), " " + m.group(3)
+        r = e10ge_q(m.group(4)) if paper == 1 else e10ge_q(m.group(4).rstrip("%")) / 100
+        need((paper == 1) == (unit == " cm"), "the unit doesn't fit the paper")
+        if rep == "diagram":
+            g = q["graph"]
+            need(g["kind"] == "bounce" and abs(g["peaks"][2] - float(r ** 2)) < 1e-9 and g["h_label"] == dec_text(h) + unit, "the figure is not this ball")
+        m = re.fullmatch(r"Find the height it reaches after the (\d+)(?:st|nd|rd|th) bounce\.(?: Give your answer to 3 s\.f\.)?", asked)
+        need(m is not None and bool(asked.endswith("3 s.f.")) == (paper == 2), f"asked {asked!r}")
+        k = int(m.group(1))
+        x = h * r ** k
+        slip = h - k * (h - h * r)
+        if paper == 1:
+            need(x.q == 1 and 40 <= h <= 1000, "a Paper 1 height is not whole")
+            t = value(x, unit)
+            vals = e10ge_list(w["tabulate"][1], r, h, "after bounce") if "tabulate" in w else [x]
+            need(vals[-1] == x, "the listed rows")
+            need(f"^{k} = {frac_text(x)}" in w["multiplier"][2], "the multiplier's result")
+        else:
+            t = value(x, unit)
+            need(e10ge_near(w["multiplier"][2].rsplit("= ", 1)[1], x), "the multiplier's result")
+        wrongs = {M + "2": {t(h * r ** (k - 1))}, E10GE_NTH0: {t(h * r ** (k + 1))}, M + "1": {t(slip)}}
+    elif u == "nth-expression":
+        st, u1, r, p = e10ge_flow(q)
+        need(asked == f"Let uₙ be the {st[1]} {st[7]} {st[4]} n. Find an expression for uₙ in terms of n.", f"asked {asked!r}")
+        sx = frac_text if paper == 1 else dec_text
+        bb = lambda v: f"({sx(v)})" if "/" in sx(v) else sx(v)
+        want = f"uₙ = {sx(u1)} × {bb(r)}^(n − 1)"
+        step = abs(u1 * (r - 1))
+        sign = "+" if r > 1 else "−"
+        # The option must give u₁ at n = 1 and each later term, the wrong forms must not.
+        wrongs = {E10GE_NTH0: {f"uₙ = {sx(u1)} × {bb(r)}^n"}, E10GE_NTH1: {f"uₙ = {bb(u1 * r)}^(n − 1)"},
+                  M + ("3" if r > 1 else "1"): {f"uₙ = {sx(u1)} {sign} {sx(step)}(n − 1)"}, M + "0": {f"uₙ = {sx(u1)} × {bb(p / 100)}^(n − 1)"}}
+        for o in q["choices"]:
+            if o["correct"]:
+                need(o["values"].get("a") is not None and R(o["values"]["a"]) == u1 and R(o["values"]["b"]) == r, "the typed slots don't make the answer")
+    elif u == "total-over-rounds":
+        st, u1, r, p = e10ge_flow(q)
+        m = re.fullmatch(rf"Find the {re.escape(st[6])} over the first (\d+) {st[4]}s?\. Give your answer to 3 s\.f\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        k = int(m.group(1))
+        need(5 <= k <= 9, "n is outside 5 to 9")
+        x = sum(u1 * r ** i for i in range(k))
+        rate = p / 100
+        t = value(x, st[3])
+        wrongs = {M + "4": {t(u1 * r ** (k - 1))}, E10GE_SUM0: {t(sum(u1 * r ** i for i in range(k - 1)))}, M + "0": {t(sum(u1 * rate ** i for i in range(k)))},
+                  M + "3": {t(sum(u1 * (1 + i * rate) for i in range(k)))}, M + "1": {t(sum(u1 * (1 + rate) ** i for i in range(k)))}}
+        need(e10ge_near(w["multiplier"][2].rsplit("= ", 1)[1], x), "the formula's result")
+        listed = re.findall(r"\d+(?:\.\d+)?", w["tabulate"][1].split(": ", 1)[1])
+        need(len(listed) == k, "the listed amounts")
+        for i, a in enumerate(listed):
+            need(abs(num(e10ge_q(a) - u1 * r ** i)) <= 0.0051, f"the amount {a}")
+        added = re.fullmatch(rf"Add them: (.+) ≈ ({E10GE_NUM})", w["tabulate"][2])
+        need(added is not None and [e for e in added.group(1).split(" + ")] == listed, "the sum isn't of the listed amounts")
+        need(abs(sum(e10ge_q(a) for a in listed) - e10ge_q(added.group(2))) <= sp.Rational(1, 100), "the sum of the listed amounts")
+        need(gc_s(e10ge_q(added.group(2))) == gc_s(x), "the listed total doesn't give the answer")
+    elif u == "total-two-deals":
+        got = None
+        for st in E10GE_DEALS:
+            got = e10ge_fill(st[0], L[0])
+            if got:
+                break
+        need(got is not None, f"can't read {L[0]!r}")
+        k = int(got[0])
+        if rep == "table":
+            need(q["table"]["rows"][0] == [st[1].capitalize(), ["1", "2", "3"]], "the table's headings")
+            a_row, b_row = q["table"]["rows"][1:3]
+            need(a_row[0] == f"Deal A ({st[3]})" and b_row[0] == f"Deal B ({st[3]})", "the table's headings")
+            need(len(set(a_row[1])) == 1, "Deal A isn't flat")
+            a, vals = e10ge_q(a_row[1][0]), [e10ge_q(v) for v in b_row[1]]
+            r = e10ge_ratio(vals)
+            u1 = vals[0]
+            p = (r - 1) * 100
+        else:
+            m1 = re.fullmatch(rf"Deal A: every {st[4]} is ({E10GE_NUM}){re.escape(st[2])}\.", L[1])
+            m2 = re.fullmatch(rf"Deal B: the first {st[4]} is ({E10GE_NUM}){re.escape(st[2])}, and each one after it is (\d+)% more than the one before\.", L[2])
+            need(m1 is not None and m2 is not None, f"can't read {L[1:]!r}")
+            a, u1, p = e10ge_q(m1.group(1)), e10ge_q(m2.group(1)), sp.Integer(m2.group(2))
+            r = 1 + p / 100
+        need(asked == "Find the difference between the totals of the two deals. Give your answer to 3 s.f.", f"asked {asked!r}")
+        s_b = sum(u1 * r ** i for i in range(k))
+        flat = a * k
+        x = abs(s_b - flat)
+        need(x > flat * sp.Rational(3, 100), "the deals are too close")
+        t = value(x, st[2])
+        rate = p / 100
+        wrongs = {M + "4": {t(abs(u1 * r ** (k - 1) - a))}, E10GE_SUM0: {t(abs(sum(u1 * r ** i for i in range(k - 1)) - flat))}, M + "0": {t(abs(sum(u1 * rate ** i for i in range(k)) - flat))}}
+        for name in ("multiplier", "gdc-table-compare"):
+            m = next(filter(None, (re.fullmatch(rf"The difference is ({E10GE_NUM}) − ({E10GE_NUM}) = ({E10GE_NUM})\.", s_) for s_ in w[name])), None)
+            need(m is not None and e10ge_q(m.group(1)) - e10ge_q(m.group(2)) == e10ge_q(m.group(3)), "the difference doesn't follow from its two totals")
+            need(e10ge_near(m.group(3), x) and gc_s(e10ge_q(m.group(3))) == gc_s(x), "the difference in the working")
+    elif u == "overtake-first-round":
+        st = next(s_ for s_ in E10GE_RIVALS if any(s_[0] in ln for ln in L))
+        if rep == "table":
+            rows = q["table"]["rows"]
+            unit = st[3].strip()
+            need(rows[1][0] == f"{st[0]} ({unit})" and rows[2][0] == f"{st[1]} ({unit})" and rows[0] == [st[4].capitalize(), ["1", "2", "3"]], "the table's headings")
+            av, bv = [e10ge_q(v) for v in rows[1][1]], [e10ge_q(v) for v in rows[2][1]]
+            d = av[1] - av[0]
+            need(av[2] - av[1] == d, "A isn't arithmetic")
+            a, b, r = av[0], bv[0], e10ge_ratio(bv)
+            p = (r - 1) * 100
+        else:
+            m1 = re.fullmatch(rf"{st[0]} {st[2]} ({E10GE_NUM}){re.escape(st[3])} in {st[4]} 1, then ({E10GE_NUM}){re.escape(st[3])} more each {st[4]}\.", L[0])
+            m2 = re.fullmatch(rf"{st[1]} {st[2]} ({E10GE_NUM}){re.escape(st[3])} in {st[4]} 1, then (\d+)% more each {st[4]} than the {st[4]} before\.", L[1])
+            need(m1 is not None and m2 is not None, f"can't read {L[:2]!r}")
+            a, d, b, p = e10ge_q(m1.group(1)), e10ge_q(m1.group(2)), e10ge_q(m2.group(1)), sp.Integer(m2.group(2))
+            r = 1 + p / 100
+        need(asked == f"Find the first {st[4]} in which {st[1]} {st[2]} more than {st[0]}.", f"asked {asked!r}")
+        need(b < a, "B doesn't start below A")
+        k = e10ge_first(lambda i: b * r ** (i - 1) > a + (i - 1) * d)
+        need(k >= 2, "B never passes A")
+        for i in (k, k + 1, k + 5):
+            need(b * r ** (i - 1) > a + (i - 1) * d, "B doesn't stay ahead")
+        lo, hi = mpmath.mpf(k - 1), mpmath.mpf(k)
+        gap = lambda v: mpmath.mpf(int(b.p)) / int(b.q) * mpmath.mpf(float(r)) ** (v - 1) - mpmath.mpf(int(a.p)) / int(a.q) - (v - 1) * mpmath.mpf(int(d.p)) / int(d.q)
+        for _ in range(80):
+            mid = (lo + hi) / 2
+            lo, hi = (mid, hi) if gap(mid) < 0 else (lo, mid)
+        e10ge_crossing(hi, k)
+        cap = st[4].capitalize()
+        want = f"{cap} {k}"
+        step = b * p / 100
+        slip = e10ge_first(lambda i: b + (i - 1) * step > a + (i - 1) * d)
+        wrongs = {M + "5": {f"{cap} {k - 1}"}}
+        if slip:
+            wrongs[M + "3"] = {f"{cap} {slip}"}
+        m = re.search(rf"x = ({E10GE_NUM})\.$", w["graph-intersect"][1])
+        need(m is not None and e10ge_near(m.group(1), hi), "the crossing in the working")
+        m = re.fullmatch(rf"X = (\d+): Y1 = ({E10GE_NUM}) and Y2 = ({E10GE_NUM})\. X = (\d+): Y1 = ({E10GE_NUM}) and Y2 = ({E10GE_NUM})\.", w["gdc-table-compare"][2])
+        need(m is not None and int(m.group(1)) == k - 1 and int(m.group(4)) == k, "the table's rows")
+        need(e10ge_near(m.group(2), a + (k - 2) * d) and e10ge_near(m.group(3), b * r ** (k - 2)) and e10ge_near(m.group(5), a + (k - 1) * d) and e10ge_near(m.group(6), b * r ** (k - 1)), "the table's values")
+        if rep == "graph":
+            g = q["graph"]
+            x1 = k + 2
+            f_a = lambda v: float(a) + (v - 1) * float(d)
+            f_b = lambda v: float(b) * float(r) ** (v - 1)
+            for curve, fn in zip(g["curves"], (f_a, f_b)):
+                for pt in curve[::20]:
+                    need(abs(pt[1] - fn(pt[0])) <= 1e-6 * max(1, abs(fn(pt[0]))), "a curve is off its model")
+            need(g["points"][0]["label"] == st[0] and g["points"][1]["label"] == st[1] and g["points"][0]["x"] == x1, "the curves' labels")
+            need(L[-1] == f"The graph shows both over the first {x1} {st[4]}s.", f"the graph's line {L[-1]!r}")
+    elif u in ("scaled-area-term", "mean-of-areas"):
+        st = next(s_ for s_ in E10GE_SHEETS if s_[1] + "₁ is " in L[1] and s_[0].split("{}")[0] in L[0])
+        got = re.fullmatch(rf"(?:.+) (\d+) rectangular .+, numbered {st[1]}₁ to {st[1]}(\S+)\.", L[0])
+        need(got is not None and e10ge_sub(int(got.group(1))) == got.group(2), f"can't read {L[0]!r}")
+        parts = int(got.group(1))
+        m = re.fullmatch(rf"{st[1]}₁ is (\d+) cm wide and (\d+) cm tall\.", L[1])
+        k3 = re.fullmatch(rf"The width and the height of each {st[2]} are both (\S+) times those of the {st[2]} before\.", L[2])
+        need(m is not None and k3 is not None, f"can't read {L[1:]!r}")
+        area = sp.Integer(m.group(1)) * sp.Integer(m.group(2))
+        kf = e10ge_q(k3.group(1))
+        b2 = kf ** 2
+        need(f"{e10ge_b(kf)}² = {frac_text(b2)}" in " ".join(q["solutions"][0]["steps"]), "the area factor in the working")
+        if u == "scaled-area-term":
+            need(asked == f"Find an expression for the area of {st[1]}ₙ in terms of n.", f"asked {asked!r}")
+            lab = f"area of {st[1]}ₙ = "
+            want = f"{lab}{frac_text(area)} × {e10ge_b(b2)}^(n − 1) cm²"
+            wrongs = {M + "6": {f"{lab}{frac_text(area)} × {e10ge_b(kf)}^(n − 1) cm²"}, E10GE_NTH0: {f"{lab}{frac_text(area)} × {e10ge_b(b2)}^n cm²"},
+                      E10GE_NTH1: {f"{lab}{e10ge_b(area * b2)}^(n − 1) cm²"}}
+        else:
+            need(asked == f"Find the mean area of the {parts} {st[3]}, in the form p × ({e10ge_b(b2)}^a − 1) cm², where a is a whole number.", f"asked {asked!r}")
+            # Add the areas exactly, and divide: the form must then agree with the sum.
+            mean = sum(area * b2 ** i for i in range(parts)) / parts
+            p_val = mean / (b2 ** parts - 1)
+            need(p_val.q <= 120, "p is not a fraction a hand can write")
+            say = lambda p_, a_: f"mean = {e10ge_b(p_)} × ({e10ge_b(b2)}^{a_} − 1) cm²"
+            want = say(p_val, parts)
+            wrongs = {M + "7": {say(p_val * parts, parts)}, E10GE_SUM0: {say(p_val, parts - 1)}}
+    elif u == "count-terms-power":
+        if rep == "words":
+            st = next(s_ for s_ in E10GE_SPREADS if s_[3] == asked)
+            u1, last = e10ge_fill(st[0], L[0])[0], e10ge_fill(st[2], L[2])[0]
+            r = e10ge_fill(st[1], L[1])[0]
+        elif rep == "notation":
+            m = re.fullmatch(rf"The numbers (\d+), (\d+), (\d+), …, (\d+) form a finite geometric sequence\.", L[0])
+            need(m is not None, f"can't read {L[0]!r}")
+            vals = [sp.Integer(m.group(i)) for i in (1, 2, 3)]
+            u1, last, r = vals[0], sp.Integer(m.group(4)), e10ge_ratio(vals)
+        else:
+            row = q["table"]["rows"][1][1]
+            vals = [e10ge_q(v) for v in row[:3]]
+            u1, last, r = vals[0], e10ge_q(row[-1]), e10ge_ratio(vals)
+        k = e10ge_first(lambda i: u1 * r ** (i - 1) == last, 40)
+        need(k > 0, "the last term is not a term")
+        unit = " " + {"rounds": "rounds", "days": "days", "levels": "levels", "shipments": "shipments"}[asked.split(" ")[2]] if rep == "words" else ""
+        want = f"{k}{unit}" if unit else f"n = {k}"
+        need(last <= (E10GE_P1_LIMIT if paper == 1 else E10GE_LIMIT), "the last term is too large")
+        arith = (last - u1) / (u1 * r - u1) + 1
+        say = (lambda v: f"{v}{unit}") if unit else (lambda v: f"n = {v}")
+        wrongs = {F + "4": {say(k - 1)}, E10GE_ARITH: {say(dec_text(arith))}}
+        if "exact-power" in w:
+            need(f"{last / u1} = {r}^{k - 1}" in w["exact-power"][2], "the power isn't recognised")
+    else:
+        # The least n: tested one term or total at a time.
+        rising = None
+        if u in ("least-n-term", "first-below", "least-n-sum"):
+            totals = u == "least-n-sum"
+            u1, r, _, target = e10ge_seq(q, totals)
+            rel = "<" if u == "first-below" else ">"
+            sym = "Sₙ" if totals else "uₙ"
+            m = re.fullmatch(rf"Find the least value of n for which {sym} {rel} ({E10GE_NUM})\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            t_ = e10ge_q(m.group(1))
+            need(target is None or target == t_, "the line drawn is not the target")
+            need((r > 1) == (rel == ">"), "the sequence doesn't move towards its target")
+            term = lambda i: u1 * r ** (i - 1)
+            tot = lambda i: u1 * (r ** i - 1) / (r - 1)
+            val = tot if totals else term
+            k = e10ge_first((lambda i: val(i) > t_) if rel == ">" else (lambda i: val(i) < t_))
+            if totals:
+                x = mpmath.log(1 + mpmath.mpf(float(t_ * (r - 1) / u1))) / mpmath.log(float(r))
+            else:
+                x = 1 + mpmath.log(float(t_ / u1)) / mpmath.log(float(r))
+            word = "first" if u == "first-below" else ("sum" if totals else "term")
+            wrongs = {e10ge_short(angle, rel == ">"): {f"n = {k - 1}"}, F + "2": {f"n = {dec_text(sp.Rational(sig3(val(k))))}"}}
+            if u == "least-n-term":
+                wrongs[F + "5"] = {f"n = {e10ge_first(lambda i: tot(i) > t_)}"}
+            elif totals:
+                wrongs[F + "5"] = {f"n = {e10ge_first(lambda i: term(i) > t_)}"}
+            e10ge_find_work(q, val, k, x, word, 1 + t_ * (r - 1) / u1 if totals else t_ / u1)
+        elif u == "least-rounds-after":
+            st, start, r, p = e10ge_stock(q)
+            rising = r > 1
+            m = re.fullmatch(rf"Find the least whole number of {st[4]}s t after which the {re.escape(st[1])} is (more|less) than ({E10GE_NUM}){re.escape(st[3])}\.", asked)
+            need(m is not None and (m.group(1) == "more") == rising, f"asked {asked!r}")
+            t_ = e10ge_q(m.group(2))
+            val = lambda i: start * r ** i
+            k = 0
+            while not (val(k) > t_ if rising else val(k) < t_):
+                k += 1
+            x = mpmath.log(float(t_ / start)) / mpmath.log(float(r))
+            wrongs = {F + "6": {f"t = {k + 1}"}, e10ge_short(angle, rising): {f"t = {k - 1}"}, F + "2": {f"t = {dec_text(sp.Rational(sig3(val(k))))}"}}
+            e10ge_find_work(q, val, k, x, "after", t_ / start, "t")
+        elif u == "least-n-two-terms":
+            if rep == "words":
+                st = next(s_ for s_ in E10GE_FLOWS if e10ge_fill(s_[0], L[0]))
+                u1 = e10ge_fill(st[0], L[0])[0]
+                m = re.fullmatch(rf"The {re.escape(st[1])} {st[7]} {st[4]} (\d+) is ({E10GE_NUM}){re.escape(st[3])}, and the {re.escape(st[1])} forms a geometric sequence in which each term is more than the last\.", L[1])
+                need(m is not None and L[2] == f"Let Sₙ be the {st[6]} of the first n {st[4]}s.", f"can't read {L[1:]!r}")
+                mm, um = int(m.group(1)), e10ge_q(m.group(2))
+            else:
+                m = re.fullmatch(rf"A geometric sequence of positive terms has u₁ = ({E10GE_NUM}) and u(\S+) = ({E10GE_NUM})\.", L[0])
+                need(m is not None, f"can't read {L[0]!r}")
+                u1, um = e10ge_q(m.group(1)), e10ge_q(m.group(3))
+                mm = int("".join(str("₀₁₂₃₄₅₆₇₈₉".index(c)) for c in m.group(2)))
+            r = sp.root(um / u1, mm - 1)
+            need(r.is_rational and r > 1, f"r = {r} is not a rational above 1")
+            r = sp.Rational(r)
+            m = re.fullmatch(rf"Find the least value of n for which Sₙ > ({E10GE_NUM})\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            t_ = e10ge_q(m.group(1))
+            tot = lambda i: u1 * (r ** i - 1) / (r - 1)
+            k = e10ge_first(lambda i: tot(i) > t_)
+            x = mpmath.log(1 + mpmath.mpf(float(t_ * (r - 1) / u1))) / mpmath.log(float(r))
+            r4 = float(um / u1) ** (1 / mm)
+            uf = float(u1)
+            d = (um - u1) / (mm - 1)
+            wrongs = {e10ge_short(angle, True): {f"n = {k - 1}"},
+                      E10GE_ROOT: {f"n = {e10ge_first(lambda i: uf * (r4 ** i - 1) / (r4 - 1) > float(t_), 61)}"},
+                      E10GE_ARITH: {f"n = {e10ge_first(lambda i: i * (2 * u1 + (i - 1) * d) / 2 > t_)}"}}
+            e10ge_find_work(q, tot, k, x, "sum", 1 + t_ * (r - 1) / u1)
+        elif u == "gap-to-limit":
+            if rep == "notation":
+                m = re.fullmatch(rf"The sum of the first n terms of a geometric sequence is Sₙ = Σ \(k = 1 to n\) ({E10GE_NUM})\(({E10GE_NUM})\)\^k\.", L[0])
+                need(m is not None, f"can't read {L[0]!r}")
+                c, r = e10ge_q(m.group(1)), e10ge_q(m.group(2))
+                u1 = c * r
+            else:
+                st, u1, r, _ = e10ge_flow(q, L[:2])
+                need(L[2] == f"Let Sₙ be the {st[6]} of the first n {st[4]}s, and S∞ the amount it settles towards.", f"can't read {L[2]!r}")
+            need(0 < r < 1, "no limit")
+            m = re.fullmatch(rf"Find the least value of n for which S∞ − Sₙ < ({E10GE_NUM})\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            t_ = e10ge_q(m.group(1))
+            lim = u1 / (1 - r)
+            part = lambda i: u1 * (1 - r ** i) / (1 - r)
+            val = lambda i: lim - part(i)
+            k = e10ge_first(lambda i: val(i) < t_)
+            x = mpmath.log(float(t_ / lim)) / mpmath.log(float(r))
+            wrongs = {e10ge_short(angle, False): {f"n = {k - 1}"}, F + "5": {f"n = {e10ge_first(lambda i: u1 * r ** (i - 1) < t_)}"},
+                      F + "2": {f"n = {dec_text(sp.Rational(sig3(part(k))))}"}}
+            e10ge_find_work(q, val, k, x, "gap", t_ / lim)
+        else:
+            raise Fail(f"no check for {u}")
+        need(1 <= k <= 60, f"n = {k} is out of range")
+        e10ge_crossing(x, k)
+        letter = "t" if u == "least-rounds-after" else "n"
+        want = f"{letter} = {k}"
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
 # ── binomial-expansion (t1-binomial-term, FAL-728) ───────────
 # The checker's own copy of the clean limits: the engine's is in
 # game/engine/situations/binomial_expansion.gd. Every answer and every tagged slip is worked out
@@ -21879,6 +23633,489 @@ def np_check(q):
             if mt:
                 b = mpmath.mpf(mt.group(2))
                 need(p < b if mt.group(1) == "under" else p > b, f"{sol['name']}: {st!r} is false for {p}")
+    return None, None
+
+
+# ── inverse-normal (t4-inverse-normal, FAL-752) ──────────────
+# The `inverse-normal` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/inverse_normal.gd. Everything is read back from what the student sees:
+# μ and σ from the first line, the area from a line or the story, its side from the words or the
+# shading. A value comes from the checker's own inverse (erfinv at 40 digits, put back through
+# erfc), Paper 1's with exact rationals, each tagged option is worked out from its slip, and each
+# invNorm, normalcdf and plain sum in the working is done again.
+
+E10IN_S, E10IN_T = "SL4.9.inverse-normal#", "t4-inverse-normal#"
+E10IN_P1 = ("shift-same-sd", "mirror-bound", "rule-value", "given-z")
+E10IN_N = NU_NUM
+E10IN_Z_MIN, E10IN_TAIL_MAX = sp.Rational(3, 10), sp.Rational(38, 100)
+E10IN_RULE = {1: sp.Rational(68, 100), 2: sp.Rational(95, 100), 3: sp.Rational(997, 1000)}
+E10IN_TIMES = {"twice": 2, "three times": 3, "four times": 4}
+E10IN_STORY = [("grain sack", "grain sacks", "mass", "masses", "heaviest", "lightest"),
+               ("copper pipe", "copper pipes", "length", "lengths", "longest", "shortest"),
+               ("crossing", "crossings", "time", "times", "slowest", "fastest"),
+               ("filled can", "filled cans", "volume of water", "volumes of water", "fullest", "least full"),
+               ("fence post", "fence posts", "height", "heights", "tallest", "shortest"),
+               ("lamp battery", "lamp batteries", "lifetime", "lifetimes", "longest-lasting", "shortest-lived"),
+               ("patrol", "patrols", "daily distance", "daily distances", "longest", "shortest"),
+               ("engine part", "engine parts", "mass", "masses", "heaviest", "lightest")]
+E10IN_CALL = re.compile(rf"(invNorm|normalcdf)\(((?:−10\^99, )?{E10IN_N}), ({E10IN_N}), ({E10IN_N})\) = ({E10IN_N})")
+E10IN_SIDE = re.compile(r"so (\w) is (above|below) the mean")
+
+
+def e10in_inv(p):
+    """The checker's own inverse normal: z with Φ(z) = p, put back through Φ."""
+    with mpmath.workdps(40):
+        p = mpmath.mpf(p.p) / p.q if isinstance(p, sp.Rational) else mpmath.mpf(p)
+        need(0 < p < 1, f"no z for an area of {p}")
+        z = mpmath.sqrt(2) * mpmath.erfinv(2 * p - 1)
+        need(abs(nu_phi(z) - p) < mpmath.mpf("1e-30"), "the inverse does not give the area back")
+        return z
+
+
+def e10in_txt(label, x, unit=""):
+    return label + rg_s(nu_f(x)) + unit
+
+
+def e10in_trap(label, x, unit=""):
+    t = bn_trap(label, nu_f(x))
+    return t + unit if t else None
+
+
+def e10in_story(q):
+    i = int(q["given"]["ctx"])
+    what, unit = NU_CONTEXTS[i]
+    return (what, unit) + E10IN_STORY[i]
+
+
+def e10in_model(q):
+    """μ and σ as rationals, from the first line."""
+    line = q["lines"][0]
+    mt = re.fullmatch(rf"X ~ N\(({E10IN_N}), ({E10IN_N})²\)", line)
+    if mt:
+        return nu_val(mt.group(1)), nu_val(mt.group(2))
+    what, unit = e10in_story(q)[:2]
+    mt = re.fullmatch(rf"{re.escape(what)} are normally distributed with mean ({E10IN_N}){unit} and standard deviation ({E10IN_N}){unit}\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return nu_val(mt.group(1)), nu_val(mt.group(2))
+
+
+def e10in_curve(q, mu, sg):
+    """The curve drawn is X's, and its marks are the mean, a letter or two and a value."""
+    g = q["graph"]
+    need(g is not None and g["kind"] == "normal", "no normal curve")
+    need(abs(R(g["mu"]) - mu) < sp.Rational(1, 10 ** 6) and abs(R(g["sigma"]) - sg) < sp.Rational(1, 10 ** 6), "the curve is not X's")
+    labels = {m["label"]: mpmath.mpf(m["at"]) for m in g["marks"]}
+    need(dec_text(mu) in labels and abs(labels[dec_text(mu)] - np_mp(mu)) < mpmath.mpf("1e-6"), "the mean is not marked")
+    return labels
+
+
+def e10in_tail_curve(q, mu, sg, letter):
+    """The side of the one shaded tail, which starts at the letter's mark."""
+    labels = e10in_curve(q, mu, sg)
+    need(letter in labels, f"{letter} is not marked")
+    sh = q["graph"]["shade"]
+    need(len(sh) == 1, "one shaded area")
+    a, b = sh[0]
+    need((a is None) != (b is None), "a tail is shaded from an end")
+    edge = mpmath.mpf(b if a is None else a)
+    need(abs(edge - labels[letter]) < mpmath.mpf("1e-6"), "the shading does not stop at the mark")
+    return "<" if a is None else ">", labels[letter]
+
+
+def e10in_area_line(line):
+    mt = re.fullmatch(rf"The shaded area is ({E10IN_N})\.", line)
+    need(mt is not None, f"can't read {line!r}")
+    return nu_val(mt.group(1))
+
+
+def e10in_left(rel, p):
+    return p if rel == "<" else 1 - p
+
+
+def e10in_at(mu, sg, left):
+    return np_mp(mu) + e10in_inv(left) * np_mp(sg)
+
+
+def e10in_marked(mark, x):
+    need(abs(mark - x) < mpmath.mpf("1e-4"), f"the mark is at {mark}, the value is {x}")
+
+
+def e10in_working(q, mu, sg, left, x):
+    """The method's own lines: its invNorm and normalcdf, its sums and what a sketch claims."""
+    u, rep = q["view"]["unknown"], q["view"]["rep"]
+    npr_steps(q)
+    for sol in q["solutions"]:
+        text = " ".join(sol["steps"])
+        need(not re.search(r"(?<![A-Za-z^])-\d", text), f"a hyphen for a minus in {text!r}")
+        first = sol["steps"][0]
+        if sol["angle"] == "sketch-tail":
+            want = "On the curve" if rep == "diagram" else "Sketch"
+            need(first.startswith(want), f"{sol['name']}: {first!r} starts wrong for this representation")
+        need(rep == "diagram" or "On the curve" not in text, f"{sol['name']}: talks about a figure the stem doesn't draw")
+        if q["paper"] == 1:
+            need(not NPR_GDC.search(text), f"{sol['name']}: a calculator on Paper 1")
+        else:
+            need("invNorm(" in text, f"{sol['name']}: no invNorm")
+            if sol["angle"] == "via-z":
+                need(re.search(rf"z = invNorm\({E10IN_N}, 0, 1\)", text) and "zσ" in text or " × " in text, f"{sol['name']}: never goes through z")
+            else:
+                need(not re.search(rf"invNorm\({E10IN_N}, 0, 1\)", text), f"{sol['name']}: not this method")
+        for mt in E10IN_CALL.finditer(text):
+            kind, a, m, s, shown = mt.groups()
+            shown = np_mp(nu_val(shown))
+            need((nu_val(m), nu_val(s)) in ((mu, sg), (sp.Integer(0), sp.Integer(1))), f"{mt.group(0)}: not X's parameters")
+            M, S = np_mp(nu_val(m)), np_mp(nu_val(s))
+            if kind == "invNorm":
+                area = nu_val(a)
+                need(abs(np_mp(area) - left) <= left * mpmath.mpf("1e-4"), f"{mt.group(0)}: the area is not the left area {left}")
+                got = M + e10in_inv(area) * S
+            else:
+                need(a.startswith("−10^99, "), f"{mt.group(0)}: not a left area")
+                got = nu_phi((np_mp(nu_val(a.split(", ")[1])) - M) / S)
+            scale = mpmath.mpf(10) ** (mpmath.floor(mpmath.log10(abs(got))) - 5)
+            need(abs(got - shown) <= 3 * scale, f"{mt.group(0)}: it is really {got}")
+        for mt in E10IN_SIDE.finditer(text):
+            letter, word = mt.groups()
+            if u in ("central-bounds", "ratio-tails") and letter in "ab":
+                continue
+            need((x > np_mp(mu)) == (word == "above"), f"{sol['name']}: {mt.group(0)!r} is false for {x}")
+
+
+def e10in_plain(q, mu, sg):
+    """(rel, p, left, label, unit, near ref): the unknowns with one left area."""
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    what, unit, item, items, attr, attrs, top, bottom = e10in_story(q)
+    mark = None
+    near = E10IN_S + "0"
+    label, tail = "a = ", ""
+    if u in ("value-below", "value-above", "most-above"):
+        if rep == "diagram":
+            need(L[0].startswith("X ~ N"), f"{L[0]!r}")
+            p = e10in_area_line(L[1])
+            rel, mark = e10in_tail_curve(q, mu, sg, "a")
+        elif rep == "equation":
+            mt = re.fullmatch(rf"P\(X ([<>]) a\) = ({E10IN_N})", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            rel, p = mt.group(1), nu_val(mt.group(2))
+        else:
+            mt = re.fullmatch(rf"({E10IN_N})% of the {items} have a {attr} above a{unit}\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            rel, p = ">", nu_val(mt.group(1)) / 100
+        need(asked == "Find a.", f"{asked!r}")
+        need(rel == ("<" if u == "value-below" else ">"), f"{u} with {rel}")
+        if u == "value-below":
+            near = E10IN_T + "3"
+        elif u == "value-above":
+            need(p <= E10IN_TAIL_MAX, f"the tail {p} holds the mean")
+        else:
+            need(p >= 1 - E10IN_TAIL_MAX, f"{p} is not most of the area")
+    elif u in ("top-percent", "bottom-percent"):
+        end = "top" if u == "top-percent" else "bottom"
+        rel = ">" if end == "top" else "<"
+        an_item = ("an " if item[0] in "aeiou" else "a ") + item
+        need(asked == f"Find the {'least' if end == 'top' else 'greatest'} {attr} of {an_item} that is set aside.", f"{asked!r}")
+        if rep == "diagram":
+            mt = re.fullmatch(rf"The shaded region is the ({E10IN_N})% of the {items} that are set aside\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            side, mark = e10in_tail_curve(q, mu, sg, "a")
+            need(side == rel, "the shading is on the wrong side")
+        else:
+            mt = re.fullmatch(rf"The {end} ({E10IN_N})% of the {items}, the {top if end == 'top' else bottom}, are set aside\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+        p = nu_val(mt.group(1)) / 100
+        need(p <= E10IN_TAIL_MAX, f"the {end} {p} holds the mean")
+        label, tail = attr + " = ", unit
+        near = E10IN_S + "0" if end == "top" else E10IN_T + "3"
+    elif u == "quartile":
+        if rep == "diagram":
+            need(asked == "Q is a quartile of X. Find Q.", f"{asked!r}")
+            p = e10in_area_line(L[1])
+            rel, mark = e10in_tail_curve(q, mu, sg, "Q")
+            need(p in (sp.Rational(1, 4), sp.Rational(3, 4)), f"{p} is no quartile's area")
+            left = e10in_left(rel, p)
+            label = "Q = "
+            near = E10IN_S + "0" if rel == ">" else E10IN_T + "3"
+        else:
+            mt = re.fullmatch(rf"Find the (upper|lower) quartile of {'X' if rep == 'equation' else 'the ' + attrs}\.", asked)
+            need(mt is not None, f"{asked!r}")
+            left = sp.Rational(3, 4) if mt.group(1) == "upper" else sp.Rational(1, 4)
+            rel, p = "<", left
+            label, tail = mt.group(1) + " quartile = ", unit if rep == "words" else ""
+    else:
+        mt = re.search(rf"(\d+)(st|nd|rd|th) percentile of the {attrs}", asked if rep == "words" else L[1])
+        need(mt is not None, f"can't read the percentile in {asked!r}")
+        n = int(mt.group(1))
+        need(mt.group(2) == ({1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th") if not 11 <= n % 100 <= 13 else "th"), f"{mt.group(0)!r}")
+        p, rel = sp.Rational(n, 100), "<"
+        if rep == "diagram":
+            need(asked == "Find a.", f"{asked!r}")
+            side, mark = e10in_tail_curve(q, mu, sg, "a")
+            need(side == "<", "a percentile is the area to its left")
+        else:
+            label, tail = attr + " = ", unit
+        near = E10IN_T + "3"
+    left = e10in_left(rel, p)
+    return rel, p, left, label, tail, near, mark
+
+
+def e10in_paper2(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    mu, sg = e10in_model(q)
+    need(sg <= mu / 4, f"σ = {sg} is too large for a measure")
+    M, S = np_mp(mu), np_mp(sg)
+    what, unit, item, items, attr, attrs, top, bottom = e10in_story(q)
+    far = E10IN_T + "4"
+    if u == "central-bounds":
+        if rep == "words":
+            mt = re.fullmatch(rf"The middle ({E10IN_N})% of the {items} lie between a{unit} and b{unit}, with the mean halfway between them\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            c = nu_val(mt.group(1)) / 100
+        elif rep == "equation":
+            mt = re.fullmatch(rf"P\(a < X < b\) = ({E10IN_N}), and a and b are the same distance from the mean\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            c = nu_val(mt.group(1))
+        else:
+            mt = re.fullmatch(rf"The shaded area is ({E10IN_N}), and a and b are the same distance from the mean\.", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            c = nu_val(mt.group(1))
+            nu_shaded(q, np_mp(c))
+        left = (1 + c) / 2
+        z = e10in_inv(left)
+        zc = e10in_inv(c)
+        x = M + z * S
+        if rep == "diagram":
+            labels = e10in_curve(q, mu, sg)
+            e10in_marked(labels["a"], M - z * S)
+            e10in_marked(labels["b"], x)
+        need(zc > mpmath.mpf("0.15"), "the central area must give a value")
+        ends = lambda a, b: f"a = {rg_s(nu_f(a))}, b = {rg_s(nu_f(b))}"
+        need(all(nu_clear(v) for v in (M - z * S, x, M - zc * S, M + zc * S, M - z, M + z)), "a value is on a rounding edge")
+        gc_check_common(q, ends(M - z * S, x), {E10IN_T + "5": {ends(M - zc * S, M + zc * S)}, far: {ends(M - z, M + z)}, E10IN_S + "1": {ends(-z, z)}})
+        e10in_working(q, mu, sg, left, x)
+        return
+    if u == "band-end":
+        if rep == "words":
+            mt = re.fullmatch(rf"({E10IN_N})% of the {items} have a {attr} between (w|{E10IN_N}){unit} and (w|{E10IN_N}){unit}\.", L[1])
+        elif rep == "equation":
+            mt = re.fullmatch(rf"P\((w|{E10IN_N}) < X < (w|{E10IN_N})\) = ({E10IN_N})", L[1])
+        else:
+            mt = None
+        if rep == "diagram":
+            c = e10in_area_line(L[1])
+            labels = e10in_curve(q, mu, sg)
+            need("w" in labels, "w is not marked")
+            others = [k for k in labels if k not in ("w", dec_text(mu))]
+            need(len(others) == 1, f"marks {labels}")
+            b = nu_val(others[0])
+            lower = labels["w"] < np_mp(b)
+            lo, hi = q["graph"]["shade"][0]
+            e10in_marked(mpmath.mpf(lo if lower else hi), labels["w"])
+            e10in_marked(mpmath.mpf(hi if lower else lo), np_mp(b))
+        else:
+            need(mt is not None, f"can't read {L[1]!r}")
+            first, second, c = (mt.group(2), mt.group(3), nu_val(mt.group(1)) / 100) if rep == "words" else (mt.group(1), mt.group(2), nu_val(mt.group(3)))
+            need((first == "w") != (second == "w"), f"{L[1]!r}")
+            lower = first == "w"
+            b = nu_val(second if lower else first)
+        need(asked == "Find w.", f"{asked!r}")
+        below = nu_phi((np_mp(b) - M) / S)
+        C = np_mp(c)
+        left = below - C if lower else below + C
+        x = M + e10in_inv(left) * S
+        if rep == "diagram":
+            e10in_marked(labels["w"], x)
+        need((x < np_mp(b)) == lower, "w is on the wrong side of the known end")
+        need(abs(x - np_mp(b)) >= S / 2, "w is too close to the known end")
+        to_end = e10in_at(mu, sg, 1 - c) if lower else e10in_at(mu, sg, c)
+        half = (1 - c) / 2
+        equal = e10in_at(mu, sg, half) if lower else e10in_at(mu, sg, 1 - half)
+        need(all(nu_clear(v) for v in (x, to_end, equal, below, left)), "a value is on a rounding edge")
+        gc_check_common(q, e10in_txt("w = ", x), {E10IN_T + "6": {e10in_txt("w = ", to_end)}, E10IN_T + "7": {e10in_txt("w = ", equal)}}, e10in_trap("w = ", x))
+        e10in_working(q, mu, sg, left, x)
+        return
+    if u == "ratio-tails":
+        mt = re.fullmatch(r"Find (a|b)\.", asked)
+        need(mt is not None, f"{asked!r}")
+        which = mt.group(1)
+        if rep == "words":
+            mc = re.fullmatch(rf"({E10IN_N})% of the {items} have a {attr} between a{unit} and b{unit}\.", L[1])
+            need(mc is not None, f"can't read {L[1]!r}")
+            c = nu_val(mc.group(1)) / 100
+            ml = re.fullmatch(rf"The share (above b|below a){unit} is (twice|three times|four times) the share (above b|below a){unit}\.", L[2])
+            need(ml is not None and ml.group(1) != ml.group(3), f"can't read {L[2]!r}")
+            r, big = E10IN_TIMES[ml.group(2)], ml.group(1)[-1]
+        else:
+            if rep == "equation":
+                mc = re.fullmatch(rf"P\(a < X < b\) = ({E10IN_N})", L[1])
+                need(mc is not None, f"can't read {L[1]!r}")
+                c = nu_val(mc.group(1))
+            else:
+                c = e10in_area_line(L[1])
+                nu_shaded(q, np_mp(c))
+            ml = re.fullmatch(r"P\(X ([<>]) ([ab])\) = (\d)P\(X ([<>]) ([ab])\)", L[2])
+            need(ml is not None, f"can't read {L[2]!r}")
+            need((ml.group(1), ml.group(2), ml.group(4), ml.group(5)) in ((">", "b", "<", "a"), ("<", "a", ">", "b")), f"{L[2]!r}")
+            r, big = int(ml.group(3)), ml.group(2)
+        rest = 1 - c
+        small = rest / (r + 1)
+        large = r * small
+        ta, tb = (large, small) if big == "a" else (small, large)
+        xa, xb = e10in_at(mu, sg, ta), e10in_at(mu, sg, 1 - tb)
+        need(abs(nu_phi((xa - M) / S) - nu_phi((xb - M) / S) + np_mp(c)) < mpmath.mpf("1e-25"), "the band's area")
+        need(c >= sp.Rational(1, 2), f"a band of {c}")
+        if rep == "diagram":
+            labels = e10in_curve(q, mu, sg)
+            e10in_marked(labels["a"], xa)
+            e10in_marked(labels["b"], xb)
+        left = ta if which == "a" else 1 - tb
+        x = xa if which == "a" else xb
+        equal = e10in_at(mu, sg, rest / 2) if which == "a" else e10in_at(mu, sg, 1 - rest / 2)
+        swap = e10in_at(mu, sg, tb) if which == "a" else e10in_at(mu, sg, 1 - ta)
+        other = xb if which == "a" else xa
+        f = lambda v: e10in_txt(which + " = ", v)
+        need(all(nu_clear(v) for v in (x, equal, swap, xa, xb)), "a value is on a rounding edge")
+        gc_check_common(q, f(x), {E10IN_T + "7": {f(equal)}, E10IN_T + "8": {f(swap)}, E10IN_T + "9": {f(other)}}, e10in_trap(which + " = ", x))
+        e10in_working(q, mu, sg, left, x)
+        return
+    rel, p, left, label, tail, near, mark = e10in_plain(q, mu, sg)
+    z = e10in_inv(left)
+    need(abs(z) >= E10IN_Z_MIN, f"z = {z} is too close to the mean")
+    x, flip = M + z * S, M - z * S
+    if mark is not None:
+        e10in_marked(mark, x)
+    need(sig3(nu_f(x)) != sig3(mu), "the value reads as the mean")
+    need(all(nu_clear(v) for v in (x, flip, M + z, nu_phi(left))), "a value is on a rounding edge")
+    t = lambda v: e10in_txt(label, v, tail)
+    area = left if u == "quartile" else p
+    wrongs = {near: {t(flip)}, far: {t(M + z)}, E10IN_S + "1": {t(z), t(np_mp(area))}, E10IN_S + "2": {t(nu_phi(np_mp(left)))}}
+    gc_check_common(q, t(x), wrongs, e10in_trap(label, x, tail))
+    e10in_working(q, mu, sg, left, x)
+
+
+def e10in_paper1(q):
+    u, rep, L, asked = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["asked"]
+    side, far, keep, rule_k, way, dist = (E10IN_T + str(i) for i in (11, 4, 10, 14, 12, 13))
+    what, unit, item, items, attr, attrs, top, bottom = e10in_story(q)
+    need(q["graph"] is None or rep == "diagram", "a figure on another representation")
+    n = E10IN_N
+    if u == "shift-same-sd":
+        if rep == "equation":
+            mt = re.fullmatch(rf"X ~ N\(({n}), σ²\) and Y ~ N\(({n}), σ²\)", L[0])
+            ma = re.fullmatch(rf"Find b such that P\(X ([<>]) b\) = P\(Y ([<>]) ({n})\)\.", asked)
+            need(mt is not None and ma is not None, f"can't read {L} {asked!r}")
+            rx, ry, c = ma.group(1), ma.group(2), nu_val(ma.group(3))
+        else:
+            need(L[0] == f"In two groups of {items}, A and B, the {attrs} are normally distributed with the same standard deviation.", f"{L[0]!r}")
+            mt = re.fullmatch(rf"The mean is ({n}){unit} in group A and ({n}){unit} in group B\.", L[1])
+            ma = re.fullmatch(rf"The share of group A with a {attr} (above|below) b{unit} equals the share of group B with a {attr} (above|below) ({n}){unit}\. Find b\.", asked)
+            need(mt is not None and ma is not None, f"can't read {L} {asked!r}")
+            rx, ry = (">" if ma.group(i) == "above" else "<" for i in (1, 2))
+            c = nu_val(ma.group(3))
+        m1, m2 = nu_val(mt.group(1)), nu_val(mt.group(2))
+        # z is (b − m1)/σ, and equal areas make it (c − m2)/σ, or its negative on the other side.
+        sigma = sp.Symbol("sigma", positive=True)
+        b = sp.Symbol("b")
+        zy = (c - m2) / sigma
+        x = sp.solve(sp.Eq((b - m1) / sigma, zy if rx == ry else -zy), b)[0]
+        d = x - m1
+        wrongs = {side: {m1 - d}, keep: {c}, way: {c + m2 - m1}}
+        mean = m1
+    elif u == "mirror-bound":
+        if rep == "words":
+            mt = re.fullmatch(rf"{re.escape(what)} are normally distributed with mean ({n}){unit}\.", L[0])
+            ma = re.fullmatch(rf"As many of the {items} have a {attr} (above|below) a{unit} as have one (above|below) ({n}){unit}\.", L[1])
+            need(mt is not None and ma is not None and ma.group(1) != ma.group(2), f"can't read {L}")
+            c = nu_val(ma.group(3))
+            word = ma.group(1)
+        else:
+            mt = re.fullmatch(rf"X ~ N\(({n}), σ²\)", L[0])
+            need(mt is not None, f"can't read {L[0]!r}")
+            if rep == "equation":
+                ma = re.fullmatch(rf"P\(X ([<>]) a\) = P\(X ([<>]) ({n})\)", L[1])
+                need(ma is not None and ma.group(1) != ma.group(2), f"can't read {L[1]!r}")
+                c = nu_val(ma.group(3))
+                word = "below" if ma.group(1) == "<" else "above"
+            else:
+                need(L[1] == "The two shaded areas are equal.", f"{L[1]!r}")
+                g = q["graph"]
+                labels = {m["label"]: mpmath.mpf(m["at"]) for m in g["marks"]}
+                need("a" in labels and len(labels) == 3, f"marks {labels}")
+                c = [nu_val(k) for k in labels if k != "a" and k != mt.group(1)][0]
+                need(len(g["shade"]) == 2 and g["shade"][0][0] is None and g["shade"][1][1] is None, "two tails are shaded from the ends")
+                need(abs(np_mp(c) - mpmath.mpf(g["shade"][0][1])) < 1e-6 or abs(np_mp(c) - mpmath.mpf(g["shade"][1][0])) < 1e-6, "the tail does not stop at the value")
+                word = "below" if c > nu_val(mt.group(1)) else "above"
+        mean = nu_val(mt.group(1))
+        need((c > mean) == (word == "below"), "the two tails are on one side of the mean")
+        x = 2 * mean - c
+        if rep == "diagram":
+            e10in_marked(labels["a"], np_mp(x))
+        wrongs = {E10IN_T + "15": {2 * c - mean}, keep: {c}, dist: {abs(c - mean)}}
+    else:
+        mu, sg = e10in_model(q)
+        M = mu
+        if u == "rule-value":
+            need(asked == "Use the 68-95-99.7 rule to find a.", f"{asked!r}")
+            if rep == "equation":
+                mt = re.fullmatch(rf"P\(X ([<>]) a\) = ({n})", L[1])
+                need(mt is not None, f"can't read {L[1]!r}")
+                rel, p = mt.group(1), nu_val(mt.group(2))
+            elif rep == "words":
+                mt = re.fullmatch(rf"({n})% of the {items} have a {attr} (below|above) a{unit}\.", L[1])
+                need(mt is not None, f"can't read {L[1]!r}")
+                rel, p = "<" if mt.group(2) == "below" else ">", nu_val(mt.group(1)) / 100
+            else:
+                p = e10in_area_line(L[1])
+                rel, mark = e10in_tail_curve(q, mu, sg, "a")
+            left = e10in_left(rel, p)
+            # The band of the rule whose tail this area is, on either side.
+            hits = [k for k, b in E10IN_RULE.items() if (1 - b) / 2 in (left, 1 - left)]
+            need(len(hits) == 1, f"{p} is no tail of the rule")
+            k = hits[0]
+            s = 1 if left > sp.Rational(1, 2) else -1
+            x = mu + s * k * sg
+            other = k + 1 if k < 3 else k - 1
+            wrongs = {side: {mu - s * k * sg}, rule_k: {mu + s * other * sg}, far: {mu + s * k}}
+        else:
+            mt = re.fullmatch(rf"Z ~ N\(0, 1\) and P\(Z < ({n})\) = ({n})", L[1])
+            need(mt is not None, f"can't read {L[1]!r}")
+            z0, table = nu_val(mt.group(1)), nu_val(mt.group(2))
+            need(abs(np_mp(table) - nu_phi(np_mp(z0))) <= mpmath.mpf("0.0005"), f"P(Z < {z0}) is not {table}")
+            if rep == "diagram":
+                p = e10in_area_line(L[2])
+                rel, mark = e10in_tail_curve(q, mu, sg, "a")
+            else:
+                ma = re.fullmatch(rf"P\(X ([<>]) a\) = ({n})", L[2])
+                need(ma is not None, f"can't read {L[2]!r}")
+                rel, p = ma.group(1), nu_val(ma.group(2))
+            left = e10in_left(rel, p)
+            need(left in (table, 1 - table), f"{left} is not in the line given")
+            s = 1 if left == table else -1
+            x = mu + s * z0 * sg
+            wrongs = {side: {mu - s * z0 * sg}, far: {mu + s * z0}, E10IN_S + "1": {z0, table}}
+        if rep == "diagram":
+            e10in_marked(mark, np_mp(x))
+        mean = mu
+    letter = "b" if u == "shift-same-sd" else "a"
+    label = letter + " = "
+    need(x > 0, f"{x} is no measure")
+    tx = lambda v: label + dec_text(v)
+    gc_check_common(q, tx(x), {ref: {tx(v) for v in vs} for ref, vs in wrongs.items()})
+    if u in ("rule-value", "given-z"):
+        e10in_working(q, mu, sg, sp.Integer(1), np_mp(x))
+    else:
+        e10in_working(q, mean, sp.Integer(1), sp.Integer(1), np_mp(x))
+    # A sketch's claims of distance hold.
+    for sol in q["solutions"]:
+        for mt in re.finditer(r"so (a|b) is (\d+) (above|below) ", " ".join(sol["steps"])):
+            d = int(mt.group(2)) * (1 if mt.group(3) == "above" else -1)
+            need(x - mean == d, f"{sol['name']}: {mt.group(0)!r}")
+
+
+def e10in_check(q):
+    with mpmath.workdps(40):
+        need(q["paper"] == (1 if q["view"]["unknown"] in E10IN_P1 else 2), f"{q['view']['unknown']} is on the wrong paper")
+        need((q["graph"] is not None) == (q["view"]["rep"] == "diagram"), "the figure belongs to the diagram representation, and only there")
+        (e10in_paper1 if q["paper"] == 1 else e10in_paper2)(q)
     return None, None
 
 
@@ -22847,6 +25084,632 @@ def check_independence(q):
         m = re.search(r"= (.+)$", o["text"])
         v = R(m.group(1).replace("−", "-"))
         need(0 < v < 1 or (v == 0 and o["ref"] == ind + "2"), f"option {o['text']!r} is not a probability")
+    return None, None
+
+
+# ── sample-space (t4-sample-space, FAL-752) ──────────────────
+# The `sample-space` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/sample_space.gd. The objects are read back from the grid, the figure or
+# the sentences, every outcome is listed again, and a letter is found by trying every value it
+# could have (a face) or by solving with SymPy (a probability). The working's plain sums are
+# evaluated, and its lists and counts must be the checker's own.
+
+E10SS_G = "SL4.6.sample-space-grid#"
+E10SS_O = "t4-sample-space#"
+E10SS_STORIES = ["At a Bazaar stall, a game uses", "The gate guards pass the night with a game that uses",
+                 "At the depot, the scavengers settle who cooks with a game that uses", "A salt trader offers travellers a game that uses",
+                 "The convoy drivers kill time with a game that uses", "Around the camp fire, the medics play a game that uses"]
+E10SS_THINGS = {"two fair dice": ["first die", "second die"], "a fair die and a fair spinner": ["die", "spinner"],
+                "two fair spinners": ["first spinner", "second spinner"]}
+E10SS_RULES = {"the sum of the two numbers": ("+", lambda a, b: a + b), "the product of the two numbers": ("×", lambda a, b: a * b),
+               "the larger number minus the smaller, or 0 if they match": ("diff", lambda a, b: abs(a - b)),
+               "the larger of the two numbers, or that number if they match": ("max", max)}
+E10SS_PROPS = {"an even number": lambda v: v % 2 == 0, "an odd number": lambda v: v % 2 == 1, "a multiple of 3": lambda v: v % 3 == 0,
+               "a multiple of 4": lambda v: v % 4 == 0, "a prime number": lambda v: sp.isprime(v), "a square number": lambda v: sp.sqrt(v).is_integer}
+E10SS_RELS = {"": lambda v, k: v == k, "at least ": lambda v, k: v >= k, "greater than ": lambda v, k: v > k,
+              "at most ": lambda v, k: v <= k, "less than ": lambda v, k: v < k}
+E10SS_FLIP = {"at least ": "greater than ", "greater than ": "at least ", "at most ": "less than ", "less than ": "at most "}
+E10SS_BOTH = {"p-score", "p-at-least", "p-complement", "p-property", "p-compare", "p-rule-points", "weighted-sum", "weighted-target"}
+E10SS_MAX_FACES = 8
+E10SS_MAX_LISTED = 16
+E10SS_MAX_WEIGHTED = 8
+E10SS_MAX_SUMS = 7
+E10SS_MAX_WIN_DEN = 60
+E10SS_SHOWN = re.compile(r"[\d./+−×÷() ]+")
+
+
+def e10ss_and(items):
+    items = [str(i) for i in items]
+    return items[0] if len(items) < 2 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def e10ss_pair(p):
+    return f"({p[0]}, {p[1]})"
+
+
+def e10ss_pairs(pairs):
+    return e10ss_and([e10ss_pair(p) for p in pairs])
+
+
+def e10ss_plus(xs):
+    return " + ".join(str(x) for x in xs)
+
+
+def e10ss_faces(text):
+    """ "1, 2, 2 and 3" or "1, a, a and b": whole numbers stay ints, letters stay letters."""
+    parts = re.split(r", | and ", text)
+    return [int(p) if re.fullmatch(r"\d+", p) else p for p in parts]
+
+
+def e10ss_frac(v):
+    return frac_text(sp.Rational(v)).replace("-", "−")
+
+
+def e10ss_eval(text):
+    """A plain sum as a Rational, or None if it isn't one."""
+    t = text.strip().rstrip(".").strip()
+    if not re.search(r"\d", t) or t.count("(") != t.count(")"):
+        return None
+    t = re.sub(r"\d+\.\d+|\d+", lambda m: f"Rational('{m.group(0)}')", t.replace("−", "-").replace("×", "*").replace("÷", "/"))
+    try:
+        return sp.Rational(eval(t, {"__builtins__": {}, "Rational": sp.Rational}))
+    except (SyntaxError, TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
+def e10ss_arith(q):
+    """Every "sum = sum" of plain numbers in the working is right, to its last figure."""
+    done = 0
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            sides = st.split(" = ")
+            for left, right in zip(sides, sides[1:]):
+                tail = re.search(E10SS_SHOWN.pattern + "$", left)
+                head = E10SS_SHOWN.match(right)
+                if tail is None or head is None:
+                    continue
+                a, b = e10ss_eval(tail.group(0)), e10ss_eval(head.group(0))
+                if a is not None and b is not None:
+                    need(a == b, f"{sol['name']}: {tail.group(0)} is not {head.group(0)} in {st!r}")
+                    done += 1
+    return done
+
+
+def e10ss_steps(q, angle=None):
+    return [st for sol in q["solutions"] if angle is None or sol["angle"] == angle for st in sol["steps"]]
+
+
+def e10ss_has(q, angle, text):
+    need(any(text in st for st in e10ss_steps(q, angle)), f"{angle}: no step says {text!r}: {e10ss_steps(q, angle)}")
+
+
+def e10ss_read_fair(q):
+    """The two objects, with what each is called, from the grid, the figure or the sentences."""
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(r"(.+) (two fair dice|a fair die and a fair spinner|two fair spinners)\.", L[0])
+    need(m is not None and m.group(1) in E10SS_STORIES, f"the opening {L[0]!r}")
+    names = E10SS_THINGS[m.group(2)]
+    if rep == "table":
+        rows = q["table"]["rows"]
+        ys = [int(v) for v in rows[0][1]]
+        xs = [int(r[0]) for r in rows[1:]]
+    elif rep == "diagram":
+        g = q["graph"]
+        need(g is not None and g["kind"] == "spinners", "no figure of the two objects")
+        items = g["items"]
+        need([i["name"] for i in items] == [" ".join(w.capitalize() for w in n.split()) for n in names], f"the figure's names {[i['name'] for i in items]}")
+        for it, n in zip(items, names):
+            need(it["shape"] == ("die" if n.endswith("die") else "spinner"), f"the figure draws {n} as a {it['shape']}")
+            need(all(abs(v - 1 / len(it["labels"])) < 1e-9 for v in it["shares"]), "a fair object's sectors are not equal")
+        xs, ys = [[int(v) for v in it["labels"]] for it in items]
+    else:
+        faces = []
+        for line, n in zip(L[1:3], names):
+            word = r"has faces labelled" if n.endswith("die") else r"has equal sectors numbered"
+            k = re.fullmatch(rf"The {n} {word} (.+)\.", line)
+            need(k is not None, f"can't read the faces in {line!r}")
+            faces.append(e10ss_faces(k.group(1)))
+        xs, ys = faces
+    need(xs == sorted(xs) and ys == sorted(ys), "the faces are not in order")
+    need(max(len(xs), len(ys)) <= E10SS_MAX_FACES and min(len(xs), len(ys)) >= 3, "the size of the grid")
+    return {"xs": xs, "ys": ys, "names": names, "N": len(xs) * len(ys), "cells": [(x, y) for x in xs for y in ys]}
+
+
+def e10ss_read_rule(q, f):
+    rule = next((l for l in q["lines"] if l.startswith("The score is ")), None)
+    need(rule is not None, "no scoring rule")
+    corner, fn = E10SS_RULES[rule[len("The score is "):-1]]
+    if q["view"]["rep"] == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == corner, f"the corner {rows[0][0]!r}")
+        for i, x in enumerate(f["xs"]):
+            for j, y in enumerate(f["ys"]):
+                need(rows[i + 1][1][j] in (str(fn(x, y)), "?"), f"the cell for ({x}, {y}) is {rows[i + 1][1][j]!r}")
+    f["fn"] = fn
+    f["scores"] = sorted({fn(x, y) for x, y in f["cells"]})
+    return fn
+
+
+def e10ss_event(f, text):
+    """ "the score is at least 7": the test on a cell, and the same test with its boundary read the other way."""
+    m = re.fullmatch(r"the score is (at least |greater than |at most |less than |)(\d+)", text)
+    if m:
+        word, k = m.group(1), int(m.group(2))
+        f["k"], f["word"] = k, word
+        test = lambda a, b: E10SS_RELS[word](f["fn"](a, b), k)
+        other = (lambda a, b: E10SS_RELS[E10SS_FLIP[word]](f["fn"](a, b), k)) if word else None
+        return test, other
+    m = re.fullmatch(r"the score is (an even number|an odd number|a multiple of 3|a multiple of 4|a prime number|a square number)", text)
+    need(m is not None, f"can't read the event {text!r}")
+    return (lambda a, b: bool(E10SS_PROPS[m.group(1)](f["fn"](a, b)))), None
+
+
+def e10ss_hits(f, test):
+    return [c for c in f["cells"] if test(*c)]
+
+
+def e10ss_rows(f, test):
+    return [sum(1 for y in f["ys"] if test(x, y)) for x in f["xs"]]
+
+
+def e10ss_one_way(pairs):
+    return len({tuple(sorted(p)) for p in pairs})
+
+
+def e10ss_distinct(f):
+    return len(set(f["xs"])) == len(f["xs"]) and len(set(f["ys"])) == len(f["ys"])
+
+
+def e10ss_form(q):
+    return "sf" if q["paper"] == 2 else "dec" if q["view"]["unknown"].startswith("weighted") else "frac"
+
+
+def e10ss_shown(q, v):
+    form = e10ss_form(q)
+    if form == "sf":
+        return e9regr_t(v)
+    return dec_text(v) if form == "dec" else e10ss_frac(v)
+
+
+def e10ss_prob(q, v, table):
+    """want, trap and wrongs for a probability; `table` is ref -> the values that slip gives."""
+    label = "probability = "
+    if q["paper"] == 2:
+        need(sp.Rational(sig3(v)) != v and rg_clear(v), f"{v} needs no rounding, or sits on a rounding edge")
+    return label + e10ss_shown(q, v), bn_trap(label, v) if q["paper"] == 2 else None, \
+        {ref: {label + e10ss_shown(q, x) for x in xs} for ref, xs in table.items()}
+
+
+def e10ss_fair_table(f, pairs, flip=False):
+    """What every fair probability's wrong options come from."""
+    h, N, out = len(pairs), f["N"], {}
+    side = (lambda n, d: 1 - sp.Rational(n, d)) if flip else sp.Rational
+    if e10ss_distinct(f):
+        out[E10SS_G + "0"] = [side(e10ss_one_way(pairs), N)]
+    out[E10SS_G + "1"] = [side(h, len(f["scores"]))]
+    return out
+
+
+def e10ss_size_steps(q, f, test, h):
+    """The two counting routes say the grid's size and the checker's own count and list."""
+    m, n, N = len(f["xs"]), len(f["ys"]), f["N"]
+    note = "two separate outcomes" if not e10ss_distinct(f) else None
+    for angle in ("grid-count", "systematic-list"):
+        e10ss_has(q, angle, f"{m} × {n} = {N}")
+        need(any("two separate outcomes" in st for st in e10ss_steps(q, angle)) == (note is not None), "the note on a repeated face")
+    e10ss_has(q, "grid-count", f"{e10ss_plus(e10ss_rows(f, test))} = {h} cells")
+    e10ss_has(q, "systematic-list", f"{e10ss_pairs(e10ss_hits(f, test))}: {h} ordered pairs")
+
+
+def e10ss_p_text(a, b):
+    v = sp.Rational(a, b)
+    return f"P = {a}/{b}" if v.q == b else f"P = {a}/{b} = {e10ss_frac(v)}"
+
+
+def e10ss_mirror(q, f, pairs_n):
+    """The mirror route: the sum and its reflection, and the count on the short side."""
+    n = len(f["xs"])
+    need(f["xs"] == list(range(1, n + 1)) and f["ys"] == f["xs"], "the symmetry needs matching objects numbered from 1")
+    k, word = f["k"], f["word"]
+    need(n + 1 < k < 2 * n, f"the sum {k} is not above the middle")
+    mirror = 2 * n + 2 - k
+    e10ss_has(q, "grid-symmetry", f"symmetric about the sum {n + 1}")
+    sign, back = ("=", "=") if word == "" else ("≥", "≤")
+    e10ss_has(q, "grid-symmetry", f"P(sum {sign} {k}) = P(sum {back} {mirror})")
+    short = [c for c in f["cells"] if (c[0] + c[1] == mirror if word == "" else c[0] + c[1] <= mirror)]
+    need(len(short) == pairs_n, f"the mirror side has {len(short)} cells, the event {pairs_n}: the grid is not symmetric")
+    e10ss_has(q, "grid-symmetry", f"{e10ss_pairs(short)}: {pairs_n} ordered pairs out of {f['N']}")
+
+
+def e10ss_fill(q, f):
+    rows = q["table"]["rows"]
+    need(q["asked"] == "One cell of the table is hidden. Find the score it hides.", f"asked {q['asked']!r}")
+    spots = [(i, j) for i in range(len(f["xs"])) for j in range(len(f["ys"])) if rows[i + 1][1][j] == "?"]
+    need(len(spots) == 1, f"{len(spots)} hidden cells")
+    i, j = spots[0]
+    a, b = f["xs"][i], f["ys"][j]
+    need(a >= 2 and b >= 2 and a != b, "the hidden cell's numbers")
+    say = lambda v: f"score = {v}"
+    v = f["fn"](a, b)
+    other = {say(fn(a, b)) for _, fn in E10SS_RULES.values()} - {say(v)}
+    next_ = [f["fn"](a, f["ys"][k]) for k in (j + 1, j - 1) if 0 <= k < len(f["ys"])]
+    e10ss_has(q, "grid-count", f"the two numbers are {a} and {b}")
+    return say(v), None, {E10SS_O + "3": other, E10SS_O + "4": {say(x) for x in next_}}
+
+
+def e10ss_total(q, f):
+    need(q["asked"] == "Find the total number of outcomes in the sample space.", f"asked {q['asked']!r}")
+    say = lambda v: f"number of outcomes = {v}"
+    m, n = len(f["xs"]), len(f["ys"])
+    wrongs = {E10SS_G + "1": {say(len(f["scores"]))}, E10SS_O + "5": {say(m + n)}}
+    if e10ss_distinct(f):
+        wrongs[E10SS_G + "0"] = {say(e10ss_one_way(f["cells"]))}
+    e10ss_has(q, "grid-count", f"{m} × {n} = {f['N']} cells")
+    e10ss_has(q, "systematic-list", f"{m} × {n} = {f['N']} pairs")
+    return say(f["N"]), None, wrongs
+
+
+def e10ss_event_of(q, f, start, end="."):
+    a = q["asked"]
+    need(a.startswith(start) and a.endswith(end), f"asked {a!r}")
+    return e10ss_event(f, a[len(start):-len(end)])
+
+
+def e10ss_count(q, f):
+    test, _ = e10ss_event_of(q, f, "Find the number of outcomes for which ")
+    pairs = e10ss_hits(f, test)
+    h = len(pairs)
+    need(2 <= h <= E10SS_MAX_LISTED and h < f["N"], f"{h} cells")
+    say = lambda v: f"number of outcomes = {v}"
+    wrongs = {E10SS_O + "6": {say(len({f['fn'](*p) for p in pairs}))}}
+    if e10ss_distinct(f):
+        wrongs[E10SS_G + "0"] = {say(e10ss_one_way(pairs))}
+    e10ss_has(q, "grid-count", f"{e10ss_plus(e10ss_rows(f, test))} = {h} cells")
+    e10ss_has(q, "systematic-list", f"{e10ss_pairs(pairs)}: {h} ordered pairs")
+    return say(h), None, wrongs
+
+
+def e10ss_plain_p(q, f, u):
+    test, other = e10ss_event_of(q, f, "Find the probability that ")
+    pairs = e10ss_hits(f, test)
+    h, N = len(pairs), f["N"]
+    need(2 <= h <= E10SS_MAX_LISTED and h < N, f"{h} cells")
+    table = e10ss_fair_table(f, pairs)
+    if other is not None:
+        need(e10ss_hits(f, other) != pairs, "the boundary changes nothing")
+        table[E10SS_O + "2"] = [sp.Rational(len(e10ss_hits(f, other)), N)]
+    if u == "p-property":
+        need(all(f["fn"](*c) != 0 for c in f["cells"]), "a score of 0 has no clear property")
+    if u in ("p-mirror-score", "p-mirror-at-least"):
+        need(f["fn"](2, 3) == 5 and f["fn"](4, 3) == 7, "a mirror question is about sums")
+        e10ss_mirror(q, f, h)
+    e10ss_size_steps(q, f, test, h)
+    for sol in q["solutions"]:
+        need(any(e10ss_p_text(h, N) in st for st in sol["steps"]), f"{sol['name']}: no P = {h}/{N}")
+    return e10ss_prob(q, sp.Rational(h, N), table)
+
+
+def e10ss_complement(q, f):
+    m = re.fullmatch(r"Find the probability that the score is not (\d+)\.", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    k = int(m.group(1))
+    test = lambda a, b: f["fn"](a, b) == k
+    pairs = e10ss_hits(f, test)
+    h, N = len(pairs), f["N"]
+    need(2 <= h <= E10SS_MAX_LISTED and h < N, f"{h} cells")
+    v = 1 - sp.Rational(h, N)
+    table = e10ss_fair_table(f, pairs, True)
+    table[E10SS_O + "7"] = [sp.Rational(h, N)]
+    e10ss_size_steps(q, f, test, h)
+    for sol in q["solutions"]:
+        need(any(f"P(not {k}) = 1 − {h}/{N} = {e10ss_frac(v)}" in st for st in sol["steps"]), f"{sol['name']}: no complement")
+    return e10ss_prob(q, v, table)
+
+
+def e10ss_compare(q, f):
+    a, b = f["names"]
+    need(q["asked"] == f"Find the probability that the number on the {a} is higher than the number on the {b}.", f"asked {q['asked']!r}")
+    if q["view"]["rep"] == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "−", "the corner")
+        for i, x in enumerate(f["xs"]):
+            sh = ["0" if x == y else f"{'+' if x > y else '−'}{abs(x - y)}" for y in f["ys"]]
+            need(rows[i + 1][1] == sh, f"the row for {x}")
+    test = lambda x, y: x > y
+    pairs = e10ss_hits(f, test)
+    h, N = len(pairs), f["N"]
+    ties = sum(1 for x, y in f["cells"] if x == y)
+    other = N - h - ties
+    need(2 <= h <= E10SS_MAX_LISTED and ties > 0 and other != h and 2 * h != N, "the sides of the grid")
+    e10ss_size_steps(q, f, test, h)
+    return e10ss_prob(q, sp.Rational(h, N), {E10SS_O + "8": [sp.Rational(h + ties, N)], E10SS_O + "9": [sp.Rational(1, 2)], E10SS_O + "10": [sp.Rational(other, N)]})
+
+
+def e10ss_points(q, f):
+    n = len(f["xs"])
+    need(f["ys"] == f["xs"] and f["xs"] == list(range(1, n + 1)), "the points rule is on matching objects")
+    line = next((l for l in q["lines"] if l.startswith("A player scores")), "")
+    m = re.fullmatch(r"A player scores (\d+) points if the two numbers match, (\d+) points if they differ by exactly (\d+), and 0 points otherwise\.", line)
+    need(m is not None, f"can't read the rule {line!r}")
+    hi, mid, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+    need(hi != mid and mid > 0 and d in (1, 2), "the points rule")
+    if q["view"]["rep"] == "table":
+        rows = q["table"]["rows"]
+        for i, x in enumerate(f["xs"]):
+            need(rows[i + 1][1] == [f"{x},{y}" for y in f["ys"]], f"the row for {x}")
+    points = lambda a, b: hi if a == b else mid if abs(a - b) == d else 0
+    if q["asked"] == f"Find the probability that a player scores {mid} points in one round.":
+        test = lambda a, b: points(a, b) == mid
+        diag = 0
+    else:
+        need(q["asked"] == "Find the probability that a player scores some points in one round.", f"asked {q['asked']!r}")
+        test = lambda a, b: points(a, b) > 0
+        diag = n
+    pairs = e10ss_hits(f, test)
+    h, N = len(pairs), f["N"]
+    need(2 <= h <= E10SS_MAX_LISTED and 2 * h != N, f"{h} cells")
+    once = e10ss_one_way(pairs)
+    above = n - d
+    need(h == 2 * above + diag, "the diagonal doesn't split the event")
+    e10ss_has(q, "grid-count", f"{n} × {n} = {N}")
+    e10ss_has(q, "grid-count", f"{e10ss_plus(e10ss_rows(f, test))} = {h} cells")
+    e10ss_has(q, "systematic-list", f"{e10ss_pairs(pairs)}: {h} ordered pairs")
+    e10ss_has(q, "grid-symmetry", f"2 × {above} = {h}" if diag == 0 else f"2 × {above} + {diag} = {h}")
+    return e10ss_prob(q, sp.Rational(h, N), {E10SS_G + "0": [sp.Rational(once, N), sp.Rational(once, n * (n + 1) // 2)], E10SS_O + "7": [1 - sp.Rational(h, N)]})
+
+
+def e10ss_read_biased(q):
+    """A biased object's faces and probabilities, from the table, the figure or the sentence."""
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(r"(.+) a biased (die|spinner)\.", L[0])
+    need(m is not None and m.group(1) in E10SS_STORIES, f"the opening {L[0]!r}")
+    if rep == "table":
+        rows = q["table"]["rows"]
+        need(rows[0][0] == "x" and rows[1][0] == "P(X = x)", "the table's heads")
+        xs, ps = [int(v) for v in rows[0][1]], [R(v) for v in rows[1][1]]
+    elif rep == "diagram":
+        items = q["graph"]["items"]
+        need(q["graph"]["kind"] == "spinners" and len(items) == 1 and items[0]["shape"] == "spinner", "the figure")
+        got = [re.fullmatch(r"(\d+): ([\d.]+)", v) for v in items[0]["labels"]]
+        xs, ps = [int(k.group(1)) for k in got], [R(k.group(2)) for k in got]
+        need(all(abs(a - float(b)) < 1e-9 for a, b in zip(items[0]["shares"], ps)), "a sector isn't drawn to its probability")
+    else:
+        got = re.findall(r"P\(X = (\d+)\) = (\d+(?:\.\d+)?)", L[1])
+        xs, ps = [int(a) for a, _ in got], [R(b) for _, b in got]
+    need(sum(ps) == 1 and min(ps) > 0, f"the probabilities {ps} don't make a distribution")
+    need(len(set(ps)) > 1, "this object is fair")
+    place = sp.Rational(1, 100 if q["paper"] == 2 else 10)
+    need(all((p / place).is_integer for p in ps), f"the probabilities {ps} are not in {place}")
+    return {"xs": xs, "p": dict(zip(xs, ps)), "kind": m.group(2), "N": len(xs) ** 2, "cells": [(a, b) for a in xs for b in xs]}
+
+
+def e10ss_weighted(q, u):
+    f = e10ss_read_biased(q)
+    p, L = f["p"], q["lines"]
+    if u == "weighted-sum":
+        m = re.fullmatch(r"Find the probability that the total is (at least |)(\d+)\.", q["asked"])
+        need(m is not None, f"asked {q['asked']!r}")
+        word, k = m.group(1), int(m.group(2))
+        need(any("twice, and the two numbers are added" in l for l in L), "two rolls")
+    else:
+        need(q["asked"] == "Find the probability that the player wins.", f"asked {q['asked']!r}")
+        m = re.fullmatch(r"A player adds the numbers from up to (\d+) (?:rolls|spins), and wins with a total of at least (\d+)\.", L[-2])
+        k2 = re.fullmatch(r"After (\d+) (?:rolls|spins), the player's total is (\d+)\. The (?:rolls|spins) are independent\.", L[-1])
+        need(m is not None and k2 is not None, f"can't read {L[-2:]!r}")
+        need(int(m.group(1)) == int(k2.group(1)) + 2, "two rolls are left")
+        rolls, so_far = int(k2.group(1)), int(k2.group(2))
+        need(rolls * min(f["xs"]) <= so_far <= rolls * max(f["xs"]), "a total those rolls can't make")
+        k, word = int(m.group(2)) - so_far, "at least "
+        e10ss_has(q, None, f"{m.group(2)} − {so_far} = {k} more")
+    test = (lambda a, b: a + b >= k) if word else (lambda a, b: a + b == k)
+    pairs = [c for c in f["cells"] if test(*c)]
+    need(2 <= len(pairs) <= E10SS_MAX_WEIGHTED and len(pairs) < f["N"], f"{len(pairs)} cells")
+    need(e10ss_one_way(pairs) != len(pairs), "no pair in the event has a reverse")
+    chance = lambda cs: sum((p[a] * p[b] for a, b in cs), sp.Integer(0))
+    v = chance(pairs)
+    table = {E10SS_G + "0": [chance([c for c in pairs if c[0] <= c[1]])], E10SS_O + "11": [sp.Rational(len(pairs), f["N"])]}
+    if word:
+        table[E10SS_O + "2"] = [chance([c for c in f["cells"] if c[0] + c[1] > k])]
+    if u == "weighted-target":
+        table[E10SS_O + "12"] = [sum((p[x] for x in f["xs"] if x >= k), sp.Integer(0))]
+    shown = " + ".join(f"{dec_text(p[a])} × {dec_text(p[b])}" for a, b in pairs)
+    for angle in ("grid-count", "systematic-list"):
+        e10ss_has(q, angle, e10ss_pairs(pairs))
+        e10ss_has(q, angle, f"P = {shown}" if angle == "grid-count" else f"so P = {shown}")
+        e10ss_has(q, angle, f"= {dec_text(v)}")
+    return e10ss_prob(q, v, table)
+
+
+def e10ss_read_face(q):
+    L, rep = q["lines"], q["view"]["rep"]
+    need(L[0].endswith(" two fair dice.") and L[0][: -len(" two fair dice.")] in E10SS_STORIES, f"the opening {L[0]!r}")
+    if rep == "diagram":
+        items = q["graph"]["items"]
+        need(q["graph"]["kind"] == "spinners" and all(i["shape"] == "die" for i in items), "the figure")
+        xs, labels = [int(v) for v in items[0]["labels"]], [int(v) if v.isdigit() else v for v in items[1]["labels"]]
+        limits = L[1]
+    else:
+        m = re.fullmatch(r"The first die has faces labelled (.+)\.", L[1])
+        k = re.fullmatch(r"The second die has faces labelled (.+?)\. Here (.+)\.", L[2])
+        need(m is not None and k is not None, f"can't read the faces in {L[1:3]!r}")
+        xs, labels, limits = e10ss_faces(m.group(1)), e10ss_faces(k.group(1)), k.group(2)
+    need(all(isinstance(x, int) for x in xs) and len(labels) == 4 and isinstance(labels[0], int), "the faces")
+    need(labels[1] == "a" and labels[2] == "a", f"the second die {labels}")
+    return xs, labels, limits
+
+
+def e10ss_counts(xs, ys):
+    out = {}
+    for x in xs:
+        for y in ys:
+            out[x + y] = out.get(x + y, 0) + 1
+    return out
+
+
+def e10ss_dist(q, N):
+    rows = q["table"]["rows"]
+    need(rows[0][0] == "s" and rows[1][0] == "P(S = s)", "the table's heads")
+    need(len(rows[0][1]) <= E10SS_MAX_SUMS, "too many sums for a phone")
+    out = {}
+    for s_, p in zip(rows[0][1], rows[1][1]):
+        k = re.fullmatch(rf"(\d+)/{N}", p)
+        need(k is not None, f"the probability {p!r}")
+        out[int(s_)] = int(k.group(1))
+    need(sum(out.values()) == N, "the distribution doesn't add to 1")
+    return out
+
+
+def e10ss_largest(q):
+    need(q["asked"] == "Find the value of b.", f"asked {q['asked']!r}")
+    xs, labels, limits = e10ss_read_face(q)
+    c = labels[0]
+    need(labels[3] == "b" and f"{c} < a < b" in limits, f"the second die {labels}, {limits!r}")
+    N = 4 * len(xs)
+    if q["view"]["rep"] == "table":
+        dist = e10ss_dist(q, N)
+        found = [(a, b) for b in range(c + 2, 40) for a in range(c + 1, b) if e10ss_counts(xs, [c, a, a, b]) == dist]
+        need(len(found) == 1, f"the table fits {found}")
+        b = found[0][1]
+        top = max(dist)
+    else:
+        k = re.fullmatch(r"The largest possible value of S is (\d+)\.", q["lines"][-1])
+        need(k is not None, f"can't read {q['lines'][-1]!r}")
+        top = int(k.group(1))
+        b = top - max(xs)
+        need(b >= c + 2, "no a fits below b")
+    say = lambda v: f"b = {v}"
+    e10ss_has(q, "systematic-list", f"(({max(xs)}, b)".replace("((", "("))
+    e10ss_has(q, "systematic-list", f"{top} − {max(xs)} = {b}")
+    return say(b), None, {E10SS_O + "13": {say(top)}, E10SS_O + "14": {say(top - min(xs))}}
+
+
+def e10ss_grid_a(q):
+    need(q["asked"] == "Find the value of a.", f"asked {q['asked']!r}")
+    xs, labels, limits = e10ss_read_face(q)
+    c, b = labels[0], labels[3]
+    need(isinstance(b, int) and f"{c} < a < {b}" in limits, f"the second die {labels}, {limits!r}")
+    N = 4 * len(xs)
+    tries = list(range(c + 1, b))
+    need(len(tries) >= 2, "a has only one value it could be")
+    say = lambda v: f"a = {v}"
+    wrongs = {}
+    if q["view"]["rep"] == "table":
+        dist = e10ss_dist(q, N)
+        found = [a for a in tries if e10ss_counts(xs, [c, a, a, b]) == dist]
+        ss = sorted(dist)
+        if ss[1] - min(xs) > 0:
+            wrongs[E10SS_O + "15"] = {say(ss[1] - min(xs))}
+        k = re.search(r"P\(S = (\d+)\) = (\d+)/", next(st for st in e10ss_steps(q, "systematic-list") if "P(S = " in st))
+        need(k is not None, "the sum tried")
+        t, count = int(k.group(1)), int(k.group(2))
+        need(dist.get(t) == count, f"the table has no P(S = {t}) = {count}/{N}")
+    else:
+        k = re.fullmatch(rf"The probability that S = (\d+) is (\d+)/{N}\.", q["lines"][-1])
+        need(k is not None, f"can't read {q['lines'][-1]!r}")
+        t, count = int(k.group(1)), int(k.group(2))
+        found = [a for a in tries if e10ss_counts(xs, [c, a, a, b]).get(t, 0) == count]
+    need(len(found) == 1, f"a could be {found}")
+    a = found[0]
+    # One sum picks a out, on the table too, and the listed tries are right.
+    need([v for v in tries if e10ss_counts(xs, [c, v, v, b]).get(t, 0) == count] == [a], "the sum tried doesn't pick out a")
+    e10ss_has(q, "systematic-list", ", ".join(f"a = {v} gives {e10ss_counts(xs, [c, v, v, b]).get(t, 0)}" for v in tries))
+    if q["view"]["rep"] == "table":
+        first = min(xs) + a
+        known = e10ss_counts(xs, [c, b])
+        rest = {s_: dist[s_] - known.get(s_, 0) for s_ in dist}
+        need(min(s_ for s_, v in rest.items() if v > 0) == first, "the smallest sum left isn't the first die's smallest number plus a")
+        e10ss_has(q, "grid-count", ", ".join(f"{s_}: {rest[s_]}" for s_ in sorted(rest)))
+        e10ss_has(q, "grid-count", f"{min(xs)} + a = {first}")
+    else:
+        u = e10ss_counts(xs, [c, b]).get(t, 0)
+        per = (count - u) // 2
+        need(xs.count(t - a) == per and per > 0, "the a columns don't hold the rest")
+        e10ss_has(q, "grid-count", f"{count} − {u} = {count - u}")
+        e10ss_has(q, "grid-count", f"x = {t - a} on exactly {per} face")
+    return say(a), None, wrongs
+
+
+def e10ss_win(q, u):
+    L, rep = q["lines"], q["view"]["rep"]
+    need(L[0].endswith(" two biased dice, A and B.") and L[0][: -len(" two biased dice, A and B.")] in E10SS_STORIES, f"the opening {L[0]!r}")
+    if rep == "table":
+        rows = q["table"]["rows"]
+        need([r[0] for r in rows] == ["n", "P(X = n)", "P(Y = n)"], "the table's heads")
+        xs, px, py = [int(v) for v in rows[0][1]], [R(v) for v in rows[1][1]], rows[2][1]
+    else:
+        got = re.findall(r"P\(X = (\d+)\) = (\d+/\d+|\d+)", L[2])
+        xs, px = [int(a) for a, _ in got], [R(b) for _, b in got]
+        same = re.findall(r"P\(Y = (\d+)\)", L[3])
+        need([int(v) for v in same] == xs and L[3].endswith(f"= q and P(Y = {xs[-1]}) = r, where q and r are constants."), f"can't read {L[3]!r}")
+        py = ["q"] * (len(xs) - 1) + ["r"]
+    n = len(xs)
+    need(xs == list(range(1, n + 1)) and sum(px) == 1 and min(px) > 0 and len(set(px)) > 1, f"die A {xs}, {px}")
+    need(py == ["q"] * (n - 1) + ["r"], f"die B {py}")
+    m = re.fullmatch(r"Each die is rolled once\. The probability that X is less than Y is (\d+/\d+)\.", L[-1])
+    need(m is not None, f"can't read {L[-1]!r}")
+    pa = R(m.group(1))
+    need(pa.q <= E10SS_MAX_WIN_DEN, f"P(X < Y) = {pa}")
+    qs, rs = sp.Symbol("q"), sp.Symbol("r")
+    pb = [qs] * (n - 1) + [rs]
+    solve = lambda tie: sp.solve([sum(px[i] * pb[j] for i in range(n) for j in range(n) if xs[i] < xs[j] + tie) - pa, sum(pb) - 1], [qs, rs], dict=True)
+    got = solve(0)
+    need(len(got) == 1 and qs in got[0] and rs in got[0], f"the equations give {got}")
+    qv, rv = got[0][qs], got[0][rs]
+    need(0 < qv and 0 < rv and qv != rv, f"q = {qv}, r = {rv}")
+    tied = solve(1)
+    need(len(tied) == 1 and qs in tied[0] and 0 < tied[0][qs] and 0 < tied[0][rs] and tied[0][qs] != qv, f"the ties give {tied}")
+    ex = sum(x * p for x, p in zip(xs, px))
+    ey = sum(x * p for x, p in zip(xs, [qv] * (n - 1) + [rv]))
+    pairs = [(a, b) for a in xs for b in xs if a < b]
+    e10ss_has(q, "systematic-list", e10ss_pairs(pairs))
+    for angle in ("grid-count", "systematic-list"):
+        for y in xs:
+            e10ss_has(q, angle, f"P(X < {y}) = {e10ss_frac(sum(p for x, p in zip(xs, px) if x < y))}")
+        e10ss_has(q, angle, f"= {e10ss_frac(qv)}.")
+    if u == "weight-from-win":
+        say = lambda v: f"q = {e10ss_frac(v)}"
+        return say(qv), None, {E10SS_O + "16": {say(rv)}, E10SS_O + "17": {say(sp.Rational(1, n))}, E10SS_O + "8": {say(tied[0][qs])}}
+    need(q["asked"] == "Find E(Y).", f"asked {q['asked']!r}")
+    say = lambda v: f"E(Y) = {e10ss_frac(v)}"
+    return say(ey), None, {E10SS_O + "17": {say(sp.Rational(n + 1, 2))}, E10SS_O + "18": {say(ex)}, E10SS_O + "19": {say(qv * sum(xs))}}
+
+
+def e10ss_check(q):
+    u, L = q["view"]["unknown"], q["lines"]
+    need(q["paper"] == 1 or u in E10SS_BOTH, f"{u} is Paper 1")
+    for tx in [q["asked"]] + L + [st for sol in q["solutions"] for st in sol["steps"]] + [o["text"] for o in q["choices"]]:
+        need(not re.search(r"(?<![A-Za-z\d])-\d", tx), f"a hyphen for a minus in {tx!r}")
+    if u.startswith("weighted"):
+        want, trap, wrongs = e10ss_weighted(q, u)
+    elif u == "face-from-largest":
+        want, trap, wrongs = e10ss_largest(q)
+    elif u == "face-from-grid":
+        want, trap, wrongs = e10ss_grid_a(q)
+    elif u.endswith("-from-win"):
+        want, trap, wrongs = e10ss_win(q, u)
+    else:
+        f = e10ss_read_fair(q)
+        if u != "p-compare" and u != "p-rule-points":
+            e10ss_read_rule(q, f)
+            need(u not in ("p-mirror-score", "p-mirror-at-least") or f["ys"] == f["xs"], "a mirror needs matching objects")
+        if u == "fill-cell":
+            want, trap, wrongs = e10ss_fill(q, f)
+        elif u == "total-outcomes":
+            want, trap, wrongs = e10ss_total(q, f)
+        elif u == "count-event":
+            want, trap, wrongs = e10ss_count(q, f)
+        elif u in ("p-score", "p-at-least", "p-property", "p-mirror-score", "p-mirror-at-least"):
+            want, trap, wrongs = e10ss_plain_p(q, f, u)
+        elif u == "p-complement":
+            want, trap, wrongs = e10ss_complement(q, f)
+        elif u == "p-compare":
+            want, trap, wrongs = e10ss_compare(q, f)
+        elif u == "p-rule-points":
+            want, trap, wrongs = e10ss_points(q, f)
+        else:
+            raise Fail(f"no check for {u}")
+    gc_check_common(q, want, wrongs, trap)
+    need(e10ss_arith(q) > 0 or u == "fill-cell", "the working has no sum to check")
     return None, None
 
 
@@ -29246,10 +32109,10 @@ def e9trig_f(t):
     return sp.Float(t, 30)
 
 
-def e9trig_num(q, label, v, tail, wrongs):
+def e9trig_num(q, label, v, tail, wrongs, steps=(2, 5)):
     want = label + gc_s(e9trig_f(v)) + tail
     val = e9trig_f(v)
-    gc_check_common(q, want, {k: {label + gc_s(e9trig_f(x)) + tail for x in vs} for k, vs in wrongs.items()}, gc_trap([val], label + gc_s2(val) + tail))
+    gc_check_common(q, want, {k: {label + gc_s(e9trig_f(x)) + tail for x in vs} for k, vs in wrongs.items()}, gc_trap([val], label + gc_s2(val) + tail), steps)
 
 
 def e9trig_level(q, M):
@@ -29401,7 +32264,504 @@ def check_trig_wave(q):
 
 # ── end trig-wave ──
 
-SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── trig-model-equation (t3-trig-model-equation, FAL-752) ────────────────
+# The `trig-model-equation` situation's checker. It reads the model, the wave or the two curves back
+# from what the student sees, then finds every crossing itself: a story through e9trig_cross, a curve
+# through e10tm_roots (a scan for sign changes, refined by bisection, with touches found from the
+# turning points). Nothing comes from the engine's roots. Degree mode is the same scan with the angle
+# read in degrees. Each tagged wrong option is worked out from its slip.
+
+e10tm_G, e10tm_B = "SL3.8.graphical#", "SL3.8.solve-basic#"
+e10tm_PART, e10tm_TOUCH_END, e10tm_DEG, e10tm_WHOLE, e10tm_TOUCH2, e10tm_ONCE, e10tm_SHARE, e10tm_ENDS, e10tm_ORIGIN, e10tm_EVERY, e10tm_OTHER = [e10tm_G + str(i) for i in range(11)]
+e10tm_STOP, e10tm_COS = e10tm_B + "0", e10tm_B + "1"
+e10tm_SIDE, e10tm_HALF = E9TRIG_SIDE, E9TRIG_ONE_SIDE
+e10tm_NO_D = E9TRIG_NO_D
+e10tm_EXACT = ("exact-times-level", "time-at-least-exact")
+e10tm_STORY = ("times-in-window", "set-above-level", "set-below-level", "set-two-spans", "chance-above", "time-past-level")
+e10tm_WAVE = ("count-solutions", "count-at-extreme", "k-exactly-n", "k-any-solution", "k-no-solution", "touch-find-constant", "touch-one-solution")
+e10tm_NUM = r"−?\d+(?:\.\d+)?"
+
+
+def e10tm_stationary(F, lo, hi, n=8000):
+    """The turning points of F inside (lo, hi): a scan of its slope for sign changes, refined by
+    bisection. The grid is offset, so a turning point on a round number can't sit on a grid point."""
+    h = 1e-5
+    D = lambda x: (F(x + h) - F(x - h)) / (2 * h)
+    out = []
+    x0, d0 = None, None
+    for i in range(n):
+        x = lo + (hi - lo) * (i + 0.37) / n
+        d1 = D(x)
+        if d0 is not None and d0 * d1 < 0:
+            a, b, fa = x0, x, d0
+            for _ in range(60):
+                m = (a + b) / 2
+                fm = D(m)
+                if fa * fm <= 0:
+                    b = m
+                else:
+                    a, fa = m, fm
+            out.append((a + b) / 2)
+        x0, d0 = x, d1
+    return out
+
+
+def e10tm_roots(F, lo, hi, n=8000):
+    """Every x in [lo, hi] with F(x) = 0: a scan for sign changes, refined by bisection, then any
+    touch (a turning point of F at 0) and any end at 0, which show no sign change."""
+    out = []
+    last_x, last_v = None, None
+    for i in range(n + 1):
+        x = lo + (hi - lo) * i / n
+        v = F(x)
+        if abs(v) <= 1e-9:
+            continue
+        if last_v is not None and last_v * v < 0:
+            a, b, fa = last_x, x, last_v
+            for _ in range(70):
+                m = (a + b) / 2
+                fm = F(m)
+                if fa * fm <= 0:
+                    b = m
+                else:
+                    a, fa = m, fm
+            out.append((a + b) / 2)
+        last_x, last_v = x, v
+    for t in e10tm_stationary(F, lo, hi, n):
+        if abs(F(t)) < 1e-8 and not any(abs(t - r) < 1e-5 for r in out):
+            out.append(t)
+    for e in (lo, hi):
+        if abs(F(e)) < 1e-9 and not any(abs(e - r) < 1e-6 for r in out):
+            out.append(e)
+    return sorted(0.0 if abs(r) < 1e-9 else round(r, 10) for r in out)
+
+
+def e10tm_turns(F, lo, hi, n=8000):
+    """The heights of F at its ends and at its turning points."""
+    return [F(lo), F(hi)] + [F(x) for x in e10tm_stationary(F, lo, hi, n)]
+
+
+def e10tm_wave_of(text, lo_t=None, hi_t=None):
+    A, fn, b, c, d, wr = e9trig_wave(text, "x")
+    need(c == 0, f"a shift in {text!r}")
+    W = dict(A=A, fn=fn, b=b, d=d, amp=abs(A), top=d + abs(A), low=d - abs(A), wr=wr)
+    W["fa"], W["fb"], W["fd"] = float(A), float(b), float(d)
+    W["T"] = 2 * math.pi / W["fb"]
+    W["F"] = lambda x: W["fa"] * E9TRIG_FN[fn](W["fb"] * x) + W["fd"]
+    W["G"] = lambda x: W["fa"] * E9TRIG_FN[fn](math.radians(W["fb"] * x)) + W["fd"]
+    if lo_t is not None:
+        W["lo"], W["hi"] = float(e9trig_pi_text(lo_t)), float(e9trig_pi_text(hi_t))
+    return W
+
+
+def e10tm_x(q):
+    """The wave on its interval from the first line, and its figure held to it."""
+    L, rep = q["lines"], q["view"]["rep"]
+    m = re.fullmatch(r"f\(x\) = (.+), for (\S+) ≤ x ≤ (\S+), with x in radians\.", L[0])
+    need(m is not None, f"can't read {L[0]!r}")
+    W = e10tm_wave_of(m[1], m[2], m[3])
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if fig is not None:
+        for x, y in fig["curves"][0][::13]:
+            need(abs(y - W["F"](x)) < 1e-6, "the curve is another wave")
+            need(W["lo"] - 1e-6 <= x <= W["hi"] + 1e-6, "the curve runs off the interval")
+    return W
+
+
+def e10tm_count(W, k, deg=False, hi=None):
+    f = W["G"] if deg else W["F"]
+    return len(e10tm_roots(lambda x: f(x) - k, W["lo"], W["hi"] if hi is None else hi))
+
+
+def e10tm_line(q, W, k):
+    """The dashed line of a figure is the level asked about."""
+    if q["graph"] is not None:
+        need([round(h["at"], 6) for h in q["graph"]["hlines"]] == [round(float(k), 6)], "the dashed line isn't the level")
+
+
+def e10tm_exact_height(W, y):
+    """A float height of the wave as the exact height it has to be."""
+    for v in (W["low"], W["d"], W["top"]):
+        if abs(float(v) - y) < 1e-8:
+            return v
+    raise Fail(f"a height {y} is not the wave's top, axis or bottom")
+
+
+def e10tm_bands(W):
+    """y = k as k rises through the heights where the count can change: [(lo, hi, count)]."""
+    hs = sorted({e10tm_exact_height(W, y) for y in e10tm_turns(W["F"], W["lo"], W["hi"])})
+    out = []
+    for i, h in enumerate(hs):
+        out.append((h, h, e10tm_count(W, float(h))))
+        if i + 1 < len(hs):
+            out.append((h, hs[i + 1], e10tm_count(W, float((h + hs[i + 1]) / 2))))
+    return out
+
+
+def e10tm_exactly(W, n):
+    bs = e10tm_bands(W)
+    at = [i for i, b in enumerate(bs) if b[2] == n]
+    need(len(at) > 0 and at[-1] - at[0] == len(at) - 1, f"{n} solutions isn't one unbroken band of k")
+    first, last = bs[at[0]], bs[at[-1]]
+    return first[0], "≤" if first[0] == first[1] else "<", "≤" if last[0] == last[1] else "<", last[1], bs
+
+
+def e10tm_band_text(bs):
+    names = []
+    for lo, hi, n in bs:
+        head = f"k = {dec_text(lo)}" if lo == hi else f"{dec_text(lo)} < k < {dec_text(hi)}"
+        names.append(f"{head} gives {n} solution{'' if n == 1 else 's'}")
+    return ", ".join(names)
+
+
+def e10tm_level(q, M):
+    m = re.search(rf"(?:is|above|below|at least|at most) ({e10tm_NUM}) {re.escape(M['unit'])}(?:\?| at that time| \.|,|\.)", q["asked"])
+    need(m is not None, f"can't read the level in {q['asked']!r}")
+    k = e9trig_n(m[1])
+    need(M["low"] < k < M["top"], "the level is outside the wave")
+    e10tm_line(q, None, k)
+    return k
+
+
+def e10tm_pieces(M, k, L_, above, deg=False):
+    xs = [0.0] + e9trig_cross(M, k, 0.0, L_, deg) + [float(L_)]
+    return [(a, b) for a, b in zip(xs, xs[1:]) if b - a > 1e-9 and (e9trig_at(M, (a + b) / 2, deg) > k) == above]
+
+
+def e10tm_s(x):
+    return gc_s(e9trig_f(x))
+
+
+def e10tm_stretch(p, L_):
+    return ("0 ≤ t" if p[0] <= 0 else e10tm_s(p[0]) + " < t") + (f" ≤ {int(L_)}" if p[1] >= L_ else " < " + e10tm_s(p[1]))
+
+
+def e10tm_set(ps, L_):
+    return " or ".join(e10tm_stretch(p, L_) for p in ps)
+
+
+def e10tm_list(v, xs):
+    names = [e10tm_s(x) for x in sorted(xs)]
+    return f"{v} = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def e10tm_exact_list(ts):
+    names = [dec_text(t) for t in sorted(ts)]
+    return "t = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def e10tm_numbers_in(q, marker, xs):
+    """Each number after `marker` in the working is one of xs, so the working's times are the times."""
+    for sol in q["solutions"]:
+        for st in sol["steps"][:-1]:
+            if marker in st:
+                for t in re.findall(r"−?\d+(?:\.\d+)?", st.split(marker, 1)[1]):
+                    y = float(t.replace("−", "-"))
+                    need(any(abs(y - x) <= 2e-4 * max(1.0, abs(x)) for x in xs) or y == 2 or y == 0, f"{sol['name']}: {t} in {st!r} isn't a crossing")
+
+
+def e10tm_exact(q, M, u):
+    k = e10tm_level(q, M)
+    r = (k - M["d"]) / M["A"]
+    need(abs(r) == sp.Rational(1, 2) and M["c"] == 0, "a Paper 1 level is half of the amplitude from the axis")
+    T = sp.nsimplify(M["T"])
+    fn = sp.sin if M["fn"] == "sin" else sp.cos
+    rat = lambda x: sp.Rational(str(round(x, 9))).limit_denominator(1000)
+    def times(L_):
+        out = [rat(x) for x in e9trig_cross(M, float(k), 0.0, float(L_))]
+        for t in out:
+            need(sp.simplify(M["A"] * fn(M["b"] * t) + M["d"] - k) == 0, f"{t} isn't exactly at the level")
+        return out
+    if u == "exact-times-level":
+        m = re.fullmatch(rf"Find the exact value of every time in 0 ≤ t ≤ ({e10tm_NUM}) when .+", q["asked"])
+        need(m is not None, f"can't read {q['asked']!r}")
+        L_ = e9trig_n(m[1])
+        ts = times(L_)
+        wrongs = {e10tm_STOP: {e10tm_exact_list(ts[:1])}}
+        if T < L_:
+            wrongs[e10tm_PART] = {e10tm_exact_list([t for t in ts if t <= T])}
+        if M["fn"] == "cos":
+            al = sp.acos(r)
+            cs = []
+            for ang in (al, sp.pi - al):
+                t = ang / M["b"]
+                while t <= L_:
+                    cs.append(sp.nsimplify(t))
+                    t += T
+            wrongs[e10tm_COS] = {e10tm_exact_list(cs)}
+        gc_check_common(q, e10tm_exact_list(ts), wrongs, steps=(2, 7))
+    else:
+        word = re.search(r" (at least|at most) ", q["asked"])
+        need(word is not None, f"can't read {q['asked']!r}")
+        above = word[1] == "at least"
+        w = rat(sum(b - a for a, b in e10tm_pieces(M, float(k), float(M["ft"]), above)))
+        l = "Time = "
+        tail = " " + M["time"]
+        wrongs = {e10tm_SIDE: {f"{l}{dec_text(T - w)}{tail}"}}
+        if above and k > M["d"]:
+            wrongs[e10tm_HALF] = {f"{l}{dec_text(w / 2)}{tail}"}
+        gc_check_common(q, f"{l}{dec_text(w)}{tail}", wrongs, steps=(2, 7))
+    for sol in q["solutions"]:
+        need("GDC" not in " ".join(sol["steps"]), "a calculator on Paper 1")
+
+
+def e10tm_story(q, M, u):
+    ask, what, sym, unit, time = q["asked"], e9trig_lower(M["thing"]), M["sym"], M["unit"], " " + M["time"]
+    T = M["ft"]
+    k = e10tm_level(q, M)
+    fk = float(k)
+    dp = 360.0 / M["fb"]
+    if u == "times-in-window":
+        m = re.fullmatch(rf"Find every time in (\d+) ≤ t ≤ (\d+) when {re.escape(what)} is {e10tm_NUM} {re.escape(unit)}, to 3 significant figures\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        a, b = float(m[1]), float(m[2])
+        all_ = e9trig_cross(M, fk, 0.0, b + T)
+        xs = [x for x in all_ if a < x < b]
+        ds = [x for x in e9trig_cross(M, fk, 0.0, b, True) if x > a]
+        need(2 <= len(xs) <= 4 and all(abs(x - a) > 0.04 * T and abs(x - b) > 0.04 * T for x in all_), f"the window has {len(xs)} clean times")
+        gc_check_common(q, e10tm_list("t", xs), dict({e10tm_PART: {e10tm_list("t", xs[:-1])}}, **({e10tm_DEG: {e10tm_list("t", ds)}} if ds else {})), steps=(2, 6))
+        e10tm_numbers_in(q, "t = ", xs + [T])
+    elif u in ("set-above-level", "set-below-level", "set-two-spans"):
+        m = re.fullmatch(rf"For 0 ≤ t ≤ (\d+), find the set of times when {re.escape(what)} is (above|below) {e10tm_NUM} {re.escape(unit)}\. Give the times to 3 significant figures\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        L_, above = float(m[1]), m[2] == "above"
+        ps = e10tm_pieces(M, fk, L_, above)
+        need(len(ps) == (2 if u == "set-two-spans" else 1), f"{len(ps)} stretches")
+        if u != "set-two-spans":
+            need(ps[0][0] > 0 and ps[0][1] < L_, "the one stretch has to be inside the span")
+        need(u == "set-two-spans" or above == (u == "set-above-level"), "the wrong side for this unknown")
+        wrongs = {e10tm_SIDE: {e10tm_set(e10tm_pieces(M, fk, L_, not above), L_)}}
+        deg = e10tm_pieces(M, fk, L_, above, True)
+        if deg:
+            wrongs[e10tm_DEG] = {e10tm_set(deg, L_)}
+        if len(ps) == 2:
+            wrongs[e10tm_PART] = {e10tm_set(ps[:1], L_)}
+        elif above:
+            wrongs[e10tm_HALF] = {e10tm_set([(ps[0][0], (ps[0][0] + ps[0][1]) / 2)], L_)}
+        gc_check_common(q, e10tm_set(ps, L_), wrongs, steps=(2, 6))
+        e10tm_numbers_in(q, "cross at t = ", e9trig_cross(M, fk, 0.0, L_))
+    else:
+        if u == "chance-above":
+            m = re.fullmatch(rf"A reading is taken at a random time in the first (\d+) {M['time']}\. Find the probability that {re.escape(what)} is above {e10tm_NUM} {re.escape(unit)} at that time, to 3 significant figures\.", ask)
+            need(m is not None, f"can't read {ask!r}")
+            above = True
+        else:
+            m = re.fullmatch(rf"For how long in 0 ≤ t ≤ (\d+) is {re.escape(what)} (above|below) {e10tm_NUM} {re.escape(unit)}\? Answer to 3 significant figures\.", ask)
+            need(m is not None, f"can't read {ask!r}")
+            above = m[2] == "above"
+        L_ = float(m[1])
+        need(abs(L_ / T - round(L_ / T)) > 0.1, "the span is whole cycles")
+        tot = sum(b - a for a, b in e10tm_pieces(M, fk, L_, above))
+        up = e9trig_cycle(M, fk)
+        w = up if above else T - up
+        ds = sum(b - a for a, b in e10tm_pieces(M, fk, L_, above, True))
+        if u == "chance-above":
+            wr = {e10tm_SHARE: [w / T], e10tm_SIDE: [1 - tot / L_]}
+            if ds > 0:
+                wr[e10tm_DEG] = [ds / L_]
+            e9trig_num(q, "P = ", tot / L_, "", wr, (2, 6))
+        else:
+            wr = {e10tm_SIDE: [L_ - tot], e10tm_SHARE: [w * L_ / T], e10tm_PART: [w * math.floor(L_ / T)]}
+            if ds > 0:
+                wr[e10tm_DEG] = [ds]
+            e9trig_num(q, "Time = ", tot, time, wr, (2, 6))
+        for sol in q["solutions"]:
+            need(any(" adds up to " in st and abs(float(st.split()[-1].rstrip(".")) - tot) < 2e-3 * max(1.0, tot) for st in sol["steps"]), f"{sol['name']}: the total in the working isn't {tot}")
+
+
+def e10tm_wave(q, u):
+    paper, ask = q["paper"], q["asked"]
+    if u == "touch-find-constant":
+        return e10tm_touch(q)
+    W = e10tm_x(q)
+    F, top, low, amp = W["F"], W["top"], W["low"], W["amp"]
+    l = "Number of solutions = "
+    if u in ("count-solutions", "count-at-extreme"):
+        m = re.fullmatch(rf"Find the number of solutions of f\(x\) = ({e10tm_NUM})\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        k = e9trig_n(m[1])
+        e10tm_line(q, W, k)
+        fk = float(k)
+        xs = e10tm_roots(lambda x: F(x) - fk, W["lo"], W["hi"])
+        n = len(xs)
+        span = (W["hi"] - W["lo"]) / W["T"]
+        if u == "count-solutions":
+            need(low < k < top and n >= 3, f"a level inside the range with {n} solutions")
+            need(abs(F(W["lo"]) - fk) > 0.01 and abs(F(W["hi"]) - fk) > 0.01, "a solution on the end of the interval")
+            wrongs = {e10tm_ONCE: {f"{l}{math.floor(span + 1e-9)}"}}
+            if "." not in W["wr"]:
+                wrongs[e10tm_PART] = {f"{l}{e10tm_count(W, fk, hi=W['lo'] + W['T'])}"}
+            if paper == 2:
+                wrongs[e10tm_DEG] = {f"{l}{e10tm_count(W, fk, True)}"}
+        else:
+            need(k in (top, low) and n >= 2, "a line at a turning point")
+            turns = [x for x in xs if abs((F(x + 1e-4) - F(x - 1e-4))) < 1e-3]
+            need(len(turns) == n, "a line at the top or bottom only touches")
+            wrongs = {e10tm_TOUCH2: {f"{l}{2 * n}"}, e10tm_PART: {f"{l}1"}}
+        gc_check_common(q, f"{l}{n}", wrongs)
+        return
+    if u == "k-exactly-n":
+        m = re.fullmatch(r"Find the set of values of k for which f\(x\) = k has exactly (\d+) solutions\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        n = int(m[1])
+        lo, r1, r2, hi, bs = e10tm_exactly(W, n)
+        t = lambda a, ra, rb, b: f"{dec_text(a)} {ra} k {rb} {dec_text(b)}"
+        wrongs = {e10tm_WHOLE: {t(low, "≤", "≤", top)}}
+        if (r1 == "<" and lo == low) or (r2 == "<" and hi == top):
+            wrongs[e10tm_TOUCH_END] = {t(lo, "≤" if lo == low else r1, "≤" if hi == top else r2, hi)}
+        gc_check_common(q, t(lo, r1, r2, hi), wrongs)
+        said = e10tm_band_text(bs)
+        for sol in q["solutions"]:
+            need(any(said in st for st in sol["steps"]), f"{sol['name']}: the counts in the working aren't {said!r}")
+        return
+    vals = e10tm_turns(F, W["lo"], W["hi"])
+    need(abs(max(vals) - float(top)) < 1e-8 and abs(min(vals) - float(low)) < 1e-8, "the interval misses a turning point")
+    if u == "k-any-solution":
+        need(ask == "Find the set of values of k for which f(x) = k has at least one solution.", f"can't read {ask!r}")
+        t = lambda a, r, b: f"{dec_text(a)} {r} k {r} {dec_text(b)}"
+        gc_check_common(q, t(low, "≤", top), {e10tm_ENDS: {t(low, "<", top)}, e10tm_NO_D: {t(-amp, "≤", amp)}})
+    elif u == "k-no-solution":
+        need(ask == "Find the set of values of k for which f(x) = k has no solutions.", f"can't read {ask!r}")
+        t = lambda a, b, s: f"k {'<' if s else '≤'} {dec_text(a)} or k {'>' if s else '≥'} {dec_text(b)}"
+        gc_check_common(q, t(low, top, True), {e10tm_TOUCH_END: {t(low, top, False)}, e10tm_NO_D: {t(-amp, amp, True)}})
+    elif u == "touch-one-solution":
+        need(ask == "Find the two values of k for which f(x) = k has exactly one solution.", f"can't read {ask!r}")
+        ones = [h for h in (low, W["d"], top) if e10tm_count(W, float(h)) == 1]
+        need(ones == [low, top], f"one solution at {ones}")
+        for i in range(1, 12):
+            need(e10tm_count(W, float(low) + (float(top) - float(low)) * (i + 0.1) / 13) >= 2, "a k inside the range with one solution")
+        t = lambda a, b: f"k = {dec_text(a)} or k = {dec_text(b)}"
+        gc_check_common(q, t(low, top), {e10tm_NO_D: {t(-amp, amp)}})
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def e10tm_touch(q):
+    L, asked, rep = q["lines"], q["asked"], q["view"]["rep"]
+    need(asked == "Find p.", f"can't read {asked!r}")
+    m = re.fullmatch(r"f\(x\) = (.+), with x in radians(, and p > 0)?\.", L[0])
+    t = re.match(rf"The line y = ({e10tm_NUM}) touches the graph of f at its (maximum|minimum) points\.", L[1])
+    need(m is not None and t is not None, f"can't read {L}")
+    k, big = e9trig_n(t[1]), t[2] == "maximum"
+    text = m[1]
+    if text.startswith("p "):
+        need(m[2] is not None, "p needs a sign")
+        W = e10tm_wave_of(text[2:])
+        p = k - W["d"] if big else W["d"] - k
+        need(p > 0, "p is positive")
+        W = e10tm_wave_of(dec_text(p) + " " + text[2:])
+        wrongs = {e10tm_OTHER: {f"p = {dec_text(-p)}"}, e10tm_NO_D: {f"p = {dec_text(k if big else -k)}"}}
+    else:
+        need(text.endswith(" + p"), f"can't read {text!r}")
+        W0 = e10tm_wave_of(text[:-4])
+        amp = W0["amp"]
+        p = k - amp if big else k + amp
+        W = W0
+        W["d"], W["fd"] = p, float(p)
+        wrongs = {e10tm_OTHER: {f"p = {dec_text(k + amp if big else k - amp)}"}}
+    vals = e10tm_turns(W["F"], 0.0, 3 * W["T"])
+    need(abs((max(vals) if big else min(vals)) - float(k)) < 1e-8, "the line doesn't touch the wave")
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if fig is not None:
+        for x, y in fig["curves"][0][::13]:
+            need(abs(y - W["F"](x)) < 1e-6, "the curve is another wave")
+        e10tm_line(q, W, k)
+    gc_check_common(q, "p = " + dec_text(p), wrongs)
+
+
+def e10tm_vs(q, u):
+    L, ask, rep = q["lines"], q["asked"], q["view"]["rep"]
+    m = re.fullmatch(rf"(.+) = (.+), for (\S+) ≤ x ≤ (\S+), with x in radians\.", L[0])
+    need(m is not None, f"can't read {L[0]!r}")
+    W = e10tm_wave_of(m[1], m[3], m[4])
+    need(W["d"] == 0, "the trig side has no constant")
+    r = re.fullmatch(rf"(\d+(?:\.\d+)?)x", m[2])
+    if r:
+        slope = float(e9trig_n(r[1]))
+        H = lambda x: slope * x
+    else:
+        e = re.fullmatch(r"e\^\(−(\d+(?:\.\d+)?)?x\)", m[2])
+        need(e is not None, f"can't read {m[2]!r}")
+        slope = None
+        rate = float(e9trig_n(e[1])) if e[1] else 1.0
+        H = lambda x: math.exp(-rate * x)
+    # The map's own examples stay the map's.
+    if slope is not None:
+        need(not (W["A"] == 1 and W["b"] == 1 and W["fn"] == "sin" and abs(slope - 0.3) < 1e-9), "the map's own equation")
+    else:
+        need(not (W["A"] == 2 and W["b"] == 1 and W["fn"] == "cos" and rate == 1.0), "the map's own equation")
+    lo, hi = W["lo"], W["hi"]
+    F, G = (lambda x: W["F"](x) - H(x)), (lambda x: W["G"](x) - H(x))
+    xs, ds = e10tm_roots(F, lo, hi), e10tm_roots(G, lo, hi)
+    need(len(xs) >= 2, f"{len(xs)} solutions")
+    for x in xs:
+        need(x == 0 or (abs(x - lo) > 0.1 and abs(x - hi) > 0.1), "a solution on the end of the interval")
+        need(abs(F(x + 1e-5) - F(x - 1e-5)) / 2e-5 > 0.1, "the curves nearly touch")
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if fig is not None:
+        need(len(fig["curves"]) == 2, "two curves")
+        for x, y in fig["curves"][0][::13]:
+            need(abs(y - W["F"](x)) < 1e-6, "the curve is another wave")
+        for x, y in fig["curves"][1][::13]:
+            need(abs(y - H(x)) < 1e-6, "the curve is another line or exponential")
+    origin = any(x == 0 for x in xs)
+    pos = [x for x in xs if x > 1e-6]
+    if u == "count-vs-line":
+        need(slope is not None, "a line")
+        n = len(xs)
+        l = "Number of solutions = "
+        wrongs = {e10tm_DEG: {f"{l}{len(ds)}"}}
+        waves = math.floor((hi - lo) * W["fb"] / (2 * math.pi) + 1e-9)
+        if float(W["amp"]) / slope < hi:
+            wrongs[e10tm_EVERY] = {f"{l}{2 * waves}"}
+        if lo < 0:
+            wrongs[e10tm_PART] = {f"{l}{len(pos)}"}
+        if origin:
+            wrongs[e10tm_ORIGIN] = {f"{l}{n - 1}"}
+        gc_check_common(q, f"{l}{n}", wrongs)
+        return
+    wrongs = {}
+    if ds:
+        wrongs[e10tm_DEG] = {e10tm_list("x", ds)}
+    if u == "solve-vs-line":
+        keep = [x for x in xs if x > -1e-6]
+        if keep:
+            wrongs[e10tm_PART] = {e10tm_list("x", keep)}
+        if origin:
+            wrongs[e10tm_ORIGIN] = {e10tm_list("x", [x for x in xs if x != 0])}
+    else:
+        wrongs[e10tm_PART] = {e10tm_list("x", xs[:-1])}
+    gc_check_common(q, e10tm_list("x", xs), wrongs)
+    e10tm_numbers_in(q, "x = ", xs)
+
+
+def e10tm_check(q):
+    u, angle, paper = q["view"]["unknown"], q["view"]["angle"], q["paper"]
+    if u in e10tm_EXACT:
+        need(paper == 1, f"{u} is Paper 1")
+    elif u not in e10tm_WAVE or angle == "gdc-intersect":
+        need(paper == 2, f"{u} by {angle} is Paper 2")
+    tr_hyphens(q)
+    if u in e10tm_EXACT:
+        e10tm_exact(q, e9trig_model(q), u)
+    elif u in e10tm_STORY:
+        e10tm_story(q, e9trig_model(q), u)
+    elif u in e10tm_WAVE:
+        e10tm_wave(q, u)
+    else:
+        e10tm_vs(q, u)
+    e9trig_sums(q)
+    return None, None
+
+
+# ── end trig-model-equation ──
+
+SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
+                    "sample-space": e10ss_check,
+                    "trig-model-equation": e10tm_check,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,
@@ -29419,13 +32779,15 @@ SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between"
                     "fn-link-extremes": check_link_extremes,
                     "fn-link-graph-vs-algebra": check_link_graph_algebra,
                     "regression-interpret": e9regr_check,
-                    "binomial": check_binomial, "geometric-sequence": check_geometric, "binomial-expansion": check_binomial_expansion, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
+                    "binomial": check_binomial, "geometric-sequence": check_geometric, "geometric-context": e10ge_check, "binomial-expansion": check_binomial_expansion, "algebraic-proof": check_algebraic_proof, "data-summary": check_data_summary, "regression": check_regression,
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
+                    "depreciation": e10de_check,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional, "independence": check_independence,
+                    "inverse-normal": e10in_check,
                     "basic-function": check_basic, "basic-restricted": check_restricted, "basic-one-to-one": check_one_to_one, "basic-relation": check_relation, "fn-pre-substitute": check_substitute,
                     "line-conditions": check_line_conditions, "line-crossing": check_line_crossing, "line-model": check_line_model,
                     "fn-pre-linear-equations": check_linear_equation, "fn-pre-simultaneous": check_simultaneous,

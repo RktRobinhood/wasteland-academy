@@ -2468,6 +2468,66 @@
     "two given terms are at least two steps apart, and neither is u₁ when u₁ is asked"
    ]
   },
+  "arithmetic-context": {
+   "name": "An arithmetic sequence or series in a story",
+   "summary": "A story that is one arithmetic sequence: rows of seats, a yearly wage, an amount that changes by the same step, simple interest, a stack of rows, or data that are nearly arithmetic. u₁ and d come from the story, a table, a graph or a figure. The story decides whether a term, a total, a term number or a judgement is wanted, and ArithmeticSequenceSituation's helpers do the sums.",
+   "quantities": [
+    {
+     "name": "story",
+     "is": "what the terms count, and in what steps",
+     "pick": "one of eight sequences (four rising, four falling), five amounts that change each step, three lines of evenly spaced things, three net changes that fall past 0, five data tables or three stacks"
+    },
+    {
+     "name": "u₁, d",
+     "is": "the first term and the common difference",
+     "pick": "the story's own range: whole numbers, or steps of 0.1 or 0.5 where the story has decimals, so every term ends"
+    },
+    {
+     "name": "n",
+     "is": "the term number or the number of terms asked about",
+     "pick": "8 to 40 for a term and 6 to 30 for a total, with the story still positive one term past it"
+    },
+    {
+     "name": "X",
+     "is": "a target for a term or a running total",
+     "pick": "a round number strictly between two neighbours, with the real n at least 0.1 from a whole number"
+    },
+    {
+     "name": "rate",
+     "is": "the rate of simple interest",
+     "pick": "2% to 9% in steps of 0.5%, on a deposit of 400 to 5000 tokens in hundreds"
+    },
+    {
+     "name": "data",
+     "is": "the table of a nearly arithmetic story",
+     "pick": "5 to 8 years, a step of the story's size and whole-number noise of up to a third of it; every change has the story's sign, and the changes are not all equal"
+    },
+    {
+     "name": "d estimates",
+     "is": "what the data say d is",
+     "pick": "(last − first) ÷ gaps, and the gradient of the regression line, exact from the sums"
+    },
+    {
+     "name": "N",
+     "is": "the year of a prediction",
+     "pick": "2 to 6 years past the table; for a comment, 1 or 2 past it (near), at least three spans past it (far), or past the story's limit (capped)"
+    },
+    {
+     "name": "crate",
+     "is": "the size of a stack's whole crates",
+     "pick": "10, 12, 15, 16, 20, 24, 25 or 30, where a multiple comes within 40 rows and not in the first two"
+    }
+   ],
+   "clean": [
+    "Paper 2 only: every part of this type in the bank is Paper 2",
+    "a count or amount that ends is marked exactly; what comes from imperfect data is to 3 s.f.",
+    "a target is not a term, and its real n is at least 0.1 from a whole number",
+    "in a whole-number test u₁ is not a multiple of d, and n is a decimal that ends within two places",
+    "in a story every term asked about is positive; only the net stories have negative terms",
+    "the stated limit of a story is passed by both the estimate from d and the regression line's",
+    "wrong options read differently to 3 s.f.; a number written to 3 s.f. is clear of a rounding edge"
+   ]
+  },
   "distribution": {
    "name": "One discrete random variable with its probability distribution",
    "summary": "Pick 3 to 5 values of X and their probabilities, as multiples of k, as a formula P(X = x) = k f(x), or as decimals, so they add to 1. A game variant has prizes and a stake. Every probability, E(X), the probability of any event and the expected number of times it happens in n trials are then known, and any of them can be asked.",
@@ -2917,6 +2977,55 @@
     "a rate asked for is a quarter of a per cent, and its 3 s.f. value is clear of an edge, so the answer and its 2 s.f. rounding trap read differently",
     "a time asked for is the first whole number of years that passes the target, with the real solution at least 0.15 from a whole number",
     "the slips (the annual rate over kn periods, simple interest, the root without the 1 taken off, the total growth shared over n years, the time rounded to the nearest year) each read differently from the answer"
+   ]
+  },
+  "depreciation": {
+   "name": "A thing bought at a price that keeps a fixed fraction of its value each year, month or quarter",
+   "summary": "Pick a price, a rate of depreciation and a number of years. The value after those years, the total loss, the loss in one year, the original price, the rate, a value under two rates, the gap to an account and the time to fall below a target are then all known.",
+   "quantities": [
+    {
+     "name": "P",
+     "is": "the price paid",
+     "pick": "a multiple of 1000 dollars from 4000 to 60000 (of 10000, to 60000, in a table of months or quarters); found, not given, for the original value"
+    },
+    {
+     "name": "r",
+     "is": "the rate of depreciation, in per cent per period",
+     "pick": "a whole number from 5 to 30 a year; 10 to 30 in the first year of two rates, with a later rate from 5 to 2 below that; 0.5 to 3.0 a month or 1.5 to 8.0 a quarter"
+    },
+    {
+     "name": "c",
+     "is": "the multiplier, 1 − r/100",
+     "pick": "follows from r"
+    },
+    {
+     "name": "n",
+     "is": "the number of years, or the year asked about",
+     "pick": "3 to 10; 2 to 8 for one year's loss or the original value"
+    },
+    {
+     "name": "V",
+     "is": "P × c^n",
+     "pick": "a value whose leftover fraction of a dollar is at least 0.15 from 0.5; given as a multiple of 1000 for the original value, and in whole dollars for a rate asked for"
+    },
+    {
+     "name": "account",
+     "is": "a sum S at i % a year, compounded yearly, over the same n",
+     "pick": "S a multiple of 500 up to 7/10 of P, i a whole number from 2 to 8, and the value at least 100 dollars more than the account"
+    },
+    {
+     "name": "target",
+     "is": "the value a time asks the price to fall below",
+     "pick": "a multiple of 500 from 15% to 80% of P (20% to 80% with a rate per period), or 10, 20, 25, 30, 40, 50 or 60% of P, with the real solution at least 0.15 from a whole number"
+    }
+   ],
+   "clean": [
+    "Paper 2 only, as all 5 bank parts are: the GDC's TVM solver, table or graph, or logs, does the work",
+    "money answers are to the nearest dollar, exactly, and every value, and every wrong option a slip gives, leaves a fraction of a dollar at least 0.15 from the rounding edge at 0.5",
+    "a rate asked for is found from whole-dollar values, is clear of a 3 s.f. edge, and its 3 s.f. value does not end in 0, so it reads differently from its 2 s.f. trap",
+    "a table of values is exact to the cent",
+    "a time is the first whole number of years, months or quarters below the target, with the real solution at least 0.15 from a whole number",
+    "r × n is at most 90, so the straight-line slip still leaves a positive value"
    ]
   },
   "differentiation": {
@@ -3935,6 +4044,66 @@
     "a Paper 1 time is past the first quadrant and off the axes, so the sign has to be worked out"
    ]
   },
+  "trig-model-equation": {
+   "name": "A trig equation or inequality to solve or count",
+   "extends": "trig-wave",
+   "summary": "One trig equation or inequality, for its times or the number of its solutions. A story keeps the trig-wave model and adds a level with a window or a span that isn't whole cycles; on Paper 1 the level sits halfway from the axis to a peak or trough, so every time is exact. A wave on an interval asks how many solutions f(x) = k has and which k give how many. A trig curve against a line or a falling exponential has no algebra to solve it.",
+   "quantities": [
+    {
+     "name": "form, A, C, d, period or bdec",
+     "is": "a story's model, as in trig-wave",
+     "pick": "on Paper 1 A sin(2πt/T), A cos or −A cos with a whole period"
+    },
+    {
+     "name": "level, ratio",
+     "is": "the level, and (level − d) ÷ A on Paper 1",
+     "pick": "a half well inside the wave on Paper 2, a ratio of plus or minus one half on Paper 1"
+    },
+    {
+     "name": "above",
+     "is": "which side of the level is asked for",
+     "pick": "above or below"
+    },
+    {
+     "name": "L, t_from, t_to",
+     "is": "a span from 0, or a window",
+     "pick": "a span of 1.3 to 3.7 cycles or a window starting after the first crossing, with nothing on its ends"
+    },
+    {
+     "name": "kind, a, bq, d",
+     "is": "a wave a fn(bx) + d",
+     "pick": "b as x, πx or a decimal, as in trig-wave; a negative in three of ten"
+    },
+    {
+     "name": "lo_x, hi_x",
+     "is": "the interval",
+     "pick": "quarters of a period, or a whole end for a decimal b"
+    },
+    {
+     "name": "k, big, n_sol, k_lo, k_hi, r1, r2",
+     "is": "a line y = k, or the band of k with exactly n solutions",
+     "pick": "derived by counting along the wave's monotonic pieces"
+    },
+    {
+     "name": "which",
+     "is": "the letter of the wave a touching line fixes",
+     "pick": "a or d"
+    },
+    {
+     "name": "vs, m, e, origin",
+     "is": "the other curve, mx or e^(−ex)",
+     "pick": "a slope in hundredths or an exponent from 0.2 to 1.5"
+    }
+   ],
+   "clean": [
+    "Paper 1 is exact",
+    "Paper 2 times are to 3 s.f., clear of a rounding edge",
+    "no crossing sits on the end of a window or span",
+    "two curves cross clearly, with no near miss",
+    "an interval's count is clear unless the line is at a turning point on purpose",
+    "the map's own example equations are never asked"
+   ]
+  },
   "geometric-sequence": {
    "name": "One geometric sequence and its sums",
    "summary": "Pick u₁ and r (or the two terms, the expressions in k, the Σ, the story), then derive every term, Sₙ and S∞, so any of them can be hidden and any shown.",
@@ -3980,6 +4149,60 @@
     "Paper 2: sizes up to 5 000 000, each clear of a rounding edge at 3 s.f.",
     "terms shown are whole on Paper 1 and end in decimals on Paper 2",
     "a graph's dots are small whole numbers"
+   ]
+  },
+  "geometric-context": {
+   "name": "A story modelled by a geometric sequence",
+   "summary": "Pick a story, a first value and a percentage change or rebound, so the multiplier r is known. Every later value, a total, the moment a target is passed and the year a geometric model passes an arithmetic one all follow.",
+   "quantities": [
+    {
+     "name": "story",
+     "is": "what changes and in what steps",
+     "pick": "a value today or an amount in round 1, rising or falling; a dropped ball; two deals; two rivals; a set of rectangles; or a count that multiplies"
+    },
+    {
+     "name": "p, r",
+     "is": "the percentage change and the multiplier",
+     "pick": "p whole, from 3 to 25 for a rise and 5 to 40 for a fall, and r = 1 ± p/100; 20 to 50 on a graph, so that the dots are few; 10, 20 or 50 for a value on Paper 1"
+    },
+    {
+     "name": "u₁ or the value today",
+     "is": "where the sequence starts",
+     "pick": "a round whole number: its first rows in a table are exact decimals"
+    },
+    {
+     "name": "t, n, k",
+     "is": "rounds passed, a term number, a bounce",
+     "pick": "4 to 8 rounds or terms for a value (2 to 4 on Paper 1), 5 to 9 terms for a total, 3 to 8 bounces"
+    },
+    {
+     "name": "target",
+     "is": "what uₙ, Sₙ or S∞ − Sₙ has to pass",
+     "pick": "2 s.f. of a value part-way between two terms, or a small value such as 0.05"
+    },
+    {
+     "name": "a, d, b",
+     "is": "an arithmetic rival and a geometric one",
+     "pick": "b below a, so that B passes A once and stays ahead"
+    },
+    {
+     "name": "w, h, k",
+     "is": "the sides of a first rectangle and their scale factor",
+     "pick": "whole sides, with k from 3/2, 2, 5/4, 3, 6/5 and 4/3, so the area factor k² is exact"
+    },
+    {
+     "name": "last term",
+     "is": "the end of a finite sequence",
+     "pick": "u₁ × r^(n − 1), with r from 2 to 5, so that r^(n − 1) is an exact power"
+    }
+   ],
+   "clean": [
+    "Paper 1: exact values, whole heights, and terms up to 200 000",
+    "Paper 2: values are floats, as a GDC gives them, up to 5 000 000 and clear of a rounding edge at 3 s.f.",
+    "a crossing is at least 0.1 from a whole number, so that the whole n or year is not in doubt",
+    "in a table, the rows shown are exact",
+    "the rival B starts below A and is at least 0.5 clear of A in the years either side of the crossing",
+    "the stories are not those of the bank"
    ]
   },
   "normal-probability": {
@@ -4029,6 +4252,55 @@
     "a bound is at least a tenth of a standard deviation from μ, except a recorded value, which can sit on it",
     "every region has an area of at least 0.005 on each side, and an expected count stays a decimal unless the 3 s.f. make it whole",
     "a variable that can be negative has a real area below 0, so using 0 as the lower bound changes the answer"
+   ]
+  },
+  "inverse-normal": {
+   "name": "A normal variable with a value asked for",
+   "extends": "normal-probability",
+   "summary": "The normal variable the other way round: μ and σ known, an area given, and the value it cuts off asked for. It adds the area and the value; the normal function, the stories and the curve are the base situations'. Paper 1 has no invNorm, so there the area comes with what fixes the value: a second curve with the same σ, a mirror tail, a band of the 68-95-99.7 rule, or a line of N(0, 1).",
+   "quantities": [
+    {
+     "name": "p",
+     "is": "the area given",
+     "pick": "hundredths: a tail from 0.01 to 0.38, or 0.62 to 0.99 for the side holding the mean"
+    },
+    {
+     "name": "level",
+     "is": "a central area, or a band's area",
+     "pick": "hundredths: 0.5 to 0.98 for a central area, 0.3 to 0.9 for a band"
+    },
+    {
+     "name": "b",
+     "is": "the known end of a band",
+     "pick": "a whole number, or a tenth when σ is under 3, from 0.3 to 2.2 standard deviations from μ"
+    },
+    {
+     "name": "r, small",
+     "is": "the ratio of the two tails outside a band, and the smaller tail",
+     "pick": "r from 2 to 4; the smaller tail in thousandths from 0.01 to 0.12, leaving a band of at least 0.5"
+    },
+    {
+     "name": "mu1, mu2, c",
+     "is": "two means with one σ, and a value of the second variable",
+     "pick": "whole numbers, on Paper 1"
+    },
+    {
+     "name": "k",
+     "is": "how many standard deviations a band of the rule reaches",
+     "pick": "1, 2 or 3, on Paper 1"
+    },
+    {
+     "name": "z0, table",
+     "is": "a line of the standard normal given",
+     "pick": "z0 in tenths from 0.5 to 2.5, with its area to 3 d.p., on Paper 1"
+    }
+   ],
+   "clean": [
+    "Paper 2 answers are to 3 s.f. and at least 0.03 of a unit of the third figure from a rounding edge, as is every slip offered",
+    "Paper 1 answers are exact, with no area that needs a calculator",
+    "the value is at least 0.3 standard deviations from μ, and reads differently from μ to 3 s.f.",
+    "σ is at most a quarter of μ, so the measures stay positive",
+    "a Paper 1 question never needs σ itself where it is a letter"
    ]
   },
   "basic-probability": {
@@ -4103,6 +4375,76 @@
     "a frequency chart's relative frequency on Paper 1 has a total of 20, 25, 40, 50, 80, 100 or 200, so it ends",
     "a running relative frequency comes from real counts: hits never fall, and rise by no more than the trials added",
     "an event's probability is never one half where its complement is asked, so the two are always different"
+   ]
+  },
+  "sample-space": {
+   "name": "Two dice or spinners on a grid of outcomes",
+   "summary": "Pick two objects, fair or with unusual faces, and a score. The m × n grid of outcomes is then known, and any cell, count or probability can be asked. A biased object rolled twice has a grid of probabilities. A face or a probability can be left as a letter and found from the sum's distribution or from P(X < Y).",
+   "quantities": [
+    {
+     "name": "kind",
+     "is": "the objects",
+     "pick": "two dice, a die and a spinner, or two spinners"
+    },
+    {
+     "name": "xs, ys",
+     "is": "the faces of each, one entry per face",
+     "pick": "Paper 1: 3 to 6 faces; Paper 2: 5 to 8; 1 to n, or sometimes numbers from 0 to 9 with a repeat"
+    },
+    {
+     "name": "rule",
+     "is": "the score",
+     "pick": "sum, product, difference or larger number"
+    },
+    {
+     "name": "rel, k",
+     "is": "the event",
+     "pick": "a score in the grid, with =, at least, greater than, at most or less than"
+    },
+    {
+     "name": "prop",
+     "is": "a property of the score",
+     "pick": "even, odd, a multiple of 3 or 4, prime or square"
+    },
+    {
+     "name": "hi, mid, d",
+     "is": "the points for a match, and for a difference of d",
+     "pick": "6 to 12, 2 to 5 and 1 or 2"
+    },
+    {
+     "name": "px",
+     "is": "a biased object's probabilities",
+     "pick": "Paper 1: 3 or 4 faces in tenths; Paper 2: 4 or 5 faces in hundredths from 0.11"
+    },
+    {
+     "name": "goal, score, rolls",
+     "is": "a total to reach, the total so far and the rolls so far",
+     "pick": "2 to 4 rolls so far, and two left"
+    },
+    {
+     "name": "c, a, b, t",
+     "is": "the second die c, a, a, b, and a sum whose count picks out a",
+     "pick": "c is 1 or 2, a and b are 1 to 3 above the one before, and b is at least c + 3"
+    },
+    {
+     "name": "qy, ry, pa",
+     "is": "P(Y) on all but the last face, on the last face, and P(X < Y)",
+     "pick": "X in quarters to tenths on 3 or 4 faces, q in quarters to twelfths, r the rest"
+    }
+   ],
+   "modes": [
+    "fair",
+    "biased",
+    "letter on a face",
+    "letter on a probability"
+   ],
+   "clean": [
+    "Paper 1 answers are exact",
+    "Paper 2 answers need rounding and are at least 0.03 of a unit of the third figure from a rounding edge",
+    "an event has 2 to 16 cells, and 2 to 8 on a biased die, fewer than the whole grid",
+    "a distribution table has at most 7 sums",
+    "P(X < Y) is between 0 and 1 with a denominator of at most 60",
+    "q and r are above 0 and differ, and q from counting the ties is a different real value"
    ]
   },
   "algebraic-proof": {
@@ -20241,14 +20583,770 @@
    "id": "t1-arithmetic-in-context",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Arithmetic sequence or series modelling a pattern or context",
+   "summary": "A story that is an arithmetic sequence: find a term or a total, tell 'after n years' from 'in year n', find simple interest, estimate d from imperfect data and comment on a prediction, or find n: which term has a value, the first to pass a target, whether a value is a term at all.",
    "syllabus": [
     "1.2"
    ],
    "skills": [
     "SL1.2.model",
     "SL1.2.find-n"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read u₁ and d from the story, the table, the graph or the figure",
+    "decide whether the question wants one term, a total or a term number",
+    "count the steps of d: term n is n − 1 steps from u₁, and a value after n steps is u₍ₙ₊₁₎ when u₁ is the start",
+    "for a target, solve and round up, or read the table or the graph",
+    "with imperfect data, estimate d, predict, and say how far to trust it"
+   ],
+   "given": [
+    "a story in words",
+    "a table of the first terms, or of data",
+    "a line or dots on a graph",
+    "a figure of three stacks of rows"
+   ],
+   "asked": "A term, a total, an amount after n steps, a term number, the number of terms, the first term or total past a target, whether a value is a term, an estimate of d, a prediction, a comment on validity, the greatest total, or the fewest rows that use whole crates.",
+   "answerForms": [
+    "a whole number or a decimal that ends, marked exactly",
+    "3 s.f.",
+    "a choice in words"
+   ],
+   "randomise": [
+    "the story",
+    "u₁ and d, rising or falling",
+    "the term or the number of terms",
+    "the target",
+    "the data, and the year predicted"
+   ],
+   "constraints": [
+    "Paper 2: a GDC table, a graph and a regression are all in play",
+    "every option is a different number or statement, and every wrong statement is false for the numbers shown",
+    "a target is never a term, and its real n is clear of a whole number"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "arithmetic-context",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story giving u₁ and d in its own words"
+    },
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "a table of the first terms or of yearly data, with d to be found"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the line of uₙ against n with two labelled dots and the target drawn, or the data's labelled dots"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "three stacks of 1, 2 and 3 rows, side by side, as the bank's pattern figures have it"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "term-in-context",
+     "given": [
+      "a story, or a table of its first terms"
+     ],
+     "asked": "one term of the sequence",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "total-in-context",
+     "given": [
+      "a story, or a table of its first terms"
+     ],
+     "asked": "the total of the first n terms",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "term-or-total",
+     "given": [
+      "a story, and a question in its words"
+     ],
+     "asked": "which calculation answers it: one term or a total",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "in-or-after",
+     "given": [
+      "a story told in steps of time, or a table"
+     ],
+     "asked": "the value in step n, or once n full steps have passed",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "value-after",
+     "given": [
+      "an amount at the start and its change each step, or a table"
+     ],
+     "asked": "the amount after n steps",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "simple-interest",
+     "given": [
+      "a deposit and a rate, or a table of values"
+     ],
+     "asked": "the value of the deposit after n years",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "estimate-d",
+     "given": [
+      "yearly data that are nearly arithmetic"
+     ],
+     "asked": "d from the first and last values, to 3 s.f.",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "fit-gradient",
+     "given": [
+      "yearly data that are nearly arithmetic"
+     ],
+     "asked": "d as the regression gradient, to 3 s.f.",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "predict-from-gaps",
+     "given": [
+      "yearly data that are nearly arithmetic"
+     ],
+     "asked": "a later value, from d estimated by first and last, to 3 s.f.",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "predict-from-line",
+     "given": [
+      "yearly data that are nearly arithmetic"
+     ],
+     "asked": "a later value from the regression line, to 3 s.f.",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "comment-validity",
+     "given": [
+      "yearly data, a prediction, and any limit in the story"
+     ],
+     "asked": "whether the prediction is valid, and why",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "stack-total",
+     "given": [
+      "stacks of 1, 2 and 3 rows, or a table of totals"
+     ],
+     "asked": "the number of items in a stack of n rows",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model"
+     ]
+    },
+    {
+     "id": "peak-total",
+     "given": [
+      "terms that fall past 0, in a story or a table"
+     ],
+     "asked": "the greatest running total",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.model",
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "term-number",
+     "given": [
+      "a sequence and a value in it"
+     ],
+     "asked": "the term number that has the value",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "zero-term",
+     "given": [
+      "a falling sequence"
+     ],
+     "asked": "the term number that reaches 0",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "count-terms",
+     "given": [
+      "first value, last value and gap, or a table and the last value"
+     ],
+     "asked": "how many terms there are",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "first-past",
+     "given": [
+      "a sequence and a target"
+     ],
+     "asked": "the first term number past the target",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "first-total-past",
+     "given": [
+      "a rising sequence and a target for its total"
+     ],
+     "asked": "the first n whose running total passes the target",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "whole-n-test",
+     "given": [
+      "a sequence and a value"
+     ],
+     "asked": "whether the value is a term, justified by n",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    },
+    {
+     "id": "stack-crates",
+     "given": [
+      "a stack of rows and a crate size"
+     ],
+     "asked": "the fewest rows that use whole crates exactly",
+     "level": 5,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL1.2.find-n"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.2.model",
+     "method": "identify-parameters",
+     "suits": [
+      "term-in-context",
+      "total-in-context",
+      "term-or-total",
+      "in-or-after",
+      "value-after",
+      "simple-interest",
+      "stack-total",
+      "peak-total"
+     ]
+    },
+    {
+     "skill": "SL1.2.model",
+     "method": "tabulate",
+     "suits": [
+      "term-in-context",
+      "total-in-context",
+      "in-or-after",
+      "value-after",
+      "simple-interest",
+      "stack-total"
+     ]
+    },
+    {
+     "skill": "SL1.2.model",
+     "method": "average-difference",
+     "suits": [
+      "estimate-d",
+      "predict-from-gaps",
+      "comment-validity"
+     ]
+    },
+    {
+     "skill": "SL1.2.model",
+     "method": "gdc-regression",
+     "suits": [
+      "fit-gradient",
+      "predict-from-line",
+      "comment-validity"
+     ]
+    },
+    {
+     "skill": "SL1.2.find-n",
+     "method": "solve-linear",
+     "suits": [
+      "term-number",
+      "zero-term",
+      "count-terms",
+      "first-past",
+      "whole-n-test"
+     ]
+    },
+    {
+     "skill": "SL1.2.find-n",
+     "method": "count-steps",
+     "suits": [
+      "term-number",
+      "zero-term",
+      "count-terms",
+      "whole-n-test"
+     ]
+    },
+    {
+     "skill": "SL1.2.find-n",
+     "method": "gdc-table",
+     "suits": [
+      "term-number",
+      "zero-term",
+      "first-past",
+      "first-total-past",
+      "peak-total",
+      "stack-crates"
+     ]
+    },
+    {
+     "skill": "SL1.2.find-n",
+     "method": "graph-intersect",
+     "suits": [
+      "term-number",
+      "zero-term",
+      "first-past",
+      "first-total-past"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If u₁ is the amount at the start, the amount after 5 years is u₅.",
+     "answer": "False: u₁ is after 0 years, so after 5 years it is u₆. Writing out the first few terms shows the shift.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A value that is a multiple of d is a term of an arithmetic sequence.",
+     "answer": "Sometimes: it depends on u₁. A value is a term exactly when (value − u₁) ÷ d is a whole number.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Predict whether d from first and last values and d from a regression line will be equal for data that are nearly arithmetic. Check with a table of your own.",
+     "answer": "Usually not: the first uses two values only, the regression uses them all. They are equal when the data are exactly arithmetic.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.2.model#1",
+     "text": "Taking the value after n steps of time as u_n, when u_1 is the value at the start, so the term is one out",
+     "as": "distractor",
+     "in": [
+      "in-or-after",
+      "value-after",
+      "simple-interest"
+     ],
+     "wrong": "u_n, one step short of the amount after n steps"
+    },
+    {
+     "ref": "SL1.2.model#2",
+     "text": "Extrapolating an approximate model far beyond the data without comment",
+     "as": "distractor",
+     "in": [
+      "comment-validity"
+     ],
+     "wrong": "valid, though the year is far beyond the data"
+    },
+    {
+     "ref": "SL1.2.model#3",
+     "text": "Taking the first change in the data as d, instead of the overall change across the data",
+     "as": "distractor",
+     "in": [
+      "estimate-d",
+      "fit-gradient",
+      "predict-from-gaps"
+     ],
+     "wrong": "the first change in the data taken as d"
+    },
+    {
+     "ref": "SL1.2.model#4",
+     "text": "Adding n steps of d onto the last value in the data, instead of counting on from year 1",
+     "as": "distractor",
+     "in": [
+      "predict-from-gaps"
+     ],
+     "wrong": "the last value plus N steps of d"
+    },
+    {
+     "ref": "SL1.2.model#5",
+     "text": "Reading the regression line's b as the common difference, instead of its gradient a",
+     "as": "distractor",
+     "in": [
+      "fit-gradient"
+     ],
+     "wrong": "the line's b given as d"
+    },
+    {
+     "ref": "SL1.2.model#6",
+     "text": "Leaving the intercept b out of a prediction from a regression line",
+     "as": "distractor",
+     "in": [
+      "predict-from-line"
+     ],
+     "wrong": "a × N, with no b"
+    },
+    {
+     "ref": "SL1.2.model#7",
+     "text": "Treating a prediction from an approximate model as an exact value",
+     "as": "distractor",
+     "in": [
+      "comment-validity"
+     ],
+     "wrong": "valid and exact"
+    },
+    {
+     "ref": "SL1.2.model#8",
+     "text": "Rejecting every prediction because the data are not exactly arithmetic",
+     "as": "distractor",
+     "in": [
+      "comment-validity"
+     ],
+     "wrong": "no prediction can be made from imperfect data"
+    },
+    {
+     "ref": "SL1.2.model#9",
+     "text": "Trusting a prediction that breaks a limit the story states",
+     "as": "distractor",
+     "in": [
+      "comment-validity"
+     ],
+     "wrong": "valid, though the prediction breaks the limit"
+    },
+    {
+     "ref": "SL1.2.model#10",
+     "text": "Treating simple interest as compound, so that interest earns interest",
+     "as": "distractor",
+     "in": [
+      "simple-interest"
+     ],
+     "wrong": "the deposit compounded for n years"
+    },
+    {
+     "ref": "SL1.2.model#11",
+     "text": "Giving only the interest earned, leaving out the starting amount",
+     "as": "distractor",
+     "in": [
+      "simple-interest"
+     ],
+     "wrong": "n × the yearly interest alone"
+    },
+    {
+     "ref": "SL1.2.model#12",
+     "text": "Stopping one term away from the last positive term when finding the greatest total",
+     "as": "distractor",
+     "in": [
+      "peak-total"
+     ],
+     "wrong": "the running total one term before or after the last positive term"
+    },
+    {
+     "ref": "SL1.2.model#13",
+     "text": "Treating the totals of a stack as an arithmetic sequence, when it is the rows added that are",
+     "as": "distractor",
+     "in": [
+      "stack-total"
+     ],
+     "wrong": "t₁ + (n − 1)(t₂ − t₁)"
+    },
+    {
+     "ref": "SL1.2.model#14",
+     "text": "Putting n + 1 into the regression line instead of n, so the prediction is one step too far",
+     "as": "distractor",
+     "in": [
+      "predict-from-line"
+     ],
+     "wrong": "the line one year too far on"
+    },
+    {
+     "ref": "SL1.2.find-n#0",
+     "text": "Rounding n down when the first term or total past a value is wanted, so the value found has not yet passed it",
+     "as": "distractor",
+     "in": [
+      "first-past",
+      "first-total-past"
+     ],
+     "wrong": "the whole n below the crossing"
+    },
+    {
+     "ref": "SL1.2.find-n#1",
+     "text": "Mixing up n and the value: giving n when the term or total is asked for, or the reverse",
+     "as": "distractor",
+     "in": [
+      "term-number",
+      "first-past",
+      "first-total-past",
+      "peak-total"
+     ],
+     "wrong": "the term's value given as n, or n given as the total"
+    },
+    {
+     "ref": "SL1.2.find-n#2",
+     "text": "Forgetting to add one when counting terms",
+     "as": "distractor",
+     "in": [
+      "term-number",
+      "zero-term",
+      "count-terms",
+      "whole-n-test"
+     ],
+     "wrong": "n − 1: the number of steps"
+    },
+    {
+     "ref": "SL1.2.find-n#3",
+     "text": "Rounding a non-whole n to call the value a term of the sequence",
+     "as": "distractor",
+     "in": [
+      "whole-n-test"
+     ],
+     "wrong": "yes, with n rounded"
+    },
+    {
+     "ref": "SL1.2.find-n#4",
+     "text": "Testing whether the value alone is a multiple of d, without taking off the first term",
+     "as": "distractor",
+     "in": [
+      "whole-n-test"
+     ],
+     "wrong": "the value tested for a multiple of d"
+    },
+    {
+     "ref": "SL1.2.find-n#5",
+     "text": "Setting the number of rows equal to the size of a full pack, instead of making the total a multiple of it",
+     "as": "distractor",
+     "in": [
+      "stack-crates"
+     ],
+     "wrong": "n set to the size of a full pack"
+    },
+    {
+     "ref": "SL1.2.nth-term#0",
+     "text": "Using u₁ + nd, which counts one step too many",
+     "as": "distractor",
+     "in": [
+      "term-in-context",
+      "term-or-total",
+      "in-or-after",
+      "predict-from-gaps"
+     ],
+     "wrong": "one step too many: u₁ + nd"
+    },
+    {
+     "ref": "SL1.2.nth-term#1",
+     "text": "Finding d as the earlier term minus the later term, so a decreasing sequence gets a positive d",
+     "as": "distractor",
+     "in": [
+      "estimate-d"
+     ],
+     "wrong": "a positive d for a falling sequence"
+    },
+    {
+     "ref": "SL1.2.sum#0",
+     "text": "Using n instead of n − 1 inside the formula: n/2(2u_1 + nd)",
+     "as": "distractor",
+     "in": [
+      "total-in-context",
+      "term-or-total",
+      "stack-total"
+     ],
+     "wrong": "nd inside the sum's bracket"
+    },
+    {
+     "ref": "SL1.2.sum#1",
+     "text": "Using the wrong n, such as the last term's value or the number of gaps",
+     "as": "distractor",
+     "in": [
+      "total-in-context",
+      "stack-total"
+     ],
+     "wrong": "the sum of n − 1 terms"
+    },
+    {
+     "ref": "SL1.2.model#0",
+     "text": "Using u_n when the question asks for a total S_n, or the reverse",
+     "as": "distractor",
+     "in": [
+      "term-in-context",
+      "total-in-context",
+      "term-or-total",
+      "in-or-after",
+      "stack-total",
+      "peak-total",
+      "first-past",
+      "first-total-past",
+      "stack-crates"
+     ],
+     "wrong": "a term for a total, or a total for a term"
+    },
+    {
+     "ref": "SL1.2.find-u1-d#0",
+     "text": "Dividing by the number of terms instead of the number of gaps",
+     "as": "distractor",
+     "in": [
+      "estimate-d"
+     ],
+     "wrong": "the change divided by the number of values, not the gaps"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p2-q03.a",
@@ -20697,7 +21795,7 @@
     },
     {
      "ref": "SL1.2.find-n#1",
-     "text": "Answering with n when the question asks for the term itself (or the reverse)",
+     "text": "Mixing up n and the value: giving n when the term or total is asked for, or the reverse",
      "as": "distractor",
      "in": [
       "n-from-term"
@@ -20809,14 +21907,720 @@
    "id": "t1-geometric-in-context",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Geometric sequence or series modelling a context",
+   "summary": "Turn a percentage change or a rebound into a multiplier, then find a later value, a total, the first round past a target or the round one model overtakes another, keeping track of whether a value is 'after t rounds' or 'in round n'.",
    "syllabus": [
     "1.3"
    ],
    "skills": [
     "SL1.3.model",
     "SL1.3.find-n"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "turn the percentage or rebound into r",
+    "decide whether the value wanted is u_t or u_(t + 1)",
+    "use uₙ or Sₙ, or tabulate the first rows",
+    "for a target, solve for the power with logs, a GDC table or a graph",
+    "round to the first whole n that meets the condition"
+   ],
+   "given": [
+    "a story with a first value and a percentage change",
+    "a table of the first rounds",
+    "a dropped ball, with its figure",
+    "dots and a target line, or two models drawn together",
+    "u₁ and a later term, or a Σ"
+   ],
+   "asked": "A value after t rounds or in round n, an expression for uₙ, a total, a mean, the least n past a target, the first round a model overtakes another, or the number of terms.",
+   "answerForms": [
+    "3 s.f.",
+    "a whole number",
+    "an exact value",
+    "an expression in n"
+   ],
+   "randomise": [
+    "the story, rising or falling",
+    "the percentage, or the rebound fraction",
+    "the start and the number of rounds",
+    "the target",
+    "the arithmetic rival's start and step",
+    "the rectangle's sides and scale factor"
+   ],
+   "constraints": [
+    "Paper 2 unless exact: the rectangles, r, the indexing and an exact power are Paper 1",
+    "no calculator working on Paper 1",
+    "a crossing is well clear of a whole number",
+    "a target is never a value the sequence takes"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "geometric-context",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story with a first value and a change, as the bank has it"
+    },
+    {
+     "rep": "notation",
+     "exam": true,
+     "how": "u₁ and r, u₁ and a later term, the first terms and the last, or a Σ"
+    },
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "the path of a dropped ball, with the drop height marked"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "the first three rounds, from which r is read"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "dots with the target as a line, the first three labelled, or two rival models as curves"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "factor-from-percent",
+     "given": [
+      "a value and a percentage change"
+     ],
+     "asked": "the multiplier r",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "value-after-years",
+     "given": [
+      "a value today and its percentage change, or a table"
+     ],
+     "asked": "the value after t rounds, which is t multiplications",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "value-in-round",
+     "given": [
+      "an amount in round 1 and its percentage change, or a table"
+     ],
+     "asked": "the amount in round n, which is n − 1 multiplications",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "term-number-after",
+     "given": [
+      "u₁ as the value today"
+     ],
+     "asked": "which term is the value after t rounds",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "rebound-height",
+     "given": [
+      "a drop height and a rebound fraction or percentage"
+     ],
+     "asked": "the height after the kth bounce",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "nth-expression",
+     "given": [
+      "an amount in round 1 and how it changes"
+     ],
+     "asked": "uₙ as an expression in n",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "total-over-rounds",
+     "given": [
+      "an amount in round 1 and its percentage change, or a table"
+     ],
+     "asked": "the total over n rounds",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "total-two-deals",
+     "given": [
+      "a flat deal and a deal rising by a percentage, for n payments"
+     ],
+     "asked": "the difference between the two totals",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "overtake-first-round",
+     "given": [
+      "an arithmetic model and a geometric one"
+     ],
+     "asked": "the first round in which the geometric one is ahead",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "scaled-area-term",
+     "given": [
+      "the sides of a first rectangle and their scale factor"
+     ],
+     "asked": "the area of the nth rectangle, in terms of n",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "mean-of-areas",
+     "given": [
+      "the sides of a first rectangle, their scale factor and how many rectangles"
+     ],
+     "asked": "the mean area, as p × (b^a − 1)",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL1.3.model"
+     ]
+    },
+    {
+     "id": "least-n-term",
+     "given": [
+      "a rising sequence and a target"
+     ],
+     "asked": "the least n with uₙ past the target",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph",
+      "notation"
+     ],
+     "skills": [
+      "SL1.3.find-n"
+     ]
+    },
+    {
+     "id": "least-rounds-after",
+     "given": [
+      "a value today, its percentage change and a target"
+     ],
+     "asked": "the least whole t after which the target is passed",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.3.find-n"
+     ]
+    },
+    {
+     "id": "least-n-sum",
+     "given": [
+      "a rising sequence and a target for the total"
+     ],
+     "asked": "the least n with Sₙ past the target",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph",
+      "notation"
+     ],
+     "skills": [
+      "SL1.3.find-n"
+     ]
+    },
+    {
+     "id": "least-n-two-terms",
+     "given": [
+      "u₁, a later term and a target for the total"
+     ],
+     "asked": "the least n with Sₙ past the target, after finding r",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "notation"
+     ],
+     "skills": [
+      "SL1.3.find-n"
+     ]
+    },
+    {
+     "id": "first-below",
+     "given": [
+      "a falling sequence and a small value"
+     ],
+     "asked": "the least n with uₙ below it",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table",
+      "graph",
+      "notation"
+     ],
+     "skills": [
+      "SL1.3.find-n"
+     ]
+    },
+    {
+     "id": "gap-to-limit",
+     "given": [
+      "a falling sequence or its Σ, and a small value"
+     ],
+     "asked": "the least n with S∞ − Sₙ below it",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "notation"
+     ],
+     "skills": [
+      "SL1.3.find-n"
+     ]
+    },
+    {
+     "id": "count-terms-power",
+     "given": [
+      "the first terms and the last, which is u₁ times an exact power of r"
+     ],
+     "asked": "the number of terms",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "notation",
+      "table"
+     ],
+     "skills": [
+      "SL1.3.find-n"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.3.model",
+     "method": "multiplier",
+     "suits": [
+      "factor-from-percent",
+      "value-after-years",
+      "value-in-round",
+      "rebound-height",
+      "nth-expression",
+      "total-over-rounds",
+      "total-two-deals",
+      "scaled-area-term",
+      "mean-of-areas"
+     ]
+    },
+    {
+     "skill": "SL1.3.model",
+     "method": "tabulate",
+     "suits": [
+      "value-after-years",
+      "value-in-round",
+      "term-number-after",
+      "rebound-height",
+      "nth-expression",
+      "total-over-rounds"
+     ]
+    },
+    {
+     "skill": "SL1.3.model",
+     "method": "gdc-table-compare",
+     "suits": [
+      "total-two-deals",
+      "overtake-first-round"
+     ]
+    },
+    {
+     "skill": "SL1.3.model",
+     "method": "graph-intersect",
+     "suits": [
+      "overtake-first-round"
+     ]
+    },
+    {
+     "skill": "SL1.3.find-n",
+     "method": "logs",
+     "suits": [
+      "least-n-term",
+      "least-rounds-after",
+      "least-n-sum",
+      "least-n-two-terms",
+      "first-below",
+      "gap-to-limit",
+      "count-terms-power"
+     ]
+    },
+    {
+     "skill": "SL1.3.find-n",
+     "method": "gdc-table",
+     "suits": [
+      "least-n-term",
+      "least-rounds-after",
+      "least-n-sum",
+      "least-n-two-terms",
+      "first-below",
+      "gap-to-limit",
+      "count-terms-power"
+     ]
+    },
+    {
+     "skill": "SL1.3.find-n",
+     "method": "graph-intersect",
+     "suits": [
+      "least-n-term",
+      "least-rounds-after",
+      "least-n-sum",
+      "least-n-two-terms",
+      "first-below",
+      "gap-to-limit"
+     ]
+    },
+    {
+     "skill": "SL1.3.find-n",
+     "method": "exact-power",
+     "suits": [
+      "count-terms-power"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If a value is u₁ today and grows by a fixed percentage each year, then its value after 10 years is u₁₀.",
+     "answer": "False: u₁ is today, so u₂ is after 1 year and u₁₁ is after 10 years. The term number is one more than the years passed.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "A model that grows by a fixed percentage overtakes one that grows by a fixed amount.",
+     "answer": "Always, if the percentage is above 0 and it starts positive: the fixed percentage adds more each year, and in the end more than any fixed amount.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "A ball rebounds to 3/4 of its height. Predict which bounce first stays under half the drop, then check.",
+     "answer": "The 3rd: 3/4, then 9/16, then 27/64, which is the first below 1/2.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.3.model#0",
+     "text": "Using the percentage as r, instead of the multiplier that the percentage gives",
+     "as": "distractor",
+     "in": [
+      "factor-from-percent",
+      "value-after-years",
+      "value-in-round",
+      "nth-expression",
+      "total-over-rounds",
+      "total-two-deals"
+     ],
+     "wrong": "the rate as a decimal used for r"
+    },
+    {
+     "ref": "SL1.3.model#1",
+     "text": "Using the wrong factor for a percentage decrease, or subtracting the same amount each time",
+     "as": "distractor",
+     "in": [
+      "factor-from-percent",
+      "value-after-years",
+      "value-in-round",
+      "rebound-height",
+      "total-over-rounds"
+     ],
+     "wrong": "one plus the rate for a fall, or the first drop taken off every time"
+    },
+    {
+     "ref": "SL1.3.model#2",
+     "text": "Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications",
+     "as": "distractor",
+     "in": [
+      "value-after-years",
+      "rebound-height"
+     ],
+     "wrong": "the value one step early"
+    },
+    {
+     "ref": "SL1.3.model#3",
+     "text": "Adding the same amount each step instead of multiplying, so that a percentage rise grows in a straight line",
+     "as": "distractor",
+     "in": [
+      "value-after-years",
+      "value-in-round",
+      "nth-expression",
+      "total-over-rounds",
+      "overtake-first-round"
+     ],
+     "wrong": "the first rise repeated, with no compounding"
+    },
+    {
+     "ref": "SL1.3.model#4",
+     "text": "Giving the last amount instead of the total of all the amounts",
+     "as": "distractor",
+     "in": [
+      "total-over-rounds",
+      "total-two-deals"
+     ],
+     "wrong": "the final term"
+    },
+    {
+     "ref": "SL1.3.model#5",
+     "text": "Giving the last round in which the first model is still ahead, instead of the first round the second one leads",
+     "as": "distractor",
+     "in": [
+      "overtake-first-round"
+     ],
+     "wrong": "the round before"
+    },
+    {
+     "ref": "SL1.3.model#6",
+     "text": "Using the factor for a length as the factor for an area, instead of squaring it",
+     "as": "distractor",
+     "in": [
+      "scaled-area-term"
+     ],
+     "wrong": "the side factor used as r"
+    },
+    {
+     "ref": "SL1.3.model#7",
+     "text": "Stopping at the total of the terms, without dividing by how many there are, when the mean is asked",
+     "as": "distractor",
+     "in": [
+      "mean-of-areas"
+     ],
+     "wrong": "the sum, not the mean"
+    },
+    {
+     "ref": "SL1.3.find-n#0",
+     "text": "Not flipping the inequality when dividing by ln r, which is negative when r is below one",
+     "as": "distractor",
+     "in": [
+      "first-below",
+      "least-rounds-after",
+      "gap-to-limit"
+     ],
+     "wrong": "the last n on the wrong side of the target"
+    },
+    {
+     "ref": "SL1.3.find-n#1",
+     "text": "Rounding down instead of up when the least whole number is asked",
+     "as": "distractor",
+     "in": [
+      "least-n-term",
+      "least-rounds-after",
+      "least-n-sum",
+      "least-n-two-terms",
+      "first-below",
+      "gap-to-limit"
+     ],
+     "wrong": "the whole number below the crossing"
+    },
+    {
+     "ref": "SL1.3.find-n#2",
+     "text": "Giving the term or the sum instead of the number asked for",
+     "as": "distractor",
+     "in": [
+      "least-n-term",
+      "least-rounds-after",
+      "least-n-sum",
+      "first-below",
+      "gap-to-limit"
+     ],
+     "wrong": "the value reached, not the n that reaches it"
+    },
+    {
+     "ref": "SL1.3.find-n#3",
+     "text": "Stopping at the last whole number that falls short of the target instead of the first that meets it",
+     "as": "distractor",
+     "in": [
+      "least-n-term",
+      "least-rounds-after",
+      "least-n-sum",
+      "least-n-two-terms",
+      "first-below",
+      "gap-to-limit"
+     ],
+     "wrong": "the row before the target is passed"
+    },
+    {
+     "ref": "SL1.3.find-n#4",
+     "text": "Taking the power of r as the number of terms, which is one too few",
+     "as": "distractor",
+     "in": [
+      "count-terms-power"
+     ],
+     "wrong": "n − 1"
+    },
+    {
+     "ref": "SL1.3.find-n#5",
+     "text": "Testing the wrong quantity: a term when the condition is on a total or a gap, or the total when it is on a term",
+     "as": "distractor",
+     "in": [
+      "least-n-term",
+      "least-n-sum",
+      "gap-to-limit"
+     ],
+     "wrong": "the n that the other quantity gives"
+    },
+    {
+     "ref": "SL1.3.find-n#6",
+     "text": "Giving the term number instead of the steps passed, when u₁ is the value at the start",
+     "as": "distractor",
+     "in": [
+      "least-rounds-after"
+     ],
+     "wrong": "t + 1"
+    },
+    {
+     "ref": "SL1.3.find-n#7",
+     "text": "Giving the steps passed instead of the term number, which is one more when u₁ is the value at the start",
+     "as": "distractor",
+     "in": [
+      "term-number-after"
+     ],
+     "wrong": "t, the steps passed"
+    },
+    {
+     "ref": "SL1.3.nth-term#0",
+     "text": "Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps",
+     "as": "distractor",
+     "in": [
+      "value-after-years",
+      "value-in-round",
+      "rebound-height",
+      "nth-expression",
+      "scaled-area-term"
+     ],
+     "wrong": "one more multiplication than the question has"
+    },
+    {
+     "ref": "SL1.3.nth-term#1",
+     "text": "Multiplying u₁ and r first and raising the product to the power, instead of raising r alone",
+     "as": "distractor",
+     "in": [
+      "nth-expression",
+      "scaled-area-term"
+     ],
+     "wrong": "(u₁r)^(n − 1)"
+    },
+    {
+     "ref": "SL1.3.sum#0",
+     "text": "Using a power one lower than n in the sum formula",
+     "as": "distractor",
+     "in": [
+      "total-over-rounds",
+      "total-two-deals",
+      "mean-of-areas"
+     ],
+     "wrong": "the sum of one term fewer"
+    },
+    {
+     "ref": "SL1.3.find-r-u1#0",
+     "text": "Subtracting terms as if the sequence were arithmetic",
+     "as": "distractor",
+     "in": [
+      "least-n-two-terms",
+      "count-terms-power"
+     ],
+     "wrong": "a common difference used in place of r"
+    },
+    {
+     "ref": "SL1.3.find-r-u1#2",
+     "text": "Counting terms instead of steps, so the power of r is one too high",
+     "as": "distractor",
+     "in": [
+      "least-n-two-terms"
+     ],
+     "wrong": "r from a root one too high"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz2-p2-q09.c",
@@ -21442,7 +23246,7 @@
    "misconceptions": [
     {
      "ref": "SL1.3.nth-term#0",
-     "text": "Using r^n in the term formula, one power of r too many",
+     "text": "Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps",
      "as": "distractor",
      "in": [
       "term-from-u1-r",
@@ -21608,14 +23412,546 @@
    "id": "t1-depreciation",
    "topic": 1,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Depreciation as repeated percentage decrease",
+   "summary": "Find what a thing losing a fixed percentage of its value is worth after n years, what it has lost, the price it was bought for, the rate, a value under two rates, the gap between its value and an account, and how long it takes to fall below a target.",
    "syllabus": [
     "1.4"
    ],
    "skills": [
     "SL1.4.depreciation",
     "SL1.4.find-time"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "what is kept each year: the multiplier 1 − r/100",
+    "V = P × c^n, by formula, in the TVM solver with a negative rate, or year by year",
+    "a loss is P − V, and one year's loss is V(n − 1) − V(n)",
+    "P = V ÷ c^n, or the rate from the nth root of V ÷ P",
+    "the time below a target, from logs, the TVM solver, a table or a graph, rounded up",
+    "a time in months or quarters, converted to years"
+   ],
+   "given": [
+    "a price, a rate and a number of years",
+    "a model V = P(c)^t",
+    "a table of values",
+    "a value at a later time",
+    "two rates, one for the first year",
+    "an account to set against the value",
+    "a target, or a percentage of the price"
+   ],
+   "asked": "The value, the total loss, one year's loss, the price, the rate, the extra money needed, or the number of years, months or quarters.",
+   "answerForms": [
+    "to the nearest dollar",
+    "3 s.f.",
+    "a percentage",
+    "a whole number of years, months or quarters"
+   ],
+   "randomise": [
+    "the story: who buys what",
+    "the price and the rate",
+    "the number of years, or the year asked about",
+    "the target, or the percentage of the price",
+    "the account's sum and rate",
+    "the rate per month or quarter"
+   ],
+   "constraints": [
+    "Paper 2: the GDC does the work",
+    "money is to the nearest dollar, and every value is clear of the rounding edge at half a dollar",
+    "a rate asked for is clear of a 3 s.f. edge",
+    "a time is the first whole period below the target, with its real solution clear of a whole number"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "depreciation",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: a price and a percentage fall each year, month or quarter"
+    },
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the model V = P(c)^t, with t measured from a date or from the day it is bought"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "the value at three whole times, or the two rates by year"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the curve, the target as a line and their crossing marked, as a GDC's intersect shows it"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "value-after",
+     "given": [
+      "the price",
+      "the rate",
+      "the years"
+     ],
+     "asked": "the value after the years, to the nearest dollar",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.depreciation"
+     ]
+    },
+    {
+     "id": "total-loss",
+     "given": [
+      "the price",
+      "the rate",
+      "the years"
+     ],
+     "asked": "the total loss in value, to the nearest dollar",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.depreciation"
+     ]
+    },
+    {
+     "id": "loss-in-year",
+     "given": [
+      "the price",
+      "the rate",
+      "one year"
+     ],
+     "asked": "the loss in that year alone, to the nearest dollar",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.depreciation"
+     ]
+    },
+    {
+     "id": "original-value",
+     "given": [
+      "the value at a later time",
+      "the rate",
+      "the years since it was bought"
+     ],
+     "asked": "the price paid, to the nearest dollar",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.depreciation"
+     ]
+    },
+    {
+     "id": "find-rate",
+     "given": [
+      "the price",
+      "the value at a later time",
+      "the years"
+     ],
+     "asked": "the yearly rate of depreciation, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.depreciation"
+     ]
+    },
+    {
+     "id": "read-rate",
+     "given": [
+      "the model, or a table of values"
+     ],
+     "asked": "the yearly rate of depreciation",
+     "level": 1,
+     "exam": true,
+     "reps": [
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.depreciation"
+     ]
+    },
+    {
+     "id": "two-rate-value",
+     "given": [
+      "the price",
+      "the first year's rate",
+      "the later rate",
+      "the years"
+     ],
+     "asked": "the value after the years, to the nearest dollar",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.depreciation"
+     ]
+    },
+    {
+     "id": "shortfall",
+     "given": [
+      "the price and the rate, or the model",
+      "an account",
+      "the years"
+     ],
+     "asked": "the extra money needed on top of the account, to the nearest dollar",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "equation"
+     ],
+     "skills": [
+      "SL1.4.depreciation"
+     ]
+    },
+    {
+     "id": "years-below",
+     "given": [
+      "the price",
+      "the rate",
+      "a target"
+     ],
+     "asked": "the least number of complete years to fall below the target",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.4.find-time"
+     ]
+    },
+    {
+     "id": "years-fraction",
+     "given": [
+      "the price",
+      "the rate",
+      "a percentage of the price"
+     ],
+     "asked": "the least number of complete years to fall below that percentage",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "equation",
+      "table",
+      "graph"
+     ],
+     "skills": [
+      "SL1.4.find-time"
+     ]
+    },
+    {
+     "id": "years-from-periods",
+     "given": [
+      "the price",
+      "a rate per month or quarter",
+      "a target"
+     ],
+     "asked": "the least number of complete years to fall below the target",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.find-time"
+     ]
+    },
+    {
+     "id": "least-periods",
+     "given": [
+      "the price",
+      "a rate per month or quarter",
+      "a target"
+     ],
+     "asked": "the least number of complete months or quarters to fall below the target",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "table"
+     ],
+     "skills": [
+      "SL1.4.find-time"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL1.4.depreciation",
+     "method": "decay-multiplier",
+     "suits": [
+      "value-after",
+      "total-loss",
+      "loss-in-year",
+      "original-value",
+      "find-rate",
+      "read-rate",
+      "two-rate-value",
+      "shortfall"
+     ]
+    },
+    {
+     "skill": "SL1.4.depreciation",
+     "method": "tvm-negative",
+     "suits": [
+      "value-after",
+      "total-loss",
+      "loss-in-year",
+      "original-value",
+      "find-rate",
+      "two-rate-value",
+      "shortfall"
+     ]
+    },
+    {
+     "skill": "SL1.4.depreciation",
+     "method": "year-by-year",
+     "suits": [
+      "value-after",
+      "total-loss",
+      "loss-in-year",
+      "original-value",
+      "two-rate-value"
+     ]
+    },
+    {
+     "skill": "SL1.4.find-time",
+     "method": "logs",
+     "suits": [
+      "years-below",
+      "years-fraction",
+      "years-from-periods",
+      "least-periods"
+     ]
+    },
+    {
+     "skill": "SL1.4.find-time",
+     "method": "tvm",
+     "suits": [
+      "years-below",
+      "years-fraction",
+      "years-from-periods",
+      "least-periods"
+     ]
+    },
+    {
+     "skill": "SL1.4.find-time",
+     "method": "gdc-table",
+     "suits": [
+      "years-below",
+      "years-fraction",
+      "years-from-periods",
+      "least-periods"
+     ]
+    },
+    {
+     "skill": "SL1.4.find-time",
+     "method": "graph-intersect",
+     "suits": [
+      "years-below",
+      "years-fraction",
+      "years-from-periods",
+      "least-periods"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A thing that loses 10% of its value each year has lost 30% of its value after 3 years.",
+     "answer": "False: each 10% is of the value at the start of that year, which keeps falling. It keeps 0.9^3 = 0.729 of its value, so it has lost 27.1%.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "Under a fixed percentage depreciation, the loss in each year is smaller than the loss in the year before.",
+     "answer": "Always: each year's loss is the same percentage of a smaller value, so the amounts lost shrink by the multiplier each year.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "In V = 8000(0.92)^t, what do 8000 and 0.92 mean?",
+     "answer": "8000 is the value when t = 0, the price paid. 0.92 is the fraction kept each year, so the value falls by 8% a year.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL1.4.depreciation#0",
+     "text": "Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss",
+     "as": "distractor",
+     "in": [
+      "value-after",
+      "total-loss"
+     ],
+     "wrong": "P(1 + r/100)^n: the rate added on each year, not taken off"
+    },
+    {
+     "ref": "SL1.4.depreciation#1",
+     "text": "Treating depreciation as linear: subtracting the same percentage of the original price each year",
+     "as": "distractor",
+     "in": [
+      "value-after",
+      "total-loss",
+      "loss-in-year",
+      "original-value",
+      "find-rate",
+      "years-below",
+      "years-fraction"
+     ],
+     "wrong": "the same amount off each year: r % of the price, every year"
+    },
+    {
+     "ref": "SL1.4.depreciation#2",
+     "text": "Giving the remaining value when the question asks for the loss in value (or the reverse)",
+     "as": "distractor",
+     "in": [
+      "value-after",
+      "total-loss",
+      "loss-in-year",
+      "two-rate-value"
+     ],
+     "wrong": "the value given as the loss, or the loss as the value"
+    },
+    {
+     "ref": "SL1.4.depreciation#3",
+     "text": "Giving the total loss so far when the question asks for the loss in one year",
+     "as": "distractor",
+     "in": [
+      "loss-in-year"
+     ],
+     "wrong": "P − V(n): everything lost up to that year"
+    },
+    {
+     "ref": "SL1.4.depreciation#4",
+     "text": "Taking the percentage of the value at the end of the year instead of at the start",
+     "as": "distractor",
+     "in": [
+      "loss-in-year"
+     ],
+     "wrong": "r % of the value at the end of the year"
+    },
+    {
+     "ref": "SL1.4.depreciation#5",
+     "text": "Undoing a percentage loss by adding the same percentage back on",
+     "as": "distractor",
+     "in": [
+      "original-value"
+     ],
+     "wrong": "V(1 + r/100)^n: the percentage added back, once a year"
+    },
+    {
+     "ref": "SL1.4.depreciation#6",
+     "text": "Giving the percentage kept each year instead of the percentage lost",
+     "as": "distractor",
+     "in": [
+      "find-rate",
+      "read-rate"
+     ],
+     "wrong": "100c: the percentage kept, not the percentage lost"
+    },
+    {
+     "ref": "SL1.4.depreciation#7",
+     "text": "Giving the total percentage lost over all the years as the yearly rate",
+     "as": "distractor",
+     "in": [
+      "find-rate"
+     ],
+     "wrong": "(1 − V/P) × 100: the whole fall given as one year's rate"
+    },
+    {
+     "ref": "SL1.4.depreciation#8",
+     "text": "Applying the later rate to every year instead of only to the years after the first",
+     "as": "distractor",
+     "in": [
+      "two-rate-value"
+     ],
+     "wrong": "P × (later multiplier)^n: the later rate in the first year as well"
+    },
+    {
+     "ref": "SL1.4.depreciation#9",
+     "text": "Comparing amounts from different dates, with one side left at today's value",
+     "as": "distractor",
+     "in": [
+      "shortfall"
+     ],
+     "wrong": "today's price against the later account, or the later value against today's sum"
+    },
+    {
+     "ref": "SL1.4.find-time#0",
+     "text": "Rounding the answer to the nearest whole number instead of up",
+     "as": "distractor",
+     "in": [
+      "years-below",
+      "years-fraction",
+      "years-from-periods",
+      "least-periods"
+     ],
+     "wrong": "the real solution rounded to the nearest whole number"
+    },
+    {
+     "ref": "SL1.4.find-time#1",
+     "text": "Forgetting to convert N from months or quarters back into years",
+     "as": "distractor",
+     "in": [
+      "years-from-periods"
+     ],
+     "wrong": "the number of periods given as the number of years"
+    },
+    {
+     "ref": "SL1.4.find-time#2",
+     "text": "Not flipping the inequality when dividing by the log of a depreciation factor below 1",
+     "as": "distractor",
+     "in": [
+      "years-below",
+      "years-fraction",
+      "years-from-periods",
+      "least-periods"
+     ],
+     "wrong": "n < the real solution, so the whole number below it"
+    }
    ],
    "parts": [
     "aa-sl-2023-may-tz1-p2-q02.a",
@@ -21954,7 +24290,7 @@
     },
     {
      "ref": "SL1.4.find-time#0",
-     "text": "Rounding the number of periods to the nearest integer instead of up",
+     "text": "Rounding the answer to the nearest whole number instead of up",
      "as": "distractor",
      "in": [
       "time-needed"
@@ -31990,6 +34326,7 @@
    ],
    "situation": "trig-wave",
    "sharesSituation": [
+    "t3-trig-model-equation",
     "t3-trig-model-parameters",
     "t3-trig-read-features"
    ],
@@ -32517,6 +34854,7 @@
    ],
    "situation": "trig-wave",
    "sharesSituation": [
+    "t3-trig-model-equation",
     "t3-trig-model-parameters",
     "t3-trig-model-use"
    ],
@@ -33120,6 +35458,7 @@
    ],
    "situation": "trig-model",
    "sharesSituation": [
+    "t3-trig-model-equation",
     "t3-trig-model-use",
     "t3-trig-read-features"
    ],
@@ -33672,14 +36011,643 @@
    "id": "t3-trig-model-equation",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Solve a trig model equation or inequality for times",
+   "summary": "Solve a trig model equation or inequality: every time in a span at a level, exactly on Paper 1 and in a window on Paper 2, the set of times above or below a level, the time or the chance past a level in a span that isn't whole cycles, a trig curve against a line or a falling exponential, the number of solutions of f(x) = k, which k give exactly n solutions, and a line touching at a maximum or minimum.",
    "syllabus": [
     "3.8",
     "2.10"
    ],
    "skills": [
     "SL3.8.graphical"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "set the calculator to radians",
+    "graph both sides over the interval",
+    "a level inside the range is crossed twice in each cycle, and a maximum or minimum only touched once",
+    "count along the whole interval, not one cycle",
+    "decide which stretches are on the side asked for"
+   ],
+   "given": [
+    "a model in a story",
+    "a model and its graph",
+    "a wave on an interval",
+    "a trig function and another curve"
+   ],
+   "asked": "Every time at a level, a set of times, a total time, a chance, every solution against another curve, a number of solutions, a set of k or a letter of the wave.",
+   "answerForms": [
+    "3 s.f.",
+    "exact on Paper 1",
+    "a whole number for a count",
+    "a set of times as inequalities",
+    "a set of k as an inequality"
+   ],
+   "randomise": [
+    "the top and bottom",
+    "the period or a decimal b",
+    "sine, cosine or a negative cosine",
+    "the level and its side",
+    "the window or span",
+    "the interval, in quarters of a period",
+    "the other curve's slope or exponent",
+    "the story"
+   ],
+   "constraints": [
+    "exact times and exact durations are Paper 1, as the bank's one Paper 1 part is",
+    "a Paper 1 level is half of the amplitude from the axis",
+    "a story's level is well inside the wave",
+    "no crossing is on the end of a span",
+    "every 3 s.f. value is clear of a rounding edge",
+    "two curves cross clearly, with no near miss",
+    "everything is in radians"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "trig-model-equation",
+   "sharesSituation": [
+    "t3-trig-model-parameters",
+    "t3-trig-model-use",
+    "t3-trig-read-features"
+   ],
+   "representations": [
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story: the depth of water at the harbour wall, modelled by an equation, with t in hours"
+    },
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the model, wave or equation written out, with its interval"
+    },
+    {
+     "rep": "graph",
+     "exam": true,
+     "how": "the curves drawn, with the level dashed where there is one and the turning points marked for a set of k"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "exact-times-level",
+     "given": [
+      "a model with π in it, a level and a span"
+     ],
+     "asked": "the exact value of every time in the span at the level",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "time-at-least-exact",
+     "given": [
+      "a model with π in it and a level"
+     ],
+     "asked": "the exact time in one cycle at least, or at most, the level",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "words",
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "times-in-window",
+     "given": [
+      "a model, a level and a window that starts after 0"
+     ],
+     "asked": "every time in the window at the level",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "set-above-level",
+     "given": [
+      "a model, a level and a span"
+     ],
+     "asked": "the set of times above the level",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "set-below-level",
+     "given": [
+      "a model, a level and a span"
+     ],
+     "asked": "the set of times below the level",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "set-two-spans",
+     "given": [
+      "a model, a level and a longer span"
+     ],
+     "asked": "the set of times past the level, in two stretches",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "words",
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "chance-above",
+     "given": [
+      "a model, a level and a span that is not whole cycles"
+     ],
+     "asked": "the chance a random time in the span is above the level",
+     "level": 5,
+     "exam": true,
+     "reps": [
+      "words",
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "time-past-level",
+     "given": [
+      "a model, a level and a span that is not whole cycles"
+     ],
+     "asked": "the total time above, or below, the level in the span",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "words",
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "count-solutions",
+     "given": [
+      "a wave on an interval and a level inside its range"
+     ],
+     "asked": "the number of solutions of f(x) = k",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "count-at-extreme",
+     "given": [
+      "a wave on an interval and its maximum or minimum"
+     ],
+     "asked": "the number of solutions, where the line only touches",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "k-exactly-n",
+     "given": [
+      "a wave on an interval"
+     ],
+     "asked": "the set of k with exactly n solutions",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "k-any-solution",
+     "given": [
+      "a wave on an interval"
+     ],
+     "asked": "the set of k with at least one solution",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "k-no-solution",
+     "given": [
+      "a wave on an interval"
+     ],
+     "asked": "the set of k with no solutions",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "touch-find-constant",
+     "given": [
+      "a wave with a letter in it and a line touching its maxima or minima"
+     ],
+     "asked": "the letter",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "touch-one-solution",
+     "given": [
+      "one cycle of a wave, from the axis to the axis"
+     ],
+     "asked": "the two values of k with exactly one solution",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "solve-vs-line",
+     "given": [
+      "a trig function, a line and an interval"
+     ],
+     "asked": "every solution",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "solve-vs-exp",
+     "given": [
+      "a trig function, a falling exponential and an interval"
+     ],
+     "asked": "every solution",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    },
+    {
+     "id": "count-vs-line",
+     "given": [
+      "a trig function, a line and an interval"
+     ],
+     "asked": "the number of solutions",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL3.8.graphical"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.8.graphical",
+     "method": "gdc-intersect",
+     "suits": [
+      "times-in-window",
+      "set-above-level",
+      "set-below-level",
+      "set-two-spans",
+      "chance-above",
+      "time-past-level",
+      "count-solutions",
+      "count-at-extreme",
+      "k-exactly-n",
+      "k-any-solution",
+      "k-no-solution",
+      "touch-find-constant",
+      "touch-one-solution",
+      "solve-vs-line",
+      "solve-vs-exp",
+      "count-vs-line"
+     ]
+    },
+    {
+     "skill": "SL3.8.graphical",
+     "method": "sketch-and-count",
+     "suits": [
+      "exact-times-level",
+      "time-at-least-exact",
+      "times-in-window",
+      "set-above-level",
+      "set-below-level",
+      "set-two-spans",
+      "chance-above",
+      "time-past-level",
+      "count-solutions",
+      "count-at-extreme",
+      "k-exactly-n",
+      "touch-one-solution",
+      "solve-vs-line",
+      "solve-vs-exp",
+      "count-vs-line"
+     ]
+    },
+    {
+     "skill": "SL3.8.graphical",
+     "method": "range-reasoning",
+     "suits": [
+      "count-solutions",
+      "count-at-extreme",
+      "k-exactly-n",
+      "k-any-solution",
+      "k-no-solution",
+      "touch-find-constant",
+      "touch-one-solution",
+      "count-vs-line"
+     ]
+    },
+    {
+     "skill": "SL3.8.solve-basic",
+     "method": "unit-circle-cast",
+     "suits": [
+      "exact-times-level",
+      "time-at-least-exact"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "A line y = k meets a wave at its maximum. That is one solution in each cycle, not two.",
+     "answer": "True: the line only touches at the top, so the two crossings of a lower line have come together at one point.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "A wave runs for 2.5 cycles and the line is inside its range. Predict the number of solutions from the cycles alone, then count along a sketch.",
+     "answer": "Two full cycles give 4, but the half cycle left can give 0, 1 or 2 more, so the count needs the sketch.",
+     "level": 3
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "Why does a sine curve against a steep line through the origin have fewer solutions than against a shallow one?",
+     "answer": "The wave stays inside a band, and a steeper line leaves that band sooner, so there are fewer humps for it to cross.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.8.graphical#0",
+     "text": "Looking at only part of the interval and missing solutions",
+     "as": "distractor",
+     "in": [
+      "exact-times-level",
+      "times-in-window",
+      "set-two-spans",
+      "time-past-level",
+      "count-solutions",
+      "count-at-extreme",
+      "solve-vs-line",
+      "solve-vs-exp",
+      "count-vs-line"
+     ],
+     "wrong": "only part of the interval"
+    },
+    {
+     "ref": "SL3.8.graphical#1",
+     "text": "Including the boundary values of k where the line only touches at a maximum or minimum",
+     "as": "distractor",
+     "in": [
+      "k-exactly-n",
+      "k-no-solution"
+     ],
+     "wrong": "the end where the line only touches, included"
+    },
+    {
+     "ref": "SL3.8.graphical#2",
+     "text": "Leaving the GDC in degree mode",
+     "as": "distractor",
+     "in": [
+      "times-in-window",
+      "set-above-level",
+      "set-below-level",
+      "set-two-spans",
+      "chance-above",
+      "time-past-level",
+      "count-solutions",
+      "solve-vs-line",
+      "solve-vs-exp",
+      "count-vs-line"
+     ],
+     "wrong": "the angle taken in degrees"
+    },
+    {
+     "ref": "SL3.8.graphical#3",
+     "text": "Giving the whole range of the function as the values of k, without counting the solutions each value gives",
+     "as": "distractor",
+     "in": [
+      "k-exactly-n"
+     ],
+     "wrong": "the whole range"
+    },
+    {
+     "ref": "SL3.8.graphical#4",
+     "text": "Counting two solutions in a cycle where the line only touches at a maximum or minimum",
+     "as": "distractor",
+     "in": [
+      "count-at-extreme"
+     ],
+     "wrong": "two for each touch"
+    },
+    {
+     "ref": "SL3.8.graphical#5",
+     "text": "Counting one solution in each cycle, when a line inside the range crosses twice in a cycle",
+     "as": "distractor",
+     "in": [
+      "count-solutions"
+     ],
+     "wrong": "one for each cycle"
+    },
+    {
+     "ref": "SL3.8.graphical#6",
+     "text": "Taking the share of one cycle as the share of a span that is not a whole number of cycles",
+     "as": "distractor",
+     "in": [
+      "chance-above",
+      "time-past-level"
+     ],
+     "wrong": "the one-cycle share"
+    },
+    {
+     "ref": "SL3.8.graphical#7",
+     "text": "Leaving out the maximum and the minimum, although the line still meets the curve at those heights",
+     "as": "distractor",
+     "in": [
+      "k-any-solution"
+     ],
+     "wrong": "strict inequalities"
+    },
+    {
+     "ref": "SL3.8.graphical#8",
+     "text": "Leaving out the crossing at the origin",
+     "as": "distractor",
+     "in": [
+      "solve-vs-line",
+      "count-vs-line"
+     ],
+     "wrong": "no solution at the origin"
+    },
+    {
+     "ref": "SL3.8.graphical#9",
+     "text": "Counting two solutions in every cycle of the wave, although the line leaves the wave's band",
+     "as": "distractor",
+     "in": [
+      "count-vs-line"
+     ],
+     "wrong": "two for each cycle"
+    },
+    {
+     "ref": "SL3.8.graphical#10",
+     "text": "Using the rule for the minimum at a maximum, or the rule for the maximum at a minimum",
+     "as": "distractor",
+     "in": [
+      "touch-find-constant"
+     ],
+     "wrong": "the other extreme's rule"
+    },
+    {
+     "ref": "SL3.8.solve-basic#0",
+     "text": "Stopping at one solution instead of finding them all",
+     "as": "distractor",
+     "in": [
+      "exact-times-level"
+     ],
+     "wrong": "only the first time"
+    },
+    {
+     "ref": "SL3.8.solve-basic#1",
+     "text": "Finding a cosine equation's second solution the way you would for sine",
+     "as": "distractor",
+     "in": [
+      "exact-times-level"
+     ],
+     "wrong": "π − α for cosine"
+    },
+    {
+     "ref": "SL3.7.model-context#3",
+     "text": "Giving the time on the wrong side of the level: below it when above was asked, or the reverse",
+     "as": "distractor",
+     "in": [
+      "time-at-least-exact",
+      "set-above-level",
+      "set-below-level",
+      "set-two-spans",
+      "chance-above",
+      "time-past-level"
+     ],
+     "wrong": "the other side of the level"
+    },
+    {
+     "ref": "SL3.7.model-context#4",
+     "text": "Stopping at the peak, so only half of the time past the level is counted",
+     "as": "distractor",
+     "in": [
+      "time-at-least-exact",
+      "set-above-level"
+     ],
+     "wrong": "half of the time"
+    },
+    {
+     "ref": "SL3.7.read-features#5",
+     "text": "Leaving d out of the maximum, the minimum or the range",
+     "as": "distractor",
+     "in": [
+      "k-any-solution",
+      "k-no-solution",
+      "touch-find-constant",
+      "touch-one-solution"
+     ],
+     "wrong": "|a| as the largest value"
+    }
    ],
    "parts": [
     "aa-sl-2021-nov-tz0-p2-q08.f",
@@ -40268,13 +43236,633 @@
    "id": "t4-sample-space",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Sample space diagrams for dice and spinners",
+   "summary": "Two dice, a die and a spinner, or two spinners, fair or with unusual faces, set out as an m × n grid of outcomes. Fill in a cell, count the outcomes, find P(event), a complement, or a score from a points rule, and use the grid's symmetry. A biased die rolled twice has a grid of probabilities. A face or a probability left as a letter is found from a sum's distribution or from P(X < Y), and then E(Y).",
    "syllabus": [
     "4.6"
    ],
    "skills": [
     "SL4.6.sample-space-grid"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "set the outcomes out as a grid or a list of ordered pairs: m × n of them",
+    "every face is its own outcome, and (a, b) and (b, a) are two outcomes",
+    "count the cells in the event and divide by all the cells, not by the number of different scores",
+    "matching dice: use the symmetry of the grid to count one side",
+    "biased: each cell is P(first) × P(second), and the cells in the event are added",
+    "a letter on a face or a probability: compare the grid in terms of the letter with what is known"
+   ],
+   "given": [
+    "two dice or spinners with their faces, in words or drawn",
+    "the grid of scores, with its heads",
+    "a points rule for matches and differences",
+    "a biased die or spinner, as a table, a figure or sentences",
+    "the distribution of a sum, or one probability from it",
+    "P(X < Y) for two biased dice"
+   ],
+   "asked": "A score in a cell, the number of outcomes, a probability from the grid, a missing face, a missing probability, or E(Y).",
+   "answerForms": [
+    "whole number",
+    "fraction",
+    "decimal",
+    "3 s.f."
+   ],
+   "randomise": [
+    "the objects, their sizes and their faces",
+    "the scoring rule: sum, product, difference or larger number",
+    "the event and its boundary word",
+    "the points rule",
+    "the biased probabilities and the total",
+    "the unusual die and the letters",
+    "the story"
+   ],
+   "constraints": [
+    "Paper 1 exact, fractions on a fair grid and decimals on a biased die; Paper 2 to 3 s.f., clear of a rounding edge",
+    "a grid has at most 8 rows and 8 columns, and a distribution table at most 7 sums, so they fit a phone",
+    "an event has at most 16 cells, or 8 on a biased die, so the working can list them",
+    "the unknowns that use the symmetry of the grid always have matching objects, so every method suits every question of them",
+    "a missing a has exactly one whole value between its neighbours",
+    "q and r make a real die, and counting the ties makes a different one"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "sample-space",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "table",
+     "exam": true,
+     "how": "the grid of outcomes with its heads, a table of probabilities, or a sum's distribution"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the faces or the probabilities in sentences"
+    },
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "the two dice laid out flat, or the spinners drawn with their sectors to scale"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "fill-cell",
+     "given": [
+      "the grid of scores with one cell hidden",
+      "the scoring rule"
+     ],
+     "asked": "the score in the hidden cell",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "total-outcomes",
+     "given": [
+      "two objects, fair, with their faces",
+      "the scoring rule"
+     ],
+     "asked": "the number of outcomes in the sample space",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "count-event",
+     "given": [
+      "two objects, or their grid",
+      "an event on the score"
+     ],
+     "asked": "the number of outcomes in the event",
+     "level": 1,
+     "exam": false,
+     "reps": [
+      "table",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "p-score",
+     "given": [
+      "two objects, or their grid",
+      "a score"
+     ],
+     "asked": "P(score = k)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "p-at-least",
+     "given": [
+      "two objects, or their grid",
+      "a boundary score"
+     ],
+     "asked": "P(score at least, at most, greater than or less than k)",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "table",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "p-complement",
+     "given": [
+      "two objects, or their grid",
+      "a score"
+     ],
+     "asked": "P(score is not k)",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "p-property",
+     "given": [
+      "two objects, or their grid",
+      "a property of the score"
+     ],
+     "asked": "P(score is even, odd, a multiple, prime or square)",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "p-compare",
+     "given": [
+      "two objects with different faces, or the grid of their differences"
+     ],
+     "asked": "P(the first number is higher than the second)",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "p-mirror-score",
+     "given": [
+      "two matching objects numbered from 1, or their grid of sums",
+      "a sum above the middle"
+     ],
+     "asked": "P(sum = k), counted on the lower side",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "p-mirror-at-least",
+     "given": [
+      "two matching objects numbered from 1, or their grid of sums",
+      "a sum above the middle"
+     ],
+     "asked": "P(sum at least k), counted on the lower side",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "p-rule-points",
+     "given": [
+      "two matching objects, or the grid of pairs",
+      "a rule giving points for a match and for a difference"
+     ],
+     "asked": "the probability of a given score in one round",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "weighted-sum",
+     "given": [
+      "a biased die or spinner, rolled twice",
+      "a total"
+     ],
+     "asked": "P(total = k) or P(total at least k)",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "weighted-target",
+     "given": [
+      "a biased die or spinner",
+      "a total to reach, the total so far and two rolls left"
+     ],
+     "asked": "the probability of reaching the total",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "face-from-largest",
+     "given": [
+      "a die with unusual faces and one with letters",
+      "the distribution of the sum, or its largest value"
+     ],
+     "asked": "the largest face b",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "table",
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "face-from-grid",
+     "given": [
+      "a die with unusual faces and one with a letter",
+      "the distribution of the sum, or one probability"
+     ],
+     "asked": "the repeated face a",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "weight-from-win",
+     "given": [
+      "two biased dice, one with q on its faces and r on the last",
+      "P(X < Y)"
+     ],
+     "asked": "q",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    },
+    {
+     "id": "expected-from-win",
+     "given": [
+      "two biased dice, one with q on its faces and r on the last",
+      "P(X < Y)"
+     ],
+     "asked": "E(Y)",
+     "level": 5,
+     "exam": true,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL4.6.sample-space-grid"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.6.sample-space-grid",
+     "method": "grid-count",
+     "suits": [
+      "fill-cell",
+      "total-outcomes",
+      "count-event",
+      "p-score",
+      "p-at-least",
+      "p-complement",
+      "p-property",
+      "p-compare",
+      "p-mirror-score",
+      "p-mirror-at-least",
+      "p-rule-points",
+      "weighted-sum",
+      "weighted-target",
+      "face-from-grid",
+      "weight-from-win",
+      "expected-from-win"
+     ]
+    },
+    {
+     "skill": "SL4.6.sample-space-grid",
+     "method": "systematic-list",
+     "suits": [
+      "total-outcomes",
+      "count-event",
+      "p-score",
+      "p-at-least",
+      "p-complement",
+      "p-property",
+      "p-compare",
+      "p-mirror-score",
+      "p-mirror-at-least",
+      "p-rule-points",
+      "weighted-sum",
+      "weighted-target",
+      "face-from-grid",
+      "weight-from-win",
+      "expected-from-win",
+      "face-from-largest"
+     ]
+    },
+    {
+     "skill": "SL4.6.sample-space-grid",
+     "method": "grid-symmetry",
+     "suits": [
+      "p-mirror-score",
+      "p-mirror-at-least",
+      "p-rule-points"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "Two dice can land on a 3 and a 5 in only one way.",
+     "answer": "False: the first die can show the 3 or the second can, so (3, 5) and (5, 3) are two outcomes of the grid.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The number of different scores is the number of outcomes in the sample space.",
+     "answer": "Sometimes: it is true only when no two cells of the grid have the same score. Sums of two dice repeat, so most grids have fewer scores than cells.",
+     "level": 3
+    },
+    {
+     "kind": "predict-check",
+     "prompt": "Replace one face of a fair die by a copy of another face. What happens to the number of cells in the grid?",
+     "answer": "Nothing: a die has as many outcomes as faces, whatever is printed on them. The repeated number simply fills more cells.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.6.sample-space-grid#0",
+     "text": "Counting a pair and its reverse as a single outcome",
+     "as": "distractor",
+     "in": [
+      "count-event",
+      "p-score",
+      "p-at-least",
+      "p-complement",
+      "p-mirror-score",
+      "p-mirror-at-least",
+      "p-rule-points",
+      "p-property",
+      "total-outcomes",
+      "weighted-sum",
+      "weighted-target"
+     ],
+     "wrong": "the event, or the whole grid, with a pair and its reverse counted once"
+    },
+    {
+     "ref": "SL4.6.sample-space-grid#1",
+     "text": "Using the number of different scores as the total number of outcomes",
+     "as": "distractor",
+     "in": [
+      "total-outcomes",
+      "p-score",
+      "p-at-least",
+      "p-complement",
+      "p-property",
+      "p-mirror-score",
+      "p-mirror-at-least"
+     ],
+     "wrong": "the cells in the event over the number of different scores, or that number as the total"
+    },
+    {
+     "text": "Reading the boundary score the wrong way: leaving it out of at least or at most, or keeping it in greater than or less than",
+     "as": "distractor",
+     "in": [
+      "p-at-least",
+      "p-mirror-at-least",
+      "weighted-sum",
+      "weighted-target"
+     ],
+     "wrong": "the same event with the boundary score moved in or out"
+    },
+    {
+     "text": "Using another operation on the two numbers instead of the game's scoring rule",
+     "as": "distractor",
+     "in": [
+      "fill-cell"
+     ],
+     "wrong": "the cell's two numbers put through a different rule"
+    },
+    {
+     "text": "Copying the next cell along instead of working out the cell asked for",
+     "as": "distractor",
+     "in": [
+      "fill-cell"
+     ],
+     "wrong": "the score in the neighbouring cell of the row"
+    },
+    {
+     "text": "Adding the numbers of faces instead of multiplying them to get the size of the grid",
+     "as": "distractor",
+     "in": [
+      "total-outcomes"
+     ],
+     "wrong": "m + n"
+    },
+    {
+     "text": "Counting the different scores in the event instead of the cells that give them",
+     "as": "distractor",
+     "in": [
+      "count-event"
+     ],
+     "wrong": "how many different scores are in the event"
+    },
+    {
+     "text": "Giving the probability of the opposite event instead of the one asked for",
+     "as": "distractor",
+     "in": [
+      "p-complement",
+      "p-rule-points"
+     ],
+     "wrong": "the event's complement"
+    },
+    {
+     "text": "Counting the ties as part of an event that asks for a strictly higher or lower number",
+     "as": "distractor",
+     "in": [
+      "p-compare",
+      "weight-from-win"
+     ],
+     "wrong": "the ties added to the event, here or in the equation for q"
+    },
+    {
+     "text": "Assuming each side is higher half of the time, which ignores the ties and the faces",
+     "as": "distractor",
+     "in": [
+      "p-compare"
+     ],
+     "wrong": "1/2"
+    },
+    {
+     "text": "Working out the chance that the second number is higher, instead of the first",
+     "as": "distractor",
+     "in": [
+      "p-compare"
+     ],
+     "wrong": "the other side of the diagonal"
+    },
+    {
+     "text": "Treating every cell as equally likely when the die or spinner is biased",
+     "as": "distractor",
+     "in": [
+      "weighted-sum",
+      "weighted-target"
+     ],
+     "wrong": "the cells in the event over all the cells"
+    },
+    {
+     "text": "Assuming the whole amount needed has to come from one roll or spin",
+     "as": "distractor",
+     "in": [
+      "weighted-target"
+     ],
+     "wrong": "P(X at least the amount needed)"
+    },
+    {
+     "text": "Taking the largest sum as the missing face, without subtracting the other die's face",
+     "as": "distractor",
+     "in": [
+      "face-from-largest"
+     ],
+     "wrong": "the largest sum"
+    },
+    {
+     "text": "Subtracting the smallest face of the other die, when the largest sum uses its largest face",
+     "as": "distractor",
+     "in": [
+      "face-from-largest"
+     ],
+     "wrong": "the largest sum minus the smallest face"
+    },
+    {
+     "text": "Assuming the second smallest sum comes from the second die's next face, when it can come from the first die's next face",
+     "as": "distractor",
+     "in": [
+      "face-from-grid"
+     ],
+     "wrong": "the second smallest sum minus the first die's smallest face"
+    },
+    {
+     "text": "Giving the chance on the last face instead of the letter asked for",
+     "as": "distractor",
+     "in": [
+      "weight-from-win"
+     ],
+     "wrong": "r"
+    },
+    {
+     "text": "Assuming the biased die is fair",
+     "as": "distractor",
+     "in": [
+      "weight-from-win",
+      "expected-from-win"
+     ],
+     "wrong": "1/n, or the mean of the faces"
+    },
+    {
+     "text": "Using the other die's probabilities for the expected value",
+     "as": "distractor",
+     "in": [
+      "expected-from-win"
+     ],
+     "wrong": "E(X)"
+    },
+    {
+     "text": "Using the same chance on every face, ignoring that the last face has its own chance",
+     "as": "distractor",
+     "in": [
+      "expected-from-win"
+     ],
+     "wrong": "q × (1 + 2 + … + n)"
+    }
    ],
    "parts": [
     "aa-sl-2021-may-tz1-p1-q09.e",
@@ -41819,13 +45407,567 @@
    "id": "t4-inverse-normal",
    "topic": 4,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Inverse normal: value for a given probability",
+   "summary": "An area is given and the value of X that cuts it off is asked for: a with P(X < a) = p or P(X > a) = p, the top or bottom k%, a quartile, a percentile, the two ends of a central interval, the other end of a band, and a band whose tails are in a given ratio. On Paper 1, with no invNorm, a second curve with the same σ, a mirror tail, the 68-95-99.7 rule or a given line of N(0, 1) fixes the value.",
    "syllabus": [
     "4.9"
    ],
    "skills": [
     "SL4.9.inverse-normal"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "shade the area, and see which side of the mean the value must lie",
+    "turn what is given into the area to the left of the value",
+    "use invNorm with μ and σ, or find z and move z standard deviations from the mean",
+    "on Paper 1, compare distances from the mean, or use the rule or a given z",
+    "state the value of x, not z or a probability"
+   ],
+   "given": [
+    "X ~ N(μ, σ²), or a story with a mean and a standard deviation",
+    "an area, a percentage, a quartile or a percentile",
+    "one end of a band, or how two tails compare",
+    "a curve with the area shaded and the value marked by a letter",
+    "on Paper 1, a second curve with the same σ, a mirror tail, or a line of N(0, 1)"
+   ],
+   "asked": "A value of X, or the two ends of an interval.",
+   "answerForms": [
+    "3 s.f.",
+    "exact",
+    "two ends, typed"
+   ],
+   "randomise": [
+    "μ and σ",
+    "the area and which side it is on",
+    "the top or bottom of a story",
+    "which quartile",
+    "the band's known end and which end is asked",
+    "which tail is the larger, and by how much",
+    "the story and its units"
+   ],
+   "constraints": [
+    "invNorm is Paper 2 only",
+    "Paper 1 uses only the four unknowns that need no calculator, with exact answers",
+    "a value is at least 0.3 standard deviations from μ"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "inverse-normal",
+   "sharesSituation": [
+    "t4-normal-probability",
+    "t4-normal-unknown-parameter"
+   ],
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "X ~ N(μ, σ²) with numbers and an area, such as P(X > a) = 0.2"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story with a mean, a standard deviation and a percentage, a quartile or a percentile"
+    },
+    {
+     "rep": "diagram",
+     "exam": false,
+     "how": "a normal curve with the area shaded and the value marked by a letter; the stem gives the area and the figure says which side it is on"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "value-below",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "an area p"
+     ],
+     "asked": "a with P(X < a) = p",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "value-above",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "a tail area p"
+     ],
+     "asked": "a with P(X > a) = p",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "top-percent",
+     "given": [
+      "a story with a mean and a standard deviation",
+      "the top k%"
+     ],
+     "asked": "the cut-off of the top k%",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "bottom-percent",
+     "given": [
+      "a story with a mean and a standard deviation",
+      "the bottom k%"
+     ],
+     "asked": "the cut-off of the bottom k%",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "quartile",
+     "given": [
+      "X ~ N(μ, σ²) or a story"
+     ],
+     "asked": "the upper or lower quartile",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "percentile",
+     "given": [
+      "a story with a mean and a standard deviation",
+      "a percentile"
+     ],
+     "asked": "the value at that percentile",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "most-above",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "an area above a of more than a half"
+     ],
+     "asked": "a, which is below the mean",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "central-bounds",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "a central area"
+     ],
+     "asked": "both ends of the interval, the same distance from the mean",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "band-end",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "one end of a band and its area"
+     ],
+     "asked": "the other end of the band",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "ratio-tails",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "the area of a band",
+      "how the two tails outside it compare"
+     ],
+     "asked": "one end of the band",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "shift-same-sd",
+     "given": [
+      "two normal variables with the same σ, a letter",
+      "a value of the second"
+     ],
+     "asked": "the value of the first with the same tail area",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "mirror-bound",
+     "given": [
+      "X ~ N(μ, σ²) with σ a letter",
+      "P(X < a) = P(X > c), or the same the other way round"
+     ],
+     "asked": "a",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "rule-value",
+     "given": [
+      "X ~ N(μ, σ²) or a story",
+      "a tail of the 68-95-99.7 rule"
+     ],
+     "asked": "the value that cuts it off",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    },
+    {
+     "id": "given-z",
+     "given": [
+      "X ~ N(μ, σ²)",
+      "a line of N(0, 1)",
+      "an area"
+     ],
+     "asked": "the value that cuts off that area",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "diagram"
+     ],
+     "skills": [
+      "SL4.9.inverse-normal"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL4.9.inverse-normal",
+     "method": "gdc-invnorm-left",
+     "suits": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "band-end",
+      "ratio-tails"
+     ]
+    },
+    {
+     "skill": "SL4.9.inverse-normal",
+     "method": "via-z",
+     "suits": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "band-end",
+      "ratio-tails",
+      "shift-same-sd",
+      "mirror-bound",
+      "rule-value",
+      "given-z"
+     ]
+    },
+    {
+     "skill": "SL4.9.inverse-normal",
+     "method": "sketch-tail",
+     "suits": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "band-end",
+      "ratio-tails",
+      "shift-same-sd",
+      "mirror-bound",
+      "rule-value",
+      "given-z"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "For the top 10% of a normal variable, the value to find has an area of 0.1 to its left.",
+     "answer": "False: 0.1 is the area to its right. The area to its left is 0.9, and that is what invNorm takes.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "invNorm gives a value above the mean.",
+     "answer": "Sometimes: only when the area to the left is more than 0.5.",
+     "level": 3
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "If X and Y have the same standard deviation, a value the same distance above each mean cuts off the same tail area.",
+     "answer": "True: both values have the same z, so the two curves are the same shape with the same area beyond them.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL4.9.inverse-normal#0",
+     "text": "Entering the upper-tail area without converting it to the area on the left",
+     "as": "distractor",
+     "in": [
+      "value-above",
+      "top-percent",
+      "quartile",
+      "most-above"
+     ],
+     "wrong": "invNorm of the area above the value instead of the area below it, the mirror image of the answer"
+    },
+    {
+     "ref": "SL4.9.inverse-normal#1",
+     "text": "Giving the z-value or the probability as the answer instead of the x-value",
+     "as": "distractor",
+     "in": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "given-z"
+     ],
+     "wrong": "z, or the area itself, or ±z for the two ends"
+    },
+    {
+     "ref": "SL4.9.inverse-normal#2",
+     "text": "Using normalcdf when a value of x is wanted",
+     "as": "distractor",
+     "in": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above"
+     ],
+     "wrong": "normalcdf with the left area as its upper bound, on the GDC's default N(0, 1)"
+    },
+    {
+     "text": "Taking 1 minus the area when it is already the area on the left",
+     "as": "distractor",
+     "in": [
+      "value-below",
+      "bottom-percent",
+      "percentile",
+      "quartile"
+     ],
+     "wrong": "invNorm of 1 − p, the mirror image of the answer"
+    },
+    {
+     "text": "Adding z to the mean without multiplying by σ",
+     "as": "distractor",
+     "in": [
+      "value-below",
+      "value-above",
+      "top-percent",
+      "bottom-percent",
+      "quartile",
+      "percentile",
+      "most-above",
+      "central-bounds",
+      "rule-value",
+      "given-z"
+     ],
+     "wrong": "μ + z"
+    },
+    {
+     "text": "Using the central area as the left-tail area",
+     "as": "distractor",
+     "in": [
+      "central-bounds"
+     ],
+     "wrong": "μ ± σ × invNorm of the central area on N(0, 1)"
+    },
+    {
+     "text": "Treating a band as if it ran all the way to the end of the curve",
+     "as": "distractor",
+     "in": [
+      "band-end"
+     ],
+     "wrong": "invNorm of the area the band would leave if it reached the end of the curve"
+    },
+    {
+     "text": "Splitting the tails equally when they are not equal",
+     "as": "distractor",
+     "in": [
+      "band-end",
+      "ratio-tails"
+     ],
+     "wrong": "half of what is left, used as the tail at the end asked for"
+    },
+    {
+     "text": "Giving the larger tail to the wrong end of the curve",
+     "as": "distractor",
+     "in": [
+      "ratio-tails"
+     ],
+     "wrong": "the same end, with the two tails swapped"
+    },
+    {
+     "text": "Finding the other end of the band instead of the one asked for",
+     "as": "distractor",
+     "in": [
+      "ratio-tails"
+     ],
+     "wrong": "the other end"
+    },
+    {
+     "text": "Keeping the given value instead of moving it to where the areas match",
+     "as": "distractor",
+     "in": [
+      "shift-same-sd",
+      "mirror-bound"
+     ],
+     "wrong": "c, as it is given"
+    },
+    {
+     "text": "Measuring the distance on the wrong side of the mean",
+     "as": "distractor",
+     "in": [
+      "shift-same-sd",
+      "rule-value",
+      "given-z"
+     ],
+     "wrong": "the mean, with the distance taken the other way"
+    },
+    {
+     "text": "Moving the value by the gap between the means in the wrong direction",
+     "as": "distractor",
+     "in": [
+      "shift-same-sd"
+     ],
+     "wrong": "c plus the second mean minus the first"
+    },
+    {
+     "text": "Giving the distance from the mean instead of the value",
+     "as": "distractor",
+     "in": [
+      "mirror-bound"
+     ],
+     "wrong": "the distance from the mean to c"
+    },
+    {
+     "text": "Reading the tail against the wrong number of standard deviations",
+     "as": "distractor",
+     "in": [
+      "rule-value"
+     ],
+     "wrong": "the band of the rule one standard deviation out, on the same side"
+    },
+    {
+     "text": "Measuring the distance from the given value instead of from the mean",
+     "as": "distractor",
+     "in": [
+      "mirror-bound"
+     ],
+     "wrong": "the given value moved a further distance from the mean"
+    }
    ],
    "parts": [
     "aa-sl-2022-nov-tz0-p2-q09.d",
@@ -42924,6 +47066,7 @@
    ],
    "situation": "normal-probability",
    "sharesSituation": [
+    "t4-inverse-normal",
     "t4-normal-unknown-parameter"
    ],
    "representations": [
@@ -44941,6 +49084,7 @@
    ],
    "situation": "normal-unknown",
    "sharesSituation": [
+    "t4-inverse-normal",
     "t4-normal-probability"
    ],
    "representations": [
@@ -62469,7 +66613,7 @@
     },
     {
      "ref": "SL1.3.nth-term#0",
-     "text": "Using r^n in the term formula, one power of r too many",
+     "text": "Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps",
      "as": "distractor",
      "in": [
       "sequence-vs-function"
@@ -62478,22 +66622,22 @@
     },
     {
      "ref": "SL1.3.model#1",
-     "text": "Using the wrong factor for a percentage decrease, or subtracting the same amount each year",
+     "text": "Using the wrong factor for a percentage decrease, or subtracting the same amount each time",
      "as": "distractor",
      "in": [
       "percent-to-factor",
       "depreciation-two-ways"
      ],
-     "wrong": "1.3 for a 30% fall, or 30% of the first value taken off every year"
+     "wrong": "one plus the rate for a fall, or the first drop taken off every time"
     },
     {
      "ref": "SL1.3.model#2",
-     "text": "Counting one multiplication too few: when u₁ is the starting value, the value after t years needs t multiplications",
+     "text": "Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications",
      "as": "distractor",
      "in": [
       "sequence-vs-function"
      ],
-     "wrong": "the value after 10 years given as u₁₀ = P₀r⁹"
+     "wrong": "the value after t years taken as the tth term, one multiplication too few"
     },
     {
      "ref": "SL1.4.future-value#0",
@@ -62996,12 +67140,12 @@
     },
     {
      "ref": "SL4.9.inverse-normal#0",
-     "text": "Entering 0.10 for the top 10% without converting to the left-tail area 0.90",
+     "text": "Entering the upper-tail area without converting it to the area on the left",
      "as": "distractor",
      "in": [
       "inverse-normal-undo"
      ],
-     "wrong": "for the top 10%, enters 0.10 instead of 0.90"
+     "wrong": "enters the area above the value instead of the area below it"
     },
     {
      "ref": "SL4.9.inverse-normal#2",

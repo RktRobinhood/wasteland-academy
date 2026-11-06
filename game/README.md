@@ -149,6 +149,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   it ends), or the first week or day whose term or running total is more than a round
   threshold (a whole n). Any type with a `situation` gets a copy in
   `data/catalogue.json`, whatever its topic.
+- `engine/situations/arithmetic_context.gd` (FAL-752) is `t1-arithmetic-in-context`, Paper 2 throughout
+  as every part of it in the bank is: an arithmetic sequence in a story, with
+  `ArithmeticSequenceSituation`'s `term` and `sum` doing the sums. Its views
+  (`arithmetic_context_views.gd`) show the story in words, a table of the first terms or of data, a
+  graph (the line of uₙ against n with two labelled dots and the target drawn, or the data's labelled
+  dots) or a figure (`stages` in `ui/plot_view.gd`: stacks of 1, 2 and 3 rows side by side), and ask 20
+  unknowns. SL1.2.model: a term and a total (seats, pay, runs, hauls, a failing well), which calculation
+  a question wants, "in year n" against "once n full years have passed", an amount after n steps, simple
+  interest, d from first and last or as a regression gradient, a prediction from either, a comment on
+  validity (near the data, far past it, or over a limit in the story), a stack's total, and the
+  greatest running total of terms that fall past 0. SL1.2.find-n: the term with a value, the term that
+  reaches 0, the number of terms, the first term or running total past a target, whether a value is a
+  term at all (a whole n), and the fewest rows that use whole crates. What ends is marked exactly, what
+  comes from imperfect data is to 3 s.f., and a judgement is a picked statement.
 - `engine/situations/distribution.gd` (FAL-396) is the Topic 4 situation: one
   discrete random variable X with 3 to 5 values, its probabilities as multiples of k,
   a formula P(X = x) = k f(x) or decimals, or a game with prizes and a stake. Its views
@@ -272,6 +286,20 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   the central interval. Its 27 unknowns are exact, except a value a GDC gives, to 3 s.f. Two of
   them are `pick-the-graph`: four cards that share one window and one set of axis marks, so only
   the curves and the shading differ.
+- `engine/situations/inverse_normal.gd` (FAL-752) is `t4-inverse-normal` (SL4.9.inverse-normal), the
+  `inverse-normal` situation: normal-probability the other way round, with an area given and the value
+  that cuts it off asked for. Its views (`inverse_normal_views.gd`) extend `NormalProbabilityViews` for
+  the stories and the curve, and show X ~ N(μ, σ²), a story, or the curve with the area shaded and the
+  value marked by a letter, so the figure says which side the area is on. It asks 14 unknowns. Ten are
+  Paper 2, to 3 s.f. with the rounding trap, with every method of the map (invNorm with the left area,
+  via z, a sketch first): a with P(X < a) = p or P(X > a) = p, the top or bottom k%, a quartile, a
+  percentile, an area above a of more than a half, both ends of a central interval (typed), the other
+  end of a band, and an end of a band whose tails are in a ratio r : 1. Four are Paper 1, exact, by
+  via z or a sketch only, as the exam's one Paper 1 part reaches a value by comparing distances from
+  the mean: a second curve with the same σ, a mirror tail, a tail of the 68-95-99.7 rule, or a line of
+  N(0, 1) given. The mirror image of the answer is always offered, with one slip far from the mean, so
+  the far slips don't give the answer away together. Working from a z shown works on from that z, so
+  each number follows from the line before.
 - `engine/situations/area_between.gd` (FAL-751) is `t5-area-between-curves` (SL5.11), the `area-between`
   situation: two curves and the region between them. Its views (`area_between_views.gd`) show the two
   equations, the curves named f and g with the region shaded (GraphView's `shade`, each strip between
@@ -327,6 +355,21 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Degree mode is a worked distractor on every value and time: the model is solved again with its
   angle in degrees. Its one Paper 1 exact value is at a whole t past the first quadrant, in TrigKit's
   exact numbers, and whether a level is reached makes Paper 1 too.
+- `engine/situations/trig_model_equation.gd` (FAL-752) is `t3-trig-model-equation` (SL3.8.graphical,
+  SL2.10), the `trig-model-equation` situation, which extends `trig-wave`, and `TrigModelEquationViews`
+  extends `TrigWaveViews`. Its 18 unknowns don't repeat `t3-trig-model-use`'s and fall in four families:
+  exact times in a story on Paper 1, where the level is half of the amplitude from the axis, so
+  fn(bracket) = ±1/2 (every time in a span, the time at least or at most a level in one cycle); a
+  story and a level on Paper 2 (every time in a window that starts after 0, the set of times above or
+  below a level, in one stretch or two, and the total time or the chance past a level in a span that
+  isn't whole cycles); a wave on an interval on either paper (the number of solutions of f(x) = k,
+  with k inside the range or at a turning point, the band of k with exactly n solutions, the k with at
+  least one or no solutions, a letter of the wave from a touching line, and the two k with exactly
+  one solution); and a trig curve against a line or a falling exponential on Paper 2 (every solution,
+  or how many). Counts walk the wave's monotonic pieces, so a line at a turning point or an end is
+  counted once. A set of times is a `form`, typed end by end to 3 s.f. The figures are the model's or
+  wave's graph with the level dashed, or both curves. A question's tagged wrong options are rotated by
+  its `spin`, so every slip shows up across the seeds even where only two fit beside the rounding trap.
 - `engine/situations/distance_midpoint.gd` (FAL-751) is `t3-distance-midpoint` (SL3.1), the
   `distance-midpoint` situation: points in 2D or 3D, drawn first, so a distance is the root of a
   whole number and a midpoint is exact. Its 15 unknowns ask a distance, k from a distance (two whole
@@ -370,6 +413,21 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   shaded square, a running total against a target and the first amount for a target. GDC and
   partial-sums methods are Paper 2 only, and their working isn't shown on Paper 1. PlotView's
   `bounce` and `squares` draw the figures; a sequence's dots and the band −1 < y < 1 use GraphView.
+- `engine/situations/geometric_context.gd` (FAL-752) is `t1-geometric-in-context` (SL1.3.model and
+  SL1.3.find-n), the `geometric-context` situation: a story that a geometric sequence models. Paper 2
+  powers run far enough to overflow a `Q`, so a value there is a float, as a GDC gives it. Its views
+  (`geometric_context_views.gd`) ask 18 unknowns: r from a percentage, a value after t rounds (t
+  multiplications) and in round n (n − 1), which term is "after t", a rebound height, uₙ in terms of n
+  (a `form` answer), a total, the gap between a flat deal and a rising one, the first round a geometric
+  model passes an arithmetic one, the area of the nth rectangle with its sides scaled and their mean as
+  p × (b^a − 1), and the least n for uₙ or Sₙ past a target, for S∞ − Sₙ below a small value, for a
+  first term below one, after finding r from u₁ and a later term, the least whole t after a start, and
+  a count of terms from an exact power. Every method of the two skills is in a cell. The one Paper 1
+  part in the bank is the rectangles, so they, r, the indexing, tabulating a rebound or uₙ and an
+  exact power are Paper 1; a value, a rebound or uₙ by the multiplier makes both papers, with small
+  powers on Paper 1; the rest is Paper 2. A method's title follows the story ("Build a
+  bounce-by-bounce table"). A figure is PlotView's `bounce`, dots with the target as a line (the first
+  three labelled, so u₁ and r can be read), or two rivals as curves named at their right-hand ends.
 - `engine/situations/regression.gd` (FAL-695) is `t4-regression-gdc` (SL4.4, on all four
   syllabuses): paired data, 6 to 9 whole-number points near a line (x from 1 to 20, y from 8
   to 99, 0.8 ≤ |r| ≤ 0.99, up or down as the story says), so the means, the regression line
@@ -424,6 +482,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   and greatest overlap. Paper 1 is exact; Paper 2 has decimals to 3 places or counts answered to
   3 s.f. An option that should be a probability is one: `build()` adds near values, because the
   engine's last-resort nudges add 1.
+- `engine/situations/sample_space.gd` (FAL-752) is `t4-sample-space` (SL4.6): two dice, a die and a
+  spinner, or two spinners on an m × n grid of outcomes, fair or with unusual faces, scored by sum,
+  product, difference or larger number. Its views (`sample_space_views.gd`) show the grid as a `table`
+  with heads, the two objects drawn (`graph` of kind `spinners`, `ui/spinner_plot.gd`: a die laid out
+  flat, a spinner with its sectors to scale) or sentences, and ask 17 unknowns: a hidden cell, the
+  number of outcomes, a count, P(score), the boundary words, the complement, a property of the score,
+  the first number higher than the second, a sum on matching objects by its mirror, a points rule, a
+  biased die or spinner rolled twice, a total to reach with two rolls left, a face from the largest
+  sum, a repeated face from the distribution, and q and E(Y) from P(X < Y). Grid-symmetry suits only
+  the unknowns whose objects always match, so "Another way" always has a mirror to use. Paper 1 is
+  exact, Paper 2 (the grid and rolled-twice unknowns only) is to 3 s.f. Wrong options come from the two
+  SL4.6.sample-space-grid misconceptions and the type's own 18.
 - `engine/situations/basic_probability.gd` (FAL-728) is `t4-probability-basic` (SL4.5): one chance
   set-up for each unknown. Its views (`basic_probability_views.gd`) ask 18 unknowns: a bag and a bag
   after a change, a two-way table (rep `table`, with totals), a list of data, a total on two dice or
@@ -613,6 +683,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   unordered list, the mean of the two means, p left out of Σf, the mean or the mode as the
   best average) and never read as a fraction (`DataSummaryViews.tidy`). As every exam type, it
   offers no extra format: `test_extension.gd` holds that rule.
+- `engine/situations/depreciation.gd` (FAL-752) is `t1-depreciation` (SL1.4), the `depreciation`
+  situation: a price P that keeps a fixed fraction c of its value each year, month or quarter. Its
+  views (`depreciation_views.gd`) show it as a story, as V = P(c)^t, as a table of three whole times
+  (exact to the cent) or, for a time, as the curve and the target with their crossing marked. It asks
+  12 unknowns, all Paper 2: the value after n years (or on a date), the total loss, the loss in one
+  year, the price paid, the rate from two values or read off the model, a value with a different
+  rate in the first year, the extra money needed on top of an account, and the least whole number of
+  years to fall below a target or a percentage of the price, or of years or months or quarters from a
+  rate per month or quarter. Methods are the multiplier, the TVM solver with a negative rate, a
+  year-by-year run, logs, a GDC table and a graph. Money is answered exactly to the dollar, and every
+  value, and every slip offered, leaves a fraction of a dollar at least 0.15 from the edge at 0.5.
 - `engine/situations/compound_interest.gd` (FAL-695) is `t1-compound-interest` (SL1.4, on all
   four syllabuses): money invested at a nominal annual rate r %, compounded 1, 2, 4 or 12
   times a year, for n years. Its views (`compound_interest_views.gd`) ask 6 unknowns, all
@@ -1277,6 +1358,21 @@ works every feature again with SymPy, testing that nothing before a first maximu
 of a level are found by scanning the model for sign changes and bisecting, and durations are added up
 between them, so no formula is shared with the engine; degree mode is the same scan with the angle in
 degrees. The plain sums in the working are evaluated (`check_trig_wave`, `e9trig_*`).
+For `arithmetic-context` it reads the story back from the words, the table, the graph's dots or the
+figure's rows, then walks the sequence term by term, so no formula is shared with the engine: a term
+number is found by scanning, a peak by keeping the running total, and data are fitted again. Every
+statement offered is judged from those numbers, and the plain sums in the working are evaluated
+(`e10ar_check`).
+For `depreciation` it reads the price, rate, target and account back from the story, the model or
+the table (a table's multiplier from its own values), works each value again with exact rationals, a
+rate from a root and a time from a logarithm tested exactly either side of the answer, rebuilds each
+tagged option from its slip, holds the figure's curve, line and crossing to the model, and requires
+each method's numbers in its working (`e10de_check`).
+For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
+finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
+scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
+and between them, and the counts in the working are compared. Degree mode is the same scan with the
+angle in degrees, and the map's own example equations are refused (`e10tm_check`, `e10tm_*`).
 For `regression-interpret` it fits the data again with exact rationals and judges every statement
 offered from those numbers, so a wrong statement that happens to be true fails (`e9regr_check`).
 For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
@@ -1284,11 +1380,20 @@ Paper 2, summed over the stretches between rests it finds itself, so a distance 
 engine's. A return is decided by the roots of s itself, a ridge's gap by the model's own period,
 a race by solving for the winner's time, and every option of an expression is worked out and
 must equal the distance only if it is the right one (`check_motion_distance`, `kd_*`).
+For `geometric-context` it reads the story, table, dots or Σ back and works every value out again with
+exact rationals. A least n comes from testing the terms or totals one at a time, and it must be the
+first whole number past the crossing, which is at least 0.1 from a whole number. Each tagged option is
+rebuilt from its slip, and the isolated power, the bound after logs, a table's two rows and each
+listed row are held to the working's own lines (`e10ge_check`).
 For the four FAL-725 situations it reads the facts back from the question: lines, percentages,
 sentences, a Venn diagram, a tree or a table. It finds the regions, ratios and lines again with
 exact rationals, and z and tail areas with mpmath at 40 digits. A σ or μ is checked by putting it
 back into erf, and a shaded area must be the area given (`check_regression_pair`,
 `check_normal_unknown`, `check_venn`, `check_conditional`).
+For `inverse-normal` it reads μ, σ, the area and its side back from the lines, the story or the shading,
+and finds each value with its own inverse (erfinv at 40 digits, put back through erfc), or exactly on
+Paper 1, solving the shift with SymPy. Each tagged option is worked out from its slip, and each
+invNorm, normalcdf and plain sum in the working is done again (`e10in_check`).
 For `antiderivative-condition` it reads f′ (or f″) and the condition back from the lines, works
 the antiderivative again with SymPy, and differentiates every option: only the right one may give
 f′ back, meet the condition and have no C left in it (`check_antiderivative_condition`). Each
@@ -1315,6 +1420,11 @@ For `independence` it reads the facts back the same way and decides each test it
 four comparisons must agree, and all four option texts are rebuilt from true values, so a false
 number or a verdict that doesn't follow fails. It also multiplies and divides every plain step of
 the working again (`check_independence`).
+For `sample-space` it reads the two objects back from the grid's heads, the figure or the sentences,
+holds every cell to the scoring rule, and lists every outcome again. A biased object's cells are
+multiplied out, a letter on a face is found by trying every value it could have against the
+distribution, q and r are solved with SymPy from P(X < Y), and each tagged slip is worked out. The
+working's lists and counts must be the checker's own, and its plain sums are evaluated (`e10ss_check`).
 For `basic-probability` it reads the story, table, bar chart, tree or curve back, counts the outcomes
 again by listing every one, and checks that a curve is real counts settling on its answer
 (`check_basic_probability`).
@@ -1686,6 +1796,10 @@ script error happens while it runs. Run one file with
   different options, the GDC on Paper 2 only, a figure hiding its equation unless the GDC needs it, b
   written each way, first peaks and a model against hand values, degree mode and "only the first time"
   as options, and every misconception shown.
+- `test_trig_model_equation.gd`: t3-trig-model-equation built with every cell, four different options,
+  exact times on Paper 1 and a GDC or a story's level on Paper 2, counts, bands of k, exact times,
+  stretches and a curve against a line against hand values, the map's own examples never asked, a
+  touching line and degree mode as options, the figures, and every misconception shown.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a
@@ -1707,9 +1821,13 @@ script error happens while it runs. Run one file with
   given, a right triangle in every cone and a sector that rolls into its cone, a × 10^k typed with
   a negative k, the right value with a outside 1 to 10 marked wrong, E-notation never typed, the
   superscripts' glyphs, and every misconception as an option.
+- `test_sample_space.gd`: `t4-sample-space`: every cell, method and representation, one right option on
+  each, Paper 1 exact and Paper 2 rounded, matching objects on every symmetry cell, "Another way" on the
+  same numbers, grids that fit a phone, figures with the right sectors, and every misconception shown.
 - `test_basic_probability.gd`: `t4-probability-basic`: every cell and skill, one right option on each
   paper, every option a probability, hand values, the figures drawn, a curve of real counts, a
   complement that differs from its event, and every misconception as an option.
+- `test_geometric_context.gd`: t1-geometric-in-context built with every cell, both skills and every map method, the papers, "after t" against "in round n", a least n as the first past its target, a gap as the series' tail, a rival passing once, and the figures
 - `test_regression_interpret.gd`: t4-regression-interpret built with every cell and both skills, Paper 2
   throughout, the given line is the table's to 3 s.f., each case stands apart (x = 0, strong or weak r,
   inside or outside the data), the scatter is the data, and every misconception shows up.
@@ -1720,6 +1838,9 @@ script error happens while it runs. Run one file with
 - `test_tree_diagram.gd` (FAL-739): `t4-tree-diagram`: every cell with one right option, its papers,
   forks that add to 1, a tree of each shape, a tin's branches as the recount, one valid k, n back from
   a growing tin, a game's two ways to win, past-paper set-ups left out and every misconception shown.
+- `test_inverse_normal.gd` (FAL-752): `t4-inverse-normal`: every cell and method, each on its one paper
+  with one right option; a value has the area it was given, a central interval and a band hold theirs,
+  a ratio's tails are in that ratio, Paper 1 is exact with no calculator word, and every slip comes up.
 - `test_normal_probability.gd` (FAL-728): `t4-normal-probability`: every cell on Paper 2 with one
   right option, the one normal distribution it shares with `normal-unknown`, regions that add up,
   bands wide enough for their labels, the shaded curve, the root of a variance, half a unit either
@@ -1741,6 +1862,10 @@ script error happens while it runs. Run one file with
   mean that is not the mean of the means; the outlier dragging the mean; every misconception
   as an option; exact and 3 s.f. marking; the three concept probes; and every course having
   every cell.
+- `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
+  value, the rate, the price and the least time against hand values; every dollar answer clear of
+  the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters
+  converted; every tag appears as an option.
 - `test_compound_interest.gd`: t1-compound-interest built with every cell and all four SL1.4
   skills; every cell in both formats with 2 to 5 steps per worked solution; Paper 2 only; the
   value, the doubling time and the rate against hand values; every money value clear of the

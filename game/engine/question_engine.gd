@@ -50,9 +50,11 @@ static var SITUATIONS := {
 	"trig-equation": [TrigEquationSituation, TrigEquationViews],
 	"trig-model": [TrigModelSituation, TrigModelViews],
 	"trig-wave": [TrigWaveSituation, TrigWaveViews],
+	"trig-model-equation": [TrigModelEquationSituation, TrigModelEquationViews],
 	"bearings-elevation": [BearingsSituation, BearingsViews],
 	"right-triangle": [RightTriangleSituation, RightTriangleViews],
 	"arithmetic-sequence": [ArithmeticSequenceSituation, ArithmeticSequenceViews],
+	"arithmetic-context": [ArithmeticContextSituation, ArithmeticContextViews],
 	"distribution": [DistributionSituation, DistributionViews],
 	"quadratic-parameter": [QuadraticParameterSituation, QuadraticParameterViews],
 	"curve-and-line": [CurveLineSituation, CurveLineViews],
@@ -85,6 +87,7 @@ static var SITUATIONS := {
 	"fn-link-graph-vs-algebra": [LinkGraphAlgebraSituation, LinkGraphAlgebraViews],
 	"binomial": [BinomialSituation, BinomialViews],
 	"geometric-sequence": [GeometricSequenceSituation, GeometricSequenceViews],
+	"geometric-context": [GeometricContextSituation, GeometricContextViews],
 	"binomial-expansion": [BinomialExpansionSituation, BinomialExpansionViews],
 	"binomial-unknown": [BinomialUnknownSituation, BinomialUnknownViews],
 	"log-laws": [LogLawsSituation, LogLawsViews],
@@ -96,6 +99,7 @@ static var SITUATIONS := {
 	"regression-x-on-y": [RegressionPairSituation, RegressionPairViews],
 	"normal-unknown": [NormalUnknownSituation, NormalUnknownViews],
 	"normal-probability": [NormalProbabilitySituation, NormalProbabilityViews],
+	"inverse-normal": [InverseNormalSituation, InverseNormalViews],
 	"venn": [VennSituation, VennViews],
 	"conditional": [ConditionalSituation, ConditionalViews],
 	"tree-diagram": [TreeDiagramSituation, TreeDiagramViews],
@@ -107,6 +111,7 @@ static var SITUATIONS := {
 	"distance-midpoint": [DistanceMidpointSituation, DistanceMidpointViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
 	"compound-interest": [CompoundInterestSituation, CompoundInterestViews],
+	"depreciation": [DepreciationSituation, DepreciationViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],
 	"inverse-rule": [InverseRuleSituation, InverseRuleViews],
 	"composite-graph-table": [GraphTableSituation, GraphTableViews],
@@ -142,6 +147,7 @@ static var SITUATIONS := {
 	"solid": [SolidSituation, SolidViews],
 	"standard-form": [StandardFormSituation, StandardFormViews],
 	"basic-probability": [BasicProbabilitySituation, BasicProbabilityViews],
+	"sample-space": [SampleSpaceSituation, SampleSpaceViews],
 }
 
 static var _cat: Dictionary = {}

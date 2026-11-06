@@ -582,7 +582,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A geometric series with ratio 0.9 has a sum to infinity, but one with ratio 1.1 does not. — True. Multiplying by 0.9 again and again drives the terms to 0, like exponential decay, so the sum settles at u₁/(1 − 0.9) = 10u₁. Multiplying by 1.1 makes the terms grow, so the sum grows without limit.
   - *interpret-parameter* (L3): In A(t) = 2000 × 0.85^t, what do 2000 and 0.85 mean, and what is the yearly percentage change? — 2000 is the value at t = 0. 0.85 is the factor each year: the value keeps 85%, so it falls by 15% a year.
   - *predict-check* (L3): Predict which is worth more after 10 years: 1000 growing by 5% a year, or 1000 growing by 50 a year. Then check. — The 5% one. 1000 × 1.05¹⁰ ≈ 1628.89, while 1000 + 10 × 50 = 1500. Both add 50 in year one, but the percentage is taken of a growing amount.
-- **Misconceptions used:** 13. Confuses the percentage rate with the growth factor, which is one plus the rate; Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the start value as the value after one period, so the exponent is off by one; Thinks a reciprocal base reflects the graph in the x-axis rather than the y-axis; Using r^n in the term formula, one power of r too many; Using the wrong factor for a percentage decrease, or subtracting the same amount each year; Counting one multiplication too few: when u₁ is the starting value, the value after t years needs t multiplications; Using the annual rate with kn periods, instead of dividing the rate by k; Using simple interest instead of compounding; Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss; Treating depreciation as linear: subtracting the same percentage of the original price each year; Thinking r below one is enough, so a large negative ratio seems to converge; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity.
+- **Misconceptions used:** 13. Confuses the percentage rate with the growth factor, which is one plus the rate; Computes P₀ × r × t (linear growth) instead of P₀ × r^t; Treats the start value as the value after one period, so the exponent is off by one; Thinks a reciprocal base reflects the graph in the x-axis rather than the y-axis; Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps; Using the wrong factor for a percentage decrease, or subtracting the same amount each time; Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications; Using the annual rate with kn periods, instead of dividing the rate by k; Using simple interest instead of compounding; Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss; Treating depreciation as linear: subtracting the same percentage of the original price each year; Thinking r below one is enough, so a large negative ratio seems to converge; Including the endpoints: thinking a ratio of exactly one or minus one gives a sum to infinity.
 
 ### 3. Graphs and key features (syllabus 2.3, 2.4, 2.10)
 
@@ -1044,7 +1044,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): cos x = −1/2 has only one solution between 0 and 2π, because arccos(−1/2) = 2π/3. — False. 4π/3 works too. arccos can only return one value, in [0, π], because cos had to be cut down to that interval before it could be undone, just as √ only returns the root that is ≥ 0.
   - *always-sometimes-never* (L4): Squaring and then taking the square root gets you back to where you started: √(x²) = x. — Sometimes. True for x ≥ 0, but √((−3)²) = 3. √ only undoes x² on the restricted domain x ≥ 0.
   - *interpret-parameter* (L3): The point (2, e²) is on y = eˣ. Where is the matching point on y = ln x, and why? — (e², 2). An inverse swaps input and output, which is a reflection in the line y = x.
-- **Misconceptions used:** 15. Reads f⁻¹(x) as the reciprocal of f(x); Reflects in the x-axis or y-axis instead of in the line y = x; Computes f(a) when f⁻¹(a) is asked for; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse; Multiplies by the coefficient of x, or subtracts it, instead of dividing after taking logs; Converts log_b x = c to x = c^b instead of b^c; Dividing instead of finding the power; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Entering 0.10 for the top 10% without converting to the left-tail area 0.90; Using normalcdf when a value of x is wanted; Dividing by the old power instead of the new one; Forgetting + C.
+- **Misconceptions used:** 15. Reads f⁻¹(x) as the reciprocal of f(x); Reflects in the x-axis or y-axis instead of in the line y = x; Computes f(a) when f⁻¹(a) is asked for; States the domain of f⁻¹ as the domain of f; Restricts the domain at the y-intercept instead of at the turning point; Thinks every function has an inverse; Multiplies by the coefficient of x, or subtracts it, instead of dividing after taking logs; Converts log_b x = c to x = c^b instead of b^c; Dividing instead of finding the power; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Entering the upper-tail area without converting it to the area on the left; Using normalcdf when a value of x is wanted; Dividing by the old power instead of the new one; Forgetting + C.
 
 ### 5. Rational functions (syllabus 2.8)
 
@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 9 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1691,6 +1691,38 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): A GDC showing 3.1E−4 is an acceptable final answer. — False: calculator notation isn't accepted. Write 3.1 × 10^−4.
 - **Misconceptions used:** 9. Getting the sign of the power wrong: a large number needs a positive power and a small one a negative power; Moving the point one place too many, by counting digits instead of the places it moves; Leaving or comparing a number whose first part isn't between one and ten; Multiplying the powers of ten instead of adding them; Forgetting to renormalise, which leaves the first part outside one to ten; Slipping on the powers: subtracting them for a product, or adding them for a quotient; Writing the GDC display, E-notation and all, as the final answer; Rounding a at an early step so the third significant figure is wrong; Dividing the wrong way round when asked 'how many times larger'.
 
+#### Arithmetic sequence or series modelling a pattern or context (`t1-arithmetic-in-context`, exam, 6 bank parts)
+
+- **Situation:** An arithmetic sequence or series in a story.
+- **Representations:** **words**, **table**, graph, **diagram** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a story, or a table of its first terms → one term of the sequence
+  - **exam** L2: given a story, or a table of its first terms → the total of the first n terms
+  - new L2: given a story, and a question in its words → which calculation answers it: one term or a total
+  - new L3: given a story told in steps of time, or a table → the value in step n, or once n full steps have passed
+  - **exam** L2: given an amount at the start and its change each step, or a table → the amount after n steps
+  - **exam** L3: given a deposit and a rate, or a table of values → the value of the deposit after n years
+  - **exam** L2: given yearly data that are nearly arithmetic → d from the first and last values, to 3 s.f.
+  - **exam** L3: given yearly data that are nearly arithmetic → d as the regression gradient, to 3 s.f.
+  - **exam** L3: given yearly data that are nearly arithmetic → a later value, from d estimated by first and last, to 3 s.f.
+  - **exam** L3: given yearly data that are nearly arithmetic → a later value from the regression line, to 3 s.f.
+  - **exam** L4: given yearly data, a prediction, and any limit in the story → whether the prediction is valid, and why
+  - **exam** L3: given stacks of 1, 2 and 3 rows, or a table of totals → the number of items in a stack of n rows
+  - **exam** L4: given terms that fall past 0, in a story or a table → the greatest running total
+  - **exam** L2: given a sequence and a value in it → the term number that has the value
+  - **exam** L3: given a falling sequence → the term number that reaches 0
+  - **exam** L2: given first value, last value and gap, or a table and the last value → how many terms there are
+  - **exam** L3: given a sequence and a target → the first term number past the target
+  - new L4: given a rising sequence and a target for its total → the first n whose running total passes the target
+  - **exam** L3: given a sequence and a value → whether the value is a term, justified by n
+  - **exam** L5: given a stack of rows and a crate size → the fewest rows that use whole crates exactly
+- **Angles:** Identify u_1, d and n from the context, then use u_n or S_n; Build a table of the first few terms; Estimate d from imperfect data; Fit a linear regression to (n, u_n) data; Solve u_1 + (n − 1)d = value (or > value); Count steps of d, then add one; Scroll the GDC table; Intersect with a horizontal line.
+- **Concept probes:**
+  - *true-false-reason* (L3): If u₁ is the amount at the start, the amount after 5 years is u₅. — False: u₁ is after 0 years, so after 5 years it is u₆. Writing out the first few terms shows the shift.
+  - *always-sometimes-never* (L3): A value that is a multiple of d is a term of an arithmetic sequence. — Sometimes: it depends on u₁. A value is a term exactly when (value − u₁) ÷ d is a whole number.
+  - *predict-check* (L3): Predict whether d from first and last values and d from a regression line will be equal for data that are nearly arithmetic. Check with a table of your own. — Usually not: the first uses two values only, the regression uses them all. They are equal when the data are exactly arithmetic.
+- **Misconceptions used:** 26. Taking the value after n steps of time as u_n, when u_1 is the value at the start, so the term is one out; Extrapolating an approximate model far beyond the data without comment; Taking the first change in the data as d, instead of the overall change across the data; Adding n steps of d onto the last value in the data, instead of counting on from year 1; Reading the regression line's b as the common difference, instead of its gradient a; Leaving the intercept b out of a prediction from a regression line; Treating a prediction from an approximate model as an exact value; Rejecting every prediction because the data are not exactly arithmetic; Trusting a prediction that breaks a limit the story states; Treating simple interest as compound, so that interest earns interest; Giving only the interest earned, leaving out the starting amount; Stopping one term away from the last positive term when finding the greatest total; Treating the totals of a stack as an arithmetic sequence, when it is the rows added that are; Putting n + 1 into the regression line instead of n, so the prediction is one step too far; Rounding n down when the first term or total past a value is wanted, so the value found has not yet passed it; Mixing up n and the value: giving n when the term or total is asked for, or the reverse; Forgetting to add one when counting terms; Rounding a non-whole n to call the value a term of the sequence; Testing whether the value alone is a multiple of d, without taking off the first term; Setting the number of rows equal to the size of a full pack, instead of making the total a multiple of it; Using u₁ + nd, which counts one step too many; Finding d as the earlier term minus the later term, so a decreasing sequence gets a positive d; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Using u_n when the question asks for a total S_n, or the reverse; Dividing by the number of terms instead of the number of gaps.
+
 #### Arithmetic sequence: find u1, d, n, u_n or S_n from given terms or sums (`t1-arithmetic-sequence`, exam, 21 bank parts)
 
 - **Situation:** One arithmetic sequence and its sums.
@@ -1712,7 +1744,37 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): Plot the points (n, uₙ) of an arithmetic sequence. What shape do they make, and what do u₁ and d tell you about it? — They lie on a straight line with gradient d through (1, u₁): uₙ = dn + (u₁ − d) is a linear function of n.
   - *true-false-reason* (L3): If the common difference d is negative, the sum Sₙ is negative for every large enough n. — True. Sₙ = n/2 (2u₁ + (n − 1)d), and the bracket keeps falling by d for each extra term, so it becomes negative and stays negative.
   - *always-sometimes-never* (L3): For an arithmetic sequence of whole numbers, Sₙ is a multiple of n. — Sometimes: Sₙ = n × (u₁ + uₙ)/2, so it is a multiple of n exactly when u₁ + uₙ is even.
-- **Misconceptions used:** 12. Using u₁ + nd, which counts one step too many; Finding d as the earlier term minus the later term, so a decreasing sequence gets a positive d; Confusing the position n with the value u_n; Dividing by the number of terms instead of the number of gaps; Treating the given term as u₁ when asked for the first term; Answering with n when the question asks for the term itself (or the reverse); Forgetting to add one when counting terms; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Finding u_n when the question asks for S_n (or the reverse); Keeping the negative root of the quadratic as a number of terms; Answering with the value of the sum instead of the number of terms n.
+- **Misconceptions used:** 12. Using u₁ + nd, which counts one step too many; Finding d as the earlier term minus the later term, so a decreasing sequence gets a positive d; Confusing the position n with the value u_n; Dividing by the number of terms instead of the number of gaps; Treating the given term as u₁ when asked for the first term; Mixing up n and the value: giving n when the term or total is asked for, or the reverse; Forgetting to add one when counting terms; Using n instead of n − 1 inside the formula: n/2(2u_1 + nd); Using the wrong n, such as the last term's value or the number of gaps; Finding u_n when the question asks for S_n (or the reverse); Keeping the negative root of the quadratic as a number of terms; Answering with the value of the sum instead of the number of terms n.
+
+#### Geometric sequence or series modelling a context (`t1-geometric-in-context`, exam, 6 bank parts)
+
+- **Situation:** A story modelled by a geometric sequence.
+- **Representations:** **words**, **notation**, **diagram**, table, graph (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given a value and a percentage change → the multiplier r
+  - **exam** L2: given a value today and its percentage change, or a table → the value after t rounds, which is t multiplications
+  - **exam** L2: given an amount in round 1 and its percentage change, or a table → the amount in round n, which is n − 1 multiplications
+  - **exam** L1: given u₁ as the value today → which term is the value after t rounds
+  - **exam** L2: given a drop height and a rebound fraction or percentage → the height after the kth bounce
+  - **exam** L2: given an amount in round 1 and how it changes → uₙ as an expression in n
+  - **exam** L3: given an amount in round 1 and its percentage change, or a table → the total over n rounds
+  - **exam** L4: given a flat deal and a deal rising by a percentage, for n payments → the difference between the two totals
+  - **exam** L4: given an arithmetic model and a geometric one → the first round in which the geometric one is ahead
+  - **exam** L3: given the sides of a first rectangle and their scale factor → the area of the nth rectangle, in terms of n
+  - **exam** L4: given the sides of a first rectangle, their scale factor and how many rectangles → the mean area, as p × (b^a − 1)
+  - **exam** L3: given a rising sequence and a target → the least n with uₙ past the target
+  - **exam** L3: given a value today, its percentage change and a target → the least whole t after which the target is passed
+  - **exam** L4: given a rising sequence and a target for the total → the least n with Sₙ past the target
+  - **exam** L4: given u₁, a later term and a target for the total → the least n with Sₙ past the target, after finding r
+  - **exam** L3: given a falling sequence and a small value → the least n with uₙ below it
+  - **exam** L4: given a falling sequence or its Σ, and a small value → the least n with S∞ − Sₙ below it
+  - **exam** L2: given the first terms and the last, which is u₁ times an exact power of r → the number of terms
+- **Angles:** Convert the percentage change to a multiplier r; Build a year-by-year table; Tabulate competing models side by side; Graph both models and find where they cross; Take logarithms to bring the power down; Scroll a GDC table of the values; Intersect the curve with a horizontal line; Recognise an exact power.
+- **Concept probes:**
+  - *true-false-reason* (L3): If a value is u₁ today and grows by a fixed percentage each year, then its value after 10 years is u₁₀. — False: u₁ is today, so u₂ is after 1 year and u₁₁ is after 10 years. The term number is one more than the years passed.
+  - *always-sometimes-never* (L3): A model that grows by a fixed percentage overtakes one that grows by a fixed amount. — Always, if the percentage is above 0 and it starts positive: the fixed percentage adds more each year, and in the end more than any fixed amount.
+  - *predict-check* (L3): A ball rebounds to 3/4 of its height. Predict which bounce first stays under half the drop, then check. — The 3rd: 3/4, then 9/16, then 27/64, which is the first below 1/2.
+- **Misconceptions used:** 21. Using the percentage as r, instead of the multiplier that the percentage gives; Using the wrong factor for a percentage decrease, or subtracting the same amount each time; Counting one multiplication too few: when u₁ is the starting value, the value after t steps needs t multiplications; Adding the same amount each step instead of multiplying, so that a percentage rise grows in a straight line; Giving the last amount instead of the total of all the amounts; Giving the last round in which the first model is still ahead, instead of the first round the second one leads; Using the factor for a length as the factor for an area, instead of squaring it; Stopping at the total of the terms, without dividing by how many there are, when the mean is asked; Not flipping the inequality when dividing by ln r, which is negative when r is below one; Rounding down instead of up when the least whole number is asked; Giving the term or the sum instead of the number asked for; Stopping at the last whole number that falls short of the target instead of the first that meets it; Taking the power of r as the number of terms, which is one too few; Testing the wrong quantity: a term when the condition is on a total or a gap, or the total when it is on a term; Giving the term number instead of the steps passed, when u₁ is the value at the start; Giving the steps passed instead of the term number, which is one more when u₁ is the value at the start; Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps; Multiplying u₁ and r first and raising the product to the power, instead of raising r alone; Using a power one lower than n in the sum formula; Subtracting terms as if the sequence were arithmetic; Counting terms instead of steps, so the power of r is one too high.
 
 #### Geometric sequence: find r, u1, a term or S_n (`t1-geometric-sequence`, exam, 9 bank parts)
 
@@ -1745,7 +1807,31 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): If r² = 9 for a geometric sequence, then r = 3. — False: r = −3 fits as well, because a square hides the sign. The sequence needs another fact to settle which.
   - *always-sometimes-never* (L3): The terms of a geometric sequence get bigger as n gets bigger. — Sometimes: they do for u₁ = 1 and r = 2, but they shrink for r = 1/2 and flip sign for r = −2.
   - *true-false-reason* (L4): uₙ = 3 × 2ⁿ is a geometric sequence, even though it isn't written as u₁r^(n − 1). — True: each term is 2 times the one before, so r = 2. It is the same as u₁ = 6 and r = 2.
-- **Misconceptions used:** 13. Using r^n in the term formula, one power of r too many; Multiplying u₁ and r first and raising the product to the power, instead of raising r alone; Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁; Subtracting terms as if the sequence were arithmetic; Taking only the positive root of an even power and losing the negative ratio; Counting terms instead of steps, so the power of r is one too high; Using a power one lower than n in the sum formula; Slipping on the sign of a negative r raised to an odd power; Miscounting the terms when the last term is given; Taking the coefficient as the first term, whatever the lower limit gives; Taking r to be the coefficient instead of the base of the power; Counting the terms as upper minus lower, which is one too few; Doubling the first drop of a bouncing ball as well as the rebounds.
+- **Misconceptions used:** 13. Using one power of r too many: r^n for the nth term, or a power one above the steps passed for a value after those steps; Multiplying u₁ and r first and raising the product to the power, instead of raising r alone; Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁; Subtracting terms as if the sequence were arithmetic; Taking only the positive root of an even power and losing the negative ratio; Counting terms instead of steps, so the power of r is one too high; Using a power one lower than n in the sum formula; Slipping on the sign of a negative r raised to an odd power; Miscounting the terms when the last term is given; Taking the coefficient as the first term, whatever the lower limit gives; Taking r to be the coefficient instead of the base of the power; Counting the terms as upper minus lower, which is one too few; Doubling the first drop of a bouncing ball as well as the rebounds.
+
+#### Depreciation as repeated percentage decrease (`t1-depreciation`, exam, 5 bank parts)
+
+- **Situation:** A thing bought at a price that keeps a fixed fraction of its value each year, month or quarter.
+- **Representations:** **words**, **equation**, table, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the price; the rate; the years → the value after the years, to the nearest dollar
+  - new L2: given the price; the rate; the years → the total loss in value, to the nearest dollar
+  - new L3: given the price; the rate; one year → the loss in that year alone, to the nearest dollar
+  - new L3: given the value at a later time; the rate; the years since it was bought → the price paid, to the nearest dollar
+  - new L3: given the price; the value at a later time; the years → the yearly rate of depreciation, to 3 s.f.
+  - **exam** L1: given the model, or a table of values → the yearly rate of depreciation
+  - **exam** L3: given the price; the first year's rate; the later rate; the years → the value after the years, to the nearest dollar
+  - **exam** L4: given the price and the rate, or the model; an account; the years → the extra money needed on top of the account, to the nearest dollar
+  - new L3: given the price; the rate; a target → the least number of complete years to fall below the target
+  - **exam** L3: given the price; the rate; a percentage of the price → the least number of complete years to fall below that percentage
+  - new L4: given the price; a rate per month or quarter; a target → the least number of complete years to fall below the target
+  - new L3: given the price; a rate per month or quarter; a target → the least number of complete months or quarters to fall below the target
+- **Angles:** Use V = V_0(1 − r/100)^n; Use the TVM solver with a negative interest rate; Calculate year by year; Use logarithms to solve for the exponent; Solve for N in the TVM solver; Tabulate value against time; Intersect the curve with the target.
+- **Concept probes:**
+  - *true-false-reason* (L3): A thing that loses 10% of its value each year has lost 30% of its value after 3 years. — False: each 10% is of the value at the start of that year, which keeps falling. It keeps 0.9^3 = 0.729 of its value, so it has lost 27.1%.
+  - *always-sometimes-never* (L3): Under a fixed percentage depreciation, the loss in each year is smaller than the loss in the year before. — Always: each year's loss is the same percentage of a smaller value, so the amounts lost shrink by the multiplier each year.
+  - *interpret-parameter* (L3): In V = 8000(0.92)^t, what do 8000 and 0.92 mean? — 8000 is the value when t = 0, the price paid. 0.92 is the fraction kept each year, so the value falls by 8% a year.
+- **Misconceptions used:** 13. Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss; Treating depreciation as linear: subtracting the same percentage of the original price each year; Giving the remaining value when the question asks for the loss in value (or the reverse); Giving the total loss so far when the question asks for the loss in one year; Taking the percentage of the value at the end of the year instead of at the start; Undoing a percentage loss by adding the same percentage back on; Giving the percentage kept each year instead of the percentage lost; Giving the total percentage lost over all the years as the yearly rate; Applying the later rate to every year instead of only to the years after the first; Comparing amounts from different dates, with one side left at today's value; Rounding the answer to the nearest whole number instead of up; Forgetting to convert N from months or quarters back into years; Not flipping the inequality when dividing by the log of a depreciation factor below 1.
 
 #### Compound interest: value, rate or time, with different compounding periods (`t1-compound-interest`, exam, 16 bank parts)
 
@@ -1763,7 +1849,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L4): Compounding more often a year always gives a larger value than compounding annually, at the same annual rate. — Always: at the same nominal rate each period's interest starts earning interest sooner, so the yearly growth factor (1 + r/100k)^k rises with k. At 5% it is 1.0500 annually, 1.0509 quarterly and 1.0512 monthly.
   - *true-false-reason* (L3): $1000 invested at 5% compounded annually for 10 years earns twice as much interest as $1000 invested at 5% for 5 years. — False: interest is earned on interest, so the second five years earn more than the first. The 10-year interest is $628.89 and the 5-year interest is $276.28, more than double.
   - *true-false-reason* (L3): An investment that is worth $5000 after 3 years at 4% compounded annually is worth $5000 ÷ 1.04^3 now. — True: the value after 3 years is PV × 1.04^3, so the amount invested now is the future value divided by 1.04^3.
-- **Misconceptions used:** 8. Using the annual rate with kn periods, instead of dividing the rate by k; Using simple interest instead of compounding; Giving the total value when the question asks for the interest earned (or the reverse); Stopping at the root, without subtracting one and converting to a percentage; Dividing the total growth by the number of years instead of taking a root; Rounding the number of periods to the nearest integer instead of up; Forgetting to convert N from months or quarters back into years; Comparing nominal rates only and ignoring the compounding frequency.
+- **Misconceptions used:** 8. Using the annual rate with kn periods, instead of dividing the rate by k; Using simple interest instead of compounding; Giving the total value when the question asks for the interest earned (or the reverse); Stopping at the root, without subtracting one and converting to a percentage; Dividing the total growth by the number of years instead of taking a root; Rounding the answer to the nearest whole number instead of up; Forgetting to convert N from months or quarters back into years; Comparing nominal rates only and ignoring the compounding frequency.
 
 #### Prove an algebraic identity or a divisibility result (`t1-algebraic-proof`, exam, 8 bank parts)
 
@@ -1940,7 +2026,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
 
 #### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
 
@@ -2244,7 +2330,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Evaluate or use a trig model: times, counts, durations (`t3-trig-model-use`, exam, 9 bank parts)
 
-- **Situation:** One wave to read or to use, shared with `t3-trig-model-parameters`, `t3-trig-read-features`.
+- **Situation:** One wave to read or to use, shared with `t3-trig-model-equation`, `t3-trig-model-parameters`, `t3-trig-read-features`.
 - **Representations:** **words**, **equation**, **graph** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L2: given a model and a time → the value at that time
@@ -2269,7 +2355,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Read amplitude, period and principal axis from a graph or equation (`t3-trig-read-features`, exam, 18 bank parts)
 
-- **Situation:** One wave to read or to use, shared with `t3-trig-model-parameters`, `t3-trig-model-use`.
+- **Situation:** One wave to read or to use, shared with `t3-trig-model-equation`, `t3-trig-model-parameters`, `t3-trig-model-use`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given a wave, as an equation or a graph → the amplitude
@@ -2297,7 +2383,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Find the parameters of a trig model from a graph, data or context (`t3-trig-model-parameters`, exam, 7 bank parts)
 
-- **Situation:** One wave and the model behind it, shared with `t3-trig-model-use`, `t3-trig-read-features`.
+- **Situation:** One wave and the model behind it, shared with `t3-trig-model-equation`, `t3-trig-model-use`, `t3-trig-read-features`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given a maximum and a minimum → a and d
@@ -2321,6 +2407,36 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): sin(2x − π/3) is sin 2x moved π/3 to the right. — Never: the bracket is 2(x − π/6), so the move is π/6. The 2 stretches the shift as well.
   - *interpret-parameter* (L3): In h(t) = −10 cos(πt/6) + 12, what does the minus sign tell you? — The wave starts at its lowest point: at t = 0 it is 12 − 10 = 2, then it rises.
 - **Misconceptions used:** 8. Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum; Using a = max − min, forgetting to halve; Getting the sign of c wrong in the bracket; Reading the shift before taking b out of the bracket; Treating b as the horizontal scale factor: a stretch with scale factor k divides b by k; Getting the direction of the shift wrong: a plus inside the bracket moves the graph left; Leaving the calculator in degree mode for a radian model; Taking b itself as the period, instead of working out b from the period.
+
+#### Solve a trig model equation or inequality for times (`t3-trig-model-equation`, exam, 5 bank parts)
+
+- **Situation:** A trig equation or inequality to solve or count, shared with `t3-trig-model-parameters`, `t3-trig-model-use`, `t3-trig-read-features`.
+- **Representations:** **words**, **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a model with π in it, a level and a span → the exact value of every time in the span at the level
+  - **exam** L3: given a model with π in it and a level → the exact time in one cycle at least, or at most, the level
+  - new L4: given a model, a level and a window that starts after 0 → every time in the window at the level
+  - new L4: given a model, a level and a span → the set of times above the level
+  - new L4: given a model, a level and a span → the set of times below the level
+  - new L4: given a model, a level and a longer span → the set of times past the level, in two stretches
+  - **exam** L5: given a model, a level and a span that is not whole cycles → the chance a random time in the span is above the level
+  - **exam** L4: given a model, a level and a span that is not whole cycles → the total time above, or below, the level in the span
+  - new L3: given a wave on an interval and a level inside its range → the number of solutions of f(x) = k
+  - new L3: given a wave on an interval and its maximum or minimum → the number of solutions, where the line only touches
+  - new L4: given a wave on an interval → the set of k with exactly n solutions
+  - new L3: given a wave on an interval → the set of k with at least one solution
+  - new L3: given a wave on an interval → the set of k with no solutions
+  - new L3: given a wave with a letter in it and a line touching its maxima or minima → the letter
+  - new L3: given one cycle of a wave, from the axis to the axis → the two values of k with exactly one solution
+  - new L4: given a trig function, a line and an interval → every solution
+  - new L4: given a trig function, a falling exponential and an interval → every solution
+  - new L4: given a trig function, a line and an interval → the number of solutions
+- **Angles:** GDC intersect; Sketch and count crossings; Reason from the maximum and minimum; Reference angle in every valid quadrant.
+- **Concept probes:**
+  - *true-false-reason* (L3): A line y = k meets a wave at its maximum. That is one solution in each cycle, not two. — True: the line only touches at the top, so the two crossings of a lower line have come together at one point.
+  - *predict-check* (L3): A wave runs for 2.5 cycles and the line is inside its range. Predict the number of solutions from the cycles alone, then count along a sketch. — Two full cycles give 4, but the half cycle left can give 0, 1 or 2 more, so the count needs the sketch.
+  - *interpret-parameter* (L4): Why does a sine curve against a steep line through the origin have fewer solutions than against a shallow one? — The wave stays inside a band, and a steeper line leaves that band sooner, so there are fewer humps for it to cross.
+- **Misconceptions used:** 16. Looking at only part of the interval and missing solutions; Including the boundary values of k where the line only touches at a maximum or minimum; Leaving the GDC in degree mode; Giving the whole range of the function as the values of k, without counting the solutions each value gives; Counting two solutions in a cycle where the line only touches at a maximum or minimum; Counting one solution in each cycle, when a line inside the range crosses twice in a cycle; Taking the share of one cycle as the share of a span that is not a whole number of cycles; Leaving out the maximum and the minimum, although the line still meets the curve at those heights; Leaving out the crossing at the origin; Counting two solutions in every cycle of the wave, although the line leaves the wave's band; Using the rule for the minimum at a maximum, or the rule for the maximum at a minimum; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Leaving d out of the maximum, the minimum or the range.
 
 #### Solve a trig equation exactly in an interval (`t3-trig-equation`, exam, 8 bank parts)
 
@@ -2357,7 +2473,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 4: Statistics and probability (catalogue level)
 
-24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 21 exam types have them so far.
+24 exam types (see `QUESTION_TYPES.md`) and 8 extension types. Unknowns and angles follow one topic at a time, as Functions did; 23 exam types have them so far.
 
 #### Sampling methods and bias (`t4-sampling`, exam, 4 bank parts)
 
@@ -2645,6 +2761,35 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): P(at least one) is the same as 1 minus P(none). — True: at least one and none are complements, so together they cover everything. With many paths it is much the shorter way.
 - **Misconceptions used:** 27. Not reducing the numerator and denominator on the second-stage branches when sampling without replacement; Adding along a path instead of multiplying; Counting only one order of the two colours and forgetting the other; Subtracting the branch before the fork instead of a branch at the fork; Leaving out one branch of a three-way fork; Subtracting one from the branch instead of the branch from one; Reducing the count of the colour that was not drawn; Leaving out the extra item added after the first draw; Giving the last branch alone instead of multiplying along the path; Stopping after one path into the event; Adding the branches that end in the outcome without multiplying along each path; Giving the probability of the opposite event; Stopping at the complement without subtracting it from one; Counting exactly one and leaving out the paths with more; Swapping the success and failure probabilities on the path; Multiplying by the number of orders when the order is fixed; Counting one failure too many before the success; Giving the path without dividing by the total of the paths; Keeping the root that makes a branch greater than one; Giving the number in the tin instead of the number of selections; Leaving the last selection out of the count; Leaving out the orders of the rounds; Counting only the games with the top score in every round; Including the totals equal to the limit; Leaving the count of the colour drawn unchanged after the first draw; Leaving the total unchanged after an item is drawn; Reducing the total before anything has been drawn.
 
+#### Sample space diagrams for dice and spinners (`t4-sample-space`, exam, 5 bank parts)
+
+- **Situation:** Two dice or spinners on a grid of outcomes.
+- **Representations:** **table**, **words**, diagram (bold: the exam uses it)
+- **Unknowns:**
+  - new L1: given the grid of scores with one cell hidden; the scoring rule → the score in the hidden cell
+  - new L1: given two objects, fair, with their faces; the scoring rule → the number of outcomes in the sample space
+  - new L1: given two objects, or their grid; an event on the score → the number of outcomes in the event
+  - **exam** L2: given two objects, or their grid; a score → P(score = k)
+  - **exam** L2: given two objects, or their grid; a boundary score → P(score at least, at most, greater than or less than k)
+  - new L2: given two objects, or their grid; a score → P(score is not k)
+  - new L2: given two objects, or their grid; a property of the score → P(score is even, odd, a multiple, prime or square)
+  - new L3: given two objects with different faces, or the grid of their differences → P(the first number is higher than the second)
+  - new L2: given two matching objects numbered from 1, or their grid of sums; a sum above the middle → P(sum = k), counted on the lower side
+  - new L3: given two matching objects numbered from 1, or their grid of sums; a sum above the middle → P(sum at least k), counted on the lower side
+  - **exam** L3: given two matching objects, or the grid of pairs; a rule giving points for a match and for a difference → the probability of a given score in one round
+  - **exam** L3: given a biased die or spinner, rolled twice; a total → P(total = k) or P(total at least k)
+  - **exam** L4: given a biased die or spinner; a total to reach, the total so far and two rolls left → the probability of reaching the total
+  - **exam** L3: given a die with unusual faces and one with letters; the distribution of the sum, or its largest value → the largest face b
+  - **exam** L4: given a die with unusual faces and one with a letter; the distribution of the sum, or one probability → the repeated face a
+  - **exam** L4: given two biased dice, one with q on its faces and r on the last; P(X < Y) → q
+  - **exam** L5: given two biased dice, one with q on its faces and r on the last; P(X < Y) → E(Y)
+- **Angles:** Fill a grid and count cells; List the ordered pairs; Use the symmetry of the grid.
+- **Concept probes:**
+  - *true-false-reason* (L3): Two dice can land on a 3 and a 5 in only one way. — False: the first die can show the 3 or the second can, so (3, 5) and (5, 3) are two outcomes of the grid.
+  - *always-sometimes-never* (L3): The number of different scores is the number of outcomes in the sample space. — Sometimes: it is true only when no two cells of the grid have the same score. Sums of two dice repeat, so most grids have fewer scores than cells.
+  - *predict-check* (L3): Replace one face of a fair die by a copy of another face. What happens to the number of cells in the grid? — Nothing: a die has as many outcomes as faces, whatever is printed on them. The repeated number simply fills more cells.
+- **Misconceptions used:** 20. Counting a pair and its reverse as a single outcome; Using the number of different scores as the total number of outcomes; Reading the boundary score the wrong way: leaving it out of at least or at most, or keeping it in greater than or less than; Using another operation on the two numbers instead of the game's scoring rule; Copying the next cell along instead of working out the cell asked for; Adding the numbers of faces instead of multiplying them to get the size of the grid; Counting the different scores in the event instead of the cells that give them; Giving the probability of the opposite event instead of the one asked for; Counting the ties as part of an event that asks for a strictly higher or lower number; Assuming each side is higher half of the time, which ignores the ties and the faces; Working out the chance that the second number is higher, instead of the first; Treating every cell as equally likely when the die or spinner is biased; Assuming the whole amount needed has to come from one roll or spin; Taking the largest sum as the missing face, without subtracting the other die's face; Subtracting the smallest face of the other die, when the largest sum uses its largest face; Assuming the second smallest sum comes from the second die's next face, when it can come from the first die's next face; Giving the chance on the last face instead of the letter asked for; Assuming the biased die is fair; Using the other die's probabilities for the expected value; Using the same chance on every face, ignoring that the last face has its own chance.
+
 #### Venn diagrams, two-way tables and the addition rule (`t4-venn-addition-rule`, exam, 11 bank parts)
 
 - **Situation:** Two events in one sample space.
@@ -2721,6 +2866,32 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): For any binomial distribution, Var(X) is smaller than E(X). — True: Var(X) = np(1 − p) = E(X)(1 − p), and 1 − p is less than 1, so the variance is always smaller than the mean. That is why Var(X) ÷ E(X) gives 1 − p.
 - **Misconceptions used:** 14. Writing B(p, n) instead of B(n, p); Leaving out the nCr factor; Swapping the powers of p and its complement; Using the cumulative function (binomcdf) for 'exactly r'; Using P(X ≤ k) as the complement of P(X ≥ k), instead of stopping at the value below k; Using P(X ≤ k) for P(X < k); Subtracting the wrong cumulative: P(a < X ≤ b) subtracts P(X ≤ a); Using np as the variance, forgetting the factor 1 − p; Giving np(1 − p) when the standard deviation is asked for; Rounding E(X) to a whole number; Rounding n down instead of up to the next whole number; Taking p = Var(X) ÷ E(X) (that gives 1 − p); Finding the probability of k successes in n trials for 'the kth success is on trial n'; Multiplying the two probabilities in a conditional instead of dividing.
 
+#### Inverse normal: value for a given probability (`t4-inverse-normal`, exam, 5 bank parts)
+
+- **Situation:** A normal variable with a value asked for, shared with `t4-normal-probability`, `t4-normal-unknown-parameter`.
+- **Representations:** **equation**, **words**, diagram (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given X ~ N(μ, σ²); an area p → a with P(X < a) = p
+  - **exam** L2: given X ~ N(μ, σ²); a tail area p → a with P(X > a) = p
+  - **exam** L2: given a story with a mean and a standard deviation; the top k% → the cut-off of the top k%
+  - **exam** L2: given a story with a mean and a standard deviation; the bottom k% → the cut-off of the bottom k%
+  - **exam** L2: given X ~ N(μ, σ²) or a story → the upper or lower quartile
+  - new L2: given a story with a mean and a standard deviation; a percentile → the value at that percentile
+  - **exam** L3: given X ~ N(μ, σ²) or a story; an area above a of more than a half → a, which is below the mean
+  - **exam** L3: given X ~ N(μ, σ²) or a story; a central area → both ends of the interval, the same distance from the mean
+  - **exam** L3: given X ~ N(μ, σ²) or a story; one end of a band and its area → the other end of the band
+  - **exam** L4: given X ~ N(μ, σ²) or a story; the area of a band; how the two tails outside it compare → one end of the band
+  - **exam** L2: given two normal variables with the same σ, a letter; a value of the second → the value of the first with the same tail area
+  - new L2: given X ~ N(μ, σ²) with σ a letter; P(X < a) = P(X > c), or the same the other way round → a
+  - new L2: given X ~ N(μ, σ²) or a story; a tail of the 68-95-99.7 rule → the value that cuts it off
+  - new L3: given X ~ N(μ, σ²); a line of N(0, 1); an area → the value that cuts off that area
+- **Angles:** invNorm with the left-tail area; Find z, then x = μ + zσ; Sketch the tail first.
+- **Concept probes:**
+  - *true-false-reason* (L3): For the top 10% of a normal variable, the value to find has an area of 0.1 to its left. — False: 0.1 is the area to its right. The area to its left is 0.9, and that is what invNorm takes.
+  - *always-sometimes-never* (L3): invNorm gives a value above the mean. — Sometimes: only when the area to the left is more than 0.5.
+  - *true-false-reason* (L3): If X and Y have the same standard deviation, a value the same distance above each mean cuts off the same tail area. — True: both values have the same z, so the two curves are the same shape with the same area beyond them.
+- **Misconceptions used:** 16. Entering the upper-tail area without converting it to the area on the left; Giving the z-value or the probability as the answer instead of the x-value; Using normalcdf when a value of x is wanted; Taking 1 minus the area when it is already the area on the left; Adding z to the mean without multiplying by σ; Using the central area as the left-tail area; Treating a band as if it ran all the way to the end of the curve; Splitting the tails equally when they are not equal; Giving the larger tail to the wrong end of the curve; Finding the other end of the band instead of the one asked for; Keeping the given value instead of moving it to where the areas match; Measuring the distance on the wrong side of the mean; Moving the value by the gap between the means in the wrong direction; Giving the distance from the mean instead of the value; Reading the tail against the wrong number of standard deviations; Measuring the distance from the given value instead of from the mean.
+
 #### Normal curve properties: symmetry, sigma intervals, matching curves (`t4-normal-properties`, exam, 8 bank parts)
 
 - **Situation:** What the shape of a normal curve gives.
@@ -2762,7 +2933,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Normal probability for an interval on the GDC (`t4-normal-probability`, exam, 12 bank parts)
 
-- **Situation:** A normal variable with a region asked for, shared with `t4-normal-unknown-parameter`.
+- **Situation:** A normal variable with a region asked for, shared with `t4-inverse-normal`, `t4-normal-unknown-parameter`.
 - **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given X ~ N(μ, σ²); a value a → P(X < a)
@@ -2857,7 +3028,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Find an unknown mean or standard deviation with z-scores (`t4-normal-unknown-parameter`, exam, 13 bank parts)
 
-- **Situation:** A normal variable with a parameter hidden, shared with `t4-normal-probability`.
+- **Situation:** A normal variable with a parameter hidden, shared with `t4-inverse-normal`, `t4-normal-probability`.
 - **Representations:** **equation**, **words**, **diagram** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given P(Z < k) or P(Z > k) → k
