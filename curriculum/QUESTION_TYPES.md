@@ -569,6 +569,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 - **Game formats:** value, mcq
 - **Bank parts:** 16.
 
+### t1-log-exp-form
+
+**Switch between log and exponential form to evaluate or solve, including log models.** Change a fact between log and exponential form, evaluate logs exactly, and solve for the number, the base or x by hand. Then work named scales and a log model on a calculator: a reading, an amount, the steps between two readings, and the time to reach a level.
+
+- **Syllabus:** 1.5
+- **Skills:** `SL1.5.exp-log-form`, `SL1.5.log-context`
+- **Where it appears:** P1 1, P2 2; Section A 3, B 0. Marks per part: usually 3 (2 to 3).
+- **Usual chain:** log_a b = c and a^c = b say the same thing: the log is the power → evaluate by asking what power of the base gives the number, or cancel a log and a power of one base → solve by rewriting in exponential form, then for whichever number is unknown → a log has a real value only for a positive number → on a scale, substitute with the right log key, keeping brackets and signs → undo a scale: the constant, the multiplier, the log by exponentiating, then any factor inside → each step on a scale is a multiplication, so readings compare by their difference, not their ratio
+- **Given:** a log or a power to rewrite, a log to evaluate, or a power of a log, an equation with x in the number, the bracket, the power or the base, a graph of a log with a marked point, four logs to compare, a scale's formula or its rule in a sentence, an amount, a reading, a factor or a rise, readings in a table, a log model in time. **Asked:** A form, an exact value, an exact solution, the log with or without a real value; or to 3 s.f. a reading, an amount, a factor, a rise, a percentage increase, a scale's constant, a level or a time. **Answer form:** log_a b = c or a^c = b, with its numbers typed, exact number or fraction, x = log_a b, or x = ln b, as an exact log, a power of e, √r, exact, one log chosen from four, 3 s.f. on Paper 2, a × 10^k, with a to 3 s.f., for a very big or small amount.
+- **A recipe can randomise:** the base: e, 10 or a small whole number; the power: whole, negative or a fraction; the shape of the equation; the scale and its constants; the amount, the reading, the factor or the rise; the place and what is measured; the model's constants and the time or level.
+- **Limits that keep answers clean:** Paper 1 is exact, and every number comes out by hand; Paper 2 is the scales and the models: the calculator does the work; each 3 s.f. answer is clear of a rounding edge and does not end in a zero; an amount outside the range a phone shows in full is in standard form; the bank's numbers and scales, and the skill map's examples, are left out.
+- **Game formats:** value, mcq
+- **Bank parts:** 3.
+
 ### t1-algebraic-proof
 
 **Prove an algebraic identity or a divisibility result.** Prove an identity from one side to the other, or that an integer expression is always a multiple of a number. A phone can't read a written proof, so each question is one decision a proof turns on: the simplified form, a hidden line, the next line, the first wrong line, the factor k, the integer bracket, a remainder, or which of four arguments is a proof.

@@ -475,6 +475,50 @@
 				"the bank’s numbers and the skill map’s examples are left out"
 			]
 		},
+		"log-exp-form": {
+			"name": "A log and its exponential form, and a named log scale or log model",
+			"summary": "Paper 1 draws a base and a power so a form changes and a value comes out exactly. Paper 2 draws a named scale with its constants, then an amount or a reading, so a reading, an amount, a factor, a rise or a time can be worked out from the formula.",
+			"quantities": [
+				{
+					"name": "b, e, x",
+					"is": "a base, a power and the number b^e",
+					"pick": "b from 2 to 10, or a power of 2, 3 or 5 for a fraction, with b^e at most 1000; e is whole, negative or a fraction"
+				},
+				{
+					"name": "p, q, c, k, r",
+					"is": "the numbers of an equation in x",
+					"pick": "small whole numbers, with r square-free for a surd"
+				},
+				{
+					"name": "scale",
+					"is": "the named scale",
+					"pick": "Howl rating, Rumble number, Glare class, Rad index or Bite, each with its own short list of constants"
+				},
+				{
+					"name": "x, y",
+					"is": "an amount and its reading",
+					"pick": "an amount of two figures in the scale's range, or a reading in tenths"
+				},
+				{
+					"name": "m, delta",
+					"is": "a factor on the amount, or a rise in the reading",
+					"pick": "a short list of factors, or a rise whose power of the base isn't whole"
+				},
+				{
+					"name": "p, q, r, t, T",
+					"is": "a model h = p + q ln(rt + 1), a time and a level",
+					"pick": "p and q in halves, r a whole number from 1 to 4, t up to 30 days or found up to 120"
+				}
+			],
+			"clean": [
+				"Paper 1 is exact, and each number comes out by hand",
+				"a 3 s.f. answer is clear of a rounding edge and doesn't end in a zero",
+				"a power of the base that gives an amount isn't whole, so the answer needs rounding",
+				"a very big or small amount is in standard form",
+				"a table's readings differ, and no reading is zero or negative",
+				"the bank's numbers and scales, and the skill map's examples, are left out"
+			]
+		},
 		"exp-growth-vs-linear": {
 			"extends": "exp-model",
 			"name": "Linear and exponential growth side by side",
@@ -5322,6 +5366,7 @@
 		"SL1.4.future-value": "Find the future value of a compound interest investment",
 		"SL1.4.find-rate-or-pv": "Find the present value or the interest rate",
 		"SL1.4.compare-options": "Compare investment options and compounding frequencies",
+		"SL1.5.log-context": "Use base-10 and natural logarithms in contextual formulae",
 		"SL1.6.identity-lhs-rhs": "Prove an algebraic identity from LHS to RHS",
 		"SL1.6.integer-proof": "Prove properties of integers: odd, even, consecutive and divisibility",
 		"SL1.7.log-laws": "Use the laws of logarithms to simplify, expand and evaluate",
@@ -24323,6 +24368,964 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Switch between log and exponential form to evaluate or solve, including log models",
+			"summary": "Change a fact between log and exponential form, evaluate logs exactly, and solve for the number, the base or x by hand. Then work named scales and a log model on a calculator: a reading, an amount, the steps between two readings, and the time to reach a level.",
+			"situation": "log-exp-form",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the log or the equation alone, or a scale's formula with what its letters mean"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "the fact in a sentence, or a scale's rule told as a sentence with no formula"
+				},
+				{
+					"rep": "table",
+					"exam": false,
+					"how": "readings or amounts at places or times, with the one asked for missing"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the curve with a crossing marked: a log and the x-axis, a point that fixes the base, or a reading or level as a line"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "to-exponential-form",
+					"given": [
+						"log_a b = c, with c whole, negative or a fraction"
+					],
+					"asked": "the same fact as a power",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "to-log-form",
+					"given": [
+						"a^c = b, with c negative or a fraction"
+					],
+					"asked": "the same fact as a log",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "solve-exp-as-log",
+					"given": [
+						"a^x = b, or k × a^x = kb, in base e, 10 or a small whole number"
+					],
+					"asked": "x as an exact log",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "value-whole-power",
+					"given": [
+						"log_a b, with b a whole power of a"
+					],
+					"asked": "the exact value",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "value-negative-power",
+					"given": [
+						"log_a b, with b a reciprocal power of a"
+					],
+					"asked": "the exact negative value",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "value-fractional-power",
+					"given": [
+						"log_a b, with a and b powers of one prime, or b a root of a"
+					],
+					"asked": "the exact fraction",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "log-of-power",
+					"given": [
+						"log_a(a^k) or ln(e^k), with k whole, negative or a fraction"
+					],
+					"asked": "the exact value",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "power-of-log",
+					"given": [
+						"a^(log_a x), a^(−log_a x) or a^(k log_a x), in base e, 10 or a small whole number"
+					],
+					"asked": "the exact value",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "solve-log-x",
+					"given": [
+						"log_a x = c or ln x = c"
+					],
+					"asked": "the exact value of x",
+					"level": 1,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "solve-log-linear",
+					"given": [
+						"log_a(px + q) = c"
+					],
+					"asked": "the exact value of x",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "solve-log-square",
+					"given": [
+						"log_a(x² − k) = c for x beyond the asymptote, or the graph of ln(x² − k) crossing the x-axis"
+					],
+					"asked": "the exact surd",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "solve-log-base",
+					"given": [
+						"log_x b = c, or the graph of y = log_a x through a marked point"
+					],
+					"asked": "the exact base",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "no-real-log",
+					"given": [
+						"four logs, with zero, negative, fractional and unit arguments"
+					],
+					"asked": "the one with no real value, or the one with a real value",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.5.exp-log-form"
+					]
+				},
+				{
+					"id": "reading-from-value",
+					"given": [
+						"a scale's formula or rule",
+						"an amount"
+					],
+					"asked": "the reading, to 3 s.f.",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "reading-after-multiple",
+					"given": [
+						"a scale's formula or rule",
+						"a power of ten and its exact reading",
+						"a factor on the amount"
+					],
+					"asked": "the second reading, to 3 s.f.",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "value-from-reading",
+					"given": [
+						"a scale's formula or rule",
+						"a reading"
+					],
+					"asked": "the amount, to 3 s.f., in standard form if it is very big or small",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words",
+						"table",
+						"graph"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "acid-reading",
+					"given": [
+						"the Bite formula, a minus log",
+						"an acid content"
+					],
+					"asked": "the Bite, to 3 s.f.",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "acid-value",
+					"given": [
+						"the Bite formula, a minus log",
+						"a Bite"
+					],
+					"asked": "the acid content, to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "ratio-two-readings",
+					"given": [
+						"a scale's formula or rule",
+						"two readings"
+					],
+					"asked": "how many times greater one amount is than the other, to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "rise-for-factor",
+					"given": [
+						"a scale's formula or rule",
+						"a factor on the amount"
+					],
+					"asked": "the rise or fall in the reading, to 3 s.f.",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "value-after-steps",
+					"given": [
+						"a scale's formula or rule",
+						"an amount with its reading",
+						"a rise in the reading"
+					],
+					"asked": "the new amount, to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "percent-rise",
+					"given": [
+						"a scale's formula or rule",
+						"a reading",
+						"a rise in the reading"
+					],
+					"asked": "the percentage increase in the amount, to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "find-scale-constant",
+					"given": [
+						"y = k log(x × K) with k unknown",
+						"one amount and its reading"
+					],
+					"asked": "k, to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "model-value",
+					"given": [
+						"h = p + q ln(rt + 1)",
+						"a time"
+					],
+					"asked": "the level, to 3 s.f.",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"table"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				},
+				{
+					"id": "model-time",
+					"given": [
+						"h = p + q ln(rt + 1)",
+						"a level"
+					],
+					"asked": "the time, to 3 s.f.",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words",
+						"graph"
+					],
+					"skills": [
+						"SL1.5.log-context"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.5.exp-log-form",
+					"method": "what-power",
+					"suits": [
+						"value-whole-power",
+						"value-negative-power",
+						"value-fractional-power",
+						"log-of-power",
+						"no-real-log"
+					],
+					"name": "Ask 'what power of the base gives this number?'",
+					"about": "log_2 32 asks 2^? = 32, so the answer is 5; log 0.001 asks 10^? = 0.001, so the answer is −3."
+				},
+				{
+					"skill": "SL1.5.exp-log-form",
+					"method": "rewrite-exponential",
+					"suits": [
+						"to-exponential-form",
+						"to-log-form",
+						"solve-exp-as-log",
+						"value-whole-power",
+						"value-negative-power",
+						"value-fractional-power",
+						"solve-log-x",
+						"solve-log-linear",
+						"solve-log-square",
+						"solve-log-base"
+					],
+					"name": "Rewrite as an exponential equation",
+					"about": "log_a b = x becomes a^x = b; then solve for whichever is unknown, so log_2 x = 5 gives x = 2^5 = 32."
+				},
+				{
+					"skill": "SL1.5.exp-log-form",
+					"method": "inverse-identities",
+					"suits": [
+						"log-of-power",
+						"power-of-log"
+					],
+					"name": "Use log_a(a^x) = x and a^(log_a x) = x",
+					"about": "Logs and exponentials of the same base cancel, so ln e^3 = 3 and 10^(log 7) = 7 immediately."
+				},
+				{
+					"skill": "SL1.5.log-context",
+					"method": "substitute-evaluate",
+					"suits": [
+						"reading-from-value",
+						"reading-after-multiple",
+						"acid-reading",
+						"rise-for-factor",
+						"find-scale-constant",
+						"model-value"
+					],
+					"name": "Substitute and evaluate with technology",
+					"about": "Put the given value into the formula and use the log key, keeping brackets and signs exactly as written."
+				},
+				{
+					"skill": "SL1.5.log-context",
+					"method": "invert-formula",
+					"suits": [
+						"value-from-reading",
+						"acid-value",
+						"ratio-two-readings",
+						"value-after-steps",
+						"percent-rise",
+						"model-time"
+					],
+					"name": "Undo the logarithm by exponentiating",
+					"about": "From pH = −log[H⁺] get [H⁺] = 10^(−pH), then evaluate."
+				},
+				{
+					"skill": "SL1.5.log-context",
+					"method": "scale-steps",
+					"suits": [
+						"reading-after-multiple",
+						"ratio-two-readings",
+						"rise-for-factor",
+						"value-after-steps",
+						"percent-rise"
+					],
+					"name": "Read each step on a log scale as a multiplication",
+					"about": "A difference of 20 dB is two steps of 10 dB, i.e. a factor of 10^2 = 100 in intensity."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "log₂(1/8) has no real value, because it is negative.",
+					"answer": "False: the log is −3, a real number, as 2^(−3) = 1/8. It's the number inside the log that must be positive, not the log itself.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "If a reading on a base-10 scale with no multiplier rises by 2, the amount is 100 times as big.",
+					"answer": "Always: each rise of 1 multiplies the amount by 10, so a rise of 2 multiplies it by 10² = 100, whatever the first reading was.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "In S = −log₁₀ c, what happens to c when S goes up by 1?",
+					"answer": "c is divided by 10: the minus sign means a higher reading is a smaller amount, so each step up is a tenth of what came before.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.5.exp-log-form#0",
+					"text": "Dividing instead of finding the power",
+					"as": "distractor",
+					"in": [
+						"solve-exp-as-log",
+						"value-whole-power",
+						"value-negative-power",
+						"value-fractional-power",
+						"solve-log-x",
+						"solve-log-linear",
+						"solve-log-base"
+					],
+					"wrong": "the number divided by the base, or the log's value times the base"
+				},
+				{
+					"ref": "SL1.5.exp-log-form#1",
+					"text": "Mixing up base and exponent: reading log_a b = x as x^a = b",
+					"as": "distractor",
+					"in": [
+						"to-exponential-form",
+						"value-whole-power",
+						"solve-log-x",
+						"solve-log-linear"
+					],
+					"wrong": "the log's value raised to the base"
+				},
+				{
+					"ref": "SL1.5.exp-log-form#2",
+					"text": "Believing the log of zero or of a negative number has a real value",
+					"as": "distractor",
+					"in": [
+						"no-real-log"
+					],
+					"wrong": "a log of zero or of a negative number picked as real"
+				},
+				{
+					"ref": "SL1.5.log-context#0",
+					"text": "Treating a log scale as linear: taking the ratio of two readings as the ratio of the amounts",
+					"as": "distractor",
+					"in": [
+						"reading-after-multiple",
+						"ratio-two-readings",
+						"value-after-steps",
+						"percent-rise"
+					],
+					"wrong": "the ratio of the readings used as the ratio of the amounts"
+				},
+				{
+					"ref": "SL1.5.log-context#1",
+					"text": "Dropping the minus sign in front of a log",
+					"as": "distractor",
+					"in": [
+						"reading-from-value",
+						"value-from-reading",
+						"acid-reading",
+						"acid-value"
+					],
+					"wrong": "the log's term with its minus sign left out"
+				},
+				{
+					"ref": "SL1.5.log-context#2",
+					"text": "Undoing a minus log with the minus sign in front of the power instead of in the power",
+					"as": "distractor",
+					"in": [
+						"acid-value"
+					],
+					"wrong": "minus ten to the reading"
+				},
+				{
+					"text": "Swapping the number and the power when changing form",
+					"as": "distractor",
+					"in": [
+						"to-exponential-form",
+						"to-log-form"
+					],
+					"wrong": "the number and the power in each other's places"
+				},
+				{
+					"text": "Swapping the base and the number when changing form",
+					"as": "distractor",
+					"in": [
+						"to-exponential-form",
+						"to-log-form",
+						"solve-exp-as-log"
+					],
+					"wrong": "the base and the number in each other's places"
+				},
+				{
+					"text": "Dropping the minus sign on the power",
+					"as": "distractor",
+					"in": [
+						"value-negative-power",
+						"solve-log-x"
+					],
+					"wrong": "the positive power"
+				},
+				{
+					"text": "Taking the reciprocal of the power instead of making it negative",
+					"as": "distractor",
+					"in": [
+						"value-negative-power"
+					],
+					"wrong": "one over the power"
+				},
+				{
+					"text": "Turning the fraction in the power upside down",
+					"as": "distractor",
+					"in": [
+						"value-fractional-power"
+					],
+					"wrong": "the reciprocal of the right value"
+				},
+				{
+					"text": "Raising the number to the power instead of taking the root",
+					"as": "distractor",
+					"in": [
+						"solve-log-base"
+					],
+					"wrong": "the number to the power"
+				},
+				{
+					"text": "Raising the base to the number instead of asking what power gives it",
+					"as": "distractor",
+					"in": [
+						"solve-exp-as-log"
+					],
+					"wrong": "the base to the number"
+				},
+				{
+					"text": "Taking the log before the power stands alone",
+					"as": "distractor",
+					"in": [
+						"solve-exp-as-log"
+					],
+					"wrong": "the log of the whole right side"
+				},
+				{
+					"text": "Dropping the log and working with the inside as it stands",
+					"as": "distractor",
+					"in": [
+						"solve-log-linear",
+						"solve-log-square",
+						"find-scale-constant"
+					],
+					"wrong": "the log's inside used without its log"
+				},
+				{
+					"text": "Setting the inside of the log to zero instead of to the power of the base",
+					"as": "distractor",
+					"in": [
+						"solve-log-square"
+					],
+					"wrong": "the root of the constant in the bracket"
+				},
+				{
+					"text": "Stopping at x² instead of taking the root",
+					"as": "distractor",
+					"in": [
+						"solve-log-square"
+					],
+					"wrong": "the value of x²"
+				},
+				{
+					"text": "Keeping the negative root, which is outside the domain",
+					"as": "distractor",
+					"in": [
+						"solve-log-square"
+					],
+					"wrong": "the negative root"
+				},
+				{
+					"text": "Assuming a fraction below one has no real log, because its log is negative",
+					"as": "distractor",
+					"in": [
+						"no-real-log"
+					],
+					"wrong": "the log of a proper fraction picked as not real"
+				},
+				{
+					"text": "Assuming the log of one has no real value, because it is zero",
+					"as": "distractor",
+					"in": [
+						"no-real-log"
+					],
+					"wrong": "the log of one picked as not real"
+				},
+				{
+					"text": "Reading a minus sign in front of a log as the log of a negative number",
+					"as": "distractor",
+					"in": [
+						"no-real-log"
+					],
+					"wrong": "a negative multiple of a log picked as not real"
+				},
+				{
+					"text": "Multiplying the base by the number in the power or the log, instead of letting the two cancel",
+					"as": "distractor",
+					"in": [
+						"log-of-power",
+						"power-of-log"
+					],
+					"wrong": "the base times the number"
+				},
+				{
+					"text": "Dropping the log and leaving the base raised to the number",
+					"as": "distractor",
+					"in": [
+						"power-of-log"
+					],
+					"wrong": "the base to the number"
+				},
+				{
+					"text": "Working out the power inside and stopping there",
+					"as": "distractor",
+					"in": [
+						"log-of-power"
+					],
+					"wrong": "the value of the power, not its log"
+				},
+				{
+					"text": "Using the wrong log key: ln for log, or log for ln",
+					"as": "distractor",
+					"in": [
+						"reading-from-value",
+						"reading-after-multiple",
+						"value-from-reading",
+						"acid-reading",
+						"acid-value",
+						"ratio-two-readings",
+						"rise-for-factor",
+						"percent-rise",
+						"find-scale-constant",
+						"model-value",
+						"model-time"
+					],
+					"wrong": "the same sum in the other log"
+				},
+				{
+					"text": "Leaving out the constant in the formula",
+					"as": "distractor",
+					"in": [
+						"reading-from-value",
+						"value-from-reading",
+						"model-value"
+					],
+					"wrong": "the sum with the constant left out"
+				},
+				{
+					"text": "Leaving out the factor inside the log",
+					"as": "distractor",
+					"in": [
+						"reading-from-value",
+						"value-from-reading"
+					],
+					"wrong": "the sum with the factor in the bracket left out"
+				},
+				{
+					"text": "Forgetting the multiplier in front of the log",
+					"as": "distractor",
+					"in": [
+						"reading-from-value",
+						"reading-after-multiple",
+						"ratio-two-readings",
+						"rise-for-factor",
+						"value-after-steps",
+						"percent-rise"
+					],
+					"wrong": "one step for each unit of reading"
+				},
+				{
+					"text": "Leaving the power of ten outside the multiplier",
+					"as": "distractor",
+					"in": [
+						"reading-from-value"
+					],
+					"wrong": "the power of ten added on after multiplying"
+				},
+				{
+					"text": "Adding the factor straight on to the value it changes",
+					"as": "distractor",
+					"in": [
+						"reading-after-multiple",
+						"value-after-steps"
+					],
+					"wrong": "the factor added on"
+				},
+				{
+					"text": "Multiplying by the factor instead of by its log",
+					"as": "distractor",
+					"in": [
+						"rise-for-factor"
+					],
+					"wrong": "the multiplier times the factor"
+				},
+				{
+					"text": "Stopping before undoing the log",
+					"as": "distractor",
+					"in": [
+						"value-from-reading",
+						"model-time"
+					],
+					"wrong": "the log's value given as the amount"
+				},
+				{
+					"text": "Multiplying by the factor inside the log instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"value-from-reading"
+					],
+					"wrong": "the factor applied the wrong way"
+				},
+				{
+					"text": "Dividing by the multiplier after undoing the log instead of before",
+					"as": "distractor",
+					"in": [
+						"value-from-reading"
+					],
+					"wrong": "the multiplier divided out last"
+				},
+				{
+					"text": "Giving the difference in readings as the factor",
+					"as": "distractor",
+					"in": [
+						"ratio-two-readings",
+						"value-after-steps"
+					],
+					"wrong": "the gap between the readings"
+				},
+				{
+					"text": "Giving the new amount as a percentage of the old instead of the increase",
+					"as": "distractor",
+					"in": [
+						"percent-rise"
+					],
+					"wrong": "the factor as a percentage"
+				},
+				{
+					"text": "Reading only the power of ten and ignoring the number in front",
+					"as": "distractor",
+					"in": [
+						"acid-reading"
+					],
+					"wrong": "the power of ten alone"
+				},
+				{
+					"text": "Multiplying by the log instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"find-scale-constant"
+					],
+					"wrong": "the reading times the log"
+				},
+				{
+					"text": "Subtracting the log instead of dividing by it",
+					"as": "distractor",
+					"in": [
+						"find-scale-constant"
+					],
+					"wrong": "the reading less the log"
+				},
+				{
+					"text": "Adding the two constants before multiplying by the log",
+					"as": "distractor",
+					"in": [
+						"model-value"
+					],
+					"wrong": "the two constants added, then multiplied by the log"
+				},
+				{
+					"text": "Leaving out the added term inside the log",
+					"as": "distractor",
+					"in": [
+						"model-value"
+					],
+					"wrong": "the log of the time term alone"
+				},
+				{
+					"text": "Forgetting to take off the added term inside the log",
+					"as": "distractor",
+					"in": [
+						"model-time"
+					],
+					"wrong": "the power of e divided, with nothing taken off"
+				},
+				{
+					"text": "Dividing by the rate before taking off the added term",
+					"as": "distractor",
+					"in": [
+						"model-time"
+					],
+					"wrong": "the division done first"
+				}
+			],
+			"chain": [
+				"log_a b = c and a^c = b say the same thing: the log is the power",
+				"evaluate by asking what power of the base gives the number, or cancel a log and a power of one base",
+				"solve by rewriting in exponential form, then for whichever number is unknown",
+				"a log has a real value only for a positive number",
+				"on a scale, substitute with the right log key, keeping brackets and signs",
+				"undo a scale: the constant, the multiplier, the log by exponentiating, then any factor inside",
+				"each step on a scale is a multiplication, so readings compare by their difference, not their ratio"
+			],
 			"frequency": 3,
 			"marks": 3,
 			"section": {
@@ -24332,9 +25335,7 @@
 			"paper": {
 				"p1": 1,
 				"p2": 2
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-algebraic-proof",
