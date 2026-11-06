@@ -25,6 +25,68 @@ func test_every_catalogue_cell_is_a_cell() -> void:
 		check_eq(QuestionEngine.cells(false, [t]).size(), CATALOGUE_CELLS[t], t)
 
 
+func test_cells_are_the_same_the_second_time() -> void:
+	for args: Array in [[false, [], ""], [true, [], ""], [false, TYPES, ""], [false, [], "ai-sl"]]:
+		var first: Array = QuestionEngine.cells(args[0], args[1], args[2])
+		check(not first.is_empty(), str(args))
+		check_eq(QuestionEngine.cells(args[0], args[1], args[2]), first, str(args))
+
+
+func test_cells_are_read_only() -> void:
+	check(QuestionEngine.cells().is_read_only())
+	check(not QuestionEngine.cells().duplicate().is_read_only())
+	check(QuestionEngine.cells().all(func(c): return c.is_read_only()))
+	var cell: Dictionary = QuestionEngine.cells()[0]
+	var level: int = cell.level
+	check(not cell.set("level", level + 1), "a write to a cached cell is blocked")
+	check_eq(cell.level, level)
+	check(not cell.duplicate().is_read_only())
+
+
+## Each argument changes the answer, whichever order they are asked in.
+func test_cells_dont_share_a_cache_entry() -> void:
+	var one: Array = [TYPES[0]]
+	var two: Array = [TYPES[1]]
+	check_eq(_types_of(QuestionEngine.cells(false, one)), one)
+	check_eq(_types_of(QuestionEngine.cells(false, two)), two)
+	var all := QuestionEngine.cells()
+	var exam := QuestionEngine.cells(true)
+	check(exam.size() < all.size())
+	check(exam.all(func(c): return c.exam))
+	check(all.any(func(c): return not c.exam))
+	var ai := QuestionEngine.cells(false, [], "ai-sl")
+	var aa := QuestionEngine.cells(false, [], "aa-sl")
+	check(ai.size() < all.size())
+	check_eq(_keys_of(ai), _keys_of(_uncached_course("ai-sl")))
+	check_eq(_keys_of(aa), _keys_of(_uncached_course("aa-sl")))
+	check(_keys_of(ai) != _keys_of(aa))
+
+
+func test_cells_key_outlives_the_callers_array() -> void:
+	# In an order nothing else asks for, so this call is the one that fills the cache.
+	var ids: Array = [TYPES[2], TYPES[1]]
+	var first := QuestionEngine.cells(false, ids)
+	ids.append(TYPES[0])
+	check_eq(_types_of(QuestionEngine.cells(false, ids)), ids)
+	check(is_same(QuestionEngine.cells(false, [TYPES[2], TYPES[1]]), first), "the first result is still cached")
+
+
+func _types_of(cells: Array) -> Array:
+	return Dungeon.floor_types(cells)
+
+
+func _keys_of(cells: Array) -> Array:
+	return cells.map(func(c): return c.key)
+
+
+## The course's cells, type by type (a different cache entry from the whole course).
+func _uncached_course(course: String) -> Array:
+	var out: Array = []
+	for id in QuestionEngine.built_types(course):
+		out.append_array(QuestionEngine.cells(false, [id], course))
+	return out
+
+
 func test_every_cell_makes_a_question() -> void:
 	for c in QuestionEngine.cells():
 		for seed in [1, 2, 3]:
