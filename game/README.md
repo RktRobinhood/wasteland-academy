@@ -424,6 +424,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   and greatest overlap. Paper 1 is exact; Paper 2 has decimals to 3 places or counts answered to
   3 s.f. An option that should be a probability is one: `build()` adds near values, because the
   engine's last-resort nudges add 1.
+- `engine/situations/sample_space.gd` (FAL-752) is `t4-sample-space` (SL4.6): two dice, a die and a
+  spinner, or two spinners on an m × n grid of outcomes, fair or with unusual faces, scored by sum,
+  product, difference or larger number. Its views (`sample_space_views.gd`) show the grid as a `table`
+  with heads, the two objects drawn (`graph` of kind `spinners`, `ui/spinner_plot.gd`: a die laid out
+  flat, a spinner with its sectors to scale) or sentences, and ask 17 unknowns: a hidden cell, the
+  number of outcomes, a count, P(score), the boundary words, the complement, a property of the score,
+  the first number higher than the second, a sum on matching objects by its mirror, a points rule, a
+  biased die or spinner rolled twice, a total to reach with two rolls left, a face from the largest
+  sum, a repeated face from the distribution, and q and E(Y) from P(X < Y). Grid-symmetry suits only
+  the unknowns whose objects always match, so "Another way" always has a mirror to use. Paper 1 is
+  exact, Paper 2 (the grid and rolled-twice unknowns only) is to 3 s.f. Wrong options come from the two
+  SL4.6.sample-space-grid misconceptions and the type's own 18.
 - `engine/situations/basic_probability.gd` (FAL-728) is `t4-probability-basic` (SL4.5): one chance
   set-up for each unknown. Its views (`basic_probability_views.gd`) ask 18 unknowns: a bag and a bag
   after a change, a two-way table (rep `table`, with totals), a list of data, a total on two dice or
@@ -1315,6 +1327,11 @@ For `independence` it reads the facts back the same way and decides each test it
 four comparisons must agree, and all four option texts are rebuilt from true values, so a false
 number or a verdict that doesn't follow fails. It also multiplies and divides every plain step of
 the working again (`check_independence`).
+For `sample-space` it reads the two objects back from the grid's heads, the figure or the sentences,
+holds every cell to the scoring rule, and lists every outcome again. A biased object's cells are
+multiplied out, a letter on a face is found by trying every value it could have against the
+distribution, q and r are solved with SymPy from P(X < Y), and each tagged slip is worked out. The
+working's lists and counts must be the checker's own, and its plain sums are evaluated (`e10ss_check`).
 For `basic-probability` it reads the story, table, bar chart, tree or curve back, counts the outcomes
 again by listing every one, and checks that a curve is real counts settling on its answer
 (`check_basic_probability`).
@@ -1707,6 +1724,9 @@ script error happens while it runs. Run one file with
   given, a right triangle in every cone and a sector that rolls into its cone, a × 10^k typed with
   a negative k, the right value with a outside 1 to 10 marked wrong, E-notation never typed, the
   superscripts' glyphs, and every misconception as an option.
+- `test_sample_space.gd`: `t4-sample-space`: every cell, method and representation, one right option on
+  each, Paper 1 exact and Paper 2 rounded, matching objects on every symmetry cell, "Another way" on the
+  same numbers, grids that fit a phone, figures with the right sectors, and every misconception shown.
 - `test_basic_probability.gd`: `t4-probability-basic`: every cell and skill, one right option on each
   paper, every option a probability, hand values, the figures drawn, a curve of real counts, a
   complement that differs from its event, and every misconception as an option.
