@@ -34452,7 +34452,8 @@ def E11DM_s2(x):
 
 
 def E11DM_w(x):
-    t = sig3(E11DM_f(x), 6)
+    # An exact tie, 6.328125: a GDC rounds it up, so a hair up from the tie does the same.
+    t = sig3(E11DM_f(x) * (1 + 1e-13), 6)
     return (t.rstrip("0").rstrip(".") if "." in t else t).replace("-", "−")
 
 
