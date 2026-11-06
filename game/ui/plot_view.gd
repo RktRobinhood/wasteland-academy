@@ -47,6 +47,11 @@ extends Control
 ##               "out": [outliers, drawn as crosses]}]}: box plots to scale on one axis, a tick at every
 ##               `tick` and a number at every `every`-th. With "scale": false, one box with its
 ##               "labels" (five texts) under the five points and no axis: a sketch, not to scale
+##   space       {"dim": 2 or 3, "axes", "pts": {name: coordinates}, "labels": {name: text}, "lines": [{"a", "b",
+##               "dash", "asked"}], "ball": {"at", "through", "shape"}}: points on x, y and z axes, seen from
+##               above as on an exam paper, or x and y flat (a name starting _ isn't drawn or written);
+##               `asked` is the segment the question is about, and `ball` draws a sphere, hemisphere or
+##               circle round `at` (FAL-751)
 
 const PAD := 26.0
 const FONT_SIZE := 32
@@ -66,7 +71,7 @@ func _init() -> void:
 
 func set_spec(s: Dictionary) -> void:
 	spec = s
-	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "unit-circle": 640, "straight-angle": 420, "solid": 640, "bounce": 520, "squares": 660}.get(s.get("kind"), 560))
+	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "unit-circle": 640, "straight-angle": 420, "solid": 640, "bounce": 520, "squares": 660, "space": 640}.get(s.get("kind"), 560))
 	if s.get("kind") == "box":
 		custom_minimum_size.y = (BOX_ROW * s.boxes.size() + 170.0) if s.get("scale", true) else 300.0
 	if s.get("kind") == "tree" and s.has("heads"):
@@ -121,6 +126,111 @@ func _draw() -> void:
 			_squares()
 		"box":
 			_box_plots()
+		"space":
+			_space()
+
+
+## The screen direction of one unit along each axis of a `space` figure.
+func _space_units() -> Array:
+	return [Vector2(-0.62, 0.42), Vector2(1.0, 0.06), Vector2(0.0, -1.0)] if spec.dim == 3 else [Vector2(1, 0), Vector2(0, -1)]
+
+
+func _space() -> void:
+	var units := _space_units()
+	var flat := func(p: Array) -> Vector2:
+		var out := Vector2.ZERO
+		for i in units.size():
+			out += units[i] * float(p[i])
+		return out
+	# The axes run a little past the points on each side of the origin.
+	var ends: Array = []
+	var marks: Array = []
+	for i in units.size():
+		var lo := 0.0
+		var hi := 0.0
+		for n in spec.pts:
+			lo = minf(lo, spec.pts[n][i])
+			hi = maxf(hi, spec.pts[n][i])
+		var pad := maxf(hi - lo, 1.0) * 0.14
+		ends.append([units[i] * (lo - (pad if lo < 0.0 else 0.0)), units[i] * (hi + pad)])
+	var spots: Array = spec.pts.values().map(func(p): return flat.call(p))
+	if spec.get("ball") != null:
+		var r: float = (flat.call(spec.pts[spec.ball.through]) as Vector2).distance_to(flat.call(spec.pts[spec.ball.at]))
+		var c: Vector2 = flat.call(spec.pts[spec.ball.at])
+		spots.append_array([c + Vector2(r, r), c - Vector2(r, r)])
+	if spec.axes:
+		for e in ends:
+			spots.append_array(e)
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	for p in spots:
+		lo = lo.min(p)
+		hi = hi.max(p)
+	var box := Rect2(Vector2(70, 56), size - Vector2(140, 112))
+	var span := (hi - lo).max(Vector2(0.01, 0.01))
+	var k := minf(box.size.x / span.x, box.size.y / span.y)
+	var place := func(v: Vector2) -> Vector2:
+		return box.position + (box.size - span * k) / 2.0 + (v - lo) * k
+	var at := {}
+	var mid := Vector2.ZERO
+	for n in spec.pts:
+		at[n] = place.call(flat.call(spec.pts[n]))
+		mid += at[n]
+	mid /= spec.pts.size()
+	var taken: Array = []
+	if spec.axes:
+		var origin: Vector2 = place.call(Vector2.ZERO)
+		for i in units.size():
+			var tip: Vector2 = place.call(ends[i][1])
+			draw_line(place.call(ends[i][0]), tip, UiTheme.DIM, 3.0, true)
+			var dir := (tip - origin).normalized()
+			draw_colored_polygon(PackedVector2Array([tip + dir * 4.0, tip - dir * 16.0 + dir.orthogonal() * 7.0, tip - dir * 16.0 - dir.orthogonal() * 7.0]), UiTheme.DIM)
+			var name_at: Vector2 = tip + dir * 26.0 + Vector2(0, 10) + dir.orthogonal() * 16.0
+			_chip(["x", "y", "z"][i], name_at, UiTheme.DIM, FONT_SIZE - 4)
+			taken.append(_label_box("x", name_at, FONT_SIZE - 4))
+		if not spec.labels.has("O") and not spec.pts.has("O"):
+			marks.append(["O", origin])
+	if spec.get("ball") != null:
+		_space_ball(at[spec.ball.at], at[spec.ball.at].distance_to(at[spec.ball.through]))
+	for ln in spec.lines:
+		if ln.dash:
+			_dashes(at[ln.a], at[ln.b], UiTheme.DIM, 3.0)
+		else:
+			draw_line(at[ln.a], at[ln.b], UiTheme.PINK if ln.asked else UiTheme.TEAL, 6.0 if ln.asked else 4.0, true)
+	for m in marks:
+		var spot: Vector2 = m[1] + Vector2(-20, 34)
+		_chip(m[0], spot, UiTheme.DIM, FONT_SIZE - 4)
+		taken.append(_label_box(m[0], spot, FONT_SIZE - 4))
+	for n in spec.pts:
+		if not String(n).begins_with("_"):
+			draw_circle(at[n], DOT * 0.55, UiTheme.TEXT)
+	for n in spec.labels:
+		var s: String = spec.labels[n]
+		if s == "":
+			continue
+		var p: Vector2 = at[n]
+		var away := (p - mid).normalized() if p.distance_to(mid) > 1.0 else Vector2(0, -1)
+		var w := get_theme_default_font().get_string_size(s, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE - 2).x
+		var tries: Array = []
+		for dir in [away, Vector2(0, -1), Vector2(0, 1), Vector2(1, 0), Vector2(-1, 0)]:
+			tries.append(p + Vector2(dir.x * (w / 2.0 + 24.0), dir.y * 40.0 + 12.0))
+		var spot := _clear_spot(tries, s, FONT_SIZE - 2, at, taken)
+		_chip(s, spot, UiTheme.TEXT, FONT_SIZE - 2)
+		taken.append(_label_box(s, spot, FONT_SIZE - 2))
+
+
+## A sphere with its equator, a hemisphere with its flat face up, or a plain circle.
+func _space_ball(c: Vector2, r: float) -> void:
+	match spec.ball.shape:
+		"sphere":
+			draw_arc(c, r, 0.0, TAU, 96, UiTheme.SAND, 4.0, true)
+			_rim(c, r, r * 0.28, 0.0, PI, UiTheme.DIM)
+			_rim(c, r, r * 0.28, PI, TAU, UiTheme.DIM, true)
+		"hemisphere":
+			draw_arc(c, r, 0.0, PI, 64, UiTheme.SAND, 4.0, true)
+			_rim(c, r, r * 0.28, 0.0, TAU, UiTheme.SAND)
+		_:
+			draw_arc(c, r, 0.0, TAU, 96, UiTheme.SAND, 4.0, true)
 
 
 func _text(s: String, at: Vector2, col: Color, fs: int = FONT_SIZE, centred: bool = true) -> void:

@@ -609,6 +609,20 @@ Every tagged part of the 306 questions in the [Math-AA question bank](https://gi
 | `t3-trig-model-equation` | Solve a trig model equation or inequality for times | 3.8, 2.10 | graphical | 5 | P1 1, P2 4; Section A 0, B 5 | usually 3 (2 to 5) |
 | `t3-trig-equation` | Solve a trig equation exactly in an interval | 3.8 | solve-basic, compound-angle, factorise-not-divide | 8 | P1 8, P2 0; Section A 5, B 3 | usually 4 (3 to 6) |
 
+### t3-distance-midpoint
+
+**Distance and midpoint in 2D or 3D.** Find a distance or a midpoint from coordinates in 2D or 3D, on a plan, as position vectors or on a figure: a space diagonal, a pyramid's edge or height, a radius from a centre or a diameter, the two values of k from a distance, an isosceles triangle, a missing endpoint and the distance from the origin to a point on a curve. Lengths are exact on Paper 1 and to 3 s.f. on Paper 2.
+
+- **Syllabus:** 3.1
+- **Skills:** `SL3.1.distance-3d`, `SL3.1.midpoint-3d`
+- **Where it appears:** P1 3, P2 6; Section A 8, B 1. Marks per part: usually 2 (1 to 4).
+- **Usual chain:** read the coordinates of the two points, from the words, the vectors or the figure → take the differences, keeping the signs → square them, add them and take the root, or go across the floor and then up → for k, set the sum of the squares equal to d² and take both roots → for a midpoint, average each coordinate; for an endpoint, repeat the step from A to M
+- **Given:** two points in 2D or 3D, position vectors of the points, a figure on axes with the coordinates labelled, a cuboid or pyramid on the axes, a centre and a point on a surface, or the ends of a diameter, a point with k as a coordinate, and the distance, one end of a segment and its midpoint, a function under a square root, and a point on its graph. **Asked:** A distance, a radius, a height or a slant edge; the two values of k; the coordinates of a midpoint, a centre or an endpoint; which two sides are equal and their length; or the distance from the origin as an expression in x. **Answer form:** whole number or surd on Paper 1, 3 s.f. on Paper 2, two values, either order, a ± b√c on Paper 1, coordinates, one number per axis, equal sides named, with their length, an expression under a root.
+- **A recipe can randomise:** the points, in 2D or 3D, with a sign change on some axis; the story, or position vectors, or a figure; which corner of the base, or the height; a sphere, a hemisphere or a circle; which coordinate holds k, and the known value beside it; whether the length comes out whole on Paper 1; which vertex is where the equal sides meet; the power of x in f(x)².
+- **Limits that keep answers clean:** Paper 1 lengths are exact; Paper 2 lengths need rounding, clear of a rounding edge; Paper 2 midpoints and endpoints use coordinates to 1 d.p.; show-isosceles and origin-to-curve are Paper 1 only: their answers are exact statements; pythagoras-twice needs three axes, so 2D has the formula only; the bank's points and the skill's worked examples are left out.
+- **Game formats:** value, mcq
+- **Bank parts:** 9.
+
 ### t3-solid-volume-area
 
 **Volume and surface area of solids, including in terms of a variable.** One solid, shown by a labelled sketch or in words: a cone, pyramid, sphere, hemisphere or a composite. Find its volume or surface area, a height by Pythagoras, a radius or height from a given volume, a composite's r with the GDC, an expression in terms of a variable, the cost of painting it, or the sector that rolls into a cone.

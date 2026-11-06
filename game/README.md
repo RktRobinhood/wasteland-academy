@@ -327,6 +327,16 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   Degree mode is a worked distractor on every value and time: the model is solved again with its
   angle in degrees. Its one Paper 1 exact value is at a whole t past the first quadrant, in TrigKit's
   exact numbers, and whether a level is reached makes Paper 1 too.
+- `engine/situations/distance_midpoint.gd` (FAL-751) is `t3-distance-midpoint` (SL3.1), the
+  `distance-midpoint` situation: points in 2D or 3D, drawn first, so a distance is the root of a
+  whole number and a midpoint is exact. Its 15 unknowns ask a distance, k from a distance (two whole
+  values, or a ± b√c), which sides of an isosceles triangle are equal, a cuboid's space diagonal, a
+  pyramid's edge or height, a radius from a centre or a diameter, the distance from the origin to a
+  point on a curve, a midpoint, a centre and a missing endpoint. Lengths are exact on Paper 1 and to
+  3 s.f. on Paper 2, where midpoints and endpoints use coordinates to 1 d.p. A figure is `PlotView`'s
+  `space`: the points on axes with the coordinates on them, a cuboid or pyramid on the axes, or a
+  round solid with no axes. Position vectors are the map's vector representation, listed as
+  `notation`. The 2D unknowns use the type's own `distance-formula-2d` method.
 - `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
   v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
   Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found
@@ -1287,6 +1297,9 @@ points, and finds the meeting points, the top curve and every piece again: exact
 Paper 1, and with its own root search and mpmath on Paper 2. Each option of an integral expression
 is integrated, each tagged slip is worked out from its misconception, each figure's curves and
 strips must be the question's, and the plain sums in the working are evaluated (`check_area_between`).
+For `distance-midpoint` it reads the points back from the sentences, the position vectors or the
+figure's labels, works each length and midpoint again, solves for k with SymPy, rebuilds each tagged
+option from its slip, and evaluates the sums in the working (`check_distance_midpoint`).
 For `independence` it reads the facts back the same way and decides each test itself. Each of the
 four comparisons must agree, and all four option texts are rebuilt from true values, so a false
 number or a verdict that doesn't follow fails. It also multiplies and divides every plain step of
