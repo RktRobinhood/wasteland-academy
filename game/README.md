@@ -296,6 +296,22 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   must equal the target at three sets of them. Each tagged option is worked out from its slip, a
   typed answer's slots must make the expression it shows, and each equation in the working is
   evaluated. `test_log_laws.gd` covers the cells, the papers, the no-proof line and typed marking.
+- `engine/situations/trig_wave.gd` (FAL-751) is `t3-trig-read-features` (SL3.7.read-features) and
+  `t3-trig-model-use` (SL3.7.model-context), the `trig-wave` situation, which extends `trig-model`: it
+  keeps that situation's Paper 2 wave, contexts and graph, and `TrigWaveViews` extends its views.
+  A reading (16 unknowns) is a fn(bx) + d for sin, cos and tan, with b whole, a fraction, a multiple of
+  π or a decimal: amplitude, period, both, principal axis, maximum, minimum, range, the first x at a
+  maximum, tan's period and a claim that it has no amplitude, b or a and d off a figure, r in terms of
+  q from a sin(qx)'s marked intercepts, and b, the amplitude and axis or a wheel's a and b from a story.
+  A figure hides its equation and marks its turning points, except a `gdc-graph` cell, which prints
+  the equation and drops the marks, so that the GDC has something to graph and something to find. A
+  use (13 unknowns) is a model in a story, in the forms the bank writes it (a cos at a peak, a sin a
+  quarter of a period earlier, −a cos at a trough, a decimal b): a value, the first or every time at a
+  level, how long past a level in a cycle or a span of whole cycles, the first maximum, the gap from a
+  low to a high, counts of maxima and minima, what an extreme means and whether a level is reached.
+  Degree mode is a worked distractor on every value and time: the model is solved again with its
+  angle in degrees. Its one Paper 1 exact value is at a whole t past the first quadrant, in TrigKit's
+  exact numbers, and whether a level is reached makes Paper 1 too.
 - `engine/situations/motion.gd` (FAL-724) is `t5-kinematics-motion` (SL5.9): Paper 1 is
   v(t) = 3A(t − p)(t − q), with s(t) whole, and a cubic that touches 0 for a change of direction;
   Paper 2 is A t e^(−kt) − B, A sin(wt) + B or A e^(−kt) cos(wt), with rests and extremes found
@@ -1222,6 +1238,11 @@ definite integral or area is worked out again with SymPy, or mpmath for a model,
 roots it finds itself, and each shaded strip must be the region asked for; rests and extremes are
 found again from v(t), exactly on Paper 1 (`check_integration`, `check_definite_integral`,
 `check_motion`).
+For `trig-wave` it reads the wave back from the equation, or from a figure's marks and its curve, and
+works every feature again with SymPy, testing that nothing before a first maximum is as high. Crossings
+of a level are found by scanning the model for sign changes and bisecting, and durations are added up
+between them, so no formula is shared with the engine; degree mode is the same scan with the angle in
+degrees. The plain sums in the working are evaluated (`check_trig_wave`, `e9trig_*`).
 For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
 Paper 2, summed over the stretches between rests it finds itself, so a distance is not the
 engine's. A return is decided by the roots of s itself, a ridge's gap by the model's own period,
@@ -1613,6 +1634,10 @@ script error happens while it runs. Run one file with
   split; each statement against values worked out by hand; a hidden line and a spoiled line
   where the chain says; the fix typed on the wrong line marked wrong; a typed slip detected;
   the factors in either order; every misconception as an option; no statement with the exam's numbers.
+- `test_trig_wave.gd`: t3-trig-read-features and t3-trig-model-use built with every cell, four
+  different options, the GDC on Paper 2 only, a figure hiding its equation unless the GDC needs it, b
+  written each way, first peaks and a model against hand values, degree mode and "only the first time"
+  as options, and every misconception shown.
 - `test_binomial.gd`: t4-binomial built with every cell and all six SL4.8 skills; every
   cell in every format; Paper 2 only; the same seed giving the same question; the story
   and the model saying n and p; probabilities against hand values; every option a

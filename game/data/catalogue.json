@@ -3751,6 +3751,55 @@
 				"the range is even on Paper 1, so a and d are whole"
 			]
 		},
+		"trig-wave": {
+			"name": "One wave to read or to use",
+			"extends": "trig-model",
+			"summary": "The trig-model wave with its letters on show, to read or to use. A reading takes a fn(bx) + d for sin, cos or tan, with b whole, a fraction, a multiple of π or a decimal, or the base wave on a figure. A use takes a model of a story in the forms the bank writes it, and finds its first peak and trough, then a level's crossings and how long it stays past it. Its contexts, Paper 2 wave and graph are the base situation's.",
+			"quantities": [
+				{
+					"name": "a, d",
+					"is": "the number in front and the number added on",
+					"pick": "whole on Paper 1, tenths on Paper 2, with a negative in three of ten"
+				},
+				{
+					"name": "kind, bq",
+					"is": "how b is written, and b",
+					"pick": "x (3x, x/2), pi (4πx, πx/6) or dec (1.3x, Paper 2)"
+				},
+				{
+					"name": "c",
+					"is": "a shift, for a first maximum only",
+					"pick": "a landmark for x, a half or quarter for pi, a tenth for dec"
+				},
+				{
+					"name": "form, A, C",
+					"is": "a model: A fn(B(t − C)) + d",
+					"pick": "cos at a peak, sin a quarter earlier, −cos at a trough, or a decimal B"
+				},
+				{
+					"name": "T, B, tmax, tmin",
+					"is": "the period, B and the first top and bottom after 0",
+					"pick": "derived"
+				},
+				{
+					"name": "level, L, t0",
+					"is": "a level, an interval or span, a time",
+					"pick": "a level on a half well inside the wave, a span with no peak on its end"
+				},
+				{
+					"name": "n",
+					"is": "the x-intercepts of sin(qx) are at 0, nr and 2nr",
+					"pick": "1 to 4"
+				}
+			],
+			"clean": [
+				"Paper 1 is exact",
+				"Paper 2 answers are to 3 s.f., clear of a rounding edge",
+				"a level sits well inside the wave",
+				"no crossing or peak is on the end of a span",
+				"a Paper 1 time is past the first quadrant and off the axes, so the sign has to be worked out"
+			]
+		},
 		"geometric-sequence": {
 			"name": "One geometric sequence and its sums",
 			"summary": "Pick u₁ and r (or the two terms, the expressions in k, the Σ, the story), then derive every term, Sₙ and S∞, so any of them can be hidden and any shown.",
@@ -4708,8 +4757,9 @@
 		"SL3.6.ratio-from-ratio": "Find one trig ratio from another, using the quadrant for the sign",
 		"SL3.6.double-angle-values": "Find exact values of sin 2θ and cos 2θ from a given ratio",
 		"SL3.6.simplify": "Rewrite and simplify trig expressions using identities",
-		"SL3.7.equation-from-graph": "Find a, b, c and d from a graph or from given maximum and minimum points",
 		"SL3.7.model-context": "Model a real-life periodic situation (tides, Ferris wheel, temperature, daylight)",
+		"SL3.7.read-features": "Write down amplitude, period, principal axis, maximum, minimum and range",
+		"SL3.7.equation-from-graph": "Find a, b, c and d from a graph or from given maximum and minimum points",
 		"SL3.7.transformations": "Describe or apply the transformations that map sin x or cos x to a sin(b(x + c)) + d",
 		"SL3.8.solve-basic": "Solve sin x = k, cos x = k or tan x = k in a finite interval",
 		"SL3.8.compound-angle": "Solve equations with a transformed argument, e.g. sin 2x = k or cos(x + π/4) = k",
@@ -4834,7 +4884,6 @@
 		"SL1.6.identity-constants": "Use = and ≡ correctly and find unknown constants in an identity",
 		"SL3.8.quadratic-in-trig": "Solve equations that lead to a quadratic in sin x, cos x or tan x",
 		"SL1.5.zero-negative": "Work with zero and negative integer exponents",
-		"SL3.7.read-features": "Write down amplitude, period, principal axis, maximum, minimum and range",
 		"SL5.8.closed-interval-extremes": "Find the greatest and least values of f on a closed interval (and its range)",
 		"SL3.8.graphical": "Solve trig equations graphically, including ones with no algebraic method, and count solutions",
 		"SL5.11.area-between-curves": "Find the area between two curves (or a curve and a line)",
@@ -29420,6 +29469,479 @@
 			"topic": 3,
 			"source": "exam",
 			"name": "Evaluate or use a trig model: times, counts, durations",
+			"summary": "Use a trig model in a story: its value at a time, exactly on Paper 1, the first time or every time at a level, how long it stays above or below a level, the first maximum, the gap from a low to a high, how many peaks or troughs fall in a span, what an extreme means, and whether a level is ever reached.",
+			"situation": "trig-wave",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: the depth of water at the harbour wall, modelled by an equation, with t in hours"
+				},
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the model alone, with the unit of t"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the model with its curve, and the level dashed where there is one"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "value-at-time",
+					"given": [
+						"a model and a time"
+					],
+					"asked": "the value at that time",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "exact-value",
+					"given": [
+						"a model with π in it, and a whole time"
+					],
+					"asked": "the exact value at that time",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "first-time-level",
+					"given": [
+						"a model and a level"
+					],
+					"asked": "the first time it is at the level",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "all-times",
+					"given": [
+						"a model, a level and an interval"
+					],
+					"asked": "every time in the interval at the level",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "duration-above",
+					"given": [
+						"a model and a level"
+					],
+					"asked": "how long it is above the level in each cycle",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "duration-below",
+					"given": [
+						"a model and a level"
+					],
+					"asked": "how long it is below the level between two peaks",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "duration-span",
+					"given": [
+						"a model, a level and a span of whole cycles"
+					],
+					"asked": "how long it is above the level in the span",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "first-max-time",
+					"given": [
+						"a model, often with a negative a"
+					],
+					"asked": "the first time it reaches its maximum",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "high-low-gap",
+					"given": [
+						"a model with a decimal b"
+					],
+					"asked": "the time from a minimum to the next maximum",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "count-peaks",
+					"given": [
+						"a model and a time span"
+					],
+					"asked": "the number of maxima in the span",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "count-lows",
+					"given": [
+						"a model and a span in a longer unit"
+					],
+					"asked": "the number of minima in the span",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "interpret-extreme",
+					"given": [
+						"a model in a story"
+					],
+					"asked": "the maximum or minimum, and what it means",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				},
+				{
+					"id": "reaches-level",
+					"given": [
+						"a model and a level"
+					],
+					"asked": "whether the model ever reaches the level",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words",
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.model-context"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.7.model-context",
+					"method": "substitute-evaluate",
+					"suits": [
+						"value-at-time",
+						"exact-value",
+						"count-peaks",
+						"count-lows",
+						"interpret-extreme",
+						"reaches-level"
+					],
+					"name": "Substitute the time",
+					"about": "Put the time into the model, in radian mode, to get the height or depth."
+				},
+				{
+					"skill": "SL3.7.model-context",
+					"method": "gdc-intersection",
+					"suits": [
+						"first-time-level",
+						"all-times",
+						"duration-above",
+						"duration-below",
+						"duration-span",
+						"first-max-time",
+						"count-peaks",
+						"count-lows",
+						"reaches-level"
+					],
+					"name": "Intersect with y = k on the GDC",
+					"about": "Graph the model and the horizontal line y = k and read every intersection time inside the domain."
+				},
+				{
+					"skill": "SL3.7.model-context",
+					"method": "solve-analytically",
+					"suits": [
+						"first-time-level",
+						"all-times",
+						"duration-above",
+						"duration-below",
+						"first-max-time",
+						"high-low-gap",
+						"reaches-level"
+					],
+					"name": "Rearrange and solve",
+					"about": "Rearrange to sin(b(t + c)) = (k − d)/a, find the principal solution, then use symmetry and the period for the rest."
+				},
+				{
+					"skill": "SL3.7.model-context",
+					"method": "symmetry-duration",
+					"suits": [
+						"all-times",
+						"duration-above",
+						"duration-below",
+						"duration-span",
+						"high-low-gap"
+					],
+					"name": "Use symmetry about the peak",
+					"about": "Find one crossing time; the other is equally far beyond the maximum, and the time above k is the gap between them."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "A tide is above a level from 2 hours before high water, so it stays above it until 2 hours after.",
+					"answer": "True: a wave is symmetric about each peak, so the two crossings are equally far from it.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "A model has a period of 12 hours. Why can a span of 48 hours be answered from one cycle?",
+					"answer": "48 hours is exactly 4 periods, so whatever happens in one cycle happens 4 times, wherever the span starts.",
+					"level": 4
+				},
+				{
+					"kind": "predict-check",
+					"prompt": "In degree mode, is a value of a radian model usually right, nearly right or nothing like it? Predict whether the error can be positive, then try one.",
+					"answer": "Positive: the angle is read as far smaller than it is, so the answer can be off by nearly the whole height of the wave.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.7.model-context#0",
+					"text": "Leaving the calculator in degree mode for a radian model",
+					"as": "distractor",
+					"in": [
+						"value-at-time",
+						"first-time-level",
+						"all-times",
+						"duration-above",
+						"duration-below",
+						"duration-span"
+					],
+					"wrong": "the angle taken in degrees"
+				},
+				{
+					"ref": "SL3.7.model-context#1",
+					"text": "Giving only the first intersection when all times in the interval are asked for",
+					"as": "distractor",
+					"in": [
+						"all-times"
+					],
+					"wrong": "only the first time"
+				},
+				{
+					"ref": "SL3.7.model-context#2",
+					"text": "Taking b itself as the period, instead of working out b from the period",
+					"as": "distractor",
+					"in": [
+						"high-low-gap",
+						"count-peaks"
+					],
+					"wrong": "b as the period"
+				},
+				{
+					"ref": "SL3.7.model-context#3",
+					"text": "Giving the time on the wrong side of the level: below it when above was asked, or the reverse",
+					"as": "distractor",
+					"in": [
+						"duration-above",
+						"duration-below",
+						"duration-span"
+					],
+					"wrong": "the time on the other side of the level"
+				},
+				{
+					"ref": "SL3.7.model-context#4",
+					"text": "Stopping at the peak, so only half of the time past the level is counted",
+					"as": "distractor",
+					"in": [
+						"duration-above",
+						"duration-below"
+					],
+					"wrong": "half of the time"
+				},
+				{
+					"ref": "SL3.7.model-context#5",
+					"text": "Counting one cycle when the time span holds several",
+					"as": "distractor",
+					"in": [
+						"duration-span"
+					],
+					"wrong": "one cycle only"
+				},
+				{
+					"ref": "SL3.7.model-context#6",
+					"text": "Taking c in the bracket as the time of a maximum or minimum",
+					"as": "distractor",
+					"in": [
+						"first-max-time",
+						"interpret-extreme"
+					],
+					"wrong": "c as the time of the maximum"
+				},
+				{
+					"ref": "SL3.7.model-context#7",
+					"text": "Reading the constant d as the largest or smallest value",
+					"as": "distractor",
+					"in": [
+						"interpret-extreme",
+						"reaches-level"
+					],
+					"wrong": "d as the extreme value"
+				},
+				{
+					"ref": "SL3.7.model-context#8",
+					"text": "Dividing the whole time by the period, without placing the first one",
+					"as": "distractor",
+					"in": [
+						"count-peaks",
+						"count-lows"
+					],
+					"wrong": "the span divided by the period"
+				},
+				{
+					"ref": "SL3.7.model-context#9",
+					"text": "Forgetting to change the time span into the unit the model uses",
+					"as": "distractor",
+					"in": [
+						"count-lows"
+					],
+					"wrong": "the span left in its own unit"
+				},
+				{
+					"ref": "SL3.7.model-context#10",
+					"text": "Taking the whole period as the gap from a low point to the next high point",
+					"as": "distractor",
+					"in": [
+						"high-low-gap"
+					],
+					"wrong": "the whole period"
+				},
+				{
+					"ref": "SL3.7.model-context#11",
+					"text": "Taking the wrong sign for the value of an angle past the first quadrant",
+					"as": "distractor",
+					"in": [
+						"exact-value"
+					],
+					"wrong": "the value with the wrong sign"
+				},
+				{
+					"ref": "SL3.7.read-features#5",
+					"text": "Leaving d out of the maximum, the minimum or the range",
+					"as": "distractor",
+					"in": [
+						"reaches-level"
+					],
+					"wrong": "|a| as the largest value"
+				},
+				{
+					"ref": "SL3.7.equation-from-graph#1",
+					"text": "Using a = max − min, forgetting to halve",
+					"as": "distractor",
+					"in": [
+						"reaches-level"
+					],
+					"wrong": "the largest value with max − min as a"
+				}
+			],
+			"chain": [
+				"set the calculator to radians",
+				"put the time in for a value",
+				"graph the model and y = k, or rearrange, for a time",
+				"a wave is symmetric about each peak, so a crossing has a twin",
+				"count from the first peak, one period at a time"
+			],
 			"frequency": 9,
 			"marks": 2,
 			"section": {
@@ -29429,15 +29951,536 @@
 			"paper": {
 				"p1": 1,
 				"p2": 8
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-trig-read-features",
 			"topic": 3,
 			"source": "exam",
 			"name": "Read amplitude, period and principal axis from a graph or equation",
+			"summary": "Read a wave's features from its equation or its graph: amplitude, period, principal axis, maximum, minimum, range and the first x at a maximum, for sin, cos and tan, with b whole, a fraction, a multiple of π or a decimal, and the letters of a wave from a story.",
+			"situation": "trig-wave",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "f(x) = 3 sin(2x) + 1, written out"
+				},
+				{
+					"rep": "graph",
+					"exam": true,
+					"how": "the wave, with the across axis in multiples of π on Paper 1 and its first maximum and next minimum marked; tan with its asymptotes dashed"
+				},
+				{
+					"rep": "words",
+					"exam": true,
+					"how": "a story: a wave's highest and lowest values, how often it peaks, or a wheel"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "amplitude",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the amplitude",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "period",
+					"given": [
+						"a sine or cosine wave, as an equation or a graph"
+					],
+					"asked": "the period",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "amp-period",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the amplitude and the period",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "principal-axis",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the equation of the principal axis",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "max-value",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the maximum value",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "min-value",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the minimum value",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "range",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the range",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "first-max-x",
+					"given": [
+						"a wave, as an equation or a graph"
+					],
+					"asked": "the maximum value and the first x at which it occurs",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "tan-period",
+					"given": [
+						"a tan function, as an equation or a graph"
+					],
+					"asked": "the period",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "tan-features",
+					"given": [
+						"a tan function"
+					],
+					"asked": "which statement about its amplitude, range and period is true",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "b-from-graph",
+					"given": [
+						"the graph of a cos(b(x − c)) + d"
+					],
+					"asked": "the period, and hence b",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "a-d-from-graph",
+					"given": [
+						"the graph of a cos(b(x − c)) + d"
+					],
+					"asked": "a and d",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "intercept-gap",
+					"given": [
+						"the graph of sin(qx), with x-intercepts marked in terms of r"
+					],
+					"asked": "r in terms of q",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"graph"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "b-from-story",
+					"given": [
+						"a story saying how often a wave peaks"
+					],
+					"asked": "b",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "amp-axis-story",
+					"given": [
+						"a story with the highest and lowest values"
+					],
+					"asked": "the amplitude and the principal axis",
+					"level": 1,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				},
+				{
+					"id": "wheel-a-b",
+					"given": [
+						"a wheel's size and time for one turn, starting at the bottom"
+					],
+					"asked": "a and b in a cos(bt) + d",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"words"
+					],
+					"skills": [
+						"SL3.7.read-features"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL3.7.read-features",
+					"method": "read-parameters",
+					"suits": [
+						"amplitude",
+						"period",
+						"amp-period",
+						"principal-axis",
+						"max-value",
+						"min-value",
+						"range",
+						"first-max-x",
+						"tan-period",
+						"tan-features",
+						"b-from-graph",
+						"a-d-from-graph",
+						"intercept-gap",
+						"b-from-story",
+						"amp-axis-story",
+						"wheel-a-b"
+					],
+					"name": "Read the parameters",
+					"about": "Amplitude |a|, period 2π/b (π/b for tan), principal axis y = d, maximum d + |a|, minimum d − |a|."
+				},
+				{
+					"skill": "SL3.7.read-features",
+					"method": "transform-base",
+					"suits": [
+						"amplitude",
+						"period",
+						"amp-period",
+						"principal-axis",
+						"max-value",
+						"min-value",
+						"range",
+						"first-max-x",
+						"tan-period",
+						"tan-features",
+						"b-from-graph",
+						"a-d-from-graph",
+						"intercept-gap",
+						"amp-axis-story"
+					],
+					"name": "Transform the base graph's features",
+					"about": "Start from sin x (range [−1, 1], period 2π) and push each number through: stretch by a, period divided by b, lift by d."
+				},
+				{
+					"skill": "SL3.7.read-features",
+					"method": "gdc-graph",
+					"suits": [
+						"amplitude",
+						"period",
+						"amp-period",
+						"principal-axis",
+						"max-value",
+						"min-value",
+						"range",
+						"first-max-x",
+						"tan-period"
+					],
+					"name": "Graph and read on the GDC",
+					"about": "Plot the function in radian mode, find a maximum and minimum, and deduce the rest."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "y = −5 sin x has an amplitude of −5.",
+					"answer": "False: the amplitude is a size, so it is 5. The minus sign flips the wave but leaves its height alone.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "Doubling b doubles the period of a wave.",
+					"answer": "Never: b divides the period, so doubling b halves it.",
+					"level": 3
+				},
+				{
+					"kind": "interpret-parameter",
+					"prompt": "Why does y = 2 tan x have no amplitude, when y = 2 sin x does?",
+					"answer": "An amplitude is half the height from the bottom of a wave to its top, and tan has no top: each branch climbs without limit.",
+					"level": 3
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL3.7.read-features#0",
+					"text": "Using b as the period, instead of working the period out from b",
+					"as": "distractor",
+					"in": [
+						"period",
+						"tan-period"
+					],
+					"wrong": "the period = b"
+				},
+				{
+					"ref": "SL3.7.read-features#1",
+					"text": "Taking the amplitude as a + d, or as negative when a is negative",
+					"as": "distractor",
+					"in": [
+						"amplitude",
+						"amp-period"
+					],
+					"wrong": "the amplitude = a + d, or a with its sign"
+				},
+				{
+					"ref": "SL3.7.read-features#2",
+					"text": "Giving tan x an amplitude",
+					"as": "distractor",
+					"in": [
+						"tan-features"
+					],
+					"wrong": "an amplitude and a range for tan"
+				},
+				{
+					"ref": "SL3.7.read-features#3",
+					"text": "Using the period rule of sin and cos for tan, which repeats twice as often",
+					"as": "distractor",
+					"in": [
+						"tan-period",
+						"tan-features"
+					],
+					"wrong": "2π ÷ b for tan"
+				},
+				{
+					"ref": "SL3.7.read-features#4",
+					"text": "Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat",
+					"as": "distractor",
+					"in": [
+						"period",
+						"amp-period"
+					],
+					"wrong": "π ÷ b for a sine or cosine"
+				},
+				{
+					"ref": "SL3.7.read-features#5",
+					"text": "Leaving d out of the maximum, the minimum or the range",
+					"as": "distractor",
+					"in": [
+						"max-value",
+						"min-value",
+						"range"
+					],
+					"wrong": "the range as −|a| to |a|"
+				},
+				{
+					"ref": "SL3.7.read-features#6",
+					"text": "Keeping the minus sign of a when adding it to d, which swaps the maximum and the minimum",
+					"as": "distractor",
+					"in": [
+						"max-value",
+						"min-value"
+					],
+					"wrong": "d + a as the maximum with a negative"
+				},
+				{
+					"ref": "SL3.7.read-features#7",
+					"text": "Reading the amplitude as the principal axis, or the other way round",
+					"as": "distractor",
+					"in": [
+						"principal-axis",
+						"a-d-from-graph",
+						"amp-axis-story"
+					],
+					"wrong": "y = |a| as the axis"
+				},
+				{
+					"ref": "SL3.7.read-features#8",
+					"text": "Ignoring the minus sign in front of the wave, which turns its peaks into troughs",
+					"as": "distractor",
+					"in": [
+						"first-max-x"
+					],
+					"wrong": "the peak of the wave with a positive"
+				},
+				{
+					"ref": "SL3.7.read-features#9",
+					"text": "Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later",
+					"as": "distractor",
+					"in": [
+						"first-max-x"
+					],
+					"wrong": "the peak of the other function"
+				},
+				{
+					"ref": "SL3.7.read-features#10",
+					"text": "Taking a as positive when the wave starts at its lowest point",
+					"as": "distractor",
+					"in": [
+						"wheel-a-b"
+					],
+					"wrong": "a positive"
+				},
+				{
+					"ref": "SL3.7.equation-from-graph#0",
+					"text": "Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum",
+					"as": "distractor",
+					"in": [
+						"period",
+						"amp-period",
+						"b-from-graph",
+						"intercept-gap",
+						"b-from-story",
+						"wheel-a-b"
+					],
+					"wrong": "the period taken as the gap from a maximum to the next minimum"
+				},
+				{
+					"ref": "SL3.7.equation-from-graph#1",
+					"text": "Using a = max − min, forgetting to halve",
+					"as": "distractor",
+					"in": [
+						"amplitude",
+						"amp-period",
+						"a-d-from-graph",
+						"amp-axis-story"
+					],
+					"wrong": "a = max − min, not halved"
+				},
+				{
+					"ref": "SL3.7.model-context#0",
+					"text": "Leaving the calculator in degree mode for a radian model",
+					"as": "distractor",
+					"in": [
+						"period"
+					],
+					"wrong": "the graph read in degrees"
+				},
+				{
+					"ref": "SL3.7.model-context#2",
+					"text": "Taking b itself as the period, instead of working out b from the period",
+					"as": "distractor",
+					"in": [
+						"b-from-graph",
+						"b-from-story",
+						"wheel-a-b"
+					],
+					"wrong": "b = the period"
+				}
+			],
+			"chain": [
+				"the amplitude is the size of a",
+				"the period is 2π ÷ b, or π ÷ b for tan",
+				"the principal axis is y = d",
+				"the maximum and minimum are d ± |a|",
+				"tan has no amplitude, maximum or minimum"
+			],
 			"frequency": 18,
 			"marks": 2,
 			"section": {
@@ -29447,9 +30490,7 @@
 			"paper": {
 				"p1": 8,
 				"p2": 10
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t3-trig-model-parameters",
@@ -58128,7 +59169,7 @@
 				},
 				{
 					"ref": "SL3.7.read-features#0",
-					"text": "Period = b instead of 2π/b",
+					"text": "Using b as the period, instead of working the period out from b",
 					"as": "distractor",
 					"in": [
 						"wave-max-point"
@@ -58137,7 +59178,7 @@
 				},
 				{
 					"ref": "SL3.7.read-features#1",
-					"text": "Amplitude = a + d, or a negative amplitude when a < 0",
+					"text": "Taking the amplitude as a + d, or as negative when a is negative",
 					"as": "distractor",
 					"in": [
 						"wave-extremes",

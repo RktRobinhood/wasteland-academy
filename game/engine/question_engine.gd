@@ -49,6 +49,7 @@ static var SITUATIONS := {
 	"trig-identity": [TrigIdentitySituation, TrigIdentityViews],
 	"trig-equation": [TrigEquationSituation, TrigEquationViews],
 	"trig-model": [TrigModelSituation, TrigModelViews],
+	"trig-wave": [TrigWaveSituation, TrigWaveViews],
 	"bearings-elevation": [BearingsSituation, BearingsViews],
 	"right-triangle": [RightTriangleSituation, RightTriangleViews],
 	"arithmetic-sequence": [ArithmeticSequenceSituation, ArithmeticSequenceViews],
