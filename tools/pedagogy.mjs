@@ -24,8 +24,12 @@ export const PROBES = ['true-false-reason', 'always-sometimes-never', 'interpret
 const FULL = ['region', 'situation', 'representations', 'unknowns', 'angles', 'concepts', 'misconceptions'];
 const CATALOGUE = ['name', 'summary', 'skills', 'level', 'gap'];
 
+// `map` is AA SL, the syllabus every exam type comes from (and the one every skill must have a
+// type for). `more` is the HL-only and AI-only layers: a type built for them may name their
+// skills, methods and misconceptions (FAL-695).
 export function load() {
-  return { doc: readJSON('curriculum/question-types.json'), map: readJSON('curriculum/aa-sl.json'), threads: readJSON('curriculum/threads.json') };
+  return { doc: readJSON('curriculum/question-types.json'), map: readJSON('curriculum/aa-sl.json'), threads: readJSON('curriculum/threads.json'),
+    more: ['aa-hl', 'ai'].map(f => readJSON(`curriculum/${f}.json`)) };
 }
 
 // Number of coverage cells a type can make: one per (unknown, representation, angle);
@@ -37,10 +41,13 @@ export function cells(t) {
   }, 0);
 }
 
-export function check({ doc, map, threads }, { region } = {}) {
+export function check({ doc, map, threads, more = [] }, { region } = {}) {
   const errors = [], warnings = [];
   const skills = new Map(), subOf = new Map();
   for (const t of map.topics) for (const st of t.subtopics) for (const s of st.skills) { skills.set(s.id, { ...s, topic: t.topic }); subOf.set(s.id, st.id); }
+  // Every skill a type may name: AA SL's, then the layers above it. Coverage rules below still use `skills`.
+  const known = new Map(skills);
+  for (const m of more) for (const t of m.topics) for (const st of t.subtopics) for (const s of st.skills) known.set(s.id, { ...s, topic: t.topic });
   const threadIds = new Map(threads.threads.map(t => [t.id, t]));
   const regionIds = new Set((doc.regions || []).map(r => r.id));
   const sits = doc.situations || {};
@@ -65,7 +72,7 @@ export function check({ doc, map, threads }, { region } = {}) {
       if (t.kind === 'prior-learning') {
         if (t.level?.[1] !== 0) errors.push(`${w}: prior-learning types sit at level 0`);
         if (!t.supports?.length) errors.push(`${w}: prior-learning needs supports`);
-        for (const s of t.supports || []) if (!skills.has(s)) errors.push(`${w}: supports unknown skill ${s}`);
+        for (const s of t.supports || []) if (!known.has(s)) errors.push(`${w}: supports unknown skill ${s}`);
       } else if (!t.skills?.length) errors.push(`${w}: no skills`);
       if (['concept', 'link'].includes(t.kind) && t.level?.[0] < 3) errors.push(`${w}: ${t.kind} types sit at levels 3-5`);
       if (t.kind === 'link') {
@@ -73,7 +80,7 @@ export function check({ doc, map, threads }, { region } = {}) {
         else for (const b of t.blueprints || []) if (!threadIds.get(t.thread).blueprints[b]) errors.push(`${w}: no blueprint ${b} on ${t.thread}`);
       }
     }
-    for (const s of t.skills || []) if (!skills.has(s)) errors.push(`${w}: unknown skill ${s}`);
+    for (const s of t.skills || []) if (!known.has(s)) errors.push(`${w}: unknown skill ${s}`);
     // The full view model: every Functions type, and any other type with a situation.
     // Regions are Functions islands, so only Functions types need one.
     if (t.topic !== 2 && !t.situation) continue;
@@ -108,7 +115,7 @@ export function check({ doc, map, threads }, { region } = {}) {
       if (!u.reps?.length) errors.push(`${uw}: no representations`);
       for (const r of u.reps || []) if (!reps.has(r)) errors.push(`${uw}: representation ${r} is not listed on the type`);
       if (t.kind !== 'prior-learning' && !u.skills?.length) errors.push(`${uw}: no skills`);
-      for (const s of u.skills || []) if (!skills.has(s)) errors.push(`${uw}: unknown skill ${s}`);
+      for (const s of u.skills || []) if (!known.has(s)) errors.push(`${uw}: unknown skill ${s}`);
     }
     if (t.source === 'exam' && !(t.unknowns || []).some(u => u.exam)) errors.push(`${w}: no unknown is marked exam`);
     if ((t.unknowns || []).length === 1 && !t.singleUnknown) errors.push(`${w}: one unknown only; say why in singleUnknown`);
@@ -118,8 +125,8 @@ export function check({ doc, map, threads }, { region } = {}) {
     for (const a of t.angles || []) {
       const aw = `${w}/angle ${a.method}`;
       if (a.skill) {
-        if (!skills.has(a.skill)) errors.push(`${aw}: unknown skill ${a.skill}`);
-        else if (!skills.get(a.skill).methods.some(m => m.id === a.method)) errors.push(`${aw}: ${a.skill} has no method ${a.method}`);
+        if (!known.has(a.skill)) errors.push(`${aw}: unknown skill ${a.skill}`);
+        else if (!known.get(a.skill).methods.some(m => m.id === a.method)) errors.push(`${aw}: ${a.skill} has no method ${a.method}`);
       } else if (!local.has(a.method)) errors.push(`${aw}: not a method of ${a.skill || 'the type'}`);
       if (!a.suits?.length) errors.push(`${aw}: suits no unknown`);
       for (const u of a.suits || []) if (!uids.has(u)) errors.push(`${aw}: suits unknown ${u} that does not exist`);
@@ -146,9 +153,9 @@ export function check({ doc, map, threads }, { region } = {}) {
       for (const u of x.in || []) if (!uids.has(u)) errors.push(`${xw}: unknown ${u} does not exist`);
       if (x.ref) {
         const [sid, i] = x.ref.split('#');
-        const text = skills.get(sid)?.misconceptions?.[Number(i)];
-        if (text == null) errors.push(`${xw}: no such misconception in aa-sl.json`);
-        else if (text !== x.text) errors.push(`${xw}: text does not match aa-sl.json; rerun the merge`);
+        const text = known.get(sid)?.misconceptions?.[Number(i)];
+        if (text == null) errors.push(`${xw}: no such misconception in the curriculum maps`);
+        else if (text !== x.text) errors.push(`${xw}: text does not match the curriculum map; rerun the merge`);
       } else if (!x.text) errors.push(`${w}: misconception needs ref or text`);
     }
   }
@@ -198,16 +205,16 @@ export function countAll(doc, skills, used) {
   const fnMis = [...skills.values()].filter(s => s.topic === 2).reduce((n, s) => n + s.misconceptions.length, 0);
   return {
     regions,
-    skills: skills.size, skillsTyped: new Set(doc.types.flatMap(t => t.skills || [])).size,
+    skills: skills.size, skillsTyped: [...skills.keys()].filter(id => doc.types.some(t => (t.skills || []).includes(id))).length,
     fnMisconceptions: fnMis, fnMisconceptionsUsed: [...used].filter(r => skills.get(r.split('#')[0])?.topic === 2).length,
   };
 }
 
 // ── Report ───────────────────────────────────────────────────
-export function render({ doc, map, threads }, counts) {
+export function render({ doc, map, threads, more = [] }, counts) {
   const L = [];
   const skills = new Map();
-  for (const t of map.topics) for (const st of t.subtopics) for (const s of st.skills) skills.set(s.id, { ...s, topic: t.topic });
+  for (const m of [map, ...more]) for (const t of m.topics) for (const st of t.subtopics) for (const s of st.skills) skills.set(s.id, { ...s, topic: t.topic });
   const short = s => s.replace(/^SL\d+\.\d+\./, '');
   const lv = u => `L${u.level}`;
   const methodName = (t, a) => a.skill ? skills.get(a.skill)?.methods.find(m => m.id === a.method)?.name : t.methods?.find(m => m.id === a.method)?.name;

@@ -138,6 +138,21 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   student has to decide before answering: the acute angle is right only when the obtuse
   one has no room. The checker solves each question from the sine rule and from the
   cosine rule as a quadratic, and the two must agree.
+- `engine/situations/counting.gd` (FAL-695) is `t1-ahl-counting`, the first type built for
+  AA HL only (AHL1.10, so on no other course's list, see "Courses"). It is an `extension`
+  type, since the question bank behind the exam types is AA SL's and has no counting part;
+  a count is exact, so every answer is a whole number of ways. Its views
+  (`counting_views.gd`) ask 11 unknowns, from a story or, where the count has a symbol,
+  as `7!`, `10P3`, `12C4` or `nP2 = 56`: a code (26^a × 10^b), numbers with no repeated
+  digit, even numbers from 1 to m, n!, nPr for medal places, n from nP2, a committee,
+  one with exactly j women, one with at least one woman, and two people together or
+  apart in a row. Wrong options are AHL1.10's misconceptions (the leading zero, adding the
+  stages, the free digits first, nCr for an ordered result, n^r, n!/r!, adding the groups,
+  counting a committee twice, nPr for a committee, forgetting the block's own order,
+  n! − 2). `tools/check-answers` counts every case again by listing the arrangements.
+  The curriculum tools (`tools/pedagogy.mjs`, `tools/game-catalogue.mjs`) read skills from
+  `aa-hl.json` and `ai.json` as well as `aa-sl.json`, so a type may name an AA HL or AI
+  skill; the rule that every AA SL skill has a type still counts AA SL's alone.
 - `engine/situations/arithmetic_sequence.gd` (FAL-392) is the Topic 1
   situation: one arithmetic sequence with u₁, d, n, uₙ, Sₙ, two later terms and the
   first four terms, for `t1-arithmetic-sequence`. Its representations are `notation`
@@ -1107,8 +1122,9 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   covered by every course. `QuestionEngine.cells()`, `built_types()`, `probes()` and
   `angles_for()` take a course (`""` for none), and so do `Dungeon`'s floors, warm-ups,
   prior-learning steps, boss chains and link parts, `Planner`, `Progress` and the map's
-  locked regions. A `Run` reads the course when it starts. AA SL and AA HL cover every
-  question built so far, so for them nothing changes. AI SL and AI HL get fewer cells,
+  locked regions. A `Run` reads the course when it starts. AA HL covers every
+  question built, and AA SL every one but the types built for AHL subtopics, which are on
+  AA HL's list alone (`t1-ahl-counting`, the first). AI SL and AI HL get fewer cells,
   about three in ten of the built ones at the time of writing: a cell needs every skill it
   tests in the course, and the AI guide shares only some of AA's subtopics (`SL2.6`
   quadratics and `SL2.9` exponentials and logs are AA's alone). The rest needs AI content
@@ -1690,12 +1706,12 @@ desktop, `-- --map=functions/quadratics` does the same as the hash.
 
 The island map loads its art by file name from `game/assets/map/functions/`. Each file
 is optional: when one isn't there, that piece keeps the coded look (a dusk gradient
-with a dashed trail, and a numbered ring in the state's colour), so art can land one
-file at a time. Import each with mipmaps on, like the rest of the art.
+with branching roads, and a ring in the state's colour with a short glyph for the
+region), so art can land one file at a time. Import each with mipmaps on, like the rest of the art.
 
 | File | Size | What it is |
 |---|---|---|
-| `background.png` | 1080x1920, opaque | The whole island, portrait. The spots sit on it at the places in `SPOTS` in `ui/map.gd` (% of the board), climbing from Quadratics at the bottom to the tower at the top |
+| `background.png` | 1080x1920, opaque | The whole island, portrait. The spots sit on it at the places in `SPOTS` in `ui/map.gd` (% of the board). It is a hub: the Signal Tower in the middle with the all-regions gate at its foot, the eight regions around it, a road from the tower to each, a loop road between neighbours, and a road up from the landing on the south shore (50, 97). The FAL-531 plan has the table |
 | `<spot>-locked.png` | 256x256, transparent | A spot's landmark before its questions are built |
 | `<spot>-open.png` | 256x256, transparent | A spot's landmark once it can be played |
 | `<spot>-cleared.png` | 256x256, transparent | A spot's landmark once floor 3's boss is beaten there |
@@ -1703,9 +1719,11 @@ file at a time. Import each with mipmaps on, like the rest of the art.
 `<spot>` is a region id (`quadratics`, `exp-log`, `graphs-features`,
 `composite-inverse`, `rational`, `function-basics`, `lines`, `transformations`), `all`
 for the all-regions dungeon at the tower, or `relic` for the Relic device (only
-`relic-locked.png` is used for now). A landmark is drawn in a 200x200 box, kept square
-and centred, with the spot's name and progress line under it, so leave the bottom of
-the background clear below each spot.
+`relic-locked.png` is used for now). A landmark is drawn in a 200x200 box (the Relic
+device's in 140x140), kept square and centred, with the spot's name and progress line
+under it, so leave the bottom of the background clear below each spot. SPARK's pick
+(`Progress.suggest()`) gets a pink beacon drawn over its landmark, art or not, so leave
+the landmark itself readable under a ring.
 
 ## Art slots
 
@@ -2034,10 +2052,16 @@ script error happens while it runs. Run one file with
   float, whole number, pick and weighted pick over 1000 seeds), the same text gives the
   same stream, and the first five draws of one key are pinned (FAL-460).
 - `test_courses.gd`: the four courses; which skills, unknowns and methods each covers
-  (AA SL and AA HL every built cell, AI SL inside AI HL); the save's `course`, its
+  (AA HL every built cell, AA SL all but the HL-only types', AI SL inside AI HL); the save's `course`, its
   version 5 migration and `set_course()` keeping the cell records; and that the planner,
   a run's floors, warm-ups, prior learning, mini-bosses, bosses and links, and the map's
   counts only use cells the course covers.
+- `test_counting.gd`: t1-ahl-counting built with every cell and four of AHL1.10's six
+  skills; both formats, no extra one; on AA HL's list and no other course's; the planner
+  serving it to an AA HL student and never to an AA SL one; the counts against hand values
+  (4536 four-digit numbers, 150 and 315 committees, 240 and 480 rows); whole, positive
+  counts and clean n from nP2; every misconception as an option; exact marking; a true
+  minus; and the two probes.
 - `test_planner.gd`: the planner's three rules, "Exam-style only", and the save, with
   the migration of a save without `class` and `trees`.
 - `test_combat.gd`: a scripted run with a fixed seed and answers gives the same fights,

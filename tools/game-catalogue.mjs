@@ -4,7 +4,7 @@
 // parts of curriculum/question-types.json the question engine plans from: the
 // situations, regions, levels and topic names, and every type with its views (the
 // explorer screen shows the types not built yet too). Method
-// names and summaries are filled in from curriculum/aa-sl.json, so a worked solution
+// names and summaries are filled in from curriculum/aa-sl.json, aa-hl.json and ai.json, so a worked solution
 // can name its method, and the name of every skill an unknown lists, so the map can
 // name a player's weakest skills.
 //
@@ -47,8 +47,10 @@ export function caretPowers(text) {
 export function build() {
   const doc = readJSON('curriculum/question-types.json');
   const map = readJSON('curriculum/aa-sl.json');
+  // Names and methods come from every layer, so a type built for AA HL or AI skills reads like the rest.
   const skills = new Map();
-  for (const t of map.topics) for (const st of t.subtopics) for (const s of st.skills) skills.set(s.id, s);
+  for (const layer of ['aa-sl', 'aa-hl', 'ai'])
+    for (const t of readJSON(`curriculum/${layer}.json`).topics) for (const st of t.subtopics) for (const s of st.skills) skills.set(s.id, s);
   const types = doc.types.map(t => {
     const out = {};
     for (const f of TYPE_FIELDS) if (t[f] !== undefined) out[f] = t[f];
