@@ -32759,6 +32759,663 @@ def e10tm_check(q):
 
 # ── end trig-model-equation ──
 
+# ── derivative-model (t5-derivative-model-gdc, FAL-753) ──────
+# The `derivative-model` situation's clean limits, the checker's own copy: the engine's is in
+# game/engine/situations/derivative_model.gd. The model is read back from the line shown and
+# differentiated with SymPy; a time is found by a float scan for sign changes refined by bisection
+# at 40 digits, and a greatest rate from where the second derivative changes sign. Values from a
+# table or from graphs are read back and put through each rule with exact rationals. Each tagged
+# option is worked out from its slip, and each derivative the working writes is compared with SymPy's.
+
+E11DM_SI = "SL5.1.interpret-derivative#"
+E11DM_SR = "SL5.6.rules-with-values#"
+E11DM_CTX = [("M", "area of mould on a bunker wall", "cm²", "day", "days"), ("R", "number of rad-rats in the tunnels", "rats", "week", "weeks"),
+             ("X", "radiation reading at the dump", "microsieverts", "hour", "hours"), ("C", "amount of coolant in a leaking tank", "litres", "minute", "minutes"),
+             ("P", "population of a settlement", "people", "year", "years"), ("V", "area covered by a vine", "m²", "week", "weeks"),
+             ("T", "number of traders on the new route", "traders", "year", "years"), ("S", "toxin level in a water filter", "mg per litre", "hour", "hours"),
+             ("K", "smoke level in a shelter", "parts per million", "minute", "minutes"), ("Q", "pressure in a pipe after a surge", "kilopascals", "minute", "minutes"),
+             ("D", "depth of water in a flooded canal", "metres", "hour", "hours"), ("H", "height of a fungus tower", "cm", "day", "days"),
+             ("W", "charge in a battery bank", "kilowatt-hours", "hour", "hours"), ("L", "length of a tunnel", "metres", "day", "days"),
+             ("G", "height of a dune wall", "metres", "year", "years")]
+E11DM_SHORT = {"day": ("hour", 24), "week": ("day", 7), "hour": ("minute", 60), "minute": ("second", 60), "year": ("month", 12)}
+E11DM_TWO = {"depth": "two flooded canals", "height": "two fungus towers", "charge": "two battery banks"}
+E11DM_RATE_MIN = sp.Rational(49, 1000)   # the engine's is 0.05
+E11DM_GAP = sp.Rational(49, 100)         # the engine's is 0.5
+E11DM_SCAN = 1500
+E11DM_FORMS = {"exp": re.compile(r"(\d+)e\^\((−?[\d.]+)t\)"), "logistic": re.compile(r"(\d+)/\(1 \+ (\d+)e\^\(−([\d.]+)t\)\)"),
+               "pulse": re.compile(r"(\d+)te\^\(−([\d.]+)t\)"), "wave": re.compile(r"(\d+) \+ ([\d.]*)t \+ (\d+) cos\(([\d.]*)t\)"),
+               "log": re.compile(r"(\d+) \+ (\d+) ln\(([\d.]*)t \+ 1\)")}
+
+
+def E11DM_num(v):
+    return R(str(v).replace("−", "-"))
+
+
+def E11DM_expr(text):
+    return calc_expr(text.replace("t", "x"))
+
+
+def E11DM_form(text):
+    """The family of a model as written, and its numbers."""
+    for fam, rx in E11DM_FORMS.items():
+        m = rx.fullmatch(text)
+        if m:
+            return fam, [E11DM_num(g or 1) for g in m.groups()]
+    raise Fail(f"can't read the model {text!r}")
+
+
+def E11DM_limits(fam, n, T):
+    if fam == "exp":
+        P, k = n
+        need(P % 10 == 0 and 50 <= P <= 600 and sp.Rational(3, 100) <= abs(k) <= sp.Rational(3, 10), f"P {P} or k {k}")
+    elif fam == "logistic":
+        L, a, k = n
+        need(L % 50 == 0 and 200 <= L <= 3000 and 4 <= a <= 30 and sp.Rational(1, 5) <= k <= sp.Rational(4, 5), f"L {L}, a {a} or k {k}")
+    elif fam == "pulse":
+        a, k = n
+        need(a % 5 == 0 and 10 <= a <= 60 and sp.Rational(3, 20) <= k <= sp.Rational(3, 5), f"a {a} or k {k}")
+    elif fam == "wave":
+        c, m, B, w = n
+        need(c % 5 == 0 and 10 <= c <= 40 and sp.Rational(1, 10) <= m <= sp.Rational(6, 5) and 2 <= B <= 9 and sp.Rational(3, 10) <= w <= sp.Rational(6, 5), f"the wave {n}")
+    else:
+        c, a, b = n
+        need(c % 5 == 0 and 5 <= c <= 30 and a % 5 == 0 and 10 <= a <= 45 and sp.Rational(1, 10) <= b <= 1, f"the log model {n}")
+    need(2 <= T <= 60, f"T {T}")
+
+
+def E11DM_read(q):
+    """The model from its line: the letter, its text, the expression and the domain's end."""
+    for t in q["lines"]:
+        m = re.search(r"([A-Z])\(t\) = (.+?), for 0 ≤ t ≤ (\d+)", t)
+        if m:
+            sym, text, T = m.group(1), m.group(2), int(m.group(3))
+            E11DM_limits(*E11DM_form(text), T)
+            return sym, text, E11DM_expr(text), T
+    raise Fail("can't read the model")
+
+
+def E11DM_ctx(q):
+    sym, what, y, per, time = E11DM_CTX[int(q["given"]["ctx"])]
+    return {"sym": sym, "what": what, "y": y, "per": per, "time": time, "unit": f"{y} per {per}"}
+
+
+def E11DM_story(q, c, text, T):
+    """A story's line says the story's own letter, units and time."""
+    shown = f"The {c['what']}, in {c['y']}, t {c['time']} after the start, is modelled by {c['sym']}(t) = {text}, for 0 ≤ t ≤ {T}."
+    bare = f"{c['sym']}(t) = {text}, for 0 ≤ t ≤ {T}"
+    need(q["lines"][0] == (bare if q["view"]["rep"] == "equation" else shown), f"the model's line {q['lines'][0]!r}")
+
+
+def E11DM_mp(fn):
+    return sp.lambdify(CX, fn, "mpmath")
+
+
+def E11DM_zeros(fn, lo, hi):
+    """Every sign change of fn on [lo, hi], in order: a float scan, then bisection."""
+    f, g = sp.lambdify(CX, fn, "math"), E11DM_mp(fn)
+    lo, hi = float(lo), float(hi)
+    out = []
+    xa, fa = lo, f(lo)
+    for i in range(1, E11DM_SCAN + 1):
+        xb = lo + (hi - lo) * i / E11DM_SCAN
+        fb = f(xb)
+        if fa == 0:
+            out.append(mpmath.mpf(xa))
+        elif fa * fb < 0:
+            a, b = mpmath.mpf(xa), mpmath.mpf(xb)
+            ga = g(a)
+            for _ in range(110):
+                mid = (a + b) / 2
+                gm = g(mid)
+                if ga * gm <= 0:
+                    b = mid
+                else:
+                    a, ga = mid, gm
+            out.append((a + b) / 2)
+        xa, fa = xb, fb
+    return out
+
+
+def E11DM_stretch(inside, cuts, T):
+    """The total length of the stretches of [0, T] between the cuts where inside holds."""
+    ends = [mpmath.mpf(0)] + list(cuts) + [mpmath.mpf(T)]
+    return sum((b - a for a, b in zip(ends, ends[1:]) if inside((a + b) / 2)), mpmath.mpf(0))
+
+
+def E11DM_f(x):
+    return sp.Float(mpmath.nstr(mpmath.mpf(x), 35), 35)
+
+
+def E11DM_s(x):
+    return gc_s(E11DM_f(x))
+
+
+def E11DM_s2(x):
+    return gc_s2(E11DM_f(x))
+
+
+def E11DM_w(x):
+    t = sig3(E11DM_f(x), 6)
+    return (t.rstrip("0").rstrip(".") if "." in t else t).replace("-", "−")
+
+
+def E11DM_ok(x):
+    """A fair answer: at least the smallest rate, clear of an edge, and not ending in 0."""
+    v = E11DM_f(x)
+    need(abs(v) >= E11DM_RATE_MIN and not on_edge(abs(v)), f"{v} is too small or on a rounding edge")
+    need(not E11DM_s(x).endswith("0"), f"{E11DM_s(x)} ends in 0, like its trap")
+
+
+def E11DM_shows(q, *numbers):
+    """Every worked solution shows these, as a GDC shows them."""
+    for sol in q["solutions"]:
+        text = " ".join(sol["steps"])
+        for n in numbers:
+            need(n in text, f"{sol['name']}: the working doesn't show {n}")
+
+
+def E11DM_any_shows(q, angle, *numbers):
+    for sol in q["solutions"]:
+        if sol["angle"] == angle:
+            text = " ".join(sol["steps"])
+            for n in numbers:
+                need(n in text, f"{sol['name']}: the working doesn't show {n}")
+
+
+def E11DM_rule_work(q, sym, fn):
+    """Where the working writes the derivative, it is the derivative of the model."""
+    df = sp.diff(fn, CX)
+    for sol in q["solutions"]:
+        if sol["angle"] == "rule-then-substitute":
+            hits = [m for st in sol["steps"] for m in re.findall(rf"{sym}′\(t\) = (.+?)(?:\.$| and )", st)]
+            need(hits, f"{sol['name']}: no derivative in the working")
+            need(calc_same(E11DM_expr(hits[0]), df), f"{sol['name']}: {hits[0]!r} is not the derivative")
+
+
+def E11DM_points(pts, fn, label):
+    f = E11DM_mp(fn)
+    for x, y in pts[:: 16]:
+        need(abs(f(mpmath.mpf(str(x))) - mpmath.mpf(str(y))) < mpmath.mpf(10) ** -5, f"{label} is not the function at {x}")
+
+
+def E11DM_curve(q, i, fn):
+    E11DM_points(q["graph"]["curves"][i], fn, f"curve {i}")
+
+
+def E11DM_graph(q, fn, ts, T):
+    """The model, a mark at each time, and each tangent, on the domain."""
+    g = q["graph"]
+    need(g is not None and int(g["x0"]) == 0 and int(g["x1"]) == T, "the figure's window")
+    E11DM_curve(q, 0, fn)
+    need(len(g["points"]) == len(ts), "the figure's marks")
+    df = sp.diff(fn, CX)
+    for i, t in enumerate(ts):
+        v, r = fn.subs(CX, t), df.subs(CX, t)
+        E11DM_curve(q, i + 1, v + r * (CX - t))
+        need(g["points"][i]["x"] == float(t), f"the mark at {t}")
+
+
+def E11DM_slips(text, fn, t):
+    """What each family's rule gives when its own step goes wrong, at t."""
+    fam, n = E11DM_form(text)
+    wr = {}
+    if fam == "pulse":
+        a, k = n
+        wr[E11DM_SR + "1"] = sp.diff(a * CX, CX) * sp.diff(sp.exp(-k * CX), CX)
+    elif fam == "log":
+        c, a, b = n
+        wr[E11DM_SR + "5"] = a / (b * CX + 1)
+    elif fam == "wave":
+        c, m, B, w = n
+        wr[E11DM_SR + "5"] = m - B * sp.sin(w * CX)
+    return {k: sp.N(v.subs(CX, t), 30) for k, v in wr.items()}
+
+
+def E11DM_sums(q):
+    """The plain sums in the working, worked again."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for left, right in re.findall(r"= ([()\d\s×+−/²]*[×−+][()\d\s×+−/²]*) = (−?[\d.]+)\.", st):
+                t = left.replace("×", "*").replace("−", "-").replace("²", "**2").replace(" ", "")
+                t = re.sub(r"(\d+)", r"Integer(\1)", t)
+                need(sp.sympify(t, locals={"Integer": sp.Integer}) == E11DM_num(right), f"{sol['name']}: {left} = {right}")
+
+
+def E11DM_time_of_top(fn, T, fall):
+    """Where the rate is greatest (least, if it falls), from the turning points of S′ and its ends."""
+    df = sp.diff(fn, CX)
+    d = E11DM_mp(df)
+    turns = E11DM_zeros(sp.diff(df, CX), 0, T)
+    sgn = -1 if fall else 1
+    best = max([mpmath.mpf(0), mpmath.mpf(T)] + turns, key=lambda t: sgn * d(t))
+    need(0 < best < T, "the greatest rate is at an end of the domain")
+    need(1 <= best <= T - 1, "the greatest rate is near an end of the domain")
+    return best, sgn * d(best)
+
+
+def E11DM_peak(fn, T):
+    f = E11DM_mp(fn)
+    best = max([mpmath.mpf(0), mpmath.mpf(T)] + E11DM_zeros(sp.diff(fn, CX), 0, T), key=f)
+    return best, f(best)
+
+
+def E11DM_model_unknown(q, u, c, sym, text, fn, T):
+    """The questions on one model. Returns want, wrongs, trap."""
+    asked, rep = q["asked"], q["view"]["rep"]
+    I, S = E11DM_SI, E11DM_SR
+    df = sp.diff(fn, CX)
+    f, d = E11DM_mp(fn), E11DM_mp(df)
+    wrongs, want, trap = {}, None, None
+    if u in ("rate-at-time", "rate-with-units", "rate-other-unit", "rising-or-falling", "interpret-rate", "tangent-estimate"):
+        m = re.search(r"t = (\d+)\b|′\((\d+)\)", asked)
+        need(m is not None, f"asked {asked!r}")
+        t0 = int(m.group(1) or m.group(2))
+        need(1 <= t0 <= T - 1, f"t0 {t0}")
+        v, r = f(t0), d(t0)
+        need(v > 0 and E11DM_s(abs(r)) != E11DM_s(v), "the value and the rate")
+        E11DM_ok(r)
+        need(not on_edge(E11DM_f(v)), "the value is on a rounding edge")
+        if rep == "graph":
+            E11DM_graph(q, fn, [t0], T)
+        E11DM_shows(q, E11DM_w(r))
+    if u == "rate-at-time":
+        if rep == "equation":
+            need(asked == f"Find {sym}′({t0}), to 3 s.f.", f"asked {asked!r}")
+            head, tail = f"{sym}′({t0}) = ", ""
+        else:
+            need(asked == f"Find the rate of change of the {c['what']} when t = {t0}, in {c['unit']}, to 3 s.f.", f"asked {asked!r}")
+            head, tail = f"d{sym}/dt = ", " " + c["unit"]
+        opt = lambda x: head + E11DM_s(x) + tail
+        want, trap = opt(r), head + E11DM_s2(r) + tail
+        wrongs = {I + "0": {opt(v)}, I + "3": {opt(f(t0 + 1) - v)}}
+        if r < 0:
+            wrongs[I + "1"] = {opt(-r)}
+        wrongs.update({k: {opt(x)} for k, x in E11DM_slips(text, fn, t0).items()})
+        E11DM_rule_work(q, sym, fn)
+    elif u == "rate-with-units":
+        need(asked == f"Find the rate of change of the {c['what']} when t = {t0}, with its units.", f"asked {asked!r}")
+        want = f"{E11DM_s(r)} {c['unit']}"
+        wrongs = {I + "2": {f"{E11DM_s(r)} {c['y']}"}, I + "0": {f"{E11DM_s(v)} {c['unit']}"}}
+        if r < 0:
+            wrongs[I + "1"] = {f"{E11DM_s(-r)} {c['unit']}"}
+    elif u == "rate-other-unit":
+        to, div = E11DM_SHORT[c["per"]]
+        need(asked == f"Find the rate of change of the {c['what']} when t = {t0}, in {c['y']} per {to}, to 3 s.f.", f"asked {asked!r}")
+        x = r / div
+        E11DM_ok(x)
+        tail = f" {c['y']} per {to}"
+        want, trap = "rate = " + E11DM_s(x) + tail, "rate = " + E11DM_s2(x) + tail
+        wrongs = {I + "5": {"rate = " + E11DM_s(r) + tail}, I + "0": {"rate = " + E11DM_s(v / div) + tail}}
+        E11DM_shows(q, f"÷ {div} = {E11DM_w(x)}")
+    elif u == "time-at-rate":
+        if rep == "equation":
+            m = re.fullmatch(rf"Find the (first )?value of t for which {sym}′\(t\) = (−?[\d.]+), to 3 s\.f\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            k = E11DM_num(m.group(2))
+        else:
+            m = re.fullmatch(rf"Find the (first )?time at which the {re.escape(c['what'])} is (increasing|decreasing) at ([\d.]+) {re.escape(c['unit'])}, to 3 s\.f\.", asked)
+            need(m is not None, f"asked {asked!r}")
+            k = E11DM_num(m.group(3)) * (1 if m.group(2) == "increasing" else -1)
+        roots = E11DM_zeros(df - k, 0, T)
+        need(len(roots) >= 1 and (m.group(1) is not None) == (len(roots) > 1), f"{len(roots)} times, and the question says {m.group(1)!r}")
+        x = roots[0]
+        E11DM_ok(x)
+        need(E11DM_GAP <= x <= T - E11DM_GAP, f"the time {x} is by an end of the domain")
+        need(len(roots) == 1 or roots[1] - x >= E11DM_GAP, "two times too close")
+        want, trap = "t = " + E11DM_s(x), "t = " + E11DM_s2(x)
+        amount = E11DM_zeros(fn - abs(k), 0, T)
+        if amount:
+            wrongs[I + "0"] = {"t = " + E11DM_s(amount[0])}
+        if k < 0:
+            other = E11DM_zeros(df + k, 0, T)
+            if other:
+                wrongs[I + "1"] = {"t = " + E11DM_s(other[0])}
+        E11DM_shows(q, E11DM_w(x))
+        E11DM_rule_work(q, sym, fn)
+        if rep == "graph":
+            g = q["graph"]
+            E11DM_curve(q, 0, df)
+            need(len(g["hlines"]) == 1 and sp.Rational(str(g["hlines"][0]["at"])).limit_denominator(10**6) == k, "the figure's line")
+            need(g["points"] == [] and int(g["x1"]) == T, "the figure's marks or window")
+    elif u in ("greatest-rate", "time-of-greatest-rate"):
+        fall = E11DM_form(text)[0] == "pulse"
+        need(E11DM_form(text)[0] in ("logistic", "pulse", "wave"), "this rate has no inner top")
+        t, r = E11DM_time_of_top(fn, T, fall)
+        at, top = E11DM_peak(fn, T)
+        need(abs(at - t) >= E11DM_GAP, "the greatest rate is at the greatest value")
+        if rep == "graph":
+            E11DM_curve(q, 0, fn)
+        if u == "greatest-rate":
+            need(asked == f"Find the greatest rate at which the {c['what']} {'falls' if fall else 'changes'}, in {c['unit']}, to 3 s.f.", f"asked {asked!r}")
+            E11DM_ok(r)
+            opt = lambda x: "rate = " + E11DM_s(x) + " " + c["unit"]
+            want, trap = opt(r), "rate = " + E11DM_s2(r) + " " + c["unit"]
+            wrongs = {I + "0": {opt(f(t))}, I + "4": {opt(top)}}
+            fam, n = E11DM_form(text)
+            if fam == "wave":
+                wrongs[S + "5"] = {opt(n[1] + n[2])}
+        else:
+            need(asked == f"Find the time at which the {c['what']} is {'falling' if fall else 'rising'} fastest, to 3 s.f.", f"asked {asked!r}")
+            E11DM_ok(t)
+            want, trap = "t = " + E11DM_s(t), "t = " + E11DM_s2(t)
+            wrongs = {I + "4": {"t = " + E11DM_s(at)}}
+        E11DM_shows(q, E11DM_w(t))
+    elif u == "rising-or-falling":
+        need(E11DM_form(text)[0] in ("pulse", "wave"), "its direction is plain from the model")
+        need(asked == f"At t = {t0}, which way is the {c['what']} going, and how fast?", f"asked {asked!r}")
+        mag, unit = E11DM_s(abs(r)), c["unit"]
+        word, other = ("Rising", "Falling") if r > 0 else ("Falling", "Rising")
+        want = f"{word} at {mag} {unit}"
+        wrongs = {I + "0": {f"{word} at {E11DM_s(v)} {unit}"}, I + "2": {f"{'Up' if r > 0 else 'Down'} by {mag} {c['y']}"}}
+        if r < 0:
+            wrongs[I + "1"] = {f"{other} at {mag} {unit}"}
+    elif u == "interpret-rate":
+        need(asked == f"Find {sym}′({t0}). Which sentence says what it means here?", f"asked {asked!r}")
+        mag, unit, what = E11DM_s(abs(r)), c["unit"], c["what"]
+        way, back = ("going up", "going down") if r > 0 else ("going down", "going up")
+        want = f"At t = {t0} the {what} is {way} at {mag} {unit}."
+        wrongs = {I + "0": {f"At t = {t0} the {what} is {mag} {c['y']}."},
+                  I + "2": {f"The {what} has {'gone up' if r > 0 else 'gone down'} by {mag} {c['y']} since the start."},
+                  I + "3": {f"In the next {c['per']} the {what} {'goes up' if r > 0 else 'goes down'} by exactly {mag} {c['y']}."}}
+        if r < 0:
+            wrongs[I + "1"] = {f"At t = {t0} the {what} is {back} at {mag} {unit}."}
+    elif u == "tangent-estimate":
+        m = re.fullmatch(rf"Use the tangent at t = {t0} to estimate {sym} when t = ([\d.]+), to 3 s\.f\.", asked)
+        need(m is not None, f"asked {asked!r}")
+        t1 = E11DM_num(m.group(1))
+        h = t1 - t0
+        need(0 < h <= sp.Rational(1, 2) and t1 <= T, f"the step {h}")
+        est = v + r * mpmath.mpf(h.p) / h.q
+        E11DM_ok(est)
+        need(est > 0 and E11DM_s(est) != E11DM_s(f(mpmath.mpf(t1.p) / t1.q)), "the estimate reads the same as the true value")
+        want, trap = f"{sym} ≈ " + E11DM_s(est), f"{sym} ≈ " + E11DM_s2(est)
+        if r < 0:
+            wrongs[I + "1"] = {f"{sym} ≈ " + E11DM_s(v - r * mpmath.mpf(h.p) / h.q)}
+        E11DM_shows(q, E11DM_w(v), E11DM_w(r), E11DM_w(est))
+    return want, wrongs, trap
+
+
+def E11DM_compare(q, c):
+    L, asked, rep = q["lines"], q["asked"], q["view"]["rep"]
+    m = re.fullmatch(rf"Two models of the {re.escape(c['what'])}, in {re.escape(c['y'])}, t {re.escape(c['time'])} after the start, for 0 ≤ t ≤ (\d+):", L[0])
+    need(m is not None and L[1].startswith("A(t) = ") and L[2].startswith("B(t) = "), f"can't read {L[:3]!r}")
+    T = int(m.group(1))
+    ta, tb = calc_rhs(L[1]), calc_rhs(L[2])
+    need({E11DM_form(ta)[0], E11DM_form(tb)[0]} == {"logistic", "exp"}, "a hump and an exponential")
+    fa, fb = E11DM_expr(ta), E11DM_expr(tb)
+    m = re.fullmatch(r"Compare the two models at t = (\d+)\. Which sentence is true\?", asked)
+    need(m is not None, f"asked {asked!r}")
+    t0 = int(m.group(1))
+    ra, rb = E11DM_mp(sp.diff(fa, CX))(t0), E11DM_mp(sp.diff(fb, CX))(t0)
+    va, vb = E11DM_mp(fa)(t0), E11DM_mp(fb)(t0)
+    need(ra > 0 and rb > 0, "both rise")
+    need((ra > rb) != (va > vb), "the one that rises faster is not behind")
+    need(abs(ra - rb) >= max(ra, rb) / 4, "the two rates are too close")
+    fast, slow = ("A", "B") if ra > rb else ("B", "A")
+    nums = f"A′({t0}) = {E11DM_s(ra)} and B′({t0}) = {E11DM_s(rb)}"
+    want = f"{nums}, so the {c['what']} is rising faster in model {fast}."
+    high = max(va, vb)
+    wrongs = {E11DM_SI + "0": {f"The {c['what']} is rising faster in model {slow}, because that model is higher at t = {t0} ({E11DM_s(high)})."},
+              E11DM_SI + "2": {f"Model {fast} is {E11DM_s(abs(ra - rb))} {c['y']} ahead at t = {t0}."}}
+    E11DM_shows(q, E11DM_w(ra), E11DM_w(rb))
+    if rep == "graph":
+        g = q["graph"]
+        E11DM_curve(q, 0, fa)
+        E11DM_curve(q, 1, fb)
+        need([p["label"] for p in g["points"]] == ["A", "B"] and int(g["x1"]) == T, "the figure's marks or window")
+    return want, wrongs
+
+
+def E11DM_rates_cross(q, c):
+    L, asked, rep = q["lines"], q["asked"], q["view"]["rep"]
+    if rep == "words":
+        m = re.fullmatch(r"The (\w+)s of (.+), in (.+), t (\w+) after the start, are A\(t\) = (.+) and B\(t\) = (.+), for 0 ≤ t ≤ (\d+)\.", L[0])
+        need(m is not None and E11DM_TWO.get(m.group(1)) == m.group(2), f"can't read {L[0]!r}")
+        ta, tb, T = m.group(5), m.group(6), int(m.group(7))
+        need(asked == f"Find the total time, in {c['time']}, for which the {m.group(1)} of B is changing at a greater rate than the {m.group(1)} of A.", f"asked {asked!r}")
+    else:
+        ta, tb = calc_rhs(L[0]), calc_rhs(L[1])
+        m = re.fullmatch(r"Both are for 0 ≤ t ≤ (\d+)\.", L[2])
+        need(m is not None, f"can't read {L[2]!r}")
+        T = int(m.group(1))
+        need(asked == "Find the total time for which the rate of change of B is greater than the rate of change of A.", f"asked {asked!r}")
+    need(E11DM_form(ta)[0] == "wave", "A is a wave")
+    m = re.fullmatch(r"(\d+) \+ ([\d.]*)t", tb)
+    need(m is not None, f"B is not a line: {tb!r}")
+    fa, fb = E11DM_expr(ta), E11DM_expr(tb)
+    da, db = sp.diff(fa, CX), sp.diff(fb, CX)
+    cuts = E11DM_zeros(da - db, 0, T)
+    need(len(cuts) >= 2, "the rates cross fewer than twice")
+    d = E11DM_mp(da - db)
+    x = E11DM_stretch(lambda t: d(t) < 0, cuts, T)
+    E11DM_ok(x)
+    need(x <= T - E11DM_GAP, "the rate is greater for the whole domain")
+    for p, n in zip(cuts, cuts[1:]):
+        need(n - p >= E11DM_GAP, "two crossings too close")
+    tail = " " + c["time"] if rep == "words" else ""
+    want, trap = "total time = " + E11DM_s(x) + tail, "total time = " + E11DM_s2(x) + tail
+    gap = E11DM_mp(fa - fb)
+    over = E11DM_stretch(lambda t: gap(t) < 0, E11DM_zeros(fa - fb, 0, T), T)
+    wrongs = {}
+    if over > 0:
+        wrongs[E11DM_SI + "0"] = {"total time = " + E11DM_s(over) + tail}
+    E11DM_shows(q, *[E11DM_w(t) for t in cuts], E11DM_w(x))
+    for sol in q["solutions"]:
+        if sol["angle"] == "rule-then-substitute":
+            found = re.fullmatch(r"Differentiate: A′\(t\) = (.+) and B′\(t\) = (.+)\.", sol["steps"][0])
+            need(found is not None and calc_same(E11DM_expr(found.group(1)), da) and abs(E11DM_num(found.group(2)) - db) < 1e-9, f"{sol['name']}: the derivatives")
+    return want, wrongs, trap
+
+
+def E11DM_tangents(q, c):
+    L, asked = q["lines"], q["asked"]
+    sym, text, fn, T = E11DM_read(q)
+    m = re.fullmatch(rf"The graph shows {sym} against t, with the tangents at P \(t = (\d+)\) and Q \(t = (\d+)\)\.", L[1])
+    need(m is not None, f"can't read {L[1]!r}")
+    need(asked == f"At which point is the {c['what']} rising faster?", f"asked {asked!r}")
+    tp, tq = int(m.group(1)), int(m.group(2))
+    d, f = E11DM_mp(sp.diff(fn, CX)), E11DM_mp(fn)
+    fast, slow, ta, tb = ("P", "Q", tp, tq) if d(tp) > d(tq) else ("Q", "P", tq, tp)
+    need(d(ta) > 0, "neither is rising")
+    need(f(tb) > f(ta), "the slower point is not the higher")
+    need(abs(d(ta)) >= mpmath.mpf(1.29) * abs(d(tb)) or abs(d(tb)) >= mpmath.mpf(1.29) * abs(d(ta)), "the tangents look alike")
+    g = q["graph"]
+    E11DM_curve(q, 0, fn)
+    marks = {p["label"]: p["x"] for p in g["points"]}
+    need(marks == {"P": float(tp), "Q": float(tq)}, f"the marks {marks}")
+    df = sp.diff(fn, CX)
+    # The two tangents are one curve, broken by a point off the plot.
+    line = g["curves"][1]
+    at = next(i for i, p in enumerate(line) if p[1] > 500000)
+    for pts, p in zip((line[:at], line[at + 1:]), g["points"]):
+        t = int(p["x"])
+        E11DM_points(pts, fn.subs(CX, t) + df.subs(CX, t) * (CX - t), f"the tangent at {t}")
+    want = f"At {fast}, because its tangent has the greater gradient."
+    wrongs = {E11DM_SI + "0": {f"At {slow}, because {slow} is higher on the curve."}}
+    if d(tb) < 0:
+        need(abs(d(tb)) > d(ta), "the falling tangent is not the steeper")
+        wrongs[E11DM_SI + "1"] = {f"At {slow}, because its tangent is the steeper one."}
+    return want, wrongs
+
+
+def E11DM_table(q):
+    """{name: {x: value}} from a table's rows, and the column of x-values."""
+    rows = q["table"]["rows"]
+    xs = [int(t) for t in rows[0][1]]
+    return xs, {r[0]: dict(zip(xs, [E11DM_num(v) for v in r[1]])) for r in rows[1:]}
+
+
+def E11DM_product_read(q):
+    """A story's values at t = a, from the table or the sentence: F, G, H, f, g, f′, g′ and the sign."""
+    L = q["lines"]
+    m = re.fullmatch(r"(\w)\(t\) is the (.+) and (\w)\(t\) is the (.+), t (\w+) after the start\.", L[0])
+    n = re.fullmatch(r"(\w)\(t\) = (\w)\(t\) ([×÷]) (\w)\(t\) is the (.+)\.", L[1])
+    need(m is not None and n is not None and n.group(2) == m.group(1) and n.group(4) == m.group(3), f"can't read {L[:2]!r}")
+    F, G, H = m.group(1), m.group(3), n.group(1)
+    a = re.search(r"t = (\d+)", q["asked"])
+    need(a is not None, f"asked {q['asked']!r}")
+    a = int(a.group(1))
+    if q["view"]["rep"] == "table":
+        need(L[2] == "The table gives their values and rates.", f"can't read {L[2]!r}")
+        _, t = E11DM_table(q)
+        f, g, df, dg = t[f"{F}(t)"][a], t[f"{G}(t)"][a], t[f"{F}′(t)"][a], t[f"{G}′(t)"][a]
+    else:
+        w = re.fullmatch(rf"When t = {a}, {F} = (\d+), (rising|falling) at (\d+) .+ per \w+; {G} = (\d+), (rising|falling) at (\d+) .+ per \w+\.", L[2])
+        need(w is not None, f"can't read {L[2]!r}")
+        f, g = sp.Integer(w.group(1)), sp.Integer(w.group(4))
+        df = sp.Integer(w.group(3)) * (1 if w.group(2) == "rising" else -1)
+        dg = sp.Integer(w.group(6)) * (1 if w.group(5) == "rising" else -1)
+    return {"F": F, "G": G, "H": H, "a": a, "f": f, "g": g, "df": df, "dg": dg, "sign": n.group(3), "h": n.group(5)}
+
+
+def E11DM_tail(q):
+    m = re.search(r"when t = \d+, in (.+)\.$", q["asked"])
+    need(m is not None, f"asked {q['asked']!r}")
+    return " " + m.group(1)
+
+
+def E11DM_product_wrongs(f, g, df, dg, opt, I, S):
+    return {S + "1": {opt(df * dg)}, S + "2": {opt(df * dg + f * dg)}, I + "0": {opt(f * g)}}
+
+
+def E11DM_quotient_wrongs(f, g, df, dg, opt, S):
+    return {S + "3": {opt(df / dg)}, S + "4": {opt((f * dg - df * g) / g ** 2)}}
+
+
+def E11DM_pieces(q):
+    """The two graphs: their corners at x = 0, 2, 4, 6, whichever curve carries which name."""
+    g = q["graph"]
+    need(len(g["curves"]) == 2 and [p["label"] for p in g["points"]] == ["f", "g"] and int(g["x1"]) == 7, "the figure's parts")
+    names = {}
+    for curve, p in zip(g["curves"], g["points"]):
+        need([c[0] for c in curve] == [0, 2, 4, 6] and curve[3][1] == p["y"], "a piecewise curve's corners")
+        names[p["label"]] = [sp.Integer(int(c[1])) for c in curve]
+    return names["f"], names["g"]
+
+
+def E11DM_h(ps, x):
+    return (ps[(x - 1) // 2] + ps[(x + 1) // 2]) / 2
+
+
+def E11DM_d(ps, x):
+    return (ps[(x + 1) // 2] - ps[(x - 1) // 2]) / 2
+
+
+def E11DM_rules(q, u):
+    L, asked = q["lines"], q["asked"]
+    I, S = E11DM_SI, E11DM_SR
+    x = dec_text
+    wrongs, trap = {}, None
+    if u in ("product-from-table", "quotient-from-table"):
+        v = E11DM_product_read(q)
+        f, g, df, dg, a, H = v["f"], v["g"], v["df"], v["dg"], v["a"], v["H"]
+        tail = E11DM_tail(q)
+        opt = lambda n: f"{H}′({a}) = {x(sp.Rational(n))}{tail}"
+        if u == "product-from-table":
+            need(v["sign"] == "×", "this is a product")
+            r = df * g + f * dg
+            wrongs = E11DM_product_wrongs(f, g, df, dg, opt, I, S)
+        else:
+            need(v["sign"] == "÷", "this is a quotient")
+            r = (df * g - f * dg) / g ** 2
+            wrongs = E11DM_quotient_wrongs(f, g, df, dg, opt, S)
+        return opt(r), wrongs, None
+    if u == "rising-from-table":
+        v = E11DM_product_read(q)
+        f, g, df, dg = v["f"], v["g"], v["df"], v["dg"]
+        r = df * g + f * dg
+        slip = df * dg
+        need(r != 0 and (r > 0) != (slip > 0), "the slip doesn't turn the direction round")
+        m = re.fullmatch(rf"When t = {v['a']}, which way is the .+ going, and how fast\?", asked)
+        need(m is not None, f"asked {asked!r}")
+        word, other = ("Rising", "Falling") if r > 0 else ("Falling", "Rising")
+        unit = re.search(r" (.+ per \w+)$", next(o["text"] for o in q["choices"] if o["correct"]).split(" at ", 1)[1]).group(1)
+        need(q["answer_text"] == f"{word} at {abs(r)} {unit}", f"{q['answer_text']!r}")
+        wrongs = {S + "1": {f"{other} at {abs(slip)} {unit}"}, I + "0": {f"{word} at {f * g} {unit}"}}
+        if r < 0:
+            wrongs[I + "1"] = {f"{other} at {abs(r)} {unit}"}
+        return f"{word} at {abs(r)} {unit}", wrongs, None
+    if u == "chain-from-table":
+        need(L[0] == "h(x) = f(g(x)). The table gives values of f, g and their derivatives.", f"can't read {L[0]!r}")
+        m = re.fullmatch(r"Find h′\((\d)\)\.", asked)
+        a = int(m.group(1))
+        xs, t = E11DM_table(q)
+        b, c = int(t["g(x)"][a]), int(t["g′(x)"][a])
+        need(b in xs and c in xs and len({a, b, c}) == 3 and c != 1, "the three rows are not different")
+        fp = t["f′(x)"]
+        opt = lambda n: f"h′({a}) = {x(sp.Rational(n))}"
+        need(len({fp[a], fp[b], fp[c]}) == 3, "the three readings of f′ are not different")
+        return opt(fp[b] * c), {S + "0": {opt(fp[a] * c)}, S + "2": {opt(fp[c] * c)}, S + "5": {opt(fp[b])}}, None
+    if u == "composite-with-model":
+        m = re.fullmatch(r"h\(t\) = (.+)\. The table gives values of g and g′\.", L[0])
+        need(m is not None, f"can't read {L[0]!r}")
+        forms = [(r"(\d+)e\^\(([\d.]+)g\(t\)\)", lambda A, k: A * sp.exp(k * CX)), (r"(\d+) ln\(g\(t\)\)", lambda A: A * sp.log(CX)), (r"(\d+)√\(g\(t\)\)", lambda A: A * sp.sqrt(CX))]
+        outer = None
+        for rx, make in forms:
+            hit = re.fullmatch(rx, m.group(1))
+            if hit:
+                outer = make(*[E11DM_num(g) for g in hit.groups()])
+        need(outer is not None, f"can't read {m.group(1)!r}")
+        a = int(re.fullmatch(r"Find h′\((\d)\), to 3 s\.f\.", asked).group(1))
+        _, t = E11DM_table(q)
+        g, dg = t["g(t)"][a], t["g′(t)"][a]
+        dout = sp.diff(outer, CX)
+        at = lambda u_: sp.N(dout.subs(CX, u_), 40)
+        r = at(g) * dg
+        E11DM_ok(r)
+        need(g != a and g != dg, "the slips read the same value")
+        opt = lambda n: f"h′({a}) = {gc_s(n)}"
+        wrongs = {S + "0": {opt(at(a) * dg)}, S + "5": {opt(at(g))}}
+        if dg > 0:
+            wrongs[S + "2"] = {opt(at(dg) * dg)}
+        return opt(r), wrongs, f"h′({a}) = {gc_s2(r)}"
+    # From graphs.
+    fv, gv = E11DM_pieces(q)
+    a = int(re.fullmatch(r"Find h′\((\d)\)\.", asked).group(1))
+    need(a in (1, 3, 5), f"a {a} is at a corner")
+    need(L[0] == "The graph shows y = f(x) and y = g(x), each made of straight pieces.", f"can't read {L[0]!r}")
+    opt = lambda n: f"h′({a}) = {x(sp.Rational(n))}"
+    f, g, df, dg = E11DM_h(fv, a), E11DM_h(gv, a), E11DM_d(fv, a), E11DM_d(gv, a)
+    need(all(sp.Rational(v).q == 1 for v in (f, g, df, dg)), "a value read off is not whole")
+    if u == "product-from-graphs":
+        need(L[1] == "h(x) = f(x)g(x)", f"can't read {L[1]!r}")
+        return opt(df * g + f * dg), E11DM_product_wrongs(f, g, df, dg, opt, I, S), None
+    if u == "quotient-from-graphs":
+        need(L[1] == "h(x) = f(x)/g(x)", f"can't read {L[1]!r}")
+        return opt((df * g - f * dg) / g ** 2), E11DM_quotient_wrongs(f, g, df, dg, opt, S), None
+    need(L[1] == "h(x) = f(g(x))", f"can't read {L[1]!r}")
+    b = int(g)
+    need(b in (1, 3, 5) and b != a, f"g({a}) = {b} is at a corner of f, or is a")
+    fb = E11DM_d(fv, b)
+    return opt(fb * dg), {S + "0": {opt(E11DM_d(fv, a) * dg)}, S + "5": {opt(fb)}}, None
+
+
+def E11DM_check(q):
+    u = q["view"]["unknown"]
+    need(q["paper"] == 2, "a model's derivative is Paper 2")
+    calc_steps(q)
+    if u in ("product-from-table", "quotient-from-table", "chain-from-table", "composite-with-model", "rising-from-table",
+             "product-from-graphs", "quotient-from-graphs", "chain-from-graphs"):
+        want, wrongs, trap = E11DM_rules(q, u)
+        E11DM_sums(q)
+    else:
+        c = E11DM_ctx(q)
+        if u == "compare-models":
+            want, wrongs = E11DM_compare(q, c)
+            trap = None
+        elif u == "time-rate-greater":
+            want, wrongs, trap = E11DM_rates_cross(q, c)
+        elif u == "steeper-tangent":
+            want, wrongs = E11DM_tangents(q, c)
+            trap = None
+        else:
+            sym, text, fn, T = E11DM_read(q)
+            E11DM_story(q, c, text, T)
+            want, wrongs, trap = E11DM_model_unknown(q, u, c, sym, text, fn, T)
+    gc_check_common(q, want, wrongs, trap)
+    return None, None
+
+
 SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
@@ -32783,7 +33440,7 @@ SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between"
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "depreciation": e10de_check,
-                    "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
+                    "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning, "derivative-model": E11DM_check,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,
                     "motion": check_motion, "regression-x-on-y": check_regression_pair, "normal-unknown": check_normal_unknown, "normal-probability": check_normal_probability, "venn": check_venn, "conditional": check_conditional, "independence": check_independence,

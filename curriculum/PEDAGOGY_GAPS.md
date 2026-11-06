@@ -3062,7 +3062,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 5: Calculus (catalogue level)
 
-18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
+18 exam types (see `QUESTION_TYPES.md`) and 13 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
 
 #### Interpret a derivative as a rate, or its limit (`t5-derivative-meaning`, exam, 6 bank parts)
 
@@ -3253,6 +3253,38 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L4): If v(3) = 0, the particle changes direction at t = 3. — False: v has to change sign there too. v(t) = (t − 3)² is 0 at t = 3, but the particle keeps going the same way.
   - *always-sometimes-never* (L3): The maximum speed of a particle is the same as its maximum velocity. — Sometimes: a large negative velocity is a high speed, so the maximum speed can come where the velocity is at its lowest.
 - **Misconceptions used:** 12. Substituting t into the function you were given, instead of differentiating it; Computing average velocity s/t instead of ds/dt; Assuming acceleration is constant when it depends on t; Looking for zero acceleration instead of zero velocity; Thinking speeding up only needs positive acceleration, whatever the sign of the velocity; Counting every zero of v as a change of direction, even where v touches zero without changing sign; Treating maximum speed as maximum velocity (a large negative velocity is a high speed); Ignoring the endpoints of the time interval; Setting the velocity to zero to find its maximum; Reading the height of a v–t graph as the displacement; Thinking a downward-sloping v–t graph means moving backwards; Counting area below the axis as positive displacement.
+
+#### Derivative of a model at a point with technology (`t5-derivative-model-gdc`, exam, 4 bank parts)
+
+- **Situation:** A model of a quantity in time, and rules with values.
+- **Representations:** **equation**, **words**, graph, table (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the model; a time → the derivative at that time, to 3 s.f.
+  - new L2: given the model; a time → the rate of change with its units
+  - new L3: given the model; a time → the rate per a shorter unit of time, to 3 s.f.
+  - new L3: given the model; a rate → the first time the quantity changes at that rate, to 3 s.f.
+  - new L4: given the model; the domain → the greatest rate of change, or of decrease, to 3 s.f.
+  - new L4: given the model; the domain → when the quantity rises or falls fastest, to 3 s.f.
+  - new L2: given the model; a time → which way the quantity is going, and how fast
+  - new L3: given the model; a time → the sentence that says what the derivative there means
+  - new L3: given two models of one story; a time → which model rises faster, and why
+  - **exam** L5: given a wave model and a straight-line model; the domain → the total time one rate is greater than the other, to 3 s.f.
+  - new L3: given a model's graph; the tangents at two points → the point where the quantity rises faster
+  - new L3: given the model; a time; a short step → the tangent's estimate of a later value, to 3 s.f.
+  - new L3: given two quantities and their rates at a time → the rate of change of their product
+  - new L4: given two quantities and their rates at a time → the rate of change of their quotient
+  - new L3: given a table of f, g, f′ and g′ → the derivative of f(g(x)) at a point
+  - new L4: given a model of a function g; a table of g and g′ → the derivative of the model at a point, to 3 s.f.
+  - new L3: given two quantities and their rates at a time → which way their product is going, and how fast
+  - new L3: given graphs of f and g in straight pieces → the derivative of f(x)g(x) at a point
+  - new L4: given graphs of f and g in straight pieces → the derivative of f(x)/g(x) at a point
+  - new L4: given graphs of f and g in straight pieces → the derivative of f(g(x)) at a point
+- **Angles:** Use the GDC's dy/dx; Write the general rule, then substitute; Read values and gradients from graphs; Read dy/dx as 'units of y per unit of x'; Use the sign for direction; Picture the tangent.
+- **Concept probes:**
+  - *true-false-reason* (L3): If S′(4) = −2.5 for a quantity S in litres, with t in hours, then S is −2.5 litres when t = 4. — False: S′(4) is a rate, not an amount. S is falling at 2.5 litres per hour at that moment, whatever S itself is.
+  - *always-sometimes-never* (L4): The quantity S(t) is rising fastest at the moment S(t) is greatest. — Never for a smooth peak inside the domain: at a peak S′(t) = 0, so S is not rising at all. It rises fastest earlier, where the graph of S′ reaches its maximum.
+  - *interpret-parameter* (L3): In S(t) = 200e^(−0.1t), what does the −0.1 say about the rate of change? — The rate is S′(t) = −0.1 × S(t), so at any time the quantity falls at a tenth of its size per unit of time.
+- **Misconceptions used:** 12. Reading the rate of change as the amount itself; Ignoring a negative sign, so a falling quantity is read as rising; Giving the units of y only, instead of units of y per unit of x; Using the change over the next unit of time instead of the rate at that instant; Finding the greatest value of the quantity instead of its greatest rate; Giving the rate per the model's unit of time when another unit is asked for; Using f′(a) instead of f′(g(a)) for a composite; Multiplying f′(a) × g′(a) for a product; Reading g′(a) when g(a) is needed; Dividing f′(a) by g′(a) for a quotient; Subtracting the two terms of the quotient rule in the wrong order; Leaving out the inner derivative of a composite.
 
 #### Chain, product and quotient rules (`t5-differentiation-rules`, exam, 8 bank parts)
 

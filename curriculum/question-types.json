@@ -3096,6 +3096,53 @@
     "the dot on a limit graph is not at the limit"
    ]
   },
+  "derivative-model": {
+   "name": "A model of a quantity in time, and rules with values",
+   "summary": "Pick a story and a model of one family, so its value and rate at a time, the times a rate is reached and its greatest rate come from the GDC; or pick the values and rates of two functions in a table or in straight pieces, so a product, a quotient or a composite has an exact derivative.",
+   "quantities": [
+    {
+     "name": "ctx",
+     "is": "the story",
+     "pick": "one of fifteen, each suited to one family, with a letter and units"
+    },
+    {
+     "name": "model",
+     "is": "S(t)",
+     "pick": "exponential P e^(kt), logistic L/(1 + a e^(−kt)), pulse a t e^(−kt), wave c + mt + B cos(wt), or log c + a ln(bt + 1), on 0 ≤ t ≤ T"
+    },
+    {
+     "name": "t0",
+     "is": "the time",
+     "pick": "a whole number inside the domain"
+    },
+    {
+     "name": "k",
+     "is": "a rate given",
+     "pick": "the rate at a hidden time, to 2 s.f."
+    },
+    {
+     "name": "second model",
+     "is": "to compare",
+     "pick": "an exponential against a logistic with the same story; or a straight line against a wave, with rates that cross"
+    },
+    {
+     "name": "f, g, f′, g′",
+     "is": "the values",
+     "pick": "whole numbers in a table at four points, or read from straight pieces with whole gradients"
+    }
+   ],
+   "modes": [
+    "Paper 2: a rate from the GDC or a rule"
+   ],
+   "clean": [
+    "a rate or a time is clear of a rounding edge at 3 s.f., with a third figure that is not 0, so that it reads differently from its 2 s.f. trap",
+    "a time found is at least half a unit of time from the ends of the domain and from another time with the same rate",
+    "the point of greatest rate is inside the domain and at least half a unit of time from where the quantity is greatest",
+    "of two models, the one that rises faster is behind at that time",
+    "a quotient's value and its slips end as decimals",
+    "a chain rule's three readings of f′ are different rows, with different values"
+   ]
+  },
   "monotonic": {
    "name": "A function and where it rises or falls",
    "summary": "A cubic built from its turning points, a quadratic from its roots, f′ with an exponential whose zeros come from the GDC, or a function with a letter that keeps f′ on one side of the axis.",
@@ -53569,8 +53616,9 @@
    "id": "t5-derivative-model-gdc",
    "topic": 5,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Derivative of a model at a point with technology",
+   "summary": "Differentiate a real-world model at a point, with the GDC or by a rule: a rate with its units, the time a rate is reached, the greatest rate, whether the quantity is rising or falling and what the rate means in the story. Use the chain, product and quotient rules with values from a table or read from graphs, and picture the rate as a tangent.",
    "syllabus": [
     "5.6",
     "5.1"
@@ -53578,6 +53626,648 @@
    "skills": [
     "SL5.6.rules-with-values",
     "SL5.1.interpret-derivative"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read the model: exponential, logistic, a product, a wave or a logarithm",
+    "differentiate it, with the GDC's dy/dx or by a rule",
+    "substitute the time, or solve for the time a rate is reached",
+    "graph the derivative to find its greatest size",
+    "read the sign as a direction and the size as a speed, with units",
+    "write the chain, product or quotient rule, then substitute values from a table or from graphs"
+   ],
+   "given": [
+    "a model and its domain",
+    "a time, a rate or a step",
+    "a graph of the model with a tangent",
+    "two models of one story",
+    "a table of values and derivatives",
+    "graphs of f and g in straight pieces"
+   ],
+   "asked": "A rate, a rate with units, a time, the greatest rate, a direction, a statement in the story, an estimate from a tangent, or a derivative from values.",
+   "answerForms": [
+    "3 s.f.",
+    "exact",
+    "a sentence"
+   ],
+   "randomise": [
+    "the story",
+    "the family of model and its numbers",
+    "the time, the rate or the step",
+    "the columns of a table",
+    "the straight pieces of a graph"
+   ],
+   "constraints": [
+    "Paper 2: every part of this type in the bank is Paper 2",
+    "a rate or a time is clear of a rounding edge at 3 s.f., and its third figure is not 0",
+    "a time found is clear of the ends of the domain and of any other time with that rate",
+    "a value from a table or from graphs is exact and ends as a decimal"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "derivative-model",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the model on a line of its own, with its domain"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "a story with the model in it, or the values and rates at one time"
+    },
+    {
+     "rep": "graph",
+     "exam": false,
+     "how": "the model with its tangents, the graph of the rate with a line, two models, or straight pieces to read"
+    },
+    {
+     "rep": "table",
+     "exam": false,
+     "how": "values of the functions and their derivatives at whole points"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "rate-at-time",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "the derivative at that time, to 3 s.f.",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "rate-with-units",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "the rate of change with its units",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "rate-other-unit",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "the rate per a shorter unit of time, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "time-at-rate",
+     "given": [
+      "the model",
+      "a rate"
+     ],
+     "asked": "the first time the quantity changes at that rate, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "greatest-rate",
+     "given": [
+      "the model",
+      "the domain"
+     ],
+     "asked": "the greatest rate of change, or of decrease, to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "time-of-greatest-rate",
+     "given": [
+      "the model",
+      "the domain"
+     ],
+     "asked": "when the quantity rises or falls fastest, to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "equation",
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "rising-or-falling",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "which way the quantity is going, and how fast",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "interpret-rate",
+     "given": [
+      "the model",
+      "a time"
+     ],
+     "asked": "the sentence that says what the derivative there means",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "words",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "compare-models",
+     "given": [
+      "two models of one story",
+      "a time"
+     ],
+     "asked": "which model rises faster, and why",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "time-rate-greater",
+     "given": [
+      "a wave model and a straight-line model",
+      "the domain"
+     ],
+     "asked": "the total time one rate is greater than the other, to 3 s.f.",
+     "level": 5,
+     "exam": true,
+     "reps": [
+      "equation",
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "steeper-tangent",
+     "given": [
+      "a model's graph",
+      "the tangents at two points"
+     ],
+     "asked": "the point where the quantity rises faster",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "tangent-estimate",
+     "given": [
+      "the model",
+      "a time",
+      "a short step"
+     ],
+     "asked": "the tangent's estimate of a later value, to 3 s.f.",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "product-from-table",
+     "given": [
+      "two quantities and their rates at a time"
+     ],
+     "asked": "the rate of change of their product",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "quotient-from-table",
+     "given": [
+      "two quantities and their rates at a time"
+     ],
+     "asked": "the rate of change of their quotient",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "chain-from-table",
+     "given": [
+      "a table of f, g, f′ and g′"
+     ],
+     "asked": "the derivative of f(g(x)) at a point",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "composite-with-model",
+     "given": [
+      "a model of a function g",
+      "a table of g and g′"
+     ],
+     "asked": "the derivative of the model at a point, to 3 s.f.",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "table"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "rising-from-table",
+     "given": [
+      "two quantities and their rates at a time"
+     ],
+     "asked": "which way their product is going, and how fast",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "table",
+      "words"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values",
+      "SL5.1.interpret-derivative"
+     ]
+    },
+    {
+     "id": "product-from-graphs",
+     "given": [
+      "graphs of f and g in straight pieces"
+     ],
+     "asked": "the derivative of f(x)g(x) at a point",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "quotient-from-graphs",
+     "given": [
+      "graphs of f and g in straight pieces"
+     ],
+     "asked": "the derivative of f(x)/g(x) at a point",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    },
+    {
+     "id": "chain-from-graphs",
+     "given": [
+      "graphs of f and g in straight pieces"
+     ],
+     "asked": "the derivative of f(g(x)) at a point",
+     "level": 4,
+     "exam": false,
+     "reps": [
+      "graph"
+     ],
+     "skills": [
+      "SL5.6.rules-with-values"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL5.6.rules-with-values",
+     "method": "gdc-derivative",
+     "suits": [
+      "rate-at-time",
+      "rate-with-units",
+      "rate-other-unit",
+      "time-at-rate",
+      "greatest-rate",
+      "time-of-greatest-rate",
+      "rising-or-falling",
+      "interpret-rate",
+      "compare-models",
+      "time-rate-greater",
+      "tangent-estimate"
+     ]
+    },
+    {
+     "skill": "SL5.6.rules-with-values",
+     "method": "rule-then-substitute",
+     "suits": [
+      "rate-at-time",
+      "time-at-rate",
+      "time-rate-greater",
+      "product-from-table",
+      "quotient-from-table",
+      "chain-from-table",
+      "composite-with-model",
+      "rising-from-table"
+     ]
+    },
+    {
+     "skill": "SL5.6.rules-with-values",
+     "method": "read-from-graphs",
+     "suits": [
+      "product-from-graphs",
+      "quotient-from-graphs",
+      "chain-from-graphs"
+     ]
+    },
+    {
+     "skill": "SL5.1.interpret-derivative",
+     "method": "units-ratio",
+     "suits": [
+      "rate-with-units",
+      "rate-other-unit",
+      "interpret-rate"
+     ]
+    },
+    {
+     "skill": "SL5.1.interpret-derivative",
+     "method": "sign-direction",
+     "suits": [
+      "rising-or-falling",
+      "interpret-rate",
+      "compare-models",
+      "rising-from-table"
+     ]
+    },
+    {
+     "skill": "SL5.1.interpret-derivative",
+     "method": "tangent-picture",
+     "suits": [
+      "rising-or-falling",
+      "steeper-tangent",
+      "tangent-estimate"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "If S′(4) = −2.5 for a quantity S in litres, with t in hours, then S is −2.5 litres when t = 4.",
+     "answer": "False: S′(4) is a rate, not an amount. S is falling at 2.5 litres per hour at that moment, whatever S itself is.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The quantity S(t) is rising fastest at the moment S(t) is greatest.",
+     "answer": "Never for a smooth peak inside the domain: at a peak S′(t) = 0, so S is not rising at all. It rises fastest earlier, where the graph of S′ reaches its maximum.",
+     "level": 4
+    },
+    {
+     "kind": "interpret-parameter",
+     "prompt": "In S(t) = 200e^(−0.1t), what does the −0.1 say about the rate of change?",
+     "answer": "The rate is S′(t) = −0.1 × S(t), so at any time the quantity falls at a tenth of its size per unit of time.",
+     "level": 3
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL5.1.interpret-derivative#0",
+     "text": "Reading the rate of change as the amount itself",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "rate-with-units",
+      "rate-other-unit",
+      "time-at-rate",
+      "greatest-rate",
+      "rising-or-falling",
+      "interpret-rate",
+      "compare-models",
+      "time-rate-greater",
+      "steeper-tangent",
+      "product-from-table",
+      "rising-from-table",
+      "product-from-graphs"
+     ],
+     "wrong": "the value of the quantity offered as the rate, or the time the quantity itself takes the rate's value"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#1",
+     "text": "Ignoring a negative sign, so a falling quantity is read as rising",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "rate-with-units",
+      "time-at-rate",
+      "rising-or-falling",
+      "interpret-rate",
+      "steeper-tangent",
+      "tangent-estimate",
+      "rising-from-table"
+     ],
+     "wrong": "the sign of a negative rate dropped"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#2",
+     "text": "Giving the units of y only, instead of units of y per unit of x",
+     "as": "distractor",
+     "in": [
+      "rate-with-units",
+      "rising-or-falling",
+      "interpret-rate",
+      "compare-models"
+     ],
+     "wrong": "the rate's number with the units of the quantity"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#3",
+     "text": "Using the change over the next unit of time instead of the rate at that instant",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "interpret-rate"
+     ],
+     "wrong": "S(t + 1) − S(t), or the rate read as that change"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#4",
+     "text": "Finding the greatest value of the quantity instead of its greatest rate",
+     "as": "distractor",
+     "in": [
+      "greatest-rate",
+      "time-of-greatest-rate"
+     ],
+     "wrong": "the greatest value of the quantity, or the time of it"
+    },
+    {
+     "ref": "SL5.1.interpret-derivative#5",
+     "text": "Giving the rate per the model's unit of time when another unit is asked for",
+     "as": "distractor",
+     "in": [
+      "rate-other-unit"
+     ],
+     "wrong": "the rate with no conversion"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#0",
+     "text": "Using f′(a) instead of f′(g(a)) for a composite",
+     "as": "distractor",
+     "in": [
+      "chain-from-table",
+      "composite-with-model",
+      "chain-from-graphs"
+     ],
+     "wrong": "the outer derivative at a, not at g(a)"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#1",
+     "text": "Multiplying f′(a) × g′(a) for a product",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "product-from-table",
+      "rising-from-table",
+      "product-from-graphs"
+     ],
+     "wrong": "f′ × g′, with neither term of the product rule"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#2",
+     "text": "Reading g′(a) when g(a) is needed",
+     "as": "distractor",
+     "in": [
+      "product-from-table",
+      "chain-from-table",
+      "composite-with-model",
+      "product-from-graphs"
+     ],
+     "wrong": "g′(a) used in place of g(a)"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#3",
+     "text": "Dividing f′(a) by g′(a) for a quotient",
+     "as": "distractor",
+     "in": [
+      "quotient-from-table",
+      "quotient-from-graphs"
+     ],
+     "wrong": "f′ ÷ g′"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#4",
+     "text": "Subtracting the two terms of the quotient rule in the wrong order",
+     "as": "distractor",
+     "in": [
+      "quotient-from-table",
+      "quotient-from-graphs"
+     ],
+     "wrong": "(fg′ − f′g)/g²"
+    },
+    {
+     "ref": "SL5.6.rules-with-values#5",
+     "text": "Leaving out the inner derivative of a composite",
+     "as": "distractor",
+     "in": [
+      "rate-at-time",
+      "greatest-rate",
+      "chain-from-table",
+      "composite-with-model",
+      "chain-from-graphs"
+     ],
+     "wrong": "the outer derivative alone"
+    }
    ],
    "parts": [
     "aa-sl-2022-may-tz2-p2-q08.c",
