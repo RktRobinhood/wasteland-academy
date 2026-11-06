@@ -281,12 +281,16 @@ func test_no_pick_with_nothing_open() -> void:
 
 func test_sparks_pick_excludes_regions_outside_the_students_course() -> void:
 	var save := SaveData.blank()
-	save.course = "ai-sl"
-	check(Progress.is_built("transformations"), "transformations is built for other courses")
-	check(not Progress.is_built("transformations", "ai-sl"), "AI SL does not cover transformations")
-	check_eq(Progress.suggest(save, ["transformations"]), {}, "never suggest an unavailable region")
-	check_eq(Progress.suggest(save, ["transformations", "quadratics"]),
+	# Today's Functions regions all have shared material. Model a future HL-only
+	# region with the counting type, then restore the catalogue after this test.
+	var counting := QuestionEngine.type_of("t1-ahl-counting")
+	counting.region = "hl-counting-test"
+	check(Progress.is_built("hl-counting-test"), "the HL-only region is built")
+	check(not Progress.is_built("hl-counting-test", Courses.of(save)), "AA SL cannot play it")
+	check_eq(Progress.suggest(save, ["hl-counting-test"]), {}, "never suggest an unavailable region")
+	check_eq(Progress.suggest(save, ["hl-counting-test", "quadratics"]),
 		{"region": "quadratics", "why": "untried"}, "suggest an available region instead")
+	counting.erase("region")
 
 
 # ── Screens ──────────────────────────────────────────────────

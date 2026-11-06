@@ -71473,7 +71473,7 @@
 			"misconceptions": [
 				{
 					"ref": "AHL1.10.counting-principle#0",
-					"text": "Ignoring the leading-zero restriction: 10 × 9 × 8 × 7 = 5040 four-digit numbers instead of 4536",
+					"text": "Ignoring the leading-zero restriction: the first digit of a number cannot be zero.",
 					"as": "distractor",
 					"in": [
 						"no-repeat-number"
@@ -71482,7 +71482,7 @@
 				},
 				{
 					"ref": "AHL1.10.counting-principle#1",
-					"text": "Adding when the stages happen together: 26 + 26 + 10 + 10 + 10 = 82 codes instead of 26² × 10³ = 676 000",
+					"text": "Adding the choices for stages that happen together, instead of multiplying them.",
 					"as": "distractor",
 					"in": [
 						"code-count"
@@ -71491,7 +71491,7 @@
 				},
 				{
 					"ref": "AHL1.10.counting-principle#2",
-					"text": "Filling the unrestricted slots first and then assuming 3 even digits remain: 6 × 5 × 3 = 90 even three-digit numbers instead of 3 × 5 × 4 = 60",
+					"text": "Filling the unrestricted places first and assuming all the even digits are still available for the last place.",
 					"as": "distractor",
 					"in": [
 						"even-numbers"
@@ -71500,7 +71500,7 @@
 				},
 				{
 					"ref": "AHL1.10.permutations#0",
-					"text": "Using combinations when order matters: 10C3 = 120 medal results instead of 720",
+					"text": "Using combinations when order matters: swapping the people in the places gives a different result.",
 					"as": "distractor",
 					"in": [
 						"award-places"
@@ -71509,7 +71509,7 @@
 				},
 				{
 					"ref": "AHL1.10.permutations#1",
-					"text": "Allowing repeats: 10³ = 1000 medal results, as if one runner could win two medals",
+					"text": "Allowing repeats when each person can fill only one place.",
 					"as": "distractor",
 					"in": [
 						"award-places"
@@ -71518,7 +71518,7 @@
 				},
 				{
 					"ref": "AHL1.10.permutations#2",
-					"text": "Writing nPr = n!/r! (for 10P3 this gives 10!/3! = 604 800)",
+					"text": "Dividing n! by r! instead of by (n − r)! when choosing an ordered set of r objects.",
 					"as": "distractor",
 					"in": [
 						"award-places"
@@ -71527,7 +71527,7 @@
 				},
 				{
 					"ref": "AHL1.10.combinations#0",
-					"text": "Adding instead of multiplying across groups: 5C2 + 6C2 = 25 instead of 150",
+					"text": "Adding the group counts instead of multiplying them when both groups must be chosen.",
 					"as": "distractor",
 					"in": [
 						"committee-mixed"
@@ -71536,7 +71536,7 @@
 				},
 				{
 					"ref": "AHL1.10.combinations#1",
-					"text": "Counting 'at least one woman' as 5 × 10C3 = 600, which counts committees with several women more than once (true answer 315)",
+					"text": "Choosing a member of the required group first, then anyone else: a committee with several such members is counted more than once.",
 					"as": "distractor",
 					"in": [
 						"committee-at-least-one"
@@ -71545,7 +71545,7 @@
 				},
 				{
 					"ref": "AHL1.10.combinations#2",
-					"text": "Using 11P4 = 7920 for a committee, where order does not matter",
+					"text": "Using permutations for a committee, even though changing the order does not change its members.",
 					"as": "distractor",
 					"in": [
 						"committee"
@@ -71554,7 +71554,7 @@
 				},
 				{
 					"ref": "AHL1.10.restricted-arrangements#0",
-					"text": "Forgetting the 2! inside the block: 5! = 120 arrangements with A and B together instead of 240",
+					"text": "Forgetting the arrangements within the block: the people who sit together can exchange places inside it.",
 					"as": "distractor",
 					"in": [
 						"together"
@@ -71563,7 +71563,7 @@
 				},
 				{
 					"ref": "AHL1.10.restricted-arrangements#1",
-					"text": "Counting 'apart' as 6! − 2 = 718, subtracting only two arrangements",
+					"text": "Subtracting only the number of people who must be apart, instead of all arrangements in which they are together.",
 					"as": "distractor",
 					"in": [
 						"apart"
