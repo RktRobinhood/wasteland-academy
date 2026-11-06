@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 9 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 10 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1746,6 +1746,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): The terms of a geometric sequence get bigger as n gets bigger. — Sometimes: they do for u₁ = 1 and r = 2, but they shrink for r = 1/2 and flip sign for r = −2.
   - *true-false-reason* (L4): uₙ = 3 × 2ⁿ is a geometric sequence, even though it isn't written as u₁r^(n − 1). — True: each term is 2 times the one before, so r = 2. It is the same as u₁ = 6 and r = 2.
 - **Misconceptions used:** 13. Using r^n in the term formula, one power of r too many; Multiplying u₁ and r first and raising the product to the power, instead of raising r alone; Finding r upside down, as u₁ ÷ u₂, or as a difference, as u₂ − u₁; Subtracting terms as if the sequence were arithmetic; Taking only the positive root of an even power and losing the negative ratio; Counting terms instead of steps, so the power of r is one too high; Using a power one lower than n in the sum formula; Slipping on the sign of a negative r raised to an odd power; Miscounting the terms when the last term is given; Taking the coefficient as the first term, whatever the lower limit gives; Taking r to be the coefficient instead of the base of the power; Counting the terms as upper minus lower, which is one too few; Doubling the first drop of a bouncing ball as well as the rebounds.
+
+#### Depreciation as repeated percentage decrease (`t1-depreciation`, exam, 5 bank parts)
+
+- **Situation:** A thing bought at a price that keeps a fixed fraction of its value each year, month or quarter.
+- **Representations:** **words**, **equation**, table, graph (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given the price; the rate; the years → the value after the years, to the nearest dollar
+  - new L2: given the price; the rate; the years → the total loss in value, to the nearest dollar
+  - new L3: given the price; the rate; one year → the loss in that year alone, to the nearest dollar
+  - new L3: given the value at a later time; the rate; the years since it was bought → the price paid, to the nearest dollar
+  - new L3: given the price; the value at a later time; the years → the yearly rate of depreciation, to 3 s.f.
+  - **exam** L1: given the model, or a table of values → the yearly rate of depreciation
+  - **exam** L3: given the price; the first year's rate; the later rate; the years → the value after the years, to the nearest dollar
+  - **exam** L4: given the price and the rate, or the model; an account; the years → the extra money needed on top of the account, to the nearest dollar
+  - new L3: given the price; the rate; a target → the least number of complete years to fall below the target
+  - **exam** L3: given the price; the rate; a percentage of the price → the least number of complete years to fall below that percentage
+  - new L4: given the price; a rate per month or quarter; a target → the least number of complete years to fall below the target
+  - new L3: given the price; a rate per month or quarter; a target → the least number of complete months or quarters to fall below the target
+- **Angles:** Use V = V_0(1 − r/100)^n; Use the TVM solver with a negative interest rate; Calculate year by year; Use logarithms to solve for the exponent; Solve for N in the TVM solver; Tabulate value against time; Intersect the growth curve with the target.
+- **Concept probes:**
+  - *true-false-reason* (L3): A thing that loses 10% of its value each year has lost 30% of its value after 3 years. — False: each 10% is of the value at the start of that year, which keeps falling. It keeps 0.9^3 = 0.729 of its value, so it has lost 27.1%.
+  - *always-sometimes-never* (L3): Under a fixed percentage depreciation, the loss in each year is smaller than the loss in the year before. — Always: each year's loss is the same percentage of a smaller value, so the amounts lost shrink by the multiplier each year.
+  - *interpret-parameter* (L3): In V = 8000(0.92)^t, what do 8000 and 0.92 mean? — 8000 is the value when t = 0, the price paid. 0.92 is the fraction kept each year, so the value falls by 8% a year.
+- **Misconceptions used:** 13. Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss; Treating depreciation as linear: subtracting the same percentage of the original price each year; Giving the remaining value when the question asks for the loss in value (or the reverse); Giving the total loss so far when the question asks for the loss in one year; Taking the percentage of the value at the end of the year instead of at the start; Undoing a percentage loss by adding the same percentage back on; Giving the percentage kept each year instead of the percentage lost; Giving the total percentage lost over all the years as the yearly rate; Applying the later rate to every year instead of only to the years after the first; Comparing amounts from different dates, with one side left at today's value; Rounding the number of periods to the nearest integer instead of up; Forgetting to convert N from months or quarters back into years; Not flipping the inequality when dividing by the log of a depreciation factor below 1.
 
 #### Compound interest: value, rate or time, with different compounding periods (`t1-compound-interest`, exam, 16 bank parts)
 
