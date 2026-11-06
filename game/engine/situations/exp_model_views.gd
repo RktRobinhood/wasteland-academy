@@ -207,7 +207,7 @@ static func solve_lines(s: Dictionary, lv: Q) -> Dictionary:
 			var lead := "" if s.form == "factor" else "%d + " % s.t0
 			return {
 				"eq": "%s(%s)%s = %s" % [N(s.P0), D(s.a), "^t" if s.form == "factor" else "^" + ex, N(lv)],
-				"iso": "%s = %s/%s = %s" % [pw, N(lv), N(s.P0), N(ratio)],
+				"iso": "%s = %s" % [pw, Fmt.equals("%s/%s" % [N(lv), N(s.P0)], N(ratio))],
 				"logs": "%s × ln %s = ln(%s)" % [ex, D(s.a), N(ratio)],
 				"expr": "t = %sln(%s)/ln %s" % [lead, N(ratio), D(s.a)],
 				"both": "ln %s + %s × ln %s = ln %s" % [N(s.P0), ex, D(s.a), N(lv)],
@@ -216,7 +216,7 @@ static func solve_lines(s: Dictionary, lv: Q) -> Dictionary:
 			var ratio := lv.div(s.A)
 			return {
 				"eq": "%se^(%st) = %s" % [N(s.A), D(s.k), N(lv)],
-				"iso": "e^(%st) = %s/%s = %s" % [D(s.k), N(lv), N(s.A), N(ratio)],
+				"iso": "e^(%st) = %s" % [D(s.k), Fmt.equals("%s/%s" % [N(lv), N(s.A)], N(ratio))],
 				"logs": "%st = ln(%s)" % [D(s.k), N(ratio)],
 				"expr": "t = ln(%s)/%s" % [N(ratio), Fmt.paren(s.k)],
 				"both": "ln %s + %st = ln %s" % [N(s.A), D(s.k), N(lv)],
@@ -226,7 +226,7 @@ static func solve_lines(s: Dictionary, lv: Q) -> Dictionary:
 			var kexpr := "ln(%s)/%d" % [N(s.P1.div(s.A)), s.t1] if s.form == "data" else ("(ln 2)/%d" % s.T if s.dir == "double" else "−(ln 2)/%d" % s.T)
 			return {
 				"eq": "%se^(kt) = %s, with k = %s = %s" % [N(s.A), N(lv), kexpr, W(ExpModelSituation.kf(s))],
-				"iso": "e^(kt) = %s/%s = %s" % [N(lv), N(s.A), N(ratio)],
+				"iso": "e^(kt) = " + Fmt.equals("%s/%s" % [N(lv), N(s.A)], N(ratio)),
 				"logs": "kt = ln(%s)" % N(ratio),
 				"expr": "t = ln(%s)/k" % N(ratio),
 				"both": "ln %s + kt = ln %s" % [N(s.A), N(lv)],
@@ -375,7 +375,7 @@ func u_k_from_data_point(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var kx := "k = ln(%s)/%d = %s" % [N(ratio), s.t1, W(k)]
 	out.methods = {
 		"logs-for-unknown": {"result": out.answer.values, "steps": [
-			"%se^(%dk) = %s" % [N(s.A), s.t1, N(s.P1)], "e^(%dk) = %s/%s = %s" % [s.t1, N(s.P1), N(s.A), N(ratio)],
+			"%se^(%dk) = %s" % [N(s.A), s.t1, N(s.P1)], "e^(%dk) = %s" % [s.t1, Fmt.equals("%s/%s" % [N(s.P1), N(s.A)], N(ratio))],
 			"%dk = ln(%s)" % [s.t1, N(ratio)], kx, final]},
 		"simultaneous-points": {"result": out.answer.values, "steps": [
 			"t = 0 gives %s(0) = %s, the A in front." % [y, N(s.A)],
