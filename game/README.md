@@ -633,6 +633,15 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   arguments is a proof. `AlgebraicProofViews.chain()` writes every proof as lines from the numbers,
   and a slip is that chain with one wrong move carried on, so wrong options are what the slip gives.
   Identities are Paper 1 or 2 and integer proofs Paper 1, as in the bank.
+- `engine/situations/prove_identity.gd` (FAL-753) is `t3-prove-identity` (SL3.6.prove-identity, all Paper 1):
+  16 unknowns and 34 cells on one trig identity from 14 shapes, each with a number in front and a multiple
+  of the letter inside, on the SL identities only (no sec, cosec or cot, no sin 3x). As in `algebraic_proof`,
+  each unknown is one decision a proof turns on, typed in slots (a `form`) or picked (a `claim`): the simple
+  form, the next line, a hidden line, the first wrong line and its fix, what both sides reach, which of four
+  arguments is a proof, the side to start from, which form of cos 2x cancels the 1, a factorised first line,
+  and then a value at an angle, a value from a ratio, or a greatest or least value. `ProveIdentityViews.chain()`
+  writes every proof as lines from the numbers, and a slip is that chain with one wrong move carried on, so
+  wrong options are what the slip gives. Shown as an equation, or for four shapes as a sentence.
 - `engine/situations/trig_model.gd` (FAL-727) is `t3-trig-model-parameters` (SL3.7, AA only): 15
   unknowns on one wave from its turning points. Paper 1 has x in multiples of π and whole a, b and d;
   Paper 2 is a story in t, or a decimal phase, to 3 s.f., six parts in seven as in the bank. It also
@@ -1373,6 +1382,10 @@ finds every crossing itself: a scan for sign changes refined by bisection, then 
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
 and between them, and the counts in the working are compared. Degree mode is the same scan with the
 angle in degrees, and the map's own example equations are refused (`e10tm_check`, `e10tm_*`).
+For `prove-identity` it builds each statement from its numbers, reads every line, option and worked step
+back as an expression, and proves equality by writing both in t = tan(x/2) and cancelling, after exact tests
+at rational points. A wrong line must equal what its slip gives, worked out here, and a value from a ratio
+comes from putting the angle itself into the first form at 40 digits (`E11PI_check`).
 For `regression-interpret` it fits the data again with exact rationals and judges every statement
 offered from those numbers, so a wrong statement that happens to be true fails (`e9regr_check`).
 For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
@@ -1787,6 +1800,9 @@ script error happens while it runs. Run one file with
   extra format, four different options, the GDC on Paper 2 only, hand values, the bracket as the
   exam writes it, the staggered triangle, a term against a coefficient, a typed expansion and row,
   every misconception as an option, the three concept probes and AA courses only.
+- `test_prove_identity.gd` (FAL-753): `t3-prove-identity`: every cell on Paper 1, four different options, hand
+  values, each chain reaching its right side, hidden and spoiled lines where they should be, no exam
+  statement or HL ratio, typed slips detected, and every tag shown.
 - `test_algebraic_proof.gd`: t1-algebraic-proof built with every cell, both SL1.6 skills and
   14 unknowns; every cell in both formats, with the answer ending the working; the bank's paper
   split; each statement against values worked out by hand; a hidden line and a spoiled line

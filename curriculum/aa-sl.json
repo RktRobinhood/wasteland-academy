@@ -9276,9 +9276,30 @@
                 }
               ],
               "misconceptions": [
-                "Working on both sides at once as if solving an equation, then concluding 0 = 0",
-                "Cancelling across a sum, e.g. (1 + cos 2x) / cos 2x = 1 + 1",
-                "Choosing a form of cos 2θ that does not cancel the 1, e.g. cos²θ − sin²θ in 1 + cos 2θ"
+                "Working on both sides at once as if solving an equation, then treating a true last line as the proof",
+                "Cancelling across a sum, as if one term of the top were a factor of the whole top",
+                "Choosing a form of the double-angle cosine that does not cancel the constant term",
+                "Checking the two sides at one value and calling that a proof",
+                "Stopping before reaching the other side, so the proof has no last line",
+                "Getting a sign wrong when a bracket after a minus is removed or a factor is taken out",
+                "Leaving out the factor of two in the double-angle sine",
+                "Swapping the signs in a form of the double-angle cosine",
+                "Treating a difference of squares of sine and cosine as one, which only their sum is",
+                "Forgetting to double the middle term when squaring a bracket",
+                "Squaring each term of a bracket with no middle term",
+                "Keeping the same angle when a double-angle identity should change it",
+                "Writing a difference of two squares as the same bracket twice",
+                "Writing tan as cosine over sine, the wrong way up",
+                "Leaving the number in front unchanged when using a double-angle identity",
+                "Reading the greatest value off the number in front, leaving out the constant in the bracket",
+                "Reading the greatest value off the number in front of the first form, before the identity changes it",
+                "Putting the angle into the function without its multiple",
+                "Mixing up the double-angle identities for sine and cosine",
+                "Adding two fractions by adding their tops and adding their bottoms",
+                "Multiplying only the first term of a bracket",
+                "Squaring the trig term but not the number in front of it",
+                "Factorising a perfect square as a difference of two squares",
+                "Starting from the simpler side, which leaves nothing to rewrite"
               ],
               "threads": [
                 {
