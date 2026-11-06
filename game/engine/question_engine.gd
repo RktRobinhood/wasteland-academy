@@ -107,6 +107,7 @@ static var SITUATIONS := {
 	"distance-midpoint": [DistanceMidpointSituation, DistanceMidpointViews],
 	"data-summary": [DataSummarySituation, DataSummaryViews],
 	"compound-interest": [CompoundInterestSituation, CompoundInterestViews],
+	"depreciation": [DepreciationSituation, DepreciationViews],
 	"composite-pair": [CompositePairSituation, CompositePairViews],
 	"inverse-rule": [InverseRuleSituation, InverseRuleViews],
 	"composite-graph-table": [GraphTableSituation, GraphTableViews],

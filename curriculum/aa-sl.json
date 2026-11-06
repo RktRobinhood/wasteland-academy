@@ -1386,7 +1386,14 @@
               "misconceptions": [
                 "Multiplying by the rate, or by one plus the rate, instead of by what is left after the loss",
                 "Treating depreciation as linear: subtracting the same percentage of the original price each year",
-                "Giving the remaining value when the question asks for the loss in value"
+                "Giving the remaining value when the question asks for the loss in value (or the reverse)",
+                "Giving the total loss so far when the question asks for the loss in one year",
+                "Taking the percentage of the value at the end of the year instead of at the start",
+                "Undoing a percentage loss by adding the same percentage back on",
+                "Giving the percentage kept each year instead of the percentage lost",
+                "Giving the total percentage lost over all the years as the yearly rate",
+                "Applying the later rate to every year instead of only to the years after the first",
+                "Comparing amounts from different dates, with one side left at today's value"
               ],
               "threads": [
                 {

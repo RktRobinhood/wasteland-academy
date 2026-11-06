@@ -613,6 +613,17 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   unordered list, the mean of the two means, p left out of Σf, the mean or the mode as the
   best average) and never read as a fraction (`DataSummaryViews.tidy`). As every exam type, it
   offers no extra format: `test_extension.gd` holds that rule.
+- `engine/situations/depreciation.gd` (FAL-752) is `t1-depreciation` (SL1.4), the `depreciation`
+  situation: a price P that keeps a fixed fraction c of its value each year, month or quarter. Its
+  views (`depreciation_views.gd`) show it as a story, as V = P(c)^t, as a table of three whole times
+  (exact to the cent) or, for a time, as the curve and the target with their crossing marked. It asks
+  12 unknowns, all Paper 2: the value after n years (or on a date), the total loss, the loss in one
+  year, the price paid, the rate from two values or read off the model, a value with a different
+  rate in the first year, the extra money needed on top of an account, and the least whole number of
+  years to fall below a target or a percentage of the price, or of years or months or quarters from a
+  rate per month or quarter. Methods are the multiplier, the TVM solver with a negative rate, a
+  year-by-year run, logs, a GDC table and a graph. Money is answered exactly to the dollar, and every
+  value, and every slip offered, leaves a fraction of a dollar at least 0.15 from the edge at 0.5.
 - `engine/situations/compound_interest.gd` (FAL-695) is `t1-compound-interest` (SL1.4, on all
   four syllabuses): money invested at a nominal annual rate r %, compounded 1, 2, 4 or 12
   times a year, for n years. Its views (`compound_interest_views.gd`) ask 6 unknowns, all
@@ -1277,6 +1288,11 @@ works every feature again with SymPy, testing that nothing before a first maximu
 of a level are found by scanning the model for sign changes and bisecting, and durations are added up
 between them, so no formula is shared with the engine; degree mode is the same scan with the angle in
 degrees. The plain sums in the working are evaluated (`check_trig_wave`, `e9trig_*`).
+For `depreciation` it reads the price, rate, target and account back from the story, the model or
+the table (a table's multiplier from its own values), works each value again with exact rationals, a
+rate from a root and a time from a logarithm tested exactly either side of the answer, rebuilds each
+tagged option from its slip, holds the figure's curve, line and crossing to the model, and requires
+each method's numbers in its working (`e10de_check`).
 For `regression-interpret` it fits the data again with exact rationals and judges every statement
 offered from those numbers, so a wrong statement that happens to be true fails (`e9regr_check`).
 For `motion-distance` it integrates v(t) or s(t) again, exactly on Paper 1 and with mpmath on
@@ -1741,6 +1757,10 @@ script error happens while it runs. Run one file with
   mean that is not the mean of the means; the outlier dragging the mean; every misconception
   as an option; exact and 3 s.f. marking; the three concept probes; and every course having
   every cell.
+- `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
+  value, the rate, the price and the least time against hand values; every dollar answer clear of
+  the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters
+  converted; every tag appears as an option.
 - `test_compound_interest.gd`: t1-compound-interest built with every cell and all four SL1.4
   skills; every cell in both formats with 2 to 5 steps per worked solution; Paper 2 only; the
   value, the doubling time and the rate against hand values; every money value clear of the
