@@ -28835,7 +28835,8 @@ def e9area_expr(q, gap, p, r2, v, rs):
 # them, works each tagged wrong option out from its slip, and evaluates the plain sums in the working.
 
 E9TRIG_RF, E9TRIG_MC, E9TRIG_EF = "SL3.7.read-features#", "SL3.7.model-context#", "SL3.7.equation-from-graph#"
-E9TRIG_B, E9TRIG_AMP, E9TRIG_TAN_AMP, E9TRIG_TAN_SIN, E9TRIG_SIN_TAN, E9TRIG_NO_D, E9TRIG_SWAP = [E9TRIG_RF + str(i) for i in range(7)]
+E9TRIG_B, E9TRIG_TAN_AMP, E9TRIG_TAN_SIN, E9TRIG_SIN_TAN, E9TRIG_NO_D, E9TRIG_SWAP = [E9TRIG_RF + str(i) for i in (0, 2, 3, 4, 5, 6)]
+E9TRIG_AMP = E9TRIG_RF + "11"
 E9TRIG_AXIS, E9TRIG_MINUS, E9TRIG_SIN_COS, E9TRIG_WHEEL = [E9TRIG_RF + str(i) for i in range(7, 11)]
 E9TRIG_HALF, E9TRIG_DOUBLE = E9TRIG_EF + "0", E9TRIG_EF + "1"
 E9TRIG_DEG, E9TRIG_FIRST, E9TRIG_PERB, E9TRIG_SIDE, E9TRIG_ONE_SIDE, E9TRIG_CYCLE, E9TRIG_C, E9TRIG_D_X = [E9TRIG_MC + str(i) for i in range(8)]
