@@ -37,11 +37,11 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-  # The suite alone, about 19 minutes and growing with each AA SL type. The export and the
-  # browser shots are the web job: together they went past 25 minutes on main (FAL-721).
+  # The suite alone, about 8 minutes (FAL-755) and growing with each AA SL type. The export
+  # and the browser shots are the web job: together they went past 25 minutes on main (FAL-721).
   godot:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
       - run: scripts/ci-install-godot.sh

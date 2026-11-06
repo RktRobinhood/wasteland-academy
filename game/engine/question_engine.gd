@@ -141,6 +141,8 @@ static var SITUATIONS := {
 
 static var _cat: Dictionary = {}
 static var _views: Dictionary = {}
+static var _type_index: Dictionary = {}
+static var _cells_cache: Dictionary = {}
 
 
 static func catalogue() -> Dictionary:
@@ -154,10 +156,10 @@ static func catalogue() -> Dictionary:
 
 
 static func type_of(id: String) -> Dictionary:
-	for t in catalogue().types:
-		if t.id == id:
-			return t
-	return {}
+	if _type_index.is_empty():
+		for t in catalogue().types:
+			_type_index[t.id] = t
+	return _type_index.get(id, {})
 
 
 ## The views object for a type's situation, or null when its situation isn't built.
@@ -256,7 +258,13 @@ static func rep_is_exam(t: Dictionary, rep: String) -> bool:
 ## {"key", "type", "unknown", "rep", "angle", "level", "exam", "weight"}.
 ## exam_only keeps exam types and their exam unknowns and representations. A course
 ## (Courses) keeps the unknowns it covers; "" keeps them all.
+## Cached: the planner asks on every question, and building every cell each time cost a
+## student tens of milliseconds a pick (FAL-755). So the result is shared by every caller
+## and is read-only, each cell too: filter() it, or duplicate() a cell to change it.
 static func cells(exam_only: bool = false, types: Array = [], course: String = "") -> Array:
+	var cached: Variant = _cells_cache.get([exam_only, types, course])
+	if cached != null:
+		return cached
 	var out: Array = []
 	var ids := types if not types.is_empty() else built_types(course)
 	for id in ids:
@@ -274,8 +282,13 @@ static func cells(exam_only: bool = false, types: Array = [], course: String = "
 				if exam_only and not exam:
 					continue
 				for angle in angles_for(t, u.id, course):
-					out.append({"key": cell_key(id, u.id, rep, angle), "type": id, "unknown": u.id, "rep": rep,
-						"angle": angle, "level": int(u.level), "exam": exam})
+					var cell := {"key": cell_key(id, u.id, rep, angle), "type": id, "unknown": u.id, "rep": rep,
+						"angle": angle, "level": int(u.level), "exam": exam}
+					cell.make_read_only()
+					out.append(cell)
+	out.make_read_only()
+	# The key's own copy of types: the caller's array can change later.
+	_cells_cache[[exam_only, types.duplicate(), course]] = out
 	return out
 
 
