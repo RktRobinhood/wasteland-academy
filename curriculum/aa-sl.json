@@ -9317,9 +9317,17 @@
                 }
               ],
               "misconceptions": [
-                "Period = b instead of 2π/b",
-                "Amplitude = a + d, or a negative amplitude when a < 0",
-                "Giving tan x an amplitude"
+                "Using b as the period, instead of working the period out from b",
+                "Taking the amplitude as a + d, or as negative when a is negative",
+                "Giving tan x an amplitude",
+                "Using the period rule of sin and cos for tan, which repeats twice as often",
+                "Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat",
+                "Leaving d out of the maximum, the minimum or the range",
+                "Keeping the minus sign of a when adding it to d, which swaps the maximum and the minimum",
+                "Reading the amplitude as the principal axis, or the other way round",
+                "Ignoring the minus sign in front of the wave, which turns its peaks into troughs",
+                "Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later",
+                "Taking a as positive when the wave starts at its lowest point"
               ],
               "threads": [
                 {
@@ -9579,7 +9587,16 @@
               "misconceptions": [
                 "Leaving the calculator in degree mode for a radian model",
                 "Giving only the first intersection when all times in the interval are asked for",
-                "Taking b itself as the period, instead of working out b from the period"
+                "Taking b itself as the period, instead of working out b from the period",
+                "Giving the time on the wrong side of the level: below it when above was asked, or the reverse",
+                "Stopping at the peak, so only half of the time past the level is counted",
+                "Counting one cycle when the time span holds several",
+                "Taking c in the bracket as the time of a maximum or minimum",
+                "Reading the constant d as the largest or smallest value",
+                "Dividing the whole time by the period, without placing the first one",
+                "Forgetting to change the time span into the unit the model uses",
+                "Taking the whole period as the gap from a low point to the next high point",
+                "Taking the wrong sign for the value of an angle past the first quadrant"
               ],
               "threads": [
                 {

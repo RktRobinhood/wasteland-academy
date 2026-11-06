@@ -26757,7 +26757,580 @@ def check_box_plot(q):
 # ── end box-plot ──
 
 
-SITUATION_CHECKS = {"grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
+# ── trig-wave (t3-trig-read-features, t3-trig-model-use, FAL-751) ────────
+# The `trig-wave` situation's checker. It reads the wave or the model back from what the student
+# sees (the equation in its text, or the turning points and the curve of a figure), works every
+# feature out again with SymPy, finds crossings by scanning the model for sign changes and refining
+# them, works each tagged wrong option out from its slip, and evaluates the plain sums in the working.
+
+E9TRIG_RF, E9TRIG_MC, E9TRIG_EF = "SL3.7.read-features#", "SL3.7.model-context#", "SL3.7.equation-from-graph#"
+E9TRIG_B, E9TRIG_AMP, E9TRIG_TAN_AMP, E9TRIG_TAN_SIN, E9TRIG_SIN_TAN, E9TRIG_NO_D, E9TRIG_SWAP = [E9TRIG_RF + str(i) for i in range(7)]
+E9TRIG_AXIS, E9TRIG_MINUS, E9TRIG_SIN_COS, E9TRIG_WHEEL = [E9TRIG_RF + str(i) for i in range(7, 11)]
+E9TRIG_HALF, E9TRIG_DOUBLE = E9TRIG_EF + "0", E9TRIG_EF + "1"
+E9TRIG_DEG, E9TRIG_FIRST, E9TRIG_PERB, E9TRIG_SIDE, E9TRIG_ONE_SIDE, E9TRIG_CYCLE, E9TRIG_C, E9TRIG_D_X = [E9TRIG_MC + str(i) for i in range(8)]
+E9TRIG_DIVIDE, E9TRIG_UNIT, E9TRIG_WHOLE, E9TRIG_SIGN = [E9TRIG_MC + str(i) for i in range(8, 12)]
+E9TRIG_STORIES = {"D": ("The depth of water at the old harbour wall", "m", "hours"), "T": ("The temperature inside the grain store", "°C", "hours"),
+                  "h": ("The height of a seat on the salvage-yard wheel", "m", "minutes"), "L": ("The water level behind the dam", "m", "days"),
+                  "P": ("The power draw of the generator shed", "kW", "minutes"), "R": ("The length of a mooring rope", "m", "hours")}
+E9TRIG_UP = {"hours": ("day", 24), "minutes": ("hour", 60), "days": ("week", 7)}
+E9TRIG_NUM = r"−?\d+(?:\.\d+)?"
+E9TRIG_FN = {"sin": math.sin, "cos": math.cos, "tan": math.tan}
+E9TRIG_P1_ONLY = ("exact-value", "intercept-gap")
+E9TRIG_P2_ONLY = ("value-at-time", "first-time-level", "all-times", "duration-above", "duration-below", "duration-span", "first-max-time",
+                  "high-low-gap", "count-peaks", "count-lows", "interpret-extreme")
+
+
+def e9trig_n(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def e9trig_pi_text(t):
+    """A number written with π, as sympy: "π", "3π/4", "2π", "1/2", "1.3"."""
+    m = re.fullmatch(r"(−?)(\d*)π(?:/(\d+))?", t)
+    if m:
+        return (-1 if m[1] else 1) * sp.Rational(int(m[2] or 1), int(m[3] or 1)) * sp.pi
+    return e9trig_n(t)
+
+
+def e9trig_b(inner, v):
+    """The bracket of a wave in the letter v: returns (b, c, how b is written)."""
+    m = re.fullmatch(rf"(?:(.+?)\()?{v} − (.+?)\)?", inner)
+    if m:
+        b = e9trig_pi_text(m[1]) if m[1] else sp.Integer(1)
+        return b, e9trig_pi_text(m[2]), (m[1] or "1")
+    m = re.fullmatch(rf"(\d*)(π?){v}(?:/(\d+))?", inner)
+    if m:
+        b = sp.Rational(int(m[1] or 1), int(m[3] or 1)) * (sp.pi if m[2] else 1)
+        return b, sp.Integer(0), inner
+    m = re.fullmatch(rf"(\d+\.\d+){v}", inner)
+    need(m is not None, f"can't read the bracket {inner!r}")
+    return e9trig_n(m[1]), sp.Integer(0), m[1]
+
+
+def e9trig_wave(text, v):
+    """a fn(bracket) + d as the game writes it: A, fn, b, c, d, how b is written."""
+    m = re.fullmatch(rf"(−?)({E9TRIG_NUM.replace('−?', '')} )?(sin|cos|tan)\((.+?)\)(?: ([+−]) ({E9TRIG_NUM.replace('−?', '')}))?", text)
+    need(m is not None, f"can't read the wave {text!r}")
+    A = (-1 if m[1] else 1) * (e9trig_n(m[2].strip()) if m[2] else 1)
+    d = sp.Integer(0) if m[5] is None else (1 if m[5] == "+" else -1) * e9trig_n(m[6])
+    b, c, written = e9trig_b(m[4], v)
+    return sp.Rational(A), m[3], b, c, d, written
+
+
+def e9trig_peak(A, fn, c, T):
+    """The first peak after 0, from the sign of a and the function's own top."""
+    ph = {("sin", True): sp.Rational(1, 4), ("sin", False): sp.Rational(3, 4), ("cos", True): 0, ("cos", False): sp.Rational(1, 2)}[(fn, A > 0)]
+    return e9trig_first(c + ph * T, T)
+
+
+def e9trig_first(x, T):
+    n = sp.ceiling(sp.simplify(x / T))
+    y = sp.nsimplify(x - (n - 1) * T)
+    return y
+
+
+def e9trig_read(q):
+    """The wave of a reading: from the equation, or from a figure's marked points and its curve."""
+    g, rep, L, paper = q["given"], q["view"]["rep"], q["lines"], q["paper"]
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if rep == "equation" or g.get("fn") == "tan":
+        if rep == "equation":
+            text = L[0].removeprefix("f(x) = ")
+        else:
+            m = re.fullmatch(r"The graph of y = f\(x\) is shown, where f\(x\) = (.+)\. The dashed lines are its asymptotes\.", L[0])
+            need(m is not None, f"can't read {L}")
+            text = m[1]
+        A, fn, b, c, d, wr = e9trig_wave(text, "x")
+        W = e9trig_from_letters(A, fn, b, c, d, wr, paper)
+        if fig is not None:
+            e9trig_tan_curve(fig, W)
+        return W
+    pts = fig["points"]
+    if not pts:
+        # A GDC's figure: its equation is in the words, and the curve must be that equation.
+        m = re.fullmatch(r"The graph of y = f\(x\) is shown, where f\(x\) = (.+)\.", L[0])
+        need(m is not None and q["view"]["angle"] == "gdc-graph", f"a figure with no marks: {L}")
+        A, fn, b, c, d, wr = e9trig_wave(m[1], "x")
+        W = e9trig_from_letters(A, fn, b, c, d, wr, paper)
+        W["kind"] = "plain"
+        W["T"] = 2 * sp.pi / b
+    else:
+        need(len(pts) == 2, "a wave's figure marks two points")
+        tp = re.fullmatch(rf"max \((.+), ({E9TRIG_NUM}(?:/\d+)?)\)", pts[0]["label"])
+        bt = re.fullmatch(rf"min \((.+), ({E9TRIG_NUM}(?:/\d+)?)\)", pts[1]["label"])
+        need(tp is not None and bt is not None, f"can't read {pts}")
+        xm, xn = (e9trig_pi_text(tp[1]), e9trig_pi_text(bt[1])) if paper == 1 else (e9trig_n(tp[1]), e9trig_n(bt[1]))
+        top, low = e9trig_n(tp[2]), e9trig_n(bt[2])
+        T = 2 * (xn - xm)
+        need(T > 0 and top > low, "the marks are the wrong way round")
+        W = dict(A=(top - low) / 2, fn="cos", b=2 * sp.pi / T, c=xm, d=(top + low) / 2, T=T, xm=xm, top=top, low=low, kind="x" if paper == 1 else "plain", wr=None)
+    fa, fb, fc, fd = float(W["A"]), float(W["b"]), float(W["c"]), float(W["d"])
+    for x, y in fig["curves"][0][::13]:
+        need(abs(y - (fa * E9TRIG_FN[W["fn"]](fb * (x - fc)) + fd)) < 1e-6, "the curve is another wave")
+    return W
+
+
+def e9trig_from_letters(A, fn, b, c, d, wr, paper):
+    T = (sp.pi if fn == "tan" else 2 * sp.pi) / b
+    kind = "dec" if "." in wr else "pi" if "π" in wr else "x"
+    amp = abs(A)
+    W = dict(A=A, fn=fn, b=b, c=c, d=d, T=sp.nsimplify(T) if kind != "dec" else T, top=d + amp, low=d - amp, kind=kind, wr=wr)
+    if fn != "tan":
+        W["xm"] = e9trig_peak(A, fn, c, W["T"])
+        # The peak is a peak: nothing before it is as high.
+        fa, fb, fc = float(A), float(b), float(c)
+        f = lambda x: fa * E9TRIG_FN[fn](fb * (x - fc))
+        xm = float(W["xm"])
+        need(abs(f(xm) - float(amp)) < 1e-6, "the first maximum isn't a maximum")
+        need(all(f(xm * i / 60) < float(amp) - 1e-9 for i in range(1, 58)), "a higher point comes earlier")
+    return W
+
+
+def e9trig_tan_curve(fig, W):
+    fa, fb, fd = float(W["A"]), float(W["b"]), float(W["d"])
+    for curve in fig["curves"]:
+        for x, y in curve[::9]:
+            need(abs(y - (fa * math.tan(fb * x) + fd)) < 1e-5, "the curve is another tan")
+    T = float(W["T"])
+    need([round(v["at"], 6) for v in fig["vlines"]] == [round(T / 2, 6), round(1.5 * T, 6)], "the asymptotes are in the wrong place")
+
+
+def e9trig_tan_read(q):
+    """A tan function on a figure with only its marks: the equation isn't shown, so a, b and d come
+    from the two marked points and the asymptotes; the curve fixes the size of a."""
+    g, fig, paper = q["given"], q["graph"], q["paper"]
+    pts = fig["points"]
+    need(len(pts) == 2, "a tan figure marks two points")
+    m = re.fullmatch(rf"\((.+), ({E9TRIG_NUM})\)", pts[1]["label"])
+    need(m is not None, f"can't read {pts}")
+    written = m[1]
+    T = e9trig_pi_text(written) if "π" in written else e9trig_n(written)
+    d = e9trig_n(m[2])
+    need(abs(pts[1]["x"] - float(T)) < 1e-6, "the mark is off its label")
+    need(pts[0]["label"] == f"(0, {dec_text(d)})", "the first mark is not on the axis of the branch")
+    v = fig["vlines"]
+    need(abs(v[0]["at"] - float(T) / 2) < 1e-6 and abs(v[1]["at"] - 1.5 * float(T)) < 1e-6, "the asymptotes are in the wrong place")
+    x0, y0 = fig["curves"][0][3]
+    a = (y0 - float(d)) / math.tan(math.pi / float(T) * x0)
+    for curve in fig["curves"]:
+        for x, y in curve[::9]:
+            need(abs(y - (a * math.tan(math.pi / float(T) * x) + float(d))) < 1e-5, "the curve is another tan")
+    return dict(A=None, fn="tan", b=sp.pi / T, c=sp.Integer(0), d=d, T=T, top=None, low=None, kind="x" if "π" in written else "pi", wr=None)
+
+
+def e9trig_x(W, v):
+    k = W["kind"]
+    if k == "x":
+        return as_pi(sp.Rational(sp.nsimplify(v / sp.pi)))
+    return gc_s(tm_f(v)) if k == "dec" else dec_text(sp.Rational(sp.nsimplify(v)))
+
+
+def e9trig_b_text(W):
+    k, b = W["kind"], W["b"]
+    if k == "pi":
+        return as_pi(sp.Rational(sp.nsimplify(b / sp.pi)))
+    return gc_s(tm_f(b)) if k == "dec" else dec_text(b)
+
+
+def e9trig_label(q, label, W, v, wrongs):
+    """One place across as the answer: wrongs is ref -> values, or texts where a value is a string."""
+    t = lambda x: x if isinstance(x, str) else label + e9trig_x(W, x)
+    trap = None
+    if W["kind"] == "dec":
+        val = tm_f(v)
+        trap = gc_trap([val], label + gc_s2(val))
+    gc_check_common(q, t(v), {k: {t(x) for x in vs} for k, vs in wrongs.items()}, trap)
+
+
+def e9trig_period(q, W):
+    T, rep = W["T"], q["view"]["rep"]
+    P = "Period = "
+    wr = {E9TRIG_B: [P + e9trig_b_text(W)] if W["kind"] != "plain" else [], E9TRIG_SIN_TAN: [T / 2], E9TRIG_HALF: [T / 2]}
+    if W["kind"] == "dec":
+        wr[E9TRIG_DEG] = [P + gc_s(sp.Integer(360) / W["b"])]
+    e9trig_label(q, P, W, T, wr)
+
+
+def e9trig_two(q, W, n1, v1, n2, v2, wrongs, word=None):
+    """Two numbers, the second a place across: exact, or named to 3 s.f."""
+    if W["kind"] == "dec":
+        t = lambda a, b: tm_named([(n1, a), (n2, b)])
+    else:
+        t = lambda a, b: f"{n1} = {dec_text(a)}, {n2} = {e9trig_x(W, b)}"
+    gc_check_common(q, t(v1, v2), {k: {t(*p) for p in ps} for k, ps in wrongs.items()})
+
+
+def e9trig_read_features(q):
+    u, rep, L, g, paper = q["view"]["unknown"], q["view"]["rep"], q["lines"], q["given"], q["paper"]
+    if u == "intercept-gap":
+        return e9trig_intercept(q)
+    if u == "b-from-story":
+        return e9trig_b_story(q)
+    if u == "amp-axis-story":
+        return e9trig_amp_axis(q)
+    if u == "wheel-a-b":
+        return e9trig_wheel(q)
+    if rep == "graph" and g.get("fn") == "tan" and u == "tan-period" and q["view"]["angle"] != "gdc-graph":
+        W = e9trig_tan_read(q)
+        P = "Period = "
+        gc_check_common(q, P + e9trig_x(W, W["T"]), {E9TRIG_TAN_SIN: {P + e9trig_x(W, 2 * W["T"])}, E9TRIG_B: {P + e9trig_b_text(W)}})
+        return
+    W = e9trig_read(q)
+    A, d, T, top, low, fn = W["A"], W["d"], W["T"], W["top"], W["low"], W["fn"]
+    amp = abs(A)
+    if u == "amplitude":
+        l = "Amplitude = "
+        gc_check_common(q, l + dec_text(amp), {E9TRIG_AMP: {l + dec_text(A), l + dec_text(A + d)}, E9TRIG_DOUBLE: {l + dec_text(top - low)}})
+    elif u == "period":
+        e9trig_period(q, W)
+    elif u == "amp-period":
+        e9trig_two(q, W, "Amplitude", amp, "period", T, {E9TRIG_HALF: [(amp, T / 2)], E9TRIG_SIN_TAN: [(amp, T / 2)], E9TRIG_DOUBLE: [(top - low, T)], E9TRIG_AMP: [(A, T), (A + d, T)]})
+    elif u == "principal-axis":
+        gc_check_common(q, f"y = {dec_text(d)}", {E9TRIG_AXIS: {f"y = {dec_text(amp)}"}})
+    elif u == "max-value":
+        l = "Maximum value = "
+        gc_check_common(q, l + dec_text(top), {E9TRIG_NO_D: {l + dec_text(amp)}, E9TRIG_SWAP: {l + dec_text(d + A)}})
+    elif u == "min-value":
+        l = "Minimum value = "
+        gc_check_common(q, l + dec_text(low), {E9TRIG_NO_D: {l + dec_text(-amp)}, E9TRIG_SWAP: {l + dec_text(d - A)}})
+    elif u == "range":
+        gc_check_common(q, f"{dec_text(low)} ≤ y ≤ {dec_text(top)}", {E9TRIG_NO_D: {f"{dec_text(-amp)} ≤ y ≤ {dec_text(amp)}"}})
+    elif u == "first-max-x":
+        xm = W["xm"]
+        wr = {}
+        if rep != "graph":
+            c = W["c"]
+            wr[E9TRIG_MINUS] = [(top, e9trig_peak(-A, fn, c, T))]
+            wr[E9TRIG_SIN_COS] = [(top, e9trig_peak(A, "cos" if fn == "sin" else "sin", c, T))]
+        e9trig_two(q, W, "Maximum", top, "x", xm, wr)
+    elif u == "tan-period":
+        e9trig_period_tan(q, W)
+    elif u == "tan-features":
+        t = lambda body, v: f"{body}, and its period is {e9trig_x(W, v)}"
+        none = "It has no amplitude, as it has no maximum or minimum"
+        gc_check_common(q, t(none, T), {E9TRIG_TAN_AMP: {t(f"Its amplitude is {dec_text(amp)}", T), t(f"Its range is {dec_text(d - amp)} ≤ y ≤ {dec_text(d + amp)}", T)}, E9TRIG_TAN_SIN: {t(none, 2 * T)}})
+    elif u == "b-from-graph":
+        b = W["b"]
+        if paper == 1:
+            b = sp.nsimplify(b)
+            gc_check_common(q, f"b = {dec_text(b)}", {E9TRIG_PERB: {"b = " + as_pi(sp.nsimplify(T / sp.pi))}, E9TRIG_HALF: {f"b = {dec_text(2 * b)}"}})
+        else:
+            tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b]}, steps=(2, 5))
+    elif u == "a-d-from-graph":
+        t = lambda a_, d_: f"a = {dec_text(a_)}, d = {dec_text(d_)}"
+        gc_check_common(q, t(amp, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, amp)}})
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def e9trig_period_tan(q, W):
+    P = "Period = "
+    T = W["T"]
+    wr = {E9TRIG_TAN_SIN: [2 * T], E9TRIG_B: [P + e9trig_b_text(W)]}
+    e9trig_label(q, P, W, T, wr)
+
+
+def e9trig_intercept(q):
+    L = q["lines"]
+    m = re.fullmatch(r"The graph of f crosses the x-axis at x = 0, x = (\d*)r and x = (\d*)r\.", L[1])
+    need(m is not None and L[0] == "f(x) = sin(qx), with q > 0 and x in radians.", f"can't read {L}")
+    n, n2 = int(m[1] or 1), int(m[2] or 1)
+    need(n2 == 2 * n, "the crossings aren't evenly spaced")
+    s = sp.Symbol("q", positive=True)
+    want = sp.pi / (n * s)
+    # r really is the first crossing after 0, and the second is at 2n r.
+    need(sp.simplify(sp.sin(s * n * want)) == 0 and sp.simplify(sp.sin(s * n2 * want)) == 0 and sp.simplify(sp.sin(s * n * want / 2)) != 0, "r is not the crossing")
+    ticks = q["graph"]["x_ticks"]
+    need([t[1] for t in ticks] == [f"{n if n > 1 else ''}r", f"{n2}r"], "the figure's marks are not the question's")
+    txt = lambda k: "r = π/q" if k == 1 else f"r = π/({k}q)"
+    gc_check_common(q, txt(n), {E9TRIG_HALF: {"r = 2π/q" if n == 1 else f"r = 2π/({n}q)"}})
+
+
+def e9trig_story(q):
+    """The story of the question: its letter, words, unit and time."""
+    sym = TM_CONTEXTS[q["given"]["ctx"]][0]
+    return (sym,) + E9TRIG_STORIES[sym]
+
+
+def e9trig_b_story(q):
+    sym, thing, unit, time = e9trig_story(q)
+    L, paper = q["lines"], q["paper"]
+    need(L[0] == f"{thing} is modelled by {sym}(t) = a sin(b(t − c)) + d, with a, b, c > 0 and t in {time}.", f"can't read {L}")
+    m = re.fullmatch(rf"It reaches its highest value every (\d+) {time}\.", L[1])
+    need(m is not None, f"can't read {L}")
+    T = sp.Integer(m[1])
+    b = 2 * sp.pi / T
+    if paper == 1:
+        t = lambda v: "b = " + as_pi(sp.Rational(v / sp.pi))
+        gc_check_common(q, t(b), {E9TRIG_PERB: {f"b = {T}"}, E9TRIG_HALF: {t(2 * b)}})
+    else:
+        tm_num(q, "b = ", b, {E9TRIG_PERB: [T], E9TRIG_HALF: [2 * b]}, steps=(2, 5))
+
+
+def e9trig_amp_axis(q):
+    sym, thing, unit, time = e9trig_story(q)
+    L = q["lines"]
+    need(L[0] == f"{thing} is modelled by a sine wave.", f"can't read {L}")
+    m = re.fullmatch(rf"It runs between a lowest value of ({E9TRIG_NUM}) {re.escape(unit)} and a highest value of ({E9TRIG_NUM}) {re.escape(unit)}\.", L[1])
+    need(m is not None, f"can't read {L}")
+    low, top = e9trig_n(m[1]), e9trig_n(m[2])
+    need(low > 0 and top > low, "the range is the wrong way round")
+    a, d = (top - low) / 2, (top + low) / 2
+    t = lambda x, y: f"Amplitude = {dec_text(x)}, principal axis y = {dec_text(y)}"
+    gc_check_common(q, t(a, d), {E9TRIG_DOUBLE: {t(top - low, d)}, E9TRIG_AXIS: {t(d, a)}})
+
+
+def e9trig_wheel(q):
+    L, paper = q["lines"], q["paper"]
+    m = re.fullmatch(r"A wheel of diameter (\d+) m turns once every (\d+) minutes\. Its lowest seat passes (\d+) m above the ground, and a seat starts at the lowest point at t = 0\.", L[0])
+    need(m is not None, f"can't read {L}")
+    dia, T, base = sp.Integer(m[1]), sp.Integer(m[2]), sp.Integer(m[3])
+    a, b = -dia / 2, 2 * sp.pi / T
+    d = dia / 2 + base
+    need(L[1] == f"h(t) = a cos(bt) + {dec_text(d)} gives the height of the seat in metres, t minutes later.", f"can't read {L}")
+    need(a * sp.cos(0) + d == base, "the seat isn't at the bottom at the start")
+    if paper == 1:
+        t = lambda x, y: f"a = {dec_text(x)}, b = {as_pi(sp.Rational(y / sp.pi))}"
+        gc_check_common(q, t(a, b), {E9TRIG_WHEEL: {t(-a, b)}, E9TRIG_PERB: {f"a = {dec_text(a)}, b = {dec_text(T)}"}, E9TRIG_HALF: {t(a, 2 * b)}})
+    else:
+        t = lambda x, y: tm_named([("a", x), ("b", y)])
+        gc_check_common(q, t(a, b), {E9TRIG_WHEEL: {t(-a, b)}, E9TRIG_PERB: {t(a, T)}, E9TRIG_HALF: {t(a, 2 * b)}})
+
+
+# ── Using a model ────────────────────────────────────────────
+
+def e9trig_model(q):
+    """The model from the first line, held to its story, and its figure to the model."""
+    g, rep, L = q["given"], q["view"]["rep"], q["lines"]
+    sym, thing, unit, time = e9trig_story(q)
+    if rep == "words":
+        m = re.fullmatch(rf"{re.escape(thing)} is modelled by {sym}\(t\) = (.+), with t in {time}\.", L[0])
+        need(m is not None, f"can't read {L}")
+        text = m[1]
+    else:
+        need(L[0].startswith(f"{sym}(t) = "), f"can't read {L}")
+        text = L[0][len(sym) + 6:]
+        need(L[1] == (f"t is measured in {time}." if rep == "equation" else f"The graph shows the model, with t in {time}."), f"can't read {L}")
+    A, fn, b, c, d, wr = e9trig_wave(text, "t")
+    a = abs(A)
+    T = 2 * sp.pi / b
+    M = dict(A=A, fn=fn, b=b, c=c, d=d, a=a, T=T, top=d + a, low=d - a, sym=sym, thing=thing, unit=unit, time=time, text=text, dec="." in wr)
+    M["fa"], M["fb"], M["fc"], M["fd"], M["ft"] = float(A), float(b), float(c), float(d), float(T)
+    M["low_f"], M["top_f"] = float(M["low"]), float(M["top"])
+    M["tmax"] = float(e9trig_peak(A, fn, c, T))
+    M["tmin"] = float(e9trig_first(e9trig_peak(A, fn, c, T) + T / 2, T))
+    need(abs(e9trig_at(M, M["tmax"]) - M["top_f"]) < 1e-9 and abs(e9trig_at(M, M["tmin"]) - M["low_f"]) < 1e-9, "the first top or bottom is wrong")
+    fig = q["graph"]
+    need((fig is not None) == (rep == "graph"), "the figure doesn't match the representation")
+    if fig is not None:
+        for x, y in fig["curves"][0][::13]:
+            need(abs(y - e9trig_at(M, x)) < 1e-6, "the curve is another model")
+    return M
+
+
+def e9trig_at(M, t, deg=False):
+    u = M["fb"] * (t - M["fc"])
+    return M["fa"] * E9TRIG_FN[M["fn"]](math.radians(u) if deg else u) + M["fd"]
+
+
+def e9trig_cross(M, k, lo, hi, deg=False):
+    """Every crossing of level k in (lo, hi], from a scan for sign changes, refined by bisection."""
+    per = 360.0 / M["fb"] if deg else M["ft"]
+    n = max(200, int((hi - lo) / per * 400))
+    out = []
+    t0, f0 = lo, e9trig_at(M, lo, deg) - k or 1e-13
+    for i in range(1, n + 1):
+        t1 = lo + (hi - lo) * i / n
+        f1 = e9trig_at(M, t1, deg) - k or 1e-13
+        if f0 * f1 < 0:
+            a, b, fa = t0, t1, f0
+            for _ in range(60):
+                m = (a + b) / 2
+                fm = e9trig_at(M, m, deg) - k
+                if fa * fm <= 0:
+                    b = m
+                else:
+                    a, fa = m, fm
+            out.append(round((a + b) / 2, 9))
+        t0, f0 = t1, f1
+    return out
+
+
+def e9trig_above(M, k, lo, hi, deg=False):
+    """The time above k in (lo, hi], added up between crossings."""
+    xs = [lo] + e9trig_cross(M, k, lo, hi, deg) + [hi]
+    return sum(b - a for a, b in zip(xs, xs[1:]) if e9trig_at(M, (a + b) / 2, deg) > k)
+
+
+def e9trig_cycle(M, k, deg=False):
+    """The time above k in one cycle, from trough to trough, so no crossing is on an end."""
+    per = 360.0 / M["fb"] if deg else M["ft"]
+    lo = min((per * i / 720 for i in range(720)), key=lambda t: e9trig_at(M, t, deg))
+    return e9trig_above(M, k, lo, lo + per, deg)
+
+
+def e9trig_f(t):
+    return sp.Float(t, 30)
+
+
+def e9trig_num(q, label, v, tail, wrongs):
+    want = label + gc_s(e9trig_f(v)) + tail
+    val = e9trig_f(v)
+    gc_check_common(q, want, {k: {label + gc_s(e9trig_f(x)) + tail for x in vs} for k, vs in wrongs.items()}, gc_trap([val], label + gc_s2(val) + tail))
+
+
+def e9trig_level(q, M):
+    """The level from the question, and from the figure's dashed line."""
+    m = re.search(rf"(?:is|above|below) ({E9TRIG_NUM}) {re.escape(M['unit'])}", q["asked"])
+    need(m is not None, f"can't read the level in {q['asked']!r}")
+    k = e9trig_n(m[1])
+    need(M["low"] < k < M["top"], "the level is outside the wave")
+    if q["graph"] is not None:
+        need([round(h["at"], 6) for h in q["graph"]["hlines"]] == [round(float(k), 6)], "the dashed line isn't the level")
+    return k
+
+
+def e9trig_lower(thing):
+    return thing[0].lower() + thing[1:]
+
+
+def e9trig_list(xs):
+    names = [gc_s(e9trig_f(x)) for x in sorted(xs)]
+    return "t = " + (names[0] if len(names) == 1 else ", ".join(names[:-1]) + " or " + names[-1])
+
+
+def e9trig_model_use(q):
+    u, angle, paper = q["view"]["unknown"], q["view"]["angle"], q["paper"]
+    M = e9trig_model(q)
+    T, what = M["ft"], e9trig_lower(M["thing"])
+    sym, unit, time = M["sym"], " " + M["unit"], " " + M["time"]
+    ask = q["asked"]
+    if u == "value-at-time":
+        m = re.fullmatch(rf"Find {re.escape(what)} when t = (\d+), to 3 significant figures\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        t = int(m[1])
+        e9trig_num(q, sym + " = ", e9trig_at(M, t), unit, {E9TRIG_DEG: [e9trig_at(M, t, True)]})
+    elif u == "exact-value":
+        m = re.fullmatch(rf"Find the exact value of {re.escape(what)} when t = (\d+)\.", ask)
+        need(m is not None and paper == 1, f"can't read {ask!r}")
+        t = int(m[1])
+        fv = (sp.sin if M["fn"] == "sin" else sp.cos)(M["b"] * t)
+        v = M["A"] * fv + M["d"]
+        tr_common(q, sym + " = ", v, {E9TRIG_SIGN: [M["d"] - M["A"] * fv]}, tail=unit, steps=(2, 5))
+    elif u == "first-time-level":
+        k = e9trig_level(q, M)
+        xs = e9trig_cross(M, float(k), 1e-6, 2.2 * T)
+        ds = e9trig_cross(M, float(k), 0.0, 1.01 * 360.0 / M["fb"], True)
+        e9trig_num(q, "t = ", xs[0], time, {E9TRIG_DEG: ds[:1]})
+    elif u == "all-times":
+        m = re.fullmatch(rf"Find every time in 0 ≤ t ≤ (\d+) when {re.escape(what)} is ({E9TRIG_NUM}) {re.escape(M['unit'])}, to 3 significant figures\.", ask)
+        need(m is not None, f"can't read {ask!r}")
+        L_, k = float(m[1]), float(e9trig_n(m[2]))
+        xs = e9trig_cross(M, k, 0.0, L_)
+        need(2 <= len(xs) <= 4, f"{len(xs)} times")
+        ds = e9trig_cross(M, k, 0.0, 720.0 / M["fb"], True)[:2]
+        gc_check_common(q, e9trig_list(xs), {E9TRIG_FIRST: {e9trig_list(xs[:1])}, E9TRIG_DEG: {e9trig_list(ds)}})
+    elif u in ("duration-above", "duration-below"):
+        k = e9trig_level(q, M)
+        w = e9trig_cycle(M, float(k))
+        dp = 360.0 / M["fb"]
+        wd = e9trig_cycle(M, float(k), True)
+        if u == "duration-above":
+            e9trig_num(q, "Time = ", w, time, {E9TRIG_SIDE: [T - w], E9TRIG_ONE_SIDE: [w / 2], E9TRIG_DEG: [wd]})
+        else:
+            e9trig_num(q, "Time = ", T - w, time, {E9TRIG_SIDE: [w], E9TRIG_ONE_SIDE: [(T - w) / 2], E9TRIG_DEG: [dp - wd]})
+    elif u == "duration-span":
+        k = e9trig_level(q, M)
+        m = re.match(r"For how long in 0 ≤ t ≤ (\d+) is", ask)
+        need(m is not None, f"can't read {ask!r}")
+        span = float(m[1])
+        n = span / T
+        need(abs(n - round(n)) < 1e-9, "the span is not whole cycles")
+        total = e9trig_above(M, float(k), 0.0, span)
+        w = e9trig_cycle(M, float(k))
+        wd = e9trig_cycle(M, float(k), True)
+        e9trig_num(q, "Time = ", total, time, {E9TRIG_CYCLE: [w], E9TRIG_SIDE: [span - total], E9TRIG_DEG: [wd * round(n)]})
+    elif u == "first-max-time":
+        t = M["tmax"]
+        c = M["fc"]
+        whole = abs(t - round(t)) < 1e-9
+        if whole:
+            gc_check_common(q, f"t = {round(t)}{time}", {E9TRIG_C: {f"t = {dec_text(sp.Rational(M['c']))}{time}"}})
+        else:
+            e9trig_num(q, "t = ", t, time, {E9TRIG_C: [c]})
+    elif u == "high-low-gap":
+        need(M["dec"], "the gap needs a decimal b")
+        e9trig_num(q, "Time = ", T / 2, time, {E9TRIG_WHOLE: [T], E9TRIG_PERB: [M["fb"] / 2]})
+    elif u == "count-peaks":
+        m = re.fullmatch(rf"How many times does {re.escape(what)} reach its maximum in 0 ≤ t ≤ (\d+)\?", ask)
+        need(m is not None, f"can't read {ask!r}")
+        L_ = int(m[1])
+        n = sum(1 for i in range(10000) if M["tmax"] + i * T <= L_)
+        l = "Number of maxima = "
+        gc_check_common(q, f"{l}{n}", {E9TRIG_DIVIDE: {f"{l}{math.floor(L_ / T)}"}, E9TRIG_PERB: {f"{l}{math.floor(L_ / M['fb'])}"}})
+    elif u == "count-lows":
+        one, f = E9TRIG_UP[M["time"]]
+        m = re.fullmatch(rf"How many times does {re.escape(what)} fall to its minimum in the first (?:(\d+) )?{one}s?\?", ask)
+        need(m is not None, f"can't read {ask!r}")
+        up = int(m[1] or 1)
+        L_ = up * f
+        n = sum(1 for i in range(100000) if M["tmin"] + i * T <= L_)
+        un = sum(1 for i in range(100000) if M["tmin"] + i * T <= up)
+        l = "Number of minima = "
+        gc_check_common(q, f"{l}{n}", {E9TRIG_UNIT: {f"{l}{un}"}, E9TRIG_DIVIDE: {f"{l}{math.floor(L_ / T)}"}})
+    elif u == "interpret-extreme":
+        big = "maximum" in ask
+        need(ask == f"Write down the {'maximum' if big else 'minimum'} value of the model, and say what it means here.", f"can't read {ask!r}")
+        v, t = (M["top"], M["tmax"]) if big else (M["low"], M["tmin"])
+        word = "highest" if big else "lowest"
+        ts = lambda x: str(round(x)) if abs(x - round(x)) < 1e-9 else gc_s(e9trig_f(x))
+        said = lambda w, y, x: f"The {w} value of {what} is {dec_text(y)}{unit}, first reached at t = {ts(x)}"
+        gc_check_common(q, said(word, v, t), {E9TRIG_D_X: {said(word, M["d"], t)}, E9TRIG_C: {said(word, v, M["fc"])}})
+    elif u == "reaches-level":
+        m = re.fullmatch(rf"Does {re.escape(what)} ever reach ({E9TRIG_NUM}){re.escape(unit)}\? Which statement is right\?", ask)
+        need(m is not None, f"can't read {ask!r}")
+        k = e9trig_n(m[1])
+        top, a, d = M["top"], M["a"], M["d"]
+        need(k != top, "the level is the top")
+        scan = max(e9trig_at(M, T * i / 720) for i in range(721))
+        reach = float(k) < scan
+        does = lambda v: f"It reaches {dec_text(k)}, as its largest value is {dec_text(v)}"
+        never = lambda v: f"It never reaches {dec_text(k)}, as its largest value is {dec_text(v)}"
+        gc_check_common(q, does(top) if reach else never(top), {E9TRIG_D_X: {never(d)}, E9TRIG_NO_D: {never(a)}, E9TRIG_DOUBLE: {does(top + a)}})
+    else:
+        raise Fail(f"no check for {u}")
+
+
+def e9trig_sums(q):
+    """Each plain sum in the working, from the figures shown, to their own precision."""
+    num = r"\(?−?\d+(?:\.\d+)?\)?"
+    rx = re.compile(rf"(?<![\w.(π/])((?:\({num} [−+] {num}\)|{num})(?: [+−×÷] (?:\({num} [−+] {num}\)|{num}))+) = (−?\d+(?:\.\d+)?)(?![\w/π])")
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            for m in rx.finditer(st):
+                e = m[1].replace("−", "-").replace("×", "*").replace("÷", "/")
+                x = float(eval(e, {"__builtins__": {}}))
+                y = float(m[2].replace("−", "-"))
+                need(abs(x - y) <= 2e-4 * max(1.0, abs(y)), f"{sol['name']}: {m[0]!r} is {x}")
+
+
+def check_trig_wave(q):
+    t, u, angle, paper = q["view"]["type"], q["view"]["unknown"], q["view"]["angle"], q["paper"]
+    if u in E9TRIG_P1_ONLY:
+        need(paper == 1, f"{u} is Paper 1")
+    if u in E9TRIG_P2_ONLY or angle == "gdc-graph" or (angle == "gdc-intersection"):
+        need(paper == 2, f"{u} by {angle} is Paper 2")
+    tr_hyphens(q)
+    (e9trig_read_features if t == "t3-trig-read-features" else e9trig_model_use)(q)
+    e9trig_sums(q)
+    return None, None
+
+
+# ── end trig-wave ──
+
+
+SITUATION_CHECKS = {"trig-wave": check_trig_wave, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic,
                     "distribution": check_distribution, "cubic": check_cubic,
                     "quadratic-parameter": check_qparam, "curve-and-line": check_curve_line,
                     "quadratic-equation": check_qeq, "quadratic-inequality": check_qineq,

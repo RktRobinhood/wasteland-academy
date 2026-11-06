@@ -855,7 +855,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *true-false-reason* (L3): The greatest value of a function on a closed interval is always at a stationary point. — False. It can be at an endpoint. On 0 ≤ x ≤ 5, f(x) = x² − 4x + 1 has its only stationary point at (2, −3), a minimum; the greatest value is f(5) = 6.
   - *interpret-parameter* (L4): Why does "the line is a tangent to the parabola" mean the discriminant is zero? — Equating the line and the curve gives a quadratic whose roots are the x-values where they meet. A tangent meets the curve at exactly one point, so there is one repeated root, and that happens when Δ = 0. Δ > 0 means two meeting points; Δ < 0 means none.
   - *predict-check* (L3): Predict the greatest and least values of y = 4 sin(3x) − 1 without calculus. Then check with dy/dx = 0. — 3 and −5: sin is between −1 and 1, so 4 sin(3x) is between −4 and 4, then subtract 1. dy/dx = 12 cos(3x) = 0 where sin(3x) = ±1, giving the same values.
-- **Misconceptions used:** 14. Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa; On a restricted domain, misses an endpoint that is higher than the local maximum; Finds the x-coordinate of the vertex but not the y-coordinate; Calls the vertex a minimum when a < 0; Uses only the endpoints of a restricted domain and misses a turning point inside it; Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x); Reads a, b, c before rearranging to '= 0', e.g. keeps the line's terms on the other side; Period = b instead of 2π/b; Amplitude = a + d, or a negative amplitude when a < 0; Solving f(x) = 0 instead of f′(x) = 0; Substituting the x-value into f′ instead of f to get the y-coordinate; Using b² − 4ac > 0 instead of = 0; Matching gradients but forgetting the line must also pass through the point on the curve; Ignoring the endpoints and quoting only the local maximum and minimum.
+- **Misconceptions used:** 14. Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa; On a restricted domain, misses an endpoint that is higher than the local maximum; Finds the x-coordinate of the vertex but not the y-coordinate; Calls the vertex a minimum when a < 0; Uses only the endpoints of a restricted domain and misses a turning point inside it; Writes the range in terms of x (e.g. x ≥ 2) instead of y or f(x); Reads a, b, c before rearranging to '= 0', e.g. keeps the line's terms on the other side; Using b as the period, instead of working the period out from b; Taking the amplitude as a + d, or as negative when a is negative; Solving f(x) = 0 instead of f′(x) = 0; Substituting the x-value into f′ instead of f to get the y-coordinate; Using b² − 4ac > 0 instead of = 0; Matching gradients but forgetting the line must also pass through the point on the curve; Ignoring the endpoints and quoting only the local maximum and minimum.
 
 #### Solve it by algebra, by graph or by GDC (`fn-link-graph-vs-algebra`, link, level 3–4)
 
@@ -1910,7 +1910,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 14 exam types have them so far.
 
 #### Volume and surface area of solids, including in terms of a variable (`t3-solid-volume-area`, exam, 13 bank parts)
 
@@ -2185,9 +2185,62 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *interpret-parameter* (L3): Why does 1 − 2 sin²θ suit a question that gives sin θ? — Because it is cos 2θ written with sin θ alone, so the other ratio is never needed.
 - **Misconceptions used:** 8. Ignoring the quadrant and giving the wrong sign; Dropping the squares from the Pythagorean identity; Taking the square root of a difference term by term; Doubling sin θ to get sin 2θ; Using a wrong form of cos 2θ, such as doubling cos θ or losing the number in front of sin²θ; Losing the negative sign of cos θ for an obtuse θ before substituting into sin 2θ; Expanding (sin x + cos x)² as sin²x + cos²x; Keeping the number in front the same when rewriting as the sine of a double angle, instead of halving it.
 
+#### Evaluate or use a trig model: times, counts, durations (`t3-trig-model-use`, exam, 9 bank parts)
+
+- **Situation:** One wave to read or to use, shared with `t3-trig-model-parameters`, `t3-trig-read-features`.
+- **Representations:** **words**, **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a model and a time → the value at that time
+  - **exam** L3: given a model with π in it, and a whole time → the exact value at that time
+  - **exam** L3: given a model and a level → the first time it is at the level
+  - new L4: given a model, a level and an interval → every time in the interval at the level
+  - **exam** L4: given a model and a level → how long it is above the level in each cycle
+  - **exam** L4: given a model and a level → how long it is below the level between two peaks
+  - **exam** L4: given a model, a level and a span of whole cycles → how long it is above the level in the span
+  - **exam** L3: given a model, often with a negative a → the first time it reaches its maximum
+  - **exam** L3: given a model with a decimal b → the time from a minimum to the next maximum
+  - **exam** L3: given a model and a time span → the number of maxima in the span
+  - **exam** L3: given a model and a span in a longer unit → the number of minima in the span
+  - new L2: given a model in a story → the maximum or minimum, and what it means
+  - **exam** L3: given a model and a level → whether the model ever reaches the level
+- **Angles:** Substitute the time; Intersect with y = k on the GDC; Rearrange and solve; Use symmetry about the peak.
+- **Concept probes:**
+  - *true-false-reason* (L3): A tide is above a level from 2 hours before high water, so it stays above it until 2 hours after. — True: a wave is symmetric about each peak, so the two crossings are equally far from it.
+  - *interpret-parameter* (L4): A model has a period of 12 hours. Why can a span of 48 hours be answered from one cycle? — 48 hours is exactly 4 periods, so whatever happens in one cycle happens 4 times, wherever the span starts.
+  - *predict-check* (L3): In degree mode, is a value of a radian model usually right, nearly right or nothing like it? Predict whether the error can be positive, then try one. — Positive: the angle is read as far smaller than it is, so the answer can be off by nearly the whole height of the wave.
+- **Misconceptions used:** 14. Leaving the calculator in degree mode for a radian model; Giving only the first intersection when all times in the interval are asked for; Taking b itself as the period, instead of working out b from the period; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Counting one cycle when the time span holds several; Taking c in the bracket as the time of a maximum or minimum; Reading the constant d as the largest or smallest value; Dividing the whole time by the period, without placing the first one; Forgetting to change the time span into the unit the model uses; Taking the whole period as the gap from a low point to the next high point; Taking the wrong sign for the value of an angle past the first quadrant; Leaving d out of the maximum, the minimum or the range; Using a = max − min, forgetting to halve.
+
+#### Read amplitude, period and principal axis from a graph or equation (`t3-trig-read-features`, exam, 18 bank parts)
+
+- **Situation:** One wave to read or to use, shared with `t3-trig-model-parameters`, `t3-trig-model-use`.
+- **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L1: given a wave, as an equation or a graph → the amplitude
+  - **exam** L2: given a sine or cosine wave, as an equation or a graph → the period
+  - **exam** L2: given a wave, as an equation or a graph → the amplitude and the period
+  - **exam** L1: given a wave, as an equation or a graph → the equation of the principal axis
+  - **exam** L1: given a wave, as an equation or a graph → the maximum value
+  - **exam** L1: given a wave, as an equation or a graph → the minimum value
+  - **exam** L2: given a wave, as an equation or a graph → the range
+  - **exam** L3: given a wave, as an equation or a graph → the maximum value and the first x at which it occurs
+  - **exam** L2: given a tan function, as an equation or a graph → the period
+  - **exam** L2: given a tan function → which statement about its amplitude, range and period is true
+  - **exam** L2: given the graph of a cos(b(x − c)) + d → the period, and hence b
+  - **exam** L2: given the graph of a cos(b(x − c)) + d → a and d
+  - **exam** L3: given the graph of sin(qx), with x-intercepts marked in terms of r → r in terms of q
+  - **exam** L2: given a story saying how often a wave peaks → b
+  - **exam** L1: given a story with the highest and lowest values → the amplitude and the principal axis
+  - **exam** L3: given a wheel's size and time for one turn, starting at the bottom → a and b in a cos(bt) + d
+- **Angles:** Read the parameters; Transform the base graph's features; Graph and read on the GDC.
+- **Concept probes:**
+  - *true-false-reason* (L3): y = −5 sin x has an amplitude of −5. — False: the amplitude is a size, so it is 5. The minus sign flips the wave but leaves its height alone.
+  - *always-sometimes-never* (L3): Doubling b doubles the period of a wave. — Never: b divides the period, so doubling b halves it.
+  - *interpret-parameter* (L3): Why does y = 2 tan x have no amplitude, when y = 2 sin x does? — An amplitude is half the height from the bottom of a wave to its top, and tan has no top: each branch climbs without limit.
+- **Misconceptions used:** 15. Using b as the period, instead of working the period out from b; Taking the amplitude as a + d, or as negative when a is negative; Giving tan x an amplitude; Using the period rule of sin and cos for tan, which repeats twice as often; Using tan's period rule for a sine or cosine wave, which takes twice as long to repeat; Leaving d out of the maximum, the minimum or the range; Keeping the minus sign of a when adding it to d, which swaps the maximum and the minimum; Reading the amplitude as the principal axis, or the other way round; Ignoring the minus sign in front of the wave, which turns its peaks into troughs; Mixing up where the two waves peak: cosine at the start of a cycle, sine a quarter of a cycle later; Taking a as positive when the wave starts at its lowest point; Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum; Using a = max − min, forgetting to halve; Leaving the calculator in degree mode for a radian model; Taking b itself as the period, instead of working out b from the period.
+
 #### Find the parameters of a trig model from a graph, data or context (`t3-trig-model-parameters`, exam, 7 bank parts)
 
-- **Situation:** One wave and the model behind it.
+- **Situation:** One wave and the model behind it, shared with `t3-trig-model-use`, `t3-trig-read-features`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given a maximum and a minimum → a and d
