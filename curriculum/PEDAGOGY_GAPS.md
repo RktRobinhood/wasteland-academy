@@ -1940,7 +1940,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 15 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 16 exam types have them so far.
 
 #### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
 
@@ -2244,7 +2244,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Evaluate or use a trig model: times, counts, durations (`t3-trig-model-use`, exam, 9 bank parts)
 
-- **Situation:** One wave to read or to use, shared with `t3-trig-model-parameters`, `t3-trig-read-features`.
+- **Situation:** One wave to read or to use, shared with `t3-trig-model-equation`, `t3-trig-model-parameters`, `t3-trig-read-features`.
 - **Representations:** **words**, **equation**, **graph** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L2: given a model and a time → the value at that time
@@ -2269,7 +2269,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Read amplitude, period and principal axis from a graph or equation (`t3-trig-read-features`, exam, 18 bank parts)
 
-- **Situation:** One wave to read or to use, shared with `t3-trig-model-parameters`, `t3-trig-model-use`.
+- **Situation:** One wave to read or to use, shared with `t3-trig-model-equation`, `t3-trig-model-parameters`, `t3-trig-model-use`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given a wave, as an equation or a graph → the amplitude
@@ -2297,7 +2297,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 #### Find the parameters of a trig model from a graph, data or context (`t3-trig-model-parameters`, exam, 7 bank parts)
 
-- **Situation:** One wave and the model behind it, shared with `t3-trig-model-use`, `t3-trig-read-features`.
+- **Situation:** One wave and the model behind it, shared with `t3-trig-model-equation`, `t3-trig-model-use`, `t3-trig-read-features`.
 - **Representations:** **equation**, **graph**, **words** (bold: the exam uses it)
 - **Unknowns:**
   - **exam** L1: given a maximum and a minimum → a and d
@@ -2321,6 +2321,36 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): sin(2x − π/3) is sin 2x moved π/3 to the right. — Never: the bracket is 2(x − π/6), so the move is π/6. The 2 stretches the shift as well.
   - *interpret-parameter* (L3): In h(t) = −10 cos(πt/6) + 12, what does the minus sign tell you? — The wave starts at its lowest point: at t = 0 it is 12 − 10 = 2, then it rises.
 - **Misconceptions used:** 8. Taking half a cycle as the whole period, such as the gap from a maximum to the next minimum; Using a = max − min, forgetting to halve; Getting the sign of c wrong in the bracket; Reading the shift before taking b out of the bracket; Treating b as the horizontal scale factor: a stretch with scale factor k divides b by k; Getting the direction of the shift wrong: a plus inside the bracket moves the graph left; Leaving the calculator in degree mode for a radian model; Taking b itself as the period, instead of working out b from the period.
+
+#### Solve a trig model equation or inequality for times (`t3-trig-model-equation`, exam, 5 bank parts)
+
+- **Situation:** A trig equation or inequality to solve or count, shared with `t3-trig-model-parameters`, `t3-trig-model-use`, `t3-trig-read-features`.
+- **Representations:** **words**, **equation**, **graph** (bold: the exam uses it)
+- **Unknowns:**
+  - new L3: given a model with π in it, a level and a span → the exact value of every time in the span at the level
+  - **exam** L3: given a model with π in it and a level → the exact time in one cycle at least, or at most, the level
+  - new L4: given a model, a level and a window that starts after 0 → every time in the window at the level
+  - new L4: given a model, a level and a span → the set of times above the level
+  - new L4: given a model, a level and a span → the set of times below the level
+  - new L4: given a model, a level and a longer span → the set of times past the level, in two stretches
+  - **exam** L5: given a model, a level and a span that is not whole cycles → the chance a random time in the span is above the level
+  - **exam** L4: given a model, a level and a span that is not whole cycles → the total time above, or below, the level in the span
+  - new L3: given a wave on an interval and a level inside its range → the number of solutions of f(x) = k
+  - new L3: given a wave on an interval and its maximum or minimum → the number of solutions, where the line only touches
+  - new L4: given a wave on an interval → the set of k with exactly n solutions
+  - new L3: given a wave on an interval → the set of k with at least one solution
+  - new L3: given a wave on an interval → the set of k with no solutions
+  - new L3: given a wave with a letter in it and a line touching its maxima or minima → the letter
+  - new L3: given one cycle of a wave, from the axis to the axis → the two values of k with exactly one solution
+  - new L4: given a trig function, a line and an interval → every solution
+  - new L4: given a trig function, a falling exponential and an interval → every solution
+  - new L4: given a trig function, a line and an interval → the number of solutions
+- **Angles:** GDC intersect; Sketch and count crossings; Reason from the maximum and minimum; Reference angle in every valid quadrant.
+- **Concept probes:**
+  - *true-false-reason* (L3): A line y = k meets a wave at its maximum. That is one solution in each cycle, not two. — True: the line only touches at the top, so the two crossings of a lower line have come together at one point.
+  - *predict-check* (L3): A wave runs for 2.5 cycles and the line is inside its range. Predict the number of solutions from the cycles alone, then count along a sketch. — Two full cycles give 4, but the half cycle left can give 0, 1 or 2 more, so the count needs the sketch.
+  - *interpret-parameter* (L4): Why does a sine curve against a steep line through the origin have fewer solutions than against a shallow one? — The wave stays inside a band, and a steeper line leaves that band sooner, so there are fewer humps for it to cross.
+- **Misconceptions used:** 16. Looking at only part of the interval and missing solutions; Including the boundary values of k where the line only touches at a maximum or minimum; Leaving the GDC in degree mode; Giving the whole range of the function as the values of k, without counting the solutions each value gives; Counting two solutions in a cycle where the line only touches at a maximum or minimum; Counting one solution in each cycle, when a line inside the range crosses twice in a cycle; Taking the share of one cycle as the share of a span that is not a whole number of cycles; Leaving out the maximum and the minimum, although the line still meets the curve at those heights; Leaving out the crossing at the origin; Counting two solutions in every cycle of the wave, although the line leaves the wave's band; Using the rule for the minimum at a maximum, or the rule for the maximum at a minimum; Stopping at one solution instead of finding them all; Finding a cosine equation's second solution the way you would for sine; Giving the time on the wrong side of the level: below it when above was asked, or the reverse; Stopping at the peak, so only half of the time past the level is counted; Leaving d out of the maximum, the minimum or the range.
 
 #### Solve a trig equation exactly in an interval (`t3-trig-equation`, exam, 8 bank parts)
 
