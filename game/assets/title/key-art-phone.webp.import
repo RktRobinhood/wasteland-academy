@@ -15,7 +15,7 @@ dest_files=["res://.godot/imported/key-art-phone.webp-d076c7c751f4a1862d15821b97
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
