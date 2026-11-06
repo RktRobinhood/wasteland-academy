@@ -640,7 +640,7 @@ func u_complement_two_rules(rep: String, s: Dictionary, _rng: Seeded) -> Diction
 	var space := "There are %d × %d = %d equally likely outcomes." % [s.xs.size(), s.ys.size(), all]
 	var big := "A big prize: %s = %d outcomes." % [plus(by_row(s, _big_test(s))), w[0]]
 	var small := "A small prize: %s = %d outcomes." % [plus(by_row(s, _small_test(s))), w[1]]
-	out.methods = {"one-minus": method([space + " Taking each first result in turn:", big + " " + small, "No outcome wins both, so P(nothing) = 1 − %d/%d − %d/%d = %d/%d = %s" % [w[0], all, w[1], all, none, all, T(s, v)], final_step(ans)], ans.values),
+	out.methods = {"one-minus": method([space + " Taking each first result in turn:", big + " " + small, "No outcome wins both, so P(nothing) = 1 − %d/%d − %d/%d = %s" % [w[0], all, w[1], all, Fmt.equals("%d/%d" % [none, all], T(s, v))], final_step(ans)], ans.values),
 		"count-complement": method([space + " Taking each first result in turn:", big + " " + small, "That leaves %d − %d − %d = %d outcomes that win nothing." % [all, w[0], w[1], none], "P = n(A′) ÷ n(U): " + ratio(s, none, all), final_step(ans)], ans.values)}
 	return out
 

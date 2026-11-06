@@ -242,9 +242,12 @@ func u_do_they_meet(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		_:
 			eq_step = "Set them equal: %s = %s is true for every x." % [Fmt.poly([s.m1, s.c1]), Fmt.poly([s.m2, s.c2])]
 	var cmp := "The gradients are %s and %s, the intercepts %s and %s." % [N(s.m1), N(s.m2), N(s.c1), N(s.c2)]
+	var shortcut := second
+	if rep == "equation":
+		shortcut = "For L₂, a = %s and b = %s, so m = −a/b = −(%s)/(%s) = %s. Put x = 0: %s, so its y-intercept is %s." % [N(s.a2), N(s.b2), N(s.a2), N(s.b2), N(s.m2), gk(0, s.b2, s.k2), N(s.c2)]
 	out.methods = {
 		"equate-y": method([second, eq_step, right + "."], {"v": right}),
-		"coefficient-shortcut": method([second, cmp, right + "."], {"v": right}),
+		"coefficient-shortcut": method([shortcut, cmp, right + "."], {"v": right}),
 	}
 	return out
 

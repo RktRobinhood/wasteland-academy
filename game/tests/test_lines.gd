@@ -237,6 +237,15 @@ func test_lines_in_words_never_key_the_general_form_method() -> void:
 	check_eq(_make(t, "do-they-meet", "equation", "coefficient-shortcut", 1, "method-pick").solutions[0].name, shortcut, "equation")
 
 
+func test_lines_in_general_form_use_the_method_the_key_names() -> void:
+	var t := "fn-ext-intersection-lines"
+	for seed in range(1, 30):
+		var q := _make(t, "do-they-meet", "equation", "coefficient-shortcut", seed, "method-pick")
+		var first: String = Step.text(q.solutions[0].steps[0])
+		check("m = −a/b = −(" in first, "seed %d: %s" % [seed, first])
+		check(not "rearranges" in first, "seed %d: %s" % [seed, first])
+
+
 func test_the_bare_gradient_slip_is_logged_though_the_type_has_no_error_spot() -> void:
 	var seen := false
 	for seed in range(1, 30):
