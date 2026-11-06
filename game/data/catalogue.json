@@ -36189,7 +36189,7 @@
 					"in": [
 						"flawed-estimate"
 					],
-					"wrong": "the line rearranged for x, or rearranging called harmless"
+					"wrong": "rearranging called harmless"
 				},
 				{
 					"ref": "SL4.4.predict#2",

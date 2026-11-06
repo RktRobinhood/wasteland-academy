@@ -324,7 +324,7 @@ func u_flawed_estimate(rep: String, s: Dictionary, rng: Seeded) -> Dictionary:
 	if s.case == "outside":
 		right = "x = %d is outside the data, which run from %d to %d, so the line may not hold there." % [s.x0, s.lo, s.hi]
 		wrongs = [["Nothing is wrong: r is strong, so the line holds for any x.", R_EXTRAPOLATE],
-			["The line must be rearranged to make x the subject first.", R_REARRANGED],
+			["The line must be rearranged to make x the subject first.", ""],
 			[too_weak, ""]]
 		out.lines.append("A scout estimates y when x = %d: y = %s × %d %s ≈ %s" % [s.x0, T(a), s.x0, signed_sum(b), T(s.y0)])
 		steps = ["%s, so the correlation is strong, and the arithmetic is right." % r_word,

@@ -15136,7 +15136,7 @@ def e9regr_flawed(q, f):
         need(x0 - hi >= sp.Rational(hi - lo, 2) or lo - x0 >= sp.Rational(hi - lo, 2), "x is not well outside the data")
         return [(f"x = {x0} is outside the data, which run from {lo} to {hi}, so the line may not hold there.", outside, None),
                 ("Nothing is wrong: r is strong, so the line holds for any x.", not outside, E9REGR_PR + "0"),
-                ("The line must be rearranged to make x the subject first.", False, E9REGR_PR + "1"), weak]
+                ("The line must be rearranged to make x the subject first.", False, None), weak]
     m = re.fullmatch(rf"A scout knows that y = (\d+) and estimates x: (\d+) = {re.escape(e9regr_t(a))}x ([+−]) ({E9REGR_NUM}), so x ≈ ({E9REGR_NUM})", L[-1])
     need(m is not None, f"can't read {L[-1]!r}")
     y = int(m.group(1))
