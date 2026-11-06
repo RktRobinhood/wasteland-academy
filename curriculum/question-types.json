@@ -30707,10 +30707,7 @@
      "suits": [
       "value-at-time",
       "exact-value",
-      "count-peaks",
-      "count-lows",
-      "interpret-extreme",
-      "reaches-level"
+      "interpret-extreme"
      ]
     },
     {
@@ -30738,7 +30735,9 @@
       "duration-below",
       "first-max-time",
       "high-low-gap",
-      "reaches-level"
+      "reaches-level",
+      "count-peaks",
+      "count-lows"
      ]
     },
     {
@@ -30902,15 +30901,6 @@
       "reaches-level"
      ],
      "wrong": "|a| as the largest value"
-    },
-    {
-     "ref": "SL3.7.equation-from-graph#1",
-     "text": "Using a = max − min, forgetting to halve",
-     "as": "distractor",
-     "in": [
-      "reaches-level"
-     ],
-     "wrong": "the largest value with max − min as a"
     }
    ],
    "parts": [

@@ -1031,7 +1031,7 @@ func count_methods(s: Dictionary, a: Dictionary, from: float, n: int, word: Stri
 	var last: float = from + (n - 1) * s.T
 	var list_it := "They come at t = %s, then every %s." % [GdcKit.W(from), GdcKit.W(s.T)]
 	var end := "The last by t = %s is number %d, at t = %s + %d × %s = %s" % [span, n, GdcKit.W(from), n - 1, GdcKit.W(s.T), GdcKit.W(last)]
-	return {"substitute-evaluate": method(first + [list_it, end, say(a)], a.values),
+	return {"solve-analytically": method(first + [list_it, end, say(a)], a.values),
 		"gdc-intersection": method(first + ["In radian mode, graph the model for 0 ≤ t ≤ %s, with the line y = %s: it touches at each %s." % [span, GdcKit.W(s.top if word == "peak" else s.low), word], list_it, end, say(a)], a.values)}
 
 
@@ -1096,7 +1096,7 @@ func u_interpret_extreme(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 	var set := m_setup(rep, s, 2.2 * s.T)
 	var out := {"answer": a, "wrongs": cl.wrongs, "generic": [], "lines": set.lines, "graph": set.graph, "asked": "Write down the %s value of the model, and say what it means here." % ("maximum" if big else "minimum")}
 	var right: String = Answer.text(a) + "."
-	out.methods = {"substitute-evaluate": method(["%s runs between %s and %s, so it stays within %s of %s." % [s.fn, "−1", "1", D(s.a), D(s.d)], "So the %s value is %s %s %s = %s, first at t = %s." % [word, D(s.d), "+" if big else "−", D(s.a), D(value), ft(t)], right], a.values)}
+	out.methods = {"substitute-evaluate": method(["%s runs between %s and %s, so it stays within %s of %s." % [s.fn, "−1", "1", D(s.a), D(s.d)], "So the %s value is %s %s %s = %s, first at t = %s." % [word, D(s.d), "+" if big else "−", D(s.a), D(value), ft(t)], "Put t = %s into the model: it gives %s." % [ft(t), D(value)], right], a.values)}
 	return out
 
 
@@ -1108,10 +1108,10 @@ func u_reaches_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 	var r_text_: String
 	if s.reach:
 		r_text_ = does.call(s.top)
-		ws = [[never.call(s.d), R_D_EXTREME], [never.call(s.a), R_NO_D], [does.call(s.top.add(s.a)), R_DOUBLE]]
+		ws = [[never.call(s.d), R_D_EXTREME], [never.call(s.a), R_NO_D], [does.call(s.top.add(s.a)), ""]]
 	else:
 		r_text_ = never.call(s.top)
-		ws = [[does.call(s.top.add(s.a)), R_DOUBLE], [never.call(s.d), R_D_EXTREME], [never.call(s.a), R_NO_D]]
+		ws = [[does.call(s.top.add(s.a)), ""], [never.call(s.d), R_D_EXTREME], [never.call(s.a), R_NO_D]]
 	var cl := DerivativeMeaningViews.claim_answer(r_text_, ws)
 	var a: Dictionary = cl.answer
 	var set := m_setup(rep, s, s.T * (1.25 if s.paper == 1 else 2.2), s.level)
@@ -1124,7 +1124,6 @@ func u_reaches_level(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
 		solve = "That size is at most 1, so the equation has solutions."
 	else:
 		solve = "The size of that is more than 1, and %s can't be more than 1 in size, so there is no solution." % s.fn
-	out.methods = {"substitute-evaluate": method([big, "%s is %s %s." % [D(s.top), "above" if s.reach else "below", k], right], a.values),
-		"solve-analytically": method(["Rearrange: %s(%s) = (%s − %s) ÷ %s = %s" % [s.fn, m_inner(s), k, PD(s.d), PD(s.A), GdcKit.W(r)], solve, right], a.values),
+	out.methods = {"solve-analytically": method([big, "Rearrange: %s(%s) = (%s − %s) ÷ %s = %s" % [s.fn, m_inner(s), k, PD(s.d), PD(s.A), GdcKit.W(r)], solve, right], a.values),
 		"gdc-intersection": method([gdc_line(s, s.level), "%s, and the highest point of the model is at %s." % ["They cross" if s.reach else "They never meet", D(s.top)], right], a.values)}
 	return out
