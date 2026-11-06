@@ -5411,7 +5411,7 @@
 				},
 				{
 					"ref": "SL2.1.gradient#2",
-					"text": "Reads the gradient of 3x − 2y + 6 = 0 as 3 or −3 instead of 3/2",
+					"text": "Reading a coefficient straight off ax + by + d = 0 as the gradient, instead of −a/b",
 					"as": "distractor",
 					"in": [
 						"gradient-from-general"
@@ -12059,7 +12059,7 @@
 				},
 				{
 					"ref": "SL2.11.describe#0",
-					"text": "Describes f(x + 2) as a translation 2 to the right, or gives the vector (2, 0)",
+					"text": "Taking the direction from the sign inside the bracket: a horizontal shift goes the opposite way",
 					"as": "distractor",
 					"in": [
 						"transformations-between"
@@ -17960,7 +17960,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL2.11.describe#0",
-					"text": "Describes f(x + 2) as a translation 2 to the right, or gives the vector (2, 0)",
+					"text": "Taking the direction from the sign inside the bracket: a horizontal shift goes the opposite way",
 					"as": "distractor",
 					"in": [
 						"describe-translation",
@@ -18527,7 +18527,7 @@
 				},
 				{
 					"ref": "SL2.11.sketch-transformed#1",
-					"text": "Stretches away from the wrong axis, e.g. moves points vertically for f(2x)",
+					"text": "Stretches away from the wrong axis, moving points vertically for f(bx)",
 					"as": "distractor",
 					"in": [
 						"sketch-horizontal"
@@ -18536,7 +18536,7 @@
 				},
 				{
 					"ref": "SL2.11.sketch-transformed#2",
-					"text": "Sketches f(x − 2) shifted to the left",
+					"text": "Shifting the graph the way the sign in the bracket reads, when it moves the opposite way",
 					"as": "distractor",
 					"in": [
 						"sketch-horizontal"
@@ -18545,7 +18545,7 @@
 				},
 				{
 					"ref": "SL2.11.composite-transform#0",
-					"text": "Writes f(2x − 3) for 'horizontal stretch by 1/2, then translate 3 right' (it is f(2(x − 3)))",
+					"text": "Not factoring out b: a horizontal stretch then a shift gives f(b(x − c)), not f(bx − c)",
 					"as": "distractor",
 					"in": [
 						"rule-from-moves"
@@ -18573,7 +18573,7 @@
 				},
 				{
 					"ref": "SL2.11.image-point#0",
-					"text": "Moves the point the wrong way horizontally: (2, 5) on f becomes (1, 5) on f(x − 1)",
+					"text": "Moves the point the wrong way horizontally: the sign inside the bracket works in reverse",
 					"as": "distractor",
 					"in": [
 						"image-point",
@@ -18592,7 +18592,7 @@
 				},
 				{
 					"ref": "SL2.11.image-point#2",
-					"text": "Doubles the x-coordinate for f(2x) instead of halving it",
+					"text": "Mixes up multiplying and dividing by b for the x-coordinate under f(bx)",
 					"as": "distractor",
 					"in": [
 						"image-point",
@@ -18602,7 +18602,7 @@
 				},
 				{
 					"ref": "SL2.11.reflect#0",
-					"text": "Reflects y = x² + 1 in the x-axis as y = −x² + 1, negating only one term",
+					"text": "Negating only one term when reflecting in the x-axis",
 					"as": "distractor",
 					"in": [
 						"reflect-rule"
@@ -18630,7 +18630,7 @@
 				},
 				{
 					"ref": "SL2.11.translate#0",
-					"text": "Writes f(x + 3) − 2 for a translation by (3, −2), getting the horizontal sign wrong",
+					"text": "Getting the horizontal sign wrong: a translation by (c, d) gives f(x − c) + d",
 					"as": "distractor",
 					"in": [
 						"rule-single-translation",
@@ -18640,7 +18640,7 @@
 				},
 				{
 					"ref": "SL2.11.translate#1",
-					"text": "Puts the vertical component inside the bracket, writing f(x − 3 − 2)",
+					"text": "Putting the vertical component inside the bracket instead of adding it after f",
 					"as": "distractor",
 					"in": [
 						"rule-single-translation"
@@ -19669,7 +19669,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL1.2.nth-term#0",
-					"text": "Using u_1 + nd, which gives u_11 instead of u_10",
+					"text": "Using u₁ + nd, which counts one step too many",
 					"as": "distractor",
 					"in": [
 						"term-from-u1-d",
@@ -19679,7 +19679,7 @@
 				},
 				{
 					"ref": "SL1.2.nth-term#1",
-					"text": "Finding d as u_1 − u_2, so a decreasing sequence gets a positive d",
+					"text": "Finding d as the earlier term minus the later term, so a decreasing sequence gets a positive d",
 					"as": "distractor",
 					"in": [
 						"term-from-u1-d",
@@ -19698,7 +19698,7 @@
 				},
 				{
 					"ref": "SL1.2.find-u1-d#0",
-					"text": "Dividing by the number of terms instead of the number of gaps: d = 16/5",
+					"text": "Dividing by the number of terms instead of the number of gaps",
 					"as": "distractor",
 					"in": [
 						"d-from-two-terms",
@@ -19708,7 +19708,7 @@
 				},
 				{
 					"ref": "SL1.2.find-u1-d#1",
-					"text": "Treating the given term as u_1 when asked for the first term",
+					"text": "Treating the given term as u₁ when asked for the first term",
 					"as": "distractor",
 					"in": [
 						"u1-from-two-terms"
@@ -19726,7 +19726,7 @@
 				},
 				{
 					"ref": "SL1.2.find-n#2",
-					"text": "Forgetting the + 1 when counting terms: (403 − 7)/4 = 99 terms",
+					"text": "Forgetting to add one when counting terms",
 					"as": "distractor",
 					"in": [
 						"n-from-term"
@@ -53335,7 +53335,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL2.11.composite-transform#0",
-					"text": "Writes f(2x − 3) for 'horizontal stretch by 1/2, then translate 3 right' (it is f(2(x − 3)))",
+					"text": "Not factoring out b: a horizontal stretch then a shift gives f(b(x − c)), not f(bx − c)",
 					"as": "distractor",
 					"in": [
 						"order-from-bracket"
@@ -53363,7 +53363,7 @@
 				},
 				{
 					"ref": "SL2.11.describe#0",
-					"text": "Describes f(x + 2) as a translation 2 to the right, or gives the vector (2, 0)",
+					"text": "Taking the direction from the sign inside the bracket: a horizontal shift goes the opposite way",
 					"as": "distractor",
 					"in": [
 						"inside-opposite"
@@ -53802,7 +53802,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL2.11.translate#0",
-					"text": "Writes f(x + 3) − 2 for a translation by (3, −2), getting the horizontal sign wrong",
+					"text": "Getting the horizontal sign wrong: a translation by (c, d) gives f(x − c) + d",
 					"as": "distractor",
 					"in": [
 						"moved-feature"
@@ -53811,7 +53811,7 @@
 				},
 				{
 					"ref": "SL2.11.translate#1",
-					"text": "Puts the vertical component inside the bracket, writing f(x − 3 − 2)",
+					"text": "Putting the vertical component inside the bracket instead of adding it after f",
 					"as": "distractor",
 					"in": [
 						"moved-feature"
@@ -54392,7 +54392,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL2.11.translate#0",
-					"text": "Writes f(x + 3) − 2 for a translation by (3, −2), getting the horizontal sign wrong",
+					"text": "Getting the horizontal sign wrong: a translation by (c, d) gives f(x − c) + d",
 					"as": "distractor",
 					"in": [
 						"equation-from-vector"
@@ -54401,7 +54401,7 @@
 				},
 				{
 					"ref": "SL2.11.translate#1",
-					"text": "Puts the vertical component inside the bracket, writing f(x − 3 − 2)",
+					"text": "Putting the vertical component inside the bracket instead of adding it after f",
 					"as": "distractor",
 					"in": [
 						"equation-from-vector"
@@ -54410,7 +54410,7 @@
 				},
 				{
 					"ref": "SL2.11.image-point#0",
-					"text": "Moves the point the wrong way horizontally: (2, 5) on f becomes (1, 5) on f(x − 1)",
+					"text": "Moves the point the wrong way horizontally: the sign inside the bracket works in reverse",
 					"as": "distractor",
 					"in": [
 						"image-from-equation"
@@ -54930,7 +54930,7 @@
 				},
 				{
 					"ref": "SL1.2.nth-term#0",
-					"text": "Using u_1 + nd, which gives u_11 instead of u_10",
+					"text": "Using u₁ + nd, which counts one step too many",
 					"as": "distractor",
 					"in": [
 						"sequence-as-line"
@@ -54939,7 +54939,7 @@
 				},
 				{
 					"ref": "SL1.2.find-u1-d#0",
-					"text": "Dividing by the number of terms instead of the number of gaps: d = 16/5",
+					"text": "Dividing by the number of terms instead of the number of gaps",
 					"as": "distractor",
 					"in": [
 						"d-from-two-terms"
