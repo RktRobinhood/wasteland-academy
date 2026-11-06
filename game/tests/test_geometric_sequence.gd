@@ -87,6 +87,15 @@ func test_every_distractor_misconception_is_an_option() -> void:
 				check(found, "%s never shows %s on %s" % [id, m.ref, u])
 
 
+func test_one_step_reads_as_one() -> void:
+	for t in QuestionEngine.cells(false, ["t1-geometric-sequence"]):
+		for seed in range(1, 13):
+			var q := QuestionEngine.make({"type": t.type, "unknown": t.unknown, "rep": t.rep, "angle": t.angle, "seed": seed, "format": "mcq"})
+			for sol in q.solutions:
+				for text in Step.texts(sol.steps):
+					check(not text.contains(" 1 steps") and not text.contains(" 1 times"), "%s: %s" % [t.key, text])
+
+
 func test_hand_values() -> void:
 	var s := {"u1": Q.new(3), "r": Q.new(2)}
 	check(GeometricSequenceSituation.term(s, 5).eq(48), "u₅ of 3, 6, 12, …")

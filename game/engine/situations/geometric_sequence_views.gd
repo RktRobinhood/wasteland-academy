@@ -475,7 +475,12 @@ static func divide_line(s: Dictionary) -> String:
 
 
 static func step_line(s: Dictionary) -> String:
-	return "From %s to %s is %d steps, so multiply by r %d times." % [U(s.p), U(s.q), s.q - s.p, s.q - s.p]
+	var gap: int = s.q - s.p
+	return "From %s to %s is %s, so multiply by r %s." % [U(s.p), U(s.q), step_count(gap), "once" if gap == 1 else "%d times" % gap]
+
+
+static func step_count(n: int) -> String:
+	return "1 step" if n == 1 else "%d steps" % n
 
 
 func u_r_odd_gap(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary:
@@ -522,7 +527,7 @@ func u_u1_from_two_terms(rep: String, s: Dictionary, _rng: Seeded) -> Dictionary
 		"generic": vs([s.up.mul(power(s.r, s.p - 1)), s.up.div(s.r), s.r, s.u1.neg(), s.up.sub(s.r.mul(s.p - 1))]),
 		"methods": {
 			"divide-terms": method([divide_line(s), root, back, say(ans)], ans.values),
-			"step-count": method([step_line(s), root, "Go back %d steps from %s to u₁: divide by r %d times." % [s.p - 1, U(s.p), s.p - 1], back, say(ans)], ans.values),
+			"step-count": method([step_line(s), root, "Go back %s from %s to u₁: %s." % [step_count(s.p - 1), U(s.p), "divide by r once" if s.p == 2 else "divide by r %d times" % (s.p - 1)], back, say(ans)], ans.values),
 		}}
 
 

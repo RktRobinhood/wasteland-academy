@@ -213,11 +213,11 @@ func u_mean_point_from_lines(rep: String, s: Dictionary, _rng: Seeded) -> Dictio
 	var ac: Q = s.a.mul(s.c)
 	var left := Q.new(1).sub(ac)
 	var right: Q = s.c.mul(s.b).add(s.d)
-	out.methods = {"solve-simultaneously": method(["Both lines pass through the mean point, so substitute y = %sx %s %s into x = cy + d." % [D(s.a), "−" if s.b.sign() < 0 else "+", D(s.b.abs_q())],
+	out.methods = {"solve-simultaneously": method(["Both lines pass through the mean point, so substitute y = %sx %s %s into %s." % [D(s.a), "−" if s.b.sign() < 0 else "+", D(s.b.abs_q()), xy(s)],
 			"x = %s(%sx %s %s) %s %s" % [D(s.c), D(s.a), "−" if s.b.sign() < 0 else "+", D(s.b.abs_q()), "−" if s.d.sign() < 0 else "+", D(s.d.abs_q())],
 			"%sx = %s, so x = %s" % [D(left), D(right), D(s.mx)], "y = %s × %s %s %s = %s" % [D(s.a), D(s.mx), "−" if s.b.sign() < 0 else "+", D(s.b.abs_q()), D(s.my)],
 			final_step(ans)], ans.values),
-		"gdc-intersect": method(["Rearrange x = cy + d to y = (x − d) ÷ c, and graph it with the line of y on x.", "Use the intersect tool: x = %s and y = %s." % [D(s.mx), D(s.my)], final_step(ans)], ans.values)}
+		"gdc-intersect": method(["Rearrange %s to make y the subject, and graph it with the line of y on x." % xy(s), "Use the intersect tool: x = %s and y = %s." % [D(s.mx), D(s.my)], final_step(ans)], ans.values)}
 	return out
 
 
