@@ -2441,7 +2441,7 @@
                 }
               ],
               "misconceptions": [
-                "Losing brackets: writing ln 3^(x + 1) as x + 1 ln 3",
+                "Losing the brackets around the power when bringing it down",
                 "Taking logs before isolating: ln(5e^(2x)) = 5 × 2x",
                 "Rounding the logs early, so the final answer is wrong"
               ],
@@ -2502,7 +2502,7 @@
                 }
               ],
               "misconceptions": [
-                "Keeping a solution that makes an argument zero or negative (x = −2)",
+                "Keeping a solution that makes an argument zero or negative",
                 "Combining log a + log b as log(a + b)",
                 "Converting log_2 X = 3 to X = 3² or X = 3/2 instead of X = 2³"
               ],
@@ -3757,9 +3757,9 @@
                 }
               ],
               "misconceptions": [
-                "Treats f(x) as f × x, e.g. writes f(2) = 2f",
+                "Treats f(x) as f × x, so a factor inside the bracket comes out",
                 "Squares the minus sign too: −x² is −(x²), not (−x)²",
-                "Writes f(x + 1) as f(x) + 1"
+                "Writes f(x + a) as f(x) + a"
               ],
               "threads": [
                 {
@@ -4261,7 +4261,7 @@
                 }
               ],
               "misconceptions": [
-                "Reads 'solve f(x) = 1' as 'find f(1)'",
+                "Reads 'solve f(x) = c' as 'find f(c)'",
                 "Gives only one solution when y = k crosses the curve several times",
                 "Misreads the scale when the axes are not 1 unit per square"
               ],
@@ -4463,7 +4463,7 @@
               "misconceptions": [
                 "Confuses the zeros (x where f(x) = 0) with the y-intercept f(0)",
                 "Gives the zeros with the wrong signs",
-                "Divides by x when solving x³ = 4x and loses the zero x = 0"
+                "Divides by x when solving and loses the zero at the origin"
               ],
               "threads": [
                 {
@@ -4524,7 +4524,7 @@
               ],
               "misconceptions": [
                 "Gives the x-coordinate when the maximum value (the y-value) is asked for, or vice versa",
-                "Misses an endpoint of a restricted domain that is higher than the local maximum",
+                "Misses an endpoint of a restricted domain that goes past the turning point",
                 "Gives GDC answers to too few significant figures"
               ],
               "threads": [
@@ -7088,7 +7088,7 @@
               ],
               "misconceptions": [
                 "Using b as the scale factor of f(bx) (it is 1/b)",
-                "Thinks 2f(x) moves the x-intercepts",
+                "Thinks a vertical stretch moves the x-intercepts",
                 "Describes a stretch without its direction or scale factor"
               ],
               "threads": [
@@ -9318,7 +9318,7 @@
               ],
               "misconceptions": [
                 "Uses b as the period instead of 2π/b",
-                "Mixes up the amplitude and the principal axis",
+                "Ignores the principal axis, or adds it to the amplitude",
                 "Giving tan x an amplitude"
               ],
               "threads": [
@@ -14209,8 +14209,8 @@
                 }
               ],
               "misconceptions": [
-                "Differentiating the denominator: d/dx(1/x²) = 1/(2x)",
-                "Getting the new power wrong: x⁻² → −2x⁻¹ instead of −2x⁻³",
+                "Differentiating the denominator instead of using a negative power",
+                "Adding one to a negative power instead of subtracting one",
                 "Dividing only the first term of the numerator by x"
               ],
               "threads": [

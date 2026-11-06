@@ -6042,7 +6042,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL2.2.evaluate-notation#0",
-					"text": "Treats f(x) as f × x, e.g. writes f(2) = 2f",
+					"text": "Treats f(x) as f × x, so a factor inside the bracket comes out",
 					"as": "distractor",
 					"in": [
 						"read-value"
@@ -6060,7 +6060,7 @@
 				},
 				{
 					"ref": "SL2.2.evaluate-notation#2",
-					"text": "Writes f(x + 1) as f(x) + 1",
+					"text": "Writes f(x + a) as f(x) + a",
 					"as": "distractor",
 					"in": [
 						"value-at-shifted-input"
@@ -6069,7 +6069,7 @@
 				},
 				{
 					"ref": "SL2.3.read-graph#0",
-					"text": "Reads 'solve f(x) = 1' as 'find f(1)'",
+					"text": "Reads 'solve f(x) = c' as 'find f(c)'",
 					"as": "distractor",
 					"in": [
 						"solve-from-table"
@@ -7028,7 +7028,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL2.2.evaluate-notation#0",
-					"text": "Treats f(x) as f × x, e.g. writes f(2) = 2f",
+					"text": "Treats f(x) as f × x, so a factor inside the bracket comes out",
 					"as": "error-spot",
 					"in": [
 						"value-at-input"
@@ -7046,7 +7046,7 @@
 				},
 				{
 					"ref": "SL2.2.evaluate-notation#2",
-					"text": "Writes f(x + 1) as f(x) + 1",
+					"text": "Writes f(x + a) as f(x) + a",
 					"as": "distractor",
 					"in": [
 						"expression-input"
@@ -7103,7 +7103,7 @@
 				},
 				{
 					"ref": "SL2.4.zeros-intercepts#2",
-					"text": "Divides by x when solving x³ = 4x and loses the zero x = 0",
+					"text": "Divides by x when solving and loses the zero at the origin",
 					"as": "error-spot",
 					"in": [
 						"zeros"
@@ -8181,7 +8181,7 @@
 				},
 				{
 					"ref": "SL2.4.max-min#1",
-					"text": "Misses an endpoint of a restricted domain that is higher than the local maximum",
+					"text": "Misses an endpoint of a restricted domain that goes past the turning point",
 					"as": "distractor",
 					"in": [
 						"greatest-on-domain"
@@ -8995,7 +8995,7 @@
 				},
 				{
 					"ref": "SL2.4.zeros-intercepts#2",
-					"text": "Divides by x when solving x³ = 4x and loses the zero x = 0",
+					"text": "Divides by x when solving and loses the zero at the origin",
 					"as": "error-spot",
 					"in": [
 						"zeros-with-x-factor"
@@ -9014,7 +9014,7 @@
 				},
 				{
 					"ref": "SL2.4.max-min#1",
-					"text": "Misses an endpoint of a restricted domain that is higher than the local maximum",
+					"text": "Misses an endpoint of a restricted domain that goes past the turning point",
 					"as": "distractor",
 					"in": [
 						"greatest-on-domain"
@@ -9821,7 +9821,7 @@
 				},
 				{
 					"ref": "SL2.4.max-min#1",
-					"text": "Misses an endpoint of a restricted domain that is higher than the local maximum",
+					"text": "Misses an endpoint of a restricted domain that goes past the turning point",
 					"as": "distractor",
 					"in": [
 						"max-difference"
@@ -17039,7 +17039,7 @@
 				},
 				{
 					"ref": "SL1.7.solve-with-logs#0",
-					"text": "Losing brackets: writing ln 3^(x + 1) as x + 1 ln 3",
+					"text": "Losing the brackets around the power when bringing it down",
 					"as": "distractor",
 					"in": [
 						"time-to-level"
@@ -18658,7 +18658,7 @@
 				},
 				{
 					"ref": "SL2.11.stretch#1",
-					"text": "Thinks 2f(x) moves the x-intercepts",
+					"text": "Thinks a vertical stretch moves the x-intercepts",
 					"as": "distractor",
 					"in": [
 						"image-point"
@@ -50970,7 +50970,7 @@
 					"wrong": "the x cancelled from top and bottom, leaving 6/3"
 				},
 				{
-					"text": "Adds tops and bottoms: 1/(x + 1) + 2/(x − 1) = 3/(2x)",
+					"text": "Adds tops and bottoms separately instead of using a common denominator",
 					"as": "distractor",
 					"in": [
 						"add-fractions"
@@ -51471,7 +51471,7 @@
 			"misconceptions": [
 				{
 					"ref": "SL2.2.evaluate-notation#2",
-					"text": "Writes f(x + 1) as f(x) + 1",
+					"text": "Writes f(x + a) as f(x) + a",
 					"as": "distractor",
 					"in": [
 						"inside-or-outside-shift"
@@ -51480,7 +51480,7 @@
 				},
 				{
 					"ref": "SL2.2.evaluate-notation#0",
-					"text": "Treats f(x) as f × x, e.g. writes f(2) = 2f",
+					"text": "Treats f(x) as f × x, so a factor inside the bracket comes out",
 					"as": "error-spot",
 					"in": [
 						"inside-or-outside-scale"
@@ -56975,7 +56975,7 @@
 				},
 				{
 					"ref": "SL5.3.negative-powers#0",
-					"text": "Differentiating the denominator: d/dx(1/x²) = 1/(2x)",
+					"text": "Differentiating the denominator instead of using a negative power",
 					"as": "distractor",
 					"in": [
 						"power-form-first"
@@ -56984,7 +56984,7 @@
 				},
 				{
 					"ref": "SL5.3.negative-powers#1",
-					"text": "Getting the new power wrong: x⁻² → −2x⁻¹ instead of −2x⁻³",
+					"text": "Adding one to a negative power instead of subtracting one",
 					"as": "distractor",
 					"in": [
 						"power-form-first"
@@ -57386,7 +57386,7 @@
 				},
 				{
 					"ref": "SL2.4.max-min#1",
-					"text": "Misses an endpoint of a restricted domain that is higher than the local maximum",
+					"text": "Misses an endpoint of a restricted domain that goes past the turning point",
 					"as": "distractor",
 					"in": [
 						"endpoint-beats-vertex"
@@ -57449,7 +57449,7 @@
 				},
 				{
 					"ref": "SL3.7.read-features#1",
-					"text": "Mixes up the amplitude and the principal axis",
+					"text": "Ignores the principal axis, or adds it to the amplitude",
 					"as": "distractor",
 					"in": [
 						"wave-extremes",
@@ -57952,7 +57952,7 @@
 				},
 				{
 					"ref": "SL1.7.log-equations#0",
-					"text": "Keeping a solution that makes an argument zero or negative (x = −2)",
+					"text": "Keeping a solution that makes an argument zero or negative",
 					"as": "distractor",
 					"in": [
 						"log-equation-check"

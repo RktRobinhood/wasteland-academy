@@ -18,8 +18,8 @@ extends SceneTree
 ## It can't judge whether a tag matches its option, so --rows=/abs/file.tsv also writes one
 ## row per type, unknown, representation and tag (stem, picked option, feedback) to read.
 ##
-## Every built type is enforced except those in REPORT_ONLY, the types built before this
-## check, whose failures are only counted. A new type is enforced from its first commit.
+## Every built type is enforced, from its first commit. A type on REPORT_ONLY has its
+## failures only counted. The list is empty, and a type shouldn't join it.
 ## Used by tools/feedback-check. Exits non-zero on any enforced failure.
 ##
 ## Faults are counted once per type, tag and number, however many questions show them.
@@ -29,32 +29,7 @@ extends SceneTree
 ##
 ## --all enforces the report-only types too.
 
-const REPORT_ONLY := [
-	"fn-composite", "fn-concept-asymptote-meaning", "fn-concept-function-notation",
-	"fn-concept-gradient-meaning", "fn-concept-growth-patterns", "fn-concept-quadratic-forms",
-	"fn-concept-solutions-as-intersections", "fn-concept-transform-order",
-	"fn-curve-intersection-quadratic", "fn-discriminant", "fn-domain-range",
-	"fn-evaluate-function", "fn-exp-log-inverse-composite", "fn-exponential-model",
-	"fn-ext-exp-graph", "fn-ext-inequality-graphical", "fn-ext-intersection-lines",
-	"fn-ext-is-function", "fn-ext-line-model", "fn-ext-match-graph", "fn-ext-quadratic-model",
-	"fn-ext-rational-model", "fn-ext-transformed-reciprocal", "fn-gdc-features",
-	"fn-gdc-intersection", "fn-gdc-optimise-combined", "fn-gdc-solve-equation",
-	"fn-graph-table-composite-inverse", "fn-inverse-algebraic", "fn-inverse-reflection",
-	"fn-line-from-conditions", "fn-link-equivalent-forms", "fn-link-extremes",
-	"fn-link-graph-vs-algebra", "fn-link-multiplicative-growth", "fn-link-rate-of-change",
-	"fn-link-symmetry", "fn-link-transformations", "fn-link-vectors", "fn-log-function-features",
-	"fn-log-of-quadratic", "fn-pre-algebraic-fractions", "fn-pre-expand", "fn-pre-factorise",
-	"fn-pre-graph-reading", "fn-pre-linear-equations", "fn-pre-linear-inequalities",
-	"fn-pre-percent-multiplier", "fn-pre-rearrange", "fn-pre-simultaneous", "fn-pre-substitute",
-	"fn-pre-surds", "fn-quadratic-features", "fn-quadratic-from-conditions",
-	"fn-quadratic-inequality", "fn-rational-asymptotes-intercepts", "fn-rational-sketch",
-	"fn-sketch-from-features", "fn-sketch-gdc", "fn-solve-quadratic", "fn-transform-apply",
-	"fn-transform-describe", "t1-arithmetic-sequence", "t1-compound-interest",
-	"t3-ambiguous-case", "t3-sine-cosine-rule", "t3-triangle-area", "t4-binomial",
-	"t4-discrete-distribution", "t4-expected-occurrences", "t4-expected-value",
-	"t4-regression-gdc", "t4-summary-statistics", "t5-differentiate-polynomial",
-	"t5-stationary-points", "t5-tangent-condition", "t5-tangent-normal-equation",
-]
+const REPORT_ONLY := []
 
 ## Two full stops, but not an ellipsis.
 const DOUBLE_STOP := "(?<!\\.)\\.\\.(?!\\.)"
@@ -65,7 +40,7 @@ const NOT_A_SLIP := ["thing", "nothing", "everything", "something", "anything", 
 const SLIP_VERBS := ["adds", "answers", "applies", "assumes", "believes", "calls", "cancels", "checks",
 	"chooses", "computes", "confuses", "converts", "copies", "counts", "describes", "divides", "doubles",
 	"draws", "drops", "evaluates", "factorises", "finds", "flips", "forgets", "gets", "gives", "ignores",
-	"includes", "interprets", "keeps", "leaves", "lets", "looks", "makes", "mishandles", "misreads",
+	"includes", "interprets", "joins", "keeps", "leaves", "lets", "looks", "makes", "mishandles", "misreads",
 	"misses", "mixes", "moves", "multiplies", "picks", "plots", "puts", "reads", "reflects", "replaces",
 	"restricts", "reverses", "rounds", "says", "sets", "shows", "sketches", "solves", "splits", "squares",
 	"states", "stops", "stretches", "substitutes", "subtracts", "swaps", "takes", "thinks", "treats",
