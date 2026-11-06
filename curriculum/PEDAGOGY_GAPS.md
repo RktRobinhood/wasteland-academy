@@ -1658,7 +1658,7 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 1: Number and algebra (catalogue level)
 
-16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 12 exam types have them so far.
+16 exam types (see `QUESTION_TYPES.md`) and 15 extension types. Unknowns and angles follow one topic at a time, as Functions did; 13 exam types have them so far.
 
 #### Calculate with numbers in standard form (`t1-standard-form`, exam, 3 bank parts)
 
@@ -1690,6 +1690,39 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
   - *always-sometimes-never* (L3): Multiplying two numbers in standard form gives an answer already in standard form. — Sometimes: it holds when the product of the a-values is below 10. Otherwise a has to be brought back and k raised by 1.
   - *true-false-reason* (L3): A GDC showing 3.1E−4 is an acceptable final answer. — False: calculator notation isn't accepted. Write 3.1 × 10^−4.
 - **Misconceptions used:** 9. Getting the sign of the power wrong: a large number needs a positive power and a small one a negative power; Moving the point one place too many, by counting digits instead of the places it moves; Leaving or comparing a number whose first part isn't between one and ten; Multiplying the powers of ten instead of adding them; Forgetting to renormalise, which leaves the first part outside one to ten; Slipping on the powers: subtracting them for a product, or adding them for a quotient; Writing the GDC display, E-notation and all, as the final answer; Rounding a at an early step so the third significant figure is wrong; Dividing the wrong way round when asked 'how many times larger'.
+
+#### Prove a property linking arithmetic and geometric terms (`t1-sequence-proof`, exam, 4 bank parts)
+
+- **Situation:** One claim about sequences, as a chain of lines.
+- **Representations:** **equation**, words, diagram (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given three terms of an arithmetic sequence, unevenly spaced → the last term in terms of the other two
+  - **exam** L3: given three terms of a geometric sequence, unevenly spaced → the power in the relation between them
+  - **exam** L4: given two sequences with the same first term, that meet again later → the greatest lower bound on the arithmetic sequence's second term
+  - **exam** L2: given three terms in k, and a value of k → the common ratio that proves they are geometric
+  - new L3: given arithmetic terms that are consecutive geometric terms → d in terms of a
+  - new L4: given arithmetic terms that are consecutive geometric terms → the common ratio the proof establishes
+  - new L3: given a geometric sequence and the log of each term → the constant difference of the logs
+  - new L3: given a geometric sequence and the log of each term → the nth term of the logs
+  - new L2: given a general term pn + q → u_(n+1) − u_n, and that it is constant
+  - new L4: given a cubic whose first three terms have equal gaps → which line settles whether it is arithmetic
+  - new L3: given Sₙ as a quadratic in n → uₙ in terms of n
+  - new L3: given Sₙ as a quadratic in n → the common difference
+  - new L3: given an arithmetic sequence's general term or first terms → Sₙ in terms of n
+  - new L3: given a sum written forwards and backwards → the total of each column
+  - new L3: given a rectangle of dots built in L-shaped layers → the number of dots in the first n layers
+  - new L3: given a rectangle of dots built in L-shaped layers → the number of dots in layer n
+  - new L3: given two staircases of dots that make a rectangle → the rectangle's width for any n
+  - new L3: given a proof with one line hidden → the hidden line
+  - new L2: given the first lines of a proof → which line comes next
+  - new L4: given a proof with one slip carried to the end → the first wrong line and its correction
+  - new L4: given a claim and four arguments → which argument is a complete proof
+- **Angles:** Show u_(n+1) − u_n is a constant; Apply a known series formula and simplify; Write the sum forwards and backwards and add; Use a picture of dots.
+- **Concept probes:**
+  - *true-false-reason* (L3): u₂ − u₁ = u₃ − u₂ for a sequence, so the sequence is arithmetic. — False: that is one pair of gaps. uₙ = (n − 1)(n − 2)(n − 3) + n has u₁, u₂, u₃ = 1, 2, 3, but u₄ = 10. A proof needs uₙ₊₁ − uₙ for general n.
+  - *always-sometimes-never* (L3): If a sequence of positive numbers is geometric, the logs of its terms form an arithmetic sequence. — Always: log uₙ₊₁ − log uₙ = log(uₙ₊₁/uₙ) = log r for every n, and that is a constant.
+  - *true-false-reason* (L4): An arithmetic sequence with d ≠ 0 has a, a + d and a + 3d as consecutive geometric terms. Then d = a. — True: (a + d)² = a(a + 3d) gives d² = ad, and d ≠ 0, so d = a. The terms a, 2a and 4a have common ratio 2.
+- **Misconceptions used:** 31. Checking a few values of n and stopping; Using the result being proved as a step in its own proof; Comparing the gaps between particular terms instead of the gap between neighbouring terms for general n; Counting one gap too many between the first term and the nth term; Taking away only the first term of a bracket, so the other terms keep their signs; Multiplying only the first term of a bracket by the number outside it; Squaring a bracket term by term, with no middle term; Forgetting to double the middle term when squaring a bracket; Testing the wrong kind of sequence: a common difference for a geometric claim, or a common ratio for an arithmetic one; Dividing a term by the one after it, which gives the reciprocal of the common ratio; Writing a difference of logs as the log of a difference; Taking the common ratio itself as the difference of the logs; Forgetting to halve at the end, which gives twice the sum; Leaving out the doubling of the first term in the sum formula; Treating the last term as the whole sum; Treating the sum of the first n terms as the nth term; Using the next sum instead of the one before when taking a difference of sums; Reading a coefficient of Sₙ as the common difference; Confusing the first term with the common difference; Reading the width of the rectangle as the number of dots in a layer; Counting the corner of a layer twice; Adding the last term to itself instead of to the first term; Counting half as many columns, as if the two lists were already paired off; Taking a ratio across several steps as the common ratio; Moving a term across the equals sign without changing its sign; Counting a term's position in the sequence instead of the steps to reach it; Stopping before dividing by the coefficient of the letter; Using the rule for three consecutive terms on terms that are not consecutive; Halving a rectangle that holds only one copy of the sum; Taking d/a as the common ratio; Leaving the first term out of a pair, so only the last term is counted.
 
 #### Arithmetic sequence or series modelling a pattern or context (`t1-arithmetic-in-context`, exam, 6 bank parts)
 

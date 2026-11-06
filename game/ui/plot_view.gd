@@ -56,6 +56,8 @@ extends Control
 ##               circle round `at` (FAL-751)
 ##   stages      {"stages": [[row lengths, top row first], ...], "names": [text]}: stacks of blocks side by
 ##               side, each row centred and drawn to one scale, with a name under each stack
+##   dots        {"rows": [[colour number, ...], ...], "name": text}: rows of dots from the left, top row
+##               first, each dot coloured by its number, with a name underneath (FAL-753)
 
 const PAD := 26.0
 const FONT_SIZE := 32
@@ -64,6 +66,7 @@ const LABEL_GAP := 90.0
 const TREE_TOP := 64.0
 const TREE_LEAF := 84.0
 const BOX_ROW := 150.0
+const DOT_COLOURS: Array[Color] = [UiTheme.TEAL, UiTheme.SAND, UiTheme.PINK, UiTheme.TEXT]
 
 var spec: Dictionary = {}
 
@@ -78,6 +81,8 @@ func set_spec(s: Dictionary) -> void:
 	custom_minimum_size = Vector2(0, {"numberline": 260, "venn": 500, "tree": 620, "cumfreq": 900, "sketch": 660, "unit-circle": 640, "straight-angle": 420, "solid": 640, "bounce": 520, "squares": 660, "space": 640}.get(s.get("kind"), 560))
 	if s.get("kind") == "stages":
 		custom_minimum_size.y = 300.0
+	if s.get("kind") == "dots":
+		custom_minimum_size.y = 360.0
 	if s.get("kind") == "box":
 		custom_minimum_size.y = (BOX_ROW * s.boxes.size() + 170.0) if s.get("scale", true) else 300.0
 	if s.get("kind") == "tree" and s.has("heads"):
@@ -97,6 +102,8 @@ func _draw() -> void:
 	match spec.get("kind", ""):
 		"stages":
 			_stages()
+		"dots":
+			_dots()
 		"numberline":
 			_numberline()
 		"normal":
@@ -1323,6 +1330,21 @@ func _stages() -> void:
 				draw_rect(Rect2(x + 1.0, y + 1.0, unit - 2.0, unit - 2.0), UiTheme.TEAL)
 		_text(spec.names[i], Vector2(mid, ground + 44.0), UiTheme.SAND, FONT_SIZE - 4)
 		at += wide + gap
+
+
+func _dots() -> void:
+	var rows: Array = spec.rows
+	var wide := 0
+	for row in rows:
+		wide = maxi(wide, row.size())
+	var room := size - Vector2(2.0 * PAD, 2.0 * PAD + 60.0)
+	var unit: float = minf(room.x / wide, room.y / rows.size())
+	var left := (size.x - wide * unit) / 2.0
+	for r in rows.size():
+		for c in rows[r].size():
+			var at := Vector2(left + (c + 0.5) * unit, PAD + (r + 0.5) * unit)
+			draw_circle(at, unit * 0.38, DOT_COLOURS[int(rows[r][c]) % DOT_COLOURS.size()])
+	_text(spec.name, Vector2(size.x / 2.0, PAD + rows.size() * unit + 44.0), UiTheme.SAND, FONT_SIZE - 4)
 
 
 func _squares() -> void:

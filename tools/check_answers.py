@@ -32759,6 +32759,745 @@ def e10tm_check(q):
 
 # ── end trig-model-equation ──
 
+# ── sequence-proof (t1-sequence-proof, FAL-753) ──────────────
+# The `sequence-proof` situation's clean limits and exam exclusions, the checker's own copy: the
+# engine's is in game/engine/situations/sequence_proof.gd. Each claim is read back from the
+# question's own words, and every line of a proof is proved here with SymPy: for general n, or
+# for every a and d, not by trying values. A line is held to what its left side means, so
+# "uₙ = ..." has to equal Sₙ − Sₙ₋₁ as an expression in n. Each tagged option is that same check
+# on a world where the slip was made: the slip's value is worked out here by making the move,
+# and the option must be true there and false here.
+
+E11SP_M = "SL1.6.series-proof#"
+E11SP_CHECK, E11SP_CIRCULAR, E11SP_PARTICULAR, E11SP_GAPS, E11SP_FIRST_ONLY, E11SP_ONE_TERM, E11SP_TERMWISE, E11SP_NO_DOUBLE, E11SP_WRONG_TEST, \
+    E11SP_RECIPROCAL, E11SP_LOG_DIFF, E11SP_RATIO_AS_DIFF, E11SP_NO_HALF, E11SP_NO_TWO, E11SP_LAST_AS_SUM, E11SP_SUM_AS_TERM, E11SP_NEXT_SUM, \
+    E11SP_COEFF, E11SP_SWAP, E11SP_WIDTH, E11SP_CORNER, E11SP_LAST_TWICE, E11SP_HALF_COLUMNS, E11SP_ACROSS, E11SP_SIGN_MOVE, E11SP_POSITION, \
+    E11SP_NO_DIVIDE, E11SP_CONSECUTIVE, E11SP_HALF_RECT, E11SP_D_OVER_A, E11SP_LAST_ONLY = (E11SP_M + str(i) for i in range(31))
+E11SP_N = sp.Symbol("n", positive=True, integer=True)
+E11SP_A, E11SP_D = sp.Symbol("a"), sp.Symbol("d")
+E11SP_LINKS = ((1, 3), (1, 4), (1, 5), (1, 6), (2, 8), (2, 12), (3, 15))
+E11SP_STEPS = ((1, 2), (1, 3), (1, 4), (2, 1), (2, 3), (3, 1), (3, 2), (4, 1))
+E11SP_KSKIP = (1, -5, -2, 3, 5, 3)
+E11SP_SUB = {"₁": "1", "₂": "2", "₃": "3", "₅": "5"}
+E11SP_THINGS = ("rivets", "bolts", "bottle caps", "washers", "fuses")
+E11SP_UNSUITED = "This statement does not suit that method, so work through it line by line."
+
+
+def E11SP_num(t):
+    return sp.Rational(t.replace("−", "-"))
+
+
+def E11SP_expr(text, names=None):
+    """Plain text as an expression: names maps a word in the text to its value."""
+    s = text.strip()
+    names = dict(names or {})
+    # Longest first, so uₙ₊₁ is not read as uₙ and two stray signs.
+    local = {"n": E11SP_N}
+    for i, key in enumerate(sorted(names, key=len, reverse=True)):
+        s = s.replace(key, f" E11T{i} ")
+        local[f"E11T{i}"] = names[key]
+    s = s.replace("−", "-").replace("×", "*").replace("²", "**2").replace("³", "**3").replace("⁴", "**4")
+    s = s.replace("½", "(1/2)")
+    return parse_expr(s, local_dict=local, transformations=TRANSFORMS)
+
+
+def E11SP_same(a, b):
+    return sp.simplify(sp.expand(a - b)) == 0
+
+
+def E11SP_sides(line):
+    need(line.count(" = ") == 1, f"can't read the line {line!r}")
+    return line.split(" = ")
+
+
+def E11SP_top_terms(text):
+    """A list a + b + … + z cut at its top-level pluses."""
+    out, depth, cur = [], 0, ""
+    for tok in re.split(r"( \+ |[()])", text):
+        if tok == "(":
+            depth += 1
+        elif tok == ")":
+            depth -= 1
+        if tok == " + " and depth == 0:
+            out.append(cur.strip())
+            cur = ""
+        else:
+            cur += tok
+    return out + [cur.strip()]
+
+
+# ── The world a proof lives in ───────────────────────────────
+# A world is a dict: fam, and what each left side means. A slip's world changes one meaning.
+
+def E11SP_world(fam, g, angle=None):
+    i = lambda k: int(g[k])
+    n = E11SP_N
+    if fam == "ap-term":
+        p, q = i("p"), i("q")
+        need(2 <= abs(p) <= 9 and 1 <= abs(q) <= 9 and p + 2 * q != 0, f"p, q = {p}, {q}")
+        return {"fam": fam, "u": lambda k: p * k + q, "gap": p}
+    if fam == "sum-term":
+        a, b = i("A"), i("B")
+        need(1 <= a <= 6 and 1 <= abs(b) <= 9 and a != b, f"A, B = {a}, {b}")
+        S = lambda k: a * k**2 + b * k
+        return {"fam": fam, "S": S, "term": S(n) - S(n - 1), "A": a, "B": b}
+    if fam == "log-geo":
+        b, p, q = i("b"), i("p"), i("q")
+        need(b in (2, 3, 5) and 1 <= p <= 4 and q != 0 and p != q and abs(q) <= {2: 4, 3: 3, 5: 2}[b], f"b, p, q = {b}, {p}, {q}")
+        u1, r = sp.Integer(b)**p, sp.Integer(b)**q
+        return {"fam": fam, "b": b, "u1": u1, "r": r, "p": p, "q": q, "gap": sp.Integer(q)}
+    if fam == "linked":
+        ii, j = i("i"), i("j")
+        need((ii, j) in E11SP_LINKS, f"i, j = {ii}, {j}")
+        a, d = E11SP_A, E11SP_D
+        roots = sp.solve(sp.expand((a + ii * d)**2 - a * (a + j * d)), d)
+        k = [x / a for x in roots if x != 0]
+        need(len(k) == 1 and k[0].is_integer, f"d is not a whole multiple of a: {roots}")
+        return {"fam": fam, "i": ii, "j": j, "k": k[0]}
+    if fam == "sum-list":
+        p, q = i("p"), i("q")
+        need(2 <= p <= 7 and q != 0 and 1 <= p + q <= 9 and p + 2 * q != 0, f"p, q = {p}, {q}")
+        k = sp.Symbol("k", positive=True, integer=True)
+        S = sp.factor(sp.summation(p * k + q, (k, 1, n)))
+        u = lambda t: p * t + q
+        return {"fam": fam, "u": u, "sum": S, "pair": u(1) + u(n), "p": p, "q": q, "first": p + q}
+    need(False, f"no world for {fam}")
+
+
+def E11SP_slip_world(w, ref, angle):
+    """The same world with one wrong move made, worked out here by making the move."""
+    v, n = dict(w), E11SP_N
+    fam = w["fam"]
+    if fam == "ap-term":
+        p, q = w["gap"], w["u"](0)
+        v["gap"] = {E11SP_ONE_TERM: sp.Integer(1), E11SP_FIRST_ONLY: p + 2 * q}[ref]
+    elif fam == "sum-term":
+        a, b, S = w["A"], w["B"], w["S"]
+        if ref == E11SP_TERMWISE:
+            v["term"] = S(n) - (a * (n**2 + 1) + b * (n - 1))
+        elif ref == E11SP_FIRST_ONLY:
+            # Only the n² term of the second bracket changes sign.
+            v["term"] = S(n) - a * n**2 + (-2 * a * n + a + b * n - b)
+        else:
+            need(ref == E11SP_NEXT_SUM, f"no slip {ref}")
+            v["term"] = S(n + 1) - S(n)
+    elif fam == "log-geo":
+        if ref == E11SP_RATIO_AS_DIFF:
+            v["gap"] = w["r"]
+        else:
+            need(ref == E11SP_RECIPROCAL, f"no slip {ref}")
+            v["gap"] = -w["gap"]
+    elif fam == "linked":
+        i, j, a, d = w["i"], w["j"], E11SP_A, E11SP_D
+        # d = ka, from the equation the slip leaves.
+        m = {E11SP_NO_DOUBLE: j - i, E11SP_TERMWISE: j, E11SP_SIGN_MOVE: j + 2 * i}[ref]
+        v["k"] = sp.Rational(m, i * i)
+        v["slip"] = ref
+    elif fam == "sum-list":
+        p, first, S = w["p"], w["first"], w["sum"]
+        if angle == "forwards-backwards":
+            if ref == E11SP_NO_HALF:
+                v["sum"] = 2 * S
+                v["halved"] = 2
+            elif ref == E11SP_HALF_COLUMNS:
+                v["sum"] = S / 2
+                v["columns"] = n / 2
+            else:
+                need(ref == E11SP_LAST_TWICE, f"no slip {ref}")
+                v["pair"] = 2 * w["u"](n)
+                v["sum"] = n * w["u"](n)
+        else:
+            v["sum"] = {E11SP_GAPS: n / 2 * (2 * first + n * p), E11SP_NO_TWO: n / 2 * (first + (n - 1) * p), E11SP_NO_HALF: 2 * S}[ref]
+    return v
+
+
+def E11SP_log_read(text, w):
+    """log₂ uₙ₊₁ − log₂ uₙ, log₂(uₙ₊₁/uₙ), log₂(8) or a number, as a value in n."""
+    n, b = E11SP_N, w["b"]
+    u = lambda k: w["u1"] * w["r"]**(k - 1)
+    name = "log" + {2: "₂", 3: "₃", 5: "₅"}[b]
+    s = text.replace(f"{name} uₙ₊₁", f"{name}(uₙ₊₁)").replace(f"{name} uₙ", f"{name}(uₙ)")
+    # A log base b of a power of b is that power: its value, by exponents and no sampling.
+    def lg(e):
+        return sp.simplify(sp.expand_log(sp.log(sp.powsimp(e, force=True)), force=True) / sp.log(b))
+    expr = E11SP_expr(s.replace(name, "E11LOG"), {"uₙ₊₁": u(n + 1), "uₙ": u(n), "E11LOG": sp.Function("E11LOG")})
+    return expr.replace(lambda e: isinstance(e, sp.core.function.AppliedUndef), lambda e: lg(e.args[0]))
+
+
+def E11SP_true(line, w):
+    """Whether a line of a proof holds in this world, for general n."""
+    fam, n = w["fam"], E11SP_N
+    left, right = E11SP_sides(line)
+    if fam == "ap-term":
+        need(left == "uₙ₊₁ − uₙ", f"can't read {line!r}")
+        return E11SP_same(E11SP_expr(right), w["gap"])
+    if fam == "sum-term":
+        need(left == "uₙ", f"can't read {line!r}")
+        S = w["S"]
+        return E11SP_same(E11SP_expr(right, {"Sₙ₊₁": S(n + 1), "Sₙ₋₁": S(n - 1), "Sₙ": S(n)}), w["term"])
+    if fam == "log-geo":
+        need(left == "vₙ₊₁ − vₙ", f"can't read {line!r}")
+        return E11SP_same(E11SP_log_read(right, w), w["gap"])
+    if fam == "linked":
+        a, d = E11SP_A, E11SP_D
+        names = {"a": a, "d": d}
+        e = sp.expand(E11SP_expr(left, names) - E11SP_expr(right, names))
+        return sp.expand(e.subs(d, w["k"] * a)) == 0
+    # sum-list
+    S, u = w["sum"], w["u"]
+    if " copies of " in right:
+        count, body = right.split(" copies of ")
+        need(left == "2Sₙ", f"can't read {line!r}")
+        x = E11SP_expr(body)
+        return E11SP_same(x, w["pair"]) and E11SP_same(E11SP_expr(count), w.get("columns", n))
+    if "…" in right:
+        need(left == "Sₙ", f"can't read {line!r}")
+        ts = E11SP_top_terms(right)
+        need(len(ts) == 5 and ts[3] == "…", f"can't read the list {right!r}")
+        got = [E11SP_expr(t) for t in ts[:3] + ts[4:]]
+        fw = [u(1), u(2), u(3), u(n)]
+        bw = [u(n), u(n - 1), u(n - 2), u(1)]
+        return all(E11SP_same(x, y) for x, y in zip(got, fw)) or all(E11SP_same(x, y) for x, y in zip(got, bw))
+    whole = {"Sₙ": S, "2Sₙ": 2 * S}
+    need(left in whole, f"can't read {line!r}")
+    return E11SP_same(E11SP_expr(right), whole[left])
+
+
+# ── Reading a claim back ─────────────────────────────────────
+
+def E11SP_read_claim(q, g, rep):
+    """The numbers a chain's setting states, from the words. They must be the given ones."""
+    fam, L = g["fam"], q["lines"]
+    if fam == "ap-term":
+        if rep == "words" and q["view"]["unknown"] in ("constant-difference", "missing-line"):
+            m = re.fullmatch(r"The nth term of a sequence is found by multiplying n by (−?\d+), then (adding|taking away) (\d+)\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            p, c = int(E11SP_num(m.group(1))), int(m.group(3)) * (1 if m.group(2) == "adding" else -1)
+        else:
+            m = re.fullmatch(r"uₙ = (.+), where n is a positive integer\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = sp.Poly(E11SP_expr(m.group(1)), E11SP_N)
+            p, c = e.coeff_monomial(E11SP_N), e.coeff_monomial(1)
+        need((p, c) == (int(g["p"]), int(g["q"])), "the setting is not the given numbers")
+    elif fam == "sum-term":
+        if rep == "words" and q["view"]["unknown"] in ("term-from-sum", "difference-from-sum", "missing-line"):
+            m = re.fullmatch(r"The sum of the first n terms of a sequence is found by multiplying n² by (\d+), then (adding|taking away) (\d+) times n\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            a, b = int(m.group(1)), int(m.group(3)) * (1 if m.group(2) == "adding" else -1)
+        else:
+            m = re.fullmatch(r"Sₙ = (.+) is the sum of the first n terms of a sequence\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = sp.Poly(E11SP_expr(m.group(1)), E11SP_N)
+            a, b = e.coeff_monomial(E11SP_N**2), e.coeff_monomial(E11SP_N)
+        need((a, b) == (int(g["A"]), int(g["B"])), "the setting is not the given numbers")
+    elif fam == "log-geo":
+        if rep == "words":
+            m = re.fullmatch(r"A geometric sequence uₙ starts at (\d+), and each term is ([\d/]+) times the one before\.", L[0])
+            m2 = re.fullmatch(r"A second sequence vₙ is the log base (\d) of each term\.", L[1])
+            need(m and m2, f"can't read {L[:2]!r}")
+            b = int(m2.group(1))
+        else:
+            m = re.fullmatch(r"uₙ is a geometric sequence with u₁ = (\d+) and common ratio ([\d/]+)\.", L[0])
+            m2 = re.fullmatch(r"vₙ = log([₂₃₅]) uₙ", L[1])
+            need(m and m2, f"can't read {L[:2]!r}")
+            b = int(E11SP_SUB[m2.group(1)])
+        need(sp.Integer(m.group(1)) == sp.Integer(b)**int(g["p"]) and sp.Rational(m.group(2)) == sp.Integer(b)**int(g["q"]) and b == int(g["b"]), "the setting is not the given numbers")
+    elif fam == "linked":
+        ii, j = int(g["i"]), int(g["j"])
+        if rep == "words":
+            need(f"Its 1st, {E11SP_ord(ii + 1)} and {E11SP_ord(j + 1)} terms are three consecutive terms" in L[1], f"can't read {L[1]!r}")
+        else:
+            lead = lambda c: "" if c == 1 else str(c)
+            need(L[1] == f"a, a + {lead(ii)}d and a + {lead(j)}d are three consecutive terms of a geometric sequence.", f"can't read {L[1]!r}")
+    elif fam == "sum-list":
+        if rep == "words":
+            m = re.fullmatch(r"A list of numbers starts at (\d+), and each number is (\d+) more than the one before\. Sₙ is the sum of the first n numbers\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            first, d = int(m.group(1)), int(m.group(2))
+        else:
+            m = re.fullmatch(r"uₙ = (.+) is an arithmetic sequence, and Sₙ is the sum of its first n terms\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = E11SP_expr(m.group(1))
+            first, d = e.subs(E11SP_N, 1), sp.expand(e.subs(E11SP_N, 2) - e.subs(E11SP_N, 1))
+        need((first, d) == (int(g["p"]) + int(g["q"]), int(g["p"])), "the setting is not the given numbers")
+
+
+def E11SP_ord(k):
+    return f"{k}" + ("th" if 11 <= k % 100 <= 13 else {1: "st", 2: "nd", 3: "rd"}.get(k % 10, "th"))
+
+
+def E11SP_claim_line(q, w):
+    """A chain's stated claim: true, and it is what the proof reaches."""
+    claim = next((l for l in q["lines"] if l.startswith("Prove that ")), None)
+    need(claim is not None, "no claim")
+    if claim.startswith("Prove that the sequence") or claim.startswith("Prove that vₙ"):
+        return None
+    body = claim[len("Prove that "):].rstrip(".")
+    need(E11SP_true(body, w), f"the claim {claim!r} is false")
+    return body
+
+
+def E11SP_shown(q):
+    """The numbered lines of a proof: [(line number, text)], in order, from 1."""
+    out = []
+    for l in q["lines"]:
+        m = re.fullmatch(r"Line (\d+): (.*)", l)
+        if m:
+            need(int(m.group(1)) == len(out) + 1, f"line {m.group(1)} is out of order")
+            out.append(m.group(2))
+    need(out, "no lines of proof")
+    return out
+
+
+def E11SP_steps(q, w):
+    """Every step of working that ends on a line of the proof is true of the world."""
+    for sol in q["solutions"]:
+        for st in sol["steps"]:
+            # "Why it holds: the line". A step with no colon is a sentence, not a line.
+            tail = st.rsplit(": ", 1)[-1].rstrip(".")
+            if ": " in st and tail.count(" = ") == 1 and "," not in tail and not st.startswith("So "):
+                need(E11SP_true(tail, w), f"{sol['name']}: {st!r} is not true")
+
+
+def E11SP_tagged(o, body, w, angle):
+    """A tagged wrong line: true where the slip was made, and it holds nowhere else."""
+    ref = o["ref"]
+    if ref == E11SP_LOG_DIFF:
+        need(body.endswith("(uₙ₊₁ − uₙ)"), f"{body!r} is not a log of a difference")
+        return
+    need(E11SP_true(body, E11SP_slip_world(w, ref, angle)), f"option {body!r} is not what {ref} gives")
+
+
+def E11SP_common(q, want):
+    """The checks every question shares. A tag's option has been read back by value already."""
+    tags = {}
+    for o in q["choices"]:
+        if o["ref"]:
+            tags.setdefault(o["ref"], set()).add(o["text"])
+    gc_check_common(q, want, tags, steps=(2, 5))
+
+
+def E11SP_lines_check(q, g, u, rep, angle):
+    fam = g["fam"]
+    need(angle in ("general-difference", "series-formula", "forwards-backwards"), f"method {angle}")
+    # A shared situation belongs to no method, so its lines can be another's: the working says so.
+    fits = fam in {"general-difference": ("ap-term", "sum-term", "log-geo"), "series-formula": ("sum-list", "linked"), "forwards-backwards": ("sum-list",)}[angle]
+    need(fits or q["solutions"][0]["steps"][0] == E11SP_UNSUITED, f"{fam} by {angle}")
+    E11SP_read_claim(q, g, rep)
+    w = E11SP_world(fam, g)
+    E11SP_claim_line(q, w)
+    if u == "valid-proof":
+        return E11SP_valid(q, g, w, angle)
+    shown = E11SP_shown(q)
+    if u == "flawed-line":
+        return E11SP_flawed(q, g, w, angle, shown)
+    if u == "missing-line":
+        hide = int(g["hide"])
+        need(shown[hide] == "?" and shown.count("?") == 1, "the hidden line")
+        label = f"Line {hide + 1}: "
+        need(q["answer_text"].startswith(label), "the answer is another line")
+    else:
+        need(len(shown) == int(g["at"]), "the lines shown")
+        label = ""
+    for i, l in enumerate(shown):
+        if l != "?":
+            need(E11SP_true(l, w), f"line {i + 1} is false: {l!r}")
+    for o in q["choices"]:
+        body = o["text"][len(label):]
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        if o["correct"]:
+            need(E11SP_true(body, w), f"the right line {body!r} is false")
+            need(body not in shown, "the right line is already shown")
+            continue
+        ref = o["ref"]
+        if ref == E11SP_CIRCULAR:
+            need(body.endswith(", because that is the result to prove.") and E11SP_true(body.split(", because")[0], w), f"can't read {body!r}")
+            continue
+        if ref == E11SP_CHECK:
+            need(E11SP_one_value(body, w), f"{body!r} is not the value at n = 1")
+            continue
+        if ref == E11SP_LOG_DIFF:
+            E11SP_tagged(o, body, w, angle)
+            continue
+        need(not E11SP_true(body, w), f"the wrong line {body!r} is true")
+        if ref:
+            E11SP_tagged(o, body, w, angle)
+    E11SP_common(q, q["answer_text"])
+    E11SP_steps(q, w)
+
+
+def E11SP_one_value(body, w):
+    m = re.fullmatch(r"Try n = 1: (.+) = (−?\d+)\.", body)
+    need(m, f"can't read {body!r}")
+    fam, v = w["fam"], E11SP_num(m.group(2))
+    if fam == "ap-term":
+        return m.group(1) == "u₂ − u₁" and v == w["u"](2) - w["u"](1)
+    if fam == "sum-term":
+        return m.group(1) == "u₁" and v == w["S"](1)
+    if fam == "log-geo":
+        return m.group(1) == "v₂ − v₁" and v == w["gap"]
+    return m.group(1) == "S₁" and v == w["u"](1)
+
+
+def E11SP_flawed(q, g, w, angle, shown):
+    at = int(g["at"])
+    # The first false line is found here, and every line after it follows from the same slip.
+    first = next((i for i, l in enumerate(shown) if not E11SP_true(l, w)), None)
+    need(first == at, f"the first false line is {first}, not {at}")
+    refs = E11SP_chain_refs(w, angle)
+    made = refs[int(g["slip"]) - 1]
+    slip = E11SP_slip_world(w, made, angle)
+    for l in shown[at:]:
+        need(E11SP_true(l, slip), f"{l!r} is not what the slip {made} carries to")
+    head = f"Line {at + 1} should read: "
+    for o in q["choices"]:
+        m = re.fullmatch(r"Line (\d+) should read: (.*)", o["text"])
+        need(m, f"can't read {o['text']!r}")
+        no, body = int(m.group(1)) - 1, m.group(2)
+        if o["correct"]:
+            need(o["text"].startswith(head) and E11SP_true(body, w), f"the right option {o['text']!r} is false")
+        elif no == at:
+            need(not E11SP_true(body, w), f"{o['text']!r} is true of the first wrong line")
+            if o["ref"]:
+                E11SP_tagged(o, body, w, angle)
+        else:
+            need(no > at and not o["ref"], f"{o['text']!r} is about an earlier line, or tagged")
+    need(q["answer_text"].startswith(head), "the answer is another line")
+    E11SP_common(q, q["answer_text"])
+
+
+def E11SP_chain_refs(w, angle):
+    if w["fam"] == "sum-list":
+        return [E11SP_NO_HALF, E11SP_HALF_COLUMNS, E11SP_LAST_TWICE] if angle == "forwards-backwards" else [E11SP_GAPS, E11SP_NO_TWO, E11SP_NO_HALF]
+    return {"ap-term": [E11SP_ONE_TERM, E11SP_FIRST_ONLY], "sum-term": [E11SP_TERMWISE, E11SP_FIRST_ONLY, E11SP_NEXT_SUM],
+            "log-geo": [E11SP_LOG_DIFF, E11SP_RATIO_AS_DIFF, E11SP_RECIPROCAL], "linked": [E11SP_NO_DOUBLE, E11SP_TERMWISE, E11SP_SIGN_MOVE]}[w["fam"]]
+
+
+def E11SP_valid(q, g, w, angle):
+    fam, n = w["fam"], E11SP_N
+    ch = {o["ref"]: o["text"] for o in q["choices"] if not o["correct"]}
+    arith = "so the sequence is arithmetic."
+    t = lambda v: ("−" + str(-v)) if v < 0 else str(v)
+    if fam in ("ap-term", "sum-term"):
+        d = sp.simplify(w["term"].subs(n, n + 1) - w["term"]) if fam == "sum-term" else sp.Integer(w["gap"])
+        need(d.is_number, "the sequence is not arithmetic")
+        gap = "uₙ₊₁ − uₙ"
+        need(ch[E11SP_CHECK] == f"Try n = 1, n = 2 and n = 3: {gap} is {t(d)} each time, {arith}", f"can't read {ch[E11SP_CHECK]!r}")
+        need(ch[E11SP_PARTICULAR] == f"u₂ − u₁ = u₃ − u₂ = {t(d)}, {arith}", f"can't read {ch[E11SP_PARTICULAR]!r}")
+        need(ch[E11SP_CIRCULAR].startswith("The sequence is arithmetic, so "), f"can't read {ch[E11SP_CIRCULAR]!r}")
+        right = q["answer_text"]
+        if fam == "ap-term":
+            m = re.fullmatch(rf"uₙ₊₁ − uₙ = (.+) = {re.escape(t(d))} for every n, so the sequence is arithmetic\.", right)
+            need(m and E11SP_true(f"uₙ₊₁ − uₙ = {m.group(1)}", w), f"can't read {right!r}")
+        else:
+            m = re.fullmatch(rf"uₙ = Sₙ − Sₙ₋₁ = (.+) for every n, so uₙ₊₁ − uₙ = {d}, a constant\.", right)
+            need(m and E11SP_true(f"uₙ = {m.group(1)}", w), f"can't read {right!r}")
+        E11SP_common(q, right)
+        return
+    # The two arguments on a sum: read back, every number worked out here.
+    p, first, S = w["p"], w["first"], w["sum"]
+    body = sp.expand(2 * S / n)
+    text = E11SP_poly(body)
+    ends = f"(n/2)({text})"
+    need(ch[E11SP_CHECK] == f"S₁ = {S.subs(n, 1)}, S₂ = {S.subs(n, 2)} and S₃ = {S.subs(n, 3)} fit the formula, so it holds for every n.", f"can't read {ch[E11SP_CHECK]!r}")
+    need(ch[E11SP_CIRCULAR] == f"Let Sₙ = {ends}. Then 2Sₙ = n({text}), so halving gives {ends}.", f"can't read {ch[E11SP_CIRCULAR]!r}")
+    if angle == "forwards-backwards":
+        want = f"Add Sₙ forwards and backwards: each of the n columns is {text}, so 2Sₙ = n({text}), and Sₙ = {ends}."
+        need(E11SP_same(w["pair"], body), "the columns do not add to the bracket")
+        need(ch[E11SP_NO_HALF] == f"Add Sₙ forwards and backwards: each of the n columns is {text}, so Sₙ = n({text}).", f"can't read {ch[E11SP_NO_HALF]!r}")
+    else:
+        want = f"Sₙ = (n/2)(2 × {first} + (n − 1) × {p}) = {ends}, by the formula for an arithmetic sum."
+        off = E11SP_poly(sp.expand(2 * first + n * p))
+        need(ch[E11SP_GAPS] == f"Sₙ = (n/2)(2 × {first} + n × {p}) = (n/2)({off}), by the formula for an arithmetic sum.", f"can't read {ch[E11SP_GAPS]!r}")
+    E11SP_common(q, want)
+
+
+def E11SP_poly(e, v=None):
+    return pf_poly(e.subs(E11SP_N, PF_N), PF_N)
+
+
+def E11SP_values(q, label, value, wrongs, want=None):
+    """Number options: the right one has the value, and each tag the value of its slip."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = E11SP_num(o["text"][len(label):])
+        need(o["correct"] == (v == value), f"option {o['text']!r} is marked {o['correct']}; the value is {value}")
+        if o["ref"]:
+            need(o["ref"] in wrongs and any(v == x for x in wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+    t = str(value).replace("-", "−")
+    E11SP_common(q, label + t)
+
+
+def E11SP_forms(q, label, value, wrongs, names=None):
+    """Expression options: each read back and compared with value as an expression in n."""
+    for o in q["choices"]:
+        need(o["text"].startswith(label), f"option {o['text']!r} has another shape")
+        v = E11SP_expr(o["text"][len(label):], names)
+        need(o["correct"] == E11SP_same(v, value), f"option {o['text']!r} is marked {o['correct']}")
+        if o["ref"]:
+            need(o["ref"] in wrongs and E11SP_same(v, wrongs[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+    E11SP_common(q, q["answer_text"])
+
+
+def E11SP_relation(q, g, rep, u):
+    """Three unevenly spaced terms, read back from the words."""
+    x, y, z = g["l1"], g["l2"], g["l3"]
+    need((x, y, z) in (("a", "b", "c"), ("x", "y", "z"), ("f", "g", "h")), "the letters")
+    L = q["lines"]
+    if u == "arithmetic-relation":
+        if rep == "words":
+            m = re.fullmatch(rf"In an arithmetic sequence, {x} is the first term and {y} comes straight after it\. {z} comes (\d) terms after {y}\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = int(m.group(1))
+        else:
+            m = re.fullmatch(rf"{x}, {y} and {z} are the 1st, 2nd and (\d)th terms of an arithmetic sequence\.", L[0])
+            need(m, f"can't read {L[0]!r}")
+            e = int(m.group(1)) - 2
+        need(2 <= e <= 5 and e == int(g["e"]), f"e = {e}: evenly spaced terms are the exam's")
+        t, d = sp.Symbol("t"), sp.Symbol("D")
+        vals = {x: t, y: t + d, z: t + (e + 1) * d}
+        X, Y = sp.Symbol(x), sp.Symbol(y)
+        for o in q["choices"]:
+            left, right = E11SP_sides(o["text"])
+            need(left == z, f"option {o['text']!r} is not about {z}")
+            r = E11SP_expr(right, {x: X, y: Y})
+            need(o["correct"] == E11SP_same(r.subs({X: vals[x], Y: vals[y]}), vals[z]), f"option {o['text']!r} is marked {o['correct']}")
+            want = {E11SP_POSITION: (e + 3) * Y - (e + 2) * X, E11SP_ONE_TERM: (e + 1) * Y - X, E11SP_SIGN_MOVE: (e - 1) * Y - e * X}
+            if o["ref"]:
+                need(E11SP_same(r, want[o["ref"]]), f"option {o['text']!r} is not what {o['ref']} gives")
+        E11SP_common(q, q["answer_text"])
+        return
+    if rep == "words":
+        m = re.fullmatch(rf"In a geometric sequence with no zero terms, {x} is the first term, {y} comes (\d) after it and {z} comes (\d) after {y}\.", L[0])
+        need(m, f"can't read {L[0]!r}")
+        a, b = int(m.group(1)), int(m.group(2))
+    else:
+        m = re.fullmatch(rf"{x}, {y} and {z} are the 1st, (\d)\w\w and (\d)\w\w terms of a geometric sequence with no zero terms\.", L[0])
+        need(m, f"can't read {L[0]!r}")
+        a, b = int(m.group(1)) - 1, int(m.group(2)) - int(m.group(1))
+    need((a, b) in E11SP_STEPS and (a, b) == (int(g["g"]), int(g["h"])), "the steps")
+    sup = lambda c: "" if c == 1 else "".join("⁰¹²³⁴⁵⁶⁷⁸⁹"[int(ch)] for ch in str(c))
+    need(L[1] == f"{x}{sup(b)}{z}{sup(a)} = {y}^k for every such sequence.", f"can't read {L[1]!r}")
+    t, r, k = sp.Symbol("t", positive=True), sp.Symbol("r", positive=True), sp.Symbol("k")
+    left, yv = t**b * (t * r**(a + b))**a, t * r**a
+    # log of both sides: this must hold for every t and r, which fixes k.
+    both = sp.expand(sp.expand_log(sp.log(left), force=True) - k * sp.expand_log(sp.log(yv), force=True))
+    sol = sp.solve([both.coeff(sp.log(t)), both.coeff(sp.log(r))], k, dict=True)
+    need(len(sol) == 1, "no k works")
+    E11SP_values(q, "k = ", sol[0][k], {E11SP_POSITION: [1 + a + b], E11SP_CONSECUTIVE: [2]})
+
+
+def E11SP_bound(q, g, rep):
+    L = q["lines"]
+    if rep == "words":
+        m = re.fullmatch(r"The adding list reaches (\d+) at its (\d+)\w\w number\. The multiplying list reaches \d+ at its 3rd number\.", L[1])
+    else:
+        m = re.fullmatch(r"The (\d+)\w\w term of the arithmetic sequence and the 3rd term of the geometric sequence are both (\d+)\.", L[1])
+    need(m, f"can't read {L[1]!r}")
+    a, b = int(m.group(1)), int(m.group(2))
+    w, place = (a, b) if rep == "words" else (b, a)
+    e = place - 2
+    need(1 <= e <= 3 and 2 <= w <= 12 and (e, w) == (int(g["e"]), int(g["w"])), "the numbers are out of range")
+    B = sp.Symbol("b", positive=True)
+    D = (w - B) / sp.Integer(place - 1)
+    m_of_b = B + D
+    # m rises with b, and b > 0 is all the geometric sequence asks (c² = bw), so L is the limit.
+    need(sp.diff(m_of_b, B).is_positive, "m does not rise with b")
+    bound = sp.limit(m_of_b, B, 0, "+")
+    E11SP_values(q, "L = ", bound, {E11SP_NO_DIVIDE: [sp.Integer(w)], E11SP_POSITION: [sp.Rational(w, place)]})
+
+
+def E11SP_kterms(q, g, rep):
+    L = q["lines"]
+    if rep == "words":
+        m = re.fullmatch(r"A sequence's first term is (.+), its second is (.+) and its third is (.+), where k is (\d+)\.", L[0])
+    else:
+        m0 = re.fullmatch(r"The first three terms of a sequence are u₁ = (.+), u₂ = (.+) and u₃ = (.+)\.", L[0])
+        need(m0 and re.fullmatch(r"k = \d+", L[1]), f"can't read {L[:2]!r}")
+        m = re.fullmatch(r"(.+)\|(.+)\|(.+)\|(\d+)", "|".join([m0.group(1), m0.group(2), m0.group(3), L[1][4:]]))
+    need(m, f"can't read {L!r}")
+    k = sp.Symbol("k")
+    us = [E11SP_expr(m.group(i), {"k": k}) for i in (1, 2, 3)]
+    k0 = int(m.group(4))
+    cs = []
+    for e in us:
+        p = sp.Poly(e, k)
+        cs += [p.coeff_monomial(k), p.coeff_monomial(1)]
+    need(tuple(cs) != E11SP_KSKIP, "the exam's terms")
+    v = [e.subs(k, k0) for e in us]
+    need(all(x != 0 for x in v), "a zero term")
+    r = v[1] / v[0]
+    need(v[2] / v[1] == r, f"the terms {v} are not geometric")
+    need(r not in (0, 1, -1), f"r = {r}")
+    E11SP_values(q, "r = ", r, {E11SP_WRONG_TEST: [v[1] - v[0]], E11SP_RECIPROCAL: [1 / r], E11SP_ACROSS: [v[2] / v[0]]})
+
+
+def E11SP_linked(q, g, rep, u):
+    E11SP_read_claim(q, g, rep)
+    w = E11SP_world("linked", g)
+    k, i = w["k"], w["i"]
+    if u == "difference-in-a":
+        for o in q["choices"]:
+            need(o["text"].startswith("d = "), f"can't read {o['text']!r}")
+            body = o["text"]
+            need(o["correct"] == E11SP_true(body, w), f"option {o['text']!r} is marked {o['correct']}")
+            if o["ref"]:
+                E11SP_tagged(o, body, w, None)
+        E11SP_common(q, q["answer_text"])
+        E11SP_steps(q, w)
+        return
+    r = 1 + i * k
+    E11SP_values(q, "r = ", r, {E11SP_D_OVER_A: [k], E11SP_ACROSS: [r * r], E11SP_RECIPROCAL: [1 / r]})
+
+
+def E11SP_logs(q, g, rep, u):
+    E11SP_read_claim(q, g, rep)
+    w = E11SP_world("log-geo", g)
+    n, b, p, q_ = E11SP_N, w["b"], w["p"], w["q"]
+    if u == "log-difference":
+        E11SP_values(q, "vₙ₊₁ − vₙ = ", E11SP_log_read("log" + {2: "₂", 3: "₃", 5: "₅"}[b] + "(uₙ₊₁/uₙ)", w),
+                     {E11SP_RATIO_AS_DIFF: [w["r"]], E11SP_RECIPROCAL: [-sp.Integer(q_)], E11SP_SWAP: [sp.Integer(p)]})
+        E11SP_steps(q, w)
+        return
+    v = E11SP_log_read("log" + {2: "₂", 3: "₃", 5: "₅"}[b] + " uₙ", w)
+    r = w["r"]
+    E11SP_forms(q, "vₙ = ", v, {E11SP_GAPS: q_ * n + p, E11SP_SWAP: p * n + q_ - p, E11SP_RATIO_AS_DIFF: r * n + p - r})
+
+
+def E11SP_cubic(q, g):
+    L, n = q["lines"], E11SP_N
+    m = re.fullmatch(r"uₙ = (.+), where n is a positive integer\.", L[0])
+    need(m, f"can't read {L[0]!r}")
+    u = E11SP_expr(m.group(1))
+    at = lambda k: u.subs(n, k)
+    gap = sp.expand(u.subs(n, n + 1) - u)
+    need(sp.Poly(gap, n).degree() == 2, "the gap is constant")
+    p = at(2) - at(1)
+    need(p == at(3) - at(2), "the first gaps are not equal")
+    need(at(4) - at(3) != p, "the fourth gap is equal too")
+    need(L[1] == f"u₁ = {E11SP_t(at(1))}, u₂ = {E11SP_t(at(2))} and u₃ = {E11SP_t(at(3))}", f"can't read {L[1]!r}")
+    need(at(1) != 0 and at(2) != 0 and at(2) / at(1) != at(3) / at(2), "the ratios are equal")
+    want = f"Not arithmetic: uₙ₊₁ − uₙ = {E11SP_poly(gap)}, which changes with n."
+    ch = {o["ref"]: o["text"] for o in q["choices"] if not o["correct"]}
+    need(ch[E11SP_PARTICULAR] == f"Arithmetic: u₂ − u₁ = u₃ − u₂ = {E11SP_t(p)}, so the gap is constant.", f"can't read {ch[E11SP_PARTICULAR]!r}")
+    need(ch[E11SP_CHECK] == f"Arithmetic: uₙ₊₁ − uₙ is {E11SP_t(p)} at n = 1 and at n = 2, so it is {E11SP_t(p)} for every n.", f"can't read {ch[E11SP_CHECK]!r}")
+    need(ch[E11SP_WRONG_TEST] == "Not arithmetic: u₂/u₁ and u₃/u₂ are different.", f"can't read {ch[E11SP_WRONG_TEST]!r}")
+    E11SP_common(q, want)
+
+
+def E11SP_t(v):
+    return str(v).replace("-", "−")
+
+
+def E11SP_dots(q, g, rep, u):
+    n = E11SP_N
+    fig = q["graph"]
+    need((fig is not None) == (rep == "diagram"), "the figure doesn't match the representation")
+    if u == "dot-rectangle":
+        rows = fig["rows"]
+        m_ = re.search(r"for n = (\d)\. Its rows are the terms of uₙ = (.+)\.$", q["lines"][0])
+        need(m_ and any(t in q["lines"][0] for t in E11SP_THINGS), f"can't read {q['lines'][0]!r}")
+        m, ue = int(m_.group(1)), E11SP_expr(m_.group(2))
+        at = lambda k: ue.subs(n, k)
+        need(len(rows) == m and m in (4, 5), "the rows")
+        for r, row in enumerate(rows):
+            need(sorted(row) == row and set(row) <= {0, 1}, "the two copies are mixed up")
+            need(row.count(0) == at(r + 1) and row.count(1) == at(m - r), f"row {r + 1} is not its two steps")
+        wide = at(1) + ue
+        need(all(len(row) == wide.subs(n, m) for row in rows), "the rows are not one width")
+        E11SP_forms(q, "Width = ", wide, {E11SP_LAST_TWICE: 2 * ue, E11SP_LAST_ONLY: ue, E11SP_GAPS: at(1) + at(1) + n * (at(2) - at(1))})
+        return
+    if rep == "diagram":
+        rows = fig["rows"]
+        need(len(rows) == 4 and len({len(r) for r in rows}) == 1 and fig["name"] == "Layers 1 to 4", "the figure")
+        counts = [sum(r.count(c) for r in rows) for c in range(4)]
+        for k in range(1, 5):
+            inner = [r[:] for r in rows[:k]]
+            wide = sum(1 for c in rows[k - 1] if c < k)
+            need(all(all(c < k for c in r[:wide]) and all(c >= k for c in r[wide:]) for r in inner), f"layers 1 to {k} are not a rectangle")
+            need(sum(counts[:k]) == k * wide, "the rectangle's count")
+            if k == 1:
+                w1 = wide
+            if k == 2:
+                w2 = wide
+        p, q_ = w2 - w1, 2 * w1 - w2
+    else:
+        m_ = re.search(r"After 1, 2 and 3 layers it has 1, 2 and 3 rows, and (\d+), (\d+) and (\d+) columns\.", q["lines"][0])
+        need(m_, f"can't read {q['lines'][0]!r}")
+        w1, w2, w3 = (int(x) for x in m_.groups())
+        need(w3 - w2 == w2 - w1, "the widths are not linear")
+        p, q_ = w2 - w1, 2 * w1 - w2
+    need(p in (1, 2) and (p, q_) == (int(g["p"]), int(g["q"])) and p + q_ >= 1 and q_ <= 3, "the numbers are out of range")
+    width = p * n + q_
+    S = n * width
+    term = sp.expand(S - S.subs(n, n - 1))
+    need(sp.expand(term.subs(n, n + 1) - term).is_number, "the layers are not arithmetic")
+    if u == "dot-total":
+        need(q["answer_text"] == f"Sₙ = n({E11SP_poly(width)})", f"the answer {q['answer_text']!r}")
+        E11SP_forms(q, "Sₙ = ", S, {E11SP_LAST_AS_SUM: term, E11SP_HALF_RECT: S / 2, E11SP_GAPS: n * (width + p)})
+    else:
+        E11SP_forms(q, "uₙ = ", term, {E11SP_WIDTH: width, E11SP_CORNER: term + p, E11SP_GAPS: term.subs(n, n + 1)})
+
+
+def E11SP_check(q):
+    g, u, rep, angle = q["given"], q["view"]["unknown"], q["view"]["rep"], q["view"]["angle"]
+    need(q["paper"] == 1, "sequence-proof is Paper 1")
+    tr_hyphens(q)
+    n = E11SP_N
+    if u in ("arithmetic-relation", "geometric-relation"):
+        E11SP_relation(q, g, rep, u)
+    elif u == "second-term-bound":
+        E11SP_bound(q, g, rep)
+    elif u == "common-ratio-check":
+        E11SP_kterms(q, g, rep)
+    elif u in ("difference-in-a", "linked-ratio"):
+        E11SP_linked(q, g, rep, u)
+    elif u in ("log-difference", "log-general-term"):
+        E11SP_logs(q, g, rep, u)
+    elif u == "constant-difference":
+        E11SP_read_claim(q, g, rep)
+        w = E11SP_world("ap-term", g)
+        p, c = w["gap"], w["u"](0)
+        E11SP_values(q, "uₙ₊₁ − uₙ = ", sp.simplify(w["u"](n + 1) - w["u"](n)), {E11SP_ONE_TERM: [sp.Integer(1)], E11SP_FIRST_ONLY: [p + 2 * c]})
+        E11SP_steps(q, w)
+    elif u == "particular-terms":
+        E11SP_cubic(q, g)
+    elif u == "term-from-sum":
+        E11SP_read_claim(q, g, rep)
+        w = E11SP_world("sum-term", g)
+        S = w["S"]
+        slip = lambda ref: E11SP_slip_world(w, ref, None)["term"]
+        E11SP_forms(q, "uₙ = ", w["term"], {E11SP_TERMWISE: slip(E11SP_TERMWISE), E11SP_FIRST_ONLY: slip(E11SP_FIRST_ONLY), E11SP_NEXT_SUM: slip(E11SP_NEXT_SUM), E11SP_SUM_AS_TERM: S(n)})
+        E11SP_steps(q, w)
+    elif u == "difference-from-sum":
+        E11SP_read_claim(q, g, rep)
+        w = E11SP_world("sum-term", g)
+        d = sp.expand(w["term"].subs(n, n + 1) - w["term"])
+        need(d.is_number, "the sequence is not arithmetic")
+        E11SP_values(q, "d = ", d, {E11SP_COEFF: [sp.Integer(w["A"]), sp.Integer(w["B"])], E11SP_SWAP: [w["S"](1)]})
+    elif u in ("sum-by-formula", "pair-sum"):
+        E11SP_read_claim(q, g, rep)
+        w = E11SP_world("sum-list", g)
+        ue, first, p = w["u"](n), w["first"], w["p"]
+        if u == "sum-by-formula":
+            need(q["answer_text"] == f"Sₙ = (n/2)({E11SP_poly(sp.expand(2 * w['sum'] / n))})", f"the answer {q['answer_text']!r}")
+            E11SP_forms(q, "Sₙ = ", w["sum"], {r: E11SP_slip_world(w, r, "series-formula")["sum"] for r in (E11SP_GAPS, E11SP_NO_TWO, E11SP_NO_HALF)})
+        else:
+            for l in q["lines"]:
+                if l.startswith("Sₙ = "):
+                    need(E11SP_true(l, w), f"{l!r} is false")
+            E11SP_forms(q, "Column total = ", w["pair"], {E11SP_LAST_TWICE: 2 * ue, E11SP_LAST_ONLY: ue, E11SP_GAPS: first + first + n * p})
+    elif u in ("dot-total", "dot-layer", "dot-rectangle"):
+        E11SP_dots(q, g, rep, u)
+    elif u in ("missing-line", "next-line", "flawed-line", "valid-proof"):
+        E11SP_lines_check(q, g, u, rep, angle)
+    else:
+        need(False, f"no check for {u}")
+    return None, None
+
+
+# ── end sequence-proof ──
+
 SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between": check_area_between, "trig-wave": check_trig_wave, "log-laws": e9log_check, "grouped-data": check_grouped_data, "binomial-unknown": check_binomial_unknown, "antiderivative-condition": check_antiderivative_condition, "normal-properties": check_normal_properties, "box-plot": check_box_plot, "motion-distance": check_motion_distance, "optimisation-model": check_optimisation, "tree-diagram": check_tree_diagram, "circular-region": check_circular_region, "right-triangle": check_right_triangle, "independence": check_independence, "basic-probability": check_basic_probability, "quadratic": check_quadratic, "triangle": check_triangle, "arithmetic-sequence": check_arithmetic, "arithmetic-context": e10ar_check,
                     "sample-space": e10ss_check,
                     "trig-model-equation": e10tm_check,
@@ -32783,6 +33522,7 @@ SITUATION_CHECKS = {"distance-midpoint": check_distance_midpoint, "area-between"
                     "composite-pair": check_composite, "inverse-rule": check_inverse, "composite-graph-table": check_graph_table, "fn-pre-rearrange": check_rearrange, "rational-function": check_rational, "fn-pre-algebraic-fractions": check_algfrac, "rational-asymptote-gallery": check_gallery, "rational-model": check_model,
                     "compound-interest": check_compound_interest,
                     "depreciation": e10de_check,
+                    "sequence-proof": E11SP_check,
                     "differentiation": check_differentiation, "derivative-meaning": check_derivative_meaning,
                     "monotonic": check_monotonic, "concavity": check_concavity,
                     "integration": check_integration, "definite-integral": check_definite_integral,

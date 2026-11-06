@@ -683,6 +683,18 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   unordered list, the mean of the two means, p left out of Σf, the mean or the mode as the
   best average) and never read as a fraction (`DataSummaryViews.tidy`). As every exam type, it
   offers no extra format: `test_extension.gd` holds that rule.
+- `engine/situations/sequence_proof.gd` (FAL-753) is `t1-sequence-proof` (SL1.6.series-proof), Paper 1
+  throughout as all four of its parts in the bank are: one claim about arithmetic and geometric terms,
+  picked from twelve shapes. As in `algebraic_proof_views.gd`, whose helpers its views extend, a phone
+  can't read a written proof, so `sequence_proof_views.gd` asks 21 unknowns, each one decision a proof turns
+  on: a relation between unevenly spaced terms, the bound on a second term when two sequences share
+  their ends, the common ratio that proves three terms in k are geometric, d in terms of a when
+  arithmetic terms are also geometric, the logs of a geometric sequence, uₙ₊₁ − uₙ, uₙ from Sₙ, a cubic
+  whose first gaps are equal, a sum by the formula or forwards and backwards, a hidden line, the next
+  line, the first wrong line and its correction, and which of four arguments is a proof. They show the
+  claim in symbols or in words, or a figure (`dots` in `ui/plot_view.gd`: a rectangle in L-shaped layers,
+  or two staircases that fit together), so all four of the map's methods are played. `lines_of()` writes
+  every proof as lines from the numbers, and a slip carried down it makes each wrong line.
 - `engine/situations/depreciation.gd` (FAL-752) is `t1-depreciation` (SL1.4), the `depreciation`
   situation: a price P that keeps a fixed fraction c of its value each year, month or quarter. Its
   views (`depreciation_views.gd`) show it as a story, as V = P(c)^t, as a table of three whole times
@@ -1368,6 +1380,11 @@ the table (a table's multiplier from its own values), works each value again wit
 rate from a root and a time from a logarithm tested exactly either side of the answer, rebuilds each
 tagged option from its slip, holds the figure's curve, line and crossing to the model, and requires
 each method's numbers in its working (`e10de_check`).
+For `sequence-proof` it reads the claim back from the words or the dots, and proves every line of a
+proof with SymPy for general n, each left side held to what it means, so no value is sampled. A tagged
+option must be true in a world where its slip was made and false in the real one, and a spoiled proof's
+first false line must be the one it says, with the lines after it what that slip carries to
+(`E11SP_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -1862,6 +1879,10 @@ script error happens while it runs. Run one file with
   mean that is not the mean of the means; the outlier dragging the mean; every misconception
   as an option; exact and 3 s.f. marking; the three concept probes; and every course having
   every cell.
+- `test_sequence_proof.gd`: t1-sequence-proof built with every cell and all four methods, Paper 1 only;
+  four different options and working of 2 to 5 steps in each cell; linked terms, sums, a term from its sum,
+  logs and terms in k match sums done by hand; the dot figures count what they say; a hidden or spoiled
+  line is its own number; relations never use the exam's evenly spaced terms; every tag shows up.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters

@@ -4518,6 +4518,62 @@
 				"a greatest divisor is smaller than the coefficient of n, so a fraction is left if that is taken out"
 			]
 		},
+		"sequence-proof": {
+			"name": "One claim about sequences, as a chain of lines",
+			"summary": "Pick the shape of a claim about arithmetic or geometric terms and its numbers, and every line of the proof follows, with the slip each wrong line makes.",
+			"quantities": [
+				{
+					"name": "fam",
+					"is": "the shape of the claim",
+					"pick": "what the unknown, the representation and the method allow"
+				},
+				{
+					"name": "e, g, h",
+					"is": "the steps between three terms of a sequence",
+					"pick": "whole numbers from 1 to 5, and never evenly spaced terms when a relation is asked"
+				},
+				{
+					"name": "e, w",
+					"is": "where two sequences with one first term meet again, and the value there",
+					"pick": "e from 1 to 3 and w from 2 to 12"
+				},
+				{
+					"name": "i, j",
+					"is": "a, a + id and a + jd are consecutive geometric terms",
+					"pick": "pairs that make d a whole multiple of a"
+				},
+				{
+					"name": "k0, t1, r",
+					"is": "the value of k, the first term and the common ratio of three terms in k",
+					"pick": "small whole numbers, r a whole number, a half or a third"
+				},
+				{
+					"name": "b, p, q",
+					"is": "a geometric sequence with first term b^p and ratio b^q",
+					"pick": "b is 2, 3 or 5, q not zero, p and q different"
+				},
+				{
+					"name": "p, q",
+					"is": "the general term pn + q",
+					"pick": "small whole numbers, not zero"
+				},
+				{
+					"name": "A, B",
+					"is": "the sum Sₙ = An² + Bn",
+					"pick": "small whole numbers, B not zero and not A"
+				},
+				{
+					"name": "m, thing",
+					"is": "the rows of a staircase of dots, and what the dots are",
+					"pick": "4 or 5 rows"
+				}
+			],
+			"clean": [
+				"every claim is true for every n, or for every sequence of its kind",
+				"every term of a simplified form is there to see, except a zero number in a dot count",
+				"d is a whole multiple of a, and a common ratio is a whole number or a simple fraction"
+			]
+		},
 		"motion-distance": {
 			"name": "A particle's journey, added up",
 			"extends": "motion",
@@ -5201,6 +5257,7 @@
 		"SL1.1.convert": "Convert between ordinary numbers and standard form",
 		"SL1.1.multiply-divide": "Multiply and divide numbers in standard form",
 		"SL1.1.context": "Solve contextual problems with very large or very small quantities",
+		"SL1.6.series-proof": "Prove a general result about sequences and series",
 		"SL1.2.model": "Model real situations with arithmetic sequences, including imperfect data",
 		"SL1.2.find-n": "Find which term has a given value, or the number of terms",
 		"SL1.2.nth-term": "Find a term or the general term of an arithmetic sequence",
@@ -19872,6 +19929,800 @@
 			"topic": 1,
 			"source": "exam",
 			"name": "Prove a property linking arithmetic and geometric terms",
+			"summary": "Prove a result that ties arithmetic and geometric terms together, or a general result about a sequence or its sum. A phone can't read a written proof, so each question is one decision a proof turns on: a relation between terms, a hidden line, the next line, the first wrong line, a consequence such as the common ratio or difference, or which of four arguments is a proof.",
+			"situation": "sequence-proof",
+			"formats": [
+				"value",
+				"mcq"
+			],
+			"representations": [
+				{
+					"rep": "equation",
+					"exam": true,
+					"how": "the claim in symbols: uₙ = pn + q, or Sₙ = An² + Bn, or the terms named by letter"
+				},
+				{
+					"rep": "words",
+					"exam": false,
+					"how": "a sentence about lists of numbers, or a scavenger's layers of rivets"
+				},
+				{
+					"rep": "diagram",
+					"exam": false,
+					"how": "a pattern of dots: a rectangle in L-shaped layers, or two staircases that fit together"
+				}
+			],
+			"unknowns": [
+				{
+					"id": "arithmetic-relation",
+					"given": [
+						"three terms of an arithmetic sequence, unevenly spaced"
+					],
+					"asked": "the last term in terms of the other two",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "geometric-relation",
+					"given": [
+						"three terms of a geometric sequence, unevenly spaced"
+					],
+					"asked": "the power in the relation between them",
+					"level": 3,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "second-term-bound",
+					"given": [
+						"two sequences with the same first term, that meet again later"
+					],
+					"asked": "the greatest lower bound on the arithmetic sequence's second term",
+					"level": 4,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "common-ratio-check",
+					"given": [
+						"three terms in k, and a value of k"
+					],
+					"asked": "the common ratio that proves they are geometric",
+					"level": 2,
+					"exam": true,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "difference-in-a",
+					"given": [
+						"arithmetic terms that are consecutive geometric terms"
+					],
+					"asked": "d in terms of a",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "linked-ratio",
+					"given": [
+						"arithmetic terms that are consecutive geometric terms"
+					],
+					"asked": "the common ratio the proof establishes",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "log-difference",
+					"given": [
+						"a geometric sequence and the log of each term"
+					],
+					"asked": "the constant difference of the logs",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "log-general-term",
+					"given": [
+						"a geometric sequence and the log of each term"
+					],
+					"asked": "the nth term of the logs",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "constant-difference",
+					"given": [
+						"a general term pn + q"
+					],
+					"asked": "u_(n+1) − u_n, and that it is constant",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "particular-terms",
+					"given": [
+						"a cubic whose first three terms have equal gaps"
+					],
+					"asked": "which line settles whether it is arithmetic",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "term-from-sum",
+					"given": [
+						"Sₙ as a quadratic in n"
+					],
+					"asked": "uₙ in terms of n",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "difference-from-sum",
+					"given": [
+						"Sₙ as a quadratic in n"
+					],
+					"asked": "the common difference",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "sum-by-formula",
+					"given": [
+						"an arithmetic sequence's general term or first terms"
+					],
+					"asked": "Sₙ in terms of n",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "pair-sum",
+					"given": [
+						"a sum written forwards and backwards"
+					],
+					"asked": "the total of each column",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "dot-total",
+					"given": [
+						"a rectangle of dots built in L-shaped layers"
+					],
+					"asked": "the number of dots in the first n layers",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "dot-layer",
+					"given": [
+						"a rectangle of dots built in L-shaped layers"
+					],
+					"asked": "the number of dots in layer n",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"diagram",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "dot-rectangle",
+					"given": [
+						"two staircases of dots that make a rectangle"
+					],
+					"asked": "the rectangle's width for any n",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"diagram"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "missing-line",
+					"given": [
+						"a proof with one line hidden"
+					],
+					"asked": "the hidden line",
+					"level": 3,
+					"exam": false,
+					"reps": [
+						"equation",
+						"words"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "next-line",
+					"given": [
+						"the first lines of a proof"
+					],
+					"asked": "which line comes next",
+					"level": 2,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "flawed-line",
+					"given": [
+						"a proof with one slip carried to the end"
+					],
+					"asked": "the first wrong line and its correction",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				},
+				{
+					"id": "valid-proof",
+					"given": [
+						"a claim and four arguments"
+					],
+					"asked": "which argument is a complete proof",
+					"level": 4,
+					"exam": false,
+					"reps": [
+						"equation"
+					],
+					"skills": [
+						"SL1.6.series-proof"
+					]
+				}
+			],
+			"angles": [
+				{
+					"skill": "SL1.6.series-proof",
+					"method": "general-difference",
+					"suits": [
+						"arithmetic-relation",
+						"geometric-relation",
+						"common-ratio-check",
+						"log-difference",
+						"constant-difference",
+						"particular-terms",
+						"term-from-sum",
+						"difference-from-sum",
+						"missing-line",
+						"next-line",
+						"flawed-line",
+						"valid-proof"
+					],
+					"name": "Show u_(n+1) − u_n is a constant",
+					"about": "(3(n + 1) + 2) − (3n + 2) = 3 for every n, which proves the sequence is arithmetic with d = 3."
+				},
+				{
+					"skill": "SL1.6.series-proof",
+					"method": "series-formula",
+					"suits": [
+						"second-term-bound",
+						"difference-in-a",
+						"linked-ratio",
+						"log-general-term",
+						"sum-by-formula",
+						"dot-total",
+						"missing-line",
+						"next-line",
+						"flawed-line",
+						"valid-proof"
+					],
+					"name": "Apply a known series formula and simplify",
+					"about": "For the odd numbers, u_1 = 1 and d = 2, so S_n = n/2(2 + 2(n − 1)) = n²."
+				},
+				{
+					"skill": "SL1.6.series-proof",
+					"method": "forwards-backwards",
+					"suits": [
+						"sum-by-formula",
+						"pair-sum",
+						"missing-line",
+						"next-line",
+						"flawed-line",
+						"valid-proof"
+					],
+					"name": "Write the sum forwards and backwards and add",
+					"about": "Adding S_n written in both orders gives n copies of (u_1 + u_n), so 2S_n = n(u_1 + u_n)."
+				},
+				{
+					"skill": "SL1.6.series-proof",
+					"method": "dot-diagram",
+					"suits": [
+						"dot-total",
+						"dot-layer",
+						"dot-rectangle"
+					],
+					"name": "Use a picture of dots",
+					"about": "Each odd number adds an L-shaped layer to a square of dots, so 1 + 3 + … + (2n − 1) fills an n × n square."
+				}
+			],
+			"concepts": [
+				{
+					"kind": "true-false-reason",
+					"prompt": "u₂ − u₁ = u₃ − u₂ for a sequence, so the sequence is arithmetic.",
+					"answer": "False: that is one pair of gaps. uₙ = (n − 1)(n − 2)(n − 3) + n has u₁, u₂, u₃ = 1, 2, 3, but u₄ = 10. A proof needs uₙ₊₁ − uₙ for general n.",
+					"level": 3
+				},
+				{
+					"kind": "always-sometimes-never",
+					"prompt": "If a sequence of positive numbers is geometric, the logs of its terms form an arithmetic sequence.",
+					"answer": "Always: log uₙ₊₁ − log uₙ = log(uₙ₊₁/uₙ) = log r for every n, and that is a constant.",
+					"level": 3
+				},
+				{
+					"kind": "true-false-reason",
+					"prompt": "An arithmetic sequence with d ≠ 0 has a, a + d and a + 3d as consecutive geometric terms. Then d = a.",
+					"answer": "True: (a + d)² = a(a + 3d) gives d² = ad, and d ≠ 0, so d = a. The terms a, 2a and 4a have common ratio 2.",
+					"level": 4
+				}
+			],
+			"misconceptions": [
+				{
+					"ref": "SL1.6.series-proof#0",
+					"text": "Checking a few values of n and stopping",
+					"as": "distractor",
+					"in": [
+						"next-line",
+						"valid-proof",
+						"particular-terms"
+					],
+					"wrong": "true values at the first few n, in place of a general argument"
+				},
+				{
+					"ref": "SL1.6.series-proof#1",
+					"text": "Using the result being proved as a step in its own proof",
+					"as": "distractor",
+					"in": [
+						"next-line",
+						"valid-proof"
+					],
+					"wrong": "the claim itself used as a line of its own proof"
+				},
+				{
+					"ref": "SL1.6.series-proof#2",
+					"text": "Comparing the gaps between particular terms instead of the gap between neighbouring terms for general n",
+					"as": "distractor",
+					"in": [
+						"valid-proof",
+						"particular-terms"
+					],
+					"wrong": "u₂ − u₁ = u₃ − u₂, for those terms only"
+				},
+				{
+					"ref": "SL1.6.series-proof#3",
+					"text": "Counting one gap too many between the first term and the nth term",
+					"as": "distractor",
+					"in": [
+						"sum-by-formula",
+						"log-general-term",
+						"pair-sum",
+						"dot-total",
+						"dot-layer",
+						"dot-rectangle",
+						"missing-line",
+						"next-line",
+						"flawed-line",
+						"valid-proof"
+					],
+					"wrong": "one more common difference than there are gaps"
+				},
+				{
+					"ref": "SL1.6.series-proof#4",
+					"text": "Taking away only the first term of a bracket, so the other terms keep their signs",
+					"as": "distractor",
+					"in": [
+						"constant-difference",
+						"term-from-sum",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "the second bracket's later terms not negated, carried to the end"
+				},
+				{
+					"ref": "SL1.6.series-proof#5",
+					"text": "Multiplying only the first term of a bracket by the number outside it",
+					"as": "distractor",
+					"in": [
+						"constant-difference",
+						"arithmetic-relation",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "p(n + 1) written as pn + 1, or e(y − x) as ey − x"
+				},
+				{
+					"ref": "SL1.6.series-proof#6",
+					"text": "Squaring a bracket term by term, with no middle term",
+					"as": "distractor",
+					"in": [
+						"term-from-sum",
+						"difference-in-a",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "(n − 1)² written as n² + 1, or (a + id)² as a² + i²d²"
+				},
+				{
+					"ref": "SL1.6.series-proof#7",
+					"text": "Forgetting to double the middle term when squaring a bracket",
+					"as": "distractor",
+					"in": [
+						"difference-in-a",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "(a + id)² written with iad in the middle, not 2iad"
+				},
+				{
+					"ref": "SL1.6.series-proof#8",
+					"text": "Testing the wrong kind of sequence: a common difference for a geometric claim, or a common ratio for an arithmetic one",
+					"as": "distractor",
+					"in": [
+						"common-ratio-check",
+						"particular-terms"
+					],
+					"wrong": "u₂ − u₁ given as the ratio, or ratios compared for an arithmetic claim"
+				},
+				{
+					"ref": "SL1.6.series-proof#9",
+					"text": "Dividing a term by the one after it, which gives the reciprocal of the common ratio",
+					"as": "distractor",
+					"in": [
+						"common-ratio-check",
+						"linked-ratio",
+						"log-difference",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "uₙ/uₙ₊₁ in place of uₙ₊₁/uₙ"
+				},
+				{
+					"ref": "SL1.6.series-proof#10",
+					"text": "Writing a difference of logs as the log of a difference",
+					"as": "distractor",
+					"in": [
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "log(uₙ₊₁ − uₙ) in place of log(uₙ₊₁/uₙ)"
+				},
+				{
+					"ref": "SL1.6.series-proof#11",
+					"text": "Taking the common ratio itself as the difference of the logs",
+					"as": "distractor",
+					"in": [
+						"log-difference",
+						"log-general-term",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "the ratio r where log r belongs"
+				},
+				{
+					"ref": "SL1.6.series-proof#12",
+					"text": "Forgetting to halve at the end, which gives twice the sum",
+					"as": "distractor",
+					"in": [
+						"sum-by-formula",
+						"missing-line",
+						"next-line",
+						"flawed-line",
+						"valid-proof"
+					],
+					"wrong": "the (n/2) left as n"
+				},
+				{
+					"ref": "SL1.6.series-proof#13",
+					"text": "Leaving out the doubling of the first term in the sum formula",
+					"as": "distractor",
+					"in": [
+						"sum-by-formula",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "u₁ in the bracket, not 2u₁"
+				},
+				{
+					"ref": "SL1.6.series-proof#14",
+					"text": "Treating the last term as the whole sum",
+					"as": "distractor",
+					"in": [
+						"dot-total"
+					],
+					"wrong": "the nth term given as Sₙ"
+				},
+				{
+					"ref": "SL1.6.series-proof#15",
+					"text": "Treating the sum of the first n terms as the nth term",
+					"as": "distractor",
+					"in": [
+						"term-from-sum"
+					],
+					"wrong": "Sₙ given as uₙ"
+				},
+				{
+					"ref": "SL1.6.series-proof#16",
+					"text": "Using the next sum instead of the one before when taking a difference of sums",
+					"as": "distractor",
+					"in": [
+						"term-from-sum",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "uₙ taken as Sₙ₊₁ − Sₙ"
+				},
+				{
+					"ref": "SL1.6.series-proof#17",
+					"text": "Reading a coefficient of Sₙ as the common difference",
+					"as": "distractor",
+					"in": [
+						"difference-from-sum"
+					],
+					"wrong": "the coefficient of n² or of n, not twice the coefficient of n²"
+				},
+				{
+					"ref": "SL1.6.series-proof#18",
+					"text": "Confusing the first term with the common difference",
+					"as": "distractor",
+					"in": [
+						"difference-from-sum",
+						"log-difference",
+						"log-general-term"
+					],
+					"wrong": "the first term given as d, or the two swapped in the general term"
+				},
+				{
+					"ref": "SL1.6.series-proof#19",
+					"text": "Reading the width of the rectangle as the number of dots in a layer",
+					"as": "distractor",
+					"in": [
+						"dot-layer"
+					],
+					"wrong": "pn + q in place of the layer's L shape"
+				},
+				{
+					"ref": "SL1.6.series-proof#20",
+					"text": "Counting the corner of a layer twice",
+					"as": "distractor",
+					"in": [
+						"dot-layer"
+					],
+					"wrong": "the new row and the new columns added whole, so the dots where they meet count twice"
+				},
+				{
+					"ref": "SL1.6.series-proof#21",
+					"text": "Adding the last term to itself instead of to the first term",
+					"as": "distractor",
+					"in": [
+						"pair-sum",
+						"dot-rectangle",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "2uₙ as the total of a column"
+				},
+				{
+					"ref": "SL1.6.series-proof#22",
+					"text": "Counting half as many columns, as if the two lists were already paired off",
+					"as": "distractor",
+					"in": [
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "n/2 columns in place of n"
+				},
+				{
+					"ref": "SL1.6.series-proof#23",
+					"text": "Taking a ratio across several steps as the common ratio",
+					"as": "distractor",
+					"in": [
+						"common-ratio-check",
+						"linked-ratio"
+					],
+					"wrong": "u₃/u₁ in place of u₂/u₁"
+				},
+				{
+					"ref": "SL1.6.series-proof#24",
+					"text": "Moving a term across the equals sign without changing its sign",
+					"as": "distractor",
+					"in": [
+						"arithmetic-relation",
+						"difference-in-a",
+						"missing-line",
+						"next-line",
+						"flawed-line"
+					],
+					"wrong": "a term that keeps its sign on the other side"
+				},
+				{
+					"ref": "SL1.6.series-proof#25",
+					"text": "Counting a term's position in the sequence instead of the steps to reach it",
+					"as": "distractor",
+					"in": [
+						"arithmetic-relation",
+						"geometric-relation",
+						"second-term-bound"
+					],
+					"wrong": "the number of the term used as the number of steps"
+				},
+				{
+					"ref": "SL1.6.series-proof#26",
+					"text": "Stopping before dividing by the coefficient of the letter",
+					"as": "distractor",
+					"in": [
+						"second-term-bound"
+					],
+					"wrong": "the inequality left with a number in front of m"
+				},
+				{
+					"ref": "SL1.6.series-proof#27",
+					"text": "Using the rule for three consecutive terms on terms that are not consecutive",
+					"as": "distractor",
+					"in": [
+						"geometric-relation"
+					],
+					"wrong": "the power 2, from the middle term squared"
+				},
+				{
+					"ref": "SL1.6.series-proof#28",
+					"text": "Halving a rectangle that holds only one copy of the sum",
+					"as": "distractor",
+					"in": [
+						"dot-total"
+					],
+					"wrong": "(n/2) put in front, as for two staircases"
+				},
+				{
+					"ref": "SL1.6.series-proof#29",
+					"text": "Taking d/a as the common ratio",
+					"as": "distractor",
+					"in": [
+						"linked-ratio"
+					],
+					"wrong": "the multiple of a in d, in place of (a + id)/a"
+				},
+				{
+					"ref": "SL1.6.series-proof#30",
+					"text": "Leaving the first term out of a pair, so only the last term is counted",
+					"as": "distractor",
+					"in": [
+						"pair-sum",
+						"dot-rectangle"
+					],
+					"wrong": "uₙ, with the first term left out"
+				}
+			],
+			"chain": [
+				"write each term from the sequence's formula, or compare neighbouring terms for general n",
+				"use the condition for arithmetic or geometric terms and simplify",
+				"add a sum forwards and backwards, or count it from a picture of dots",
+				"take a sum from the next to reach a general term",
+				"read off what the proof establishes: a relation, a common ratio or a difference"
+			],
 			"frequency": 4,
 			"marks": 2,
 			"section": {
@@ -19881,9 +20732,7 @@
 			"paper": {
 				"p1": 4,
 				"p2": 0
-			},
-			"angles": [],
-			"misconceptions": []
+			}
 		},
 		{
 			"id": "t1-arithmetic-in-context",
