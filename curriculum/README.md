@@ -41,6 +41,47 @@ node tools/moves.mjs --coverage /abs/questions.json   # also check the map again
 
 The subtopic table in `CONTENT_SCHEMA.md` predates this map and does not follow guide numbering. Use the IDs here.
 
+## Question-bank integration direction
+
+Owner direction, November 7, 2026: the
+[Math-AA question bank](https://github.com/RktRobinhood/Math-AA---Question-Bank)
+remains a separate repository. The owner plans to add higher-level exams and
+available exams across AA SL, AA HL, AI SL and AI HL. Use those additions to
+improve question-type coverage, recipe briefs and filtering in the shared
+mathematics engine, for both game and future academic presentations.
+
+**Current connection:** `tools/question-types.mjs --bank <checkout>` reads
+`data/tags.json`, `data/crops.json` and `data/syllabus.json` from the bank. It
+validates the assignments in `question-types.json` and produces catalogue counts
+and reports. `tools/game-catalogue.mjs` builds the runtime catalogue without bank
+part lists or exam prose. The bank tool currently assumes the AA SL map and
+Paper 1/2 identifiers; it is not yet general multi-course ingestion.
+
+**Planned exchange and filtering** (implementation in
+[#134](https://github.com/RktRobinhood/wasteland-academy/issues/134)):
+
+- Define a versioned metadata exchange with stable source question/part IDs and
+  a pinned bank revision. Keep existing curriculum and recipe IDs permanent.
+- Select source material by course/level, syllabus/skill, exam paper, calculator
+  policy, session/year and source type. Keep paper identity separate from
+  calculator policy, including Paper 3 where applicable. Specify behavior for
+  missing metadata; use reviewed difficulty metadata where available.
+- Reconcile imported parts with existing types, identify uncovered patterns,
+  update recipe briefs and build and validate missing generators. Regenerate
+  reviewed catalogues and coverage. Report source-bank coverage separately from
+  implemented generator coverage; scope frequency weights to the selected course
+  and source selection. New papers do not automatically become playable content.
+- Preserve provenance separately from exam eligibility, following
+  [#132](https://github.com/RktRobinhood/wasteland-academy/issues/132). Bank
+  membership must not be required for syllabus-valid exam practice. Retain
+  eligibility distinctions for individual unknowns, representations and formats.
+- Keep refreshes in the authoring/build workflow. Ship the reviewed runtime
+  catalogue for offline use, without a live bank dependency. Continue to generate
+  original wording and numbers under the material-use policy in `ROADMAP.md`.
+
+The existing AA SL connection and four-course syllabus maps are groundwork.
+Expanded ingestion, filtering and generator coverage remain future work.
+
 ## Courses and IDs
 
 The game serves four IB courses from this one map: AA SL (live), and AA HL, AI SL and AI HL (mapped). A course is a filter over the shared skills, not a separate game. The five islands are the five syllabus topics, which all four courses share.

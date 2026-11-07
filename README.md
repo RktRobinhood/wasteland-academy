@@ -2,6 +2,19 @@
 
 IB Math AA SL gamified review tool. Post-apocalyptic roguelite. Static GitHub Pages PWA.
 
+Wasteland Academy is one presentation of a reusable IB mathematics engine. The
+same question generation, marking, worked solutions and curriculum selection
+should also support more academic educational interfaces. The game remains the
+current product; a separate academic interface is future work.
+
+The [Math-AA question bank](https://github.com/RktRobinhood/Math-AA---Question-Bank)
+stays in its own repository. Its exam metadata already informs the question-type
+catalogue; planned higher-level and other-course additions should expand that
+coverage and improve generated questions and filtering. See the
+[engine direction](SPEC.md#reusable-mathematics-engine-direction),
+[bank integration plan](curriculum/README.md#question-bank-integration-direction)
+and [implementation follow-up #134](https://github.com/RktRobinhood/wasteland-academy/issues/134).
+
 ## Docs
 
 - [`SPEC.md`](SPEC.md) — Full design specification

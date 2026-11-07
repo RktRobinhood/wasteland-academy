@@ -2,7 +2,30 @@
 
 The order of work and the target dates. The Paperclip tasks named in each row hold the detail. Dates are targets, and each one is checked at the milestone before it.
 
-Last updated 2026-11-04 (FAL-722).
+Last updated 2026-11-07 (owner direction; earlier schedule from FAL-722).
+
+## Owner direction: engine reuse and question-bank expansion
+
+Confirmed November 7, 2026: preserve a reusable mathematics engine beneath the
+game so future IB educational tools can offer an academic presentation using the
+same generation, marking, explanations and curriculum selection. The
+[specification](SPEC.md#reusable-mathematics-engine-direction) records the split;
+[#134](https://github.com/RktRobinhood/wasteland-academy/issues/134) tracks the
+remaining implementation and proof with a second consumer.
+
+The owner plans to add higher-level exams and available exams for all four IB
+mathematics courses to the separate
+[question bank](https://github.com/RktRobinhood/Math-AA---Question-Bank). Extend
+the existing catalogue connection to ingest and filter that metadata, then use
+it to identify missing question types and improve recipes. Adding source papers
+does not itself build or validate generators. See the
+[integration plan](curriculum/README.md#question-bank-integration-direction).
+
+The November 6 sequencing in
+[#13](https://github.com/RktRobinhood/wasteland-academy/issues/13) takes precedence
+over the historical lesson dates below: complete the mathematics engine, roll
+out question content for the other courses, then implement playable lessons.
+No delivery date for an academic interface or expanded bank ingestion is set.
 
 ## Now to November 15: the Functions island in Godot
 

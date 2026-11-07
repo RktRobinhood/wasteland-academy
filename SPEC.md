@@ -12,6 +12,41 @@ A roguelite math review game for IB Mathematics: Analysis and Approaches SL. Stu
 
 **Core philosophy**: Productive struggle + flow state + spaced repetition. The game responds to the student's level, rewards being in the right difficulty zone, and circles back to weak spots with breathing room.
 
+### Reusable mathematics engine direction
+
+Owner direction, November 7, 2026: build the mathematics engine so it can serve
+other IB educational tools, including a more academic interface for learners and
+institutions who prefer that presentation. Wasteland Academy is the first
+consumer. Its world, characters and combat should not be prerequisites for
+using the mathematics.
+
+- **Shared mathematics:** curriculum and course selection, seeded question
+  generation, answer marking, worked solutions, misconception feedback, question
+  planning and learning evidence belong behind a small reusable interface.
+- **Presentation:** combat, rewards, characters, narrative, navigation and art
+  belong to the game. Question wording and scenario context also need a seam so
+  an academic presentation can use neutral contexts with the same mathematics.
+- **Existing groundwork:** `game/engine/question_engine.gd` already exposes
+  generation and marking to multiple screens. It is GDScript and uses Godot
+  resources; `game/engine/` also holds game-specific rules. This is groundwork,
+  not a completed standalone library or proof of reuse outside Godot.
+- **Proof of reuse:** a minimal academic consumer should request, display and
+  mark questions without combat or game scenes. The same mathematical request
+  and seed must retain the same mathematics, marking and solution through both
+  presentations. Choose the runtime and packaging when implementing this proof.
+- **Separate question bank:** keep source exams and their authoring in the
+  [question-bank repository](https://github.com/RktRobinhood/Math-AA---Question-Bank).
+  Import reviewed metadata and question-type mappings to improve recipes and
+  filtering across AA SL, AA HL, AI SL and AI HL as papers become available.
+  Practice must continue to work offline with the reviewed runtime catalogue.
+
+This direction guides ongoing engine work. Engine extraction, the academic
+consumer and expanded bank ingestion remain open in
+[#134](https://github.com/RktRobinhood/wasteland-academy/issues/134); the
+[curriculum integration plan](curriculum/README.md#question-bank-integration-direction)
+records the data requirements. The technical stack below describes the original
+HTML game; `game/README.md` describes the current Godot implementation.
+
 ---
 
 ## 2. PLATFORM & TECHNICAL STACK
