@@ -5472,6 +5472,49 @@
     "the committee always has at least 1 woman and at least 1 man",
     "two particular people are different people, and the row has 5 to 8"
    ]
+  },
+  "solid-angle": {
+   "name": "An angle in a solid, or between points in 3D",
+   "summary": "A cuboid ABCDEFGH, a right pyramid VABCD over a square or rectangular base, a cone, or two or three points with whole coordinates. The lengths are drawn first, as whole numbers, and the angle is worked out of them; a landmark angle comes from lengths chosen for it.",
+   "quantities": [
+    {
+     "name": "l, w, h",
+     "is": "a cuboid's AB, BC and AE, or a pyramid's AB, BC and height VX",
+     "pick": "whole numbers: a cuboid's from 2 to 15 and all different, a pyramid's base from 3 to 14 (square two times in five) and height from 3 to 15"
+    },
+    {
+     "name": "r, h, sl, given",
+     "is": "a cone's radius, height and slant height, and which two are shown",
+     "pick": "whole numbers to 18, the third from Pythagoras"
+    },
+    {
+     "name": "edge, corner, pair",
+     "is": "the edge, the corner or the pair of slant edges the question is about",
+     "pick": "any, at random"
+    },
+    {
+     "name": "A, B, C",
+     "is": "the points",
+     "pick": "whole coordinates up to 12 in size; a right angle at A or C from two whole moves at right angles"
+    },
+    {
+     "name": "shape",
+     "is": "landmark-angle: the solid",
+     "pick": "a cone with l = 2r or l = 2h or r = h, a cuboid with a Pythagorean base and a height equal to its diagonal, or a square pyramid with every edge equal"
+    },
+    {
+     "name": "theta",
+     "is": "the angle asked, in degrees",
+     "pick": "worked out from the lengths"
+    }
+   ],
+   "clean": [
+    "a Paper 2 angle is clear of a rounding edge at 3 s.f., and at least half a degree from 30°, 45° and 60°",
+    "a line-plane angle is between 12° and 78°, an angle between lines between 20° and 160° and at least 4° from 90°",
+    "the edges of a cuboid are all different",
+    "a triangle from coordinates has no angle under 12° and, but on the right-angle cells, none within 4° of a right angle",
+    "the bank's pyramid and the skill's worked examples are left out"
+   ]
   }
  },
  "types": [
@@ -30045,8 +30088,9 @@
    "id": "t3-3d-angle",
    "topic": 3,
    "source": "exam",
-   "detail": "catalogue",
+   "detail": "full",
    "name": "Angle in a 3D solid",
+   "summary": "Find the angle between a line and a plane, or between two lines that meet, in a cuboid, a right pyramid or a cone, or from 3D coordinates: a space diagonal to the base, a slant edge or a face's slant height to the base, a cone's slant height to its base, a line to the xy-plane, two space diagonals, two slant edges at the apex, a diagonal and an edge, and angle ABC. Angles are to 3 s.f. on Paper 2; a landmark angle is exact on Paper 1.",
    "syllabus": [
     "3.1",
     "3.2"
@@ -30054,6 +30098,520 @@
    "skills": [
     "SL3.1.angle-line-plane",
     "SL3.1.angle-two-lines"
+   ],
+   "skillFit": "full",
+   "chain": [
+    "read the measures off the figure or the words, or the points' coordinates",
+    "for a line and a plane, drop a perpendicular from the top of the line and find its projection on the plane",
+    "find the lengths needed with 3D Pythagoras or the distance formula, keeping roots exact",
+    "for two lines, find the triangle they make, then use the cosine rule, a right angle or the isosceles halves",
+    "use the inverse ratio and round to 3 s.f. at the end"
+   ],
+   "given": [
+    "a cuboid ABCDEFGH and its edges",
+    "a right pyramid VABCD with its base edges and height",
+    "a cone with two of its radius, height and slant height",
+    "two or three points in 3D, in a sentence, as position vectors or on axes",
+    "a figure with the line or lines drawn and the plane shaded"
+   ],
+   "asked": "The angle between a line and a plane (a space diagonal, a slant edge, a slant height or a line through two points), or the angle between two lines that meet (two diagonals, two slant edges, a diagonal and an edge, angle ABC).",
+   "answerForms": [
+    "degrees to 3 s.f. on Paper 2",
+    "a whole number of degrees on Paper 1"
+   ],
+   "randomise": [
+    "the solid's whole-number edges, a square or rectangular base",
+    "which corner, edge, face or pair of edges",
+    "which two of a cone's three measures are given",
+    "the points, with a sign change between two of them",
+    "where the right angle is",
+    "the story, or the figure"
+   ],
+   "constraints": [
+    "a Paper 2 angle needs rounding, is clear of a rounding edge, and is at least half a degree from 30°, 45° and 60°",
+    "a line-plane angle is between 12° and 78°; an angle between lines is between 20° and 160° and at least 4° from a right angle",
+    "the right-angle cells have their right angle at A or C, never at B",
+    "landmark-angle is Paper 1 only, with whole lengths that give 30°, 45° or 60°",
+    "the bank's pyramid and the skill's worked examples are left out"
+   ],
+   "formats": [
+    "value",
+    "mcq"
+   ],
+   "situation": "solid-angle",
+   "sharesSituation": null,
+   "representations": [
+    {
+     "rep": "diagram",
+     "exam": true,
+     "how": "the solid with lettered corners, the lines asked in pink, the plane shaded and the measures on its edges, or the points on axes with their coordinates"
+    },
+    {
+     "rep": "words",
+     "exam": true,
+     "how": "the solid in a story, its measures in the sentences"
+    },
+    {
+     "rep": "equation",
+     "exam": true,
+     "how": "the points' coordinates in a sentence, as A(1, −2, 3), standing for the map's symbolic representation"
+    },
+    {
+     "rep": "notation",
+     "exam": false,
+     "how": "position vectors a = (1, −2, 3), standing for the map's vector representation"
+    }
+   ],
+   "unknowns": [
+    {
+     "id": "cuboid-diagonal-base",
+     "given": [
+      "a cuboid ABCDEFGH with its three edges, in a story or on the figure"
+     ],
+     "asked": "the angle between the space diagonal AG and the base",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.1.angle-line-plane"
+     ]
+    },
+    {
+     "id": "pyramid-edge-base",
+     "given": [
+      "a right pyramid VABCD with a square or rectangular base, its base edges and its height"
+     ],
+     "asked": "the angle between a slant edge and the base",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.1.angle-line-plane"
+     ]
+    },
+    {
+     "id": "pyramid-face-base",
+     "given": [
+      "a right pyramid VABCD, its base edges and height, and M the midpoint of a base edge"
+     ],
+     "asked": "the angle between the slant height VM of a face and the base",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.1.angle-line-plane"
+     ]
+    },
+    {
+     "id": "cone-slant-base",
+     "given": [
+      "a cone with two of its radius, vertical height and slant height"
+     ],
+     "asked": "the angle between the slant height and the base",
+     "level": 2,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.1.angle-line-plane"
+     ]
+    },
+    {
+     "id": "coords-line-plane",
+     "given": [
+      "two points in 3D, in a sentence, as position vectors or on axes"
+     ],
+     "asked": "the angle between the line through them and the xy-plane",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "notation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.1.angle-line-plane"
+     ]
+    },
+    {
+     "id": "landmark-angle",
+     "given": [
+      "a cone, cuboid or pyramid whose lengths make the angle 30°, 45° or 60°"
+     ],
+     "asked": "the exact angle between a line and the base, without a calculator",
+     "level": 2,
+     "exam": false,
+     "reps": [
+      "diagram"
+     ],
+     "skills": [
+      "SL3.1.angle-line-plane"
+     ]
+    },
+    {
+     "id": "cuboid-two-diagonals",
+     "given": [
+      "a cuboid with its edges, and two space diagonals meeting at M"
+     ],
+     "asked": "the angle between the diagonals at M",
+     "level": 4,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.1.angle-two-lines"
+     ]
+    },
+    {
+     "id": "pyramid-apex-angle",
+     "given": [
+      "a right pyramid with its base edges and height"
+     ],
+     "asked": "the angle at the apex between two slant edges, next to each other or across the base",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.1.angle-two-lines"
+     ]
+    },
+    {
+     "id": "cuboid-diagonal-edge",
+     "given": [
+      "a cuboid with its edges"
+     ],
+     "asked": "the angle between the space diagonal AG and an edge at A",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "diagram",
+      "words"
+     ],
+     "skills": [
+      "SL3.1.angle-two-lines"
+     ]
+    },
+    {
+     "id": "coords-angle-abc",
+     "given": [
+      "three points A, B and C in 3D"
+     ],
+     "asked": "angle ABC",
+     "level": 3,
+     "exam": true,
+     "reps": [
+      "equation",
+      "notation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.1.angle-two-lines"
+     ]
+    },
+    {
+     "id": "coords-right-angle",
+     "given": [
+      "three points in 3D with a right angle at A or C"
+     ],
+     "asked": "angle ABC, where a right angle can be spotted first",
+     "level": 3,
+     "exam": false,
+     "reps": [
+      "equation",
+      "notation",
+      "diagram"
+     ],
+     "skills": [
+      "SL3.1.angle-two-lines"
+     ]
+    }
+   ],
+   "angles": [
+    {
+     "skill": "SL3.1.angle-line-plane",
+     "method": "project-and-tan",
+     "suits": [
+      "cuboid-diagonal-base",
+      "pyramid-edge-base",
+      "pyramid-face-base",
+      "cone-slant-base",
+      "landmark-angle"
+     ]
+    },
+    {
+     "skill": "SL3.1.angle-line-plane",
+     "method": "sin-with-length",
+     "suits": [
+      "cuboid-diagonal-base",
+      "pyramid-edge-base",
+      "pyramid-face-base",
+      "cone-slant-base",
+      "coords-line-plane",
+      "landmark-angle"
+     ]
+    },
+    {
+     "skill": "SL3.1.angle-line-plane",
+     "method": "coordinates",
+     "suits": [
+      "cuboid-diagonal-base",
+      "pyramid-edge-base",
+      "coords-line-plane"
+     ]
+    },
+    {
+     "skill": "SL3.1.angle-two-lines",
+     "method": "three-sides-cosine",
+     "suits": [
+      "cuboid-two-diagonals",
+      "pyramid-apex-angle",
+      "cuboid-diagonal-edge",
+      "coords-angle-abc",
+      "coords-right-angle"
+     ]
+    },
+    {
+     "skill": "SL3.1.angle-two-lines",
+     "method": "spot-right-angle",
+     "suits": [
+      "cuboid-diagonal-edge",
+      "coords-right-angle"
+     ]
+    },
+    {
+     "skill": "SL3.1.angle-two-lines",
+     "method": "isosceles-split",
+     "suits": [
+      "cuboid-two-diagonals",
+      "pyramid-apex-angle"
+     ]
+    }
+   ],
+   "concepts": [
+    {
+     "kind": "true-false-reason",
+     "prompt": "The angle between a line and a plane is the angle between the line and any line in the plane through the point where they meet.",
+     "answer": "False: lines in the plane make different angles with it. The angle with the plane is the one with the line's projection, which is the smallest of them.",
+     "level": 3
+    },
+    {
+     "kind": "always-sometimes-never",
+     "prompt": "The angle between a cuboid's space diagonal and its base is smaller than the angle between that diagonal and a base edge at the same corner.",
+     "answer": "Always: the projection onto the base is closer to the diagonal than any edge, so its angle is the smallest.",
+     "level": 4
+    },
+    {
+     "kind": "true-false-reason",
+     "prompt": "Two space diagonals of a cube cross at right angles.",
+     "answer": "False: they meet at M with AM = BM = half the diagonal, and the cosine rule gives cos θ = 1/3, about 70.5°.",
+     "level": 4
+    }
+   ],
+   "misconceptions": [
+    {
+     "ref": "SL3.1.angle-line-plane#0",
+     "text": "Measuring the angle to an edge of the base instead of to the line's projection onto the plane",
+     "as": "distractor",
+     "in": [
+      "cuboid-diagonal-base",
+      "pyramid-edge-base"
+     ],
+     "wrong": "the angle between the line and a base edge at its foot"
+    },
+    {
+     "ref": "SL3.1.angle-line-plane#1",
+     "text": "Using the face diagonal as the vertical side of the triangle",
+     "as": "distractor",
+     "in": [
+      "cuboid-diagonal-base"
+     ],
+     "wrong": "tan⁻¹ of the face diagonal over the height"
+    },
+    {
+     "ref": "SL3.1.angle-line-plane#2",
+     "text": "Mixing up the slant edge of a pyramid with the slant height of a triangular face",
+     "as": "distractor",
+     "in": [
+      "pyramid-edge-base",
+      "pyramid-face-base"
+     ],
+     "wrong": "the run to the middle of a base edge for a slant edge, or to a corner for a slant height"
+    },
+    {
+     "ref": "SL3.1.angle-two-lines#0",
+     "text": "Assuming an angle in a flat drawing of a solid is a right angle because it looks like one",
+     "as": "distractor",
+     "in": [
+      "cuboid-two-diagonals",
+      "pyramid-apex-angle"
+     ],
+     "wrong": "90° where the diagonals cross, or tan⁻¹ of the base edge over the slant edge, as if the corner of the base were a right angle"
+    },
+    {
+     "ref": "SL3.1.angle-two-lines#1",
+     "text": "Using a face diagonal where a space diagonal is needed",
+     "as": "distractor",
+     "in": [
+      "cuboid-two-diagonals",
+      "cuboid-diagonal-edge"
+     ],
+     "wrong": "the diagonal of a face from A in place of the space diagonal"
+    },
+    {
+     "ref": "SL3.1.angle-two-lines#2",
+     "text": "Putting the side opposite the wanted angle in the wrong place in the cosine rule",
+     "as": "distractor",
+     "in": [
+      "cuboid-two-diagonals",
+      "pyramid-apex-angle",
+      "cuboid-diagonal-edge",
+      "coords-angle-abc",
+      "coords-right-angle"
+     ],
+     "wrong": "another angle of the triangle"
+    },
+    {
+     "text": "Finding the angle with the vertical instead of with the base",
+     "as": "distractor",
+     "in": [
+      "pyramid-edge-base",
+      "pyramid-face-base",
+      "cone-slant-base",
+      "coords-line-plane",
+      "landmark-angle"
+     ],
+     "wrong": "90° minus the angle"
+    },
+    {
+     "text": "Using the full length of the line as the horizontal side with tan",
+     "as": "distractor",
+     "in": [
+      "cuboid-diagonal-base",
+      "pyramid-edge-base",
+      "pyramid-face-base",
+      "cone-slant-base",
+      "coords-line-plane"
+     ],
+     "wrong": "tan⁻¹ of the height over the line's length"
+    },
+    {
+     "text": "Using the whole base diagonal instead of half of it",
+     "as": "distractor",
+     "in": [
+      "pyramid-edge-base"
+     ],
+     "wrong": "tan⁻¹ of the height over the base diagonal"
+    },
+    {
+     "text": "Using half of the wrong base edge for the distance from the centre",
+     "as": "distractor",
+     "in": [
+      "pyramid-face-base"
+     ],
+     "wrong": "tan⁻¹ of the height over half the edge M is on"
+    },
+    {
+     "text": "Using the diameter of the base instead of its radius",
+     "as": "distractor",
+     "in": [
+      "cone-slant-base"
+     ],
+     "wrong": "tan⁻¹ of the height over the diameter"
+    },
+    {
+     "text": "Using the slant height as the vertical height",
+     "as": "distractor",
+     "in": [
+      "cone-slant-base"
+     ],
+     "wrong": "tan⁻¹ of the slant height over the radius"
+    },
+    {
+     "text": "Leaving one horizontal difference out of the run",
+     "as": "distractor",
+     "in": [
+      "coords-line-plane"
+     ],
+     "wrong": "tan⁻¹ of the rise over one of the horizontal differences"
+    },
+    {
+     "text": "Forgetting to double the half-angle from the isosceles triangle",
+     "as": "distractor",
+     "in": [
+      "cuboid-two-diagonals",
+      "pyramid-apex-angle"
+     ],
+     "wrong": "half the angle"
+    },
+    {
+     "text": "Using the whole space diagonal for the distance to the point where the diagonals cross",
+     "as": "distractor",
+     "in": [
+      "cuboid-two-diagonals"
+     ],
+     "wrong": "the cosine rule with AM as the whole diagonal"
+    },
+    {
+     "text": "Leaving out the doubling in the bottom of the cosine rule",
+     "as": "distractor",
+     "in": [
+      "cuboid-two-diagonals",
+      "pyramid-apex-angle",
+      "coords-angle-abc",
+      "coords-right-angle"
+     ],
+     "wrong": "cos⁻¹ of the top over the product of the two sides"
+    },
+    {
+     "text": "Using the vertical height as the slant edge",
+     "as": "distractor",
+     "in": [
+      "pyramid-apex-angle"
+     ],
+     "wrong": "the isosceles split with the height for the equal sides"
+    },
+    {
+     "text": "Taking the acute angle when the cosine is negative",
+     "as": "distractor",
+     "in": [
+      "cuboid-two-diagonals",
+      "coords-angle-abc"
+     ],
+     "wrong": "180° minus the angle"
+    },
+    {
+     "text": "Finding the angle with the base instead of with the edge",
+     "as": "distractor",
+     "in": [
+      "cuboid-diagonal-edge"
+     ],
+     "wrong": "the angle between AG and the base"
+    },
+    {
+     "text": "Using tan with the hypotenuse in place of a shorter side",
+     "as": "distractor",
+     "in": [
+      "cuboid-diagonal-edge",
+      "coords-right-angle"
+     ],
+     "wrong": "tan⁻¹ of a shorter side over the hypotenuse"
+    }
    ],
    "parts": [
     "aa-sl-2025-may-tz2-p2-q02.c"

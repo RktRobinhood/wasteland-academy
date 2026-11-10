@@ -2097,7 +2097,30 @@ The exam catalogue (`QUESTION_TYPES.md`) records what the IB asked, in the direc
 
 ## Topic 3: Geometry and trigonometry (catalogue level)
 
-21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 19 exam types have them so far.
+21 exam types (see `QUESTION_TYPES.md`) and 2 extension types. Unknowns and angles follow one topic at a time, as Functions did; 20 exam types have them so far.
+
+#### Angle in a 3D solid (`t3-3d-angle`, exam, 1 bank parts)
+
+- **Situation:** An angle in a solid, or between points in 3D.
+- **Representations:** **diagram**, **words**, **equation**, notation (bold: the exam uses it)
+- **Unknowns:**
+  - **exam** L2: given a cuboid ABCDEFGH with its three edges, in a story or on the figure → the angle between the space diagonal AG and the base
+  - **exam** L3: given a right pyramid VABCD with a square or rectangular base, its base edges and its height → the angle between a slant edge and the base
+  - new L3: given a right pyramid VABCD, its base edges and height, and M the midpoint of a base edge → the angle between the slant height VM of a face and the base
+  - **exam** L2: given a cone with two of its radius, vertical height and slant height → the angle between the slant height and the base
+  - **exam** L3: given two points in 3D, in a sentence, as position vectors or on axes → the angle between the line through them and the xy-plane
+  - new L2: given a cone, cuboid or pyramid whose lengths make the angle 30°, 45° or 60° → the exact angle between a line and the base, without a calculator
+  - **exam** L4: given a cuboid with its edges, and two space diagonals meeting at M → the angle between the diagonals at M
+  - **exam** L3: given a right pyramid with its base edges and height → the angle at the apex between two slant edges, next to each other or across the base
+  - new L3: given a cuboid with its edges → the angle between the space diagonal AG and an edge at A
+  - **exam** L3: given three points A, B and C in 3D → angle ABC
+  - new L3: given three points in 3D with a right angle at A or C → angle ABC, where a right angle can be spotted first
+- **Angles:** Project onto the plane and use tan; Use sin with the full line length; Read rise and run from coordinates; Three sides, then the cosine rule; Spot a right angle; Halve an isosceles triangle.
+- **Concept probes:**
+  - *true-false-reason* (L3): The angle between a line and a plane is the angle between the line and any line in the plane through the point where they meet. — False: lines in the plane make different angles with it. The angle with the plane is the one with the line's projection, which is the smallest of them.
+  - *always-sometimes-never* (L4): The angle between a cuboid's space diagonal and its base is smaller than the angle between that diagonal and a base edge at the same corner. — Always: the projection onto the base is closer to the diagonal than any edge, so its angle is the smallest.
+  - *true-false-reason* (L4): Two space diagonals of a cube cross at right angles. — False: they meet at M with AM = BM = half the diagonal, and the cosine rule gives cos θ = 1/3, about 70.5°.
+- **Misconceptions used:** 20. Measuring the angle to an edge of the base instead of to the line's projection onto the plane; Using the face diagonal as the vertical side of the triangle; Mixing up the slant edge of a pyramid with the slant height of a triangular face; Assuming an angle in a flat drawing of a solid is a right angle because it looks like one; Using a face diagonal where a space diagonal is needed; Putting the side opposite the wanted angle in the wrong place in the cosine rule; Finding the angle with the vertical instead of with the base; Using the full length of the line as the horizontal side with tan; Using the whole base diagonal instead of half of it; Using half of the wrong base edge for the distance from the centre; Using the diameter of the base instead of its radius; Using the slant height as the vertical height; Leaving one horizontal difference out of the run; Forgetting to double the half-angle from the isosceles triangle; Using the whole space diagonal for the distance to the point where the diagonals cross; Leaving out the doubling in the bottom of the cosine rule; Using the vertical height as the slant edge; Taking the acute angle when the cosine is negative; Finding the angle with the base instead of with the edge; Using tan with the hypotenuse in place of a shorter side.
 
 #### Distance and midpoint in 2D or 3D (`t3-distance-midpoint`, exam, 9 bank parts)
 

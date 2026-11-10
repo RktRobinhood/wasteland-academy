@@ -7780,7 +7780,7 @@
                 }
               ],
               "misconceptions": [
-                "Assuming an angle in a 2D drawing of a 3D solid is 90° because it looks like it",
+                "Assuming an angle in a flat drawing of a solid is a right angle because it looks like one",
                 "Using a face diagonal where a space diagonal is needed",
                 "Putting the side opposite the wanted angle in the wrong place in the cosine rule"
               ],
