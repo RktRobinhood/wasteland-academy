@@ -94,6 +94,7 @@ static var SITUATIONS := {
 	"binomial-unknown": [BinomialUnknownSituation, BinomialUnknownViews],
 	"log-laws": [LogLawsSituation, LogLawsViews],
 	"log-exp-form": [LogExpFormSituation, LogExpFormViews],
+	"solve-exponential": [SolveExponentialSituation, SolveExponentialViews],
 	"algebraic-proof": [AlgebraicProofSituation, AlgebraicProofViews],
 	"sequence-proof": [SequenceProofSituation, SequenceProofViews],
 	"prove-identity": [ProveIdentitySituation, ProveIdentityViews],

@@ -365,6 +365,16 @@ catalogue (`tests/unit/game-catalogue.test.mjs` fails while the copy is stale).
   a crossing or a line. exp-log-form is Paper 1 and log-context Paper 2, which makes the bank's 2/3
   Paper 2 share (48 of 73 cells). `E11LF_check` in the SymPy checker reads the scale back from the
   formula or the sentence.
+- `engine/situations/solve_exponential.gd` (FAL-754) is `t1-solve-exponential` (SL1.7.solve-with-logs),
+  the `solve-exponential` situation: 7 unknowns over 26 cells, every method of the skill. Two powers with
+  different bases, a^(x + p) = b^x or a^x = b^(c − x), to 3 s.f. or exactly as ln p/ln q (a `form` answer
+  with both numbers typed); k e^(mx) + d = c isolated first, exactly as ln a or (ln r)/m (the `lnq` kind,
+  marked by value), or with a decimal rate or a whole base to 3 s.f.; and growth stories: the exact time
+  A₀e^(kt) takes to reach a level, and when A₀e^(kt) and B₀ × g^t meet, to 3 s.f. The views
+  (`solve_exponential_views.gd`) show the equation, the story, or the two curves (a curve and a line)
+  crossing at P with each curve named. The bank's one part is Paper 2, so every cell is Paper 2; an exact
+  cell can also make Paper 1 when one is asked for, with no calculator method. The 3 s.f. options include
+  the logs rounded to 2 d.p. too early, which moves the answer in its third figure only.
 - `engine/situations/trig_wave.gd` (FAL-751) is `t3-trig-read-features` (SL3.7.read-features) and
   `t3-trig-model-use` (SL3.7.model-context), the `trig-wave` situation, which extends `trig-model`: it
   keeps that situation's Paper 2 wave, contexts and graph, and `TrigWaveViews` extends its views.
@@ -1470,6 +1480,11 @@ For `log-exp-form` it reads a log, a power or a sentence back and tests the powe
 exactly; on Paper 2 it reads each scale's constants back from its formula or its sentence, finds each
 value from the logarithm to 40 digits, rebuilds each tagged option from its slip, and requires each
 method's numbers in its working (`E11LF_check`).
+For `solve-exponential` it reads the equation back from the line, the graph's sentence or the story, turns
+it into SymPy and finds its root by a scan for sign changes refined by bisection to 40 digits. The exact
+answer is derived again from the equation's shape and must equal that root, and every option is evaluated
+and must differ from it; each tagged option is rebuilt from its slip, each figure's curves and crossing
+are held to the equation, and the map's own example equations are refused (`E12SE_check`).
 For `trig-model-equation` it reads the model, the wave or the two curves back from the question and
 finds every crossing itself: a scan for sign changes refined by bisection, then turning points from a
 scan of the slope, as a touch shows no sign change. Bands of k are rebuilt by counting at each height
@@ -1989,6 +2004,9 @@ script error happens while it runs. Run one file with
 - `test_log_exp_form.gd` (FAL-753): t1-log-exp-form built with every cell, both skills and all six methods,
   exp-log-form on Paper 1 and log-context on Paper 2; hand values, clean 3 s.f. answers, standard form,
   figures, map strings with no numbers, and every tag as an option.
+- `test_solve_exponential.gd` (FAL-754): t1-solve-exponential built with every cell and all four methods;
+  exact cells make Paper 1 on request with no calculator in the working, 3 s.f. cells Paper 2; hand values,
+  clean answers, early rounding in the third figure only, the crossing on each figure, and every tag.
 - `test_depreciation.gd`: t1-depreciation built with every cell and both skills, Paper 2 only; the
   value, the rate, the price and the least time against hand values; every dollar answer clear of
   the half-dollar edge; a table exact to the cent; the figure's crossing; months and quarters
